@@ -1,0 +1,40 @@
+#l Note: Setting `sudo` to `required` will add 20-50s to CI image boot time
+os:
+  linux
+
+sudo: false
+dist: trusty
+language: c
+
+before_install:
+  - git submodule update --init --recursive
+
+addons:
+  apt_packages:
+    - lib32bz2-1.0
+    - lib32ncurses5
+    - lib32z1
+    
+matrix:
+    include:
+        - name: "Build and Run Tests"
+          env: RUN_BUILD="true" RUN_TESTS="true"
+        - name: "Check Formatting"
+          env: RUN_FORMATTING_CHECKS="true"  # Test Formatting
+
+before_script:
+  - wget https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2 -O /tmp/gcc-arm-none-eabi.tar.bz2
+  - tar -xvjf /tmp/gcc-arm-none-eabi.tar.bz2
+  - export PATH=$PATH:$PWD/gcc-arm-none-eabi-7-2018-q2-update/bin/
+  - cmake CMakeLists.txt  
+
+script:
+    - if [ "$RUN_BUILD" = "true" ]; then make; fi
+    - if [ "$RUN_TESTS" = "true" ]; then 
+        cmake -DTEST_BUILD=true CMakeLists.txt;
+        make;
+        ctest -C DEBUG;
+      fi
+    - if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then 
+            ./clang-format/fix_formatting_linux.sh
+      fi
