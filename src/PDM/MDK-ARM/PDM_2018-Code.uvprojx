@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F302x8</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;                      ../Drivers/STM32F3xx_HAL_Driver/Inc;                      ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;                      ../Drivers/CMSIS/Device/ST/STM32F3xx/Include;                      ../Drivers/CMSIS/Include;                      ../STM32-CAN-Code</IncludePath>
+              <IncludePath>../Inc;../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;../Drivers/CMSIS/Include;..\..\shared\STM32-CAN-Code\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -380,17 +380,12 @@
       </TargetOption>
       <Groups>
         <Group>
-          <GroupName>Drivers/CMSIS</GroupName>
+          <GroupName>Application/MDK-ARM</GroupName>
           <Files>
             <File>
-              <FileName>stm32f302x8.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f302x8.h</FilePath>
-            </File>
-            <File>
-              <FileName>system_stm32f3xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..//Src/system_stm32f3xx.c</FilePath>
+              <FileName>startup_stm32f302x8.s</FileName>
+              <FileType>2</FileType>
+              <FilePath>startup_stm32f302x8.s</FilePath>
             </File>
           </Files>
         </Group>
@@ -403,24 +398,9 @@
               <FilePath>..\Src\CAN.c</FilePath>
             </File>
             <File>
-              <FileName>ErrorHandling.c</FileName>
+              <FileName>CurrentSense.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\ErrorHandling.c</FilePath>
-            </File>
-            <File>
-              <FileName>SharedCAN.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\STM32-CAN-Code\SharedCAN.c</FilePath>
-            </File>
-            <File>
-              <FileName>GPIO.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\GPIO.c</FilePath>
-            </File>
-            <File>
-              <FileName>Timers.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\Timers.c</FilePath>
+              <FilePath>..\Src\CurrentSense.c</FilePath>
             </File>
             <File>
               <FileName>DMA.c</FileName>
@@ -428,14 +408,9 @@
               <FilePath>..\Src\DMA.c</FilePath>
             </File>
             <File>
-              <FileName>SharedErrorHandling.c</FileName>
+              <FileName>ErrorHandling.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\SharedErrorHandling.c</FilePath>
-            </File>
-            <File>
-              <FileName>CurrentSense.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\CurrentSense.c</FilePath>
+              <FilePath>..\Src\ErrorHandling.c</FilePath>
             </File>
             <File>
               <FileName>FaultHandling.c</FileName>
@@ -448,6 +423,16 @@
               <FilePath>../Src/main.c</FilePath>
             </File>
             <File>
+              <FileName>GPIO.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\GPIO.c</FilePath>
+            </File>
+            <File>
+              <FileName>Timers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\Timers.c</FilePath>
+            </File>
+            <File>
               <FileName>stm32f3xx_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/stm32f3xx_it.c</FilePath>
@@ -456,6 +441,11 @@
               <FileName>stm32f3xx_hal_msp.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/stm32f3xx_hal_msp.c</FilePath>
+            </File>
+            <File>
+              <FileName>SharedCAN.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\shared\STM32-CAN-Code\Src\SharedCAN.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -466,6 +456,11 @@
               <FileName>CAN.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Inc\CAN.h</FilePath>
+            </File>
+            <File>
+              <FileName>CANDefinitions.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\shared\STM32-CAN-Code\Inc\CANDefinitions.h</FilePath>
             </File>
             <File>
               <FileName>Debug.h</FileName>
@@ -493,9 +488,19 @@
               <FilePath>..\Inc\main.h</FilePath>
             </File>
             <File>
+              <FileName>SharedCAN.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\shared\STM32-CAN-Code\Inc\SharedCAN.h</FilePath>
+            </File>
+            <File>
               <FileName>SharedErrorHandling.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Inc\SharedErrorHandling.h</FilePath>
+            </File>
+            <File>
+              <FileName>Timers.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Inc\Timers.h</FilePath>
             </File>
             <File>
               <FileName>stm32f3xx_hal_conf.h</FileName>
@@ -507,20 +512,20 @@
               <FileType>5</FileType>
               <FilePath>..\Inc\stm32f3xx_it.h</FilePath>
             </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Drivers/CMSIS</GroupName>
+          <Files>
             <File>
-              <FileName>Timers.h</FileName>
+              <FileName>stm32f302x8.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\Inc\Timers.h</FilePath>
+              <FilePath>..\Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f302x8.h</FilePath>
             </File>
             <File>
-              <FileName>CANDefinitions.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\STM32-CAN-Code\CANDefinitions.h</FilePath>
-            </File>
-            <File>
-              <FileName>SharedCAN.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\STM32-CAN-Code\SharedCAN.h</FilePath>
+              <FileName>system_stm32f3xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..//Src/system_stm32f3xx.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -616,16 +621,6 @@
               <FileName>stm32f3xx_hal_i2c_ex.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c_ex.c</FilePath>
-            </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>Application/MDK-ARM</GroupName>
-          <Files>
-            <File>
-              <FileName>startup_stm32f302x8.s</FileName>
-              <FileType>2</FileType>
-              <FilePath>startup_stm32f302x8.s</FilePath>
             </File>
           </Files>
         </Group>
