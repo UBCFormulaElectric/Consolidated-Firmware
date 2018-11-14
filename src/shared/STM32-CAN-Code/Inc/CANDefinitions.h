@@ -1,43 +1,36 @@
 /**
-	@file		CANDefinitions.h
-	@brief		CAN message header definitions for the 2017 vehicle
-	@author		UBC Formula Electric
-	@version	v1.0.00
-	@copyright  GNU General Public License v3
-*/
+ * @file  CANDefinitions.h
+ * @brief CAN message header definitions
+ */
 
-#ifndef CAN_HEADERS_H
-#define CAN_HEADERS_H
+#ifndef CAN_DEFINITIONS_H
+#define CAN_DEFINITIONS_H
 
-
-// PCB Names
-typedef enum {
+/** @brief PCB Names */
+typedef enum
+{
 	Battery_Management_System = 0,
 	Drive_Control_Module,
 	Power_Distribution_Module,
-	Front_Sensor_Module, 
-	PCB_Count	
-} PCB_Enum;
+	Front_Sensor_Module,
+	PCB_Count
+} Pcb_Enum;
 
-
-// BMS Errors
-//typedef enum {
-// TODO
-//} BmsError_Enum;
-
-// FSM Errors
-typedef enum {
-	FSM_APPS_Fault_State_1 = 1, // Begin counting faults at 1 for boolean comparison
-	FSM_APPS_Fault_State_2,
-	FSM_APPS_Fault_State_3,
-	FSM_APPS_Fault_State_4,
-	FSM_SteeringBounds_Error,
-	FSM_WheelSpeedBounds_Error,
-	BMS_Heartbeat_Timeout_Error_On_FSM
+/** @brief FSM Errors */
+typedef enum
+{	// Begin counting faults at 1 for boolean comparison
+	FSM_APPS_FAULT_STATE_1,
+	FSM_APPS_FAULT_STATE_2,
+	FSM_APPS_FAULT_STATE_3,
+	FSM_APPS_FAULT_STATE_4,
+	FSM_STEERING_BOUND_ERROR,
+	FSM_WHEEL_SPEED_BOUND_ERROR,
+	FSM_BMS_HEARTBEAT_TIMEOUT_ERROR
 } FsmError_Enum;
 
-// PDM Errors
-typedef enum {
+/** @brief PDM Errors */
+typedef enum
+{
 	SYSTICK_INITIALISATION_ERROR = 0,
     MISSING_HEARTBEAT = 1,
 	EFUSE_FAULT,
@@ -50,10 +43,11 @@ typedef enum {
     NUM_PDM_ERRORS
 } PdmError_Enum;
 
-// DCM Errors
-typedef enum {
-	DCM_Sensor_Range_Error = 0,
-	BMS_Heartbeat_Timeout_Error_On_DCM
+/** @brief DCM Errors */
+typedef enum
+{
+	DCM_SENSOR_RANGE_ERROR = 0,
+	BMS_HEARTBEAT_TIMEOUT_ERROR_ON_DCM
 } DcmError_Enum;
 
 #endif
