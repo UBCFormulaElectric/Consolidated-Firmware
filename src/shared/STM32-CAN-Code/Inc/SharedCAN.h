@@ -57,28 +57,28 @@
 // Identifier Mask Mode (FSCx = 0, FBMx = 0).
 // TODO: Recalculate filter values 
 // BMS filter - ID: 0x00 - 0x1F, RTR: Data Frame, IDE: Standard ID
-#define IDMASK_16BIT_FILTER_ID_BMS		  (uint32_t)(0x0000) // 0000 0000 0000 0000
-#define IDMASK_16BIT_FILTER_MASK_BMS	  (uint32_t)(0xFC18) // 1111 1100 0001 1000
+#define IDMASK_16BIT_FILTER_ID_BMS        (uint32_t)(0x0000) // 0000 0000 0000 0000
+#define IDMASK_16BIT_FILTER_MASK_BMS      (uint32_t)(0xFC18) // 1111 1100 0001 1000
 
 // TODO: Recalculate filter values 
 // DCM filter - ID: 0x20 - 0x3F, RTR: Data Frame, IDE: Standard ID
-#define IDMASK_16BIT_FILTER_ID_DCM		  (uint32_t)(0x0400) // 0000 0100 0000 0000
-#define IDMASK_16BIT_FILTER_MASK_DCM	  (uint32_t)(0xFC18) // 1111 1100 0001 1000
+#define IDMASK_16BIT_FILTER_ID_DCM        (uint32_t)(0x0400) // 0000 0100 0000 0000
+#define IDMASK_16BIT_FILTER_MASK_DCM      (uint32_t)(0xFC18) // 1111 1100 0001 1000
 
 // TODO: Recalculate filter values 
 // FSM filter - ID: 0x40 - 0x5F, RTR: Data Frame, IDE: Standard ID
-#define IDMASK_16BIT_FILTER_ID_FSM		  (uint32_t)(0x0800) // 0000 1000 0000 0000
-#define IDMASK_16BIT_FILTER_MASK_FSM	  (uint32_t)(0xFC18) // 1111 1100 0001 1000
+#define IDMASK_16BIT_FILTER_ID_FSM        (uint32_t)(0x0800) // 0000 1000 0000 0000
+#define IDMASK_16BIT_FILTER_MASK_FSM      (uint32_t)(0xFC18) // 1111 1100 0001 1000
 
 // TODO: Recalculate filter values 
 // PDM filter - ID: 0x60 - 0x7F, RTR: Data Frame, IDE: Standard ID
-#define IDMASK_16BIT_FILTER_ID_PDM		  (uint32_t)(0x0C00) // 0000 1100 0000 0000
-#define IDMASK_16BIT_FILTER_MASK_PDM	  (uint32_t)(0xFC18) // 1111 1100 0001 1000
+#define IDMASK_16BIT_FILTER_ID_PDM        (uint32_t)(0x0C00) // 0000 1100 0000 0000
+#define IDMASK_16BIT_FILTER_MASK_PDM      (uint32_t)(0xFC18) // 1111 1100 0001 1000
 
 // TODO: Recalculate filter values 
 // Shared filter - ID: 0x80 - 0x9F, RTR: Data Frame, IDE: Standard ID
 #define IDMASK_16BIT_FILTER_ID_SHARED     (uint32_t)(0x0C00) // 0000 1100 0000 0000
-#define IDMASK_16BIT_FILTER_MASK_SHARED	  (uint32_t)(0xFC18) // 1111 1100 0001 1000
+#define IDMASK_16BIT_FILTER_MASK_SHARED   (uint32_t)(0xFC18) // 1111 1100 0001 1000
 
 // TODO: Recalculate filter values 
 // Create BACMO Filter - ID: 0x190 - 0x211, RTR: Data Frame, IDE: Standard ID
@@ -92,95 +92,95 @@
 /** @brief Used as index for elements in can_headers[] */
 typedef enum
 {
-	// BMS CAN IDs
-	BMS_ERROR = 0,
-	BMS_HEARTBEAT,
-	BMS_ACCUMULATOR_STATUS,
-	BMS_ACCUMULATOR_DISCHARGE_POWER_LIMIT,
-	BMS_ACCUMULATOR_REGEN_POWER_LIMIT,
-	BMS_ACCUMULATOR_SOC,
-	BMS_TURN_ON_ALL_FETS,
-	BMS_BALANCE_MOSFET,
-	BMS_CELL_VOLTAGE,
-	BMS_LATCH_RESET,
-	BMS_MOTOR_REENABLE,
-	BMS_AIR_SHUTDOWN_ERROR,
+    // BMS CAN IDs
+    BMS_ERROR = 0,
+    BMS_HEARTBEAT,
+    BMS_ACCUMULATOR_STATUS,
+    BMS_ACCUMULATOR_DISCHARGE_POWER_LIMIT,
+    BMS_ACCUMULATOR_REGEN_POWER_LIMIT,
+    BMS_ACCUMULATOR_SOC,
+    BMS_TURN_ON_ALL_FETS,
+    BMS_BALANCE_MOSFET,
+    BMS_CELL_VOLTAGE,
+    BMS_LATCH_RESET,
+    BMS_MOTOR_REENABLE,
+    BMS_AIR_SHUTDOWN_ERROR,
 
-	// DCM CAN IDs
-	DCM_ERROR,
-	DCM_HEARTBEAT,
-	DCM_LEFT_SLIP_RATIO,
-	DCM_RIGHT_SLIP_RATIO,
-	DCM_LEFT_MOTOR_OUTPUT,
-	DCM_RIGHT_MOTOR_OUTPUT,
-	DCM_LEFT_SLIP_ERROR,
-	DCM_RIGHT_SLIP_ERROR,
+    // DCM CAN IDs
+    DCM_ERROR,
+    DCM_HEARTBEAT,
+    DCM_LEFT_SLIP_RATIO,
+    DCM_RIGHT_SLIP_RATIO,
+    DCM_LEFT_MOTOR_OUTPUT,
+    DCM_RIGHT_MOTOR_OUTPUT,
+    DCM_LEFT_SLIP_ERROR,
+    DCM_RIGHT_SLIP_ERROR,
 
-	// FSM CAN IDs
-	FSM_ERROR,
-	FSM_HEARTBEAT,
-	FSM_BRAKE_APPS,
-	FSM_STEERING_ANGLE,
-	FSM_LEFT_WHEEL_SPEED,
-	FSM_RIGHT_WHEEL_SPEED,
+    // FSM CAN IDs
+    FSM_ERROR,
+    FSM_HEARTBEAT,
+    FSM_BRAKE_APPS,
+    FSM_STEERING_ANGLE,
+    FSM_LEFT_WHEEL_SPEED,
+    FSM_RIGHT_WHEEL_SPEED,
 
-	// PDM CAN IDs
-	PDM_ERROR,
-	PDM_HEARTBEAT,
-	PDM_STARTUP_STATUS,
+    // PDM CAN IDs
+    PDM_ERROR,
+    PDM_HEARTBEAT,
+    PDM_STARTUP_STATUS,
 
-	// Shared CAN IDs
-	MOTOR_SHUTDOWN_ERROR,
+    // Shared CAN IDs
+    MOTOR_SHUTDOWN_ERROR,
 
-	// BAMOCAR D3 CAN IDs
-	LEFT_TORQUE_REQUEST_TX,  // BAMOCAR D3 transmits on TX
-	RIGHT_TORQUE_REQUEST_TX, // BAMOCAR D3 transmits on TX
-	LEFT_TORQUE_REQUEST_RX,  // BAMOCAR D3 receives on RX
-	RIGHT_TORQUE_REQUEST_RX, // BAMOCAR D3 receives on RX
+    // BAMOCAR D3 CAN IDs
+    LEFT_TORQUE_REQUEST_TX,  // BAMOCAR D3 transmits on TX
+    RIGHT_TORQUE_REQUEST_TX, // BAMOCAR D3 transmits on TX
+    LEFT_TORQUE_REQUEST_RX,  // BAMOCAR D3 receives on RX
+    RIGHT_TORQUE_REQUEST_RX, // BAMOCAR D3 receives on RX
 
-	// Number of CAN IDS
-	CAN_NODES_COUNT
+    // Number of CAN IDS
+    CAN_NODES_COUNT
 } CanIds_Enum;
 
 /** @brief Struct to help initialize CAN filters */
 const typedef struct
-{	
-	/** 
-	 * Used to initialize CAN_FilterTypeDef.FilterIdLow and 
-	 * CAN_FilterTypeDef.FilterIdHigh. 
-	 */
+{    
+    /** 
+     * Used to initialize CAN_FilterTypeDef.FilterIdLow and 
+     * CAN_FilterTypeDef.FilterIdHigh. 
+     */
 
-	uint32_t id; 
-	/** 
-	 * Used to initialize CAN_FilterTypeDef.FilterMaskIdLow and 
-	 * CAN_FilterTypeDef.FilterMaskIdHigh. 
-	 */
-	uint32_t mask; 
+    uint32_t id; 
+    /** 
+     * Used to initialize CAN_FilterTypeDef.FilterMaskIdLow and 
+     * CAN_FilterTypeDef.FilterMaskIdHigh. 
+     */
+    uint32_t mask; 
 } CanMaskFilterConfig_Struct;
 
 /** @brief Combine HAL Tx CAN header with CAN Payload */
 // TODO: see if struct members should be volatile
 typedef struct
 {
-	CAN_TxHeaderTypeDef tx_header;
-	uint8_t data[8];
+    CAN_TxHeaderTypeDef tx_header;
+    uint8_t data[8];
 } CanTxMsg_Struct;
 
 /** @brief Combine HAL Rx CAN header with CAN payload */
 // TODO: see if struct members should be volatile
 typedef struct
 {
-	CAN_RxHeaderTypeDef rx_header;
-	uint8_t data[8];
+    CAN_RxHeaderTypeDef rx_header;
+    uint8_t data[8];
 } CanRxMsg_Struct;
 
 /** @brief Queue operation status code */
 typedef enum
 {
-	FIFO_SUCCESS = 0,
-	FIFO_IS_FULL = 1,
-	FIFO_IS_EMPTY = 2,
-	FIFO_ERROR = 3
+    FIFO_SUCCESS = 0,
+    FIFO_IS_FULL = 1,
+    FIFO_IS_EMPTY = 2,
+    FIFO_ERROR = 3
 } Fifo_Status_Enum;
 
 /******************************************************************************
