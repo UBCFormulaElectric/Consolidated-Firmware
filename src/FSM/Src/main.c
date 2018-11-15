@@ -48,6 +48,10 @@
 ADC_HandleTypeDef hadc;
 DMA_HandleTypeDef hdma_adc;
 
+CAN_HandleTypeDef hcan;
+
+IWDG_HandleTypeDef hiwdg;
+
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
@@ -71,6 +75,8 @@ static void MX_TIM3_Init(void);
 static void MX_TIM16_Init(void);
 static void MX_TIM17_Init(void);
 static void MX_TIM14_Init(void);
+static void MX_CAN_Init(void);
+static void MX_IWDG_Init(void);
 
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
@@ -118,6 +124,8 @@ int main(void)
   MX_TIM16_Init();
   MX_TIM17_Init();
   MX_TIM14_Init();
+  MX_CAN_Init();
+  MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -148,11 +156,13 @@ void SystemClock_Config(void)
 
     /**Initializes the CPU, AHB and APB busses clocks 
     */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSI14;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI|RCC_OSCILLATORTYPE_HSI14
+                              |RCC_OSCILLATORTYPE_LSI;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
   RCC_OscInitStruct.HSI14State = RCC_HSI14_ON;
   RCC_OscInitStruct.HSICalibrationValue = 16;
   RCC_OscInitStruct.HSI14CalibrationValue = 16;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
@@ -225,6 +235,44 @@ static void MX_ADC_Init(void)
     */
   sConfig.Channel = ADC_CHANNEL_VREFINT;
   if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
+/* CAN init function */
+static void MX_CAN_Init(void)
+{
+
+  hcan.Instance = CAN;
+  hcan.Init.Prescaler = CAN_Prescaler_Value_Cube;
+  hcan.Init.Mode = CAN_MODE_NORMAL;
+  hcan.Init.SJW = CAN_SJW_2TQ;
+  hcan.Init.BS1 = CAN_BS1_5TQ;
+  hcan.Init.BS2 = CAN_BS2_2TQ;
+  hcan.Init.TTCM = ENABLE;
+  hcan.Init.ABOM = DISABLE;
+  hcan.Init.AWUM = DISABLE;
+  hcan.Init.NART = DISABLE;
+  hcan.Init.RFLM = ENABLE;
+  hcan.Init.TXFP = ENABLE;
+  if (HAL_CAN_Init(&hcan) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
+/* IWDG init function */
+static void MX_IWDG_Init(void)
+{
+
+  hiwdg.Instance = IWDG;
+  hiwdg.Init.Prescaler = IWDG_PRESCALER_32;
+  hiwdg.Init.Window = 4095;
+  hiwdg.Init.Reload = WATCHDOG_TIMER_PERIOD_CUBE;
+  if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -450,13 +498,24 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct;
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
-  /*Configure GPIO pins : PRIMARY_APS_Z_Pin PRIMARY_APPS_ALARM_PIN_Pin BSPD_brake_threshold_Pin */
-  GPIO_InitStruct.Pin = PRIMARY_APS_Z_Pin|PRIMARY_APPS_ALARM_PIN_Pin|BSPD_brake_threshold_Pin;
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(GPIOA, STATUS_LED_R_PIN_Pin|STATUS_LED_G_PIN_Pin|STATUS_LED_B_PIN_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : PRIMARY_APPS_Z_Pin PRIMARY_APPS_ALARM_PIN_Pin BSPD_BRAKE_THRES_PIN_Pin */
+  GPIO_InitStruct.Pin = PRIMARY_APPS_Z_Pin|PRIMARY_APPS_ALARM_PIN_Pin|BSPD_BRAKE_THRES_PIN_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : STATUS_LED_R_PIN_Pin STATUS_LED_G_PIN_Pin STATUS_LED_B_PIN_Pin */
+  GPIO_InitStruct.Pin = STATUS_LED_R_PIN_Pin|STATUS_LED_G_PIN_Pin|STATUS_LED_B_PIN_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : SECONDARY_APPS_Z_Pin SECONDARY_APPS_ALARM_Pin */
