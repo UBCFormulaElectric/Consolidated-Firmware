@@ -84,10 +84,10 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     /**ADC GPIO Configuration    
     PA5     ------> ADC_IN5 
     */
-    GPIO_InitStruct.Pin = STEERING_ANGLE_POTENTIOMETER_Pin;
+    GPIO_InitStruct.Pin = STEERING_ANGLE_IN_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(STEERING_ANGLE_POTENTIOMETER_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(STEERING_ANGLE_IN_GPIO_Port, &GPIO_InitStruct);
 
     /* ADC1 DMA Init */
     /* ADC Init */
@@ -127,7 +127,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
     /**ADC GPIO Configuration    
     PA5     ------> ADC_IN5 
     */
-    HAL_GPIO_DeInit(STEERING_ANGLE_POTENTIOMETER_GPIO_Port, STEERING_ANGLE_POTENTIOMETER_Pin);
+    HAL_GPIO_DeInit(STEERING_ANGLE_IN_GPIO_Port, STEERING_ANGLE_IN_Pin);
 
     /* ADC1 DMA DeInit */
     HAL_DMA_DeInit(hadc->DMA_Handle);
