@@ -1,0 +1,79 @@
+Configuration	FSM2018
+STM32CubeMX 	4.27.0
+Date	11/16/2018
+MCU	STM32F042K6Tx
+
+
+
+PERIPHERALS	MODES	FUNCTIONS	PINS
+ADC	IN5	ADC_IN5	PA5
+ADC	Vrefint Channel	ADC_Vref_Input	VP_ADC_Vref_Input
+CAN	Master	CAN_RX	PA11
+CAN	Master	CAN_TX	PA12
+RCC	Crystal/Ceramic Resonator	RCC_OSC_IN	PF0-OSC_IN
+RCC	Crystal/Ceramic Resonator	RCC_OSC_OUT	PF1-OSC_OUT
+SYS	Serial_Wire	SYS_SWCLK	PA14
+SYS	Serial_Wire	SYS_SWDIO	PA13
+SYS	SysTick	SYS_VS_Systick	VP_SYS_VS_Systick
+TIM1	Internal Clock	TIM1_VS_ClockSourceINT	VP_TIM1_VS_ClockSourceINT
+TIM2	Encoder Mode	TIM2_CH1	PA0
+TIM2	Encoder Mode	TIM2_CH2	PA1
+TIM3	Encoder Mode	TIM3_CH1	PB4
+TIM3	Encoder Mode	TIM3_CH2	PB5
+TIM14	Enable_Timer	TIM14_VS_ClockSourceINT	VP_TIM14_VS_ClockSourceINT
+TIM16	Enable_Timer	TIM16_VS_ClockSourceINT	VP_TIM16_VS_ClockSourceINT
+TIM16	Input Capture direct mode	TIM16_CH1	PA6
+TIM17	Enable_Timer	TIM17_VS_ClockSourceINT	VP_TIM17_VS_ClockSourceINT
+TIM17	Input Capture direct mode	TIM17_CH1	PA7
+
+
+
+Pin Nb	PINs	FUNCTIONs	LABELs
+2	PF0-OSC_IN	RCC_OSC_IN	OSC_IN
+3	PF1-OSC_OUT	RCC_OSC_OUT	OSC_OUT
+6	PA0	TIM2_CH1	PRIMARY_APPS_A
+7	PA1	TIM2_CH2	PRIMARY_APPS_B
+8	PA2	GPIO_Input	PRIMARY_APPS_Z
+9	PA3	GPIO_Input	PRIMARY_APPS_ALARM
+10	PA4	GPIO_Input	BSPD_BRAKE_THRES
+11	PA5	ADC_IN5	STEERING_ANGLE_IN
+12	PA6	TIM16_CH1	FR_WHEEL_SPEED_IN
+13	PA7	TIM17_CH1	FL_WHEEL_SPEED_IN
+18	PA8	GPIO_Output	STATUS_R
+19	PA9	GPIO_Output	STATUS_G
+20	PA10	GPIO_Output	STATUS_B
+21	PA11	CAN_RX	
+22	PA12	CAN_TX	
+23	PA13	SYS_SWDIO	SWDIO
+24	PA14	SYS_SWCLK	SWCLK
+27	PB4	TIM3_CH1	SECONDARY_APPS_A
+28	PB5	TIM3_CH2	SECONDARY_APPS_B
+29	PB6	GPIO_Input	SECONDARY_APPS_Z
+30	PB7	GPIO_Input	SECONDARY_APPS_ALARM
+
+
+
+SOFTWARE PROJECT
+
+Project Settings : 
+Project Name : FSM2018
+Project Folder : C:\Users\Ahmad\Documents\Formula\Consolidated-Firmware\src\FSM
+Toolchain / IDE : MDK-ARM V5
+Firmware Package Name and Version : STM32Cube FW_F0 V1.9.0
+
+
+Code Generation Settings : 
+STM32Cube Firmware Library Package : Copy only the necessary library files
+Generate peripheral initialization as a pair of '.c/.h' files per peripheral : No
+Backup previously generated files when re-generating : No
+Delete previously generated files when not re-generated : Yes
+Set all free pins as analog (to optimize the power consumption) : No
+
+
+Toolchains Settings : 
+Compiler Optimizations : 
+
+
+
+
+
