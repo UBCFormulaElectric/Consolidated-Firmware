@@ -232,12 +232,12 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     /**TIM16 GPIO Configuration    
     PA6     ------> TIM16_CH1 
     */
-    GPIO_InitStruct.Pin = FR_WHEEL_SPEED_Pin;
+    GPIO_InitStruct.Pin = FR_WHEEL_SPEED_IN_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF5_TIM16;
-    HAL_GPIO_Init(FR_WHEEL_SPEED_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(FR_WHEEL_SPEED_IN_GPIO_Port, &GPIO_InitStruct);
 
     /* TIM16 interrupt Init */
     HAL_NVIC_SetPriority(TIM16_IRQn, 0, 0);
@@ -257,12 +257,12 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef* htim_base)
     /**TIM17 GPIO Configuration    
     PA7     ------> TIM17_CH1 
     */
-    GPIO_InitStruct.Pin = FL_WHEEL_SPEED_Pin;
+    GPIO_InitStruct.Pin = FL_WHEEL_SPEED_IN_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     GPIO_InitStruct.Alternate = GPIO_AF5_TIM17;
-    HAL_GPIO_Init(FL_WHEEL_SPEED_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(FL_WHEEL_SPEED_IN_GPIO_Port, &GPIO_InitStruct);
 
     /* TIM17 interrupt Init */
     HAL_NVIC_SetPriority(TIM17_IRQn, 0, 0);
@@ -366,7 +366,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
     /**TIM16 GPIO Configuration    
     PA6     ------> TIM16_CH1 
     */
-    HAL_GPIO_DeInit(FR_WHEEL_SPEED_GPIO_Port, FR_WHEEL_SPEED_Pin);
+    HAL_GPIO_DeInit(FR_WHEEL_SPEED_IN_GPIO_Port, FR_WHEEL_SPEED_IN_Pin);
 
     /* TIM16 interrupt DeInit */
     HAL_NVIC_DisableIRQ(TIM16_IRQn);
@@ -385,7 +385,7 @@ void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef* htim_base)
     /**TIM17 GPIO Configuration    
     PA7     ------> TIM17_CH1 
     */
-    HAL_GPIO_DeInit(FL_WHEEL_SPEED_GPIO_Port, FL_WHEEL_SPEED_Pin);
+    HAL_GPIO_DeInit(FL_WHEEL_SPEED_IN_GPIO_Port, FL_WHEEL_SPEED_IN_Pin);
 
     /* TIM17 interrupt DeInit */
     HAL_NVIC_DisableIRQ(TIM17_IRQn);
