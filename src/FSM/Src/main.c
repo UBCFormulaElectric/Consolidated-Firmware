@@ -253,10 +253,10 @@ static void MX_CAN_Init(void)
   hcan.Init.SJW = CAN_SJW_2TQ;
   hcan.Init.BS1 = CAN_BS1_5TQ;
   hcan.Init.BS2 = CAN_BS2_2TQ;
-  hcan.Init.TTCM = ENABLE;
-  hcan.Init.ABOM = DISABLE;
+  hcan.Init.TTCM = DISABLE;
+  hcan.Init.ABOM = ENABLE;
   hcan.Init.AWUM = DISABLE;
-  hcan.Init.NART = DISABLE;
+  hcan.Init.NART = ENABLE;
   hcan.Init.RFLM = ENABLE;
   hcan.Init.TXFP = ENABLE;
   if (HAL_CAN_Init(&hcan) != HAL_OK)
