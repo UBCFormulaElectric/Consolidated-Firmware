@@ -1,6 +1,6 @@
 Configuration	FSM2018
 STM32CubeMX 	4.27.0
-Date	11/16/2018
+Date	11/17/2018
 MCU	STM32F042K6Tx
 
 
@@ -57,7 +57,7 @@ SOFTWARE PROJECT
 
 Project Settings : 
 Project Name : FSM2018
-Project Folder : C:\Users\Ahmad\Documents\Formula\Consolidated-Firmware\src\FSM
+Project Folder : C:\Users\Ahmad\Documents\formula\Consolidated-Firmware\src\FSM
 Toolchain / IDE : MDK-ARM V5
 Firmware Package Name and Version : STM32Cube FW_F0 V1.9.0
 
