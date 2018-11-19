@@ -3,8 +3,8 @@
  * Auto generated Run-Time-Environment Component Configuration File
  *      *** Do not modify ! ***
  *
- * Project: 'FSM2018' 
- * Target:  'FSM2018' 
+ * Project: 'FSM' 
+ * Target:  'FSM' 
  */
 
 #ifndef RTE_COMPONENTS_H
