@@ -23,8 +23,13 @@ matrix:
           env: RUN_FORMATTING_CHECKS="true"  # Test Formatting
 
 before_script:
+  # Download the latest ARM GCC Embedded Toolchain.
+  # Unfortunately, since this is a literal URL, it does not pull the latest API available.
+  # The UTL must be changed manually
   - wget https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2 -O /tmp/gcc-arm-none-eabi.tar.bz2
+  # Unzip the ARM GCC Embedded Toolchain 
   - tar -xvjf /tmp/gcc-arm-none-eabi.tar.bz2
+  # Enable cmake to find the arm-none-eabi-gcc command
   - export PATH=$PATH:$PWD/gcc-arm-none-eabi-7-2018-q2-update/bin/
 
 script:
