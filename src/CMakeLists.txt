@@ -8,7 +8,7 @@ cmake_minimum_required(VERSION 3.2)
 ##                                                                                #
 ###################################################################################
 
-set(MODULES "PDM FSM")
+set(MODULES "PDM FSM DCM BMS")
 
 #Create string list
 string(REPLACE " " ";" MODULES ${MODULES})
@@ -124,9 +124,16 @@ file(GLOB_RECURSE SHARED_UTIL_SRC ${CMAKE_CURRENT_SOURCE_DIR}/shared/*.c)
 
 foreach(MODULE_DIR ${MODULES})
 	
-
+	if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${MODULE_DIR})
+		message(STATUS "Found " ${MODULE_DIR})
+	else()
+		continue()
+	endif()
+	
+	#Name each executable target ${MODULE_DIR}_CODE
 	string(CONCAT exe_name ${MODULE_DIR} "_CODE")
 
+	#FSM-specific flags
 	if(MODULE_DIR STREQUAL FSM)
 		set(MCU -mcpu=cortex-m0)
 		set(FPU )
@@ -136,6 +143,7 @@ foreach(MODULE_DIR ${MODULES})
 		set(LINKER_SCRIPT STM32F042K6Tx_FLASH.ld)
 		set(HAL_BOARD_DIR STM32F0xx)
 	
+	#PDM-specific flags
 	elseif(MODULE_DIR STREQUAL PDM)
 		set(MCU -mcpu=cortex-m4)
 		set(FPU -mfpu=fpv4-sp-d16)
@@ -149,6 +157,7 @@ foreach(MODULE_DIR ${MODULES})
 		continue()
 	endif()
 
+	# Target-specific definitions
 	set(TOTAL_TARGET_DEFS ${BOARD} ${TARGET_DEFS} ${TEST_DEFS})
 
 	###  ASM FLAGS  ###
@@ -162,10 +171,8 @@ foreach(MODULE_DIR ${MODULES})
 	file(GLOB_RECURSE SRC_C_FILES ${MODULE_DIR}/*.c)
 	file(GLOB_RECURSE SRC_ASM_FILES ${MODULE_DIR}/*.s)
 
-
 	# Create the project executable 
 	add_executable(${exe_name} ${SRC_C_FILES} ${SRC_ASM_FILES} ${SHARED_UTIL_SRC})
-
 
 	###  INCLUDE DIRECTORIES  ###
 	target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Inc)
@@ -179,14 +186,7 @@ foreach(MODULE_DIR ${MODULES})
 	target_compile_options(${exe_name} PRIVATE $<$<COMPILE_LANGUAGE:C>:${MODULE_C_FLAGS}>)
 	target_compile_options(${exe_name} PRIVATE $<$<COMPILE_LANGUAGE:ASM>:${MODULE_ASM_FLAGS}>)
 	
-	#set_target_properties(${exe_name} PROPERTIES LINKER_LANGUAGE ASM)
-	#target_compile_options(${exe_name} PRIVATE ${MODULE_ASM_FLAGS})
-	#set_target_properties(${exe_name} PROPERTIES COMPILER_OPTIONS ${MODULE_C_FLAGS})
-	#target_link_libraries(${exe_name} shared_lib)
-	#set_source_files_properties(${SRC_ASM_FILES} PROPERTIES COMPILE_FLAGS ${MODULE_ASM_FLAGS})
-	#set_source_files_properties(${SRC_C_FILES} PROPERTIES COMPILE_FLAGS ${MODULE_C_FLAGS})
-
-	#SET(CMAKE_EXE_LINKER_FLAGS 
+	# Add the command-line linker options for the target
 	target_link_libraries(${exe_name} 
 	    "-Wl,--gc-sections \
 	    -specs=nano.specs \
