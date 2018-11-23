@@ -49,8 +49,8 @@
 
 /* Private define ------------------------------------------------------------*/
 #define SystemCoreClockCube 48000000
-#define CONTROL_LOOP_FREQUENCY_CUBE 100
-#define WHEEL_SPEED_TIMER_PRESCALER_CUBE 192
+#define CONTROL_LOOP_FREQUENCY 100
+#define WHEEL_SPEED_TIMER_PRESCALER 192
 
 #define OSC_IN_Pin GPIO_PIN_0
 #define OSC_IN_GPIO_Port GPIOF

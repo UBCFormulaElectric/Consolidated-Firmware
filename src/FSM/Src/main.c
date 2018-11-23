@@ -394,7 +394,7 @@ static void MX_TIM14_Init(void)
   htim14.Instance = TIM14;
   htim14.Init.Prescaler = 7;
   htim14.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim14.Init.Period = ((SystemCoreClockCube / 8) / CONTROL_LOOP_FREQUENCY_CUBE) - 1;
+  htim14.Init.Period = ((SystemCoreClockCube / 8) / CONTROL_LOOP_FREQUENCY) - 1;
   htim14.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim14.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim14) != HAL_OK)
@@ -411,7 +411,7 @@ static void MX_TIM16_Init(void)
   TIM_IC_InitTypeDef sConfigIC;
 
   htim16.Instance = TIM16;
-  htim16.Init.Prescaler = WHEEL_SPEED_TIMER_PRESCALER_CUBE;
+  htim16.Init.Prescaler = WHEEL_SPEED_TIMER_PRESCALER;
   htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim16.Init.Period = 65535;
   htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -445,7 +445,7 @@ static void MX_TIM17_Init(void)
   TIM_IC_InitTypeDef sConfigIC;
 
   htim17.Instance = TIM17;
-  htim17.Init.Prescaler = WHEEL_SPEED_TIMER_PRESCALER_CUBE;
+  htim17.Init.Prescaler = WHEEL_SPEED_TIMER_PRESCALER;
   htim17.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim17.Init.Period = 65535;
   htim17.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
