@@ -386,7 +386,7 @@ void CEC_CAN_IRQHandler(void)
 #ifdef STM32F302x8
 
 #include "stm32f30x.h"
-#include "GPIO.h"
+#include "Gpio.h"
 #include "SysTick.h"
 
 #define MCR_DBF		   ((uint32_t)0x00010000) /* software master reset */

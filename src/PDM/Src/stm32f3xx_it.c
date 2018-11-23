@@ -38,7 +38,7 @@
 /* USER CODE BEGIN 0 */
 
 #include "CurrentSense.h"
-#include "gpio.h"
+#include "Gpio.h"
 #include "SharedCAN.h"
 #include "ErrorHandling.h"
 #include "Debug.h"

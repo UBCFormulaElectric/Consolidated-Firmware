@@ -42,7 +42,7 @@
 
 /* USER CODE BEGIN Includes */
 
-#include "gpio.h"
+#include "Gpio.h"
 #include "DMA.h"
 #include "SharedCAN.h"
 #include "Timers.h"

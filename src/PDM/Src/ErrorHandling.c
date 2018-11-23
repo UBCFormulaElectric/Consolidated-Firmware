@@ -6,7 +6,7 @@
 
 #include "ErrorHandling.h"
 #include "CANDefinitions.h"
-#include "gpio.h"
+#include "Gpio.h"
 
 
 void ErrorHandling_HandleHeartbeatTimeout(void) {
