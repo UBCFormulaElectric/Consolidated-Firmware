@@ -57,7 +57,7 @@ SOFTWARE PROJECT
 
 Project Settings : 
 Project Name : FSM
-Project Folder : C:\Users\Ahmad\Documents\formula\Consolidated-Firmware\src\FSM
+Project Folder : C:\Users\Ahmad\Documents\Formula\Consolidated-Firmware\src\FSM
 Toolchain / IDE : MDK-ARM V5
 Firmware Package Name and Version : STM32Cube FW_F0 V1.9.0
 

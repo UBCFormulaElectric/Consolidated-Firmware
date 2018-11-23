@@ -289,9 +289,9 @@ static void MX_TIM1_Init(void)
   TIM_MasterConfigTypeDef sMasterConfig;
 
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 0;
+  htim1.Init.Prescaler = TIM1_PRESCALER;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = ((APB1) / ADC_TRIGGER_FREQUENCY) - 1;
+  htim1.Init.Period = (APB1 / ( (TIM1_PRESCALER + 1) * ADC_TRIGGER_FREQUENCY) ) - 1;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -392,9 +392,9 @@ static void MX_TIM14_Init(void)
 {
 
   htim14.Instance = TIM14;
-  htim14.Init.Prescaler = TIM14_PRESCALER_CUBE;
+  htim14.Init.Prescaler = TIM14_PRESCALER;
   htim14.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim14.Init.Period = ((APB1 / 8) / CONTROL_LOOP_FREQUENCY) - 1;
+  htim14.Init.Period = (APB1 / ((TIM14_PRESCALER + 1) * CONTROL_LOOP_FREQUENCY)) - 1;
   htim14.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim14.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim14) != HAL_OK)
