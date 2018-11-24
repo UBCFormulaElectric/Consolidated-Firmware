@@ -27,18 +27,13 @@ static const float RC        = 1.0f / (2.0f * 3.14159265f * CUTOFF_FREQUENCY);
 static const float LPF_ALPHA = DELTA / (RC + DELTA);
 */
 
-static const float ADC_TRIGGER_FREQUENCY = 5000.0f;
-static const float DELTA                 = 1.0f / 5000.0f; //1.0f / ADC_TRIGGER_FREQUENCY
-static const float CUTOFF_FREQUENCY      = 10.0f; // 10Hz cutoff to account for false
+#define ADC_TRIGGER_FREQUENCY 5000.0
+#define DELTA                 1.0 / ADC_TRIGGER_FREQUENCY //1.0f / ADC_TRIGGER_FREQUENCY
+#define CUTOFF_FREQUENCY      10.0 // 10Hz cutoff to account for false
                                                   // tripping from inrush - see
                                                   // SoftwareTools for data
-static const float RC        = 1.0f / (2.0f * 3.14159265f * 10.0f); // 1 / (2 * pi * CUTOFF_FREQUENCY)
-// LPF_ALPHA = DELTA / (RC + DELTA)
-static const float LPF_ALPHA = (1.0f / 5000.0f) / 
-                               (
-                                (1.0f / (2.0f * 3.14159265f * 10.0f)) + 
-                                (1.0f / 5000.0f)
-                               );
+#define RC                    1.0 / (2.0 * 3.14159265 * CUTOFF_FREQUENCY) // 1 / (2 * pi * CUTOFF_FREQUENCY)
+#define LPF_ALPHA             (DELTA) / (RC + DELTA)
 
 void CurrentSense_LowPassFilterADCReadings(__IO uint32_t* ADCReadings) {
     uint8_t ADC_channel          = CurrentSense_DSELShiftIndex();
