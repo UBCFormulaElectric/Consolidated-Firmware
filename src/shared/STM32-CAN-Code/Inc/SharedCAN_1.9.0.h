@@ -6,12 +6,12 @@
 	@copyright  GNU General Public License v3
 */
 
+#ifdef STM32F042x6
+
 // CAN Queue
 static const uint8_t QUEUE_SIZE = 20;
 static const uint8_t QUEUE_OP_SUCCESS = 1;
 static const uint8_t QUEUE_OP_FAIL = 0;
-
-#ifdef STM32F042x6
 
 #include "stm32f0xx_conf.h"
 
@@ -20,8 +20,6 @@ static const uint16_t CAN_Prescaler_Value = 8;	  	// Clock prescaler
 static const uint8_t CAN_SJW_Value = 2;			 	// Number of time quanta
 static const uint8_t CAN_BS1_Value = 5;			 	// Number of time quanta for bit segment 1
 static const uint8_t CAN_BS2_Value = 4;			 	// Number of time quanta for bit segment 2
-
-#endif//STM32F042x6
 
 // Function declarations
 void ConfigureCAN(void);
@@ -36,4 +34,4 @@ void BroadcastCellVoltage(uint8_t module, uint8_t cell, uint16_t adc_value);
 void BroadcastBalanceMosfetStatus(uint8_t module, uint32_t onehot_mosfet);
 void BroadcastPreChargeComplete(void);
 
-#endif
+#endif//STM32F042x6

@@ -40,9 +40,11 @@ script:
         cd ..;
       fi
     - if [ "$RUN_TESTS" = "true" ]; then 
+        cd src;
         cmake -DTEST_BUILD=true CMakeLists.txt;
         make;
         ctest -C DEBUG;
+        cd ..;
       fi
     - if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then 
             ./clang-format/check_formatting_CI.sh

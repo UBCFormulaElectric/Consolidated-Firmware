@@ -4,7 +4,7 @@
 CURR_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 # Format all the files
-if ! $CURR_DIR/fix_formatting_linux.sh; then
+if ! $CURR_DIR/fix_formatting.sh; then
     # Formatting Failed
     echo "There was en error with formatting!!"
     exit 1
