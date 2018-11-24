@@ -17,14 +17,6 @@ const int HEARTBEAT_BROADCAST_PERIOD        = 300;  // Period in ms
 
 #endif
 
-/*
-    @brief	  	Sends error CAN messages based on error ID and module
-    @param		ErrorID			Error ID
-    @param		Module			Name of module (Module_Names)
-    @param		ErrorNumber		Error type
-    @param 		ErrorData		Error data
-    @return	 	None
-*/
 void TransmitCANError(uint32_t Error_StandardID,
                       PCB_Enum Module,
                       uint8_t ErrorNumber,

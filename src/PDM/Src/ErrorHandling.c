@@ -8,7 +8,6 @@
 #include "CANDefinitions.h"
 #include "Gpio.h"
 
-
 void ErrorHandling_HandleHeartbeatTimeout(void) {
     // Handle BMS not sending heartbeats
 

@@ -16,16 +16,6 @@ float FilteredADCReadings[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {0};
 
 // LPF constants (calculated using this article:
 // https://en.wikipedia.org/wiki/Low-pass_filter#Discrete-time_realization)
-/*
-static const float ADC_TRIGGER_FREQUENCY =
-5000.0f; // ADC sampling frequency - 72MHz/14400 (TIM2 prescaler value)
-static const float DELTA            = 1.0f / ADC_TRIGGER_FREQUENCY;
-static const float CUTOFF_FREQUENCY = 10.0f; // 10Hz cutoff to account for false
-                                             // tripping from inrush - see
-                                             // SoftwareTools for data
-static const float RC        = 1.0f / (2.0f * 3.14159265f * CUTOFF_FREQUENCY);
-static const float LPF_ALPHA = DELTA / (RC + DELTA);
-*/
 
 #define ADC_TRIGGER_FREQUENCY 5000.0
 #define DELTA                 1.0 / ADC_TRIGGER_FREQUENCY //1.0f / ADC_TRIGGER_FREQUENCY
