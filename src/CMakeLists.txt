@@ -165,7 +165,7 @@ foreach(MODULE_DIR ${MODULES})
 	###  SOURCE FILES  ###
 	# Get all the *.c files and *.s files
 	file(GLOB_RECURSE SRC_C_FILES ${MODULE_DIR}/*.c)
-	file(GLOB_RECURSE SRC_ASM_FILES ${MODULE_DIR}/*.s)
+	file(GLOB_RECURSE SRC_ASM_FILES ${MODULE_DIR}/*_gcc.s)
 
 	# Create the project executable 
 	add_executable(${exe_name} ${SRC_C_FILES} ${SRC_ASM_FILES} ${SHARED_UTIL_SRC})
