@@ -1,0 +1,26 @@
+--cpu=Cortex-M4.fp
+"dcm\startup_stm32f302x8.o"
+"dcm\main.o"
+"dcm\stm32f3xx_it.o"
+"dcm\stm32f3xx_hal_msp.o"
+"dcm\stm32f3xx_hal_can.o"
+"dcm\stm32f3xx_hal_i2c.o"
+"dcm\stm32f3xx_hal_i2c_ex.o"
+"dcm\stm32f3xx_hal_iwdg.o"
+"dcm\stm32f3xx_hal_tim.o"
+"dcm\stm32f3xx_hal_tim_ex.o"
+"dcm\stm32f3xx_hal.o"
+"dcm\stm32f3xx_hal_rcc.o"
+"dcm\stm32f3xx_hal_rcc_ex.o"
+"dcm\stm32f3xx_hal_gpio.o"
+"dcm\stm32f3xx_hal_dma.o"
+"dcm\stm32f3xx_hal_cortex.o"
+"dcm\stm32f3xx_hal_pwr.o"
+"dcm\stm32f3xx_hal_pwr_ex.o"
+"dcm\stm32f3xx_hal_flash.o"
+"dcm\stm32f3xx_hal_flash_ex.o"
+"dcm\system_stm32f3xx.o"
+--library_type=microlib --strict --scatter "DCM\DCM.sct"
+--summary_stderr --info summarysizes --map --load_addr_map_info --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list "DCM.map" -o DCM\DCM.axf
