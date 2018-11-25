@@ -66,6 +66,7 @@
 *.l1p
 *.l2p
 *.iex
+*.TMP
 
 # STM32CubeMx
 .mxproject
