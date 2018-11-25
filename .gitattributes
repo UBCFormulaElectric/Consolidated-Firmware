@@ -1,2 +1,6 @@
-# Disable core.autocrlf for Windows projects
-* -text
+# Make default behaviour CRLF line ending because most files are Windows-based
+* text eol=crlf
+
+# Force LF line ending for Linux-specific files
+*.sh text eol=lf
+
