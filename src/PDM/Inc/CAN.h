@@ -14,7 +14,7 @@
 
 // Function declarations
 /**
- * 	@brief Initialize CAN 
+ * 	@brief Initialize CAN
  *	@param None
  *	@return None
 **/
@@ -27,9 +27,10 @@ void InitCAN(void);
  *  @param 		ErrorData			Error data
  *  @return	 	None
 **/
-void TransmitCANError(uint32_t Error_StandardID,
-                      PCB_Enum Module,
-                      uint8_t ErrorNumber,
-                      uint32_t ErrorData);
+void TransmitCANError(
+    uint32_t Error_StandardID,
+    PCB_Enum Module,
+    uint8_t  ErrorNumber,
+    uint32_t ErrorData);
 
 #endif

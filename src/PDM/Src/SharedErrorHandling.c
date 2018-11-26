@@ -31,8 +31,8 @@
 
 typedef struct
 {
-  uint32_t current;
-  uint32_t threshold;
+    uint32_t current;
+    uint32_t threshold;
 } Error_Struct;
 
 // TODO: Correct the array size
@@ -44,7 +44,8 @@ Error_Struct consecutive_errors[NUM_ERRORS] = {0};
     @param	  	None
     @return
 */
-void ErrorHandling_InitializeConsecutiveErrors(void) {
+void ErrorHandling_InitializeConsecutiveErrors(void)
+{
     consecutive_errors[SYSTICK_INITIALISATION_ERROR].threshold = 3;
     consecutive_errors[MISSING_HEARTBEAT].threshold            = 3;
 }
@@ -55,7 +56,8 @@ void ErrorHandling_InitializeConsecutiveErrors(void) {
     @return
 
 */
-void IncrementNumberOfConsecutiveErrors(Error_Enum Error) {
+void IncrementNumberOfConsecutiveErrors(Error_Enum Error)
+{
     consecutive_errors[Error].current++;
 }
 
@@ -66,15 +68,18 @@ void IncrementNumberOfConsecutiveErrors(Error_Enum Error) {
 
 */
 // To be triggered by a time-base interrupt or by a thread
-void ErrorHandlingRoutine(void) {
+void ErrorHandlingRoutine(void)
+{
     // Use uint64_t to match the CAN payload size
     uint64_t one_hot_active_errors = 0;
 
     // Populate one-hot encoded errors and handle errors as needed
-    for (uint32_t error = 0; error < NUM_ERRORS; error++) {
+    for (uint32_t error = 0; error < NUM_ERRORS; error++)
+    {
         // If the consecutive error threshold has been met
         if (consecutive_errors[error].current >=
-            consecutive_errors[error].threshold) {
+            consecutive_errors[error].threshold)
+        {
             // Record error in one-hot encoded errors
             one_hot_active_errors |= 1 << error;
 
@@ -99,10 +104,10 @@ void ErrorHandlingRoutine(void) {
 
     // If we have any active error in the one-hot encoded array
     uint8_t dummy_zeroes[sizeof(one_hot_active_errors)] = {0};
-    if (memcmp(can_payload, dummy_zeroes, sizeof(one_hot_active_errors))) {
+    if (memcmp(can_payload, dummy_zeroes, sizeof(one_hot_active_errors)))
+    {
         // Transmit the one-hot encoded errors over CAN
-        SharedCAN_TransmitDataCAN(&can_headers[PDM_ERROR],
-                                  can_payload);
+        SharedCAN_TransmitDataCAN(&can_headers[PDM_ERROR], can_payload);
     }
 }
 
@@ -112,4 +117,6 @@ void ErrorHandlingRoutine(void) {
     @return
 
 */
-__weak void HandleError(Error_Enum Error) {}
+__weak void HandleError(Error_Enum Error)
+{
+}

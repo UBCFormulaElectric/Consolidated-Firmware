@@ -18,7 +18,7 @@ extern __IO uint8_t e_fuse_fault_states[ADC_CHANNEL_COUNT * NUM_READINGS];
 
 // Function Declarations
 /**
- * 	@brief Initialize Timers 
+ * 	@brief Initialize Timers
  *	@param None
  *	@return None
 **/
