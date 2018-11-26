@@ -204,7 +204,7 @@ void GPIO_EFuseSelectDSEL(GPIO_PinState DSEL_value);
 
 /**
  *   @brief      Check for faults on startup from charging IC, cell balancing
- *               IC, and boost converter and transmit a CAN message if error 
+ *               IC, and boost converter and transmit a CAN message if error
  *               occured.
  *  @return     None
 **/
