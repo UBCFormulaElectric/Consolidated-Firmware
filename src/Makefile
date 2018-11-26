@@ -942,59 +942,32 @@ PDM/Src/system_stm32f3xx.c.s:
 	$(MAKE) -f CMakeFiles/PDM_CODE.dir/build.make CMakeFiles/PDM_CODE.dir/PDM/Src/system_stm32f3xx.c.s
 .PHONY : PDM/Src/system_stm32f3xx.c.s
 
-shared/STM32-CAN-Code/Src/SharedCAN.o: shared/STM32-CAN-Code/Src/SharedCAN.c.o
+shared/STM32-CAN-Code/Src/SharedCan.o: shared/STM32-CAN-Code/Src/SharedCan.c.o
 
-.PHONY : shared/STM32-CAN-Code/Src/SharedCAN.o
-
-# target to build an object file
-shared/STM32-CAN-Code/Src/SharedCAN.c.o:
-	$(MAKE) -f CMakeFiles/PDM_CODE.dir/build.make CMakeFiles/PDM_CODE.dir/shared/STM32-CAN-Code/Src/SharedCAN.c.o
-.PHONY : shared/STM32-CAN-Code/Src/SharedCAN.c.o
-
-shared/STM32-CAN-Code/Src/SharedCAN.i: shared/STM32-CAN-Code/Src/SharedCAN.c.i
-
-.PHONY : shared/STM32-CAN-Code/Src/SharedCAN.i
-
-# target to preprocess a source file
-shared/STM32-CAN-Code/Src/SharedCAN.c.i:
-	$(MAKE) -f CMakeFiles/PDM_CODE.dir/build.make CMakeFiles/PDM_CODE.dir/shared/STM32-CAN-Code/Src/SharedCAN.c.i
-.PHONY : shared/STM32-CAN-Code/Src/SharedCAN.c.i
-
-shared/STM32-CAN-Code/Src/SharedCAN.s: shared/STM32-CAN-Code/Src/SharedCAN.c.s
-
-.PHONY : shared/STM32-CAN-Code/Src/SharedCAN.s
-
-# target to generate assembly for a file
-shared/STM32-CAN-Code/Src/SharedCAN.c.s:
-	$(MAKE) -f CMakeFiles/PDM_CODE.dir/build.make CMakeFiles/PDM_CODE.dir/shared/STM32-CAN-Code/Src/SharedCAN.c.s
-.PHONY : shared/STM32-CAN-Code/Src/SharedCAN.c.s
-
-shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.o: shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.c.o
-
-.PHONY : shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.o
+.PHONY : shared/STM32-CAN-Code/Src/SharedCan.o
 
 # target to build an object file
-shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.c.o:
-	$(MAKE) -f CMakeFiles/PDM_CODE.dir/build.make CMakeFiles/PDM_CODE.dir/shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.c.o
-.PHONY : shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.c.o
+shared/STM32-CAN-Code/Src/SharedCan.c.o:
+	$(MAKE) -f CMakeFiles/PDM_CODE.dir/build.make CMakeFiles/PDM_CODE.dir/shared/STM32-CAN-Code/Src/SharedCan.c.o
+.PHONY : shared/STM32-CAN-Code/Src/SharedCan.c.o
 
-shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.i: shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.c.i
+shared/STM32-CAN-Code/Src/SharedCan.i: shared/STM32-CAN-Code/Src/SharedCan.c.i
 
-.PHONY : shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.i
+.PHONY : shared/STM32-CAN-Code/Src/SharedCan.i
 
 # target to preprocess a source file
-shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.c.i:
-	$(MAKE) -f CMakeFiles/PDM_CODE.dir/build.make CMakeFiles/PDM_CODE.dir/shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.c.i
-.PHONY : shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.c.i
+shared/STM32-CAN-Code/Src/SharedCan.c.i:
+	$(MAKE) -f CMakeFiles/PDM_CODE.dir/build.make CMakeFiles/PDM_CODE.dir/shared/STM32-CAN-Code/Src/SharedCan.c.i
+.PHONY : shared/STM32-CAN-Code/Src/SharedCan.c.i
 
-shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.s: shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.c.s
+shared/STM32-CAN-Code/Src/SharedCan.s: shared/STM32-CAN-Code/Src/SharedCan.c.s
 
-.PHONY : shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.s
+.PHONY : shared/STM32-CAN-Code/Src/SharedCan.s
 
 # target to generate assembly for a file
-shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.c.s:
-	$(MAKE) -f CMakeFiles/PDM_CODE.dir/build.make CMakeFiles/PDM_CODE.dir/shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.c.s
-.PHONY : shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.c.s
+shared/STM32-CAN-Code/Src/SharedCan.c.s:
+	$(MAKE) -f CMakeFiles/PDM_CODE.dir/build.make CMakeFiles/PDM_CODE.dir/shared/STM32-CAN-Code/Src/SharedCan.c.s
+.PHONY : shared/STM32-CAN-Code/Src/SharedCan.c.s
 
 # Help Target
 help:
@@ -1096,12 +1069,9 @@ help:
 	@echo "... PDM/Src/system_stm32f3xx.o"
 	@echo "... PDM/Src/system_stm32f3xx.i"
 	@echo "... PDM/Src/system_stm32f3xx.s"
-	@echo "... shared/STM32-CAN-Code/Src/SharedCAN.o"
-	@echo "... shared/STM32-CAN-Code/Src/SharedCAN.i"
-	@echo "... shared/STM32-CAN-Code/Src/SharedCAN.s"
-	@echo "... shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.o"
-	@echo "... shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.i"
-	@echo "... shared/STM32-CAN-Code/Src/SharedCAN_1.9.0.s"
+	@echo "... shared/STM32-CAN-Code/Src/SharedCan.o"
+	@echo "... shared/STM32-CAN-Code/Src/SharedCan.i"
+	@echo "... shared/STM32-CAN-Code/Src/SharedCan.s"
 .PHONY : help
 
 

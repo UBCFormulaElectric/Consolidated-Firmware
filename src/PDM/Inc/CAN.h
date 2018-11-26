@@ -10,7 +10,7 @@
 #include "Gpio.h"
 #include <string.h> // For memcpy()
 #include "Debug.h"
-#include "SharedCAN.h"
+#include "SharedCan.h"
 
 // Function declarations
 /**

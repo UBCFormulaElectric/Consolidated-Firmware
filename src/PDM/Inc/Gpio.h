@@ -130,8 +130,8 @@ typedef enum {
     STATIC_EFUSE  = 0, // Operating as expected
     RENABLE_EFUSE = 1, // Exceeded current limit but not max number of retries,
                        // in retry mode
-    ERROR_EFUSE =
-        2 // Exceeded max number of retries, permanently in error state
+    ERROR_EFUSE = 2    // Exceeded max number of retries,
+                       // permanently in error state
 } Efuse_State_Enum;
 
 // Efuse Indexing, corresponding to: 0 to ADC_TOTAL_READINGS_SIZE-1
@@ -170,38 +170,42 @@ extern __IO GPIO_PinState DSEL_State;
 void GPIO_Init(void);
 /**
  *   @brief      Enable all e-fuses (that have not faulted) and their
- *corresponding current sense
- * diagnostics. Only to be called after PreCharge is completed.
- *  @param      fault_states 			Array with NumReadings*ChannelCount
- * elements which tracks outputs that need to be renabled or are permanently
- *faulted
+ *               corresponding current sense diagnostics. Only to be
+ *               called after PreCharge is completed.
+ *
+ *  @param      fault_states Array with NumReadings*ChannelCount
+ *                           elements which tracks outputs that need
+ *                           to be renabled or are permanently
+ *                           faulted
  *  @return     None
 **/
 void GPIO_ConfigurePreChargeComplete(__IO uint8_t *fault_states);
 
 /**
  *   @brief      Enable CAN/AIR SHDN (if they are not faulted) and their
- *corresponding current sense
- * diagnostics. Disable all other outputs.
- *  @param      fault_states		Array with NumReadings*ChannelCount
- * elements which tracks outputs that need to be renabled or are permanently
- *faulted
+ *               corresponding current sense diagnostics. Disable all
+ *               other outputs.
+ *
+ *  @param      fault_states Array with NumReadings*ChannelCount
+ *                           elements which tracks outputs that need to
+ *                           be renabled or are permanently faulted
  *  @return     None
 **/
 void GPIO_ConfigurePowerUp(__IO uint8_t *fault_states);
 
 /**
  *   @brief      Select E-Fuse output for current sense (DSEL toggle)
- *  @param      DSEL_value			value to set DSEL pin to (DSEL_HIGH or
- *DSEL_LOW)
+ *
+ *  @param      DSEL_value value to set DSEL pin to (DSEL_HIGH or
+ *                         DSEL_LOW)
  *  @return     None
 **/
 void GPIO_EFuseSelectDSEL(GPIO_PinState DSEL_value);
 
 /**
  *   @brief      Check for faults on startup from charging IC, cell balancing
- *IC,
- * and boost converter and transmit a CAN message if error occured.
+ *               IC, and boost converter and transmit a CAN message if error 
+ *               occured.
  *  @return     None
 **/
 void GPIO_CheckFaultsStartup(void);

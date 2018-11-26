@@ -51,7 +51,7 @@
 
 #include "Gpio.h"
 #include "DMA.h"
-#include "SharedCAN.h"
+#include "SharedCan.h"
 #include "Timers.h"
 #include "CurrentSense.h"
 
@@ -152,7 +152,7 @@ int main(void)
     // Configure CAN and activate CAN interrupts
     InitCAN();
 
-    // Transmit startup message TODO: Add startup header to SharedCAN
+    // Transmit startup message TODO: Add startup header to SharedCan
     // TransmitDataCAN(Startup_Status_StandardID, Startup_Status_ExtendedID,
     // Startup_Status_DLC, Power_Distribution_Module);
 

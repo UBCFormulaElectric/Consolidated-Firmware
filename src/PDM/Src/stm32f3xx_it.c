@@ -46,7 +46,7 @@
 
 #include "CurrentSense.h"
 #include "Gpio.h"
-#include "SharedCAN.h"
+#include "SharedCan.h"
 #include "ErrorHandling.h"
 #include "Debug.h"
 

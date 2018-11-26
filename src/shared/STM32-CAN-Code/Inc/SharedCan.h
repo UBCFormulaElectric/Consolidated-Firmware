@@ -1,5 +1,5 @@
 /**
-	@file	   	SharedCAN.h
+	@file	   	SharedCan.h
 	@brief	  	Function library header for the CAN controllers on the STM32F0 and STM32F3
 	@author	 	UBC Formula Electric
 	@version	v1.0.00

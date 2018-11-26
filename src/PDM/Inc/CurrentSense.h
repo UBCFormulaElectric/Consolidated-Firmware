@@ -53,10 +53,10 @@ static const uint8_t MAX_FAULTS[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {3, 10, 3, 1
 
 // Function declarations
 /**
- *   @brief      Low pass filters ADC readings with a cutoff frequency of
- * CUTOFF_FREQUENCY
+ *  @brief     Low pass filters ADC readings with a cutoff frequency of
+ *              CUTOFF_FREQUENCY
  *  @param      ADCReadings        Pointer to array containing the unfiltered
- *ADC readings
+ *                                 ADC readings
  *  @return     None
 **/
 void CurrentSense_LowPassFilterADCReadings(__IO uint32_t *ADCReadings);
@@ -64,7 +64,7 @@ void CurrentSense_LowPassFilterADCReadings(__IO uint32_t *ADCReadings);
 /**
  *   @brief      Converts filtered ADC readings to currents or voltages
  *   @param      converted_readings     Pointer to array containing converted
- *ADC readings
+ *                                      ADC readings
  *   @return     None
 **/
 void CurrentSense_ConvertFilteredADCToCurrentValues(

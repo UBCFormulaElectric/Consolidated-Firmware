@@ -1,12 +1,12 @@
 /**
-	@file	   	SharedCAN.c
+	@file	   	SharedCan.c
 	@brief	  	Function library for the CAN controllers on the STM32F0 and STM32F3
 	@author	 	UBC Formula Electric
 	@version	v1.0.00
 	@copyright  GNU General Public License v3
 */
 #include <string.h>
-#include "SharedCAN.h"
+#include "SharedCan.h"
 
 // CAN Tx Message Fifo
 static const uint32_t CAN_TX_MSG_FIFO_SIZE = 20;
