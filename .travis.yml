@@ -47,5 +47,5 @@ script:
         cd ..;
       fi
     - if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then 
-            ./clang-format/check_formatting_CI.sh
+            ./clang-format/check_formatting_CI.sh;
       fi
