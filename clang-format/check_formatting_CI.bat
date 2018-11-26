@@ -1,7 +1,9 @@
 REM change directory to the batch file directory
-SET CURR_DIR=%cd% %~dp0
+SET CURR_DIR=%~dp0
 
-REM Format all the files
+echo %CURR_DIR%
+
+CALL %CURR_DIR%fix_formatting.bat
 if errorlevel 1 goto CLANG_ERROR
 
 :CLANG_ERROR
