@@ -248,10 +248,10 @@ static void MX_CAN_Init(void)
 {
 
   hcan.Instance = CAN;
-  hcan.Init.Prescaler = 8;
+  hcan.Init.Prescaler = 6;
   hcan.Init.Mode = CAN_MODE_NORMAL;
-  hcan.Init.SJW = CAN_SJW_2TQ;
-  hcan.Init.BS1 = CAN_BS1_5TQ;
+  hcan.Init.SJW = CAN_SJW_4TQ;
+  hcan.Init.BS1 = CAN_BS1_13TQ;
   hcan.Init.BS2 = CAN_BS2_2TQ;
   hcan.Init.TTCM = DISABLE;
   hcan.Init.ABOM = ENABLE;
@@ -291,7 +291,7 @@ static void MX_TIM1_Init(void)
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = TIM1_PRESCALER;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = (APB1 / ( (TIM1_PRESCALER + 1) * (TIM1_REPETITION + 1) * ADC_TRIGGER_FREQUENCY) ) - 1;
+  htim1.Init.Period = (APB1_TIMER_CLOCK / ( (TIM1_PRESCALER + 1) * (TIM1_REPETITION + 1) * TIM1_CLK_DIVISION * ADC_TRIGGER_FREQUENCY) ) - 1;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = TIM1_REPETITION;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -394,7 +394,7 @@ static void MX_TIM14_Init(void)
   htim14.Instance = TIM14;
   htim14.Init.Prescaler = TIM14_PRESCALER;
   htim14.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim14.Init.Period = (APB1 / ((TIM14_PRESCALER + 1) * CONTROL_LOOP_FREQUENCY)) - 1;
+  htim14.Init.Period = (APB1_TIMER_CLOCK / ((TIM14_PRESCALER + 1) * TIM14_CLK_DIVISION * CONTROL_LOOP_FREQUENCY)) - 1;
   htim14.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim14.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim14) != HAL_OK)
