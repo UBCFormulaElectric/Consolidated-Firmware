@@ -49,10 +49,10 @@
 
 /* Private define ------------------------------------------------------------*/
 #define CONTROL_LOOP_FREQUENCY 100
-#define WHEEL_SPEED_TIMER_PRESCALER 192
+#define WHEEL_SPEED_TIMER_PRESCALER 191
 #define TIM14_PRESCALER 7
 #define APB1_TIMER_CLOCK 48000000
-#define ADC_TRIGGER_FREQUENCY 1600
+#define ADC_TRIGGER_FREQUENCY 1000
 #define TIM1_PRESCALER 0
 #define TIM1_REPETITION 0
 #define TIM1_CLK_DIVISION 1
