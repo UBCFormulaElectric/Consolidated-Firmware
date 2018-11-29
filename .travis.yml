@@ -49,3 +49,4 @@ script:
     - if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then 
             ./clang-format/check_formatting_CI.sh;
       fi
+      
