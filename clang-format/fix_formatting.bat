@@ -8,12 +8,15 @@ set CLANG_VERSION=4.0
 
 REM Figure out what directory this script is in
 set CURR_DIR=%~dp0
+echo %CURR_DIR%
 
 REM The command we use to format a single file
-set FORMAT_CMD="%CURR_DIR%clang-format-%CLANG_VERSION%.exe" -i --style=file
+set FORMAT_CMD=%CURR_DIR%clang-format-%CLANG_VERSION%.exe -i --style=file
 
 cd %CURR_DIR%..
-for /r %%i in (*.c *.cc *.cpp *.h *.hh *.hpp) do %FORMAT_CMD% "%%i"
+for /r %CURR_DIR%\..\ %%i in (*.c *.cc *.cpp *.h *.hh *.hpp) do (
+	echo %%i
+	%FORMAT_CMD% "%%i"
+)
 
 REM Formatting Finished - Hold the Console Window Open
-pause
