@@ -245,6 +245,7 @@ ErrorStatus SharedCAN_InitializeFilters(void)
         can_filter.FilterMaskIdHigh = mask_filters[i + 1].mask;
         can_filter.FilterFIFOAssignment = fifo;
         can_filter.FilterBank = filter_bank;
+        // TODO: Consider moving the 3 lines below outside of the for-loop
         can_filter.FilterMode = CAN_FILTERMODE_IDMASK;
         can_filter.FilterScale = CAN_FILTERSCALE_16BIT;
         can_filter.FilterActivation = CAN_FILTER_ENABLE;
