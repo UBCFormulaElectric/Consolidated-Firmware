@@ -7,7 +7,7 @@
 
   <Targets>
     <Target>
-      <TargetName>PDM_2018-Code</TargetName>
+      <TargetName>PDM</TargetName>
       <ToolsetNumber>0x4</ToolsetNumber>
       <ToolsetName>ARM-ADS</ToolsetName>
       <pCCUsed>6100001::V6.10.1::.\ARMCLANG</pCCUsed>
@@ -18,12 +18,12 @@
           <Vendor>STMicroelectronics</Vendor>
           <PackID>Keil.STM32F3xx_DFP.2.1.0</PackID>
           <PackURL>http://www.keil.com/pack/</PackURL>
-          <Cpu>IRAM(0x20000000,0x00004000) IROM(0x08000000,0x00010000) CPUTYPE("Cortex-M4") FPU2 CLOCK(12000000) ELITTLE</Cpu>
+          <Cpu>IRAM(0x20000000-0x20003FFF) IROM(0x8000000-0x800FFFF) CLOCK(8000000) FPU2 CPUTYPE("Cortex-M4")</Cpu>
           <FlashUtilSpec></FlashUtilSpec>
           <StartupFile></StartupFile>
-          <FlashDriverDll>UL2CM3(-S0 -C0 -P0 -FD20000000 -FC1000 -FN1 -FF0STM32F3xx_256 -FS08000000 -FL010000 -FP0($$Device:STM32F302R8Tx$CMSIS\Flash\STM32F3xx_256.FLM))</FlashDriverDll>
-          <DeviceId>0</DeviceId>
-          <RegisterFile>$$Device:STM32F302R8Tx$Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f3xx.h</RegisterFile>
+          <FlashDriverDll></FlashDriverDll>
+          <DeviceId></DeviceId>
+          <RegisterFile></RegisterFile>
           <MemoryEnv></MemoryEnv>
           <Cmp></Cmp>
           <Asm></Asm>
@@ -48,11 +48,11 @@
             <NotGenerated>0</NotGenerated>
             <InvalidFlash>1</InvalidFlash>
           </TargetStatus>
-          <OutputDirectory>PDM_2018-Code\</OutputDirectory>
-          <OutputName>PDM_2018-Code</OutputName>
+          <OutputDirectory>PDM\</OutputDirectory>
+          <OutputName>PDM</OutputName>
           <CreateExecutable>1</CreateExecutable>
           <CreateLib>0</CreateLib>
-          <CreateHexFile>1</CreateHexFile>
+          <CreateHexFile>0</CreateHexFile>
           <DebugInformation>1</DebugInformation>
           <BrowseInformation>1</BrowseInformation>
           <ListingPath></ListingPath>
@@ -89,7 +89,7 @@
             <nStopA1X>0</nStopA1X>
             <nStopA2X>0</nStopA2X>
           </AfterMake>
-          <SelectedForBatchBuild>1</SelectedForBatchBuild>
+          <SelectedForBatchBuild>0</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
         </TargetCommonOption>
         <CommonProperty>
@@ -134,10 +134,10 @@
             <RunIndependent>0</RunIndependent>
             <UpdateFlashBeforeDebugging>1</UpdateFlashBeforeDebugging>
             <Capability>1</Capability>
-            <DriverSelection>4096</DriverSelection>
+            <DriverSelection>4100</DriverSelection>
           </Flash1>
           <bUseTDR>1</bUseTDR>
-          <Flash2>BIN\UL2CM3.DLL</Flash2>
+          <Flash2>STLink\ST-LINKIII-KEIL_SWO.dll</Flash2>
           <Flash3>"" ()</Flash3>
           <Flash4></Flash4>
           <pFcarmOut></pFcarmOut>
@@ -312,7 +312,7 @@
           </ArmAdsMisc>
           <Cads>
             <interw>1</interw>
-            <Optim>7</Optim>
+            <Optim>1</Optim>
             <oTime>0</oTime>
             <SplitLS>0</SplitLS>
             <OneElfS>1</OneElfS>
@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F302x8</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;../Drivers/CMSIS/Include;..\..\shared\STM32-CAN-Code\Inc</IncludePath>
+              <IncludePath>../Inc;  ../Drivers/STM32F3xx_HAL_Driver/Inc;  ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;  ../Drivers/CMSIS/Device/ST/STM32F3xx/Include;  ../Drivers/CMSIS/Include;  ..\..\shared\STM32-CAN-Code\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -372,7 +372,7 @@
             <ScatterFile></ScatterFile>
             <IncludeLibs></IncludeLibs>
             <IncludeLibsPath></IncludeLibsPath>
-            <Misc>--diag_suppress=L6329</Misc>
+            <Misc></Misc>
             <LinkerInputFile></LinkerInputFile>
             <DisabledWarnings></DisabledWarnings>
           </LDads>
@@ -418,19 +418,29 @@
               <FilePath>..\Src\FaultHandling.c</FilePath>
             </File>
             <File>
-              <FileName>main.c</FileName>
+              <FileName>gpio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>../Src/main.c</FilePath>
+              <FilePath>..\Src\gpio.c</FilePath>
             </File>
             <File>
-              <FileName>GPIO.c</FileName>
+              <FileName>SharedCAN.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\GPIO.c</FilePath>
+              <FilePath>..\..\shared\STM32-CAN-Code\Src\SharedCAN.c</FilePath>
+            </File>
+            <File>
+              <FileName>SharedErrorHandling.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\SharedErrorHandling.c</FilePath>
             </File>
             <File>
               <FileName>Timers.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\Timers.c</FilePath>
+            </File>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Src/main.c</FilePath>
             </File>
             <File>
               <FileName>stm32f3xx_it.c</FileName>
@@ -441,11 +451,6 @@
               <FileName>stm32f3xx_hal_msp.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/stm32f3xx_hal_msp.c</FilePath>
-            </File>
-            <File>
-              <FileName>SharedCAN.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\shared\STM32-CAN-Code\Src\SharedCAN.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -463,6 +468,11 @@
               <FilePath>..\..\shared\STM32-CAN-Code\Inc\CANDefinitions.h</FilePath>
             </File>
             <File>
+              <FileName>CurrentSense.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Inc\CurrentSense.h</FilePath>
+            </File>
+            <File>
               <FileName>Debug.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Inc\Debug.h</FilePath>
@@ -476,6 +486,11 @@
               <FileName>ErrorHandling.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Inc\ErrorHandling.h</FilePath>
+            </File>
+            <File>
+              <FileName>FaultHandling.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Inc\FaultHandling.h</FilePath>
             </File>
             <File>
               <FileName>gpio.h</FileName>
@@ -498,11 +513,6 @@
               <FilePath>..\Inc\SharedErrorHandling.h</FilePath>
             </File>
             <File>
-              <FileName>Timers.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Inc\Timers.h</FilePath>
-            </File>
-            <File>
               <FileName>stm32f3xx_hal_conf.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Inc\stm32f3xx_hal_conf.h</FilePath>
@@ -512,20 +522,10 @@
               <FileType>5</FileType>
               <FilePath>..\Inc\stm32f3xx_it.h</FilePath>
             </File>
-          </Files>
-        </Group>
-        <Group>
-          <GroupName>Drivers/CMSIS</GroupName>
-          <Files>
             <File>
-              <FileName>stm32f302x8.h</FileName>
+              <FileName>Timers.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\Drivers\CMSIS\Device\ST\STM32F3xx\Include\stm32f302x8.h</FilePath>
-            </File>
-            <File>
-              <FileName>system_stm32f3xx.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..//Src/system_stm32f3xx.c</FilePath>
+              <FilePath>..\Inc\Timers.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -625,6 +625,16 @@
           </Files>
         </Group>
         <Group>
+          <GroupName>Drivers/CMSIS</GroupName>
+          <Files>
+            <File>
+              <FileName>system_stm32f3xx.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..//Src/system_stm32f3xx.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
           <GroupName>::CMSIS</GroupName>
         </Group>
       </Groups>
@@ -632,27 +642,12 @@
   </Targets>
 
   <RTE>
-    <packages>
-      <filter>
-        <targetInfos/>
-      </filter>
-      <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="5.2.0">
-        <targetInfos>
-          <targetInfo name="PDM_2018-Code"/>
-        </targetInfos>
-      </package>
-      <package name="STM32F3xx_DFP" schemaVersion="1.4.9" url="http://www.keil.com/pack/" vendor="Keil" version="2.1.0">
-        <targetInfos>
-          <targetInfo name="PDM_2018-Code" versionMatchMode="fixed"/>
-        </targetInfos>
-      </package>
-    </packages>
     <apis/>
     <components>
-      <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="5.0.2" condition="ARMv6_7_8-M Device">
-        <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="5.2.0"/>
+      <component Cclass="CMSIS" Cgroup="CORE" Cvendor="ARM" Cversion="5.1.2" condition="ARMv6_7_8-M Device">
+        <package name="CMSIS" schemaVersion="1.3" url="http://www.keil.com/pack/" vendor="ARM" version="5.4.0"/>
         <targetInfos>
-          <targetInfo name="PDM_2018-Code"/>
+          <targetInfo name="PDM"/>
         </targetInfos>
       </component>
     </components>
