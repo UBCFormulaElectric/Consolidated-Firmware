@@ -43,7 +43,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "SharedCan.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -120,12 +120,30 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  uint8_t test_data_lut[CAN_PAYLOAD_SIZE] = {0x1, 0x2, 0x3, 0x4, 0xA, 0xB, 0xC, 0xD};
   while (1)
   {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    uint32_t i;
+    i = sizeof(can_headers);
+    i = sizeof(i);
+    for (uint32_t i = 0; i < sizeof(test_data_lut) / sizeof(test_data_lut[0]); i++)
+    {
+        
+    
+        
+    // TODO: Send two floats in one CAN message
+    //SharedCan_TransmitDataCAN(&can_headers[BMS_HEARTBEAT], uint8_t * data)
+      // TODO:
+      SharedCan_TransmitDataCan(DCM_ERROR_STDID, DCM_ERROR_DLC, &test_data_lut[0]);
+      HAL_Delay(10);
+    }
+      
+
   }
+  
   /* USER CODE END 3 */
 }
 
@@ -182,13 +200,13 @@ static void MX_CAN_Init(void)
   /* USER CODE END CAN_Init 1 */
   hcan.Instance = CAN;
   hcan.Init.Prescaler = 4;
-  hcan.Init.Mode = CAN_MODE_NORMAL;
+  hcan.Init.Mode = CAN_MODE_LOOPBACK;
   hcan.Init.SyncJumpWidth = CAN_SJW_4TQ;
   hcan.Init.TimeSeg1 = CAN_BS1_13TQ;
   hcan.Init.TimeSeg2 = CAN_BS2_2TQ;
   hcan.Init.TimeTriggeredMode = DISABLE;
   hcan.Init.AutoBusOff = ENABLE;
-  hcan.Init.AutoWakeUp = DISABLE;
+  hcan.Init.AutoWakeUp = ENABLE;
   hcan.Init.AutoRetransmission = ENABLE;
   hcan.Init.ReceiveFifoLocked = ENABLE;
   hcan.Init.TransmitFifoPriority = ENABLE;
@@ -197,6 +215,11 @@ static void MX_CAN_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN CAN_Init 2 */
+
+  if (SharedCan_StartCanInInterruptMode(&hcan) != HAL_OK)
+  {
+    Error_Handler();
+  }
 
   /* USER CODE END CAN_Init 2 */
 

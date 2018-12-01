@@ -12,7 +12,8 @@
 #include "main.h"
 #include "CanDefinitions.h"
 
-#if defined(STM32F302x8) // Used in DCM 2017, BMS 2017, and PDM 2018
+// Used in DCM 2017, BMS 2017, and PDM 2018
+#ifdef STM32F302x8
 #include "stm32f3xx_hal.h"
 // TODO: Extend support for FSM 2017(STM32F0)
 //#elif defined(xxx)
@@ -35,7 +36,7 @@
  * @param id Can be MASKMODE_16BIT_ID_XXX, where XXX is the PCB name
  * @param mask Can be MASKMODE_16BIT_MASK_XXX, where XXX is the PCB name
  */
-#define INIT_MASK_FILTER(id, mask) {.id = id, .mask = mask}
+#define INIT_MASK_FILTER(filter_id, filter_mask) {.id = filter_id, .mask = filter_mask}
 
 /**
  * @brief Used to initialize an element in can_headers[].
@@ -55,8 +56,8 @@
 .IDE = CAN_ID_STD, .RTR = CAN_RTR_DATA, .DLC = dlc, .TransmitGlobalTime = DISABLE}
 
 // [Warning] The following filter IDs/masks must be used with 16-bit Filter Scale
-// (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier 
-// registers are associated with mask registers specifying which bits of the 
+// (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier
+// registers are associated with mask registers specifying which bits of the
 // identifier are handled as "don't care" or as "must match". For each bit in
 // the mask registers, 0 = Don't Care and 1 = Must Match.
 
@@ -179,6 +180,20 @@ typedef enum
     LEFT_TORQUE_REQUEST_RX,  // BAMOCAR D3 receives on RX
     RIGHT_TORQUE_REQUEST_RX, // BAMOCAR D3 receives on RX
 
+    // Demo Example CAN IDs
+    DEMO_1_DOUBLE_NUCLEO_TX,
+    DEMO_1_DOUBLE_NUCLEO_RX,
+    DEMO_2_FLOAT_NUCLEO_TX,
+    DEMO_2_FLOAT_NUCLEO_RX,
+    DEMO_2_UINT32_NUCLEO_TX,
+    DEMO_2_UINT32_NUCLEO_RX,
+    DEMO_4_UINT16_NUCLEO_TX,
+    DEMO_4_UINT16_NUCLEO_RX,
+    DEMO_8_UINT8_NUCLEO_TX,
+    DEMO_8_UINT8_NUCLEO_RX,
+    DEMO_2_INT32_NUCLEO_TX,
+    DEMO_2_INT32_NUCLEO_RX,
+
     // Number of CAN IDS
     CAN_NODES_COUNT
 } CanIds_Enum;
@@ -199,13 +214,14 @@ const typedef struct
     uint32_t mask;
 } CanMaskFilterConfig_Struct;
 
-/** @brief Combine HAL Tx CAN header with CAN Payload */
+// TODO: give this updated description
 // TODO: see if struct members should be volatile
 typedef struct
 {
-    CAN_TxHeaderTypeDef tx_header;
+    uint32_t std_id;
+    uint32_t dlc;
     uint8_t data[8];
-} CanTxMsg_Struct;
+} CanTxMsgQueueItem_Struct;
 
 /** @brief Combine HAL Rx CAN header with CAN payload */
 // TODO: see if struct members should be volatile
@@ -238,74 +254,30 @@ extern CAN_TxHeaderTypeDef can_headers[CAN_NODES_COUNT];
 * Function Prototypes
 *******************************************************************************/
 /**
- * @brief  Transmit CAN message and remove it from the CAN queue
- * @param  None
- * @return FIFO_IS_EMPTY: Failed dequeue due to empty queue
- *         FIFO_SUCCESS: Successful dequeue
- */
-Fifo_Status_Enum SharedCan_DequeueCanTxMessageFifo(void);
-
-/**
- * @brief  Add CAN message overflow to CAN queue
- * @param  can_msg: Pointer of CAN message to be queued
- * @return FIFO_IS_FULL: Failed enqueue due to full queue
- *         FIFO_SUCCESS: Successful enqueue
- */
-Fifo_Status_Enum SharedCan_EnqueueCanTxMessageFifo(CanTxMsg_Struct *can_msg);
-
-/**
- * @brief  Clear the CAN queue
- * @param  None
- * @return None
- */
-void SharedCan_ClearCanTxMessageFifo(void);
-
-/**
- * @brief  Check if the CAN queue is full
- * @param  None
- * @return 0: CAN queue is not full
- *         1: CAN queue is full
- */
-uint32_t SharedCan_CanTxMessageFifoIsFull(void);
-
-/**
- * @brief  Check if the CAN queue is empty
- * @param  None
- * @return 0: CAN queue is not empty
- *         1: CAN queue is empty
- */
-uint32_t SharedCan_CanTxMessageFifoIsEmpty(void);
-
-/**
- * @brief  Get the number of messages saved in the CAN queue
- * @param  None
- * @return Number of messages in the queue
- */
-uint32_t SharedCan_GetNumberOfItemsInCanTxMessageFifo(void);
-
-/**
  * @brief  Broadcasts a heartbeat message on the CAN bus
  * @param  module PCB name
  * @return None
  */
 void SharedCan_BroadcastHeartbeat(Pcb_Enum module);
 
+//TODO: Update param
 /**
  * @brief  Transmits a CAN message
  * @param  tx_header: CAN Tx header struct
  * @param  data Data to be transmitted (up to 8 bytes)
  * @return None
  */
-void SharedCan_TransmitDataCAN(CAN_TxHeaderTypeDef *tx_header, uint8_t *data);
+void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data);
 
 /**
- * @brief  Initialize one or more CAN filters using 16-bit Filter Scale and
- *         Identifier Mask Mode (FSCx = 0, FBMx = 0)
+ * @brief  Initialize CAN interrupts and CAN filters before starting the CAN
+ *         module. After this, the node is active on the bus: it receive
+ *         messages, and can send messages. This should be placed inside
+ *         MX_CAN_Init() and  in the USER CODE BLOCK after HAL_CAN_Init().
  * @param  None
- * @return ERROR:
- *         SUCCESS:
+ * @return HAL_STATUS
  */
-ErrorStatus SharedCAN_InitializeFilters(void);
+HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan);
 
 /**
  * @brief  Shared callback function for Rx FIFO 0 and 1
@@ -354,7 +326,7 @@ void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan);
  *         the configuration information for the specified CAN.
  * @retval None
  */
-void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef *hcan);
+void HAL_CAN_TXMailbox1CompleteCallback(CAN_HandleTypeDef *hcan);
 
 /**
  * @brief  Transmission Mailbox 2 complete callback.
@@ -362,6 +334,6 @@ void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef *hcan);
  *         the configuration information for the specified CAN.
  * @retval None
  */
-void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan);
+void HAL_CAN_TXMailbox2CompleteCallback(CAN_HandleTypeDef *hcan);
 
 #endif /* SHARED_CAN_H */
