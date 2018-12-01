@@ -48,6 +48,9 @@
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
+#define LSI_FREQUENCY 40000
+#define IWDG_PRESCALER 4
+#define IWDG_RESET_FREQUENCY 5
 
 #define OSC32_IN_Pin GPIO_PIN_14
 #define OSC32_IN_GPIO_Port GPIOC
