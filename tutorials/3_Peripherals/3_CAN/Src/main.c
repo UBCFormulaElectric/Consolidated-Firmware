@@ -120,6 +120,7 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+  float test_float = 3.1415926
   uint8_t test_data_lut[CAN_PAYLOAD_SIZE] = {0x1, 0x2, 0x3, 0x4, 0xA, 0xB, 0xC, 0xD};
   while (1)
   {
