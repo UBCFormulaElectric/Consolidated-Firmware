@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PCANExplorerProject Version="6.0" Name="ShareCAN">
+    <Connections AutoReset="0" IgnoreRTRLength="0" ProcessRTR="1">
+        <Connection Name="PCAN-Receiver" Bus="1" Enabled="1" Protocol="0" Connection="test@pcan_usb"/>
+    </Connections>
+    <MessageFilters/>
+    <Files>
+        <File RelativePath="ShareCAN_format5.0.dbc" SelectedIDs="ALL"/>
+    </Files>
+</PCANExplorerProject>
