@@ -81,6 +81,7 @@ NVIC.DebugMonitor_IRQn=true\:0\:0\:false\:false\:true\:false
 NVIC.EXTI15_10_IRQn=true\:1\:0\:true\:false\:true\:true
 NVIC.EXTI9_5_IRQn=true\:1\:0\:true\:false\:true\:true
 NVIC.HardFault_IRQn=true\:0\:0\:false\:false\:true\:false
+NVIC.I2C1_EV_IRQn=true\:0\:0\:false\:false\:true\:true
 NVIC.MemoryManagement_IRQn=true\:0\:0\:false\:false\:true\:false
 NVIC.NonMaskableInt_IRQn=true\:0\:0\:false\:false\:true\:false
 NVIC.PendSV_IRQn=true\:0\:0\:false\:false\:true\:false
