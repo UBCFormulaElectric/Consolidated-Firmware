@@ -1,8 +1,9 @@
 #MicroXplorer Configuration settings - do not modify
 CAN.ABOM=ENABLE
+CAN.AWUM=ENABLE
 CAN.BS1=CAN_BS1_6TQ
 CAN.CalculateTimeQuantum=250.0
-CAN.IPParameters=CalculateTimeQuantum,Prescaler,BS1,SJW,TTCM,RFLM,TXFP,ABOM,NART
+CAN.IPParameters=CalculateTimeQuantum,Prescaler,BS1,SJW,TTCM,RFLM,TXFP,ABOM,NART,AWUM
 CAN.NART=ENABLE
 CAN.Prescaler=9
 CAN.RFLM=ENABLE
@@ -75,6 +76,7 @@ Mcu.UserName=STM32F302C8Tx
 MxCube.Version=5.0.0
 MxDb.Version=DB.5.0.0
 NVIC.BusFault_IRQn=true\:0\:0\:false\:false\:true\:false
+NVIC.CAN_RX1_IRQn=true\:0\:0\:false\:false\:true\:true
 NVIC.DebugMonitor_IRQn=true\:0\:0\:false\:false\:true\:false
 NVIC.EXTI15_10_IRQn=true\:1\:0\:true\:false\:true\:true
 NVIC.EXTI9_5_IRQn=true\:1\:0\:true\:false\:true\:true

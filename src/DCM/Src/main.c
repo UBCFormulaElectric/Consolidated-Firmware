@@ -209,7 +209,7 @@ static void MX_CAN_Init(void)
   hcan.Init.TimeSeg2 = CAN_BS2_1TQ;
   hcan.Init.TimeTriggeredMode = DISABLE;
   hcan.Init.AutoBusOff = ENABLE;
-  hcan.Init.AutoWakeUp = DISABLE;
+  hcan.Init.AutoWakeUp = ENABLE;
   hcan.Init.AutoRetransmission = ENABLE;
   hcan.Init.ReceiveFifoLocked = ENABLE;
   hcan.Init.TransmitFifoPriority = ENABLE;
