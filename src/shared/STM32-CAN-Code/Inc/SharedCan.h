@@ -240,16 +240,9 @@ extern CAN_HandleTypeDef hcan;
  */
 void SharedCan_BroadcastHeartbeat(Pcb_Enum module);
 
-//TODO: Update param
 /**
  * @brief  Transmits a CAN message
- * @param  std_id: Standard CAN ID
- * @param  dlc: Data to be transmitted (up to 8 bytes)
- * @return None
- */
-/**
- * @brief Used to initialize an element in can_headers[].
- *        The following struct members of CAN_TxHeaderTypeDef are hard-coded:
+ * @brief  The following struct members of CAN_TxHeaderTypeDef are hard-coded:
  *        .ExtId: The standard 11-bit CAN identifier is more than sufficent, so
  *                we disable Extended CAN IDs be setting this fied to zero.
  *        .IDE: This field can be either Standard CAN or Extended CAN. See
@@ -258,8 +251,10 @@ void SharedCan_BroadcastHeartbeat(Pcb_Enum module);
  *              purpose, we only ever transmit Data Frames.
  *        .TransmitGlobalTime: Enabling this gives us a tick-based timestamp,
  *                             but we lose 2-bytes of CAN payload.
- * @param std_id Standard CAN ID
- * @param dlc Data Length Code
+ * @param  std_id: Standard CAN ID
+ * @param  dlc Data to be transmitted (up to 8 bytes)
+ * @param  data Pointer to an uint8_t array with 8 elements (64-bits in totla)
+ * @return None
  */
 
 void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data);
