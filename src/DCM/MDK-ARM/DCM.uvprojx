@@ -336,7 +336,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER,STM32F302x8</Define>
+              <Define>USE_HAL_DRIVER,STM32F302x8, DCM</Define>
               <Undefine></Undefine>
               <IncludePath>../Inc;         ../Drivers/STM32F3xx_HAL_Driver/Inc;         ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;         ../Drivers/CMSIS/Device/ST/STM32F3xx/Include;         ../Drivers/CMSIS/Include</IncludePath>
             </VariousControls>
