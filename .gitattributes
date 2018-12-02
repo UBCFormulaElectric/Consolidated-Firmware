@@ -1,2 +1,2 @@
-# Disable core.autocrlf for Windows projects
+# Set the default behavior, in case people don't have core.autocrlf set.	
 * text=auto
