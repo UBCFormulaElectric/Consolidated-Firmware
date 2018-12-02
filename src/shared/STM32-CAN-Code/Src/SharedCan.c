@@ -116,6 +116,14 @@ static uint32_t SharedCan_GetNumberOfItemsInCanTxMessageFifo(void);
  */
 static ErrorStatus SharedCAN_InitializeFilters(void);
 
+/**
+ * @brief  Shared callback function for transmission mailbox 0, 1, and 2
+ * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
+ *         the configuration information for the specified CAN.
+ * @return None
+ */
+static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan);
+
 /******************************************************************************
 * Private Function Definitions 
 *******************************************************************************/
@@ -201,7 +209,6 @@ static ErrorStatus SharedCAN_InitializeFilters(void)
     uint32_t num_of_filters = sizeof(mask_filters) / sizeof(mask_filters[0]);
     uint32_t is_odd = num_of_filters % 2;
 
-    // TODO: is it ok to re-use can_filter for each filter configuration?
     CAN_FilterTypeDef can_filter;
     can_filter.FilterMode = CAN_FILTERMODE_IDMASK;
     can_filter.FilterScale = CAN_FILTERSCALE_16BIT;
@@ -254,6 +261,13 @@ static ErrorStatus SharedCAN_InitializeFilters(void)
     return SUCCESS;
 }
 
+static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan)
+{
+    if (!SharedCan_CanTxMessageFifoIsEmpty())
+    {
+        SharedCan_DequeueCanTxMessageFifo();
+    }
+}
 /******************************************************************************
 * Function Definitions
 *******************************************************************************/
@@ -337,12 +351,6 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     // Both receive mailbox interrupts shall be handled in the same way
     Can_RxCommonCallback(hcan, CAN_RX_FIFO1);
-}
-
-__weak void Can_TxCommonCallback(CAN_HandleTypeDef *hcan)
-{
-    /* NOTE : This function Should not be modified, when the callback is needed,
-              the Can_RxCommonCallback could be implemented in the Can.c file */
 }
 
 void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)

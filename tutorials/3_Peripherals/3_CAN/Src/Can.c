@@ -38,8 +38,3 @@ void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
     }
 }
 
-// This interrupt is generated when any mailbox is empty, so
-// we should use it to dequeue CAN tx queue 
-void Can_TxCommonCallback(CAN_HandleTypeDef *hcan)
-{
-}

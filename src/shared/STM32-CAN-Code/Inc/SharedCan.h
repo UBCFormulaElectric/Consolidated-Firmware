@@ -198,8 +198,8 @@ const typedef struct
     uint32_t mask;
 } CanMaskFilterConfig_Struct;
 
-// TODO: give this updated description
-// TODO: see if struct members should be volatile
+/** @brief Struct to enqueue CAN messages that could not be transmitted at the
+ *         time of request */
 typedef struct
 {
     uint32_t std_id;
@@ -277,13 +277,5 @@ HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan);
  * @return None
  */
 void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo);
-
-/**
- * @brief  Shared callback function for transmission mailbox 0, 1, and 2
- * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
- *         the configuration information for the specified CAN.
- * @return None
- */
-void Can_TxCommonCallback(CAN_HandleTypeDef *hcan);
 
 #endif /* SHARED_CAN_H */
