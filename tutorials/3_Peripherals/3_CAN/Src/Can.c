@@ -9,8 +9,7 @@ void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
     
     switch(rx_msg.rx_header.StdId)
     {
-        //case can_headers[DEMO_2_UINT32_NUCLEO_TX].StdId:
-        case 0x0:
+        case DEMO_2_UINT32_NUCLEO_TX_STDID:
             SharedCan_TransmitDataCan(DEMO_2_UINT32_NUCLEO_RX_STDID, DEMO_2_UINT32_NUCLEO_RX_DLC, &rx_msg.data[0]);
             break;
         default:

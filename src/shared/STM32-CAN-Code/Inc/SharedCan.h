@@ -38,22 +38,6 @@
  */
 #define INIT_MASK_FILTER(filter_id, filter_mask) {.id = filter_id, .mask = filter_mask}
 
-/**
- * @brief Used to initialize an element in can_headers[].
- *        The following struct members of CAN_TxHeaderTypeDef are hard-coded:
- *        .ExtId: The standard 11-bit CAN identifier is more than sufficent, so
- *                we disable Extended CAN IDs be setting this fied to zero.
- *        .IDE: This field can be either Standard CAN or Extended CAN. See
- *              .ExtID to see why we set this .DIE to Standard CAN.
- *        .RTR: This field can be either Data Frame or Remote Frame. For our
- *              purpose, we only ever transmit Data Frames.
- *        .TransmitGlobalTime: Enabling this gives us a tick-based timestamp,
- *                             but we lose 2-bytes of CAN payload.
- * @param std_id Standard CAN ID
- * @param dlc Data Length Code
- */
-#define INIT_CAN_HEADER(std_id, dlc) {.StdId = std_id, .ExtId = CAN_ExtID_NULL, \
-.IDE = CAN_ID_STD, .RTR = CAN_RTR_DATA, .DLC = dlc, .TransmitGlobalTime = DISABLE}
 
 // [Warning] The following filter IDs/masks must be used with 16-bit Filter Scale
 // (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier
@@ -246,10 +230,6 @@ typedef enum
 /** @brief Expose CAN headesr to other C files */
 extern CAN_HandleTypeDef hcan;
 
-/** @brief Expose CAN headers to other C files */
-// TODO: Try moving this to above without breaking compilation
-extern CAN_TxHeaderTypeDef can_headers[CAN_NODES_COUNT];
-
 /******************************************************************************
 * Function Prototypes
 *******************************************************************************/
@@ -263,10 +243,25 @@ void SharedCan_BroadcastHeartbeat(Pcb_Enum module);
 //TODO: Update param
 /**
  * @brief  Transmits a CAN message
- * @param  tx_header: CAN Tx header struct
- * @param  data Data to be transmitted (up to 8 bytes)
+ * @param  std_id: Standard CAN ID
+ * @param  dlc: Data to be transmitted (up to 8 bytes)
  * @return None
  */
+/**
+ * @brief Used to initialize an element in can_headers[].
+ *        The following struct members of CAN_TxHeaderTypeDef are hard-coded:
+ *        .ExtId: The standard 11-bit CAN identifier is more than sufficent, so
+ *                we disable Extended CAN IDs be setting this fied to zero.
+ *        .IDE: This field can be either Standard CAN or Extended CAN. See
+ *              .ExtID to see why we set this .DIE to Standard CAN.
+ *        .RTR: This field can be either Data Frame or Remote Frame. For our
+ *              purpose, we only ever transmit Data Frames.
+ *        .TransmitGlobalTime: Enabling this gives us a tick-based timestamp,
+ *                             but we lose 2-bytes of CAN payload.
+ * @param std_id Standard CAN ID
+ * @param dlc Data Length Code
+ */
+
 void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data);
 
 /**

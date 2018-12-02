@@ -203,6 +203,9 @@ static ErrorStatus SharedCAN_InitializeFilters(void)
 
     // TODO: is it ok to re-use can_filter for each filter configuration?
     CAN_FilterTypeDef can_filter;
+    can_filter.FilterMode = CAN_FILTERMODE_IDMASK;
+    can_filter.FilterScale = CAN_FILTERSCALE_16BIT;
+    can_filter.FilterActivation = CAN_FILTER_ENABLE;
 
     // Initialize two 16-bit filters for each filter bank
     for (uint32_t i = 0; i < num_of_filters / 2; i ++)
@@ -214,10 +217,6 @@ static ErrorStatus SharedCAN_InitializeFilters(void)
         can_filter.FilterMaskIdHigh = mask_filters[i + 1].mask;
         can_filter.FilterFIFOAssignment = fifo;
         can_filter.FilterBank = filter_bank;
-        // TODO: Consider moving the 3 lines below outside of the for-loop
-        can_filter.FilterMode = CAN_FILTERMODE_IDMASK;
-        can_filter.FilterScale = CAN_FILTERSCALE_16BIT;
-        can_filter.FilterActivation = CAN_FILTER_ENABLE;
 
         // Alternate between the two FIFOs
         fifo = !fifo;
@@ -244,10 +243,7 @@ static ErrorStatus SharedCAN_InitializeFilters(void)
         can_filter.FilterMaskIdHigh = mask_filters[last_filter_index].mask;
         can_filter.FilterFIFOAssignment = fifo;
         can_filter.FilterBank = filter_bank;
-        can_filter.FilterMode = CAN_FILTERMODE_IDMASK;
-        can_filter.FilterScale = CAN_FILTERSCALE_16BIT;
-        can_filter.FilterActivation = CAN_FILTER_ENABLE;
-
+    
         // Configure and initialize filter bank
         if (HAL_CAN_ConfigFilter(&hcan, &can_filter) != HAL_OK)
         {
@@ -331,7 +327,6 @@ __weak void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
               the Can_RxCommonCallback could be implemented in the Can.c file */
 } 
 
-// TODO: Can I make these fifo callbacks private functions too?
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     Can_RxCommonCallback(hcan, CAN_RX_FIFO0);
@@ -348,7 +343,6 @@ __weak void Can_TxCommonCallback(CAN_HandleTypeDef *hcan)
               the Can_RxCommonCallback could be implemented in the Can.c file */
 }
 
-// TODO: Can I make these mailbox callbacks private functions too?
 void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
 {
     Can_TxCommonCallback(hcan);

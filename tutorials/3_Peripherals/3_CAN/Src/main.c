@@ -126,14 +126,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    uint32_t i;
-    i = sizeof(can_headers);
-    i = sizeof(i);
     for (uint32_t i = 0; i < sizeof(test_data_lut) / sizeof(test_data_lut[0]); i++)
     {
-        
-    
-        
     // TODO: Send two floats in one CAN message
     //SharedCan_TransmitDataCAN(&can_headers[BMS_HEARTBEAT], uint8_t * data)
       // TODO:
