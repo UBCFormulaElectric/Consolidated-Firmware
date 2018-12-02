@@ -298,7 +298,7 @@ void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data)
         }
         #ifdef DEBUG
         //If error was not caused by full mailboxes
-        if((hcan.ErrorCode & HAL_CAN_ERROR_PARAM) != HAL_CAN_ERROR_PARAM)
+        if(!(hcan.ErrorCode & HAL_CAN_ERROR_PARAM))
         {
             transmit_error_count++;
         }
@@ -329,11 +329,13 @@ __weak void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
+    // Both receive mailbox interrupts shall be handled in the same way
     Can_RxCommonCallback(hcan, CAN_RX_FIFO0);
 }
 
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
+    // Both receive mailbox interrupts shall be handled in the same way
     Can_RxCommonCallback(hcan, CAN_RX_FIFO1);
 }
 
@@ -345,15 +347,18 @@ __weak void Can_TxCommonCallback(CAN_HandleTypeDef *hcan)
 
 void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
 {
+    // All 3 transmit mailbox interrupts shall be handled in the same way
     Can_TxCommonCallback(hcan);
 }
 
 void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef *hcan)
 {
+    // All 3 transmit mailbox interrupts shall be handled in the same way
     Can_TxCommonCallback(hcan);
 }
 
 void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan)
 {
+    // All 3 transmit mailbox interrupts shall be handled in the same way
     Can_TxCommonCallback(hcan);
 }
