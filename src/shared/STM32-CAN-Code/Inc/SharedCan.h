@@ -284,51 +284,11 @@ HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan);
 void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo);
 
 /**
- * @brief  Rx FIFO 0 message pending callback.
- * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
- *         the configuration information for the specified CAN.
- * @retval None
- */
-void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan);
-
-/**
- * @brief  Rx FIFO 1 message pending callback.
- * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
- *         the configuration information for the specified CAN.
- * @retval None
- */
-void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan);
-
-/**
  * @brief  Shared callback function for transmission mailbox 0, 1, and 2
  * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
  *         the configuration information for the specified CAN.
  * @return None
  */
 void Can_TxCommonCallback(CAN_HandleTypeDef *hcan);
-
-/**
- * @brief  Transmission Mailbox 0 complete callback.
- * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
- *         the configuration information for the specified CAN.
- * @retval None
- */
-void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan);
-
-/**
- * @brief  Transmission Mailbox 1 complete callback.
- * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
- *         the configuration information for the specified CAN.
- * @retval None
- */
-void HAL_CAN_TXMailbox1CompleteCallback(CAN_HandleTypeDef *hcan);
-
-/**
- * @brief  Transmission Mailbox 2 complete callback.
- * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
- *         the configuration information for the specified CAN.
- * @retval None
- */
-void HAL_CAN_TXMailbox2CompleteCallback(CAN_HandleTypeDef *hcan);
 
 #endif /* SHARED_CAN_H */
