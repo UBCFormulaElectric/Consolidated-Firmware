@@ -24,38 +24,31 @@ static volatile uint8_t head = 0;
 // need to waste resources during run-time to configure their values
 // TODO: How to use static on mask_filters[]? Is it on the array or the struct elements?
 #ifdef PDM
-    CanMaskFilterConfig_Struct mask_filters[2] =
-    {
-        INIT_MASK_FILTER(MASKMODE_16BIT_ID_DCM, MASKMODE_16BIT_MASK_DCM),
-        INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
-    };
-// TODO: Initialize mask filters and CAN headers for other PCBs
-#elif FSM
-{    
-    static CanMaskFilterConfig_Struct mask_filters[] =
-    {
-        INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
-    };
-}
+static CanMaskFilterConfig_Struct mask_filters[2] =
+{
+	INIT_MASK_FILTER(MASKMODE_16BIT_ID_DCM, MASKMODE_16BIT_MASK_DCM),
+	INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
+};
+#elif FSM  
+static CanMaskFilterConfig_Struct mask_filters[] =
+{
+	INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
+};
 #elif BMS
+static CanMaskFilterConfig_Struct mask_filters[] =
 {
-    static CanMaskFilterConfig_Struct mask_filters[] =
-    {
-        INIT_MASK_FILTER(MASKMODE_16BIT_ID_DCM, MASKMODE_16BIT_MASK_DCM),
-        INIT_MASK_FILTER(MASKMODE_16BIT_ID_FSM, MASKMODE_16BIT_MASK_FSM),
-        INIT_MASK_FILTER(MASKMODE_16BIT_ID_PDM, MASKMODE_16BIT_MASK_PDM),
-        INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
-    };
-}
+	INIT_MASK_FILTER(MASKMODE_16BIT_ID_DCM, MASKMODE_16BIT_MASK_DCM),
+	INIT_MASK_FILTER(MASKMODE_16BIT_ID_FSM, MASKMODE_16BIT_MASK_FSM),
+	INIT_MASK_FILTER(MASKMODE_16BIT_ID_PDM, MASKMODE_16BIT_MASK_PDM),
+	INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
+};
 #elif DCM
+static CanMaskFilterConfig_Struct mask_filters[] =
 {
-    static CanMaskFilterConfig_Struct mask_filters[] =
-    {
-        INIT_MASK_FILTER(MASKMODE_16BIT_ID_FSM, MASKMODE_16BIT_MASK_FSM),
-        INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED),
-        INIT_MASK_FILTER(MASKMODE_16BIT_ID_BAMOCAR, MASKMODE_16BIT_MASK_BAMOCAR)
-    };
-}
+	INIT_MASK_FILTER(MASKMODE_16BIT_ID_FSM, MASKMODE_16BIT_MASK_FSM),
+	INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED),
+	INIT_MASK_FILTER(MASKMODE_16BIT_ID_BAMOCAR, MASKMODE_16BIT_MASK_BAMOCAR)
+};
 #endif
 
 /******************************************************************************
@@ -301,7 +294,7 @@ void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data)
         CanTxMsgQueueItem_Struct tx_msg;
         tx_msg.std_id = std_id;
         tx_msg.dlc = dlc;
-        memcpy(&tx_msg.data, data,CAN_PAYLOAD_SIZE);
+        memcpy(&tx_msg.data, data,CAN_PAYLOAD_BYTE_SIZE);
 
         if(SharedCan_EnqueueCanTxMessageFifo(&tx_msg) != FIFO_SUCCESS)
         {

@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F302x8, DCM</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;           ../Drivers/STM32F3xx_HAL_Driver/Inc;           ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;           ../Drivers/CMSIS/Device/ST/STM32F3xx/Include;           ../Drivers/CMSIS/Include</IncludePath>
+              <IncludePath>../Inc;../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;../Drivers/CMSIS/Include;..\..\shared\STM32-CAN-Code\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -398,6 +398,11 @@
               <FilePath>../Src/main.c</FilePath>
             </File>
             <File>
+              <FileName>SharedCan.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\shared\STM32-CAN-Code\Src\SharedCan.c</FilePath>
+            </File>
+            <File>
               <FileName>stm32f3xx_it.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/stm32f3xx_it.c</FilePath>
@@ -406,6 +411,46 @@
               <FileName>stm32f3xx_hal_msp.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/stm32f3xx_hal_msp.c</FilePath>
+            </File>
+            <File>
+              <FileName>Can.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\Can.c</FilePath>
+            </File>
+          </Files>
+        </Group>
+        <Group>
+          <GroupName>Application/Headers</GroupName>
+          <Files>
+            <File>
+              <FileName>CanDefinitions.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\shared\STM32-CAN-Code\Inc\CanDefinitions.h</FilePath>
+            </File>
+            <File>
+              <FileName>main.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Inc\main.h</FilePath>
+            </File>
+            <File>
+              <FileName>SharedCan.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\shared\STM32-CAN-Code\Inc\SharedCan.h</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f3xx_hal_conf.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Inc\stm32f3xx_hal_conf.h</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f3xx_it.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Inc\stm32f3xx_it.h</FilePath>
+            </File>
+            <File>
+              <FileName>Can.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Inc\Can.h</FilePath>
             </File>
           </Files>
         </Group>

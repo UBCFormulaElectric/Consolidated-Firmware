@@ -53,7 +53,8 @@
 #define DEMO_8_UINT8_NUCLEO_RX_STDID                    (uint32_t)(0x409)
 #define DEMO_2_INT32_NUCLEO_TX_STDID                    (uint32_t)(0x40A)
 #define DEMO_2_INT32_NUCLEO_RX_STDID                    (uint32_t)(0x40B)
-#define DEMO_TOGGLE_GPIO_STDID                          (uint32_t)(0x40C)
+#define DEMO_TOGGLE_GPIO_TX_STDID                       (uint32_t)(0x40C)
+#define DEMO_TOGGLE_GPIO_RX_STDID                       (uint32_t)(0x40C)
 
 #define BMS_ERROR_DLC                                   (uint32_t)(8)
 #define BMS_HEARTBEAT_DLC                               (uint32_t)(1)

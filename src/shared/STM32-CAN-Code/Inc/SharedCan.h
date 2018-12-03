@@ -24,7 +24,7 @@
 * Preprocessor Constants
 *******************************************************************************/
 // clang-format off
-#define CAN_PAYLOAD_SIZE 8 // Maximum number of bytes in a CAN payload
+#define CAN_PAYLOAD_BYTE_SIZE 8 // Maximum number of bytes in a CAN payload
 #define CAN_ExtID_NULL 0 // Set CAN Extended ID to 0 because we are not using it
 #define CAN_TX_MSG_FIFO_SIZE 20 // Size of CAN FIFO is arbitrary at the moment
 
@@ -39,12 +39,24 @@
 #define INIT_MASK_FILTER(filter_id, filter_mask) {.id = filter_id, .mask = filter_mask}
 
 
-// [Warning] The following filter IDs/masks must be used with 16-bit Filter Scale
+// The following filter IDs/masks must be used with 16-bit Filter Scale
 // (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier
 // registers are associated with mask registers specifying which bits of the
 // identifier are handled as "don't care" or as "must match". For each bit in
 // the mask registers, 0 = Don't Care and 1 = Must Match.
-
+//
+// Bit mapping of a 16-bit identififer register:
+// Standard CAN ID [15:5] RTR[4] IDE[3] Extended CAN ID [2:0]
+//
+// Example Filter Configuration:
+// Identifier Register:    [000 0000 0000] [0] [0] [000]
+// Mask Register:          [111 1110 0000] [1] [1] [000]
+//
+// In the above example, the filter will accept any incoming messages that
+// matches the following criteria:
+// [000 000x xxxx]    [0]    [0]         [xxx]
+// Standard CAN ID    RTR    IDE     Extended CAN ID
+ 
 // Bit definition for FxR1 and FxR2 Registers
 #define MASKMODE_16BIT_STDID_Pos  (5U)
 #define MASKMODE_16BIT_STDID_Mask (0x7FFU << MASKMODE_16BIT_STDID_Pos) /** 0xFFE0 */
@@ -263,7 +275,7 @@ void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data);
  * @brief  Initialize CAN interrupts and CAN filters before starting the CAN
  *         module. After this, the node is active on the bus: it receive
  *         messages, and can send messages. This should be placed inside
- *         MX_CAN_Init() and  in the USER CODE BLOCK after HAL_CAN_Init().
+ *         MX_CAN_Init() and in the USER CODE BLOCK after HAL_CAN_Init().
  * @param  None
  * @return HAL_STATUS
  */
