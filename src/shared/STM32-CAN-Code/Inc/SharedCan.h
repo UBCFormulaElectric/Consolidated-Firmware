@@ -52,7 +52,7 @@
 // Identifier Register:    [000 0000 0000] [0] [0] [000]
 // Mask Register:          [111 1110 0000] [1] [1] [000]
 // =======================================================
-// The filter will accept incoming messages that matches the following criteria:
+// The filter will accept incoming messages that match the following criteria:
 // [000 000x xxxx]    [0]    [0]         [xxx]
 // Standard CAN ID    RTR    IDE     Extended CAN ID
 
@@ -253,18 +253,9 @@ void SharedCan_BroadcastHeartbeat(Pcb_Enum module);
 
 /**
  * @brief  Transmits a CAN message
- * @brief  The following struct members of CAN_TxHeaderTypeDef are hard-coded:
- *        .ExtId: The standard 11-bit CAN identifier is more than sufficent, so
- *                we disable Extended CAN IDs be setting this fied to zero.
- *        .IDE: This field can be either Standard CAN or Extended CAN. See
- *              .ExtID to see why we set this .DIE to Standard CAN.
- *        .RTR: This field can be either Data Frame or Remote Frame. For our
- *              purpose, we only ever transmit Data Frames.
- *        .TransmitGlobalTime: Enabling this gives us a tick-based timestamp,
- *                             but we lose 2-bytes of CAN payload.
  * @param  std_id: Standard CAN ID
  * @param  dlc Data to be transmitted (up to 8 bytes)
- * @param  data Pointer to an uint8_t array with 8 elements (64-bits in totla)
+ * @param  data Pointer to an uint8_t array with 8 elements (64-bits in total)
  * @return None
  */
 

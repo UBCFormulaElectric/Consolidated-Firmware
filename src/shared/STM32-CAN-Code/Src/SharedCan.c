@@ -124,7 +124,9 @@ static Fifo_Status_Enum SharedCan_DequeueCanTxMessageFifo(void)
     if(!SharedCan_CanTxMessageFifoIsEmpty())
     {
         // Transmit one CAN message in queue
-        SharedCan_TransmitDataCan(can_tx_msg_fifo[tail].std_id, can_tx_msg_fifo[tail].dlc, can_tx_msg_fifo[tail].data);
+        SharedCan_TransmitDataCan(can_tx_msg_fifo[tail].std_id,
+                                  can_tx_msg_fifo[tail].dlc,
+                                  can_tx_msg_fifo[tail].data);
 
         // Remove the transmitted CAN message from queue
         memset(&can_tx_msg_fifo[tail], 0, sizeof(can_tx_msg_fifo[tail]));
@@ -277,10 +279,22 @@ void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data)
 
     CAN_TxHeaderTypeDef tx_header;
     tx_header.StdId = std_id;
+
+    // The standard 11-bit CAN identifier is more than sufficent, so
+    // we disable Extended CAN IDs be setting this fied to zero.
     tx_header.ExtId = CAN_ExtID_NULL;
+
+    // This field can be either Standard CAN or Extended CAN. See
+    // .ExtID to see why we set this .DIE to Standard CAN.
     tx_header.IDE = CAN_ID_STD;
+
+    // .RTR: This field can be either Data Frame or Remote Frame. For our
+    // purpose, we only ever transmit Data Frames.
     tx_header.RTR = CAN_RTR_DATA;
     tx_header.DLC = dlc;
+
+    // .TransmitGlobalTime: Enabling this gives us a tick-based timestamp,
+    // but we lose 2-bytes of CAN payload.
     tx_header.TransmitGlobalTime = DISABLE;
 
     // If a mailbox is not available or other error occurs
