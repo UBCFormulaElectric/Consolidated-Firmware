@@ -20,16 +20,15 @@ static CanTxMsgQueueItem_Struct can_tx_msg_fifo[CAN_TX_MSG_FIFO_SIZE];
 static volatile uint8_t tail = 0;
 static volatile uint8_t head = 0;
 
-// mask_filters[] and can_headers[] are initialized at compile-time so we don't
+// mask_filters[] are initialized at compile-time so we don't
 // need to waste resources during run-time to configure their values
-// TODO: How to use static on mask_filters[]? Is it on the array or the struct elements?
 #ifdef PDM
 static CanMaskFilterConfig_Struct mask_filters[2] =
 {
 	INIT_MASK_FILTER(MASKMODE_16BIT_ID_DCM, MASKMODE_16BIT_MASK_DCM),
 	INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
 };
-#elif FSM  
+#elif FSM
 static CanMaskFilterConfig_Struct mask_filters[] =
 {
 	INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
@@ -118,7 +117,7 @@ static ErrorStatus SharedCAN_InitializeFilters(void);
 static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan);
 
 /******************************************************************************
-* Private Function Definitions 
+* Private Function Definitions
 *******************************************************************************/
 static Fifo_Status_Enum SharedCan_DequeueCanTxMessageFifo(void)
 {
@@ -243,7 +242,7 @@ static ErrorStatus SharedCAN_InitializeFilters(void)
         can_filter.FilterMaskIdHigh = mask_filters[last_filter_index].mask;
         can_filter.FilterFIFOAssignment = fifo;
         can_filter.FilterBank = filter_bank;
-    
+
         // Configure and initialize filter bank
         if (HAL_CAN_ConfigFilter(&hcan, &can_filter) != HAL_OK)
         {
@@ -256,10 +255,7 @@ static ErrorStatus SharedCAN_InitializeFilters(void)
 
 static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan)
 {
-    if (!SharedCan_CanTxMessageFifoIsEmpty())
-    {
-        SharedCan_DequeueCanTxMessageFifo();
-    }
+    SharedCan_DequeueCanTxMessageFifo();
 }
 /******************************************************************************
 * Function Definitions
@@ -319,47 +315,47 @@ HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan)
 
     status |= SharedCAN_InitializeFilters();
 
+    // TODO: Consider implmenting Rx Overrun interrupt and appropriate handling strategy
     status |= HAL_CAN_ActivateNotification(hcan, CAN_IT_TX_MAILBOX_EMPTY |
-    CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING);  
+    CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING);
 
     status |= HAL_CAN_Start(hcan);
 
     return status;
 }
 
-
 __weak void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 {
-    /* NOTE : This function Should not be modified, when the callback is needed,
+    /* NOTE: This function Should not be modified, when the callback is needed,
               the Can_RxCommonCallback could be implemented in the Can.c file */
-} 
+}
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
-    // Both receive mailbox interrupts shall be handled in the same way
+    /* NOTE: All receive mailbox interrupts shall be handled in the same way */
     Can_RxCommonCallback(hcan, CAN_RX_FIFO0);
 }
 
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
-    // Both receive mailbox interrupts shall be handled in the same way
+    /* NOTE: All receive mailbox interrupts shall be handled in the same way */
     Can_RxCommonCallback(hcan, CAN_RX_FIFO1);
 }
 
 void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
 {
-    // All 3 transmit mailbox interrupts shall be handled in the same way
+    /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
     Can_TxCommonCallback(hcan);
 }
 
 void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef *hcan)
 {
-    // All 3 transmit mailbox interrupts shall be handled in the same way
+    /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
     Can_TxCommonCallback(hcan);
 }
 
 void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan)
 {
-    // All 3 transmit mailbox interrupts shall be handled in the same way
+    /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
     Can_TxCommonCallback(hcan);
 }
