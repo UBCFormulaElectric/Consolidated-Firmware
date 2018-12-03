@@ -176,24 +176,24 @@ Var=RIGHT_TORQUE_REQUEST_RX unsigned 0,24
 [DEMO_1_DOUBLE_NUCLEO_TX_STDID]
 ID=400h
 DLC=8
-Var=Double double 0,64
+Var=Double double 0,64 /p:10
 
 [DEMO_1_DOUBLE_NUCLEO_RX_STDID]
 ID=401h
 DLC=8
-Var=Double double 0,64
+Var=Double double 0,64 /p:10
 
 [DEMO_2_FLOAT_NUCLEO_TX_STDID]
 ID=402h
 DLC=8
-Var=Float_1 float 0,32
-Var=Float_2 float 32,32
+Var=Float_1 float 0,32 /p:10
+Var=Float_2 float 32,32 /p:10
 
 [DEMO_2_FLOAT_NUCLEO_RX_STDID]
 ID=403h
 DLC=8
-Var=Float_1 float 0,32
-Var=Float_2 float 32,32
+Var=Float_1 float 0,32 /p:10
+Var=Float_2 float 32,32 /p:10
 
 [DEMO_2_UINT32_NUCLEO_TX_STDID]
 ID=404h

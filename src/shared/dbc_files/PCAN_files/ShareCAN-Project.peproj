@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<PCANExplorerProject Version="6.0" Name="ShareCAN-Project">
-    <Connections AutoReset="0" IgnoreRTRLength="0" ProcessRTR="1"/>
-    <MessageFilters/>
-    <Files>
-        <File RelativePath="..\DBC file\ShareCAN.dbc"/>
-    </Files>
-</PCANExplorerProject>
