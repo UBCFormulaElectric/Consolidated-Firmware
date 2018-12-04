@@ -31,6 +31,12 @@ typedef enum
 	TEST_TEST2,			/** OPTIONAL TODO: Test Type 2 */
 } Test_Enum;
 
+typedef struct 
+{
+	TEST_TEST3,			/** OPTIONAL TODO: Test Type 3 */
+	TEST_TEST4,			/** OPTIONAL TODO: Test Type 4 */
+} Test_Struct;
+
 /******************************************************************************
 * Variables
 *******************************************************************************/
