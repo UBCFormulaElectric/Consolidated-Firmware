@@ -208,7 +208,7 @@ static void MX_ADC_Init(void)
   hadc.Init.ClockPrescaler = ADC_CLOCK_ASYNC_DIV1;
   hadc.Init.Resolution = ADC_RESOLUTION_12B;
   hadc.Init.DataAlign = ADC_DATAALIGN_RIGHT;
-  hadc.Init.ScanConvMode = ADC_SCAN_DIRECTION_BACKWARD;
+  hadc.Init.ScanConvMode = ADC_SCAN_DIRECTION_FORWARD;
   hadc.Init.EOCSelection = ADC_EOC_SINGLE_CONV;
   hadc.Init.LowPowerAutoWait = DISABLE;
   hadc.Init.LowPowerAutoPowerOff = DISABLE;
@@ -227,7 +227,7 @@ static void MX_ADC_Init(void)
     */
   sConfig.Channel = ADC_CHANNEL_5;
   sConfig.Rank = ADC_RANK_CHANNEL_NUMBER;
-  sConfig.SamplingTime = ADC_SAMPLETIME_7CYCLES_5;
+  sConfig.SamplingTime = ADC_SAMPLETIME_55CYCLES_5;
   if (HAL_ADC_ConfigChannel(&hadc, &sConfig) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -248,15 +248,15 @@ static void MX_CAN_Init(void)
 {
 
   hcan.Instance = CAN;
-  hcan.Init.Prescaler = 8;
+  hcan.Init.Prescaler = 6;
   hcan.Init.Mode = CAN_MODE_NORMAL;
-  hcan.Init.SJW = CAN_SJW_2TQ;
-  hcan.Init.BS1 = CAN_BS1_5TQ;
+  hcan.Init.SJW = CAN_SJW_4TQ;
+  hcan.Init.BS1 = CAN_BS1_13TQ;
   hcan.Init.BS2 = CAN_BS2_2TQ;
-  hcan.Init.TTCM = ENABLE;
-  hcan.Init.ABOM = DISABLE;
+  hcan.Init.TTCM = DISABLE;
+  hcan.Init.ABOM = ENABLE;
   hcan.Init.AWUM = DISABLE;
-  hcan.Init.NART = DISABLE;
+  hcan.Init.NART = ENABLE;
   hcan.Init.RFLM = ENABLE;
   hcan.Init.TXFP = ENABLE;
   if (HAL_CAN_Init(&hcan) != HAL_OK)
@@ -271,9 +271,9 @@ static void MX_IWDG_Init(void)
 {
 
   hiwdg.Instance = IWDG;
-  hiwdg.Init.Prescaler = IWDG_PRESCALER_32;
+  hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
   hiwdg.Init.Window = 4095;
-  hiwdg.Init.Reload = 200;
+  hiwdg.Init.Reload = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
   if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
@@ -289,11 +289,11 @@ static void MX_TIM1_Init(void)
   TIM_MasterConfigTypeDef sMasterConfig;
 
   htim1.Instance = TIM1;
-  htim1.Init.Prescaler = 0;
+  htim1.Init.Prescaler = TIM1_PRESCALER;
   htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim1.Init.Period = 4999;
+  htim1.Init.Period = (APB1_TIMER_CLOCK / ( (TIM1_PRESCALER + 1) * (TIM1_REPETITION + 1) * TIM1_CLK_DIVISION * ADC_TRIGGER_FREQUENCY) ) - 1;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
-  htim1.Init.RepetitionCounter = 0;
+  htim1.Init.RepetitionCounter = TIM1_REPETITION;
   htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
   {
@@ -392,9 +392,9 @@ static void MX_TIM14_Init(void)
 {
 
   htim14.Instance = TIM14;
-  htim14.Init.Prescaler = 7;
+  htim14.Init.Prescaler = TIM14_PRESCALER;
   htim14.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim14.Init.Period = ((SystemCoreClockCube / 8) / CONTROL_LOOP_FREQUENCY_CUBE) - 1;
+  htim14.Init.Period = (APB1_TIMER_CLOCK / ( (TIM14_PRESCALER + 1) * TIM14_CLK_DIVISION * CONTROL_LOOP_FREQUENCY) ) - 1;
   htim14.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim14.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim14) != HAL_OK)
@@ -411,7 +411,7 @@ static void MX_TIM16_Init(void)
   TIM_IC_InitTypeDef sConfigIC;
 
   htim16.Instance = TIM16;
-  htim16.Init.Prescaler = WHEEL_SPEED_TIMER_PRESCALER_CUBE;
+  htim16.Init.Prescaler = WHEEL_SPEED_TIMER_PRESCALER;
   htim16.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim16.Init.Period = 65535;
   htim16.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -445,7 +445,7 @@ static void MX_TIM17_Init(void)
   TIM_IC_InitTypeDef sConfigIC;
 
   htim17.Instance = TIM17;
-  htim17.Init.Prescaler = WHEEL_SPEED_TIMER_PRESCALER_CUBE;
+  htim17.Init.Prescaler = WHEEL_SPEED_TIMER_PRESCALER;
   htim17.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim17.Init.Period = 65535;
   htim17.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
@@ -507,11 +507,17 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, STATUS_R_Pin|STATUS_G_Pin|STATUS_B_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : PRIMARY_APPS_Z_Pin PRIMARY_APPS_ALARM_Pin BSPD_BRAKE_THRES_Pin */
-  GPIO_InitStruct.Pin = PRIMARY_APPS_Z_Pin|PRIMARY_APPS_ALARM_Pin|BSPD_BRAKE_THRES_Pin;
+  /*Configure GPIO pins : PRIMARY_APPS_Z_Pin BSPD_BRAKE_THRES_Pin */
+  GPIO_InitStruct.Pin = PRIMARY_APPS_Z_Pin|BSPD_BRAKE_THRES_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : PRIMARY_APPS_ALARM_Pin */
+  GPIO_InitStruct.Pin = PRIMARY_APPS_ALARM_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(PRIMARY_APPS_ALARM_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : STATUS_R_Pin STATUS_G_Pin STATUS_B_Pin */
   GPIO_InitStruct.Pin = STATUS_R_Pin|STATUS_G_Pin|STATUS_B_Pin;
@@ -520,11 +526,17 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : SECONDARY_APPS_Z_Pin SECONDARY_APPS_ALARM_Pin */
-  GPIO_InitStruct.Pin = SECONDARY_APPS_Z_Pin|SECONDARY_APPS_ALARM_Pin;
+  /*Configure GPIO pin : SECONDARY_APPS_Z_Pin */
+  GPIO_InitStruct.Pin = SECONDARY_APPS_Z_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  HAL_GPIO_Init(SECONDARY_APPS_Z_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : SECONDARY_APPS_ALARM_Pin */
+  GPIO_InitStruct.Pin = SECONDARY_APPS_ALARM_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(SECONDARY_APPS_ALARM_GPIO_Port, &GPIO_InitStruct);
 
 }
 

@@ -16,10 +16,6 @@
 #include "stm32f3xx_hal.h"
 #endif
 
-#ifdef STM32F042x6 
-#include "stm32f0xx_hal.h"
-#endif
-
 #define CAN_PAYLOAD_SIZE 8 // Maximum number of bytes in a CAN payload
 
 #define CAN_ExtID_NULL 0

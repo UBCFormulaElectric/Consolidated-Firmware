@@ -16,7 +16,6 @@ float FilteredADCReadings[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {0};
 
 // LPF constants (calculated using this article:
 // https://en.wikipedia.org/wiki/Low-pass_filter#Discrete-time_realization)
-/*
 static const float ADC_TRIGGER_FREQUENCY =
 5000.0f; // ADC sampling frequency - 72MHz/14400 (TIM2 prescaler value)
 static const float DELTA            = 1.0f / ADC_TRIGGER_FREQUENCY;
@@ -25,20 +24,7 @@ static const float CUTOFF_FREQUENCY = 10.0f; // 10Hz cutoff to account for false
                                              // SoftwareTools for data
 static const float RC        = 1.0f / (2.0f * 3.14159265f * CUTOFF_FREQUENCY);
 static const float LPF_ALPHA = DELTA / (RC + DELTA);
-*/
 
-static const float ADC_TRIGGER_FREQUENCY = 5000.0f;
-static const float DELTA                 = 1.0f / 5000.0f; //1.0f / ADC_TRIGGER_FREQUENCY
-static const float CUTOFF_FREQUENCY      = 10.0f; // 10Hz cutoff to account for false
-                                                  // tripping from inrush - see
-                                                  // SoftwareTools for data
-static const float RC        = 1.0f / (2.0f * 3.14159265f * 10.0f); // 1 / (2 * pi * CUTOFF_FREQUENCY)
-// LPF_ALPHA = DELTA / (RC + DELTA)
-static const float LPF_ALPHA = (1.0f / 5000.0f) / 
-                               (
-                                (1.0f / (2.0f * 3.14159265f * 10.0f)) + 
-                                (1.0f / 5000.0f)
-                               );
 
 void CurrentSense_LowPassFilterADCReadings(__IO uint32_t* ADCReadings) {
     uint8_t ADC_channel          = CurrentSense_DSELShiftIndex();

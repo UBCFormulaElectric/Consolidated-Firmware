@@ -48,9 +48,18 @@
 /* USER CODE END Includes */
 
 /* Private define ------------------------------------------------------------*/
-#define SystemCoreClockCube 48000000
-#define CONTROL_LOOP_FREQUENCY_CUBE 100
-#define WHEEL_SPEED_TIMER_PRESCALER_CUBE 192
+#define CONTROL_LOOP_FREQUENCY 100
+#define WHEEL_SPEED_TIMER_PRESCALER 191
+#define TIM14_PRESCALER 7
+#define APB1_TIMER_CLOCK 48000000
+#define ADC_TRIGGER_FREQUENCY 1000
+#define TIM1_PRESCALER 0
+#define TIM1_REPETITION 0
+#define TIM1_CLK_DIVISION 1
+#define TIM14_CLK_DIVISION 1
+#define LSI_FREQUENCY 40000
+#define IWDG_PRESCALER 4
+#define IWDG_RESET_FREQUENCY 5
 
 #define OSC_IN_Pin GPIO_PIN_0
 #define OSC_IN_GPIO_Port GPIOF

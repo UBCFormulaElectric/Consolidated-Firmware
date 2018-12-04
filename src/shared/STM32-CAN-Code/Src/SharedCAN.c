@@ -10,7 +10,7 @@
 
 // CAN Tx Message Fifo
 static const uint32_t CAN_TX_MSG_FIFO_SIZE = 20;
-static CanTxMsg_Struct can_tx_msg_fifo[20];
+static CanTxMsg_Struct can_tx_msg_fifo[CAN_TX_MSG_FIFO_SIZE];
 static __IO uint8_t tail = 0;
 static __IO uint8_t head = 0;
 
