@@ -95,6 +95,8 @@ void Error_Handler(void);
 #define IS_4_GPIO_Port GPIOA
 #define IS_5_Pin GPIO_PIN_4
 #define IS_5_GPIO_Port GPIOA
+#define FLYWIRE_Pin GPIO_PIN_6
+#define FLYWIRE_GPIO_Port GPIOA
 #define PIN_AUX_2_Pin GPIO_PIN_7
 #define PIN_AUX_2_GPIO_Port GPIOA
 #define DSEL_1_Pin GPIO_PIN_4
