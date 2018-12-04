@@ -327,7 +327,7 @@
             <uC99>1</uC99>
             <uGnu>0</uGnu>
             <useXO>0</useXO>
-            <v6Lang>6</v6Lang>
+            <v6Lang>5</v6Lang>
             <v6LangP>3</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
@@ -336,7 +336,7 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER,STM32F302x8</Define>
+              <Define>USE_HAL_DRIVER,STM32F302x8, PDM</Define>
               <Undefine></Undefine>
               <IncludePath>../Inc;  ../Drivers/STM32F3xx_HAL_Driver/Inc;  ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;  ../Drivers/CMSIS/Device/ST/STM32F3xx/Include;  ../Drivers/CMSIS/Include;  ..\..\shared\STM32-CAN-Code\Inc</IncludePath>
             </VariousControls>
