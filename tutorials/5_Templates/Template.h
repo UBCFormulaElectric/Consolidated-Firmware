@@ -31,6 +31,7 @@ typedef enum
 	TEST_TEST2,			/** OPTIONAL TODO: Test Type 2 */
 } Test_Enum;
 
+/** TODO: What is this struct for */
 typedef struct 
 {
 	TEST_TEST3,			/** OPTIONAL TODO: Test Type 3 */
@@ -46,11 +47,12 @@ extern uint32_t global_bar;
 * Function Prototypes
 *******************************************************************************/
 /**
- * @brief  TODO: WHAT DO I DO?
- * @param  TODO: WHAT IS THE ARGUMENT?
- * @return TODO: WHAT DO I RETURN?
+ * @brief  This function adds two given numbers together
+ * @param  num1 The first number to add
+ * @param  num2 The second number to add
+ * @return The sum of num1 and num2
  */
-void Function(void);
+uint32_t addTwoNumbers(uint32_t num1, uint32_t num2);
 
 //TODO: Update comment below to match `#ifndef` header guard at top of file
 #endif /* TEMPLATE_H */

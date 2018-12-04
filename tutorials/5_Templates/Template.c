@@ -43,7 +43,7 @@ static void Foo(void)
 /******************************************************************************
 * Function Definitions
 *******************************************************************************/
-void Function(void)
+uint32_t addTwoNumbers(uint32_t num1, uint32_t num2)
 {
 
 }
