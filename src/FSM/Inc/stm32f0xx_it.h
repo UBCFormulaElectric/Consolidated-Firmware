@@ -1,3 +1,4 @@
+/* USER CODE BEGIN Header */
 /**
   ******************************************************************************
   * @file    stm32f0xx_it.h
@@ -30,6 +31,7 @@
   *
   ******************************************************************************
   */
+/* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
 #ifndef __STM32F0xx_IT_H
@@ -39,14 +41,27 @@
  extern "C" {
 #endif 
 
-/* Includes ------------------------------------------------------------------*/
-#include "stm32f0xx_hal.h"
-#include "main.h"
-/* Exported types ------------------------------------------------------------*/
-/* Exported constants --------------------------------------------------------*/
-/* Exported macro ------------------------------------------------------------*/
-/* Exported functions ------------------------------------------------------- */
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
 
+/* USER CODE END Includes */
+
+/* Exported types ------------------------------------------------------------*/
+/* USER CODE BEGIN ET */
+
+/* USER CODE END ET */
+
+/* Exported constants --------------------------------------------------------*/
+/* USER CODE BEGIN EC */
+
+/* USER CODE END EC */
+
+/* Exported macro ------------------------------------------------------------*/
+/* USER CODE BEGIN EM */
+
+/* USER CODE END EM */
+
+/* Exported functions prototypes ---------------------------------------------*/
 void NMI_Handler(void);
 void HardFault_Handler(void);
 void SVC_Handler(void);
@@ -56,6 +71,10 @@ void DMA1_Channel1_IRQHandler(void);
 void TIM14_IRQHandler(void);
 void TIM16_IRQHandler(void);
 void TIM17_IRQHandler(void);
+void CEC_CAN_IRQHandler(void);
+/* USER CODE BEGIN EFP */
+
+/* USER CODE END EFP */
 
 #ifdef __cplusplus
 }
