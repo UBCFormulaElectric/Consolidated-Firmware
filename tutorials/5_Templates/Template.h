@@ -51,5 +51,5 @@ typedef struct
  */
 void Function(void);
 
-//TODO: UPDATE COMMENT BELOW
+//TODO: Update comment below to match `#ifndef` expression at top of file
 #endif /* TEMPLATE_H_ */
