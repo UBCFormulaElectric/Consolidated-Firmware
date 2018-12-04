@@ -3,8 +3,8 @@
  * @brief TODO: WHAT DO I DO?
  */
 //TODO: UPDATE MACRO BELOW
-#ifndef MODULE_H_
-#define MODULE_H_
+#ifndef TEMPLATE_H_
+#define TEMPLATE_H_
 
 /******************************************************************************
 * Includes
@@ -52,4 +52,4 @@ typedef struct
 void Function(void);
 
 //TODO: UPDATE COMMENT BELOW
-#endif /* File_H_ */
+#endif /* TEMPLATE_H_ */
