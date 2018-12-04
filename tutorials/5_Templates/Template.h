@@ -2,7 +2,7 @@
  * @file  TODO: Template.h
  * @brief TODO: WHAT DO I DO?
  */
-//TODO: UPDATE MACRO BELOW
+//TODO: Update header guard below to an unique identifier in this project
 #ifndef TEMPLATE_H
 #define TEMPLATE_H
 
@@ -51,5 +51,5 @@ typedef struct
  */
 void Function(void);
 
-//TODO: Update comment below to match `#ifndef` expression at top of file
+//TODO: Update comment below to match `#ifndef` header guard at top of file
 #endif /* TEMPLATE_H */
