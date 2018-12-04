@@ -59,6 +59,12 @@
 *.sfd
 *.sfr
 
+# CMake-relevant files
+CMakeCache.txt
+cmake_install.cmake
+CMakeFiles/
+Build/
+
 # Miscellaneous
 *.tra
 *.bin
