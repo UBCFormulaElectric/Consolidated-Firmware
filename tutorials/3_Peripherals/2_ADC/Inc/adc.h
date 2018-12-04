@@ -44,6 +44,7 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
+#include "stm32f3xx_hal.h"
 #include "main.h"
 
 /* USER CODE BEGIN Includes */
@@ -62,6 +63,8 @@ extern ADC_HandleTypeDef hadc1;
 #define ADC_12_BIT_FULL_SCALE 	((uint32_t)4095)
 	 
 /* USER CODE END Private defines */
+
+extern void _Error_Handler(char *, int);
 
 void MX_ADC1_Init(void);
 

@@ -45,9 +45,11 @@
 #endif
 
 /* Includes ------------------------------------------------------------------*/
+#include "stm32f3xx_hal.h"
 #include "main.h"
 
 /* DMA memory to memory transfer handles -------------------------------------*/
+extern void _Error_Handler(char*, int);
 
 /* USER CODE BEGIN Includes */
 
