@@ -117,7 +117,8 @@ static ErrorStatus SharedCAN_InitializeFilters(void);
 static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan);
 
 /**
- * @brief  Send the overflow count for transmit FIFO over CAN
+ * @brief  Send the overflow count for transmit FIFO over CAN. Note that this
+ *         destroys one CAN message already enqueued.
  * @param  overflow_count Number of overflows occured thus far
  * @return None
  */
@@ -269,8 +270,6 @@ static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan)
 
 static void SharedCan_EnqueueFifoOverflowError(void)
 {
-    // Destructively replace the first message in the FIFO because the FIFO
-    // is already full
     #ifdef PDM
     uint32_t std_id = PDM_CAN_TX_OVERFLOW_STDID;
     uint32_t dlc = PDM_CAN_TX_OVERFLOW_DLC;
@@ -288,6 +287,7 @@ static void SharedCan_EnqueueFifoOverflowError(void)
     static uint32_t overflow_count = 0;
 
     overflow_count++;
+
     can_tx_msg_fifo[head].std_id = std_id;
     can_tx_msg_fifo[head].dlc = dlc;
     // TODO: verify this copies by value correctly
@@ -300,8 +300,8 @@ static void SharedCan_EnqueueFifoOverflowError(void)
 void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data)
 {
     uint32_t mailbox = 0; // Indicates the mailbox used for tranmission, not currently used
-
     CAN_TxHeaderTypeDef tx_header;
+
     tx_header.StdId = std_id;
 
     // The standard 11-bit CAN identifier is more than sufficent, so we disable

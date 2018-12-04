@@ -69,8 +69,6 @@
 #define DEMO_8_UINT8_NUCLEO_RX_STDID                    (uint32_t)(0x409)
 #define DEMO_2_INT32_NUCLEO_TX_STDID                    (uint32_t)(0x40A)
 #define DEMO_2_INT32_NUCLEO_RX_STDID                    (uint32_t)(0x40B)
-#define DEMO_TOGGLE_GPIO_TX_STDID                       (uint32_t)(0x40C)
-#define DEMO_TOGGLE_GPIO_RX_STDID                       (uint32_t)(0x40C)
 
 #define BMS_ERROR_DLC                                   (uint32_t)(8)
 #define BMS_HEARTBEAT_DLC                               (uint32_t)(1)
@@ -147,8 +145,8 @@ typedef enum
 
 /** @brief FSM Errors */
 typedef enum
-{    
-	// Begin counting faults at 1 for boolean comparison
+{
+    // Begin counting faults at 1 for boolean comparison
     FSM_APPS_FAULT_STATE_1,
     FSM_APPS_FAULT_STATE_2,
     FSM_APPS_FAULT_STATE_3,
