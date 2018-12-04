@@ -127,73 +127,6 @@
 /******************************************************************************
 * Typedefs
 *******************************************************************************/
-/** @brief Used as index for elements in can_headers[] */
-typedef enum
-{
-    // BMS CAN IDs
-    BMS_ERROR = 0,
-    BMS_HEARTBEAT,
-    BMS_ACCUMULATOR_STATUS,
-    BMS_ACCUMULATOR_DISCHARGE_POWER_LIMIT,
-    BMS_ACCUMULATOR_REGEN_POWER_LIMIT,
-    BMS_ACCUMULATOR_SOC,
-    BMS_TURN_ON_ALL_FETS,
-    BMS_BALANCE_MOSFET,
-    BMS_CELL_VOLTAGE,
-    BMS_LATCH_RESET,
-    BMS_MOTOR_REENABLE,
-    BMS_AIR_SHUTDOWN_ERROR,
-
-    // DCM CAN IDs
-    DCM_ERROR,
-    DCM_HEARTBEAT,
-    DCM_LEFT_SLIP_RATIO,
-    DCM_RIGHT_SLIP_RATIO,
-    DCM_LEFT_MOTOR_OUTPUT,
-    DCM_RIGHT_MOTOR_OUTPUT,
-    DCM_LEFT_SLIP_ERROR,
-    DCM_RIGHT_SLIP_ERROR,
-
-    // FSM CAN IDs
-    FSM_ERROR,
-    FSM_HEARTBEAT,
-    FSM_BRAKE_APPS,
-    FSM_STEERING_ANGLE,
-    FSM_LEFT_WHEEL_SPEED,
-    FSM_RIGHT_WHEEL_SPEED,
-
-    // PDM CAN IDs
-    PDM_ERROR,
-    PDM_HEARTBEAT,
-    PDM_STARTUP_STATUS,
-
-    // Shared CAN IDs
-    MOTOR_SHUTDOWN_ERROR,
-
-    // BAMOCAR D3 CAN IDs
-    LEFT_TORQUE_REQUEST_TX,  // BAMOCAR D3 transmits on TX
-    RIGHT_TORQUE_REQUEST_TX, // BAMOCAR D3 transmits on TX
-    LEFT_TORQUE_REQUEST_RX,  // BAMOCAR D3 receives on RX
-    RIGHT_TORQUE_REQUEST_RX, // BAMOCAR D3 receives on RX
-
-    // Demo Example CAN IDs
-    DEMO_1_DOUBLE_NUCLEO_TX,
-    DEMO_1_DOUBLE_NUCLEO_RX,
-    DEMO_2_FLOAT_NUCLEO_TX,
-    DEMO_2_FLOAT_NUCLEO_RX,
-    DEMO_2_UINT32_NUCLEO_TX,
-    DEMO_2_UINT32_NUCLEO_RX,
-    DEMO_4_UINT16_NUCLEO_TX,
-    DEMO_4_UINT16_NUCLEO_RX,
-    DEMO_8_UINT8_NUCLEO_TX,
-    DEMO_8_UINT8_NUCLEO_RX,
-    DEMO_2_INT32_NUCLEO_TX,
-    DEMO_2_INT32_NUCLEO_RX,
-
-    // Number of CAN IDS
-    CAN_NODES_COUNT
-} CanIds_Enum;
-
 /** @brief Struct to help initialize CAN filters */
 const typedef struct
 {
@@ -245,20 +178,12 @@ extern CAN_HandleTypeDef hcan;
 * Function Prototypes
 *******************************************************************************/
 /**
- * @brief  Broadcasts a heartbeat message on the CAN bus
- * @param  module PCB name
- * @return None
- */
-void SharedCan_BroadcastHeartbeat(Pcb_Enum module);
-
-/**
  * @brief  Transmits a CAN message
  * @param  std_id: Standard CAN ID
  * @param  dlc Data to be transmitted (up to 8 bytes)
  * @param  data Pointer to an uint8_t array with 8 elements (64-bits in total)
  * @return None
  */
-
 void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data);
 
 /**
