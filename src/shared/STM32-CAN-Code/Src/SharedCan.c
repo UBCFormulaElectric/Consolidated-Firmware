@@ -25,28 +25,28 @@ static volatile uint8_t head = 0;
 #ifdef PDM
 static CanMaskFilterConfig_Struct mask_filters[2] =
 {
-	INIT_MASK_FILTER(MASKMODE_16BIT_ID_DCM, MASKMODE_16BIT_MASK_DCM),
-	INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
+    INIT_MASK_FILTER(MASKMODE_16BIT_ID_DCM, MASKMODE_16BIT_MASK_DCM),
+    INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
 };
 #elif FSM
 static CanMaskFilterConfig_Struct mask_filters[] =
 {
-	INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
+    INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
 };
 #elif BMS
 static CanMaskFilterConfig_Struct mask_filters[] =
 {
-	INIT_MASK_FILTER(MASKMODE_16BIT_ID_DCM, MASKMODE_16BIT_MASK_DCM),
-	INIT_MASK_FILTER(MASKMODE_16BIT_ID_FSM, MASKMODE_16BIT_MASK_FSM),
-	INIT_MASK_FILTER(MASKMODE_16BIT_ID_PDM, MASKMODE_16BIT_MASK_PDM),
-	INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
+    INIT_MASK_FILTER(MASKMODE_16BIT_ID_DCM, MASKMODE_16BIT_MASK_DCM),
+    INIT_MASK_FILTER(MASKMODE_16BIT_ID_FSM, MASKMODE_16BIT_MASK_FSM),
+    INIT_MASK_FILTER(MASKMODE_16BIT_ID_PDM, MASKMODE_16BIT_MASK_PDM),
+    INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
 };
 #elif DCM
 static CanMaskFilterConfig_Struct mask_filters[] =
 {
-	INIT_MASK_FILTER(MASKMODE_16BIT_ID_FSM, MASKMODE_16BIT_MASK_FSM),
-	INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED),
-	INIT_MASK_FILTER(MASKMODE_16BIT_ID_BAMOCAR, MASKMODE_16BIT_MASK_BAMOCAR)
+    INIT_MASK_FILTER(MASKMODE_16BIT_ID_FSM, MASKMODE_16BIT_MASK_FSM),
+    INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED),
+    INIT_MASK_FILTER(MASKMODE_16BIT_ID_BAMOCAR, MASKMODE_16BIT_MASK_BAMOCAR)
 };
 #endif
 
@@ -115,6 +115,13 @@ static ErrorStatus SharedCAN_InitializeFilters(void);
  * @return None
  */
 static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan);
+
+/**
+ * @brief  Send the overflow count for transmit FIFO over CAN
+ * @param  overflow_count Number of overflows occured thus far
+ * @return None
+ */
+static void SharedCan_EnqueueFifoOverflowError(void);
 
 /******************************************************************************
 * Private Function Definitions
@@ -259,42 +266,59 @@ static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan)
 {
     SharedCan_DequeueCanTxMessageFifo();
 }
+
+static void SharedCan_EnqueueFifoOverflowError(void)
+{
+    // Destructively replace the first message in the FIFO because the FIFO
+    // is already full
+    #ifdef PDM
+    uint32_t std_id = PDM_CAN_TX_OVERFLOW_STDID;
+    uint32_t dlc = PDM_CAN_TX_OVERFLOW_DLC;
+    #elif FSM
+    uint32_t std_id = FSM_CAN_TX_OVERFLOW_STDID;
+    uint32_t dlc = FSM_CAN_TX_OVERFLOW_DLC;
+    #elif BMS
+    uint32_t std_id = BMS_CAN_TX_OVERFLOW_STDID;
+    uint32_t dlc = BMS_CAN_TX_OVERFLOW_DLC;
+    #elif DCM
+    uint32_t std_id = DCM_CAN_TX_OVERFLOW_STDID;
+    uint32_t dlc = DCM_CAN_TX_OVERFLOW_DLC;
+    #endif
+
+    static uint32_t overflow_count = 0;
+
+    overflow_count++;
+    can_tx_msg_fifo[head].std_id = std_id;
+    can_tx_msg_fifo[head].dlc = dlc;
+    // TODO: verify this copies by value correctly
+    memcpy(&can_tx_msg_fifo[tail].data, &overflow_count, CAN_PAYLOAD_BYTE_SIZE);
+}
+
 /******************************************************************************
 * Function Definitions
 *******************************************************************************/
-void SharedCan_BroadcastHeartbeat(Pcb_Enum module)
-{
-    //TODO: Implement when CAN Header structure is finalized
-    //uint8_t Data[8] = {Module};
-    //SharedCan_TransmitDataCan(can_headers[HEARTBEAT], Data);
-}
-
 void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data)
 {
-    #ifdef DEBUG
-    static uint8_t overflow_count; // Debug variable to keep track of overflow before a proper handling strategy is developed
-    static uint8_t transmit_error_count; // Debug variable to keep track of transmit errors before a proper handling strategy is developed
-    #endif
     uint32_t mailbox = 0; // Indicates the mailbox used for tranmission, not currently used
 
     CAN_TxHeaderTypeDef tx_header;
     tx_header.StdId = std_id;
 
-    // The standard 11-bit CAN identifier is more than sufficent, so
-    // we disable Extended CAN IDs be setting this fied to zero.
+    // The standard 11-bit CAN identifier is more than sufficent, so we disable
+    // Extended CAN IDs by setting this fied to zero.
     tx_header.ExtId = CAN_ExtID_NULL;
 
-    // This field can be either Standard CAN or Extended CAN. See
-    // .ExtID to see why we set this .DIE to Standard CAN.
+    // This field can be either Standard CAN or Extended CAN. See .ExtID to see
+    // why we don't want Extended CAN
     tx_header.IDE = CAN_ID_STD;
 
-    // .RTR: This field can be either Data Frame or Remote Frame. For our
+    // This field can be either Data Frame or Remote Frame. For our
     // purpose, we only ever transmit Data Frames.
     tx_header.RTR = CAN_RTR_DATA;
     tx_header.DLC = dlc;
 
-    // .TransmitGlobalTime: Enabling this gives us a tick-based timestamp,
-    // but we lose 2-bytes of CAN payload.
+    // Enabling this gives us a tick-based timestamp which we do not need and
+    // would take up 2 bytes of the CAN payload. So we disable this setting.
     tx_header.TransmitGlobalTime = DISABLE;
 
     // If a mailbox is not available or other error occurs
@@ -306,20 +330,10 @@ void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data)
         tx_msg.dlc = dlc;
         memcpy(&tx_msg.data, data,CAN_PAYLOAD_BYTE_SIZE);
 
-        if(SharedCan_EnqueueCanTxMessageFifo(&tx_msg) != FIFO_SUCCESS)
+        if(SharedCan_EnqueueCanTxMessageFifo(&tx_msg) == FIFO_IS_FULL)
         {
-            #ifdef DEBUG
-            // TODO: Handle CAN queue overflow error
-            overflow_count++;
-            #endif
+            SharedCan_EnqueueFifoOverflowError();
         }
-        #ifdef DEBUG
-        //If error was not caused by full mailboxes
-        if(!(hcan.ErrorCode & HAL_CAN_ERROR_PARAM))
-        {
-            transmit_error_count++;
-        }
-        #endif
     }
 }
 
