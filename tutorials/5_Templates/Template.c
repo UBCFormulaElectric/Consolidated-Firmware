@@ -26,16 +26,17 @@ uint32_t global_bar;
 * Private Function Prototypes
 *******************************************************************************/
 /**
- * @brief  TODO: WHAT DO I DO?
- * @param  TODO: WHAT IS THE ARGUMENT?
- * @return TODO: WHAT DO I RETURN?
+ * @brief  This function subtracts two given numbers 
+ * @param  num1 The first number to subtract from
+ * @param  num2 The second number to subtract by
+ * @return The difference between num1 and num2
  */
-static void Foo(void);
+static uint32_t subtractTwoNumbers(uint32_t num1, uint32_t num2);
 
 /******************************************************************************
 * Private Function Definitions
 *******************************************************************************/
-static void Foo(void)
+static uint32_t subtractTwoNumbers(uint32_t num1, uint32_t num2)
 {
 
 }
