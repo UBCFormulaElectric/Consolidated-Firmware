@@ -6,7 +6,7 @@
 #ifndef CAN_DEFINITIONS_H
 #define CAN_DEFINITIONS_H
 
-// CAN Standard IDs (STDID)
+/** @defgroup CAN_Standard_IDs CAN Standard IDs */
 #define BMS_ERROR_STDID                                 (uint32_t)(0x00)
 #define BMS_HEARTBEAT_STDID                             (uint32_t)(0x01)
 #define BMS_CAN_TX_OVERFLOW_STDID                       (uint32_t)(0x02)
@@ -70,7 +70,7 @@
 #define DEMO_2_INT32_NUCLEO_TX_STDID                    (uint32_t)(0x40A)
 #define DEMO_2_INT32_NUCLEO_RX_STDID                    (uint32_t)(0x40B)
 
-// CAN Data Length Codes (DLC)
+/** @defgroup CAN_Data_Length_Codes CAN Data Length Codes */
 #define BMS_ERROR_DLC                                   (uint32_t)(8)
 #define BMS_HEARTBEAT_DLC                               (uint32_t)(1)
 #define BMS_CAN_TX_OVERFLOW_DLC                         (uint32_t)(8)

@@ -180,9 +180,11 @@ extern CAN_HandleTypeDef hcan;
 *******************************************************************************/
 /**
  * @brief  Transmits a CAN message
- * @param  std_id: Standard CAN ID
- * @param  dlc Data to be transmitted (up to 8 bytes)
- * @param  data Pointer to an uint8_t array with 8 elements (64-bits in total)
+ * @param  std_id Standard CAN ID. This parameter can be a value of @arg 
+ *         CAN_Standard_CAN_IDs.
+ * @param  dlc Data length code. This parameter can be a value of @arg
+ *         CAN_Data_Length_Codes.
+ * @param  data Pointer to an uint8_t array with 8 elements (64-bits in total).
  * @return None
  */
 void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data);
