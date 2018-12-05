@@ -1,5 +1,5 @@
 ## Overview
-This repository contains our CAN library for STM32 F3 microcontrollers (F0 is not yet supportd). The goal is to abstract away low-level details, provide a set of easy-to-use CAN helper functions, and enforce consistency for CAN communication across every PCB.
+This repository contains our CAN library for STM32 F3 microcontrollers (F0 is not yet supported). The goal is to abstract away low-level details, provide a set of easy-to-use CAN helper functions, and enforce consistency for CAN communication across every PCB.
 
 ## Setup
 1. Add the board name to **Preprocessor Symbols** inside Keil. This will determine which CAN filters are activated.
@@ -72,7 +72,7 @@ static CanMaskFilterConfig_Struct mask_filters[2] =
 };
 ```
 
-This tells us for `PDM`, we have activated two CAN filters - the **DCM filter** and the **Shared filter**. We can then check `SharedCan.h` to see which CAN IDs each of these two filters will accept.
+This tells us for `PDM`, we have activated two CAN filters - the **DCM filter** and the **Shared filter**. We can then check `SharedCan.h` to see which CAN IDs each of these two filters will accept:
 
 ```
 // SharedCan.h
@@ -84,4 +84,4 @@ This tells us for `PDM`, we have activated two CAN filters - the **DCM filter** 
 /** Shared filter - CAN ID Range: 0x80 - 0x9F, RTR: Data Frame, IDE: Standard ID */
 ```
 
-The comments tell us that the **DCM filter** accept CAN ID `0x20 - 0x3F` and the **Shared Filter** accept CAN ID `0x80 to 0x9F`. Or in other words, PDM is set up to accept any incoming CAN messages with CAN ID `0x20 - 0x3F` or `0x80 - 0x9F`.
+The comments tell us that the **DCM filter** accept CAN ID `0x20 - 0x3F` and the **Shared Filter** accept CAN ID `0x80 to 0x9F`. Or in other words, PDM is set up to accept any incoming CAN messages with CAN ID matching `0x20 - 0x3F` and `0x80 - 0x9F`.

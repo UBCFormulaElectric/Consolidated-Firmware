@@ -1,6 +1,7 @@
 /******************************************************************************
 * Includes
 *******************************************************************************/
+#include <stdbool.h>
 #include <string.h>
 #include "SharedCan.h"
 
@@ -48,6 +49,8 @@ static CanMaskFilterConfig_Struct mask_filters[] =
     INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED),
     INIT_MASK_FILTER(MASKMODE_16BIT_ID_BAMOCAR, MASKMODE_16BIT_MASK_BAMOCAR)
 };
+#else
+#error "No valid PCB selected - unable to determine what mask filters to use"
 #endif
 
 /******************************************************************************
@@ -55,7 +58,6 @@ static CanMaskFilterConfig_Struct mask_filters[] =
 *******************************************************************************/
 /**
  * @brief  Transmit CAN message and remove it from the CAN queue
- * @param  None
  * @return FIFO_IS_EMPTY: Failed dequeue due to empty queue
  *         FIFO_SUCCESS: Successful dequeue
  */
@@ -63,7 +65,7 @@ static Fifo_Status_Enum SharedCan_DequeueCanTxMessageFifo(void);
 
 /**
  * @brief  Add CAN message overflow to CAN queue
- * @param  can_msg: Pointer of CAN message to be queued
+ * @param  can_msg: Pointer to CAN message to be queued
  * @return FIFO_IS_FULL: Failed enqueue due to full queue
  *         FIFO_SUCCESS: Successful enqueue
  */
@@ -71,30 +73,26 @@ static Fifo_Status_Enum SharedCan_EnqueueCanTxMessageFifo(CanTxMsgQueueItem_Stru
 
 /**
  * @brief  Clear the CAN queue
- * @param  None
  * @return None
  */
 static void SharedCan_ClearCanTxMessageFifo(void);
 
 /**
  * @brief  Check if the CAN queue is full
- * @param  None
- * @return 0: CAN queue is not full
- *         1: CAN queue is full
+ * @return false: CAN queue is not full
+ *         true: CAN queue is full
  */
-static uint32_t SharedCan_CanTxMessageFifoIsFull(void);
+static bool SharedCan_CanTxMessageFifoIsFull(void);
 
 /**
  * @brief  Check if the CAN queue is empty
- * @param  None
- * @return 0: CAN queue is not empty
- *         1: CAN queue is empty
+ * @return false: CAN queue is not empty
+ *         true: CAN queue is empty
  */
-static uint32_t SharedCan_CanTxMessageFifoIsEmpty(void);
+static bool SharedCan_CanTxMessageFifoIsEmpty(void);
 
 /**
  * @brief  Get the number of messages saved in the CAN queue
- * @param  None
  * @return Number of messages in the queue
  */
 static uint32_t SharedCan_GetNumberOfItemsInCanTxMessageFifo(void);
@@ -102,11 +100,10 @@ static uint32_t SharedCan_GetNumberOfItemsInCanTxMessageFifo(void);
 /**
  * @brief  Initialize one or more CAN filters using 16-bit Filter Scale and
  *         Identifier Mask Mode (FSCx = 0, FBMx = 0)
- * @param  None
- * @return ERROR:
- *         SUCCESS:
+ * @return ERROR: One or more filters didn't initialize properly
+ *         SUCCESS: All filters initialized with no errors
  */
-static ErrorStatus SharedCAN_InitializeFilters(void);
+static ErrorStatus SharedCan_InitializeFilters(void);
 
 /**
  * @brief  Shared callback function for transmission mailbox 0, 1, and 2
@@ -141,7 +138,7 @@ static Fifo_Status_Enum SharedCan_DequeueCanTxMessageFifo(void)
 
         // Increment tail and make sure it wraps around to 0
         tail++;
-        if(tail == CAN_TX_MSG_FIFO_SIZE)
+        if(tail >= CAN_TX_MSG_FIFO_SIZE)
         {
             tail = 0;
         }
@@ -162,7 +159,7 @@ static Fifo_Status_Enum SharedCan_EnqueueCanTxMessageFifo(CanTxMsgQueueItem_Stru
 
         // Increment head and make sure it wraps around to 0
         head++;
-        if(head == CAN_TX_MSG_FIFO_SIZE)
+        if(head >= CAN_TX_MSG_FIFO_SIZE)
         {
             head = 0;
         }
@@ -179,12 +176,12 @@ static void SharedCan_ClearCanTxMessageFifo(void)
     memset(can_tx_msg_fifo, 0, sizeof(can_tx_msg_fifo));
 }
 
-static uint32_t SharedCan_CanTxMessageFifoIsFull(void)
+static bool SharedCan_CanTxMessageFifoIsFull(void)
 {
     return ((head + 1) % CAN_TX_MSG_FIFO_SIZE) == tail;
 }
 
-static uint32_t SharedCan_CanTxMessageFifoIsEmpty(void)
+static bool SharedCan_CanTxMessageFifoIsEmpty(void)
 {
     return head == tail;
 }
@@ -204,7 +201,7 @@ static uint32_t SharedCan_GetNumberOfItemsInCanTxMessageFifo(void)
     return MessageCount;
 }
 
-static ErrorStatus SharedCAN_InitializeFilters(void)
+static ErrorStatus SharedCan_InitializeFilters(void)
 {
     static uint32_t filter_bank = 0;
     static uint32_t fifo = CAN_FILTER_FIFO0;
@@ -270,26 +267,13 @@ static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan)
 
 static void SharedCan_EnqueueFifoOverflowError(void)
 {
-    #ifdef PDM
-    uint32_t std_id = PDM_CAN_TX_OVERFLOW_STDID;
-    uint32_t dlc = PDM_CAN_TX_OVERFLOW_DLC;
-    #elif FSM
-    uint32_t std_id = FSM_CAN_TX_OVERFLOW_STDID;
-    uint32_t dlc = FSM_CAN_TX_OVERFLOW_DLC;
-    #elif BMS
-    uint32_t std_id = BMS_CAN_TX_OVERFLOW_STDID;
-    uint32_t dlc = BMS_CAN_TX_OVERFLOW_DLC;
-    #elif DCM
-    uint32_t std_id = DCM_CAN_TX_OVERFLOW_STDID;
-    uint32_t dlc = DCM_CAN_TX_OVERFLOW_DLC;
-    #endif
-
     static uint32_t overflow_count = 0;
 
     overflow_count++;
 
-    can_tx_msg_fifo[head].std_id = std_id;
-    can_tx_msg_fifo[head].dlc = dlc;
+    // Replace the next CAN message in queue with the overflow count in a destructive manner
+    can_tx_msg_fifo[tail].std_id = CAN_TX_FIFO_OVERFLOW_STDID;
+    can_tx_msg_fifo[tail].dlc = CAN_TX_FIFO_OVERFLOW_DLC;
     // TODO: verify this copies by value correctly
     memcpy(&can_tx_msg_fifo[tail].data, &overflow_count, CAN_PAYLOAD_BYTE_SIZE);
 }
@@ -305,7 +289,7 @@ void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data)
     tx_header.StdId = std_id;
 
     // The standard 11-bit CAN identifier is more than sufficent, so we disable
-    // Extended CAN IDs by setting this fied to zero.
+    // Extended CAN IDs by setting this field to zero.
     tx_header.ExtId = CAN_ExtID_NULL;
 
     // This field can be either Standard CAN or Extended CAN. See .ExtID to see
@@ -341,12 +325,16 @@ HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan)
 {
     HAL_StatusTypeDef status = HAL_OK;
 
-    status |= SharedCAN_InitializeFilters();
+    status |= SharedCan_InitializeFilters();
 
     status |= HAL_CAN_ActivateNotification(hcan, CAN_IT_TX_MAILBOX_EMPTY |
     CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING);
 
     status |= HAL_CAN_Start(hcan);
+    
+    // Broadcast PCB start-up message
+    uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = {0};
+    SharedCan_TransmitDataCan(PCB_STARTUP_STDID, PCB_STARTUP_DLC, &data[0]);
 
     return status;
 }

@@ -11,12 +11,15 @@
 *******************************************************************************/
 #include "CanDefinitions.h"
 
-// Used in DCM 2017, BMS 2017, and PDM 2018
+// Check for STM32 microcontroller family
 #ifdef STM32F302x8
+// Used in DCM 2017, BMS 2017, and PDM 2018
 #include "stm32f3xx_hal.h"
 #elif STM32F042x6
 // Used in FSM 2017 (Shared CAN Library doesn't yet support this)
 #include "stm32f0xx_hal.h"
+#else
+#error "No valid architecture selected - unable to determine what HAL library to use"
 #endif
 
 /******************************************************************************
@@ -26,6 +29,30 @@
 #define CAN_PAYLOAD_BYTE_SIZE 8 // Maximum number of bytes in a CAN payload
 #define CAN_ExtID_NULL 0 // Set CAN Extended ID to 0 because we are not using it
 #define CAN_TX_MSG_FIFO_SIZE 20 // Size of CAN FIFO is arbitrary at the moment
+
+#ifdef PDM
+    #define CAN_TX_FIFO_OVERFLOW_STDID  PDM_CAN_TX_FIFO_OVERFLOW_STDID
+    #define CAN_TX_FIFO_OVERFLOW_DLC    PDM_CAN_TX_FIFO_OVERFLOW_DLC
+    #define PCB_STARTUP_STDID           PDM_STARTUP_STDID
+    #define PCB_STARTUP_DLC             PDM_STARTUP_DLC
+#elif FSM
+    #define CAN_TX_FIFO_OVERFLOW_STDID  FSM_CAN_TX_FIFO_OVERFLOW_STDID
+    #define CAN_TX_FIFO_OVERFLOW_DLC    FSM_CAN_TX_FIFO_OVERFLOW_DLC
+    #define PCB_STARTUP_STDID           FSM_STARTUP_STDID
+    #define PCB_STARTUP_DLC             FSM_STARTUP_DLC
+#elif BMS
+    #define CAN_TX_FIFO_OVERFLOW_STDID  BMS_CAN_TX_FIFO_OVERFLOW_STDID
+    #define CAN_TX_FIFO_OVERFLOW_DLC    BMS_CAN_TX_CAN_TX_FIFO_OVERFLOW_DLC
+    #define PCB_STARTUP_STDID           BMS_STARTUP_STDID
+    #define PCB_STARTUP_DLC             BMS_STARTUP_DLC
+#elif DCM
+    #define CAN_TX_FIFO_OVERFLOW_STDID  DCM_CAN_TX_FIFO_OVERFLOW_STDID
+    #define CAN_TX_FIFO_OVERFLOW_DLC    DCM_CAN_TX_FIFO_OVERFLOW_DLC
+    #define PCB_STARTUP_STDID           DCM_STARTUP_STDID
+    #define PCB_STARTUP_DLC             DCM_STARTUP_DLC
+#else
+#error "No valid PCB name found in Preprocessor Symbols"
+#endif
 
 /******************************************************************************
 * Preprocessor Macros
@@ -177,9 +204,11 @@ extern CAN_HandleTypeDef hcan;
 *******************************************************************************/
 /**
  * @brief  Transmits a CAN message
- * @param  std_id: Standard CAN ID
- * @param  dlc Data to be transmitted (up to 8 bytes)
- * @param  data Pointer to an uint8_t array with 8 elements (64-bits in total)
+ * @param  std_id Standard CAN ID. This parameter can be a value of @arg 
+ *         CAN_Standard_CAN_IDs.
+ * @param  dlc Data length code. This parameter can be a value of @arg
+ *         CAN_Data_Length_Codes.
+ * @param  data Pointer to an uint8_t array with 8 elements (64-bits in total).
  * @return None
  */
 void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data);
@@ -189,7 +218,6 @@ void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data);
  *         module. After this, the node is active on the bus: it receive
  *         messages, and can send messages. This should be placed inside
  *         MX_CAN_Init() and in the USER CODE BLOCK after HAL_CAN_Init().
- * @param  None
  * @return HAL_STATUS
  */
 HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan);
