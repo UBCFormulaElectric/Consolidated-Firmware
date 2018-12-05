@@ -285,7 +285,7 @@ static void SharedCan_EnqueueFifoOverflowError(void)
     uint32_t std_id = DCM_CAN_TX_OVERFLOW_STDID;
     uint32_t dlc = DCM_CAN_TX_OVERFLOW_DLC;
     #else
-    #error "No valid architecture selected - unable to determine what HAL library to use"
+    #error "No valid PCB selected - unable to determine what CAN Standard ID/DLC to use"
     #endif
 
     static uint32_t overflow_count = 0;
