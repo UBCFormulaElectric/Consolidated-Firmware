@@ -194,7 +194,6 @@ void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data);
  *         module. After this, the node is active on the bus: it receive
  *         messages, and can send messages. This should be placed inside
  *         MX_CAN_Init() and in the USER CODE BLOCK after HAL_CAN_Init().
- * @param  None
  * @return HAL_STATUS
  */
 HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan);

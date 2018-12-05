@@ -57,7 +57,6 @@ static CanMaskFilterConfig_Struct mask_filters[] =
 *******************************************************************************/
 /**
  * @brief  Transmit CAN message and remove it from the CAN queue
- * @param  None
  * @return FIFO_IS_EMPTY: Failed dequeue due to empty queue
  *         FIFO_SUCCESS: Successful dequeue
  */
@@ -73,14 +72,12 @@ static Fifo_Status_Enum SharedCan_EnqueueCanTxMessageFifo(CanTxMsgQueueItem_Stru
 
 /**
  * @brief  Clear the CAN queue
- * @param  None
  * @return None
  */
 static void SharedCan_ClearCanTxMessageFifo(void);
 
 /**
  * @brief  Check if the CAN queue is full
- * @param  None
  * @return 0: CAN queue is not full
  *         1: CAN queue is full
  */
@@ -88,7 +85,6 @@ static uint32_t SharedCan_CanTxMessageFifoIsFull(void);
 
 /**
  * @brief  Check if the CAN queue is empty
- * @param  None
  * @return 0: CAN queue is not empty
  *         1: CAN queue is empty
  */
@@ -96,7 +92,6 @@ static uint32_t SharedCan_CanTxMessageFifoIsEmpty(void);
 
 /**
  * @brief  Get the number of messages saved in the CAN queue
- * @param  None
  * @return Number of messages in the queue
  */
 static uint32_t SharedCan_GetNumberOfItemsInCanTxMessageFifo(void);
@@ -104,7 +99,6 @@ static uint32_t SharedCan_GetNumberOfItemsInCanTxMessageFifo(void);
 /**
  * @brief  Initialize one or more CAN filters using 16-bit Filter Scale and
  *         Identifier Mask Mode (FSCx = 0, FBMx = 0)
- * @param  None
  * @return ERROR:
  *         SUCCESS:
  */
