@@ -8,7 +8,7 @@ void GPIO_Init(void) {
     GPIO_CheckFaultsStartup();
 }
 
-void GPIO_ConfigurePreChargeComplete(__IO uint8_t* fault_states) {
+void GPIO_ConfigurePreChargeComplete(volatile uint8_t* fault_states) {
 	
 	// E-Fuse AUX 1/2
 	if(fault_states[AUX_1_INDEX] == STATIC_EFUSE){
@@ -64,7 +64,7 @@ void GPIO_ConfigurePreChargeComplete(__IO uint8_t* fault_states) {
 }
 
 
-void GPIO_ConfigurePowerUp(__IO uint8_t* fault_states) {
+void GPIO_ConfigurePowerUp(volatile uint8_t* fault_states) {
     // E-Fuse AUX 1/2
     HAL_GPIO_WritePin(EFUSE_AUX_1_IN_PORT, EFUSE_AUX_1_IN_PIN, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(EFUSE_AUX_2_IN_PORT, EFUSE_AUX_2_IN_PIN, GPIO_PIN_RESET);
