@@ -137,7 +137,7 @@ static Fifo_Status_Enum SharedCan_DequeueCanTxMessageFifo(void)
 
         // Increment tail and make sure it wraps around to 0
         tail++;
-        if(tail == CAN_TX_MSG_FIFO_SIZE)
+        if(tail >= CAN_TX_MSG_FIFO_SIZE)
         {
             tail = 0;
         }
