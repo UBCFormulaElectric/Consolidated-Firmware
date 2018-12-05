@@ -79,15 +79,15 @@ static void SharedCan_ClearCanTxMessageFifo(void);
 
 /**
  * @brief  Check if the CAN queue is full
- * @return 0: CAN queue is not full
- *         1: CAN queue is full
+ * @return false: CAN queue is not full
+ *         true: CAN queue is full
  */
 static bool SharedCan_CanTxMessageFifoIsFull(void);
 
 /**
  * @brief  Check if the CAN queue is empty
- * @return 0: CAN queue is not empty
- *         1: CAN queue is empty
+ * @return false: CAN queue is not empty
+ *         true: CAN queue is empty
  */
 static bool SharedCan_CanTxMessageFifoIsEmpty(void);
 
