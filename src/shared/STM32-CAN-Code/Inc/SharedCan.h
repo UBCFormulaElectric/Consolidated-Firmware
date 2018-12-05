@@ -9,7 +9,6 @@
 /******************************************************************************
 * Includes
 *******************************************************************************/
-#include "main.h"
 #include "CanDefinitions.h"
 
 // Used in DCM 2017, BMS 2017, and PDM 2018
@@ -122,11 +121,11 @@
 /** BAMOCAR Filter - ID: 0x190 - 0x211, RTR: Data Frame, IDE: Standard ID */
 #define MASKMODE_16BIT_ID_BAMOCAR    (uint32_t)(0x0C00) // 0000 1100 0000 0000
 #define MASKMODE_16BIT_MASK_BAMOCAR  (uint32_t)(0xFC18) // 1111 1100 0001 1000
-// clang-format on
 
 /******************************************************************************
 * Typedefs
 *******************************************************************************/
+// clang-format on
 /** @brief Struct to help initialize CAN filters */
 const typedef struct
 {
@@ -169,8 +168,9 @@ typedef enum
 } Fifo_Status_Enum;
 
 /******************************************************************************
-* Variables
+* Global Variables
 *******************************************************************************/
+extern CAN_HandleTypeDef hcan;
 
 /******************************************************************************
 * Function Prototypes
