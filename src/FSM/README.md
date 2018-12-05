@@ -1,7 +1,7 @@
 ## Overview
 ## Peripheral Configuration Notes
 1. **`Auto-Reload Preload` is set to **Disabled** for every timer**
-   - > The content of the preload register are transferred into the shadow register permanently or at each update event (UEV), depending on the auto-reload preload enable bit (ARPE). (Pg 322 in RM0091.pdf)
+   - *The content of the preload register are transferred into the shadow register permanently or at each update event (UEV), depending on the auto-reload preload enable bit (ARPE). (Pg 322 in RM0091.pdf)*
    - It only needs to be **Enabled** if we are adjusting timer frequency on-the-fly, which we are not.
 2. **`End of Conversion Selection` for ADC**
    - This determines whether an ADC interrupt is generated at the end of conversion or end of seqeuence
@@ -9,13 +9,13 @@
 3. **ADC Sampling Time = 71.5 Cycles**
    - **VREFINT** requires a minimum sampling time of 4us, and the steering angle sensor has a minimum sampling time of about 0us (because it's buffered by an op-amp). On this F0 chip, you can only select one global sampling time for every ADC channel rather than having a custom sampling time for each ADC channel. So we must go with the largest of all minimum sampling time requirements = 4us, which translates to 56 clock cycles at ADC clock frequency = 14Mhz. We choose the next closest option: 71.5 cycles.
 4. **`Continuous Conversion Mode` in ADC**
-   - > In **continuous conversion mode**, when a software or hardware trigger event occurs, the ADC performs a sequence of conversions, converting all the channels once and then automatically re-starts and continuously performs the same sequence of conversions. (Pg. 236 in RM0091.pdf)
+   - *In **continuous conversion mode**, when a software or hardware trigger event occurs, the ADC performs a sequence of conversions, converting all the channels once and then automatically re-starts and continuously performs the same sequence of conversions. (Pg. 236 in RM0091.pdf)*
    - We don't require continuous conversion mode because we have TIM1 to trigger ADC conversions periodically
 5. **`DMA Continuous Requests` in ADC**
-   - > In **circular** mode, the ADC generates a DMA transfer request each time a new conversion data word is available in the data register, even if the DMA has reached the last DMA transfer. This allows the DMA to be configured in circular mode to handle a continuous analog input data stream. (Pg. 246 in RM0091.pdf)
+   - *In **circular** mode, the ADC generates a DMA transfer request each time a new conversion data word is available in the data register, even if the DMA has reached the last DMA transfer. This allows the DMA to be configured in circular mode to handle a continuous analog input data stream. (Pg. 246 in RM0091.pdf)*
    - We use continuous mode because it is for handling a continous analog input data stream like the steering angle sensor measurements.
 6. **`DMA Circular Mode` in DMA**
-   - > **Circular** mode is available to handle circular buffers and continuous data flows (e.g. ADC scan mode). When circular mode is activated, the number of data to be transferred is automatically reloaded with the initial value programmed during the channel configuration phase, and the DMA requests continue to be served. (Pg. 191 in RM0091.pdf)
+   - ***Circular** mode is available to handle circular buffers and continuous data flows (e.g. ADC scan mode). When circular mode is activated, the number of data to be transferred is automatically reloaded with the initial value programmed during the channel configuration phase, and the DMA requests continue to be served. (Pg. 191 in RM0091.pdf)*
    - Similar to `DMA Continuous Requests` in ADC, `DMA Circular Mode` is the appropriate mode for a continuous analog input data stream like the steering angle sensor measurements.
 7. **`Counter Period` in TIM16/17 for Input Capture Mode**
    - This value is inconsequential because input capture doesn't use the timer overflow interrupt, however we should leave it at max value to minimize the number of timer overflows because the wheel speed calculation for a timer overflow is slightly more assembly instructions (See if-else clause below)
