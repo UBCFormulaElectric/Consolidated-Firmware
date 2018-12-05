@@ -153,7 +153,6 @@ typedef struct
 } CanTxMsgQueueItem_Struct;
 
 /** @brief Combine HAL Rx CAN header with CAN payload */
-// TODO: see if struct members should be volatile
 typedef struct
 {
     CAN_RxHeaderTypeDef rx_header;
