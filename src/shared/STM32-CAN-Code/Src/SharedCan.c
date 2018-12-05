@@ -343,7 +343,6 @@ HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan)
 
     status |= SharedCAN_InitializeFilters();
 
-    // TODO: Consider implmenting Rx Overrun interrupt and appropriate handling strategy
     status |= HAL_CAN_ActivateNotification(hcan, CAN_IT_TX_MAILBOX_EMPTY |
     CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING);
 
