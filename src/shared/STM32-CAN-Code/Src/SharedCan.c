@@ -267,29 +267,13 @@ static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan)
 
 static void SharedCan_EnqueueFifoOverflowError(void)
 {
-    #ifdef PDM
-    uint32_t std_id = PDM_CAN_TX_OVERFLOW_STDID;
-    uint32_t dlc = PDM_CAN_TX_OVERFLOW_DLC;
-    #elif FSM
-    uint32_t std_id = FSM_CAN_TX_OVERFLOW_STDID;
-    uint32_t dlc = FSM_CAN_TX_OVERFLOW_DLC;
-    #elif BMS
-    uint32_t std_id = BMS_CAN_TX_OVERFLOW_STDID;
-    uint32_t dlc = BMS_CAN_TX_OVERFLOW_DLC;
-    #elif DCM
-    uint32_t std_id = DCM_CAN_TX_OVERFLOW_STDID;
-    uint32_t dlc = DCM_CAN_TX_OVERFLOW_DLC;
-    #else
-    #error "No valid PCB selected - unable to determine what CAN Standard ID/DLC to use"
-    #endif
-
     static uint32_t overflow_count = 0;
 
     overflow_count++;
 
     // Replace the next CAN message in queue with the overflow count in a destructive manner
-    can_tx_msg_fifo[tail].std_id = std_id;
-    can_tx_msg_fifo[tail].dlc = dlc;
+    can_tx_msg_fifo[tail].std_id = CAN_TX_FIFO_OVERFLOW_STDID;
+    can_tx_msg_fifo[tail].dlc = CAN_TX_FIFO_OVERFLOW_DLC;
     // TODO: verify this copies by value correctly
     memcpy(&can_tx_msg_fifo[tail].data, &overflow_count, CAN_PAYLOAD_BYTE_SIZE);
 }
@@ -347,6 +331,10 @@ HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan)
     CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING);
 
     status |= HAL_CAN_Start(hcan);
+    
+    // Broadcast PCB start-up message
+    uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = {0};
+    SharedCan_TransmitDataCan(PCB_STARTUP_STDID, PCB_STARTUP_DLC, &data[0]);
 
     return status;
 }

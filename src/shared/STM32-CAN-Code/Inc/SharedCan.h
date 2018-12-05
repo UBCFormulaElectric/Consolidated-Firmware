@@ -30,6 +30,30 @@
 #define CAN_ExtID_NULL 0 // Set CAN Extended ID to 0 because we are not using it
 #define CAN_TX_MSG_FIFO_SIZE 20 // Size of CAN FIFO is arbitrary at the moment
 
+#ifdef PDM
+    #define CAN_TX_FIFO_OVERFLOW_STDID  PDM_CAN_TX_FIFO_OVERFLOW_STDID
+    #define CAN_TX_FIFO_OVERFLOW_DLC    PDM_CAN_TX_FIFO_OVERFLOW_DLC
+    #define PCB_STARTUP_STDID           PDM_STARTUP_STDID
+    #define PCB_STARTUP_DLC             PDM_STARTUP_DLC
+#elif FSM
+    #define CAN_TX_FIFO_OVERFLOW_STDID  FSM_CAN_TX_FIFO_OVERFLOW_STDID
+    #define CAN_TX_FIFO_OVERFLOW_DLC    FSM_CAN_TX_FIFO_OVERFLOW_DLC
+    #define PCB_STARTUP_STDID           FSM_STARTUP_STDID
+    #define PCB_STARTUP_DLC             FSM_STARTUP_DLC
+#elif BMS
+    #define CAN_TX_FIFO_OVERFLOW_STDID  BMS_CAN_TX_FIFO_OVERFLOW_STDID
+    #define CAN_TX_FIFO_OVERFLOW_DLC    BMS_CAN_TX_CAN_TX_FIFO_OVERFLOW_DLC
+    #define PCB_STARTUP_STDID           BMS_STARTUP_STDID
+    #define PCB_STARTUP_DLC             BMS_STARTUP_DLC
+#elif DCM
+    #define CAN_TX_FIFO_OVERFLOW_STDID  DCM_CAN_TX_FIFO_OVERFLOW_STDID
+    #define CAN_TX_FIFO_OVERFLOW_DLC    DCM_CAN_TX_FIFO_OVERFLOW_DLC
+    #define PCB_STARTUP_STDID           DCM_STARTUP_STDID
+    #define PCB_STARTUP_DLC             DCM_STARTUP_DLC
+#else
+#error "No valid PCB name found in Preprocessor Symbols"
+#endif
+
 /******************************************************************************
 * Preprocessor Macros
 *******************************************************************************/
