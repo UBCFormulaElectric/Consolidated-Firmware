@@ -4,7 +4,10 @@ os:
 
 sudo: true
 dist: trusty
-language: c
+language: python
+
+python:
+  - "3.4"
 
 before_install:
   - git submodule update --init --recursive
@@ -50,5 +53,5 @@ script:
         cd ..;
       fi
     - if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then 
-            sudo bash ./clang-format/check_formatting_CI.sh;
+            python ./clang-format/check_formatting_CI.py;
       fi
