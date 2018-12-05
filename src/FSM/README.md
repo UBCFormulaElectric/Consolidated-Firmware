@@ -19,7 +19,7 @@
    - Similar to `DMA Continuous Requests` in ADC, `DMA Circular Mode` is the appropriate mode for a continuous analog input data stream like the steering angle sensor measurements.
 1. **`Counter Period = 65535` in TIM16/17 for Input Capture Mode**
    - This value is inconsequential because input capture doesn't use the timer overflow interrupt, however we should leave it at max value to minimize the number of timer overflows because the wheel speed calculation for a timer overflow is slightly more assembly instructions (See if-else clause below)
-```
+    ```
 	// Compute difference between the two timer values
 	if(CurrentTimerValue > PreviousTimerValue)
 	{
@@ -30,7 +30,7 @@
 		// Handle timer overflow
 		DeltaTimerValue = (0x10000 - PreviousTimerValue) + CurrentTimerValue;
 	}
-```
+    ```
 1. **Pull-up resistors for PA3 and PB7**
    - PA3 and PB7 are connected to the ALARMD outputs from MAX3097E. We should configure PA3 and PB7 with pull-up resistor so in the case that the pins are left floating or the MAX3097E is damaged, we will be able to detect it.
    - <img src="https://user-images.githubusercontent.com/16970019/48681210-e74b0100-eb55-11e8-9bf1-aec4597869e1.png" width="75%" height="75%">
