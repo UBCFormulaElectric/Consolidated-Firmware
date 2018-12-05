@@ -1,5 +1,5 @@
 ## Overview
-This repository contains our CAN library for STM32 F3 microcontrollers (F0 is not yet supportd). The goal is to abstract away low-level details, provide a set of easy-to-use CAN helper functions, and enforce consistency for CAN communication across every PCB.
+This repository contains our CAN library for STM32 F3 microcontrollers (F0 is not yet supported). The goal is to abstract away low-level details, provide a set of easy-to-use CAN helper functions, and enforce consistency for CAN communication across every PCB.
 
 ## Setup
 1. Add the board name to **Preprocessor Symbols** inside Keil. This will determine which CAN filters are activated.
