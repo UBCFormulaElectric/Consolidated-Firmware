@@ -1,5 +1,5 @@
 /**
- * @file  TODO: Template.h
+ * @file  TODO: Name of this file goes here (ex. Template.h)
  * @brief TODO: WHAT DO I DO?
  */
 //TODO: Update header guard below to an unique identifier in this project
