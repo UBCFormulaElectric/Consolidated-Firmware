@@ -7,7 +7,7 @@
    - This determines whether an ADC interrupt is generated at the end of conversion or end of seqeuence
    - We don't use ADC interrupt (disabled in NVIC controller) so this selection is inconsequential
 3. **ADC Sampling Time = 71.5 Cycles**
-   - **VREFINT** requires a minimum sampling time of 4us, and the steering angle sensor has a minimum sampling time of about 0us (because it's buffered by an op-amp). On this F0 chip, you can only select one global sampling time for every ADC channel rather than having a custom sampling time for each ADC channel. So we must go with the largest of all minimum sampling time requirements = 4us, which translates to 56 clock cycles at ADC clock frequency = 14Mhz. We choose the next closest option: 71.5 cycles.
+   - **VREFINT** requires a minimum sampling time of 4us, and the steering angle sensor has a minimum sampling time of about 0us (because it's buffered by an op-amp). On this F0 chip, you can only select one global sampling time for every ADC channel rather than having a custom sampling time for each ADC channel. So we must go with the largest of all minimum sampling time requirements = 4us, which translates to 4us / ( 1 / 14Mhz ) = 56 clock cycles, where 14Mhz is the ADC clock frequency. We choose the next closest option: 71.5 cycles.
 4. **`Continuous Conversion Mode` in ADC**
    - *In **continuous conversion mode**, when a software or hardware trigger event occurs, the ADC performs a sequence of conversions, converting all the channels once and then automatically re-starts and continuously performs the same sequence of conversions. (Pg. 236 in RM0091.pdf)*
    - We don't require continuous conversion mode because we have TIM1 to trigger ADC conversions periodically
