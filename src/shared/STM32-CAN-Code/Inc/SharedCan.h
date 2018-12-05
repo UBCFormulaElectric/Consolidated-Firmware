@@ -17,6 +17,8 @@
 #elif STM32F042x6
 // Used in FSM 2017 (Shared CAN Library doesn't yet support this)
 #include "stm32f0xx_hal.h"
+#else
+#error "No valid architecture selected - unable to determine what HAL library to use"
 #endif
 
 /******************************************************************************

@@ -48,6 +48,8 @@ static CanMaskFilterConfig_Struct mask_filters[] =
     INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED),
     INIT_MASK_FILTER(MASKMODE_16BIT_ID_BAMOCAR, MASKMODE_16BIT_MASK_BAMOCAR)
 };
+#else
+#error "No valid PCB selected - unable to determine what mask filters to use"
 #endif
 
 /******************************************************************************
@@ -282,6 +284,9 @@ static void SharedCan_EnqueueFifoOverflowError(void)
     #elif DCM
     uint32_t std_id = DCM_CAN_TX_OVERFLOW_STDID;
     uint32_t dlc = DCM_CAN_TX_OVERFLOW_DLC;
+    #else
+    #error "No valid architecture selected - unable to determine what HAL library to use"
+    #endif
     #endif
 
     static uint32_t overflow_count = 0;
