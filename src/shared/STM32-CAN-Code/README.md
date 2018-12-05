@@ -72,7 +72,7 @@ static CanMaskFilterConfig_Struct mask_filters[2] =
 };
 ```
 
-This tells us for `PDM`, we have activated two CAN filters - the **DCM filter** and the **Shared filter**. We can then check `SharedCan.h` to see which CAN IDs each of these two filters will accept.
+This tells us for `PDM`, we have activated two CAN filters - the **DCM filter** and the **Shared filter**. We can then check `SharedCan.h` to see which CAN IDs each of these two filters will accept:
 
 ```
 // SharedCan.h
@@ -84,4 +84,4 @@ This tells us for `PDM`, we have activated two CAN filters - the **DCM filter** 
 /** Shared filter - CAN ID Range: 0x80 - 0x9F, RTR: Data Frame, IDE: Standard ID */
 ```
 
-The comments tell us that the **DCM filter** accept CAN ID `0x20 - 0x3F` and the **Shared Filter** accept CAN ID `0x80 to 0x9F`. Or in other words, PDM is set up to accept any incoming CAN messages with CAN ID `0x20 - 0x3F` or `0x80 - 0x9F`.
+The comments tell us that the **DCM filter** accept CAN ID `0x20 - 0x3F` and the **Shared Filter** accept CAN ID `0x80 to 0x9F`. Or in other words, PDM is set up to accept any incoming CAN messages with CAN ID matching `0x20 - 0x3F` and `0x80 - 0x9F`.
