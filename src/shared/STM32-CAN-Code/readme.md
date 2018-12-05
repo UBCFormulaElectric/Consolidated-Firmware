@@ -5,8 +5,7 @@ This repository contains our CAN library for STM32 F3 microcontrollers (F0 is no
 1. Add the board name to **Preprocessor Symbols** inside Keil. This will determine which CAN filters are activated.
 <img src="https://user-images.githubusercontent.com/16970019/49477422-c5967e80-f7d1-11e8-95ee-74e2a36f4b73.png" width="50%" height="50%">
 
-2. Insert `SharedCan_StartCanInInterruptMode(&hcan)` into `MX_CAN_INIT()`
-
+2. Add `SharedCan_StartCanInInterruptMode(&hcan)` to `MX_CAN_INIT()` 
 ```
 // main.c
 static void MX_CAN_INIT(void)
@@ -21,11 +20,20 @@ static void MX_CAN_INIT(void)
   /* USER CODE END CAN_Init 2 */
 }
 ```
+3. Include `SharedCan.h` in main.c`
+```
+// main.c
+/* Private includes ----------------------------------------------------------*/
+/* USER CODE BEGIN Includes */
+#include "SharedCan.h"
+/* USER CODE END Includes */
 
-3. Add the `shared\STM32-CAN-Code\Inc` into Include Paths inside Keil (Note: Your relative path may look different than mine)
+```
+
+4. Add `shared\STM32-CAN-Code\Inc` to Include Paths inside Keil (Note: Your relative path may look different than mine)
 <img src="https://user-images.githubusercontent.com/16970019/49481076-14e2ac00-f7de-11e8-9efe-4947a8eb35c7.png" width="50%" height="50%">
 
-4. Create `Can.c` for your Keil Project, in which you can write your own `Can_RxCommonCallback()` to handle incoming CAN messages. A skeleton code has been provided below for `Can.c`.
+5. Create `Can.c` for your Keil Project, in which you can write your own `Can_RxCommonCallback()` to handle incoming CAN messages. A skeleton code has been provided below for `Can.c`.
 
 ```
 // Can.c
