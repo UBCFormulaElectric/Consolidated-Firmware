@@ -219,8 +219,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Src\CAN.c</PathWithFileName>
-      <FilenameWithoutPath>CAN.c</FilenameWithoutPath>
+      <PathWithFileName>..\Src\Can.c</PathWithFileName>
+      <FilenameWithoutPath>Can.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -243,8 +243,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Src\DMA.c</PathWithFileName>
-      <FilenameWithoutPath>DMA.c</FilenameWithoutPath>
+      <PathWithFileName>..\Src\Dma.c</PathWithFileName>
+      <FilenameWithoutPath>Dma.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -279,8 +279,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Src\gpio.c</PathWithFileName>
-      <FilenameWithoutPath>gpio.c</FilenameWithoutPath>
+      <PathWithFileName>..\Src\Gpio.c</PathWithFileName>
+      <FilenameWithoutPath>Gpio.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -360,7 +360,7 @@
 
   <Group>
     <GroupName>Application/Headers</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>
@@ -371,8 +371,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Inc\CAN.h</PathWithFileName>
-      <FilenameWithoutPath>CAN.h</FilenameWithoutPath>
+      <PathWithFileName>..\Inc\Can.h</PathWithFileName>
+      <FilenameWithoutPath>Can.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -419,8 +419,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Inc\DMA.h</PathWithFileName>
-      <FilenameWithoutPath>DMA.h</FilenameWithoutPath>
+      <PathWithFileName>..\Inc\Dma.h</PathWithFileName>
+      <FilenameWithoutPath>Dma.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -455,8 +455,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Inc\gpio.h</PathWithFileName>
-      <FilenameWithoutPath>gpio.h</FilenameWithoutPath>
+      <PathWithFileName>..\Inc\Gpio.h</PathWithFileName>
+      <FilenameWithoutPath>Gpio.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -536,7 +536,7 @@
 
   <Group>
     <GroupName>Drivers/STM32F3xx_HAL_Driver</GroupName>
-    <tvExp>0</tvExp>
+    <tvExp>1</tvExp>
     <tvExpOptDlg>0</tvExpOptDlg>
     <cbSel>0</cbSel>
     <RteFlg>0</RteFlg>

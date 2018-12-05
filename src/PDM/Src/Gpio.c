@@ -1,4 +1,4 @@
-#include "GPIO.h"
+#include "Gpio.h"
 
 void GPIO_Init(void) {
     // Start DSELs at output 0

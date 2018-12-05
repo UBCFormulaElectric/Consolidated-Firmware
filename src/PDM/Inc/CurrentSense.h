@@ -7,7 +7,7 @@
 #ifndef CURRENT_SENSE_H
 #define CURRENT_SENSE_H
 
-#include "GPIO.h"
+#include "Gpio.h"
 #include "stm32f3xx_hal.h"
 
 // clang-format off
