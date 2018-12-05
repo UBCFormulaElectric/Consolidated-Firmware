@@ -309,7 +309,7 @@ void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data)
     tx_header.StdId = std_id;
 
     // The standard 11-bit CAN identifier is more than sufficent, so we disable
-    // Extended CAN IDs by setting this fied to zero.
+    // Extended CAN IDs by setting this field to zero.
     tx_header.ExtId = CAN_ExtID_NULL;
 
     // This field can be either Standard CAN or Extended CAN. See .ExtID to see
