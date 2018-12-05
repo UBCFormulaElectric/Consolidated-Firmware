@@ -40,8 +40,6 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
-#include "SharedCan.h"
-#include "string.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -138,19 +136,7 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-      uint16_t test_data_lut[4] = {12,34,56,78};
-      //uint8_t test_data_lut[CAN_PAYLOAD_BYTE_SIZE] = {0x1, 0x2, 0x3, 0x4, 0xA, 0xB, 0xC, 0xD};
-      SharedCan_TransmitDataCan(DEMO_4_UINT16_NUCLEO_TX_STDID, DEMO_4_UINT16_NUCLEO_TX_DLC, (uint8_t *)&test_data_lut[0]);
-      
-      float myFloat = 3.14159;
-      float myFloat2 = 1239124.48923749014;
-      
-      uint8_t floatArr[8];
-      memcpy(&floatArr[0], &myFloat, sizeof(myFloat));
-      memcpy(&floatArr[4], &myFloat2, sizeof(myFloat2));
-      uint8_t i = sizeof(myFloat);
-      SharedCan_TransmitDataCan(DEMO_2_FLOAT_NUCLEO_TX_STDID, DEMO_2_FLOAT_NUCLEO_TX_DLC, &floatArr[0]);
-      HAL_Delay(10);
+
   }
   /* USER CODE END 3 */
 }
@@ -232,7 +218,7 @@ static void MX_CAN_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN CAN_Init 2 */
-  SharedCan_StartCanInInterruptMode(&hcan);
+
   /* USER CODE END CAN_Init 2 */
 
 }
