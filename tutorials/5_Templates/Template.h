@@ -1,6 +1,6 @@
 /**
  * @file  TODO: Name of this file goes here (ex. Template.h)
- * @brief TODO: WHAT DO I DO?
+ * @brief TODO: A brief summary of what is contained in this file
  */
 //TODO: Update header guard below to an unique identifier in this project
 #ifndef TEMPLATE_H
