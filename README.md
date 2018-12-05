@@ -5,8 +5,7 @@ A consolidated repository for gathering all firmware under one roof.
 ## Continuous Integration
 To pass the continuous integration, first change directory into the src directory and build CMakeLists.txt, then call make:
 
-`>cmake CMakeLists.txt`  
-`>make`
+`>cmake CMakeLists.txt && make`
 
 Make sure you have cmake version +3.0 installed and added to your environment paths. This will use the GCC compiler to build the project. Keil typically uses the ARM compiler but is able to work with either GCC or ARM. Keil will likely have already installed the ARM GNU Embedded Toolchain, but just in case, here's the link to download the latest version: 
 
