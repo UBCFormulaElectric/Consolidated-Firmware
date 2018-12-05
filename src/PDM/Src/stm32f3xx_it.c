@@ -69,7 +69,7 @@
 /* USER CODE BEGIN 0 */
 
 #include "CurrentSense.h"
-#include "GPIO.h"
+#include "Gpio.h"
 #include "SharedCAN.h"
 #include "ErrorHandling.h"
 #include "Debug.h"

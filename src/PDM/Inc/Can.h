@@ -7,7 +7,7 @@
 #ifndef CAN_H
 #define CAN_H
 
-#include "GPIO.h"
+#include "Gpio.h"
 #include <string.h> // For memcpy()
 #include "Debug.h"
 #include "SharedCAN.h"

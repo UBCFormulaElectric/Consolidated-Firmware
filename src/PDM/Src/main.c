@@ -44,8 +44,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#include "GPIO.h"
-#include "DMA.h"
+#include "Gpio.h"
+#include "Dma.h"
 #include "SharedCAN.h"
 #include "Timers.h"
 #include "CurrentSense.h"

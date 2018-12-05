@@ -1,5 +1,5 @@
 /**
- *   @file       GPIO.h
+ *   @file       Gpio.h
  *   @brief      PDM 2018 Code
  *   @author     UBC Formula Electric
 **/
@@ -8,7 +8,7 @@
 #define GPIO_H
 
 #include "stm32f3xx_hal.h"
-#include "CAN.h"
+#include "Can.h"
 
 // clang-format off
 // ADC Variables

@@ -1,12 +1,12 @@
 /**
-    @file       CAN.c
+    @file       Can.c
     @brief      PDM_2018 - Function library for the CAN controller
     @author     UBC Formula Electric
     @version    v2.0.00
     @copyright  GNU General Public License v3
 */
 
-#include "CAN.h"
+#include "Can.h"
 
 #ifndef DEBUG
 
