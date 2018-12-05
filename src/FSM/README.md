@@ -37,5 +37,5 @@
 1. **No need for pull-up resistors for PA6 and PA7**
    - PA6 and PA7 don't need pull-up or down because there's an external pull-up resistor already.
    - <img src="https://user-images.githubusercontent.com/16970019/48681098-39d7ed80-eb55-11e8-8037-639342a3ab7d.png" width="40%" height="40%">
-1 **Pull-up resistors for PA0, PA1, PB4, PB5**
+1. **Pull-up resistors for PA0, PA1, PB4, PB5**
     - These are encoder inputs expecting square pulses. Encoder inputs technically don't require either a pull-up or pull-down. And having a pull-up doesn't actually help us detect hardware faults. However, we will default to using pull-up just so the input has a defined state instead of floating state.
