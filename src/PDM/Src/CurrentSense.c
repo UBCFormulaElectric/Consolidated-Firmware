@@ -11,7 +11,7 @@
 */
 static uint8_t CurrentSense_DSELShiftIndex(void);
 
-extern __IO GPIO_PinState DSEL_State;
+extern volatile GPIO_PinState DSEL_State;
 float FilteredADCReadings[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {0};
 
 // LPF constants (calculated using this article:
@@ -26,7 +26,7 @@ static const float RC        = 1.0f / (2.0f * 3.14159265f * CUTOFF_FREQUENCY);
 static const float LPF_ALPHA = DELTA / (RC + DELTA);
 
 
-void CurrentSense_LowPassFilterADCReadings(__IO uint32_t* ADCReadings) {
+void CurrentSense_LowPassFilterADCReadings(volatile uint32_t* ADCReadings) {
     uint8_t ADC_channel          = CurrentSense_DSELShiftIndex();
     uint8_t final_index = ADC_channel + ADC_CHANNEL_COUNT;
     uint8_t ADC_index   = ADC_CHANNEL_COUNT;
@@ -36,7 +36,7 @@ void CurrentSense_LowPassFilterADCReadings(__IO uint32_t* ADCReadings) {
     }
 }
 
-void CurrentSense_ConvertFilteredADCToCurrentValues(__IO float* converted_readings) {
+void CurrentSense_ConvertFilteredADCToCurrentValues(volatile float* converted_readings) {
     uint8_t ADC_channel           = CurrentSense_DSELShiftIndex(); //Shift index depending on DSEL state
     uint8_t final_index = ADC_channel + ADC_EFUSE_READINGS;
     for (; ADC_channel < final_index; ADC_channel++) {

@@ -96,11 +96,11 @@ static void MX_TIM17_Init(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 
-__IO GPIO_PinState DSEL_State                                   = DSEL_LOW;
-__IO uint8_t e_fuse_fault_states[ADC_CHANNEL_COUNT * NUM_READINGS] = {
+volatile GPIO_PinState DSEL_State                                   = DSEL_LOW;
+volatile uint8_t e_fuse_fault_states[ADC_CHANNEL_COUNT * NUM_READINGS] = {
 STATIC_EFUSE};
-__IO uint32_t adc_readings[ADC_CHANNEL_COUNT * NUM_READINGS];
-__IO float converted_readings[ADC_CHANNEL_COUNT * NUM_CHANNELS];
+volatile uint32_t adc_readings[ADC_CHANNEL_COUNT * NUM_READINGS];
+volatile float converted_readings[ADC_CHANNEL_COUNT * NUM_CHANNELS];
 
 void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef* hcan);
 

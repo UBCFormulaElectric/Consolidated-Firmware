@@ -11,7 +11,7 @@
 #include "stm32f3xx_hal.h"
 #include "CurrentSense.h"
 
-extern __IO GPIO_PinState DSEL_State;
+extern volatile GPIO_PinState DSEL_State;
 
 /**
  *   @brief      Checks if any current or voltage readings exceed their respective limits
@@ -22,7 +22,7 @@ extern __IO GPIO_PinState DSEL_State;
  * elements that tracks converted current/voltage readings from ADC counts to A or V
  *  @return     None
 **/
-void FaultHandling_Handler(__IO uint8_t* fault_states, __IO float* converted_readings);
+void FaultHandling_Handler(volatile uint8_t* fault_states, volatile float* converted_readings);
 
 /**
  *  @brief      Renable any E-Fuses that have faulted but have not exceeded their max number of 
@@ -32,6 +32,6 @@ void FaultHandling_Handler(__IO uint8_t* fault_states, __IO float* converted_rea
  * (error state)
  *  @return     None
 **/
-void FaultHandling_RetryEFuse(__IO uint8_t* fault_states);
+void FaultHandling_RetryEFuse(volatile uint8_t* fault_states);
 
 #endif
