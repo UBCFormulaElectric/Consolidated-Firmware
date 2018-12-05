@@ -287,8 +287,9 @@ static void SharedCan_EnqueueFifoOverflowError(void)
 
     overflow_count++;
 
-    can_tx_msg_fifo[head].std_id = std_id;
-    can_tx_msg_fifo[head].dlc = dlc;
+    // Replace the next CAN message in queue with the overflow count in a destructive manner
+    can_tx_msg_fifo[tail].std_id = std_id;
+    can_tx_msg_fifo[tail].dlc = dlc;
     // TODO: verify this copies by value correctly
     memcpy(&can_tx_msg_fifo[tail].data, &overflow_count, CAN_PAYLOAD_BYTE_SIZE);
 }
