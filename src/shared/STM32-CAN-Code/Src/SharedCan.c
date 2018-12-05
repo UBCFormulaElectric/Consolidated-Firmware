@@ -158,7 +158,7 @@ static Fifo_Status_Enum SharedCan_EnqueueCanTxMessageFifo(CanTxMsgQueueItem_Stru
 
         // Increment head and make sure it wraps around to 0
         head++;
-        if(head == CAN_TX_MSG_FIFO_SIZE)
+        if(head >= CAN_TX_MSG_FIFO_SIZE)
         {
             head = 0;
         }
