@@ -1,6 +1,7 @@
 /******************************************************************************
 * Includes
 *******************************************************************************/
+#include <stdbool.h>
 #include <string.h>
 #include "SharedCan.h"
 
@@ -81,14 +82,14 @@ static void SharedCan_ClearCanTxMessageFifo(void);
  * @return 0: CAN queue is not full
  *         1: CAN queue is full
  */
-static uint32_t SharedCan_CanTxMessageFifoIsFull(void);
+static bool SharedCan_CanTxMessageFifoIsFull(void);
 
 /**
  * @brief  Check if the CAN queue is empty
  * @return 0: CAN queue is not empty
  *         1: CAN queue is empty
  */
-static uint32_t SharedCan_CanTxMessageFifoIsEmpty(void);
+static bool SharedCan_CanTxMessageFifoIsEmpty(void);
 
 /**
  * @brief  Get the number of messages saved in the CAN queue
@@ -175,12 +176,12 @@ static void SharedCan_ClearCanTxMessageFifo(void)
     memset(can_tx_msg_fifo, 0, sizeof(can_tx_msg_fifo));
 }
 
-static uint32_t SharedCan_CanTxMessageFifoIsFull(void)
+static bool SharedCan_CanTxMessageFifoIsFull(void)
 {
     return ((head + 1) % CAN_TX_MSG_FIFO_SIZE) == tail;
 }
 
-static uint32_t SharedCan_CanTxMessageFifoIsEmpty(void)
+static bool SharedCan_CanTxMessageFifoIsEmpty(void)
 {
     return head == tail;
 }
