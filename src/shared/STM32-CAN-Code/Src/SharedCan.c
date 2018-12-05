@@ -103,7 +103,7 @@ static uint32_t SharedCan_GetNumberOfItemsInCanTxMessageFifo(void);
  * @return ERROR:
  *         SUCCESS:
  */
-static ErrorStatus SharedCAN_InitializeFilters(void);
+static ErrorStatus SharedCan_InitializeFilters(void);
 
 /**
  * @brief  Shared callback function for transmission mailbox 0, 1, and 2
@@ -201,7 +201,7 @@ static uint32_t SharedCan_GetNumberOfItemsInCanTxMessageFifo(void)
     return MessageCount;
 }
 
-static ErrorStatus SharedCAN_InitializeFilters(void)
+static ErrorStatus SharedCan_InitializeFilters(void)
 {
     static uint32_t filter_bank = 0;
     static uint32_t fifo = CAN_FILTER_FIFO0;
@@ -340,7 +340,7 @@ HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan)
 {
     HAL_StatusTypeDef status = HAL_OK;
 
-    status |= SharedCAN_InitializeFilters();
+    status |= SharedCan_InitializeFilters();
 
     status |= HAL_CAN_ActivateNotification(hcan, CAN_IT_TX_MAILBOX_EMPTY |
     CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING);
