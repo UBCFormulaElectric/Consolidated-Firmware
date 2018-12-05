@@ -148,7 +148,7 @@ typedef enum
 typedef enum
 {
     // Begin counting faults at 1 for boolean comparison
-    FSM_APPS_FAULT_STATE_1,
+    FSM_APPS_FAULT_STATE_1 = 1,
     FSM_APPS_FAULT_STATE_2,
     FSM_APPS_FAULT_STATE_3,
     FSM_APPS_FAULT_STATE_4,
