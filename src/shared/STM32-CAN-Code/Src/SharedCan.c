@@ -64,7 +64,7 @@ static Fifo_Status_Enum SharedCan_DequeueCanTxMessageFifo(void);
 
 /**
  * @brief  Add CAN message overflow to CAN queue
- * @param  can_msg: Pointer of CAN message to be queued
+ * @param  can_msg: Pointer to CAN message to be queued
  * @return FIFO_IS_FULL: Failed enqueue due to full queue
  *         FIFO_SUCCESS: Successful enqueue
  */
