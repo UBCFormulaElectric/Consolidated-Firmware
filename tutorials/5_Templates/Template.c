@@ -26,7 +26,7 @@ uint32_t global_bar;
 * Private Function Prototypes
 *******************************************************************************/
 /**
- * @brief  This function subtracts two given numbers 
+ * @brief  This function subtracts two given numbers
  * @param  num1 The first number to subtract from
  * @param  num2 The second number to subtract by
  * @return The difference between num1 and num2
