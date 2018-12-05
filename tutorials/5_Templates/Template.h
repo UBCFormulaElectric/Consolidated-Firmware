@@ -27,15 +27,15 @@
 /** TODO: What is this enum for */
 typedef enum
 {
-	TEST_TEST1,			/** OPTIONAL TODO: Test Type 1 */
-	TEST_TEST2,			/** OPTIONAL TODO: Test Type 2 */
+    TEST_TEST1,			/** OPTIONAL TODO: Test Type 1 */
+    TEST_TEST2,			/** OPTIONAL TODO: Test Type 2 */
 } Test_Enum;
 
 /** TODO: What is this struct for */
-typedef struct 
+typedef struct
 {
-	TEST_TEST3,			/** OPTIONAL TODO: Test Type 3 */
-	TEST_TEST4,			/** OPTIONAL TODO: Test Type 4 */
+    TEST_TEST3,			/** OPTIONAL TODO: Test Type 3 */
+    TEST_TEST4,			/** OPTIONAL TODO: Test Type 4 */
 } Test_Struct;
 
 /******************************************************************************
