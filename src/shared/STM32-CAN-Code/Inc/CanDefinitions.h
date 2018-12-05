@@ -137,11 +137,11 @@
 /** @brief PCB Names */
 typedef enum
 {
-    Battery_Management_System = 0,
-    Drive_Control_Module,
-    Power_Distribution_Module,
-    Front_Sensor_Module,
-    PCB_Count
+	BATTERY_MANAGEMENT_SYSTEM = 0,
+	DRIVE_CONTROL_MODULE,
+	POWER_DISTRIBUTION_MODULE,
+	FRONT_SENSOR_MODULE,
+	PCB_COUNT
 } Pcb_Enum;
 
 /** @brief FSM Errors */
