@@ -7,7 +7,11 @@ To pass the continuous integration, first change directory into the src director
 
 `>cmake CMakeLists.txt && make`
 
-Make sure you have cmake version +3.0 installed and added to your environment paths. This will use the GCC compiler to build the project. Keil typically uses the ARM compiler but is able to work with either GCC or ARM. Keil will likely have already installed the ARM GNU Embedded Toolchain, but just in case, here's the link to download the latest version: 
+Make sure you have cmake version +3.0 installed and added to your environment paths. You can follow these instructions to download cmake:
+
+https://cmake.org/install/
+
+This will use the GCC compiler to build the project. Keil typically uses the ARM compiler but is able to work with either GCC or ARM. Keil will likely have already installed the ARM GNU Embedded Toolchain, but just in case, here's the link to download the latest version: 
 
 https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads.
 
