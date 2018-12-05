@@ -53,5 +53,6 @@ script:
         cd ..;
       fi
     - if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then 
-            python ./clang-format/check_formatting_CI.py;
+            cd clang-format;
+            python check_formatting_CI.py;
       fi
