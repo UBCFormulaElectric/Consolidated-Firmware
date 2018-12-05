@@ -100,8 +100,8 @@ static uint32_t SharedCan_GetNumberOfItemsInCanTxMessageFifo(void);
 /**
  * @brief  Initialize one or more CAN filters using 16-bit Filter Scale and
  *         Identifier Mask Mode (FSCx = 0, FBMx = 0)
- * @return ERROR:
- *         SUCCESS:
+ * @return ERROR: One or more filters didn't initialize properly
+ *         SUCCESS: All filters initialized with no errors
  */
 static ErrorStatus SharedCan_InitializeFilters(void);
 
