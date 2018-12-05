@@ -161,7 +161,7 @@ typedef enum
 typedef enum
 {
     SYSTICK_INITIALISATION_ERROR = 0,
-    MISSING_HEARTBEAT = 1,
+    MISSING_HEARTBEAT,
     EFUSE_FAULT,
     CHARGER_FAULT,
     CELL_BALANCE_OVERVOLTAGE_FAULT,
@@ -169,7 +169,7 @@ typedef enum
     _12V_FAULT_OV,
     _12V_FAULT_UV,
     VBAT_FAULT,
-    NUM_PDM_ERRORS
+    PDM_ERRORS_COUNT
 } PdmError_Enum;
 
 /** @brief DCM Errors */
