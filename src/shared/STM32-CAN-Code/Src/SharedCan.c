@@ -287,7 +287,6 @@ static void SharedCan_EnqueueFifoOverflowError(void)
     #else
     #error "No valid architecture selected - unable to determine what HAL library to use"
     #endif
-    #endif
 
     static uint32_t overflow_count = 0;
 
