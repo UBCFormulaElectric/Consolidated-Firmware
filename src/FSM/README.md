@@ -17,7 +17,7 @@
 6. **`DMA Circular Mode` in DMA**
    - ***Circular** mode is available to handle circular buffers and continuous data flows (e.g. ADC scan mode). When circular mode is activated, the number of data to be transferred is automatically reloaded with the initial value programmed during the channel configuration phase, and the DMA requests continue to be served. (Pg. 191 in RM0091.pdf)*
    - Similar to `DMA Continuous Requests` in ADC, `DMA Circular Mode` is the appropriate mode for a continuous analog input data stream like the steering angle sensor measurements.
-7. **`Counter Period` in TIM16/17 for Input Capture Mode**
+7. **`Counter Period = 65535` in TIM16/17 for Input Capture Mode**
    - This value is inconsequential because input capture doesn't use the timer overflow interrupt, however we should leave it at max value to minimize the number of timer overflows because the wheel speed calculation for a timer overflow is slightly more assembly instructions (See if-else clause below)
 ```
 	// Compute difference between the two timer values
