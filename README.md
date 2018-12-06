@@ -4,13 +4,17 @@ A consolidated repository for gathering all firmware under one roof.
 ## Continuous Integration
 
 #### Installing Dependecies
-Make sure you have cmake version +3.0, make +3.0, and ARM GNU Embedded Toolchain latest version installed. You can follow these instructions to download cmake:
+Make sure you have cmake version 3.0+, make 3.0+, and latest version of ARM GNU Embedded Toolchain installed. You can follow these links to download and install them:
 
 https://cmake.org/install/ 
-http://ftp.gnu.org/gnu/make/
-https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads.
 
-Make sure to add the binary executables to **%PATH%**. To add these, find **Environment Variables** in your start menu and then add the appropriate paths to **%PATH%**:
+http://gnuwin32.sourceforge.net/packages/make.htm (Windows)
+
+http://ftp.gnu.org/gnu/make/ (Linux)
+
+https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
+
+Make sure to add the binary executables to **PATH**. To add these, find **Environment Variables** in your start menu and then add the appropriate paths to **PATH**:
 
 ```
 C:\Program Files (x86)\GNU Tools Arm Embedded\<VERSION>\bin
