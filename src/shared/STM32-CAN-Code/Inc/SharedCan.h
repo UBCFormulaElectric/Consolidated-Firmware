@@ -51,7 +51,7 @@
     #define PCB_STARTUP_STDID           DCM_STARTUP_STDID
     #define PCB_STARTUP_DLC             DCM_STARTUP_DLC
 #else
-#error "No valid PCB name found in Preprocessor Symbols"
+    #error "No valid PCB name selected"
 #endif
 
 /******************************************************************************
@@ -204,7 +204,7 @@ extern CAN_HandleTypeDef hcan;
 *******************************************************************************/
 /**
  * @brief  Transmits a CAN message
- * @param  std_id Standard CAN ID. This parameter can be a value of @arg 
+ * @param  std_id Standard CAN ID. This parameter can be a value of @arg
  *         CAN_Standard_CAN_IDs.
  * @param  dlc Data length code. This parameter can be a value of @arg
  *         CAN_Data_Length_Codes.

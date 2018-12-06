@@ -6,131 +6,138 @@
 #ifndef CAN_DEFINITIONS_H
 #define CAN_DEFINITIONS_H
 
-/** @defgroup CAN_Standard_IDs CAN Standard IDs */
-#define BMS_ERROR_STDID                                 (uint32_t)(0x00)
-#define BMS_HEARTBEAT_STDID                             (uint32_t)(0x01)
-#define BMS_CAN_TX_FIFO_OVERFLOW_STDID                  (uint32_t)(0x02)
-#define BMS_STARTUP_STDID                               (uint32_t)(0x03)
-#define BMS_RESERVED2_STDID                             (uint32_t)(0x04)
-#define BMS_RESERVED3_STDID                             (uint32_t)(0x05)
-#define BMS_ACCUMULATOR_STATUS_STDID                    (uint32_t)(0x06)
-#define BMS_ACCUMULATOR_DISCHARGE_POWER_LIMIT_STDID     (uint32_t)(0x07)
-#define BMS_ACCUMULATOR_REGEN_POWER_LIMIT_STDID         (uint32_t)(0x08)
-#define BMS_ACCUMULATOR_SOC_STDID                       (uint32_t)(0x09)
-#define BMS_TURN_ON_ALL_FETS_STDID                      (uint32_t)(0x0A)
-#define BMS_CELL_VOLTAGE_CAN_STDID                      (uint32_t)(0x0B)
-#define BMS_BALANCE_MOSFET_STDID                        (uint32_t)(0x0C)
-#define BMS_LATCH_RESET_STDID                           (uint32_t)(0x0D)
-#define BMS_MOTOR_REENABLE_STDID                        (uint32_t)(0x0E)
-#define BMS_AIR_SHUTDOWN_ERROR_STDID                    (uint32_t)(0x0F)
-#define DCM_ERROR_STDID                                 (uint32_t)(0x20)
-#define DCM_HEARTBEAT_STDID                             (uint32_t)(0x21)
-#define DCM_CAN_TX_FIFO_OVERFLOW_STDID                  (uint32_t)(0x22)
-#define DCM_STARTUP_STDID                               (uint32_t)(0x23)
-#define DCM_RESERVED2_STDID                             (uint32_t)(0x24)
-#define DCM_RESERVED3_STDID                             (uint32_t)(0x25)
-#define DCM_LEFT_SLIP_RATIO_STDID                       (uint32_t)(0x26)
-#define DCM_RIGHT_SLIP_RATIO_STDID                      (uint32_t)(0x27)
-#define DCM_LEFT_MOTOR_OUTPUT_STDID                     (uint32_t)(0x28)
-#define DCM_RIGHT_MOTOR_OUTPUT_STDID                    (uint32_t)(0x29)
-#define DCM_LEFT_SLIP_ERROR_STDID                       (uint32_t)(0x2A)
-#define DCM_RIGHT_SLIP_ERROR_STDID                      (uint32_t)(0x2B)
-#define FSM_ERROR_STDID                                 (uint32_t)(0x40)
-#define FSM_HEARTBEAT_STDID                             (uint32_t)(0x41)
-#define FSM_CAN_TX_FIFO_OVERFLOW_STDID                  (uint32_t)(0x42)
-#define FSM_STARTUP_STDID                               (uint32_t)(0x43)
-#define FSM_RESERVED2_STDID                             (uint32_t)(0x44)
-#define FSM_RESERVED3_STDID                             (uint32_t)(0x45)
-#define FSM_BRAKE_APPS_STDID                            (uint32_t)(0x46)
-#define FSM_STEERING_ANGLE_STDID                        (uint32_t)(0x47)
-#define FSM_LEFT_WHEEL_SPEED_STDID                      (uint32_t)(0x48)
-#define FSM_RIGHT_WHEEL_SPEED_STDID                     (uint32_t)(0x49)
-#define PDM_ERROR_STDID                                 (uint32_t)(0x60)
-#define PDM_HEARTBEAT_STDID                             (uint32_t)(0x61)
-#define PDM_CAN_TX_FIFO_OVERFLOW_STDID                  (uint32_t)(0x62)
-#define PDM_STARTUP_STDID                               (uint32_t)(0x63)
-#define PDM_RESERVED2_STDID                             (uint32_t)(0x64)
-#define PDM_RESERVED3_STDID                             (uint32_t)(0x65)
-#define SHARED_MOTOR_SHUTDOWN_ERROR_STDID               (uint32_t)(0x80)
-#define LEFT_TORQUE_REQUEST_TX_STDID                    (uint32_t)(0x190)
-#define RIGHT_TORQUE_REQUEST_TX_STDID                   (uint32_t)(0x191)
-#define LEFT_TORQUE_REQUEST_RX_STDID                    (uint32_t)(0x210)
-#define RIGHT_TORQUE_REQUEST_RX_STDID                   (uint32_t)(0x211)
-#define DEMO_TOGGLE_GPIO1_STDID                         (uint32_t)(0x400)
-#define DEMO_TOGGLE_GPIO2_STDID                         (uint32_t)(0x401)
-#define DEMO_2_FLOAT_NUCLEO_TX_STDID                    (uint32_t)(0x402)
-#define DEMO_2_FLOAT_NUCLEO_RX_STDID                    (uint32_t)(0x403)
-#define DEMO_2_UINT32_NUCLEO_TX_STDID                   (uint32_t)(0x404)
-#define DEMO_2_UINT32_NUCLEO_RX_STDID                   (uint32_t)(0x405)
-#define DEMO_4_UINT16_NUCLEO_TX_STDID                   (uint32_t)(0x406)
-#define DEMO_4_UINT16_NUCLEO_RX_STDID                   (uint32_t)(0x407)
-#define DEMO_8_UINT8_NUCLEO_TX_STDID                    (uint32_t)(0x408)
-#define DEMO_8_UINT8_NUCLEO_RX_STDID                    (uint32_t)(0x409)
-#define DEMO_2_INT32_NUCLEO_TX_STDID                    (uint32_t)(0x40A)
-#define DEMO_2_INT32_NUCLEO_RX_STDID                    (uint32_t)(0x40B)
+/** @brief CAN Standard ID Enum*/
+typedef enum
+{
+    BMS_ERROR_STDID                                 = (0x00U),
+    BMS_HEARTBEAT_STDID                             = (0x01U),
+    BMS_CAN_TX_FIFO_OVERFLOW_STDID                  = (0x02U),
+    BMS_STARTUP_STDID                               = (0x03U),
+    BMS_RESERVED2_STDID                             = (0x04U),
+    BMS_RESERVED3_STDID                             = (0x05U),
+    BMS_ACCUMULATOR_STATUS_STDID                    = (0x06U),
+    BMS_ACCUMULATOR_DISCHARGE_POWER_LIMIT_STDID     = (0x07U),
+    BMS_ACCUMULATOR_REGEN_POWER_LIMIT_STDID         = (0x08U),
+    BMS_ACCUMULATOR_SOC_STDID                       = (0x09U),
+    BMS_TURN_ON_ALL_FETS_STDID                      = (0x0AU),
+    BMS_CELL_VOLTAGE_CAN_STDID                      = (0x0BU),
+    BMS_BALANCE_MOSFET_STDID                        = (0x0CU),
+    BMS_LATCH_RESET_STDID                           = (0x0DU),
+    BMS_MOTOR_REENABLE_STDID                        = (0x0EU),
+    BMS_AIR_SHUTDOWN_ERROR_STDID                    = (0x0FU),
+    DCM_ERROR_STDID                                 = (0x20U),
+    DCM_HEARTBEAT_STDID                             = (0x21U),
+    DCM_CAN_TX_FIFO_OVERFLOW_STDID                  = (0x22U),
+    DCM_STARTUP_STDID                               = (0x23U),
+    DCM_RESERVED2_STDID                             = (0x24U),
+    DCM_RESERVED3_STDID                             = (0x25U),
+    DCM_LEFT_SLIP_RATIO_STDID                       = (0x26U),
+    DCM_RIGHT_SLIP_RATIO_STDID                      = (0x27U),
+    DCM_LEFT_MOTOR_OUTPUT_STDID                     = (0x28U),
+    DCM_RIGHT_MOTOR_OUTPUT_STDID                    = (0x29U),
+    DCM_LEFT_SLIP_ERROR_STDID                       = (0x2AU),
+    DCM_RIGHT_SLIP_ERROR_STDID                      = (0x2BU),
+    FSM_ERROR_STDID                                 = (0x40U),
+    FSM_HEARTBEAT_STDID                             = (0x41U),
+    FSM_CAN_TX_FIFO_OVERFLOW_STDID                  = (0x42U),
+    FSM_STARTUP_STDID                               = (0x43U),
+    FSM_RESERVED2_STDID                             = (0x44U),
+    FSM_RESERVED3_STDID                             = (0x45U),
+    FSM_BRAKE_APPS_STDID                            = (0x46U),
+    FSM_STEERING_ANGLE_STDID                        = (0x47U),
+    FSM_LEFT_WHEEL_SPEED_STDID                      = (0x48U),
+    FSM_RIGHT_WHEEL_SPEED_STDID                     = (0x49U),
+    PDM_ERROR_STDID                                 = (0x60U),
+    PDM_HEARTBEAT_STDID                             = (0x61U),
+    PDM_CAN_TX_FIFO_OVERFLOW_STDID                  = (0x62U),
+    PDM_STARTUP_STDID                               = (0x63U),
+    PDM_RESERVED2_STDID                             = (0x64U),
+    PDM_RESERVED3_STDID                             = (0x65U),
+    SHARED_MOTOR_SHUTDOWN_ERROR_STDID               = (0x80U),
+    LEFT_TORQUE_REQUEST_TX_STDID                    = (0x190U),
+    RIGHT_TORQUE_REQUEST_TX_STDID                   = (0x191U),
+    LEFT_TORQUE_REQUEST_RX_STDID                    = (0x210U),
+    RIGHT_TORQUE_REQUEST_RX_STDID                   = (0x211U),
+    DEMO_TOGGLE_GPIO1_STDID                         = (0x400U),
+    DEMO_TOGGLE_GPIO2_STDID                         = (0x401U),
+    DEMO_2_FLOAT_NUCLEO_TX_STDID                    = (0x402U),
+    DEMO_2_FLOAT_NUCLEO_RX_STDID                    = (0x403U),
+    DEMO_2_UINT32_NUCLEO_TX_STDID                   = (0x404U),
+    DEMO_2_UINT32_NUCLEO_RX_STDID                   = (0x405U),
+    DEMO_4_UINT16_NUCLEO_TX_STDID                   = (0x406U),
+    DEMO_4_UINT16_NUCLEO_RX_STDID                   = (0x407U),
+    DEMO_8_UINT8_NUCLEO_TX_STDID                    = (0x408U),
+    DEMO_8_UINT8_NUCLEO_RX_STDID                    = (0x409U),
+    DEMO_2_INT32_NUCLEO_TX_STDID                    = (0x40AU),
+    DEMO_2_INT32_NUCLEO_RX_STDID                    = (0x40BU)
+} CanStandardId_Enum;
 
-/** @defgroup CAN_Data_Length_Codes CAN Data Length Codes */
-#define BMS_ERROR_DLC                                   (uint32_t)(8)
-#define BMS_HEARTBEAT_DLC                               (uint32_t)(1)
-#define BMS_CAN_TX_FIFO_OVERFLOW_DLC                    (uint32_t)(8)
-#define BMS_STARTUP_DLC                                 (uint32_t)(1)
-#define BMS_RESERVED2_DLC                               (uint32_t)(8)
-#define BMS_RESERVED3_DLC                               (uint32_t)(8)
-#define BMS_ACCUMULATOR_STATUS_DLC                      (uint32_t)(3)
-#define BMS_ACCUMULATOR_DISCHARGE_POWER_LIMIT_DLC       (uint32_t)(4)
-#define BMS_ACCUMULATOR_REGEN_POWER_LIMIT_DLC           (uint32_t)(4)
-#define BMS_ACCUMULATOR_SOC_DLC                         (uint32_t)(4)
-#define BMS_TURN_ON_ALL_FETS_DLC                        (uint32_t)(1)
-#define BMS_CELL_VOLTAGE_CAN_DLC                        (uint32_t)(4)
-#define BMS_BALANCE_MOSFET_DLC                          (uint32_t)(5)
-#define BMS_LATCH_RESET_DLC                             (uint32_t)(1)
-#define BMS_MOTOR_REENABLE_DLC                          (uint32_t)(1)
-#define BMS_AIR_SHUTDOWN_ERROR_DLC                      (uint32_t)(6)
-#define DCM_ERROR_DLC                                   (uint32_t)(8)
-#define DCM_HEARTBEAT_DLC                               (uint32_t)(1)
-#define DCM_CAN_TX_FIFO_OVERFLOW_DLC                    (uint32_t)(8)
-#define DCM_STARTUP_DLC                                 (uint32_t)(1)
-#define DCM_RESERVED2_DLC                               (uint32_t)(8)
-#define DCM_RESERVED3_DLC                               (uint32_t)(8)
-#define DCM_LEFT_SLIP_RATIO_DLC                         (uint32_t)(4)
-#define DCM_RIGHT_SLIP_RATIO_DLC                        (uint32_t)(4)
-#define DCM_LEFT_MOTOR_OUTPUT_DLC                       (uint32_t)(4)
-#define DCM_RIGHT_MOTOR_OUTPUT_DLC                      (uint32_t)(4)
-#define DCM_LEFT_SLIP_ERROR_DLC                         (uint32_t)(4)
-#define DCM_RIGHT_SLIP_ERROR_DLC                        (uint32_t)(4)
-#define FSM_ERROR_DLC                                   (uint32_t)(8)
-#define FSM_HEARTBEAT_DLC                               (uint32_t)(1)
-#define FSM_CAN_TX_FIFO_OVERFLOW_DLC                    (uint32_t)(8)
-#define FSM_STARTUP_DLC                                 (uint32_t)(1)
-#define FSM_RESERVED2_DLC                               (uint32_t)(8)
-#define FSM_RESERVED3_DLC                               (uint32_t)(8)
-#define FSM_BRAKE_APPS_DLC                              (uint32_t)(4)
-#define FSM_STEERING_ANGLE_DLC                          (uint32_t)(4)
-#define FSM_LEFT_WHEEL_SPEED_DLC                        (uint32_t)(4)
-#define FSM_RIGHT_WHEEL_SPEED_DLC                       (uint32_t)(4)
-#define PDM_ERROR_DLC                                   (uint32_t)(8)
-#define PDM_HEARTBEAT_DLC                               (uint32_t)(1)
-#define PDM_CAN_TX_FIFO_OVERFLOW_DLC                    (uint32_t)(8)
-#define PDM_STARTUP_DLC                                 (uint32_t)(1)
-#define PDM_RESERVED2_DLC                               (uint32_t)(8)
-#define PDM_RESERVED3_DLC                               (uint32_t)(8)
-#define SHARED_MOTOR_SHUTDOWN_ERROR_DLC                 (uint32_t)(6)
-#define LEFT_TORQUE_REQUEST_TX_DLC                      (uint32_t)(3)
-#define RIGHT_TORQUE_REQUEST_TX_DLC                     (uint32_t)(3)
-#define LEFT_TORQUE_REQUEST_RX_DLC                      (uint32_t)(3)
-#define RIGHT_TORQUE_REQUEST_RX_DLC                     (uint32_t)(3)
-#define DEMO_TOGGLE_GPIO1_DLC                           (uint32_t)(1)
-#define DEMO_TOGGLE_GPIO2_DLC                           (uint32_t)(1)
-#define DEMO_2_FLOAT_NUCLEO_TX_DLC                      (uint32_t)(8)
-#define DEMO_2_FLOAT_NUCLEO_RX_DLC                      (uint32_t)(8)
-#define DEMO_2_UINT32_NUCLEO_TX_DLC                     (uint32_t)(8)
-#define DEMO_2_UINT32_NUCLEO_RX_DLC                     (uint32_t)(8)
-#define DEMO_4_UINT16_NUCLEO_TX_DLC                     (uint32_t)(8)
-#define DEMO_4_UINT16_NUCLEO_RX_DLC                     (uint32_t)(8)
-#define DEMO_8_UINT8_NUCLEO_TX_DLC                      (uint32_t)(8)
-#define DEMO_8_UINT8_NUCLEO_RX_DLC                      (uint32_t)(8)
-#define DEMO_2_INT32_NUCLEO_TX_DLC                      (uint32_t)(8)
-#define DEMO_2_INT32_NUCLEO_RX_DLC                      (uint32_t)(8)
+
+/** @brief CAN Data Length Code Enum */
+typedef enum
+{
+    BMS_ERROR_DLC                                   = (8U),
+    BMS_HEARTBEAT_DLC                               = (1U),
+    BMS_CAN_TX_FIFO_OVERFLOW_DLC                    = (8U),
+    BMS_STARTUP_DLC                                 = (1U),
+    BMS_RESERVED2_DLC                               = (8U),
+    BMS_RESERVED3_DLC                               = (8U),
+    BMS_ACCUMULATOR_STATUS_DLC                      = (3U),
+    BMS_ACCUMULATOR_DISCHARGE_POWER_LIMIT_DLC       = (4U),
+    BMS_ACCUMULATOR_REGEN_POWER_LIMIT_DLC           = (4U),
+    BMS_ACCUMULATOR_SOC_DLC                         = (4U),
+    BMS_TURN_ON_ALL_FETS_DLC                        = (1U),
+    BMS_CELL_VOLTAGE_CAN_DLC                        = (4U),
+    BMS_BALANCE_MOSFET_DLC                          = (5U),
+    BMS_LATCH_RESET_DLC                             = (1U),
+    BMS_MOTOR_REENABLE_DLC                          = (1U),
+    BMS_AIR_SHUTDOWN_ERROR_DLC                      = (6U),
+    DCM_ERROR_DLC                                   = (8U),
+    DCM_HEARTBEAT_DLC                               = (1U),
+    DCM_CAN_TX_FIFO_OVERFLOW_DLC                    = (8U),
+    DCM_STARTUP_DLC                                 = (1U),
+    DCM_RESERVED2_DLC                               = (8U),
+    DCM_RESERVED3_DLC                               = (8U),
+    DCM_LEFT_SLIP_RATIO_DLC                         = (4U),
+    DCM_RIGHT_SLIP_RATIO_DLC                        = (4U),
+    DCM_LEFT_MOTOR_OUTPUT_DLC                       = (4U),
+    DCM_RIGHT_MOTOR_OUTPUT_DLC                      = (4U),
+    DCM_LEFT_SLIP_ERROR_DLC                         = (4U),
+    DCM_RIGHT_SLIP_ERROR_DLC                        = (4U),
+    FSM_ERROR_DLC                                   = (8U),
+    FSM_HEARTBEAT_DLC                               = (1U),
+    FSM_CAN_TX_FIFO_OVERFLOW_DLC                    = (8U),
+    FSM_STARTUP_DLC                                 = (1U),
+    FSM_RESERVED2_DLC                               = (8U),
+    FSM_RESERVED3_DLC                               = (8U),
+    FSM_BRAKE_APPS_DLC                              = (4U),
+    FSM_STEERING_ANGLE_DLC                          = (4U),
+    FSM_LEFT_WHEEL_SPEED_DLC                        = (4U),
+    FSM_RIGHT_WHEEL_SPEED_DLC                       = (4U),
+    PDM_ERROR_DLC                                   = (8U),
+    PDM_HEARTBEAT_DLC                               = (1U),
+    PDM_CAN_TX_FIFO_OVERFLOW_DLC                    = (8U),
+    PDM_STARTUP_DLC                                 = (1U),
+    PDM_RESERVED2_DLC                               = (8U),
+    PDM_RESERVED3_DLC                               = (8U),
+    SHARED_MOTOR_SHUTDOWN_ERROR_DLC                 = (6U),
+    LEFT_TORQUE_REQUEST_TX_DLC                      = (3U),
+    RIGHT_TORQUE_REQUEST_TX_DLC                     = (3U),
+    LEFT_TORQUE_REQUEST_RX_DLC                      = (3U),
+    RIGHT_TORQUE_REQUEST_RX_DLC                     = (3U),
+    DEMO_TOGGLE_GPIO1_DLC                           = (1U),
+    DEMO_TOGGLE_GPIO2_DLC                           = (1U),
+    DEMO_2_FLOAT_NUCLEO_TX_DLC                      = (8U),
+    DEMO_2_FLOAT_NUCLEO_RX_DLC                      = (8U),
+    DEMO_2_UINT32_NUCLEO_TX_DLC                     = (8U),
+    DEMO_2_UINT32_NUCLEO_RX_DLC                     = (8U),
+    DEMO_4_UINT16_NUCLEO_TX_DLC                     = (8U),
+    DEMO_4_UINT16_NUCLEO_RX_DLC                     = (8U),
+    DEMO_8_UINT8_NUCLEO_TX_DLC                      = (8U),
+    DEMO_8_UINT8_NUCLEO_RX_DLC                      = (8U),
+    DEMO_2_INT32_NUCLEO_TX_DLC                      = (8U),
+    DEMO_2_INT32_NUCLEO_RX_DLC                      = (8U)
+} CanDataLengthCode_Enum;
 
 /** @brief PCB Names */
 typedef enum
