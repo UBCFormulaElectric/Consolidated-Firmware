@@ -1,17 +1,20 @@
 /**
-    @file       ErrorHandling.h
-    @brief      PDM 2018 Code
-    @author     UBC Formula Electric
-    @version    v1.0.00
-    @copyright  GNU General Public License v3
-*/
+ * @file  SharedErrorHandling.h
+ * @brief Shared Error Handling library
+ */
 
-#ifndef ERRORHANDLING_H
-#define ERRORHANDLING_H
+#ifndef SHARED_ERRORHANDLING_H
+#define SHARED_ERRORHANDLING_H
 
+/******************************************************************************
+* Includes
+*******************************************************************************/
 #include "main.h"
 #include "CANDefinitions.h"
 
+/******************************************************************************
+* Preprocessor Constants
+*******************************************************************************/
 // clang-format off
 #ifdef PDM
     #define PCB_ERROR_CAN_ID    PDM_ERRORS
@@ -26,11 +29,36 @@
     #define PCB_ERROR_CAN_ID    FSM_ERRORS
     #define Error_Enum          FsmError_enum
 #endif
+
+/******************************************************************************
+* Preprocessor Macros
+*******************************************************************************/
+
+/******************************************************************************
+* Typedefs
+*******************************************************************************/
 // clang-format on
 
-// Function Declarations
+/******************************************************************************
+* Global Variables
+*******************************************************************************/
+
+/******************************************************************************
+* Function Prototypes
+*******************************************************************************/
+/**
+ * @brief TODO: Complete this
+ */
 void IncrementNumberOfConsecutiveErrors(Error_Enum Error);
+
+/**
+ * @brief TODO: Complete this
+ */
 void ErrorHandlingRoutine(void);
+
+/**
+ * @brief TODO: Complete this
+ */
 void HandleError(Error_Enum Error);
 
-#endif
+#endif /* SHARED_ERRORHANDLING_H */

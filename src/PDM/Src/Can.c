@@ -1,13 +1,23 @@
-/**
-    @file       Can.c
-    @brief      PDM_2018 - Function library for the CAN controller
-    @author     UBC Formula Electric
-    @version    v2.0.00
-    @copyright  GNU General Public License v3
-*/
-
+/******************************************************************************
+* Includes
+*******************************************************************************/
 #include "Can.h"
 
+/******************************************************************************
+* Module Preprocessor Constants
+*******************************************************************************/
+
+/******************************************************************************
+* Module Preprocessor Macros
+*******************************************************************************/
+
+/******************************************************************************
+* Module Typedefs
+*******************************************************************************/
+
+/******************************************************************************
+* Module Variable Definitions
+*******************************************************************************/
 #ifndef DEBUG
 
 // Heartbeat Setup
@@ -17,7 +27,17 @@ const int HEARTBEAT_BROADCAST_PERIOD        = 300;  // Period in ms
 
 #endif
 
+/******************************************************************************
+* Private Function Prototypes
+*******************************************************************************/
 
+/******************************************************************************
+* Private Function Definitions
+*******************************************************************************/
+
+/******************************************************************************
+* Function Definitions
+*******************************************************************************/
 void TransmitCANError(uint32_t Error_StandardID,
                       PCB_Enum Module,
                       uint8_t ErrorNumber,
@@ -61,7 +81,7 @@ void InitCAN(void) {
 
     // Enable CAN interrupts
     HAL_CAN_ActivateNotification(&hcan, CAN_IT_TX_MAILBOX_EMPTY |
-    CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING);  
+    CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING);
 
     // Enable CAN module
     HAL_CAN_Start(&hcan);

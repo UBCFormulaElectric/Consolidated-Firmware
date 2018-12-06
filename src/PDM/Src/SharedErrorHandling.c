@@ -1,15 +1,3 @@
-/**
-    @file       ErrorHandling.c
-    @brief      PDM 2018 Code
-    @author     UBC Formula Electric
-    @version    v1.0.00
-    @copyright  GNU General Public License v3
-*/
-
-#include "SharedErrorHandling.h"
-#include "Can.h"
-#include "ErrorHandling.h"
-
 /*
  * Error Handling Strategy:
  * =========================
@@ -29,42 +17,59 @@
             (##) Clear consecutive_errors[MISSING_HEARTBEAT].current
 */
 
+
+/******************************************************************************
+* Includes
+*******************************************************************************/
+#include "SharedErrorHandling.h"
+#include "Can.h"
+#include "ErrorHandling.h"
+
+/******************************************************************************
+* Module Preprocessor Constants
+*******************************************************************************/
+#define NUM_ERRORS 1
+
+/******************************************************************************
+* Module Preprocessor Macros
+*******************************************************************************/
+
+/******************************************************************************
+* Module Typedefs
+*******************************************************************************/
 typedef struct
 {
   uint32_t current;
   uint32_t threshold;
 } Error_Struct;
 
-// TODO: Correct the array size
-#define NUM_ERRORS 1
+/******************************************************************************
+* Module Variable Definitions
+*******************************************************************************/
 Error_Struct consecutive_errors[NUM_ERRORS] = {0};
 
-/**
-    @brief
-    @param	  	None
-    @return
-*/
+/******************************************************************************
+* Private Function Prototypes
+*******************************************************************************/
+
+/******************************************************************************
+* Private Function Definitions
+*******************************************************************************/
+
+/******************************************************************************
+* Function Definitions
+*******************************************************************************/
+// TODO: Correct the array size
+
 void ErrorHandling_InitializeConsecutiveErrors(void) {
     consecutive_errors[SYSTICK_INITIALISATION_ERROR].threshold = 3;
     consecutive_errors[MISSING_HEARTBEAT].threshold            = 3;
 }
 
-/**
-    @brief
-    @param	  	None
-    @return
-
-*/
 void IncrementNumberOfConsecutiveErrors(Error_Enum Error) {
     consecutive_errors[Error].current++;
 }
 
-/**
-    @brief
-    @param		None
-    @return
-
-*/
 // To be triggered by a time-base interrupt or by a thread
 void ErrorHandlingRoutine(void) {
     // Use uint64_t to match the CAN payload size
@@ -106,10 +111,4 @@ void ErrorHandlingRoutine(void) {
     }
 }
 
-/**
-    @brief
-    @param	  	None
-    @return
-
-*/
 __weak void HandleError(Error_Enum Error) {}

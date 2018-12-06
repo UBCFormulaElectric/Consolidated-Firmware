@@ -38,6 +38,10 @@
 #include "stm32f3xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "CurrentSense.h"
+#include "Gpio.h"
+#include "SharedCAN.h"
+#include "ErrorHandling.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -57,25 +61,10 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-
-/* USER CODE END PV */
-
-/* Private function prototypes -----------------------------------------------*/
-/* USER CODE BEGIN PFP */
-
-/* USER CODE END PFP */
-
-/* Private user code ---------------------------------------------------------*/
-/* USER CODE BEGIN 0 */
-
-#include "CurrentSense.h"
-#include "Gpio.h"
-#include "SharedCAN.h"
-#include "ErrorHandling.h"
-#include "Debug.h"
-
+// TODO: move extern to header file
 extern ADC_HandleTypeDef hadc1;
 extern uint32_t adc_readings[];
+extern IWDG_HandleTypeDef hiwdg;
 
 #ifndef DEBUG
 
@@ -88,7 +77,19 @@ static volatile uint32_t PDMHeartbeatBroadcastTicks = 0;
 
 #endif
 
-extern IWDG_HandleTypeDef hiwdg;
+/* USER CODE END PV */
+
+/* Private function prototypes -----------------------------------------------*/
+/* USER CODE BEGIN PFP */
+
+/* USER CODE END PFP */
+
+/* Private user code ---------------------------------------------------------*/
+/* USER CODE BEGIN 0 */
+
+
+
+
 
 /* USER CODE END 0 */
 
@@ -258,7 +259,7 @@ void SysTick_Handler(void)
 	if(PDMHeartbeatBroadcastTicks >= HEARTBEAT_BROADCAST_PERIOD)
 	{
 		PDMHeartbeatBroadcastTicks = 0;
-		BroadcastHeartbeat(Power_Distribution_Module);
+    SharedCAN_BroadcastHeartbeat(Power_Distribution_Module);
 	}
 	
 	#endif
