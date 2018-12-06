@@ -473,11 +473,6 @@
               <FilePath>..\Inc\CurrentSense.h</FilePath>
             </File>
             <File>
-              <FileName>Debug.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Inc\Debug.h</FilePath>
-            </File>
-            <File>
               <FileName>Dma.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Inc\Dma.h</FilePath>
