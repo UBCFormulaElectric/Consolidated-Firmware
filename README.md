@@ -24,7 +24,7 @@ To pass the continuous integration, start at the root directory and call:
 
 ```
 > cd src
-> cmake CMakeLists.txt && make
+> cmake CMakeLists.txt -G "MYSYS Makefiles"
 > make
 ```
 
