@@ -154,7 +154,6 @@ typedef enum
 /** @brief FSM Errors */
 typedef enum
 {
-    // Begin counting faults at 1 for boolean comparison
     FSM_APPS_NORMAL_OPERATION = 0,
     FSM_APPS_OPEN_CIRCUIT_SHORT_CIRCUIT_ERROR,
     FSM_APPS_PRIMARY_SECONDARY_DIFFERENCE_ERROR,
