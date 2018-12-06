@@ -281,7 +281,7 @@ static void SharedCan_EnqueueFifoOverflowError(void)
 /******************************************************************************
 * Function Definitions
 *******************************************************************************/
-void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data)
+void SharedCan_TransmitDataCan(CanStandardId_Enum std_id, CanDataLengthCode_Enum dlc, uint8_t *data)
 {
     uint32_t mailbox = 0; // Indicates the mailbox used for tranmission, not currently used
     CAN_TxHeaderTypeDef tx_header;
