@@ -54,5 +54,5 @@ script:
       fi
     - if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then 
             cd clang-format;
-            python check_formatting_CI.py;
+            echo -e "Y" | python check_formatting_CI.py;
       fi
