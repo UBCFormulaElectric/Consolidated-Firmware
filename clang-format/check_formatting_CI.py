@@ -3,7 +3,7 @@ import fix_formatting
 import sys
 
 if __name__ == '__main__':
-    if input("THIS WILL FORMAT YOUR CODE! CONTINUE (Y | N)? ") == 'N':
+    if raw_input("THIS WILL FORMAT YOUR CODE! CONTINUE (Y | N)? ") == 'N':
         sys.exit()
 
     if fix_formatting.runClangFormat() != 0:
