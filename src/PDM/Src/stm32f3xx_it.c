@@ -326,7 +326,7 @@ void USB_LP_CAN_RX0_IRQHandler(void)
   HAL_CAN_IRQHandler(&hcan);
   /* USER CODE BEGIN USB_LP_CAN_RX0_IRQn 1 */
 		
-	/*	TODO: Move to RX callback
+	/*	TODO (Issue #192): Move to RX callback
 	
 	HAL_CAN_Receive_IT(&hcan, CAN_FIFO0);
 	

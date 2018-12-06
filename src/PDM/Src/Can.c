@@ -47,11 +47,11 @@ void TransmitCANError(uint32_t Error_StandardID,
     uint8_t Data[8];
 
     memcpy(Data, &Msg, sizeof(Msg));
-    // TODO: Change function to take in CAN_TxHeaderTypeDef instead of
+    // TODO (Issue #192): Change function to take in CAN_TxHeaderTypeDef instead of
     // Error_StandardID
     CAN_TxHeaderTypeDef TxErrorHeader;
 
-    // TODO: Can be simplified
+    // TODO (Issue #192): Can be simplified
     switch (Error_StandardID) {
         case BMS_AIR_SHUTDOWN_ERROR:
             TxErrorHeader = can_headers[BMS_AIR_SHUTDOWN_ERROR];
