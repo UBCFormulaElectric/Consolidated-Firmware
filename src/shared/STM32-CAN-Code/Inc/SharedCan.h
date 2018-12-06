@@ -204,14 +204,12 @@ extern CAN_HandleTypeDef hcan;
 *******************************************************************************/
 /**
  * @brief  Transmits a CAN message
- * @param  std_id Standard CAN ID. This parameter can be a value of @arg
- *         CAN_Standard_CAN_IDs.
- * @param  dlc Data length code. This parameter can be a value of @arg
- *         CAN_Data_Length_Codes.
+ * @param  std_id Standard CAN ID
+ * @param  dlc Data length code
  * @param  data Pointer to an uint8_t array with 8 elements (64-bits in total).
  * @return None
  */
-void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data);
+void SharedCan_TransmitDataCan(CanStandardId_Enum std_id, CanDataLengthCode_Enum dlc, uint8_t *data);
 
 /**
  * @brief  Initialize CAN interrupts and CAN filters before starting the CAN
