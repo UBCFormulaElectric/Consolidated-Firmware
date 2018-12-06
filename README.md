@@ -10,17 +10,17 @@ https://cmake.org/install/
 http://ftp.gnu.org/gnu/make/
 https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads.
 
-Make sure to add these to your Environment PATHS. To add these, find the SYSTEM VARIABLES in your start menu and then add the paths:
+Make sure to add the binary executables to **%PATH%**. To add these, find **Environment Variables** in your start menu and then add the appropriate paths to **%PATH%**:
 
-`
-C:\Users\<YOU>\GNU Tools Arm Embedded\<VERSION>\bin
-C:\Users\<YOU>\GnuWin32\bin
-`
+```
+C:\Program Files (x86)\GNU Tools Arm Embedded\<VERSION>\bin
+C:\Program Files (x86)\GnuWin32\bin
+```
 
 Or wherever the binaries of your cmake, make, and GCC have been installed. 
 
 #### Running Continuous Integration Checks
-To pass the continuous integration, first change directory into the `src` directory and call:
+To pass the continuous integration, start at the root directory and call:
 
 ```
 > cd src
