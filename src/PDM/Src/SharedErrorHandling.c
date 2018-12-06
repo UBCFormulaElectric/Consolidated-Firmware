@@ -7,7 +7,7 @@
 */
 
 #include "SharedErrorHandling.h"
-#include "CAN.h"
+#include "Can.h"
 #include "ErrorHandling.h"
 
 /*

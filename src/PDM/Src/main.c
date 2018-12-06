@@ -44,8 +44,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#include "GPIO.h"
-#include "DMA.h"
+#include "Gpio.h"
+#include "Dma.h"
 #include "SharedCAN.h"
 #include "Timers.h"
 #include "CurrentSense.h"
@@ -81,6 +81,11 @@ TIM_HandleTypeDef htim17;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+volatile GPIO_PinState DSEL_State                                   = DSEL_LOW;
+volatile uint8_t e_fuse_fault_states[ADC_CHANNEL_COUNT * NUM_READINGS] 
+                 = {STATIC_EFUSE};
+volatile uint32_t adc_readings[ADC_CHANNEL_COUNT * NUM_READINGS];
+volatile float converted_readings[ADC_CHANNEL_COUNT * NUM_CHANNELS];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -95,15 +100,6 @@ static void MX_IWDG_Init(void);
 static void MX_TIM17_Init(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-
-__IO GPIO_PinState DSEL_State                                   = DSEL_LOW;
-__IO uint8_t e_fuse_fault_states[ADC_CHANNEL_COUNT * NUM_READINGS] = {
-STATIC_EFUSE};
-__IO uint32_t adc_readings[ADC_CHANNEL_COUNT * NUM_READINGS];
-__IO float converted_readings[ADC_CHANNEL_COUNT * NUM_CHANNELS];
-
-void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef* hcan);
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/

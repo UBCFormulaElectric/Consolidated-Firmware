@@ -1,17 +1,17 @@
 /**
-    @file       CAN.c
+    @file       Can.c
     @brief      PDM_2018 - Function library for the CAN controller
     @author     UBC Formula Electric
     @version    v2.0.00
     @copyright  GNU General Public License v3
 */
 
-#include "CAN.h"
+#include "Can.h"
 
 #ifndef DEBUG
 
 // Heartbeat Setup
-__IO uint16_t HeartbeatCount[Systems_Count] = {0};
+volatile uint16_t HeartbeatCount[Systems_Count] = {0};
 const int HEARTBEAT_TICK_PERIOD             = 1000; // Period in ms
 const int HEARTBEAT_BROADCAST_PERIOD        = 300;  // Period in ms
 

@@ -8,9 +8,9 @@
 */
 static void FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState state);
 
-__IO uint8_t num_faults[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {0};
+volatile uint8_t num_faults[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {0};
 
-void FaultHandling_Handler(__IO uint8_t* fault_states, __IO float* converted_readings) {
+void FaultHandling_Handler(volatile uint8_t* fault_states, volatile float* converted_readings) {
     uint64_t CAN_error_msg;
 
     for (uint8_t ADC_channel = 0; ADC_channel < ADC_TOTAL_READINGS_SIZE; ADC_channel++) {
@@ -78,7 +78,7 @@ void FaultHandling_Handler(__IO uint8_t* fault_states, __IO float* converted_rea
     }
 }
 
-void FaultHandling_RetryEFuse(__IO uint8_t* fault_states) {
+void FaultHandling_RetryEFuse(volatile uint8_t* fault_states) {
     for (uint8_t ADC_channel = 0; ADC_channel < ADC_TOTAL_READINGS_SIZE; ADC_channel++) {
         if (ADC_channel == _12V_SUPPLY_INDEX || ADC_channel == VBAT_SUPPLY_INDEX ||
             ADC_channel == VICOR_SUPPLY_INDEX)

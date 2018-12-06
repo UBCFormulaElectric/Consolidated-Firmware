@@ -1,4 +1,4 @@
-#include "DMA.h"
+#include "Dma.h"
 
 void DMA_Init(void) {
     // Start DMA - send ADC1 values, store in adc_readings

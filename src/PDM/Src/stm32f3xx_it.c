@@ -69,7 +69,7 @@
 /* USER CODE BEGIN 0 */
 
 #include "CurrentSense.h"
-#include "GPIO.h"
+#include "Gpio.h"
 #include "SharedCAN.h"
 #include "ErrorHandling.h"
 #include "Debug.h"
@@ -82,9 +82,9 @@ extern uint32_t adc_readings[];
 // SysTick/heartbeat variables
 extern const int HEARTBEAT_TICK_PERIOD;					// Period in ms
 extern const int HEARTBEAT_BROADCAST_PERIOD;			// Period in ms
-extern __IO uint16_t HeartbeatCount[Systems_Count];
-static __IO uint32_t HeartbeatTimeoutTicks = 0;
-static __IO uint32_t PDMHeartbeatBroadcastTicks = 0;
+extern volatile uint16_t HeartbeatCount[Systems_Count];
+static volatile uint32_t HeartbeatTimeoutTicks = 0;
+static volatile uint32_t PDMHeartbeatBroadcastTicks = 0;
 
 #endif
 

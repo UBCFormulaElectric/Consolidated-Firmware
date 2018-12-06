@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F302x8, PDM</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;      ../Drivers/STM32F3xx_HAL_Driver/Inc;      ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;      ../Drivers/CMSIS/Device/ST/STM32F3xx/Include;      ../Drivers/CMSIS/Include;      ..\..\shared\STM32-CAN-Code\Inc</IncludePath>
+              <IncludePath>../Inc;        ../Drivers/STM32F3xx_HAL_Driver/Inc;        ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;        ../Drivers/CMSIS/Device/ST/STM32F3xx/Include;        ../Drivers/CMSIS/Include;        ..\..\shared\STM32-CAN-Code\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -393,9 +393,9 @@
           <GroupName>Application/User</GroupName>
           <Files>
             <File>
-              <FileName>CAN.c</FileName>
+              <FileName>Can.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\CAN.c</FilePath>
+              <FilePath>..\Src\Can.c</FilePath>
             </File>
             <File>
               <FileName>CurrentSense.c</FileName>
@@ -403,9 +403,9 @@
               <FilePath>..\Src\CurrentSense.c</FilePath>
             </File>
             <File>
-              <FileName>DMA.c</FileName>
+              <FileName>Dma.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\DMA.c</FilePath>
+              <FilePath>..\Src\Dma.c</FilePath>
             </File>
             <File>
               <FileName>ErrorHandling.c</FileName>
@@ -418,9 +418,9 @@
               <FilePath>..\Src\FaultHandling.c</FilePath>
             </File>
             <File>
-              <FileName>gpio.c</FileName>
+              <FileName>Gpio.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\gpio.c</FilePath>
+              <FilePath>..\Src\Gpio.c</FilePath>
             </File>
             <File>
               <FileName>SharedCAN.c</FileName>
@@ -458,9 +458,9 @@
           <GroupName>Application/Headers</GroupName>
           <Files>
             <File>
-              <FileName>CAN.h</FileName>
+              <FileName>Can.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\Inc\CAN.h</FilePath>
+              <FilePath>..\Inc\Can.h</FilePath>
             </File>
             <File>
               <FileName>CANDefinitions.h</FileName>
@@ -478,9 +478,9 @@
               <FilePath>..\Inc\Debug.h</FilePath>
             </File>
             <File>
-              <FileName>DMA.h</FileName>
+              <FileName>Dma.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\Inc\DMA.h</FilePath>
+              <FilePath>..\Inc\Dma.h</FilePath>
             </File>
             <File>
               <FileName>ErrorHandling.h</FileName>
@@ -493,9 +493,9 @@
               <FilePath>..\Inc\FaultHandling.h</FilePath>
             </File>
             <File>
-              <FileName>gpio.h</FileName>
+              <FileName>Gpio.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\Inc\gpio.h</FilePath>
+              <FilePath>..\Inc\Gpio.h</FilePath>
             </File>
             <File>
               <FileName>main.h</FileName>

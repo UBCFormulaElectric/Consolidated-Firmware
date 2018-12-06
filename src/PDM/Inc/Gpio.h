@@ -1,5 +1,5 @@
 /**
- *   @file       GPIO.h
+ *   @file       Gpio.h
  *   @brief      PDM 2018 Code
  *   @author     UBC Formula Electric
 **/
@@ -8,7 +8,7 @@
 #define GPIO_H
 
 #include "stm32f3xx_hal.h"
-#include "CAN.h"
+#include "Can.h"
 
 // clang-format off
 // ADC Variables
@@ -167,7 +167,7 @@ typedef enum {
 #define DSEL_LOW GPIO_PIN_RESET
 #define DSEL_HIGH GPIO_PIN_SET
 
-extern __IO GPIO_PinState DSEL_State;
+extern volatile GPIO_PinState DSEL_State;
 
 // Function declarations
 
@@ -184,7 +184,7 @@ void GPIO_Init(void);
  * elements which tracks outputs that need to be renabled or are permanently faulted
  *  @return     None
 **/
-void GPIO_ConfigurePreChargeComplete(__IO uint8_t* fault_states);
+void GPIO_ConfigurePreChargeComplete(volatile uint8_t* fault_states);
 
 /**
  *   @brief      Enable CAN/AIR SHDN (if they are not faulted) and their corresponding current sense
@@ -193,7 +193,7 @@ void GPIO_ConfigurePreChargeComplete(__IO uint8_t* fault_states);
  * elements which tracks outputs that need to be renabled or are permanently faulted
  *  @return     None
 **/
-void GPIO_ConfigurePowerUp(__IO uint8_t* fault_states);
+void GPIO_ConfigurePowerUp(volatile uint8_t* fault_states);
 
 /**
  *   @brief      Select E-Fuse output for current sense (DSEL toggle)

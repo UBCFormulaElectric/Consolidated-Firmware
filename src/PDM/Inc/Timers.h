@@ -13,8 +13,8 @@
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim17;
-extern __IO GPIO_PinState DSEL_State;
-extern __IO uint8_t e_fuse_fault_states[ADC_CHANNEL_COUNT * NUM_READINGS];
+extern volatile GPIO_PinState DSEL_State;
+extern volatile uint8_t e_fuse_fault_states[ADC_CHANNEL_COUNT * NUM_READINGS];
 
 // Function Declarations
 /**

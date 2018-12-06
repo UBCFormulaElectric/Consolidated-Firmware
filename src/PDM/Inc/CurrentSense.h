@@ -7,7 +7,7 @@
 #ifndef CURRENT_SENSE_H
 #define CURRENT_SENSE_H
 
-#include "GPIO.h"
+#include "Gpio.h"
 #include "stm32f3xx_hal.h"
 
 // clang-format off
@@ -59,12 +59,12 @@ static const uint8_t MAX_FAULTS[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {3, 10, 3, 1
  *  @param      ADCReadings        Pointer to array containing the unfiltered ADC readings
  *  @return     None
 **/
-void CurrentSense_LowPassFilterADCReadings(__IO uint32_t *ADCReadings);
+void CurrentSense_LowPassFilterADCReadings(volatile uint32_t *ADCReadings);
 	
 /**
  *   @brief      Converts filtered ADC readings to currents or voltages 
  *   @param      converted_readings     Pointer to array containing converted ADC readings
  *   @return     None
 **/
-void CurrentSense_ConvertFilteredADCToCurrentValues(__IO float *converted_readings);
+void CurrentSense_ConvertFilteredADCToCurrentValues(volatile float *converted_readings);
 #endif
