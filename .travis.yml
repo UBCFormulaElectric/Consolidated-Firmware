@@ -2,7 +2,7 @@
 os:
   linux
 
-sudo: true
+sudo: false
 dist: trusty
 language: python
 
