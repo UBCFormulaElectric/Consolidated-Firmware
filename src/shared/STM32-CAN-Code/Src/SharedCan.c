@@ -73,7 +73,6 @@ static Fifo_Status_Enum SharedCan_EnqueueCanTxMessageFifo(CanTxMsgQueueItem_Stru
 
 /**
  * @brief  Clear the CAN queue
- * @return None
  */
 static void SharedCan_ClearCanTxMessageFifo(void);
 
@@ -109,7 +108,6 @@ static ErrorStatus SharedCan_InitializeFilters(void);
  * @brief  Shared callback function for transmission mailbox 0, 1, and 2
  * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
  *         the configuration information for the specified CAN.
- * @return None
  */
 static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan);
 
@@ -117,7 +115,6 @@ static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan);
  * @brief  Send the overflow count for transmit FIFO over CAN. Note that this
  *         destroys one CAN message already enqueued.
  * @param  overflow_count Number of overflows occured thus far
- * @return None
  */
 static void SharedCan_EnqueueFifoOverflowError(void);
 
