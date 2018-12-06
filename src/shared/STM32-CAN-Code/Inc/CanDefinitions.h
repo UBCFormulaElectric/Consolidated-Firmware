@@ -1,6 +1,8 @@
 /**
  * @file  CANDefinitions.h
- * @brief CAN message header definitions
+ * @brief CAN message header definitions. You can find more information 
+ *        about the CAN bus protocl here:
+ *        http://www.ti.com/lit/an/sloa101b/sloa101b.pdf
  */
 
 #ifndef CAN_DEFINITIONS_H
