@@ -81,7 +81,7 @@ void FaultHandling_Handler(volatile uint8_t* fault_states, volatile float* conve
                 }
                 fault_states[ADC_channel] = ERROR_EFUSE;
 
-                // TODO: CAN message implementation
+                // TODO  (Issue #191): CAN message implementation
                 CAN_error_msg =
                 (ADC_channel << 16) +
                 (uint16_t)(converted_readings[ADC_channel] * ADC_12_BIT_POINTS /

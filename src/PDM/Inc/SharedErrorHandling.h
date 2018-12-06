@@ -47,17 +47,17 @@
 * Function Prototypes
 *******************************************************************************/
 /**
- * @brief TODO: Complete this
+ * @brief TODO  (Issue #191): Complete this
  */
 void IncrementNumberOfConsecutiveErrors(Error_Enum Error);
 
 /**
- * @brief TODO: Complete this
+ * @brief TODO  (Issue #191): Complete this
  */
 void ErrorHandlingRoutine(void);
 
 /**
- * @brief TODO: Complete this
+ * @brief TODO  (Issue #191): Complete this
  */
 void HandleError(Error_Enum Error);
 

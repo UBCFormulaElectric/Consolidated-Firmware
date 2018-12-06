@@ -155,7 +155,7 @@ typedef enum {
     R_INV_INDEX
 } ADC_Index_Enum;
 
-/** TODO: What is this struct for */
+/** TODO (Issue #191): What is this struct for */
 typedef struct {
     uint16_t pin[ADC_CHANNEL_COUNT - VOLTAGE_SENSE_PINS];
     GPIO_TypeDef* port[ADC_CHANNEL_COUNT - VOLTAGE_SENSE_PINS];

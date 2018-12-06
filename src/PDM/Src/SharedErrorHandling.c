@@ -59,7 +59,7 @@ Error_Struct consecutive_errors[NUM_ERRORS] = {0};
 /******************************************************************************
 * Function Definitions
 *******************************************************************************/
-// TODO: Correct the array size
+// TODO (Issue #191): Correct the array size
 
 void ErrorHandling_InitializeConsecutiveErrors(void) {
     consecutive_errors[SYSTICK_INITIALISATION_ERROR].threshold = 3;

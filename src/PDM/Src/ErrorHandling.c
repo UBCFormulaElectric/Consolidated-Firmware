@@ -34,7 +34,7 @@
 *******************************************************************************/
 
 /**
- * @brief TODO: Complete this
+ * @brief TODO  (Issue #191): Complete this
  */
 void ErrorHandling_HandleHeartbeatTimeout(void) {
     // Handle BMS not sending heartbeats
@@ -57,6 +57,6 @@ void ErrorHandling_HandleHeartbeatTimeout(void) {
 }
 
 /**
- * @brief TODO: Complete this
+ * @brief TODO  (Issue #191): Complete this
  */
 void ErrorHandling_HandleError(PdmError_Enum Error) {}
