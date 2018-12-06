@@ -105,7 +105,8 @@ static uint32_t SharedCan_GetNumberOfItemsInCanTxMessageFifo(void);
 static ErrorStatus SharedCan_InitializeFilters(void);
 
 /**
- * @brief  Shared callback function for transmission mailbox 0, 1, and 2
+ * @brief  Shared callback function for every transmission mailbox (STM32F302
+ *         has three - mailbox 0, 1, and 2).
  * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
  *         the configuration information for the specified CAN.
  */
