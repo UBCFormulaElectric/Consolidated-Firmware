@@ -221,7 +221,7 @@ void SharedCan_TransmitDataCan(CanStandardId_Enum std_id, CanDataLengthCode_Enum
 HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan);
 
 /**
- * @brief  Shared callback function for every receive FIFO (STM32F302's bxCAN
+ * @brief  Shared callback function for every receive FIFO (STM32F302x8's bxCAN
  *         peripheral has two - FIFO0 and FIFO1).
  * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
  *         the configuration information for the specified CAN.

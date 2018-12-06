@@ -105,8 +105,8 @@ static uint32_t SharedCan_GetNumberOfItemsInCanTxMessageFifo(void);
 static ErrorStatus SharedCan_InitializeFilters(void);
 
 /**
- * @brief  Shared callback function for every transmission mailbox (STM32F302's
- *         bxCAN peripheral has three - mailbox 0, 1, and 2).
+ * @brief  Shared callback function for every transmission mailbox
+ *         (STM32F302x8's bxCAN peripheral has three - mailbox 0, 1, and 2).
  * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
  *         the configuration information for the specified CAN.
  */
@@ -329,7 +329,7 @@ HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan)
     CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING);
 
     status |= HAL_CAN_Start(hcan);
-    
+
     // Broadcast PCB start-up message
     uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = {0};
     SharedCan_TransmitDataCan(PCB_STARTUP_STDID, PCB_STARTUP_DLC, &data[0]);
