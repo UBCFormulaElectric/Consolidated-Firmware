@@ -208,7 +208,6 @@ extern CAN_HandleTypeDef hcan;
  * @param  dlc Data length code (Indiciates the number of bytes of data being
  *         transmitted)
  * @param  data Pointer to an uint8_t array with 8 elements (64-bits in total).
- * @return None
  */
 void SharedCan_TransmitDataCan(CanStandardId_Enum std_id, CanDataLengthCode_Enum dlc, uint8_t *data);
 
@@ -226,7 +225,6 @@ HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan);
  * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
  *         the configuration information for the specified CAN.
  * @param  rx_fifo The Rx FIFO that triggered the callback
- * @return None
  */
 void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo);
 
