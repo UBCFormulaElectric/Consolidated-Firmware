@@ -135,7 +135,7 @@ typedef enum {
     ERROR_EFUSE = 2 
 } Efuse_State_Enum;
 
-// Efuse Indexing, corresponding to: 0 to ADC_TOTAL_READINGS_SIZE-1
+// Efuse Indexing, corresponding to: 0 to (ADC_TOTAL_READINGS_SIZE - 1)
 // Indices 0-4 correspond to DSEL_LOW Efuses and 5-7 are voltage readings
 // Indices 8-12 correspond to DSEL_HIGH Efuses
 // Note: Indices 13-15 are omitted; they are redundant with indices 5-7
@@ -164,7 +164,7 @@ typedef struct {
 /******************************************************************************
 * Global Variables
 *******************************************************************************/
-extern volatile GPIO_PinState DSEL_State;
+extern volatile GPIO_PinState dsel_state;
 
 // E-fuse output pin mapping
 static const output_pinout OUTPUT_0_PINOUT = {{EFUSE_AUX_1_IN_PIN,
@@ -218,9 +218,9 @@ void GPIO_ConfigurePowerUp(volatile uint8_t* fault_states);
 
 /**
  *  @brief  Select E-Fuse output for current sense (DSEL toggle)
- *  @param  DSEL_value value to set DSEL pin to (DSEL_HIGH or DSEL_LOW)
+ *  @param  dsel_value value to set DSEL pin to (DSEL_HIGH or DSEL_LOW)
  */
-void GPIO_EFuseSelectDSEL(GPIO_PinState DSEL_value);
+void GPIO_EFuseSelectDSEL(GPIO_PinState dsel_value);
 
 /**
  * @brief Check for faults on startup from charging IC, cell balancing IC,

@@ -34,7 +34,7 @@ extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim17;
 
-extern volatile GPIO_PinState DSEL_State;
+extern volatile GPIO_PinState dsel_state;
 extern volatile uint8_t e_fuse_fault_states[ADC_CHANNEL_COUNT * NUM_READINGS];
 
 /******************************************************************************

@@ -16,8 +16,6 @@
                  message
             (##) Clear consecutive_errors[MISSING_HEARTBEAT].current
 */
-
-
 /******************************************************************************
 * Includes
 *******************************************************************************/
@@ -66,8 +64,8 @@ void ErrorHandling_InitializeConsecutiveErrors(void) {
     consecutive_errors[MISSING_HEARTBEAT].threshold            = 3;
 }
 
-void IncrementNumberOfConsecutiveErrors(Error_Enum Error) {
-    consecutive_errors[Error].current++;
+void IncrementNumberOfConsecutiveErrors(Error_Enum error) {
+    consecutive_errors[error].current++;
 }
 
 // To be triggered by a time-base interrupt or by a thread
