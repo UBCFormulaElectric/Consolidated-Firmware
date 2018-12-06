@@ -183,7 +183,8 @@ typedef enum
 typedef enum
 {
     DCM_SENSOR_RANGE_ERROR = 0,
-    BMS_HEARTBEAT_TIMEOUT_ERROR_ON_DCM
+    BMS_HEARTBEAT_TIMEOUT_ERROR_ON_DCM,
+    DCM_ERRORS_COUNT
 } DcmError_Enum;
 
 #endif
