@@ -41,7 +41,6 @@
 #include "CurrentSense.h"
 #include "Gpio.h"
 #include "SharedCAN.h"
-#include "ErrorHandling.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

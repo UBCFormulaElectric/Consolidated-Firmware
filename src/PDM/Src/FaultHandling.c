@@ -36,12 +36,14 @@ static void FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState stat
 static void FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState state)
 {
     if (index < ADC_CHANNEL_COUNT) {
-        HAL_GPIO_WritePin(
-        OUTPUT_0_PINOUT.port[index], OUTPUT_0_PINOUT.pin[index], state);
+        HAL_GPIO_WritePin(OUTPUT_0_PINOUT.port[index],
+                          OUTPUT_0_PINOUT.pin[index],
+                          state);
     } else {
         index = index - ADC_CHANNEL_COUNT; // adjust index for pinout array
-        HAL_GPIO_WritePin(
-        OUTPUT_1_PINOUT.port[index], OUTPUT_1_PINOUT.pin[index], state);
+        HAL_GPIO_WritePin(OUTPUT_1_PINOUT.port[index],
+                          OUTPUT_1_PINOUT.pin[index],
+                          state);
     }
 }
 
