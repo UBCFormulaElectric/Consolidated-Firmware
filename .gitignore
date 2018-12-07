@@ -58,6 +58,7 @@
 #*.sct
 *.sfd
 *.sfr
+*.pyc
 
 # CMake-relevant files
 CMakeCache.txt
