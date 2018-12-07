@@ -61,7 +61,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-// TODO: move extern to header file
+// TODO (Issue #191): move extern to header file
 extern ADC_HandleTypeDef hadc1;
 extern uint32_t adc_readings[];
 extern IWDG_HandleTypeDef hiwdg;
@@ -326,7 +326,7 @@ void USB_LP_CAN_RX0_IRQHandler(void)
   HAL_CAN_IRQHandler(&hcan);
   /* USER CODE BEGIN USB_LP_CAN_RX0_IRQn 1 */
 		
-	/*	TODO: Move to RX callback
+	/*	TODO (Issue #192): Move to RX callback
 	
 	HAL_CAN_Receive_IT(&hcan, CAN_FIFO0);
 	

@@ -155,7 +155,8 @@ int main(void)
     // Configure CAN and activate CAN interrupts
     InitCAN();
 
-    // Transmit startup message TODO: Add startup header to SharedCAN
+    // Transmit startup message TODO (Issue #192): Add startup header to SharedCAN
+    // Might just wrap this inside shared CAN and delete this entirely
     // TransmitDataCAN(Startup_Status_StandardID, Startup_Status_ExtendedID,
     // Startup_Status_DLC, Power_Distribution_Module);
 

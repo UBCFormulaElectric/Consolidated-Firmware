@@ -36,12 +36,14 @@ static void FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState stat
 static void FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState state)
 {
     if (index < ADC_CHANNEL_COUNT) {
-        HAL_GPIO_WritePin(
-        OUTPUT_0_PINOUT.port[index], OUTPUT_0_PINOUT.pin[index], state);
+        HAL_GPIO_WritePin(OUTPUT_0_PINOUT.port[index],
+                          OUTPUT_0_PINOUT.pin[index],
+                          state);
     } else {
         index = index - ADC_CHANNEL_COUNT; // adjust index for pinout array
-        HAL_GPIO_WritePin(
-        OUTPUT_1_PINOUT.port[index], OUTPUT_1_PINOUT.pin[index], state);
+        HAL_GPIO_WritePin(OUTPUT_1_PINOUT.port[index],
+                          OUTPUT_1_PINOUT.pin[index],
+                          state);
     }
 }
 
@@ -81,11 +83,11 @@ void FaultHandling_Handler(volatile uint8_t* fault_states, volatile float* conve
                 }
                 fault_states[adc_channel] = ERROR_EFUSE;
 
-                // TODO: CAN message implementation
-                can_error_msg =
-                (adc_channel << 16) +
-                (uint16_t)(converted_readings[adc_channel] * ADC_12_BIT_POINTS /
-                           (VOLTAGE_TO_CURRENT[adc_channel] * VDDA_VOLTAGE));
+                // TODO  (Issue #191): CAN message implementation
+                CAN_error_msg =
+                (ADC_channel << 16) +
+                (uint16_t)(converted_readings[ADC_channel] * ADC_12_BIT_POINTS /
+                           (VOLTAGE_TO_CURRENT[ADC_channel] * VDDA_VOLTAGE));
                 TransmitCANError(PDM_ERROR,
                                  Power_Distribution_Module,
                                  EFUSE_FAULT,

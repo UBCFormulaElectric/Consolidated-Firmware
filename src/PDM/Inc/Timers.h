@@ -29,7 +29,7 @@
 /******************************************************************************
 * Global Variables
 *******************************************************************************/
-// TODO: Should include header for TIM_HandleTypeDef externs
+// TODO  (Issue #191): Should include header for TIM_HandleTypeDef externs
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim17;
@@ -40,7 +40,7 @@ extern volatile uint8_t e_fuse_fault_states[ADC_CHANNEL_COUNT * NUM_READINGS];
 /******************************************************************************
 * Function Prototypes
 *******************************************************************************/
-// TODO: This should moved into MX_TIMERS_INIT() probably
+// TODO  (Issue #191): This should moved into MX_TIMERS_INIT() probably
 /**
  * @brief Initialize Timers 
  */
