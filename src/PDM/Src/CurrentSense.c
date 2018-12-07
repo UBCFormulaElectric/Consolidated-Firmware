@@ -1,16 +1,19 @@
+/******************************************************************************
+* Includes
+*******************************************************************************/
 #include "CurrentSense.h"
 
+/******************************************************************************
+* Module Preprocessor Constants
+*******************************************************************************/
 
-/**
- *    @brief      Helper function to shift starting index in any ADC/Converted Readings array, depending on DSEL_State
- *					DSEL_LOW corresponds to the first half of the array
- *					DSEL_HIGH corresponds to the second half of the array
- *	  @param 		None
- * 	  @return 		None
- * 
-*/
-static uint8_t CurrentSense_DSELShiftIndex(void);
+/******************************************************************************
+* Module Typedefs
+*******************************************************************************/
 
+/******************************************************************************
+* Module Variable Definitions
+*******************************************************************************/
 extern volatile GPIO_PinState DSEL_State;
 float FilteredADCReadings[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {0};
 
@@ -26,6 +29,31 @@ static const float RC        = 1.0f / (2.0f * 3.14159265f * CUTOFF_FREQUENCY);
 static const float LPF_ALPHA = DELTA / (RC + DELTA);
 
 
+/******************************************************************************
+* Private Function Prototypes
+*******************************************************************************/
+/**
+ * @brief  Helper function to shift starting index in any ADC/Converted Readings 
+ *         array, depending on DSEL_State.
+ *         DSEL_LOW corresponds to the first half of the array
+ *         DSEL_HIGH corresponds to the second half of the array
+ */
+static uint8_t CurrentSense_DSELShiftIndex(void);
+
+/******************************************************************************
+* Private Function Definitions
+*******************************************************************************/
+static uint8_t CurrentSense_DSELShiftIndex(void) {
+    if (DSEL_State == DSEL_LOW) {
+        return 0;
+    } else {
+        return ADC_CHANNEL_COUNT;
+    }
+}
+
+/******************************************************************************
+* Function Definitions
+*******************************************************************************/
 void CurrentSense_LowPassFilterADCReadings(volatile uint32_t* ADCReadings) {
     uint8_t ADC_channel          = CurrentSense_DSELShiftIndex();
     uint8_t final_index = ADC_channel + ADC_CHANNEL_COUNT;
@@ -46,20 +74,13 @@ void CurrentSense_ConvertFilteredADCToCurrentValues(volatile float* converted_re
     converted_readings[_12V_SUPPLY_INDEX] =
     FilteredADCReadings[ADC_channel] * GLV_VOLTAGE / ADC_12_BIT_POINTS;
     ADC_channel++;
-	
+
     converted_readings[VBAT_SUPPLY_INDEX] =
     FilteredADCReadings[ADC_channel] * VBAT_VOLTAGE / ADC_12_BIT_POINTS;
     ADC_channel++;
-	
+
     converted_readings[VICOR_SUPPLY_INDEX] =
     FilteredADCReadings[ADC_channel] * EN2_TO_12VACC * VDDA_VOLTAGE /
     ADC_12_BIT_POINTS;
 }
 
-uint8_t CurrentSense_DSELShiftIndex(void) {
-    if (DSEL_State == DSEL_LOW) {
-        return 0;
-    } else {
-        return ADC_CHANNEL_COUNT;
-    }
-}

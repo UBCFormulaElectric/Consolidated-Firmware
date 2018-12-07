@@ -1,5 +1,36 @@
+/******************************************************************************
+* Includes
+*******************************************************************************/
 #include "Gpio.h"
 
+/******************************************************************************
+* Module Preprocessor Constants
+*******************************************************************************/
+
+/******************************************************************************
+* Module Preprocessor Macros
+*******************************************************************************/
+
+/******************************************************************************
+* Module Typedefs
+*******************************************************************************/
+
+/******************************************************************************
+* Module Variable Definitions
+*******************************************************************************/
+uint32_t global_bar;
+
+/******************************************************************************
+* Private Function Prototypes
+*******************************************************************************/
+
+/******************************************************************************
+* Private Function Definitions
+*******************************************************************************/
+
+/******************************************************************************
+* Function Definitions
+*******************************************************************************/
 void GPIO_Init(void) {
     // Start DSELs at output 0
     GPIO_EFuseSelectDSEL(DSEL_State);
@@ -62,8 +93,6 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t* fault_states) {
     HAL_GPIO_WritePin(
     EFUSE_INVERTER_DEN_PORT, EFUSE_INVERTER_DEN_PIN, GPIO_PIN_SET);
 }
-
-
 void GPIO_ConfigurePowerUp(volatile uint8_t* fault_states) {
     // E-Fuse AUX 1/2
     HAL_GPIO_WritePin(EFUSE_AUX_1_IN_PORT, EFUSE_AUX_1_IN_PIN, GPIO_PIN_RESET);
@@ -104,7 +133,6 @@ void GPIO_ConfigurePowerUp(volatile uint8_t* fault_states) {
     HAL_GPIO_WritePin(
     EFUSE_RIGHT_INVERTER_IN_PORT, EFUSE_RIGHT_INVERTER_IN_PIN, GPIO_PIN_RESET);
 }
-
 
 void GPIO_EFuseSelectDSEL(GPIO_PinState DSEL_value) {
     HAL_GPIO_WritePin(EFUSE_AUX_DSEL_PORT, EFUSE_AUX_DSEL_PIN, DSEL_value);

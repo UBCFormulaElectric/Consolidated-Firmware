@@ -408,11 +408,6 @@
               <FilePath>..\Src\Dma.c</FilePath>
             </File>
             <File>
-              <FileName>ErrorHandling.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\ErrorHandling.c</FilePath>
-            </File>
-            <File>
               <FileName>FaultHandling.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\FaultHandling.c</FilePath>
@@ -426,11 +421,6 @@
               <FileName>SharedCAN.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\shared\STM32-CAN-Code\Src\SharedCAN.c</FilePath>
-            </File>
-            <File>
-              <FileName>SharedErrorHandling.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\SharedErrorHandling.c</FilePath>
             </File>
             <File>
               <FileName>Timers.c</FileName>
@@ -451,6 +441,11 @@
               <FileName>stm32f3xx_hal_msp.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/stm32f3xx_hal_msp.c</FilePath>
+            </File>
+            <File>
+              <FileName>ErrorHandling.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\ErrorHandling.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -473,19 +468,9 @@
               <FilePath>..\Inc\CurrentSense.h</FilePath>
             </File>
             <File>
-              <FileName>Debug.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Inc\Debug.h</FilePath>
-            </File>
-            <File>
               <FileName>Dma.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Inc\Dma.h</FilePath>
-            </File>
-            <File>
-              <FileName>ErrorHandling.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Inc\ErrorHandling.h</FilePath>
             </File>
             <File>
               <FileName>FaultHandling.h</FileName>
@@ -508,11 +493,6 @@
               <FilePath>..\..\shared\STM32-CAN-Code\Inc\SharedCAN.h</FilePath>
             </File>
             <File>
-              <FileName>SharedErrorHandling.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Inc\SharedErrorHandling.h</FilePath>
-            </File>
-            <File>
               <FileName>stm32f3xx_hal_conf.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Inc\stm32f3xx_hal_conf.h</FilePath>
@@ -526,6 +506,11 @@
               <FileName>Timers.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Inc\Timers.h</FilePath>
+            </File>
+            <File>
+              <FileName>ErrorHandling.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Inc\ErrorHandling.h</FilePath>
             </File>
           </Files>
         </Group>
