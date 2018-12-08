@@ -8,7 +8,7 @@ def runClangFormat():
     """
     
     # Construct the command line input
-    CLANG_FORMAT_VERSION = "4.0"
+    CLANG_FORMAT_VERSION = "7.0"
     CLANG_FORMAT_COMMAND = "clang-format-" + CLANG_FORMAT_VERSION
     CLANG_FORMAT_OPTIONS = " -i --style=file "
 
