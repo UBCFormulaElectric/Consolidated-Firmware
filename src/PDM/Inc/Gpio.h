@@ -18,16 +18,24 @@
 *******************************************************************************/
 // clang-format off
 
-// ADC Variables
+/** @brief 8 microcontroller pins are configured to be ADC inputs */
 #define NUM_ADC_CHANNELS 8
-#define NUM_VOLTAGE_SENSE_PINS 3
-#define NUM_PROFETS NUM_ADC_CHANNELS - NUM_VOLTAGE_SENSE_PINS
-#define NUM_EFUSES_PER_PROFET 2
-#define NUM_EFUSES NUM_PROFETS * NUM_EFUSES_PER_PROFET
 
-// We have 8 ADC channels enabled, but 5 of those are connected to PROFETs.
-// Each PROFET has two e-fuse channels, which means we are really getting 2 
-// unique ADC readings per PROFET.
+/** @brief 12V Sense, VBAT Sense, and Flywire Sense */
+#define NUM_VOLTAGE_SENSE_PINS 3
+
+/** @brief Number of PROFET 2's in PDM_2018-Board */
+#define NUM_PROFET2S NUM_ADC_CHANNELS - NUM_VOLTAGE_SENSE_PINS
+
+/** @brief PROFET 2 is a dual-channel IC containing two separate e-fuses */
+#define NUM_EFUSES_PER_PROFET2 2
+
+/** @brief The number of e-fuse is simply twice as many as the number of PROFET 2's */
+#define NUM_EFUSES NUM_PROFET2S * NUM_EFUSES_PER_PROFET2
+
+/** @brief We have 8 ADC channels enabled, but 5 of those are connected to 
+ *         PROFET 2's. Each PROFET 2 has two e-fuse channels, which means we 
+ *         are really getting two unique ADC readings per PROFET. */
 #define NUM_UNIQUE_ADC_READINGS NUM_EFUSES + NUM_VOLTAGE_SENSE_PINS
 
 // Pin definitions

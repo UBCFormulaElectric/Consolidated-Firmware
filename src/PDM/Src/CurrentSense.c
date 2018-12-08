@@ -15,7 +15,7 @@
 * Module Variable Definitions
 *******************************************************************************/
 extern volatile GPIO_PinState dsel_state;
-static float filtered_adc_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET] = {0};
+static float filtered_adc_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {0};
 
 // LPF constants (calculated using this article:
 // https://en.wikipedia.org/wiki/Low-pass_filter#Discrete-time_realization)
@@ -66,7 +66,7 @@ void CurrentSense_LowPassFilterADCReadings(volatile uint32_t* adc_readings) {
 
 void CurrentSense_ConvertFilteredADCToCurrentValues(volatile float* converted_readings) {
     uint8_t adc_channel           = CurrentSense_DSELShiftIndex(); //Shift index depending on DSEL state
-    uint8_t final_index = adc_channel + NUM_PROFETS;
+    uint8_t final_index = adc_channel + NUM_PROFET2S;
     for (; adc_channel < final_index; adc_channel++) {
         converted_readings[adc_channel] = filtered_adc_readings[adc_channel] * VOLTAGE_TO_CURRENT[adc_channel] * VDDA_VOLTAGE / ADC_12_BIT_POINTS;
     }
