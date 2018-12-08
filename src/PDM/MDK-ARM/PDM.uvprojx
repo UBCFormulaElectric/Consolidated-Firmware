@@ -403,9 +403,9 @@
               <FilePath>..\Src\CurrentSense.c</FilePath>
             </File>
             <File>
-              <FileName>Dma.c</FileName>
+              <FileName>Adc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\Dma.c</FilePath>
+              <FilePath>..\Src\Adc.c</FilePath>
             </File>
             <File>
               <FileName>FaultHandling.c</FileName>
@@ -468,9 +468,9 @@
               <FilePath>..\Inc\CurrentSense.h</FilePath>
             </File>
             <File>
-              <FileName>Dma.h</FileName>
+              <FileName>Adc.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\Inc\Dma.h</FilePath>
+              <FilePath>..\Inc\Adc.h</FilePath>
             </File>
             <File>
               <FileName>FaultHandling.h</FileName>

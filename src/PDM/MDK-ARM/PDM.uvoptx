@@ -243,8 +243,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Src\Dma.c</PathWithFileName>
-      <FilenameWithoutPath>Dma.c</FilenameWithoutPath>
+      <PathWithFileName>..\Src\Adc.c</PathWithFileName>
+      <FilenameWithoutPath>Adc.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -395,8 +395,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Inc\Dma.h</PathWithFileName>
-      <FilenameWithoutPath>Dma.h</FilenameWithoutPath>
+      <PathWithFileName>..\Inc\Adc.h</PathWithFileName>
+      <FilenameWithoutPath>Adc.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

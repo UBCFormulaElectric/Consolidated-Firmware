@@ -45,7 +45,7 @@
 /* USER CODE BEGIN Includes */
 
 #include "Gpio.h"
-#include "Dma.h"
+#include "Adc.h"
 #include "SharedCAN.h"
 #include "Timers.h"
 #include "CurrentSense.h"
@@ -143,8 +143,8 @@ int main(void)
   MX_TIM17_Init();
   /* USER CODE BEGIN 2 */
 
-    // Initialize DMA
-    DMA_Init();
+    // Start ADC 
+    Adc_StartAdcInDmaMode();
 
     // Initialize Timers
     Timers_Init();
