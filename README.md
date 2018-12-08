@@ -4,13 +4,15 @@ A consolidated repository for gathering all firmware under one roof.
 ## Continuous Integration
 
 #### Installing Dependecies
-Make sure you have cmake version 3.0+, make 3.0+, and latest version of ARM GNU Embedded Toolchain installed. You can follow these links to download and install them:
+Make sure you have cmake version 3.0+, make 3.0+, python 3, and latest version of ARM GNU Embedded Toolchain installed. You can follow these links to download and install them:
 
 https://cmake.org/install/ 
 
 http://gnuwin32.sourceforge.net/packages/make.htm (Windows)
 
 http://ftp.gnu.org/gnu/make/ (Linux)
+
+https://www.python.org/downloads/
 
 https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
 
@@ -26,9 +28,17 @@ Or wherever the binaries of your cmake, make, and GCC have been installed.
 #### Running Continuous Integration Checks
 To pass the continuous integration, start at the root directory and call:
 
+(Windows)
 ```
 > cd src
-> cmake CMakeLists.txt -G "MYSYS Makefiles"
+> cmake CMakeLists.txt -G "MSYS Makefiles"
+> make
+```
+
+(Linux)
+```
+> cd src
+> cmake CMakeLists.txt
 > make
 ```
 

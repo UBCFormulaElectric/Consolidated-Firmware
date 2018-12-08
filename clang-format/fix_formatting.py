@@ -28,9 +28,16 @@ def runClangFormat():
         for filename in filenames:
             # In particular, if it's a C/C++ source file, run clang-format on it
             if filename.endswith(('.c', '.cc', '.cpp', '.h', '.hpp', '.hh')):
-                sourceFile = '"{}"'.format(os.path.join(root, filename))
+                # Encapsulate the path to the clang-format in double quotations to 
+                # account for spaces in directory names
                 pathToClang = '"{}"'.format(os.path.abspath(CLANG_FORMAT_COMMAND))
-                command = (pathToClang + CLANG_FORMAT_OPTIONS + sourceFile) 
+                
+                sourceFile = os.path.join(root, filename)
+                if os.name == 'posix':
+                    sourceFile = '"{}"'.format(sourceFile)
+                    command = (pathToClang + CLANG_FORMAT_OPTIONS + sourceFile) 
+                elif os.name == 'nt':
+                    command = '"{}"'.format(pathToClang + CLANG_FORMAT_OPTIONS + sourceFile) 
                 
                 print(command)
                 exitCode = os.system(command)
