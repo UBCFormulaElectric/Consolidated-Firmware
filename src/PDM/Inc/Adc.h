@@ -42,9 +42,4 @@ extern volatile uint8_t e_fuse_fault_states[ADC_CHANNEL_COUNT * NUM_READINGS];
  */
 void Adc_StartAdcInDmaMode(void);
 
-/**
- * @brief TODO (Issue #191): Fill in information (I think this may be removed entirely)
- */
-void DMA_TransferCompleteCallback(DMA_HandleTypeDef* _hdma);
-
 #endif /* DMA_H */
