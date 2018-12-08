@@ -133,8 +133,8 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef* hadc)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    GPIO_InitStruct.Pin = IS_1_Pin|IS_2_Pin|IS_3_Pin|IS_4_Pin 
-                          |IS_5_Pin|FLYWIRE_Pin;
+    GPIO_InitStruct.Pin = EFUSE_IS_1_Pin|EFUSE_IS_2_Pin|EFUSE_IS_3_Pin|EFUSE_IS_4_Pin 
+                          |EFUSE_IS_5_Pin|FLYWIRE_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -193,8 +193,8 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef* hadc)
     */
     HAL_GPIO_DeInit(GPIOC, GLV_SENSE_Pin|VBAT_SENSE_Pin);
 
-    HAL_GPIO_DeInit(GPIOA, IS_1_Pin|IS_2_Pin|IS_3_Pin|IS_4_Pin 
-                          |IS_5_Pin|FLYWIRE_Pin);
+    HAL_GPIO_DeInit(GPIOA, EFUSE_IS_1_Pin|EFUSE_IS_2_Pin|EFUSE_IS_3_Pin|EFUSE_IS_4_Pin 
+                          |EFUSE_IS_5_Pin|FLYWIRE_Pin);
 
     /* ADC1 DMA DeInit */
     HAL_DMA_DeInit(hadc->DMA_Handle);

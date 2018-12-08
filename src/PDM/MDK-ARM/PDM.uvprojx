@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F302x8, PDM</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;        ../Drivers/STM32F3xx_HAL_Driver/Inc;        ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;        ../Drivers/CMSIS/Device/ST/STM32F3xx/Include;        ../Drivers/CMSIS/Include;        ..\..\shared\STM32-CAN-Code\Inc</IncludePath>
+              <IncludePath>../Inc;         ../Drivers/STM32F3xx_HAL_Driver/Inc;         ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;         ../Drivers/CMSIS/Device/ST/STM32F3xx/Include;         ../Drivers/CMSIS/Include;         ..\..\shared\STM32-CAN-Code\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -428,6 +428,11 @@
               <FilePath>..\Src\Timers.c</FilePath>
             </File>
             <File>
+              <FileName>ErrorHandling.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\ErrorHandling.c</FilePath>
+            </File>
+            <File>
               <FileName>main.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/main.c</FilePath>
@@ -441,11 +446,6 @@
               <FileName>stm32f3xx_hal_msp.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/stm32f3xx_hal_msp.c</FilePath>
-            </File>
-            <File>
-              <FileName>ErrorHandling.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\ErrorHandling.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -615,7 +615,7 @@
             <File>
               <FileName>system_stm32f3xx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..//Src/system_stm32f3xx.c</FilePath>
+              <FilePath>../Src/system_stm32f3xx.c</FilePath>
             </File>
           </Files>
         </Group>
