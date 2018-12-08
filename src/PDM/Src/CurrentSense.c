@@ -14,7 +14,7 @@
 /******************************************************************************
 * Module Variable Definitions
 *******************************************************************************/
-extern volatile GPIO_PinState DSEL_State;
+extern volatile GPIO_PinState dsel_state;
 float FilteredADCReadings[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {0};
 
 // LPF constants (calculated using this article:
@@ -34,7 +34,7 @@ static const float LPF_ALPHA = DELTA / (RC + DELTA);
 *******************************************************************************/
 /**
  * @brief  Helper function to shift starting index in any ADC/Converted Readings 
- *         array, depending on DSEL_State.
+ *         array, depending on dsel_state.
  *         DSEL_LOW corresponds to the first half of the array
  *         DSEL_HIGH corresponds to the second half of the array
  */
@@ -44,7 +44,7 @@ static uint8_t CurrentSense_DSELShiftIndex(void);
 * Private Function Definitions
 *******************************************************************************/
 static uint8_t CurrentSense_DSELShiftIndex(void) {
-    if (DSEL_State == DSEL_LOW) {
+    if (dsel_state == DSEL_LOW) {
         return 0;
     } else {
         return ADC_CHANNEL_COUNT;
@@ -54,33 +54,33 @@ static uint8_t CurrentSense_DSELShiftIndex(void) {
 /******************************************************************************
 * Function Definitions
 *******************************************************************************/
-void CurrentSense_LowPassFilterADCReadings(volatile uint32_t* ADCReadings) {
-    uint8_t ADC_channel          = CurrentSense_DSELShiftIndex();
-    uint8_t final_index = ADC_channel + ADC_CHANNEL_COUNT;
+void CurrentSense_LowPassFilterADCReadings(volatile uint32_t* adc_readings) {
+    uint8_t adc_channel          = CurrentSense_DSELShiftIndex();
+    uint8_t final_index = adc_channel + ADC_CHANNEL_COUNT;
     uint8_t ADC_index   = ADC_CHANNEL_COUNT;
-    for (; ADC_channel < final_index; ADC_channel++) {
-        FilteredADCReadings[ADC_channel] = FilteredADCReadings[ADC_channel] + (LPF_ALPHA * (ADCReadings[ADC_index] - FilteredADCReadings[ADC_channel]));
+    for (; adc_channel < final_index; adc_channel++) {
+        FilteredADCReadings[adc_channel] = FilteredADCReadings[adc_channel] + (LPF_ALPHA * (adc_readings[ADC_index] - FilteredADCReadings[adc_channel]));
         ADC_index++;
     }
 }
 
 void CurrentSense_ConvertFilteredADCToCurrentValues(volatile float* converted_readings) {
-    uint8_t ADC_channel           = CurrentSense_DSELShiftIndex(); //Shift index depending on DSEL state
-    uint8_t final_index = ADC_channel + ADC_EFUSE_READINGS;
-    for (; ADC_channel < final_index; ADC_channel++) {
-        converted_readings[ADC_channel] = FilteredADCReadings[ADC_channel] * VOLTAGE_TO_CURRENT[ADC_channel] * VDDA_VOLTAGE / ADC_12_BIT_POINTS;
+    uint8_t adc_channel           = CurrentSense_DSELShiftIndex(); //Shift index depending on DSEL state
+    uint8_t final_index = adc_channel + ADC_EFUSE_READINGS;
+    for (; adc_channel < final_index; adc_channel++) {
+        converted_readings[adc_channel] = FilteredADCReadings[adc_channel] * VOLTAGE_TO_CURRENT[adc_channel] * VDDA_VOLTAGE / ADC_12_BIT_POINTS;
     }
 
     converted_readings[_12V_SUPPLY_INDEX] =
-    FilteredADCReadings[ADC_channel] * GLV_VOLTAGE / ADC_12_BIT_POINTS;
-    ADC_channel++;
+    FilteredADCReadings[adc_channel] * GLV_VOLTAGE / ADC_12_BIT_POINTS;
+    adc_channel++;
 
     converted_readings[VBAT_SUPPLY_INDEX] =
-    FilteredADCReadings[ADC_channel] * VBAT_VOLTAGE / ADC_12_BIT_POINTS;
-    ADC_channel++;
+    FilteredADCReadings[adc_channel] * VBAT_VOLTAGE / ADC_12_BIT_POINTS;
+    adc_channel++;
 
     converted_readings[VICOR_SUPPLY_INDEX] =
-    FilteredADCReadings[ADC_channel] * EN2_TO_12VACC * VDDA_VOLTAGE /
+    FilteredADCReadings[adc_channel] * EN2_TO_12VACC * VDDA_VOLTAGE /
     ADC_12_BIT_POINTS;
 }
 

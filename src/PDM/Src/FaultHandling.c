@@ -52,63 +52,63 @@ static void FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState stat
 *******************************************************************************/
 void FaultHandling_Handler(volatile uint8_t* fault_states, volatile float* converted_readings)
 {
-    uint64_t CAN_error_msg;
+    uint64_t can_error_msg;
 
-    for (uint8_t ADC_channel = 0; ADC_channel < ADC_TOTAL_READINGS_SIZE; ADC_channel++) {
-        if (ADC_channel == _12V_SUPPLY_INDEX || ADC_channel == VBAT_SUPPLY_INDEX ||
-            ADC_channel == VICOR_SUPPLY_INDEX)
+    for (uint8_t adc_channel = 0; adc_channel < ADC_TOTAL_READINGS_SIZE; adc_channel++) {
+        if (adc_channel == _12V_SUPPLY_INDEX || adc_channel == VBAT_SUPPLY_INDEX ||
+            adc_channel == VICOR_SUPPLY_INDEX)
             continue;
 
         // If the efuse is not in RETRY or ERROR mode and the current reading is
         // over the limit, disable efuse
-        if (fault_states[ADC_channel] == STATIC_EFUSE && converted_readings[ADC_channel] >= CURRENT_LIMIT) {
-            num_faults[ADC_channel]++;
-            FaultHandling_CurrentFaultHandling(ADC_channel, GPIO_PIN_RESET);
+        if (fault_states[adc_channel] == STATIC_EFUSE && converted_readings[adc_channel] >= CURRENT_LIMIT) {
+            num_faults[adc_channel]++;
+            FaultHandling_CurrentFaultHandling(adc_channel, GPIO_PIN_RESET);
 
             // Has faulted fewer than max number of times
-            if (num_faults[ADC_channel] <= MAX_FAULTS[ADC_channel]) {
-                fault_states[ADC_channel] = RENABLE_EFUSE;
+            if (num_faults[adc_channel] <= MAX_FAULTS[adc_channel]) {
+                fault_states[adc_channel] = RENABLE_EFUSE;
             } else {
                 // Special handling for specific outputs
-                if (ADC_channel == R_INV_INDEX || ADC_channel == L_INV_INDEX || ADC_channel == CAN_INDEX || ADC_channel == AIR_SHDN_INDEX) {
+                if (adc_channel == R_INV_INDEX || adc_channel == L_INV_INDEX || adc_channel == CAN_INDEX || adc_channel == AIR_SHDN_INDEX) {
                     fault_states[R_INV_INDEX] = ERROR_EFUSE;
                     fault_states[L_INV_INDEX] = ERROR_EFUSE;
                     FaultHandling_CurrentFaultHandling(L_INV_INDEX, GPIO_PIN_RESET); // Disable L Inv
                     FaultHandling_CurrentFaultHandling(R_INV_INDEX, GPIO_PIN_RESET); // Disable R Inv
 
                     TransmitCANError(MOTOR_SHUTDOWN_ERROR, Power_Distribution_Module, 0, 0);
-                } else if (ADC_channel == COOLING_INDEX) {
+                } else if (adc_channel == COOLING_INDEX) {
                     TransmitCANError(
                     MOTOR_SHUTDOWN_ERROR, Power_Distribution_Module, 0, 0);
                 }
-                fault_states[ADC_channel] = ERROR_EFUSE;
+                fault_states[adc_channel] = ERROR_EFUSE;
 
                 // TODO  (Issue #191): CAN message implementation
-                CAN_error_msg =
-                (ADC_channel << 16) +
-                (uint16_t)(converted_readings[ADC_channel] * ADC_12_BIT_POINTS /
-                           (VOLTAGE_TO_CURRENT[ADC_channel] * VDDA_VOLTAGE));
+                can_error_msg =
+                (adc_channel << 16) +
+                (uint16_t)(converted_readings[adc_channel] * ADC_12_BIT_POINTS /
+                           (VOLTAGE_TO_CURRENT[adc_channel] * VDDA_VOLTAGE));
                 TransmitCANError(PDM_ERROR,
                                  Power_Distribution_Module,
                                  EFUSE_FAULT,
-                                 CAN_error_msg);
+                                 can_error_msg);
             }
         }
     }
 
     if (converted_readings[_12V_SUPPLY_INDEX] < UNDERVOLTAGE_GLV_THRES) {
         TransmitCANError(
-        PDM_ERROR, Power_Distribution_Module, _12V_FAULT_UV, CAN_error_msg);
+        PDM_ERROR, Power_Distribution_Module, _12V_FAULT_UV, can_error_msg);
         num_faults[_12V_SUPPLY_INDEX]++;
     } else if (converted_readings[_12V_SUPPLY_INDEX] > OVERVOLTAGE_GLV_THRES) {
         TransmitCANError(
-        PDM_ERROR, Power_Distribution_Module, _12V_FAULT_OV, CAN_error_msg);
+        PDM_ERROR, Power_Distribution_Module, _12V_FAULT_OV, can_error_msg);
         num_faults[_12V_SUPPLY_INDEX]++;
     }
 
     if (converted_readings[VBAT_SUPPLY_INDEX] > VBAT_OVERVOLTAGE) {
         TransmitCANError(
-        PDM_ERROR, Power_Distribution_Module, VBAT_FAULT, CAN_error_msg);
+        PDM_ERROR, Power_Distribution_Module, VBAT_FAULT, can_error_msg);
         num_faults[VBAT_SUPPLY_INDEX]++;
     }
 
@@ -121,15 +121,15 @@ void FaultHandling_Handler(volatile uint8_t* fault_states, volatile float* conve
 
 void FaultHandling_RetryEFuse(volatile uint8_t* fault_states)
 {
-    for (uint8_t ADC_channel = 0; ADC_channel < ADC_TOTAL_READINGS_SIZE; ADC_channel++) {
-        if (ADC_channel == _12V_SUPPLY_INDEX || ADC_channel == VBAT_SUPPLY_INDEX ||
-            ADC_channel == VICOR_SUPPLY_INDEX)
+    for (uint8_t adc_channel = 0; adc_channel < ADC_TOTAL_READINGS_SIZE; adc_channel++) {
+        if (adc_channel == _12V_SUPPLY_INDEX || adc_channel == VBAT_SUPPLY_INDEX ||
+            adc_channel == VICOR_SUPPLY_INDEX)
             continue;
 
-        if (fault_states[ADC_channel] == RENABLE_EFUSE) {
-            FaultHandling_CurrentFaultHandling(ADC_channel, GPIO_PIN_SET);
-            fault_states[ADC_channel] = STATIC_EFUSE;
-        } else if (fault_states[ADC_channel] == ERROR_EFUSE)
-            FaultHandling_CurrentFaultHandling(ADC_channel, GPIO_PIN_RESET);
+        if (fault_states[adc_channel] == RENABLE_EFUSE) {
+            FaultHandling_CurrentFaultHandling(adc_channel, GPIO_PIN_SET);
+            fault_states[adc_channel] = STATIC_EFUSE;
+        } else if (fault_states[adc_channel] == ERROR_EFUSE)
+            FaultHandling_CurrentFaultHandling(adc_channel, GPIO_PIN_RESET);
     }
 }

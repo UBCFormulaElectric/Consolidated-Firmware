@@ -25,7 +25,7 @@
 /******************************************************************************
 * Global Variables
 *******************************************************************************/
-extern volatile GPIO_PinState DSEL_State;
+extern volatile GPIO_PinState dsel_state;
 extern ADC_HandleTypeDef hadc1;
 extern DMA_HandleTypeDef hdma_adc1;
 extern volatile uint32_t adc_readings[];

@@ -59,4 +59,4 @@ void ErrorHandling_HandleHeartbeatTimeout(void) {
 /**
  * @brief TODO  (Issue #191): Complete this
  */
-void ErrorHandling_HandleError(PdmError_Enum Error) {}
+void ErrorHandling_HandleError(PdmError_Enum error) {}

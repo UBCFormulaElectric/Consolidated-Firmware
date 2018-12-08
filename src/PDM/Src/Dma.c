@@ -50,15 +50,15 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef* hadc) {
 
     // Check for overcurrent
     // Change e-fuse DSELs after conversion of all sets
-    if (DSEL_State == DSEL_LOW) {
-        DSEL_State = DSEL_HIGH;
+    if (dsel_state == DSEL_LOW) {
+        dsel_state = DSEL_HIGH;
     } else {
         FaultHandling_Handler(
         e_fuse_fault_states,
         converted_readings); // Only handle faults after all e-fuses are checked
-        DSEL_State = DSEL_LOW;
+        dsel_state = DSEL_LOW;
     }
 
     HAL_ADC_Start(&hadc1);
-    GPIO_EFuseSelectDSEL(DSEL_State);
+    GPIO_EFuseSelectDSEL(dsel_state);
 }
