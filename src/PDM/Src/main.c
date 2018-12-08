@@ -45,7 +45,7 @@
 /* USER CODE BEGIN Includes */
 
 #include "Gpio.h"
-#include "Dma.h"
+#include "Adc.h"
 #include "SharedCAN.h"
 #include "Timers.h"
 #include "CurrentSense.h"
@@ -81,7 +81,7 @@ TIM_HandleTypeDef htim17;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-volatile GPIO_PinState DSEL_State                                   = DSEL_LOW;
+volatile GPIO_PinState dsel_state                                   = DSEL_LOW;
 volatile uint8_t e_fuse_fault_states[ADC_CHANNEL_COUNT * NUM_READINGS] 
                  = {STATIC_EFUSE};
 volatile uint32_t adc_readings[ADC_CHANNEL_COUNT * NUM_READINGS];
@@ -143,8 +143,8 @@ int main(void)
   MX_TIM17_Init();
   /* USER CODE BEGIN 2 */
 
-    // Initialize DMA
-    DMA_Init();
+    // Start ADC 
+    Adc_StartAdcInDmaMode();
 
     // Initialize Timers
     Timers_Init();
@@ -155,7 +155,8 @@ int main(void)
     // Configure CAN and activate CAN interrupts
     InitCAN();
 
-    // Transmit startup message TODO: Add startup header to SharedCAN
+    // Transmit startup message TODO (Issue #192): Add startup header to SharedCAN
+    // Might just wrap this inside shared CAN and delete this entirely
     // TransmitDataCAN(Startup_Status_StandardID, Startup_Status_ExtendedID,
     // Startup_Status_DLC, Power_Distribution_Module);
 

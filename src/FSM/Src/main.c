@@ -622,17 +622,17 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, STATUS_R_Pin|STATUS_G_Pin|STATUS_B_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : PRIMARY_APPS_Z_Pin BSPD_BRAKE_THRES_Pin */
-  GPIO_InitStruct.Pin = PRIMARY_APPS_Z_Pin|BSPD_BRAKE_THRES_Pin;
+  /*Configure GPIO pin : PRIMARY_APPS_Z_Pin */
+  GPIO_InitStruct.Pin = PRIMARY_APPS_Z_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+  HAL_GPIO_Init(PRIMARY_APPS_Z_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : PRIMARY_APPS_ALARM_Pin */
-  GPIO_InitStruct.Pin = PRIMARY_APPS_ALARM_Pin;
+  /*Configure GPIO pins : PRIMARY_APPS_ALARM_Pin BSPD_BRAKE_THRES_Pin */
+  GPIO_InitStruct.Pin = PRIMARY_APPS_ALARM_Pin|BSPD_BRAKE_THRES_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(PRIMARY_APPS_ALARM_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pins : STATUS_R_Pin STATUS_G_Pin STATUS_B_Pin */
   GPIO_InitStruct.Pin = STATUS_R_Pin|STATUS_G_Pin|STATUS_B_Pin;
