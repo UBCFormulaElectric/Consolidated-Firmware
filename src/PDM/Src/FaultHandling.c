@@ -2,6 +2,7 @@
 * Includes
 *******************************************************************************/
 #include "FaultHandling.h"
+#include "Gpio.h"
 
 /******************************************************************************
 * Module Preprocessor Constants
@@ -24,9 +25,9 @@ volatile uint8_t num_faults[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {0};
 * Private Function Prototypes
 *******************************************************************************/
 /**
- * @brief  Toggle E-Fuse output
- * @param  index Index of E-Fuse to toggle
- * @param  state Toggle on or off
+ * @brief  Helper function to turn e-fuse on or off
+ * @param  index Index of e-fuse 
+ * @param  state Turn e-fuse on or off
  */
 static void FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState state);
 
@@ -36,13 +37,13 @@ static void FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState stat
 static void FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState state)
 {
     if (index < NUM_ADC_CHANNELS) {
-        HAL_GPIO_WritePin(OUTPUT_0_PINOUT.port[index],
-                          OUTPUT_0_PINOUT.pin[index],
+        HAL_GPIO_WritePin(PROFET2_OUT0_PINOUTS.port[index],
+                          PROFET2_OUT0_PINOUTS.pin[index],
                           state);
     } else {
         index = index - NUM_ADC_CHANNELS; // adjust index for pinout array
-        HAL_GPIO_WritePin(OUTPUT_1_PINOUT.port[index],
-                          OUTPUT_1_PINOUT.pin[index],
+        HAL_GPIO_WritePin(PROFET2_OUT1_PINOUTS.port[index],
+                          PROFET2_OUT1_PINOUTS.pin[index],
                           state);
     }
 }
@@ -54,8 +55,10 @@ void FaultHandling_Handler(volatile uint8_t* fault_states, volatile float* conve
 {
     uint64_t can_error_msg;
 
-    for (uint8_t adc_channel = 0; adc_channel < NUM_UNIQUE_ADC_READINGS; adc_channel++) {
-        if (adc_channel == _12V_SUPPLY_INDEX || adc_channel == VBAT_SUPPLY_INDEX ||
+    for (ADC_Index_Enum adc_channel = 0; adc_channel < NUM_UNIQUE_ADC_READINGS; adc_channel++) {
+        // This function only handles efuse errors, not voltage sense errors
+        if (adc_channel == _12V_SUPPLY_INDEX || 
+            adc_channel == VBAT_SUPPLY_INDEX ||
             adc_channel == VICOR_SUPPLY_INDEX)
             continue;
 
