@@ -146,10 +146,12 @@ typedef enum {
     ERROR_EFUSE = 2
 } Efuse_State_Enum;
 
-// Efuse Indexing, corresponding to: 0 to (NUM_UNIQUE_ADC_READINGS - 1)
-// Indices 0-4 correspond to DSEL_LOW Efuses and 5-7 are voltage readings
-// Indices 8-12 correspond to DSEL_HIGH Efuses
-// Note: Indices 13-15 are omitted; they are redundant with indices 5-7
+/** @brief ADC Readings Indexing, corresponding to: 0 to (NUM_UNIQUE_ADC_READINGS - 1)
+           Index 0 - 4:  E-fuses selected when DSEL = DSEL_LOW
+           Index 5 - 7:  Voltage sense reading
+           Index 8 - 12: E-fuses selected when DSEL = DSEL_HIGH
+           Note: Indices 13 - 15 would have also represented voltage sense 
+           readings, which would be redundant so they are ommited */
 typedef enum {
     AUX_1_INDEX = 0,
     COOLING_INDEX,
