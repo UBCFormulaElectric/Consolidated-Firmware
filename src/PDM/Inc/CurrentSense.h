@@ -59,8 +59,8 @@
 * Global Variables
 *******************************************************************************/
 // clang-format on
-// TODO: Perhaps VOLTAGE_TO_CURRENT and MAX_FAULTS can be combined into a struct?
-// TODO: Can this not be a static const? Or can it be in .c file instead at least
+// TODO (Issue #191): Perhaps VOLTAGE_TO_CURRENT and MAX_FAULTS can be combined into a struct?
+// TODO (Issue #191): Can this not be a static const? Or can it be in .c file instead at least	
 static const float VOLTAGE_TO_CURRENT[ADC_CHANNEL_COUNT * NUM_CHANNELS] =
 {
     CURRENT_SCALING_AUX/SENSE_RESISTANCE,
