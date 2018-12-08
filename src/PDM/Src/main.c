@@ -44,8 +44,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 
-#include "GPIO.h"
-#include "DMA.h"
+#include "Gpio.h"
+#include "Adc.h"
 #include "SharedCAN.h"
 #include "Timers.h"
 #include "CurrentSense.h"
@@ -81,6 +81,11 @@ TIM_HandleTypeDef htim17;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+volatile GPIO_PinState dsel_state                                   = DSEL_LOW;
+volatile uint8_t e_fuse_fault_states[ADC_CHANNEL_COUNT * NUM_READINGS] 
+                 = {STATIC_EFUSE};
+volatile uint32_t adc_readings[ADC_CHANNEL_COUNT * NUM_READINGS];
+volatile float converted_readings[ADC_CHANNEL_COUNT * NUM_CHANNELS];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -95,15 +100,6 @@ static void MX_IWDG_Init(void);
 static void MX_TIM17_Init(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
-
-__IO GPIO_PinState DSEL_State                                   = DSEL_LOW;
-__IO uint8_t e_fuse_fault_states[ADC_CHANNEL_COUNT * NUM_READINGS] = {
-STATIC_EFUSE};
-__IO uint32_t adc_readings[ADC_CHANNEL_COUNT * NUM_READINGS];
-__IO float converted_readings[ADC_CHANNEL_COUNT * NUM_CHANNELS];
-
-void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef* hcan);
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -147,8 +143,8 @@ int main(void)
   MX_TIM17_Init();
   /* USER CODE BEGIN 2 */
 
-    // Initialize DMA
-    DMA_Init();
+    // Start ADC 
+    Adc_StartAdcInDmaMode();
 
     // Initialize Timers
     Timers_Init();
@@ -159,7 +155,8 @@ int main(void)
     // Configure CAN and activate CAN interrupts
     InitCAN();
 
-    // Transmit startup message TODO: Add startup header to SharedCAN
+    // Transmit startup message TODO (Issue #192): Add startup header to SharedCAN
+    // Might just wrap this inside shared CAN and delete this entirely
     // TransmitDataCAN(Startup_Status_StandardID, Startup_Status_ExtendedID,
     // Startup_Status_DLC, Power_Distribution_Module);
 

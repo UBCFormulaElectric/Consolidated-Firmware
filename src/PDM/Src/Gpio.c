@@ -1,14 +1,44 @@
-#include "GPIO.h"
+/******************************************************************************
+* Includes
+*******************************************************************************/
+#include "Gpio.h"
 
+/******************************************************************************
+* Module Preprocessor Constants
+*******************************************************************************/
+
+/******************************************************************************
+* Module Preprocessor Macros
+*******************************************************************************/
+
+/******************************************************************************
+* Module Typedefs
+*******************************************************************************/
+
+/******************************************************************************
+* Module Variable Definitions
+*******************************************************************************/
+
+/******************************************************************************
+* Private Function Prototypes
+*******************************************************************************/
+
+/******************************************************************************
+* Private Function Definitions
+*******************************************************************************/
+
+/******************************************************************************
+* Function Definitions
+*******************************************************************************/
 void GPIO_Init(void) {
     // Start DSELs at output 0
-    GPIO_EFuseSelectDSEL(DSEL_State);
+    GPIO_EFuseSelectDSEL(dsel_state);
 
     // Check for faults on startup
     GPIO_CheckFaultsStartup();
 }
 
-void GPIO_ConfigurePreChargeComplete(__IO uint8_t* fault_states) {
+void GPIO_ConfigurePreChargeComplete(volatile uint8_t* fault_states) {
 	
 	// E-Fuse AUX 1/2
 	if(fault_states[AUX_1_INDEX] == STATIC_EFUSE){
@@ -62,9 +92,7 @@ void GPIO_ConfigurePreChargeComplete(__IO uint8_t* fault_states) {
     HAL_GPIO_WritePin(
     EFUSE_INVERTER_DEN_PORT, EFUSE_INVERTER_DEN_PIN, GPIO_PIN_SET);
 }
-
-
-void GPIO_ConfigurePowerUp(__IO uint8_t* fault_states) {
+void GPIO_ConfigurePowerUp(volatile uint8_t* fault_states) {
     // E-Fuse AUX 1/2
     HAL_GPIO_WritePin(EFUSE_AUX_1_IN_PORT, EFUSE_AUX_1_IN_PIN, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(EFUSE_AUX_2_IN_PORT, EFUSE_AUX_2_IN_PIN, GPIO_PIN_RESET);
@@ -105,49 +133,48 @@ void GPIO_ConfigurePowerUp(__IO uint8_t* fault_states) {
     EFUSE_RIGHT_INVERTER_IN_PORT, EFUSE_RIGHT_INVERTER_IN_PIN, GPIO_PIN_RESET);
 }
 
-
-void GPIO_EFuseSelectDSEL(GPIO_PinState DSEL_value) {
-    HAL_GPIO_WritePin(EFUSE_AUX_DSEL_PORT, EFUSE_AUX_DSEL_PIN, DSEL_value);
+void GPIO_EFuseSelectDSEL(GPIO_PinState dsel_value) {
+    HAL_GPIO_WritePin(EFUSE_AUX_DSEL_PORT, EFUSE_AUX_DSEL_PIN, dsel_value);
     HAL_GPIO_WritePin(
-    EFUSE_FAN_COOLING_DSEL_PORT, EFUSE_FAN_COOLING_DSEL_PIN, DSEL_value);
+    EFUSE_FAN_COOLING_DSEL_PORT, EFUSE_FAN_COOLING_DSEL_PIN, dsel_value);
     HAL_GPIO_WritePin(
-    EFUSE_CAN_AIR_SHDN_DSEL_PORT, EFUSE_CAN_AIR_SHDN_DSEL_PIN, DSEL_value);
-    HAL_GPIO_WritePin(EFUSE_ACC_FAN_DSEL_PORT, EFUSE_ACC_FAN_DSEL_PIN, DSEL_value);
+    EFUSE_CAN_AIR_SHDN_DSEL_PORT, EFUSE_CAN_AIR_SHDN_DSEL_PIN, dsel_value);
+    HAL_GPIO_WritePin(EFUSE_ACC_FAN_DSEL_PORT, EFUSE_ACC_FAN_DSEL_PIN, dsel_value);
     HAL_GPIO_WritePin(
-    EFUSE_INVERTER_DSEL_PORT, EFUSE_INVERTER_DSEL_PIN, DSEL_value);
+    EFUSE_INVERTER_DSEL_PORT, EFUSE_INVERTER_DSEL_PIN, dsel_value);
 }
 
-void GPIO_HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
-    uint32_t CAN_error_msg = 0;
-    switch (GPIO_Pin) {
+void GPIO_HAL_GPIO_EXTI_Callback(uint16_t gpio_pin) {
+    uint32_t can_error_msg = 0;
+    switch (gpio_pin) {
         case CHARGER_FAULT_PIN:
             if (HAL_GPIO_ReadPin(CHARGER_PORT, CHARGER_FAULT_PIN) ==
                 CHARGER_FAULT_STATE) {
                 TransmitCANError(PDM_ERROR,
                                  Power_Distribution_Module,
                                  CHARGER_FAULT,
-                                 CAN_error_msg);
+                                 can_error_msg);
             }
             break;
         case CELL_BALANCE_OVERVOLTAGE_PIN:
             if (HAL_GPIO_ReadPin(CELL_BALANCE_OVERVOLTAGE_PORT,
                                  CELL_BALANCE_OVERVOLTAGE_PIN) ==
                 CELL_BALANCE_OVERVOLTAGE_FAULT_STATE) {
-                CAN_error_msg = (16 << 8);
+                can_error_msg = (16 << 8);
                 TransmitCANError(PDM_ERROR,
                                  Power_Distribution_Module,
                                  CELL_BALANCE_OVERVOLTAGE_FAULT,
-                                 CAN_error_msg);
+                                 can_error_msg);
             }
             break;
         case BOOST_PGOOD_PIN:
             if (HAL_GPIO_ReadPin(BOOST_PGOOD_PORT, BOOST_PGOOD_PIN) ==
                 BOOST_PGOOD_FAULT_STATE) {
-                CAN_error_msg = (17 << 8);
+                can_error_msg = (17 << 8);
                 TransmitCANError(PDM_ERROR,
                                  Power_Distribution_Module,
                                  BOOST_PGOOD_FAULT,
-                                 CAN_error_msg);
+                                 can_error_msg);
             }
             break;
     }
@@ -155,12 +182,12 @@ void GPIO_HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin) {
 
 
 void GPIO_CheckFaultsStartup(void) {
-    uint32_t CAN_error_msg = 0;
+    uint32_t can_error_msg = 0;
     // Check for charger fault
     if (HAL_GPIO_ReadPin(CHARGER_PORT, CHARGER_FAULT_PIN) ==
         CHARGER_FAULT_STATE) {
         TransmitCANError(
-        PDM_ERROR, Power_Distribution_Module, CHARGER_FAULT, CAN_error_msg);
+        PDM_ERROR, Power_Distribution_Module, CHARGER_FAULT, can_error_msg);
     }
     // Check for charger charging
     if (HAL_GPIO_ReadPin(CHARGER_PORT, CHARGER_INDICATOR_PIN) ==
@@ -168,7 +195,7 @@ void GPIO_CheckFaultsStartup(void) {
         //  Currently not transmitting the charger 'charging' state - usually
         //  constantly true and not an 'error'
         //	TransmitCANError(General_Error_StandardID,
-        //Power_Distribution_Module, PDM_Misc_Error, CAN_error_msg);
+        //Power_Distribution_Module, PDM_Misc_Error, can_error_msg);
     }
     // Check for overvoltage fault
     if (HAL_GPIO_ReadPin(CELL_BALANCE_OVERVOLTAGE_PORT,
@@ -177,12 +204,12 @@ void GPIO_CheckFaultsStartup(void) {
         TransmitCANError(PDM_ERROR,
                          Power_Distribution_Module,
                          CELL_BALANCE_OVERVOLTAGE_FAULT,
-                         CAN_error_msg);
+                         can_error_msg);
     }
     // Check for boost converter fault
     if (HAL_GPIO_ReadPin(BOOST_PGOOD_PORT, BOOST_PGOOD_PIN) ==
         BOOST_PGOOD_FAULT_STATE) {
         TransmitCANError(
-        PDM_ERROR, Power_Distribution_Module, BOOST_PGOOD_FAULT, CAN_error_msg);
+        PDM_ERROR, Power_Distribution_Module, BOOST_PGOOD_FAULT, can_error_msg);
     }
 }

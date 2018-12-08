@@ -1,23 +1,43 @@
-/**
-    @file       CAN.c
-    @brief      PDM_2018 - Function library for the CAN controller
-    @author     UBC Formula Electric
-    @version    v2.0.00
-    @copyright  GNU General Public License v3
-*/
+/******************************************************************************
+* Includes
+*******************************************************************************/
+#include "Can.h"
 
-#include "CAN.h"
+/******************************************************************************
+* Module Preprocessor Constants
+*******************************************************************************/
 
+/******************************************************************************
+* Module Preprocessor Macros
+*******************************************************************************/
+
+/******************************************************************************
+* Module Typedefs
+*******************************************************************************/
+
+/******************************************************************************
+* Module Variable Definitions
+*******************************************************************************/
 #ifndef DEBUG
 
 // Heartbeat Setup
-__IO uint16_t HeartbeatCount[Systems_Count] = {0};
+volatile uint16_t HeartbeatCount[Systems_Count] = {0};
 const int HEARTBEAT_TICK_PERIOD             = 1000; // Period in ms
 const int HEARTBEAT_BROADCAST_PERIOD        = 300;  // Period in ms
 
 #endif
 
+/******************************************************************************
+* Private Function Prototypes
+*******************************************************************************/
 
+/******************************************************************************
+* Private Function Definitions
+*******************************************************************************/
+
+/******************************************************************************
+* Function Definitions
+*******************************************************************************/
 void TransmitCANError(uint32_t Error_StandardID,
                       PCB_Enum Module,
                       uint8_t ErrorNumber,
@@ -27,11 +47,11 @@ void TransmitCANError(uint32_t Error_StandardID,
     uint8_t Data[8];
 
     memcpy(Data, &Msg, sizeof(Msg));
-    // TODO: Change function to take in CAN_TxHeaderTypeDef instead of
+    // TODO (Issue #192): Change function to take in CAN_TxHeaderTypeDef instead of
     // Error_StandardID
     CAN_TxHeaderTypeDef TxErrorHeader;
 
-    // TODO: Can be simplified
+    // TODO (Issue #192): Can be simplified
     switch (Error_StandardID) {
         case BMS_AIR_SHUTDOWN_ERROR:
             TxErrorHeader = can_headers[BMS_AIR_SHUTDOWN_ERROR];
@@ -61,7 +81,7 @@ void InitCAN(void) {
 
     // Enable CAN interrupts
     HAL_CAN_ActivateNotification(&hcan, CAN_IT_TX_MAILBOX_EMPTY |
-    CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING);  
+    CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING);
 
     // Enable CAN module
     HAL_CAN_Start(&hcan);

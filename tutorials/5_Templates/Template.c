@@ -1,11 +1,13 @@
 /******************************************************************************
 * Includes
 *******************************************************************************/
-#include "Timers.h"
+//TODO: UPDATE INCLUDE(S)
+#include "Template.h"
 
 /******************************************************************************
 * Module Preprocessor Constants
 *******************************************************************************/
+#define   CONSTANT					5
 
 /******************************************************************************
 * Module Preprocessor Macros
@@ -18,29 +20,31 @@
 /******************************************************************************
 * Module Variable Definitions
 *******************************************************************************/
+uint32_t global_bar;
 
 /******************************************************************************
 * Private Function Prototypes
 *******************************************************************************/
+/**
+ * @brief  This function subtracts two given numbers
+ * @param  num1 The first number to subtract from
+ * @param  num2 The second number to subtract by
+ * @return The difference between num1 and num2
+ */
+static uint32_t subtractTwoNumbers(uint32_t num1, uint32_t num2);
 
 /******************************************************************************
 * Private Function Definitions
 *******************************************************************************/
+static uint32_t subtractTwoNumbers(uint32_t num1, uint32_t num2)
+{
+
+}
 
 /******************************************************************************
 * Function Definitions
 *******************************************************************************/
-void Timers_Init(void) {
-    // Start timer 2
-    HAL_TIM_Base_Start_IT(&htim2);
+uint32_t addTwoNumbers(uint32_t num1, uint32_t num2)
+{
 
-    // Start timer 17
-    HAL_TIM_Base_Start_IT(&htim17);
-
-    // Stop timer 6
-    HAL_TIM_Base_Stop_IT(&htim6);
-}
-
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef* htim) {
-    if (htim == &htim17) { FaultHandling_RetryEFuse(e_fuse_fault_states); }
 }

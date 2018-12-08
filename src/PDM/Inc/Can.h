@@ -1,22 +1,22 @@
 /**
- * @file  Timers.h
- * @brief Timer library
+ * @file  Can.h
+ * @brief Board-specific CAN library
  */
 
-#ifndef TIMERS_H
-#define TIMERS_H
-
+#ifndef CAN_H
+#define CAN_H
 /******************************************************************************
 * Includes
 *******************************************************************************/
-#include "FaultHandling.h"
-#include "stm32f3xx_hal.h"
+#include "Gpio.h"
+#include <string.h>
+#include "SharedCAN.h"
 
 /******************************************************************************
 * Preprocessor Constants
 *******************************************************************************/
 // clang-format off
-
+#define Systems_Count 5
 /******************************************************************************
 * Preprocessor Macros
 *******************************************************************************/
@@ -24,26 +24,29 @@
 /******************************************************************************
 * Typedefs
 *******************************************************************************/
-// clang-format on
 
 /******************************************************************************
 * Global Variables
 *******************************************************************************/
-// TODO  (Issue #191): Should include header for TIM_HandleTypeDef externs
-extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim6;
-extern TIM_HandleTypeDef htim17;
-
-extern volatile GPIO_PinState dsel_state;
-extern volatile uint8_t e_fuse_fault_states[ADC_CHANNEL_COUNT * NUM_READINGS];
 
 /******************************************************************************
 * Function Prototypes
 *******************************************************************************/
-// TODO  (Issue #191): This should moved into MX_TIMERS_INIT() probably
 /**
- * @brief Initialize Timers 
+ * @brief  Initialize CAN
  */
-void Timers_Init(void);
+void InitCAN(void);
 
-#endif
+/**
+ * @brief  Sends error CAN messages based on error ID and module
+ * @param  Error_StandardID	Error ID
+ * @param  PCB_Enum Name of module (Module_Names)
+ * @param  ErrorNumber Error type
+ * @param  ErrorData Error data
+ */
+void TransmitCANError(uint32_t Error_StandardID,
+                      PCB_Enum Module,
+                      uint8_t ErrorNumber,
+                      uint32_t ErrorData);
+
+#endif /* CAN_H */

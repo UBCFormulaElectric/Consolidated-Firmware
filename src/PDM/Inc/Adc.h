@@ -1,16 +1,16 @@
 /**
- * @file  Timers.h
- * @brief Timer library
+ * @file  Adc.h
+ * @brief Analog-to-Digital Library
  */
-
-#ifndef TIMERS_H
-#define TIMERS_H
+#ifndef ADC_H
+#define ADC_H
 
 /******************************************************************************
 * Includes
 *******************************************************************************/
-#include "FaultHandling.h"
 #include "stm32f3xx_hal.h"
+#include "CurrentSense.h"
+#include "FaultHandling.h"
 
 /******************************************************************************
 * Preprocessor Constants
@@ -29,21 +29,21 @@
 /******************************************************************************
 * Global Variables
 *******************************************************************************/
-// TODO  (Issue #191): Should include header for TIM_HandleTypeDef externs
-extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim6;
-extern TIM_HandleTypeDef htim17;
-
 extern volatile GPIO_PinState dsel_state;
+extern ADC_HandleTypeDef hadc1;
+extern DMA_HandleTypeDef hdma_adc1;
+extern volatile uint32_t adc_readings[];
+extern volatile float converted_readings[];
 extern volatile uint8_t e_fuse_fault_states[ADC_CHANNEL_COUNT * NUM_READINGS];
 
 /******************************************************************************
 * Function Prototypes
 *******************************************************************************/
-// TODO  (Issue #191): This should moved into MX_TIMERS_INIT() probably
 /**
- * @brief Initialize Timers 
+ * TODO (Issue: 73): This function can probably be removed once I fix #73
+ * @brief Enables ADC, starts conversion of regular group and transfers result
+ *        through DMA.
  */
-void Timers_Init(void);
+void Adc_StartAdcInDmaMode(void);
 
-#endif
+#endif /* DMA_H */

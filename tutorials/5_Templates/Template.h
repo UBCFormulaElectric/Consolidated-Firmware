@@ -1,21 +1,20 @@
 /**
- * @file  Timers.h
- * @brief Timer library
+ * @file  TODO: Name of this file goes here (ex. Template.h)
+ * @brief TODO: A brief summary of what is contained in this file
  */
-
-#ifndef TIMERS_H
-#define TIMERS_H
+//TODO: Update header guard below to an unique identifier in this project
+#ifndef TEMPLATE_H
+#define TEMPLATE_H
 
 /******************************************************************************
 * Includes
 *******************************************************************************/
-#include "FaultHandling.h"
-#include "stm32f3xx_hal.h"
 
 /******************************************************************************
 * Preprocessor Constants
 *******************************************************************************/
 // clang-format off
+#define EXAMPLE         32
 
 /******************************************************************************
 * Preprocessor Macros
@@ -25,25 +24,35 @@
 * Typedefs
 *******************************************************************************/
 // clang-format on
+/** TODO: What is this enum for */
+typedef enum
+{
+    TEST_TEST1,			/** OPTIONAL TODO: Test Type 1 */
+    TEST_TEST2,			/** OPTIONAL TODO: Test Type 2 */
+} Test_Enum;
+
+/** TODO: What is this struct for */
+typedef struct
+{
+    TEST_TEST3,			/** OPTIONAL TODO: Test Type 3 */
+    TEST_TEST4,			/** OPTIONAL TODO: Test Type 4 */
+} Test_Struct;
 
 /******************************************************************************
 * Global Variables
 *******************************************************************************/
-// TODO  (Issue #191): Should include header for TIM_HandleTypeDef externs
-extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim6;
-extern TIM_HandleTypeDef htim17;
-
-extern volatile GPIO_PinState dsel_state;
-extern volatile uint8_t e_fuse_fault_states[ADC_CHANNEL_COUNT * NUM_READINGS];
+extern uint32_t global_bar;
 
 /******************************************************************************
 * Function Prototypes
 *******************************************************************************/
-// TODO  (Issue #191): This should moved into MX_TIMERS_INIT() probably
 /**
- * @brief Initialize Timers 
+ * @brief  This function adds two given numbers together
+ * @param  num1 The first number to add
+ * @param  num2 The second number to add
+ * @return The sum of num1 and num2
  */
-void Timers_Init(void);
+uint32_t addTwoNumbers(uint32_t num1, uint32_t num2);
 
-#endif
+//TODO: Update comment below to match `#ifndef` header guard at top of file
+#endif /* TEMPLATE_H */
