@@ -4,11 +4,11 @@ cmake_minimum_required(VERSION 3.2)
 ###################################################################################
 ##                                                                                #
 ##                        Append the list of module directories                   #
-##       WARNING! Ensure module name in the string list matches directory!        #
+##     WARNING! Ensure module name in the string list matches directory name!     #
 ##                                                                                #
 ###################################################################################
 
-set(MODULES "PDM FSM")
+set(MODULES "PDM FSM DCM BMS")
 
 #Create string list
 string(REPLACE " " ";" MODULES ${MODULES})
@@ -93,12 +93,6 @@ set(MISC_FLAGS -funsigned-char -ffunction-sections -fdata-sections -Wall -MD)
 # Cube-generated flags
 set(TARGET_DEFS -DUSE_STM32F3XX_NUCLEO -DUSE_HAL_DRIVER -std=c11)
 
-if (TEST_BUILD)
-set(TEST_DEFS
-	"-DTEST"
-)
-endif()
-
 ##############################################
 ###                                        ###
 ###          GLOBAL LINKER OPTIONS         ###
@@ -124,9 +118,16 @@ file(GLOB_RECURSE SHARED_UTIL_SRC ${CMAKE_CURRENT_SOURCE_DIR}/shared/*.c)
 
 foreach(MODULE_DIR ${MODULES})
 	
-
+	if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${MODULE_DIR})
+		message(STATUS "Found " ${MODULE_DIR})
+	else()
+		continue()
+	endif()
+	
+	#Name each executable target ${MODULE_DIR}_CODE
 	string(CONCAT exe_name ${MODULE_DIR} "_CODE")
 
+	#FSM-specific flags
 	if(MODULE_DIR STREQUAL FSM)
 		set(MCU -mcpu=cortex-m0)
 		set(FPU )
@@ -136,6 +137,7 @@ foreach(MODULE_DIR ${MODULES})
 		set(LINKER_SCRIPT STM32F042K6Tx_FLASH.ld)
 		set(HAL_BOARD_DIR STM32F0xx)
 	
+	#PDM-specific flags
 	elseif(MODULE_DIR STREQUAL PDM)
 		set(MCU -mcpu=cortex-m4)
 		set(FPU -mfpu=fpv4-sp-d16)
@@ -149,7 +151,10 @@ foreach(MODULE_DIR ${MODULES})
 		continue()
 	endif()
 
-	set(TOTAL_TARGET_DEFS ${BOARD} ${TARGET_DEFS} ${TEST_DEFS})
+	set(BOARD_DEFS -D${MODULE_DIR})
+
+	# Target-specific definitions
+	set(TOTAL_TARGET_DEFS ${BOARD} ${TARGET_DEFS} ${BOARD_DEFS} ${TEST_DEFS})
 
 	###  ASM FLAGS  ###
 	set(MODULE_ASM_FLAGS ${MCU} ${FPU} ${T32} ${FLOAT_ABI})
@@ -160,12 +165,10 @@ foreach(MODULE_DIR ${MODULES})
 	###  SOURCE FILES  ###
 	# Get all the *.c files and *.s files
 	file(GLOB_RECURSE SRC_C_FILES ${MODULE_DIR}/*.c)
-	file(GLOB_RECURSE SRC_ASM_FILES ${MODULE_DIR}/*.s)
-
+	file(GLOB_RECURSE SRC_ASM_FILES ${MODULE_DIR}/*_gcc.s)
 
 	# Create the project executable 
 	add_executable(${exe_name} ${SRC_C_FILES} ${SRC_ASM_FILES} ${SHARED_UTIL_SRC})
-
 
 	###  INCLUDE DIRECTORIES  ###
 	target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Inc)
@@ -179,14 +182,7 @@ foreach(MODULE_DIR ${MODULES})
 	target_compile_options(${exe_name} PRIVATE $<$<COMPILE_LANGUAGE:C>:${MODULE_C_FLAGS}>)
 	target_compile_options(${exe_name} PRIVATE $<$<COMPILE_LANGUAGE:ASM>:${MODULE_ASM_FLAGS}>)
 	
-	#set_target_properties(${exe_name} PROPERTIES LINKER_LANGUAGE ASM)
-	#target_compile_options(${exe_name} PRIVATE ${MODULE_ASM_FLAGS})
-	#set_target_properties(${exe_name} PROPERTIES COMPILER_OPTIONS ${MODULE_C_FLAGS})
-	#target_link_libraries(${exe_name} shared_lib)
-	#set_source_files_properties(${SRC_ASM_FILES} PROPERTIES COMPILE_FLAGS ${MODULE_ASM_FLAGS})
-	#set_source_files_properties(${SRC_C_FILES} PROPERTIES COMPILE_FLAGS ${MODULE_C_FLAGS})
-
-	#SET(CMAKE_EXE_LINKER_FLAGS 
+	# Add the command-line linker options for the target
 	target_link_libraries(${exe_name} 
 	    "-Wl,--gc-sections \
 	    -specs=nano.specs \
@@ -197,49 +193,3 @@ foreach(MODULE_DIR ${MODULES})
 	    -Wl,-Map=Build/${exe_name}.map,--cref"
 	)
 endforeach()
-
-##############################################
-###                                        ###
-###           UNIT TEST FRAMEWORK          ###
-###                                        ###
-##############################################
-
-if (TEST_BUILD)
-	include(CTest)
-
-	# Build the Unity Testing Framework
-	file(GLOB UNITY_FILES Unity/src/*.c)
-	add_library(unity_lib ${UNITY_FILES})
-	target_include_directories(unity_lib PUBLIC Unity/src)
-
-	# Grab the user-written unit tests
-	file(GLOB TEST_SRC_FILES Tests/*.c)
-
-	# Create an executable for each unit test 
-	foreach(FILE ${TEST_SRC_FILES})	
-		# Separate the file name from the path
-		get_filename_component(file_name ${FILE} NAME)
-
-		# Remove the .c extension from each file
-		string(REPLACE ".c" "" test_name ${file_name})
-		
-		add_executable(${test_name} ${FILE})
-		
-		# Include the module source code 
-		target_link_libraries(${test_name} module_lib unity_lib)
-
-		# Define test linker options
-		target_link_libraries(${test_name} 
-		    "-Wl,--gc-sections \
-		    -specs=nano.specs \
-		    -specs=nosys.specs \
-		    -mthumb \
-		    ${MCU}"
-		)
-		
-		# Create the test suite
-		string(CONCAT test_suite ${test_name} "_suite")
-
-		add_test(NAME ${test_suite} COMMAND ${test_name} WORKING_DIRECTORY Build) 
-	endforeach()
-endif()
