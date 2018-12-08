@@ -1,6 +1,8 @@
 /**
- * @file  CANDefinitions.h
- * @brief CAN message header definitions
+ * @file  CanDefinitions.h
+ * @brief CAN message header definitions. You can find more information 
+ *        about the CAN bus protocol here:
+ *        http://www.ti.com/lit/an/sloa101b/sloa101b.pdf
  */
 
 #ifndef CAN_DEFINITIONS_H
@@ -152,7 +154,6 @@ typedef enum
 /** @brief FSM Errors */
 typedef enum
 {
-    // Begin counting faults at 1 for boolean comparison
     FSM_APPS_NORMAL_OPERATION = 0,
     FSM_APPS_OPEN_CIRCUIT_SHORT_CIRCUIT_ERROR,
     FSM_APPS_PRIMARY_SECONDARY_DIFFERENCE_ERROR,
@@ -160,7 +161,8 @@ typedef enum
     FSM_APPS_MAX_TORQUE_ERROR,
     FSM_STEERING_BOUND_ERROR,
     FSM_WHEEL_SPEED_BOUND_ERROR,
-    FSM_BMS_HEARTBEAT_TIMEOUT_ERROR
+    FSM_BMS_HEARTBEAT_TIMEOUT_ERROR,
+    FSM_ERRORS_COUNT
 } FsmError_Enum;
 
 /** @brief PDM Errors */
@@ -182,7 +184,8 @@ typedef enum
 typedef enum
 {
     DCM_SENSOR_RANGE_ERROR = 0,
-    BMS_HEARTBEAT_TIMEOUT_ERROR_ON_DCM
+    BMS_HEARTBEAT_TIMEOUT_ERROR_ON_DCM,
+    DCM_ERRORS_COUNT
 } DcmError_Enum;
 
 #endif

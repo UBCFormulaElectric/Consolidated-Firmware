@@ -73,7 +73,6 @@ static Fifo_Status_Enum SharedCan_EnqueueCanTxMessageFifo(CanTxMsgQueueItem_Stru
 
 /**
  * @brief  Clear the CAN queue
- * @return None
  */
 static void SharedCan_ClearCanTxMessageFifo(void);
 
@@ -106,10 +105,10 @@ static uint32_t SharedCan_GetNumberOfItemsInCanTxMessageFifo(void);
 static ErrorStatus SharedCan_InitializeFilters(void);
 
 /**
- * @brief  Shared callback function for transmission mailbox 0, 1, and 2
+ * @brief  Shared callback function for every transmission mailbox
+ *         (STM32F302x8's bxCAN peripheral has three - mailbox 0, 1, and 2).
  * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
  *         the configuration information for the specified CAN.
- * @return None
  */
 static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan);
 
@@ -117,7 +116,6 @@ static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan);
  * @brief  Send the overflow count for transmit FIFO over CAN. Note that this
  *         destroys one CAN message already enqueued.
  * @param  overflow_count Number of overflows occured thus far
- * @return None
  */
 static void SharedCan_EnqueueFifoOverflowError(void);
 
@@ -331,7 +329,7 @@ HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan)
     CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING);
 
     status |= HAL_CAN_Start(hcan);
-    
+
     // Broadcast PCB start-up message
     uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = {0};
     SharedCan_TransmitDataCan(PCB_STARTUP_STDID, PCB_STARTUP_DLC, &data[0]);

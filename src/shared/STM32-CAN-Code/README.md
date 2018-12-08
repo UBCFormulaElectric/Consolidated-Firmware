@@ -1,7 +1,9 @@
 ## Overview
-This repository contains our CAN library for STM32 F3 microcontrollers (F0 is not yet supported). The goal is to abstract away low-level details, provide a set of easy-to-use CAN helper functions, and enforce consistency for CAN communication across every PCB.
+This repository contains our CAN library for STM32 F3 microcontrollers (F0 is not yet supported). The goal is to abstract away low-level details, provide a set of easy-to-use CAN helper functions, and enforce consistency for CAN communication across every PCB on the vehicle.
 
-## Setup
+The bxCAN controller has three transmit mailboxes, which means it can only hold three Tx messages at any given time. If the user attemps to transmit a message while all three transmit mailboxes are occupied, we store this message in a **software** FIFO queue. Messages in this FIFO queue will be automatically de-queued and transmitted when any of the transmit mailboxes becomes available. This FIFO queue has a fixed size of 20 levels deep, which is more-or-less arbitrary but it should be sufficient in most cases. If the FIFO queue were to overflow, a CAN message will be transmitted. If we ever see this CAN message in the data logger, we can increase the FIFO queue size accordingly.
+
+## How to Use This Library
 1. Add the board name to **Preprocessor Symbols** inside Keil. This will determine which CAN filters are activated.
 <img src="https://user-images.githubusercontent.com/16970019/49477422-c5967e80-f7d1-11e8-95ee-74e2a36f4b73.png" width="50%" height="50%">
 

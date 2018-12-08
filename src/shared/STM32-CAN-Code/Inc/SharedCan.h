@@ -205,9 +205,9 @@ extern CAN_HandleTypeDef hcan;
 /**
  * @brief  Transmits a CAN message
  * @param  std_id Standard CAN ID
- * @param  dlc Data length code
+ * @param  dlc Data length code (Indiciates the number of bytes of data being
+ *         transmitted)
  * @param  data Pointer to an uint8_t array with 8 elements (64-bits in total).
- * @return None
  */
 void SharedCan_TransmitDataCan(CanStandardId_Enum std_id, CanDataLengthCode_Enum dlc, uint8_t *data);
 
@@ -221,11 +221,11 @@ void SharedCan_TransmitDataCan(CanStandardId_Enum std_id, CanDataLengthCode_Enum
 HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan);
 
 /**
- * @brief  Shared callback function for Rx FIFO 0 and 1
+ * @brief  Shared callback function for every receive FIFO (STM32F302x8's bxCAN
+ *         peripheral has two - FIFO0 and FIFO1).
  * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
  *         the configuration information for the specified CAN.
  * @param  rx_fifo The Rx FIFO that triggered the callback
- * @return None
  */
 void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo);
 
