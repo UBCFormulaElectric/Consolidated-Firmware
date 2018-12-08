@@ -266,14 +266,13 @@ static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan)
 static void SharedCan_EnqueueFifoOverflowError(void)
 {
     static uint32_t overflow_count = 0;
-
     overflow_count++;
 
-    // Replace the next CAN message in queue with the overflow count in a destructive manner
+    // Replace the next CAN message in queue with the overflow count in a 
+    // destructive manner
     can_tx_msg_fifo[tail].std_id = CAN_TX_FIFO_OVERFLOW_STDID;
     can_tx_msg_fifo[tail].dlc = CAN_TX_FIFO_OVERFLOW_DLC;
-    // TODO: verify this copies by value correctly
-    memcpy(&can_tx_msg_fifo[tail].data, &overflow_count, CAN_PAYLOAD_BYTE_SIZE);
+    memcpy(&can_tx_msg_fifo[tail].data, &overflow_count, CAN_TX_FIFO_OVERFLOW_DLC);
 }
 
 /******************************************************************************
