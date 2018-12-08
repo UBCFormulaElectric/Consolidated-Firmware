@@ -5,11 +5,11 @@ import sys
 if __name__ == '__main__':
     continueScript = input("THIS WILL FORMAT YOUR CODE! CONTINUE (Y | N)? ")
     if continueScript != 'Y' and continueScript != 'y':
-        sys.exit()
+        sys.exit(0)
 
     if fix_formatting.runClangFormat() != 0:
         print("ERROR: Clang-Format encountered issues!")
-        sys.exit()
+        sys.exit(1)
     else:
         print("PASS: Clang-Format ran successfully on all files!")
 
@@ -18,5 +18,6 @@ if __name__ == '__main__':
         #then there are differences and the user forgot to run formatting
         print("Diff Check FAILED! See below for what's changed!!")
         os.system("git diff --color")
+        sys.exit(1)
     else:
         print("Formatting check PASSED, great work!")
