@@ -18,7 +18,7 @@
 /******************************************************************************
 * Module Variable Definitions
 *******************************************************************************/
-volatile uint8_t num_faults[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {0};
+volatile uint8_t num_faults[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET] = {0};
 
 /******************************************************************************
 * Private Function Prototypes
@@ -35,12 +35,12 @@ static void FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState stat
 *******************************************************************************/
 static void FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState state)
 {
-    if (index < ADC_CHANNEL_COUNT) {
+    if (index < NUM_ADC_CHANNELS) {
         HAL_GPIO_WritePin(OUTPUT_0_PINOUT.port[index],
                           OUTPUT_0_PINOUT.pin[index],
                           state);
     } else {
-        index = index - ADC_CHANNEL_COUNT; // adjust index for pinout array
+        index = index - NUM_ADC_CHANNELS; // adjust index for pinout array
         HAL_GPIO_WritePin(OUTPUT_1_PINOUT.port[index],
                           OUTPUT_1_PINOUT.pin[index],
                           state);

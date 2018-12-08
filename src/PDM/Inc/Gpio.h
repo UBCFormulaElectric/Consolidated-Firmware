@@ -19,14 +19,12 @@
 // clang-format off
 
 // ADC Variables
-#define ADC_CHANNEL_COUNT 8
-#define NUM_CHANNELS 2
-#define VOLTAGE_SENSE_PINS 3
-#define ADC_EFUSE_READINGS ADC_CHANNEL_COUNT - VOLTAGE_SENSE_PINS
-// There are (ADC_CHANNEL_COUNT - VOLTAGE_SENSE_PINS)* NUM_CHANNELS Efuse 
-// readings as well as VOLTAGE_SENSE_PINS voltage readings
-#define ADC_TOTAL_READINGS_SIZE (NUM_CHANNELS * ADC_EFUSE_READINGS) \
-                                + VOLTAGE_SENSE_PINS
+#define NUM_ADC_CHANNELS 8
+#define NUM_VOLTAGE_SENSE_PINS 3
+#define NUM_PROFETS NUM_ADC_CHANNELS - NUM_VOLTAGE_SENSE_PINS
+#define NUM_EFUSES_PER_PROFET 2
+#define NUM_EFUSES NUM_PROFETS * NUM_EFUSES_PER_PROFET
+#define ADC_TOTAL_READINGS_SIZE NUM_EFUSES + NUM_VOLTAGE_SENSE_PINS
 
 // Pin definitions
 
@@ -157,8 +155,8 @@ typedef enum {
 
 /** TODO (Issue #191): What is this struct for */
 typedef struct {
-    uint16_t pin[ADC_CHANNEL_COUNT - VOLTAGE_SENSE_PINS];
-    GPIO_TypeDef* port[ADC_CHANNEL_COUNT - VOLTAGE_SENSE_PINS];
+    uint16_t pin[NUM_ADC_CHANNELS - NUM_VOLTAGE_SENSE_PINS];
+    GPIO_TypeDef* port[NUM_ADC_CHANNELS - NUM_VOLTAGE_SENSE_PINS];
 } output_pinout;
 
 /******************************************************************************
