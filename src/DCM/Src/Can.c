@@ -1,4 +1,3 @@
-#include "Can.h"
 #include "SharedCan.h"
 
 void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
