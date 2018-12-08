@@ -3,6 +3,8 @@ A consolidated repository for gathering all firmware under one roof.
 
 ## Continuous Integration
 
+These steps are needed to pass the TRAVIS CI test during pull request, as the CI will replicate these steps faithfully.
+
 #### Installing Dependecies
 Make sure you have cmake version 3.0+, make 3.0+, python 3, and latest version of ARM GNU Embedded Toolchain installed. You can follow these links to download and install them:
 
@@ -24,6 +26,10 @@ C:\Program Files (x86)\GnuWin32\bin
 ```
 
 Or wherever the binaries of your cmake, make, and GCC have been installed. 
+
+Updating the clang-format binary inside the project clang-format directory to the latest one is worthwhile, as each iteration becomes more intelligent at handling syntax. Currently, we are on the latest (clang LLVM 7.0), but new releases are out annually. Make sure to grab the binary for Ubuntu 14.04, as Travis CI is running this version of the OS. The link is available at:
+
+http://releases.llvm.org/
 
 #### Running Continuous Integration Checks
 To pass the continuous integration, start at the root directory and call:
@@ -52,5 +58,3 @@ Then, change into the `clang-format` directory and run `python check_formatting_
 ```
 
 The script is path-dependent so make sure you are running it from the clang-format dir. Ultimately, this script allows clang-format to search your source code and automatically enforce coding conventions. 
-
-These steps are needed to pass the TRAVIS CI test during pull request, as the CI will replicate these steps faithfully.

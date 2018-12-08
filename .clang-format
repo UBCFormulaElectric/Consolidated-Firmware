@@ -65,8 +65,6 @@ AlwaysBreakBeforeMultilineStrings: 'false'
 # T foo (int a, int b)
 AlwaysBreakTemplateDeclarations: 'false'
 
-BasedOnStyle: Google
-
 # if false, a function call's arguments get their own lines
 BinPackArguments: 'true'
 
