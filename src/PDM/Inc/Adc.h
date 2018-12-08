@@ -1,9 +1,9 @@
 /**
- * @file  Dma.h
+ * @file  Adc.h
  * @brief Direct Memory Access Library
  */
-#ifndef DMA_H
-#define DMA_H
+#ifndef ADC_H
+#define ADC_H
 
 /******************************************************************************
 * Includes
@@ -36,9 +36,11 @@ extern volatile uint8_t e_fuse_fault_states[ADC_CHANNEL_COUNT * NUM_READINGS];
 * Function Prototypes
 *******************************************************************************/
 /**
- * @brief Initialize DMA
+ * TODO (Issue: 73): This function can probably be removed once I fix #73
+ * @brief Enables ADC, starts conversion of regular group and transfers result
+ *        through DMA.
  */
-void DMA_Init(void);
+void Adc_StartAdcInDmaMode(void);
 
 /**
  * @brief TODO (Issue #191): Fill in information (I think this may be removed entirely)
