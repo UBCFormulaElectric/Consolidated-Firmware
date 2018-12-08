@@ -303,7 +303,7 @@ void SharedCan_TransmitDataCan(CanStandardId_Enum std_id, CanDataLengthCode_Enum
     // would take up 2 bytes of the CAN payload. So we disable this setting.
     tx_header.TransmitGlobalTime = DISABLE;
 
-    // If a mailbox is not available or other error occurs
+    // If no mailbox is available or an error occured
     if(HAL_CAN_AddTxMessage(&hcan, &tx_header, data, &mailbox) != HAL_OK)
     {
         // Populate CAN TX message with CAN header and data
