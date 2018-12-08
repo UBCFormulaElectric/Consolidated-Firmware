@@ -1,6 +1,6 @@
 /**
  * @file  Adc.h
- * @brief Direct Memory Access Library
+ * @brief Analog-to-Digital Library
  */
 #ifndef ADC_H
 #define ADC_H
