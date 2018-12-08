@@ -30,7 +30,8 @@
 /** @brief PROFET 2 is a dual-channel IC containing two separate e-fuses */
 #define NUM_EFUSES_PER_PROFET2 2
 
-/** @brief The number of e-fuse is simply twice as many as the number of PROFET 2's */
+/** @brief The number of e-fuses is simply twice as many as the number of 
+ *         PROFET 2's */
 #define NUM_EFUSES NUM_PROFET2S * NUM_EFUSES_PER_PROFET2
 
 /** @brief We have 8 ADC channels enabled, but 5 of those are connected to 
