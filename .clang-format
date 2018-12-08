@@ -65,6 +65,8 @@ AlwaysBreakBeforeMultilineStrings: 'false'
 # T foo (int a, int b)
 AlwaysBreakTemplateDeclarations: 'false'
 
+BasedOnStyle: Google
+
 # if false, a function call's arguments get their own lines
 BinPackArguments: 'true'
 
@@ -88,7 +90,7 @@ ColumnLimit: '80'
 
 # stop clang from trying to format the special
 # Cube-generated starting and ending comments
-CommentPragmas: "/************************"
+CommentPragmas: '\/\*(\*(?!\/_|[^*])*\*\/'
 
 # Either fits all the constructor call args onto one line
 # or each param gets their own line if they don't fit
