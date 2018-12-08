@@ -84,10 +84,10 @@ void FaultHandling_Handler(volatile uint8_t* fault_states, volatile float* conve
                 fault_states[adc_channel] = ERROR_EFUSE;
 
                 // TODO  (Issue #191): CAN message implementation
-                CAN_error_msg =
-                (ADC_channel << 16) +
-                (uint16_t)(converted_readings[ADC_channel] * ADC_12_BIT_POINTS /
-                           (VOLTAGE_TO_CURRENT[ADC_channel] * VDDA_VOLTAGE));
+                can_error_msg =
+                (adc_channel << 16) +
+                (uint16_t)(converted_readings[adc_channel] * ADC_12_BIT_POINTS /
+                           (VOLTAGE_TO_CURRENT[adc_channel] * VDDA_VOLTAGE));
                 TransmitCANError(PDM_ERROR,
                                  Power_Distribution_Module,
                                  EFUSE_FAULT,
