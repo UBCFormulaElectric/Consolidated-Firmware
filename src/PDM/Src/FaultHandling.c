@@ -54,7 +54,7 @@ void FaultHandling_Handler(volatile uint8_t* fault_states, volatile float* conve
 {
     uint64_t can_error_msg;
 
-    for (uint8_t adc_channel = 0; adc_channel < ADC_TOTAL_READINGS_SIZE; adc_channel++) {
+    for (uint8_t adc_channel = 0; adc_channel < NUM_UNIQUE_ADC_READINGS; adc_channel++) {
         if (adc_channel == _12V_SUPPLY_INDEX || adc_channel == VBAT_SUPPLY_INDEX ||
             adc_channel == VICOR_SUPPLY_INDEX)
             continue;
@@ -121,7 +121,7 @@ void FaultHandling_Handler(volatile uint8_t* fault_states, volatile float* conve
 
 void FaultHandling_RetryEFuse(volatile uint8_t* fault_states)
 {
-    for (uint8_t adc_channel = 0; adc_channel < ADC_TOTAL_READINGS_SIZE; adc_channel++) {
+    for (uint8_t adc_channel = 0; adc_channel < NUM_UNIQUE_ADC_READINGS; adc_channel++) {
         if (adc_channel == _12V_SUPPLY_INDEX || adc_channel == VBAT_SUPPLY_INDEX ||
             adc_channel == VICOR_SUPPLY_INDEX)
             continue;

@@ -24,7 +24,11 @@
 #define NUM_PROFETS NUM_ADC_CHANNELS - NUM_VOLTAGE_SENSE_PINS
 #define NUM_EFUSES_PER_PROFET 2
 #define NUM_EFUSES NUM_PROFETS * NUM_EFUSES_PER_PROFET
-#define ADC_TOTAL_READINGS_SIZE NUM_EFUSES + NUM_VOLTAGE_SENSE_PINS
+
+// We have 8 ADC channels enabled, but 5 of those are connected to PROFETs.
+// Each PROFET has two e-fuse channels, which means we are really getting 2 
+// unique ADC readings per PROFET.
+#define NUM_UNIQUE_ADC_READINGS NUM_EFUSES + NUM_VOLTAGE_SENSE_PINS
 
 // Pin definitions
 
@@ -126,14 +130,14 @@
 /** Efuse State */
 typedef enum {
     // Operating as expected
-    STATIC_EFUSE = 0, 
+    STATIC_EFUSE = 0,
     // Exceeded current limit but not max number of retries, in retry mode
-    RENABLE_EFUSE = 1, 
+    RENABLE_EFUSE = 1,
     // Exceeded max number of retries, permanently in error state
-    ERROR_EFUSE = 2 
+    ERROR_EFUSE = 2
 } Efuse_State_Enum;
 
-// Efuse Indexing, corresponding to: 0 to (ADC_TOTAL_READINGS_SIZE - 1)
+// Efuse Indexing, corresponding to: 0 to (NUM_UNIQUE_ADC_READINGS - 1)
 // Indices 0-4 correspond to DSEL_LOW Efuses and 5-7 are voltage readings
 // Indices 8-12 correspond to DSEL_HIGH Efuses
 // Note: Indices 13-15 are omitted; they are redundant with indices 5-7
@@ -197,19 +201,19 @@ static const output_pinout OUTPUT_1_PINOUT = {{EFUSE_AUX_2_IN_PIN,
 void GPIO_Init(void);
 
 /**
- * @brief  Enable all e-fuses (that have not faulted) and their 
- *         corresponding current sense diagnostics. Only to be called after 
+ * @brief  Enable all e-fuses (that have not faulted) and their
+ *         corresponding current sense diagnostics. Only to be called after
  *         PreCharge is completed.
- * @param  fault_states Array with (NumReadings x ChannelCount) elements 
- *         which tracks outputs that need to be renabled or are permanently 
+ * @param  fault_states Array with (NumReadings x ChannelCount) elements
+ *         which tracks outputs that need to be renabled or are permanently
  *         faulted
  */
 void GPIO_ConfigurePreChargeComplete(volatile uint8_t* fault_states);
 
 /**
- * @brief  Enable CAN/AIR SHDN (if they are not faulted) and their 
+ * @brief  Enable CAN/AIR SHDN (if they are not faulted) and their
  *         corresponding current sense diagnostics. Disable all other outputs.
- * @param  fault_states Array with (NumReadings x ChannelCount) elements which 
+ * @param  fault_states Array with (NumReadings x ChannelCount) elements which
  *         tracks outputs that need to be renabled or are permanently faulted
  */
 void GPIO_ConfigurePowerUp(volatile uint8_t* fault_states);
