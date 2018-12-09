@@ -1,6 +1,6 @@
 /**
 	@file	   	APPS.c
-	@brief	  	FSM_2017 - Function library for the Accelerator Pedal Position Sensors (APPS)
+	@brief	  	FSM_2018 - Function library for the Accelerator Pedal Position Sensors (APPS)
 	@author	 	UBC Formula Electric
 	@version	v1.0.00
 	@copyright  GNU General Public License v3
@@ -26,7 +26,6 @@ static const float PEDAL_RELEASE_POINT = 0.04;
 static const int PEDAL_SATURATION_TIMEOUT 	=	10; 	// (sec)
 static const float APPS_IMPLAUSIBILITY_DELAY 	=	1.0; 	// (sec)
 static const float APPS_BPPC_THRESHOLD 				=	0.25; // (decimal %)
-//CONTROL_LOOP_FREQUENCY_CUBE is set in CubeMX as a user constant.
 static const int MAX_APPS_FAULTS = APPS_IMPLAUSIBILITY_DELAY * (float) CONTROL_LOOP_FREQUENCY;
 static const int MAX_SATURATION_FAULTS = PEDAL_SATURATION_TIMEOUT * (int) CONTROL_LOOP_FREQUENCY;
 

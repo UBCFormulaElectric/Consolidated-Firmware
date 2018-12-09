@@ -59,6 +59,9 @@ TIM_HandleTypeDef htim14;
 TIM_HandleTypeDef htim16;
 TIM_HandleTypeDef htim17;
 
+// Global variables
+extern __IO int APPSFaultState;
+
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 
@@ -549,12 +552,36 @@ static void MX_GPIO_Init(void)
 */
 void ControlLoop(void)
 {
+	static Motor_Shutdown_Status MotorState;
+	
 	// Data type manipulation variables
 	uint16_t AcceleratorPedalPosition_16bit = 0;
 	
 	// Get sensor data
 	AcceleratorPedalPosition_16bit = GetAcceleratorPedalPosition(APPS_CONTROL_LOOP_MODE); // Only call this function in APPS_CONTROL_LOOP_MODE once in this control loop function
 
+	// ERROR HANDLING
+	// APPS fault when motors are on
+	if(APPSFaultState != 0 && MotorState == ON)
+	{
+		//TransmitCANError(Motor_Shutdown_Error_StandardID, Front_Sensor_Module, APPSFaultState, CANBrakeAPPS);
+		MotorState = OFF;
+	}
+	
+	if(APPSFaultState)
+	{
+		// Red
+		HAL_GPIO_WritePin(STATUS_R_GPIO_Port, STATUS_R_Pin, GPIO_PIN_RESET);
+		HAL_GPIO_WritePin(STATUS_G_GPIO_Port, STATUS_G_Pin, GPIO_PIN_SET);
+		HAL_GPIO_WritePin(STATUS_B_GPIO_Port, STATUS_B_Pin, GPIO_PIN_SET);
+	}
+	
+	// No APPS fault when motors are off
+	if(APPSFaultState == 0 && MotorState == OFF)
+	{
+		//TransmitDataCAN(Motor_ReEnable_StandardID, Motor_ReEnable_ExtendedID, Motor_ReEnable_DLC, Front_Sensor_Module);
+		MotorState = ON;
+	}
 }
 
 /* USER CODE END 4 */
