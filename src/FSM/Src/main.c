@@ -41,7 +41,7 @@
 #include "stm32f0xx_hal.h"
 
 /* USER CODE BEGIN Includes */
-
+#include "APPS.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -541,6 +541,21 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+/**
+	@brief	  	Main control loop
+				1. Transmits CAN messages containing the accelerator pedal position, front wheel speeds, and steering angle
+	@param	  	None
+	@retval	 	None
+*/
+void ControlLoop(void)
+{
+	// Data type manipulation variables
+	uint16_t AcceleratorPedalPosition_16bit = 0;
+	
+	// Get sensor data
+	AcceleratorPedalPosition_16bit = GetAcceleratorPedalPosition(APPS_CONTROL_LOOP_MODE); // Only call this function in APPS_CONTROL_LOOP_MODE once in this control loop function
+
+}
 
 /* USER CODE END 4 */
 

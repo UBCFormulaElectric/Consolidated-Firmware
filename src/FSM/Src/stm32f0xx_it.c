@@ -152,7 +152,14 @@ void TIM14_IRQHandler(void)
   /* USER CODE END TIM14_IRQn 0 */
   HAL_TIM_IRQHandler(&htim14);
   /* USER CODE BEGIN TIM14_IRQn 1 */
+	// Check whether update interrupt has occured
+	if( __HAL_TIM_GET_FLAG(&htim14, TIM_FLAG_UPDATE))
+	{
+		ControlLoop();
 
+		// Clear update flag
+		__HAL_TIM_CLEAR_FLAG(&htim14, TIM_FLAG_UPDATE);
+	}
   /* USER CODE END TIM14_IRQn 1 */
 }
 
