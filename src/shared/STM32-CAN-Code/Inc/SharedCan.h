@@ -144,10 +144,23 @@
                                                          CAN_ExtID_NULL)
 #define MASKMODE_16BIT_MASK_SHARED INIT_MASKMODE_16BIT_FiRx(0x7E0, 0x1, 0x1, 0x0)
 
-// TODO: Recalculate filter values
-/** BAMOCAR Filter - ID: 0x190 - 0x211, RTR: Data Frame, IDE: Standard ID */
-#define MASKMODE_16BIT_ID_BAMOCAR    (uint32_t)(0x0C00) // 0000 1100 0000 0000
-#define MASKMODE_16BIT_MASK_BAMOCAR  (uint32_t)(0xFC18) // 1111 1100 0001 1000
+/** BAMOCAR Tx Filter - ID: 0x190 - 0x19F, RTR: Data Frame, IDE: Standard ID */
+// ID:   [001 1001 0000] [0] [0] [000] or 0x3200
+// Mask: [111 1111 0000] [1] [1] [000] or 0xFE18
+#define MASKMODE_16BIT_ID_BAMOCAR_TX INIT_MASKMODE_16BIT_FiRx(0x190,     \
+                                                         CAN_ID_STD,     \
+                                                         CAN_RTR_DATA,   \
+                                                         CAN_ExtID_NULL)
+#define MASKMODE_16BIT_MASK_BAMOCAR_TX INIT_MASKMODE_16BIT_FiRx(0x7F0, 0x1, 0x1, 0x0)
+
+/** BAMOCAR Rx Filter - ID: 0x210- 0x21F, RTR: Data Frame, IDE: Standard ID */
+// ID:   [010 0001 0000] [0] [0] [000] or 0x4200
+// Mask: [111 1111 0000] [1] [1] [000] or 0xFE18
+#define MASKMODE_16BIT_ID_BAMOCAR_RX INIT_MASKMODE_16BIT_FiRx(0x210,     \
+                                                         CAN_ID_STD,     \
+                                                         CAN_RTR_DATA,   \
+                                                         CAN_ExtID_NULL)
+#define MASKMODE_16BIT_MASK_BAMOCAR_RX INIT_MASKMODE_16BIT_FiRx(0x7F0, 0x1, 0x1, 0x0)
 
 /******************************************************************************
 * Typedefs
