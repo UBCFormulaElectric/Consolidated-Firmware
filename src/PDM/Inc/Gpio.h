@@ -29,30 +29,45 @@
 #define ADC_TOTAL_READINGS_SIZE (NUM_CHANNELS * ADC_EFUSE_READINGS) \
                                 + VOLTAGE_SENSE_PINS
 
-// Pin definitions
-
-// Battery Charger
-#define CHARGER_FAULT_STATE 									GPIO_PIN_RESET // Low = fault, high = no fault
-#define CHARGER_CHARGING_STATE									GPIO_PIN_RESET // Low = charging, high = not charging
-
-// Battery Cell Balancing
-#define CELL_BALANCE_OVERVOLTAGE_FAULT_STATE 					GPIO_PIN_SET // High = fault, low = no fault
-
-// Boost Converter
-#define BOOST_PGOOD_FAULT_STATE 								GPIO_PIN_RESET // Low = fault, high = no fault
+/******************************************************************************
+* Preprocessor Macros
+*******************************************************************************/
 
 // DSEL State
 #define DSEL_LOW GPIO_PIN_RESET
 #define DSEL_HIGH GPIO_PIN_SET
 
 /******************************************************************************
-* Preprocessor Macros
-*******************************************************************************/
-
-/******************************************************************************
 * Typedefs
 *******************************************************************************/
 // clang-format on
+
+// Battery Charger
+typedef enum {
+  // Low = active fault, high = no fault
+  CHARGER_NO_FAULT = GPIO_PIN_SET,
+  CHARGER_ACTIVE_FAULT = !CHARGER_NO_FAULT
+} ChargerFault_GPIO_PinState;
+
+typedef enum {
+  // Low = charging, high = not charging
+  NOT_CHARGING = GPIO_PIN_SET,
+  CHARGING = !NOT_CHARGING
+} ChargingState_GPIO_PinState;
+
+// Battery Cell Balancing
+typedef enum {
+  // High = active fault, low = no fault
+  CELL_BALANCE_OV_ACTIVE_FAULT = GPIO_PIN_SET,
+  CELL_BALANCE_OV_NO_FAULT = !CELL_BALANCE_OV_ACTIVE_FAULT
+} CellBalanceOvervoltageFault_GPIO_PinState;
+
+// Boost Converter
+typedef enum {
+  // Low = active fault, high = no fault
+  BOOST_PGOOD_NO_FAULT = GPIO_PIN_SET,
+  BOOST_PGOOD_ACTIVE_FAULT = !BOOST_PGOOD_NO_FAULT
+} BoostPGoodFault_GPIO_PinState;
 
 /** Efuse State */
 typedef enum {
