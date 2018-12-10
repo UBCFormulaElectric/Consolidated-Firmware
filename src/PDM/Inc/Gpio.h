@@ -3,19 +3,18 @@
  * @brief GPIO Library
  */
 
-
 #ifndef GPIO_H
 #define GPIO_H
 
 /******************************************************************************
-* Includes
-*******************************************************************************/
+ * Includes
+ *******************************************************************************/
 #include "stm32f3xx_hal.h"
 #include "Can.h"
 
 /******************************************************************************
-* Preprocessor Constants
-*******************************************************************************/
+ * Preprocessor Constants
+ *******************************************************************************/
 // clang-format off
 
 /** @brief Number of microcontroller pins that are configured to be ADC inputs */
@@ -138,23 +137,24 @@
 // clang-format on
 
 /** Efuse State */
-typedef enum {
+typedef enum
+{
     NORMAL_STATE = 0, /** @brief Operating as expected */
-    RETRY_STATE = 1,  /** @brief Exceeded current limit but not maximum number
+    RETRY_STATE  = 1, /** @brief Exceeded current limit but not maximum number
                                  of retries */
-    ERROR_STATE = 2  /** @brief Exceed maximum number of retries and is 
-                                permanently stuck in error state */
+    ERROR_STATE = 2   /** @brief Exceed maximum number of retries and is
+                                 permanently stuck in error state */
 } Efuse_State_Enum;
 
-/** 
- * @brief ADC Readings Indexing, corresponding to: 0 to (NUM_UNIQUE_ADC_READINGS - 1)
- *         Index 0 - 4:  E-fuses selected when DSEL = DSEL_LOW
- *         Index 5 - 7:  Voltage sense reading
- *         Index 8 - 12: E-fuses selected when DSEL = DSEL_HIGH
- *         Note: Indices 13 - 15 would have also represented voltage sense 
- *         readings, which would be redundant so they are ommited.
+/**
+ * @brief ADC Readings Indexing, corresponding to: 0 to (NUM_UNIQUE_ADC_READINGS
+ * - 1) Index 0 - 4:  E-fuses selected when DSEL = DSEL_LOW Index 5 - 7: Voltage
+ * sense reading Index 8 - 12: E-fuses selected when DSEL = DSEL_HIGH Note:
+ * Indices 13 - 15 would have also represented voltage sense readings, which
+ * would be redundant so they are ommited.
  */
-typedef enum {
+typedef enum
+{
     AUXILIARY_1 = 0,
     COOLING,
     AIR_SHDN,
@@ -171,45 +171,35 @@ typedef enum {
 } ADC_Index_Enum;
 
 /** TODO (Issue #191): What is this struct for */
-typedef struct {
-    uint16_t pin[NUM_PROFET2S];
-    GPIO_TypeDef* port[NUM_PROFET2S];
+typedef struct
+{
+    uint16_t      pin[NUM_PROFET2S];
+    GPIO_TypeDef *port[NUM_PROFET2S];
 } GPIO_PinPort_Struct;
 
 /******************************************************************************
-* Global Variables
-*******************************************************************************/
+ * Global Variables
+ *******************************************************************************/
 extern volatile GPIO_PinState dsel_state;
 
 // E-fuse output pin mapping
 // TODO (Issue #191): The index can be a value of @ ...
-static const GPIO_PinPort_Struct PROFET2_IN0 = {{EFUSE_AUX_1_IN_PIN,
-                                               EFUSE_COOLING_IN_PIN,
-                                               EFUSE_AIR_SHDN_IN_PIN,
-                                               EFUSE_ACC_SEG_FAN_IN_PIN,
-                                               EFUSE_LEFT_INVERTER_IN_PIN},
-                                              {EFUSE_AUX_1_IN_PORT,
-                                               EFUSE_COOLING_IN_PORT,
-                                               EFUSE_AIR_SHDN_IN_PORT,
-                                               EFUSE_ACC_SEG_FAN_IN_PORT,
-                                               EFUSE_LEFT_INVERTER_IN_PORT}};
+static const GPIO_PinPort_Struct PROFET2_IN0 = {
+    {EFUSE_AUX_1_IN_PIN, EFUSE_COOLING_IN_PIN, EFUSE_AIR_SHDN_IN_PIN,
+     EFUSE_ACC_SEG_FAN_IN_PIN, EFUSE_LEFT_INVERTER_IN_PIN},
+    {EFUSE_AUX_1_IN_PORT, EFUSE_COOLING_IN_PORT, EFUSE_AIR_SHDN_IN_PORT,
+     EFUSE_ACC_SEG_FAN_IN_PORT, EFUSE_LEFT_INVERTER_IN_PORT}};
 
 // TODO (Issue #191): The index can be a value of @ ...
-static const GPIO_PinPort_Struct PROFET2_IN1 = {{EFUSE_AUX_2_IN_PIN,
-                                               EFUSE_PDM_FAN_IN_PIN,
-                                               EFUSE_CAN_IN_PIN,
-                                               EFUSE_ACC_ENC_FAN_IN_PIN,
-                                               EFUSE_RIGHT_INVERTER_IN_PIN},
-                                              {EFUSE_AUX_2_IN_PORT,
-                                               EFUSE_PDM_FAN_IN_PORT,
-                                               EFUSE_CAN_IN_PORT,
-                                               EFUSE_ACC_ENC_FAN_IN_PORT,
-                                               EFUSE_RIGHT_INVERTER_IN_PORT}};
-
+static const GPIO_PinPort_Struct PROFET2_IN1 = {
+    {EFUSE_AUX_2_IN_PIN, EFUSE_PDM_FAN_IN_PIN, EFUSE_CAN_IN_PIN,
+     EFUSE_ACC_ENC_FAN_IN_PIN, EFUSE_RIGHT_INVERTER_IN_PIN},
+    {EFUSE_AUX_2_IN_PORT, EFUSE_PDM_FAN_IN_PORT, EFUSE_CAN_IN_PORT,
+     EFUSE_ACC_ENC_FAN_IN_PORT, EFUSE_RIGHT_INVERTER_IN_PORT}};
 
 /******************************************************************************
-* Function Prototypes
-*******************************************************************************/
+ * Function Prototypes
+ *******************************************************************************/
 /**
  * @brief  Initialize GPIO
  */
@@ -223,7 +213,7 @@ void GPIO_Init(void);
  *         which tracks outputs that need to be renabled or are permanently
  *         faulted
  */
-void GPIO_ConfigurePreChargeComplete(volatile uint8_t* fault_states);
+void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states);
 
 /**
  * @brief  Enable CAN_GLV/AIR SHDN (if they are not faulted) and their
@@ -231,7 +221,7 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t* fault_states);
  * @param  fault_states Array with (NumReadings x ChannelCount) elements which
  *         tracks outputs that need to be renabled or are permanently faulted
  */
-void GPIO_ConfigurePowerUp(volatile uint8_t* fault_states);
+void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states);
 
 /**
  *  @brief  Select E-Fuse output for current sense (DSEL toggle)
