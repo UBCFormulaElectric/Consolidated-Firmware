@@ -9,7 +9,7 @@
 #include "SharedCAN.h"
 
 // CAN Tx Message Fifo
-static const uint32_t CAN_TX_MSG_FIFO_SIZE = 20;
+#define CAN_TX_MSG_FIFO_SIZE 20
 static CanTxMsg_Struct can_tx_msg_fifo[CAN_TX_MSG_FIFO_SIZE];
 static __IO uint8_t tail = 0;
 static __IO uint8_t head = 0;
@@ -19,7 +19,7 @@ CAN_TxHeaderTypeDef can_headers[CAN_NODES_COUNT];
 #define INIT_MASK_FILTER(ID, MASK) {.id = ID, .mask = MASK}
 #define INIT_CAN_HEADER(std_id, dlc) {.StdId = std_id, .ExtId = CAN_ExtID_NULL, .IDE = CAN_ID_STD, .RTR = CAN_RTR_DATA, .DLC = dlc, .TransmitGlobalTime = DISABLE}
 
-#if defined(PDM)
+#if defined(STM32F302x8)
 	CanMaskFilterConfig_Struct mask_filters[] = \
 	{ \
 		INIT_MASK_FILTER(IDMASK_16BIT_FILTER_ID_DCM, IDMASK_16BIT_FILTER_MASK_DCM) \

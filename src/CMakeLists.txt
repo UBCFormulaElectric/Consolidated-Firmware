@@ -127,7 +127,7 @@ foreach(MODULE_DIR ${MODULES})
 	#Name each executable target ${MODULE_DIR}_CODE
 	string(CONCAT exe_name ${MODULE_DIR} "_CODE")
 
-	#FSM-specific flags
+	# FSM-specific flags
 	if(MODULE_DIR STREQUAL FSM)
 		set(MCU -mcpu=cortex-m0)
 		set(FPU )
@@ -137,8 +137,18 @@ foreach(MODULE_DIR ${MODULES})
 		set(LINKER_SCRIPT STM32F042K6Tx_FLASH.ld)
 		set(HAL_BOARD_DIR STM32F0xx)
 	
-	#PDM-specific flags
+	# PDM-specific flags
 	elseif(MODULE_DIR STREQUAL PDM)
+		set(MCU -mcpu=cortex-m4)
+		set(FPU -mfpu=fpv4-sp-d16)
+		set(T32 -mthumb)
+		set(FLOAT_ABI -mfloat-abi=soft) 
+		set(BOARD -DSTM32F302x8)	
+		set(LINKER_SCRIPT STM32F302R8Tx_FLASH.ld)
+		set(HAL_BOARD_DIR STM32F3xx)
+
+	# DCM-specific flags
+	elseif(MODULE_DIR STREQUAL DCM)
 		set(MCU -mcpu=cortex-m4)
 		set(FPU -mfpu=fpv4-sp-d16)
 		set(T32 -mthumb)
