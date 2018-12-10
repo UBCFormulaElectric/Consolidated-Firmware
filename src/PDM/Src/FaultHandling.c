@@ -29,12 +29,12 @@ volatile uint8_t num_faults[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {0};
  * @param  index Index of e-fuse 
  * @param  state Turn e-fuse on or off
  */
-static void FaultHandling_WriteEfuseState(ADC_Index_Enum index, Efuse_OnOff_Enum state);
+static void FaultHandling_WriteEfuseState(ADC_Index_Enum index, Efuse_OnOff_GPIO_PinState state);
 
 /******************************************************************************
 * Private Function Definitions
 *******************************************************************************/
-static void FaultHandling_WriteEfuseState(ADC_Index_Enum index, Efuse_OnOff_Enum state)
+static void FaultHandling_WriteEfuseState(ADC_Index_Enum index, Efuse_OnOff_GPIO_PinState state)
 {
     if (index < NUM_ADC_CHANNELS) {
         HAL_GPIO_WritePin(PROFET2_IN0.port[index],
