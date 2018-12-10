@@ -8,6 +8,7 @@
 
 #include "APPS.h"
 #include "main.h"
+#include "CANDefinitions.h"
 
 // Maximum APPS values (calibrated to pedal box)
 #define PRIMARY_APPS_MAX_VALUE (float) 1400
@@ -66,7 +67,7 @@ uint16_t GetAcceleratorPedalPosition(int Mode)
 		TemporaryAPPSFaultCounter = APPSFaultCounter;
 	}
 	
-	if(APPSFaultState == APPS_Fault_State_Prim_Sec_Differ)
+	if(APPSFaultState == FSM_APPS_PRIMARY_SECONDARY_DIFFERENCE_ERROR)
 	{
 		AcceleratorPedalPosition = 0;
 	}
@@ -124,7 +125,7 @@ uint16_t GetAcceleratorPedalPosition(int Mode)
 		// Prevent FSM_APPS_Fault_State_1 and FSM_APPS_Fault_State_2 from changing the APPSFaultState 
 		// when APPSFaultState is in FSM_APPS_Fault_State_3 or FSM_APPS_Fault_State_4
 		// Reason: Rules state that pedal must be released back to less than 5% before car can be operational (EV2.5.1)
-		if(APPSFaultState != APPS_Fault_State_Brake_Activated && APPSFaultState != APPS_Fault_State_Stuck_Max)
+		if(APPSFaultState != FSM_APPS_BRAKE_PEDAL_PLAUSIBILITY_ERROR && APPSFaultState != FSM_APPS_MAX_TORQUE_ERROR)
 		{
 			// Check for improperly connected APPS encoders (open/short circuit of APPS lines)
 		if((HAL_GPIO_ReadPin(PRIMARY_APPS_ALARM_GPIO_Port, PRIMARY_APPS_ALARM_Pin ) == GPIO_PIN_SET) || (HAL_GPIO_ReadPin(SECONDARY_APPS_ALARM_GPIO_Port, SECONDARY_APPS_ALARM_Pin) == GPIO_PIN_SET))
@@ -132,7 +133,7 @@ uint16_t GetAcceleratorPedalPosition(int Mode)
 				// Check if implausibility occurs after 100msec
 				if(APPSFaultCounter > MAX_APPS_FAULTS)
 				{
-					APPSFaultState = APPS_Fault_State_Prim_Sec_Differ;
+					APPSFaultState = FSM_APPS_PRIMARY_SECONDARY_DIFFERENCE_ERROR;
 				}
 				APPSFaultCounter++;
 				FaultFlag = 1;
@@ -144,7 +145,7 @@ uint16_t GetAcceleratorPedalPosition(int Mode)
 				// Check if implausibility occurs after 100msec
 				if(APPSFaultCounter > MAX_APPS_FAULTS)
 				{
-					APPSFaultState = APPS_Fault_State_Brake_Activated;
+					APPSFaultState = FSM_APPS_BRAKE_PEDAL_PLAUSIBILITY_ERROR;
 				}
 				APPSFaultCounter++;
 				FaultFlag = 1;
@@ -157,7 +158,7 @@ uint16_t GetAcceleratorPedalPosition(int Mode)
 			// Check if implausibility occurs after 100msec
 			if(APPSFaultCounter > MAX_APPS_FAULTS)
 			{
-				APPSFaultState = APPS_Fault_State_Brake_Activated;
+				APPSFaultState = FSM_APPS_BRAKE_PEDAL_PLAUSIBILITY_ERROR;
 			}
 			APPSFaultCounter++;
 			FaultFlag = 1;
@@ -169,14 +170,14 @@ uint16_t GetAcceleratorPedalPosition(int Mode)
 			// Check if pedal is stuck at max. torque after 10 secs
 			if(APPSFaultCounter > MAX_SATURATION_FAULTS)
 			{
-				APPSFaultState = APPS_Fault_State_Stuck_Max;
+				APPSFaultState = FSM_APPS_MAX_TORQUE_ERROR;
 			}
 			APPSFaultCounter++;
 			FaultFlag = 1;
 		}
 		
 		// Check for "APPS / Brake Pedal Plausibility Check" fault state and ensure APPS returns to 5% pedal travel (EV2.5.1)
-		if((APPSFaultState == APPS_Fault_State_Brake_Activated) || (APPSFaultState == APPS_Fault_State_Stuck_Max))
+		if((APPSFaultState == FSM_APPS_BRAKE_PEDAL_PLAUSIBILITY_ERROR) || (APPSFaultState == FSM_APPS_MAX_TORQUE_ERROR))
 		{
 			AcceleratorPedalPosition = 0;
 			if(PercentPrimaryAPPSValue < 0.05)
@@ -186,7 +187,7 @@ uint16_t GetAcceleratorPedalPosition(int Mode)
 				APPSFaultCounter = 0;
 			}
 		}
-		else if((APPSFaultState == APPS_Fault_State_Open_Short_Circuit || APPSFaultState == APPS_Fault_State_Prim_Sec_Differ) && (FaultFlag == 1))
+		else if((APPSFaultState == FSM_APPS_OPEN_CIRCUIT_SHORT_CIRCUIT_ERROR || APPSFaultState == FSM_APPS_PRIMARY_SECONDARY_DIFFERENCE_ERROR) && (FaultFlag == 1))
 		{
 			// Set pedal position to zero if in error state AND fault flag is triggered
 			// Need the fault flag check since FSM may latch onto these error states
@@ -201,7 +202,7 @@ uint16_t GetAcceleratorPedalPosition(int Mode)
 		else
 		{
 			// Reset fault variables to normal operating state
-			APPSFaultState = APPS_Fault_State_Normal;
+			APPSFaultState = FSM_APPS_NORMAL_OPERATION;
 			APPSFaultCounter = 0;
 		}
 	}
