@@ -58,3 +58,6 @@ Then, change into the `clang-format` directory and run `python check_formatting_
 ```
 
 The script is path-dependent so make sure you are running it from the clang-format dir. Ultimately, this script allows clang-format to search your source code and automatically enforce coding conventions. 
+
+#### CommentPragmas
+In `.clang-format`, the line `CommentPragmas: '\/\*(\*(?!\/_|[^*])*\*\/'` is ineffective because it's being preempted by `ReflowComments`. We are hoping that the next version of `clang-format` will resolve this.
