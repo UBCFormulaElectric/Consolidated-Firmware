@@ -57,9 +57,9 @@ void FaultHandling_Handler(volatile uint8_t* fault_states, volatile float* conve
 
     for (ADC_Index_Enum adc_channel = 0; adc_channel < NUM_UNIQUE_ADC_READINGS; adc_channel++) {
         // This function only handles efuse errors, not voltage sense errors
-        if (adc_channel == _12V_SUPPLY_INDEX || 
-            adc_channel == VBAT_SUPPLY_INDEX ||
-            adc_channel == VICOR_SUPPLY_INDEX)
+        if (adc_channel == _12V_SUPPLY || 
+            adc_channel == VBAT_SUPPLY ||
+            adc_channel == FLYWIRE)
             continue;
 
         // If the efuse is not in RETRY or ERROR mode and the current reading is
@@ -73,20 +73,20 @@ void FaultHandling_Handler(volatile uint8_t* fault_states, volatile float* conve
                 fault_states[adc_channel] = RETRY_STATE;
             } else {
                 // Special handling for specific outputs
-                if (adc_channel == R_INV_INDEX || adc_channel == L_INV_INDEX || adc_channel == CAN_INDEX || adc_channel == AIR_SHDN_INDEX) {
-                    fault_states[R_INV_INDEX] = ERROR_STATE;
-                    fault_states[L_INV_INDEX] = ERROR_STATE;
-                    FaultHandling_WriteEfuseState(L_INV_INDEX, EFUSE_OFF);
-                    FaultHandling_WriteEfuseState(R_INV_INDEX, EFUSE_OFF);
+                if (adc_channel == RIGHT_INVERTER || adc_channel == LEFT_INVERTER || adc_channel == CAN_GLV || adc_channel == AIR_SHDN) {
+                    fault_states[RIGHT_INVERTER] = ERROR_STATE;
+                    fault_states[LEFT_INVERTER] = ERROR_STATE;
+                    FaultHandling_WriteEfuseState(LEFT_INVERTER, EFUSE_OFF);
+                    FaultHandling_WriteEfuseState(RIGHT_INVERTER, EFUSE_OFF);
 
                     TransmitCANError(MOTOR_SHUTDOWN_ERROR, Power_Distribution_Module, 0, 0);
-                } else if (adc_channel == COOLING_INDEX) {
+                } else if (adc_channel == COOLING) {
                     TransmitCANError(
                     MOTOR_SHUTDOWN_ERROR, Power_Distribution_Module, 0, 0);
                 }
                 fault_states[adc_channel] = ERROR_STATE;
 
-                // TODO  (Issue #191): CAN message implementation
+                // TODO  (Issue #191): CAN_GLV message implementation
                 can_error_msg =
                 (adc_channel << 16) +
                 (uint16_t)(converted_readings[adc_channel] * ADC_12_BIT_POINTS /
@@ -99,23 +99,23 @@ void FaultHandling_Handler(volatile uint8_t* fault_states, volatile float* conve
         }
     }
 
-    if (converted_readings[_12V_SUPPLY_INDEX] < UNDERVOLTAGE_GLV_THRES) {
+    if (converted_readings[_12V_SUPPLY] < UNDERVOLTAGE_GLV_THRES) {
         TransmitCANError(
         PDM_ERROR, Power_Distribution_Module, _12V_FAULT_UV, can_error_msg);
-        num_faults[_12V_SUPPLY_INDEX]++;
-    } else if (converted_readings[_12V_SUPPLY_INDEX] > OVERVOLTAGE_GLV_THRES) {
+        num_faults[_12V_SUPPLY]++;
+    } else if (converted_readings[_12V_SUPPLY] > OVERVOLTAGE_GLV_THRES) {
         TransmitCANError(
         PDM_ERROR, Power_Distribution_Module, _12V_FAULT_OV, can_error_msg);
-        num_faults[_12V_SUPPLY_INDEX]++;
+        num_faults[_12V_SUPPLY]++;
     }
 
-    if (converted_readings[VBAT_SUPPLY_INDEX] > VBAT_OVERVOLTAGE) {
+    if (converted_readings[VBAT_SUPPLY] > VBAT_OVERVOLTAGE) {
         TransmitCANError(
         PDM_ERROR, Power_Distribution_Module, VBAT_FAULT, can_error_msg);
-        num_faults[VBAT_SUPPLY_INDEX]++;
+        num_faults[VBAT_SUPPLY]++;
     }
 
-    if (converted_readings[VICOR_SUPPLY_INDEX] > UNDERVOLTAGE_VICOR_THRES) {
+    if (converted_readings[FLYWIRE] > UNDERVOLTAGE_VICOR_THRES) {
             GPIO_ConfigurePreChargeComplete(fault_states);
     } else {
             GPIO_ConfigurePowerUp(fault_states);
@@ -125,8 +125,8 @@ void FaultHandling_Handler(volatile uint8_t* fault_states, volatile float* conve
 void FaultHandling_RetryEFuse(volatile uint8_t* fault_states)
 {
     for (uint8_t adc_channel = 0; adc_channel < NUM_UNIQUE_ADC_READINGS; adc_channel++) {
-        if (adc_channel == _12V_SUPPLY_INDEX || adc_channel == VBAT_SUPPLY_INDEX ||
-            adc_channel == VICOR_SUPPLY_INDEX)
+        if (adc_channel == _12V_SUPPLY || adc_channel == VBAT_SUPPLY ||
+            adc_channel == FLYWIRE)
             continue;
 
         if (fault_states[adc_channel] == RETRY_STATE) {

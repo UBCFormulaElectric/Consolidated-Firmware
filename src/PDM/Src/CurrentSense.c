@@ -71,15 +71,15 @@ void CurrentSense_ConvertFilteredADCToCurrentValues(volatile float* converted_re
         converted_readings[adc_channel] = filtered_adc_readings[adc_channel] * VOLTAGE_TO_CURRENT[adc_channel] * VDDA_VOLTAGE / ADC_12_BIT_POINTS;
     }
 
-    converted_readings[_12V_SUPPLY_INDEX] =
+    converted_readings[_12V_SUPPLY] =
     filtered_adc_readings[adc_channel] * GLV_VOLTAGE / ADC_12_BIT_POINTS;
     adc_channel++;
 
-    converted_readings[VBAT_SUPPLY_INDEX] =
+    converted_readings[VBAT_SUPPLY] =
     filtered_adc_readings[adc_channel] * VBAT_VOLTAGE / ADC_12_BIT_POINTS;
     adc_channel++;
 
-    converted_readings[VICOR_SUPPLY_INDEX] =
+    converted_readings[FLYWIRE] =
     filtered_adc_readings[adc_channel] * EN2_TO_12VACC * VDDA_VOLTAGE /
     ADC_12_BIT_POINTS;
 }

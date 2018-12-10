@@ -68,7 +68,7 @@
 #define EFUSE_FAN_COOLING_DEN_PIN 								GPIO_PIN_10
 #define EFUSE_FAN_COOLING_DEN_PORT 								GPIOB
 
-// E-Fuse CAN/AIR SHDN
+// E-Fuse CAN_GLV/AIR SHDN
 #define EFUSE_CAN_IN_PIN 										GPIO_PIN_12
 #define EFUSE_CAN_IN_PORT 										GPIOB
 
@@ -155,19 +155,19 @@ typedef enum {
  *         readings, which would be redundant so they are ommited.
  */
 typedef enum {
-    AUX_1_INDEX = 0,
-    COOLING_INDEX,
-    AIR_SHDN_INDEX,
-    ACC_SEG_FAN_INDEX,
-    L_INV_INDEX,
-    _12V_SUPPLY_INDEX,
-    VBAT_SUPPLY_INDEX,
-    VICOR_SUPPLY_INDEX,
-    AUX_2_INDEX,
-    PDM_FAN_INDEX,
-    CAN_INDEX,
-    ACC_ENC_FAN_INDEX,
-    R_INV_INDEX
+    AUXILIARY_1 = 0,
+    COOLING,
+    AIR_SHDN,
+    ACC_SEGMENT_FAN,
+    LEFT_INVERTER,
+    _12V_SUPPLY,
+    VBAT_SUPPLY,
+    FLYWIRE,
+    AUXILIARY_2,
+    PDM_FAN,
+    CAN_GLV,
+    ACC_ENCLOSURE_FAN,
+    RIGHT_INVERTER
 } ADC_Index_Enum;
 
 /** TODO (Issue #191): What is this struct for */
@@ -226,7 +226,7 @@ void GPIO_Init(void);
 void GPIO_ConfigurePreChargeComplete(volatile uint8_t* fault_states);
 
 /**
- * @brief  Enable CAN/AIR SHDN (if they are not faulted) and their
+ * @brief  Enable CAN_GLV/AIR SHDN (if they are not faulted) and their
  *         corresponding current sense diagnostics. Disable all other outputs.
  * @param  fault_states Array with (NumReadings x ChannelCount) elements which
  *         tracks outputs that need to be renabled or are permanently faulted
@@ -241,7 +241,7 @@ void GPIO_EFuseSelectDSEL(GPIO_PinState dsel_value);
 
 /**
  * @brief Check for faults on startup from charging IC, cell balancing IC,
- *        and boost converter and transmit a CAN message if error occured.
+ *        and boost converter and transmit a CAN_GLV message if error occured.
  */
 void GPIO_CheckFaultsStartup(void);
 
