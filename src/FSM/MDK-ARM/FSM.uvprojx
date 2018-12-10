@@ -447,6 +447,11 @@
               <FileType>5</FileType>
               <FilePath>..\Inc\APPS.h</FilePath>
             </File>
+            <File>
+              <FileName>CANDefinitions.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Inc\CANDefinitions.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
