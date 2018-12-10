@@ -86,6 +86,10 @@ BreakBeforeBraces: Allman
 # self-explanatory
 ColumnLimit: '80'
 
+# stop clang from trying to format the special
+# Cube-generated starting and ending comments
+CommentPragmas: '\/\*(\*(?!\/_|[^*])*\*\/'
+
 # Either fits all the constructor call args onto one line
 # or each param gets their own line if they don't fit
 ConstructorInitializerAllOnOneLineOrOnePerLine: 'true'
