@@ -37,13 +37,13 @@ static void FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState stat
 static void FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState state)
 {
     if (index < NUM_ADC_CHANNELS) {
-        HAL_GPIO_WritePin(PROFET2_OUT0_PINOUTS.port[index],
-                          PROFET2_OUT0_PINOUTS.pin[index],
+        HAL_GPIO_WritePin(PROFET2_IN0.port[index],
+                          PROFET2_IN0.pin[index],
                           state);
     } else {
         index = index - NUM_ADC_CHANNELS; // adjust index for pinout array
-        HAL_GPIO_WritePin(PROFET2_OUT1_PINOUTS.port[index],
-                          PROFET2_OUT1_PINOUTS.pin[index],
+        HAL_GPIO_WritePin(PROFET2_IN1.port[index],
+                          PROFET2_IN1.pin[index],
                           state);
     }
 }

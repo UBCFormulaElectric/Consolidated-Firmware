@@ -175,7 +175,7 @@ typedef enum {
 typedef struct {
     uint16_t pin[NUM_PROFET2S];
     GPIO_TypeDef* port[NUM_PROFET2S];
-} output_pinout;
+} GPIO_PinPort_Struct;
 
 /******************************************************************************
 * Global Variables
@@ -184,7 +184,7 @@ extern volatile GPIO_PinState dsel_state;
 
 // E-fuse output pin mapping
 // TODO (Issue #191): The index can be a value of @ ...
-static const output_pinout PROFET2_OUT0_PINOUTS = {{EFUSE_AUX_1_IN_PIN,
+const GPIO_PinPort_Struct PROFET2_IN0 = {{EFUSE_AUX_1_IN_PIN,
                                                EFUSE_COOLING_IN_PIN,
                                                EFUSE_AIR_SHDN_IN_PIN,
                                                EFUSE_ACC_SEG_FAN_IN_PIN,
@@ -196,7 +196,7 @@ static const output_pinout PROFET2_OUT0_PINOUTS = {{EFUSE_AUX_1_IN_PIN,
                                                EFUSE_LEFT_INVERTER_IN_PORT}};
 
 // TODO (Issue #191): The index can be a value of @ ...
-static const output_pinout PROFET2_OUT1_PINOUTS = {{EFUSE_AUX_2_IN_PIN,
+const GPIO_PinPort_Struct PROFET2_IN1 = {{EFUSE_AUX_2_IN_PIN,
                                                EFUSE_PDM_FAN_IN_PIN,
                                                EFUSE_CAN_IN_PIN,
                                                EFUSE_ACC_ENC_FAN_IN_PIN,
