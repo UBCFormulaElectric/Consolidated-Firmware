@@ -24,19 +24,20 @@
 /** @brief 12V Sense, VBAT Sense, and Flywire Sense */
 #define NUM_VOLTAGE_SENSE_PINS 3
 
-/** @brief Number of PROFET 2's in PDM_2018-Board */
+/** @brief Number of PROFET 2's */
 #define NUM_PROFET2S NUM_ADC_CHANNELS - NUM_VOLTAGE_SENSE_PINS
 
 /** @brief PROFET 2 is a dual-channel IC containing two separate e-fuses */
 #define NUM_EFUSES_PER_PROFET2 2
 
-/** @brief The number of e-fuses is simply twice as many as the number of 
- *         PROFET 2's */
+/** @brief Number of e-fuses */
 #define NUM_EFUSES NUM_PROFET2S * NUM_EFUSES_PER_PROFET2
 
-/** @brief We have 8 ADC channels enabled, but 5 of those are connected to 
- *         PROFET 2's. Each PROFET 2 has two e-fuse channels, which means we 
- *         are really getting two unique ADC readings per PROFET. */
+/** 
+ * @brief We have 8 ADC channels enabled, but 5 of those are connected to 
+ *        PROFET 2's. Each PROFET 2 has two e-fuse channels, which means we 
+ *        are really getting two unique ADC readings per PROFET.
+ */
 #define NUM_UNIQUE_ADC_READINGS NUM_EFUSES + NUM_VOLTAGE_SENSE_PINS
 
 // Pin definitions
@@ -146,12 +147,14 @@ typedef enum {
     ERROR_EFUSE = 2
 } Efuse_State_Enum;
 
-/** @brief ADC Readings Indexing, corresponding to: 0 to (NUM_UNIQUE_ADC_READINGS - 1)
-           Index 0 - 4:  E-fuses selected when DSEL = DSEL_LOW
-           Index 5 - 7:  Voltage sense reading
-           Index 8 - 12: E-fuses selected when DSEL = DSEL_HIGH
-           Note: Indices 13 - 15 would have also represented voltage sense 
-           readings, which would be redundant so they are ommited */
+/** 
+ * @brief ADC Readings Indexing, corresponding to: 0 to (NUM_UNIQUE_ADC_READINGS - 1)
+ *         Index 0 - 4:  E-fuses selected when DSEL = DSEL_LOW
+ *         Index 5 - 7:  Voltage sense reading
+ *         Index 8 - 12: E-fuses selected when DSEL = DSEL_HIGH
+ *         Note: Indices 13 - 15 would have also represented voltage sense 
+ *         readings, which would be redundant so they are ommited.
+ */
 typedef enum {
     AUX_1_INDEX = 0,
     COOLING_INDEX,
@@ -180,7 +183,7 @@ typedef struct {
 extern volatile GPIO_PinState dsel_state;
 
 // E-fuse output pin mapping
-// TODO: The index can be a value of @ ...
+// TODO (Issue #191): The index can be a value of @ ...
 static const output_pinout PROFET2_OUT0_PINOUTS = {{EFUSE_AUX_1_IN_PIN,
                                                EFUSE_COOLING_IN_PIN,
                                                EFUSE_AIR_SHDN_IN_PIN,
@@ -192,7 +195,7 @@ static const output_pinout PROFET2_OUT0_PINOUTS = {{EFUSE_AUX_1_IN_PIN,
                                                EFUSE_ACC_SEG_FAN_IN_PORT,
                                                EFUSE_LEFT_INVERTER_IN_PORT}};
 
-// TODO: The index can be a value of @ ...
+// TODO (Issue #191): The index can be a value of @ ...
 static const output_pinout PROFET2_OUT1_PINOUTS = {{EFUSE_AUX_2_IN_PIN,
                                                EFUSE_PDM_FAN_IN_PIN,
                                                EFUSE_CAN_IN_PIN,
