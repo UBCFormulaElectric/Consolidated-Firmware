@@ -561,7 +561,7 @@ static void MX_GPIO_Init(void)
 
 void ControlLoop(void)
 {
-	static Motor_Shutdown_Status MotorState;
+	static Motor_Shutdown_Status_Enum MotorState;
 	
 	// Data type manipulation variables
 	uint16_t AcceleratorPedalPosition_16bit = 0;

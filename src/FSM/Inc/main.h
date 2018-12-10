@@ -109,18 +109,11 @@
 
 /* USER CODE BEGIN Private defines */
 
-// Global variables for front wheel speeds (km/h)
-extern volatile float FLWheelSpeed;
-extern volatile float FRWheelSpeed;
-
-// Global variable for steering angle (degrees)
-extern volatile float SteeringAngle;
-
 // Motor shutdown/re-enable handling
 typedef enum {
 	ON,
 	OFF
-} Motor_Shutdown_Status;
+} Motor_Shutdown_Status_Enum;
 
 // Function declarations
 void ControlLoop(void);
