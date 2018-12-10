@@ -180,7 +180,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t gpio_pin)
             if (HAL_GPIO_ReadPin(CHARGER_PORT, CHARGER_FAULT_PIN) ==
                 CHARGER_FAULT_STATE)
             {
-                Can_BroadcastErrors(CHARGER_FAULT);
+                Can_BroadcastPdmErrors(CHARGER_FAULT);
             }
             break;
         case CELL_BALANCE_OVERVOLTAGE_PIN:
@@ -189,14 +189,14 @@ void HAL_GPIO_EXTI_Callback(uint16_t gpio_pin)
                     CELL_BALANCE_OVERVOLTAGE_PIN) ==
                 CELL_BALANCE_OVERVOLTAGE_FAULT_STATE)
             {
-                Can_BroadcastErrors(CELL_BALANCE_OVERVOLTAGE_FAULT);
+                Can_BroadcastPdmErrors(CELL_BALANCE_OVERVOLTAGE_FAULT);
             }
             break;
         case BOOST_PGOOD_PIN:
             if (HAL_GPIO_ReadPin(BOOST_PGOOD_PORT, BOOST_PGOOD_PIN) ==
                 BOOST_PGOOD_FAULT_STATE)
             {
-                Can_BroadcastErrors(BOOST_PGOOD_FAULT);
+                Can_BroadcastPdmErrors(BOOST_PGOOD_FAULT);
             }
             break;
         default:
@@ -206,13 +206,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t gpio_pin)
 
 void GPIO_CheckFaultsStartup(void)
 {
-    uint32_t can_error_msg = 0;
     // Check for charger fault
     if (HAL_GPIO_ReadPin(CHARGER_PORT, CHARGER_FAULT_PIN) ==
         CHARGER_FAULT_STATE)
     {
-        Can_BroadcastErrors(
-            PDM_ERROR, Power_Distribution_Module, CHARGER_FAULT, can_error_msg);
+        Can_BroadcastPdmErrors(CHARGER_FAULT);
     }
     // Check for charger charging
     if (HAL_GPIO_ReadPin(CHARGER_PORT, CHARGER_INDICATOR_PIN) ==
@@ -220,7 +218,7 @@ void GPIO_CheckFaultsStartup(void)
     {
         //  Currently not transmitting the charger 'charging' state - usually
         //  constantly true and not an 'error'
-        //	Can_BroadcastErrors(General_Error_StandardID,
+        //	Can_BroadcastPdmErrors(General_Error_StandardID,
         // Power_Distribution_Module, PDM_Misc_Error, can_error_msg);
     }
     // Check for overvoltage fault
@@ -228,16 +226,12 @@ void GPIO_CheckFaultsStartup(void)
             CELL_BALANCE_OVERVOLTAGE_PORT, CELL_BALANCE_OVERVOLTAGE_PIN) ==
         CELL_BALANCE_OVERVOLTAGE_FAULT_STATE)
     {
-        Can_BroadcastErrors(
-            PDM_ERROR, Power_Distribution_Module,
-            CELL_BALANCE_OVERVOLTAGE_FAULT, can_error_msg);
+        Can_BroadcastPdmErrors(CELL_BALANCE_OVERVOLTAGE_FAULT);
     }
     // Check for boost converter fault
     if (HAL_GPIO_ReadPin(BOOST_PGOOD_PORT, BOOST_PGOOD_PIN) ==
         BOOST_PGOOD_FAULT_STATE)
     {
-        Can_BroadcastErrors(
-            PDM_ERROR, Power_Distribution_Module, BOOST_PGOOD_FAULT,
-            can_error_msg);
+        Can_BroadcastPdmErrors(BOOST_PGOOD_FAULT);
     }
 }

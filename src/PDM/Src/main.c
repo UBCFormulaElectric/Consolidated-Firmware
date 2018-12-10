@@ -152,8 +152,6 @@ int main(void)
     // Initialize GPIO
     GPIO_Init();
 
-    // Configure CAN and activate CAN interrupts
-    InitCAN();
 
     // Transmit startup message TODO (Issue #192): Add startup header to SharedCAN
     // Might just wrap this inside shared CAN and delete this entirely
@@ -364,7 +362,7 @@ static void MX_CAN_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN CAN_Init 2 */
-
+  SharedCan_StartCanInInterruptMode(&hcan);
   /* USER CODE END CAN_Init 2 */
 
 }

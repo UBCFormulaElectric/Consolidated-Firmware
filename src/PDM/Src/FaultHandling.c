@@ -3,6 +3,7 @@
  *******************************************************************************/
 #include "FaultHandling.h"
 #include "Gpio.h"
+#include "Can.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -96,14 +97,11 @@ void FaultHandling_Handler(
                     fault_states[LEFT_INVERTER]  = ERROR_STATE;
                     FaultHandling_WriteEfuseState(LEFT_INVERTER, EFUSE_OFF);
                     FaultHandling_WriteEfuseState(RIGHT_INVERTER, EFUSE_OFF);
-
-                    TransmitCANError(
-                        MOTOR_SHUTDOWN_ERROR, Power_Distribution_Module, 0, 0);
+                    Can_BroadcastMotorShutdownError();
                 }
                 else if (adc_channel == COOLING)
                 {
-                    TransmitCANError(
-                        MOTOR_SHUTDOWN_ERROR, Power_Distribution_Module, 0, 0);
+                    Can_BroadcastMotorShutdownError();
                 }
                 fault_states[adc_channel] = ERROR_STATE;
 
@@ -113,30 +111,25 @@ void FaultHandling_Handler(
                     (uint16_t)(
                         converted_readings[adc_channel] * ADC_12_BIT_POINTS /
                         (VOLTAGE_TO_CURRENT[adc_channel] * VDDA_VOLTAGE));
-                TransmitCANError(
-                    PDM_ERROR, Power_Distribution_Module, EFUSE_FAULT,
-                    can_error_msg);
+                Can_BroadcastPdmErrors(EFUSE_FAULT);
             }
         }
     }
 
     if (converted_readings[_12V_SUPPLY] < UNDERVOLTAGE_GLV_THRES)
     {
-        TransmitCANError(
-            PDM_ERROR, Power_Distribution_Module, _12V_FAULT_UV, can_error_msg);
+        Can_BroadcastPdmErrors(_12V_FAULT_UV);
         num_faults[_12V_SUPPLY]++;
     }
     else if (converted_readings[_12V_SUPPLY] > OVERVOLTAGE_GLV_THRES)
     {
-        TransmitCANError(
-            PDM_ERROR, Power_Distribution_Module, _12V_FAULT_OV, can_error_msg);
+        Can_BroadcastPdmErrors(_12V_FAULT_OV);
         num_faults[_12V_SUPPLY]++;
     }
 
     if (converted_readings[VBAT_SUPPLY] > VBAT_OVERVOLTAGE)
     {
-        TransmitCANError(
-            PDM_ERROR, Power_Distribution_Module, VBAT_FAULT, can_error_msg);
+        Can_BroadcastPdmErrors(VBAT_FAULT);
         num_faults[VBAT_SUPPLY]++;
     }
 

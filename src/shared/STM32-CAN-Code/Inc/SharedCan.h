@@ -35,21 +35,29 @@
     #define CAN_TX_FIFO_OVERFLOW_DLC    PDM_CAN_TX_FIFO_OVERFLOW_DLC
     #define PCB_STARTUP_STDID           PDM_STARTUP_STDID
     #define PCB_STARTUP_DLC             PDM_STARTUP_DLC
+    #define PCB_HEARTBEAT_STDID         PDM_HEARTBEAT_STDID
+    #define PCB_HEARTBEAT_DLC           PDM_HEARTBEAT_DLC
 #elif FSM
     #define CAN_TX_FIFO_OVERFLOW_STDID  FSM_CAN_TX_FIFO_OVERFLOW_STDID
     #define CAN_TX_FIFO_OVERFLOW_DLC    FSM_CAN_TX_FIFO_OVERFLOW_DLC
     #define PCB_STARTUP_STDID           FSM_STARTUP_STDID
     #define PCB_STARTUP_DLC             FSM_STARTUP_DLC
+    #define PCB_HEARTBEAT_STDID         FSM_HEARTBEAT_STDID
+    #define PCB_HEARTBEAT_DLC           FSM_HEARTBEAT_DLC
 #elif BMS
     #define CAN_TX_FIFO_OVERFLOW_STDID  BMS_CAN_TX_FIFO_OVERFLOW_STDID
     #define CAN_TX_FIFO_OVERFLOW_DLC    BMS_CAN_TX_FIFO_OVERFLOW_DLC
     #define PCB_STARTUP_STDID           BMS_STARTUP_STDID
     #define PCB_STARTUP_DLC             BMS_STARTUP_DLC
+    #define PCB_HEARTBEAT_STDID         BMS_HEARTBEAT_STDID
+    #define PCB_HEARTBEAT_DLC           BMS_HEARTBEAT_DLC
 #elif DCM
     #define CAN_TX_FIFO_OVERFLOW_STDID  DCM_CAN_TX_FIFO_OVERFLOW_STDID
     #define CAN_TX_FIFO_OVERFLOW_DLC    DCM_CAN_TX_FIFO_OVERFLOW_DLC
     #define PCB_STARTUP_STDID           DCM_STARTUP_STDID
     #define PCB_STARTUP_DLC             DCM_STARTUP_DLC
+    #define PCB_HEARTBEAT_STDID         DCM_HEARTBEAT_STDID
+    #define PCB_HEARTBEAT_DLC           DCM_HEARTBEAT_DLC
 #else
     #error "No valid PCB name selected"
 #endif
@@ -252,4 +260,8 @@ HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan);
  */
 void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo);
 
+/**
+ * @brief Broadcast heartbeat message for the current PCB
+ */
+void SharedCan_BroadcastHeartbeat(void);
 #endif /* SHARED_CAN_H */

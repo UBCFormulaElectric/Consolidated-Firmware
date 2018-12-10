@@ -343,6 +343,12 @@ __weak void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
               the Can_RxCommonCallback could be implemented in the Can.c file */
 }
 
+void SharedCan_BroadcastHeartbeat(void)
+{
+    uint8_t data[PCB_HEARTBEAT_DLC] = {0};
+    SharedCan_TransmitDataCan(PCB_HEARTBEAT_STDID, PCB_HEARTBEAT_DLC, &data[0]);
+}
+
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     /* NOTE: All receive mailbox interrupts shall be handled in the same way */

@@ -71,7 +71,7 @@ extern IWDG_HandleTypeDef hiwdg;
 // SysTick/heartbeat variables
 extern const int HEARTBEAT_TICK_PERIOD;					// Period in ms
 extern const int HEARTBEAT_BROADCAST_PERIOD;			// Period in ms
-extern volatile uint16_t HeartbeatCount[Systems_Count];
+extern volatile uint16_t HeartbeatCount[PCB_COUNT];
 static volatile uint32_t HeartbeatTimeoutTicks = 0;
 static volatile uint32_t PDMHeartbeatBroadcastTicks = 0;
 
@@ -235,33 +235,33 @@ void SysTick_Handler(void)
   
 	#ifndef DEBUG
 	
-	HeartbeatTimeoutTicks++;
-	PDMHeartbeatBroadcastTicks++;
-	
-	// Check for Heartbeat Timeouts here 
-	if(HeartbeatTimeoutTicks >= HEARTBEAT_TICK_PERIOD)
-	{
-		HeartbeatTimeoutTicks = 0;
-		
-		// BMS checks PDM, FSM, DCM
-		// PDM, FSM, DCM check only BMS
-		if(HeartbeatCount[Battery_Management_System] == 0)
-		{
-			// We have not received the BMS's heartbeat CAN Message. Assume the board is not working.
-			ErrorHandling_HandleHeartbeatTimeout();
-		}
-			
-		// Reset the ticks for this module
-		HeartbeatCount[Battery_Management_System] = 0;
-	}
+    HeartbeatTimeoutTicks++;
+    PDMHeartbeatBroadcastTicks++;
+    
+    // Check for Heartbeat Timeouts here 
+    if(HeartbeatTimeoutTicks >= HEARTBEAT_TICK_PERIOD)
+    {
+      HeartbeatTimeoutTicks = 0;
+      
+      // BMS checks PDM, FSM, DCM
+      // PDM, FSM, DCM check only BMS
+      if(HeartbeatCount[BATTERY_MANAGEMENT_SYSTEM] == 0)
+      {
+        // We have not received the BMS's heartbeat CAN Message. Assume the board is not working.
+        ErrorHandling_HandleHeartbeatTimeout();
+      }
+        
+      // Reset the ticks for this module
+      HeartbeatCount[POWER_DISTRIBUTION_MODULE] = 0;
+    }
 
-	// Broadcast PDM heartbeat for other boards to monitor
-	if(PDMHeartbeatBroadcastTicks >= HEARTBEAT_BROADCAST_PERIOD)
-	{
-		PDMHeartbeatBroadcastTicks = 0;
-    SharedCAN_BroadcastHeartbeat(Power_Distribution_Module);
-	}
-	
+    // Broadcast PDM heartbeat for other boards to monitor
+    if(PDMHeartbeatBroadcastTicks >= HEARTBEAT_BROADCAST_PERIOD)
+    {
+      PDMHeartbeatBroadcastTicks = 0;
+      SharedCan_BroadcastHeartbeat();
+    }
+    
 	#endif
 	
   /* USER CODE END SysTick_IRQn 1 */
