@@ -567,7 +567,7 @@ void ControlLoop(void)
 	uint16_t AcceleratorPedalPosition_16bit = 0;
 	
 	// Get sensor data
-	AcceleratorPedalPosition_16bit = GetAcceleratorPedalPosition(APPS_CONTROL_LOOP_MODE); // Only call this function in APPS_CONTROL_LOOP_MODE once in this control loop function
+	AcceleratorPedalPosition_16bit = GetAcceleratorPedalPosition( APPS_CONTROL_LOOP_MODE); // Only call this function in APPS_CONTROL_LOOP_MODE once in this control loop function
 	// ERROR HANDLING
 	// APPS fault when motors are on
 	if(APPSFaultState != 0 && MotorState == ON)

@@ -13,9 +13,11 @@
 #include "main.h"
 #include "stdint.h"
 
-#define APPS_NORMAL_MODE 		0
-#define APPS_CONTROL_LOOP_MODE 	1
-
+typedef enum
+{
+    APPS_NORMAL_MODE,
+    APPS_CONTROL_LOOP_MODE
+} APPS_Mode_Enum;
 
 // Function declarations
 uint16_t GetAcceleratorPedalPosition(int Mode);
