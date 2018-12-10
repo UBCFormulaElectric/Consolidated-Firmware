@@ -415,7 +415,7 @@
             <File>
               <FileName>Timers.c</FileName>
               <FileType>1</FileType>
-              <FilePath>.\Timers.c</FilePath>
+              <FilePath>..\Src\Timers.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -436,6 +436,11 @@
               <FileName>stm32f0xx_it.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Inc\stm32f0xx_it.h</FilePath>
+            </File>
+            <File>
+              <FileName>Timers.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Inc\Timers.h</FilePath>
             </File>
           </Files>
         </Group>

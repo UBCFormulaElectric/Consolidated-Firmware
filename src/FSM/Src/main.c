@@ -42,6 +42,8 @@
 
 /* USER CODE BEGIN Includes */
 #include "APPS.h"
+#include "Timers.h"
+
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -129,14 +131,8 @@ int main(void)
   MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
 	
-	/* Start main control loop timer, with interrupt.*/
-	HAL_TIM_Base_Start_IT(&htim14);
 	
-	/* Start Main APPS Encoder*/
-	HAL_TIM_Encoder_Start(&htim2,TIM_CHANNEL_ALL);  
-	/* Start Secondary APPS encoder. */
-	HAL_TIM_Encoder_Start(&htim3,TIM_CHANNEL_ALL);  
-	
+	Timers_StartTimers();
   /* USER CODE END 2 */
 
   /* Infinite loop */
