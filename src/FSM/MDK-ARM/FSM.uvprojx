@@ -327,7 +327,7 @@
             <uC99>1</uC99>
             <uGnu>0</uGnu>
             <useXO>0</useXO>
-            <v6Lang>6</v6Lang>
+            <v6Lang>5</v6Lang>
             <v6LangP>3</v6LangP>
             <vShortEn>1</vShortEn>
             <vShortWch>1</vShortWch>
@@ -559,6 +559,9 @@
             </File>
           </Files>
         </Group>
+
+        <Group><GroupName>Drivers/STM32F0xx_HAL_Driver</GroupName><Files><File><FileName>stm32f0xx_hal_adc.c</FileName><FileType>1</FileType><FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_adc.c</FilePath></File><File><FileName>stm32f0xx_hal_adc_ex.c</FileName><FileType>1</FileType><FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_adc_ex.c</FilePath></File><File><FileName>stm32f0xx_hal_can.c</FileName><FileType>1</FileType><FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_can.c</FilePath></File><File><FileName>stm32f0xx_hal_iwdg.c</FileName><FileType>1</FileType><FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_iwdg.c</FilePath></File><File><FileName>stm32f0xx_hal_tim.c</FileName><FileType>1</FileType><FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_tim.c</FilePath></File><File><FileName>stm32f0xx_hal_tim_ex.c</FileName><FileType>1</FileType><FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_tim_ex.c</FilePath></File><File><FileName>stm32f0xx_hal_rcc.c</FileName><FileType>1</FileType><FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_rcc.c</FilePath></File><File><FileName>stm32f0xx_hal_rcc_ex.c</FileName><FileType>1</FileType><FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_rcc_ex.c</FilePath></File><File><FileName>stm32f0xx_hal.c</FileName><FileType>1</FileType><FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal.c</FilePath></File><File><FileName>stm32f0xx_hal_i2c.c</FileName><FileType>1</FileType><FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_i2c.c</FilePath></File><File><FileName>stm32f0xx_hal_i2c_ex.c</FileName><FileType>1</FileType><FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_i2c_ex.c</FilePath></File><File><FileName>stm32f0xx_hal_gpio.c</FileName><FileType>1</FileType><FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_gpio.c</FilePath></File><File><FileName>stm32f0xx_hal_dma.c</FileName><FileType>1</FileType><FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_dma.c</FilePath></File><File><FileName>stm32f0xx_hal_cortex.c</FileName><FileType>1</FileType><FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_cortex.c</FilePath></File><File><FileName>stm32f0xx_hal_pwr.c</FileName><FileType>1</FileType><FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_pwr.c</FilePath></File><File><FileName>stm32f0xx_hal_pwr_ex.c</FileName><FileType>1</FileType><FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_pwr_ex.c</FilePath></File><File><FileName>stm32f0xx_hal_flash.c</FileName><FileType>1</FileType><FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_flash.c</FilePath></File><File><FileName>stm32f0xx_hal_flash_ex.c</FileName><FileType>1</FileType><FilePath>../Drivers/STM32F0xx_HAL_Driver/Src/stm32f0xx_hal_flash_ex.c</FilePath></File></Files></Group>
+        <Group><GroupName>Drivers/CMSIS</GroupName><Files><File><FileName>system_stm32f0xx.c</FileName><FileType>1</FileType><FilePath>..//Src/system_stm32f0xx.c</FilePath></File><File><FileName>system_stm32f0xx.c</FileName><FileType>1</FileType><FilePath>../Src/system_stm32f0xx.c</FilePath></File></Files></Group>
         <Group>
           <GroupName>::CMSIS</GroupName>
         </Group>
