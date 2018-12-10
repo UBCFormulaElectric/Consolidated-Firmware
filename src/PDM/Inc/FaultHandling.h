@@ -24,6 +24,11 @@
 * Typedefs
 *******************************************************************************/
 // clang-format on
+typedef enum
+{
+  EFUSE_ON = GPIO_PIN_SET,
+  EFUSE_OFF = !EFUSE_ON
+} Efuse_OnOff_Enum;
 
 /******************************************************************************
 * Global Variables

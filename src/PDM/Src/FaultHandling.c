@@ -29,22 +29,22 @@ volatile uint8_t num_faults[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {0};
  * @param  index Index of e-fuse 
  * @param  state Turn e-fuse on or off
  */
-static void FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState state);
+static void FaultHandling_WriteEfuseState(ADC_Index_Enum index, Efuse_OnOff_Enum state);
 
 /******************************************************************************
 * Private Function Definitions
 *******************************************************************************/
-static void FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState state)
+static void FaultHandling_WriteEfuseState(ADC_Index_Enum index, Efuse_OnOff_Enum state)
 {
     if (index < NUM_ADC_CHANNELS) {
         HAL_GPIO_WritePin(PROFET2_IN0.port[index],
                           PROFET2_IN0.pin[index],
-                          state);
+                          (GPIO_PinState)state);
     } else {
         index = index - NUM_ADC_CHANNELS; // adjust index for pinout array
         HAL_GPIO_WritePin(PROFET2_IN1.port[index],
                           PROFET2_IN1.pin[index],
-                          state);
+                          (GPIO_PinState)state);
     }
 }
 
@@ -66,7 +66,7 @@ void FaultHandling_Handler(volatile uint8_t* fault_states, volatile float* conve
         // over the limit, disable efuse
         if (fault_states[adc_channel] == NORMAL_STATE && converted_readings[adc_channel] >= CURRENT_LIMIT) {
             num_faults[adc_channel]++;
-            FaultHandling_CurrentFaultHandling(adc_channel, GPIO_PIN_RESET);
+            FaultHandling_WriteEfuseState(adc_channel, EFUSE_OFF);
 
             // Has faulted fewer than max number of times
             if (num_faults[adc_channel] <= MAX_FAULTS[adc_channel]) {
@@ -76,8 +76,8 @@ void FaultHandling_Handler(volatile uint8_t* fault_states, volatile float* conve
                 if (adc_channel == R_INV_INDEX || adc_channel == L_INV_INDEX || adc_channel == CAN_INDEX || adc_channel == AIR_SHDN_INDEX) {
                     fault_states[R_INV_INDEX] = ERROR_STATE;
                     fault_states[L_INV_INDEX] = ERROR_STATE;
-                    FaultHandling_CurrentFaultHandling(L_INV_INDEX, GPIO_PIN_RESET); // Disable L Inv
-                    FaultHandling_CurrentFaultHandling(R_INV_INDEX, GPIO_PIN_RESET); // Disable R Inv
+                    FaultHandling_WriteEfuseState(L_INV_INDEX, EFUSE_OFF);
+                    FaultHandling_WriteEfuseState(R_INV_INDEX, EFUSE_OFF);
 
                     TransmitCANError(MOTOR_SHUTDOWN_ERROR, Power_Distribution_Module, 0, 0);
                 } else if (adc_channel == COOLING_INDEX) {
@@ -130,9 +130,9 @@ void FaultHandling_RetryEFuse(volatile uint8_t* fault_states)
             continue;
 
         if (fault_states[adc_channel] == RETRY_STATE) {
-            FaultHandling_CurrentFaultHandling(adc_channel, GPIO_PIN_SET);
+            FaultHandling_WriteEfuseState(adc_channel, EFUSE_ON);
             fault_states[adc_channel] = NORMAL_STATE;
         } else if (fault_states[adc_channel] == ERROR_STATE)
-            FaultHandling_CurrentFaultHandling(adc_channel, GPIO_PIN_RESET);
+            FaultHandling_WriteEfuseState(adc_channel, EFUSE_OFF);
     }
 }
