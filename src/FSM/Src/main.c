@@ -63,8 +63,6 @@ TIM_HandleTypeDef htim17;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-// Global variables
-extern __IO int APPSFaultState;
 
 /* USER CODE END PV */
 

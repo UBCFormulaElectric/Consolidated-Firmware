@@ -442,6 +442,11 @@
               <FileType>5</FileType>
               <FilePath>..\Inc\Timers.h</FilePath>
             </File>
+            <File>
+              <FileName>APPS.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Inc\APPS.h</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
