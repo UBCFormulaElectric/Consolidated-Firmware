@@ -1,5 +1,5 @@
 /**
-	@file	   	APPS.c
+	@file	   	Apps.c
 	@brief	  	FSM_2018 - Function library for the Accelerator Pedal Position Sensors (APPS)
 	@author	 	UBC Formula Electric
 	@version	v1.0.00
