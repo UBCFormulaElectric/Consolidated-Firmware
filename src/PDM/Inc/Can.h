@@ -8,15 +8,12 @@
 /******************************************************************************
 * Includes
 *******************************************************************************/
-#include "Gpio.h"
-#include <string.h>
-#include "SharedCAN.h"
+#include "SharedCan.h"
 
 /******************************************************************************
 * Preprocessor Constants
 *******************************************************************************/
 // clang-format off
-#define Systems_Count 5
 /******************************************************************************
 * Preprocessor Macros
 *******************************************************************************/
@@ -33,20 +30,9 @@
 * Function Prototypes
 *******************************************************************************/
 /**
- * @brief  Initialize CAN
+ * @brief Send CAN message one-hot encoded for one or more errors
+ * @param PdmError_Enum One or more errors OR'd together
  */
-void InitCAN(void);
-
-/**
- * @brief  Sends error CAN messages based on error ID and module
- * @param  Error_StandardID	Error ID
- * @param  PCB_Enum Name of module (Module_Names)
- * @param  ErrorNumber Error type
- * @param  ErrorData Error data
- */
-void TransmitCANError(uint32_t Error_StandardID,
-                      PCB_Enum Module,
-                      uint8_t ErrorNumber,
-                      uint32_t ErrorData);
+void Can_BroadcastErrors(PdmError_Enum error);
 
 #endif /* CAN_H */

@@ -40,7 +40,7 @@
 /* USER CODE BEGIN Includes */
 #include "CurrentSense.h"
 #include "Gpio.h"
-#include "SharedCAN.h"
+#include "SharedCan.h"
 #include "ErrorHandling.h"
 /* USER CODE END Includes */
 
