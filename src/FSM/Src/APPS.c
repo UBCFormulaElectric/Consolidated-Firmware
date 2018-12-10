@@ -10,28 +10,28 @@
 #include "main.h"
 
 // Maximum APPS values (calibrated to pedal box)
-static const float PRIMARY_APPS_MAX_VALUE = 1400;
-static const float SECONDARY_APPS_MAX_VALUE = 1950;
+#define PRIMARY_APPS_MAX_VALUE (float) 1400
+#define SECONDARY_APPS_MAX_VALUE (float) 1950
 
-static const float APPS_PERCENT_DEADZONE = 0.03;
-static const float PRIMARY_APPS_DEADZONE = PRIMARY_APPS_MAX_VALUE * APPS_PERCENT_DEADZONE;
-static const float SECONDARY_APPS_DEADZONE = SECONDARY_APPS_MAX_VALUE * APPS_PERCENT_DEADZONE;
+#define  APPS_PERCENT_DEADZONE (float) 0.03
+#define PRIMARY_APPS_DEADZONE (float) PRIMARY_APPS_MAX_VALUE * APPS_PERCENT_DEADZONE 
+#define SECONDARY_APPS_DEADZONE (float) SECONDARY_APPS_MAX_VALUE * APPS_PERCENT_DEADZONE
 
 // Accelerator pedal saturation point (%)
-static const float PEDAL_SATURATION_POINT = 0.80;
-static const float PEDAL_RELEASE_POINT = 0.04;
+#define PEDAL_SATURATION_POINT (float) 0.80
+#define PEDAL_RELEASE_POINT (float) 0.04
 
 // Fault handling variables
-static const int PEDAL_SATURATION_TIMEOUT 	=	10; 	// (sec)
-static const float APPS_IMPLAUSIBILITY_DELAY 	=	1.0; 	// (sec)
-static const float APPS_BPPC_THRESHOLD 				=	0.25; // (decimal %)
-static const int MAX_APPS_FAULTS = APPS_IMPLAUSIBILITY_DELAY * (float) CONTROL_LOOP_FREQUENCY;
-static const int MAX_SATURATION_FAULTS = PEDAL_SATURATION_TIMEOUT * (int) CONTROL_LOOP_FREQUENCY;
+#define PEDAL_SATURATION_TIMEOUT 	(int)	10 	// (sec)
+#define APPS_IMPLAUSIBILITY_DELAY  (float)	1.0 	// (sec)
+#define APPS_BPPC_THRESHOLD 	(float) 0.25 // (decimal %)
+#define MAX_APPS_FAULTS  (float) APPS_IMPLAUSIBILITY_DELAY * (float) CONTROL_LOOP_FREQUENCY
+#define MAX_SATURATION_FAULTS (int) PEDAL_SATURATION_TIMEOUT * (int) CONTROL_LOOP_FREQUENCY
 
 
-__IO int APPSFaultCounter = 0; // Used to "time" when to trigger a fault
-__IO int APPSFaultState = 0; // Used to send error CAN messages and track faults
-__IO int APPS_BPPC_FLAG = 0; // Used to trigger the APPS / Brake Pedal Plausibility Check
+volatile uint32_t APPSFaultCounter = 0; // Used to "time" when to trigger a fault
+volatile uint32_t APPSFaultState = 0; // Used to send error CAN messages and track faults
+volatile uint32_t APPS_BPPC_FLAG = 0; // Used to trigger the APPS / Brake Pedal Plausibility Check
 
 
 /**

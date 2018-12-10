@@ -554,7 +554,7 @@ static void MX_GPIO_Init(void)
 	@brief	  	Main control loop
 				1. Transmits CAN messages containing the accelerator pedal position, front wheel speeds, and steering angle
 	@param	  	None
-	@retval	 	None
+	@return	 	None
 */
 
 
@@ -567,7 +567,8 @@ void ControlLoop(void)
 	uint16_t AcceleratorPedalPosition_16bit = 0;
 	
 	// Get sensor data
-	AcceleratorPedalPosition_16bit = GetAcceleratorPedalPosition( APPS_CONTROL_LOOP_MODE); // Only call this function in APPS_CONTROL_LOOP_MODE once in this control loop function
+	// Only call this function in APPS_CONTROL_LOOP_MODE once in this control loop function
+	AcceleratorPedalPosition_16bit = GetAcceleratorPedalPosition( APPS_CONTROL_LOOP_MODE); 
 	// ERROR HANDLING
 	// APPS fault when motors are on
 	if(APPSFaultState != 0 && MotorState == ON)
