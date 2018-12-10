@@ -18,7 +18,7 @@
 *******************************************************************************/
 // clang-format off
 
-/** @brief 8 microcontroller pins are configured to be ADC inputs */
+/** @brief Number of microcontroller pins that are configured to be ADC inputs */
 #define NUM_ADC_CHANNELS 8
 
 /** @brief 12V Sense, VBAT Sense, and Flywire Sense */
