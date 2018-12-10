@@ -88,7 +88,6 @@ static void MX_IWDG_Init(void);
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
-volatile uint16_t APPSValue = 0;
 /**
   * @brief  The application entry point.
   *
@@ -569,7 +568,6 @@ void ControlLoop(void)
 	
 	// Get sensor data
 	AcceleratorPedalPosition_16bit = GetAcceleratorPedalPosition(APPS_CONTROL_LOOP_MODE); // Only call this function in APPS_CONTROL_LOOP_MODE once in this control loop function
-	APPSValue = AcceleratorPedalPosition_16bit;
 	// ERROR HANDLING
 	// APPS fault when motors are on
 	if(APPSFaultState != 0 && MotorState == ON)
