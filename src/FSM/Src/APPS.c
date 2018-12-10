@@ -8,7 +8,6 @@
 
 #include "APPS.h"
 #include "main.h"
-#include "CANDatabase.h"
 
 // Maximum APPS values (calibrated to pedal box)
 static const float PRIMARY_APPS_MAX_VALUE = 1400;
@@ -45,18 +44,11 @@ __IO int APPS_BPPC_FLAG = 0; // Used to trigger the APPS / Brake Pedal Plausibil
 				6. Checks for accelerator pedal stuck at max. torque for longer than 10 secs
 				7. Maps the APPS readings to a 10-bit number (0 = unpressed, 1023 = fully pressed)
 
-								APPS Fault States
-								APPSFaultState = 0			Operating normally
-								APPSFaultState = 0			Operating normally (Pedal deflects passed resting point and underflows) OR pedal pushed passed max. rotation
-								APPSFaultState = 1			Open/short circuit on encoder differential lines
-								APPSFaultState = 2			>10% difference in primary and secondary APPS readings (EV2.3.6)
-								APPSFaultState = 3			>25% pedal travel while activating brakes "APPS / Brake Pedal Plausibility Check" (EV2.5)
-								APPSFaultState = 4			Pedal stuck at max torque for greater than 10 secs
-
 	@param	  Mode		0 - Normal reading without affecting APPSFaultCounter
 						1 - Control loop reading (affects APPSFaultCounter)
 	@return	 Accelerator pedal position (10-bit)
 */
+
 uint16_t GetAcceleratorPedalPosition(int Mode)
 {
 	float RawPrimaryAPPSValue = 0.0;
@@ -74,7 +66,7 @@ uint16_t GetAcceleratorPedalPosition(int Mode)
 		TemporaryAPPSFaultCounter = APPSFaultCounter;
 	}
 	
-	if(APPSFaultState == 2)
+	if(APPSFaultState == APPS_Fault_State_Prim_Sec_Differ)
 	{
 		AcceleratorPedalPosition = 0;
 	}
@@ -132,7 +124,7 @@ uint16_t GetAcceleratorPedalPosition(int Mode)
 		// Prevent FSM_APPS_Fault_State_1 and FSM_APPS_Fault_State_2 from changing the APPSFaultState 
 		// when APPSFaultState is in FSM_APPS_Fault_State_3 or FSM_APPS_Fault_State_4
 		// Reason: Rules state that pedal must be released back to less than 5% before car can be operational (EV2.5.1)
-		if(APPSFaultState != FSM_APPS_Fault_State_3 && APPSFaultState != FSM_APPS_Fault_State_4)
+		if(APPSFaultState != APPS_Fault_State_Brake_Activated && APPSFaultState != APPS_Fault_State_Stuck_Max)
 		{
 			// Check for improperly connected APPS encoders (open/short circuit of APPS lines)
 		if((HAL_GPIO_ReadPin(PRIMARY_APPS_ALARM_GPIO_Port, PRIMARY_APPS_ALARM_Pin ) == GPIO_PIN_SET) || (HAL_GPIO_ReadPin(SECONDARY_APPS_ALARM_GPIO_Port, SECONDARY_APPS_ALARM_Pin) == GPIO_PIN_SET))
@@ -140,7 +132,7 @@ uint16_t GetAcceleratorPedalPosition(int Mode)
 				// Check if implausibility occurs after 100msec
 				if(APPSFaultCounter > MAX_APPS_FAULTS)
 				{
-					APPSFaultState = FSM_APPS_Fault_State_1;
+					APPSFaultState = APPS_Fault_State_Prim_Sec_Differ;
 				}
 				APPSFaultCounter++;
 				FaultFlag = 1;
@@ -152,7 +144,7 @@ uint16_t GetAcceleratorPedalPosition(int Mode)
 				// Check if implausibility occurs after 100msec
 				if(APPSFaultCounter > MAX_APPS_FAULTS)
 				{
-					APPSFaultState = FSM_APPS_Fault_State_2;
+					APPSFaultState = APPS_Fault_State_Brake_Activated;
 				}
 				APPSFaultCounter++;
 				FaultFlag = 1;
@@ -165,7 +157,7 @@ uint16_t GetAcceleratorPedalPosition(int Mode)
 			// Check if implausibility occurs after 100msec
 			if(APPSFaultCounter > MAX_APPS_FAULTS)
 			{
-				APPSFaultState = FSM_APPS_Fault_State_3;
+				APPSFaultState = APPS_Fault_State_Brake_Activated;
 			}
 			APPSFaultCounter++;
 			FaultFlag = 1;
@@ -177,14 +169,14 @@ uint16_t GetAcceleratorPedalPosition(int Mode)
 			// Check if pedal is stuck at max. torque after 10 secs
 			if(APPSFaultCounter > MAX_SATURATION_FAULTS)
 			{
-				APPSFaultState = FSM_APPS_Fault_State_4;
+				APPSFaultState = APPS_Fault_State_Stuck_Max;
 			}
 			APPSFaultCounter++;
 			FaultFlag = 1;
 		}
 		
 		// Check for "APPS / Brake Pedal Plausibility Check" fault state and ensure APPS returns to 5% pedal travel (EV2.5.1)
-		if((APPSFaultState == 3) || (APPSFaultState == 4))
+		if((APPSFaultState == APPS_Fault_State_Brake_Activated) || (APPSFaultState == APPS_Fault_State_Stuck_Max))
 		{
 			AcceleratorPedalPosition = 0;
 			if(PercentPrimaryAPPSValue < 0.05)
@@ -194,7 +186,7 @@ uint16_t GetAcceleratorPedalPosition(int Mode)
 				APPSFaultCounter = 0;
 			}
 		}
-		else if((APPSFaultState == 1 || APPSFaultState == 2) && (FaultFlag == 1))
+		else if((APPSFaultState == APPS_Fault_State_Open_Short_Circuit || APPSFaultState == APPS_Fault_State_Prim_Sec_Differ) && (FaultFlag == 1))
 		{
 			// Set pedal position to zero if in error state AND fault flag is triggered
 			// Need the fault flag check since FSM may latch onto these error states
@@ -209,7 +201,7 @@ uint16_t GetAcceleratorPedalPosition(int Mode)
 		else
 		{
 			// Reset fault variables to normal operating state
-			APPSFaultState = 0;
+			APPSFaultState = APPS_Fault_State_Normal;
 			APPSFaultCounter = 0;
 		}
 	}
