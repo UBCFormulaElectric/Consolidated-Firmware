@@ -83,7 +83,7 @@ TIM_HandleTypeDef htim17;
 /* Private variables ---------------------------------------------------------*/
 volatile GPIO_PinState dsel_state                                   = DSEL_LOW;
 volatile uint8_t e_fuse_fault_states[NUM_ADC_CHANNELS * NUM_READINGS] 
-                 = {STATIC_EFUSE};
+                 = {NORMAL_STATE};
 volatile uint32_t adc_readings[NUM_ADC_CHANNELS * NUM_READINGS];
 volatile float converted_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2];
 /* USER CODE END PV */

@@ -64,18 +64,18 @@ void FaultHandling_Handler(volatile uint8_t* fault_states, volatile float* conve
 
         // If the efuse is not in RETRY or ERROR mode and the current reading is
         // over the limit, disable efuse
-        if (fault_states[adc_channel] == STATIC_EFUSE && converted_readings[adc_channel] >= CURRENT_LIMIT) {
+        if (fault_states[adc_channel] == NORMAL_STATE && converted_readings[adc_channel] >= CURRENT_LIMIT) {
             num_faults[adc_channel]++;
             FaultHandling_CurrentFaultHandling(adc_channel, GPIO_PIN_RESET);
 
             // Has faulted fewer than max number of times
             if (num_faults[adc_channel] <= MAX_FAULTS[adc_channel]) {
-                fault_states[adc_channel] = RENABLE_EFUSE;
+                fault_states[adc_channel] = RETRY_STATE;
             } else {
                 // Special handling for specific outputs
                 if (adc_channel == R_INV_INDEX || adc_channel == L_INV_INDEX || adc_channel == CAN_INDEX || adc_channel == AIR_SHDN_INDEX) {
-                    fault_states[R_INV_INDEX] = ERROR_EFUSE;
-                    fault_states[L_INV_INDEX] = ERROR_EFUSE;
+                    fault_states[R_INV_INDEX] = ERROR_STATE;
+                    fault_states[L_INV_INDEX] = ERROR_STATE;
                     FaultHandling_CurrentFaultHandling(L_INV_INDEX, GPIO_PIN_RESET); // Disable L Inv
                     FaultHandling_CurrentFaultHandling(R_INV_INDEX, GPIO_PIN_RESET); // Disable R Inv
 
@@ -84,7 +84,7 @@ void FaultHandling_Handler(volatile uint8_t* fault_states, volatile float* conve
                     TransmitCANError(
                     MOTOR_SHUTDOWN_ERROR, Power_Distribution_Module, 0, 0);
                 }
-                fault_states[adc_channel] = ERROR_EFUSE;
+                fault_states[adc_channel] = ERROR_STATE;
 
                 // TODO  (Issue #191): CAN message implementation
                 can_error_msg =
@@ -129,10 +129,10 @@ void FaultHandling_RetryEFuse(volatile uint8_t* fault_states)
             adc_channel == VICOR_SUPPLY_INDEX)
             continue;
 
-        if (fault_states[adc_channel] == RENABLE_EFUSE) {
+        if (fault_states[adc_channel] == RETRY_STATE) {
             FaultHandling_CurrentFaultHandling(adc_channel, GPIO_PIN_SET);
-            fault_states[adc_channel] = STATIC_EFUSE;
-        } else if (fault_states[adc_channel] == ERROR_EFUSE)
+            fault_states[adc_channel] = NORMAL_STATE;
+        } else if (fault_states[adc_channel] == ERROR_STATE)
             FaultHandling_CurrentFaultHandling(adc_channel, GPIO_PIN_RESET);
     }
 }

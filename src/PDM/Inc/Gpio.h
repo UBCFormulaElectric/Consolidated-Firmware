@@ -139,12 +139,11 @@
 
 /** Efuse State */
 typedef enum {
-    // Operating as expected
-    STATIC_EFUSE = 0,
-    // Exceeded current limit but not max number of retries, in retry mode
-    RENABLE_EFUSE = 1,
-    // Exceeded max number of retries, permanently in error state
-    ERROR_EFUSE = 2
+    NORMAL_STATE = 0, /** @brief Operating as expected */
+    RETRY_STATE = 1,  /** @brief Exceeded current limit but not maximum number
+                                 of retries */
+    ERROR_STATE = 2  /** @brief Exceed maximum number of retries and is 
+                                permanently stuck in error state */
 } Efuse_State_Enum;
 
 /** 
@@ -164,7 +163,7 @@ typedef enum {
     _12V_SUPPLY_INDEX,
     VBAT_SUPPLY_INDEX,
     VICOR_SUPPLY_INDEX,
-    AUX_2_INDEX = 8,
+    AUX_2_INDEX,
     PDM_FAN_INDEX,
     CAN_INDEX,
     ACC_ENC_FAN_INDEX,
