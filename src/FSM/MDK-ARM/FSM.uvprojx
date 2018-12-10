@@ -412,6 +412,11 @@
               <FileType>1</FileType>
               <FilePath>..\Src\APPS.c</FilePath>
             </File>
+            <File>
+              <FileName>Timers.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>.\Timers.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>

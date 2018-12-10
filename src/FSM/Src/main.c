@@ -59,11 +59,10 @@ TIM_HandleTypeDef htim14;
 TIM_HandleTypeDef htim16;
 TIM_HandleTypeDef htim17;
 
-// Global variables
-extern __IO int APPSFaultState;
-
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
+// Global variables
+extern __IO int APPSFaultState;
 
 /* USER CODE END PV */
 
@@ -89,7 +88,7 @@ static void MX_IWDG_Init(void);
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
-
+volatile uint16_t APPSValue = 0;
 /**
   * @brief  The application entry point.
   *
@@ -130,14 +129,22 @@ int main(void)
   MX_CAN_Init();
   MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
-
+	
+	/* Start main control loop timer, with interrupt.*/
+	HAL_TIM_Base_Start_IT(&htim14);
+	
+	/* Start Main APPS Encoder*/
+	HAL_TIM_Encoder_Start(&htim2,TIM_CHANNEL_ALL);  
+	/* Start Secondary APPS encoder. */
+	HAL_TIM_Encoder_Start(&htim3,TIM_CHANNEL_ALL);  
+	
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+	
   while (1)
   {
-
   /* USER CODE END WHILE */
 
   /* USER CODE BEGIN 3 */
@@ -550,6 +557,9 @@ static void MX_GPIO_Init(void)
 	@param	  	None
 	@retval	 	None
 */
+
+
+
 void ControlLoop(void)
 {
 	static Motor_Shutdown_Status MotorState;
@@ -559,7 +569,7 @@ void ControlLoop(void)
 	
 	// Get sensor data
 	AcceleratorPedalPosition_16bit = GetAcceleratorPedalPosition(APPS_CONTROL_LOOP_MODE); // Only call this function in APPS_CONTROL_LOOP_MODE once in this control loop function
-
+	APPSValue = AcceleratorPedalPosition_16bit;
 	// ERROR HANDLING
 	// APPS fault when motors are on
 	if(APPSFaultState != 0 && MotorState == ON)
