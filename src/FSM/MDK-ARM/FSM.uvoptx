@@ -394,8 +394,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Inc\CANDefinitions.h</PathWithFileName>
-      <FilenameWithoutPath>CANDefinitions.h</FilenameWithoutPath>
+      <PathWithFileName>..\Inc\Apps.h</PathWithFileName>
+      <FilenameWithoutPath>Apps.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -406,8 +406,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Inc\Apps.h</PathWithFileName>
-      <FilenameWithoutPath>Apps.h</FilenameWithoutPath>
+      <PathWithFileName>..\Inc\Gpio.h</PathWithFileName>
+      <FilenameWithoutPath>Gpio.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
@@ -418,8 +418,8 @@
       <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
-      <PathWithFileName>..\Inc\Gpio.h</PathWithFileName>
-      <FilenameWithoutPath>Gpio.h</FilenameWithoutPath>
+      <PathWithFileName>..\..\shared\STM32-CAN-Code\Inc\CanDefinitions.h</PathWithFileName>
+      <FilenameWithoutPath>CanDefinitions.h</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>

@@ -11,15 +11,9 @@ const intptr_t htim14ptr =  (intptr_t)&htim14;
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 	
-			
-     switch ((intptr_t)htim->Instance)
-    {
-        case (intptr_t)TIM14 :
-            ControlLoop();
-            break;
-        default:
-            break;
-    }
+	if(htim==&htim14){
+		ControlLoop();
+	}
 
 }
 
