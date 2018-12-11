@@ -72,7 +72,7 @@ void FaultHandling_Handler(
             converted_readings[adc_channel] >= CURRENT_LIMIT)
         {
             num_faults[adc_channel]++;
-            FaultHandling_WriteEfuseState(adc_channel, EFUSE_OFF);
+            FaultHandling_ConfigureEfuseOnOff(adc_channel, EFUSE_OFF);
 
             // Has faulted fewer than max number of times
             if (num_faults[adc_channel] <= MAX_FAULTS[adc_channel])
