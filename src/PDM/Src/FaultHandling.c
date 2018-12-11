@@ -29,12 +29,12 @@ volatile uint8_t num_faults[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {0};
  * @param  index Index of e-fuse 
  * @param  state Turn e-fuse on or off
  */
-static void FaultHandling_WriteEfuseState(ADC_Index_Enum index, EfuseOnOff_GPIO_PinState state);
+static void FaultHandling_ConfigureEfuseOnOff(ADC_Index_Enum index, EfuseOnOff_GPIO_PinState state);
 
 /******************************************************************************
 * Private Function Definitions
 *******************************************************************************/
-static void FaultHandling_WriteEfuseState(ADC_Index_Enum index, EfuseOnOff_GPIO_PinState state)
+static void FaultHandling_ConfigureEfuseOnOff(ADC_Index_Enum index, EfuseOnOff_GPIO_PinState state)
 {
     if (index < NUM_ADC_CHANNELS) {
         HAL_GPIO_WritePin(PROFET2_IN0.port[index],
@@ -66,7 +66,7 @@ void FaultHandling_Handler(volatile uint8_t* fault_states, volatile float* conve
         // over the limit, disable efuse
         if (fault_states[adc_channel] == NORMAL_STATE && converted_readings[adc_channel] >= CURRENT_LIMIT) {
             num_faults[adc_channel]++;
-            FaultHandling_WriteEfuseState(adc_channel, EFUSE_OFF);
+            FaultHandling_ConfigureEfuseOnOff(adc_channel, EFUSE_OFF);
 
             // Has faulted fewer than max number of times
             if (num_faults[adc_channel] <= MAX_FAULTS[adc_channel]) {
@@ -76,8 +76,8 @@ void FaultHandling_Handler(volatile uint8_t* fault_states, volatile float* conve
                 if (adc_channel == RIGHT_INVERTER || adc_channel == LEFT_INVERTER || adc_channel == CAN_GLV || adc_channel == AIR_SHDN) {
                     fault_states[RIGHT_INVERTER] = ERROR_STATE;
                     fault_states[LEFT_INVERTER] = ERROR_STATE;
-                    FaultHandling_WriteEfuseState(LEFT_INVERTER, EFUSE_OFF);
-                    FaultHandling_WriteEfuseState(RIGHT_INVERTER, EFUSE_OFF);
+                    FaultHandling_ConfigureEfuseOnOff(LEFT_INVERTER, EFUSE_OFF);
+                    FaultHandling_ConfigureEfuseOnOff(RIGHT_INVERTER, EFUSE_OFF);
 
                     TransmitCANError(MOTOR_SHUTDOWN_ERROR, Power_Distribution_Module, 0, 0);
                 } else if (adc_channel == COOLING) {
@@ -130,9 +130,9 @@ void FaultHandling_RetryEFuse(volatile uint8_t* fault_states)
             continue;
 
         if (fault_states[adc_channel] == RETRY_STATE) {
-            FaultHandling_WriteEfuseState(adc_channel, EFUSE_ON);
+            FaultHandling_ConfigureEfuseOnOff(adc_channel, EFUSE_ON);
             fault_states[adc_channel] = NORMAL_STATE;
         } else if (fault_states[adc_channel] == ERROR_STATE)
-            FaultHandling_WriteEfuseState(adc_channel, EFUSE_OFF);
+            FaultHandling_ConfigureEfuseOnOff(adc_channel, EFUSE_OFF);
     }
 }
