@@ -105,6 +105,7 @@ static void MX_IWDG_Init(void);
 /* USER CODE BEGIN 0 */
 
 /* USER CODE END 0 */
+
 /**
   * @brief  The application entry point.
   * @retval int
@@ -154,7 +155,7 @@ int main(void)
 	
   while (1)
   {
-  /* USER CODE END WHILE */
+    /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
 

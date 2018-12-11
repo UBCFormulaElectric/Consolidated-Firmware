@@ -8,10 +8,7 @@
 
 #ifndef APPS_H
 #define APPS_H
-
-#include "stm32f0xx_it.h"
 #include "main.h"
-#include "stdint.h"
 
 
 // Maximum APPS values (calibrated to pedal box)
