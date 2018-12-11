@@ -39,19 +39,20 @@ typedef enum
     APPS_CONTROL_LOOP_MODE
 } APPS_Mode_Enum;
 
-/**
-  @brief	  Gets the latest accelerator pedal position
-    1. Reads the latest APPS (encoder) position values from TIM2 and TIM3
-    2. Checks for improperly connected APPS encoders
-    3. Checks for out-of-bounds APPS readings (outside calibrated maximum values)
-    4. Checks for implausible APPS readings (>10% difference between the primary and secondary readings as per EV2.3.6)
-    5. Checks for APPS/Brake Pedal Plausibility Check, where accelerator pedal is pushed >25% while brake is pushed (EV2.5)
-    6. Checks for accelerator pedal stuck at max. torque for longer than 10 secs
-    7. Maps the APPS readings to a 10-bit number (0 = unpressed, 1023 = fully pressed)
 
-  @param	  Mode		0 - Normal reading without affecting APPSFaultCounter
-    1 - Control loop reading (affects APPSFaultCounter)
-  @return	 Accelerator pedal position (10-bit)
+/**
+  *@brief	  Gets the latest accelerator pedal position
+    *1. Reads the latest APPS (encoder) position values from TIM2 and TIM3
+    *2. Checks for improperly connected APPS encoders
+    *3. Checks for out-of-bounds APPS readings (outside calibrated maximum values)
+    *4. Checks for implausible APPS readings (>10% difference between the primary and secondary readings as per EV2.3.6)
+    *5. Checks for APPS/Brake Pedal Plausibility Check, where accelerator pedal is pushed >25% while brake is pushed (EV2.5)
+    *6. Checks for accelerator pedal stuck at max. torque for longer than 10 secs
+    *7. Maps the APPS readings to a 10-bit number (0 = unpressed, 1023 = fully pressed)
+
+  *@param	  Mode		0 - Normal reading without affecting APPSFaultCounter
+    *1 - Control loop reading (affects APPSFaultCounter)
+  *@return	 Accelerator pedal position (10-bit)
 */
 uint16_t GetAcceleratorPedalPosition(int Mode);
 
