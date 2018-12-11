@@ -33,9 +33,9 @@
 /** @brief Number of e-fuses */
 #define NUM_EFUSES NUM_PROFET2S * NUM_EFUSES_PER_PROFET2
 
-/** 
- * @brief We have 8 ADC channels enabled, but 5 of those are connected to 
- *        PROFET 2's. Each PROFET 2 has two e-fuse channels, which means we 
+/**
+ * @brief We have 8 ADC channels enabled, but 5 of those are connected to
+ *        PROFET 2's. Each PROFET 2 has two e-fuse channels, which means we
  *        are really getting two unique ADC readings per PROFET.
  */
 #define NUM_UNIQUE_ADC_READINGS NUM_EFUSES + NUM_VOLTAGE_SENSE_PINS
@@ -139,19 +139,21 @@
 
 /** Efuse State */
 typedef enum {
-    NORMAL_STATE = 0, /** @brief Operating as expected */
-    RETRY_STATE = 1,  /** @brief Exceeded current limit but not maximum number
-                                 of retries */
-    ERROR_STATE = 2  /** @brief Exceed maximum number of retries and is 
-                                permanently stuck in error state */
+    /** @brief Operating as expected */
+    NORMAL_STATE,
+    /** @brief Exceeded current limit but not maximum number of retries */
+    RETRY_STATE,
+    /** @brief Exceed maximum number of retries and is permanently stuck in
+               error state */
+    ERROR_STATE
 } Efuse_State_Enum;
 
-/** 
+/**
  * @brief ADC Readings Indexing, corresponding to: 0 to (NUM_UNIQUE_ADC_READINGS - 1)
  *         Index 0 - 4:  E-fuses selected when DSEL = DSEL_LOW
  *         Index 5 - 7:  Voltage sense reading
  *         Index 8 - 12: E-fuses selected when DSEL = DSEL_HIGH
- *         Note: Indices 13 - 15 would have also represented voltage sense 
+ *         Note: Indices 13 - 15 would have also represented voltage sense
  *         readings, which would be redundant so they are ommited.
  */
 typedef enum {
