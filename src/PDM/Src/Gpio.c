@@ -70,7 +70,7 @@ static void GPIO_ChargerFaultHandler(void);
 /**
  * @brief Check if charging is active (Currently doesn nothing if detected)
  */
-static void GPIO_ChargingActiveHanlder(void);
+static void GPIO_ChargingActiveHandler(void);
 /**
  * @brief Some faults rely on EXTI callback catching edge-triggered interrupts
  *        to activate the appropriate handler. But if something was faulted from
@@ -134,7 +134,7 @@ static void GPIO_ChargerFaultHandler(void)
     }
 }
 
-static void GPIO_ChargingActiveHanlder(void)
+static void GPIO_ChargingActiveHandler(void)
 {
     if (GPIO_IsChargingActive())
     {
@@ -149,7 +149,7 @@ static void GPIO_CheckFaultsStartup(void)
     GPIO_PGOODFaultHandler();
     GPIO_CellBalanceOvervoltageFaultHandler();
     GPIO_ChargerFaultHandler();
-    GPIO_ChargingActiveHanlder();
+    GPIO_ChargingActiveHandler();
 }
 
 /******************************************************************************
