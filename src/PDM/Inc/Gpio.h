@@ -3,19 +3,18 @@
  * @brief GPIO Library
  */
 
-
 #ifndef GPIO_H
 #define GPIO_H
 
 /******************************************************************************
-* Includes
-*******************************************************************************/
+ * Includes
+ *******************************************************************************/
 #include "stm32f3xx_hal.h"
 #include "Can.h"
 
 /******************************************************************************
-* Preprocessor Constants
-*******************************************************************************/
+ * Preprocessor Constants
+ *******************************************************************************/
 // clang-format off
 
 // ADC Variables
@@ -126,20 +125,22 @@
 // clang-format on
 
 /** Efuse State */
-typedef enum {
+typedef enum
+{
     // Operating as expected
-    STATIC_EFUSE = 0, 
+    STATIC_EFUSE = 0,
     // Exceeded current limit but not max number of retries, in retry mode
-    RENABLE_EFUSE = 1, 
+    RENABLE_EFUSE = 1,
     // Exceeded max number of retries, permanently in error state
-    ERROR_EFUSE = 2 
+    ERROR_EFUSE = 2
 } Efuse_State_Enum;
 
 // Efuse Indexing, corresponding to: 0 to (ADC_TOTAL_READINGS_SIZE - 1)
 // Indices 0-4 correspond to DSEL_LOW Efuses and 5-7 are voltage readings
 // Indices 8-12 correspond to DSEL_HIGH Efuses
 // Note: Indices 13-15 are omitted; they are redundant with indices 5-7
-typedef enum {
+typedef enum
+{
     AUX_1_INDEX = 0,
     COOLING_INDEX,
     AIR_SHDN_INDEX,
@@ -156,65 +157,55 @@ typedef enum {
 } ADC_Index_Enum;
 
 /** TODO (Issue #191): What is this struct for */
-typedef struct {
-    uint16_t pin[ADC_CHANNEL_COUNT - VOLTAGE_SENSE_PINS];
-    GPIO_TypeDef* port[ADC_CHANNEL_COUNT - VOLTAGE_SENSE_PINS];
+typedef struct
+{
+    uint16_t      pin[ADC_CHANNEL_COUNT - VOLTAGE_SENSE_PINS];
+    GPIO_TypeDef *port[ADC_CHANNEL_COUNT - VOLTAGE_SENSE_PINS];
 } output_pinout;
 
 /******************************************************************************
-* Global Variables
-*******************************************************************************/
+ * Global Variables
+ *******************************************************************************/
 extern volatile GPIO_PinState dsel_state;
 
 // E-fuse output pin mapping
-static const output_pinout OUTPUT_0_PINOUT = {{EFUSE_AUX_1_IN_PIN,
-                                               EFUSE_COOLING_IN_PIN,
-                                               EFUSE_AIR_SHDN_IN_PIN,
-                                               EFUSE_ACC_SEG_FAN_IN_PIN,
-                                               EFUSE_LEFT_INVERTER_IN_PIN},
-                                              {EFUSE_AUX_1_IN_PORT,
-                                               EFUSE_COOLING_IN_PORT,
-                                               EFUSE_AIR_SHDN_IN_PORT,
-                                               EFUSE_ACC_SEG_FAN_IN_PORT,
-                                               EFUSE_LEFT_INVERTER_IN_PORT}};
+static const output_pinout OUTPUT_0_PINOUT = {
+    {EFUSE_AUX_1_IN_PIN, EFUSE_COOLING_IN_PIN, EFUSE_AIR_SHDN_IN_PIN,
+     EFUSE_ACC_SEG_FAN_IN_PIN, EFUSE_LEFT_INVERTER_IN_PIN},
+    {EFUSE_AUX_1_IN_PORT, EFUSE_COOLING_IN_PORT, EFUSE_AIR_SHDN_IN_PORT,
+     EFUSE_ACC_SEG_FAN_IN_PORT, EFUSE_LEFT_INVERTER_IN_PORT}};
 
-static const output_pinout OUTPUT_1_PINOUT = {{EFUSE_AUX_2_IN_PIN,
-                                               EFUSE_PDM_FAN_IN_PIN,
-                                               EFUSE_CAN_IN_PIN,
-                                               EFUSE_ACC_ENC_FAN_IN_PIN,
-                                               EFUSE_RIGHT_INVERTER_IN_PIN},
-                                              {EFUSE_AUX_2_IN_PORT,
-                                               EFUSE_PDM_FAN_IN_PORT,
-                                               EFUSE_CAN_IN_PORT,
-                                               EFUSE_ACC_ENC_FAN_IN_PORT,
-                                               EFUSE_RIGHT_INVERTER_IN_PORT}};
-
+static const output_pinout OUTPUT_1_PINOUT = {
+    {EFUSE_AUX_2_IN_PIN, EFUSE_PDM_FAN_IN_PIN, EFUSE_CAN_IN_PIN,
+     EFUSE_ACC_ENC_FAN_IN_PIN, EFUSE_RIGHT_INVERTER_IN_PIN},
+    {EFUSE_AUX_2_IN_PORT, EFUSE_PDM_FAN_IN_PORT, EFUSE_CAN_IN_PORT,
+     EFUSE_ACC_ENC_FAN_IN_PORT, EFUSE_RIGHT_INVERTER_IN_PORT}};
 
 /******************************************************************************
-* Function Prototypes
-*******************************************************************************/
+ * Function Prototypes
+ *******************************************************************************/
 /**
  * @brief  Initialize GPIO
  */
 void GPIO_Init(void);
 
 /**
- * @brief  Enable all e-fuses (that have not faulted) and their 
- *         corresponding current sense diagnostics. Only to be called after 
+ * @brief  Enable all e-fuses (that have not faulted) and their
+ *         corresponding current sense diagnostics. Only to be called after
  *         PreCharge is completed.
- * @param  fault_states Array with (NumReadings x ChannelCount) elements 
- *         which tracks outputs that need to be renabled or are permanently 
+ * @param  fault_states Array with (NumReadings x ChannelCount) elements
+ *         which tracks outputs that need to be renabled or are permanently
  *         faulted
  */
-void GPIO_ConfigurePreChargeComplete(volatile uint8_t* fault_states);
+void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states);
 
 /**
- * @brief  Enable CAN/AIR SHDN (if they are not faulted) and their 
+ * @brief  Enable CAN/AIR SHDN (if they are not faulted) and their
  *         corresponding current sense diagnostics. Disable all other outputs.
- * @param  fault_states Array with (NumReadings x ChannelCount) elements which 
+ * @param  fault_states Array with (NumReadings x ChannelCount) elements which
  *         tracks outputs that need to be renabled or are permanently faulted
  */
-void GPIO_ConfigurePowerUp(volatile uint8_t* fault_states);
+void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states);
 
 /**
  *  @brief  Select E-Fuse output for current sense (DSEL toggle)
