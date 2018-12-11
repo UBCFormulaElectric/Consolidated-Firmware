@@ -170,16 +170,6 @@
                                                          CAN_ExtID_NULL)
 #define MASKMODE_16BIT_MASK_BAMOCAR_RX INIT_MASKMODE_16BIT_FiRx(0x7F0, 0x1, 0x1, 0x0)
 
-/** Helper macros for masking incoming CAN payload based on DLC length */
-#define DLC_1_MASK 0xFF
-#define DLC_2_MASK 0xFFFF
-#define DLC_3_MASK 0xFFFFFF
-#define DLC_4_MASK 0xFFFFFFFF
-#define DLC_5_MASK 0xFFFFFFFFFF
-#define DLC_6_MASK 0xFFFFFFFFFFFF
-#define DLC_7_MASK 0xFFFFFFFFFFFFFF
-#define DLC_8_MASK 0xFFFFFFFFFFFFFFFF
-
 /******************************************************************************
 * Typedefs
 *******************************************************************************/
