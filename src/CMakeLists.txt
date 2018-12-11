@@ -121,6 +121,7 @@ foreach(MODULE_DIR ${MODULES})
 	if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${MODULE_DIR})
 		message(STATUS "Found " ${MODULE_DIR})
 	else()
+		message("-- !WARNING! No compilation flags for " ${MODULE_DIR})
 		continue()
 	endif()
 	
@@ -186,7 +187,7 @@ foreach(MODULE_DIR ${MODULES})
 	target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/${HAL_BOARD_DIR}_HAL_Driver/Inc/Legacy)
 	target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/CMSIS/Device/ST/${HAL_BOARD_DIR}/Include)
 	target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/CMSIS/Include)
-	target_include_directories(${exe_name} PRIVATE shared/STM32-CAN-Code/Inc)
+	target_include_directories(${exe_name} PRIVATE shared/*/Inc)
 
 	### Add the compiler flags ###
 	target_compile_options(${exe_name} PRIVATE $<$<COMPILE_LANGUAGE:C>:${MODULE_C_FLAGS}>)
