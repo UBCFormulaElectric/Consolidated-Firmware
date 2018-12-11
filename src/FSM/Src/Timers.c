@@ -1,10 +1,4 @@
-#include "main.h"
 #include "Timers.h"
-
-/* Initilized externally by STMCube.*/
-extern TIM_HandleTypeDef htim14;
-extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim3;
 
 
 const intptr_t htim14ptr =  (intptr_t)&htim14;

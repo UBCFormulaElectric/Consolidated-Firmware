@@ -417,6 +417,11 @@
               <FileType>1</FileType>
               <FilePath>../Src/stm32f0xx_hal_msp.c</FilePath>
             </File>
+            <File>
+              <FileName>Gpio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\Gpio.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -451,6 +456,11 @@
               <FileName>Apps.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Inc\Apps.h</FilePath>
+            </File>
+            <File>
+              <FileName>Gpio.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Inc\Gpio.h</FilePath>
             </File>
           </Files>
         </Group>
