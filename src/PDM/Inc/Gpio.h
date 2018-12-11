@@ -155,7 +155,7 @@ typedef enum {
  *         readings, which would be redundant so they are ommited.
  */
 typedef enum {
-    AUXILIARY_1 = 0,
+    AUXILIARY_1,
     COOLING,
     AIR_SHDN,
     ACC_SEGMENT_FAN,
