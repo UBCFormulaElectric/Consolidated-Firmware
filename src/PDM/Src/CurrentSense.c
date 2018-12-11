@@ -76,8 +76,8 @@ void CurrentSense_LowPassFilterADCReadings(volatile uint32_t *adc_readings)
 void CurrentSense_ConvertFilteredADCToCurrentValues(
     volatile float *converted_readings)
 {
-    uint8_t adc_channel =
-        CurrentSense_DSELShiftIndex(); // Shift index depending on DSEL state
+    // Shift index depending on DSEL state
+    uint8_t adc_channel = CurrentSense_DSELShiftIndex(); 
     uint8_t final_index = adc_channel + NUM_PROFET2S;
     for (; adc_channel < final_index; adc_channel++)
     {

@@ -137,25 +137,26 @@
 // clang-format on
 
 /** Efuse State */
-typedef enum
-{
-    NORMAL_STATE = 0, /** @brief Operating as expected */
-    RETRY_STATE  = 1, /** @brief Exceeded current limit but not maximum number
-                                 of retries */
-    ERROR_STATE = 2   /** @brief Exceed maximum number of retries and is
-                                 permanently stuck in error state */
+typedef enum {
+    /** @brief Operating as expected */
+    NORMAL_STATE,
+    /** @brief Exceeded current limit but not maximum number of retries */
+    RETRY_STATE,
+    /** @brief Exceed maximum number of retries and is permanently stuck in
+               error state */
+    ERROR_STATE
 } Efuse_State_Enum;
 
 /**
- * @brief ADC Readings Indexing, corresponding to: 0 to (NUM_UNIQUE_ADC_READINGS
- * - 1) Index 0 - 4:  E-fuses selected when DSEL = DSEL_LOW Index 5 - 7: Voltage
- * sense reading Index 8 - 12: E-fuses selected when DSEL = DSEL_HIGH Note:
- * Indices 13 - 15 would have also represented voltage sense readings, which
- * would be redundant so they are ommited.
+ * @brief ADC Readings Indexing, corresponding to: 0 to (NUM_UNIQUE_ADC_READINGS - 1)
+ *         Index 0 - 4:  E-fuses selected when DSEL = DSEL_LOW
+ *         Index 5 - 7:  Voltage sense reading
+ *         Index 8 - 12: E-fuses selected when DSEL = DSEL_HIGH
+ *         Note: Indices 13 - 15 would have also represented voltage sense
+ *         readings, which would be redundant so they are ommited.
  */
-typedef enum
-{
-    AUXILIARY_1 = 0,
+typedef enum {
+    AUXILIARY_1,
     COOLING,
     AIR_SHDN,
     ACC_SEGMENT_FAN,

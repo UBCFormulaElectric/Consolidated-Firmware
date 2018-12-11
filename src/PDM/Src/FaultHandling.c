@@ -27,32 +27,25 @@ volatile uint8_t num_faults[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {0};
  *******************************************************************************/
 /**
  * @brief  Helper function to turn e-fuse on or off
- * @param  index Index of e-fuse
+ * @param  index Index of e-fuse 
  * @param  state Turn e-fuse on or off
  */
-static void FaultHandling_WriteEfuseState(
-    ADC_Index_Enum            index,
-    Efuse_OnOff_GPIO_PinState state);
+static void FaultHandling_ConfigureEfuseOnOff(ADC_Index_Enum index, EfuseOnOff_GPIO_PinState state);
 
 /******************************************************************************
- * Private Function Definitions
- *******************************************************************************/
-static void FaultHandling_WriteEfuseState(
-    ADC_Index_Enum            index,
-    Efuse_OnOff_GPIO_PinState state)
+* Private Function Definitions
+*******************************************************************************/
+static void FaultHandling_ConfigureEfuseOnOff(ADC_Index_Enum index, EfuseOnOff_GPIO_PinState state)
 {
-    if (index < NUM_ADC_CHANNELS)
-    {
-        HAL_GPIO_WritePin(
-            PROFET2_IN0.port[index], PROFET2_IN0.pin[index],
-            (GPIO_PinState)state);
-    }
-    else
-    {
+    if (index < NUM_ADC_CHANNELS) {
+        HAL_GPIO_WritePin(PROFET2_IN0.port[index],
+                          PROFET2_IN0.pin[index],
+                          (GPIO_PinState)state);
+    } else {
         index = index - NUM_ADC_CHANNELS; // adjust index for pinout array
-        HAL_GPIO_WritePin(
-            PROFET2_IN1.port[index], PROFET2_IN1.pin[index],
-            (GPIO_PinState)state);
+        HAL_GPIO_WritePin(PROFET2_IN1.port[index],
+                          PROFET2_IN1.pin[index],
+                          (GPIO_PinState)state);
     }
 }
 
@@ -95,8 +88,9 @@ void FaultHandling_Handler(
                 {
                     fault_states[RIGHT_INVERTER] = ERROR_STATE;
                     fault_states[LEFT_INVERTER]  = ERROR_STATE;
-                    FaultHandling_WriteEfuseState(LEFT_INVERTER, EFUSE_OFF);
-                    FaultHandling_WriteEfuseState(RIGHT_INVERTER, EFUSE_OFF);
+                    FaultHandling_ConfigureEfuseOnOff(LEFT_INVERTER, EFUSE_OFF);
+                    FaultHandling_ConfigureEfuseOnOff(RIGHT_INVERTER, EFUSE_OFF);
+
                     Can_BroadcastMotorShutdownError();
                 }
                 else if (adc_channel == COOLING)
@@ -154,10 +148,10 @@ void FaultHandling_RetryEFuse(volatile uint8_t *fault_states)
 
         if (fault_states[adc_channel] == RETRY_STATE)
         {
-            FaultHandling_WriteEfuseState(adc_channel, EFUSE_ON);
+            FaultHandling_ConfigureEfuseOnOff(adc_channel, EFUSE_ON);
             fault_states[adc_channel] = NORMAL_STATE;
         }
         else if (fault_states[adc_channel] == ERROR_STATE)
-            FaultHandling_WriteEfuseState(adc_channel, EFUSE_OFF);
+            FaultHandling_ConfigureEfuseOnOff(adc_channel, EFUSE_OFF);
     }
 }
