@@ -2,6 +2,7 @@
 #include "main.h"
 #include "CanDefinitions.h"
 
+
 volatile uint32_t APPSFaultCounter =
     0; // Used to "time" when to trigger a fault
 volatile uint32_t APPSFaultState =
@@ -11,10 +12,10 @@ volatile uint32_t APPS_BPPC_FLAG =
 
 uint16_t GetAcceleratorPedalPosition(int Mode)
 {
-    float RawPrimaryAPPSValue       = 0.0;
-    float RawSecondaryAPPSValue     = 0.0;
-    float PercentPrimaryAPPSValue   = 0.0;
-    float PercentSecondaryAPPSValue = 0.0;
+    float32_t RawPrimaryAPPSValue       = 0.0;
+    float32_t RawSecondaryAPPSValue     = 0.0;
+    float32_t PercentPrimaryAPPSValue   = 0.0;
+    float32_t PercentSecondaryAPPSValue = 0.0;
 
     int      TemporaryAPPSFaultCounter = 0;
     uint8_t  FaultFlag                 = 0;
@@ -33,8 +34,8 @@ uint16_t GetAcceleratorPedalPosition(int Mode)
     else
     {
         // Read latest APPS position values, from timer counter.
-        RawPrimaryAPPSValue   = (float)TIM2->CNT;
-        RawSecondaryAPPSValue = 65535 - (float)TIM3->CNT;
+        RawPrimaryAPPSValue   = (float32_t)TIM2->CNT;
+        RawSecondaryAPPSValue = 65535 - (float32_t)TIM3->CNT;
 
         // Set a deadzone to handle underflow
         if (((65535 - RawPrimaryAPPSValue) < PRIMARY_APPS_DEADZONE) ||

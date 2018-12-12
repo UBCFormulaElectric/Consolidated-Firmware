@@ -6,28 +6,33 @@
 
 #ifndef APPS_H
 #define APPS_H
+
+/******************************************************************************
+ * Includes
+ ******************************************************************************/
 #include "main.h"
+#include "arm_math.h" 
 
 // Maximum APPS values (calibrated to pedal box)
-#define PRIMARY_APPS_MAX_VALUE (float)1400
-#define SECONDARY_APPS_MAX_VALUE (float)1950
+#define PRIMARY_APPS_MAX_VALUE (float32_t)1400
+#define SECONDARY_APPS_MAX_VALUE (float32_t)1950
 
-#define APPS_PERCENT_DEADZONE (float)0.03
+#define APPS_PERCENT_DEADZONE (float32_t)0.03
 #define PRIMARY_APPS_DEADZONE \
-    (float)PRIMARY_APPS_MAX_VALUE *APPS_PERCENT_DEADZONE
+    (float32_t)PRIMARY_APPS_MAX_VALUE *APPS_PERCENT_DEADZONE
 #define SECONDARY_APPS_DEADZONE \
-    (float)SECONDARY_APPS_MAX_VALUE *APPS_PERCENT_DEADZONE
+    (float32_t)SECONDARY_APPS_MAX_VALUE *APPS_PERCENT_DEADZONE
 
 // Accelerator pedal saturation point (%)
-#define PEDAL_SATURATION_POINT (float)0.80
-#define PEDAL_RELEASE_POINT (float)0.04
+#define PEDAL_SATURATION_POINT (float32_t)0.80
+#define PEDAL_RELEASE_POINT (float32_t)0.04
 
 // Fault handling variables
 #define PEDAL_SATURATION_TIMEOUT (int)10     // (sec)
-#define APPS_IMPLAUSIBILITY_DELAY (float)1.0 // (sec)
-#define APPS_BPPC_THRESHOLD (float)0.25      // (decimal %)
+#define APPS_IMPLAUSIBILITY_DELAY (float32_t)1.0 // (sec)
+#define APPS_BPPC_THRESHOLD (float32_t)0.25      // (decimal %)
 #define MAX_APPS_FAULTS \
-    (float)APPS_IMPLAUSIBILITY_DELAY *(float)CONTROL_LOOP_FREQUENCY
+    (float32_t)APPS_IMPLAUSIBILITY_DELAY *(float32_t)CONTROL_LOOP_FREQUENCY
 #define MAX_SATURATION_FAULTS \
     (int)PEDAL_SATURATION_TIMEOUT *(int)CONTROL_LOOP_FREQUENCY
 
