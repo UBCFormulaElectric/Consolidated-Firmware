@@ -5,7 +5,7 @@
 volatile uint32_t APPSFaultCounter =
     0; // Used to "time" when to trigger a fault
 volatile uint32_t APPSFaultState =
-    0; // Used to send error CAN messages and track faults
+    FSM_APPS_NORMAL_OPERATION; // Used to send error CAN messages and track faults
 volatile uint32_t APPS_BPPC_FLAG =
     0; // Used to trigger the APPS / Brake Pedal Plausibility Check
 
@@ -169,7 +169,7 @@ uint16_t GetAcceleratorPedalPosition(int Mode)
             if (PercentPrimaryAPPSValue < 0.05)
             {
                 // Reset fault variables to normal operational state
-                APPSFaultState   = 0;
+                APPSFaultState   = FSM_APPS_NORMAL_OPERATION;
                 APPSFaultCounter = 0;
             }
         }
@@ -187,7 +187,7 @@ uint16_t GetAcceleratorPedalPosition(int Mode)
         {
             // Keep fault state at normal operation
             // BUT allow APPSFaultCounter to increase
-            APPSFaultState = 0;
+            APPSFaultState = FSM_APPS_NORMAL_OPERATION;
         }
         else
         {
