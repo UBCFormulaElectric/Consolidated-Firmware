@@ -69,7 +69,7 @@ void FaultHandling_Handler(
         // If the efuse is not in RETRY or ERROR mode and the current reading is
         // over the limit, disable efuse
         if (fault_states[adc_channel] == NORMAL_STATE &&
-            converted_readings[adc_channel] >= CURRENT_LIMIT)
+            converted_readings[adc_channel] >= EFUSE_CURRENT_LIMIT)
         {
             num_faults[adc_channel]++;
             FaultHandling_ConfigureEfuseOnOff(adc_channel, EFUSE_OFF);
