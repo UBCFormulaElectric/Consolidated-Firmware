@@ -7,14 +7,14 @@
 #define TIMERS_H
 
 /******************************************************************************
-* Includes
-*******************************************************************************/
+ * Includes
+ *******************************************************************************/
 #include "FaultHandling.h"
 #include "stm32f3xx_hal.h"
 
 /******************************************************************************
-* Preprocessor Constants
-*******************************************************************************/
+ * Preprocessor Constants
+ *******************************************************************************/
 // clang-format off
 
 /******************************************************************************
@@ -27,8 +27,8 @@
 // clang-format on
 
 /******************************************************************************
-* Global Variables
-*******************************************************************************/
+ * Global Variables
+ *******************************************************************************/
 // TODO  (Issue #191): Should include header for TIM_HandleTypeDef externs
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim6;
@@ -38,11 +38,11 @@ extern volatile GPIO_PinState dsel_state;
 extern volatile uint8_t e_fuse_fault_states[ADC_CHANNEL_COUNT * NUM_READINGS];
 
 /******************************************************************************
-* Function Prototypes
-*******************************************************************************/
+ * Function Prototypes
+ *******************************************************************************/
 // TODO  (Issue #191): This should moved into MX_TIMERS_INIT() probably
 /**
- * @brief Initialize Timers 
+ * @brief Initialize Timers
  */
 void Timers_Init(void);
 
