@@ -3,14 +3,14 @@
 /**
  *@brief Turns on the Red LED
  */
-void GPIO_TurnOnRedLed();
+void GPIO_TurnOnRedLed(void);
 /**
  *@brief Turns on the Blue LED
  */
-void GPIO_TurnOnBlueLed();
+void GPIO_TurnOnBlueLed(void);
 /**
  *@brief Turns on the Green LED
  */
-void GPIO_TurnOnGreenLed();
+void GPIO_TurnOnGreenLed(void);
 
 #endif

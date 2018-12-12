@@ -1,21 +1,21 @@
 #include "Gpio.h"
 #include "main.h"
 
-void GPIO_TurnOnRedLed()
+void GPIO_TurnOnRedLed(void)
 {
     HAL_GPIO_WritePin(STATUS_R_GPIO_Port, STATUS_R_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(STATUS_G_GPIO_Port, STATUS_G_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(STATUS_B_GPIO_Port, STATUS_B_Pin, GPIO_PIN_SET);
 }
 
-void GPIO_TurnOnGreenLed()
+void GPIO_TurnOnGreenLed(void)
 {
     HAL_GPIO_WritePin(STATUS_G_GPIO_Port, STATUS_G_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(STATUS_R_GPIO_Port, STATUS_R_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(STATUS_B_GPIO_Port, STATUS_B_Pin, GPIO_PIN_SET);
 }
 
-void GPIO_TurnOnBlueLed()
+void GPIO_TurnOnBlueLed(void)
 {
     HAL_GPIO_WritePin(STATUS_B_GPIO_Port, STATUS_B_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(STATUS_R_GPIO_Port, STATUS_R_Pin, GPIO_PIN_SET);

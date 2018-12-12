@@ -1,6 +1,6 @@
 #include "Apps.h"
 #include "main.h"
-#include "CANDefinitions.h"
+#include "CanDefinitions.h"
 
 volatile uint32_t APPSFaultCounter =
     0; // Used to "time" when to trigger a fault
