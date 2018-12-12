@@ -1,3 +1,8 @@
+/**
+ * @file  Timer.h
+ * @brief Contains GPIO initilizing and control code.
+ */
+
 #ifndef GPIO_H
 #define GPIO_H
 /**
@@ -13,4 +18,4 @@ void GPIO_TurnOnBlueLed(void);
  */
 void GPIO_TurnOnGreenLed(void);
 
-#endif
+#endif /* GPIO_H */

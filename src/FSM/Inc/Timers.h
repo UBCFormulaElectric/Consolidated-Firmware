@@ -1,6 +1,14 @@
+/**
+ * @file  Timer.h
+ * @brief Contains initiallizing code for timers.
+ */
 #ifndef TIMERS_H
 #define TIMERS_H
 
+
+/******************************************************************************
+ * Includes
+ ******************************************************************************/
 #include "main.h"
 
 /**
@@ -9,4 +17,4 @@
  */
 void Timers_StartTimers();
 
-#endif
+#endif /* TIMERS_H */
