@@ -17,18 +17,6 @@
 extern volatile GPIO_PinState dsel_state;
 static float filtered_adc_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {0};
 
-// LPF constants (calculated using this article:
-// https://en.wikipedia.org/wiki/Low-pass_filter#Discrete-time_realization)
-static const float ADC_TRIGGER_FREQUENCY =
-5000.0f; // ADC sampling frequency - 72MHz/14400 (TIM2 prescaler value)
-static const float DELTA            = 1.0f / ADC_TRIGGER_FREQUENCY;
-static const float CUTOFF_FREQUENCY = 10.0f; // 10Hz cutoff to account for false
-                                             // tripping from inrush - see
-                                             // SoftwareTools for data
-static const float RC        = 1.0f / (2.0f * 3.14159265f * CUTOFF_FREQUENCY);
-static const float LPF_ALPHA = DELTA / (RC + DELTA);
-
-
 /******************************************************************************
 * Private Function Prototypes
 *******************************************************************************/
@@ -80,7 +68,7 @@ void CurrentSense_ConvertFilteredADCToCurrentValues(volatile float* converted_re
     adc_channel++;
 
     converted_readings[FLYWIRE] =
-    filtered_adc_readings[adc_channel] * EN2_TO_12VACC * VDDA_VOLTAGE /
+    filtered_adc_readings[adc_channel] * EN2_TO_12VACC_RATIO * VDDA_VOLTAGE /
     ADC_12_BIT_POINTS;
 }
 
