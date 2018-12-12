@@ -121,7 +121,7 @@ foreach(MODULE_DIR ${MODULES})
 	if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${MODULE_DIR})
 		message(STATUS "Found " ${MODULE_DIR})
 	else()
-		message("-- !WARNING! No compilation flags for " ${MODULE_DIR})
+		message("WARNING! No directory found for " ${MODULE_DIR})
 		continue()
 	endif()
 	
@@ -159,6 +159,7 @@ foreach(MODULE_DIR ${MODULES})
 		set(HAL_BOARD_DIR STM32F3xx)
 	
 	else()
+		message("WARNING! No compilation flags for " ${MODULE_DIR})
 		continue()
 	endif()
 
@@ -176,9 +177,14 @@ foreach(MODULE_DIR ${MODULES})
 	###  SOURCE FILES  ###
 	# Get all the *.c files and *.s files
 	file(GLOB_RECURSE SRC_C_FILES ${MODULE_DIR}/*.c)
+	
+	# Grab the bootloader file. There is only one assembly file required: startup_stm32fxxxxxx.s 
+	# Keil-generated startup assembly files are written in ARM assembly syntax instead of the GCC syntax, 
+	# which CMake relies on. GCC syntax files, generated from STMCube, have been appended with '_gcc' and
+	# added to the source file lists.
 	file(GLOB_RECURSE SRC_ASM_FILES ${MODULE_DIR}/*_gcc.s)
 
-	# Create the project executable 
+	### PROJECT EXECUTABLE ###
 	add_executable(${exe_name} ${SRC_C_FILES} ${SRC_ASM_FILES} ${SHARED_UTIL_SRC})
 
 	###  INCLUDE DIRECTORIES  ###
@@ -187,12 +193,14 @@ foreach(MODULE_DIR ${MODULES})
 	target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/${HAL_BOARD_DIR}_HAL_Driver/Inc/Legacy)
 	target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/CMSIS/Device/ST/${HAL_BOARD_DIR}/Include)
 	target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/CMSIS/Include)
-	target_include_directories(${exe_name} PRIVATE shared/*/Inc)
+	target_include_directories(${exe_name} PRIVATE shared/STM32-CAN-Code/Inc)
 
-	### Add the compiler flags ###
+	### COMPILER FLAGS ###
+	# Add the compiler flags
 	target_compile_options(${exe_name} PRIVATE $<$<COMPILE_LANGUAGE:C>:${MODULE_C_FLAGS}>)
 	target_compile_options(${exe_name} PRIVATE $<$<COMPILE_LANGUAGE:ASM>:${MODULE_ASM_FLAGS}>)
 	
+	### TARGET LINKER OPTION ###
 	# Add the command-line linker options for the target
 	target_link_libraries(${exe_name} 
 	    "-Wl,--gc-sections \
