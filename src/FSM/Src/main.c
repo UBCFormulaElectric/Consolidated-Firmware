@@ -659,13 +659,6 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-/**
- @brief    Main control loop
-    1. Transmits CAN messages containing the accelerator pedal position, front
- wheel speeds, and steering angle
- @param	  	None
- @return	 	None
-*/
 
 void ControlLoop(void)
 {
