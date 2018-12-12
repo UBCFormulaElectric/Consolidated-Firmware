@@ -69,7 +69,7 @@
 #define UNDERVOLTAGE_GLV_THRES (float32_t)(11.0f)
 
 /** @brief  Diode-OR controller switches back to 12V_AUX when 12V_ACC < 10.2V,
- *          so we set undervoltage limit to 10.5V for a safety margin */
+ *          so we set undervoltage limit to 10.5V for a safety margin of 0.3V*/
 #define UNDERVOLTAGE_VICOR_THRES (float32_t)(10.5f)
 
 /** @brief LPF constants (calculated using this article:
