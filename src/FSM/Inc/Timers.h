@@ -9,7 +9,8 @@ extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
 
 /**
-  * @brief  Initializes timers; using the appropriate HAL functions, params, and settings.
+ * @brief  Initializes timers; using the appropriate HAL functions, params, and
+ * settings.
  */
 void Timers_StartTimers();
 
