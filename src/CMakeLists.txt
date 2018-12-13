@@ -1,12 +1,31 @@
 project(FORMULA_E C ASM)
 cmake_minimum_required(VERSION 3.2)
 
-###################################################################################
-##                                                                                #
-##                        Append the list of module directories                   #
-##     WARNING! Ensure module name in the string list matches directory name!     #
-##                                                                                #
-###################################################################################
+##############################################
+###                                        ###
+###           Utility Functions            ###
+###                                        ###
+##############################################
+
+MACRO(SUBDIRLIST result curdir)
+  FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
+  SET(dirlist "")
+  FOREACH(child ${children})
+    IF(IS_DIRECTORY ${curdir}/${child})
+      LIST(APPEND dirlist ${child})
+    ENDIF()
+  ENDFOREACH()
+  SET(${result} ${dirlist})
+ENDMACRO()
+
+################################################################################
+##                                                                             #
+##                         CODE COMPILATION BEGINS HERE                        #
+##                                                                             #
+##                      Append the list of module directories                  #
+##    WARNING! Ensure module name in the string list matches directory name!   #
+##                                                                             #
+################################################################################
 
 set(MODULES "PDM FSM DCM BMS")
 
@@ -193,7 +212,10 @@ foreach(MODULE_DIR ${MODULES})
 	target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/${HAL_BOARD_DIR}_HAL_Driver/Inc/Legacy)
 	target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/CMSIS/Device/ST/${HAL_BOARD_DIR}/Include)
 	target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/CMSIS/Include)
-	target_include_directories(${exe_name} PRIVATE shared/STM32-CAN-Code/Inc)
+	SUBDIRLIST(SHARED_SUBDIRS ${CMAKE_CURRENT_SOURCE_DIR}/shared/)
+	FOREACH(shared_lib_dir ${SHARED_SUBDIRS})
+		target_include_directories(${exe_name} PRIVATE shared/${shared_lib_dir}/Inc)	
+	ENDFOREACH()
 
 	### COMPILER FLAGS ###
 	# Add the compiler flags
