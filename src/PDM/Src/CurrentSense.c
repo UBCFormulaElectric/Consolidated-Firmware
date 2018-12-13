@@ -68,7 +68,7 @@ void CurrentSense_ConvertFilteredADCToCurrentValues(volatile float* converted_re
     adc_channel++;
 
     converted_readings[FLYWIRE] =
-    filtered_adc_readings[adc_channel] * EN2_TO_12VACC_RATIO * VDDA_VOLTAGE /
+    filtered_adc_readings[adc_channel] * ADC1_IN10_TO_12V_ACC_RATIO * VDDA_VOLTAGE /
     ADC_12_BIT_POINTS;
 }
 
