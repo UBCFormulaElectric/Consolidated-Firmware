@@ -25,50 +25,57 @@
 *******************************************************************************/
 
 /**
- * @brief  Check if the PGOOD fault is active
+ * @brief  Check if the PGOOD fault condition of boost controller (LTC3786)
+ *         is active
  * @return true Active fault
  *         false No Fault
  */
-static bool GPIO_IsPGOODFaultActive(void);
+static bool GPIO_IsBoostPgoodFaultActive(void);
 
 /**
- * @brief  Check if the cell balance overvoltage fault is active
+ * @brief  Check if the overvoltage fault of cell balance IC (BQ29209) is active
  * @return true Active fault
  *         false No fault
  */
 static bool GPIO_IsCellBalanceOvervoltageFaultActive(void);
 
 /**
- * @brief  Check if the Li-Ion battery charger (LT3650-8.4) is active
+ * @brief  Check if the charging process of Li-Ion battery charger (LT3650-8.4)
+ *         is active
  * @return true Active charging
  *         false No charging
  */
 static bool GPIO_IsChargingActive(void);
 /**
- * @brief  Check if the Li-Ion battery charger (LT3650-8.4) has faulted
+ * @brief  Check if the fault condition Li-Ion battery charger (LT3650-8.4)
+ *         is active
  * @return true Active fault
  *         false No fault
  */
 static bool GPIO_IsChargerFaultActive(void);
 
 /**
- * @brief Check for PGOOD fault and broadcast error over CAN if needed
+ * @brief Check if the PGOOD fault of boost controller (LTC3786) is active and
+ *        broadcast error over CAN if needed
  */
-static void GPIO_PGOODFaultHandler(void);
+static void GPIO_BoostPgoodFaultHandler(void);
 
 /**
- * @brief Check for cell balance overvoltage fault and broadcast error over CAN
- *        if needed
+ * @brief Check if the overvoltage fault of cell balance IC (BQ29209)
+ *        and broadcast error over CAN if needed
  */
 static void GPIO_CellBalanceOvervoltageFaultHandler(void);
 
 /**
- * @brief Check for charger fault and broadcast error over CAN if needed
+ * @brief Check if the fault condition of Li-Ion battery charger (LTC3650-8.4)
+ *        is active and broadcast error over CAN if needed
+ *
  */
 static void GPIO_ChargerFaultHandler(void);
 
 /**
- * @brief Check if charging is active (Currently doesn nothing if detected)
+ * @brief Check if the charging process of Li-Ion battery charger (LTC3650-8.4)
+ *        is active (Currently doesn nothing if detected)
  */
 static void GPIO_ChargingActiveHandler(void);
 /**
@@ -85,7 +92,7 @@ static void GPIO_CheckFaultsStartup(void);
 /******************************************************************************
 * Private Function Definitions
 *******************************************************************************/
-static bool GPIO_IsPGOODFaultActive(void)
+static bool GPIO_IsBoostPgoodFaultActive(void)
 {
     return HAL_GPIO_ReadPin(BOOST_PGOOD_PORT, BOOST_PGOOD_PIN) ==
            BOOST_PGOOD_FAULT_STATE;
@@ -110,9 +117,9 @@ static bool GPIO_IsChargerFaultActive(void)
            CHARGER_FAULT_STATE;
 }
 
-static void GPIO_PGOODFaultHandler(void)
+static void GPIO_BoostPgoodFaultHandler(void)
 {
-    if (GPIO_IsPGOODFaultActive())
+    if (GPIO_IsBoostPgoodFaultActive())
     {
         Can_BroadcastPdmErrors(BOOST_PGOOD_FAULT);
     }
@@ -146,7 +153,7 @@ static void GPIO_ChargingActiveHandler(void)
 
 static void GPIO_CheckFaultsStartup(void)
 {
-    GPIO_PGOODFaultHandler();
+    GPIO_BoostPgoodFaultHandler();
     GPIO_CellBalanceOvervoltageFaultHandler();
     GPIO_ChargerFaultHandler();
     GPIO_ChargingActiveHandler();
@@ -279,7 +286,7 @@ void HAL_GPIO_EXTI_Callback(uint16_t gpio_pin)
             GPIO_CellBalanceOvervoltageFaultHandler();
             break;
         case BOOST_PGOOD_PIN:
-            GPIO_PGOODFaultHandler();
+            GPIO_BoostPgoodFaultHandler();
             break;
         default:
             break;
