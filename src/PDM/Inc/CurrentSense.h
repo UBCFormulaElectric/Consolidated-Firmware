@@ -142,17 +142,17 @@
 #define ADC_TRIGGER_FREQUENCY  (float32_t)(72000000.0f / 14400.0f)
 
 /** @brief Sampling time interval */
-#define LPF_DELTA              (float32_t)(1.0f / ADC_TRIGGER_FREQUENCY)
+#define DELTA              (float32_t)(1.0f / ADC_TRIGGER_FREQUENCY)
 
 /** @brief 10Hz cutoff to account for false tripping from inrush (See
  *         SoftwareTools for data) */
-#define LPF_CUTOFF_FREQUENCY   (float32_t)(10.0f)
+#define CUTOFF_FREQUENCY   (float32_t)(10.0f)
 
 /** @brief RC time constant */
-#define LPF_RC                 (float32_t)(1.0f / (2.0f * PI * LPF_CUTOFF_FREQUENCY))
+#define RC                 (float32_t)(1.0f / (2.0f * PI * CUTOFF_FREQUENCY))
 
 /** @brief ALPHA constant */
-#define LPF_ALPHA              (float32_t)(LPF_DELTA / (LPF_RC + LPF_DELTA))
+#define ALPHA              (float32_t)(DELTA / (RC + DELTA))
 
 /** @} */ /* End defgroup LPF */
 
@@ -219,7 +219,7 @@ static const uint8_t MAX_FAULTS[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] =
 *******************************************************************************/
 /**
  * @brief Low pass filters ADC readings with a cutoff frequency of
- *        LPF_CUTOFF_FREQUENCY
+ *        CUTOFF_FREQUENCY
  * @param adc_readings Pointer to array containing the unfiltered ADC readings
  */
 void CurrentSense_LowPassFilterADCReadings(volatile uint32_t *adc_readings);

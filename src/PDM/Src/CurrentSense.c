@@ -47,7 +47,7 @@ void CurrentSense_LowPassFilterADCReadings(volatile uint32_t* adc_readings) {
     uint8_t final_index = adc_channel + NUM_ADC_CHANNELS;
     uint8_t adc_index   = NUM_ADC_CHANNELS;
     for (; adc_channel < final_index; adc_channel++) {
-        filtered_adc_readings[adc_channel] = filtered_adc_readings[adc_channel] + (LPF_ALPHA * (adc_readings[adc_index] - filtered_adc_readings[adc_channel]));
+        filtered_adc_readings[adc_channel] = filtered_adc_readings[adc_channel] + (ALPHA * (adc_readings[adc_index] - filtered_adc_readings[adc_channel]));
         adc_index++;
     }
 }
