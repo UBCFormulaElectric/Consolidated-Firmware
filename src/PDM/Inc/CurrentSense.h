@@ -17,15 +17,18 @@
 * Preprocessor Constants
 *******************************************************************************/
 // clang-format off
-/** @brief AUX Current Sense first reading is consistently incorrect (reads > 0 when
-           there is no current), take second reading as workaround */
+/** @brief AUX Current Sense first reading is consistently incorrect (reads > 0
+ *         when there is no current), take second reading as workaround */
 #define NUM_READINGS_PER_ADC_DMA_TRANSFER 2
 
+/** @brief Power supply for ADC */
 #define VDDA_VOLTAGE  (float32_t)(3.3f)
 
-/**  @brief 2 Li-Ion cells in series, each with 4.2 peak voltage */
+/** @brief 2 Li-Ion cells in series, each with 4.2 peak voltage */
 #define VBAT_VOLTAGE (float32_t)(8.4f)
 
+/** @brief Grounded Low Voltage (GLV) refers to the voltage level used for the
+ *         vehicle's low voltage systems */
 #define GLV_VOLTAGE  (float32_t)(12.0f)
 
 /** Issue (#224): Maybe move this to shared folder? */
