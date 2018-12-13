@@ -169,20 +169,20 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
 	// E-Fuse AUX 1/2
 	if(fault_states[AUXILIARY_1] == NORMAL_STATE){
 		HAL_GPIO_WritePin(EFUSE_AUX_1_IN_PORT, EFUSE_AUX_1_IN_PIN, GPIO_PIN_SET);
-    }
+	}
 	if(fault_states[AUXILIARY_2] == NORMAL_STATE){
 		HAL_GPIO_WritePin(EFUSE_AUX_2_IN_PORT, EFUSE_AUX_2_IN_PIN, GPIO_PIN_SET);
 	}
     HAL_GPIO_WritePin(EFUSE_AUX_DEN_PORT, EFUSE_AUX_DEN_PIN, GPIO_PIN_SET);
 
 	// E-Fuse PDM Fan/Cooling
-	if(fault_states[PDM_FAN] == NORMAL_STATE)
-	{
-		HAL_GPIO_WritePin(EFUSE_PDM_FAN_IN_PORT, EFUSE_PDM_FAN_IN_PIN, GPIO_PIN_SET);
+	if(fault_states[PDM_FAN] == NORMAL_STATE){
+		HAL_GPIO_WritePin(
+		EFUSE_PDM_FAN_IN_PORT, EFUSE_PDM_FAN_IN_PIN, GPIO_PIN_SET);
 	}
-	if(fault_states[COOLING] == NORMAL_STATE)
-	{
-		HAL_GPIO_WritePin(EFUSE_COOLING_IN_PORT, EFUSE_COOLING_IN_PIN, GPIO_PIN_SET);
+	if(fault_states[COOLING] == NORMAL_STATE){
+		HAL_GPIO_WritePin(
+		EFUSE_COOLING_IN_PORT, EFUSE_COOLING_IN_PIN, GPIO_PIN_SET);
 	}
     HAL_GPIO_WritePin(
     EFUSE_FAN_COOLING_DEN_PORT, EFUSE_FAN_COOLING_DEN_PIN, GPIO_PIN_SET);
@@ -210,7 +210,7 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
 	// E-Fuse Inverter
 	if(fault_states[LEFT_INVERTER] == NORMAL_STATE){
 		HAL_GPIO_WritePin(EFUSE_LEFT_INVERTER_IN_PORT, EFUSE_LEFT_INVERTER_IN_PIN, GPIO_PIN_SET);
-    }
+	}
 	if(fault_states[RIGHT_INVERTER] == NORMAL_STATE){
 		HAL_GPIO_WritePin(EFUSE_RIGHT_INVERTER_IN_PORT, EFUSE_RIGHT_INVERTER_IN_PIN, GPIO_PIN_SET);
 	}
@@ -218,7 +218,7 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
     HAL_GPIO_WritePin(
     EFUSE_INVERTER_DEN_PORT, EFUSE_INVERTER_DEN_PIN, GPIO_PIN_SET);
 }
-void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states) {
+void GPIO_ConfigurePowerUp(volatile uint8_t* fault_states) {
     // E-Fuse AUX 1/2
     HAL_GPIO_WritePin(EFUSE_AUX_1_IN_PORT, EFUSE_AUX_1_IN_PIN, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(EFUSE_AUX_2_IN_PORT, EFUSE_AUX_2_IN_PIN, GPIO_PIN_RESET);
@@ -259,8 +259,7 @@ void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states) {
     EFUSE_RIGHT_INVERTER_IN_PORT, EFUSE_RIGHT_INVERTER_IN_PIN, GPIO_PIN_RESET);
 }
 
-void GPIO_EFuseSelectDSEL(GPIO_PinState dsel_value)
-{
+void GPIO_EFuseSelectDSEL(GPIO_PinState dsel_value) {
     HAL_GPIO_WritePin(EFUSE_AUX_DSEL_PORT, EFUSE_AUX_DSEL_PIN, dsel_value);
     HAL_GPIO_WritePin(
     EFUSE_FAN_COOLING_DSEL_PORT, EFUSE_FAN_COOLING_DSEL_PIN, dsel_value);
