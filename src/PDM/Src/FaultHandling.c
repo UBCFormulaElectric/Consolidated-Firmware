@@ -26,7 +26,7 @@ volatile uint8_t num_faults[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {0};
  *****************************************************************************/
 /**
  * @brief  Helper function to turn e-fuse on or off
- * @param  index Index of e-fuse 
+ * @param  index Index of e-fuse
  * @param  state Turn e-fuse on or off
  */
 static void
