@@ -83,7 +83,7 @@ static void GPIO_ChargingActiveHandler(void);
 static void GPIO_CheckFaultsStartup(void);
 
 /******************************************************************************
- * Private Function Definitions
+* Private Function Definitions
 *******************************************************************************/
 static bool GPIO_IsPGOODFaultActive(void)
 {
@@ -153,7 +153,7 @@ static void GPIO_CheckFaultsStartup(void)
 }
 
 /******************************************************************************
- * Function Definitions
+* Function Definitions
 *******************************************************************************/
 void GPIO_Init(void)
 {
