@@ -155,7 +155,7 @@ static void GPIO_CheckFaultsStartup(void)
 /******************************************************************************
 * Function Definitions
 *******************************************************************************/
-void GPIO_Init(void){
+void GPIO_Init(void) {
     // Start DSELs at output 0
     GPIO_EFuseSelectDSEL(DSEL_LOW);
 
@@ -163,7 +163,7 @@ void GPIO_Init(void){
     GPIO_CheckFaultsStartup();
 }
 
-void GPIO_ConfigurePreChargeComplete(volatile uint8_t* fault_states){
+void GPIO_ConfigurePreChargeComplete(volatile uint8_t* fault_states) {
 	// E-Fuse AUX 1/2
 	if(fault_states[AUXILIARY_1] == NORMAL_STATE){
 		HAL_GPIO_WritePin(EFUSE_AUX_1_IN_PORT, EFUSE_AUX_1_IN_PIN, GPIO_PIN_SET);

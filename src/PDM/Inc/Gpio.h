@@ -32,9 +32,9 @@
 /** @brief Number of e-fuses */
 #define NUM_EFUSES NUM_PROFET2S * NUM_EFUSES_PER_PROFET2
 
-/** 
- * @brief We have 8 ADC channels enabled, but 5 of those are connected to 
- *        PROFET 2's. Each PROFET 2 has two e-fuse channels, which means we 
+/**
+ * @brief We have 8 ADC channels enabled, but 5 of those are connected to
+ *        PROFET 2's. Each PROFET 2 has two e-fuse channels, which means we
  *        are really getting two unique ADC readings per PROFET.
  */
 #define NUM_UNIQUE_ADC_READINGS NUM_EFUSES + NUM_VOLTAGE_SENSE_PINS
@@ -172,8 +172,7 @@ typedef enum {
 } ADC_Index_Enum;
 
 /** TODO (Issue #191): What is this struct for */
-typedef struct
-{
+typedef struct{
     uint16_t      pin[NUM_PROFET2S];
     GPIO_TypeDef *port[NUM_PROFET2S];
 } GPIO_PinPort_Struct;
