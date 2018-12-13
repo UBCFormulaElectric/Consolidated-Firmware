@@ -15,7 +15,7 @@
  * Module Variable Definitions
  *****************************************************************************/
 extern volatile GPIO_PinState dsel_state;
-static float filtered_adc_readings[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {0};
+static float filtered_adc_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {0};
 
 // LPF constants (calculated using this article:
 // https://en.wikipedia.org/wiki/Low-pass_filter#Discrete-time_realization)

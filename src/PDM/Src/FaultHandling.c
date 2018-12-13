@@ -2,6 +2,7 @@
  * Includes
  *****************************************************************************/
 #include "FaultHandling.h"
+#include "Gpio.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -24,9 +25,9 @@ volatile uint8_t num_faults[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {0};
  * Private Function Prototypes
  *****************************************************************************/
 /**
- * @brief  Toggle E-Fuse output
- * @param  index Index of E-Fuse to toggle
- * @param  state Toggle on or off
+ * @brief  Helper function to turn e-fuse on or off
+ * @param  index Index of e-fuse 
+ * @param  state Turn e-fuse on or off
  */
 static void
     FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState state);
@@ -73,7 +74,7 @@ void FaultHandling_Handler(
             converted_readings[adc_channel] >= CURRENT_LIMIT)
         {
             num_faults[adc_channel]++;
-            FaultHandling_CurrentFaultHandling(adc_channel, GPIO_PIN_RESET);
+            FaultHandling_ConfigureEfuseOnOff(adc_channel, EFUSE_OFF);
 
             // Has faulted fewer than max number of times
             if (num_faults[adc_channel] <= MAX_FAULTS[adc_channel])
@@ -92,7 +93,6 @@ void FaultHandling_Handler(
                         L_INV_INDEX, GPIO_PIN_RESET); // Disable L Inv
                     FaultHandling_CurrentFaultHandling(
                         R_INV_INDEX, GPIO_PIN_RESET); // Disable R Inv
-
                     TransmitCANError(
                         MOTOR_SHUTDOWN_ERROR, Power_Distribution_Module, 0, 0);
                 }
@@ -101,9 +101,9 @@ void FaultHandling_Handler(
                     TransmitCANError(
                         MOTOR_SHUTDOWN_ERROR, Power_Distribution_Module, 0, 0);
                 }
-                fault_states[adc_channel] = ERROR_EFUSE;
+                fault_states[adc_channel] = ERROR_STATE;
 
-                // TODO  (Issue #191): CAN message implementation
+                // TODO  (Issue #191): CAN_GLV message implementation
                 can_error_msg =
                     (adc_channel << 16) +
                     (uint16_t)(
@@ -162,6 +162,8 @@ void FaultHandling_RetryEFuse(volatile uint8_t *fault_states)
             fault_states[adc_channel] = STATIC_EFUSE;
         }
         else if (fault_states[adc_channel] == ERROR_EFUSE)
+        {
             FaultHandling_CurrentFaultHandling(adc_channel, GPIO_PIN_RESET);
+        }
     }
 }

@@ -92,6 +92,7 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
         HAL_GPIO_WritePin(
             EFUSE_ACC_ENC_FAN_IN_PORT, EFUSE_ACC_ENC_FAN_IN_PIN, GPIO_PIN_SET);
     }
+  
     HAL_GPIO_WritePin(
         EFUSE_ACC_FAN_DEN_PORT, EFUSE_ACC_FAN_DEN_PIN, GPIO_PIN_SET);
 
@@ -137,6 +138,7 @@ void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states)
         HAL_GPIO_WritePin(
             EFUSE_AIR_SHDN_IN_PORT, EFUSE_AIR_SHDN_IN_PIN, GPIO_PIN_SET);
     }
+  
     HAL_GPIO_WritePin(
         EFUSE_CAN_AIR_SHDN_DEN_PORT, EFUSE_CAN_AIR_SHDN_DEN_PIN, GPIO_PIN_SET);
 

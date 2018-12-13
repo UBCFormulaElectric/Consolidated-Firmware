@@ -17,15 +17,27 @@
  *****************************************************************************/
 // clang-format off
 
-// ADC Variables
-#define ADC_CHANNEL_COUNT 8
-#define NUM_CHANNELS 2
-#define VOLTAGE_SENSE_PINS 3
-#define ADC_EFUSE_READINGS ADC_CHANNEL_COUNT - VOLTAGE_SENSE_PINS
-// There are (ADC_CHANNEL_COUNT - VOLTAGE_SENSE_PINS)* NUM_CHANNELS Efuse 
-// readings as well as VOLTAGE_SENSE_PINS voltage readings
-#define ADC_TOTAL_READINGS_SIZE (NUM_CHANNELS * ADC_EFUSE_READINGS) \
-                                + VOLTAGE_SENSE_PINS
+/** @brief Number of microcontroller pins that are configured to be ADC inputs */
+#define NUM_ADC_CHANNELS 8
+
+/** @brief 12V Sense, VBAT Sense, and Flywire Sense */
+#define NUM_VOLTAGE_SENSE_PINS 3
+
+/** @brief Number of PROFET 2's */
+#define NUM_PROFET2S NUM_ADC_CHANNELS - NUM_VOLTAGE_SENSE_PINS
+
+/** @brief PROFET 2 is a dual-channel IC containing two separate e-fuses */
+#define NUM_EFUSES_PER_PROFET2 2
+
+/** @brief Number of e-fuses */
+#define NUM_EFUSES NUM_PROFET2S * NUM_EFUSES_PER_PROFET2
+
+/**
+ * @brief We have 8 ADC channels enabled, but 5 of those are connected to
+ *        PROFET 2's. Each PROFET 2 has two e-fuse channels, which means we
+ *        are really getting two unique ADC readings per PROFET.
+ */
+#define NUM_UNIQUE_ADC_READINGS NUM_EFUSES + NUM_VOLTAGE_SENSE_PINS
 
 // Pin definitions
 
@@ -55,7 +67,7 @@
 #define EFUSE_FAN_COOLING_DEN_PIN 								GPIO_PIN_10
 #define EFUSE_FAN_COOLING_DEN_PORT 								GPIOB
 
-// E-Fuse CAN/AIR SHDN
+// E-Fuse CAN_GLV/AIR SHDN
 #define EFUSE_CAN_IN_PIN 										GPIO_PIN_12
 #define EFUSE_CAN_IN_PORT 										GPIOB
 
@@ -215,7 +227,7 @@ void GPIO_EFuseSelectDSEL(GPIO_PinState dsel_value);
 
 /**
  * @brief Check for faults on startup from charging IC, cell balancing IC,
- *        and boost converter and transmit a CAN message if error occured.
+ *        and boost converter and transmit a CAN_GLV message if error occured.
  */
 void GPIO_CheckFaultsStartup(void);
 
