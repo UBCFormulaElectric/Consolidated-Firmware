@@ -214,7 +214,7 @@ void GPIO_Init(void);
  *         which tracks outputs that need to be renabled or are permanently
  *         faulted
  */
-void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states);
+void GPIO_ConfigurePreChargeComplete(volatile uint8_t* fault_states);
 
 /**
  * @brief  Enable CAN_GLV/AIR SHDN (if they are not faulted) and their
@@ -222,7 +222,7 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states);
  * @param  fault_states Array with (NumReadings x ChannelCount) elements which
  *         tracks outputs that need to be renabled or are permanently faulted
  */
-void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states);
+void GPIO_ConfigurePowerUp(volatile uint8_t* fault_states);
 
 /**
  *  @brief  Select E-Fuse output for current sense (DSEL toggle)
