@@ -3,7 +3,6 @@
  * @brief GPIO Library
  */
 
-
 #ifndef GPIO_H
 #define GPIO_H
 
@@ -173,9 +172,9 @@ typedef enum {
 } ADC_Index_Enum;
 
 /** TODO (Issue #191): What is this struct for */
-typedef struct {
-    uint16_t pin[NUM_PROFET2S];
-    GPIO_TypeDef* port[NUM_PROFET2S];
+typedef struct{
+    uint16_t      pin[NUM_PROFET2S];
+    GPIO_TypeDef *port[NUM_PROFET2S];
 } GPIO_PinPort_Struct;
 
 /******************************************************************************
@@ -185,29 +184,18 @@ extern volatile GPIO_PinState dsel_state;
 
 // E-fuse output pin mapping
 // TODO (Issue #191): The index can be a value of @ ...
-static const GPIO_PinPort_Struct PROFET2_IN0 = {{EFUSE_AUX_1_IN_PIN,
-                                               EFUSE_COOLING_IN_PIN,
-                                               EFUSE_AIR_SHDN_IN_PIN,
-                                               EFUSE_ACC_SEG_FAN_IN_PIN,
-                                               EFUSE_LEFT_INVERTER_IN_PIN},
-                                              {EFUSE_AUX_1_IN_PORT,
-                                               EFUSE_COOLING_IN_PORT,
-                                               EFUSE_AIR_SHDN_IN_PORT,
-                                               EFUSE_ACC_SEG_FAN_IN_PORT,
-                                               EFUSE_LEFT_INVERTER_IN_PORT}};
+static const GPIO_PinPort_Struct PROFET2_IN0 = {
+    {EFUSE_AUX_1_IN_PIN, EFUSE_COOLING_IN_PIN, EFUSE_AIR_SHDN_IN_PIN,
+     EFUSE_ACC_SEG_FAN_IN_PIN, EFUSE_LEFT_INVERTER_IN_PIN},
+    {EFUSE_AUX_1_IN_PORT, EFUSE_COOLING_IN_PORT, EFUSE_AIR_SHDN_IN_PORT,
+     EFUSE_ACC_SEG_FAN_IN_PORT, EFUSE_LEFT_INVERTER_IN_PORT}};
 
 // TODO (Issue #191): The index can be a value of @ ...
-static const GPIO_PinPort_Struct PROFET2_IN1 = {{EFUSE_AUX_2_IN_PIN,
-                                               EFUSE_PDM_FAN_IN_PIN,
-                                               EFUSE_CAN_IN_PIN,
-                                               EFUSE_ACC_ENC_FAN_IN_PIN,
-                                               EFUSE_RIGHT_INVERTER_IN_PIN},
-                                              {EFUSE_AUX_2_IN_PORT,
-                                               EFUSE_PDM_FAN_IN_PORT,
-                                               EFUSE_CAN_IN_PORT,
-                                               EFUSE_ACC_ENC_FAN_IN_PORT,
-                                               EFUSE_RIGHT_INVERTER_IN_PORT}};
-
+static const GPIO_PinPort_Struct PROFET2_IN1 = {
+    {EFUSE_AUX_2_IN_PIN, EFUSE_PDM_FAN_IN_PIN, EFUSE_CAN_IN_PIN,
+     EFUSE_ACC_ENC_FAN_IN_PIN, EFUSE_RIGHT_INVERTER_IN_PIN},
+    {EFUSE_AUX_2_IN_PORT, EFUSE_PDM_FAN_IN_PORT, EFUSE_CAN_IN_PORT,
+     EFUSE_ACC_ENC_FAN_IN_PORT, EFUSE_RIGHT_INVERTER_IN_PORT}};
 
 /******************************************************************************
 * Function Prototypes
@@ -240,11 +228,5 @@ void GPIO_ConfigurePowerUp(volatile uint8_t* fault_states);
  *  @param  dsel_value value to set DSEL pin to (DSEL_HIGH or DSEL_LOW)
  */
 void GPIO_EFuseSelectDSEL(GPIO_PinState dsel_value);
-
-/**
- * @brief Check for faults on startup from charging IC, cell balancing IC,
- *        and boost converter and transmit a CAN_GLV message if error occured.
- */
-void GPIO_CheckFaultsStartup(void);
 
 #endif /* GPIO_H */
