@@ -19,7 +19,7 @@
 // clang-format off
 /** @brief AUX Current Sense first reading is consistently incorrect (reads > 0 when
            there is no current), take second reading as workaround */
-#define NUM_READINGS 2
+#define NUM_READINGS_PER_ADC_DMA_TRANSFER 2
 
 #define VDDA_VOLTAGE  (float32_t)(3.3f)
 

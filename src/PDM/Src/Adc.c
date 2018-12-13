@@ -37,7 +37,7 @@ void Adc_StartAdcInDmaMode(void) {
     // continuously overwrites the oldest set of readings
     HAL_ADC_Start_DMA(&hadc1,
                       (uint32_t*)adc_readings,
-                      NUM_ADC_CHANNELS * NUM_READINGS);
+                      NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER);
     HAL_ADC_Start(&hadc1);
 }
 
