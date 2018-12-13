@@ -122,11 +122,15 @@
 
 /** @brief Cell balance IC (BQ29209) defines overvoltage as 4.3V * 2 in series */
 #define VBAT_OVERVOLTAGE       (float32_t)(8.6f)
+
+/** @brief Nominal GLV voltage is 12V, and we choose overvoltage threshold to be 1V above */
 #define OVERVOLTAGE_GLV_THRES  (float32_t)(13.0f)
+
+/** @brief Nominal GLV voltage is 12V, and we choose undervoltage threshold to be 1V below */
 #define UNDERVOLTAGE_GLV_THRES (float32_t)(11.0f)
 
-/** @brief  Diode-OR controller switches back to 12V_AUX when 12V_ACC < 10.2V,
- *          but we set undervoltage limit to 10.5V for a safety margin of 0.3V*/
+/** @brief Diode-OR controller switches back to 12V_AUX when 12V_ACC < 10.2V,
+ *         but we set undervoltage limit to 10.5V for a safety margin of 0.3V*/
 #define UNDERVOLTAGE_VICOR_THRES (float32_t)(10.5f)
 
 /** @} */ /* End defgroup VOLTAGE_CURRENT_LIMITS */
