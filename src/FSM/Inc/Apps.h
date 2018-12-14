@@ -68,14 +68,14 @@ extern volatile uint32_t APPSFaultState;
  *        2. Checks for improperly connected APPS encoders
  *        3. Checks for out-of-bounds APPS readings (outside calibrated maximum
  *        values) 
-	*	       4. Checks for implausible APPS readings (>10% difference between the
+ *        4. Checks for implausible APPS readings (>10% difference between the
  *        primary and secondary readings as per EV2.3.6) 
-	*  	     5. Checks for APPS/Brake Pedal
+ *  	  5. Checks for APPS/Brake Pedal
  *        Plausibility Check, where accelerator pedal is pushed >25% while brake 
  *        is pushed (EV2.5) 
-	*        6. Checks for accelerator pedal stuck at max. torque for
+ *        6. Checks for accelerator pedal stuck at max. torque for
  *        longer than 10 secs 
-	*	       7. Maps the APPS readings to a 10-bit number (0 =
+ *	      7. Maps the APPS readings to a 10-bit number (0 =
  *        unpressed, 1023 = fully pressed)
  *
  * @param Mode		0 - Normal reading without affecting APPSFaultCounter
