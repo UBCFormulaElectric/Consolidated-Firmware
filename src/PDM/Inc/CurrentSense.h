@@ -45,8 +45,8 @@
 
 /** @} */ /* End defgroup ADC */
 
-/** @defgroup PROFET2_BTS_7008
- *  The constants related to current sensing on PROFET2
+/** @defgroup PROFET2
+ *  The constants related to current sensing on PROFET2 (BTS7008-2EPA)
  *  @{
  */
 /** @brief Sense resistance for the IS output of PROFET2 */
@@ -60,7 +60,7 @@
  *         calibrate the value at 5A trip curren for non-AUX outputs */
 #define CURRENT_SCALING (float32_t)(7000.0f)
 
-/** @} */ /* End defgroup PROFET2_BTS_7008 */
+/** @} */ /* End defgroup PROFET2 */
 
 /** @defgroup 12V_ACC_VOLTAGE_DIVIDER
  *  The constants needed for converting ADC reading of ADC1_IN10 into value for 12V_ACC
