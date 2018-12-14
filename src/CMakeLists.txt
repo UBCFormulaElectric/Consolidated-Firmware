@@ -140,7 +140,7 @@ foreach(MODULE_DIR ${MODULES})
 	if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${MODULE_DIR})
 		message(STATUS "Found " ${MODULE_DIR})
 	else()
-		message("WARNING! No directory found for " ${MODULE_DIR})
+		message("WARNING! No directory found for " ${MODULE_DIR} ". Skipping!")
 		continue()
 	endif()
 	
@@ -178,7 +178,7 @@ foreach(MODULE_DIR ${MODULES})
 		set(HAL_BOARD_DIR STM32F3xx)
 	
 	else()
-		message("WARNING! No compilation flags for " ${MODULE_DIR})
+		message("WARNING! No compilation flags for " ${MODULE_DIR} ". Skipping!")
 		continue()
 	endif()
 
