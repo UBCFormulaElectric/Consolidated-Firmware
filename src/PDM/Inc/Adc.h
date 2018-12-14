@@ -30,11 +30,10 @@
  * Global Variables
  *****************************************************************************/
 extern volatile GPIO_PinState dsel_state;
-extern ADC_HandleTypeDef      hadc1;
-extern DMA_HandleTypeDef      hdma_adc1;
-extern volatile uint32_t      adc_readings[];
-extern volatile float         converted_readings[];
-extern volatile uint8_t e_fuse_fault_states[ADC_CHANNEL_COUNT * NUM_READINGS];
+extern ADC_HandleTypeDef hadc1;
+extern volatile uint32_t adc_readings[];
+extern volatile float converted_readings[];
+extern volatile uint8_t e_fuse_fault_states[NUM_ADC_CHANNELS * NUM_READINGS];
 
 /******************************************************************************
  * Function Prototypes
