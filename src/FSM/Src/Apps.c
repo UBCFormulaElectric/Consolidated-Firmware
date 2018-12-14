@@ -1,15 +1,38 @@
+/******************************************************************************
+ * Includes
+ ******************************************************************************/
 #include "Apps.h"
 #include "main.h"
 #include "CanDefinitions.h"
 
+/******************************************************************************
+ * Module Preprocessor Constants
+ ******************************************************************************/
 
-volatile uint32_t APPSFaultCounter =
-    0; // Used to "time" when to trigger a fault
-volatile uint32_t APPSFaultState =
-    FSM_APPS_NORMAL_OPERATION; // Used to send error CAN messages and track faults
-volatile uint32_t APPS_BPPC_FLAG =
-    0; // Used to trigger the APPS / Brake Pedal Plausibility Check
+/******************************************************************************
+ * Module Preprocessor Macros
+ ******************************************************************************/
 
+/******************************************************************************
+ * Module Typedefs
+ ******************************************************************************/
+
+/******************************************************************************
+ * Module Variable Definitions
+ ******************************************************************************/
+// Used to "time" when to trigger a fault
+volatile uint32_t APPSFaultCounter = 0; 
+// Used to send error CAN messages and track faults
+volatile uint32_t APPSFaultState = FSM_APPS_NORMAL_OPERATION;
+// Used to trigger the APPS / Brake Pedal Plausibility Check
+volatile uint32_t APPS_BPPC_FLAG = 0; 
+/******************************************************************************
+* Private Function Prototypes
+*******************************************************************************/
+
+/******************************************************************************
+ * Function Definitions
+ ******************************************************************************/
 uint16_t GetAcceleratorPedalPosition(int Mode)
 {
     float32_t RawPrimaryAPPSValue       = 0.0;

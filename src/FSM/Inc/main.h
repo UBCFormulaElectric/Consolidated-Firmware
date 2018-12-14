@@ -131,7 +131,7 @@ void Error_Handler(void);
 #define SECONDARY_APPS_ALARM_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
 
-    /* Initilized externally by STMCube.*/
+/* Initilized externally by STMCube.*/
 extern TIM_HandleTypeDef htim14;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
@@ -146,9 +146,9 @@ typedef enum
 
 // Function declarations		
 /**
-* @brief    Main control loop
-    1. Transmits CAN messages containing the accelerator pedal position, front
-  wheel speeds, and steering angle
+* @brief Main control loop
+         1. Transmits CAN messages containing the accelerator pedal position,
+         front wheel speeds, and steering angle.
 */
 void ControlLoop(void);
 
