@@ -120,6 +120,11 @@ static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan);
  */
 static void SharedCan_EnqueueFifoOverflowError(void);
 
+/**
+ * @brief Broadcast a CAN message to indicate that the system has rebooted
+ */
+static void SharedCan_BroadcastSystemReboot(void);
+
 /******************************************************************************
 * Private Function Definitions
 *******************************************************************************/
@@ -275,6 +280,11 @@ static void SharedCan_EnqueueFifoOverflowError(void)
     can_tx_msg_fifo[tail].dlc = CAN_TX_FIFO_OVERFLOW_DLC;
     memcpy(&can_tx_msg_fifo[tail].data, &overflow_count, CAN_TX_FIFO_OVERFLOW_DLC);
 }
+static void SharedCan_BroadcastSystemReboot(void)
+{
+    uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = {0};
+    SharedCan_TransmitDataCan(PCB_STARTUP_STDID, PCB_STARTUP_DLC, &data[0]);
+}
 
 /******************************************************************************
 * Function Definitions
@@ -330,9 +340,7 @@ HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan)
 
     status |= HAL_CAN_Start(hcan);
 
-    // Broadcast PCB start-up message
-    uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = {0};
-    SharedCan_TransmitDataCan(PCB_STARTUP_STDID, PCB_STARTUP_DLC, &data[0]);
+    SharedCan_BroadcastSystemReboot();
 
     return status;
 }
@@ -341,6 +349,12 @@ __weak void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 {
     /* NOTE: This function Should not be modified, when the callback is needed,
               the Can_RxCommonCallback could be implemented in the Can.c file */
+}
+
+void SharedCan_BroadcastHeartbeat(void)
+{
+    uint8_t data[PCB_HEARTBEAT_DLC] = {0};
+    SharedCan_TransmitDataCan(PCB_HEARTBEAT_STDID, PCB_HEARTBEAT_DLC, &data[0]);
 }
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
