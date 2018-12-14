@@ -99,7 +99,7 @@
  *       To convert the raw ADC value of ADC1_IN10 to what 12V_ACC really is,
  *       we use the voltage divider formula:
  *
- *       12V_ACC = ADC_IN10 * ( (R28 + R29) / R29 )
+ *       12V_ACC = ADC1_IN10 * ( (R28 + R29) / R29 )
  */
 /** @brief One of the two resistors used in voltage divider for 12V_ACC */
 #define R28 (float32_t)(160000.0f)
