@@ -81,7 +81,8 @@
  *       the current rating of 12V_AUX isn't enough to power all the outputs.
  *       In order for the MCU to disable the appropriate outputs when 12V_AUX is being
  *       used, we sample 12V_ACC using a voltage divider whose output is connected
- *       to PA6 (ADC1_IN10). The voltage divider is drawn below:
+ *       to PA6 (ADC1_IN10). This way, the MCU can now tell if 12V_AUX is being used
+ *       or not. The voltage divider is drawn below:
  *
  *       12V_ACC
  *          |
