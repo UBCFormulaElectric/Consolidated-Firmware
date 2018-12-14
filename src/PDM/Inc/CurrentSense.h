@@ -26,7 +26,6 @@
  *  The constants related to converting ADC readings into useful voltage values
  *  @{
  */
-
 /** @brief Nominal voltage for VDDA, or ADC power supply */
 #define VDDA_VOLTAGE (float32_t)(3.3f)
 
