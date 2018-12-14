@@ -34,8 +34,6 @@
  *         VBAT refers to the two onboard Li-Ion 18650 batteries in series */
 #define VBAT_VOLTAGE (float32_t)(8.4f)
 
-/** @brief Grounded Low Voltage (GLV) refers to the voltage level used for the
- *         vehicle's low voltage systems */
 /** @brief The GLV voltage when the corresponding ADC input saturates at 3.3V.
  *         GLV stands for Grounded Low voltage, and is the voltage level used 
  *         to power the vehicle's low voltage systems */
