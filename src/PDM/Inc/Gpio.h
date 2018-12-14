@@ -169,7 +169,8 @@ typedef enum
 } ADC_Index_Enum;
 
 /** TODO (Issue #191): What is this struct for */
-typedef struct{
+typedef struct
+{
     uint16_t      pin[NUM_PROFET2S];
     GPIO_TypeDef *port[NUM_PROFET2S];
 } GPIO_PinPort_Struct;

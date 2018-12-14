@@ -90,8 +90,8 @@ static void GPIO_ChargingActiveHandler(void);
 static void GPIO_CheckFaultsStartup(void);
 
 /******************************************************************************
-* Private Function Definitions
-*******************************************************************************/
+ * Private Function Definitions
+ ******************************************************************************/
 static bool GPIO_IsBoostPgoodFaultActive(void)
 {
     return HAL_GPIO_ReadPin(BOOST_PGOOD_PORT, BOOST_PGOOD_PIN) ==
@@ -171,14 +171,19 @@ void GPIO_Init(void)
     GPIO_CheckFaultsStartup();
 }
 
-void GPIO_ConfigurePreChargeComplete(volatile uint8_t* fault_states) {
-	// E-Fuse AUX 1/2
-	if(fault_states[AUXILIARY_1] == NORMAL_STATE){
-		HAL_GPIO_WritePin(EFUSE_AUX_1_IN_PORT, EFUSE_AUX_1_IN_PIN, GPIO_PIN_SET);
-	}
-	if(fault_states[AUXILIARY_2] == NORMAL_STATE){
-		HAL_GPIO_WritePin(EFUSE_AUX_2_IN_PORT, EFUSE_AUX_2_IN_PIN, GPIO_PIN_SET);
-	}
+void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
+{
+    // E-Fuse AUX 1/2
+    if (fault_states[AUXILIARY_1] == NORMAL_STATE)
+    {
+        HAL_GPIO_WritePin(
+            EFUSE_AUX_1_IN_PORT, EFUSE_AUX_1_IN_PIN, GPIO_PIN_SET);
+    }
+    if (fault_states[AUXILIARY_2] == NORMAL_STATE)
+    {
+        HAL_GPIO_WritePin(
+            EFUSE_AUX_2_IN_PORT, EFUSE_AUX_2_IN_PIN, GPIO_PIN_SET);
+    }
     HAL_GPIO_WritePin(EFUSE_AUX_DEN_PORT, EFUSE_AUX_DEN_PIN, GPIO_PIN_SET);
 
     // E-Fuse PDM Fan/Cooling
@@ -224,15 +229,21 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t* fault_states) {
         EFUSE_ACC_FAN_DEN_PORT, EFUSE_ACC_FAN_DEN_PIN, GPIO_PIN_SET);
 
     // E-Fuse Inverter
-	if(fault_states[LEFT_INVERTER] == NORMAL_STATE){
-		HAL_GPIO_WritePin(EFUSE_LEFT_INVERTER_IN_PORT, EFUSE_LEFT_INVERTER_IN_PIN, GPIO_PIN_SET);
-	}
-	if(fault_states[RIGHT_INVERTER] == NORMAL_STATE){
-		HAL_GPIO_WritePin(EFUSE_RIGHT_INVERTER_IN_PORT, EFUSE_RIGHT_INVERTER_IN_PIN, GPIO_PIN_SET);
-	}
+    if (fault_states[LEFT_INVERTER] == NORMAL_STATE)
+    {
+        HAL_GPIO_WritePin(
+            EFUSE_LEFT_INVERTER_IN_PORT, EFUSE_LEFT_INVERTER_IN_PIN,
+            GPIO_PIN_SET);
+    }
+    if (fault_states[RIGHT_INVERTER] == NORMAL_STATE)
+    {
+        HAL_GPIO_WritePin(
+            EFUSE_RIGHT_INVERTER_IN_PORT, EFUSE_RIGHT_INVERTER_IN_PIN,
+            GPIO_PIN_SET);
+    }
 
     HAL_GPIO_WritePin(
-    EFUSE_INVERTER_DEN_PORT, EFUSE_INVERTER_DEN_PIN, GPIO_PIN_SET);
+        EFUSE_INVERTER_DEN_PORT, EFUSE_INVERTER_DEN_PIN, GPIO_PIN_SET);
 }
 void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states)
 {
