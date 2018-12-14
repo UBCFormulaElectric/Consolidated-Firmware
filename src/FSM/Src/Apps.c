@@ -33,7 +33,7 @@ volatile uint32_t APPS_BPPC_FLAG = 0;
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-uint16_t GetAcceleratorPedalPosition(int Mode)
+uint16_t GetAcceleratorPedalPosition(APPS_Mode_Enum Mode)
 {
     float32_t RawPrimaryAPPSValue       = 0.0;
     float32_t RawSecondaryAPPSValue     = 0.0;

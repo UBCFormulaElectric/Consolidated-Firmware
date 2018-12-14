@@ -78,9 +78,10 @@ extern volatile uint32_t APPSFaultState;
  *	      7. Maps the APPS readings to a 10-bit number (0 =
  *        unpressed, 1023 = fully pressed)
  *
- * @param Mode		0 - Normal reading without affecting APPSFaultCounter
- *        1 - Control loop reading (affects APPSFaultCounter)
+ * @param APPS_NORMAL_MODE - Normal reading without affecting APPSFaultCounter
+ *        APPS_CONTROL_LOOP_MODE - Control loop reading 
+ *        (affects APPSFaultCounter)
  * @return Accelerator pedal position (10-bit)
  */
-uint16_t GetAcceleratorPedalPosition(int Mode);
+uint16_t GetAcceleratorPedalPosition(APPS_Mode_Enum Mode);
 #endif /* APPS_H */
