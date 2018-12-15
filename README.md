@@ -1,63 +1,46 @@
 # Consolidated-Firmware
 A consolidated repository for gathering all firmware under one roof. 
 
-## Continuous Integration
+## Continuous Integration (CI)
 
-These steps are needed to pass the TRAVIS CI test during pull request, as the CI will replicate these steps faithfully.
+We run (and require) continuous integration on every pull request before it is merged. This automatically makes sure the code builds, and checks for formatting errors.
 
-#### Installing Dependecies
-Make sure you have cmake version 3.0+, make 3.0+, python 3, and latest version of ARM GNU Embedded Toolchain installed. You can follow these links to download and install them:
+### Running Continuous Integration on Your Local Machine
 
-https://cmake.org/install/ 
+You may want to run CI on your local machine (for example, to debug why your code does not pass it). Please follow the below steps to do so:
 
-http://gnuwin32.sourceforge.net/packages/make.htm (Windows)
-
-http://ftp.gnu.org/gnu/make/ (Linux)
-
-https://www.python.org/downloads/
-
-https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
-
-Make sure to add the binary executables to **PATH**. To add these, find **Environment Variables** in your start menu and then add the appropriate paths to **PATH**:
-
+1. **Install Dependencies**: There are several dependencies required in order to mimic what CI is doing. *(Note: All links below are for windows. All equivalent linux utilities may be easily installed via the package manager for your linux distribution (`apt-get` in Ubuntu, etc.))*
+  * GNU Make: http://gnuwin32.sourceforge.net/packages/make.htm
+  * CMake: https://cmake.org/install/
+  * Python 3+ (*Python < 3 will NOT work*): https://www.python.org/downloads/
+  * ARM GNU Embedded Toolchain: https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
+2. **Modify your `PATH` Environment Variable**: Make sure to add the binary executables to `PATH`. To add these, find `Environment Variables` in your start menu and then add the appropriate paths to `PATH`:
 ```
 C:\Program Files (x86)\GNU Tools Arm Embedded\<VERSION>\bin
 C:\Program Files (x86)\GnuWin32\bin
+...
 ```
+(*These paths should include wherever the `cmake`, `make`, and `GCC` binaries have been installed.*)
 
-Or wherever the binaries of your cmake, make, and GCC have been installed. 
-
-Updating the clang-format binary inside the project clang-format directory to the latest one is worthwhile, as each iteration becomes more intelligent at handling syntax. Currently, we are on the latest (clang LLVM 7.0), but new releases are out annually. Make sure to grab the binary for Ubuntu 14.04, as Travis CI is running this version of the OS. The link is available at:
-
-http://releases.llvm.org/
-
-#### Running Continuous Integration Checks
-To pass the continuous integration, start at the root directory and call:
-
-(Windows)
-```
-> cd src
-> cmake CMakeLists.txt -G "MSYS Makefiles"
-> make
-```
-
-(Linux)
-```
-> cd src
-> cmake CMakeLists.txt
-> make
-```
-
-This will use the GCC compiler to build the project (Keil typically uses the ARM compiler; make sure you know the difference). Address all the build errors that arise from compiling with GCC. (Generally, the proprietary ARM compiler will overlook errors that the GCC will explicitly call out).
-
-Then, change into the `clang-format` directory and run `python check_formatting_CI.py`. 
-
-```
-> cd clang-format
-> python check_formatting_CI.py
-```
-
-The script is path-dependent so make sure you are running it from the clang-format dir. Ultimately, this script allows clang-format to search your source code and automatically enforce coding conventions. 
+3. **Running CI - Build Check**: Run the following commands (starting from the **root directory** of this project) to build the code as CI does:
+  * *Windows:*
+  ```
+  cd src
+  cmake CMakeLists.txt -G "MSYS Makefiles"
+  make
+  ```
+  * *Linux:*
+  ```
+  cd src
+  cmake CMakeLists.txt
+  make
+  ```
+4. **Running CI - Formatting Check**: Run the following commands (starting from the **root directory** of this project) to check formatting as CI does:
+  * *Windows and Linux:*
+  ```
+  cd clang-format
+  python check_formatting_CI.py
+  ```
 
 #### CommentPragmas
 In `.clang-format`, the line `CommentPragmas: '\/\*(\*(?!\/_|[^*])*\*\/'` is ineffective because it's being preempted by `ReflowComments`. We are hoping that the next version of `clang-format` will resolve this.
