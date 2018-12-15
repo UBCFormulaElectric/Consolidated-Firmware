@@ -2,7 +2,7 @@
  * @file  SharedGpio.h
  * @brief Shared library for wrapping HAL GPIO library
  */
-//TODO: Update header guard below to an unique identifier in this project
+// TODO: Update header guard below to an unique identifier in this project
 #ifndef SHARED_GPIO_H
 #define SHARED_GPIO_H
 
@@ -17,7 +17,8 @@
 // Used in FSM 2017 (Shared CAN Library doesn't yet support this)
 #include "stm32f0xx_hal.h"
 #else
-#error "No valid architecture selected - unable to determine what HAL library to use"
+#error \
+    "No valid architecture selected - unable to determine what HAL library to use"
 #endif
 
 /******************************************************************************
@@ -41,6 +42,9 @@
 /******************************************************************************
  * Function Prototypes
  ******************************************************************************/
-void SharedGpio_HAL_GPIO_WritePin(GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin, uint32_t PinState);
+void SharedGpio_HAL_GPIO_WritePin(
+    GPIO_TypeDef *GPIOx,
+    uint16_t      GPIO_Pin,
+    uint32_t      PinState);
 
 #endif /* SHARED_GPIO_H */

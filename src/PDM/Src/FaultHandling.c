@@ -31,14 +31,16 @@ volatile uint8_t num_faults[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {0};
  * @param  index Index of e-fuse
  * @param  state Turn e-fuse on or off
  */
-static void
-    FaultHandling_ConfigureEfuseOnOff(uint8_t index, EfuseOnOff_GPIO_PinState state);
+static void FaultHandling_ConfigureEfuseOnOff(
+    uint8_t                  index,
+    EfuseOnOff_GPIO_PinState state);
 
 /******************************************************************************
  * Private Function Definitions
  *****************************************************************************/
-static void
-    FaultHandling_ConfigureEfuseOnOff(uint8_t index, EfuseOnOff_GPIO_PinState state)
+static void FaultHandling_ConfigureEfuseOnOff(
+    uint8_t                  index,
+    EfuseOnOff_GPIO_PinState state)
 {
     if (index < NUM_ADC_CHANNELS)
     {
@@ -93,7 +95,8 @@ void FaultHandling_Handler(
                     fault_states[RIGHT_INVERTER] = ERROR_STATE;
                     fault_states[LEFT_INVERTER]  = ERROR_STATE;
                     FaultHandling_ConfigureEfuseOnOff(LEFT_INVERTER, EFUSE_OFF);
-                    FaultHandling_ConfigureEfuseOnOff(RIGHT_INVERTER, EFUSE_OFF);
+                    FaultHandling_ConfigureEfuseOnOff(
+                        RIGHT_INVERTER, EFUSE_OFF);
 
                     Can_BroadcastMotorShutdownError();
                 }

@@ -41,9 +41,9 @@ extern volatile GPIO_PinState dsel_state;
 /**
  * @brief Checks if any current or voltage readings exceed their respective
  *        limits and executes output-specific fault handling behaviour.
- * @param fault_states Array with NumReadings*ChannelCount elements which 
+ * @param fault_states Array with NumReadings*ChannelCount elements which
  *        tracks outputs that need to be renabled or are permanently faulted
- * @param converted_readings Array with NumReadings*ChannelCount elements that 
+ * @param converted_readings Array with NumReadings*ChannelCount elements that
  *        tracks converted current/voltage readings from ADC counts to A or V
  */
 void FaultHandling_Handler(

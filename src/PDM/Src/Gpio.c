@@ -185,7 +185,8 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
         SharedGpio_HAL_GPIO_WritePin(
             EFUSE_AUX_2_IN_PORT, EFUSE_AUX_2_IN_PIN, GPIO_PIN_SET);
     }
-    SharedGpio_HAL_GPIO_WritePin(EFUSE_AUX_DEN_PORT, EFUSE_AUX_DEN_PIN, GPIO_PIN_SET);
+    SharedGpio_HAL_GPIO_WritePin(
+        EFUSE_AUX_DEN_PORT, EFUSE_AUX_DEN_PIN, GPIO_PIN_SET);
 
     // E-Fuse PDM Fan/Cooling
     if (fault_states[PDM_FAN] == NORMAL_STATE)
@@ -204,7 +205,8 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
     // E-Fuse CAN_GLV/AIR SHDN
     if (fault_states[CAN_GLV] == NORMAL_STATE)
     {
-        SharedGpio_HAL_GPIO_WritePin(EFUSE_CAN_IN_PORT, EFUSE_CAN_IN_PIN, GPIO_PIN_SET);
+        SharedGpio_HAL_GPIO_WritePin(
+            EFUSE_CAN_IN_PORT, EFUSE_CAN_IN_PIN, GPIO_PIN_SET);
     }
     if (fault_states[AIR_SHDN] == NORMAL_STATE)
     {
@@ -248,9 +250,12 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
 void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states)
 {
     // E-Fuse AUX 1/2
-    SharedGpio_HAL_GPIO_WritePin(EFUSE_AUX_1_IN_PORT, EFUSE_AUX_1_IN_PIN, GPIO_PIN_RESET);
-    SharedGpio_HAL_GPIO_WritePin(EFUSE_AUX_2_IN_PORT, EFUSE_AUX_2_IN_PIN, GPIO_PIN_RESET);
-    SharedGpio_HAL_GPIO_WritePin(EFUSE_AUX_DEN_PORT, EFUSE_AUX_DEN_PIN, GPIO_PIN_RESET);
+    SharedGpio_HAL_GPIO_WritePin(
+        EFUSE_AUX_1_IN_PORT, EFUSE_AUX_1_IN_PIN, GPIO_PIN_RESET);
+    SharedGpio_HAL_GPIO_WritePin(
+        EFUSE_AUX_2_IN_PORT, EFUSE_AUX_2_IN_PIN, GPIO_PIN_RESET);
+    SharedGpio_HAL_GPIO_WritePin(
+        EFUSE_AUX_DEN_PORT, EFUSE_AUX_DEN_PIN, GPIO_PIN_RESET);
 
     // E-Fuse PDM Fan/Cooling
     SharedGpio_HAL_GPIO_WritePin(
@@ -263,7 +268,8 @@ void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states)
     // E-Fuse CAN/AIR SHDN
     if (fault_states[CAN_GLV] == NORMAL_STATE)
     {
-        SharedGpio_HAL_GPIO_WritePin(EFUSE_CAN_IN_PORT, EFUSE_CAN_IN_PIN, GPIO_PIN_SET);
+        SharedGpio_HAL_GPIO_WritePin(
+            EFUSE_CAN_IN_PORT, EFUSE_CAN_IN_PIN, GPIO_PIN_SET);
     }
     if (fault_states[AIR_SHDN] == NORMAL_STATE)
     {
@@ -294,7 +300,8 @@ void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states)
 
 void GPIO_EFuseSelectDSEL(GPIO_PinState dsel_value)
 {
-    SharedGpio_HAL_GPIO_WritePin(EFUSE_AUX_DSEL_PORT, EFUSE_AUX_DSEL_PIN, dsel_value);
+    SharedGpio_HAL_GPIO_WritePin(
+        EFUSE_AUX_DSEL_PORT, EFUSE_AUX_DSEL_PIN, dsel_value);
     SharedGpio_HAL_GPIO_WritePin(
         EFUSE_FAN_COOLING_DSEL_PORT, EFUSE_FAN_COOLING_DSEL_PIN, dsel_value);
     SharedGpio_HAL_GPIO_WritePin(

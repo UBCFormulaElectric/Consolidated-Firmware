@@ -66,7 +66,7 @@ void CurrentSense_ConvertFilteredADCToCurrentValues(
     volatile float *converted_readings)
 {
     // Shift index depending on DSEL state
-    uint8_t adc_channel = CurrentSense_DSELShiftIndex(); 
+    uint8_t adc_channel = CurrentSense_DSELShiftIndex();
     uint8_t final_index = adc_channel + NUM_PROFET2S;
     for (; adc_channel < final_index; adc_channel++)
     {
