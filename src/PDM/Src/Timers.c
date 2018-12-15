@@ -37,9 +37,6 @@ void Timers_Init(void)
 
     // Start timer 17
     HAL_TIM_Base_Start_IT(&htim17);
-
-    // Stop timer 6
-    HAL_TIM_Base_Stop_IT(&htim6);
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
