@@ -26,7 +26,6 @@
  *  The constants related to converting ADC readings into useful voltage values
  *  @{
  */
-
 /** @brief Nominal voltage for VDDA, or ADC power supply */
 #define VDDA_VOLTAGE (float32_t)(3.3f)
 
@@ -34,8 +33,6 @@
  *         VBAT refers to the two onboard Li-Ion 18650 batteries in series */
 #define VBAT_VOLTAGE (float32_t)(8.4f)
 
-/** @brief Grounded Low Voltage (GLV) refers to the voltage level used for the
- *         vehicle's low voltage systems */
 /** @brief The GLV voltage when the corresponding ADC input saturates at 3.3V.
  *         GLV stands for Grounded Low voltage, and is the voltage level used 
  *         to power the vehicle's low voltage systems */
@@ -84,7 +81,8 @@
  *       the current rating of 12V_AUX isn't enough to power all the outputs.
  *       In order for the MCU to disable the appropriate outputs when 12V_AUX is being
  *       used, we sample 12V_ACC using a voltage divider whose output is connected
- *       to PA6 (ADC1_IN10). The voltage divider is drawn below:
+ *       to PA6 (ADC1_IN10). This way, the MCU can now tell if 12V_AUX is being used
+ *       or not. The voltage divider is drawn below:
  *
  *       12V_ACC
  *          |
@@ -99,7 +97,7 @@
  *       To convert the raw ADC value of ADC1_IN10 to what 12V_ACC really is,
  *       we use the voltage divider formula:
  *
- *       12V_ACC = ADC_IN10 * ( (R28 + R29) / R29 )
+ *       12V_ACC = ADC1_IN10 * ( (R28 + R29) / R29 )
  */
 /** @brief One of the two resistors used in voltage divider for 12V_ACC */
 #define R28 (float32_t)(160000.0f)
