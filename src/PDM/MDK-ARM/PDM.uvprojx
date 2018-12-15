@@ -336,9 +336,9 @@
             <v6Rtti>0</v6Rtti>
             <VariousControls>
               <MiscControls></MiscControls>
-              <Define>USE_HAL_DRIVER,STM32F302x8, PDM</Define>
+              <Define>USE_HAL_DRIVER,STM32F302x8, PDM, ARM_MATH_CM4</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;        ../Drivers/STM32F3xx_HAL_Driver/Inc;        ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;        ../Drivers/CMSIS/Device/ST/STM32F3xx/Include;        ../Drivers/CMSIS/Include;        ..\..\shared\STM32-CAN-Code\Inc</IncludePath>
+              <IncludePath>../Inc;../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;../Drivers/CMSIS/Include;..\..\shared\STM32-CAN-Code\Inc;..\..\shared\GPIO\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -447,6 +447,11 @@
               <FileType>1</FileType>
               <FilePath>..\..\shared\STM32-CAN-Code\Src\SharedCan.c</FilePath>
             </File>
+            <File>
+              <FileName>SharedGpio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\shared\GPIO\Src\SharedGpio.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -511,6 +516,11 @@
               <FileName>SharedCan.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\shared\STM32-CAN-Code\Inc\SharedCan.h</FilePath>
+            </File>
+            <File>
+              <FileName>SharedGpio.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\shared\GPIO\Inc\SharedGpio.h</FilePath>
             </File>
           </Files>
         </Group>

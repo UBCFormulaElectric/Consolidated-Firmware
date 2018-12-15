@@ -3,6 +3,7 @@
  *****************************************************************************/
 #include "FaultHandling.h"
 #include "Gpio.h"
+#include "SharedGpio.h"
 #include "Can.h"
 
 /******************************************************************************
@@ -20,7 +21,7 @@
 /******************************************************************************
  * Module Variable Definitions
  *****************************************************************************/
-volatile uint8_t num_faults[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {0};
+volatile uint8_t num_faults[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {0};
 
 /******************************************************************************
  * Private Function Prototypes
@@ -31,24 +32,24 @@ volatile uint8_t num_faults[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {0};
  * @param  state Turn e-fuse on or off
  */
 static void
-    FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState state);
+    FaultHandling_ConfigureEfuseOnOff(uint8_t index, EfuseOnOff_GPIO_PinState state);
 
 /******************************************************************************
  * Private Function Definitions
  *****************************************************************************/
 static void
-    FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState state)
+    FaultHandling_ConfigureEfuseOnOff(uint8_t index, EfuseOnOff_GPIO_PinState state)
 {
-    if (index < ADC_CHANNEL_COUNT)
+    if (index < NUM_ADC_CHANNELS)
     {
-        HAL_GPIO_WritePin(
-            OUTPUT_0_PINOUT.port[index], OUTPUT_0_PINOUT.pin[index], state);
+        SharedGpio_HAL_GPIO_WritePin(
+            PROFET2_IN0.port[index], PROFET2_IN0.pin[index], state);
     }
     else
     {
-        index = index - ADC_CHANNEL_COUNT; // adjust index for pinout array
-        HAL_GPIO_WritePin(
-            OUTPUT_1_PINOUT.port[index], OUTPUT_1_PINOUT.pin[index], state);
+        index = index - NUM_ADC_CHANNELS; // adjust index for pinout array
+        SharedGpio_HAL_GPIO_WritePin(
+            PROFET2_IN1.port[index], PROFET2_IN1.pin[index], state);
     }
 }
 
