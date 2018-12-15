@@ -1,22 +1,25 @@
 /******************************************************************************
-* Includes
-*******************************************************************************/
+ * Includes
+ ******************************************************************************/
 #include <stdbool.h>
 #include <string.h>
 #include "SharedCan.h"
 
 /******************************************************************************
-* Module Preprocessor Constants
-*******************************************************************************/
+ * Module Preprocessor Constants
+ ******************************************************************************/
+
 /******************************************************************************
-* Module Preprocessor Macros
-*******************************************************************************/
+ * Module Preprocessor Macros
+ ******************************************************************************/
+
 /******************************************************************************
-* Module Typedefs
-*******************************************************************************/
+ * Module Typedefs
+ ******************************************************************************/
+
 /******************************************************************************
-* Module Variable Definitions
-*******************************************************************************/
+ * Module Variable Definitions
+ ******************************************************************************/
 static CanTxMsgQueueItem_Struct can_tx_msg_fifo[CAN_TX_MSG_FIFO_SIZE];
 static volatile uint8_t tail = 0;
 static volatile uint8_t head = 0;
@@ -55,8 +58,8 @@ static CanMaskFilterConfig_Struct mask_filters[] =
 #endif
 
 /******************************************************************************
-* Private Function Prototypes
-*******************************************************************************/
+ * Private Function Prototypes
+ ******************************************************************************/
 /**
  * @brief  Transmit CAN message and remove it from the CAN queue
  * @return FIFO_IS_EMPTY: Failed dequeue due to empty queue
@@ -126,8 +129,8 @@ static void SharedCan_EnqueueFifoOverflowError(void);
 static void SharedCan_BroadcastSystemReboot(void);
 
 /******************************************************************************
-* Private Function Definitions
-*******************************************************************************/
+ * Private Function Definitions
+ ******************************************************************************/
 static Fifo_Status_Enum SharedCan_DequeueCanTxMessageFifo(void)
 {
     if(!SharedCan_CanTxMessageFifoIsEmpty())
@@ -287,8 +290,8 @@ static void SharedCan_BroadcastSystemReboot(void)
 }
 
 /******************************************************************************
-* Function Definitions
-*******************************************************************************/
+ * Function Definitions
+ ******************************************************************************/
 void SharedCan_TransmitDataCan(CanStandardId_Enum std_id, CanDataLengthCode_Enum dlc, uint8_t *data)
 {
     uint32_t mailbox = 0; // Indicates the mailbox used for tranmission, not currently used
