@@ -2,7 +2,6 @@
  * @file  SharedGpio.h
  * @brief Shared library for wrapping HAL GPIO library
  */
-// TODO: Update header guard below to an unique identifier in this project
 #ifndef SHARED_GPIO_H
 #define SHARED_GPIO_H
 
@@ -49,16 +48,16 @@
  *        example, writing `HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET)`
  *        does not convey if something is being turned on or off because PA0
  *        may use either active-high or active low logic.
- * 
+ *
  *        Instead, we may define something like
- * 
+ *
  *        typedef enum
  *        {
  *            FAN_ON = GPIO_PIN_SET,
  *            FAN_OFF = !FAN_ON;
  *        } FanOnOff_GPIO_PinState;
- *        
- *        When we write `SharedGpio_GPIO_WritePin(GPIOA, GPIO_PIN_0, FAN_ON),
+ *
+ *        When we write `SharedGpio_GPIO_WritePin(GPIOA, GPIO_PIN_0, FAN_ON)`,
  *        it is now much more clear that a fan is being turned on.
  * @param GPIOx where x can be (A..H) to select the GPIO peripheral
  * @param GPIO_Pin specifies the port bit to be written.
@@ -66,7 +65,7 @@
  * @param User_PinState Any user-define enum that replaces GPIO_PinState. Note
  *                      that uint32_t is used because it tolerates any enum
  *                      type without throwing any compiler warnings.
- * @param  
+ * @param
  */
 
 void SharedGpio_GPIO_WritePin(
