@@ -172,8 +172,12 @@ typedef enum {
 } ADC_Index_Enum;
 
 /** TODO (Issue #191): What is this struct for */
+<<<<<<< HEAD
 typedef struct
 {
+=======
+typedef struct{
+>>>>>>> master
     uint16_t      pin[NUM_PROFET2S];
     GPIO_TypeDef *port[NUM_PROFET2S];
 } GPIO_PinPort_Struct;
@@ -229,11 +233,5 @@ void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states);
  *  @param  dsel_value value to set DSEL pin to (DSEL_HIGH or DSEL_LOW)
  */
 void GPIO_EFuseSelectDSEL(GPIO_PinState dsel_value);
-
-/**
- * @brief Check for faults on startup from charging IC, cell balancing IC,
- *        and boost converter and transmit a CAN_GLV message if error occured.
- */
-void GPIO_CheckFaultsStartup(void);
 
 #endif /* GPIO_H */

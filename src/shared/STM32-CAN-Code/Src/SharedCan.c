@@ -121,7 +121,11 @@ static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan);
 static void SharedCan_EnqueueFifoOverflowError(void);
 
 /**
+<<<<<<< HEAD
  * @brief Broadcast a CAN message to indicate that the PCB has re-booted
+=======
+ * @brief Broadcast a CAN message to indicate that the system has rebooted
+>>>>>>> master
  */
 static void SharedCan_BroadcastSystemReboot(void);
 

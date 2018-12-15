@@ -2,6 +2,7 @@
  * Includes
  *******************************************************************************/
 #include "Gpio.h"
+#include "stdbool.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -23,9 +24,140 @@
  * Private Function Prototypes
  *******************************************************************************/
 
+/**
+ * @brief  Check if the PGOOD fault condition of boost controller (LTC3786)
+ *         is active
+ * @return true Active fault
+ *         false No Fault
+ */
+static bool GPIO_IsBoostPgoodFaultActive(void);
+
+/**
+ * @brief  Check if the overvoltage fault of cell balance IC (BQ29209) is active
+ * @return true Active fault
+ *         false No fault
+ */
+static bool GPIO_IsCellBalanceOvervoltageFaultActive(void);
+
+/**
+ * @brief  Check if the charging process of Li-Ion battery charger (LT3650-8.4)
+ *         is active
+ * @return true Active charging
+ *         false No charging
+ */
+static bool GPIO_IsChargingActive(void);
+/**
+ * @brief  Check if the fault condition Li-Ion battery charger (LT3650-8.4)
+ *         is active
+ * @return true Active fault
+ *         false No fault
+ */
+static bool GPIO_IsChargerFaultActive(void);
+
+/**
+ * @brief Check if the PGOOD fault of boost controller (LTC3786) is active and
+ *        broadcast error over CAN if needed
+ */
+static void GPIO_BoostPgoodFaultHandler(void);
+
+/**
+ * @brief Check if the overvoltage fault of cell balance IC (BQ29209)
+ *        and broadcast error over CAN if needed
+ */
+static void GPIO_CellBalanceOvervoltageFaultHandler(void);
+
+/**
+ * @brief Check if the fault condition of Li-Ion battery charger (LTC3650-8.4)
+ *        is active and broadcast error over CAN if needed
+ *
+ */
+static void GPIO_ChargerFaultHandler(void);
+
+/**
+ * @brief Check if the charging process of Li-Ion battery charger (LTC3650-8.4)
+ *        is active (Currently doesn nothing if detected)
+ */
+static void GPIO_ChargingActiveHandler(void);
+/**
+ * @brief Some faults rely on EXTI callback catching edge-triggered interrupts
+ *        to activate the appropriate handler. But if something was faulted from
+ *        before system boot-up, then EXTI wouldn't catch the faults. Thus, we
+ *        need to manually check for faults during system boot-up.
+ *
+ *        Faults being checked: charging IC, cell balancing IC, and boost
+ *        converter. Detected faults will be broadcasted over CAN.
+ */
+static void GPIO_CheckFaultsStartup(void);
+
 /******************************************************************************
- * Private Function Definitions
- *******************************************************************************/
+* Private Function Definitions
+*******************************************************************************/
+static bool GPIO_IsBoostPgoodFaultActive(void)
+{
+    return HAL_GPIO_ReadPin(BOOST_PGOOD_PORT, BOOST_PGOOD_PIN) ==
+           BOOST_PGOOD_FAULT_STATE;
+}
+
+static bool GPIO_IsCellBalanceOvervoltageFaultActive(void)
+{
+    return HAL_GPIO_ReadPin(
+               CELL_BALANCE_OVERVOLTAGE_PORT, CELL_BALANCE_OVERVOLTAGE_PIN) ==
+           CELL_BALANCE_OVERVOLTAGE_FAULT_STATE;
+}
+
+static bool GPIO_IsChargingActive(void)
+{
+    return HAL_GPIO_ReadPin(CHARGER_PORT, CHARGER_INDICATOR_PIN) ==
+           CHARGER_CHARGING_STATE;
+}
+
+static bool GPIO_IsChargerFaultActive(void)
+{
+    return HAL_GPIO_ReadPin(CHARGER_PORT, CHARGER_FAULT_PIN) ==
+           CHARGER_FAULT_STATE;
+}
+
+static void GPIO_BoostPgoodFaultHandler(void)
+{
+    if (GPIO_IsBoostPgoodFaultActive())
+    {
+        Can_BroadcastPdmErrors(BOOST_PGOOD_FAULT);
+    }
+}
+
+static void GPIO_CellBalanceOvervoltageFaultHandler(void)
+{
+    if (GPIO_IsCellBalanceOvervoltageFaultActive())
+    {
+        Can_BroadcastPdmErrors(CELL_BALANCE_OVERVOLTAGE_FAULT);
+    }
+}
+
+static void GPIO_ChargerFaultHandler(void)
+{
+    if (GPIO_IsChargerFaultActive())
+    {
+        Can_BroadcastPdmErrors(CHARGER_FAULT);
+    }
+}
+
+static void GPIO_ChargingActiveHandler(void)
+{
+    if (GPIO_IsChargingActive())
+    {
+        // Currently not transmitting the charger 'charging' state - usually
+        // constantly true and not an 'error'. Evaluate if this is an error
+        // at all
+    }
+}
+
+static void GPIO_CheckFaultsStartup(void)
+{
+    GPIO_BoostPgoodFaultHandler();
+    GPIO_CellBalanceOvervoltageFaultHandler();
+    GPIO_ChargerFaultHandler();
+    GPIO_ChargingActiveHandler();
+}
 
 /******************************************************************************
  * Function Definitions
@@ -33,7 +165,7 @@
 void GPIO_Init(void)
 {
     // Start DSELs at output 0
-    GPIO_EFuseSelectDSEL(dsel_state);
+    GPIO_EFuseSelectDSEL(DSEL_LOW);
 
     // Check for faults on startup
     GPIO_CheckFaultsStartup();
@@ -177,61 +309,15 @@ void HAL_GPIO_EXTI_Callback(uint16_t gpio_pin)
     switch (gpio_pin)
     {
         case CHARGER_FAULT_PIN:
-            if (HAL_GPIO_ReadPin(CHARGER_PORT, CHARGER_FAULT_PIN) ==
-                CHARGER_FAULT_STATE)
-            {
-                Can_BroadcastPdmErrors(CHARGER_FAULT);
-            }
+            GPIO_ChargerFaultHandler();
             break;
         case CELL_BALANCE_OVERVOLTAGE_PIN:
-            if (HAL_GPIO_ReadPin(
-                    CELL_BALANCE_OVERVOLTAGE_PORT,
-                    CELL_BALANCE_OVERVOLTAGE_PIN) ==
-                CELL_BALANCE_OVERVOLTAGE_FAULT_STATE)
-            {
-                Can_BroadcastPdmErrors(CELL_BALANCE_OVERVOLTAGE_FAULT);
-            }
+            GPIO_CellBalanceOvervoltageFaultHandler();
             break;
         case BOOST_PGOOD_PIN:
-            if (HAL_GPIO_ReadPin(BOOST_PGOOD_PORT, BOOST_PGOOD_PIN) ==
-                BOOST_PGOOD_FAULT_STATE)
-            {
-                Can_BroadcastPdmErrors(BOOST_PGOOD_FAULT);
-            }
+            GPIO_BoostPgoodFaultHandler();
             break;
         default:
             break;
-    }
-}
-
-void GPIO_CheckFaultsStartup(void)
-{
-    // Check for charger fault
-    if (HAL_GPIO_ReadPin(CHARGER_PORT, CHARGER_FAULT_PIN) ==
-        CHARGER_FAULT_STATE)
-    {
-        Can_BroadcastPdmErrors(CHARGER_FAULT);
-    }
-    // Check for charger charging
-    if (HAL_GPIO_ReadPin(CHARGER_PORT, CHARGER_INDICATOR_PIN) ==
-        CHARGER_CHARGING_STATE)
-    {
-        //  Currently not transmitting the charger 'charging' state - usually
-        //  constantly true and not an 'error'
-        //	Can_BroadcastPdmErrors(General_Error_StandardID,
-        // Power_Distribution_Module, PDM_Misc_Error, can_error_msg);
-    }
-    // Check for overvoltage fault
-    if (HAL_GPIO_ReadPin(
-            CELL_BALANCE_OVERVOLTAGE_PORT, CELL_BALANCE_OVERVOLTAGE_PIN) ==
-        CELL_BALANCE_OVERVOLTAGE_FAULT_STATE)
-    {
-        Can_BroadcastPdmErrors(CELL_BALANCE_OVERVOLTAGE_FAULT);
-    }
-    // Check for boost converter fault
-    if (HAL_GPIO_ReadPin(BOOST_PGOOD_PORT, BOOST_PGOOD_PIN) ==
-        BOOST_PGOOD_FAULT_STATE)
-    {
-        Can_BroadcastPdmErrors(BOOST_PGOOD_FAULT);
     }
 }
