@@ -3,10 +3,10 @@
  *****************************************************************************/
 #include "SharedGpio.h"
 
-void SharedGpio_HAL_GPIO_WritePin(
+void SharedGpio_GPIO_WritePin(
     GPIO_TypeDef *GPIOx,
     uint16_t      GPIO_Pin,
-    uint32_t      PinState)
+    uint32_t      User_PinState)
 {
-    HAL_GPIO_WritePin(GPIOx, GPIO_Pin, PinState);
+    HAL_GPIO_WritePin(GPIOx, GPIO_Pin, User_PinState);
 }

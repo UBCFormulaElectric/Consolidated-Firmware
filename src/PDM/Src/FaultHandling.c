@@ -44,13 +44,13 @@ static void FaultHandling_ConfigureEfuseOnOff(
 {
     if (index < NUM_ADC_CHANNELS)
     {
-        SharedGpio_HAL_GPIO_WritePin(
+        SharedGpio_GPIO_WritePin(
             PROFET2_IN0.port[index], PROFET2_IN0.pin[index], state);
     }
     else
     {
         index = index - NUM_ADC_CHANNELS; // adjust index for pinout array
-        SharedGpio_HAL_GPIO_WritePin(
+        SharedGpio_GPIO_WritePin(
             PROFET2_IN1.port[index], PROFET2_IN1.pin[index], state);
     }
 }
