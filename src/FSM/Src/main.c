@@ -147,7 +147,7 @@ int main(void)
   MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
 
-    Timers_StartTimers();
+    timersStartTimers();
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -671,24 +671,24 @@ void ControlLoop(void)
     // Only call this function in APPS_CONTROL_LOOP_MODE once in this control
     // loop function
     AcceleratorPedalPosition_16bit =
-        GetAcceleratorPedalPosition(APPS_CONTROL_LOOP_MODE);
+        getAcceleratorPedalPosition(APPS_CONTROL_LOOP_MODE);
     // ERROR HANDLING
     // APPS fault when motors are on
-    if (APPSFaultState != 0 && MotorState == ON)
+    if (apps_fault_state != 0 && MotorState == ON)
     {
         // TransmitCANError(Motor_Shutdown_Error_StandardID,
-        // Front_Sensor_Module, APPSFaultState, CANBrakeAPPS);
+        // Front_Sensor_Module, apps_fault_state, CANBrakeAPPS);
         MotorState = OFF;
     }
 
-    if (APPSFaultState)
+    if (apps_fault_state)
     {
         // Red
-        GPIO_TurnOnRedLed();
+        gpioTurnOnRedLed();
     }
 
     // No APPS fault when motors are off
-    if (APPSFaultState == 0 && MotorState == OFF)
+    if (apps_fault_state == 0 && MotorState == OFF)
     {
         // TransmitDataCAN(Motor_ReEnable_StandardID, Motor_ReEnable_ExtendedID,
         // Motor_ReEnable_DLC, Front_Sensor_Module);

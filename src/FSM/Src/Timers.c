@@ -38,7 +38,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     }
 }
 
-void Timers_StartTimers()
+void timersStartTimers()
 {
     // Start main control loop timer, with interrupt.
     HAL_TIM_Base_Start_IT(&htim14);

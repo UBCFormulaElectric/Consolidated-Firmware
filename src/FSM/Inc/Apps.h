@@ -57,7 +57,7 @@ typedef enum
 /******************************************************************************
  * Global Variables
  ******************************************************************************/
-extern volatile uint32_t APPSFaultState;
+extern volatile uint32_t apps_fault_state;
 
 /******************************************************************************
  * Function Prototypes
@@ -83,5 +83,5 @@ extern volatile uint32_t APPSFaultState;
  *        (affects APPSFaultCounter)
  * @return Accelerator pedal position (10-bit)
  */
-uint16_t GetAcceleratorPedalPosition(APPS_Mode_Enum Mode);
+uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum Mode);
 #endif /* APPS_H */

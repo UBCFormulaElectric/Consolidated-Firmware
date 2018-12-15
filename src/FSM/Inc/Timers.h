@@ -33,6 +33,6 @@
  * @brief  Initializes timers; using the appropriate HAL functions, params, and
  *         settings.
  */
-void Timers_StartTimers();
+void timersStartTimers();
  
 #endif /* TIMERS_H */
