@@ -61,3 +61,11 @@ The script is path-dependent so make sure you are running it from the clang-form
 
 #### CommentPragmas
 In `.clang-format`, the line `CommentPragmas: '\/\*(\*(?!\/_|[^*])*\*\/'` is ineffective because it's being preempted by `ReflowComments`. We are hoping that the next version of `clang-format` will resolve this.
+
+## CMakeLists
+CMake requires two Cube-generated files in order to compile:
+
+1. A startup assembly file written in GCC (not ARM) syntax.
+1. A linker directive. 
+
+In Cube, after selecting the corresponding board for a module and choosing to generate the project with `Makefile` as the compile option, retrieve the `startup_stm32fxxxxx.s` and `STM32Fxxxxx_FLASH.ld` files. Append a `_gcc` to the assembly file in order to distinguish it from the Keil genered ARM syntax file and leave it inside the module's `MDK-ARM` folder. Leave the linker file inside the top module directory. 

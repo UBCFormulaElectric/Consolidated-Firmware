@@ -133,15 +133,15 @@ int main(void)
 
     /* USER CODE END SysInit */
 
-  /* Initialize all configured peripherals */
-  MX_GPIO_Init();
-  MX_DMA_Init();
-  MX_ADC1_Init();
-  MX_CAN_Init();
-  MX_TIM2_Init();
-  MX_IWDG_Init();
-  MX_TIM17_Init();
-  /* USER CODE BEGIN 2 */
+    /* Initialize all configured peripherals */
+    MX_GPIO_Init();
+    MX_DMA_Init();
+    MX_ADC1_Init();
+    MX_CAN_Init();
+    MX_TIM2_Init();
+    MX_IWDG_Init();
+    MX_TIM17_Init();
+    /* USER CODE BEGIN 2 */
 
     // Start ADC
     Adc_StartAdcInDmaMode();
@@ -440,10 +440,10 @@ static void MX_TIM2_Init(void)
 }
 
 /**
-  * @brief TIM17 Initialization Function
-  * @param None
-  * @retval None
-  */
+ * @brief TIM17 Initialization Function
+ * @param None
+ * @retval None
+ */
 static void MX_TIM17_Init(void)
 {
     /* USER CODE BEGIN TIM17_Init 0 */
