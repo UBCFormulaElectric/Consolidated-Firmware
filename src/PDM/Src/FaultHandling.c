@@ -1,57 +1,60 @@
 /******************************************************************************
  * Includes
- *******************************************************************************/
+ *****************************************************************************/
 #include "FaultHandling.h"
 #include "Gpio.h"
 #include "Can.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
- *******************************************************************************/
+ *****************************************************************************/
 
 /******************************************************************************
  * Module Preprocessor Macros
- *******************************************************************************/
+ *****************************************************************************/
 
 /******************************************************************************
  * Module Typedefs
- *******************************************************************************/
+ *****************************************************************************/
 
 /******************************************************************************
  * Module Variable Definitions
- *******************************************************************************/
-volatile uint8_t num_faults[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {0};
+ *****************************************************************************/
+volatile uint8_t num_faults[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {0};
 
 /******************************************************************************
  * Private Function Prototypes
- *******************************************************************************/
+ *****************************************************************************/
 /**
  * @brief  Helper function to turn e-fuse on or off
- * @param  index Index of e-fuse 
+ * @param  index Index of e-fuse
  * @param  state Turn e-fuse on or off
  */
-static void FaultHandling_ConfigureEfuseOnOff(ADC_Index_Enum index, EfuseOnOff_GPIO_PinState state);
+static void
+    FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState state);
 
 /******************************************************************************
-* Private Function Definitions
-*******************************************************************************/
-static void FaultHandling_ConfigureEfuseOnOff(ADC_Index_Enum index, EfuseOnOff_GPIO_PinState state)
+ * Private Function Definitions
+ *****************************************************************************/
+static void
+    FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState state)
 {
-    if (index < NUM_ADC_CHANNELS) {
-        HAL_GPIO_WritePin(PROFET2_IN0.port[index],
-                          PROFET2_IN0.pin[index],
-                          (GPIO_PinState)state);
-    } else {
-        index = index - NUM_ADC_CHANNELS; // adjust index for pinout array
-        HAL_GPIO_WritePin(PROFET2_IN1.port[index],
-                          PROFET2_IN1.pin[index],
-                          (GPIO_PinState)state);
+    if (index < ADC_CHANNEL_COUNT)
+    {
+        HAL_GPIO_WritePin(
+            OUTPUT_0_PINOUT.port[index], OUTPUT_0_PINOUT.pin[index], state);
+    }
+    else
+    {
+        index = index - ADC_CHANNEL_COUNT; // adjust index for pinout array
+        HAL_GPIO_WritePin(
+            OUTPUT_1_PINOUT.port[index], OUTPUT_1_PINOUT.pin[index], state);
     }
 }
 
 /******************************************************************************
  * Function Definitions
- *******************************************************************************/
+ *****************************************************************************/
 void FaultHandling_Handler(
     volatile uint8_t *fault_states,
     volatile float *  converted_readings)
