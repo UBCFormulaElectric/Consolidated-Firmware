@@ -1,6 +1,6 @@
 Configuration	PDM
 STM32CubeMX 	5.0.0
-Date	12/02/2018
+Date	12/14/2018
 MCU	STM32F302R8Tx
 
 
@@ -39,7 +39,7 @@ Pin Nb	PINs	FUNCTIONs	LABELs
 16	PA2	ADC1_IN3	IS_3
 17	PA3	ADC1_IN4	IS_4
 20	PA4	ADC1_IN5	IS_5
-22	PA6	ADC1_IN10	
+22	PA6	ADC1_IN10	FLYWIRE
 23	PA7	GPIO_Output	PIN_AUX_2
 24	PC4	GPIO_Output	DSEL_1
 25	PC5	GPIO_Output	DEN_1
@@ -103,7 +103,7 @@ Pin Nb	PINs	FUNCTIONs	LABELs
 16	PA2	ADC1_IN3	IS_3
 17	PA3	ADC1_IN4	IS_4
 20	PA4	ADC1_IN5	IS_5
-22	PA6	ADC1_IN10	
+22	PA6	ADC1_IN10	FLYWIRE
 23	PA7	GPIO_Output	PIN_AUX_2
 24	PC4	GPIO_Output	DSEL_1
 25	PC5	GPIO_Output	DEN_1
@@ -140,7 +140,7 @@ SOFTWARE PROJECT
 
 Project Settings : 
 Project Name : PDM
-Project Folder : C:\Users\jsn07\Desktop\Formula Electric\ken_consolidated\src\PDM
+Project Folder : C:\Users\thekenu\UBC Formula Electric\Consolidated-Firmware\src\PDM
 Toolchain / IDE : MDK-ARM V5
 Firmware Package Name and Version : STM32Cube FW_F3 V1.10.0
 

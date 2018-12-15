@@ -31,7 +31,6 @@
 *******************************************************************************/
 // TODO  (Issue #191): Should include header for TIM_HandleTypeDef externs
 extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim6;
 extern TIM_HandleTypeDef htim17;
 
 extern volatile GPIO_PinState dsel_state;
