@@ -39,6 +39,7 @@ before_script:
   - export PATH=$PATH:$PWD/gcc-arm-none-eabi-7-2018-q2-update/bin/
 
 script:
+    - set -e
     - if [ "$RUN_BUILD" = "true" ]; then 
         cd src;
         cmake CMakeLists.txt;
