@@ -24,6 +24,7 @@ static CanTxMsgQueueItem_Struct can_tx_msg_fifo[CAN_TX_MSG_FIFO_SIZE];
 static volatile uint8_t         tail = 0;
 static volatile uint8_t         head = 0;
 
+// clang-format off
 // mask_filters[] are initialized at compile-time so we don't
 // need to waste resources during run-time to configure their values
 #ifdef PDM
@@ -43,15 +44,12 @@ static CanMaskFilterConfig_Struct mask_filters[] = {
 static CanMaskFilterConfig_Struct mask_filters[] = {
     INIT_MASK_FILTER(MASKMODE_16BIT_ID_FSM, MASKMODE_16BIT_MASK_FSM),
     INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED),
-    INIT_MASK_FILTER(
-        MASKMODE_16BIT_ID_BAMOCAR_TX,
-        MASKMODE_16BIT_MASK_BAMOCAR_TX),
-    INIT_MASK_FILTER(
-        MASKMODE_16BIT_ID_BAMOCAR_RX,
-        MASKMODE_16BIT_MASK_BAMOCAR_RX)};
+    INIT_MASK_FILTER(MASKMODE_16BIT_ID_BAMOCAR_TX, MASKMODE_16BIT_MASK_BAMOCAR_TX),
+    INIT_MASK_FILTER(MASKMODE_16BIT_ID_BAMOCAR_RX, MASKMODE_16BIT_MASK_BAMOCAR_RX)};
 #else
 #error "No valid PCB selected - unable to determine what mask filters to use"
 #endif
+// clang-format on
 
 /******************************************************************************
  * Private Function Prototypes
