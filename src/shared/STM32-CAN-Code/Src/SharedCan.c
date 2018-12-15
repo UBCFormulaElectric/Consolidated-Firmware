@@ -28,24 +28,32 @@ static volatile uint8_t         head = 0;
 // mask_filters[] are initialized at compile-time so we don't
 // need to waste resources during run-time to configure their values
 #ifdef PDM
-static CanMaskFilterConfig_Struct mask_filters[2] = {
+static CanMaskFilterConfig_Struct mask_filters[2] =
+{
     INIT_MASK_FILTER(MASKMODE_16BIT_ID_DCM, MASKMODE_16BIT_MASK_DCM),
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)};
+    INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
+};
 #elif FSM
-static CanMaskFilterConfig_Struct mask_filters[] = {
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)};
+static CanMaskFilterConfig_Struct mask_filters[] =
+{
+    INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
+};
 #elif BMS
-static CanMaskFilterConfig_Struct mask_filters[] = {
+static CanMaskFilterConfig_Struct mask_filters[] =
+{
     INIT_MASK_FILTER(MASKMODE_16BIT_ID_DCM, MASKMODE_16BIT_MASK_DCM),
     INIT_MASK_FILTER(MASKMODE_16BIT_ID_FSM, MASKMODE_16BIT_MASK_FSM),
     INIT_MASK_FILTER(MASKMODE_16BIT_ID_PDM, MASKMODE_16BIT_MASK_PDM),
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)};
+    INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
+};
 #elif DCM
-static CanMaskFilterConfig_Struct mask_filters[] = {
+static CanMaskFilterConfig_Struct mask_filters[] =
+{
     INIT_MASK_FILTER(MASKMODE_16BIT_ID_FSM, MASKMODE_16BIT_MASK_FSM),
     INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED),
     INIT_MASK_FILTER(MASKMODE_16BIT_ID_BAMOCAR_TX, MASKMODE_16BIT_MASK_BAMOCAR_TX),
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_BAMOCAR_RX, MASKMODE_16BIT_MASK_BAMOCAR_RX)};
+    INIT_MASK_FILTER(MASKMODE_16BIT_ID_BAMOCAR_RX, MASKMODE_16BIT_MASK_BAMOCAR_RX)
+};
 #else
 #error "No valid PCB selected - unable to determine what mask filters to use"
 #endif
