@@ -36,8 +36,9 @@ void Adc_StartAdcInDmaMode(void)
     // Start DMA - send ADC1 values, store in adc_readings
     // DMA writes into adc_readings in circular mode - every set of readings
     // continuously overwrites the oldest set of readings
-    HAL_ADC_Start_DMA(
-        &hadc1, (uint32_t *)adc_readings, ADC_CHANNEL_COUNT * NUM_READINGS);
+    HAL_ADC_Start_DMA(&hadc1,
+                      (uint32_t*)adc_readings,
+                      NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER);
     HAL_ADC_Start(&hadc1);
 }
 
