@@ -6,39 +6,38 @@
 #define ADC_H
 
 /******************************************************************************
-* Includes
-*******************************************************************************/
+ * Includes
+ *****************************************************************************/
 #include "stm32f3xx_hal.h"
 #include "CurrentSense.h"
 #include "FaultHandling.h"
 
 /******************************************************************************
-* Preprocessor Constants
-*******************************************************************************/
+ * Preprocessor Constants
+ *****************************************************************************/
 // clang-format off
 
 /******************************************************************************
 * Preprocessor Macros
-*******************************************************************************/
+******************************************************************************/
 
 /******************************************************************************
 * Typedefs
-*******************************************************************************/
+******************************************************************************/
 // clang-format on
 
 /******************************************************************************
-* Global Variables
-*******************************************************************************/
+ * Global Variables
+ *****************************************************************************/
 extern volatile GPIO_PinState dsel_state;
-extern ADC_HandleTypeDef hadc1;
-extern DMA_HandleTypeDef hdma_adc1;
-extern volatile uint32_t adc_readings[];
-extern volatile float converted_readings[];
-extern volatile uint8_t e_fuse_fault_states[ADC_CHANNEL_COUNT * NUM_READINGS];
+extern ADC_HandleTypeDef      hadc1;
+extern volatile uint32_t      adc_readings[];
+extern volatile float         converted_readings[];
+extern volatile uint8_t e_fuse_fault_states[NUM_ADC_CHANNELS * NUM_READINGS];
 
 /******************************************************************************
-* Function Prototypes
-*******************************************************************************/
+ * Function Prototypes
+ *****************************************************************************/
 /**
  * TODO (Issue: 73): This function can probably be removed once I fix #73
  * @brief Enables ADC, starts conversion of regular group and transfers result

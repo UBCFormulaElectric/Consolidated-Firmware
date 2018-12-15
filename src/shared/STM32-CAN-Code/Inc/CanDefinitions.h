@@ -7,7 +7,22 @@
 
 #ifndef CAN_DEFINITIONS_H
 #define CAN_DEFINITIONS_H
+/******************************************************************************
+ * Includes
+ ******************************************************************************/
 
+/******************************************************************************
+ * Preprocessor Constants
+ ******************************************************************************/
+// clang-format off
+/******************************************************************************
+ * Preprocessor Macros
+ ******************************************************************************/
+
+/******************************************************************************
+ * Typedefs
+ ******************************************************************************/
+// clang-format  on
 /** @brief CAN Standard ID Enum*/
 typedef enum
 {
@@ -78,7 +93,7 @@ typedef enum
 /** @brief CAN Data Length Code Enum */
 typedef enum
 {
-    BMS_ERROR_DLC                                   = (8U),
+    BMS_ERROR_DLC                                   = (4U),
     BMS_HEARTBEAT_DLC                               = (1U),
     BMS_CAN_TX_FIFO_OVERFLOW_DLC                    = (4U),
     BMS_STARTUP_DLC                                 = (1U),
@@ -94,7 +109,7 @@ typedef enum
     BMS_LATCH_RESET_DLC                             = (1U),
     BMS_MOTOR_REENABLE_DLC                          = (1U),
     BMS_AIR_SHUTDOWN_ERROR_DLC                      = (6U),
-    DCM_ERROR_DLC                                   = (8U),
+    DCM_ERROR_DLC                                   = (4U),
     DCM_HEARTBEAT_DLC                               = (1U),
     DCM_CAN_TX_FIFO_OVERFLOW_DLC                    = (4U),
     DCM_STARTUP_DLC                                 = (1U),
@@ -106,7 +121,7 @@ typedef enum
     DCM_RIGHT_MOTOR_OUTPUT_DLC                      = (4U),
     DCM_LEFT_SLIP_ERROR_DLC                         = (4U),
     DCM_RIGHT_SLIP_ERROR_DLC                        = (4U),
-    FSM_ERROR_DLC                                   = (8U),
+    FSM_ERROR_DLC                                   = (4U),
     FSM_HEARTBEAT_DLC                               = (1U),
     FSM_CAN_TX_FIFO_OVERFLOW_DLC                    = (4U),
     FSM_STARTUP_DLC                                 = (1U),
@@ -116,7 +131,7 @@ typedef enum
     FSM_STEERING_ANGLE_DLC                          = (4U),
     FSM_LEFT_WHEEL_SPEED_DLC                        = (4U),
     FSM_RIGHT_WHEEL_SPEED_DLC                       = (4U),
-    PDM_ERROR_DLC                                   = (8U),
+    PDM_ERROR_DLC                                   = (4U),
     PDM_HEARTBEAT_DLC                               = (1U),
     PDM_CAN_TX_FIFO_OVERFLOW_DLC                    = (4U),
     PDM_STARTUP_DLC                                 = (1U),
@@ -188,4 +203,12 @@ typedef enum
     DCM_ERRORS_COUNT
 } DcmError_Enum;
 
-#endif
+/******************************************************************************
+ * Global Variables
+ ******************************************************************************/
+
+/******************************************************************************
+ * Function Prototypes
+ ******************************************************************************/
+
+#endif /* CAN_DEFINITIONS_H */
