@@ -1,6 +1,6 @@
 /**
  * @file  CanDefinitions.h
- * @brief CAN message header definitions. You can find more information 
+ * @brief CAN message header definitions. You can find more information
  *        about the CAN bus protocol here:
  *        http://www.ti.com/lit/an/sloa101b/sloa101b.pdf
  */

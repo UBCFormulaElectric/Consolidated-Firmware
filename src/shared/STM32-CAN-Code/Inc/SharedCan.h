@@ -19,7 +19,8 @@
 // Used in FSM 2017 (Shared CAN Library doesn't yet support this)
 #include "stm32f0xx_hal.h"
 #else
-#error "No valid architecture selected - unable to determine what HAL library to use"
+#error \
+    "No valid architecture selected - unable to determine what HAL library to use"
 #endif
 
 /******************************************************************************
@@ -196,23 +197,23 @@ typedef struct
 {
     uint32_t std_id;
     uint32_t dlc;
-    uint8_t data[8];
+    uint8_t  data[8];
 } CanTxMsgQueueItem_Struct;
 
 /** @brief Combine HAL Rx CAN header with CAN payload */
 typedef struct
 {
     CAN_RxHeaderTypeDef rx_header;
-    uint8_t data[8];
+    uint8_t             data[8];
 } CanRxMsg_Struct;
 
 /** @brief Queue operation status code */
 typedef enum
 {
-    FIFO_SUCCESS = 0,
-    FIFO_IS_FULL = 1,
+    FIFO_SUCCESS  = 0,
+    FIFO_IS_FULL  = 1,
     FIFO_IS_EMPTY = 2,
-    FIFO_ERROR = 3
+    FIFO_ERROR    = 3
 } Fifo_Status_Enum;
 
 /******************************************************************************
@@ -230,7 +231,10 @@ extern CAN_HandleTypeDef hcan;
  *         transmitted)
  * @param  data Pointer to an uint8_t array with 8 elements (64-bits in total).
  */
-void SharedCan_TransmitDataCan(CanStandardId_Enum std_id, CanDataLengthCode_Enum dlc, uint8_t *data);
+void SharedCan_TransmitDataCan(
+    CanStandardId_Enum     std_id,
+    CanDataLengthCode_Enum dlc,
+    uint8_t *              data);
 
 /**
  * @brief  Initialize CAN interrupts and CAN filters before starting the CAN
