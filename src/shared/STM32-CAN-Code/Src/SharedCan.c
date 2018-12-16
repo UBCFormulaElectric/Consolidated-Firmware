@@ -303,8 +303,9 @@ void SharedCan_TransmitDataCan(
     CanDataLengthCode_Enum dlc,
     uint8_t *              data)
 {
-    uint32_t mailbox =
-        0; // Indicates the mailbox used for tranmission, not currently used
+    // Indicates the mailbox used for tranmission, not currently used
+    uint32_t mailbox = 0; 
+
     CAN_TxHeaderTypeDef tx_header;
 
     tx_header.StdId = std_id;
