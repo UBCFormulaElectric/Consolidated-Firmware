@@ -349,9 +349,9 @@ HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan)
 
     status |= SharedCan_InitializeFilters();
 
-    status |= HAL_CAN_ActivateNotification(
-        hcan, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING |
-                  CAN_IT_RX_FIFO1_MSG_PENDING);
+    uint32_t active_interrupts = CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING;
+
+    status |= HAL_CAN_ActivateNotification(hcan, active_interrupts);
 
     status |= HAL_CAN_Start(hcan);
 
