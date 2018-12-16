@@ -12,7 +12,6 @@
 #include "Gpio.h"
 #include "stm32f3xx_hal.h"
 #include "arm_math.h"
-#include "Constants.h"
 
 /******************************************************************************
  * Preprocessor Constants
