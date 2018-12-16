@@ -84,6 +84,10 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define TIM2_PRESCALER 14399
+#define APB1_TIMER_CLOCK 72000000
+#define TIM2_CLK_DIVISION 1
+#define ADC_TRIGGER_FREQUENCY 1000
 #define OSC_IN_Pin GPIO_PIN_0
 #define OSC_IN_GPIO_Port GPIOF
 #define OSC_OUT_Pin GPIO_PIN_1
@@ -151,9 +155,6 @@ extern "C"
 #define CHRG_FAULT_Pin GPIO_PIN_10
 #define CHRG_FAULT_GPIO_Port GPIOC
 #define CHRG_FAULT_EXTI_IRQn EXTI15_10_IRQn
-#define CHRG_LED_Pin GPIO_PIN_11
-#define CHRG_LED_GPIO_Port GPIOC
-#define CHRG_LED_EXTI_IRQn EXTI15_10_IRQn
 #define PGOOD_Pin GPIO_PIN_12
 #define PGOOD_GPIO_Port GPIOC
 #define PGOOD_EXTI_IRQn EXTI15_10_IRQn
