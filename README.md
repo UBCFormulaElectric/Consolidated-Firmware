@@ -22,7 +22,7 @@ C:\Program Files (x86)\GnuWin32\bin
 ```
 (*These paths should include wherever the `cmake`, `make`, and `GCC` binaries have been installed.*)
 
-3. **Running CI - Build Check**: Run the following commands (starting from the **root** of this repository) to build the code as CI does:
+3. **Running CI - Build Check**: Run the following commands (starting from the **root directory** of this repository) to build the code as CI does:
   * *Windows:*
   ```
   cd src
