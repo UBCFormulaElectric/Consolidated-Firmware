@@ -24,6 +24,7 @@ static CanTxMsgQueueItem_Struct can_tx_msg_fifo[CAN_TX_MSG_FIFO_SIZE];
 static volatile uint8_t         tail = 0;
 static volatile uint8_t         head = 0;
 
+// TODO (Issue: 243): Remove clang-format on/off once #243 is resolved
 // clang-format off
 // mask_filters[] are initialized at compile-time so we don't
 // need to waste resources during run-time to configure their values
