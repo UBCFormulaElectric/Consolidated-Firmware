@@ -1,26 +1,26 @@
 /******************************************************************************
  * Includes
- *****************************************************************************/
+ ******************************************************************************/
 #include "CurrentSense.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
- *****************************************************************************/
+ ******************************************************************************/
 
 /******************************************************************************
  * Module Typedefs
- *****************************************************************************/
+ ******************************************************************************/
 
 /******************************************************************************
  * Module Variable Definitions
- *****************************************************************************/
+ ******************************************************************************/
 extern volatile GPIO_PinState dsel_state;
 static float filtered_adc_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] =
     {0};
 
 /******************************************************************************
  * Private Function Prototypes
- *******************************************************************************/
+ ******************************************************************************/
 /**
  * @brief  Helper function to shift starting index in any ADC/Converted Readings
  *         array, depending on dsel_state.
@@ -31,7 +31,7 @@ static uint8_t CurrentSense_DSELShiftIndex(void);
 
 /******************************************************************************
  * Private Function Definitions
- *****************************************************************************/
+ ******************************************************************************/
 static uint8_t CurrentSense_DSELShiftIndex(void)
 {
     if (dsel_state == DSEL_LOW)
@@ -83,7 +83,7 @@ void CurrentSense_ConvertFilteredADCToCurrentValues(
         filtered_adc_readings[adc_channel] * VBAT_VOLTAGE / ADC_12_BIT_POINTS;
     adc_channel++;
 
-    converted_readings[FLYWIRE] = filtered_adc_readings[adc_channel] *
-                                  EN2_TO_12VACC_RATIO * VDDA_VOLTAGE /
-                                  ADC_12_BIT_POINTS;
+    converted_readings[FLYWIRE] =
+    filtered_adc_readings[adc_channel] * ADC1_IN10_TO_12V_ACC_RATIO * VDDA_VOLTAGE /
+    ADC_12_BIT_POINTS;
 }
