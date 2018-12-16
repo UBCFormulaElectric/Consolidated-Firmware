@@ -3,6 +3,7 @@
  ******************************************************************************/
 #include "Gpio.h"
 #include "stdbool.h"
+#include "SharedGpio.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -187,12 +188,12 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
     HAL_GPIO_WritePin(EFUSE_AUX_DEN_PORT, EFUSE_AUX_DEN_PIN, GPIO_PIN_SET);
 
     // E-Fuse PDM Fan/Cooling
-    if (fault_states[PDM_FAN_INDEX] == STATIC_EFUSE)
+    if (fault_states[PDM_FAN] == NORMAL_STATE)
     {
         HAL_GPIO_WritePin(
             EFUSE_PDM_FAN_IN_PORT, EFUSE_PDM_FAN_IN_PIN, GPIO_PIN_SET);
     }
-    if (fault_states[COOLING_INDEX] == STATIC_EFUSE)
+    if (fault_states[COOLING] == NORMAL_STATE)
     {
         HAL_GPIO_WritePin(
             EFUSE_COOLING_IN_PORT, EFUSE_COOLING_IN_PIN, GPIO_PIN_SET);
@@ -200,12 +201,12 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
     HAL_GPIO_WritePin(
         EFUSE_FAN_COOLING_DEN_PORT, EFUSE_FAN_COOLING_DEN_PIN, GPIO_PIN_SET);
 
-    // E-Fuse CAN/AIR SHDN
-    if (fault_states[CAN_INDEX] == STATIC_EFUSE)
+    // E-Fuse CAN_GLV/AIR SHDN
+    if (fault_states[CAN_GLV] == NORMAL_STATE)
     {
         HAL_GPIO_WritePin(EFUSE_CAN_IN_PORT, EFUSE_CAN_IN_PIN, GPIO_PIN_SET);
     }
-    if (fault_states[AIR_SHDN_INDEX] == STATIC_EFUSE)
+    if (fault_states[AIR_SHDN] == NORMAL_STATE)
     {
         HAL_GPIO_WritePin(
             EFUSE_AIR_SHDN_IN_PORT, EFUSE_AIR_SHDN_IN_PIN, GPIO_PIN_SET);
@@ -214,12 +215,12 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
         EFUSE_CAN_AIR_SHDN_DEN_PORT, EFUSE_CAN_AIR_SHDN_DEN_PIN, GPIO_PIN_SET);
 
     // E-Fuse Accumulator Fans
-    if (fault_states[ACC_SEG_FAN_INDEX] == STATIC_EFUSE)
+    if (fault_states[ACC_SEGMENT_FAN] == NORMAL_STATE)
     {
         HAL_GPIO_WritePin(
             EFUSE_ACC_SEG_FAN_IN_PORT, EFUSE_ACC_SEG_FAN_IN_PIN, GPIO_PIN_SET);
     }
-    if (fault_states[ACC_ENC_FAN_INDEX] == STATIC_EFUSE)
+    if (fault_states[ACC_ENCLOSURE_FAN] == NORMAL_STATE)
     {
         HAL_GPIO_WritePin(
             EFUSE_ACC_ENC_FAN_IN_PORT, EFUSE_ACC_ENC_FAN_IN_PIN, GPIO_PIN_SET);
@@ -261,11 +262,11 @@ void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states)
         EFUSE_FAN_COOLING_DEN_PORT, EFUSE_FAN_COOLING_DEN_PIN, GPIO_PIN_RESET);
 
     // E-Fuse CAN/AIR SHDN
-    if (fault_states[CAN_INDEX] == STATIC_EFUSE)
+    if (fault_states[CAN_GLV] == NORMAL_STATE)
     {
         HAL_GPIO_WritePin(EFUSE_CAN_IN_PORT, EFUSE_CAN_IN_PIN, GPIO_PIN_SET);
     }
-    if (fault_states[AIR_SHDN_INDEX] == STATIC_EFUSE)
+    if (fault_states[AIR_SHDN] == NORMAL_STATE)
     {
         HAL_GPIO_WritePin(
             EFUSE_AIR_SHDN_IN_PORT, EFUSE_AIR_SHDN_IN_PIN, GPIO_PIN_SET);
