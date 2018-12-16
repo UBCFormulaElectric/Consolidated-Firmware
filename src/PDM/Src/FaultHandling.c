@@ -97,12 +97,6 @@ void FaultHandling_Handler(
                     FaultHandling_ConfigureEfuseOnOff(
                         RIGHT_INVERTER, EFUSE_OFF);
 
-                    fault_states[R_INV_INDEX] = ERROR_EFUSE;
-                    fault_states[L_INV_INDEX] = ERROR_EFUSE;
-                    FaultHandling_CurrentFaultHandling(
-                        L_INV_INDEX, GPIO_PIN_RESET); // Disable L Inv
-                    FaultHandling_CurrentFaultHandling(
-                        R_INV_INDEX, GPIO_PIN_RESET); // Disable R Inv
                     TransmitCANError(
                         MOTOR_SHUTDOWN_ERROR, Power_Distribution_Module, 0, 0);
                 }
@@ -130,14 +124,12 @@ void FaultHandling_Handler(
     {
         TransmitCANError(
             PDM_ERROR, Power_Distribution_Module, _12V_FAULT_UV, can_error_msg);
-        num_faults[_12V_SUPPLY_INDEX]++;
         num_faults[_12V_SUPPLY]++;
     }
     else if (converted_readings[_12V_SUPPLY] > OVERVOLTAGE_GLV_THRES)
     {
         TransmitCANError(
             PDM_ERROR, Power_Distribution_Module, _12V_FAULT_OV, can_error_msg);
-        num_faults[_12V_SUPPLY_INDEX]++;
         num_faults[_12V_SUPPLY]++;
     }
 
@@ -145,7 +137,6 @@ void FaultHandling_Handler(
     {
         TransmitCANError(
             PDM_ERROR, Power_Distribution_Module, VBAT_FAULT, can_error_msg);
-        num_faults[VBAT_SUPPLY_INDEX]++;
         num_faults[VBAT_SUPPLY]++;
     }
 
