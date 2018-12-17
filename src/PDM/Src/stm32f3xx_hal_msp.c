@@ -107,7 +107,7 @@ void HAL_MspInit(void)
  */
 void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 {
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (hadc->Instance == ADC1)
     {
         /* USER CODE BEGIN ADC1_MspInit 0 */
@@ -211,7 +211,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
  */
 void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
 {
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (hcan->Instance == CAN)
     {
         /* USER CODE BEGIN CAN_MspInit 0 */

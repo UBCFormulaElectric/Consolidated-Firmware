@@ -19,7 +19,7 @@
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
-volatile uint8_t num_faults[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {0};
+volatile uint8_t num_faults[ADC_CHANNEL_COUNT * NUM_CHANNELS] = { 0 };
 
 /******************************************************************************
  * Private Function Prototypes
@@ -70,7 +70,7 @@ void FaultHandling_Handler(
 
         // If the efuse is not in RETRY or ERROR mode and the current reading is
         // over the limit, disable efuse
-        if (fault_states[adc_channel] == NORMAL_STATE && 
+        if (fault_states[adc_channel] == NORMAL_STATE &&
             converted_readings[adc_channel] >= EFUSE_CURRENT_LIMIT)
         {
             num_faults[adc_channel]++;
