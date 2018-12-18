@@ -112,15 +112,17 @@ extern volatile GPIO_PinState dsel_state;
 static const GPIO_PinPort_Struct PROFET2_IN0 = {
     {EFUSE_AUX_1_IN_Pin, EFUSE_COOLING_IN_Pin, EFUSE_AIR_SHDN_IN_Pin,
      EFUSE_ACC_SEG_FAN_IN_Pin, EFUSE_LEFT_INVERTER_IN_Pin},
-    {EFUSE_AUX_1_IN_GPIO_Port, EFUSE_COOLING_IN_GPIO_Port, EFUSE_AIR_SHDN_IN_GPIO_Port,
-     EFUSE_ACC_SEG_FAN_IN_GPIO_Port, EFUSE_LEFT_INVERTER_IN_GPIO_Port}};
+    {EFUSE_AUX_1_IN_GPIO_Port, EFUSE_COOLING_IN_GPIO_Port,
+     EFUSE_AIR_SHDN_IN_GPIO_Port, EFUSE_ACC_SEG_FAN_IN_GPIO_Port,
+     EFUSE_LEFT_INVERTER_IN_GPIO_Port}};
 
 // TODO (Issue #191): The index can be a value of @ ...
 static const GPIO_PinPort_Struct PROFET2_IN1 = {
     {EFUSE_AUX_2_IN_Pin, EFUSE_PDM_FAN_IN_Pin, EFUSE_CAN_IN_Pin,
      EFUSE_ACC_ENC_FAN_IN_Pin, EFUSE_RIGHT_INVERTER_IN_Pin},
-    {EFUSE_AUX_2_IN_GPIO_Port, EFUSE_PDM_FAN_IN_GPIO_Port, EFUSE_CAN_IN_GPIO_Port,
-     EFUSE_ACC_ENC_FAN_IN_GPIO_Port, EFUSE_RIGHT_INVERTER_IN_GPIO_Port}};
+    {EFUSE_AUX_2_IN_GPIO_Port, EFUSE_PDM_FAN_IN_GPIO_Port,
+     EFUSE_CAN_IN_GPIO_Port, EFUSE_ACC_ENC_FAN_IN_GPIO_Port,
+     EFUSE_RIGHT_INVERTER_IN_GPIO_Port}};
 
 /******************************************************************************
  * Function Prototypes

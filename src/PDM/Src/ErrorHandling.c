@@ -41,8 +41,7 @@ void ErrorHandling_HandleHeartbeatTimeout(void)
     // Handle BMS not sending heartbeats
 
     // Kill inverters
-    HAL_GPIO_WritePin(
-        EFUSE_DEN_5_GPIO_Port, EFUSE_DEN_5_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(EFUSE_DEN_5_GPIO_Port, EFUSE_DEN_5_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(
         EFUSE_LEFT_INVERTER_IN_GPIO_Port, EFUSE_LEFT_INVERTER_IN_Pin,
         GPIO_PIN_RESET);
