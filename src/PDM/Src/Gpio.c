@@ -3,6 +3,7 @@
  ******************************************************************************/
 #include "Gpio.h"
 #include "stdbool.h"
+#include "SharedGpio.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -178,130 +179,135 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
     // E-Fuse AUX 1/2
     if (fault_states[AUXILIARY_1] == NORMAL_STATE)
     {
-        HAL_GPIO_WritePin(
+        SharedGpio_GPIO_WritePin(
             EFUSE_AUX_1_IN_GPIO_Port, EFUSE_AUX_1_IN_Pin, GPIO_PIN_SET);
     }
     if (fault_states[AUXILIARY_2] == NORMAL_STATE)
     {
-        HAL_GPIO_WritePin(
+        SharedGpio_GPIO_WritePin(
             EFUSE_AUX_2_IN_GPIO_Port, EFUSE_AUX_2_IN_Pin, GPIO_PIN_SET);
     }
-    HAL_GPIO_WritePin(EFUSE_DEN_1_GPIO_Port, EFUSE_DEN_1_Pin, GPIO_PIN_SET);
+    SharedGpio_GPIO_WritePin(EFUSE_DEN_1_GPIO_Port, EFUSE_DEN_1_Pin, GPIO_PIN_SET);
 
     // E-Fuse PDM Fan/Cooling
     if (fault_states[PDM_FAN_INDEX] == STATIC_EFUSE)
     {
-        HAL_GPIO_WritePin(
+        SharedGpio_GPIO_WritePin(
             EFUSE_PDM_FAN_IN_GPIO_Port, EFUSE_PDM_FAN_IN_Pin, GPIO_PIN_SET);
     }
     if (fault_states[COOLING_INDEX] == STATIC_EFUSE)
     {
-        HAL_GPIO_WritePin(
+        SharedGpio_GPIO_WritePin(
             EFUSE_COOLING_IN_GPIO_Port, EFUSE_COOLING_IN_Pin, GPIO_PIN_SET);
     }
-    HAL_GPIO_WritePin(EFUSE_DEN_2_GPIO_Port, EFUSE_DEN_2_Pin, GPIO_PIN_SET);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DEN_2_GPIO_Port, EFUSE_DEN_2_Pin, GPIO_PIN_SET);
 
     // E-Fuse CAN/AIR SHDN
     if (fault_states[CAN_INDEX] == STATIC_EFUSE)
     {
-        HAL_GPIO_WritePin(
-            EFUSE_CAN_IN_GPIO_Port, EFUSE_CAN_IN_Pin, GPIO_PIN_SET);
+        SharedGpio_GPIO_WritePin(EFUSE_CAN_IN_GPIO_Port, EFUSE_CAN_IN_Pin, GPIO_PIN_SET);
     }
     if (fault_states[AIR_SHDN_INDEX] == STATIC_EFUSE)
     {
-        HAL_GPIO_WritePin(
+        SharedGpio_GPIO_WritePin(
             EFUSE_AIR_SHDN_IN_GPIO_Port, EFUSE_AIR_SHDN_IN_Pin, GPIO_PIN_SET);
     }
-    HAL_GPIO_WritePin(EFUSE_DEN_3_GPIO_Port, EFUSE_DEN_3_Pin, GPIO_PIN_SET);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DEN_3_GPIO_Port, EFUSE_DEN_3_Pin, GPIO_PIN_SET);
 
     // E-Fuse Accumulator Fans
     if (fault_states[ACC_SEG_FAN_INDEX] == STATIC_EFUSE)
     {
-        HAL_GPIO_WritePin(
-            EFUSE_ACC_SEG_FAN_IN_GPIO_Port, EFUSE_ACC_SEG_FAN_IN_Pin,
-            GPIO_PIN_SET);
+        SharedGpio_GPIO_WritePin(
+            EFUSE_ACC_SEG_FAN_IN_GPIO_Port, EFUSE_ACC_SEG_FAN_IN_Pin, GPIO_PIN_SET);
     }
     if (fault_states[ACC_ENC_FAN_INDEX] == STATIC_EFUSE)
     {
-        HAL_GPIO_WritePin(
-            EFUSE_ACC_ENC_FAN_IN_GPIO_Port, EFUSE_ACC_ENC_FAN_IN_Pin,
-            GPIO_PIN_SET);
+        SharedGpio_GPIO_WritePin(
+            EFUSE_ACC_ENC_FAN_IN_GPIO_Port, EFUSE_ACC_ENC_FAN_IN_Pin, GPIO_PIN_SET);
     }
 
-    HAL_GPIO_WritePin(EFUSE_DEN_4_GPIO_Port, EFUSE_DEN_4_Pin, GPIO_PIN_SET);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DEN_4_GPIO_Port, EFUSE_DEN_4_Pin, GPIO_PIN_SET);
 
     // E-Fuse Inverter
     if (fault_states[LEFT_INVERTER] == NORMAL_STATE)
     {
-        HAL_GPIO_WritePin(
+        SharedGpio_GPIO_WritePin(
             EFUSE_LEFT_INVERTER_IN_GPIO_Port, EFUSE_LEFT_INVERTER_IN_Pin,
             GPIO_PIN_SET);
     }
     if (fault_states[RIGHT_INVERTER] == NORMAL_STATE)
     {
-        HAL_GPIO_WritePin(
+        SharedGpio_GPIO_WritePin(
             EFUSE_RIGHT_INVERTER_IN_GPIO_Port, EFUSE_RIGHT_INVERTER_IN_Pin,
             GPIO_PIN_SET);
     }
 
-    HAL_GPIO_WritePin(EFUSE_DEN_5_GPIO_Port, EFUSE_DEN_5_Pin, GPIO_PIN_SET);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DEN_5_GPIO_Port, EFUSE_DEN_5_Pin, GPIO_PIN_SET);
 }
+
 void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states)
 {
     // E-Fuse AUX 1/2
-    HAL_GPIO_WritePin(
-        EFUSE_AUX_1_IN_GPIO_Port, EFUSE_AUX_1_IN_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(
-        EFUSE_AUX_2_IN_GPIO_Port, EFUSE_AUX_2_IN_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(EFUSE_DEN_1_GPIO_Port, EFUSE_DEN_1_Pin, GPIO_PIN_RESET);
-
+    SharedGpio_GPIO_WritePin(EFUSE_AUX_1_IN_GPIO_Port, EFUSE_AUX_1_IN_Pin, GPIO_PIN_RESET);
+    SharedGpio_GPIO_WritePin(EFUSE_AUX_2_IN_GPIO_Port, EFUSE_AUX_2_IN_Pin, GPIO_PIN_RESET);
+    SharedGpio_GPIO_WritePin(EFUSE_DEN_1_GPIO_Port, EFUSE_DEN_1_Pin, GPIO_PIN_RESET);
+  
     // E-Fuse PDM Fan/Cooling
-    HAL_GPIO_WritePin(
+    SharedGpio_GPIO_WritePin(
         EFUSE_PDM_FAN_IN_GPIO_Port, EFUSE_PDM_FAN_IN_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(
+    SharedGpio_GPIO_WritePin(
         EFUSE_COOLING_IN_GPIO_Port, EFUSE_COOLING_IN_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(EFUSE_DEN_2_GPIO_Port, EFUSE_DEN_2_Pin, GPIO_PIN_RESET);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DEN_2_GPIO_Port, EFUSE_DEN_2_Pin, GPIO_PIN_RESET);
 
     // E-Fuse CAN/AIR SHDN
     if (fault_states[CAN_INDEX] == STATIC_EFUSE)
     {
-        HAL_GPIO_WritePin(
-            EFUSE_CAN_IN_GPIO_Port, EFUSE_CAN_IN_Pin, GPIO_PIN_SET);
+        SharedGpio_GPIO_WritePin(EFUSE_CAN_IN_GPIO_Port, EFUSE_CAN_IN_Pin, GPIO_PIN_SET);
     }
     if (fault_states[AIR_SHDN_INDEX] == STATIC_EFUSE)
     {
-        HAL_GPIO_WritePin(
+        SharedGpio_GPIO_WritePin(
             EFUSE_AIR_SHDN_IN_GPIO_Port, EFUSE_AIR_SHDN_IN_Pin, GPIO_PIN_SET);
     }
 
-    HAL_GPIO_WritePin(EFUSE_DEN_3_GPIO_Port, EFUSE_DEN_3_Pin, GPIO_PIN_SET);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DEN_3_GPIO_Port, EFUSE_DEN_3_Pin, GPIO_PIN_SET);
 
     // E-Fuse Accumulator Fans
-    HAL_GPIO_WritePin(
-        EFUSE_ACC_SEG_FAN_IN_GPIO_Port, EFUSE_ACC_SEG_FAN_IN_Pin,
-        GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(
-        EFUSE_ACC_ENC_FAN_IN_GPIO_Port, EFUSE_ACC_ENC_FAN_IN_Pin,
-        GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(EFUSE_DEN_4_GPIO_Port, EFUSE_DEN_4_Pin, GPIO_PIN_RESET);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_ACC_SEG_FAN_IN_GPIO_Port, EFUSE_ACC_SEG_FAN_IN_Pin, GPIO_PIN_RESET);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_ACC_ENC_FAN_IN_GPIO_Port, EFUSE_ACC_ENC_FAN_IN_Pin, GPIO_PIN_RESET);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DEN_4_GPIO_Port, EFUSE_DEN_4_Pin, GPIO_PIN_RESET);
 
     // E-Fuse Inverter
-    HAL_GPIO_WritePin(EFUSE_DEN_5_GPIO_Port, EFUSE_DEN_5_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DEN_5_GPIO_Port, EFUSE_DEN_5_Pin, GPIO_PIN_RESET);
+    SharedGpio_GPIO_WritePin(
         EFUSE_LEFT_INVERTER_IN_GPIO_Port, EFUSE_LEFT_INVERTER_IN_Pin,
         GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(
+    SharedGpio_GPIO_WritePin(
         EFUSE_RIGHT_INVERTER_IN_GPIO_Port, EFUSE_RIGHT_INVERTER_IN_Pin,
         GPIO_PIN_RESET);
 }
 
 void GPIO_EFuseSelectDSEL(GPIO_PinState dsel_value)
 {
-    HAL_GPIO_WritePin(EFUSE_DSEL_1_GPIO_Port, EFUSE_DSEL_1_Pin, dsel_value);
-    HAL_GPIO_WritePin(EFUSE_DSEL_2_GPIO_Port, EFUSE_DSEL_2_Pin, dsel_value);
-    HAL_GPIO_WritePin(EFUSE_DSEL_3_GPIO_Port, EFUSE_DSEL_3_Pin, dsel_value);
-    HAL_GPIO_WritePin(EFUSE_DSEL_4_GPIO_Port, EFUSE_DSEL_4_Pin, dsel_value);
-    HAL_GPIO_WritePin(EFUSE_DSEL_5_GPIO_Port, EFUSE_DSEL_5_Pin, dsel_value);
+    SharedGpio_GPIO_WritePin(EFUSE_DSEL_1_GPIO_Port, EFUSE_DSEL_1_Pin, dsel_value);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DSEL_2_GPIO_Port, EFUSE_DSEL_2_Pin, dsel_value);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DSEL_3_GPIO_Port, EFUSE_DSEL_3_Pin, dsel_value);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DSEL_4_GPIO_Port, EFUSE_DSEL_4_Pin, dsel_value);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DSEL_5_GPIO_Port, EFUSE_DSEL_5_Pin, dsel_value);
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t gpio_pin)
