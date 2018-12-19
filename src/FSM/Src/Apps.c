@@ -25,22 +25,22 @@
 volatile uint32_t apps_fault_state = FSM_APPS_NORMAL_OPERATION;
 
 /******************************************************************************
-* Private Function Prototypes
-*******************************************************************************/
+ * Private Function Prototypes
+ *******************************************************************************/
 
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
 uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum mode)
 {
-    static uint32_t apps_fault_counter = 0; 
-    float32_t raw_primary_apps_value       = 0.0;
-    float32_t raw_secondary_apps_value     = 0.0;
-    float32_t percent_primary_apps_value   = 0.0;
-    float32_t percent_secdonary_apps_value = 0.0;
+    static uint32_t apps_fault_counter           = 0;
+    float32_t       raw_primary_apps_value       = 0.0;
+    float32_t       raw_secondary_apps_value     = 0.0;
+    float32_t       percent_primary_apps_value   = 0.0;
+    float32_t       percent_secdonary_apps_value = 0.0;
 
     uint32_t temporary_apps_fault_counter = 0;
-    bool fault_flag                       = false;
+    bool     fault_flag                   = false;
     uint16_t accelerator_pedal_position   = 0;
 
     // Save apps_fault_counter in mode = APPS_NORMAL_MODE
@@ -60,13 +60,15 @@ uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum mode)
         raw_secondary_apps_value = MAX_16_BITS_VALUE - (float32_t)TIM3->CNT;
 
         // Set a deadzone to handle underflow
-        if (((MAX_16_BITS_VALUE - raw_primary_apps_value) < PRIMARY_APPS_DEADZONE) ||
+        if (((MAX_16_BITS_VALUE - raw_primary_apps_value) <
+             PRIMARY_APPS_DEADZONE) ||
             (raw_primary_apps_value < PRIMARY_APPS_DEADZONE))
         {
             raw_primary_apps_value = 0.0;
         }
 
-        if (((MAX_16_BITS_VALUE - raw_primary_apps_value) < SECONDARY_APPS_DEADZONE) ||
+        if (((MAX_16_BITS_VALUE - raw_primary_apps_value) <
+             SECONDARY_APPS_DEADZONE) ||
             (raw_primary_apps_value < SECONDARY_APPS_DEADZONE))
         {
             raw_secondary_apps_value = 0.0;
@@ -74,7 +76,8 @@ uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum mode)
 
         // Calculate ratio between APPS position readings and calibrated maximum
         // values
-        percent_primary_apps_value = raw_primary_apps_value / PRIMARY_APPS_MAX_VALUE;
+        percent_primary_apps_value =
+            raw_primary_apps_value / PRIMARY_APPS_MAX_VALUE;
         percent_secdonary_apps_value =
             raw_secondary_apps_value / SECONDARY_APPS_MAX_VALUE;
 
@@ -89,7 +92,8 @@ uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum mode)
         // Check for position readings outside bounds (when pedal is released OR
         // when pedal is pushed passed max rotation beyond calibrated pedal box)
         else if (
-            percent_primary_apps_value > 1.0 || percent_secdonary_apps_value > 1.0)
+            percent_primary_apps_value > 1.0 ||
+            percent_secdonary_apps_value > 1.0)
         {
             // Set pedal position to zero when encoder underflows OR when pedal
             // pushes passed max. pedal box rotation
@@ -112,7 +116,8 @@ uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum mode)
         {
             // Map accelerator pedal position to 10-bit value using primary APPS
             // reading
-            accelerator_pedal_position = percent_primary_apps_value * MAX_10_BITS_VALUE;
+            accelerator_pedal_position =
+                percent_primary_apps_value * MAX_10_BITS_VALUE;
         }
 
         // Prevent FSM_APPS_Fault_State_1 and FSM_APPS_Fault_State_2 from
@@ -144,8 +149,10 @@ uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum mode)
 
             // Check for implausibility between the primary and secondary APPS
             // position readings (>10% difference)
-            if (((percent_primary_apps_value - percent_secdonary_apps_value) > 0.1) ||
-                ((percent_secdonary_apps_value - percent_primary_apps_value) > 0.1))
+            if (((percent_primary_apps_value - percent_secdonary_apps_value) >
+                 0.1) ||
+                ((percent_secdonary_apps_value - percent_primary_apps_value) >
+                 0.1))
             {
                 // Check if implausibility occurs after 100msec
                 if (apps_fault_counter > MAX_APPS_FAULTS)
@@ -172,7 +179,7 @@ uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum mode)
         }
 
         // Check if pedal is at max. torque request
-        if (accelerator_pedal_position ==  MAX_10_BITS_VALUE)
+        if (accelerator_pedal_position == MAX_10_BITS_VALUE)
         {
             // Check if pedal is stuck at max. torque after 10 secs
             if (apps_fault_counter > MAX_SATURATION_FAULTS)

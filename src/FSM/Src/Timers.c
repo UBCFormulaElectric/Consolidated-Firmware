@@ -23,13 +23,13 @@
  ******************************************************************************/
 
 /******************************************************************************
-* Private Function Prototypes
-*******************************************************************************/
+ * Private Function Prototypes
+ *******************************************************************************/
 /**
-* @brief Main control loop
-*          1. Transmits CAN messages containing the accelerator pedal position,
-*          front wheel speeds, and steering angle.
-*/
+ * @brief Main control loop
+ *          1. Transmits CAN messages containing the accelerator pedal position,
+ *          front wheel speeds, and steering angle.
+ */
 static void Timers_ControlLoop(void);
 
 /******************************************************************************

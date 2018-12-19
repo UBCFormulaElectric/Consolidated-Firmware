@@ -98,7 +98,6 @@ static void MX_IWDG_Init(void);
 /* USER CODE BEGIN PFP */
 /* Private function prototypes -----------------------------------------------*/
 
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
