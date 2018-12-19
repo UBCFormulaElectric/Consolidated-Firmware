@@ -2,7 +2,6 @@
  * Includes
  ******************************************************************************/
 #include "Apps.h"
-#include "main.h"
 #include "CanDefinitions.h"
 #include "stdbool.h"
 
