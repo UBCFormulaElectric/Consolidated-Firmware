@@ -3,6 +3,7 @@
  ******************************************************************************/
 #include "FaultHandling.h"
 #include "Gpio.h"
+#include "SharedGpio.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -40,13 +41,13 @@ static void
 {
     if (index < ADC_CHANNEL_COUNT)
     {
-        HAL_GPIO_WritePin(
+        SharedGpio_GPIO_WritePin(
             OUTPUT_0_PINOUT.port[index], OUTPUT_0_PINOUT.pin[index], state);
     }
     else
     {
         index = index - ADC_CHANNEL_COUNT; // adjust index for pinout array
-        HAL_GPIO_WritePin(
+        SharedGpio_GPIO_WritePin(
             OUTPUT_1_PINOUT.port[index], OUTPUT_1_PINOUT.pin[index], state);
     }
 }
