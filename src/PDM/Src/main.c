@@ -457,10 +457,13 @@ static void MX_TIM17_Init(void)
     /* USER CODE BEGIN TIM17_Init 1 */
 
     /* USER CODE END TIM17_Init 1 */
-    htim17.Instance               = TIM17;
-    htim17.Init.Prescaler         = 65535;
-    htim17.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim17.Init.Period            = 1;
+    htim17.Instance         = TIM17;
+    htim17.Init.Prescaler   = TIM17_PRESCALER;
+    htim17.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim17.Init.Period =
+        (APB2_TIMER_CLOCK / ((TIM17_PRESCALER + 1) * (TIM17_REPETITION + 1) *
+                             TIM17_CLK_DIVISION * EFUSE_RETRY_FREQUENCY)) -
+        1;
     htim17.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim17.Init.RepetitionCounter = 0;
     htim17.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
