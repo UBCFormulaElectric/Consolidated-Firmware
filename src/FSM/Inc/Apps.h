@@ -1,7 +1,6 @@
 /**
  * @file  Apps.h
- * @brief FSM_2018 - Function library for the Accelerator Pedal Position
-          Sensors (APPS)
+ * @brief Function library for the Accelerator Pedal Position Sensors (APPS)
  */
 
 #ifndef APPS_H
@@ -11,7 +10,7 @@
  * Includes
  ******************************************************************************/
 #include "main.h"
-#include "arm_math.h" 
+#include "arm_math.h"
 
 /******************************************************************************
  * Preprocessor Constants
@@ -67,19 +66,19 @@ extern volatile uint32_t apps_fault_state;
  *        1. Reads the latest APPS (encoder) position values from TIM2 and TIM3
  *        2. Checks for improperly connected APPS encoders
  *        3. Checks for out-of-bounds APPS readings (outside calibrated maximum
- *        values) 
+ *        values)
  *        4. Checks for implausible APPS readings (>10% difference between the
- *        primary and secondary readings as per EV2.3.6) 
+ *        primary and secondary readings as per EV2.3.6)
  *  	  5. Checks for APPS/Brake Pedal
- *        Plausibility Check, where accelerator pedal is pushed >25% while brake 
- *        is pushed (EV2.5) 
+ *        Plausibility Check, where accelerator pedal is pushed >25% while brake
+ *        is pushed (EV2.5)
  *        6. Checks for accelerator pedal stuck at max. torque for
- *        longer than 10 secs 
+ *        longer than 10 secs
  *	      7. Maps the APPS readings to a 10-bit number (0 =
  *        unpressed, 1023 = fully pressed)
  *
  * @param APPS_NORMAL_MODE - Normal reading without affecting APPSFaultCounter
- *        APPS_CONTROL_LOOP_MODE - Control loop reading 
+ *        APPS_CONTROL_LOOP_MODE - Control loop reading
  *        (affects APPSFaultCounter)
  * @return Accelerator pedal position (10-bit)
  */
