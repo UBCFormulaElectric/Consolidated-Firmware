@@ -31,8 +31,8 @@
 
 // Fault handling variables
 #define PEDAL_SATURATION_TIMEOUT  (uint32_t)(10)         // (sec)
-#define APPS_IMPLAUSIBILITY_DELAY (float32_t)(1.0)       // (sec)
-#define APPS_BPPC_THRESHOLD       (float32_t)(0.25)      // (decimal %)
+#define APPS_IMPLAUSIBILITY_DELAY (float32_t)(1.0f)       // (sec)
+#define APPS_BPPC_THRESHOLD       (float32_t)(0.25f)      // (decimal %)
 #define MAX_APPS_FAULTS \
     (float32_t)APPS_IMPLAUSIBILITY_DELAY * (float32_t)CONTROL_LOOP_FREQUENCY
 #define MAX_SATURATION_FAULTS \
