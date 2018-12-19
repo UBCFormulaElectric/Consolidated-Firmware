@@ -228,7 +228,7 @@ uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum mode)
     }
 
     // Reload apps_fault_counter in mode = 0
-    if (mode == 0)
+    if (mode == APPS_NORMAL_MODE)
     {
         apps_fault_counter = temporary_apps_fault_counter;
     }
