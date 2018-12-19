@@ -21,9 +21,9 @@
 #define SECONDARY_APPS_MAX_VALUE (float32_t)(1950.0f)
 #define APPS_PERCENT_DEADZONE    (float32_t)(0.03f)
 #define PRIMARY_APPS_DEADZONE \
-    (float32_t)PRIMARY_APPS_MAX_VALUE * APPS_PERCENT_DEADZONE
+    (float32_t)(PRIMARY_APPS_MAX_VALUE * APPS_PERCENT_DEADZONE)
 #define SECONDARY_APPS_DEADZONE \
-    (float32_t)SECONDARY_APPS_MAX_VALUE * APPS_PERCENT_DEADZONE
+    (float32_t)(SECONDARY_APPS_MAX_VALUE * APPS_PERCENT_DEADZONE)
 
 // Accelerator pedal saturation point (%)
 #define PEDAL_SATURATION_POINT (float32_t)(0.80f)
@@ -31,10 +31,10 @@
 
 // Fault handling variables
 #define PEDAL_SATURATION_TIMEOUT  (uint32_t)(10)         // (sec)
-#define APPS_IMPLAUSIBILITY_DELAY (uint32_t)(1)          // (sec)
+#define APPS_IMPLAUSIBILITY_TIMEOUT (uint32_t)(1)          // (sec)
 #define APPS_BPPC_THRESHOLD       (float32_t)(0.25f)     // (decimal %)
 #define MAX_APPS_FAULTS \
-    (uint32_t)(APPS_IMPLAUSIBILITY_DELAY * CONTROL_LOOP_FREQUENCY)
+    (uint32_t)(APPS_IMPLAUSIBILITY_TIMEOUT * CONTROL_LOOP_FREQUENCY)
 #define MAX_SATURATION_FAULTS \
     (uint32_t)(PEDAL_SATURATION_TIMEOUT * CONTROL_LOOP_FREQUENCY)
 
