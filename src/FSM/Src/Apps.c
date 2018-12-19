@@ -4,11 +4,11 @@
 #include "Apps.h"
 #include "CanDefinitions.h"
 #include "stdbool.h"
+#include "Constants.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
  ******************************************************************************/
-#define MAX_10_BIT_POINTS 1023
 
 /******************************************************************************
  * Module Preprocessor Macros
@@ -57,16 +57,16 @@ uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum Mode)
     {
         // Read latest APPS position values, from timer counter.
         raw_primary_apps_value   = (float32_t)TIM2->CNT;
-        raw_secondary_apps_value = 65535 - (float32_t)TIM3->CNT;
+        raw_secondary_apps_value = MAX_16_BITS_VALUE - (float32_t)TIM3->CNT;
 
         // Set a deadzone to handle underflow
-        if (((65535 - raw_primary_apps_value) < PRIMARY_APPS_DEADZONE) ||
+        if (((MAX_16_BITS_VALUE - raw_primary_apps_value) < PRIMARY_APPS_DEADZONE) ||
             (raw_primary_apps_value < PRIMARY_APPS_DEADZONE))
         {
             raw_primary_apps_value = 0.0;
         }
 
-        if (((65535 - raw_primary_apps_value) < SECONDARY_APPS_DEADZONE) ||
+        if (((MAX_16_BITS_VALUE - raw_primary_apps_value) < SECONDARY_APPS_DEADZONE) ||
             (raw_primary_apps_value < SECONDARY_APPS_DEADZONE))
         {
             raw_secondary_apps_value = 0.0;
@@ -101,7 +101,7 @@ uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum Mode)
         {
             // Saturate pedal position to 100% if close to being fully pressed
             // (accounts for deflection in pedal cluster)
-            accelerator_pedal_position = MAX_10_BIT_POINTS;
+            accelerator_pedal_position = MAX_10_BITS_VALUE;
         }
         else if (percent_primary_apps_value < PEDAL_RELEASE_POINT)
         {
@@ -112,7 +112,7 @@ uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum Mode)
         {
             // Map accelerator pedal position to 10-bit value using primary APPS
             // reading
-            accelerator_pedal_position = percent_primary_apps_value * MAX_10_BIT_POINTS;
+            accelerator_pedal_position = percent_primary_apps_value * MAX_10_BITS_VALUE;
         }
 
         // Prevent FSM_APPS_Fault_State_1 and FSM_APPS_Fault_State_2 from
@@ -172,7 +172,7 @@ uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum Mode)
         }
 
         // Check if pedal is at max. torque request
-        if (accelerator_pedal_position ==  MAX_10_BIT_POINTS)
+        if (accelerator_pedal_position ==  MAX_10_BITS_VALUE)
         {
             // Check if pedal is stuck at max. torque after 10 secs
             if (apps_fault_counter > MAX_SATURATION_FAULTS)
