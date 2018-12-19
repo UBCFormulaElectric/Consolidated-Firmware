@@ -210,10 +210,10 @@ typedef struct
 /** @brief Queue operation status code */
 typedef enum
 {
-    FIFO_SUCCESS  = 0,
-    FIFO_IS_FULL  = 1,
-    FIFO_IS_EMPTY = 2,
-    FIFO_ERROR    = 3
+    FIFO_SUCCESS,
+    FIFO_IS_FULL,
+    FIFO_IS_EMPTY,
+    FIFO_ERROR
 } Fifo_Status_Enum;
 
 /******************************************************************************
