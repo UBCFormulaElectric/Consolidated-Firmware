@@ -4,6 +4,7 @@
 #include "Timers.h"
 #include "Apps.h"
 #include "Gpio.h"
+#include "CanDefinitions.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -38,7 +39,6 @@ static void Timers_ControlLoop(void)
 {
     static Motor_Shutdown_Status_Enum MotorState;
 
-    // Data type manipulation variables
     uint16_t AcceleratorPedalPosition_16bit = 0;
 
     // Get sensor data
@@ -46,23 +46,23 @@ static void Timers_ControlLoop(void)
     // loop function
     AcceleratorPedalPosition_16bit =
         getAcceleratorPedalPosition(APPS_CONTROL_LOOP_MODE);
+
     // ERROR HANDLING
     // APPS fault when motors are on
-    if (apps_fault_state != 0 && MotorState == ON)
+    if (apps_fault_state != FSM_APPS_NORMAL_OPERATION && MotorState == ON)
     {
         // TransmitCANError(Motor_Shutdown_Error_StandardID,
         // Front_Sensor_Module, apps_fault_state, CANBrakeAPPS);
         MotorState = OFF;
     }
 
-    if (apps_fault_state)
+    if (apps_fault_state != FSM_APPS_NORMAL_OPERATION)
     {
-        // Red
         Gpio_TurnOnRedLed();
     }
 
     // No APPS fault when motors are off
-    if (apps_fault_state == 0 && MotorState == OFF)
+    if (apps_fault_state == FSM_APPS_NORMAL_OPERATION && MotorState == OFF)
     {
         // TransmitDataCAN(Motor_ReEnable_StandardID, Motor_ReEnable_ExtendedID,
         // Motor_ReEnable_DLC, Front_Sensor_Module);
