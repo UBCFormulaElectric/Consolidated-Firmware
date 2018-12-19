@@ -175,7 +175,7 @@
 // into a struct?
 // TODO (Issue #191): Can this not be a static const? Or can it be in .c file
 // instead at least
-static const float VOLTAGE_TO_CURRENT[ADC_CHANNEL_COUNT * NUM_CHANNELS] =
+static const float VOLTAGE_TO_CURRENT[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] =
 {
     CURRENT_SCALING_AUX / SENSE_RESISTANCE,
     CURRENT_SCALING / SENSE_RESISTANCE,
@@ -199,7 +199,7 @@ static const float VOLTAGE_TO_CURRENT[ADC_CHANNEL_COUNT * NUM_CHANNELS] =
 // TODO (Issue #191): Can this not be a static const? Or can it be in .c file
 // instead at least 3 retries for all outputs except FANS/COOLING which have 10
 // retries to account for inrush, and 1 retry for VICOR poweroff
-static const uint8_t MAX_FAULTS[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {
+static const uint8_t MAX_FAULTS[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {
     3, 10, 3, 10, 3, 3, 3, 1, 3, 3, 3, 10, 3, 3, 3, 1};
 
 /******************************************************************************
