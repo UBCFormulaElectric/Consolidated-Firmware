@@ -1,6 +1,6 @@
 /**
- * @file  Timer.h
- * @brief Contains GPIO initilizing and control code.
+ * @file  Gpio.h
+ * @brief GPIO helper functions library
  */
 #ifndef GPIO_H
 #define GPIO_H
