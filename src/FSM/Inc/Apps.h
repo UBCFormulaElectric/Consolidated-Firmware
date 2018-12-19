@@ -1,5 +1,5 @@
 /**
- * @file Apps.h
+ * @file  Apps.h
  * @brief FSM_2018 - Function library for the Accelerator Pedal Position
           Sensors (APPS)
  */
@@ -18,26 +18,26 @@
  ******************************************************************************/
 // clang-format off
 // Maximum APPS values (calibrated to pedal box)
-#define PRIMARY_APPS_MAX_VALUE   (float32_t)1400
-#define SECONDARY_APPS_MAX_VALUE (float32_t)1950
-#define APPS_PERCENT_DEADZONE    (float32_t)0.03
+#define PRIMARY_APPS_MAX_VALUE   (float32_t)(1400.0f)
+#define SECONDARY_APPS_MAX_VALUE (float32_t)(1950.0f)
+#define APPS_PERCENT_DEADZONE    (float32_t)(0.03f)
 #define PRIMARY_APPS_DEADZONE \
-    (float32_t)PRIMARY_APPS_MAX_VALUE *APPS_PERCENT_DEADZONE
+    (float32_t)PRIMARY_APPS_MAX_VALUE * APPS_PERCENT_DEADZONE
 #define SECONDARY_APPS_DEADZONE \
-    (float32_t)SECONDARY_APPS_MAX_VALUE *APPS_PERCENT_DEADZONE
+    (float32_t)SECONDARY_APPS_MAX_VALUE * APPS_PERCENT_DEADZONE
 
 // Accelerator pedal saturation point (%)
-#define PEDAL_SATURATION_POINT (float32_t)0.80
-#define PEDAL_RELEASE_POINT    (float32_t)0.04
+#define PEDAL_SATURATION_POINT (float32_t)(0.80f)
+#define PEDAL_RELEASE_POINT    (float32_t)(0.04f)
 
 // Fault handling variables
-#define PEDAL_SATURATION_TIMEOUT  (uint32_t)10         // (sec)
-#define APPS_IMPLAUSIBILITY_DELAY (float32_t)1.0 // (sec)
-#define APPS_BPPC_THRESHOLD       (float32_t)0.25      // (decimal %)
+#define PEDAL_SATURATION_TIMEOUT  (uint32_t)(10)         // (sec)
+#define APPS_IMPLAUSIBILITY_DELAY (float32_t)(1.0)       // (sec)
+#define APPS_BPPC_THRESHOLD       (float32_t)(0.25)      // (decimal %)
 #define MAX_APPS_FAULTS \
-    (float32_t)APPS_IMPLAUSIBILITY_DELAY *(float32_t)CONTROL_LOOP_FREQUENCY
+    (float32_t)APPS_IMPLAUSIBILITY_DELAY * (float32_t)CONTROL_LOOP_FREQUENCY
 #define MAX_SATURATION_FAULTS \
-    (int)PEDAL_SATURATION_TIMEOUT *(int)CONTROL_LOOP_FREQUENCY
+    (int)PEDAL_SATURATION_TIMEOUT * (uin32_t)CONTROL_LOOP_FREQUENCY
 
 /******************************************************************************
  * Preprocessor Macros
