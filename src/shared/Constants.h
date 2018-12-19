@@ -13,7 +13,8 @@
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off
-#define PI          (float)(3.14159265359)
+#define MAX_10_BITS_VALUE (uint32_t)(1023)
+#define MAX_16_BITS_VALUE (uint32_t)(65535)
 // clang-format on
 
 #endif /* CONSTANTS_H */
