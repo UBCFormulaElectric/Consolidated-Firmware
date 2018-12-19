@@ -56,8 +56,8 @@ static void
  * Function Definitions
  ******************************************************************************/
 void FaultHandling_Handler(
-    volatile uint8_t *fault_states,
-    volatile float *  converted_readings)
+    volatile uint8_t *  fault_states,
+    volatile float32_t *converted_readings)
 {
     uint64_t can_error_msg;
 
@@ -71,7 +71,7 @@ void FaultHandling_Handler(
 
         // If the efuse is not in RETRY or ERROR mode and the current reading is
         // over the limit, disable efuse
-        if (fault_states[adc_channel] == NORMAL_STATE && 
+        if (fault_states[adc_channel] == NORMAL_STATE &&
             converted_readings[adc_channel] >= EFUSE_CURRENT_LIMIT)
         {
             num_faults[adc_channel]++;

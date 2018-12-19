@@ -10,6 +10,7 @@
  ******************************************************************************/
 #include "stm32f3xx_hal.h"
 #include "CurrentSense.h"
+#include "arm_math.h"
 
 /******************************************************************************
  * Preprocessor Constants
@@ -47,8 +48,8 @@ extern volatile GPIO_PinState dsel_state;
  *        tracks converted current/voltage readings from ADC counts to A or V
  */
 void FaultHandling_Handler(
-    volatile uint8_t *fault_states,
-    volatile float *  converted_readings);
+    volatile uint8_t *  fault_states,
+    volatile float32_t *converted_readings);
 
 /**
  * @brief Re-enable any E-Fuses that have faulted but have not exceeded their

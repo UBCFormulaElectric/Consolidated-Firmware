@@ -47,9 +47,10 @@
 
 #include "Gpio.h"
 #include "Adc.h"
-#include "SharedCAN.h"
+#include "SharedCan.h"
 #include "Timers.h"
 #include "CurrentSense.h"
+#include "arm_math.h"
 
 /* USER CODE END Includes */
 
@@ -81,11 +82,14 @@ TIM_HandleTypeDef htim17;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-volatile GPIO_PinState dsel_state                                   = DSEL_LOW;
-volatile uint8_t e_fuse_fault_states[NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER] 
-                 = {NORMAL_STATE};
-volatile uint32_t adc_readings[NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER];
-volatile float converted_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2];
+volatile GPIO_PinState dsel_state = DSEL_LOW;
+volatile uint8_t
+    e_fuse_fault_states[NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER] =
+        {NORMAL_STATE};
+volatile uint32_t
+    adc_readings[NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER];
+volatile float32_t
+    converted_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
