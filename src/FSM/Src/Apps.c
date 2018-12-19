@@ -21,7 +21,7 @@
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
-// Used to send error CAN messages and track faults
+/* @brief Should be a value of FsmError_Enum with the prefix "FSM_APPS" */
 volatile uint32_t apps_fault_state = FSM_APPS_NORMAL_OPERATION;
 
 /******************************************************************************
