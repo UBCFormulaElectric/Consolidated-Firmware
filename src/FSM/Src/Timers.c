@@ -37,23 +37,22 @@ static void Timers_ControlLoop(void);
  ******************************************************************************/
 static void Timers_ControlLoop(void)
 {
-    static Motor_Shutdown_Status_Enum MotorState;
-
-    uint16_t AcceleratorPedalPosition_16bit = 0;
+    static MotorShutdownStatus_Enum motor_state;
+    uint16_t accelerator_pedal_position = 0;
 
     // Get sensor data
     // Only call this function in APPS_CONTROL_LOOP_MODE once in this control
     // loop function
-    AcceleratorPedalPosition_16bit =
+    accelerator_pedal_position =
         getAcceleratorPedalPosition(APPS_CONTROL_LOOP_MODE);
 
     // ERROR HANDLING
     // APPS fault when motors are on
-    if (apps_fault_state != FSM_APPS_NORMAL_OPERATION && MotorState == ON)
+    if (apps_fault_state != FSM_APPS_NORMAL_OPERATION && motor_state == ON)
     {
         // TransmitCANError(Motor_Shutdown_Error_StandardID,
         // Front_Sensor_Module, apps_fault_state, CANBrakeAPPS);
-        MotorState = OFF;
+        motor_state = OFF;
     }
 
     if (apps_fault_state != FSM_APPS_NORMAL_OPERATION)
@@ -62,11 +61,11 @@ static void Timers_ControlLoop(void)
     }
 
     // No APPS fault when motors are off
-    if (apps_fault_state == FSM_APPS_NORMAL_OPERATION && MotorState == OFF)
+    if (apps_fault_state == FSM_APPS_NORMAL_OPERATION && motor_state == OFF)
     {
         // TransmitDataCAN(Motor_ReEnable_StandardID, Motor_ReEnable_ExtendedID,
         // Motor_ReEnable_DLC, Front_Sensor_Module);
-        MotorState = ON;
+        motor_state = ON;
     }
 }
 

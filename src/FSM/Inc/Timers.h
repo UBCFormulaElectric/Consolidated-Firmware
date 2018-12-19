@@ -29,7 +29,7 @@ typedef enum
 {
     ON,
     OFF
-} Motor_Shutdown_Status_Enum;
+} MotorShutdownStatus_Enum;
 
 /******************************************************************************
  * Global Variables
