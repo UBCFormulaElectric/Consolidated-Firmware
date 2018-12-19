@@ -69,7 +69,9 @@ void FaultHandling_Handler(
         // This function only handles efuse errors, not voltage sense errors
         if (adc_channel == _12V_SUPPLY || adc_channel == VBAT_SUPPLY ||
             adc_channel == FLYWIRE)
+        {
             continue;
+        }
 
         // If the efuse is not in RETRY or ERROR mode and the current reading is
         // over the limit, disable efuse
@@ -165,6 +167,8 @@ void FaultHandling_RetryEFuse(volatile uint8_t *fault_states)
             fault_states[adc_channel] = NORMAL_STATE;
         }
         else if (fault_states[adc_channel] == ERROR_STATE)
+        {
             FaultHandling_ConfigureEfuseOnOff(adc_channel, EFUSE_OFF);
+        }
     }
 }
