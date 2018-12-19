@@ -1,37 +1,26 @@
 /******************************************************************************
  * Includes
- *****************************************************************************/
+ ******************************************************************************/
 #include "CurrentSense.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
- *****************************************************************************/
+ ******************************************************************************/
 
 /******************************************************************************
  * Module Typedefs
- *****************************************************************************/
+ ******************************************************************************/
 
 /******************************************************************************
  * Module Variable Definitions
- *****************************************************************************/
+ ******************************************************************************/
 extern volatile GPIO_PinState dsel_state;
 static float filtered_adc_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] =
     {0};
 
-// LPF constants (calculated using this article:
-// https://en.wikipedia.org/wiki/Low-pass_filter#Discrete-time_realization)
-static const float ADC_TRIGGER_FREQUENCY =
-    5000.0f; // ADC sampling frequency - 72MHz/14400 (TIM2 prescaler value)
-static const float DELTA            = 1.0f / ADC_TRIGGER_FREQUENCY;
-static const float CUTOFF_FREQUENCY = 10.0f; // 10Hz cutoff to account for false
-                                             // tripping from inrush - see
-                                             // SoftwareTools for data
-static const float RC        = 1.0f / (2.0f * 3.14159265f * CUTOFF_FREQUENCY);
-static const float LPF_ALPHA = DELTA / (RC + DELTA);
-
 /******************************************************************************
  * Private Function Prototypes
- *****************************************************************************/
+ ******************************************************************************/
 /**
  * @brief  Helper function to shift starting index in any ADC/Converted Readings
  *         array, depending on dsel_state.
@@ -42,7 +31,7 @@ static uint8_t CurrentSense_DSELShiftIndex(void);
 
 /******************************************************************************
  * Private Function Definitions
- *****************************************************************************/
+ ******************************************************************************/
 static uint8_t CurrentSense_DSELShiftIndex(void)
 {
     if (dsel_state == DSEL_LOW)
@@ -57,11 +46,14 @@ static uint8_t CurrentSense_DSELShiftIndex(void)
 
 /******************************************************************************
  * Function Definitions
- *****************************************************************************/
+ ******************************************************************************/
 void CurrentSense_LowPassFilterADCReadings(volatile uint32_t *adc_readings)
 {
     uint8_t adc_channel = CurrentSense_DSELShiftIndex();
     uint8_t final_index = adc_channel + ADC_CHANNEL_COUNT;
+    // adc_index is set to ADC_CHANNEL_COUNT because of the bug described in
+    // NUM_READINGS_PER_ADC_DMA_TRANSFER - that is, we only use the second half
+    // of adc_readings[]
     uint8_t adc_index   = ADC_CHANNEL_COUNT;
     for (; adc_channel < final_index; adc_channel++)
     {
@@ -94,7 +86,7 @@ void CurrentSense_ConvertFilteredADCToCurrentValues(
         filtered_adc_readings[adc_channel] * VBAT_VOLTAGE / ADC_12_BIT_POINTS;
     adc_channel++;
 
-    converted_readings[VICOR_SUPPLY_INDEX] =
-        filtered_adc_readings[adc_channel] * EN2_TO_12VACC * VDDA_VOLTAGE /
-        ADC_12_BIT_POINTS;
+    converted_readings[FLYWIRE] =
+    filtered_adc_readings[adc_channel] * ADC1_IN10_TO_12V_ACC_RATIO * VDDA_VOLTAGE /
+    ADC_12_BIT_POINTS;
 }

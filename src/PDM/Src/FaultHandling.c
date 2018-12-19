@@ -1,29 +1,30 @@
 /******************************************************************************
  * Includes
- *****************************************************************************/
+ ******************************************************************************/
 #include "FaultHandling.h"
 #include "Gpio.h"
+#include "SharedGpio.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
- *****************************************************************************/
+ ******************************************************************************/
 
 /******************************************************************************
  * Module Preprocessor Macros
- *****************************************************************************/
+ ******************************************************************************/
 
 /******************************************************************************
  * Module Typedefs
- *****************************************************************************/
+ ******************************************************************************/
 
 /******************************************************************************
  * Module Variable Definitions
- *****************************************************************************/
+ ******************************************************************************/
 volatile uint8_t num_faults[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {0};
 
 /******************************************************************************
  * Private Function Prototypes
- *****************************************************************************/
+ ******************************************************************************/
 /**
  * @brief  Helper function to turn e-fuse on or off
  * @param  index Index of e-fuse
@@ -34,26 +35,26 @@ static void
 
 /******************************************************************************
  * Private Function Definitions
- *****************************************************************************/
+ ******************************************************************************/
 static void
     FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState state)
 {
     if (index < ADC_CHANNEL_COUNT)
     {
-        HAL_GPIO_WritePin(
+        SharedGpio_GPIO_WritePin(
             OUTPUT_0_PINOUT.port[index], OUTPUT_0_PINOUT.pin[index], state);
     }
     else
     {
         index = index - ADC_CHANNEL_COUNT; // adjust index for pinout array
-        HAL_GPIO_WritePin(
+        SharedGpio_GPIO_WritePin(
             OUTPUT_1_PINOUT.port[index], OUTPUT_1_PINOUT.pin[index], state);
     }
 }
 
 /******************************************************************************
  * Function Definitions
- *****************************************************************************/
+ ******************************************************************************/
 void FaultHandling_Handler(
     volatile uint8_t *fault_states,
     volatile float *  converted_readings)
@@ -70,8 +71,8 @@ void FaultHandling_Handler(
 
         // If the efuse is not in RETRY or ERROR mode and the current reading is
         // over the limit, disable efuse
-        if (fault_states[adc_channel] == STATIC_EFUSE &&
-            converted_readings[adc_channel] >= CURRENT_LIMIT)
+        if (fault_states[adc_channel] == NORMAL_STATE && 
+            converted_readings[adc_channel] >= EFUSE_CURRENT_LIMIT)
         {
             num_faults[adc_channel]++;
             FaultHandling_ConfigureEfuseOnOff(adc_channel, EFUSE_OFF);
