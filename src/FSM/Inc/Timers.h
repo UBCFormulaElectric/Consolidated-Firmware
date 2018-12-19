@@ -1,6 +1,6 @@
 /**
  * @file  Timer.h
- * @brief Contains initiallizing code for timers.
+ * @brief Library for timer start helper function and timer callbacks
  */
 
 #ifndef TIMERS_H
@@ -14,6 +14,7 @@
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off
+
 /******************************************************************************
  * Preprocessor Macros
  ******************************************************************************/
@@ -22,6 +23,7 @@
  * Typedefs
  ******************************************************************************/
 // clang-format on
+
 /******************************************************************************
  * Global Variables
  ******************************************************************************/
@@ -33,5 +35,5 @@
  * @brief Start timers for Control Loop, P-APPS, and S-APPS
  */
 void Timers_StartTimers();
- 
+
 #endif /* TIMERS_H */
