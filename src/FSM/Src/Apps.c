@@ -20,11 +20,8 @@
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
-volatile uint32_t apps_fault_counter = 0; 
 // Used to send error CAN messages and track faults
 volatile uint32_t apps_fault_state = FSM_APPS_NORMAL_OPERATION;
-// Used to trigger the APPS / Brake Pedal Plausibility Check
-volatile uint32_t apps_bppc_flag = 0; 
 /******************************************************************************
 * Private Function Prototypes
 *******************************************************************************/
@@ -34,12 +31,13 @@ volatile uint32_t apps_bppc_flag = 0;
  ******************************************************************************/
 uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum Mode)
 {
+    static uint32_t apps_fault_counter = 0; 
     float32_t RawPrimaryAPPSValue       = 0.0;
     float32_t RawSecondaryAPPSValue     = 0.0;
     float32_t PercentPrimaryAPPSValue   = 0.0;
     float32_t PercentSecondaryAPPSValue = 0.0;
 
-    int      TemporaryAPPSFaultCounter = 0;
+    uint32_t TemporaryAPPSFaultCounter = 0;
     uint8_t  FaultFlag                 = 0;
     uint16_t AcceleratorPedalPosition  = 0;
 
