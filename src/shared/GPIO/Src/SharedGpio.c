@@ -1,7 +1,7 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
-#include "Adc.h"
+#include "SharedGpio.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -20,8 +20,8 @@
  ******************************************************************************/
 
 /******************************************************************************
- * Private Function Prototypes
- ******************************************************************************/
+* Private Function Prototypes
+*******************************************************************************/
 
 /******************************************************************************
  * Private Function Definitions
@@ -30,38 +30,10 @@
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-
-void Adc_StartAdcInDmaMode(void)
+void SharedGpio_GPIO_WritePin(
+    GPIO_TypeDef *GPIOx,
+    uint16_t      GPIO_Pin,
+    uint32_t      User_PinState)
 {
-    // Start DMA - send ADC1 values, store in adc_readings
-    // DMA writes into adc_readings in circular mode - every set of readings
-    // continuously overwrites the oldest set of readings
-    HAL_ADC_Start_DMA(&hadc1,
-                      (uint32_t*)adc_readings,
-                      NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER);
-    HAL_ADC_Start(&hadc1);
-}
-
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
-{
-    CurrentSense_LowPassFilterADCReadings(adc_readings);
-    CurrentSense_ConvertFilteredADCToCurrentValues(converted_readings);
-
-    // Check for overcurrent
-    // Change e-fuse DSELs after conversion of all sets
-    if (dsel_state == DSEL_LOW)
-    {
-        dsel_state = DSEL_HIGH;
-    }
-    else
-    {
-        FaultHandling_Handler(
-            e_fuse_fault_states,
-            converted_readings); // Only handle faults after all e-fuses are
-                                 // checked
-        dsel_state = DSEL_LOW;
-    }
-
-    HAL_ADC_Start(&hadc1);
-    GPIO_EFuseSelectDSEL(dsel_state);
+    HAL_GPIO_WritePin(GPIOx, GPIO_Pin, User_PinState);
 }

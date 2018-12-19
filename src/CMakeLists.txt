@@ -93,18 +93,18 @@ set(OPT_FLAGS -O0)
 
 ###  WARNING FLAGS  ###
 set(WARNING_FLAGS
-	"-Wno-packed \
-	-Wno-missing-variable-declarations \
-	-Wno-missing-prototypes \
-	-Wno-missing-noreturn \
-	-Wno-sign-conversion \
-	-Wno-nonportable-include-path \
-	-Wno-reserved-id-macro \
-	-Wno-unused-macros \
-	-Wno-documentation-unknown-command \
-	-Wno-documentation \
-	-Wno-license-management \
-	-Wno-parentheses-equality"
+    "-Wno-packed \
+    -Wno-missing-variable-declarations \
+    -Wno-missing-prototypes \
+    -Wno-missing-noreturn \
+    -Wno-sign-conversion \
+    -Wno-nonportable-include-path \
+    -Wno-reserved-id-macro \
+    -Wno-unused-macros \
+    -Wno-documentation-unknown-command \
+    -Wno-documentation \
+    -Wno-license-management \
+    -Wno-parentheses-equality"
 )
 
 set(MISC_FLAGS -funsigned-char -ffunction-sections -fdata-sections -Wall -MD)
@@ -136,101 +136,101 @@ file(GLOB_RECURSE SHARED_UTIL_SRC ${CMAKE_CURRENT_SOURCE_DIR}/shared/*.c)
 ##############################################
 
 foreach(MODULE_DIR ${MODULES})
-	
-	if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${MODULE_DIR})
-		message(STATUS "Found " ${MODULE_DIR})
-	else()
-		message("WARNING! No directory found for " ${MODULE_DIR} ". Skipping!")
-		continue()
-	endif()
-	
-	#Name each executable target ${MODULE_DIR}_CODE
-	string(CONCAT exe_name ${MODULE_DIR} "_CODE")
+    
+    if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${MODULE_DIR})
+        message(STATUS "Found " ${MODULE_DIR})
+    else()
+        message("WARNING! No directory found for " ${MODULE_DIR} ". Skipping!")
+        continue()
+    endif()
+    
+    #Name each executable target ${MODULE_DIR}_CODE
+    string(CONCAT exe_name ${MODULE_DIR} "_CODE")
 
-	# FSM-specific flags
-	if(MODULE_DIR STREQUAL FSM)
-		set(MCU -mcpu=cortex-m0)
-		set(FPU )
-		set(T32 -mthumb)
-		set(FLOAT_ABI ) 
-		set(BOARD -DSTM32F042x6)
-		set(LINKER_SCRIPT STM32F042K6Tx_FLASH.ld)
-		set(HAL_BOARD_DIR STM32F0xx)
-	
-	# PDM-specific flags
-	elseif(MODULE_DIR STREQUAL PDM)
-		set(MCU -mcpu=cortex-m4)
-		set(FPU -mfpu=fpv4-sp-d16)
-		set(T32 -mthumb)
-		set(FLOAT_ABI -mfloat-abi=soft) 
-		set(BOARD -DSTM32F302x8)	
-		set(LINKER_SCRIPT STM32F302R8Tx_FLASH.ld)
-		set(HAL_BOARD_DIR STM32F3xx)
+    # FSM-specific flags
+    if(MODULE_DIR STREQUAL FSM)
+        set(MCU -mcpu=cortex-m0)
+        set(FPU )
+        set(T32 -mthumb)
+        set(FLOAT_ABI ) 
+        set(BOARD -DSTM32F042x6)
+        set(LINKER_SCRIPT STM32F042K6Tx_FLASH.ld)
+        set(HAL_BOARD_DIR STM32F0xx)
+    
+    # PDM-specific flags
+    elseif(MODULE_DIR STREQUAL PDM)
+        set(MCU -mcpu=cortex-m4)
+        set(FPU -mfpu=fpv4-sp-d16)
+        set(T32 -mthumb)
+        set(FLOAT_ABI -mfloat-abi=soft) 
+        set(BOARD -DSTM32F302x8)    
+        set(LINKER_SCRIPT STM32F302R8Tx_FLASH.ld)
+        set(HAL_BOARD_DIR STM32F3xx)
 
-	# DCM-specific flags
-	elseif(MODULE_DIR STREQUAL DCM)
-		set(MCU -mcpu=cortex-m4)
-		set(FPU -mfpu=fpv4-sp-d16)
-		set(T32 -mthumb)
-		set(FLOAT_ABI -mfloat-abi=soft) 
-		set(BOARD -DSTM32F302x8)	
-		set(LINKER_SCRIPT STM32F302R8Tx_FLASH.ld)
-		set(HAL_BOARD_DIR STM32F3xx)
-	
-	else()
-		message("WARNING! No compilation flags for " ${MODULE_DIR} ". Skipping!")
-		continue()
-	endif()
+    # DCM-specific flags
+    elseif(MODULE_DIR STREQUAL DCM)
+        set(MCU -mcpu=cortex-m4)
+        set(FPU -mfpu=fpv4-sp-d16)
+        set(T32 -mthumb)
+        set(FLOAT_ABI -mfloat-abi=soft) 
+        set(BOARD -DSTM32F302x8)    
+        set(LINKER_SCRIPT STM32F302R8Tx_FLASH.ld)
+        set(HAL_BOARD_DIR STM32F3xx)
+    
+    else()
+        message("WARNING! No compilation flags for " ${MODULE_DIR} ". Skipping!")
+        continue()
+    endif()
 
-	set(BOARD_DEFS -D${MODULE_DIR})
+    set(BOARD_DEFS -D${MODULE_DIR})
 
-	# Target-specific definitions
-	set(TOTAL_TARGET_DEFS ${BOARD} ${TARGET_DEFS} ${BOARD_DEFS} ${TEST_DEFS})
+    # Target-specific definitions
+    set(TOTAL_TARGET_DEFS ${BOARD} ${TARGET_DEFS} ${BOARD_DEFS} ${TEST_DEFS})
 
-	###  ASM FLAGS  ###
-	set(MODULE_ASM_FLAGS ${MCU} ${FPU} ${T32} ${FLOAT_ABI})
+    ###  ASM FLAGS  ###
+    set(MODULE_ASM_FLAGS ${MCU} ${FPU} ${T32} ${FLOAT_ABI})
 
-	###  C FLAGS  ###
-	set(MODULE_C_FLAGS ${TOTAL_TARGET_DEFS} ${MCU} ${FPU} ${T32} ${FLOAT_ABI} ${DEBUG_FLAGS} ${OPT_FLAGS} ${MISC_FLAGS})
+    ###  C FLAGS  ###
+    set(MODULE_C_FLAGS ${TOTAL_TARGET_DEFS} ${MCU} ${FPU} ${T32} ${FLOAT_ABI} ${DEBUG_FLAGS} ${OPT_FLAGS} ${MISC_FLAGS})
 
-	###  SOURCE FILES  ###
-	# Get all the *.c files and *.s files
-	file(GLOB_RECURSE SRC_C_FILES ${MODULE_DIR}/*.c)
-	
-	# Grab the bootloader file. There is only one assembly file required: startup_stm32fxxxxxx.s 
-	# Keil-generated startup assembly files are written in ARM assembly syntax instead of the GCC syntax, 
-	# which CMake relies on. GCC syntax files, generated from STMCube, have been appended with '_gcc' and
-	# added to the source file lists.
-	file(GLOB_RECURSE SRC_ASM_FILES ${MODULE_DIR}/*_gcc.s)
+    ###  SOURCE FILES  ###
+    # Get all the *.c files and *.s files
+    file(GLOB_RECURSE SRC_C_FILES ${MODULE_DIR}/*.c)
+    
+    # Grab the bootloader file. There is only one assembly file required: startup_stm32fxxxxxx.s 
+    # Keil-generated startup assembly files are written in ARM assembly syntax instead of the GCC syntax, 
+    # which CMake relies on. GCC syntax files, generated from STMCube, have been appended with '_gcc' and
+    # added to the source file lists.
+    file(GLOB_RECURSE SRC_ASM_FILES ${MODULE_DIR}/*_gcc.s)
 
-	### PROJECT EXECUTABLE ###
-	add_executable(${exe_name} ${SRC_C_FILES} ${SRC_ASM_FILES} ${SHARED_UTIL_SRC})
+    ### PROJECT EXECUTABLE ###
+    add_executable(${exe_name} ${SRC_C_FILES} ${SRC_ASM_FILES} ${SHARED_UTIL_SRC})
 
-	###  INCLUDE DIRECTORIES  ###
-	target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Inc)
-	target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/${HAL_BOARD_DIR}_HAL_Driver/Inc)
-	target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/${HAL_BOARD_DIR}_HAL_Driver/Inc/Legacy)
-	target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/CMSIS/Device/ST/${HAL_BOARD_DIR}/Include)
-	target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/CMSIS/Include)
-	SUBDIRLIST(SHARED_SUBDIRS ${CMAKE_CURRENT_SOURCE_DIR}/shared/)
-	FOREACH(shared_lib_dir ${SHARED_SUBDIRS})
-		target_include_directories(${exe_name} PRIVATE shared/${shared_lib_dir}/Inc)	
-	ENDFOREACH()
+    ###  INCLUDE DIRECTORIES  ###
+    target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Inc)
+    target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/${HAL_BOARD_DIR}_HAL_Driver/Inc)
+    target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/${HAL_BOARD_DIR}_HAL_Driver/Inc/Legacy)
+    target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/CMSIS/Device/ST/${HAL_BOARD_DIR}/Include)
+    target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/CMSIS/Include)
+    SUBDIRLIST(SHARED_SUBDIRS ${CMAKE_CURRENT_SOURCE_DIR}/shared/)
+    FOREACH(shared_lib_dir ${SHARED_SUBDIRS})
+        target_include_directories(${exe_name} PRIVATE shared/${shared_lib_dir}/Inc)    
+    ENDFOREACH()
 
-	### COMPILER FLAGS ###
-	# Add the compiler flags
-	target_compile_options(${exe_name} PRIVATE $<$<COMPILE_LANGUAGE:C>:${MODULE_C_FLAGS}>)
-	target_compile_options(${exe_name} PRIVATE $<$<COMPILE_LANGUAGE:ASM>:${MODULE_ASM_FLAGS}>)
-	
-	### TARGET LINKER OPTION ###
-	# Add the command-line linker options for the target
-	target_link_libraries(${exe_name} 
-	    "-Wl,--gc-sections \
-	    -specs=nano.specs \
-	    -specs=nosys.specs \
-	    -mthumb \
-	    ${MCU} \
-	    -T${MODULE_DIR}/${LINKER_SCRIPT} \
-	    -Wl,-Map=Build/${exe_name}.map,--cref"
-	)
+    ### COMPILER FLAGS ###
+    # Add the compiler flags
+    target_compile_options(${exe_name} PRIVATE $<$<COMPILE_LANGUAGE:C>:${MODULE_C_FLAGS}>)
+    target_compile_options(${exe_name} PRIVATE $<$<COMPILE_LANGUAGE:ASM>:${MODULE_ASM_FLAGS}>)
+    
+    ### TARGET LINKER OPTION ###
+    # Add the command-line linker options for the target
+    target_link_libraries(${exe_name} 
+        "-Wl,--gc-sections \
+        -specs=nano.specs \
+        -specs=nosys.specs \
+        -mthumb \
+        ${MCU} \
+        -T${MODULE_DIR}/${LINKER_SCRIPT} \
+        -Wl,-Map=Build/${exe_name}.map,--cref"
+    )
 endforeach()

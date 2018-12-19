@@ -13,7 +13,6 @@
  * Preprocessor Constants
  *******************************************************************************/
 // clang-format off
-#define PI          (float)(3.14159265359)
 // clang-format on
 
 #endif /* CONSTANTS_H */
