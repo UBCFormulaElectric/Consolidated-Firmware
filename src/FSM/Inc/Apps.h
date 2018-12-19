@@ -36,7 +36,7 @@
 #define MAX_APPS_FAULTS \
     (float32_t)APPS_IMPLAUSIBILITY_DELAY * (float32_t)CONTROL_LOOP_FREQUENCY
 #define MAX_SATURATION_FAULTS \
-    (int)PEDAL_SATURATION_TIMEOUT * (uin32_t)CONTROL_LOOP_FREQUENCY
+    (uint32_t)PEDAL_SATURATION_TIMEOUT * (uint32_t)CONTROL_LOOP_FREQUENCY
 
 /******************************************************************************
  * Preprocessor Macros
