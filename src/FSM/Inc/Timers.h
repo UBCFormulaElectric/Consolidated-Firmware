@@ -30,9 +30,8 @@
  * Function Prototypes
  ******************************************************************************/
 /**
- * @brief  Initializes timers; using the appropriate HAL functions, params, and
- *         settings.
+ * @brief Start timers for Control Loop, P-APPS, and S-APPS
  */
-void timersStartTimers();
+void Timers_StartTimers();
  
 #endif /* TIMERS_H */

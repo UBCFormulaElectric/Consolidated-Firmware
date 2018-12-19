@@ -147,7 +147,7 @@ int main(void)
   MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
 
-    timersStartTimers();
+    Timers_StartTimers();
   /* USER CODE END 2 */
 
   /* Infinite loop */
