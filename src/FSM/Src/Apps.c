@@ -9,6 +9,7 @@
 /******************************************************************************
  * Module Preprocessor Constants
  ******************************************************************************/
+#define MAX_10_BIT_POINTS 1023
 
 /******************************************************************************
  * Module Preprocessor Macros
@@ -101,7 +102,7 @@ uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum Mode)
         {
             // Saturate pedal position to 100% if close to being fully pressed
             // (accounts for deflection in pedal cluster)
-            accelerator_pedal_position = 1023;
+            accelerator_pedal_position = MAX_10_BIT_POINTS;
         }
         else if (percent_primary_apps_value < PEDAL_RELEASE_POINT)
         {
@@ -112,7 +113,7 @@ uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum Mode)
         {
             // Map accelerator pedal position to 10-bit value using primary APPS
             // reading
-            accelerator_pedal_position = percent_primary_apps_value * 1023;
+            accelerator_pedal_position = percent_primary_apps_value * MAX_10_BIT_POINTS;
         }
 
         // Prevent FSM_APPS_Fault_State_1 and FSM_APPS_Fault_State_2 from
@@ -172,7 +173,7 @@ uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum Mode)
         }
 
         // Check if pedal is at max. torque request
-        if (accelerator_pedal_position == 1023)
+        if (accelerator_pedal_position ==  MAX_10_BIT_POINTS)
         {
             // Check if pedal is stuck at max. torque after 10 secs
             if (apps_fault_counter > MAX_SATURATION_FAULTS)
