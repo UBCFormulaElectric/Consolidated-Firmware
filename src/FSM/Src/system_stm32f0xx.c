@@ -114,7 +114,7 @@
 #if !defined(HSI48_VALUE)
 #define HSI48_VALUE \
     ((uint32_t)48000000) // !< Default value of the HSI48 Internal oscillator
-                         //   in Hz. This value can be provided and adapted by \
+                         //   in Hz. This value can be provided and adapted by
                          //   the user application.
 #endif                   /* HSI48_VALUE */
 /**
