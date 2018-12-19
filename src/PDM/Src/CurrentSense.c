@@ -51,6 +51,9 @@ void CurrentSense_LowPassFilterADCReadings(volatile uint32_t *adc_readings)
 {
     uint8_t adc_channel = CurrentSense_DSELShiftIndex();
     uint8_t final_index = adc_channel + NUM_ADC_CHANNELS;
+    // adc_index is set to ADC_CHANNEL_COUNT because of the bug described in
+    // NUM_READINGS_PER_ADC_DMA_TRANSFER - that is, we only use the second half
+    // of adc_readings[]
     uint8_t adc_index   = NUM_ADC_CHANNELS;
     for (; adc_channel < final_index; adc_channel++)
     {
