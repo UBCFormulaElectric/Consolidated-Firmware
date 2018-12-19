@@ -48,9 +48,9 @@
  *        example, writing `HAL_GPIO_WritePin(GPIOA, GPIO_PIN_0, GPIO_PIN_SET)`
  *        does not convey if something is being turned on or off because PA0
  *        may use either active-high or active low logic.
- * 
+ *
  *        Instead, we may define something like
- * 
+ *
  *        typedef enum
  *        {
  *            FAN_ON = GPIO_PIN_SET,
