@@ -31,15 +31,15 @@
  * Function Prototypes
  ******************************************************************************/
 /**
- * @brief Turns on the Red LED
+ * @brief Turn on the Red LED
  */
 void Gpio_TurnOnRedLed(void);
 /**
- * @brief Turns on the Blue LED
+ * @brief Turn on the Blue LED
  */
 void Gpio_TurnOnBlueLed(void);
 /**
- * @brief Turns on the Green LED
+ * @brief Turn on the Green LED
  */
 void Gpio_TurnOnGreenLed(void);
 
