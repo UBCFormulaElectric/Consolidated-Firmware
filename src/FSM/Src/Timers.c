@@ -73,10 +73,6 @@ static void Timers_ControlLoop(void)
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-/**
- * @brief  Period elapsed callback in non blocking mode
- * @param  htim TIM handle
- */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim == &htim14)
