@@ -187,7 +187,8 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
         SharedGpio_GPIO_WritePin(
             EFUSE_AUX_2_IN_GPIO_Port, EFUSE_AUX_2_IN_Pin, GPIO_PIN_SET);
     }
-    SharedGpio_GPIO_WritePin(EFUSE_DEN_1_GPIO_Port, EFUSE_DEN_1_Pin, GPIO_PIN_SET);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DEN_1_GPIO_Port, EFUSE_DEN_1_Pin, GPIO_PIN_SET);
 
     // E-Fuse PDM Fan/Cooling
     if (fault_states[PDM_FAN_INDEX] == STATIC_EFUSE)
@@ -206,7 +207,8 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
     // E-Fuse CAN/AIR SHDN
     if (fault_states[CAN_INDEX] == STATIC_EFUSE)
     {
-        SharedGpio_GPIO_WritePin(EFUSE_CAN_IN_GPIO_Port, EFUSE_CAN_IN_Pin, GPIO_PIN_SET);
+        SharedGpio_GPIO_WritePin(
+            EFUSE_CAN_IN_GPIO_Port, EFUSE_CAN_IN_Pin, GPIO_PIN_SET);
     }
     if (fault_states[AIR_SHDN_INDEX] == STATIC_EFUSE)
     {
@@ -220,12 +222,14 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
     if (fault_states[ACC_SEG_FAN_INDEX] == STATIC_EFUSE)
     {
         SharedGpio_GPIO_WritePin(
-            EFUSE_ACC_SEG_FAN_IN_GPIO_Port, EFUSE_ACC_SEG_FAN_IN_Pin, GPIO_PIN_SET);
+            EFUSE_ACC_SEG_FAN_IN_GPIO_Port, EFUSE_ACC_SEG_FAN_IN_Pin,
+            GPIO_PIN_SET);
     }
     if (fault_states[ACC_ENC_FAN_INDEX] == STATIC_EFUSE)
     {
         SharedGpio_GPIO_WritePin(
-            EFUSE_ACC_ENC_FAN_IN_GPIO_Port, EFUSE_ACC_ENC_FAN_IN_Pin, GPIO_PIN_SET);
+            EFUSE_ACC_ENC_FAN_IN_GPIO_Port, EFUSE_ACC_ENC_FAN_IN_Pin,
+            GPIO_PIN_SET);
     }
 
     SharedGpio_GPIO_WritePin(
@@ -252,10 +256,13 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
 void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states)
 {
     // E-Fuse AUX 1/2
-    SharedGpio_GPIO_WritePin(EFUSE_AUX_1_IN_GPIO_Port, EFUSE_AUX_1_IN_Pin, GPIO_PIN_RESET);
-    SharedGpio_GPIO_WritePin(EFUSE_AUX_2_IN_GPIO_Port, EFUSE_AUX_2_IN_Pin, GPIO_PIN_RESET);
-    SharedGpio_GPIO_WritePin(EFUSE_DEN_1_GPIO_Port, EFUSE_DEN_1_Pin, GPIO_PIN_RESET);
-  
+    SharedGpio_GPIO_WritePin(
+        EFUSE_AUX_1_IN_GPIO_Port, EFUSE_AUX_1_IN_Pin, GPIO_PIN_RESET);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_AUX_2_IN_GPIO_Port, EFUSE_AUX_2_IN_Pin, GPIO_PIN_RESET);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DEN_1_GPIO_Port, EFUSE_DEN_1_Pin, GPIO_PIN_RESET);
+
     // E-Fuse PDM Fan/Cooling
     SharedGpio_GPIO_WritePin(
         EFUSE_PDM_FAN_IN_GPIO_Port, EFUSE_PDM_FAN_IN_Pin, GPIO_PIN_RESET);
@@ -267,7 +274,8 @@ void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states)
     // E-Fuse CAN/AIR SHDN
     if (fault_states[CAN_INDEX] == STATIC_EFUSE)
     {
-        SharedGpio_GPIO_WritePin(EFUSE_CAN_IN_GPIO_Port, EFUSE_CAN_IN_Pin, GPIO_PIN_SET);
+        SharedGpio_GPIO_WritePin(
+            EFUSE_CAN_IN_GPIO_Port, EFUSE_CAN_IN_Pin, GPIO_PIN_SET);
     }
     if (fault_states[AIR_SHDN_INDEX] == STATIC_EFUSE)
     {
@@ -280,9 +288,11 @@ void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states)
 
     // E-Fuse Accumulator Fans
     SharedGpio_GPIO_WritePin(
-        EFUSE_ACC_SEG_FAN_IN_GPIO_Port, EFUSE_ACC_SEG_FAN_IN_Pin, GPIO_PIN_RESET);
+        EFUSE_ACC_SEG_FAN_IN_GPIO_Port, EFUSE_ACC_SEG_FAN_IN_Pin,
+        GPIO_PIN_RESET);
     SharedGpio_GPIO_WritePin(
-        EFUSE_ACC_ENC_FAN_IN_GPIO_Port, EFUSE_ACC_ENC_FAN_IN_Pin, GPIO_PIN_RESET);
+        EFUSE_ACC_ENC_FAN_IN_GPIO_Port, EFUSE_ACC_ENC_FAN_IN_Pin,
+        GPIO_PIN_RESET);
     SharedGpio_GPIO_WritePin(
         EFUSE_DEN_4_GPIO_Port, EFUSE_DEN_4_Pin, GPIO_PIN_RESET);
 
@@ -299,7 +309,8 @@ void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states)
 
 void GPIO_EFuseSelectDSEL(GPIO_PinState dsel_value)
 {
-    SharedGpio_GPIO_WritePin(EFUSE_DSEL_1_GPIO_Port, EFUSE_DSEL_1_Pin, dsel_value);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DSEL_1_GPIO_Port, EFUSE_DSEL_1_Pin, dsel_value);
     SharedGpio_GPIO_WritePin(
         EFUSE_DSEL_2_GPIO_Port, EFUSE_DSEL_2_Pin, dsel_value);
     SharedGpio_GPIO_WritePin(
