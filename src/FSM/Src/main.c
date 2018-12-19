@@ -684,7 +684,7 @@ void ControlLoop(void)
     if (apps_fault_state)
     {
         // Red
-        gpioTurnOnRedLed();
+        Gpio_TurnOnRedLed();
     }
 
     // No APPS fault when motors are off
