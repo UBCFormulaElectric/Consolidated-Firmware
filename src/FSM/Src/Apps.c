@@ -31,7 +31,7 @@ volatile uint32_t apps_fault_state = FSM_APPS_NORMAL_OPERATION;
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum Mode)
+uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum mode)
 {
     static uint32_t apps_fault_counter = 0; 
     float32_t raw_primary_apps_value       = 0.0;
@@ -43,8 +43,8 @@ uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum Mode)
     bool fault_flag                       = false;
     uint16_t accelerator_pedal_position   = 0;
 
-    // Save apps_fault_counter in Mode = APPS_NORMAL_MODE
-    if (Mode == APPS_NORMAL_MODE)
+    // Save apps_fault_counter in mode = APPS_NORMAL_MODE
+    if (mode == APPS_NORMAL_MODE)
     {
         temporary_apps_fault_counter = apps_fault_counter;
     }
@@ -220,8 +220,8 @@ uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum Mode)
         }
     }
 
-    // Reload apps_fault_counter in Mode = 0
-    if (Mode == 0)
+    // Reload apps_fault_counter in mode = 0
+    if (mode == 0)
     {
         apps_fault_counter = temporary_apps_fault_counter;
     }
