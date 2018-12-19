@@ -34,10 +34,10 @@ volatile uint32_t apps_fault_state = FSM_APPS_NORMAL_OPERATION;
 uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum mode)
 {
     static uint32_t apps_fault_counter           = 0;
-    float32_t       raw_primary_apps_value       = 0.0;
-    float32_t       raw_secondary_apps_value     = 0.0;
-    float32_t       percent_primary_apps_value   = 0.0;
-    float32_t       percent_secdonary_apps_value = 0.0;
+    float32_t       raw_primary_apps_value       = 0.0f;
+    float32_t       raw_secondary_apps_value     = 0.0f;
+    float32_t       percent_primary_apps_value   = 0.0f;
+    float32_t       percent_secdonary_apps_value = 0.0f;
 
     uint32_t temporary_apps_fault_counter = 0;
     bool     fault_flag                   = false;
@@ -64,14 +64,14 @@ uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum mode)
              PRIMARY_APPS_DEADZONE) ||
             (raw_primary_apps_value < PRIMARY_APPS_DEADZONE))
         {
-            raw_primary_apps_value = 0.0;
+            raw_primary_apps_value = 0.0f;
         }
 
         if (((MAX_16_BITS_VALUE - raw_primary_apps_value) <
              SECONDARY_APPS_DEADZONE) ||
             (raw_primary_apps_value < SECONDARY_APPS_DEADZONE))
         {
-            raw_secondary_apps_value = 0.0;
+            raw_secondary_apps_value = 0.0f;
         }
 
         // Calculate ratio between APPS position readings and calibrated maximum
@@ -92,8 +92,8 @@ uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum mode)
         // Check for position readings outside bounds (when pedal is released OR
         // when pedal is pushed passed max rotation beyond calibrated pedal box)
         else if (
-            percent_primary_apps_value > 1.0 ||
-            percent_secdonary_apps_value > 1.0)
+            percent_primary_apps_value > 1.0f ||
+            percent_secdonary_apps_value > 1.0f)
         {
             // Set pedal position to zero when encoder underflows OR when pedal
             // pushes passed max. pedal box rotation
@@ -101,7 +101,7 @@ uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum mode)
         }
         else if (
             percent_primary_apps_value > PEDAL_SATURATION_POINT &&
-            percent_primary_apps_value <= 1.0)
+            percent_primary_apps_value <= 1.0f)
         {
             // Saturate pedal position to 100% if close to being fully pressed
             // (accounts for deflection in pedal cluster)
