@@ -56,8 +56,8 @@ static void
  * Function Definitions
  ******************************************************************************/
 void FaultHandling_Handler(
-    volatile uint8_t *fault_states,
-    volatile float *  converted_readings)
+    volatile uint8_t *  fault_states,
+    volatile float32_t *converted_readings)
 {
     uint64_t can_error_msg;
 

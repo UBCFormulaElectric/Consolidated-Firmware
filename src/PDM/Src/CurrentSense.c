@@ -15,8 +15,8 @@
  * Module Variable Definitions
  ******************************************************************************/
 extern volatile GPIO_PinState dsel_state;
-static float filtered_adc_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] =
-    {0};
+static float32_t
+    filtered_adc_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {0};
 
 /******************************************************************************
  * Private Function Prototypes
@@ -66,7 +66,7 @@ void CurrentSense_LowPassFilterADCReadings(volatile uint32_t *adc_readings)
 }
 
 void CurrentSense_ConvertFilteredADCToCurrentValues(
-    volatile float *converted_readings)
+    volatile float32_t *converted_readings)
 {
     uint8_t adc_channel =
         CurrentSense_DSELShiftIndex(); // Shift index depending on DSEL state
