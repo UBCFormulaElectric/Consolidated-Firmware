@@ -126,15 +126,15 @@ int main(void)
   /* USER CODE BEGIN WHILE */
 
   // TODO: Delete me, just here so we can break in Can.c
-  Can_RxCommonCallback(&hcan, 1);
+  //Can_RxCommonCallback(&hcan, 1);
   while (1)
   {
     //HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
     //char *msg = "Hello World!!\n\r";
     //HAL_UART_Transmit(&huart2, (uint8_t*)msg, strlen(msg), 0xFFFF);
     
-    uint8_t test_can_data[BMS_ERROR_DLC] = {0x7, 0x1, 0x2, 0x3};
-    SharedCan_TransmitDataCan(BMS_ERROR_STDID, BMS_ERROR_DLC, &test_can_data[0]);
+    //uint8_t test_can_data[BMS_ERROR_DLC] = {0x7, 0x1, 0x2, 0x3};
+    //SharedCan_TransmitDataCan(BMS_ERROR_STDID, BMS_ERROR_DLC, &test_can_data[0]);
     //SharedCan_BroadcastHeartbeat();
 
     //HAL_Delay(150);

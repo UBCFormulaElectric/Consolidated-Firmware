@@ -1,5 +1,6 @@
 // Can.c
 #include "SharedCan.h"
+#include "main.h"
 
 /**
  * @brief override the CAN callback method so we can choose how to 
@@ -8,8 +9,12 @@
 void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 {
 
-    uint8_t test_can_data[BMS_ERROR_DLC] = {0x7, 0x1, 0x2, 0x3};
+    uint8_t test_can_data[BMS_ERROR_DLC] = {0x9, 0x1, 0x2, 0x3};
     SharedCan_TransmitDataCan(BMS_ERROR_STDID, BMS_ERROR_DLC, &test_can_data[0]);
+
+    //HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
+    //HAL_Delay(1000);
+    //HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
 
     CanRxMsg_Struct rx_msg;
 
