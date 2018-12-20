@@ -47,9 +47,10 @@
 
 #include "Gpio.h"
 #include "Adc.h"
-#include "SharedCAN.h"
+#include "SharedCan.h"
 #include "Timers.h"
 #include "CurrentSense.h"
+#include "arm_math.h"
 
 /* USER CODE END Includes */
 
@@ -81,11 +82,14 @@ TIM_HandleTypeDef htim17;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-volatile GPIO_PinState dsel_state                                   = DSEL_LOW;
-volatile uint8_t e_fuse_fault_states[NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER] 
-                 = {NORMAL_STATE};
-volatile uint32_t adc_readings[NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER];
-volatile float converted_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2];
+volatile GPIO_PinState dsel_state = DSEL_LOW;
+volatile uint8_t
+    e_fuse_fault_states[NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER] =
+        {NORMAL_STATE};
+volatile uint32_t
+    adc_readings[NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER];
+volatile float32_t
+    converted_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -499,89 +503,94 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
         GPIOA,
-        PIN_AUX_2_Pin | PIN_DRIVE_INVERTER_R_Pin | DSEL_5_Pin | DEN_5_Pin |
-            PIN_DRIVE_INVERTER_L_Pin,
+        EFUSE_AUX_2_IN_Pin | EFUSE_RIGHT_INVERTER_IN_Pin | EFUSE_DSEL_5_Pin |
+            EFUSE_DEN_5_Pin | EFUSE_LEFT_INVERTER_IN_Pin,
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
         GPIOC,
-        DSEL_1_Pin | DEN_1_Pin | PIN_ACC_FAN_2_Pin | DSEL_4_Pin | DEN_4_Pin |
-            PIN_ACC_FAN_1_Pin,
+        EFUSE_DSEL_1_Pin | EFUSE_DEN_1_Pin | EFUSE_ACC_ENC_FAN_IN_Pin |
+            EFUSE_DSEL_4_Pin | EFUSE_DEN_4_Pin | EFUSE_ACC_SEG_FAN_IN_Pin,
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
         GPIOB,
-        PIN_AUX_1_Pin | PIN_PDM_FAN_Pin | DSEL_2_Pin | DEN_2_Pin |
-            PIN_COOLING_Pin | PIN_CAN_Pin | DSEL_3_Pin | DEN_3_Pin |
-            PIN_AIR_SHDN_Pin,
+        EFUSE_AUX_1_IN_Pin | EFUSE_PDM_FAN_IN_Pin | EFUSE_DSEL_2_Pin |
+            EFUSE_DEN_2_Pin | EFUSE_COOLING_IN_Pin | EFUSE_CAN_IN_Pin |
+            EFUSE_DSEL_3_Pin | EFUSE_DEN_3_Pin | EFUSE_AIR_SHDN_IN_Pin,
         GPIO_PIN_RESET);
 
-    /*Configure GPIO pins : PIN_AUX_2_Pin PIN_DRIVE_INVERTER_R_Pin DSEL_5_Pin */
-    GPIO_InitStruct.Pin = PIN_AUX_2_Pin | PIN_DRIVE_INVERTER_R_Pin | DSEL_5_Pin;
+    /*Configure GPIO pins : EFUSE_AUX_2_IN_Pin EFUSE_RIGHT_INVERTER_IN_Pin
+     * EFUSE_DSEL_5_Pin */
+    GPIO_InitStruct.Pin =
+        EFUSE_AUX_2_IN_Pin | EFUSE_RIGHT_INVERTER_IN_Pin | EFUSE_DSEL_5_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
     GPIO_InitStruct.Pull  = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : DSEL_1_Pin DEN_1_Pin PIN_ACC_FAN_2_Pin DSEL_4_Pin
-                             DEN_4_Pin PIN_ACC_FAN_1_Pin */
-    GPIO_InitStruct.Pin = DSEL_1_Pin | DEN_1_Pin | PIN_ACC_FAN_2_Pin |
-                          DSEL_4_Pin | DEN_4_Pin | PIN_ACC_FAN_1_Pin;
+    /*Configure GPIO pins : EFUSE_DSEL_1_Pin EFUSE_DEN_1_Pin
+       EFUSE_ACC_ENC_FAN_IN_Pin EFUSE_DSEL_4_Pin EFUSE_DEN_4_Pin
+       EFUSE_ACC_SEG_FAN_IN_Pin */
+    GPIO_InitStruct.Pin = EFUSE_DSEL_1_Pin | EFUSE_DEN_1_Pin |
+                          EFUSE_ACC_ENC_FAN_IN_Pin | EFUSE_DSEL_4_Pin |
+                          EFUSE_DEN_4_Pin | EFUSE_ACC_SEG_FAN_IN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
     GPIO_InitStruct.Pull  = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : PIN_AUX_1_Pin */
-    GPIO_InitStruct.Pin   = PIN_AUX_1_Pin;
+    /*Configure GPIO pin : EFUSE_AUX_1_IN_Pin */
+    GPIO_InitStruct.Pin   = EFUSE_AUX_1_IN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(PIN_AUX_1_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(EFUSE_AUX_1_IN_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PIN_PDM_FAN_Pin DSEL_2_Pin DEN_2_Pin PIN_COOLING_Pin
-                             PIN_CAN_Pin DSEL_3_Pin DEN_3_Pin PIN_AIR_SHDN_Pin
-     */
-    GPIO_InitStruct.Pin = PIN_PDM_FAN_Pin | DSEL_2_Pin | DEN_2_Pin |
-                          PIN_COOLING_Pin | PIN_CAN_Pin | DSEL_3_Pin |
-                          DEN_3_Pin | PIN_AIR_SHDN_Pin;
+    /*Configure GPIO pins : EFUSE_PDM_FAN_IN_Pin EFUSE_DSEL_2_Pin
+       EFUSE_DEN_2_Pin EFUSE_COOLING_IN_Pin EFUSE_CAN_IN_Pin EFUSE_DSEL_3_Pin
+       EFUSE_DEN_3_Pin EFUSE_AIR_SHDN_IN_Pin */
+    GPIO_InitStruct.Pin = EFUSE_PDM_FAN_IN_Pin | EFUSE_DSEL_2_Pin |
+                          EFUSE_DEN_2_Pin | EFUSE_COOLING_IN_Pin |
+                          EFUSE_CAN_IN_Pin | EFUSE_DSEL_3_Pin |
+                          EFUSE_DEN_3_Pin | EFUSE_AIR_SHDN_IN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
     GPIO_InitStruct.Pull  = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : DEN_5_Pin PIN_DRIVE_INVERTER_L_Pin */
-    GPIO_InitStruct.Pin   = DEN_5_Pin | PIN_DRIVE_INVERTER_L_Pin;
+    /*Configure GPIO pins : EFUSE_DEN_5_Pin EFUSE_LEFT_INVERTER_IN_Pin */
+    GPIO_InitStruct.Pin   = EFUSE_DEN_5_Pin | EFUSE_LEFT_INVERTER_IN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : CHRG_FAULT_Pin */
-    GPIO_InitStruct.Pin  = CHRG_FAULT_Pin;
+    /*Configure GPIO pin : CHARGER_FAULT_Pin */
+    GPIO_InitStruct.Pin  = CHARGER_FAULT_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(CHRG_FAULT_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(CHARGER_FAULT_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : CHRG_LED_Pin */
-    GPIO_InitStruct.Pin  = CHRG_LED_Pin;
+    /*Configure GPIO pin : CHARGER_INDICATOR_Pin */
+    GPIO_InitStruct.Pin  = CHARGER_INDICATOR_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(CHRG_LED_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(CHARGER_INDICATOR_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : PGOOD_Pin */
-    GPIO_InitStruct.Pin  = PGOOD_Pin;
+    /*Configure GPIO pin : BOOST_PGOOD_Pin */
+    GPIO_InitStruct.Pin  = BOOST_PGOOD_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(PGOOD_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(BOOST_PGOOD_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : OV_FAULT_MCU_Pin */
-    GPIO_InitStruct.Pin  = OV_FAULT_MCU_Pin;
+    /*Configure GPIO pin : CELL_BALANCE_OVERVOLTAGE_Pin */
+    GPIO_InitStruct.Pin  = CELL_BALANCE_OVERVOLTAGE_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(OV_FAULT_MCU_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(CELL_BALANCE_OVERVOLTAGE_GPIO_Port, &GPIO_InitStruct);
 
     /* EXTI interrupt init*/
     HAL_NVIC_SetPriority(EXTI2_TSC_IRQn, 0, 0);

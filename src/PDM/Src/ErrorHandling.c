@@ -43,17 +43,17 @@ void ErrorHandling_HandleHeartbeatTimeout(void)
 
     // Kill inverters
     SharedGpio_GPIO_WritePin(
-        EFUSE_INVERTER_DEN_PORT, EFUSE_INVERTER_DEN_PIN, GPIO_PIN_RESET);
+        EFUSE_DEN_5_GPIO_Port, EFUSE_DEN_5_Pin, GPIO_PIN_RESET);
     SharedGpio_GPIO_WritePin(
-        EFUSE_LEFT_INVERTER_IN_PORT, EFUSE_LEFT_INVERTER_IN_PIN,
+        EFUSE_LEFT_INVERTER_IN_GPIO_Port, EFUSE_LEFT_INVERTER_IN_Pin,
         GPIO_PIN_RESET);
     SharedGpio_GPIO_WritePin(
-        EFUSE_RIGHT_INVERTER_IN_PORT, EFUSE_RIGHT_INVERTER_IN_PIN,
+        EFUSE_RIGHT_INVERTER_IN_GPIO_Port, EFUSE_RIGHT_INVERTER_IN_Pin,
         GPIO_PIN_RESET);
 
     // Kill AIR SHDN
     SharedGpio_GPIO_WritePin(
-        EFUSE_AIR_SHDN_IN_PORT, EFUSE_AIR_SHDN_IN_PIN, GPIO_PIN_RESET);
+        EFUSE_AIR_SHDN_IN_GPIO_Port, EFUSE_AIR_SHDN_IN_Pin, GPIO_PIN_RESET);
 
     // Log error
     Can_BroadcastPdmErrors(MISSING_HEARTBEAT);
