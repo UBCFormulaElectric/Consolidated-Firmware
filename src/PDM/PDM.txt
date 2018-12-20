@@ -1,11 +1,9 @@
 Configuration	PDM
 STM32CubeMX 	5.0.0
-Date	12/18/2018
+Date	12/20/2018
 MCU	STM32F302R8Tx
 
-Reference:
-https://www.infineon.com/dgdl/Infineon-BTS7008-2EPA-DS-v01_00-EN.pdf?fileId=5546d46258fc0bc101590212356876b1
-Includes information regarding DSEL, DEN, IS
+
 
 PERIPHERALS	MODES	FUNCTIONS	PINS
 ADC1	IN1 Single-ended	ADC1_IN1	PA0
@@ -138,7 +136,7 @@ SOFTWARE PROJECT
 
 Project Settings : 
 Project Name : PDM
-Project Folder : C:\Users\jsn07\Desktop\Formula Electric\Consolidated-Firmware\src\PDM
+Project Folder : C:\Users\thekenu\UBC Formula Electric\Consolidated-Firmware\src\PDM
 Toolchain / IDE : MDK-ARM V5
 Firmware Package Name and Version : STM32Cube FW_F3 V1.10.0
 
