@@ -11,6 +11,7 @@
  ******************************************************************************/
 #include "stm32f3xx_hal.h"
 #include "Can.h"
+#include "main.h"
 
 /******************************************************************************
  * Preprocessor Constants
@@ -40,87 +41,13 @@
 #define NUM_UNIQUE_ADC_READINGS NUM_EFUSES + NUM_VOLTAGE_SENSE_PINS
 
 // Pin definitions
-
-// E-Fuse AUX 1/2
-#define EFUSE_AUX_1_IN_PIN 										GPIO_PIN_0
-#define EFUSE_AUX_1_IN_PORT 									GPIOB
-
-#define EFUSE_AUX_2_IN_PIN 										GPIO_PIN_7
-#define EFUSE_AUX_2_IN_PORT 									GPIOA
-
-#define EFUSE_AUX_DSEL_PIN 										GPIO_PIN_4
-#define EFUSE_AUX_DSEL_PORT 									GPIOC
-
-#define EFUSE_AUX_DEN_PIN 										GPIO_PIN_5
-#define EFUSE_AUX_DEN_PORT 										GPIOC
-
-// E-Fuse PDM Fan/Cooling
-#define EFUSE_PDM_FAN_IN_PIN 									GPIO_PIN_1
-#define EFUSE_PDM_FAN_IN_PORT 									GPIOB
-
-#define EFUSE_COOLING_IN_PIN 									GPIO_PIN_11
-#define EFUSE_COOLING_IN_PORT 									GPIOB
-
-#define EFUSE_FAN_COOLING_DSEL_PIN 								GPIO_PIN_2
-#define EFUSE_FAN_COOLING_DSEL_PORT 							GPIOB
-
-#define EFUSE_FAN_COOLING_DEN_PIN 								GPIO_PIN_10
-#define EFUSE_FAN_COOLING_DEN_PORT 								GPIOB
-
-// E-Fuse CAN_GLV/AIR SHDN
-#define EFUSE_CAN_IN_PIN 										GPIO_PIN_12
-#define EFUSE_CAN_IN_PORT 										GPIOB
-
-#define EFUSE_AIR_SHDN_IN_PIN 									GPIO_PIN_15
-#define EFUSE_AIR_SHDN_IN_PORT 									GPIOB
-
-#define EFUSE_CAN_AIR_SHDN_DSEL_PIN 							GPIO_PIN_13
-#define EFUSE_CAN_AIR_SHDN_DSEL_PORT 							GPIOB
-
-#define EFUSE_CAN_AIR_SHDN_DEN_PIN 								GPIO_PIN_14
-#define EFUSE_CAN_AIR_SHDN_DEN_PORT 							GPIOB
-
-// E-Fuse Accumulator Fans
-#define EFUSE_ACC_SEG_FAN_IN_PIN 								GPIO_PIN_9
-#define EFUSE_ACC_SEG_FAN_IN_PORT 								GPIOC
-
-#define EFUSE_ACC_ENC_FAN_IN_PIN 								GPIO_PIN_6
-#define EFUSE_ACC_ENC_FAN_IN_PORT 								GPIOC
-
-#define EFUSE_ACC_FAN_DSEL_PIN 									GPIO_PIN_7
-#define EFUSE_ACC_FAN_DSEL_PORT 								GPIOC
-
-#define EFUSE_ACC_FAN_DEN_PIN 									GPIO_PIN_8
-#define EFUSE_ACC_FAN_DEN_PORT 									GPIOC
-
-// E-Fuse Inverter
-#define EFUSE_LEFT_INVERTER_IN_PIN 								GPIO_PIN_15
-#define EFUSE_LEFT_INVERTER_IN_PORT 							GPIOA
-
-#define EFUSE_RIGHT_INVERTER_IN_PIN 							GPIO_PIN_8
-#define EFUSE_RIGHT_INVERTER_IN_PORT 							GPIOA
-
-#define EFUSE_INVERTER_DSEL_PIN 								GPIO_PIN_9
-#define EFUSE_INVERTER_DSEL_PORT 								GPIOA
-
-#define EFUSE_INVERTER_DEN_PIN 									GPIO_PIN_10
-#define EFUSE_INVERTER_DEN_PORT 								GPIOA
-
-// Battery Charger
-#define CHARGER_FAULT_PIN 										GPIO_PIN_10
-#define CHARGER_INDICATOR_PIN 									GPIO_PIN_11
-#define CHARGER_PORT 											GPIOC
 #define CHARGER_FAULT_STATE 									GPIO_PIN_RESET // Low = fault, high = no fault
 #define CHARGER_CHARGING_STATE									GPIO_PIN_RESET // Low = charging, high = not charging
 
 // Battery Cell Balancing
-#define CELL_BALANCE_OVERVOLTAGE_PIN 							GPIO_PIN_2
-#define CELL_BALANCE_OVERVOLTAGE_PORT 							GPIOD
 #define CELL_BALANCE_OVERVOLTAGE_FAULT_STATE 					GPIO_PIN_SET // High = fault, low = no fault
 
 // Boost Converter
-#define BOOST_PGOOD_PIN 										GPIO_PIN_12
-#define BOOST_PGOOD_PORT 										GPIOC
 #define BOOST_PGOOD_FAULT_STATE 								GPIO_PIN_RESET // Low = fault, high = no fault
 
 // DSEL State
@@ -139,33 +66,38 @@
 /** Efuse State */
 typedef enum
 {
-    // Operating as expected
-    STATIC_EFUSE = 0,
-    // Exceeded current limit but not max number of retries, in retry mode
-    RENABLE_EFUSE = 1,
-    // Exceeded max number of retries, permanently in error state
-    ERROR_EFUSE = 2
+    /** @brief Operating as expected */
+    NORMAL_STATE,
+    /** @brief Exceeded current limit but not maximum number of retries */
+    RETRY_STATE,
+    /** @brief Exceed maximum number of retries and is permanently stuck in
+               error state */
+    ERROR_STATE
 } Efuse_State_Enum;
 
-// Efuse Indexing, corresponding to: 0 to (ADC_TOTAL_READINGS_SIZE - 1)
-// Indices 0-4 correspond to DSEL_LOW Efuses and 5-7 are voltage readings
-// Indices 8-12 correspond to DSEL_HIGH Efuses
-// Note: Indices 13-15 are omitted; they are redundant with indices 5-7
+/**
+ * @brief ADC Readings Indexing, corresponding to: 0 to (NUM_UNIQUE_ADC_READINGS - 1)
+ *         Index 0 - 4:  E-fuses selected when DSEL = DSEL_LOW
+ *         Index 5 - 7:  Voltage sense reading
+ *         Index 8 - 12: E-fuses selected when DSEL = DSEL_HIGH
+ *         Note: Indices 13 - 15 would have also represented voltage sense
+ *         readings, which would be redundant so they are ommited.
+ */
 typedef enum
 {
-    AUX_1_INDEX = 0,
-    COOLING_INDEX,
-    AIR_SHDN_INDEX,
-    ACC_SEG_FAN_INDEX,
-    L_INV_INDEX,
-    _12V_SUPPLY_INDEX,
-    VBAT_SUPPLY_INDEX,
-    VICOR_SUPPLY_INDEX,
-    AUX_2_INDEX = 8,
-    PDM_FAN_INDEX,
-    CAN_INDEX,
-    ACC_ENC_FAN_INDEX,
-    R_INV_INDEX
+    AUXILIARY_1,
+    COOLING,
+    AIR_SHDN,
+    ACC_SEGMENT_FAN,
+    LEFT_INVERTER,
+    _12V_SUPPLY,
+    VBAT_SUPPLY,
+    FLYWIRE,
+    AUXILIARY_2,
+    PDM_FAN,
+    CAN_GLV,
+    ACC_ENCLOSURE_FAN,
+    RIGHT_INVERTER
 } ADC_Index_Enum;
 
 /** TODO (Issue #191): What is this struct for */
@@ -183,17 +115,21 @@ extern volatile GPIO_PinState dsel_state;
 // E-fuse output pin mapping
 // TODO (Issue #191): The index can be a value of @ ...
 static const GPIO_PinPort_Struct PROFET2_IN0 = {
-    {EFUSE_AUX_1_IN_PIN, EFUSE_COOLING_IN_PIN, EFUSE_AIR_SHDN_IN_PIN,
-     EFUSE_ACC_SEG_FAN_IN_PIN, EFUSE_LEFT_INVERTER_IN_PIN},
-    {EFUSE_AUX_1_IN_PORT, EFUSE_COOLING_IN_PORT, EFUSE_AIR_SHDN_IN_PORT,
-     EFUSE_ACC_SEG_FAN_IN_PORT, EFUSE_LEFT_INVERTER_IN_PORT}};
+    { EFUSE_AUX_1_IN_Pin, EFUSE_COOLING_IN_Pin, EFUSE_AIR_SHDN_IN_Pin,
+      EFUSE_ACC_SEG_FAN_IN_Pin, EFUSE_LEFT_INVERTER_IN_Pin },
+    { EFUSE_AUX_1_IN_GPIO_Port, EFUSE_COOLING_IN_GPIO_Port,
+      EFUSE_AIR_SHDN_IN_GPIO_Port, EFUSE_ACC_SEG_FAN_IN_GPIO_Port,
+      EFUSE_LEFT_INVERTER_IN_GPIO_Port }
+};
 
 // TODO (Issue #191): The index can be a value of @ ...
 static const GPIO_PinPort_Struct PROFET2_IN1 = {
-    {EFUSE_AUX_2_IN_PIN, EFUSE_PDM_FAN_IN_PIN, EFUSE_CAN_IN_PIN,
-     EFUSE_ACC_ENC_FAN_IN_PIN, EFUSE_RIGHT_INVERTER_IN_PIN},
-    {EFUSE_AUX_2_IN_PORT, EFUSE_PDM_FAN_IN_PORT, EFUSE_CAN_IN_PORT,
-     EFUSE_ACC_ENC_FAN_IN_PORT, EFUSE_RIGHT_INVERTER_IN_PORT}};
+    { EFUSE_AUX_2_IN_Pin, EFUSE_PDM_FAN_IN_Pin, EFUSE_CAN_IN_Pin,
+      EFUSE_ACC_ENC_FAN_IN_Pin, EFUSE_RIGHT_INVERTER_IN_Pin },
+    { EFUSE_AUX_2_IN_GPIO_Port, EFUSE_PDM_FAN_IN_GPIO_Port,
+      EFUSE_CAN_IN_GPIO_Port, EFUSE_ACC_ENC_FAN_IN_GPIO_Port,
+      EFUSE_RIGHT_INVERTER_IN_GPIO_Port }
+};
 
 /******************************************************************************
  * Function Prototypes
@@ -214,7 +150,7 @@ void GPIO_Init(void);
 void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states);
 
 /**
- * @brief  Enable CAN/AIR SHDN (if they are not faulted) and their
+ * @brief  Enable CAN_GLV/AIR SHDN (if they are not faulted) and their
  *         corresponding current sense diagnostics. Disable all other outputs.
  * @param  fault_states Array with (NumReadings x ChannelCount) elements which
  *         tracks outputs that need to be renabled or are permanently faulted
