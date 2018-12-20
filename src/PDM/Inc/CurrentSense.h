@@ -191,8 +191,7 @@ static const float32_t VOLTAGE_TO_CURRENT[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {
     CURRENT_SCALING / SENSE_RESISTANCE,
     0,
     0,
-    0
-};
+    0};
 // Index-based conversion for each e-fuse
 
 // TODO (Issue #191): Can this not be a static const? Or can it be in .c file
