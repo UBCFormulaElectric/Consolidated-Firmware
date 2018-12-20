@@ -114,7 +114,7 @@
  *  @{
  */
 
-/** @brief Software current limit for efuse outputs */
+/** @brief Software current limit for efuse outputs in Amperes (A) */
 #define EFUSE_CURRENT_LIMIT (float32_t)(1.0f)
 
 /** @brief Cell balance IC (BQ29209) defines overvoltage as 4.3V * 2 in series */
