@@ -191,12 +191,12 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
         EFUSE_DEN_1_GPIO_Port, EFUSE_DEN_1_Pin, GPIO_PIN_SET);
 
     // E-Fuse PDM Fan/Cooling
-    if (fault_states[PDM_FAN_INDEX] == STATIC_EFUSE)
+    if (fault_states[PDM_FAN] == NORMAL_STATE)
     {
         SharedGpio_GPIO_WritePin(
             EFUSE_PDM_FAN_IN_GPIO_Port, EFUSE_PDM_FAN_IN_Pin, GPIO_PIN_SET);
     }
-    if (fault_states[COOLING_INDEX] == STATIC_EFUSE)
+    if (fault_states[COOLING] == NORMAL_STATE)
     {
         SharedGpio_GPIO_WritePin(
             EFUSE_COOLING_IN_GPIO_Port, EFUSE_COOLING_IN_Pin, GPIO_PIN_SET);
@@ -204,13 +204,13 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
     SharedGpio_GPIO_WritePin(
         EFUSE_DEN_2_GPIO_Port, EFUSE_DEN_2_Pin, GPIO_PIN_SET);
 
-    // E-Fuse CAN/AIR SHDN
-    if (fault_states[CAN_INDEX] == STATIC_EFUSE)
+    // E-Fuse CAN_GLV/AIR SHDN
+    if (fault_states[CAN_GLV] == NORMAL_STATE)
     {
         SharedGpio_GPIO_WritePin(
             EFUSE_CAN_IN_GPIO_Port, EFUSE_CAN_IN_Pin, GPIO_PIN_SET);
     }
-    if (fault_states[AIR_SHDN_INDEX] == STATIC_EFUSE)
+    if (fault_states[AIR_SHDN] == NORMAL_STATE)
     {
         SharedGpio_GPIO_WritePin(
             EFUSE_AIR_SHDN_IN_GPIO_Port, EFUSE_AIR_SHDN_IN_Pin, GPIO_PIN_SET);
@@ -219,13 +219,13 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
         EFUSE_DEN_3_GPIO_Port, EFUSE_DEN_3_Pin, GPIO_PIN_SET);
 
     // E-Fuse Accumulator Fans
-    if (fault_states[ACC_SEG_FAN_INDEX] == STATIC_EFUSE)
+    if (fault_states[ACC_SEGMENT_FAN] == NORMAL_STATE)
     {
         SharedGpio_GPIO_WritePin(
             EFUSE_ACC_SEG_FAN_IN_GPIO_Port, EFUSE_ACC_SEG_FAN_IN_Pin,
             GPIO_PIN_SET);
     }
-    if (fault_states[ACC_ENC_FAN_INDEX] == STATIC_EFUSE)
+    if (fault_states[ACC_ENCLOSURE_FAN] == NORMAL_STATE)
     {
         SharedGpio_GPIO_WritePin(
             EFUSE_ACC_ENC_FAN_IN_GPIO_Port, EFUSE_ACC_ENC_FAN_IN_Pin,
@@ -272,12 +272,12 @@ void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states)
         EFUSE_DEN_2_GPIO_Port, EFUSE_DEN_2_Pin, GPIO_PIN_RESET);
 
     // E-Fuse CAN/AIR SHDN
-    if (fault_states[CAN_INDEX] == STATIC_EFUSE)
+    if (fault_states[CAN_GLV] == NORMAL_STATE)
     {
         SharedGpio_GPIO_WritePin(
             EFUSE_CAN_IN_GPIO_Port, EFUSE_CAN_IN_Pin, GPIO_PIN_SET);
     }
-    if (fault_states[AIR_SHDN_INDEX] == STATIC_EFUSE)
+    if (fault_states[AIR_SHDN] == NORMAL_STATE)
     {
         SharedGpio_GPIO_WritePin(
             EFUSE_AIR_SHDN_IN_GPIO_Port, EFUSE_AIR_SHDN_IN_Pin, GPIO_PIN_SET);
