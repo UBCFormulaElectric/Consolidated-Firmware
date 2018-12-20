@@ -16,7 +16,7 @@
  ******************************************************************************/
 extern volatile GPIO_PinState dsel_state;
 static float32_t
-    filtered_adc_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {0};
+    filtered_adc_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = { 0 };
 
 /******************************************************************************
  * Private Function Prototypes
