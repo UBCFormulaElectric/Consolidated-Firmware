@@ -15,8 +15,8 @@
  * Module Variable Definitions
  ******************************************************************************/
 extern volatile GPIO_PinState dsel_state;
-static float filtered_adc_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] =
-    {0};
+static float32_t
+    filtered_adc_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {0};
 
 /******************************************************************************
  * Private Function Prototypes
@@ -40,7 +40,7 @@ static uint8_t CurrentSense_DSELShiftIndex(void)
     }
     else
     {
-        return ADC_CHANNEL_COUNT;
+        return NUM_ADC_CHANNELS;
     }
 }
 
@@ -50,8 +50,11 @@ static uint8_t CurrentSense_DSELShiftIndex(void)
 void CurrentSense_LowPassFilterADCReadings(volatile uint32_t *adc_readings)
 {
     uint8_t adc_channel = CurrentSense_DSELShiftIndex();
-    uint8_t final_index = adc_channel + ADC_CHANNEL_COUNT;
-    uint8_t adc_index   = ADC_CHANNEL_COUNT;
+    uint8_t final_index = adc_channel + NUM_ADC_CHANNELS;
+    // adc_index is set to ADC_CHANNEL_COUNT because of the bug described in
+    // NUM_READINGS_PER_ADC_DMA_TRANSFER - that is, we only use the second half
+    // of adc_readings[]
+    uint8_t adc_index = NUM_ADC_CHANNELS;
     for (; adc_channel < final_index; adc_channel++)
     {
         filtered_adc_readings[adc_channel] =
@@ -63,7 +66,7 @@ void CurrentSense_LowPassFilterADCReadings(volatile uint32_t *adc_readings)
 }
 
 void CurrentSense_ConvertFilteredADCToCurrentValues(
-    volatile float *converted_readings)
+    volatile float32_t *converted_readings)
 {
     uint8_t adc_channel =
         CurrentSense_DSELShiftIndex(); // Shift index depending on DSEL state
@@ -83,7 +86,7 @@ void CurrentSense_ConvertFilteredADCToCurrentValues(
         filtered_adc_readings[adc_channel] * VBAT_VOLTAGE / ADC_12_BIT_POINTS;
     adc_channel++;
 
-    converted_readings[FLYWIRE] =
-    filtered_adc_readings[adc_channel] * ADC1_IN10_TO_12V_ACC_RATIO * VDDA_VOLTAGE /
-    ADC_12_BIT_POINTS;
+    converted_readings[FLYWIRE] = filtered_adc_readings[adc_channel] *
+                                  ADC1_IN10_TO_12V_ACC_RATIO * VDDA_VOLTAGE /
+                                  ADC_12_BIT_POINTS;
 }

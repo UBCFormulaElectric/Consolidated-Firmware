@@ -7,8 +7,8 @@
 #define SHARED_CAN_H
 
 /******************************************************************************
-* Includes
-*******************************************************************************/
+ * Includes
+ ******************************************************************************/
 #include "CanDefinitions.h"
 
 // Check for STM32 microcontroller family
@@ -19,12 +19,13 @@
 // Used in FSM 2017 (Shared CAN Library doesn't yet support this)
 #include "stm32f0xx_hal.h"
 #else
-#error "No valid architecture selected - unable to determine what HAL library to use"
+#error \
+    "No valid architecture selected - unable to determine what HAL library to use"
 #endif
 
 /******************************************************************************
-* Preprocessor Constants
-*******************************************************************************/
+ * Preprocessor Constants
+ ******************************************************************************/
 // clang-format off
 #define CAN_PAYLOAD_BYTE_SIZE 8 // Maximum number of bytes in a CAN payload
 #define CAN_ExtID_NULL 0 // Set CAN Extended ID to 0 because we are not using it
@@ -63,8 +64,8 @@
 #endif
 
 /******************************************************************************
-* Preprocessor Macros
-*******************************************************************************/
+ * Preprocessor Macros
+ ******************************************************************************/
 /**
  * @brief Used to initialize an element in mask_filters[]
  * @param id Can be MASKMODE_16BIT_ID_XXX, where XXX is the PCB name
@@ -171,8 +172,8 @@
 #define MASKMODE_16BIT_MASK_BAMOCAR_RX INIT_MASKMODE_16BIT_FiRx(0x7F0, 0x1, 0x1, 0x0)
 
 /******************************************************************************
-* Typedefs
-*******************************************************************************/
+ * Typedefs
+ ******************************************************************************/
 // clang-format on
 /** @brief Struct to help initialize CAN filters */
 const typedef struct
@@ -196,33 +197,33 @@ typedef struct
 {
     uint32_t std_id;
     uint32_t dlc;
-    uint8_t data[8];
+    uint8_t  data[8];
 } CanTxMsgQueueItem_Struct;
 
 /** @brief Combine HAL Rx CAN header with CAN payload */
 typedef struct
 {
     CAN_RxHeaderTypeDef rx_header;
-    uint8_t data[8];
+    uint8_t             data[8];
 } CanRxMsg_Struct;
 
 /** @brief Queue operation status code */
 typedef enum
 {
-    FIFO_SUCCESS = 0,
-    FIFO_IS_FULL = 1,
-    FIFO_IS_EMPTY = 2,
-    FIFO_ERROR = 3
+    FIFO_SUCCESS,
+    FIFO_IS_FULL,
+    FIFO_IS_EMPTY,
+    FIFO_ERROR
 } Fifo_Status_Enum;
 
 /******************************************************************************
-* Global Variables
-*******************************************************************************/
+ * Global Variables
+ ******************************************************************************/
 extern CAN_HandleTypeDef hcan;
 
 /******************************************************************************
-* Function Prototypes
-*******************************************************************************/
+ * Function Prototypes
+ ******************************************************************************/
 /**
  * @brief  Transmits a CAN message
  * @param  std_id Standard CAN ID
@@ -230,7 +231,10 @@ extern CAN_HandleTypeDef hcan;
  *         transmitted)
  * @param  data Pointer to an uint8_t array with 8 elements (64-bits in total).
  */
-void SharedCan_TransmitDataCan(CanStandardId_Enum std_id, CanDataLengthCode_Enum dlc, uint8_t *data);
+void SharedCan_TransmitDataCan(
+    CanStandardId_Enum     std_id,
+    CanDataLengthCode_Enum dlc,
+    uint8_t *              data);
 
 /**
  * @brief  Initialize CAN interrupts and CAN filters before starting the CAN
