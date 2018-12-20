@@ -55,10 +55,8 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     }
     else
     {
-        FaultHandling_Handler(
-            e_fuse_fault_states,
-            converted_readings); // Only handle faults after all e-fuses are
-                                 // checked
+        // Only handle faults after all e-fuses are checked
+        FaultHandling_Handler(e_fuse_fault_states, converted_readings);
         dsel_state = DSEL_LOW;
     }
 
