@@ -83,9 +83,8 @@ TIM_HandleTypeDef htim17;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 volatile GPIO_PinState dsel_state = DSEL_LOW;
-volatile uint8_t
-    e_fuse_fault_states[NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER] =
-        {NORMAL_STATE};
+volatile uint8_t       e_fuse_fault_states
+    [NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER] = { NORMAL_STATE };
 volatile uint32_t
     adc_readings[NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER];
 volatile float32_t
@@ -185,9 +184,9 @@ int main(void)
  */
 void SystemClock_Config(void)
 {
-    RCC_OscInitTypeDef       RCC_OscInitStruct = {0};
-    RCC_ClkInitTypeDef       RCC_ClkInitStruct = {0};
-    RCC_PeriphCLKInitTypeDef PeriphClkInit     = {0};
+    RCC_OscInitTypeDef       RCC_OscInitStruct = { 0 };
+    RCC_ClkInitTypeDef       RCC_ClkInitStruct = { 0 };
+    RCC_PeriphCLKInitTypeDef PeriphClkInit     = { 0 };
 
     /**Initializes the CPU, AHB and APB busses clocks
      */
@@ -239,7 +238,7 @@ static void MX_ADC1_Init(void)
 
     /* USER CODE END ADC1_Init 0 */
 
-    ADC_ChannelConfTypeDef sConfig = {0};
+    ADC_ChannelConfTypeDef sConfig = { 0 };
 
     /* USER CODE BEGIN ADC1_Init 1 */
 
@@ -411,8 +410,8 @@ static void MX_TIM2_Init(void)
 
     /* USER CODE END TIM2_Init 0 */
 
-    TIM_ClockConfigTypeDef  sClockSourceConfig = {0};
-    TIM_MasterConfigTypeDef sMasterConfig      = {0};
+    TIM_ClockConfigTypeDef  sClockSourceConfig = { 0 };
+    TIM_MasterConfigTypeDef sMasterConfig      = { 0 };
 
     /* USER CODE BEGIN TIM2_Init 1 */
 
@@ -494,7 +493,7 @@ static void MX_DMA_Init(void)
  */
 static void MX_GPIO_Init(void)
 {
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
 
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOF_CLK_ENABLE();

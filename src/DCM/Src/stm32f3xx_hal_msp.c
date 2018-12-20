@@ -108,7 +108,7 @@ void HAL_MspInit(void)
  */
 void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
 {
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (hcan->Instance == CAN)
     {
         /* USER CODE BEGIN CAN_MspInit 0 */
@@ -183,7 +183,7 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef *hcan)
  */
 void HAL_I2C_MspInit(I2C_HandleTypeDef *hi2c)
 {
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
     if (hi2c->Instance == I2C1)
     {
         /* USER CODE BEGIN I2C1_MspInit 0 */

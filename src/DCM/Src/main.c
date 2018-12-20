@@ -148,9 +148,9 @@ int main(void)
  */
 void SystemClock_Config(void)
 {
-    RCC_OscInitTypeDef       RCC_OscInitStruct = {0};
-    RCC_ClkInitTypeDef       RCC_ClkInitStruct = {0};
-    RCC_PeriphCLKInitTypeDef PeriphClkInit     = {0};
+    RCC_OscInitTypeDef       RCC_OscInitStruct = { 0 };
+    RCC_ClkInitTypeDef       RCC_ClkInitStruct = { 0 };
+    RCC_PeriphCLKInitTypeDef PeriphClkInit     = { 0 };
 
     /**Initializes the CPU, AHB and APB busses clocks
      */
@@ -305,7 +305,7 @@ static void MX_TIM6_Init(void)
 
     /* USER CODE END TIM6_Init 0 */
 
-    TIM_MasterConfigTypeDef sMasterConfig = {0};
+    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
 
     /* USER CODE BEGIN TIM6_Init 1 */
 
@@ -339,7 +339,7 @@ static void MX_TIM6_Init(void)
  */
 static void MX_GPIO_Init(void)
 {
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
 
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOC_CLK_ENABLE();
