@@ -21,7 +21,7 @@
 #ifndef DEBUG
 
 // Heartbeat Setup
-volatile uint16_t HeartbeatCount[PCB_COUNT]  = {0};
+volatile uint16_t HeartbeatCount[PCB_COUNT]  = { 0 };
 const int         HEARTBEAT_TICK_PERIOD      = 1000; // Period in ms
 const int         HEARTBEAT_BROADCAST_PERIOD = 300;  // Period in ms
 

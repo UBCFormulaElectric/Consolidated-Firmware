@@ -21,7 +21,7 @@
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
-volatile uint8_t num_faults[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {0};
+volatile uint8_t num_faults[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = { 0 };
 
 /******************************************************************************
  * Private Function Prototypes
