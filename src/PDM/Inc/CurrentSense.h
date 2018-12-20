@@ -175,7 +175,7 @@
 // into a struct?
 // TODO (Issue #191): Can this not be a static const? Or can it be in .c file
 // instead at least
-static const float VOLTAGE_TO_CURRENT[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] =
+static const float32_t VOLTAGE_TO_CURRENT[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] =
 {
     CURRENT_SCALING_AUX / SENSE_RESISTANCE,
     CURRENT_SCALING / SENSE_RESISTANCE,
@@ -192,8 +192,7 @@ static const float VOLTAGE_TO_CURRENT[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2]
     CURRENT_SCALING / SENSE_RESISTANCE,
     0,
     0,
-    0
-};
+    0};
 // Index-based conversion for each e-fuse
 
 // TODO (Issue #191): Can this not be a static const? Or can it be in .c file
@@ -217,6 +216,6 @@ void CurrentSense_LowPassFilterADCReadings(volatile uint32_t *adc_readings);
  * @param converted_readings Pointer to array containing converted ADC readings
  */
 void CurrentSense_ConvertFilteredADCToCurrentValues(
-    volatile float *converted_readings);
+    volatile float32_t *converted_readings);
 
 #endif /* CURRENT_SENSE_H */
