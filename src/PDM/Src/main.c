@@ -47,9 +47,10 @@
 
 #include "Gpio.h"
 #include "Adc.h"
-#include "SharedCAN.h"
+#include "SharedCan.h"
 #include "Timers.h"
 #include "CurrentSense.h"
+#include "arm_math.h"
 
 /* USER CODE END Includes */
 
@@ -86,8 +87,9 @@ volatile uint8_t
     e_fuse_fault_states[NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER] =
         {NORMAL_STATE};
 volatile uint32_t
-               adc_readings[NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER];
-volatile float converted_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2];
+    adc_readings[NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER];
+volatile float32_t
+    converted_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

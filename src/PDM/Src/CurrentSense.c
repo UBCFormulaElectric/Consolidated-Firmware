@@ -15,8 +15,8 @@
  * Module Variable Definitions
  ******************************************************************************/
 extern volatile GPIO_PinState dsel_state;
-static float filtered_adc_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] =
-    {0};
+static float32_t
+    filtered_adc_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {0};
 
 /******************************************************************************
  * Private Function Prototypes
@@ -54,7 +54,7 @@ void CurrentSense_LowPassFilterADCReadings(volatile uint32_t *adc_readings)
     // adc_index is set to ADC_CHANNEL_COUNT because of the bug described in
     // NUM_READINGS_PER_ADC_DMA_TRANSFER - that is, we only use the second half
     // of adc_readings[]
-    uint8_t adc_index   = ADC_CHANNEL_COUNT;
+    uint8_t adc_index = ADC_CHANNEL_COUNT;
     for (; adc_channel < final_index; adc_channel++)
     {
         filtered_adc_readings[adc_channel] =
@@ -66,7 +66,7 @@ void CurrentSense_LowPassFilterADCReadings(volatile uint32_t *adc_readings)
 }
 
 void CurrentSense_ConvertFilteredADCToCurrentValues(
-    volatile float *converted_readings)
+    volatile float32_t *converted_readings)
 {
     uint8_t adc_channel =
         CurrentSense_DSELShiftIndex(); // Shift index depending on DSEL state
