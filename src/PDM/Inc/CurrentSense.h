@@ -12,7 +12,6 @@
 #include "Gpio.h"
 #include "stm32f3xx_hal.h"
 #include "arm_math.h"
-#include "Constants.h"
 
 /******************************************************************************
  * Preprocessor Constants
@@ -34,7 +33,7 @@
 #define VBAT_VOLTAGE (float32_t)(8.4f)
 
 /** @brief The GLV voltage when the corresponding ADC input saturates at 3.3V.
- *         GLV stands for Grounded Low voltage, and is the voltage level used 
+ *         GLV stands for Grounded Low voltage, and is the voltage level used
  *         to power the vehicle's low voltage systems */
 #define GLV_VOLTAGE  (float32_t)(12.0f)
 
@@ -115,8 +114,8 @@
  *  @{
  */
 
-/** @brief Software current limit for efuse outputs */
-#define GLV_CURRENT_LIMIT (float32_t)(1.0f)
+/** @brief Software current limit for efuse outputs in Amperes (A) */
+#define EFUSE_CURRENT_LIMIT (float32_t)(1.0f)
 
 /** @brief Cell balance IC (BQ29209) defines overvoltage as 4.3V * 2 in series */
 #define VBAT_OVERVOLTAGE       (float32_t)(8.6f)
@@ -133,8 +132,9 @@
 
 /** @} VOLTAGE_CURRENT_LIMITS */
 
-/** @defgroup LPF
- *  The constants needed for apply a low pass filter, taken from:
+/** @defgroup IIR_LPF
+ *  The constants needed for a infinite impulse response (IIR) low-pass filter,
+ *  taken from:
  *  https://en.wikipedia.org/wiki/Low-pass_filter#Discrete-time_realization
  *  @{
  */
@@ -144,19 +144,23 @@
 #define ADC_TRIGGER_FREQUENCY  (float32_t)(72000000.0f / 14400.0f)
 
 /** @brief Sampling time interval */
-#define DELTA              (float32_t)(1.0f / ADC_TRIGGER_FREQUENCY)
+#define IIR_LPF_SAMPLING_PERIOD    (float32_t)(1.0f / ADC_TRIGGER_FREQUENCY)
 
 /** @brief 10Hz cutoff to account for false tripping from inrush (See
  *         SoftwareTools for data) */
-#define CUTOFF_FREQUENCY   (float32_t)(10.0f)
+#define IIR_LPF_CUTOFF_FREQUENCY   (float32_t)(10.0f)
 
 /** @brief RC time constant */
-#define RC                 (float32_t)(1.0f / (2.0f * PI * CUTOFF_FREQUENCY))
+#define IIR_LPF_RC \
+        (float32_t)(1.0f / \
+                   (2.0f * PI * IIR_LPF_CUTOFF_FREQUENCY))
 
-/** @brief ALPHA constant */
-#define ALPHA              (float32_t)(DELTA / (RC + DELTA))
+/** @brief Smoothing Factor */
+#define IIR_LPF_SMOOTHING_FACTOR \
+        (float32_t)(IIR_LPF_SAMPLING_PERIOD / \
+                   (IIR_LPF_RC + IIR_LPF_SAMPLING_PERIOD))
 
-/** @} LPF */
+/** @} IIR_LPF */
 
 /******************************************************************************
 * Preprocessor Macros
@@ -175,39 +179,40 @@
 // into a struct?
 // TODO (Issue #191): Can this not be a static const? Or can it be in .c file
 // instead at least
-static const float VOLTAGE_TO_CURRENT[ADC_CHANNEL_COUNT * NUM_CHANNELS] =
-{
-    CURRENT_SCALING_AUX / SENSE_RESISTANCE,
-    CURRENT_SCALING / SENSE_RESISTANCE,
-    CURRENT_SCALING / SENSE_RESISTANCE,
-    CURRENT_SCALING / SENSE_RESISTANCE,
-    CURRENT_SCALING / SENSE_RESISTANCE,
-    0,
-    0,
-    0,
-    CURRENT_SCALING_AUX / SENSE_RESISTANCE,
-    CURRENT_SCALING / SENSE_RESISTANCE,
-    CURRENT_SCALING / SENSE_RESISTANCE,
-    CURRENT_SCALING / SENSE_RESISTANCE,
-    CURRENT_SCALING / SENSE_RESISTANCE,
-    0,
-    0,
-    0
-};
+static const float32_t
+    VOLTAGE_TO_CURRENT[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {
+        CURRENT_SCALING_AUX / SENSE_RESISTANCE,
+        CURRENT_SCALING / SENSE_RESISTANCE,
+        CURRENT_SCALING / SENSE_RESISTANCE,
+        CURRENT_SCALING / SENSE_RESISTANCE,
+        CURRENT_SCALING / SENSE_RESISTANCE,
+        0,
+        0,
+        0,
+        CURRENT_SCALING_AUX / SENSE_RESISTANCE,
+        CURRENT_SCALING / SENSE_RESISTANCE,
+        CURRENT_SCALING / SENSE_RESISTANCE,
+        CURRENT_SCALING / SENSE_RESISTANCE,
+        CURRENT_SCALING / SENSE_RESISTANCE,
+        0,
+        0,
+        0
+    };
 // Index-based conversion for each e-fuse
 
 // TODO (Issue #191): Can this not be a static const? Or can it be in .c file
 // instead at least 3 retries for all outputs except FANS/COOLING which have 10
 // retries to account for inrush, and 1 retry for VICOR poweroff
-static const uint8_t MAX_FAULTS[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {
-    3, 10, 3, 10, 3, 3, 3, 1, 3, 3, 3, 10, 3, 3, 3, 1};
+static const uint8_t MAX_FAULTS[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {
+    3, 10, 3, 10, 3, 3, 3, 1, 3, 3, 3, 10, 3, 3, 3, 1
+};
 
 /******************************************************************************
  * Function Prototypes
  ******************************************************************************/
 /**
  * @brief Low pass filters ADC readings with a cutoff frequency of
- *        CUTOFF_FREQUENCY
+ *        IIR_LPF_CUTOFF_FREQUENCY
  * @param adc_readings Pointer to array containing the unfiltered ADC readings
  */
 void CurrentSense_LowPassFilterADCReadings(volatile uint32_t *adc_readings);
@@ -217,6 +222,6 @@ void CurrentSense_LowPassFilterADCReadings(volatile uint32_t *adc_readings);
  * @param converted_readings Pointer to array containing converted ADC readings
  */
 void CurrentSense_ConvertFilteredADCToCurrentValues(
-    volatile float *converted_readings);
+    volatile float32_t *converted_readings);
 
 #endif /* CURRENT_SENSE_H */
