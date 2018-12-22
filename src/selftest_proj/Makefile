@@ -38,6 +38,7 @@ BUILD_DIR = build
 C_SOURCES =  \
 Src/main.c \
 Src/Can.c \
+Src/Test.c \
 Src/stm32f3xx_it.c \
 Src/stm32f3xx_hal_msp.c \
 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.c \
@@ -58,7 +59,8 @@ Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c.c \
 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_i2c_ex.c \
 Src/system_stm32f3xx.c \
 Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_can.c \
-../shared/STM32-CAN-Code/Src/SharedCan.c
+../shared/STM32-CAN-Code/Src/SharedCan.c \
+../shared/CanTest/Src/CanTest.c
 
 # ASM sources
 ASM_SOURCES =  \
@@ -120,7 +122,8 @@ C_INCLUDES =  \
 -IDrivers/STM32F3xx_HAL_Driver/Inc/Legacy \
 -IDrivers/CMSIS/Device/ST/STM32F3xx/Include \
 -IDrivers/CMSIS/Include \
--I../shared/STM32-CAN-Code/Inc
+-I../shared/STM32-CAN-Code/Inc \
+-I../shared/CanTest/Inc
 
 
 # compile gcc flags

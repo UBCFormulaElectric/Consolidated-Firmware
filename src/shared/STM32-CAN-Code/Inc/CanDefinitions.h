@@ -86,7 +86,10 @@ typedef enum
     DEMO_8_UINT8_NUCLEO_TX_STDID                    = (0x408U),
     DEMO_8_UINT8_NUCLEO_RX_STDID                    = (0x409U),
     DEMO_2_INT32_NUCLEO_TX_STDID                    = (0x40AU),
-    DEMO_2_INT32_NUCLEO_RX_STDID                    = (0x40BU)
+    DEMO_2_INT32_NUCLEO_RX_STDID                    = (0x40BU),
+    // TODO: decide on a proper range for these messages (should they be "shared"??)
+    TEST_START_BMS_STDID                            = (0x40CU),
+    TEST_RESULT_BMS_STDID                           = (0x40DU),
 } CanStandardId_Enum;
 
 
@@ -153,7 +156,9 @@ typedef enum
     DEMO_8_UINT8_NUCLEO_TX_DLC                      = (8U),
     DEMO_8_UINT8_NUCLEO_RX_DLC                      = (8U),
     DEMO_2_INT32_NUCLEO_TX_DLC                      = (8U),
-    DEMO_2_INT32_NUCLEO_RX_DLC                      = (8U)
+    DEMO_2_INT32_NUCLEO_RX_DLC                      = (8U),
+    TEST_START_BMS_DLC                              = (2U),
+    TEST_RESULT_BMS_DLC                             = (8U)
 } CanDataLengthCode_Enum;
 
 /** @brief PCB Names */

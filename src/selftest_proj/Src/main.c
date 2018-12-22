@@ -7,9 +7,7 @@
   ** This notice applies to any and all portions of this file
   * that are not between comment pairs USER CODE BEGIN and
   * USER CODE END. Other portions of this file, whether 
-  * inserted by the user or by software development tools
-  * are owned by their respective copyright owners.
-  *
+  * inserted by the user or by software development tools are owned by their respective copyright owners.  
   * COPYRIGHT(c) 2018 STMicroelectronics
   *
   * Redistribution and use in source and binary forms, with or without modification,
@@ -45,6 +43,7 @@
 /* USER CODE BEGIN Includes */
 
 #include "SharedCan.h"
+#include "CanTest.h"
 
 /* USER CODE END Includes */
 
@@ -125,8 +124,9 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  // TODO: Delete me, just here so we can break in Can.c
-  //Can_RxCommonCallback(&hcan, 1);
+  CanTest_TestStatus test_status = CanTest_runTestWithId(123);
+  test_status = CanTest_runTestWithId(456);
+  test_status = CanTest_runTestWithId(789);
   while (1)
   {
     //HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);
