@@ -2,10 +2,13 @@
 This folder contains our library for running tests over CAN. The goal is to provide a simple framework by which simple tests can be run, and the results seen, entirely over CAN.
 
 ## How to Use This Library
-- 1. Setup our `SharedCan` library.
-- 1. Add the board name to **Preprocessor Symbols** inside Keil. This will determine which CAN filters are activated.
+1. Setup our `SharedCan` library.
+
+2. Add the board name to **Preprocessor Symbols** inside Keil. This will determine which CAN filters are activated.
 <img src="https://user-images.githubusercontent.com/16970019/49477422-c5967e80-f7d1-11e8-95ee-74e2a36f4b73.png" width="50%" height="50%">
-- 1. Add `CanTest_handleCanMsg` to `Can_RxCommonCallback`, ex:
+
+3. Add `CanTest_handleCanMsg` to `Can_RxCommonCallback`, ex:
+
 ```
 void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 {
@@ -17,7 +20,9 @@ void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 }
 ```
 this will allow the framework to check each CAN message to see if it should run a test based on that message or not.
-- 1. Add a `Test.c` file to your project. Ex:
+
+4. Add a `Test.c` file to your project. Ex:
+
 ```
 // Test.c
 #include "CanTest.h"
