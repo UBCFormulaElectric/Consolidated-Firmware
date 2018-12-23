@@ -45,7 +45,7 @@ static void Can_HeartbeatCallback(uint8_t *data)
  ******************************************************************************/
 void Can_BroadcastAirShutdownError(void)
 {
-    // TODO: Is it ok for payload to be empty?
+    // TODO (#Issue 217): Is it ok for payload to be empty?
     uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = {0};
     SharedCan_TransmitDataCan(
         BMS_AIR_SHUTDOWN_ERROR_STDID, BMS_AIR_SHUTDOWN_ERROR_DLC, &data[0]);
@@ -53,7 +53,7 @@ void Can_BroadcastAirShutdownError(void)
 
 void Can_BroadcastMotorShutdownError(void)
 {
-    // TODO: Is it ok for payload to be empty?
+    // TODO (#Issue 217): Is it ok for payload to be empty?
     uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = {0};
     SharedCan_TransmitDataCan(
         SHARED_MOTOR_SHUTDOWN_ERROR_STDID, SHARED_MOTOR_SHUTDOWN_ERROR_DLC,
