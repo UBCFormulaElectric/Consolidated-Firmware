@@ -46,14 +46,6 @@
  * Typedefs
  ******************************************************************************/
 // clang-format on
-/** Defines the modes in which APPS function could be run. */
-typedef enum
-{
-    /* @brief Normal reading (Does not affect APPSFaultCounter) */
-    APPS_NORMAL_MODE,
-    /* @brief Control loop reading (Does affect APPSFaultCounter) */
-    APPS_CONTROL_LOOP_MODE
-} APPS_Mode_Enum;
 
 /******************************************************************************
  * Global Variables
@@ -72,14 +64,13 @@ extern volatile uint32_t apps_fault_state;
  *         4. Checks for implausible APPS readings (>10% difference between the
  *         primary and secondary readings as per EV2.3.6)
  *  	   5. Checks for APPS/Brake Pedal
- *         Plausibility Check, where accelerator pedal is pushed >25% while brake
- *         is pushed (EV2.5)
+ *         Plausibility Check, where accelerator pedal is pushed >25% while
+ *         brake is pushed (EV2.5)
  *         6. Checks for accelerator pedal stuck at max. torque for
  *         longer than 10 secs
  *         7. Maps the APPS readings to a 10-bit number (0 =
  *         unpressed, 1023 = fully pressed)
- * @param  mode - Can be a value of APPS_Mode_Enum
  * @return Accelerator pedal position (10-bit)
  */
-uint16_t getAcceleratorPedalPosition(APPS_Mode_Enum mode);
+uint16_t getAcceleratorPedalPosition(void);
 #endif /* APPS_H */

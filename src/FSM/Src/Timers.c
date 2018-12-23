@@ -32,21 +32,36 @@
  */
 static void Timers_ControlLoop(void);
 
+/**
+ * @brief Main control loop sensor data acquisition
+ */
+static void Timers_ControlLoopGetSensorData(void);
+
+/**
+ * @brief Main control loop error handling
+ */
+static void Timers_ControlLoopHandleErrors(void);
+
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
 static void Timers_ControlLoop(void)
 {
-    static MotorShutdownStatus_Enum motor_state;
+    Timers_ControlLoopGetSensorData();
+    Timers_ControlLoopHandleErrors();
+}
+
+static void Timers_ControlLoopGetSensorData(void)
+{
     uint16_t accelerator_pedal_position = 0;
 
-    // Get sensor data
-    // Only call this function in APPS_CONTROL_LOOP_MODE once in this control
-    // loop function
-    accelerator_pedal_position =
-        getAcceleratorPedalPosition(APPS_CONTROL_LOOP_MODE);
+    accelerator_pedal_position = getAcceleratorPedalPosition();
+}
 
-    // ERROR HANDLING
+static void Timers_ControlLoopHandleErrors(void)
+{
+    static MotorShutdownStatus_Enum motor_state;
+
     // APPS fault when motors are on
     if (apps_fault_state != FSM_APPS_NORMAL_OPERATION && motor_state == ON)
     {
@@ -68,7 +83,6 @@ static void Timers_ControlLoop(void)
         motor_state = ON;
     }
 }
-
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
