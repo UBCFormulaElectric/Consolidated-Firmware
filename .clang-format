@@ -104,6 +104,13 @@ ConstructorInitializerIndentWidth: '2'
 # 2*\noOfChars arg);
 ContinuationIndentWidth: '4'
 
+# Format braced lists as best suited for C++11 braced lists
+# Important Differences (if 'true')
+# - no spaces inside the braced lists
+# - no line break before closing brace
+# - indentation with the continuation indentation, not with block indent
+Cpp11BracedListStyle: 'false'
+
 # "case" keywords are indented from the "switch"
 IndentCaseLabels: 'true'
 

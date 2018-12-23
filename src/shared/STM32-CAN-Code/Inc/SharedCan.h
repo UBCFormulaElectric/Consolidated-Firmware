@@ -8,7 +8,7 @@
 
 /******************************************************************************
  * Includes
- *******************************************************************************/
+ ******************************************************************************/
 #include "CanDefinitions.h"
 
 // Check for STM32 microcontroller family
@@ -25,7 +25,7 @@
 
 /******************************************************************************
  * Preprocessor Constants
- *******************************************************************************/
+ ******************************************************************************/
 // clang-format off
 #define CAN_PAYLOAD_BYTE_SIZE 8 // Maximum number of bytes in a CAN payload
 #define CAN_ExtID_NULL 0 // Set CAN Extended ID to 0 because we are not using it
@@ -64,8 +64,8 @@
 #endif
 
 /******************************************************************************
-* Preprocessor Macros
-*******************************************************************************/
+ * Preprocessor Macros
+ ******************************************************************************/
 /**
  * @brief Used to initialize an element in mask_filters[]
  * @param id Can be MASKMODE_16BIT_ID_XXX, where XXX is the PCB name
@@ -172,8 +172,8 @@
 #define MASKMODE_16BIT_MASK_BAMOCAR_RX INIT_MASKMODE_16BIT_FiRx(0x7F0, 0x1, 0x1, 0x0)
 
 /******************************************************************************
-* Typedefs
-*******************************************************************************/
+ * Typedefs
+ ******************************************************************************/
 // clang-format on
 /** @brief Struct to help initialize CAN filters */
 const typedef struct
@@ -210,20 +210,20 @@ typedef struct
 /** @brief Queue operation status code */
 typedef enum
 {
-    FIFO_SUCCESS  = 0,
-    FIFO_IS_FULL  = 1,
-    FIFO_IS_EMPTY = 2,
-    FIFO_ERROR    = 3
+    FIFO_SUCCESS,
+    FIFO_IS_FULL,
+    FIFO_IS_EMPTY,
+    FIFO_ERROR
 } Fifo_Status_Enum;
 
 /******************************************************************************
  * Global Variables
- *******************************************************************************/
+ ******************************************************************************/
 extern CAN_HandleTypeDef hcan;
 
 /******************************************************************************
  * Function Prototypes
- *******************************************************************************/
+ ******************************************************************************/
 /**
  * @brief  Transmits a CAN message
  * @param  std_id Standard CAN ID

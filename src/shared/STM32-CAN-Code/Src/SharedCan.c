@@ -1,26 +1,31 @@
 /******************************************************************************
  * Includes
- *******************************************************************************/
+ ******************************************************************************/
 #include <stdbool.h>
 #include <string.h>
 #include "SharedCan.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
- *******************************************************************************/
+ ******************************************************************************/
+
 /******************************************************************************
  * Module Preprocessor Macros
- *******************************************************************************/
+ ******************************************************************************/
+
 /******************************************************************************
  * Module Typedefs
- *******************************************************************************/
+ ******************************************************************************/
+
 /******************************************************************************
  * Module Variable Definitions
- *******************************************************************************/
+ ******************************************************************************/
 static CanTxMsgQueueItem_Struct can_tx_msg_fifo[CAN_TX_MSG_FIFO_SIZE];
 static volatile uint8_t         tail = 0;
 static volatile uint8_t         head = 0;
 
+// TODO (Issue: 243): Remove clang-format on/off once #243 is resolved
+// clang-format off
 // mask_filters[] are initialized at compile-time so we don't
 // need to waste resources during run-time to configure their values
 #ifdef PDM
@@ -57,10 +62,11 @@ static CanMaskFilterConfig_Struct mask_filters[5] =
 #else
 #error "No valid PCB selected - unable to determine what mask filters to use"
 #endif
+// clang-format on
 
 /******************************************************************************
  * Private Function Prototypes
- *******************************************************************************/
+ ******************************************************************************/
 /**
  * @brief  Transmit CAN message and remove it from the CAN queue
  * @return FIFO_IS_EMPTY: Failed dequeue due to empty queue
@@ -132,7 +138,7 @@ static void SharedCan_BroadcastSystemReboot(void);
 
 /******************************************************************************
  * Private Function Definitions
- *******************************************************************************/
+ ******************************************************************************/
 static Fifo_Status_Enum SharedCan_DequeueCanTxMessageFifo(void)
 {
     if (!SharedCan_CanTxMessageFifoIsEmpty())
@@ -289,20 +295,21 @@ static void SharedCan_EnqueueFifoOverflowError(void)
 }
 static void SharedCan_BroadcastSystemReboot(void)
 {
-    uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = {0};
+    uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = { 0 };
     SharedCan_TransmitDataCan(PCB_STARTUP_STDID, PCB_STARTUP_DLC, &data[0]);
 }
 
 /******************************************************************************
  * Function Definitions
- *******************************************************************************/
+ ******************************************************************************/
 void SharedCan_TransmitDataCan(
     CanStandardId_Enum     std_id,
     CanDataLengthCode_Enum dlc,
     uint8_t *              data)
 {
-    uint32_t mailbox =
-        0; // Indicates the mailbox used for tranmission, not currently used
+    // Indicates the mailbox used for tranmission, not currently used
+    uint32_t mailbox = 0;
+
     CAN_TxHeaderTypeDef tx_header;
 
     tx_header.StdId = std_id;
@@ -346,9 +353,11 @@ HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan)
 
     status |= SharedCan_InitializeFilters();
 
-    status |= HAL_CAN_ActivateNotification(
-        hcan, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING |
-                  CAN_IT_RX_FIFO1_MSG_PENDING);
+    uint32_t active_interrupts = CAN_IT_TX_MAILBOX_EMPTY |
+                                 CAN_IT_RX_FIFO0_MSG_PENDING |
+                                 CAN_IT_RX_FIFO1_MSG_PENDING;
+
+    status |= HAL_CAN_ActivateNotification(hcan, active_interrupts);
 
     status |= HAL_CAN_Start(hcan);
 
@@ -365,7 +374,7 @@ __weak void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 
 void SharedCan_BroadcastHeartbeat(void)
 {
-    uint8_t data[PCB_HEARTBEAT_DLC] = {0};
+    uint8_t data[PCB_HEARTBEAT_DLC] = { 0 };
     SharedCan_TransmitDataCan(PCB_HEARTBEAT_STDID, PCB_HEARTBEAT_DLC, &data[0]);
 }
 

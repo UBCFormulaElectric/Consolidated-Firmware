@@ -127,20 +127,20 @@ extern "C"
  * @brief Internal High Speed oscillator for ADC (HSI14) value.
  */
 #if !defined(HSI14_VALUE)
-#define HSI14_VALUE                                                           \
-    ((uint32_t)14000000) /*!< Value of the Internal High Speed oscillator for \
-                            ADC in Hz. The real value may vary depending on                                         \
-                            the variations in voltage and temperature.  */
+#define HSI14_VALUE \
+    ((uint32_t)14000000) //!< Value of the Internal High Speed oscillator for
+                         //   ADC in Hz. The real value may vary depending on
+                         //   the variations in voltage and temperature.
 #endif                   /* HSI14_VALUE */
 
 /**
  * @brief Internal High Speed oscillator for USB (HSI48) value.
  */
 #if !defined(HSI48_VALUE)
-#define HSI48_VALUE                                                           \
-    ((uint32_t)48000000) /*!< Value of the Internal High Speed oscillator for \
-                            USB in Hz. The real value may vary depending on                                         \
-                            the variations in voltage and temperature.  */
+#define HSI48_VALUE \
+    ((uint32_t)48000000) //!< Value of the Internal High Speed oscillator for
+                         //   USB in Hz. The real value may vary depending on
+                         //   the variations in voltage and temperature.
 #endif                   /* HSI48_VALUE */
 
 /**
@@ -148,9 +148,9 @@ extern "C"
  */
 #if !defined(LSI_VALUE)
 #define LSI_VALUE ((uint32_t)40000)
-#endif /* LSI_VALUE */ /*!< Value of the Internal Low Speed oscillator in Hz \
-                        The real value may vary depending on the variations  \
-                        in voltage and temperature.  */
+#endif /* LSI_VALUE */ // !< Value of the Internal Low Speed oscillator in Hz
+                       //    The real value may vary depending on the variations
+                       //    in voltage and temperature.
 /**
  * @brief External Low Speed oscillator (LSI) value.
  */

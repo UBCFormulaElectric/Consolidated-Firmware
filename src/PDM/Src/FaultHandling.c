@@ -20,7 +20,7 @@
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
-volatile uint8_t num_faults[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {0};
+volatile uint8_t num_faults[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = { 0 };
 
 /******************************************************************************
  * Private Function Prototypes
@@ -30,25 +30,27 @@ volatile uint8_t num_faults[ADC_CHANNEL_COUNT * NUM_CHANNELS] = {0};
  * @param  index Index of e-fuse
  * @param  state Turn e-fuse on or off
  */
-static void
-    FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState state);
+static void FaultHandling_ConfigureEfuseOnOff(
+    uint8_t                  index,
+    EfuseOnOff_GPIO_PinState state);
 
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
-static void
-    FaultHandling_CurrentFaultHandling(uint8_t index, GPIO_PinState state)
+static void FaultHandling_ConfigureEfuseOnOff(
+    uint8_t                  index,
+    EfuseOnOff_GPIO_PinState state)
 {
-    if (index < ADC_CHANNEL_COUNT)
+    if (index < NUM_ADC_CHANNELS)
     {
         SharedGpio_GPIO_WritePin(
-            OUTPUT_0_PINOUT.port[index], OUTPUT_0_PINOUT.pin[index], state);
+            PROFET2_IN0.port[index], PROFET2_IN0.pin[index], state);
     }
     else
     {
-        index = index - ADC_CHANNEL_COUNT; // adjust index for pinout array
+        index = index - NUM_ADC_CHANNELS; // adjust index for pinout array
         SharedGpio_GPIO_WritePin(
-            OUTPUT_1_PINOUT.port[index], OUTPUT_1_PINOUT.pin[index], state);
+            PROFET2_IN1.port[index], PROFET2_IN1.pin[index], state);
     }
 }
 
@@ -56,22 +58,24 @@ static void
  * Function Definitions
  ******************************************************************************/
 void FaultHandling_Handler(
-    volatile uint8_t *fault_states,
-    volatile float *  converted_readings)
+    volatile uint8_t *  fault_states,
+    volatile float32_t *converted_readings)
 {
     uint64_t can_error_msg;
 
-    for (uint8_t adc_channel = 0; adc_channel < ADC_TOTAL_READINGS_SIZE;
+    for (ADC_Index_Enum adc_channel = 0; adc_channel < NUM_UNIQUE_ADC_READINGS;
          adc_channel++)
     {
-        if (adc_channel == _12V_SUPPLY_INDEX ||
-            adc_channel == VBAT_SUPPLY_INDEX ||
-            adc_channel == VICOR_SUPPLY_INDEX)
+        // This function only handles efuse errors, not voltage sense errors
+        if (adc_channel == _12V_SUPPLY || adc_channel == VBAT_SUPPLY ||
+            adc_channel == FLYWIRE)
+        {
             continue;
+        }
 
         // If the efuse is not in RETRY or ERROR mode and the current reading is
         // over the limit, disable efuse
-        if (fault_states[adc_channel] == NORMAL_STATE && 
+        if (fault_states[adc_channel] == NORMAL_STATE &&
             converted_readings[adc_channel] >= EFUSE_CURRENT_LIMIT)
         {
             num_faults[adc_channel]++;
@@ -80,24 +84,25 @@ void FaultHandling_Handler(
             // Has faulted fewer than max number of times
             if (num_faults[adc_channel] <= MAX_FAULTS[adc_channel])
             {
-                fault_states[adc_channel] = RENABLE_EFUSE;
+                fault_states[adc_channel] = RETRY_STATE;
             }
             else
             {
                 // Special handling for specific outputs
-                if (adc_channel == R_INV_INDEX || adc_channel == L_INV_INDEX ||
-                    adc_channel == CAN_INDEX || adc_channel == AIR_SHDN_INDEX)
+                if (adc_channel == RIGHT_INVERTER ||
+                    adc_channel == LEFT_INVERTER || adc_channel == CAN_GLV ||
+                    adc_channel == AIR_SHDN)
                 {
-                    fault_states[R_INV_INDEX] = ERROR_EFUSE;
-                    fault_states[L_INV_INDEX] = ERROR_EFUSE;
-                    FaultHandling_CurrentFaultHandling(
-                        L_INV_INDEX, GPIO_PIN_RESET); // Disable L Inv
-                    FaultHandling_CurrentFaultHandling(
-                        R_INV_INDEX, GPIO_PIN_RESET); // Disable R Inv
+                    fault_states[RIGHT_INVERTER] = ERROR_STATE;
+                    fault_states[LEFT_INVERTER]  = ERROR_STATE;
+                    FaultHandling_ConfigureEfuseOnOff(LEFT_INVERTER, EFUSE_OFF);
+                    FaultHandling_ConfigureEfuseOnOff(
+                        RIGHT_INVERTER, EFUSE_OFF);
+
                     TransmitCANError(
                         MOTOR_SHUTDOWN_ERROR, Power_Distribution_Module, 0, 0);
                 }
-                else if (adc_channel == COOLING_INDEX)
+                else if (adc_channel == COOLING)
                 {
                     TransmitCANError(
                         MOTOR_SHUTDOWN_ERROR, Power_Distribution_Module, 0, 0);
@@ -117,27 +122,27 @@ void FaultHandling_Handler(
         }
     }
 
-    if (converted_readings[_12V_SUPPLY_INDEX] < UNDERVOLTAGE_GLV_THRES)
+    if (converted_readings[_12V_SUPPLY] < UNDERVOLTAGE_GLV_THRES)
     {
         TransmitCANError(
             PDM_ERROR, Power_Distribution_Module, _12V_FAULT_UV, can_error_msg);
-        num_faults[_12V_SUPPLY_INDEX]++;
+        num_faults[_12V_SUPPLY]++;
     }
-    else if (converted_readings[_12V_SUPPLY_INDEX] > OVERVOLTAGE_GLV_THRES)
+    else if (converted_readings[_12V_SUPPLY] > OVERVOLTAGE_GLV_THRES)
     {
         TransmitCANError(
             PDM_ERROR, Power_Distribution_Module, _12V_FAULT_OV, can_error_msg);
-        num_faults[_12V_SUPPLY_INDEX]++;
+        num_faults[_12V_SUPPLY]++;
     }
 
-    if (converted_readings[VBAT_SUPPLY_INDEX] > VBAT_OVERVOLTAGE)
+    if (converted_readings[VBAT_SUPPLY] > VBAT_OVERVOLTAGE)
     {
         TransmitCANError(
             PDM_ERROR, Power_Distribution_Module, VBAT_FAULT, can_error_msg);
-        num_faults[VBAT_SUPPLY_INDEX]++;
+        num_faults[VBAT_SUPPLY]++;
     }
 
-    if (converted_readings[VICOR_SUPPLY_INDEX] > UNDERVOLTAGE_VICOR_THRES)
+    if (converted_readings[FLYWIRE] > UNDERVOLTAGE_VICOR_THRES)
     {
         GPIO_ConfigurePreChargeComplete(fault_states);
     }
@@ -149,22 +154,21 @@ void FaultHandling_Handler(
 
 void FaultHandling_RetryEFuse(volatile uint8_t *fault_states)
 {
-    for (uint8_t adc_channel = 0; adc_channel < ADC_TOTAL_READINGS_SIZE;
+    for (uint8_t adc_channel = 0; adc_channel < NUM_UNIQUE_ADC_READINGS;
          adc_channel++)
     {
-        if (adc_channel == _12V_SUPPLY_INDEX ||
-            adc_channel == VBAT_SUPPLY_INDEX ||
-            adc_channel == VICOR_SUPPLY_INDEX)
+        if (adc_channel == _12V_SUPPLY || adc_channel == VBAT_SUPPLY ||
+            adc_channel == FLYWIRE)
             continue;
 
-        if (fault_states[adc_channel] == RENABLE_EFUSE)
+        if (fault_states[adc_channel] == RETRY_STATE)
         {
-            FaultHandling_CurrentFaultHandling(adc_channel, GPIO_PIN_SET);
-            fault_states[adc_channel] = STATIC_EFUSE;
+            FaultHandling_ConfigureEfuseOnOff(adc_channel, EFUSE_ON);
+            fault_states[adc_channel] = NORMAL_STATE;
         }
-        else if (fault_states[adc_channel] == ERROR_EFUSE)
+        else if (fault_states[adc_channel] == ERROR_STATE)
         {
-            FaultHandling_CurrentFaultHandling(adc_channel, GPIO_PIN_RESET);
+            FaultHandling_ConfigureEfuseOnOff(adc_channel, EFUSE_OFF);
         }
     }
 }
