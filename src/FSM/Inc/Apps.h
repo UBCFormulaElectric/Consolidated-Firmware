@@ -56,20 +56,18 @@ extern volatile uint32_t apps_fault_state;
  * Function Prototypes
  ******************************************************************************/
 /**
- * @brief  Gets the latest accelerator pedal position
- *         1. Reads the latest APPS (encoder) position values from TIM2 and TIM3
+ * @brief  Get the latest accelerator pedal position
+ *         1. Read the APPS position values from TIM2 and TIM3
  *         2. Checks for improperly connected APPS encoders
- *         3. Checks for out-of-bounds APPS readings (outside calibrated maximum
- *         values)
- *         4. Checks for implausible APPS readings (>10% difference between the
- *         primary and secondary readings as per EV2.3.6)
- *  	   5. Checks for APPS/Brake Pedal
- *         Plausibility Check, where accelerator pedal is pushed >25% while
- *         brake is pushed (EV2.5)
- *         6. Checks for accelerator pedal stuck at max. torque for
- *         longer than 10 secs
- *         7. Maps the APPS readings to a 10-bit number (0 =
- *         unpressed, 1023 = fully pressed)
+ *         3. Checks if APPS readings are outside of calibrated maximum values
+ *         4. Checks for implausible APPS readings (>10% difference between 
+ *            PAPPS and SAPPS as per EV2.3.6)
+ *         5. Perform APPS/Brake Pedal Plausibility Check (Accelerator pedal is 
+ *            pushed >25% while brake is pushed as per EV2.5)
+ *         6. Checks if accelerator pedal has been stuck at maximum torque for
+ *            more than 10 seconds
+ *         7. Maps the APPS readings to a 10-bit number (0 = unpressed, 1023 = 
+ *            fully pressed)
  * @return Accelerator pedal position (10-bit)
  */
 uint16_t getAcceleratorPedalPosition(void);
