@@ -62,6 +62,8 @@ void Can_BroadcastMotorShutdownError(void)
 
 void Can_BroadcastPdmErrors(PdmError_Enum errors)
 {
+    // Error message is one-hot encoded according to PdmError_enum and thus
+    // requires bit shifting
     uint32_t data = 1U << errors;
     SharedCan_TransmitDataCan(PDM_ERROR_STDID, PDM_ERROR_DLC, (uint8_t *)&data);
 }
