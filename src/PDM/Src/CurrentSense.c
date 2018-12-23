@@ -59,7 +59,7 @@ void CurrentSense_LowPassFilterADCReadings(volatile uint32_t *adc_readings)
     {
         filtered_adc_readings[adc_channel] =
             filtered_adc_readings[adc_channel] +
-            (ALPHA *
+            (IIR_LPF_SMOOTHING_FACTOR *
              (adc_readings[adc_index] - filtered_adc_readings[adc_channel]));
         adc_index++;
     }
