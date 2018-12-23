@@ -309,8 +309,8 @@ void SystemCoreClockUpdate(void)
                  * HSI48/PREDIV * PLLMUL */
                 SystemCoreClock = (HSI48_VALUE / predivfactor) * pllmull;
             }
-#endif // STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx ||
-       // STM32F091xC || STM32F098xx
+#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx || \
+          STM32F091xC || STM32F098xx */
             else
             {
 #if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F070x6) || \
@@ -324,9 +324,9 @@ void SystemCoreClockUpdate(void)
                 /* HSI used as PLL clock source : SystemCoreClock = HSI/2 *
                  * PLLMUL */
                 SystemCoreClock = (HSI_VALUE >> 1) * pllmull;
-#endif // STM32F042x6 || STM32F048xx || STM32F070x6 ||
-       // STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB ||
-       // STM32F091xC || STM32F098xx || STM32F030xC
+#endif /* STM32F042x6 || STM32F048xx || STM32F070x6 ||                \
+          STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB || \
+          STM32F091xC || STM32F098xx || STM32F030xC */
             }
             break;
         default: /* HSI used as system clock */
