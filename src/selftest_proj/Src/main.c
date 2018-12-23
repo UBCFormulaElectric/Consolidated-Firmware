@@ -43,7 +43,6 @@
 /* USER CODE BEGIN Includes */
 
 #include "SharedCan.h"
-#include "CanTest.h"
 
 /* USER CODE END Includes */
 
@@ -124,9 +123,6 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-  CanTest_TestStatus test_status = CanTest_runTestWithId(123);
-  test_status = CanTest_runTestWithId(456);
-  test_status = CanTest_runTestWithId(789);
   while (1)
   {
     //HAL_GPIO_TogglePin(LD2_GPIO_Port, LD2_Pin);

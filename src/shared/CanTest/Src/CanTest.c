@@ -52,39 +52,39 @@ _Static_assert(CANTEST_RESULT_MSG_DLC == 8,
  * @brief Convert the given TestStatus into a 8 element 8-byte array for 
  *        transmission over CAN
  * @param test_id The id of the test that the given results are for
- * @param test_status The TestStatus to convert into an array for a CAN message
- * @param test_status_msg An 8-element array in which the CAN representation of
- *                        the given test_status and test_id will be placed
+ * @param test_result The TestStatus to convert into an array for a CAN message
+ * @param test_result_msg An 8-element array in which the CAN representation of
+ *                        the given test_result and test_id will be placed
  */
-testResultToCanMsg(CanTest_TestId test_id, CanTest_TestStatus test_status, uint8_t* test_status_msg);
+void testResultToCanMsg(CanTest_TestId test_id, CanTest_TestResult test_result, uint8_t* test_result_msg);
 
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
 
-testResultToCanMsg(CanTest_TestId test_id, CanTest_TestStatus test_status, uint8_t* test_status_msg){
+void testResultToCanMsg(CanTest_TestId test_id, CanTest_TestResult test_result, uint8_t* test_result_msg){
     // Pack the booleans values into the zero'th byte
-    test_status_msg[0] = test_status.valid_test + (test_status.test_passed << 1);
+    test_result_msg[0] = test_result.valid_test + (test_result.test_passed << 1);
 
     // Use the first and second bytes to store the test ID
     // TODO: Is there a proper order (in terms of where the LSB shoud go, either 1 or 2)? Either way, should leave a more descriptive comment explaining this
-    test_status_msg[1] = (test_id >> 8);
-    test_status_msg[2] = (test_id & (0 << 8));
+    test_result_msg[1] = (test_id >> 8);
+    test_result_msg[2] = (test_id & (0 << 8));
 
     // NOTE: Byte 3 is being saved here for potential future use
 
     // Use the last 4 bytes to store any extra data from the test
-    test_status_msg[4] = test_status.test_results[0];
-    test_status_msg[5] = test_status.test_results[1];
-    test_status_msg[6] = test_status.test_results[2];
-    test_status_msg[7] = test_status.test_results[3];
+    test_result_msg[4] = test_result.extra_values[0];
+    test_result_msg[5] = test_result.extra_values[1];
+    test_result_msg[6] = test_result.extra_values[2];
+    test_result_msg[7] = test_result.extra_values[3];
 }
 
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
 
-//CanTest_TestStatus CanTest_runTest(uint16_t test_id)
+//CanTest_TestResult CanTest_runTest(uint16_t test_id)
 //{
 //    /* NOTE: This function Should not be modified, when the callback is needed,
 //              CanTest_runTest could be implemented in the CanTest.c file */
@@ -97,18 +97,20 @@ void CanTest_handleCanMsg(CanRxMsg_Struct rx_msg) {
         // TODO: We should _really_ document the structure for the CAN msg somewhere...
         
         // Construct the test_id from the CAN message
+        // TODO: Should the order for the MSB and LSB be different? If so 
+        // we should probably switch it in the result as well
         CanTest_TestId test_id = (rx_msg.data[0] << 8) + rx_msg.data[1];
 
         // Attempt to run the given test
-        CanTest_TestStatus test_status = CanTest_runTestWithId(test_id);
+        CanTest_TestResult test_result = CanTest_runTestWithId(test_id);
 
         // Send the result of running the test over CAN
-        uint8_t test_status_msg[8];
-        testResultToCanMsg(test_id, test_status, test_status_msg);
+        uint8_t test_result_msg[8];
+        testResultToCanMsg(test_id, test_result, test_result_msg);
         SharedCan_TransmitDataCan(
                 CANTEST_RESULT_MSG_STDID, 
                 CANTEST_RESULT_MSG_DLC,
-                test_status_msg
+                test_result_msg
                 );
     }
 }

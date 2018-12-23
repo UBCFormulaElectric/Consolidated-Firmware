@@ -1,6 +1,6 @@
 /**
- * @file  TODO: Name of this file goes here (ex. Template.h)
- * @brief TODO: A brief summary of what is contained in this file
+ * @file  CanTest.h
+ * @brief Our infrastructure for running tests over CAN
  */
 #ifndef CAN_TEST_H
 #define CAN_TEST_H
@@ -21,32 +21,44 @@
  * Preprocessor Macros
  ******************************************************************************/
 
-// TODO: explanatory comment here
+// Create a test with given ID
 // TODO: We should be explicitly checking the test_id is valid `uint16_t`
 #define CANTEST_TEST(TEST_ID) \ 
-    void CanTest_Test_##TEST_ID(CanTest_TestStatus* test_status)
+    void CanTest_Test_##TEST_ID(CanTest_TestResult* test_status)
 
-// TODO: explanatory comment here
+// Assert a given condition within a CANTEST_TEST. If the condition is false,
+// then set the appropriate flags and exit the test
 #define CANTEST_ASSERT(COND) \
     if (!( COND )) { \
         test_status->test_passed = false; \
         return; \
     }
 
+// Set the extra values that any test can return.
+// TODO: explicitly cast these values to uint8_t?
+#define CANTEST_SET_EXTRA_VALUES(expr0, expr1, expr2, expr3) \
+    test_status->extra_values[0] = expr0; \
+    test_status->extra_values[1] = expr1; \
+    test_status->extra_values[2] = expr2; \
+    test_status->extra_values[3] = expr3;
+
+// Start a list of tests (usually within CanTest_runTest)
 #define CANTEST_START_TESTS \
-    CanTest_TestStatus test_status = \
+    CanTest_TestResult test_status = \
     { \
         .valid_test = true, \
         .test_passed = true, \
-        .test_results = { 0, 0, 0, 0 } \
+        .extra_values = { 0, 0, 0, 0 } \
     }; \
     switch(test_id) {
 
+// Add a test with the given ID to a list of tests
 #define CANTEST_ADD_TEST(TEST_ID) \
         case TEST_ID: \
             CanTest_Test_##TEST_ID(&test_status); \
             break;
 
+// End a list of tests (usually within CanTest_runTest)
 #define CANTEST_END_TESTS \
         default: \
             test_status.valid_test = false; \
@@ -60,7 +72,6 @@
 
 typedef uint16_t CanTest_TestId;
 
-// TODO: Rename this to `CanTest_TestResult`?
 /** This struct holds the results of attempting to run a given test */
 typedef struct
 {
@@ -68,10 +79,9 @@ typedef struct
     bool valid_test;
     // This indicates if the test we tried to run passed or not
     bool test_passed;
-    // TODO: "test_results" is not a terribly good name.... need to indicate that they could be _anything_
-    // These 4 bytes are used to return custom values from each test
-    uint8_t test_results[4];
-} CanTest_TestStatus;
+    // These 4 bytes are used to return custom values (if needed) from each test
+    uint8_t extra_values[4];
+} CanTest_TestResult;
 
 
 /******************************************************************************
@@ -85,9 +95,9 @@ typedef struct
 /**
  * @brief Attempt to run the test with the given ID
  * @param test_id The id of the test to run
- * @return TODO? Seems pretty self explanatory....
+ * @return A CanTest_TestResult indicating the result of running the given test
  */
-CanTest_TestStatus CanTest_runTestWithId(CanTest_TestId test_id);
+CanTest_TestResult CanTest_runTestWithId(CanTest_TestId test_id);
 
 // TODO: We _really_ should make this description a bit better
 /**

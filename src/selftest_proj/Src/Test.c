@@ -31,19 +31,20 @@
  * Function Definitions
  ******************************************************************************/
 
-CANTEST_TEST(123){
+CANTEST_TEST(7){
     CANTEST_ASSERT(1 == 2);
 }
 
-CANTEST_TEST(456){
+CANTEST_TEST(60000){
     CANTEST_ASSERT(2 == 2);
+    CANTEST_SET_EXTRA_VALUES(1, 2, 3, 4);
 }
 
-CanTest_TestStatus CanTest_runTestWithId(uint16_t test_id) {
+CanTest_TestResult CanTest_runTestWithId(uint16_t test_id) {
     CANTEST_START_TESTS;
 
-    CANTEST_ADD_TEST(123);
-    CANTEST_ADD_TEST(456);
+    CANTEST_ADD_TEST(7);
+    CANTEST_ADD_TEST(60000);
 
     CANTEST_END_TESTS;
 }
