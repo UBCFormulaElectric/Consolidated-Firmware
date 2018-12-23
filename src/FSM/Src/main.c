@@ -166,8 +166,8 @@ int main(void)
  */
 void SystemClock_Config(void)
 {
-    RCC_OscInitTypeDef RCC_OscInitStruct = {0};
-    RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
+    RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
     /**Initializes the CPU, AHB and APB busses clocks
      */
@@ -211,7 +211,7 @@ static void MX_ADC_Init(void)
 
     /* USER CODE END ADC_Init 0 */
 
-    ADC_ChannelConfTypeDef sConfig = {0};
+    ADC_ChannelConfTypeDef sConfig = { 0 };
 
     /* USER CODE BEGIN ADC_Init 1 */
 
@@ -331,8 +331,8 @@ static void MX_TIM1_Init(void)
 
     /* USER CODE END TIM1_Init 0 */
 
-    TIM_ClockConfigTypeDef  sClockSourceConfig = {0};
-    TIM_MasterConfigTypeDef sMasterConfig      = {0};
+    TIM_ClockConfigTypeDef  sClockSourceConfig = { 0 };
+    TIM_MasterConfigTypeDef sMasterConfig      = { 0 };
 
     /* USER CODE BEGIN TIM1_Init 1 */
 
@@ -378,8 +378,8 @@ static void MX_TIM2_Init(void)
 
     /* USER CODE END TIM2_Init 0 */
 
-    TIM_Encoder_InitTypeDef sConfig       = {0};
-    TIM_MasterConfigTypeDef sMasterConfig = {0};
+    TIM_Encoder_InitTypeDef sConfig       = { 0 };
+    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
 
     /* USER CODE BEGIN TIM2_Init 1 */
 
@@ -425,8 +425,8 @@ static void MX_TIM3_Init(void)
 
     /* USER CODE END TIM3_Init 0 */
 
-    TIM_Encoder_InitTypeDef sConfig       = {0};
-    TIM_MasterConfigTypeDef sMasterConfig = {0};
+    TIM_Encoder_InitTypeDef sConfig       = { 0 };
+    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
 
     /* USER CODE BEGIN TIM3_Init 1 */
 
@@ -504,7 +504,7 @@ static void MX_TIM16_Init(void)
 
     /* USER CODE END TIM16_Init 0 */
 
-    TIM_IC_InitTypeDef sConfigIC = {0};
+    TIM_IC_InitTypeDef sConfigIC = { 0 };
 
     /* USER CODE BEGIN TIM16_Init 1 */
 
@@ -548,7 +548,7 @@ static void MX_TIM17_Init(void)
 
     /* USER CODE END TIM17_Init 0 */
 
-    TIM_IC_InitTypeDef sConfigIC = {0};
+    TIM_IC_InitTypeDef sConfigIC = { 0 };
 
     /* USER CODE BEGIN TIM17_Init 1 */
 
@@ -602,7 +602,7 @@ static void MX_DMA_Init(void)
  */
 static void MX_GPIO_Init(void)
 {
-    GPIO_InitTypeDef GPIO_InitStruct = {0};
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
 
     /* GPIO Ports Clock Enable */
     __HAL_RCC_GPIOF_CLK_ENABLE();
