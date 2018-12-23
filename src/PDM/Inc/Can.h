@@ -32,12 +32,6 @@
 * Function Prototypes
 *******************************************************************************/
 /**
- * @brief Send CAN message one-hot encoded for one or more errors
- * @param PdmError_Enum One or more errors OR'd together
- */
-void Can_BroadcastPdmErrors(PdmError_Enum error);
-
-/**
  * @brief Broadcast the AIR shutdown error
  */
 void Can_BroadcastAirShutdownError(void);

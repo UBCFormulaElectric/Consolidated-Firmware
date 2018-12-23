@@ -4,6 +4,7 @@
 #include "Gpio.h"
 #include "stdbool.h"
 #include "SharedGpio.h"
+#include "SharedCan.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -124,7 +125,7 @@ static void GPIO_BoostPgoodFaultHandler(void)
 {
     if (GPIO_IsBoostPgoodFaultActive())
     {
-        Can_BroadcastPdmErrors(BOOST_PGOOD_FAULT);
+        SharedCan_BroadcastPcbErrors(BOOST_PGOOD_FAULT);
     }
 }
 
@@ -132,7 +133,7 @@ static void GPIO_CellBalanceOvervoltageFaultHandler(void)
 {
     if (GPIO_IsCellBalanceOvervoltageFaultActive())
     {
-        Can_BroadcastPdmErrors(CELL_BALANCE_OVERVOLTAGE_FAULT);
+        SharedCan_BroadcastPcbErrors(CELL_BALANCE_OVERVOLTAGE_FAULT);
     }
 }
 
@@ -140,7 +141,7 @@ static void GPIO_ChargerFaultHandler(void)
 {
     if (GPIO_IsChargerFaultActive())
     {
-        Can_BroadcastPdmErrors(CHARGER_FAULT);
+        SharedCan_BroadcastPcbErrors(CHARGER_FAULT);
     }
 }
 

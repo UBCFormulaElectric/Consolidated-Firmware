@@ -4,7 +4,7 @@
 #include "FaultHandling.h"
 #include "Gpio.h"
 #include "SharedGpio.h"
-#include "Can.h"
+#include "SharedCan.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -114,25 +114,25 @@ void FaultHandling_Handler(
                     (uint16_t)(
                         converted_readings[adc_channel] * ADC_12_BIT_POINTS /
                         (VOLTAGE_TO_CURRENT[adc_channel] * VDDA_VOLTAGE));
-                Can_BroadcastPdmErrors(EFUSE_FAULT);
+                SharedCan_BroadcastPcbErrors(EFUSE_FAULT);
             }
         }
     }
 
     if (converted_readings[_12V_SUPPLY] < UNDERVOLTAGE_GLV_THRES)
     {
-        Can_BroadcastPdmErrors(_12V_FAULT_UV);
+        SharedCan_BroadcastPcbErrors(_12V_FAULT_UV);
         num_faults[_12V_SUPPLY]++;
     }
     else if (converted_readings[_12V_SUPPLY] > OVERVOLTAGE_GLV_THRES)
     {
-        Can_BroadcastPdmErrors(_12V_FAULT_OV);
+        SharedCan_BroadcastPcbErrors(_12V_FAULT_OV);
         num_faults[_12V_SUPPLY]++;
     }
 
     if (converted_readings[VBAT_SUPPLY] > VBAT_OVERVOLTAGE)
     {
-        Can_BroadcastPdmErrors(VBAT_FAULT);
+        SharedCan_BroadcastPcbErrors(VBAT_FAULT);
         num_faults[VBAT_SUPPLY]++;
     }
 
