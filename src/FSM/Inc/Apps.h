@@ -51,6 +51,8 @@
  * Global Variables
  ******************************************************************************/
 extern volatile uint32_t apps_fault_state;
+extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim3;
 
 /******************************************************************************
  * Function Prototypes
@@ -60,13 +62,13 @@ extern volatile uint32_t apps_fault_state;
  *         1. Read the APPS position values from TIM2 and TIM3
  *         2. Checks for improperly connected APPS encoders
  *         3. Checks if APPS readings are outside of calibrated maximum values
- *         4. Checks for implausible APPS readings (>10% difference between 
+ *         4. Checks for implausible APPS readings (>10% difference between
  *            PAPPS and SAPPS as per EV2.3.6)
- *         5. Perform APPS/Brake Pedal Plausibility Check (Accelerator pedal is 
+ *         5. Perform APPS/Brake Pedal Plausibility Check (Accelerator pedal is
  *            pushed >25% while brake is pushed as per EV2.5)
  *         6. Checks if accelerator pedal has been stuck at maximum torque for
  *            more than 10 seconds
- *         7. Maps the APPS readings to a 10-bit number (0 = unpressed, 1023 = 
+ *         7. Maps the APPS readings to a 10-bit number (0 = unpressed, 1023 =
  *            fully pressed)
  * @return Accelerator pedal position (10-bit)
  */
