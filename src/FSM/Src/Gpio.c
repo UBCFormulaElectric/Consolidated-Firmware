@@ -14,6 +14,11 @@
 /******************************************************************************
  * Module Typedefs
  ******************************************************************************/
+typedef enum
+{
+    BRAKE_PRESSED     = GPIO_PIN_SET,
+    BRAKE_NOT_PRESSED = !BRAKE_PRESSED
+} BspdBrakeThres_GPIO_PinState;
 
 /******************************************************************************
  * Module Variable Definitions
@@ -50,3 +55,9 @@ void Gpio_TurnOnBlueLed(void)
     HAL_GPIO_WritePin(STATUS_R_GPIO_Port, STATUS_R_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(STATUS_G_GPIO_Port, STATUS_G_Pin, GPIO_PIN_SET);
 }
+
+bool Gpio_IsBrakePressed(void);
+{
+    return (
+        HAL_GPIO_ReadPin(BSPD_BRAKE_THRES_GPIO_Port, BSPD_BRAKE_THRES_Pin) ==
+        BRAKE_PRESSED);

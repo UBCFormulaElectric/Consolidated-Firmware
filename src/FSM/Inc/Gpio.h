@@ -8,6 +8,7 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
+#include "stdbool.h"
 
 /******************************************************************************
  * Preprocessor Constants
@@ -34,13 +35,21 @@
  * @brief Turn on the Red LED
  */
 void Gpio_TurnOnRedLed(void);
+
 /**
  * @brief Turn on the Blue LED
  */
 void Gpio_TurnOnBlueLed(void);
+
 /**
  * @brief Turn on the Green LED
  */
 void Gpio_TurnOnGreenLed(void);
 
+/**
+ * @brief Check if the brake is pressed
+ * @return true Brake is pressed
+ *         false Brake is not pressed
+ */
+bool Gpio_IsBrakePressed(void);
 #endif /* GPIO_H */
