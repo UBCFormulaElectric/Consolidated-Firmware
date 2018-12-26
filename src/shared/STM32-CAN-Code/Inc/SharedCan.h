@@ -271,7 +271,8 @@ void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo);
 void SharedCan_BroadcastHeartbeat(void);
 
 /**
- * @brief Update the one-hot list of heartbeats received
+ * @brief Upon heartbeat reception, update the list of heartbeats received
+ * @param board Board from which the heartbeat was received
  */
 void SharedCan_ReceiveHeartbeat(PcbEncoding_Enum board);
 

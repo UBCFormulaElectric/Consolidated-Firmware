@@ -387,13 +387,17 @@ void SharedCan_ReceiveHeartbeat(PcbEncoding_Enum board)
 
 void SharedCan_CheckHeartbeatsReceived(void)
 {
-    // Check that the board received all the heartbeats it's listening to.
+    // Check if the board didn't receive all the heartbeats it's listening for.
     // Cannot check this with a simple inequality as some boards may listen to
-    // extra heartbeats - AND out the extra heartbeats.
-    if ((heartbeats_received && PCB_HEARTBEAT_LISTENER) != PCB_HEARTBEAT_LISTENER)
+    // extra heartbeats. AND out the extra heartbeats.
+    if ((heartbeats_received && PCB_HEARTBEAT_LISTENER)
+        != PCB_HEARTBEAT_LISTENER)
     {
         // TODO: throw (board-specific?) fatal error (AIR SHDN?)
     }
+
+    // Reset list of heartbeats received
+    heartbeats_received = 0;
 }
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
