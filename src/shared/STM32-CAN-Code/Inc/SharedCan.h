@@ -27,6 +27,13 @@
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off
+
+// Board-specific heartbeat listeners
+#define BMS_HEARTBEAT_LISTENER (DCM_ENCODING | PDM_ENCODING | FSM_ENCODING)
+#define DCM_HEARTBEAT_LISTENER (BMS_ENCODING)
+#define PDM_HEARTBEAT_LISTENER (BMS_ENCODING)
+#define FSM_HEARTBEAT_LISTENER (BMS_ENCODING)
+
 #define CAN_PAYLOAD_BYTE_SIZE 8 // Maximum number of bytes in a CAN payload
 #define CAN_ExtID_NULL 0 // Set CAN Extended ID to 0 because we are not using it
 #define CAN_TX_MSG_FIFO_SIZE 20 // Size of CAN FIFO is arbitrary at the moment
@@ -38,6 +45,7 @@
     #define PCB_STARTUP_DLC             PDM_STARTUP_DLC
     #define PCB_HEARTBEAT_STDID         PDM_HEARTBEAT_STDID
     #define PCB_HEARTBEAT_DLC           PDM_HEARTBEAT_DLC
+    #define PCB_HEARTBEAT_LISTENER      PDM_HEARTBEAT_LISTENER
 #elif FSM
     #define CAN_TX_FIFO_OVERFLOW_STDID  FSM_CAN_TX_FIFO_OVERFLOW_STDID
     #define CAN_TX_FIFO_OVERFLOW_DLC    FSM_CAN_TX_FIFO_OVERFLOW_DLC
@@ -45,6 +53,7 @@
     #define PCB_STARTUP_DLC             FSM_STARTUP_DLC
     #define PCB_HEARTBEAT_STDID         FSM_HEARTBEAT_STDID
     #define PCB_HEARTBEAT_DLC           FSM_HEARTBEAT_DLC
+    #define PCB_HEARTBEAT_LISTENER      FSM_HEARTBEAT_LISTENER
 #elif BMS
     #define CAN_TX_FIFO_OVERFLOW_STDID  BMS_CAN_TX_FIFO_OVERFLOW_STDID
     #define CAN_TX_FIFO_OVERFLOW_DLC    BMS_CAN_TX_FIFO_OVERFLOW_DLC
@@ -52,6 +61,7 @@
     #define PCB_STARTUP_DLC             BMS_STARTUP_DLC
     #define PCB_HEARTBEAT_STDID         BMS_HEARTBEAT_STDID
     #define PCB_HEARTBEAT_DLC           BMS_HEARTBEAT_DLC
+    #define PCB_HEARTBEAT_LISTENER      BMS_HEARTBEAT_LISTENER
 #elif DCM
     #define CAN_TX_FIFO_OVERFLOW_STDID  DCM_CAN_TX_FIFO_OVERFLOW_STDID
     #define CAN_TX_FIFO_OVERFLOW_DLC    DCM_CAN_TX_FIFO_OVERFLOW_DLC
@@ -59,6 +69,7 @@
     #define PCB_STARTUP_DLC             DCM_STARTUP_DLC
     #define PCB_HEARTBEAT_STDID         DCM_HEARTBEAT_STDID
     #define PCB_HEARTBEAT_DLC           DCM_HEARTBEAT_DLC
+    #define PCB_HEARTBEAT_LISTENER      DCM_HEARTBEAT_LISTENER
 #else
     #error "No valid PCB name selected"
 #endif
@@ -258,4 +269,15 @@ void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo);
  * @brief Broadcast heartbeat message for the current PCB
  */
 void SharedCan_BroadcastHeartbeat(void);
+
+/**
+ * @brief Update the one-hot list of heartbeats received
+ */
+void SharedCan_ReceiveHeartbeat(PcbEncoding_Enum board);
+
+/**
+ * @brief Periodically check that all heartbeats the the PCB listens for were
+ *        received
+ */
+void SharedCan_CheckHeartbeatsReceived(void);
 #endif /* SHARED_CAN_H */

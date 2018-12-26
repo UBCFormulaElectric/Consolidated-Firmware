@@ -156,16 +156,6 @@ typedef enum
     DEMO_2_INT32_NUCLEO_RX_DLC                      = (8U)
 } CanDataLengthCode_Enum;
 
-/** @brief PCB Names */
-typedef enum
-{
-    BATTERY_MANAGEMENT_SYSTEM = 0,
-    DRIVE_CONTROL_MODULE,
-    POWER_DISTRIBUTION_MODULE,
-    FRONT_SENSOR_MODULE,
-    PCB_COUNT
-} Pcb_Enum;
-
 /** @brief FSM Errors */
 typedef enum
 {
@@ -202,6 +192,15 @@ typedef enum
     BMS_HEARTBEAT_TIMEOUT_ERROR_ON_DCM,
     DCM_ERRORS_COUNT
 } DcmError_Enum;
+
+/** @brief One-hot PCB encoding */
+typedef enum
+{
+    BMS_ENCODING = 0b0001,
+    DCM_ENCODING = 0b0010,
+    PDM_ENCODING = 0b0100,
+    FSM_ENCODING = 0b1000
+} PcbEncoding_Enum;
 
 /******************************************************************************
  * Global Variables
