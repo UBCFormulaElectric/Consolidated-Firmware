@@ -1,5 +1,5 @@
 FormatVersion=6.0 // Do not edit this line!
-Title="Untitled"
+Title="SharedCan"
 
 {SIGNALS}
 Sig=Signal_1_Byte unsigned 8
