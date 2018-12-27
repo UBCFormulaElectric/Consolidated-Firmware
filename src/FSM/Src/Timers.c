@@ -60,14 +60,6 @@ static void Timers_ControlLoopHandleErrors(void)
 {
     static MotorShutdownStatus_Enum motor_state;
 
-    // APPS fault when motors are on
-    if (apps_fault_state != FSM_APPS_NORMAL_OPERATION && motor_state == ON)
-    {
-        // TransmitCANError(Motor_Shutdown_Error_StandardID,
-        // Front_Sensor_Module, apps_fault_state, CANBrakeAPPS);
-        motor_state = OFF;
-    }
-
     if (apps_fault_state != FSM_APPS_NORMAL_OPERATION)
     {
         Gpio_TurnOnRedLed();

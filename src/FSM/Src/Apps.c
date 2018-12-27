@@ -18,91 +18,69 @@
 /******************************************************************************
  * Module Typedefs
  ******************************************************************************/
+
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
-/* @brief Should be a value of FsmError_Enum with the prefix "FSM_APPS" */
-volatile uint32_t apps_fault_state = FSM_APPS_NORMAL_OPERATION;
 
 /******************************************************************************
  * Private Function Prototypes
  ******************************************************************************/
 /**
- * @brief  Check for pedal travel implausibility as per 2017-18 EV2.3.6
- * @param  papps_value PAPPS position value
- *         sapps_value SAPPS position value (After being subtracted from
- *                     maximum encoder tick count)
- * @return SUCCESS No implausibility
- *         ERROR Active implausibility
+ * @brief  Calculate the appropriate accelerator pedal position based on PAPPS
+ *         position value and brake pedal status
+ * @return The accelerator pedal position
  */
-static ErrorStatus Apps_CheckPedalTravelImplausibility(
-    uint32_t papps_value,
-    uint32_t sapps_value);
+static uint32_t prvSetAcceleratorPedalPosition(
+    uint32_t *papps_value,
+    uint32_t *accelerator_pedal_position);
 
 /**
- * @brief  Check for APPS or APPS wiring implausibility as per 2017-18 EV2.3.9
- * @return SUCCESS No implausibility
- *         ERROR Active implausibility
+ * @brief  Read encoder counter values for PAPPS and SAPPS value and adjust
+ *         them as appropriate
  */
-static ErrorStatus Apps_CheckAppsImplausibility(void);
-/**
- * @brief  Perform APPS/brake pedal plausibility check as per 2017-18 EV2.5
- * @param  papps_value Encoder value for PAPPS
- * @return SUCCESS Plausibility check passed
- *         ERROR Plausibility check failed
- */
-static ErrorStatus Apps_CheckPlausibility(uint32_t papps_value);
+static void
+    prvSetPappsSappsValues(uint32_t *papps_value, uint32_t *sapps_value);
 
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
-static ErrorStatus Apps_CheckPedalTravelImplausibility(
-    uint32_t papps_value,
-    uint32_t sapps_value)
+static uint32_t prvSetAcceleratorPedalPosition(
+    uint32_t *papps_value,
+    uint32_t *accelerator_pedal_position)
 {
-    float32_t percent_papps_value = papps_value / PRIMARY_APPS_MAX_VALUE;
-    float32_t percent_sapps_value = sapps_value / SECONDARY_APPS_MAX_VALUE;
-
-    // Check if the difference in pedal travel between PAPPS and SAPPS are
-    // within the implausibility threshold defined in 2017-18 EV.2.3.6
-    if ((percent_papps_value - percent_sapps_value >
-         APPS_DEVIATION_THRESHOLD) ||
-        (percent_sapps_value - percent_papps_value > APPS_DEVIATION_THRESHOLD))
+    if (Gpio_IsBrakePressed() || *papps_value < PAPPS_DEADZONE_THRESHOLD)
     {
-        return ERROR;
+        // The following conditions require zero torque requests:
+        // 1. When the brake pedal is pressed
+        // 2. When PAPPS reading is less than the pedal travel deadzone
+        // threshold
+        *accelerator_pedal_position = 0;
+    }
+    else if (*papps_value > PAPPS_SATURATION_THRESHOLD)
+    {
+        // Saturate pedal position to 100% if the pedal is almost fully pressed
+        // to account deflection in pedal cluster
+        *accelerator_pedal_position = ACCELERATOR_PEDAL_POSITION_MAX_TORQUE;
     }
     else
     {
-        return SUCCESS;
+        // Map accelerator pedal position to a different bit range using
+        // PAPPS reading
+        *accelerator_pedal_position =
+            (*papps_value * ACCELERATOR_PEDAL_POSITION_MAX_TORQUE) /
+            PRIMARY_APPS_MAX_VALUE;
     }
 }
 
-static ErrorStatus Apps_CheckAppsImplausibility(void)
+static void prvSetPappsSappsValues(uint32_t *papps_value, uint32_t *sapps_value)
 {
-    // Note: Disconnecting APPS encoder will trigger a fault in MAX3097E ALARMD
-    // pin
-    if (Gpio_IsPappsAlarmdActive() || Gpio_IsSappsAlarmdActive())
-    {
-        return ERROR;
-    }
-    else
-    {
-        return SUCCESS;
-    }
-}
-
-static ErrorStatus Apps_CheckPlausibility(uint32_t papps_value)
-{
-    // Check if the mechanical brakes are actuvated and the APPS signals more
-    // than 25% pedal travel at the same time as per 2017-18 EV2.5
-    if (papps_value > APPS_PLAUSIBILITY_THRESHOLD && Gpio_IsBrakePressed())
-    {
-        return ERROR;
-    }
-    else
-    {
-        return SUCCESS;
-    }
+    // Get the APPS position values (Note: PAPPS and SAPPS are oriented in
+    // opposite orientation - when PAPPS timer (TIM2) is counting up, the SAPPS
+    // timer (TIM3) is counting down. As a result, we need to adjust the SAPPS
+    // timer count by subtracing it from the max count.)
+    *papps_value = __HAL_TIM_GET_COUNTER(&htim2);
+    *sapps_value = ENCODER_MAX_COUNT - __HAL_TIM_GET_COUNTER(&htim3);
 }
 
 /******************************************************************************
@@ -110,146 +88,14 @@ static ErrorStatus Apps_CheckPlausibility(uint32_t papps_value)
  ******************************************************************************/
 void Apps_HandleAcceleratorPedalPosition(void)
 {
-    static uint32_t apps_fault_counter         = 0;
-    uint32_t        papps_value                = 0;
-    uint32_t        sapps_value                = 0;
-    bool            fault_flag                 = false;
-    uint32_t        accelerator_pedal_position = 0;
+    uint32_t papps_value;
+    uint32_t sapps_value;
 
-    if (apps_fault_state != FSM_APPS_NORMAL_OPERATION)
-    {
-        accelerator_pedal_position = 0;
-    }
+    prvSetPappsSappsValues(&papps_value, &sapps_value);
 
-    // Read the APPS position values from TIM2 and TIM3 (Note: PAPPS and SAPPS
-    // are oriented in opposite orientation - when PAPPS timer is counting up,
-    // the SAPPS timer is counting down. As a result, we need to adjust the
-    // SAPPS timer count by subtracing it from the max count.)
-    papps_value = __HAL_TIM_GET_COUNTER(&htim2);
-    sapps_value = ENCODER_MAX_COUNT - __HAL_TIM_GET_COUNTER(&htim3);
+    uint32_t accelerator_pedal_position;
 
-    if (Gpio_IsBrakePressed() || papps_value > PRIMARY_APPS_MAX_VALUE ||
-        sapps_value > SECONDARY_APPS_MAX_VALUE ||
-        papps_value < PAPPS_DEADZONE_THRESHOLD)
-    {
-        // The following conditions require zero torque requests:
-        // 1. When the brake pedal is pressed
-        // 2. When the PAPPS/SAPPS reading is out-of-bound (e.g. When pedal is
-        //    pressed beyond the calibrated maximum value)
-        // 3. When PAPPS reading is less than the pedal travel deadzone
-        // threshold
-        accelerator_pedal_position = 0;
-    }
-    else if (papps_value > PAPPS_SATURATION_THRESHOLD)
-    {
-        // Saturate pedal position to 100% if the pedal is almost fully pressed
-        // to account deflection in pedal cluster
-        accelerator_pedal_position = ACCELERATOR_PEDAL_POSITION_MAX_TORQUE;
-    }
-    else
-    {
-        // Map accelerator pedal position to a different bit resolution using
-        // PAPPS reading
-        accelerator_pedal_position =
-            (papps_value * ACCELERATOR_PEDAL_POSITION_MAX_TORQUE) /
-            PRIMARY_APPS_MAX_VALUE;
-    }
+    prvSetAcceleratorPedalPosition(&papps_value, &accelerator_pedal_position);
 
-    // Prevent FSM_APPS_OPEN_CIRCUIT_SHORT_CIRCUIT_ERROR and
-    // FSM_APPS_PRIMARY_SECONDARY_DIFFERENCE_ERROR from changing the
-    // apps_fault_state when apps_fault_state is in
-    // FSM_APPS_BRAKE_PEDAL_PLAUSIBILITY_ERROR or FSM_APPS_MAX_TORQUE_ERROR
-    // Reason: Rules state that pedal must be released back to less than 5%
-    // before car can be operational (EV2.5.1)
-    if (apps_fault_state != FSM_APPS_BRAKE_PEDAL_PLAUSIBILITY_ERROR &&
-        apps_fault_state != FSM_APPS_MAX_TORQUE_ERROR)
-    {
-        if (Apps_CheckAppsImplausibility() == ERROR)
-        {
-            // Check if implausibility occurs after 100msec
-            if (apps_fault_counter > MAX_APPS_FAULTS)
-            {
-                apps_fault_state = FSM_APPS_OPEN_CIRCUIT_SHORT_CIRCUIT_ERROR;
-            }
-            apps_fault_counter++;
-            fault_flag = true;
-        }
-
-        if (Apps_CheckPedalTravelImplausibility(papps_value, sapps_value) ==
-            ERROR)
-        {
-            // Check if implausibility occurs after 100msec
-            if (apps_fault_counter > MAX_APPS_FAULTS)
-            {
-                apps_fault_state = FSM_APPS_PRIMARY_SECONDARY_DIFFERENCE_ERROR;
-            }
-            apps_fault_counter++;
-            fault_flag = true;
-        }
-    }
-
-    if (Apps_CheckPlausibility(papps_value) == ERROR)
-    {
-        // Check if plausibility occurs after 100msec
-        if (apps_fault_counter > MAX_APPS_FAULTS)
-        {
-            apps_fault_state = FSM_APPS_BRAKE_PEDAL_PLAUSIBILITY_ERROR;
-        }
-        apps_fault_counter++;
-        fault_flag = true;
-    }
-
-    // Check if pedal is at max. torque request
-    if (accelerator_pedal_position == ACCELERATOR_PEDAL_POSITION_MAX_TORQUE)
-    {
-        // Check if pedal is stuck at max. torque after 10 secs
-        if (apps_fault_counter > MAX_SATURATION_FAULTS)
-        {
-            apps_fault_state = FSM_APPS_MAX_TORQUE_ERROR;
-        }
-        apps_fault_counter++;
-        fault_flag = true;
-    }
-
-    if (apps_fault_state == FSM_APPS_PRIMARY_SECONDARY_DIFFERENCE_ERROR)
-    {
-        accelerator_pedal_position = 0;
-    }
-    // Check for "APPS / Brake Pedal Plausibility Check" fault state and
-    // ensure APPS returns to 5% pedal travel (EV2.5.1)
-    else if (
-        (apps_fault_state == FSM_APPS_BRAKE_PEDAL_PLAUSIBILITY_ERROR) ||
-        (apps_fault_state == FSM_APPS_MAX_TORQUE_ERROR))
-    {
-        accelerator_pedal_position = 0;
-        if (papps_value < APPS_PLAUSIBILITRY_RECOVERY_THRESHOLD)
-        {
-            // Reset fault variables to normal operational state
-            apps_fault_state   = FSM_APPS_NORMAL_OPERATION;
-            apps_fault_counter = 0;
-        }
-    }
-    else if (
-        (apps_fault_state == FSM_APPS_OPEN_CIRCUIT_SHORT_CIRCUIT_ERROR ||
-         apps_fault_state == FSM_APPS_PRIMARY_SECONDARY_DIFFERENCE_ERROR) &&
-        (fault_flag == true))
-    {
-        // Set pedal position to zero if in error state AND fault flag is
-        // triggered Need the fault flag check since FSM may latch onto
-        // these error states
-        accelerator_pedal_position = 0;
-    }
-    else if (fault_flag)
-    {
-        // Keep fault state at normal operation
-        // BUT allow apps_fault_counter to increase
-        apps_fault_state = FSM_APPS_NORMAL_OPERATION;
-    }
-    else
-    {
-        // Reset fault variables to normal operating state
-        apps_fault_state   = FSM_APPS_NORMAL_OPERATION;
-        apps_fault_counter = 0;
-    }
-
+    // TODO (Issue #273): Transmit accelerator pedal position over CAN
 }

@@ -36,28 +36,6 @@
 #define PAPPS_DEADZONE_THRESHOLD \
             (uint32_t)(PRIMARY_APPS_MAX_VALUE * 0.04f)
 
-
-/** @brief The APPS threshold specified in 2017-18 EV2.5 */
-#define APPS_PLAUSIBILITY_THRESHOLD \
-    (uint32_t)(PRIMARY_APPS_MAX_VALUE * 0.25f)
-
-/** @brief The APPS threshold specified in 2017-18 EV2.5.1 */
-#define APPS_PLAUSIBILITRY_RECOVERY_THRESHOLD \
-    (uint32_t)(PRIMARY_APPS_MAX_VALUE * 0.05f)
-
-/** @brief The maximum percentage difference in pedal travel between PAPPS and SAPPS 
- *         allowed according to 2017-18 EV.2.3.6 */
-#define APPS_DEVIATION_THRESHOLD    (float32_t)(0.1f) // (10%)
-
-#define PEDAL_SATURATION_TIMEOUT    (uint32_t)(10)         // (sec)
-#define APPS_IMPLAUSIBILITY_TIMEOUT (uint32_t)(1)          // (sec)
-
-#define MAX_APPS_FAULTS \
-    (uint32_t)(APPS_IMPLAUSIBILITY_TIMEOUT * CONTROL_LOOP_FREQUENCY)
-
-#define MAX_SATURATION_FAULTS \
-    (uint32_t)(PEDAL_SATURATION_TIMEOUT * CONTROL_LOOP_FREQUENCY)
-
 /******************************************************************************
  * Preprocessor Macros
  ******************************************************************************/
