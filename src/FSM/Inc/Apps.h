@@ -17,22 +17,22 @@
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off
-/** @brief Maximum PAPPS value that should not be exceeded or else the pedal
- *         box may physically break */
+// Maximum PAPPS value that should not be exceeded or else the pedal
+// box may physically break
 #define PRIMARY_APPS_MAX_VALUE   (uint32_t)(1400)
 
-/** @brief Maximum SAPPS value that should not be exceeded or else the pedal
- *         box may physically break */
+// Maximum SAPPS value that should not be exceeded or else the pedal
+// box may physically break
 #define SECONDARY_APPS_MAX_VALUE (uint32_t)(1950)
 
-/** @brief The driver should not have to push the pedal to its maximum travel
- *         to request maximum torque or else the pedal box will wear out more
- *         easily */
+// The driver should not have to push the pedal to its maximum travel
+// to request maximum torque or else the pedal box will wear out more
+// easily
 #define PAPPS_SATURATION_THRESHOLD \
             (uint32_t)(PRIMARY_APPS_MAX_VALUE * 0.80f)
 
-/** @brief The initial pedal travel is mapped to zero torque request for better
- *         driving experience */
+// The initial pedal travel is mapped to zero torque request for better driving 
+// experience
 #define PAPPS_DEADZONE_THRESHOLD \
             (uint32_t)(PRIMARY_APPS_MAX_VALUE * 0.04f)
 
