@@ -170,6 +170,7 @@ typedef enum
 typedef enum
 {
     NO_ERROR,
+    APPS_OUT_OF_BOUND,
     MAX3097E_ALARMD,
     PEDAL_TRAVEL_IMPLAUSIBILITY,
     PLAUSIBILITY,
