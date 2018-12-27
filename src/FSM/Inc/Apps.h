@@ -58,11 +58,6 @@
 #define MAX_SATURATION_FAULTS \
     (uint32_t)(PEDAL_SATURATION_TIMEOUT * CONTROL_LOOP_FREQUENCY)
 
-/** @brief The pedal position is normalized to a maximum value that is 
- *         more-or-less arbitrary and can be adjusted according to the driver's
- *         preference */
-#define ACCELERATOR_PEDAL_POSITION_MAX_TORQUE MAX_10_BITS_VALUE
-
 /******************************************************************************
  * Preprocessor Macros
  ******************************************************************************/
