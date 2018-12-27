@@ -55,7 +55,7 @@ static void Timers_ControlLoopGetSensorData(void)
 {
     uint16_t accelerator_pedal_position = 0;
 
-    accelerator_pedal_position = getAcceleratorPedalPosition();
+    accelerator_pedal_position = Apps_GetAcceleratorPedalPosition();
 }
 
 static void Timers_ControlLoopHandleErrors(void)

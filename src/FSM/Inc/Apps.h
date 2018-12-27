@@ -17,26 +17,29 @@
  ******************************************************************************/
 // clang-format off
 // Maximum APPS values (calibrated to pedal box)
-#define PRIMARY_APPS_MAX_VALUE   (float32_t)(1400.0f)
-#define SECONDARY_APPS_MAX_VALUE (float32_t)(1950.0f)
+#define PRIMARY_APPS_MAX_VALUE   (uint32_t)(1400)
+#define SECONDARY_APPS_MAX_VALUE (uint32_t)(1950)
 #define APPS_PERCENT_DEADZONE    (float32_t)(0.03f)
 #define PRIMARY_APPS_DEADZONE \
-    (float32_t)(PRIMARY_APPS_MAX_VALUE * APPS_PERCENT_DEADZONE)
+    (uint32_t)(PRIMARY_APPS_MAX_VALUE * APPS_PERCENT_DEADZONE)
 #define SECONDARY_APPS_DEADZONE \
-    (float32_t)(SECONDARY_APPS_MAX_VALUE * APPS_PERCENT_DEADZONE)
+    (uint32_t)(SECONDARY_APPS_MAX_VALUE * APPS_PERCENT_DEADZONE)
 
 // Accelerator pedal saturation point (%)
-#define PEDAL_SATURATION_POINT (float32_t)(0.80f)
-#define PEDAL_RELEASE_POINT    (float32_t)(0.04f)
+#define PEDAL_SATURATION_POINT (uint32_t)(PRIMARY_APPS_MAX_VALUE * 0.80f)
+#define PEDAL_TRAVEL_DEADZONE_THRESHOLD    (uint32_t)(PRIMARY_APPS_MAX_VALUE * 0.04f)
 
-// Fault handling variables
 #define PEDAL_SATURATION_TIMEOUT    (uint32_t)(10)         // (sec)
 #define APPS_IMPLAUSIBILITY_TIMEOUT (uint32_t)(1)          // (sec)
-#define APPS_BPPC_THRESHOLD         (float32_t)(0.25f)     // (decimal %)
+#define APPS_PLAUSIBILITY_THRESHOLD (uint32_t)(PRIMARY_APPS_MAX_VALUE * 0.25f)
+#define APPS_PLAUSIBILITRY_RECOVERY_THRESHOLD \
+    (uint32_t)(PRIMARY_APPS_MAX_VALUE * 0.05f)
+#define APPS_DEVIATION_THRESHOLD    (float32_t)(0.1f) // (%)
 #define MAX_APPS_FAULTS \
     (uint32_t)(APPS_IMPLAUSIBILITY_TIMEOUT * CONTROL_LOOP_FREQUENCY)
 #define MAX_SATURATION_FAULTS \
     (uint32_t)(PEDAL_SATURATION_TIMEOUT * CONTROL_LOOP_FREQUENCY)
+#define ACCELERATOR_PEDAL_BIT_RESOLUTION MAX_10_BITS_VALUE
 
 /******************************************************************************
  * Preprocessor Macros
@@ -59,7 +62,7 @@ extern TIM_HandleTypeDef htim3;
  ******************************************************************************/
 /**
  * @brief  Get the latest accelerator pedal position
- *         1. Read the APPS position values from TIM2 and TIM3
+ *         1. Read the PAPPS/SAPPS position values from TIM2 and TIM3
  *         2. Checks for improperly connected APPS encoders
  *         3. Checks if APPS readings are outside of calibrated maximum values
  *         4. Checks for implausible APPS readings (>10% difference between
@@ -68,9 +71,9 @@ extern TIM_HandleTypeDef htim3;
  *            pushed >25% while brake is pushed as per EV2.5)
  *         6. Checks if accelerator pedal has been stuck at maximum torque for
  *            more than 10 seconds
- *         7. Maps the APPS readings to a 10-bit number (0 = unpressed, 1023 =
+ *         7. Maps the APPS readings to a 10-bit value (0 = unpressed, 1023 =
  *            fully pressed)
- * @return Accelerator pedal position (10-bit)
+ * @return Accelerator pedal position mapped to a 10-bit vaue
  */
-uint16_t getAcceleratorPedalPosition(void);
+uint32_t Apps_GetAcceleratorPedalPosition(void);
 #endif /* APPS_H */
