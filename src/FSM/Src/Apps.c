@@ -40,7 +40,7 @@ static ErrorStatus Apps_CheckPedalTravelImplausibility(
     uint32_t sapps_value);
 
 /**
- * @brief  Check for any failures in APPS or APPS wiring as per 2017-18 EV2.3.9
+ * @brief  Check for APPS or APPS wiring implausibility as per 2017-18 EV2.3.9
  * @return SUCCESS No implausibility
  *         ERROR Active implausibility
  */
@@ -108,7 +108,7 @@ static ErrorStatus Apps_CheckPlausibility(uint32_t papps_value)
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-uint32_t Apps_GetAcceleratorPedalPosition(void)
+void void Apps_HandleBrakeAndAcceleratorPedals(void)
 {
     static uint32_t apps_fault_counter         = 0;
     uint32_t        papps_value                = 0;
@@ -116,17 +116,21 @@ uint32_t Apps_GetAcceleratorPedalPosition(void)
     bool            fault_flag                 = false;
     uint32_t        accelerator_pedal_position = 0;
 
+    if (apps_fault_state != FSM_APPS_NORMAL_OPERATION)
+    {
+        accelerator_pedal_position = 0;
+    }
+
     // Read the APPS position values from TIM2 and TIM3 (Note: PAPPS and SAPPS
     // are oriented in opposite orientation - when PAPPS timer is counting up,
     // the SAPPS timer is counting down. As a result, we need to adjust the
     // SAPPS timer count by subtracing it from the max count.)
     papps_value = __HAL_TIM_GET_COUNTER(&htim2);
-    // TODO: Change MAX_16_BITS_VALUE to cube user constant
     sapps_value = ENCODER_MAX_COUNT - __HAL_TIM_GET_COUNTER(&htim3);
 
     if (Gpio_IsBrakePressed() || papps_value > PRIMARY_APPS_MAX_VALUE ||
         sapps_value > SECONDARY_APPS_MAX_VALUE ||
-        papps_value < PEDAL_TRAVEL_DEADZONE_THRESHOLD)
+        papps_value < PAPPS_DEADZONE_THRESHOLD)
     {
         // The following conditions require zero torque requests:
         // 1. When the brake pedal is pressed
@@ -136,18 +140,18 @@ uint32_t Apps_GetAcceleratorPedalPosition(void)
         // threshold
         accelerator_pedal_position = 0;
     }
-    else if (papps_value > PEDAL_SATURATION_POINT)
+    else if (papps_value > PAPPS_SATURATION_THRESHOLD)
     {
         // Saturate pedal position to 100% if the pedal is almost fully pressed
         // to account deflection in pedal cluster
-        accelerator_pedal_position = ACCELERATOR_PEDAL_BIT_RESOLUTION;
+        accelerator_pedal_position = ACCELERATOR_PEDAL_POSITION_MAX_TORQUE;
     }
     else
     {
         // Map accelerator pedal position to a different bit resolution using
         // PAPPS reading
         accelerator_pedal_position =
-            (papps_value * ACCELERATOR_PEDAL_BIT_RESOLUTION) /
+            (papps_value * ACCELERATOR_PEDAL_POSITION_MAX_TORQUE) /
             PRIMARY_APPS_MAX_VALUE;
     }
 
@@ -196,7 +200,7 @@ uint32_t Apps_GetAcceleratorPedalPosition(void)
     }
 
     // Check if pedal is at max. torque request
-    if (accelerator_pedal_position == MAX_10_BITS_VALUE)
+    if (accelerator_pedal_position == ACCELERATOR_PEDAL_POSITION_MAX_TORQUE)
     {
         // Check if pedal is stuck at max. torque after 10 secs
         if (apps_fault_counter > MAX_SATURATION_FAULTS)
@@ -218,7 +222,7 @@ uint32_t Apps_GetAcceleratorPedalPosition(void)
         (apps_fault_state == FSM_APPS_MAX_TORQUE_ERROR))
     {
         accelerator_pedal_position = 0;
-        if (papps_value < 0.05)
+        if (papps_value < APPS_PLAUSIBILITRY_RECOVERY_THRESHOLD)
         {
             // Reset fault variables to normal operational state
             apps_fault_state   = FSM_APPS_NORMAL_OPERATION;
