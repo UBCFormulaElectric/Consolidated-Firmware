@@ -78,16 +78,8 @@ extern TIM_HandleTypeDef htim3;
  * Function Prototypes
  ******************************************************************************/
 /**
- * @brief  Determine the appropriate brake status and accelerator pedal position
- *         and transmit the information to DCM over CAN
- * 
- *         2. Checks for improperly connected APPS encoders
- *         4. Checks for implausible APPS readings (>10% difference between
- *            PAPPS and SAPPS as per EV2.3.6)
- *         5. Perform APPS/Brake Pedal Plausibility Check (Accelerator pedal is
- *            pushed >25% while brake is pushed as per EV2.5)
- *         6. Checks if accelerator pedal has been stuck at maximum torque for
- *            more than 10 seconds
+ * @brief Determine and transmit the appropriate and accelerator pedal position
+ *        to DCM over the CAN bus
  */
-void void Apps_HandleBrakeAndAcceleratorPedals(void);
+void Apps_HandleAcceleratorPedalPosition(void);
 #endif /* APPS_H */

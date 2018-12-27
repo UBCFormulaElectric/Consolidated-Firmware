@@ -108,7 +108,7 @@ static ErrorStatus Apps_CheckPlausibility(uint32_t papps_value)
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void void Apps_HandleBrakeAndAcceleratorPedals(void)
+void Apps_HandleAcceleratorPedalPosition(void)
 {
     static uint32_t apps_fault_counter         = 0;
     uint32_t        papps_value                = 0;
@@ -252,5 +252,4 @@ void void Apps_HandleBrakeAndAcceleratorPedals(void)
         apps_fault_counter = 0;
     }
 
-    return accelerator_pedal_position;
 }
