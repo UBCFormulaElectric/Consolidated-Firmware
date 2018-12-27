@@ -1,251 +1,363 @@
-FormatVersion=5.0 // Do not edit this line!
-Title="ShareCAN"
+FormatVersion=6.0 // Do not edit this line!
+Title="Untitled"
+
+{SIGNALS}
+Sig=Signal_1_Byte unsigned 8
+Sig=Signal_2_Byte unsigned 16
+Sig=Signal_4_Byte unsigned 32
+Sig=Signal_8_Byte unsigned 64
+Sig=Signal_3_Byte unsigned 24
+Sig=Signal_5_Byte unsigned 40
+Sig=Signal_6_Byte unsigned 48
+Sig=Signal_Float_1 float /p:10
+Sig=Signal_Float_2 float /p:10
+Sig=Signal_UNIT32_1 unsigned 32
+Sig=Signal_UNIT32_2 unsigned 32
+Sig=Signal_INT32_1 signed 32
+Sig=Signal_INT32_2 unsigned 32
+Sig=Signal_UNIT16_1 unsigned 16
+Sig=Signal_UNIT16_2 unsigned 16
+Sig=Signal_UNIT16_3 unsigned 16
+Sig=Signal_UNIT16_4 unsigned 16
+Sig=Signal_UNIT8_1 unsigned 8
+Sig=Signal_UNIT8_2 unsigned 8
+Sig=Signal_UNIT8_3 unsigned 8
+Sig=Signal_UNIT8_4 unsigned 8
+Sig=Signal_UNIT8_5 unsigned 8
+Sig=Signal_UNIT8_6 unsigned 8
+Sig=Signal_UNIT8_7 unsigned 8
+Sig=Signal_UNIT8_8 unsigned 8
 
 {SENDRECEIVE}
 
-[BMS_ERROR]
+[BMS_ERROR_STDID]
 ID=000h
-DLC=8
-Var=BMS_ERROR unsigned 0,64
+Len=4
+Sig=Signal_4_Byte 0
 
-[BMS_HEARTBEAT]
+[BMS_HEARTBEAT_STDID]
 ID=001h
-DLC=1
-Var=BMS_HEARTBEAT unsigned 0,8
+Len=1
+Sig=Signal_1_Byte 0
 
-[BMS_ACCUMULATOR_STATUS]
+[BMS_CAN_TX_FIFO_OVERFLOW_STDID]
 ID=002h
-DLC=3
-Var=BMS_ACCUMULATOR_STATUS unsigned 0,24
+Len=4
+Sig=Signal_4_Byte 0
 
-[BMS_ACCUMULATOR_REGEN_POWER_LIMI]
+[BMS_STARTUP_STDID]
+ID=003h
+Len=1
+Sig=Signal_1_Byte 0
+
+[BMS_RESERVED2_STDID]
 ID=004h
-DLC=4
-Var=BMS_ACCUMULATOR_REGEN_POWER_LIMI unsigned 0,32
+Len=8
+Sig=Signal_8_Byte 0
 
-[BMS_ACCUMULATOR_SOC]
+[BMS_RESERVED3_STDID]
 ID=005h
-DLC=4
-Var=BMS_ACCUMULATOR_SOC unsigned 0,32
+Len=8
+Sig=Signal_8_Byte 0
+
+[BMS_ACCUMULATOR_STATUS_STDID]
+ID=006h
+Len=3
+Sig=Signal_3_Byte 0
 
 [BMS_ACCUMULATOR_DISCHARGE_POWER]
-ID=003h
-DLC=8
-Var=BMS_ACCUMULATOR_DISCHARGE_POWER unsigned 0,64
-
-[BMS_TURN_ON_ALL_FETS]
-ID=006h
-DLC=1
-Var=BMS_TURN_ON_ALL_FETS unsigned 0,8
-
-[BMS_CELL_VOLTAGE]
 ID=007h
-DLC=4
-Var=BMS_CELL_VOLTAGE unsigned 0,32
+Len=4
+Sig=Signal_4_Byte 0
 
-[BMS_BALANCE_MOSFET]
+[BMS_ACCUMULATOR_REGEN_POWER]
 ID=008h
-DLC=5
-Var=BMS_BALANCE_MOSFET unsigned 0,40
+Len=4
+Sig=Signal_4_Byte 0
 
-[BMS_LATCH_RESET]
+[BMS_ACCUMULATOR_SOC_STDID]
 ID=009h
-DLC=1
-Var=BMS_LATCH_RESET unsigned 0,8
+Len=4
+Sig=Signal_4_Byte 0
 
-[BMS_MOTOR_REENABLE]
+[BMS_TURN_ON_ALL_FETS_STDID]
 ID=00Ah
-DLC=1
-Var=BMS_MOTOR_REENABLE unsigned 0,8
+Len=8
+Sig=Signal_1_Byte 0
 
-[BMS_AIR_SHUTDOWN_ERROR]
+[BMS_CELL_VOLTAGE_CAN_STDID]
 ID=00Bh
-DLC=6
-Var=BMS_AIR_SHUTDOWN_ERROR unsigned 0,48
+Len=4
+Sig=Signal_4_Byte 0
 
-[DCM_ERROR]
+[BMS_BALANCE_MOSFET_STDID]
+ID=00Ch
+Len=5
+Sig=Signal_5_Byte 0
+
+[BMS_LATCH_RESET_STDID]
+ID=00Dh
+Len=1
+Sig=Signal_1_Byte 0
+
+[BMS_MOTOR_REENABLE_STDID]
+ID=00Eh
+Len=1
+Sig=Signal_1_Byte 0
+
+[BMS_AIR_SHUTDOWN_ERROR_STDID]
+ID=00Fh
+Len=6
+Sig=Signal_6_Byte 0
+
+[DCM_ERROR_STDID]
 ID=020h
-DLC=8
-Var=DCM_ERROR unsigned 0,64
+Len=4
+Sig=Signal_4_Byte 0
 
-[DCM_HEARTBEAT]
+[DCM_HEARTBEAT_STDID]
 ID=021h
-DLC=1
-Var=DCM_HEARTBEAT unsigned 0,8
+Len=1
+Sig=Signal_1_Byte 0
 
-[DCM_LEFT_SLIP_RATIO]
+[DCM_CAN_TX_FIFO_OVERFLOW_STDID]
 ID=022h
-DLC=4
-Var=DCM_LEFT_SLIP_RATIO unsigned 0,32
+Len=4
+Sig=Signal_4_Byte 0
 
-[DCM_RIGHT_SLIP_RATIO]
+[DCM_STARTUP_STDID]
 ID=023h
-DLC=4
-Var=DCM_RIGHT_SLIP_RATIO unsigned 0,32
+Len=1
+Sig=Signal_1_Byte 0
 
-[DCM_LEFT_MOTOR_OUTPUT]
+[DCM_RESERVED2_STDID]
 ID=024h
-DLC=4
-Var=DCM_LEFT_MOTOR_OUTPUT unsigned 0,32
+Len=8
+Sig=Signal_8_Byte 0
 
-[DCM_RIGHT_MOTOR_OUTPUT]
+[DCM_RESERVED3_STDID]
 ID=025h
-DLC=4
-Var=DCM_RIGHT_MOTOR_OUTPUT unsigned 0,32
+Len=8
+Sig=Signal_8_Byte 0
 
-[DCM_LEFT_SLIP_ERROR]
+[DCM_LEFT_SLIP_RATIO_STDID]
 ID=026h
-DLC=4
-Var=DCM_LEFT_SLIP_ERROR unsigned 0,32
+Len=4
+Sig=Signal_4_Byte 0
 
-[DCM_RIGHT_SLIP_ERROR]
+[DCM_RIGHT_SLIP_RATIO_STDID]
 ID=027h
-DLC=4
-Var=DCM_RIGHT_SLIP_ERROR unsigned 0,32
+Len=4
+Sig=Signal_4_Byte 0
 
-[FSM_ERROR]
+[DCM_LEFT_MOTOR_OUTPUT_STDID]
+ID=028h
+Len=4
+Sig=Signal_4_Byte 0
+
+[DCM_RIGHT_MOTOR_OUTPUT_STDID]
+ID=029h
+Len=4
+Sig=Signal_4_Byte 0
+
+[DCM_LEFT_SLIP_ERROR_STDID]
+ID=02Ah
+Len=4
+Sig=Signal_4_Byte 0
+
+[DCM_RIGHT_SLIP_ERROR_STDID]
+ID=02Bh
+Len=4
+Sig=Signal_4_Byte 0
+
+[FSM_ERROR_STDID]
 ID=040h
-DLC=8
-Var=FSM_ERROR unsigned 0,64
+Len=4
+Sig=Signal_4_Byte 0
 
-[FSM_HEARTBEAT]
+[FSM_HEARTBEAT_STDID]
 ID=041h
-DLC=1
-Var=FSM_HEARTBEAT unsigned 0,8
+Len=1
+Sig=Signal_1_Byte 0
 
-[FSM_BRAKE_APPS]
+[FSM_CAN_TX_FIFO_OVERFLOW_STDID]
 ID=042h
-DLC=4
-Var=FSM_BRAKE_APPS unsigned 0,32
+Len=4
+Sig=Signal_4_Byte 0
 
-[FSM_STEERING_ANGLE]
+[FSM_STARTUP_STDID]
 ID=043h
-DLC=4
-Var=FSM_STEERING_ANGLE unsigned 0,32
+Len=1
+Sig=Signal_1_Byte 0
 
-[FSM_LEFT_WHEEL_SPEED]
+[FSM_RESERVED2_STDID]
 ID=044h
-DLC=4
-Var=FSM_LEFT_WHEEL_SPEED unsigned 0,32
+Len=8
+Sig=Signal_8_Byte 0
 
-[FSM_RIGHT_WHEEL_SPEED]
+[FSM_RESERVED3_STDID]
 ID=045h
-DLC=4
-Var=FSM_RIGHT_WHEEL_SPEED unsigned 0,32
+Len=8
+Sig=Signal_8_Byte 0
 
-[PDM_ERROR]
+[FSM_BRAKE_APPS_STDID]
+ID=046h
+Len=4
+Sig=Signal_4_Byte 0
+
+[FSM_STEERING_ANGLE_STDID]
+ID=047h
+Len=4
+Sig=Signal_4_Byte 0
+
+[FSM_LEFT_WHEEL_SPEED_STDID]
+ID=048h
+Len=4
+Sig=Signal_4_Byte 0
+
+[FSM_RIGHT_WHEEL_SPEED_STDID]
+ID=049h
+Len=4
+Sig=Signal_4_Byte 0
+
+[PDM_ERROR_STDID]
 ID=060h
-DLC=8
-Var=PDM_ERROR unsigned 0,64
+Len=4
+Sig=Signal_4_Byte 0
 
-[PDM_HEARTBEAT]
+[PDM_HEARTBEAT_STDID]
 ID=061h
-DLC=1
-Var=PDM_HEARTBEAT unsigned 0,8
+Len=1
+Sig=Signal_1_Byte 0
 
-[PDM_STARTUP_STATUS]
+[PDM_CAN_TX_FIFO_OVERFLOW_STDID]
 ID=062h
-DLC=1
-Var=PDM_STARTUP_STATUS unsigned 0,8
+Len=4
+Sig=Signal_4_Byte 0
 
-[MOTOR_SHUTDOWN_ERROR]
+[PDM_STARTUP_STDID]
+ID=063h
+Len=1
+Sig=Signal_1_Byte 0
+
+[PDM_RESERVED2_STDID]
+ID=064h
+Len=8
+Sig=Signal_8_Byte 0
+
+[PDM_RESERVED3_STDID]
+ID=065h
+Len=8
+Sig=Signal_8_Byte 0
+
+[SHARED_MOTOR_SHUTDOWN_ERROR]
 ID=080h
-DLC=6
-Var=MOTOR_SHUTDOWN_ERROR unsigned 0,48
+Len=6
+Sig=Signal_6_Byte 0
 
-[LEFT_TORQUE_REQUEST_TX]
+[LEFT_TORQUE_REQUEST_TX_STDID]
 ID=190h
-DLC=3
-Var=LEFT_TORQUE_REQUEST_TX unsigned 0,24
+Len=3
+Sig=Signal_3_Byte 0
 
-[RIGHT_TORQUE_REQUEST_TX]
+[RIGHT_TORQUE_REQUEST_TX_STDID]
 ID=191h
-DLC=3
-Var=RIGHT_TORQUE_REQUEST_TX unsigned 0,24
+Len=3
+Sig=Signal_3_Byte 0
 
-[LEFT_TORQUE_REQUEST_RX]
+[LEFT_TORQUE_REQUEST_RX_STDID]
 ID=210h
-DLC=3
-Var=LEFT_TORQUE_REQUEST_RX unsigned 0,24
+Len=3
+Sig=Signal_3_Byte 0
 
-[RIGHT_TORQUE_REQUEST_RX]
+[RIGHT_TORQUE_REQUEST_RX_STDID]
 ID=211h
-DLC=3
-Var=RIGHT_TORQUE_REQUEST_RX unsigned 0,24
+Len=3
+Sig=Signal_3_Byte 0
+
+[DEMO_TOGGLE_GPIO1_STDID]
+ID=400h
+Len=1
+Sig=Signal_1_Byte 0
+
+[DEMO_TOGGLE_GPIO2_STDID]
+ID=401h
+Len=1
+Sig=Signal_1_Byte 0
 
 [DEMO_2_FLOAT_NUCLEO_TX_STDID]
 ID=402h
-DLC=8
-Var=Float_1 float 0,32 /p:10
-Var=Float_2 float 32,32 /p:10
+Len=8
+Sig=Signal_Float_1 0
+Sig=Signal_Float_2 32
 
 [DEMO_2_FLOAT_NUCLEO_RX_STDID]
 ID=403h
-DLC=8
-Var=Float_1 float 0,32 /p:10
-Var=Float_2 float 32,32 /p:10
+Len=8
+Sig=Signal_Float_1 0
+Sig=Signal_Float_2 32
 
 [DEMO_2_UINT32_NUCLEO_TX_STDID]
 ID=404h
-DLC=8
-Var=Uint32_1 unsigned 0,32
-Var=Uint32_2 unsigned 32,32
+Len=8
+Sig=Signal_UNIT32_1 0
+Sig=Signal_UNIT32_2 32
 
 [DEMO_2_UINT32_NUCLEO_RX_STDID]
 ID=405h
-DLC=8
-Var=Unit32_1 unsigned 0,32
-Var=Unit32_2 unsigned 32,32
+Len=8
+Sig=Signal_UNIT32_1 0
+Sig=Signal_UNIT32_2 32
 
 [DEMO_4_UINT16_NUCLEO_TX_STDID]
 ID=406h
-DLC=8
-Var=Uint16_1 unsigned 0,16
-Var=Uint16_2 unsigned 16,16
-Var=Uint16_3 unsigned 32,16
-Var=Uint16_4 unsigned 48,16
+Len=8
+Sig=Signal_UNIT16_1 0
+Sig=Signal_UNIT16_2 16
+Sig=Signal_UNIT16_3 32
+Sig=Signal_UNIT16_4 48
 
 [DEMO_4_UINT16_NUCLEO_RX_STDID]
 ID=407h
-DLC=8
-Var=Uint16_1 unsigned 0,16
-Var=Uint16_2 unsigned 16,16
-Var=Uint16_3 unsigned 32,16
-Var=Uint16_4 unsigned 48,16
+Len=8
+Sig=Signal_UNIT16_1 0
+Sig=Signal_UNIT16_2 16
+Sig=Signal_UNIT16_3 32
+Sig=Signal_UNIT16_4 48
 
 [DEMO_8_UINT8_NUCLEO_TX_STDID]
 ID=408h
-DLC=8
-Var=Uint8_1 unsigned 0,8
-Var=Uint8_2 unsigned 8,8
-Var=Uint8_3 unsigned 16,8
-Var=Uint8_4 unsigned 24,8
-Var=Uint8_5 unsigned 32,8
-Var=Uint8_6 unsigned 40,8
-Var=Uint8_7 unsigned 48,8
-Var=Uint8_8 unsigned 56,8
+Len=8
+Sig=Signal_UNIT8_1 0
+Sig=Signal_UNIT8_2 8
+Sig=Signal_UNIT8_3 16
+Sig=Signal_UNIT8_4 24
+Sig=Signal_UNIT8_5 32
+Sig=Signal_UNIT8_6 40
+Sig=Signal_UNIT8_7 48
+Sig=Signal_UNIT8_8 56
 
 [DEMO_8_UINT8_NUCLEO_RX_STDID]
 ID=409h
-DLC=8
-Var=Uint8_1 unsigned 0,8
-Var=Uint8_2 unsigned 8,8
-Var=Uint8_4 unsigned 24,8
-Var=Uint8_3 unsigned 16,8
-Var=Uint8_5 unsigned 32,8
-Var=Uint8_6 unsigned 40,8
-Var=Uint8_7 unsigned 48,8
-Var=Uint8_8 unsigned 56,8
+Len=8
+Sig=Signal_UNIT8_1 0
+Sig=Signal_UNIT8_2 8
+Sig=Signal_UNIT8_3 16
+Sig=Signal_UNIT8_4 24
+Sig=Signal_UNIT8_5 32
+Sig=Signal_UNIT8_6 40
+Sig=Signal_UNIT8_7 48
+Sig=Signal_UNIT8_8 56
 
 [DEMO_2_INT32_NUCLEO_TX_STDID]
 ID=40Ah
-DLC=8
-Var=Int32_1 signed 0,32
-Var=Int32_2 signed 32,32
+Len=8
+Sig=Signal_INT32_1 0
+Sig=Signal_INT32_2 32
 
 [DEMO_2_INT32_NUCLEO_RX_STDID]
 ID=40Bh
-DLC=8
-Var=Int32_1 signed 0,32
-Var=Int32_2 signed 32,32
+Len=8
+Sig=Signal_INT32_1 0
+Sig=Signal_INT32_2 32
 
