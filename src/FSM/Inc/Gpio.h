@@ -53,18 +53,4 @@ void Gpio_TurnOnGreenLed(void);
  */
 bool Gpio_IsBrakePressed(void);
 
-/**
- * @brief Check is the ALARMD pin for PAPPS is indicating any error
- * @return true Active error
- *         false No active error
- */
-bool Gpio_IsPappsAlarmdActive(void);
-
-/**
- * @brief Check is the ALARMD pin for SAPPS is indicating any error
- * @return true Active error
- *         false No active error
- */
-bool Gpio_IsSappsAlarmdActive(void);
-
 #endif /* GPIO_H */
