@@ -4,7 +4,10 @@ os:
 
 sudo: false
 dist: trusty
-language: c
+language: python
+
+python:
+  - "3.4"
 
 before_install:
   - git submodule update --init --recursive
@@ -23,18 +26,41 @@ matrix:
           env: RUN_FORMATTING_CHECKS="true"  # Test Formatting
 
 before_script:
+  # Download the latest ARM GCC Embedded Toolchain.
+  # Unfortunately, since this is a literal URL, it does not pull the latest API available, and the URL must be changed manually. 
+  # TO CHANGE THE URL:
+  # Go to https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
+  # and download the latest GCC ARM-target compiler and then search up the downloads page of your browser.
+  # There is usually a web address that's hosting the GCC binary/tar. 
   - wget https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2 -O /tmp/gcc-arm-none-eabi.tar.bz2
+  # Unzip the ARM GCC Embedded Toolchain 
   - tar -xvjf /tmp/gcc-arm-none-eabi.tar.bz2
+  # Enable cmake to find the arm-none-eabi-gcc command
   - export PATH=$PATH:$PWD/gcc-arm-none-eabi-7-2018-q2-update/bin/
-  - cmake CMakeLists.txt  
 
 script:
-    - if [ "$RUN_BUILD" = "true" ]; then make; fi
+    # If any command exits with a non-zero value (i.e. it throws an error)
+    # then this will cause travis to exit. Commands encapsulated between 
+    # conditionals, for example, do not report their return codes. Instread,
+    # only the conditional, a command itself, gets polled, so if cmake or 
+    # python throws an error, the information is lost. set -e ensures that
+    # this does not happen
+    - set -e
+
+    - if [ "$RUN_BUILD" = "true" ]; then 
+        cd src;
+        cmake CMakeLists.txt;
+        make; 
+        cd ..;
+      fi
     - if [ "$RUN_TESTS" = "true" ]; then 
+        cd src;
         cmake -DTEST_BUILD=true CMakeLists.txt;
         make;
         ctest -C DEBUG;
+        cd ..;
       fi
     - if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then 
-            ./clang-format/fix_formatting_linux.sh
+            cd clang-format;
+            echo -e "Y" | python check_formatting_CI.py;
       fi
