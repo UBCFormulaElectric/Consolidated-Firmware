@@ -97,6 +97,7 @@ extern "C"
 #define LSI_FREQUENCY 40000
 #define IWDG_PRESCALER 4
 #define IWDG_RESET_FREQUENCY 5
+#define ENCODER_MAX_COUNT 65535
 #define OSC_IN_Pin GPIO_PIN_0
 #define OSC_IN_GPIO_Port GPIOF
 #define OSC_OUT_Pin GPIO_PIN_1

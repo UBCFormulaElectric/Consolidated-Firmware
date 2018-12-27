@@ -4,8 +4,8 @@
 #include "Apps.h"
 #include "CanDefinitions.h"
 #include "stdbool.h"
-#include "Constants.h"
 #include "Gpio.h"
+#include "main.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -29,13 +29,15 @@ volatile uint32_t apps_fault_state = FSM_APPS_NORMAL_OPERATION;
  ******************************************************************************/
 /**
  * @brief  Check for pedal travel implausibility as per 2017-18 EV2.3.6
- * @param  papps_value Encoder value for PAPPS
- *         sapps_value Encoder value for SAPPS (After being subtracted from
+ * @param  papps_value PAPPS position value
+ *         sapps_value SAPPS position value (After being subtracted from
  *                     maximum encoder tick count)
  * @return SUCCESS No implausibility
  *         ERROR Active implausibility
  */
-static ErrorStatus Apps_CheckPedalTravelImplausibility(uint32_t papps_value, uint32_t sapps_value);
+static ErrorStatus Apps_CheckPedalTravelImplausibility(
+    uint32_t papps_value,
+    uint32_t sapps_value);
 
 /**
  * @brief  Check for any failures in APPS or APPS wiring as per 2017-18 EV2.3.9
@@ -54,14 +56,17 @@ static ErrorStatus Apps_CheckPlausibility(uint32_t papps_value);
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
-static ErrorStatus Apps_CheckPedalTravelImplausibility(uint32_t papps_value, uint32_t sapps_value)
+static ErrorStatus Apps_CheckPedalTravelImplausibility(
+    uint32_t papps_value,
+    uint32_t sapps_value)
 {
     float32_t percent_papps_value = papps_value / PRIMARY_APPS_MAX_VALUE;
     float32_t percent_sapps_value = sapps_value / SECONDARY_APPS_MAX_VALUE;
 
     // Check if the difference in pedal travel between PAPPS and SAPPS are
     // within the implausibility threshold defined in 2017-18 EV.2.3.6
-    if ((percent_papps_value - percent_sapps_value > APPS_DEVIATION_THRESHOLD) ||
+    if ((percent_papps_value - percent_sapps_value >
+         APPS_DEVIATION_THRESHOLD) ||
         (percent_sapps_value - percent_papps_value > APPS_DEVIATION_THRESHOLD))
     {
         return ERROR;
@@ -73,8 +78,9 @@ static ErrorStatus Apps_CheckPedalTravelImplausibility(uint32_t papps_value, uin
 }
 
 static ErrorStatus Apps_CheckAppsImplausibility(void)
-{        
-    // Note: Disconnecting APPS encoder will trigger a fault in MAX3097E ALARMD pin
+{
+    // Note: Disconnecting APPS encoder will trigger a fault in MAX3097E ALARMD
+    // pin
     if (Gpio_IsPappsAlarmdActive() || Gpio_IsSappsAlarmdActive())
     {
         return ERROR;
@@ -87,7 +93,7 @@ static ErrorStatus Apps_CheckAppsImplausibility(void)
 
 static ErrorStatus Apps_CheckPlausibility(uint32_t papps_value)
 {
-    // Check if the mechanical brakes are actuvated and the APPS signals more 
+    // Check if the mechanical brakes are actuvated and the APPS signals more
     // than 25% pedal travel at the same time as per 2017-18 EV2.5
     if (papps_value > APPS_PLAUSIBILITY_THRESHOLD && Gpio_IsBrakePressed())
     {
@@ -98,7 +104,6 @@ static ErrorStatus Apps_CheckPlausibility(uint32_t papps_value)
         return SUCCESS;
     }
 }
-
 
 /******************************************************************************
  * Function Definitions
@@ -111,12 +116,13 @@ uint32_t Apps_GetAcceleratorPedalPosition(void)
     bool            fault_flag                 = false;
     uint32_t        accelerator_pedal_position = 0;
 
-    // Read the APPS position values from TIM2 and TIM3 (Note: PAPPS and
-    // SAPPS are oriented in opposite orientation. This means when PAPPS
-    // timer is counting up, the SAPPS timer is counting down.)
+    // Read the APPS position values from TIM2 and TIM3 (Note: PAPPS and SAPPS
+    // are oriented in opposite orientation - when PAPPS timer is counting up,
+    // the SAPPS timer is counting down. As a result, we need to adjust the
+    // SAPPS timer count by subtracing it from the max count.)
     papps_value = __HAL_TIM_GET_COUNTER(&htim2);
     // TODO: Change MAX_16_BITS_VALUE to cube user constant
-    sapps_value = MAX_16_BITS_VALUE - __HAL_TIM_GET_COUNTER(&htim3);
+    sapps_value = ENCODER_MAX_COUNT - __HAL_TIM_GET_COUNTER(&htim3);
 
     if (Gpio_IsBrakePressed() || papps_value > PRIMARY_APPS_MAX_VALUE ||
         sapps_value > SECONDARY_APPS_MAX_VALUE ||
@@ -165,7 +171,8 @@ uint32_t Apps_GetAcceleratorPedalPosition(void)
             fault_flag = true;
         }
 
-        if (Apps_CheckPedalTravelImplausibility(papps_value, sapps_value) == ERROR)
+        if (Apps_CheckPedalTravelImplausibility(papps_value, sapps_value) ==
+            ERROR)
         {
             // Check if implausibility occurs after 100msec
             if (apps_fault_counter > MAX_APPS_FAULTS)
