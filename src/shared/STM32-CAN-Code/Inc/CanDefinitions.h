@@ -166,21 +166,7 @@ typedef enum
     PCB_COUNT
 } Pcb_Enum;
 
-/** @brief FSM Errors
- *         APPS Fault States
- *         FSM_APPS_NORMAL_OPERATION  Operating normally
- *         FSM_APPS_NORMAL_OPERATION  Operating normally (Pedal deflects
- *         passed resting point and underflows) OR pedal pushed passed max
- *         rotation
- *         FSM_APPS_OPEN_CIRCUIT_SHORT_CIRCUIT_ERROR  Open/short circuit 
- *         on encoder differential lines 
- *         FSM_APPS_PRIMARY_SECONDARY_DIFFERENCE_ERROR  >10% difference 
- *         in primary and secondary APPS readings (EV2.3.6) 
- *         FSM_APPS_BRAKE_PEDAL_PLAUSIBILITY_ERROR  >25% pedal travel while
- *         activating brakes "APPS / Brake Pedal Plausibility Check" (EV2.5)
- *         FSM_APPS_MAX_TORQUE_ERROR  Pedal stuck at max torque for 
- *         greater than 10 secs
- */
+/** @brief FSM Errors */
 typedef enum
 {
     FSM_APPS_NORMAL_OPERATION,
