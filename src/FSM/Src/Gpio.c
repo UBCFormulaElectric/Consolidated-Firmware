@@ -56,3 +56,9 @@ void Gpio_TurnOnBlueLed(void)
     HAL_GPIO_WritePin(STATUS_G_GPIO_Port, STATUS_G_Pin, GPIO_PIN_SET);
 }
 
+bool Gpio_IsBrakePressed(void)
+{
+    return (
+        HAL_GPIO_ReadPin(BSPD_BRAKE_THRES_GPIO_Port, BSPD_BRAKE_THRES_Pin) ==
+        BRAKE_PRESSED);
+}

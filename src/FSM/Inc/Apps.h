@@ -35,6 +35,10 @@
 // experience
 #define PAPPS_DEADZONE_THRESHOLD \
             (uint32_t)(PRIMARY_APPS_MAX_VALUE * 0.04f)
+// If the encoder reading is larger than this threshold, then the pedal has
+// likely deflected beyond its original position
+#define APPS_UNDERFLOW_THRESHOLD \
+            (uint32_t)(ENCODER_MAX_COUNT * 0.95)
 
 /******************************************************************************
  * Preprocessor Macros
@@ -48,7 +52,6 @@
 /******************************************************************************
  * Global Variables
  ******************************************************************************/
-extern volatile uint32_t apps_fault_state;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
 
