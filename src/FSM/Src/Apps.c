@@ -2,8 +2,6 @@
  * Includes
  ******************************************************************************/
 #include "Apps.h"
-#include "CanDefinitions.h"
-#include "stdbool.h"
 #include "Gpio.h"
 #include "main.h"
 

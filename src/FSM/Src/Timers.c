@@ -3,8 +3,6 @@
  ******************************************************************************/
 #include "Timers.h"
 #include "Apps.h"
-#include "Gpio.h"
-#include "CanDefinitions.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
