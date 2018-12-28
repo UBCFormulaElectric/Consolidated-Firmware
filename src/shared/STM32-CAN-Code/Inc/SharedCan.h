@@ -60,7 +60,7 @@
     #define PCB_HEARTBEAT_STDID         DCM_HEARTBEAT_STDID
     #define PCB_HEARTBEAT_DLC           DCM_HEARTBEAT_DLC
 #else
-    #error "No valid PCB name selected"
+    #error "SharedCan - No valid PCB name selected"
 #endif
 
 /******************************************************************************

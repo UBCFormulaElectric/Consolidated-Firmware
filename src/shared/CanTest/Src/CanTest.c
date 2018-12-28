@@ -56,13 +56,13 @@ _Static_assert(CANTEST_RESULT_MSG_DLC == 8,
  * @param test_result_msg An 8-element array in which the CAN representation of
  *                        the given test_result and test_id will be placed
  */
-void testResultToCanMsg(CanTest_TestId test_id, CanTest_TestResult test_result, uint8_t* test_result_msg);
+void TestResultToCanMsg(CanTest_TestId test_id, CanTest_TestResult test_result, uint8_t* test_result_msg);
 
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
 
-void testResultToCanMsg(CanTest_TestId test_id, CanTest_TestResult test_result, uint8_t* test_result_msg){
+void TestResultToCanMsg(CanTest_TestId test_id, CanTest_TestResult test_result, uint8_t* test_result_msg){
     // Pack the booleans values into the zero'th byte
     test_result_msg[0] = test_result.valid_test + (test_result.test_passed << 1);
 
@@ -84,13 +84,13 @@ void testResultToCanMsg(CanTest_TestId test_id, CanTest_TestResult test_result, 
  * Function Definitions
  ******************************************************************************/
 
-//CanTest_TestResult CanTest_runTest(uint16_t test_id)
-//{
-//    /* NOTE: This function Should not be modified, when the callback is needed,
-//              CanTest_runTest could be implemented in the CanTest.c file */
-//    CANTEST_START_TESTS;
-//    CANTEST_END_TESTS;
-//}
+__weak CanTest_TestResult CanTest_runTest(uint16_t test_id)
+{
+    /* NOTE: This function Should not be modified, when the callback is needed,
+              CanTest_runTest could be implemented in the CanTest.c file */
+    CANTEST_START_TESTS;
+    CANTEST_END_TESTS;
+}
 
 void CanTest_handleCanMsg(CanRxMsg_Struct rx_msg) {
     if (rx_msg.rx_header.StdId == CANTEST_START_MSG_STDID) {
@@ -102,11 +102,11 @@ void CanTest_handleCanMsg(CanRxMsg_Struct rx_msg) {
         CanTest_TestId test_id = (rx_msg.data[0] << 8) + rx_msg.data[1];
 
         // Attempt to run the given test
-        CanTest_TestResult test_result = CanTest_runTestWithId(test_id);
+        CanTest_TestResult test_result = CanTest_runTest(test_id);
 
         // Send the result of running the test over CAN
         uint8_t test_result_msg[8];
-        testResultToCanMsg(test_id, test_result, test_result_msg);
+        TestResultToCanMsg(test_id, test_result, test_result_msg);
         SharedCan_TransmitDataCan(
                 CANTEST_RESULT_MSG_STDID, 
                 CANTEST_RESULT_MSG_DLC,

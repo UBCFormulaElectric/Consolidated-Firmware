@@ -36,7 +36,7 @@
 
 // Set the extra values that any test can return.
 // TODO: explicitly cast these values to uint8_t?
-#define CANTEST_SET_EXTRA_VALUES(expr0, expr1, expr2, expr3) \
+#define CANTEST_SET_OPTIONAL_VALUES(expr0, expr1, expr2, expr3) \
     test_status->extra_values[0] = expr0; \
     test_status->extra_values[1] = expr1; \
     test_status->extra_values[2] = expr2; \
