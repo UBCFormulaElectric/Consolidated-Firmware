@@ -52,7 +52,7 @@ static void prvHandleSensorData(void)
  ******************************************************************************/
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim == &htim14)
+    if (htim->Instance == TIM14)
     {
         prvControlLoop();
     }

@@ -24,12 +24,6 @@
  * Typedefs
  ******************************************************************************/
 // clang-format on
-/** @brief Enum for motor shutdown/re-enable handling status */
-typedef enum
-{
-    ON,
-    OFF
-} MotorShutdownStatus_Enum;
 
 /******************************************************************************
  * Global Variables
@@ -42,7 +36,7 @@ extern TIM_HandleTypeDef htim3;
  * Function Prototypes
  ******************************************************************************/
 /**
- * @brief Start timers for Control Loop, P-APPS, and S-APPS
+ * @brief Start timers for control loop, PAPPS, and SAPPS
  */
 void Timers_StartTimers();
 
