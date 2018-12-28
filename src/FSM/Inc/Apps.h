@@ -28,17 +28,15 @@
 // The driver should not have to push the pedal to its maximum travel
 // to request maximum torque or else the pedal box will wear out more
 // easily
-#define PAPPS_SATURATION_THRESHOLD \
-            (uint32_t)(PRIMARY_APPS_MAX_VALUE * 0.80f)
+#define PAPPS_SATURATION_THRESHOLD (uint32_t)(PRIMARY_APPS_MAX_VALUE * 0.80f)
 
-// The initial pedal travel is mapped to zero torque request for better driving 
-// experience
-#define PAPPS_DEADZONE_THRESHOLD \
-            (uint32_t)(PRIMARY_APPS_MAX_VALUE * 0.04f)
+// The initial pedal travel is treated as a "deadzone" - as if the pedal was
+// not pressed at all
+#define PAPPS_DEADZONE_THRESHOLD (uint32_t)(PRIMARY_APPS_MAX_VALUE * 0.04f)
+
 // If the encoder reading is larger than this threshold, then the pedal has
 // likely deflected beyond its original position
-#define APPS_UNDERFLOW_THRESHOLD \
-            (uint32_t)(ENCODER_MAX_COUNT * 0.95)
+#define APPS_UNDERFLOW_THRESHOLD (uint32_t)(ENCODER_MAX_COUNT * 0.95)
 
 /******************************************************************************
  * Preprocessor Macros
