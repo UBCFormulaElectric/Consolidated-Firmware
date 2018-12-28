@@ -27,52 +27,28 @@
  *******************************************************************************/
 /**
  * @brief Main control loop
- *          1. Transmits CAN messages containing the accelerator pedal position,
- *          front wheel speeds, and steering angle.
  */
-static void Timers_ControlLoop(void);
+static void prvControlLoop(void);
 
 /**
- * @brief Main control loop sensor data acquisition
+ * @brief Handle sensor data acquisition and tranmission for accelearator pedal
+ *        position, steering angle, and wheel speeds.
  */
-static void Timers_ControlLoopGetSensorData(void);
-
-/**
- * @brief Main control loop error handling
- */
-static void Timers_ControlLoopHandleErrors(void);
+static void prvHandleSensorData(void);
 
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
-static void Timers_ControlLoop(void)
+static void prvControlLoop(void)
 {
-    Timers_ControlLoopGetSensorData();
-    Timers_ControlLoopHandleErrors();
+    prvHandleSensorData();
 }
 
-static void Timers_ControlLoopGetSensorData(void)
+static void prvHandleSensorData(void)
 {
     Apps_HandleAcceleratorPedalPosition();
 }
 
-static void Timers_ControlLoopHandleErrors(void)
-{
-    static MotorShutdownStatus_Enum motor_state;
-
-    if (apps_fault_state != FSM_APPS_NORMAL_OPERATION)
-    {
-        Gpio_TurnOnRedLed();
-    }
-
-    // No APPS fault when motors are off
-    if (apps_fault_state == FSM_APPS_NORMAL_OPERATION && motor_state == OFF)
-    {
-        // TransmitDataCAN(Motor_ReEnable_StandardID, Motor_ReEnable_ExtendedID,
-        // Motor_ReEnable_DLC, Front_Sensor_Module);
-        motor_state = ON;
-    }
-}
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
@@ -80,7 +56,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim == &htim14)
     {
-        Timers_ControlLoop();
+        prvControlLoop();
     }
 }
 
