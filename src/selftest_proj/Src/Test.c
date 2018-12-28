@@ -37,7 +37,7 @@ CANTEST_TEST(7){
 
 CANTEST_TEST(60000){
     CANTEST_ASSERT(2 == 2);
-    CANTEST_SET_EXTRA_VALUES(1, 2, 3, 4);
+    CANTEST_SET_OPTIONAL_VALUES(1, 2, 3, 4);
 }
 
 CanTest_TestResult CanTest_runTest(uint16_t test_id) {
