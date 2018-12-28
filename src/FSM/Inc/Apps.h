@@ -17,12 +17,12 @@
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off
-// Maximum PAPPS value that should not be exceeded or else the pedal
-// box may physically break
+// Maximum PAPPS value that should not be exceeded or else the pedal box may
+// physically break. This should be manually calibrated every once in a while.
 #define PRIMARY_APPS_MAX_VALUE   (uint32_t)(1400)
 
-// Maximum SAPPS value that should not be exceeded or else the pedal
-// box may physically break
+// Maximum SAPPS value that should not be exceeded or else the pedal box may
+// physically break. This should be manually calibrated every once in a while.
 #define SECONDARY_APPS_MAX_VALUE (uint32_t)(1950)
 
 // The driver should not have to push the pedal to its maximum travel
