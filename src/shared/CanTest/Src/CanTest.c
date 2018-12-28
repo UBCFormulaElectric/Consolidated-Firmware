@@ -84,13 +84,13 @@ void testResultToCanMsg(CanTest_TestId test_id, CanTest_TestResult test_result, 
  * Function Definitions
  ******************************************************************************/
 
-//CanTest_TestResult CanTest_runTest(uint16_t test_id)
-//{
-//    /* NOTE: This function Should not be modified, when the callback is needed,
-//              CanTest_runTest could be implemented in the CanTest.c file */
-//    CANTEST_START_TESTS;
-//    CANTEST_END_TESTS;
-//}
+__weak CanTest_TestResult CanTest_runTest(uint16_t test_id)
+{
+    /* NOTE: This function Should not be modified, when the callback is needed,
+              CanTest_runTest could be implemented in the CanTest.c file */
+    CANTEST_START_TESTS;
+    CANTEST_END_TESTS;
+}
 
 void CanTest_handleCanMsg(CanRxMsg_Struct rx_msg) {
     if (rx_msg.rx_header.StdId == CANTEST_START_MSG_STDID) {
@@ -102,7 +102,7 @@ void CanTest_handleCanMsg(CanRxMsg_Struct rx_msg) {
         CanTest_TestId test_id = (rx_msg.data[0] << 8) + rx_msg.data[1];
 
         // Attempt to run the given test
-        CanTest_TestResult test_result = CanTest_runTestWithId(test_id);
+        CanTest_TestResult test_result = CanTest_runTest(test_id);
 
         // Send the result of running the test over CAN
         uint8_t test_result_msg[8];

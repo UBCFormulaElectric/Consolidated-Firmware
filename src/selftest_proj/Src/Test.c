@@ -40,7 +40,7 @@ CANTEST_TEST(60000){
     CANTEST_SET_EXTRA_VALUES(1, 2, 3, 4);
 }
 
-CanTest_TestResult CanTest_runTestWithId(uint16_t test_id) {
+CanTest_TestResult CanTest_runTest(uint16_t test_id) {
     CANTEST_START_TESTS;
 
     CANTEST_ADD_TEST(7);
