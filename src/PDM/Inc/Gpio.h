@@ -18,7 +18,6 @@
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off
-
 /** @brief 12V Sense, VBAT Sense, and Flywire Sense */
 #define NUM_VOLTAGE_SENSE_PINS 3
 

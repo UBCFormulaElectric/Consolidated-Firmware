@@ -30,7 +30,6 @@
 /******************************************************************************
  * Global Variables
  ******************************************************************************/
-extern volatile GPIO_PinState dsel_state;
 extern ADC_HandleTypeDef      hadc1;
 extern volatile float32_t     converted_readings[];
 extern volatile uint8_t

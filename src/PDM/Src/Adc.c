@@ -4,6 +4,7 @@
 #include "Adc.h"
 #include "Constants.h"
 #include "SharedAdc.h"
+#include "Gpio.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
