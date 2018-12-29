@@ -324,31 +324,6 @@ void USB_LP_CAN_RX0_IRQHandler(void)
     HAL_CAN_IRQHandler(&hcan);
     /* USER CODE BEGIN USB_LP_CAN_RX0_IRQn 1 */
 
-    /*	TODO (Issue #192): Move to RX callback
-    HAL_CAN_Receive_IT(&hcan, CAN_FIFO0);
-    
-    switch(hcan.pRxMsg->StdId)
-    {
-        #ifndef DEBUG
-        case Heartbeat_StandardID:
-            // Process Heartbeat info here
-            Board = (Module_Name)hcan.pRxMsg->Data[0];
-
-            // Case statement used in case data is outside of array bounds.
-    Special cases / behaviour can also be handled here. switch(Board)
-            {
-                case Battery_Management_System:
-                    HeartbeatCount[Battery_Management_System]++;
-                default:
-                    // Log error
-                    break;
-            }
-            break;
-        #endif
-        default:
-            break;
-    }
-*/
     /* USER CODE END USB_LP_CAN_RX0_IRQn 1 */
 }
 
