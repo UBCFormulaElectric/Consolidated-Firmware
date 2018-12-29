@@ -159,31 +159,44 @@ typedef enum
 /** @brief PCB Names */
 typedef enum
 {
-    BATTERY_MANAGEMENT_SYSTEM = 0,
+    BATTERY_MANAGEMENT_SYSTEM,
     DRIVE_CONTROL_MODULE,
     POWER_DISTRIBUTION_MODULE,
     FRONT_SENSOR_MODULE,
     PCB_COUNT
 } Pcb_Enum;
 
-/** @brief FSM Errors */
+/**
+ * @brief FSM Errors
+ * PAPPS_OUT_OF_RANGE: PAPPS value out of acceptable range
+ * SAPPS_OUT_OF_RANGE: SAPPS value out of acceptable range
+ * MAX3097E_ALARMD: The ALARMD pin on either PAPPS or SAPPS indicates a fault
+ * PEDAL_TRAVEL_IMPLAUSIBILITY: Differene between PAPPS and SAPPS exceeds
+ *                              threshold
+ * PLAUSIBILITY: Brake pedal and accelerator pedal pressed at the same time
+ * MAX_TORQUE_STUCK: Max torque is requested for an excessivey long duration
+ * STEERING_OUT_OF_RANGE: Steering angle out of acceptable range
+ * WHEELSPEED_OUT_OF_RANGE: Wheel speed out of acceptable range
+ * BMS_HEARTBEAT_TIMEOUT: Missed too many BMS heartbeat
+ */
 typedef enum
 {
-    FSM_APPS_NORMAL_OPERATION = 0,
-    FSM_APPS_OPEN_CIRCUIT_SHORT_CIRCUIT_ERROR,
-    FSM_APPS_PRIMARY_SECONDARY_DIFFERENCE_ERROR,
-    FSM_APPS_BRAKE_PEDAL_PLAUSIBILITY_ERROR,
-    FSM_APPS_MAX_TORQUE_ERROR,
-    FSM_STEERING_BOUND_ERROR,
-    FSM_WHEEL_SPEED_BOUND_ERROR,
-    FSM_BMS_HEARTBEAT_TIMEOUT_ERROR,
+    PAPPS_OUT_OF_RANGE,
+    SAPPS_OUT_OF_RANGE,
+    MAX3097E_ALARMD,
+    PEDAL_TRAVEL_IMPLAUSIBILITY,
+    PLAUSIBILITY,
+    MAX_TORQUE_STUCK,
+    STEERING_OUT_OF_RANGE,
+    WHEELSPEED_OUT_OF_RANGE,
+    BMS_HEARTBEAT_TIMEOUT,
     FSM_ERRORS_COUNT
 } FsmError_Enum;
 
 /** @brief PDM Errors */
 typedef enum
 {
-    SYSTICK_INITIALISATION_ERROR = 0,
+    SYSTICK_INITIALISATION_ERROR,
     MISSING_HEARTBEAT,
     EFUSE_FAULT,
     CHARGER_FAULT,
@@ -198,7 +211,7 @@ typedef enum
 /** @brief DCM Errors */
 typedef enum
 {
-    DCM_SENSOR_RANGE_ERROR = 0,
+    DCM_SENSOR_RANGE_ERROR,
     BMS_HEARTBEAT_TIMEOUT_ERROR_ON_DCM,
     DCM_ERRORS_COUNT
 } DcmError_Enum;
