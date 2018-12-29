@@ -166,16 +166,29 @@ typedef enum
     PCB_COUNT
 } Pcb_Enum;
 
-/** @brief FSM Errors */
+/**
+ * @brief FSM Errors
+ * PAPPS_OUT_OF_RANGE: PAPPS value out of acceptable range
+ * SAPPS_OUT_OF_RANGE: SAPPS value out of acceptable range
+ * MAX3097E_ALARMD: The ALARMD pin on either PAPPS or SAPPS indicates a fault
+ * PEDAL_TRAVEL_IMPLAUSIBILITY: Differene between PAPPS and SAPPS exceeds
+ *                              threshold
+ * PLAUSIBILITY: Brake pedal and accelerator pedal pressed at the same time
+ * MAX_TORQUE_STUCK: Max torque is requested for an excessivey long duration
+ * STEERING_OUT_OF_RANGE: Steering angle out of acceptable range
+ * WHEELSPEED_OUT_OF_RANGE: Wheel speed out of acceptable range
+ * BMS_HEARTBEAT_TIMEOUT: Missed too many BMS heartbeat
+ */
 typedef enum
 {
-    NO_ERROR,
+    PAPPS_OUT_OF_RANGE,
+    SAPPS_OUT_OF_RANGE,
     MAX3097E_ALARMD,
     PEDAL_TRAVEL_IMPLAUSIBILITY,
     PLAUSIBILITY,
     MAX_TORQUE_STUCK,
-    STEERING_BOUND,
-    WHEEL_SPEED_BOUND,
+    STEERING_OUT_OF_RANGE,
+    WHEELSPEED_OUT_OF_RANGE,
     BMS_HEARTBEAT_TIMEOUT,
     FSM_ERRORS_COUNT
 } FsmError_Enum;
