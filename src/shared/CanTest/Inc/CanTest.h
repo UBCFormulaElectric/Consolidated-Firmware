@@ -70,6 +70,8 @@
  ******************************************************************************/
 // clang-format on
 
+// Test id's are 16 bit because we allow two bytes for the id
+// in the "start" and "result" CAN messages 
 typedef uint16_t CanTest_TestId;
 
 /** This struct holds the results of attempting to run a given test */

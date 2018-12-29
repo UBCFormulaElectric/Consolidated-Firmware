@@ -47,7 +47,6 @@ _Static_assert(CANTEST_RESULT_MSG_DLC == 8,
 * Private Function Prototypes
 *******************************************************************************/
 
-// TODO: Should private functions like this be prefixed with `CanTest_`?
 /**
  * @brief Convert the given TestStatus into a 8 element 8-byte array for 
  *        transmission over CAN
