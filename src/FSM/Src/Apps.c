@@ -29,9 +29,7 @@
  *         position value and brake pedal status
  * @return The accelerator pedal position
  */
-static void SetAcceleratorPedalPosition(
-    uint32_t *papps_value,
-    uint32_t *accelerator_pedal_position);
+static uint32_t GetAcceleratorPedalPosition(uint32_t papps_value);
 
 /**
  * @brief  Read PAPPS encoder counter value and adjust it as needed
@@ -48,32 +46,34 @@ static uint32_t GetSappsValue(void);
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
-static void SetAcceleratorPedalPosition(
-    uint32_t *papps_value,
-    uint32_t *accelerator_pedal_position)
+static uint32_t GetAcceleratorPedalPosition(uint32_t papps_value)
 {
-    if (Gpio_IsBrakePressed() || *papps_value < PAPPS_DEADZONE_THRESHOLD)
+    uint32_t accelerator_pedal_position;
+    
+    if (Gpio_IsBrakePressed() || papps_value < PAPPS_DEADZONE_THRESHOLD)
     {
         // The following conditions require zero torque requests:
         // 1. When the brake pedal is pressed
         // 2. When PAPPS reading is less than the pedal travel deadzone
         // threshold
-        *accelerator_pedal_position = 0;
+        accelerator_pedal_position = 0;
     }
-    else if (*papps_value > PAPPS_SATURATION_THRESHOLD)
+    else if (papps_value > PAPPS_SATURATION_THRESHOLD)
     {
         // Saturate pedal position to 100% if the pedal is almost fully pressed
         // to account deflection in pedal cluster
-        *accelerator_pedal_position = ACCELERATOR_PEDAL_POSITION_MAX_TORQUE;
+        accelerator_pedal_position = ACCELERATOR_PEDAL_POSITION_MAX_TORQUE;
     }
     else
     {
         // Map accelerator pedal position to a different bit range using
         // PAPPS reading
-        *accelerator_pedal_position =
-            (*papps_value * ACCELERATOR_PEDAL_POSITION_MAX_TORQUE) /
+        accelerator_pedal_position =
+            (papps_value * ACCELERATOR_PEDAL_POSITION_MAX_TORQUE) /
             PRIMARY_APPS_MAX_VALUE;
     }
+
+    return accelerator_pedal_position;
 }
 
 static uint32_t GetPappsValue(void)
@@ -120,11 +120,7 @@ void Apps_HandleAcceleratorPedalPosition(void)
 {
     uint32_t papps_value = GetPappsValue();
     uint32_t sapps_value = GetSappsValue();
-
-
-    uint32_t accelerator_pedal_position;
-
-    SetAcceleratorPedalPosition(&papps_value, &accelerator_pedal_position);
+    uint32_t accelerator_pedal_position = GetAcceleratorPedalPosition(papps_value);
 
     // TODO (Issue #273): Transmit accelerator pedal position over CAN
 }
