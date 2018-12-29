@@ -34,10 +34,16 @@ static void SetAcceleratorPedalPosition(
     uint32_t *accelerator_pedal_position);
 
 /**
- * @brief  Read encoder counter values for PAPPS and SAPPS value and adjust
- *         them as appropriate
+ * @brief  Read PAPPS encoder counter value and adjust it as needed
+ * @return PAPPS value
  */
-static void GetAppsValues(uint32_t *papps_value, uint32_t *sapps_value);
+static uint32_t GetPappsValue(void);
+
+/**
+ * @brief  Read SAPPS encoder counter value and adjust it as needed
+ * @return SAPPS value
+ */
+static uint32_t GetSappsValue(void);
 
 /******************************************************************************
  * Private Function Definitions
@@ -70,28 +76,41 @@ static void SetAcceleratorPedalPosition(
     }
 }
 
-static void GetAppsValues(uint32_t *papps_value, uint32_t *sapps_value)
+static uint32_t GetPappsValue(void)
 {
-    // Get the APPS position values (Note: PAPPS and SAPPS are oriented in
-    // opposite orientation - when PAPPS timer (TIM2) is counting up, the SAPPS
-    // timer (TIM3) is counting down. As a result, we need to adjust the SAPPS
-    // timer count by subtracing it from the max count.)
-    *papps_value = __HAL_TIM_GET_COUNTER(&htim2);
-    *sapps_value = ENCODER_MAX_COUNT - __HAL_TIM_GET_COUNTER(&htim3);
+    // Get the PAPPS position value
+    uint32_t papps_value = __HAL_TIM_GET_COUNTER(&htim2);
 
     // When the driver lets go of the pedal, it might deflect beyond the starting
     // position due to mechanical tolerance. This will cause the encoder value to
     // underflow. For example, when the driver lets go of the accelerator pedal,
     // the encoder may end up on tick (ENCODER_MAX_COUNT - 10) instead of tick 0
-    if (*papps_value > APPS_UNDERFLOW_THRESHOLD)
+    if (papps_value > APPS_UNDERFLOW_THRESHOLD)
     {
-        *papps_value = 0;
+        papps_value = 0;
     }
 
-    if (*sapps_value > APPS_UNDERFLOW_THRESHOLD)
+    return papps_value;
+}
+
+static uint32_t GetSappsValue(void)
+{
+    // Get the APPS position values (Note: PAPPS and SAPPS are oriented in
+    // opposite orientation - when PAPPS timer (TIM2) is counting up, the SAPPS
+    // timer (TIM3) is counting down. As a result, we need to adjust the SAPPS
+    // timer count by subtracing it from the max count.)
+    uint32_t sapps_value = ENCODER_MAX_COUNT - __HAL_TIM_GET_COUNTER(&htim3);
+
+    // When the driver lets go of the pedal, it might deflect beyond the starting
+    // position due to mechanical tolerance. This will cause the encoder value to
+    // underflow. For example, when the driver lets go of the accelerator pedal,
+    // the encoder may end up on tick (ENCODER_MAX_COUNT - 10) instead of tick 0
+    if (sapps_value > APPS_UNDERFLOW_THRESHOLD)
     {
-        *sapps_value = 0;
+        sapps_value = 0;
     }
+
+    return sapps_value;
 }
 
 /******************************************************************************
@@ -99,10 +118,9 @@ static void GetAppsValues(uint32_t *papps_value, uint32_t *sapps_value)
  ******************************************************************************/
 void Apps_HandleAcceleratorPedalPosition(void)
 {
-    uint32_t papps_value;
-    uint32_t sapps_value;
+    uint32_t papps_value = GetPappsValue();
+    uint32_t sapps_value = GetSappsValue();
 
-    GetAppsValues(&papps_value, &sapps_value);
 
     uint32_t accelerator_pedal_position;
 
