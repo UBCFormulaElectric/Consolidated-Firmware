@@ -140,9 +140,6 @@
  */
 
 /** TODO (Issue #223): Update this to use Cube USER Constants */
-/** @brief ADC sampling frequency - 72MHz/14400 (TIM2 prescaler value) = 5000*/
-#define ADC_TRIGGER_FREQUENCY  (float32_t)(72000000.0f / 14400.0f)
-
 /** @brief Sampling time interval */
 #define IIR_LPF_SAMPLING_PERIOD    (float32_t)(1.0f / ADC_TRIGGER_FREQUENCY)
 

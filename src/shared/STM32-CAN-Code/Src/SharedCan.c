@@ -379,7 +379,7 @@ void SharedCan_BroadcastHeartbeat(void)
 void SharedCan_BroadcastPcbErrors(Error_Enum errors)
 {
     // Error message is one-hot encoded according to Error_enum and thus
-    // requires bit shifting
+    // requires bit shifting (Read more: https://en.wikipedia.org/wiki/One-hot)
     uint32_t data = 1U << errors;
     SharedCan_TransmitDataCan(PCB_ERROR_STDID, PCB_ERROR_DLC, (uint8_t *)&data);
 }
