@@ -26,23 +26,23 @@
 /**
  * @brief Main control loop
  */
-static void prvControlLoop(void);
+static void ControlLoop(void);
 
 /**
  * @brief Handle sensor data acquisition and tranmission for accelearator pedal
  *        position, steering angle, and wheel speeds.
  */
-static void prvHandleSensorData(void);
+static void HandleSensorData(void);
 
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
-static void prvControlLoop(void)
+static void ControlLoop(void)
 {
-    prvHandleSensorData();
+    HandleSensorData();
 }
 
-static void prvHandleSensorData(void)
+static void HandleSensorData(void)
 {
     Apps_HandleAcceleratorPedalPosition();
 }
@@ -54,7 +54,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim->Instance == TIM14)
     {
-        prvControlLoop();
+        ControlLoop();
     }
 }
 

@@ -29,7 +29,7 @@
  *         position value and brake pedal status
  * @return The accelerator pedal position
  */
-static uint32_t prvSetAcceleratorPedalPosition(
+static uint32_t SetAcceleratorPedalPosition(
     uint32_t *papps_value,
     uint32_t *accelerator_pedal_position);
 
@@ -37,12 +37,12 @@ static uint32_t prvSetAcceleratorPedalPosition(
  * @brief  Read encoder counter values for PAPPS and SAPPS value and adjust
  *         them as appropriate
  */
-static void prvGetAppsValues(uint32_t *papps_value, uint32_t *sapps_value);
+static void GetAppsValues(uint32_t *papps_value, uint32_t *sapps_value);
 
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
-static uint32_t prvSetAcceleratorPedalPosition(
+static uint32_t SetAcceleratorPedalPosition(
     uint32_t *papps_value,
     uint32_t *accelerator_pedal_position)
 {
@@ -70,7 +70,7 @@ static uint32_t prvSetAcceleratorPedalPosition(
     }
 }
 
-static void prvGetAppsValues(uint32_t *papps_value, uint32_t *sapps_value)
+static void GetAppsValues(uint32_t *papps_value, uint32_t *sapps_value)
 {
     // Get the APPS position values (Note: PAPPS and SAPPS are oriented in
     // opposite orientation - when PAPPS timer (TIM2) is counting up, the SAPPS
@@ -102,11 +102,11 @@ void Apps_HandleAcceleratorPedalPosition(void)
     uint32_t papps_value;
     uint32_t sapps_value;
 
-    prvGetAppsValues(&papps_value, &sapps_value);
+    GetAppsValues(&papps_value, &sapps_value);
 
     uint32_t accelerator_pedal_position;
 
-    prvSetAcceleratorPedalPosition(&papps_value, &accelerator_pedal_position);
+    SetAcceleratorPedalPosition(&papps_value, &accelerator_pedal_position);
 
     // TODO (Issue #273): Transmit accelerator pedal position over CAN
 }
