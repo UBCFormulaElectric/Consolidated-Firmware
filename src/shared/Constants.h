@@ -19,12 +19,12 @@
 #define MAX_16_BITS_VALUE (uint32_t)(65535)
 #define MAX_32_BITS_VALUE (uint32_t)(4294967295)
 
-/** 
- * @brief The pedal position is normalized to a maximum value that is 
+/**
+ * @brief The pedal position is normalized to a maximum value that is
  *        more-or-less arbitrary and can be adjusted according to the driver's
  *        preference
  */
-#define ACCELERATOR_PEDAL_POSITION_MAX_TORQUE MAX_10_BITS_VALUE
+#define ACCELERATOR_PEDAL_POSITION_MAX_TORQUE 1000
 
 // clang-format on
 
