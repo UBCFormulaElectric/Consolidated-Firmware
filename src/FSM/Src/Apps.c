@@ -29,7 +29,7 @@
  *         position value and brake pedal status
  * @return The accelerator pedal position
  */
-static uint32_t SetAcceleratorPedalPosition(
+static void SetAcceleratorPedalPosition(
     uint32_t *papps_value,
     uint32_t *accelerator_pedal_position);
 
@@ -42,7 +42,7 @@ static void GetAppsValues(uint32_t *papps_value, uint32_t *sapps_value);
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
-static uint32_t SetAcceleratorPedalPosition(
+static void SetAcceleratorPedalPosition(
     uint32_t *papps_value,
     uint32_t *accelerator_pedal_position)
 {
