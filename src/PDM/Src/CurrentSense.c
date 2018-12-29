@@ -57,6 +57,11 @@ void CurrentSense_LowPassFilterADCReadings(volatile uint32_t *adc_readings)
     uint8_t adc_index = NUM_ADC_CHANNELS;
     for (; adc_channel < final_index; adc_channel++)
     {
+        // The pseudo-code for this LPF implementation is as follows:
+        // y[i] = y[i-1] + SmoothingFactor * ( x[i] - y[i-1] ), where y = 
+        // filter output, x = input. That is, the change from one filter output
+        // to the next is proportional to the difference between the previous 
+        // output and the next input.
         filtered_adc_readings[adc_channel] =
             filtered_adc_readings[adc_channel] +
             (IIR_LPF_SMOOTHING_FACTOR *

@@ -64,7 +64,6 @@
 /* USER CODE BEGIN PV */
 // TODO (Issue #191): move extern to header file
 extern ADC_HandleTypeDef  hadc1;
-extern uint32_t           adc_readings[];
 extern IWDG_HandleTypeDef hiwdg;
 
 #ifndef DEBUG
