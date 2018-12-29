@@ -5,6 +5,7 @@
 #include "Gpio.h"
 #include "SharedGpio.h"
 #include "SharedCan.h"
+#include "SharedAdc.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -112,7 +113,7 @@ void FaultHandling_Handler(
                 can_error_msg =
                     (adc_channel << 16) +
                     (uint16_t)(
-                        converted_readings[adc_channel] * ADC_12_BIT_POINTS /
+                        converted_readings[adc_channel] * adc_max_value /
                         (VOLTAGE_TO_CURRENT[adc_channel] * VDDA_VOLTAGE));
                 SharedCan_BroadcastPcbErrors(EFUSE_FAULT);
             }

@@ -48,6 +48,7 @@
 #include "Gpio.h"
 #include "Adc.h"
 #include "SharedCan.h"
+#include "SharedAdc.h"
 #include "Timers.h"
 #include "CurrentSense.h"
 #include "arm_math.h"
@@ -143,9 +144,6 @@ int main(void)
     MX_IWDG_Init();
     MX_TIM17_Init();
     /* USER CODE BEGIN 2 */
-
-    // Start ADC
-    Adc_StartAdcInDmaMode();
 
     // Initialize Timers
     Timers_Init();
@@ -327,7 +325,7 @@ static void MX_ADC1_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN ADC1_Init 2 */
-
+    SharedAdc_StartAdcInDmaMode(&hadc1, &adc_readings[0], NUM_ADC_CHANNELS);
     /* USER CODE END ADC1_Init 2 */
 }
 

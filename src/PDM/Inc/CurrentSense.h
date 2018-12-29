@@ -37,10 +37,6 @@
  *         to power the vehicle's low voltage systems */
 #define GLV_VOLTAGE  (float32_t)(12.0f)
 
-/** Issue (#224): Maybe move this to shared folder? */
-/** @brief Bit resolution for a 12 bit ADC */
-#define ADC_12_BIT_POINTS (float32_t)(4095.0f)
-
 /** @} ADC */
 
 /** @defgroup PROFET2

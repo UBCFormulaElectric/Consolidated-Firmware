@@ -12,14 +12,12 @@
 #include "stm32f3xx_hal.h"
 #include "Can.h"
 #include "main.h"
+#include "SharedAdc.h"
 
 /******************************************************************************
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off
-
-/** @brief Number of microcontroller pins that are configured to be ADC inputs */
-#define NUM_ADC_CHANNELS 8
 
 /** @brief 12V Sense, VBAT Sense, and Flywire Sense */
 #define NUM_VOLTAGE_SENSE_PINS 3

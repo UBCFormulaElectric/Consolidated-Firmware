@@ -2,6 +2,7 @@
  * Includes
  ******************************************************************************/
 #include "CurrentSense.h"
+#include "SharedAdc.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -80,18 +81,18 @@ void CurrentSense_ConvertFilteredADCToCurrentValues(
     {
         converted_readings[adc_channel] = filtered_adc_readings[adc_channel] *
                                           VOLTAGE_TO_CURRENT[adc_channel] *
-                                          VDDA_VOLTAGE / ADC_12_BIT_POINTS;
+                                          VDDA_VOLTAGE / adc_max_value;
     }
-
+    
     converted_readings[_12V_SUPPLY] =
-        filtered_adc_readings[adc_channel] * GLV_VOLTAGE / ADC_12_BIT_POINTS;
+        filtered_adc_readings[adc_channel] * GLV_VOLTAGE / adc_max_value;
     adc_channel++;
 
     converted_readings[VBAT_SUPPLY] =
-        filtered_adc_readings[adc_channel] * VBAT_VOLTAGE / ADC_12_BIT_POINTS;
+        filtered_adc_readings[adc_channel] * VBAT_VOLTAGE / adc_max_value;
     adc_channel++;
 
     converted_readings[FLYWIRE] = filtered_adc_readings[adc_channel] *
                                   ADC1_IN10_TO_12V_ACC_RATIO * VDDA_VOLTAGE /
-                                  ADC_12_BIT_POINTS;
+                                  adc_max_value;
 }
