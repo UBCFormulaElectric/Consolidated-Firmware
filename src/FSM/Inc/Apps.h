@@ -61,4 +61,5 @@ extern TIM_HandleTypeDef htim3;
  *        to DCM over the CAN bus
  */
 void Apps_HandleAcceleratorPedalPosition(void);
+
 #endif /* APPS_H */
