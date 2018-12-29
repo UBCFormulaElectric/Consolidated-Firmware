@@ -253,9 +253,8 @@ void SharedCan_TransmitDataCan(
  *         module. After this, the node is active on the bus: it receive
  *         messages, and can send messages. This should be placed inside
  *         MX_CAN_Init() and in the USER CODE BLOCK after HAL_CAN_Init().
- * @return HAL_STATUS
  */
-HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan);
+void SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan);
 
 /**
  * @brief  Shared callback function for every receive FIFO (STM32F302x8's bxCAN
