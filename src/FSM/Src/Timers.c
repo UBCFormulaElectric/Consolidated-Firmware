@@ -29,7 +29,7 @@
 static void ControlLoop(void);
 
 /**
- * @brief Handle sensor data acquisition and tranmission for accelearator pedal
+ * @brief Handle sensor data acquisition and transmission for accelerator pedal
  *        position, steering angle, and wheel speeds.
  */
 static void HandleSensorData(void);
