@@ -47,7 +47,7 @@ extern "C"
     /* Exported constants
      * --------------------------------------------------------*/
 
-    /* ########################## Module Selection ########################## */
+    /* ########################## Module Selection ############################## */
     /**
      * @brief This is the list of modules to be used in the HAL driver
      */
@@ -137,9 +137,9 @@ extern "C"
  */
 #if !defined(LSI_VALUE)
 #define LSI_VALUE ((uint32_t)40000)
-#endif /* LSI_VALUE */ /*!< Value of the Internal Low Speed oscillator in Hz \
-                        The real value may vary depending on the variations  \
-                        in voltage and temperature.  */
+#endif /* LSI_VALUE */ //!< Value of the Internal Low Speed oscillator in Hz
+                       //   The real value may vary depending on the variations
+                       //   in voltage and temperature.
 /**
  * @brief External Low Speed oscillator (LSE) value.
  */
@@ -169,12 +169,12 @@ extern "C"
     ((uint32_t)8000000) /*!< Value of the External oscillator in Hz*/
 #endif                  /* EXTERNAL_CLOCK_VALUE */
 
-    /* Tip: To avoid modifying this file each time you need to use different
-       HSE,
-       ===  you can define the HSE value in your toolchain compiler
-       preprocessor. */
+    // Tip: To avoid modifying this file each time you need to use different
+    //   HSE,
+    //   ===  you can define the HSE value in your toolchain compiler
+    //   preprocessor.
 
-    /* ########################### System Configuration ##################### */
+    /* ########################### System Configuration ######################### */
     /**
      * @brief This is the HAL system configuration section
      */
@@ -187,14 +187,14 @@ extern "C"
 #define INSTRUCTION_CACHE_ENABLE 0
 #define DATA_CACHE_ENABLE 0
 
-    /* ########################## Assert Selection ########################## */
+    /* ########################## Assert Selection ############################## */
     /**
      * @brief Uncomment the line below to expanse the "assert_param" macro in
      * the HAL drivers code
      */
     /* #define USE_FULL_ASSERT    1U */
 
-    /* ################## SPI peripheral configuration ###################### */
+    /* ################## SPI peripheral configuration ########################## */
 
     /* CRC FEATURE: Use to activate CRC feature inside HAL SPI Driver
      * Activated: CRC code is present inside driver

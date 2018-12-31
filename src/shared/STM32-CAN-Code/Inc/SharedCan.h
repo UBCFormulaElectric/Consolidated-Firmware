@@ -7,8 +7,8 @@
 #define SHARED_CAN_H
 
 /******************************************************************************
-* Includes
-*******************************************************************************/
+ * Includes
+ ******************************************************************************/
 #include "CanDefinitions.h"
 
 // Check for STM32 microcontroller family
@@ -19,12 +19,13 @@
 // Used in FSM 2017 (Shared CAN Library doesn't yet support this)
 #include "stm32f0xx_hal.h"
 #else
-#error "No valid architecture selected - unable to determine what HAL library to use"
+#error \
+    "No valid architecture selected - unable to determine what HAL library to use"
 #endif
 
 /******************************************************************************
-* Preprocessor Constants
-*******************************************************************************/
+ * Preprocessor Constants
+ ******************************************************************************/
 // clang-format off
 #define CAN_PAYLOAD_BYTE_SIZE 8 // Maximum number of bytes in a CAN payload
 #define CAN_ExtID_NULL 0 // Set CAN Extended ID to 0 because we are not using it
@@ -37,6 +38,9 @@
     #define PCB_STARTUP_DLC             PDM_STARTUP_DLC
     #define PCB_HEARTBEAT_STDID         PDM_HEARTBEAT_STDID
     #define PCB_HEARTBEAT_DLC           PDM_HEARTBEAT_DLC
+    #define Error_Enum                  PdmError_Enum
+    #define PCB_ERROR_STDID             PDM_ERROR_STDID
+    #define PCB_ERROR_DLC               PDM_ERROR_DLC
 #elif FSM
     #define CAN_TX_FIFO_OVERFLOW_STDID  FSM_CAN_TX_FIFO_OVERFLOW_STDID
     #define CAN_TX_FIFO_OVERFLOW_DLC    FSM_CAN_TX_FIFO_OVERFLOW_DLC
@@ -44,6 +48,9 @@
     #define PCB_STARTUP_DLC             FSM_STARTUP_DLC
     #define PCB_HEARTBEAT_STDID         FSM_HEARTBEAT_STDID
     #define PCB_HEARTBEAT_DLC           FSM_HEARTBEAT_DLC
+    #define Error_Enum                  FsmError_Enum
+    #define PCB_ERROR_STDID             FSM_ERROR_STDID
+    #define PCB_ERROR_DLC               FSM_ERROR_DLC
 #elif BMS
     #define CAN_TX_FIFO_OVERFLOW_STDID  BMS_CAN_TX_FIFO_OVERFLOW_STDID
     #define CAN_TX_FIFO_OVERFLOW_DLC    BMS_CAN_TX_FIFO_OVERFLOW_DLC
@@ -51,6 +58,9 @@
     #define PCB_STARTUP_DLC             BMS_STARTUP_DLC
     #define PCB_HEARTBEAT_STDID         BMS_HEARTBEAT_STDID
     #define PCB_HEARTBEAT_DLC           BMS_HEARTBEAT_DLC
+    #define Error_Enum                  BmsError_Enum
+    #define PCB_ERROR_STDID             BMS_ERROR_STDID
+    #define PCB_ERROR_DLC               BMS_ERROR_DLC
 #elif DCM
     #define CAN_TX_FIFO_OVERFLOW_STDID  DCM_CAN_TX_FIFO_OVERFLOW_STDID
     #define CAN_TX_FIFO_OVERFLOW_DLC    DCM_CAN_TX_FIFO_OVERFLOW_DLC
@@ -58,13 +68,16 @@
     #define PCB_STARTUP_DLC             DCM_STARTUP_DLC
     #define PCB_HEARTBEAT_STDID         DCM_HEARTBEAT_STDID
     #define PCB_HEARTBEAT_DLC           DCM_HEARTBEAT_DLC
+    #define Error_Enum                  DcmError_Enum
+    #define PCB_ERROR_STDID             DCM_ERROR_STDID
+    #define PCB_ERROR_DLC               DCM_ERROR_DLC
 #else
     #error "No valid PCB name selected"
 #endif
 
 /******************************************************************************
-* Preprocessor Macros
-*******************************************************************************/
+ * Preprocessor Macros
+ ******************************************************************************/
 /**
  * @brief Used to initialize an element in mask_filters[]
  * @param id Can be MASKMODE_16BIT_ID_XXX, where XXX is the PCB name
@@ -171,8 +184,8 @@
 #define MASKMODE_16BIT_MASK_BAMOCAR_RX INIT_MASKMODE_16BIT_FiRx(0x7F0, 0x1, 0x1, 0x0)
 
 /******************************************************************************
-* Typedefs
-*******************************************************************************/
+ * Typedefs
+ ******************************************************************************/
 // clang-format on
 /** @brief Struct to help initialize CAN filters */
 const typedef struct
@@ -196,33 +209,33 @@ typedef struct
 {
     uint32_t std_id;
     uint32_t dlc;
-    uint8_t data[8];
+    uint8_t  data[8];
 } CanTxMsgQueueItem_Struct;
 
 /** @brief Combine HAL Rx CAN header with CAN payload */
 typedef struct
 {
     CAN_RxHeaderTypeDef rx_header;
-    uint8_t data[8];
+    uint8_t             data[8];
 } CanRxMsg_Struct;
 
 /** @brief Queue operation status code */
 typedef enum
 {
-    FIFO_SUCCESS = 0,
-    FIFO_IS_FULL = 1,
-    FIFO_IS_EMPTY = 2,
-    FIFO_ERROR = 3
+    FIFO_SUCCESS,
+    FIFO_IS_FULL,
+    FIFO_IS_EMPTY,
+    FIFO_ERROR
 } Fifo_Status_Enum;
 
 /******************************************************************************
-* Global Variables
-*******************************************************************************/
+ * Global Variables
+ ******************************************************************************/
 extern CAN_HandleTypeDef hcan;
 
 /******************************************************************************
-* Function Prototypes
-*******************************************************************************/
+ * Function Prototypes
+ ******************************************************************************/
 /**
  * @brief  Transmits a CAN message
  * @param  std_id Standard CAN ID
@@ -230,7 +243,10 @@ extern CAN_HandleTypeDef hcan;
  *         transmitted)
  * @param  data Pointer to an uint8_t array with 8 elements (64-bits in total).
  */
-void SharedCan_TransmitDataCan(CanStandardId_Enum std_id, CanDataLengthCode_Enum dlc, uint8_t *data);
+void SharedCan_TransmitDataCan(
+    CanStandardId_Enum     std_id,
+    CanDataLengthCode_Enum dlc,
+    uint8_t *              data);
 
 /**
  * @brief  Initialize CAN interrupts and CAN filters before starting the CAN
@@ -254,4 +270,12 @@ void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo);
  * @brief Broadcast heartbeat message for the current PCB
  */
 void SharedCan_BroadcastHeartbeat(void);
+
+/**
+ * @brief Send CAN message one-hot encoded for one or more errors
+ * @param Error_Enum One or more errors OR'd together (Note: This enum is
+ *        board-specific and depends on the PCB preprocessor symbol)
+ */
+void SharedCan_BroadcastPcbErrors(Error_Enum error);
+
 #endif /* SHARED_CAN_H */

@@ -21,111 +21,61 @@
 #ifndef DEBUG
 
 // Heartbeat Setup
-volatile uint16_t HeartbeatCount[Systems_Count] = {0};
-const int         HEARTBEAT_TICK_PERIOD         = 1000; // Period in ms
-const int         HEARTBEAT_BROADCAST_PERIOD    = 300;  // Period in ms
+volatile uint16_t HeartbeatCount[PCB_COUNT]  = { 0 };
+const int         HEARTBEAT_TICK_PERIOD      = 1000; // Period in ms
+const int         HEARTBEAT_BROADCAST_PERIOD = 300;  // Period in ms
 
 #endif
 
 /******************************************************************************
  * Private Function Prototypes
  ******************************************************************************/
-
+static void Can_HeartbeatCallback(uint8_t *data);
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
-
+static void Can_HeartbeatCallback(uint8_t *data)
+{
+    /* TODO (#Issue 204): Need bit mask for DLC = 4 */
+    Pcb_Enum pcb = data[0];
+    HeartbeatCount[pcb]++;
+}
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void TransmitCANError(
-    uint32_t Error_StandardID,
-    PCB_Enum Module,
-    uint8_t  ErrorNumber,
-    uint32_t ErrorData)
+void Can_BroadcastAirShutdownError(void)
 {
-    uint64_t Msg =
-        ((uint64_t)Module << 40) + ((uint64_t)ErrorNumber << 32) + ErrorData;
-    uint8_t Data[8];
+    // TODO (#Issue 217): Is it ok for payload to be empty?
+    uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = { 0 };
+    SharedCan_TransmitDataCan(
+        BMS_AIR_SHUTDOWN_ERROR_STDID, BMS_AIR_SHUTDOWN_ERROR_DLC, &data[0]);
+}
 
-    memcpy(Data, &Msg, sizeof(Msg));
-    // TODO (Issue #192): Change function to take in CAN_TxHeaderTypeDef instead
-    // of Error_StandardID
-    CAN_TxHeaderTypeDef TxErrorHeader;
+void Can_BroadcastMotorShutdownError(void)
+{
+    // TODO (#Issue 217): Is it ok for payload to be empty?
+    uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = { 0 };
+    SharedCan_TransmitDataCan(
+        SHARED_MOTOR_SHUTDOWN_ERROR_STDID, SHARED_MOTOR_SHUTDOWN_ERROR_DLC,
+        &data[0]);
+}
 
-    // TODO (Issue #192): Can be simplified
-    switch (Error_StandardID)
+void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
+{
+    CanRxMsg_Struct rx_msg;
+
+    HAL_CAN_GetRxMessage(hcan, rx_fifo, &rx_msg.rx_header, &rx_msg.data[0]);
+
+    switch (rx_msg.rx_header.StdId)
     {
-        case BMS_AIR_SHUTDOWN_ERROR:
-            TxErrorHeader = can_headers[BMS_AIR_SHUTDOWN_ERROR];
+/* Disable heartbeat callback in DEBUG mode because breakpoints will stop
+ * heartbeat broadcasting */
+#ifndef DEBUG
+        case PDM_HEARTBEAT_STDID:
+            Can_HeartbeatCallback(&rx_msg.data[0]);
             break;
-        case MOTOR_SHUTDOWN_ERROR:
-            TxErrorHeader = can_headers[MOTOR_SHUTDOWN_ERROR];
-            break;
-        case PDM_ERROR:
-            TxErrorHeader = can_headers[PDM_ERROR];
-            break;
+#endif
         default:
-            // Note: Default error had hard coded values, should be changed to a
-            // default header in future if needed
-            TxErrorHeader.StdId              = Error_StandardID;
-            TxErrorHeader.ExtId              = 0;
-            TxErrorHeader.IDE                = CAN_ID_STD;
-            TxErrorHeader.RTR                = CAN_RTR_DATA;
-            TxErrorHeader.DLC                = 4;
-            TxErrorHeader.TransmitGlobalTime = DISABLE;
             break;
-    }
-
-    // workaround until CANDatabase is updated with headers
-    // SharedCAN_TransmitDataCAN(&TxErrorHeader, Data);
-}
-
-void InitCAN(void)
-{
-    SharedCAN_InitializeHeaders();
-
-    // Enable CAN interrupts
-    HAL_CAN_ActivateNotification(
-        &hcan, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING |
-                   CAN_IT_RX_FIFO1_MSG_PENDING);
-
-    // Enable CAN module
-    HAL_CAN_Start(&hcan);
-}
-
-void CAN_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t RxFifo)
-{
-    CAN_RxHeaderTypeDef pHeader;
-    uint8_t             aData[CAN_PAYLOAD_SIZE];
-    HAL_CAN_GetRxMessage(hcan, RxFifo, &pHeader, aData);
-    /*
-        switch (pHeader->StdId) {
-    #ifndef DEBUG
-            case Heartbeat_StandardID:
-                // Process Heartbeat info here
-                Board = (Module_Name) aData[0];
-
-                // Case statement used in case data is outside of array bounds.
-                // Special cases / behaviour can also be handled here.
-                switch (Board) {
-                    case Battery_Management_System:
-                        HeartbeatCount[Battery_Management_System]++;
-                    default:
-                        // Log error
-                        break;
-                }
-                break;
-    #endif
-            default: break;
-        }
-        */
-}
-
-void CAN_TxCommonCallback(CAN_HandleTypeDef *hcan)
-{
-    if (SharedCAN_DequeueCanTxMessageFifo() == FIFO_ERROR)
-    {
-        SharedCAN_ClearCanTxMessageFifo();
     }
 }

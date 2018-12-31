@@ -114,7 +114,7 @@
 #if !defined(HSI48_VALUE)
 #define HSI48_VALUE \
     ((uint32_t)48000000) // !< Default value of the HSI48 Internal oscillator
-                         //   in Hz. This value can be provided and adapted by \
+                         //   in Hz. This value can be provided and adapted by
                          //   the user application.
 #endif                   /* HSI48_VALUE */
 /**
@@ -142,9 +142,9 @@
 */
 uint32_t SystemCoreClock = 8000000;
 
-const uint8_t AHBPrescTable[16] = {0, 0, 0, 0, 0, 0, 0, 0,
-                                   1, 2, 3, 4, 6, 7, 8, 9};
-const uint8_t APBPrescTable[8]  = {0, 0, 0, 0, 1, 2, 3, 4};
+const uint8_t AHBPrescTable[16] = { 0, 0, 0, 0, 0, 0, 0, 0,
+                                    1, 2, 3, 4, 6, 7, 8, 9 };
+const uint8_t APBPrescTable[8]  = { 0, 0, 0, 0, 1, 2, 3, 4 };
 
 /**
  * @}
@@ -309,8 +309,8 @@ void SystemCoreClockUpdate(void)
                  * HSI48/PREDIV * PLLMUL */
                 SystemCoreClock = (HSI48_VALUE / predivfactor) * pllmull;
             }
-#endif /* STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx || \
-          STM32F091xC || STM32F098xx */
+#endif // STM32F042x6 || STM32F048xx || STM32F072xB || STM32F078xx ||
+       // STM32F091xC || STM32F098xx
             else
             {
 #if defined(STM32F042x6) || defined(STM32F048xx) || defined(STM32F070x6) || \
@@ -324,9 +324,9 @@ void SystemCoreClockUpdate(void)
                 /* HSI used as PLL clock source : SystemCoreClock = HSI/2 *
                  * PLLMUL */
                 SystemCoreClock = (HSI_VALUE >> 1) * pllmull;
-#endif /* STM32F042x6 || STM32F048xx || STM32F070x6 ||                \
-          STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB || \
-          STM32F091xC || STM32F098xx || STM32F030xC */
+#endif // STM32F042x6 || STM32F048xx || STM32F070x6 ||
+       // STM32F071xB || STM32F072xB || STM32F078xx || STM32F070xB ||
+       // STM32F091xC || STM32F098xx || STM32F030xC
             }
             break;
         default: /* HSI used as system clock */
