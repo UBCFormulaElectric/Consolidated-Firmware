@@ -2,6 +2,7 @@
  * Includes
  ******************************************************************************/
 #include "SharedFilters.h"
+#include "arm_math.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -30,7 +31,7 @@
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedFilter_LowPassFilter(uint32_t *input, uint32_t *output, uint32_t sampling_time, uint32_t rc)
+void SharedFilter_LowPassFilter(float32_t *input, float32_t *output, uint32_t sampling_time, uint32_t rc)
 {
     // TODO: Add assert to check for input and output size are equal
 

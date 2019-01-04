@@ -37,6 +37,6 @@
  * @param sampling_time Sampling time interval for input and output samples
  * @param rc RC time constant
  */
-void SharedFilter_LowPassFilter(uint32_t *input, uint32_t *output, uint32_t sampling_time, uint32_t rc);
+void SharedFilter_LowPassFilter(float32_t *input, float32_t *output, uint32_t sampling_time, uint32_t rc);
 
 #endif /* SHARED_FILTERS_H */
