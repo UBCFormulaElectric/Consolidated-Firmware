@@ -1,4 +1,3 @@
-
 /**
  * @file  SharedAdc.h
  * @brief Shared ADC library
@@ -26,7 +25,7 @@
  ******************************************************************************/
 // clang-format off
 // Number of microcontroller pins that are configured to be ADC inputs
-#ifdef PDM
+#ifdef PDM 
     #define NUM_ADC_CHANNELS 8
 #elif FSM
     // TODO: Correct this
