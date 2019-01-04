@@ -45,12 +45,20 @@
 #define SENSE_RESISTANCE (float32_t)(330.0f)
 
 /** @brief The typical current scaling factor is 5500, but we also manually
- *         calibrate the value at 5A trip current for AUX output */
+ *         calibrate the value at 5A trip current for AUX outputs */
 #define CURRENT_SCALING_AUX (float32_t)(6000.0f)
 
 /** @brief The typical current scaling factor is 5500, but we also manually
  *         calibrate the value at 5A trip current for non-AUX outputs */
 #define CURRENT_SCALING (float32_t)(7000.0f)
+
+/** @brief Multiple the ADC voltage reading by this (in 3.3V scale) to get
+ *         e-fuse current for AUX outputs */
+#define AMP_PER_VOLT_AUX (float32_t)(CURRENT_SCALING_AUX / SENSE_RESISTANCE)
+
+/** @brief Multiple the ADC voltage reading by this (in 3.3V scale) to get
+ *         e-fuse current for non-AUX outputs */
+#define AMP_PER_VOLT (float32_t)(CURRENT_SCALING / SENSE_RESISTANCE)
 
 /** @} PROFET2 */
 
@@ -161,6 +169,13 @@ typedef enum
     SENSE_1
 } SenseChannel_Enum;
 
+typedef struct
+{
+    GPIO_PinPort_Struct pin_mapping;
+    float32_t current;
+    float32_t ampere_per_volt;
+} efuse_struct;
+
 /******************************************************************************
  * Global Variables
  ******************************************************************************/
@@ -174,7 +189,7 @@ static const uint8_t MAX_FAULTS[NUM_ADC_CHANNELS * NUM_CHANNELS_PER_PROFET2] = {
     3, 10, 3, 10, 3, 3, 3, 1, 3, 3, 3, 10, 3, 3, 3, 1
 };
 
-extern float32_t efuse_currents[NUM_EFUSES];
+extern efuse_struct efuses[NUM_EFUSE];
 
 /******************************************************************************
  * Function Prototypes

@@ -15,6 +15,14 @@
 /******************************************************************************
  * Module Preprocessor Macros
  ******************************************************************************/
+#define INIT_EFUSE(index, \
+                   efuse_pin, \
+                   efuse_port, \
+                   efuse_ampere_per_volt) \
+        [index].pin_mapping.pin = efuse_pin, \
+        [index].pin_mapping.port = efuse_port, \
+        [index].current = 0, \
+        [index].ampere_per_volt = efuse_ampere_per_volt,
 
 /******************************************************************************
  * Module Typedefs
@@ -25,25 +33,20 @@
  ******************************************************************************/
 // Internal variable to keep track of which SENSE output is currently selected
 volatile SenseChannel_Enum sense_channel = SENSE_0;
-float32_t efuse_currents[NUM_EFUSES];
 
-// TODO (Issue #191): Perhaps VOLTAGE_TO_CURRENT and MAX_FAULTS can be combined
-// into a struct?
-// TODO (Issue #191): Can this not be a static const? Or can it be in .c file
-// instead at least
-static const float32_t VOLTAGE_TO_CURRENT[NUM_EFUSES] = {
-    CURRENT_SCALING_AUX / SENSE_RESISTANCE,
-    CURRENT_SCALING / SENSE_RESISTANCE,
-    CURRENT_SCALING / SENSE_RESISTANCE,
-    CURRENT_SCALING / SENSE_RESISTANCE,
-    CURRENT_SCALING / SENSE_RESISTANCE,
-    CURRENT_SCALING_AUX / SENSE_RESISTANCE,
-    CURRENT_SCALING / SENSE_RESISTANCE,
-    CURRENT_SCALING / SENSE_RESISTANCE,
-    CURRENT_SCALING / SENSE_RESISTANCE,
-    CURRENT_SCALING / SENSE_RESISTANCE
+efuse_struct efuses[NUM_EFUSE] =
+{
+    INIT_EFUSE(AUXILIARY_1, EFUSE_AUX_1_IN_Pin, EFUSE_AUX_1_IN_GPIO_Port, AMP_PER_VOLT_AUX)
+    INIT_EFUSE(COOLING, EFUSE_COOLING_IN_Pin, EFUSE_COOLING_IN_GPIO_Port, AMP_PER_VOLT)
+    INIT_EFUSE(AIR_SHDN, EFUSE_AIR_SHDN_IN_Pin, EFUSE_AIR_SHDN_IN_GPIO_Port, AMP_PER_VOLT)
+    INIT_EFUSE(ACC_SEGMENT_FAN, EFUSE_ACC_SEG_FAN_IN_Pin, EFUSE_ACC_SEG_FAN_IN_GPIO_Port, AMP_PER_VOLT)
+    INIT_EFUSE(LEFT_INVERTER, EFUSE_LEFT_INVERTER_IN_Pin, EFUSE_LEFT_INVERTER_IN_GPIO_Port, AMP_PER_VOLT)
+    INIT_EFUSE(AUXILIARY_2, EFUSE_AUX_2_IN_Pin, EFUSE_AUX_2_IN_GPIO_Port, AMP_PER_VOLT_AUX)
+    INIT_EFUSE(PDM_FAN, EFUSE_PDM_FAN_IN_Pin, EFUSE_PDM_FAN_IN_GPIO_Port, AMP_PER_VOLT)
+    INIT_EFUSE(CAN_GLV, EFUSE_CAN_IN_Pin, EFUSE_CAN_IN_GPIO_Port, AMP_PER_VOLT)
+    INIT_EFUSE(ACC_ENCLOSURE_FAN, EFUSE_ACC_ENC_FAN_IN_Pin, EFUSE_ACC_ENC_FAN_IN_GPIO_Port, AMP_PER_VOLT)
+    INIT_EFUSE(RIGHT_INVERTER, EFUSE_RIGHT_INVERTER_IN_Pin, EFUSE_RIGHT_INVERTER_IN_GPIO_Port, AMP_PER_VOLT)
 };
-
 /******************************************************************************
  * Private Function Prototypes
  ******************************************************************************/
@@ -73,11 +76,11 @@ void CurrentSense_ConvertCurrentAdcReadings(void)
                   i++, j++)
     {
         // Convert ADC readings to current values
-        float32_t temp_current = adc_readings[j] * VOLTAGE_TO_CURRENT[i] * VDDA_VOLTAGE / adc_max_value;
+        float32_t temp_current = adc_readings[j] * efuses[i].ampere_per_volt * VDDA_VOLTAGE / adc_max_value;
 
         // Apply low pass filter to current values
         SharedFilter_LowPassFilter(&temp_current,
-                                   &efuse_currents[i],
+                                   &efuses[i].current,
                                    IIR_LPF_SAMPLING_PERIOD,
                                    IIR_LPF_RC);
     }
