@@ -22,39 +22,18 @@
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
-volatile uint8_t num_faults[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = { 0 };
+volatile uint8_t num_faults[NUM_UNIQUE_ADC_READINGS] = { 0 };
 
 /******************************************************************************
  * Private Function Prototypes
  ******************************************************************************/
-/**
- * @brief  Helper function to turn e-fuse on or off
- * @param  index Index of e-fuse
- * @param  state Turn e-fuse on or off
- */
-static void FaultHandling_ConfigureEfuseOnOff(
-    uint8_t                  index,
-    EfuseOnOff_GPIO_PinState state);
+
 
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
-static void FaultHandling_ConfigureEfuseOnOff(
-    uint8_t                  index,
-    EfuseOnOff_GPIO_PinState state)
-{
-    if (index < NUM_ADC_CHANNELS)
-    {
-        SharedGpio_GPIO_WritePin(
-            PROFET2_IN0.port[index], PROFET2_IN0.pin[index], state);
-    }
-    else
-    {
-        index = index - NUM_ADC_CHANNELS; // adjust index for pinout array
-        SharedGpio_GPIO_WritePin(
-            PROFET2_IN1.port[index], PROFET2_IN1.pin[index], state);
-    }
-}
+
+
 
 /******************************************************************************
  * Function Definitions
@@ -63,6 +42,8 @@ void FaultHandling_Handler(
     volatile uint8_t *  fault_states,
     volatile float32_t *converted_readings)
 {
+    // TODO: Fix this after currentsense and voltage sense are solid
+    /*
     uint64_t can_error_msg;
 
     for (ADC_Index_Enum adc_channel = 0; adc_channel < NUM_UNIQUE_ADC_READINGS;
@@ -145,10 +126,13 @@ void FaultHandling_Handler(
     {
         GPIO_ConfigurePowerUp(fault_states);
     }
+    */
 }
 
 void FaultHandling_RetryEFuse(volatile uint8_t *fault_states)
 {
+    // TODO: Fix this after currentsense and voltage sense are solid
+    /*
     for (uint8_t adc_channel = 0; adc_channel < NUM_UNIQUE_ADC_READINGS;
          adc_channel++)
     {
@@ -166,4 +150,5 @@ void FaultHandling_RetryEFuse(volatile uint8_t *fault_states)
             FaultHandling_ConfigureEfuseOnOff(adc_channel, EFUSE_OFF);
         }
     }
+    */
 }

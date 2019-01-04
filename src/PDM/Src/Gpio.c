@@ -23,6 +23,20 @@
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
+// The index can be any value of EfuseCurrentIndex_Enum;
+const GPIO_PinPort_Struct efuse_pin_mapping[NUM_EFUSES] = 
+{
+    INIT_EFUSE(AUXILIARY_1, EFUSE_AUX_1_IN_Pin, EFUSE_AUX_1_IN_GPIO_Port)
+    INIT_EFUSE(COOLING, EFUSE_COOLING_IN_Pin, EFUSE_COOLING_IN_GPIO_Port)
+    INIT_EFUSE(AIR_SHDN, EFUSE_AIR_SHDN_IN_Pin, EFUSE_AIR_SHDN_IN_GPIO_Port)
+    INIT_EFUSE(ACC_SEGMENT_FAN, EFUSE_ACC_SEG_FAN_IN_Pin, EFUSE_ACC_SEG_FAN_IN_GPIO_Port)
+    INIT_EFUSE(LEFT_INVERTER, EFUSE_LEFT_INVERTER_IN_Pin, EFUSE_LEFT_INVERTER_IN_GPIO_Port)
+    INIT_EFUSE(AUXILIARY_2, EFUSE_AUX_2_IN_Pin, EFUSE_AUX_2_IN_GPIO_Port)
+    INIT_EFUSE(PDM_FAN, EFUSE_PDM_FAN_IN_Pin, EFUSE_PDM_FAN_IN_GPIO_Port)
+    INIT_EFUSE(CAN_GLV, EFUSE_CAN_IN_Pin, EFUSE_CAN_IN_GPIO_Port)
+    INIT_EFUSE(ACC_ENCLOSURE_FAN, EFUSE_ACC_ENC_FAN_IN_Pin, EFUSE_ACC_ENC_FAN_IN_GPIO_Port)
+    INIT_EFUSE(RIGHT_INVERTER, EFUSE_RIGHT_INVERTER_IN_Pin, EFUSE_RIGHT_INVERTER_IN_GPIO_Port)
+}
 
 /******************************************************************************
  * Private Function Prototypes
@@ -307,6 +321,16 @@ void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states)
         EFUSE_RIGHT_INVERTER_IN_GPIO_Port, EFUSE_RIGHT_INVERTER_IN_Pin,
         GPIO_PIN_RESET);
 }
+
+void Gpio_ConfigureEfuseOnOff(
+    EfuseCurrentIndex_Enum   index,
+    EfuseOnOff_GPIO_PinState state)
+{
+    SharedGpio_GPIO_WritePin(efuse_pin_mapping[index].pin,
+                             efuse_pin_mapping[index].port,
+                             state);
+};
+
 void HAL_GPIO_EXTI_Callback(uint16_t gpio_pin)
 {
     switch (gpio_pin)

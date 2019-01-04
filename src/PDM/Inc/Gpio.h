@@ -13,6 +13,7 @@
 #include "Can.h"
 #include "main.h"
 #include "SharedAdc.h"
+#include "SharedGpio.h"
 
 /******************************************************************************
  * Preprocessor Constants
@@ -24,11 +25,11 @@
 /** @brief Number of PROFET 2's */
 #define NUM_PROFET2S NUM_ADC_CHANNELS - NUM_VOLTAGE_SENSE_PINS
 
-/** @brief PROFET 2 is a dual-channel IC containing two separate e-fuses */
-#define NUM_EFUSES_PER_PROFET2 2
+/** @brief PROFET 2 is a dual-channel IC */
+#define NUM_CHANNELS_PER_PROFET2 2
 
 /** @brief Number of e-fuses */
-#define NUM_EFUSES NUM_PROFET2S * NUM_EFUSES_PER_PROFET2
+#define NUM_EFUSES NUM_PROFET2S * NUM_CHANNELS_PER_PROFET2
 
 /**
  * @brief We have 8 ADC channels enabled, but 5 of those are connected to
@@ -47,6 +48,17 @@
 // Boost Converter
 #define BOOST_PGOOD_FAULT_STATE 								GPIO_PIN_RESET // Low = fault, high = no fault
 
+#define INIT_EFUSE(index, pin, port) = { [index].pin = pin, [index].port = port},
+
+/******************************************************************************
+* Preprocessor Macros
+*******************************************************************************/
+
+/******************************************************************************
+* Typedefs
+*******************************************************************************/
+// clang-format on
+
 typedef enum
 {
     DSEL_LOW = GPIO_PIN_RESET,
@@ -58,15 +70,6 @@ typedef enum
     SENSE_0,
     SENSE_1
 } SenseChannel_Enum;
-
-/******************************************************************************
-* Preprocessor Macros
-*******************************************************************************/
-
-/******************************************************************************
-* Typedefs
-*******************************************************************************/
-// clang-format on
 
 /** Efuse State */
 typedef enum
@@ -80,35 +83,16 @@ typedef enum
     ERROR_STATE
 } Efuse_State_Enum;
 
-
-/** TODO (Issue #191): What is this struct for */
-typedef struct
+typedef enum
 {
-    uint16_t      pin[NUM_PROFET2S];
-    GPIO_TypeDef *port[NUM_PROFET2S];
-} GPIO_PinPort_Struct;
+    EFUSE_ON  = GPIO_PIN_SET,
+    EFUSE_OFF = !EFUSE_ON
+} EfuseOnOff_GPIO_PinState;
 
 /******************************************************************************
  * Global Variables
  ******************************************************************************/
-// E-fuse output pin mapping
-// TODO (Issue #191): The index can be a value of @ ...
-static const GPIO_PinPort_Struct PROFET2_IN0 = {
-    { EFUSE_AUX_1_IN_Pin, EFUSE_COOLING_IN_Pin, EFUSE_AIR_SHDN_IN_Pin,
-      EFUSE_ACC_SEG_FAN_IN_Pin, EFUSE_LEFT_INVERTER_IN_Pin },
-    { EFUSE_AUX_1_IN_GPIO_Port, EFUSE_COOLING_IN_GPIO_Port,
-      EFUSE_AIR_SHDN_IN_GPIO_Port, EFUSE_ACC_SEG_FAN_IN_GPIO_Port,
-      EFUSE_LEFT_INVERTER_IN_GPIO_Port }
-};
-
-// TODO (Issue #191): The index can be a value of @ ...
-static const GPIO_PinPort_Struct PROFET2_IN1 = {
-    { EFUSE_AUX_2_IN_Pin, EFUSE_PDM_FAN_IN_Pin, EFUSE_CAN_IN_Pin,
-      EFUSE_ACC_ENC_FAN_IN_Pin, EFUSE_RIGHT_INVERTER_IN_Pin },
-    { EFUSE_AUX_2_IN_GPIO_Port, EFUSE_PDM_FAN_IN_GPIO_Port,
-      EFUSE_CAN_IN_GPIO_Port, EFUSE_ACC_ENC_FAN_IN_GPIO_Port,
-      EFUSE_RIGHT_INVERTER_IN_GPIO_Port }
-};
+extern const GPIO_PinPort_Struct efuse_pin_mapping[NUM_EFUSES];
 
 /******************************************************************************
  * Function Prototypes
@@ -136,6 +120,13 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states);
  */
 void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states);
 
-
+/**
+ * @brief  Helper function to turn e-fuse on or off
+ * @param  index Index of e-fuse
+ * @param  state Turn e-fuse on or off
+ */
+void Gpio_ConfigureEfuseOnOff(
+    EfuseCurrentIndex_Enum   index,
+    EfuseOnOff_GPIO_PinState state);
 
 #endif /* GPIO_H */

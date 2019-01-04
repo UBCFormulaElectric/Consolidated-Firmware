@@ -33,6 +33,11 @@
  * Typedefs
  ******************************************************************************/
 // clang-format on
+typedef struct
+{
+    uint16_t      pin;
+    GPIO_TypeDef *port;
+} GPIO_PinPort_Struct;
 
 /******************************************************************************
  * Global Variables
