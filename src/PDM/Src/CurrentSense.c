@@ -16,9 +16,7 @@
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
-extern volatile GPIO_PinState dsel_state;
-static float32_t
-    filtered_adc_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = { 0 };
+volatile SenseChannel_Enum sense_channel = SENSE_0;
 
 /******************************************************************************
  * Private Function Prototypes
@@ -36,7 +34,7 @@ static uint8_t CurrentSense_DSELShiftIndex(void);
  ******************************************************************************/
 static uint8_t CurrentSense_DSELShiftIndex(void)
 {
-    if (dsel_state == DSEL_LOW)
+    if (CurrentSense_GetCurrentSenseChannel() == SENSE_0)
     {
         return 0;
     }
@@ -96,4 +94,41 @@ void CurrentSense_ConvertFilteredADCToCurrentValues(
     converted_readings[FLYWIRE] = filtered_adc_readings[adc_channel] *
                                   ADC1_IN10_TO_12V_ACC_RATIO * VDDA_VOLTAGE /
                                   adc_max_value;
+}
+SenseChannel_Enum CurrentSense_GetCurrentSenseChannel(void)
+{
+    return sense_channel;
+}
+
+void CurrentSense_SelectCurrentSenseChannel(SenseChannel_Enum channel)
+{
+    DselState_Enum dsel_value;
+
+    // This is the diagnostic truth table for BTS7008-2EPA:
+    // 
+    // DEN  | DSEL           | IS
+    // =====|================|================
+    // low  | not relevant   | Z
+    // high | low            | SENSE output 0 
+    // high | high           | SENSE output 1
+
+    if (channel == SENSE_0)
+    {
+        dsel_value = DSEL_LOW;
+    }
+    else
+    {
+        dsel_value = DSEL_HIGH;
+    }
+
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DSEL_1_GPIO_Port, EFUSE_DSEL_1_Pin, dsel_value);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DSEL_2_GPIO_Port, EFUSE_DSEL_2_Pin, dsel_value);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DSEL_3_GPIO_Port, EFUSE_DSEL_3_Pin, dsel_value);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DSEL_4_GPIO_Port, EFUSE_DSEL_4_Pin, dsel_value);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DSEL_5_GPIO_Port, EFUSE_DSEL_5_Pin, dsel_value);
 }

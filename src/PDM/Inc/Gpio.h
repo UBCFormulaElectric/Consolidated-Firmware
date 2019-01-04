@@ -47,9 +47,17 @@
 // Boost Converter
 #define BOOST_PGOOD_FAULT_STATE 								GPIO_PIN_RESET // Low = fault, high = no fault
 
-// DSEL State
-#define DSEL_LOW GPIO_PIN_RESET
-#define DSEL_HIGH GPIO_PIN_SET
+typedef enum
+{
+    DSEL_LOW = GPIO_PIN_RESET,
+    DSEL_HIGH = GPIO_PIN_SET
+} DselState_Enum;
+
+typedef enum
+{
+    SENSE_0,
+    SENSE_1
+} SenseChannel_Enum;
 
 /******************************************************************************
 * Preprocessor Macros
@@ -72,31 +80,6 @@ typedef enum
     ERROR_STATE
 } Efuse_State_Enum;
 
-/**
- * @brief ADC Readings Indexing, corresponding to: 0 to
- *        (NUM_UNIQUE_ADC_READINGS - 1)
- *        Index 0 - 4:  E-fuses selected when DSEL = DSEL_LOW
- *        Index 5 - 7:  Voltage sense reading
- *        Index 8 - 12: E-fuses selected when DSEL = DSEL_HIGH
- *        Note: Indices 13 - 15 would have also represented voltage sense
- *        readings, which would be redundant so they are ommited.
- */
-typedef enum
-{
-    AUXILIARY_1,
-    COOLING,
-    AIR_SHDN,
-    ACC_SEGMENT_FAN,
-    LEFT_INVERTER,
-    _12V_SUPPLY,
-    VBAT_SUPPLY,
-    FLYWIRE,
-    AUXILIARY_2,
-    PDM_FAN,
-    CAN_GLV,
-    ACC_ENCLOSURE_FAN,
-    RIGHT_INVERTER
-} ADC_Index_Enum;
 
 /** TODO (Issue #191): What is this struct for */
 typedef struct
@@ -108,8 +91,6 @@ typedef struct
 /******************************************************************************
  * Global Variables
  ******************************************************************************/
-extern volatile GPIO_PinState dsel_state;
-
 // E-fuse output pin mapping
 // TODO (Issue #191): The index can be a value of @ ...
 static const GPIO_PinPort_Struct PROFET2_IN0 = {
@@ -155,10 +136,6 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states);
  */
 void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states);
 
-/**
- *  @brief  Select E-Fuse output for current sense (DSEL toggle)
- *  @param  dsel_value value to set DSEL pin to (DSEL_HIGH or DSEL_LOW)
- */
-void GPIO_EFuseSelectDSEL(GPIO_PinState dsel_value);
+
 
 #endif /* GPIO_H */

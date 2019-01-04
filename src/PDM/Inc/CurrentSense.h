@@ -217,4 +217,15 @@ void CurrentSense_LowPassFilterADCReadings(volatile uint32_t *adc_readings);
 void CurrentSense_ConvertFilteredADCToCurrentValues(
     volatile float32_t *converted_readings);
 
+/**
+ * @brief Select SENSE output 0/1 for all PROFET2s
+ * @param dsel_value Value to set DSEL pin to.
+ *        This parameter can be a value of DselState_Enum.
+ */
+void CurrentSense_SelectCurrentSenseChannel(DselState_Enum dsel_value);
+
+/**
+ * @return Return the currently selected SENSE channel
+ */
+SenseChannel_Enum CurrentSense_GetCurrentSenseChannel(void);
 #endif /* CURRENT_SENSE_H */

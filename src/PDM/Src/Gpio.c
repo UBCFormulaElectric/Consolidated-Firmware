@@ -3,6 +3,8 @@
  ******************************************************************************/
 #include "Gpio.h"
 #include "stdbool.h"
+#include "CurrentSense.h"
+#include "VoltageSense.h"
 #include "SharedGpio.h"
 #include "SharedCan.h"
 
@@ -21,7 +23,6 @@
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
-volatile GPIO_PinState dsel_state = DSEL_LOW;
 
 /******************************************************************************
  * Private Function Prototypes
@@ -170,7 +171,7 @@ static void GPIO_CheckFaultsStartup(void)
 void GPIO_Init(void)
 {
     // Start DSELs at output 0
-    GPIO_EFuseSelectDSEL(DSEL_LOW);
+    CurrentSense_SelectCurrentSenseChannel(SENSE_0);
 
     // Check for faults on startup
     GPIO_CheckFaultsStartup();
@@ -306,21 +307,6 @@ void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states)
         EFUSE_RIGHT_INVERTER_IN_GPIO_Port, EFUSE_RIGHT_INVERTER_IN_Pin,
         GPIO_PIN_RESET);
 }
-
-void GPIO_EFuseSelectDSEL(GPIO_PinState dsel_value)
-{
-    SharedGpio_GPIO_WritePin(
-        EFUSE_DSEL_1_GPIO_Port, EFUSE_DSEL_1_Pin, dsel_value);
-    SharedGpio_GPIO_WritePin(
-        EFUSE_DSEL_2_GPIO_Port, EFUSE_DSEL_2_Pin, dsel_value);
-    SharedGpio_GPIO_WritePin(
-        EFUSE_DSEL_3_GPIO_Port, EFUSE_DSEL_3_Pin, dsel_value);
-    SharedGpio_GPIO_WritePin(
-        EFUSE_DSEL_4_GPIO_Port, EFUSE_DSEL_4_Pin, dsel_value);
-    SharedGpio_GPIO_WritePin(
-        EFUSE_DSEL_5_GPIO_Port, EFUSE_DSEL_5_Pin, dsel_value);
-}
-
 void HAL_GPIO_EXTI_Callback(uint16_t gpio_pin)
 {
     switch (gpio_pin)
