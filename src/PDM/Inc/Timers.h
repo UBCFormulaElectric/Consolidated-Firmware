@@ -33,9 +33,6 @@
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim17;
 
-extern volatile uint8_t
-    e_fuse_fault_states[NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER];
-
 /******************************************************************************
  * Function Prototypes
  ******************************************************************************/

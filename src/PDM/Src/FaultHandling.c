@@ -23,6 +23,8 @@
  * Module Variable Definitions
  ******************************************************************************/
 volatile uint8_t num_faults[NUM_UNIQUE_ADC_READINGS] = { 0 };
+volatile uint8_t e_fuse_fault_states
+    [NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER] = { NORMAL_STATE };
 
 /******************************************************************************
  * Private Function Prototypes
