@@ -22,6 +22,7 @@
  * Typedefs
  ******************************************************************************/
 // clang-format on
+// TODO: Replace NUM_VOLTAGE_SENSE_PINS with an enum member
 typedef enum
 {
     _12V_SUPPLY,
