@@ -45,7 +45,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 
     VoltageSense_ConvertVoltageReadings();
 
-    // Toggle the SENSE channel in between DMA tranfers to read both SENSE channbels
+    // Toggle the SENSE channel between DMA tranfers to read both SENSE channnels
     CurrentSense_ToggleCurrentSenseChannel();
 
     // Only handle faults after all e-fuses are checked
