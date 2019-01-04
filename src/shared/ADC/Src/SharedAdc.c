@@ -5,7 +5,7 @@
 #include "SharedAdc.h"
 #include "Constants.h"
 #include "main.h"
-#include "Adc.h"
+//#include "Adc.h"
 
 /******************************************************************************
  * Module Preprocessor Constants

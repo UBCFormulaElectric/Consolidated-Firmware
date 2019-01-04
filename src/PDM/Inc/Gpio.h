@@ -14,7 +14,7 @@
 #include "main.h"
 #include "SharedAdc.h"
 #include "SharedGpio.h"
-#include "CurrentSense.h"
+//#include "CurrentSense.h"
 
 /******************************************************************************
  * Preprocessor Constants
