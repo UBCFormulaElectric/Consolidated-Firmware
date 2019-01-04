@@ -30,11 +30,17 @@
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedFilter_LowPassFilter(uint32_t *input, uint32_t *output, uint32_t smoothing_factor)
+void SharedFilter_LowPassFilter(uint32_t *input, uint32_t *output, uint32_t sampling_time, uint32_t rc)
 {
+    // TODO: Add assert to check for input and output size are equal
+
+    uint32_t smoothing_factor;
+
+    smoothing_factor = sampling_time / (rc + sampling_time);
+
     // The pseudo-code for this LPF implementation is as follows:
     // y[i] = y[i-1] + SmoothingFactor * ( x[i] - y[i-1] ), where y = 
-    // filter output, x = input. That is, the change from one filter output
+    // output, x = input. That is, the change from one filter output
     // to the next is proportional to the difference between the previous 
     // output and the next input.
     for (uint32_t i = 0; i < sizeof(output) / sizeof(output[0]); i++)
