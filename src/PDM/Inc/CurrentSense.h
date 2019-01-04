@@ -163,6 +163,19 @@
 * Typedefs
 *******************************************************************************/
 // clang-format on
+typedef enum
+{
+    AUXILIARY_1,
+    COOLING,
+    AIR_SHDN,
+    ACC_SEGMENT_FAN,
+    LEFT_INVERTER,
+    AUXILIARY_2,
+    PDM_FAN,
+    CAN_GLV,
+    ACC_ENCLOSURE_FAN,
+    RIGHT_INVERTER,
+} EfuseCurrentIndex_Enum;
 
 /******************************************************************************
  * Global Variables
@@ -200,6 +213,7 @@ static const uint8_t MAX_FAULTS[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {
     3, 10, 3, 10, 3, 3, 3, 1, 3, 3, 3, 10, 3, 3, 3, 1
 };
 
+extern uint32_t efuse_currents[NUM_EFUSES];
 /******************************************************************************
  * Function Prototypes
  ******************************************************************************/
@@ -218,14 +232,23 @@ void CurrentSense_ConvertFilteredADCToCurrentValues(
     volatile float32_t *converted_readings);
 
 /**
- * @brief Select SENSE output 0/1 for all PROFET2s
- * @param dsel_value Value to set DSEL pin to.
- *        This parameter can be a value of DselState_Enum.
+ * @brief Save ADC readings for current sense from PROFET2 to memory
+ * @Note  If sense_channel = SENSE_0, we read current for AUXILIARY_1, COOLING,
+ *        AIR_SHDN, ACC_SEGMENT_FAN, and LEFT_INVERTER.
+ *        If sense_channel = SENSE_1, we read current for AUXILIARY_2, PDM_FAN,
+ *        CAN_GLV, ACC_ENCLOSURE_FAN, RIGHT_INVERTER
  */
-void CurrentSense_SelectCurrentSenseChannel(DselState_Enum dsel_value);
+void CurrentSense_SaveCurrentReadings(void);
+
+/**
+ * @brief Select SENSE output 0/1 for all PROFET2s
+ * @param channel SENSE output channel to select
+ */
+void CurrentSense_SelectCurrentSenseChannel(SenseChannel_Enum channel);
 
 /**
  * @return Return the currently selected SENSE channel
  */
 SenseChannel_Enum CurrentSense_GetCurrentSenseChannel(void);
+
 #endif /* CURRENT_SENSE_H */
