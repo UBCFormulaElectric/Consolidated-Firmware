@@ -86,7 +86,7 @@ TIM_HandleTypeDef htim17;
 volatile uint8_t       e_fuse_fault_states
     [NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER] = { NORMAL_STATE };
 volatile float32_t
-    converted_readings[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2];
+    converted_readings[NUM_ADC_CHANNELS * NUM_CHANNELS_PER_PROFET2];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

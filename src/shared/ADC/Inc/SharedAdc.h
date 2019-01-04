@@ -26,19 +26,22 @@
 // clang-format off
 // Number of microcontroller pins that are configured to be ADC inputs
 #ifdef PDM 
-    #define NUM_ADC_CHANNELS 8
+    #define NUM_ADC_CHANNELS (uint32_t)(8)
 #elif FSM
     // TODO: Correct this
-    #define NUM_ADC_CHANNELS 8
+    #define NUM_ADC_CHANNELS (uint32_t)(8)
 #elif BMS
     // TODO: Correct this
-    #define NUM_ADC_CHANNELS 8
+    #define NUM_ADC_CHANNELS (uint32_t)(8)
 #elif DCM
     // TODO: Correct this
-    #define NUM_ADC_CHANNELS 8
+    #define NUM_ADC_CHANNELS (uint32_t)(8)
 #else
     #error "No valid PCB name selected"
 #endif
+
+/** @brief Nominal voltage for VDDA, or ADC power supply */
+#define VDDA_VOLTAGE (float32_t)(3.3f)
 
 /******************************************************************************
  * Preprocessor Macros

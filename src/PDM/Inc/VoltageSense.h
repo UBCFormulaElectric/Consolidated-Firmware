@@ -38,6 +38,6 @@ typedef enum
 /******************************************************************************
  * Function Prototypes
  ******************************************************************************/
-void VoltageSense_SaveVoltageReadings(void);
+void VoltageSense_ConvertVoltageReadings(void);
 
 #endif /* VOLTAGE_SENSE_H */

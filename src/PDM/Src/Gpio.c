@@ -15,6 +15,9 @@
 /******************************************************************************
  * Module Preprocessor Macros
  ******************************************************************************/
+#define INIT_EFUSE(index, efuse_pin, efuse_port) \
+        [index].pin = efuse_pin, [index].port = efuse_port,
+#define INIT_DSEL(dsel_pin, dsel_port) {.pin = dsel_pin, .port = dsel_port},
 
 /******************************************************************************
  * Module Typedefs
@@ -23,7 +26,7 @@
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
-// The index can be any value of EfuseCurrentIndex_Enum;
+// The index can be any value of EfuseCurrentIndex_Enum
 const GPIO_PinPort_Struct efuse_pin_mapping[NUM_EFUSES] = 
 {
     INIT_EFUSE(AUXILIARY_1, EFUSE_AUX_1_IN_Pin, EFUSE_AUX_1_IN_GPIO_Port)
@@ -36,7 +39,16 @@ const GPIO_PinPort_Struct efuse_pin_mapping[NUM_EFUSES] =
     INIT_EFUSE(CAN_GLV, EFUSE_CAN_IN_Pin, EFUSE_CAN_IN_GPIO_Port)
     INIT_EFUSE(ACC_ENCLOSURE_FAN, EFUSE_ACC_ENC_FAN_IN_Pin, EFUSE_ACC_ENC_FAN_IN_GPIO_Port)
     INIT_EFUSE(RIGHT_INVERTER, EFUSE_RIGHT_INVERTER_IN_Pin, EFUSE_RIGHT_INVERTER_IN_GPIO_Port)
-}
+};
+
+const GPIO_PinPort_Struct dsel_pin_mapping[NUM_PROFET2S] =
+{
+    INIT_DSEL(EFUSE_DSEL_1_Pin, EFUSE_DSEL_1_GPIO_Port)
+    INIT_DSEL(EFUSE_DSEL_2_Pin, EFUSE_DSEL_2_GPIO_Port)
+    INIT_DSEL(EFUSE_DSEL_3_Pin, EFUSE_DSEL_3_GPIO_Port)
+    INIT_DSEL(EFUSE_DSEL_4_Pin, EFUSE_DSEL_4_GPIO_Port)
+    INIT_DSEL(EFUSE_DSEL_5_Pin, EFUSE_DSEL_5_GPIO_Port)
+};
 
 /******************************************************************************
  * Private Function Prototypes
@@ -322,14 +334,20 @@ void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states)
         GPIO_PIN_RESET);
 }
 
-void Gpio_ConfigureEfuseOnOff(
-    EfuseCurrentIndex_Enum   index,
-    EfuseOnOff_GPIO_PinState state)
+void Gpio_ConfigureSingleEfuse(EfuseCurrentIndex_Enum index, EfuseOnOff_GPIO_PinState state)
 {
-    SharedGpio_GPIO_WritePin(efuse_pin_mapping[index].pin,
-                             efuse_pin_mapping[index].port,
-                             state);
-};
+   SharedGpio_GPIO_WritePin(efuse_pin_mapping[index].port,
+                            efuse_pin_mapping[index].pin,
+                            state);
+}
+
+void Gpio_ConfigureAllDsels(DselState_Enum state)
+{
+    for (uint32_t i = 0; i < sizeof(dsel_pin_mapping) / sizeof(dsel_pin_mapping[0]); i++)
+    {
+        SharedGpio_GPIO_WritePin(dsel_pin_mapping[i].port, dsel_pin_mapping[i].pin, state);
+    }
+}
 
 void HAL_GPIO_EXTI_Callback(uint16_t gpio_pin)
 {

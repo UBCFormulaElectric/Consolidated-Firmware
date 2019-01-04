@@ -9,9 +9,9 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
-#include "Gpio.h"
 #include "stm32f3xx_hal.h"
 #include "arm_math.h"
+#include "Gpio.h"
 
 /******************************************************************************
  * Preprocessor Constants
@@ -25,8 +25,6 @@
  *  The constants related to converting ADC readings into useful voltage values
  *  @{
  */
-/** @brief Nominal voltage for VDDA, or ADC power supply */
-#define VDDA_VOLTAGE (float32_t)(3.3f)
 
 /** @brief The VBAT voltage when the corresponding ADC input saturates at 3.3V.
  *         VBAT refers to the two onboard Li-Ion 18650 batteries in series */
@@ -47,11 +45,11 @@
 #define SENSE_RESISTANCE (float32_t)(330.0f)
 
 /** @brief The typical current scaling factor is 5500, but we also manually
- *         calibrate the value at 5A trip curren for AUX output */
+ *         calibrate the value at 5A trip current for AUX output */
 #define CURRENT_SCALING_AUX (float32_t)(6000.0f)
 
 /** @brief The typical current scaling factor is 5500, but we also manually
- *         calibrate the value at 5A trip curren for non-AUX outputs */
+ *         calibrate the value at 5A trip current for non-AUX outputs */
 #define CURRENT_SCALING (float32_t)(7000.0f)
 
 /** @} PROFET2 */
@@ -147,12 +145,6 @@
 #define IIR_LPF_RC \
         (float32_t)(1.0f / \
                    (2.0f * PI * IIR_LPF_CUTOFF_FREQUENCY))
-
-/** @brief Smoothing Factor */
-#define IIR_LPF_SMOOTHING_FACTOR \
-        (float32_t)(IIR_LPF_SAMPLING_PERIOD / \
-                   (IIR_LPF_RC + IIR_LPF_SAMPLING_PERIOD))
-
 /** @} IIR_LPF */
 
 /******************************************************************************
@@ -165,80 +157,41 @@
 // clang-format on
 typedef enum
 {
-    AUXILIARY_1,
-    COOLING,
-    AIR_SHDN,
-    ACC_SEGMENT_FAN,
-    LEFT_INVERTER,
-    AUXILIARY_2,
-    PDM_FAN,
-    CAN_GLV,
-    ACC_ENCLOSURE_FAN,
-    RIGHT_INVERTER,
-} EfuseCurrentIndex_Enum;
+    SENSE_0,
+    SENSE_1
+} SenseChannel_Enum;
 
 /******************************************************************************
  * Global Variables
  ******************************************************************************/
 // clang-format on
-// TODO (Issue #191): Perhaps VOLTAGE_TO_CURRENT and MAX_FAULTS can be combined
-// into a struct?
-// TODO (Issue #191): Can this not be a static const? Or can it be in .c file
-// instead at least
-static const float32_t
-    VOLTAGE_TO_CURRENT[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {
-        CURRENT_SCALING_AUX / SENSE_RESISTANCE,
-        CURRENT_SCALING / SENSE_RESISTANCE,
-        CURRENT_SCALING / SENSE_RESISTANCE,
-        CURRENT_SCALING / SENSE_RESISTANCE,
-        CURRENT_SCALING / SENSE_RESISTANCE,
-        0,
-        0,
-        0,
-        CURRENT_SCALING_AUX / SENSE_RESISTANCE,
-        CURRENT_SCALING / SENSE_RESISTANCE,
-        CURRENT_SCALING / SENSE_RESISTANCE,
-        CURRENT_SCALING / SENSE_RESISTANCE,
-        CURRENT_SCALING / SENSE_RESISTANCE,
-        0,
-        0,
-        0
-    };
 // Index-based conversion for each e-fuse
 
 // TODO (Issue #191): Can this not be a static const? Or can it be in .c file
 // instead at least 3 retries for all outputs except FANS/COOLING which have 10
 // retries to account for inrush, and 1 retry for VICOR poweroff
-static const uint8_t MAX_FAULTS[NUM_ADC_CHANNELS * NUM_EFUSES_PER_PROFET2] = {
+static const uint8_t MAX_FAULTS[NUM_ADC_CHANNELS * NUM_CHANNELS_PER_PROFET2] = {
     3, 10, 3, 10, 3, 3, 3, 1, 3, 3, 3, 10, 3, 3, 3, 1
 };
 
-extern uint32_t efuse_currents[NUM_EFUSES];
+extern float32_t efuse_currents[NUM_EFUSES];
+
 /******************************************************************************
  * Function Prototypes
  ******************************************************************************/
 /**
- * @brief Low pass filters ADC readings with a cutoff frequency of
- *        IIR_LPF_CUTOFF_FREQUENCY
- * @param adc_readings Pointer to array containing the unfiltered ADC readings
- */
-void CurrentSense_LowPassFilterADCReadings(volatile uint32_t *adc_readings);
-
-/**
- * @brief Converts filtered ADC readings to currents or voltages
- * @param converted_readings Pointer to array containing converted ADC readings
- */
-void CurrentSense_ConvertFilteredADCToCurrentValues(
-    volatile float32_t *converted_readings);
-
-/**
- * @brief Save ADC readings for current sense from PROFET2 to memory
+ * @brief Convert ADC readings for current sense from PROFET2
  * @Note  If sense_channel = SENSE_0, we read current for AUXILIARY_1, COOLING,
  *        AIR_SHDN, ACC_SEGMENT_FAN, and LEFT_INVERTER.
  *        If sense_channel = SENSE_1, we read current for AUXILIARY_2, PDM_FAN,
  *        CAN_GLV, ACC_ENCLOSURE_FAN, RIGHT_INVERTER
  */
-void CurrentSense_SaveCurrentReadings(void);
+void CurrentSense_ConvertCurrentAdcReadings(void);
+
+/**
+ * @brief Toggle SENSE output for all PROFET2s
+ */
+void CurrentSense_ToggleCurrentSenseChannel(void);
 
 /**
  * @brief Select SENSE output 0/1 for all PROFET2s

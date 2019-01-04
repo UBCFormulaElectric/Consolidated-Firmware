@@ -5,6 +5,9 @@
 #include "Constants.h"
 #include "SharedAdc.h"
 #include "Gpio.h"
+#include "CurrentSense.h"
+#include "VoltageSense.h"
+#include "SharedFilters.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -35,21 +38,20 @@
  ******************************************************************************/
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    CurrentSense_LowPassFilterADCReadings(adc_readings);
-    CurrentSense_ConvertFilteredADCToCurrentValues(converted_readings);
+    // Note: This callback is used for "ADC conversion by interruption" as well 
+    //       as "ADC conversion with transfer by DMA"
 
-    // Check for overcurrent
-    // Change e-fuse DSELs after conversion of all sets
-    if (dsel_state == DSEL_LOW)
+    CurrentSense_ConvertCurrentAdcReadings();
+
+    VoltageSense_ConvertVoltageReadings();
+
+    // Toggle the SENSE channel in between DMA tranfers to read both SENSE channbels
+    CurrentSense_ToggleCurrentSenseChannel();
+
+    // Only handle faults after all e-fuses are checked
+    if (CurrentSense_GetCurrentSenseChannel() == SENSE_1)
     {
-        dsel_state = DSEL_HIGH;
-    }
-    else
-    {
-        // Only handle faults after all e-fuses are checked
         FaultHandling_Handler(e_fuse_fault_states, converted_readings);
-        dsel_state = DSEL_LOW;
     }
 
-    GPIO_EFuseSelectDSEL(dsel_state);
 }

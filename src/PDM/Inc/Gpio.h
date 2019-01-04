@@ -14,29 +14,30 @@
 #include "main.h"
 #include "SharedAdc.h"
 #include "SharedGpio.h"
+#include "CurrentSense.h"
 
 /******************************************************************************
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off
 /** @brief 12V Sense, VBAT Sense, and Flywire Sense */
-#define NUM_VOLTAGE_SENSE_PINS 3
+#define NUM_VOLTAGE_SENSE_PINS (uint32_t)(3)
 
 /** @brief Number of PROFET 2's */
-#define NUM_PROFET2S NUM_ADC_CHANNELS - NUM_VOLTAGE_SENSE_PINS
+#define NUM_PROFET2S (uint32_t)(NUM_ADC_CHANNELS - NUM_VOLTAGE_SENSE_PINS)
 
 /** @brief PROFET 2 is a dual-channel IC */
-#define NUM_CHANNELS_PER_PROFET2 2
+#define NUM_CHANNELS_PER_PROFET2 (uint32_t)(2)
 
 /** @brief Number of e-fuses */
-#define NUM_EFUSES NUM_PROFET2S * NUM_CHANNELS_PER_PROFET2
+#define NUM_EFUSES (uint32_t)(NUM_PROFET2S * NUM_CHANNELS_PER_PROFET2)
 
 /**
  * @brief We have 8 ADC channels enabled, but 5 of those are connected to
  *        PROFET 2's. Each PROFET 2 has two e-fuse channels, which means we
  *        are really getting two unique ADC readings per PROFET.
  */
-#define NUM_UNIQUE_ADC_READINGS NUM_EFUSES + NUM_VOLTAGE_SENSE_PINS
+#define NUM_UNIQUE_ADC_READINGS (uint32_t)(NUM_EFUSES + NUM_VOLTAGE_SENSE_PINS)
 
 // Pin definitions
 #define CHARGER_FAULT_STATE 									GPIO_PIN_RESET // Low = fault, high = no fault
@@ -47,8 +48,6 @@
 
 // Boost Converter
 #define BOOST_PGOOD_FAULT_STATE 								GPIO_PIN_RESET // Low = fault, high = no fault
-
-#define INIT_EFUSE(index, pin, port) = { [index].pin = pin, [index].port = port},
 
 /******************************************************************************
 * Preprocessor Macros
@@ -62,14 +61,8 @@
 typedef enum
 {
     DSEL_LOW = GPIO_PIN_RESET,
-    DSEL_HIGH = GPIO_PIN_SET
+    DSEL_HIGH = !DSEL_LOW
 } DselState_Enum;
-
-typedef enum
-{
-    SENSE_0,
-    SENSE_1
-} SenseChannel_Enum;
 
 /** Efuse State */
 typedef enum
@@ -89,10 +82,24 @@ typedef enum
     EFUSE_OFF = !EFUSE_ON
 } EfuseOnOff_GPIO_PinState;
 
+typedef enum
+{
+    AUXILIARY_1,
+    COOLING,
+    AIR_SHDN,
+    ACC_SEGMENT_FAN,
+    LEFT_INVERTER,
+    AUXILIARY_2,
+    PDM_FAN,
+    CAN_GLV,
+    ACC_ENCLOSURE_FAN,
+    RIGHT_INVERTER,
+} EfuseCurrentIndex_Enum;
+
 /******************************************************************************
  * Global Variables
  ******************************************************************************/
-extern const GPIO_PinPort_Struct efuse_pin_mapping[NUM_EFUSES];
+//extern const GPIO_PinPort_Struct efuse_pin_mapping[NUM_EFUSES];
 
 /******************************************************************************
  * Function Prototypes
@@ -125,8 +132,12 @@ void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states);
  * @param  index Index of e-fuse
  * @param  state Turn e-fuse on or off
  */
-void Gpio_ConfigureEfuseOnOff(
-    EfuseCurrentIndex_Enum   index,
-    EfuseOnOff_GPIO_PinState state);
+void Gpio_ConfigureSingleEfuse(EfuseCurrentIndex_Enum index, EfuseOnOff_GPIO_PinState state);
+
+/**
+ * @brief Helper function to turn all DSEL pins on or off
+ * @param state Turn DSEL pins on or off
+ */
+void Gpio_ConfigureAllDsels(DselState_Enum state);
 
 #endif /* GPIO_H */
