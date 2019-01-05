@@ -23,10 +23,10 @@
  * Module Variable Definitions
  ******************************************************************************/
 /** @brief The maximum ADC value depends on the selected ADC resolution */
-uint32_t adc_max_value;
+static uint32_t adc_max_value;
 
 /** @brief Array of raw ADC values */
-uint32_t adc_readings[NUM_ADC_CHANNELS] = { 0 };
+static uint32_t adc_readings[NUM_ADC_CHANNELS] = { 0 };
 
 /******************************************************************************
 * Private Function Prototypes
@@ -87,4 +87,14 @@ void SharedAdc_StartAdcInDmaMode(ADC_HandleTypeDef *hadc, uint32_t *data, uint32
 
 }
 
+// TODO:
+const uint32_t SharedAdc_GetAdcMaxValue(void)
+{
+    return (const uint32_t)adc_max_value;
+}
+
+const uint32_t *SharedAdc_GetAdcReadings(void)
+{
+    return (const uint32_t *)adc_readings;
+}
 // TODO: getter function for adc_readings[]

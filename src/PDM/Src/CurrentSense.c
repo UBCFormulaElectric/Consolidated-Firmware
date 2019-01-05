@@ -76,7 +76,8 @@ void CurrentSense_ConvertCurrentAdcReadings(void)
                   i++, j++)
     {
         // Convert ADC readings to current values
-        float32_t temp_current = adc_readings[j] * efuses[i].ampere_per_volt * VDDA_VOLTAGE / adc_max_value;
+        float32_t temp_current = adc_readings[j] * efuses[i].ampere_per_volt 
+                                 * VDDA_VOLTAGE / SharedAdc_GetAdcMaxValue();
 
         // Apply low pass filter to current values
         SharedFilter_LowPassFilter(&temp_current,

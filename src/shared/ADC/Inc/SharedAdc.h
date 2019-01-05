@@ -57,8 +57,6 @@
 /******************************************************************************
  * Global Variables
  ******************************************************************************/
-extern uint32_t adc_max_value;
-extern uint32_t adc_readings[NUM_ADC_CHANNELS];
 
 /******************************************************************************
  * Function Prototypes
@@ -71,5 +69,17 @@ extern uint32_t adc_readings[NUM_ADC_CHANNELS];
  * @param  length The length of data to be transferred from ADC peripheral to memory.
  */
 void SharedAdc_StartAdcInDmaMode(ADC_HandleTypeDef *hadc, uint32_t *data, uint32_t length);
+
+/**
+ * @brief  Get the appropriate maximum ADC value based on the ADC resolution
+ * @return Maximum ADC value in bits
+ */
+const uint32_t SharedAdc_GetAdcMaxValue(void);
+
+/**
+ * @brief  Get the array of ADC readings transferred over DMA request
+ * @return Pointer to the array of ADC readings
+ */
+const uint32_t *SharedAdc_GetAdcReadings(void);
 
 #endif /* SHARED_ADC_H */
