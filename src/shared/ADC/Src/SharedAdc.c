@@ -26,7 +26,7 @@
 uint32_t adc_max_value;
 
 /** @brief Array of raw ADC values */
-uint32_t adc_readings[NUM_ADC_CHANNELS];
+uint32_t adc_readings[NUM_ADC_CHANNELS] = { 0 };
 
 /******************************************************************************
 * Private Function Prototypes
@@ -69,6 +69,12 @@ static ErrorStatus InitializeAdcMaxValue(ADC_HandleTypeDef* hadc)
  ******************************************************************************/
 void SharedAdc_StartAdcInDmaMode(ADC_HandleTypeDef *hadc, uint32_t *data, uint32_t length)
 {
+    // TODO: Calibrate ADC 
+
+
+    // TODO: (#) Optionally, perform an automatic ADC calibration to improve the
+    // conversion accuracy using function HAL_ADCEx_Calibration_Start().
+
     if (HAL_ADC_Start_DMA(hadc, data, length) != HAL_OK)
     {
         Error_Handler();
@@ -80,3 +86,5 @@ void SharedAdc_StartAdcInDmaMode(ADC_HandleTypeDef *hadc, uint32_t *data, uint32
     }
 
 }
+
+// TODO: getter function for adc_readings[]
