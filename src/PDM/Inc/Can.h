@@ -10,13 +10,12 @@
  ******************************************************************************/
 #include "Gpio.h"
 #include <string.h>
-#include "SharedCAN.h"
+#include "SharedCan.h"
 
 /******************************************************************************
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off
-#define Systems_Count 5
 /******************************************************************************
 * Preprocessor Macros
 *******************************************************************************/
@@ -33,20 +32,13 @@
 * Function Prototypes
 *******************************************************************************/
 /**
- * @brief  Initialize CAN
+ * @brief Broadcast the AIR shutdown error
  */
-void InitCAN(void);
+void Can_BroadcastAirShutdownError(void);
 
 /**
- * @brief  Sends error CAN messages based on error ID and module
- * @param  Error_StandardID	Error ID
- * @param  PCB_Enum Name of module (Module_Names)
- * @param  ErrorNumber Error type
- * @param  ErrorData Error data
+ * @brief Broadcast the motor shutdown error
  */
-void TransmitCANError(uint32_t Error_StandardID,
-                      PCB_Enum Module,
-                      uint8_t ErrorNumber,
-                      uint32_t ErrorData);
+void Can_BroadcastMotorShutdownError(void);
 
 #endif /* CAN_H */

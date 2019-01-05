@@ -400,6 +400,14 @@ void SharedCan_CheckHeartbeatsReceived(void)
     heartbeats_received = 0;
 }
 
+void SharedCan_BroadcastPcbErrors(Error_Enum errors)
+{
+    // Error message is one-hot encoded according to Error_enum and thus
+    // requires bit shifting (Read more: https://en.wikipedia.org/wiki/One-hot)
+    uint32_t data = 1U << errors;
+    SharedCan_TransmitDataCan(PCB_ERROR_STDID, PCB_ERROR_DLC, (uint8_t *)&data);
+}
+
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     /* NOTE: All receive mailbox interrupts shall be handled in the same way */

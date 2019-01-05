@@ -46,6 +46,9 @@
     #define PCB_HEARTBEAT_STDID         PDM_HEARTBEAT_STDID
     #define PCB_HEARTBEAT_DLC           PDM_HEARTBEAT_DLC
     #define PCB_HEARTBEAT_LISTENER      PDM_HEARTBEAT_LISTENER
+    #define Error_Enum                  PdmError_Enum
+    #define PCB_ERROR_STDID             PDM_ERROR_STDID
+    #define PCB_ERROR_DLC               PDM_ERROR_DLC
 #elif FSM
     #define CAN_TX_FIFO_OVERFLOW_STDID  FSM_CAN_TX_FIFO_OVERFLOW_STDID
     #define CAN_TX_FIFO_OVERFLOW_DLC    FSM_CAN_TX_FIFO_OVERFLOW_DLC
@@ -54,6 +57,9 @@
     #define PCB_HEARTBEAT_STDID         FSM_HEARTBEAT_STDID
     #define PCB_HEARTBEAT_DLC           FSM_HEARTBEAT_DLC
     #define PCB_HEARTBEAT_LISTENER      FSM_HEARTBEAT_LISTENER
+    #define Error_Enum                  FsmError_Enum
+    #define PCB_ERROR_STDID             FSM_ERROR_STDID
+    #define PCB_ERROR_DLC               FSM_ERROR_DLC
 #elif BMS
     #define CAN_TX_FIFO_OVERFLOW_STDID  BMS_CAN_TX_FIFO_OVERFLOW_STDID
     #define CAN_TX_FIFO_OVERFLOW_DLC    BMS_CAN_TX_FIFO_OVERFLOW_DLC
@@ -62,6 +68,9 @@
     #define PCB_HEARTBEAT_STDID         BMS_HEARTBEAT_STDID
     #define PCB_HEARTBEAT_DLC           BMS_HEARTBEAT_DLC
     #define PCB_HEARTBEAT_LISTENER      BMS_HEARTBEAT_LISTENER
+    #define Error_Enum                  BmsError_Enum
+    #define PCB_ERROR_STDID             BMS_ERROR_STDID
+    #define PCB_ERROR_DLC               BMS_ERROR_DLC
 #elif DCM
     #define CAN_TX_FIFO_OVERFLOW_STDID  DCM_CAN_TX_FIFO_OVERFLOW_STDID
     #define CAN_TX_FIFO_OVERFLOW_DLC    DCM_CAN_TX_FIFO_OVERFLOW_DLC
@@ -70,6 +79,9 @@
     #define PCB_HEARTBEAT_STDID         DCM_HEARTBEAT_STDID
     #define PCB_HEARTBEAT_DLC           DCM_HEARTBEAT_DLC
     #define PCB_HEARTBEAT_LISTENER      DCM_HEARTBEAT_LISTENER
+    #define Error_Enum                  DcmError_Enum
+    #define PCB_ERROR_STDID             DCM_ERROR_STDID
+    #define PCB_ERROR_DLC               DCM_ERROR_DLC
 #else
     #error "No valid PCB name selected"
 #endif
@@ -281,4 +293,12 @@ void SharedCan_ReceiveHeartbeat(PcbEncoding_Enum board);
  *        received
  */
 void SharedCan_CheckHeartbeatsReceived(void);
+
+ * @brief Send CAN message one-hot encoded for one or more errors
+ * @param Error_Enum One or more errors OR'd together (Note: This enum is
+ *        board-specific and depends on the PCB preprocessor symbol)
+ */
+void SharedCan_BroadcastPcbErrors(Error_Enum error);
+
+
 #endif /* SHARED_CAN_H */

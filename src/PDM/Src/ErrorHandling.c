@@ -2,9 +2,9 @@
  * Includes
  ******************************************************************************/
 #include "ErrorHandling.h"
-#include "CANDefinitions.h"
 #include "Gpio.h"
 #include "SharedGpio.h"
+#include "SharedCan.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -56,8 +56,7 @@ void ErrorHandling_HandleHeartbeatTimeout(void)
         EFUSE_AIR_SHDN_IN_GPIO_Port, EFUSE_AIR_SHDN_IN_Pin, GPIO_PIN_RESET);
 
     // Log error
-    TransmitCANError(
-        PDM_ERROR, Power_Distribution_Module, MISSING_HEARTBEAT, 0);
+    SharedCan_BroadcastPcbErrors(MISSING_HEARTBEAT);
 }
 
 /**
