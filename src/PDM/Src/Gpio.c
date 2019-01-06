@@ -11,25 +11,27 @@
 /******************************************************************************
  * Module Preprocessor Constants
  ******************************************************************************/
+// clang format off
 
 /******************************************************************************
  * Module Preprocessor Macros
  ******************************************************************************/
-#define INIT_DSEL(dsel_pin, dsel_port) { .pin = dsel_pin, .port = dsel_port },
+#define INIT_DSEL(dsel_pin, dsel_port) { .pin = dsel_pin, .port = dsel_port }
 
 /******************************************************************************
  * Module Typedefs
  ******************************************************************************/
+// clang format on
 
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
 const GPIO_PinPort_Struct dsel_pin_mapping[NUM_PROFET2S] = {
-    INIT_DSEL(EFUSE_DSEL_1_Pin, EFUSE_DSEL_1_GPIO_Port)
-        INIT_DSEL(EFUSE_DSEL_2_Pin, EFUSE_DSEL_2_GPIO_Port)
-            INIT_DSEL(EFUSE_DSEL_3_Pin, EFUSE_DSEL_3_GPIO_Port)
-                INIT_DSEL(EFUSE_DSEL_4_Pin, EFUSE_DSEL_4_GPIO_Port)
-                    INIT_DSEL(EFUSE_DSEL_5_Pin, EFUSE_DSEL_5_GPIO_Port)
+    INIT_DSEL(EFUSE_DSEL_1_Pin, EFUSE_DSEL_1_GPIO_Port),
+    INIT_DSEL(EFUSE_DSEL_2_Pin, EFUSE_DSEL_2_GPIO_Port),
+    INIT_DSEL(EFUSE_DSEL_3_Pin, EFUSE_DSEL_3_GPIO_Port),
+    INIT_DSEL(EFUSE_DSEL_4_Pin, EFUSE_DSEL_4_GPIO_Port),
+    INIT_DSEL(EFUSE_DSEL_5_Pin, EFUSE_DSEL_5_GPIO_Port),
 };
 
 /******************************************************************************
