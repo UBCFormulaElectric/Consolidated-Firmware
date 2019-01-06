@@ -122,11 +122,11 @@ void FaultHandling_Handler(
 
     if (converted_readings[FLYWIRE] > UNDERVOLTAGE_VICOR_THRES)
     {
-        GPIO_ConfigurePreChargeComplete(fault_states);
+        GPIO_ConfigureFor12VAcc(fault_states);
     }
     else
     {
-        GPIO_ConfigurePowerUp(fault_states);
+        GPIO_ConfigureFor12VAux(fault_states);
     }
     */
 }

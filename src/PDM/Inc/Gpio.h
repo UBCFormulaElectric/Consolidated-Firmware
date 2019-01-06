@@ -109,14 +109,13 @@ typedef enum
 void GPIO_Init(void);
 
 /**
- * @brief  Enable all e-fuses (that have not faulted) and their
- *         corresponding current sense diagnostics. Only to be called after
- *         PreCharge is completed.
+ * @brief  Enable all e-fuses (that have not faulted) and their corresponding 
+ *         current sense diagnostics. Only to be called after 12V_ACC is available
  * @param  fault_states Array with (NumReadings x ChannelCount) elements
  *         which tracks outputs that need to be renabled or are permanently
  *         faulted
  */
-void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states);
+void GPIO_ConfigureFor12VAcc(volatile uint8_t *fault_states);
 
 /**
  * @brief  Enable CAN_GLV/AIR SHDN (if they are not faulted) and their
@@ -124,7 +123,7 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states);
  * @param  fault_states Array with (NumReadings x ChannelCount) elements which
  *         tracks outputs that need to be renabled or are permanently faulted
  */
-void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states);
+void GPIO_ConfigureFor12VAux(volatile uint8_t *fault_states);
 
 /**
  * @brief  Helper function to turn e-fuse on or off

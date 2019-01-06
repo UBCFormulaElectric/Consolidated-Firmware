@@ -186,7 +186,7 @@ void GPIO_Init(void)
     GPIO_CheckFaultsStartup();
 }
 
-void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
+void GPIO_ConfigureFor12VAcc(volatile uint8_t *fault_states)
 {
     // E-Fuse AUX 1/2
     if (fault_states[AUXILIARY_1] == NORMAL_STATE)
@@ -264,7 +264,7 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
         EFUSE_DEN_5_GPIO_Port, EFUSE_DEN_5_Pin, GPIO_PIN_SET);
 }
 
-void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states)
+void GPIO_ConfigureFor12VAux(volatile uint8_t *fault_states)
 {
     // E-Fuse AUX 1/2
     SharedGpio_GPIO_WritePin(
