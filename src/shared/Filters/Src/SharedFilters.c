@@ -21,8 +21,8 @@
  ******************************************************************************/
 
 /******************************************************************************
-* Private Function Prototypes
-*******************************************************************************/
+ * Private Function Prototypes
+ *******************************************************************************/
 
 /******************************************************************************
  * Private Function Definitions
@@ -31,7 +31,11 @@
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedFilter_LowPassFilter(float32_t *input, float32_t *output, uint32_t sampling_time, uint32_t rc)
+void SharedFilter_LowPassFilter(
+    float32_t *input,
+    float32_t *output,
+    uint32_t   sampling_time,
+    uint32_t   rc)
 {
     // TODO: Add assert to check for input and output size are equal
 
@@ -40,9 +44,9 @@ void SharedFilter_LowPassFilter(float32_t *input, float32_t *output, uint32_t sa
     smoothing_factor = sampling_time / (rc + sampling_time);
 
     // The pseudo-code for this LPF implementation is as follows:
-    // y[i] = y[i-1] + SmoothingFactor * ( x[i] - y[i-1] ), where y = 
+    // y[i] = y[i-1] + SmoothingFactor * ( x[i] - y[i-1] ), where y =
     // output, x = input. That is, the change from one filter output
-    // to the next is proportional to the difference between the previous 
+    // to the next is proportional to the difference between the previous
     // output and the next input.
     for (uint32_t i = 0; i < sizeof(output) / sizeof(output[0]); i++)
     {

@@ -74,7 +74,7 @@
 #define R29 (float32_t)(10000.0f)
 
 /** @brief Multiply the raw ADC value of ADC1_IN10 to convert it to 12V_ACC value */
-#define ADC1_IN10_TO_12V_ACC_RATIO (float32_t)((R28 + R29) / R29) * 
+#define ADC1_IN10_TO_12V_ACC_RATIO (float32_t)((R28 + R29) / R29) * VDDA_VOLTAGE
 
 /** @} 12V_ACC_VOLTAGE_DIVIDER */
 
@@ -111,7 +111,6 @@ typedef enum
     VBAT_SUPPLY,
     FLYWIRE,
 } VoltageSenseIndex_Enum;
-
 
 /******************************************************************************
  * Global Variables

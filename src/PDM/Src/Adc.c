@@ -7,7 +7,6 @@
 #include "Gpio.h"
 #include "CurrentSense.h"
 #include "VoltageSense.h"
-#include "SharedFilters.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -38,12 +37,13 @@
  ******************************************************************************/
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    // Note: This callback is used for "ADC conversion by interruption" as well 
+    // Note: This callback is used for "ADC conversion by interruption" as well
     //       as "ADC conversion with transfer by DMA"
     CurrentSense_ConvertCurrentAdcReadings();
     VoltageSense_ConvertVoltageAdcReadings();
 
-    // Toggle the SENSE channel between DMA tranfers to read both SENSE channnels
+    // Toggle the SENSE channel between DMA tranfers to read both SENSE
+    // channnels
     CurrentSense_ToggleCurrentSenseChannel();
 
     // Only handle faults after all e-fuses are checked
@@ -51,5 +51,4 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     {
         FaultHandling_Handler(e_fuse_fault_states, converted_readings);
     }
-
 }

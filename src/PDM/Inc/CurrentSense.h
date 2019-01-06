@@ -107,8 +107,8 @@ typedef enum
 typedef struct
 {
     GPIO_PinPort_Struct pin_mapping;
-    volatile float32_t current;
-    float32_t ampere_per_volt;
+    volatile float32_t  current;
+    float32_t           ampere_per_volt;
 } efuse_struct;
 
 /******************************************************************************

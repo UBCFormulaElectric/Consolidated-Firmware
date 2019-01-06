@@ -319,7 +319,8 @@ static void MX_ADC1_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN ADC1_Init 2 */
-    SharedAdc_StartAdcInDmaMode(&hadc1, (uint32_t*)(SharedAdc_GetAdcReadings()[0]), NUM_ADC_CHANNELS);
+    SharedAdc_StartAdcInDmaMode(
+        &hadc1, (uint32_t *)(SharedAdc_GetAdcReadings()[0]), NUM_ADC_CHANNELS);
     /* USER CODE END ADC1_Init 2 */
 }
 
@@ -450,7 +451,7 @@ static void MX_TIM17_Init(void)
     htim17.Init.CounterMode = TIM_COUNTERMODE_UP;
     htim17.Init.Period =
         (APB2_TIMER_CLOCK / ((TIM17_PRESCALER + 1) * (TIM17_REPETITION + 1) *
-                             TIM17_CLK_DIVISION * EFUSE_RETRY_FREQUENCY)) -
+                             TIM17_CLK_DIVISION * CONTROL_LOOP_FREQUENCY)) -
         1;
     htim17.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim17.Init.RepetitionCounter = 0;

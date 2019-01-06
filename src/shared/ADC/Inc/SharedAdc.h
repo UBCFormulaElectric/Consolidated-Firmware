@@ -66,9 +66,13 @@
  * @brief  Initialize ADC in DMA mode and the correct max ADC value
  * @param  hadc ADC handle
  * @param  data The destination buffer address
- * @param  length The length of data to be transferred from ADC peripheral to memory.
+ * @param  length The length of data to be transferred from ADC peripheral to
+ * memory.
  */
-void SharedAdc_StartAdcInDmaMode(ADC_HandleTypeDef *hadc, uint32_t *data, uint32_t length);
+void SharedAdc_StartAdcInDmaMode(
+    ADC_HandleTypeDef *hadc,
+    uint32_t *         data,
+    uint32_t           length);
 
 /**
  * @brief  Get the appropriate maximum ADC value based on the ADC resolution

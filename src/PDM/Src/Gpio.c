@@ -15,7 +15,7 @@
 /******************************************************************************
  * Module Preprocessor Macros
  ******************************************************************************/
-#define INIT_DSEL(dsel_pin, dsel_port) {.pin = dsel_pin, .port = dsel_port},
+#define INIT_DSEL(dsel_pin, dsel_port) { .pin = dsel_pin, .port = dsel_port },
 
 /******************************************************************************
  * Module Typedefs
@@ -24,13 +24,12 @@
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
-const GPIO_PinPort_Struct dsel_pin_mapping[NUM_PROFET2S] =
-{
+const GPIO_PinPort_Struct dsel_pin_mapping[NUM_PROFET2S] = {
     INIT_DSEL(EFUSE_DSEL_1_Pin, EFUSE_DSEL_1_GPIO_Port)
-    INIT_DSEL(EFUSE_DSEL_2_Pin, EFUSE_DSEL_2_GPIO_Port)
-    INIT_DSEL(EFUSE_DSEL_3_Pin, EFUSE_DSEL_3_GPIO_Port)
-    INIT_DSEL(EFUSE_DSEL_4_Pin, EFUSE_DSEL_4_GPIO_Port)
-    INIT_DSEL(EFUSE_DSEL_5_Pin, EFUSE_DSEL_5_GPIO_Port)
+        INIT_DSEL(EFUSE_DSEL_2_Pin, EFUSE_DSEL_2_GPIO_Port)
+            INIT_DSEL(EFUSE_DSEL_3_Pin, EFUSE_DSEL_3_GPIO_Port)
+                INIT_DSEL(EFUSE_DSEL_4_Pin, EFUSE_DSEL_4_GPIO_Port)
+                    INIT_DSEL(EFUSE_DSEL_5_Pin, EFUSE_DSEL_5_GPIO_Port)
 };
 
 /******************************************************************************
@@ -317,18 +316,22 @@ void GPIO_ConfigureFor12VAux(volatile uint8_t *fault_states)
         GPIO_PIN_RESET);
 }
 
-void Gpio_ConfigureSingleEfuse(EfuseCurrentIndex_Enum index, EfuseOnOff_GPIO_PinState state)
+void Gpio_ConfigureSingleEfuse(
+    EfuseCurrentIndex_Enum   index,
+    EfuseOnOff_GPIO_PinState state)
 {
-   SharedGpio_GPIO_WritePin(CurrentSense_GetEfuses()[index].pin_mapping.port,
-                            CurrentSense_GetEfuses()[index].pin_mapping.pin,
-                            state);
+    SharedGpio_GPIO_WritePin(
+        CurrentSense_GetEfuses()[index].pin_mapping.port,
+        CurrentSense_GetEfuses()[index].pin_mapping.pin, state);
 }
 
 void Gpio_ConfigureAllDsels(DselState_Enum state)
 {
-    for (uint32_t i = 0; i < sizeof(dsel_pin_mapping) / sizeof(dsel_pin_mapping[0]); i++)
+    for (uint32_t i = 0;
+         i < sizeof(dsel_pin_mapping) / sizeof(dsel_pin_mapping[0]); i++)
     {
-        SharedGpio_GPIO_WritePin(dsel_pin_mapping[i].port, dsel_pin_mapping[i].pin, state);
+        SharedGpio_GPIO_WritePin(
+            dsel_pin_mapping[i].port, dsel_pin_mapping[i].pin, state);
     }
 }
 

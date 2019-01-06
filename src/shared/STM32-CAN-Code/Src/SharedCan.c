@@ -348,7 +348,6 @@ void SharedCan_TransmitDataCan(
 
 void SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan)
 {
-    
     if (SharedCan_InitializeFilters() != SUCCESS)
     {
         Error_Handler();
@@ -369,7 +368,6 @@ void SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan)
     }
 
     SharedCan_BroadcastSystemReboot();
-
 }
 
 __weak void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)

@@ -30,12 +30,9 @@ volatile uint8_t e_fuse_fault_states
  * Private Function Prototypes
  ******************************************************************************/
 
-
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
-
-
 
 /******************************************************************************
  * Function Definitions
@@ -129,6 +126,7 @@ void FaultHandling_Handler(
         GPIO_ConfigureFor12VAux(fault_states);
     }
     */
+    GPIO_ConfigureFor12VAcc(fault_states);
 }
 
 void FaultHandling_RetryEFuse(volatile uint8_t *fault_states)

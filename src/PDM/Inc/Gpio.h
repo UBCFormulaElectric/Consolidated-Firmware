@@ -60,7 +60,7 @@
 
 typedef enum
 {
-    DSEL_LOW = GPIO_PIN_RESET,
+    DSEL_LOW  = GPIO_PIN_RESET,
     DSEL_HIGH = !DSEL_LOW
 } DselState_Enum;
 
@@ -109,8 +109,9 @@ typedef enum
 void GPIO_Init(void);
 
 /**
- * @brief  Enable all e-fuses (that have not faulted) and their corresponding 
- *         current sense diagnostics. Only to be called after 12V_ACC is available
+ * @brief  Enable all e-fuses (that have not faulted) and their corresponding
+ *         current sense diagnostics. Only to be called after 12V_ACC is
+ * available
  * @param  fault_states Array with (NumReadings x ChannelCount) elements
  *         which tracks outputs that need to be renabled or are permanently
  *         faulted
@@ -130,7 +131,9 @@ void GPIO_ConfigureFor12VAux(volatile uint8_t *fault_states);
  * @param  index Index of e-fuse
  * @param  state Turn e-fuse on or off
  */
-void Gpio_ConfigureSingleEfuse(EfuseCurrentIndex_Enum index, EfuseOnOff_GPIO_PinState state);
+void Gpio_ConfigureSingleEfuse(
+    EfuseCurrentIndex_Enum   index,
+    EfuseOnOff_GPIO_PinState state);
 
 /**
  * @brief Helper function to turn all DSEL pins on or off
