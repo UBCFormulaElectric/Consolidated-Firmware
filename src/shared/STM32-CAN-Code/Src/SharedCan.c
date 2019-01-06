@@ -26,7 +26,7 @@ static volatile uint8_t         tail = 0;
 static volatile uint8_t         head = 0;
 
 // Heartbeats setup
-static volatile uint8_t         heartbeats_received = 0;
+static volatile uint8_t heartbeats_received = 0;
 
 // TODO (Issue: 243): Remove clang-format on/off once #243 is resolved
 // clang-format off
@@ -380,7 +380,7 @@ void SharedCan_BroadcastHeartbeat(void)
     SharedCan_TransmitDataCan(PCB_HEARTBEAT_STDID, PCB_HEARTBEAT_DLC, &data[0]);
 }
 
-void SharedCan_ReceiveHeartbeat(PcbEncoding_Enum board)
+void SharedCan_ReceiveHeartbeat(PcbHeartbeatEncoding_Enum board)
 {
     heartbeats_received |= board;
 }
@@ -390,8 +390,8 @@ void SharedCan_CheckHeartbeatsReceived(void)
     // Check if the board didn't receive all the heartbeats it's listening for.
     // Cannot check this with a simple inequality as some boards may listen to
     // extra heartbeats. AND out the extra heartbeats.
-    if ((heartbeats_received && PCB_HEARTBEAT_LISTENER)
-        != PCB_HEARTBEAT_LISTENER)
+    if ((heartbeats_received && PCB_HEARTBEAT_LISTENER) != 
+        PCB_HEARTBEAT_LISTENER)
     {
         // TODO: throw (board-specific?) fatal error (AIR SHDN?)
     }

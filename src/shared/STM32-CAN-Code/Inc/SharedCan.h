@@ -279,7 +279,7 @@ void SharedCan_BroadcastHeartbeat(void);
  * @brief Upon heartbeat reception, update the list of heartbeats received
  * @param board Board from which the heartbeat was received
  */
-void SharedCan_ReceiveHeartbeat(PcbEncoding_Enum board);
+void SharedCan_ReceiveHeartbeat(PcbHeartbeatEncoding_Enum board);
 
 /**
  * @brief Periodically check that all heartbeats the the PCB listens for were
