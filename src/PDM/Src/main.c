@@ -150,6 +150,9 @@ int main(void)
     // Initialize Timers
     Timers_Init();
 
+    CurrentSense_SelectCurrentSenseChannel(SENSE_0);
+    CurrentSense_SelectCurrentSenseChannel(SENSE_1);
+
     /* USER CODE END 2 */
 
     /* Infinite loop */
@@ -320,7 +323,7 @@ static void MX_ADC1_Init(void)
     }
     /* USER CODE BEGIN ADC1_Init 2 */
     SharedAdc_StartAdcInDmaMode(
-        &hadc1, (uint32_t *)(SharedAdc_GetAdcReadings()[0]), NUM_ADC_CHANNELS);
+        &hadc1, (uint32_t *)(SharedAdc_GetAdcReadings()), NUM_ADC_CHANNELS);
     /* USER CODE END ADC1_Init 2 */
 }
 

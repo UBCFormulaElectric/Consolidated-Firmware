@@ -84,6 +84,7 @@ void SharedAdc_StartAdcInDmaMode(
     {
         Error_Handler();
     }
+    HAL_ADC_Start(hadc);
 }
 
 const uint32_t SharedAdc_GetAdcMaxValue(void)

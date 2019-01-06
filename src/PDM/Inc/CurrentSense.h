@@ -82,12 +82,12 @@
 
 /** @brief 10Hz cutoff to account for false tripping from inrush (See
  *         SoftwareTools for data) */
-#define IIR_LPF_CUTOFF_FREQUENCY   (float32_t)(10.0f)
+#define CURRENT_IIR_LPF_CUTOFF_FREQUENCY   (float32_t)(10.0f)
 
 /** @brief RC time constant */
 #define CURRENT_IIR_LPF_RC \
         (float32_t)(1.0f / \
-                   (2.0f * PI * IIR_LPF_CUTOFF_FREQUENCY))
+                   (2.0f * PI * CURRENT_IIR_LPF_CUTOFF_FREQUENCY))
 /** @} IIR_LPF */
 
 /******************************************************************************
@@ -106,7 +106,7 @@ typedef enum
 
 typedef struct
 {
-    GPIO_PinPort_Struct pin_mapping;
+    GPIO_PinPort_Struct input_channel;
     volatile float32_t  current;
     float32_t           ampere_per_volt;
 } efuse_struct;

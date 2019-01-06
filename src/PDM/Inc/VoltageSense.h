@@ -93,7 +93,7 @@
 /** @brief RC time constant */
 #define VOLTAGE_IIR_LPF_RC \
         (float32_t)(1.0f / \
-                   (2.0f * PI * IIR_LPF_CUTOFF_FREQUENCY))
+                   (2.0f * PI * CURRENT_IIR_LPF_CUTOFF_FREQUENCY))
 /** @} IIR_LPF */
 
 /******************************************************************************

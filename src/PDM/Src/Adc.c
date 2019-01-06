@@ -39,16 +39,11 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
     // Note: This callback is used for "ADC conversion by interruption" as well
     //       as "ADC conversion with transfer by DMA"
+    
     CurrentSense_ConvertCurrentAdcReadings();
     VoltageSense_ConvertVoltageAdcReadings();
 
     // Toggle the SENSE channel between DMA tranfers to read both SENSE
     // channnels
     CurrentSense_ToggleCurrentSenseChannel();
-
-    // Only handle faults after all e-fuses are checked
-    if (CurrentSense_GetCurrentSenseChannel() == SENSE_1)
-    {
-        FaultHandling_Handler(e_fuse_fault_states, converted_readings);
-    }
 }

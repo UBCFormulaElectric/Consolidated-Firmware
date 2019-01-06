@@ -16,22 +16,33 @@
 /******************************************************************************
  * Module Preprocessor Macros
  ******************************************************************************/
-#define INIT_DSEL(dsel_pin, dsel_port) { .pin = dsel_pin, .port = dsel_port }
+#define INIT_PROFET2(dsel_pin, dsel_port, den_pin, den_port) \
+        { \
+            .dsel_pin_mapping.pin  = dsel_pin,  \
+            .dsel_pin_mapping.port = dsel_port, \
+            .den_pin_mapping.pin   = den_pin,   \
+            .den_pin_mapping.port  = den_port,  \
+        } \
 
 /******************************************************************************
  * Module Typedefs
  ******************************************************************************/
 // clang format on
+typedef struct
+{
+    GPIO_PinPort_Struct dsel_pin_mapping;
+    GPIO_PinPort_Struct den_pin_mapping;
+} Profet2_Struct;
 
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
-const GPIO_PinPort_Struct dsel_pin_mapping[NUM_PROFET2S] = {
-    INIT_DSEL(EFUSE_DSEL_1_Pin, EFUSE_DSEL_1_GPIO_Port),
-    INIT_DSEL(EFUSE_DSEL_2_Pin, EFUSE_DSEL_2_GPIO_Port),
-    INIT_DSEL(EFUSE_DSEL_3_Pin, EFUSE_DSEL_3_GPIO_Port),
-    INIT_DSEL(EFUSE_DSEL_4_Pin, EFUSE_DSEL_4_GPIO_Port),
-    INIT_DSEL(EFUSE_DSEL_5_Pin, EFUSE_DSEL_5_GPIO_Port),
+const Profet2_Struct profet2[NUM_PROFET2S] = {
+    INIT_PROFET2(EFUSE_DSEL_1_Pin, EFUSE_DSEL_1_GPIO_Port, EFUSE_DEN_1_Pin, EFUSE_DEN_1_GPIO_Port),
+    INIT_PROFET2(EFUSE_DSEL_2_Pin, EFUSE_DSEL_2_GPIO_Port, EFUSE_DEN_2_Pin, EFUSE_DEN_2_GPIO_Port),
+    INIT_PROFET2(EFUSE_DSEL_3_Pin, EFUSE_DSEL_3_GPIO_Port, EFUSE_DEN_3_Pin, EFUSE_DEN_3_GPIO_Port),
+    INIT_PROFET2(EFUSE_DSEL_4_Pin, EFUSE_DSEL_4_GPIO_Port, EFUSE_DEN_4_Pin, EFUSE_DEN_4_GPIO_Port),
+    INIT_PROFET2(EFUSE_DSEL_5_Pin, EFUSE_DSEL_5_GPIO_Port, EFUSE_DEN_5_Pin, EFUSE_DEN_5_GPIO_Port),
 };
 
 /******************************************************************************
@@ -323,17 +334,18 @@ void Gpio_ConfigureSingleEfuse(
     EfuseOnOff_GPIO_PinState state)
 {
     SharedGpio_GPIO_WritePin(
-        CurrentSense_GetEfuses()[index].pin_mapping.port,
-        CurrentSense_GetEfuses()[index].pin_mapping.pin, state);
+        CurrentSense_GetEfuses()[index].input_channel.port,
+        CurrentSense_GetEfuses()[index].input_channel.pin, state);
 }
 
 void Gpio_ConfigureAllDsels(DselState_Enum state)
 {
+    // TODO: Test that the sizeof works and this function works in general
     for (uint32_t i = 0;
-         i < sizeof(dsel_pin_mapping) / sizeof(dsel_pin_mapping[0]); i++)
+         i < sizeof(profet2) / sizeof(profet2[0]); i++)
     {
         SharedGpio_GPIO_WritePin(
-            dsel_pin_mapping[i].port, dsel_pin_mapping[i].pin, state);
+            profet2[i].dsel_pin_mapping.port, profet2[i].dsel_pin_mapping.pin, state);
     }
 }
 

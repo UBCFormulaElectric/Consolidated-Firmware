@@ -46,13 +46,5 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     if (htim == &htim17)
     {
         // FaultHandling_RetryEFuse(e_fuse_fault_states);
-        HAL_GPIO_TogglePin(
-            EFUSE_RIGHT_INVERTER_IN_GPIO_Port, EFUSE_RIGHT_INVERTER_IN_Pin);
-        HAL_GPIO_TogglePin(
-            EFUSE_LEFT_INVERTER_IN_GPIO_Port, EFUSE_LEFT_INVERTER_IN_Pin);
-        HAL_GPIO_TogglePin(
-            EFUSE_RIGHT_INVERTER_IN_GPIO_Port, EFUSE_RIGHT_INVERTER_IN_Pin);
-        HAL_GPIO_TogglePin(
-            EFUSE_RIGHT_INVERTER_IN_GPIO_Port, EFUSE_RIGHT_INVERTER_IN_Pin);
     }
 }

@@ -19,8 +19,8 @@
                    efuse_pin, \
                    efuse_port, \
                    efuse_ampere_per_volt) \
-        [index].pin_mapping.pin = efuse_pin, \
-        [index].pin_mapping.port = efuse_port, \
+        [index].input_channel.pin = efuse_pin, \
+        [index].input_channel.port = efuse_port, \
         [index].current = 0, \
         [index].ampere_per_volt = efuse_ampere_per_volt,
 
