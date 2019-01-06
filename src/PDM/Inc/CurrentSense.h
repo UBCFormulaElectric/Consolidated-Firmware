@@ -21,21 +21,6 @@
  *         when there is no current), take second reading as workaround */
 #define NUM_READINGS_PER_ADC_DMA_TRANSFER 2
 
-/** @defgroup ADC
- *  The constants related to converting ADC readings into useful voltage values
- *  @{
- */
-
-/** @brief The VBAT voltage when the corresponding ADC input saturates at 3.3V.
- *         VBAT refers to the two onboard Li-Ion 18650 batteries in series */
-#define VBAT_VOLTAGE (float32_t)(8.4f)
-
-/** @brief The GLV voltage when the corresponding ADC input saturates at 3.3V.
- *         GLV stands for Grounded Low voltage, and is the voltage level used
- *         to power the vehicle's low voltage systems */
-#define GLV_VOLTAGE  (float32_t)(12.0f)
-
-/** @} ADC */
 
 /** @defgroup PROFET2
  *  The constants related to current sensing on PROFET2 (BTS7008-2EPA)
@@ -62,54 +47,6 @@
 
 /** @} PROFET2 */
 
-/** @defgroup 12V_ACC_VOLTAGE_DIVIDER
- *  The constants needed for converting ADC reading of ADC1_IN10 into value for 12V_ACC
- *  @{
- */
-/**
- * @note The 12V for low voltage systems is diode-OR'd with 12V_AUX (On-board
- *       Boost Controller) and 12V_ACC (Vicor 12V Output). Loosely speaking,
- *       the logic for the diode-OR controller is as follows:
- *
- *       if (12V_ACC < 10.2V) {
- *           Use 12V_AUX
- *       } else {
- *           Use 12V_ACC
- *       }
- *
- *       If 12V_ACC < 10.2V, the MCU should only enable the CAN_GLV and AIR_SHDN
- *       outputs, and all other outputs should be disabled. This is because
- *       the current rating of 12V_AUX isn't enough to power all the outputs.
- *       In order for the MCU to disable the appropriate outputs when 12V_AUX is being
- *       used, we sample 12V_ACC using a voltage divider whose output is connected
- *       to PA6 (ADC1_IN10). This way, the MCU can now tell if 12V_AUX is being used
- *       or not. The voltage divider is drawn below:
- *
- *       12V_ACC
- *          |
- *         R28
- *          |
- *          |--- ADC1_IN10
- *          |
- *         R29
- *          |
- *         GND
- *
- *       To convert the raw ADC value of ADC1_IN10 to what 12V_ACC really is,
- *       we use the voltage divider formula:
- *
- *       12V_ACC = ADC1_IN10 * ( (R28 + R29) / R29 )
- */
-/** @brief One of the two resistors used in voltage divider for 12V_ACC */
-#define R28 (float32_t)(160000.0f)
-
-/** @brief One of the two resistors used in voltage divider for 12V_ACC */
-#define R29 (float32_t)(10000.0f)
-
-/** @brief Multiply the raw ADC value of ADC1_IN10 to convert it to 12V_ACC value */
-#define ADC1_IN10_TO_12V_ACC_RATIO (float32_t)((R28 + R29) / R29)
-
-/** @} 12V_ACC_VOLTAGE_DIVIDER */
 
 /** @defgroup VOLTAGE_CURRENT_LIMITS
  *  Various voltage and current threshold for fault conditions
@@ -140,17 +77,15 @@
  *  https://en.wikipedia.org/wiki/Low-pass_filter#Discrete-time_realization
  *  @{
  */
-
-/** TODO (Issue #223): Update this to use Cube USER Constants */
 /** @brief Sampling time interval */
-#define IIR_LPF_SAMPLING_PERIOD    (float32_t)(1.0f / ADC_TRIGGER_FREQUENCY)
+#define CURRENT_IIR_LPF_SAMPLING_PERIOD    (float32_t)(1.0f / ADC_TRIGGER_FREQUENCY)
 
 /** @brief 10Hz cutoff to account for false tripping from inrush (See
  *         SoftwareTools for data) */
 #define IIR_LPF_CUTOFF_FREQUENCY   (float32_t)(10.0f)
 
 /** @brief RC time constant */
-#define IIR_LPF_RC \
+#define CURRENT_IIR_LPF_RC \
         (float32_t)(1.0f / \
                    (2.0f * PI * IIR_LPF_CUTOFF_FREQUENCY))
 /** @} IIR_LPF */
@@ -189,7 +124,7 @@ static const uint8_t MAX_FAULTS[NUM_ADC_CHANNELS * NUM_CHANNELS_PER_PROFET2] = {
     3, 10, 3, 10, 3, 3, 3, 1, 3, 3, 3, 10, 3, 3, 3, 1
 };
 
-extern efuse_struct efuses[NUM_EFUSE];
+extern const efuse_struct efuse_lut[NUM_EFUSES];
 
 /******************************************************************************
  * Function Prototypes
@@ -204,19 +139,19 @@ extern efuse_struct efuses[NUM_EFUSE];
 void CurrentSense_ConvertCurrentAdcReadings(void);
 
 /**
- * @brief Toggle SENSE output for all PROFET2s
+ * @brief Toggle the SENSE output between 0 and 1 for all PROFET2s
  */
 void CurrentSense_ToggleCurrentSenseChannel(void);
-
-/**
- * @brief Select SENSE output 0/1 for all PROFET2s
- * @param channel SENSE output channel to select
- */
-void CurrentSense_SelectCurrentSenseChannel(SenseChannel_Enum channel);
 
 /**
  * @return Return the currently selected SENSE channel
  */
 SenseChannel_Enum CurrentSense_GetCurrentSenseChannel(void);
+
+/**
+ * @brief Select the SENSE output 0/1 for all PROFET2s
+ * @param channel The SENSE output channel to select
+ */
+void CurrentSense_SelectCurrentSenseChannel(SenseChannel_Enum channel);
 
 #endif /* CURRENT_SENSE_H */

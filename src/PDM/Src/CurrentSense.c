@@ -3,7 +3,6 @@
  ******************************************************************************/
 #include "CurrentSense.h"
 #include "Adc.h"
-#include "Gpio.h"
 #include "SharedAdc.h"
 #include "SharedFilters.h"
 #include "SharedGpio.h"
@@ -34,7 +33,7 @@
 // Internal variable to keep track of which SENSE output is currently selected
 volatile SenseChannel_Enum sense_channel = SENSE_0;
 
-efuse_struct efuses[NUM_EFUSE] =
+const efuse_struct efuse_lut[NUM_EFUSES] =
 {
     INIT_EFUSE(AUXILIARY_1, EFUSE_AUX_1_IN_Pin, EFUSE_AUX_1_IN_GPIO_Port, AMP_PER_VOLT_AUX)
     INIT_EFUSE(COOLING, EFUSE_COOLING_IN_Pin, EFUSE_COOLING_IN_GPIO_Port, AMP_PER_VOLT)
@@ -47,6 +46,7 @@ efuse_struct efuses[NUM_EFUSE] =
     INIT_EFUSE(ACC_ENCLOSURE_FAN, EFUSE_ACC_ENC_FAN_IN_Pin, EFUSE_ACC_ENC_FAN_IN_GPIO_Port, AMP_PER_VOLT)
     INIT_EFUSE(RIGHT_INVERTER, EFUSE_RIGHT_INVERTER_IN_Pin, EFUSE_RIGHT_INVERTER_IN_GPIO_Port, AMP_PER_VOLT)
 };
+
 /******************************************************************************
  * Private Function Prototypes
  ******************************************************************************/
@@ -72,18 +72,18 @@ void CurrentSense_ConvertCurrentAdcReadings(void)
     }
 
     for (EfuseCurrentIndex_Enum i = start_index, j = ADC_READINGS_CURRENT_START_INDEX;
-                  i < (start_index + NUM_PROFET2S) && j < NUM_EFUSES;
+                  i < (start_index + NUM_PROFET2S);
                   i++, j++)
     {
         // Convert ADC readings to current values
-        float32_t temp_current = adc_readings[j] * efuses[i].ampere_per_volt 
-                                 * VDDA_VOLTAGE / SharedAdc_GetAdcMaxValue();
+       float32_t temp_current = (float32_t)(SharedAdc_GetAdcReadings()[j]) * efuse_lut[i].ampere_per_volt 
+                                 * VDDA_VOLTAGE / (float32_t)(SharedAdc_GetAdcMaxValue());
 
         // Apply low pass filter to current values
         SharedFilter_LowPassFilter(&temp_current,
-                                   &efuses[i].current,
-                                   IIR_LPF_SAMPLING_PERIOD,
-                                   IIR_LPF_RC);
+                                   &efuse_lut[i].current,
+                                   CURRENT_IIR_LPF_SAMPLING_PERIOD,
+                                   CURRENT_IIR_LPF_RC);
     }
 }
 

@@ -36,8 +36,8 @@
  * Global Variables
  ******************************************************************************/
 extern ADC_HandleTypeDef  hadc1;
+// TODO: Obsolete, will be removed later
 extern volatile float32_t converted_readings[];
-extern uint32_t adc_readings[NUM_ADC_CHANNELS];
 
 /******************************************************************************
  * Function Prototypes

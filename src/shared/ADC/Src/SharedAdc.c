@@ -5,7 +5,6 @@
 #include "SharedAdc.h"
 #include "Constants.h"
 #include "main.h"
-//#include "Adc.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -69,11 +68,10 @@ static ErrorStatus InitializeAdcMaxValue(ADC_HandleTypeDef* hadc)
  ******************************************************************************/
 void SharedAdc_StartAdcInDmaMode(ADC_HandleTypeDef *hadc, uint32_t *data, uint32_t length)
 {
-    // TODO: Calibrate ADC 
-
-
-    // TODO: (#) Optionally, perform an automatic ADC calibration to improve the
-    // conversion accuracy using function HAL_ADCEx_Calibration_Start().
+    if (HAL_ADCEx_Calibration_Start(hadc, ADC_SINGLE_ENDED) != HAL_OK)
+    {
+        Error_Handler();
+    }
 
     if (HAL_ADC_Start_DMA(hadc, data, length) != HAL_OK)
     {
@@ -84,10 +82,8 @@ void SharedAdc_StartAdcInDmaMode(ADC_HandleTypeDef *hadc, uint32_t *data, uint32
     {
         Error_Handler();
     }
-
 }
 
-// TODO:
 const uint32_t SharedAdc_GetAdcMaxValue(void)
 {
     return (const uint32_t)adc_max_value;
@@ -95,6 +91,5 @@ const uint32_t SharedAdc_GetAdcMaxValue(void)
 
 const uint32_t *SharedAdc_GetAdcReadings(void)
 {
-    return (const uint32_t *)adc_readings;
+    return (const uint32_t*)adc_readings;
 }
-// TODO: getter function for adc_readings[]
