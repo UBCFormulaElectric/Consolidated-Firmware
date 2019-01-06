@@ -32,7 +32,7 @@ static VoltageSense_Struct voltage_sense_lut[NUM_VOLTAGE_SENSE_PINS] =
 {
     INIT_VOLTAGE_SENSE(_12V_SUPPLY, GLV_VOLTAGE)
     INIT_VOLTAGE_SENSE(VBAT_SUPPLY, VBAT_VOLTAGE)
-    INIT_VOLTAGE_SENSE(FLYWIRE, ADC1_IN10_TO_12V_ACC_RATIO)
+    INIT_VOLTAGE_SENSE(FLYWIRE, ADC1_IN10_TO_12V_ACC_RATIO * VDDA_VOLTAGE)
 };
 
 /******************************************************************************
@@ -60,20 +60,5 @@ void VoltageSense_ConvertVoltageAdcReadings(void)
                                    &voltage_sense_lut[i].voltage,
                                    VOLTAGE_IIR_LPF_SAMPLING_PERIOD,
                                    VOLTAGE_IIR_LPF_RC);
-
     }
-
-    //converted_readings[_12V_SUPPLY] =
-    //    filtered_adc_readings[adc_channel] * GLV_VOLTAGE / adc_max_value;
-    //adc_channel++;
-
-    //converted_readings[VBAT_SUPPLY] =
-
-    //    filtered_adc_readings[adc_channel] * VBAT_VOLTAGE / adc_max_value;
-    //adc_channel++;
-
-    //converted_readings[FLYWIRE] = filtered_adc_readings[adc_channel] *
-    //                              ADC1_IN10_TO_12V_ACC_RATIO * VDDA_VOLTAGE /
-    //                              adc_max_value;
-
 }
