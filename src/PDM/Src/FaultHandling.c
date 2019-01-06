@@ -44,8 +44,6 @@ void FaultHandling_Handler(
     volatile uint8_t *  fault_states,
     volatile float32_t *converted_readings)
 {
-    OverCurrent_ErrorHandler(converted_readings);
-    Overvoltage_ErrorHandler(converted_readings);
     // TODO: Fix this after currentsense and voltage sense are solid
     /*
     uint64_t can_error_msg;

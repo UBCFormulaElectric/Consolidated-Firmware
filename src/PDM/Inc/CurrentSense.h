@@ -107,7 +107,7 @@ typedef enum
 typedef struct
 {
     GPIO_PinPort_Struct pin_mapping;
-    float32_t current;
+    volatile float32_t current;
     float32_t ampere_per_volt;
 } efuse_struct;
 
@@ -123,8 +123,6 @@ typedef struct
 static const uint8_t MAX_FAULTS[NUM_ADC_CHANNELS * NUM_CHANNELS_PER_PROFET2] = {
     3, 10, 3, 10, 3, 3, 3, 1, 3, 3, 3, 10, 3, 3, 3, 1
 };
-
-extern const efuse_struct efuse_lut[NUM_EFUSES];
 
 /******************************************************************************
  * Function Prototypes
@@ -153,5 +151,10 @@ SenseChannel_Enum CurrentSense_GetCurrentSenseChannel(void);
  * @param channel The SENSE output channel to select
  */
 void CurrentSense_SelectCurrentSenseChannel(SenseChannel_Enum channel);
+
+/**
+ * @brief Return the array of structs containing information about all efuses
+ */
+efuse_struct *const CurrentSense_GetEfuses(void);
 
 #endif /* CURRENT_SENSE_H */

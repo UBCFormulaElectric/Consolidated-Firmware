@@ -33,7 +33,7 @@
 // Internal variable to keep track of which SENSE output is currently selected
 volatile SenseChannel_Enum sense_channel = SENSE_0;
 
-const efuse_struct efuse_lut[NUM_EFUSES] =
+static efuse_struct efuses[NUM_EFUSES] =
 {
     INIT_EFUSE(AUXILIARY_1, EFUSE_AUX_1_IN_Pin, EFUSE_AUX_1_IN_GPIO_Port, AMP_PER_VOLT_AUX)
     INIT_EFUSE(COOLING, EFUSE_COOLING_IN_Pin, EFUSE_COOLING_IN_GPIO_Port, AMP_PER_VOLT)
@@ -76,12 +76,12 @@ void CurrentSense_ConvertCurrentAdcReadings(void)
                   i++, j++)
     {
         // Convert ADC readings to current values
-       float32_t temp_current = (float32_t)(SharedAdc_GetAdcReadings()[j]) * efuse_lut[i].ampere_per_volt 
+       float32_t temp_current = (float32_t)(SharedAdc_GetAdcReadings()[j]) * efuses[i].ampere_per_volt 
                                  * VDDA_VOLTAGE / (float32_t)(SharedAdc_GetAdcMaxValue());
 
         // Apply low pass filter to current values
         SharedFilter_LowPassFilter(&temp_current,
-                                   &efuse_lut[i].current,
+                                   (float32_t *)(&CurrentSense_GetEfuses()[i].current),
                                    CURRENT_IIR_LPF_SAMPLING_PERIOD,
                                    CURRENT_IIR_LPF_RC);
     }
@@ -124,4 +124,9 @@ void CurrentSense_SelectCurrentSenseChannel(SenseChannel_Enum sense_channel)
         Gpio_ConfigureAllDsels(DSEL_HIGH);
     }
 
+}
+
+efuse_struct *const CurrentSense_GetEfuses(void)
+{
+    return &efuses[0];
 }

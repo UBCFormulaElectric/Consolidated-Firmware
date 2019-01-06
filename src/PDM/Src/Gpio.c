@@ -319,8 +319,8 @@ void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states)
 
 void Gpio_ConfigureSingleEfuse(EfuseCurrentIndex_Enum index, EfuseOnOff_GPIO_PinState state)
 {
-   SharedGpio_GPIO_WritePin(efuse_lut[index].pin_mapping.port,
-                            efuse_lut[index].pin_mapping.pin,
+   SharedGpio_GPIO_WritePin(CurrentSense_GetEfuses()[index].pin_mapping.port,
+                            CurrentSense_GetEfuses()[index].pin_mapping.pin,
                             state);
 }
 
