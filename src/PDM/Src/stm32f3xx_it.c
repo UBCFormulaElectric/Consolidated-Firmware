@@ -62,10 +62,8 @@
 
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
-// TODO (Issue #191): move extern to header file
-extern ADC_HandleTypeDef  hadc1;
-extern IWDG_HandleTypeDef hiwdg;
 
+// TODO: Redo heartbeat handling
 #ifndef DEBUG
 
 // SysTick/heartbeat variables
@@ -95,7 +93,7 @@ extern CAN_HandleTypeDef hcan;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim17;
 /* USER CODE BEGIN EV */
-
+extern IWDG_HandleTypeDef hiwdg;
 /* USER CODE END EV */
 
 /******************************************************************************/
@@ -226,7 +224,6 @@ void SysTick_Handler(void)
 
     // CANNOT USE DELAY FUNCTION HERE AS THE ABOVE CODE INCREMENTS THE DELAY
     // COUNTER!
-
     HAL_IWDG_Refresh(&hiwdg);
 
 #ifndef DEBUG
