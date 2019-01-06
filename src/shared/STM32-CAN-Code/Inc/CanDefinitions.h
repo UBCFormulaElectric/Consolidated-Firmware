@@ -156,14 +156,14 @@ typedef enum
     DEMO_2_INT32_NUCLEO_RX_DLC                      = (8U)
 } CanDataLengthCode_Enum;
 
-/** @brief PCB Names */	
-typedef enum	
-{	
-    BATTERY_MANAGEMENT_SYSTEM,	
-    DRIVE_CONTROL_MODULE,	
-    POWER_DISTRIBUTION_MODULE,	
-    FRONT_SENSOR_MODULE,	
-    PCB_COUNT	
+/** @brief PCB Names */
+typedef enum
+{
+    BATTERY_MANAGEMENT_SYSTEM,
+    DRIVE_CONTROL_MODULE,
+    POWER_DISTRIBUTION_MODULE,
+    FRONT_SENSOR_MODULE,
+    PCB_COUNT
 } Pcb_Enum;
 
 /**

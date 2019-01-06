@@ -287,7 +287,8 @@ void SharedCan_ReceiveHeartbeat(PcbEncoding_Enum board);
  */
 void SharedCan_CheckHeartbeatsReceived(void);
 
-/* @brief Send CAN message one-hot encoded for one or more errors
+/**
+ * @brief Send CAN message one-hot encoded for one or more errors
  * @param Error_Enum One or more errors OR'd together (Note: This enum is
  *        board-specific and depends on the PCB preprocessor symbol)
  */
