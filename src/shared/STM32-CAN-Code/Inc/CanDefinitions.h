@@ -156,6 +156,16 @@ typedef enum
     DEMO_2_INT32_NUCLEO_RX_DLC                      = (8U)
 } CanDataLengthCode_Enum;
 
+/** @brief PCB Names */	
+typedef enum	
+{	
+    BATTERY_MANAGEMENT_SYSTEM,	
+    DRIVE_CONTROL_MODULE,	
+    POWER_DISTRIBUTION_MODULE,	
+    FRONT_SENSOR_MODULE,	
+    PCB_COUNT	
+} Pcb_Enum;
+
 /**
  * @brief FSM Errors
  * PAPPS_OUT_OF_RANGE: PAPPS value out of acceptable range
@@ -169,7 +179,6 @@ typedef enum
  * WHEELSPEED_OUT_OF_RANGE: Wheel speed out of acceptable range
  * BMS_HEARTBEAT_TIMEOUT: Missed too many BMS heartbeat
  */
-
 typedef enum
 {
     PAPPS_OUT_OF_RANGE,
@@ -210,11 +219,11 @@ typedef enum
 /** @brief One-hot PCB encoding */
 typedef enum
 {
-    BMS_ENCODING = 0b0001,
-    DCM_ENCODING = 0b0010,
-    PDM_ENCODING = 0b0100,
-    FSM_ENCODING = 0b1000
-} PcbEncoding_Enum;
+    BMS_HEARTBEAT_ENCODING = 0b0001,
+    DCM_HEARTBEAT_ENCODING = 0b0010,
+    PDM_HEARTBEAT_ENCODING = 0b0100,
+    FSM_HEARTBEAT_ENCODING = 0b1000
+} PcbHeartbeatEncoding_Enum;
 
 /******************************************************************************
  * Global Variables

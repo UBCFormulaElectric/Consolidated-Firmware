@@ -27,13 +27,6 @@
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off
-
-// Board-specific heartbeat listeners
-#define BMS_HEARTBEAT_LISTENER (DCM_ENCODING | PDM_ENCODING | FSM_ENCODING)
-#define DCM_HEARTBEAT_LISTENER (BMS_ENCODING)
-#define PDM_HEARTBEAT_LISTENER (BMS_ENCODING)
-#define FSM_HEARTBEAT_LISTENER (BMS_ENCODING)
-
 #define CAN_PAYLOAD_BYTE_SIZE 8 // Maximum number of bytes in a CAN payload
 #define CAN_ExtID_NULL 0 // Set CAN Extended ID to 0 because we are not using it
 #define CAN_TX_MSG_FIFO_SIZE 20 // Size of CAN FIFO is arbitrary at the moment
@@ -45,7 +38,7 @@
     #define PCB_STARTUP_DLC             PDM_STARTUP_DLC
     #define PCB_HEARTBEAT_STDID         PDM_HEARTBEAT_STDID
     #define PCB_HEARTBEAT_DLC           PDM_HEARTBEAT_DLC
-    #define PCB_HEARTBEAT_LISTENER      PDM_HEARTBEAT_LISTENER
+    #define PCB_HEARTBEAT_LISTENER      BMS_HEARTBEAT_ENCODING
     #define Error_Enum                  PdmError_Enum
     #define PCB_ERROR_STDID             PDM_ERROR_STDID
     #define PCB_ERROR_DLC               PDM_ERROR_DLC
@@ -56,7 +49,7 @@
     #define PCB_STARTUP_DLC             FSM_STARTUP_DLC
     #define PCB_HEARTBEAT_STDID         FSM_HEARTBEAT_STDID
     #define PCB_HEARTBEAT_DLC           FSM_HEARTBEAT_DLC
-    #define PCB_HEARTBEAT_LISTENER      FSM_HEARTBEAT_LISTENER
+    #define PCB_HEARTBEAT_LISTENER      BMS_HEARTBEAT_ENCODING
     #define Error_Enum                  FsmError_Enum
     #define PCB_ERROR_STDID             FSM_ERROR_STDID
     #define PCB_ERROR_DLC               FSM_ERROR_DLC
@@ -67,7 +60,7 @@
     #define PCB_STARTUP_DLC             BMS_STARTUP_DLC
     #define PCB_HEARTBEAT_STDID         BMS_HEARTBEAT_STDID
     #define PCB_HEARTBEAT_DLC           BMS_HEARTBEAT_DLC
-    #define PCB_HEARTBEAT_LISTENER      BMS_HEARTBEAT_LISTENER
+    #define PCB_HEARTBEAT_LISTENER      (DCM_HEARTBEAT_ENCODING | PDM_HEARTBEAT_ENCODING | FSM_HEARTBEAT_ENCODING)
     #define Error_Enum                  BmsError_Enum
     #define PCB_ERROR_STDID             BMS_ERROR_STDID
     #define PCB_ERROR_DLC               BMS_ERROR_DLC
@@ -78,7 +71,7 @@
     #define PCB_STARTUP_DLC             DCM_STARTUP_DLC
     #define PCB_HEARTBEAT_STDID         DCM_HEARTBEAT_STDID
     #define PCB_HEARTBEAT_DLC           DCM_HEARTBEAT_DLC
-    #define PCB_HEARTBEAT_LISTENER      DCM_HEARTBEAT_LISTENER
+    #define PCB_HEARTBEAT_LISTENER      BMS_HEARTBEAT_ENCODING
     #define Error_Enum                  DcmError_Enum
     #define PCB_ERROR_STDID             DCM_ERROR_STDID
     #define PCB_ERROR_DLC               DCM_ERROR_DLC
@@ -294,11 +287,10 @@ void SharedCan_ReceiveHeartbeat(PcbEncoding_Enum board);
  */
 void SharedCan_CheckHeartbeatsReceived(void);
 
- * @brief Send CAN message one-hot encoded for one or more errors
+/* @brief Send CAN message one-hot encoded for one or more errors
  * @param Error_Enum One or more errors OR'd together (Note: This enum is
  *        board-specific and depends on the PCB preprocessor symbol)
  */
 void SharedCan_BroadcastPcbErrors(Error_Enum error);
-
 
 #endif /* SHARED_CAN_H */
