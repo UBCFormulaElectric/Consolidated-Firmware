@@ -24,6 +24,16 @@
 #endif
 
 /******************************************************************************
+ * Fixes to allow us to use this library with STM32F0xx Boards
+ ******************************************************************************/
+#ifdef STM32F042x6
+typedef CanRxMsgTypeDef CAN_RxHeaderTypeDef;
+typedef CanTxMsgTypeDef CAN_TxHeaderTypeDef;
+typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
+#define CAN_FILTER_ENABLE ENABLE
+#endif
+
+/******************************************************************************
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off

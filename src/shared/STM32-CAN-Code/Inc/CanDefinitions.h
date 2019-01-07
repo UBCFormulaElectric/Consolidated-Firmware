@@ -131,9 +131,7 @@ typedef enum
     FSM_STEERING_ANGLE_DLC                          = (4U),
     FSM_LEFT_WHEEL_SPEED_DLC                        = (4U),
     FSM_RIGHT_WHEEL_SPEED_DLC                       = (4U),
-    PDM_ERROR_DLC                                   = (4U),
-    PDM_HEARTBEAT_DLC                               = (1U),
-    PDM_CAN_TX_FIFO_OVERFLOW_DLC                    = (4U),
+    PDM_ERROR_DLC                                   = (4U), PDM_HEARTBEAT_DLC                               = (1U), PDM_CAN_TX_FIFO_OVERFLOW_DLC                    = (4U),
     PDM_STARTUP_DLC                                 = (1U),
     PDM_RESERVED2_DLC                               = (8U),
     PDM_RESERVED3_DLC                               = (8U),
@@ -215,6 +213,13 @@ typedef enum
     BMS_HEARTBEAT_TIMEOUT_ERROR_ON_DCM,
     DCM_ERRORS_COUNT
 } DcmError_Enum;
+
+/** @brief BMS Errors */
+typedef enum
+{
+    // TODO
+    PLACEHOLDER
+} BmsError_Enum;
 
 /******************************************************************************
  * Global Variables

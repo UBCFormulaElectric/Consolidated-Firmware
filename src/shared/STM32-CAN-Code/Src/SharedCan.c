@@ -236,7 +236,11 @@ static ErrorStatus SharedCan_InitializeFilters(void)
         can_filter.FilterIdHigh         = mask_filters[i + 1].id;
         can_filter.FilterMaskIdHigh     = mask_filters[i + 1].mask;
         can_filter.FilterFIFOAssignment = fifo;
+        #ifdef STM32F042x6
+        can_filter.BankNumber           = filter_bank;
+        #else
         can_filter.FilterBank           = filter_bank;
+        #endif
 
         // Alternate between the two FIFOs
         fifo = !fifo;
@@ -262,7 +266,11 @@ static ErrorStatus SharedCan_InitializeFilters(void)
         can_filter.FilterIdHigh         = mask_filters[last_filter_index].id;
         can_filter.FilterMaskIdHigh     = mask_filters[last_filter_index].mask;
         can_filter.FilterFIFOAssignment = fifo;
+        #ifdef STM32F042x6
+        can_filter.BankNumber           = filter_bank;
+        #else
         can_filter.FilterBank           = filter_bank;
+        #endif
 
         // Configure and initialize filter bank
         if (HAL_CAN_ConfigFilter(&hcan, &can_filter) != HAL_OK)
@@ -327,10 +335,20 @@ void SharedCan_TransmitDataCan(
 
     // Enabling this gives us a tick-based timestamp which we do not need and
     // would take up 2 bytes of the CAN payload. So we disable this setting.
+    #ifndef STM32F042x6
     tx_header.TransmitGlobalTime = DISABLE;
+    #endif
+
+    #ifdef STM32F042x6
+    hcan.pTxMsg = &tx_header;
+    #endif
 
     // If no mailbox is available or an error occured
+    #ifdef STM32F042x6
+    if (HAL_CAN_Transmit(&hcan, 1000) != HAL_OK)
+    #else
     if (HAL_CAN_AddTxMessage(&hcan, &tx_header, data, &mailbox) != HAL_OK)
+    #endif
     {
         // Populate CAN TX message with CAN header and data
         CanTxMsgQueueItem_Struct tx_msg;
@@ -351,13 +369,26 @@ HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan)
 
     status |= SharedCan_InitializeFilters();
 
-    uint32_t active_interrupts = CAN_IT_TX_MAILBOX_EMPTY |
-                                 CAN_IT_RX_FIFO0_MSG_PENDING |
-                                 CAN_IT_RX_FIFO1_MSG_PENDING;
+    uint32_t active_interrupts = 
+    #ifdef STM32F042x6
+        CAN_IT_TME |
+        CAN_IT_FMP0 |
+        CAN_IT_FMP1;
+    #else
+        CAN_IT_TX_MAILBOX_EMPTY |
+        CAN_IT_RX_FIFO0_MSG_PENDING |
+        CAN_IT_RX_FIFO1_MSG_PENDING;
+    #endif
 
+    #ifdef STM32F042x6
+    // TODO?
+    //status |= HAL_CAN_Receive_IT(hcan, CAN_FIFO0);
+    //status |= HAL_CAN_Receive_IT(hcan, CAN_FIFO1);
+    __HAL_CAN_ENABLE_IT(hcan, active_interrupts);
+    #else
     status |= HAL_CAN_ActivateNotification(hcan, active_interrupts);
-
     status |= HAL_CAN_Start(hcan);
+    #endif
 
     SharedCan_BroadcastSystemReboot();
 
@@ -387,13 +418,22 @@ void SharedCan_BroadcastPcbErrors(Error_Enum errors)
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     /* NOTE: All receive mailbox interrupts shall be handled in the same way */
+    #ifdef STM32F042x6
+    Can_RxCommonCallback(hcan, CAN_FIFO0);
+    #else
     Can_RxCommonCallback(hcan, CAN_RX_FIFO0);
+    #endif
 }
 
 void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     /* NOTE: All receive mailbox interrupts shall be handled in the same way */
+
+    #ifdef STM32F042x6
+    Can_RxCommonCallback(hcan, CAN_FIFO1);
+    #else
     Can_RxCommonCallback(hcan, CAN_RX_FIFO1);
+    #endif
 }
 
 void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
