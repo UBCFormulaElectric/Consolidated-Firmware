@@ -11,7 +11,7 @@
 /******************************************************************************
  * Module Preprocessor Constants
  ******************************************************************************/
-// clang format off
+// clang-format off
 
 /******************************************************************************
  * Module Preprocessor Macros
@@ -36,7 +36,7 @@
 /******************************************************************************
  * Module Typedefs
  ******************************************************************************/
-// clang format on
+// clang-format on
 
 /******************************************************************************
  * Module Variable Definitions
@@ -311,6 +311,7 @@ void Gpio_ConfigureSingleDen(
     Profet2_Struct *       profet2,
     DenOnOff_GPIO_PinState state)
 {
+    // TODO:
     SharedGpio_GPIO_WritePin(
         profet2->den_pin_mapping.port, profet2->den_pin_mapping.pin, state);
 }
