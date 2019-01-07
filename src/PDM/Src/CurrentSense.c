@@ -44,11 +44,11 @@ void CurrentSense_ConvertCurrentAdcReadings(void)
          i++, j++)
     {
         efuse_struct *efuse = &(
-            Gpio_GetProfet2s()[i].efuse[CurrentSense_GetCurrentSenseChannel()]);
+            Profet2_GetProfet2s()[i].efuse[CurrentSense_GetCurrentSenseChannel()]);
 
         // Convert ADC readings to current values
         float32_t temp_current = (float32_t)(SharedAdc_GetAdcReadings()[j]) *
-                                 efuse->ampere_per_volt * VDDA_VOLTAGE /
+                                 efuse->ampere_per_volt * SharedAdc_GetActualVdda() /
                                  (float32_t)(SharedAdc_GetAdcMaxValue());
 
         // Apply low pass filter to current values
@@ -89,11 +89,11 @@ void CurrentSense_SelectCurrentSenseChannel(SenseChannel_Enum channel)
     if (channel == SENSE_0)
     {
         sense_channel = SENSE_1;
-        Gpio_ConfigureAllDsels(DSEL_LOW);
+        Profet2_ConfigureAllDsels(DSEL_LOW);
     }
     else
     {
         sense_channel = SENSE_0;
-        Gpio_ConfigureAllDsels(DSEL_HIGH);
+        Profet2_ConfigureAllDsels(DSEL_HIGH);
     }
 }

@@ -158,9 +158,32 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+    //Profet2_Struct* profet2s = Profet2_GetProfet2s();
 
     while (1)
     {
+//        // Turn on and off all efuses
+//        for (uint32_t j = 0; j < NUM_PROFET2S; j++)
+//        {
+//            for (uint32_t i = 0; i < NUM_CHANNELS_PER_PROFET2; i++)
+//            {
+//                efuse_struct *efuse = &(profet2s[j].efuse[i]);
+//                Profet2_ConfigureSingleEfuse(efuse, EFUSE_ON);
+//                Profet2_ConfigureSingleEfuse(efuse, EFUSE_OFF);
+//            }
+//        }
+
+//        for (uint32_t i = 0; i < NUM_PROFET2S; i++)
+//        {
+//            Profet2_ConfigureSingleDen(profet2s, DEN_ON);
+//            Profet2_ConfigureSingleDen(profet2s, DEN_OFF);
+//        }
+//        Profet2_ConfigureAllDsels(DSEL_LOW);
+//        Profet2_ConfigureAllDsels(DSEL_HIGH);
+
+//        GPIO_ConfigureFor12VAcc();
+//        GPIO_ConfigureFor12VAux();
+
     }
     /* USER CODE END 3 */
 }

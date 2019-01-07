@@ -96,3 +96,14 @@ const uint32_t *SharedAdc_GetAdcReadings(void)
 {
     return (const uint32_t *)adc_readings;
 }
+
+float32_t SharedAdc_GetActualVdda(void)
+{
+    // TODO: Make this function a one line return expression
+    // TODO: Check val value and see if we need to explicitly cast val
+    // and adc_readings[] to be float32_t
+    uint32_t val = *VREFINT_CAL_ADDR;
+    return 3.3f * val / adc_readings[VREFINT_INDEX];
+    //return 3.3f * (float32_t)(val) / (float32_t)(adc_readings[VREFINT_INDEX]);
+
+}

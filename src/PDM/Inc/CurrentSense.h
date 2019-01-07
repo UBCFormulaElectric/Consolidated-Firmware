@@ -12,6 +12,7 @@
 #include "stm32f3xx_hal.h"
 #include "arm_math.h"
 #include "Gpio.h"
+#include "Profet2.h"
 
 /******************************************************************************
  * Preprocessor Constants
@@ -20,32 +21,6 @@
 /** @brief AUX Current Sense first reading is consistently incorrect (reads > 0
  *         when there is no current), take second reading as workaround */
 #define NUM_READINGS_PER_ADC_DMA_TRANSFER 2
-
-/** @defgroup PROFET2
- *  The constants related to current sensing on PROFET2 (BTS7008-2EPA)
- *  @{
- */
-/** @brief Sense resistance for the IS output of PROFET2 */
-#define SENSE_RESISTANCE (float32_t)(330.0f)
-
-/** @brief The typical current scaling factor is 5500, but we also manually
- *         calibrate the value at 5A trip current for AUX outputs */
-#define CURRENT_SCALING_AUX (float32_t)(6000.0f)
-
-/** @brief The typical current scaling factor is 5500, but we also manually
- *         calibrate the value at 5A trip current for non-AUX outputs */
-#define CURRENT_SCALING (float32_t)(7000.0f)
-
-/** @brief Multiple the ADC voltage reading by this (in 3.3V scale) to get
- *         e-fuse current for AUX outputs */
-#define AMP_PER_VOLT_AUX (float32_t)(CURRENT_SCALING_AUX / SENSE_RESISTANCE)
-
-/** @brief Multiple the ADC voltage reading by this (in 3.3V scale) to get
- *         e-fuse current for non-AUX outputs */
-#define AMP_PER_VOLT (float32_t)(CURRENT_SCALING / SENSE_RESISTANCE)
-
-/** @} PROFET2 */
-
 
 /** @defgroup VOLTAGE_CURRENT_LIMITS
  *  Various voltage and current threshold for fault conditions

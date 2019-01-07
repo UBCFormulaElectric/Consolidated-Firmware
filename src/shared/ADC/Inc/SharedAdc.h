@@ -22,13 +22,26 @@
     "No valid architecture selected - unable to determine what HAL library to use"
 #endif
 
+#include "arm_math.h"
+
 /******************************************************************************
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off
+
+#ifdef STM32F302x8
+#define VREFINT_CAL_ADDR		(uint32_t *)(0x1FFFF7BA)
+#elif STM32F042x6
+#else
+#define VREFINT_CAL_ADDR		(uint32_t *)(0x1FFFF7BA)
+#error \
+    "No valid architecture selected - unable to determine what HAL library to use"
+#endif
+
+
 // Number of microcontroller pins that are configured to be ADC inputs
-#ifdef PDM 
-    #define NUM_ADC_CHANNELS (uint32_t)(8)
+#ifdef PDM
+    #define NUM_ADC_CHANNELS (uint32_t)(9)
 #elif FSM
     // TODO: Correct this
     #define NUM_ADC_CHANNELS (uint32_t)(8)
@@ -44,6 +57,10 @@
 
 /** @brief Nominal voltage for VDDA, or ADC power supply */
 #define VDDA_VOLTAGE (float32_t)(3.3f)
+
+/** @brief To use this library, make sure to enable VREFINT and give it Regular
+ *         Rank 1 so that adc_reading[0] contains VREFINT */
+#define VREFINT_INDEX 0
 
 /******************************************************************************
  * Preprocessor Macros
@@ -85,5 +102,18 @@ const uint32_t SharedAdc_GetAdcMaxValue(void);
  * @return Pointer to the array of ADC readings
  */
 const uint32_t *SharedAdc_GetAdcReadings(void);
+
+/**
+ * @brief  The VDDA power supply voltage applied to the microcontroller may be
+ *         subject to variation or not precisely known. The embedded internal
+ *         voltage reference (VREFINT) and its calibration data acquired by the
+ *         ADC during the manufacturing process at VDDA = 3.3 V can be used to
+ *         evaluate the actual VDDA voltage level.
+ * 
+ *         Note that this implementation requires the regular rank of VREFINT 
+ *         to be configured as (VREFINT_INDEX + 1) = 1 in STM32CubeMX.
+ * @return Actual VDDA voltage
+ */
+float32_t SharedAdc_GetActualVdda(void);
 
 #endif /* SHARED_ADC_H */

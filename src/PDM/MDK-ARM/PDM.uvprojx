@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F302x8, PDM, ARM_MATH_CM4</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;../Drivers/CMSIS/Include;..\..\shared\STM32-CAN-Code\Inc;..\..\shared\GPIO\Inc;..\..\shared;..\..\shared\ADC\Inc;..\..\shared\Filters\Inc</IncludePath>
+              <IncludePath>../Inc; ../Drivers/STM32F3xx_HAL_Driver/Inc; ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy; ../Drivers/CMSIS/Device/ST/STM32F3xx/Include; ../Drivers/CMSIS/Include; ..\..\shared\STM32-CAN-Code\Inc; ..\..\shared\GPIO\Inc; ..\..\shared; ..\..\shared\ADC\Inc; ..\..\shared\Filters\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -423,21 +423,6 @@
               <FilePath>..\Src\Timers.c</FilePath>
             </File>
             <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Src/main.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f3xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Src/stm32f3xx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f3xx_hal_msp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Src/stm32f3xx_hal_msp.c</FilePath>
-            </File>
-            <File>
               <FileName>ErrorHandling.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\ErrorHandling.c</FilePath>
@@ -466,6 +451,26 @@
               <FileName>VoltageSense.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\VoltageSense.c</FilePath>
+            </File>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Src/main.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f3xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Src/stm32f3xx_it.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f3xx_hal_msp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Src/stm32f3xx_hal_msp.c</FilePath>
+            </File>
+            <File>
+              <FileName>Profet2.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\Profet2.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -551,6 +556,11 @@
               <FileName>VoltageSense.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Inc\VoltageSense.h</FilePath>
+            </File>
+            <File>
+              <FileName>Profet2.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Inc\Profet2.h</FilePath>
             </File>
           </Files>
         </Group>
