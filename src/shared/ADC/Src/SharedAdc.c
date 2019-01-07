@@ -25,7 +25,7 @@
 static uint32_t adc_max_value;
 
 /** @brief Array of raw ADC values */
-static uint32_t adc_readings[NUM_ADC_CHANNELS] = { 0 };
+static uint32_t adc_values[NUM_ADC_CHANNELS] = { 0 };
 
 /******************************************************************************
  * Private Function Prototypes
@@ -65,17 +65,14 @@ static ErrorStatus InitializeAdcMaxValue(ADC_HandleTypeDef *hadc)
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedAdc_StartAdcInDmaMode(
-    ADC_HandleTypeDef *hadc,
-    uint32_t *         data,
-    uint32_t           length)
+void SharedAdc_StartAdcInDmaMode(ADC_HandleTypeDef *hadc)
 {
     if (HAL_ADCEx_Calibration_Start(hadc, ADC_SINGLE_ENDED) != HAL_OK)
     {
         Error_Handler();
     }
 
-    if (HAL_ADC_Start_DMA(hadc, data, length) != HAL_OK)
+    if (HAL_ADC_Start_DMA(hadc, &adc_values[0], NUM_ADC_CHANNELS) != HAL_OK)
     {
         Error_Handler();
     }
@@ -84,7 +81,6 @@ void SharedAdc_StartAdcInDmaMode(
     {
         Error_Handler();
     }
-    HAL_ADC_Start(hadc);
 }
 
 const uint32_t SharedAdc_GetAdcMaxValue(void)
@@ -92,18 +88,18 @@ const uint32_t SharedAdc_GetAdcMaxValue(void)
     return (const uint32_t)adc_max_value;
 }
 
-const uint32_t *SharedAdc_GetAdcReadings(void)
+const uint32_t * const SharedAdc_GetAdcReadings(void)
 {
-    return (const uint32_t *)adc_readings;
+    return (const uint32_t * const)adc_values;
 }
 
 float32_t SharedAdc_GetActualVdda(void)
 {
     // TODO: Make this function a one line return expression
     // TODO: Check val value and see if we need to explicitly cast val
-    // and adc_readings[] to be float32_t
+    // and adc_values[] to be float32_t
     uint32_t val = *VREFINT_CAL_ADDR;
-    return 3.3f * val / adc_readings[VREFINT_INDEX];
-    //return 3.3f * (float32_t)(val) / (float32_t)(adc_readings[VREFINT_INDEX]);
+    return 3.3f * val / adc_values[VREFINT_INDEX];
+    //return 3.3f * (float32_t)(val) / (float32_t)(adc_values[VREFINT_INDEX]);
 
 }

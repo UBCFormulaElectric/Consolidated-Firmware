@@ -86,10 +86,7 @@
  * @param  length The length of data to be transferred from ADC peripheral to
  * memory.
  */
-void SharedAdc_StartAdcInDmaMode(
-    ADC_HandleTypeDef *hadc,
-    uint32_t *         data,
-    uint32_t           length);
+void SharedAdc_StartAdcInDmaMode(ADC_HandleTypeDef *hadc);
 
 /**
  * @brief  Get the appropriate maximum ADC value based on the ADC resolution
@@ -101,7 +98,7 @@ const uint32_t SharedAdc_GetAdcMaxValue(void);
  * @brief  Get the array of ADC readings transferred over DMA request
  * @return Pointer to the array of ADC readings
  */
-const uint32_t *SharedAdc_GetAdcReadings(void);
+const uint32_t * const SharedAdc_GetAdcReadings(void);
 
 /**
  * @brief  The VDDA power supply voltage applied to the microcontroller may be
