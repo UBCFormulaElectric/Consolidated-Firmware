@@ -46,8 +46,8 @@ void CurrentSense_ConvertCurrentAdcReadings(void)
         efuse_struct *efuse = &(
             Profet2_GetProfet2s()[i].efuse[CurrentSense_GetCurrentSenseChannel()]);
 
-        // Convert ADC readings to current values
-        float32_t temp_current = (float32_t)(SharedAdc_GetAdcReadings()[j]) *
+        // Convert ADC values to current values
+        float32_t temp_current = (float32_t)(SharedAdc_GetAdcValues()[j]) *
                                  efuse->ampere_per_volt * SharedAdc_GetActualVdda() /
                                  (float32_t)(SharedAdc_GetAdcMaxValue());
 

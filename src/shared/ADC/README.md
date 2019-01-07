@@ -32,7 +32,5 @@ static void MX_ADC_INIT(void)
 ```
 
 1. Add `shared\ADC\Inc` to Include Paths inside Keil (Note: Your relative path may look different than mine)
-1. When DMA transfer is complete, the `HAL_ADC_ConvCpltCallback()` will be called and you can use `SharedAdc_GetAdcReadings()` to get the array of ADC values(with index `[0]` as `Vrefint` because we configured it to have **Regular Rank 1**) and use `SharedAdc_GetActualVdda()` to get the VDDA value that is calibrated with manufacturer data.
+1. When DMA transfer is complete, `HAL_ADC_ConvCpltCallback()` will be called and you should implement the board-specific `HAL_ADC_ConvCpltCallback()` in `Adc.c`. You can use `SharedAdc_GetAdcValues()` to get the array of most recent ADC values(with index `[0]` as `Vrefint` because we configured it to have **Regular Rank 1**) and use `SharedAdc_GetActualVdda()` to get the VDDA value that is calibrated with manufacturer data.
 1. At anytime, you can use `SharedAdc_GetAdcMaxValue()` to get the maximum ADC value for the configured ADC bit resolution (e.g. 1023 for ADC 10-bit resolution or 4095 for ADC 12-bit resolution)
-
-`adc_reading[NUM_ADC_CHANNELS]`will contain the most recent ADC readings. Implement the board-specific `HAL_ADC_ConvCpltCallback()` in `Adc.c`

@@ -88,7 +88,7 @@ const uint32_t SharedAdc_GetAdcMaxValue(void)
     return (const uint32_t)adc_max_value;
 }
 
-const uint32_t * const SharedAdc_GetAdcReadings(void)
+const uint32_t * const SharedAdc_GetAdcValues(void)
 {
     return (const uint32_t * const)adc_values;
 }
