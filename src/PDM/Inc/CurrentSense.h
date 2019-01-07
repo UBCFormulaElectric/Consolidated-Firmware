@@ -21,7 +21,6 @@
  *         when there is no current), take second reading as workaround */
 #define NUM_READINGS_PER_ADC_DMA_TRANSFER 2
 
-
 /** @defgroup PROFET2
  *  The constants related to current sensing on PROFET2 (BTS7008-2EPA)
  *  @{
@@ -98,18 +97,6 @@
 * Typedefs
 *******************************************************************************/
 // clang-format on
-typedef enum
-{
-    SENSE_0,
-    SENSE_1
-} SenseChannel_Enum;
-
-typedef struct
-{
-    GPIO_PinPort_Struct input_channel;
-    volatile float32_t  current;
-    float32_t           ampere_per_volt;
-} efuse_struct;
 
 /******************************************************************************
  * Global Variables
@@ -155,6 +142,6 @@ void CurrentSense_SelectCurrentSenseChannel(SenseChannel_Enum channel);
 /**
  * @brief Return the array of structs containing information about all efuses
  */
-efuse_struct *const CurrentSense_GetEfuses(void);
+efuse_struct * const CurrentSense_GetEfuses(void);
 
 #endif /* CURRENT_SENSE_H */

@@ -150,9 +150,6 @@ int main(void)
     // Initialize Timers
     Timers_Init();
 
-    CurrentSense_SelectCurrentSenseChannel(SENSE_0);
-    CurrentSense_SelectCurrentSenseChannel(SENSE_1);
-
     /* USER CODE END 2 */
 
     /* Infinite loop */
