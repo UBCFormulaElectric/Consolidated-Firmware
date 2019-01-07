@@ -231,6 +231,7 @@ foreach(MODULE_DIR ${MODULES})
     FOREACH(shared_lib_dir ${SHARED_SUBDIRS})
         target_include_directories(${exe_name} PRIVATE shared/${shared_lib_dir}/Inc)    
     ENDFOREACH()
+    target_include_directories(${exe_name} PRIVATE shared)    
 
     ### COMPILER FLAGS ###
     # Add the compiler flags
