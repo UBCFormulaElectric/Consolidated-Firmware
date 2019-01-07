@@ -40,19 +40,21 @@ volatile SenseChannel_Enum sense_channel = SENSE_0;
  ******************************************************************************/
 void CurrentSense_ConvertCurrentAdcReadings(void)
 {
-    for (uint32_t i = 0, j = ADC_READINGS_VOLTAGE_START_INDEX; i < NUM_PROFET2S; i++, j++) 
+    for (uint32_t i = 0, j = ADC_READINGS_VOLTAGE_START_INDEX; i < NUM_PROFET2S;
+         i++, j++)
     {
-        efuse_struct *efuse = &(Gpio_GetProfet2s()[i].efuse[CurrentSense_GetCurrentSenseChannel()]);
+        efuse_struct *efuse = &(
+            Gpio_GetProfet2s()[i].efuse[CurrentSense_GetCurrentSenseChannel()]);
 
         // Convert ADC readings to current values
-        float32_t temp_current = (float32_t)(SharedAdc_GetAdcReadings()[j]) * efuse->ampere_per_volt 
-                                 * VDDA_VOLTAGE / (float32_t)(SharedAdc_GetAdcMaxValue());
+        float32_t temp_current = (float32_t)(SharedAdc_GetAdcReadings()[j]) *
+                                 efuse->ampere_per_volt * VDDA_VOLTAGE /
+                                 (float32_t)(SharedAdc_GetAdcMaxValue());
 
         // Apply low pass filter to current values
-        SharedFilter_LowPassFilter(&temp_current,
-                                   (float32_t *)(&efuse->current),
-                                   CURRENT_IIR_LPF_SAMPLING_PERIOD,
-                                   CURRENT_IIR_LPF_RC);
+        SharedFilter_LowPassFilter(
+            &temp_current, (float32_t *)(&efuse->current),
+            CURRENT_IIR_LPF_SAMPLING_PERIOD, CURRENT_IIR_LPF_RC);
     }
 }
 
@@ -94,5 +96,4 @@ void CurrentSense_SelectCurrentSenseChannel(SenseChannel_Enum channel)
         sense_channel = SENSE_0;
         Gpio_ConfigureAllDsels(DSEL_HIGH);
     }
-
 }

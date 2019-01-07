@@ -67,7 +67,7 @@ typedef enum
 typedef enum
 {
     DEN_OFF = GPIO_PIN_RESET,
-    DEN_ON = !DEN_OFF
+    DEN_ON  = !DEN_OFF
 } DenOnOff_GPIO_PinState;
 
 /** Efuse State */
@@ -108,18 +108,18 @@ typedef enum
 typedef enum
 {
     AIR_SHDN = SENSE_0,
-    CAN_GLV = SENSE_1,
+    CAN_GLV  = SENSE_1,
 } AirShdnCanGlvIndex_Enum;
 
 typedef enum
 {
-    ACC_SEGMENT_FAN = SENSE_0,
+    ACC_SEGMENT_FAN   = SENSE_0,
     ACC_ENCLOSURE_FAN = SENSE_1,
 } AccSegmentFanAccEnclosureFanIndex_Enum;
 
 typedef enum
 {
-    LEFT_INVERTER = SENSE_0,
+    LEFT_INVERTER  = SENSE_0,
     RIGHT_INVERTER = SENSE_1,
 } LeftInverterRightInverterIndex_Enum;
 
@@ -141,7 +141,7 @@ typedef struct
 
 typedef struct
 {
-    efuse_struct efuse[NUM_CHANNELS_PER_PROFET2];
+    efuse_struct        efuse[NUM_CHANNELS_PER_PROFET2];
     GPIO_PinPort_Struct dsel_pin_mapping;
     GPIO_PinPort_Struct den_pin_mapping;
 } Profet2_Struct;
@@ -181,10 +181,18 @@ void GPIO_ConfigureFor12VAux(volatile uint8_t *fault_states);
  * @param  efuse Efuse to configure
  * @param  state Turn e-fuse on or off
  */
-void Gpio_ConfigureSingleEfuse(efuse_struct *efuse, EfuseOnOff_GPIO_PinState state);
+void Gpio_ConfigureSingleEfuse(
+    efuse_struct *           efuse,
+    EfuseOnOff_GPIO_PinState state);
 
-//TODO: Complete prototype 
-void Gpio_ConfigureSingleDen(Profet2_Struct *profet2, DenOnOff_GPIO_PinState state);
+/**
+ * @brief  Helper function to turn the DEN pin of PROFET2 on or off
+ * @param  profet2 PROFET2 to configure
+ * @param  state Turn DEN pin on or off
+ */
+void Gpio_ConfigureSingleDen(
+    Profet2_Struct *       profet2,
+    DenOnOff_GPIO_PinState state);
 
 /**
  * @brief Helper function to turn all DSEL pins on or off
@@ -195,6 +203,6 @@ void Gpio_ConfigureAllDsels(DselOnOff_GPIO_PinState state);
 /**
  * @brief Return array of structs containing information for each PROFET
  */
-Profet2_Struct * const Gpio_GetProfet2s(void);
+Profet2_Struct *const Gpio_GetProfet2s(void);
 
 #endif /* GPIO_H */

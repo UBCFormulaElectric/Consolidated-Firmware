@@ -16,8 +16,6 @@
  * Module Typedefs
  ******************************************************************************/
 // clang-format on
-//TODO: Finish this
-
 #define AdcDmaTimer TIM2
 #define ControlLoopTimer TIM17
 
@@ -47,6 +45,7 @@ void Timers_Init(void)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
+    // TODO: Test that ControllLoopTimer works
     if (htim->Instance == ControlLoopTimer)
     {
         // FaultHandling_RetryEFuse(e_fuse_fault_states);
