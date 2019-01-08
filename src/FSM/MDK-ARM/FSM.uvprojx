@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F042x6, FSM</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;                  ../Drivers/STM32F0xx_HAL_Driver/Inc;                  ../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy;                  ../Drivers/CMSIS/Device/ST/STM32F0xx/Include;                  ../Drivers/CMSIS/Include</IncludePath>
+              <IncludePath>../Inc;../Drivers/STM32F0xx_HAL_Driver/Inc;../Drivers/STM32F0xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F0xx/Include;../Drivers/CMSIS/Include;../../shared/STM32-CAN-Code/Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -406,6 +406,16 @@
               <FileName>stm32f0xx_hal_msp.c</FileName>
               <FileType>1</FileType>
               <FilePath>../Src/stm32f0xx_hal_msp.c</FilePath>
+            </File>
+            <File>
+              <FileName>SharedCan.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\shared\STM32-CAN-Code\Src\SharedCan.c</FilePath>
+            </File>
+            <File>
+              <FileName>Can.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\Can.c</FilePath>
             </File>
           </Files>
         </Group>
