@@ -408,7 +408,7 @@ __weak void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
               the Can_RxCommonCallback could be implemented in the Can.c file */
 }
 
-// TODO: Use this function in all the boards
+// TODO (Issue #297): Use this function in all the boards
 HAL_StatusTypeDef SharedCan_ReceiveDataCan(
     CAN_HandleTypeDef *hcan,
     uint32_t           rx_fifo,
