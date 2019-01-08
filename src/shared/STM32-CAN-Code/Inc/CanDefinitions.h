@@ -216,15 +216,6 @@ typedef enum
     DCM_ERRORS_COUNT
 } DcmError_Enum;
 
-/** @brief One-hot PCB encoding */
-typedef enum
-{
-    BMS_HEARTBEAT_ENCODING = 0b0001,
-    DCM_HEARTBEAT_ENCODING = 0b0010,
-    PDM_HEARTBEAT_ENCODING = 0b0100,
-    FSM_HEARTBEAT_ENCODING = 0b1000
-} PcbHeartbeatEncoding_Enum;
-
 /******************************************************************************
  * Global Variables
  ******************************************************************************/

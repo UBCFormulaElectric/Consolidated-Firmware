@@ -42,6 +42,7 @@
 #include "CurrentSense.h"
 #include "Gpio.h"
 #include "SharedCan.h"
+#include "SharedHeartbeat.h"
 #include "ErrorHandling.h"
 /* USER CODE END Includes */
 
@@ -257,7 +258,7 @@ void SysTick_Handler(void)
     if (PDMHeartbeatBroadcastTicks >= HEARTBEAT_BROADCAST_PERIOD)
     {
         PDMHeartbeatBroadcastTicks = 0;
-        SharedCan_BroadcastHeartbeat();
+        SharedHeartbeat_BroadcastHeartbeat();
     }
 
 #endif

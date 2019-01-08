@@ -20,13 +20,9 @@
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
-// CAN queue setup
 static CanTxMsgQueueItem_Struct can_tx_msg_fifo[CAN_TX_MSG_FIFO_SIZE];
 static volatile uint8_t         tail = 0;
 static volatile uint8_t         head = 0;
-
-// Heartbeats setup
-static volatile uint8_t heartbeats_received = 0;
 
 // TODO (Issue: 243): Remove clang-format on/off once #243 is resolved
 // clang-format off
@@ -372,32 +368,6 @@ __weak void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 {
     /* NOTE: This function Should not be modified, when the callback is needed,
               the Can_RxCommonCallback could be implemented in the Can.c file */
-}
-
-void SharedCan_BroadcastHeartbeat(void)
-{
-    uint8_t data[PCB_HEARTBEAT_DLC] = { 0 };
-    SharedCan_TransmitDataCan(PCB_HEARTBEAT_STDID, PCB_HEARTBEAT_DLC, &data[0]);
-}
-
-void SharedCan_ReceiveHeartbeat(PcbHeartbeatEncoding_Enum board)
-{
-    heartbeats_received |= board;
-}
-
-void SharedCan_CheckHeartbeatsReceived(void)
-{
-    // Check if the board didn't receive all the heartbeats it's listening for.
-    // Cannot check this with a simple inequality as some boards may listen to
-    // extra heartbeats. AND out the extra heartbeats.
-    if ((heartbeats_received && PCB_HEARTBEAT_LISTENER) != 
-        PCB_HEARTBEAT_LISTENER)
-    {
-        // TODO: throw (board-specific?) fatal error (AIR SHDN?)
-    }
-
-    // Reset list of heartbeats received
-    heartbeats_received = 0;
 }
 
 void SharedCan_BroadcastPcbErrors(Error_Enum errors)
