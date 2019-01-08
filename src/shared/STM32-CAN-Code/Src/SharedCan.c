@@ -236,13 +236,14 @@ static ErrorStatus SharedCan_InitializeFilters(void)
         can_filter.FilterIdHigh         = mask_filters[i + 1].id;
         can_filter.FilterMaskIdHigh     = mask_filters[i + 1].mask;
         can_filter.FilterFIFOAssignment = fifo;
-        #ifdef STM32F042x6
-        can_filter.BankNumber           = filter_bank;
-        #else
-        can_filter.FilterBank           = filter_bank;
-        #endif
+#ifdef STM32F042x6
+        can_filter.BankNumber = filter_bank;
+#else
+        can_filter.FilterBank = filter_bank;
+#endif
 
-        // TODO: This number can't be greater then 27 (see struct def.) how to enforce this statically?
+        // TODO: This number can't be greater then 27 (see struct def.) how to
+        // enforce this statically?
         can_filter.FilterNumber = i;
 
         // Alternate between the two FIFOs
@@ -269,11 +270,11 @@ static ErrorStatus SharedCan_InitializeFilters(void)
         can_filter.FilterIdHigh         = mask_filters[last_filter_index].id;
         can_filter.FilterMaskIdHigh     = mask_filters[last_filter_index].mask;
         can_filter.FilterFIFOAssignment = fifo;
-        #ifdef STM32F042x6
-        can_filter.BankNumber           = filter_bank;
-        #else
-        can_filter.FilterBank           = filter_bank;
-        #endif
+#ifdef STM32F042x6
+        can_filter.BankNumber = filter_bank;
+#else
+        can_filter.FilterBank = filter_bank;
+#endif
 
         // Configure and initialize filter bank
         if (HAL_CAN_ConfigFilter(&hcan, &can_filter) != HAL_OK)
@@ -336,26 +337,26 @@ void SharedCan_TransmitDataCan(
     tx_header.RTR = CAN_RTR_DATA;
     tx_header.DLC = dlc;
 
-    // Enabling this gives us a tick-based timestamp which we do not need and
-    // would take up 2 bytes of the CAN payload. So we disable this setting.
-    #ifndef STM32F042x6
+// Enabling this gives us a tick-based timestamp which we do not need and
+// would take up 2 bytes of the CAN payload. So we disable this setting.
+#ifndef STM32F042x6
     tx_header.TransmitGlobalTime = DISABLE;
-    #endif
+#endif
 
-    #ifdef STM32F042x6
+#ifdef STM32F042x6
     // Copy over data to send
-    memcpy(&data[0], &(tx_header.Data[0]), dlc*sizeof(uint8_t));
+    memcpy(&data[0], &(tx_header.Data[0]), dlc * sizeof(uint8_t));
 
     // Copy over the header to send
     hcan.pTxMsg = &tx_header;
-    #endif
+#endif
 
-    // If no mailbox is available or an error occured
-    #ifdef STM32F042x6
+// If no mailbox is available or an error occured
+#ifdef STM32F042x6
     if (HAL_CAN_Transmit_IT(&hcan) != HAL_OK)
-    #else
+#else
     if (HAL_CAN_AddTxMessage(&hcan, &tx_header, data, &mailbox) != HAL_OK)
-    #endif
+#endif
     {
         // Populate CAN TX message with CAN header and data
         CanTxMsgQueueItem_Struct tx_msg;
@@ -376,28 +377,25 @@ HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan)
 
     status |= SharedCan_InitializeFilters();
 
-    uint32_t active_interrupts = 
-    #ifdef STM32F042x6
-        CAN_IT_TME |
-        CAN_IT_FMP0 |
-        CAN_IT_FMP1;
-    #else
-        CAN_IT_TX_MAILBOX_EMPTY |
-        CAN_IT_RX_FIFO0_MSG_PENDING |
+    uint32_t active_interrupts =
+#ifdef STM32F042x6
+        CAN_IT_TME | CAN_IT_FMP0 | CAN_IT_FMP1;
+#else
+        CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING |
         CAN_IT_RX_FIFO1_MSG_PENDING;
-    #endif
+#endif
 
-    #ifdef STM32F042x6
-        __HAL_CAN_ENABLE_IT(hcan, active_interrupts);
-        // Reserve space for the Rx message. This is a bit hacky, but given
-        // that we're soon dropping support for F0 boards and the alternative
-        // is much more complicated, it does the job.
-        static CanRxMsgTypeDef pRxMsg;
-        hcan->pRxMsg = &pRxMsg;
-    #else
-        status |= HAL_CAN_ActivateNotification(hcan, active_interrupts);
-        status |= HAL_CAN_Start(hcan);
-    #endif
+#ifdef STM32F042x6
+    __HAL_CAN_ENABLE_IT(hcan, active_interrupts);
+    // Reserve space for the Rx message. This is a bit hacky, but given
+    // that we're soon dropping support for F0 boards and the alternative
+    // is much more complicated, it does the job.
+    static CanRxMsgTypeDef pRxMsg;
+    hcan->pRxMsg = &pRxMsg;
+#else
+    status |= HAL_CAN_ActivateNotification(hcan, active_interrupts);
+    status |= HAL_CAN_Start(hcan);
+#endif
 
     SharedCan_BroadcastSystemReboot();
 
@@ -411,25 +409,27 @@ __weak void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 }
 
 // TODO: Use this function in all the boards
-HAL_StatusTypeDef SharedCan_ReceiveDataCan(CAN_HandleTypeDef *hcan, 
-                                            uint32_t rx_fifo, 
-                                            CanRxMsg_Struct* rx_msg)
+HAL_StatusTypeDef SharedCan_ReceiveDataCan(
+    CAN_HandleTypeDef *hcan,
+    uint32_t           rx_fifo,
+    CanRxMsg_Struct *  rx_msg)
 {
-   HAL_StatusTypeDef status;
-   #ifdef STM32F042x6
+    HAL_StatusTypeDef status;
+#ifdef STM32F042x6
 
-   status |= HAL_CAN_Receive_IT(hcan, rx_fifo);
+    status |= HAL_CAN_Receive_IT(hcan, rx_fifo);
 
-   rx_msg->rx_header = *(hcan->pRxMsg);
+    rx_msg->rx_header = *(hcan->pRxMsg);
 
-   // Copy over the data from the received message
-   memcpy(&(rx_msg->data[0]), &(hcan->pRxMsg->Data[0]), 8*sizeof(uint8_t));
+    // Copy over the data from the received message
+    memcpy(&(rx_msg->data[0]), &(hcan->pRxMsg->Data[0]), 8 * sizeof(uint8_t));
 
-   #else
-   status |= HAL_CAN_GetRxMessage(hcan, rx_fifo, &rx_msg->rx_header, &rx_msg->data[0]);
-   #endif
+#else
+    status |= HAL_CAN_GetRxMessage(
+        hcan, rx_fifo, &rx_msg->rx_header, &rx_msg->data[0]);
+#endif
 
-   return status;
+    return status;
 }
 
 void SharedCan_BroadcastHeartbeat(void)
@@ -446,10 +446,9 @@ void SharedCan_BroadcastPcbErrors(Error_Enum errors)
     SharedCan_TransmitDataCan(PCB_ERROR_STDID, PCB_ERROR_DLC, (uint8_t *)&data);
 }
 
-
 #ifdef STM32F042x6
 
-void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef* hcan) 
+void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan)
 {
     /* NOTE: All receive mailbox interrupts shall be handled in the same way */
     /* NOTE: We just set the hardware FIFO to 0 here because the F0 board does
@@ -475,7 +474,8 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 
 #ifdef STM32F042x6
 
-void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef* hcan) {
+void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef *hcan)
+{
     /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
     Can_TxCommonCallback(hcan);
 }

@@ -27,8 +27,8 @@
  * Fixes to allow us to use this library with STM32F0xx Boards
  ******************************************************************************/
 #ifdef STM32F042x6
-typedef CanRxMsgTypeDef CAN_RxHeaderTypeDef;
-typedef CanTxMsgTypeDef CAN_TxHeaderTypeDef;
+typedef CanRxMsgTypeDef       CAN_RxHeaderTypeDef;
+typedef CanTxMsgTypeDef       CAN_TxHeaderTypeDef;
 typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
 #define CAN_FILTER_ENABLE ENABLE
 #endif
@@ -277,8 +277,8 @@ HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan);
 void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo);
 
 /**
- * @brief Get the CAN message that has just been received. This is usually 
- *        called from within Can_RxCommonCallback. 
+ * @brief Get the CAN message that has just been received. This is usually
+ *        called from within Can_RxCommonCallback.
  * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
  *         the configuration information for the specified CAN.
  * @param  rx_fifo The Rx FIFO to get the message from
@@ -286,9 +286,10 @@ void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo);
  *         CAN message
  * @return HAL_STATUS
  */
-HAL_StatusTypeDef SharedCan_ReceiveDataCan(CAN_HandleTypeDef *hcan, 
-                                            uint32_t rx_fifo, 
-                                            CanRxMsg_Struct* rx_msg);
+HAL_StatusTypeDef SharedCan_ReceiveDataCan(
+    CAN_HandleTypeDef *hcan,
+    uint32_t           rx_fifo,
+    CanRxMsg_Struct *  rx_msg);
 
 /**
  * @brief Broadcast heartbeat message for the current PCB
