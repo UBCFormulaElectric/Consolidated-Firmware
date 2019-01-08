@@ -388,17 +388,15 @@ HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan)
     #endif
 
     #ifdef STM32F042x6
-    // TODO?
-    //status |= HAL_CAN_Receive_IT(hcan, CAN_FIFO0);
-    //status |= HAL_CAN_Receive_IT(hcan, CAN_FIFO1);
-    __HAL_CAN_ENABLE_IT(hcan, active_interrupts);
-
-    // TODO: This is a _bit_ of a nasty way to do this
-    static CanRxMsgTypeDef pRxMsg;
-    hcan->pRxMsg = &pRxMsg;
+        __HAL_CAN_ENABLE_IT(hcan, active_interrupts);
+        // Reserve space for the Rx message. This is a bit hacky, but given
+        // that we're soon dropping support for F0 boards and the alternative
+        // is much more complicated, it does the job.
+        static CanRxMsgTypeDef pRxMsg;
+        hcan->pRxMsg = &pRxMsg;
     #else
-    status |= HAL_CAN_ActivateNotification(hcan, active_interrupts);
-    status |= HAL_CAN_Start(hcan);
+        status |= HAL_CAN_ActivateNotification(hcan, active_interrupts);
+        status |= HAL_CAN_Start(hcan);
     #endif
 
     SharedCan_BroadcastSystemReboot();
@@ -416,22 +414,23 @@ __weak void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 HAL_StatusTypeDef SharedCan_ReceiveDataCan(CAN_HandleTypeDef *hcan, 
                                             uint32_t rx_fifo, 
                                             CanRxMsg_Struct* rx_msg)
- {
-    HAL_StatusTypeDef status;
-    #ifdef STM32F042x6
+{
+   HAL_StatusTypeDef status;
+   #ifdef STM32F042x6
 
-    status |= HAL_CAN_Receive_IT(hcan, rx_fifo);
-    rx_msg->rx_header = *(hcan->pRxMsg);
+   status |= HAL_CAN_Receive_IT(hcan, rx_fifo);
 
-    // Copy over the data from the received message
-    memcpy(&(rx_msg->data[0]), &(hcan->pRxMsg->Data[0]), 8*sizeof(uint8_t));
+   rx_msg->rx_header = *(hcan->pRxMsg);
 
-    #else
-    status |= HAL_CAN_GetRxMessage(hcan, rx_fifo, &rx_msg->rx_header, &rx_msg->data[0]);
-    #endif
+   // Copy over the data from the received message
+   memcpy(&(rx_msg->data[0]), &(hcan->pRxMsg->Data[0]), 8*sizeof(uint8_t));
 
-    return status;
- }
+   #else
+   status |= HAL_CAN_GetRxMessage(hcan, rx_fifo, &rx_msg->rx_header, &rx_msg->data[0]);
+   #endif
+
+   return status;
+}
 
 void SharedCan_BroadcastHeartbeat(void)
 {
