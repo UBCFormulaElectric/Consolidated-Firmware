@@ -44,6 +44,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "SharedCan.h"
 
 /* USER CODE END Includes */
 
@@ -151,6 +152,10 @@ int main(void)
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
+    uint8_t test_can_data[BMS_ERROR_DLC] = {0xF, 0x1, 0x2, 0x3};
+    SharedCan_TransmitDataCan(BMS_ERROR_STDID, BMS_ERROR_DLC, &test_can_data[0]);
+    test_can_data[0] = 0x7;
+    SharedCan_TransmitDataCan(BMS_ERROR_STDID, BMS_ERROR_DLC, &test_can_data[0]);
     while (1)
     {
         /* USER CODE END WHILE */
@@ -289,7 +294,7 @@ static void MX_CAN_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN CAN_Init 2 */
-
+    SharedCan_StartCanInInterruptMode(&hcan);
     /* USER CODE END CAN_Init 2 */
 }
 
