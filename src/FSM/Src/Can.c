@@ -3,10 +3,10 @@
 void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 {
     CanRxMsg_Struct rx_msg;
+    SharedCan_ReceiveDataCan(hcan, rx_fifo, &rx_msg);
 
-    //HAL_CAN_GetRxMessage(hcan, rx_fifo, &rx_msg.rx_header, &rx_msg.data[0]);
-    HAL_CAN_Receive_IT(hcan, rx_fifo);
-
+    // NOTE: This is just here to force this function to be compiled in,
+    // for debugging purposes
     volatile int a = 2;
 
     //switch(rx_msg.rx_header.StdId)

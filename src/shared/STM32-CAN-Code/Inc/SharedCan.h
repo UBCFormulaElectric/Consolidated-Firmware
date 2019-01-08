@@ -277,6 +277,20 @@ HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan);
 void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo);
 
 /**
+ * @brief Get the CAN message that has just been received. This is usually 
+ *        called from within Can_RxCommonCallback. 
+ * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
+ *         the configuration information for the specified CAN.
+ * @param  rx_fifo The Rx FIFO to get the message from
+ * @param  rx_msg This struct will be populated appropriately with the received
+ *         CAN message
+ * @return HAL_STATUS
+ */
+HAL_StatusTypeDef SharedCan_ReceiveDataCan(CAN_HandleTypeDef *hcan, 
+                                            uint32_t rx_fifo, 
+                                            CanRxMsg_Struct* rx_msg);
+
+/**
  * @brief Broadcast heartbeat message for the current PCB
  */
 void SharedCan_BroadcastHeartbeat(void);

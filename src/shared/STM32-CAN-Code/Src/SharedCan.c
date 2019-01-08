@@ -343,10 +343,10 @@ void SharedCan_TransmitDataCan(
     #endif
 
     #ifdef STM32F042x6
-    // TODO: Descriptive comments for below two lines!
-    for (int i = 0; i < dlc; i++) {
-        tx_header.Data[i] = data[i];
-    }
+    // Copy over data to send
+    memcpy(&data[0], &(tx_header.Data[0]), dlc*sizeof(uint8_t));
+
+    // Copy over the header to send
     hcan.pTxMsg = &tx_header;
     #endif
 
@@ -411,6 +411,27 @@ __weak void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
     /* NOTE: This function Should not be modified, when the callback is needed,
               the Can_RxCommonCallback could be implemented in the Can.c file */
 }
+
+// TODO: Use this function in all the boards
+HAL_StatusTypeDef SharedCan_ReceiveDataCan(CAN_HandleTypeDef *hcan, 
+                                            uint32_t rx_fifo, 
+                                            CanRxMsg_Struct* rx_msg)
+ {
+    HAL_StatusTypeDef status;
+    #ifdef STM32F042x6
+
+    status |= HAL_CAN_Receive_IT(hcan, rx_fifo);
+    rx_msg->rx_header = *(hcan->pRxMsg);
+
+    // Copy over the data from the received message
+    memcpy(&(rx_msg->data[0]), &(hcan->pRxMsg->Data[0]), 8*sizeof(uint8_t));
+
+    #else
+    status |= HAL_CAN_GetRxMessage(hcan, rx_fifo, &rx_msg->rx_header, &rx_msg->data[0]);
+    #endif
+
+    return status;
+ }
 
 void SharedCan_BroadcastHeartbeat(void)
 {
