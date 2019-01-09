@@ -12,6 +12,7 @@
 #include "main.h"
 #include "arm_math.h"
 #include "Constants.h"
+#include "Timers.h"
 
 /******************************************************************************
  * Preprocessor Constants
@@ -28,15 +29,15 @@
 // The driver should not have to push the pedal to its maximum travel
 // to request maximum torque or else the pedal box will wear out more
 // easily
-#define PAPPS_SATURATION_THRESHOLD (uint32_t)(PRIMARY_APPS_MAX_VALUE * 0.80f)
+#define APPS_SATURATION_THRESHOLD (float32_t)(0.80f)
 
 // The initial pedal travel is treated as a "deadzone" - as if the pedal was
 // not pressed at all
-#define PAPPS_DEADZONE_THRESHOLD (uint32_t)(PRIMARY_APPS_MAX_VALUE * 0.04f)
+#define PAPPS_DEADZONE_THRESHOLD (float32_t)(0.04f)
 
 // If the encoder reading is larger than this threshold, then the pedal has
 // likely deflected beyond its original position
-#define APPS_UNDERFLOW_THRESHOLD (uint32_t)(ENCODER_MAX_COUNT * 0.95)
+#define APPS_UNDERFLOW_THRESHOLD (float32_t)(0.95f)
 
 /******************************************************************************
  * Preprocessor Macros
@@ -50,8 +51,8 @@
 /******************************************************************************
  * Global Variables
  ******************************************************************************/
-extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim3;
+extern TIM_HandleTypeDef PAPPS_TIMER;
+extern TIM_HandleTypeDef SAPPS_TIMER;
 
 /******************************************************************************
  * Function Prototypes
