@@ -30,7 +30,6 @@
 /******************************************************************************
  * Global Variables
  ******************************************************************************/
-// TODO  (Issue #191): Should include header for TIM_HandleTypeDef externs
 extern TIM_HandleTypeDef ADC_DMA_TIMER;
 extern TIM_HandleTypeDef CONTROL_LOOP_TIMER;
 
