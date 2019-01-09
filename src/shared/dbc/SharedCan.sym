@@ -1,6 +1,10 @@
 FormatVersion=6.0 // Do not edit this line!
 Title="SharedCan"
 
+{ENUMS}
+// This is just here to make cantools happy
+Enum=Enum1()
+
 {SIGNALS}
 Sig=Signal_1_Byte unsigned 8
 Sig=Signal_2_Byte unsigned 16
