@@ -33,6 +33,8 @@ Sig=Signal_UNIT8_8 unsigned 8
 Sig=Signal_Float_1 float -m
 Sig=Signal_Float_2 float -m
 
+{SEND}
+{RECEIVE}
 {SENDRECEIVE}
 
 [BMS_ERROR]
@@ -294,7 +296,7 @@ Sig=Signal_1_Byte 0
 ID=402h
 Len=8
 Sig=Signal_Float_1 0
-Sig=Signal_Float_2 0
+Sig=Signal_Float_2 32
 
 [DEMO_2_FLOAT_NUCLEO_RX]
 ID=403h
