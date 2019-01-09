@@ -73,8 +73,10 @@ script:
             git diff-index --quiet HEAD --
             git_diff_result=$?
             if [ $git_diff_result -ne 0 ]; then
-                echo Git diff was non-zero! Re-run generate_c_code_from_sym.py to generate C code from the .sym file.;
+                echo "Git diff was non-zero! Re-run generate_c_code_from_sym.py to generate C code from the .sym file.;"
                 return 1;
+            else
+                echo "ELSE"
             fi
       fi
 
