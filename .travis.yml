@@ -12,7 +12,25 @@ python:
 before_install:
   - git submodule update --init --recursive
   - pip install pipenv
+
+install:
   - pipenv install
+  - |
+    if [ "$RUN_BUILD" = "true" ] || [ "$RUN_TESTS" = "true" ]; then 
+      # Download the latest ARM GCC Embedded Toolchain.
+      # Unfortunately, since this is a literal URL, it does not pull the latest 
+      # API available, and the URL must be changed manually. 
+      # TO CHANGE THE URL:
+      # Go to https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
+      # and download the latest GCC ARM-target compiler and then search up 
+      # the downloads page of your browser.
+      # There is usually a web address that's hosting the GCC binary/tar. 
+      - wget https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2 -O /tmp/gcc-arm-none-eabi.tar.bz2
+      # Unzip the ARM GCC Embedded Toolchain 
+      - tar -xvjf /tmp/gcc-arm-none-eabi.tar.bz2
+      # Enable cmake to find the arm-none-eabi-gcc command
+      - export PATH=$PATH:$PWD/gcc-arm-none-eabi-7-2018-q2-update/bin/
+    fi
 
 addons:
   apt_packages:
@@ -20,20 +38,7 @@ addons:
     - lib32ncurses5
     - lib32z1
 
-
 before_script:
-  # TODO: We don't need to download this when not building the code...
-  # Download the latest ARM GCC Embedded Toolchain.
-  # Unfortunately, since this is a literal URL, it does not pull the latest API available, and the URL must be changed manually. 
-  # TO CHANGE THE URL:
-  # Go to https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
-  # and download the latest GCC ARM-target compiler and then search up the downloads page of your browser.
-  # There is usually a web address that's hosting the GCC binary/tar. 
-  - wget https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2 -O /tmp/gcc-arm-none-eabi.tar.bz2
-  # Unzip the ARM GCC Embedded Toolchain 
-  - tar -xvjf /tmp/gcc-arm-none-eabi.tar.bz2
-  # Enable cmake to find the arm-none-eabi-gcc command
-  - export PATH=$PATH:$PWD/gcc-arm-none-eabi-7-2018-q2-update/bin/
 
 script:
     # If any command exits with a non-zero value (i.e. it throws an error)
@@ -44,20 +49,23 @@ script:
     # this does not happen
     - set -ev
 
-    - if [ "$RUN_BUILD" = "true" ]; then 
+    - |
+      if [ "$RUN_BUILD" = "true" ]; then 
         cd src;
         cmake CMakeLists.txt;
         make; 
         cd ..;
       fi
-    - if [ "$RUN_TESTS" = "true" ]; then 
+    - |
+      if [ "$RUN_TESTS" = "true" ]; then 
         cd src;
         cmake -DTEST_BUILD=true CMakeLists.txt;
         make;
         ctest -C DEBUG;
         cd ..;
       fi
-    - if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then 
+    - |
+      if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then 
             cd clang-format;
             echo -e "Y" | python check_formatting_CI.py;
       fi
@@ -68,7 +76,8 @@ script:
             # Show the diff
             git --no-pager diff;
             # Check if there was a non-zero diff (disable set -e for this) so
-            # we can capture the result and print a error msg
+            # we can capture the result and print a error msg (otherwise a
+            # non-zero result would just cause this script to exit)
             set +e
             git diff-index --quiet HEAD --
             git_diff_result=$?
