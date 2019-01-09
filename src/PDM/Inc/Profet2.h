@@ -1,6 +1,7 @@
 /**
  * @file  Profet2.h
- * @brief Pseuo-struct
+ * @brief Pseuo-struct for PROFET2 (BTS-7008 2EPA). The datasheet can be found
+ *        in PDM/Datasheets
  */
 #ifndef PROFET2_H
 #define PROFET2_H
@@ -123,6 +124,7 @@ typedef struct
     GPIO_PinPort_Struct dsel_pin_mapping;
     GPIO_PinPort_Struct den_pin_mapping;
 } Profet2_Struct;
+
 /******************************************************************************
  * Global Variables
  ******************************************************************************/

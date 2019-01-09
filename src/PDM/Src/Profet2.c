@@ -10,8 +10,6 @@
 /******************************************************************************
  * Module Preprocessor Macros
  ******************************************************************************/
-/* https://www.infineon.com/dgdl/Infineon-BTS7008-2EPA-DS-v01_00-EN.pdf?fileId=5546d46258fc0bc101590212356876b1
- */
 #define INIT_PROFET2(                                                   \
     index, efuse0_pin, efuse0_port, efuse0_ampere_per_volt, efuse1_pin, \
     efuse1_port, efuse1_ampere_per_volt, dsel_pin, dsel_port, den_pin,  \
@@ -28,8 +26,10 @@
     [index].dsel_pin_mapping.port             = dsel_port,              \
     [index].den_pin_mapping.pin               = den_pin,                \
     [index].den_pin_mapping.port              = den_port
+
 #define ARRAY_SIZE(array_pointer) \
     sizeof(array_pointer) / sizeof(array_pointer[0])
+
 /******************************************************************************
  * Module Typedefs
  ******************************************************************************/
