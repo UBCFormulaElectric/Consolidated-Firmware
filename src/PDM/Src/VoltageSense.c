@@ -58,7 +58,7 @@ void VoltageSense_ConvertVoltageAdcReadings(void)
                                  (float32_t)(SharedAdc_GetAdcMaxValue());
 
         // Apply low pass filter to current values
-        SharedFilter_LowPassFilter(
+        SharedFilters_LowPassFilter(
             &temp_voltage, &voltage_sense[i].voltage,
             VOLTAGE_IIR_LPF_SAMPLING_PERIOD, VOLTAGE_IIR_LPF_RC);
     }

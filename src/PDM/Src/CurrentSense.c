@@ -53,7 +53,7 @@ void CurrentSense_ConvertCurrentAdcReadings(void)
             SharedAdc_GetActualVdda() / (float32_t)(SharedAdc_GetAdcMaxValue());
 
         // Apply low pass filter to current values
-        SharedFilter_LowPassFilter(
+        SharedFilters_LowPassFilter(
             &temp_current, (float32_t *)(&efuse->current),
             CURRENT_IIR_LPF_SAMPLING_PERIOD, CURRENT_IIR_LPF_RC);
     }

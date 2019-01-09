@@ -31,7 +31,7 @@
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedFilter_LowPassFilter(
+void SharedFilters_LowPassFilter(
     float32_t *input,
     float32_t *output,
     uint32_t   sampling_time,
