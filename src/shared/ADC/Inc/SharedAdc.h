@@ -1,0 +1,117 @@
+/**
+ * @file  SharedAdc.h
+ * @brief Shared ADC library
+ */
+#ifndef SHARED_ADC_H
+#define SHARED_ADC_H
+
+/******************************************************************************
+ * Includes
+ ******************************************************************************/
+// Check for STM32 microcontroller family
+#ifdef STM32F302x8
+// Used in DCM 2017, BMS 2017, and PDM 2018
+#include "stm32f3xx_hal.h"
+#elif STM32F042x6
+// Used in FSM 2017 (Shared ADC Library hasn't been tested on F0 yet)
+#include "stm32f0xx_hal.h"
+#else
+#error \
+    "No valid architecture selected - unable to determine what HAL library to use"
+#endif
+
+#include "arm_math.h"
+
+/******************************************************************************
+ * Preprocessor Constants
+ ******************************************************************************/
+// clang-format off
+
+#ifdef STM32F302x8
+#define VREFINT_CAL_ADDR		(uint32_t *)(0x1FFFF7BA)
+#elif STM32F042x6
+#else
+#define VREFINT_CAL_ADDR		(uint32_t *)(0x1FFFF7BA)
+#error
+    "No valid architecture selected - unable to determine what HAL library to use"
+#endif
+
+
+// Number of microcontroller pins that are configured to be ADC inputs
+#ifdef PDM
+    #define NUM_ADC_CHANNELS (uint32_t)(9)
+#elif FSM
+    // TODO: Correct this
+    #define NUM_ADC_CHANNELS (uint32_t)(8)
+#elif BMS
+    // TODO: Correct this
+    #define NUM_ADC_CHANNELS (uint32_t)(8)
+#elif DCM
+    // TODO: Correct this
+    #define NUM_ADC_CHANNELS (uint32_t)(8)
+#else
+    #error "No valid PCB name selected"
+#endif
+
+/** @brief Nominal voltage for VDDA, or ADC power supply */
+#define VDDA_VOLTAGE (float32_t)(3.3f)
+
+/** @brief To use this library, make sure to enable VREFINT and give it Regular
+ *         Rank 1 so that adc_reading[0] contains VREFINT */
+#define VREFINT_INDEX 0
+
+/** @brief Number of Vrefint channel that can be useful in certain calculations */
+#define NUM_VREFINT_CHANNEL 1
+
+/******************************************************************************
+ * Preprocessor Macros
+ ******************************************************************************/
+
+/******************************************************************************
+ * Typedefs
+ ******************************************************************************/
+// clang-format on
+
+/******************************************************************************
+ * Global Variables
+ ******************************************************************************/
+
+/******************************************************************************
+ * Function Prototypes
+ ******************************************************************************/
+
+/**
+ * @brief  Initialize ADC in DMA mode and the correct max ADC value
+ * @param  hadc ADC handle
+ * @param  data The destination buffer address
+ * @param  length The length of data to be transferred from ADC peripheral to
+ * memory.
+ */
+void SharedAdc_StartAdcInDmaMode(ADC_HandleTypeDef *hadc);
+
+/**
+ * @brief  Get the appropriate maximum ADC value based on the ADC resolution
+ * @return Maximum ADC value in bits
+ */
+const uint32_t SharedAdc_GetAdcMaxValue(void);
+
+/**
+ * @brief  Get the array of ADC readings transferred over DMA request
+ * @return Pointer to the array of ADC readings
+ */
+const uint32_t *const SharedAdc_GetAdcValues(void);
+
+/**
+ * @brief  The VDDA power supply voltage applied to the microcontroller may be
+ *         subject to variation or not precisely known. The embedded internal
+ *         voltage reference (VREFINT) and its calibration data acquired by the
+ *         ADC during the manufacturing process at VDDA = 3.3 V can be used to
+ *         evaluate the actual VDDA voltage level.
+ *
+ *         Note that this implementation requires the regular rank of VREFINT
+ *         to be configured as (VREFINT_INDEX + 1) = 1 in STM32CubeMX.
+ * @return Actual VDDA voltage
+ */
+float32_t SharedAdc_GetActualVdda(void);
+
+#endif /* SHARED_ADC_H */
