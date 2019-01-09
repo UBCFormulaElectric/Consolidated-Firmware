@@ -7,6 +7,9 @@
 /******************************************************************************
  * Module Preprocessor Constants
  ******************************************************************************/
+#define PAPPS_TIMER        htim2
+#define SAPPS_TIMER        htim3
+#define CONTROL_LOOP_TIMER htim14
 
 /******************************************************************************
  * Module Preprocessor Macros
@@ -51,7 +54,7 @@ static void HandleSensorData(void)
  ******************************************************************************/
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim->Instance == TIM14)
+    if (htim == &CONTROL_LOOP_TIMER)
     {
         ControlLoop();
     }
@@ -59,12 +62,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 
 void Timers_StartTimers()
 {
-    // Start control loop timer
-    HAL_TIM_Base_Start_IT(&htim14);
+    HAL_TIM_Base_Start_IT(&CONTROL_LOOP_TIMER);
 
-    // Start primary APPS encoder
-    HAL_TIM_Encoder_Start(&htim2, TIM_CHANNEL_ALL);
+    HAL_TIM_Encoder_Start(&PAPPS_TIMER, TIM_CHANNEL_ALL);
 
-    // Start secondary APPS encoder
-    HAL_TIM_Encoder_Start(&htim3, TIM_CHANNEL_ALL);
+    HAL_TIM_Encoder_Start(&SAPPS_TIMER, TIM_CHANNEL_ALL);
 }
