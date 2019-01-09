@@ -37,7 +37,7 @@ static bool iwdg_initialized = false;
  ******************************************************************************/
 void SharedWatchdog_RefreshIwdg(void)
 {
-    if (SharedWatchdog_GetIwdgInitializeState() == true)
+    if (SharedWatchdog_IsIwdgInitialized())
     {
         HAL_IWDG_Refresh(&hiwdg);
     }
@@ -48,7 +48,7 @@ void SharedWatchdog_SetIwdgInitialized(void)
     iwdg_initialized = true;
 }
 
-bool SharedWatchdog_GetIwdgInitializeState(void)
+bool SharedWatchdog_IsIwdgInitialized(void)
 {
     return iwdg_initialized;
 }

@@ -49,8 +49,8 @@ extern IWDG_HandleTypeDef hiwdg;
 void SharedWatchdog_RefreshIwdg(void);
 
 /**
- * @brief Set the boolean flag that indicates that the IWDG handle is initialized
- *        or not (To be used at the end of MX_IWDG_Init)
+ * @brief Set the boolean flag to indicate that the IWDG handle is initialized
+ *        (To be used at the end of MX_IWDG_Init)
  */
 void SharedWatchdog_SetIwdgInitialized(void);
 
@@ -58,6 +58,6 @@ void SharedWatchdog_SetIwdgInitialized(void);
  * @brief  Check if the IWDG handle is initialized yet
  * @return The current IWDG initialization state
  */
-bool SharedWatchdog_GetIwdgInitializeState(void);
+bool SharedWatchdog_IsIwdgInitialized(void);
 
 #endif /* SHARED_WATCHDOG */
