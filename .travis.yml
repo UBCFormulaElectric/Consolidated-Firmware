@@ -22,6 +22,7 @@ addons:
 
 
 before_script:
+  # TODO: Move this download to only run when we're running the build/tests instead of formatting checks, etc.
   # Download the latest ARM GCC Embedded Toolchain.
   # Unfortunately, since this is a literal URL, it does not pull the latest API available, and the URL must be changed manually. 
   # TO CHANGE THE URL:
@@ -66,7 +67,7 @@ script:
             git diff-index --quiet HEAD --
             git_diff_result=$?
             if [ $git_diff_result -ne 0 ]; then
-                echo Git diff was non-zero! Re-run generate_c_code_from_sym.py to generate C code from the .sym file.;
+                echo "Git diff was non-zero! Re-run generate_c_code_from_sym.py to generate C code from the .sym file.";
                 exit 1;
             fi
       fi
