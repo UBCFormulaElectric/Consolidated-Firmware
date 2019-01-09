@@ -61,17 +61,6 @@ script:
             echo -e "Y" | python check_formatting_CI.py;
       fi
     - if [ "$GENERATE_CODE_FROM_SYM" = "true" ]; then 
-            # Try to convert the .sym to C code
-            pipenv run python src/shared/CanMsgs/generate_c_code_from_sym.py;
-            # Show the diff
-            git --no-pager diff;
-            # Check if there was a non-zero diff
-            git diff-index --quiet HEAD --
-            git_diff_result=$?
-            if [ $git_diff_result -ne 0 ]; then
-                echo Git diff was non-zero! Re-run generate_c_code_from_sym.py to generate C code from the .sym file.;
-                exit 1;
-            fi
       fi
 
 matrix:
