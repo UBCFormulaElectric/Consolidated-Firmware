@@ -375,9 +375,9 @@ static void MX_IWDG_Init(void)
 
     /* USER CODE END IWDG_Init 1 */
     hiwdg.Instance       = IWDG;
-    hiwdg.Init.Prescaler = IWDG_PRESCALER_256;
-    hiwdg.Init.Window    = 4095;
-    hiwdg.Init.Reload    = 4095;
+    hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
+    hiwdg.Init.Window    = IWDG_WINDOW_DISABLE_VALUE;
+    hiwdg.Init.Reload = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
     if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
     {
         Error_Handler();

@@ -5,7 +5,7 @@
  ******************************************************************************
  * @attention
  *
- * <h2><center>&copy; COPYRIGHT(c) 2018 STMicroelectronics</center></h2>
+ * <h2><center>&copy; COPYRIGHT(c) 2019 STMicroelectronics</center></h2>
  *
  * Redistribution and use in source and binary forms, with or without
  *modification, are permitted provided that the following conditions are met:
@@ -137,9 +137,9 @@ extern "C"
  */
 #if !defined(LSI_VALUE)
 #define LSI_VALUE ((uint32_t)40000)
-#endif /* LSI_VALUE */ //!< Value of the Internal Low Speed oscillator in Hz
-                       //   The real value may vary depending on the variations
-                       //   in voltage and temperature.
+#endif /* LSI_VALUE */ /*!< Value of the Internal Low Speed oscillator in Hz \
+                        The real value may vary depending on the variations  \
+                        in voltage and temperature.  */
 /**
  * @brief External Low Speed oscillator (LSE) value.
  */
@@ -169,10 +169,10 @@ extern "C"
     ((uint32_t)8000000) /*!< Value of the External oscillator in Hz*/
 #endif                  /* EXTERNAL_CLOCK_VALUE */
 
-    // Tip: To avoid modifying this file each time you need to use different
-    //   HSE,
-    //   ===  you can define the HSE value in your toolchain compiler
-    //   preprocessor.
+    /* Tip: To avoid modifying this file each time you need to use different
+       HSE,
+       ===  you can define the HSE value in your toolchain compiler
+       preprocessor. */
 
     /* ########################### System Configuration ######################### */
     /**
