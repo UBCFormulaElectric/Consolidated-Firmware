@@ -2,6 +2,7 @@
  * Includes
  ******************************************************************************/
 #include "SharedWatchdog.h"
+#include "Stdbool.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -21,7 +22,7 @@
  * Module Variable Definitions
  ******************************************************************************/
 // IWDG_HandleTypeDef hiwdg is not initialized on system boot-up
-static IwdgInitializeState_Enum iwdg_initialize_state = IWDG_NOT_INITIALIZED;
+static bool iwdg_initialized = false;
 
 /******************************************************************************
  * Private Function Prototypes
@@ -36,18 +37,18 @@ static IwdgInitializeState_Enum iwdg_initialize_state = IWDG_NOT_INITIALIZED;
  ******************************************************************************/
 void SharedWatchdog_RefreshIwdg(void)
 {
-    if (SharedWatchdog_GetIwdgInitializeState() == IWDG_INITIALIZED)
+    if (SharedWatchdog_GetIwdgInitializeState() == true)
     {
         HAL_IWDG_Refresh(&hiwdg);
     }
 }
 
-void SharedWatchdog_SetIwdgInitializeState(IwdgInitializeState_Enum state)
+void SharedWatchdog_SetIwdgInitialized(void)
 {
-    iwdg_initialize_state = state;
+    iwdg_initialized = true;
 }
 
-IwdgInitializeState_Enum SharedWatchdog_GetIwdgInitializeState(void)
+bool SharedWatchdog_GetIwdgInitializeState(void)
 {
-    return iwdg_initialize_state;
+    return iwdg_initialized;
 }
