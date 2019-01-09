@@ -78,7 +78,8 @@ void CurrentSense_ToggleCurrentSenseChannel(void)
 
 void CurrentSense_SelectCurrentSenseChannel(SenseChannel_Enum channel)
 {
-    // This is the diagnostic truth table for BTS7008-2EPA:
+    // This is the diagnostic truth table for BTS7008-2EPA (Note that in our
+    // implementation, every DEN pin is always high):
     //
     // DEN  | DSEL           | IS
     // =====|================|================
