@@ -6,6 +6,7 @@ name = "pypi"
 [dev-packages]
 
 [packages]
+cantools = "*"
 
 [requires]
-python_version = "3.5"
+python_version = "3.6"
