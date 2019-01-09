@@ -3,7 +3,8 @@ Title="SharedCan"
 
 {ENUMS}
 // This is just here to make cantools happy
-Enum=Enum1()
+Enum=Enum1(0="A String?",  // some comment
+  1="Some other string..........") // some other comment
 
 {SIGNALS}
 Sig=Signal_1_Byte unsigned 8
