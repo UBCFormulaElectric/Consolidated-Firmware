@@ -15,7 +15,7 @@
  * Module Preprocessor Macros
  ******************************************************************************/
 #define INIT_VOLTAGE_SENSE(index, conversion_factor) \
-    [index].voltage = 0, [index].adc_conversion_factor = conversion_factor,
+    [index].voltage = 0, [index].adc_conversion_factor = conversion_factor
 
 /******************************************************************************
  * Module Typedefs
@@ -31,9 +31,9 @@ typedef struct
  * Module Variable Definitions
  ******************************************************************************/
 static VoltageSense_Struct voltage_sense[NUM_VOLTAGE_SENSE_PINS] = {
-    INIT_VOLTAGE_SENSE(_12V_SUPPLY, GLV_VOLTAGE)
-        INIT_VOLTAGE_SENSE(VBAT_SUPPLY, VBAT_VOLTAGE)
-            INIT_VOLTAGE_SENSE(FLYWIRE, ADC1_IN10_TO_12V_ACC_RATIO)
+    INIT_VOLTAGE_SENSE(_12V_SUPPLY, GLV_VOLTAGE),
+    INIT_VOLTAGE_SENSE(VBAT_SUPPLY, VBAT_VOLTAGE),
+    INIT_VOLTAGE_SENSE(FLYWIRE, ADC1_IN10_TO_12V_ACC_RATIO),
 };
 
 /******************************************************************************
