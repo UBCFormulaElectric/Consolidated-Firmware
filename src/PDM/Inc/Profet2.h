@@ -113,14 +113,21 @@ typedef enum
 
 typedef struct
 {
-    GPIO_PinPort_Struct input_channel;
-    volatile float32_t  current;
-    float32_t           ampere_per_volt;
-} efuse_struct;
+    uint32_t current_num_of_retries;
+    uint32_t max_num_of_retries;
+} Fault_Struct;
 
 typedef struct
 {
-    efuse_struct        efuse[NUM_CHANNELS_PER_PROFET2];
+    GPIO_PinPort_Struct input_channel;
+    volatile float32_t  current;
+    float32_t           ampere_per_volt;
+    Fault_Struct        fault;
+} Efuse_Struct;
+
+typedef struct
+{
+    Efuse_Struct        efuse[NUM_CHANNELS_PER_PROFET2];
     GPIO_PinPort_Struct dsel_pin_mapping;
     GPIO_PinPort_Struct den_pin_mapping;
 } Profet2_Struct;
@@ -138,7 +145,7 @@ typedef struct
  * @param  state Turn e-fuse on or off
  */
 void Profet2_ConfigureSingleEfuse(
-    efuse_struct *           efuse,
+    Efuse_Struct *           efuse,
     EfuseOnOff_GPIO_PinState state);
 
 /**

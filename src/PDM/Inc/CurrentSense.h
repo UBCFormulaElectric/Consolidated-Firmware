@@ -117,6 +117,6 @@ void CurrentSense_SelectCurrentSenseChannel(SenseChannel_Enum channel);
 /**
  * @brief Return the array of structs containing information about all efuses
  */
-efuse_struct *const CurrentSense_GetEfuses(void);
+Efuse_Struct *const CurrentSense_GetEfuses(void);
 
 #endif /* CURRENT_SENSE_H */

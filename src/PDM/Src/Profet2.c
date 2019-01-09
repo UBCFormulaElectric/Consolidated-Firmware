@@ -2,6 +2,7 @@
  * Includes
  ******************************************************************************/
 #include "Profet2.h"
+#include "ErrorHandling.h"
 #include "SharedMacros.h"
 
 /******************************************************************************
@@ -11,21 +12,25 @@
 /******************************************************************************
  * Module Preprocessor Macros
  ******************************************************************************/
-#define INIT_PROFET2(                                                   \
-    index, efuse0_pin, efuse0_port, efuse0_ampere_per_volt, efuse1_pin, \
-    efuse1_port, efuse1_ampere_per_volt, dsel_pin, dsel_port, den_pin,  \
-    den_port)                                                           \
-    [index].efuse[SENSE_0].input_channel.pin  = efuse0_pin,             \
-    [index].efuse[SENSE_0].input_channel.port = efuse0_port,            \
-    [index].efuse[SENSE_0].current            = 0,                      \
-    [index].efuse[SENSE_0].ampere_per_volt    = efuse0_ampere_per_volt, \
-    [index].efuse[SENSE_1].input_channel.pin  = efuse1_pin,             \
-    [index].efuse[SENSE_1].input_channel.port = efuse1_port,            \
-    [index].efuse[SENSE_1].current            = 0,                      \
-    [index].efuse[SENSE_1].ampere_per_volt    = efuse1_ampere_per_volt, \
-    [index].dsel_pin_mapping.pin              = dsel_pin,               \
-    [index].dsel_pin_mapping.port             = dsel_port,              \
-    [index].den_pin_mapping.pin               = den_pin,                \
+#define INIT_PROFET2(                                                      \
+    index, efuse0_pin, efuse0_port, efuse0_ampere_per_volt,                \
+    efuse0_max_retries, efuse1_pin, efuse1_port, efuse1_ampere_per_volt,   \
+    efuse1_max_retries, dsel_pin, dsel_port, den_pin, den_port)            \
+    [index].efuse[SENSE_0].input_channel.pin  = efuse0_pin,                \
+    [index].efuse[SENSE_0].input_channel.port = efuse0_port,               \
+    [index].efuse[SENSE_0].current            = RESET,                     \
+    [index].efuse[SENSE_0].ampere_per_volt    = efuse0_ampere_per_volt,    \
+    [index].efuse[SENSE_0].fault.current_num_of_retries = RESET,           \
+    [index].efuse[SENSE_0].fault.max_num_of_retries = efuse0_max_retries,  \
+    [index].efuse[SENSE_1].input_channel.pin  = efuse1_pin,                \
+    [index].efuse[SENSE_1].input_channel.port = efuse1_port,               \
+    [index].efuse[SENSE_1].current            = RESET,                     \
+    [index].efuse[SENSE_1].ampere_per_volt    = efuse1_ampere_per_volt,    \
+    [index].efuse[SENSE_1].fault.current_num_of_retries = RESET,           \
+    [index].efuse[SENSE_1].fault.max_num_of_retries = efuse1_max_retries,  \
+    [index].dsel_pin_mapping.pin              = dsel_pin,                  \
+    [index].dsel_pin_mapping.port             = dsel_port,                 \
+    [index].den_pin_mapping.pin               = den_pin,                   \
     [index].den_pin_mapping.port              = den_port
 
 /******************************************************************************
@@ -41,9 +46,11 @@ static Profet2_Struct profet2[NUM_PROFET2S] = {
         EFUSE_AUX_1_IN_Pin,
         EFUSE_AUX_1_IN_GPIO_Port,
         AMP_PER_VOLT_AUX,
+        AUX1_MAX_NUM_OF_RETRIES,
         EFUSE_AUX_2_IN_Pin,
         EFUSE_AUX_2_IN_GPIO_Port,
         AMP_PER_VOLT_AUX,
+        AUX2_MAX_NUM_OF_RETRIES,
         EFUSE_DSEL_1_Pin,
         EFUSE_DSEL_1_GPIO_Port,
         EFUSE_DEN_1_Pin,
@@ -53,9 +60,11 @@ static Profet2_Struct profet2[NUM_PROFET2S] = {
         EFUSE_COOLING_IN_Pin,
         EFUSE_COOLING_IN_GPIO_Port,
         AMP_PER_VOLT,
+        COOLING_MAX_NUM_OF_RETRIES,
         EFUSE_PDM_FAN_IN_Pin,
         EFUSE_PDM_FAN_IN_GPIO_Port,
         AMP_PER_VOLT,
+        PDMFAN_MAX_NUM_OF_RETRIES,
         EFUSE_DSEL_2_Pin,
         EFUSE_DSEL_2_GPIO_Port,
         EFUSE_DEN_2_Pin,
@@ -65,9 +74,11 @@ static Profet2_Struct profet2[NUM_PROFET2S] = {
         EFUSE_AIR_SHDN_IN_Pin,
         EFUSE_AIR_SHDN_IN_GPIO_Port,
         AMP_PER_VOLT,
+        AIRSHDN_MAX_NUM_OF_RETRIES,
         EFUSE_CAN_IN_Pin,
         EFUSE_CAN_IN_GPIO_Port,
         AMP_PER_VOLT,
+        CANGLV_MAX_NUM_OF_RETRIES,
         EFUSE_DSEL_3_Pin,
         EFUSE_DSEL_3_GPIO_Port,
         EFUSE_DEN_3_Pin,
@@ -77,9 +88,11 @@ static Profet2_Struct profet2[NUM_PROFET2S] = {
         EFUSE_ACC_SEG_FAN_IN_Pin,
         EFUSE_ACC_SEG_FAN_IN_GPIO_Port,
         AMP_PER_VOLT,
+        ACCSEGFAN_MAX_NUM_OF_RETRIES,
         EFUSE_ACC_ENC_FAN_IN_Pin,
         EFUSE_ACC_ENC_FAN_IN_GPIO_Port,
         AMP_PER_VOLT,
+        ACCENCFAN_MAX_NUM_OF_RETRIES,
         EFUSE_DSEL_4_Pin,
         EFUSE_DSEL_4_GPIO_Port,
         EFUSE_DEN_4_Pin,
@@ -89,9 +102,11 @@ static Profet2_Struct profet2[NUM_PROFET2S] = {
         EFUSE_LEFT_INVERTER_IN_Pin,
         EFUSE_LEFT_INVERTER_IN_GPIO_Port,
         AMP_PER_VOLT,
+        LEFTINVERTER_MAX_NUM_OF_RETRIES,
         EFUSE_RIGHT_INVERTER_IN_Pin,
         EFUSE_RIGHT_INVERTER_IN_GPIO_Port,
         AMP_PER_VOLT,
+        RIGHTINVERTER_MAX_NUM_OF_RETRIES,
         EFUSE_DSEL_5_Pin,
         EFUSE_DSEL_5_GPIO_Port,
         EFUSE_DEN_5_Pin,
@@ -110,7 +125,7 @@ static Profet2_Struct profet2[NUM_PROFET2S] = {
  * Function Definitions
  ******************************************************************************/
 void Profet2_ConfigureSingleEfuse(
-    efuse_struct *           efuse,
+    Efuse_Struct *           efuse,
     EfuseOnOff_GPIO_PinState state)
 {
     SharedGpio_GPIO_WritePin(

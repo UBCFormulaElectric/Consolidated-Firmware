@@ -43,7 +43,7 @@ void CurrentSense_ConvertCurrentAdcReadings(void)
     for (uint32_t i = 0, j = ADC_READINGS_VOLTAGE_START_INDEX; i < NUM_PROFET2S;
          i++, j++)
     {
-        efuse_struct *efuse =
+        Efuse_Struct *efuse =
             &(Profet2_GetProfet2s()[i]
                   .efuse[CurrentSense_GetCurrentSenseChannel()]);
 
