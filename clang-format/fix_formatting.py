@@ -11,6 +11,7 @@ def runClangFormat():
     CLANG_FORMAT_VERSION = "7.0"
     CLANG_FORMAT_COMMAND = "clang-format-" + CLANG_FORMAT_VERSION
     CLANG_FORMAT_OPTIONS = " -i --style=file "
+    IGNORE_FILES = ["src/shared/CanMsgs/CanMsgs.c", "src/shared/CanMsgs/CanMsgs.h"]
 
     # If the OS is Windows
     if os.name == 'nt':
@@ -26,8 +27,9 @@ def runClangFormat():
     # Now iterate through all the files inside the src directory
     for root, dirnames, filenames in os.walk(SOURCE_DIR):
         for filename in filenames:
-            # In particular, if it's a C/C++ source file, run clang-format on it
-            if filename.endswith(('.c', '.cc', '.cpp', '.h', '.hpp', '.hh')):
+            # In particular, if it's a C/C++ source file and we're not explicitly ignoring it, run clang-format on it
+            if filename.endswith(('.c', '.cc', '.cpp', '.h', '.hpp', '.hh')) \
+                    and filename not in IGNORE_FILES:
                 # Encapsulate the path to the clang-format in double quotations to 
                 # account for spaces in directory names
                 pathToClang = '"{}"'.format(os.path.abspath(CLANG_FORMAT_COMMAND))
