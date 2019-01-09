@@ -1,12 +1,17 @@
-#!/bin/python3
+#!/usr/bin/python3
+
 """
 This file contains all the functionality required to generate C code from 
 our .sym file
 """
 
+import os
 from argparse import ArgumentParser
 from cantools.database.can.c_source import generate
 from cantools.database import load_file
+
+# Get path of the current dir
+PYTHON_EXECUTABLE_DIRECTORY = os.path.dirname(__file__)
 
 def generate_code_from_sym_file(database_name):
     """
@@ -27,5 +32,6 @@ def generate_code_from_sym_file(database_name):
 
 if __name__ == "__main__":
     sym_filename = "CanMsgs"
+    os.chdir(PYTHON_EXECUTABLE_DIRECTORY)
     generate_code_from_sym_file(sym_filename)
 
