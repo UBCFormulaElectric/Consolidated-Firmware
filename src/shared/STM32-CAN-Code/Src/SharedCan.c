@@ -237,12 +237,11 @@ static ErrorStatus SharedCan_InitializeFilters(void)
         can_filter.FilterMaskIdHigh     = mask_filters[i + 1].mask;
         can_filter.FilterFIFOAssignment = fifo;
 #ifdef STM32F042x6
-        can_filter.BankNumber = filter_bank;
+        can_filter.BankNumber   = filter_bank;
         can_filter.FilterNumber = i;
 #else
         can_filter.FilterBank = filter_bank;
 #endif
-
 
         // Alternate between the two FIFOs
         fifo = !fifo;
