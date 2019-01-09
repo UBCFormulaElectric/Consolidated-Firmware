@@ -40,9 +40,9 @@ script:
     # then this will cause travis to exit. Commands encapsulated between 
     # conditionals, for example, do not report their return codes. Instread,
     # only the conditional, a command itself, gets polled, so if cmake or 
-    # python throws an error, the information is lost. set -e ensures that
+    # python throws an error, the information is lost. set -ev ensures that
     # this does not happen
-    - set -e
+    - set -ev
 
     - if [ "$RUN_BUILD" = "true" ]; then 
         cd src;
@@ -72,7 +72,7 @@ script:
             git_diff_result=$?
             if [ $git_diff_result -ne 0 ]; then
                 echo Git diff was non-zero! Re-run generate_c_code_from_sym.py to generate C code from the .sym file.;
-                exit 1;
+                return 1;
             fi
       fi
 
