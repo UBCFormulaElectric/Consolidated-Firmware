@@ -25,11 +25,11 @@ install:
       # and download the latest GCC ARM-target compiler and then search up 
       # the downloads page of your browser.
       # There is usually a web address that's hosting the GCC binary/tar. 
-      - wget https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2 -O /tmp/gcc-arm-none-eabi.tar.bz2
+      wget https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2 -O /tmp/gcc-arm-none-eabi.tar.bz2
       # Unzip the ARM GCC Embedded Toolchain 
-      - tar -xvjf /tmp/gcc-arm-none-eabi.tar.bz2
+      tar -xvjf /tmp/gcc-arm-none-eabi.tar.bz2
       # Enable cmake to find the arm-none-eabi-gcc command
-      - export PATH=$PATH:$PWD/gcc-arm-none-eabi-7-2018-q2-update/bin/
+      export PATH=$PATH:$PWD/gcc-arm-none-eabi-7-2018-q2-update/bin/
     fi
 
 addons:
@@ -83,7 +83,11 @@ script:
             git_diff_result=$?
             set -e
             if [ $git_diff_result -ne 0 ]; then
-                echo "FAILED - Git diff was non-zero! Re-run generate_c_code_from_sym.py to generate C code from the .sym file.;"
+                echo "\n\n\n #########################"
+                echo "FAILED - Git diff was non-zero!"
+                echo "Make sure to update your version of cantools using pipenv,"
+                echo "and re-run generate_c_code_from_sym.py to generate C code from the .sym file."
+                echo "#########################"
                 return 1;
             else
                 echo "PASSED - C code generated from .sym looks good!"
