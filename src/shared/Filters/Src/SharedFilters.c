@@ -37,8 +37,6 @@ void SharedFilters_LowPassFilter(
     uint32_t   sampling_time,
     uint32_t   rc)
 {
-    // TODO: Add assert to check for input and output size are equal
-
     uint32_t smoothing_factor;
 
     smoothing_factor = sampling_time / (rc + sampling_time);
