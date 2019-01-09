@@ -84,8 +84,6 @@ TIM_HandleTypeDef htim17;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-volatile float32_t
-    converted_readings[NUM_ADC_CHANNELS * NUM_CHANNELS_PER_PROFET2];
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

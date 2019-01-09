@@ -29,8 +29,6 @@
 /******************************************************************************
  * Global Variables
  ******************************************************************************/
-extern volatile uint8_t
-    e_fuse_fault_states[NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER];
 
 /******************************************************************************
  * Function Prototypes
@@ -38,21 +36,13 @@ extern volatile uint8_t
 /**
  * @brief Checks if any current or voltage readings exceed their respective
  *        limits and executes output-specific fault handling behaviour.
- * @param fault_states Array with NumReadings*ChannelCount elements which
- *        tracks outputs that need to be renabled or are permanently faulted
- * @param converted_readings Array with NumReadings*ChannelCount elements that
- *        tracks converted current/voltage readings from ADC counts to A or V
  */
-void FaultHandling_Handler(
-    volatile uint8_t *  fault_states,
-    volatile float32_t *converted_readings);
+void FaultHandling_Handler(void);
 
 /**
  * @brief Re-enable any E-Fuses that have faulted but have not exceeded their
  *        max number of retries
- * @param fault_states Array with (2 x ChannelCount) elements that tracks
- *        outputs which need to be renabled or are permanently off (error state)
  */
-void FaultHandling_RetryEFuse(volatile uint8_t *fault_states);
+void FaultHandling_RetryEFuse(void);
 
 #endif /* FAULTHANDLING_H */

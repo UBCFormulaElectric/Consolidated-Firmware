@@ -48,6 +48,5 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     // TODO: Test that ControllLoopTimer works
     if (htim->Instance == ControlLoopTimer)
     {
-        // FaultHandling_RetryEFuse(e_fuse_fault_states);
     }
 }

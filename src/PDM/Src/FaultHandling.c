@@ -25,8 +25,6 @@
  * Module Variable Definitions
  ******************************************************************************/
 volatile uint8_t num_faults[NUM_UNIQUE_ADC_READINGS] = { 0 };
-volatile uint8_t e_fuse_fault_states
-    [NUM_ADC_CHANNELS * NUM_READINGS_PER_ADC_DMA_TRANSFER] = { NORMAL_STATE };
 
 /******************************************************************************
  * Private Function Prototypes
@@ -39,9 +37,7 @@ volatile uint8_t e_fuse_fault_states
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void FaultHandling_Handler(
-    volatile uint8_t *  fault_states,
-    volatile float32_t *converted_readings)
+void FaultHandling_Handler(void)
 {
     // TODO: Fix this after currentsense and voltage sense are solid
     /*
@@ -131,7 +127,7 @@ void FaultHandling_Handler(
     // GPIO_ConfigureFor12VAcc();
 }
 
-void FaultHandling_RetryEFuse(volatile uint8_t *fault_states)
+void FaultHandling_RetryEFuse(void)
 {
     // TODO: Fix this after currentsense and voltage sense are solid
     /*
