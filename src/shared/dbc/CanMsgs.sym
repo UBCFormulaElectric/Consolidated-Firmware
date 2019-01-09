@@ -14,8 +14,6 @@ Sig=Signal_8_Byte unsigned 64
 Sig=Signal_3_Byte unsigned 24
 Sig=Signal_5_Byte unsigned 40
 Sig=Signal_6_Byte unsigned 48
-Sig=Signal_Float_1 float /p:10
-Sig=Signal_Float_2 float /p:10
 Sig=Signal_UNIT32_1 unsigned 32
 Sig=Signal_UNIT32_2 unsigned 32
 Sig=Signal_INT32_1 signed 32
@@ -32,6 +30,8 @@ Sig=Signal_UNIT8_5 unsigned 8
 Sig=Signal_UNIT8_6 unsigned 8
 Sig=Signal_UNIT8_7 unsigned 8
 Sig=Signal_UNIT8_8 unsigned 8
+Sig=Signal_Float_1 float -m
+Sig=Signal_Float_2 float -m
 
 {SENDRECEIVE}
 
@@ -294,13 +294,13 @@ Sig=Signal_1_Byte 0
 ID=402h
 Len=8
 Sig=Signal_Float_1 0
-Sig=Signal_Float_2 32
+Sig=Signal_Float_2 0
 
 [DEMO_2_FLOAT_NUCLEO_RX]
 ID=403h
 Len=8
 Sig=Signal_Float_1 0
-Sig=Signal_Float_2 32
+Sig=Signal_Float_2 0
 
 [DEMO_2_UINT32_NUCLEO_TX]
 ID=404h
