@@ -41,12 +41,18 @@
 /******************************************************************************
  * Preprocessor Macros
  ******************************************************************************/
+ /**
+  * @brief Check if a board's heartbeat wasn't received
+  * @param heartbeats_received One-hot encoding of heartbeats received
+  * @param encoding One-hot board encoding
+  */
+ #define HEARTBEAT_TIMEOUT(heartbeats_received, encoding) ((heartbeats_received & encoding) != encoding)
 
 /******************************************************************************
  * Typedefs
  ******************************************************************************/
 // clang-format  on
-/** @brief One-hot PCB encoding */
+/** @brief One-hot board encoding */
 typedef enum
 {
     BMS_HEARTBEAT_ENCODING = 0b0001,
@@ -63,7 +69,7 @@ typedef enum
  * Function Prototypes
  ******************************************************************************/
  /**
-  * @brief Broadcast heartbeat message for the current PCB
+  * @brief Periodically broadcast heartbeat message for the current PCB
   */
  void SharedHeartbeat_BroadcastHeartbeat(void);
  
@@ -77,7 +83,7 @@ typedef enum
   * @brief Periodically check that all heartbeats the the PCB listens for were
   *        received
   */
- void SharedHeartbeat_CheckHeartbeatsReceived(void);
+ void SharedHeartbeat_CheckHeartbeatTimeout(void);
  
  /**
   * @brief  Shared handler for missed heartbeats
