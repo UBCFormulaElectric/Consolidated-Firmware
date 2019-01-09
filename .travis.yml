@@ -63,6 +63,8 @@ script:
       fi
     - |
       if [ "$GENERATE_CODE_FROM_SYM" = "true" ]; then 
+            echo "TEST 1"
+            echo TEST 2
             # Try to convert the .sym to C code
             pipenv run python src/shared/CanMsgs/generate_c_code_from_sym.py;
             # Show the diff
