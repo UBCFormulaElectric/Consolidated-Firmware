@@ -177,6 +177,9 @@ void GPIO_Init(void)
 
     // Check for faults on startup
     GPIO_CheckFaultsStartup();
+
+    // All DEN pins will remain ON and never turned OFF
+    Profet2_ConfigureAllDens(DEN_ON);
 }
 
 void GPIO_ConfigureFor12VAcc(void)
@@ -185,10 +188,6 @@ void GPIO_ConfigureFor12VAcc(void)
     for (uint32_t i = 0; i < NUM_PROFET2S; i++)
     {
         Profet2_Struct *profet2 = &Profet2_GetProfet2s()[i];
-        SharedGpio_GPIO_WritePin(
-            profet2->den_pin_mapping.port, profet2->den_pin_mapping.pin,
-            DEN_ON);
-
         for (uint32_t j = 0; j < NUM_CHANNELS_PER_PROFET2; j++)
         {
             Profet2_ConfigureSingleEfuse(
@@ -212,7 +211,6 @@ void GPIO_ConfigureFor12VAux(void)
                 &(profet2s[i].efuse[SENSE_0]), EFUSE_ON);
             Profet2_ConfigureSingleEfuse(
                 &(profet2s[i].efuse[SENSE_1]), EFUSE_ON);
-            Profet2_ConfigureSingleDen(&profet2s[i], DEN_ON);
         }
         else
         {
@@ -220,7 +218,6 @@ void GPIO_ConfigureFor12VAux(void)
                 &(profet2s[i].efuse[SENSE_0]), EFUSE_OFF);
             Profet2_ConfigureSingleEfuse(
                 &(profet2s[i].efuse[SENSE_1]), EFUSE_OFF);
-            Profet2_ConfigureSingleDen(&profet2s[i], DEN_OFF);
         }
     }
 }
