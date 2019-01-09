@@ -11,7 +11,7 @@ python:
 
 before_install:
   - git submodule update --init --recursive
-  - pip install --user pipenv
+  - pip install pipenv
   - pipenv install
 
 addons:
