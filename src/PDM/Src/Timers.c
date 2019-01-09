@@ -16,8 +16,6 @@
  * Module Typedefs
  ******************************************************************************/
 // clang-format on
-#define AdcDmaTimer TIM2
-#define ControlLoopTimer TIM17
 
 /******************************************************************************
  * Module Variable Definitions
@@ -36,17 +34,14 @@
  ******************************************************************************/
 void Timers_Init(void)
 {
-    // Start timer 2
-    HAL_TIM_Base_Start_IT(&htim2);
+    HAL_TIM_Base_Start_IT(&ADC_DMA_TIMER);
 
-    // Start timer 17
-    HAL_TIM_Base_Start_IT(&htim17);
+    HAL_TIM_Base_Start_IT(&CONTROL_LOOP_TIMER);
 }
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-    // TODO: Test that ControllLoopTimer works
-    if (htim->Instance == ControlLoopTimer)
+    if (htim == &CONTROL_LOOP_TIMER)
     {
     }
 }

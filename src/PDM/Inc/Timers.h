@@ -9,13 +9,14 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
-#include "FaultHandling.h"
 #include "stm32f3xx_hal.h"
 
 /******************************************************************************
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off
+#define ADC_DMA_TIMER      htim2
+#define CONTROL_LOOP_TIMER htim17
 
 /******************************************************************************
 * Preprocessor Macros
@@ -30,8 +31,8 @@
  * Global Variables
  ******************************************************************************/
 // TODO  (Issue #191): Should include header for TIM_HandleTypeDef externs
-extern TIM_HandleTypeDef htim2;
-extern TIM_HandleTypeDef htim17;
+extern TIM_HandleTypeDef ADC_DMA_TIMER;
+extern TIM_HandleTypeDef CONTROL_LOOP_TIMER;
 
 /******************************************************************************
  * Function Prototypes
