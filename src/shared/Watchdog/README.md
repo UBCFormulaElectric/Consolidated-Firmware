@@ -1,3 +1,4 @@
+## Overview
 The Independent Watchdog (IWDG) is an embedded watchdog peripheral needs to be periodically refreshed using `HAL_IWDG_Refresh(&hiwdg)` or else it will trigger a system reset when the counter reaches a given timeout value. Note that `hiwdg` is the **IWDG** handle. 
 
 It is possible to run `HAL_IWDG_Refresh(&hiwdg)` when `hiwdg` is not yet initialized which would result in a Hard Fault. To get around this issue, this library proposes to use `SharedWatchdog_RefreshIwdg()` instead of `HAL_IWDG_Refresh(&hiwdg)`, which only calls `HAL_IWDG_Refresh(&hiwdg)` if `hiwdg` has been properly initialized. This requires using `SharedWatchdog_SetIwdgInitializeState(IWDG_INITIALIZED)` as described below.
