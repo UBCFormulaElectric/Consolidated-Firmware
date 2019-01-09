@@ -68,7 +68,7 @@ script:
             # Try to convert the .sym to C code
             pipenv run python src/shared/CanMsgs/generate_c_code_from_sym.py;
             # Show the diff
-            git --no-pager diff;
+            #git --no-pager diff;
             # Check if there was a non-zero diff
             git diff-index --quiet HEAD --
             git_diff_result=$?
