@@ -13,7 +13,7 @@
 // Used in DCM 2017, BMS 2017, and PDM 2018
 #include "stm32f3xx_hal.h"
 #elif STM32F042x6
-// Used in FSM 2017 (Shared CAN Library doesn't yet support this)
+// Used in FSM 2017
 #include "stm32f0xx_hal.h"
 #else
 #error \
