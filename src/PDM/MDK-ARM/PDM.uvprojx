@@ -393,6 +393,11 @@
           <GroupName>Application/User</GroupName>
           <Files>
             <File>
+              <FileName>Adc.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\Adc.c</FilePath>
+            </File>
+            <File>
               <FileName>Can.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\Can.c</FilePath>
@@ -403,9 +408,9 @@
               <FilePath>..\Src\CurrentSense.c</FilePath>
             </File>
             <File>
-              <FileName>Adc.c</FileName>
+              <FileName>ErrorHandling.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\Adc.c</FilePath>
+              <FilePath>..\Src\ErrorHandling.c</FilePath>
             </File>
             <File>
               <FileName>FaultHandling.c</FileName>
@@ -418,14 +423,14 @@
               <FilePath>..\Src\Gpio.c</FilePath>
             </File>
             <File>
-              <FileName>Timers.c</FileName>
+              <FileName>Profet2.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\Timers.c</FilePath>
+              <FilePath>..\Src\Profet2.c</FilePath>
             </File>
             <File>
-              <FileName>ErrorHandling.c</FileName>
+              <FileName>SharedAdc.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\ErrorHandling.c</FilePath>
+              <FilePath>..\..\shared\ADC\Src\SharedAdc.c</FilePath>
             </File>
             <File>
               <FileName>SharedCan.c</FileName>
@@ -443,24 +448,19 @@
               <FilePath>..\..\shared\Filters\Src\SharedFilters.c</FilePath>
             </File>
             <File>
-              <FileName>SharedAdc.c</FileName>
+              <FileName>SharedWatchdog.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\..\shared\ADC\Src\SharedAdc.c</FilePath>
+              <FilePath>..\..\shared\Watchdog\Src\SharedWatchdog.c</FilePath>
             </File>
             <File>
-              <FileName>Profet2.c</FileName>
+              <FileName>Timers.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..\Src\Profet2.c</FilePath>
+              <FilePath>..\Src\Timers.c</FilePath>
             </File>
             <File>
               <FileName>VoltageSense.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\VoltageSense.c</FilePath>
-            </File>
-            <File>
-              <FileName>SharedWatchdog.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\shared\Watchdog\Src\SharedWatchdog.c</FilePath>
             </File>
             <File>
               <FileName>main.c</FileName>
@@ -483,6 +483,11 @@
           <GroupName>Application/Headers</GroupName>
           <Files>
             <File>
+              <FileName>Adc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Inc\Adc.h</FilePath>
+            </File>
+            <File>
               <FileName>Can.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Inc\Can.h</FilePath>
@@ -493,9 +498,9 @@
               <FilePath>..\Inc\CurrentSense.h</FilePath>
             </File>
             <File>
-              <FileName>Adc.h</FileName>
+              <FileName>ErrorHandling.h</FileName>
               <FileType>5</FileType>
-              <FilePath>..\Inc\Adc.h</FilePath>
+              <FilePath>..\Inc\ErrorHandling.h</FilePath>
             </File>
             <File>
               <FileName>FaultHandling.h</FileName>
@@ -528,19 +533,24 @@
               <FilePath>..\Inc\Timers.h</FilePath>
             </File>
             <File>
-              <FileName>ErrorHandling.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\Inc\ErrorHandling.h</FilePath>
-            </File>
-            <File>
               <FileName>CanDefinitions.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\shared\STM32-CAN-Code\Inc\CanDefinitions.h</FilePath>
             </File>
             <File>
+              <FileName>SharedAdc.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\shared\ADC\Inc\SharedAdc.h</FilePath>
+            </File>
+            <File>
               <FileName>SharedCan.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\shared\STM32-CAN-Code\Inc\SharedCan.h</FilePath>
+            </File>
+            <File>
+              <FileName>SharedFilters.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\shared\Filters\Inc\SharedFilters.h</FilePath>
             </File>
             <File>
               <FileName>SharedGpio.h</FileName>
