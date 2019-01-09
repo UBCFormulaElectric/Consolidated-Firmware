@@ -11,7 +11,10 @@ def runClangFormat():
     CLANG_FORMAT_VERSION = "7.0"
     CLANG_FORMAT_COMMAND = "clang-format-" + CLANG_FORMAT_VERSION
     CLANG_FORMAT_OPTIONS = " -i --style=file "
-    IGNORE_FILES = ["src/shared/CanMsgs/CanMsgs.c", "src/shared/CanMsgs/CanMsgs.h"]
+    IGNORE_FILES = [
+            "CanMsgs.c", 
+            "CanMsgs.h"
+            ]
 
     # If the OS is Windows
     if os.name == 'nt':
