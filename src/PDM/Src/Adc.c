@@ -36,7 +36,6 @@
  * Function Definitions
  ******************************************************************************/
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
-
 {
     // Note: This callback is used for "ADC conversion by interruption" as well
     //       as "ADC conversion with transfer by DMA"
