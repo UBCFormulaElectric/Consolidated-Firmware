@@ -300,7 +300,7 @@ Sig=Signal_Float_2 0
 ID=403h
 Len=8
 Sig=Signal_Float_1 0
-Sig=Signal_Float_2 0
+Sig=Signal_Float_2 32
 
 [DEMO_2_UINT32_NUCLEO_TX]
 ID=404h
