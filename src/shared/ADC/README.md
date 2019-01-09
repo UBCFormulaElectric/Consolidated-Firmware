@@ -4,7 +4,7 @@ The ADC can be activated in a variety of modes: polling, interrupt driven, or DM
 In addition, the VDDA power supply voltage applied to the microcontroller may be subject to variation or not precisely known. The embedded internal voltage reference (VREFINT) and its calibration data acquired by theADC during the manufacturing process at VDDA = 3.3 V can be used to evaluate the actual VDDA voltage level. This library has a helper function `SharedAdc_GetActualVdda()` to calculate the aforementioned actual VDDA voltage level (Note that this implementation requires the regular rank of VREFINT to be configured as (VREFINT_INDEX + 1) = 1 in STM32CubeMX).
 
 ## How to Use This Library
-1. Enable `Vrefint Channel` and configure it to have **Regular Rank 1**
+1. Enable `Vrefint Channel` and configure it to have **Regular Rank 1** (This is because this library assumes `Vrefint` is the first element in `adc_values[]`)
 1. Enable any other ADC channels required and configure them to have any **Regular Rank** that is not **1**
 1. Add `SharedAdc_StartAdcInDmaMode(&hadc1)` to `MX_ADC_INIT()` 
 ```

@@ -2,6 +2,7 @@
  * Includes
  ******************************************************************************/
 #include "Profet2.h"
+#include "SharedMacros.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -26,9 +27,6 @@
     [index].dsel_pin_mapping.port             = dsel_port,              \
     [index].den_pin_mapping.pin               = den_pin,                \
     [index].den_pin_mapping.port              = den_port
-
-#define ARRAY_SIZE(array_pointer) \
-    sizeof(array_pointer) / sizeof(array_pointer[0])
 
 /******************************************************************************
  * Module Typedefs

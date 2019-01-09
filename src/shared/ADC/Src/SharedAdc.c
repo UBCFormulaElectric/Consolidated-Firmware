@@ -37,6 +37,14 @@ static uint32_t adc_values[NUM_ADC_CHANNELS] = { 0 };
  */
 static ErrorStatus InitializeAdcMaxValue(ADC_HandleTypeDef *hadc);
 
+/**
+ * @brief  Return the calibration data acquired by the ADC during the
+ *         manufacturing process at VDDA = 3.3V (Note that this is a 16-bit
+ *         value)
+ * @return VDDA calibration data
+ */
+static uint16_t GetVddaCalibrationData(void);
+
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
@@ -60,6 +68,12 @@ static ErrorStatus InitializeAdcMaxValue(ADC_HandleTypeDef *hadc)
             return ERROR;
     }
     return SUCCESS;
+}
+
+static uint16_t GetVddaCalibrationData(void)
+{
+
+    return (uint16_t)(*VREFINT_CAL_ADDR);
 }
 
 /******************************************************************************
@@ -98,7 +112,9 @@ float32_t SharedAdc_GetActualVdda(void)
     // TODO: Make this function a one line return expression
     // TODO: Check val value and see if we need to explicitly cast val
     // and adc_values[] to be float32_t
-    uint32_t val = *VREFINT_CAL_ADDR;
-    return 3.3f * val / adc_values[VREFINT_INDEX];
+    uint32_t tmp = GetVddaCalibrationData();
+    float32_t f_tmp = GetVddaCalibrationData();
+
+    return 3.3f * (float32_t)tmp  / adc_values[VREFINT_INDEX];
     // return 3.3f * (float32_t)(val) / (float32_t)(adc_values[VREFINT_INDEX]);
 }
