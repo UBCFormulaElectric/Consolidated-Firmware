@@ -238,13 +238,11 @@ static ErrorStatus SharedCan_InitializeFilters(void)
         can_filter.FilterFIFOAssignment = fifo;
 #ifdef STM32F042x6
         can_filter.BankNumber = filter_bank;
+        can_filter.FilterNumber = i;
 #else
         can_filter.FilterBank = filter_bank;
 #endif
 
-        // TODO: This number can't be greater then 27 (see struct def.) how to
-        // enforce this statically?
-        can_filter.FilterNumber = i;
 
         // Alternate between the two FIFOs
         fifo = !fifo;
