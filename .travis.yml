@@ -62,6 +62,11 @@ script:
       fi
     - if [ "$GENERATE_CODE_FROM_SYM" = "true" ]; then 
             pipenv run python src/shared/CanMsgs/generate_c_code_from_sym.py;
+            git --no-pager diff
+            if [ $? -ne 0 ]; then
+                echo Git diff was non-zero! Re-run generate_c_code_from_sym.py to generate C code from the .sym file.
+                exit 1;
+            fi
       fi
 
 matrix:
