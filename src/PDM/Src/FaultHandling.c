@@ -128,7 +128,7 @@ void FaultHandling_Handler(
         GPIO_ConfigureFor12VAux(fault_states);
     }
     */
-    //GPIO_ConfigureFor12VAcc();
+    // GPIO_ConfigureFor12VAcc();
 }
 
 void FaultHandling_RetryEFuse(volatile uint8_t *fault_states)

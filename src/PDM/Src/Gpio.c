@@ -208,14 +208,18 @@ void GPIO_ConfigureFor12VAux(void)
         {
             // TODO: If an efuse has exceeded its max retry count, don't turn it
             // on
-            Profet2_ConfigureSingleEfuse(&(profet2s[i].efuse[SENSE_0]), EFUSE_ON);
-            Profet2_ConfigureSingleEfuse(&(profet2s[i].efuse[SENSE_1]), EFUSE_ON);
+            Profet2_ConfigureSingleEfuse(
+                &(profet2s[i].efuse[SENSE_0]), EFUSE_ON);
+            Profet2_ConfigureSingleEfuse(
+                &(profet2s[i].efuse[SENSE_1]), EFUSE_ON);
             Profet2_ConfigureSingleDen(&profet2s[i], DEN_ON);
         }
         else
         {
-            Profet2_ConfigureSingleEfuse(&(profet2s[i].efuse[SENSE_0]), EFUSE_OFF);
-            Profet2_ConfigureSingleEfuse(&(profet2s[i].efuse[SENSE_1]), EFUSE_OFF);
+            Profet2_ConfigureSingleEfuse(
+                &(profet2s[i].efuse[SENSE_0]), EFUSE_OFF);
+            Profet2_ConfigureSingleEfuse(
+                &(profet2s[i].efuse[SENSE_1]), EFUSE_OFF);
             Profet2_ConfigureSingleDen(&profet2s[i], DEN_OFF);
         }
     }
@@ -238,4 +242,3 @@ void HAL_GPIO_EXTI_Callback(uint16_t gpio_pin)
             break;
     }
 }
-

@@ -1,7 +1,6 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
-//TODO: UPDATE INCLUDE(S)
 #include "Profet2.h"
 
 /******************************************************************************
@@ -11,7 +10,8 @@
 /******************************************************************************
  * Module Preprocessor Macros
  ******************************************************************************/
-/* https://www.infineon.com/dgdl/Infineon-BTS7008-2EPA-DS-v01_00-EN.pdf?fileId=5546d46258fc0bc101590212356876b1 */
+/* https://www.infineon.com/dgdl/Infineon-BTS7008-2EPA-DS-v01_00-EN.pdf?fileId=5546d46258fc0bc101590212356876b1
+ */
 #define INIT_PROFET2(                                                   \
     index, efuse0_pin, efuse0_port, efuse0_ampere_per_volt, efuse1_pin, \
     efuse1_port, efuse1_ampere_per_volt, dsel_pin, dsel_port, den_pin,  \
@@ -28,7 +28,8 @@
     [index].dsel_pin_mapping.port             = dsel_port,              \
     [index].den_pin_mapping.pin               = den_pin,                \
     [index].den_pin_mapping.port              = den_port
-
+#define ARRAY_SIZE(array_pointer) \
+    sizeof(array_pointer) / sizeof(array_pointer[0])
 /******************************************************************************
  * Module Typedefs
  ******************************************************************************/
@@ -100,8 +101,8 @@ static Profet2_Struct profet2[NUM_PROFET2S] = {
 };
 
 /******************************************************************************
-* Private Function Prototypes
-*******************************************************************************/
+ * Private Function Prototypes
+ *******************************************************************************/
 
 /******************************************************************************
  * Private Function Definitions
@@ -126,10 +127,19 @@ void Profet2_ConfigureSingleDen(
         profet2->den_pin_mapping.port, profet2->den_pin_mapping.pin, state);
 }
 
+void Profet2_ConfigureAllDens(DenOnOff_GPIO_PinState state)
+{
+    for (Profet2Index_Enum i = 0; i < ARRAY_SIZE(profet2); i++)
+    {
+        SharedGpio_GPIO_WritePin(
+            profet2[i].den_pin_mapping.port, profet2[i].den_pin_mapping.pin,
+            state);
+    }
+}
+
 void Profet2_ConfigureAllDsels(DselOnOff_GPIO_PinState state)
 {
-    // TODO: Test that the sizeof works and this function works in general
-    for (Profet2Index_Enum i = 0; i < sizeof(profet2) / sizeof(profet2[0]); i++)
+    for (Profet2Index_Enum i = 0; i < ARRAY_SIZE(profet2); i++)
     {
         SharedGpio_GPIO_WritePin(
             profet2[i].dsel_pin_mapping.port, profet2[i].dsel_pin_mapping.pin,

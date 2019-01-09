@@ -49,6 +49,7 @@
 #include "Adc.h"
 #include "SharedCan.h"
 #include "SharedAdc.h"
+#include "SharedWatchdog.h"
 #include "Timers.h"
 #include "CurrentSense.h"
 #include "arm_math.h"
@@ -112,6 +113,7 @@ static void MX_TIM17_Init(void);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
+    __HAL_DBGMCU_FREEZE_IWDG();
     /* USER CODE END 1 */
 
     /* MCU
@@ -158,32 +160,9 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    //Profet2_Struct* profet2s = Profet2_GetProfet2s();
 
     while (1)
     {
-//        // Turn on and off all efuses
-//        for (uint32_t j = 0; j < NUM_PROFET2S; j++)
-//        {
-//            for (uint32_t i = 0; i < NUM_CHANNELS_PER_PROFET2; i++)
-//            {
-//                efuse_struct *efuse = &(profet2s[j].efuse[i]);
-//                Profet2_ConfigureSingleEfuse(efuse, EFUSE_ON);
-//                Profet2_ConfigureSingleEfuse(efuse, EFUSE_OFF);
-//            }
-//        }
-
-//        for (uint32_t i = 0; i < NUM_PROFET2S; i++)
-//        {
-//            Profet2_ConfigureSingleDen(profet2s, DEN_ON);
-//            Profet2_ConfigureSingleDen(profet2s, DEN_OFF);
-//        }
-//        Profet2_ConfigureAllDsels(DSEL_LOW);
-//        Profet2_ConfigureAllDsels(DSEL_HIGH);
-
-//        GPIO_ConfigureFor12VAcc();
-//        GPIO_ConfigureFor12VAux();
-
     }
     /* USER CODE END 3 */
 }
@@ -264,7 +243,7 @@ static void MX_ADC1_Init(void)
     hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_RISING;
     hadc1.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T2_TRGO;
     hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-    hadc1.Init.NbrOfConversion       = 9;
+    hadc1.Init.NbrOfConversion       = 8;
     hadc1.Init.DMAContinuousRequests = ENABLE;
     hadc1.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
     hadc1.Init.LowPowerAutoWait      = DISABLE;
@@ -275,10 +254,10 @@ static void MX_ADC1_Init(void)
     }
     /**Configure Regular Channel
      */
-    sConfig.Channel      = ADC_CHANNEL_VREFINT;
+    sConfig.Channel      = ADC_CHANNEL_1;
     sConfig.Rank         = ADC_REGULAR_RANK_1;
     sConfig.SingleDiff   = ADC_SINGLE_ENDED;
-    sConfig.SamplingTime = ADC_SAMPLETIME_61CYCLES_5;
+    sConfig.SamplingTime = ADC_SAMPLETIME_4CYCLES_5;
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset       = 0;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
@@ -287,17 +266,8 @@ static void MX_ADC1_Init(void)
     }
     /**Configure Regular Channel
      */
-    sConfig.Channel      = ADC_CHANNEL_1;
-    sConfig.Rank         = ADC_REGULAR_RANK_2;
-    sConfig.SamplingTime = ADC_SAMPLETIME_4CYCLES_5;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /**Configure Regular Channel
-     */
     sConfig.Channel = ADC_CHANNEL_2;
-    sConfig.Rank    = ADC_REGULAR_RANK_3;
+    sConfig.Rank    = ADC_REGULAR_RANK_2;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -305,7 +275,7 @@ static void MX_ADC1_Init(void)
     /**Configure Regular Channel
      */
     sConfig.Channel = ADC_CHANNEL_3;
-    sConfig.Rank    = ADC_REGULAR_RANK_4;
+    sConfig.Rank    = ADC_REGULAR_RANK_3;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -313,7 +283,7 @@ static void MX_ADC1_Init(void)
     /**Configure Regular Channel
      */
     sConfig.Channel = ADC_CHANNEL_4;
-    sConfig.Rank    = ADC_REGULAR_RANK_5;
+    sConfig.Rank    = ADC_REGULAR_RANK_4;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -321,7 +291,7 @@ static void MX_ADC1_Init(void)
     /**Configure Regular Channel
      */
     sConfig.Channel = ADC_CHANNEL_5;
-    sConfig.Rank    = ADC_REGULAR_RANK_6;
+    sConfig.Rank    = ADC_REGULAR_RANK_5;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -329,7 +299,7 @@ static void MX_ADC1_Init(void)
     /**Configure Regular Channel
      */
     sConfig.Channel = ADC_CHANNEL_8;
-    sConfig.Rank    = ADC_REGULAR_RANK_7;
+    sConfig.Rank    = ADC_REGULAR_RANK_6;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -337,7 +307,7 @@ static void MX_ADC1_Init(void)
     /**Configure Regular Channel
      */
     sConfig.Channel = ADC_CHANNEL_9;
-    sConfig.Rank    = ADC_REGULAR_RANK_8;
+    sConfig.Rank    = ADC_REGULAR_RANK_7;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -345,7 +315,7 @@ static void MX_ADC1_Init(void)
     /**Configure Regular Channel
      */
     sConfig.Channel = ADC_CHANNEL_10;
-    sConfig.Rank    = ADC_REGULAR_RANK_9;
+    sConfig.Rank    = ADC_REGULAR_RANK_8;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -406,14 +376,14 @@ static void MX_IWDG_Init(void)
     /* USER CODE END IWDG_Init 1 */
     hiwdg.Instance       = IWDG;
     hiwdg.Init.Prescaler = IWDG_PRESCALER_256;
-    hiwdg.Init.Window    = 31;
-    hiwdg.Init.Reload    = 31;
+    hiwdg.Init.Window    = 4095;
+    hiwdg.Init.Reload    = 4095;
     if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
     {
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
-
+    SharedWatchdog_SetIwdgInitializeState(IWDG_INITIALIZED);
     /* USER CODE END IWDG_Init 2 */
 }
 

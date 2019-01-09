@@ -89,7 +89,7 @@
             <nStopA1X>0</nStopA1X>
             <nStopA2X>0</nStopA2X>
           </AfterMake>
-          <SelectedForBatchBuild>0</SelectedForBatchBuild>
+          <SelectedForBatchBuild>1</SelectedForBatchBuild>
           <SVCSIdString></SVCSIdString>
         </TargetCommonOption>
         <CommonProperty>
@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F302x8, PDM, ARM_MATH_CM4</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;../Drivers/CMSIS/Include;..\..\shared\STM32-CAN-Code\Inc;..\..\shared\GPIO\Inc;..\..\shared;..\..\shared\ADC\Inc;..\..\shared\Filters\Inc</IncludePath>
+              <IncludePath>../Inc;../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;../Drivers/CMSIS/Include;..\..\shared\STM32-CAN-Code\Inc;..\..\shared\GPIO\Inc;..\..\shared;..\..\shared\ADC\Inc;..\..\shared\Filters\Inc;..\..\shared\Watchdog\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -423,21 +423,6 @@
               <FilePath>..\Src\Timers.c</FilePath>
             </File>
             <File>
-              <FileName>main.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Src/main.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f3xx_it.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Src/stm32f3xx_it.c</FilePath>
-            </File>
-            <File>
-              <FileName>stm32f3xx_hal_msp.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>../Src/stm32f3xx_hal_msp.c</FilePath>
-            </File>
-            <File>
               <FileName>ErrorHandling.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\ErrorHandling.c</FilePath>
@@ -471,6 +456,26 @@
               <FileName>VoltageSense.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\VoltageSense.c</FilePath>
+            </File>
+            <File>
+              <FileName>main.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Src/main.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f3xx_it.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Src/stm32f3xx_it.c</FilePath>
+            </File>
+            <File>
+              <FileName>stm32f3xx_hal_msp.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>../Src/stm32f3xx_hal_msp.c</FilePath>
+            </File>
+            <File>
+              <FileName>SharedWatchdog.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\shared\Watchdog\Src\SharedWatchdog.c</FilePath>
             </File>
           </Files>
         </Group>
@@ -541,6 +546,11 @@
               <FileName>SharedGpio.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\shared\GPIO\Inc\SharedGpio.h</FilePath>
+            </File>
+            <File>
+              <FileName>SharedWatchdog.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\shared\Watchdog\Inc\SharedWatchdog.h</FilePath>
             </File>
           </Files>
         </Group>
@@ -645,7 +655,7 @@
             <File>
               <FileName>system_stm32f3xx.c</FileName>
               <FileType>1</FileType>
-              <FilePath>..//Src/system_stm32f3xx.c</FilePath>
+              <FilePath>../Src/system_stm32f3xx.c</FilePath>
             </File>
           </Files>
         </Group>

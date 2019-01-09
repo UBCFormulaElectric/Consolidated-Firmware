@@ -24,7 +24,7 @@
 #define NUM_VOLTAGE_SENSE_PINS (uint32_t)(3)
 
 /** @brief Number of PROFET 2's */
-#define NUM_PROFET2S (uint32_t)(NUM_ADC_CHANNELS - NUM_VOLTAGE_SENSE_PINS)
+#define NUM_PROFET2S (uint32_t)(NUM_ADC_CHANNELS - NUM_VREFINT_CHANNEL - NUM_VOLTAGE_SENSE_PINS)
 
 /** @brief PROFET 2 is a dual-channel IC */
 #define NUM_CHANNELS_PER_PROFET2 (uint32_t)(2)

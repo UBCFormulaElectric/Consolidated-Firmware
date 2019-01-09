@@ -1,12 +1,7 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
-#include "Adc.h"
-#include "Constants.h"
-#include "SharedAdc.h"
-#include "Gpio.h"
-#include "CurrentSense.h"
-#include "VoltageSense.h"
+#include "SharedWatchdog.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -23,10 +18,12 @@
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
+// IWDG_HandleTypeDef hiwdg is not initialized on system boot-up
+static IwdgInitializeState_Enum iwdg_initialize_state = IWDG_NOT_INITIALIZED;
 
 /******************************************************************************
  * Private Function Prototypes
- ******************************************************************************/
+ *******************************************************************************/
 
 /******************************************************************************
  * Private Function Definitions
@@ -35,16 +32,20 @@
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
-
+void SharedWatchdog_RefreshIwdg(void)
 {
-    // Note: This callback is used for "ADC conversion by interruption" as well
-    //       as "ADC conversion with transfer by DMA"
+    if (SharedWatchdog_GetIwdgInitializeState() == IWDG_INITIALIZED)
+    {
+        HAL_IWDG_Refresh(&hiwdg);
+    }
+}
 
-    CurrentSense_ConvertCurrentAdcReadings();
-    VoltageSense_ConvertVoltageAdcReadings();
+void SharedWatchdog_SetIwdgInitializeState(IwdgInitializeState_Enum state)
+{
+    iwdg_initialize_state = state;
+}
 
-    // Toggle the SENSE channel between DMA tranfers to read both SENSE
-    // channnels
-    CurrentSense_ToggleCurrentSenseChannel();
+IwdgInitializeState_Enum SharedWatchdog_GetIwdgInitializeState(void)
+{
+    return iwdg_initialize_state;
 }

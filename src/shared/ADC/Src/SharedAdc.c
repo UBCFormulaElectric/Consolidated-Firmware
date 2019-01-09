@@ -88,9 +88,9 @@ const uint32_t SharedAdc_GetAdcMaxValue(void)
     return (const uint32_t)adc_max_value;
 }
 
-const uint32_t * const SharedAdc_GetAdcValues(void)
+const uint32_t *const SharedAdc_GetAdcValues(void)
 {
-    return (const uint32_t * const)adc_values;
+    return (const uint32_t *const)adc_values;
 }
 
 float32_t SharedAdc_GetActualVdda(void)
@@ -100,6 +100,5 @@ float32_t SharedAdc_GetActualVdda(void)
     // and adc_values[] to be float32_t
     uint32_t val = *VREFINT_CAL_ADDR;
     return 3.3f * val / adc_values[VREFINT_INDEX];
-    //return 3.3f * (float32_t)(val) / (float32_t)(adc_values[VREFINT_INDEX]);
-
+    // return 3.3f * (float32_t)(val) / (float32_t)(adc_values[VREFINT_INDEX]);
 }

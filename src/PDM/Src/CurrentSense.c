@@ -43,13 +43,14 @@ void CurrentSense_ConvertCurrentAdcReadings(void)
     for (uint32_t i = 0, j = ADC_READINGS_VOLTAGE_START_INDEX; i < NUM_PROFET2S;
          i++, j++)
     {
-        efuse_struct *efuse = &(
-            Profet2_GetProfet2s()[i].efuse[CurrentSense_GetCurrentSenseChannel()]);
+        efuse_struct *efuse =
+            &(Profet2_GetProfet2s()[i]
+                  .efuse[CurrentSense_GetCurrentSenseChannel()]);
 
         // Convert ADC values to current values
-        float32_t temp_current = (float32_t)(SharedAdc_GetAdcValues()[j]) *
-                                 efuse->ampere_per_volt * SharedAdc_GetActualVdda() /
-                                 (float32_t)(SharedAdc_GetAdcMaxValue());
+        float32_t temp_current =
+            (float32_t)(SharedAdc_GetAdcValues()[j]) * efuse->ampere_per_volt *
+            SharedAdc_GetActualVdda() / (float32_t)(SharedAdc_GetAdcMaxValue());
 
         // Apply low pass filter to current values
         SharedFilter_LowPassFilter(

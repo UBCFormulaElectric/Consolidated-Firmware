@@ -43,6 +43,7 @@
 #include "Gpio.h"
 #include "SharedCan.h"
 #include "ErrorHandling.h"
+#include "SharedWatchdog.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -222,9 +223,8 @@ void SysTick_Handler(void)
     HAL_IncTick();
     /* USER CODE BEGIN SysTick_IRQn 1 */
 
-    // CANNOT USE DELAY FUNCTION HERE AS THE ABOVE CODE INCREMENTS THE DELAY
-    // COUNTER!
-    HAL_IWDG_Refresh(&hiwdg);
+
+    SharedWatchdog_RefreshIwdg();
 
 #ifndef DEBUG
 

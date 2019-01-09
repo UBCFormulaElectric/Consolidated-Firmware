@@ -62,6 +62,8 @@
  *         Rank 1 so that adc_reading[0] contains VREFINT */
 #define VREFINT_INDEX 0
 
+/** @brief Number of Vrefint channel that can be useful in certain calculations */
+#define NUM_VREFINT_CHANNEL 1
 /******************************************************************************
  * Preprocessor Macros
  ******************************************************************************/
@@ -98,7 +100,7 @@ const uint32_t SharedAdc_GetAdcMaxValue(void);
  * @brief  Get the array of ADC readings transferred over DMA request
  * @return Pointer to the array of ADC readings
  */
-const uint32_t * const SharedAdc_GetAdcValues(void);
+const uint32_t *const SharedAdc_GetAdcValues(void);
 
 /**
  * @brief  The VDDA power supply voltage applied to the microcontroller may be
@@ -106,8 +108,8 @@ const uint32_t * const SharedAdc_GetAdcValues(void);
  *         voltage reference (VREFINT) and its calibration data acquired by the
  *         ADC during the manufacturing process at VDDA = 3.3 V can be used to
  *         evaluate the actual VDDA voltage level.
- * 
- *         Note that this implementation requires the regular rank of VREFINT 
+ *
+ *         Note that this implementation requires the regular rank of VREFINT
  *         to be configured as (VREFINT_INDEX + 1) = 1 in STM32CubeMX.
  * @return Actual VDDA voltage
  */

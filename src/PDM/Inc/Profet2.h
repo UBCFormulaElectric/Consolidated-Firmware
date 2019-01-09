@@ -1,8 +1,7 @@
 /**
  * @file  Profet2.h
- * @brief Pseuo-struct 
+ * @brief Pseuo-struct
  */
-//TODO: Update header guard below to an unique identifier in this project
 #ifndef PROFET2_H
 #define PROFET2_H
 
@@ -148,6 +147,12 @@ void Profet2_ConfigureSingleEfuse(
 void Profet2_ConfigureSingleDen(
     Profet2_Struct *       profet2,
     DenOnOff_GPIO_PinState state);
+
+/**
+ * @brief Helper function to turn all DEN pins on or off
+ * @param state Turn DEN pins on or off
+ */
+void Profet2_ConfigureAllDens(DenOnOff_GPIO_PinState state);
 
 /**
  * @brief Helper function to turn all DSEL pins on or off
