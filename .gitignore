@@ -10,6 +10,7 @@
 #*.uvoptx
 *.uvgui
 *.uvguix.*
+*.svcd
 
 # Listing files
 *.cod
