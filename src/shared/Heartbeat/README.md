@@ -58,7 +58,7 @@ void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 // Heartbeat.c example for BMS, which listens to FSM, DCM and PDM's heartbeats
 #include "SharedHeartbeat.h"
 
-void SharedHeartbeat_MissedHeartbeatsHandler(uint8_t heartbeats_received)
+void Heartbeat_HandleHeartbeatTimeout(uint8_t heartbeats_received)
 {
     if (HEARTBEAT_TIMEOUT(heartbeats_received, FSM_HEARTBEAT_ENCODING))
     {

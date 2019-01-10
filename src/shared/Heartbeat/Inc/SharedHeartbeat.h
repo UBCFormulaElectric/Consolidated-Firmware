@@ -89,6 +89,6 @@ typedef enum
   * @brief  Shared handler for missed heartbeats
   * @param  heartbeats_received One-hot encoding of heartbeats received
   */
- void SharedHeartbeat_MissedHeartbeatsHandler(uint8_t heartbeats_received);
+ void Heartbeat_HandleHeartbeatTimeout(uint8_t heartbeats_received);
 
 #endif /* SHARED_HEARTBEAT_H */

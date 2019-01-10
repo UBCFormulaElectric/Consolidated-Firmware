@@ -1,10 +1,10 @@
 /**
- * @file  ErrorHandling.h
- * @brief Error Handling Library
+ * @file  Heartbeat.h
+ * @brief Heartbeat timeout handling
  */
 
-#ifndef ERRORHANDLING_H
-#define ERRORHANDLING_H
+#ifndef HEARTBEAT_H
+#define HEARTBEAT_H
 
 /******************************************************************************
  * Includes
@@ -31,6 +31,6 @@
 /******************************************************************************
  * Function Prototypes
  ******************************************************************************/
-void ErrorHandling_HandleError(PdmError_Enum error) {}
+void Heartbeat_HandleHeartbeatTimeout(uint8_t heartbeats_received);
 
-#endif /* ERRORHANDLING_H */
+#endif /* HEARTBEAT_H */
