@@ -24,17 +24,10 @@
 /******************************************************************************
  * Private Function Prototypes
  ******************************************************************************/
-static void Can_HeartbeatCallback(uint8_t *data);
 
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
-static void Can_HeartbeatCallback(uint8_t *data)
-{
-    /* TODO (#Issue 204): Need bit mask for DLC = 4 */
-    Pcb_Enum pcb = data[0];
-    HeartbeatCount[pcb]++;
-}
 
 /******************************************************************************
  * Function Definitions
