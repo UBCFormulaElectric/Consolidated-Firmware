@@ -26,8 +26,8 @@
 // clang-format on
 typedef struct
 {
-    float32_t voltage;
-    float32_t voltage_scale;
+    float32_t      voltage;
+    float32_t      voltage_scale;
     CanInfo_Struct can;
 } VoltageSense_Struct;
 
@@ -35,9 +35,21 @@ typedef struct
  * Module Variable Definitions
  ******************************************************************************/
 static VoltageSense_Struct voltage_sense[NUM_VOLTAGE_SENSE_PINS] = {
-    INIT_VOLTAGE_SENSE(_12V_SUPPLY, GLV_VOLTAGE, PDM_12V_VBAT_STDID, PDM_12V_VBAT_DLC),
-    INIT_VOLTAGE_SENSE(VBAT_SUPPLY, VBAT_VOLTAGE, PDM_12V_VBAT_STDID, PDM_12V_VBAT_DLC),
-    INIT_VOLTAGE_SENSE(FLYWIRE, ADC1_IN10_TO_12V_ACC_RATIO, PDM_FLYWIRE_STDID, PDM_FLYWIRE_DLC),
+    INIT_VOLTAGE_SENSE(
+        _12V_SUPPLY,
+        GLV_VOLTAGE,
+        PDM_12V_VBAT_STDID,
+        PDM_12V_VBAT_DLC),
+    INIT_VOLTAGE_SENSE(
+        VBAT_SUPPLY,
+        VBAT_VOLTAGE,
+        PDM_12V_VBAT_STDID,
+        PDM_12V_VBAT_DLC),
+    INIT_VOLTAGE_SENSE(
+        FLYWIRE,
+        ADC1_IN10_TO_12V_ACC_RATIO,
+        PDM_FLYWIRE_STDID,
+        PDM_FLYWIRE_DLC),
 };
 
 /******************************************************************************
@@ -57,7 +69,7 @@ void VoltageSense_ConvertVoltageAdcReadings(void)
          i < NUM_VOLTAGE_SENSE_PINS; i++, j++)
     {
         // Convert ADC readings to voltage values
-       float32_t temp_voltage = (float32_t)(SharedAdc_GetAdcVoltage(j)) *
+        float32_t temp_voltage = (float32_t)(SharedAdc_GetAdcVoltage(j)) *
                                  voltage_sense[i].voltage_scale /
                                  (float32_t)(SharedAdc_GetActualVdda());
 
