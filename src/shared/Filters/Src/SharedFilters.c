@@ -34,8 +34,8 @@
 void SharedFilters_LowPassFilter(
     float32_t *input,
     float32_t *output,
-    float32_t sampling_time,
-    float32_t rc)
+    float32_t  sampling_time,
+    float32_t  rc)
 {
     float32_t smoothing_factor;
 
