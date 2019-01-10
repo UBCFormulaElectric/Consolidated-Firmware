@@ -1,7 +1,7 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
-#include "Heartbeat.h"
+#include "SharedHeartbeat.h"
 #include "Gpio.h"
 #include "SharedGpio.h"
 
@@ -55,4 +55,12 @@ void Heartbeat_HandleHeartbeatTimeout(uint8_t heartbeats_received)
 
     // Log error
     SharedCan_BroadcastPcbErrors(MISSING_HEARTBEAT);
+}
+
+void Heartbeat_HandleHeartbeatReception(uint32_t std_id)
+{
+    if (std_id == BMS_HEARTBEAT_STDID)
+    {
+        SharedHeartbeat_ReceiveHeartbeat(BMS_HEARTBEAT_ENCODING);
+    }
 }

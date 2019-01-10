@@ -23,19 +23,15 @@ void SysTick_Handler(void)
 
 The periodicity of broadcasting and timeout checks are handled within their respective functions, and don't need to be handled in the `SysTick_Handler()`.
 
-2. Call `SharedHeartbeat_ReceiveHeartbeat()` upon reception of heartbeats from other boards in the `Can_RxCommonCallback()`:
+2. Implement `Heartbeat_HandleHeartbeatReception()` in `Heartbeat.c` and call the function in the `Can_RxCommonCallback()`:
 
 ```c
-// Can.c example for BMS, which listens to FSM, DCM and PDM's heartbeats
+// Heartbeat.c example for BMS, which listens to FSM, DCM and PDM's heartbeats
 #include "SharedHeartbeat.h"
 
-void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
+void Heartbeat_HandleHeartbeatReception(uint32_t std_id)
 {
-    CanRxMsg_Struct rx_msg;
-
-    HAL_CAN_GetRxMessage(hcan, rx_fifo, &rx_msg.rx_header, &rx_msg.data[0]);
-
-    switch (rx_msg.rx_header.StdId)
+    switch (std_id)
     {
         case FSM_HEARTBEAT_STDID:
             SharedHeartbeat_ReceiveHeartbeat(FSM_HEARTBEAT_ENCODING);
@@ -52,7 +48,7 @@ void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 }
 ```
 
-3. Create `Heartbeat.c` and implement the missed heartbeats handler, checking which board timed out using the `HEARTBEAT_TIMEOUT()` macro:
+3. Implement the missed heartbeats handler, checking which board(s) timed out using the `HEARTBEAT_TIMEOUT()` macro:
 
 ```c
 // Heartbeat.c example for BMS, which listens to FSM, DCM and PDM's heartbeats

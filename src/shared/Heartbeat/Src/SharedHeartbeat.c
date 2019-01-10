@@ -6,11 +6,12 @@
 /******************************************************************************
  * Module Preprocessor Constants
  ******************************************************************************/
-// Allow some margin of error by sending 3 heartbeats per board per timeout
-// period
-#define HEARTBEAT_BROADCAST_PERIOD 100      // Period in ms
-#define HEARTBEAT_TIMEOUT_ERROR_MARGIN 20   // Period in ms
-#define HEARTBEAT_TIMEOUT_PERIOD (HEARTBEAT_BROADCAST_PERIOD * 3) + HEARTBEAT_TIMEOUT_MARGIN
+// Allow some margin of error by sending slightly more than 3 heartbeats per
+// board per timeout period
+#define HEARTBEAT_BROADCAST_PERIOD 100    // Period in ms
+#define HEARTBEAT_TIMEOUT_ERROR_MARGIN 20 // Period in ms
+#define HEARTBEAT_TIMEOUT_PERIOD \
+    (HEARTBEAT_BROADCAST_PERIOD * 3) + HEARTBEAT_TIMEOUT_ERROR_MARGIN
 
 /******************************************************************************
  * Module Preprocessor Macros
@@ -40,7 +41,7 @@ static volatile uint8_t heartbeats_received = 0;
  ******************************************************************************/
 void SharedHeartbeat_BroadcastHeartbeat(void)
 {
-    uint8_t data[PCB_HEARTBEAT_DLC] = { 0 };
+    uint8_t         data[PCB_HEARTBEAT_DLC]   = { 0 };
     static uint32_t heartbeat_broadcast_ticks = 0;
 
     heartbeat_broadcast_ticks++;
@@ -48,7 +49,8 @@ void SharedHeartbeat_BroadcastHeartbeat(void)
     if (heartbeat_broadcast_ticks >= HEARTBEAT_BROADCAST_PERIOD)
     {
         heartbeat_broadcast_ticks = 0;
-        SharedCan_TransmitDataCan(PCB_HEARTBEAT_STDID, PCB_HEARTBEAT_DLC, &data[0]);
+        SharedCan_TransmitDataCan(
+            PCB_HEARTBEAT_STDID, PCB_HEARTBEAT_DLC, &data[0]);
     }
 }
 
@@ -66,11 +68,11 @@ void SharedHeartbeat_CheckHeartbeatTimeout(void)
     if (heartbeat_timeout_ticks >= HEARTBEAT_TIMEOUT_PERIOD)
     {
         heartbeat_timeout_ticks = 0;
-        
-/* Disable heartbeat timeout handling in DEBUG mode because breakpoints will stop
- * heartbeat broadcasting */
+
+/* Disable heartbeat timeout handling in DEBUG mode because breakpoints will
+ * stop heartbeat broadcasting */
 #ifndef DEBUG
-        // Check if the board didn't receive all the heartbeats it's listening for
+        // Check if the board received all the heartbeats it's listening for
         if (heartbeats_received != PCB_HEARTBEAT_LISTENER)
         {
             Heartbeat_HandleHeartbeatTimeout(heartbeats_received);
@@ -83,6 +85,12 @@ void SharedHeartbeat_CheckHeartbeatTimeout(void)
 }
 
 __weak void Heartbeat_HandleHeartbeatTimeout(uint8_t heartbeats_received)
+{
+    /* NOTE: This function should not be modified, instead this function should
+    be implemented in the Heartbeat.c file */
+}
+
+__weak void Heartbeat_HandleHeartbeatReception(uint32_t std_id)
 {
     /* NOTE: This function should not be modified, instead this function should
     be implemented in the Heartbeat.c file */

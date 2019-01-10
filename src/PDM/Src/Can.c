@@ -2,6 +2,7 @@
  * Includes
  ******************************************************************************/
 #include "Can.h"
+#include "SharedHeartbeat.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -53,10 +54,13 @@ void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 
     HAL_CAN_GetRxMessage(hcan, rx_fifo, &rx_msg.rx_header, &rx_msg.data[0]);
 
+    // Check for a received heartbeat
+    Heartbeat_HandleHeartbeatReception(rx_msg.rx_header.StdId);
+
     switch (rx_msg.rx_header.StdId)
     {
-        case BMS_HEARTBEAT_STDID:
-            SharedHeartbeat_ReceiveHeartbeat(BMS_HEARTBEAT_ENCODING);
+        case BMS_STARTUP_STDID:
+            // Placeholder
             break;
         default:
             break;

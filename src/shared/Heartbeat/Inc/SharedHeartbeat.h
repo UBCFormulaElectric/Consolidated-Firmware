@@ -46,7 +46,8 @@
   * @param heartbeats_received One-hot encoding of heartbeats received
   * @param encoding One-hot board encoding
   */
- #define HEARTBEAT_TIMEOUT(heartbeats_received, encoding) ((heartbeats_received & encoding) != encoding)
+ #define HEARTBEAT_TIMEOUT(heartbeats_received, encoding) \
+    ((heartbeats_received & encoding) != encoding)
 
 /******************************************************************************
  * Typedefs
@@ -68,27 +69,33 @@ typedef enum
 /******************************************************************************
  * Function Prototypes
  ******************************************************************************/
- /**
-  * @brief Periodically broadcast heartbeat message for the current PCB
-  */
- void SharedHeartbeat_BroadcastHeartbeat(void);
+/**
+ * @brief Periodically broadcast heartbeat message for the current PCB
+ */
+void SharedHeartbeat_BroadcastHeartbeat(void);
+
+/**
+ * @brief Upon heartbeat reception, update the list of heartbeats received
+ * @param board One-hot board encoding from which the heartbeat was received
+ */
+void SharedHeartbeat_ReceiveHeartbeat(PcbHeartbeatEncoding_Enum board);
+
+/**
+ * @brief Periodically check that all heartbeats the the PCB listens for were
+ *        received
+ */
+void SharedHeartbeat_CheckHeartbeatTimeout(void);
  
- /**
-  * @brief Upon heartbeat reception, update the list of heartbeats received
-  * @param board One-hot board encoding from which the heartbeat was received
-  */
- void SharedHeartbeat_ReceiveHeartbeat(PcbHeartbeatEncoding_Enum board);
+/**
+ * @brief  Shared handler for missed heartbeats
+ * @param  heartbeats_received One-hot encoding of heartbeats received
+ */
+void Heartbeat_HandleHeartbeatTimeout(uint8_t heartbeats_received);
  
- /**
-  * @brief Periodically check that all heartbeats the the PCB listens for were
-  *        received
-  */
- void SharedHeartbeat_CheckHeartbeatTimeout(void);
- 
- /**
-  * @brief  Shared handler for missed heartbeats
-  * @param  heartbeats_received One-hot encoding of heartbeats received
-  */
- void Heartbeat_HandleHeartbeatTimeout(uint8_t heartbeats_received);
+/**
+ * @brief Handle heartbeat reception for each board listened to
+ * @param std_id Standard ID of the received CAN message
+ */
+void Heartbeat_HandleHeartbeatReception(uint32_t std_id);
 
 #endif /* SHARED_HEARTBEAT_H */
