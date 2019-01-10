@@ -64,18 +64,6 @@
 /* Private variables ---------------------------------------------------------*/
 /* USER CODE BEGIN PV */
 
-// TODO: Redo heartbeat handling
-#ifndef DEBUG
-
-// SysTick/heartbeat variables
-extern const int         HEARTBEAT_TICK_PERIOD;      // Period in ms
-extern const int         HEARTBEAT_BROADCAST_PERIOD; // Period in ms
-extern volatile uint16_t HeartbeatCount[PCB_COUNT];
-static volatile uint32_t HeartbeatTimeoutTicks      = 0;
-static volatile uint32_t PDMHeartbeatBroadcastTicks = 0;
-
-#endif
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -94,7 +82,6 @@ extern CAN_HandleTypeDef hcan;
 extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim17;
 /* USER CODE BEGIN EV */
-extern IWDG_HandleTypeDef hiwdg;
 /* USER CODE END EV */
 
 /******************************************************************************/
