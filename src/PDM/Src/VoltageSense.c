@@ -54,7 +54,7 @@ void VoltageSense_ConvertVoltageAdcReadings(void)
          i < NUM_VOLTAGE_SENSE_PINS; i++, j++)
     {
         // Convert ADC readings to voltage values
-       float32_t temp_volatge = (float32_t)(SharedAdc_GetAdcVoltage(j)) *
+       float32_t temp_voltage = (float32_t)(SharedAdc_GetAdcVoltage(j)) *
                                  voltage_sense[i].adc_conversion_factor /
                                  (float32_t)(SharedAdc_GetActualVdda());
 
