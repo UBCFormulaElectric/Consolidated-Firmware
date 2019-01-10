@@ -119,12 +119,6 @@ typedef struct
 
 typedef struct
 {
-    uint32_t std_id;
-    uint32_t dlc;
-} CanInfo_Struct;
-
-typedef struct
-{
     GPIO_PinPort_Struct input_channel;
     volatile float32_t  current;
     float32_t           ampere_per_volt;

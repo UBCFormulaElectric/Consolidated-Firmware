@@ -6,6 +6,7 @@
 #include "Gpio.h"
 #include "Adc.h"
 #include "SharedAdc.h"
+#include "CanDefinitions.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -15,8 +16,9 @@
 /******************************************************************************
  * Module Preprocessor Macros
  ******************************************************************************/
-#define INIT_VOLTAGE_SENSE(index, conversion_factor) \
-    [index].voltage = 0, [index].voltage_scale = conversion_factor
+#define INIT_VOLTAGE_SENSE(index, conversion_factor, can_stdid, can_dlc) \
+    [index].voltage = 0, [index].voltage_scale = conversion_factor, \
+    [index].can.std_id = can_stdid, [index].can.dlc = can_dlc \
 
 /******************************************************************************
  * Module Typedefs
@@ -26,15 +28,16 @@ typedef struct
 {
     float32_t voltage;
     float32_t voltage_scale;
+    CanInfo_Struct can;
 } VoltageSense_Struct;
 
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
 static VoltageSense_Struct voltage_sense[NUM_VOLTAGE_SENSE_PINS] = {
-    INIT_VOLTAGE_SENSE(_12V_SUPPLY, GLV_VOLTAGE),
-    INIT_VOLTAGE_SENSE(VBAT_SUPPLY, VBAT_VOLTAGE),
-    INIT_VOLTAGE_SENSE(FLYWIRE, ADC1_IN10_TO_12V_ACC_RATIO),
+    INIT_VOLTAGE_SENSE(_12V_SUPPLY, GLV_VOLTAGE, PDM_12V_VBAT_STDID, PDM_12V_VBAT_DLC),
+    INIT_VOLTAGE_SENSE(VBAT_SUPPLY, VBAT_VOLTAGE, PDM_12V_VBAT_STDID, PDM_12V_VBAT_DLC),
+    INIT_VOLTAGE_SENSE(FLYWIRE, ADC1_IN10_TO_12V_ACC_RATIO, PDM_FLYWIRE_STDID, PDM_FLYWIRE_DLC),
 };
 
 /******************************************************************************
