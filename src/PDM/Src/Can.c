@@ -70,14 +70,7 @@ void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 
     switch (rx_msg.rx_header.StdId)
     {
-/* Disable heartbeat callback in DEBUG mode because breakpoints will stop
- * heartbeat broadcasting */
-#ifndef DEBUG
-        case PDM_HEARTBEAT_STDID:
-            Can_HeartbeatCallback(&rx_msg.data[0]);
-            break;
-#endif
-        default:
+       default:
             break;
     }
 }
