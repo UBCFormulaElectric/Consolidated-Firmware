@@ -4,6 +4,7 @@
 #include "Profet2.h"
 #include "ErrorHandling.h"
 #include "SharedMacros.h"
+#include "CanDefinitions.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -15,7 +16,8 @@
 #define INIT_PROFET2(                                                         \
     index, efuse0_pin, efuse0_port, efuse0_ampere_per_volt,                   \
     efuse0_max_retries, efuse1_pin, efuse1_port, efuse1_ampere_per_volt,      \
-    efuse1_max_retries, dsel_pin, dsel_port, den_pin, den_port)               \
+    efuse1_max_retries, dsel_pin, dsel_port, den_pin, den_port, can_stdid,    \
+    can_dlc)                                                                  \
     [index].efuse[SENSE_0].input_channel.pin  = efuse0_pin,                   \
     [index].efuse[SENSE_0].input_channel.port = efuse0_port,                  \
     [index].efuse[SENSE_0].current            = RESET,                        \
@@ -31,7 +33,10 @@
     [index].dsel_pin_mapping.pin                        = dsel_pin,           \
     [index].dsel_pin_mapping.port                       = dsel_port,          \
     [index].den_pin_mapping.pin                         = den_pin,            \
-    [index].den_pin_mapping.port                        = den_port
+    [index].den_pin_mapping.port                        = den_port,           \
+
+    // [index].can.stdid                                   = can_stdid,          \
+    // [index].can.dlc                                     = can_dlc,            \
 
 /******************************************************************************
  * Module Typedefs
@@ -54,7 +59,9 @@ static Profet2_Struct profet2[NUM_PROFET2S] = {
         EFUSE_DSEL_1_Pin,
         EFUSE_DSEL_1_GPIO_Port,
         EFUSE_DEN_1_Pin,
-        EFUSE_DEN_1_GPIO_Port),
+        EFUSE_DEN_1_GPIO_Port,
+        PDM_AUX1_AUX2_CURRENT_STDID,
+        PDM_AUX1_AUX2_CURRENT_DLC),
     INIT_PROFET2(
         COOLING_PDMFAN,
         EFUSE_COOLING_IN_Pin,
@@ -68,7 +75,9 @@ static Profet2_Struct profet2[NUM_PROFET2S] = {
         EFUSE_DSEL_2_Pin,
         EFUSE_DSEL_2_GPIO_Port,
         EFUSE_DEN_2_Pin,
-        EFUSE_DEN_2_GPIO_Port),
+        EFUSE_DEN_2_GPIO_Port,
+        PDM_COOLING_PDMFAN_CURRENT_STDID,
+        PDM_COOLING_PDMFAN_CURRENT_DLC),
     INIT_PROFET2(
         AIRSHDN_CANGLV,
         EFUSE_AIR_SHDN_IN_Pin,
@@ -82,7 +91,9 @@ static Profet2_Struct profet2[NUM_PROFET2S] = {
         EFUSE_DSEL_3_Pin,
         EFUSE_DSEL_3_GPIO_Port,
         EFUSE_DEN_3_Pin,
-        EFUSE_DEN_3_GPIO_Port),
+        EFUSE_DEN_3_GPIO_Port,
+        PDM_AIRSHDN_CANGLV_CURRENT_STDID,
+        PDM_AIRSHDN_CANGLV_CURRENT_DLC),
     INIT_PROFET2(
         ACCSEGMENTFAN_ACCENCLOSUREFAN,
         EFUSE_ACC_SEG_FAN_IN_Pin,
@@ -96,7 +107,9 @@ static Profet2_Struct profet2[NUM_PROFET2S] = {
         EFUSE_DSEL_4_Pin,
         EFUSE_DSEL_4_GPIO_Port,
         EFUSE_DEN_4_Pin,
-        EFUSE_DEN_4_GPIO_Port),
+        EFUSE_DEN_4_GPIO_Port,
+        PDM_ACCUMULATOR_FAN_CURRENT_STDID,
+        PDM_ACCUMULATOR_FAN_CURRENT_DLC),
     INIT_PROFET2(
         LEFTINVERTER_RIGHTINVERTER,
         EFUSE_LEFT_INVERTER_IN_Pin,
@@ -110,7 +123,9 @@ static Profet2_Struct profet2[NUM_PROFET2S] = {
         EFUSE_DSEL_5_Pin,
         EFUSE_DSEL_5_GPIO_Port,
         EFUSE_DEN_5_Pin,
-        EFUSE_DEN_5_GPIO_Port),
+        EFUSE_DEN_5_GPIO_Port,
+        PDM_INVERTER_IO_CURRENT_STDID,
+        PDM_INVERTER_IO_CURRENT_DLC),
 };
 
 /******************************************************************************

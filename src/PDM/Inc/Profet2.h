@@ -119,6 +119,12 @@ typedef struct
 
 typedef struct
 {
+    uint32_t std_id;
+    uint32_t dlc;
+} CanInfo_Struct;
+
+typedef struct
+{
     GPIO_PinPort_Struct input_channel;
     volatile float32_t  current;
     float32_t           ampere_per_volt;
@@ -130,6 +136,7 @@ typedef struct
     Efuse_Struct        efuse[NUM_CHANNELS_PER_PROFET2];
     GPIO_PinPort_Struct dsel_pin_mapping;
     GPIO_PinPort_Struct den_pin_mapping;
+    CanInfo_Struct      can;
 } Profet2_Struct;
 
 /******************************************************************************
