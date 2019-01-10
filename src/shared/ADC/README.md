@@ -4,9 +4,9 @@ The ADC can be activated in a variety of modes: polling, interrupt driven, or DM
 In addition, the VDDA power supply voltage applied to the microcontroller may be subject to variation or not precisely known. The embedded internal voltage reference (VREFINT) and its calibration data acquired by theADC during the manufacturing process at VDDA = 3.3 V can be used to evaluate the actual VDDA voltage level. This library has a helper function `SharedAdc_GetActualVdda()` to calculate the aforementioned actual VDDA voltage level.
 
 ## How to Use This Library
-1. Enable desired ADC channels in STM32CubeMX 
+1. Enable desired ADC channels in STM32CubeMX
 1. Configure **Regular Rank** for each enabled ADC channel, which decides the order of ADC values inside `adc_values[]` (i.e. The ADC channel with **Regular Rank 1** would be the first element in `adc_values[]`)
-1. Add `SharedAdc_StartAdcInDmaMode(&hadc1)` to `MX_ADC_INIT()` 
+1. Add `SharedAdc_StartAdcInDmaMode(&hadc1)` to `MX_ADC_INIT()`
 ```
 // main.c
 static void MX_ADC_INIT(void)
@@ -45,10 +45,13 @@ static void MX_ADC_INIT(void)
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
     //  The voltage at any ADC channel can be calculated using the following generic formula:
-    // 
+    //
     //                   3.3 V × VREFINT_CAL × ADCx_DATA      ACTUAL_VDDA x ADCx_DATA
     //    V_CHANNELx = --------------------------------- =  ----------------------------
     //                      VREFINT_DATA × FULL_SCALE                FULL_SCALE
 
-    float32_t analog_input_voltage = (float32_t)(SharedAdc_GetActualVdda(VREFINT_REGULAR_RANK)) * (float32_t)(SharedAdc_GetAdcValues()[ANALOG_INPUT_REGULAR_RANK - 1]) / (float32_t)(SharedAdc_GetAdcMaxValue());
+    float32_t analog_input_voltage =
+            (float32_t)(SharedAdc_GetActualVdda(VREFINT_REGULAR_RANK)) *
+            (float32_t)(SharedAdc_GetAdcValues()[ANALOG_INPUT_REGULAR_RANK - 1]) /
+            (float32_t)(SharedAdc_GetAdcMaxValue());
 }
