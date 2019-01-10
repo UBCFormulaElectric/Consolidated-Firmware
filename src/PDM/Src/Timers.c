@@ -43,5 +43,6 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim == &CONTROL_LOOP_TIMER)
     {
+        SharedWatchdog_RefreshIwdg();
     }
 }
