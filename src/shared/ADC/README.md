@@ -18,9 +18,9 @@ static void MX_ADC_INIT(void)
   /* USER CODE BEGIN ADC1_Init 2 */
   SharedAdc_StartAdcInDmaMode(&hadc1);
   /* USER CODE END ADC1_Init 2 */
-
 }
 ```
+
 1. Include `SharedAdc.h` in main.c`
 ```
 // main.c
@@ -31,9 +31,24 @@ static void MX_ADC_INIT(void)
 
 ```
 
+
 1. Add `shared\ADC\Inc` to Include Paths inside Keil (Note: Your relative path may look different than mine)
 1. When DMA transfer is complete, `HAL_ADC_ConvCpltCallback()` will be called and you should implement the board-specific `HAL_ADC_ConvCpltCallback()` in `Adc.c`. You can use `SharedAdc_GetAdcValues()` to get the array of most recent ADC values and use `SharedAdc_GetActualVdda()` to get the VDDA value that is calibrated with manufacturer data.
 1. At anytime, you can use `SharedAdc_GetAdcMaxValue()` to get the maximum ADC value for the configured ADC bit resolution (e.g. 1023 for ADC 10-bit resolution or 4095 for ADC 12-bit resolution)
 
 ## Example Usage
+// The folowing assumes that there are 2 ADC channels: VREFINT has **Regular Rank 1** and a generic 3.3V analog input has **Regular Rank 2**
 ```
+#define VREFINT_REGULAR_RANK        1
+#define ANALOG_INPUT_REGULAR_RANK   2
+
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+    //  The voltage at any ADC channel can be calculated using the following generic formula:
+    // 
+    //                   3.3 V × VREFINT_CAL × ADCx_DATA      ACTUAL_VDDA x ADCx_DATA
+    //    V_CHANNELx = --------------------------------- =  ----------------------------
+    //                      VREFINT_DATA × FULL_SCALE                FULL_SCALE
+
+    float32_t analog_input_voltage = (float32_t)(SharedAdc_GetActualVdda(VREFINT_REGULAR_RANK)) * (float32_t)(SharedAdc_GetAdcValues()[ANALOG_INPUT_REGULAR_RANK - 1]) / (float32_t)(SharedAdc_GetAdcMaxValue());
+}

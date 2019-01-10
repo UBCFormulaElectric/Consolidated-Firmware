@@ -107,7 +107,7 @@ const uint32_t *const SharedAdc_GetAdcValues(void)
     return (const uint32_t *const)adc_values;
 }
 
-float32_t SharedAdc_GetActualVdda(uint32_t vrefint_index)
+float32_t SharedAdc_GetActualVdda(uint32_t vrefint_regular_rank)
 {
-    return 3.3f * (float32_t)(GetVddaCalibrationData()) / adc_values[vrefint_index];
+    return 3.3f * (float32_t)(GetVddaCalibrationData()) / adc_values[vrefint_regular_rank - 1];
 }

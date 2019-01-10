@@ -102,10 +102,10 @@ const uint32_t *const SharedAdc_GetAdcValues(void);
  *         voltage reference (VREFINT) and its calibration data acquired by the
  *         ADC during the manufacturing process at VDDA = 3.3 V can be used to
  *         evaluate the actual VDDA voltage level.
- * @param  vrefint_index The index of VREFINT value in adc_values[], which is
- *         dependent on VREFINT's Regular Rank in STM32CubeMX
+ * @param  vrefint_regular_rank The regular rank of VREFINT configured in 
+ *         STM32CubeMX 
  * @return Actual VDDA voltage
  */
-float32_t SharedAdc_GetActualVdda(uint32_t vrefint_index)
+float32_t SharedAdc_GetActualVdda(uint32_t vrefint_regular_rank)
 
 #endif /* SHARED_ADC_H */
