@@ -10,6 +10,17 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
+// Check for STM32 microcontroller family
+#ifdef STM32F302x8
+// Used in DCM 2017, BMS 2017, and PDM 2018
+#include "stm32f3xx_hal.h"
+#elif STM32F042x6
+// Used in FSM 2017 (Shared CAN Library doesn't yet support this)
+#include "stm32f0xx_hal.h"
+#else
+#error \
+    "No valid architecture selected - unable to determine what HAL library to use"
+#endif
 
 /******************************************************************************
  * Preprocessor Constants
@@ -75,7 +86,7 @@ typedef enum
     PDM_AIRSHDN_CANGLV_CURRENT_STDID                = (0x68U),
     PDM_ACCUMULATOR_FAN_CURRENT_STDID               = (0x69U),
     PDM_INVERTER_IO_CURRENT_STDID                   = (0x6AU),
-    PDM_12V_VBAT_SUPPLY_STDID                       = (0x6BU),
+    PDM_12V_VBAT_STDID                              = (0x6BU),
     PDM_FLYWIRE_STDID                               = (0x6CU),
     SHARED_MOTOR_SHUTDOWN_ERROR_STDID               = (0x80U),
     LEFT_TORQUE_REQUEST_TX_STDID                    = (0x190U),
@@ -149,7 +160,7 @@ typedef enum
     PDM_AIRSHDN_CANGLV_CURRENT_DLC                  = (8U),
     PDM_ACCUMULATOR_FAN_CURRENT_DLC                 = (8U),
     PDM_INVERTER_IO_CURRENT_DLC                     = (8U),
-    PDM_12V_VBAT_SUPPLY_DLC                         = (8U),
+    PDM_12V_VBAT_DLC                                = (8U),
     PDM_FLYWIRE_DLC                                 = (4U),
     SHARED_MOTOR_SHUTDOWN_ERROR_DLC                 = (6U),
     LEFT_TORQUE_REQUEST_TX_DLC                      = (3U),
@@ -229,6 +240,12 @@ typedef enum
     BMS_HEARTBEAT_TIMEOUT_ERROR_ON_DCM,
     DCM_ERRORS_COUNT
 } DcmError_Enum;
+
+typedef struct
+{
+    uint32_t std_id;
+    uint32_t dlc;
+} CanInfo_Struct;
 
 /******************************************************************************
  * Global Variables
