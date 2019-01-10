@@ -42,6 +42,12 @@ static void MX_ADC_INIT(void)
 #define VREFINT_REGULAR_RANK        1
 #define ANALOG_INPUT_REGULAR_RANK   2
 
+typedef enum
+{
+    VREFINT,
+    ANALOG_INPUT
+} AdcValues_Enum;
+
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
     //  The voltage at any ADC channel can be calculated using the following generic formula:
@@ -52,6 +58,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 
     float32_t analog_input_voltage =
             (float32_t)(SharedAdc_GetActualVdda(VREFINT_REGULAR_RANK)) *
-            (float32_t)(SharedAdc_GetAdcValues()[ANALOG_INPUT_REGULAR_RANK - 1]) /
+            (float32_t)(SharedAdc_GetAdcValues()[ANALOG_INPUT]) /
             (float32_t)(SharedAdc_GetAdcMaxValue());
 }
+```
