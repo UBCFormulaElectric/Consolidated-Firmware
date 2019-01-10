@@ -27,6 +27,11 @@ static uint32_t adc_max_value;
 /** @brief Array of raw ADC values */
 static uint32_t adc_values[NUM_ADC_CHANNELS] = { 0 };
 
+/** @brief Keep track of which element in adc_values[] is VREFINT (The default
+ *         value is a garbage value that doesn't correspond to any Regular Rank)
+ */
+static uint32_t vrefint_index = NUM_ADC_CHANNELS;
+
 /******************************************************************************
  * Private Function Prototypes
  *******************************************************************************/
@@ -79,8 +84,11 @@ static uint16_t GetVddaCalibrationData(void)
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedAdc_StartAdcInDmaMode(ADC_HandleTypeDef *hadc)
+void SharedAdc_StartAdcInDmaMode(ADC_HandleTypeDef *hadc, uint32_t vrefint_regular_rank)
 {
+    // The index of each ADC channel is always its Regular Rank minus one
+    vrefint_index = vrefint_regular_rank - 1;
+
     if (HAL_ADCEx_Calibration_Start(hadc, ADC_SINGLE_ENDED) != HAL_OK)
     {
         Error_Handler();
@@ -109,12 +117,27 @@ const uint32_t *const SharedAdc_GetAdcValues(void)
 
 float32_t SharedAdc_GetActualVdda(void)
 {
-    // TODO: Make this function a one line return expression
-    // TODO: Check val value and see if we need to explicitly cast val
-    // and adc_values[] to be float32_t
-    uint32_t tmp = GetVddaCalibrationData();
-    float32_t f_tmp = GetVddaCalibrationData();
+    if (vrefint_index == NUM_ADC_CHANNELS)
+    {
+        // Return 0 if the index for VREFINT hasn't been properly configured based on 
+        // the corresponding Regular Rank using SharedAdc_StartAdcInDmaMode()
+        return 0;
+    }
+    else
+    {
+        return 3.3f * (float32_t)(GetVddaCalibrationData()) / adc_values[vrefint_index];
+    }
+}
 
-    return 3.3f * (float32_t)tmp  / adc_values[VREFINT_INDEX];
-    // return 3.3f * (float32_t)(val) / (float32_t)(adc_values[VREFINT_INDEX]);
+float32_t SharedAdc_GetAdcVoltage(uint32_t adc_values_index)
+{
+    //  The voltage at any ADC channel can be calculated using the following generic formula:
+    //
+    //                   3.3 V × VREFINT_CAL × ADCx_DATA      ACTUAL_VDDA x ADCx_DATA
+    //    V_CHANNELx = --------------------------------- =  ----------------------------
+    //                      VREFINT_DATA × FULL_SCALE                FULL_SCALE
+
+    return (float32_t)(SharedAdc_GetActualVdda()) *
+           (float32_t)(SharedAdc_GetAdcValues()[adc_values_index]) / 
+           (float32_t)(SharedAdc_GetAdcMaxValue());
 }
