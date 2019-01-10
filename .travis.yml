@@ -11,56 +11,95 @@ python:
 
 before_install:
   - git submodule update --init --recursive
+  - pip install pipenv
+
+install:
+  - pipenv install
+  - |
+    if [ "$RUN_BUILD" = "true" ] || [ "$RUN_TESTS" = "true" ]; then 
+      # Download the latest ARM GCC Embedded Toolchain.
+      # Unfortunately, since this is a literal URL, it does not pull the latest 
+      # API available, and the URL must be changed manually. 
+      # TO CHANGE THE URL:
+      # Go to https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
+      # and download the latest GCC ARM-target compiler and then search up 
+      # the downloads page of your browser.
+      # There is usually a web address that's hosting the GCC binary/tar. 
+      wget https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2 -O /tmp/gcc-arm-none-eabi.tar.bz2
+      # Unzip the ARM GCC Embedded Toolchain 
+      tar -xvjf /tmp/gcc-arm-none-eabi.tar.bz2
+      # Enable cmake to find the arm-none-eabi-gcc command
+      export PATH=$PATH:$PWD/gcc-arm-none-eabi-7-2018-q2-update/bin/
+    fi
 
 addons:
   apt_packages:
     - lib32bz2-1.0
     - lib32ncurses5
     - lib32z1
-    
-matrix:
-    include:
-        - name: "Build and Run Tests"
-          env: RUN_BUILD="true" RUN_TESTS="true"
-        - name: "Check Formatting"
-          env: RUN_FORMATTING_CHECKS="true"  # Test Formatting
 
 before_script:
-  # Download the latest ARM GCC Embedded Toolchain.
-  # Unfortunately, since this is a literal URL, it does not pull the latest API available, and the URL must be changed manually. 
-  # TO CHANGE THE URL:
-  # Go to https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
-  # and download the latest GCC ARM-target compiler and then search up the downloads page of your browser.
-  # There is usually a web address that's hosting the GCC binary/tar. 
-  - wget https://armkeil.blob.core.windows.net/developer/Files/downloads/gnu-rm/7-2018q2/gcc-arm-none-eabi-7-2018-q2-update-linux.tar.bz2 -O /tmp/gcc-arm-none-eabi.tar.bz2
-  # Unzip the ARM GCC Embedded Toolchain 
-  - tar -xvjf /tmp/gcc-arm-none-eabi.tar.bz2
-  # Enable cmake to find the arm-none-eabi-gcc command
-  - export PATH=$PATH:$PWD/gcc-arm-none-eabi-7-2018-q2-update/bin/
 
 script:
     # If any command exits with a non-zero value (i.e. it throws an error)
     # then this will cause travis to exit. Commands encapsulated between 
     # conditionals, for example, do not report their return codes. Instread,
     # only the conditional, a command itself, gets polled, so if cmake or 
-    # python throws an error, the information is lost. set -e ensures that
+    # python throws an error, the information is lost. set -ev ensures that
     # this does not happen
-    - set -e
+    - set -ev
 
-    - if [ "$RUN_BUILD" = "true" ]; then 
+    - |
+      if [ "$RUN_BUILD" = "true" ]; then 
         cd src;
         cmake CMakeLists.txt;
         make; 
         cd ..;
       fi
-    - if [ "$RUN_TESTS" = "true" ]; then 
+    - |
+      if [ "$RUN_TESTS" = "true" ]; then 
         cd src;
         cmake -DTEST_BUILD=true CMakeLists.txt;
         make;
         ctest -C DEBUG;
         cd ..;
       fi
-    - if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then 
+    - |
+      if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then 
             cd clang-format;
             echo -e "Y" | python check_formatting_CI.py;
       fi
+    - |
+      if [ "$GENERATE_CODE_FROM_SYM" = "true" ]; then 
+            # Try to convert the .sym to C code
+            pipenv run python src/shared/CanMsgs/generate_c_code_from_sym.py;
+            # Show the diff
+            git --no-pager diff;
+            # Check if there was a non-zero diff (disable set -e for this) so
+            # we can capture the result and print a error msg (otherwise a
+            # non-zero result would just cause this script to exit)
+            set +e
+            git diff-index --quiet HEAD --
+            git_diff_result=$?
+            set -e
+            if [ $git_diff_result -ne 0 ]; then
+                echo "\n\n\n #########################"
+                echo "FAILED - Git diff was non-zero!"
+                echo "Make sure to update your version of cantools using pipenv,"
+                echo "and re-run generate_c_code_from_sym.py to generate C code from the .sym file."
+                echo "#########################"
+                return 1;
+            else
+                echo "PASSED - C code generated from .sym looks good!"
+            fi
+      fi
+
+matrix:
+    include:
+        - name: "Build and Run Tests"
+          env: RUN_BUILD="true" RUN_TESTS="true"
+        - name: "Check Formatting"
+          env: RUN_FORMATTING_CHECKS="true"  # Test Formatting
+        - name: "Check C Code Generation From .sym"
+          env: GENERATE_CODE_FROM_SYM="true"  # Test Formatting
+
