@@ -61,5 +61,9 @@ void VoltageSense_ConvertVoltageAdcReadings(void)
         SharedFilters_LowPassFilter(
             &temp_voltage, &voltage_sense[i].voltage,
             VOLTAGE_IIR_LPF_SAMPLING_PERIOD, VOLTAGE_IIR_LPF_RC);
+        
+        // TODO: Test code that needs proper CAN IDs later on 
+        SharedCan_TransmitDataCan(0x600 + i, 4, (uint8_t *)&temp_voltage);
+        SharedCan_TransmitDataCan(0x700 + i, 4, (uint8_t *)&voltage_sense[i].voltage);
     }
 }

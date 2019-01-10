@@ -12,26 +12,26 @@
 /******************************************************************************
  * Module Preprocessor Macros
  ******************************************************************************/
-#define INIT_PROFET2(                                                      \
-    index, efuse0_pin, efuse0_port, efuse0_ampere_per_volt,                \
-    efuse0_max_retries, efuse1_pin, efuse1_port, efuse1_ampere_per_volt,   \
-    efuse1_max_retries, dsel_pin, dsel_port, den_pin, den_port)            \
-    [index].efuse[SENSE_0].input_channel.pin  = efuse0_pin,                \
-    [index].efuse[SENSE_0].input_channel.port = efuse0_port,               \
-    [index].efuse[SENSE_0].current            = RESET,                     \
-    [index].efuse[SENSE_0].ampere_per_volt    = efuse0_ampere_per_volt,    \
-    [index].efuse[SENSE_0].fault.current_num_of_retries = RESET,           \
-    [index].efuse[SENSE_0].fault.max_num_of_retries = efuse0_max_retries,  \
-    [index].efuse[SENSE_1].input_channel.pin  = efuse1_pin,                \
-    [index].efuse[SENSE_1].input_channel.port = efuse1_port,               \
-    [index].efuse[SENSE_1].current            = RESET,                     \
-    [index].efuse[SENSE_1].ampere_per_volt    = efuse1_ampere_per_volt,    \
-    [index].efuse[SENSE_1].fault.current_num_of_retries = RESET,           \
-    [index].efuse[SENSE_1].fault.max_num_of_retries = efuse1_max_retries,  \
-    [index].dsel_pin_mapping.pin              = dsel_pin,                  \
-    [index].dsel_pin_mapping.port             = dsel_port,                 \
-    [index].den_pin_mapping.pin               = den_pin,                   \
-    [index].den_pin_mapping.port              = den_port
+#define INIT_PROFET2(                                                         \
+    index, efuse0_pin, efuse0_port, efuse0_ampere_per_volt,                   \
+    efuse0_max_retries, efuse1_pin, efuse1_port, efuse1_ampere_per_volt,      \
+    efuse1_max_retries, dsel_pin, dsel_port, den_pin, den_port)               \
+    [index].efuse[SENSE_0].input_channel.pin  = efuse0_pin,                   \
+    [index].efuse[SENSE_0].input_channel.port = efuse0_port,                  \
+    [index].efuse[SENSE_0].current            = RESET,                        \
+    [index].efuse[SENSE_0].ampere_per_volt    = efuse0_ampere_per_volt,       \
+    [index].efuse[SENSE_0].fault.current_num_of_retries = RESET,              \
+    [index].efuse[SENSE_0].fault.max_num_of_retries     = efuse0_max_retries, \
+    [index].efuse[SENSE_1].input_channel.pin            = efuse1_pin,         \
+    [index].efuse[SENSE_1].input_channel.port           = efuse1_port,        \
+    [index].efuse[SENSE_1].current                      = RESET,              \
+    [index].efuse[SENSE_1].ampere_per_volt = efuse1_ampere_per_volt,          \
+    [index].efuse[SENSE_1].fault.current_num_of_retries = RESET,              \
+    [index].efuse[SENSE_1].fault.max_num_of_retries     = efuse1_max_retries, \
+    [index].dsel_pin_mapping.pin                        = dsel_pin,           \
+    [index].dsel_pin_mapping.port                       = dsel_port,          \
+    [index].den_pin_mapping.pin                         = den_pin,            \
+    [index].den_pin_mapping.port                        = den_port
 
 /******************************************************************************
  * Module Typedefs

@@ -6,6 +6,7 @@
 #include "SharedAdc.h"
 #include "SharedFilters.h"
 #include "SharedGpio.h"
+#include "SharedCan.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -40,7 +41,7 @@ volatile SenseChannel_Enum sense_channel = SENSE_0;
  ******************************************************************************/
 void CurrentSense_ConvertCurrentAdcReadings(void)
 {
-    for (uint32_t i = 0, j = ADC_READINGS_VOLTAGE_START_INDEX; i < NUM_PROFET2S;
+    for (uint32_t i = 0, j = ADC_READINGS_CURRENT_START_INDEX; i < NUM_PROFET2S;
          i++, j++)
     {
         Efuse_Struct *efuse =
@@ -56,6 +57,16 @@ void CurrentSense_ConvertCurrentAdcReadings(void)
         SharedFilters_LowPassFilter(
             &temp_current, (float32_t *)(&efuse->current),
             CURRENT_IIR_LPF_SAMPLING_PERIOD, CURRENT_IIR_LPF_RC);
+        
+        // TODO: Test code that needs proper CAN IDs later on 
+        if (CurrentSense_GetCurrentSenseChannel() == SENSE_1)
+        {
+        float32_t tmp = SharedAdc_GetActualVdda();
+        SharedCan_TransmitDataCan(0x200, 4, (uint8_t *)&tmp);
+        SharedCan_TransmitDataCan(0x300 + i, 4, (uint8_t *)&SharedAdc_GetAdcValues()[j]);
+        SharedCan_TransmitDataCan(0x400 + i, 4, (uint8_t *)&temp_current);
+        SharedCan_TransmitDataCan(0x500 + i, 4, (uint8_t *)&efuse->current);
+        }
     }
 }
 
@@ -90,12 +101,12 @@ void CurrentSense_SelectCurrentSenseChannel(SenseChannel_Enum channel)
     // Select the correct DSEL value based on what SENSE channel is requested
     if (channel == SENSE_0)
     {
-        sense_channel = SENSE_1;
+        sense_channel = SENSE_0;
         Profet2_ConfigureAllDsels(DSEL_LOW);
     }
     else
     {
-        sense_channel = SENSE_0;
+        sense_channel = SENSE_1;
         Profet2_ConfigureAllDsels(DSEL_HIGH);
     }
 }

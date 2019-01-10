@@ -17,11 +17,11 @@
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off
-// Element 0 to 4 of adc_readings[] are current sense values
-#define ADC_READINGS_CURRENT_START_INDEX 0
+// Element 1 to 5 of adc_readings[] are current sense values
+#define ADC_READINGS_CURRENT_START_INDEX 1
 
-// Element 5 to 7 of adc_readings[] are voltage sense values
-#define ADC_READINGS_VOLTAGE_START_INDEX 5
+// Element 6 to 8 of adc_readings[] are voltage sense values
+#define ADC_READINGS_VOLTAGE_START_INDEX 6
 
 /******************************************************************************
 * Preprocessor Macros
