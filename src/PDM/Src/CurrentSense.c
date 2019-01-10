@@ -62,7 +62,7 @@ void CurrentSense_ConvertCurrentAdcReadings(void)
         memcpy(&data[0], (uint8_t *)&efuse[SENSE_0].current, sizeof(float32_t));
         memcpy(&data[4], (uint8_t *)&efuse[SENSE_1].current, sizeof(float32_t));
         SharedCan_TransmitDataCan(
-            profet2->can.std_id, profet2->can.dlc, &data[0]);
+            profet2[i].can.std_id, profet2[i].can.dlc, &data[0]);
 
         //     // TODO: Test code that needs proper CAN IDs later on
         //     if (CurrentSense_GetCurrentSenseChannel() == SENSE_1)
