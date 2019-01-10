@@ -16,7 +16,7 @@
  * Module Preprocessor Macros
  ******************************************************************************/
 #define INIT_VOLTAGE_SENSE(index, conversion_factor) \
-    [index].voltage = 0, [index].adc_conversion_factor = conversion_factor
+    [index].voltage = 0, [index].voltage_scale = conversion_factor
 
 /******************************************************************************
  * Module Typedefs
@@ -25,7 +25,7 @@
 typedef struct
 {
     float32_t voltage;
-    float32_t adc_conversion_factor;
+    float32_t voltage_scale;
 } VoltageSense_Struct;
 
 /******************************************************************************
@@ -55,7 +55,7 @@ void VoltageSense_ConvertVoltageAdcReadings(void)
     {
         // Convert ADC readings to voltage values
        float32_t temp_voltage = (float32_t)(SharedAdc_GetAdcVoltage(j)) *
-                                 voltage_sense[i].adc_conversion_factor /
+                                 voltage_sense[i].voltage_scale /
                                  (float32_t)(SharedAdc_GetActualVdda());
 
         // Apply low pass filter to current values

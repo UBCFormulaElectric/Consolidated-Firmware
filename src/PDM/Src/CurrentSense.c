@@ -44,8 +44,9 @@ void CurrentSense_ConvertCurrentAdcReadings(void)
     for (uint32_t i = 0, j = ADC_READINGS_CURRENT_START_INDEX; i < NUM_PROFET2S;
          i++, j++)
     {
+        Profet2_Struct *profet2 = Profet2_GetProfet2s();
         Efuse_Struct *efuse =
-            &(Profet2_GetProfet2s()[i]
+            &(profet2[i]
                   .efuse[CurrentSense_GetCurrentSenseChannel()]);
 
         // Convert ADC values to current values
@@ -57,16 +58,22 @@ void CurrentSense_ConvertCurrentAdcReadings(void)
             &temp_current, (float32_t *)(&efuse->current),
             CURRENT_IIR_LPF_SAMPLING_PERIOD, CURRENT_IIR_LPF_RC);
 
-        // TODO: Test code that needs proper CAN IDs later on
-        if (CurrentSense_GetCurrentSenseChannel() == SENSE_1)
-        {
-            float32_t tmp = SharedAdc_GetActualVdda();
-            SharedCan_TransmitDataCan(0x200, 4, (uint8_t *)&tmp);
-            SharedCan_TransmitDataCan(
-                0x300 + i, 4, (uint8_t *)&SharedAdc_GetAdcValues()[j]);
-            SharedCan_TransmitDataCan(0x400 + i, 4, (uint8_t *)&temp_current);
-            SharedCan_TransmitDataCan(0x500 + i, 4, (uint8_t *)&efuse->current);
-        }
+        // Transmit CAN data 
+        uint8_t data[8];
+        memcpy(&data[0], (uint8_t *)&efuse[SENSE_0].current, sizeof(float32_t));
+        memcpy(&data[4], (uint8_t *)&efuse[SENSE_1].current, sizeof(float32_t));
+        SharedCan_TransmitDataCan(profet2->can.std_id, profet2->can.dlc, &data[0]);
+
+    //     // TODO: Test code that needs proper CAN IDs later on
+    //     if (CurrentSense_GetCurrentSenseChannel() == SENSE_1)
+    //     {
+    //         float32_t tmp = SharedAdc_GetActualVdda();
+    //         SharedCan_TransmitDataCan(0x200, 4, (uint8_t *)&tmp);
+    //         SharedCan_TransmitDataCan(
+    //             0x300 + i, 4, (uint8_t *)&SharedAdc_GetAdcValues()[j]);
+    //         SharedCan_TransmitDataCan(0x400 + i, 4, (uint8_t *)&temp_current);
+    //         SharedCan_TransmitDataCan(0x500 + i, 4, (uint8_t *)&efuse->current);
+    //     }
     }
 }
 
