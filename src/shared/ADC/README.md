@@ -5,8 +5,8 @@ In addition, the VDDA power supply voltage applied to the microcontroller may be
 
 ## How to Use This Library
 1. Enable desired ADC channels in STM32CubeMX
-1. Configure **Regular Rank** for each enabled ADC channel, which decides the order of ADC values inside `adc_values[]` (i.e. The ADC channel with **Regular Rank 1** would be the first element in `adc_values[]`)
-1. Add `SharedAdc_StartAdcInDmaMode(&hadc1)` to `MX_ADC_INIT()`
+2. Configure **Regular Rank** for each enabled ADC channel, which decides the order of ADC values inside `adc_values[]` (i.e. The ADC channel with **Regular Rank 1** would be the first element in `adc_values[]`)
+3. Add `SharedAdc_StartAdcInDmaMode(&hadc1)` to `MX_ADC_INIT()`
 ```
 // main.c
 static void MX_ADC_INIT(void)
@@ -20,8 +20,7 @@ static void MX_ADC_INIT(void)
   /* USER CODE END ADC1_Init 2 */
 }
 ```
-
-1. Include `SharedAdc.h` in main.c`
+4. Include `SharedAdc.h` in main.c`
 ```
 // main.c
 /* Private includes ----------------------------------------------------------*/
@@ -30,11 +29,9 @@ static void MX_ADC_INIT(void)
 /* USER CODE END Includes */
 
 ```
-
-
-1. Add `shared\ADC\Inc` to Include Paths inside Keil (Note: Your relative path may look different than mine)
-1. When DMA transfer is complete, `HAL_ADC_ConvCpltCallback()` will be called and you should implement the board-specific `HAL_ADC_ConvCpltCallback()` in `Adc.c`. You can use `SharedAdc_GetAdcValues()` to get the array of most recent ADC values and use `SharedAdc_GetActualVdda()` to get the VDDA value that is calibrated with manufacturer data.
-1. At anytime, you can use `SharedAdc_GetAdcMaxValue()` to get the maximum ADC value for the configured ADC bit resolution (e.g. 1023 for ADC 10-bit resolution or 4095 for ADC 12-bit resolution)
+5. Add `shared\ADC\Inc` to Include Paths inside Keil (Note: Your relative path may look different than mine)
+6. When DMA transfer is complete, `HAL_ADC_ConvCpltCallback()` will be called and you should implement the board-specific `HAL_ADC_ConvCpltCallback()` in `Adc.c`. You can use `SharedAdc_GetAdcValues()` to get the array of most recent ADC values and use `SharedAdc_GetActualVdda()` to get the VDDA value that is calibrated with manufacturer data.
+7. At anytime, you can use `SharedAdc_GetAdcMaxValue()` to get the maximum ADC value for the configured ADC bit resolution (e.g. 1023 for ADC 10-bit resolution or 4095 for ADC 12-bit resolution)
 
 ## Example Usage
 // The folowing assumes that there are 2 ADC channels: VREFINT has **Regular Rank 1** and a generic 3.3V analog input has **Regular Rank 2**
