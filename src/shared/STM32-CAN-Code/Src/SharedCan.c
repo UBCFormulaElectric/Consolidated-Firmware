@@ -4,6 +4,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "SharedCan.h"
+#include "main.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -368,11 +369,12 @@ void SharedCan_TransmitDataCan(
     }
 }
 
-HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan)
+void SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan)
 {
-    HAL_StatusTypeDef status = HAL_OK;
-
-    status |= SharedCan_InitializeFilters();
+    if (SharedCan_InitializeFilters() != SUCCESS)
+    {
+        Error_Handler();
+    }
 
     uint32_t active_interrupts =
 #ifdef STM32F042x6
@@ -390,13 +392,18 @@ HAL_StatusTypeDef SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan)
     static CanRxMsgTypeDef pRxMsg;
     hcan->pRxMsg = &pRxMsg;
 #else
-    status |= HAL_CAN_ActivateNotification(hcan, active_interrupts);
-    status |= HAL_CAN_Start(hcan);
+    if (HAL_CAN_ActivateNotification(hcan, active_interrupts) != HAL_OK)
+    {
+        Error_Handler();
+    }
+
+    if (HAL_CAN_Start(hcan) != HAL_OK)
+    {
+        Error_Handler();
+    }
 #endif
 
     SharedCan_BroadcastSystemReboot();
-
-    return status;
 }
 
 __weak void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
