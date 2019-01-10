@@ -34,9 +34,8 @@
     [index].dsel_pin_mapping.port                       = dsel_port,          \
     [index].den_pin_mapping.pin                         = den_pin,            \
     [index].den_pin_mapping.port                        = den_port,           \
-
-    // [index].can.stdid                                   = can_stdid,          \
-    // [index].can.dlc                                     = can_dlc,            \
+    [index].can.std_id                                  = can_stdid,          \
+    [index].can.dlc                                     = can_dlc             \
 
 /******************************************************************************
  * Module Typedefs
