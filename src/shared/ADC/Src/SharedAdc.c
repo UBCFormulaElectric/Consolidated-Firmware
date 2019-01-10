@@ -107,14 +107,7 @@ const uint32_t *const SharedAdc_GetAdcValues(void)
     return (const uint32_t *const)adc_values;
 }
 
-float32_t SharedAdc_GetActualVdda(void)
+float32_t SharedAdc_GetActualVdda(uint32_t vrefint_index)
 {
-    // TODO: Make this function a one line return expression
-    // TODO: Check val value and see if we need to explicitly cast val
-    // and adc_values[] to be float32_t
-    uint32_t tmp = GetVddaCalibrationData();
-    float32_t f_tmp = GetVddaCalibrationData();
-
-    return 3.3f * (float32_t)tmp  / adc_values[VREFINT_INDEX];
-    // return 3.3f * (float32_t)(val) / (float32_t)(adc_values[VREFINT_INDEX]);
+    return 3.3f * (float32_t)(GetVddaCalibrationData()) / adc_values[vrefint_index];
 }

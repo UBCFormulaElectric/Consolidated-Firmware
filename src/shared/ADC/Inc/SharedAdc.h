@@ -27,11 +27,13 @@
  ******************************************************************************/
 // clang-format off
 
+// Internal reference voltage calibration values: Raw ADC data acquired at
+// temperature of 30 degC with VDDA = 3.3V during the manufacturing process
 #ifdef STM32F302x8
-#define VREFINT_CAL_ADDR		(uint32_t *)(0x1FFFF7BA)
+#define VREFINT_CAL_ADDR		(uint16_t *)(0x1FFFF7BA)
 #elif STM32F042x6
 #else
-#define VREFINT_CAL_ADDR		(uint32_t *)(0x1FFFF7BA)
+#define VREFINT_CAL_ADDR		(uint16_t *)(0x1FFFF7BA)
 #error
     "No valid architecture selected - unable to determine what HAL library to use"
 #endif
@@ -41,13 +43,13 @@
 #ifdef PDM
     #define NUM_ADC_CHANNELS (uint32_t)(9)
 #elif FSM
-    // TODO: Correct this
+    // TODO (#309): Correct this
     #define NUM_ADC_CHANNELS (uint32_t)(8)
 #elif BMS
-    // TODO: Correct this
+    // TODO (#309): Correct this
     #define NUM_ADC_CHANNELS (uint32_t)(8)
 #elif DCM
-    // TODO: Correct this
+    // TODO (#309): Correct this
     #define NUM_ADC_CHANNELS (uint32_t)(8)
 #else
     #error "No valid PCB name selected"
@@ -55,10 +57,6 @@
 
 /** @brief Nominal voltage for VDDA, or ADC power supply */
 #define VDDA_VOLTAGE (float32_t)(3.3f)
-
-/** @brief To use this library, make sure to enable VREFINT and give it Regular
- *         Rank 1 so that adc_reading[0] contains VREFINT */
-#define VREFINT_INDEX 0
 
 /** @brief Number of Vrefint channel that can be useful in certain calculations */
 #define NUM_VREFINT_CHANNEL 1
@@ -83,9 +81,6 @@
 /**
  * @brief  Initialize ADC in DMA mode and the correct max ADC value
  * @param  hadc ADC handle
- * @param  data The destination buffer address
- * @param  length The length of data to be transferred from ADC peripheral to
- * memory.
  */
 void SharedAdc_StartAdcInDmaMode(ADC_HandleTypeDef *hadc);
 
@@ -107,11 +102,10 @@ const uint32_t *const SharedAdc_GetAdcValues(void);
  *         voltage reference (VREFINT) and its calibration data acquired by the
  *         ADC during the manufacturing process at VDDA = 3.3 V can be used to
  *         evaluate the actual VDDA voltage level.
- *
- *         Note that this implementation requires the regular rank of VREFINT
- *         to be configured as (VREFINT_INDEX + 1) = 1 in STM32CubeMX.
+ * @param  vrefint_index The index of VREFINT value in adc_values[], which is
+ *         dependent on VREFINT's Regular Rank in STM32CubeMX
  * @return Actual VDDA voltage
  */
-float32_t SharedAdc_GetActualVdda(void);
+float32_t SharedAdc_GetActualVdda(uint32_t vrefint_index)
 
 #endif /* SHARED_ADC_H */
