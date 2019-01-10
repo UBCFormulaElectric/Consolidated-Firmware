@@ -57,7 +57,7 @@ void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 
     switch (rx_msg.rx_header.StdId)
     {
-       default:
+        default:
             break;
     }
 }

@@ -5,6 +5,7 @@
 #include "SharedFilters.h"
 #include "Gpio.h"
 #include "Adc.h"
+#include "SharedAdc.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -53,17 +54,18 @@ void VoltageSense_ConvertVoltageAdcReadings(void)
          i < NUM_VOLTAGE_SENSE_PINS; i++, j++)
     {
         // Convert ADC readings to voltage values
-        float32_t temp_voltage = (float32_t)(SharedAdc_GetAdcValues()[j]) *
+       float32_t temp_volatge = (float32_t)(SharedAdc_GetAdcVoltage(j)) *
                                  voltage_sense[i].adc_conversion_factor /
-                                 (float32_t)(SharedAdc_GetAdcMaxValue());
+                                 (float32_t)(SharedAdc_GetActualVdda());
 
         // Apply low pass filter to current values
         SharedFilters_LowPassFilter(
             &temp_voltage, &voltage_sense[i].voltage,
             VOLTAGE_IIR_LPF_SAMPLING_PERIOD, VOLTAGE_IIR_LPF_RC);
-        
-        // TODO: Test code that needs proper CAN IDs later on 
+
+        // TODO: Test code that needs proper CAN IDs later on
         SharedCan_TransmitDataCan(0x600 + i, 4, (uint8_t *)&temp_voltage);
-        SharedCan_TransmitDataCan(0x700 + i, 4, (uint8_t *)&voltage_sense[i].voltage);
+        SharedCan_TransmitDataCan(
+            0x700 + i, 4, (uint8_t *)&voltage_sense[i].voltage);
     }
 }

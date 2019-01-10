@@ -50,22 +50,22 @@ void CurrentSense_ConvertCurrentAdcReadings(void)
 
         // Convert ADC values to current values
         float32_t temp_current =
-            (float32_t)(SharedAdc_GetAdcValues()[j]) * efuse->ampere_per_volt *
-            SharedAdc_GetActualVdda() / (float32_t)(SharedAdc_GetAdcMaxValue());
+            (float32_t)(SharedAdc_GetAdcVoltage(j)) * efuse->ampere_per_volt;
 
         // Apply low pass filter to current values
         SharedFilters_LowPassFilter(
             &temp_current, (float32_t *)(&efuse->current),
             CURRENT_IIR_LPF_SAMPLING_PERIOD, CURRENT_IIR_LPF_RC);
-        
-        // TODO: Test code that needs proper CAN IDs later on 
+
+        // TODO: Test code that needs proper CAN IDs later on
         if (CurrentSense_GetCurrentSenseChannel() == SENSE_1)
         {
-        float32_t tmp = SharedAdc_GetActualVdda();
-        SharedCan_TransmitDataCan(0x200, 4, (uint8_t *)&tmp);
-        SharedCan_TransmitDataCan(0x300 + i, 4, (uint8_t *)&SharedAdc_GetAdcValues()[j]);
-        SharedCan_TransmitDataCan(0x400 + i, 4, (uint8_t *)&temp_current);
-        SharedCan_TransmitDataCan(0x500 + i, 4, (uint8_t *)&efuse->current);
+            float32_t tmp = SharedAdc_GetActualVdda();
+            SharedCan_TransmitDataCan(0x200, 4, (uint8_t *)&tmp);
+            SharedCan_TransmitDataCan(
+                0x300 + i, 4, (uint8_t *)&SharedAdc_GetAdcValues()[j]);
+            SharedCan_TransmitDataCan(0x400 + i, 4, (uint8_t *)&temp_current);
+            SharedCan_TransmitDataCan(0x500 + i, 4, (uint8_t *)&efuse->current);
         }
     }
 }
