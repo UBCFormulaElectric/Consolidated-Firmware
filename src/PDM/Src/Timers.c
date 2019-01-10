@@ -35,7 +35,6 @@
 void Timers_Init(void)
 {
     HAL_TIM_Base_Start_IT(&ADC_DMA_TIMER);
-
     HAL_TIM_Base_Start_IT(&CONTROL_LOOP_TIMER);
 }
 
