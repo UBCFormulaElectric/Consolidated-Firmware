@@ -39,11 +39,6 @@
 #include "stm32f3xx_it.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "CurrentSense.h"
-#include "Gpio.h"
-#include "SharedCan.h"
-#include "ErrorHandling.h"
-#include "SharedWatchdog.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
