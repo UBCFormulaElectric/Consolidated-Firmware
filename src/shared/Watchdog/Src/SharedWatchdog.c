@@ -37,6 +37,8 @@ static bool iwdg_initialized = false;
  ******************************************************************************/
 void SharedWatchdog_RefreshIwdg(void)
 {
+    extern IWDG_HandleTypeDef hiwdg;
+
     if (SharedWatchdog_IsIwdgInitialized())
     {
         HAL_IWDG_Refresh(&hiwdg);
