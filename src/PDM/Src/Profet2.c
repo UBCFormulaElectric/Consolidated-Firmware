@@ -156,7 +156,7 @@ void Profet2_ConfigureSingleDen(
 
 void Profet2_ConfigureAllDens(DenOnOff_GPIO_PinState state)
 {
-    for (Profet2Index_Enum i = 0; i < ARRAY_SIZE(profet2); i++)
+    for (Profet2Index_Enum i = 0; i < NUM_ELEMENTS_IN_ARRAY(profet2); i++)
     {
         SharedGpio_GPIO_WritePin(
             profet2[i].den_pin_mapping.port, profet2[i].den_pin_mapping.pin,
@@ -166,7 +166,7 @@ void Profet2_ConfigureAllDens(DenOnOff_GPIO_PinState state)
 
 void Profet2_ConfigureAllDsels(DselOnOff_GPIO_PinState state)
 {
-    for (Profet2Index_Enum i = 0; i < ARRAY_SIZE(profet2); i++)
+    for (Profet2Index_Enum i = 0; i < NUM_ELEMENTS_IN_ARRAY(profet2); i++)
     {
         SharedGpio_GPIO_WritePin(
             profet2[i].dsel_pin_mapping.port, profet2[i].dsel_pin_mapping.pin,
