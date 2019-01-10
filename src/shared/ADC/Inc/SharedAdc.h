@@ -81,8 +81,10 @@
 /**
  * @brief  Initialize ADC in DMA mode and the correct max ADC value
  * @param  hadc ADC handle
+ * @param  vrefint_regular_rank The Regular Rank of VREFINT channel configured
+ *         in STM32CubeMX
  */
-void SharedAdc_StartAdcInDmaMode(ADC_HandleTypeDef *hadc);
+void SharedAdc_StartAdcInDmaMode(ADC_HandleTypeDef *hadc, uint32_t vrefint_regular_rank);
 
 /**
  * @brief  Get the appropriate maximum ADC value based on the ADC resolution
@@ -102,10 +104,16 @@ const uint32_t *const SharedAdc_GetAdcValues(void);
  *         voltage reference (VREFINT) and its calibration data acquired by the
  *         ADC during the manufacturing process at VDDA = 3.3 V can be used to
  *         evaluate the actual VDDA voltage level.
- * @param  vrefint_regular_rank The regular rank of VREFINT configured in 
- *         STM32CubeMX 
  * @return Actual VDDA voltage
  */
-float32_t SharedAdc_GetActualVdda(uint32_t vrefint_regular_rank)
+float32_t SharedAdc_GetActualVdda(void);
+
+/**
+ * @brief  Convert the ADC value to a voltage channel using the actual VDDA
+ *         voltage level 
+ * @param  The index for the selected ADC channel in adc_values[] (Starting at 0)
+ * @return The voltage at the ADC channel
+ */
+float32_t SharedAdc_GetAdcVoltage(uint32_t adc_values_index)
 
 #endif /* SHARED_ADC_H */
