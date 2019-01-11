@@ -5,7 +5,6 @@ our .sym file
 
 import os
 from re import sub
-from argparse import ArgumentParser
 from cantools.database.can.c_source import generate
 from cantools.database import load_file
 
@@ -35,11 +34,10 @@ def change_frame_id_capitalization(code: str) -> str:
     # "CANMSGS_SYMBOL1_FRAME_ID"
     # with:
     # "CANMSGS_symbol1_FRAME_ID"
-
-    # TODO: YOU ARE HERE ----- need to finish this regex expression and then go  back can figure out the C macro for CAN callbacks
     return sub(
-        r'(This\sfile\swas\sgenerated\sby\scantools\sversion\s\d*\.\d*\.\d*\s).*',
-        r'\1', code)
+        r'CANMSGS_(.*)_FRAME_ID', 
+        lambda match: r'CANMSGS_{}_FRAME_ID'.format(match.group(1).lower()),
+        code)
 
 
 def generate_code_from_sym_file(database_name):
@@ -52,8 +50,12 @@ def generate_code_from_sym_file(database_name):
     filename_c = "Src/" + database_name + '.c'
 
     header, source, _, _ = generate(dbase, database_name, filename_h, "", "")
+
     header = purge_timestamps_from_generated_code(header)
     source = purge_timestamps_from_generated_code(source)
+
+    header = change_frame_id_capitalization(header)
+    source = change_frame_id_capitalization(source)
 
     with open(filename_h, 'w') as fout:
         fout.write(header)
