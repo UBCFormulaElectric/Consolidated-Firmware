@@ -69,8 +69,6 @@ void SharedHeartbeat_CheckHeartbeatTimeout(void)
     {
         heartbeat_timeout_ticks = 0;
 
-/* Disable heartbeat timeout handling in DEBUG mode because breakpoints will
- * stop heartbeat broadcasting */
 #ifndef DEBUG
         // Check if the board received all the heartbeats it's listening for
         if (heartbeats_received != PCB_HEARTBEAT_LISTENER)

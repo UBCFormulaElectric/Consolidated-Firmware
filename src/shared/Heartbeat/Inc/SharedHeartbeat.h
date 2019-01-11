@@ -38,6 +38,11 @@
     #error "No valid PCB name selected"
 #endif
 
+// Uncomment this define to enable debug mode, which disables heartbeat
+// timeouts. This is useful when stepping through code on a board that is
+// providing heartbeats to other boards.
+//#define DEBUG
+
 /******************************************************************************
  * Preprocessor Macros
  ******************************************************************************/
