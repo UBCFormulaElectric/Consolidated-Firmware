@@ -400,7 +400,7 @@ Var=RIGHT_INVERTER float 32,32 /u:A /p:5
 ID=06Bh
 Len=8
 Var="12V" float 0,32 /u:V /p:5
-Var=VBAT float 32,32 /u:V /p:0
+Var=VBAT float 32,32 /u:V /p:5
 
 [PDM_FLYWIRE]
 ID=06Ch
