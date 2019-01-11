@@ -193,6 +193,17 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
                                                          CAN_ExtID_NULL)
 #define MASKMODE_16BIT_MASK_BAMOCAR_RX INIT_MASKMODE_16BIT_FiRx(0x7F0, 0x1, 0x1, 0x0)
 
+/** Setup for CAN message callbacks */
+#define SHAREDCAN_PASS_CAN_MSG_TO_CALLBACK(MSG_STD_ID, MSG_DATA_PTR) \
+    uint8_t* ___msg_data = MSG_DATA_PTR; \
+    switch(MSG_STD_ID) \
+
+// TODO: Do something with error code if unpacking fails here!
+#define SHAREDCAN_CAN_MSG_CALLBACK(MSG_NAME, MSG_CALLBACK_FUNCTION) \
+    CanMsgs_##MSG_NAME##_t ___msg_struct; \
+    CanMsgs_##MSG_NAME##_unpack(&msg_struct, ___msg_data, 8); \
+    ##MSG_CALLBACK_FUNCTION(___msg_struct)
+
 /******************************************************************************
  * Typedefs
  ******************************************************************************/
