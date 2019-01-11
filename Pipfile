@@ -7,7 +7,7 @@ name = "pypi"
 pylint = "*"
 
 [packages]
-cantools = "32.5.0"
+cantools = "~=32.5.1"
 
 [requires]
 python_version = "3.6"
