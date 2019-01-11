@@ -3,6 +3,7 @@
  ******************************************************************************/
 #include <stdbool.h>
 #include <string.h>
+#include <stdint.h>
 #include "SharedCan.h"
 #include "main.h"
 
