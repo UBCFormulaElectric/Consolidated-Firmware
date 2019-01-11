@@ -120,5 +120,6 @@ typedef enum
  * Function Prototypes
  ******************************************************************************/
 void VoltageSense_ConvertVoltageAdcReadings(void);
+void VoltageSense_TransmitVoltage(void);
 
 #endif /* VOLTAGE_SENSE_H */

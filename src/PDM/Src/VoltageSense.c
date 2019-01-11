@@ -78,20 +78,23 @@ void VoltageSense_ConvertVoltageAdcReadings(void)
             &temp_voltage, &voltage_sense[i].voltage,
             VOLTAGE_IIR_LPF_SAMPLING_PERIOD, VOLTAGE_IIR_LPF_RC);
     }
+}
 
-    // // Transmit CAN data
-    // uint8_t data[8];
-    // memcpy(&data[0], (uint8_t *)(&voltage_sense[_12V_SUPPLY].voltage), sizeof(float32_t));
-    // memcpy(&data[4], (uint8_t *)(&voltage_sense[VBAT_SUPPLY].voltage), sizeof(float32_t));
-    // SharedCan_TransmitDataCan(
-    //     voltage_sense[_12V_SUPPLY].can.std_id,
-    //     voltage_sense[_12V_SUPPLY].can.dlc,
-    //     &data[0]);
+void VoltageSense_TransmitVoltage(void)
+{
+    // Transmit CAN data
+    uint8_t data[8];
+    memcpy(&data[0], (uint8_t *)(&voltage_sense[_12V_SUPPLY].voltage), sizeof(float32_t));
+    memcpy(&data[4], (uint8_t *)(&voltage_sense[VBAT_SUPPLY].voltage), sizeof(float32_t));
+    SharedCan_TransmitDataCan(
+        voltage_sense[_12V_SUPPLY].can.std_id,
+        voltage_sense[_12V_SUPPLY].can.dlc,
+        &data[0]);
 
-    // memset(&data[0], 0, sizeof(data));
-    // memcpy(&data[0], (uint8_t *)(&voltage_sense[FLYWIRE].voltage), sizeof(float32_t));
-    // SharedCan_TransmitDataCan(
-    //     voltage_sense[FLYWIRE].can.std_id,
-    //     voltage_sense[FLYWIRE].can.dlc,
-    //     &data[0]);
+    memset(&data[0], 0, sizeof(data));
+    memcpy(&data[0], (uint8_t *)(&voltage_sense[FLYWIRE].voltage), sizeof(float32_t));
+    SharedCan_TransmitDataCan(
+        voltage_sense[FLYWIRE].can.std_id,
+        voltage_sense[FLYWIRE].can.dlc,
+        &data[0]);
 }

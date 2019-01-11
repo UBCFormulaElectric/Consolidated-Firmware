@@ -3,6 +3,8 @@
  ******************************************************************************/
 #include "Timers.h"
 #include "SharedWatchdog.h"
+#include "CurrentSense.h"
+#include "VoltageSense.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -42,7 +44,11 @@ void Timers_Init(void)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim == &CONTROL_LOOP_TIMER)
-    {
+    {        
+        CurrentSense_TransmitCurrent();
+        // TODO: uncomment this once current sense is fixed
+        //VoltageSense_TransmitVoltage();
+
         SharedWatchdog_RefreshIwdg();
     }
 }

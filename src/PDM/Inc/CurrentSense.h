@@ -106,7 +106,7 @@ void CurrentSense_ToggleCurrentSenseChannel(void);
 /**
  * @return Return the currently selected SENSE channel
  */
-SenseChannel_Enum CurrentSense_GetCurrentSenseChannel(void);
+volatile SenseChannel_Enum CurrentSense_GetCurrentSenseChannel(void);
 
 /**
  * @brief Select the SENSE output 0/1 for all PROFET2s
@@ -118,5 +118,7 @@ void CurrentSense_SelectCurrentSenseChannel(SenseChannel_Enum channel);
  * @brief Return the array of structs containing information about all efuses
  */
 Efuse_Struct *const CurrentSense_GetEfuses(void);
+
+void CurrentSense_TransmitCurrent(void);
 
 #endif /* CURRENT_SENSE_H */

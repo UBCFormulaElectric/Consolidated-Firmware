@@ -44,9 +44,9 @@ void CurrentSense_ConvertCurrentAdcReadings(void)
     for (uint32_t i = 0, j = ADC_READINGS_CURRENT_START_INDEX; i < NUM_PROFET2S;
          i++, j++)
     {
-        Profet2_Struct *profet2 = Profet2_GetProfet2s();
-        Efuse_Struct *  efuse =
-            &(profet2[i].efuse[CurrentSense_GetCurrentSenseChannel()]);
+        Profet2_Struct * const profet2s = Profet2_GetProfet2s();
+        uint32_t sense_channel = CurrentSense_GetCurrentSenseChannel();
+        Efuse_Struct *efuse = &(profet2s[i].efuse[sense_channel]);
 
         // Convert ADC values to current values
         float32_t temp_current =
@@ -56,29 +56,10 @@ void CurrentSense_ConvertCurrentAdcReadings(void)
         SharedFilters_LowPassFilter(
             &temp_current, (float32_t *)(&efuse->current),
             CURRENT_IIR_LPF_SAMPLING_PERIOD, CURRENT_IIR_LPF_RC);
-
-        // Transmit CAN data
-        uint8_t data[8];
-        memcpy(&data[0], (uint8_t *)&efuse[SENSE_0].current, sizeof(float32_t));
-        memcpy(&data[4], (uint8_t *)&efuse[SENSE_1].current, sizeof(float32_t));
-        SharedCan_TransmitDataCan(
-            profet2[i].can.std_id, profet2[i].can.dlc, &data[0]);
-
-        //     // TODO: Test code that needs proper CAN IDs later on
-        //     if (CurrentSense_GetCurrentSenseChannel() == SENSE_1)
-        //     {
-        //         float32_t tmp = SharedAdc_GetActualVdda();
-        //         SharedCan_TransmitDataCan(0x200, 4, (uint8_t *)&tmp);
-        //         SharedCan_TransmitDataCan(
-        //             0x300 + i, 4, (uint8_t *)&SharedAdc_GetAdcValues()[j]);
-        //         SharedCan_TransmitDataCan(0x400 + i, 4, (uint8_t
-        //         *)&temp_current); SharedCan_TransmitDataCan(0x500 + i, 4,
-        //         (uint8_t *)&efuse->current);
-        //     }
     }
 }
 
-SenseChannel_Enum CurrentSense_GetCurrentSenseChannel(void)
+volatile SenseChannel_Enum CurrentSense_GetCurrentSenseChannel(void)
 {
     return sense_channel;
 }
@@ -116,5 +97,23 @@ void CurrentSense_SelectCurrentSenseChannel(SenseChannel_Enum channel)
     {
         sense_channel = SENSE_1;
         Profet2_ConfigureAllDsels(DSEL_HIGH);
+    }
+}
+
+void CurrentSense_TransmitCurrent(void)
+{
+    Profet2_Struct *profet2 = Profet2_GetProfet2s();
+
+    for (uint32_t i = 0; i < NUM_PROFET2S; i++)
+    {
+        Efuse_Struct *  efuse =
+            &(profet2[i].efuse[CurrentSense_GetCurrentSenseChannel()]);
+
+        // Transmit CAN data
+        uint8_t data[8];
+        memcpy(&data[4], (uint8_t *)&efuse[SENSE_0].current, sizeof(float32_t));
+        memcpy(&data[0], (uint8_t *)&efuse[SENSE_1].current, sizeof(float32_t));
+        SharedCan_TransmitDataCan(
+            profet2[i].can.std_id, profet2[i].can.dlc, &data[0]);
     }
 }
