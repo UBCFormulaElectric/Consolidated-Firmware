@@ -25,6 +25,23 @@ def purge_timestamps_from_generated_code(code: str) -> str:
         r'(This\sfile\swas\sgenerated\sby\scantools\sversion\s\d*\.\d*\.\d*\s).*',
         r'\1', code)
 
+def change_frame_id_capitalization(code: str) -> str:
+    """
+    Sets the symbol name in the FRAME_ID constant to lowercase for all CAN 
+    messages. This is done to allow us to reference both the constants and
+    the associated function in C macros.
+    """
+    # Ex. replace: 
+    # "CANMSGS_SYMBOL1_FRAME_ID"
+    # with:
+    # "CANMSGS_symbol1_FRAME_ID"
+
+    # TODO: YOU ARE HERE ----- need to finish this regex expression and then go  back can figure out the C macro for CAN callbacks
+    return sub(
+        r'(This\sfile\swas\sgenerated\sby\scantools\sversion\s\d*\.\d*\.\d*\s).*',
+        r'\1', code)
+
+
 def generate_code_from_sym_file(database_name):
     """
     Generates C source code for the given .sym file 

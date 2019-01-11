@@ -14,3 +14,5 @@ This folder contains everything to do with the CAN messages that we send between
  - `CanMsgs_MSG_NAME_t`: a struct that is setup to hold the various elements of the message
  - `CanMsgs_MSG_NAME_pack`: a function to pack the `CanMsgs_MSG_NAME_t` struct into a data array that we can transmit over CAN  
  - `CanMsgs_MSG_NAME_unpack`: a function to unpack a given data array into a `CanMsgs_MSG_NAME_t` struct 
+
+ There are other functions in `CanMsgs.h`, but in almost all cases these should **not** be used.
