@@ -3,6 +3,7 @@ This file contains all the functionality required to generate C code from
 our .sym file
 """
 
+import logging
 import os
 from re import sub
 from cantools.database.can.c_source import generate
@@ -49,7 +50,15 @@ def generate_code_from_sym_file(database_name):
     filename_h = "Inc/" + database_name + '.h'
     filename_c = "Src/" + database_name + '.c'
 
-    header, source, _, _ = generate(dbase, database_name, filename_h, "", "")
+    header, source, _, _ = generate(
+            dbase, 
+            database_name, 
+            filename_h, 
+            filename_c, 
+            "", 
+            floating_point_numbers=True,
+            bit_fields=False
+    )
 
     header = purge_timestamps_from_generated_code(header)
     source = purge_timestamps_from_generated_code(source)
@@ -64,6 +73,7 @@ def generate_code_from_sym_file(database_name):
         fout.write(source)
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.DEBUG)
     sym_filename = "CanMsgs"
     os.chdir(SYM_DIR)
     generate_code_from_sym_file(sym_filename)
