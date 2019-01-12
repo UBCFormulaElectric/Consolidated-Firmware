@@ -44,7 +44,7 @@
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
-static Profet2_Struct profet2[NUM_PROFET2S] = {
+static Profet2_Struct profet2s[NUM_PROFET2S] = {
     INIT_PROFET2(
         AUX1_AUX2,
         EFUSE_AUX_1_IN_Pin,
@@ -156,25 +156,25 @@ void Profet2_ConfigureSingleDen(
 
 void Profet2_ConfigureAllDens(DenOnOff_GPIO_PinState state)
 {
-    for (Profet2Index_Enum i = 0; i < NUM_ELEMENTS_IN_ARRAY(profet2); i++)
+    for (Profet2Index_Enum i = 0; i < NUM_ELEMENTS_IN_ARRAY(profet2s); i++)
     {
         SharedGpio_GPIO_WritePin(
-            profet2[i].den_pin_mapping.port, profet2[i].den_pin_mapping.pin,
+            profet2s[i].den_pin_mapping.port, profet2s[i].den_pin_mapping.pin,
             state);
     }
 }
 
 void Profet2_ConfigureAllDsels(DselOnOff_GPIO_PinState state)
 {
-    for (Profet2Index_Enum i = 0; i < NUM_ELEMENTS_IN_ARRAY(profet2); i++)
+    for (Profet2Index_Enum i = 0; i < NUM_ELEMENTS_IN_ARRAY(profet2s); i++)
     {
         SharedGpio_GPIO_WritePin(
-            profet2[i].dsel_pin_mapping.port, profet2[i].dsel_pin_mapping.pin,
+            profet2s[i].dsel_pin_mapping.port, profet2s[i].dsel_pin_mapping.pin,
             state);
     }
 }
 
 Profet2_Struct *const Profet2_GetProfet2s(void)
 {
-    return (Profet2_Struct *const)(&profet2[0]);
+    return (Profet2_Struct *const)(&profet2s[0]);
 }
