@@ -194,15 +194,38 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
 #define MASKMODE_16BIT_MASK_BAMOCAR_RX INIT_MASKMODE_16BIT_FiRx(0x7F0, 0x1, 0x1, 0x0)
 
 /** Setup for CAN message callbacks */
-#define SHAREDCAN_PASS_CAN_MSG_TO_CALLBACK(MSG_STD_ID, MSG_DATA_PTR) \
+#define SHAREDCAN_CAN_MSG_TO_CALLBACK_MAPPING(MSG_STD_ID, MSG_DATA_PTR) \
     uint8_t* ___msg_data = MSG_DATA_PTR; \
-    switch(MSG_STD_ID) \
+    switch(MSG_STD_ID)
 
+/** 
+ * @brief Define a callback function for a CAN msg within a 
+ *        SHAREDCAN_CAN_MSG_TO_CALLBACK_MAPPING 
+ * @param MSG_NAME the name of the CAN message
+ * @param MSG_CALLBACK_FUNCTION this function should accept a struct
+ *        of type CanMsgs_MSG_NAME_t. It will be called with the CAN
+ *        msg when it is received
+ */
 // TODO: Do something with error code if unpacking fails here!
-#define SHAREDCAN_CAN_MSG_CALLBACK(MSG_NAME, MSG_CALLBACK_FUNCTION) \
-    CanMsgs_##MSG_NAME##_t ___msg_struct; \
-    CanMsgs_##MSG_NAME##_unpack(&msg_struct, ___msg_data, 8); \
-    ##MSG_CALLBACK_FUNCTION(___msg_struct)
+#define SHAREDCAN_IF_STDID_IS(MSG_NAME, MSG_CALLBACK_FUNCTION) \
+    struct CanMsgs_##MSG_NAME##_t ___msg_struct; \
+    CanMsgs_##MSG_NAME##_unpack(&___msg_struct, ___msg_data, 8);  \
+    MSG_CALLBACK_FUNCTION(___msg_struct) \
+    break;
+
+/**
+ * @brief Send the given CAN message
+ * @param MSG_NAME the name of the message to send
+ * @param MSG_STRUCT a struct of type `CanMsgs_MSG_NAME_t`, that will be
+ *        packed and sent over the CAN bus
+ */
+#define SHAREDCAN_SEND_CAN_MSG(MSG_NAME, MSG_STRUCT) \
+    uint8_t ___data[8]; \
+    CanMsgs_##MSG_NAME##_unpack(&___data[0], MSG_STRUCT, 8) \
+    SharedCan_TransmitDataCan(CANMSGS_##MSG_NAME##_FRAME_ID, \
+                              CANMSGS_##MSG_NAME##_DATA_LENGTH_CODE, \
+                              &___data[0]);
+
 
 /******************************************************************************
  * Typedefs
