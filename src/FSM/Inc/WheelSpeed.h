@@ -31,7 +31,7 @@
  * Typedefs
  ******************************************************************************/
 // clang-format on
-/** TODO: What is this enum for */
+/** @brief Specifies Wheel Enum*/
 typedef enum{
     FR_WHEEL = 0,
     FL_WHEEL = 1
