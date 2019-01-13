@@ -3,6 +3,7 @@
  ******************************************************************************/
 #include "Apps.h"
 #include "Timers.h"
+#include "WheelSpeed.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -54,6 +55,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     if (htim == &CONTROL_LOOP_TIMER)
     {
         ControlLoop();
+    }else if (htim == &FRWHEELSPEED_TIMER){
+        SetWheelSpeed(FR_WHEEL);
+    }else if(htim == &FLWHEELSPEED_TIMER){
+        SetWheelSpeed(FL_WHEEL);
     }
 }
 
@@ -65,3 +70,4 @@ void Timers_StartTimers()
 
     HAL_TIM_Encoder_Start(&SAPPS_TIMER, TIM_CHANNEL_ALL);
 }
+

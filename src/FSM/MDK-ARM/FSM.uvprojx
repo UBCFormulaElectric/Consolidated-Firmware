@@ -422,6 +422,11 @@
               <FileType>1</FileType>
               <FilePath>../Src/stm32f0xx_hal_msp.c</FilePath>
             </File>
+            <File>
+              <FileName>WheelSpeed.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\WheelSpeed.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -530,6 +535,11 @@
               <FileName>CanDefinitions.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\shared\STM32-CAN-Code\Inc\CanDefinitions.h</FilePath>
+            </File>
+            <File>
+              <FileName>WheelSpeed.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Inc\WheelSpeed.h</FilePath>
             </File>
           </Files>
         </Group>
