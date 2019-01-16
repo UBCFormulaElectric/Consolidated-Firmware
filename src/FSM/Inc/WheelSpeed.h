@@ -10,6 +10,7 @@
  * Includes
  ******************************************************************************/
 #include "main.h"
+#include <stdbool.h>
 
 /******************************************************************************
  * Preprocessor Constants
@@ -56,8 +57,7 @@ float CalculateWheelSpeed(uint16_t CurrentTimerValue, uint16_t PreviousTimerValu
  * @brief Gets the WheelSpeedFaultState variable
  * @return  WheelSpeedFaultState
  */
-uint8_t GetWheelSpeedFaultState(void);
-
+bool GetWheelSpeedSensorsFaulted(void);
 
 /**
  * @brief  1. Calculates the front left or right wheel speed in km/h and stores it
@@ -65,6 +65,12 @@ uint8_t GetWheelSpeedFaultState(void);
  * @param Wheel Specify which wheel speed to store
  */
 void SetWheelSpeed(Wheel_Enum Wheel);
+
+// TODO: Javadoc here
+float GetLeftWheelSpeed(void);
+
+// TODO: Javadoc here
+float GetRightWheelSpeed(void);
 
 #endif /* WHEELSPEED_H */
 

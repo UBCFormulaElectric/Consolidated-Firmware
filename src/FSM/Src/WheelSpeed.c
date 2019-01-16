@@ -36,8 +36,8 @@ static const float TIRE_DIAMETER_IN_METERS = 0.52;
 static const float MAX_WHEEL_SPEED = 200.0;
 
 // TIM16 input capture variables (for right wheel speed)
-static volatile uint16_t CurrentTIM16Value = 0;
-static volatile uint16_t PreviousTIM16Value = 0;
+//static volatile uint16_t CurrentTIM16Value = 0;
+//static volatile uint16_t PreviousTIM16Value = 0;
 
 // TIM17 input capture variables (for left wheel speed)
 static volatile uint16_t CurrentTIM17Value = 0;
@@ -86,30 +86,25 @@ float CalculateWheelSpeed(uint16_t CurrentTimerValue, uint16_t PreviousTimerValu
 }
 
 
-void SetWheelSpeed(Wheel_Enum Wheel){
+void SetWheelSpeed(Wheel_Enum Wheel, uint32_t curr_timer_val){
 	if(Wheel == F_R_WHEEL){
-		// Get latest input capture value
-		CurrentTIM16Value = HAL_TIM_ReadCapturedValue(&F_R_WHEELSPEED_TIMER, TIM_CHANNEL_1);
 
 		// Calculate front right wheel speed
-		front_right_wheel_speed = CalculateWheelSpeed(CurrentTIM16Value, PreviousTIM16Value);
+		front_right_wheel_speed = CalculateWheelSpeed(curr_timer_val, PreviousTIM16Value);
 
 		// Store current input capture value for next calculation
-		PreviousTIM16Value = CurrentTIM16Value;		
+		PreviousTIM16Value = curr_timer_val;		
+
 	}else if(Wheel == FL_WHEEL){
-		// Get latest input capture value
-		CurrentTIM17Value = HAL_TIM_ReadCapturedValue(&F_L_WHEELSPEED_TIMER, TIM_CHANNEL_1);
-
 		// Calculate front right wheel speed
-		front_left_wheel_speed = CalculateWheelSpeed(CurrentTIM17Value, PreviousTIM17Value);
+		front_left_wheel_speed = CalculateWheelSpeed(curr_timer_val, PreviousTIM17Value);
 
 		// Store current input capture value for next calculation
-		PreviousTIM17Value = CurrentTIM17Value;
+		PreviousTIM17Value = curr_timer_val;		
 	}
 }
 
-
-uint8_t GetWheelSpeedFaultState(void)
+bool GetWheelSpeedSensorsFaulted(void)
 {
 	return (front_left_wheel_speed > MAX_WHEEL_SPEED || front_right_wheel_speed > MAX_WHEEL_SPEED);
 }
