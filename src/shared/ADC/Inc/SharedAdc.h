@@ -83,7 +83,7 @@
  * @brief  Initialize ADC in DMA mode and the correct max ADC value
  * @param  hadc ADC handle
  * @param  vrefint_regular_rank The Regular Rank of VREFINT channel configured
- *         in STM32CubeMX
+ *         in STM32CubeMX (Starts at 1)
  */
 void SharedAdc_StartAdcInDmaMode(
     ADC_HandleTypeDef *hadc,
