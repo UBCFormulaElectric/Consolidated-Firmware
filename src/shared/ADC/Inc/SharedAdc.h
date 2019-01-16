@@ -114,10 +114,10 @@ float32_t SharedAdc_GetActualVdda(void);
 /**
  * @brief  Convert the ADC value to a voltage channel using the actual VDDA
  *         voltage level
- * @param  The index for the selected ADC channel in adc_values[] (Starting at
- * 0)
+ * @param  regular_rank The Regular Rank for the selected ADC channel as
+ *         configured in STM32CubeMXa (Starts at 1)
  * @return The voltage at the ADC channel
  */
-float32_t SharedAdc_GetAdcVoltage(uint32_t adc_values_index);
+float32_t SharedAdc_GetAdcVoltage(uint32_t regular_rank);
 
 #endif /* SHARED_ADC_H */

@@ -132,8 +132,11 @@ float32_t SharedAdc_GetActualVdda(void)
     }
 }
 
-float32_t SharedAdc_GetAdcVoltage(uint32_t adc_values_index)
+float32_t SharedAdc_GetAdcVoltage(uint32_t regular_rank)
 {
+    // The index of each ADC channel is always its Regular Rank minus one
+    uint32_t adc_values_index = regular_rank - 1;
+
     //  The voltage at any ADC channel can be calculated using the following
     //  generic formula:
     //
