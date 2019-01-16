@@ -41,7 +41,7 @@
 /* USER CODE BEGIN Includes */
 #include "CurrentSense.h"
 #include "Gpio.h"
-#include "SharedCAN.h"
+#include "SharedCan.h"
 #include "ErrorHandling.h"
 /* USER CODE END Includes */
 
@@ -72,7 +72,7 @@ extern IWDG_HandleTypeDef hiwdg;
 // SysTick/heartbeat variables
 extern const int         HEARTBEAT_TICK_PERIOD;      // Period in ms
 extern const int         HEARTBEAT_BROADCAST_PERIOD; // Period in ms
-extern volatile uint16_t HeartbeatCount[Systems_Count];
+extern volatile uint16_t HeartbeatCount[PCB_COUNT];
 static volatile uint32_t HeartbeatTimeoutTicks      = 0;
 static volatile uint32_t PDMHeartbeatBroadcastTicks = 0;
 
@@ -242,7 +242,7 @@ void SysTick_Handler(void)
 
         // BMS checks PDM, FSM, DCM
         // PDM, FSM, DCM check only BMS
-        if (HeartbeatCount[Battery_Management_System] == 0)
+        if (HeartbeatCount[BATTERY_MANAGEMENT_SYSTEM] == 0)
         {
             // We have not received the BMS's heartbeat CAN Message. Assume the
             // board is not working.
@@ -250,14 +250,14 @@ void SysTick_Handler(void)
         }
 
         // Reset the ticks for this module
-        HeartbeatCount[Battery_Management_System] = 0;
+        HeartbeatCount[POWER_DISTRIBUTION_MODULE] = 0;
     }
 
     // Broadcast PDM heartbeat for other boards to monitor
     if (PDMHeartbeatBroadcastTicks >= HEARTBEAT_BROADCAST_PERIOD)
     {
         PDMHeartbeatBroadcastTicks = 0;
-        SharedCAN_BroadcastHeartbeat(Power_Distribution_Module);
+        SharedCan_BroadcastHeartbeat();
     }
 
 #endif
@@ -324,32 +324,6 @@ void USB_LP_CAN_RX0_IRQHandler(void)
     HAL_CAN_IRQHandler(&hcan);
     /* USER CODE BEGIN USB_LP_CAN_RX0_IRQn 1 */
 
-    /*	TODO (Issue #192): Move to RX callback
-
-    HAL_CAN_Receive_IT(&hcan, CAN_FIFO0);
-
-    switch(hcan.pRxMsg->StdId)
-    {
-        #ifndef DEBUG
-        case Heartbeat_StandardID:
-            // Process Heartbeat info here
-            Board = (Module_Name)hcan.pRxMsg->Data[0];
-
-            // Case statement used in case data is outside of array bounds.
-    Special cases / behaviour can also be handled here. switch(Board)
-            {
-                case Battery_Management_System:
-                    HeartbeatCount[Battery_Management_System]++;
-                default:
-                    // Log error
-                    break;
-            }
-            break;
-        #endif
-        default:
-            break;
-    }
-*/
     /* USER CODE END USB_LP_CAN_RX0_IRQn 1 */
 }
 

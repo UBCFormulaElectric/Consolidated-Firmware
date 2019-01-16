@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F302x8, PDM, ARM_MATH_CM4</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;        ../Drivers/STM32F3xx_HAL_Driver/Inc;        ../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;        ../Drivers/CMSIS/Device/ST/STM32F3xx/Include;        ../Drivers/CMSIS/Include;        ..\..\shared\STM32-CAN-Code\Inc</IncludePath>
+              <IncludePath>../Inc;../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;../Drivers/CMSIS/Include;..\..\shared\STM32-CAN-Code\Inc;..\..\shared\GPIO\Inc;..\..\shared</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -418,11 +418,6 @@
               <FilePath>..\Src\Gpio.c</FilePath>
             </File>
             <File>
-              <FileName>SharedCAN.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\..\shared\STM32-CAN-Code\Src\SharedCAN.c</FilePath>
-            </File>
-            <File>
               <FileName>Timers.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\Timers.c</FilePath>
@@ -447,6 +442,16 @@
               <FileType>1</FileType>
               <FilePath>..\Src\ErrorHandling.c</FilePath>
             </File>
+            <File>
+              <FileName>SharedCan.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\shared\STM32-CAN-Code\Src\SharedCan.c</FilePath>
+            </File>
+            <File>
+              <FileName>SharedGpio.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\shared\GPIO\Src\SharedGpio.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -456,11 +461,6 @@
               <FileName>Can.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Inc\Can.h</FilePath>
-            </File>
-            <File>
-              <FileName>CANDefinitions.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\shared\STM32-CAN-Code\Inc\CANDefinitions.h</FilePath>
             </File>
             <File>
               <FileName>CurrentSense.h</FileName>
@@ -488,11 +488,6 @@
               <FilePath>..\Inc\main.h</FilePath>
             </File>
             <File>
-              <FileName>SharedCAN.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\shared\STM32-CAN-Code\Inc\SharedCAN.h</FilePath>
-            </File>
-            <File>
               <FileName>stm32f3xx_hal_conf.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Inc\stm32f3xx_hal_conf.h</FilePath>
@@ -511,6 +506,21 @@
               <FileName>ErrorHandling.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Inc\ErrorHandling.h</FilePath>
+            </File>
+            <File>
+              <FileName>CanDefinitions.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\shared\STM32-CAN-Code\Inc\CanDefinitions.h</FilePath>
+            </File>
+            <File>
+              <FileName>SharedCan.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\shared\STM32-CAN-Code\Inc\SharedCan.h</FilePath>
+            </File>
+            <File>
+              <FileName>SharedGpio.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\shared\GPIO\Inc\SharedGpio.h</FilePath>
             </File>
           </Files>
         </Group>

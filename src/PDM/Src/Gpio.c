@@ -4,6 +4,7 @@
 #include "Gpio.h"
 #include "stdbool.h"
 #include "SharedGpio.h"
+#include "SharedCan.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -124,7 +125,7 @@ static void GPIO_BoostPgoodFaultHandler(void)
 {
     if (GPIO_IsBoostPgoodFaultActive())
     {
-        Can_BroadcastPdmErrors(BOOST_PGOOD_FAULT);
+        SharedCan_BroadcastPcbErrors(BOOST_PGOOD_FAULT);
     }
 }
 
@@ -132,7 +133,7 @@ static void GPIO_CellBalanceOvervoltageFaultHandler(void)
 {
     if (GPIO_IsCellBalanceOvervoltageFaultActive())
     {
-        Can_BroadcastPdmErrors(CELL_BALANCE_OVERVOLTAGE_FAULT);
+        SharedCan_BroadcastPcbErrors(CELL_BALANCE_OVERVOLTAGE_FAULT);
     }
 }
 
@@ -140,7 +141,7 @@ static void GPIO_ChargerFaultHandler(void)
 {
     if (GPIO_IsChargerFaultActive())
     {
-        Can_BroadcastPdmErrors(CHARGER_FAULT);
+        SharedCan_BroadcastPcbErrors(CHARGER_FAULT);
     }
 }
 
@@ -231,7 +232,6 @@ void GPIO_ConfigurePreChargeComplete(volatile uint8_t *fault_states)
             EFUSE_ACC_ENC_FAN_IN_GPIO_Port, EFUSE_ACC_ENC_FAN_IN_Pin,
             GPIO_PIN_SET);
     }
-
     SharedGpio_GPIO_WritePin(
         EFUSE_DEN_4_GPIO_Port, EFUSE_DEN_4_Pin, GPIO_PIN_SET);
 
@@ -282,7 +282,6 @@ void GPIO_ConfigurePowerUp(volatile uint8_t *fault_states)
         SharedGpio_GPIO_WritePin(
             EFUSE_AIR_SHDN_IN_GPIO_Port, EFUSE_AIR_SHDN_IN_Pin, GPIO_PIN_SET);
     }
-
     SharedGpio_GPIO_WritePin(
         EFUSE_DEN_3_GPIO_Port, EFUSE_DEN_3_Pin, GPIO_PIN_SET);
 

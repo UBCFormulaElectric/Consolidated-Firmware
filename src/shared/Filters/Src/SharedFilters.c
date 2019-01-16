@@ -1,10 +1,8 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
-#include "ErrorHandling.h"
-#include "Gpio.h"
-#include "SharedGpio.h"
-#include "SharedCan.h"
+#include "SharedFilters.h"
+#include "arm_math.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -24,7 +22,7 @@
 
 /******************************************************************************
  * Private Function Prototypes
- ******************************************************************************/
+ *******************************************************************************/
 
 /******************************************************************************
  * Private Function Definitions
@@ -33,33 +31,23 @@
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-
-/**
- * @brief TODO  (Issue #191): Complete this
- */
-void ErrorHandling_HandleHeartbeatTimeout(void)
+void SharedFilters_LowPassFilter(
+    float32_t *input,
+    float32_t *output,
+    uint32_t   sampling_time,
+    uint32_t   rc)
 {
-    // Handle BMS not sending heartbeats
+    uint32_t smoothing_factor;
 
-    // Kill inverters
-    SharedGpio_GPIO_WritePin(
-        EFUSE_DEN_5_GPIO_Port, EFUSE_DEN_5_Pin, GPIO_PIN_RESET);
-    SharedGpio_GPIO_WritePin(
-        EFUSE_LEFT_INVERTER_IN_GPIO_Port, EFUSE_LEFT_INVERTER_IN_Pin,
-        GPIO_PIN_RESET);
-    SharedGpio_GPIO_WritePin(
-        EFUSE_RIGHT_INVERTER_IN_GPIO_Port, EFUSE_RIGHT_INVERTER_IN_Pin,
-        GPIO_PIN_RESET);
+    smoothing_factor = sampling_time / (rc + sampling_time);
 
-    // Kill AIR SHDN
-    SharedGpio_GPIO_WritePin(
-        EFUSE_AIR_SHDN_IN_GPIO_Port, EFUSE_AIR_SHDN_IN_Pin, GPIO_PIN_RESET);
-
-    // Log error
-    SharedCan_BroadcastPcbErrors(MISSING_HEARTBEAT);
+    // The pseudo-code for this LPF implementation is as follows:
+    // y[i] = y[i-1] + SmoothingFactor * ( x[i] - y[i-1] ), where y =
+    // output, x = input. That is, the change from one filter output
+    // to the next is proportional to the difference between the previous
+    // output and the next input.
+    for (uint32_t i = 0; i < sizeof(output) / sizeof(output[0]); i++)
+    {
+        output[i] = output[i] + smoothing_factor * (input[i] - output[i]);
+    }
 }
-
-/**
- * @brief TODO  (Issue #191): Complete this
- */
-void ErrorHandling_HandleError(PdmError_Enum error) {}
