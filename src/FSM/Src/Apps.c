@@ -156,5 +156,6 @@ void Apps_HandleAcceleratorPedalPosition(void)
     float32_t percent_accelerator_pedal_position =
         GetPercentAcceleratorPedalPosition(percent_papps);
 
-    // TODO (Issue #273): Transmit accelerator pedal position over CAN
+    // TODO (Issue #273): Transmit accelerator pedal position over CAN. Make 
+    // sure to add "is brake pressed" check here.
 }
