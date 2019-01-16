@@ -73,13 +73,9 @@ static float32_t GetPercentAcceleratorPedalPosition(float32_t percent_papps)
 {
     float32_t percent_accelerator_pedal_position;
 
-    if (Gpio_IsBrakePressed() || (percent_papps < PAPPS_DEADZONE_THRESHOLD))
+    if (percent_papps < PAPPS_DEADZONE_THRESHOLD)
     {
-        // The following conditions require zero torque requests:
-        // 1. When the brake pedal is pressed
-        // 2. When PAPPS reading is less than the pedal travel deadzone
-        // threshold
-        percent_accelerator_pedal_position = 0.0f;
+       percent_accelerator_pedal_position = 0.0f;
     }
     else
     {
