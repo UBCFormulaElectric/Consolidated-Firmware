@@ -47,7 +47,7 @@
  ******************************************************************************/
 /**
  * @brief  Calculate the appropriate accelerator pedal position as a percentage
- *         based on PAPPS position value and brake pedal status [0.0 to 1.0]
+ *         based on PAPPS position value [0.0 to 1.0]
  * @return The accelerator pedal position
  */
 static float32_t GetPercentAcceleratorPedalPosition(float32_t papps_value);
