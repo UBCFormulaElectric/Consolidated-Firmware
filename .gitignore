@@ -63,6 +63,7 @@ Pipfile.lock
 #*.sct
 *.sfd
 *.sfr
+*.orig
 
 # CMake-relevant files
 CMakeCache.txt
