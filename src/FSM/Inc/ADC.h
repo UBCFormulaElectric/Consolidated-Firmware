@@ -10,6 +10,7 @@
  * Includes
  ******************************************************************************/
 #include "stdint.h"
+#include "stm32f0xx_hal.h"
 /******************************************************************************
  * Preprocessor Constants
  ******************************************************************************/
@@ -38,7 +39,7 @@
 /******************************************************************************
  * Global Variables
  ******************************************************************************/
-
+extern ADC_HandleTypeDef hadc;
 /******************************************************************************
  * Function Prototypes
  ******************************************************************************/
@@ -50,5 +51,9 @@
 	* @param  FilteredADCReadings Pointer to array in which the filtered ADC readings will be stored
  */
 void FilterADCReadings(uint32_t ChannelCount, uint32_t FilterSize, volatile uint16_t *ADCReadings, float *FilteredADCReadings);
+/**
+ * @brief  Initializes ADC, sets its digital value destination address.
+ */
+void InitADC(void);
 
 #endif /* ADC_H */

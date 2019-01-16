@@ -27,7 +27,8 @@
 #define F_R_WHEELSPEED_TIMER htim16
 //Timer for Front Left Wheel speed.
 #define F_L_WHEELSPEED_TIMER htim17
-
+//Timer used clock the ADC reading steering wheel potentiometer.
+#define ADC_TIMER htim1
 
 /******************************************************************************
  * Preprocessor Macros
@@ -46,6 +47,7 @@ extern TIM_HandleTypeDef PAPPS_TIMER;
 extern TIM_HandleTypeDef SAPPS_TIMER;
 extern TIM_HandleTypeDef F_R_WHEELSPEED_TIMER;
 extern TIM_HandleTypeDef F_L_WHEELSPEED_TIMER;
+extern TIM_HandleTypeDef ADC_TIMER;
 
 /******************************************************************************
  * Function Prototypes

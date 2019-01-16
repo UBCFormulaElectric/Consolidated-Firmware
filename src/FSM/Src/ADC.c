@@ -3,6 +3,7 @@
  ******************************************************************************/
 #include "ADC.h"
 
+#include "adc.h"
 /******************************************************************************
  * Module Preprocessor Constants
  ******************************************************************************/
@@ -53,4 +54,10 @@ void FilterADCReadings(uint32_t ChannelCount, uint32_t FilterSize, volatile uint
 	{
 		FilteredADCReadings[i] = FilteredADCReadings[i] / FilterSize;
 	}
+}
+
+void InitADC(void){
+					//Start DMA, ADC, and set the destination memory address.
+				HAL_ADC_Start_DMA(&hadc,  &ADC1_DR,1);
+	
 }

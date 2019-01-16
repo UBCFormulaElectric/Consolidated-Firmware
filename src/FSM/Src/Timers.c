@@ -74,5 +74,9 @@ void Timers_StartTimers()
     //as input captures (Hall Effect)
     HAL_TIM_IC_Start_IT(&F_R_WHEELSPEED_TIMER, TIM_CHANNEL_1);
 	   HAL_TIM_IC_Start_IT(&F_L_WHEELSPEED_TIMER, TIM_CHANNEL_1);	
+	
+	
+				//Start the Timer1 used clock the ADC.
+				HAL_TIM_Base_Start(&ADC_TIMER);
 }
 
