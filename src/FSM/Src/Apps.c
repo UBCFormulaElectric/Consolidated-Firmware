@@ -47,21 +47,21 @@
  ******************************************************************************/
 /**
  * @brief  Calculate the appropriate accelerator pedal position as a percentage
- *         based on PAPPS position value [0.0 to 1.0]
+ *         [0.0 to 1.0]
  * @return The accelerator pedal position
  */
 static float32_t GetPercentAcceleratorPedalPosition(float32_t papps_value);
 
 /**
- * @brief  Read PAPPS encoder counter value as a percentage and adjust it as
- *         needed
+ * @brief  Read PAPPS encoder counter value as a percentage [0.0 to 1.0] and
+ *         adjust it as needed
  * @return PAPPS value
  */
 static float32_t GetPercentPapps(void);
 
 /**
- * @brief  Read SAPPS encoder counter value as a percentage and adjust it as
- *         needed
+ * @brief  Read SAPPS encoder counter value as a percentage [0.0 to 1.0] and
+ *         adjust it as needed
  * @return SAPPS value
  */
 static float32_t GetPercentSapps(void);
@@ -152,6 +152,6 @@ void Apps_HandleAcceleratorPedalPosition(void)
     float32_t percent_accelerator_pedal_position =
         GetPercentAcceleratorPedalPosition(percent_papps);
 
-    // TODO (Issue #273): Transmit accelerator pedal position over CAN. Make 
+    // TODO (Issue #273): Transmit accelerator pedal position over CAN. Make
     // sure to add "is brake pressed" check here.
 }
