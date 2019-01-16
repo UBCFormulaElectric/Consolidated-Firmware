@@ -50,7 +50,7 @@
  *         [0.0 to 1.0]
  * @return The accelerator pedal position
  */
-static float32_t GetPercentAcceleratorPedalPosition(float32_t papps_value);
+static float32_t GetPercentAcceleratorPedalPosition(void);
 
 /**
  * @brief  Read PAPPS encoder counter value as a percentage [0.0 to 1.0] and
@@ -69,8 +69,11 @@ static float32_t GetPercentSapps(void);
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
-static float32_t GetPercentAcceleratorPedalPosition(float32_t percent_papps)
+static float32_t GetPercentAcceleratorPedalPosition(void)
 {
+    float32_t percent_papps = GetPercentPapps();
+    float32_t percent_sapps = GetPercentSapps();
+ 
     float32_t percent_accelerator_pedal_position;
 
     if (percent_papps < PAPPS_DEADZONE_THRESHOLD)
@@ -90,7 +93,7 @@ static float32_t GetPercentPapps(void)
     // Get the PAPPS position value as a percentage value
     float32_t percent_papps =
         __HAL_TIM_GET_COUNTER(&PAPPS_TIMER) /
-        ((float32_t)(PRIMARY_APPS_MAX_VALUE)*APPS_SATURATION_THRESHOLD);
+        ((float32_t)(PRIMARY_APPS_MAX_VALUE) * APPS_SATURATION_THRESHOLD);
 
     // When the driver lets go of the pedal, it might deflect beyond the
     // starting position due to mechanical tolerance. This will cause the
@@ -120,7 +123,7 @@ static float32_t GetPercentSapps(void)
     // timer count by subtracing it from the max count.)
     float32_t percent_sapps =
         (ENCODER_MAX_COUNT - __HAL_TIM_GET_COUNTER(&SAPPS_TIMER)) /
-        ((float32_t)(SECONDARY_APPS_MAX_VALUE)*APPS_SATURATION_THRESHOLD);
+        ((float32_t)(SECONDARY_APPS_MAX_VALUE) * APPS_SATURATION_THRESHOLD);
 
     // When the driver lets go of the pedal, it might deflect beyond the
     // starting position due to mechanical tolerance. This will cause the
@@ -147,10 +150,8 @@ static float32_t GetPercentSapps(void)
  ******************************************************************************/
 void Apps_HandleAcceleratorPedalPosition(void)
 {
-    float32_t percent_papps = GetPercentPapps();
-    float32_t percent_sapps = GetPercentSapps();
-    float32_t percent_accelerator_pedal_position =
-        GetPercentAcceleratorPedalPosition(percent_papps);
+   float32_t percent_accelerator_pedal_position =
+        GetPercentAcceleratorPedalPosition();
 
     // TODO (Issue #273): Transmit accelerator pedal position over CAN. Make
     // sure to add "is brake pressed" check here.
