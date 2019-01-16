@@ -1,6 +1,6 @@
 /**
  * @file  ADC.h
- * @brief FSM_2017 - Function library header for the Analog-Digital Converter (ADC)
+ * @brief Function library header for the Analog-Digital Converter (ADC)
  */
 
 #ifndef ADC_H

@@ -1,6 +1,6 @@
 /**
  * @file  SteeringAngle.h
- * @brief FSM_2017 - Function library for the steering angle sensor
+ * @brief Function library for the steering angle sensor
  */
 
 #ifndef STEERINGANGLE_H
@@ -44,5 +44,11 @@ void CalculateSteeringAngle(float *FilteredADCReadings);
  */
 uint8_t GetSteeringFaultState(void);
 
+/**
+ * @brief  Determines steering angle in degrees based on filtered steering angle potentiometer
+ *         voltage.
+ * @return SteeringFaultState
+ */
+void GetSteeringAngle(void);
 
 #endif /* STEERINGANGLE_H */

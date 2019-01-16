@@ -432,6 +432,11 @@
               <FileType>1</FileType>
               <FilePath>..\Src\SteeringAngle.c</FilePath>
             </File>
+            <File>
+              <FileName>ADC.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\ADC.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -550,6 +555,11 @@
               <FileName>SteeringAngle.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Inc\SteeringAngle.h</FilePath>
+            </File>
+            <File>
+              <FileName>ADC.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Inc\ADC.h</FilePath>
             </File>
           </Files>
         </Group>

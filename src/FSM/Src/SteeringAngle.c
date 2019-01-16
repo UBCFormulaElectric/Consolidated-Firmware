@@ -2,6 +2,7 @@
  * Includes
  ******************************************************************************/
 #include "SteeringAngle.h"
+#include "ADC.h"
 /******************************************************************************
  * Module Preprocessor Constants
  ******************************************************************************/
@@ -31,6 +32,9 @@ static const float MIN_STEERING_ANGLE = -110.0;
 // Global variable for steering angle (degrees)
 volatile float SteeringAngle = 0;
 
+//Pointer to array containing the unfiltered SteeringAngleADC ADC readings
+static volatile uint16_t SteeringAngleADCReadings[ADC_CHANNEL_COUNT * ADC_FILTER_SIZE];
+
 /******************************************************************************
 * Private Function Prototypes
 *******************************************************************************/
@@ -57,4 +61,11 @@ void CalculateSteeringAngle(float *FilteredADCReadings)
 uint8_t GetSteeringFaultState(void)
 {
 	return (SteeringAngle > MAX_STEERING_ANGLE || SteeringAngle < MIN_STEERING_ANGLE);
+}
+
+
+void GetSteeringAngle(void){
+    float FilteredADCReadings[ADC_CHANNEL_COUNT];
+    FilterADCReadings(ADC_CHANNEL_COUNT, ADC_FILTER_SIZE, SteeringAngleADCReadings, FilteredADCReadings);
+    CalculateSteeringAngle(FilteredADCReadings);
 }
