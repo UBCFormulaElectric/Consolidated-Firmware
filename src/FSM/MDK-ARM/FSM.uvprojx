@@ -427,6 +427,11 @@
               <FileType>1</FileType>
               <FilePath>..\Src\WheelSpeed.c</FilePath>
             </File>
+            <File>
+              <FileName>SteeringAngle.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\SteeringAngle.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
@@ -540,6 +545,11 @@
               <FileName>WheelSpeed.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\Inc\WheelSpeed.h</FilePath>
+            </File>
+            <File>
+              <FileName>SteeringAngle.h</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\Inc\SteeringAngle.h</FilePath>
             </File>
           </Files>
         </Group>
