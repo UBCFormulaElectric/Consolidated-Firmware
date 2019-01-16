@@ -56,9 +56,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     {
         ControlLoop();
     }else if (htim == &F_R_WHEELSPEED_TIMER){
-        SetWheelSpeed(F_R_WHEEL);
+        uint32_t timer_val = HAL_TIM_ReadCapturedValue(&htim, TIM_CHANNEL_1);
+        SetWheelSpeed(F_R_WHEEL, timer_val);
     }else if(htim == &F_L_WHEELSPEED_TIMER){
-        SetWheelSpeed(FL_WHEEL);
+        uint32_t timer_val = HAL_TIM_ReadCapturedValue(&htim, TIM_CHANNEL_1);
+        SetWheelSpeed(FL_WHEEL, timer_val);
     }
 }
 
