@@ -22,7 +22,7 @@
  * Module Variable Definitions
  ******************************************************************************/
 // Mathematical constants
-static const float PI = 3.1415;
+static const float PI = 3.1415926535;
 static const float KMH_CONVERSION_FACTOR = 3.6;		 // Conversion factor from m/s to km/h
 
 // Vehicle dimensions and parameters
