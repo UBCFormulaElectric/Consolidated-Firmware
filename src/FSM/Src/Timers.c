@@ -55,9 +55,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     if (htim == &CONTROL_LOOP_TIMER)
     {
         ControlLoop();
-    }else if (htim == &FRWHEELSPEED_TIMER){
-        SetWheelSpeed(FR_WHEEL);
-    }else if(htim == &FLWHEELSPEED_TIMER){
+    }else if (htim == &F_R_WHEELSPEED_TIMER){
+        SetWheelSpeed(F_R_WHEEL);
+    }else if(htim == &F_L_WHEELSPEED_TIMER){
         SetWheelSpeed(FL_WHEEL);
     }
 }
@@ -69,5 +69,10 @@ void Timers_StartTimers()
     HAL_TIM_Encoder_Start(&PAPPS_TIMER, TIM_CHANNEL_ALL);
 
     HAL_TIM_Encoder_Start(&SAPPS_TIMER, TIM_CHANNEL_ALL);
+	
+	   //Start timers in inturrupt mode for Front Right/Left wheel speed sensors 
+    //as input captures (Hall Effect)
+    HAL_TIM_IC_Start_IT(&F_R_WHEELSPEED_TIMER, TIM_CHANNEL_1);
+	   HAL_TIM_IC_Start_IT(&F_L_WHEELSPEED_TIMER, TIM_CHANNEL_1);	
 }
 

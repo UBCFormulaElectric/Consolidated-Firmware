@@ -33,9 +33,9 @@
 // clang-format on
 /** @brief Specifies Wheel Enum*/
 typedef enum{
-    FR_WHEEL = 0,
-    FL_WHEEL = 1
-} Wheels_Enum;
+    F_R_WHEEL,
+    FL_WHEEL
+} Wheel_Enum;
 
 /******************************************************************************
  * Global Variables
@@ -64,7 +64,7 @@ uint8_t GetWheelSpeedFaultState(void);
  *             2. Stores the current input capture timer value for the next calculation
  * @param Wheel Specify which wheel speed to store
  */
-void SetWheelSpeed(Wheels_Enum Wheel);
+void SetWheelSpeed(Wheel_Enum Wheel);
 
 #endif /* WHEELSPEED_H */
 

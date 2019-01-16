@@ -84,7 +84,7 @@ float CalculateWheelSpeed(uint16_t CurrentTimerValue, uint16_t PreviousTimerValu
 
 
 void SetWheelSpeed(Wheels_Enum Wheel){
-	if(Wheel == FR_WHEEL){
+	if(Wheel == F_R_WHEEL){
 		// Get latest input capture value
 		CurrentTIM16Value = HAL_TIM_ReadCapturedValue(&FRWHEELSPEED_TIMER, TIM_CHANNEL_1);
 
