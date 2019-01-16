@@ -15,10 +15,17 @@
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off
+//Primary and secondary timers started in encoder modes to caputure encoder
+// ticks.
 #define PAPPS_TIMER        htim2
 #define SAPPS_TIMER        htim3
+//The control loop timer triggers callback at the set Hz, specifed in tim14
+// settings.
 #define CONTROL_LOOP_TIMER htim14
+//Timer for Front Right wheel speed works as an Input Capture to capture Hall
+// effect sensor ticks.
 #define F_R_WHEELSPEED_TIMER htim16
+//Timer for Front Left Wheel speed.
 #define F_L_WHEELSPEED_TIMER htim17
 
 
