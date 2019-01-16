@@ -59,7 +59,7 @@
 /** @brief Nominal voltage for VDDA, or ADC power supply */
 #define VDDA_VOLTAGE (float32_t)(3.3f)
 
-/** @brief Number of Vrefint channel that can be useful in certain calculations */
+/** @brief Number of Vrefint channel */
 #define NUM_VREFINT_CHANNEL 1
 
 /******************************************************************************
