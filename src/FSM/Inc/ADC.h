@@ -21,8 +21,8 @@
 #define VREFINT_CAL			 	*(uint16_t *)(0x01FFFF7BA)	  	
 // Number of ADC channels used
 #define ADC_CHANNEL_COUNT	   	2							   	
-// Trigger (reading) frequency from TIM1 to ADC (Hz)
-#define ADC_TRIGGER_FREQUENCY   1600			
+// Trigger (reading) frequency from TIM1 to ADC (Hz) defined in cube MX
+//#define ADC_TRIGGER_FREQUENCY   1600			
 // Oversampling filter size (number of readings)
 #define ADC_FILTER_SIZE		 	16							  	
 

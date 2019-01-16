@@ -2,8 +2,7 @@
  * Includes
  ******************************************************************************/
 #include "ADC.h"
-
-#include "adc.h"
+#include "SteeringAngle.h"
 /******************************************************************************
  * Module Preprocessor Constants
  ******************************************************************************/
@@ -58,6 +57,6 @@ void FilterADCReadings(uint32_t ChannelCount, uint32_t FilterSize, volatile uint
 
 void InitADC(void){
 					//Start DMA, ADC, and set the destination memory address.
-				HAL_ADC_Start_DMA(&hadc,  &ADC1_DR,1);
+				HAL_ADC_Start_DMA(&hadc,  (uint32_t*)SteeringAngleADCReadings,1);
 	
 }

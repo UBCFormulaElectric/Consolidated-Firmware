@@ -32,8 +32,7 @@ static const float MIN_STEERING_ANGLE = -110.0;
 // Global variable for steering angle (degrees)
 volatile float SteeringAngle = 0;
 
-//Pointer to array containing the unfiltered SteeringAngleADC ADC readings
-static volatile uint16_t SteeringAngleADCReadings[ADC_CHANNEL_COUNT * ADC_FILTER_SIZE];
+
 
 /******************************************************************************
 * Private Function Prototypes
