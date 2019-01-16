@@ -32,6 +32,6 @@
 /******************************************************************************
  * Function Prototypes
  ******************************************************************************/
-void ErrorHandling_HandleHeartbeatTimeout(void);
+void ErrorHandling_HandleError(PdmError_Enum error);
 
 #endif /* ERRORHANDLING_H */

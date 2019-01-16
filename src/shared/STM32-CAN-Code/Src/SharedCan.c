@@ -376,12 +376,6 @@ __weak void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
               the Can_RxCommonCallback could be implemented in the Can.c file */
 }
 
-void SharedCan_BroadcastHeartbeat(void)
-{
-    uint8_t data[PCB_HEARTBEAT_DLC] = { 0 };
-    SharedCan_TransmitDataCan(PCB_HEARTBEAT_STDID, PCB_HEARTBEAT_DLC, &data[0]);
-}
-
 void SharedCan_BroadcastPcbErrors(Error_Enum errors)
 {
     // Error message is one-hot encoded according to Error_enum and thus
