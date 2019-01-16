@@ -61,7 +61,7 @@ uint8_t GetWheelSpeedFaultState(void);
 
 /**
  * @brief  1. Calculates the front left or right wheel speed in km/h and stores it
- *             2. Stores the current input capture timer value for the next calculation
+ *         2. Stores the current input capture timer value for the next calculation
  * @param Wheel Specify which wheel speed to store
  */
 void SetWheelSpeed(Wheel_Enum Wheel);
