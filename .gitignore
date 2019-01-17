@@ -44,6 +44,10 @@
 # Debugger files
 *.ini
 
+# Python
+Pipfile.lock
+*.pyc
+
 # Other files
 *.build_log.htm
 *.cdb
@@ -58,7 +62,6 @@
 #*.sct
 *.sfd
 *.sfr
-*.pyc
 
 # CMake-relevant files
 CMakeCache.txt

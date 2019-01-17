@@ -1,8 +1,8 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
-#include "Can.h"
-#include "SharedHeartbeat.h"
+#include "SharedFilters.h"
+#include "arm_math.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -22,7 +22,7 @@
 
 /******************************************************************************
  * Private Function Prototypes
- ******************************************************************************/
+ *******************************************************************************/
 
 /******************************************************************************
  * Private Function Definitions
@@ -31,38 +31,23 @@
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void Can_BroadcastAirShutdownError(void)
+void SharedFilters_LowPassFilter(
+    float32_t *input,
+    float32_t *output,
+    uint32_t   sampling_time,
+    uint32_t   rc)
 {
-    // TODO (#Issue 217): Is it ok for payload to be empty?
-    uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = { 0 };
-    SharedCan_TransmitDataCan(
-        BMS_AIR_SHUTDOWN_ERROR_STDID, BMS_AIR_SHUTDOWN_ERROR_DLC, &data[0]);
-}
+    uint32_t smoothing_factor;
 
-void Can_BroadcastMotorShutdownError(void)
-{
-    // TODO (#Issue 217): Is it ok for payload to be empty?
-    uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = { 0 };
-    SharedCan_TransmitDataCan(
-        SHARED_MOTOR_SHUTDOWN_ERROR_STDID, SHARED_MOTOR_SHUTDOWN_ERROR_DLC,
-        &data[0]);
-}
+    smoothing_factor = sampling_time / (rc + sampling_time);
 
-void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
-{
-    CanRxMsg_Struct rx_msg;
-
-    HAL_CAN_GetRxMessage(hcan, rx_fifo, &rx_msg.rx_header, &rx_msg.data[0]);
-
-    // Check for a received heartbeat
-    Heartbeat_HandleHeartbeatReception(rx_msg.rx_header.StdId);
-
-    switch (rx_msg.rx_header.StdId)
+    // The pseudo-code for this LPF implementation is as follows:
+    // y[i] = y[i-1] + SmoothingFactor * ( x[i] - y[i-1] ), where y =
+    // output, x = input. That is, the change from one filter output
+    // to the next is proportional to the difference between the previous
+    // output and the next input.
+    for (uint32_t i = 0; i < sizeof(output) / sizeof(output[0]); i++)
     {
-        case BMS_STARTUP_STDID:
-            // Placeholder
-            break;
-        default:
-            break;
+        output[i] = output[i] + smoothing_factor * (input[i] - output[i]);
     }
 }

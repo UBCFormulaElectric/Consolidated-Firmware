@@ -1,6 +1,9 @@
 # Consolidated-Firmware
 A consolidated repository for gathering all firmware under one roof. 
 
+## Python Setup
+We use python both for CI (see below), and to generate C code from the `.dbc` defining messages passed over CAN. Python dependencies are managed via [pipenv](https://pipenv.readthedocs.io/en/latest/). To install all required dependencies in a [python virtual environment](https://realpython.com/python-virtual-environments-a-primer/), navigate to the root of this repository and run `pipenv install`.
+
 ## Continuous Integration (CI)
 
 We run (and require) continuous integration on every pull request before it is merged. This automatically makes sure the code builds, and checks for formatting errors.

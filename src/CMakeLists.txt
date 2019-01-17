@@ -147,13 +147,25 @@ foreach(MODULE_DIR ${MODULES})
     #Name each executable target ${MODULE_DIR}_CODE
     string(CONCAT exe_name ${MODULE_DIR} "_CODE")
 
+    # BMS-specific flags
+    if(MODULE_DIR STREQUAL BMS)
+        set(MCU -mcpu=cortex-m4)
+        set(FPU -mfpu=fpv4-sp-d16)
+        set(T32 -mthumb)
+        set(FLOAT_ABI -mfloat-abi=soft) 
+        set(BOARD -DSTM32F302x8)  
+        set(MATH_LIB -DARM_MATH_CM4)  
+        set(LINKER_SCRIPT STM32F302R8Tx_FLASH.ld)
+        set(HAL_BOARD_DIR STM32F3xx)
+
     # FSM-specific flags
-    if(MODULE_DIR STREQUAL FSM)
+    elseif(MODULE_DIR STREQUAL FSM)
         set(MCU -mcpu=cortex-m0)
         set(FPU )
         set(T32 -mthumb)
         set(FLOAT_ABI ) 
         set(BOARD -DSTM32F042x6)
+        set(MATH_LIB -DARM_MATH_CM0)
         set(LINKER_SCRIPT STM32F042K6Tx_FLASH.ld)
         set(HAL_BOARD_DIR STM32F0xx)
     
@@ -163,7 +175,8 @@ foreach(MODULE_DIR ${MODULES})
         set(FPU -mfpu=fpv4-sp-d16)
         set(T32 -mthumb)
         set(FLOAT_ABI -mfloat-abi=soft) 
-        set(BOARD -DSTM32F302x8)    
+        set(BOARD -DSTM32F302x8) 
+        set(MATH_LIB -DARM_MATH_CM4)   
         set(LINKER_SCRIPT STM32F302R8Tx_FLASH.ld)
         set(HAL_BOARD_DIR STM32F3xx)
 
@@ -173,7 +186,8 @@ foreach(MODULE_DIR ${MODULES})
         set(FPU -mfpu=fpv4-sp-d16)
         set(T32 -mthumb)
         set(FLOAT_ABI -mfloat-abi=soft) 
-        set(BOARD -DSTM32F302x8)    
+        set(BOARD -DSTM32F302x8)
+        set(MATH_LIB -DARM_MATH_CM4)   
         set(LINKER_SCRIPT STM32F302R8Tx_FLASH.ld)
         set(HAL_BOARD_DIR STM32F3xx)
     
@@ -182,10 +196,11 @@ foreach(MODULE_DIR ${MODULES})
         continue()
     endif()
 
+    # Custom flag detailing the name of the module
     set(BOARD_DEFS -D${MODULE_DIR})
 
     # Target-specific definitions
-    set(TOTAL_TARGET_DEFS ${BOARD} ${TARGET_DEFS} ${BOARD_DEFS} ${TEST_DEFS})
+    set(TOTAL_TARGET_DEFS ${BOARD} ${TARGET_DEFS} ${BOARD_DEFS} ${MATH_LIB} ${TEST_DEFS})
 
     ###  ASM FLAGS  ###
     set(MODULE_ASM_FLAGS ${MCU} ${FPU} ${T32} ${FLOAT_ABI})
@@ -216,6 +231,7 @@ foreach(MODULE_DIR ${MODULES})
     FOREACH(shared_lib_dir ${SHARED_SUBDIRS})
         target_include_directories(${exe_name} PRIVATE shared/${shared_lib_dir}/Inc)    
     ENDFOREACH()
+    target_include_directories(${exe_name} PRIVATE shared)    
 
     ### COMPILER FLAGS ###
     # Add the compiler flags
