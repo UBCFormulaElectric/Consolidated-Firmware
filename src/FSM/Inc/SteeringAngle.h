@@ -1,34 +1,20 @@
 /**
- * @file  Timer.h
- * @brief Library for timer start helper function and timer callbacks
+ * @file  SteeringAngle.h
+ * @brief Function library for the steering angle sensor
  */
 
-#ifndef TIMERS_H
-#define TIMERS_H
+#ifndef STEERINGANGLE_H
+#define STEERINGANGLE_H
 
 /******************************************************************************
  * Includes
  ******************************************************************************/
-#include "stm32f0xx_hal.h"
-
+#include "stdint.h"
+#include "ADC.h"
 /******************************************************************************
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off
-//Primary and secondary timers started in encoder modes to caputure encoder
-// ticks.
-#define PAPPS_TIMER        htim2
-#define SAPPS_TIMER        htim3
-//The control loop timer triggers callback at the set Hz, specifed in tim14
-// settings.
-#define CONTROL_LOOP_TIMER htim14
-//Timer for Front Right wheel speed works as an Input Capture to capture Hall
-// effect sensor ticks.
-#define F_R_WHEELSPEED_TIMER htim16
-//Timer for Front Left Wheel speed.
-#define F_L_WHEELSPEED_TIMER htim17
-//Timer used clock the ADC reading steering wheel potentiometer.
-#define ADC_TIMER htim1
 
 /******************************************************************************
  * Preprocessor Macros
@@ -42,20 +28,30 @@
 /******************************************************************************
  * Global Variables
  ******************************************************************************/
-extern TIM_HandleTypeDef CONTROL_LOOP_TIMER;
-extern TIM_HandleTypeDef PAPPS_TIMER;
-extern TIM_HandleTypeDef SAPPS_TIMER;
-extern TIM_HandleTypeDef F_R_WHEELSPEED_TIMER;
-extern TIM_HandleTypeDef F_L_WHEELSPEED_TIMER;
-extern TIM_HandleTypeDef ADC_TIMER;
+//Pointer to array containing the unfiltered SteeringAngleADC ADC readings
+static volatile uint16_t SteeringAngleADCReadings[ADC_CHANNEL_COUNT * ADC_FILTER_SIZE];
 
 /******************************************************************************
  * Function Prototypes
  ******************************************************************************/
-/**
- * @brief Start timers for control loop, PAPPS, SAPPS, Front Right and Left 
-	*        Wheel sensors.
- */
-void Timers_StartTimers();
 
-#endif /* TIMERS_H */
+/**
+ * @brief  Determines steering angle in degrees based on steering angle potentiometer voltage.
+ * @param  *FilteredADCReadings Filtered ADC readings by computing the mean of prior readings.
+ */
+void CalculateSteeringAngle(float *FilteredADCReadings);
+
+/**
+ * @brief  Determines steering angle in degrees based on steering angle potentiometer voltage.
+ * @return SteeringFaultState
+ */
+uint8_t GetSteeringFaultState(void);
+
+/**
+ * @brief  Determines steering angle in degrees based on filtered steering angle potentiometer
+ *         voltage.
+ * @return SteeringFaultState
+ */
+void GetSteeringAngle(void);
+
+#endif /* STEERINGANGLE_H */

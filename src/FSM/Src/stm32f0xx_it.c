@@ -37,6 +37,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "stm32f0xx_it.h"
+#include "SteeringAngle.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 /* USER CODE END Includes */
@@ -165,7 +166,7 @@ void SysTick_Handler(void)
 void DMA1_Channel1_IRQHandler(void)
 {
     /* USER CODE BEGIN DMA1_Channel1_IRQn 0 */
-
+    GetSteeringAngle();
     /* USER CODE END DMA1_Channel1_IRQn 0 */
     HAL_DMA_IRQHandler(&hdma_adc);
     /* USER CODE BEGIN DMA1_Channel1_IRQn 1 */
