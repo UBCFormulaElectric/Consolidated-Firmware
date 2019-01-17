@@ -43,7 +43,7 @@ static uint32_t vrefint_index = NUM_ADC_CHANNELS;
 static ErrorStatus InitializeAdcMaxValue(ADC_HandleTypeDef *hadc);
 
 /**
- * @brief  Return the calibration data acquired by the ADC during the
+ * @brief  Return the VREFINT calibration value acquired by the ADC during the
  *         manufacturing process at VDDA = 3.3V (Note that this is a 16-bit
  *         value)
  * @return VDDA calibration data
