@@ -32,6 +32,9 @@
 /******************************************************************************
  * Global Variables
  ******************************************************************************/
+// Thesse TIM_HandleTypeDef are declared with the extern keyboard because they
+// are intialized in `main.c`, but we need to reference them in `Timers.c` and
+// `Apps.c`
 extern TIM_HandleTypeDef CONTROL_LOOP_TIMER;
 extern TIM_HandleTypeDef PAPPS_TIMER;
 extern TIM_HandleTypeDef SAPPS_TIMER;
