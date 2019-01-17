@@ -77,7 +77,7 @@ static ErrorStatus InitializeAdcMaxValue(ADC_HandleTypeDef *hadc)
 
 static uint16_t GetVddaCalibrationData(void)
 {
-    return (uint16_t)(*VREFINT_CAL_ADDRESS);
+    return (uint16_t)(*VREFINT_CALIBRATION_ADDRESS);
 }
 
 /******************************************************************************

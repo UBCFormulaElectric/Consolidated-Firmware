@@ -31,10 +31,10 @@
 // values: Raw ADC data acquired at temperature of 30 degC with VDDA = 3.3V 
 // during the manufacturing process
 #ifdef STM32F302x8
-#define VREFINT_CAL_ADDRESS		(uint16_t *)(0x1FFFF7BA)
+#define VREFINT_CALIBRATION_ADDRESS		(uint16_t *)(0x1FFFF7BA)
 #elif STM32F042x6
 #else
-#define VREFINT_CAL_ADDRESS		(uint16_t *)(0x1FFFF7BA)
+#define VREFINT_CALIBRATION_ADDRESS		(uint16_t *)(0x1FFFF7BA)
 #error
     "No valid architecture selected - unable to determine what HAL library to use"
 #endif
