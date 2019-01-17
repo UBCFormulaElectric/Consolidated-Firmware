@@ -59,7 +59,8 @@
 /** @brief Nominal voltage for VDDA, or ADC power supply */
 #define VDDA_VOLTAGE (float32_t)(3.3f)
 
-/** @brief Number of Vrefint channel */
+/** @brief Number of VREFINT channel. VREFINT is the internal voltage reference 
+ *         that provides a stable (bandgap) voltage output for the ADC. */
 #define NUM_VREFINT_CHANNEL 1
 
 /******************************************************************************
