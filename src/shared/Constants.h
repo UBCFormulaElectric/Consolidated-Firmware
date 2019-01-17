@@ -28,4 +28,10 @@
 
 // clang-format on
 
+
+// Diameter of the tire (m)
+static const float TIRE_DIAMETER_IN_METERS = 0.52;				
+// Wheel speed limits (km/h)
+static const float MAX_WHEEL_SPEED = 200.0;
+
 #endif /* CONSTANTS_H */
