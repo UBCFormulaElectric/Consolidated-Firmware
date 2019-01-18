@@ -24,6 +24,9 @@
 // IWDG_HandleTypeDef hiwdg is not initialized on system boot-up
 static bool iwdg_initialized = false;
 
+// A copy of the pointer to hiwdg just for this translation unit
+static IWDG_HandleTypeDef *hiwdg_ptr;
+
 /******************************************************************************
  * Private Function Prototypes
  *******************************************************************************/
@@ -37,16 +40,15 @@ static bool iwdg_initialized = false;
  ******************************************************************************/
 void SharedWatchdog_RefreshIwdg(void)
 {
-    extern IWDG_HandleTypeDef hiwdg;
-
     if (SharedWatchdog_IsIwdgInitialized())
     {
-        HAL_IWDG_Refresh(&hiwdg);
+        HAL_IWDG_Refresh(hiwdg_ptr);
     }
 }
 
-void SharedWatchdog_SetIwdgInitialized(void)
+void SharedWatchdog_SetIwdgInitialized(IWDG_HandleTypeDef *hiwdg)
 {
+    hiwdg_ptr = hiwdg;
     iwdg_initialized = true;
 }
 

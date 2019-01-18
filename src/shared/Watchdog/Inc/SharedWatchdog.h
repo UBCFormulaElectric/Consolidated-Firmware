@@ -49,9 +49,11 @@ void SharedWatchdog_RefreshIwdg(void);
 
 /**
  * @brief Set the boolean flag to indicate that the IWDG handle is initialized
- *        (To be used at the end of MX_IWDG_Init)
+ *        (To be used at the end of MX_IWDG_Init). And save a copy of the
+ *        pointer to the IWDG handle.
+ * @param hiwdg Pointer to the independent watchdog timer handle
  */
-void SharedWatchdog_SetIwdgInitialized(void);
+void SharedWatchdog_SetIwdgInitialized(IWDG_HandleTypeDef *hiwdg);
 
 /**
  * @brief  Check if the IWDG handle is initialized yet
