@@ -283,11 +283,6 @@ HAL_StatusTypeDef SharedCan_ReceiveDataCan(
     CanRxMsg_Struct *  rx_msg);
 
 /**
- * @brief Broadcast heartbeat message for the current PCB
- */
-void SharedCan_BroadcastHeartbeat(void);
-
-/**
  * @brief Send CAN message one-hot encoded for one or more errors
  * @param Error_Enum One or more errors OR'd together (Note: This enum is
  *        board-specific and depends on the PCB preprocessor symbol)
