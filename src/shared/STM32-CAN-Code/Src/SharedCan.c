@@ -436,7 +436,6 @@ HAL_StatusTypeDef SharedCan_ReceiveDataCan(
     return status;
 }
 
-
 void SharedCan_BroadcastPcbErrors(Error_Enum errors)
 {
     // Error message is one-hot encoded according to Error_enum and thus
