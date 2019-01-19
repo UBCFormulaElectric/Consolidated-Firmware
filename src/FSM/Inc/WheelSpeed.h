@@ -67,5 +67,14 @@ float GetRightWheelSpeed(void);
  */
 void WS_HandleWheelSpeed(void);
 
+/**
+ * @brief Increments counter whenever control loop runs i.e gets the wheel speed
+ *           Reset whenever wheel speed is set, if we exceed threshold set 
+ *           set wheel speed to 0. (No IC call back we are startionary)
+ */
+void WheelSpeedIncrementControlLoopCounter(void);
+
+
+
 #endif /* WHEELSPEED_H */
 

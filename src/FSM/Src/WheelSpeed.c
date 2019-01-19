@@ -47,6 +47,12 @@ static volatile uint16_t prev_front_left_wheel_speed_timer_value = 0;
 volatile float front_left_wheel_speed = 0;
 volatile float front_right_wheel_speed = 0;
 
+// Counts the number of times control loop has ran scince Wheel speed
+// has been updated
+volatile uint8_t control_loop_count = 0;
+// Max iterations of control loop without wheel speed update before Wheel Speed is set to zero.
+static const uint8_t MAX_CONTROL_LOOP_COUNT_BEFORE_W_S_UPDATE = 100;
+
 /******************************************************************************
 * Private Function Prototypes
 *******************************************************************************/
@@ -57,6 +63,11 @@ volatile float front_right_wheel_speed = 0;
  * @return  Wheel speed in km/h
  */
 float CalculateWheelSpeed(uint16_t curr_timer_value, uint16_t prev_timer_value);
+
+/**
+ * @brief Resets control loop counter, set when we update wheel speed.
+ */
+void ResetControlLoopCounter(void);
 
 /******************************************************************************
  * Private Function Definitions
@@ -86,6 +97,11 @@ float CalculateWheelSpeed(uint16_t curr_timer_value, uint16_t prev_timer_value)
 
 	return wheelspeed;
 }
+
+void ResetControlLoopCounter(void){
+	control_loop_count = 0;
+}
+
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
@@ -94,6 +110,7 @@ float CalculateWheelSpeed(uint16_t curr_timer_value, uint16_t prev_timer_value)
 
 
 void SetWheelSpeed(Wheel_Enum Wheel, uint32_t curr_timer_val){
+	ResetControlLoopCounter();
 	if(Wheel == F_R_WHEEL){
 
 		// Calculate front right wheel speed
@@ -128,3 +145,19 @@ float GetRightWheelSpeed(void){
 void WS_HandleWheelSpeed(void){
 	/** Transmit Wheel Speed over CAN**/
 }
+
+void WheelSpeedIncrementControlLoopCounter(void){
+	// Not need to keep counting above max control loop counter.
+	if(control_loop_count <= MAX_CONTROL_LOOP_COUNT_BEFORE_W_S_UPDATE){
+	
+		control_loop_count++;
+	}
+	
+	if(control_loop_count >= MAX_CONTROL_LOOP_COUNT_BEFORE_W_S_UPDATE){
+		
+		front_left_wheel_speed = 0;
+		front_right_wheel_speed = 0;
+	}
+	
+}
+	

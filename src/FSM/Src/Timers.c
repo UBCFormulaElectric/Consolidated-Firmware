@@ -40,6 +40,8 @@ static void HandleSensorData(void);
  ******************************************************************************/
 static void ControlLoop(void)
 {
+		
+		WheelSpeedIncrementControlLoopCounter();
     HandleSensorData();
     
 }
@@ -58,8 +60,12 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     if (htim == &CONTROL_LOOP_TIMER)
     {
         ControlLoop();
-    }else if (htim == &F_R_WHEELSPEED_TIMER){
-        uint32_t timer_val = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
+    }
+}
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim){
+    if (htim == &F_R_WHEELSPEED_TIMER){
+       uint32_t timer_val = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
         SetWheelSpeed(F_R_WHEEL, timer_val);
     }else if(htim == &F_L_WHEELSPEED_TIMER){
         uint32_t timer_val = HAL_TIM_ReadCapturedValue(htim, TIM_CHANNEL_1);
