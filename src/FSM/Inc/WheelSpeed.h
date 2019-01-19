@@ -62,5 +62,10 @@ float GetLeftWheelSpeed(void);
  */
 float GetRightWheelSpeed(void);
 
+/**
+ * @brief Transmits Wheel speed over CAN.
+ */
+void WS_HandleWheelSpeed(void);
+
 #endif /* WHEELSPEED_H */
 

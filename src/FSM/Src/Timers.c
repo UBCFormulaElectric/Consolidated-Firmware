@@ -5,6 +5,7 @@
 #include "Timers.h"
 #include "WheelSpeed.h"
 
+
 /******************************************************************************
  * Module Preprocessor Constants
  ******************************************************************************/
@@ -40,11 +41,13 @@ static void HandleSensorData(void);
 static void ControlLoop(void)
 {
     HandleSensorData();
+    
 }
 
 static void HandleSensorData(void)
 {
     Apps_HandleAcceleratorPedalPosition();
+	  WS_HandleWheelSpeed();
 }
 
 /******************************************************************************

@@ -124,3 +124,7 @@ float GetLeftWheelSpeed(void){
 float GetRightWheelSpeed(void){
 	return front_right_wheel_speed;
 }
+
+void WS_HandleWheelSpeed(void){
+	/** Transmit Wheel Speed over CAN**/
+}
