@@ -24,6 +24,16 @@
 #endif
 
 /******************************************************************************
+ * Fixes to allow us to use this library with STM32F0xx Boards
+ ******************************************************************************/
+#ifdef STM32F042x6
+typedef CanRxMsgTypeDef       CAN_RxHeaderTypeDef;
+typedef CanTxMsgTypeDef       CAN_TxHeaderTypeDef;
+typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
+#define CAN_FILTER_ENABLE ENABLE
+#endif
+
+/******************************************************************************
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off
@@ -256,6 +266,21 @@ void SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan);
  * @param  rx_fifo The Rx FIFO that triggered the callback
  */
 void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo);
+
+/**
+ * @brief Get the CAN message that has just been received. This is usually
+ *        called from within Can_RxCommonCallback.
+ * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
+ *         the configuration information for the specified CAN.
+ * @param  rx_fifo The Rx FIFO to get the message from
+ * @param  rx_msg This struct will be populated appropriately with the received
+ *         CAN message
+ * @return HAL_STATUS
+ */
+HAL_StatusTypeDef SharedCan_ReceiveDataCan(
+    CAN_HandleTypeDef *hcan,
+    uint32_t           rx_fifo,
+    CanRxMsg_Struct *  rx_msg);
 
 /**
  * @brief Send CAN message one-hot encoded for one or more errors
