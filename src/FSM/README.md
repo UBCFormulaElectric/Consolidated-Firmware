@@ -1,4 +1,11 @@
 ## Overview
+## Testing Plan
+In no partciular order, the following tests may be carried out to validate the system's behaviours:
+1. Toogle the RGB LED inside `ControlLoop()` to validate the Control Loop frequency is 100Hz
+1. Press the pedal all the way down and update `PRIMARY_APPS_MAX_VALUE` and `SECONDARY_APPS_MAX_VALUE` with the obsereved APPS values. These two values are supposed to represent the maximum possible pedal travel without damaging the pedal box.
+1. Validate that `Gpio_TurnOnRedLed()`, `Gpio_TurnOnGreenLed()`, and `Gpio_TurnOnBlueLed()` toggle the RGB LED correctly
+1. Validate that the deadzone threshold and underflow threshold in `GetPercentAcceleratorPedalPosition()` are reasonable. 
+
 ## Peripheral Configuration Notes
 1. **`Auto-Reload Preload` is set to **Disabled** for every timer**
    - *The content of the preload register are transferred into the shadow register permanently or at each update event (UEV), depending on the auto-reload preload enable bit (ARPE). (Pg 322 in RM0091.pdf)*

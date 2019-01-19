@@ -2,12 +2,33 @@
  * Includes
  ******************************************************************************/
 #include "Apps.h"
-#include "Gpio.h"
+#include "Timers.h"
 #include "main.h"
+#include "Constants.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
  ******************************************************************************/
+// Maximum PAPPS value that should not be exceeded or else the pedal box may
+// physically break. This should be manually calibrated every once in a while.
+#define PRIMARY_APPS_MAX_VALUE (uint32_t)(1400)
+
+// Maximum SAPPS value that should not be exceeded or else the pedal box may
+// physically break. This should be manually calibrated every once in a while.
+#define SECONDARY_APPS_MAX_VALUE (uint32_t)(1950)
+
+// The driver should not have to push the pedal to its maximum travel
+// to request maximum torque or else the pedal box will wear out more
+// easily
+#define APPS_SATURATION_THRESHOLD (float32_t)(0.80f)
+
+// The initial pedal travel is treated as a "deadzone" - as if the pedal was
+// not pressed at all
+#define PAPPS_DEADZONE_THRESHOLD (float32_t)(0.04f)
+
+// If the encoder reading is larger than this threshold, then the pedal has
+// likely deflected beyond its original position
+#define APPS_UNDERFLOW_THRESHOLD (float32_t)(0.95f)
 
 /******************************************************************************
  * Module Preprocessor Macros
@@ -26,21 +47,21 @@
  ******************************************************************************/
 /**
  * @brief  Calculate the appropriate accelerator pedal position as a percentage
- *         based on PAPPS position value and brake pedal status
+ *         [0.0 to 1.0]
  * @return The accelerator pedal position
  */
-static float32_t GetPercentAcceleratorPedalPosition(float32_t papps_value);
+static float32_t GetPercentAcceleratorPedalPosition(void);
 
 /**
- * @brief  Read PAPPS encoder counter value as a percentage and adjust it as
- *         needed
+ * @brief  Read PAPPS encoder counter value as a percentage [0.0 to 1.0] and
+ *         adjust it as needed
  * @return PAPPS value
  */
 static float32_t GetPercentPapps(void);
 
 /**
- * @brief  Read SAPPS encoder counter value as a percentage and adjust it as
- *         needed
+ * @brief  Read SAPPS encoder counter value as a percentage [0.0 to 1.0] and
+ *         adjust it as needed
  * @return SAPPS value
  */
 static float32_t GetPercentSapps(void);
@@ -48,16 +69,15 @@ static float32_t GetPercentSapps(void);
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
-static float32_t GetPercentAcceleratorPedalPosition(float32_t percent_papps)
+static float32_t GetPercentAcceleratorPedalPosition(void)
 {
+    float32_t percent_papps = GetPercentPapps();
+    float32_t percent_sapps = GetPercentSapps();
+
     float32_t percent_accelerator_pedal_position;
 
-    if (Gpio_IsBrakePressed() || (percent_papps < PAPPS_DEADZONE_THRESHOLD))
+    if (percent_papps < PAPPS_DEADZONE_THRESHOLD)
     {
-        // The following conditions require zero torque requests:
-        // 1. When the brake pedal is pressed
-        // 2. When PAPPS reading is less than the pedal travel deadzone
-        // threshold
         percent_accelerator_pedal_position = 0.0f;
     }
     else
@@ -78,7 +98,7 @@ static float32_t GetPercentPapps(void)
     // When the driver lets go of the pedal, it might deflect beyond the
     // starting position due to mechanical tolerance. This will cause the
     // encoder value to underflow. For example, when the driver lets go of the
-    // accelerator pedal, the encoder may end up on tick (ENCODER_MAX_COUNT -
+    // accelerator pedal, the encoder may end up on tick (SAPPS_AND_PAPPS_ENCODER_MAX_COUNT -
     // 10) instead of tick 0
     if (percent_papps > APPS_UNDERFLOW_THRESHOLD)
     {
@@ -102,13 +122,13 @@ static float32_t GetPercentSapps(void)
     // timer (TIM3) is counting down. As a result, we need to adjust the SAPPS
     // timer count by subtracing it from the max count.)
     float32_t percent_sapps =
-        (ENCODER_MAX_COUNT - __HAL_TIM_GET_COUNTER(&SAPPS_TIMER)) /
+        (SAPPS_AND_PAPPS_ENCODER_MAX_COUNT - __HAL_TIM_GET_COUNTER(&SAPPS_TIMER)) /
         ((float32_t)(SECONDARY_APPS_MAX_VALUE)*APPS_SATURATION_THRESHOLD);
 
     // When the driver lets go of the pedal, it might deflect beyond the
     // starting position due to mechanical tolerance. This will cause the
     // encoder value to underflow. For example, when the driver lets go of the
-    // accelerator pedal, the encoder may end up on tick (ENCODER_MAX_COUNT -
+    // accelerator pedal, the encoder may end up on tick (SAPPS_AND_PAPPS_ENCODER_MAX_COUNT -
     // 10) instead of tick 0
     if (percent_sapps > APPS_UNDERFLOW_THRESHOLD)
     {
@@ -130,10 +150,9 @@ static float32_t GetPercentSapps(void)
  ******************************************************************************/
 void Apps_HandleAcceleratorPedalPosition(void)
 {
-    float32_t percent_papps = GetPercentPapps();
-    float32_t percent_sapps = GetPercentSapps();
     float32_t percent_accelerator_pedal_position =
-        GetPercentAcceleratorPedalPosition(percent_papps);
+        GetPercentAcceleratorPedalPosition();
 
-    // TODO (Issue #273): Transmit accelerator pedal position over CAN
+    // TODO (Issue #273): Transmit accelerator pedal position over CAN. Make
+    // sure to add "is brake pressed" check here.
 }
