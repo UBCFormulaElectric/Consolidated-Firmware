@@ -44,7 +44,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+
 #include "Timers.h"
+
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -289,7 +292,7 @@ static void MX_CAN_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN CAN_Init 2 */
-
+    SharedCan_StartCanInInterruptMode(&hcan);
     /* USER CODE END CAN_Init 2 */
 }
 
