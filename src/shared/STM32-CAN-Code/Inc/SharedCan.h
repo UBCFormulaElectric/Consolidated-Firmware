@@ -41,6 +41,8 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
 #define CAN_ExtID_NULL 0 // Set CAN Extended ID to 0 because we are not using it
 #define CAN_TX_MSG_FIFO_SIZE 20 // Size of CAN FIFO is arbitrary at the moment
 
+#define FSM 1
+
 #ifdef PDM
     #define CAN_TX_FIFO_OVERFLOW_STDID  PDM_CAN_TX_FIFO_OVERFLOW_STDID
     #define CAN_TX_FIFO_OVERFLOW_DLC    PDM_CAN_TX_FIFO_OVERFLOW_DLC

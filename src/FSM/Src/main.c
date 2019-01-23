@@ -46,7 +46,7 @@
 /* USER CODE BEGIN Includes */
 
 #include "Timers.h"
-
+#include "SharedCan.h"
 
 /* USER CODE END Includes */
 
