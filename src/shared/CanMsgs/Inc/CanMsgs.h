@@ -33,40 +33,65 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stdlib.h>
 
 #ifndef EINVAL
 #    define EINVAL 22
 #endif
 
-#define CANMSGS_symbol1_FRAME_ID (0x00u)
-
-
-
-
+#define CANMSGS_fsm_errors_FRAME_ID (0x40u)
+#define CANMSGS_fsm_can_tx_fifo_overflow_FRAME_ID (0x42u)
+#define CANMSGS_fsm_startup_FRAME_ID (0x00u)
 
 /**
- * Signals in message Symbol1.
+ * Signals in message FSM_ERRORS.
  *
  * All signal values are as on the CAN bus.
  */
-struct CanMsgs_symbol1_t {
+struct CanMsgs_fsm_errors_t {
     /**
-     * Range: -
+     * Range: 0..1 (0..1 -)
      * Scale: 1
      * Offset: 0
      */
-    uint8_t some_enum;
+    uint8_t papps_out_of_range;
 
     /**
-     * Range: -
+     * Range: 0..1 (0..1 -)
      * Scale: 1
      * Offset: 0
      */
-    uint8_t enum_signal;
+    uint8_t sapps_out_of_range;
 };
 
 /**
- * Pack message Symbol1.
+ * Signals in message FSM_CAN_TX_FIFO_OVERFLOW.
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_fsm_can_tx_fifo_overflow_t {
+    /**
+     * Range: -
+     * Scale: 1
+     * Offset: 0
+     */
+    uint32_t overflow_count;
+};
+
+/**
+ * Signals in message FSM_STARTUP.
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_fsm_startup_t {
+    /**
+     * Dummy signal in empty message.
+     */
+    uint8_t dummy;
+};
+
+/**
+ * Pack message FSM_ERRORS.
  *
  * @param[out] dst_p Buffer to pack the message into.
  * @param[in] src_p Data to pack.
@@ -74,13 +99,13 @@ struct CanMsgs_symbol1_t {
  *
  * @return Size of packed data, or negative error code.
  */
-int CanMsgs_symbol1_pack(
+int CanMsgs_fsm_errors_pack(
     uint8_t *dst_p,
-    const struct CanMsgs_symbol1_t *src_p,
+    const struct CanMsgs_fsm_errors_t *src_p,
     size_t size);
 
 /**
- * Unpack message Symbol1.
+ * Unpack message FSM_ERRORS.
  *
  * @param[out] dst_p Object to unpack the message into.
  * @param[in] src_p Message to unpack.
@@ -88,8 +113,8 @@ int CanMsgs_symbol1_pack(
  *
  * @return zero(0) or negative error code.
  */
-int CanMsgs_symbol1_unpack(
-    struct CanMsgs_symbol1_t *dst_p,
+int CanMsgs_fsm_errors_unpack(
+    struct CanMsgs_fsm_errors_t *dst_p,
     const uint8_t *src_p,
     size_t size);
 
@@ -100,7 +125,7 @@ int CanMsgs_symbol1_unpack(
  *
  * @return Encoded signal.
  */
-uint8_t CanMsgs_symbol1_some_enum_encode(double value);
+uint8_t CanMsgs_fsm_errors_papps_out_of_range_encode(double value);
 
 /**
  * Decode given signal by applying scaling and offset.
@@ -109,7 +134,7 @@ uint8_t CanMsgs_symbol1_some_enum_encode(double value);
  *
  * @return Decoded signal.
  */
-double CanMsgs_symbol1_some_enum_decode(uint8_t value);
+double CanMsgs_fsm_errors_papps_out_of_range_decode(uint8_t value);
 
 /**
  * Check that given signal is in allowed range.
@@ -118,7 +143,7 @@ double CanMsgs_symbol1_some_enum_decode(uint8_t value);
  *
  * @return true if in range, false otherwise.
  */
-bool CanMsgs_symbol1_some_enum_is_in_range(uint8_t value);
+bool CanMsgs_fsm_errors_papps_out_of_range_is_in_range(uint8_t value);
 
 /**
  * Encode given signal by applying scaling and offset.
@@ -127,7 +152,7 @@ bool CanMsgs_symbol1_some_enum_is_in_range(uint8_t value);
  *
  * @return Encoded signal.
  */
-uint8_t CanMsgs_symbol1_enum_signal_encode(double value);
+uint8_t CanMsgs_fsm_errors_sapps_out_of_range_encode(double value);
 
 /**
  * Decode given signal by applying scaling and offset.
@@ -136,7 +161,7 @@ uint8_t CanMsgs_symbol1_enum_signal_encode(double value);
  *
  * @return Decoded signal.
  */
-double CanMsgs_symbol1_enum_signal_decode(uint8_t value);
+double CanMsgs_fsm_errors_sapps_out_of_range_decode(uint8_t value);
 
 /**
  * Check that given signal is in allowed range.
@@ -145,6 +170,89 @@ double CanMsgs_symbol1_enum_signal_decode(uint8_t value);
  *
  * @return true if in range, false otherwise.
  */
-bool CanMsgs_symbol1_enum_signal_is_in_range(uint8_t value);
+bool CanMsgs_fsm_errors_sapps_out_of_range_is_in_range(uint8_t value);
+
+/**
+ * Pack message FSM_CAN_TX_FIFO_OVERFLOW.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_fsm_can_tx_fifo_overflow_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_fsm_can_tx_fifo_overflow_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message FSM_CAN_TX_FIFO_OVERFLOW.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_fsm_can_tx_fifo_overflow_unpack(
+    struct CanMsgs_fsm_can_tx_fifo_overflow_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+uint32_t CanMsgs_fsm_can_tx_fifo_overflow_overflow_count_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_fsm_can_tx_fifo_overflow_overflow_count_decode(uint32_t value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_fsm_can_tx_fifo_overflow_overflow_count_is_in_range(uint32_t value);
+
+/**
+ * Pack message FSM_STARTUP.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_fsm_startup_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_fsm_startup_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message FSM_STARTUP.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_fsm_startup_unpack(
+    struct CanMsgs_fsm_startup_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
 
 #endif

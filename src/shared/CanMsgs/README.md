@@ -16,3 +16,12 @@ This folder contains everything to do with the CAN messages that we send between
  - `CanMsgs_MSG_NAME_unpack`: a function to unpack a given data array into a `CanMsgs_MSG_NAME_t` struct 
 
  There are other functions in `CanMsgs.h`, but in almost all cases these should **not** be used.
+
+ ## Reserved Ranges
+ *These are ranges that have already been reserved for specific purposes/boards. They should _not_ be used for **anything** other then their intended purpose.
+- `0x00 to 0x1F` (**BMS**): CAN messages sent from the BMS
+- `0x20 to 0x3F` (**DCM**): CAN messages sent from the DCM
+- `0x40 to 0x5F` (**FSM**): CAN messages sent from the FSM
+- `0x00 to 0x1F` (**Shared**): general CAN messages that could be sent from anywhere
+- `0x00 to 0x1F` (**BAMOCAR Rx**): CAN messages received by our BAMOCAR charger
+- `0x00 to 0x1F` (**BAMOCAR Tx**): CAN messages sent from our BAMOCAR charger

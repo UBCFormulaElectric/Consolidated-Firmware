@@ -10,6 +10,7 @@
  * Includes
  ******************************************************************************/
 #include "CanDefinitions.h"
+#include "CanMsgs.h"
 
 // Check for STM32 microcontroller family
 #ifdef STM32F302x8
@@ -50,13 +51,9 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
     #define PCB_ERROR_STDID             PDM_ERROR_STDID
     #define PCB_ERROR_DLC               PDM_ERROR_DLC
 #elif FSM
-    #define CAN_TX_FIFO_OVERFLOW_STDID  FSM_CAN_TX_FIFO_OVERFLOW_STDID
-    #define CAN_TX_FIFO_OVERFLOW_DLC    FSM_CAN_TX_FIFO_OVERFLOW_DLC
-    #define PCB_STARTUP_STDID           FSM_STARTUP_STDID
-    #define PCB_STARTUP_DLC             FSM_STARTUP_DLC
-    #define Error_Enum                  FsmError_Enum
-    #define PCB_ERROR_STDID             FSM_ERROR_STDID
-    #define PCB_ERROR_DLC               FSM_ERROR_DLC
+    // TODO: Note here about assumptions we make about the length of this message
+    #define CAN_TX_FIFO_OVERFLOW_STDID      CANMSGS_fsm_can_tx_fifo_overflow_FRAME_ID
+    #define PCB_STARTUP_STDID               CANMSGS_fsm_startup_FRAME_ID
 #elif BMS
     #define CAN_TX_FIFO_OVERFLOW_STDID  BMS_CAN_TX_FIFO_OVERFLOW_STDID
     #define CAN_TX_FIFO_OVERFLOW_DLC    BMS_CAN_TX_FIFO_OVERFLOW_DLC
@@ -186,6 +183,7 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
 #define MASKMODE_16BIT_MASK_BAMOCAR_RX INIT_MASKMODE_16BIT_FiRx(0x7F0, 0x1, 0x1, 0x0)
 
 /** Setup for CAN message callbacks */
+// TODO: Can we output a cleaner error message if the message ID DNE?
 #define SHAREDCAN_CAN_MSG_TO_CALLBACK_MAPPING(MSG_STD_ID, MSG_DATA_PTR) \
     uint8_t* ___msg_data = MSG_DATA_PTR; \
     switch(MSG_STD_ID)
@@ -199,11 +197,12 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
  *        msg when it is received
  */
 // TODO (Issue #315): Do something with error code if unpacking fails here!
+// TODO: Can we output a cleaner error message if the message name DNE?
 #define SHAREDCAN_IF_STDID_IS(MSG_NAME, MSG_CALLBACK_FUNCTION) \
     struct CanMsgs_##MSG_NAME##_t ___msg_struct; \
     CanMsgs_##MSG_NAME##_unpack(&___msg_struct, ___msg_data, 8);  \
-    MSG_CALLBACK_FUNCTION(___msg_struct) \
-    break;
+    MSG_CALLBACK_FUNCTION(___msg_struct); \
+    break
 
 /**
  * @brief Send the given CAN message
@@ -211,12 +210,13 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
  * @param MSG_STRUCT a struct of type `CanMsgs_MSG_NAME_t`, that will be
  *        packed and sent over the CAN bus
  */
+// TODO: Can we output a cleaner error message if the message name DNE?
 #define SHAREDCAN_SEND_CAN_MSG(MSG_NAME, MSG_STRUCT) \
     uint8_t ___data[8]; \
-    CanMsgs_##MSG_NAME##_unpack(&___data[0], MSG_STRUCT, 8) \
+    int ___size = CanMsgs_##MSG_NAME##_pack(&___data[0], MSG_STRUCT, 8); \
     SharedCan_TransmitDataCan(CANMSGS_##MSG_NAME##_FRAME_ID, \
-                              CANMSGS_##MSG_NAME##_DATA_LENGTH_CODE, \
-                              &___data[0]);
+                              (size_t)___size, \
+                              &___data[0])
 
 
 /******************************************************************************
@@ -274,15 +274,14 @@ extern CAN_HandleTypeDef hcan;
  ******************************************************************************/
 /**
  * @brief  Transmits a CAN message
- * @param  std_id Standard CAN ID
- * @param  dlc Data length code (Indiciates the number of bytes of data being
- *         transmitted)
+ * @param  std_id Standard CAN ID of the message to send
+ * @param  dlc Data length code, indicates the length of the message in bytes
  * @param  data Pointer to an uint8_t array with 8 elements (64-bits in total).
  */
 void SharedCan_TransmitDataCan(
-    CanStandardId_Enum     std_id,
-    CanDataLengthCode_Enum dlc,
-    uint8_t *              data);
+    unsigned int    std_id,
+    unsigned int    dlc,
+    uint8_t *       data);
 
 /**
  * @brief  Initialize CAN interrupts and CAN filters before starting the CAN
@@ -315,12 +314,5 @@ HAL_StatusTypeDef SharedCan_ReceiveDataCan(
     CAN_HandleTypeDef *hcan,
     uint32_t           rx_fifo,
     CanRxMsg_Struct *  rx_msg);
-
-/**
- * @brief Send CAN message one-hot encoded for one or more errors
- * @param Error_Enum One or more errors OR'd together (Note: This enum is
- *        board-specific and depends on the PCB preprocessor symbol)
- */
-void SharedCan_BroadcastPcbErrors(Error_Enum error);
 
 #endif /* SHARED_CAN_H */

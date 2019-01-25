@@ -30,7 +30,7 @@
 
 #include <string.h>
 
-#include "Inc/CanMsgs.h"
+#include "CanMsgs.h"
 
 static inline uint8_t pack_left_shift_u8(
     uint8_t value,
@@ -40,20 +40,28 @@ static inline uint8_t pack_left_shift_u8(
     return (uint8_t)((uint8_t)(value << shift) & mask);
 }
 
-static inline uint8_t pack_right_shift_u8(
-    uint8_t value,
+static inline uint8_t pack_left_shift_u32(
+    uint32_t value,
+    uint8_t shift,
+    uint8_t mask)
+{
+    return (uint8_t)((uint8_t)(value << shift) & mask);
+}
+
+static inline uint8_t pack_right_shift_u32(
+    uint32_t value,
     uint8_t shift,
     uint8_t mask)
 {
     return (uint8_t)((uint8_t)(value >> shift) & mask);
 }
 
-static inline uint8_t unpack_left_shift_u8(
+static inline uint32_t unpack_left_shift_u32(
     uint8_t value,
     uint8_t shift,
     uint8_t mask)
 {
-    return (uint8_t)((uint8_t)(value & mask) << shift);
+    return (uint32_t)((uint32_t)(value & mask) << shift);
 }
 
 static inline uint8_t unpack_right_shift_u8(
@@ -64,9 +72,17 @@ static inline uint8_t unpack_right_shift_u8(
     return (uint8_t)((uint8_t)(value & mask) >> shift);
 }
 
-int CanMsgs_symbol1_pack(
+static inline uint32_t unpack_right_shift_u32(
+    uint8_t value,
+    uint8_t shift,
+    uint8_t mask)
+{
+    return (uint32_t)((uint32_t)(value & mask) >> shift);
+}
+
+int CanMsgs_fsm_errors_pack(
     uint8_t *dst_p,
-    const struct CanMsgs_symbol1_t *src_p,
+    const struct CanMsgs_fsm_errors_t *src_p,
     size_t size)
 {
     if (size < 8u) {
@@ -75,15 +91,14 @@ int CanMsgs_symbol1_pack(
 
     memset(&dst_p[0], 0, 8);
 
-    dst_p[5] |= pack_left_shift_u8(src_p->some_enum, 0u, 0x01u);
-    dst_p[5] |= pack_left_shift_u8(src_p->enum_signal, 1u, 0xfeu);
-    dst_p[6] |= pack_right_shift_u8(src_p->enum_signal, 7u, 0x01u);
+    dst_p[0] |= pack_left_shift_u8(src_p->papps_out_of_range, 0u, 0x01u);
+    dst_p[0] |= pack_left_shift_u8(src_p->sapps_out_of_range, 1u, 0x02u);
 
     return (8);
 }
 
-int CanMsgs_symbol1_unpack(
-    struct CanMsgs_symbol1_t *dst_p,
+int CanMsgs_fsm_errors_unpack(
+    struct CanMsgs_fsm_errors_t *dst_p,
     const uint8_t *src_p,
     size_t size)
 {
@@ -93,41 +108,125 @@ int CanMsgs_symbol1_unpack(
 
     memset(dst_p, 0, sizeof(*dst_p));
 
-    dst_p->some_enum |= unpack_right_shift_u8(src_p[5], 0u, 0x01u);
-    dst_p->enum_signal |= unpack_right_shift_u8(src_p[5], 1u, 0xfeu);
-    dst_p->enum_signal |= unpack_left_shift_u8(src_p[6], 7u, 0x01u);
+    dst_p->papps_out_of_range |= unpack_right_shift_u8(src_p[0], 0u, 0x01u);
+    dst_p->sapps_out_of_range |= unpack_right_shift_u8(src_p[0], 1u, 0x02u);
 
     return (0);
 }
 
-uint8_t CanMsgs_symbol1_some_enum_encode(double value)
+uint8_t CanMsgs_fsm_errors_papps_out_of_range_encode(double value)
 {
     return (uint8_t)(value);
 }
 
-double CanMsgs_symbol1_some_enum_decode(uint8_t value)
+double CanMsgs_fsm_errors_papps_out_of_range_decode(uint8_t value)
 {
     return ((double)value);
 }
 
-bool CanMsgs_symbol1_some_enum_is_in_range(uint8_t value)
+bool CanMsgs_fsm_errors_papps_out_of_range_is_in_range(uint8_t value)
 {
     return (value <= 1u);
 }
 
-uint8_t CanMsgs_symbol1_enum_signal_encode(double value)
+uint8_t CanMsgs_fsm_errors_sapps_out_of_range_encode(double value)
 {
     return (uint8_t)(value);
 }
 
-double CanMsgs_symbol1_enum_signal_decode(uint8_t value)
+double CanMsgs_fsm_errors_sapps_out_of_range_decode(uint8_t value)
 {
     return ((double)value);
 }
 
-bool CanMsgs_symbol1_enum_signal_is_in_range(uint8_t value)
+bool CanMsgs_fsm_errors_sapps_out_of_range_is_in_range(uint8_t value)
+{
+    return (value <= 1u);
+}
+
+int CanMsgs_fsm_can_tx_fifo_overflow_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_fsm_can_tx_fifo_overflow_t *src_p,
+    size_t size)
+{
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    dst_p[0] |= pack_left_shift_u32(src_p->overflow_count, 0u, 0xffu);
+    dst_p[1] |= pack_right_shift_u32(src_p->overflow_count, 8u, 0xffu);
+    dst_p[2] |= pack_right_shift_u32(src_p->overflow_count, 16u, 0xffu);
+    dst_p[3] |= pack_right_shift_u32(src_p->overflow_count, 24u, 0xffu);
+
+    return (8);
+}
+
+int CanMsgs_fsm_can_tx_fifo_overflow_unpack(
+    struct CanMsgs_fsm_can_tx_fifo_overflow_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    dst_p->overflow_count |= unpack_right_shift_u32(src_p[0], 0u, 0xffu);
+    dst_p->overflow_count |= unpack_left_shift_u32(src_p[1], 8u, 0xffu);
+    dst_p->overflow_count |= unpack_left_shift_u32(src_p[2], 16u, 0xffu);
+    dst_p->overflow_count |= unpack_left_shift_u32(src_p[3], 24u, 0xffu);
+
+    return (0);
+}
+
+uint32_t CanMsgs_fsm_can_tx_fifo_overflow_overflow_count_encode(double value)
+{
+    return (uint32_t)(value);
+}
+
+double CanMsgs_fsm_can_tx_fifo_overflow_overflow_count_decode(uint32_t value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_fsm_can_tx_fifo_overflow_overflow_count_is_in_range(uint32_t value)
 {
     (void)value;
 
     return (true);
+}
+
+int CanMsgs_fsm_startup_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_fsm_startup_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    return (8);
+}
+
+int CanMsgs_fsm_startup_unpack(
+    struct CanMsgs_fsm_startup_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    return (0);
 }

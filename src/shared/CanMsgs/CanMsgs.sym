@@ -1,18 +1,20 @@
 FormatVersion=6.0 // Do not edit this line!
 Title="Untitled"
 
-{ENUMS}
-Enum=Enum1()
-
-{SIGNALS}
-Sig=Signed_Int_Char char
-Sig=Enum_Signal Enum1 8
-
 {SENDRECEIVE}
 
-[Symbol1]
-ID=000h
+[FSM_ERRORS]
+ID=040h	// This message contains a bit for each error that the FSM might throw
 Len=8
-Var=SomeEnum Enum1 40,1
-Sig=Enum_Signal 41
+Var=papps_out_of_range bit 0,1 /ln:"Primary Acceleration Pedal Position Sensor Out Of Valid Range"
+Var=sapps_out_of_range bit 1,1 /ln:"Secondary Acceleration Pedal Position Sensor Out Of Valid Range"
+
+[FSM_CAN_TX_FIFO_OVERFLOW]
+ID=042h	// Indicates that we tried to transmit messages faster then we can send them, so our internal FIFO queue overflowed
+Len=8
+Var=overflow_count unsigned 0,32
+
+[FSM_STARTUP]
+ID=000h	// Sent out by the FSM when it starts up
+Len=8
 

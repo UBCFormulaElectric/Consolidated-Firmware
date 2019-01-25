@@ -9,7 +9,8 @@ from re import sub
 from cantools.database.can.c_source import generate
 from cantools.database import load_file
 
-# Get path of the current dir
+# We assume that the SYM file is in the same directory
+# as this script
 SYM_DIR = os.path.dirname(__file__)
 
 def purge_timestamps_from_generated_code(code: str) -> str:
@@ -47,8 +48,8 @@ def generate_code_from_sym_file(database_name):
     """
     dbase = load_file(database_name + ".sym", database_format="sym")
 
-    filename_h = "Inc/" + database_name + '.h'
-    filename_c = "Src/" + database_name + '.c'
+    filename_h = database_name + '.h'
+    filename_c = database_name + '.c'
 
     header, source, _, _ = generate(
             dbase, 
@@ -66,10 +67,10 @@ def generate_code_from_sym_file(database_name):
     header = change_frame_id_capitalization(header)
     source = change_frame_id_capitalization(source)
 
-    with open(filename_h, 'w') as fout:
+    with open("Inc/" + filename_h, 'w') as fout:
         fout.write(header)
 
-    with open(filename_c, 'w') as fout:
+    with open("Src/" + filename_c, 'w') as fout:
         fout.write(source)
 
 if __name__ == "__main__":

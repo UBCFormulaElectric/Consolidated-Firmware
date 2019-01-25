@@ -298,22 +298,24 @@ static void SharedCan_EnqueueFifoOverflowError(void)
     // Replace the next CAN message in queue with the overflow count in a
     // destructive manner
     can_tx_msg_fifo[tail].std_id = CAN_TX_FIFO_OVERFLOW_STDID;
-    can_tx_msg_fifo[tail].dlc    = CAN_TX_FIFO_OVERFLOW_DLC;
+    // TODO: Put the magic `8` here and below in a constant somewhere
+    can_tx_msg_fifo[tail].dlc    = 8;
     memcpy(
-        &can_tx_msg_fifo[tail].data, &overflow_count, CAN_TX_FIFO_OVERFLOW_DLC);
+        &can_tx_msg_fifo[tail].data, &overflow_count, 8);
 }
 static void SharedCan_BroadcastSystemReboot(void)
 {
     uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = { 0 };
-    SharedCan_TransmitDataCan(PCB_STARTUP_STDID, PCB_STARTUP_DLC, &data[0]);
+    // TODO: Put the magic `8` here and below in a constant somewhere
+    SharedCan_TransmitDataCan(PCB_STARTUP_STDID, 8, &data[0]);
 }
 
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
 void SharedCan_TransmitDataCan(
-    CanStandardId_Enum     std_id,
-    CanDataLengthCode_Enum dlc,
+    unsigned int     std_id,
+    unsigned int     dlc,
     uint8_t *              data)
 {
     // Indicates the mailbox used for tranmission, not currently used
@@ -437,14 +439,6 @@ HAL_StatusTypeDef SharedCan_ReceiveDataCan(
     return status;
 }
 
-void SharedCan_BroadcastPcbErrors(Error_Enum errors)
-{
-    // Error message is one-hot encoded according to Error_enum and thus
-    // requires bit shifting (Read more: https://en.wikipedia.org/wiki/One-hot)
-    uint32_t data = 1U << errors;
-    SharedCan_TransmitDataCan(PCB_ERROR_STDID, PCB_ERROR_DLC, (uint8_t *)&data);
-}
-
 #ifdef STM32F042x6
 
 void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan)
@@ -454,6 +448,13 @@ void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan)
              not give it to us. */
     Can_RxCommonCallback(hcan, hcan->pRxMsg->FIFONumber);
 }
+
+void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef *hcan)
+{
+    /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
+    Can_TxCommonCallback(hcan);
+}
+
 
 #else
 
@@ -468,18 +469,6 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
     /* NOTE: All receive mailbox interrupts shall be handled in the same way */
     Can_RxCommonCallback(hcan, CAN_RX_FIFO1);
 }
-
-#endif
-
-#ifdef STM32F042x6
-
-void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef *hcan)
-{
-    /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
-    Can_TxCommonCallback(hcan);
-}
-
-#else
 
 void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
 {
