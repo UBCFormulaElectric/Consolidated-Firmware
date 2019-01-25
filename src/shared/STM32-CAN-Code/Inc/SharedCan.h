@@ -198,7 +198,7 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
  *        of type CanMsgs_MSG_NAME_t. It will be called with the CAN
  *        msg when it is received
  */
-// TODO: Do something with error code if unpacking fails here!
+// TODO (Issue #315): Do something with error code if unpacking fails here!
 #define SHAREDCAN_IF_STDID_IS(MSG_NAME, MSG_CALLBACK_FUNCTION) \
     struct CanMsgs_##MSG_NAME##_t ___msg_struct; \
     CanMsgs_##MSG_NAME##_unpack(&___msg_struct, ___msg_data, 8);  \
