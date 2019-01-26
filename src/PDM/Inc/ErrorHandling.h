@@ -1,3 +1,5 @@
+// TODO: Can we nuke this file now?
+
 /**
  * @file  ErrorHandling.h
  * @brief Error Handling Library
@@ -32,6 +34,5 @@
 /******************************************************************************
  * Function Prototypes
  ******************************************************************************/
-void ErrorHandling_HandleError(PdmError_Enum error);
 
 #endif /* ERRORHANDLING_H */

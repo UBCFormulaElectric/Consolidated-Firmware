@@ -54,12 +54,13 @@ void Heartbeat_HandleHeartbeatTimeout(uint8_t heartbeats_received)
         EFUSE_AIR_SHDN_IN_GPIO_Port, EFUSE_AIR_SHDN_IN_Pin, GPIO_PIN_RESET);
 
     // Log error
-    SharedCan_BroadcastPcbErrors(MISSING_HEARTBEAT);
+    struct CanMsgs_pdm_errors_t errors_msg = { 0 };
+    SHAREDCAN_SEND_CAN_MSG(pdm_errors, &errors_msg);
 }
 
 void Heartbeat_HandleHeartbeatReception(uint32_t std_id)
 {
-    if (std_id == BMS_HEARTBEAT_STDID)
+    if (std_id == CANMSGS_bms_startup_id_FRAME_ID)
     {
         SharedHeartbeat_ReceiveHeartbeat(BMS_HEARTBEAT_ENCODING);
     }

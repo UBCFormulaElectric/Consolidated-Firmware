@@ -125,7 +125,9 @@ static void GPIO_BoostPgoodFaultHandler(void)
 {
     if (GPIO_IsBoostPgoodFaultActive())
     {
-        SharedCan_BroadcastPcbErrors(BOOST_PGOOD_FAULT);
+        struct CanMsgs_pdm_errors_t error_msg = { 0 };
+        error_msg.boost_pgood_fault = 1;
+        SHAREDCAN_SEND_CAN_MSG(pdm_errors, &error_msg);
     }
 }
 
@@ -133,7 +135,9 @@ static void GPIO_CellBalanceOvervoltageFaultHandler(void)
 {
     if (GPIO_IsCellBalanceOvervoltageFaultActive())
     {
-        SharedCan_BroadcastPcbErrors(CELL_BALANCE_OVERVOLTAGE_FAULT);
+        struct CanMsgs_pdm_errors_t error_msg = { 0 };
+        error_msg.cell_balance_overvoltage_fault = 1;
+        SHAREDCAN_SEND_CAN_MSG(pdm_errors, &error_msg);
     }
 }
 
@@ -141,7 +145,9 @@ static void GPIO_ChargerFaultHandler(void)
 {
     if (GPIO_IsChargerFaultActive())
     {
-        SharedCan_BroadcastPcbErrors(CHARGER_FAULT);
+        struct CanMsgs_pdm_errors_t error_msg = { 0 };
+        error_msg.charger_fault = 1;
+        SHAREDCAN_SEND_CAN_MSG(pdm_errors, &error_msg);
     }
 }
 

@@ -338,7 +338,7 @@
               <MiscControls></MiscControls>
               <Define>USE_HAL_DRIVER,STM32F302x8, PDM, ARM_MATH_CM4</Define>
               <Undefine></Undefine>
-              <IncludePath>../Inc;../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;../Drivers/CMSIS/Include;..\..\shared\STM32-CAN-Code\Inc;..\..\shared\GPIO\Inc;..\..\shared;..\..\shared\Heartbeat\Inc</IncludePath>
+              <IncludePath>../Inc;../Drivers/STM32F3xx_HAL_Driver/Inc;../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy;../Drivers/CMSIS/Device/ST/STM32F3xx/Include;../Drivers/CMSIS/Include;..\..\shared\STM32-CAN-Code\Inc;..\..\shared\GPIO\Inc;..\..\shared;..\..\shared\Heartbeat\Inc;..\..\shared\CanMsgs\Inc</IncludePath>
             </VariousControls>
           </Cads>
           <Aads>
@@ -466,6 +466,11 @@
               <FileName>Heartbeat.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\Src\Heartbeat.c</FilePath>
+            </File>
+            <File>
+              <FileName>CanMsgs.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\shared\CanMsgs\Src\CanMsgs.c</FilePath>
             </File>
           </Files>
         </Group>

@@ -298,16 +298,14 @@ static void SharedCan_EnqueueFifoOverflowError(void)
     // Replace the next CAN message in queue with the overflow count in a
     // destructive manner
     can_tx_msg_fifo[tail].std_id = CAN_TX_FIFO_OVERFLOW_STDID;
-    // TODO: Put the magic `8` here and below in a constant somewhere
-    can_tx_msg_fifo[tail].dlc    = 8;
+    can_tx_msg_fifo[tail].dlc    = CAN_PAYLOAD_BYTE_SIZE;
     memcpy(
-        &can_tx_msg_fifo[tail].data, &overflow_count, 8);
+        &can_tx_msg_fifo[tail].data, &overflow_count, can_tx_msg_fifo[tail].dlc);
 }
 static void SharedCan_BroadcastSystemReboot(void)
 {
     uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = { 0 };
-    // TODO: Put the magic `8` here and below in a constant somewhere
-    SharedCan_TransmitDataCan(PCB_STARTUP_STDID, 8, &data[0]);
+    SharedCan_TransmitDataCan(PCB_STARTUP_STDID, CAN_PAYLOAD_BYTE_SIZE, &data[0]);
 }
 
 /******************************************************************************

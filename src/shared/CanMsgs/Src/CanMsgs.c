@@ -230,3 +230,425 @@ int CanMsgs_fsm_startup_unpack(
 
     return (0);
 }
+
+int CanMsgs_fsm_air_shutdown_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_fsm_air_shutdown_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    return (8);
+}
+
+int CanMsgs_fsm_air_shutdown_unpack(
+    struct CanMsgs_fsm_air_shutdown_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    return (0);
+}
+
+int CanMsgs_pdm_air_shutdown_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_air_shutdown_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    return (8);
+}
+
+int CanMsgs_pdm_air_shutdown_unpack(
+    struct CanMsgs_pdm_air_shutdown_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    return (0);
+}
+
+int CanMsgs_pdm_motor_shutdown_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_motor_shutdown_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    return (8);
+}
+
+int CanMsgs_pdm_motor_shutdown_unpack(
+    struct CanMsgs_pdm_motor_shutdown_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    return (0);
+}
+
+int CanMsgs_bms_startup_id_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_bms_startup_id_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    return (8);
+}
+
+int CanMsgs_bms_startup_id_unpack(
+    struct CanMsgs_bms_startup_id_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    return (0);
+}
+
+int CanMsgs_pdm_errors_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_errors_t *src_p,
+    size_t size)
+{
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    dst_p[0] |= pack_left_shift_u8(src_p->missing_heartbeat, 0u, 0x01u);
+    dst_p[0] |= pack_left_shift_u8(src_p->boost_pgood_fault, 1u, 0x02u);
+    dst_p[0] |= pack_left_shift_u8(src_p->cell_balance_overvoltage_fault, 2u, 0x04u);
+    dst_p[0] |= pack_left_shift_u8(src_p->charger_fault, 3u, 0x08u);
+    dst_p[0] |= pack_left_shift_u8(src_p->efuse_fault, 4u, 0x10u);
+    dst_p[0] |= pack_left_shift_u8(src_p->_12_v_fault_under_voltage, 5u, 0x20u);
+    dst_p[0] |= pack_left_shift_u8(src_p->_12_v_fault_over_voltage, 6u, 0x40u);
+    dst_p[0] |= pack_left_shift_u8(src_p->vbat_fault, 7u, 0x80u);
+
+    return (8);
+}
+
+int CanMsgs_pdm_errors_unpack(
+    struct CanMsgs_pdm_errors_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    dst_p->missing_heartbeat |= unpack_right_shift_u8(src_p[0], 0u, 0x01u);
+    dst_p->boost_pgood_fault |= unpack_right_shift_u8(src_p[0], 1u, 0x02u);
+    dst_p->cell_balance_overvoltage_fault |= unpack_right_shift_u8(src_p[0], 2u, 0x04u);
+    dst_p->charger_fault |= unpack_right_shift_u8(src_p[0], 3u, 0x08u);
+    dst_p->efuse_fault |= unpack_right_shift_u8(src_p[0], 4u, 0x10u);
+    dst_p->_12_v_fault_under_voltage |= unpack_right_shift_u8(src_p[0], 5u, 0x20u);
+    dst_p->_12_v_fault_over_voltage |= unpack_right_shift_u8(src_p[0], 6u, 0x40u);
+    dst_p->vbat_fault |= unpack_right_shift_u8(src_p[0], 7u, 0x80u);
+
+    return (0);
+}
+
+uint8_t CanMsgs_pdm_errors_missing_heartbeat_encode(double value)
+{
+    return (uint8_t)(value);
+}
+
+double CanMsgs_pdm_errors_missing_heartbeat_decode(uint8_t value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_errors_missing_heartbeat_is_in_range(uint8_t value)
+{
+    return (value <= 1u);
+}
+
+uint8_t CanMsgs_pdm_errors_boost_pgood_fault_encode(double value)
+{
+    return (uint8_t)(value);
+}
+
+double CanMsgs_pdm_errors_boost_pgood_fault_decode(uint8_t value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_errors_boost_pgood_fault_is_in_range(uint8_t value)
+{
+    return (value <= 1u);
+}
+
+uint8_t CanMsgs_pdm_errors_cell_balance_overvoltage_fault_encode(double value)
+{
+    return (uint8_t)(value);
+}
+
+double CanMsgs_pdm_errors_cell_balance_overvoltage_fault_decode(uint8_t value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_errors_cell_balance_overvoltage_fault_is_in_range(uint8_t value)
+{
+    return (value <= 1u);
+}
+
+uint8_t CanMsgs_pdm_errors_charger_fault_encode(double value)
+{
+    return (uint8_t)(value);
+}
+
+double CanMsgs_pdm_errors_charger_fault_decode(uint8_t value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_errors_charger_fault_is_in_range(uint8_t value)
+{
+    return (value <= 1u);
+}
+
+uint8_t CanMsgs_pdm_errors_efuse_fault_encode(double value)
+{
+    return (uint8_t)(value);
+}
+
+double CanMsgs_pdm_errors_efuse_fault_decode(uint8_t value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_errors_efuse_fault_is_in_range(uint8_t value)
+{
+    return (value <= 1u);
+}
+
+uint8_t CanMsgs_pdm_errors__12_v_fault_under_voltage_encode(double value)
+{
+    return (uint8_t)(value);
+}
+
+double CanMsgs_pdm_errors__12_v_fault_under_voltage_decode(uint8_t value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_errors__12_v_fault_under_voltage_is_in_range(uint8_t value)
+{
+    return (value <= 1u);
+}
+
+uint8_t CanMsgs_pdm_errors__12_v_fault_over_voltage_encode(double value)
+{
+    return (uint8_t)(value);
+}
+
+double CanMsgs_pdm_errors__12_v_fault_over_voltage_decode(uint8_t value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_errors__12_v_fault_over_voltage_is_in_range(uint8_t value)
+{
+    return (value <= 1u);
+}
+
+uint8_t CanMsgs_pdm_errors_vbat_fault_encode(double value)
+{
+    return (uint8_t)(value);
+}
+
+double CanMsgs_pdm_errors_vbat_fault_decode(uint8_t value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_errors_vbat_fault_is_in_range(uint8_t value)
+{
+    return (value <= 1u);
+}
+
+int CanMsgs_pdm_can_tx_fifo_overflow_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_can_tx_fifo_overflow_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    return (8);
+}
+
+int CanMsgs_pdm_can_tx_fifo_overflow_unpack(
+    struct CanMsgs_pdm_can_tx_fifo_overflow_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    return (0);
+}
+
+int CanMsgs_pdm_heartbeat_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_heartbeat_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    return (8);
+}
+
+int CanMsgs_pdm_heartbeat_unpack(
+    struct CanMsgs_pdm_heartbeat_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    return (0);
+}
+
+int CanMsgs_fsm_heartbeat_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_fsm_heartbeat_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    return (8);
+}
+
+int CanMsgs_fsm_heartbeat_unpack(
+    struct CanMsgs_fsm_heartbeat_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    return (0);
+}
+
+int CanMsgs_pdm_startup_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_startup_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    return (8);
+}
+
+int CanMsgs_pdm_startup_unpack(
+    struct CanMsgs_pdm_startup_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    return (0);
+}

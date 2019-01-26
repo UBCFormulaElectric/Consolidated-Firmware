@@ -33,7 +33,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include <stdlib.h>
+#include <stddef.h>
 
 #ifndef EINVAL
 #    define EINVAL 22
@@ -41,7 +41,16 @@
 
 #define CANMSGS_fsm_errors_FRAME_ID (0x40u)
 #define CANMSGS_fsm_can_tx_fifo_overflow_FRAME_ID (0x42u)
-#define CANMSGS_fsm_startup_FRAME_ID (0x00u)
+#define CANMSGS_fsm_startup_FRAME_ID (0x43u)
+#define CANMSGS_fsm_air_shutdown_FRAME_ID (0x50u)
+#define CANMSGS_pdm_air_shutdown_FRAME_ID (0x66u)
+#define CANMSGS_pdm_motor_shutdown_FRAME_ID (0x67u)
+#define CANMSGS_bms_startup_id_FRAME_ID (0x03u)
+#define CANMSGS_pdm_errors_FRAME_ID (0x60u)
+#define CANMSGS_pdm_can_tx_fifo_overflow_FRAME_ID (0x62u)
+#define CANMSGS_pdm_heartbeat_FRAME_ID (0x61u)
+#define CANMSGS_fsm_heartbeat_FRAME_ID (0x41u)
+#define CANMSGS_pdm_startup_FRAME_ID (0x63u)
 
 /**
  * Signals in message FSM_ERRORS.
@@ -84,6 +93,165 @@ struct CanMsgs_fsm_can_tx_fifo_overflow_t {
  * All signal values are as on the CAN bus.
  */
 struct CanMsgs_fsm_startup_t {
+    /**
+     * Dummy signal in empty message.
+     */
+    uint8_t dummy;
+};
+
+/**
+ * Signals in message FSM_AIR_SHUTDOWN.
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_fsm_air_shutdown_t {
+    /**
+     * Dummy signal in empty message.
+     */
+    uint8_t dummy;
+};
+
+/**
+ * Signals in message PDM_AIR_SHUTDOWN.
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_pdm_air_shutdown_t {
+    /**
+     * Dummy signal in empty message.
+     */
+    uint8_t dummy;
+};
+
+/**
+ * Signals in message PDM_MOTOR_SHUTDOWN.
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_pdm_motor_shutdown_t {
+    /**
+     * Dummy signal in empty message.
+     */
+    uint8_t dummy;
+};
+
+/**
+ * Signals in message BMS_STARTUP_ID.
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_bms_startup_id_t {
+    /**
+     * Dummy signal in empty message.
+     */
+    uint8_t dummy;
+};
+
+/**
+ * Signals in message PDM_ERRORS.
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_pdm_errors_t {
+    /**
+     * Range: 0..1 (0..1 -)
+     * Scale: 1
+     * Offset: 0
+     */
+    uint8_t missing_heartbeat;
+
+    /**
+     * Range: 0..1 (0..1 -)
+     * Scale: 1
+     * Offset: 0
+     */
+    uint8_t boost_pgood_fault;
+
+    /**
+     * Range: 0..1 (0..1 -)
+     * Scale: 1
+     * Offset: 0
+     */
+    uint8_t cell_balance_overvoltage_fault;
+
+    /**
+     * Range: 0..1 (0..1 -)
+     * Scale: 1
+     * Offset: 0
+     */
+    uint8_t charger_fault;
+
+    /**
+     * Range: 0..1 (0..1 -)
+     * Scale: 1
+     * Offset: 0
+     */
+    uint8_t efuse_fault;
+
+    /**
+     * Range: 0..1 (0..1 -)
+     * Scale: 1
+     * Offset: 0
+     */
+    uint8_t _12_v_fault_under_voltage;
+
+    /**
+     * Range: 0..1 (0..1 -)
+     * Scale: 1
+     * Offset: 0
+     */
+    uint8_t _12_v_fault_over_voltage;
+
+    /**
+     * Range: 0..1 (0..1 -)
+     * Scale: 1
+     * Offset: 0
+     */
+    uint8_t vbat_fault;
+};
+
+/**
+ * Signals in message PDM_CAN_TX_FIFO_OVERFLOW.
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_pdm_can_tx_fifo_overflow_t {
+    /**
+     * Dummy signal in empty message.
+     */
+    uint8_t dummy;
+};
+
+/**
+ * Signals in message PDM_HEARTBEAT.
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_pdm_heartbeat_t {
+    /**
+     * Dummy signal in empty message.
+     */
+    uint8_t dummy;
+};
+
+/**
+ * Signals in message FSM_HEARTBEAT.
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_fsm_heartbeat_t {
+    /**
+     * Dummy signal in empty message.
+     */
+    uint8_t dummy;
+};
+
+/**
+ * Signals in message PDM_STARTUP.
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_pdm_startup_t {
     /**
      * Dummy signal in empty message.
      */
@@ -252,6 +420,474 @@ int CanMsgs_fsm_startup_pack(
  */
 int CanMsgs_fsm_startup_unpack(
     struct CanMsgs_fsm_startup_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Pack message FSM_AIR_SHUTDOWN.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_fsm_air_shutdown_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_fsm_air_shutdown_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message FSM_AIR_SHUTDOWN.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_fsm_air_shutdown_unpack(
+    struct CanMsgs_fsm_air_shutdown_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Pack message PDM_AIR_SHUTDOWN.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_pdm_air_shutdown_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_air_shutdown_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message PDM_AIR_SHUTDOWN.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_pdm_air_shutdown_unpack(
+    struct CanMsgs_pdm_air_shutdown_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Pack message PDM_MOTOR_SHUTDOWN.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_pdm_motor_shutdown_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_motor_shutdown_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message PDM_MOTOR_SHUTDOWN.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_pdm_motor_shutdown_unpack(
+    struct CanMsgs_pdm_motor_shutdown_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Pack message BMS_STARTUP_ID.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_bms_startup_id_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_bms_startup_id_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message BMS_STARTUP_ID.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_bms_startup_id_unpack(
+    struct CanMsgs_bms_startup_id_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Pack message PDM_ERRORS.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_pdm_errors_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_errors_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message PDM_ERRORS.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_pdm_errors_unpack(
+    struct CanMsgs_pdm_errors_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+uint8_t CanMsgs_pdm_errors_missing_heartbeat_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_errors_missing_heartbeat_decode(uint8_t value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_errors_missing_heartbeat_is_in_range(uint8_t value);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+uint8_t CanMsgs_pdm_errors_boost_pgood_fault_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_errors_boost_pgood_fault_decode(uint8_t value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_errors_boost_pgood_fault_is_in_range(uint8_t value);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+uint8_t CanMsgs_pdm_errors_cell_balance_overvoltage_fault_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_errors_cell_balance_overvoltage_fault_decode(uint8_t value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_errors_cell_balance_overvoltage_fault_is_in_range(uint8_t value);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+uint8_t CanMsgs_pdm_errors_charger_fault_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_errors_charger_fault_decode(uint8_t value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_errors_charger_fault_is_in_range(uint8_t value);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+uint8_t CanMsgs_pdm_errors_efuse_fault_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_errors_efuse_fault_decode(uint8_t value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_errors_efuse_fault_is_in_range(uint8_t value);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+uint8_t CanMsgs_pdm_errors__12_v_fault_under_voltage_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_errors__12_v_fault_under_voltage_decode(uint8_t value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_errors__12_v_fault_under_voltage_is_in_range(uint8_t value);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+uint8_t CanMsgs_pdm_errors__12_v_fault_over_voltage_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_errors__12_v_fault_over_voltage_decode(uint8_t value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_errors__12_v_fault_over_voltage_is_in_range(uint8_t value);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+uint8_t CanMsgs_pdm_errors_vbat_fault_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_errors_vbat_fault_decode(uint8_t value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_errors_vbat_fault_is_in_range(uint8_t value);
+
+/**
+ * Pack message PDM_CAN_TX_FIFO_OVERFLOW.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_pdm_can_tx_fifo_overflow_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_can_tx_fifo_overflow_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message PDM_CAN_TX_FIFO_OVERFLOW.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_pdm_can_tx_fifo_overflow_unpack(
+    struct CanMsgs_pdm_can_tx_fifo_overflow_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Pack message PDM_HEARTBEAT.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_pdm_heartbeat_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_heartbeat_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message PDM_HEARTBEAT.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_pdm_heartbeat_unpack(
+    struct CanMsgs_pdm_heartbeat_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Pack message FSM_HEARTBEAT.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_fsm_heartbeat_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_fsm_heartbeat_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message FSM_HEARTBEAT.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_fsm_heartbeat_unpack(
+    struct CanMsgs_fsm_heartbeat_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Pack message PDM_STARTUP.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_pdm_startup_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_startup_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message PDM_STARTUP.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_pdm_startup_unpack(
+    struct CanMsgs_pdm_startup_t *dst_p,
     const uint8_t *src_p,
     size_t size);
 

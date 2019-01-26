@@ -19,12 +19,10 @@
 // isn't a nice way to put the board-specific heartbeat listeners in the
 // INIT_MASK_FILTER macro with the shared/BAMOCAR filters.
 #ifdef PDM
-    #define PCB_HEARTBEAT_STDID         PDM_HEARTBEAT_STDID
-    #define PCB_HEARTBEAT_DLC           PDM_HEARTBEAT_DLC
+    #define PCB_HEARTBEAT_STDID         CANMSGS_pdm_heartbeat_FRAME_ID
     #define PCB_HEARTBEAT_LISTENER      BMS_HEARTBEAT_ENCODING
 #elif FSM
-    #define PCB_HEARTBEAT_STDID         FSM_HEARTBEAT_STDID
-    #define PCB_HEARTBEAT_DLC           FSM_HEARTBEAT_DLC
+    #define PCB_HEARTBEAT_STDID         CANMSGS_fsm_heartbeat_FRAME_ID
     #define PCB_HEARTBEAT_LISTENER      BMS_HEARTBEAT_ENCODING
 #elif BMS
     #define PCB_HEARTBEAT_STDID         BMS_HEARTBEAT_STDID

@@ -41,7 +41,8 @@ static volatile uint8_t heartbeats_received = 0;
  ******************************************************************************/
 void SharedHeartbeat_BroadcastHeartbeat(void)
 {
-    uint8_t         data[PCB_HEARTBEAT_DLC]   = { 0 };
+    // TODO: Is using the max size appropriate here??
+    uint8_t         data[CAN_PAYLOAD_BYTE_SIZE]   = { 0 };
     static uint32_t heartbeat_broadcast_ticks = 0;
 
     heartbeat_broadcast_ticks++;
@@ -49,8 +50,10 @@ void SharedHeartbeat_BroadcastHeartbeat(void)
     if (heartbeat_broadcast_ticks >= HEARTBEAT_BROADCAST_PERIOD)
     {
         heartbeat_broadcast_ticks = 0;
+
+    // TODO: Is using the max size appropriate here??
         SharedCan_TransmitDataCan(
-            PCB_HEARTBEAT_STDID, PCB_HEARTBEAT_DLC, &data[0]);
+            PCB_HEARTBEAT_STDID, CAN_PAYLOAD_BYTE_SIZE, &data[0]);
     }
 }
 

@@ -218,7 +218,7 @@ void SysTick_Handler(void)
     // CANNOT USE DELAY FUNCTION HERE AS THE ABOVE CODE INCREMENTS THE DELAY
     // COUNTER!
 
-    HAL_IWDG_Refresh(&hiwdg);
+    //HAL_IWDG_Refresh(&hiwdg);
 
     SharedHeartbeat_BroadcastHeartbeat();
     SharedHeartbeat_CheckHeartbeatTimeout();

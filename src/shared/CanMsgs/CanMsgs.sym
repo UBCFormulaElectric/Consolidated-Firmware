@@ -15,6 +15,50 @@ Len=8
 Var=overflow_count unsigned 0,32
 
 [FSM_STARTUP]
-ID=000h	// Sent out by the FSM when it starts up
+ID=043h	// Sent out by the FSM when it starts up
+Len=8
+
+[FSM_AIR_SHUTDOWN]
+ID=050h
+Len=8
+
+[PDM_AIR_SHUTDOWN]
+ID=066h
+Len=8
+
+[PDM_MOTOR_SHUTDOWN]
+ID=067h
+Len=8
+
+[BMS_STARTUP_ID]
+ID=003h
+Len=8
+
+[PDM_ERRORS]
+ID=060h
+Len=8
+Var=MISSING_HEARTBEAT bit 0,1 /ln:"The PDM did not receive the required heartbeats within the required time"
+Var=BOOST_PGOOD_FAULT bit 1,1 /ln:"TODO: what does this mean?"
+Var=CELL_BALANCE_OVERVOLTAGE_FAULT bit 2,1 /ln:"TODO: What does this mean?"
+Var=CHARGER_FAULT bit 3,1 /ln:"TODO: What does this mean?"
+Var=EFUSE_FAULT bit 4,1 /ln:"TODO: What does this mean?"
+Var=_12V_FAULT_UNDER_VOLTAGE bit 5,1 /ln:"TODO: What does this mean?"
+Var=_12V_FAULT_OVER_VOLTAGE bit 6,1 /ln:"TODO: What does this mean?"
+Var=VBAT_FAULT bit 7,1 /ln:"TODO: What does this mean?"
+
+[PDM_CAN_TX_FIFO_OVERFLOW]
+ID=062h	// Indicates that we tried to transmit messages faster then we can send them, so our internal FIFO queue overflowed
+Len=8
+
+[PDM_HEARTBEAT]
+ID=061h	// TODO: descriptive comment
+Len=8
+
+[FSM_HEARTBEAT]
+ID=041h
+Len=8
+
+[PDM_STARTUP]
+ID=063h
 Len=8
 

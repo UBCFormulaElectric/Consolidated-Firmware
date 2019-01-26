@@ -38,18 +38,14 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off
+// TODO: Rename to `CAN_PAYLOAD_MAX_NUM_BYTES`
 #define CAN_PAYLOAD_BYTE_SIZE 8 // Maximum number of bytes in a CAN payload
 #define CAN_ExtID_NULL 0 // Set CAN Extended ID to 0 because we are not using it
 #define CAN_TX_MSG_FIFO_SIZE 20 // Size of CAN FIFO is arbitrary at the moment
 
 #ifdef PDM
-    #define CAN_TX_FIFO_OVERFLOW_STDID  PDM_CAN_TX_FIFO_OVERFLOW_STDID
-    #define CAN_TX_FIFO_OVERFLOW_DLC    PDM_CAN_TX_FIFO_OVERFLOW_DLC
-    #define PCB_STARTUP_STDID           PDM_STARTUP_STDID
-    #define PCB_STARTUP_DLC             PDM_STARTUP_DLC
-    #define Error_Enum                  PdmError_Enum
-    #define PCB_ERROR_STDID             PDM_ERROR_STDID
-    #define PCB_ERROR_DLC               PDM_ERROR_DLC
+    #define CAN_TX_FIFO_OVERFLOW_STDID  CANMSGS_pdm_can_tx_fifo_overflow_FRAME_ID 
+    #define PCB_STARTUP_STDID           CANMSGS_pdm_startup_FRAME_ID
 #elif FSM
     // TODO: Note here about assumptions we make about the length of this message
     #define CAN_TX_FIFO_OVERFLOW_STDID      CANMSGS_fsm_can_tx_fifo_overflow_FRAME_ID
