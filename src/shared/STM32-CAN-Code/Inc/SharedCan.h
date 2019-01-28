@@ -38,8 +38,7 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off
-// TODO: Rename to `CAN_PAYLOAD_MAX_NUM_BYTES`
-#define CAN_PAYLOAD_BYTE_SIZE 8 // Maximum number of bytes in a CAN payload
+#define CAN_PAYLOAD_MAX_NUM_BYTES 8 // Maximum number of bytes in a CAN payload
 #define CAN_ExtID_NULL 0 // Set CAN Extended ID to 0 because we are not using it
 #define CAN_TX_MSG_FIFO_SIZE 20 // Size of CAN FIFO is arbitrary at the moment
 
@@ -47,25 +46,14 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
     #define CAN_TX_FIFO_OVERFLOW_STDID  CANMSGS_pdm_can_tx_fifo_overflow_FRAME_ID 
     #define PCB_STARTUP_STDID           CANMSGS_pdm_startup_FRAME_ID
 #elif FSM
-    // TODO: Note here about assumptions we make about the length of this message
-    #define CAN_TX_FIFO_OVERFLOW_STDID      CANMSGS_fsm_can_tx_fifo_overflow_FRAME_ID
-    #define PCB_STARTUP_STDID               CANMSGS_fsm_startup_FRAME_ID
+    #define CAN_TX_FIFO_OVERFLOW_STDID  CANMSGS_fsm_can_tx_fifo_overflow_FRAME_ID
+    #define PCB_STARTUP_STDID           CANMSGS_fsm_startup_FRAME_ID
 #elif BMS
     #define CAN_TX_FIFO_OVERFLOW_STDID  BMS_CAN_TX_FIFO_OVERFLOW_STDID
-    #define CAN_TX_FIFO_OVERFLOW_DLC    BMS_CAN_TX_FIFO_OVERFLOW_DLC
     #define PCB_STARTUP_STDID           BMS_STARTUP_STDID
-    #define PCB_STARTUP_DLC             BMS_STARTUP_DLC
-    #define Error_Enum                  BmsError_Enum
-    #define PCB_ERROR_STDID             BMS_ERROR_STDID
-    #define PCB_ERROR_DLC               BMS_ERROR_DLC
 #elif DCM
     #define CAN_TX_FIFO_OVERFLOW_STDID  DCM_CAN_TX_FIFO_OVERFLOW_STDID
-    #define CAN_TX_FIFO_OVERFLOW_DLC    DCM_CAN_TX_FIFO_OVERFLOW_DLC
     #define PCB_STARTUP_STDID           DCM_STARTUP_STDID
-    #define PCB_STARTUP_DLC             DCM_STARTUP_DLC
-    #define Error_Enum                  DcmError_Enum
-    #define PCB_ERROR_STDID             DCM_ERROR_STDID
-    #define PCB_ERROR_DLC               DCM_ERROR_DLC
 #else
     #error "No valid PCB name selected"
 #endif
@@ -195,6 +183,7 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
 // TODO (Issue #315): Do something with error code if unpacking fails here!
 // TODO: Can we output a cleaner error message if the message name DNE?
 #define SHAREDCAN_IF_STDID_IS(MSG_NAME, MSG_CALLBACK_FUNCTION) \
+    /* Check that the message id passed in exists */ \
     struct CanMsgs_##MSG_NAME##_t ___msg_struct; \
     CanMsgs_##MSG_NAME##_unpack(&___msg_struct, ___msg_data, 8);  \
     MSG_CALLBACK_FUNCTION(___msg_struct); \

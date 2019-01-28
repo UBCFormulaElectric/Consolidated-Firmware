@@ -298,14 +298,18 @@ static void SharedCan_EnqueueFifoOverflowError(void)
     // Replace the next CAN message in queue with the overflow count in a
     // destructive manner
     can_tx_msg_fifo[tail].std_id = CAN_TX_FIFO_OVERFLOW_STDID;
-    can_tx_msg_fifo[tail].dlc    = CAN_PAYLOAD_BYTE_SIZE;
+
+    // Since we do not know what CAN message is being used as the overflow
+    // message, we just use the maximum size allowed for the message data
+    can_tx_msg_fifo[tail].dlc    = CAN_PAYLOAD_MAX_NUM_BYTES;
+
     memcpy(
         &can_tx_msg_fifo[tail].data, &overflow_count, can_tx_msg_fifo[tail].dlc);
 }
 static void SharedCan_BroadcastSystemReboot(void)
 {
-    uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = { 0 };
-    SharedCan_TransmitDataCan(PCB_STARTUP_STDID, CAN_PAYLOAD_BYTE_SIZE, &data[0]);
+    uint8_t data[CAN_PAYLOAD_MAX_NUM_BYTES] = { 0 };
+    SharedCan_TransmitDataCan(PCB_STARTUP_STDID, CAN_PAYLOAD_MAX_NUM_BYTES, &data[0]);
 }
 
 /******************************************************************************
@@ -361,7 +365,7 @@ void SharedCan_TransmitDataCan(
         CanTxMsgQueueItem_Struct tx_msg;
         tx_msg.std_id = std_id;
         tx_msg.dlc    = dlc;
-        memcpy(&tx_msg.data, data, CAN_PAYLOAD_BYTE_SIZE);
+        memcpy(&tx_msg.data, data, CAN_PAYLOAD_MAX_NUM_BYTES);
 
         if (SharedCan_EnqueueCanTxMessageFifo(&tx_msg) == FIFO_IS_FULL)
         {

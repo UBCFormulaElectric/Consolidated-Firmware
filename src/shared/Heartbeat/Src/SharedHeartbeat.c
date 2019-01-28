@@ -41,8 +41,9 @@ static volatile uint8_t heartbeats_received = 0;
  ******************************************************************************/
 void SharedHeartbeat_BroadcastHeartbeat(void)
 {
-    // TODO: Is using the max size appropriate here??
-    uint8_t         data[CAN_PAYLOAD_BYTE_SIZE]   = { 0 };
+    // Since we do not know the size of the heartbeat we're sending, we just
+    // use the maximum possible size for the data
+    uint8_t         data[CAN_PAYLOAD_MAX_NUM_BYTES]   = { 0 };
     static uint32_t heartbeat_broadcast_ticks = 0;
 
     heartbeat_broadcast_ticks++;
@@ -51,9 +52,8 @@ void SharedHeartbeat_BroadcastHeartbeat(void)
     {
         heartbeat_broadcast_ticks = 0;
 
-    // TODO: Is using the max size appropriate here??
         SharedCan_TransmitDataCan(
-            PCB_HEARTBEAT_STDID, CAN_PAYLOAD_BYTE_SIZE, &data[0]);
+            PCB_HEARTBEAT_STDID, CAN_PAYLOAD_MAX_NUM_BYTES, &data[0]);
     }
 }
 

@@ -34,15 +34,13 @@
  ******************************************************************************/
 void Can_BroadcastAirShutdownError(void)
 {
-    // TODO (#Issue 217): Is it ok for payload to be empty?
-    struct CanMsgs_pdm_air_shutdown_t shutdown_msg;
+    struct CanMsgs_pdm_air_shutdown_t shutdown_msg = { 0 };
     SHAREDCAN_SEND_CAN_MSG(pdm_air_shutdown, &shutdown_msg);
 }
 
 void Can_BroadcastMotorShutdownError(void)
 {
-    // TODO (#Issue 217): Is it ok for payload to be empty?
-    struct CanMsgs_pdm_motor_shutdown_t shutdown_msg;
+    struct CanMsgs_pdm_motor_shutdown_t shutdown_msg = { 0 };
     SHAREDCAN_SEND_CAN_MSG(pdm_motor_shutdown, &shutdown_msg);
 }
 
