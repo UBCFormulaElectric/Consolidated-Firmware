@@ -54,7 +54,7 @@ void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
     }
 }
 ```
-5. You can send a CAN message by invoking `SharedCan_TransmitDataCan()`. Note that the `STDID` and `DLC` can be found in `CanDefinitions.h`.
+5. You can send a CAN message by invoking `SharedCan_TransmitDataCan()`. The `STDID` may be found in `CanMsgs.h` (where it is referred to as a `FRAME_ID`), and the data length is returned by the `pack` method for a given message (see the `README` in `shared/CanMsgs` for more information).
 ```
 uint8_t test_data_lut[CAN_PAYLOAD_MAX_NUM_BYTES] = {0x1, 0x2, 0x3, 0x4, 0xA, 0xB, 0xC, 0xD};
 SharedCan_TransmitDataCan(DEMO_4_UINT16_NUCLEO_TX_STDID, DEMO_4_UINT16_NUCLEO_TX_DLC, &test_data_lut[0]);

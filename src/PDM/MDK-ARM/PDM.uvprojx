@@ -523,11 +523,6 @@
               <FilePath>..\Inc\ErrorHandling.h</FilePath>
             </File>
             <File>
-              <FileName>CanDefinitions.h</FileName>
-              <FileType>5</FileType>
-              <FilePath>..\..\shared\STM32-CAN-Code\Inc\CanDefinitions.h</FilePath>
-            </File>
-            <File>
               <FileName>SharedCan.h</FileName>
               <FileType>5</FileType>
               <FilePath>..\..\shared\STM32-CAN-Code\Inc\SharedCan.h</FilePath>
