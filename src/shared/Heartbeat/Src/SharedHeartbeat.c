@@ -52,6 +52,8 @@ void SharedHeartbeat_BroadcastHeartbeat(void)
     {
         heartbeat_broadcast_ticks = 0;
 
+        // We use the max allowed payload size here because we don't know
+        // what message we're using for the heartbeat (it's module-specific)
         SharedCan_TransmitDataCan(
             PCB_HEARTBEAT_STDID, CAN_PAYLOAD_MAX_NUM_BYTES, &data[0]);
     }

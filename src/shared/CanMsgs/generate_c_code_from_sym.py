@@ -41,7 +41,6 @@ def change_frame_id_capitalization(code: str) -> str:
         lambda match: r'CANMSGS_{}_FRAME_ID'.format(match.group(1).lower()),
         code)
 
-
 def generate_code_from_sym_file(database_name):
     """
     Generates C source code for the given .sym file 

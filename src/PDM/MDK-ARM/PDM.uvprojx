@@ -438,11 +438,6 @@
               <FilePath>../Src/stm32f3xx_hal_msp.c</FilePath>
             </File>
             <File>
-              <FileName>ErrorHandling.c</FileName>
-              <FileType>1</FileType>
-              <FilePath>..\Src\ErrorHandling.c</FilePath>
-            </File>
-            <File>
               <FileName>SharedCan.c</FileName>
               <FileType>1</FileType>
               <FilePath>..\..\shared\STM32-CAN-Code\Src\SharedCan.c</FilePath>

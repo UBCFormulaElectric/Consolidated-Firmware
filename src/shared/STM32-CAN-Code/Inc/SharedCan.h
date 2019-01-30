@@ -167,7 +167,6 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
 #define MASKMODE_16BIT_MASK_BAMOCAR_RX INIT_MASKMODE_16BIT_FiRx(0x7F0, 0x1, 0x1, 0x0)
 
 /** Setup for CAN message callbacks */
-// TODO: Can we output a cleaner error message if the message ID DNE?
 #define SHAREDCAN_CAN_MSG_TO_CALLBACK_MAPPING(MSG_STD_ID, MSG_DATA_PTR) \
     uint8_t* ___msg_data = MSG_DATA_PTR; \
     switch(MSG_STD_ID)
@@ -181,7 +180,6 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
  *        msg when it is received
  */
 // TODO (Issue #315): Do something with error code if unpacking fails here!
-// TODO: Can we output a cleaner error message if the message name DNE?
 #define SHAREDCAN_IF_STDID_IS(MSG_NAME, MSG_CALLBACK_FUNCTION) \
     /* Check that the message id passed in exists */ \
     struct CanMsgs_##MSG_NAME##_t ___msg_struct; \
@@ -195,7 +193,6 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
  * @param MSG_STRUCT a struct of type `CanMsgs_MSG_NAME_t`, that will be
  *        packed and sent over the CAN bus
  */
-// TODO: Can we output a cleaner error message if the message name DNE?
 #define SHAREDCAN_SEND_CAN_MSG(MSG_NAME, MSG_STRUCT) \
     uint8_t ___data[8]; \
     int ___size = CanMsgs_##MSG_NAME##_pack(&___data[0], MSG_STRUCT, 8); \
