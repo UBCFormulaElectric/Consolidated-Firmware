@@ -114,9 +114,9 @@ void FaultHandling_Handler(
                     (uint16_t)(
                         converted_readings[adc_channel] * ADC_12_BIT_POINTS /
                         (VOLTAGE_TO_CURRENT[adc_channel] * VDDA_VOLTAGE));
-                
+
                 struct CanMsgs_pdm_errors_t error_msg = { 0 };
-                error_msg.efuse_fault = 1;
+                error_msg.efuse_fault                 = 1;
                 SHAREDCAN_SEND_CAN_MSG(pdm_errors, &error_msg);
             }
         }
@@ -125,14 +125,14 @@ void FaultHandling_Handler(
     if (converted_readings[_12V_SUPPLY] < UNDERVOLTAGE_GLV_THRES)
     {
         struct CanMsgs_pdm_errors_t error_msg = { 0 };
-        error_msg._12_v_fault_under_voltage = 1;
+        error_msg._12_v_fault_under_voltage   = 1;
         SHAREDCAN_SEND_CAN_MSG(pdm_errors, &error_msg);
         num_faults[_12V_SUPPLY]++;
     }
     else if (converted_readings[_12V_SUPPLY] > OVERVOLTAGE_GLV_THRES)
     {
         struct CanMsgs_pdm_errors_t error_msg = { 0 };
-        error_msg._12_v_fault_over_voltage = 1;
+        error_msg._12_v_fault_over_voltage    = 1;
         SHAREDCAN_SEND_CAN_MSG(pdm_errors, &error_msg);
         num_faults[_12V_SUPPLY]++;
     }
@@ -140,7 +140,7 @@ void FaultHandling_Handler(
     if (converted_readings[VBAT_SUPPLY] > VBAT_OVERVOLTAGE)
     {
         struct CanMsgs_pdm_errors_t error_msg = { 0 };
-        error_msg.vbat_fault = 1;
+        error_msg.vbat_fault                  = 1;
         SHAREDCAN_SEND_CAN_MSG(pdm_errors, &error_msg);
         num_faults[VBAT_SUPPLY]++;
     }

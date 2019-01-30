@@ -301,24 +301,26 @@ static void SharedCan_EnqueueFifoOverflowError(void)
 
     // Since we do not know what CAN message is being used as the overflow
     // message, we just use the maximum size allowed for the message data
-    can_tx_msg_fifo[tail].dlc    = CAN_PAYLOAD_MAX_NUM_BYTES;
+    can_tx_msg_fifo[tail].dlc = CAN_PAYLOAD_MAX_NUM_BYTES;
 
     memcpy(
-        &can_tx_msg_fifo[tail].data, &overflow_count, can_tx_msg_fifo[tail].dlc);
+        &can_tx_msg_fifo[tail].data, &overflow_count,
+        can_tx_msg_fifo[tail].dlc);
 }
 static void SharedCan_BroadcastSystemReboot(void)
 {
     uint8_t data[CAN_PAYLOAD_MAX_NUM_BYTES] = { 0 };
-    SharedCan_TransmitDataCan(PCB_STARTUP_STDID, CAN_PAYLOAD_MAX_NUM_BYTES, &data[0]);
+    SharedCan_TransmitDataCan(
+        PCB_STARTUP_STDID, CAN_PAYLOAD_MAX_NUM_BYTES, &data[0]);
 }
 
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
 void SharedCan_TransmitDataCan(
-    unsigned int     std_id,
-    unsigned int     dlc,
-    uint8_t *              data)
+    unsigned int std_id,
+    unsigned int dlc,
+    uint8_t *    data)
 {
     // Indicates the mailbox used for tranmission, not currently used
     uint32_t mailbox = 0;
@@ -456,7 +458,6 @@ void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef *hcan)
     /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
     Can_TxCommonCallback(hcan);
 }
-
 
 #else
 

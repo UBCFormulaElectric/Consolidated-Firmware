@@ -261,9 +261,9 @@ extern CAN_HandleTypeDef hcan;
  * @param  data Pointer to an uint8_t array with 8 elements (64-bits in total).
  */
 void SharedCan_TransmitDataCan(
-    unsigned int    std_id,
-    unsigned int    dlc,
-    uint8_t *       data);
+    unsigned int std_id,
+    unsigned int dlc,
+    uint8_t *    data);
 
 /**
  * @brief  Initialize CAN interrupts and CAN filters before starting the CAN

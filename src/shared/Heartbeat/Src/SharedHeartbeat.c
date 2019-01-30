@@ -43,8 +43,8 @@ void SharedHeartbeat_BroadcastHeartbeat(void)
 {
     // Since we do not know the size of the heartbeat we're sending, we just
     // use the maximum possible size for the data
-    uint8_t         data[CAN_PAYLOAD_MAX_NUM_BYTES]   = { 0 };
-    static uint32_t heartbeat_broadcast_ticks = 0;
+    uint8_t         data[CAN_PAYLOAD_MAX_NUM_BYTES] = { 0 };
+    static uint32_t heartbeat_broadcast_ticks       = 0;
 
     heartbeat_broadcast_ticks++;
 
