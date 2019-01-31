@@ -20,6 +20,8 @@
     "No valid architecture selected - unable to determine what HAL library to use"
 #endif
 
+#include "stdbool.h"
+
 /******************************************************************************
  * Preprocessor Constants
  ******************************************************************************/
