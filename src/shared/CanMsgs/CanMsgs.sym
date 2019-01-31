@@ -33,8 +33,6 @@ Sig=Signal_UNIT8_8 unsigned 8
 Sig=Signal_Float_1 float -m
 Sig=Signal_Float_2 float -m
 
-{SEND}
-{RECEIVE}
 {SENDRECEIVE}
 
 [BMS_ERROR]
@@ -367,4 +365,45 @@ ID=40Bh
 Len=8
 Sig=Signal_INT32_1 0
 Sig=Signal_INT32_2 32
+
+[PDM_AUX1_AUX2_CURRENT]
+ID=066h
+Len=8
+Var=AUX1 float 0,32 /u:A /p:5
+Var=AUX2 float 32,32 /u:A /p:5
+
+[PDM_COOLING_PDMFAN_CURRENT]
+ID=067h
+Len=8
+Var=COOLING float 0,32 /u:A /p:5
+Var=PDMFAN float 32,32 /u:A /p:5
+
+[PDM_AIRSHDN_CANGLV_CURRENT]
+ID=068h
+Len=8
+Var=AIRSHDN float 0,32 /u:A /p:5
+Var=CANGLV float 32,32 /u:A /p:5
+
+[PDM_ACCUMULATOR_FAN_CURRENT]
+ID=069h
+Len=8
+Var=ACCSEGMENTFAN float 0,32 /u:A /p:5
+Var=ACCENCFAN float 32,32 /u:A /p:5
+
+[PDM_INVERTER_IO_CURRENT]
+ID=06Ah
+Len=8
+Var=LEFT_INVERTER float 0,32 /u:A /p:5
+Var=RIGHT_INVERTER float 32,32 /u:A /p:5
+
+[PDM_12V_VBAT]
+ID=06Bh
+Len=8
+Var="12V" float 0,32 /u:V /p:5
+Var=VBAT float 32,32 /u:V /p:5
+
+[PDM_FLYWIRE]
+ID=06Ch
+Len=4
+Var=FLYWIRE float 0,32 /u:V /p:5
 
