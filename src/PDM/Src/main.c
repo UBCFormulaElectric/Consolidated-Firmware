@@ -142,19 +142,14 @@ int main(void)
     MX_TIM17_Init();
     /* USER CODE BEGIN 2 */
 
-    // TODO: Find better name for this
-    // Initialize GPIO
     GPIO_Init();
-
-    // TODO: Find better name for this
-    // Initialize Timers
     Timers_Init();
 
     /* USER CODE END 2 */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
-    GPIO_ConfigureFor12VAcc();
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
