@@ -1,5 +1,10 @@
 FormatVersion=6.0 // Do not edit this line!
-Title="SharedCan"
+Title="CanMsgs"
+
+{ENUMS}
+// This is just here to make cantools happy
+Enum=Enum1(0="A String?",  // some comment
+  1="Some other string..........") // some other comment
 
 {SIGNALS}
 Sig=Signal_1_Byte unsigned 8
@@ -9,8 +14,6 @@ Sig=Signal_8_Byte unsigned 64
 Sig=Signal_3_Byte unsigned 24
 Sig=Signal_5_Byte unsigned 40
 Sig=Signal_6_Byte unsigned 48
-Sig=Signal_Float_1 float /p:10
-Sig=Signal_Float_2 float /p:10
 Sig=Signal_UNIT32_1 unsigned 32
 Sig=Signal_UNIT32_2 unsigned 32
 Sig=Signal_INT32_1 signed 32
@@ -27,7 +30,11 @@ Sig=Signal_UNIT8_5 unsigned 8
 Sig=Signal_UNIT8_6 unsigned 8
 Sig=Signal_UNIT8_7 unsigned 8
 Sig=Signal_UNIT8_8 unsigned 8
+Sig=Signal_Float_1 float -m
+Sig=Signal_Float_2 float -m
 
+{SEND}
+{RECEIVE}
 {SENDRECEIVE}
 
 [BMS_ERROR]

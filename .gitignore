@@ -10,6 +10,7 @@
 #*.uvoptx
 *.uvgui
 *.uvguix.*
+*.scvd
 
 # Listing files
 *.cod
@@ -44,6 +45,10 @@
 # Debugger files
 *.ini
 
+# Python
+Pipfile.lock
+*.pyc
+
 # Other files
 *.build_log.htm
 *.cdb
@@ -58,7 +63,7 @@
 #*.sct
 *.sfd
 *.sfr
-*.pyc
+*.orig
 
 # CMake-relevant files
 CMakeCache.txt
