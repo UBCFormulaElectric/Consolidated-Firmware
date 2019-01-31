@@ -272,7 +272,7 @@
       </SystemViewers>
       <DebugDescription>
         <Enable>1</Enable>
-        <EnableFlashSeq>1</EnableFlashSeq>
+        <EnableFlashSeq>0</EnableFlashSeq>
         <EnableLog>0</EnableLog>
         <Protocol>2</Protocol>
         <DbgClock>10000000</DbgClock>
@@ -507,6 +507,42 @@
       <bDave2>0</bDave2>
       <PathWithFileName>../Src/stm32f3xx_hal_msp.c</PathWithFileName>
       <FilenameWithoutPath>stm32f3xx_hal_msp.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>2</GroupNumber>
+      <FileNumber>14</FileNumber>
+      <FileType>5</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\..\CMakeCache.txt</PathWithFileName>
+      <FilenameWithoutPath>CMakeCache.txt</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>2</GroupNumber>
+      <FileNumber>15</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\..\shared\Heartbeat\Src\SharedHeartbeat.c</PathWithFileName>
+      <FilenameWithoutPath>SharedHeartbeat.c</FilenameWithoutPath>
+      <RteFlg>0</RteFlg>
+      <bShared>0</bShared>
+    </File>
+    <File>
+      <GroupNumber>2</GroupNumber>
+      <FileNumber>16</FileNumber>
+      <FileType>1</FileType>
+      <tvExp>0</tvExp>
+      <tvExpOptDlg>0</tvExpOptDlg>
+      <bDave2>0</bDave2>
+      <PathWithFileName>..\Src\Heartbeat.c</PathWithFileName>
+      <FilenameWithoutPath>Heartbeat.c</FilenameWithoutPath>
       <RteFlg>0</RteFlg>
       <bShared>0</bShared>
     </File>
