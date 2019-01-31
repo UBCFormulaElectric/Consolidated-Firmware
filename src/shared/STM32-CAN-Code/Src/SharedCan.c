@@ -310,6 +310,8 @@ static void SharedCan_EnqueueFifoOverflowError(void)
 static void SharedCan_BroadcastSystemReboot(void)
 {
     uint8_t data[CAN_PAYLOAD_MAX_NUM_BYTES] = { 0 };
+    // Since we do not know what CAN message is being used as the overflow
+    // message, we just use the maximum size allowed for the message data
     SharedCan_TransmitDataCan(
         PCB_STARTUP_STDID, CAN_PAYLOAD_MAX_NUM_BYTES, &data[0]);
 }
