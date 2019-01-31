@@ -24,5 +24,5 @@ This folder contains everything to do with the CAN messages that we send between
 - `0x40 to 0x5F` (**FSM**): CAN messages sent from the FSM
 - `0x60 to 0x7F` (**PDM**): CAN messages sent from the FSM
 - `0x80 to 0x9F` (**Shared**): general CAN messages that could be sent from anywhere
-- `0x190 to 0x19F` (**BAMOCAR Tx**): CAN messages sent from our BAMOCAR charger
-- `0x210 to 0x21F` (**BAMOCAR Rx**): CAN messages received by our BAMOCAR charger
+- `0x190 to 0x19F` (**BAMOCAR Tx**): CAN messages sent from our BAMOCAR inverter 
+- `0x210 to 0x21F` (**BAMOCAR Rx**): CAN messages received by our BAMOCAR inverter
