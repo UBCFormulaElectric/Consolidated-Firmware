@@ -54,6 +54,14 @@ static ErrorStatus InitializeAdcMaxValue(ADC_HandleTypeDef *hadc);
  */
 static uint16_t GetVrefintCalibrationValue(void);
 
+/**
+ * @brief Check if the ADC module has been initialized using
+ *        SharedAdc_StartAdcInDmaMode()
+ * @note  This should be called at the beginning of functions that require ADC
+ *        to be initialized
+ */
+static void CheckAdcInitialized(void);
+
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
@@ -82,6 +90,14 @@ static ErrorStatus InitializeAdcMaxValue(ADC_HandleTypeDef *hadc)
 static uint16_t GetVrefintCalibrationValue(void)
 {
     return (uint16_t)(*VREFINT_CALIBRATION_ADDRESS);
+}
+
+static void CheckAdcInitialized(void)
+{
+    if (adc_initialized != true)
+    {
+        Error_Handler();
+    }
 }
 
 /******************************************************************************
@@ -122,45 +138,22 @@ void SharedAdc_StartAdcInDmaMode(
 
 const uint32_t SharedAdc_GetAdcMaxValue(void)
 {
-    uint32_t return_value; 
+    CheckAdcInitialized();
 
-    if (adc_initialized == true)
-    {
-        return_value = adc_max_value;
-    }
-    else
-    {
-        return_value = 0;
-        Error_Handler();
- 
-    }
-
-    return (const uint32_t)return_value;
+    return (const uint32_t)adc_max_value;
 }
 
 const uint32_t *const SharedAdc_GetAdcValues(void)
 {
-    uint32_t *return_value; 
+    CheckAdcInitialized();
 
-    if (adc_initialized == true)
-    {
-        return_value = adc_values;
-    }
-    else
-    {
-        return_value = 0.0f;
-        Error_Handler();
-    }
- 
-    return (const uint32_t *const)return_value;
+    return (const uint32_t *const)adc_values;
 }
 
 float32_t SharedAdc_GetActualVdda(void)
 {
-    float32_t return_value; 
+    CheckAdcInitialized();
 
-    if (adc_initialized == true)
-    {
     // The actual VDDA voltage supplying the microcontroller can be calculated
     // using the following formula:
     //
@@ -172,49 +165,31 @@ float32_t SharedAdc_GetActualVdda(void)
     // - VREFINT_CAL is the VREFINT calibration value
     // - VREFINT_DATA is the actual VREFINT output value converted by the ADC
 
-        return_value = 3.3f * (float32_t)(GetVrefintCalibrationValue()) /
-            adc_values[vrefint_index];
-}
-    else
-    {
-        return_value = 0.0f;
-        Error_Handler();
-    }
-
-    return (float32_t)return_value;
+    return (float32_t)(3.3f * (float32_t)(GetVrefintCalibrationValue()) /
+           adc_values[vrefint_index]);
 }
 
 float32_t SharedAdc_GetAdcVoltage(uint32_t regular_rank)
 {
-    float32_t return_value; 
+    CheckAdcInitialized();
 
-    if (adc_initialized == true)
-    {
-        // The index of each ADC channel is always its Regular Rank minus one
-        uint32_t adc_values_index = regular_rank - 1;
+    // The index of each ADC channel is always its Regular Rank minus one
+    uint32_t adc_values_index = regular_rank - 1;
 
-        //  The voltage at any ADC channel can be calculated using the following
-        //  generic formula:
-        //
-        //                   ACTUAL_VDDA x ADCx_DATA
-        //    V_CHANNELx = ----------------------------
-        //                          FULL_SCALE
-        //
-        // Where:
-        // - ADC_DATAx is the value measured by the ADC on channel x (right-aligned)
-        // - FULL_SCALE is the maximum digital value of the ADC output. For example
-        //   with 12-bit resolution, it will be 212 - 1 = 4095 or with 8-bit
-        //   resolution, 28 - 1 = 255.
+    //  The voltage at any ADC channel can be calculated using the following
+    //  generic formula:
+    //
+    //                   ACTUAL_VDDA x ADCx_DATA
+    //    V_CHANNELx = ----------------------------
+    //                          FULL_SCALE
+    //
+    // Where:
+    // - ADC_DATAx is the value measured by the ADC on channel x (right-aligned)
+    // - FULL_SCALE is the maximum digital value of the ADC output. For example
+    //   with 12-bit resolution, it will be 212 - 1 = 4095 or with 8-bit
+    //   resolution, 28 - 1 = 255.
 
-        return_value = (float32_t)(SharedAdc_GetActualVdda()) *
+    return (float32_t)(SharedAdc_GetActualVdda()) *
            (float32_t)(SharedAdc_GetAdcValues()[adc_values_index]) /
            (float32_t)(SharedAdc_GetAdcMaxValue());
-}
-    else
-    {
-        return_value = 0;
-        Error_Handler();
-    }
-
-    return (float32_t)return_value;
 }
