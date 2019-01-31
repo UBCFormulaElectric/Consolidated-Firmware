@@ -47,7 +47,7 @@ void SharedWatchdog_RefreshIwdg(void)
 
 void SharedWatchdog_SetIwdgInitialized(IWDG_HandleTypeDef *hiwdg)
 {
-    hiwdg_ptr = hiwdg;
+    hiwdg_ptr        = hiwdg;
     iwdg_initialized = true;
 }
 
