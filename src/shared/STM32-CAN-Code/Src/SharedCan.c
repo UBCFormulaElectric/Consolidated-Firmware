@@ -320,8 +320,8 @@ static void SharedCan_BroadcastSystemReboot(void)
  * Function Definitions
  ******************************************************************************/
 void SharedCan_TransmitDataCan(
-    unsigned int std_id,
-    unsigned int dlc,
+    uint32_t std_id,
+    uint32_t dlc,
     uint8_t *    data)
 {
     // Indicates the mailbox used for tranmission, not currently used
