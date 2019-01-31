@@ -2,7 +2,7 @@
  * Includes
  ******************************************************************************/
 #include "SharedWatchdog.h"
-#include "Stdbool.h"
+#include "stdbool.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
