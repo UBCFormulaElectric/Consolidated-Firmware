@@ -50,7 +50,6 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 
     CurrentSense_ConvertCurrentAdcReadings(last_sense_channel);
 
-    // TODO: uncomment this once current sense is fixed
-    // VoltageSense_ConvertVoltageAdcReadings();
+    VoltageSense_ConvertVoltageAdcReadings();
 
 }
