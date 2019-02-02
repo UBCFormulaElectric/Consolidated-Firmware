@@ -1,12 +1,12 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
-#include "Can.h"
-#include "SharedHeartbeat.h"
+#include "SharedWatchdog.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
  ******************************************************************************/
+// clang-format off
 
 /******************************************************************************
  * Module Preprocessor Macros
@@ -15,14 +15,20 @@
 /******************************************************************************
  * Module Typedefs
  ******************************************************************************/
+// clang-format on
 
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
+// IWDG_HandleTypeDef hiwdg is not initialized on system boot-up
+static bool iwdg_initialized = false;
+
+// A copy of the pointer to hiwdg just for this translation unit
+static IWDG_HandleTypeDef *hiwdg_ptr;
 
 /******************************************************************************
  * Private Function Prototypes
- ******************************************************************************/
+ *******************************************************************************/
 
 /******************************************************************************
  * Private Function Definitions
@@ -31,38 +37,21 @@
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void Can_BroadcastAirShutdownError(void)
+void SharedWatchdog_RefreshIwdg(void)
 {
-    // TODO (#Issue 217): Is it ok for payload to be empty?
-    uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = { 0 };
-    SharedCan_TransmitDataCan(
-        BMS_AIR_SHUTDOWN_ERROR_STDID, BMS_AIR_SHUTDOWN_ERROR_DLC, &data[0]);
-}
-
-void Can_BroadcastMotorShutdownError(void)
-{
-    // TODO (#Issue 217): Is it ok for payload to be empty?
-    uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = { 0 };
-    SharedCan_TransmitDataCan(
-        SHARED_MOTOR_SHUTDOWN_ERROR_STDID, SHARED_MOTOR_SHUTDOWN_ERROR_DLC,
-        &data[0]);
-}
-
-void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
-{
-    CanRxMsg_Struct rx_msg;
-
-    HAL_CAN_GetRxMessage(hcan, rx_fifo, &rx_msg.rx_header, &rx_msg.data[0]);
-
-    // Check for a received heartbeat
-    Heartbeat_HandleHeartbeatReception(rx_msg.rx_header.StdId);
-
-    switch (rx_msg.rx_header.StdId)
+    if (SharedWatchdog_IsIwdgInitialized())
     {
-        case BMS_STARTUP_STDID:
-            // Placeholder
-            break;
-        default:
-            break;
+        HAL_IWDG_Refresh(hiwdg_ptr);
     }
+}
+
+void SharedWatchdog_SetIwdgInitialized(IWDG_HandleTypeDef *hiwdg)
+{
+    hiwdg_ptr        = hiwdg;
+    iwdg_initialized = true;
+}
+
+bool SharedWatchdog_IsIwdgInitialized(void)
+{
+    return iwdg_initialized;
 }

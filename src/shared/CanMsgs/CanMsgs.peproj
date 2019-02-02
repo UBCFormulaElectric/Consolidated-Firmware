@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PCANExplorerProject Version="6.0" Name="CanMsgs">
+    <Connections AutoReset="0" IgnoreRTRLength="0" ProcessRTR="1">
+        <Connection Name="Connection1" Bus="1" Enabled="0" Protocol="0" SymbolsFileName="CanMsgs.sym" Connection="test@pcan_usb"/>
+    </Connections>
+    <MessageFilters/>
+    <Files>
+        <File RelativePath="CanMsgs.sym"/>
+    </Files>
+</PCANExplorerProject>

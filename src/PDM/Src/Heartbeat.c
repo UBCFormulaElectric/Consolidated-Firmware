@@ -1,8 +1,9 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
-#include "Can.h"
 #include "SharedHeartbeat.h"
+#include "Gpio.h"
+#include "SharedGpio.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -31,38 +32,35 @@
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void Can_BroadcastAirShutdownError(void)
+/**
+ * @brief TODO  (Issue #191): Complete this
+ */
+void Heartbeat_HandleHeartbeatTimeout(uint8_t heartbeats_received)
 {
-    // TODO (#Issue 217): Is it ok for payload to be empty?
-    uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = { 0 };
-    SharedCan_TransmitDataCan(
-        BMS_AIR_SHUTDOWN_ERROR_STDID, BMS_AIR_SHUTDOWN_ERROR_DLC, &data[0]);
+    // Handle BMS heartbeat timeout
+
+    // Kill inverters
+    SharedGpio_GPIO_WritePin(
+        EFUSE_DEN_5_GPIO_Port, EFUSE_DEN_5_Pin, GPIO_PIN_RESET);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_LEFT_INVERTER_IN_GPIO_Port, EFUSE_LEFT_INVERTER_IN_Pin,
+        GPIO_PIN_RESET);
+    SharedGpio_GPIO_WritePin(
+        EFUSE_RIGHT_INVERTER_IN_GPIO_Port, EFUSE_RIGHT_INVERTER_IN_Pin,
+        GPIO_PIN_RESET);
+
+    // Kill AIR SHDN
+    SharedGpio_GPIO_WritePin(
+        EFUSE_AIR_SHDN_IN_GPIO_Port, EFUSE_AIR_SHDN_IN_Pin, GPIO_PIN_RESET);
+
+    // Log error
+    SharedCan_BroadcastPcbErrors(MISSING_HEARTBEAT);
 }
 
-void Can_BroadcastMotorShutdownError(void)
+void Heartbeat_HandleHeartbeatReception(uint32_t std_id)
 {
-    // TODO (#Issue 217): Is it ok for payload to be empty?
-    uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = { 0 };
-    SharedCan_TransmitDataCan(
-        SHARED_MOTOR_SHUTDOWN_ERROR_STDID, SHARED_MOTOR_SHUTDOWN_ERROR_DLC,
-        &data[0]);
-}
-
-void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
-{
-    CanRxMsg_Struct rx_msg;
-
-    HAL_CAN_GetRxMessage(hcan, rx_fifo, &rx_msg.rx_header, &rx_msg.data[0]);
-
-    // Check for a received heartbeat
-    Heartbeat_HandleHeartbeatReception(rx_msg.rx_header.StdId);
-
-    switch (rx_msg.rx_header.StdId)
+    if (std_id == BMS_HEARTBEAT_STDID)
     {
-        case BMS_STARTUP_STDID:
-            // Placeholder
-            break;
-        default:
-            break;
+        SharedHeartbeat_ReceiveHeartbeat(BMS_HEARTBEAT_ENCODING);
     }
 }
