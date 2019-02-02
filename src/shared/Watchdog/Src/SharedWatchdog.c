@@ -21,7 +21,10 @@
  * Module Variable Definitions
  ******************************************************************************/
 // IWDG_HandleTypeDef hiwdg is not initialized on system boot-up
-static IwdgInitializeState_Enum iwdg_initialize_state = IWDG_NOT_INITIALIZED;
+static bool iwdg_initialized = false;
+
+// A copy of the pointer to hiwdg just for this translation unit
+static IWDG_HandleTypeDef *hiwdg_ptr;
 
 /******************************************************************************
  * Private Function Prototypes
@@ -36,18 +39,19 @@ static IwdgInitializeState_Enum iwdg_initialize_state = IWDG_NOT_INITIALIZED;
  ******************************************************************************/
 void SharedWatchdog_RefreshIwdg(void)
 {
-    if (SharedWatchdog_GetIwdgInitializeState() == IWDG_INITIALIZED)
+    if (SharedWatchdog_IsIwdgInitialized())
     {
-        HAL_IWDG_Refresh(&hiwdg);
+        HAL_IWDG_Refresh(hiwdg_ptr);
     }
 }
 
-void SharedWatchdog_SetIwdgInitializeState(IwdgInitializeState_Enum state)
+void SharedWatchdog_SetIwdgInitialized(IWDG_HandleTypeDef *hiwdg)
 {
-    iwdg_initialize_state = state;
+    hiwdg_ptr        = hiwdg;
+    iwdg_initialized = true;
 }
 
-IwdgInitializeState_Enum SharedWatchdog_GetIwdgInitializeState(void)
+bool SharedWatchdog_IsIwdgInitialized(void)
 {
-    return iwdg_initialize_state;
+    return iwdg_initialized;
 }
