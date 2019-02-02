@@ -109,7 +109,7 @@ void SharedAdc_StartAdcInDmaMode(
 {
     // The index of each ADC channel is always its Regular Rank minus one
     vrefint_index = vrefint_regular_rank - 1;
-    bool status = true;
+    bool status   = true;
 
     if (HAL_ADCEx_Calibration_Start(hadc, ADC_SINGLE_ENDED) != HAL_OK)
     {
@@ -129,7 +129,8 @@ void SharedAdc_StartAdcInDmaMode(
         Error_Handler();
     }
 
-    // Only set adc_initialized to true if all initialization steps are error-free
+    // Only set adc_initialized to true if all initialization steps are
+    // error-free
     if (status == true)
     {
         adc_initialized = true;
@@ -165,8 +166,9 @@ float32_t SharedAdc_GetActualVdda(void)
     // - VREFINT_CAL is the VREFINT calibration value
     // - VREFINT_DATA is the actual VREFINT output value converted by the ADC
 
-    return (float32_t)(3.3f * (float32_t)(GetVrefintCalibrationValue()) /
-           adc_values[vrefint_index]);
+    return (float32_t)(
+        3.3f * (float32_t)(GetVrefintCalibrationValue()) /
+        adc_values[vrefint_index]);
 }
 
 float32_t SharedAdc_GetAdcVoltage(uint32_t regular_rank)
