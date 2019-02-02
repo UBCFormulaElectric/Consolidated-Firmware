@@ -39,14 +39,13 @@ volatile SenseChannel_Enum sense_channel = SENSE_0;
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void CurrentSense_ConvertCurrentAdcReadings(void)
+void CurrentSense_ConvertCurrentAdcReadings(SenseChannel_Enum last_sense_channel)
 {
     for (uint32_t i = 0, j = ADC_READINGS_CURRENT_START_INDEX; i < NUM_PROFET2S;
          i++, j++)
     {
         Profet2_Struct * const profet2s = Profet2_GetProfet2s();
-        uint32_t sense_channel = CurrentSense_GetCurrentSenseChannel();
-        Efuse_Struct *efuse = &(profet2s[i].efuse[sense_channel]);
+        Efuse_Struct *efuse = &(profet2s[i].efuse[last_sense_channel]);
 
         // Convert ADC values to current values
         float32_t temp_current =
