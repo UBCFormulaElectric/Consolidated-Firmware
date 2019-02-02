@@ -24,6 +24,16 @@
 #endif
 
 /******************************************************************************
+ * Fixes to allow us to use this library with STM32F0xx Boards
+ ******************************************************************************/
+#ifdef STM32F042x6
+typedef CanRxMsgTypeDef       CAN_RxHeaderTypeDef;
+typedef CanTxMsgTypeDef       CAN_TxHeaderTypeDef;
+typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
+#define CAN_FILTER_ENABLE ENABLE
+#endif
+
+/******************************************************************************
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off
@@ -36,8 +46,6 @@
     #define CAN_TX_FIFO_OVERFLOW_DLC    PDM_CAN_TX_FIFO_OVERFLOW_DLC
     #define PCB_STARTUP_STDID           PDM_STARTUP_STDID
     #define PCB_STARTUP_DLC             PDM_STARTUP_DLC
-    #define PCB_HEARTBEAT_STDID         PDM_HEARTBEAT_STDID
-    #define PCB_HEARTBEAT_DLC           PDM_HEARTBEAT_DLC
     #define Error_Enum                  PdmError_Enum
     #define PCB_ERROR_STDID             PDM_ERROR_STDID
     #define PCB_ERROR_DLC               PDM_ERROR_DLC
@@ -46,8 +54,6 @@
     #define CAN_TX_FIFO_OVERFLOW_DLC    FSM_CAN_TX_FIFO_OVERFLOW_DLC
     #define PCB_STARTUP_STDID           FSM_STARTUP_STDID
     #define PCB_STARTUP_DLC             FSM_STARTUP_DLC
-    #define PCB_HEARTBEAT_STDID         FSM_HEARTBEAT_STDID
-    #define PCB_HEARTBEAT_DLC           FSM_HEARTBEAT_DLC
     #define Error_Enum                  FsmError_Enum
     #define PCB_ERROR_STDID             FSM_ERROR_STDID
     #define PCB_ERROR_DLC               FSM_ERROR_DLC
@@ -56,8 +62,6 @@
     #define CAN_TX_FIFO_OVERFLOW_DLC    BMS_CAN_TX_FIFO_OVERFLOW_DLC
     #define PCB_STARTUP_STDID           BMS_STARTUP_STDID
     #define PCB_STARTUP_DLC             BMS_STARTUP_DLC
-    #define PCB_HEARTBEAT_STDID         BMS_HEARTBEAT_STDID
-    #define PCB_HEARTBEAT_DLC           BMS_HEARTBEAT_DLC
     #define Error_Enum                  BmsError_Enum
     #define PCB_ERROR_STDID             BMS_ERROR_STDID
     #define PCB_ERROR_DLC               BMS_ERROR_DLC
@@ -66,8 +70,6 @@
     #define CAN_TX_FIFO_OVERFLOW_DLC    DCM_CAN_TX_FIFO_OVERFLOW_DLC
     #define PCB_STARTUP_STDID           DCM_STARTUP_STDID
     #define PCB_STARTUP_DLC             DCM_STARTUP_DLC
-    #define PCB_HEARTBEAT_STDID         DCM_HEARTBEAT_STDID
-    #define PCB_HEARTBEAT_DLC           DCM_HEARTBEAT_DLC
     #define Error_Enum                  DcmError_Enum
     #define PCB_ERROR_STDID             DCM_ERROR_STDID
     #define PCB_ERROR_DLC               DCM_ERROR_DLC
@@ -266,9 +268,19 @@ void SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan);
 void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo);
 
 /**
- * @brief Broadcast heartbeat message for the current PCB
+ * @brief Get the CAN message that has just been received. This is usually
+ *        called from within Can_RxCommonCallback.
+ * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
+ *         the configuration information for the specified CAN.
+ * @param  rx_fifo The Rx FIFO to get the message from
+ * @param  rx_msg This struct will be populated appropriately with the received
+ *         CAN message
+ * @return HAL_STATUS
  */
-void SharedCan_BroadcastHeartbeat(void);
+HAL_StatusTypeDef SharedCan_ReceiveDataCan(
+    CAN_HandleTypeDef *hcan,
+    uint32_t           rx_fifo,
+    CanRxMsg_Struct *  rx_msg);
 
 /**
  * @brief Send CAN message one-hot encoded for one or more errors

@@ -477,6 +477,21 @@
               <FileType>1</FileType>
               <FilePath>../Src/stm32f3xx_hal_msp.c</FilePath>
             </File>
+            <File>
+              <FileName>CMakeCache.txt</FileName>
+              <FileType>5</FileType>
+              <FilePath>..\..\CMakeCache.txt</FilePath>
+            </File>
+            <File>
+              <FileName>SharedHeartbeat.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\..\shared\Heartbeat\Src\SharedHeartbeat.c</FilePath>
+            </File>
+            <File>
+              <FileName>Heartbeat.c</FileName>
+              <FileType>1</FileType>
+              <FilePath>..\Src\Heartbeat.c</FilePath>
+            </File>
           </Files>
         </Group>
         <Group>
