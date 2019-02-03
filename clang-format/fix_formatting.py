@@ -1,7 +1,9 @@
 import os
 
-def runClangFormat():
+# The path to the directory this python file is in
+PYTHON_EXECUTABLE_DIRECTORY = os.path.dirname(__file__)
 
+def runClangFormat():
     """
     Run the clang-format executable over all C/C++ related files inside src
     Return exit code 0 if success; any other number for an error code
@@ -21,11 +23,7 @@ def runClangFormat():
         # Append the requisite .exe file ending
         CLANG_FORMAT_COMMAND += ".exe" 
 
-    # Check that user is running from the clang-format directory
     SOURCE_DIR = os.path.join("..", "src")
-    if not os.path.isdir(SOURCE_DIR):
-        print("Must run check_formatting from inside clang-format directory!")
-        return 1
 
     # Now iterate through all the files inside the src directory
     for root, dirnames, filenames in os.walk(SOURCE_DIR):
@@ -51,3 +49,17 @@ def runClangFormat():
                     return exitCode
 
     return 0
+
+if __name__ == '__main__':
+    # Change into the directory this python file is in so we can use relative paths
+    os.chdir(PYTHON_EXECUTABLE_DIRECTORY)
+
+    continueScript = input("THIS WILL FORMAT YOUR CODE! CONTINUE (Y | N)? ")
+    if continueScript != 'Y' and continueScript != 'y':
+        sys.exit(2)
+    else:
+        if fix_formatting.runClangFormat() != 0:
+            print("ERROR: Clang-Format encountered issues!")
+            sys.exit(1)
+        else:
+            print("Clang-Format ran successfully on all files!")

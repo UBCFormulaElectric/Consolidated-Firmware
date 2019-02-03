@@ -11,7 +11,7 @@ from argparse import ArgumentParser
 from cantools.database.can.c_source import generate
 from cantools.database import load_file
 
-# Get path of the current dir
+# The path to the directory this python file is in
 PYTHON_EXECUTABLE_DIRECTORY = os.path.dirname(__file__)
 
 def purge_timestamps_from_generated_code(code: str) -> str:
