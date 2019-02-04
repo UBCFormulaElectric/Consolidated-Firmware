@@ -211,13 +211,13 @@ foreach(MODULE_DIR ${MODULES})
 
     ###  SOURCE FILES  ###
     # Build the path to the project file
-    string(CONCAT PROJECT_FILE_PATH "./" ${MODULE_DIR} "/MDK-ARM/" ${MODULE_DIR} ".uvprojx")
+    string(CONCAT PROJECT_FILE_PATH ${CMAKE_CURRENT_SOURCE_DIR} "/" ${MODULE_DIR} "/MDK-ARM/" ${MODULE_DIR} ".uvprojx")
 
     # Generate the cmake file containing the "INCLUDE_DIRS" and 
     # "SRC_C_FILES". Also prefix the generated paths appropriately so we can
     # reference them from here (by default they are referenced relative to the
     # project files from which they were parsed)
-    string(CONCAT GENERATED_CMAKE_FILE_PATH "./CMakeFiles/" ${MODULE_DIR} ".cmake")
+    string(CONCAT GENERATED_CMAKE_FILE_PATH ${CMAKE_CURRENT_SOURCE_DIR} "/CMakeFiles/" ${MODULE_DIR} ".cmake")
     execute_process(
         COMMAND python "${CMAKE_CURRENT_LIST_DIR}/cmake/uvprojx_to_cmake.py" 
         "${GENERATED_CMAKE_FILE_PATH}" 
