@@ -210,7 +210,6 @@ foreach(MODULE_DIR ${MODULES})
     set(MODULE_C_FLAGS ${TOTAL_TARGET_DEFS} ${MCU} ${FPU} ${T32} ${FLOAT_ABI} ${DEBUG_FLAGS} ${OPT_FLAGS} ${MISC_FLAGS})
 
     ###  SOURCE FILES  ###
-
     # Build the path to the project file
     string(CONCAT PROJECT_FILE_PATH "./" ${MODULE_DIR} "/MDK-ARM/" ${MODULE_DIR} ".uvprojx")
 
@@ -234,16 +233,9 @@ foreach(MODULE_DIR ${MODULES})
     endif(NOT ${MODULE_CMAKE_GENERATION_SUCCESS} MATCHES "0")
 
     # include the cmake file we just generated, and in doing so "import" the
-    # "${SRC_C_FILES}" and "${INCLUDE_DIRS}" variables for this module
+    # "${MODULE_NAME_SRC_C_FILES}" and "${MODULE_NAME_INCLUDE_DIRS}" variables for this module
     include("${GENERATED_CMAKE_FILE_PATH}")
 
-    # TODO: delte me
-    #message(${INCLUDE_DIRS})
-
-    # TODO: delete me
-    ## Get all the *.c files and *.s files
-    #file(GLOB_RECURSE SRC_C_FILES ${MODULE_DIR}/*.c)
-    
     # Grab the bootloader file. There is only one assembly file required: startup_stm32fxxxxxx.s 
     # Keil-generated startup assembly files are written in ARM assembly syntax instead of the GCC syntax, 
     # which CMake relies on. GCC syntax files, generated from STMCube, have been appended with '_gcc' and

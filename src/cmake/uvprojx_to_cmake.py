@@ -91,7 +91,6 @@ def generate_cmake_file_str(c_source_file_paths: [str], include_dirs: [str],
 
     src_c_files_str = ";".join(c_source_file_paths)
     include_dirs_str = " ".join(include_dirs)
-    print(include_dirs_str)
 
     # NOTE: the wierd indenting here is because any spaces before the text
     #       are reflected in the generated file
