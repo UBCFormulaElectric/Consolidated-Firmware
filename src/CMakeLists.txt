@@ -219,17 +219,26 @@ foreach(MODULE_DIR ${MODULES})
     # reference them from here (by default they are referenced relative to the
     # project files from which they were parsed)
     string(CONCAT GENERATED_CMAKE_FILE_PATH "./CMakeFiles/" ${MODULE_DIR} ".cmake")
-    EXECUTE_PROCESS(COMMAND python "${CMAKE_CURRENT_LIST_DIR}/cmake/uvprojx_to_cmake.py" 
+    execute_process(
+        COMMAND python "${CMAKE_CURRENT_LIST_DIR}/cmake/uvprojx_to_cmake.py" 
         "${GENERATED_CMAKE_FILE_PATH}" 
         "${PROJECT_FILE_PATH}" 
-        --file-path-prefix "${CMAKE_SOURCE_DIR}/${MODULE_DIR}/MDK-ARM/")
+        --file-path-prefix "${CMAKE_SOURCE_DIR}/${MODULE_DIR}/MDK-ARM/"
+        --cmake-variable-prefix "${MODULE_DIR}_"
+        RESULT_VARIABLE MODULE_CMAKE_GENERATION_SUCCESS
+        )
+
+    # Make sure generation went OK
+    if(NOT ${MODULE_CMAKE_GENERATION_SUCCESS} MATCHES "0")
+        message(FATAL_ERROR "CMake Generation Failed For ${MODULE_DIR}")
+    endif(NOT ${MODULE_CMAKE_GENERATION_SUCCESS} MATCHES "0")
 
     # include the cmake file we just generated, and in doing so "import" the
     # "${SRC_C_FILES}" and "${INCLUDE_DIRS}" variables for this module
     include("${GENERATED_CMAKE_FILE_PATH}")
 
     # TODO: delte me
-    message(${INCLUDE_DIRS})
+    #message(${INCLUDE_DIRS})
 
     # TODO: delete me
     ## Get all the *.c files and *.s files
@@ -246,16 +255,6 @@ foreach(MODULE_DIR ${MODULES})
 
     ###  INCLUDE DIRECTORIES  ###
     target_include_directories(${exe_name} PRIVATE "$<BUILD_INTERFACE:${INCLUDE_DIRS}>")
-    #target_include_directories(${exe_name} PRIVATE ./PDM/Inc)
-    #target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/${HAL_BOARD_DIR}_HAL_Driver/Inc)
-    #target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/${HAL_BOARD_DIR}_HAL_Driver/Inc/Legacy)
-    #target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/CMSIS/Device/ST/${HAL_BOARD_DIR}/Include)
-    #target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/CMSIS/Include)
-    #SUBDIRLIST(SHARED_SUBDIRS ${CMAKE_CURRENT_SOURCE_DIR}/shared/)
-    #FOREACH(shared_lib_dir ${SHARED_SUBDIRS})
-    #    target_include_directories(${exe_name} PRIVATE shared/${shared_lib_dir}/Inc)    
-    #ENDFOREACH()
-    #target_include_directories(${exe_name} PRIVATE shared)    
 
     ### COMPILER FLAGS ###
     # Add the compiler flags
