@@ -181,11 +181,11 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
  */
 // TODO (Issue #315): Do something with error code if unpacking fails here!
 #define SHAREDCAN_IF_STDID_IS(MSG_NAME, MSG_CALLBACK_FUNCTION) \
-    /* Check that the message id passed in exists */ \
-    struct CanMsgs_##MSG_NAME##_t ___msg_struct; \
-    CanMsgs_##MSG_NAME##_unpack(&___msg_struct, ___msg_data, 8);  \
-    MSG_CALLBACK_FUNCTION(___msg_struct); \
-    break
+    case CanMsgs_##MSG_NAME##_FRAME_ID: \
+        struct CanMsgs_##MSG_NAME##_t ___msg_struct; \
+        CanMsgs_##MSG_NAME##_unpack(&___msg_struct, ___msg_data, 8);  \
+        MSG_CALLBACK_FUNCTION(___msg_struct); \
+        break
 
 /**
  * @brief Send the given CAN message
