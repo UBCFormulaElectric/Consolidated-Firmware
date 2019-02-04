@@ -123,15 +123,6 @@ SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
 
 ##############################################
 ###                                        ###
-###      SHARED_UTIL CODE COMPILATION      ###
-###                                        ###
-##############################################
-
-# TODO: delete this if no longer used (shouldn't be?)
-file(GLOB_RECURSE SHARED_UTIL_SRC ${CMAKE_CURRENT_SOURCE_DIR}/shared/*.c)
-
-##############################################
-###                                        ###
 ###      ITERATIVE MODULE COMPILATION      ###
 ###                                        ###
 ##############################################
