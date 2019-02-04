@@ -184,7 +184,7 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
     case CanMsgs_##MSG_NAME##_FRAME_ID: \
         struct CanMsgs_##MSG_NAME##_t ___msg_struct; \
         CanMsgs_##MSG_NAME##_unpack(&___msg_struct, ___msg_data, 8);  \
-        MSG_CALLBACK_FUNCTION(___msg_struct); \
+        MSG_CALLBACK_FUNCTION(&___msg_struct); \
         break
 
 /**
