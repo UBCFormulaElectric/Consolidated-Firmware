@@ -11,7 +11,7 @@ from cantools.database import load_file
 
 # We assume that the SYM file is in the same directory
 # as this script
-SYM_DIR = os.path.dirname(__file__)
+SYM_DIR = os.path.dirname(os.path.abspath(__file__))
 
 def purge_timestamps_from_generated_code(code: str) -> str:
     """
