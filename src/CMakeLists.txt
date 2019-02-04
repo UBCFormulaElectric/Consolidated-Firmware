@@ -244,6 +244,7 @@ foreach(MODULE_DIR ${MODULES})
 
     ### PROJECT EXECUTABLE ###
     add_executable(${exe_name} ${SRC_C_FILES} ${SRC_ASM_FILES})
+    set_target_properties(${exe_name} PROPERTIES LINKER_LANGUAGE C)
 
     ###  INCLUDE DIRECTORIES  ###
     target_include_directories(${exe_name} PRIVATE "$<BUILD_INTERFACE:${INCLUDE_DIRS}>")
