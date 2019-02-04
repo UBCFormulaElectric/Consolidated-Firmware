@@ -1,9 +1,18 @@
+"""
+This file contains all the functionality required to parse `.uvprojx` files for
+the various projects and figure out what we need to build in for each project
+
+This is normally called from `CMakeLists.txt`
+"""
+
 import xml.etree.cElementTree as ET
 from optparse import OptionParser
 import os
 
+
 """
-This class contains all the required functionality to parse out different part 
+This class contains all the required functionality to parse out different parts
+from ".uvprojx" files
 """
 class UvprojxParser:
 
