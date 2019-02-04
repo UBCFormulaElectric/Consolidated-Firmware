@@ -183,7 +183,7 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
 #define SHAREDCAN_IF_STDID_IS(MSG_NAME, MSG_CALLBACK_FUNCTION) \
     case CanMsgs_##MSG_NAME##_FRAME_ID: \
         struct CanMsgs_##MSG_NAME##_t ___msg_struct; \
-        CanMsgs_##MSG_NAME##_unpack(&___msg_struct, ___msg_data, 8);  \
+        CanMsgs_##MSG_NAME##_unpack(&___msg_struct, ___msg_data, CAN_PAYLOAD_MAX_NUM_BYTES);  \
         MSG_CALLBACK_FUNCTION(&___msg_struct); \
         break
 
@@ -194,8 +194,8 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
  *        packed and sent over the CAN bus
  */
 #define SHAREDCAN_SEND_CAN_MSG(MSG_NAME, MSG_STRUCT) \
-    uint8_t ___data[8]; \
-    int ___size = CanMsgs_##MSG_NAME##_pack(&___data[0], MSG_STRUCT, 8); \
+    uint8_t ___data[CAN_PAYLOAD_MAX_NUM_BYTES]; \
+    int ___size = CanMsgs_##MSG_NAME##_pack(&___data[0], MSG_STRUCT, CAN_PAYLOAD_MAX_NUM_BYTES); \
     SharedCan_TransmitDataCan(CANMSGS_##MSG_NAME##_FRAME_ID, \
                               (size_t)___size, \
                               &___data[0])
