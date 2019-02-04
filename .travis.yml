@@ -52,7 +52,9 @@ script:
     - |
       if [ "$RUN_BUILD" = "true" ]; then 
         cd src;
-        cmake CMakeLists.txt;
+        # NOTE: We run `cmake` in pipenv so that we can succesfully use the 
+        # python script that generates CMake `.c` and `.h` dependencies in it
+        pipenv run cmake CMakeLists.txt;
         make; 
         cd ..;
       fi
