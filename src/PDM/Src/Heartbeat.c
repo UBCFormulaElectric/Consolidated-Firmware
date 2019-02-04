@@ -55,6 +55,7 @@ void Heartbeat_HandleHeartbeatTimeout(uint8_t heartbeats_received)
 
     // Log error
     struct CanMsgs_pdm_errors_t errors_msg = { 0 };
+    errors_msg.missing_heartbeat = 1;
     SHAREDCAN_SEND_CAN_MSG(pdm_errors, &errors_msg);
 }
 
