@@ -223,7 +223,6 @@ foreach(MODULE_DIR ${MODULES})
         "${GENERATED_CMAKE_FILE_PATH}" 
         "${PROJECT_FILE_PATH}" 
         --file-path-prefix "${CMAKE_SOURCE_DIR}/${MODULE_DIR}/MDK-ARM/"
-        --cmake-variable-prefix "${MODULE_DIR}_"
         RESULT_VARIABLE MODULE_CMAKE_GENERATION_SUCCESS
         )
 
@@ -231,6 +230,9 @@ foreach(MODULE_DIR ${MODULES})
     if(NOT ${MODULE_CMAKE_GENERATION_SUCCESS} MATCHES "0")
         message(FATAL_ERROR "CMake Generation Failed For ${MODULE_DIR}")
     endif(NOT ${MODULE_CMAKE_GENERATION_SUCCESS} MATCHES "0")
+
+    # TODO: Delete me
+    message(STATUS ${INCLUDE_DIRS})
 
     # include the cmake file we just generated, and in doing so "import" the
     # "${MODULE_NAME_SRC_C_FILES}" and "${MODULE_NAME_INCLUDE_DIRS}" variables for this module
@@ -244,7 +246,6 @@ foreach(MODULE_DIR ${MODULES})
 
     ### PROJECT EXECUTABLE ###
     add_executable(${exe_name} ${SRC_C_FILES} ${SRC_ASM_FILES})
-    set_target_properties(${exe_name} PROPERTIES LINKER_LANGUAGE C)
 
     ###  INCLUDE DIRECTORIES  ###
     target_include_directories(${exe_name} PRIVATE "$<BUILD_INTERFACE:${INCLUDE_DIRS}>")
