@@ -205,6 +205,17 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
  * Typedefs
  ******************************************************************************/
 // clang-format on
+
+/** @brief PCB Names */
+typedef enum
+{
+    BATTERY_MANAGEMENT_SYSTEM,
+    DRIVE_CONTROL_MODULE,
+    POWER_DISTRIBUTION_MODULE,
+    FRONT_SENSOR_MODULE,
+    PCB_COUNT
+} Pcb_Enum;
+
 /** @brief Struct to help initialize CAN filters */
 const typedef struct
 {
