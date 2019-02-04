@@ -1,5 +1,5 @@
 /**
- * @file  SharedCan.h
+ * @file  SharedCan.h 
  * @brief CAN controller library for STM32F0 and STM32F3
  */
 
@@ -180,11 +180,12 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
  */
 // TODO (Issue #315): Do something with error code if unpacking fails here!
 #define SHAREDCAN_IF_STDID_IS(MSG_NAME, MSG_CALLBACK_FUNCTION) \
-    /* Check that the message id passed in exists */ \
-    struct CanMsgs_##MSG_NAME##_t ___msg_struct; \
-    CanMsgs_##MSG_NAME##_unpack(&___msg_struct, ___msg_data, 8);  \
-    MSG_CALLBACK_FUNCTION(___msg_struct); \
-    break
+    case CanMsgs_##MSG_NAME##_FRAME_ID: \
+        struct CanMsgs_##MSG_NAME##_t ___msg_struct; \
+        CanMsgs_##MSG_NAME##_unpack(&___msg_struct, ___msg_data, \
+                                    CAN_PAYLOAD_MAX_NUM_BYTES);  \
+        MSG_CALLBACK_FUNCTION(&___msg_struct); \
+        break
 
 /**
  * @brief Send the given CAN message
@@ -193,8 +194,26 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
  *        packed and sent over the CAN bus
  */
 #define SHAREDCAN_SEND_CAN_MSG(MSG_NAME, MSG_STRUCT) \
-    uint8_t ___data[8]; \
-    int ___size = CanMsgs_##MSG_NAME##_pack(&___data[0], MSG_STRUCT, 8); \
+    uint8_t ___data[CAN_PAYLOAD_MAX_NUM_BYTES]; \
+    int ___size = CanMsgs_##MSG_NAME##_pack(&___data[0], MSG_STRUCT, \
+                                            CAN_PAYLOAD_MAX_NUM_BYTES); \
+    SharedCan_TransmitDataCan(CANMSGS_##MSG_NAME##_FRAME_ID, \
+                              (size_t)___size, \
+                              &___data[0])
+
+/**
+ * @brief Send the given CAN message with the given member set to 1 and all 
+ * others set to 0
+ * @param MSG_NAME The name of the can message to send
+ * @param MSG_ELEM_NAME The name of the element in the message to set to 1. 
+ * NOTE: This element must be a member of the CAN message struct of name MSG_NAME
+ */
+#define SHAREDCAN_SEND_CAN_MSG_WITH_SINGLE_BIT_SET(MSG_NAME, MSG_ELEM_NAME) \
+    uint8_t ___data[CAN_PAYLOAD_MAX_NUM_BYTES]; \
+    struct CanMsgs_##MSG_NAME##_t ___msg_struct = { 0 }; \
+    ___msg_struct.##MSG_ELEM_NAME = 1 \
+    int ___size = CanMsgs_##MSG_NAME##_pack(&___data[0], ___msg_struct, \
+                                            CAN_PAYLOAD_MAX_NUM_BYTES); \
     SharedCan_TransmitDataCan(CANMSGS_##MSG_NAME##_FRAME_ID, \
                               (size_t)___size, \
                               &___data[0])
@@ -204,6 +223,17 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
  * Typedefs
  ******************************************************************************/
 // clang-format on
+
+/** @brief PCB Names */
+typedef enum
+{
+    BATTERY_MANAGEMENT_SYSTEM,
+    DRIVE_CONTROL_MODULE,
+    POWER_DISTRIBUTION_MODULE,
+    FRONT_SENSOR_MODULE,
+    PCB_COUNT
+} Pcb_Enum;
+
 /** @brief Struct to help initialize CAN filters */
 const typedef struct
 {
@@ -260,8 +290,8 @@ extern CAN_HandleTypeDef hcan;
  * @param  data Pointer to an uint8_t array with 8 elements (64-bits in total).
  */
 void SharedCan_TransmitDataCan(
-    unsigned int std_id,
-    unsigned int dlc,
+    uint32_t std_id,
+    uint32_t dlc,
     uint8_t *    data);
 
 /**

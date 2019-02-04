@@ -6,7 +6,7 @@ This folder contains everything to do with the CAN messages that we send between
  - `generate_c_code_from_sym.py`: this script generates `CanMsgs.c` and `CanMsgs.h` from `CanMsgs.sym`, allowing us a C interface to all the CAN messages
 
  ## Making Changes to CAN Messages
- 1. Edit the `.sym` using `PCAN-View` (which is fre to download)
+ 1. Edit the `.sym` using `PCAN-View` (which is free to download)
  1. Run `generate_c_code_from_sym.py` to generate the update `CanMsgs.c` and `CanMsgs.h` files.
 
  ## Working With The Generated C Code
@@ -24,5 +24,5 @@ This folder contains everything to do with the CAN messages that we send between
 - `0x40 to 0x5F` (**FSM**): CAN messages sent from the FSM
 - `0x60 to 0x7F` (**PDM**): CAN messages sent from the FSM
 - `0x80 to 0x9F` (**Shared**): general CAN messages that could be sent from anywhere
-- `0x190 to 0x19F` (**BAMOCAR Tx**): CAN messages sent from our BAMOCAR charger
-- `0x210 to 0x21F` (**BAMOCAR Rx**): CAN messages received by our BAMOCAR charger
+- `0x190 to 0x19F` (**BAMOCAR Tx**): CAN messages sent from our BAMOCAR inverter 
+- `0x210 to 0x21F` (**BAMOCAR Rx**): CAN messages received by our BAMOCAR inverter
