@@ -39,6 +39,6 @@ void Can_BroadcastAirShutdownError(void);
 /**
  * @brief Broadcast the motor shutdown error
  */
-void Can_BroadcastMotorShutdownError(void);
+                                                                    void Can_BroadcastMotorShutdownError(void);
 
 #endif /* CAN_H */
