@@ -58,7 +58,7 @@ if __name__ == '__main__':
     if continueScript != 'Y' and continueScript != 'y':
         sys.exit(2)
     else:
-        if fix_formatting.runClangFormat() != 0:
+        if runClangFormat() != 0:
             print("ERROR: Clang-Format encountered issues!")
             sys.exit(1)
         else:
