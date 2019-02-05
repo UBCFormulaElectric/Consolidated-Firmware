@@ -1,7 +1,7 @@
 import os
 
 # The path to the directory this python file is in
-PYTHON_EXECUTABLE_DIRECTORY = os.path.dirname(__file__)
+PYTHON_EXECUTABLE_DIRECTORY = os.path.dirname(os.path.abspath(__file__))
 
 def runClangFormat():
     """
