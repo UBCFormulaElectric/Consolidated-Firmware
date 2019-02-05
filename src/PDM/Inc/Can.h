@@ -34,11 +34,7 @@
 /**
  * @brief Broadcast the AIR shutdown error
  */
-
-                        
-
-
-                                                                        void Can_BroadcastAirShutdownError(void);
+void Can_BroadcastAirShutdownError(void);
 
 /**
  * @brief Broadcast the motor shutdown error
