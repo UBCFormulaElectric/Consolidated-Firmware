@@ -2,6 +2,7 @@
  * Includes
  ******************************************************************************/
 #include "SharedHeartbeat.h"
+#include "SharedCan.h"
 #include "Gpio.h"
 #include "SharedGpio.h"
 
