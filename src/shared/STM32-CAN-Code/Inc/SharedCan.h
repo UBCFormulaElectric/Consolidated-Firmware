@@ -212,14 +212,9 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
  * NOTE: This element must be a member of the CAN message struct of name MSG_NAME
  */
 #define SHAREDCAN_SEND_CAN_MSG_WITH_SINGLE_BIT_SET(MSG_NAME, MSG_ELEM_NAME) \
-    uint8_t ___data[CAN_PAYLOAD_MAX_NUM_BYTES]; \
     struct CanMsgs_##MSG_NAME##_t ___msg_struct = { 0 }; \
-    ___msg_struct.##MSG_ELEM_NAME = 1 \
-    int ___size = CanMsgs_##MSG_NAME##_pack(&___data[0], ___msg_struct, \
-                                            CAN_PAYLOAD_MAX_NUM_BYTES); \
-    SharedCan_TransmitDataCan(CANMSGS_##MSG_NAME##_FRAME_ID, \
-                              (size_t)___size, \
-                              &___data[0])
+    ___msg_struct.MSG_ELEM_NAME = 1; \
+    SHAREDCAN_SEND_CAN_MSG(MSG_NAME, &___msg_struct)
 
 
 /******************************************************************************

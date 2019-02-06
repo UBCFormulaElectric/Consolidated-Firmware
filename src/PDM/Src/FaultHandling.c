@@ -115,9 +115,7 @@ void FaultHandling_Handler(
                         converted_readings[adc_channel] * ADC_12_BIT_POINTS /
                         (VOLTAGE_TO_CURRENT[adc_channel] * VDDA_VOLTAGE));
 
-                struct CanMsgs_pdm_errors_t error_msg = { 0 };
-                error_msg.efuse_fault                 = 1;
-                SHAREDCAN_SEND_CAN_MSG(pdm_errors, &error_msg);
+                SHAREDCAN_SEND_CAN_MSG_WITH_SINGLE_BIT_SET(pdm_errors, efuse_fault);
             }
         }
     }
