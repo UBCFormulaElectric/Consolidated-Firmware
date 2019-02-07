@@ -95,8 +95,10 @@ static const uint8_t MAX_FAULTS[NUM_ADC_CHANNELS * NUM_CHANNELS_PER_PROFET2] = {
  *        AIR_SHDN, ACC_SEGMENT_FAN, and LEFT_INVERTER.
  *        If sense_channel = SENSE_1, we read current for AUXILIARY_2, PDM_FAN,
  *        CAN_GLV, ACC_ENCLOSURE_FAN, RIGHT_INVERTER
+ * @param last_sense_channel The most recent SENSE channel before the DMA
+ *        interrupt was triggered
  */
-void CurrentSense_ConvertCurrentAdcReadings(void);
+void CurrentSense_ConvertCurrentAdcReadings(SenseChannel_Enum sense_channel);
 
 /**
  * @brief Toggle the SENSE output between 0 and 1 for all PROFET2s

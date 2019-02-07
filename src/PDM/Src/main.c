@@ -385,7 +385,7 @@ static void MX_IWDG_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
-    SharedWatchdog_SetIwdgInitializeState(IWDG_INITIALIZED);
+    SharedWatchdog_SetIwdgInitialized(&hiwdg);
     /* USER CODE END IWDG_Init 2 */
 }
 
