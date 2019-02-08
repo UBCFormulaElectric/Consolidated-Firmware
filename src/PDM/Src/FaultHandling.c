@@ -122,24 +122,18 @@ void FaultHandling_Handler(
 
     if (converted_readings[_12V_SUPPLY] < UNDERVOLTAGE_GLV_THRES)
     {
-        struct CanMsgs_pdm_errors_t error_msg = { 0 };
-        error_msg._12_v_fault_under_voltage   = 1;
-        SHAREDCAN_SEND_CAN_MSG(pdm_errors, &error_msg);
+        SHAREDCAN_SEND_CAN_MSG_WITH_SINGLE_BIT_SET(pdm_errors, _12_v_fault_under_voltage);
         num_faults[_12V_SUPPLY]++;
     }
     else if (converted_readings[_12V_SUPPLY] > OVERVOLTAGE_GLV_THRES)
     {
-        struct CanMsgs_pdm_errors_t error_msg = { 0 };
-        error_msg._12_v_fault_over_voltage    = 1;
-        SHAREDCAN_SEND_CAN_MSG(pdm_errors, &error_msg);
+        SHAREDCAN_SEND_CAN_MSG_WITH_SINGLE_BIT_SET(pdm_errors, _12_v_fault_over_voltage);
         num_faults[_12V_SUPPLY]++;
     }
 
     if (converted_readings[VBAT_SUPPLY] > VBAT_OVERVOLTAGE)
     {
-        struct CanMsgs_pdm_errors_t error_msg = { 0 };
-        error_msg.vbat_fault                  = 1;
-        SHAREDCAN_SEND_CAN_MSG(pdm_errors, &error_msg);
+        SHAREDCAN_SEND_CAN_MSG_WITH_SINGLE_BIT_SET(pdm_errors, vbat_fault);
         num_faults[VBAT_SUPPLY]++;
     }
 
