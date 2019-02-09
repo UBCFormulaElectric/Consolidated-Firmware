@@ -52,6 +52,9 @@ void SharedHeartbeat_BroadcastHeartbeat(void)
     {
         heartbeat_broadcast_ticks = 0;
 
+        // TODO: (Issue #217) Test out message of size 0, as that would be
+        // more semantically meaningful here
+
         // We use the max allowed payload size here because we don't know
         // what message we're using for the heartbeat (it's module-specific)
         SharedCan_TransmitDataCan(
