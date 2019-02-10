@@ -181,13 +181,12 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
 // TODO (Issue #315): Do something with error code if unpacking fails here!
 #define SHAREDCAN_IF_STDID_IS(MSG_NAME, MSG_CALLBACK_FUNCTION) \
     case CANMSGS_##MSG_NAME##_FRAME_ID: \
-        /* NOTE: This `;` is here because the first thing after \
-        a `case SOMETHING:` cannot be a declaration */ \
-        ; \
+        { \
         struct CanMsgs_##MSG_NAME##_t ___msg_struct; \
         CanMsgs_##MSG_NAME##_unpack(&___msg_struct, ___msg_data, \
                                     CAN_PAYLOAD_MAX_NUM_BYTES);  \
         MSG_CALLBACK_FUNCTION(&___msg_struct); \
+        } \
         break
 
 /**
