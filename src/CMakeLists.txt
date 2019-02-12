@@ -1,5 +1,5 @@
-project(FORMULA_E C ASM)
 cmake_minimum_required(VERSION 3.2)
+include(CMakeForceCompiler)
 
 ##############################################
 ###                                        ###
@@ -17,20 +17,6 @@ MACRO(SUBDIRLIST result curdir)
   ENDFOREACH()
   SET(${result} ${dirlist})
 ENDMACRO()
-
-################################################################################
-##                                                                             #
-##                         CODE COMPILATION BEGINS HERE                        #
-##                                                                             #
-##                      Append the list of module directories                  #
-##    WARNING! Ensure module name in the string list matches directory name!   #
-##                                                                             #
-################################################################################
-
-set(MODULES "PDM FSM DCM BMS")
-
-#Create string list
-string(REPLACE " " ";" MODULES ${MODULES})
 
 ##############################################
 ###                                        ###
@@ -63,8 +49,7 @@ endif(BINUTILS_PATH)
 get_filename_component(ARM_TOOLCHAIN_DIR ${BINUTILS_PATH} DIRECTORY)
 set(triple ${TOOLCHAIN_TRIPLE})
 set(CMAKE_ASM_COMPILER ${TOOLCHAIN_PREFIX}as)
-set(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}gcc)
-set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}g++)
+CMAKE_FORCE_C_COMPILER(${TOOLCHAIN_PREFIX}gcc GNU)
 
 set(CMAKE_OBJCOPY ${ARM_TOOLCHAIN_DIR}/${TOOLCHAIN_PREFIX}objcopy CACHE INTERNAL "objcopy tool")
 set(CMAKE_SIZE_UTIL ${ARM_TOOLCHAIN_DIR}/${TOOLCHAIN_PREFIX}size CACHE INTERNAL "size tool")
@@ -77,6 +62,21 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Build/Lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Build/Lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Build)
+
+################################################################################
+##                                                                             #
+##                         CODE COMPILATION BEGINS HERE                        #
+##                                                                             #
+##                      Append the list of module directories                  #
+##    WARNING! Ensure module name in the string list matches directory name!   #
+##                                                                             #
+################################################################################
+project(FORMULA_E C ASM)
+
+set(MODULES "PDM FSM DCM BMS")
+
+#Create string list
+string(REPLACE " " ";" MODULES ${MODULES})
 
 ##############################################
 ###                                        ###
