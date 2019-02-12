@@ -55,9 +55,7 @@ void Heartbeat_HandleHeartbeatTimeout(uint8_t heartbeats_received)
         EFUSE_AIR_SHDN_IN_GPIO_Port, EFUSE_AIR_SHDN_IN_Pin, GPIO_PIN_RESET);
 
     // Log error
-    struct CanMsgs_pdm_errors_t errors_msg = { 0 };
-    errors_msg.missing_heartbeat = 1;
-    SHAREDCAN_SEND_CAN_MSG(pdm_errors, &errors_msg);
+    SHAREDCAN_SEND_CAN_MSG_WITH_SINGLE_BIT_SET(pdm_errors, missing_heartbeat);
 }
 
 void Heartbeat_HandleHeartbeatReception(uint32_t std_id)
