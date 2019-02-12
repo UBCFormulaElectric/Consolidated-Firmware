@@ -11,7 +11,7 @@ Create **User Constants** in STM32CubeMX with the following values:
 
 ```
 IWDG_WINDOW_DISABLE_VALUE = 4095
-LSI_FREQUENCY             = <LSI Clock Frequency in Hertz. For example, it is 40,000Hz for STM32F302R8.>
+LSI_FREQUENCY             = <LSI Clock Frequency in Hertz. For example, it is 40000 for STM32F302R8.>
 IWDG_PRESCALER            = 4
 IWDG_RESET_FREQUENCY      = 5
 ```
