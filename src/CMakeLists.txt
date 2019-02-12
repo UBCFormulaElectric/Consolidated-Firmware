@@ -219,11 +219,8 @@ foreach(MODULE_DIR ${MODULES})
 
     # Make sure generation went OK
     if(NOT ${MODULE_CMAKE_GENERATION_SUCCESS} MATCHES "0")
-        message(FATAL_ERROR "CMake Generation Failed For ${MODULE_DIR}")
+        message(FATAL_ERROR "CMake Generation from \".uvprojx\" Failed For ${MODULE_DIR}")
     endif(NOT ${MODULE_CMAKE_GENERATION_SUCCESS} MATCHES "0")
-
-    # TODO: Delete me
-    message(STATUS ${INCLUDE_DIRS})
 
     # include the cmake file we just generated, and in doing so "import" the
     # "${MODULE_NAME_SRC_C_FILES}" and "${MODULE_NAME_INCLUDE_DIRS}" variables for this module
