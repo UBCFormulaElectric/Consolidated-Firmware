@@ -222,12 +222,12 @@ foreach(MODULE_DIR ${MODULES})
         message(FATAL_ERROR "CMake Generation from \".uvprojx\" Failed For ${MODULE_DIR}")
     endif(NOT ${MODULE_CMAKE_GENERATION_SUCCESS} MATCHES "0")
 
-    message(STATUS "${MODULE_DIR} Include Directories: ${INCLUDE_DIRS}")
-    message(STATUS "${MODULE_DIR} Source Files: ${SRC_C_FILES}")
-
     # include the cmake file we just generated, and in doing so "import" the
     # "${MODULE_NAME_SRC_C_FILES}" and "${MODULE_NAME_INCLUDE_DIRS}" variables for this module
     include("${GENERATED_CMAKE_FILE_PATH}")
+
+    message(STATUS "${MODULE_DIR} Include Directories: ${INCLUDE_DIRS}")
+    message(STATUS "${MODULE_DIR} Source Files: ${SRC_C_FILES}")
 
     # Grab the bootloader file. There is only one assembly file required: startup_stm32fxxxxxx.s 
     # Keil-generated startup assembly files are written in ARM assembly syntax instead of the GCC syntax, 
