@@ -1,13 +1,13 @@
 ## Overview
 ## Testing Plan
-- Validate CAN logging for current sense
+- **Validate CAN logging for current sense**
   - Start a log trace in PCAN-Explorer 6 
   - For each output, disconnect the load so it's **0A** for 5 seconds. Then, connect a **4Ohm/50W** resistor for another 5 seconds.
   - Repeat the step above for each GLV output
   - Save the log trace and plot it in a third-party software (e.g. Microsoft Excel) to verify that the values make sense within a reasonable amount of error margin:
     - The current values are either 0A or 5A
     - There is no garbage value at any point in time (i.e. Non-sensical values such as **0.5e-30A** or **130.0**)
-- Validate CAN logging for voltage sense 
+- **Validate CAN logging for voltage sense** 
   - Start a log trace in **PCAN-Explorer 6**
   - Log the voltage sense values for at least 5 seconds
   - Save the log trace and plot it in a third-party software (e.g. Microsoft Excel) to verify that the values make sense within a reasonable amount of error margin:
