@@ -135,7 +135,6 @@ static void GPIO_CellBalanceOvervoltageFaultHandler(void)
     {
         SHAREDCAN_SEND_CAN_MSG_WITH_SINGLE_BIT_SET(pdm_errors, cell_balance_overvoltage_fault);
     }
-    }
 }
 
 static void GPIO_ChargerFaultHandler(void)
