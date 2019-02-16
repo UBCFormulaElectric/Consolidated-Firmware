@@ -8,5 +8,5 @@ void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
     // NOTE: This is just here to force this function to be compiled in
     // for debugging purposes, feel free to delete it when implementing
     // this function.
-                                        volatile int a = 2;
+    volatile int a = 2;
 }
