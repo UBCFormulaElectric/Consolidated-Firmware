@@ -716,3 +716,99 @@ int CanMsgs_dcm_heartbeat_unpack(
 
     return (0);
 }
+
+int CanMsgs_bms_can_tx_fifo_overflow_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_bms_can_tx_fifo_overflow_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    return (8);
+}
+
+int CanMsgs_bms_can_tx_fifo_overflow_unpack(
+    struct CanMsgs_bms_can_tx_fifo_overflow_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    return (0);
+}
+
+int CanMsgs_dcm_can_tx_fifo_overflow_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_dcm_can_tx_fifo_overflow_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    return (8);
+}
+
+int CanMsgs_dcm_can_tx_fifo_overflow_unpack(
+    struct CanMsgs_dcm_can_tx_fifo_overflow_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    return (0);
+}
+
+int CanMsgs_dcm_startup_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_dcm_startup_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    return (8);
+}
+
+int CanMsgs_dcm_startup_unpack(
+    struct CanMsgs_dcm_startup_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    (void)src_p;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    return (0);
+}

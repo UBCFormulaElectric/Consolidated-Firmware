@@ -53,6 +53,9 @@
 #define CANMSGS_pdm_startup_FRAME_ID (0x63u)
 #define CANMSGS_bms_heartbeat_FRAME_ID (0x01u)
 #define CANMSGS_dcm_heartbeat_FRAME_ID (0x21u)
+#define CANMSGS_bms_can_tx_fifo_overflow_FRAME_ID (0x02u)
+#define CANMSGS_dcm_can_tx_fifo_overflow_FRAME_ID (0x22u)
+#define CANMSGS_dcm_startup_FRAME_ID (0x23u)
 
 /**
  * Signals in message FSM_ERRORS.
@@ -288,6 +291,42 @@ struct CanMsgs_bms_heartbeat_t {
  * All signal values are as on the CAN bus.
  */
 struct CanMsgs_dcm_heartbeat_t {
+    /**
+     * Dummy signal in empty message.
+     */
+    uint8_t dummy;
+};
+
+/**
+ * Signals in message BMS_CAN_TX_FIFO_OVERFLOW.
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_bms_can_tx_fifo_overflow_t {
+    /**
+     * Dummy signal in empty message.
+     */
+    uint8_t dummy;
+};
+
+/**
+ * Signals in message DCM_CAN_TX_FIFO_OVERFLOW.
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_dcm_can_tx_fifo_overflow_t {
+    /**
+     * Dummy signal in empty message.
+     */
+    uint8_t dummy;
+};
+
+/**
+ * Signals in message DCM_STARTUP.
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_dcm_startup_t {
     /**
      * Dummy signal in empty message.
      */
@@ -980,6 +1019,90 @@ int CanMsgs_dcm_heartbeat_pack(
  */
 int CanMsgs_dcm_heartbeat_unpack(
     struct CanMsgs_dcm_heartbeat_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Pack message BMS_CAN_TX_FIFO_OVERFLOW.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_bms_can_tx_fifo_overflow_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_bms_can_tx_fifo_overflow_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message BMS_CAN_TX_FIFO_OVERFLOW.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_bms_can_tx_fifo_overflow_unpack(
+    struct CanMsgs_bms_can_tx_fifo_overflow_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Pack message DCM_CAN_TX_FIFO_OVERFLOW.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_dcm_can_tx_fifo_overflow_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_dcm_can_tx_fifo_overflow_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message DCM_CAN_TX_FIFO_OVERFLOW.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_dcm_can_tx_fifo_overflow_unpack(
+    struct CanMsgs_dcm_can_tx_fifo_overflow_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Pack message DCM_STARTUP.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_dcm_startup_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_dcm_startup_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message DCM_STARTUP.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_dcm_startup_unpack(
+    struct CanMsgs_dcm_startup_t *dst_p,
     const uint8_t *src_p,
     size_t size);
 
