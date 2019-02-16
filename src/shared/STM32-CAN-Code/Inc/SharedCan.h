@@ -48,11 +48,11 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
     #define CAN_TX_FIFO_OVERFLOW_STDID  CANMSGS_fsm_can_tx_fifo_overflow_FRAME_ID
     #define PCB_STARTUP_STDID           CANMSGS_fsm_startup_FRAME_ID
 #elif BMS
-    #define CAN_TX_FIFO_OVERFLOW_STDID  BMS_CAN_TX_FIFO_OVERFLOW_STDID
-    #define PCB_STARTUP_STDID           BMS_STARTUP_STDID
+    #define CAN_TX_FIFO_OVERFLOW_STDID  CANMSGS_bms_can_tx_fifo_overflow_FRAME_ID
+    #define PCB_STARTUP_STDID           CANMSGS_bms_startup_FRAME_ID
 #elif DCM
-    #define CAN_TX_FIFO_OVERFLOW_STDID  DCM_CAN_TX_FIFO_OVERFLOW_STDID
-    #define PCB_STARTUP_STDID           DCM_STARTUP_STDID
+    #define CAN_TX_FIFO_OVERFLOW_STDID  CANMSGS_dcm_can_tx_fifo_overflow_FRAME_ID
+    #define PCB_STARTUP_STDID           CANMSGS_dcm_startup_FRAME_ID
 #else
     #error "No valid PCB name selected"
 #endif
