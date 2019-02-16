@@ -125,7 +125,8 @@ static void GPIO_BoostPgoodFaultHandler(void)
 {
     if (GPIO_IsBoostPgoodFaultActive())
     {
-        SHAREDCAN_SEND_CAN_MSG_WITH_SINGLE_BIT_SET(pdm_errors, boost_pgood_fault);
+        SHAREDCAN_SEND_CAN_MSG_WITH_SINGLE_BIT_SET(
+            pdm_errors, boost_pgood_fault);
     }
 }
 
@@ -133,7 +134,8 @@ static void GPIO_CellBalanceOvervoltageFaultHandler(void)
 {
     if (GPIO_IsCellBalanceOvervoltageFaultActive())
     {
-        SHAREDCAN_SEND_CAN_MSG_WITH_SINGLE_BIT_SET(pdm_errors, cell_balance_overvoltage_fault);
+        SHAREDCAN_SEND_CAN_MSG_WITH_SINGLE_BIT_SET(
+            pdm_errors, cell_balance_overvoltage_fault);
     }
 }
 

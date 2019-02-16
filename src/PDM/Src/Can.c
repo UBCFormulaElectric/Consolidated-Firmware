@@ -44,7 +44,7 @@ void Can_BroadcastMotorShutdownError(void)
     SHAREDCAN_SEND_CAN_MSG(pdm_motor_shutdown, &shutdown_msg);
 }
 
-void Can_BmsStartupCallback(struct CanMsgs_bms_startup_id_t* bms_startup_msg)
+void Can_BmsStartupCallback(struct CanMsgs_bms_startup_id_t *bms_startup_msg)
 {
     // TODO: Placeholder
 }

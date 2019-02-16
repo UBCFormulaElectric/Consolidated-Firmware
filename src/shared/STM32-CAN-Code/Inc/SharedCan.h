@@ -1,5 +1,5 @@
 /**
- * @file  SharedCan.h 
+ * @file  SharedCan.h
  * @brief CAN controller library for STM32F0 and STM32F3
  */
 
@@ -286,10 +286,7 @@ extern CAN_HandleTypeDef hcan;
  * @param  dlc Data length code, indicates the length of the message in bytes
  * @param  data Pointer to an uint8_t array with 8 elements (64-bits in total).
  */
-void SharedCan_TransmitDataCan(
-    uint32_t std_id,
-    uint32_t dlc,
-    uint8_t *    data);
+void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data);
 
 /**
  * @brief  Initialize CAN interrupts and CAN filters before starting the CAN
