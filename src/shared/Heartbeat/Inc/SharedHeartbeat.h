@@ -25,15 +25,11 @@
     #define PCB_HEARTBEAT_STDID         CANMSGS_fsm_heartbeat_FRAME_ID
     #define PCB_HEARTBEAT_LISTENER      BMS_HEARTBEAT_ENCODING
 #elif BMS
-    // TODO: Uncomment these when we actually implement the firmware for the BMS
-    //#define PCB_HEARTBEAT_STDID         CANMSGS_bms_heartbeat_FRAME_ID 
-    //#define PCB_HEARTBEAT_DLC           BMS_HEARTBEAT_DLC
-    //#define PCB_HEARTBEAT_LISTENER      (DCM_HEARTBEAT_ENCODING | PDM_HEARTBEAT_ENCODING | FSM_HEARTBEAT_ENCODING)
+    #define PCB_HEARTBEAT_STDID         CANMSGS_bms_heartbeat_FRAME_ID 
+    #define PCB_HEARTBEAT_LISTENER      (DCM_HEARTBEAT_ENCODING | PDM_HEARTBEAT_ENCODING | FSM_HEARTBEAT_ENCODING)
 #elif DCM
-    // TODO: Uncomment these when we actually implement the firmware for the DCM 
-    //#define PCB_HEARTBEAT_STDID         CANMSGS_dcm_heartbeat_FRAME_ID 
-    //#define PCB_HEARTBEAT_DLC           DCM_HEARTBEAT_DLC
-    //#define PCB_HEARTBEAT_LISTENER      (BMS_HEARTBEAT_ENCODING | FSM_HEARTBEAT_ENCODING)
+    #define PCB_HEARTBEAT_STDID         CANMSGS_dcm_heartbeat_FRAME_ID 
+    #define PCB_HEARTBEAT_LISTENER      (BMS_HEARTBEAT_ENCODING | FSM_HEARTBEAT_ENCODING)
 #else
     #error "No valid PCB name selected"
 #endif

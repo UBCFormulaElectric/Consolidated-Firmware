@@ -30,7 +30,7 @@ Len=8
 ID=067h
 Len=8
 
-[BMS_STARTUP_ID]
+[BMS_STARTUP]
 ID=003h
 Len=8
 
@@ -60,5 +60,13 @@ Len=8
 
 [PDM_STARTUP]
 ID=063h
+Len=8
+
+[BMS_HEARTBEAT]
+ID=001h
+Len=8
+
+[DCM_HEARTBEAT]
+ID=021h
 Len=8
 

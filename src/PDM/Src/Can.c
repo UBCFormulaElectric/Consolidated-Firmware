@@ -44,7 +44,7 @@ void Can_BroadcastMotorShutdownError(void)
     SHAREDCAN_SEND_CAN_MSG(pdm_motor_shutdown, &shutdown_msg);
 }
 
-void Can_BmsStartupCallback(struct CanMsgs_bms_startup_id_t *bms_startup_msg)
+void Can_BmsStartupCallback(struct CanMsgs_bms_startup_t *bms_startup_msg)
 {
     // TODO: Placeholder
 }
@@ -60,6 +60,6 @@ void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 
     SHAREDCAN_CAN_MSG_TO_CALLBACK_MAPPING(rx_msg.rx_header.StdId, rx_msg.data)
     {
-        SHAREDCAN_IF_STDID_IS(bms_startup_id, Can_BmsStartupCallback);
+        SHAREDCAN_IF_STDID_IS(bms_startup, Can_BmsStartupCallback);
     }
 }

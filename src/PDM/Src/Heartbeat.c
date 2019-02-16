@@ -60,7 +60,7 @@ void Heartbeat_HandleHeartbeatTimeout(uint8_t heartbeats_received)
 
 void Heartbeat_HandleHeartbeatReception(uint32_t std_id)
 {
-    if (std_id == CANMSGS_bms_startup_id_FRAME_ID)
+    if (std_id == CANMSGS_bms_startup_FRAME_ID)
     {
         SharedHeartbeat_ReceiveHeartbeat(BMS_HEARTBEAT_ENCODING);
     }
