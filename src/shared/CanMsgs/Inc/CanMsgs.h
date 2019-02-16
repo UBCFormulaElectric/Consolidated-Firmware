@@ -33,6 +33,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
+#include <stddef.h>
 
 #ifndef EINVAL
 #    define EINVAL 22
@@ -56,6 +57,8 @@
 /**
  * Signals in message FSM_ERRORS.
  *
+ * This message contains a bit for each error that the FSM might throw
+ *
  * All signal values are as on the CAN bus.
  */
 struct CanMsgs_fsm_errors_t {
@@ -77,6 +80,8 @@ struct CanMsgs_fsm_errors_t {
 /**
  * Signals in message FSM_CAN_TX_FIFO_OVERFLOW.
  *
+ * Indicates that we tried to transmit messages faster then we can send them, so our internal FIFO queue overflowed
+ *
  * All signal values are as on the CAN bus.
  */
 struct CanMsgs_fsm_can_tx_fifo_overflow_t {
@@ -90,6 +95,8 @@ struct CanMsgs_fsm_can_tx_fifo_overflow_t {
 
 /**
  * Signals in message FSM_STARTUP.
+ *
+ * Sent out by the FSM when it starts up
  *
  * All signal values are as on the CAN bus.
  */
@@ -214,6 +221,8 @@ struct CanMsgs_pdm_errors_t {
 /**
  * Signals in message PDM_CAN_TX_FIFO_OVERFLOW.
  *
+ * Indicates that we tried to transmit messages faster then we can send them, so our internal FIFO queue overflowed
+ *
  * All signal values are as on the CAN bus.
  */
 struct CanMsgs_pdm_can_tx_fifo_overflow_t {
@@ -225,6 +234,8 @@ struct CanMsgs_pdm_can_tx_fifo_overflow_t {
 
 /**
  * Signals in message PDM_HEARTBEAT.
+ *
+ * TODO: descriptive comment
  *
  * All signal values are as on the CAN bus.
  */
