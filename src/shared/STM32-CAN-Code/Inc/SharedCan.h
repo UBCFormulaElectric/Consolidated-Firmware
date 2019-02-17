@@ -192,12 +192,12 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
 /**
  * @brief Send the given CAN message
  * @param MSG_NAME the name of the message to send
- * @param MSG_STRUCT a struct of type `CanMsgs_MSG_NAME_t`, that will be
- *        packed and sent over the CAN bus
+ * @param MSG_STRUCT_PTR a pointer to a struct of type `CanMsgs_MSG_NAME_t`, 
+ *                       that will be packed and sent over the CAN bus
  */
-#define SHAREDCAN_SEND_CAN_MSG(MSG_NAME, MSG_STRUCT) \
+#define SHAREDCAN_SEND_CAN_MSG(MSG_NAME, MSG_STRUCT_PTR) \
     uint8_t ___data[CAN_PAYLOAD_MAX_NUM_BYTES]; \
-    int ___size = CanMsgs_##MSG_NAME##_pack(&___data[0], MSG_STRUCT, \
+    int ___size = CanMsgs_##MSG_NAME##_pack(&___data[0], MSG_STRUCT_PTR, \
                                             CAN_PAYLOAD_MAX_NUM_BYTES); \
     SharedCan_TransmitDataCan(CANMSGS_##MSG_NAME##_FRAME_ID, \
                               (size_t)___size, \
