@@ -351,7 +351,7 @@ void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data)
 
 #ifdef STM32F042x6
     // Copy over data to send
-    memcpy(&data[0], &(tx_header.Data[0]), dlc * sizeof(uint8_t));
+    memcpy(&(tx_header.Data[0]), &data[0], dlc * sizeof(uint8_t));
 
     // Copy over the header to send
     hcan.pTxMsg = &tx_header;
