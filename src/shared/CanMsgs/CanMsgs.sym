@@ -11,28 +11,28 @@ Var=sapps_out_of_range bit 1,1 /ln:"Secondary Acceleration Pedal Position Sensor
 
 [FSM_CAN_TX_FIFO_OVERFLOW]
 ID=042h	// Indicates that we tried to transmit messages faster then we can send them, so our internal FIFO queue overflowed
-Len=8
+Len=4
 Var=overflow_count unsigned 0,32
 
 [FSM_STARTUP]
 ID=043h	// Sent out by the FSM when it starts up
-Len=8
+Len=0
 
 [FSM_AIR_SHUTDOWN]
 ID=050h
-Len=8
+Len=0
 
 [PDM_AIR_SHUTDOWN]
 ID=066h
-Len=8
+Len=0
 
 [PDM_MOTOR_SHUTDOWN]
 ID=067h
-Len=8
+Len=0
 
 [BMS_STARTUP]
 ID=003h
-Len=8
+Len=0
 
 [PDM_ERRORS]
 ID=060h
@@ -48,7 +48,8 @@ Var=VBAT_FAULT bit 7,1 /ln:"TODO: What does this mean?"
 
 [PDM_CAN_TX_FIFO_OVERFLOW]
 ID=062h	// Indicates that we tried to transmit messages faster then we can send them, so our internal FIFO queue overflowed
-Len=8
+Len=4
+Var=overflow_count unsigned 0,32 /max:1
 
 [PDM_HEARTBEAT]
 ID=061h	// TODO: descriptive comment
@@ -56,29 +57,31 @@ Len=8
 
 [FSM_HEARTBEAT]
 ID=041h
-Len=8
+Len=0
 
 [PDM_STARTUP]
 ID=063h
-Len=8
+Len=0
 
 [BMS_HEARTBEAT]
 ID=001h
-Len=8
+Len=0
 
 [DCM_HEARTBEAT]
 ID=021h
-Len=8
+Len=0
 
 [BMS_CAN_TX_FIFO_OVERFLOW]
 ID=002h
-Len=8
+Len=4
+Var=overflow_count unsigned 0,32 /max:1
 
 [DCM_CAN_TX_FIFO_OVERFLOW]
 ID=022h
-Len=8
+Len=4
+Var=overflow_count unsigned 0,32 /max:1
 
 [DCM_STARTUP]
 ID=023h
-Len=8
+Len=0
 

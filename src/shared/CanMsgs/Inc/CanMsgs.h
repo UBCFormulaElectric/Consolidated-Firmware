@@ -230,9 +230,11 @@ struct CanMsgs_pdm_errors_t {
  */
 struct CanMsgs_pdm_can_tx_fifo_overflow_t {
     /**
-     * Dummy signal in empty message.
+     * Range: ..1 (..1 -)
+     * Scale: 1
+     * Offset: 0
      */
-    uint8_t dummy;
+    uint32_t overflow_count;
 };
 
 /**
@@ -304,9 +306,11 @@ struct CanMsgs_dcm_heartbeat_t {
  */
 struct CanMsgs_bms_can_tx_fifo_overflow_t {
     /**
-     * Dummy signal in empty message.
+     * Range: ..1 (..1 -)
+     * Scale: 1
+     * Offset: 0
      */
-    uint8_t dummy;
+    uint32_t overflow_count;
 };
 
 /**
@@ -316,9 +320,11 @@ struct CanMsgs_bms_can_tx_fifo_overflow_t {
  */
 struct CanMsgs_dcm_can_tx_fifo_overflow_t {
     /**
-     * Dummy signal in empty message.
+     * Range: ..1 (..1 -)
+     * Scale: 1
+     * Offset: 0
      */
-    uint8_t dummy;
+    uint32_t overflow_count;
 };
 
 /**
@@ -883,6 +889,33 @@ int CanMsgs_pdm_can_tx_fifo_overflow_unpack(
     size_t size);
 
 /**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+uint32_t CanMsgs_pdm_can_tx_fifo_overflow_overflow_count_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_can_tx_fifo_overflow_overflow_count_decode(uint32_t value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_can_tx_fifo_overflow_overflow_count_is_in_range(uint32_t value);
+
+/**
  * Pack message PDM_HEARTBEAT.
  *
  * @param[out] dst_p Buffer to pack the message into.
@@ -1051,6 +1084,33 @@ int CanMsgs_bms_can_tx_fifo_overflow_unpack(
     size_t size);
 
 /**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+uint32_t CanMsgs_bms_can_tx_fifo_overflow_overflow_count_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_bms_can_tx_fifo_overflow_overflow_count_decode(uint32_t value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_bms_can_tx_fifo_overflow_overflow_count_is_in_range(uint32_t value);
+
+/**
  * Pack message DCM_CAN_TX_FIFO_OVERFLOW.
  *
  * @param[out] dst_p Buffer to pack the message into.
@@ -1077,6 +1137,33 @@ int CanMsgs_dcm_can_tx_fifo_overflow_unpack(
     struct CanMsgs_dcm_can_tx_fifo_overflow_t *dst_p,
     const uint8_t *src_p,
     size_t size);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+uint32_t CanMsgs_dcm_can_tx_fifo_overflow_overflow_count_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_dcm_can_tx_fifo_overflow_overflow_count_decode(uint32_t value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_dcm_can_tx_fifo_overflow_overflow_count_is_in_range(uint32_t value);
 
 /**
  * Pack message DCM_STARTUP.

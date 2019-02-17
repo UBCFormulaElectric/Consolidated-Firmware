@@ -149,18 +149,18 @@ int CanMsgs_fsm_can_tx_fifo_overflow_pack(
     const struct CanMsgs_fsm_can_tx_fifo_overflow_t *src_p,
     size_t size)
 {
-    if (size < 8u) {
+    if (size < 4u) {
         return (-EINVAL);
     }
 
-    memset(&dst_p[0], 0, 8);
+    memset(&dst_p[0], 0, 4);
 
     dst_p[0] |= pack_left_shift_u32(src_p->overflow_count, 0u, 0xffu);
     dst_p[1] |= pack_right_shift_u32(src_p->overflow_count, 8u, 0xffu);
     dst_p[2] |= pack_right_shift_u32(src_p->overflow_count, 16u, 0xffu);
     dst_p[3] |= pack_right_shift_u32(src_p->overflow_count, 24u, 0xffu);
 
-    return (8);
+    return (4);
 }
 
 int CanMsgs_fsm_can_tx_fifo_overflow_unpack(
@@ -168,7 +168,7 @@ int CanMsgs_fsm_can_tx_fifo_overflow_unpack(
     const uint8_t *src_p,
     size_t size)
 {
-    if (size < 8u) {
+    if (size < 4u) {
         return (-EINVAL);
     }
 
@@ -204,15 +204,11 @@ int CanMsgs_fsm_startup_pack(
     const struct CanMsgs_fsm_startup_t *src_p,
     size_t size)
 {
+    (void)dst_p;
     (void)src_p;
+    (void)size;
 
-    if (size < 8u) {
-        return (-EINVAL);
-    }
-
-    memset(&dst_p[0], 0, 8);
-
-    return (8);
+    return (0);
 }
 
 int CanMsgs_fsm_startup_unpack(
@@ -221,10 +217,7 @@ int CanMsgs_fsm_startup_unpack(
     size_t size)
 {
     (void)src_p;
-
-    if (size < 8u) {
-        return (-EINVAL);
-    }
+    (void)size;
 
     memset(dst_p, 0, sizeof(*dst_p));
 
@@ -236,15 +229,11 @@ int CanMsgs_fsm_air_shutdown_pack(
     const struct CanMsgs_fsm_air_shutdown_t *src_p,
     size_t size)
 {
+    (void)dst_p;
     (void)src_p;
+    (void)size;
 
-    if (size < 8u) {
-        return (-EINVAL);
-    }
-
-    memset(&dst_p[0], 0, 8);
-
-    return (8);
+    return (0);
 }
 
 int CanMsgs_fsm_air_shutdown_unpack(
@@ -253,10 +242,7 @@ int CanMsgs_fsm_air_shutdown_unpack(
     size_t size)
 {
     (void)src_p;
-
-    if (size < 8u) {
-        return (-EINVAL);
-    }
+    (void)size;
 
     memset(dst_p, 0, sizeof(*dst_p));
 
@@ -268,15 +254,11 @@ int CanMsgs_pdm_air_shutdown_pack(
     const struct CanMsgs_pdm_air_shutdown_t *src_p,
     size_t size)
 {
+    (void)dst_p;
     (void)src_p;
+    (void)size;
 
-    if (size < 8u) {
-        return (-EINVAL);
-    }
-
-    memset(&dst_p[0], 0, 8);
-
-    return (8);
+    return (0);
 }
 
 int CanMsgs_pdm_air_shutdown_unpack(
@@ -285,10 +267,7 @@ int CanMsgs_pdm_air_shutdown_unpack(
     size_t size)
 {
     (void)src_p;
-
-    if (size < 8u) {
-        return (-EINVAL);
-    }
+    (void)size;
 
     memset(dst_p, 0, sizeof(*dst_p));
 
@@ -300,15 +279,11 @@ int CanMsgs_pdm_motor_shutdown_pack(
     const struct CanMsgs_pdm_motor_shutdown_t *src_p,
     size_t size)
 {
+    (void)dst_p;
     (void)src_p;
+    (void)size;
 
-    if (size < 8u) {
-        return (-EINVAL);
-    }
-
-    memset(&dst_p[0], 0, 8);
-
-    return (8);
+    return (0);
 }
 
 int CanMsgs_pdm_motor_shutdown_unpack(
@@ -317,10 +292,7 @@ int CanMsgs_pdm_motor_shutdown_unpack(
     size_t size)
 {
     (void)src_p;
-
-    if (size < 8u) {
-        return (-EINVAL);
-    }
+    (void)size;
 
     memset(dst_p, 0, sizeof(*dst_p));
 
@@ -332,15 +304,11 @@ int CanMsgs_bms_startup_pack(
     const struct CanMsgs_bms_startup_t *src_p,
     size_t size)
 {
+    (void)dst_p;
     (void)src_p;
+    (void)size;
 
-    if (size < 8u) {
-        return (-EINVAL);
-    }
-
-    memset(&dst_p[0], 0, 8);
-
-    return (8);
+    return (0);
 }
 
 int CanMsgs_bms_startup_unpack(
@@ -349,10 +317,7 @@ int CanMsgs_bms_startup_unpack(
     size_t size)
 {
     (void)src_p;
-
-    if (size < 8u) {
-        return (-EINVAL);
-    }
+    (void)size;
 
     memset(dst_p, 0, sizeof(*dst_p));
 
@@ -530,15 +495,18 @@ int CanMsgs_pdm_can_tx_fifo_overflow_pack(
     const struct CanMsgs_pdm_can_tx_fifo_overflow_t *src_p,
     size_t size)
 {
-    (void)src_p;
-
-    if (size < 8u) {
+    if (size < 4u) {
         return (-EINVAL);
     }
 
-    memset(&dst_p[0], 0, 8);
+    memset(&dst_p[0], 0, 4);
 
-    return (8);
+    dst_p[0] |= pack_left_shift_u32(src_p->overflow_count, 0u, 0xffu);
+    dst_p[1] |= pack_right_shift_u32(src_p->overflow_count, 8u, 0xffu);
+    dst_p[2] |= pack_right_shift_u32(src_p->overflow_count, 16u, 0xffu);
+    dst_p[3] |= pack_right_shift_u32(src_p->overflow_count, 24u, 0xffu);
+
+    return (4);
 }
 
 int CanMsgs_pdm_can_tx_fifo_overflow_unpack(
@@ -546,15 +514,33 @@ int CanMsgs_pdm_can_tx_fifo_overflow_unpack(
     const uint8_t *src_p,
     size_t size)
 {
-    (void)src_p;
-
-    if (size < 8u) {
+    if (size < 4u) {
         return (-EINVAL);
     }
 
     memset(dst_p, 0, sizeof(*dst_p));
 
+    dst_p->overflow_count |= unpack_right_shift_u32(src_p[0], 0u, 0xffu);
+    dst_p->overflow_count |= unpack_left_shift_u32(src_p[1], 8u, 0xffu);
+    dst_p->overflow_count |= unpack_left_shift_u32(src_p[2], 16u, 0xffu);
+    dst_p->overflow_count |= unpack_left_shift_u32(src_p[3], 24u, 0xffu);
+
     return (0);
+}
+
+uint32_t CanMsgs_pdm_can_tx_fifo_overflow_overflow_count_encode(double value)
+{
+    return (uint32_t)(value);
+}
+
+double CanMsgs_pdm_can_tx_fifo_overflow_overflow_count_decode(uint32_t value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_can_tx_fifo_overflow_overflow_count_is_in_range(uint32_t value)
+{
+    return (value <= 1u);
 }
 
 int CanMsgs_pdm_heartbeat_pack(
@@ -594,15 +580,11 @@ int CanMsgs_fsm_heartbeat_pack(
     const struct CanMsgs_fsm_heartbeat_t *src_p,
     size_t size)
 {
+    (void)dst_p;
     (void)src_p;
+    (void)size;
 
-    if (size < 8u) {
-        return (-EINVAL);
-    }
-
-    memset(&dst_p[0], 0, 8);
-
-    return (8);
+    return (0);
 }
 
 int CanMsgs_fsm_heartbeat_unpack(
@@ -611,10 +593,7 @@ int CanMsgs_fsm_heartbeat_unpack(
     size_t size)
 {
     (void)src_p;
-
-    if (size < 8u) {
-        return (-EINVAL);
-    }
+    (void)size;
 
     memset(dst_p, 0, sizeof(*dst_p));
 
@@ -626,15 +605,11 @@ int CanMsgs_pdm_startup_pack(
     const struct CanMsgs_pdm_startup_t *src_p,
     size_t size)
 {
+    (void)dst_p;
     (void)src_p;
+    (void)size;
 
-    if (size < 8u) {
-        return (-EINVAL);
-    }
-
-    memset(&dst_p[0], 0, 8);
-
-    return (8);
+    return (0);
 }
 
 int CanMsgs_pdm_startup_unpack(
@@ -643,10 +618,7 @@ int CanMsgs_pdm_startup_unpack(
     size_t size)
 {
     (void)src_p;
-
-    if (size < 8u) {
-        return (-EINVAL);
-    }
+    (void)size;
 
     memset(dst_p, 0, sizeof(*dst_p));
 
@@ -658,15 +630,11 @@ int CanMsgs_bms_heartbeat_pack(
     const struct CanMsgs_bms_heartbeat_t *src_p,
     size_t size)
 {
+    (void)dst_p;
     (void)src_p;
+    (void)size;
 
-    if (size < 8u) {
-        return (-EINVAL);
-    }
-
-    memset(&dst_p[0], 0, 8);
-
-    return (8);
+    return (0);
 }
 
 int CanMsgs_bms_heartbeat_unpack(
@@ -675,10 +643,7 @@ int CanMsgs_bms_heartbeat_unpack(
     size_t size)
 {
     (void)src_p;
-
-    if (size < 8u) {
-        return (-EINVAL);
-    }
+    (void)size;
 
     memset(dst_p, 0, sizeof(*dst_p));
 
@@ -690,15 +655,11 @@ int CanMsgs_dcm_heartbeat_pack(
     const struct CanMsgs_dcm_heartbeat_t *src_p,
     size_t size)
 {
+    (void)dst_p;
     (void)src_p;
+    (void)size;
 
-    if (size < 8u) {
-        return (-EINVAL);
-    }
-
-    memset(&dst_p[0], 0, 8);
-
-    return (8);
+    return (0);
 }
 
 int CanMsgs_dcm_heartbeat_unpack(
@@ -707,10 +668,7 @@ int CanMsgs_dcm_heartbeat_unpack(
     size_t size)
 {
     (void)src_p;
-
-    if (size < 8u) {
-        return (-EINVAL);
-    }
+    (void)size;
 
     memset(dst_p, 0, sizeof(*dst_p));
 
@@ -722,15 +680,18 @@ int CanMsgs_bms_can_tx_fifo_overflow_pack(
     const struct CanMsgs_bms_can_tx_fifo_overflow_t *src_p,
     size_t size)
 {
-    (void)src_p;
-
-    if (size < 8u) {
+    if (size < 4u) {
         return (-EINVAL);
     }
 
-    memset(&dst_p[0], 0, 8);
+    memset(&dst_p[0], 0, 4);
 
-    return (8);
+    dst_p[0] |= pack_left_shift_u32(src_p->overflow_count, 0u, 0xffu);
+    dst_p[1] |= pack_right_shift_u32(src_p->overflow_count, 8u, 0xffu);
+    dst_p[2] |= pack_right_shift_u32(src_p->overflow_count, 16u, 0xffu);
+    dst_p[3] |= pack_right_shift_u32(src_p->overflow_count, 24u, 0xffu);
+
+    return (4);
 }
 
 int CanMsgs_bms_can_tx_fifo_overflow_unpack(
@@ -738,15 +699,33 @@ int CanMsgs_bms_can_tx_fifo_overflow_unpack(
     const uint8_t *src_p,
     size_t size)
 {
-    (void)src_p;
-
-    if (size < 8u) {
+    if (size < 4u) {
         return (-EINVAL);
     }
 
     memset(dst_p, 0, sizeof(*dst_p));
 
+    dst_p->overflow_count |= unpack_right_shift_u32(src_p[0], 0u, 0xffu);
+    dst_p->overflow_count |= unpack_left_shift_u32(src_p[1], 8u, 0xffu);
+    dst_p->overflow_count |= unpack_left_shift_u32(src_p[2], 16u, 0xffu);
+    dst_p->overflow_count |= unpack_left_shift_u32(src_p[3], 24u, 0xffu);
+
     return (0);
+}
+
+uint32_t CanMsgs_bms_can_tx_fifo_overflow_overflow_count_encode(double value)
+{
+    return (uint32_t)(value);
+}
+
+double CanMsgs_bms_can_tx_fifo_overflow_overflow_count_decode(uint32_t value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_bms_can_tx_fifo_overflow_overflow_count_is_in_range(uint32_t value)
+{
+    return (value <= 1u);
 }
 
 int CanMsgs_dcm_can_tx_fifo_overflow_pack(
@@ -754,15 +733,18 @@ int CanMsgs_dcm_can_tx_fifo_overflow_pack(
     const struct CanMsgs_dcm_can_tx_fifo_overflow_t *src_p,
     size_t size)
 {
-    (void)src_p;
-
-    if (size < 8u) {
+    if (size < 4u) {
         return (-EINVAL);
     }
 
-    memset(&dst_p[0], 0, 8);
+    memset(&dst_p[0], 0, 4);
 
-    return (8);
+    dst_p[0] |= pack_left_shift_u32(src_p->overflow_count, 0u, 0xffu);
+    dst_p[1] |= pack_right_shift_u32(src_p->overflow_count, 8u, 0xffu);
+    dst_p[2] |= pack_right_shift_u32(src_p->overflow_count, 16u, 0xffu);
+    dst_p[3] |= pack_right_shift_u32(src_p->overflow_count, 24u, 0xffu);
+
+    return (4);
 }
 
 int CanMsgs_dcm_can_tx_fifo_overflow_unpack(
@@ -770,15 +752,33 @@ int CanMsgs_dcm_can_tx_fifo_overflow_unpack(
     const uint8_t *src_p,
     size_t size)
 {
-    (void)src_p;
-
-    if (size < 8u) {
+    if (size < 4u) {
         return (-EINVAL);
     }
 
     memset(dst_p, 0, sizeof(*dst_p));
 
+    dst_p->overflow_count |= unpack_right_shift_u32(src_p[0], 0u, 0xffu);
+    dst_p->overflow_count |= unpack_left_shift_u32(src_p[1], 8u, 0xffu);
+    dst_p->overflow_count |= unpack_left_shift_u32(src_p[2], 16u, 0xffu);
+    dst_p->overflow_count |= unpack_left_shift_u32(src_p[3], 24u, 0xffu);
+
     return (0);
+}
+
+uint32_t CanMsgs_dcm_can_tx_fifo_overflow_overflow_count_encode(double value)
+{
+    return (uint32_t)(value);
+}
+
+double CanMsgs_dcm_can_tx_fifo_overflow_overflow_count_decode(uint32_t value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_dcm_can_tx_fifo_overflow_overflow_count_is_in_range(uint32_t value)
+{
+    return (value <= 1u);
 }
 
 int CanMsgs_dcm_startup_pack(
@@ -786,15 +786,11 @@ int CanMsgs_dcm_startup_pack(
     const struct CanMsgs_dcm_startup_t *src_p,
     size_t size)
 {
+    (void)dst_p;
     (void)src_p;
+    (void)size;
 
-    if (size < 8u) {
-        return (-EINVAL);
-    }
-
-    memset(&dst_p[0], 0, 8);
-
-    return (8);
+    return (0);
 }
 
 int CanMsgs_dcm_startup_unpack(
@@ -803,10 +799,7 @@ int CanMsgs_dcm_startup_unpack(
     size_t size)
 {
     (void)src_p;
-
-    if (size < 8u) {
-        return (-EINVAL);
-    }
+    (void)size;
 
     memset(dst_p, 0, sizeof(*dst_p));
 
