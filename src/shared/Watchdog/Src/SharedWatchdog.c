@@ -1,12 +1,12 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
-#include "SharedFilters.h"
-#include "arm_math.h"
+#include "SharedWatchdog.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
  ******************************************************************************/
+// clang-format off
 
 /******************************************************************************
  * Module Preprocessor Macros
@@ -15,10 +15,16 @@
 /******************************************************************************
  * Module Typedefs
  ******************************************************************************/
+// clang-format on
 
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
+// IWDG_HandleTypeDef hiwdg is not initialized on system boot-up
+static bool iwdg_initialized = false;
+
+// A copy of the pointer to hiwdg just for this translation unit
+static IWDG_HandleTypeDef *hiwdg_ptr;
 
 /******************************************************************************
  * Private Function Prototypes
@@ -31,23 +37,21 @@
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedFilters_LowPassFilter(
-    float32_t *input,
-    float32_t *output,
-    float32_t  sampling_time,
-    float32_t  rc)
+void SharedWatchdog_RefreshIwdg(void)
 {
-    float32_t smoothing_factor;
-
-    smoothing_factor = sampling_time / (rc + sampling_time);
-
-    // The pseudo-code for this LPF implementation is as follows:
-    // y[i] = y[i-1] + SmoothingFactor * ( x[i] - y[i-1] ), where y =
-    // output, x = input. That is, the change from one filter output
-    // to the next is proportional to the difference between the previous
-    // output and the next input.
-    for (uint32_t i = 0; i < sizeof(output) / sizeof(output[0]); i++)
+    if (SharedWatchdog_IsIwdgInitialized())
     {
-        output[i] = output[i] + smoothing_factor * (input[i] - output[i]);
+        HAL_IWDG_Refresh(hiwdg_ptr);
     }
+}
+
+void SharedWatchdog_SetIwdgInitialized(IWDG_HandleTypeDef *hiwdg)
+{
+    hiwdg_ptr        = hiwdg;
+    iwdg_initialized = true;
+}
+
+bool SharedWatchdog_IsIwdgInitialized(void)
+{
+    return iwdg_initialized;
 }
