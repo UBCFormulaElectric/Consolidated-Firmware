@@ -2,6 +2,7 @@
  * Includes
  ******************************************************************************/
 #include "SharedHeartbeat.h"
+#include "SharedCan.h"
 #include "Gpio.h"
 #include "SharedGpio.h"
 
@@ -54,12 +55,12 @@ void Heartbeat_HandleHeartbeatTimeout(uint8_t heartbeats_received)
         EFUSE_AIR_SHDN_IN_GPIO_Port, EFUSE_AIR_SHDN_IN_Pin, GPIO_PIN_RESET);
 
     // Log error
-    SharedCan_BroadcastPcbErrors(MISSING_HEARTBEAT);
+    SHAREDCAN_SEND_CAN_MSG_WITH_SINGLE_BIT_SET(pdm_errors, missing_heartbeat);
 }
 
 void Heartbeat_HandleHeartbeatReception(uint32_t std_id)
 {
-    if (std_id == BMS_HEARTBEAT_STDID)
+    if (std_id == CANMSGS_bms_startup_FRAME_ID)
     {
         SharedHeartbeat_ReceiveHeartbeat(BMS_HEARTBEAT_ENCODING);
     }

@@ -43,7 +43,6 @@
 #include "Gpio.h"
 #include "SharedCan.h"
 #include "SharedHeartbeat.h"
-#include "ErrorHandling.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
