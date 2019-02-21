@@ -85,7 +85,10 @@ script:
             git_diff_result=$?
             set -e
             if [ $git_diff_result -ne 0 ]; then
-                echo "\n\n\n #########################"
+                echo ""
+                echo ""
+                echo ""
+                echo "#########################"
                 echo "FAILED - Git diff was non-zero!"
                 echo "Make sure to update your version of cantools using pipenv,"
                 echo "and re-run generate_c_code_from_sym.py to generate C code from the .sym file."
