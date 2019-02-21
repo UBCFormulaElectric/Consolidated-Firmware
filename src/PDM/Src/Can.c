@@ -3,6 +3,7 @@
  ******************************************************************************/
 #include "Can.h"
 #include "SharedHeartbeat.h"
+#include "CanMsgs.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -33,19 +34,19 @@
  ******************************************************************************/
 void Can_BroadcastAirShutdownError(void)
 {
-    // TODO (#Issue 217): Is it ok for payload to be empty?
-    uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = { 0 };
-    SharedCan_TransmitDataCan(
-        BMS_AIR_SHUTDOWN_ERROR_STDID, BMS_AIR_SHUTDOWN_ERROR_DLC, &data[0]);
+    struct CanMsgs_pdm_air_shutdown_t shutdown_msg = { 0 };
+    SHAREDCAN_SEND_CAN_MSG(pdm_air_shutdown, &shutdown_msg);
 }
 
 void Can_BroadcastMotorShutdownError(void)
 {
-    // TODO (#Issue 217): Is it ok for payload to be empty?
-    uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = { 0 };
-    SharedCan_TransmitDataCan(
-        SHARED_MOTOR_SHUTDOWN_ERROR_STDID, SHARED_MOTOR_SHUTDOWN_ERROR_DLC,
-        &data[0]);
+    struct CanMsgs_pdm_motor_shutdown_t shutdown_msg = { 0 };
+    SHAREDCAN_SEND_CAN_MSG(pdm_motor_shutdown, &shutdown_msg);
+}
+
+void Can_BmsStartupCallback(struct CanMsgs_bms_startup_t *bms_startup_msg)
+{
+    // TODO: Placeholder
 }
 
 void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
@@ -57,12 +58,8 @@ void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
     // Check for a received heartbeat
     Heartbeat_HandleHeartbeatReception(rx_msg.rx_header.StdId);
 
-    switch (rx_msg.rx_header.StdId)
+    SHAREDCAN_CAN_MSG_TO_CALLBACK_MAPPING(rx_msg.rx_header.StdId, rx_msg.data)
     {
-        case BMS_STARTUP_STDID:
-            // Placeholder
-            break;
-        default:
-            break;
+        SHAREDCAN_IF_STDID_IS(bms_startup, Can_BmsStartupCallback);
     }
 }

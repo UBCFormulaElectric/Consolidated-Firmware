@@ -3,6 +3,7 @@
  ******************************************************************************/
 #include <stdbool.h>
 #include <string.h>
+#include <stdint.h>
 #include "SharedCan.h"
 #include "main.h"
 
@@ -297,23 +298,30 @@ static void SharedCan_EnqueueFifoOverflowError(void)
     // Replace the next CAN message in queue with the overflow count in a
     // destructive manner
     can_tx_msg_fifo[tail].std_id = CAN_TX_FIFO_OVERFLOW_STDID;
-    can_tx_msg_fifo[tail].dlc    = CAN_TX_FIFO_OVERFLOW_DLC;
+
+    // Since we do not know what CAN message is being used as the overflow
+    // message, we just use the maximum size allowed for the message data
+    can_tx_msg_fifo[tail].dlc = CAN_PAYLOAD_MAX_NUM_BYTES;
+
     memcpy(
-        &can_tx_msg_fifo[tail].data, &overflow_count, CAN_TX_FIFO_OVERFLOW_DLC);
+        &can_tx_msg_fifo[tail].data, &overflow_count,
+        can_tx_msg_fifo[tail].dlc);
 }
 static void SharedCan_BroadcastSystemReboot(void)
 {
-    uint8_t data[CAN_PAYLOAD_BYTE_SIZE] = { 0 };
-    SharedCan_TransmitDataCan(PCB_STARTUP_STDID, PCB_STARTUP_DLC, &data[0]);
+    // TODO: (Issue #217) Test out message of size 0, as that would be
+    // more semantically meaningful here
+    uint8_t data[CAN_PAYLOAD_MAX_NUM_BYTES] = { 0 };
+    // Since we do not know what CAN message is being used as the overflow
+    // message, we just use the maximum size allowed for the message data
+    SharedCan_TransmitDataCan(
+        PCB_STARTUP_STDID, CAN_PAYLOAD_MAX_NUM_BYTES, &data[0]);
 }
 
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedCan_TransmitDataCan(
-    CanStandardId_Enum     std_id,
-    CanDataLengthCode_Enum dlc,
-    uint8_t *              data)
+void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data)
 {
     // Indicates the mailbox used for tranmission, not currently used
     uint32_t mailbox = 0;
@@ -343,7 +351,7 @@ void SharedCan_TransmitDataCan(
 
 #ifdef STM32F042x6
     // Copy over data to send
-    memcpy(&data[0], &(tx_header.Data[0]), dlc * sizeof(uint8_t));
+    memcpy(&(tx_header.Data[0]), &data[0], dlc * sizeof(uint8_t));
 
     // Copy over the header to send
     hcan.pTxMsg = &tx_header;
@@ -360,7 +368,7 @@ void SharedCan_TransmitDataCan(
         CanTxMsgQueueItem_Struct tx_msg;
         tx_msg.std_id = std_id;
         tx_msg.dlc    = dlc;
-        memcpy(&tx_msg.data, data, CAN_PAYLOAD_BYTE_SIZE);
+        memcpy(&tx_msg.data, data, CAN_PAYLOAD_MAX_NUM_BYTES);
 
         if (SharedCan_EnqueueCanTxMessageFifo(&tx_msg) == FIFO_IS_FULL)
         {
@@ -436,14 +444,6 @@ HAL_StatusTypeDef SharedCan_ReceiveDataCan(
     return status;
 }
 
-void SharedCan_BroadcastPcbErrors(Error_Enum errors)
-{
-    // Error message is one-hot encoded according to Error_enum and thus
-    // requires bit shifting (Read more: https://en.wikipedia.org/wiki/One-hot)
-    uint32_t data = 1U << errors;
-    SharedCan_TransmitDataCan(PCB_ERROR_STDID, PCB_ERROR_DLC, (uint8_t *)&data);
-}
-
 #ifdef STM32F042x6
 
 void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan)
@@ -452,6 +452,12 @@ void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan)
     /* NOTE: We just set the hardware FIFO to 0 here because the F0 board does
              not give it to us. */
     Can_RxCommonCallback(hcan, hcan->pRxMsg->FIFONumber);
+}
+
+void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef *hcan)
+{
+    /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
+    Can_TxCommonCallback(hcan);
 }
 
 #else
@@ -467,18 +473,6 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
     /* NOTE: All receive mailbox interrupts shall be handled in the same way */
     Can_RxCommonCallback(hcan, CAN_RX_FIFO1);
 }
-
-#endif
-
-#ifdef STM32F042x6
-
-void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef *hcan)
-{
-    /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
-    Can_TxCommonCallback(hcan);
-}
-
-#else
 
 void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
 {

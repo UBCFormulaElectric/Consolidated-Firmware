@@ -105,6 +105,7 @@ script:
             if [ $git_diff_result -ne 0 ]; then
                 echo ""
                 echo ""
+                echo ""
                 echo "#########################"
                 echo "FAILED - Git diff was non-zero!"
                 echo "Make sure to update your version of cantools using pipenv,"
