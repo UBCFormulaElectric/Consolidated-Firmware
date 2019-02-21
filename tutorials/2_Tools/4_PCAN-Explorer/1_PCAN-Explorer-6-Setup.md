@@ -8,4 +8,4 @@
 ## Usage
 - to have PCAN explorer cross-reference incoming signals with our `.sym` file (which holds the meaning and format of each of our CAN messages), right click on the `.sym` and select "Apply", as per the below image
 
-![image here](../../../images/sym_file_click_apply.jpg?raw=true "Click Apply")
+![image here](../../../images/sym_file_click_apply.png?raw=true "Click Apply")
