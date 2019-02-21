@@ -69,7 +69,27 @@ script:
     - |
       if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then 
             cd clang-format;
-            echo -e "Y" | python check_formatting_CI.py;
+            echo -e "Y" | python fix_formatting.py;
+            # Show the diff
+            git --no-pager diff;
+            # Check if there was a non-zero diff (disable set -e for this) so
+            # we can capture the result and print a error msg (otherwise a
+            # non-zero result would just cause this script to exit)
+            set +e
+            git diff-index --quiet HEAD --
+            git_diff_result=$?
+            set -e
+            if [ $git_diff_result -ne 0 ]; then
+                echo ""
+                echo ""
+                echo "#########################"
+                echo "FAILED - Git diff was non-zero!"
+                echo "Run `clang_format/fix_formatting.py` to format your code properly!,"
+                echo "#########################"
+                return 1;
+            else
+                echo "PASSED - Code is correctly formatted!"
+            fi
       fi
     - |
       if [ "$GENERATE_CODE_FROM_SYM" = "true" ]; then 
