@@ -86,7 +86,7 @@ ID=023h
 Len=0
 
 [PDM_AUX1_AUX2_CURRENT]
-ID=066h	// This variable indicates the current being drawn by the auxiliary 1 and 2 outputs
+ID=066h	// This message indicates the current being drawn by the auxiliary 1 and 2 outputs
 Len=8
 Var=Auxiliary1_Current float 0,32 /u:A /p:5	// This variable indicates the current being drawn by the auxiliary 1 output
 Var=Auxiliary2_Current float 32,32 /u:A /p:5	// This variable indicates the current being drawn by the auxiliary 2 output
