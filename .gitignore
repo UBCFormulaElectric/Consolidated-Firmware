@@ -70,6 +70,8 @@ CMakeCache.txt
 cmake_install.cmake
 CMakeFiles/
 Build/
+compile_commands.json
+src/Makefile
 
 # Miscellaneous
 *.tra
