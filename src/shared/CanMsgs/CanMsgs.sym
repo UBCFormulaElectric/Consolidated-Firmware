@@ -23,11 +23,11 @@ ID=050h
 Len=0
 
 [PDM_AIR_SHUTDOWN]
-ID=066h
+ID=064h
 Len=0
 
 [PDM_MOTOR_SHUTDOWN]
-ID=067h
+ID=065h
 Len=0
 
 [BMS_STARTUP]
@@ -86,43 +86,43 @@ ID=023h
 Len=0
 
 [PDM_AUX1_AUX2_CURRENT]
-ID=066h
+ID=066h	// This variable indicates the current being drawn by the auxiliary 1 and 2 outputs
 Len=8
-Var=AUX1 float 0,32 /u:A /p:5
-Var=AUX2 float 32,32 /u:A /p:5
+Var=Auxiliary1_Current float 0,32 /u:A /p:5	// This variable indicates the current being drawn by the auxiliary 1 output
+Var=Auxiliary2_Current float 32,32 /u:A /p:5	// This variable indicates the current being drawn by the auxiliary 2 output
 
 [PDM_COOLING_PDMFAN_CURRENT]
-ID=067h
+ID=067h	// This message indicates the current being drawn by the cooling pump and PDM enclosure fan\
 Len=8
-Var=COOLING float 0,32 /u:A /p:5
-Var=PDMFAN float 32,32 /u:A /p:5
+Var=Cooling_Pump_Current float 0,32 /u:A /p:5	// This variable indicates the current being drawn by the cooling pump
+Var=PDM_Enclosure_Fan_Current float 32,32 /u:A /p:5	// This variable indicates the current being drawn by the fan on the PDM enclosure
 
 [PDM_AIRSHDN_CANGLV_CURRENT]
-ID=068h
+ID=068h	// This message indicates the current being drawn by the AIR shutdown circuit and the 12V Grounded-Low-Voltage (GLV) system
 Len=8
-Var=AIRSHDN float 0,32 /u:A /p:5
-Var=CANGLV float 32,32 /u:A /p:5
+Var=AIR_Shutdown_Current float 0,32 /u:A /p:5	// This variable indicates the current being drawn by the AIR shutdown circuit
+Var=Grounded_Low_Voltage_Current float 32,32 /u:A /p:5	// This variable indicates the current being drawn by the 12V Grounded-Low-Voltage (GLV) system
 
 [PDM_ACCUMULATOR_FAN_CURRENT]
-ID=069h
+ID=069h	// This message indicates the current being drawn by the fans on the accumulator
 Len=8
-Var=ACCSEGMENTFAN float 0,32 /u:A /p:5
-Var=ACCENCFAN float 32,32 /u:A /p:5
+Var=Accumulator_Segment_Fan_Current float 0,32 /u:A /p:5	// This variable indicates the current being drawn by the fans on the accumulator segments
+Var=Accumulator_Enc_Fan_Current float 32,32 /u:A /p:5	// This variable indicates the current being drawn by the fans on the accumulator enclosure
 
 [PDM_INVERTER_IO_CURRENT]
-ID=06Ah
+ID=06Ah	// This message indicates the current being drawn by the left and right BAMOCAR D3 controller
 Len=8
-Var=LEFT_INVERTER float 0,32 /u:A /p:5
-Var=RIGHT_INVERTER float 32,32 /u:A /p:5
+Var=Left_Inverter_GPIOs_Current float 0,32 /u:A /p:5	// This variable indicates the current being drawn by the left BAMOCAR D3 controller
+Var=Right_Inverter_GPIOs_Current float 32,32 /u:A /p:5	// This variable indicates the current being drawn by the right BAMOCAR D3 controller
 
 [PDM_12V_VBAT]
-ID=06Bh
+ID=06Bh	// This message indicates the voltage sense for the 12V Grounded Low Voltage (GLV) system and the two on-board 18650s
 Len=8
-Var="12V" float 0,32 /u:V /p:5
-Var=VBAT float 32,32 /u:V /p:5
+Var="12V" float 0,32 /u:V /p:5	// This variable indicates the voltage sense for the 12V powering the Grounded Low Voltage (GLV) system
+Var=VBAT float 32,32 /u:V /p:5	// This variable indicates the the voltage sense for the two on-board 18650s
 
 [PDM_FLYWIRE]
-ID=06Ch
+ID=06Ch	// The message indicates the voltage sense for whether Vicor 12V output is active or not
 Len=4
 Var=FLYWIRE float 0,32 /u:V /p:5
 
