@@ -122,7 +122,7 @@ Var="12V" float 0,32 /u:V /p:5	// This variable indicates the voltage sense for 
 Var=VBAT float 32,32 /u:V /p:5	// This variable indicates the the voltage sense for the two on-board 18650s
 
 [PDM_FLYWIRE]
-ID=06Ch	// The message indicates the voltage sense for whether Vicor 12V output is active or not
+ID=06Ch	// The message indicates the voltage sense for the Vicor 12V output
 Len=4
-Var=FLYWIRE float 0,32 /u:V /p:5
+Var=FLYWIRE float 0,32 /u:V /p:5	// The variable indicates the voltage sense for the Vicor 12V output
 
