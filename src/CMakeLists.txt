@@ -1,5 +1,5 @@
-project(FORMULA_E C ASM)
 cmake_minimum_required(VERSION 3.2)
+include(CMakeForceCompiler)
 
 ##############################################
 ###                                        ###
@@ -17,20 +17,6 @@ MACRO(SUBDIRLIST result curdir)
   ENDFOREACH()
   SET(${result} ${dirlist})
 ENDMACRO()
-
-################################################################################
-##                                                                             #
-##                         CODE COMPILATION BEGINS HERE                        #
-##                                                                             #
-##                      Append the list of module directories                  #
-##    WARNING! Ensure module name in the string list matches directory name!   #
-##                                                                             #
-################################################################################
-
-set(MODULES "PDM FSM DCM BMS")
-
-#Create string list
-string(REPLACE " " ";" MODULES ${MODULES})
 
 ##############################################
 ###                                        ###
@@ -63,8 +49,7 @@ endif(BINUTILS_PATH)
 get_filename_component(ARM_TOOLCHAIN_DIR ${BINUTILS_PATH} DIRECTORY)
 set(triple ${TOOLCHAIN_TRIPLE})
 set(CMAKE_ASM_COMPILER ${TOOLCHAIN_PREFIX}as)
-set(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}gcc)
-set(CMAKE_CXX_COMPILER ${TOOLCHAIN_PREFIX}g++)
+CMAKE_FORCE_C_COMPILER(${TOOLCHAIN_PREFIX}gcc GNU)
 
 set(CMAKE_OBJCOPY ${ARM_TOOLCHAIN_DIR}/${TOOLCHAIN_PREFIX}objcopy CACHE INTERNAL "objcopy tool")
 set(CMAKE_SIZE_UTIL ${ARM_TOOLCHAIN_DIR}/${TOOLCHAIN_PREFIX}size CACHE INTERNAL "size tool")
@@ -77,6 +62,21 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Build/Lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Build/Lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Build)
+
+################################################################################
+##                                                                             #
+##                         CODE COMPILATION BEGINS HERE                        #
+##                                                                             #
+##                      Append the list of module directories                  #
+##    WARNING! Ensure module name in the string list matches directory name!   #
+##                                                                             #
+################################################################################
+project(FORMULA_E C ASM)
+
+set(MODULES "PDM FSM DCM BMS")
+
+#Create string list
+string(REPLACE " " ";" MODULES ${MODULES})
 
 ##############################################
 ###                                        ###
@@ -120,14 +120,6 @@ set(TARGET_DEFS -DUSE_STM32F3XX_NUCLEO -DUSE_HAL_DRIVER -std=c11)
 
 # Remove the -rdynamic flag
 SET(CMAKE_SHARED_LIBRARY_LINK_C_FLAGS)
-
-##############################################
-###                                        ###
-###      SHARED_UTIL CODE COMPILATION      ###
-###                                        ###
-##############################################
-
-file(GLOB_RECURSE SHARED_UTIL_SRC ${CMAKE_CURRENT_SOURCE_DIR}/shared/*.c)
 
 ##############################################
 ###                                        ###
@@ -176,7 +168,7 @@ foreach(MODULE_DIR ${MODULES})
         set(T32 -mthumb)
         set(FLOAT_ABI -mfloat-abi=soft) 
         set(BOARD -DSTM32F302x8) 
-        set(MATH_LIB -DARM_MATH_CM4)   
+        set(MATH_LIB -DARM_MATH_CM4)  
         set(LINKER_SCRIPT STM32F302R8Tx_FLASH.ld)
         set(HAL_BOARD_DIR STM32F3xx)
 
@@ -209,9 +201,34 @@ foreach(MODULE_DIR ${MODULES})
     set(MODULE_C_FLAGS ${TOTAL_TARGET_DEFS} ${MCU} ${FPU} ${T32} ${FLOAT_ABI} ${DEBUG_FLAGS} ${OPT_FLAGS} ${MISC_FLAGS})
 
     ###  SOURCE FILES  ###
-    # Get all the *.c files and *.s files
-    file(GLOB_RECURSE SRC_C_FILES ${MODULE_DIR}/*.c)
-    
+    # Build the path to the project file
+    string(CONCAT PROJECT_FILE_PATH ${CMAKE_CURRENT_SOURCE_DIR} "/" ${MODULE_DIR} "/MDK-ARM/" ${MODULE_DIR} ".uvprojx")
+
+    # Generate the cmake file containing the "INCLUDE_DIRS" and 
+    # "SRC_C_FILES". Also prefix the generated paths appropriately so we can
+    # reference them from here (by default they are referenced relative to the
+    # project files from which they were parsed)
+    string(CONCAT GENERATED_CMAKE_FILE_PATH ${CMAKE_CURRENT_SOURCE_DIR} "/CMakeFiles/" ${MODULE_DIR} ".cmake")
+    execute_process(
+        COMMAND python "${CMAKE_CURRENT_LIST_DIR}/cmake/uvprojx_to_cmake.py" 
+        "${GENERATED_CMAKE_FILE_PATH}" 
+        "${PROJECT_FILE_PATH}" 
+        --file-path-prefix "${CMAKE_SOURCE_DIR}/${MODULE_DIR}/MDK-ARM/"
+        RESULT_VARIABLE MODULE_CMAKE_GENERATION_SUCCESS
+        )
+
+    # Make sure generation went OK
+    if(NOT ${MODULE_CMAKE_GENERATION_SUCCESS} MATCHES "0")
+        message(FATAL_ERROR "CMake Generation from \".uvprojx\" Failed For ${MODULE_DIR}")
+    endif(NOT ${MODULE_CMAKE_GENERATION_SUCCESS} MATCHES "0")
+
+    # include the cmake file we just generated, and in doing so "import" the
+    # "${MODULE_NAME_SRC_C_FILES}" and "${MODULE_NAME_INCLUDE_DIRS}" variables for this module
+    include("${GENERATED_CMAKE_FILE_PATH}")
+
+    message(STATUS "${MODULE_DIR} Include Directories: ${INCLUDE_DIRS}")
+    message(STATUS "${MODULE_DIR} Source Files: ${SRC_C_FILES}")
+
     # Grab the bootloader file. There is only one assembly file required: startup_stm32fxxxxxx.s 
     # Keil-generated startup assembly files are written in ARM assembly syntax instead of the GCC syntax, 
     # which CMake relies on. GCC syntax files, generated from STMCube, have been appended with '_gcc' and
@@ -219,19 +236,10 @@ foreach(MODULE_DIR ${MODULES})
     file(GLOB_RECURSE SRC_ASM_FILES ${MODULE_DIR}/*_gcc.s)
 
     ### PROJECT EXECUTABLE ###
-    add_executable(${exe_name} ${SRC_C_FILES} ${SRC_ASM_FILES} ${SHARED_UTIL_SRC})
+    add_executable(${exe_name} ${SRC_C_FILES} ${SRC_ASM_FILES})
 
     ###  INCLUDE DIRECTORIES  ###
-    target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Inc)
-    target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/${HAL_BOARD_DIR}_HAL_Driver/Inc)
-    target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/${HAL_BOARD_DIR}_HAL_Driver/Inc/Legacy)
-    target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/CMSIS/Device/ST/${HAL_BOARD_DIR}/Include)
-    target_include_directories(${exe_name} PRIVATE ${MODULE_DIR}/Drivers/CMSIS/Include)
-    SUBDIRLIST(SHARED_SUBDIRS ${CMAKE_CURRENT_SOURCE_DIR}/shared/)
-    FOREACH(shared_lib_dir ${SHARED_SUBDIRS})
-        target_include_directories(${exe_name} PRIVATE shared/${shared_lib_dir}/Inc)    
-    ENDFOREACH()
-    target_include_directories(${exe_name} PRIVATE shared)    
+    target_include_directories(${exe_name} PRIVATE "$<BUILD_INTERFACE:${INCLUDE_DIRS}>")
 
     ### COMPILER FLAGS ###
     # Add the compiler flags

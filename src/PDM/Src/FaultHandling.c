@@ -114,25 +114,29 @@ void FaultHandling_Handler(
                     (uint16_t)(
                         converted_readings[adc_channel] * ADC_12_BIT_POINTS /
                         (VOLTAGE_TO_CURRENT[adc_channel] * VDDA_VOLTAGE));
-                SharedCan_BroadcastPcbErrors(EFUSE_FAULT);
+
+                SHAREDCAN_SEND_CAN_MSG_WITH_SINGLE_BIT_SET(
+                    pdm_errors, efuse_fault);
             }
         }
     }
 
     if (converted_readings[_12V_SUPPLY] < UNDERVOLTAGE_GLV_THRES)
     {
-        SharedCan_BroadcastPcbErrors(_12V_FAULT_UV);
+        SHAREDCAN_SEND_CAN_MSG_WITH_SINGLE_BIT_SET(
+            pdm_errors, _12_v_fault_under_voltage);
         num_faults[_12V_SUPPLY]++;
     }
     else if (converted_readings[_12V_SUPPLY] > OVERVOLTAGE_GLV_THRES)
     {
-        SharedCan_BroadcastPcbErrors(_12V_FAULT_OV);
+        SHAREDCAN_SEND_CAN_MSG_WITH_SINGLE_BIT_SET(
+            pdm_errors, _12_v_fault_over_voltage);
         num_faults[_12V_SUPPLY]++;
     }
 
     if (converted_readings[VBAT_SUPPLY] > VBAT_OVERVOLTAGE)
     {
-        SharedCan_BroadcastPcbErrors(VBAT_FAULT);
+        SHAREDCAN_SEND_CAN_MSG_WITH_SINGLE_BIT_SET(pdm_errors, vbat_fault);
         num_faults[VBAT_SUPPLY]++;
     }
 

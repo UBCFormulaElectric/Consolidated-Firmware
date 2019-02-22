@@ -1,9 +1,9 @@
 /**
- * @file  SharedFilters.h
- * @brief Shared library with filters for digital signal processing
+ * @file  SharedWatchdog.h
+ * @brief Helper functions to unify the watchdog timer interface across boards
  */
-#ifndef SHARED_FILTERS_H
-#define SHARED_FILTERS_H
+#ifndef SHARED_WATCHDOG
+#define SHARED_WATCHDOG
 
 /******************************************************************************
  * Includes
@@ -20,7 +20,7 @@
     "No valid architecture selected - unable to determine what HAL library to use"
 #endif
 
-#include "arm_math.h"
+#include "stdbool.h"
 
 /******************************************************************************
  * Preprocessor Constants
@@ -44,19 +44,23 @@
  * Function Prototypes
  ******************************************************************************/
 /**
- * @brief Apply low pass filter on a given array of values based on the
- *        implementation described here:
- *        https://en.wikipedia.org/wiki/Low-pass_filter#Discrete-time_realization
- * @param input Pointer to an array of input samples
- * @param output Pointer to an array of output samples
- * @param sampling_time Sampling time interval for input and output samples
- *                      in seconds
- * @param rc RC time constant
+ * @brief A wrapper for HAL_IWDG_Refresh that only refreshes the IWDG if the
+ *        handle has already been initialized
  */
-void SharedFilters_LowPassFilter(
-    float32_t *input,
-    float32_t *output,
-    float32_t  sampling_time,
-    float32_t  rc);
+void SharedWatchdog_RefreshIwdg(void);
 
-#endif /* SHARED_FILTERS_H */
+/**
+ * @brief Set the boolean flag to indicate that the IWDG handle is initialized
+ *        (To be used at the end of MX_IWDG_Init). And save a copy of the
+ *        pointer to the IWDG handle.
+ * @param hiwdg Pointer to the independent watchdog timer handle
+ */
+void SharedWatchdog_SetIwdgInitialized(IWDG_HandleTypeDef *hiwdg);
+
+/**
+ * @brief  Check if the IWDG handle is initialized yet
+ * @return The current IWDG initialization state
+ */
+bool SharedWatchdog_IsIwdgInitialized(void);
+
+#endif /* SHARED_WATCHDOG */

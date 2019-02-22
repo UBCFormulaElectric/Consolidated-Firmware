@@ -29,20 +29,19 @@ C:\Program Files (x86)\GnuWin32\bin
   * *Windows:*
   ```
   cd src
-  cmake CMakeLists.txt -G "MSYS Makefiles"
+  pipenv run cmake CMakeLists.txt -G "MSYS Makefiles"
   make
   ```
   * *Linux:*
   ```
   cd src
-  cmake CMakeLists.txt
+  pipenv run cmake CMakeLists.txt
   make
   ```
-4. **Running CI - Formatting Check**: Run the following commands (starting from the **root directory** of this project) to check formatting as CI does:
+4. **Running CI - Formatting Check**: Run the following commands (starting from the **root directory** of this project) to fix formatting (CI runs this and then checks if it did anything) does:
   * *Windows and Linux:*
   ```
-  cd clang-format
-  python check_formatting_CI.py
+  python clang_format/fix_formatting.py
   ```
 
 #### CommentPragmas

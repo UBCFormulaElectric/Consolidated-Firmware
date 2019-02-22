@@ -41,16 +41,24 @@ static volatile uint8_t heartbeats_received = 0;
  ******************************************************************************/
 void SharedHeartbeat_BroadcastHeartbeat(void)
 {
-    uint8_t         data[PCB_HEARTBEAT_DLC]   = { 0 };
-    static uint32_t heartbeat_broadcast_ticks = 0;
+    // Since we do not know the size of the heartbeat we're sending, we just
+    // use the maximum possible size for the data
+    uint8_t         data[CAN_PAYLOAD_MAX_NUM_BYTES] = { 0 };
+    static uint32_t heartbeat_broadcast_ticks       = 0;
 
     heartbeat_broadcast_ticks++;
 
     if (heartbeat_broadcast_ticks >= HEARTBEAT_BROADCAST_PERIOD)
     {
         heartbeat_broadcast_ticks = 0;
+
+        // TODO: (Issue #217) Test out message of size 0, as that would be
+        // more semantically meaningful here
+
+        // We use the max allowed payload size here because we don't know
+        // what message we're using for the heartbeat (it's module-specific)
         SharedCan_TransmitDataCan(
-            PCB_HEARTBEAT_STDID, PCB_HEARTBEAT_DLC, &data[0]);
+            PCB_HEARTBEAT_STDID, CAN_PAYLOAD_MAX_NUM_BYTES, &data[0]);
     }
 }
 
