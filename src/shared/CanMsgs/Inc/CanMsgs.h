@@ -43,8 +43,8 @@
 #define CANMSGS_fsm_can_tx_fifo_overflow_FRAME_ID (0x42u)
 #define CANMSGS_fsm_startup_FRAME_ID (0x43u)
 #define CANMSGS_fsm_air_shutdown_FRAME_ID (0x50u)
-#define CANMSGS_pdm_air_shutdown_FRAME_ID (0x66u)
-#define CANMSGS_pdm_motor_shutdown_FRAME_ID (0x67u)
+#define CANMSGS_pdm_air_shutdown_FRAME_ID (0x64u)
+#define CANMSGS_pdm_motor_shutdown_FRAME_ID (0x65u)
 #define CANMSGS_bms_startup_FRAME_ID (0x03u)
 #define CANMSGS_pdm_errors_FRAME_ID (0x60u)
 #define CANMSGS_pdm_can_tx_fifo_overflow_FRAME_ID (0x62u)
@@ -56,6 +56,13 @@
 #define CANMSGS_bms_can_tx_fifo_overflow_FRAME_ID (0x02u)
 #define CANMSGS_dcm_can_tx_fifo_overflow_FRAME_ID (0x22u)
 #define CANMSGS_dcm_startup_FRAME_ID (0x23u)
+#define CANMSGS_pdm_aux1_aux2_current_FRAME_ID (0x66u)
+#define CANMSGS_pdm_cooling_pdmfan_current_FRAME_ID (0x67u)
+#define CANMSGS_pdm_airshdn_canglv_current_FRAME_ID (0x68u)
+#define CANMSGS_pdm_accumulator_fan_current_FRAME_ID (0x69u)
+#define CANMSGS_pdm_inverter_io_current_FRAME_ID (0x6au)
+#define CANMSGS_pdm_12_v_vbat_FRAME_ID (0x6bu)
+#define CANMSGS_pdm_flywire_FRAME_ID (0x6cu)
 
 /**
  * Signals in message FSM_ERRORS.
@@ -337,6 +344,186 @@ struct CanMsgs_dcm_startup_t {
      * Dummy signal in empty message.
      */
     uint8_t dummy;
+};
+
+/**
+ * Signals in message PDM_AUX1_AUX2_CURRENT.
+ *
+ * This message indicates the current being drawn by the auxiliary 1 and 2 outputs
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_pdm_aux1_aux2_current_t {
+    /**
+     * This variable indicates the current being drawn by the auxiliary 1 output
+     *
+     * Range: -
+     * Scale: 1
+     * Offset: 0
+     */
+    float auxiliary1_current;
+
+    /**
+     * This variable indicates the current being drawn by the auxiliary 2 output
+     *
+     * Range: -
+     * Scale: 1
+     * Offset: 0
+     */
+    float auxiliary2_current;
+};
+
+/**
+ * Signals in message PDM_COOLING_PDMFAN_CURRENT.
+ *
+ * This message indicates the current being drawn by the cooling pump and PDM enclosure fan\
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_pdm_cooling_pdmfan_current_t {
+    /**
+     * This variable indicates the current being drawn by the cooling pump
+     *
+     * Range: -
+     * Scale: 1
+     * Offset: 0
+     */
+    float cooling_pump_current;
+
+    /**
+     * This variable indicates the current being drawn by the fan on the PDM enclosure
+     *
+     * Range: -
+     * Scale: 1
+     * Offset: 0
+     */
+    float pdm_enclosure_fan_current;
+};
+
+/**
+ * Signals in message PDM_AIRSHDN_CANGLV_CURRENT.
+ *
+ * This message indicates the current being drawn by the AIR shutdown circuit and the 12V Grounded-Low-Voltage (GLV) system
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_pdm_airshdn_canglv_current_t {
+    /**
+     * This variable indicates the current being drawn by the AIR shutdown circuit
+     *
+     * Range: -
+     * Scale: 1
+     * Offset: 0
+     */
+    float air_shutdown_current;
+
+    /**
+     * This variable indicates the current being drawn by the 12V Grounded-Low-Voltage (GLV) system
+     *
+     * Range: -
+     * Scale: 1
+     * Offset: 0
+     */
+    float grounded_low_voltage_current;
+};
+
+/**
+ * Signals in message PDM_ACCUMULATOR_FAN_CURRENT.
+ *
+ * This message indicates the current being drawn by the fans on the accumulator
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_pdm_accumulator_fan_current_t {
+    /**
+     * This variable indicates the current being drawn by the fans on the accumulator segments
+     *
+     * Range: -
+     * Scale: 1
+     * Offset: 0
+     */
+    float accumulator_segment_fan_current;
+
+    /**
+     * This variable indicates the current being drawn by the fans on the accumulator enclosure
+     *
+     * Range: -
+     * Scale: 1
+     * Offset: 0
+     */
+    float accumulator_enc_fan_current;
+};
+
+/**
+ * Signals in message PDM_INVERTER_IO_CURRENT.
+ *
+ * This message indicates the current being drawn by the left and right BAMOCAR D3 controller
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_pdm_inverter_io_current_t {
+    /**
+     * This variable indicates the current being drawn by the left BAMOCAR D3 controller
+     *
+     * Range: -
+     * Scale: 1
+     * Offset: 0
+     */
+    float left_inverter_gpi_os_current;
+
+    /**
+     * This variable indicates the current being drawn by the right BAMOCAR D3 controller
+     *
+     * Range: -
+     * Scale: 1
+     * Offset: 0
+     */
+    float right_inverter_gpi_os_current;
+};
+
+/**
+ * Signals in message PDM_12V_VBAT.
+ *
+ * This message indicates the voltage sense for the 12V Grounded Low Voltage (GLV) system and the two on-board 18650s
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_pdm_12_v_vbat_t {
+    /**
+     * This variable indicates the voltage sense for the 12V powering the Grounded Low Voltage (GLV) system
+     *
+     * Range: -
+     * Scale: 1
+     * Offset: 0
+     */
+    float 12_v;
+
+    /**
+     * This variable indicates the the voltage sense for the two on-board 18650s
+     *
+     * Range: -
+     * Scale: 1
+     * Offset: 0
+     */
+    float vbat;
+};
+
+/**
+ * Signals in message PDM_FLYWIRE.
+ *
+ * The message indicates the voltage sense for the Vicor 12V output
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_pdm_flywire_t {
+    /**
+     * The variable indicates the voltage sense for the Vicor 12V output
+     *
+     * Range: -
+     * Scale: 1
+     * Offset: 0
+     */
+    float flywire;
 };
 
 /**
@@ -1192,5 +1379,552 @@ int CanMsgs_dcm_startup_unpack(
     struct CanMsgs_dcm_startup_t *dst_p,
     const uint8_t *src_p,
     size_t size);
+
+/**
+ * Pack message PDM_AUX1_AUX2_CURRENT.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_pdm_aux1_aux2_current_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_aux1_aux2_current_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message PDM_AUX1_AUX2_CURRENT.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_pdm_aux1_aux2_current_unpack(
+    struct CanMsgs_pdm_aux1_aux2_current_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+float CanMsgs_pdm_aux1_aux2_current_auxiliary1_current_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_aux1_aux2_current_auxiliary1_current_decode(float value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_aux1_aux2_current_auxiliary1_current_is_in_range(float value);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+float CanMsgs_pdm_aux1_aux2_current_auxiliary2_current_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_aux1_aux2_current_auxiliary2_current_decode(float value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_aux1_aux2_current_auxiliary2_current_is_in_range(float value);
+
+/**
+ * Pack message PDM_COOLING_PDMFAN_CURRENT.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_pdm_cooling_pdmfan_current_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_cooling_pdmfan_current_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message PDM_COOLING_PDMFAN_CURRENT.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_pdm_cooling_pdmfan_current_unpack(
+    struct CanMsgs_pdm_cooling_pdmfan_current_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+float CanMsgs_pdm_cooling_pdmfan_current_cooling_pump_current_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_cooling_pdmfan_current_cooling_pump_current_decode(float value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_cooling_pdmfan_current_cooling_pump_current_is_in_range(float value);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+float CanMsgs_pdm_cooling_pdmfan_current_pdm_enclosure_fan_current_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_cooling_pdmfan_current_pdm_enclosure_fan_current_decode(float value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_cooling_pdmfan_current_pdm_enclosure_fan_current_is_in_range(float value);
+
+/**
+ * Pack message PDM_AIRSHDN_CANGLV_CURRENT.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_pdm_airshdn_canglv_current_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_airshdn_canglv_current_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message PDM_AIRSHDN_CANGLV_CURRENT.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_pdm_airshdn_canglv_current_unpack(
+    struct CanMsgs_pdm_airshdn_canglv_current_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+float CanMsgs_pdm_airshdn_canglv_current_air_shutdown_current_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_airshdn_canglv_current_air_shutdown_current_decode(float value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_airshdn_canglv_current_air_shutdown_current_is_in_range(float value);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+float CanMsgs_pdm_airshdn_canglv_current_grounded_low_voltage_current_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_airshdn_canglv_current_grounded_low_voltage_current_decode(float value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_airshdn_canglv_current_grounded_low_voltage_current_is_in_range(float value);
+
+/**
+ * Pack message PDM_ACCUMULATOR_FAN_CURRENT.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_pdm_accumulator_fan_current_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_accumulator_fan_current_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message PDM_ACCUMULATOR_FAN_CURRENT.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_pdm_accumulator_fan_current_unpack(
+    struct CanMsgs_pdm_accumulator_fan_current_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+float CanMsgs_pdm_accumulator_fan_current_accumulator_segment_fan_current_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_accumulator_fan_current_accumulator_segment_fan_current_decode(float value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_accumulator_fan_current_accumulator_segment_fan_current_is_in_range(float value);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+float CanMsgs_pdm_accumulator_fan_current_accumulator_enc_fan_current_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_accumulator_fan_current_accumulator_enc_fan_current_decode(float value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_accumulator_fan_current_accumulator_enc_fan_current_is_in_range(float value);
+
+/**
+ * Pack message PDM_INVERTER_IO_CURRENT.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_pdm_inverter_io_current_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_inverter_io_current_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message PDM_INVERTER_IO_CURRENT.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_pdm_inverter_io_current_unpack(
+    struct CanMsgs_pdm_inverter_io_current_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+float CanMsgs_pdm_inverter_io_current_left_inverter_gpi_os_current_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_inverter_io_current_left_inverter_gpi_os_current_decode(float value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_inverter_io_current_left_inverter_gpi_os_current_is_in_range(float value);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+float CanMsgs_pdm_inverter_io_current_right_inverter_gpi_os_current_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_inverter_io_current_right_inverter_gpi_os_current_decode(float value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_inverter_io_current_right_inverter_gpi_os_current_is_in_range(float value);
+
+/**
+ * Pack message PDM_12V_VBAT.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_pdm_12_v_vbat_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_12_v_vbat_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message PDM_12V_VBAT.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_pdm_12_v_vbat_unpack(
+    struct CanMsgs_pdm_12_v_vbat_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+float CanMsgs_pdm_12_v_vbat_12_v_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_12_v_vbat_12_v_decode(float value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_12_v_vbat_12_v_is_in_range(float value);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+float CanMsgs_pdm_12_v_vbat_vbat_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_12_v_vbat_vbat_decode(float value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_12_v_vbat_vbat_is_in_range(float value);
+
+/**
+ * Pack message PDM_FLYWIRE.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_pdm_flywire_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_flywire_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message PDM_FLYWIRE.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_pdm_flywire_unpack(
+    struct CanMsgs_pdm_flywire_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+float CanMsgs_pdm_flywire_flywire_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_pdm_flywire_flywire_decode(float value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_pdm_flywire_flywire_is_in_range(float value);
 
 #endif
