@@ -1266,12 +1266,12 @@ bool CanMsgs_pdm_inverter_io_current_right_inverter_gpi_os_current_is_in_range(f
     return (true);
 }
 
-int CanMsgs_pdm_12_v_vbat_pack(
+int CanMsgs_pdm_glv_vbat_pack(
     uint8_t *dst_p,
-    const struct CanMsgs_pdm_12_v_vbat_t *src_p,
+    const struct CanMsgs_pdm_glv_vbat_t *src_p,
     size_t size)
 {
-    uint32_t 12_v;
+    uint32_t glv;
     uint32_t vbat;
 
     if (size < 8u) {
@@ -1280,11 +1280,11 @@ int CanMsgs_pdm_12_v_vbat_pack(
 
     memset(&dst_p[0], 0, 8);
 
-    memcpy(&12_v, &src_p->12_v, sizeof(12_v));
-    dst_p[0] |= pack_left_shift_u32(12_v, 0u, 0xffu);
-    dst_p[1] |= pack_right_shift_u32(12_v, 8u, 0xffu);
-    dst_p[2] |= pack_right_shift_u32(12_v, 16u, 0xffu);
-    dst_p[3] |= pack_right_shift_u32(12_v, 24u, 0xffu);
+    memcpy(&glv, &src_p->glv, sizeof(glv));
+    dst_p[0] |= pack_left_shift_u32(glv, 0u, 0xffu);
+    dst_p[1] |= pack_right_shift_u32(glv, 8u, 0xffu);
+    dst_p[2] |= pack_right_shift_u32(glv, 16u, 0xffu);
+    dst_p[3] |= pack_right_shift_u32(glv, 24u, 0xffu);
     memcpy(&vbat, &src_p->vbat, sizeof(vbat));
     dst_p[4] |= pack_left_shift_u32(vbat, 0u, 0xffu);
     dst_p[5] |= pack_right_shift_u32(vbat, 8u, 0xffu);
@@ -1294,12 +1294,12 @@ int CanMsgs_pdm_12_v_vbat_pack(
     return (8);
 }
 
-int CanMsgs_pdm_12_v_vbat_unpack(
-    struct CanMsgs_pdm_12_v_vbat_t *dst_p,
+int CanMsgs_pdm_glv_vbat_unpack(
+    struct CanMsgs_pdm_glv_vbat_t *dst_p,
     const uint8_t *src_p,
     size_t size)
 {
-    uint32_t 12_v;
+    uint32_t glv;
     uint32_t vbat;
 
     if (size < 8u) {
@@ -1308,12 +1308,12 @@ int CanMsgs_pdm_12_v_vbat_unpack(
 
     memset(dst_p, 0, sizeof(*dst_p));
 
-    12_v = 0u;
-    12_v |= unpack_right_shift_u32(src_p[0], 0u, 0xffu);
-    12_v |= unpack_left_shift_u32(src_p[1], 8u, 0xffu);
-    12_v |= unpack_left_shift_u32(src_p[2], 16u, 0xffu);
-    12_v |= unpack_left_shift_u32(src_p[3], 24u, 0xffu);
-    memcpy(&dst_p->12_v, &12_v, sizeof(dst_p->12_v));
+    glv = 0u;
+    glv |= unpack_right_shift_u32(src_p[0], 0u, 0xffu);
+    glv |= unpack_left_shift_u32(src_p[1], 8u, 0xffu);
+    glv |= unpack_left_shift_u32(src_p[2], 16u, 0xffu);
+    glv |= unpack_left_shift_u32(src_p[3], 24u, 0xffu);
+    memcpy(&dst_p->glv, &glv, sizeof(dst_p->glv));
     vbat = 0u;
     vbat |= unpack_right_shift_u32(src_p[4], 0u, 0xffu);
     vbat |= unpack_left_shift_u32(src_p[5], 8u, 0xffu);
@@ -1324,34 +1324,34 @@ int CanMsgs_pdm_12_v_vbat_unpack(
     return (0);
 }
 
-float CanMsgs_pdm_12_v_vbat_12_v_encode(double value)
+float CanMsgs_pdm_glv_vbat_glv_encode(double value)
 {
     return (float)(value);
 }
 
-double CanMsgs_pdm_12_v_vbat_12_v_decode(float value)
+double CanMsgs_pdm_glv_vbat_glv_decode(float value)
 {
     return ((double)value);
 }
 
-bool CanMsgs_pdm_12_v_vbat_12_v_is_in_range(float value)
+bool CanMsgs_pdm_glv_vbat_glv_is_in_range(float value)
 {
     (void)value;
 
     return (true);
 }
 
-float CanMsgs_pdm_12_v_vbat_vbat_encode(double value)
+float CanMsgs_pdm_glv_vbat_vbat_encode(double value)
 {
     return (float)(value);
 }
 
-double CanMsgs_pdm_12_v_vbat_vbat_decode(float value)
+double CanMsgs_pdm_glv_vbat_vbat_decode(float value)
 {
     return ((double)value);
 }
 
-bool CanMsgs_pdm_12_v_vbat_vbat_is_in_range(float value)
+bool CanMsgs_pdm_glv_vbat_vbat_is_in_range(float value)
 {
     (void)value;
 

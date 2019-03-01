@@ -115,10 +115,10 @@ Len=8
 Var=Left_Inverter_GPIOs_Current float 0,32 /u:A /p:5	// This variable indicates the current being drawn by the left BAMOCAR D3 controller
 Var=Right_Inverter_GPIOs_Current float 32,32 /u:A /p:5	// This variable indicates the current being drawn by the right BAMOCAR D3 controller
 
-[PDM_12V_VBAT]
+[PDM_GLV_VBAT]
 ID=06Bh	// This message indicates the voltage sense for the 12V Grounded Low Voltage (GLV) system and the two on-board 18650s
 Len=8
-Var="12V" float 0,32 /u:V /p:5	// This variable indicates the voltage sense for the 12V powering the Grounded Low Voltage (GLV) system
+Var=GLV float 0,32 /u:V /p:5  // This variable indicates the voltage sense for the 12V powering the Grounded Low Voltage (GLV) system
 Var=VBAT float 32,32 /u:V /p:5	// This variable indicates the the voltage sense for the two on-board 18650s
 
 [PDM_FLYWIRE]

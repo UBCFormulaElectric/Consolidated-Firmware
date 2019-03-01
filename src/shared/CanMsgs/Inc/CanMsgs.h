@@ -61,7 +61,7 @@
 #define CANMSGS_pdm_airshdn_canglv_current_FRAME_ID (0x68u)
 #define CANMSGS_pdm_accumulator_fan_current_FRAME_ID (0x69u)
 #define CANMSGS_pdm_inverter_io_current_FRAME_ID (0x6au)
-#define CANMSGS_pdm_12_v_vbat_FRAME_ID (0x6bu)
+#define CANMSGS_pdm_glv_vbat_FRAME_ID (0x6bu)
 #define CANMSGS_pdm_flywire_FRAME_ID (0x6cu)
 
 /**
@@ -482,13 +482,13 @@ struct CanMsgs_pdm_inverter_io_current_t {
 };
 
 /**
- * Signals in message PDM_12V_VBAT.
+ * Signals in message PDM_GLV_VBAT.
  *
  * This message indicates the voltage sense for the 12V Grounded Low Voltage (GLV) system and the two on-board 18650s
  *
  * All signal values are as on the CAN bus.
  */
-struct CanMsgs_pdm_12_v_vbat_t {
+struct CanMsgs_pdm_glv_vbat_t {
     /**
      * This variable indicates the voltage sense for the 12V powering the Grounded Low Voltage (GLV) system
      *
@@ -496,7 +496,7 @@ struct CanMsgs_pdm_12_v_vbat_t {
      * Scale: 1
      * Offset: 0
      */
-    float 12_v;
+    float glv;
 
     /**
      * This variable indicates the the voltage sense for the two on-board 18650s
@@ -1791,7 +1791,7 @@ double CanMsgs_pdm_inverter_io_current_right_inverter_gpi_os_current_decode(floa
 bool CanMsgs_pdm_inverter_io_current_right_inverter_gpi_os_current_is_in_range(float value);
 
 /**
- * Pack message PDM_12V_VBAT.
+ * Pack message PDM_GLV_VBAT.
  *
  * @param[out] dst_p Buffer to pack the message into.
  * @param[in] src_p Data to pack.
@@ -1799,13 +1799,13 @@ bool CanMsgs_pdm_inverter_io_current_right_inverter_gpi_os_current_is_in_range(f
  *
  * @return Size of packed data, or negative error code.
  */
-int CanMsgs_pdm_12_v_vbat_pack(
+int CanMsgs_pdm_glv_vbat_pack(
     uint8_t *dst_p,
-    const struct CanMsgs_pdm_12_v_vbat_t *src_p,
+    const struct CanMsgs_pdm_glv_vbat_t *src_p,
     size_t size);
 
 /**
- * Unpack message PDM_12V_VBAT.
+ * Unpack message PDM_GLV_VBAT.
  *
  * @param[out] dst_p Object to unpack the message into.
  * @param[in] src_p Message to unpack.
@@ -1813,8 +1813,8 @@ int CanMsgs_pdm_12_v_vbat_pack(
  *
  * @return zero(0) or negative error code.
  */
-int CanMsgs_pdm_12_v_vbat_unpack(
-    struct CanMsgs_pdm_12_v_vbat_t *dst_p,
+int CanMsgs_pdm_glv_vbat_unpack(
+    struct CanMsgs_pdm_glv_vbat_t *dst_p,
     const uint8_t *src_p,
     size_t size);
 
@@ -1825,7 +1825,7 @@ int CanMsgs_pdm_12_v_vbat_unpack(
  *
  * @return Encoded signal.
  */
-float CanMsgs_pdm_12_v_vbat_12_v_encode(double value);
+float CanMsgs_pdm_glv_vbat_glv_encode(double value);
 
 /**
  * Decode given signal by applying scaling and offset.
@@ -1834,7 +1834,7 @@ float CanMsgs_pdm_12_v_vbat_12_v_encode(double value);
  *
  * @return Decoded signal.
  */
-double CanMsgs_pdm_12_v_vbat_12_v_decode(float value);
+double CanMsgs_pdm_glv_vbat_glv_decode(float value);
 
 /**
  * Check that given signal is in allowed range.
@@ -1843,7 +1843,7 @@ double CanMsgs_pdm_12_v_vbat_12_v_decode(float value);
  *
  * @return true if in range, false otherwise.
  */
-bool CanMsgs_pdm_12_v_vbat_12_v_is_in_range(float value);
+bool CanMsgs_pdm_glv_vbat_glv_is_in_range(float value);
 
 /**
  * Encode given signal by applying scaling and offset.
@@ -1852,7 +1852,7 @@ bool CanMsgs_pdm_12_v_vbat_12_v_is_in_range(float value);
  *
  * @return Encoded signal.
  */
-float CanMsgs_pdm_12_v_vbat_vbat_encode(double value);
+float CanMsgs_pdm_glv_vbat_vbat_encode(double value);
 
 /**
  * Decode given signal by applying scaling and offset.
@@ -1861,7 +1861,7 @@ float CanMsgs_pdm_12_v_vbat_vbat_encode(double value);
  *
  * @return Decoded signal.
  */
-double CanMsgs_pdm_12_v_vbat_vbat_decode(float value);
+double CanMsgs_pdm_glv_vbat_vbat_decode(float value);
 
 /**
  * Check that given signal is in allowed range.
@@ -1870,7 +1870,7 @@ double CanMsgs_pdm_12_v_vbat_vbat_decode(float value);
  *
  * @return true if in range, false otherwise.
  */
-bool CanMsgs_pdm_12_v_vbat_vbat_is_in_range(float value);
+bool CanMsgs_pdm_glv_vbat_vbat_is_in_range(float value);
 
 /**
  * Pack message PDM_FLYWIRE.
