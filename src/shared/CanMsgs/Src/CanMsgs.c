@@ -805,3 +805,617 @@ int CanMsgs_dcm_startup_unpack(
 
     return (0);
 }
+
+int CanMsgs_pdm_aux1_aux2_current_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_aux1_aux2_current_t *src_p,
+    size_t size)
+{
+    uint32_t auxiliary1_current;
+    uint32_t auxiliary2_current;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    memcpy(&auxiliary1_current, &src_p->auxiliary1_current, sizeof(auxiliary1_current));
+    dst_p[0] |= pack_left_shift_u32(auxiliary1_current, 0u, 0xffu);
+    dst_p[1] |= pack_right_shift_u32(auxiliary1_current, 8u, 0xffu);
+    dst_p[2] |= pack_right_shift_u32(auxiliary1_current, 16u, 0xffu);
+    dst_p[3] |= pack_right_shift_u32(auxiliary1_current, 24u, 0xffu);
+    memcpy(&auxiliary2_current, &src_p->auxiliary2_current, sizeof(auxiliary2_current));
+    dst_p[4] |= pack_left_shift_u32(auxiliary2_current, 0u, 0xffu);
+    dst_p[5] |= pack_right_shift_u32(auxiliary2_current, 8u, 0xffu);
+    dst_p[6] |= pack_right_shift_u32(auxiliary2_current, 16u, 0xffu);
+    dst_p[7] |= pack_right_shift_u32(auxiliary2_current, 24u, 0xffu);
+
+    return (8);
+}
+
+int CanMsgs_pdm_aux1_aux2_current_unpack(
+    struct CanMsgs_pdm_aux1_aux2_current_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    uint32_t auxiliary1_current;
+    uint32_t auxiliary2_current;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    auxiliary1_current = 0u;
+    auxiliary1_current |= unpack_right_shift_u32(src_p[0], 0u, 0xffu);
+    auxiliary1_current |= unpack_left_shift_u32(src_p[1], 8u, 0xffu);
+    auxiliary1_current |= unpack_left_shift_u32(src_p[2], 16u, 0xffu);
+    auxiliary1_current |= unpack_left_shift_u32(src_p[3], 24u, 0xffu);
+    memcpy(&dst_p->auxiliary1_current, &auxiliary1_current, sizeof(dst_p->auxiliary1_current));
+    auxiliary2_current = 0u;
+    auxiliary2_current |= unpack_right_shift_u32(src_p[4], 0u, 0xffu);
+    auxiliary2_current |= unpack_left_shift_u32(src_p[5], 8u, 0xffu);
+    auxiliary2_current |= unpack_left_shift_u32(src_p[6], 16u, 0xffu);
+    auxiliary2_current |= unpack_left_shift_u32(src_p[7], 24u, 0xffu);
+    memcpy(&dst_p->auxiliary2_current, &auxiliary2_current, sizeof(dst_p->auxiliary2_current));
+
+    return (0);
+}
+
+float CanMsgs_pdm_aux1_aux2_current_auxiliary1_current_encode(double value)
+{
+    return (float)(value);
+}
+
+double CanMsgs_pdm_aux1_aux2_current_auxiliary1_current_decode(float value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_aux1_aux2_current_auxiliary1_current_is_in_range(float value)
+{
+    (void)value;
+
+    return (true);
+}
+
+float CanMsgs_pdm_aux1_aux2_current_auxiliary2_current_encode(double value)
+{
+    return (float)(value);
+}
+
+double CanMsgs_pdm_aux1_aux2_current_auxiliary2_current_decode(float value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_aux1_aux2_current_auxiliary2_current_is_in_range(float value)
+{
+    (void)value;
+
+    return (true);
+}
+
+int CanMsgs_pdm_cooling_pdmfan_current_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_cooling_pdmfan_current_t *src_p,
+    size_t size)
+{
+    uint32_t cooling_pump_current;
+    uint32_t pdm_enclosure_fan_current;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    memcpy(&cooling_pump_current, &src_p->cooling_pump_current, sizeof(cooling_pump_current));
+    dst_p[0] |= pack_left_shift_u32(cooling_pump_current, 0u, 0xffu);
+    dst_p[1] |= pack_right_shift_u32(cooling_pump_current, 8u, 0xffu);
+    dst_p[2] |= pack_right_shift_u32(cooling_pump_current, 16u, 0xffu);
+    dst_p[3] |= pack_right_shift_u32(cooling_pump_current, 24u, 0xffu);
+    memcpy(&pdm_enclosure_fan_current, &src_p->pdm_enclosure_fan_current, sizeof(pdm_enclosure_fan_current));
+    dst_p[4] |= pack_left_shift_u32(pdm_enclosure_fan_current, 0u, 0xffu);
+    dst_p[5] |= pack_right_shift_u32(pdm_enclosure_fan_current, 8u, 0xffu);
+    dst_p[6] |= pack_right_shift_u32(pdm_enclosure_fan_current, 16u, 0xffu);
+    dst_p[7] |= pack_right_shift_u32(pdm_enclosure_fan_current, 24u, 0xffu);
+
+    return (8);
+}
+
+int CanMsgs_pdm_cooling_pdmfan_current_unpack(
+    struct CanMsgs_pdm_cooling_pdmfan_current_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    uint32_t cooling_pump_current;
+    uint32_t pdm_enclosure_fan_current;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    cooling_pump_current = 0u;
+    cooling_pump_current |= unpack_right_shift_u32(src_p[0], 0u, 0xffu);
+    cooling_pump_current |= unpack_left_shift_u32(src_p[1], 8u, 0xffu);
+    cooling_pump_current |= unpack_left_shift_u32(src_p[2], 16u, 0xffu);
+    cooling_pump_current |= unpack_left_shift_u32(src_p[3], 24u, 0xffu);
+    memcpy(&dst_p->cooling_pump_current, &cooling_pump_current, sizeof(dst_p->cooling_pump_current));
+    pdm_enclosure_fan_current = 0u;
+    pdm_enclosure_fan_current |= unpack_right_shift_u32(src_p[4], 0u, 0xffu);
+    pdm_enclosure_fan_current |= unpack_left_shift_u32(src_p[5], 8u, 0xffu);
+    pdm_enclosure_fan_current |= unpack_left_shift_u32(src_p[6], 16u, 0xffu);
+    pdm_enclosure_fan_current |= unpack_left_shift_u32(src_p[7], 24u, 0xffu);
+    memcpy(&dst_p->pdm_enclosure_fan_current, &pdm_enclosure_fan_current, sizeof(dst_p->pdm_enclosure_fan_current));
+
+    return (0);
+}
+
+float CanMsgs_pdm_cooling_pdmfan_current_cooling_pump_current_encode(double value)
+{
+    return (float)(value);
+}
+
+double CanMsgs_pdm_cooling_pdmfan_current_cooling_pump_current_decode(float value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_cooling_pdmfan_current_cooling_pump_current_is_in_range(float value)
+{
+    (void)value;
+
+    return (true);
+}
+
+float CanMsgs_pdm_cooling_pdmfan_current_pdm_enclosure_fan_current_encode(double value)
+{
+    return (float)(value);
+}
+
+double CanMsgs_pdm_cooling_pdmfan_current_pdm_enclosure_fan_current_decode(float value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_cooling_pdmfan_current_pdm_enclosure_fan_current_is_in_range(float value)
+{
+    (void)value;
+
+    return (true);
+}
+
+int CanMsgs_pdm_airshdn_canglv_current_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_airshdn_canglv_current_t *src_p,
+    size_t size)
+{
+    uint32_t air_shutdown_current;
+    uint32_t grounded_low_voltage_current;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    memcpy(&air_shutdown_current, &src_p->air_shutdown_current, sizeof(air_shutdown_current));
+    dst_p[0] |= pack_left_shift_u32(air_shutdown_current, 0u, 0xffu);
+    dst_p[1] |= pack_right_shift_u32(air_shutdown_current, 8u, 0xffu);
+    dst_p[2] |= pack_right_shift_u32(air_shutdown_current, 16u, 0xffu);
+    dst_p[3] |= pack_right_shift_u32(air_shutdown_current, 24u, 0xffu);
+    memcpy(&grounded_low_voltage_current, &src_p->grounded_low_voltage_current, sizeof(grounded_low_voltage_current));
+    dst_p[4] |= pack_left_shift_u32(grounded_low_voltage_current, 0u, 0xffu);
+    dst_p[5] |= pack_right_shift_u32(grounded_low_voltage_current, 8u, 0xffu);
+    dst_p[6] |= pack_right_shift_u32(grounded_low_voltage_current, 16u, 0xffu);
+    dst_p[7] |= pack_right_shift_u32(grounded_low_voltage_current, 24u, 0xffu);
+
+    return (8);
+}
+
+int CanMsgs_pdm_airshdn_canglv_current_unpack(
+    struct CanMsgs_pdm_airshdn_canglv_current_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    uint32_t air_shutdown_current;
+    uint32_t grounded_low_voltage_current;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    air_shutdown_current = 0u;
+    air_shutdown_current |= unpack_right_shift_u32(src_p[0], 0u, 0xffu);
+    air_shutdown_current |= unpack_left_shift_u32(src_p[1], 8u, 0xffu);
+    air_shutdown_current |= unpack_left_shift_u32(src_p[2], 16u, 0xffu);
+    air_shutdown_current |= unpack_left_shift_u32(src_p[3], 24u, 0xffu);
+    memcpy(&dst_p->air_shutdown_current, &air_shutdown_current, sizeof(dst_p->air_shutdown_current));
+    grounded_low_voltage_current = 0u;
+    grounded_low_voltage_current |= unpack_right_shift_u32(src_p[4], 0u, 0xffu);
+    grounded_low_voltage_current |= unpack_left_shift_u32(src_p[5], 8u, 0xffu);
+    grounded_low_voltage_current |= unpack_left_shift_u32(src_p[6], 16u, 0xffu);
+    grounded_low_voltage_current |= unpack_left_shift_u32(src_p[7], 24u, 0xffu);
+    memcpy(&dst_p->grounded_low_voltage_current, &grounded_low_voltage_current, sizeof(dst_p->grounded_low_voltage_current));
+
+    return (0);
+}
+
+float CanMsgs_pdm_airshdn_canglv_current_air_shutdown_current_encode(double value)
+{
+    return (float)(value);
+}
+
+double CanMsgs_pdm_airshdn_canglv_current_air_shutdown_current_decode(float value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_airshdn_canglv_current_air_shutdown_current_is_in_range(float value)
+{
+    (void)value;
+
+    return (true);
+}
+
+float CanMsgs_pdm_airshdn_canglv_current_grounded_low_voltage_current_encode(double value)
+{
+    return (float)(value);
+}
+
+double CanMsgs_pdm_airshdn_canglv_current_grounded_low_voltage_current_decode(float value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_airshdn_canglv_current_grounded_low_voltage_current_is_in_range(float value)
+{
+    (void)value;
+
+    return (true);
+}
+
+int CanMsgs_pdm_accumulator_fan_current_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_accumulator_fan_current_t *src_p,
+    size_t size)
+{
+    uint32_t accumulator_enc_fan_current;
+    uint32_t accumulator_segment_fan_current;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    memcpy(&accumulator_segment_fan_current, &src_p->accumulator_segment_fan_current, sizeof(accumulator_segment_fan_current));
+    dst_p[0] |= pack_left_shift_u32(accumulator_segment_fan_current, 0u, 0xffu);
+    dst_p[1] |= pack_right_shift_u32(accumulator_segment_fan_current, 8u, 0xffu);
+    dst_p[2] |= pack_right_shift_u32(accumulator_segment_fan_current, 16u, 0xffu);
+    dst_p[3] |= pack_right_shift_u32(accumulator_segment_fan_current, 24u, 0xffu);
+    memcpy(&accumulator_enc_fan_current, &src_p->accumulator_enc_fan_current, sizeof(accumulator_enc_fan_current));
+    dst_p[4] |= pack_left_shift_u32(accumulator_enc_fan_current, 0u, 0xffu);
+    dst_p[5] |= pack_right_shift_u32(accumulator_enc_fan_current, 8u, 0xffu);
+    dst_p[6] |= pack_right_shift_u32(accumulator_enc_fan_current, 16u, 0xffu);
+    dst_p[7] |= pack_right_shift_u32(accumulator_enc_fan_current, 24u, 0xffu);
+
+    return (8);
+}
+
+int CanMsgs_pdm_accumulator_fan_current_unpack(
+    struct CanMsgs_pdm_accumulator_fan_current_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    uint32_t accumulator_enc_fan_current;
+    uint32_t accumulator_segment_fan_current;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    accumulator_segment_fan_current = 0u;
+    accumulator_segment_fan_current |= unpack_right_shift_u32(src_p[0], 0u, 0xffu);
+    accumulator_segment_fan_current |= unpack_left_shift_u32(src_p[1], 8u, 0xffu);
+    accumulator_segment_fan_current |= unpack_left_shift_u32(src_p[2], 16u, 0xffu);
+    accumulator_segment_fan_current |= unpack_left_shift_u32(src_p[3], 24u, 0xffu);
+    memcpy(&dst_p->accumulator_segment_fan_current, &accumulator_segment_fan_current, sizeof(dst_p->accumulator_segment_fan_current));
+    accumulator_enc_fan_current = 0u;
+    accumulator_enc_fan_current |= unpack_right_shift_u32(src_p[4], 0u, 0xffu);
+    accumulator_enc_fan_current |= unpack_left_shift_u32(src_p[5], 8u, 0xffu);
+    accumulator_enc_fan_current |= unpack_left_shift_u32(src_p[6], 16u, 0xffu);
+    accumulator_enc_fan_current |= unpack_left_shift_u32(src_p[7], 24u, 0xffu);
+    memcpy(&dst_p->accumulator_enc_fan_current, &accumulator_enc_fan_current, sizeof(dst_p->accumulator_enc_fan_current));
+
+    return (0);
+}
+
+float CanMsgs_pdm_accumulator_fan_current_accumulator_segment_fan_current_encode(double value)
+{
+    return (float)(value);
+}
+
+double CanMsgs_pdm_accumulator_fan_current_accumulator_segment_fan_current_decode(float value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_accumulator_fan_current_accumulator_segment_fan_current_is_in_range(float value)
+{
+    (void)value;
+
+    return (true);
+}
+
+float CanMsgs_pdm_accumulator_fan_current_accumulator_enc_fan_current_encode(double value)
+{
+    return (float)(value);
+}
+
+double CanMsgs_pdm_accumulator_fan_current_accumulator_enc_fan_current_decode(float value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_accumulator_fan_current_accumulator_enc_fan_current_is_in_range(float value)
+{
+    (void)value;
+
+    return (true);
+}
+
+int CanMsgs_pdm_inverter_io_current_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_inverter_io_current_t *src_p,
+    size_t size)
+{
+    uint32_t left_inverter_gpi_os_current;
+    uint32_t right_inverter_gpi_os_current;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    memcpy(&left_inverter_gpi_os_current, &src_p->left_inverter_gpi_os_current, sizeof(left_inverter_gpi_os_current));
+    dst_p[0] |= pack_left_shift_u32(left_inverter_gpi_os_current, 0u, 0xffu);
+    dst_p[1] |= pack_right_shift_u32(left_inverter_gpi_os_current, 8u, 0xffu);
+    dst_p[2] |= pack_right_shift_u32(left_inverter_gpi_os_current, 16u, 0xffu);
+    dst_p[3] |= pack_right_shift_u32(left_inverter_gpi_os_current, 24u, 0xffu);
+    memcpy(&right_inverter_gpi_os_current, &src_p->right_inverter_gpi_os_current, sizeof(right_inverter_gpi_os_current));
+    dst_p[4] |= pack_left_shift_u32(right_inverter_gpi_os_current, 0u, 0xffu);
+    dst_p[5] |= pack_right_shift_u32(right_inverter_gpi_os_current, 8u, 0xffu);
+    dst_p[6] |= pack_right_shift_u32(right_inverter_gpi_os_current, 16u, 0xffu);
+    dst_p[7] |= pack_right_shift_u32(right_inverter_gpi_os_current, 24u, 0xffu);
+
+    return (8);
+}
+
+int CanMsgs_pdm_inverter_io_current_unpack(
+    struct CanMsgs_pdm_inverter_io_current_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    uint32_t left_inverter_gpi_os_current;
+    uint32_t right_inverter_gpi_os_current;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    left_inverter_gpi_os_current = 0u;
+    left_inverter_gpi_os_current |= unpack_right_shift_u32(src_p[0], 0u, 0xffu);
+    left_inverter_gpi_os_current |= unpack_left_shift_u32(src_p[1], 8u, 0xffu);
+    left_inverter_gpi_os_current |= unpack_left_shift_u32(src_p[2], 16u, 0xffu);
+    left_inverter_gpi_os_current |= unpack_left_shift_u32(src_p[3], 24u, 0xffu);
+    memcpy(&dst_p->left_inverter_gpi_os_current, &left_inverter_gpi_os_current, sizeof(dst_p->left_inverter_gpi_os_current));
+    right_inverter_gpi_os_current = 0u;
+    right_inverter_gpi_os_current |= unpack_right_shift_u32(src_p[4], 0u, 0xffu);
+    right_inverter_gpi_os_current |= unpack_left_shift_u32(src_p[5], 8u, 0xffu);
+    right_inverter_gpi_os_current |= unpack_left_shift_u32(src_p[6], 16u, 0xffu);
+    right_inverter_gpi_os_current |= unpack_left_shift_u32(src_p[7], 24u, 0xffu);
+    memcpy(&dst_p->right_inverter_gpi_os_current, &right_inverter_gpi_os_current, sizeof(dst_p->right_inverter_gpi_os_current));
+
+    return (0);
+}
+
+float CanMsgs_pdm_inverter_io_current_left_inverter_gpi_os_current_encode(double value)
+{
+    return (float)(value);
+}
+
+double CanMsgs_pdm_inverter_io_current_left_inverter_gpi_os_current_decode(float value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_inverter_io_current_left_inverter_gpi_os_current_is_in_range(float value)
+{
+    (void)value;
+
+    return (true);
+}
+
+float CanMsgs_pdm_inverter_io_current_right_inverter_gpi_os_current_encode(double value)
+{
+    return (float)(value);
+}
+
+double CanMsgs_pdm_inverter_io_current_right_inverter_gpi_os_current_decode(float value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_inverter_io_current_right_inverter_gpi_os_current_is_in_range(float value)
+{
+    (void)value;
+
+    return (true);
+}
+
+int CanMsgs_pdm_glv_vbat_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_glv_vbat_t *src_p,
+    size_t size)
+{
+    uint32_t glv;
+    uint32_t vbat;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    memcpy(&glv, &src_p->glv, sizeof(glv));
+    dst_p[0] |= pack_left_shift_u32(glv, 0u, 0xffu);
+    dst_p[1] |= pack_right_shift_u32(glv, 8u, 0xffu);
+    dst_p[2] |= pack_right_shift_u32(glv, 16u, 0xffu);
+    dst_p[3] |= pack_right_shift_u32(glv, 24u, 0xffu);
+    memcpy(&vbat, &src_p->vbat, sizeof(vbat));
+    dst_p[4] |= pack_left_shift_u32(vbat, 0u, 0xffu);
+    dst_p[5] |= pack_right_shift_u32(vbat, 8u, 0xffu);
+    dst_p[6] |= pack_right_shift_u32(vbat, 16u, 0xffu);
+    dst_p[7] |= pack_right_shift_u32(vbat, 24u, 0xffu);
+
+    return (8);
+}
+
+int CanMsgs_pdm_glv_vbat_unpack(
+    struct CanMsgs_pdm_glv_vbat_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    uint32_t glv;
+    uint32_t vbat;
+
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    glv = 0u;
+    glv |= unpack_right_shift_u32(src_p[0], 0u, 0xffu);
+    glv |= unpack_left_shift_u32(src_p[1], 8u, 0xffu);
+    glv |= unpack_left_shift_u32(src_p[2], 16u, 0xffu);
+    glv |= unpack_left_shift_u32(src_p[3], 24u, 0xffu);
+    memcpy(&dst_p->glv, &glv, sizeof(dst_p->glv));
+    vbat = 0u;
+    vbat |= unpack_right_shift_u32(src_p[4], 0u, 0xffu);
+    vbat |= unpack_left_shift_u32(src_p[5], 8u, 0xffu);
+    vbat |= unpack_left_shift_u32(src_p[6], 16u, 0xffu);
+    vbat |= unpack_left_shift_u32(src_p[7], 24u, 0xffu);
+    memcpy(&dst_p->vbat, &vbat, sizeof(dst_p->vbat));
+
+    return (0);
+}
+
+float CanMsgs_pdm_glv_vbat_glv_encode(double value)
+{
+    return (float)(value);
+}
+
+double CanMsgs_pdm_glv_vbat_glv_decode(float value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_glv_vbat_glv_is_in_range(float value)
+{
+    (void)value;
+
+    return (true);
+}
+
+float CanMsgs_pdm_glv_vbat_vbat_encode(double value)
+{
+    return (float)(value);
+}
+
+double CanMsgs_pdm_glv_vbat_vbat_decode(float value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_glv_vbat_vbat_is_in_range(float value)
+{
+    (void)value;
+
+    return (true);
+}
+
+int CanMsgs_pdm_flywire_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_pdm_flywire_t *src_p,
+    size_t size)
+{
+    uint32_t flywire;
+
+    if (size < 4u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 4);
+
+    memcpy(&flywire, &src_p->flywire, sizeof(flywire));
+    dst_p[0] |= pack_left_shift_u32(flywire, 0u, 0xffu);
+    dst_p[1] |= pack_right_shift_u32(flywire, 8u, 0xffu);
+    dst_p[2] |= pack_right_shift_u32(flywire, 16u, 0xffu);
+    dst_p[3] |= pack_right_shift_u32(flywire, 24u, 0xffu);
+
+    return (4);
+}
+
+int CanMsgs_pdm_flywire_unpack(
+    struct CanMsgs_pdm_flywire_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    uint32_t flywire;
+
+    if (size < 4u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    flywire = 0u;
+    flywire |= unpack_right_shift_u32(src_p[0], 0u, 0xffu);
+    flywire |= unpack_left_shift_u32(src_p[1], 8u, 0xffu);
+    flywire |= unpack_left_shift_u32(src_p[2], 16u, 0xffu);
+    flywire |= unpack_left_shift_u32(src_p[3], 24u, 0xffu);
+    memcpy(&dst_p->flywire, &flywire, sizeof(dst_p->flywire));
+
+    return (0);
+}
+
+float CanMsgs_pdm_flywire_flywire_encode(double value)
+{
+    return (float)(value);
+}
+
+double CanMsgs_pdm_flywire_flywire_decode(float value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_pdm_flywire_flywire_is_in_range(float value)
+{
+    (void)value;
+
+    return (true);
+}
