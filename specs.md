@@ -1,5 +1,7 @@
 # Module Specifications
 
+*This set of specifications is for the **2019** rules, which may be found [here](http://www.fsaeonline.com/cdsweb/gen/DownloadDocument.aspx?DocumentID=607667ea-bec6-4658-92c4-fff59dbb5c0e)*
+
 This folder contains the specifications for each module. The intent is to have each file act as a definitive resource that fully defines all board behaviors, as observed from outside the board. 
 Each specification has an unique ID, short title, and detailed description. It may also be associted with a competition rule.
 
