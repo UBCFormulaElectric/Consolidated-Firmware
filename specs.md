@@ -17,4 +17,4 @@ Each specification has an unique ID, short title, and detailed description. It m
 ## FSM
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-FSM-0 | APPS (Accelerator Pedal Position Sensor) Disagreement | When the ADC readings between the primary and secondary APP's disagree by more then 10%, the FSM shall constantly send the `FSM_AIR_SHUTDOWN` CAN signal with a period of 5 seconds until the board is reset. | T.6.2.3, T.6.2.4
+FSM-0 | APPS (Accelerator Pedal Position Sensor) Disagreement | When the ADC readings between the primary and secondary APP's disagree by more then 10%, the FSM shall constantly send the `FSM_AIR_SHUTDOWN` CAN signal with a period of 0.5 seconds until the board is reset. | T.6.2.3, T.6.2.4
