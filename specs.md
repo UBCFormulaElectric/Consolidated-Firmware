@@ -5,7 +5,11 @@
 *This set of specifications is for the **2019** rules, which may be found [here](http://www.fsaeonline.com/cdsweb/gen/DownloadDocument.aspx?DocumentID=607667ea-bec6-4658-92c4-fff59dbb5c0e)*
 
 This Markdown file contains the specifications for each module. The intent is to have a definitive resource that fully defines all board behaviors, as observed from outside the board.
+<<<<<<< HEAD
 Each specification has an unique ID, short title, and detailed description. It may also be associated with a competition rule.
+=======
+Each specification has an unique ID, short title, and detailed description. It may also be associted with a competition rule.
+>>>>>>> DCM spec
 
 ## Specification Rules
 1. Specification ID's should never be duplicated.
