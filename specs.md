@@ -1,5 +1,4 @@
 
-
 # Module Specifications
 
 *This set of specifications is for the **2019** rules, which may be found [here](http://www.fsaeonline.com/cdsweb/gen/DownloadDocument.aspx?DocumentID=607667ea-bec6-4658-92c4-fff59dbb5c0e)*
@@ -14,10 +13,12 @@ Each specification has an unique ID, short title, and detailed description. It m
 1. All abbreviations (`AIR`, `APPS`, etc.) should be spelled out fully the first time they appear in a given row in the table. This means that if `APPS` appears in `FSM-0` and `FSM-22`, it should be spelled out as `APPS (acceleration pedal position sensor)` in _both_ `FSM-0` and `FSM-22`.
 
 ## Background Info
-- There are three types of faults:
-    - AIR shutdown: requires an AIR shutdown and a motor shutdown
-    - Motor shutdown: requires a motor shutdown only
-    - Non-critical: for logging and debugging purposes
+There are two types of faults:
+    - Critical Faults:
+        - AIR shutdown: requires an AIR shutdown and a motor shutdown
+        - Motor shutdown: requires a motor shutdown only
+    - Non-critical:
+        - All other faults, for logging and debugging purposes
 
 ## Table Of Contents
 - [FSM (Front Sensor Module)](#FSM)
@@ -26,6 +27,9 @@ Each specification has an unique ID, short title, and detailed description. It m
     - [DCM Init State](#DCM_INIT)
     - [DCM Drive State](#DCM_DRIVE)
     - [DCM Fault State](#DCM_FAULT)
+- [PDM (Power Distribution Module)](#PDM)
+    - [PDM Stateless](#PDM_STATELESS)
+    - [PDM Run State](#PDM_RUN)
 
 ## FSM <a name="FSM"></a>
 ID | Title | Description | Associated Competition Rule(s)
@@ -33,13 +37,13 @@ ID | Title | Description | Associated Competition Rule(s)
 FSM-0 | Startup CAN message | The FSM must transmit a startup message over CAN on boot.
 FSM-1 | Heartbeat sending | The FSM must transmit a heartbeat over CAN at 100Hz.
 FSM-2 | Heartbeat receiving | The FSM must throw an AIR shutdown fault once it does not receive three consecutive BMS heartbeats.
-FSM-3 | APPS (accelerator pedal position sensor) measurement and reporting | - The FSM must measure the primary and secondary APPS positions at 100Hz. <br/> - The FSM must report pedal travel percentage as a function of the primary APPS over CAN at 100Hz, unless overridden.
-FSM-4 | APPS mapping | - The FSM must map the primary APPS position to pedal travel percentage linearly with dead zones on both the low and high ends of the APPS position. <br/> - The low end dead zone boundary must be defined as the maximum pedal travel reading when the pedal is completely depressed with a safety factor of 1.5, to avoid requesting torque when not pressing the pedal. <br/> - The high end dead zone boundary must be experimentally determined to ensure the FSM can send 100% pedal travel despite any mechanical deflection in the pedal box.
+FSM-3 | APPS (accelerator pedal position sensor) reporting | The FSM must report the APPS mapping over CAN at 100Hz, unless overridden.
+FSM-4 | APPS mapping | - The FSM must map the primary APPS position to pedal travel percentage linearly with dead zones on both the low and high ends of the APPS position. <br/> - The low end dead zone boundary must be defined as 1.5 multiplied by the maximum encoder reading when the pedal is completely depressed. <br/> - The high end dead zone boundary must be experimentally determined to ensure the FSM can send 100% pedal travel despite any mechanical deflection in the pedal box.
 FSM-5 | APPS open/short circuit | If there is an open/short circuit in either encoder the FSM must report 0% pedal travel. | T.6.2.2, T.6.2.9
 FSM-6 | APPS disagreement | When the primary and secondary APPS positions disagree by more then 10%, the FSM must throw a motor shutdown fault and report 0% pedal travel. | T.6.2.3, T.6.2.4
 FSM-7 | APPS/brake pedal plausibility check | - When the APPS senses brake actuation and more than 25% pedal travel simultaneously, the FSM must throw a motor shutdown fault and report 0% pedal travel. <br/> - The FSM must clear the motor shutdown fault after the APPS senses less than 5% pedal travel, regardless of the brake state. | EV.2.4.1, EV.2.4.2
-FSM-8 | Steering angle measurement and reporting | - The FSM must sense and report the steering angle in degrees over CAN at 100Hz, where 0 degrees represents straight wheels and a clockwise turn of the steering wheel corresponds to an increase in steering angle. <br/> - The FSM must send a non-critical fault when the steering angle is beyond the max turning radius of the steering wheel.
-FSM-9 | Wheel speed measurement and reporting | - The FSM must sense and report the two front wheel speeds in km/h over CAN at 100Hz. <br/> - The FSM must send a non-critical fault when either front wheel speed is below -10km/h or above 150km/h.
+FSM-8 | Steering angle reporting | - The FSM must report the steering angle in degrees over CAN at 100Hz, where 0 degrees represents straight wheels and a clockwise turn of the steering wheel corresponds to an increase in steering angle. <br/> - The FSM must send a non-critical fault when the steering angle is beyond the max turning radius of the steering wheel.
+FSM-9 | Wheel speed reporting | - The FSM must report the two front wheel speeds in km/h over CAN at 100Hz. <br/> - The FSM must send a non-critical fault when either front wheel speed is below -10km/h or above 150km/h.
 
 ## DCM <a name="DCM"></a>
 
@@ -76,3 +80,35 @@ ID | Title | Description | Associated Competition Rule(s)
 DCM-15 | Entering the fault state from any state | The DCM must transition to the fault state whenever an AIR shutdown or motor shutdown fault is observed.
 DCM-16 | In the fault state | The DCM must do the following in the fault state at 1kHz: <br/> - Stop all CAN torque requests to meet DCM-4. <br/> - Disable power to both motors through the DCM's enable pins.
 DCM-17 | Exiting the fault state and entering the init state | When all AIR shutdown and motor shutdown faults are cleared, re-enter the init state.
+
+## PDM <a name="PDM"></a>
+
+### PDM Stateless <a name="PDM_STATELESS"></a>
+ID | Title | Description | Associated Competition Rule(s)
+--- | --- | --- | ---
+PDM-0 | Startup CAN message | The PDM must transmit a startup message over CAN on boot.
+PDM-1 | Heartbeat sending | The PDM must transmit a heartbeat over CAN at 100Hz.
+PDM-2 | Heartbeat receiving | The PDM must throw a critical fault once it does not receive three consecutive BMS heartbeats.
+PDM-3 | 18650 overvoltage handling | When the 24V systems are powered by the 18650s and the OV_FAULT GPIO is low (18650 overvoltage fault condition), the PDM must throw a critical fault.
+PDM-4 | 18650 charge fault handling | When the CHRG_FAULT GPIO is low (18650s charge fault condition), the PDM must throw a non-critical fault.
+PDM-5 | Boost controller fault handling | When the PGOOD GPIO is low (boost controller fault condition), the PDM must throw a non-critical fault.
+PDM-6 | Voltage sense rationality checks | The PDM must run voltage rationality checks at 1kHz on the following inputs, throwing a non-critical fault if a rationality check fails: <br/> - VBAT_SENSE: min =  6V, max = 8.5V. <br/> - 24V_AUX_SENSE: min = 22V, max = 26V. <br/> - 24V_ACC_SENSE: min = 22V, max = 26V.
+
+### PDM Init State <a name="PDM_INIT"></a>
+ID | Title | Description | Associated Competition Rule(s)
+--- | --- | --- | ---
+PDM-7 | E-fuse current limits | The PDM's e-fuse current limits are as follows: <br/> - 3A for the coolant pump output. <br/> - 1A for all other outputs.
+PDM-8 | Entering the init state | The PDM state machine must begin in the init state by default.
+PDM-9 | In the init state | - The PDM must program the e-fuses with the current limits listed in PDM-7 over SPI. <br/> - The PDM must enable auto-retry on all e-fuses over SPI.
+PDM-10 | Exiting the init state and entering the run state | After the PDM is finished programming the e-fuses, the PDM must enter the run state.
+
+### PDM Run State <a name="PDM_RUN"></a>
+ID | Title | Description | Associated Competition Rule(s)
+--- | --- | --- | ---
+PDM-11 | Current sensing | The PDM must log all e-fuse currents over CAN at 1Hz. This involves, for each e-fuse (and its corresponding channel): <br/> 1. Waiting for a falling edge on the SYNC pin. <br/> 2. Reading the CSNS pin and converting it to a current.
+PDM-12 | E-fuse fail-safe mode | The PDM must check if it cannot communicate with an e-fuse over SPI, or if the PDM regains SPI communication with an e-fuse and detects it in fail-safe mode, at 1kHz. If either of these cases are true: <br/> - The PDM must throw a non-critical fault. <br/> - If the PDM has re-gained SPI communication, the PDM must put the e-fuse back into normal mode over SPI.
+PDM-13 | E-fuse fault mode | The PDM must check if each e-fuse enters fault mode at 1kHz over SPI. The PDM must throw a critical or non-critical fault over CAN depending on the e-fuse in the fault state: <br/> - AUX 1: Non-critical. <br/> - AUX 2: Non-critical. <br/> - Drive Inverter Left: Non-critical. <br/> - Drive Inverter Right: Non-critical. <br/> - Cooling: Critical. <br/> - Energy Meter: Non-critical. <br/> - CAN: Critical. <br/> - AIR SHDN: Critical.
+PDM-14 | E-fuse fault delatching | After an e-fuse has faulted and completed its auto-retry sequence, the PDM must make three attempts to delatch the fault over SPI and wait 1s in between attempts. If the e-fuse's fault is cleared, clear the corresponding fault over CAN.
+PDM-15 | Entering the run state | The PDM state machine must enter the run state after the init state is complete.
+PDM-16 | In the run state | The PDM must perform PDM-11, PDM-12, PDM-13 and PDM-14 in the run state.
+PDM-17 | Exiting the run state | The PDM must never exit the run state after entering the run state.
