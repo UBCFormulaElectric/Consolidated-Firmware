@@ -30,6 +30,7 @@ There are two types of faults:
 - [PDM (Power Distribution Module)](#PDM)
     - [PDM Stateless](#PDM_STATELESS)
     - [PDM Run State](#PDM_RUN)
+- [DIM (Dashoard Interface Module)](#DIM)    
 
 ## FSM <a name="FSM"></a>
 ID | Title | Description | Associated Competition Rule(s)
