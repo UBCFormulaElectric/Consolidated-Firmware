@@ -112,3 +112,17 @@ PDM-14 | E-fuse fault delatching | After an e-fuse has faulted and completed its
 PDM-15 | Entering the run state | The PDM state machine must enter the run state after the init state is complete.
 PDM-16 | In the run state | The PDM must perform PDM-11, PDM-12, PDM-13 and PDM-14 in the run state.
 PDM-17 | Exiting the run state | The PDM must never exit the run state after entering the run state.
+
+## DIM <a name="DIM"></a>
+ID | Title | Description | Associated Competition Rule(s)
+--- | --- | --- | ---
+DIM-0 | Startup CAN message | The DIM must transmit a startup message over CAN on boot.
+DIM-1 | Heartbeat sending | The DIM must transmit a heartbeat over CAN at 100Hz.
+DIM-2 | Status LEDs | The DIM must indicate the current status of each board using RGB LEDs, where GREEN = no fault, BLUE = non-critical fault and RED = critical fault.
+DIM-3 | BMS Shutdown | The DIM must set the BMS status LED RED if the BMS performs a shutdown. | EV.5.1.11
+DIM-4 | Start Switch | Additional actions must be performed by the driver to set the car ready to drive e.g. pressing a dedicated start button after the tractive system has been activated. | EV.6.11.3
+DIM-5 | IMD LED | The status of the IMD must be shown to the driver by an indicator light which must illuminate when: <br/> - The IMD detects an insulation failure <br/> - The IMD detects a failure in its own operation | EV.7.5.5
+DIM-6 | Dashboard Switches | The DIM must set the corresponding GREEN status LEDs when the Torque Vectoring, Traction Control and/or Ignition switches are set
+DIM-7 | DRS | The DIM must transmit over CAN if the Drag Reduction System (DRS) is active
+DIM-8 | Regen Reporting | The DIM must report the Regen pedal percentage over CAN at 100Hz
+DIM-9 | 7-Seg |  - The DIM must display the SoC as percentage on the 7-seg displays if no faults are present <br/> - If a fault has occured the DIM must stop displaying the SoC and instead display any faults onto the 7-Segs <br/> - The 1st 7-Seg must display the board where a fault has occured while the remaing two must display the fault number <br/> - If more the one fault has occurred the DIM must cycle through displaying each present fault, every second
