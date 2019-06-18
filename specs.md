@@ -119,7 +119,7 @@ ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 DIM-0 | Startup CAN message | The DIM must transmit a startup message over CAN on boot.
 DIM-1 | Heartbeat sending | The DIM must transmit a heartbeat over CAN at 100Hz.
-DIM-2 | Status LEDs | The DIM must indicate the current status of each board using RGB LEDs, where GREEN = no fault, BLUE = non-critical fault and RED = critical fault.
+DIM-2 | Status LEDs | The DIM must indicate the current status of the BMS, DCM, DIM, FSM and PDM using RGB LEDs, where GREEN = no fault, BLUE = non-critical fault and RED = critical fault.
 DIM-3 | BMS Shutdown | The DIM must set the BMS status LED RED if the BMS performs a shutdown. | EV.5.1.11
 DIM-4 | Start Switch | Additional actions must be performed by the driver to set the car ready to drive e.g. pressing a dedicated start button after the tractive system has been activated. | EV.6.11.3
 DIM-5 | IMD LED | The status of the IMD must be shown to the driver by an indicator light which must illuminate when: <br/> - The IMD detects an insulation failure <br/> - The IMD detects a failure in its own operation | EV.7.5.5
