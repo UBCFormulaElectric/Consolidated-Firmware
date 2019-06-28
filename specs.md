@@ -123,6 +123,6 @@ DIM-2 | Status LEDs | The DIM must indicate the current status of the BMS, DCM, 
 DIM-3 | Start Switch | The DIM must transmit over CAN the status of start switch every time the state(ON/OFF) of the switch changes. 
 DIM-4 | IMD LED | The status of the IMD must be shown to the driver by an indicator light which must illuminate when: <br/> - The IMD detects an insulation failure <br/> - The IMD detects a failure in its own operation <br/> - The DIM must recieve the status of IMD from the BMS over CAN | EV.7.5.5
 DIM-5 | Dashboard Switches | The DIM must set the corresponding green status LEDs when the torque vectoring, traction control and/or start switch are set
-DIM-6 | Drag Reduction System | The DIM must transmit over CAN if the drag reduction system button is pressed.
+DIM-6 | Drag Reduction System | The DIM must transmit the on/off state of the drag reduction system button over CAN.
 DIM-7 | Regen Reporting | The DIM must report the Regen paddle percentage over CAN at 100Hz
 DIM-8 | 7-Segment |  - The DIM must display the SoC as percentage on the 7-segment displays if no faults are present <br/> - If a fault has occurred the DIM must stop displaying the SoC and instead display any faults onto the 7-segment displays <br/> - The first 7-segment must display the board ID while the remaining two must display the fault ID <br/> - If there are more than one fault active, the DIM must cycle through displaying each present fault at 1Hz
