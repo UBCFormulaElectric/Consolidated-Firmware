@@ -122,6 +122,6 @@ DIM-1 | Heartbeat sending | The DIM must transmit a heartbeat over CAN at 100Hz.
 DIM-2 | Status LEDs | The DIM must indicate the current status of the BMS, DCM, DIM, FSM and PDM using RGB LEDs, where GREEN = no fault, BLUE = non-critical fault and RED = critical fault. | EV.5.1.11
 DIM-3 | Dashboard switches | The DIM must: <br/> - transmit the ON/OFF status of the start, traction control and torque vectoring switches over CAN at 100Hz. <br/> - set the corresponding green status LEDs when the torque vectoring, traction control and/or start switch are set.
 DIM-4 | IMD LED | The DIM must turn on the IMD LED when it receives IMD fault status from BMS over CAN. | EV.7.5.5
-DIM-5 | Regen reporting | The DIM must report the Regen paddle percentage over CAN at 100Hz.
+DIM-5 | Regen reporting | The DIM must report the regen paddle percentage over CAN at 100Hz.
 DIM-6 | Regen maping | The DIM must linearly map the the peddle position as a percentage (0% - fully de-pressed, 100% - fully pressed).
 DIM-7 | 7-segment |  - The DIM must display the SoC as percentage on the 7-segment displays if no faults are present. <br/> - If a fault has occurred the DIM must stop displaying the SoC and instead display any faults onto the 7-segment displays. <br/><ul>- The first 7-segment must display the board ID while the remaining two must display the fault ID. <br/>- If there are more than one fault active, the DIM must cycle through displaying each present fault at 1Hz. </ul>
