@@ -118,7 +118,7 @@ PDM-17 | Exiting the run state | The PDM must never exit the run state after ent
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 DIM-0 | Startup CAN message | The DIM must transmit a startup message over CAN on boot.
-DIM-1 | Heartbeat sending | The DIM must transmit a heartbeat over CAN at 100Hz.
+DIM-1 | Heartbeat receiving | The DIM must set the 7-segments all on to display '888' once it does not receive three consecutive BMS heartbeats.
 DIM-2 | Board status LEDs | The DIM must indicate the current status of the BMS, DCM, DIM, FSM and PDM using RGB LEDs, where GREEN = no fault, BLUE = non-critical fault and RED = critical fault. | EV.5.1.11
 DIM-3 |  Start, traction control, torque vectoring switches | For each of the switches, the DIM must: <br/> - Transmit the on/off switch status of over CAN at 100Hz. <br/> - Set the corresponding green status LEDs when the switch is on.
 DIM-4 | IMD LED | The DIM must turn on the IMD LED when it receives IMD fault status from BMS over CAN. | EV.7.5.5
