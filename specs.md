@@ -120,7 +120,7 @@ ID | Title | Description | Associated Competition Rule(s)
 DIM-0 | Startup CAN message | The DIM must transmit a startup message over CAN on boot.
 DIM-1 | Heartbeat sending | The DIM must transmit a heartbeat over CAN at 100Hz.
 DIM-2 | Board status LEDs | The DIM must indicate the current status of the BMS, DCM, DIM, FSM and PDM using RGB LEDs, where GREEN = no fault, BLUE = non-critical fault and RED = critical fault. | EV.5.1.11
-DIM-3 | Dashboard switches | The DIM must: <br/> - transmit the ON/OFF status of the start, traction control and torque vectoring switches over CAN at 100Hz. <br/> - set the corresponding green status LEDs when the torque vectoring, traction control and/or start switch are set.
+DIM-3 |  Start, traction control, torque vectoring switches | For each of the switches, the DIM must: <br/> - Transmit the on/off switch status of over CAN at 100Hz. <br/> - Set the corresponding green status LEDs when the switch is on.
 DIM-4 | IMD LED | The DIM must turn on the IMD LED when it receives IMD fault status from BMS over CAN. | EV.7.5.5
 DIM-5 | Regen reporting | The DIM must report the regen paddle percentage over CAN at 100Hz.
 DIM-6 | Regen maping | The DIM must linearly map the the peddle position as a percentage (0% - fully de-pressed, 100% - fully pressed).
