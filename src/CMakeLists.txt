@@ -56,7 +56,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Build)
 ################################################################################
 project(FORMULA_E C ASM)
 
-set(MODULES "FSM BMS")
+set(MODULES "BMS")
 
 #Create string list
 string(REPLACE " " ";" MODULES ${MODULES})

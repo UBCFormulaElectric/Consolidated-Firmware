@@ -1,9 +1,8 @@
 /* USER CODE BEGIN Header */
 /**
  ******************************************************************************
- * @file           : main.h
- * @brief          : Header for main.c file.
- *                   This file contains the common defines of the application.
+ * @file    stm32f3xx_it.h
+ * @brief   This file contains the headers of the interrupt handlers.
  ******************************************************************************
  * @attention
  *
@@ -20,16 +19,13 @@
 /* USER CODE END Header */
 
 /* Define to prevent recursive inclusion -------------------------------------*/
-#ifndef __MAIN_H
-#define __MAIN_H
+#ifndef __STM32F3xx_IT_H
+#define __STM32F3xx_IT_H
 
 #ifdef __cplusplus
 extern "C"
 {
 #endif
-
-/* Includes ------------------------------------------------------------------*/
-#include "stm32f3xx_hal.h"
 
     /* Private includes
      * ----------------------------------------------------------*/
@@ -57,43 +53,21 @@ extern "C"
 
     /* Exported functions prototypes
      * ---------------------------------------------*/
-    void Error_Handler(void);
+    void NMI_Handler(void);
+    void HardFault_Handler(void);
+    void MemManage_Handler(void);
+    void BusFault_Handler(void);
+    void UsageFault_Handler(void);
+    void DebugMon_Handler(void);
+    void TIM2_IRQHandler(void);
+    /* USER CODE BEGIN EFP */
 
-/* USER CODE BEGIN EFP */
-
-/* USER CODE END EFP */
-
-/* Private defines -----------------------------------------------------------*/
-#define UNUSED_GPIO_2_Pin GPIO_PIN_1
-#define UNUSED_GPIO_2_GPIO_Port GPIOB
-#define UNUSED_GPIO_3_Pin GPIO_PIN_2
-#define UNUSED_GPIO_3_GPIO_Port GPIOB
-#define UNUSED_GPIO_4_Pin GPIO_PIN_10
-#define UNUSED_GPIO_4_GPIO_Port GPIOB
-#define UNUSED_GPIO_5_Pin GPIO_PIN_11
-#define UNUSED_GPIO_5_GPIO_Port GPIOB
-#define UNUSED_GPIO_6_Pin GPIO_PIN_12
-#define UNUSED_GPIO_6_GPIO_Port GPIOB
-#define UNUSED_GPIO_7_Pin GPIO_PIN_14
-#define UNUSED_GPIO_7_GPIO_Port GPIOB
-#define BPSD_BRAKE_THRES_Pin GPIO_PIN_15
-#define BPSD_BRAKE_THRES_GPIO_Port GPIOA
-#define UNUSED_GPIO_8_Pin GPIO_PIN_4
-#define UNUSED_GPIO_8_GPIO_Port GPIOB
-#define STATUS_R_Pin GPIO_PIN_5
-#define STATUS_R_GPIO_Port GPIOB
-#define STATUS_G_Pin GPIO_PIN_8
-#define STATUS_G_GPIO_Port GPIOB
-#define STATUS_B_Pin GPIO_PIN_9
-#define STATUS_B_GPIO_Port GPIOB
-    /* USER CODE BEGIN Private defines */
-
-    /* USER CODE END Private defines */
+    /* USER CODE END EFP */
 
 #ifdef __cplusplus
 }
 #endif
 
-#endif /* __MAIN_H */
+#endif /* __STM32F3xx_IT_H */
 
 /************************ (C) COPYRIGHT STMicroelectronics *****END OF FILE****/
