@@ -4,36 +4,15 @@
  * @file           : main.c
  * @brief          : Main program body
  ******************************************************************************
- ** This notice applies to any and all portions of this file
- * that are not between comment pairs USER CODE BEGIN and
- * USER CODE END. Other portions of this file, whether
- * inserted by the user or by software development tools
- * are owned by their respective copyright owners.
+ * @attention
  *
- * COPYRIGHT(c) 2018 STMicroelectronics
+ * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
+ * All rights reserved.</center></h2>
  *
- * Redistribution and use in source and binary forms, with or without
- *modification, are permitted provided that the following conditions are met:
- *   1. Redistributions of source code must retain the above copyright notice,
- *      this list of conditions and the following disclaimer.
- *   2. Redistributions in binary form must reproduce the above copyright
- *notice, this list of conditions and the following disclaimer in the
- *documentation and/or other materials provided with the distribution.
- *   3. Neither the name of STMicroelectronics nor the names of its contributors
- *      may be used to endorse or promote products derived from this software
- *      without specific prior written permission.
- *
- * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
- * AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- * IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- *ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
- *LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
- *CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
- *SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
- *INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
- *CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
- *ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
- *POSSIBILITY OF SUCH DAMAGE.
+ * This software component is licensed by ST under Ultimate Liberty license
+ * SLA0044, the "License"; You may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at:
+ *                             www.st.com/SLA0044
  *
  ******************************************************************************
  */
@@ -41,6 +20,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -63,28 +43,28 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
+ADC_HandleTypeDef hadc1;
+
 CAN_HandleTypeDef hcan;
 
-I2C_HandleTypeDef hi2c1;
+DAC_HandleTypeDef hdac;
 
-IWDG_HandleTypeDef hiwdg;
-
-TIM_HandleTypeDef htim6;
-
+osThreadId          defaultTaskHandle;
+uint32_t            defaultTaskBuffer[128];
+osStaticThreadDef_t defaultTaskControlBlock;
 /* USER CODE BEGIN PV */
-/* Private variables ---------------------------------------------------------*/
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_ADC1_Init(void);
 static void MX_CAN_Init(void);
-static void MX_I2C1_Init(void);
-static void MX_IWDG_Init(void);
-static void MX_TIM6_Init(void);
+static void MX_DAC_Init(void);
+void        StartDefaultTask(void const *argument);
+
 /* USER CODE BEGIN PFP */
-/* Private function prototypes -----------------------------------------------*/
 
 /* USER CODE END PFP */
 
@@ -123,13 +103,44 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
+    MX_ADC1_Init();
     MX_CAN_Init();
-    MX_I2C1_Init();
-    MX_IWDG_Init();
-    MX_TIM6_Init();
+    MX_DAC_Init();
     /* USER CODE BEGIN 2 */
 
     /* USER CODE END 2 */
+
+    /* USER CODE BEGIN RTOS_MUTEX */
+    /* add mutexes, ... */
+    /* USER CODE END RTOS_MUTEX */
+
+    /* USER CODE BEGIN RTOS_SEMAPHORES */
+    /* add semaphores, ... */
+    /* USER CODE END RTOS_SEMAPHORES */
+
+    /* USER CODE BEGIN RTOS_TIMERS */
+    /* start timers, add new ones, ... */
+    /* USER CODE END RTOS_TIMERS */
+
+    /* USER CODE BEGIN RTOS_QUEUES */
+    /* add queues, ... */
+    /* USER CODE END RTOS_QUEUES */
+
+    /* Create the thread(s) */
+    /* definition and creation of defaultTask */
+    osThreadStaticDef(
+        defaultTask, StartDefaultTask, osPriorityNormal, 0, 128,
+        defaultTaskBuffer, &defaultTaskControlBlock);
+    defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+
+    /* USER CODE BEGIN RTOS_THREADS */
+    /* add threads, ... */
+    /* USER CODE END RTOS_THREADS */
+
+    /* Start scheduler */
+    osKernelStart();
+
+    /* We should never get here as control is now taken by the scheduler */
 
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
@@ -152,14 +163,12 @@ void SystemClock_Config(void)
     RCC_ClkInitTypeDef       RCC_ClkInitStruct = { 0 };
     RCC_PeriphCLKInitTypeDef PeriphClkInit     = { 0 };
 
-    /**Initializes the CPU, AHB and APB busses clocks
+    /** Initializes the CPU, AHB and APB busses clocks
      */
-    RCC_OscInitStruct.OscillatorType =
-        RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
     RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
     RCC_OscInitStruct.HSIState       = RCC_HSI_ON;
-    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL9;
@@ -167,7 +176,7 @@ void SystemClock_Config(void)
     {
         Error_Handler();
     }
-    /**Initializes the CPU, AHB and APB busses clocks
+    /** Initializes the CPU, AHB and APB busses clocks
      */
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK |
                                   RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
@@ -180,12 +189,66 @@ void SystemClock_Config(void)
     {
         Error_Handler();
     }
-    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_I2C1;
-    PeriphClkInit.I2c1ClockSelection   = RCC_I2C1CLKSOURCE_SYSCLK;
+    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC1;
+    PeriphClkInit.Adc1ClockSelection   = RCC_ADC1PLLCLK_DIV1;
+
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
     {
         Error_Handler();
     }
+}
+
+/**
+ * @brief ADC1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_ADC1_Init(void)
+{
+    /* USER CODE BEGIN ADC1_Init 0 */
+
+    /* USER CODE END ADC1_Init 0 */
+
+    ADC_ChannelConfTypeDef sConfig = { 0 };
+
+    /* USER CODE BEGIN ADC1_Init 1 */
+
+    /* USER CODE END ADC1_Init 1 */
+    /** Common config
+     */
+    hadc1.Instance                   = ADC1;
+    hadc1.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV1;
+    hadc1.Init.Resolution            = ADC_RESOLUTION_12B;
+    hadc1.Init.ScanConvMode          = ADC_SCAN_DISABLE;
+    hadc1.Init.ContinuousConvMode    = DISABLE;
+    hadc1.Init.DiscontinuousConvMode = DISABLE;
+    hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+    hadc1.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
+    hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+    hadc1.Init.NbrOfConversion       = 1;
+    hadc1.Init.DMAContinuousRequests = DISABLE;
+    hadc1.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
+    hadc1.Init.LowPowerAutoWait      = DISABLE;
+    hadc1.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;
+    if (HAL_ADC_Init(&hadc1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure Regular Channel
+     */
+    sConfig.Channel      = ADC_CHANNEL_1;
+    sConfig.Rank         = ADC_REGULAR_RANK_1;
+    sConfig.SingleDiff   = ADC_SINGLE_ENDED;
+    sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+    sConfig.OffsetNumber = ADC_OFFSET_NONE;
+    sConfig.Offset       = 0;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN ADC1_Init 2 */
+
+    /* USER CODE END ADC1_Init 2 */
 }
 
 /**
@@ -203,17 +266,17 @@ static void MX_CAN_Init(void)
 
     /* USER CODE END CAN_Init 1 */
     hcan.Instance                  = CAN;
-    hcan.Init.Prescaler            = 9;
+    hcan.Init.Prescaler            = 16;
     hcan.Init.Mode                 = CAN_MODE_NORMAL;
-    hcan.Init.SyncJumpWidth        = CAN_SJW_4TQ;
-    hcan.Init.TimeSeg1             = CAN_BS1_6TQ;
+    hcan.Init.SyncJumpWidth        = CAN_SJW_1TQ;
+    hcan.Init.TimeSeg1             = CAN_BS1_1TQ;
     hcan.Init.TimeSeg2             = CAN_BS2_1TQ;
     hcan.Init.TimeTriggeredMode    = DISABLE;
-    hcan.Init.AutoBusOff           = ENABLE;
-    hcan.Init.AutoWakeUp           = ENABLE;
-    hcan.Init.AutoRetransmission   = ENABLE;
-    hcan.Init.ReceiveFifoLocked    = ENABLE;
-    hcan.Init.TransmitFifoPriority = ENABLE;
+    hcan.Init.AutoBusOff           = DISABLE;
+    hcan.Init.AutoWakeUp           = DISABLE;
+    hcan.Init.AutoRetransmission   = DISABLE;
+    hcan.Init.ReceiveFifoLocked    = DISABLE;
+    hcan.Init.TransmitFifoPriority = DISABLE;
     if (HAL_CAN_Init(&hcan) != HAL_OK)
     {
         Error_Handler();
@@ -224,112 +287,39 @@ static void MX_CAN_Init(void)
 }
 
 /**
- * @brief I2C1 Initialization Function
+ * @brief DAC Initialization Function
  * @param None
  * @retval None
  */
-static void MX_I2C1_Init(void)
+static void MX_DAC_Init(void)
 {
-    /* USER CODE BEGIN I2C1_Init 0 */
+    /* USER CODE BEGIN DAC_Init 0 */
 
-    /* USER CODE END I2C1_Init 0 */
+    /* USER CODE END DAC_Init 0 */
 
-    /* USER CODE BEGIN I2C1_Init 1 */
+    DAC_ChannelConfTypeDef sConfig = { 0 };
 
-    /* USER CODE END I2C1_Init 1 */
-    hi2c1.Instance              = I2C1;
-    hi2c1.Init.Timing           = 0x00E0257A;
-    hi2c1.Init.OwnAddress1      = 0;
-    hi2c1.Init.AddressingMode   = I2C_ADDRESSINGMODE_7BIT;
-    hi2c1.Init.DualAddressMode  = I2C_DUALADDRESS_DISABLE;
-    hi2c1.Init.OwnAddress2      = 0;
-    hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
-    hi2c1.Init.GeneralCallMode  = I2C_GENERALCALL_DISABLE;
-    hi2c1.Init.NoStretchMode    = I2C_NOSTRETCH_DISABLE;
-    if (HAL_I2C_Init(&hi2c1) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /**Configure Analogue filter
+    /* USER CODE BEGIN DAC_Init 1 */
+
+    /* USER CODE END DAC_Init 1 */
+    /** DAC Initialization
      */
-    if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+    hdac.Instance = DAC;
+    if (HAL_DAC_Init(&hdac) != HAL_OK)
     {
         Error_Handler();
     }
-    /**Configure Digital filter
+    /** DAC channel OUT1 config
      */
-    if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
+    sConfig.DAC_Trigger      = DAC_TRIGGER_NONE;
+    sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
+    if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_1) != HAL_OK)
     {
         Error_Handler();
     }
-    /* USER CODE BEGIN I2C1_Init 2 */
+    /* USER CODE BEGIN DAC_Init 2 */
 
-    /* USER CODE END I2C1_Init 2 */
-}
-
-/**
- * @brief IWDG Initialization Function
- * @param None
- * @retval None
- */
-static void MX_IWDG_Init(void)
-{
-    /* USER CODE BEGIN IWDG_Init 0 */
-
-    /* USER CODE END IWDG_Init 0 */
-
-    /* USER CODE BEGIN IWDG_Init 1 */
-
-    /* USER CODE END IWDG_Init 1 */
-    hiwdg.Instance       = IWDG;
-    hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
-    hiwdg.Init.Window    = 4095;
-    hiwdg.Init.Reload = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
-    if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN IWDG_Init 2 */
-
-    /* USER CODE END IWDG_Init 2 */
-}
-
-/**
- * @brief TIM6 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_TIM6_Init(void)
-{
-    /* USER CODE BEGIN TIM6_Init 0 */
-
-    /* USER CODE END TIM6_Init 0 */
-
-    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
-
-    /* USER CODE BEGIN TIM6_Init 1 */
-
-    /* USER CODE END TIM6_Init 1 */
-    htim6.Instance         = TIM6;
-    htim6.Init.Prescaler   = TIM6_PRESCALER;
-    htim6.Init.CounterMode = TIM_COUNTERMODE_UP;
-    htim6.Init.Period =
-        (APB1_TIMER_CLOCK / ((TIM6_PRESCALER + 1) * CONTROL_LOOP_FREQUENCY)) -
-        1;
-    htim6.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    if (HAL_TIM_Base_Init(&htim6) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
-    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
-    if (HAL_TIMEx_MasterConfigSynchronization(&htim6, &sMasterConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN TIM6_Init 2 */
-
-    /* USER CODE END TIM6_Init 2 */
+    /* USER CODE END DAC_Init 2 */
 }
 
 /**
@@ -350,41 +340,34 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
         GPIOB,
-        START_STOP_LED_Pin | TRACTION_CONTROL_LED_Pin |
-            TORQUE_VECTORING_LED_Pin | INVERTER_L_RUN_Pin | INVERTER_R_RUN_Pin |
-            DCM_STATUS_Pin | BUZZER_EN_Pin | BRAKE_LIGHT_EN_Pin |
-            INVERTER_R_REGEN_Pin | INVERTER_L_REGEN_Pin,
+        INVERTER_L_RUN_Pin | INVERTER_R_RUN_Pin | BUZZER_EN_Pin |
+            BRAKE_LIGHT_EN_Pin,
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
-        GPIOA, STATUS_R_Pin | STATUS_G_Pin | STATUS_B_Pin, GPIO_PIN_RESET);
+        GPIOA, STATUS_R_Pin | STATUS_G_Pin | STATUS_B_Pin, GPIO_PIN_SET);
 
-    /*Configure GPIO pins : ANALOG_IN1_Pin ANALOG_IN2_Pin ANALOG_IN3_Pin
-     * ANALOG_OUT_Pin */
+    /*Configure GPIO pins : UNUSED_GPIO1_Pin UNUSED_GPIO2_Pin UNUSED_GPIO3_Pin
+     */
     GPIO_InitStruct.Pin =
-        ANALOG_IN1_Pin | ANALOG_IN2_Pin | ANALOG_IN3_Pin | ANALOG_OUT_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+        UNUSED_GPIO1_Pin | UNUSED_GPIO2_Pin | UNUSED_GPIO3_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : START_STOP_SWITCH_Pin TRACTION_CONTROL_SWITCH_Pin
-     * TORQUE_VECTORING_SWITCH_Pin BSPD_BRAKE_THRES_Pin */
-    GPIO_InitStruct.Pin = START_STOP_SWITCH_Pin | TRACTION_CONTROL_SWITCH_Pin |
-                          TORQUE_VECTORING_SWITCH_Pin | BSPD_BRAKE_THRES_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    /*Configure GPIO pins : UNUSED_GPIO4_Pin UNUSED_GPIO5_Pin UNUSED_GPIO6_Pin
+     */
+    GPIO_InitStruct.Pin =
+        UNUSED_GPIO4_Pin | UNUSED_GPIO5_Pin | UNUSED_GPIO6_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : START_STOP_LED_Pin TRACTION_CONTROL_LED_Pin
-       TORQUE_VECTORING_LED_Pin INVERTER_L_RUN_Pin INVERTER_R_RUN_Pin
-       DCM_STATUS_Pin BUZZER_EN_Pin BRAKE_LIGHT_EN_Pin INVERTER_R_REGEN_Pin
-       INVERTER_L_REGEN_Pin */
-    GPIO_InitStruct.Pin = START_STOP_LED_Pin | TRACTION_CONTROL_LED_Pin |
-                          TORQUE_VECTORING_LED_Pin | INVERTER_L_RUN_Pin |
-                          INVERTER_R_RUN_Pin | DCM_STATUS_Pin | BUZZER_EN_Pin |
-                          BRAKE_LIGHT_EN_Pin | INVERTER_R_REGEN_Pin |
-                          INVERTER_L_REGEN_Pin;
+    /*Configure GPIO pins : INVERTER_L_RUN_Pin INVERTER_R_RUN_Pin BUZZER_EN_Pin
+     * BRAKE_LIGHT_EN_Pin */
+    GPIO_InitStruct.Pin = INVERTER_L_RUN_Pin | INVERTER_R_RUN_Pin |
+                          BUZZER_EN_Pin | BRAKE_LIGHT_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -399,21 +382,68 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pins : STATUS_R_Pin STATUS_G_Pin STATUS_B_Pin */
     GPIO_InitStruct.Pin   = STATUS_R_Pin | STATUS_G_Pin | STATUS_B_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Pull  = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /* EXTI interrupt init*/
-    HAL_NVIC_SetPriority(EXTI9_5_IRQn, 1, 0);
-    HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+    /*Configure GPIO pin : BSPD_BRAKE_THRES_Pin */
+    GPIO_InitStruct.Pin  = BSPD_BRAKE_THRES_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(BSPD_BRAKE_THRES_GPIO_Port, &GPIO_InitStruct);
 
-    HAL_NVIC_SetPriority(EXTI15_10_IRQn, 1, 0);
-    HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+    /*Configure GPIO pins : PB6 PB7 */
+    GPIO_InitStruct.Pin       = GPIO_PIN_6 | GPIO_PIN_7;
+    GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
+    GPIO_InitStruct.Pull      = GPIO_PULLUP;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
 
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
+
+/* USER CODE BEGIN Header_StartDefaultTask */
+/**
+ * @brief  Function implementing the defaultTask thread.
+ * @param  argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartDefaultTask */
+void StartDefaultTask(void const *argument)
+{
+    /* USER CODE BEGIN 5 */
+    /* Infinite loop */
+    for (;;)
+    {
+        osDelay(1);
+    }
+    /* USER CODE END 5 */
+}
+
+/**
+ * @brief  Period elapsed callback in non blocking mode
+ * @note   This function is called  when TIM2 interrupt took place, inside
+ * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
+ * a global variable "uwTick" used as application time base.
+ * @param  htim : TIM handle
+ * @retval None
+ */
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    /* USER CODE BEGIN Callback 0 */
+
+    /* USER CODE END Callback 0 */
+    if (htim->Instance == TIM2)
+    {
+        HAL_IncTick();
+    }
+    /* USER CODE BEGIN Callback 1 */
+
+    /* USER CODE END Callback 1 */
+}
 
 /**
  * @brief  This function is executed in case of error occurrence.
@@ -424,9 +454,7 @@ void Error_Handler(void)
     /* USER CODE BEGIN Error_Handler_Debug */
     /* User can add his own implementation to report the HAL error return state
      */
-    while (1)
-    {
-    }
+
     /* USER CODE END Error_Handler_Debug */
 }
 
