@@ -5,7 +5,7 @@
  ******************************************************************************
  * @attention
  *
- * <h2><center>&copy; COPYRIGHT(c) 2018 STMicroelectronics</center></h2>
+ * <h2><center>&copy; COPYRIGHT(c) 2019 STMicroelectronics</center></h2>
  *
  * Redistribution and use in source and binary forms, with or without
  *modification, are permitted provided that the following conditions are met:
@@ -53,7 +53,7 @@ extern "C"
      */
 
 #define HAL_MODULE_ENABLED
-/*#define HAL_ADC_MODULE_ENABLED   */
+#define HAL_ADC_MODULE_ENABLED
 /*#define HAL_CRYP_MODULE_ENABLED   */
 #define HAL_CAN_MODULE_ENABLED
 /*#define HAL_CEC_MODULE_ENABLED   */
@@ -68,9 +68,9 @@ extern "C"
 /*#define HAL_COMP_MODULE_ENABLED   */
 /*#define HAL_CRC_MODULE_ENABLED   */
 /*#define HAL_CRYP_MODULE_ENABLED   */
-/*#define HAL_DAC_MODULE_ENABLED   */
+#define HAL_DAC_MODULE_ENABLED
 /*#define HAL_I2S_MODULE_ENABLED   */
-#define HAL_IWDG_MODULE_ENABLED
+/*#define HAL_IWDG_MODULE_ENABLED   */
 /*#define HAL_LCD_MODULE_ENABLED   */
 /*#define HAL_LPTIM_MODULE_ENABLED   */
 /*#define HAL_RNG_MODULE_ENABLED   */
@@ -137,9 +137,9 @@ extern "C"
  */
 #if !defined(LSI_VALUE)
 #define LSI_VALUE ((uint32_t)40000)
-#endif /* LSI_VALUE */ // !< Value of the Internal Low Speed oscillator in Hz
-                       // The real value may vary depending on the variations
-                       // in voltage and temperature.
+#endif /* LSI_VALUE */ /*!< Value of the Internal Low Speed oscillator in Hz \
+                        The real value may vary depending on the variations  \
+                        in voltage and temperature.  */
 /**
  * @brief External Low Speed oscillator (LSE) value.
  */
