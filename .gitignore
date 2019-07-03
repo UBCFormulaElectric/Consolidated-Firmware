@@ -1,7 +1,14 @@
 # Taken mostly from http://www.keil.com/support/man/docs/uv4/uv4_b_filetypes.htm
 
-# ignore all . folders but include . files
-.*/
+# Ignore dot files/directories
+.*
+
+# Explicitly name which dot files/directories should NOT be ignored
+!/.gitignore
+!/.github
+!/.gitattributes
+!/.travis.yml
+!**/.clang-format
 
 # User-specific uVision files
 # Need to keep .opt/.uvopt/.uvoptx, or else STM32CubeMX code generation will throw an error
@@ -66,12 +73,23 @@ Pipfile.lock
 *.orig
 
 # CMake-relevant files
+# Note: To un-ignore anything directly under .idea/ (.e.g .idea/misc.xml), you
+# must un-ignore .idea/ first
 CMakeCache.txt
 cmake_install.cmake
 CMakeFiles/
 Build/
 compile_commands.json
-src/Makefile
+Makefile
+cmake-build-debug/
+*.cbp
+!**/.idea
+src/**/*.xml
+**/.idea/*.iml
+**/.idea/*.xml
+!**/.idea/misc.xml
+!**/.idea/runConfigurations/*
+
 
 # Miscellaneous
 *.tra
