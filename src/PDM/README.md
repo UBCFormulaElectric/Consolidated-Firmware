@@ -2,7 +2,7 @@
 ## Peripheral Configuration Notes
 *Please note that all mentions of "input" and "output" are from the perspective of the microcontroller*
 1. **22XS4200 High-Side Switch (MC22XS4200.pdf Rev 5.0)**
-   - **`IN0`, `IN1` (24V output):** 
+   - **`IN0`, `IN1` (24V output):**
      - | Net Name        | Pin      | Desciption               |
        | --------------- | -------- | ------------------------ |
        | `PIN_DI_R`      |  `PA2`   | right drive inverter     |
@@ -22,7 +22,7 @@
        | `IS_AUX1_AUX2`      | `PB1`   | auxiliary 1 and 2                       |
        | `IS_EM_PUMP`        | `PB11`  | energy meter and cooling pump           |
        | `IS_DI_L_DI_R`      | `PA1`   | left/right driver inverter enable       |
-       | `IS_GLV_AIR_SHDN`   | `PB0`   | CAN/low voltage system and AIR shutdown | 
+       | `IS_GLV_AIR_SHDN`   | `PB0`   | CAN/low voltage system and AIR shutdown |
      - These ADC inputs read a current proportional to the channel’s output current or a voltage proportional to the temperature of the GND pin.
      - Note: Due to schematic error, `PB10` had to be reworked to connect to `PB1`, and `PC8` to `PB11`
    - **`SYNC` (Current Sense Ready):**
@@ -58,7 +58,7 @@
 
 ## Testing Plan
 ### Validate CAN logging for current sense
-- Start a log trace in PCAN-Explorer 6 
+- Start a log trace in PCAN-Explorer 6
 - For each output, disconnect the load so it's **0A** for 5 seconds. Then, connect a **4Ohm/50W** resistor for another 5 seconds.
 - Repeat the step above for each GLV output
 - Save the log trace and plot it in a third-party software (e.g. Microsoft Excel) to verify that the values make sense within a reasonable amount of error margin:
