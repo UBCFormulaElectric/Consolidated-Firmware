@@ -43,7 +43,7 @@ before_script:
 script:
     # If any command exits with a non-zero value (i.e. it throws an error)
     # then this will cause travis to exit. Commands encapsulated between 
-    # conditionals, for example, do not report their return codes. Instread,
+    # conditionals, for example, do not report their return codes. Instead,
     # only the conditional, a command itself, gets polled, so if cmake or 
     # python throws an error, the information is lost. set -ev ensures that
     # this does not happen
@@ -51,41 +51,32 @@ script:
 
     - |
       if [ "$RUN_BUILD" = "true" ]; then 
-        cd src;
-        # NOTE: We run `cmake` in pipenv so that we can succesfully use the 
+        # NOTE: We run `cmake` in pipenv so that we can succesfully use the
         # python script that generates CMake `.c` and `.h` dependencies in it
-        pipenv run cmake CMakeLists.txt;
-        make; 
-        cd ..;
+        pipenv run cmake src/CMakeLists.txt
+        make -C src/
       fi
     - |
       if [ "$RUN_TESTS" = "true" ]; then 
-        cd src;
-        cmake -DTEST_BUILD=true CMakeLists.txt;
-        make;
-        ctest -C DEBUG;
-        cd ..;
+        cmake -DTEST_BUILD=true src/CMakeLists.txt
+        make -C src/
+        ctest -C DEBUG --build-run-dir Src
       fi
     - |
-      if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then 
-            cd clang-format;
-            echo -e "Y" | python fix_formatting.py;
-            # Show the diff
-            git --no-pager diff;
-            # Check if there was a non-zero diff (disable set -e for this) so
-            # we can capture the result and print a error msg (otherwise a
-            # non-zero result would just cause this script to exit)
-            set +e
-            git diff-index --quiet HEAD --
-            git_diff_result=$?
-            set -e
-            if [ $git_diff_result -ne 0 ]; then
-                echo ""
+      if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then
+            # Run clang-format recursively
+            echo "Y" | python clang-format/fix_formatting.py;
+            # Check if there is any difference
+            CHANGED_FILES=(`git diff --name-only`)
+            if [ "$CHANGED_FILES" ]; then
                 echo ""
                 echo "#########################"
                 echo "FAILED - Git diff was non-zero!"
-                echo "Run `clang_format/fix_formatting.py` to format your code properly!,"
+                echo "Run clang_format/fix_formatting.py to format your code properly:"
+                echo ""
+                echo $CHANGED_FILES
                 echo "#########################"
+                echo ""
                 return 1;
             else
                 echo "PASSED - Code is correctly formatted!"
@@ -95,24 +86,18 @@ script:
       if [ "$GENERATE_CODE_FROM_SYM" = "true" ]; then 
             # Try to convert the .sym to C code
             pipenv run python src/shared/CanMsgs/generate_c_code_from_sym.py;
-            # Show the diff
-            git --no-pager diff;
-            # Check if there was a non-zero diff (disable set -e for this) so
-            # we can capture the result and print a error msg (otherwise a
-            # non-zero result would just cause this script to exit)
-            set +e
-            git diff-index --quiet HEAD --
-            git_diff_result=$?
-            set -e
-            if [ $git_diff_result -ne 0 ]; then
-                echo ""
-                echo ""
+            # Check if there is any difference
+            CHANGED_FILES=(`git diff --name-only`)
+            if [ "$CHANGED_FILES" ]; then
                 echo ""
                 echo "#########################"
                 echo "FAILED - Git diff was non-zero!"
                 echo "Make sure to update your version of cantools using pipenv,"
-                echo "and re-run generate_c_code_from_sym.py to generate C code from the .sym file."
+                echo "and re-run generate_c_code_from_sym.py to generate C code from the .sym file:"
+                echo ""
+                echo $CHANGED_FILES
                 echo "#########################"
+                echo ""
                 return 1;
             else
                 echo "PASSED - C code generated from .sym looks good!"
@@ -124,7 +109,6 @@ matrix:
         - name: "Build and Run Tests"
           env: RUN_BUILD="true" RUN_TESTS="true"
         - name: "Check Formatting"
-          env: RUN_FORMATTING_CHECKS="true"  # Test Formatting
+          env: RUN_FORMATTING_CHECKS="true"
         - name: "Check C Code Generation From .sym"
-          env: GENERATE_CODE_FROM_SYM="true"  # Test Formatting
-
+          env: GENERATE_CODE_FROM_SYM="true"

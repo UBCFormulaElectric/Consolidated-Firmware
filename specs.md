@@ -13,10 +13,12 @@ Each specification has an unique ID, short title, and detailed description. It m
 1. All abbreviations (`AIR`, `APPS`, etc.) should be spelled out fully the first time they appear in a given row in the table. This means that if `APPS` appears in `FSM-0` and `FSM-22`, it should be spelled out as `APPS (acceleration pedal position sensor)` in _both_ `FSM-0` and `FSM-22`.
 
 ## Background Info
-- There are three types of faults:
-    - AIR shutdown: requires an AIR shutdown and a motor shutdown
-    - Motor shutdown: requires a motor shutdown only
-    - Non-critical: for logging and debugging purposes
+There are two types of faults:
+    - Critical Faults:
+        - AIR shutdown: requires an AIR shutdown and a motor shutdown
+        - Motor shutdown: requires a motor shutdown only
+    - Non-critical:
+        - All other faults, for logging and debugging purposes
 
 ## Table Of Contents
 - [FSM (Front Sensor Module)](#FSM)
@@ -41,13 +43,13 @@ ID | Title | Description | Associated Competition Rule(s)
 FSM-0 | Startup CAN message | The FSM must transmit a startup message over CAN on boot.
 FSM-1 | Heartbeat sending | The FSM must transmit a heartbeat over CAN at 100Hz.
 FSM-2 | Heartbeat receiving | The FSM must throw an AIR shutdown fault once it does not receive three consecutive BMS heartbeats.
-FSM-3 | APPS (accelerator pedal position sensor) measurement and reporting | - The FSM must measure the primary and secondary APPS positions at 100Hz. <br/> - The FSM must report pedal travel percentage as a function of the primary APPS over CAN at 100Hz, unless overridden.
-FSM-4 | APPS mapping | - The FSM must map the primary APPS position to pedal travel percentage linearly with dead zones on both the low and high ends of the APPS position. <br/> - The low end dead zone boundary must be defined as the maximum pedal travel reading when the pedal is completely depressed with a safety factor of 1.5, to avoid requesting torque when not pressing the pedal. <br/> - The high end dead zone boundary must be experimentally determined to ensure the FSM can send 100% pedal travel despite any mechanical deflection in the pedal box.
+FSM-3 | APPS (accelerator pedal position sensor) reporting | The FSM must report the APPS mapping over CAN at 100Hz, unless overridden.
+FSM-4 | APPS mapping | - The FSM must map the primary APPS position to pedal travel percentage linearly with dead zones on both the low and high ends of the APPS position. <br/> - The low end dead zone boundary must be defined as 1.5 multiplied by the maximum encoder reading when the pedal is completely depressed. <br/> - The high end dead zone boundary must be experimentally determined to ensure the FSM can send 100% pedal travel despite any mechanical deflection in the pedal box.
 FSM-5 | APPS open/short circuit | If there is an open/short circuit in either encoder the FSM must report 0% pedal travel. | T.6.2.2, T.6.2.9
 FSM-6 | APPS disagreement | When the primary and secondary APPS positions disagree by more then 10%, the FSM must throw a motor shutdown fault and report 0% pedal travel. | T.6.2.3, T.6.2.4
 FSM-7 | APPS/brake pedal plausibility check | - When the APPS senses brake actuation and more than 25% pedal travel simultaneously, the FSM must throw a motor shutdown fault and report 0% pedal travel. <br/> - The FSM must clear the motor shutdown fault after the APPS senses less than 5% pedal travel, regardless of the brake state. | EV.2.4.1, EV.2.4.2
-FSM-8 | Steering angle measurement and reporting | - The FSM must sense and report the steering angle in degrees over CAN at 100Hz, where 0 degrees represents straight wheels and a clockwise turn of the steering wheel corresponds to an increase in steering angle. <br/> - The FSM must send a non-critical fault when the steering angle is beyond the max turning radius of the steering wheel.
-FSM-9 | Wheel speed measurement and reporting | - The FSM must sense and report the two front wheel speeds in km/h over CAN at 100Hz. <br/> - The FSM must send a non-critical fault when either front wheel speed is below -10km/h or above 150km/h.
+FSM-8 | Steering angle reporting | - The FSM must report the steering angle in degrees over CAN at 100Hz, where 0 degrees represents straight wheels and a clockwise turn of the steering wheel corresponds to an increase in steering angle. <br/> - The FSM must send a non-critical fault when the steering angle is beyond the max turning radius of the steering wheel.
+FSM-9 | Wheel speed reporting | - The FSM must report the two front wheel speeds in km/h over CAN at 100Hz. <br/> - The FSM must send a non-critical fault when either front wheel speed is below -10km/h or above 150km/h.
 
 ## DCM <a name="DCM"></a>
 
@@ -125,18 +127,22 @@ ID | Title | Description | Associated Competition Rule(s)
 BMS-0 | Startup CAN message | The BMS must transmit a startup message over CAN on boot.
 BMS-0 | Heartbeat sending | The BMS must transmit a heartbeat over CAN at 100Hz.
 BMS-0 | Heartbeat receiving | - The BMS must throw an AIR shutdown fault once it does not receive three consecutive FSM or DCM heartbeats. <br/> - The BMS must throw a non-critical fault once it does not receive three consecutive PDM heartbeats.
-BMS-0 | Cell voltage and temperature acquisition | The BMS must acquire all cell voltages at 100Hz and temperatures at 1Hz over isoSPI and log them over CAN.
+BMS-0 | isoSPI communication failure | - Upon isoSPI communication that results in a packet error code (PEC) mismatch, the BMS must retry communication. <br/> - After three consecutive unsuccessful isoSPI communication attempts, the BMS must throw an AIR shutdown fault.
+BMS-0 | Cell voltages acquisition and logging | The BMS must acquire all cell voltages over isoSPI and log all cell voltages over CAN at 100Hz.
+BMS-0 | Cell temperatures acquisition and logging | The BMS must acquire all cell temperatures over isoSPI and log all cell temperatures over CAN at 1Hz.
 BMS-0 | Overvoltage and overtemperature events | The BMS must throw an AIR shutdown fault in the following conditions: <br/> - Any cell voltage exceeds 4.2V. <br/> - Any cell voltage drops below 3.0V. <br/> - Any cell temperature exceeds 60C. | EV.5.1.3, EV.5.1.10
-BMS-0 | Charger detection | The BMS must sense whether the charger's (TODO ?) pin is connected to the accumulator at 1Hz.
+BMS-0 | Charger detection and logging | - The BMS must check the charger connection status at 1Hz by the state of the BMS ANALOG_IN digital input after stepping down the charger's AUX pin. <br/> - The BMS must log the charger connection status over CAN at 1Hz.
+BMS-0 | Charger enable/disable | The BMS must enable the charger by setting the BMS PON pin high and disable the charger by setting the BMS PON pin low.
 
 TODO: Weld detection/stuck open detection?
+TODO: consider consolidating both fault states into one... need to precharge afterwards anyways (unless motor shutdown only?)
 
 ### BMS Init State <a name="BMS_INIT"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-0 | Precharge | The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin. <br/> Upon a successful precharge, the BMS must close the AIR+ contactor. <br/> A precharge failure occurs when: <br/> - The TS (tractive system) bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. (TODO: is this a good idea?) | EV.6.9.1
 BMS-0 | Entering the init state | The BMS state machine must begin in the init state by default.
-BMS-0 | In the init state | The BMS must wait for the closing of the AIR- contactor, indicated by a rising AIR_POWER_STATUS signal, to execute the precharge sequence.
+BMS-0 | In the init state | The BMS must wait for the closing of the AIR- contactor, indicated by a rising edge on the AIR_POWER_STATUS digital input, to execute the precharge sequence.
 BMS-0 | Exiting the init state and entering the charging state | Upon a successful precharge, the BMS must enter the charging state if the charger is connected.
 BMS-0 | Exiting the init state and entering the driving state | Upon a successful precharge, the BMS must enter the driving state if the charger is disconnected.
 
@@ -144,7 +150,7 @@ BMS-0 | Exiting the init state and entering the driving state | Upon a successfu
 
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-BMS-0 | Charging thermal safety | - The BMS must stop cell balancing once the LTC6813 internal die temperature (ITMP) exceeds 115C and throw a non-critical fault. The BMS must re-enable cell balancing once the ITMP decreases below 110C. <br/> - The BMS must disable the charger through the PON pin once the ITMP exceeds 120C and throw a non-critical fault. The BMS must re-enable the charger once the ITMP decreases below 115C. <br/>  - The BMS must disable the charger when any cell temperature exceeds 43C and throw a non-critical fault. The BMS must re-enable the charger once the highest cell temperature is below 40C. <br/>  - The BMS must throw an AIR shutdown fault if any cell temperature exceeds 45C and enter the charging fault state. | EV.5.1.3
+BMS-0 | Charging thermal safety | - The BMS must stop cell balancing once the LTC6813 internal die temperature (ITMP) exceeds 115C and throw a non-critical fault. The BMS must re-enable cell balancing once the ITMP decreases below 110C. <br/> - The BMS must disable the charger once the ITMP exceeds 120C and throw a non-critical fault. The BMS must re-enable the charger once the ITMP decreases below 115C. <br/>  - The BMS must disable the charger when any cell temperature exceeds 43C and throw a non-critical fault. The BMS must re-enable the charger once the highest cell temperature is below 40C. <br/>  - The BMS must throw an AIR shutdown fault if any cell temperature exceeds 45C and enter the charging fault state. | EV.5.1.3
 BMS-0 | Cell balancing | - The BMS must balance the cells until they are all within 10mV. <br/> - The BMS must only perform cell balancing when the AIRs are closed. | EV.7.2.5
 BMS-0 | Charging | - The BMS must charge the cells to 4.17V max. <br/> - Upon sensing charger disconnection, the BMS must throw an AIR shutdown fault.
 BMS-0 | Entering the charging state | The BMS must only enter the charging state after the init state is complete.

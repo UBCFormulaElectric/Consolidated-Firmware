@@ -3,23 +3,6 @@ include(CMakeForceCompiler)
 
 ##############################################
 ###                                        ###
-###           Utility Functions            ###
-###                                        ###
-##############################################
-
-MACRO(SUBDIRLIST result curdir)
-  FILE(GLOB children RELATIVE ${curdir} ${curdir}/*)
-  SET(dirlist "")
-  FOREACH(child ${children})
-    IF(IS_DIRECTORY ${curdir}/${child})
-      LIST(APPEND dirlist ${child})
-    ENDIF()
-  ENDFOREACH()
-  SET(${result} ${dirlist})
-ENDMACRO()
-
-##############################################
-###                                        ###
 ###          Compiler Tool Setup           ###
 ###        * PROCEED WITH CAUTION *        ###
 ###                                        ###
@@ -73,7 +56,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/Build)
 ################################################################################
 project(FORMULA_E C ASM)
 
-set(MODULES "PDM FSM DCM BMS")
+set(MODULES "BMS")
 
 #Create string list
 string(REPLACE " " ";" MODULES ${MODULES})

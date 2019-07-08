@@ -102,25 +102,25 @@
  * @{
  */
 #if !defined(HSE_VALUE)
-#define HSE_VALUE \
-    ((uint32_t)8000000) //!< Default value of the External oscillator in Hz.
-                        //   This value can be provided and adapted by the
-                        //   user application.
+#define HSE_VALUE                                                            \
+    ((uint32_t)8000000) /*!< Default value of the External oscillator in Hz. \
+                             This value can be provided and adapted by the   \
+                           user application. */
 #endif                  /* HSE_VALUE */
 
 #if !defined(HSI_VALUE)
-#define HSI_VALUE \
-    ((uint32_t)8000000) //!< Default value of the Internal oscillator in Hz.
-                        //   This value can be provided and adapted by the
-                        //   user application.
+#define HSI_VALUE                                                            \
+    ((uint32_t)8000000) /*!< Default value of the Internal oscillator in Hz. \
+                             This value can be provided and adapted by the   \
+                           user application. */
 #endif                  /* HSI_VALUE */
 
 /*!< Uncomment the following line if you need to relocate your vector Table in
      Internal SRAM. */
 /* #define VECT_TAB_SRAM */
-#define VECT_TAB_OFFSET \
-    0x0 // !< Vector Table base offset field.
-        //   This value must be a multiple of 0x200.
+#define VECT_TAB_OFFSET                      \
+    0x0 /*!< Vector Table base offset field. \
+             This value must be a multiple of 0x200. */
 /**
  * @}
  */
