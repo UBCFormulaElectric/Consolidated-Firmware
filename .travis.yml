@@ -18,13 +18,16 @@ install:
   - |
     if [ "$RUN_BUILD" = "true" ] || [ "$RUN_TESTS" = "true" ]; then 
       # Download the latest ARM GCC Embedded Toolchain.
-      # Unfortunately, since this is a literal URL, it does not pull the latest 
-      # API available, and the URL must be changed manually. 
-      # TO CHANGE THE URL:
-      # Go to https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads
-      # Right-click and save the link to download the Linux 64-bit version
-      wget https://developer.arm.com/-/media/Files/downloads/gnu-rm/8-2018q4/gcc-arm-none-eabi-8-2018-q4-major-linux.tar.bz2?revision=d830f9dd-cd4f-406d-8672-cca9210dd220?product=GNU%20Arm%20Embedded%20Toolchain,64-bit,,Linux,8-2018-q4-major -O /tmp/gcc-arm-none-eabi.tar.bz2
-      # Unzip the ARM GCC Embedded Toolchain 
+      # Unfortunately, since this is a literal URL, it does not pull the latest
+      # API available, and the URL must be changed manually.
+      #
+      # To change the URL:
+      # 1. Go to https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads
+      # 2. Right-click and save the link to download the Linux 64-bit version
+      URL=https://developer.arm.com/-/media/Files/downloads/gnu-rm/8-2018q4/gcc-arm-none-eabi-8-2018-q4-major-linux.tar.bz2?revision=d830f9dd-cd4f-406d-8672-cca9210dd220?product=GNU%20Arm%20Embedded%20Toolchain,64-bit,,Linux,8-2018-q4-major
+      # Download the ARM GCC Embedded Toolchain
+      wget $URL -O /tmp/gcc-arm-none-eabi.tar.bz2
+      # Unzip the ARM GCC Embedded Toolchain
       tar -xvjf /tmp/gcc-arm-none-eabi.tar.bz2
       # Enable cmake to find the arm-none-eabi-gcc command
       export PATH=$PATH:$PWD/gcc-arm-none-eabi-8-2018-q4-major/bin/
@@ -43,18 +46,18 @@ script:
     # then this will cause travis to exit. Commands encapsulated between 
     # conditionals, for example, do not report their return codes. Instead,
     # only the conditional, a command itself, gets polled, so if cmake or 
-    # python throws an error, the information is lost. Using `set -ev` ensure
+    # python throws an error, the information is lost. Using `set -ev` ensures
     # that this does not happen
     - set -ev
 
     - |
       if [ "$RUN_BUILD" = "true" ]; then 
-        # Build FSM
-        cmake src/FSM/CMakeLists.txt
-        make -C src/FSM/
-        # Build DCM
-        cmake src/DCM/CMakeLists.txt
-        make -C src/DCM/
+        # Build each project
+        for BOARD_NAME in FSM DCM PDM
+        do
+          cmake src/$BOARD_NAME/CMakeLists.txt
+          make -C src/$BOARD_NAME
+        done
       fi
     - |
       if [ "$RUN_TESTS" = "true" ]; then 
