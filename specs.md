@@ -33,9 +33,10 @@ There are two types of faults:
 - [BMS (Battery Management System)](#BMS)
     - [BMS Stateless](#BMS_STATELESS)
     - [BMS Charging State](#BMS_CHARGING)
-    - [BMS Charging Fault State](#BMS_CHARGING_FAULT)
     - [BMS Driving State](#BMS_DRIVING)
-    - [BMS Driving Fault State](#BMS_DRIVING_FAULT)
+    - [BMS Motor Shutdown Fault State](#BMS_MOTOR_SHUTDOWN_FAULT)
+    - [BMS AIR Shutdown Fault State](#BMS_AIR_SHDN_FAULT)
+- [DIM (Dashoard Interface Module)](#DIM)
 
 ## FSM <a name="FSM"></a>
 ID | Title | Description | Associated Competition Rule(s)
@@ -125,52 +126,71 @@ PDM-17 | Exiting the run state | The PDM must never exit the run state after ent
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-0 | Startup CAN message | The BMS must transmit a startup message over CAN on boot.
-BMS-0 | Heartbeat sending | The BMS must transmit a heartbeat over CAN at 100Hz.
-BMS-0 | Heartbeat receiving | - The BMS must throw an AIR shutdown fault once it does not receive three consecutive FSM or DCM heartbeats. <br/> - The BMS must throw a non-critical fault once it does not receive three consecutive PDM heartbeats.
-BMS-0 | isoSPI communication failure | - Upon isoSPI communication that results in a packet error code (PEC) mismatch, the BMS must retry communication. <br/> - After three consecutive unsuccessful isoSPI communication attempts, the BMS must throw an AIR shutdown fault.
-BMS-0 | Cell voltages acquisition and logging | The BMS must acquire all cell voltages over isoSPI and log all cell voltages over CAN at 100Hz.
-BMS-0 | Cell temperatures acquisition and logging | The BMS must acquire all cell temperatures over isoSPI and log all cell temperatures over CAN at 1Hz.
-BMS-0 | Overvoltage and overtemperature events | The BMS must throw an AIR shutdown fault in the following conditions: <br/> - Any cell voltage exceeds 4.2V. <br/> - Any cell voltage drops below 3.0V. <br/> - Any cell temperature exceeds 60C. | EV.5.1.3, EV.5.1.10
-BMS-0 | Charger detection and logging | - The BMS must check the charger connection status at 1Hz by the state of the BMS ANALOG_IN digital input after stepping down the charger's AUX pin. <br/> - The BMS must log the charger connection status over CAN at 1Hz.
-BMS-0 | Charger enable/disable | The BMS must enable the charger by setting the BMS PON pin high and disable the charger by setting the BMS PON pin low.
-
-TODO: Weld detection/stuck open detection?
-TODO: consider consolidating both fault states into one... need to precharge afterwards anyways (unless motor shutdown only?)
+BMS-1 | Heartbeat sending | The BMS must transmit a heartbeat over CAN at 100Hz.
+BMS-2 | Heartbeat receiving | - The BMS must throw an AIR shutdown fault and enter the AIR shutdown fault state once it does not receive three consecutive FSM or DCM heartbeats. <br/> - The BMS must throw a non-critical fault once it does not receive three consecutive PDM heartbeats.
+BMS-3 | isoSPI communication failure | - Upon isoSPI communication that results in a packet error code (PEC) mismatch, the BMS must retry communication. <br/> - After three consecutive unsuccessful isoSPI communication attempts, the BMS must throw an AIR shutdown fault and enter the AIR shutdown fault state.
+BMS-4 | Cell voltages acquisition and logging | - The BMS must acquire all cell voltages over isoSPI at 100Hz. <br/> - The BMS must log the highest cell, lowest cell, average voltage, pack voltage, and module voltages at 100Hz.
+BMS-5 | Cell temperatures acquisition and logging | - The BMS must acquire all cell temperatures over isoSPI at 1Hz. <br/> - The BMS must log the highest temperature, lowest temperature and average temperature at 1Hz.
+BMS-6 | General voltage and temperature limits | The BMS must throw an AIR shutdown fault and enter the AIR shutdown fault state outside of these bounds: <br/> 3.0 < any cell voltage < 4.2V. <br/> -20.0C < any cell temperature < 60.0C. | EV.5.1.3, EV.5.1.10
+BMS-7 | Charge temperature limits | The BMS must throw an AIR shutdown fault and enter the AIR shutdown fault state if charging is attempted outside of these bounds: <br/>  0.0C < any cell temperature < 45.0C. | EV.5.1.3, EV.5.1.10
+BMS-8 | Power limiting calculations | The BMS must calculate charge and discharge power limits based on cell temperatures and SoC to avoid exceeding a cell's defined limits.
+BMS-9 | Charger detection and logging | - The BMS must check the charger connection status at 1Hz by the state of the CHARGE_STATE_3V3 digital input. <br/> - The BMS must log the charger connection status over CAN at 1Hz.
+BMS-10 | Charger enable/disable | The BMS must enable the charger by setting the BMS PON pin high and disable the charger by setting the BMS PON pin low.
+BMS-11 | Contactor weld/stuck open detection | The BMS must check that the contactors are in the desired open or closed state at 1kHz, and if not the BMS must throw an AIR shutdown fault and enter the AIR shutdown fault state.
 
 ### BMS Init State <a name="BMS_INIT"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-BMS-0 | Precharge | The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin. <br/> Upon a successful precharge, the BMS must close the AIR+ contactor. <br/> A precharge failure occurs when: <br/> - The TS (tractive system) bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. (TODO: is this a good idea?) | EV.6.9.1
-BMS-0 | Entering the init state | The BMS state machine must begin in the init state by default.
-BMS-0 | In the init state | The BMS must wait for the closing of the AIR- contactor, indicated by a rising edge on the AIR_POWER_STATUS digital input, to execute the precharge sequence.
-BMS-0 | Exiting the init state and entering the charging state | Upon a successful precharge, the BMS must enter the charging state if the charger is connected.
-BMS-0 | Exiting the init state and entering the driving state | Upon a successful precharge, the BMS must enter the driving state if the charger is disconnected.
+BMS-12 | Precharge | The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin. <br/> Upon a successful precharge, the BMS must close the AIR+ contactor. <br/> A precharge failure occurs when: <br/> - The TS (tractive system) bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. | EV.6.9.1
+BMS-13 | Entering the init state | The BMS state machine must begin in the init state by default.
+BMS-14 | In the init state | The BMS must wait for the closing of the AIR- contactor, indicated by a rising edge on the AIR_POWER_STATUS digital input, to execute the precharge sequence.
+BMS-15 | Exiting the init state and entering the charging state | Upon a successful precharge, the BMS must enter the charging state if the charger is connected.
+BMS-16 | Exiting the init state and entering the driving state | Upon a successful precharge, the BMS must enter the driving state if the charger is disconnected.
 
 ### BMS Charging State <a name="BMS_CHARGING"></a>
 
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-BMS-0 | Charging thermal safety | - The BMS must stop cell balancing once the LTC6813 internal die temperature (ITMP) exceeds 115C and throw a non-critical fault. The BMS must re-enable cell balancing once the ITMP decreases below 110C. <br/> - The BMS must disable the charger once the ITMP exceeds 120C and throw a non-critical fault. The BMS must re-enable the charger once the ITMP decreases below 115C. <br/>  - The BMS must disable the charger when any cell temperature exceeds 43C and throw a non-critical fault. The BMS must re-enable the charger once the highest cell temperature is below 40C. <br/>  - The BMS must throw an AIR shutdown fault if any cell temperature exceeds 45C and enter the charging fault state. | EV.5.1.3
-BMS-0 | Cell balancing | - The BMS must balance the cells until they are all within 10mV. <br/> - The BMS must only perform cell balancing when the AIRs are closed. | EV.7.2.5
-BMS-0 | Charging | - The BMS must charge the cells to 4.17V max. <br/> - Upon sensing charger disconnection, the BMS must throw an AIR shutdown fault.
-BMS-0 | Entering the charging state | The BMS must only enter the charging state after the init state is complete.
-BMS-0 | In the charging state | The BMS must enable the charger and begin cell balancing, and stop these processes in the case of a thermal event according to BMS-? (TODO).
-BMS-0 | Exiting the charging state and entering the init state | Once all the cells are within 10mV of 4.17V, the BMS must disable the charger, open the AIR+ contactor and enter the init state.
-
-### BMS Charging Fault State <a name="BMS_CHARGING_FAULT"></a>
-
-ID | Title | Description | Associated Competition Rule(s)
---- | --- | --- | ---
+BMS-17 | Charging thermal safety | - The BMS must stop cell balancing once the LTC6813 internal die temperature (ITMP) exceeds 115C and throw a non-critical fault. The BMS must re-enable cell balancing once the ITMP decreases below 110C. <br/> - The BMS must disable the charger once the ITMP exceeds 120C and throw a non-critical fault. The BMS must re-enable the charger once the ITMP decreases below 115C. <br/>  - The BMS must disable the charger when any cell temperature exceeds 43C and throw a non-critical fault. The BMS must re-enable the charger once the highest cell temperature is below 40C. <br/> - The BMS must throw an AIR shutdown fault and enter the AIR shutdown fault state if any cell temperature exceeds 45C. | EV.5.1.3
+BMS-18 | Cell balancing | - The BMS must balance the cells until they are all within 10mV of 4.2. <br/> - The BMS must only perform cell balancing when the AIRs are closed. | EV.7.2.5
+BMS-19 | Power limit sending (charge state) | The BMS must calculate power limits and send them to the charger over CAN at 1kHz.
+BMS-20 | Charger disconnection | Upon sensing charger disconnection, the BMS must throw an AIR shutdown fault and enter the AIR shutdown fault state.
+BMS-21 | Entering the charging state | The BMS must only enter the charging state after the init state is complete.
+BMS-22 | In the charging state | The BMS must charge and cell balance simultaneously to get all cells charged and balanced as fast as possible.
+BMS-23 | Exiting the charging state and entering the init state | Once charging is complete, the BMS must disable the charger, disable cell balancing, open the contactors and enter the init state.
+BMS-24 | Exiting the charging state and entering the AIR shutdown fault state | The BMS must disable cell balancing and charging.
 
 ### BMS Driving State <a name="BMS_DRIVING"></a>
 
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-BMS-0 | Entering the driving state | The BMS must only enter the driving state after the init state is complete.
-BMS-0 | In the driving state | 
-BMS-0 | Exiting the driving state and entering the init state | 
+BMS-25 | Entering the driving state | The BMS must only enter the driving state from the init state after precharge or from the motor shutdown fault state after faults are cleared.
+BMS-26 | In the driving state | The BMS must calculate power limits and send them to the DCM over CAN at 1kHz.
+BMS-27 | Exiting the driving state and entering the init state | Upon the opening of the contactors outside of an AIR shutdown fault, the BMS must exit the driving state and enter the init state.
 
-### BMS Driving Fault State <a name="BMS_DRIVING_FAULT"></a>
+### BMS Motor Shutdown Fault State <a name="BMS_MOTOR_SHUTDOWN_FAULT"></a>
 
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
+BMS-28 | Exiting the motor shutdown state |  Once all motor shutdown and AIR shutdown faults are cleared, the BMS must exit the motor shutdown state and re-enter the previous state (init or driving).
+
+### BMS AIR Shutdown Fault State <a name="BMS_AIR_SHDN_FAULT"></a>
+
+ID | Title | Description | Associated Competition Rule(s)
+--- | --- | --- | ---
+BMS-29 | Entering the AIR shutdown state | The BMS must open both contactors.
+BMS-30 | Exiting the AIR shutdown state and entering the init state | Once all motor shutdown and AIR shutdown faults are cleared, the BMS must exit the AIR shutdown state and enter the init state.
+
+## DIM <a name="DIM"></a>
+ID | Title | Description | Associated Competition Rule(s)
+--- | --- | --- | ---
+DIM-0 | Startup CAN message | The DIM must transmit a startup message over CAN on boot.
+DIM-1 | Heartbeat receiving | The DIM must set the 7-segments all on to display '888' once it does not receive three consecutive BMS heartbeats.
+DIM-2 | Board status LEDs | The DIM must indicate the current status of the BMS, DCM, DIM, FSM and PDM using RGB LEDs, where GREEN = no fault, BLUE = non-critical fault and RED = critical fault. | EV.6.1.11
+DIM-3 | Drive mode switch | The DIM must transmit the drive mode position of the rotarty switch over CAN at 100Hz.
+DIM-4 |  Start, traction control, torque vectoring switches | For each of the switches, the DIM must: <br/> - Transmit the on/off switch status of over CAN at 100Hz. <br/> - Set the corresponding green status LEDs when the switch is on.
+DIM-5 | IMD LED | The DIM must turn on the IMD LED when it receives IMD fault status from BMS over CAN. | EV.8.5.5
+DIM-6 | BSPD LED | The DIM must turn on the BSPD LED when it receives BSPD fault status from FSM over CAN. 
+DIM-7 | Regen reporting | The DIM must report the regen paddle percentage over CAN at 100Hz.
+DIM-8 | Regen maping | The DIM must linearly map the the peddle position as a percentage (0% - fully de-pressed, 100% - fully pressed).
+DIM-9 | 7-segment |  - The DIM must display the SoC as percentage on the 7-segment displays if no faults are present. <br/> - If a fault has occurred the DIM must stop displaying the SoC and instead display any faults onto the 7-segment displays. <br/><ul>- The first 7-segment must display the board ID while the remaining two must display the fault ID. <br/> <img src="https://user-images.githubusercontent.com/25499626/60911239-06cca080-a283-11e9-9dfa-62fcb814f2c1.png" width="200"> <br/>- If there are more than one fault active, the DIM must cycle through displaying each present fault at 1Hz. </ul>
