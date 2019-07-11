@@ -50,7 +50,9 @@ def runClangFormat():
     EXCLUDE_DIRS = [
         "Middleswares", # STM32CubeMX generated libraries
         "Drivers",      # STM32CubeMX generated libraries
-        "cmake-build-debug"
+        "cmake-build-debug",
+        "CMakeFiles",
+        "stm32f3xx_hal_conf.h",
     ]
 
     # Print the current working directory since the paths are relative
