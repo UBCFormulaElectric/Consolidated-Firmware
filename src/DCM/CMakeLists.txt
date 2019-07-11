@@ -6,42 +6,40 @@ cmake_minimum_required(VERSION 3.7)
 # specify cross compilers and tools
 SET(CMAKE_C_COMPILER_WORKS 1)
 SET(CMAKE_C_COMPILER arm-none-eabi-gcc)
-SET(CMAKE_CXX_COMPILER_WORKS 1)
-SET(CMAKE_CXX_COMPILER arm-none-eabi-g++)
 set(CMAKE_ASM_COMPILER  arm-none-eabi-gcc)
-set(CMAKE_AR arm-none-eabi-ar)
 set(CMAKE_OBJCOPY arm-none-eabi-objcopy)
 set(CMAKE_OBJDUMP arm-none-eabi-objdump)
 set(SIZE arm-none-eabi-size)
 
 SET(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/STM32F302C8Tx_FLASH.ld)
 
-#Uncomment for hardware floating point
+# Hardware floating point
 SET(FPU_FLAGS "-mfloat-abi=hard -mfpu=fpv4-sp-d16")
 add_definitions(-DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING)
-
-#Uncomment for software floating point
-#SET(FPU_FLAGS "-mfloat-abi=softfp -mfpu=fpv4-sp-d16")
 
 SET(COMMON_FLAGS
     "-mcpu=cortex-m4 ${FPU_FLAGS} -mthumb -mthumb-interwork -ffunction-sections -fdata-sections \
     -g -fno-common -fmessage-length=0 -specs=nosys.specs -specs=nano.specs")
 
-SET(CMAKE_CXX_FLAGS_INIT "${COMMON_FLAGS} -std=c++11")
 SET(CMAKE_C_FLAGS_INIT "${COMMON_FLAGS} -std=gnu99")
 SET(CMAKE_EXE_LINKER_FLAGS_INIT "-Wl,-gc-sections,--print-memory-usage -T ${LINKER_SCRIPT}")
 
-PROJECT(DCM C CXX ASM)
+PROJECT(DCM C ASM)
 set(CMAKE_CXX_STANDARD 11)
 
-#add_definitions(-DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING -D__FPU_PRESENT=1)
 add_definitions(-D__weak=__attribute__\(\(weak\)\) -D__packed=__attribute__\(\(__packed__\)\) -DUSE_HAL_DRIVER -DSTM32F302x8)
 
 file(GLOB_RECURSE SOURCES "startup/*.*" "Middlewares/*.*" "Drivers/*.*" "Src/*.*")
 
 include_directories(Inc Drivers/STM32F3xx_HAL_Driver/Inc Drivers/STM32F3xx_HAL_Driver/Inc/Legacy Middlewares/Third_Party/FreeRTOS/Source/include Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F Drivers/CMSIS/Device/ST/STM32F3xx/Include Drivers/CMSIS/Include)
 
+# Add external libraries
+add_subdirectory(${CMAKE_SOURCE_DIR}/../shared/SEGGER_RTT ${CMAKE_SOURCE_DIR}/build)
+
 add_executable(${PROJECT_NAME}.elf ${SOURCES} ${LINKER_SCRIPT})
+
+# Link external libraries
+target_link_libraries(${PROJECT_NAME}.elf SEGGER_RTT)
 
 set(CMAKE_EXE_LINKER_FLAGS
     "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Map=${PROJECT_BINARY_DIR}/${PROJECT_NAME}.map")

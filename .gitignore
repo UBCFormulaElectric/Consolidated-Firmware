@@ -79,6 +79,7 @@ CMakeCache.txt
 cmake_install.cmake
 CMakeFiles/
 Build/
+build/
 compile_commands.json
 Makefile
 cmake-build-debug/

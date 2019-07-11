@@ -43,7 +43,8 @@ def runClangFormat():
     # Ignore auto-generated files
     EXCLUDE_FILES = [
         "CanMsgs.c",
-        "CanMsgs.h"
+        "CanMsgs.h",
+        "stm32f3xx_hal_conf.h"
     ]
 
     # Ignore auto-generated directories
@@ -51,8 +52,8 @@ def runClangFormat():
         "Middleswares", # STM32CubeMX generated libraries
         "Drivers",      # STM32CubeMX generated libraries
         "cmake-build-debug",
-        "CMakeFiles",
-        "stm32f3xx_hal_conf.h",
+        "SEGGER_RTT",
+        "CMakeFiles"
     ]
 
     # Print the current working directory since the paths are relative

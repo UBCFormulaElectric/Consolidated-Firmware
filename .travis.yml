@@ -52,7 +52,13 @@ script:
 
     - |
       if [ "$RUN_BUILD" = "true" ]; then 
-        # Build each project
+        # Build libraries first
+        for LIBRARY_NAME in SEGGER_RTT
+        do
+          cmake src/shared/$LIBRARY_NAME/CMakeLists.txt
+          make -C src/shared/$LIBRARY_NAME
+        done
+        # Build board projects
         for BOARD_NAME in FSM DCM PDM
         do
           cmake src/$BOARD_NAME/CMakeLists.txt
