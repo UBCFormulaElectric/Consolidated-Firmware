@@ -38,13 +38,13 @@ ID | Title | Description | Associated Competition Rule(s)
 FSM-0 | Startup CAN message | The FSM must transmit a startup message over CAN on boot.
 FSM-1 | Heartbeat sending | The FSM must transmit a heartbeat over CAN at 100Hz.
 FSM-2 | Heartbeat receiving | The FSM must throw an AIR shutdown fault once it does not receive three consecutive BMS heartbeats.
-FSM-3 | APPS (accelerator pedal position sensor) reporting | The FSM must report the APPS mapping over CAN at 100Hz, unless overridden.
-FSM-4 | APPS mapping | - The FSM must map the primary APPS position to pedal travel percentage linearly with dead zones on both the low and high ends of the APPS position. <br/> - The low end dead zone boundary must be defined as 1.5 multiplied by the maximum encoder reading when the pedal is completely depressed. <br/> - The high end dead zone boundary must be experimentally determined to ensure the FSM can send 100% pedal travel despite any mechanical deflection in the pedal box.
-FSM-5 | APPS open/short circuit | If there is an open/short circuit in either encoder the FSM must report 0% pedal travel. | T.6.2.2, T.6.2.9
-FSM-6 | APPS disagreement | When the primary and secondary APPS positions disagree by more then 10%, the FSM must throw a motor shutdown fault and report 0% pedal travel. | T.6.2.3, T.6.2.4
-FSM-7 | APPS/brake pedal plausibility check | - When the APPS senses brake actuation and more than 25% pedal travel simultaneously, the FSM must throw a motor shutdown fault and report 0% pedal travel. <br/> - The FSM must clear the motor shutdown fault after the APPS senses less than 5% pedal travel, regardless of the brake state. | EV.2.4.1, EV.2.4.2
-FSM-8 | Steering angle reporting | - The FSM must report the steering angle in degrees over CAN at 100Hz, where 0 degrees represents straight wheels and a clockwise turn of the steering wheel corresponds to an increase in steering angle. <br/> - The FSM must send a non-critical fault when the steering angle is beyond the max turning radius of the steering wheel.
-FSM-9 | Wheel speed reporting | - The FSM must report the two front wheel speeds in km/h over CAN at 100Hz. <br/> - The FSM must send a non-critical fault when either front wheel speed is below -10km/h or above 150km/h.
+FSM-3 | Mapped pedal percentage reporting | The FSM must report the mapped pedal percentage over CAN at 1kHz, unless overridden.
+FSM-4 | Mapped pedal percentage | - The FSM must map the primary APPS position linearly with dead zones on both the low and high ends of the APPS position. <br/> - The low end dead zone boundary must be defined as 1.5 multiplied by the maximum encoder reading when the pedal is completely depressed. <br/> - The high end dead zone boundary must be experimentally determined to ensure the FSM can send 100% mapped pedal percentage despite any mechanical deflection in the pedal box.
+FSM-5 | APPS open/short circuit | If there is an open/short circuit in either encoder the FSM must report 0% mapped pedal percentage. | T.6.2.2, T.6.2.9
+FSM-6 | APPS disagreement | When the primary and secondary APPS positions disagree by more then 10%, the FSM must throw a motor shutdown fault and report 0% mapped pedal percentage. | T.6.2.3, T.6.2.4
+FSM-7 | APPS/brake pedal plausibility check | - When the APPS senses brake actuation and more than 25% mapped pedal percentage simultaneously, the FSM must throw a motor shutdown fault and report 0% mapped pedal percentage. <br/> - The FSM must clear the motor shutdown fault after the APPS senses less than 5% mapped pedal percentage, regardless of the brake state. | EV.2.4.1, EV.2.4.2
+FSM-8 | Steering angle reporting | - The FSM must report the steering angle in degrees over CAN at 1kHz, where 0 degrees represents straight wheels and a clockwise turn of the steering wheel corresponds to an increase in steering angle. <br/> - The FSM must send a non-critical fault when the steering angle is beyond the max turning radius of the steering wheel.
+FSM-9 | Wheel speed reporting | - The FSM must report the two front wheel speeds in km/h over CAN at 1kHz. <br/> - The FSM must send a non-critical fault when either front wheel speed is below -10km/h or above 150km/h.
 
 ## DCM <a name="DCM"></a>
 
@@ -67,12 +67,11 @@ DCM-5 | Exiting the init state and entering the drive state | The DCM must meet 
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 DCM-6 | Power limiting | The DCM must ensure power draw does not exceed 80kW for more than 100ms continuously or for 500ms over a moving average. | EV.1.3.1, EV.1.4.4
-DCM-7 | Torque request limiting | The DCM may only request torque less than or equal to what the driver requested through algorithms such as torque vectoring and traction control. | EV.2.2.3
-DCM-8 | Regen at slow speeds | The DCM must disable regen through the DCM's regen outputs when the vehicle is travelling at less than 5 km/hr. | EV.1.2.6
+DCM-8 | Regen requirements | Regen is only allowed when the vehicle is travelling more than 5 km/hr and the AIRs are closed. | EV.1.2.6, EV.7.2.9
+DCM-19 | Torque requests | - The DCM may only request torque less than or equal to what the driver requested. <br/> - If regen is allowed, the mapped regen paddle percentage is above 0%, and the mapped pedal percentage is 0%, the DCM must map the mapped regen paddle percentage to a negative torque request. <br/> - Else, the DCM must map the mapped pedal percentage to a positive torque request. | EV.2.2.3
 DCM-9 | Drive direction | The DCM must only alter the inverters' forward enable pins. The DCM should never alter the inverters' reverse enable pins, as the vehicle must not drive in reverse. | EV.1.2.7
-DCM-10 | AIR shutdown brake torque | The DCM must not request brake torque to the motors when the AIRs are opened during driving. | EV.7.2.9
 DCM-12 | Entering the drive state from the init state | The DCM must do the following upon entering the drive state: <br/> - Make the ready to drive sound for 2 seconds after entering the drive state. <br/> - Enable both inverters through the DCM's corresponding enable outputs. <br/> - Request through CAN that the inverters send each motor's RPM to the DCM at a rate of 1kHz. | EV.6.11.4, EV.6.11.5
-DCM-13 | In the drive state | The DCM must do the following in the drive state at 1kHz: <br/> 1. Acquire each motor's RPM from the inverters. <br/> 2. Map the normalized pedal position to a positive or negative torque request. <br/> 3. Decrease the torque request if necessary to meet both DCM-6 and the maximum positive/negative power limits specified by the BMS. <br/> 4. Send the resultant torque request to both inverters over CAN.
+DCM-13 | In the drive state | The DCM must do the following in the drive state at 1kHz: <br/> 1. Acquire each motor's RPM from the inverters. <br/> 2. Calculate a torque request as per DCM-19. <br/> 3. Decrease the torque request if necessary to meet both DCM-6 and the maximum power limits specified by the BMS. <br/> 4. Send the resultant torque request to both inverters over CAN.
 DCM-14 | Exiting the drive state and entering the init state | When the start switch is switched into a downwards position, the DCM must: <br/> - Transition from the drive state to the init state. <br/> - Stop all CAN torque requests to meet DCM-10. <br/> - Disable power to both motors through the DCM's enable pins.
 
 ### DCM Fault State <a name="DCM_FAULT"></a>
@@ -120,10 +119,10 @@ ID | Title | Description | Associated Competition Rule(s)
 DIM-0 | Startup CAN message | The DIM must transmit a startup message over CAN on boot.
 DIM-1 | Heartbeat receiving | The DIM must set the 7-segments all on to display '888' once it does not receive three consecutive BMS heartbeats.
 DIM-2 | Board status LEDs | The DIM must indicate the current status of the BMS, DCM, DIM, FSM and PDM using RGB LEDs, where GREEN = no fault, BLUE = non-critical fault and RED = critical fault. | EV.6.1.11
-DIM-3 | Drive mode switch | The DIM must transmit the drive mode position of the rotarty switch over CAN at 100Hz.
-DIM-4 |  Start, traction control, torque vectoring switches | For each of the switches, the DIM must: <br/> - Transmit the on/off switch status of over CAN at 100Hz. <br/> - Set the corresponding green status LEDs when the switch is on.
+DIM-3 | Drive mode switch | The DIM must transmit the drive mode position of the rotary switch over CAN at 1kHz.
+DIM-4 |  Start, traction control, torque vectoring switches | For each of the switches, the DIM must: <br/> - Transmit the on/off switch status of over CAN at 1kHz. <br/> - Set the corresponding green status LEDs when the switch is on.
 DIM-5 | IMD LED | The DIM must turn on the IMD LED when it receives IMD fault status from BMS over CAN. | EV.8.5.5
 DIM-6 | BSPD LED | The DIM must turn on the BSPD LED when it receives BSPD fault status from FSM over CAN. 
-DIM-7 | Regen reporting | The DIM must report the regen paddle percentage over CAN at 100Hz.
-DIM-8 | Regen maping | The DIM must linearly map the the peddle position as a percentage (0% - fully de-pressed, 100% - fully pressed).
+DIM-7 | Mapped regen paddle percentage reporting | The DIM must report the mapped regen paddle percentage over CAN at 1kHz.
+DIM-8 | Mapped regen paddle percentage | The DIM must linearly map the regen paddle position with dead zones as a percentage (paddle <=5% depressed maps to 0% regen, paddle >=95% pressed maps to 100% regen).
 DIM-9 | 7-segment |  - The DIM must display the SoC as percentage on the 7-segment displays if no faults are present. <br/> - If a fault has occurred the DIM must stop displaying the SoC and instead display any faults onto the 7-segment displays. <br/><ul>- The first 7-segment must display the board ID while the remaining two must display the fault ID. <br/> <img src="https://user-images.githubusercontent.com/25499626/60911239-06cca080-a283-11e9-9dfa-62fcb814f2c1.png" width="200"> <br/>- If there are more than one fault active, the DIM must cycle through displaying each present fault at 1Hz. </ul>
