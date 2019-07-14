@@ -66,7 +66,7 @@ DCM-5 | Exiting the init state and entering the drive state | The DCM must meet 
 ### DCM Drive State <a name="DCM_DRIVE"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-DCM-6 | Power limiting | The DCM must ensure power draw does not exceed 80kW for more than 100ms continuously or for 500ms over a moving average. | EV.1.3.1, EV.1.4.4
+DCM-6 | Power limiting | The DCM must ensure power draw does not exceed 80kW for more than 100ms continuously or for 500ms over a moving average. | EV.1.3.1, EV.2.2.1
 DCM-8 | Regen requirements | Regen is only allowed when the vehicle is travelling more than 5 km/hr and the AIRs are closed. | EV.1.2.6, EV.7.2.9
 DCM-19 | Torque requests | - The DCM may only request torque less than or equal to what the driver requested. <br/> - If regen is allowed, the mapped regen paddle percentage is above 0%, and the mapped pedal percentage is 0%, the DCM must map the mapped regen paddle percentage to a negative torque request. <br/> - Else, the DCM must map the mapped pedal percentage to a positive torque request. | EV.2.2.3
 DCM-9 | Drive direction | The DCM must only alter the inverters' forward enable pins. The DCM should never alter the inverters' reverse enable pins, as the vehicle must not drive in reverse. | EV.1.2.7
