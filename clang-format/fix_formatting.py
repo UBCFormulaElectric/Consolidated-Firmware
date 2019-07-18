@@ -40,14 +40,16 @@ def runClangFormat():
         '.hh'
     )
 
-    # Ignore auto-generated files
+    # Files ignored by clang-format
     EXCLUDE_FILES = [
         "CanMsgs.c",
         "CanMsgs.h",
+        # Everytime we format this file, we get an unwanted '\' at the end.
+        # Ignore it from clang-format as a workaround
         "stm32f3xx_hal_conf.h",
     ]
 
-    # Ignore auto-generated directories
+    # Directories ignored by clang-format
     EXCLUDE_DIRS = [
         "Middleswares", # STM32CubeMX generated libraries
         "Drivers",      # STM32CubeMX generated libraries
