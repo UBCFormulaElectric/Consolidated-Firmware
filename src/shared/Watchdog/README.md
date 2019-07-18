@@ -22,6 +22,9 @@ IWDG counter clock prescaler   = 4
 IWDG window value              = IWDG_WINDOW_DISABLE_VALUE 
 IWDG down-counter reload value = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY
 ```
+
+In case it was not clear, `IWDG_RESET_FREQUENCY = 5` means that the IWDG has a frequency of 5Hz, or a period of 200ms.
+
 By using User Constants, the STM32CubeMX configurations become much more readable and easier to adjust later on if we want to change the watchdog frequency. In addition, we disable Window Watchdog by setting `IWDG window value = IWDG_WINDOW_DISABLE_VALUE`, as Window Watchdog would add complexity to our project with little to no benefit.
 
 ## How to Use This Library
