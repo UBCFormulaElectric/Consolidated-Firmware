@@ -45,6 +45,8 @@
 /* Private variables ---------------------------------------------------------*/
 CAN_HandleTypeDef hcan;
 
+IWDG_HandleTypeDef hiwdg;
+
 osThreadId defaultTaskHandle;
 /* USER CODE BEGIN PV */
 
@@ -54,6 +56,7 @@ osThreadId defaultTaskHandle;
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN_Init(void);
+static void MX_IWDG_Init(void);
 void        StartDefaultTask(void const *argument);
 
 /* USER CODE BEGIN PFP */
@@ -72,7 +75,7 @@ void        StartDefaultTask(void const *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    __HAL_DBGMCU_FREEZE_IWDG();
     /* USER CODE END 1 */
 
     /* MCU
@@ -96,6 +99,7 @@ int main(void)
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_CAN_Init();
+    MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
 
     /* USER CODE END 2 */
@@ -152,10 +156,12 @@ void SystemClock_Config(void)
 
     /** Initializes the CPU, AHB and APB busses clocks
      */
-    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType =
+        RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
     RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
     RCC_OscInitStruct.HSIState       = RCC_HSI_ON;
+    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
     RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL9;
@@ -211,6 +217,33 @@ static void MX_CAN_Init(void)
     /* USER CODE BEGIN CAN_Init 2 */
 
     /* USER CODE END CAN_Init 2 */
+}
+
+/**
+ * @brief IWDG Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_IWDG_Init(void)
+{
+    /* USER CODE BEGIN IWDG_Init 0 */
+
+    /* USER CODE END IWDG_Init 0 */
+
+    /* USER CODE BEGIN IWDG_Init 1 */
+
+    /* USER CODE END IWDG_Init 1 */
+    hiwdg.Instance       = IWDG;
+    hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
+    hiwdg.Init.Window    = IWDG_WINDOW_DISABLE_VALUE;
+    hiwdg.Init.Reload = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
+    if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN IWDG_Init 2 */
+
+    /* USER CODE END IWDG_Init 2 */
 }
 
 /**
