@@ -53,6 +53,7 @@ def runClangFormat():
         "Drivers",      # STM32CubeMX generated libraries
         "cmake-build-debug",
         "CMakeFiles",
+        "SEGGER_RTT",
     ]
 
     # Print the current working directory since the paths are relative
