@@ -83,7 +83,7 @@ void        StartDefaultTask(void const *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    __HAL_DBGMCU_FREEZE_IWDG();
     /* USER CODE END 1 */
 
     /* MCU
