@@ -64,6 +64,10 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define IWDG_WINDOW_DISABLE_VALUE 4095
+#define LSI_FREQUENCY 40000
+#define IWDG_PRESCALER 4
+#define IWDG_RESET_FREQUENCY 5
 #define VBAT_SENSE_Pin GPIO_PIN_1
 #define VBAT_SENSE_GPIO_Port GPIOC
 #define _24V_AUX_SENSE_Pin GPIO_PIN_2
