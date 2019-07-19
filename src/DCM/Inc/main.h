@@ -64,6 +64,10 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define IWDG_WINDOW_DISABLE_VALUE 4095
+#define LSI_FREQUENCY 40000
+#define IWDG_PRESCALER 4
+#define IWDG_RESET_FREQUENCY 5
 #define UNUSED_ANALOG_IN1_Pin GPIO_PIN_0
 #define UNUSED_ANALOG_IN1_GPIO_Port GPIOA
 #define UNUSED_ANALOG_IN2_Pin GPIO_PIN_1
