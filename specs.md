@@ -129,11 +129,10 @@ BMS-0 | Startup CAN message | The BMS must transmit a startup message over CAN o
 BMS-1 | Heartbeat sending | The BMS must transmit a heartbeat over CAN at 100Hz.
 BMS-2 | Heartbeat receiving | - The BMS must throw an AIR shutdown fault and enter the AIR shutdown fault state once it does not receive three consecutive FSM or DCM heartbeats. <br/> - The BMS must throw a non-critical fault once it does not receive three consecutive PDM heartbeats.
 BMS-3 | isoSPI communication failure | - Upon isoSPI communication that results in a packet error code (PEC) mismatch, the BMS must retry communication. <br/> - After three consecutive unsuccessful isoSPI communication attempts, the BMS must throw an AIR shutdown fault and enter the AIR shutdown fault state.
-BMS-4 | Cell voltages acquisition and logging | - The BMS must acquire all cell voltages over isoSPI at 100Hz. <br/> - The BMS must log the highest cell, lowest cell, average voltage, pack voltage, and module voltages at 100Hz.
-BMS-5 | Cell temperatures acquisition and logging | - The BMS must acquire all cell temperatures over isoSPI at 1Hz. <br/> - The BMS must log the highest temperature, lowest temperature and average temperature at 1Hz.
-BMS-6 | General voltage and temperature limits | The BMS must throw an AIR shutdown fault and enter the AIR shutdown fault state outside of these bounds: <br/> 3.0V < cell voltage < 4.2V. <br/> -20.0C < cell temperature < 60.0C. | EV.5.1.3, EV.5.1.10
+BMS-4 | Cell voltages acquisition and logging | - The BMS must acquire all cell voltages over isoSPI at 100Hz. <br/> - The BMS must log the highest cell, lowest cell, average cell, pack, and segment voltages at 100Hz.
+BMS-5 | Cell temperatures acquisition and logging | - The BMS must acquire all cell temperatures over isoSPI at 1Hz. <br/> - The BMS must log the highest, lowest and average temperatures at 1Hz.
+BMS-6 | General voltage and temperature limits | The BMS must throw an AIR shutdown fault and enter the AIR shutdown fault state outside of these bounds: <br/> 3.0 < any cell voltage < 4.2V. <br/> -20.0C < any cell temperature < 60.0C. | EV.5.1.3, EV.5.1.10
 BMS-7 | Charge temperature limits | The BMS must throw an AIR shutdown fault and enter the AIR shutdown fault state if charging is attempted outside of these bounds: <br/>  0.0C < any cell temperature < 45.0C. | EV.5.1.3, EV.5.1.10
-BMS-8 | Power limiting calculations | The BMS must calculate charge and discharge power limits based on cell temperatures and SoC to avoid exceeding a cell's defined limits.
 BMS-9 | Charger detection and logging | - The BMS must check the charger connection status at 1Hz by the state of the CHARGE_STATE_3V3 digital input. <br/> - The BMS must log the charger connection status over CAN at 1Hz.
 BMS-10 | Charger enable/disable | The BMS must enable the charger by setting the BMS PON pin high and disable the charger by setting the BMS PON pin low.
 BMS-11 | Contactor weld/stuck open detection | The BMS must check that the contactors are in the desired open or closed state at 1kHz, and if not the BMS must throw an AIR shutdown fault and enter the AIR shutdown fault state.
@@ -152,8 +151,8 @@ BMS-16 | Exiting the init state and entering the driving state | Upon a successf
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-17 | Charging thermal safety | - The BMS must stop cell balancing once the LTC6813 internal die temperature (ITMP) exceeds 115C and throw a non-critical fault. The BMS must re-enable cell balancing once the ITMP decreases below 110C. <br/> - The BMS must disable the charger once the ITMP exceeds 120C and throw a non-critical fault. The BMS must re-enable the charger once the ITMP decreases below 115C. <br/>  - The BMS must disable the charger when any cell temperature exceeds 43C and throw a non-critical fault. The BMS must re-enable the charger once the highest cell temperature is below 40C. <br/> - The BMS must throw an AIR shutdown fault and enter the AIR shutdown fault state if any cell temperature exceeds 45C. | EV.5.1.3
-BMS-18 | Cell balancing | - The BMS must balance the cells until they are all within 10mV of 4.2. <br/> - The BMS must only perform cell balancing when the AIRs are closed. | EV.7.2.5
-BMS-19 | Power limit sending (charge state) | The BMS must calculate power limits and send them to the charger over CAN at 1kHz.
+BMS-18 | Cell balancing | - The BMS must balance the cells until they are all between 4.19V and 4.2V. <br/> - The BMS must only perform cell balancing when the AIRs are closed. | EV.7.2.5
+BMS-19 | Power limits calculation and sending (charging state) | - The BMS must calculate charge power limits based on cell temperatures and SoC to avoid exceeding a cell's defined limits. <br/> - The BMS must send the charge power limits to the charger over CAN at 1kHz.
 BMS-20 | Charger disconnection | Upon sensing charger disconnection, the BMS must throw an AIR shutdown fault and enter the AIR shutdown fault state.
 BMS-21 | Entering the charging state | The BMS must only enter the charging state after the init state is complete.
 BMS-22 | In the charging state | The BMS must charge and cell balance simultaneously to get all cells charged and balanced as fast as possible.
@@ -165,14 +164,14 @@ BMS-24 | Exiting the charging state and entering the AIR shutdown fault state | 
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-25 | Entering the driving state | The BMS must only enter the driving state from the init state after precharge or from the motor shutdown fault state after faults are cleared.
-BMS-26 | In the driving state | The BMS must calculate power limits and send them to the DCM over CAN at 1kHz.
+BMS-26 | Power limits calculation and sending (driving state) | - The BMS must calculate charge and discharge power limits based on cell temperatures and SoC to avoid exceeding a cell's defined limits. <br/> - The BMS must send the charge and discharge power limits to the DCM over CAN at 1kHz.
 BMS-27 | Exiting the driving state and entering the init state | Upon the opening of the contactors outside of an AIR shutdown fault, the BMS must exit the driving state and enter the init state.
 
 ### BMS Motor Shutdown Fault State <a name="BMS_MOTOR_SHUTDOWN_FAULT"></a>
 
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-BMS-28 | Exiting the motor shutdown state |  Once all motor shutdown and AIR shutdown faults are cleared, the BMS must exit the motor shutdown state and re-enter the previous state (init or driving).
+BMS-28 | Exiting the motor shutdown state | - Upon an AIR shutdown fault, the BMS must exit the motor shutdown fault state and enter the AIR shutdown fault state. <br/> - Once all motor shutdown faults are cleared, the BMS must exit the motor shutdown state and re-enter the previous state (init or driving).
 
 ### BMS AIR Shutdown Fault State <a name="BMS_AIR_SHDN_FAULT"></a>
 
