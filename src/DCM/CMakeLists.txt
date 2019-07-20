@@ -33,7 +33,14 @@ file(GLOB_RECURSE SOURCES "startup/*.*" "Middlewares/*.*" "Drivers/*.*" "Src/*.*
 
 include_directories(Inc Drivers/STM32F3xx_HAL_Driver/Inc Drivers/STM32F3xx_HAL_Driver/Inc/Legacy Middlewares/Third_Party/FreeRTOS/Source/include Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F Drivers/CMSIS/Device/ST/STM32F3xx/Include Drivers/CMSIS/Include)
 
-add_executable(${PROJECT_NAME}.elf ${SOURCES} ${LINKER_SCRIPT})
+# Add source files and headers for shared code
+add_subdirectory(${CMAKE_SOURCE_DIR}/../shared __shared__)
+include_directories(${SHARED_INCLUDE_DIRS})
+
+# TODO (#356): Remove when shared libraries are rewritten
+add_definitions(-DDCM)
+
+add_executable(${PROJECT_NAME}.elf ${SOURCES} ${SHARED_SRCS} ${LINKER_SCRIPT})
 
 set(CMAKE_EXE_LINKER_FLAGS
     "${CMAKE_EXE_LINKER_FLAGS} -Wl,-Map=${PROJECT_BINARY_DIR}/${PROJECT_NAME}.map")
