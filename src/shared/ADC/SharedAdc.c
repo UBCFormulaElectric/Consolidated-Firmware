@@ -3,7 +3,7 @@
  * Includes
  ******************************************************************************/
 #include "SharedAdc.h"
-#include "Constants.h"
+#include "SharedConstants.h"
 #include "main.h"
 #include "stdbool.h"
 
