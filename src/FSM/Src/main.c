@@ -27,6 +27,9 @@
 #include "SharedWatchdog.h"
 #include "SharedConstants.h"
 #include "SharedCmsisOs.h"
+#include "SharedCan.h"
+#include "SharedHeartbeat.h"
+#include "Io_Can.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -280,23 +283,23 @@ static void MX_CAN_Init(void)
 
     /* USER CODE END CAN_Init 1 */
     hcan.Instance                  = CAN;
-    hcan.Init.Prescaler            = 16;
+    hcan.Init.Prescaler            = 9;
     hcan.Init.Mode                 = CAN_MODE_NORMAL;
-    hcan.Init.SyncJumpWidth        = CAN_SJW_1TQ;
-    hcan.Init.TimeSeg1             = CAN_BS1_1TQ;
+    hcan.Init.SyncJumpWidth        = CAN_SJW_4TQ;
+    hcan.Init.TimeSeg1             = CAN_BS1_6TQ;
     hcan.Init.TimeSeg2             = CAN_BS2_1TQ;
     hcan.Init.TimeTriggeredMode    = DISABLE;
-    hcan.Init.AutoBusOff           = DISABLE;
+    hcan.Init.AutoBusOff           = ENABLE;
     hcan.Init.AutoWakeUp           = DISABLE;
-    hcan.Init.AutoRetransmission   = DISABLE;
-    hcan.Init.ReceiveFifoLocked    = DISABLE;
-    hcan.Init.TransmitFifoPriority = DISABLE;
+    hcan.Init.AutoRetransmission   = ENABLE;
+    hcan.Init.ReceiveFifoLocked    = ENABLE;
+    hcan.Init.TransmitFifoPriority = ENABLE;
     if (HAL_CAN_Init(&hcan) != HAL_OK)
     {
         Error_Handler();
     }
     /* USER CODE BEGIN CAN_Init 2 */
-
+    SharedCan_StartCanInInterruptMode(&hcan, Io_Can_GetCanMaskFilters());
     /* USER CODE END CAN_Init 2 */
 }
 
@@ -407,6 +410,7 @@ void RunTask1kHz(void const *argument)
 
     for (;;)
     {
+        SharedHeartbeat_BroadcastHeartbeat();
         // TODO (#361) :Implement proper watchdog check-in mechanism
         SharedWatchdog_RefreshIwdg();
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1U);
