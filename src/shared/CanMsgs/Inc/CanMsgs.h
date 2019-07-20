@@ -77,14 +77,14 @@ struct CanMsgs_fsm_errors_t {
      * Scale: 1
      * Offset: 0
      */
-    uint8_t papps_out_of_range;
+    uint8_t papps_out_of_range : 1;
 
     /**
      * Range: 0..1 (0..1 -)
      * Scale: 1
      * Offset: 0
      */
-    uint8_t sapps_out_of_range;
+    uint8_t sapps_out_of_range : 1;
 };
 
 /**
@@ -100,7 +100,7 @@ struct CanMsgs_fsm_can_tx_fifo_overflow_t {
      * Scale: 1
      * Offset: 0
      */
-    uint32_t overflow_count;
+    uint32_t overflow_count : 32;
 };
 
 /**
@@ -176,56 +176,56 @@ struct CanMsgs_pdm_errors_t {
      * Scale: 1
      * Offset: 0
      */
-    uint8_t missing_heartbeat;
+    uint8_t missing_heartbeat : 1;
 
     /**
      * Range: 0..1 (0..1 -)
      * Scale: 1
      * Offset: 0
      */
-    uint8_t boost_pgood_fault;
+    uint8_t boost_pgood_fault : 1;
 
     /**
      * Range: 0..1 (0..1 -)
      * Scale: 1
      * Offset: 0
      */
-    uint8_t cell_balance_overvoltage_fault;
+    uint8_t cell_balance_overvoltage_fault : 1;
 
     /**
      * Range: 0..1 (0..1 -)
      * Scale: 1
      * Offset: 0
      */
-    uint8_t charger_fault;
+    uint8_t charger_fault : 1;
 
     /**
      * Range: 0..1 (0..1 -)
      * Scale: 1
      * Offset: 0
      */
-    uint8_t efuse_fault;
+    uint8_t efuse_fault : 1;
 
     /**
      * Range: 0..1 (0..1 -)
      * Scale: 1
      * Offset: 0
      */
-    uint8_t _12_v_fault_under_voltage;
+    uint8_t _12_v_fault_under_voltage : 1;
 
     /**
      * Range: 0..1 (0..1 -)
      * Scale: 1
      * Offset: 0
      */
-    uint8_t _12_v_fault_over_voltage;
+    uint8_t _12_v_fault_over_voltage : 1;
 
     /**
      * Range: 0..1 (0..1 -)
      * Scale: 1
      * Offset: 0
      */
-    uint8_t vbat_fault;
+    uint8_t vbat_fault : 1;
 };
 
 /**
@@ -241,7 +241,7 @@ struct CanMsgs_pdm_can_tx_fifo_overflow_t {
      * Scale: 1
      * Offset: 0
      */
-    uint32_t overflow_count;
+    uint32_t overflow_count : 32;
 };
 
 /**
@@ -317,7 +317,7 @@ struct CanMsgs_bms_can_tx_fifo_overflow_t {
      * Scale: 1
      * Offset: 0
      */
-    uint32_t overflow_count;
+    uint32_t overflow_count : 32;
 };
 
 /**
@@ -331,7 +331,7 @@ struct CanMsgs_dcm_can_tx_fifo_overflow_t {
      * Scale: 1
      * Offset: 0
      */
-    uint32_t overflow_count;
+    uint32_t overflow_count : 32;
 };
 
 /**
