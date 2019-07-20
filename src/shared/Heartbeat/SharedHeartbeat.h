@@ -28,8 +28,6 @@
     #define PCB_HEARTBEAT_STDID         CANMSGS_bms_heartbeat_FRAME_ID 
     #define PCB_HEARTBEAT_LISTENER      (DCM_HEARTBEAT_ENCODING | PDM_HEARTBEAT_ENCODING | FSM_HEARTBEAT_ENCODING)
 #elif DCM
-    #define PCB_HEARTBEAT_STDID         CANMSGS_dcm_heartbeat_FRAME_ID 
-    #define PCB_HEARTBEAT_LISTENER      (BMS_HEARTBEAT_ENCODING | FSM_HEARTBEAT_ENCODING)
 #else
     #error "No valid PCB name selected"
 #endif
@@ -53,7 +51,7 @@
 /******************************************************************************
  * Typedefs
  ******************************************************************************/
-// clang-format  on
+// clang-format on
 /** @brief One-hot board encoding */
 typedef enum
 {
@@ -71,9 +69,16 @@ typedef enum
  * Function Prototypes
  ******************************************************************************/
 /**
- * @brief Periodically broadcast heartbeat message for the current PCB
+ * @brief Periodically broadcast heartbeat message for the current PCB. This
+ *        functon checks for time differences by incrementing an internal
+ *        variable every 1ms, which means it should be placed inside the 1kHz
+ *        task.
+ * @param heartbeat_can_id The CAN ID of the heartbeat CAN message.
+ * @param heartbeat_tx_dlc The CAN DLC of the heartbeat CAN message.
  */
-void SharedHeartbeat_BroadcastHeartbeat(void);
+void SharedHeartbeat_BroadcastHeartbeat(
+    uint32_t heartbeat_can_id,
+    uint32_t heartbeat_dlc);
 
 /**
  * @brief Upon heartbeat reception, update the list of heartbeats received
@@ -83,16 +88,21 @@ void SharedHeartbeat_ReceiveHeartbeat(PcbHeartbeatEncoding_Enum board);
 
 /**
  * @brief Periodically check that all heartbeats the the PCB listens for were
- *        received
+ *        received. This functon checks for time differences by incrementing an
+ *        internal variable every 1ms, which means it should be placed inside
+ *        the 1kHz task.
+ * @param heartbeats_to_check The PCBs to listen heartbeats for. Perform a
+ *        logical OR on the value(s) of PcbHeartbeatEncoding_Enum to specify the
+ *        PCBs.
  */
-void SharedHeartbeat_CheckHeartbeatTimeout(void);
- 
+void SharedHeartbeat_CheckHeartbeatTimeout(uint8_t heartbeats_to_check);
+
 /**
  * @brief  Shared handler for missed heartbeats
  * @param  heartbeats_received One-hot encoding of heartbeats received
  */
 void Heartbeat_HandleHeartbeatTimeout(uint8_t heartbeats_received);
- 
+
 /**
  * @brief Handle heartbeat reception for each board listened to
  * @param std_id Standard ID of the received CAN message
