@@ -24,7 +24,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "SharedWatchdog.h"
+#include "Constants.h"
+#include "SharedCmsisOs.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -51,9 +53,12 @@ IWDG_HandleTypeDef hiwdg;
 
 SPI_HandleTypeDef hspi2;
 
-osThreadId          defaultTaskHandle;
-uint32_t            defaultTaskBuffer[128];
-osStaticThreadDef_t defaultTaskControlBlock;
+osThreadId          Task1HzHandle;
+uint32_t            Task1HzBuffer[128];
+osStaticThreadDef_t Task1HzControlBlock;
+osThreadId          Task1kHzHandle;
+uint32_t            Task1kHzBuffer[128];
+osStaticThreadDef_t Task1kHzControlBlock;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -65,7 +70,8 @@ static void MX_CAN_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_IWDG_Init(void);
-void        StartDefaultTask(void const *argument);
+void        RunTask1Hz(void const *argument);
+void        RunTask1kHz(void const *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -131,11 +137,17 @@ int main(void)
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
-    /* definition and creation of defaultTask */
+    /* definition and creation of Task1Hz */
     osThreadStaticDef(
-        defaultTask, StartDefaultTask, osPriorityNormal, 0, 128,
-        defaultTaskBuffer, &defaultTaskControlBlock);
-    defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+        Task1Hz, RunTask1Hz, osPriorityNormal, 0, 128, Task1HzBuffer,
+        &Task1HzControlBlock);
+    Task1HzHandle = osThreadCreate(osThread(Task1Hz), NULL);
+
+    /* definition and creation of Task1kHz */
+    osThreadStaticDef(
+        Task1kHz, RunTask1kHz, osPriorityNormal, 0, 128, Task1kHzBuffer,
+        &Task1kHzControlBlock);
+    Task1kHzHandle = osThreadCreate(osThread(Task1kHz), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -315,7 +327,7 @@ static void MX_IWDG_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
-
+    SharedWatchdog_SetIwdgInitialized(&hiwdg);
     /* USER CODE END IWDG_Init 2 */
 }
 
@@ -494,22 +506,44 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_StartDefaultTask */
+/* USER CODE BEGIN Header_RunTask1Hz */
 /**
- * @brief  Function implementing the defaultTask thread.
+ * @brief  Function implementing the Task1Hz thread.
  * @param  argument: Not used
  * @retval None
  */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void const *argument)
+/* USER CODE END Header_RunTask1Hz */
+void RunTask1Hz(void const *argument)
 {
     /* USER CODE BEGIN 5 */
-    /* Infinite loop */
+    uint32_t PreviousWakeTime = osKernelSysTick();
+
     for (;;)
     {
-        osDelay(1);
+        (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1000U);
     }
     /* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_RunTask1kHz */
+/**
+ * @brief Function implementing the Task1kHz thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTask1kHz */
+void RunTask1kHz(void const *argument)
+{
+    /* USER CODE BEGIN RunTask1kHz */
+    uint32_t PreviousWakeTime = osKernelSysTick();
+
+    for (;;)
+    {
+        // TODO (#361) :Implement proper watchdog check-in mechanism
+        SharedWatchdog_RefreshIwdg();
+        (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1U);
+    }
+    /* USER CODE END RunTask1kHz */
 }
 
 /**
