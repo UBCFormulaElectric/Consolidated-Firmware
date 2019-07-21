@@ -1,13 +1,30 @@
+# Macro to serach for subdirectories within a directory.  This macro is not
+# recursive, traverses only one level deep, and filters out non-directory
+# files. If we had used
+#
+# FILE(GLOB SHARED_INCLUDE_DIRS LIST_DIRECTORIES false CONFIGURE_DEPENDS
+#         ${CMAKE_CURRENT_SOURCE_DIR}/*
+# 
+# we would have globbed non-directory files (such as CMakeLists.txt) that are
+# not valid include directories.
+MACRO(SUBDIRLIST result top_dir)
+    FILE(GLOB children ${top_dir}/*)
+    SET(dirlist "")
+    FOREACH(child ${children})
+        IF(IS_DIRECTORY ${child})
+          LIST(APPEND dirlist ${child})
+        ENDIF()
+    ENDFOREACH()
+    SET(${result} ${dirlist})
+ENDMACRO()
+
 # Find all the include directories for shared libraries
-file(GLOB SHARED_INCLUDE_DIRS LIST_DIRECTORIES true CONFIGURE_DEPENDS
-        ${CMAKE_CURRENT_SOURCE_DIR}/*/Inc
-        ${CMAKE_CURRENT_SOURCE_DIR}
-        )
+SUBDIRLIST(SHARED_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR})
 
 # Find all the source files for shared libraries
 file(GLOB SHARED_SRCS LIST_DIRECTORIES false CONFIGURE_DEPENDS
-        ${CMAKE_CURRENT_SOURCE_DIR}/*/Src/*.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/*/Src/*.cpp
+        ${CMAKE_CURRENT_SOURCE_DIR}/*/*.c
+        ${CMAKE_CURRENT_SOURCE_DIR}/*/*.cpp
         )
 
 # Make the two variables we just created visible in the parent scope, so that

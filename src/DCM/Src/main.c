@@ -25,7 +25,7 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "SharedWatchdog.h"
-#include "Constants.h"
+#include "SharedConstants.h"
 #include "SharedCmsisOs.h"
 /* USER CODE END Includes */
 

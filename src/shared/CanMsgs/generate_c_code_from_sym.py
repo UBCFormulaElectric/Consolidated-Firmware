@@ -66,10 +66,10 @@ def generate_code_from_sym_file(database_name):
     header = change_frame_id_capitalization(header)
     source = change_frame_id_capitalization(source)
 
-    with open("Inc/" + filename_h, 'w') as fout:
+    with open(filename_h, 'w') as fout:
         fout.write(header)
 
-    with open("Src/" + filename_c, 'w') as fout:
+    with open(filename_c, 'w') as fout:
         fout.write(source)
 
 if __name__ == "__main__":
