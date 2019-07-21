@@ -57,7 +57,7 @@ def generate_code_from_sym_file(database_name):
             filename_c, 
             "", 
             floating_point_numbers=True,
-            bit_fields=False
+            bit_fields=True
     )
 
     header = purge_timestamps_from_generated_code(header)
