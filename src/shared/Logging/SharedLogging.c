@@ -2,10 +2,14 @@
  * Includes
  ******************************************************************************/
 #include "SharedLogging.h"
+#include "SEGGER_RTT_Conf.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
  ******************************************************************************/
+// RTT channel 0 is always present and reserved for Terminal usage. Name is
+// fixed to "Terminal".
+#define SEGGER_RTT_TERMINAL_CHANNEL (0)
 
 /******************************************************************************
  * Module Preprocessor Macros
@@ -35,6 +39,6 @@ void SharedLogging_Printf(const char *sFormat, ...)
     va_list ParamList;
 
     va_start(ParamList, sFormat);
-    (void)SEGGER_RTT_vprintf(0, sFormat, &ParamList);
+    (void)SEGGER_RTT_vprintf(SEGGER_RTT_TERMINAL_CHANNEL, sFormat, &ParamList);
     va_end(ParamList);
 }

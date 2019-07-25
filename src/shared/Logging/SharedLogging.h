@@ -32,7 +32,7 @@
  * Function Prototypes
  ******************************************************************************/
 /**
- * @brief  Printf-style function to print data over Segger RTT
+ * @brief  Printf-style function to print data to the terminal using Segger RTT
  * @param  sFormat Pointer to format string, followed by the arguments for
  *         conversion
  */
