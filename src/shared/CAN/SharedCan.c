@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include "SharedCan.h"
 #include "main.h"
+#include "SharedMacros.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -31,17 +32,7 @@ static volatile uint8_t         head = 0;
 // mask_filters[] are initialized at compile-time so we don't
 // need to waste resources during run-time to configure their values
 #ifdef PDM
-static CanMaskFilterConfig_Struct mask_filters[2] =
-{
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_BMS, MASKMODE_16BIT_MASK_BMS),
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
-};
 #elif FSM
-static CanMaskFilterConfig_Struct mask_filters[2] =
-{
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_BMS, MASKMODE_16BIT_MASK_BMS),
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
-};
 #elif BMS
 static CanMaskFilterConfig_Struct mask_filters[4] =
 {
@@ -51,14 +42,6 @@ static CanMaskFilterConfig_Struct mask_filters[4] =
     INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
 };
 #elif DCM
-static CanMaskFilterConfig_Struct mask_filters[5] =
-{
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_BMS, MASKMODE_16BIT_MASK_BMS),
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_FSM, MASKMODE_16BIT_MASK_FSM),
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED),
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_BAMOCAR_TX, MASKMODE_16BIT_MASK_BAMOCAR_TX),
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_BAMOCAR_RX, MASKMODE_16BIT_MASK_BAMOCAR_RX)
-};
 #else
 #error "No valid PCB selected - unable to determine what mask filters to use"
 #endif
@@ -111,10 +94,12 @@ static uint32_t SharedCan_GetNumberOfItemsInCanTxMessageFifo(void);
 /**
  * @brief  Initialize one or more CAN filters using 16-bit Filter Scale and
  *         Identifier Mask Mode (FSCx = 0, FBMx = 0)
+ * @param  filters Pointer to an array of CAN filters.
  * @return ERROR: One or more filters didn't initialize properly
  *         SUCCESS: All filters initialized with no errors
  */
-static ErrorStatus SharedCan_InitializeFilters(void);
+static ErrorStatus
+    SharedCan_InitializeFilters(CanMaskFilterConfig_Struct *filters);
 
 /**
  * @brief  Shared callback function for every transmission mailbox
@@ -217,12 +202,13 @@ static uint32_t SharedCan_GetNumberOfItemsInCanTxMessageFifo(void)
     return MessageCount;
 }
 
-static ErrorStatus SharedCan_InitializeFilters(void)
+static ErrorStatus
+    SharedCan_InitializeFilters(CanMaskFilterConfig_Struct *filters)
 {
-    static uint32_t filter_bank = 0;
-    static uint32_t fifo        = CAN_FILTER_FIFO0;
-    uint32_t num_of_filters = sizeof(mask_filters) / sizeof(mask_filters[0]);
-    uint32_t is_odd         = num_of_filters % 2;
+    static uint32_t filter_bank    = 0;
+    static uint32_t fifo           = CAN_FILTER_FIFO0;
+    uint32_t        num_of_filters = NUM_ELEMENTS_IN_ARRAY(filters);
+    uint32_t        is_odd         = num_of_filters % 2;
 
     CAN_FilterTypeDef can_filter;
     can_filter.FilterMode       = CAN_FILTERMODE_IDMASK;
@@ -233,10 +219,10 @@ static ErrorStatus SharedCan_InitializeFilters(void)
     for (uint32_t i = 0; i < num_of_filters / 2; i++)
     {
         // Configure filter settings
-        can_filter.FilterIdLow          = mask_filters[i].id;
-        can_filter.FilterMaskIdLow      = mask_filters[i].mask;
-        can_filter.FilterIdHigh         = mask_filters[i + 1].id;
-        can_filter.FilterMaskIdHigh     = mask_filters[i + 1].mask;
+        can_filter.FilterIdLow          = filters[i].id;
+        can_filter.FilterMaskIdLow      = filters[i].mask;
+        can_filter.FilterIdHigh         = filters[i + 1].id;
+        can_filter.FilterMaskIdHigh     = filters[i + 1].mask;
         can_filter.FilterFIFOAssignment = fifo;
 #ifdef STM32F042x6
         can_filter.BankNumber   = filter_bank;
@@ -264,10 +250,10 @@ static ErrorStatus SharedCan_InitializeFilters(void)
     {
         // Configure filter settings
         uint32_t last_filter_index      = num_of_filters - 1;
-        can_filter.FilterIdLow          = mask_filters[last_filter_index].id;
-        can_filter.FilterMaskIdLow      = mask_filters[last_filter_index].mask;
-        can_filter.FilterIdHigh         = mask_filters[last_filter_index].id;
-        can_filter.FilterMaskIdHigh     = mask_filters[last_filter_index].mask;
+        can_filter.FilterIdLow          = filters[last_filter_index].id;
+        can_filter.FilterMaskIdLow      = filters[last_filter_index].mask;
+        can_filter.FilterIdHigh         = filters[last_filter_index].id;
+        can_filter.FilterMaskIdHigh     = filters[last_filter_index].mask;
         can_filter.FilterFIFOAssignment = fifo;
 #ifdef STM32F042x6
         can_filter.BankNumber = filter_bank;
@@ -377,9 +363,11 @@ void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data)
     }
 }
 
-void SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan)
+void SharedCan_StartCanInInterruptMode(
+    CAN_HandleTypeDef *         hcan,
+    CanMaskFilterConfig_Struct *filters)
 {
-    if (SharedCan_InitializeFilters() != SUCCESS)
+    if (SharedCan_InitializeFilters(filters) != SUCCESS)
     {
         Error_Handler();
     }

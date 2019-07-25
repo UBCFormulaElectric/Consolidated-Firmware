@@ -293,8 +293,13 @@ void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data);
  *         module. After this, the node is active on the bus: it receive
  *         messages, and can send messages. This should be placed inside
  *         MX_CAN_Init() and in the USER CODE BLOCK after HAL_CAN_Init().
+ * @param hcan Pointer to a CAN_HandleTypeDef structure that contains
+ *         the configuration information for the specified CAN.
+ * @param filters Pointer to an array CAN filters.
  */
-void SharedCan_StartCanInInterruptMode(CAN_HandleTypeDef *hcan);
+void SharedCan_StartCanInInterruptMode(
+    CAN_HandleTypeDef *         hcan,
+    CanMaskFilterConfig_Struct *filters);
 
 /**
  * @brief  Shared callback function for every receive FIFO (STM32F302x8's bxCAN
