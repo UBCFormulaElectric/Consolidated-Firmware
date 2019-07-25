@@ -2,16 +2,18 @@
  * Includes
  ******************************************************************************/
 #include "SharedHeartbeat.h"
+#include "cmsis_os.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
  ******************************************************************************/
-// Allow some margin of error by sending slightly more than 3 heartbeats per
-// board per timeout period
-#define HEARTBEAT_BROADCAST_PERIOD 100    // Period in ms
-#define HEARTBEAT_TIMEOUT_ERROR_MARGIN 20 // Period in ms
-#define HEARTBEAT_TIMEOUT_PERIOD \
-    (HEARTBEAT_BROADCAST_PERIOD * 3) + HEARTBEAT_TIMEOUT_ERROR_MARGIN
+// clang-format off
+#define HEARTBEAT_BROADCAST_PERIOD_MS      100U
+#define HEARTBEAT_TIMEOUT_ERROR_MARGIN_MS  20U
+// Allow some error margin by sending slightly more than 3 heartbeats per board
+// per timeout period
+#define HEARTBEAT_TIMEOUT_PERIOD_MS \
+    (HEARTBEAT_BROADCAST_PERIOD_MS * 3U) + HEARTBEAT_TIMEOUT_ERROR_MARGIN_MS
 
 /******************************************************************************
  * Module Preprocessor Macros
@@ -39,26 +41,23 @@ static volatile uint8_t heartbeats_received = 0;
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedHeartbeat_BroadcastHeartbeat(void)
+void SharedHeartbeat_BroadcastHeartbeat(
+    uint32_t heartbeat_can_id,
+    uint32_t heartbeat_dlc)
 {
     // Since we do not know the size of the heartbeat we're sending, we just
     // use the maximum possible size for the data
-    uint8_t         data[CAN_PAYLOAD_MAX_NUM_BYTES] = { 0 };
-    static uint32_t heartbeat_broadcast_ticks       = 0;
+    uint8_t          data[CAN_PAYLOAD_MAX_NUM_BYTES] = { 0 };
+    static uint32_t  previous_broadcast_ms           = 0;
+    const TickType_t current_ms                      = osKernelSysTick();
 
-    heartbeat_broadcast_ticks++;
-
-    if (heartbeat_broadcast_ticks >= HEARTBEAT_BROADCAST_PERIOD)
+    if ((current_ms - previous_broadcast_ms) >= HEARTBEAT_BROADCAST_PERIOD_MS)
     {
-        heartbeat_broadcast_ticks = 0;
+        previous_broadcast_ms = current_ms;
 
         // TODO: (Issue #217) Test out message of size 0, as that would be
         // more semantically meaningful here
-
-        // We use the max allowed payload size here because we don't know
-        // what message we're using for the heartbeat (it's module-specific)
-        SharedCan_TransmitDataCan(
-            PCB_HEARTBEAT_STDID, CAN_PAYLOAD_MAX_NUM_BYTES, &data[0]);
+        SharedCan_TransmitDataCan(heartbeat_can_id, heartbeat_dlc, &data[0]);
     }
 }
 
@@ -67,19 +66,20 @@ void SharedHeartbeat_ReceiveHeartbeat(PcbHeartbeatEncoding_Enum board)
     heartbeats_received |= board;
 }
 
-void SharedHeartbeat_CheckHeartbeatTimeout(void)
+void SharedHeartbeat_CheckHeartbeatTimeout(uint8_t heartbeats_to_check)
 {
-    static uint32_t heartbeat_timeout_ticks = 0;
+    static uint32_t  previous_timeout_ms = 0;
+    const TickType_t current_ms          = osKernelSysTick();
 
-    heartbeat_timeout_ticks++;
-
-    if (heartbeat_timeout_ticks >= HEARTBEAT_TIMEOUT_PERIOD)
+    if ((current_ms - previous_timeout_ms) >= HEARTBEAT_TIMEOUT_PERIOD_MS)
     {
-        heartbeat_timeout_ticks = 0;
+        previous_timeout_ms = current_ms;
 
-#ifndef DEBUG
+#ifdef DEBUG
+        (void)heartbeats_to_check;
+#else
         // Check if the board received all the heartbeats it's listening for
-        if (heartbeats_received != PCB_HEARTBEAT_LISTENER)
+        if (heartbeats_received != heartbeats_to_check)
         {
             Heartbeat_HandleHeartbeatTimeout(heartbeats_received);
         }
