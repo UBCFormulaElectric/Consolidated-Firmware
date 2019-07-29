@@ -876,9 +876,7 @@ double CanMsgs_pdm_aux1_aux2_current_auxiliary1_current_decode(float value)
 
 bool CanMsgs_pdm_aux1_aux2_current_auxiliary1_current_is_in_range(float value)
 {
-    (void)value;
-
-    return (true);
+    return ((value >= -340000000000000000000000000000000000000.0f) && (value <= 340000000000000000000000000000000000000.0f));
 }
 
 float CanMsgs_pdm_aux1_aux2_current_auxiliary2_current_encode(double value)
@@ -893,9 +891,7 @@ double CanMsgs_pdm_aux1_aux2_current_auxiliary2_current_decode(float value)
 
 bool CanMsgs_pdm_aux1_aux2_current_auxiliary2_current_is_in_range(float value)
 {
-    (void)value;
-
-    return (true);
+    return ((value >= -340000000000000000000000000000000000000.0f) && (value <= 340000000000000000000000000000000000000.0f));
 }
 
 int CanMsgs_pdm_cooling_pdmfan_current_pack(
@@ -968,9 +964,7 @@ double CanMsgs_pdm_cooling_pdmfan_current_cooling_pump_current_decode(float valu
 
 bool CanMsgs_pdm_cooling_pdmfan_current_cooling_pump_current_is_in_range(float value)
 {
-    (void)value;
-
-    return (true);
+    return ((value >= -340000000000000000000000000000000000000.0f) && (value <= 340000000000000000000000000000000000000.0f));
 }
 
 float CanMsgs_pdm_cooling_pdmfan_current_pdm_enclosure_fan_current_encode(double value)
@@ -985,9 +979,7 @@ double CanMsgs_pdm_cooling_pdmfan_current_pdm_enclosure_fan_current_decode(float
 
 bool CanMsgs_pdm_cooling_pdmfan_current_pdm_enclosure_fan_current_is_in_range(float value)
 {
-    (void)value;
-
-    return (true);
+    return ((value >= -340000000000000000000000000000000000000.0f) && (value <= 340000000000000000000000000000000000000.0f));
 }
 
 int CanMsgs_pdm_airshdn_canglv_current_pack(
@@ -1060,9 +1052,7 @@ double CanMsgs_pdm_airshdn_canglv_current_air_shutdown_current_decode(float valu
 
 bool CanMsgs_pdm_airshdn_canglv_current_air_shutdown_current_is_in_range(float value)
 {
-    (void)value;
-
-    return (true);
+    return ((value >= -340000000000000000000000000000000000000.0f) && (value <= 340000000000000000000000000000000000000.0f));
 }
 
 float CanMsgs_pdm_airshdn_canglv_current_grounded_low_voltage_current_encode(double value)
@@ -1077,9 +1067,7 @@ double CanMsgs_pdm_airshdn_canglv_current_grounded_low_voltage_current_decode(fl
 
 bool CanMsgs_pdm_airshdn_canglv_current_grounded_low_voltage_current_is_in_range(float value)
 {
-    (void)value;
-
-    return (true);
+    return ((value >= -340000000000000000000000000000000000000.0f) && (value <= 340000000000000000000000000000000000000.0f));
 }
 
 int CanMsgs_pdm_accumulator_fan_current_pack(
@@ -1152,9 +1140,7 @@ double CanMsgs_pdm_accumulator_fan_current_accumulator_segment_fan_current_decod
 
 bool CanMsgs_pdm_accumulator_fan_current_accumulator_segment_fan_current_is_in_range(float value)
 {
-    (void)value;
-
-    return (true);
+    return ((value >= -340000000000000000000000000000000000000.0f) && (value <= 340000000000000000000000000000000000000.0f));
 }
 
 float CanMsgs_pdm_accumulator_fan_current_accumulator_enc_fan_current_encode(double value)
@@ -1169,9 +1155,7 @@ double CanMsgs_pdm_accumulator_fan_current_accumulator_enc_fan_current_decode(fl
 
 bool CanMsgs_pdm_accumulator_fan_current_accumulator_enc_fan_current_is_in_range(float value)
 {
-    (void)value;
-
-    return (true);
+    return ((value >= -340000000000000000000000000000000000000.0f) && (value <= 340000000000000000000000000000000000000.0f));
 }
 
 int CanMsgs_pdm_inverter_io_current_pack(
@@ -1244,9 +1228,7 @@ double CanMsgs_pdm_inverter_io_current_left_inverter_gpi_os_current_decode(float
 
 bool CanMsgs_pdm_inverter_io_current_left_inverter_gpi_os_current_is_in_range(float value)
 {
-    (void)value;
-
-    return (true);
+    return ((value >= -340000000000000000000000000000000000000.0f) && (value <= 340000000000000000000000000000000000000.0f));
 }
 
 float CanMsgs_pdm_inverter_io_current_right_inverter_gpi_os_current_encode(double value)
@@ -1261,9 +1243,7 @@ double CanMsgs_pdm_inverter_io_current_right_inverter_gpi_os_current_decode(floa
 
 bool CanMsgs_pdm_inverter_io_current_right_inverter_gpi_os_current_is_in_range(float value)
 {
-    (void)value;
-
-    return (true);
+    return ((value >= -340000000000000000000000000000000000000.0f) && (value <= 340000000000000000000000000000000000000.0f));
 }
 
 int CanMsgs_pdm_glv_vbat_pack(
@@ -1336,9 +1316,7 @@ double CanMsgs_pdm_glv_vbat_glv_decode(float value)
 
 bool CanMsgs_pdm_glv_vbat_glv_is_in_range(float value)
 {
-    (void)value;
-
-    return (true);
+    return ((value >= -340000000000000000000000000000000000000.0f) && (value <= 340000000000000000000000000000000000000.0f));
 }
 
 float CanMsgs_pdm_glv_vbat_vbat_encode(double value)
@@ -1353,9 +1331,7 @@ double CanMsgs_pdm_glv_vbat_vbat_decode(float value)
 
 bool CanMsgs_pdm_glv_vbat_vbat_is_in_range(float value)
 {
-    (void)value;
-
-    return (true);
+    return ((value >= -340000000000000000000000000000000000000.0f) && (value <= 340000000000000000000000000000000000000.0f));
 }
 
 int CanMsgs_pdm_flywire_pack(
@@ -1415,7 +1391,5 @@ double CanMsgs_pdm_flywire_flywire_decode(float value)
 
 bool CanMsgs_pdm_flywire_flywire_is_in_range(float value)
 {
-    (void)value;
-
-    return (true);
+    return ((value >= -340000000000000000000000000000000000000.0f) && (value <= 340000000000000000000000000000000000000.0f));
 }
