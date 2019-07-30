@@ -118,7 +118,30 @@
 #define CANMSGS_PDM_FLYWIRE_IS_EXTENDED (0)
 
 /* Frame cycle times in milliseconds. */
-
+#define CANMSGS_FSM_ERRORS_CYCLE_TIME_MS (1000u)
+#define CANMSGS_FSM_CAN_TX_FIFO_OVERFLOW_CYCLE_TIME_MS (0u)
+#define CANMSGS_FSM_STARTUP_CYCLE_TIME_MS (0u)
+#define CANMSGS_FSM_AIR_SHUTDOWN_CYCLE_TIME_MS (0u)
+#define CANMSGS_PDM_AIR_SHUTDOWN_CYCLE_TIME_MS (0u)
+#define CANMSGS_PDM_MOTOR_SHUTDOWN_CYCLE_TIME_MS (0u)
+#define CANMSGS_BMS_STARTUP_CYCLE_TIME_MS (0u)
+#define CANMSGS_PDM_ERRORS_CYCLE_TIME_MS (1000u)
+#define CANMSGS_PDM_CAN_TX_FIFO_OVERFLOW_CYCLE_TIME_MS (0u)
+#define CANMSGS_PDM_HEARTBEAT_CYCLE_TIME_MS (300u)
+#define CANMSGS_FSM_HEARTBEAT_CYCLE_TIME_MS (300u)
+#define CANMSGS_PDM_STARTUP_CYCLE_TIME_MS (0u)
+#define CANMSGS_BMS_HEARTBEAT_CYCLE_TIME_MS (300u)
+#define CANMSGS_DCM_HEARTBEAT_CYCLE_TIME_MS (300u)
+#define CANMSGS_BMS_CAN_TX_FIFO_OVERFLOW_CYCLE_TIME_MS (0u)
+#define CANMSGS_DCM_CAN_TX_FIFO_OVERFLOW_CYCLE_TIME_MS (0u)
+#define CANMSGS_DCM_STARTUP_CYCLE_TIME_MS (0u)
+#define CANMSGS_PDM_AUX1_AUX2_CURRENT_CYCLE_TIME_MS (1000u)
+#define CANMSGS_PDM_COOLING_PDMFAN_CURRENT_CYCLE_TIME_MS (1000u)
+#define CANMSGS_PDM_AIRSHDN_CANGLV_CURRENT_CYCLE_TIME_MS (1000u)
+#define CANMSGS_PDM_ACCUMULATOR_FAN_CURRENT_CYCLE_TIME_MS (1000u)
+#define CANMSGS_PDM_INVERTER_IO_CURRENT_CYCLE_TIME_MS (1000u)
+#define CANMSGS_PDM_GLV_VBAT_CYCLE_TIME_MS (1000u)
+#define CANMSGS_PDM_FLYWIRE_CYCLE_TIME_MS (1000u)
 
 /* Signal choices. */
 
@@ -155,7 +178,7 @@ struct CanMsgs_fsm_errors_t {
  */
 struct CanMsgs_fsm_can_tx_fifo_overflow_t {
     /**
-     * Range: -
+     * Range: 0..4294967295 (0..4294967295 -)
      * Scale: 1
      * Offset: 0
      */
@@ -296,7 +319,7 @@ struct CanMsgs_pdm_errors_t {
  */
 struct CanMsgs_pdm_can_tx_fifo_overflow_t {
     /**
-     * Range: ..1 (..1 -)
+     * Range: 0..1 (0..1 -)
      * Scale: 1
      * Offset: 0
      */
@@ -372,7 +395,7 @@ struct CanMsgs_dcm_heartbeat_t {
  */
 struct CanMsgs_bms_can_tx_fifo_overflow_t {
     /**
-     * Range: ..1 (..1 -)
+     * Range: 0..1 (0..1 -)
      * Scale: 1
      * Offset: 0
      */
@@ -386,7 +409,7 @@ struct CanMsgs_bms_can_tx_fifo_overflow_t {
  */
 struct CanMsgs_dcm_can_tx_fifo_overflow_t {
     /**
-     * Range: ..1 (..1 -)
+     * Range: 0..1 (0..1 -)
      * Scale: 1
      * Offset: 0
      */
@@ -416,7 +439,7 @@ struct CanMsgs_pdm_aux1_aux2_current_t {
     /**
      * This variable indicates the current being drawn by the auxiliary 1 output
      *
-     * Range: -
+     * Range: -340000000000000000000000000000000000000..340000000000000000000000000000000000000 (-3.4E+38..3.4E+38 A)
      * Scale: 1
      * Offset: 0
      */
@@ -425,7 +448,7 @@ struct CanMsgs_pdm_aux1_aux2_current_t {
     /**
      * This variable indicates the current being drawn by the auxiliary 2 output
      *
-     * Range: -
+     * Range: -340000000000000000000000000000000000000..340000000000000000000000000000000000000 (-3.4E+38..3.4E+38 A)
      * Scale: 1
      * Offset: 0
      */
@@ -435,7 +458,7 @@ struct CanMsgs_pdm_aux1_aux2_current_t {
 /**
  * Signals in message PDM_COOLING_PDMFAN_CURRENT.
  *
- * This message indicates the current being drawn by the cooling pump and PDM enclosure fan\
+ * This message indicates the current being drawn by the cooling pump and PDM enclosure fan
  *
  * All signal values are as on the CAN bus.
  */
@@ -443,7 +466,7 @@ struct CanMsgs_pdm_cooling_pdmfan_current_t {
     /**
      * This variable indicates the current being drawn by the cooling pump
      *
-     * Range: -
+     * Range: -340000000000000000000000000000000000000..340000000000000000000000000000000000000 (-3.4E+38..3.4E+38 A)
      * Scale: 1
      * Offset: 0
      */
@@ -452,7 +475,7 @@ struct CanMsgs_pdm_cooling_pdmfan_current_t {
     /**
      * This variable indicates the current being drawn by the fan on the PDM enclosure
      *
-     * Range: -
+     * Range: -340000000000000000000000000000000000000..340000000000000000000000000000000000000 (-3.4E+38..3.4E+38 A)
      * Scale: 1
      * Offset: 0
      */
@@ -470,7 +493,7 @@ struct CanMsgs_pdm_airshdn_canglv_current_t {
     /**
      * This variable indicates the current being drawn by the AIR shutdown circuit
      *
-     * Range: -
+     * Range: -340000000000000000000000000000000000000..340000000000000000000000000000000000000 (-3.4E+38..3.4E+38 A)
      * Scale: 1
      * Offset: 0
      */
@@ -479,7 +502,7 @@ struct CanMsgs_pdm_airshdn_canglv_current_t {
     /**
      * This variable indicates the current being drawn by the 12V Grounded-Low-Voltage (GLV) system
      *
-     * Range: -
+     * Range: -340000000000000000000000000000000000000..340000000000000000000000000000000000000 (-3.4E+38..3.4E+38 A)
      * Scale: 1
      * Offset: 0
      */
@@ -497,7 +520,7 @@ struct CanMsgs_pdm_accumulator_fan_current_t {
     /**
      * This variable indicates the current being drawn by the fans on the accumulator segments
      *
-     * Range: -
+     * Range: -340000000000000000000000000000000000000..340000000000000000000000000000000000000 (-3.4E+38..3.4E+38 A)
      * Scale: 1
      * Offset: 0
      */
@@ -506,7 +529,7 @@ struct CanMsgs_pdm_accumulator_fan_current_t {
     /**
      * This variable indicates the current being drawn by the fans on the accumulator enclosure
      *
-     * Range: -
+     * Range: -340000000000000000000000000000000000000..340000000000000000000000000000000000000 (-3.4E+38..3.4E+38 A)
      * Scale: 1
      * Offset: 0
      */
@@ -524,7 +547,7 @@ struct CanMsgs_pdm_inverter_io_current_t {
     /**
      * This variable indicates the current being drawn by the left BAMOCAR D3 controller
      *
-     * Range: -
+     * Range: -340000000000000000000000000000000000000..340000000000000000000000000000000000000 (-3.4E+38..3.4E+38 A)
      * Scale: 1
      * Offset: 0
      */
@@ -533,7 +556,7 @@ struct CanMsgs_pdm_inverter_io_current_t {
     /**
      * This variable indicates the current being drawn by the right BAMOCAR D3 controller
      *
-     * Range: -
+     * Range: -340000000000000000000000000000000000000..340000000000000000000000000000000000000 (-3.4E+38..3.4E+38 A)
      * Scale: 1
      * Offset: 0
      */
@@ -551,7 +574,7 @@ struct CanMsgs_pdm_glv_vbat_t {
     /**
      * This variable indicates the voltage sense for the 12V powering the Grounded Low Voltage (GLV) system
      *
-     * Range: -
+     * Range: -340000000000000000000000000000000000000..340000000000000000000000000000000000000 (-3.4E+38..3.4E+38 V)
      * Scale: 1
      * Offset: 0
      */
@@ -560,7 +583,7 @@ struct CanMsgs_pdm_glv_vbat_t {
     /**
      * This variable indicates the the voltage sense for the two on-board 18650s
      *
-     * Range: -
+     * Range: -340000000000000000000000000000000000000..340000000000000000000000000000000000000 (-3.4E+38..3.4E+38 V)
      * Scale: 1
      * Offset: 0
      */
@@ -578,7 +601,7 @@ struct CanMsgs_pdm_flywire_t {
     /**
      * The variable indicates the voltage sense for the Vicor 12V output
      *
-     * Range: -
+     * Range: -340000000000000000000000000000000000000..340000000000000000000000000000000000000 (-3.4E+38..3.4E+38 V)
      * Scale: 1
      * Offset: 0
      */
