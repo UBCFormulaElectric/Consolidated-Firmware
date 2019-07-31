@@ -27,7 +27,13 @@ file(GLOB SHARED_SRCS LIST_DIRECTORIES false CONFIGURE_DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/*/*.cpp
         )
 
+# Import include and source directories for TraceRecorder
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/TraceRecorder)
+LIST(APPEND SHARED_INCLUDE_DIRS ${TRACE_RECORDER_INCLUDE_DIRS})
+file(GLOB TRACE_RECORDER_SRCS LIST_DIRECTORIES false CONFIGURE_DEPENDS
+        ${TRACE_RECORDER_SOURCE_DIRS}/*.c)
+
 # Make the two variables we just created visible in the parent scope, so that
 # any cmake file that includes this one via `add_subdirectory` can see them
 set(SHARED_INCLUDE_DIRS ${SHARED_INCLUDE_DIRS} PARENT_SCOPE)
-set(SHARED_SRCS ${SHARED_SRCS} PARENT_SCOPE)
+set(SHARED_SRCS ${SHARED_SRCS} ${TRACE_RECORDER_SRCS} PARENT_SCOPE)

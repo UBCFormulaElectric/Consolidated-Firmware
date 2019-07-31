@@ -56,6 +56,7 @@ def runClangFormat():
         "cmake-build-debug",
         "CMakeFiles",
         "SEGGER_RTT",
+        "TraceRecorder",
     ]
 
     # Print the current working directory since the paths are relative

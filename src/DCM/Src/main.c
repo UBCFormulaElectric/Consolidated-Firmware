@@ -154,6 +154,11 @@ int main(void)
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
+    // According to Percpio documentation, vTraceEnable() should be the last
+    // function call before the scheduler starts.
+#if (configUSE_TRACE_FACILITY == 1)
+    vTraceEnable(TRC_INIT);
+#endif
     /* USER CODE END RTOS_THREADS */
 
     /* Start scheduler */

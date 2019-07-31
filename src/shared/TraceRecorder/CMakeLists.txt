@@ -1,0 +1,19 @@
+# Paths
+SET(STREAMPORTS_JLINK_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/streamports/Jlink_RTT)
+
+# Include directories
+SET(CONFIG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/config)
+SET(INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
+SET(STREAMPORTS_INCLUDE_DIR ${STREAMPORTS_JLINK_BASE_DIR}/include)
+
+# Source directories
+SET(STREAMPORTS_SOURCE_DIR ${STREAMPORTS_JLINK_BASE_DIR})
+
+# List of include and sourece directories to expose to the caller of this script
+SET(TRACE_RECORDER_INCLUDE_DIRS ${CONFIG_DIR} ${INCLUDE_DIR} ${STREAMPORTS_INCLUDE_DIR})
+SET(TRACE_RECORDER_SOURCE_DIRS ${STREAMPORTS_SOURCE_DIR})
+
+# Make the two variables we just created visible in the parent scope, so that
+# any cmake file that includes this one via `add_subdirectory` can see them
+SET(TRACE_RECORDER_INCLUDE_DIRS ${TRACE_RECORDER_INCLUDE_DIRS} PARENT_SCOPE)
+SET(TRACE_RECORDER_SOURCE_DIRS ${TRACE_RECORDER_SOURCE_DIRS} PARENT_SCOPE)
