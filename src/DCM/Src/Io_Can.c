@@ -2,6 +2,7 @@
  * Includes
  ******************************************************************************/
 #include "Io_Can.h"
+#include "SharedMacros.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -43,4 +44,9 @@ static CanMaskFilterConfig_Struct mask_filters[] =
 CanMaskFilterConfig_Struct *Io_Can_GetCanMaskFilters(void)
 {
     return mask_filters;
+}
+
+uint32_t Io_Can_GetNumberOfCanMaskFilters(void)
+{
+    return NUM_ELEMENTS_IN_ARRAY(mask_filters);
 }

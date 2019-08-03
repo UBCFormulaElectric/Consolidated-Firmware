@@ -34,6 +34,7 @@
 void SharedFilters_LowPassFilter(
     float32_t *input,
     float32_t *output,
+    uint32_t   num_of_samples,
     float32_t  sampling_time,
     float32_t  rc)
 {
@@ -46,7 +47,7 @@ void SharedFilters_LowPassFilter(
     // output, x = input. That is, the change from one filter output
     // to the next is proportional to the difference between the previous
     // output and the next input.
-    for (uint32_t i = 0; i < sizeof(output) / sizeof(output[0]); i++)
+    for (uint32_t i = 0; i < num_of_samples; i++)
     {
         output[i] = output[i] + smoothing_factor * (input[i] - output[i]);
     }

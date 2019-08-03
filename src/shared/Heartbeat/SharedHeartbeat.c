@@ -94,10 +94,12 @@ __weak void Heartbeat_HandleHeartbeatTimeout(uint8_t heartbeats_received)
 {
     /* NOTE: This function should not be modified, instead this function should
     be implemented in the Heartbeat.c file */
+    UNUSED(heartbeats_received);
 }
 
 __weak void Heartbeat_HandleHeartbeatReception(uint32_t std_id)
 {
     /* NOTE: This function should not be modified, instead this function should
     be implemented in the Heartbeat.c file */
+    UNUSED(std_id);
 }

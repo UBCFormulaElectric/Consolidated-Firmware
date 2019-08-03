@@ -55,10 +55,10 @@
 /** @brief One-hot board encoding */
 typedef enum
 {
-    BMS_HEARTBEAT_ENCODING = 0b0001,
-    DCM_HEARTBEAT_ENCODING = 0b0010,
-    PDM_HEARTBEAT_ENCODING = 0b0100,
-    FSM_HEARTBEAT_ENCODING = 0b1000
+    BMS_HEARTBEAT_ENCODING = (1U << 0U),
+    DCM_HEARTBEAT_ENCODING = (1U << 1U),
+    PDM_HEARTBEAT_ENCODING = (1U << 2U),
+    FSM_HEARTBEAT_ENCODING = (1U << 3U),
 } PcbHeartbeatEncoding_Enum;
 
 /******************************************************************************

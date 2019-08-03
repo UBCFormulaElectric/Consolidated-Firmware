@@ -232,7 +232,7 @@ typedef enum
 } Pcb_Enum;
 
 /** @brief Struct to help initialize CAN filters */
-const typedef struct
+typedef const struct
 {
     /**
      * Used to initialize CAN_FilterTypeDef.FilterIdLow and
@@ -295,11 +295,13 @@ void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data);
  *         MX_CAN_Init() and in the USER CODE BLOCK after HAL_CAN_Init().
  * @param hcan Pointer to a CAN_HandleTypeDef structure that contains
  *         the configuration information for the specified CAN.
- * @param filters Pointer to an array CAN filters.
+ * @param filters Array CAN filters.
+ * @param num_of_filters Number of CAN filters in the array.
  */
 void SharedCan_StartCanInInterruptMode(
-    CAN_HandleTypeDef *         hcan,
-    CanMaskFilterConfig_Struct *filters);
+    CAN_HandleTypeDef *        hcan,
+    CanMaskFilterConfig_Struct filters[],
+    uint32_t                   num_of_filers);
 
 /**
  * @brief  Shared callback function for every receive FIFO (STM32F302x8's bxCAN

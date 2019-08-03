@@ -94,13 +94,13 @@ void SharedAdc_StartAdcInDmaMode(
  * @brief  Get the appropriate maximum ADC value based on the ADC resolution
  * @return Maximum ADC value in bits
  */
-const uint32_t SharedAdc_GetAdcMaxValue(void);
+uint32_t SharedAdc_GetAdcMaxValue(void);
 
 /**
  * @brief  Get the array of ADC readings transferred over DMA request
  * @return Pointer to the array of ADC readings
  */
-const uint32_t *const SharedAdc_GetAdcValues(void);
+const uint32_t *SharedAdc_GetAdcValues(void);
 
 /**
  * @brief  The VDDA power supply voltage applied to the microcontroller may be

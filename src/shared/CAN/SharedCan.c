@@ -67,11 +67,6 @@ static Fifo_Status_Enum
     SharedCan_EnqueueCanTxMessageFifo(CanTxMsgQueueItem_Struct *can_msg);
 
 /**
- * @brief  Clear the CAN queue
- */
-static void SharedCan_ClearCanTxMessageFifo(void);
-
-/**
  * @brief  Check if the CAN queue is full
  * @return false: CAN queue is not full
  *         true: CAN queue is full
@@ -86,20 +81,16 @@ static bool SharedCan_CanTxMessageFifoIsFull(void);
 static bool SharedCan_CanTxMessageFifoIsEmpty(void);
 
 /**
- * @brief  Get the number of messages saved in the CAN queue
- * @return Number of messages in the queue
- */
-static uint32_t SharedCan_GetNumberOfItemsInCanTxMessageFifo(void);
-
-/**
  * @brief  Initialize one or more CAN filters using 16-bit Filter Scale and
  *         Identifier Mask Mode (FSCx = 0, FBMx = 0)
- * @param  filters Pointer to an array of CAN filters.
+ * @param  filters Array of CAN filters.
+ * @param  num_of_filters The number of CAN filters in the array.
  * @return ERROR: One or more filters didn't initialize properly
  *         SUCCESS: All filters initialized with no errors
  */
-static ErrorStatus
-    SharedCan_InitializeFilters(CanMaskFilterConfig_Struct *filters);
+static ErrorStatus SharedCan_InitializeFilters(
+    CanMaskFilterConfig_Struct filters[],
+    uint32_t                   num_of_filters);
 
 /**
  * @brief  Shared callback function for every transmission mailbox
@@ -172,11 +163,6 @@ static Fifo_Status_Enum
     }
 }
 
-static void SharedCan_ClearCanTxMessageFifo(void)
-{
-    memset(can_tx_msg_fifo, 0, sizeof(can_tx_msg_fifo));
-}
-
 static bool SharedCan_CanTxMessageFifoIsFull(void)
 {
     return ((head + 1) % CAN_TX_MSG_FIFO_SIZE) == tail;
@@ -187,28 +173,13 @@ static bool SharedCan_CanTxMessageFifoIsEmpty(void)
     return head == tail;
 }
 
-static uint32_t SharedCan_GetNumberOfItemsInCanTxMessageFifo(void)
+static ErrorStatus SharedCan_InitializeFilters(
+    CanMaskFilterConfig_Struct filters[],
+    uint32_t                   num_of_filters)
 {
-    uint32_t MessageCount;
-
-    if (head >= tail)
-    {
-        MessageCount = head - tail;
-    }
-    else
-    {
-        MessageCount = CAN_TX_MSG_FIFO_SIZE - tail + head;
-    }
-    return MessageCount;
-}
-
-static ErrorStatus
-    SharedCan_InitializeFilters(CanMaskFilterConfig_Struct *filters)
-{
-    static uint32_t filter_bank    = 0;
-    static uint32_t fifo           = CAN_FILTER_FIFO0;
-    uint32_t        num_of_filters = NUM_ELEMENTS_IN_ARRAY(filters);
-    uint32_t        is_odd         = num_of_filters % 2;
+    static uint32_t filter_bank = 0;
+    static uint32_t fifo        = CAN_FILTER_FIFO0;
+    uint32_t        is_odd      = num_of_filters % 2;
 
     CAN_FilterTypeDef can_filter;
     can_filter.FilterMode       = CAN_FILTERMODE_IDMASK;
@@ -273,6 +244,7 @@ static ErrorStatus
 
 static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan)
 {
+    UNUSED(hcan);
     SharedCan_DequeueCanTxMessageFifo();
 }
 
@@ -364,10 +336,11 @@ void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data)
 }
 
 void SharedCan_StartCanInInterruptMode(
-    CAN_HandleTypeDef *         hcan,
-    CanMaskFilterConfig_Struct *filters)
+    CAN_HandleTypeDef *        hcan,
+    CanMaskFilterConfig_Struct filters[],
+    uint32_t                   num_of_filters)
 {
-    if (SharedCan_InitializeFilters(filters) != SUCCESS)
+    if (SharedCan_InitializeFilters(filters, num_of_filters) != SUCCESS)
     {
         Error_Handler();
     }
@@ -406,6 +379,8 @@ __weak void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 {
     /* NOTE: This function Should not be modified, when the callback is needed,
               the Can_RxCommonCallback could be implemented in the Can.c file */
+    UNUSED(hcan);
+    UNUSED(rx_fifo);
 }
 
 // TODO (Issue #297): Use this function in all the boards
@@ -414,7 +389,7 @@ HAL_StatusTypeDef SharedCan_ReceiveDataCan(
     uint32_t           rx_fifo,
     CanRxMsg_Struct *  rx_msg)
 {
-    HAL_StatusTypeDef status;
+    HAL_StatusTypeDef status = HAL_ERROR;
 #ifdef STM32F042x6
 
     status |= HAL_CAN_Receive_IT(hcan, rx_fifo);
