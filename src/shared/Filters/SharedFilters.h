@@ -49,6 +49,7 @@
  *        https://en.wikipedia.org/wiki/Low-pass_filter#Discrete-time_realization
  * @param input Pointer to an array of input samples
  * @param output Pointer to an array of output samples
+ * @param num_samples Number of samples
  * @param sampling_time Sampling time interval for input and output samples
  *                      in seconds
  * @param rc RC time constant
@@ -56,6 +57,7 @@
 void SharedFilters_LowPassFilter(
     float32_t *input,
     float32_t *output,
+    uint32_t   num_of_samples,
     float32_t  sampling_time,
     float32_t  rc);
 

@@ -42,5 +42,5 @@
 osStatus
     SharedCmsisOs_osDelayUntilMs(uint32_t *PreviousWakeTime, uint32_t millisec)
 {
-    osDelayUntil(PreviousWakeTime, millisec);
+    return osDelayUntil(PreviousWakeTime, millisec);
 }

@@ -137,18 +137,18 @@ void SharedAdc_StartAdcInDmaMode(
     }
 }
 
-const uint32_t SharedAdc_GetAdcMaxValue(void)
+uint32_t SharedAdc_GetAdcMaxValue(void)
 {
     CheckAdcInitialized();
 
     return (const uint32_t)adc_max_value;
 }
 
-const uint32_t *const SharedAdc_GetAdcValues(void)
+const uint32_t *SharedAdc_GetAdcValues(void)
 {
     CheckAdcInitialized();
 
-    return (const uint32_t *const)adc_values;
+    return (const uint32_t *)adc_values;
 }
 
 float32_t SharedAdc_GetActualVdda(void)

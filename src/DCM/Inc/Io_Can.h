@@ -34,4 +34,10 @@
  */
 CanMaskFilterConfig_Struct *Io_Can_GetCanMaskFilters(void);
 
+/*
+ * @brief  Getter function for CAN filters
+ * @return Number of CAN filters
+ */
+uint32_t Io_Can_GetNumberOfCanMaskFilters(void);
+
 #endif // IO_CAN_H

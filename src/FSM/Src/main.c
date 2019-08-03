@@ -299,7 +299,8 @@ static void MX_CAN_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN CAN_Init 2 */
-    SharedCan_StartCanInInterruptMode(&hcan, Io_Can_GetCanMaskFilters());
+    SharedCan_StartCanInInterruptMode(
+        &hcan, Io_Can_GetCanMaskFilters(), Io_Can_GetNumberOfCanMaskFilters());
     /* USER CODE END CAN_Init 2 */
 }
 
@@ -412,6 +413,7 @@ static void MX_GPIO_Init(void)
 void RunTask1Hz(void const *argument)
 {
     /* USER CODE BEGIN 5 */
+    UNUSED(argument);
     uint32_t PreviousWakeTime = osKernelSysTick();
 
     for (;;)
@@ -431,6 +433,7 @@ void RunTask1Hz(void const *argument)
 void RunTask1kHz(void const *argument)
 {
     /* USER CODE BEGIN RunTask1kHz */
+    UNUSED(argument);
     uint32_t PreviousWakeTime = osKernelSysTick();
 
     for (;;)
