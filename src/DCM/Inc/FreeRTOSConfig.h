@@ -104,6 +104,7 @@ extern uint32_t SystemCoreClock;
 #define configMAX_PRIORITIES (7)
 #define configMINIMAL_STACK_SIZE ((uint16_t)128)
 #define configMAX_TASK_NAME_LEN (16)
+#define configUSE_TRACE_FACILITY 1
 #define configUSE_16_BIT_TICKS 0
 #define configUSE_MUTEXES 1
 #define configQUEUE_REGISTRY_SIZE 8
@@ -174,8 +175,11 @@ standard names. */
 #define xPortSysTickHandler SysTick_Handler
 
 /* USER CODE BEGIN Defines */
-/* Section where parameter definitions can be added (for instance, to override
- * default ones in FreeRTOS.h) */
+// Integrates the Tracealyzer recorder with FreeRTOS. Tracealyzer recommends
+// that this is inserted at the end of FreeRTOSConfig.h.
+#if (configUSE_TRACE_FACILITY == 1)
+#include "trcRecorder.h"
+#endif
 /* USER CODE END Defines */
 
 #endif /* FREERTOS_CONFIG_H */
