@@ -29,6 +29,7 @@
 #include "SharedCmsisOs.h"
 #include "SharedCan.h"
 #include "SharedHeartbeat.h"
+#include "SharedHardFaultHandler.h"
 #include "Io_Can.h"
 /* USER CODE END Includes */
 
@@ -90,6 +91,7 @@ int main(void)
 {
     /* USER CODE BEGIN 1 */
     __HAL_DBGMCU_FREEZE_IWDG();
+    SharedHardFaultHandler_Init();
     /* USER CODE END 1 */
 
     /* MCU
