@@ -94,6 +94,7 @@ src/**/*.xml
 # Miscellaneous
 *.tra
 *.bin
+*.asm
 *.fed
 *.l1p
 *.l2p
