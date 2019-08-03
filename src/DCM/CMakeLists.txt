@@ -47,12 +47,16 @@ set(CMAKE_EXE_LINKER_FLAGS
 
 set(HEX_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.hex)
 set(BIN_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.bin)
+set(ASM_FILE ${PROJECT_BINARY_DIR}/${PROJECT_NAME}.asm)
+
+MESSAGE(STATUS ${ASM_FILE})
+MESSAGE(STATUS ${PROJECT_BINARY_DIR})
 
 add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
         COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${HEX_FILE}
         COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}.elf> ${BIN_FILE}
-        COMMENT "Building ${HEX_FILE}
-Building ${BIN_FILE}")
+        COMMAND ${CMAKE_OBJDUMP} -DS $<TARGET_FILE:${PROJECT_NAME}.elf> > ${ASM_FILE}
+        COMMENT "Building ${HEX_FILE} ${BIN_FILE} ${ASM_FILE}")
 
 add_custom_target(UPLOAD
         arm-none-eabi-gdb -iex "target remote tcp:127.0.0.1:3333"
