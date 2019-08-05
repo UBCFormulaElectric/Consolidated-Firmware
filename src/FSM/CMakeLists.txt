@@ -17,6 +17,9 @@ SET(LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/STM32F302C8Tx_FLASH.ld)
 SET(FPU_FLAGS "-mfloat-abi=hard -mfpu=fpv4-sp-d16")
 add_definitions(-DARM_MATH_CM4 -DARM_MATH_MATRIX_CHECK -DARM_MATH_ROUNDING)
 
+# Enable assert_param macro in the HAL driver
+add_definitions(-DUSE_FULL_ASSERT=1)
+
 SET(COMMON_FLAGS
     "-mcpu=cortex-m4 ${FPU_FLAGS} -mthumb -mthumb-interwork -ffunction-sections -fdata-sections \
     -g -fno-common -fmessage-length=0 -Wall -Werror -Wextra -pedantic -specs=nosys.specs -specs=nano.specs")
@@ -71,7 +74,10 @@ add_custom_command(TARGET ${PROJECT_NAME}.elf POST_BUILD
         COMMAND ${CMAKE_OBJCOPY} -Oihex $<TARGET_FILE:${PROJECT_NAME}.elf> ${HEX_FILE}
         COMMAND ${CMAKE_OBJCOPY} -Obinary $<TARGET_FILE:${PROJECT_NAME}.elf> ${BIN_FILE}
         COMMAND ${CMAKE_OBJDUMP} -DS $<TARGET_FILE:${PROJECT_NAME}.elf> > ${ASM_FILE}
-        COMMENT "Building ${HEX_FILE} ${BIN_FILE} ${ASM_FILE}")
+        COMMENT "
+Building ${HEX_FILE}
+Building ${BIN_FILE}
+Building ${ASM_FILE}")
 
 add_custom_target(UPLOAD
         arm-none-eabi-gdb -iex "target remote tcp:127.0.0.1:3333"
