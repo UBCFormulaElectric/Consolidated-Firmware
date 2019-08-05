@@ -35,6 +35,7 @@
 void SharedStateMachine_TransitionState(
     Event                             event,
     State *                           current_state,
+    uint32_t                          num_of_transitions,
     StateTransitionTableEntry_Struct *state_table)
 {
     // Get the table entry corresponding to the current_state
@@ -43,8 +44,7 @@ void SharedStateMachine_TransitionState(
 
     // Iteratively search through all possible state transitions. The size of
     // this array should be small so the search should not take too long.
-    for (uint32_t i = 0;
-         i < NUM_ELEMENTS_IN_ARRAY(current_state_entry.transitions); i++)
+    for (uint32_t i = 0; i < num_of_transitions; i++)
     {
         // Check if the event requires us to transition out of the current state
         if (event == current_state_entry.transitions[i].trigger_event)

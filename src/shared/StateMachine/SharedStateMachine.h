@@ -56,11 +56,14 @@ typedef struct
  * @brief Update the state machine given an event.
  * @param event An event that can potentially trigger a state transition.
  * @param current_state Current state of the state machine.
+ * @param num_of_transitions Number of possible state transitions for the
+ *        current state
  * @param table A state table.
  */
 void SharedStateMachine_TransitionState(
     Event                             event,
     State *                           current_state,
+    uint32_t                          num_of_transitions,
     StateTransitionTableEntry_Struct *table);
 
 #endif /* SHARED_STATEMACHINE_H */
