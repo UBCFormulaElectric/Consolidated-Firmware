@@ -46,9 +46,9 @@ script:
     # then this will cause travis to exit. Commands encapsulated between 
     # conditionals, for example, do not report their return codes. Instead,
     # only the conditional, a command itself, gets polled, so if cmake or 
-    # python throws an error, the information is lost. Using `set -ev` ensures
+    # python throws an error, the information is lost. Using `set -e` ensures
     # that this does not happen
-    - set -ev
+    - set -e
 
     - |
       if [ "$RUN_BUILD" = "true" ]; then 
