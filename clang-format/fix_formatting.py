@@ -66,10 +66,11 @@ def runClangFormat():
     if _isWindows():
         CLANG_FORMAT_BINARY += ".exe"
 
-    # Prepare ${REPO_ROOT}/src directory
-    SOURCE_DIR = os.path.join("..", "src")
+    # Prepare path to recursive traverse
+    SOURCE_DIR = os.path.join("..", "boards")
 
-    # Now iterate through all the files inside the ${REPO_ROOT}/src directory
+    # Recursively traverse through file tree and apply clang-format
+    print("Apply clang-format to files under {}:".format(os.path.join(os.getcwd(), SOURCE_DIR)))
     for root, dirnames, filenames in os.walk(SOURCE_DIR):
         # Remove directories that we don't want to format from search list
         dirnames[:] = [d for d in dirnames if d not in EXCLUDE_DIRS]
@@ -97,14 +98,8 @@ if __name__ == '__main__':
     # Change into the directory this python file is in so we can use relative paths
     os.chdir(PYTHON_EXECUTABLE_DIRECTORY)
 
-    continueScript = input("THIS WILL FORMAT YOUR CODE! CONTINUE (Y | N)? ")
-    if continueScript != 'Y' and continueScript != 'y':
-        sys.exit(2)
+    if runClangFormat() != 0:
+        print("ERROR: Clang-Format encountered issues!")
+        sys.exit(1)
     else:
-        # Print newline because `echo "Y"` in Travis CI doesn't include LF
-        print("\r")
-        if runClangFormat() != 0:
-            print("ERROR: Clang-Format encountered issues!")
-            sys.exit(1)
-        else:
-            print("SUCCESS: Clang-Format ran on all files!")
+        print("SUCCESS: Clang-Format ran on all files!")

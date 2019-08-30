@@ -1,13 +1,9 @@
-#l Note: Setting `sudo` to `required` will add 20-50s to CI image boot time
-os:
-  linux
-
-sudo: false
+# Note: Setting `sudo` to `required` will add 20-50s to CI image boot time
+os: linux
 dist: trusty
+sudo: false
 language: python
-
-python:
-  - "3.6"
+python: "3.6"
 
 before_install:
   - git submodule update --init --recursive
@@ -15,23 +11,10 @@ before_install:
 
 install:
   - pipenv install
-  - |
-    if [ "$RUN_BUILD" = "true" ] || [ "$RUN_TESTS" = "true" ]; then 
-      # Download the ARM GCC Embedded Toolchain.
-      # Unfortunately, since this is a literal URL, it does not pull the latest
-      # API available, and the URL must be changed manually.
-      #
-      # To change the URL:
-      # 1. Go to https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads
-      # 2. Right-click and save the link to download the Linux 64-bit version
-      URL=https://developer.arm.com/-/media/Files/downloads/gnu-rm/8-2019q3/RC1.1/gcc-arm-none-eabi-8-2019-q3-update-linux.tar.bz2?revision=c34d758a-be0c-476e-a2de-af8c6e16a8a2?product=GNU%20Arm%20Embedded%20Toolchain,64-bit,,Linux,8-2019-q3-update
-      # Download the ARM GCC Embedded Toolchain
-      wget $URL -O /tmp/gcc-arm-none-eabi.tar.bz2
-      # Unzip the ARM GCC Embedded Toolchain
-      tar -xvjf /tmp/gcc-arm-none-eabi.tar.bz2
-      # Enable CMake to find the ARM GCC Embedded Toolchain
-      export PATH=$PATH:$PWD/gcc-arm-none-eabi-8-2019-q3-update/bin/
-    fi
+  # Modify $PATH directly in .travis.yml because a child process (i.e.
+  # travis_install_binaries.sh) can't modify the environmental variables of its
+  # parent process (i.e. .travis.yml)
+  - INSTALL_DIR=/usr/local && PATH=$INSTALL_DIR/bin:$PATH && ./scripts/travis_ci/travis_install_binaries.sh $INSTALL_DIR
 
 addons:
   apt_packages:
@@ -40,76 +23,16 @@ addons:
     - lib32z1
 
 before_script:
+  - ./scripts/travis_ci/print_bin_versions.sh
 
 script:
-    # If any command exits with a non-zero value (i.e. it throws an error)
-    # then this will cause travis to exit. Commands encapsulated between 
-    # conditionals, for example, do not report their return codes. Instead,
-    # only the conditional, a command itself, gets polled, so if cmake or 
-    # python throws an error, the information is lost. Using `set -e` ensures
-    # that this does not happen
-    - set -e
-
-    - |
-      if [ "$RUN_BUILD" = "true" ]; then 
-        # Build each project
-        for BOARD_NAME in FSM DCM PDM
-        do
-          cmake boards/$BOARD_NAME/CMakeLists.txt
-          make -C boards/$BOARD_NAME
-        done
-      fi
-    - |
-      if [ "$RUN_TESTS" = "true" ]; then 
-        :
-      fi
-    - |
-      if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then
-            # Run clang-format recursively
-            echo "Y" | python clang-format/fix_formatting.py;
-            # Check if there is any difference
-            CHANGED_FILES=(`git diff --name-only`)
-            if [ "$CHANGED_FILES" ]; then
-                echo ""
-                echo "#########################"
-                echo "FAILED - Git diff was non-zero!"
-                echo "Run clang_format/fix_formatting.py to format your code properly:"
-                echo ""
-                echo $CHANGED_FILES
-                echo "#########################"
-                echo ""
-                return 1;
-            else
-                echo "PASSED - Code is correctly formatted!"
-            fi
-      fi
-    - |
-      if [ "$GENERATE_CODE_FROM_SYM" = "true" ]; then 
-            # Try to convert the .sym to C code
-            pipenv run python boards/shared/CanMsgs/generate_c_code_from_sym.py;
-            # Check if there is any difference
-            CHANGED_FILES=(`git diff --name-only`)
-            if [ "$CHANGED_FILES" ]; then
-                echo ""
-                echo "#########################"
-                echo "FAILED - Git diff was non-zero!"
-                echo "Make sure to update your version of cantools using pipenv,"
-                echo "and re-run generate_c_code_from_sym.py to generate C code from the .sym file:"
-                echo ""
-                echo $CHANGED_FILES
-                echo "#########################"
-                echo ""
-                return 1;
-            else
-                echo "PASSED - C code generated from .sym looks good!"
-            fi
-      fi
+  - ./scripts/travis_ci/travis_script.sh
 
 matrix:
-    include:
-        - name: "Build and Run Tests"
-          env: RUN_BUILD="true" RUN_TESTS="true"
-        - name: "Check Formatting"
-          env: RUN_FORMATTING_CHECKS="true"
-        - name: "Check C Code Generation From .sym"
-          env: GENERATE_CODE_FROM_SYM="true"
+  include:
+    - name: "Build and Run Tests"
+      env: RUN_BUILD="true" RUN_TESTS="true"
+    - name: "Check Formatting"
+      env: RUN_FORMATTING_CHECKS="true"
+    - name: "Check C Code Generation From .sym"
+      env: GENERATE_CODE_FROM_SYM="true"
