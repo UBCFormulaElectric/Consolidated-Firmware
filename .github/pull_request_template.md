@@ -12,5 +12,5 @@
 
 ### Checklist
 *Please change `[ ]` to `[x]` when you are ready.*
-- [ ] I have read and followed the code standards detailed in http://svformulaep1.teams.apsc.ubc.ca:8090/display/TR/Workflow (*This will save time for both you and the reviewer!*).
+- [ ] I have read and followed the code conventions detailed in [README.md](README.md) (*This will save time for both you and the reviewer!*).
 - [ ] If this pull request is longer then **500** lines, I have provided *explicit* justification in the summary above explaining why I *cannot* break this up into multiple pull requests (*Small PR's are faster and less painful for everyone involved!*).
