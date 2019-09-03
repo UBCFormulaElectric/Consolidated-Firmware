@@ -1,5 +1,4 @@
 /**
- * @file  SharedCmsisOs.h
  * @brief Shared library with wrapper functions for cmsis_os.h
  */
 #ifndef SHARED_CMSIS_OS_H

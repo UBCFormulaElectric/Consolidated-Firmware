@@ -1,5 +1,4 @@
 /**
- * @file  Constants.h
  * @brief A list of commonly used constants that may be shared between projects
  */
 #ifndef CONSTANTS_H

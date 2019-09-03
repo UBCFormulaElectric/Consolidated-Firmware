@@ -1,5 +1,4 @@
 /**
- * @file  Io_Can.h
  * @brief Hardware specific CAN drivers
  */
 #ifndef IO_CAN_H

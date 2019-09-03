@@ -1,5 +1,4 @@
 /**
- * @file  SharedHalHandler.h
  * @brief Shared library with callback function for HAL library
  * @note  Include this header file in main.h, above the auto-generated function
  *        prototype `void ErrorHandler(void)`. Then, fill in the function

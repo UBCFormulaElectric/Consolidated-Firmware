@@ -1,5 +1,4 @@
 /**
- * @file  SharedFilters.h
  * @brief Shared library with filters for digital signal processing
  */
 #ifndef SHARED_FILTERS_H

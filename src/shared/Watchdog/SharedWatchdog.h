@@ -1,5 +1,4 @@
 /**
- * @file  SharedWatchdog.h
  * @brief Helper functions to unify the watchdog timer interface across boards
  */
 #ifndef SHARED_WATCHDOG
