@@ -1,8 +1,7 @@
-/*****************************************************************************
+/******************************************************************************
  * Includes
  ******************************************************************************/
-#include "Io_Can.h"
-#include "App_Macros.h"
+#include "Io_CmsisOsWrapper.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -19,17 +18,10 @@
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
-// clang-format off
-static CanMaskFilterConfig_Struct mask_filters[] =
-{
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_BMS, MASKMODE_16BIT_MASK_BMS),
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
-};
-// clang-format on
 
 /******************************************************************************
  * Private Function Prototypes
- ******************************************************************************/
+ *******************************************************************************/
 
 /******************************************************************************
  * Private Function Definitions
@@ -38,12 +30,18 @@ static CanMaskFilterConfig_Struct mask_filters[] =
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-CanMaskFilterConfig_Struct *Io_Can_GetCanMaskFilters(void)
+/**
+ * @brief  Delay a task until a specified time
+ * @param   PreviousWakeTime   Pointer to a variable that holds the time at
+ * which the task was last unblocked. PreviousWakeTime must be initialised with
+ * the current time prior to its first use (PreviousWakeTime = osKernelSysTick()
+ * )
+ * @param   millisec    time delay value
+ * @retval  status code that indicates the execution status of the function.
+ */
+osStatus Io_CmsisOsWrapper_osDelayUntilMs(
+    uint32_t *PreviousWakeTime,
+    uint32_t  millisec)
 {
-    return mask_filters;
-}
-
-uint32_t Io_Can_GetNumberOfCanMaskFilters(void)
-{
-    return NUM_ELEMENTS_IN_ARRAY(mask_filters);
+    return osDelayUntil(PreviousWakeTime, millisec);
 }

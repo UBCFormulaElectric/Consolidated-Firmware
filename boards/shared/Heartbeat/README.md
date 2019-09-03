@@ -5,7 +5,7 @@ This repository contains our heartbeat library. The goal is for a board to quick
 1. Call the heartbeat broadcast/timeout check functions every 1ms through the `Task1kHz()`:
 
 ```c
-#include "SharedHeartbeat.h"
+#include "Io_HeartbeatDriver.h"
 
 void Task1Khz(void const *argument)
 {
@@ -13,9 +13,9 @@ void Task1Khz(void const *argument)
 
     for (;;)
     {
-        SharedHeartbeat_BroadcastHeartbeat(CANMSGS_dcm_heartbeat_FRAME_ID, CANMSGS_DCM_HEARTBEAT_LENGTH);
-        SharedHeartbeat_CheckHeartbeatTimeout(BMS_HEARTBEAT_ENCODING | FSM_HEARTBEAT_ENCODING);
-        (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1U)
+        Io_HeartbeatDriver_BroadcastHeartbeat(CANMSGS_dcm_heartbeat_FRAME_ID, CANMSGS_DCM_HEARTBEAT_LENGTH);
+        Io_HeartbeatDriver_CheckHeartbeatTimeout(BMS_HEARTBEAT_ENCODING | FSM_HEARTBEAT_ENCODING);
+        (void)Io_CmsisOsWrapper_osDelayUntilMs(&PreviousWakeTime, 1U)
     }
 }
 ```
@@ -25,20 +25,20 @@ The periodicity of broadcasting and timeout checks are handled within their resp
 
 ```c
 // Heartbeat.c example for BMS, which listens to FSM, DCM and PDM's heartbeats
-#include "SharedHeartbeat.h"
+#include "Io_HeartbeatDriver.h"
 
 void Heartbeat_HandleHeartbeatReception(uint32_t std_id)
 {
     switch (std_id)
     {
         case FSM_HEARTBEAT_STDID:
-            SharedHeartbeat_ReceiveHeartbeat(FSM_HEARTBEAT_ENCODING);
+            Io_HeartbeatDriver_ReceiveHeartbeat(FSM_HEARTBEAT_ENCODING);
             break;
         case DCM_HEARTBEAT_STDID:
-            SharedHeartbeat_ReceiveHeartbeat(DCM_HEARTBEAT_ENCODING);
+            Io_HeartbeatDriver_ReceiveHeartbeat(DCM_HEARTBEAT_ENCODING);
             break;
         case PDM_HEARTBEAT_STDID:
-            SharedHeartbeat_ReceiveHeartbeat(PDM_HEARTBEAT_ENCODING);
+            Io_HeartbeatDriver_ReceiveHeartbeat(PDM_HEARTBEAT_ENCODING);
             break;
         default:
             break;
@@ -50,7 +50,7 @@ void Heartbeat_HandleHeartbeatReception(uint32_t std_id)
 
 ```c
 // Heartbeat.c example for BMS, which listens to FSM, DCM and PDM's heartbeats
-#include "SharedHeartbeat.h"
+#include "Io_HeartbeatDriver.h"
 
 void Heartbeat_HandleHeartbeatTimeout(uint8_t heartbeats_received)
 {

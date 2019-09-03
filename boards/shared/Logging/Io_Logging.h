@@ -1,16 +1,18 @@
 /**
- * @brief Hardware specific CAN drivers
+ * @brief Library for logging information
  */
-#ifndef IO_CAN_H
-#define IO_CAN_H
+#ifndef IO_LOGGING_H
+#define IO_LOGGING_H
+
 /******************************************************************************
  * Includes
  ******************************************************************************/
-#include <Io_CanDriver.h>
+#include "SEGGER_RTT.h"
 
 /******************************************************************************
  * Preprocessor Constants
  ******************************************************************************/
+// clang-format off
 
 /******************************************************************************
  * Preprocessor Macros
@@ -19,6 +21,7 @@
 /******************************************************************************
  * Typedefs
  ******************************************************************************/
+// clang-format on
 
 /******************************************************************************
  * Global Variables
@@ -28,15 +31,10 @@
  * Function Prototypes
  ******************************************************************************/
 /**
- * @brief  Getter function for CAN filters
- * @return Pointer to an array of CAN filters
+ * @brief  Printf-style function to print data to the terminal using Segger RTT
+ * @param  sFormat Pointer to format string, followed by the arguments for
+ *         conversion
  */
-CanMaskFilterConfig_Struct *Io_Can_GetCanMaskFilters(void);
+void Io_Logging_Printf(const char *sFormat, ...);
 
-/*
- * @brief  Getter function for CAN filters
- * @return Number of CAN filters
- */
-uint32_t Io_Can_GetNumberOfCanMaskFilters(void);
-
-#endif // IO_CAN_H
+#endif // IO_LOGGING_H

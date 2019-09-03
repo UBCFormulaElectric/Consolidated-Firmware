@@ -1,12 +1,12 @@
-/*****************************************************************************
+/******************************************************************************
  * Includes
  ******************************************************************************/
-#include "Io_Can.h"
-#include "App_Macros.h"
+#include "Io_WatchdogDriver.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
  ******************************************************************************/
+// clang-format off
 
 /******************************************************************************
  * Module Preprocessor Macros
@@ -15,21 +15,20 @@
 /******************************************************************************
  * Module Typedefs
  ******************************************************************************/
+// clang-format on
 
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
-// clang-format off
-static CanMaskFilterConfig_Struct mask_filters[] =
-{
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_BMS, MASKMODE_16BIT_MASK_BMS),
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
-};
-// clang-format on
+// IWDG_HandleTypeDef hiwdg is not initialized on system boot-up
+static bool iwdg_initialized = false;
+
+// A copy of the pointer to hiwdg just for this translation unit
+static IWDG_HandleTypeDef *hiwdg_ptr;
 
 /******************************************************************************
  * Private Function Prototypes
- ******************************************************************************/
+ *******************************************************************************/
 
 /******************************************************************************
  * Private Function Definitions
@@ -38,12 +37,21 @@ static CanMaskFilterConfig_Struct mask_filters[] =
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-CanMaskFilterConfig_Struct *Io_Can_GetCanMaskFilters(void)
+void Io_WatchdogDriver_RefreshIwdg(void)
 {
-    return mask_filters;
+    if (Io_WatchdogDriver_IsIwdgInitialized())
+    {
+        HAL_IWDG_Refresh(hiwdg_ptr);
+    }
 }
 
-uint32_t Io_Can_GetNumberOfCanMaskFilters(void)
+void Io_WatchdogDriver_SetIwdgInitialized(IWDG_HandleTypeDef *hiwdg)
 {
-    return NUM_ELEMENTS_IN_ARRAY(mask_filters);
+    hiwdg_ptr        = hiwdg;
+    iwdg_initialized = true;
+}
+
+bool Io_WatchdogDriver_IsIwdgInitialized(void)
+{
+    return iwdg_initialized;
 }

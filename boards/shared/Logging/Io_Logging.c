@@ -1,12 +1,15 @@
-/*****************************************************************************
+/******************************************************************************
  * Includes
  ******************************************************************************/
-#include "Io_Can.h"
-#include "App_Macros.h"
+#include "Io_Logging.h"
+#include "SEGGER_RTT_Conf.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
  ******************************************************************************/
+// RTT channel 0 is always present and reserved for Terminal usage. Name is
+// fixed to "Terminal".
+#define SEGGER_RTT_TERMINAL_CHANNEL (0)
 
 /******************************************************************************
  * Module Preprocessor Macros
@@ -19,17 +22,10 @@
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
-// clang-format off
-static CanMaskFilterConfig_Struct mask_filters[] =
-{
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_BMS, MASKMODE_16BIT_MASK_BMS),
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
-};
-// clang-format on
 
 /******************************************************************************
  * Private Function Prototypes
- ******************************************************************************/
+ *******************************************************************************/
 
 /******************************************************************************
  * Private Function Definitions
@@ -38,12 +34,11 @@ static CanMaskFilterConfig_Struct mask_filters[] =
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-CanMaskFilterConfig_Struct *Io_Can_GetCanMaskFilters(void)
+void Io_Logging_Printf(const char *sFormat, ...)
 {
-    return mask_filters;
-}
+    va_list ParamList;
 
-uint32_t Io_Can_GetNumberOfCanMaskFilters(void)
-{
-    return NUM_ELEMENTS_IN_ARRAY(mask_filters);
+    va_start(ParamList, sFormat);
+    (void)SEGGER_RTT_vprintf(SEGGER_RTT_TERMINAL_CHANNEL, sFormat, &ParamList);
+    va_end(ParamList);
 }

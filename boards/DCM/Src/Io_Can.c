@@ -2,7 +2,7 @@
  * Includes
  ******************************************************************************/
 #include "Io_Can.h"
-#include "SharedMacros.h"
+#include "App_Macros.h"
 
 /******************************************************************************
  * Module Preprocessor Constants

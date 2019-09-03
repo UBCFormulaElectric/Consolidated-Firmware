@@ -1,8 +1,8 @@
-/*****************************************************************************
+/******************************************************************************
  * Includes
  ******************************************************************************/
-#include "Io_Can.h"
-#include "App_Macros.h"
+#include "App_Filtering.h"
+#include "arm_math.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -19,17 +19,10 @@
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
-// clang-format off
-static CanMaskFilterConfig_Struct mask_filters[] =
-{
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_BMS, MASKMODE_16BIT_MASK_BMS),
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
-};
-// clang-format on
 
 /******************************************************************************
  * Private Function Prototypes
- ******************************************************************************/
+ *******************************************************************************/
 
 /******************************************************************************
  * Private Function Definitions
@@ -38,12 +31,24 @@ static CanMaskFilterConfig_Struct mask_filters[] =
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-CanMaskFilterConfig_Struct *Io_Can_GetCanMaskFilters(void)
+void App_Filtering_LowPassFilter(
+    float32_t *input,
+    float32_t *output,
+    uint32_t   num_of_samples,
+    float32_t  sampling_time,
+    float32_t  rc)
 {
-    return mask_filters;
-}
+    float32_t smoothing_factor;
 
-uint32_t Io_Can_GetNumberOfCanMaskFilters(void)
-{
-    return NUM_ELEMENTS_IN_ARRAY(mask_filters);
+    smoothing_factor = sampling_time / (rc + sampling_time);
+
+    // The pseudo-code for this LPF implementation is as follows:
+    // y[i] = y[i-1] + SmoothingFactor * ( x[i] - y[i-1] ), where y =
+    // output, x = input. That is, the change from one filter output
+    // to the next is proportional to the difference between the previous
+    // output and the next input.
+    for (uint32_t i = 0; i < num_of_samples; i++)
+    {
+        output[i] = output[i] + smoothing_factor * (input[i] - output[i]);
+    }
 }

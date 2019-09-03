@@ -24,12 +24,12 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "SharedWatchdog.h"
-#include "SharedConstants.h"
-#include "SharedCmsisOs.h"
-#include "SharedCan.h"
-#include "SharedHeartbeat.h"
-#include "SharedHardFaultHandler.h"
+#include "Io_WatchdogDriver.h"
+#include "App_Constants.h"
+#include "Io_CmsisOsWrapper.h"
+#include "Io_CanDriver.h"
+#include "Io_HeartbeatDriver.h"
+#include "Io_HardFaultHandler.h"
 #include "Io_Can.h"
 /* USER CODE END Includes */
 
@@ -94,7 +94,7 @@ int main(void)
 {
     /* USER CODE BEGIN 1 */
     __HAL_DBGMCU_FREEZE_IWDG();
-    SharedHardFaultHandler_Init();
+    Io_HardFaultHandler_Init();
     /* USER CODE END 1 */
 
     /* MCU
@@ -310,7 +310,7 @@ static void MX_CAN_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN CAN_Init 2 */
-    SharedCan_StartCanInInterruptMode(
+    Io_CanDriver_StartCanInInterruptMode(
         &hcan, Io_Can_GetCanMaskFilters(), Io_Can_GetNumberOfCanMaskFilters());
     /* USER CODE END CAN_Init 2 */
 }
@@ -374,7 +374,7 @@ static void MX_IWDG_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
-    SharedWatchdog_SetIwdgInitialized(&hiwdg);
+    Io_WatchdogDriver_SetIwdgInitialized(&hiwdg);
     /* USER CODE END IWDG_Init 2 */
 }
 
@@ -494,7 +494,7 @@ void RunTask1Hz(void const *argument)
 
     for (;;)
     {
-        (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1000U);
+        (void)Io_CmsisOsWrapper_osDelayUntilMs(&PreviousWakeTime, 1000U);
     }
     /* USER CODE END 5 */
 }
@@ -514,11 +514,11 @@ void RunTask1kHz(void const *argument)
 
     for (;;)
     {
-        SharedHeartbeat_BroadcastHeartbeat(
+        Io_HeartbeatDriver_BroadcastHeartbeat(
             CANMSGS_dcm_heartbeat_FRAME_ID, CANMSGS_DCM_HEARTBEAT_LENGTH);
         // TODO (#361) :Implement proper watchdog check-in mechanism
-        SharedWatchdog_RefreshIwdg();
-        (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1U);
+        Io_WatchdogDriver_RefreshIwdg();
+        (void)Io_CmsisOsWrapper_osDelayUntilMs(&PreviousWakeTime, 1U);
     }
     /* USER CODE END RunTask1kHz */
 }
@@ -552,7 +552,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void Error_Handler(void)
 {
     /* USER CODE BEGIN Error_Handler_Debug */
-    SharedHalHandler_ErrorHandler(file, line);
+    Io_HalCallback_ErrorHandler(file, line);
     /* USER CODE END Error_Handler_Debug */
 }
 
@@ -567,7 +567,7 @@ void Error_Handler(void)
 void assert_failed(char *file, uint32_t line)
 {
     /* USER CODE BEGIN 6 */
-    SharedHalHandler_AssertFailed(file, line);
+    Io_HalCallback_AssertFailed(file, line);
     /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

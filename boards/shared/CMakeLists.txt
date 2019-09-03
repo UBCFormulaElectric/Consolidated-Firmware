@@ -27,7 +27,7 @@ file(GLOB SHARED_SRCS LIST_DIRECTORIES false CONFIGURE_DEPENDS
         ${CMAKE_CURRENT_SOURCE_DIR}/*/*.cpp
         )
 
-# Import include and source directories for TraceRecorder
+# Import include directories and source files for TraceRecorder
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/TraceRecorder)
 LIST(APPEND SHARED_INCLUDE_DIRS ${TRACE_RECORDER_INCLUDE_DIRS})
 file(GLOB TRACE_RECORDER_SRCS LIST_DIRECTORIES false CONFIGURE_DEPENDS

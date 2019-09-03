@@ -1,16 +1,18 @@
 /**
- * @brief Hardware specific CAN drivers
+ * @brief Wrappers for functions in cmsis_os.h
  */
-#ifndef IO_CAN_H
-#define IO_CAN_H
+#ifndef IO_CMSIS_OS_WRAPPER_H
+#define IO_CMSIS_OS_WRAPPER_H
+
 /******************************************************************************
  * Includes
  ******************************************************************************/
-#include <Io_CanDriver.h>
+#include "cmsis_os.h"
 
 /******************************************************************************
  * Preprocessor Constants
  ******************************************************************************/
+// clang-format off
 
 /******************************************************************************
  * Preprocessor Macros
@@ -19,6 +21,7 @@
 /******************************************************************************
  * Typedefs
  ******************************************************************************/
+// clang-format on
 
 /******************************************************************************
  * Global Variables
@@ -28,15 +31,16 @@
  * Function Prototypes
  ******************************************************************************/
 /**
- * @brief  Getter function for CAN filters
- * @return Pointer to an array of CAN filters
+ * @brief  Delay a task until a specified time
+ * @param   PreviousWakeTime   Pointer to a variable that holds the time at
+ * which the task was last unblocked. PreviousWakeTime must be initialised with
+ * the current time prior to its first use (PreviousWakeTime = osKernelSysTick()
+ * )
+ * @param   millisec    time delay value
+ * @retval  status code that indicates the execution status of the function.
  */
-CanMaskFilterConfig_Struct *Io_Can_GetCanMaskFilters(void);
+osStatus Io_CmsisOsWrapper_osDelayUntilMs(
+    uint32_t *PreviousWakeTime,
+    uint32_t  millisec);
 
-/*
- * @brief  Getter function for CAN filters
- * @return Number of CAN filters
- */
-uint32_t Io_Can_GetNumberOfCanMaskFilters(void);
-
-#endif // IO_CAN_H
+#endif // IO_CMSIS_OS_WRAPPER_H

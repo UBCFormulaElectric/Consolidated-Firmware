@@ -1,7 +1,7 @@
 ## Overview
 The Independent Watchdog (IWDG) is an embedded watchdog peripheral needs to be periodically refreshed using `HAL_IWDG_Refresh(&hiwdg)` or else it will trigger a system reset when the counter reaches a given timeout value. Note that `hiwdg` is the **IWDG** handle. 
 
-It is possible to run `HAL_IWDG_Refresh()` when `hiwdg` is not yet initialized which would result in a Hard Fault. To get around this issue, this library proposes to use `SharedWatchdog_RefreshIwdg()` instead of `HAL_IWDG_Refresh()`, which only calls `HAL_IWDG_Refresh()` only if `hiwdg` has been properly initialized. This requires using `SharedWatchdog_SetIwdgInitialized()` as described below.
+It is possible to run `HAL_IWDG_Refresh()` when `hiwdg` is not yet initialized which would result in a Hard Fault. To get around this issue, this library proposes to use `Io_WatchdogDriver_RefreshIwdg()` instead of `HAL_IWDG_Refresh()`, which only calls `HAL_IWDG_Refresh()` only if `hiwdg` has been properly initialized. This requires using `Io_WatchdogDriver_SetIwdgInitialized()` as described below.
 
 
 In addition, we must use `__HAL_DBGMCU_FREEZE_IWDG()` to stop the **IWDG** clock when the CPU core is halted during **debugging**, or else **IWDG** could trigger an undesired system reset during a debug session.
@@ -28,7 +28,7 @@ In case it was not clear, `IWDG_RESET_FREQUENCY = 5` means that the IWDG has a f
 By using User Constants, the STM32CubeMX configurations become much more readable and easier to adjust later on if we want to change the watchdog frequency. In addition, we disable Window Watchdog by setting `IWDG window value = IWDG_WINDOW_DISABLE_VALUE`, as Window Watchdog would add complexity to our project with little to no benefit.
 
 ## How to Use This Library
-1. Insert `SharedWatchdog_SetIwdgInitialized(&hiwdg);`:
+1. Insert `Io_WatchdogDriver_SetIwdgInitialized(&hiwdg);`:
 ```
 // main.c
 
@@ -40,7 +40,7 @@ static void MX_IWDG_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
-    SharedWatchdog_SetIwdgInitialized(&hiwdg);
+    Io_WatchdogDriver_SetIwdgInitialized(&hiwdg);
     /* USER CODE END IWDG_Init 2 */
 }
 ```
@@ -57,14 +57,14 @@ static void MX_IWDG_Init(void)
 }
 ```
 
-1. Insert `SharedWatchdog_RefreshIwdg()` where needed (e.g. In a 100Hz Control Loop):
+1. Insert `Io_WatchdogDriver_RefreshIwdg()` where needed (e.g. In a 100Hz Control Loop):
 
 ```
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if (htim->Instance == ControlLoopTimer)
     {
-        SharedWatchdog_RefreshIwdg();
+        Io_WatchdogDriver_RefreshIwdg();
     }
 }
 ```

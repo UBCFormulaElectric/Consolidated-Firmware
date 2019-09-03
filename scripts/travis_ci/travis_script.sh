@@ -23,14 +23,15 @@ if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then
     # Run clang-format recursively
     travis_run python clang-format/fix_formatting.py
     # Check if there is any difference
-    CHANGED_FILES=(`git diff --name-only`)
+    DIFF_COMMAND="git diff --name-only"
+    CHANGED_FILES=$($DIFF_COMMAND)
     if [ "$CHANGED_FILES" ]; then
         echo ""
         echo_border
         echo "FAILED - Git diff was non-zero!"
         echo "Run clang_format/fix_formatting.py to format your code properly:"
         echo ""
-        echo $CHANGED_FILES
+        $DIFF_COMMAND
         echo_border
         echo ""
         exit 1;
@@ -45,7 +46,8 @@ if [ "$GENERATE_CODE_FROM_SYM" = "true" ]; then
     # Try to convert the .sym to C code
     travis_run pipenv run python boards/shared/CanMsgs/generate_c_code_from_sym.py
     # Check if there is any difference
-    CHANGED_FILES=(`git diff --name-only`)
+    DIFF_COMMAND="git diff --name-only"
+    CHANGED_FILES=$($DIFF_COMMAND)
     if [ "$CHANGED_FILES" ]; then
         echo ""
         echo_border
@@ -53,7 +55,7 @@ if [ "$GENERATE_CODE_FROM_SYM" = "true" ]; then
         echo "Make sure to update your version of cantools using pipenv,"
         echo "and re-run generate_c_code_from_sym.py to generate C code from the .sym file:"
         echo ""
-        echo $CHANGED_FILES
+        $DIFF_COMMAND
         echo_border
         echo ""
         exit 1;
