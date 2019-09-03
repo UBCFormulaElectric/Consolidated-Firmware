@@ -1,5 +1,4 @@
 /**
- * @file  SharedHeartbeat.h
  * @brief Shared heartbeat module
  */
 

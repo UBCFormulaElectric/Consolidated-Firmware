@@ -1,5 +1,4 @@
 /**
- * @file  SharedMacros.h
  * @brief Shared helper macros
  */
 #ifndef SHARED_MACROS_H

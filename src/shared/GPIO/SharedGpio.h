@@ -1,5 +1,4 @@
 /**
- * @file  SharedGpio.h
  * @brief Shared library for wrapping HAL GPIO library
  */
 #ifndef SHARED_GPIO_H

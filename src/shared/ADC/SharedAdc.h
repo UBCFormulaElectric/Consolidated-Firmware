@@ -1,5 +1,4 @@
 /**
- * @file  SharedAdc.h
  * @brief Shared ADC library
  */
 #ifndef SHARED_ADC_H

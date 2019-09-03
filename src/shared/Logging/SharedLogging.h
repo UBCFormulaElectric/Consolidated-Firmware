@@ -1,5 +1,4 @@
 /**
- * @file  SharedLogging.h
  * @brief Library for logging information
  */
 #ifndef SHARED_LOGGING_H

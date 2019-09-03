@@ -1,5 +1,4 @@
 /**
- * @file  SharedCan.h
  * @brief Shared library with callback functions for hard-fault exceptions
  * @note  This library is inspired by the example code here:
  *        https://www.freertos.org/Debugging-Hard-Faults-On-Cortex-M-Microcontrollers.html

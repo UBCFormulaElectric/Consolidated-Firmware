@@ -1,5 +1,4 @@
 /**
- * @file  App_StateMachine.h
  * @brief Application level code for state machine logic
  */
 #ifndef APP_STATE_MACHINE_H

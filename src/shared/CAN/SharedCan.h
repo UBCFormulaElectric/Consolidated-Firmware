@@ -1,5 +1,4 @@
 /**
- * @file  SharedCan.h
  * @brief CAN controller library for STM32F0 and STM32F3
  */
 

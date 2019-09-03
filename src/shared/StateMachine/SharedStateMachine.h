@@ -1,5 +1,4 @@
 /**
- * @file  SharedStateMachine.h
  * @brief Shared library for the state machine framework
  */
 
