@@ -5,8 +5,11 @@ sudo: false
 language: python
 python: "3.6"
 
+git:
+  submodules: false
+
 before_install:
-  - git submodule update --init --recursive
+  - ./scripts/travis_ci/pull_git_submodules.sh
   - pip install pipenv
 
 install:

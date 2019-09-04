@@ -1,6 +1,6 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="OCD DCM" type="com.jetbrains.cidr.embedded.openocd.conf.type" factoryName="com.jetbrains.cidr.embedded.openocd.conf.factory" PASS_PARENT_ENVS_2="true" PROJECT_NAME="DCM" TARGET_NAME="DCM.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="DCM" RUN_TARGET_NAME="DCM.elf">
-    <openocd gdb-port="3333" telnet-port="4444" board-config="../../../..$PROJECT_DIR$/../shared/OpenOCD/stm32f3x.cfg" reset-type="INIT" download-type="ALWAYS" />
+    <openocd gdb-port="3333" telnet-port="4444" board-config="../../../..$PROJECT_DIR$/../../tools/cmsis-svd/data/STMicro/STM32F302.svd" reset-type="INIT" download-type="ALWAYS" />
     <method v="2">
       <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
     </method>
