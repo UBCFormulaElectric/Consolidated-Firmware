@@ -4,7 +4,9 @@ A consolidated repository for gathering all firmware under one roof.
 ## Project Setup
 
 ### Integrated Development Environment (IDE)
-We edit, compile, and debug our code using [CLion](https://www.jetbrains.com/clion/). Open any one of the folders under `boards/` (e.g. `boards/DCM`) in **CLion**.
+We edit, compile, and debug our code using [CLion](https://www.jetbrains.com/clion/).
+Students can obtain a CLion educational license [here](https://www.jetbrains.com/shop/eform/students).
+Open any one of the folders under `boards/` (e.g. `boards/DCM`) in **CLion**.
 
 ### Environment Dependencies
 Follow these steps so you can compile the code in **CLion**:
