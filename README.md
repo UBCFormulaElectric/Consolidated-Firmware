@@ -15,6 +15,7 @@ Follow these steps so you can compile the code in **CLion**:
   * CMake: https://cmake.org/install/
   * Python 3+ (*Python < 3 will NOT work*): https://www.python.org/downloads/
   * ARM GNU Embedded Toolchain: https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads (Check `install_gcc_arm_none_eabi.sh` for which version to download)
+  *  J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
 2. **Modify your `PATH` Environment Variable**: Make sure to add the binary executables to `PATH`. To add these, find `Environment Variables` in your start menu and then add the appropriate paths to `PATH`:
 ```
 C:\Program Files (x86)\GNU Tools Arm Embedded\<VERSION>\bin
