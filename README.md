@@ -41,6 +41,20 @@ In `.clang-format`, the line `CommentPragmas: '\/\*(\*(?!\/_|[^*])*\*\/'` is ine
 
 ## Conventions
 
+### Github Conventions
+- We follow the Forking Workflow:
+    - [what it is](https://www.atlassian.com/git/tutorials/comparing-workflows#forking-workflow)
+    - [how to use it](https://gist.github.com/Chaser324/ce0505fbed06b947d962)
+- Only commit files that are essential for the system to run; do not put any photos or videos in here.
+- Once your pull request has been reviewed and revised until it looks good from both your and the reviewers' sides, go ahead and Squash and Merge it, which will squash all the commits on your pull request into one and merge it to the target branch.
+
+### Pull Requests Conventions
+- Before opening a pull request, quickly run through the [pull request checklist](.github/pull_request_template.md) and make sure you've satisfied everything.
+- Once your pull request has been approved, please proceed to merge and close the pull request yourself.
+- When your pull requests receive comments, please reply to each comment individually.
+- If there were any fixes that were specific to resources you found (eg. stackoverflow thread), please comment them into the PR for future reference.
+- On a similar note, if you made design decisions, please document them in the comments of the PR. We often go back to close PRs to look at why things were done a certain way. It is very helpful for us to know how you came up with your solution when reading through the PR. 
+
 ### Coding Conventions
 - Every and **.h** file should start with
 ```
