@@ -27,7 +27,7 @@ def runClangFormat():
     """
     # Construct the command line input
     CLANG_FORMAT_VERSION = "7.0"
-    CLANG_FORMAT_BINARY = "./clang-format-" + CLANG_FORMAT_VERSION
+    CLANG_FORMAT_BINARY = os.path.join(".", "clang-format-") + CLANG_FORMAT_VERSION
     CLANG_FORMAT_OPTIONS = " -i --style=file "
 
     # Format C/C++ files
@@ -44,9 +44,10 @@ def runClangFormat():
     EXCLUDE_FILES = [
         "CanMsgs.c",
         "CanMsgs.h",
-        # Everytime we format this file, we get an unwanted '\' at the end.
-        # Ignore it from clang-format as a workaround
+        # Everytime we format these 2 files, we get an unwanted '\' at the end.
+        # Ignore them from clang-format as a workaround.
         "stm32f3xx_hal_conf.h",
+        "system_stm32f3xx.c",
     ]
 
     # Directories ignored by clang-format

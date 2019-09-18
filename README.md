@@ -15,6 +15,7 @@ Follow these steps so you can compile the code in **CLion**:
   * CMake: https://cmake.org/install/
   * Python 3+ (*Python < 3 will NOT work*): https://www.python.org/downloads/
   * ARM GNU Embedded Toolchain: https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads (Check `install_gcc_arm_none_eabi.sh` for which version to download)
+  *  J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
 2. **Modify your `PATH` Environment Variable**: Make sure to add the binary executables to `PATH`. To add these, find `Environment Variables` in your start menu and then add the appropriate paths to `PATH`:
 ```
 C:\Program Files (x86)\GNU Tools Arm Embedded\<VERSION>\bin
@@ -40,6 +41,20 @@ We run (and require) continuous integration on every pull request before it is m
 In `.clang-format`, the line `CommentPragmas: '\/\*(\*(?!\/_|[^*])*\*\/'` is ineffective because it's being preempted by `ReflowComments`. We are hoping that the next version of `clang-format` will resolve this.
 
 ## Conventions
+
+### Github Conventions
+- We follow the Forking Workflow:
+    - [what it is](https://www.atlassian.com/git/tutorials/comparing-workflows#forking-workflow)
+    - [how to use it](https://gist.github.com/Chaser324/ce0505fbed06b947d962)
+- Only commit files that are essential for the system to run; do not put any photos or videos in here.
+- Once your pull request has been reviewed and revised until it looks good from both your and the reviewers' sides, go ahead and Squash and Merge it, which will squash all the commits on your pull request into one and merge it to the target branch.
+
+### Pull Requests Conventions
+- Before opening a pull request, quickly run through the [pull request checklist](.github/pull_request_template.md) and make sure you've satisfied everything.
+- Once your pull request has been approved, please proceed to merge and close the pull request yourself.
+- When your pull requests receive comments, please reply to each comment individually.
+- If there were any fixes that were specific to resources you found (eg. stackoverflow thread), please comment them into the PR for future reference.
+- On a similar note, if you made design decisions, please document them in the comments of the PR. We often go back to close PRs to look at why things were done a certain way. It is very helpful for us to know how you came up with your solution when reading through the PR. 
 
 ### Coding Conventions
 - Every and **.h** file should start with
