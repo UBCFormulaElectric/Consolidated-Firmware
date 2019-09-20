@@ -1,16 +1,20 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
-#include <stdbool.h>
 #include <string.h>
-#include <stdint.h>
+#include "FreeRTOS.h"
+#include "queue.h"
+#include "task.h"
+#include "App_CanMsgsTx.h"
 #include "SharedCan.h"
 #include "main.h"
-#include "SharedMacros.h"
+#include "SharedFreeRTOS.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
  ******************************************************************************/
+#define CAN_TX_MSG_FIFO_ITEM_SIZE sizeof(struct CanTxMsg)
+#define CAN_TX_MSG_FIFO_LENGTH 20 // CAN FIFO length is arbitrary at the moment
 
 /******************************************************************************
  * Module Preprocessor Macros
@@ -23,9 +27,13 @@
 /******************************************************************************
  * Module Variable Definitions
  ******************************************************************************/
-static CanTxMsgQueueItem_Struct can_tx_msg_fifo[CAN_TX_MSG_FIFO_SIZE];
-static volatile uint8_t         tail = 0;
-static volatile uint8_t         head = 0;
+/** @brief FIFO for buffering CAN TX messages */
+static uint8_t
+    can_tx_msg_fifo_storage[CAN_TX_MSG_FIFO_LENGTH * CAN_TX_MSG_FIFO_ITEM_SIZE];
+
+static struct FreeRTOSStaticQueue can_tx_msg_fifo = {
+    .storage = &can_tx_msg_fifo_storage[0],
+};
 
 // TODO (Issue: 243): Remove clang-format on/off once #243 is resolved
 // clang-format off
@@ -50,36 +58,6 @@ static CanMaskFilterConfig_Struct mask_filters[4] =
 /******************************************************************************
  * Private Function Prototypes
  ******************************************************************************/
-/**
- * @brief  Transmit CAN message and remove it from the CAN queue
- * @return FIFO_IS_EMPTY: Failed dequeue due to empty queue
- *         FIFO_SUCCESS: Successful dequeue
- */
-static Fifo_Status_Enum SharedCan_DequeueCanTxMessageFifo(void);
-
-/**
- * @brief  Add CAN message overflow to CAN queue
- * @param  can_msg: Pointer to CAN message to be queued
- * @return FIFO_IS_FULL: Failed enqueue due to full queue
- *         FIFO_SUCCESS: Successful enqueue
- */
-static Fifo_Status_Enum
-    SharedCan_EnqueueCanTxMessageFifo(CanTxMsgQueueItem_Struct *can_msg);
-
-/**
- * @brief  Check if the CAN queue is full
- * @return false: CAN queue is not full
- *         true: CAN queue is full
- */
-static bool SharedCan_CanTxMessageFifoIsFull(void);
-
-/**
- * @brief  Check if the CAN queue is empty
- * @return false: CAN queue is not empty
- *         true: CAN queue is empty
- */
-static bool SharedCan_CanTxMessageFifoIsEmpty(void);
-
 /**
  * @brief  Initialize one or more CAN filters using 16-bit Filter Scale and
  *         Identifier Mask Mode (FSCx = 0, FBMx = 0)
@@ -115,64 +93,6 @@ static void SharedCan_BroadcastSystemReboot(void);
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
-static Fifo_Status_Enum SharedCan_DequeueCanTxMessageFifo(void)
-{
-    if (!SharedCan_CanTxMessageFifoIsEmpty())
-    {
-        // Transmit one CAN message in queue
-        SharedCan_TransmitDataCan(
-            can_tx_msg_fifo[tail].std_id, can_tx_msg_fifo[tail].dlc,
-            can_tx_msg_fifo[tail].data);
-
-        // Remove the transmitted CAN message from queue
-        memset(&can_tx_msg_fifo[tail], 0, sizeof(can_tx_msg_fifo[tail]));
-
-        // Increment tail and make sure it wraps around to 0
-        tail++;
-        if (tail >= CAN_TX_MSG_FIFO_SIZE)
-        {
-            tail = 0;
-        }
-        return FIFO_SUCCESS;
-    }
-    else
-    {
-        return FIFO_IS_EMPTY;
-    }
-}
-
-static Fifo_Status_Enum
-    SharedCan_EnqueueCanTxMessageFifo(CanTxMsgQueueItem_Struct *can_msg)
-{
-    if (!SharedCan_CanTxMessageFifoIsFull())
-    {
-        // Add CAN message to queue
-        can_tx_msg_fifo[head] = *can_msg;
-
-        // Increment head and make sure it wraps around to 0
-        head++;
-        if (head >= CAN_TX_MSG_FIFO_SIZE)
-        {
-            head = 0;
-        }
-        return FIFO_SUCCESS;
-    }
-    else
-    {
-        return FIFO_IS_FULL;
-    }
-}
-
-static bool SharedCan_CanTxMessageFifoIsFull(void)
-{
-    return ((head + 1) % CAN_TX_MSG_FIFO_SIZE) == tail;
-}
-
-static bool SharedCan_CanTxMessageFifoIsEmpty(void)
-{
-    return head == tail;
-}
-
 static ErrorStatus SharedCan_InitializeFilters(
     CanMaskFilterConfig_Struct filters[],
     uint32_t                   num_of_filters)
@@ -245,43 +165,57 @@ static ErrorStatus SharedCan_InitializeFilters(
 static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan)
 {
     UNUSED(hcan);
-    SharedCan_DequeueCanTxMessageFifo();
+    struct CanTxMsg message;
+    BaseType_t      HigherPriorityTaskWoken = pdFALSE;
+    if (xQueueReceiveFromISR(
+            can_tx_msg_fifo.handle, &message, &HigherPriorityTaskWoken) ==
+        pdTRUE)
+    {
+        // Transmit one CAN message in queue
+        SharedCan_TransmitDataCan(message.std_id, message.dlc, message.data);
+    }
+    if (HigherPriorityTaskWoken != pdFALSE)
+    {
+        taskYIELD();
+    }
 }
 
 static void SharedCan_EnqueueFifoOverflowError(void)
 {
+    struct CanTxMsg message;
     static uint32_t overflow_count = 0;
+
+    // Keep track of how many times the FIFO has overflown.
     overflow_count++;
 
-    // Replace the next CAN message in queue with the overflow count in a
-    // destructive manner
-    can_tx_msg_fifo[tail].std_id = CAN_TX_FIFO_OVERFLOW_STDID;
-
-    // Since we do not know what CAN message is being used as the overflow
-    // message, we just use the maximum size allowed for the message data
-    can_tx_msg_fifo[tail].dlc = CAN_PAYLOAD_MAX_NUM_BYTES;
-
-    memcpy(
-        &can_tx_msg_fifo[tail].data, &overflow_count,
-        can_tx_msg_fifo[tail].dlc);
+    // When we enter this function, the CAN FIFO is already full. So we forcibly
+    // remove one message to make space in the CAN FIFO to transmit
+    // overflow_count. I wrapped the code block with critical section to make
+    // sure a context switch doesn't happen in between an element being dequeued
+    // and this task enqueuing overflow_count.
+    taskENTER_CRITICAL();
+    xQueueReceive(can_tx_msg_fifo.handle, &message, 0);
+    memcpy(&message.data, &overflow_count, sizeof(overflow_count));
+    message.dlc    = CAN_TX_FIFO_OVERFLOW_DLC;
+    message.std_id = CAN_TX_FIFO_OVERFLOW_STDID;
+    xQueueSendToFront(can_tx_msg_fifo.handle, &message, 0);
+    taskEXIT_CRITICAL();
 }
+
 static void SharedCan_BroadcastSystemReboot(void)
 {
-    // TODO: (Issue #217) Test out message of size 0, as that would be
-    // more semantically meaningful here
-    uint8_t data[CAN_PAYLOAD_MAX_NUM_BYTES] = { 0 };
     // Since we do not know what CAN message is being used as the overflow
     // message, we just use the maximum size allowed for the message data
     SharedCan_TransmitDataCan(
-        PCB_STARTUP_STDID, CAN_PAYLOAD_MAX_NUM_BYTES, &data[0]);
+        PCB_STARTUP_STDID, PCB_STARTUP_DLC, PCB_STARTUP_DATA);
 }
 
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data)
+void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, void *data)
 {
-    // Indicates the mailbox used for tranmission, not currently used
+    // Indicates the mailbox used for transmission, not currently used
     uint32_t mailbox = 0;
 
     CAN_TxHeaderTypeDef tx_header;
@@ -319,16 +253,18 @@ void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, uint8_t *data)
 #ifdef STM32F042x6
     if (HAL_CAN_Transmit_IT(&hcan) != HAL_OK)
 #else
-    if (HAL_CAN_AddTxMessage(&hcan, &tx_header, data, &mailbox) != HAL_OK)
+    if (HAL_CAN_AddTxMessage(&hcan, &tx_header, (uint8_t *)data, &mailbox) !=
+        HAL_OK)
 #endif
     {
         // Populate CAN TX message with CAN header and data
-        CanTxMsgQueueItem_Struct tx_msg;
+        struct CanTxMsg tx_msg;
+        memset(&tx_msg, 0, sizeof(tx_msg));
         tx_msg.std_id = std_id;
         tx_msg.dlc    = dlc;
-        memcpy(&tx_msg.data, data, CAN_PAYLOAD_MAX_NUM_BYTES);
+        memcpy(&tx_msg.data, data, tx_msg.dlc);
 
-        if (SharedCan_EnqueueCanTxMessageFifo(&tx_msg) == FIFO_IS_FULL)
+        if (xQueueSendToBack(can_tx_msg_fifo.handle, &tx_msg, 0) != pdTRUE)
         {
             SharedCan_EnqueueFifoOverflowError();
         }
@@ -372,6 +308,11 @@ void SharedCan_StartCanInInterruptMode(
     }
 #endif
 
+    can_tx_msg_fifo.handle = xQueueCreateStatic(
+        CAN_TX_MSG_FIFO_LENGTH, CAN_TX_MSG_FIFO_ITEM_SIZE,
+        can_tx_msg_fifo.storage, &can_tx_msg_fifo.state);
+    configASSERT(can_tx_msg_fifo.handle);
+
     SharedCan_BroadcastSystemReboot();
 }
 
@@ -387,7 +328,7 @@ __weak void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 HAL_StatusTypeDef SharedCan_ReceiveDataCan(
     CAN_HandleTypeDef *hcan,
     uint32_t           rx_fifo,
-    CanRxMsg_Struct *  rx_msg)
+    struct CanRxMsg *  rx_msg)
 {
     HAL_StatusTypeDef status = HAL_ERROR;
 #ifdef STM32F042x6

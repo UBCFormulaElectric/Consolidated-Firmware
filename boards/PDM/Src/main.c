@@ -548,7 +548,7 @@ void RunTask1kHz(void const *argument)
     for (;;)
     {
         SharedHeartbeat_BroadcastHeartbeat(
-            CANMSGS_pdm_heartbeat_FRAME_ID, CANMSGS_PDM_HEARTBEAT_LENGTH);
+            CANMSGS_PDM_HEARTBEAT_FRAME_ID, CANMSGS_PDM_HEARTBEAT_LENGTH);
         // TODO (#361) :Implement proper watchdog check-in mechanism
         SharedWatchdog_RefreshIwdg();
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1U);

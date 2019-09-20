@@ -41,9 +41,9 @@ if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then
     fi
 fi
 
-if [ "$GENERATE_CODE_FROM_SYM" = "true" ]; then
-    # Try to convert the .sym to C code
-    travis_run pipenv run python boards/shared/CanMsgs/generate_c_code_from_sym.py
+if [ "$GENERATE_CODE_FROM_DBC" = "true" ]; then
+    # Try to convert the .dbc to C code
+    travis_run pipenv run python boards/shared/CanMsgs/generate_c_code_from_dbc.py
     # Check if there is any difference
     CHANGED_FILES=(`git diff --name-only`)
     if [ "$CHANGED_FILES" ]; then
@@ -51,7 +51,7 @@ if [ "$GENERATE_CODE_FROM_SYM" = "true" ]; then
         echo_border
         echo "FAILED - Git diff was non-zero!"
         echo "Make sure to update your version of cantools using pipenv,"
-        echo "and re-run generate_c_code_from_sym.py to generate C code from the .sym file:"
+        echo "and re-run generate_c_code_from_dbc.py to generate C code from the .dbc file:"
         echo ""
         echo $CHANGED_FILES
         echo_border
@@ -59,7 +59,7 @@ if [ "$GENERATE_CODE_FROM_SYM" = "true" ]; then
         exit 1;
     else
         echo_border
-        echo "PASSED - C code generated from .sym looks good!"
+        echo "PASSED - C code generated from .dbc looks good!"
         echo_border
     fi
 fi
