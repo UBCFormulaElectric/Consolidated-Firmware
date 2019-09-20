@@ -200,6 +200,7 @@ TX_PAYLOADS_GETTER_FUNC_DECLARATION_FMT = '''\
  */
 struct {tx_payloads_name} *{fn_prefix}_Get{tx_payloads_name}(void);
 '''
+
 def purge_timestamps_from_generated_code(code: str) -> str:
     """
     Purges timestamps from the generated C code so that we can diff it in CI to
@@ -341,8 +342,8 @@ def _generate_tx_function_defs(function_prefix, table_name, payloads_name):
                                                           tx_table_name=table_name))
     function_defs.append(TX_TABLE_GETTER_FUNC_FMT.format(fn_prefix=function_prefix,
                                                          tx_table_name=table_name))
-    function_defs.append(TX_PAYLOADS_GETTER_FUNC_FMT.format(fn_prefix=function_prefix, tx_payloads_name=payloads_name))
-
+    function_defs.append(TX_PAYLOADS_GETTER_FUNC_FMT.format(fn_prefix=function_prefix,
+                                                            tx_payloads_name=payloads_name))
 
     return '\n'.join(function_defs)
 
