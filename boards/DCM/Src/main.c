@@ -19,6 +19,7 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
+#include <App_CanMsgsTx.h>
 #include "main.h"
 #include "cmsis_os.h"
 
@@ -514,8 +515,7 @@ void RunTask1kHz(void const *argument)
 
     for (;;)
     {
-        SharedHeartbeat_BroadcastHeartbeat(
-            CANMSGS_dcm_heartbeat_FRAME_ID, CANMSGS_DCM_HEARTBEAT_LENGTH);
+        App_CanMsgsTx_PeriodicTransmit();
         // TODO (#361) :Implement proper watchdog check-in mechanism
         SharedWatchdog_RefreshIwdg();
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1U);
