@@ -4,6 +4,3 @@
 [submodule "boards/shared/fff"]
 	path = boards/shared/fff
 	url = git@github.com:meekrosoft/fff.git
-[submodule "boards/shared/gtest"]
-	path = boards/shared/gtest
-	url = https://github.com/google/googletest.git
