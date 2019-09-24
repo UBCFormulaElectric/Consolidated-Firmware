@@ -31,7 +31,7 @@
 #include "SharedHeartbeat.h"
 #include "SharedHardFaultHandler.h"
 #include "Io_Can.h"
-#include "App_CanMsgsTx.h"
+#include "auto_generated/App_CanMsgsTx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

@@ -5,7 +5,7 @@
 #include "FreeRTOS.h"
 #include "queue.h"
 #include "task.h"
-#include "App_CanMsgsTx.h"
+#include "auto_generated/App_CanMsgsTx.h"
 #include "SharedCan.h"
 #include "main.h"
 #include "SharedFreeRTOS.h"

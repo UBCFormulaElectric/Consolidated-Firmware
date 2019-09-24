@@ -47,7 +47,7 @@ TX_SOURCE_FMT = '''\
  * Includes
  ******************************************************************************/
 #include <sched.h>
-#include "{header}"
+#include "auto_generated/{header}"
 #include "SharedMacros.h"
 #include "SharedCan.h"
 #include "stm32f3xx_hal.h"
@@ -387,6 +387,12 @@ def generate_periodic_can_tx_code(database, database_name, board, source_dir, he
     tx_table_name = 'CanTxPeriodicTable'
     tx_payloads_name = 'CanTxPayloads'
 
+    # Generate output folders if they don't exist already 
+    if not os.path.exists(source_dir):
+        os.mkdir(source_dir)
+    if not os.path.exists(header_dir):
+        os.mkdir(header_dir)
+
     # Generate source file for transmitting periodic CAN messages
     tx_source = _generate_tx_source(database,
                                     database_name,
@@ -395,6 +401,7 @@ def generate_periodic_can_tx_code(database, database_name, board, source_dir, he
                                     tx_filename,
                                     tx_table_name,
                                     tx_payloads_name)
+
     with open(os.path.join(source_dir, tx_filename_c), 'w') as fout:
         fout.write(tx_source)
 
@@ -452,7 +459,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
     if args.board not in valid_boards:
         print('Error: Invalid board name. Valid options: ' + ' '.join(valid_boards))
-        sys.exit()
+        sys.exit(1)
 
     # Configure logging level
     logging.basicConfig(level=logging.DEBUG)

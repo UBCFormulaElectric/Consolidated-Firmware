@@ -19,7 +19,7 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
-#include <App_CanMsgsTx.h>
+#include "auto_generated/App_CanMsgsTx.h"
 #include "main.h"
 #include "cmsis_os.h"
 

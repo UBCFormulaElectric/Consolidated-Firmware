@@ -37,5 +37,3 @@ matrix:
       env: RUN_BUILD="true" RUN_TESTS="true"
     - name: "Check Formatting"
       env: RUN_FORMATTING_CHECKS="true"
-    - name: "Check C Code Generation From .dbc"
-      env: GENERATE_CODE_FROM_DBC ="true"
