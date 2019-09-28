@@ -10,12 +10,12 @@ Open any one of the folders under `boards/` (e.g. `boards/DCM`) in **CLion**.
 
 ### Environment Dependencies
 Follow these steps so you can compile the code in **CLion**:
-1. **Install Dependencies**: There are several dependencies required in order to mimic what CI is doing. *(Note: All links below are for windows. All equivalent linux utilities may be easily installed via the package manager for your linux distribution (`apt-get` in Ubuntu, etc.) or using the scripts found under `scripts/environment_setup/`)*
+1. **Install Dependencies**: There are several dependencies required in order to mimic what CI is doing.
   * GNU Make: http://gnuwin32.sourceforge.net/packages/make.htm
   * CMake: https://cmake.org/install/
   * Python 3+ (*Python < 3 will NOT work*): https://www.python.org/downloads/
   * ARM GNU Embedded Toolchain: https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads (Check `install_gcc_arm_none_eabi.sh` for which version to download)
-  *  J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
+  * J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
 2. **Modify your `PATH` Environment Variable**: Make sure to add the binary executables to `PATH`. To add these, find `Environment Variables` in your start menu and then add the appropriate paths to `PATH`:
 ```
 C:\Program Files (x86)\GNU Tools Arm Embedded\<VERSION>\bin
