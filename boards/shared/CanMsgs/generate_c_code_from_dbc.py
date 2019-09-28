@@ -48,6 +48,7 @@ TX_SOURCE_FMT = '''\
  ******************************************************************************/
 #include <sched.h>
 #include "auto_generated/{header}"
+#include <string.h>
 #include "SharedMacros.h"
 #include "SharedCan.h"
 #include "stm32f3xx_hal.h"
@@ -145,17 +146,15 @@ void {fn_prefix}_PeriodicTransmit(void)
         // Is it time to transmit this particular CAN message?
         if ((HAL_GetTick() % {tx_table_name}[i].period) == 0)
         {{
-            uint8_t data[CAN_PAYLOAD_MAX_NUM_BYTES] = {{ 0 }};
-            // Populate the CAN payload
-            {tx_table_name}[i].pack_payload_fn(
-                &data[0],
-                {tx_table_name}[i].payload,
-                {tx_table_name}[i].dlc);
+            // Prepare CAN message to transmit
+            struct CanTxMsg message;
+            SHAREDCAN_PACK_CANTXMSG(message,
+                                    CanTxPeriodicTable[i].stdid,
+                                    CanTxPeriodicTable[i].dlc,
+                                    CanTxPeriodicTable[i].payload,
+                                    CanTxPeriodicTable[i].pack_payload_fn);
             // Transmit the CAN payload with the appropriate ID and DLC
-            SharedCan_TransmitDataCan(
-                {tx_table_name}[i].stdid,
-                {tx_table_name}[i].dlc,
-                &data[0]);
+            SharedCan_TransmitDataCan(message);
         }}
     }}
 }}
@@ -401,7 +400,6 @@ def generate_periodic_can_tx_code(database, database_name, board, source_dir, he
                                     tx_filename,
                                     tx_table_name,
                                     tx_payloads_name)
-
     with open(os.path.join(source_dir, tx_filename_c), 'w') as fout:
         fout.write(tx_source)
 

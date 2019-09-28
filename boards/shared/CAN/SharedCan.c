@@ -172,7 +172,7 @@ static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan)
         pdTRUE)
     {
         // Transmit one CAN message in queue
-        SharedCan_TransmitDataCan(message.std_id, message.dlc, message.data);
+        SharedCan_TransmitDataCan(message);
     }
     if (HigherPriorityTaskWoken != pdFALSE)
     {
@@ -188,33 +188,34 @@ static void SharedCan_EnqueueFifoOverflowError(void)
 
     cantx_overflow_count++;
 
-    memset(&message, 0, sizeof(message));
-    message.std_id = CAN_TX_FIFO_OVERFLOW_STDID;
-    message.dlc    = CAN_TX_FIFO_OVERFLOW_DLC;
-    memcpy(&message.data, &cantx_overflow_count, message.dlc);
+    SHAREDCAN_PACK_CANTXMSG(
+        message, CAN_TX_FIFO_OVERFLOW_STDID, CAN_TX_FIFO_OVERFLOW_DLC,
+        CAN_TX_FIFO_OVERFLOW_DATA, CAN_TX_FIFO_OVERFLOW_PACKING_FN);
 
     SharedCan_ForceEnqueueTxMessageAtFront(message);
 }
 
 static void SharedCan_BroadcastSystemReboot(void)
 {
-    // Since we do not know what CAN message is being used as the overflow
-    // message, we just use the maximum size allowed for the message data
-    SharedCan_TransmitDataCan(
-        PCB_STARTUP_STDID, PCB_STARTUP_DLC, PCB_STARTUP_DATA);
+    struct CanTxMsg message;
+
+    SHAREDCAN_PACK_CANTXMSG(
+        message, PCB_STARTUP_STDID, PCB_STARTUP_DLC, PCB_STARTUP_DATA,
+        PCB_STARTUP_PACKING_FN);
+    SharedCan_TransmitDataCan(message);
 }
 
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, void *data)
+void SharedCan_TransmitDataCan(struct CanTxMsg can_tx_msg)
 {
     // Indicates the mailbox used for transmission, not currently used
     uint32_t mailbox = 0;
 
     CAN_TxHeaderTypeDef tx_header;
 
-    tx_header.StdId = std_id;
+    tx_header.StdId = can_tx_msg.std_id;
 
     // The standard 11-bit CAN identifier is more than sufficent, so we disable
     // Extended CAN IDs by setting this field to zero.
@@ -227,7 +228,7 @@ void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, void *data)
     // This field can be either Data Frame or Remote Frame. For our
     // purpose, we only ever transmit Data Frames.
     tx_header.RTR = CAN_RTR_DATA;
-    tx_header.DLC = dlc;
+    tx_header.DLC = can_tx_msg.dlc;
 
 // Enabling this gives us a tick-based timestamp which we do not need and
 // would take up 2 bytes of the CAN payload. So we disable this setting.
@@ -247,18 +248,11 @@ void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, void *data)
 #ifdef STM32F042x6
     if (HAL_CAN_Transmit_IT(&hcan) != HAL_OK)
 #else
-    if (HAL_CAN_AddTxMessage(&hcan, &tx_header, (uint8_t *)data, &mailbox) !=
-        HAL_OK)
+    if (HAL_CAN_AddTxMessage(
+            &hcan, &tx_header, can_tx_msg.payload.data, &mailbox) != HAL_OK)
 #endif
     {
-        // Populate CAN TX message with CAN header and data
-        struct CanTxMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(tx_msg));
-        tx_msg.std_id = std_id;
-        tx_msg.dlc    = dlc;
-        memcpy(&tx_msg.data, data, tx_msg.dlc);
-
-        if (xQueueSendToBack(can_tx_msg_fifo.handle, &tx_msg, 0) != pdTRUE)
+        if (xQueueSendToBack(can_tx_msg_fifo.handle, &can_tx_msg, 0) != pdTRUE)
         {
             SharedCan_EnqueueFifoOverflowError();
         }
@@ -364,7 +358,7 @@ HAL_StatusTypeDef SharedCan_ReceiveDataCan(
 
 #else
     status |= HAL_CAN_GetRxMessage(
-        hcan, rx_fifo, &rx_msg->rx_header, &rx_msg->data[0]);
+        hcan, rx_fifo, &rx_msg->rx_header, &rx_msg->payload.data[0]);
 #endif
 
     return status;

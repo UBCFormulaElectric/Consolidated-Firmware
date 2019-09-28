@@ -8,6 +8,7 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
+#include <string.h>
 #include "CanMsgs.h"
 
 // Check for STM32 microcontroller family
@@ -41,28 +42,41 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
 
 // TODO(#356): Remove board-specific ifdefs
 #ifdef PDM
-    #define CAN_TX_FIFO_OVERFLOW_STDID  CANMSGS_PDM_CAN_TX_FIFO_OVERFLOW_FRAME_ID
-    #define CAN_TX_FIFO_OVERFLOW_DLC    CANMSGS_PDM_CAN_TX_FIFO_OVERFLOW_LENGTH
-    #define PCB_STARTUP_STDID           CANMSGS_PDM_STARTUP_FRAME_ID
-    #define PCB_STARTUP_DLC             CANMSGS_PDM_STARTUP_LENGTH
-    #define PCB_STARTUP_DATA            &App_CanMsgsTx_GetCanTxPayloads()->pdm_startup
+    #define CAN_TX_FIFO_OVERFLOW_STDID      CANMSGS_PDM_CAN_TX_FIFO_OVERFLOW_FRAME_ID
+    #define CAN_TX_FIFO_OVERFLOW_DLC        CANMSGS_PDM_CAN_TX_FIFO_OVERFLOW_LENGTH
+    #define CAN_TX_FIFO_OVERFLOW_DATA       &App_CanMsgsTx_GetCanTxPayloads()->pdm_can_tx_fifo_overflow
+    #define CAN_TX_FIFO_OVERFLOW_PACKING_FN CanMsgs_pdm_can_tx_fifo_overflow_pack
+    #define PCB_STARTUP_STDID               CANMSGS_PDM_STARTUP_FRAME_ID
+    #define PCB_STARTUP_DLC                 CANMSGS_PDM_STARTUP_LENGTH
+    #define PCB_STARTUP_DATA                &App_CanMsgsTx_GetCanTxPayloads()->pdm_startup
+    #define PCB_STARTUP_PACKING_FN          CanMsgs_pdm_startup_pack
 #elif FSM
-    #define CAN_TX_FIFO_OVERFLOW_STDID  CANMSGS_FSM_CAN_TX_FIFO_OVERFLOW_FRAME_ID
-    #define CAN_TX_FIFO_OVERFLOW_DLC    CANMSGS_FSM_CAN_TX_FIFO_OVERFLOW_LENGTH
-    #define PCB_STARTUP_STDID           CANMSGS_FSM_STARTUP_FRAME_ID
-    #define PCB_STARTUP_DLC             CANMSGS_FSM_STARTUP_LENGTH
-    #define PCB_STARTUP_DATA            &App_CanMsgsTx_GetCanTxPayloads()->fsm_startup
+    #define CAN_TX_FIFO_OVERFLOW_STDID      CANMSGS_FSM_CAN_TX_FIFO_OVERFLOW_FRAME_ID
+    #define CAN_TX_FIFO_OVERFLOW_DLC        CANMSGS_FSM_CAN_TX_FIFO_OVERFLOW_LENGTH
+    #define CAN_TX_FIFO_OVERFLOW_DATA       &App_CanMsgsTx_GetCanTxPayloads()->fsm_can_tx_fifo_overflow
+    #define CAN_TX_FIFO_OVERFLOW_PACKING_FN CanMsgs_fsm_can_tx_fifo_overflow_pack
+    #define PCB_STARTUP_STDID               CANMSGS_FSM_STARTUP_FRAME_ID
+    #define PCB_STARTUP_DLC                 CANMSGS_FSM_STARTUP_LENGTH
+    #define PCB_STARTUP_DATA                &App_CanMsgsTx_GetCanTxPayloads()->fsm_startup
+    #define PCB_STARTUP_PACKING_FN          CanMsgs_fsm_startup_pack
 #elif BMS
-    #define CAN_TX_FIFO_OVERFLOW_STDID  CANMSGS_bms_can_tx_fifo_overflow_FRAME_ID
-    #define CAN_TX_FIFO_OVERFLOW_DLC    CANMSGS_BMS_CAN_TX_FIFO_OVERFLOW_LENGTH
-    #define PCB_STARTUP_STDID           CANMSGS_bms_startup_FRAME_ID
-    #define PCB_STARTUP_DLC             CANMSGS_BMS_STARTUP_LENGTH
+    #define CAN_TX_FIFO_OVERFLOW_STDID      CANMSGS_bms_can_tx_fifo_overflow_FRAME_ID
+    #define CAN_TX_FIFO_OVERFLOW_DLC        CANMSGS_BMS_CAN_TX_FIFO_OVERFLOW_LENGTH
+    #define CAN_TX_FIFO_OVERFLOW_DATA       &App_CanMsgsTx_GetCanTxPayloads()->bms_can_tx_fifo_overflow
+    #define CAN_TX_FIFO_OVERFLOW_PACKING_FN CanMsgs_bms_can_tx_fifo_overflow_pack
+    #define PCB_STARTUP_STDID               CANMSGS_bms_startup_FRAME_ID
+    #define PCB_STARTUP_DLC                 CANMSGS_BMS_STARTUP_LENGTH
+    #define PCB_STARTUP_DATA                &App_CanMsgsTx_GetCanTxPayloads()->bms_startup
+    #define PCB_STARTUP_PACKING_FN          CanMsgs_bms_startup_pack
 #elif DCM
-    #define CAN_TX_FIFO_OVERFLOW_STDID  CANMSGS_DCM_CAN_TX_FIFO_OVERFLOW_FRAME_ID
-    #define CAN_TX_FIFO_OVERFLOW_DLC    CANMSGS_DCM_CAN_TX_FIFO_OVERFLOW_LENGTH
-    #define PCB_STARTUP_STDID           CANMSGS_DCM_STARTUP_FRAME_ID
-    #define PCB_STARTUP_DLC             CANMSGS_DCM_STARTUP_LENGTH
-    #define PCB_STARTUP_DATA            &App_CanMsgsTx_GetCanTxPayloads()->dcm_startup
+    #define CAN_TX_FIFO_OVERFLOW_STDID      CANMSGS_DCM_CAN_TX_FIFO_OVERFLOW_FRAME_ID
+    #define CAN_TX_FIFO_OVERFLOW_DLC        CANMSGS_DCM_CAN_TX_FIFO_OVERFLOW_LENGTH
+    #define CAN_TX_FIFO_OVERFLOW_DATA       &App_CanMsgsTx_GetCanTxPayloads()->dcm_can_tx_fifo_overflow
+    #define CAN_TX_FIFO_OVERFLOW_PACKING_FN CanMsgs_dcm_can_tx_fifo_overflow_pack
+    #define PCB_STARTUP_STDID               CANMSGS_DCM_STARTUP_FRAME_ID
+    #define PCB_STARTUP_DLC                 CANMSGS_DCM_STARTUP_LENGTH
+    #define PCB_STARTUP_DATA                &App_CanMsgsTx_GetCanTxPayloads()->dcm_startup
+    #define PCB_STARTUP_PACKING_FN          CanMsgs_dcm_startup_pack
 #else
     #error "No valid PCB name selected"
 #endif
@@ -225,6 +239,20 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
     ___msg_struct.MSG_ELEM_NAME = 1; \
     SHAREDCAN_SEND_CAN_MSG(MSG_NAME, &___msg_struct)
 
+/**
+ * @brief Prepare a CAN message to transmit. Note that the struct must be
+ *        cleared manually.
+ * @brief MESSAGE Message to prepare
+ * @brief STDID Standard CAN ID
+ * @brief DLC Data length code
+ * @brief SRC_DATA Pointer to the data we are copying over to MESSAGE.payload
+ * @brief PACKING_FN Message packing function generated by cantools
+ */
+#define SHAREDCAN_PACK_CANTXMSG(MESSAGE, STDID, DLC, SRC_DATA, PACKING_FN) \
+    memset(&MESSAGE, 0, sizeof(MESSAGE)); \
+    MESSAGE.std_id = STDID; \
+    MESSAGE.dlc    = DLC; \
+    PACKING_FN(MESSAGE.payload.data, SRC_DATA, DLC) \
 
 /******************************************************************************
  * Typedefs
@@ -257,19 +285,24 @@ typedef const struct
     uint32_t mask;
 } CanMaskFilterConfig_Struct;
 
+struct CanPayload
+{
+    uint8_t data[CAN_PAYLOAD_MAX_NUM_BYTES];
+};
+
 /** @brief All the information required to transmit a CAN message */
 struct CanTxMsg
 {
-    uint32_t std_id;
-    uint32_t dlc;
-    uint8_t  data[CAN_PAYLOAD_MAX_NUM_BYTES];
+    uint32_t          std_id;
+    uint32_t          dlc;
+    struct CanPayload payload;
 };
 
 /** @brief Combine HAL Rx CAN header with CAN payload */
 struct CanRxMsg
 {
     CAN_RxHeaderTypeDef rx_header;
-    uint8_t             data[CAN_PAYLOAD_MAX_NUM_BYTES];
+    struct CanPayload   payload;
 };
 
 /******************************************************************************
@@ -281,12 +314,10 @@ extern CAN_HandleTypeDef hcan;
  * Function Prototypes
  ******************************************************************************/
 /**
- * @brief  Transmits a CAN message
- * @param  std_id Standard CAN ID of the message to send
- * @param  dlc Data length code, indicates the length of the message in bytes
- * @param  data Pointer to data, which should not exceed 64-bits in size.
+ * @brief Transmits a CAN message
+ * @param can_tx_msg CAN message to transmit
  */
-void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, void *data);
+void SharedCan_TransmitDataCan(struct CanTxMsg can_tx_msg);
 
 /**
  * @brief  Overwrite the head item on the CAN TX queue
