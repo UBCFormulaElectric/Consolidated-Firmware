@@ -289,6 +289,12 @@ extern CAN_HandleTypeDef hcan;
 void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, void *data);
 
 /**
+ * @brief  Overwrite the head item on the CAN TX queue
+ * @param  message CAN message to overwrite with
+ */
+void SharedCan_ForceEnqueueTxMessageAtFront(struct CanTxMsg message);
+
+/**
  * @brief  Initialize CAN interrupts and CAN filters before starting the CAN
  *         module. After this, the node is active on the bus: it receive
  *         messages, and can send messages. This should be placed inside

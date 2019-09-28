@@ -81,7 +81,7 @@ static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan);
 /**
  * @brief  Send the overflow count for transmit FIFO over CAN. Note that this
  *         destroys one CAN message already enqueued.
- * @param  overflow_count Number of overflows occured thus far
+ * @param  cantx_overflow_count Number of overflows occured thus far
  */
 static void SharedCan_EnqueueFifoOverflowError(void);
 
@@ -183,23 +183,17 @@ static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan)
 static void SharedCan_EnqueueFifoOverflowError(void)
 {
     struct CanTxMsg message;
-    static uint32_t overflow_count = 0;
+    // Total number of CAN TX FIFO overflows
+    static uint32_t cantx_overflow_count = 0;
 
-    // Keep track of how many times the FIFO has overflown.
-    overflow_count++;
+    cantx_overflow_count++;
 
-    // When we enter this function, the CAN FIFO is already full. So we forcibly
-    // remove one message to make space in the CAN FIFO to transmit
-    // overflow_count. I wrapped the code block with critical section to make
-    // sure a context switch doesn't happen in between an element being dequeued
-    // and this task enqueuing overflow_count.
-    taskENTER_CRITICAL();
-    xQueueReceive(can_tx_msg_fifo.handle, &message, 0);
-    memcpy(&message.data, &overflow_count, sizeof(overflow_count));
-    message.dlc    = CAN_TX_FIFO_OVERFLOW_DLC;
+    memset(&message, 0, sizeof(message));
     message.std_id = CAN_TX_FIFO_OVERFLOW_STDID;
-    xQueueSendToFront(can_tx_msg_fifo.handle, &message, 0);
-    taskEXIT_CRITICAL();
+    message.dlc    = CAN_TX_FIFO_OVERFLOW_DLC;
+    memcpy(&message.data, &cantx_overflow_count, message.dlc);
+
+    SharedCan_ForceEnqueueTxMessageAtFront(message);
 }
 
 static void SharedCan_BroadcastSystemReboot(void)
@@ -269,6 +263,34 @@ void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, void *data)
             SharedCan_EnqueueFifoOverflowError();
         }
     }
+}
+
+void SharedCan_ForceEnqueueTxMessageAtFront(struct CanTxMsg message)
+{
+    struct CanTxMsg dummy_buffer;
+    taskENTER_CRITICAL();
+    if (uxQueueSpacesAvailable(can_tx_msg_fifo.handle) == 0)
+    {
+        if (xPortIsInsideInterrupt())
+        {
+            xQueueReceiveFromISR(can_tx_msg_fifo.handle, &dummy_buffer, NULL);
+        }
+        else
+        {
+            xQueueReceive(can_tx_msg_fifo.handle, &dummy_buffer, 0);
+        }
+    }
+
+    if (xPortIsInsideInterrupt())
+    {
+        xQueueSendToFrontFromISR(can_tx_msg_fifo.handle, &message, NULL);
+    }
+    else
+    {
+        xQueueSendToFront(can_tx_msg_fifo.handle, &message, 0);
+    }
+
+    taskEXIT_CRITICAL();
 }
 
 void SharedCan_StartCanInInterruptMode(
