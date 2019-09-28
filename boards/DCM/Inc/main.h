@@ -34,6 +34,10 @@ extern "C"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "SharedHalHandler.h"
+
+#define CAN_ERROR_MSG_TYPE CanMsgs_dcm_errors_t
+#include "SharedSoftFaultHandler.h"
+
     /* USER CODE END Includes */
 
     /* Exported types

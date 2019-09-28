@@ -28,6 +28,7 @@ struct CanTxPayloads CanTxPayloads =
     .dcm_heartbeat = { 0 }, /* Warning: This DLC of this message is 0 so its struct contains only a dummy variable */
     .dcm_can_tx_fifo_overflow = { 0 },
     .dcm_startup = { 0 }, /* Warning: This DLC of this message is 0 so its struct contains only a dummy variable */
+    .dcm_errors = { 0 },
 };
 
 /**

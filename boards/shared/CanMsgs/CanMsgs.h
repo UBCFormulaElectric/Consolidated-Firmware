@@ -57,6 +57,7 @@
 #define CANMSGS_bms_can_tx_fifo_overflow_FRAME_ID (0x02u)
 #define CANMSGS_dcm_can_tx_fifo_overflow_FRAME_ID (0x22u)
 #define CANMSGS_dcm_startup_FRAME_ID (0x23u)
+#define CANMSGS_dcm_errors_FRAME_ID (0x24u)
 #define CANMSGS_pdm_aux1_aux2_current_FRAME_ID (0x66u)
 #define CANMSGS_pdm_cooling_pdmfan_current_FRAME_ID (0x67u)
 #define CANMSGS_pdm_airshdn_canglv_current_FRAME_ID (0x68u)
@@ -83,6 +84,7 @@
 #define CANMSGS_BMS_CAN_TX_FIFO_OVERFLOW_LENGTH (4u)
 #define CANMSGS_DCM_CAN_TX_FIFO_OVERFLOW_LENGTH (4u)
 #define CANMSGS_DCM_STARTUP_LENGTH (0u)
+#define CANMSGS_DCM_ERRORS_LENGTH (2u)
 #define CANMSGS_PDM_AUX1_AUX2_CURRENT_LENGTH (8u)
 #define CANMSGS_PDM_COOLING_PDMFAN_CURRENT_LENGTH (8u)
 #define CANMSGS_PDM_AIRSHDN_CANGLV_CURRENT_LENGTH (8u)
@@ -109,6 +111,7 @@
 #define CANMSGS_BMS_CAN_TX_FIFO_OVERFLOW_IS_EXTENDED (0)
 #define CANMSGS_DCM_CAN_TX_FIFO_OVERFLOW_IS_EXTENDED (0)
 #define CANMSGS_DCM_STARTUP_IS_EXTENDED (0)
+#define CANMSGS_DCM_ERRORS_IS_EXTENDED (0)
 #define CANMSGS_PDM_AUX1_AUX2_CURRENT_IS_EXTENDED (0)
 #define CANMSGS_PDM_COOLING_PDMFAN_CURRENT_IS_EXTENDED (0)
 #define CANMSGS_PDM_AIRSHDN_CANGLV_CURRENT_IS_EXTENDED (0)
@@ -135,6 +138,7 @@
 #define CANMSGS_BMS_CAN_TX_FIFO_OVERFLOW_CYCLE_TIME_MS (0u)
 #define CANMSGS_DCM_CAN_TX_FIFO_OVERFLOW_CYCLE_TIME_MS (0u)
 #define CANMSGS_DCM_STARTUP_CYCLE_TIME_MS (0u)
+#define CANMSGS_DCM_ERRORS_CYCLE_TIME_MS (0u)
 #define CANMSGS_PDM_AUX1_AUX2_CURRENT_CYCLE_TIME_MS (1000u)
 #define CANMSGS_PDM_COOLING_PDMFAN_CURRENT_CYCLE_TIME_MS (1000u)
 #define CANMSGS_PDM_AIRSHDN_CANGLV_CURRENT_CYCLE_TIME_MS (1000u)
@@ -426,6 +430,27 @@ struct CanMsgs_dcm_startup_t {
      * Dummy signal in empty message.
      */
     uint8_t dummy;
+};
+
+/**
+ * Signals in message DCM_ERRORS.
+ *
+ * All signal values are as on the CAN bus.
+ */
+struct CanMsgs_dcm_errors_t {
+    /**
+     * Range: 0..1 (0..1 -)
+     * Scale: 1
+     * Offset: 0
+     */
+    uint8_t test_error_a : 1;
+
+    /**
+     * Range: 0..1 (0..1 -)
+     * Scale: 1
+     * Offset: 0
+     */
+    uint8_t test_error_b : 1;
 };
 
 /**
@@ -1461,6 +1486,88 @@ int CanMsgs_dcm_startup_unpack(
     struct CanMsgs_dcm_startup_t *dst_p,
     const uint8_t *src_p,
     size_t size);
+
+/**
+ * Pack message DCM_ERRORS.
+ *
+ * @param[out] dst_p Buffer to pack the message into.
+ * @param[in] src_p Data to pack.
+ * @param[in] size Size of dst_p.
+ *
+ * @return Size of packed data, or negative error code.
+ */
+int CanMsgs_dcm_errors_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_dcm_errors_t *src_p,
+    size_t size);
+
+/**
+ * Unpack message DCM_ERRORS.
+ *
+ * @param[out] dst_p Object to unpack the message into.
+ * @param[in] src_p Message to unpack.
+ * @param[in] size Size of src_p.
+ *
+ * @return zero(0) or negative error code.
+ */
+int CanMsgs_dcm_errors_unpack(
+    struct CanMsgs_dcm_errors_t *dst_p,
+    const uint8_t *src_p,
+    size_t size);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+uint8_t CanMsgs_dcm_errors_test_error_a_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_dcm_errors_test_error_a_decode(uint8_t value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_dcm_errors_test_error_a_is_in_range(uint8_t value);
+
+/**
+ * Encode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to encode.
+ *
+ * @return Encoded signal.
+ */
+uint8_t CanMsgs_dcm_errors_test_error_b_encode(double value);
+
+/**
+ * Decode given signal by applying scaling and offset.
+ *
+ * @param[in] value Signal to decode.
+ *
+ * @return Decoded signal.
+ */
+double CanMsgs_dcm_errors_test_error_b_decode(uint8_t value);
+
+/**
+ * Check that given signal is in allowed range.
+ *
+ * @param[in] value Signal to check.
+ *
+ * @return true if in range, false otherwise.
+ */
+bool CanMsgs_dcm_errors_test_error_b_is_in_range(uint8_t value);
 
 /**
  * Pack message PDM_AUX1_AUX2_CURRENT.

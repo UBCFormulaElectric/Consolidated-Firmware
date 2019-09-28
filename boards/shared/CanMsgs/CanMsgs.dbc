@@ -72,6 +72,11 @@ SG_ overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
 BO_ 35 DCM_STARTUP: 0 DCM
 
 
+BO_ 36 DCM_ERRORS: 2 DCM
+SG_ TEST_ERROR_A : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ TEST_ERROR_B : 1|1@1+ (1,0) [0|1] "" Vector__XXX
+
+
 BO_ 102 PDM_AUX1_AUX2_CURRENT: 8 PDM
 SG_ Auxiliary1_Current : 0|32@1- (1,0) [-3.4E038|3.4E038] "A" Vector__XXX
 SG_ Auxiliary2_Current : 32|32@1- (1,0) [-3.4E038|3.4E038] "A" Vector__XXX

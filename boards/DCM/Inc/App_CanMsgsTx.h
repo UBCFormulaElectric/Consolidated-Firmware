@@ -44,6 +44,7 @@ struct CanTxPayloads
     struct CanMsgs_dcm_heartbeat_t dcm_heartbeat; /* Warning: This DLC of this message is 0 so its struct contains only a dummy variable */
     struct CanMsgs_dcm_can_tx_fifo_overflow_t dcm_can_tx_fifo_overflow;
     struct CanMsgs_dcm_startup_t dcm_startup; /* Warning: This DLC of this message is 0 so its struct contains only a dummy variable */
+    struct CanMsgs_dcm_errors_t dcm_errors;
 };
 
 /******************************************************************************
