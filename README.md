@@ -4,9 +4,9 @@ A consolidated repository for gathering all firmware under one roof.
 ## Project Setup
 
 ### Integrated Development Environment (IDE)
-We edit, compile, and debug our code using [CLion](https://www.jetbrains.com/clion/).
-Students can obtain a CLion educational license [here](https://www.jetbrains.com/shop/eform/students).
-Open any one of the folders under `boards/` (e.g. `boards/DCM`) in **CLion**.
+We edit, compile, and debug our code using [CLion](https://www.jetbrains.com/clion/). Students can obtain a CLion educational license [here](https://www.jetbrains.com/shop/eform/students). To open an existing project, open any one of the board-specific folders under `boards/` (e.g. `boards/DCM`) in **CLion**.
+
+In each project, there will be two configurations to use: `<board>_SeggerGDB.elf` and `OCD <board>`. Either one can be used for flashing and debugging, but the `<board>_SeggerGDB.elf` has unlimited flash breakpoints among some other extra functionalities. Use `<board>_SeggerGDB.elf` whenever possible.
 
 ### Environment Dependencies
 Follow these steps so you can compile the code in **CLion**:
@@ -16,13 +16,27 @@ Follow these steps so you can compile the code in **CLion**:
   * Python 3+ (*Python < 3 will NOT work*): https://www.python.org/downloads/
   * ARM GNU Embedded Toolchain: https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads (Check `install_gcc_arm_none_eabi.sh` for which version to download)
   * J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
-2. **Modify your `PATH` Environment Variable**: Make sure to add the binary executables to `PATH`. To add these, find `Environment Variables` in your start menu and then add the appropriate paths to `PATH`:
+  * OpenOCD
+    * Linux: `sudo apt-get install openocd`
+  * STM32CubeMX: https://www.st.com/en/development-tools/stm32cubemx.html
+2. **Modify your `PATH` Environment Variable**: Make sure to add the binary executables to `PATH`.
+
+For Linux, modify the `PATH` variable using the syntax below
+```
+export PATH="$PATH:/path/to/arm-none-eabi-gcc"
+export PATH="$PATH:/path/to/STM32CubeMX"
+...
+```
+
+For Windows, find `Environment Variables` in your start menu and then add the appropriate paths to `PATH`:
 ```
 C:\Program Files (x86)\GNU Tools Arm Embedded\<VERSION>\bin
 C:\Program Files (x86)\GnuWin32\bin
+C:\Program FIles (x86)\...\path\to\STM32CubeMX
 ...
 ```
-(*These paths should include wherever the `cmake`, `make`, and `GCC` binaries have been installed.*)
+
+(*These paths should include wherever the `cmake`, `make`, `arm-none-eabi-gcc`, and STM32CubeMX binaries have been installed.*)
 
 #### Python Package Dependencies
 We use python both for CI (see below), and to generate C code from the `.dbc` defining messages passed over CAN. Python dependencies are managed via [pipenv](https://pipenv.readthedocs.io/en/latest/). To install all required dependencies in a [python virtual environment](https://realpython.com/python-virtual-environments-a-primer/), navigate to the root of this repository and run `pipenv install`.
