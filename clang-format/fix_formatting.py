@@ -58,6 +58,7 @@ def runClangFormat():
         "CMakeFiles",
         "SEGGER_RTT",
         "TraceRecorder",
+        "auto_generated",
     ]
 
     # Print the current working directory since the paths are relative

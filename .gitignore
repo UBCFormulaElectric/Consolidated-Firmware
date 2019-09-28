@@ -91,6 +91,7 @@ src/**/*.xml
 **/.idea/*.xml
 !**/.idea/misc.xml
 !**/.idea/runConfigurations/*
+auto_generated/
 
 
 # Miscellaneous
