@@ -6,6 +6,9 @@
 #define TEST
 
 void SharedSoftFaultHandler_disableInterruptsAndSendOutErrorMsg(){
-    // TODO: disable interrupts here
     // TODO: Send out CAN error message here
+
+    __disable_irq();
+
+    while(true){};
 }

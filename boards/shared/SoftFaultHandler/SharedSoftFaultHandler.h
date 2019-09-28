@@ -32,7 +32,8 @@ SharedSoftFaultHandler_disableInterruptsAndSendOutErrorMsg()
 
 
 /**
- * Disables interrupts and sends out the error message for this board
+ * Disables interrupts and sends out the error message for this board, then goes
+ * into an infinite loop
  */
 void SharedSoftFaultHandler_disableInterruptsAndSendOutErrorMsg();
 
