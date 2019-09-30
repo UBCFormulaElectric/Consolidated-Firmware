@@ -14,12 +14,13 @@ Follow these steps so you can compile the code in **CLion**:
   * GNU Make: http://gnuwin32.sourceforge.net/packages/make.htm
   * CMake: https://cmake.org/install/
   * Python 3+ (*Python < 3 will NOT work*): https://www.python.org/downloads/
-  * ARM GNU Embedded Toolchain: https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads (Check `install_gcc_arm_none_eabi.sh` for which version to download)
-  * MinGW for windows: https://sourceforge.net/projects/mingw-w64/ (**select 32-bit verison/i686 architecture**) 
+  * ARM GNU Embedded Toolchain: https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads (Check `install_gcc_arm_none_eabi.sh` for which version to download) 
   * J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
   * OpenOCD
     * Linux: `sudo apt-get install openocd`
   * STM32CubeMX: https://www.st.com/en/development-tools/stm32cubemx.html
+  * **Windows-only Dependency:**
+  * MinGW for windows: https://sourceforge.net/projects/mingw-w64/ (**select 32-bit verison/i686 architecture**)
 2. **Modify your `PATH` Environment Variable**: Make sure to add the binary executables to `PATH`.
 
 For Linux, modify the `PATH` variable using the syntax below
