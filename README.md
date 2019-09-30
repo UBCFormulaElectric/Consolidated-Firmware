@@ -38,7 +38,7 @@ C:\Program FIles (x86)\...\path\to\STM32CubeMX
 ```
 
 (*These paths should include wherever the `cmake`, `make`, `arm-none-eabi-gcc`, and STM32CubeMX binaries have been installed.*)
-## CLion Windows Settings
+### CLion Windows Settings
 Under File->Settings->**Build, Execution, Deployment...**->Toolchains:
 Set the default toolchain to be MinGW and provide the file path to the 32-bit version of MinGW, ie: 
 ```
