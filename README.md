@@ -34,8 +34,7 @@ Follow these steps so you can compile the code in **CLion**:
   * OpenOCD
     * Linux: `sudo apt-get install openocd`
   * STM32CubeMX: https://www.st.com/en/development-tools/stm32cubemx.html
-  * **Windows-only Dependency:**
-  * MinGW for windows: https://sourceforge.net/projects/mingw-w64/ (**select 32-bit verison/i686 architecture**)
+  * MinGW (**for Windows only**): https://sourceforge.net/projects/mingw-w64/ (**select 32-bit verison/i686 architecture**)
 2. **Modify your `PATH` Environment Variable**: Make sure to add the binary executables to `PATH`.
 
 For Linux, modify the `PATH` variable using the syntax below
