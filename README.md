@@ -15,6 +15,7 @@ Follow these steps so you can compile the code in **CLion**:
   * CMake: https://cmake.org/install/
   * Python 3+ (*Python < 3 will NOT work*): https://www.python.org/downloads/
   * ARM GNU Embedded Toolchain: https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads (Check `install_gcc_arm_none_eabi.sh` for which version to download)
+  * MinGW for windows: https://sourceforge.net/projects/mingw-w64/ (select 32-bit verison/i686 architecture) 
   * J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
   * OpenOCD
     * Linux: `sudo apt-get install openocd`
@@ -37,6 +38,22 @@ C:\Program FIles (x86)\...\path\to\STM32CubeMX
 ```
 
 (*These paths should include wherever the `cmake`, `make`, `arm-none-eabi-gcc`, and STM32CubeMX binaries have been installed.*)
+## CLion Windows Settings
+Under File->Settings->**Build, Execution, Deployment...**->Toolchains:
+Set the default toolchain to be MinGW and provide the file path to the 32-bit version of MinGW, ie: 
+```
+C:\Program Files (x86)\mingw-w64\i686-8.1.0-posix-dwarf-rt_v6-rev0\mingw32
+```
+Next, set the debugger to be ARM GDB, ie:
+```
+C:\Program Files (x86)\GNU Tools ARM Embedded\8 2019-q3-update\bin\arm-none-eabi-gdb.exe
+```
+#### Debug Settings for Windows
+For each project under Run->**Edit Configurations**:
+Select Embedded GDB Server and set the GDB Server to be JLinkGDBServer, ie:
+```
+C:\Program Files (x86)\SEGGER\JLink\JLinkGDBServer.exe
+```
 
 #### Python Package Dependencies
 We use python both for CI (see below), and to generate C code from the `.dbc` defining messages passed over CAN. Python dependencies are managed via [pipenv](https://pipenv.readthedocs.io/en/latest/). To install all required dependencies in a [python virtual environment](https://realpython.com/python-virtual-environments-a-primer/), navigate to the root of this repository and run `pipenv install`.
