@@ -29,7 +29,7 @@ Follow these steps so you can compile the code in **CLion**:
   * GNU Make: http://gnuwin32.sourceforge.net/packages/make.htm
   * CMake: https://cmake.org/install/
   * Python 3+ (*Python < 3 will NOT work*): https://www.python.org/downloads/
-  * ARM GNU Embedded Toolchain: https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads (Check `install_gcc_arm_none_eabi.sh` for which version to download) 
+  * ARM GNU Embedded Toolchain: https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads (Check `install_gcc_arm_none_eabi.sh` for which version to download)
   * J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
   * OpenOCD
     * Linux: `sudo apt-get install openocd`
