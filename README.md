@@ -3,7 +3,7 @@ A consolidated repository for gathering all firmware under one roof.
 
 ## Project Setup
 
-### Clion
+### CLion
 We edit, compile, and debug our code using [CLion](https://www.jetbrains.com/clion/). Students can obtain a CLion educational license [here](https://www.jetbrains.com/shop/eform/students). To open an existing project, open any one of the board-specific folders under `boards/` (e.g. `boards/DCM`) in **CLion**.
 
 In each project, there will be two configurations to use: `<board>_SeggerGDB.elf` and `OCD <board>`. Either one can be used for flashing and debugging, but the `<board>_SeggerGDB.elf` has unlimited flash breakpoints among some other extra functionalities. Use `<board>_SeggerGDB.elf` whenever possible.
