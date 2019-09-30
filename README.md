@@ -8,7 +8,7 @@ We edit, compile, and debug our code using [CLion](https://www.jetbrains.com/cli
 
 In each project, there will be two configurations to use: `<board>_SeggerGDB.elf` and `OCD <board>`. Either one can be used for flashing and debugging, but the `<board>_SeggerGDB.elf` has unlimited flash breakpoints among some other extra functionalities. Use `<board>_SeggerGDB.elf` whenever possible.
 ##### Configure arm-none-eabi-gdb
-Under File->Settings->**Build, Execution, Deployment...**->Toolchains:
+Under **File->Settings->Build, Execution, Deployment...->Toolchains**:
 Set the default toolchain to be MinGW and provide the file path to the 32-bit version of MinGW, ie: 
 ```
 C:\Program Files (x86)\mingw-w64\i686-8.1.0-posix-dwarf-rt_v6-rev0\mingw32
