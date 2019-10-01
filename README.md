@@ -54,8 +54,8 @@ C:\Program Files (x86)\GNU Tools ARM Embedded\8 2019-q3-update\bin\arm-none-eabi
 ```
 
 ##### Configure J-Link GDB Server (For Windows Only)
-For each project under **Run->Edit Configurations**:
-Select Embedded GDB Server and set the GDB Server to be JLinkGDBServer, ie:
+For each project under **Run->Edit Configurations->Embedded GDB Server**, select `<board_name>_SeggerGDB`:
+Then set the GDB Server to be JLinkGDBServer, ie:
 ```
 C:\Program Files (x86)\SEGGER\JLink\JLinkGDBServer.exe
 ```
