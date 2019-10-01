@@ -69,8 +69,7 @@ We run (and require) continuous integration on every pull request before it is m
   * *Windows and Linux:*
   ```
   python clang_format/fix_formatting.py
-  ```
-  
+  ```  
 #### CommentPragmas
 In `.clang-format`, the line `CommentPragmas: '\/\*(\*(?!\/_|[^*])*\*\/'` is ineffective because it's being preempted by `ReflowComments`. We are hoping that the next version of `clang-format` will resolve this.
 
