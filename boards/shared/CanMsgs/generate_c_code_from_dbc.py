@@ -147,14 +147,18 @@ void {fn_prefix}_PeriodicTransmit(void)
         if ((HAL_GetTick() % {tx_table_name}[i].period) == 0)
         {{
             // Prepare CAN message to transmit
-            struct CanTxMsg message;
-            SHAREDCAN_PACK_CANTXMSG(message,
-                                    CanTxPeriodicTable[i].stdid,
-                                    CanTxPeriodicTable[i].dlc,
-                                    CanTxPeriodicTable[i].payload,
-                                    CanTxPeriodicTable[i].pack_payload_fn);
+            struct CanTxMsg __message;
+            memset(&__message, 0, sizeof(__message));
+            __message.std_id = CanTxPeriodicTable[i].stdid;
+            __message.dlc = CanTxPeriodicTable[i].dlc;
+
+            CanTxPeriodicTable[i].pack_payload_fn(
+                __message.payload,
+                CanTxPeriodicTable[i].payload,
+                CanTxPeriodicTable[i].dlc);
+
             // Transmit the CAN payload with the appropriate ID and DLC
-            SharedCan_TransmitDataCan(message);
+            SharedCan_TransmitDataCan(&__message);
         }}
     }}
 }}
@@ -224,6 +228,21 @@ def change_frame_id_capitalization(code: str) -> str:
     return sub(
         r'CANMSGS_(.*)_FRAME_ID',
         lambda match: r'CANMSGS_{}_FRAME_ID'.format(match.group(1).lower()),
+        code)
+
+def change_length_capitalization(code: str) -> str:
+    """
+    Sets the symbol name in the FRAME_ID constant to lowercase for all CAN
+    messages. This is done to allow us to reference both the constants and
+    the associated function in C macros.
+    """
+    # Ex. replace:
+    # "CANMSGS_SYMBOL1_FRAME_ID"
+    # with:
+    # "CANMSGS_symbol1_FRAME_ID"
+    return sub(
+        r'CANMSGS_(.*)_LENGTH',
+        lambda match: r'CANMSGS_{}_LENGTH'.format(match.group(1).lower()),
         code)
 
 def _generate_tx_can_table_entries(database, database_name, sender, payloads_name):
@@ -438,6 +457,9 @@ def generate_cantools_c_code(database, database_name, cantools_gen_dir):
 
     header = change_frame_id_capitalization(header)
     source = change_frame_id_capitalization(source)
+
+    source = change_length_capitalization(source)
+    header = change_length_capitalization(header)
 
     # Save generated source code to disk
     with open(os.path.join(cantools_gen_dir, filename_h), 'w') as fout:
