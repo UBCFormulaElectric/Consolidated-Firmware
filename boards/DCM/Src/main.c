@@ -19,7 +19,6 @@
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
-#include <App_CanMsgsTx.h>
 #include "main.h"
 #include "cmsis_os.h"
 
@@ -31,6 +30,7 @@
 #include "SharedCan.h"
 #include "SharedHeartbeat.h"
 #include "SharedHardFaultHandler.h"
+#include "auto_generated/App_CanMsgsTx.h"
 #include "Io_Can.h"
 /* USER CODE END Includes */
 

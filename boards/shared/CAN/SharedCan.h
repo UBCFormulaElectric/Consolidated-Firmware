@@ -39,16 +39,17 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
 #define CAN_PAYLOAD_MAX_NUM_BYTES 8 // Maximum number of bytes in a CAN payload
 #define CAN_ExtID_NULL 0 // Set CAN Extended ID to 0 because we are not using it
 
+// TODO(#356): Remove board-specific ifdefs
 #ifdef PDM
-    #define CAN_TX_FIFO_OVERFLOW_STDID  CANMSGS_pdm_can_tx_fifo_overflow_FRAME_ID
+    #define CAN_TX_FIFO_OVERFLOW_STDID  CANMSGS_PDM_CAN_TX_FIFO_OVERFLOW_FRAME_ID
     #define CAN_TX_FIFO_OVERFLOW_DLC    CANMSGS_PDM_CAN_TX_FIFO_OVERFLOW_LENGTH
-    #define PCB_STARTUP_STDID           CANMSGS_pdm_startup_FRAME_ID
+    #define PCB_STARTUP_STDID           CANMSGS_PDM_STARTUP_FRAME_ID
     #define PCB_STARTUP_DLC             CANMSGS_PDM_STARTUP_LENGTH
     #define PCB_STARTUP_DATA            &App_CanMsgsTx_GetCanTxPayloads()->pdm_startup
 #elif FSM
-    #define CAN_TX_FIFO_OVERFLOW_STDID  CANMSGS_fsm_can_tx_fifo_overflow_FRAME_ID
+    #define CAN_TX_FIFO_OVERFLOW_STDID  CANMSGS_FSM_CAN_TX_FIFO_OVERFLOW_FRAME_ID
     #define CAN_TX_FIFO_OVERFLOW_DLC    CANMSGS_FSM_CAN_TX_FIFO_OVERFLOW_LENGTH
-    #define PCB_STARTUP_STDID           CANMSGS_fsm_startup_FRAME_ID
+    #define PCB_STARTUP_STDID           CANMSGS_FSM_STARTUP_FRAME_ID
     #define PCB_STARTUP_DLC             CANMSGS_FSM_STARTUP_LENGTH
     #define PCB_STARTUP_DATA            &App_CanMsgsTx_GetCanTxPayloads()->fsm_startup
 #elif BMS
@@ -57,9 +58,9 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
     #define PCB_STARTUP_STDID           CANMSGS_bms_startup_FRAME_ID
     #define PCB_STARTUP_DLC             CANMSGS_BMS_STARTUP_LENGTH
 #elif DCM
-    #define CAN_TX_FIFO_OVERFLOW_STDID  CANMSGS_dcm_can_tx_fifo_overflow_FRAME_ID
+    #define CAN_TX_FIFO_OVERFLOW_STDID  CANMSGS_DCM_CAN_TX_FIFO_OVERFLOW_FRAME_ID
     #define CAN_TX_FIFO_OVERFLOW_DLC    CANMSGS_DCM_CAN_TX_FIFO_OVERFLOW_LENGTH
-    #define PCB_STARTUP_STDID           CANMSGS_dcm_startup_FRAME_ID
+    #define PCB_STARTUP_STDID           CANMSGS_DCM_STARTUP_FRAME_ID
     #define PCB_STARTUP_DLC             CANMSGS_DCM_STARTUP_LENGTH
     #define PCB_STARTUP_DATA            &App_CanMsgsTx_GetCanTxPayloads()->dcm_startup
 #else
@@ -286,6 +287,12 @@ extern CAN_HandleTypeDef hcan;
  * @param  data Pointer to data, which should not exceed 64-bits in size.
  */
 void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, void *data);
+
+/**
+ * @brief  Overwrite the head item on the CAN TX queue
+ * @param  message CAN message to overwrite with
+ */
+void SharedCan_ForceEnqueueTxMessageAtFront(struct CanTxMsg message);
 
 /**
  * @brief  Initialize CAN interrupts and CAN filters before starting the CAN

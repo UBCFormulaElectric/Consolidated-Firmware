@@ -5,14 +5,12 @@ This file contains all the functionality required to generate C code from our
 
 import logging
 import os
+import sys
+import argparse
 from re import sub
 from cantools.database.can.c_source import generate
 from cantools.database.can.c_source import Message
 from cantools.database import load_file
-
-# We assume that the DBC file is in the same directory
-# as this script
-DBC_DIR = os.path.dirname(os.path.abspath(__file__))
 
 TX_HEADER_FMT = '''\
 /**
@@ -49,7 +47,7 @@ TX_SOURCE_FMT = '''\
  * Includes
  ******************************************************************************/
 #include <sched.h>
-#include "{header}"
+#include "auto_generated/{header}"
 #include "SharedMacros.h"
 #include "SharedCan.h"
 #include "stm32f3xx_hal.h"
@@ -256,7 +254,7 @@ def _generate_tx_can_table(database, database_name, sender, table_name, payloads
 
 def _generate_payloads_typedef_members(database, sender, database_name):
     """
-    Generaet C source code to for each struct member of the typedef struct containing
+    Generates C source code to for each struct member of the typedef struct containing
     payloads for all CAN TX messages
     """
     messages = [Message(message) for message in database.messages]
@@ -275,7 +273,7 @@ def _generate_payloads_typedef_members(database, sender, database_name):
 
 def _generate_payloads_typedef(database, sender, database_name, payloads_name):
     """
-    Generate C source code for a typedef struct containing payloads for all CAN TX messages
+    Generates C source code for a typedef struct containing payloads for all CAN TX messages
     """
     return TX_PAYLOADS_TYPEDEF_FMT.format(sender=sender,
                                           members=_generate_payloads_typedef_members(database, sender, database_name),
@@ -294,7 +292,7 @@ def _generate_tx_typedefs(database, sender, database_name, table_name, payloads_
 
 def _generate_tx_payload_inits(database, sender):
     """
-    Generate C source code to initialize each CAN TX payload
+    Generates C source code to initialize each CAN TX payload
     """
     messages = [Message(message) for message in database.messages]
 
@@ -310,13 +308,13 @@ def _generate_tx_payload_inits(database, sender):
 
 def _generate_tx_payloads(database, sender, payloads_name):
     """
-    Generate C source code for a struct containing payloads for all CAN TX messages
+    Generates C source code for a struct containing payloads for all CAN TX messages
     """
     return TX_PAYLOADS_FMT.format(members=_generate_tx_payload_inits(database, sender), tx_payloads_name=payloads_name)
 
 def _generate_tx_variables(database, database_name, sender, table_name, payloads_name):
     """
-    Generate C source code for file-scope variables
+    Generates C source code for file-scope variables
     """
     variables = []
     variables.append(_generate_tx_payloads(database, sender, payloads_name))
@@ -326,7 +324,7 @@ def _generate_tx_variables(database, database_name, sender, table_name, payloads
 
 def _generate_tx_macros():
     """
-    Generate C source code for helper macros
+    Generates C source code for helper macros
     """
     macros = []
     macros.append(TX_TABEL_ENTRY_HELPER)
@@ -360,7 +358,7 @@ def _generate_tx_source(database, database_name, sender, header_name, function_p
 
 def _generate_tx_function_declarations(function_prefix, table_name, payloads_name):
     """
-    Generate C source cod for CAN TX function declarations
+    Generates C source cod for CAN TX function declarations
     """
     function_declarations = []
     function_declarations.append(TX_PERIODIC_SEND_FUNC_DECLARATION_FMT.format(fn_prefix=function_prefix))
@@ -371,67 +369,64 @@ def _generate_tx_function_declarations(function_prefix, table_name, payloads_nam
 
 def _generate_tx_header(header_name, function_prefix, database, sender, database_name, table_name, payloads_name):
     """
-    Generate C header files for CAN TX
+    Generates C header files for CAN TX
     """
     return TX_HEADER_FMT.format(sender=sender,
                                 header=header_name,
                                 typedefs=_generate_tx_typedefs(database, sender, database_name, table_name, payloads_name),
                                 function_declarations=_generate_tx_function_declarations(function_prefix, table_name, payloads_name))
 
-def generate_code_from_dbc(database_name):
+def generate_periodic_can_tx_code(database, database_name, board, source_dir, header_dir):
     """
-    Generates C source code for the given .dbc file
+    Generates C source code to transmit periodic CAN messages for the given board and .dbc file 
     """
-    # TODO: Uncomment FSM and DCM when PR is reviewed
-    board_specific_paths = {
-        "Source": {
-            "FSM": os.path.join('..', '..', 'FSM', 'Src'),
-            "DCM": os.path.join('..', '..', 'DCM', 'Src'),
-            "PDM": os.path.join('..', '..', 'PDM', 'Src'),
-        },
-         "Header": {
-            "FSM": os.path.join('..', '..', 'FSM', 'Inc'),
-            "DCM": os.path.join('..', '..', 'DCM', 'Inc'),
-            "PDM": os.path.join('..', '..', 'PDM', 'Inc'),
-        }
-    }
+    # Prepare name for generate files
+    tx_filename   = 'App_' + database_name + 'Tx'
+    tx_filename_c = tx_filename + '.c'
+    tx_filename_h = tx_filename + '.h'
+    tx_table_name = 'CanTxPeriodicTable'
+    tx_payloads_name = 'CanTxPayloads'
 
-    dbase = load_file(database_name + ".dbc", database_format="dbc")
+    # Generate output folders if they don't exist already 
+    if not os.path.exists(source_dir):
+        os.mkdir(source_dir)
+    if not os.path.exists(header_dir):
+        os.mkdir(header_dir)
 
-    for board in board_specific_paths["Source"].keys():
-        tx_filename   = 'App_' + database_name + 'Tx'
-        tx_filename_c = tx_filename + '.c'
-        tx_filename_h = tx_filename + '.h'
-        tx_table_name = 'CanTxPeriodicTable'
-        tx_payloads_name = 'CanTxPayloads'
+    # Generate source file for transmitting periodic CAN messages
+    tx_source = _generate_tx_source(database,
+                                    database_name,
+                                    board,
+                                    tx_filename_h,
+                                    tx_filename,
+                                    tx_table_name,
+                                    tx_payloads_name)
 
-        tx_source = _generate_tx_source(dbase,
-                                        database_name,
-                                        board,
-                                        tx_filename_h,
-                                        tx_filename,
-                                        tx_table_name,
-                                        tx_payloads_name)
+    with open(os.path.join(source_dir, tx_filename_c), 'w') as fout:
+        fout.write(tx_source)
 
-        tx_header = _generate_tx_header(tx_filename_h,
-                                        tx_filename,
-                                        dbase,
-                                        board,
-                                        database_name,
-                                        tx_table_name,
-                                        tx_payloads_name)
+    # Generate header file for transmitting periodic CAN messages
+    tx_header = _generate_tx_header(tx_filename_h,
+                                    tx_filename,
+                                    database,
+                                    board,
+                                    database_name,
+                                    tx_table_name,
+                                    tx_payloads_name)
+    with open(os.path.join(header_dir, tx_filename_h), 'w') as fout:
+        fout.write(tx_header)
 
-        with open(os.path.join(board_specific_paths["Source"][board], tx_filename_c), 'w') as fout:
-            fout.write(tx_source)
-
-        with open(os.path.join(board_specific_paths["Header"][board], tx_filename_h), 'w') as fout:
-            fout.write(tx_header)
-
+def generate_cantools_c_code(database, database_name, cantools_gen_dir):
+    """
+    Generates C source code for the given .dbc file using cantools
+    """
+    # Prepare names for generate files
     filename_h = database_name + '.h'
     filename_c = database_name + '.c'
 
+    # Generate C source code from cantools
     header, source, _, _ = generate(
-            dbase,
+            database,
             database_name,
             filename_h,
             filename_c,
@@ -440,20 +435,41 @@ def generate_code_from_dbc(database_name):
             bit_fields=True
     )
 
+    # Remove timestamps from generated source code because
+    # the timestamps would pollute git diff
     header = purge_timestamps_from_generated_code(header)
     source = purge_timestamps_from_generated_code(source)
 
-    header = change_frame_id_capitalization(header)
-    source = change_frame_id_capitalization(source)
-
-    with open(filename_h, 'w') as fout:
+    # Save generated source code to disk
+    with open(os.path.join(cantools_gen_dir, filename_h), 'w') as fout:
         fout.write(header)
 
-    with open(filename_c, 'w') as fout:
+    with open(os.path.join(cantools_gen_dir, filename_c), 'w') as fout:
         fout.write(source)
 
 if __name__ == "__main__":
+    # Parse arugments
+    parser = argparse.ArgumentParser()
+    valid_boards = ['FSM', 'DCM', 'PDM', 'BMS']
+    parser.add_argument('board', help='Choose one of the following: ' + ' '.join(valid_boards))
+    parser.add_argument('source_dir', help='Output directory of the generated source files for sending periodic CAN messages')
+    parser.add_argument('header_dir', help='Output directory of the generated header files for sending periodic CAN messages')
+    parser.add_argument('cantools_gen_dir', help='Output directory of the files generated by cantools')
+    parser.add_argument('dbc', help='Path to the DBC file')
+    args = parser.parse_args()
+    if args.board not in valid_boards:
+        print('Error: Invalid board name. Valid options: ' + ' '.join(valid_boards))
+        sys.exit(1)
+
+    # Configure logging level
     logging.basicConfig(level=logging.DEBUG)
-    dbc_filename = "CanMsgs"
-    os.chdir(DBC_DIR)
-    generate_code_from_dbc(dbc_filename)
+
+    # DBC name without the file extension
+    database_name = os.path.basename(args.dbc).replace('.dbc', '')
+
+    # Load DBC in preparation of cantools
+    database = load_file(args.dbc, database_format="dbc")
+
+    # Generate code
+    generate_periodic_can_tx_code(database, database_name, args.board, args.source_dir, args.header_dir)
+    generate_cantools_c_code(database, database_name, args.cantools_gen_dir)
