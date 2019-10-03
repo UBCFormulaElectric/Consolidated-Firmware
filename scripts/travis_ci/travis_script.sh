@@ -7,11 +7,26 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source $SCRIPT_DIR/travis_shared.sh
 source $SCRIPT_DIR/../shared_funcs.sh
 
+# The user must specify the STM32CubeMX binary pth
+if [ "$#" -ne 1 ]; then
+    echo "Please provide the STM32CubeMX binary path as argument!"
+    exit 2
+else
+    STM32CUBEMX_BIN_PATH=$1
+fi
+
+# Currently supported boards
+BOARD_NAMES=(
+    FSM
+    DCM
+    PDM
+)
+
 if [ "$RUN_BUILD" = "true" ]; then
     # Build each project
-    for BOARD_NAME in FSM DCM PDM
+    for BOARD_NAME in "${BOARD_NAMES[@]}"
     do
-        travis_run "cmake boards/$BOARD_NAME/CMakeLists.txt && make -C boards/$BOARD_NAME"
+        travis_run "cmake boards/$BOARD_NAME/CMakeLists.txt -DSTM32CUBEMX_BIN_PATH=$STM32CUBEMX_BIN_PATH && make -C boards/$BOARD_NAME"
     done
 fi
 
@@ -41,17 +56,21 @@ if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then
     fi
 fi
 
-if [ "$GENERATE_CODE_FROM_SYM" = "true" ]; then
-    # Try to convert the .sym to C code
-    travis_run pipenv run python boards/shared/CanMsgs/generate_c_code_from_sym.py
+if [ "$RUN_CUBE_CODEGEN_CHECKS" = "true" ]; then
+    # Use .ioc to update STM32CubeMX auto-generated code
+    for BOARD_NAME in "${BOARD_NAMES[@]}"
+      do travis_run python scripts/utilities/generate_cube_code.py $BOARD_NAME boards/$BOARD_NAME/$BOARD_NAME.ioc boards/$BOARD_NAME $STM32CUBEMX_BIN_PATH
+    done
+    # Auto-generated STM32CubeMX code doesn't conform to our clang-format so we
+    # need to manually format them
+    travis_run python clang-format/fix_formatting.py
     # Check if there is any difference
     CHANGED_FILES=(`git diff --name-only`)
     if [ "$CHANGED_FILES" ]; then
         echo ""
         echo_border
         echo "FAILED - Git diff was non-zero!"
-        echo "Make sure to update your version of cantools using pipenv,"
-        echo "and re-run generate_c_code_from_sym.py to generate C code from the .sym file:"
+        echo "STM32CubeMX auto-generated code is not up-to-date with .ioc "
         echo ""
         echo $CHANGED_FILES
         echo_border
@@ -59,7 +78,7 @@ if [ "$GENERATE_CODE_FROM_SYM" = "true" ]; then
         exit 1;
     else
         echo_border
-        echo "PASSED - C code generated from .sym looks good!"
+        echo "PASSED - STM32CubeMX auto-generated code is up-to-date with .ioc"
         echo_border
     fi
 fi

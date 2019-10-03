@@ -30,6 +30,7 @@
 #include "SharedCan.h"
 #include "SharedHeartbeat.h"
 #include "SharedHardFaultHandler.h"
+#include "auto_generated/App_CanMsgsTx.h"
 #include "Io_Can.h"
 /* USER CODE END Includes */
 
@@ -514,8 +515,7 @@ void RunTask1kHz(void const *argument)
 
     for (;;)
     {
-        SharedHeartbeat_BroadcastHeartbeat(
-            CANMSGS_dcm_heartbeat_FRAME_ID, CANMSGS_DCM_HEARTBEAT_LENGTH);
+        App_CanMsgsTx_PeriodicTransmit();
         // TODO (#361) :Implement proper watchdog check-in mechanism
         SharedWatchdog_RefreshIwdg();
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1U);
