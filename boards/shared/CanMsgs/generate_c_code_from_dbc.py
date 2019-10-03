@@ -433,10 +433,11 @@ def generate_cantools_c_code(database, database_name, cantools_gen_dir):
             bit_fields=True
     )
 
-    # Remove timestamps from generated source code because
-    # the timestamps would pollute git diff
     header = purge_timestamps_from_generated_code(header)
     source = purge_timestamps_from_generated_code(source)
+
+    header = change_frame_id_capitalization(header)
+    source = change_frame_id_capitalization(source)
 
     # Save generated source code to disk
     with open(os.path.join(cantools_gen_dir, filename_h), 'w') as fout:

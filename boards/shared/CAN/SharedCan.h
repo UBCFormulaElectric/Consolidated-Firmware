@@ -220,12 +220,15 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
  *                       that will be packed and sent over the CAN bus
  */
 #define SHAREDCAN_SEND_CAN_MSG(MSG_NAME, MSG_STRUCT_PTR) \
-    uint8_t ___data[CAN_PAYLOAD_MAX_NUM_BYTES]; \
+{ \
+uint8_t ___data[CAN_PAYLOAD_MAX_NUM_BYTES]; \
     int ___size = CanMsgs_##MSG_NAME##_pack(&___data[0], MSG_STRUCT_PTR, \
                                             CAN_PAYLOAD_MAX_NUM_BYTES); \
     SharedCan_TransmitDataCan(CANMSGS_##MSG_NAME##_FRAME_ID, \
                               (size_t)___size, \
-                              &___data[0])
+                              &___data[0]) \
+} \
+
 
 /**
  * @brief Send the given CAN message with the given member set to 1 and all 
