@@ -6,7 +6,6 @@
  * libraries in order to distinguish between boards
  */
 
-#define CAN_ERROR_MSG_TYPE CanMsgs_dcm_errors_t
 #define CAN_ERROR_MSG_NAME dcm_errors
 
 #endif //DCM_BOARDSPECIFICDEFINES_H

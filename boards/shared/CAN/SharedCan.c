@@ -188,7 +188,7 @@ static void SharedCan_EnqueueFifoOverflowError(void)
 
     cantx_overflow_count++;
 
-    SHAREDCAN_GET_TX_PAYLOAD(pdm_can_tx_fifo_overflow).overflow_count =
+    SHAREDCAN_GET_TX_PAYLOAD(dcm_can_tx_fifo_overflow).overflow_count =
         cantx_overflow_count;
 
     SharedCan_ForceEnqueueTxMessageAtFront(&message);
@@ -196,7 +196,7 @@ static void SharedCan_EnqueueFifoOverflowError(void)
 
 static void SharedCan_BroadcastSystemReboot(void)
 {
-    SHAREDCAN_SEND_CAN_MSG(pdm_can_tx_fifo_overflow);
+    SHAREDCAN_SEND_CAN_MSG(dcm_can_tx_fifo_overflow);
 }
 
 /******************************************************************************

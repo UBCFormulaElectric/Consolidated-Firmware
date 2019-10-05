@@ -806,6 +806,70 @@ int CanMsgs_dcm_startup_unpack(
     return (0);
 }
 
+int CanMsgs_dcm_errors_pack(
+    uint8_t *dst_p,
+    const struct CanMsgs_dcm_errors_t *src_p,
+    size_t size)
+{
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(&dst_p[0], 0, 8);
+
+    dst_p[0] |= pack_left_shift_u8(src_p->test_error_a, 0u, 0x01u);
+    dst_p[0] |= pack_left_shift_u8(src_p->test_error_b, 1u, 0x02u);
+
+    return (8);
+}
+
+int CanMsgs_dcm_errors_unpack(
+    struct CanMsgs_dcm_errors_t *dst_p,
+    const uint8_t *src_p,
+    size_t size)
+{
+    if (size < 8u) {
+        return (-EINVAL);
+    }
+
+    memset(dst_p, 0, sizeof(*dst_p));
+
+    dst_p->test_error_a |= unpack_right_shift_u8(src_p[0], 0u, 0x01u);
+    dst_p->test_error_b |= unpack_right_shift_u8(src_p[0], 1u, 0x02u);
+
+    return (0);
+}
+
+uint8_t CanMsgs_dcm_errors_test_error_a_encode(double value)
+{
+    return (uint8_t)(value);
+}
+
+double CanMsgs_dcm_errors_test_error_a_decode(uint8_t value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_dcm_errors_test_error_a_is_in_range(uint8_t value)
+{
+    return (value <= 1u);
+}
+
+uint8_t CanMsgs_dcm_errors_test_error_b_encode(double value)
+{
+    return (uint8_t)(value);
+}
+
+double CanMsgs_dcm_errors_test_error_b_decode(uint8_t value)
+{
+    return ((double)value);
+}
+
+bool CanMsgs_dcm_errors_test_error_b_is_in_range(uint8_t value)
+{
+    return (value <= 1u);
+}
+
 int CanMsgs_pdm_aux1_aux2_current_pack(
     uint8_t *dst_p,
     const struct CanMsgs_pdm_aux1_aux2_current_t *src_p,

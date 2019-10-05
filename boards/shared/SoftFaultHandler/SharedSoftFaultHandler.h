@@ -7,10 +7,6 @@
 
 // TODO: general doc comment here?
 
-#ifndef CAN_ERROR_MSG_TYPE
-#error "Please define CAN_ERROR_MSG_TYPE as the type of the CAN error msg for this board in order to use the `SharedSoftFaultHandler` library"
-#endif
-
 #ifndef CAN_ERROR_MSG_NAME
 #error "Please define CAN_ERROR_MSG_NAME as the name of the CAN error msg for this board in order to use the `SharedSoftFaultHandler` library"
 #endif
@@ -24,10 +20,10 @@
  * - disable interrupts
  * - go into an infinite loop
  *
- * @param error The name of the error to trigger
+ * @param ERROR The name of the error to trigger
  */
-#define SharedSoftFaultHandler_Error_Handler(error) \
-App_CanMsgsTx_GetCanTxPayloads()->##CAN_ERROR_MSG_NAME = true; \
+#define SharedSoftFaultHandler_Error_Handler(ERROR) \
+App_CanMsgsTx_GetCanTxPayloads()->CAN_ERROR_MSG_NAME.ERROR = true; \
 SharedSoftFaultHandler_disableInterruptsAndSendOutErrorMsg()
 
 
