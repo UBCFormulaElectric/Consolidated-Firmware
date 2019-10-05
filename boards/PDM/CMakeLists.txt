@@ -65,8 +65,8 @@ add_custom_command(
     COMMAND pipenv run python3 ${CMAKE_SOURCE_DIR}/../shared/CanMsgs/generate_c_code_from_dbc.py
             PDM
             ${CMAKE_SOURCE_DIR}/Src/auto_generated
-            ${CMAKE_SOURCE_DIR}/Inc/auto_generated
-            ${CMAKE_SOURCE_DIR}/../shared/CanMsgs
+        ${CMAKE_SOURCE_DIR}/Inc/auto_generated
+        ${CMAKE_SOURCE_DIR}/../shared/CanMsgs
             ${DBC}
     WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
     DEPENDS ${DBC}

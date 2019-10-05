@@ -48,6 +48,7 @@ TX_SOURCE_FMT = '''\
  ******************************************************************************/
 #include <sched.h>
 #include "auto_generated/{header}"
+#include <string.h>
 #include "SharedMacros.h"
 #include "SharedCan.h"
 #include "stm32f3xx_hal.h"
@@ -145,17 +146,19 @@ void {fn_prefix}_PeriodicTransmit(void)
         // Is it time to transmit this particular CAN message?
         if ((HAL_GetTick() % {tx_table_name}[i].period) == 0)
         {{
-            uint8_t data[CAN_PAYLOAD_MAX_NUM_BYTES] = {{ 0 }};
-            // Populate the CAN payload
-            {tx_table_name}[i].pack_payload_fn(
-                &data[0],
-                {tx_table_name}[i].payload,
-                {tx_table_name}[i].dlc);
+            // Prepare CAN message to transmit
+            struct CanTxMsg __message;
+            memset(&__message, 0, sizeof(__message));
+            __message.std_id = CanTxPeriodicTable[i].stdid;
+            __message.dlc = CanTxPeriodicTable[i].dlc;
+
+            CanTxPeriodicTable[i].pack_payload_fn(
+                __message.payload,
+                CanTxPeriodicTable[i].payload,
+                CanTxPeriodicTable[i].dlc);
+
             // Transmit the CAN payload with the appropriate ID and DLC
-            SharedCan_TransmitDataCan(
-                {tx_table_name}[i].stdid,
-                {tx_table_name}[i].dlc,
-                &data[0]);
+            SharedCan_TransmitDataCan(&__message);
         }}
     }}
 }}
@@ -225,6 +228,21 @@ def change_frame_id_capitalization(code: str) -> str:
     return sub(
         r'CANMSGS_(.*)_FRAME_ID',
         lambda match: r'CANMSGS_{}_FRAME_ID'.format(match.group(1).lower()),
+        code)
+
+def change_length_capitalization(code: str) -> str:
+    """
+    Sets the symbol name in the FRAME_ID constant to lowercase for all CAN
+    messages. This is done to allow us to reference both the constants and
+    the associated function in C macros.
+    """
+    # Ex. replace:
+    # "CANMSGS_SYMBOL1_FRAME_ID"
+    # with:
+    # "CANMSGS_symbol1_FRAME_ID"
+    return sub(
+        r'CANMSGS_(.*)_LENGTH',
+        lambda match: r'CANMSGS_{}_LENGTH'.format(match.group(1).lower()),
         code)
 
 def _generate_tx_can_table_entries(database, database_name, sender, payloads_name):
@@ -401,7 +419,6 @@ def generate_periodic_can_tx_code(database, database_name, board, source_dir, he
                                     tx_filename,
                                     tx_table_name,
                                     tx_payloads_name)
-
     with open(os.path.join(source_dir, tx_filename_c), 'w') as fout:
         fout.write(tx_source)
 
@@ -435,10 +452,14 @@ def generate_cantools_c_code(database, database_name, cantools_gen_dir):
             bit_fields=True
     )
 
-    # Remove timestamps from generated source code because
-    # the timestamps would pollute git diff
     header = purge_timestamps_from_generated_code(header)
     source = purge_timestamps_from_generated_code(source)
+
+    header = change_frame_id_capitalization(header)
+    source = change_frame_id_capitalization(source)
+
+    source = change_length_capitalization(source)
+    header = change_length_capitalization(header)
 
     # Save generated source code to disk
     with open(os.path.join(cantools_gen_dir, filename_h), 'w') as fout:

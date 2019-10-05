@@ -20,6 +20,7 @@
 
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
+#include "auto_generated/App_CanMsgsTx.h"
 #include "cmsis_os.h"
 
 /* Private includes ----------------------------------------------------------*/
