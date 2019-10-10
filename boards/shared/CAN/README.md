@@ -66,7 +66,7 @@ As previously mentioned, the CAN filters activated are dependent on the given bo
 For example,
 ```
 // SharedCan.c
-#ifdef PDM
+#if BOARD_NAME_UPPERCASE == PDM
 static CanMaskFilterConfig_Struct mask_filters[2] =
 {
     INIT_MASK_FILTER(MASKMODE_16BIT_ID_DCM, MASKMODE_16BIT_MASK_DCM),

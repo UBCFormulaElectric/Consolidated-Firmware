@@ -139,7 +139,7 @@ candump can0 -c -t d | cantools decode --single-line boards/shared/CanMsgs/CanMs
 ```
 - Monitor CAN traffic in a text-based user interface:
 ```
-cantools monitor boards/shared/CanMsgs/CanMsgs.dbc -b socketcan -c can0 -b 500000
+cantools monitor boards/shared/CanMsgs/CanMsgs.dbc -b socketcan -c can0 -B 500000
 ```
 
 ## CMakeLists

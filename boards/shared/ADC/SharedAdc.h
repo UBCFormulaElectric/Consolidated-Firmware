@@ -20,6 +20,7 @@
 #endif
 
 #include "arm_math.h"
+#include "BoardSpecifics.h"
 
 /******************************************************************************
  * Preprocessor Constants
@@ -40,19 +41,8 @@
 
 
 // Number of microcontroller pins that are configured to be ADC inputs
-#ifdef PDM
-    #define NUM_ADC_CHANNELS (uint32_t)(9)
-#elif FSM
-    // TODO (#309): Correct this
-    #define NUM_ADC_CHANNELS (uint32_t)(8)
-#elif BMS
-    // TODO (#309): Correct this
-    #define NUM_ADC_CHANNELS (uint32_t)(8)
-#elif DCM
-    // TODO (#309): Correct this
-    #define NUM_ADC_CHANNELS (uint32_t)(8)
-#else
-    #error "No valid PCB name selected"
+#ifndef NUM_ADC_CHANNELS
+    #error "Please define the number pins configured as ADC inputs using NUM_ADC_CHANNELS!"
 #endif
 
 /** @brief Nominal voltage for VDDA, or ADC power supply */

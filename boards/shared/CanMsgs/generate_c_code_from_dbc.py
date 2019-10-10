@@ -25,7 +25,6 @@ TX_HEADER_FMT = '''\
  * Includes
  ******************************************************************************/
 #include <stdint.h>
-#include <stdbool.h>
 #include "CanMsgs.h"
 /******************************************************************************
  * Typedefs
@@ -47,6 +46,7 @@ TX_SOURCE_FMT = '''\
  * Includes
  ******************************************************************************/
 #include <sched.h>
+#include <string.h>
 #include "auto_generated/{header}"
 #include "SharedMacros.h"
 #include "SharedCan.h"
@@ -65,11 +65,11 @@ TX_SOURCE_FMT = '''\
 {function_defs}
 '''
 
-TX_TABEL_ENTRY_HELPER = '''\
+PERIODIC_CANTX_TABEL_ENTRY_HELPER = '''\
 /**
- * @brief Helper macro for initialize a single CAN transmit table entry.
+ * @brief Helper macro for initialize a single periodic CAN TX table entry.
  */
-#define INIT_TABLE_ENTRY(FN_PTR, STDID, DLC, PERIOD, PAYLOAD) \\\
+#define INIT_PERIODIC_CANTX_TABLE_ENTRY(FN_PTR, STDID, DLC, PERIOD, PAYLOAD) \\\
 
     {.pack_payload_fn=(pack_payload_fn_ptr)FN_PTR, .stdid=STDID, .dlc=DLC, .period=PERIOD, .payload=(const void*)PAYLOAD},
 '''
@@ -86,10 +86,10 @@ TX_PACKING_FN_TYPEDEF = '''\
 typedef int (*pack_payload_fn_ptr)(uint8_t *, const void *, size_t);
 '''
 
-TX_TABLE_TYPEDEF_FMT = '''\
+PERIODIC_CANTX_TABLE_TYPEDEF_FMT = '''\
 /**
- * @brief CAN transmit message table entry with the necessary information to
- *        send a CAN message periodically.
+ * @brief Table entry containing information about a single periodic CAN TX
+ *        message 
  */
 struct {tx_table_name}Entry
 {{
@@ -101,102 +101,133 @@ struct {tx_table_name}Entry
 }};
 '''
 
-TX_TABLE_ENTRY_FMT = '''\
-    INIT_TABLE_ENTRY({fn_ptr}, {stdid}U, {dlc}U, {period}U, {payload})
+PERIODIC_CANTX_TABLE_ENTRY_FMT = '''\
+    INIT_PERIODIC_CANTX_TABLE_ENTRY({fn_ptr}, {stdid}U, {dlc}U, {period}U, {payload})
 '''
 
-TX_TABLE_FMT = '''\
+PERIODIC_CANTX_TABLE_FMT = '''\
 /**
- *@brief Table containing information about CAN messages that need to be
- *       transmitted at regular intervals
+ *@brief Table containing information about periodic CAN TX messages
  */
 struct {tx_table_name}Entry {tx_table_name}[] =
 {{
 {members}}};
 '''
 
-TX_PAYLOAD_STRUCT_TYPEDEF_FMT = '''\
+PERIODIC_CANTX_PAYLOAD_STRUCT_TYPEDEF_FMT = '''\
     struct {database_name}_{message_name}_t {message_name};{warning}
 '''
 
-TX_PAYLOADS_TYPEDEF_FMT = '''\
-/** @brief A collection of all CAN messages being transmitted from {sender}. */
+PERIODIC_CANTX_PAYLOADS_TYPEDEF_FMT = '''\
+/** @brief Payloads of periodic CAN TX messages */
 struct {tx_payloads_name}
 {{
 {members}}};
 '''
 
-TX_PAYLOAD_INIT_FMT = '''\
+PERIODIC_CANTX_PAYLOAD_INIT_FMT = '''\
     .{message_name} = {{ {init_value} }},{warning}
 '''
 
-TX_PAYLOADS_FMT = '''\
-/** @brief All CAN periodic and non-periodic messages being transmitted */
+PERIODIC_CANTX_PAYLOADS_FMT = '''\
+/** @brief Payloads of periodic CAN TX messages */
 struct {tx_payloads_name} {tx_payloads_name} =
 {{
 {members}}};
 '''
 
-TX_PERIODIC_SEND_FUNC_FMT = '''\
-void {fn_prefix}_PeriodicTransmit(void)
+PERIODIC_CANTX_TRANSMIT_FUNC_FMT = '''\
+void {fn_prefix}_TransmitPeriodicMessages(void)
 {{
     for (uint32_t i = 0; i < NUM_ELEMENTS_IN_ARRAY({tx_table_name}); i++)
     {{
         // Is it time to transmit this particular CAN message?
         if ((HAL_GetTick() % {tx_table_name}[i].period) == 0)
         {{
-            uint8_t data[CAN_PAYLOAD_MAX_NUM_BYTES] = {{ 0 }};
-            // Populate the CAN payload
-            {tx_table_name}[i].pack_payload_fn(
-                &data[0],
-                {tx_table_name}[i].payload,
-                {tx_table_name}[i].dlc);
-            // Transmit the CAN payload with the appropriate ID and DLC
-            SharedCan_TransmitDataCan(
-                {tx_table_name}[i].stdid,
-                {tx_table_name}[i].dlc,
-                &data[0]);
+            // Prepare CAN message to transmit
+            struct CanTxMsg tx_message;
+            memset(&tx_message, 0, sizeof(tx_message));
+            tx_message.std_id = PeriodicCanTxTable[i].stdid;
+            tx_message.dlc = PeriodicCanTxTable[i].dlc;
+            PeriodicCanTxTable[i].pack_payload_fn(
+                &tx_message.data[0],
+                PeriodicCanTxTable[i].payload,
+                PeriodicCanTxTable[i].dlc);
+            // Transmit the CAN payload with the appropriate ID and DLC 
+            SharedCan_TransmitDataCan(&tx_message);
         }}
     }}
 }}
 '''
 
-TX_TABLE_GETTER_FUNC_FMT = '''\
-struct {tx_table_name}Entry *{fn_prefix}_Get{tx_table_name}(void)
-{{
-    return &{tx_table_name}[0];
-}}
-'''
-
-TX_PAYLOADS_GETTER_FUNC_FMT = '''\
+PERIODIC_CANTX_PAYLOADS_GETTER_FUNC_FMT = '''\
 struct {tx_payloads_name} *{fn_prefix}_Get{tx_payloads_name}(void)
 {{
     return &{tx_payloads_name};
 }}
 '''
 
-TX_PERIODIC_SEND_FUNC_DECLARATION_FMT = '''\
-/**
- * @brief Sends out periodic CAN messages according to the cycle time specified
- *        in the DBC. This should be called in a 1kHz task.
- */
-void {fn_prefix}_PeriodicTransmit(void);
+NON_PERIODIC_CANTX_TRANSMIT_FUNC_DEFINITION_FMT = '''\
+void {fn_prefix}_TransmitNonPeriodic_{tx_message_name_uppercase}(struct CanMsgs_{tx_message_name_snakecase}_t *payload)
+{{
+    struct CanTxMsg tx_msg;
+    memset(&tx_msg, 0, sizeof(tx_msg));
+    tx_msg.std_id = CANMSGS_{tx_message_name_uppercase}_FRAME_ID;
+    tx_msg.dlc    = CANMSGS_{tx_message_name_uppercase}_LENGTH;
+    memcpy(&tx_msg.data[0], &payload, CANMSGS_{tx_message_name_uppercase}_LENGTH); 
+    CanMsgs_{tx_message_name_snakecase}_pack(
+        &tx_msg.data[0],
+        payload,
+        CANMSGS_{tx_message_name_uppercase}_LENGTH);
+    SharedCan_TransmitDataCan(&tx_msg);
+}}
 '''
 
-TX_TABLE_GETTER_FUNC_DECLARATION_FMT ='''\
-/**
- * @brief  Getter function for CAN transmit table
- * @return Pointer to CAN transmit table
- */
-struct {tx_table_name}Entry *{fn_prefix}_Get{tx_table_name}(void);
+NON_PERIODIC_CANTX_FORCE_TRANSMIT_FUNC_DEFINITION_FMT = '''\
+void {fn_prefix}_ForceTransmitNonPeriodic_{tx_message_name_uppercase}(struct CanMsgs_{tx_message_name_snakecase}_t *payload)
+{{
+    struct CanTxMsg tx_msg;
+    memset(&tx_msg, 0, sizeof(tx_msg));
+    tx_msg.std_id = CANMSGS_{tx_message_name_uppercase}_FRAME_ID;
+    tx_msg.dlc    = CANMSGS_{tx_message_name_uppercase}_LENGTH;
+    memcpy(&tx_msg.data[0], &payload, CANMSGS_{tx_message_name_uppercase}_LENGTH); 
+    CanMsgs_{tx_message_name_snakecase}_pack(
+        &tx_msg.data[0],
+        payload,
+        CANMSGS_{tx_message_name_uppercase}_LENGTH);
+    SharedCan_ForceEnqueueTxMessageAtFront(&tx_msg);
+}}
 '''
 
-TX_PAYLOADS_GETTER_FUNC_DECLARATION_FMT = '''\
+PERIODIC_CANTX_TRANSMIT_FUNC_DECLARATION_FMT = '''\
 /**
- * @brief Getter function for CAN transmit payloads (Non-periodic and periodic)
- * @return Pointer to CAN transmit payloads
+ * @brief Transmits periodic CAN TX messages according to the cycle time
+ *        specified in the DBC. This should be called in a 1kHz task.
+ */
+void {fn_prefix}_TransmitPeriodicMessages(void);
+'''
+
+PERIODIC_CANTX_PAYLOADS_GETTER_FUNC_DECLARATION_FMT = '''\
+/**
+ * @brief  Getter function for payloads of periodic CAN TX messages
+ * @return Pointer to payloads for CAN TX messages
  */
 struct {tx_payloads_name} *{fn_prefix}_Get{tx_payloads_name}(void);
+'''
+
+NON_PERIODIC_CANTX_TRANSMIT_FUNC_DECLARATION_FMT = '''\
+/**
+ * @brief Transmit the non-periodic CAN TX message {tx_message_name_uppercase}
+ */
+void {fn_prefix}_TransmitNonPeriodic_{tx_message_name_uppercase}(struct CanMsgs_{tx_message_name_snakecase}_t *payload);
+'''
+
+NON_PERIODIC_CANTX_FORCE_TRANSMIT_FUNC_DECLARATION_FMT = '''\
+/**
+ * @brief Push the non-periodic CAN TX message {tx_message_name_uppercase} to
+ *        the front of CAN transmission queue
+ */
+void {fn_prefix}_ForceTransmitNonPeriodic_{tx_message_name_uppercase}(struct CanMsgs_{tx_message_name_snakecase}_t *payload);
 '''
 
 def purge_timestamps_from_generated_code(code: str) -> str:
@@ -227,98 +258,99 @@ def change_frame_id_capitalization(code: str) -> str:
         lambda match: r'CANMSGS_{}_FRAME_ID'.format(match.group(1).lower()),
         code)
 
-def _generate_tx_can_table_entries(database, database_name, sender, payloads_name):
+def _generate_periodic_cantx_table_entries(database, database_name, sender, periodic_cantx_payloads_name):
     """
-    Generates C soure code for a single CAN TX table entry
+    Generates C source code for a single periodic CAN TX table entry
     """
-    messages = [Message(message) for message in database.messages]
-
     table_entries = []
 
-    for message in messages:
+    for message in [Message(message) for message in database.messages]:
         # The transmit table should only contain messages with a non-zero period
         if sender in message._message.senders and message.cycle_time > 0:
-            table_entries.append(TX_TABLE_ENTRY_FMT.format(fn_ptr=database_name + '_' + message.snake_name + '_pack',
-                                                           stdid=message.frame_id,
-                                                           dlc=message.length,
-                                                           period=message.cycle_time,
-                                                           payload='&' + payloads_name + '.' + message.snake_name))
+            table_entries.append(PERIODIC_CANTX_TABLE_ENTRY_FMT.format(
+                fn_ptr=database_name + '_' + message.snake_name + '_pack',
+                stdid=message.frame_id,
+                dlc=message.length,
+                period=message.cycle_time,
+                payload='&' + periodic_cantx_payloads_name + '.' + message.snake_name))
     return ''.join(table_entries)
 
-def _generate_tx_can_table(database, database_name, sender, table_name, payloads_name):
+def _generate_periodic_cantx_table(database, database_name, sender, periodic_cantx_table_name, periodic_cantx_payloads_name):
     """
-    Generates C soure code for CAN TX table
+    Generates C source code for the periodic CAN TX table
     """
-    return TX_TABLE_FMT.format(tx_table_name=table_name,
-                               members=_generate_tx_can_table_entries(database, database_name, sender, payloads_name))
+    return PERIODIC_CANTX_TABLE_FMT.format(
+        tx_table_name=periodic_cantx_table_name,
+        members=_generate_periodic_cantx_table_entries(database, database_name, sender, periodic_cantx_payloads_name))
 
-def _generate_payloads_typedef_members(database, sender, database_name):
+def _generate_periodic_cantx_payloads_typedef_members(database, sender, database_name):
     """
     Generates C source code to for each struct member of the typedef struct containing
-    payloads for all CAN TX messages
+    payloads of the periodic CAN TX messages
     """
-    messages = [Message(message) for message in database.messages]
-
     payloads = []
 
-    for message in messages:
-        # Include periodic and non-periodic CAN messages being sent
-        if sender in message._message.senders:
+    for message in [Message(message) for message in database.messages]:
+        # The transmit table should only contain messages with a non-zero period
+        if sender in message._message.senders and message.cycle_time > 0:
             warning = ' /* Warning: This DLC of this message is 0 so its struct contains only a dummy variable */' if message.length == 0 else ''
-            payloads.append(TX_PAYLOAD_STRUCT_TYPEDEF_FMT.format(database_name=database_name,
-                                                                 message_name=message.snake_name,
-                                                                 warning=warning))
+            payloads.append(PERIODIC_CANTX_PAYLOAD_STRUCT_TYPEDEF_FMT.format(
+                database_name=database_name,
+                message_name=message.snake_name,
+                warning=warning))
 
     return ''.join(payloads)
 
-def _generate_payloads_typedef(database, sender, database_name, payloads_name):
+def _generate_payloads_typedef(database, sender, database_name, periodic_cantx_payloads_name):
     """
     Generates C source code for a typedef struct containing payloads for all CAN TX messages
     """
-    return TX_PAYLOADS_TYPEDEF_FMT.format(sender=sender,
-                                          members=_generate_payloads_typedef_members(database, sender, database_name),
-                                          tx_payloads_name=payloads_name)
+    return PERIODIC_CANTX_PAYLOADS_TYPEDEF_FMT.format(
+                members=_generate_periodic_cantx_payloads_typedef_members(database, sender, database_name),
+                tx_payloads_name=periodic_cantx_payloads_name)
 
-def _generate_tx_typedefs(database, sender, database_name, table_name, payloads_name):
+def _generate_tx_typedefs(database, sender, database_name, periodic_cantx_table_name, periodic_cantx_payloads_name):
     """
     Generates C soure code for CAN TX typedef declarations
     """
     typedefs = []
     typedefs.append(TX_PACKING_FN_TYPEDEF)
-    typedefs.append(TX_TABLE_TYPEDEF_FMT.format(tx_table_name=table_name))
-    typedefs.append(_generate_payloads_typedef(database, sender, database_name, payloads_name))
+    typedefs.append(PERIODIC_CANTX_TABLE_TYPEDEF_FMT.format(tx_table_name=periodic_cantx_table_name))
+    typedefs.append(_generate_payloads_typedef(database, sender, database_name, periodic_cantx_payloads_name))
 
     return '\n'.join(typedefs)
 
-def _generate_tx_payload_inits(database, sender):
+def _generate_periodic_cantx_payload_inits(database, sender):
     """
-    Generates C source code to initialize each CAN TX payload
+    Generates C source code to initialize each periodic CAN TX payload
     """
-    messages = [Message(message) for message in database.messages]
-
     payloads_init = []
 
-    for message in messages:
-        if sender in message._message.senders:
+    for message in [Message(message) for message in database.messages]:
+        # The transmit table should only contain messages with a non-zero period
+        if sender in message._message.senders and message.cycle_time > 0:
             warning = ' /* Warning: This DLC of this message is 0 so its struct contains only a dummy variable */' if message.length == 0 else ''
-            payloads_init.append(TX_PAYLOAD_INIT_FMT.format(message_name=message.snake_name,
-                                                            init_value=0,
-                                                            warning=warning))
+            payloads_init.append(PERIODIC_CANTX_PAYLOAD_INIT_FMT.format(
+                message_name=message.snake_name,
+                init_value=0,
+                warning=warning))
     return ''.join(payloads_init)
 
-def _generate_tx_payloads(database, sender, payloads_name):
+def _generate_periodic_cantx_payloads(database, sender, periodic_cantx_payloads_name):
     """
-    Generates C source code for a struct containing payloads for all CAN TX messages
+    Generates C source code for a struct containing payloads of periodic CAN TX messages
     """
-    return TX_PAYLOADS_FMT.format(members=_generate_tx_payload_inits(database, sender), tx_payloads_name=payloads_name)
+    return PERIODIC_CANTX_PAYLOADS_FMT.format(
+        members=_generate_periodic_cantx_payload_inits(database, sender),
+        tx_payloads_name=periodic_cantx_payloads_name)
 
-def _generate_tx_variables(database, database_name, sender, table_name, payloads_name):
+def _generate_tx_variables(database, database_name, sender, periodic_cantx_table_name, periodic_cantx_payloads_name):
     """
     Generates C source code for file-scope variables
     """
     variables = []
-    variables.append(_generate_tx_payloads(database, sender, payloads_name))
-    variables.append(_generate_tx_can_table(database, database_name, sender, table_name, payloads_name))
+    variables.append(_generate_periodic_cantx_payloads(database, sender, periodic_cantx_payloads_name))
+    variables.append(_generate_periodic_cantx_table(database, database_name, sender, periodic_cantx_table_name, periodic_cantx_payloads_name))
 
     return '\n'.join(variables)
 
@@ -327,54 +359,105 @@ def _generate_tx_macros():
     Generates C source code for helper macros
     """
     macros = []
-    macros.append(TX_TABEL_ENTRY_HELPER)
+    macros.append(PERIODIC_CANTX_TABEL_ENTRY_HELPER)
 
     return '\n'.join(macros)
 
-def _generate_tx_function_defs(function_prefix, table_name, payloads_name):
+def _generate_non_periodic_cantx_transmit_function_defs(database, sender, function_prefix):
+    """
+    Generates C source code for non-periodic CAN TX function definitions
+    """
+    non_periodic_transmit_func_defs = []
+
+    for message in [Message(message) for message in database.messages]:
+        # The transmit table should only contain messages with a zero period
+        if sender in message._message.senders and message.cycle_time == 0:
+            non_periodic_transmit_func_defs.append(NON_PERIODIC_CANTX_TRANSMIT_FUNC_DEFINITION_FMT.format(
+                fn_prefix=function_prefix,
+                tx_message_name_snakecase=message.snake_name,
+                tx_message_name_uppercase=message.snake_name.upper()))
+            non_periodic_transmit_func_defs.append(NON_PERIODIC_CANTX_FORCE_TRANSMIT_FUNC_DEFINITION_FMT.format(
+                fn_prefix=function_prefix,
+                tx_message_name_snakecase=message.snake_name,
+                tx_message_name_uppercase=message.snake_name.upper()))
+
+    return '\n'.join(non_periodic_transmit_func_defs)
+
+def _generate_tx_function_defs(function_prefix, periodic_cantx_table_name, periodic_cantx_payloads_name, sender):
     """
     Generates C soure code for CAN TX function definitions
     """
     function_defs = []
-    function_defs.append(TX_PERIODIC_SEND_FUNC_FMT.format(fn_prefix=function_prefix,
-                                                          tx_table_name=table_name))
-    function_defs.append(TX_TABLE_GETTER_FUNC_FMT.format(fn_prefix=function_prefix,
-                                                         tx_table_name=table_name))
-    function_defs.append(TX_PAYLOADS_GETTER_FUNC_FMT.format(fn_prefix=function_prefix,
-                                                            tx_payloads_name=payloads_name))
+    function_defs.append(PERIODIC_CANTX_TRANSMIT_FUNC_FMT.format(
+        fn_prefix=function_prefix,
+        tx_table_name=periodic_cantx_table_name))
+    function_defs.append(PERIODIC_CANTX_PAYLOADS_GETTER_FUNC_FMT.format(
+        fn_prefix=function_prefix,
+        tx_payloads_name=periodic_cantx_payloads_name))
+    function_defs.append(_generate_non_periodic_cantx_transmit_function_defs(database, sender, function_prefix))
 
     return '\n'.join(function_defs)
 
-def _generate_tx_source(database, database_name, sender, header_name, function_prefix, table_name, payloads_name):
+def _generate_tx_source(database, database_name, sender, header_name, function_prefix, periodic_cantx_table_name, periodic_cantx_payloads_name):
     """
     Generates C source code for CAN TX
     """
-    tx_source = TX_SOURCE_FMT.format(sender=sender,
-                                     header=header_name,
-                                     defines=_generate_tx_macros(),
-                                     variables=_generate_tx_variables(database, database_name, sender, table_name, payloads_name),
-                                     function_defs=_generate_tx_function_defs(function_prefix, table_name, payloads_name))
+    tx_source = TX_SOURCE_FMT.format(
+                    sender=sender,
+                    header=header_name,
+                    defines=_generate_tx_macros(),
+                    variables=_generate_tx_variables(database, database_name, sender, periodic_cantx_table_name, periodic_cantx_payloads_name),
+                    function_defs=_generate_tx_function_defs(function_prefix, periodic_cantx_table_name, periodic_cantx_payloads_name, sender))
     return tx_source
 
-def _generate_tx_function_declarations(function_prefix, table_name, payloads_name):
+def _generate_non_periodic_cantx_transmit_function_declarations(database, sender, function_prefix):
+    """
+    Generates C source code for non-periodic CAN TX function declarations
+    """
+    non_periodic_transmit_func_declarations = []
+
+    for message in [Message(message) for message in database.messages]:
+        # The transmit table should only contain messages with a zero period
+        if sender in message._message.senders and message.cycle_time == 0:
+            non_periodic_transmit_func_declarations.append(
+                NON_PERIODIC_CANTX_TRANSMIT_FUNC_DECLARATION_FMT.format(
+                    fn_prefix=function_prefix,
+                    tx_message_name_uppercase=message.snake_name.upper(),
+                    tx_message_name_snakecase=message.snake_name))
+            non_periodic_transmit_func_declarations.append(
+                NON_PERIODIC_CANTX_FORCE_TRANSMIT_FUNC_DECLARATION_FMT.format(
+                    fn_prefix=function_prefix,
+                    tx_message_name_uppercase=message.snake_name.upper(),
+                    tx_message_name_snakecase=message.snake_name))
+
+    return ''.join(non_periodic_transmit_func_declarations)
+
+def _generate_tx_function_declarations(function_prefix, periodic_cantx_table_name, periodic_cantx_payloads_name, sender):
     """
     Generates C source cod for CAN TX function declarations
     """
     function_declarations = []
-    function_declarations.append(TX_PERIODIC_SEND_FUNC_DECLARATION_FMT.format(fn_prefix=function_prefix))
-    function_declarations.append(TX_TABLE_GETTER_FUNC_DECLARATION_FMT.format(fn_prefix=function_prefix, tx_table_name=table_name))
-    function_declarations.append(TX_PAYLOADS_GETTER_FUNC_DECLARATION_FMT.format(fn_prefix=function_prefix, tx_payloads_name=payloads_name))
+    function_declarations.append(
+        PERIODIC_CANTX_TRANSMIT_FUNC_DECLARATION_FMT.format(
+            fn_prefix=function_prefix))
+    function_declarations.append(
+        PERIODIC_CANTX_PAYLOADS_GETTER_FUNC_DECLARATION_FMT.format(
+            fn_prefix=function_prefix,
+            tx_payloads_name=periodic_cantx_payloads_name))
+    function_declarations.append(
+        _generate_non_periodic_cantx_transmit_function_declarations(
+            database,sender, function_prefix))
 
     return '\n'.join(function_declarations)
 
-def _generate_tx_header(header_name, function_prefix, database, sender, database_name, table_name, payloads_name):
+def _generate_tx_header(header_name, function_prefix, database, sender, database_name, periodic_cantx_table_name, periodic_cantx_payloads_name):
     """
     Generates C header files for CAN TX
     """
     return TX_HEADER_FMT.format(sender=sender,
                                 header=header_name,
-                                typedefs=_generate_tx_typedefs(database, sender, database_name, table_name, payloads_name),
-                                function_declarations=_generate_tx_function_declarations(function_prefix, table_name, payloads_name))
+                                typedefs=_generate_tx_typedefs(database, sender, database_name, periodic_cantx_table_name, periodic_cantx_payloads_name),
+                                function_declarations=_generate_tx_function_declarations(function_prefix, periodic_cantx_table_name, periodic_cantx_payloads_name, sender))
 
 def generate_periodic_can_tx_code(database, database_name, board, source_dir, header_dir):
     """
@@ -384,8 +467,8 @@ def generate_periodic_can_tx_code(database, database_name, board, source_dir, he
     tx_filename   = 'App_' + database_name + 'Tx'
     tx_filename_c = tx_filename + '.c'
     tx_filename_h = tx_filename + '.h'
-    tx_table_name = 'CanTxPeriodicTable'
-    tx_payloads_name = 'CanTxPayloads'
+    periodic_tx_table_name = 'PeriodicCanTxTable'
+    periodic_tx_payloads_name = 'PeriodicCanTxPayloads'
 
     # Generate output folders if they don't exist already 
     if not os.path.exists(source_dir):
@@ -399,8 +482,8 @@ def generate_periodic_can_tx_code(database, database_name, board, source_dir, he
                                     board,
                                     tx_filename_h,
                                     tx_filename,
-                                    tx_table_name,
-                                    tx_payloads_name)
+                                    periodic_tx_table_name,
+                                    periodic_tx_payloads_name)
 
     with open(os.path.join(source_dir, tx_filename_c), 'w') as fout:
         fout.write(tx_source)
@@ -411,8 +494,8 @@ def generate_periodic_can_tx_code(database, database_name, board, source_dir, he
                                     database,
                                     board,
                                     database_name,
-                                    tx_table_name,
-                                    tx_payloads_name)
+                                    periodic_tx_table_name,
+                                    periodic_tx_payloads_name)
     with open(os.path.join(header_dir, tx_filename_h), 'w') as fout:
         fout.write(tx_header)
 
