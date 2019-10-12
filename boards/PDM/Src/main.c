@@ -548,7 +548,7 @@ void RunTask1kHz(void const *argument)
 
     for (;;)
     {
-        App_CanMsgsTx_PeriodicTransmit();
+        App_CanMsgsTx_TransmitPeriodicMessages();
         // TODO (#361) :Implement proper watchdog check-in mechanism
         SharedWatchdog_RefreshIwdg();
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1U);
