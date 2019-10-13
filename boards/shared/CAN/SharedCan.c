@@ -7,6 +7,7 @@
 #include "task.h"
 #include "auto_generated/App_CanMsgsTx.h"
 #include "SharedCan.h"
+#include "BoardSpecifics.h"
 #include "main.h"
 #include "SharedFreeRTOS.h"
 
@@ -19,6 +20,28 @@
 /******************************************************************************
  * Module Preprocessor Macros
  ******************************************************************************/
+/** @brief Board-specific struct type for the CAN startup message payload */
+#define BOARD_STARTUP_STRUCT_TYPE(board) _BOARD_STARTUP_STRUCT_TYPE(board)
+#define _BOARD_STARTUP_STRUCT_TYPE(board) struct CanMsgs_##board##_startup_t
+
+/** @brief Board-specific function to transmit the CAN startup message */
+#define BOARD_NON_PERIODIC_FORCE_TRANSMIT_BOARD_STARTUP(BOARD) \
+    _BOARD_NON_PERIODIC_FORCE_TRANSMIT_BOARD_STARTUP(BOARD)
+#define _BOARD_NON_PERIODIC_FORCE_TRANSMIT_BOARD_STARTUP(BOARD) \
+    App_CanMsgsTx_ForceTransmitNonPeriodic_##BOARD##_STARTUP
+
+/** @brief Board-specific struct type for the CAN TX FIFO overflow payload */
+#define BOARD_CAN_TX_FIFO_OVERFLOW_STRUCT_TYPE(board) \
+    _BOARD_CAN_TX_FIFO_OVERFLOW_STRUCT_TYPE(board)
+#define _BOARD_CAN_TX_FIFO_OVERFLOW_STRUCT_TYPE(board) \
+    struct CanMsgs_##board##_can_tx_fifo_overflow_t
+
+/** @brief Board-specific function to transmit the CAN TX FIFO overflow message
+ */
+#define BOARD_NON_PERIODIC_TRANSMIT_BOARD_CAN_TX_FIFO_OVERFLOW(BOARD) \
+    _BOARD_NON_PERIODIC_TRANSMIT_BOARD_CAN_TX_FIFO_OVERFLOW(BOARD)
+#define _BOARD_NON_PERIODIC_TRANSMIT_BOARD_CAN_TX_FIFO_OVERFLOW(BOARD) \
+    App_CanMsgsTx_TransmitNonPeriodic_##BOARD##_CAN_TX_FIFO_OVERFLOW
 
 /******************************************************************************
  * Module Typedefs
@@ -34,26 +57,6 @@ static uint8_t
 static struct FreeRTOSStaticQueue can_tx_msg_fifo = {
     .storage = &can_tx_msg_fifo_storage[0],
 };
-
-// TODO (Issue: 243): Remove clang-format on/off once #243 is resolved
-// clang-format off
-// mask_filters[] are initialized at compile-time so we don't
-// need to waste resources during run-time to configure their values
-#ifdef PDM
-#elif FSM
-#elif BMS
-static CanMaskFilterConfig_Struct mask_filters[4] =
-{
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_DCM, MASKMODE_16BIT_MASK_DCM),
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_FSM, MASKMODE_16BIT_MASK_FSM),
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_PDM, MASKMODE_16BIT_MASK_PDM),
-    INIT_MASK_FILTER(MASKMODE_16BIT_ID_SHARED, MASKMODE_16BIT_MASK_SHARED)
-};
-#elif DCM
-#else
-#error "No valid PCB selected - unable to determine what mask filters to use"
-#endif
-// clang-format on
 
 /******************************************************************************
  * Private Function Prototypes
@@ -115,12 +118,7 @@ static ErrorStatus SharedCan_InitializeFilters(
         can_filter.FilterIdHigh         = filters[i + 1].id;
         can_filter.FilterMaskIdHigh     = filters[i + 1].mask;
         can_filter.FilterFIFOAssignment = fifo;
-#ifdef STM32F042x6
-        can_filter.BankNumber   = filter_bank;
-        can_filter.FilterNumber = i;
-#else
-        can_filter.FilterBank = filter_bank;
-#endif
+        can_filter.FilterBank           = filter_bank;
 
         // Alternate between the two FIFOs
         fifo = !fifo;
@@ -146,11 +144,7 @@ static ErrorStatus SharedCan_InitializeFilters(
         can_filter.FilterIdHigh         = filters[last_filter_index].id;
         can_filter.FilterMaskIdHigh     = filters[last_filter_index].mask;
         can_filter.FilterFIFOAssignment = fifo;
-#ifdef STM32F042x6
-        can_filter.BankNumber = filter_bank;
-#else
-        can_filter.FilterBank = filter_bank;
-#endif
+        can_filter.FilterBank           = filter_bank;
 
         // Configure and initialize filter bank
         if (HAL_CAN_ConfigFilter(&hcan, &can_filter) != HAL_OK)
@@ -172,7 +166,7 @@ static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan)
         pdTRUE)
     {
         // Transmit one CAN message in queue
-        SharedCan_TransmitDataCan(message.std_id, message.dlc, message.data);
+        SharedCan_TransmitDataCan(&message);
     }
     if (HigherPriorityTaskWoken != pdFALSE)
     {
@@ -182,39 +176,35 @@ static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan)
 
 static void SharedCan_EnqueueFifoOverflowError(void)
 {
-    struct CanTxMsg message;
     // Total number of CAN TX FIFO overflows
-    static uint32_t cantx_overflow_count = 0;
+    BOARD_CAN_TX_FIFO_OVERFLOW_STRUCT_TYPE(BOARD_NAME_LOWERCASE)
+    cantx_overflow_count = { .overflow_count = 0 };
 
-    cantx_overflow_count++;
+    cantx_overflow_count.overflow_count++;
 
-    memset(&message, 0, sizeof(message));
-    message.std_id = CAN_TX_FIFO_OVERFLOW_STDID;
-    message.dlc    = CAN_TX_FIFO_OVERFLOW_DLC;
-    memcpy(&message.data, &cantx_overflow_count, message.dlc);
-
-    SharedCan_ForceEnqueueTxMessageAtFront(message);
+    BOARD_NON_PERIODIC_TRANSMIT_BOARD_CAN_TX_FIFO_OVERFLOW(BOARD_NAME_UPPERCASE)
+    (&cantx_overflow_count);
 }
 
 static void SharedCan_BroadcastSystemReboot(void)
 {
-    // Since we do not know what CAN message is being used as the overflow
-    // message, we just use the maximum size allowed for the message data
-    SharedCan_TransmitDataCan(
-        PCB_STARTUP_STDID, PCB_STARTUP_DLC, PCB_STARTUP_DATA);
+    BOARD_STARTUP_STRUCT_TYPE(BOARD_NAME_LOWERCASE)
+    pcb_startup = { .dummy = 0 };
+    BOARD_NON_PERIODIC_FORCE_TRANSMIT_BOARD_STARTUP(BOARD_NAME_UPPERCASE)
+    (&pcb_startup);
 }
 
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, void *data)
+void SharedCan_TransmitDataCan(struct CanTxMsg *can_tx_msg)
 {
     // Indicates the mailbox used for transmission, not currently used
     uint32_t mailbox = 0;
 
     CAN_TxHeaderTypeDef tx_header;
 
-    tx_header.StdId = std_id;
+    tx_header.StdId = can_tx_msg->std_id;
 
     // The standard 11-bit CAN identifier is more than sufficent, so we disable
     // Extended CAN IDs by setting this field to zero.
@@ -227,45 +217,25 @@ void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, void *data)
     // This field can be either Data Frame or Remote Frame. For our
     // purpose, we only ever transmit Data Frames.
     tx_header.RTR = CAN_RTR_DATA;
-    tx_header.DLC = dlc;
+    tx_header.DLC = can_tx_msg->dlc;
 
-// Enabling this gives us a tick-based timestamp which we do not need and
-// would take up 2 bytes of the CAN payload. So we disable this setting.
-#ifndef STM32F042x6
+    // Enabling this gives us a tick-based timestamp which we do not need and
+    // would take up 2 bytes of the CAN payload. So we disable this setting.
     tx_header.TransmitGlobalTime = DISABLE;
-#endif
 
-#ifdef STM32F042x6
-    // Copy over data to send
-    memcpy(&(tx_header.Data[0]), &data[0], dlc * sizeof(uint8_t));
+    // If no mailbox is available or an error occured
 
-    // Copy over the header to send
-    hcan.pTxMsg = &tx_header;
-#endif
-
-// If no mailbox is available or an error occured
-#ifdef STM32F042x6
-    if (HAL_CAN_Transmit_IT(&hcan) != HAL_OK)
-#else
-    if (HAL_CAN_AddTxMessage(&hcan, &tx_header, (uint8_t *)data, &mailbox) !=
+    if (HAL_CAN_AddTxMessage(&hcan, &tx_header, can_tx_msg->data, &mailbox) !=
         HAL_OK)
-#endif
     {
-        // Populate CAN TX message with CAN header and data
-        struct CanTxMsg tx_msg;
-        memset(&tx_msg, 0, sizeof(tx_msg));
-        tx_msg.std_id = std_id;
-        tx_msg.dlc    = dlc;
-        memcpy(&tx_msg.data, data, tx_msg.dlc);
-
-        if (xQueueSendToBack(can_tx_msg_fifo.handle, &tx_msg, 0) != pdTRUE)
+        if (xQueueSendToBack(can_tx_msg_fifo.handle, can_tx_msg, 0) != pdTRUE)
         {
             SharedCan_EnqueueFifoOverflowError();
         }
     }
 }
 
-void SharedCan_ForceEnqueueTxMessageAtFront(struct CanTxMsg message)
+void SharedCan_ForceEnqueueTxMessageAtFront(struct CanTxMsg *message)
 {
     struct CanTxMsg dummy_buffer;
     taskENTER_CRITICAL();
@@ -283,11 +253,11 @@ void SharedCan_ForceEnqueueTxMessageAtFront(struct CanTxMsg message)
 
     if (xPortIsInsideInterrupt())
     {
-        xQueueSendToFrontFromISR(can_tx_msg_fifo.handle, &message, NULL);
+        xQueueSendToFrontFromISR(can_tx_msg_fifo.handle, message, NULL);
     }
     else
     {
-        xQueueSendToFront(can_tx_msg_fifo.handle, &message, 0);
+        xQueueSendToFront(can_tx_msg_fifo.handle, message, 0);
     }
 
     taskEXIT_CRITICAL();
@@ -303,22 +273,10 @@ void SharedCan_StartCanInInterruptMode(
         Error_Handler();
     }
 
-    uint32_t active_interrupts =
-#ifdef STM32F042x6
-        CAN_IT_TME | CAN_IT_FMP0 | CAN_IT_FMP1;
-#else
-        CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING |
-        CAN_IT_RX_FIFO1_MSG_PENDING;
-#endif
+    uint32_t active_interrupts = CAN_IT_TX_MAILBOX_EMPTY |
+                                 CAN_IT_RX_FIFO0_MSG_PENDING |
+                                 CAN_IT_RX_FIFO1_MSG_PENDING;
 
-#ifdef STM32F042x6
-    __HAL_CAN_ENABLE_IT(hcan, active_interrupts);
-    // Reserve space for the Rx message. This is a bit hacky, but given
-    // that we're soon dropping support for F0 boards and the alternative
-    // is much more complicated, it does the job.
-    static CanRxMsgTypeDef pRxMsg;
-    hcan->pRxMsg = &pRxMsg;
-#else
     if (HAL_CAN_ActivateNotification(hcan, active_interrupts) != HAL_OK)
     {
         Error_Handler();
@@ -328,7 +286,6 @@ void SharedCan_StartCanInInterruptMode(
     {
         Error_Handler();
     }
-#endif
 
     can_tx_msg_fifo.handle = xQueueCreateStatic(
         CAN_TX_MSG_FIFO_LENGTH, CAN_TX_MSG_FIFO_ITEM_SIZE,
@@ -353,40 +310,12 @@ HAL_StatusTypeDef SharedCan_ReceiveDataCan(
     struct CanRxMsg *  rx_msg)
 {
     HAL_StatusTypeDef status = HAL_ERROR;
-#ifdef STM32F042x6
 
-    status |= HAL_CAN_Receive_IT(hcan, rx_fifo);
-
-    rx_msg->rx_header = *(hcan->pRxMsg);
-
-    // Copy over the data from the received message
-    memcpy(&(rx_msg->data[0]), &(hcan->pRxMsg->Data[0]), 8 * sizeof(uint8_t));
-
-#else
     status |= HAL_CAN_GetRxMessage(
         hcan, rx_fifo, &rx_msg->rx_header, &rx_msg->data[0]);
-#endif
 
     return status;
 }
-
-#ifdef STM32F042x6
-
-void HAL_CAN_RxCpltCallback(CAN_HandleTypeDef *hcan)
-{
-    /* NOTE: All receive mailbox interrupts shall be handled in the same way */
-    /* NOTE: We just set the hardware FIFO to 0 here because the F0 board does
-             not give it to us. */
-    Can_RxCommonCallback(hcan, hcan->pRxMsg->FIFONumber);
-}
-
-void HAL_CAN_TxCpltCallback(CAN_HandleTypeDef *hcan)
-{
-    /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
-    Can_TxCommonCallback(hcan);
-}
-
-#else
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
@@ -417,5 +346,3 @@ void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan)
     /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
     Can_TxCommonCallback(hcan);
 }
-
-#endif
