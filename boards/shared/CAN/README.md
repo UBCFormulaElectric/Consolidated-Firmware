@@ -20,7 +20,7 @@ This tells us for `PDM`, we have activated two CAN filters - the **DCM filter** 
 
 ## Making Changes to CAN Messages
 0. Edit the `.dbc` using `PCAN-View` (which is free to download)
-0. Run `generate_c_code_from_sym.py` to generate the update `CanMsgs.c` and `CanMsgs.h` files based on the `.dbc`.
+0. Run `generate_c_code_from_sym.py` to generate `CanMsgs.c` and `CanMsgs.h` based on the `.dbc`.
 
 ## Working With The Generated C Code
 For every CAN message (hereafter generally referred to as `MSG_NAME`), there will be:
