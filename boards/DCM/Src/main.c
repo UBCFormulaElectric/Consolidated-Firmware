@@ -32,6 +32,7 @@
 #include "SharedHardFaultHandler.h"
 #include "auto_generated/App_CanMsgsTx.h"
 #include "Io_Can.h"
+#include "eeprom_m24c16_fmn6tp.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,6 +59,8 @@ DAC_HandleTypeDef hdac;
 
 IWDG_HandleTypeDef hiwdg;
 
+//I2C_HandleTypeDef hi2c1;
+
 osThreadId          Task1HzHandle;
 uint32_t            Task1HzBuffer[128];
 osStaticThreadDef_t Task1HzControlBlock;
@@ -75,6 +78,7 @@ static void MX_ADC1_Init(void);
 static void MX_CAN_Init(void);
 static void MX_DAC_Init(void);
 static void MX_IWDG_Init(void);
+//static void MX_I2C1_Init(void);
 void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
 
@@ -122,7 +126,10 @@ int main(void)
     MX_CAN_Init();
     MX_DAC_Init();
     MX_IWDG_Init();
+    //MX_I2C1_Init();
     /* USER CODE BEGIN 2 */
+
+    //Io_Eeprom_M24C16_configureEeprom(&hi2c1);
 
     /* USER CODE END 2 */
 
@@ -479,6 +486,13 @@ static void MX_GPIO_Init(void)
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
+
+
+/**
+ * @brief I2C1 Initialization Function
+ * @param None
+ * @retval None
+ */
 
 /* USER CODE BEGIN Header_RunTask1Hz */
 /**
