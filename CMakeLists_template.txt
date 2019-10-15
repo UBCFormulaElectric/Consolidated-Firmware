@@ -77,8 +77,8 @@ add_custom_command(
 # our clang-format rules.
 if(NOT STM32CUBEMX_BIN_PATH)
     # Default STM32CubeMX path
-    if(WIN32)
-        set(STM32CUBEMX_BIN_PATH "C:\Program Files (x86)\STMicroelectronics\STM32Cube\STM32CubeMX\STM32CubeMX.exe")
+    if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
+        set(STM32CUBEMX_BIN_PATH "C:/Program Files (x86)/STMicroelectronics/STM32Cube/STM32CubeMX/STM32CubeMX.exe")
     else()
         set(STM32CUBEMX_BIN_PATH /usr/local/STM32CubeMX/STM32CubeMX)
     endif()
