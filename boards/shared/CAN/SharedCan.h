@@ -8,8 +8,6 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
-#include "CanMsgs.h"
-
 // Check for STM32 microcontroller family
 #ifdef STM32F302x8
 // Used in DCM 2017, BMS 2017, and PDM 2018
@@ -38,34 +36,6 @@ typedef CAN_FilterConfTypeDef CAN_FilterTypeDef;
 // clang-format off
 #define CAN_PAYLOAD_MAX_NUM_BYTES 8 // Maximum number of bytes in a CAN payload
 #define CAN_ExtID_NULL 0 // Set CAN Extended ID to 0 because we are not using it
-
-// TODO(#356): Remove board-specific ifdefs
-#ifdef PDM
-    #define CAN_TX_FIFO_OVERFLOW_STDID  CANMSGS_PDM_CAN_TX_FIFO_OVERFLOW_FRAME_ID
-    #define CAN_TX_FIFO_OVERFLOW_DLC    CANMSGS_PDM_CAN_TX_FIFO_OVERFLOW_LENGTH
-    #define PCB_STARTUP_STDID           CANMSGS_PDM_STARTUP_FRAME_ID
-    #define PCB_STARTUP_DLC             CANMSGS_PDM_STARTUP_LENGTH
-    #define PCB_STARTUP_DATA            &App_CanMsgsTx_GetCanTxPayloads()->pdm_startup
-#elif FSM
-    #define CAN_TX_FIFO_OVERFLOW_STDID  CANMSGS_FSM_CAN_TX_FIFO_OVERFLOW_FRAME_ID
-    #define CAN_TX_FIFO_OVERFLOW_DLC    CANMSGS_FSM_CAN_TX_FIFO_OVERFLOW_LENGTH
-    #define PCB_STARTUP_STDID           CANMSGS_FSM_STARTUP_FRAME_ID
-    #define PCB_STARTUP_DLC             CANMSGS_FSM_STARTUP_LENGTH
-    #define PCB_STARTUP_DATA            &App_CanMsgsTx_GetCanTxPayloads()->fsm_startup
-#elif BMS
-    #define CAN_TX_FIFO_OVERFLOW_STDID  CANMSGS_bms_can_tx_fifo_overflow_FRAME_ID
-    #define CAN_TX_FIFO_OVERFLOW_DLC    CANMSGS_BMS_CAN_TX_FIFO_OVERFLOW_LENGTH
-    #define PCB_STARTUP_STDID           CANMSGS_bms_startup_FRAME_ID
-    #define PCB_STARTUP_DLC             CANMSGS_BMS_STARTUP_LENGTH
-#elif DCM
-    #define CAN_TX_FIFO_OVERFLOW_STDID  CANMSGS_DCM_CAN_TX_FIFO_OVERFLOW_FRAME_ID
-    #define CAN_TX_FIFO_OVERFLOW_DLC    CANMSGS_DCM_CAN_TX_FIFO_OVERFLOW_LENGTH
-    #define PCB_STARTUP_STDID           CANMSGS_DCM_STARTUP_FRAME_ID
-    #define PCB_STARTUP_DLC             CANMSGS_DCM_STARTUP_LENGTH
-    #define PCB_STARTUP_DATA            &App_CanMsgsTx_GetCanTxPayloads()->dcm_startup
-#else
-    #error "No valid PCB name selected"
-#endif
 
 /******************************************************************************
  * Preprocessor Macros
@@ -281,18 +251,16 @@ extern CAN_HandleTypeDef hcan;
  * Function Prototypes
  ******************************************************************************/
 /**
- * @brief  Transmits a CAN message
- * @param  std_id Standard CAN ID of the message to send
- * @param  dlc Data length code, indicates the length of the message in bytes
- * @param  data Pointer to data, which should not exceed 64-bits in size.
+ * @brief Transmits a CAN message
+ * @param can_tx_msg CAN message to transmit
  */
-void SharedCan_TransmitDataCan(uint32_t std_id, uint32_t dlc, void *data);
+void SharedCan_TransmitDataCan(struct CanTxMsg *can_tx_msg);
 
 /**
  * @brief  Overwrite the head item on the CAN TX queue
  * @param  message CAN message to overwrite with
  */
-void SharedCan_ForceEnqueueTxMessageAtFront(struct CanTxMsg message);
+void SharedCan_ForceEnqueueTxMessageAtFront(struct CanTxMsg *message);
 
 /**
  * @brief  Initialize CAN interrupts and CAN filters before starting the CAN

@@ -8,24 +8,15 @@
  * Includes
  ******************************************************************************/
 #include "SharedCan.h"
+#include "BoardSpecifics.h"
 
 /******************************************************************************
  * Preprocessor Constants
  ******************************************************************************/
 // clang-format off
 // Each board listens to certain other boards' CAN messages through the filters.
-// Listen to the heartbeats of those other boards. This is hardcoded as there
-// isn't a nice way to put the board-specific heartbeat listeners in the
-// INIT_MASK_FILTER macro with the shared/BAMOCAR filters.
-#ifdef PDM
-    #define PCB_HEARTBEAT_LISTENER      BMS_HEARTBEAT_ENCODING
-#elif FSM
-    #define PCB_HEARTBEAT_LISTENER      BMS_HEARTBEAT_ENCODING
-#elif BMS
-    #define PCB_HEARTBEAT_LISTENER      (DCM_HEARTBEAT_ENCODING | PDM_HEARTBEAT_ENCODING | FSM_HEARTBEAT_ENCODING)
-#elif DCM
-#else
-    #error "No valid PCB name selected"
+#ifndef PCB_HEARTBEAT_LISTENER
+    #error "Please define the boards whose heartbeats we are checking for using PCB_HEARTBEAT_LISTENER!"
 #endif
 
 // Uncomment this define to enable debug mode, which disables heartbeat
