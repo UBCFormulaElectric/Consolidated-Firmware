@@ -45,7 +45,7 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
+#define SOC_SIZE 4
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -133,24 +133,23 @@ int main(void)
     /* USER CODE BEGIN 2 */
 
     HAL_StatusTypeDef status;
-    uint8_t           test_read;
+    uint8_t           test_read0[SOC_SIZE];
+    uint8_t           test_read1[SOC_SIZE];
+    uint8_t           test_read2[SOC_SIZE];
 
     // Init I2C Handler
     status = initI2CHandler(&hi2c1);
 
-    // Perform page write ( Should see three addresses update)
-    // status = HAL_I2C_Master_Transmit(&hi2c1, 0x0000, &outbuf[0], 1,1000);
-
     if (status == HAL_OK)
     {
         // First Test read to see if written data has been maintained in EEPROM
-        Io_Eeprom_M24C16_readFromEeprom(0x00, &test_read, 1);
-        Io_Eeprom_M24C16_readFromEeprom(0x01, &test_read, 1);
-        Io_Eeprom_M24C16_readFromEeprom(0x02, &test_read, 1);
+        Io_Eeprom_M24C16_readFromEeprom(0x00, test_read0, SOC_SIZE);
+        Io_Eeprom_M24C16_readFromEeprom(0xa0, test_read1, SOC_SIZE);
+        Io_Eeprom_M24C16_readFromEeprom(0xf0, test_read2, SOC_SIZE);
 
         // Write, the read from the EEPROM
         HAL_StatusTypeDef eeprom_init_status =
-            Io_Eeprom_M24C16_testWriteRead(0x00);
+            Io_Eeprom_M24C16_testWriteRead(0.454545);
     }
 
     /* USER CODE END 2 */

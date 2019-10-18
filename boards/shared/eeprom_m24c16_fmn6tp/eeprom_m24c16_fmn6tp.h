@@ -22,7 +22,7 @@ HAL_StatusTypeDef initI2CHandler(I2C_HandleTypeDef *i2c_handle);
  * @param      None
  * @return     None
  */
-HAL_StatusTypeDef Io_Eeprom_M24C16_testWriteRead(uint8_t data);
+HAL_StatusTypeDef Io_Eeprom_M24C16_testWriteRead(float data);
 
 /**
  * @brief       Read data from the EEPROM
