@@ -3,7 +3,7 @@
 #include <stm32f3xx_hal.h>
 
 /* Device Address Constants */
-//static const uint16_t IMU_ADDR = 0x6b; // 0b110_1011
+// static const uint16_t IMU_ADDR = 0x6b; // 0b110_1011
 
 /* Register Address Constants */
 #define TEST_ADDR 0x00
@@ -11,25 +11,37 @@
 #include "stm32f3xx_hal.h"
 
 /**
- * @brief      Configures the LSM6DS33 IMU Gyro/Accelerometer chip
+ * @brief      Initializes I2C Handler
  * @param      None
  * @return     None
-*/
-HAL_StatusTypeDef Io_Eeprom_M24C16_configureEeprom( I2C_HandleTypeDef *i2c_handle );
+ */
+HAL_StatusTypeDef initI2CHandler(I2C_HandleTypeDef *i2c_handle);
 
 /**
- * @brief       Read data from the IMU and update internal variables
+ * @brief      Write data to a byte address and reads back the data
+ * @param      None
+ * @return     None
+ */
+HAL_StatusTypeDef Io_Eeprom_M24C16_testWriteRead(uint8_t data);
+
+/**
+ * @brief       Read data from the EEPROM
  * @param       None
  * @return      Status
  */
-HAL_StatusTypeDef Io_Eeprom_M24C16_readFromEeprom(  uint16_t read_start_address,
-                                                    uint8_t* data,
-                                                    uint16_t data_size);
+HAL_StatusTypeDef Io_Eeprom_M24C16_readFromEeprom(
+    uint16_t read_start_address,
+    uint8_t *data,
+    uint16_t data_size);
+
 /**
- * @brief       Write data from the EEPROM and update internal variables
+ * @brief       Write data from the EEPROM
  * @param       Write address: Write Address
  * @return      Status
  */
-HAL_StatusTypeDef Io_Eeprom_M24C16_writeToEeprom(   uint16_t write_address,
-                                                    uint8_t *data,
-                                                    uint16_t data_size);
+HAL_StatusTypeDef Io_Eeprom_M24C16_writeToEeprom(
+    uint16_t write_address,
+    uint8_t *data,
+    uint16_t data_size);
+
+uint8_t *floatToIntByte(float stateOfCharge);
