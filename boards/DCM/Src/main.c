@@ -135,7 +135,7 @@ int main(void)
     HAL_StatusTypeDef status;
     uint8_t           test_read[3][SOC_SIZE];
     uint8_t *         SoC;
-    //uint8_t           t0, t1, t2, t3;
+    // uint8_t           t0, t1, t2, t3;
 
     // Init I2C Handler
     status = initI2CHandler(&hi2c1);
@@ -173,16 +173,16 @@ int main(void)
 
         // Majority logic decision test for SoC (Post Write)
         SoC = majorityLogicDecision();
-        //t0 = *(SoC+0);
-        //t1 = *(SoC+1);
-        //t2 = *(SoC+2);
-        //t3 = *(SoC+3);
+        // t0 = *(SoC+0);
+        // t1 = *(SoC+1);
+        // t2 = *(SoC+2);
+        // t3 = *(SoC+3);
 
         UNUSED(SoC);
-        //UNUSED(t1);
-        //UNUSED(t2);
-        //UNUSED(t3);
-        //UNUSED(t0);
+        // UNUSED(t1);
+        // UNUSED(t2);
+        // UNUSED(t3);
+        // UNUSED(t0);
     }
 
     /* USER CODE END 2 */
