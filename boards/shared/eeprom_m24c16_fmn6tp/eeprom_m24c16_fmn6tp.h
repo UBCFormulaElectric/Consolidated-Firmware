@@ -44,4 +44,15 @@ HAL_StatusTypeDef Io_Eeprom_M24C16_writeToEeprom(
     uint8_t *data,
     uint16_t data_size);
 
+/**
+ * @brief       Converts float to 4 byte packets
+ * @param       stateOfCharge
+ * @return      Ptr to 4 byte packets
+ */
 uint8_t *floatToIntByte(float stateOfCharge);
+
+/**
+ * @brief       Majority logic decision
+ * @return      Ptr to 4 byte packets, else return null if error
+ */
+uint8_t *majorityLogicDecision();

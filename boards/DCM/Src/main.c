@@ -133,23 +133,56 @@ int main(void)
     /* USER CODE BEGIN 2 */
 
     HAL_StatusTypeDef status;
-    uint8_t           test_read0[SOC_SIZE];
-    uint8_t           test_read1[SOC_SIZE];
-    uint8_t           test_read2[SOC_SIZE];
+    uint8_t           test_read[3][SOC_SIZE];
+    uint8_t *         SoC;
+    //uint8_t           t0, t1, t2, t3;
 
     // Init I2C Handler
     status = initI2CHandler(&hi2c1);
 
     if (status == HAL_OK)
     {
-        // First Test read to see if written data has been maintained in EEPROM
-        Io_Eeprom_M24C16_readFromEeprom(0x00, test_read0, SOC_SIZE);
-        Io_Eeprom_M24C16_readFromEeprom(0xa0, test_read1, SOC_SIZE);
-        Io_Eeprom_M24C16_readFromEeprom(0xf0, test_read2, SOC_SIZE);
+        // Test read from EEPROM
 
-        // Write, the read from the EEPROM
+        status = Io_Eeprom_M24C16_readFromEeprom(0x00, test_read[0], SOC_SIZE);
+        status =
+            (status == HAL_ERROR)
+                ? HAL_ERROR
+                : Io_Eeprom_M24C16_readFromEeprom(0xa0, test_read[1], SOC_SIZE);
+        status =
+            (status == HAL_ERROR)
+                ? HAL_ERROR
+                : Io_Eeprom_M24C16_readFromEeprom(0xf0, test_read[2], SOC_SIZE);
+
+        // Return status if read error
+        if (status == HAL_ERROR)
+        {
+            return status;
+        }
+
+        // Majority logic decision test for SoC (Power cycle)
+        // majority = majorityLogicDecision();
+        // t0 = *(majority+0);
+        // t1 = *(majority+1);
+        // t2 = *(majority+2);
+        // t3 = *(majority+3);
+
+        // Write, to then read from the eeprom
         HAL_StatusTypeDef eeprom_init_status =
-            Io_Eeprom_M24C16_testWriteRead(0.454545);
+            Io_Eeprom_M24C16_testWriteRead(0.1);
+
+        // Majority logic decision test for SoC (Post Write)
+        SoC = majorityLogicDecision();
+        //t0 = *(SoC+0);
+        //t1 = *(SoC+1);
+        //t2 = *(SoC+2);
+        //t3 = *(SoC+3);
+
+        UNUSED(SoC);
+        //UNUSED(t1);
+        //UNUSED(t2);
+        //UNUSED(t3);
+        //UNUSED(t0);
     }
 
     /* USER CODE END 2 */

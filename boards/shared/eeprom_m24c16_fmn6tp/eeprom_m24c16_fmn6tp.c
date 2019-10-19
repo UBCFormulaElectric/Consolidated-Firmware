@@ -3,9 +3,11 @@
 //.h file to be included
 #include "eeprom_m24c16_fmn6tp.h"
 #include "string.h"
+#include "stdbool.h"
 
 // User PD
 #define SOC_SIZE 4
+#define WRITE_LOC 3
 
 // I2C Handle for the I2C device the EEPROM is connected to
 // May or may not need
@@ -73,7 +75,6 @@ HAL_StatusTypeDef initI2CHandler(I2C_HandleTypeDef *i2c_handle)
  */
 uint8_t *floatToIntByte(float stateOfCharge)
 {
-    // static unsigned char c[sizeof stateOfCharge];
     static uint8_t SoCArray[SOC_SIZE];
     memcpy(SoCArray, &stateOfCharge, SOC_SIZE);
     return SoCArray;
@@ -91,7 +92,12 @@ HAL_StatusTypeDef Io_Eeprom_M24C16_testWriteRead(float SoC)
 
     // Convert floating point type SoC to bytes
     stateOfCharge = floatToIntByte(SoC);
+    // uint8_t tmp0 = *(stateOfCharge + 0);
+    // uint8_t tmp1 = *(stateOfCharge + 1);
+    // uint8_t tmp2 = *(stateOfCharge + 2);
+    // uint8_t tmp3 = *(stateOfCharge + 3);
 
+    // Write SoC to 3 separate base addresses88
     status = Io_Eeprom_M24C16_writeToEeprom(0x00, stateOfCharge, SOC_SIZE);
     status = Io_Eeprom_M24C16_writeToEeprom(0xa0, stateOfCharge, SOC_SIZE);
     status = Io_Eeprom_M24C16_writeToEeprom(0xf0, stateOfCharge, SOC_SIZE);
@@ -99,11 +105,52 @@ HAL_StatusTypeDef Io_Eeprom_M24C16_testWriteRead(float SoC)
     // Perform byte write
     // status = Io_Eeprom_M24C16_writeToEeprom(0x00,data,1);
 
-    // Return if status error
+    // Return if HAL_ERROR
     if (status != HAL_OK)
         return status;
 
-    status = Io_Eeprom_M24C16_readFromEeprom(0x00, dataRead, SOC_SIZE);
+    // Test read EEPROM
+    // status = Io_Eeprom_M24C16_readFromEeprom(0x00, dataRead, SOC_SIZE);
+    // status = Io_Eeprom_M24C16_readFromEeprom(0xa0, dataRead, SOC_SIZE);
+    // status = Io_Eeprom_M24C16_readFromEeprom(0xf0, dataRead, SOC_SIZE);
 
     return status;
+}
+
+/**
+ * Majority logic decision comparing data from three memory locations
+ * return Returns the address of array containing SoC, else return null
+ */
+uint8_t *majorityLogicDecision()
+{
+    HAL_StatusTypeDef status;
+    static uint8_t    SoC[WRITE_LOC][SOC_SIZE];
+    bool              AB, BC, AC;
+
+    // Stores EEPROM content at 3 separate locations
+    status = Io_Eeprom_M24C16_readFromEeprom(0x00, SoC[0], SOC_SIZE);
+    status = (status == HAL_ERROR)
+                 ? HAL_ERROR
+                 : Io_Eeprom_M24C16_readFromEeprom(0xa0, SoC[1], SOC_SIZE);
+    status = (status == HAL_ERROR)
+                 ? HAL_ERROR
+                 : Io_Eeprom_M24C16_readFromEeprom(0xf0, SoC[2], SOC_SIZE);
+
+    if (status == HAL_OK)
+    {
+        // Equality comparison from each mem address
+        AB = (memcmp(SoC[0], SoC[1], SOC_SIZE) == 0) ? true : false;
+        BC = (memcmp(SoC[1], SoC[2], SOC_SIZE) == 0) ? true : false;
+        AC = (memcmp(SoC[0], SoC[2], SOC_SIZE) == 0) ? true : false;
+
+        // MLD Decision, and return pointer
+        if (AB == true)
+            return SoC[0];
+        else if (BC == true)
+            return SoC[1];
+        else if (AC == true)
+            return SoC[0];
+    }
+
+    return NULL;
 }
