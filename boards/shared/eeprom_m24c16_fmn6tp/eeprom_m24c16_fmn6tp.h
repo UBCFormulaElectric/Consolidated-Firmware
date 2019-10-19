@@ -1,3 +1,7 @@
+/**
+ * Driver for interfacing with EEPROM via I2C
+ */
+
 #pragma once
 
 #include <stm32f3xx_hal.h>
