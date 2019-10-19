@@ -1,72 +1,14 @@
 ## Overview
-This repository contains our CAN library for STM32 F3 and F0 microcontrollers. The goal is to abstract away low-level details, provide a set of easy-to-use CAN helper functions, and enforce consistency for CAN communication across every PCB on the vehicle.
+This repository contains our CAN library for STM32 F3 microcontrollers. The goal is to abstract away low-level details, provide a set of easy-to-use CAN helper functions, and enforce consistency for CAN communication across every PCB on the vehicle.
 
-The bxCAN controller has three transmit mailboxes, which means it can only hold three Tx messages at any given time. If the user attemps to transmit a message while all three transmit mailboxes are occupied, we store this message in a **software** FIFO queue. Messages in this FIFO queue will be automatically de-queued and transmitted when any of the transmit mailboxes becomes available. This FIFO queue has a fixed size of 20 levels deep, which is more-or-less arbitrary but it should be sufficient in most cases. If the FIFO queue were to overflow, a CAN message will be transmitted. If we ever see this CAN message in the data logger, we can increase the FIFO queue size accordingly.
-
-## How to Use This Library
-1. Add the board name to **Preprocessor Symbols** inside Keil. This will determine which CAN filters are activated.
-<img src="https://user-images.githubusercontent.com/16970019/49477422-c5967e80-f7d1-11e8-95ee-74e2a36f4b73.png" width="50%" height="50%">
-
-2. Add `SharedCan_StartCanInInterruptMode(&hcan)` to `MX_CAN_INIT()` 
-```
-// main.c
-static void MX_CAN_INIT(void)
-{
-  /* Omitted some code */
-  if (HAL_CAN_Init(&hcan) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN CAN_Init 2 */
-  SharedCan_StartCanInInterruptMode(&hcan);
-  /* USER CODE END CAN_Init 2 */
-}
-```
-3. Include `SharedCan.h` in main.c`
-```
-// main.c
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-#include "SharedCan.h"
-/* USER CODE END Includes */
-
-```
-
-4. Add `shared\STM32-CAN-Code\Inc` to Include Paths inside Keil (Note: Your relative path may look different than mine)
-<img src="https://user-images.githubusercontent.com/16970019/49481076-14e2ac00-f7de-11e8-9efe-4947a8eb35c7.png" width="50%" height="50%">
-
-5. Create `Can.c` for your Keil Project, in which you can write your own `Can_RxCommonCallback()` to handle incoming CAN messages. A skeleton code has been provided below for `Can.c`.
-
-```
-// Can.c
-#include "SharedCan.h"
-
-void Can_RxCommonCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
-{
-    struct CanRxMsg rx_msg;
-
-    HAL_CAN_GetRxMessage(hcan, rx_fifo, &rx_msg.rx_header, &rx_msg.data[0]);
-
-    switch(rx_msg.rx_header.StdId)
-    {
-        case DEMO_TOGGLE_GPIO1_STDID:
-            break;
-    }
-}
-```
-5. You can send a CAN message by invoking `SharedCan_TransmitDataCan()`. The `STDID` may be found in `CanMsgs.h` (where it is referred to as a `FRAME_ID`), and the data length is returned by the `pack` method for a given message (see the `README` in `shared/CanMsgs` for more information).
-```
-uint8_t test_data_lut[CAN_PAYLOAD_MAX_NUM_BYTES] = {0x1, 0x2, 0x3, 0x4, 0xA, 0xB, 0xC, 0xD};
-SharedCan_TransmitDataCan(DEMO_4_UINT16_NUCLEO_TX_STDID, DEMO_4_UINT16_NUCLEO_TX_DLC, &test_data_lut[0]);
-```
+The bxCAN controller has 3 hardware transmit mailboxes, which means it can only hold 3 Tx messages at any given time. If the user attemps to transmit a message while all three transmit mailboxes are occupied, we store this message in a **software** FIFO queue. Messages in this FIFO queue will be automatically de-queued and transmitted when any of the transmit mailboxes becomes available. This FIFO queue has a fixed size of 20 levels deep, which is more-or-less arbitrary but it should be sufficient in most cases. If the FIFO queue were to overflow, a CAN message will be transmitted. If we ever see this CAN message in the data logger, we can increase the FIFO queue size accordingly.
 
 ## CAN Filters
-As previously mentioned, the CAN filters activated are dependent on the given board name in Preprocessor Symbol. Check `SharedCan.c ` and `SharedCan.h` for the accepted range of CAN IDs for each board name.
+The CAN receive filters activated are dependent on what is defined in each board-specific `Io_Can.c`
 
 For example,
 ```
-// SharedCan.c
-#if BOARD_NAME_UPPERCASE == PDM
+// ./boards/PDM/Src/Io_Can.c
 static CanMaskFilterConfig_Struct mask_filters[2] =
 {
     INIT_MASK_FILTER(MASKMODE_16BIT_ID_DCM, MASKMODE_16BIT_MASK_DCM),
@@ -76,14 +18,24 @@ static CanMaskFilterConfig_Struct mask_filters[2] =
 
 This tells us for `PDM`, we have activated two CAN filters - the **DCM filter** and the **Shared filter**. We can then check `SharedCan.h` to see which CAN IDs each of these two filters will accept:
 
-```
-// SharedCan.h
-/** DCM filter - CAN ID Range: 0x20 - 0x3F, RTR: Data Frame, IDE: Standard ID */
-```
+## Making Changes to CAN Messages
+0. Edit the `.dbc` using `PCAN-View` (which is free to download)
+0. Run `generate_c_code_from_sym.py` to generate `CanMsgs.c` and `CanMsgs.h` based on the `.dbc`.
 
-```
-// SharedCan.h
-/** Shared filter - CAN ID Range: 0x80 - 0x9F, RTR: Data Frame, IDE: Standard ID */
-```
+## Working With The Generated C Code
+For every CAN message (hereafter generally referred to as `MSG_NAME`), there will be:
+- `CanMsgs_MSG_NAME_t`: a struct that is setup to hold the various elements of the message
+- `CanMsgs_MSG_NAME_pack`: a function to pack the `CanMsgs_MSG_NAME_t` struct into a data array that we can transmit over CAN  
+- `CanMsgs_MSG_NAME_unpack`: a function to unpack a given data array into a `CanMsgs_MSG_NAME_t` struct 
 
-The comments tell us that the **DCM filter** accept CAN ID `0x20 - 0x3F` and the **Shared Filter** accept CAN ID `0x80 to 0x9F`. Or in other words, PDM is set up to accept any incoming CAN messages with CAN ID matching `0x20 - 0x3F` and `0x80 - 0x9F`.
+There are other functions in `CanMsgs.h`, but in almost all cases these should **not** be used.
+
+## Reserved Ranges
+*These are ranges that have already been reserved for specific purposes/boards. They should _not_ be used for **anything** other then their intended purpose.
+- `0xffffffff to 0x1F` (**BMS**): CAN messages sent from the BMS
+- `0x1f to 0x3F` (**DCM**): CAN messages sent from the DCM
+- `0x3f to 0x5F` (**FSM**): CAN messages sent from the FSM
+- `0x5f to 0x7F` (**PDM**): CAN messages sent from the FSM
+- `0x7f to 0x9F` (**Shared**): general CAN messages that could be sent from anywhere
+- `0x18f to 0x19F` (**BAMOCAR Tx**): CAN messages sent from our BAMOCAR inverter 
+- `0x20f to 0x21F` (**BAMOCAR Rx**): CAN messages received by our BAMOCAR inverter
