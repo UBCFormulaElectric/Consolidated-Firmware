@@ -91,7 +91,7 @@ src/**/*.xml
 **/.idea/*.iml
 **/.idea/*.xml
 **/.idea/dictionaries/*.xml
-!**/.idea/misc.xml
+**/.idea/misc.xml
 !**/.idea/runConfigurations/*
 auto_generated/
 
