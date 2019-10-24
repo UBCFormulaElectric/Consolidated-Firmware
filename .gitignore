@@ -89,6 +89,8 @@ cmake-build-debug/
 src/**/*.xml
 **/.idea/*.iml
 **/.idea/*.xml
+**/.idea/dictionaries/*.xml
+**/.idea/dictionaries/dummy.xml
 !**/.idea/misc.xml
 !**/.idea/runConfigurations/*
 auto_generated/
