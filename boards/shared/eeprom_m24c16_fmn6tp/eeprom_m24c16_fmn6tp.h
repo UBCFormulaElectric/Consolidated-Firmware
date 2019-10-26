@@ -14,10 +14,6 @@
 
 #include "stm32f3xx_hal.h"
 
-
-
-
-
 /**
  * @brief       Read data from the EEPROM
  * @param       None
@@ -37,5 +33,3 @@ HAL_StatusTypeDef Io_Eeprom_M24C16_writeToEeprom(
     uint16_t write_address,
     uint8_t *data,
     uint16_t data_size);
-
-

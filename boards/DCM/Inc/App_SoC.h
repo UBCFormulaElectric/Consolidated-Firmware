@@ -22,4 +22,4 @@ void App_SoC_writeSoc(void);
  */
 void App_SoC_ReadSoC(void);
 
-#endif //DCM_APP_SOC_H
+#endif // DCM_APP_SOC_H
