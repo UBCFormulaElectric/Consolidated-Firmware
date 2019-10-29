@@ -3,6 +3,7 @@
  ******************************************************************************/
 #include "Io_Can.h"
 #include "SharedMacros.h"
+#include "auto_generated/GitHash.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
