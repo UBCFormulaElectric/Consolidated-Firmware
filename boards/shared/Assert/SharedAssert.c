@@ -1,9 +1,12 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
+#include <stm32f3xx_hal.h>
+#include <FreeRTOS.h>
+#include <task.h>
 #include "SharedLogging.h"
-#include "SharedHalHandler.h"
-#include "stm32f3xx_hal.h"
+#include "SharedAssert.h"
+#include "SharedMacros.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -26,7 +29,7 @@ static void WaitAndReset(uint32_t delay_ms);
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
-static void WaitAndReset(uint32_t delay_ms)
+static void __attribute__((unused)) WaitAndReset(uint32_t delay_ms)
 {
     // Delay a little before shutdown so the debug message can be sent out
     HAL_Delay(delay_ms);
@@ -38,20 +41,27 @@ static void WaitAndReset(uint32_t delay_ms)
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedHalHandler_ErrorHandler(char *file, uint32_t line)
+
+void SharedAssert_AssertFailed(char *file_path, uint32_t line, char *expr)
 {
-    // Print debug information
+    taskDISABLE_INTERRUPTS();
+
+    char *_expr =
+        (expr == NULL) ? "No valid assert expression was provided" : expr;
+
+    // Print an assert failure message that is similar to what you would find on
+    // an x86 machine
     SharedLogging_Printf(
-        "Error_Handler() called at %s:%d. Resetting.\r\n", file, line);
+        "%s:%d %s: Assertion `%s' failed\r\n", __BASENAME__(file_path), line,
+        __func__, _expr);
 
-    WaitAndReset(DELAY_BETWEEN_ERROR_AND_SYSTEM_RESET_MS);
-}
+    for (;;)
+    {
+        // Trap here forever. It might be desirable in the future to use
+        // WaitAndReset() to make the system more fault tolerant, but for now
+        // our main priority is making it obvious when an assert has been hit.
 
-void SharedHalHandler_AssertFailed(char *file, uint32_t line)
-{
-    // Print debug information
-    SharedLogging_Printf(
-        "Wrong parameter value used at %s:%d. Resetting.\r\n", file, line);
-
-    WaitAndReset(DELAY_BETWEEN_ERROR_AND_SYSTEM_RESET_MS);
+        // Uncomment the following when appropriate!
+        // WaitAndReset(DELAY_BETWEEN_ERROR_AND_SYSTEM_RESET_MS);
+    }
 }

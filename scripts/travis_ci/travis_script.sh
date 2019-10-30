@@ -38,14 +38,14 @@ if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then
     # Run clang-format recursively
     travis_run python clang-format/fix_formatting.py
     # Check if there is any difference
-    CHANGED_FILES=(`git diff --name-only`)
-    if [ "$CHANGED_FILES" ]; then
+    GIT_DIFF_RESULT="$(git --no-pager diff --color)"
+    if [ "$GIT_DIFF_RESULT" ]; then
         echo ""
         echo_border
         echo "FAILED - Git diff was non-zero!"
         echo "Run clang_format/fix_formatting.py to format your code properly:"
         echo ""
-        echo $CHANGED_FILES
+        echo "$GIT_DIFF_RESULT"
         echo_border
         echo ""
         exit 1;
@@ -65,14 +65,14 @@ if [ "$RUN_CUBE_CODEGEN_CHECKS" = "true" ]; then
     # need to manually format them
     travis_run python clang-format/fix_formatting.py
     # Check if there is any difference
-    CHANGED_FILES=(`git diff --name-only`)
-    if [ "$CHANGED_FILES" ]; then
+    GIT_DIFF_RESULT="$(git --no-pager diff --color)"
+    if [ "$GIT_DIFF_RESULT" ]; then
         echo ""
         echo_border
         echo "FAILED - Git diff was non-zero!"
         echo "STM32CubeMX auto-generated code is not up-to-date with .ioc "
         echo ""
-        echo $CHANGED_FILES
+        echo "$GIT_DIFF_RESULT"
         echo_border
         echo ""
         exit 1;

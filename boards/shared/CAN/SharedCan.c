@@ -2,13 +2,13 @@
  * Includes
  ******************************************************************************/
 #include <string.h>
-#include "FreeRTOS.h"
-#include "queue.h"
-#include "task.h"
+#include <FreeRTOS.h>
+#include <queue.h>
+#include <task.h>
 #include "auto_generated/App_CanMsgsTx.h"
 #include "SharedCan.h"
 #include "BoardSpecifics.h"
-#include "main.h"
+#include "SharedAssert.h"
 #include "SharedFreeRTOS.h"
 
 /******************************************************************************
@@ -38,10 +38,10 @@
 
 /** @brief Board-specific function to transmit the CAN TX FIFO overflow message
  */
-#define BOARD_NON_PERIODIC_TRANSMIT_BOARD_CAN_TX_FIFO_OVERFLOW(BOARD) \
-    _BOARD_NON_PERIODIC_TRANSMIT_BOARD_CAN_TX_FIFO_OVERFLOW(BOARD)
-#define _BOARD_NON_PERIODIC_TRANSMIT_BOARD_CAN_TX_FIFO_OVERFLOW(BOARD) \
-    App_CanMsgsTx_TransmitNonPeriodic_##BOARD##_CAN_TX_FIFO_OVERFLOW
+#define BOARD_NON_PERIODIC_FORCE_TRANSMIT_BOARD_CAN_TX_FIFO_OVERFLOW(BOARD) \
+    _BOARD_NON_PERIODIC_FORCE_TRANSMIT_BOARD_CAN_TX_FIFO_OVERFLOW(BOARD)
+#define _BOARD_NON_PERIODIC_FORCE_TRANSMIT_BOARD_CAN_TX_FIFO_OVERFLOW(BOARD) \
+    App_CanMsgsTx_ForceTransmitNonPeriodic_##BOARD##_CAN_TX_FIFO_OVERFLOW
 
 /******************************************************************************
  * Module Typedefs
@@ -177,12 +177,13 @@ static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan)
 static void SharedCan_EnqueueFifoOverflowError(void)
 {
     // Total number of CAN TX FIFO overflows
-    BOARD_CAN_TX_FIFO_OVERFLOW_STRUCT_TYPE(BOARD_NAME_LOWERCASE)
-    cantx_overflow_count = { .overflow_count = 0 };
+    static BOARD_CAN_TX_FIFO_OVERFLOW_STRUCT_TYPE(BOARD_NAME_LOWERCASE)
+        cantx_overflow_count = { .overflow_count = 0 };
 
     cantx_overflow_count.overflow_count++;
 
-    BOARD_NON_PERIODIC_TRANSMIT_BOARD_CAN_TX_FIFO_OVERFLOW(BOARD_NAME_UPPERCASE)
+    BOARD_NON_PERIODIC_FORCE_TRANSMIT_BOARD_CAN_TX_FIFO_OVERFLOW(
+        BOARD_NAME_UPPERCASE)
     (&cantx_overflow_count);
 }
 
@@ -268,29 +269,20 @@ void SharedCan_StartCanInInterruptMode(
     CanMaskFilterConfig_Struct filters[],
     uint32_t                   num_of_filters)
 {
-    if (SharedCan_InitializeFilters(filters, num_of_filters) != SUCCESS)
-    {
-        Error_Handler();
-    }
+    shared_assert(
+        SharedCan_InitializeFilters(filters, num_of_filters) == SUCCESS);
 
-    uint32_t active_interrupts = CAN_IT_TX_MAILBOX_EMPTY |
-                                 CAN_IT_RX_FIFO0_MSG_PENDING |
-                                 CAN_IT_RX_FIFO1_MSG_PENDING;
+    shared_assert(
+        HAL_CAN_ActivateNotification(
+            hcan, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING |
+                      CAN_IT_RX_FIFO1_MSG_PENDING) == HAL_OK);
 
-    if (HAL_CAN_ActivateNotification(hcan, active_interrupts) != HAL_OK)
-    {
-        Error_Handler();
-    }
-
-    if (HAL_CAN_Start(hcan) != HAL_OK)
-    {
-        Error_Handler();
-    }
+    shared_assert(HAL_CAN_Start(hcan) == HAL_OK);
 
     can_tx_msg_fifo.handle = xQueueCreateStatic(
         CAN_TX_MSG_FIFO_LENGTH, CAN_TX_MSG_FIFO_ITEM_SIZE,
         can_tx_msg_fifo.storage, &can_tx_msg_fifo.state);
-    configASSERT(can_tx_msg_fifo.handle);
+    shared_assert(can_tx_msg_fifo.handle != NULL);
 
     SharedCan_BroadcastSystemReboot();
 }
