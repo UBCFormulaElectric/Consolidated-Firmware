@@ -38,10 +38,10 @@
 
 /** @brief Board-specific function to transmit the CAN TX FIFO overflow message
  */
-#define BOARD_NON_PERIODIC_TRANSMIT_BOARD_CAN_TX_FIFO_OVERFLOW(BOARD) \
-    _BOARD_NON_PERIODIC_TRANSMIT_BOARD_CAN_TX_FIFO_OVERFLOW(BOARD)
-#define _BOARD_NON_PERIODIC_TRANSMIT_BOARD_CAN_TX_FIFO_OVERFLOW(BOARD) \
-    App_CanMsgsTx_TransmitNonPeriodic_##BOARD##_CAN_TX_FIFO_OVERFLOW
+#define BOARD_NON_PERIODIC_FORCE_TRANSMIT_BOARD_CAN_TX_FIFO_OVERFLOW(BOARD) \
+    _BOARD_NON_PERIODIC_FORCE_TRANSMIT_BOARD_CAN_TX_FIFO_OVERFLOW(BOARD)
+#define _BOARD_NON_PERIODIC_FORCE_TRANSMIT_BOARD_CAN_TX_FIFO_OVERFLOW(BOARD) \
+    App_CanMsgsTx_ForceTransmitNonPeriodic_##BOARD##_CAN_TX_FIFO_OVERFLOW
 
 /******************************************************************************
  * Module Typedefs
@@ -177,12 +177,13 @@ static void Can_TxCommonCallback(CAN_HandleTypeDef *hcan)
 static void SharedCan_EnqueueFifoOverflowError(void)
 {
     // Total number of CAN TX FIFO overflows
-    BOARD_CAN_TX_FIFO_OVERFLOW_STRUCT_TYPE(BOARD_NAME_LOWERCASE)
-    cantx_overflow_count = { .overflow_count = 0 };
+    static BOARD_CAN_TX_FIFO_OVERFLOW_STRUCT_TYPE(BOARD_NAME_LOWERCASE)
+        cantx_overflow_count = { .overflow_count = 0 };
 
     cantx_overflow_count.overflow_count++;
 
-    BOARD_NON_PERIODIC_TRANSMIT_BOARD_CAN_TX_FIFO_OVERFLOW(BOARD_NAME_UPPERCASE)
+    BOARD_NON_PERIODIC_FORCE_TRANSMIT_BOARD_CAN_TX_FIFO_OVERFLOW(
+        BOARD_NAME_UPPERCASE)
     (&cantx_overflow_count);
 }
 
