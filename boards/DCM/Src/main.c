@@ -24,15 +24,16 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "SharedWatchdog.h"
-#include "SharedConstants.h"
-#include "SharedCmsisOs.h"
-#include "SharedCan.h"
-#include "SharedHeartbeat.h"
-#include "SharedHardFaultHandler.h"
-#include "SharedAssert.h"
-#include "auto_generated/App_CanMsgsTx.h"
 #include "Io_Can.h"
+#include "Io_Imu_LSM6DS33.h"
+#include "SharedAssert.h"
+#include "SharedCan.h"
+#include "SharedCmsisOs.h"
+#include "SharedConstants.h"
+#include "SharedHardFaultHandler.h"
+#include "SharedHeartbeat.h"
+#include "SharedWatchdog.h"
+#include "auto_generated/App_CanMsgsTx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -57,6 +58,8 @@ CAN_HandleTypeDef hcan;
 
 DAC_HandleTypeDef hdac;
 
+I2C_HandleTypeDef hi2c1;
+
 IWDG_HandleTypeDef hiwdg;
 
 osThreadId          Task1HzHandle;
@@ -76,6 +79,7 @@ static void MX_ADC1_Init(void);
 static void MX_CAN_Init(void);
 static void MX_DAC_Init(void);
 static void MX_IWDG_Init(void);
+static void MX_I2C1_Init(void);
 void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
 
@@ -123,7 +127,12 @@ int main(void)
     MX_CAN_Init();
     MX_DAC_Init();
     MX_IWDG_Init();
+    MX_I2C1_Init();
     /* USER CODE BEGIN 2 */
+
+    HAL_StatusTypeDef imu_init_status = Io_Imu_LSM6DS33_configureImu(&hi2c1);
+    App_CanMsgsTx_GetPeriodicCanTxPayloads()->dcm_errors.imu_init_failed =
+        (imu_init_status != HAL_OK);
 
     /* USER CODE END 2 */
 
@@ -193,15 +202,17 @@ void SystemClock_Config(void)
 
     /** Initializes the CPU, AHB and APB busses clocks
      */
-    RCC_OscInitStruct.OscillatorType =
-        RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
-    RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-    RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
-    RCC_OscInitStruct.HSIState       = RCC_HSI_ON;
-    RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL9;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI |
+                                       RCC_OSCILLATORTYPE_LSI |
+                                       RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.HSEState            = RCC_HSE_ON;
+    RCC_OscInitStruct.HSEPredivValue      = RCC_HSE_PREDIV_DIV1;
+    RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
+    RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+    RCC_OscInitStruct.LSIState            = RCC_LSI_ON;
+    RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_ON;
+    RCC_OscInitStruct.PLL.PLLSource       = RCC_PLLSOURCE_HSE;
+    RCC_OscInitStruct.PLL.PLLMUL          = RCC_PLL_MUL9;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -219,8 +230,10 @@ void SystemClock_Config(void)
     {
         Error_Handler();
     }
-    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC1;
-    PeriphClkInit.Adc1ClockSelection   = RCC_ADC1PLLCLK_DIV1;
+    PeriphClkInit.PeriphClockSelection =
+        RCC_PERIPHCLK_I2C1 | RCC_PERIPHCLK_ADC1;
+    PeriphClkInit.I2c1ClockSelection = RCC_I2C1CLKSOURCE_HSI;
+    PeriphClkInit.Adc1ClockSelection = RCC_ADC1PLLCLK_DIV1;
 
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
     {
@@ -354,6 +367,50 @@ static void MX_DAC_Init(void)
 }
 
 /**
+ * @brief I2C1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_I2C1_Init(void)
+{
+    /* USER CODE BEGIN I2C1_Init 0 */
+
+    /* USER CODE END I2C1_Init 0 */
+
+    /* USER CODE BEGIN I2C1_Init 1 */
+
+    /* USER CODE END I2C1_Init 1 */
+    hi2c1.Instance              = I2C1;
+    hi2c1.Init.Timing           = 0x2000090E;
+    hi2c1.Init.OwnAddress1      = 0;
+    hi2c1.Init.AddressingMode   = I2C_ADDRESSINGMODE_7BIT;
+    hi2c1.Init.DualAddressMode  = I2C_DUALADDRESS_DISABLE;
+    hi2c1.Init.OwnAddress2      = 0;
+    hi2c1.Init.OwnAddress2Masks = I2C_OA2_NOMASK;
+    hi2c1.Init.GeneralCallMode  = I2C_GENERALCALL_DISABLE;
+    hi2c1.Init.NoStretchMode    = I2C_NOSTRETCH_DISABLE;
+    if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure Analogue filter
+     */
+    if (HAL_I2CEx_ConfigAnalogFilter(&hi2c1, I2C_ANALOGFILTER_ENABLE) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure Digital filter
+     */
+    if (HAL_I2CEx_ConfigDigitalFilter(&hi2c1, 0) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN I2C1_Init 2 */
+
+    /* USER CODE END I2C1_Init 2 */
+}
+
+/**
  * @brief IWDG Initialization Function
  * @param None
  * @retval None
@@ -452,7 +509,7 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin : IMU_INT_Pin */
     GPIO_InitStruct.Pin  = IMU_INT_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
     HAL_GPIO_Init(IMU_INT_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : STATUS_R_Pin STATUS_G_Pin STATUS_B_Pin */
@@ -468,13 +525,9 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(BSPD_BRAKE_THRES_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PB6 PB7 */
-    GPIO_InitStruct.Pin       = GPIO_PIN_6 | GPIO_PIN_7;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_OD;
-    GPIO_InitStruct.Pull      = GPIO_PULLUP;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    /* EXTI interrupt init*/
+    HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 }
 
 /* USER CODE BEGIN 4 */
@@ -493,6 +546,8 @@ void RunTask1Hz(void const *argument)
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
     uint32_t PreviousWakeTime = osKernelSysTick();
+
+        Io_Imu_LSM6DS33_readIMUData();
 
     for (;;)
     {
