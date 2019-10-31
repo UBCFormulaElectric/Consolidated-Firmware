@@ -42,8 +42,6 @@ HAL_StatusTypeDef Io_Imu_LSM6DS33_writeToImu(
     uint8_t *data,
     uint16_t data_size)
 {
-    // TODO: _DMA doens't seem to work at all, and _IT breaks the RTOS. Figure
-    // out why and NOTE here
     return HAL_I2C_Mem_Write(
         imu_i2c_handle, IMU_WRITE_ADDR, register_address, I2C_MEMADD_SIZE_8BIT,
         data, data_size, 1000);
@@ -58,11 +56,9 @@ double Io_Imu_LSM6DS33_convertIMUAccelerationToMetersPerSecondSquared(
     int16_t accel_from_imu)
 {
     static const double max_abs_g_force   = 2.0;
-    static const double max_abs_raw_accel = 1 << 15;
-    //    static const double raw_accel_range    = 2 * max_abs_raw_accel;
-    //    static const double actual_accel_range = 2 * max_abs_g_force * 9.8;
+    static const double max_abs_raw_accel_reading = 1 << 15;
 
-    return accel_from_imu * max_abs_g_force / max_abs_raw_accel * 9.8;
+    return accel_from_imu * max_abs_g_force / max_abs_raw_accel_reading * 9.8;
 }
 
 /**
@@ -78,8 +74,6 @@ HAL_StatusTypeDef Io_Imu_LSM6DS33_readFromImu(
     uint8_t *data,
     uint16_t data_size)
 {
-    // TODO: _DMA doens't seem to work at all, and _IT breaks the RTOS. Figure
-    //       out why and NOTE here
     return HAL_I2C_Mem_Read(
         imu_i2c_handle, IMU_READ_ADDR, read_start_address, I2C_MEMADD_SIZE_8BIT,
         data, data_size, 100);
