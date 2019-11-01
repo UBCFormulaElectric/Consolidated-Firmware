@@ -3,15 +3,12 @@
 // The I2C handle for the I2C device the IMU is connected to
 static I2C_HandleTypeDef *imu_i2c_handle;
 
-ImuData most_recently_received_data = { 0 };
-bool    most_recently_received_data_valid;
-bool    initialized = false;
+static struct ImuData most_recently_received_data = { 0 };
+static bool    most_recently_received_data_valid;
+static bool    initialized = false;
 
 // The I2c slave device addresses to use when reading/writing to/from the IMU
 // See table 11 in section 6.1.1 of the LSM6DS33 data sheet for details
-static const uint16_t IMU_READ_ADDR  = 0xd7; // 0b110_10111
-static const uint16_t IMU_WRITE_ADDR = 0xd6; // 0b110_10110
-
 // Register Address Constants
 #define FUNC_CFG_ACCESS 0x01
 #define ORIENT_CFG_G 0x0B
@@ -28,6 +25,8 @@ static const uint16_t IMU_WRITE_ADDR = 0xd6; // 0b110_10110
 #define CTRL10_C 0x19
 #define STATUS_REG 0x1E
 #define DATA_OUT_STRT 0x22
+#define IMU_READ_ADDR 0xd7
+#define IMU_WRITE_ADDR 0xd6
 
 /**
  * Send the given data to the IMU
@@ -52,11 +51,11 @@ HAL_StatusTypeDef Io_Imu_LSM6DS33_writeToImu(
  * @param accel_from_imu
  * @return
  */
-double Io_Imu_LSM6DS33_convertIMUAccelerationToMetersPerSecondSquared(
+float Io_Imu_LSM6DS33_convertIMUAccelerationToMetersPerSecondSquared(
     int16_t accel_from_imu)
 {
-    static const double max_abs_g_force   = 2.0;
-    static const double max_abs_raw_accel_reading = 1 << 15;
+    const float max_abs_g_force   = 2.0;
+    static const float max_abs_raw_accel_reading = 1 << 15;
 
     return accel_from_imu * max_abs_g_force / max_abs_raw_accel_reading * 9.8;
 }
@@ -93,7 +92,7 @@ HAL_StatusTypeDef Io_Imu_LSM6DS33_configureImu(I2C_HandleTypeDef *i2c_handle)
     // Enable Accelerometer X,Y,Z axis
     if (status == HAL_OK)
     {
-        uint8_t data = 0x38; // 00_111_000
+        uint8_t data = 0x38; // 0b00_111_000
         status       = Io_Imu_LSM6DS33_writeToImu(CTRL9_XL, &data, 1);
     }
 
@@ -101,7 +100,7 @@ HAL_StatusTypeDef Io_Imu_LSM6DS33_configureImu(I2C_HandleTypeDef *i2c_handle)
     // anti-aliasing filter bandwidth at 400hz
     if (status == HAL_OK)
     {
-        uint8_t data = 0x60; // 0110_00_00
+        uint8_t data = 0x60; // 0b0110_00_00
         status       = Io_Imu_LSM6DS33_writeToImu(CTRL1_XL, &data, 1);
     }
 
@@ -116,7 +115,7 @@ HAL_StatusTypeDef Io_Imu_LSM6DS33_configureImu(I2C_HandleTypeDef *i2c_handle)
     // (degrees per second)
     if (status == HAL_OK)
     {
-        uint8_t data = 0x60; // 0110_00_0_0
+        uint8_t data = 0x60; // 0b0110_00_0_0
         status       = Io_Imu_LSM6DS33_writeToImu(CTRL2_G, &data, 1);
     }
 
@@ -124,7 +123,7 @@ HAL_StatusTypeDef Io_Imu_LSM6DS33_configureImu(I2C_HandleTypeDef *i2c_handle)
     // gyroscope or accelerometer data available
     if (status == HAL_OK)
     {
-        uint8_t data = 0x3; // 00000011
+        uint8_t data = 0x3; // 0b00000011
         status       = Io_Imu_LSM6DS33_writeToImu(INT2_CTRL, &data, 1);
     }
 
@@ -143,7 +142,7 @@ bool Io_Imu_LSM6DS33_readIMUData()
         status = Io_Imu_LSM6DS33_readFromImu(DATA_OUT_STRT, data, 12);
     }
 
-    uint8_t status_reg_val = 100;
+    uint8_t status_reg_val = 0;
     Io_Imu_LSM6DS33_readFromImu(STATUS_REG, &status_reg_val, 1);
 
     uint32_t current_time_in_ms = HAL_GetTick();
@@ -180,7 +179,7 @@ bool Io_Imu_LSM6DS33_readIMUData()
         most_recently_received_data_valid = false;
     }
 
-    return status == HAL_OK && most_recently_received_data_valid;
+    return (status == HAL_OK && most_recently_received_data_valid);
 }
 
 bool Io_Imu_LSM6DS33_getImuData(ImuData *imu_data)

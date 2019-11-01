@@ -547,8 +547,6 @@ void RunTask1Hz(void const *argument)
     UNUSED(argument);
     uint32_t PreviousWakeTime = osKernelSysTick();
 
-        Io_Imu_LSM6DS33_readIMUData();
-
     for (;;)
     {
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1000U);
