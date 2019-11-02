@@ -1,7 +1,7 @@
 #include "Io_Imu_LSM6DS33.h"
 
 // The I2C handle for the I2C device the IMU is connected to
-static I2C_HandleTypeDef *imu_i2c_handle;
+static I2C_HandleTypeDef *imu_i2c_handle = NULL;
 
 static struct ImuData most_recently_received_data = { 0 };
 static bool    most_recently_received_data_valid;
@@ -55,7 +55,7 @@ float Io_Imu_LSM6DS33_convertIMUAccelerationToMetersPerSecondSquared(
     int16_t accel_from_imu)
 {
     const float max_abs_g_force   = 2.0;
-    static const float max_abs_raw_accel_reading = 1 << 15;
+    const float max_abs_raw_accel_reading = 1 << 15;
 
     return accel_from_imu * max_abs_g_force / max_abs_raw_accel_reading * 9.8;
 }
@@ -179,7 +179,7 @@ bool Io_Imu_LSM6DS33_readIMUData()
         most_recently_received_data_valid = false;
     }
 
-    return (status == HAL_OK && most_recently_received_data_valid);
+    return ((status == HAL_OK) && most_recently_received_data_valid);
 }
 
 bool Io_Imu_LSM6DS33_getImuData(ImuData *imu_data)
