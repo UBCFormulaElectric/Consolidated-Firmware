@@ -1,5 +1,23 @@
 # Consolidated-Firmware
-A consolidated repository for gathering all firmware under one roof. 
+A consolidated repository for gathering all firmware under one roof.
+
+## Table of Content
+- [Project Setup](#project-setup)
+  - [Environment Dependencies](#environment-dependencies)
+    - [Python Package Dependencies](#python-package-dependencies)
+  - [CLion](#clion)
+      - [Configure arm-none-eabi-gdb (For Windows Only)](#configure-arm-none-eabi-gdb-for-windows-only)
+      - [Configure J-Link GDB Server (For Windows Only)](#configure-j-link-gdb-server-for-windows-only)
+- [Continuous Integration (CI)](#continuous-integration-ci)
+    - [CommentPragmas](#commentpragmas)
+- [Conventions](#conventions)
+  - [Github Conventions](#github-conventions)
+  - [Pull Requests Conventions](#pull-requests-conventions)
+  - [Coding Conventions](#coding-conventions)
+- [CAN Bus](#can-bus)
+  - [Ubuntu 18.04](#ubuntu-1804)
+- [Periodic Task Scheduling](#periodic-task-scheduling)
+- [CMakeLists](#cmakelists)
 
 ## Project Setup
 
@@ -12,12 +30,12 @@ Follow these steps so you can compile the code in **CLion**:
   * ARM GNU Embedded Toolchain: https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads (Check `install_gcc_arm_none_eabi.sh` for which version to download)
   * J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
   * OpenOCD
-    * Linux: `sudo apt-get install openocd`
+    * Ubuntu 18.04: `sudo apt-get install openocd`
   * STM32CubeMX: https://www.st.com/en/development-tools/stm32cubemx.html
   * MinGW (**for Windows only**): https://sourceforge.net/projects/mingw-w64/ (**select 32-bit verison/i686 architecture**)
 2. **Modify your `PATH` Environment Variable**: Make sure to add the binary executables to `PATH`.
 
-For Linux, modify the `PATH` variable using the syntax below
+For Ubuntu 18.04, modify the `PATH` variable using the syntax below
 ```
 export PATH="$PATH:/path/to/arm-none-eabi-gcc"
 export PATH="$PATH:/path/to/STM32CubeMX"
@@ -44,7 +62,7 @@ In each project, there will be two configurations to use: `<board>_SeggerGDB.elf
 
 ##### Configure arm-none-eabi-gdb (For Windows Only)
 Under **File->Settings->Build, Execution, Deployment...->Toolchains**:
-Set the default toolchain to be MinGW and provide the file path to the 32-bit version of MinGW, ie: 
+Set the default toolchain to be MinGW and provide the file path to the 32-bit version of MinGW, ie:
 ```
 C:\Program Files (x86)\mingw-w64\i686-8.1.0-posix-dwarf-rt_v6-rev0\mingw32
 ```
@@ -64,7 +82,7 @@ We run (and require) continuous integration on every pull request before it is m
 
 1. **Build Check**: If the code compiles in CLion, it should also compile in CI.
 2. **Formatting Check**: Run the following commands (starting from the **root directory** of this project) to fix formatting (CI runs this and then checks if any code was modified):
-  * *Windows and Linux:*
+  * *Windows and Ubuntu 18.04:*
   ```
   python clang_format/fix_formatting.py
   ```
@@ -86,7 +104,7 @@ In `.clang-format`, the line `CommentPragmas: '\/\*(\*(?!\/_|[^*])*\*\/'` is ine
 - Once your pull request has been approved, please proceed to merge and close the pull request yourself.
 - When your pull requests receive comments, please reply to each comment individually.
 - If there were any fixes that were specific to resources you found (eg. stackoverflow thread), please comment them into the PR for future reference.
-- On a similar note, if you made design decisions, please document them in the comments of the PR. We often go back to close PRs to look at why things were done a certain way. It is very helpful for us to know how you came up with your solution when reading through the PR. 
+- On a similar note, if you made design decisions, please document them in the comments of the PR. We often go back to close PRs to look at why things were done a certain way. It is very helpful for us to know how you came up with your solution when reading through the PR.
 
 ### Coding Conventions
 - Every and **.h** file should start with
@@ -124,7 +142,7 @@ In `.clang-format`, the line `CommentPragmas: '\/\*(\*(?!\/_|[^*])*\*\/'` is ine
 
 ## CAN Bus
 Our microcontrollers use CAN bus to pass messages between each other. It is useful to set up your host machine to view the messages on CAN bus.
-### Linux (Tested on *Ubuntu 18.04 LTS*)
+### Ubuntu 18.04
 1. Connect a PCAN dongle between your host machine and the microcontroller. The required `socketcan` driver comes with the Ubuntu 18.04 LTS distribution so there is no driver to install.
 2. Bring up the CAN interface with the baudrate set to 500kHz.
 ```
@@ -141,6 +159,17 @@ candump can0 -c -t d | cantools decode --single-line boards/shared/CanMsgs/CanMs
 ```
 cantools monitor boards/shared/CanMsgs/CanMsgs.dbc -b socketcan -c can0 -B 500000
 ```
+## Periodic Task Scheduling
+We follow rate-monotonic scheduling to assign priorities to periodic tasks. This priority-assignment algorithm rules that every periodic task must have higher priority than other periodic tasks with longer cycle duration than itself. For example, if we have a 1Hz task and a 10Hz task, the 10Hz task must have a higher priority than the 1Hz task. The exact priority value isn't important, as long as the relative priorities follow rate-monotonic scheduling.
+
+It is conventional for the frequency of periodic tasks in embedded systems to be a power of 10. For us, we should only ever need to use 1Hz, 10Hz, 100Hz, and 1kHz. Here's a table you can follow to assign priority values for periodic tasks in CMSIS-RTOS:
+
+| Frequency     | Priority              |
+| ------------- | --------------------- |
+| 1Hz           | osPriorityLow         |
+| 10Hz          | osPriorityBelowNormal |
+| 100Hz         | osPriorityNormal      |
+| 1000Hz        | osPriorityAboveNormal |
 
 ## CMakeLists
 - Each board project (e.g. PDM, FSM) shall have its `CMakeLists.txt` and linker directives generated by a **STM32CubeMX** project in **CLion**. Here is a guide: https://blog.jetbrains.com/clion/2019/02/clion-2019-1-eap-clion-for-embedded-development-part-iii/.

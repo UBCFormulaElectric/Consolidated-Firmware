@@ -146,13 +146,13 @@ int main(void)
     /* Create the thread(s) */
     /* definition and creation of Task1Hz */
     osThreadStaticDef(
-        Task1Hz, RunTask1Hz, osPriorityNormal, 0, 128, Task1HzBuffer,
+        Task1Hz, RunTask1Hz, osPriorityLow, 0, 128, Task1HzBuffer,
         &Task1HzControlBlock);
     Task1HzHandle = osThreadCreate(osThread(Task1Hz), NULL);
 
     /* definition and creation of Task1kHz */
     osThreadStaticDef(
-        Task1kHz, RunTask1kHz, osPriorityNormal, 0, 128, Task1kHzBuffer,
+        Task1kHz, RunTask1kHz, osPriorityAboveNormal, 0, 128, Task1kHzBuffer,
         &Task1kHzControlBlock);
     Task1kHzHandle = osThreadCreate(osThread(Task1kHz), NULL);
 
