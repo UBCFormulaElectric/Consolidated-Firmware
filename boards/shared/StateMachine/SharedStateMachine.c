@@ -36,10 +36,10 @@ void SharedStateMachine_TransitionState(
     Event                             event,
     State *                           current_state,
     uint32_t                          num_of_transitions,
-    StateTransitionTableEntry_Struct *state_table)
+    struct StateTransitionTableEntry *state_table)
 {
     // Get the table entry corresponding to the current_state
-    StateTransitionTableEntry_Struct current_state_entry =
+    struct StateTransitionTableEntry current_state_entry =
         state_table[*current_state];
 
     // Iteratively search through all possible state transitions. The size of
@@ -59,7 +59,7 @@ void SharedStateMachine_TransitionState(
             *current_state = current_state_entry.transitions[i].next_state;
 
             // Find the table entry to new state
-            StateTransitionTableEntry_Struct new_state_entry =
+            struct StateTransitionTableEntry new_state_entry =
                 state_table[current_state_entry.transitions[i].next_state];
 
             // Call on-enter function for new state

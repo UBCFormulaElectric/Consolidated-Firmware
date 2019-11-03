@@ -41,7 +41,7 @@ static volatile uint8_t heartbeats_received = 0;
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedHeartbeat_ReceiveHeartbeat(PcbHeartbeatEncoding_Enum board)
+void SharedHeartbeat_ReceiveHeartbeat(enum PcbHeartBeatEncoding board)
 {
     heartbeats_received |= board;
 }

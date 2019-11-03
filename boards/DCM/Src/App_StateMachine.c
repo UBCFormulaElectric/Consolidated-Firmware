@@ -78,11 +78,11 @@ static void FaultStateAction(void);
 static State current_state = STATE_INIT;
 
 /** @brief Table of information required for the state machine to work*/
-static StateTransitionTableEntry_Struct state_table[NUM_STATES] =
+static struct StateTransitionTableEntry state_table[NUM_STATES] =
 {
     [STATE_INIT] =
     {
-        .transitions = (StateTransition_Struct[])
+        .transitions = (struct StateTransition[])
         {
             {0,0},
         },
@@ -94,7 +94,7 @@ static StateTransitionTableEntry_Struct state_table[NUM_STATES] =
     },
     [STATE_DRIVE] =
     {
-        .transitions = (StateTransition_Struct[])
+        .transitions = (struct StateTransition[])
         {
             {0,0},
         },
@@ -104,7 +104,7 @@ static StateTransitionTableEntry_Struct state_table[NUM_STATES] =
     },
     [STATE_FAULT] =
     {
-        .transitions = (StateTransition_Struct[])
+        .transitions = (struct StateTransition[])
         {
             {0,0},
         },
@@ -136,7 +136,7 @@ static void FaultStateAction(void) {}
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-StateTransitionTableEntry_Struct *App_StateMachine_GetStateTable(void)
+struct StateTransitionTableEntry *App_StateMachine_GetStateTable(void)
 {
     return &state_table[0];
 }

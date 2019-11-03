@@ -26,23 +26,23 @@ typedef uint32_t Event;
 typedef void (*StateAction_Fn)(void);
 
 /** @brief Describes an event-driven state transition */
-typedef struct
+struct StateTransition
 {
     Event trigger_event;
     State next_state;
-} StateTransition_Struct;
+};
 
 /** @brief Function pointer for on-enter and on-exit functions */
 typedef void (*Transition_Fn)(void);
 
 /** @brief An entry in the state table */
-typedef struct
+struct StateTransitionTableEntry
 {
-    const StateTransition_Struct *const transitions;
+    const struct StateTransition *const transitions;
     const Transition_Fn                 run_on_entry;
     const Transition_Fn                 run_on_exit;
     const StateAction_Fn                run_state_action;
-} StateTransitionTableEntry_Struct;
+};
 
 /******************************************************************************
  * Global Variables
@@ -63,6 +63,6 @@ void SharedStateMachine_TransitionState(
     Event                             event,
     State *                           current_state,
     uint32_t                          num_of_transitions,
-    StateTransitionTableEntry_Struct *table);
+    struct StateTransitionTableEntry *table);
 
 #endif /* SHARED_STATEMACHINE_H */

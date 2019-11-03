@@ -27,7 +27,7 @@
  * @brief  Getter function for state table.
  * @return Pointer to state table.
  */
-StateTransitionTableEntry_Struct *App_StateMachine_GetStateTable(void);
+struct StateTransitionTableEntry *App_StateMachine_GetStateTable(void);
 
 /**
  * @brief  Getter function for current state.
