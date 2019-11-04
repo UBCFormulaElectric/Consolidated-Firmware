@@ -40,13 +40,13 @@
  ******************************************************************************/
 // clang-format on
 /** @brief One-hot board encoding */
-typedef enum
+enum PcbHeartBeatEncoding
 {
     BMS_HEARTBEAT_ENCODING = (1U << 0U),
     DCM_HEARTBEAT_ENCODING = (1U << 1U),
     PDM_HEARTBEAT_ENCODING = (1U << 2U),
     FSM_HEARTBEAT_ENCODING = (1U << 3U),
-} PcbHeartbeatEncoding_Enum;
+};
 
 /******************************************************************************
  * Global Variables
@@ -71,7 +71,7 @@ void SharedHeartbeat_BroadcastHeartbeat(
  * @brief Upon heartbeat reception, update the list of heartbeats received
  * @param board One-hot board encoding from which the heartbeat was received
  */
-void SharedHeartbeat_ReceiveHeartbeat(PcbHeartbeatEncoding_Enum board);
+void SharedHeartbeat_ReceiveHeartbeat(enum PcbHeartBeatEncoding board);
 
 /**
  * @brief Periodically check that all heartbeats the the PCB listens for were
@@ -79,7 +79,7 @@ void SharedHeartbeat_ReceiveHeartbeat(PcbHeartbeatEncoding_Enum board);
  *        internal variable every 1ms, which means it should be placed inside
  *        the 1kHz task.
  * @param heartbeats_to_check The PCBs to listen heartbeats for. Perform a
- *        logical OR on the value(s) of PcbHeartbeatEncoding_Enum to specify the
+ *        logical OR on the value(s) of enum PcbHeartBeatEncoding to specify the
  *        PCBs.
  */
 void SharedHeartbeat_CheckHeartbeatTimeout(uint8_t heartbeats_to_check);
