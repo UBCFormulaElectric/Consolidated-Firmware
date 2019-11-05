@@ -20,6 +20,7 @@ BOARD_NAMES=(
     FSM
     DCM
     PDM
+    BMS
 )
 
 if [ "$RUN_BUILD" = "true" ]; then
