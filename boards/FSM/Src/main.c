@@ -154,6 +154,9 @@ int main(void)
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
+#if (configUSE_TRACE_FACILITY == 1)
+    vTraceEnable(TRC_INIT);
+#endif
     /* USER CODE END RTOS_THREADS */
 
     /* Start scheduler */
