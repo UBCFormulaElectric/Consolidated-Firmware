@@ -157,7 +157,7 @@ candump can0 -c -t d | cantools decode --single-line boards/shared/CanMsgs/CanMs
 ```
 - Monitor CAN traffic in a text-based user interface:
 ```
-cantools monitor boards/shared/CanMsgs/CanMsgs.dbc -b socketcan -c can0 -B 500000
+cantools monitor boards/shared/CAN/CanMsgs.dbc -b socketcan -c can0 -B 500000
 ```
 ## Periodic Task Scheduling
 We follow rate-monotonic scheduling to assign priorities to periodic tasks. This priority-assignment algorithm rules that every periodic task must have higher priority than other periodic tasks with longer cycle duration than itself. For example, if we have a 1Hz task and a 10Hz task, the 10Hz task must have a higher priority than the 1Hz task. The exact priority value isn't important, as long as the relative priorities follow rate-monotonic scheduling.
