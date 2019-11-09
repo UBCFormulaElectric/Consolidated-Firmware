@@ -9,31 +9,62 @@
 #define SOC_NUM_OF_BYTES 4
 
 static float_t SoC;
-//const float_t SoC = 123.5;
+const float_t  w_SoC = 0.3;
+// const float_t SoC = 123.5;
 
 float_t App_SoC_getSoc(void)
 {
     return SoC;
 }
 
-void App_SoC_writeSoc(void)
+HAL_StatusTypeDef App_SoC_writeSoc(void)
 {
+    /**
+    HAL_StatusTypeDef status;
+
     // Write SoC to 3 separate base addresses88
     if (Io_Eeprom_M24C16_writeToEeprom(
-            0x00, (uint8_t *)&SoC, SOC_NUM_OF_BYTES) != HAL_OK)
+            0x00, (uint8_t *)&w_SoC, SOC_NUM_OF_BYTES) != HAL_OK)
     {
         Error_Handler();
     }
     if (Io_Eeprom_M24C16_writeToEeprom(
-            0xa0, (uint8_t *)&SoC, SOC_NUM_OF_BYTES) != HAL_OK)
+            0xa0, (uint8_t *)&w_SoC, SOC_NUM_OF_BYTES) != HAL_OK)
     {
         Error_Handler();
     }
     if (Io_Eeprom_M24C16_writeToEeprom(
-            0xf0, (uint8_t *)&SoC, SOC_NUM_OF_BYTES) != HAL_OK)
+            0xf0, (uint8_t *)&w_SoC, SOC_NUM_OF_BYTES) != HAL_OK)
     {
         Error_Handler();
     }
+     **/
+
+    HAL_StatusTypeDef status = HAL_OK;
+
+    status = Io_Eeprom_M24C16_writeToEeprom(
+        0x00, (uint8_t *)&w_SoC, SOC_NUM_OF_BYTES);
+    if (status != HAL_OK)
+    {
+        return status;
+    }
+
+    status = Io_Eeprom_M24C16_writeToEeprom(
+        0x00, (uint8_t *)&w_SoC, SOC_NUM_OF_BYTES);
+
+    if (status != HAL_OK)
+    {
+        return status;
+    }
+
+    status = Io_Eeprom_M24C16_writeToEeprom(
+        0x00, (uint8_t *)&w_SoC, SOC_NUM_OF_BYTES);
+    if (status != HAL_OK)
+    {
+        return status;
+    }
+
+    return status;
 }
 
 void App_SoC_ReadSoC(void)
@@ -43,19 +74,19 @@ void App_SoC_ReadSoC(void)
 
     // Test read from EEPROM
     if (Io_Eeprom_M24C16_readFromEeprom(
-            0x00, (uint8_t *)&test_SoCs[0], SOC_NUM_OF_BYTES) == HAL_ERROR)
+            0x00, (uint8_t *)&test_SoCs[0], SOC_NUM_OF_BYTES) != HAL_OK)
     {
         Error_Handler();
     }
 
     if (Io_Eeprom_M24C16_readFromEeprom(
-            0xa0, (uint8_t *)&test_SoCs[1], SOC_NUM_OF_BYTES) == HAL_ERROR)
+            0xa0, (uint8_t *)&test_SoCs[1], SOC_NUM_OF_BYTES) != HAL_OK)
     {
         Error_Handler();
     }
 
     if (Io_Eeprom_M24C16_readFromEeprom(
-            0xf0, (uint8_t *)&test_SoCs[2], SOC_NUM_OF_BYTES) == HAL_ERROR)
+            0xf0, (uint8_t *)&test_SoCs[2], SOC_NUM_OF_BYTES) != HAL_OK)
     {
         Error_Handler();
     }

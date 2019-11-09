@@ -16,7 +16,7 @@ uint8_t *majorityLogicDecision(void);
  * @param      None
  * @return     None
  */
-void App_SoC_writeSoc(void);
+HAL_StatusTypeDef App_SoC_writeSoc(void);
 
 /**
  */

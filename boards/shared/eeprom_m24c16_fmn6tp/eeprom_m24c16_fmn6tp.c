@@ -24,9 +24,18 @@ HAL_StatusTypeDef Io_Eeprom_M24C16_writeToEeprom(
     uint8_t *data,
     uint16_t data_size)
 {
-    return HAL_I2C_Mem_Write(
-        &hi2c1, EEPROM_WRITE_ADDR, write_address, I2C_MEMADD_SIZE_8BIT, data,
-        data_size, 1000);
+    HAL_StatusTypeDef status = HAL_OK;
+
+    status = HAL_I2C_IsDeviceReady(&hi2c1, EEPROM_READ_ADDR, 3, 1000);
+
+    if (status == HAL_OK)
+    {
+        return HAL_I2C_Mem_Write(
+            &hi2c1, EEPROM_WRITE_ADDR, write_address, I2C_MEMADD_SIZE_8BIT,
+            data, data_size, 1000);
+    }
+
+    return status;
 }
 
 HAL_StatusTypeDef Io_Eeprom_M24C16_readFromEeprom(
