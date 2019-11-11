@@ -53,7 +53,13 @@ add_subdirectory(${CMAKE_SOURCE_DIR}/../shared __shared__)
 include_directories(${SHARED_INCLUDE_DIRS})
 
 # 3. STM32CubeMX driver code
+# 3-1. Global the source files recursively
 file(GLOB_RECURSE STM32CUBEMX_DRIVER_SRCS "startup/*.*" "Middlewares/*.*" "Drivers/*.*" "Src/syscalls.c")
+# 3-2. STM32CubeMX GUI generates a second copy of system_stm32f3xx.c, which
+# causes the linking process to fail due to multiple definition. Manually remove
+# this second copy of system_stm32f3xx.c from the compilation process. Note that
+# the correct system_stm32f3xx.c lives under Src/.
+list(FILTER STM32CUBEMX_DRIVER_SRCS EXCLUDE REGEX ".*Drivers/CMSIS/Device/ST/STM32F3xx/Source/Templates/system_stm32f3xx.c")
 
 # 4. Auto-generated code
 # 4-1. Generate CAN code using DBC

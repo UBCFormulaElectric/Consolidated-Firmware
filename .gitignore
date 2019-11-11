@@ -106,6 +106,10 @@ auto_generated/
 .mxproject
 MXTmpFiles
 
+# This unwanted file gets created when you use the STM32CubeMX GUI to generate
+# code. This doesn't happen if you use the STM32CubeMX command-line interface.
+**/Drivers/CMSIS/Device/ST/STM32F3xx/Source/Templates/system_stm32f3xx.c
+
 # PCAN-Explorer
 *.dsk
 *.dsk~
