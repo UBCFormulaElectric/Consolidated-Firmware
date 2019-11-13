@@ -144,6 +144,13 @@ add_executable($${PROJECT_NAME}.elf $${SOURCES} $${STM32CUBEMX_DRIVER_SRCS} $${S
 # Add targets that should be built before the .ELF file
 add_dependencies(${PROJECT_NAME}.elf __alwaysRun)
 
+# Compile static libraries
+add_subdirectory("../../lib" "${CMAKE_CURRENT_BINARY_DIR}/__lib__")
+include_directories(${LIB_INCLUDE_DIRS})
+
+# Link static libraries against .ELF
+target_link_libraries(${PROJECT_NAME}.elf SEGGER_RTT)
+
 set(CMAKE_EXE_LINKER_FLAGS
     "$${CMAKE_EXE_LINKER_FLAGS} -Wl,-Map=$${PROJECT_BINARY_DIR}/$${PROJECT_NAME}.map")
 
