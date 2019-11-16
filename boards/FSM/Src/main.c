@@ -103,6 +103,8 @@ int main(void)
     /* USER CODE BEGIN 1 */
     __HAL_DBGMCU_FREEZE_IWDG();
     SharedHardFaultHandler_Init();
+    App_CanTx_Init();
+    App_CanRx_Init();
     /* USER CODE END 1 */
 
     /* MCU
@@ -129,8 +131,7 @@ int main(void)
     MX_ADC1_Init();
     MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
-    App_CanTx_Init();
-    App_CanRx_Init();
+
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */

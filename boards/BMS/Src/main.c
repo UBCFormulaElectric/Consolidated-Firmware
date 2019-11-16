@@ -31,6 +31,7 @@
 #include "SharedWatchdog.h"
 #include "Io_Can.h"
 #include "auto_generated/App_CanTx.h"
+#include "auto_generated/App_CanRx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -100,6 +101,8 @@ int main(void)
     /* USER CODE BEGIN 1 */
     __HAL_DBGMCU_FREEZE_IWDG();
     SharedHardFaultHandler_Init();
+    App_CanTx_Init();
+    App_CanRx_Init();
     /* USER CODE END 1 */
 
     /* MCU

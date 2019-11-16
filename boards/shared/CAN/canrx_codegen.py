@@ -11,16 +11,22 @@ class CanRxFileGenerator(CanFileGenerator):
         self._function_prefix = function_prefix
         self._RxTableName = 'CanRxMsgTable'
 
+        self.__init_variables()
+
         # Initialize function objects so we can get its declaration and
         # definition when generating the source and header fie
         self.__init_functions(function_prefix)
+
+    def __init_variables(self):
+        self._canrx_initialized = Variable('static bool', 'canrx_initialized', 'false', 'Boolean flag indicating whether this library is initialized')
 
     def __init_functions(self, function_prefix):
         self._Init = Function(
             'void %s_Init(void)' % function_prefix,
             'Initialize CAN RX library',
             '''\
-    %s_InitializePeriodicCanRxMsgMutexes();''' % function_prefix)
+    %s_InitializePeriodicCanRxMsgMutexes();
+    %s = true;''' % (function_prefix, self._canrx_initialized.get_name()))
 
         self._InitPeriodicCanRxMutex = Function(
             'static void %s_InitializePeriodicCanRxMsgMutexes(void)' % function_prefix,
@@ -36,6 +42,8 @@ class CanRxFileGenerator(CanFileGenerator):
                      % (signal.type_name, self._function_prefix, signal.msg_name_uppercase, signal.uppercase_name),
                      '',
                      '''\
+    shared_assert({initialized_flag} == true);
+    
     xSemaphoreTake({table_name}.{msg_name}.xSemaphore, portMAX_DELAY);
 
     {signal_type} signal_value = {table_name}.{msg_name}.payload.{signal_name};
@@ -43,6 +51,7 @@ class CanRxFileGenerator(CanFileGenerator):
     xSemaphoreGive({table_name}.{msg_name}.xSemaphore);
     
     return signal_value;'''.format(
+                         initialized_flag=self._canrx_initialized.get_name(),
                          signal_type=signal.type_name,
                          signal_name=signal.snakecase_name,
                          table_name=self._RxTableName,
@@ -68,6 +77,8 @@ class CanRxFileGenerator(CanFileGenerator):
             'bool %s_ReadMessageIntoTableFromISR(uint32_t std_id, uint8_t data[8], void* pxHigherPriorityTaskWoken)' % self._function_prefix,
             "Copy a CAN message to the CAN RX table in ISR. Returns FALSE if we failed to acquire mutex (Recall that mutex can't block in ISR).",
             '''\
+    shared_assert({initialized_flag} == true);
+            
     // This function is intended to be called from an interrupt-context
     portASSERT_IF_IN_ISR();
     
@@ -81,7 +92,9 @@ class CanRxFileGenerator(CanFileGenerator):
             break;
         }}
     }}
-    return status; '''.format(cases='\n'.join(_CanRxReadMessageIntoTableFromISR_Cases)))
+    return status; '''.format(
+                initialized_flag=self._canrx_initialized.get_name(),
+                cases='\n'.join(_CanRxReadMessageIntoTableFromISR_Cases)))
 
         _CanRxReadMessageIntoTableFromTask_Cases = ['''\
         case CANMSGS_{msg_uppercase_name}_FRAME_ID:
@@ -101,6 +114,8 @@ class CanRxFileGenerator(CanFileGenerator):
             'void %s_ReadMessageIntoTableFromTask(uint32_t std_id, uint8_t data[8])' % self._function_prefix,
             "Copy a CAN message to the CAN RX table in a task.",
             '''\
+    shared_assert({initialized_flag} == true);
+    
     switch (std_id)
     {{
 {cases}
@@ -109,6 +124,7 @@ class CanRxFileGenerator(CanFileGenerator):
             break;
         }}
     }}'''.format(
+                initialized_flag=self._canrx_initialized.get_name(),
                 cases='\n'.join(_CanRxReadMessageIntoTableFromTask_Cases)))
 
     def __get_canrx_signals(self):
@@ -194,9 +210,9 @@ class CanRxSourceFileGenerator(CanRxFileGenerator):
                         '<string.h>',
                         '<FreeRTOS.h>',
                         '<semphr.h>',
-                        '<stm32f3xx_hal.h>',
                         '"auto_generated/%s"' % self._output_name.replace('.c', '.h'),
                         '"auto_generated/CanMsgs.h"',
+                        '"SharedAssert.h"',
                         '"SharedCan.h"']
 
         return '\n'.join(
@@ -222,7 +238,8 @@ class CanRxSourceFileGenerator(CanRxFileGenerator):
         variables.append(
             self.__CanRxMsgs.get_definition(self._RxTableName,
                                                    'Table of CAN RX messages'))
-        return '\n'.join(variables)
+        variables.append(self._canrx_initialized.get_definition())
+        return '\n\n'.join(variables)
 
     def __generatePrivateFunctionDeclarations(self):
         func_declarations = []
