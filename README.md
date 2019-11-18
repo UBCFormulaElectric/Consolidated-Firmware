@@ -193,4 +193,5 @@ It is conventional for the frequency of periodic tasks in embedded systems to be
 ## FAQ
 ### What is the correct orientation for plugging in the J-Link mini connector?
 The red marking on the ribbon cable indicates pin 1. Align the red marking with the pin 1 marker next to the J-Link mini connector.
-<img src="https://github.com/UBCFormulaElectric/Consolidated-Firmware/blob/master/images/jlink_connector.png" width="50" height="50"/>
+
+<img src="https://github.com/UBCFormulaElectric/Consolidated-Firmware/blob/master/images/jlink_connector.png" width="50%" height="50%"/>
