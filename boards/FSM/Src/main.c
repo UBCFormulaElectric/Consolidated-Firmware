@@ -33,6 +33,7 @@
 #include "SharedHardFaultHandler.h"
 #include "SharedAssert.h"
 #include "Io_Can.h"
+#include "Io_SteeringAngleSensor.h"
 #include "auto_generated/App_CanMsgsTx.h"
 /* USER CODE END Includes */
 
@@ -128,6 +129,8 @@ int main(void)
     MX_IWDG_Init();
     MX_TIM1_Init();
     /* USER CODE BEGIN 2 */
+
+    Io_SteeringAngleSensor_init(2, M_PI, -M_PI, 3.0, 1.0);
 
     /* USER CODE END 2 */
 
@@ -508,13 +511,16 @@ void RunTask1Hz(void const *argument)
     //    volatile uint16_t adc_buffer[2] = { 0 };
     //    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&adc_buffer, 2);
 
-    float voltage;
+    float current_angle;
+    enum SteeringAngleSensorStatus status;
     for (;;)
     {
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1000U);
-//        voltage = SharedAdc_GetAdcVoltage(2);
+        //        voltage = SharedAdc_GetAdcVoltage(2);
+        status = Io_SteeringAngleSensor_getCurrentSteeringAngle(&current_angle);
     }
-    UNUSED(voltage);
+    UNUSED(current_angle);
+    UNUSED(status);
     /* USER CODE END 5 */
 }
 
