@@ -16,28 +16,36 @@ class CanTxFileGenerator(CanFileGenerator):
 
         self._periodicTxTableName = 'PeriodicCanTxMsgTable'
 
+        self.__init_variables()
+
         # Initialize function objects so we can get its declaration and
-        # defintion when generating the source and header fie
+        # definition when generating the source and header fie
         self.__init_functions(function_prefix)
+
+    def __init_variables(self):
+        self._cantx_initialized = Variable('static bool', 'cantx_initialized', 'false', 'Boolean flag indicating whether this library is initialized')
 
     def __init_functions(self, function_prefix):
         self._Init = Function(
             'void %s_Init(void)' % function_prefix,
             'Initialize CAN TX library',
             '''\
-    %s_InitializePeriodicCanTxMsgMutexes();''' % function_prefix)
+    %s_InitializePeriodicCanTxMsgMutexes();
+    %s = true;    ''' % (function_prefix, self._cantx_initialized.get_name()))
 
         self._InitPeriodicCanTxMsgMutex = Function('static void %s_InitializePeriodicCanTxMsgMutexes(void)' % function_prefix,
                                                 'Initialize mutex for periodic CAN TX messages',
                                                 '\n\n'.join(['''\
     {periodic_table_name}.{msg_snake_name}.xSemaphore = xSemaphoreCreateMutexStatic(&{periodic_table_name}.{msg_snake_name}.xMutexBuffer);
-    assert_param({periodic_table_name}.{msg_snake_name}.xSemaphore);'''
+    shared_assert({periodic_table_name}.{msg_snake_name}.xSemaphore);'''
                                                             .format(msg_snake_name=msg.snake_name, periodic_table_name=self._periodicTxTableName)
                                                              for msg in self._periodic_cantx_msgs]))
 
         self._TransmitPeriodicMsgs = Function('void %s_TransmitPeriodicMessages(void)' % function_prefix,
                                               'Transmits periodic CAN TX messages according to the cycle time specified in the DBC. This should be called in a 1kHz task.',
                                               '\n\n'.join(['''\
+    shared_assert({initialized_flag} == true);
+    
     // Is it time to transmit this particular CAN message?
     if ((HAL_GetTick() % {period}) == 0)
     {{
@@ -59,7 +67,8 @@ class CanTxFileGenerator(CanFileGenerator):
         xSemaphoreGive({periodic_table_name}.{msg_snake_name}.xSemaphore);
 
         App_SharedCan_TxMessageQueueSendtoBack(&tx_message);
-    }}'''.format(msg_snake_name=msg.snake_name,
+    }}'''.format(initialized_flag=self._cantx_initialized.get_name(),
+                 msg_snake_name=msg.snake_name,
                  msg_packing_function='CanMsgs_%s_pack' % msg.snake_name,
                  periodic_table_name=self._periodicTxTableName,
                  std_id='CANMSGS_%s_FRAME_ID' % msg.snake_name.upper(),
@@ -71,11 +80,14 @@ class CanTxFileGenerator(CanFileGenerator):
             function_prefix, signal.uppercase_name, signal.type_name),
             '',
             '''\
+    shared_assert({initialized_flag} == true);
+    
     xSemaphoreTake({periodic_table_name}.{msg_name}.xSemaphore, portMAX_DELAY);
 
     {periodic_table_name}.{msg_name}.payload.{signal_name} = value;
 
     xSemaphoreGive({periodic_table_name}.{msg_name}.xSemaphore);'''.format(
+                initialized_flag=self._cantx_initialized.get_name(),
                 msg_name=signal.msg_name_snakecase,
                 periodic_table_name=self._periodicTxTableName,
                 signal_name=signal.snakecase_name)
@@ -86,7 +98,8 @@ class CanTxFileGenerator(CanFileGenerator):
             % (function_prefix, msg.snake_name.upper(), msg.snake_name),
             '',
             '''\
-    assert_param(payload != NULL);
+    shared_assert({initialized_flag} == true);
+    shared_assert(payload != NULL);
 
     struct CanMsg tx_msg;
     memset(&tx_msg, 0, sizeof(tx_msg));
@@ -94,15 +107,18 @@ class CanTxFileGenerator(CanFileGenerator):
     tx_msg.dlc    = CANMSGS_{msg_name_uppercase}_LENGTH;
     memcpy(&tx_msg.data[0], &payload, CANMSGS_{msg_name_uppercase}_LENGTH); 
     CanMsgs_{msg_name_snakecase}_pack(&tx_msg.data[0], payload, CANMSGS_{msg_name_uppercase}_LENGTH);
-    App_SharedCan_TxMessageQueueSendtoBack(&tx_msg);'''.format(msg_name_uppercase=msg.snake_name.upper(),
-                                                           msg_name_snakecase=msg.snake_name)
+    App_SharedCan_TxMessageQueueSendtoBack(&tx_msg);'''.format(
+                initialized_flag=self._cantx_initialized.get_name(),
+                msg_name_uppercase=msg.snake_name.upper(),
+                msg_name_snakecase=msg.snake_name)
         ) for msg in self._non_periodic_cantx_msgs)
 
         self._ForceEnqueueNonPeriodicMsgs = list(Function(
             'void %s_ForceEnqueueNonPeriodicMsg_%s(struct CanMsgs_%s_t* payload)' % (function_prefix, msg.snake_name.upper(), msg.snake_name),
             '',
             '''\
-    assert_param(payload != NULL);
+    shared_assert({initialized_flag} == true);
+    shared_assert(payload != NULL);
 
     struct CanMsg tx_msg;
     memset(&tx_msg, 0, sizeof(tx_msg));
@@ -110,8 +126,10 @@ class CanTxFileGenerator(CanFileGenerator):
     tx_msg.dlc    = CANMSGS_{msg_name_uppercase}_LENGTH;
     memcpy(&tx_msg.data[0], &payload, CANMSGS_{msg_name_uppercase}_LENGTH); 
     CanMsgs_{msg_name_snakecase}_pack(&tx_msg.data[0], payload, CANMSGS_{msg_name_uppercase}_LENGTH);
-    App_SharedCan_TxMessageQueueForceSendToFront(&tx_msg);'''.format(msg_name_uppercase=msg.snake_name.upper(),
-                                                               msg_name_snakecase=msg.snake_name)
+    App_SharedCan_TxMessageQueueForceSendToFront(&tx_msg);'''.format(
+                initialized_flag=self._cantx_initialized.get_name(),
+                msg_name_uppercase=msg.snake_name.upper(),
+                msg_name_snakecase=msg.snake_name)
         ) for msg in self._non_periodic_cantx_msgs)
 
 class CanTxHeaderFileGenerator(CanTxFileGenerator):
@@ -175,8 +193,8 @@ class CanTxSourceFileGenerator(CanTxFileGenerator):
                         '<string.h>',
                         '<FreeRTOS.h>',
                         '<semphr.h>',
-                        '<stm32f3xx_hal.h>',
                         '"auto_generated/CanMsgs.h"',
+                        '"SharedAssert.h"',
                         '"SharedCan.h"']
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])
@@ -198,6 +216,7 @@ class CanTxSourceFileGenerator(CanTxFileGenerator):
     def __generateVariables(self):
         variables = []
         variables.append(self.__PeriodicCanTxMsgs.get_definition(self._periodicTxTableName, 'Table of periodic CAN TX messages'))
+        variables.append(self._cantx_initialized.get_definition())
         return '\n\n'.join(variables)
 
     def __generatePrivateFunctionDeclarations(self):

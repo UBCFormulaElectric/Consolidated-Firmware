@@ -174,3 +174,16 @@ class CanSignal:
         self.uppercase_name = signal_name_snakecase.upper()
         self.msg_name_snakecase = msg_name_snakecase
         self.msg_name_uppercase = msg_name_snakecase.upper()
+
+class Variable:
+    def __init__(self, type, name, init_val, comment):
+        self.__name = name
+        self.__definition = '''\
+/** @brief {comment} */
+{type} {name} = {init_val};'''.format(
+            comment=comment, type=type, name=name, init_val=init_val)
+
+    def get_definition(self):
+        return self.__definition
+    def get_name(self):
+        return self.__name
