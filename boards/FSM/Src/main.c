@@ -24,6 +24,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "SharedAdc.h"
 #include "SharedWatchdog.h"
 #include "SharedConstants.h"
 #include "SharedCmsisOs.h"
@@ -269,7 +270,7 @@ static void MX_ADC1_Init(void)
     }
     /** Configure Regular Channel
      */
-    sConfig.Channel      = ADC_CHANNEL_5;
+    sConfig.Channel      = ADC_CHANNEL_VREFINT;
     sConfig.Rank         = ADC_REGULAR_RANK_1;
     sConfig.SingleDiff   = ADC_SINGLE_ENDED;
     sConfig.SamplingTime = ADC_SAMPLETIME_601CYCLES_5;
@@ -281,13 +282,15 @@ static void MX_ADC1_Init(void)
     }
     /** Configure Regular Channel
      */
-    sConfig.Channel = ADC_CHANNEL_VREFINT;
+    sConfig.Channel = ADC_CHANNEL_5;
     sConfig.Rank    = ADC_REGULAR_RANK_2;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
     }
     /* USER CODE BEGIN ADC1_Init 2 */
+
+    SharedAdc_StartAdcInDmaMode(&hadc1, 1);
 
     /* USER CODE END ADC1_Init 2 */
 }
@@ -502,13 +505,16 @@ void RunTask1Hz(void const *argument)
     UNUSED(argument);
     uint32_t PreviousWakeTime = osKernelSysTick();
 
-    volatile uint16_t adc_buffer[2] = { 0 };
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&adc_buffer, 2);
+    //    volatile uint16_t adc_buffer[2] = { 0 };
+    //    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&adc_buffer, 2);
 
+    float voltage;
     for (;;)
     {
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1000U);
+//        voltage = SharedAdc_GetAdcVoltage(2);
     }
+    UNUSED(voltage);
     /* USER CODE END 5 */
 }
 
