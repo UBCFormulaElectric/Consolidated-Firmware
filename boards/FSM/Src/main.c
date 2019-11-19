@@ -130,7 +130,7 @@ int main(void)
     MX_TIM1_Init();
     /* USER CODE BEGIN 2 */
 
-    Io_SteeringAngleSensor_init(2, M_PI, -M_PI, 3.0, 1.0);
+    Io_SteeringAngleSensor_init(2, M_PI, -M_PI, 0.760, 3.00);
 
     /* USER CODE END 2 */
 
