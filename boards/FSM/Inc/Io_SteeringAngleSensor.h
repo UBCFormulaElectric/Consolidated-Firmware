@@ -4,9 +4,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-// TODO: block at the top here with usage instructions?
-
-// TODO: prefix all enum values with enumname?
 enum Io_SteeringAngleSensor_Status
 {
     // Sensor is in a good state
@@ -41,9 +38,6 @@ bool Io_SteeringAngleSensor_init(
     float min_expected_angle_radians,
     float max_angle_voltage,
     float min_angle_voltage);
-
-// TODO: better name and jdoc comment
-void Io_SteeringAngleSensor_rawGpioReading(uint32_t reading);
 
 /**
  * Get the current steering angle
