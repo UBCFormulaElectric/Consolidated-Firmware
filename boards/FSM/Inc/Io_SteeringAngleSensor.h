@@ -7,7 +7,7 @@
 // TODO: block at the top here with usage instructions?
 
 // TODO: prefix all enum values with enumname?
-enum SteeringAngleSensorStatus
+enum Io_SteeringAngleSensor_Status
 {
     // Sensor is in a good state
     OK,
@@ -36,9 +36,9 @@ enum SteeringAngleSensorStatus
  * @return true if initialization succeeded, false otherwise
  */
 bool Io_SteeringAngleSensor_init(
-    int steering_angle_adc_rank,
-    float    max_expected_angle_radians,
-    float    min_expected_angle_radians,
+    int   steering_angle_adc_rank,
+    float max_expected_angle_radians,
+    float min_expected_angle_radians,
     float max_angle_voltage,
     float min_angle_voltage);
 
@@ -49,11 +49,13 @@ void Io_SteeringAngleSensor_rawGpioReading(uint32_t reading);
  * Get the current steering angle
  *
  * @param steering_angle_radians A pointer to a float that will be set to the
- * current value the steering angle sensor is reading
+ * current steering angle, in radians
  *
- * @return the
+ * @return A status indicating if the read was successful and the if the data is
+ *         valid
  */
-enum SteeringAngleSensorStatus Io_SteeringAngleSensor_getCurrentSteeringAngle(
+enum Io_SteeringAngleSensor_Status
+    Io_SteeringAngleSensor_getCurrentSteeringAngle(
     float *steering_angle_radians);
 
 #endif // FSM_IO_STEERING_ANGLE_SENSOR_H

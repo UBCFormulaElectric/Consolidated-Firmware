@@ -508,19 +508,10 @@ void RunTask1Hz(void const *argument)
     UNUSED(argument);
     uint32_t PreviousWakeTime = osKernelSysTick();
 
-    //    volatile uint16_t adc_buffer[2] = { 0 };
-    //    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)&adc_buffer, 2);
-
-    float current_angle;
-    enum SteeringAngleSensorStatus status;
     for (;;)
     {
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1000U);
-        //        voltage = SharedAdc_GetAdcVoltage(2);
-        status = Io_SteeringAngleSensor_getCurrentSteeringAngle(&current_angle);
     }
-    UNUSED(current_angle);
-    UNUSED(status);
     /* USER CODE END 5 */
 }
 
@@ -543,6 +534,16 @@ void RunTask1kHz(void const *argument)
         // TODO (#361) :Implement proper watchdog check-in mechanism
         SharedWatchdog_RefreshIwdg();
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1U);
+
+        // Read from the steering angle sensor
+        float                              steering_angle;
+        enum Io_SteeringAngleSensor_Status steering_angle_status =
+            Io_SteeringAngleSensor_getCurrentSteeringAngle(&steering_angle);
+        App_CanMsgsTx_GetPeriodicCanTxPayloads()
+            ->fsm_steering_angle.steering_angle = steering_angle;
+        App_CanMsgsTx_GetPeriodicCanTxPayloads()
+            ->fsm_steering_angle.steering_angle_valid =
+            (steering_angle_status == OK);
     }
     /* USER CODE END RunTask1kHz */
 }
