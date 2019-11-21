@@ -56,6 +56,6 @@ void Io_SteeringAngleSensor_rawGpioReading(uint32_t reading);
  */
 enum Io_SteeringAngleSensor_Status
     Io_SteeringAngleSensor_getCurrentSteeringAngle(
-    float *steering_angle_radians);
+        float *steering_angle_radians);
 
 #endif // FSM_IO_STEERING_ANGLE_SENSOR_H

@@ -34,7 +34,8 @@
 #include "SharedAssert.h"
 #include "Io_Can.h"
 #include "Io_SteeringAngleSensor.h"
-#include "auto_generated/App_CanMsgsTx.h"
+#include "auto_generated/App_CanTx.h"
+#include "auto_generated/App_CanRx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -68,6 +69,12 @@ osStaticThreadDef_t Task1HzControlBlock;
 osThreadId          Task1kHzHandle;
 uint32_t            Task1kHzBuffer[128];
 osStaticThreadDef_t Task1kHzControlBlock;
+osThreadId          TaskCanRxHandle;
+uint32_t            TaskCanRxBuffer[128];
+osStaticThreadDef_t TaskCanRxControlBlock;
+osThreadId          TaskCanTxHandle;
+uint32_t            TaskCanTxBuffer[128];
+osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -82,6 +89,8 @@ static void MX_IWDG_Init(void);
 static void MX_TIM1_Init(void);
 void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
+void        RunTaskCanRx(void const *argument);
+void        RunTaskCanTx(void const *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -101,6 +110,8 @@ int main(void)
     /* USER CODE BEGIN 1 */
     __HAL_DBGMCU_FREEZE_IWDG();
     SharedHardFaultHandler_Init();
+    App_CanTx_Init();
+    App_CanRx_Init();
     /* USER CODE END 1 */
 
     /* MCU
@@ -162,6 +173,18 @@ int main(void)
         Task1kHz, RunTask1kHz, osPriorityAboveNormal, 0, 128, Task1kHzBuffer,
         &Task1kHzControlBlock);
     Task1kHzHandle = osThreadCreate(osThread(Task1kHz), NULL);
+
+    /* definition and creation of TaskCanRx */
+    osThreadStaticDef(
+        TaskCanRx, RunTaskCanRx, osPriorityRealtime, 0, 128, TaskCanRxBuffer,
+        &TaskCanRxControlBlock);
+    TaskCanRxHandle = osThreadCreate(osThread(TaskCanRx), NULL);
+
+    /* definition and creation of TaskCanTx */
+    osThreadStaticDef(
+        TaskCanTx, RunTaskCanTx, osPriorityRealtime, 0, 128, TaskCanTxBuffer,
+        &TaskCanTxControlBlock);
+    TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -329,7 +352,7 @@ static void MX_CAN_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN CAN_Init 2 */
-    SharedCan_StartCanInInterruptMode(
+    SharedCan_Init(
         &hcan, Io_Can_GetCanMaskFilters(), Io_Can_GetNumberOfCanMaskFilters());
     /* USER CODE END CAN_Init 2 */
 }
@@ -530,7 +553,7 @@ void RunTask1kHz(void const *argument)
 
     for (;;)
     {
-        App_CanMsgsTx_TransmitPeriodicMessages();
+        App_CanTx_TransmitPeriodicMessages();
         // TODO (#361) :Implement proper watchdog check-in mechanism
         SharedWatchdog_RefreshIwdg();
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1U);
@@ -539,13 +562,49 @@ void RunTask1kHz(void const *argument)
         float                              steering_angle;
         enum Io_SteeringAngleSensor_Status steering_angle_status =
             Io_SteeringAngleSensor_getCurrentSteeringAngle(&steering_angle);
-        App_CanMsgsTx_GetPeriodicCanTxPayloads()
-            ->fsm_steering_angle.steering_angle = steering_angle;
-        App_CanMsgsTx_GetPeriodicCanTxPayloads()
-            ->fsm_steering_angle.steering_angle_valid =
-            (steering_angle_status == OK);
+        App_CanTx_SetPeriodicSignal_STEERING_ANGLE(steering_angle);
+        App_CanTx_SetPeriodicSignal_STEERING_ANGLE_VALID(
+            steering_angle_status == OK);
     }
     /* USER CODE END RunTask1kHz */
+}
+
+/* USER CODE BEGIN Header_RunTaskCanRx */
+/**
+ * @brief Function implementing the TaskCanRx thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskCanRx */
+void RunTaskCanRx(void const *argument)
+{
+    /* USER CODE BEGIN RunTaskCanRx */
+    UNUSED(argument);
+
+    for (;;)
+    {
+        App_SharedCan_ReadRxMessagesIntoTableFromTask();
+    }
+    /* USER CODE END RunTaskCanRx */
+}
+
+/* USER CODE BEGIN Header_RunTaskCanTx */
+/**
+ * @brief Function implementing the TaskCanTx thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskCanTx */
+void RunTaskCanTx(void const *argument)
+{
+    /* USER CODE BEGIN RunTaskCanTx */
+    UNUSED(argument);
+
+    for (;;)
+    {
+        App_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
+    }
+    /* USER CODE END RunTaskCanTx */
 }
 
 /**

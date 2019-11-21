@@ -57,7 +57,7 @@ bool Io_SteeringAngleSensor_init(
 
 enum Io_SteeringAngleSensor_Status
     Io_SteeringAngleSensor_getCurrentSteeringAngle(
-    float *steering_angle_radians)
+        float *steering_angle_radians)
 {
     if (!_initialized)
     {

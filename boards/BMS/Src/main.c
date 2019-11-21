@@ -30,7 +30,8 @@
 #include "SharedHardFaultHandler.h"
 #include "SharedWatchdog.h"
 #include "Io_Can.h"
-#include "auto_generated/App_CanMsgsTx.h"
+#include "auto_generated/App_CanTx.h"
+#include "auto_generated/App_CanRx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -61,6 +62,12 @@ osStaticThreadDef_t Task1HzControlBlock;
 osThreadId          Task1kHzHandle;
 uint32_t            Task1kHzBuffer[128];
 osStaticThreadDef_t Task1kHzControlBlock;
+osThreadId          TaskCanRxHandle;
+uint32_t            TaskCanRxBuffer[128];
+osStaticThreadDef_t TaskCanRxControlBlock;
+osThreadId          TaskCanTxHandle;
+uint32_t            TaskCanTxBuffer[128];
+osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -73,6 +80,8 @@ static void MX_ADC1_Init(void);
 static void MX_IWDG_Init(void);
 void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
+void        RunTaskCanRx(void const *argument);
+void        RunTaskCanTx(void const *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -92,6 +101,8 @@ int main(void)
     /* USER CODE BEGIN 1 */
     __HAL_DBGMCU_FREEZE_IWDG();
     SharedHardFaultHandler_Init();
+    App_CanTx_Init();
+    App_CanRx_Init();
     /* USER CODE END 1 */
 
     /* MCU
@@ -149,6 +160,18 @@ int main(void)
         Task1kHz, RunTask1kHz, osPriorityAboveNormal, 0, 128, Task1kHzBuffer,
         &Task1kHzControlBlock);
     Task1kHzHandle = osThreadCreate(osThread(Task1kHz), NULL);
+
+    /* definition and creation of TaskCanRx */
+    osThreadStaticDef(
+        TaskCanRx, RunTaskCanRx, osPriorityRealtime, 0, 128, TaskCanRxBuffer,
+        &TaskCanRxControlBlock);
+    TaskCanRxHandle = osThreadCreate(osThread(TaskCanRx), NULL);
+
+    /* definition and creation of TaskCanTx */
+    osThreadStaticDef(
+        TaskCanTx, RunTaskCanTx, osPriorityRealtime, 0, 128, TaskCanTxBuffer,
+        &TaskCanTxControlBlock);
+    TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -306,7 +329,7 @@ static void MX_CAN_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN CAN_Init 2 */
-    SharedCan_StartCanInInterruptMode(
+    SharedCan_Init(
         &hcan, Io_Can_GetCanMaskFilters(), Io_Can_GetNumberOfCanMaskFilters());
     /* USER CODE END CAN_Init 2 */
 }
@@ -364,19 +387,19 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PA0 PA1 PA2 PA4
-                             PA5 PA6 PA7 PA15 */
+                             PA5 PA6 PA7 PA11
+                             PA12 PA15 */
     GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_4 |
-                          GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_15;
+                          GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_11 |
+                          GPIO_PIN_12 | GPIO_PIN_15;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PB0 PB1 PB2 PB10
-                             PB11 PB4 PB5 PB8
-                             PB9 */
+                             PB11 PB4 PB5 */
     GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_10 |
-                          GPIO_PIN_11 | GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_8 |
-                          GPIO_PIN_9;
+                          GPIO_PIN_11 | GPIO_PIN_4 | GPIO_PIN_5;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -444,12 +467,50 @@ void RunTask1kHz(void const *argument)
 
     for (;;)
     {
-        App_CanMsgsTx_TransmitPeriodicMessages();
+        App_CanTx_TransmitPeriodicMessages();
         // TODO (#361) :Implement proper watchdog check-in mechanism
         SharedWatchdog_RefreshIwdg();
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1U);
     }
     /* USER CODE END RunTask1kHz */
+}
+
+/* USER CODE BEGIN Header_RunTaskCanRx */
+/**
+ * @brief Function implementing the TaskCanRx thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskCanRx */
+void RunTaskCanRx(void const *argument)
+{
+    /* USER CODE BEGIN RunTaskCanRx */
+    UNUSED(argument);
+
+    for (;;)
+    {
+        App_SharedCan_ReadRxMessagesIntoTableFromTask();
+    }
+    /* USER CODE END RunTaskCanRx */
+}
+
+/* USER CODE BEGIN Header_RunTaskCanTx */
+/**
+ * @brief Function implementing the TaskCanTx thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskCanTx */
+void RunTaskCanTx(void const *argument)
+{
+    /* USER CODE BEGIN RunTaskCanTx */
+    UNUSED(argument);
+
+    for (;;)
+    {
+        App_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
+    }
+    /* USER CODE END RunTaskCanTx */
 }
 
 /**
