@@ -7,14 +7,6 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source $SCRIPT_DIR/travis_shared.sh
 source $SCRIPT_DIR/../shared_funcs.sh
 
-# The user must specify the STM32CubeMX binary pth
-if [ "$#" -ne 1 ]; then
-    echo "Please provide the STM32CubeMX binary path as argument!"
-    exit 2
-else
-    STM32CUBEMX_BIN_PATH=$1
-fi
-
 # Currently supported boards
 BOARD_NAMES=(
     FSM
@@ -27,7 +19,7 @@ if [ "$RUN_BUILD" = "true" ]; then
     # Build each project
     for BOARD_NAME in "${BOARD_NAMES[@]}"
     do
-        travis_run "cmake boards/$BOARD_NAME/CMakeLists.txt -DSTM32CUBEMX_BIN_PATH=$STM32CUBEMX_BIN_PATH && make -C boards/$BOARD_NAME"
+        travis_run "cmake boards/$BOARD_NAME/CMakeLists.txt make -C boards/$BOARD_NAME"
     done
 fi
 
