@@ -8,11 +8,6 @@ python: "3.6"
 git:
   submodules: false
 
-env:
-  global:
-    - INSTALL_DIR=/usr/local
-    - CUBE_INSTALL_DIR=$INSTALL_DIR/STM32CubeMX
-
 install:
   - ./setup.sh
 
@@ -23,6 +18,7 @@ addons:
     - lib32z1
 
 before_script:
+  - PATH="/usr/local/STM32CubeMX:$PATH"
   - ./scripts/travis_ci/print_bin_versions.sh
   # Use xvfb to run tests that require a GUI (e.g. STM32CubeMX code generation)
   - "export DISPLAY=:99.0"
