@@ -73,6 +73,36 @@
 #define _FORCE_ENQUEUE_CAN_RX_FIFO_OVERFLOW(BOARD, ARG) \
     App_CanTx_ForceEnqueueNonPeriodicMsg_##BOARD##_CAN_RX_FIFO_OVERFLOW(ARG)
 
+// The following filter IDs/masks must be used with 16-bit Filter Scale
+// (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier
+// registers are associated with mask registers specifying which bits of the
+// identifier are handled as "don't care" or as "must match". For each bit in
+// the mask registers, 0 = Don't Care and 1 = Must Match.
+//
+// Bit mapping of a 16-bit identifier register and mask register:
+// Standard CAN ID [15:5] RTR[4] IDE[3] Extended CAN ID [2:0]
+//
+// For example, with the following filter IDs/mask:
+// =======================================================
+// Identifier Register:    [000 0000 0000] [0] [0] [000]
+// Mask Register:          [111 1110 0000] [1] [1] [000]
+// =======================================================
+// The filter will accept incoming messages that match the following criteria:
+// [000 000x xxxx]    [0]    [0]         [xxx]
+// Standard CAN ID    RTR    IDE     Extended CAN ID
+
+/** @brief Helper macro to initialize FiRx register in 16-bit mode */
+#define INIT_MASKMODE_16BIT_FiRx(std_id, rtr, ide, ext_id)                     \
+    ((((uint32_t)(std_id) << 5U) & 0xFFE0) |                                   \
+     (((uint32_t)(rtr) << 4U) & 0x0010) | (((uint32_t)(ide) << 3U) & 0x0008) | \
+     (((uint32_t)(ext_id) << 0U) & 0x0007))
+
+// Open CAN filter that accepts any CAN message as long as it uses Standard CAN
+// ID and is a data frame.
+#define MASKMODE_16BIT_ID_OPEN \
+    INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, CAN_ExtID_NULL)
+#define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
+
 /******************************************************************************
  * Module Typedefs
  ******************************************************************************/
@@ -126,9 +156,39 @@ static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *can_tx_msg);
  */
 static void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo);
 
+/**
+ * Initializes the filters on the given CAN interface to allow all msgs through
+ * @param hcan The interface to set the fully open filter on
+ * @return SUCCESS if success, otherwise an error code
+ */
+static ErrorStatus Io_InitializeAllOpenFilters(CAN_HandleTypeDef *hcan);
+
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
+
+static ErrorStatus Io_InitializeAllOpenFilters(CAN_HandleTypeDef *hcan)
+{
+    shared_assert(hcan != NULL);
+
+    /* Configure a single filter bank that accepts any message */
+    CAN_FilterTypeDef can_filter;
+    can_filter.FilterMode           = CAN_FILTERMODE_IDMASK;
+    can_filter.FilterScale          = CAN_FILTERSCALE_16BIT;
+    can_filter.FilterActivation     = CAN_FILTER_ENABLE;
+    can_filter.FilterIdLow          = MASKMODE_16BIT_ID_OPEN;
+    can_filter.FilterMaskIdLow      = MASKMODE_16BIT_MASK_OPEN;
+    can_filter.FilterIdHigh         = MASKMODE_16BIT_ID_OPEN;
+    can_filter.FilterMaskIdHigh     = MASKMODE_16BIT_MASK_OPEN;
+    can_filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+    can_filter.FilterBank           = 0;
+
+    // Configure and initialize filter bank
+    if (HAL_CAN_ConfigFilter(hcan, &can_filter) != HAL_OK)
+        return ERROR;
+    else
+        return SUCCESS;
+}
 
 static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *can_tx_msg)
 {
@@ -218,6 +278,9 @@ void SharedCan_Init(CAN_HandleTypeDef *hcan)
         CAN_RX_MSG_FIFO_LENGTH, CAN_RX_MSG_FIFO_ITEM_SIZE,
         can_rx_msg_fifo.storage, &can_rx_msg_fifo.state);
     shared_assert(can_rx_msg_fifo.handle != NULL);
+
+    // Initialize CAN RX hardware filters
+    shared_assert(Io_InitializeAllOpenFilters(hcan) == SUCCESS);
 
     // Configure interrupt mode for CAN peripheral
     shared_assert(
