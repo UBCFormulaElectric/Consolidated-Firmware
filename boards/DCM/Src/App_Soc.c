@@ -9,7 +9,7 @@
 #define SOC_NUM_OF_BYTES 4
 
 static float_t SoC;
-const float_t  w_SoC = 0.3;
+const float_t  w_SoC = 0.5;
 // const float_t SoC = 123.5;
 
 float_t App_SoC_getSoc(void)
@@ -19,6 +19,8 @@ float_t App_SoC_getSoc(void)
 
 HAL_StatusTypeDef App_SoC_writeSoc(void)
 {
+    //uint8_t SoC_Test[4] = { 0x9a, 0x99, 0x99, 0x3e };
+
     /**
     HAL_StatusTypeDef status;
 
@@ -34,7 +36,7 @@ HAL_StatusTypeDef App_SoC_writeSoc(void)
         Error_Handler();
     }
     if (Io_Eeprom_M24C16_writeToEeprom(
-            0xf0, (uint8_t *)&w_SoC, SOC_NUM_OF_BYTES) != HAL_OK)
+            0xf0, (uint8_t & in c*)&w_SoC, SOC_NUM_OF_BYTES) != HAL_OK)
     {
         Error_Handler();
     }
@@ -42,28 +44,13 @@ HAL_StatusTypeDef App_SoC_writeSoc(void)
 
     HAL_StatusTypeDef status = HAL_OK;
 
-    status = Io_Eeprom_M24C16_writeToEeprom(
-        0x00, (uint8_t *)&w_SoC, SOC_NUM_OF_BYTES);
-    if (status != HAL_OK)
-    {
-        return status;
-    }
+    status = Io_Eeprom_M24C16_writeToEeprom(0x00, (uint8_t *)&w_SoC, SOC_NUM_OF_BYTES);
+    HAL_Delay(3);
+    status = Io_Eeprom_M24C16_writeToEeprom(0xa0, (uint8_t *)&w_SoC, SOC_NUM_OF_BYTES);
+    HAL_Delay(3);
+    status = Io_Eeprom_M24C16_writeToEeprom(0xf0, (uint8_t *)&w_SoC, SOC_NUM_OF_BYTES);
 
-    status = Io_Eeprom_M24C16_writeToEeprom(
-        0x00, (uint8_t *)&w_SoC, SOC_NUM_OF_BYTES);
-
-    if (status != HAL_OK)
-    {
-        return status;
-    }
-
-    status = Io_Eeprom_M24C16_writeToEeprom(
-        0x00, (uint8_t *)&w_SoC, SOC_NUM_OF_BYTES);
-    if (status != HAL_OK)
-    {
-        return status;
-    }
-
+    //UNUSED(SoC_Test);
     return status;
 }
 
