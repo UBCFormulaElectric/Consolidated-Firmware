@@ -55,6 +55,8 @@ void SharedAssert_AssertFailed(char *file_path, uint32_t line, char *expr)
         "%s:%d %s: Assertion `%s' failed\r\n", __BASENAME__(file_path), line,
         __func__, _expr);
 
+    BREAK_IF_DEBUGGER_CONNECTED();
+
     for (;;)
     {
         // Trap here forever. It might be desirable in the future to use

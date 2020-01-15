@@ -3,6 +3,7 @@
  ******************************************************************************/
 #include <stm32f3xx_hal.h>
 #include "SharedHardFaultHandler.h"
+#include "SharedMacros.h"
 
 /******************************************************************************
  * Function Definitions
@@ -52,6 +53,8 @@ void SharedHardFaultHandler_LogInformation(uint32_t *fault_stack)
     afsr  = SCB->AFSR;
     bfar  = SCB->BFAR;
     mmfar = SCB->MMFAR;
+
+    BREAK_IF_DEBUGGER_CONNECTED();
 
     for (;;)
     {
