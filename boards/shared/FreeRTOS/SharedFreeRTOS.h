@@ -1,24 +1,22 @@
 /**
  * @brief A shared collection of FreeRTOS utilities
  */
+#pragma once
 
-#ifndef SHARED_FREERTOS_H
-#define SHARED_FREERTOS_H
-/******************************************************************************
- * Typedefs
- ******************************************************************************/
 #include <FreeRTOS.h>
+#include <semphr.h>
 
-/******************************************************************************
- * Typedefs
- ******************************************************************************/
-// clang-format on
 /** @brief Required data structures for creating a static FreeRTOS queue */
-struct FreeRTOSStaticQueue
+struct StaticQueue
 {
     StaticQueue_t state;
     uint8_t *     storage;
     QueueHandle_t handle;
 };
 
-#endif /* SHARED_FREERTOS_H */
+/** @brief Required data structures for creating a static FreeRTOS semaphore*/
+struct StaticSemaphore
+{
+    SemaphoreHandle_t handle;
+    StaticSemaphore_t storage;
+};
