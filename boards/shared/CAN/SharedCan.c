@@ -106,7 +106,7 @@ static CAN_HandleTypeDef *sharedcan_hcan = NULL;
 /** @brief Boolean flag indicating whether this library is initialized */
 static bool sharedcan_initialized = false;
 
-static struct StaticSemaphore xSemaphore = {
+static struct StaticSemaphore CanTxBinarySemaphore = {
     .handle  = NULL,
     .storage = { { 0 } },
 };
@@ -301,8 +301,9 @@ void SharedCan_Init(
     shared_assert(can_tx_msg_fifo.handle != NULL);
 
     // Initialize binary semaphore for CAN TX task
-    xSemaphore.handle = xSemaphoreCreateBinaryStatic(&xSemaphore.storage);
-    configASSERT(xSemaphore.handle);
+    CanTxBinarySemaphore.handle =
+        xSemaphoreCreateBinaryStatic(&CanTxBinarySemaphore.storage);
+    configASSERT(CanTxBinarySemaphore.handle);
 
     // Initialize CAN RX software queue
     can_rx_msg_fifo.handle = xQueueCreateStatic(
@@ -354,7 +355,7 @@ void App_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message)
         App_SharedCan_TxMessageQueueForceSendToBack(message);
     }
 
-    xSemaphoreGive(xSemaphore.handle);
+    xSemaphoreGive(CanTxBinarySemaphore.handle);
 }
 
 void App_SharedCan_TxMessageQueueForceSendToBack(struct CanMsg *message)
@@ -362,10 +363,11 @@ void App_SharedCan_TxMessageQueueForceSendToBack(struct CanMsg *message)
     shared_assert(sharedcan_initialized == true);
     shared_assert(message != NULL);
 
-    struct CanMsg dummy_buffer;
     taskENTER_CRITICAL();
+
     if (uxQueueSpacesAvailable(can_tx_msg_fifo.handle) == 0)
     {
+        struct CanMsg dummy_buffer;
         if (xPortIsInsideInterrupt())
         {
             xQueueReceiveFromISR(can_tx_msg_fifo.handle, &dummy_buffer, NULL);
@@ -405,13 +407,12 @@ void App_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void)
 {
     shared_assert(sharedcan_initialized == true);
 
-    struct CanMsg tx_msg;
-
-    xSemaphoreTake(xSemaphore.handle, portMAX_DELAY);
+    xSemaphoreTake(CanTxBinarySemaphore.handle, portMAX_DELAY);
 
     while (HAL_CAN_GetTxMailboxesFreeLevel(sharedcan_hcan) > 0 &&
            uxQueueMessagesWaiting(can_tx_msg_fifo.handle) > 0)
     {
+        struct CanMsg tx_msg;
         if (xQueuePeek(can_tx_msg_fifo.handle, &tx_msg, 0) == pdTRUE)
         {
             (void)Io_TransmitCanMessage(&tx_msg);
@@ -435,4 +436,25 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     /* NOTE: All receive mailbox interrupts shall be handled in the same way */
     Io_CanRxCallback(hcan, CAN_RX_FIFO1);
+}
+
+void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+    /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
+    UNUSED(hcan);
+    xSemaphoreGive(CanTxBinarySemaphore.handle);
+}
+
+void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+    /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
+    UNUSED(hcan);
+    xSemaphoreGive(CanTxBinarySemaphore.handle);
+}
+
+void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+    /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
+    UNUSED(hcan);
+    xSemaphoreGive(CanTxBinarySemaphore.handle);
 }

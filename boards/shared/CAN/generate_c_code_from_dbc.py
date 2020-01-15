@@ -32,6 +32,11 @@ if __name__ == "__main__":
 
     # Load DBC in preparation of cantools
     database = load_file(args.dbc, database_format="dbc")
+    for msg in list(msg for msg in map(Message, database.messages)):
+        for signal in msg.signals:
+            if signal.type_length > 32:
+                raise Exception(
+                    "[%s] -> [%s] must be less than 32-bit to ensure atomic access on our 32-bit microcontrollers!" % (msg.snake_name, signal.snake_name))
 
     # Generate CAN TX code
     cantx_source = CanTxSourceFileGenerator(database, os.path.join(args.source_dir, 'App_CanTx.c'), args.board, 'App_CanTx')
