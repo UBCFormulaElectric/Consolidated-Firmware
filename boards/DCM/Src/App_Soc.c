@@ -9,8 +9,7 @@
 #define SOC_NUM_OF_BYTES 4
 
 static float_t SoC;
-const float_t  w_SoC = 0.5;
-// const float_t SoC = 123.5;
+const float_t  w_SoC = 69.9999;
 
 float_t App_SoC_getSoc(void)
 {
@@ -19,38 +18,22 @@ float_t App_SoC_getSoc(void)
 
 HAL_StatusTypeDef App_SoC_writeSoc(void)
 {
-    //uint8_t SoC_Test[4] = { 0x9a, 0x99, 0x99, 0x3e };
 
-    /**
     HAL_StatusTypeDef status;
 
-    // Write SoC to 3 separate base addresses88
-    if (Io_Eeprom_M24C16_writeToEeprom(
-            0x00, (uint8_t *)&w_SoC, SOC_NUM_OF_BYTES) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    if (Io_Eeprom_M24C16_writeToEeprom(
-            0xa0, (uint8_t *)&w_SoC, SOC_NUM_OF_BYTES) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    if (Io_Eeprom_M24C16_writeToEeprom(
-            0xf0, (uint8_t & in c*)&w_SoC, SOC_NUM_OF_BYTES) != HAL_OK)
-    {
-        Error_Handler();
-    }
-     **/
-
-    HAL_StatusTypeDef status = HAL_OK;
-
     status = Io_Eeprom_M24C16_writeToEeprom(0x00, (uint8_t *)&w_SoC, SOC_NUM_OF_BYTES);
+    if(status != HAL_OK)
+        Error_Handler();
     HAL_Delay(3);
-    status = Io_Eeprom_M24C16_writeToEeprom(0xa0, (uint8_t *)&w_SoC, SOC_NUM_OF_BYTES);
-    HAL_Delay(3);
-    status = Io_Eeprom_M24C16_writeToEeprom(0xf0, (uint8_t *)&w_SoC, SOC_NUM_OF_BYTES);
 
-    //UNUSED(SoC_Test);
+    status = Io_Eeprom_M24C16_writeToEeprom(0xa0, (uint8_t *)&w_SoC, SOC_NUM_OF_BYTES);
+    if(status != HAL_OK)
+        Error_Handler();
+    HAL_Delay(3);
+
+    status = Io_Eeprom_M24C16_writeToEeprom(0xf0, (uint8_t *)&w_SoC, SOC_NUM_OF_BYTES);
+    if(status != HAL_OK)
+        Error_Handler();
     return status;
 }
 
@@ -79,21 +62,10 @@ void App_SoC_ReadSoC(void)
     }
 
     // Equality comparison from each mem address
-    AB = (memcmp(
-              (void *)&test_SoCs[0], (uint8_t *)&test_SoCs[1],
-              SOC_NUM_OF_BYTES) == 0)
-             ? true
-             : false;
-    BC = (memcmp(
-              (void *)&test_SoCs[1], (uint8_t *)&test_SoCs[2],
-              SOC_NUM_OF_BYTES) == 0)
-             ? true
-             : false;
-    AC = (memcmp(
-              (void *)&test_SoCs[0], (uint8_t *)&test_SoCs[2],
-              SOC_NUM_OF_BYTES) == 0)
-             ? true
-             : false;
+    AB = (test_SoCs[0] == test_SoCs[1]) ? true : false;
+    BC = (test_SoCs[1] == test_SoCs[2]) ? true : false;
+    AC = (test_SoCs[0] == test_SoCs[2]) ? true : false;
+
 
     // MLD Decision, and return pointer
     if (AB == true)

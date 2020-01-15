@@ -17,8 +17,6 @@ static const uint16_t EEPROM_WRITE_ADDR = 0xA0; // 0b101_00000
 
 // Define test read and write addresses
 
-#define TEST_ADDR 0x00
-
 HAL_StatusTypeDef Io_Eeprom_M24C16_writeToEeprom(
     uint16_t write_address,
     uint8_t *data,
