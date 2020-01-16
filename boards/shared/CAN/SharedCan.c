@@ -84,7 +84,7 @@
 static uint8_t
     can_tx_msg_fifo_storage[CAN_TX_MSG_FIFO_LENGTH * CAN_TX_MSG_FIFO_ITEM_SIZE];
 
-static struct FreeRTOSStaticQueue can_tx_msg_fifo = {
+static struct StaticQueue can_tx_msg_fifo = {
     .storage = &can_tx_msg_fifo_storage[0],
     .state   = { { 0 } },
     .handle  = NULL,
@@ -94,7 +94,7 @@ static struct FreeRTOSStaticQueue can_tx_msg_fifo = {
 static uint8_t
     can_rx_msg_fifo_storage[CAN_TX_MSG_FIFO_LENGTH * CAN_TX_MSG_FIFO_ITEM_SIZE];
 
-static struct FreeRTOSStaticQueue can_rx_msg_fifo = {
+static struct StaticQueue can_rx_msg_fifo = {
     .storage = &can_rx_msg_fifo_storage[0],
     .state   = { { 0 } },
     .handle  = NULL,
@@ -105,6 +105,11 @@ static CAN_HandleTypeDef *sharedcan_hcan = NULL;
 
 /** @brief Boolean flag indicating whether this library is initialized */
 static bool sharedcan_initialized = false;
+
+static struct StaticSemaphore CanTxBinarySemaphore = {
+    .handle  = NULL,
+    .storage = { { 0 } },
+};
 
 /******************************************************************************
  * Private Function Prototypes
@@ -295,6 +300,11 @@ void SharedCan_Init(
         can_tx_msg_fifo.storage, &can_tx_msg_fifo.state);
     shared_assert(can_tx_msg_fifo.handle != NULL);
 
+    // Initialize binary semaphore for CAN TX task
+    CanTxBinarySemaphore.handle =
+        xSemaphoreCreateBinaryStatic(&CanTxBinarySemaphore.storage);
+    configASSERT(CanTxBinarySemaphore.handle);
+
     // Initialize CAN RX software queue
     can_rx_msg_fifo.handle = xQueueCreateStatic(
         CAN_RX_MSG_FIFO_LENGTH, CAN_RX_MSG_FIFO_ITEM_SIZE,
@@ -332,7 +342,8 @@ void App_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message)
 
     if (xQueueSendToBack(can_tx_msg_fifo.handle, message, 0) != pdTRUE)
     {
-        // Log the number of TX FIFO overflow over CAN
+        // Log the number of TX FIFO overflow over CAN. Since the TX FIFO is
+        // full, we forcibly remove the oldest elements to make space.
         static struct CAN_TX_FIFO_OVERFLOW_STRUCT(BOARD_NAME_LOWERCASE)
             cantx_overflow_count = { .overflow_count = 0 };
 
@@ -340,18 +351,23 @@ void App_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message)
 
         FORCE_ENQUEUE_CAN_TX_FIFO_OVERFLOW(
             BOARD_NAME_UPPERCASE, &cantx_overflow_count);
+
+        App_SharedCan_TxMessageQueueForceSendToBack(message);
     }
+
+    xSemaphoreGive(CanTxBinarySemaphore.handle);
 }
 
-void App_SharedCan_TxMessageQueueForceSendToFront(struct CanMsg *message)
+void App_SharedCan_TxMessageQueueForceSendToBack(struct CanMsg *message)
 {
     shared_assert(sharedcan_initialized == true);
     shared_assert(message != NULL);
 
-    struct CanMsg dummy_buffer;
     taskENTER_CRITICAL();
+
     if (uxQueueSpacesAvailable(can_tx_msg_fifo.handle) == 0)
     {
+        struct CanMsg dummy_buffer;
         if (xPortIsInsideInterrupt())
         {
             xQueueReceiveFromISR(can_tx_msg_fifo.handle, &dummy_buffer, NULL);
@@ -364,11 +380,11 @@ void App_SharedCan_TxMessageQueueForceSendToFront(struct CanMsg *message)
 
     if (xPortIsInsideInterrupt())
     {
-        xQueueSendToFrontFromISR(can_tx_msg_fifo.handle, message, NULL);
+        xQueueSendToBackFromISR(can_tx_msg_fifo.handle, message, NULL);
     }
     else
     {
-        xQueueSendToFront(can_tx_msg_fifo.handle, message, 0);
+        xQueueSendToBack(can_tx_msg_fifo.handle, message, 0);
     }
 
     taskEXIT_CRITICAL();
@@ -391,19 +407,16 @@ void App_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void)
 {
     shared_assert(sharedcan_initialized == true);
 
-    struct CanMsg tx_msg;
+    xSemaphoreTake(CanTxBinarySemaphore.handle, portMAX_DELAY);
 
-    while (HAL_CAN_GetTxMailboxesFreeLevel(sharedcan_hcan) == 0)
+    while (HAL_CAN_GetTxMailboxesFreeLevel(sharedcan_hcan) > 0 &&
+           uxQueueMessagesWaiting(can_tx_msg_fifo.handle) > 0)
     {
-        // Busy-wait until a TX mailbox is available. This delay should be
-        // negligible.
-    }
-
-    // Get a message from the CAN TX queue and transmit it, else block forever.
-    if (xQueuePeek(can_tx_msg_fifo.handle, &tx_msg, portMAX_DELAY) == pdTRUE)
-    {
-        if (Io_TransmitCanMessage(&tx_msg) == HAL_OK)
+        struct CanMsg tx_msg;
+        if (xQueuePeek(can_tx_msg_fifo.handle, &tx_msg, 0) == pdTRUE)
         {
+            (void)Io_TransmitCanMessage(&tx_msg);
+
             // Remove the message from CAN TX queue if we were able to transmit
             // it. This should never fail. If it ever does, then the CAN TX
             // queue is probably being consumed somewhere else by mistake.
@@ -423,4 +436,25 @@ void HAL_CAN_RxFifo1MsgPendingCallback(CAN_HandleTypeDef *hcan)
 {
     /* NOTE: All receive mailbox interrupts shall be handled in the same way */
     Io_CanRxCallback(hcan, CAN_RX_FIFO1);
+}
+
+void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+    /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
+    UNUSED(hcan);
+    xSemaphoreGiveFromISR(CanTxBinarySemaphore.handle, NULL);
+}
+
+void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+    /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
+    UNUSED(hcan);
+    xSemaphoreGiveFromISR(CanTxBinarySemaphore.handle, NULL);
+}
+
+void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan)
+{
+    /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
+    UNUSED(hcan);
+    xSemaphoreGiveFromISR(CanTxBinarySemaphore.handle, NULL);
 }

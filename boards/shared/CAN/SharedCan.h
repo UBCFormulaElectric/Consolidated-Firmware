@@ -207,7 +207,7 @@ void App_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message);
  * @brief  Overwrite the message at the front of the CAN TX queue
  * @param  message CAN message to overwrite with
  */
-void App_SharedCan_TxMessageQueueForceSendToFront(struct CanMsg *message);
+void App_SharedCan_TxMessageQueueForceSendToBack(struct CanMsg *message);
 
 /**
  * @brief For messages that we couldn't handle in ISR context, read them into
