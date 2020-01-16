@@ -442,19 +442,19 @@ void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
 {
     /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
     UNUSED(hcan);
-    xSemaphoreGive(CanTxBinarySemaphore.handle);
+    xSemaphoreGiveFromISR(CanTxBinarySemaphore.handle, NULL);
 }
 
 void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef *hcan)
 {
     /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
     UNUSED(hcan);
-    xSemaphoreGive(CanTxBinarySemaphore.handle);
+    xSemaphoreGiveFromISR(CanTxBinarySemaphore.handle, NULL);
 }
 
 void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan)
 {
     /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
     UNUSED(hcan);
-    xSemaphoreGive(CanTxBinarySemaphore.handle);
+    xSemaphoreGiveFromISR(CanTxBinarySemaphore.handle, NULL);
 }

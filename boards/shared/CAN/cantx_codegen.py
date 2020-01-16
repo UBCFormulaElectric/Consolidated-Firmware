@@ -31,14 +31,15 @@ class CanTxFileGenerator(CanFileGenerator):
             'Initialize CAN TX library',
             '    %s = true;' % self._cantx_initialized.get_name())
 
-        FunctionDef = '''
-    shared_assert(%s == true);\n\n''' % self._cantx_initialized.get_name()
+        FunctionDef = '''\
+    shared_assert(%s == true);
+    const uint32_t CurrentTick = osKernelSysTick();
+    struct CanMsg tx_message; \n\n''' % self._cantx_initialized.get_name()
 
         FunctionDef += '\n\n'.join(['''\
     // Is it time to transmit this particular CAN message?
-    if ((HAL_GetTick() % {period}) == 0)
+    if ((CurrentTick % {period}) == 0)
     {{
-        struct CanMsg tx_message;
         memset(&tx_message, 0, sizeof(tx_message));
 
         // Prepare CAN message header
@@ -167,6 +168,7 @@ class CanTxSourceFileGenerator(CanTxFileGenerator):
         header_names = ['<sched.h>',
                         '<string.h>',
                         '<FreeRTOS.h>',
+                        '<cmsis_os.h>',
                         '"auto_generated/CanMsgs.h"',
                         '"SharedAssert.h"',
                         '"SharedCan.h"']
