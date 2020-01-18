@@ -46,26 +46,25 @@ void App_SoC_ReadSoC(void)
     if (Io_Eeprom_M24C16_readFromEeprom(
             0x00, (uint8_t *)&test_SoCs[0], SOC_NUM_OF_BYTES) != HAL_OK)
     {
-        Error_Handler();
+        _Error_Handler(__FILE__,__LINE__);
     }
 
     if (Io_Eeprom_M24C16_readFromEeprom(
             0xa0, (uint8_t *)&test_SoCs[1], SOC_NUM_OF_BYTES) != HAL_OK)
     {
-        Error_Handler();
+        _Error_Handler(__FILE__,__LINE__);
     }
 
     if (Io_Eeprom_M24C16_readFromEeprom(
             0xf0, (uint8_t *)&test_SoCs[2], SOC_NUM_OF_BYTES) != HAL_OK)
     {
-        Error_Handler();
+        _Error_Handler(__FILE__,__LINE__);
     }
 
     // Equality comparison from each mem address
     AB = (test_SoCs[0] == test_SoCs[1]) ? true : false;
     BC = (test_SoCs[1] == test_SoCs[2]) ? true : false;
     AC = (test_SoCs[0] == test_SoCs[2]) ? true : false;
-
 
     // MLD Decision, and return pointer
     if (AB == true)
