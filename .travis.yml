@@ -8,11 +8,6 @@ python: "3.6"
 git:
   submodules: false
 
-env:
-  global:
-    - INSTALL_DIR=/usr/local
-    - CUBE_INSTALL_DIR=$INSTALL_DIR/STM32CubeMX
-
 before_install:
   - ./scripts/travis_ci/pull_git_submodules.sh
   - pip install pipenv
@@ -20,10 +15,6 @@ before_install:
 
 install:
   - pipenv install
-  # Modify $PATH directly in .travis.yml because a child process (i.e.
-  # travis_install_binaries.sh) can't modify the environmental variables of its
-  # parent process (i.e. .travis.yml)
-  - PATH=$INSTALL_DIR/bin:$CUBE_INSTALL_DIR:$PATH && ./scripts/travis_ci/travis_install_binaries.sh $INSTALL_DIR $CUBE_INSTALL_DIR
 
 addons:
   apt_packages:
@@ -31,15 +22,8 @@ addons:
     - lib32ncurses5
     - lib32z1
 
-before_script:
-  - ./scripts/travis_ci/print_bin_versions.sh
-  # Use xvfb to run tests that require a GUI (e.g. STM32CubeMX code generation)
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
-  - sleep 3 # Give xvfb some time to start
-
 script:
-  - ./scripts/travis_ci/travis_script.sh $CUBE_INSTALL_DIR/STM32CubeMX
+  - ./scripts/travis_ci/travis_script.sh
 
 matrix:
   include:
