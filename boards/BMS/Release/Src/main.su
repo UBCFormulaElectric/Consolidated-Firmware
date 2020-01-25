@@ -1,0 +1,8 @@
+main.c:422:6:RunTask1Hz	8	static
+main.c:476:6:RunTaskCanTx	8	static
+main.c:440:6:RunTask1kHz	8	static
+main.c:458:6:RunTaskCanRx	8	static
+main.c:181:6:SystemClock_Config	120	static
+main.c:91:5:main	136	static
+main.c:495:6:HAL_TIM_PeriodElapsedCallback	0	static
+main.c:512:6:Error_Handler	0	static

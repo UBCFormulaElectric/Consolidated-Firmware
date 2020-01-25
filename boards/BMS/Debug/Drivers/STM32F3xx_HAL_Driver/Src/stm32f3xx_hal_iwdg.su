@@ -1,0 +1,2 @@
+stm32f3xx_hal_iwdg.c:154:19:HAL_IWDG_Init	24	static
+stm32f3xx_hal_iwdg.c:238:19:HAL_IWDG_Refresh	16	static
