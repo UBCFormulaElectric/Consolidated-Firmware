@@ -1,0 +1,2 @@
+freertos.c:63:13:vApplicationStackOverflowHook	16	static
+freertos.c:75:6:vApplicationGetIdleTaskMemory	24	static
