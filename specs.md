@@ -13,12 +13,21 @@ Each specification has an unique ID, short title, and detailed description. It m
 1. All abbreviations (`AIR`, `APPS`, etc.) should be spelled out fully the first time they appear in a given row in the table. This means that if `APPS` appears in `FSM-0` and `FSM-22`, it should be spelled out as `APPS (acceleration pedal position sensor)` in _both_ `FSM-0` and `FSM-22`.
 
 ## Background Info
+
+There are three types of shutdown:
+- Safe shutdown:
+    - Disables the inverters after waiting until motors stop spinning
+- Motor shutdown:
+    - Disables the inverters after a small delay
+- AIR shutdown:
+    - Opens the AIRs
+    - Performs a motor shutdown as well
+
 There are two types of faults:
-    - Critical Faults:
-        - AIR shutdown: requires an AIR shutdown and a motor shutdown
-        - Motor shutdown: requires a motor shutdown only
-    - Non-critical:
-        - All other faults, for logging and debugging purposes
+- Critical Faults:
+    - Thrown by an AIR shutdown/motor shutdown
+- Non-critical:
+    - All other faults, for logging and debugging purposes
 
 ## Table Of Contents
 - [FSM (Front Sensor Module)](#FSM)
@@ -67,7 +76,7 @@ ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 DCM-3 | Entering the init state | The DCM state machine must begin in the init state by default.
 DCM-4 | In the init state | There are no actions for the DCM to take for this state.
-DCM-5 | Exiting the init state and entering the drive state | The DCM must meet the following conditions before entering the drive state: <br/> - There must be no AIR shutdown or motor shutdown faults present on any ECU. <br/> - The shutdown circuit must be closed and precharge must have already occurred. <br/> <br/> The DCM must also meet the following conditions in sequential order before entering the drive state: <br/> 1. The start switch must be switched in an upwards direction. If the start switch was already in the upwards position, it must be re-switched into the upwards position. <br/> 2. The brakes must be actuated. | EV.6.11.2, EV.6.11.3
+DCM-5 | Exiting the init state and entering the drive state | The DCM must meet the following conditions before entering the drive state: <br/> - There must be no critical faults present on any ECU. <br/> - The shutdown circuit must be closed and precharge must have already occurred. <br/> <br/> The DCM must also meet the following conditions in sequential order before entering the drive state: <br/> 1. The start switch must be switched in an upwards direction. If the start switch was already in the upwards position, it must be re-switched into the upwards position. <br/> 2. The brakes must be actuated. | EV.6.11.2, EV.6.11.3
 
 ### DCM Drive State <a name="DCM_DRIVE"></a>
 ID | Title | Description | Associated Competition Rule(s)
@@ -75,17 +84,17 @@ ID | Title | Description | Associated Competition Rule(s)
 DCM-6 | Power limiting | The DCM must ensure power draw does not exceed 80kW for more than 100ms continuously or for 500ms over a moving average. | EV.1.3.1, EV.2.2.1
 DCM-8 | Regen requirements | - Regen is only allowed when the vehicle is travelling more than 5 km/hr and the AIRs are closed. <br/> - Regen is allowed during braking. | EV.1.2.6, EV.8.2.9
 DCM-19 | Torque requests | - The DCM may only request torque less than or equal to what the driver requested. <br/> - If regen is allowed and the mapped regen paddle percentage is above 0%, the DCM must map the mapped regen paddle percentage to a negative torque request (prioritize regen paddle over accelerator pedal). <br/> - Else, the DCM must map the mapped pedal percentage to a positive torque request. | EV.3.2.3
-DCM-9 | Drive direction | The DCM must only alter the inverters' forward enable pins. The DCM should never alter the inverters' reverse enable pins, as the vehicle must not drive in reverse. | EV.1.2.7
-DCM-12 | Entering the drive state from the init state | The DCM must do the following upon entering the drive state: <br/> - Make the ready to drive sound for 2 seconds after entering the drive state. <br/> - Enable both inverters through the DCM's corresponding enable outputs. <br/> - Request through CAN that the inverters send each motor's RPM to the DCM at a rate of 1kHz. | EV.7.12.1, EV.7.12.2
+DCM-12 | Entering the drive state from the init state | The DCM must do the following upon entering the drive state: <br/> - Make the ready to drive sound for 2 seconds after entering the drive state. <br/> - Request through CAN that the PDM enable both inverters through its corresponding e-fuses. <br/> - Request through CAN that the inverters send each motor's RPM to the DCM at a rate of 1kHz. | EV.7.12.1, EV.7.12.2
 DCM-13 | In the drive state | The DCM must do the following in the drive state at 1kHz: <br/> 1. Acquire each motor's RPM from the inverters. <br/> 2. Calculate a torque request as per DCM-19. <br/> 3. Decrease the torque request if necessary to meet both DCM-6 and the maximum power limits specified by the BMS. <br/> 4. Send the resultant torque request to both inverters over CAN.
-DCM-14 | Exiting the drive state and entering the init state | When the start switch is switched into a downwards position, the DCM must: <br/> - Transition from the drive state to the init state. <br/> - Stop all CAN torque requests to meet DCM-10. <br/> - Disable power to both motors through the DCM's enable pins.
+DCM-14 | Motor shutdown - exiting the drive state and entering the init state | When a motor shutdown is requested over CAN, the DCM must: <br/> - Transition from the drive state to the init state. <br/> - Send a zero torque request to both inverters. <br/> - Delay for 200ms. <br/> - Request through CAN that the PDM disable both inverters by through its corresponding e-fuses.
+DCM-18| Safe shutdown - exiting the drive state and entering the init state | When the start switch is switched into a downwards position, the DCM must: <br/> - Transition from the drive state to the init state. <br/> - Send a zero torque request to both inverters. <br/> - Wait until both back wheels are spinning slower than 5km/h. <br/> - Request through CAN that the PDM disable both inverters by through its corresponding e-fuses.
 
 ### DCM Fault State <a name="DCM_FAULT"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-DCM-15 | Entering the fault state from any state | The DCM must transition to the fault state whenever an AIR shutdown or motor shutdown fault is observed.
-DCM-16 | In the fault state | The DCM must do the following in the fault state at 1kHz: <br/> - Stop all CAN torque requests to meet DCM-4. <br/> - Disable power to both motors through the DCM's enable pins.
-DCM-17 | Exiting the fault state and entering the init state | When all AIR shutdown and motor shutdown faults are cleared, re-enter the init state.
+DCM-15 | Entering the fault state from any state | The DCM must transition to the fault state whenever an critical fault is observed.
+DCM-16 | In the fault state | The DCM must do the following in the fault state at 1kHz: <br/> - Stop all CAN torque requests to meet DCM-4. <br/> - Request through CAN that the PDM disable both inverters by through its corresponding e-fuses.
+DCM-17 | Exiting the fault state and entering the init state | When all critical faults are cleared, re-enter the init state.
 
 ## PDM <a name="PDM"></a>
 
@@ -99,6 +108,7 @@ PDM-3 | 18650 overvoltage handling | When the 24V systems are powered by the 186
 PDM-4 | 18650 charge fault handling | When the CHRG_FAULT GPIO is low (18650s charge fault condition), the PDM must throw a non-critical fault.
 PDM-5 | Boost controller fault handling | When the PGOOD GPIO is low (boost controller fault condition), the PDM must throw a non-critical fault.
 PDM-6 | Voltage sense rationality checks | The PDM must run voltage rationality checks at 1kHz on the following inputs, throwing a non-critical fault if a rationality check fails: <br/> - VBAT_SENSE: min =  6V, max = 8.5V. <br/> - 24V_AUX_SENSE: min = 22V, max = 26V. <br/> - 24V_ACC_SENSE: min = 22V, max = 26V.
+PDM-18 | Inverter enabling/disabling | - The PDM inverter e-fuses must be off on startup. <br/> - The PDM must enable/disable both inverter e-fuses upon receiving the corresponding CAN message from the DCM.
 
 ### PDM Init State <a name="PDM_INIT"></a>
 ID | Title | Description | Associated Competition Rule(s)
@@ -188,7 +198,7 @@ DIM-2 | Board status LEDs | The DIM must indicate the current status of the BMS,
 DIM-3 | Drive mode switch | The DIM must transmit the drive mode position of the rotary switch over CAN at 1kHz.
 DIM-4 |  Start, traction control, torque vectoring switches | For each of the switches, the DIM must: <br/> - Transmit the on/off switch status of over CAN at 1kHz. <br/> - Set the corresponding green status LEDs when the switch is on.
 DIM-5 | IMD LED | The DIM must turn on the IMD LED when it receives IMD fault status from BMS over CAN. | EV.8.5.5
-DIM-6 | BSPD LED | The DIM must turn on the BSPD LED when it receives BSPD fault status from FSM over CAN. 
+DIM-6 | BSPD LED | The DIM must turn on the BSPD LED when it receives BSPD fault status from FSM over CAN.
 DIM-7 | Mapped regen paddle percentage reporting | The DIM must report the mapped regen paddle percentage over CAN at 1kHz.
 DIM-8 | Mapped regen paddle percentage | The DIM must linearly map the regen paddle position with dead zones as a percentage (paddle <=5% depressed maps to 0% regen, paddle >=95% pressed maps to 100% regen).
 DIM-9 | 7-segment |  - The DIM must display the SoC as percentage on the 7-segment displays if no faults are present. <br/> - If a fault has occurred the DIM must stop displaying the SoC and instead display any faults onto the 7-segment displays. <br/><ul>- The first 7-segment must display the board ID while the remaining two must display the fault ID. <br/> <img src="https://user-images.githubusercontent.com/25499626/60911239-06cca080-a283-11e9-9dfa-62fcb814f2c1.png" width="200"> <br/>- If there are more than one fault active, the DIM must cycle through displaying each present fault at 1Hz. </ul>
