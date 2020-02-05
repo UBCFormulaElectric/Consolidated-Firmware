@@ -14,7 +14,14 @@
       <ProjectName>BMS</ProjectName>
       <ProjectNature>C</ProjectNature>
       <Secure/>
-      <filestoremove/>
+      <filestoremove>
+        <file>
+          <name>Middlewares/Third_Party/ARM_CMSIS//CMSIS/DSP/Include/arm_math.h</name>
+        </file>
+        <file>
+          <name>Middlewares/Third_Party/ARM_CMSIS//CMSIS/Documentation/DSP/html/index.html</name>
+        </file>
+      </filestoremove>
       <sourceEntriesToRemove>
         <sourceEntry/>
       </sourceEntriesToRemove>
@@ -57,6 +64,9 @@
             <include>Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F</include>
             <include>Drivers/CMSIS/Device/ST/STM32F3xx/Include</include>
             <include>Drivers/CMSIS/Include</include>
+            <include>Middlewares\Third_Party\ARM_CMSIS\\CMSIS\Core\Include\</include>
+            <include>Middlewares\Third_Party\ARM_CMSIS\\CMSIS\Core_A\Include\</include>
+            <include>Middlewares\Third_Party\ARM_CMSIS\\CMSIS\DSP\Include</include>
           </Cincludes>
           <definestoremove>
             <Adefines/>
@@ -85,6 +95,9 @@
         </sourceEntry>
         <sourceEntry>
           <name>Middlewares</name>
+        </sourceEntry>
+        <sourceEntry>
+          <name>Packs</name>
         </sourceEntry>
       </sourceEntries>
       <Groups/>

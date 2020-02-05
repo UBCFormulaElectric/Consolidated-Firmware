@@ -50,4 +50,8 @@
 "shared/Src/SharedLogging.o"
 "shared/Src/SharedStateMachine.o"
 "shared/Src/SharedWatchdog.o"
+"shared/Src/trcKernelPort.o"
+"shared/Src/trcSnapshotRecorder.o"
+"shared/Src/trcStreamingPort.o"
+"shared/Src/trcStreamingRecorder.o"
 "shared/Src/auto_generated/CanMsgs.o"
