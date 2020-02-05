@@ -14,20 +14,7 @@
       <ProjectName>DCM</ProjectName>
       <ProjectNature>C</ProjectNature>
       <Secure/>
-      <filestoremove>
-        <file>
-          <name>Core/Src/main.c</name>
-        </file>
-        <file>
-          <name>Core/Src/stm32f3xx_it.c</name>
-        </file>
-        <file>
-          <name>Core/Src/stm32f3xx_hal_msp.c</name>
-        </file>
-        <file>
-          <name>Core/Src/system_stm32f3xx.c</name>
-        </file>
-      </filestoremove>
+      <filestoremove/>
       <sourceEntriesToRemove>
         <sourceEntry/>
       </sourceEntriesToRemove>
@@ -70,6 +57,9 @@
             <include>Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F</include>
             <include>Drivers/CMSIS/Device/ST/STM32F3xx/Include</include>
             <include>Drivers/CMSIS/Include</include>
+            <include>Middlewares\Third_Party\ARM_CMSIS\\CMSIS\Core\Include\</include>
+            <include>Middlewares\Third_Party\ARM_CMSIS\\CMSIS\Core_A\Include\</include>
+            <include>Middlewares\Third_Party\ARM_CMSIS\\CMSIS\DSP\Include</include>
           </Cincludes>
           <definestoremove>
             <Adefines/>
@@ -84,9 +74,7 @@
             <Aincludes>
               <include/>
             </Aincludes>
-            <Cincludes>
-              <include>Core/Inc</include>
-            </Cincludes>
+            <Cincludes/>
           </inctoremove>
         </config>
       </configs>
@@ -100,6 +88,9 @@
         </sourceEntry>
         <sourceEntry>
           <name>Middlewares</name>
+        </sourceEntry>
+        <sourceEntry>
+          <name>Packs</name>
         </sourceEntry>
       </sourceEntries>
       <Groups/>
