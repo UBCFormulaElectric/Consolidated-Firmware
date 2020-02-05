@@ -32,8 +32,8 @@
  *
  * USAGE
  *
- * This description assumes you already have the extension files for the APIs you
- * like to trace. To include them, follow these steps:
+ * This description assumes you already have the extension files for the APIs
+ *you like to trace. To include them, follow these steps:
  *
  * 1. Update trcExtensions.h with respect to:
  *
@@ -201,7 +201,7 @@
  *
  * Default value is 20.
  *****************************************************************************/
-#define TRC_CFG_EXT_MAX_NAME_LEN	20
+#define TRC_CFG_EXT_MAX_NAME_LEN 20
 
 /******************************************************************************
  * TRC_EXTENSION_EVENTCODE_BASE
@@ -222,79 +222,81 @@
  * - EXTENSION_PREFIX: The first part of the HEADER definition names.
  *
  *****************************************************************************/
-#define TRC_EXT1_HEADER 	"aws_secure_sockets.tzext.h"
-#define TRC_EXT1_PREFIX 	TRC_EXT_SOCKETS
+#define TRC_EXT1_HEADER "aws_secure_sockets.tzext.h"
+#define TRC_EXT1_PREFIX TRC_EXT_SOCKETS
 
-#define TRC_EXT2_HEADER 	"aws_wifi.tzext.h"
-#define TRC_EXT2_PREFIX 	TRC_EXT_WIFI
+#define TRC_EXT2_HEADER "aws_wifi.tzext.h"
+#define TRC_EXT2_PREFIX TRC_EXT_WIFI
 
-#define TRC_EXT3_HEADER		"Here you specify the header file for Extensions 3."
-#define TRC_EXT3_PREFIX		NOT_DEFINED
+#define TRC_EXT3_HEADER "Here you specify the header file for Extensions 3."
+#define TRC_EXT3_PREFIX NOT_DEFINED
 
-#define TRC_EXT4_HEADER		"Here you specify the header file for Extensions 4."
-#define TRC_EXT4_PREFIX		NOT_DEFINED
+#define TRC_EXT4_HEADER "Here you specify the header file for Extensions 4."
+#define TRC_EXT4_PREFIX NOT_DEFINED
 
 /*** Don't modify below ******************************************************/
 
-#define ROUNDUP4(n) (4*((n+3)/4))
+#define ROUNDUP4(n) (4 * ((n + 3) / 4))
 
-typedef struct{
-	uint16_t firstEventCode;
-	uint16_t lastEventCode;
-	uint16_t patchVersion;
-	uint8_t minorVersion;
-	uint8_t majorVersion;
-	char name[ROUNDUP4(TRC_CFG_EXT_MAX_NAME_LEN)];
+typedef struct
+{
+    uint16_t firstEventCode;
+    uint16_t lastEventCode;
+    uint16_t patchVersion;
+    uint8_t  minorVersion;
+    uint8_t  majorVersion;
+    char     name[ROUNDUP4(TRC_CFG_EXT_MAX_NAME_LEN)];
 } PSFExtensionEntryType;
 
-typedef struct{
-	uint16_t extensionEntryCount;
-	uint16_t baseEventCode;
+typedef struct
+{
+    uint16_t extensionEntryCount;
+    uint16_t baseEventCode;
 #if (TRC_CFG_EXTENSION_COUNT > 0)
-	uint8_t extensionEntryNameMaxLength;
-	uint8_t extensionEntrySize;
-	PSFExtensionEntryType extension[TRC_CFG_EXTENSION_COUNT];
+    uint8_t               extensionEntryNameMaxLength;
+    uint8_t               extensionEntrySize;
+    PSFExtensionEntryType extension[TRC_CFG_EXTENSION_COUNT];
 #endif
 } PSFExtensionInfoType;
-
 
 extern PSFExtensionInfoType PSFExtensionInfo;
 
 #define CAT(a, ...) PRIMITIVE_CAT(a, __VA_ARGS__)
-#define PRIMITIVE_CAT(a, ...) a ## __VA_ARGS__
+#define PRIMITIVE_CAT(a, ...) a##__VA_ARGS__
 
-#define TRC_EXT_BASECODE (PSFExtensionInfo.extension[TRC_EXT_NUMBER-1].firstEventCode)
+#define TRC_EXT_BASECODE \
+    (PSFExtensionInfo.extension[TRC_EXT_NUMBER - 1].firstEventCode)
 
 #if (TRC_CFG_EXTENSION_COUNT >= 1)
-	#ifdef TRC_EXT1_HEADER
-		#define TRC_EXT_NUMBER 1
-		#include TRC_EXT1_HEADER
-		#undef TRC_EXT_NUMBER
-	#endif
+#ifdef TRC_EXT1_HEADER
+#define TRC_EXT_NUMBER 1
+#include TRC_EXT1_HEADER
+#undef TRC_EXT_NUMBER
+#endif
 #endif
 
 #if (TRC_CFG_EXTENSION_COUNT >= 2)
-	#ifdef TRC_EXT2_HEADER
-		#define TRC_EXT_NUMBER 2
-		#include TRC_EXT2_HEADER
-		#undef TRC_EXT_NUMBER
-	#endif
+#ifdef TRC_EXT2_HEADER
+#define TRC_EXT_NUMBER 2
+#include TRC_EXT2_HEADER
+#undef TRC_EXT_NUMBER
+#endif
 #endif
 
 #if (TRC_CFG_EXTENSION_COUNT >= 3)
-	#ifdef TRC_EXT3_HEADER
-		#define TRC_EXT_NUMBER 3
-		#include TRC_EXT3_HEADER
-		#undef TRC_EXT_NUMBER
-	#endif
+#ifdef TRC_EXT3_HEADER
+#define TRC_EXT_NUMBER 3
+#include TRC_EXT3_HEADER
+#undef TRC_EXT_NUMBER
+#endif
 #endif
 
 #if (TRC_CFG_EXTENSION_COUNT == 4)
-	#ifdef TRC_EXT3_HEADER
-		#define TRC_EXT_NUMBER 4
-		#include TRC_EXT4_HEADER
-		#undef TRC_EXT_NUMBER
-	#endif
+#ifdef TRC_EXT3_HEADER
+#define TRC_EXT_NUMBER 4
+#include TRC_EXT4_HEADER
+#undef TRC_EXT_NUMBER
+#endif
 #endif
 
 #define TRC_EXT1_COUNT CAT(TRC_EXT1_PREFIX, _COUNT)
@@ -323,7 +325,7 @@ extern PSFExtensionInfoType PSFExtensionInfo;
 #define TRC_EXT4_VERSION_PATCH CAT(TRC_EXT4_PREFIX, _VERSION_PATCH)
 
 #if ((TRC_CFG_EXTENSION_COUNT > 4) || (TRC_CFG_EXTENSION_COUNT < 0))
-	#error "TRC_CFG_EXTENSION_COUNT must be in range [0..4]"
+#error "TRC_CFG_EXTENSION_COUNT must be in range [0..4]"
 #endif
 
 #if (TRC_CFG_EXTENSION_COUNT == 0)
@@ -331,92 +333,107 @@ extern PSFExtensionInfoType PSFExtensionInfo;
 #endif
 
 #if (TRC_CFG_EXTENSION_COUNT == 1)
-#define TRC_EXTENSIONS_DATA \
-{ \
-	{	TRC_EXTENSION_EVENTCODE_BASE, \
-		TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT-1, \
-		TRC_EXT1_VERSION_PATCH, \
-		TRC_EXT1_VERSION_MINOR, \
-		TRC_EXT1_VERSION_MAJOR, \
-		TRC_EXT1_NAME } \
-}
+#define TRC_EXTENSIONS_DATA                                        \
+    {                                                              \
+        {                                                          \
+            TRC_EXTENSION_EVENTCODE_BASE,                          \
+                TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT - 1, \
+                TRC_EXT1_VERSION_PATCH, TRC_EXT1_VERSION_MINOR,    \
+                TRC_EXT1_VERSION_MAJOR, TRC_EXT1_NAME              \
+        }                                                          \
+    }
 #endif
 
 #if (TRC_CFG_EXTENSION_COUNT == 2)
-#define TRC_EXTENSIONS_DATA \
-{ \
-	{	TRC_EXTENSION_EVENTCODE_BASE, \
-		TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT-1, \
-		TRC_EXT1_VERSION_PATCH, \
-		TRC_EXT1_VERSION_MINOR, \
-		TRC_EXT1_VERSION_MAJOR, \
-		TRC_EXT1_NAME } \
-	,{	TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT, \
-		TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT + TRC_EXT2_COUNT-1, \
-		TRC_EXT2_VERSION_PATCH, \
-		TRC_EXT2_VERSION_MINOR, \
-		TRC_EXT2_VERSION_MAJOR, \
-		TRC_EXT2_NAME } \
-}
+#define TRC_EXTENSIONS_DATA                                     \
+    {                                                           \
+        { TRC_EXTENSION_EVENTCODE_BASE,                         \
+          TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT - 1,    \
+          TRC_EXT1_VERSION_PATCH,                               \
+          TRC_EXT1_VERSION_MINOR,                               \
+          TRC_EXT1_VERSION_MAJOR,                               \
+          TRC_EXT1_NAME },                                      \
+        {                                                       \
+            TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT,      \
+                TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT + \
+                    TRC_EXT2_COUNT - 1,                         \
+                TRC_EXT2_VERSION_PATCH, TRC_EXT2_VERSION_MINOR, \
+                TRC_EXT2_VERSION_MAJOR, TRC_EXT2_NAME           \
+        }                                                       \
+    }
 #endif
 
 #if (TRC_CFG_EXTENSION_COUNT == 3)
-#define TRC_EXTENSIONS_DATA \
-{ \
-	{	TRC_EXTENSION_EVENTCODE_BASE, \
-		TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT-1, \
-		TRC_EXT1_VERSION_PATCH, \
-		TRC_EXT1_VERSION_MINOR, \
-		TRC_EXT1_VERSION_MAJOR, \
-		TRC_EXT1_NAME } \
-	,{	TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT, \
-		TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT + TRC_EXT2_COUNT-1, \
-		TRC_EXT2_VERSION_PATCH, \
-		TRC_EXT2_VERSION_MINOR, \
-		TRC_EXT2_VERSION_MAJOR, \
-		TRC_EXT2_NAME } \
-	,{	TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT + TRC_EXT2_COUNT, \
-		TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT + TRC_EXT2_COUNT + TRC_EXT3_COUNT - 1, \
-		TRC_EXT3_VERSION_PATCH, \
-		TRC_EXT3_VERSION_MINOR, \
-		TRC_EXT3_VERSION_MAJOR, \
-		TRC_EXT3_NAME } \
-}
+#define TRC_EXTENSIONS_DATA                                                    \
+    {                                                                          \
+        { TRC_EXTENSION_EVENTCODE_BASE,                                        \
+          TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT - 1,                   \
+          TRC_EXT1_VERSION_PATCH,                                              \
+          TRC_EXT1_VERSION_MINOR,                                              \
+          TRC_EXT1_VERSION_MAJOR,                                              \
+          TRC_EXT1_NAME },                                                     \
+            { TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT,                   \
+              TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT + TRC_EXT2_COUNT - \
+                  1,                                                           \
+              TRC_EXT2_VERSION_PATCH,                                          \
+              TRC_EXT2_VERSION_MINOR,                                          \
+              TRC_EXT2_VERSION_MAJOR,                                          \
+              TRC_EXT2_NAME },                                                 \
+        {                                                                      \
+            TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT + TRC_EXT2_COUNT,    \
+                TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT +                \
+                    TRC_EXT2_COUNT + TRC_EXT3_COUNT - 1,                       \
+                TRC_EXT3_VERSION_PATCH, TRC_EXT3_VERSION_MINOR,                \
+                TRC_EXT3_VERSION_MAJOR, TRC_EXT3_NAME                          \
+        }                                                                      \
+    }
 #endif
 #if (TRC_CFG_EXTENSION_COUNT == 4)
-#define TRC_EXTENSIONS_DATA \
-{ \
-	{	TRC_EXTENSION_EVENTCODE_BASE, \
-		TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT-1, \
-		TRC_EXT1_VERSION_PATCH, \
-		TRC_EXT1_VERSION_MINOR, \
-		TRC_EXT1_VERSION_MAJOR, \
-		TRC_EXT1_NAME } \
-	,{	TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT, \
-		TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT + TRC_EXT2_COUNT-1, \
-		TRC_EXT2_VERSION_PATCH, \
-		TRC_EXT2_VERSION_MINOR, \
-		TRC_EXT2_VERSION_MAJOR, \
-		TRC_EXT2_NAME } \
-	,{	TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT + TRC_EXT2_COUNT, \
-		TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT + TRC_EXT2_COUNT + TRC_EXT3_COUNT - 1, \
-		TRC_EXT3_VERSION_PATCH, \
-		TRC_EXT3_VERSION_MINOR, \
-		TRC_EXT3_VERSION_MAJOR, \
-		TRC_EXT3_NAME } \
-	,{	TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT + TRC_EXT2_COUNT + TRC_EXT3_COUNT, \
-		TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT + TRC_EXT2_COUNT + TRC_EXT3_COUNT + TRC_EXT4_COUNT- 1, \
-		TRC_EXT4_VERSION_PATCH, \
-		TRC_EXT4_VERSION_MINOR, \
-		TRC_EXT4_VERSION_MAJOR, \
-		TRC_EXT4_NAME } \
-}
+#define TRC_EXTENSIONS_DATA                                                    \
+    {                                                                          \
+        { TRC_EXTENSION_EVENTCODE_BASE,                                        \
+          TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT - 1,                   \
+          TRC_EXT1_VERSION_PATCH,                                              \
+          TRC_EXT1_VERSION_MINOR,                                              \
+          TRC_EXT1_VERSION_MAJOR,                                              \
+          TRC_EXT1_NAME },                                                     \
+            { TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT,                   \
+              TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT + TRC_EXT2_COUNT - \
+                  1,                                                           \
+              TRC_EXT2_VERSION_PATCH,                                          \
+              TRC_EXT2_VERSION_MINOR,                                          \
+              TRC_EXT2_VERSION_MAJOR,                                          \
+              TRC_EXT2_NAME },                                                 \
+            { TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT + TRC_EXT2_COUNT,  \
+              TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT + TRC_EXT2_COUNT + \
+                  TRC_EXT3_COUNT - 1,                                          \
+              TRC_EXT3_VERSION_PATCH,                                          \
+              TRC_EXT3_VERSION_MINOR,                                          \
+              TRC_EXT3_VERSION_MAJOR,                                          \
+              TRC_EXT3_NAME },                                                 \
+        {                                                                      \
+            TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT + TRC_EXT2_COUNT +   \
+                TRC_EXT3_COUNT,                                                \
+                TRC_EXTENSION_EVENTCODE_BASE + TRC_EXT1_COUNT +                \
+                    TRC_EXT2_COUNT + TRC_EXT3_COUNT + TRC_EXT4_COUNT - 1,      \
+                TRC_EXT4_VERSION_PATCH, TRC_EXT4_VERSION_MINOR,                \
+                TRC_EXT4_VERSION_MAJOR, TRC_EXT4_NAME                          \
+        }                                                                      \
+    }
 #endif
 
 #if (TRC_CFG_EXTENSION_COUNT > 0)
-#define TRC_EXTENSION_INFO {TRC_CFG_EXTENSION_COUNT, TRC_EXTENSION_EVENTCODE_BASE, ROUNDUP4(TRC_CFG_EXT_MAX_NAME_LEN), sizeof(PSFExtensionEntryType), TRC_EXTENSIONS_DATA}
+#define TRC_EXTENSION_INFO                                                     \
+    {                                                                          \
+        TRC_CFG_EXTENSION_COUNT, TRC_EXTENSION_EVENTCODE_BASE,                 \
+            ROUNDUP4(TRC_CFG_EXT_MAX_NAME_LEN), sizeof(PSFExtensionEntryType), \
+            TRC_EXTENSIONS_DATA                                                \
+    }
 #else
-#define TRC_EXTENSION_INFO {TRC_CFG_EXTENSION_COUNT, TRC_EXTENSION_EVENTCODE_BASE}
+#define TRC_EXTENSION_INFO                                    \
+    {                                                         \
+        TRC_CFG_EXTENSION_COUNT, TRC_EXTENSION_EVENTCODE_BASE \
+    }
 #endif
 
 #endif /* TRCEXTENSIONS_H_ */
