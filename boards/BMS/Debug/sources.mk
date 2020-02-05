@@ -23,7 +23,4 @@ Middlewares/Third_Party/FreeRTOS/Source \
 Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F \
 Src \
 Src/auto_generated \
-Startup \
-shared/Src \
-shared/Src/auto_generated \
 

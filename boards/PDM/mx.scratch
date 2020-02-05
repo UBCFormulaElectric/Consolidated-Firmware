@@ -16,16 +16,10 @@
       <Secure/>
       <filestoremove>
         <file>
-          <name>Core/Src/main.c</name>
+          <name>Middlewares/Third_Party/ARM_CMSIS//CMSIS/DSP/Include/arm_math.h</name>
         </file>
         <file>
-          <name>Core/Src/stm32f3xx_it.c</name>
-        </file>
-        <file>
-          <name>Core/Src/stm32f3xx_hal_msp.c</name>
-        </file>
-        <file>
-          <name>Core/Src/system_stm32f3xx.c</name>
+          <name>Middlewares/Third_Party/ARM_CMSIS//CMSIS/Documentation/DSP/html/index.html</name>
         </file>
       </filestoremove>
       <sourceEntriesToRemove>
@@ -87,9 +81,7 @@
             <Aincludes>
               <include/>
             </Aincludes>
-            <Cincludes>
-              <include>Core/Inc</include>
-            </Cincludes>
+            <Cincludes/>
           </inctoremove>
         </config>
       </configs>
