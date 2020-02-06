@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.ui.externaltools.ProgramBuilderLaunchConfigurationType">
+<booleanAttribute key="org.eclipse.debug.ui.ATTR_LAUNCH_IN_BACKGROUND" value="false"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_LOCATION" value="/usr/local/bin/pipenv"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_RUN_BUILD_KINDS" value="full,incremental,"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_TOOL_ARGUMENTS" value="run python ${workspace_loc:${project_name}/shared/generate_CAN/generate_c_code_from_dbc.py}&#10;--board=&quot;BMS&quot;&#10;--source_dir=&quot;${workspace_loc:${project_name}/Src}/auto_generated&quot;&#10;--header_dir=&quot;${workspace_loc:${project_name}/Inc}/auto_generated&quot;&#10;--cantools_source_dir=&quot;${workspace_loc:${project_name}/shared/Src}/auto_generated&quot;&#10;--cantools_header_dir=&quot;${workspace_loc:${project_name}/shared/Inc}/auto_generated&quot;&#10;--dbc=&quot;${workspace_loc:${project_name}/shared/generate_CAN/CanMsgs.dbc}&quot;"/>
+<booleanAttribute key="org.eclipse.ui.externaltools.ATTR_TRIGGERS_CONFIGURED" value="true"/>
+<stringAttribute key="org.eclipse.ui.externaltools.ATTR_WORKING_DIRECTORY" value="${project_loc}"/>
+</launchConfiguration>
