@@ -154,13 +154,13 @@ typedef struct
     int MaxNumDownBuffers; // Initialized to SEGGER_RTT_MAX_NUM_DOWN_BUFFERS
                            // (type. 2)
     SEGGER_RTT_BUFFER_UP
-        aUp[SEGGER_RTT_MAX_NUM_UP_BUFFERS]; // Up buffers, transferring
-                                            // information up from target via
-                                            // debug probe to host
+    aUp[SEGGER_RTT_MAX_NUM_UP_BUFFERS]; // Up buffers, transferring
+                                        // information up from target via
+                                        // debug probe to host
     SEGGER_RTT_BUFFER_DOWN
-        aDown[SEGGER_RTT_MAX_NUM_DOWN_BUFFERS]; // Down buffers, transferring
-                                                // information down from host
-                                                // via debug probe to target
+    aDown[SEGGER_RTT_MAX_NUM_DOWN_BUFFERS]; // Down buffers, transferring
+                                            // information down from host
+                                            // via debug probe to target
 } SEGGER_RTT_CB;
 
 /*********************************************************************

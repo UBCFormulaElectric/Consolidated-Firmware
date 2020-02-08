@@ -123,9 +123,10 @@
 #define TRC_HARDWARE_PORT_HWIndependent 0 /*	Yes			Any */
 #define TRC_HARDWARE_PORT_Win32 1         /*	Yes			FreeRTOS on Win32	*/
 #define TRC_HARDWARE_PORT_Atmel_AT91SAM7 \
-    2                                     /*	No			Any					*/
-#define TRC_HARDWARE_PORT_Atmel_UC3A0 3   /*	No			Any					*/
-#define TRC_HARDWARE_PORT_ARM_Cortex_M 4  /*	Yes			Any					*/
+    2                                   /*	No			Any					*/
+#define TRC_HARDWARE_PORT_Atmel_UC3A0 3 /*	No			Any					*/
+#define TRC_HARDWARE_PORT_ARM_Cortex_M \
+    4                                     /*	Yes			Any					*/
 #define TRC_HARDWARE_PORT_Renesas_RX600 6 /*	Yes			Any */
 #define TRC_HARDWARE_PORT_MICROCHIP_PIC24_PIC32 \
     7 /*	Yes			Any					*/

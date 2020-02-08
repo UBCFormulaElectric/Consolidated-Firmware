@@ -86,10 +86,10 @@ void        StartDefaultTask(void const *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    __HAL_DBGMCU_FREEZE_IWDG();
-    SharedHardFaultHandler_Init();
-    App_CanTx_Init();
-    App_CanRx_Init();
+//    __HAL_DBGMCU_FREEZE_IWDG();
+//    SharedHardFaultHandler_Init();
+//    App_CanTx_Init();
+//    App_CanRx_Init();
     /* USER CODE END 1 */
 
     /* MCU

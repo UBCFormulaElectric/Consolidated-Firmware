@@ -172,9 +172,9 @@ extern "C"
 #endif
 #endif
 
-    /* Down-buffer. If index is defined as 0, the internal RTT buffers will be
-     * used instead of this. */
-    #if TRC_CFG_RTT_DOWN_BUFFER_INDEX == 0
+/* Down-buffer. If index is defined as 0, the internal RTT buffers will be
+ * used instead of this. */
+#if TRC_CFG_RTT_DOWN_BUFFER_INDEX == 0
 #define TRC_RTT_ALLOC_DOWN()   \
     static char *_TzCtrlData = \
         NULL; /* Not actually used. Ignore allocation method. */
@@ -192,8 +192,7 @@ extern "C"
     TRC_RTT_ALLOC_DOWN() /* Macro that will result in proper DOWN buffer \
                             allocation */
 
-        int32_t
-        readFromRTT(void *ptrData, uint32_t size, int32_t *ptrBytesRead);
+    int32_t readFromRTT(void *ptrData, uint32_t size, int32_t *ptrBytesRead);
 
     int32_t writeToRTT(void *ptrData, uint32_t size, int32_t *ptrBytesWritten);
 
