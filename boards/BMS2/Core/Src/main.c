@@ -9,10 +9,10 @@
   * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
-  * This software component is licensed by ST under BSD 3-Clause license,
-  * the "License"; You may not use this file except in compliance with the
-  * License. You may obtain a copy of the License at:
-  *                        opensource.org/licenses/BSD-3-Clause
+  * This software component is licensed by ST under Ultimate Liberty license
+  * SLA0044, the "License"; You may not use this file except in compliance with
+  * the License. You may obtain a copy of the License at:
+  *                             www.st.com/SLA0044
   *
   ******************************************************************************
   */
@@ -46,17 +46,19 @@ ADC_HandleTypeDef hadc1;
 
 CAN_HandleTypeDef hcan;
 
-osThreadId Task1kHzHandle;
-uint32_t Task1kHzBuffer[ 128 ];
-osStaticThreadDef_t Task1kHzControlBlock;
+IWDG_HandleTypeDef hiwdg;
+
 osThreadId Task1HzHandle;
-uint32_t Task1HzBuffer[ 128 ];
+uint32_t Task1HzBuffer[ 256 ];
 osStaticThreadDef_t Task1HzControlBlock;
+osThreadId Task1kHzHandle;
+uint32_t Task1kHzBuffer[ 256 ];
+osStaticThreadDef_t Task1kHzControlBlock;
 osThreadId TaskCanRxHandle;
-uint32_t TaskCanRxBuffer[ 128 ];
+uint32_t TaskCanRxBuffer[ 256 ];
 osStaticThreadDef_t TaskCanRxControlBlock;
 osThreadId TaskCanTxHandle;
-uint32_t TaskCanTxBuffer[ 128 ];
+uint32_t TaskCanTxBuffer[ 256 ];
 osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
 
@@ -67,8 +69,9 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN_Init(void);
 static void MX_ADC1_Init(void);
-void RunTask1kHz(void const * argument);
+static void MX_IWDG_Init(void);
 void RunTask1Hz(void const * argument);
+void RunTask1kHz(void const * argument);
 void RunTaskCanRx(void const * argument);
 void RunTaskCanTx(void const * argument);
 
@@ -112,6 +115,7 @@ int main(void)
   MX_GPIO_Init();
   MX_CAN_Init();
   MX_ADC1_Init();
+  MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -133,20 +137,20 @@ int main(void)
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* definition and creation of Task1kHz */
-  osThreadStaticDef(Task1kHz, RunTask1kHz, osPriorityAboveNormal, 0, 128, Task1kHzBuffer, &Task1kHzControlBlock);
-  Task1kHzHandle = osThreadCreate(osThread(Task1kHz), NULL);
-
   /* definition and creation of Task1Hz */
-  osThreadStaticDef(Task1Hz, RunTask1Hz, osPriorityLow, 0, 128, Task1HzBuffer, &Task1HzControlBlock);
+  osThreadStaticDef(Task1Hz, RunTask1Hz, osPriorityLow, 0, 256, Task1HzBuffer, &Task1HzControlBlock);
   Task1HzHandle = osThreadCreate(osThread(Task1Hz), NULL);
 
+  /* definition and creation of Task1kHz */
+  osThreadStaticDef(Task1kHz, RunTask1kHz, osPriorityAboveNormal, 0, 256, Task1kHzBuffer, &Task1kHzControlBlock);
+  Task1kHzHandle = osThreadCreate(osThread(Task1kHz), NULL);
+
   /* definition and creation of TaskCanRx */
-  osThreadStaticDef(TaskCanRx, RunTaskCanRx, osPriorityRealtime, 0, 128, TaskCanRxBuffer, &TaskCanRxControlBlock);
+  osThreadStaticDef(TaskCanRx, RunTaskCanRx, osPriorityRealtime, 0, 256, TaskCanRxBuffer, &TaskCanRxControlBlock);
   TaskCanRxHandle = osThreadCreate(osThread(TaskCanRx), NULL);
 
   /* definition and creation of TaskCanTx */
-  osThreadStaticDef(TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, 128, TaskCanTxBuffer, &TaskCanTxControlBlock);
+  osThreadStaticDef(TaskCanTx, RunTaskCanTx, osPriorityRealtime, 0, 256, TaskCanTxBuffer, &TaskCanTxControlBlock);
   TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -181,10 +185,11 @@ void SystemClock_Config(void)
 
   /** Initializes the CPU, AHB and APB busses clocks 
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
+  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
@@ -307,6 +312,35 @@ static void MX_CAN_Init(void)
 }
 
 /**
+  * @brief IWDG Initialization Function
+  * @param None
+  * @retval None
+  */
+static void MX_IWDG_Init(void)
+{
+
+  /* USER CODE BEGIN IWDG_Init 0 */
+
+  /* USER CODE END IWDG_Init 0 */
+
+  /* USER CODE BEGIN IWDG_Init 1 */
+
+  /* USER CODE END IWDG_Init 1 */
+  hiwdg.Instance = IWDG;
+  hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
+  hiwdg.Init.Window = IWDG_WINDOW_DISABLE_VALUE;
+  hiwdg.Init.Reload = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
+  if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+  {
+    Error_Handler();
+  }
+  /* USER CODE BEGIN IWDG_Init 2 */
+
+  /* USER CODE END IWDG_Init 2 */
+
+}
+
+/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -344,14 +378,14 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_RunTask1kHz */
+/* USER CODE BEGIN Header_RunTask1Hz */
 /**
-  * @brief  Function implementing the Task1kHz thread.
+  * @brief  Function implementing the Task1Hz thread.
   * @param  argument: Not used 
   * @retval None
   */
-/* USER CODE END Header_RunTask1kHz */
-void RunTask1kHz(void const * argument)
+/* USER CODE END Header_RunTask1Hz */
+void RunTask1Hz(void const * argument)
 {
   /* USER CODE BEGIN 5 */
   /* Infinite loop */
@@ -362,22 +396,22 @@ void RunTask1kHz(void const * argument)
   /* USER CODE END 5 */ 
 }
 
-/* USER CODE BEGIN Header_RunTask1Hz */
+/* USER CODE BEGIN Header_RunTask1kHz */
 /**
-* @brief Function implementing the Task1Hz thread.
+* @brief Function implementing the Task1kHz thread.
 * @param argument: Not used
 * @retval None
 */
-/* USER CODE END Header_RunTask1Hz */
-void RunTask1Hz(void const * argument)
+/* USER CODE END Header_RunTask1kHz */
+void RunTask1kHz(void const * argument)
 {
-  /* USER CODE BEGIN RunTask1Hz */
+  /* USER CODE BEGIN RunTask1kHz */
   /* Infinite loop */
   for(;;)
   {
     osDelay(1);
   }
-  /* USER CODE END RunTask1Hz */
+  /* USER CODE END RunTask1kHz */
 }
 
 /* USER CODE BEGIN Header_RunTaskCanRx */
