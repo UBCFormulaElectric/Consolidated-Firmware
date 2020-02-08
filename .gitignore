@@ -86,7 +86,7 @@ Makefile
 cmake-build-debug/
 *.cbp
 !**/.idea
-src/**/*.xml
+boards/**/*.xml
 **/.idea/*.iml
 **/.idea/*.xml
 !**/.idea/misc.xml
