@@ -102,6 +102,8 @@ extern "C"
 #define DRIVE_MODE2_GPIO_Port GPIOA
 #define DRIVE_MODE1_Pin GPIO_PIN_10
 #define DRIVE_MODE1_GPIO_Port GPIOA
+#define RCK_Pin GPIO_PIN_4
+#define RCK_GPIO_Port GPIOB
 #define BMS_R_Pin GPIO_PIN_5
 #define BMS_R_GPIO_Port GPIOB
     /* USER CODE BEGIN Private defines */
