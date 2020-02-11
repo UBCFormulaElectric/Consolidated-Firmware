@@ -235,6 +235,9 @@ static inline void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
     if (HAL_CAN_GetRxMessage(hcan, rx_fifo, &rx_header, &rx_msg.data[0]) ==
         HAL_OK)
     {
+        // TODO (#501): We should just return here if rx_header.StdId doesn't
+        // pass the software filter.
+
         // Copy metadata from HAL's CAN message struct into our custom CAN
         // message struct
         rx_msg.std_id = rx_header.StdId;
