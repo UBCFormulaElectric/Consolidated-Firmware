@@ -6,7 +6,7 @@
     <WorkspacePath>C:\Users\Ray\Documents\UBC Formula Electric\Ray\Consolidated-Firmware\boards\DIM\</WorkspacePath>
     <underRoot>true</underRoot>
     <TrustZone>0</TrustZone>
-    <HAL_Driver>C:\Users\Ray\STM32Cube\Repository\STM32Cube_FW_F3_V1.10.0</HAL_Driver>
+    <HAL_Driver>C:\Users\Ray\STM32Cube\Repository\STM32Cube_FW_F3_V1.11.0</HAL_Driver>
     <CMSIS>Drivers/CMSIS</CMSIS>
     <Toolchain>STM32CubeIDE</Toolchain>
     <IocFile>DIM.ioc</IocFile>
@@ -30,7 +30,7 @@
             <memory access="xrw" name="RAM" size="16" start="0x20000000"/>
             <memory access="rx" name="FLASH" size="64" start="0x8000000"/>
           </memories>
-          <startup>C:\Users\Ray\STM32Cube\Repository\STM32Cube_FW_F3_V1.10.0\Drivers\CMSIS\Device\ST\STM32F3xx\Source\Templates\gcc\startup_stm32f302x8.s</startup>
+          <startup>C:\Users\Ray\STM32Cube\Repository\STM32Cube_FW_F3_V1.11.0\Drivers\CMSIS\Device\ST\STM32F3xx\Source\Templates\gcc\startup_stm32f302x8.s</startup>
           <LinkSettings>
             <LinkAdditionalLibs/>
           </LinkSettings>
