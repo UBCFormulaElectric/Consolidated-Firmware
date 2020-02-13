@@ -1,21 +1,21 @@
 /* USER CODE BEGIN Header */
 /**
- ******************************************************************************
- * @file           : main.c
- * @brief          : Main program body
- ******************************************************************************
- * @attention
- *
- * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
- * All rights reserved.</center></h2>
- *
- * This software component is licensed by ST under BSD 3-Clause license,
- * the "License"; You may not use this file except in compliance with the
- * License. You may obtain a copy of the License at:
- *                        opensource.org/licenses/BSD-3-Clause
- *
- ******************************************************************************
- */
+  ******************************************************************************
+  * @file           : main.c
+  * @brief          : Main program body
+  ******************************************************************************
+  * @attention
+  *
+  * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
+  * All rights reserved.</center></h2>
+  *
+  * This software component is licensed by ST under BSD 3-Clause license,
+  * the "License"; You may not use this file except in compliance with the
+  * License. You may obtain a copy of the License at:
+  *                        opensource.org/licenses/BSD-3-Clause
+  *
+  ******************************************************************************
+  */
 /* USER CODE END Header */
 
 /* Includes ------------------------------------------------------------------*/
@@ -24,15 +24,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "SharedAssert.h"
 
-#include "SharedCan.h"
-#include "SharedCmsisOs.h"
-#include "SharedHardFaultHandler.h"
-#include "SharedWatchdog.h"
-#include "Io_Can.h"
-#include "auto_generated/App_CanTx.h"
-#include "auto_generated/App_CanRx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -42,7 +34,6 @@
 
 /* Private define ------------------------------------------------------------*/
 /* USER CODE BEGIN PD */
-
 /* USER CODE END PD */
 
 /* Private macro -------------------------------------------------------------*/
@@ -55,9 +46,18 @@ ADC_HandleTypeDef hadc1;
 
 CAN_HandleTypeDef hcan;
 
-IWDG_HandleTypeDef hiwdg;
-
-osThreadId defaultTaskHandle;
+osThreadId Task1kHzHandle;
+uint32_t Task1kHzBuffer[ 128 ];
+osStaticThreadDef_t Task1kHzControlBlock;
+osThreadId Task1HzHandle;
+uint32_t Task1HzBuffer[ 128 ];
+osStaticThreadDef_t Task1HzControlBlock;
+osThreadId TaskCanRxHandle;
+uint32_t TaskCanRxBuffer[ 128 ];
+osStaticThreadDef_t TaskCanRxControlBlock;
+osThreadId TaskCanTxHandle;
+uint32_t TaskCanTxBuffer[ 128 ];
+osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -67,8 +67,10 @@ void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN_Init(void);
 static void MX_ADC1_Init(void);
-static void MX_IWDG_Init(void);
-void StartDefaultTask(void const * argument);
+void RunTask1kHz(void const * argument);
+void RunTask1Hz(void const * argument);
+void RunTaskCanRx(void const * argument);
+void RunTaskCanTx(void const * argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -86,10 +88,7 @@ void StartDefaultTask(void const * argument);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
-//    __HAL_DBGMCU_FREEZE_IWDG();
-//    SharedHardFaultHandler_Init();
-//    App_CanTx_Init();
-//    App_CanRx_Init();
+
   /* USER CODE END 1 */
   
 
@@ -113,39 +112,45 @@ int main(void)
   MX_GPIO_Init();
   MX_CAN_Init();
   MX_ADC1_Init();
-  MX_IWDG_Init();
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
-    /* add mutexes, ... */
+  /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
 
   /* USER CODE BEGIN RTOS_SEMAPHORES */
-    /* add semaphores, ... */
+  /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
 
   /* USER CODE BEGIN RTOS_TIMERS */
-    /* start timers, add new ones, ... */
+  /* start timers, add new ones, ... */
   /* USER CODE END RTOS_TIMERS */
 
   /* USER CODE BEGIN RTOS_QUEUES */
-    /* add queues, ... */
+  /* add queues, ... */
   /* USER CODE END RTOS_QUEUES */
 
   /* Create the thread(s) */
-  /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
-  defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+  /* definition and creation of Task1kHz */
+  osThreadStaticDef(Task1kHz, RunTask1kHz, osPriorityAboveNormal, 0, 128, Task1kHzBuffer, &Task1kHzControlBlock);
+  Task1kHzHandle = osThreadCreate(osThread(Task1kHz), NULL);
+
+  /* definition and creation of Task1Hz */
+  osThreadStaticDef(Task1Hz, RunTask1Hz, osPriorityLow, 0, 128, Task1HzBuffer, &Task1HzControlBlock);
+  Task1HzHandle = osThreadCreate(osThread(Task1Hz), NULL);
+
+  /* definition and creation of TaskCanRx */
+  osThreadStaticDef(TaskCanRx, RunTaskCanRx, osPriorityRealtime, 0, 128, TaskCanRxBuffer, &TaskCanRxControlBlock);
+  TaskCanRxHandle = osThreadCreate(osThread(TaskCanRx), NULL);
+
+  /* definition and creation of TaskCanTx */
+  osThreadStaticDef(TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, 128, TaskCanTxBuffer, &TaskCanTxControlBlock);
+  TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
-    /* add threads, ... */
-    // According to Percpio documentation, vTraceEnable() should be the last
-    // function call before the scheduler starts.
-#if (configUSE_TRACE_FACILITY == 1)
-    vTraceEnable(TRC_INIT);
-#endif
+  /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
 
   /* Start scheduler */
@@ -155,12 +160,12 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-    while (1)
-    {
+  while (1)
+  {
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-    }
+  }
   /* USER CODE END 3 */
 }
 
@@ -176,11 +181,10 @@ void SystemClock_Config(void)
 
   /** Initializes the CPU, AHB and APB busses clocks 
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI|RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
   RCC_OscInitStruct.HSEState = RCC_HSE_ON;
   RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
   RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.LSIState = RCC_LSI_ON;
   RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
   RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
   RCC_OscInitStruct.PLL.PLLMUL = RCC_PLL_MUL9;
@@ -281,7 +285,7 @@ static void MX_CAN_Init(void)
 
   /* USER CODE END CAN_Init 1 */
   hcan.Instance = CAN;
-  hcan.Init.Prescaler = 80;
+  hcan.Init.Prescaler = 16;
   hcan.Init.Mode = CAN_MODE_NORMAL;
   hcan.Init.SyncJumpWidth = CAN_SJW_1TQ;
   hcan.Init.TimeSeg1 = CAN_BS1_1TQ;
@@ -297,38 +301,8 @@ static void MX_CAN_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN CAN_Init 2 */
-    SharedCan_Init(
-        &hcan, Io_Can_GetCanMaskFilters(), Io_Can_GetNumberOfCanMaskFilters());
+
   /* USER CODE END CAN_Init 2 */
-
-}
-
-/**
-  * @brief IWDG Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_IWDG_Init(void)
-{
-
-  /* USER CODE BEGIN IWDG_Init 0 */
-
-  /* USER CODE END IWDG_Init 0 */
-
-  /* USER CODE BEGIN IWDG_Init 1 */
-
-  /* USER CODE END IWDG_Init 1 */
-  hiwdg.Instance = IWDG;
-  hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
-  hiwdg.Init.Window = IWDG_WINDOW_DISABLE_VALUE;
-  hiwdg.Init.Reload = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
-  if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN IWDG_Init 2 */
-    SharedWatchdog_SetIwdgInitialized(&hiwdg);
-  /* USER CODE END IWDG_Init 2 */
 
 }
 
@@ -342,37 +316,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOF_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, STATUS_R_Pin|STATUS_G_Pin|STATUS_B_Pin, GPIO_PIN_SET);
-
-  /*Configure GPIO pins : PC13 PC14 PC15 */
-  GPIO_InitStruct.Pin = GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
-  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PA0 PA1 PA2 PA4 
-                           PA5 PA6 PA7 PA11 
-                           PA12 PA15 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_4 
-                          |GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7|GPIO_PIN_11 
-                          |GPIO_PIN_12|GPIO_PIN_15;
-  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : PB0 PB1 PB2 PB10 
-                           PB11 PB4 PB5 */
-  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_10 
-                          |GPIO_PIN_11|GPIO_PIN_4|GPIO_PIN_5;
-  GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+  HAL_GPIO_WritePin(GPIOA, STATUS_R_Pin|STATUS_G_Pin|STATUS_B_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : PB12 PB13 PB14 PB15 */
   GPIO_InitStruct.Pin = GPIO_PIN_12|GPIO_PIN_13|GPIO_PIN_14|GPIO_PIN_15;
@@ -389,38 +338,82 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : PB6 PB7 */
-  GPIO_InitStruct.Pin = GPIO_PIN_6|GPIO_PIN_7;
-  GPIO_InitStruct.Mode = GPIO_MODE_AF_OD;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
-  GPIO_InitStruct.Alternate = GPIO_AF4_I2C1;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
 }
 
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_StartDefaultTask */
+/* USER CODE BEGIN Header_RunTask1kHz */
 /**
- * @brief  Function implementing the defaultTask thread.
- * @param  argument: Not used
- * @retval None
- */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void const * argument)
+  * @brief  Function implementing the Task1kHz thread.
+  * @param  argument: Not used 
+  * @retval None
+  */
+/* USER CODE END Header_RunTask1kHz */
+void RunTask1kHz(void const * argument)
 {
   /* USER CODE BEGIN 5 */
-    UNUSED(argument);
-    uint32_t PreviousWakeTime = osKernelSysTick();
-
-    for (;;)
-    {
-        (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1000U);
-    }
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
   /* USER CODE END 5 */ 
+}
+
+/* USER CODE BEGIN Header_RunTask1Hz */
+/**
+* @brief Function implementing the Task1Hz thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_RunTask1Hz */
+void RunTask1Hz(void const * argument)
+{
+  /* USER CODE BEGIN RunTask1Hz */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END RunTask1Hz */
+}
+
+/* USER CODE BEGIN Header_RunTaskCanRx */
+/**
+* @brief Function implementing the TaskCanRx thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_RunTaskCanRx */
+void RunTaskCanRx(void const * argument)
+{
+  /* USER CODE BEGIN RunTaskCanRx */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END RunTaskCanRx */
+}
+
+/* USER CODE BEGIN Header_RunTaskCanTx */
+/**
+* @brief Function implementing the TaskCanTx thread.
+* @param argument: Not used
+* @retval None
+*/
+/* USER CODE END Header_RunTaskCanTx */
+void RunTaskCanTx(void const * argument)
+{
+  /* USER CODE BEGIN RunTaskCanTx */
+  /* Infinite loop */
+  for(;;)
+  {
+    osDelay(1);
+  }
+  /* USER CODE END RunTaskCanTx */
 }
 
 /**
@@ -451,7 +444,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void Error_Handler(void)
 {
   /* USER CODE BEGIN Error_Handler_Debug */
-    SharedAssert_AssertFailed(file, line, NULL);
+  /* User can add his own implementation to report the HAL error return state */
+
   /* USER CODE END Error_Handler_Debug */
 }
 
@@ -466,7 +460,8 @@ void Error_Handler(void)
 void assert_failed(char *file, uint32_t line)
 { 
   /* USER CODE BEGIN 6 */
-    SharedAssert_AssertFailed(file, line, NULL);
+  /* User can add his own implementation to report the file name and line number,
+     tex: printf("Wrong parameters value: file %s on line %d\r\n", file, line) */
   /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
