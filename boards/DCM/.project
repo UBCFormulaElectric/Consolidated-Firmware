@@ -44,7 +44,7 @@
 		<link>
 			<name>shared</name>
 			<type>2</type>
-			<location>/home/gareth/programming/Consolidated-Firmware/boards/shared</location>
+			<locationURI>PARENT-1-PROJECT_LOC/shared</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>
