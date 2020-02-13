@@ -1,7 +1,7 @@
 # Consolidated-Firmware
 A consolidated repository for gathering all firmware under one roof.
 
-## Table of Content
+## Table of Contents
 - [Project Setup](#project-setup)
   - [Environment Dependencies](#environment-dependencies)
   - [Python Package Dependencies](#python-package-dependencies)
@@ -19,83 +19,36 @@ A consolidated repository for gathering all firmware under one roof.
 - [FAQ](#faq)
 
 ## Project Setup
-### Environment Dependencies
-Follow these steps to compile and debug code in **CLion**:
-
-#### 1. Install Dependencies:
-##### Ubuntu 18.04
-You need to install `git lfs` following the instructions here: https://git-lfs.github.com/. Don't forget to run `git lfs install` aftewwards.
-
-Then, `cd` to the root directory of the repo and run the following commands:
+### Ubuntu 18.04
+* Install git by running `sudo apt install git`
+* Install `git-lfs` by following the instructions here: https://git-lfs.github.com/. Don't forget to run `git lfs install` afterwards.
+* Install python3 Python 3+ (*Python < 3 will NOT work*) by running `sudo apt install python3`
+* Install pipenv by running `sudo pip3 install pipenv`
+* Open `terminal`, navigate to the folder you want to store this repository in, then run: 
 ```
-pipenv install
-pipenv shell
+git clone https://github.com/UBCFormulaElectric/Consolidated-Firmware.git
+cd Consolidated-Firmware
 git lfs pull
-scripts/environment_setup/install_gcc_arm_none_eabi.sh /usr/local
-python scripts/environment_setup/install_cube.py /usr/local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip
-sudo apt-get install openocd
 ```
-##### Windows
-  * GNU Make: http://gnuwin32.sourceforge.net/packages/make.htm
-  * CMake: https://cmake.org/install/
-  * Python 3+ (*Python < 3 will NOT work*): https://www.python.org/downloads/
-  * ARM GNU Embedded Toolchain: https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads (Check `install_gcc_arm_none_eabi.sh` for which version to download)
-  * STM32CubeMX: https://www.st.com/en/development-tools/stm32cubemx.html
-  * MinGW: https://sourceforge.net/projects/mingw-w64/ (**select 32-bit verison/i686 architecture**)
+* Install CubeIde by going to `Consolidated-Firmware/tools` and running `./st-stm32cubeide_1.2.0_5034_20200108_0926_amd64.sh`
 
-##### Ubuntu 18.04 and Windows
-  * J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
+### Windows
+1) Install git by following the instructions [here](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
+* Install `git-lfs` by following the instructions here: https://git-lfs.github.com/. Don't forget to run `git lfs install` afterwards.
+* Install python3 Python 3+ (*Python < 3 will NOT work*) from [here](https://www.python.org/downloads/)
+* Open `Python Shell` and run `pip install pipenv`
+* Open `git bash`, navigate to the folder you want to store this repository in, then run: 
+```
+git clone https://github.com/UBCFormulaElectric/Consolidated-Firmware.git
+cd Consolidated-Firmware
+git lfs pull
+```
+* Install CubeIDE *1.2.0* from [here](https://www.st.com/en/development-tools/stm32cubeide.html)
 
-#### 2. Modify your `PATH` Environment Variable:
-##### Ubuntu 18.04
-Modify the `PATH` variable by adding the following to your `.bashrc`:
-```
-export PATH="$PATH:/path/to/arm-none-eabi-gcc"
-export PATH="$PATH:/path/to/STM32CubeMX"
-...
-```
-
-Always invoke `clion` from the command line. That way `clion` will load `.bashc` and read the modifications you made the the `PATH` variable.
-
-##### Windows
-Find `Environment Variables` in your start menu and then add the appropriate paths to `PATH`:
-```
-C:\Program Files (x86)\GNU Tools Arm Embedded\<VERSION>\bin
-C:\Program Files (x86)\GnuWin32\bin
-C:\Program FIles (x86)\...\path\to\STM32CubeMX
-...
-```
-
-These paths should include wherever the `cmake`, `make`, `arm-none-eabi-gcc`, and STM32CubeMX binaries have been installed.
-
-### Python Package Dependencies
-We use python both for CI (see below), and to generate C code from the `.dbc` defining messages passed over CAN. Python dependencies are managed via [pipenv](https://pipenv.readthedocs.io/en/latest/). To install all required dependencies in a [python virtual environment](https://realpython.com/python-virtual-environments-a-primer/), navigate to the root of this repository and run `pipenv install`.
-
-### CLion
-We edit, compile, and debug our code using [CLion](https://www.jetbrains.com/clion/). Students can obtain a CLion educational license [here](https://www.jetbrains.com/shop/eform/students). To open an existing project, open any one of the board-specific folders under `boards/` (e.g. `boards/DCM`) in **CLion**.
-
-In each project, there will be two configurations to use: `<board>_SeggerGDB.elf` and `OCD <board>`. Either one can be used for flashing and debugging, but the `<board>_SeggerGDB.elf` has unlimited flash breakpoints among some other extra functionalities. Use `<board>_SeggerGDB.elf` whenever possible.
-
-##### Windows
-Under **File->Settings->Build, Execution, Deployment...->Toolchains**:
-Set the default toolchain to be MinGW and provide the file path to the 32-bit version of MinGW, ie:
-```
-C:\Program Files (x86)\mingw-w64\i686-8.1.0-posix-dwarf-rt_v6-rev0\mingw32
-```
-Next, set the debugger to be ARM GDB, ie:
-```
-C:\Program Files (x86)\GNU Tools ARM Embedded\8 2019-q3-update\bin\arm-none-eabi-gdb.exe
-```
-
-For each project under **Run->Edit Configurations->Embedded GDB Server**, select `<board_name>_SeggerGDB`:
-Then set the GDB Server to be JLinkGDBServer, ie:
-```
-C:\Program Files (x86)\SEGGER\JLink\JLinkGDBServer.exe
-```
 ## Continuous Integration (CI)
 We run (and require) continuous integration on every pull request before it is merged. This automatically makes sure the code builds, and checks for formatting errors.
 
-1. **Build Check**: If the code compiles in CLion, it should also compile in CI.
+1. **Build Check**: If the code compiles in CubeIDE, it should also compile in CI.
 2. **Formatting Check**: Run the following commands (starting from the **root directory** of this project) to fix formatting (CI runs this and then checks if any code was modified):
   * *Windows and Ubuntu 18.04:*
   ```
