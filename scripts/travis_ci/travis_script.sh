@@ -6,7 +6,6 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 PROJECT_ROOT="$SCRIPT_DIR/../.."
 source $SCRIPT_DIR/travis_shared.sh
-source $SCRIPT_DIR/../shared_funcs.sh
 
 # Currently supported boards
 BOARD_NAMES=(
