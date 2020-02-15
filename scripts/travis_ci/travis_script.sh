@@ -28,6 +28,12 @@ if [ "$RUN_BUILD" = "true" ]; then
     for BOARD_NAME in "${BOARD_NAMES[@]}"
     do
         ./cube_ide/stm32cubeide --launcher.suppressErrors -nosplash -application org.eclipse.cdt.managedbuilder.core.headlessbuild -data workspace -import boards/$BOARD_NAME -cleanBuild $BOARD_NAME
+
+        # Check if the build was successful, cat the log if it was not
+        stm32cubeide_return_code=$?
+        if [ $stm32cubeide_return_code -ne 0 ]; then 
+            cat workspace/.metadata/.log
+        fi
     done
 fi
 
