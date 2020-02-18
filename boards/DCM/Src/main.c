@@ -31,6 +31,7 @@
 #include "SharedHeartbeat.h"
 #include "SharedHardFaultHandler.h"
 #include "SharedAssert.h"
+#include "App_StackWaterMark.h"
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/App_CanRx.h"
 #include "Io_Can.h"
@@ -61,16 +62,16 @@ DAC_HandleTypeDef hdac;
 IWDG_HandleTypeDef hiwdg;
 
 osThreadId          Task1HzHandle;
-uint32_t            Task1HzBuffer[128];
+uint32_t            Task1HzBuffer[TASK1HZ_STACK_SIZE];
 osStaticThreadDef_t Task1HzControlBlock;
 osThreadId          Task1kHzHandle;
-uint32_t            Task1kHzBuffer[128];
+uint32_t            Task1kHzBuffer[TASK1KHZ_STACK_SIZE];
 osStaticThreadDef_t Task1kHzControlBlock;
 osThreadId          TaskCanRxHandle;
-uint32_t            TaskCanRxBuffer[128];
+uint32_t            TaskCanRxBuffer[TASKCANRX_STACK_SIZE];
 osStaticThreadDef_t TaskCanRxControlBlock;
 osThreadId          TaskCanTxHandle;
-uint32_t            TaskCanTxBuffer[128];
+uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
 osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
 
@@ -157,26 +158,26 @@ int main(void)
     /* Create the thread(s) */
     /* definition and creation of Task1Hz */
     osThreadStaticDef(
-        Task1Hz, RunTask1Hz, osPriorityLow, 0, 128, Task1HzBuffer,
-        &Task1HzControlBlock);
+        Task1Hz, RunTask1Hz, osPriorityLow, 0, TASK1HZ_STACK_SIZE,
+        Task1HzBuffer, &Task1HzControlBlock);
     Task1HzHandle = osThreadCreate(osThread(Task1Hz), NULL);
 
     /* definition and creation of Task1kHz */
     osThreadStaticDef(
-        Task1kHz, RunTask1kHz, osPriorityAboveNormal, 0, 128, Task1kHzBuffer,
-        &Task1kHzControlBlock);
+        Task1kHz, RunTask1kHz, osPriorityAboveNormal, 0, TASK1KHZ_STACK_SIZE,
+        Task1kHzBuffer, &Task1kHzControlBlock);
     Task1kHzHandle = osThreadCreate(osThread(Task1kHz), NULL);
 
     /* definition and creation of TaskCanRx */
     osThreadStaticDef(
-        TaskCanRx, RunTaskCanRx, osPriorityRealtime, 0, 128, TaskCanRxBuffer,
-        &TaskCanRxControlBlock);
+        TaskCanRx, RunTaskCanRx, osPriorityRealtime, 0, TASKCANRX_STACK_SIZE,
+        TaskCanRxBuffer, &TaskCanRxControlBlock);
     TaskCanRxHandle = osThreadCreate(osThread(TaskCanRx), NULL);
 
     /* definition and creation of TaskCanTx */
     osThreadStaticDef(
-        TaskCanTx, RunTaskCanTx, osPriorityRealtime, 0, 128, TaskCanTxBuffer,
-        &TaskCanTxControlBlock);
+        TaskCanTx, RunTaskCanTx, osPriorityRealtime, 0, TASKCANTX_STACK_SIZE,
+        TaskCanTxBuffer, &TaskCanTxControlBlock);
     TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
@@ -519,6 +520,7 @@ void RunTask1Hz(void const *argument)
 
     for (;;)
     {
+        App_StackWaterMark_Check();
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1000U);
     }
     /* USER CODE END 5 */

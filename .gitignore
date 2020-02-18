@@ -102,7 +102,7 @@ auto_generated/
 *.l2p
 *.iex
 
-# STM32CubeMx
+# STM32CubeMX
 .mxproject
 MXTmpFiles
 
