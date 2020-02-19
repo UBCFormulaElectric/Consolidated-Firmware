@@ -10,17 +10,18 @@ BU_: Vector__XXX
 BO_ 64 FSM_ERRORS: 8 FSM
 SG_ papps_out_of_range : 0|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ sapps_out_of_range : 1|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 2|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 3|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 4|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 5|1@1+ (1,0) [0|1] "" Vector__XXX
 
 
-BO_ 66 FSM_CAN_TX_FIFO_OVERFLOW: 4 FSM
-SG_ overflow_count : 0|32@1+ (1,0) [0|4294967295] "" Vector__XXX
+BO_ 66 FSM_CAN_FIFO_OVERFLOW: 8 FSM
+SG_ tx_overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
+SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" Vector__XXX
 
 
 BO_ 67 FSM_STARTUP: 0 FSM
-
-
-BO_ 68 FSM_CAN_RX_FIFO_OVERFLOW: 4 FSM
-SG_ overflow_count : 0|32@1+ (1,0) [0|4294967295] "" Vector__XXX
 
 
 BO_ 80 FSM_AIR_SHUTDOWN: 0 FSM
@@ -35,8 +36,11 @@ BO_ 101 PDM_MOTOR_SHUTDOWN: 0 PDM
 BO_ 3 BMS_STARTUP: 0 BMS
 
 
-BO_ 4 BMS_CAN_RX_FIFO_OVERFLOW: 4 BMS
-SG_ overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
+BO_ 5 BMS_ERRORS: 8 BMS
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 1|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 2|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 3|1@1+ (1,0) [0|1] "" Vector__XXX
 
 
 BO_ 96 PDM_ERRORS: 8 PDM
@@ -48,10 +52,15 @@ SG_ EFUSE_FAULT : 4|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ _12V_FAULT_UNDER_VOLTAGE : 5|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ _12V_FAULT_OVER_VOLTAGE : 6|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ VBAT_FAULT : 7|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 8|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 9|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 10|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 11|1@1+ (1,0) [0|1] "" Vector__XXX
 
 
-BO_ 98 PDM_CAN_TX_FIFO_OVERFLOW: 4 PDM
-SG_ overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
+BO_ 98 PDM_CAN_FIFO_OVERFLOW: 8 PDM
+SG_ tx_overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
+SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" Vector__XXX
 
 
 BO_ 97 PDM_HEARTBEAT: 1 PDM
@@ -73,19 +82,24 @@ BO_ 33 DCM_HEARTBEAT: 1 DCM
 SG_ DUMMY_VARIABLE : 0|1@1+ (1,0) [0|1] "" BMS
 
 
-BO_ 2 BMS_CAN_TX_FIFO_OVERFLOW: 4 BMS
-SG_ overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
+BO_ 2 BMS_CAN_FIFO_OVERFLOW: 8 BMS
+SG_ tx_overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
+SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" Vector__XXX
 
 
-BO_ 34 DCM_CAN_TX_FIFO_OVERFLOW: 4 DCM
-SG_ overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
+BO_ 34 DCM_CAN_FIFO_OVERFLOW: 8 DCM
+SG_ tx_overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
+SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" Vector__XXX
 
 
 BO_ 35 DCM_STARTUP: 0 DCM
 
 
-BO_ 36 DCM_CAN_RX_FIFO_OVERFLOW: 4 DCM
-SG_ overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
+BO_ 37 DCM_ERRORS: 8 DCM
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 0|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 1|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 2|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 3|1@1+ (1,0) [0|1] "" Vector__XXX
 
 
 BO_ 102 PDM_AUX1_AUX2_CURRENT: 8 PDM
@@ -120,9 +134,6 @@ SG_ VBAT : 32|32@1- (1,0) [-3.4E038|3.4E038] "V" Vector__XXX
 
 BO_ 108 PDM_FLYWIRE: 4 PDM
 SG_ FLYWIRE : 0|32@1- (1,0) [-3.4E038|3.4E038] "V" Vector__XXX
-
-BO_ 109 PDM_CAN_RX_FIFO_OVERFLOW: 4 PDM
-SG_ overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
 
 
 CM_ BO_ 64 "This message contains a bit for each error that the FSM might throw";
@@ -163,8 +174,14 @@ BA_ "GenMsgCycleTime" BO_ 64 1000;
 BA_ "GenMsgCycleTime" BO_ 96 1000;
 BA_ "GenMsgCycleTime" BO_ 97 300;
 BA_ "GenMsgCycleTime" BO_ 65 300;
+BA_ "GenMsgCycleTime" BO_ 66 5000;
 BA_ "GenMsgCycleTime" BO_ 1 300;
+BA_ "GenMsgCycleTime" BO_ 5 1000;
 BA_ "GenMsgCycleTime" BO_ 33 300;
+BA_ "GenMsgCycleTime" BO_ 37 1000;
+BA_ "GenMsgCycleTime" BO_ 2 5000;
+BA_ "GenMsgCycleTime" BO_ 34 5000;
+BA_ "GenMsgCycleTime" BO_ 98 5000;
 BA_ "GenMsgCycleTime" BO_ 102 1000;
 BA_ "GenMsgCycleTime" BO_ 103 1000;
 BA_ "GenMsgCycleTime" BO_ 104 1000;
