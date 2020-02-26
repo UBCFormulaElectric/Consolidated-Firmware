@@ -1,4 +1,4 @@
-from codegen_shared import *
+from boards.shared.generate_CAN.codegen_shared import *
 
 class CanRxFileGenerator(CanFileGenerator):
     def __init__(self, database, output_path, receiver, function_prefix):
