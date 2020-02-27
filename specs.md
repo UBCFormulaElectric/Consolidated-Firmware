@@ -1,7 +1,7 @@
 ****************TODO************************
 ****************TODO************************
 ****************TODO************************
-add PDM states to turn on inverters
+COOLANT PUMP ON SENSE? WHO DOES THIS?
 ****************TODO************************
 ****************TODO************************
 ****************TODO************************
@@ -44,12 +44,13 @@ There are two types of faults:
     - [DCM Fault State](#DCM_FAULT)
 - [PDM (Power Distribution Module)](#PDM)
     - [PDM Stateless](#PDM_STATELESS)
-    - [PDM Run State](#PDM_RUN)
+    - [PDM HV-On State](#PDM_HV_ON)
+    - [PDM HV-Off State](#PDM_HV_OFF)
+    - [PDM HV-On/Off States](#PDM_HV_ON_OFF)
 - [BMS (Battery Management System)](#BMS)
     - [BMS Stateless](#BMS_STATELESS)
-    - [BMS Charging State](#BMS_CHARGING)
+    - [BMS Charge State](#BMS_CHARGE)
     - [BMS Drive State](#BMS_DRIVE)
-    - [BMS Motor Shutdown Fault State](#BMS_MOTOR_SHUTDOWN_FAULT)
     - [BMS Fault State](#BMS_FAULT)
 - [DIM (Dashoard Interface Module)](#DIM)
 
@@ -119,21 +120,32 @@ PDM-6 | Voltage sense rationality checks | The PDM must run voltage rationality 
 ### PDM Init State <a name="PDM_INIT"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-PDM-7 | E-fuse current limits | The PDM's e-fuse current limits are as follows: <br/> - 3A for the coolant pump output. <br/> - 1A for all other outputs.
+PDM-7 | E-fuse current limits | The PDM's e-fuse current limits must be set to 1A per output.
 PDM-8 | Entering the init state | The PDM state machine must begin in the init state by default.
 PDM-9 | In the init state | - The PDM must program the e-fuses with the current limits listed in PDM-7 over SPI. <br/> - The PDM must enable auto-retry on all e-fuses over SPI.
-PDM-10 | Exiting the init state and entering the run state | After the PDM is finished programming the e-fuses, the PDM must enter the run state.
+PDM-10 | Exiting the init state and entering the HV-off state | After the PDM is finished programming the e-fuses, the PDM must enter the HV-off state.
 
-### PDM Run State <a name="PDM_RUN"></a>
+### PDM HV-Off State <a name="PDM_HV_OFF"></a>
+ID | Title | Description | Associated Competition Rule(s)
+--- | --- | --- | ---
+PDM-15 | Entering the HV-off state | The PDM must enter the HV-off state after the init state is complete.
+PDM-16 | In the HV-off state | The PDM must only enable the following e-fuse outputs in the HV-off state: AUX 1, AUX 2, Energy Meter, CAN, AIR SHDN
+PDM-17 | Exiting the HV-off state | The PDM must enter the HV-on state when the BMS is in the drive state (after precharge).
+
+### PDM HV-On State <a name="PDM_HV_ON"></a>
+ID | Title | Description | Associated Competition Rule(s)
+--- | --- | --- | ---
+PDM-18 | Entering the HV-on state | The PDM must enter the HV-on state after precharge is complete.
+PDM-19 | In the HV-on state | The PDM must enable all e-fuse outputs in the HV-on state.
+PDM-20 | Exiting the HV-on state | The PDM must enter the HV-off state when the BMS is in the init or fault state (contactors open).
+
+### PDM HV-On/Off States <a name="PDM_HV_ON_OFF"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 PDM-11 | Current sensing | The PDM must log all e-fuse currents over CAN at 1Hz. This involves, for each e-fuse (and its corresponding channel): <br/> 1. Waiting for a falling edge on the SYNC pin. <br/> 2. Reading the CSNS pin and converting it to a current.
 PDM-12 | E-fuse fail-safe mode | The PDM must check if it cannot communicate with an e-fuse over SPI, or if the PDM regains SPI communication with an e-fuse and detects it in fail-safe mode, at 1kHz. If either of these cases are true: <br/> - The PDM must throw a non-critical fault. <br/> - If the PDM has re-gained SPI communication, the PDM must put the e-fuse back into normal mode over SPI.
-PDM-13 | E-fuse fault mode | The PDM must check if each e-fuse enters fault mode at 1kHz over SPI. The PDM must throw a motor shutdown or non-critical fault over CAN depending on the e-fuse in the fault state: <br/> - AUX 1: Non-critical. <br/> - AUX 2: Non-critical. <br/> - Drive Inverter Left: Non-critical. <br/> - Drive Inverter Right: Non-critical. <br/> - Cooling: Motor. <br/> - Energy Meter: Motor. <br/> - CAN: Motor. <br/> - AIR SHDN: Motor.
+PDM-13 | E-fuse fault mode | The PDM must check if each e-fuse enters fault mode at 1kHz over SPI. The PDM must throw a motor shutdown or non-critical fault over CAN depending on the e-fuse in the fault state: <br/> - AUX 1: Non-critical. <br/> - AUX 2: Non-critical. <br/> - Drive Inverter Left: Non-critical. <br/> - Drive Inverter Right: Non-critical. <br/> - Energy Meter: Motor. <br/> - CAN: Motor. <br/> - AIR SHDN: Motor.
 PDM-14 | E-fuse fault delatching | After an e-fuse has faulted and completed its auto-retry sequence, the PDM must make three attempts to delatch the fault over SPI and wait 1s in between attempts. If the e-fuse's fault is cleared, clear the corresponding fault over CAN.
-PDM-15 | Entering the run state | The PDM state machine must enter the run state after the init state is complete.
-PDM-16 | In the run state | The PDM must perform PDM-11, PDM-12, PDM-13 and PDM-14 in the run state.
-PDM-17 | Exiting the run state | The PDM must never exit the run state after entering the run state.
 
 ## BMS <a name="BMS"></a>
 
@@ -141,6 +153,7 @@ PDM-17 | Exiting the run state | The PDM must never exit the run state after ent
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-0 | Startup CAN message | The BMS must transmit a startup message over CAN on boot.
+BMS-31 | State CAN message | The BMS must transmit its state to the PDM at 100Hz.
 BMS-1 | Heartbeat sending | The BMS must transmit a heartbeat over CAN at 100Hz.
 BMS-2 | Heartbeat receiving | - The BMS must throw an AIR shutdown fault and enter the fault state once it does not receive three consecutive FSM or DCM heartbeats. <br/> - The BMS must throw a non-critical fault once it does not receive three consecutive PDM heartbeats.
 BMS-3 | isoSPI communication failure | - Upon isoSPI communication that results in a packet error code (PEC) mismatch, the BMS must retry communication. <br/> - After three consecutive unsuccessful isoSPI communication attempts, the BMS must throw an AIR shutdown fault and enter the fault state.
@@ -158,21 +171,21 @@ ID | Title | Description | Associated Competition Rule(s)
 BMS-12 | Precharge | The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin. <br/> Upon a successful precharge, the BMS must close the AIR+ contactor. <br/> A precharge failure occurs when: <br/> - The TS (tractive system) bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. | EV.6.9.1
 BMS-13 | Entering the init state | The BMS state machine must begin in the init state by default.
 BMS-14 | In the init state | The BMS must wait for the closing of the AIR- contactor, indicated by a rising edge on the AIR_POWER_STATUS digital input, to execute the precharge sequence.
-BMS-15 | Exiting the init state and entering the charging state | Upon a successful precharge, the BMS must enter the charging state if the charger is connected.
+BMS-15 | Exiting the init state and entering the charge state | Upon a successful precharge, the BMS must enter the charge state if the charger is connected.
 BMS-16 | Exiting the init state and entering the drive state | Upon a successful precharge, the BMS must enter the drive state if the charger is disconnected.
 
-### BMS Charging State <a name="BMS_CHARGING"></a>
+### BMS Charge state <a name="BMS_CHARGE"></a>
 
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-17 | Charging thermal safety | - The BMS must stop cell balancing once the LTC6813 internal die temperature (ITMP) exceeds 115C and throw a non-critical fault. The BMS must re-enable cell balancing once the ITMP decreases below 110C. <br/> - The BMS must disable the charger once the ITMP exceeds 120C and throw a non-critical fault. The BMS must re-enable the charger once the ITMP decreases below 115C. <br/>  - The BMS must disable the charger when any cell temperature exceeds 43C and throw a non-critical fault. The BMS must re-enable the charger once the highest cell temperature is below 40C. <br/> - The BMS must throw an AIR shutdown fault and enter the fault state if any cell temperature exceeds 45C. | EV.5.1.3
 BMS-18 | Cell balancing | - The BMS must balance the cells until they are all between 4.19V and 4.2V. <br/> - The BMS must only perform cell balancing when the AIRs are closed. | EV.7.2.5
-BMS-19 | Power limits calculation and sending (charging state) | - The BMS must calculate charge power limits based on cell temperatures and SoC to avoid exceeding a cell's defined limits. <br/> - The BMS must send the charge power limits to the charger over CAN at 100Hz.
+BMS-19 | Power limits calculation and sending (charge state) | - The BMS must calculate charge power limits based on cell temperatures and SoC to avoid exceeding a cell's defined limits. <br/> - The BMS must send the charge power limits to the charger over CAN at 100Hz.
 BMS-20 | Charger disconnection | Upon sensing charger disconnection, the BMS must throw an AIR shutdown fault and enter the fault state.
-BMS-21 | Entering the charging state | The BMS must only enter the charging state after the init state is complete.
-BMS-22 | In the charging state | The BMS must charge and cell balance simultaneously to get all cells charged and balanced as fast as possible.
-BMS-23 | Exiting the charging state and entering the init state | Once charging is complete, the BMS must disable the charger, disable cell balancing, open the contactors and enter the init state.
-BMS-24 | Exiting the charging state and entering the fault state | The BMS must disable cell balancing and charging.
+BMS-21 | Entering the charge state | The BMS must only enter the charge state after the init state is complete.
+BMS-22 | In the charge state | The BMS must charge and cell balance simultaneously to get all cells charged and balanced as fast as possible.
+BMS-23 | Exiting the charge state and entering the init state | Once charging is complete, the BMS must disable the charger, disable cell balancing, open the contactors and enter the init state.
+BMS-24 | Exiting the charge state and entering the fault state | The BMS must disable cell balancing and charging.
 
 ### BMS Drive State <a name="BMS_DRIVE"></a>
 
