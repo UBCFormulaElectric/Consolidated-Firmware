@@ -1,12 +1,3 @@
-****************TODO************************
-****************TODO************************
-****************TODO************************
-COOLANT PUMP ON SENSE? WHO DOES THIS?
-****************TODO************************
-****************TODO************************
-****************TODO************************
-****************TODO************************
-
 # Module Specifications
 
 *This set of specifications is for the **2019** rules, which may be found [here](http://www.fsaeonline.com/cdsweb/gen/DownloadDocument.aspx?DocumentID=607667ea-bec6-4658-92c4-fff59dbb5c0e)*
@@ -37,6 +28,8 @@ There are two types of faults:
 
 ## Table Of Contents
 - [FSM (Front Sensor Module)](#FSM)
+    - [FSM TS-Off State](#FSM_TS_OFF)
+    - [FSM TS-On State](#FSM_TS_ON)
 - [DCM (Drive Control Module)](#DCM)
     - [DCM Stateless](#DCM_STATELESS)
     - [DCM Init State](#DCM_INIT)
@@ -44,20 +37,24 @@ There are two types of faults:
     - [DCM Fault State](#DCM_FAULT)
 - [PDM (Power Distribution Module)](#PDM)
     - [PDM Stateless](#PDM_STATELESS)
-    - [PDM HV-On State](#PDM_HV_ON)
-    - [PDM HV-Off State](#PDM_HV_OFF)
-    - [PDM HV-On/Off States](#PDM_HV_ON_OFF)
+    - [PDM Init](#PDM_INIT)
+    - [PDM TS-Off State](#PDM_TS_OFF)
+    - [PDM TS-On State](#PDM_TS_ON)
 - [BMS (Battery Management System)](#BMS)
     - [BMS Stateless](#BMS_STATELESS)
+    - [BMS Init](#BMS_INIT)
     - [BMS Charge State](#BMS_CHARGE)
     - [BMS Drive State](#BMS_DRIVE)
     - [BMS Fault State](#BMS_FAULT)
 - [DIM (Dashoard Interface Module)](#DIM)
 
 ## FSM <a name="FSM"></a>
+
+### FSM Stateless <a name="FSM_STATELESS"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 FSM-0 | Startup CAN message | The FSM must transmit a startup message over CAN on boot.
+FSM-10 | State CAN message | The FSM must transmit its state at 100Hz.
 FSM-1 | Heartbeat sending | The FSM must transmit a heartbeat over CAN at 100Hz.
 FSM-2 | Heartbeat receiving | The FSM must throw an AIR shutdown fault once it does not receive three consecutive BMS heartbeats.
 FSM-3 | Mapped pedal percentage reporting | The FSM must report the mapped pedal percentage over CAN at 1kHz, unless overridden.
@@ -68,12 +65,27 @@ FSM-7 | APPS/brake pedal plausibility check | - When the APPS senses brake actua
 FSM-8 | Steering angle reporting | - The FSM must report the steering angle in degrees over CAN at 1kHz, where 0 degrees represents straight wheels and a clockwise turn of the steering wheel corresponds to an increase in steering angle. <br/> - The FSM must send a non-critical fault when the steering angle is beyond the max turning radius of the steering wheel.
 FSM-9 | Wheel speed reporting | - The FSM must report the two front wheel speeds in km/h over CAN at 1kHz. <br/> - The FSM must send a non-critical fault when either front wheel speed is below -10km/h or above 150km/h.
 
+### FSM TS-Off State <a name="FSM_TS_OFF"></a>
+ID | Title | Description | Associated Competition Rule(s)
+--- | --- | --- | ---
+FSM-10 | Entering the TS-off state | The FSM state machine must begin in the init state by default.
+FSM-11 | In the TS-off state | There are no extra requirements for the FSM in the TS-off state.
+FSM-12 | Exiting the TS-off state | The FSM must enter the TS-on state when the BMS is in the drive state (after precharge).
+
+### FSM TS-On State <a name="FSM_TS_ON"></a>
+ID | Title | Description | Associated Competition Rule(s)
+--- | --- | --- | ---
+FSM-13 | Entering the TS-on state | The FSM must enter the TS-on state after precharge is complete.
+FSM-14 | In the TS-on state | The FSM must measure the coolant flow. If the coolant flow is below the minimum threshold for 1s continuously, the FSM must send a motor shutdown fault. If the coolant flow returns above the minimum threshold for 1s continuously, the FSM must clear the motor shutdown fault.
+FSM-15 | Exiting the TS-on state | The FSM must enter the TS-off state when the BMS is in the init or fault state (contactors open).
+
 ## DCM <a name="DCM"></a>
 
 ### DCM Stateless <a name="DCM_STATELESS"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 DCM-0 | Startup CAN message | The DCM must transmit a startup message over CAN on boot.
+DCM-21 | State CAN message | The DCM must transmit its state at 100Hz.
 DCM-1 | Brake light control | The DCM must enable the brake light through the corresponding GPIO during brake actuation and/or regen and must disable the brake light otherwise.
 DCM-2 | Heartbeat sending | The DCM must transmit a heartbeat over CAN at 100Hz.
 DCM-18 | Heartbeat receiving | The DCM must throw an AIR shutdown fault once it does not receive three consecutive BMS heartbeats.
@@ -110,12 +122,17 @@ DCM-17 | Exiting the fault state and entering the init state | When all critical
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 PDM-0 | Startup CAN message | The PDM must transmit a startup message over CAN on boot.
+PDM-21 | State CAN message | The PDM must transmit its state at 100Hz.
 PDM-1 | Heartbeat sending | The PDM must transmit a heartbeat over CAN at 100Hz.
 PDM-2 | Heartbeat receiving | The PDM must throw an AIR shutdown fault once it does not receive three consecutive BMS heartbeats.
 PDM-3 | 18650 overvoltage handling | When the 24V systems are powered by the 18650s and the OV_FAULT GPIO is low (18650 overvoltage fault condition), the PDM must throw an AIR shutdown fault.
 PDM-4 | 18650 charge fault handling | When the CHRG_FAULT GPIO is low (18650s charge fault condition), the PDM must throw a non-critical fault.
 PDM-5 | Boost controller fault handling | When the PGOOD GPIO is low (boost controller fault condition), the PDM must throw a non-critical fault.
 PDM-6 | Voltage sense rationality checks | The PDM must run voltage rationality checks at 1kHz on the following inputs, throwing a non-critical fault if a rationality check fails: <br/> - VBAT_SENSE: min =  6V, max = 8.5V. <br/> - 24V_AUX_SENSE: min = 22V, max = 26V. <br/> - 24V_ACC_SENSE: min = 22V, max = 26V.
+PDM-11 | Current sensing | The PDM must log all e-fuse currents over CAN at 1Hz. This involves, for each e-fuse (and its corresponding channel): <br/> 1. Waiting for a falling edge on the SYNC pin. <br/> 2. Reading the CSNS pin and converting it to a current.
+PDM-12 | E-fuse fail-safe mode | The PDM must check if it cannot communicate with an e-fuse over SPI, or if the PDM regains SPI communication with an e-fuse and detects it in fail-safe mode, at 1kHz. If either of these cases are true: <br/> - The PDM must throw a non-critical fault. <br/> - If the PDM has re-gained SPI communication, the PDM must put the e-fuse back into normal mode over SPI.
+PDM-13 | E-fuse fault mode | The PDM must check if each e-fuse enters fault mode at 1kHz over SPI. The PDM must throw a motor shutdown or non-critical fault over CAN depending on the e-fuse in the fault state: <br/> - AUX 1: Non-critical. <br/> - AUX 2: Non-critical. <br/> - Drive Inverter Left: Non-critical. <br/> - Drive Inverter Right: Non-critical. <br/> - Energy Meter: Motor. <br/> - CAN: Motor. <br/> - AIR SHDN: Motor.
+PDM-14 | E-fuse fault delatching | After an e-fuse has faulted and completed its auto-retry sequence, the PDM must make three attempts to delatch the fault over SPI and wait 1s in between attempts. If the e-fuse's fault is cleared, clear the corresponding fault over CAN.
 
 ### PDM Init State <a name="PDM_INIT"></a>
 ID | Title | Description | Associated Competition Rule(s)
@@ -123,29 +140,21 @@ ID | Title | Description | Associated Competition Rule(s)
 PDM-7 | E-fuse current limits | The PDM's e-fuse current limits must be set to 1A per output.
 PDM-8 | Entering the init state | The PDM state machine must begin in the init state by default.
 PDM-9 | In the init state | - The PDM must program the e-fuses with the current limits listed in PDM-7 over SPI. <br/> - The PDM must enable auto-retry on all e-fuses over SPI.
-PDM-10 | Exiting the init state and entering the HV-off state | After the PDM is finished programming the e-fuses, the PDM must enter the HV-off state.
+PDM-10 | Exiting the init state and entering the TS-off state | After the PDM is finished programming the e-fuses, the PDM must enter the TS-off state.
 
-### PDM HV-Off State <a name="PDM_HV_OFF"></a>
+### PDM TS-Off State <a name="PDM_TS_OFF"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-PDM-15 | Entering the HV-off state | The PDM must enter the HV-off state after the init state is complete.
-PDM-16 | In the HV-off state | The PDM must only enable the following e-fuse outputs in the HV-off state: AUX 1, AUX 2, Energy Meter, CAN, AIR SHDN
-PDM-17 | Exiting the HV-off state | The PDM must enter the HV-on state when the BMS is in the drive state (after precharge).
+PDM-15 | Entering the TS-off state | The PDM must enter the TS-off state after the init state is complete.
+PDM-16 | In the TS-off state | The PDM must only enable the following e-fuse outputs in the TS-off state: AUX 1, AUX 2, Energy Meter, CAN, AIR SHDN
+PDM-17 | Exiting the TS-off state | The PDM must enter the TS-on state when the BMS is in the drive state (after precharge).
 
-### PDM HV-On State <a name="PDM_HV_ON"></a>
+### PDM TS-On State <a name="PDM_TS_ON"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-PDM-18 | Entering the HV-on state | The PDM must enter the HV-on state after precharge is complete.
-PDM-19 | In the HV-on state | The PDM must enable all e-fuse outputs in the HV-on state.
-PDM-20 | Exiting the HV-on state | The PDM must enter the HV-off state when the BMS is in the init or fault state (contactors open).
-
-### PDM HV-On/Off States <a name="PDM_HV_ON_OFF"></a>
-ID | Title | Description | Associated Competition Rule(s)
---- | --- | --- | ---
-PDM-11 | Current sensing | The PDM must log all e-fuse currents over CAN at 1Hz. This involves, for each e-fuse (and its corresponding channel): <br/> 1. Waiting for a falling edge on the SYNC pin. <br/> 2. Reading the CSNS pin and converting it to a current.
-PDM-12 | E-fuse fail-safe mode | The PDM must check if it cannot communicate with an e-fuse over SPI, or if the PDM regains SPI communication with an e-fuse and detects it in fail-safe mode, at 1kHz. If either of these cases are true: <br/> - The PDM must throw a non-critical fault. <br/> - If the PDM has re-gained SPI communication, the PDM must put the e-fuse back into normal mode over SPI.
-PDM-13 | E-fuse fault mode | The PDM must check if each e-fuse enters fault mode at 1kHz over SPI. The PDM must throw a motor shutdown or non-critical fault over CAN depending on the e-fuse in the fault state: <br/> - AUX 1: Non-critical. <br/> - AUX 2: Non-critical. <br/> - Drive Inverter Left: Non-critical. <br/> - Drive Inverter Right: Non-critical. <br/> - Energy Meter: Motor. <br/> - CAN: Motor. <br/> - AIR SHDN: Motor.
-PDM-14 | E-fuse fault delatching | After an e-fuse has faulted and completed its auto-retry sequence, the PDM must make three attempts to delatch the fault over SPI and wait 1s in between attempts. If the e-fuse's fault is cleared, clear the corresponding fault over CAN.
+PDM-18 | Entering the TS-on state | The PDM must enter the TS-on state after precharge is complete.
+PDM-19 | In the TS-on state | The PDM must enable all e-fuse outputs in the TS-on state.
+PDM-20 | Exiting the TS-on state | The PDM must enter the TS-off state when the BMS is in the init or fault state (contactors open).
 
 ## BMS <a name="BMS"></a>
 
@@ -153,7 +162,7 @@ PDM-14 | E-fuse fault delatching | After an e-fuse has faulted and completed its
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-0 | Startup CAN message | The BMS must transmit a startup message over CAN on boot.
-BMS-31 | State CAN message | The BMS must transmit its state to the PDM at 100Hz.
+BMS-31 | State CAN message | The BMS must transmit its state at 100Hz.
 BMS-1 | Heartbeat sending | The BMS must transmit a heartbeat over CAN at 100Hz.
 BMS-2 | Heartbeat receiving | - The BMS must throw an AIR shutdown fault and enter the fault state once it does not receive three consecutive FSM or DCM heartbeats. <br/> - The BMS must throw a non-critical fault once it does not receive three consecutive PDM heartbeats.
 BMS-3 | isoSPI communication failure | - Upon isoSPI communication that results in a packet error code (PEC) mismatch, the BMS must retry communication. <br/> - After three consecutive unsuccessful isoSPI communication attempts, the BMS must throw an AIR shutdown fault and enter the fault state.
@@ -201,7 +210,7 @@ DCM-20 | Exiting the drive state and entering the fault state | When an AIR shut
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-29 | Entering the AIR shutdown state | The BMS must open both contactors.
-BMS-30 | Exiting the AIR shutdown state and entering the init state | Once all AIR shutdown faults are cleared, the BMS must exit the AIR shutdown state and enter the init state.
+BMS-30 | Exiting the AIR shutdown state and entering the init state | Once all AIR shutdown faults are cleared, the BMS must exit the fault state and enter the init state.
 
 ## DIM <a name="DIM"></a>
 ID | Title | Description | Associated Competition Rule(s)
