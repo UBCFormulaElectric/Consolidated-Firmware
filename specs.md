@@ -68,15 +68,14 @@ FSM-9 | Wheel speed reporting | - The FSM must report the two front wheel speeds
 ### FSM TS-Off State <a name="FSM_TS_OFF"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-FSM-10 | Entering the TS-off state | The FSM state machine must begin in the init state by default.
-FSM-11 | In the TS-off state | There are no extra requirements for the FSM in the TS-off state.
+FSM-10 | Entering the TS-off state | The FSM state machine must begin in the TS-off state by default.
 FSM-12 | Exiting the TS-off state | The FSM must enter the TS-on state when the BMS is in the drive state (after precharge).
 
 ### FSM TS-On State <a name="FSM_TS_ON"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
+FSM-14 | Coolant flow measurements | - The FSM must measure the coolant flow and apply a heavy low pass filter on the signal. <br/> - If the coolant flow is below the minimum threshold for 1s continuously, the FSM must send a motor shutdown fault. <br/> - If the coolant flow returns above the minimum threshold for 1s continuously, the FSM must clear the motor shutdown fault.
 FSM-13 | Entering the TS-on state | The FSM must enter the TS-on state after precharge is complete.
-FSM-14 | In the TS-on state | - The FSM must measure the coolant flow and apply a heavy low pass filter on the signal. <br/> - If the coolant flow is below the minimum threshold for 1s continuously, the FSM must send a motor shutdown fault. <br/> - If the coolant flow returns above the minimum threshold for 1s continuously, the FSM must clear the motor shutdown fault.
 FSM-15 | Exiting the TS-on state | The FSM must enter the TS-off state when the BMS is in the init or fault state (contactors open).
 
 ## DCM <a name="DCM"></a>
@@ -93,8 +92,8 @@ DCM-18 | Heartbeat receiving | The DCM must throw an AIR shutdown fault once it 
 ### DCM Init State <a name="DCM_INIT"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
+DCM-4 | Zero torque request sending | The DCM must send zero torque requests to the inverters at 100Hz.
 DCM-3 | Entering the init state | The DCM state machine must begin in the init state by default.
-DCM-4 | In the init state | The DCM must send zero torque requests to the inverters at 100Hz.
 DCM-5 | Exiting the init state and entering the drive state | The DCM must meet the following conditions before entering the drive state: <br/> - There must be no critical faults present on any ECU. <br/> - The shutdown circuit must be closed and precharge must have already occurred. <br/> <br/> The DCM must also meet the following conditions in sequential order before entering the drive state: <br/> 1. The start switch must be switched in an upwards direction. If the start switch was already in the upwards position, it must be re-switched into the upwards position. <br/> 2. The brakes must be actuated. | EV.6.11.2, EV.6.11.3
 
 ### DCM Drive State <a name="DCM_DRIVE"></a>
@@ -102,18 +101,18 @@ ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 DCM-6 | Power limiting | The DCM must ensure power draw does not exceed 80kW for more than 100ms continuously or for 500ms over a moving average. | EV.1.3.1, EV.2.2.1
 DCM-8 | Regen requirements | - Regen is only allowed when the vehicle is travelling more than 5 km/hr and the AIRs are closed. <br/> - Regen is allowed during braking. | EV.1.2.6, EV.8.2.9
-DCM-19 | Torque requests | - The DCM may only request torque less than or equal to what the driver requested. <br/> - If regen is allowed and the mapped regen paddle percentage is above 0%, the DCM must map the mapped regen paddle percentage to a negative torque request (prioritize regen paddle over accelerator pedal). <br/> - Else, the DCM must map the mapped pedal percentage to a positive torque request. | EV.3.2.3
+DCM-19 | Torque request calculation | - The DCM may only request torque less than or equal to what the driver requested. <br/> - If regen is allowed and the mapped regen paddle percentage is above 0%, the DCM must map the mapped regen paddle percentage to a negative torque request (prioritize regen paddle over accelerator pedal). <br/> - Else, the DCM must map the mapped pedal percentage to a positive torque request. | EV.3.2.3
 DCM-9 | Drive direction | The DCM must configure the inverters through CAN to only drive forwards, and never in reverse. | EV.1.2.7
+DCM-13 | Torque request sending | The DCM must do the following in the drive state at 100Hz: <br/> 1. Acquire each motor's RPM from the inverters over CAN. <br/> 2. Calculate a torque request as per DCM-19. <br/> 3. Decrease the torque request if necessary to meet both DCM-6 and the maximum power limits specified by the BMS. <br/> 4. Send the resultant torque request to both inverters over CAN.
 DCM-12 | Entering the drive state from the init state | The DCM must do the following upon entering the drive state: <br/> - Make the ready to drive sound for 2 seconds after entering the drive state. | EV.7.12.1, EV.7.12.2
-DCM-13 | In the drive state | The DCM must do the following in the drive state at 100Hz: <br/> 1. Acquire each motor's RPM from the inverters over CAN. <br/> 2. Calculate a torque request as per DCM-19. <br/> 3. Decrease the torque request if necessary to meet both DCM-6 and the maximum power limits specified by the BMS. <br/> 4. Send the resultant torque request to both inverters over CAN.
 DCM-14 | Exiting the drive state and entering the init state | When the start switch is switched into a downwards position, the DCM must transition from the drive state to the init state.
 DCM-20 | Exiting the drive state and entering the fault state | When a motor shutdown is requested over CAN, the DCM must transition from the drive state to the fault state.
 
 ### DCM Fault State <a name="DCM_FAULT"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
+DCM-16 | Zero torque request sending | The DCM must send zero torque requests at 100Hz.
 DCM-15 | Entering the fault state from any state | The DCM must transition to the fault state whenever an critical fault is observed.
-DCM-16 | In the fault state | The DCM must send zero torque requests at 100Hz.
 DCM-17 | Exiting the fault state and entering the init state | When all critical faults are cleared, re-enter the init state.
 
 ## PDM <a name="PDM"></a>
@@ -137,23 +136,22 @@ PDM-14 | E-fuse fault delatching | After an e-fuse has faulted and completed its
 ### PDM Init State <a name="PDM_INIT"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-PDM-7 | E-fuse current limits | The PDM's e-fuse current limits must be set to 1A per output.
+PDM-7 | E-fuse current limits | - The PDM's e-fuse current limits must be set to 2.5A for inverter outputs, and 1A for other outputs. <br/> - The PDM must enable auto-retry on all e-fuses over SPI. <br/> - The PDM must disable all e-fuses in the init state.
 PDM-8 | Entering the init state | The PDM state machine must begin in the init state by default.
-PDM-9 | In the init state | - The PDM must program the e-fuses with the current limits listed in PDM-7 over SPI. <br/> - The PDM must enable auto-retry on all e-fuses over SPI.
 PDM-10 | Exiting the init state and entering the TS-off state | After the PDM is finished programming the e-fuses, the PDM must enter the TS-off state.
 
 ### PDM TS-Off State <a name="PDM_TS_OFF"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
+PDM-16 | Selective e-fuse enabling | The PDM must only enable the following e-fuse outputs in the TS-off state: AUX 1, AUX 2, Energy Meter, CAN, AIR SHDN
 PDM-15 | Entering the TS-off state | The PDM must enter the TS-off state after the init state is complete.
-PDM-16 | In the TS-off state | The PDM must only enable the following e-fuse outputs in the TS-off state: AUX 1, AUX 2, Energy Meter, CAN, AIR SHDN
 PDM-17 | Exiting the TS-off state | The PDM must enter the TS-on state when the BMS is in the drive state (after precharge).
 
 ### PDM TS-On State <a name="PDM_TS_ON"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
+PDM-19 | All e-fuse enabling | The PDM must enable all e-fuse outputs in the TS-on state.
 PDM-18 | Entering the TS-on state | The PDM must enter the TS-on state after precharge is complete.
-PDM-19 | In the TS-on state | The PDM must enable all e-fuse outputs in the TS-on state.
 PDM-20 | Exiting the TS-on state | The PDM must enter the TS-off state when the BMS is in the init or fault state (contactors open).
 
 ## BMS <a name="BMS"></a>
@@ -178,10 +176,9 @@ BMS-36 | IMD resistance transmission | - 10s after boot, the BMS must transmit t
 ### BMS Init State <a name="BMS_INIT"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-BMS-12 | Precharge | The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin. <br/> Upon a successful precharge, the BMS must close the AIR+ contactor. <br/> <br/> A precharge failure occurs when: <br/> - The TS (tractive system) bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. | EV.6.9.1
+BMS-12 | Precharge | - The BMS must wait for 5 seconds after boot, then wait for the closing of the AIR- contactor, to execute the precharge sequence. <br/> - The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin. <br/> - Upon a successful precharge, the BMS must close the AIR+ contactor. <br/> <br/> A precharge failure occurs when: <br/> - The TS (tractive system) bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. | EV.6.9.1
 BMS-35 | SoC retrieval | The BMS must retrieve SoC from the three sections of memory and use a voting algorithm to identify which data is correct, in case of data corruption.
 BMS-13 | Entering the init state | The BMS state machine must begin in the init state by default.
-BMS-14 | In the init state | The BMS must wait for 5 seconds, then wait for the closing of the AIR- contactor, indicated by a rising edge on the AIR_POWER_STATUS digital input, to execute the precharge sequence.
 BMS-15 | Exiting the init state and entering the charge state | Upon a successful precharge, the BMS must enter the charge state if the charger is connected.
 BMS-16 | Exiting the init state and entering the drive state | Upon a successful precharge, the BMS must enter the drive state if the charger is disconnected.
 
@@ -191,11 +188,10 @@ ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-34 | SoC calculation and storage | - The BMS must perform coulomb counting and calculate SoC at 100Hz. <br/> The BMS must store the same SoC value in three different EEPROM memory sections at 1Hz. <br/> - SoC must be bounded between 0% and 100%. <br/> - After charging is complete, the BMS must reset and store SoC as 100%.
 BMS-17 | Charging thermal safety | - The BMS must stop cell balancing once the LTC6813 internal die temperature (ITMP) exceeds 115C and throw a non-critical fault. The BMS must re-enable cell balancing once the ITMP decreases below 110C. <br/> - The BMS must disable the charger once the ITMP exceeds 120C and throw a non-critical fault. The BMS must re-enable the charger once the ITMP decreases below 115C. <br/>  - The BMS must disable the charger when any cell temperature exceeds 43C and throw a non-critical fault. The BMS must re-enable the charger once the highest cell temperature is below 40C. <br/> - The BMS must throw an AIR shutdown fault and enter the fault state if any cell temperature exceeds 45C. | EV.5.1.3
-BMS-18 | Cell balancing | - The BMS must balance the cells until they are all between 4.19V and 4.2V. <br/> - The BMS must only perform cell balancing when the AIRs are closed. | EV.7.2.5
+BMS-18 | Cell balancing | - The BMS must balance the cells until they are all between 4.19V and 4.2V. <br/> - The BMS must only perform cell balancing when the AIRs are closed. <br/> - The BMS must charge and cell balance simultaneously to get all cells charged and balanced as fast as possible.| EV.7.2.5
 BMS-19 | Power limits calculation and sending (charge state) | - The BMS must calculate charge power limits based on cell temperatures and SoC to avoid exceeding a cell's defined limits. <br/> - The BMS must send the charge power limits to the charger over CAN at 100Hz.
 BMS-20 | Charger disconnection | Upon sensing charger disconnection, the BMS must throw an AIR shutdown fault and enter the fault state.
 BMS-21 | Entering the charge state | The BMS must only enter the charge state after the init state is complete.
-BMS-22 | In the charge state | The BMS must charge and cell balance simultaneously to get all cells charged and balanced as fast as possible.
 BMS-23 | Exiting the charge state and entering the init state | Once charging is complete, the BMS must disable the charger, disable cell balancing, open the contactors and enter the init state.
 BMS-24 | Exiting the charge state and entering the fault state | The BMS must disable cell balancing and charging.
 
@@ -204,9 +200,8 @@ BMS-24 | Exiting the charge state and entering the fault state | The BMS must di
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-32 | SoC calculation and storage | - The BMS must perform coulomb counting and calculate SoC at 100Hz. <br/> The BMS must store SoC in EEPROM at 1Hz in three different memory locations. <br/> - SoC must be bounded between 0% and 100%.
-BMS-26 | Power limits calculation and sending (drive state) | - The BMS must calculate charge and discharge power limits based on cell temperatures and SoC to avoid exceeding a cell's defined limits. <br/> - The BMS must send the charge and discharge power limits to the DCM over CAN at 100Hz.
+BMS-26 | Power limits calculation and sending (drive state) | - The BMS must calculate charge and discharge power limits based on cell temperatures and SoC to avoid exceeding a cell's defined limits. <br/> - The BMS must send the charge and discharge power limits over CAN at 100Hz.
 BMS-25 | Entering the drive state | The BMS must only enter the drive state from the init state after precharge or from the motor shutdown fault state after faults are cleared.
-BMS-33 | In the drive state | There are no extra requirements for the BMS in the drive state.
 BMS-27 | Exiting the drive state and entering the init state | Upon the opening of the contactors outside of an AIR shutdown fault, the BMS must exit the drive state and enter the init state.
 BMS-20 | Exiting the drive state and entering the fault state | When an AIR shutdown is requested over CAN, the BMS must transition from the drive state to the fault state.
 
