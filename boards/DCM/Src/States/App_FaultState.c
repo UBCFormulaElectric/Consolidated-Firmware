@@ -1,4 +1,3 @@
-#include "App_SharedStateType.h"
 #include "States/App_States.h"
 
 static void App_EntryAction(void) {}

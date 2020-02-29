@@ -13,10 +13,6 @@ static const struct State* GetNextState(void) \
 { \
     return _next_state; \
 } \
-static void ResetNextState(void) \
-{ \
-    SetNextState(state_name); \
-} \
 struct State prv_##state_name = \
 { \
     .run_on_entry     = on_entry,  \
@@ -24,7 +20,6 @@ struct State prv_##state_name = \
     .run_state_action = state_action,  \
     .set_next_state   = SetNextState, \
     .get_next_state   = GetNextState, \
-    .reset_next_state = ResetNextState, \
 }; \
 struct State* const state_name = &prv_##state_name \
 
@@ -35,5 +30,4 @@ struct State
     void (*run_state_action)(void);
     void (*set_next_state)(struct State*);
     const struct State*(*get_next_state)(void);
-    void (*reset_next_state)(void);
 };

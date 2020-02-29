@@ -1,4 +1,5 @@
 #include <stdbool.h>
+#include <stddef.h>
 #include "App_SharedStateMachine.h"
 #include "SharedAssert.h"
 
@@ -24,10 +25,11 @@ void App_SharedStateMachine_Tick(void)
     current_state->run_state_action();
 
     // Check if the state action caused a state transition
-    if (current_state != current_state->get_next_state())
+    const struct State* next_state = current_state->get_next_state();
+    if (next_state != NULL)
     {
+        current_state->set_next_state(NULL);
         current_state->run_on_exit();
-
-        App_TransitionState(current_state->get_next_state());
+        App_TransitionState(next_state);
     }
 }
