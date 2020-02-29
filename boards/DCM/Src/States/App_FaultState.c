@@ -1,13 +1,18 @@
-#include "States/App_States.h"
+#include "States/App_FaultState.h"
 
-static void App_EntryAction(void) {}
+State_t *fault_state;
 
-static void App_ExitAction(void) {}
+State_t **App_FaultState_GetStateHandlePointer(void)
+{
+    return &fault_state;
+}
 
-static void App_StateAction(void) {}
+State_t *App_FaultState_GetStateHandle(void)
+{
+    return fault_state;
+}
+void App_FaultState_EntryAction(void) {}
 
-ADD_STATE(
-    FAULT,
-    App_EntryAction,
-    App_ExitAction,
-    App_StateAction);
+void App_FaultState_ExitAction(void) {}
+
+void App_FaultState_StateAction(void) {}

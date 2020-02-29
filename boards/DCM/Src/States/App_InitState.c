@@ -1,13 +1,19 @@
-#include "States/App_States.h"
+#include "States/App_InitState.h"
 
-static void App_EntryAction(void) {}
+State_t *init_state;
 
-static void App_ExitAction(void) {}
+State_t **App_InitState_GetStateHandlePointer(void)
+{
+    return &init_state;
+}
 
-static void App_StateAction(void) {}
+State_t *App_InitState_GetStateHandle(void)
+{
+    return init_state;
+}
 
-ADD_STATE(
-    INIT,
-    App_EntryAction,
-    App_ExitAction,
-    App_StateAction);
+void App_InitState_EntryAction(void) {}
+
+void App_InitState_ExitAction(void) {}
+
+void App_InitState_StateAction(void) {}

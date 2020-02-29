@@ -1,8 +1,10 @@
-#pragma once
+#include "App_SharedState.h"
 
-#include "App_SharedStateType.h"
+extern State_t *App_InitState_GetStateHandle(void);
+#define INIT_STATE App_InitState_GetStateHandle()
 
-// Register all the states here
-extern struct State *const INIT;
-extern struct State *const FAULT;
-extern struct State *const DRIVE;
+extern State_t *App_DriveState_GetStateHandle(void);
+#define DRIVE_STATE App_DriveState_GetStateHandle()
+
+extern State_t *App_FaultState_GetStateHandle(void);
+#define FAULT_STATE App_FaultState_GetStateHandle()

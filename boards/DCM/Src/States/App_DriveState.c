@@ -1,13 +1,24 @@
 #include "States/App_States.h"
+#include "States/App_DriveState.h"
 
-static void App_EntryAction(void) {}
+static State_t *drive_state;
 
-static void App_ExitAction(void) {}
+State_t **App_DriveState_GetStateHandlePointer(void)
+{
+    return &drive_state;
+}
 
-static void App_StateAction(void) {}
+State_t *App_DriveState_GetStateHandle(void)
+{
+    return drive_state;
+}
+void App_DriveState_EntryAction(void) {}
 
-ADD_STATE(
-    DRIVE,
-    App_EntryAction,
-    App_ExitAction,
-    App_StateAction);
+void App_DriveState_ExitAction(void) {}
+
+void App_DriveState_StateAction(void)
+{
+    // TODO: Remove before merging
+    // Here's an example of how we would transition to another state
+    App_SharedState_SetNextState(drive_state, FAULT_STATE);
+}

@@ -35,6 +35,7 @@
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/App_CanRx.h"
 #include "Io_Can.h"
+#include "States/App_StateMachine.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -109,6 +110,7 @@ int main(void)
     SharedHardFaultHandler_Init();
     App_CanTx_Init();
     App_CanRx_Init();
+    App_StateMachine_Init();
     /* USER CODE END 1 */
 
     /* MCU
