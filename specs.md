@@ -64,6 +64,7 @@ FSM-6 | APPS disagreement | - When the primary and secondary APPS positions disa
 FSM-7 | APPS/brake pedal plausibility check | - When the APPS senses brake actuation and more than 25% mapped pedal percentage simultaneously, the FSM must throw a motor shutdown fault and report 0% mapped pedal percentage. <br/> - The FSM must clear the motor shutdown fault after the APPS senses less than 5% mapped pedal percentage, regardless of the brake state. | EV.3.4.1, EV.3.4.2
 FSM-8 | Steering angle reporting | - The FSM must report the steering angle in degrees over CAN at 1kHz, where 0 degrees represents straight wheels and a clockwise turn of the steering wheel corresponds to an increase in steering angle. <br/> - The FSM must send a non-critical fault when the steering angle is beyond the max turning radius of the steering wheel.
 FSM-9 | Wheel speed reporting | - The FSM must report the two front wheel speeds in km/h over CAN at 1kHz. <br/> - The FSM must send a non-critical fault when either front wheel speed is below -10km/h or above 150km/h.
+FSM-16 | Open circuit encoder alarm | - When the primary or secondary APPS encoder alarm goes high for 10ms continuously, throw a motor shutdown fault and report 0% mapped pedal percentage. <br/> - When both the primary and secondary APPS encoder alarms go low for 10ms continuously, clear the motor shutdown fault. | T.4.2.9
 
 ### FSM TS-Off State <a name="FSM_TS_OFF"></a>
 ID | Title | Description | Associated Competition Rule(s)
