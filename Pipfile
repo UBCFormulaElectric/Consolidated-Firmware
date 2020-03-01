@@ -8,6 +8,9 @@ pylint = "*"
 
 [packages]
 cantools = "~=32.20.0"
+pyqt5 = "*"
+pandas = "*"
+plotly = "*"
 
 [requires]
 python_version = "3"
