@@ -1,6 +1,6 @@
 #include "States/App_InitState.h"
 
-State_t *init_state;
+static State_t *init_state;
 
 State_t **App_InitState_GetStateHandlePointer(void)
 {

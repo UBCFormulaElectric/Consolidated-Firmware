@@ -2,7 +2,7 @@
 #include "SharedAssert.h"
 #include "App_SharedStateMachine.h"
 
-typedef struct StatePool StateTable_t;
+typedef struct StateTable StateTable_t;
 
 #define MAX_STATE_MACHINE_NAME_LENGTH 16
 typedef struct StateMachine
@@ -19,7 +19,6 @@ typedef struct StateMachine
     StateTable_t *state_table;
 } StateMachine_t;
 
-#define MAX_NUM_OF_STATE_MACHINES 1
 StateMachine_t *App_SharedStateMachine_Alloc(const char *name)
 {
     shared_assert(name != NULL);
@@ -38,19 +37,19 @@ StateMachine_t *App_SharedStateMachine_Alloc(const char *name)
 
 State_t *App_SharedStateMachine_AddState(
     StateMachine_t *state_machine,
-    char *          name,
+    char *          state_name,
     void (*run_on_entry)(void),
     void (*run_on_exit)(void),
     void (*run_state_action)(void))
 {
     shared_assert(state_machine != NULL);
-    shared_assert(name != NULL);
+    shared_assert(state_name != NULL);
     shared_assert(run_on_entry != NULL);
     shared_assert(run_on_exit != NULL);
     shared_assert(run_state_action != NULL);
 
     return App_SharedState_AddStateToStateTable(
-        state_machine->state_table, name, run_on_entry, run_on_exit,
+        state_machine->state_table, state_name, run_on_entry, run_on_exit,
         run_state_action);
 }
 
@@ -65,14 +64,15 @@ void App_SharedStateMachine_Init(
     bool found = App_SharedState_IsStateInStateTable(
         state_machine->state_table, initial_state);
 
-    // The state machine can't run if the initial state hasn't been added
+    // The state machine can't run if the initial state hasn't been added to the
+    // state machine.
     shared_assert(found == true);
 
     state_machine->current_state = initial_state;
     state_machine->initialized   = true;
 }
 
-void App_SharedStateMachine_Update(StateMachine_t *state_machine)
+void App_SharedStateMachine_Tick(StateMachine_t *state_machine)
 {
     shared_assert(state_machine != NULL);
     shared_assert(state_machine->initialized == true);

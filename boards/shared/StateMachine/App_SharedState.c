@@ -18,27 +18,27 @@ typedef struct State
     struct State *next_state;
 } State_t;
 
-#define MAX_NUM_OF_STATES_PER_POOL 5
-typedef struct StatePool
+typedef struct StateTable
 {
-    size_t  current_count;
-    State_t states[MAX_NUM_OF_STATES_PER_POOL];
+    // Count of many entries are occupied in the state table
+    size_t current_count;
+    // Storage for holding states in the table
+    State_t states[MAX_NUM_OF_STATES_PER_STATE_TABLE];
 } StateTable_t;
 
-#define MAX_NUM_OF_STATE_POOL 1
 StateTable_t *App_SharedState_AllocStateTable(void)
 {
-    static StateTable_t state_pools[MAX_NUM_OF_STATE_POOL];
+    static StateTable_t state_tables[MAX_NUM_OF_STATE_TABLES];
     static size_t       alloc_index = 0;
 
-    shared_assert(alloc_index < MAX_NUM_OF_STATE_POOL);
+    shared_assert(alloc_index < MAX_NUM_OF_STATE_TABLES);
 
-    return &state_pools[alloc_index++];
+    return &state_tables[alloc_index++];
 }
 /**
- *
- * @param state_table
- * @return
+ * Get the next available entry (if any) in the state table.
+ * @param state_table State table
+ * @return Pointer to the next available entry
  */
 static State_t *
     App_SharedState_GetNextFreeStateInStateTable(StateTable_t *state_table);
@@ -46,19 +46,21 @@ static State_t *
 State_t *App_SharedState_GetNextFreeStateInStateTable(StateTable_t *state_table)
 {
     shared_assert(state_table);
-    shared_assert(state_table->current_count < MAX_NUM_OF_STATES_PER_POOL);
+    shared_assert(
+        state_table->current_count < MAX_NUM_OF_STATES_PER_STATE_TABLE);
 
     return &state_table->states[state_table->current_count++];
 }
 
 State_t *App_SharedState_AddStateToStateTable(
     StateTable_t *state_table,
-    char *        name,
+    char *        state_name,
     void (*run_on_entry)(void),
     void (*run_on_exit)(void),
     void (*run_state_action)(void))
 {
-    shared_assert(name != NULL);
+    shared_assert(state_table != NULL);
+    shared_assert(state_name != NULL);
     shared_assert(run_on_entry != NULL);
     shared_assert(run_on_exit != NULL);
     shared_assert(run_state_action != NULL);
@@ -69,7 +71,7 @@ State_t *App_SharedState_AddStateToStateTable(
     state->run_on_exit      = run_on_exit;
     state->run_state_action = run_state_action;
     state->next_state       = NULL;
-    strncpy(state->name, name, MAX_STATE_NAME_LENGTH);
+    strncpy(state->name, state_name, MAX_STATE_NAME_LENGTH);
 
     return state;
 }
@@ -83,7 +85,7 @@ bool App_SharedState_IsStateInStateTable(
 
     bool found = false;
 
-    for (size_t i = 0; i < MAX_NUM_OF_STATES_PER_POOL; i++)
+    for (size_t i = 0; i < MAX_NUM_OF_STATES_PER_STATE_TABLE; i++)
     {
         if (memcmp(&state_table->states[i], state, sizeof(*state)) == 0)
         {
