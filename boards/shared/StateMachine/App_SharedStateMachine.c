@@ -1,8 +1,6 @@
-#include <stddef.h>
+#include <string.h>
 #include "SharedAssert.h"
 #include "App_SharedStateMachine.h"
-
-typedef struct StateTable StateTable_t;
 
 #define MAX_STATE_MACHINE_NAME_LENGTH 16
 typedef struct StateMachine
@@ -12,17 +10,18 @@ typedef struct StateMachine
     // State machine name (For debugging only)
     char name[MAX_STATE_MACHINE_NAME_LENGTH];
     // Previous state of the state machine (For debugging only)
-    State_t *previous_state;
+    StateHandle_t previous_state;
     // Current state of the state machine
-    State_t *current_state;
+    StateHandle_t current_state;
     // Possibles states in this state machine
-    StateTable_t *state_table;
+    StateTableHandle_t state_table_handle;
 } StateMachine_t;
 
-StateMachine_t *App_SharedStateMachine_Alloc(const char *name)
-{
-    shared_assert(name != NULL);
+// Return a pointer to the underlying state machine type
+#define prvGetStateMachineFromHandle(handle) (StateMachine_t *)(handle)
 
+StateMachineHandle_t App_SharedStateMachine_Alloc(void)
+{
     static StateMachine_t state_machines[MAX_NUM_OF_STATE_MACHINES];
     static size_t         alloc_index = 0;
 
@@ -30,58 +29,75 @@ StateMachine_t *App_SharedStateMachine_Alloc(const char *name)
 
     StateMachine_t *state_machine = &state_machines[alloc_index++];
 
-    state_machine->state_table = App_SharedState_AllocStateTable();
+    state_machine->initialized        = false;
+    state_machine->previous_state     = NULL;
+    state_machine->current_state      = NULL;
+    state_machine->state_table_handle = App_SharedState_AllocStateTable();
 
-    return state_machine;
+    return (StateMachineHandle_t)state_machine;
 }
 
-State_t *App_SharedStateMachine_AddState(
-    StateMachine_t *state_machine,
-    char *          state_name,
+StateHandle_t App_SharedStateMachine_AddState(
+    StateMachineHandle_t state_machine_handle,
+    char *               state_name,
     void (*run_on_entry)(void),
     void (*run_on_exit)(void),
     void (*run_state_action)(void))
 {
-    shared_assert(state_machine != NULL);
+    shared_assert(state_machine_handle != NULL);
     shared_assert(state_name != NULL);
     shared_assert(run_on_entry != NULL);
     shared_assert(run_on_exit != NULL);
     shared_assert(run_state_action != NULL);
 
+    StateMachine_t *state_machine =
+        prvGetStateMachineFromHandle(state_machine_handle);
+
     return App_SharedState_AddStateToStateTable(
-        state_machine->state_table, state_name, run_on_entry, run_on_exit,
-        run_state_action);
+        state_machine->state_table_handle, state_name, run_on_entry,
+        run_on_exit, run_state_action);
 }
 
 void App_SharedStateMachine_Init(
-    StateMachine_t *state_machine,
-    State_t *       initial_state)
+    const char *         name,
+    StateMachineHandle_t state_machine_handle,
+    StateHandle_t        initial_state)
 {
-    shared_assert(state_machine != NULL);
+    shared_assert(name != NULL);
+    shared_assert(state_machine_handle != NULL);
     shared_assert(initial_state != NULL);
+
+    StateMachine_t *state_machine =
+        prvGetStateMachineFromHandle(state_machine_handle);
+    shared_assert(state_machine->state_table_handle != NULL);
 
     // Check if the initial state has already been added
     bool found = App_SharedState_IsStateInStateTable(
-        state_machine->state_table, initial_state);
+        state_machine->state_table_handle, initial_state);
 
     // The state machine can't run if the initial state hasn't been added to the
     // state machine.
     shared_assert(found == true);
 
+    strncpy(state_machine->name, name, MAX_STATE_MACHINE_NAME_LENGTH);
     state_machine->current_state = initial_state;
     state_machine->initialized   = true;
 }
 
-void App_SharedStateMachine_Tick(StateMachine_t *state_machine)
+void App_SharedStateMachine_Tick(StateMachineHandle_t state_machine_handle)
 {
-    shared_assert(state_machine != NULL);
+    shared_assert(state_machine_handle != NULL);
+
+    StateMachine_t *state_machine =
+        prvGetStateMachineFromHandle(state_machine_handle);
+
     shared_assert(state_machine->initialized == true);
 
     // Run the state action associated with the current state
     App_SharedState_RunStateAction(state_machine->current_state);
 
     // Check if the state action caused a state transition
-    State_t *next_state =
+    StateHandle_t next_state =
         App_SharedState_GetNextState(state_machine->current_state);
     if (next_state != NULL)
     {
@@ -95,7 +111,7 @@ void App_SharedStateMachine_Tick(StateMachine_t *state_machine)
         App_SharedState_RunOnExit(state_machine->current_state);
 
         // Go to next state
-        App_SharedState_SetNextState(state_machine->current_state, next_state);
+        state_machine->current_state = next_state;
         App_SharedState_RunOnEntry(state_machine->current_state);
     }
 }

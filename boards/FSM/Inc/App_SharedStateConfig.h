@@ -1,0 +1,4 @@
+#pragma once
+
+#define MAX_NUM_OF_STATE_TABLES 1
+#define MAX_NUM_OF_STATES_PER_STATE_TABLE 5

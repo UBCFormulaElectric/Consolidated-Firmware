@@ -18,6 +18,9 @@ typedef struct State
     struct State *next_state;
 } State_t;
 
+// Return a pointer to the underlying state type
+#define prvGetStateFromHandle(handle) (State_t *)(handle)
+
 typedef struct StateTable
 {
     // Count of many entries are occupied in the state table
@@ -26,35 +29,43 @@ typedef struct StateTable
     State_t states[MAX_NUM_OF_STATES_PER_STATE_TABLE];
 } StateTable_t;
 
-StateTable_t *App_SharedState_AllocStateTable(void)
-{
-    static StateTable_t state_tables[MAX_NUM_OF_STATE_TABLES];
-    static size_t       alloc_index = 0;
+// Return a pointer to the underlying state table type
+#define prvGetStateTableFromHandle(handle) (StateTable_t *)(handle)
 
-    shared_assert(alloc_index < MAX_NUM_OF_STATE_TABLES);
-
-    return &state_tables[alloc_index++];
-}
 /**
  * Get the next available entry (if any) in the state table.
- * @param state_table State table
+ * @param state_table_handle: Handle to the state table
  * @return Pointer to the next available entry
  */
-static State_t *
-    App_SharedState_GetNextFreeStateInStateTable(StateTable_t *state_table);
+static StateHandle_t App_SharedState_GetNextFreeStateInStateTable(
+    StateTableHandle_t state_table_handle);
 
-State_t *App_SharedState_GetNextFreeStateInStateTable(StateTable_t *state_table)
+static StateHandle_t App_SharedState_GetNextFreeStateInStateTable(
+    StateTableHandle_t state_table_handle)
 {
-    shared_assert(state_table);
+    shared_assert(state_table_handle != NULL);
+
+    StateTable_t *state_table = prvGetStateTableFromHandle(state_table_handle);
+
     shared_assert(
         state_table->current_count < MAX_NUM_OF_STATES_PER_STATE_TABLE);
 
     return &state_table->states[state_table->current_count++];
 }
 
-State_t *App_SharedState_AddStateToStateTable(
-    StateTable_t *state_table,
-    char *        state_name,
+StateTableHandle_t App_SharedState_AllocStateTable(void)
+{
+    static StateTable_t state_tables[MAX_NUM_OF_STATE_TABLES];
+    static size_t       alloc_index = 0;
+
+    shared_assert(alloc_index < MAX_NUM_OF_STATE_TABLES);
+
+    return (StateTableHandle_t)&state_tables[alloc_index++];
+}
+
+StateHandle_t App_SharedState_AddStateToStateTable(
+    StateTableHandle_t state_table,
+    char *             state_name,
     void (*run_on_entry)(void),
     void (*run_on_exit)(void),
     void (*run_state_action)(void))
@@ -65,7 +76,9 @@ State_t *App_SharedState_AddStateToStateTable(
     shared_assert(run_on_exit != NULL);
     shared_assert(run_state_action != NULL);
 
-    State_t *state = App_SharedState_GetNextFreeStateInStateTable(state_table);
+    StateHandle_t state_handle =
+        App_SharedState_GetNextFreeStateInStateTable(state_table);
+    State_t *state = prvGetStateFromHandle(state_handle);
 
     state->run_on_entry     = run_on_entry;
     state->run_on_exit      = run_on_exit;
@@ -77,11 +90,14 @@ State_t *App_SharedState_AddStateToStateTable(
 }
 
 bool App_SharedState_IsStateInStateTable(
-    StateTable_t *state_table,
-    State_t *     state)
+    StateTableHandle_t state_table_handle,
+    StateHandle_t      state_handle)
 {
-    shared_assert(state_table);
-    shared_assert(state);
+    shared_assert(state_table_handle != NULL);
+    shared_assert(state_handle != NULL);
+
+    StateTable_t *state_table = prvGetStateTableFromHandle(state_table_handle);
+    State_t *     state       = prvGetStateFromHandle(state_handle);
 
     bool found = false;
 
@@ -97,38 +113,45 @@ bool App_SharedState_IsStateInStateTable(
     return found;
 }
 
-void App_SharedState_RunOnEntry(State_t *state)
+void App_SharedState_RunOnEntry(StateHandle_t state_handle)
 {
-    shared_assert(state != NULL);
+    shared_assert(state_handle != NULL);
 
+    State_t *state = prvGetStateFromHandle(state_handle);
     state->run_on_entry();
 }
 
-void App_SharedState_RunOnExit(State_t *state)
+void App_SharedState_RunOnExit(StateHandle_t state_handle)
 {
-    shared_assert(state != NULL);
+    shared_assert(state_handle != NULL);
 
+    State_t *state = prvGetStateFromHandle(state_handle);
     state->run_on_exit();
 }
 
-void App_SharedState_RunStateAction(State_t *state)
+void App_SharedState_RunStateAction(StateHandle_t state_handle)
 {
-    shared_assert(state != NULL);
+    shared_assert(state_handle != NULL);
 
+    State_t *state = prvGetStateFromHandle(state_handle);
     state->run_state_action();
 }
 
-void App_SharedState_SetNextState(State_t *state, State_t *new_state)
+void App_SharedState_SetNextState(
+    StateHandle_t state_handle,
+    StateHandle_t new_state_handle)
 {
-    shared_assert(state != NULL);
-    shared_assert(new_state != NULL);
+    shared_assert(state_handle != NULL);
+    shared_assert(new_state_handle != NULL);
 
-    state->next_state = new_state;
+    State_t *state    = prvGetStateFromHandle(state_handle);
+    state->next_state = prvGetStateFromHandle(new_state_handle);
 }
 
-State_t *App_SharedState_GetNextState(State_t *state)
+StateHandle_t App_SharedState_GetNextState(StateHandle_t state_handle)
 {
-    shared_assert(state != NULL);
+    shared_assert(state_handle != NULL);
 
-    return state->next_state;
+    State_t *state = prvGetStateFromHandle(state_handle);
+    return (StateHandle_t)state->next_state;
 }

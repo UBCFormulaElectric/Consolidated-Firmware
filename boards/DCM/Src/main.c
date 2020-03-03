@@ -32,10 +32,9 @@
 #include "SharedHardFaultHandler.h"
 #include "SharedAssert.h"
 #include "App_StackWaterMark.h"
+#include "States/App_StateMachine.h"
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/App_CanRx.h"
-#include "Io_Can.h"
-#include "States/App_StateMachine.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
