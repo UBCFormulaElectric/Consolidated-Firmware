@@ -42,6 +42,36 @@
 #define _ENQUEUE_BOARD_STARTUP(BOARD, ARG) \
     App_CanTx_EnqueueNonPeriodicMsg_##BOARD##_STARTUP(ARG)
 
+// The following filter IDs/masks must be used with 16-bit Filter Scale
+// (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier
+// registers are associated with mask registers specifying which bits of the
+// identifier are handled as "don't care" or as "must match". For each bit in
+// the mask registers, 0 = Don't Care and 1 = Must Match.
+//
+// Bit mapping of a 16-bit identifier register and mask register:
+// Standard CAN ID [15:5] RTR[4] IDE[3] Extended CAN ID [2:0]
+//
+// For example, with the following filter IDs/mask:
+// =======================================================
+// Identifier Register:    [000 0000 0000] [0] [0] [000]
+// Mask Register:          [111 1110 0000] [1] [1] [000]
+// =======================================================
+// The filter will accept incoming messages that match the following criteria:
+// [000 000x xxxx]    [0]    [0]         [xxx]
+// Standard CAN ID    RTR    IDE     Extended CAN ID
+
+/** @brief Helper macro to initialize FiRx register in 16-bit mode */
+#define INIT_MASKMODE_16BIT_FiRx(std_id, rtr, ide, ext_id)                     \
+    ((((uint32_t)(std_id) << 5U) & 0xFFE0) |                                   \
+     (((uint32_t)(rtr) << 4U) & 0x0010) | (((uint32_t)(ide) << 3U) & 0x0008) | \
+     (((uint32_t)(ext_id) << 0U) & 0x0007))
+
+// Open CAN filter that accepts any CAN message as long as it uses Standard CAN
+// ID and is a data frame.
+#define MASKMODE_16BIT_ID_OPEN \
+    INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, CAN_ExtID_NULL)
+#define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
+
 /******************************************************************************
  * Module Typedefs
  ******************************************************************************/
@@ -84,21 +114,6 @@ static struct StaticSemaphore CanTxBinarySemaphore = {
  * Private Function Prototypes
  ******************************************************************************/
 /**
- * @brief  Initialize one or more CAN filters using 16-bit Filter Scale and
- *         Identifier Mask Mode (FSCx = 0, FBMx = 0)
- * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
- *         the configuration information for the specified CAN.
- * @param  filters Array of CAN filters.
- * @param  num_of_filters The number of CAN filters in the array.
- * @return ERROR: One or more filters didn't initialize properly
- *         SUCCESS: All filters initialized with no errors
- */
-static ErrorStatus Io_InitializeFilters(
-    CAN_HandleTypeDef *        hcan,
-    CanMaskFilterConfig_Struct filters[],
-    uint32_t                   num_of_filters);
-
-/**
  * @brief Transmits a CAN message
  * @param message CAN message to transmit
  */
@@ -115,71 +130,38 @@ static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *message);
  */
 static void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo);
 
+/**
+ * Initializes the filters on the given CAN interface to allow all msgs through
+ * @param hcan The interface to set the fully open filter on
+ * @return SUCCESS if success, otherwise an error code
+ */
+static ErrorStatus Io_InitializeAllOpenFilters(CAN_HandleTypeDef *hcan);
+
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
-static ErrorStatus Io_InitializeFilters(
-    CAN_HandleTypeDef *        hcan,
-    CanMaskFilterConfig_Struct filters[],
-    uint32_t                   num_of_filters)
+
+static ErrorStatus Io_InitializeAllOpenFilters(CAN_HandleTypeDef *hcan)
 {
     shared_assert(hcan != NULL);
-    shared_assert(filters != NULL);
 
-    static uint32_t filter_bank = 0;
-    static uint32_t fifo        = CAN_FILTER_FIFO0;
-    uint32_t        is_odd      = num_of_filters % 2;
-
+    /* Configure a single filter bank that accepts any message */
     CAN_FilterTypeDef can_filter;
-    can_filter.FilterMode       = CAN_FILTERMODE_IDMASK;
-    can_filter.FilterScale      = CAN_FILTERSCALE_16BIT;
-    can_filter.FilterActivation = CAN_FILTER_ENABLE;
+    can_filter.FilterMode           = CAN_FILTERMODE_IDMASK;
+    can_filter.FilterScale          = CAN_FILTERSCALE_16BIT;
+    can_filter.FilterActivation     = CAN_FILTER_ENABLE;
+    can_filter.FilterIdLow          = MASKMODE_16BIT_ID_OPEN;
+    can_filter.FilterMaskIdLow      = MASKMODE_16BIT_MASK_OPEN;
+    can_filter.FilterIdHigh         = MASKMODE_16BIT_ID_OPEN;
+    can_filter.FilterMaskIdHigh     = MASKMODE_16BIT_MASK_OPEN;
+    can_filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+    can_filter.FilterBank           = 0;
 
-    // Initialize two 16-bit filters for each filter bank
-    for (uint32_t i = 0; i < num_of_filters / 2; i++)
-    {
-        // Configure filter settings
-        can_filter.FilterIdLow          = filters[i].id;
-        can_filter.FilterMaskIdLow      = filters[i].mask;
-        can_filter.FilterIdHigh         = filters[i + 1].id;
-        can_filter.FilterMaskIdHigh     = filters[i + 1].mask;
-        can_filter.FilterFIFOAssignment = fifo;
-        can_filter.FilterBank           = filter_bank;
-
-        // Alternate between the two FIFOs
-        fifo = !fifo;
-
-        // Update filter bank for next iteration
-        filter_bank = filter_bank + 1;
-
-        // Configure and initialize filter bank
-        if (HAL_CAN_ConfigFilter(hcan, &can_filter) != HAL_OK)
-        {
-            return ERROR;
-        }
-    }
-
-    // For the odd-one-out filter, initialize two identical 16-bit filters
-    // because each filter bank requires two 16-bit filters
-    if (is_odd)
-    {
-        // Configure filter settings
-        uint32_t last_filter_index      = num_of_filters - 1;
-        can_filter.FilterIdLow          = filters[last_filter_index].id;
-        can_filter.FilterMaskIdLow      = filters[last_filter_index].mask;
-        can_filter.FilterIdHigh         = filters[last_filter_index].id;
-        can_filter.FilterMaskIdHigh     = filters[last_filter_index].mask;
-        can_filter.FilterFIFOAssignment = fifo;
-        can_filter.FilterBank           = filter_bank;
-
-        // Configure and initialize filter bank
-        if (HAL_CAN_ConfigFilter(hcan, &can_filter) != HAL_OK)
-        {
-            return ERROR;
-        }
-    }
-
-    return SUCCESS;
+    // Configure and initialize filter bank
+    if (HAL_CAN_ConfigFilter(hcan, &can_filter) != HAL_OK)
+        return ERROR;
+    else
+        return SUCCESS;
 }
 
 static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *message)
@@ -230,6 +212,9 @@ static inline void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
     if (HAL_CAN_GetRxMessage(hcan, rx_fifo, &header, &message.data[0]) ==
         HAL_OK)
     {
+        // TODO (#501): We should just return here if rx_header.StdId doesn't
+        // pass the software filter.
+
         // Copy metadata from HAL's CAN message struct into our custom CAN
         // message struct
         message.std_id = header.StdId;
@@ -254,13 +239,9 @@ static inline void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedCan_Init(
-    CAN_HandleTypeDef *        hcan,
-    CanMaskFilterConfig_Struct filters[],
-    uint32_t                   num_of_filters)
+void SharedCan_Init(CAN_HandleTypeDef *hcan)
 {
     shared_assert(hcan != NULL);
-    shared_assert(filters != NULL);
 
     // Initialize CAN TX software queue
     can_tx_msg_fifo.handle = xQueueCreateStatic(
@@ -279,9 +260,8 @@ void SharedCan_Init(
         can_rx_msg_fifo.storage, &can_rx_msg_fifo.state);
     shared_assert(can_rx_msg_fifo.handle != NULL);
 
-    // Initialize CAN hardware filters
-    shared_assert(
-        Io_InitializeFilters(hcan, filters, num_of_filters) == SUCCESS);
+    // Initialize CAN RX hardware filters
+    shared_assert(Io_InitializeAllOpenFilters(hcan) == SUCCESS);
 
     // Configure interrupt mode for CAN peripheral
     shared_assert(

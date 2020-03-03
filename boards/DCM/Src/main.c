@@ -338,8 +338,7 @@ static void MX_CAN_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN CAN_Init 2 */
-    SharedCan_Init(
-        &hcan, Io_Can_GetCanMaskFilters(), Io_Can_GetNumberOfCanMaskFilters());
+    SharedCan_Init(&hcan);
     /* USER CODE END CAN_Init 2 */
 }
 

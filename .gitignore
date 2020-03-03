@@ -92,6 +92,7 @@ src/**/*.xml
 !**/.idea/misc.xml
 !**/.idea/runConfigurations/*
 auto_generated/
+__lib__/
 
 # Miscellaneous
 *.tra
