@@ -32,6 +32,7 @@
 #include "SharedHardFaultHandler.h"
 #include "SharedAssert.h"
 #include "App_StackWaterMark.h"
+#include "States/App_StateMachine.h"
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/App_CanRx.h"
 /* USER CODE END Includes */
@@ -108,6 +109,7 @@ int main(void)
     SharedHardFaultHandler_Init();
     App_CanTx_Init();
     App_CanRx_Init();
+    App_StateMachine_Init();
     /* USER CODE END 1 */
 
     /* MCU
@@ -518,6 +520,7 @@ void RunTask1Hz(void const *argument)
 
     for (;;)
     {
+        App_StateMachine_Tick();
         App_StackWaterMark_Check();
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1000U);
     }
