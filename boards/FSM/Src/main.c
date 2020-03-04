@@ -449,6 +449,7 @@ void RunTask1Hz(void const *argument)
 
     for (;;)
     {
+        App_StateMachine_Tick();
         App_StackWaterMark_Check();
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1000U);
     }

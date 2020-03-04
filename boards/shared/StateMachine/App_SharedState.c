@@ -142,7 +142,6 @@ void App_SharedState_SetNextState(
     StateHandle_t new_state_handle)
 {
     shared_assert(state_handle != NULL);
-    shared_assert(new_state_handle != NULL);
 
     State_t *state    = prvGetStateFromHandle(state_handle);
     state->next_state = prvGetStateFromHandle(new_state_handle);

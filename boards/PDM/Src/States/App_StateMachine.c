@@ -4,7 +4,7 @@
 #include "States/App_DriveState.h"
 #include "States/App_FaultState.h"
 
-StateMachineHandle_t state_machine;
+static StateMachineHandle_t state_machine;
 
 void App_StateMachine_Init(void)
 {
@@ -24,4 +24,9 @@ void App_StateMachine_Init(void)
 
     App_SharedStateMachine_Init(
         "STATE MACHINE", state_machine, init_state_handle);
+}
+
+void App_StateMachine_Tick(void)
+{
+    App_SharedStateMachine_Tick(state_machine);
 }

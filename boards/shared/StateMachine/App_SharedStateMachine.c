@@ -69,6 +69,10 @@ void App_SharedStateMachine_Init(
 
     StateMachine_t *state_machine =
         prvGetStateMachineFromHandle(state_machine_handle);
+
+    // Our state machine doesn't really support the semantics of being
+    // initialized more than one time.
+    shared_assert(state_machine->initialized == false);
     shared_assert(state_machine->state_table_handle != NULL);
 
     // Check if the initial state has already been added
@@ -81,7 +85,11 @@ void App_SharedStateMachine_Init(
 
     strncpy(state_machine->name, name, MAX_STATE_MACHINE_NAME_LENGTH);
     state_machine->current_state = initial_state;
-    state_machine->initialized   = true;
+
+    // We need to manually call the first on-entry function
+    App_SharedState_RunOnEntry(state_machine->current_state);
+
+    state_machine->initialized = true;
 }
 
 void App_SharedStateMachine_Tick(StateMachineHandle_t state_machine_handle)
