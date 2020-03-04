@@ -1,6 +1,16 @@
 #include "States/App_FaultState.h"
 
-StateHandle_t fault_state_handle;
+static StateHandle_t fault_state_handle;
+
+StateHandle_t *App_FaultState_GetStateHandlePointer(void)
+{
+    return &fault_state_handle;
+}
+
+StateHandle_t App_FaultState_GetStateHandle(void)
+{
+    return fault_state_handle;
+}
 
 void App_FaultState_EntryAction(void) {}
 

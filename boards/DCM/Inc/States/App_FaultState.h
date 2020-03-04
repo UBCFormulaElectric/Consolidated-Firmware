@@ -2,8 +2,8 @@
 
 #include "App_SharedState.h"
 
-extern StateHandle_t fault_state_handle;
-
-void App_FaultState_EntryAction(void);
-void App_FaultState_ExitAction(void);
-void App_FaultState_StateAction(void);
+StateHandle_t *App_FaultState_GetStateHandlePointer(void);
+StateHandle_t  App_FaultState_GetStateHandle(void);
+void           App_FaultState_EntryAction(void);
+void           App_FaultState_ExitAction(void);
+void           App_FaultState_StateAction(void);

@@ -1,6 +1,16 @@
 #include "States/App_DriveState.h"
 
-StateHandle_t drive_state_handle;
+static StateHandle_t drive_state_handle;
+
+StateHandle_t *App_DriveState_GetStateHandlePointer(void)
+{
+    return &drive_state_handle;
+}
+
+StateHandle_t App_DriveState_GetStateHandle(void)
+{
+    return drive_state_handle;
+}
 
 void App_DriveState_EntryAction(void) {}
 
