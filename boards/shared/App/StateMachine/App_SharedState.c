@@ -8,11 +8,11 @@ typedef struct State
     // State name (For debugging only)
     char name[MAX_STATE_NAME_LENGTH];
     // Function that runs as we enter this state
-    void (*run_on_entry)(void);
+    void (*run_on_entry)(WorldInterface* world);
     // Function that runs as we exit this state
-    void (*run_on_exit)(void);
+    void (*run_on_exit)(WorldInterface* world);
     // Function that runs at every 'tick' of the state machine
-    void (*run_state_action)(void);
+    void (*run_state_action)(WorldInterface* world);
     // next_state == NULL means no state transition requested
     // next_state != NULL means state transition requested
     struct State *next_state;
@@ -113,28 +113,28 @@ bool App_SharedState_IsStateInStateTable(
     return found;
 }
 
-void App_SharedState_RunOnEntry(StateHandle_t state_handle)
+void App_SharedState_RunOnEntry(StateHandle_t state_handle, WorldInterface* world)
 {
     shared_assert(state_handle != NULL);
 
     State_t *state = prvGetStateFromHandle(state_handle);
-    state->run_on_entry();
+    state->run_on_entry(world);
 }
 
-void App_SharedState_RunOnExit(StateHandle_t state_handle)
+void App_SharedState_RunOnExit(StateHandle_t state_handle, WorldInterface* world)
 {
     shared_assert(state_handle != NULL);
 
     State_t *state = prvGetStateFromHandle(state_handle);
-    state->run_on_exit();
+    state->run_on_exit(world);
 }
 
-void App_SharedState_RunStateAction(StateHandle_t state_handle)
+void App_SharedState_RunStateAction(StateHandle_t state_handle, WorldInterface* world)
 {
     shared_assert(state_handle != NULL);
 
     State_t *state = prvGetStateFromHandle(state_handle);
-    state->run_state_action();
+    state->run_state_action(world);
 }
 
 void App_SharedState_SetNextState(

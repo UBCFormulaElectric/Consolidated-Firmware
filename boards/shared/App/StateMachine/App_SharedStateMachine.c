@@ -92,7 +92,7 @@ void App_SharedStateMachine_Init(
     state_machine->initialized = true;
 }
 
-void App_SharedStateMachine_Tick(StateMachineHandle_t state_machine_handle)
+void App_SharedStateMachine_Tick(StateMachineHandle_t state_machine_handle, WorldInterface* world)
 {
     shared_assert(state_machine_handle != NULL);
 
@@ -102,7 +102,7 @@ void App_SharedStateMachine_Tick(StateMachineHandle_t state_machine_handle)
     shared_assert(state_machine->initialized == true);
 
     // Run the state action associated with the current state
-    App_SharedState_RunStateAction(state_machine->current_state);
+    App_SharedState_RunStateAction(state_machine->current_state, world);
 
     // Check if the state action caused a state transition
     StateHandle_t next_state =
@@ -116,10 +116,10 @@ void App_SharedStateMachine_Tick(StateMachineHandle_t state_machine_handle)
         App_SharedState_SetNextState(state_machine->current_state, NULL);
 
         // Run on-exit function before going to next state
-        App_SharedState_RunOnExit(state_machine->current_state);
+        App_SharedState_RunOnExit(state_machine->current_state, world);
 
         // Go to next state
         state_machine->current_state = next_state;
-        App_SharedState_RunOnEntry(state_machine->current_state);
+        App_SharedState_RunOnEntry(state_machine->current_state, world);
     }
 }

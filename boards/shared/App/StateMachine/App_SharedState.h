@@ -42,9 +42,9 @@ StateTableHandle_t App_SharedState_AllocStateTable(void);
 StateHandle_t App_SharedState_AddStateToStateTable(
     StateTableHandle_t state_table_handle,
     char *             state_name,
-    void (*run_on_entry)(void),
-    void (*run_on_exit)(void),
-    void (*run_state_action)(void));
+    void (*run_on_entry)(WorldInterface* world),
+    void (*run_on_exit)(WorldInterface* world),
+    void (*run_state_action)(WorldInterface* world));
 
 /**
  * Check if a state is in a state table.
@@ -60,19 +60,19 @@ bool App_SharedState_IsStateInStateTable(
  * Run the on-entry function of a state handle.
  * @param state_handle: Handle to the subject state
  */
-void App_SharedState_RunOnEntry(StateHandle_t state_handle);
+void App_SharedState_RunOnEntry(StateHandle_t state_handle, WorldInterface* world);
 
 /**
  * Run the on-exit function of a state handle.
  * @param state_handle: Handle to the subject state
  */
-void App_SharedState_RunOnExit(StateHandle_t state_handle);
+void App_SharedState_RunOnExit(StateHandle_t state_handle, WorldInterface* world);
 
 /**
  * Run the state action of a state handle.
  * @param state_handle: Handle to the subject state
  */
-void App_SharedState_RunStateAction(StateHandle_t state_handle);
+void App_SharedState_RunStateAction(StateHandle_t state_handle, WorldInterface* world);
 
 /**
  * Set the next state handle of a state handle.

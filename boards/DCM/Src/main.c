@@ -61,6 +61,8 @@ DAC_HandleTypeDef hdac;
 
 IWDG_HandleTypeDef hiwdg;
 
+static WorldInterface *world;
+
 osThreadId          Task1HzHandle;
 uint32_t            Task1HzBuffer[TASK1HZ_STACK_SIZE];
 osStaticThreadDef_t Task1HzControlBlock;
@@ -110,6 +112,30 @@ int main(void)
     App_CanTx_Init();
     App_CanRx_Init();
     App_StateMachine_Init();
+
+    // I know the function signature doesn't exactly match here, but we could
+    // pretty easily change it to match
+    App_Gpio_Interface *app_gpio_interface =
+        App_Gpio_Alloc(SharedGpio_GPIO_WritePin);
+    App_Adc_Interface *app_adc_interface =
+        App_Adc_Alloc(SharedAdc_GetAdcVoltage);
+
+    // These functions would have to be generated, but we'd have to call them
+    // manually, which is kinda a pain, but not _terrible_
+    App_CanRx_Interface *app_can_rx_interface =
+        App_CanRx_Alloc(App_CanRx_BMS_HEARTBEAT_GetSignal_DUMMY_VARIABLE);
+    App_CanTx_Interface *app_can_tx_interface = App_CanTx_Alloc(
+        App_CanTx_SetPeriodicSignal_DUMMY_VARIABLE,
+        App_CanTx_SetPeriodicSignal_DUMMY_VARIABLE,
+        App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT,
+        App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT,
+        App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_HZ,
+        App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_KHZ,
+        App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX,
+        App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX);
+
+    world = App_World_Alloc(
+        can_rx_interface, can_tx_interface, adc_interface, gpio_interface);
     /* USER CODE END 1 */
 
     /* MCU
@@ -520,7 +546,7 @@ void RunTask1Hz(void const *argument)
 
     for (;;)
     {
-        App_StateMachine_Tick();
+        App_StateMachine_Tick(world);
         App_StackWaterMark_Check();
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1000U);
     }

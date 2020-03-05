@@ -12,6 +12,8 @@
 // The state machine library relies on the the state library
 #include "App_SharedState.h"
 
+#include "App_WorldInterface.h"
+
 // Anonymous type by which state machines are referenced.
 typedef void *StateMachineHandle_t;
 
@@ -55,4 +57,4 @@ void App_SharedStateMachine_Init(
  * Run a single tick of the state machine.
  * @param state_machine: State machine
  */
-void App_SharedStateMachine_Tick(StateMachineHandle_t state_machine);
+void App_SharedStateMachine_Tick(StateMachineHandle_t state_machine, WorldInterface* world);

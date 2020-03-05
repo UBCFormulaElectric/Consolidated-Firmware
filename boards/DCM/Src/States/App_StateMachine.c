@@ -31,7 +31,7 @@ void App_StateMachine_Init(void)
         "STATE MACHINE", state_machine, App_InitState_GetStateHandle());
 }
 
-void App_StateMachine_Tick(void)
+void App_StateMachine_Tick(WorldInterface* world)
 {
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick(state_machine, world);
 }
