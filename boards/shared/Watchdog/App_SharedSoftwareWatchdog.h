@@ -1,5 +1,8 @@
 /**
- * @brief Monitor task deadlines by assigning a software watchdog to each task.
+ * @brief Monitor task deadlines by assigning a software watchdog to each
+ *        periodic task.
+ * @note The current implementation doesn't really support monitoring
+ *       "non-periodic" tasks (e.g. CAN TX).
  */
 #pragma once
 
