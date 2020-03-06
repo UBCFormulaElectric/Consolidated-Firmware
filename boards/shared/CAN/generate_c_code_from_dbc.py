@@ -34,7 +34,9 @@ if __name__ == "__main__":
     database = load_file(args.dbc, database_format="dbc")
     for msg in list(msg for msg in map(Message, database.messages)):
         for signal in msg.signals:
-            if signal.type_length > 32:
+            # We don't worry about non-periodic messages because those aren't
+            # store in a global table and thus don't have race condition.
+            if signal.type_length > 32 and msg.cycle_time != 0:
                 raise Exception(
                     "[%s] -> [%s] must be less than 32-bit to ensure atomic access on our 32-bit microcontrollers!" % (msg.snake_name, signal.snake_name))
 

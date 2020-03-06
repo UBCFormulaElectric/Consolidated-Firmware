@@ -24,7 +24,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "SharedWatchdog.h"
+#include "App_SharedSoftwareWatchdog.h"
 #include "SharedConstants.h"
 #include "SharedCmsisOs.h"
 #include "SharedCan.h"
@@ -33,6 +33,7 @@
 #include "SharedAssert.h"
 #include "App_StackWaterMark.h"
 #include "States/App_StateMachine.h"
+#include "App_SoftwareWatchdog.h"
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/App_CanRx.h"
 /* USER CODE END Includes */
@@ -171,13 +172,13 @@ int main(void)
 
     /* definition and creation of TaskCanRx */
     osThreadStaticDef(
-        TaskCanRx, RunTaskCanRx, osPriorityRealtime, 0, TASKCANRX_STACK_SIZE,
+        TaskCanRx, RunTaskCanRx, osPriorityIdle, 0, TASKCANRX_STACK_SIZE,
         TaskCanRxBuffer, &TaskCanRxControlBlock);
     TaskCanRxHandle = osThreadCreate(osThread(TaskCanRx), NULL);
 
     /* definition and creation of TaskCanTx */
     osThreadStaticDef(
-        TaskCanTx, RunTaskCanTx, osPriorityRealtime, 0, TASKCANTX_STACK_SIZE,
+        TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, TASKCANTX_STACK_SIZE,
         TaskCanTxBuffer, &TaskCanTxControlBlock);
     TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
 
@@ -400,7 +401,8 @@ static void MX_IWDG_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
-    SharedWatchdog_SetIwdgInitialized(&hiwdg);
+    App_SharedSoftwareWatchdog_Init(
+        Io_HardwareWatchdog_Refresh, App_SoftwareWatchdog_TimeoutCallback);
     /* USER CODE END IWDG_Init 2 */
 }
 
@@ -516,13 +518,20 @@ void RunTask1Hz(void const *argument)
 {
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
-    uint32_t PreviousWakeTime = osKernelSysTick();
+    uint32_t                 PreviousWakeTime = osKernelSysTick();
+    static const TickType_t  period_ms        = 1000U;
+    SoftwareWatchdogHandle_t watchdog =
+        App_SharedSoftwareWatchdog_AllocateWatchdog();
+    App_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1HZ", period_ms);
 
     for (;;)
     {
         App_StateMachine_Tick();
         App_StackWaterMark_Check();
-        (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1000U);
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep.
+        App_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END 5 */
 }
@@ -538,14 +547,19 @@ void RunTask1kHz(void const *argument)
 {
     /* USER CODE BEGIN RunTask1kHz */
     UNUSED(argument);
-    uint32_t PreviousWakeTime = osKernelSysTick();
+    uint32_t                 PreviousWakeTime = osKernelSysTick();
+    static const TickType_t  period_ms        = 1U;
+    SoftwareWatchdogHandle_t watchdog =
+        App_SharedSoftwareWatchdog_AllocateWatchdog();
+    App_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1KHZ", period_ms);
 
     for (;;)
     {
         App_CanTx_TransmitPeriodicMessages();
-        // TODO (#361) :Implement proper watchdog check-in mechanism
-        SharedWatchdog_RefreshIwdg();
-        (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, 1U);
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep.
+        App_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END RunTask1kHz */
 }

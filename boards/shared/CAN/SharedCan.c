@@ -130,6 +130,11 @@ static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *message);
  */
 static void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo);
 
+/*
+ * @brief Consolidate CAN TX complete callback into one function
+ */
+static inline void Io_CanTxCompleteCallback(void);
+
 /**
  * Initializes the filters on the given CAN interface to allow all msgs through
  * @param hcan The interface to set the fully open filter on
@@ -233,6 +238,17 @@ static inline void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
         }
 
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    }
+}
+
+static inline void Io_CanTxCompleteCallback(void)
+{
+    // We don't want to wake up CAN TX task if there is no message waiting to
+    // be sent.
+    if (uxQueueMessagesWaitingFromISR(CanTxBinarySemaphore.handle) == 0U &&
+        uxQueueMessagesWaitingFromISR(can_tx_msg_fifo.handle) > 0)
+    {
+        xSemaphoreGiveFromISR(CanTxBinarySemaphore.handle, NULL);
     }
 }
 
@@ -354,15 +370,10 @@ void App_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void)
            uxQueueMessagesWaiting(can_tx_msg_fifo.handle) > 0)
     {
         struct CanMsg message;
-        if (xQueuePeek(can_tx_msg_fifo.handle, &message, 0) == pdTRUE)
+
+        if (xQueueReceive(can_tx_msg_fifo.handle, &message, 0) == pdTRUE)
         {
             (void)Io_TransmitCanMessage(&message);
-
-            // Remove the message from CAN TX queue if we were able to transmit
-            // it. This should never fail. If it ever does, then the CAN TX
-            // queue is probably being consumed somewhere else by mistake.
-            shared_assert(
-                xQueueReceive(can_tx_msg_fifo.handle, &message, 0) == pdTRUE);
         }
     }
 }
@@ -383,19 +394,19 @@ void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
 {
     /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
     UNUSED(hcan);
-    xSemaphoreGiveFromISR(CanTxBinarySemaphore.handle, NULL);
+    Io_CanTxCompleteCallback();
 }
 
 void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef *hcan)
 {
     /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
     UNUSED(hcan);
-    xSemaphoreGiveFromISR(CanTxBinarySemaphore.handle, NULL);
+    Io_CanTxCompleteCallback();
 }
 
 void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan)
 {
     /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
     UNUSED(hcan);
-    xSemaphoreGiveFromISR(CanTxBinarySemaphore.handle, NULL);
+    Io_CanTxCompleteCallback();
 }
