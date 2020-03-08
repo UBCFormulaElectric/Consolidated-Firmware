@@ -42,20 +42,21 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-/* Definitions for defaultTask */
-osThreadId_t         defaultTaskHandle;
-const osThreadAttr_t defaultTask_attributes = {
-    .name       = "defaultTask",
-    .priority   = (osPriority_t)osPriorityNormal,
-    .stack_size = 128 * 4
-};
+CAN_HandleTypeDef hcan;
+
+IWDG_HandleTypeDef hiwdg;
+
+osThreadId defaultTaskHandle;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
-void SystemClock_Config(void);
-void StartDefaultTask(void *argument);
+void        SystemClock_Config(void);
+static void MX_GPIO_Init(void);
+static void MX_CAN_Init(void);
+static void MX_IWDG_Init(void);
+void        StartDefaultTask(void const *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -95,12 +96,12 @@ int main(void)
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
+    MX_GPIO_Init();
+    MX_CAN_Init();
+    MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
 
     /* USER CODE END 2 */
-
-    /* Init scheduler */
-    osKernelInitialize();
 
     /* USER CODE BEGIN RTOS_MUTEX */
     /* add mutexes, ... */
@@ -119,9 +120,9 @@ int main(void)
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
-    /* creation of defaultTask */
-    defaultTaskHandle =
-        osThreadNew(StartDefaultTask, NULL, &defaultTask_attributes);
+    /* definition and creation of defaultTask */
+    osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+    defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -153,9 +154,11 @@ void SystemClock_Config(void)
 
     /** Initializes the CPU, AHB and APB busses clocks
      */
-    RCC_OscInitStruct.OscillatorType      = RCC_OSCILLATORTYPE_HSI;
+    RCC_OscInitStruct.OscillatorType =
+        RCC_OSCILLATORTYPE_HSI | RCC_OSCILLATORTYPE_LSI;
     RCC_OscInitStruct.HSIState            = RCC_HSI_ON;
     RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
+    RCC_OscInitStruct.LSIState            = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState        = RCC_PLL_NONE;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
@@ -167,13 +170,152 @@ void SystemClock_Config(void)
                                   RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_HSI;
     RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
-    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+    RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
     {
         Error_Handler();
     }
+}
+
+/**
+ * @brief CAN Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_CAN_Init(void)
+{
+    /* USER CODE BEGIN CAN_Init 0 */
+
+    /* USER CODE END CAN_Init 0 */
+
+    /* USER CODE BEGIN CAN_Init 1 */
+
+    /* USER CODE END CAN_Init 1 */
+    hcan.Instance                  = CAN;
+    hcan.Init.Prescaler            = 16;
+    hcan.Init.Mode                 = CAN_MODE_NORMAL;
+    hcan.Init.SyncJumpWidth        = CAN_SJW_1TQ;
+    hcan.Init.TimeSeg1             = CAN_BS1_1TQ;
+    hcan.Init.TimeSeg2             = CAN_BS2_1TQ;
+    hcan.Init.TimeTriggeredMode    = DISABLE;
+    hcan.Init.AutoBusOff           = DISABLE;
+    hcan.Init.AutoWakeUp           = DISABLE;
+    hcan.Init.AutoRetransmission   = DISABLE;
+    hcan.Init.ReceiveFifoLocked    = DISABLE;
+    hcan.Init.TransmitFifoPriority = DISABLE;
+    if (HAL_CAN_Init(&hcan) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN CAN_Init 2 */
+
+    /* USER CODE END CAN_Init 2 */
+}
+
+/**
+ * @brief IWDG Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_IWDG_Init(void)
+{
+    /* USER CODE BEGIN IWDG_Init 0 */
+
+    /* USER CODE END IWDG_Init 0 */
+
+    /* USER CODE BEGIN IWDG_Init 1 */
+
+    /* USER CODE END IWDG_Init 1 */
+    hiwdg.Instance       = IWDG;
+    hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
+    hiwdg.Init.Window    = IWDG_WINDOW_DISABLE_VALUE;
+    hiwdg.Init.Reload    = IWDG_WINDOW_DISABLE_VALUE;
+    if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN IWDG_Init 2 */
+
+    /* USER CODE END IWDG_Init 2 */
+}
+
+/**
+ * @brief GPIO Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_GPIO_Init(void)
+{
+    GPIO_InitTypeDef GPIO_InitStruct = { 0 };
+
+    /* GPIO Ports Clock Enable */
+    __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOF_CLK_ENABLE();
+    __HAL_RCC_GPIOA_CLK_ENABLE();
+    __HAL_RCC_GPIOB_CLK_ENABLE();
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(
+        GPIOC, BSPD_LED_Pin | PDM_R_Pin | PDM_G_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(
+        GPIOA,
+        DCM_B_Pin | DIM_G_Pin | DIM_B_Pin | PDM_RA3_Pin | DCM_G_Pin |
+            PDM_B_Pin | FSM_G_Pin | BMS_B_Pin | SEG_DIMMING_Pin,
+        GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(
+        GPIOB,
+        DCM_R_Pin | BMS_G_Pin | FSM_R_Pin | FSM_B_Pin | BMS_R_Pin |
+            SEG_SRCK_Pin | SEG_SEROUT_Pin | SEG_RCK_Pin | IMD_LED_Pin,
+        GPIO_PIN_RESET);
+
+    /*Configure GPIO pins : BSPD_LED_Pin PDM_R_Pin PDM_G_Pin */
+    GPIO_InitStruct.Pin   = BSPD_LED_Pin | PDM_R_Pin | PDM_G_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : DCM_B_Pin DIM_G_Pin DIM_B_Pin PDM_RA3_Pin
+                             DCM_G_Pin PDM_B_Pin FSM_G_Pin BMS_B_Pin
+                             SEG_DIMMING_Pin */
+    GPIO_InitStruct.Pin = DCM_B_Pin | DIM_G_Pin | DIM_B_Pin | PDM_RA3_Pin |
+                          DCM_G_Pin | PDM_B_Pin | FSM_G_Pin | BMS_B_Pin |
+                          SEG_DIMMING_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : DCM_R_Pin BMS_G_Pin FSM_R_Pin FSM_B_Pin
+                             BMS_R_Pin SEG_SRCK_Pin SEG_SEROUT_Pin SEG_RCK_Pin
+                             IMD_LED_Pin */
+    GPIO_InitStruct.Pin = DCM_R_Pin | BMS_G_Pin | FSM_R_Pin | FSM_B_Pin |
+                          BMS_R_Pin | SEG_SRCK_Pin | SEG_SEROUT_Pin |
+                          SEG_RCK_Pin | IMD_LED_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : REGEN_Pin DRIVE_MODE5_Pin DRIVE_MODE1_Pin
+       TRAC_CTRL_Pin TORQ_VECT_Pin IGNTN_Pin */
+    GPIO_InitStruct.Pin = REGEN_Pin | DRIVE_MODE5_Pin | DRIVE_MODE1_Pin |
+                          TRAC_CTRL_Pin | TORQ_VECT_Pin | IGNTN_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : DRIVE_MODE4_Pin DRIVE_MODE3_Pin DRIVE_MODE2_Pin */
+    GPIO_InitStruct.Pin  = DRIVE_MODE4_Pin | DRIVE_MODE3_Pin | DRIVE_MODE2_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 }
 
 /* USER CODE BEGIN 4 */
@@ -187,7 +329,7 @@ void SystemClock_Config(void)
  * @retval None
  */
 /* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void *argument)
+void StartDefaultTask(void const *argument)
 {
     /* USER CODE BEGIN 5 */
     /* Infinite loop */

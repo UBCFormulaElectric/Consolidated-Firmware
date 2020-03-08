@@ -35,7 +35,7 @@
 #define HAL_MODULE_ENABLED  
   /*#define HAL_ADC_MODULE_ENABLED   */
 /*#define HAL_CRYP_MODULE_ENABLED   */
-/*#define HAL_CAN_MODULE_ENABLED   */
+#define HAL_CAN_MODULE_ENABLED
 /*#define HAL_CEC_MODULE_ENABLED   */
 /*#define HAL_NAND_MODULE_ENABLED   */
 /*#define HAL_NOR_MODULE_ENABLED   */
@@ -50,13 +50,13 @@
 /*#define HAL_CRYP_MODULE_ENABLED   */
 /*#define HAL_DAC_MODULE_ENABLED   */
 /*#define HAL_I2S_MODULE_ENABLED   */
-/*#define HAL_IWDG_MODULE_ENABLED   */
+#define HAL_IWDG_MODULE_ENABLED
 /*#define HAL_LCD_MODULE_ENABLED   */
 /*#define HAL_LPTIM_MODULE_ENABLED   */
 /*#define HAL_RNG_MODULE_ENABLED   */
 /*#define HAL_RTC_MODULE_ENABLED   */
 /*#define HAL_SPI_MODULE_ENABLED   */
-/*#define HAL_TIM_MODULE_ENABLED   */
+#define HAL_TIM_MODULE_ENABLED
 /*#define HAL_UART_MODULE_ENABLED   */
 /*#define HAL_USART_MODULE_ENABLED   */
 /*#define HAL_IRDA_MODULE_ENABLED   */
@@ -150,7 +150,7 @@
   */     
 
 #define  VDD_VALUE                   ((uint32_t)3300) /*!< Value of VDD in mv */
-#define  TICK_INT_PRIORITY            ((uint32_t)15)    /*!< tick interrupt priority (lowest by default)  */            
+#define  TICK_INT_PRIORITY            ((uint32_t)0)    /*!< tick interrupt priority (lowest by default)  */            
 #define  USE_RTOS                     0
 #define  PREFETCH_ENABLE              1
 #define  INSTRUCTION_CACHE_ENABLE     0

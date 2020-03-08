@@ -343,10 +343,10 @@
         <option>
           <name>CCIncludePath2</name>
           <state>$PROJ_DIR$/../Inc</state>
-          <state>$PROJ_DIR$/../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy</state>
           <state>$PROJ_DIR$/../Drivers/STM32F3xx_HAL_Driver/Inc</state>
+          <state>$PROJ_DIR$/../Drivers/STM32F3xx_HAL_Driver/Inc/Legacy</state>
           <state>$PROJ_DIR$/../Middlewares/Third_Party/FreeRTOS/Source/include</state>
-          <state>$PROJ_DIR$/../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2</state>
+          <state>$PROJ_DIR$/../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS</state>
           <state>$PROJ_DIR$/../Middlewares/Third_Party/FreeRTOS/Source/portable/IAR/ARM_CM4F</state>
           <state>$PROJ_DIR$/../Drivers/CMSIS/Device/ST/STM32F3xx/Include</state>
           <state>$PROJ_DIR$/../Drivers/CMSIS/Include</state>
@@ -1053,6 +1053,9 @@
     <group>
       <name>STM32F3xx_HAL_Driver</name>
       <file>
+        <name>$PROJ_DIR$/../Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_can.c</name>
+      </file>
+      <file>
         <name>$PROJ_DIR$/../Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal.c</name>
       </file>
       <file>
@@ -1090,6 +1093,9 @@
       </file>
       <file>
         <name>$PROJ_DIR$/../Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_exti.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_iwdg.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$/../Drivers/STM32F3xx_HAL_Driver/Src/stm32f3xx_hal_tim.c</name>
@@ -1131,7 +1137,7 @@
         <name>$PROJ_DIR$/../Middlewares/Third_Party/FreeRTOS/Source/timers.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$/../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS_V2/cmsis_os2.c</name>
+        <name>$PROJ_DIR$/../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$/../Middlewares/Third_Party/FreeRTOS/Source/portable/MemMang/heap_4.c</name>
