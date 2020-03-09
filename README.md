@@ -5,6 +5,7 @@ A consolidated repository for gathering all firmware under one roof.
 - [Project Setup](#project-setup)
   - [Environment Dependencies](#environment-dependencies)
   - [Python Package Dependencies](#python-package-dependencies)
+  - [STM32CubeMX](#stm32cubemx)
   - [CLion](#clion)
 - [Continuous Integration (CI)](#continuous-integration-ci)
     - [CommentPragmas](#commentpragmas)
