@@ -11,11 +11,13 @@ typedef struct {
     uint8_t temp;
 }FlowMeter;
 
+
 typedef struct {
     uint8_t swag;
     uint8_t class;
 
 } FlowMeterSettings;
+
 
 typedef struct {
     uint32_t reds;
