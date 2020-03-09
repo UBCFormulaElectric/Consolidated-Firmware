@@ -34,6 +34,7 @@
 #include "Io_Can.h"
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/App_CanRx.h"
+#include "arm_math.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -58,6 +59,9 @@ CAN_HandleTypeDef hcan;
 
 IWDG_HandleTypeDef hiwdg;
 
+TIM_HandleTypeDef htim1;
+TIM_HandleTypeDef htim2;
+
 osThreadId          Task1HzHandle;
 uint32_t            Task1HzBuffer[128];
 osStaticThreadDef_t Task1HzControlBlock;
@@ -80,6 +84,8 @@ static void MX_GPIO_Init(void);
 static void MX_CAN_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_IWDG_Init(void);
+static void MX_TIM1_Init(void);
+static void MX_TIM2_Init(void);
 void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
 void        RunTaskCanRx(void const *argument);
@@ -130,8 +136,15 @@ int main(void)
     MX_CAN_Init();
     MX_ADC1_Init();
     MX_IWDG_Init();
+    MX_TIM1_Init();
+    MX_TIM2_Init();
     /* USER CODE BEGIN 2 */
+    // Initialize sample PWM for testing
+    // Generate 1kHz PWM Signal
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 
+    // Initialize edge detection timer for PWM input capture
+    HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_3);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -183,7 +196,6 @@ int main(void)
     /* USER CODE END RTOS_THREADS */
 
     /* Start scheduler */
-    osKernelStart();
 
     /* We should never get here as control is now taken by the scheduler */
 
@@ -194,6 +206,19 @@ int main(void)
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
+        // If rising edge interrupt detected
+        bool     flag = false;
+        uint32_t ic_rising_edge =
+            HAL_TIM_ReadCapturedValue(&htim2, TIM_CHANNEL_3);
+        uint32_t  getClkFreq        = HAL_RCC_GetPCLK1Freq();
+        float32_t measuredFrequency = getClkFreq / ic_rising_edge;
+        if (ic_rising_edge != 0U)
+            flag = true;
+
+        UNUSED(ic_rising_edge);
+        UNUSED(flag);
+        UNUSED(getClkFreq);
+        UNUSED(measuredFrequency);
     }
     /* USER CODE END 3 */
 }
@@ -236,8 +261,10 @@ void SystemClock_Config(void)
     {
         Error_Handler();
     }
-    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC1;
-    PeriphClkInit.Adc1ClockSelection   = RCC_ADC1PLLCLK_DIV1;
+    PeriphClkInit.PeriphClockSelection =
+        RCC_PERIPHCLK_TIM1 | RCC_PERIPHCLK_ADC1;
+    PeriphClkInit.Tim1ClockSelection = RCC_TIM1CLK_HCLK;
+    PeriphClkInit.Adc1ClockSelection = RCC_ADC1PLLCLK_DIV1;
 
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
     {
@@ -362,6 +389,148 @@ static void MX_IWDG_Init(void)
 }
 
 /**
+ * @brief TIM1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM1_Init(void)
+{
+    /* USER CODE BEGIN TIM1_Init 0 */
+
+    /* USER CODE END TIM1_Init 0 */
+
+    TIM_ClockConfigTypeDef         sClockSourceConfig   = { 0 };
+    TIM_MasterConfigTypeDef        sMasterConfig        = { 0 };
+    TIM_OC_InitTypeDef             sConfigOC            = { 0 };
+    TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = { 0 };
+
+    /* USER CODE BEGIN TIM1_Init 1 */
+
+    /* USER CODE END TIM1_Init 1 */
+    htim1.Instance               = TIM1;
+    htim1.Init.Prescaler         = 71;
+    htim1.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim1.Init.Period            = 99;
+    htim1.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim1.Init.RepetitionCounter = 0;
+    htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+    if (HAL_TIM_ConfigClockSource(&htim1, &sClockSourceConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if (HAL_TIM_PWM_Init(&htim1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger  = TIM_TRGO_RESET;
+    sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
+    sMasterConfig.MasterSlaveMode      = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigOC.OCMode       = TIM_OCMODE_PWM1;
+    sConfigOC.Pulse        = 50;
+    sConfigOC.OCPolarity   = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
+    sConfigOC.OCFastMode   = TIM_OCFAST_DISABLE;
+    sConfigOC.OCIdleState  = TIM_OCIDLESTATE_RESET;
+    sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+    if (HAL_TIM_PWM_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sBreakDeadTimeConfig.OffStateRunMode  = TIM_OSSR_DISABLE;
+    sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
+    sBreakDeadTimeConfig.LockLevel        = TIM_LOCKLEVEL_OFF;
+    sBreakDeadTimeConfig.DeadTime         = 0;
+    sBreakDeadTimeConfig.BreakState       = TIM_BREAK_DISABLE;
+    sBreakDeadTimeConfig.BreakPolarity    = TIM_BREAKPOLARITY_HIGH;
+    sBreakDeadTimeConfig.BreakFilter      = 0;
+    sBreakDeadTimeConfig.Break2State      = TIM_BREAK2_DISABLE;
+    sBreakDeadTimeConfig.Break2Polarity   = TIM_BREAK2POLARITY_HIGH;
+    sBreakDeadTimeConfig.Break2Filter     = 0;
+    sBreakDeadTimeConfig.AutomaticOutput  = TIM_AUTOMATICOUTPUT_DISABLE;
+    if (HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM1_Init 2 */
+
+    /* USER CODE END TIM1_Init 2 */
+    HAL_TIM_MspPostInit(&htim1);
+}
+
+/**
+ * @brief TIM2 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM2_Init(void)
+{
+    /* USER CODE BEGIN TIM2_Init 0 */
+
+    /* USER CODE END TIM2_Init 0 */
+
+    TIM_SlaveConfigTypeDef  sSlaveConfig  = { 0 };
+    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
+    TIM_IC_InitTypeDef      sConfigIC     = { 0 };
+
+    /* USER CODE BEGIN TIM2_Init 1 */
+
+    /* USER CODE END TIM2_Init 1 */
+    htim2.Instance               = TIM2;
+    htim2.Init.Prescaler         = 0;
+    htim2.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim2.Init.Period            = 0xffffffff;
+    htim2.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if (HAL_TIM_IC_Init(&htim2) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sSlaveConfig.SlaveMode       = TIM_SLAVEMODE_RESET;
+    sSlaveConfig.InputTrigger    = TIM_TS_TI1FP1;
+    sSlaveConfig.TriggerPolarity = TIM_TRIGGERPOLARITY_RISING;
+    sSlaveConfig.TriggerFilter   = 0;
+    if (HAL_TIM_SlaveConfigSynchronization(&htim2, &sSlaveConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigIC.ICPolarity  = TIM_INPUTCHANNELPOLARITY_RISING;
+    sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
+    sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
+    sConfigIC.ICFilter    = 0;
+    if (HAL_TIM_IC_ConfigChannel(&htim2, &sConfigIC, TIM_CHANNEL_3) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if (HAL_TIM_ConfigTI1Input(&htim2, TIM_TI1SELECTION_XORCOMBINATION) !=
+        HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM2_Init 2 */
+
+    /* USER CODE END TIM2_Init 2 */
+}
+
+/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -377,6 +546,9 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
         GPIOB, STATUS_R_Pin | STATUS_G_Pin | STATUS_B_Pin, GPIO_PIN_SET);
 
@@ -386,14 +558,19 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PA0 PA1 PA2 PA3
-                             PA5 PA6 PA7 PA8
-                             PA9 PA10 */
-    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 |
-                          GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 |
-                          GPIO_PIN_9 | GPIO_PIN_10;
+    /*Configure GPIO pins : PA1 PA3 PA5 PA6
+                             PA7 PA9 PA10 */
+    GPIO_InitStruct.Pin = GPIO_PIN_1 | GPIO_PIN_3 | GPIO_PIN_5 | GPIO_PIN_6 |
+                          GPIO_PIN_7 | GPIO_PIN_9 | GPIO_PIN_10;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : PA2 */
+    GPIO_InitStruct.Pin   = GPIO_PIN_2;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PB0 PB13 PB15 PB6
@@ -405,12 +582,11 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /*Configure GPIO pins : UNUSED_GPIO_2_Pin UNUSED_GPIO_3_Pin
-       UNUSED_GPIO_4_Pin UNUSED_GPIO_5_Pin UNUSED_GPIO_6_Pin UNUSED_GPIO_7_Pin
-       UNUSED_GPIO_8_Pin */
+       UNUSED_GPIO_5_Pin UNUSED_GPIO_6_Pin UNUSED_GPIO_7_Pin UNUSED_GPIO_8_Pin
+     */
     GPIO_InitStruct.Pin = UNUSED_GPIO_2_Pin | UNUSED_GPIO_3_Pin |
-                          UNUSED_GPIO_4_Pin | UNUSED_GPIO_5_Pin |
-                          UNUSED_GPIO_6_Pin | UNUSED_GPIO_7_Pin |
-                          UNUSED_GPIO_8_Pin;
+                          UNUSED_GPIO_5_Pin | UNUSED_GPIO_6_Pin |
+                          UNUSED_GPIO_7_Pin | UNUSED_GPIO_8_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -516,7 +692,7 @@ void RunTaskCanTx(void const *argument)
 
 /**
  * @brief  Period elapsed callback in non blocking mode
- * @note   This function is called  when TIM2 interrupt took place, inside
+ * @note   This function is called  when TIM6 interrupt took place, inside
  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
  * a global variable "uwTick" used as application time base.
  * @param  htim : TIM handle
@@ -527,7 +703,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 0 */
 
     /* USER CODE END Callback 0 */
-    if (htim->Instance == TIM2)
+    if (htim->Instance == TIM6)
     {
         HAL_IncTick();
     }

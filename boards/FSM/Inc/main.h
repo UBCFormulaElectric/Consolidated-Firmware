@@ -54,6 +54,8 @@ extern "C"
 
     /* USER CODE END EM */
 
+    void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+
     /* Exported functions prototypes
      * ---------------------------------------------*/
     void Error_Handler(void);
@@ -73,8 +75,6 @@ extern "C"
 #define UNUSED_GPIO_2_GPIO_Port GPIOB
 #define UNUSED_GPIO_3_Pin GPIO_PIN_2
 #define UNUSED_GPIO_3_GPIO_Port GPIOB
-#define UNUSED_GPIO_4_Pin GPIO_PIN_10
-#define UNUSED_GPIO_4_GPIO_Port GPIOB
 #define UNUSED_GPIO_5_Pin GPIO_PIN_11
 #define UNUSED_GPIO_5_GPIO_Port GPIOB
 #define UNUSED_GPIO_6_Pin GPIO_PIN_12

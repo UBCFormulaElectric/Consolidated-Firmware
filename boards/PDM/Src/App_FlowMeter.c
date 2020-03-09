@@ -1,6 +1,6 @@
 #include "App_FlowMeter.h"
 
-//extern timer handle
+// extern timer handle
 
 struct FlowMeter
 {
