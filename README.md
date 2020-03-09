@@ -72,7 +72,7 @@ These paths should include wherever the `cmake`, `make`, `arm-none-eabi-gcc`, an
 We use python both for CI (see below), and to generate C code from the `.dbc` defining messages passed over CAN. Python dependencies are managed via [pipenv](https://pipenv.readthedocs.io/en/latest/). To install all required dependencies in a [python virtual environment](https://realpython.com/python-virtual-environments-a-primer/), navigate to the root of this repository and run `pipenv install`.
 
 ### STM32CubeMX
-Note: Do not migrate project when opening .ioc file. Newer versions of FreeRTOS (>9) are incompatible with Segger SysView.
+**Note: Do not migrate project when opening .ioc file. Newer versions of FreeRTOS (>9) are incompatible with Segger SysView.**
 
 ### CLion
 We edit, compile, and debug our code using [CLion](https://www.jetbrains.com/clion/). Students can obtain a CLion educational license [here](https://www.jetbrains.com/shop/eform/students). To open an existing project, open any one of the board-specific folders under `boards/` (e.g. `boards/DCM`) in **CLion**.
