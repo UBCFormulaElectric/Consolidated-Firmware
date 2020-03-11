@@ -26,3 +26,5 @@ FlowMeter_Handle * _Init_FlowMeter (void) ;
 
 
 float32_t _Update_Flow_Rate (FlowMeter_Handle * _Flow_Meter);
+
+void _show_struct_content (FlowMeter_Handle * _flow_meter);

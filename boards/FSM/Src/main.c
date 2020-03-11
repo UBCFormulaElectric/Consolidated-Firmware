@@ -145,10 +145,13 @@ int main(void)
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 
     //Initialize flow meter
-    FlowMeter_Handle _flow_meter =  _Init_FlowMeter();
+    FlowMeter_Handle _flow_meter;
+    _flow_meter = _Init_FlowMeter();
 
     //Test flow meter update
-    _Update_Flow_Rate(_flow_meter);
+    float32_t flow_rate_temp =  _Update_Flow_Rate(_flow_meter);
+    _show_struct_content(_flow_meter);
+
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -211,18 +214,28 @@ int main(void)
 
         /* USER CODE BEGIN 3 */
         // If rising edge interrupt detected
-        bool     flag = false;
-        uint32_t ic_rising_edge =
-            HAL_TIM_ReadCapturedValue(&htim2, TIM_CHANNEL_3);
-        uint32_t  getClkFreq        = HAL_RCC_GetPCLK1Freq();
-        float32_t measuredFrequency = getClkFreq / ic_rising_edge;
-        if (ic_rising_edge != 0U)
-            flag = true;
+        //bool     flag = false;
+        //uint32_t ic_rising_edge =
+            //HAL_TIM_ReadCapturedValue(&htim2, TIM_CHANNEL_3);
+        //uint32_t  getClkFreq        = HAL_RCC_GetPCLK1Freq();
+        //float32_t measuredFrequency = getClkFreq / ic_rising_edge;
 
-        UNUSED(ic_rising_edge);
-        UNUSED(flag);
-        UNUSED(getClkFreq);
-        UNUSED(measuredFrequency);
+        //UNUSED(ic_rising_edge);
+        //UNUSED(flag);
+        //UNUSED(getClkFreq);
+        //UNUSED(measuredFrequency);
+
+        //TODO: Reading PWM signal when ready
+        flow_rate_temp = _Update_Flow_Rate(_flow_meter);
+
+        uint8_t humpday = 0;
+        humpday ++;
+
+        UNUSED(humpday);
+        UNUSED(flow_rate_temp);
+
+
+
     }
     /* USER CODE END 3 */
 }

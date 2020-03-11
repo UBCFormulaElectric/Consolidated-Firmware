@@ -82,3 +82,18 @@ float32_t _Update_Flow_Rate (FlowMeter_Handle * _Flow_Meter){
     //return flow rate value
     return *( Flow_Meter->_flow_rate);
 }
+
+void _show_struct_content (FlowMeter_Handle * _flow_meter){
+
+    shared_assert(_flow_meter != NULL);
+
+    FlowMeter_t * Flow_Meter = prvGetFlowMeterFromHandle(_flow_meter);
+
+    uint32_t slatt;
+    slatt = 0;
+
+    UNUSED(slatt);
+
+    UNUSED(Flow_Meter);
+
+}

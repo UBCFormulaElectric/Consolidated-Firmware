@@ -27,7 +27,8 @@ float32_t * Shared_Update_Freq_Hall_Sensor (HallSensor_Handle * _hall_sensor ) {
     //Get measured frequency
     uint32_t ic_rising_edge = HAL_TIM_ReadCapturedValue( (hall_sensor->settings->htim), hall_sensor->settings->rising_edge_tim_channel);
     uint32_t  getClkFreq        = HAL_RCC_GetPCLK1Freq();
-    float32_t measuredFrequency = (float32_t) ic_rising_edge / getClkFreq;
+    float32_t measuredFrequency = (float32_t) getClkFreq / ic_rising_edge;
+
 
     //Update measured frequency
     hall_sensor->frequency_ptr = &measuredFrequency;
@@ -36,4 +37,5 @@ float32_t * Shared_Update_Freq_Hall_Sensor (HallSensor_Handle * _hall_sensor ) {
     return hall_sensor->frequency_ptr;
 
 }
+
 
