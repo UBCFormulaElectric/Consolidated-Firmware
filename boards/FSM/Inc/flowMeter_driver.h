@@ -3,34 +3,26 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <SharedAssert.h>
+#include <Shared_Hall_Sensor.h>
 
+typedef void *FlowMeter_Handle;
 
-
-typedef struct {
-    uint8_t slatt;
-    uint8_t temp;
-}FlowMeter;
-
-
-typedef struct {
-    uint8_t swag;
-    uint8_t class;
-
-} FlowMeterSettings;
-
-
-typedef struct {
-    uint32_t reds;
-    uint32_t blue;
-} FlowMeterInputSettings;
 
 
 /**
- * @brief Function initializes flow meter
- * @param _FlowMeter
- * @param _FlowMeterSettings
- * @param _FlowMeterInputSensings
+ * @brief Calculate the flow rate (L/min) from the measured freq. from
+ *        Hall Effect Sensor
+ * @param FlowMeter_Handle
+ * @return
  */
-void _Initialize_FlowMeter (
-         FlowMeter * _FlowMeter, FlowMeterSettings * _FlowMeterSettings, FlowMeterInputSettings * _FlowMeterInputSettings);
+float32_t * _Get_Flow_Rate (HallSensor_Handle * FlowMeter_Handle);
 
+
+/**
+ * @brief Initializes the Flow Meter Struct
+ * @return
+ */
+FlowMeter_Handle * _Init_FlowMeter (void) ;
+
+
+float32_t _Update_Flow_Rate (FlowMeter_Handle * _Flow_Meter);

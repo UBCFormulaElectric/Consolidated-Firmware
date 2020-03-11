@@ -35,6 +35,7 @@
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/App_CanRx.h"
 #include "arm_math.h"
+#include "flowMeter_driver.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -143,8 +144,11 @@ int main(void)
     // Generate 1kHz PWM Signal
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 
-    // Initialize edge detection timer for PWM input capture
-    HAL_TIM_IC_Start_IT(&htim2, TIM_CHANNEL_3);
+    //Initialize flow meter
+    FlowMeter_Handle _flow_meter =  _Init_FlowMeter();
+
+    //Test flow meter update
+    _Update_Flow_Rate(_flow_meter);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */

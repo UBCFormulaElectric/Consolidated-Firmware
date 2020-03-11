@@ -2,23 +2,42 @@
 
 #include <stm32f3xx_hal.h>
 #include "SharedAssert.h"
-#include "stdint.h"
+#include <stdint.h>
+#include <stdbool.h>
+#include <arm_math.h>
 
-struct Hall_Sensor_Input_Settings{
+typedef void * HallSensor_Handle;
+typedef void * HallSensor_Settings_Handle;
 
-  TIM_HandleTypeDef *htim;
-  uint32_t timer_frequency_hz;
-  uint32_t rising_edge_tim_channel;
+typedef struct {
 
-};
+    TIM_HandleTypeDef *htim;
+    uint32_t timer_frequency_hz;
+    uint32_t rising_edge_tim_channel;
 
-struct Hall_Sensor_Input{
+} HallSensor_Settings_t;
 
-    struct Hall_Sensor_Input_Settings settings;
-    float * frequency_ptr;
 
-};
+typedef struct HallSensor{
 
-void Shared_Hall_Sensor_Init (
-        struct Hall_Sensor_Input * _hall_sensor_input, struct Hall_Sensor_Input_Settings, float * frequency_ptr);
+    HallSensor_Settings_t * settings;
+    float32_t * frequency_ptr;
+
+} HallSensor_t;
+
+
+/**
+ * Shared function for initializing hall effect sensors
+ * @param settings
+ * @return
+ */
+HallSensor_Handle Shared_Init_Hall_Sensor (HallSensor_Settings_Handle * _settings);
+
+/**
+ * Shared function to update measured Hall Effect Sensor measured frequency
+ * @param settings
+ * @param HallSensor_Handle
+ */
+
+float32_t * Shared_Update_Freq_Hall_Sensor (HallSensor_Handle * _hall_sensor);
 
