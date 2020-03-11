@@ -151,7 +151,7 @@ int main(void)
 
     // Test flow meter update
     float32_t flow_rate_temp = _Update_Flow_Rate(_flow_meter);
-    _show_struct_content(_flow_meter);
+    //_show_struct_content(_flow_meter);
 
     /* USER CODE END 2 */
 
@@ -229,11 +229,6 @@ int main(void)
         // TODO: Reading PWM signal when ready
         flow_rate_temp = _Update_Flow_Rate(_flow_meter);
 
-        uint8_t humpday = 0;
-        humpday++;
-
-        UNUSED(humpday);
-        UNUSED(flow_rate_temp);
     }
     /* USER CODE END 3 */
 }
