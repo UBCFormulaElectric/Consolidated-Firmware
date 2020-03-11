@@ -108,7 +108,7 @@ void        RunTaskCanTx(void const *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    __HAL_DBGMCU_FREEZE_IWDG();
+    //__HAL_DBGMCU_FREEZE_IWDG();
     SharedHardFaultHandler_Init();
     App_CanTx_Init();
     App_CanRx_Init();
@@ -142,14 +142,15 @@ int main(void)
     /* USER CODE BEGIN 2 */
     // Initialize sample PWM for testing
     // Generate 1kHz PWM Signal
+
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 
-    //Initialize flow meter
+    // Initialize flow meter
     FlowMeter_Handle _flow_meter;
     _flow_meter = _Init_FlowMeter();
 
-    //Test flow meter update
-    float32_t flow_rate_temp =  _Update_Flow_Rate(_flow_meter);
+    // Test flow meter update
+    float32_t flow_rate_temp = _Update_Flow_Rate(_flow_meter);
     _show_struct_content(_flow_meter);
 
     /* USER CODE END 2 */
@@ -214,28 +215,25 @@ int main(void)
 
         /* USER CODE BEGIN 3 */
         // If rising edge interrupt detected
-        //bool     flag = false;
-        //uint32_t ic_rising_edge =
-            //HAL_TIM_ReadCapturedValue(&htim2, TIM_CHANNEL_3);
-        //uint32_t  getClkFreq        = HAL_RCC_GetPCLK1Freq();
-        //float32_t measuredFrequency = getClkFreq / ic_rising_edge;
+        // bool     flag = false;
+        // uint32_t ic_rising_edge =
+        // HAL_TIM_ReadCapturedValue(&htim2, TIM_CHANNEL_3);
+        // uint32_t  getClkFreq        = HAL_RCC_GetPCLK1Freq();
+        // float32_t measuredFrequency = getClkFreq / ic_rising_edge;
 
-        //UNUSED(ic_rising_edge);
-        //UNUSED(flag);
-        //UNUSED(getClkFreq);
-        //UNUSED(measuredFrequency);
+        // UNUSED(ic_rising_edge);
+        // UNUSED(flag);
+        // UNUSED(getClkFreq);
+        // UNUSED(measuredFrequency);
 
-        //TODO: Reading PWM signal when ready
+        // TODO: Reading PWM signal when ready
         flow_rate_temp = _Update_Flow_Rate(_flow_meter);
 
         uint8_t humpday = 0;
-        humpday ++;
+        humpday++;
 
         UNUSED(humpday);
         UNUSED(flow_rate_temp);
-
-
-
     }
     /* USER CODE END 3 */
 }
@@ -394,14 +392,14 @@ static void MX_IWDG_Init(void)
     /* USER CODE END IWDG_Init 1 */
     hiwdg.Instance       = IWDG;
     hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
-    hiwdg.Init.Window    = IWDG_WINDOW_DISABLE_VALUE;
-    hiwdg.Init.Reload = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
+    hiwdg.Init.Window    = 4095;
+    hiwdg.Init.Reload    = 4095;
     if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
     {
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
-    SharedWatchdog_SetIwdgInitialized(&hiwdg);
+
     /* USER CODE END IWDG_Init 2 */
 }
 
@@ -427,7 +425,7 @@ static void MX_TIM1_Init(void)
     htim1.Instance               = TIM1;
     htim1.Init.Prescaler         = 71;
     htim1.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim1.Init.Period            = 99;
+    htim1.Init.Period            = 9;
     htim1.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim1.Init.RepetitionCounter = 0;
     htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -452,7 +450,7 @@ static void MX_TIM1_Init(void)
         Error_Handler();
     }
     sConfigOC.OCMode       = TIM_OCMODE_PWM1;
-    sConfigOC.Pulse        = 50;
+    sConfigOC.Pulse        = 5;
     sConfigOC.OCPolarity   = TIM_OCPOLARITY_HIGH;
     sConfigOC.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
     sConfigOC.OCFastMode   = TIM_OCFAST_DISABLE;
