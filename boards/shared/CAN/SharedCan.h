@@ -8,6 +8,9 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
+#include "auto_generated/App_CanTx.h"
+#include "Io_SharedCanMsg.h"
+
 // Check for STM32 microcontroller family
 #ifdef STM32F302x8
 // Used in DCM 2017, BMS 2017, and PDM 2018
@@ -40,24 +43,6 @@ typedef CanTxMsgTypeDef CAN_TxHeaderTypeDef;
  ******************************************************************************/
 // clang-format on
 
-/**
- * @brief The HAL library represents a CAN message using at least two structs:
- *
- *        Struct 1: One of CAN_TxHeaderTypedef and CAN_RxHeaderTypeDef
- *        Struct 2: uint8_t array of size 8
- *
- *        It is quite clunky having to use two structs to represent each CAN
- *        message, so we create a custom struct tailored for our use-case
- *        Note that we stripped away information that we don't need from
- *        CAN_TxHeaderTypeDef and CAN_RxHeaderTypeDef.
- */
-struct CanMsg
-{
-    uint32_t std_id;
-    uint32_t dlc;
-    uint8_t  data[CAN_PAYLOAD_MAX_NUM_BYTES];
-};
-
 /******************************************************************************
  * Function Prototypes
  ******************************************************************************/
@@ -75,7 +60,7 @@ void SharedCan_Init(CAN_HandleTypeDef *hcan);
  * @brief Send a message to the back of the CAN TX queue
  * @param message CAN message to send
  */
-void App_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message);
+void Io_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message);
 
 /**
  * @brief For messages that we couldn't handle in ISR context, read them into
