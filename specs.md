@@ -210,7 +210,7 @@ BMS-20 | Exiting the drive state and entering the fault state | When an AIR shut
 
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-BMS-29 | Entering the AIR shutdown state | The BMS must open both contactors.
+BMS-29 | Entering the fault state | The BMS must open both contactors.
 BMS-30 | Exiting the AIR shutdown state and entering the init state | Once all AIR shutdown faults are cleared, the BMS must exit the fault state and enter the init state.
 
 ## DIM <a name="DIM"></a>
