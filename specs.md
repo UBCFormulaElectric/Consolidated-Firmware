@@ -33,8 +33,8 @@ There are two types of faults:
 
 ## Table Of Contents
 - [FSM (Front Sensor Module)](#FSM)
-    - [FSM TS-Off State](#FSM_TS_OFF)
-    - [FSM TS-On State](#FSM_TS_ON)
+    - [FSM AIR-Open State](#FSM_AIR_OPEN)
+    - [FSM AIR-Closed State](#FSM_AIR_CLOSED)
 - [DCM (Drive Control Module)](#DCM)
     - [DCM Stateless](#DCM_STATELESS)
     - [DCM Init State](#DCM_INIT)
@@ -43,8 +43,8 @@ There are two types of faults:
 - [PDM (Power Distribution Module)](#PDM)
     - [PDM Stateless](#PDM_STATELESS)
     - [PDM Init](#PDM_INIT)
-    - [PDM TS-Off State](#PDM_TS_OFF)
-    - [PDM TS-On State](#PDM_TS_ON)
+    - [PDM AIR-Open State](#PDM_AIR_OPEN)
+    - [PDM AIR-Closed State](#PDM_AIR_CLOSED)
 - [BMS (Battery Management System)](#BMS)
     - [BMS Stateless](#BMS_STATELESS)
     - [BMS Init](#BMS_INIT)
@@ -71,18 +71,18 @@ FSM-8 | Steering angle reporting | - The FSM must report the steering angle in d
 FSM-9 | Wheel speed reporting | - The FSM must report the two front wheel speeds in km/h over CAN at 1kHz. <br/> - The FSM must send a non-critical fault when either front wheel speed is below -10km/h or above 150km/h.
 FSM-16 | Open circuit encoder alarm | - When the primary or secondary APPS encoder alarm goes high for 10ms continuously, throw a motor shutdown fault and report 0% mapped pedal percentage. <br/> - When both the primary and secondary APPS encoder alarms go low for 10ms continuously, clear the motor shutdown fault. | T.4.2.9
 
-### FSM TS-Off State <a name="FSM_TS_OFF"></a>
+### FSM AIR-Open State <a name="FSM_AIR_OPEN"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-FSM-10 | Entering the TS-off state | The FSM state machine must begin in the TS-off state by default.
-FSM-12 | Exiting the TS-off state | The FSM must enter the TS-on state when the BMS is in the drive state (after precharge).
+FSM-10 | Entering the AIR-Open state | The FSM state machine must begin in the AIR-Open state by default.
+FSM-12 | Exiting the AIR-Open state | The FSM must enter the AIR-Closed state when the BMS closes the contactors.
 
-### FSM TS-On State <a name="FSM_TS_ON"></a>
+### FSM AIR-Closed State <a name="FSM_AIR_CLOSED"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 FSM-14 | Coolant flow measurements | - The FSM must measure the coolant flow and apply a heavy low pass filter on the signal (TODO: manually find LPF constant and leave it here). <br/> - If the coolant flow is below the minimum threshold for 1s continuously, the FSM must send a motor shutdown fault. <br/> - If the coolant flow returns above the minimum threshold for 1s continuously, the FSM must clear the motor shutdown fault. <br/> - The FSM must transmit the coolant flow over CAN at 1Hz.
-FSM-13 | Entering the TS-on state | The FSM must enter the TS-on state after precharge is complete.
-FSM-15 | Exiting the TS-on state | The FSM must enter the TS-off state when the BMS is in the init or fault state (contactors open).
+FSM-13 | Entering the AIR-Closed state | The FSM must enter the AIR-Closed state when the BMS closes the contactors.
+FSM-15 | Exiting the AIR-Closed state | The FSM must enter the AIR-Open state when the BMS opens the contactors.
 
 ## DCM <a name="DCM"></a>
 
@@ -144,21 +144,21 @@ ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 PDM-7 | E-fuse current limits | - The PDM's e-fuse current limits must be set to 2.5A for inverter outputs, and 1A for other outputs. <br/> - The PDM must enable auto-retry on all e-fuses over SPI. <br/> - The PDM must disable all e-fuses in the init state.
 PDM-8 | Entering the init state | The PDM state machine must begin in the init state by default.
-PDM-10 | Exiting the init state and entering the TS-off state | After the PDM is finished programming the e-fuses, the PDM must enter the TS-off state.
+PDM-10 | Exiting the init state and entering the AIR-Open state | After the PDM is finished programming the e-fuses, the PDM must enter the AIR-Open state.
 
-### PDM TS-Off State <a name="PDM_TS_OFF"></a>
+### PDM AIR-Open State <a name="PDM_AIR_OPEN"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-PDM-16 | Selective e-fuse enabling | The PDM must only enable the following e-fuse outputs in the TS-off state: AUX 1, AUX 2, Energy Meter, CAN, AIR SHDN
-PDM-15 | Entering the TS-off state | The PDM must enter the TS-off state after the init state is complete.
-PDM-17 | Exiting the TS-off state | The PDM must enter the TS-on state when the BMS is in the drive state (after precharge).
+PDM-16 | Selective e-fuse enabling | The PDM must only enable the following e-fuse outputs in the AIR-Open state: AUX 1, AUX 2, Energy Meter, CAN, AIR SHDN
+PDM-15 | Entering the AIR-Open state | The PDM must enter the AIR-Open state after the init state is complete.
+PDM-17 | Exiting the AIR-Open state | The PDM must enter the AIR-Closed state when the BMS closes the contactors.
 
-### PDM TS-On State <a name="PDM_TS_ON"></a>
+### PDM AIR-Closed State <a name="PDM_AIR_CLOSED"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-PDM-19 | All e-fuse enabling | The PDM must enable all e-fuse outputs in the TS-on state.
-PDM-18 | Entering the TS-on state | The PDM must enter the TS-on state after precharge is complete.
-PDM-20 | Exiting the TS-on state | The PDM must enter the TS-off state when the BMS is in the init or fault state (contactors open).
+PDM-19 | All e-fuse enabling | The PDM must enable all e-fuse outputs in the AIR-Closed state.
+PDM-18 | Entering the AIR-Closed state | The PDM must enter the AIR-Closed state when the BMS closes the contactors.
+PDM-20 | Exiting the AIR-Closed state | The PDM must enter the AIR-Open state when the BMS opens the contactors.
 
 ## BMS <a name="BMS"></a>
 
@@ -178,6 +178,7 @@ BMS-9 | Charger detection and logging | - The BMS must check the charger connect
 BMS-10 | Charger enable/disable | The BMS must enable the charger by setting the BMS PON pin high and disable the charger by setting the BMS PON pin low.
 BMS-11 | Contactor weld/stuck open detection | The BMS must check that the contactors are in the desired open or closed state at 1kHz, and if not the BMS must throw an AIR shutdown fault and enter the fault state.
 BMS-36 | IMD data transmission | - 10s after boot, the IMD resistance should settle to its initial value, and the BMS must transmit the IMD resistance, read from the IMD PWM pins, over CAN at 1Hz. <br/> - 2s after boot, IMD status should settle to its initial value, and the BMS must transmit the IMD status over CAN at 1Hz.
+BMS-37 | AIR state transmission | The BMS must transmit the state of the AIRs over CAN at 100Hz.
 
 ### BMS Init State <a name="BMS_INIT"></a>
 ID | Title | Description | Associated Competition Rule(s)
