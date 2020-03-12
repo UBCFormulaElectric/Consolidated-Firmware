@@ -91,7 +91,7 @@ ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 DCM-0 | Startup CAN message | The DCM must transmit a startup message over CAN on boot.
 DCM-21 | State CAN message | The DCM must transmit the state of its state machine at 100Hz.
-DCM-1 | Brake light control | The DCM must enable the brake light through the corresponding GPIO during brake actuation and/or regen and must disable the brake light otherwise.
+DCM-1 | Brake light control | The DCM must enable the brake light through the corresponding GPIO during brake actuation and/or regen, and must disable the brake light otherwise.
 DCM-2 | Heartbeat sending | The DCM must transmit a heartbeat over CAN at 100Hz.
 DCM-18 | Heartbeat receiving | The DCM must throw an AIR shutdown fault once it does not receive three consecutive BMS heartbeats.
 
@@ -183,7 +183,7 @@ BMS-36 | IMD data transmission | - 10s after boot, the IMD resistance should set
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-12 | Precharge | - The BMS must wait for 5 seconds after boot, then wait for the closing of the AIR- contactor, to execute the precharge sequence. <br/> - The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin. <br/> - Upon a successful precharge, the BMS must close the AIR+ contactor. <br/> <br/> A precharge failure occurs when: <br/> - The TS (tractive system) bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. | EV.6.9.1
-BMS-35 | SoC retrieval | The BMS must retrieve SoC from the three sections of memory and use a voting algorithm to identify which data is correct, in case of data corruption.
+BMS-35 | SoC retrieval | The BMS must retrieve SoC from three different EEPROM regions, and use a voting algorithm to identify which data is correct, in case of data corruption.
 BMS-13 | Entering the init state | The BMS state machine must begin in the init state by default.
 BMS-15 | Exiting the init state and entering the charge state | Upon a successful precharge, the BMS must enter the charge state if the charger is connected.
 BMS-16 | Exiting the init state and entering the drive state | Upon a successful precharge, the BMS must enter the drive state if the charger is disconnected.
@@ -192,7 +192,7 @@ BMS-16 | Exiting the init state and entering the drive state | Upon a successful
 
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-BMS-34 | SoC calculation and storage | - The BMS must perform coulomb counting and calculate SoC at 100Hz. <br/> The BMS must store the same SoC value in three different EEPROM memory sections at 1Hz. <br/> - SoC must be bounded between 0% and 100%. <br/> - After charging is complete, the BMS must reset and store SoC as 100%.
+BMS-34 | SoC calculation and storage | - The BMS must transmit SoC over CAN at 100Hz. <br/> - The BMS must perform coulomb counting and calculate SoC at 100Hz. <br/> The BMS must store the same SoC value in three different EEPROM memory sections at 1Hz. <br/> - SoC must be bounded between 0% and 100%. <br/> - After charging is complete, the BMS must reset and store SoC as 100%.
 BMS-17 | Charging thermal safety | - The BMS must stop cell balancing once the LTC6813 internal die temperature (ITMP) exceeds 115C and throw a non-critical fault. The BMS must re-enable cell balancing once the ITMP decreases below 110C. <br/> - The BMS must disable the charger once the ITMP exceeds 120C and throw a non-critical fault. The BMS must re-enable the charger once the ITMP decreases below 115C. <br/>  - The BMS must disable the charger when any cell temperature exceeds 43C and throw a non-critical fault. The BMS must re-enable the charger once the highest cell temperature is below 40C. <br/> - The BMS must throw an AIR shutdown fault and enter the fault state if any cell temperature exceeds 45C. | EV.5.1.3
 BMS-18 | Cell balancing | - The BMS must balance the cells until they are all between 4.19V and 4.2V. <br/> - The BMS must only perform cell balancing when the AIRs are closed. <br/> - The BMS must charge and cell balance simultaneously to get all cells charged and balanced as fast as possible.| EV.7.2.5
 BMS-19 | Power limits calculation and sending (charge state) | - The BMS must calculate charge power limits based on cell temperatures and SoC to avoid exceeding a cell's defined limits. <br/> - The BMS must send the charge power limits to the charger over CAN at 100Hz.
@@ -205,7 +205,7 @@ BMS-24 | Exiting the charge state and entering the fault state | The BMS must di
 
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-BMS-32 | SoC calculation and storage | - The BMS must perform coulomb counting and calculate SoC at 100Hz. <br/> The BMS must store SoC in EEPROM at 1Hz in three different memory locations. <br/> - SoC must be bounded between 0% and 100%.
+BMS-32 | SoC calculation and storage | - The BMS must transmit SoC over CAN at 100Hz. <br/> - The BMS must perform coulomb counting and calculate SoC at 100Hz. <br/> The BMS must store SoC in EEPROM at 1Hz in three different memory locations. <br/> - SoC must be bounded between 0% and 100%.
 BMS-26 | Power limits calculation and sending (drive state) | - The BMS must calculate charge and discharge power limits based on cell temperatures and SoC to avoid exceeding a cell's defined limits. <br/> - The BMS must send the charge and discharge power limits over CAN at 100Hz.
 BMS-25 | Entering the drive state | The BMS must only enter the drive state from the init state after precharge or from the motor shutdown fault state after faults are cleared.
 BMS-27 | Exiting the drive state and entering the init state | Upon the opening of the contactors outside of an AIR shutdown fault, the BMS must exit the drive state and enter the init state.
@@ -215,8 +215,8 @@ BMS-20 | Exiting the drive state and entering the fault state | When an AIR shut
 
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-BMS-29 | Entering the AIR shutdown state | The BMS must open both contactors.
-BMS-30 | Exiting the AIR shutdown state and entering the init state | Once all AIR shutdown faults are cleared, the BMS must exit the fault state and enter the init state.
+BMS-29 | Entering the fault state | The BMS must open both contactors.
+BMS-30 | Exiting the fault state and entering the init state | Once all AIR shutdown faults are cleared, the BMS must exit the fault state and enter the init state.
 
 ## DIM <a name="DIM"></a>
 ID | Title | Description | Associated Competition Rule(s)
