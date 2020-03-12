@@ -86,7 +86,7 @@ ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 DCM-0 | Startup CAN message | The DCM must transmit a startup message over CAN on boot.
 DCM-21 | State CAN message | The DCM must transmit its state at 100Hz.
-DCM-1 | Brake light control | The DCM must enable the brake light through the corresponding GPIO during brake actuation and/or regen and must disable the brake light otherwise.
+DCM-1 | Brake light control | The DCM must enable the brake light through the corresponding GPIO during brake actuation and/or regen, and must disable the brake light otherwise.
 DCM-2 | Heartbeat sending | The DCM must transmit a heartbeat over CAN at 100Hz.
 DCM-18 | Heartbeat receiving | The DCM must throw an AIR shutdown fault once it does not receive three consecutive BMS heartbeats.
 
