@@ -1,3 +1,8 @@
+******************************
+TODO
+- consider shutting down inverters through PDM based on start/stop switch
+******************************
+
 # Module Specifications
 
 *This set of specifications is for the **2019** rules, which may be found [here](http://www.fsaeonline.com/cdsweb/gen/DownloadDocument.aspx?DocumentID=607667ea-bec6-4658-92c4-fff59dbb5c0e)*
@@ -22,7 +27,7 @@ There are two types of shutdown:
 
 There are two types of faults:
 - Critical Faults:
-    - Thrown by an AIR shutdown/motor shutdown
+    - Handled by shutting down AIRs/motor
 - Non-critical:
     - All other faults, for logging and debugging purposes
 
@@ -54,7 +59,7 @@ There are two types of faults:
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 FSM-0 | Startup CAN message | The FSM must transmit a startup message over CAN on boot.
-FSM-10 | State CAN message | The FSM must transmit its state at 100Hz.
+FSM-10 | State CAN message | The FSM must transmit the state of its state machine at 100Hz.
 FSM-1 | Heartbeat sending | The FSM must transmit a heartbeat over CAN at 100Hz.
 FSM-2 | Heartbeat receiving | The FSM must throw an AIR shutdown fault once it does not receive three consecutive BMS heartbeats.
 FSM-3 | Mapped pedal percentage reporting | The FSM must report the mapped pedal percentage over CAN at 1kHz, unless overridden.
@@ -75,7 +80,7 @@ FSM-12 | Exiting the TS-off state | The FSM must enter the TS-on state when the 
 ### FSM TS-On State <a name="FSM_TS_ON"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-FSM-14 | Coolant flow measurements | - The FSM must measure the coolant flow and apply a heavy low pass filter on the signal. <br/> - If the coolant flow is below the minimum threshold for 1s continuously, the FSM must send a motor shutdown fault. <br/> - If the coolant flow returns above the minimum threshold for 1s continuously, the FSM must clear the motor shutdown fault.
+FSM-14 | Coolant flow measurements | - The FSM must measure the coolant flow and apply a heavy low pass filter on the signal (TODO: manually find LPF constant and leave it here). <br/> - If the coolant flow is below the minimum threshold for 1s continuously, the FSM must send a motor shutdown fault. <br/> - If the coolant flow returns above the minimum threshold for 1s continuously, the FSM must clear the motor shutdown fault. <br/> - The FSM must transmit the coolant flow over CAN at 1Hz.
 FSM-13 | Entering the TS-on state | The FSM must enter the TS-on state after precharge is complete.
 FSM-15 | Exiting the TS-on state | The FSM must enter the TS-off state when the BMS is in the init or fault state (contactors open).
 
@@ -85,7 +90,7 @@ FSM-15 | Exiting the TS-on state | The FSM must enter the TS-off state when the 
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 DCM-0 | Startup CAN message | The DCM must transmit a startup message over CAN on boot.
-DCM-21 | State CAN message | The DCM must transmit its state at 100Hz.
+DCM-21 | State CAN message | The DCM must transmit the state of its state machine at 100Hz.
 DCM-1 | Brake light control | The DCM must enable the brake light through the corresponding GPIO during brake actuation and/or regen and must disable the brake light otherwise.
 DCM-2 | Heartbeat sending | The DCM must transmit a heartbeat over CAN at 100Hz.
 DCM-18 | Heartbeat receiving | The DCM must throw an AIR shutdown fault once it does not receive three consecutive BMS heartbeats.
@@ -122,7 +127,7 @@ DCM-17 | Exiting the fault state and entering the init state | When all critical
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 PDM-0 | Startup CAN message | The PDM must transmit a startup message over CAN on boot.
-PDM-21 | State CAN message | The PDM must transmit its state at 100Hz.
+PDM-21 | State CAN message | The PDM must transmit the state of its state machine at 100Hz.
 PDM-1 | Heartbeat sending | The PDM must transmit a heartbeat over CAN at 100Hz.
 PDM-2 | Heartbeat receiving | The PDM must throw an AIR shutdown fault once it does not receive three consecutive BMS heartbeats.
 PDM-3 | 18650 overvoltage handling | When the 24V systems are powered by the 18650s and the OV_FAULT GPIO is low (18650 overvoltage fault condition), the PDM must throw an AIR shutdown fault.
@@ -161,7 +166,7 @@ PDM-20 | Exiting the TS-on state | The PDM must enter the TS-off state when the 
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-0 | Startup CAN message | The BMS must transmit a startup message over CAN on boot.
-BMS-31 | State CAN message | The BMS must transmit its state at 100Hz.
+BMS-31 | State CAN message | The BMS must transmit the state of its state machine at 100Hz.
 BMS-1 | Heartbeat sending | The BMS must transmit a heartbeat over CAN at 100Hz.
 BMS-2 | Heartbeat receiving | - The BMS must throw an AIR shutdown fault and enter the fault state once it does not receive three consecutive FSM or DCM heartbeats. <br/> - The BMS must throw a non-critical fault once it does not receive three consecutive PDM heartbeats.
 BMS-3 | isoSPI communication failure | - Upon isoSPI communication that results in a packet error code (PEC) mismatch, the BMS must retry communication. <br/> - After three consecutive unsuccessful isoSPI communication attempts, the BMS must throw an AIR shutdown fault and enter the fault state.
@@ -172,7 +177,7 @@ BMS-7 | Charge temperature limits | The BMS must throw an AIR shutdown fault and
 BMS-9 | Charger detection and logging | - The BMS must check the charger connection status at 1Hz by the state of the CHARGE_STATE_3V3 digital input. <br/> - The BMS must log the charger connection status over CAN at 1Hz.
 BMS-10 | Charger enable/disable | The BMS must enable the charger by setting the BMS PON pin high and disable the charger by setting the BMS PON pin low.
 BMS-11 | Contactor weld/stuck open detection | The BMS must check that the contactors are in the desired open or closed state at 1kHz, and if not the BMS must throw an AIR shutdown fault and enter the fault state.
-BMS-36 | IMD resistance transmission | - 10s after boot, the BMS must transmit the IMD resistance, read from the IMD PWM pins, over CAN at 1Hz. <br/>
+BMS-36 | IMD data transmission | - 10s after boot, the IMD resistance should settle to its initial value, and the BMS must transmit the IMD resistance, read from the IMD PWM pins, over CAN at 1Hz. <br/> - 2s after boot, IMD status should settle to its initial value, and the BMS must transmit the IMD status over CAN at 1Hz.
 
 ### BMS Init State <a name="BMS_INIT"></a>
 ID | Title | Description | Associated Competition Rule(s)
@@ -183,7 +188,7 @@ BMS-13 | Entering the init state | The BMS state machine must begin in the init 
 BMS-15 | Exiting the init state and entering the charge state | Upon a successful precharge, the BMS must enter the charge state if the charger is connected.
 BMS-16 | Exiting the init state and entering the drive state | Upon a successful precharge, the BMS must enter the drive state if the charger is disconnected.
 
-### BMS Charge state <a name="BMS_CHARGE"></a>
+### BMS Charge State <a name="BMS_CHARGE"></a>
 
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
