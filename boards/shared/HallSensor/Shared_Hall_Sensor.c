@@ -5,21 +5,19 @@
 
 extern TIM_HandleTypeDef htim2;
 
-HallSensor_Handle Shared_Init_Hall_Sensor(HallSensor_Handle *_settings)
+HallSensor_Handle Shared_Init_Hall_Sensor(HallSensor_Handle _settings)
 {
     shared_assert(_settings != NULL);
 
+    static HallSensor_t    Hall_Sensor;
     HallSensor_Settings_t *settings = prvGetSettingsFromHandle(_settings);
-
-    static HallSensor_t Hall_Sensor;
-    Hall_Sensor.settings = settings;
-
+    Hall_Sensor.settings            = settings;
     HAL_TIM_IC_Start_IT((settings->htim), settings->rising_edge_tim_channel);
 
-    return (HallSensor_Handle *)&Hall_Sensor;
+    return (HallSensor_Handle)&Hall_Sensor;
 }
 
-float32_t *Shared_Update_Freq_Hall_Sensor(HallSensor_Handle *_hall_sensor)
+float32_t *Shared_Update_Freq_Hall_Sensor(HallSensor_Handle _hall_sensor)
 {
     HallSensor_t *hall_sensor = prvGetHallSensorHandle(_hall_sensor);
 
@@ -30,19 +28,26 @@ float32_t *Shared_Update_Freq_Hall_Sensor(HallSensor_Handle *_hall_sensor)
 
     uint32_t  ic_rising_edge;
     uint32_t  getClkFreq;
-    float32_t measuredFrequency;
+    static float32_t measuredFrequency;
 
     ic_rising_edge = HAL_TIM_ReadCapturedValue(
         (hall_sensor->settings->htim),
         hall_sensor->settings->rising_edge_tim_channel);
 
-    getClkFreq        = HAL_RCC_GetPCLK2Freq();
-    measuredFrequency = (float32_t)getClkFreq / ic_rising_edge;
+    if (ic_rising_edge != 0U)
+    {
+        getClkFreq        = HAL_RCC_GetPCLK2Freq();
+        measuredFrequency = (float32_t)getClkFreq / ic_rising_edge;
+    }
+
+    else
+    {
+        //measuredFrequency = 0.0;
+    }
 
     // Update measured frequency
     hall_sensor->frequency_ptr = &measuredFrequency;
 
     // Return pointer to the measured frequency value
-
     return hall_sensor->frequency_ptr;
 }

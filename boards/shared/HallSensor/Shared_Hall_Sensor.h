@@ -29,8 +29,7 @@ typedef struct HallSensor
  * @param settings
  * @return
  */
-HallSensor_Handle
-    Shared_Init_Hall_Sensor(HallSensor_Settings_Handle *_settings);
+HallSensor_Handle Shared_Init_Hall_Sensor(HallSensor_Settings_Handle _settings);
 
 /**
  * Shared function to update measured Hall Effect Sensor measured frequency
@@ -38,4 +37,4 @@ HallSensor_Handle
  * @param HallSensor_Handle
  */
 
-float32_t *Shared_Update_Freq_Hall_Sensor(HallSensor_Handle *_hall_sensor);
+float32_t *Shared_Update_Freq_Hall_Sensor(HallSensor_Handle _hall_sensor);
