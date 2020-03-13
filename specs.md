@@ -1,8 +1,3 @@
-******************************
-TODO
-- consider shutting down inverters through PDM based on start/stop switch
-******************************
-
 # Module Specifications
 
 *This set of specifications is for the **2019** rules, which may be found [here](http://www.fsaeonline.com/cdsweb/gen/DownloadDocument.aspx?DocumentID=607667ea-bec6-4658-92c4-fff59dbb5c0e)*
@@ -74,7 +69,7 @@ FSM-16 | Open circuit encoder alarm | - When the primary or secondary APPS encod
 ### FSM AIR-Open State <a name="FSM_AIR_OPEN"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-FSM-10 | Entering the AIR-Open state | The FSM state machine must begin in the AIR-Open state by default.
+FSM-17 | Entering the AIR-Open state | The FSM state machine must begin in the AIR-Open state by default.
 FSM-12 | Exiting the AIR-Open state | The FSM must enter the AIR-Closed state when the BMS closes the contactors.
 
 ### FSM AIR-Closed State <a name="FSM_AIR_CLOSED"></a>
@@ -156,7 +151,7 @@ PDM-17 | Exiting the AIR-Open state | The PDM must enter the AIR-Closed state wh
 ### PDM AIR-Closed State <a name="PDM_AIR_CLOSED"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-PDM-19 | All e-fuse enabling | The PDM must enable all e-fuse outputs in the AIR-Closed state.
+PDM-19 | E-fuse enabling | The PDM must enable all e-fuse outputs in the AIR-Closed state, except for the inverters, which depend on the following:. <br/> <br/> If the start switch is off AND the car is travelling slower than 10km/h, both inverters must be disabled. Otherwise, both inverters must be enabled, to protect against BEMF.
 PDM-18 | Entering the AIR-Closed state | The PDM must enter the AIR-Closed state when the BMS closes the contactors.
 PDM-20 | Exiting the AIR-Closed state | The PDM must enter the AIR-Open state when the BMS opens the contactors.
 
