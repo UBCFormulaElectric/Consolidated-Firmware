@@ -13,7 +13,6 @@ class CanTxFileGenerator(CanFileGenerator):
         self._periodic_cantx_signals = \
             [CanSignal(signal.type_name, signal.snake_name, msg.snake_name)
              for msg in self._periodic_cantx_msgs for signal in msg.signals]
-
         self._periodicTxTableName = 'PeriodicCanTxMsgTable'
 
         self.__init_variables()
@@ -78,6 +77,20 @@ class CanTxFileGenerator(CanFileGenerator):
                 signal_name=signal.snakecase_name)
         ) for signal in self._periodic_cantx_signals)
 
+        self._PeriodicTxSignalGetters = list(Function(
+            '%s %s_GetPeriodicSignal_%s(void)' % (
+                signal.type_name, function_prefix, signal.uppercase_name),
+            '',
+            '''\
+    shared_assert({initialized_flag} == true);
+
+    return {periodic_table_name}.{msg_name}.{signal_name};'''.format(
+                initialized_flag=self._cantx_initialized.get_name(),
+                msg_name=signal.msg_name_snakecase,
+                periodic_table_name=self._periodicTxTableName,
+                signal_name=signal.snakecase_name)
+        ) for signal in self._periodic_cantx_signals)
+
         self._EnqueueNonPeriodicMsgs = list(Function(
             'void %s_EnqueueNonPeriodicMsg_%s(struct CanMsgs_%s_t* payload)'
             % (function_prefix, msg.snake_name.upper(), msg.snake_name),
@@ -93,25 +106,6 @@ class CanTxFileGenerator(CanFileGenerator):
     memcpy(&tx_msg.data[0], &payload, CANMSGS_{msg_name_uppercase}_LENGTH); 
     CanMsgs_{msg_name_snakecase}_pack(&tx_msg.data[0], payload, CANMSGS_{msg_name_uppercase}_LENGTH);
     App_SharedCan_TxMessageQueueSendtoBack(&tx_msg);'''.format(
-                initialized_flag=self._cantx_initialized.get_name(),
-                msg_name_uppercase=msg.snake_name.upper(),
-                msg_name_snakecase=msg.snake_name)
-        ) for msg in self._non_periodic_cantx_msgs)
-
-        self._ForceEnqueueNonPeriodicMsgs = list(Function(
-            'void %s_ForceEnqueueNonPeriodicMsg_%s(struct CanMsgs_%s_t* payload)' % (function_prefix, msg.snake_name.upper(), msg.snake_name),
-            '',
-            '''\
-    shared_assert({initialized_flag} == true);
-    shared_assert(payload != NULL);
-
-    struct CanMsg tx_msg;
-    memset(&tx_msg, 0, sizeof(tx_msg));
-    tx_msg.std_id = CANMSGS_{msg_name_uppercase}_FRAME_ID;
-    tx_msg.dlc    = CANMSGS_{msg_name_uppercase}_LENGTH;
-    memcpy(&tx_msg.data[0], &payload, CANMSGS_{msg_name_uppercase}_LENGTH); 
-    CanMsgs_{msg_name_snakecase}_pack(&tx_msg.data[0], payload, CANMSGS_{msg_name_uppercase}_LENGTH);
-    App_SharedCan_TxMessageQueueForceSendToBack(&tx_msg);'''.format(
                 initialized_flag=self._cantx_initialized.get_name(),
                 msg_name_uppercase=msg.snake_name.upper(),
                 msg_name_snakecase=msg.snake_name)
@@ -138,9 +132,9 @@ class CanTxHeaderFileGenerator(CanTxFileGenerator):
         function_declarations = []
         function_declarations.append(self._Init.declaration)
         function_declarations.append(self._TransmitPeriodicMsgs.declaration)
-        function_declarations.append('/** @brief Signal getters for periodic CAN TX messages */\n' + '\n'.join([func.declaration for func in self._PeriodicTxSignalSetters]))
+        function_declarations.append('/** @brief Signal setters for periodic CAN TX messages */\n' + '\n'.join([func.declaration for func in self._PeriodicTxSignalSetters]))
         function_declarations.append('/** @brief "Normal" enqueue functions for non-periodic CAN TX messages */\n' + '\n'.join([func.declaration for func in self._EnqueueNonPeriodicMsgs]))
-        function_declarations.append('/** @brief "Force" enqueue functions for non-periodic CAN TX messages*/\n' + '\n'.join([func.declaration for func in self._ForceEnqueueNonPeriodicMsgs]))
+        function_declarations.append('/** @brief Signal getters for periodic CAN TX messages */\n' + '\n'.join([func.declaration for func in self._PeriodicTxSignalGetters]))
         return '\n\n'.join(function_declarations)
 
 class CanTxSourceFileGenerator(CanTxFileGenerator):
@@ -208,6 +202,6 @@ class CanTxSourceFileGenerator(CanTxFileGenerator):
         function_defs.append(self._TransmitPeriodicMsgs.definition)
         function_defs.extend(func.definition for func in self._PeriodicTxSignalSetters)
         function_defs.extend(func.definition for func in self._EnqueueNonPeriodicMsgs)
-        function_defs.extend(func.definition for func in self._ForceEnqueueNonPeriodicMsgs)
+        function_defs.extend(func.definition for func in self._PeriodicTxSignalGetters)
 
         return '\n\n'.join(function_defs)

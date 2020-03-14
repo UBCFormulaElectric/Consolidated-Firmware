@@ -1,17 +1,12 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
-#include <string.h>
-#include <FreeRTOS.h>
-#include <queue.h>
-#include <task.h>
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/App_CanRx.h"
-#include "SharedCan.h"
 #include "BoardSpecifics.h"
+#include "SharedCan.h"
 #include "SharedAssert.h"
 #include "SharedFreeRTOS.h"
-#include "SharedAssert.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -47,31 +42,35 @@
 #define _ENQUEUE_BOARD_STARTUP(BOARD, ARG) \
     App_CanTx_EnqueueNonPeriodicMsg_##BOARD##_STARTUP(ARG)
 
-/** @brief Board-specific struct type for the CAN TX FIFO overflow payload */
-#define CAN_TX_FIFO_OVERFLOW_STRUCT(board) _CAN_TX_FIFO_OVERFLOW_STRUCT(board)
-#define _CAN_TX_FIFO_OVERFLOW_STRUCT(board) \
-    CanMsgs_##board##_can_tx_fifo_overflow_t
+// The following filter IDs/masks must be used with 16-bit Filter Scale
+// (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier
+// registers are associated with mask registers specifying which bits of the
+// identifier are handled as "don't care" or as "must match". For each bit in
+// the mask registers, 0 = Don't Care and 1 = Must Match.
+//
+// Bit mapping of a 16-bit identifier register and mask register:
+// Standard CAN ID [15:5] RTR[4] IDE[3] Extended CAN ID [2:0]
+//
+// For example, with the following filter IDs/mask:
+// =======================================================
+// Identifier Register:    [000 0000 0000] [0] [0] [000]
+// Mask Register:          [111 1110 0000] [1] [1] [000]
+// =======================================================
+// The filter will accept incoming messages that match the following criteria:
+// [000 000x xxxx]    [0]    [0]         [xxx]
+// Standard CAN ID    RTR    IDE     Extended CAN ID
 
-/**
- * @brief Board-specific function to transmit the CAN TX FIFO overflow message
- */
-#define FORCE_ENQUEUE_CAN_TX_FIFO_OVERFLOW(BOARD, ARG) \
-    _FORCE_ENQUEUE_CAN_TX_FIFO_OVERFLOW(BOARD, ARG)
-#define _FORCE_ENQUEUE_CAN_TX_FIFO_OVERFLOW(BOARD, ARG) \
-    App_CanTx_ForceEnqueueNonPeriodicMsg_##BOARD##_CAN_TX_FIFO_OVERFLOW(ARG)
+/** @brief Helper macro to initialize FiRx register in 16-bit mode */
+#define INIT_MASKMODE_16BIT_FiRx(std_id, rtr, ide, ext_id)                     \
+    ((((uint32_t)(std_id) << 5U) & 0xFFE0) |                                   \
+     (((uint32_t)(rtr) << 4U) & 0x0010) | (((uint32_t)(ide) << 3U) & 0x0008) | \
+     (((uint32_t)(ext_id) << 0U) & 0x0007))
 
-/** @brief Board-specific struct type for the CAN RX FIFO overflow payload */
-#define CAN_RX_FIFO_OVERFLOW_STRUCT(board) _CAN_RX_FIFO_OVERFLOW_STRUCT(board)
-#define _CAN_RX_FIFO_OVERFLOW_STRUCT(board) \
-    CanMsgs_##board##_can_rx_fifo_overflow_t
-
-/**
- * @brief Board-specific function to transmit the CAN RX FIFO overflow message
- */
-#define FORCE_ENQUEUE_CAN_RX_FIFO_OVERFLOW(BOARD, ARG) \
-    _FORCE_ENQUEUE_CAN_RX_FIFO_OVERFLOW(BOARD, ARG)
-#define _FORCE_ENQUEUE_CAN_RX_FIFO_OVERFLOW(BOARD, ARG) \
-    App_CanTx_ForceEnqueueNonPeriodicMsg_##BOARD##_CAN_RX_FIFO_OVERFLOW(ARG)
+// Open CAN filter that accepts any CAN message as long as it uses Standard CAN
+// ID and is a data frame.
+#define MASKMODE_16BIT_ID_OPEN \
+    INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, CAN_ExtID_NULL)
+#define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
 
 /******************************************************************************
  * Module Typedefs
@@ -115,25 +114,10 @@ static struct StaticSemaphore CanTxBinarySemaphore = {
  * Private Function Prototypes
  ******************************************************************************/
 /**
- * @brief  Initialize one or more CAN filters using 16-bit Filter Scale and
- *         Identifier Mask Mode (FSCx = 0, FBMx = 0)
- * @param  hcan Pointer to a CAN_HandleTypeDef structure that contains
- *         the configuration information for the specified CAN.
- * @param  filters Array of CAN filters.
- * @param  num_of_filters The number of CAN filters in the array.
- * @return ERROR: One or more filters didn't initialize properly
- *         SUCCESS: All filters initialized with no errors
- */
-static ErrorStatus Io_InitializeFilters(
-    CAN_HandleTypeDef *        hcan,
-    CanMaskFilterConfig_Struct filters[],
-    uint32_t                   num_of_filters);
-
-/**
  * @brief Transmits a CAN message
- * @param can_tx_msg CAN message to transmit
+ * @param message CAN message to transmit
  */
-static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *can_tx_msg);
+static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *message);
 
 /**
  * @brief  Shared callback function to be used in each RX FIFO callback
@@ -146,85 +130,57 @@ static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *can_tx_msg);
  */
 static void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo);
 
+/*
+ * @brief Consolidate CAN TX complete callback into one function
+ */
+static inline void Io_CanTxCompleteCallback(void);
+
+/**
+ * Initializes the filters on the given CAN interface to allow all msgs through
+ * @param hcan The interface to set the fully open filter on
+ * @return SUCCESS if success, otherwise an error code
+ */
+static ErrorStatus Io_InitializeAllOpenFilters(CAN_HandleTypeDef *hcan);
+
 /******************************************************************************
  * Private Function Definitions
  ******************************************************************************/
-static ErrorStatus Io_InitializeFilters(
-    CAN_HandleTypeDef *        hcan,
-    CanMaskFilterConfig_Struct filters[],
-    uint32_t                   num_of_filters)
+
+static ErrorStatus Io_InitializeAllOpenFilters(CAN_HandleTypeDef *hcan)
 {
     shared_assert(hcan != NULL);
-    shared_assert(filters != NULL);
 
-    static uint32_t filter_bank = 0;
-    static uint32_t fifo        = CAN_FILTER_FIFO0;
-    uint32_t        is_odd      = num_of_filters % 2;
-
+    /* Configure a single filter bank that accepts any message */
     CAN_FilterTypeDef can_filter;
-    can_filter.FilterMode       = CAN_FILTERMODE_IDMASK;
-    can_filter.FilterScale      = CAN_FILTERSCALE_16BIT;
-    can_filter.FilterActivation = CAN_FILTER_ENABLE;
+    can_filter.FilterMode           = CAN_FILTERMODE_IDMASK;
+    can_filter.FilterScale          = CAN_FILTERSCALE_16BIT;
+    can_filter.FilterActivation     = CAN_FILTER_ENABLE;
+    can_filter.FilterIdLow          = MASKMODE_16BIT_ID_OPEN;
+    can_filter.FilterMaskIdLow      = MASKMODE_16BIT_MASK_OPEN;
+    can_filter.FilterIdHigh         = MASKMODE_16BIT_ID_OPEN;
+    can_filter.FilterMaskIdHigh     = MASKMODE_16BIT_MASK_OPEN;
+    can_filter.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+    can_filter.FilterBank           = 0;
 
-    // Initialize two 16-bit filters for each filter bank
-    for (uint32_t i = 0; i < num_of_filters / 2; i++)
-    {
-        // Configure filter settings
-        can_filter.FilterIdLow          = filters[i].id;
-        can_filter.FilterMaskIdLow      = filters[i].mask;
-        can_filter.FilterIdHigh         = filters[i + 1].id;
-        can_filter.FilterMaskIdHigh     = filters[i + 1].mask;
-        can_filter.FilterFIFOAssignment = fifo;
-        can_filter.FilterBank           = filter_bank;
-
-        // Alternate between the two FIFOs
-        fifo = !fifo;
-
-        // Update filter bank for next iteration
-        filter_bank = filter_bank + 1;
-
-        // Configure and initialize filter bank
-        if (HAL_CAN_ConfigFilter(hcan, &can_filter) != HAL_OK)
-        {
-            return ERROR;
-        }
-    }
-
-    // For the odd-one-out filter, initialize two identical 16-bit filters
-    // because each filter bank requires two 16-bit filters
-    if (is_odd)
-    {
-        // Configure filter settings
-        uint32_t last_filter_index      = num_of_filters - 1;
-        can_filter.FilterIdLow          = filters[last_filter_index].id;
-        can_filter.FilterMaskIdLow      = filters[last_filter_index].mask;
-        can_filter.FilterIdHigh         = filters[last_filter_index].id;
-        can_filter.FilterMaskIdHigh     = filters[last_filter_index].mask;
-        can_filter.FilterFIFOAssignment = fifo;
-        can_filter.FilterBank           = filter_bank;
-
-        // Configure and initialize filter bank
-        if (HAL_CAN_ConfigFilter(hcan, &can_filter) != HAL_OK)
-        {
-            return ERROR;
-        }
-    }
-
-    return SUCCESS;
+    // Configure and initialize filter bank
+    if (HAL_CAN_ConfigFilter(hcan, &can_filter) != HAL_OK)
+        return ERROR;
+    else
+        return SUCCESS;
 }
 
-static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *can_tx_msg)
+static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *message)
 {
     shared_assert(sharedcan_initialized == true);
-    shared_assert(can_tx_msg != NULL);
+    shared_assert(message != NULL);
 
     // Indicates the mailbox used for transmission, not currently used
     uint32_t mailbox = 0;
 
     CAN_TxHeaderTypeDef tx_header;
 
-    tx_header.DLC   = can_tx_msg->dlc;
-    tx_header.StdId = can_tx_msg->std_id;
+    tx_header.DLC   = message->dlc;
+    tx_header.StdId = message->std_id;
 
     // The standard 11-bit CAN identifier is more than sufficient, so we disable
     // Extended CAN IDs by setting this field to zero.
@@ -243,7 +199,7 @@ static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *can_tx_msg)
     tx_header.TransmitGlobalTime = DISABLE;
 
     return HAL_CAN_AddTxMessage(
-        sharedcan_hcan, &tx_header, can_tx_msg->data, &mailbox);
+        sharedcan_hcan, &tx_header, message->data, &mailbox);
 }
 
 static inline void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
@@ -251,48 +207,57 @@ static inline void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
     shared_assert(sharedcan_initialized == true);
     shared_assert(hcan != NULL);
 
-    BaseType_t          xHigherPriorityTaskWoken = pdFALSE;
-    CAN_RxHeaderTypeDef rx_header;
-    struct CanMsg       rx_msg;
+    // Track how many times the CAN TX FIFO has overflowed
+    static uint32_t canrx_overflow_count = { 0 };
 
-    if (HAL_CAN_GetRxMessage(hcan, rx_fifo, &rx_header, &rx_msg.data[0]) ==
+    BaseType_t          xHigherPriorityTaskWoken = pdFALSE;
+    CAN_RxHeaderTypeDef header;
+    struct CanMsg       message;
+
+    if (HAL_CAN_GetRxMessage(hcan, rx_fifo, &header, &message.data[0]) ==
         HAL_OK)
     {
+        // TODO (#501): We should just return here if rx_header.StdId doesn't
+        // pass the software filter.
+
         // Copy metadata from HAL's CAN message struct into our custom CAN
         // message struct
-        rx_msg.std_id = rx_header.StdId;
-        rx_msg.dlc    = rx_header.DLC;
+        message.std_id = header.StdId;
+        message.dlc    = header.DLC;
 
         // We defer reading the CAN RX message to a task by storing the message
         // on the CAN RX queue
         if (xQueueSendToBackFromISR(
-                can_rx_msg_fifo.handle, &rx_msg, &xHigherPriorityTaskWoken) !=
+                can_rx_msg_fifo.handle, &message, &xHigherPriorityTaskWoken) !=
             pdPASS)
         {
-            // Log the number of RX FIFO overflow over CAN
-            static struct CAN_RX_FIFO_OVERFLOW_STRUCT(BOARD_NAME_LOWERCASE)
-                canrx_overflow_count = { .overflow_count = 0 };
-
-            canrx_overflow_count.overflow_count++;
-
-            FORCE_ENQUEUE_CAN_RX_FIFO_OVERFLOW(
-                BOARD_NAME_UPPERCASE, &canrx_overflow_count);
+            // If the RX FIFO is full, we discard the message and log the
+            // overflow over CAN.
+            canrx_overflow_count++;
+            App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(canrx_overflow_count);
         }
 
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
     }
 }
 
+static inline void Io_CanTxCompleteCallback(void)
+{
+    // We don't want to wake up CAN TX task if there is no message waiting to
+    // be sent.
+    if (uxQueueMessagesWaitingFromISR(CanTxBinarySemaphore.handle) == 0U &&
+        uxQueueMessagesWaitingFromISR(can_tx_msg_fifo.handle) > 0)
+    {
+        xSemaphoreGiveFromISR(CanTxBinarySemaphore.handle, NULL);
+    }
+}
+
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedCan_Init(
-    CAN_HandleTypeDef *        hcan,
-    CanMaskFilterConfig_Struct filters[],
-    uint32_t                   num_of_filters)
+void SharedCan_Init(CAN_HandleTypeDef *hcan)
 {
     shared_assert(hcan != NULL);
-    shared_assert(filters != NULL);
 
     // Initialize CAN TX software queue
     can_tx_msg_fifo.handle = xQueueCreateStatic(
@@ -303,7 +268,7 @@ void SharedCan_Init(
     // Initialize binary semaphore for CAN TX task
     CanTxBinarySemaphore.handle =
         xSemaphoreCreateBinaryStatic(&CanTxBinarySemaphore.storage);
-    configASSERT(CanTxBinarySemaphore.handle);
+    shared_assert(CanTxBinarySemaphore.handle);
 
     // Initialize CAN RX software queue
     can_rx_msg_fifo.handle = xQueueCreateStatic(
@@ -311,9 +276,8 @@ void SharedCan_Init(
         can_rx_msg_fifo.storage, &can_rx_msg_fifo.state);
     shared_assert(can_rx_msg_fifo.handle != NULL);
 
-    // Initialize CAN hardware filters
-    shared_assert(
-        Io_InitializeFilters(hcan, filters, num_of_filters) == SUCCESS);
+    // Initialize CAN RX hardware filters
+    shared_assert(Io_InitializeAllOpenFilters(hcan) == SUCCESS);
 
     // Configure interrupt mode for CAN peripheral
     shared_assert(
@@ -340,66 +304,59 @@ void App_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message)
     shared_assert(sharedcan_initialized == true);
     shared_assert(message != NULL);
 
-    if (xQueueSendToBack(can_tx_msg_fifo.handle, message, 0) != pdTRUE)
-    {
-        // Log the number of TX FIFO overflow over CAN. Since the TX FIFO is
-        // full, we forcibly remove the oldest elements to make space.
-        static struct CAN_TX_FIFO_OVERFLOW_STRUCT(BOARD_NAME_LOWERCASE)
-            cantx_overflow_count = { .overflow_count = 0 };
-
-        cantx_overflow_count.overflow_count++;
-
-        FORCE_ENQUEUE_CAN_TX_FIFO_OVERFLOW(
-            BOARD_NAME_UPPERCASE, &cantx_overflow_count);
-
-        App_SharedCan_TxMessageQueueForceSendToBack(message);
-    }
-
-    xSemaphoreGive(CanTxBinarySemaphore.handle);
-}
-
-void App_SharedCan_TxMessageQueueForceSendToBack(struct CanMsg *message)
-{
-    shared_assert(sharedcan_initialized == true);
-    shared_assert(message != NULL);
-
-    taskENTER_CRITICAL();
-
-    if (uxQueueSpacesAvailable(can_tx_msg_fifo.handle) == 0)
-    {
-        struct CanMsg dummy_buffer;
-        if (xPortIsInsideInterrupt())
-        {
-            xQueueReceiveFromISR(can_tx_msg_fifo.handle, &dummy_buffer, NULL);
-        }
-        else
-        {
-            xQueueReceive(can_tx_msg_fifo.handle, &dummy_buffer, 0);
-        }
-    }
+    // Track how many times the CAN TX FIFO has overflowed
+    static uint32_t cantx_overflow_count = { 0 };
 
     if (xPortIsInsideInterrupt())
     {
-        xQueueSendToBackFromISR(can_tx_msg_fifo.handle, message, NULL);
+        if (xQueueSendToBackFromISR(can_tx_msg_fifo.handle, message, NULL) !=
+            pdTRUE)
+        {
+            // If the TX FIFO is full, we discard the message and log the
+            // overflow over CAN.
+            cantx_overflow_count++;
+            App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(cantx_overflow_count);
+        }
+        else if (
+            uxQueueMessagesWaitingFromISR(CanTxBinarySemaphore.handle) == 0U)
+        {
+            // Give the binary semaphore only if it's not already given, or else
+            // xSemaphoreGive() would fail and clutter up Tracealyzer.
+            xSemaphoreGiveFromISR(CanTxBinarySemaphore.handle, NULL);
+        }
     }
     else
     {
-        xQueueSendToBack(can_tx_msg_fifo.handle, message, 0);
+        if (xQueueSendToBack(can_tx_msg_fifo.handle, message, 0) != pdTRUE)
+        {
+            // If the TX FIFO is full, we discard the message and log the
+            // overflow over CAN.
+            cantx_overflow_count++;
+            App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(cantx_overflow_count);
+        }
+        // Without this if-statement, xSemaphore could fail and this would
+        // clutter up the Tracealyzer trace.
+        else if (uxQueueMessagesWaiting(CanTxBinarySemaphore.handle) == 0U)
+        {
+            // Give the binary semaphore only if it's not already given, or else
+            // xSemaphoreGive() would fail and clutter up Tracealyzer.
+            xSemaphoreGive(CanTxBinarySemaphore.handle);
+        }
     }
-
-    taskEXIT_CRITICAL();
 }
 
 void App_SharedCan_ReadRxMessagesIntoTableFromTask(void)
 {
     shared_assert(sharedcan_initialized == true);
 
-    struct CanMsg rx_msg;
+    struct CanMsg message;
 
     // Get a message from the RX queue and process it, else block forever.
-    if (xQueueReceive(can_rx_msg_fifo.handle, &rx_msg, portMAX_DELAY) == pdTRUE)
+    if (xQueueReceive(can_rx_msg_fifo.handle, &message, portMAX_DELAY) ==
+        pdTRUE)
     {
-        App_CanRx_ReadMessageIntoTableFromTask(rx_msg.std_id, &rx_msg.data[0]);
+        App_CanRx_ReadMessageIntoTableFromTask(
+            message.std_id, &message.data[0]);
     }
 }
 
@@ -412,16 +369,11 @@ void App_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void)
     while (HAL_CAN_GetTxMailboxesFreeLevel(sharedcan_hcan) > 0 &&
            uxQueueMessagesWaiting(can_tx_msg_fifo.handle) > 0)
     {
-        struct CanMsg tx_msg;
-        if (xQueuePeek(can_tx_msg_fifo.handle, &tx_msg, 0) == pdTRUE)
-        {
-            (void)Io_TransmitCanMessage(&tx_msg);
+        struct CanMsg message;
 
-            // Remove the message from CAN TX queue if we were able to transmit
-            // it. This should never fail. If it ever does, then the CAN TX
-            // queue is probably being consumed somewhere else by mistake.
-            shared_assert(
-                xQueueReceive(can_tx_msg_fifo.handle, &tx_msg, 0) == pdTRUE);
+        if (xQueueReceive(can_tx_msg_fifo.handle, &message, 0) == pdTRUE)
+        {
+            (void)Io_TransmitCanMessage(&message);
         }
     }
 }
@@ -442,19 +394,19 @@ void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
 {
     /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
     UNUSED(hcan);
-    xSemaphoreGiveFromISR(CanTxBinarySemaphore.handle, NULL);
+    Io_CanTxCompleteCallback();
 }
 
 void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef *hcan)
 {
     /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
     UNUSED(hcan);
-    xSemaphoreGiveFromISR(CanTxBinarySemaphore.handle, NULL);
+    Io_CanTxCompleteCallback();
 }
 
 void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan)
 {
     /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
     UNUSED(hcan);
-    xSemaphoreGiveFromISR(CanTxBinarySemaphore.handle, NULL);
+    Io_CanTxCompleteCallback();
 }

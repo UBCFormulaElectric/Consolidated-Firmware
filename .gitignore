@@ -92,6 +92,7 @@ src/**/*.xml
 !**/.idea/misc.xml
 !**/.idea/runConfigurations/*
 auto_generated/
+__lib__/
 
 # Miscellaneous
 *.tra
@@ -102,7 +103,7 @@ auto_generated/
 *.l2p
 *.iex
 
-# STM32CubeMx
+# STM32CubeMX
 .mxproject
 MXTmpFiles
 

@@ -26,4 +26,6 @@ if (CoreDebug->DHCSR & CoreDebug_DHCSR_C_DEBUGEN_Msk) \
     __asm__ __volatile__ ("bkpt #0"); \
 } \
 
+#define min(x, y) (((x) < (y)) ? (x) : (y))
+
 #endif /* SHARED_MACROS_H */

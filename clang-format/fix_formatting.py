@@ -59,6 +59,7 @@ def runClangFormat():
         "SEGGER_RTT",
         "TraceRecorder",
         "auto_generated",
+        "profiler-cortex-m4",
     ]
 
     # Print the current working directory since the paths are relative
