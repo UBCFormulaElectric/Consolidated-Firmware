@@ -68,7 +68,7 @@ class CanFileGenerator:
     def __init__(self, database, output_path, board):
         self._database = database
         self.__board = board
-        self._output_dir = os.getcwd() if os.path.dirname(output_path) is '' else os.path.dirname(output_path)
+        self._output_dir = os.getcwd() if os.path.dirname(output_path) == '' else os.path.dirname(output_path)
         self._output_name = os.path.basename(output_path)
 
     def _get_can_msgs(self):

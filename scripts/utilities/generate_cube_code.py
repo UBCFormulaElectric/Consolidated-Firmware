@@ -57,13 +57,13 @@ def generate_cubemx_code(board, ioc, codegen_dir, cubemx):
         proc.wait(timeout_sec)
     except subprocess.TimeoutExpired:
         raise Exception('STM32CubeMX execution has timed out after {} seconds.'.format(str(timeout_sec)))
-    if proc.returncode is not 0:
+    if proc.returncode != 0:
         raise Exception('An error occured while executing STM32CubeMX.')
 
 if __name__ == '__main__':
     # Parse arguments
     parser = argparse.ArgumentParser()
-    valid_boards = ['DCM', 'FSM', 'PDM', 'BMS']
+    valid_boards = ['DCM', 'FSM', 'PDM', 'BMS', 'DIM']
     parser.add_argument('board', help='Choose one of the following: ' + ' '.join(valid_boards))
     parser.add_argument('ioc', help='STM32CubeMX .ioc file')
     parser.add_argument('output_dir', help='Code generation output folder')
