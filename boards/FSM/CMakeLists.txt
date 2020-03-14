@@ -20,10 +20,9 @@ file(GLOB_RECURSE STM32CUBEMX_DRIVER_SRCS
     )
 SET(IOC_FILE "${CMAKE_SOURCE_DIR}/FSM.ioc")
 
-board_specific_code_generation(
+create_arm_binary_or_tests_for_board(
     "FSM"
     "${IOC_FILE}"
-    "Inc/git_hash.h"
     "${ARM_BINARY_SOURCES}"
     "${ARM_BINARY_INCLUDE_DIRS}"
     "${STM32CUBEMX_DRIVER_SRCS}"
