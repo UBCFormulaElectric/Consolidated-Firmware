@@ -103,6 +103,8 @@ function(create_arm_binary
         # TODO: delete this
         ${CMAKE_CURRENT_SOURCE_DIR}/Src/auto_generated/App_CanTx.c
         # TODO: delete this
+        ${CMAKE_CURRENT_SOURCE_DIR}/Src/auto_generated/App_CanRx.c
+        # TODO: delete this
         ${CMAKE_CURRENT_SOURCE_DIR}/shared/CAN/auto_generated/CanMsgs.c
         )
     target_include_directories(${BOARD_NAME}.elf 
@@ -236,3 +238,6 @@ function(board_specific_code_generation
 endfunction()
 
 add_subdirectory(DCM)
+add_subdirectory(PDM)
+add_subdirectory(FSM)
+add_subdirectory(BMS)
