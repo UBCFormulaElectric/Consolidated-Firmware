@@ -27,6 +27,13 @@ set(CMAKE_CXX_STANDARD 17)
 # Shared code global to all boards
 add_subdirectory(${PROJECT_SOURCE_DIR}/shared __shared__)
 
+# Globally Accessible Flags
+SET(FPU_FLAGS
+    -mcpu=cortex-m4 
+    -mfloat-abi=hard 
+    -mfpu=fpv4-sp-d16
+    )
+
 # Shared static libraries
 add_subdirectory("${PROJECT_SOURCE_DIR}/../lib" 
                  "${CMAKE_CURRENT_BINARY_DIR}/__lib__")
@@ -46,7 +53,7 @@ SET(FIX_FORMATTING_SCRIPT_PY ${CMAKE_SOURCE_DIR}/../clang-format/fix_formatting.
 # Globally Accessible files
 SET(DBC_FILE ${CMAKE_SOURCE_DIR}/shared/CAN/CanMsgs.dbc)
 SET(STM32F302C8_LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/STM32F302C8Tx_FLASH.ld)
-        
+
 # TODO -  full jdoc comment
 function(cube_mx_code_generation IOC_FILE)
     # Automatically re-generate STM32CubeMX code from the .ioc file
@@ -132,9 +139,7 @@ function(create_arm_binary
         )
     target_compile_options(${BOARD_NAME}.elf
         PUBLIC
-            -mcpu=cortex-m4 
-            -mfloat-abi=hard 
-            -mfpu=fpv4-sp-d16
+            ${FPU_FLAGS}
             -mthumb 
             -mthumb-interwork 
             -ffunction-sections 
@@ -156,11 +161,7 @@ function(create_arm_binary
         "-Wl,-T ${STM32F302C8_LINKER_SCRIPT}"
         # TODO: flags that should be put in the compile and link stages should
         #       be in a shared variable
-        -mcpu=cortex-m4 
-        -mfloat-abi=hard 
-        -mfpu=fpv4-sp-d16
-        -mthumb 
-        -mthumb-interwork 
+        ${FPU_FLAGS}
         )
 
     set(HEX_FILE ${PROJECT_BINARY_DIR}/${BOARD_NAME}.hex)
@@ -285,6 +286,6 @@ function(board_specific_code_generation
 endfunction()
 
 add_subdirectory(DCM)
-#add_subdirectory(PDM)
-#add_subdirectory(FSM)
-#add_subdirectory(BMS)
+add_subdirectory(PDM)
+add_subdirectory(FSM)
+add_subdirectory(BMS)
