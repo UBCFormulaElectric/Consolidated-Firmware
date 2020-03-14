@@ -12,13 +12,18 @@
  * Includes
  ******************************************************************************/
 #include <stdint.h>
+#include <assert.h>
 
 /******************************************************************************
  * Preprocessor Macros
  ******************************************************************************/
+#if defined(__arm__)
 #define shared_assert(expr) \
     ((expr) ? (void)0U      \
             : SharedAssert_AssertFailed((char *)__FILE__, __LINE__, #expr))
+#elif defined(__x86_64__) || defined(__i386__)
+#define shared_assert(expr) assert(expr)
+#endif
 
 /******************************************************************************
  * Function Prototypes
