@@ -107,6 +107,9 @@ __lib__/
 .mxproject
 MXTmpFiles
 
+# We ignore linker scripts because they're all the same, so we just keep one
+boards/**/*.ld
+
 # This unwanted file gets created when you use the STM32CubeMX GUI to generate
 # code. This doesn't happen if you use the STM32CubeMX command-line interface.
 **/Drivers/CMSIS/Device/ST/STM32F3xx/Source/Templates/system_stm32f3xx.c
