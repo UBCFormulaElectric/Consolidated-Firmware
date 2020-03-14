@@ -17,6 +17,7 @@ void Io_FlowMeter_Init (){
     flowMeter_htim = &htim2;
 }
 #else
+
 void Io_FlowMeter_Init () {
     flowMeter_pwm_input = Io_SharedPwmInput_Create (&htim, TIM2_FREQUENCY, TIM_CHANNEL_2, TIM_CHANNEL_1);
     flowMeter_htim = &htim2;
