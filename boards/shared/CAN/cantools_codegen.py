@@ -57,7 +57,7 @@ def generate_cantools_c_code(database, database_name, source_dir, header_dir):
 
     # Generate output folders if they don't exist already
     if not os.path.exists(source_dir):
-        os.mkdir(source_dir)
+        os.makedirs(source_dir)
     if not os.path.exists(header_dir):
         os.mkdir(header_dir)
 
