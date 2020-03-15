@@ -9,6 +9,4 @@ struct FlowMeter;
  * @param get_flow_rate
  * @return
  */
-struct FlowMeter *App_FlowMeter_Create (float (*get_flow_rate)(void)) ;
-
-
+struct FlowMeter *App_FlowMeter_Create(float (*get_flow_rate)(void));

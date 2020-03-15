@@ -1,4 +1,5 @@
 /* USER CODE BEGIN Header */
+
 /**
  ******************************************************************************
  * @file           : main.c
@@ -38,6 +39,8 @@
 #include "auto_generated/App_CanRx.h"
 #include "arm_math.h"
 #include "App_FlowMeter.h"
+#include "Io_FlowMeter.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -126,6 +129,8 @@ int main(void)
 
     /* USER CODE BEGIN Init */
 
+    // Init pointer to Flowmeter struct
+
     /* USER CODE END Init */
 
     /* Configure the system clock */
@@ -143,15 +148,11 @@ int main(void)
     MX_TIM1_Init();
     MX_TIM2_Init();
     /* USER CODE BEGIN 2 */
-    // Initialize sample PWM for testing
-    // Generate 1kHz PWM Signal
 
+    // Initialize 10khz pwm signal for testing
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 
-    // Initialize flow meter
-
-    FlowMeter_Handle _flow_meter = _Init_FlowMeter();
-    _Update_Flow_Rate(_flow_meter);
+    Io_FlowMeter_Init();
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -203,6 +204,7 @@ int main(void)
     /* USER CODE END RTOS_THREADS */
 
     /* Start scheduler */
+    osKernelStart();
 
     /* We should never get here as control is now taken by the scheduler */
 
@@ -213,15 +215,8 @@ int main(void)
         /* USER CODE END WHILE */
 
         /* USER CODE BEGIN 3 */
-
-
-        float32_t flow = _get_flow_rate(_flow_meter);
-
-        uint8_t i = 0;
-        i++;
-
-        UNUSED(flow);
     }
+
     /* USER CODE END 3 */
 }
 
