@@ -129,15 +129,16 @@ PDM-3 | 18650 overvoltage handling | When the 24V systems are powered by the 186
 PDM-4 | 18650 charge fault handling | When the CHRG_FAULT GPIO is low (18650s charge fault condition), the PDM must throw a non-critical fault.
 PDM-5 | Boost controller fault handling | When the PGOOD GPIO is low (boost controller fault condition), the PDM must throw a non-critical fault.
 PDM-6 | Voltage sense rationality checks | The PDM must run voltage rationality checks at 1kHz on the following inputs, throwing a non-critical fault if a rationality check fails: <br/> - VBAT_SENSE: min =  6V, max = 8.5V. <br/> - 24V_AUX_SENSE: min = 22V, max = 26V. <br/> - 24V_ACC_SENSE: min = 22V, max = 26V.
-PDM-11 | Current sensing | The PDM must log all e-fuse currents over CAN at 1Hz. This involves, for each e-fuse (and its corresponding channel): <br/> 1. Waiting for a falling edge on the SYNC pin. <br/> 2. Reading the CSNS pin and converting it to a current.
-PDM-12 | E-fuse fail-safe mode | The PDM must check if it cannot communicate with an e-fuse over SPI, or if the PDM regains SPI communication with an e-fuse and detects it in fail-safe mode, at 1kHz. If either of these cases are true: <br/> - The PDM must throw a non-critical fault. <br/> - If the PDM has re-gained SPI communication, the PDM must put the e-fuse back into normal mode over SPI.
-PDM-13 | E-fuse fault mode | The PDM must check if each e-fuse enters fault mode at 1kHz over SPI. The PDM must throw a motor shutdown or non-critical fault over CAN depending on the e-fuse in the fault state: <br/> - AUX 1: Non-critical. <br/> - AUX 2: Non-critical. <br/> - Drive Inverter Left: Motor (TODO: consider not shutting down and creating a rudimentary speed limiter, based on worst case BEMF motor parameter (RPM/Vdc max load)). <br/> - Drive Inverter Right: Motor. <br/> - Energy Meter: Motor. <br/> - CAN: Motor. <br/> - AIR SHDN: Motor.
-PDM-14 | E-fuse fault delatching | After an e-fuse has faulted and completed its auto-retry sequence, the PDM must make three attempts to delatch the fault over SPI and wait 1s in between attempts. If the e-fuse's fault is cleared, clear the corresponding fault over CAN.
+PDM-11 | Current sensing | The PDM must measure and log all e-fuse currents over CAN at 1Hz.
+PDM-12 | E-fuse fail-safe mode | If an e-fuse enters fail-safe mode, the PDM must: <br/> - Throw a non-critical fault. <br/> - Control e-fuses over GPIO. <br/> <br/> If the e-fuse recovers, the PDM must return to SPI communication and clear the non-critical fault.
+PDM-22 | E-fuse fault behavior | - The PDM must continually compare e-fuse currents against their current limits. <br/> - Once the e-fuse current exceeds the current limit for an output, that output is considered to have faulted, and the PDM must set a non-critical fault. <br/> - Once an e-fuse faults, the PDM should retry by disabling the output for progressively longer times, i.e. time = (retry number * 100ms), then re-enable the output. <br/> - The PDM should retry 5 times before leaving an output permanently off, resetable by GLVMS only. This state is considered unrecoverable, and is handled by PDM-13.
+PDM-7 | E-fuse current limits | The PDM's e-fuse current limits must be set to 2.5A for inverter outputs, and 1A for other outputs.
+PDM-13 | Unrecoverable e-fuse fault behavior | The PDM must throw a motor shutdown or non-critical fault (different than the non-critical fault in PDM-22) over CAN depending on the e-fuse in the fault state: <br/> - AUX 1: Non-critical. <br/> - AUX 2: Non-critical. <br/> - Drive Inverter Left: Motor (TODO: consider not shutting down and creating a rudimentary speed limiter, based on worst case BEMF motor parameter (RPM/Vdc max load)). <br/> - Drive Inverter Right: Motor. <br/> - Energy Meter: Motor. <br/> - CAN: Motor. <br/> - AIR SHDN: Motor.
 
 ### PDM Init State <a name="PDM_INIT"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-PDM-7 | E-fuse current limits | - The PDM's e-fuse current limits must be set to 2.5A for inverter outputs, and 1A for other outputs. <br/> - The PDM must enable auto-retry on all e-fuses over SPI. <br/> - The PDM must disable all e-fuses in the init state.
+PDM-21 | E-fuse disabling | The PDM must disable all e-fuses in the init state.
 PDM-8 | Entering the init state | The PDM state machine must begin in the init state by default.
 PDM-10 | Exiting the init state and entering the AIR-Open state | After the PDM is finished programming the e-fuses, the PDM must enter the AIR-Open state.
 
@@ -151,7 +152,7 @@ PDM-17 | Exiting the AIR-Open state | The PDM must enter the AIR-Closed state wh
 ### PDM AIR-Closed State <a name="PDM_AIR_CLOSED"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-PDM-19 | E-fuse enabling | The PDM must enable all e-fuse outputs in the AIR-Closed state, except for the inverters, which depend on the following:. <br/> <br/> If the start switch is off AND the car is travelling slower than 10km/h, both inverters must be disabled. Otherwise, both inverters must be enabled, to protect against BEMF.
+PDM-19 | Selective e-fuse enabling | The PDM must enable all e-fuse outputs in the AIR-Closed state, except for the inverters, which depend on the following:. <br/> <br/> If the start switch is off AND the car is travelling slower than 10km/h, both inverters must be disabled. Otherwise, both inverters must be enabled, to protect against BEMF.
 PDM-18 | Entering the AIR-Closed state | The PDM must enter the AIR-Closed state when the BMS closes the contactors.
 PDM-20 | Exiting the AIR-Closed state | The PDM must enter the AIR-Open state when the BMS opens the contactors.
 
