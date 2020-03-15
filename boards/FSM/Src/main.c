@@ -82,6 +82,7 @@ uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
 osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
 
+struct FlowMeter *flowmeter;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -130,7 +131,6 @@ int main(void)
     /* USER CODE BEGIN Init */
 
     // Init pointer to Flowmeter struct
-    struct FlowMeter * flowmeter;
 
     /* USER CODE END Init */
 
@@ -156,7 +156,6 @@ int main(void)
     Io_FlowMeter_Init();
     flowmeter = App_FlowMeter_Create(Io_Imd_GetFrequency);
 
-    dummy(flowmeter);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -502,7 +501,7 @@ static void MX_TIM2_Init(void)
     }
     sSlaveConfig.SlaveMode       = TIM_SLAVEMODE_RESET;
     sSlaveConfig.InputTrigger    = TIM_TS_TI1FP1;
-    sSlaveConfig.TriggerPolarity = TIM_TRIGGERPOLARITY_RISING;
+    sSlaveConfig.TriggerPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
     sSlaveConfig.TriggerFilter   = 0;
     if (HAL_TIM_SlaveConfigSynchronization(&htim2, &sSlaveConfig) != HAL_OK)
     {
@@ -518,6 +517,10 @@ static void MX_TIM2_Init(void)
     sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
     sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
     sConfigIC.ICFilter    = 0;
+    if (HAL_TIM_IC_ConfigChannel(&htim2, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+    {
+        Error_Handler();
+    }
     if (HAL_TIM_IC_ConfigChannel(&htim2, &sConfigIC, TIM_CHANNEL_3) != HAL_OK)
     {
         Error_Handler();
@@ -622,51 +625,57 @@ void RunTask1Hz(void const *argument)
 {
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
-    uint32_t                 PreviousWakeTime = osKernelSysTick();
-    static const TickType_t  period_ms        = 1000000U;
-    SoftwareWatchdogHandle_t watchdog =
-        App_SharedSoftwareWatchdog_AllocateWatchdog();
-    //App_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1HZ", period_ms);
+        uint32_t                PreviousWakeTime = osKernelSysTick();
+        static const TickType_t period_ms        = 1000U;
+         SoftwareWatchdogHandle_t watchdog =
+            App_SharedSoftwareWatchdog_AllocateWatchdog();
+         App_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1HZ", period_ms);
 
-    for (;;)
-    {
-        App_StateMachine_Tick();
-        App_StackWaterMark_Check();
-        // Watchdog check-in must be the last function called before putting the
-        // task to sleep.
-        App_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
+        for (;;)
+        {
+            App_StateMachine_Tick();
+            App_StackWaterMark_Check();
+            // Watchdog check-in must be the last function called before putting the
+            // task to sleep.
+            App_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+            (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
+        }
+        /* USER CODE END 5 */
     }
-    /* USER CODE END 5 */
-}
 
-/* USER CODE BEGIN Header_RunTask1kHz */
-/**
- * @brief Function implementing the Task1kHz thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTask1kHz */
-void RunTask1kHz(void const *argument)
-{
-    /* USER CODE BEGIN RunTask1kHz */
-    UNUSED(argument);
-    uint32_t                 PreviousWakeTime = osKernelSysTick();
+    /* USER CODE BEGIN Header_RunTask1kHz */
+    /**
+     * @brief Function implementing the Task1kHz thread.
+     * @param argument: Not used
+     * @retval None
+     */
+    /* USER CODE END Header_RunTask1kHz */
+    void RunTask1kHz(void const *argument)
+    {
+        /* USER CODE BEGIN RunTask1kHz */
+        UNUSED(argument);
 
-    static const TickType_t  period_ms        = 1;
+    uint32_t PreviousWakeTime = osKernelSysTick();
+
+    static const TickType_t  period_ms = 1;
     SoftwareWatchdogHandle_t watchdog =
         App_SharedSoftwareWatchdog_AllocateWatchdog();
     App_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1KHZ", period_ms);
 
+    float frequency = Io_Imd_GetFrequency();
+
+    uint8_t swag = 0;
+    swag ++;
+
+    UNUSED(frequency);
+    UNUSED(swag);
+
     for (;;)
     {
-
-
-
-        App_CanTx_TransmitPeriodicMessages();
+         App_CanTx_TransmitPeriodicMessages();
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
-        App_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+         App_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END RunTask1kHz */

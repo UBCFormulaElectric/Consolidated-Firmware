@@ -24,10 +24,9 @@ struct FlowMeter *App_FlowMeter_Create(float (*get_flow_rate)(void))
     return flowmeter;
 }
 
-void dummy ( struct FlowMeter * ptr){
-
+void dummy(struct FlowMeter *ptr)
+{
     const float frequency = ptr->get_flow_rate();
 
     UNUSED(frequency);
-
 }
