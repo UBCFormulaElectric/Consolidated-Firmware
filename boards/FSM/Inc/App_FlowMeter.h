@@ -10,3 +10,6 @@ struct FlowMeter;
  * @return
  */
 struct FlowMeter *App_FlowMeter_Create(float (*get_flow_rate)(void));
+
+
+void dummy ( struct FlowMeter * ptr);

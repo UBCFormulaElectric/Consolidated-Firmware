@@ -1,7 +1,7 @@
 #include "App_FlowMeter.h"
-#include "stdio.h"
+#include "stdlib.h"
 #include "SharedAssert.h"
-
+#include <stm32f3xx_hal.h>
 // Currently configured to TIM2; Channel 3
 
 struct FlowMeter
@@ -22,4 +22,12 @@ struct FlowMeter *App_FlowMeter_Create(float (*get_flow_rate)(void))
     flowmeter->get_flow_rate = get_flow_rate;
 
     return flowmeter;
+}
+
+void dummy ( struct FlowMeter * ptr){
+
+    const float frequency = ptr->get_flow_rate();
+
+    UNUSED(frequency);
+
 }

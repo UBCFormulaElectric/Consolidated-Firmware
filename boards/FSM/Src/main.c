@@ -130,6 +130,7 @@ int main(void)
     /* USER CODE BEGIN Init */
 
     // Init pointer to Flowmeter struct
+    struct FlowMeter * flowmeter;
 
     /* USER CODE END Init */
 
@@ -153,6 +154,9 @@ int main(void)
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 
     Io_FlowMeter_Init();
+    flowmeter = App_FlowMeter_Create(Io_Imd_GetFrequency);
+
+    dummy(flowmeter);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -619,10 +623,10 @@ void RunTask1Hz(void const *argument)
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
     uint32_t                 PreviousWakeTime = osKernelSysTick();
-    static const TickType_t  period_ms        = 1000U;
+    static const TickType_t  period_ms        = 1000000U;
     SoftwareWatchdogHandle_t watchdog =
         App_SharedSoftwareWatchdog_AllocateWatchdog();
-    App_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1HZ", period_ms);
+    //App_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1HZ", period_ms);
 
     for (;;)
     {
@@ -648,6 +652,7 @@ void RunTask1kHz(void const *argument)
     /* USER CODE BEGIN RunTask1kHz */
     UNUSED(argument);
     uint32_t                 PreviousWakeTime = osKernelSysTick();
+
     static const TickType_t  period_ms        = 1;
     SoftwareWatchdogHandle_t watchdog =
         App_SharedSoftwareWatchdog_AllocateWatchdog();
@@ -655,6 +660,9 @@ void RunTask1kHz(void const *argument)
 
     for (;;)
     {
+
+
+
         App_CanTx_TransmitPeriodicMessages();
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
