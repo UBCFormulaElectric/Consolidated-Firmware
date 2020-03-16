@@ -130,7 +130,6 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
-
     // Init pointer to Flowmeter struct
 
     /* USER CODE END Init */
@@ -154,7 +153,8 @@ int main(void)
     HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 
     Io_FlowMeter_Init();
-    flowmeter = App_FlowMeter_Create(Io_Imd_GetFrequency);
+    flowmeter = App_FlowMeter_Create(Io_FlowMeter_GetFlowRate);
+    frequency = App_FlowMeter_ReadFlowRate(flowmeter);
 
     // Initialize 10khz pwm signal for testing
 
@@ -257,7 +257,7 @@ void SystemClock_Config(void)
     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
     {
@@ -411,9 +411,9 @@ static void MX_TIM1_Init(void)
 
     /* USER CODE END TIM1_Init 1 */
     htim1.Instance               = TIM1;
-    htim1.Init.Prescaler         = 31;
+    htim1.Init.Prescaler         = 71;
     htim1.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim1.Init.Period            = 1150;
+    htim1.Init.Period            = 999;
     htim1.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim1.Init.RepetitionCounter = 0;
     htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -438,7 +438,7 @@ static void MX_TIM1_Init(void)
         Error_Handler();
     }
     sConfigOC.OCMode       = TIM_OCMODE_PWM1;
-    sConfigOC.Pulse        = 100;
+    sConfigOC.Pulse        = 500;
     sConfigOC.OCPolarity   = TIM_OCPOLARITY_HIGH;
     sConfigOC.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
     sConfigOC.OCFastMode   = TIM_OCFAST_DISABLE;
@@ -503,7 +503,7 @@ static void MX_TIM2_Init(void)
     }
     sSlaveConfig.SlaveMode       = TIM_SLAVEMODE_RESET;
     sSlaveConfig.InputTrigger    = TIM_TS_TI1FP1;
-    sSlaveConfig.TriggerPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
+    sSlaveConfig.TriggerPolarity = TIM_TRIGGERPOLARITY_RISING;
     sSlaveConfig.TriggerFilter   = 0;
     if (HAL_TIM_SlaveConfigSynchronization(&htim2, &sSlaveConfig) != HAL_OK)
     {
@@ -519,13 +519,12 @@ static void MX_TIM2_Init(void)
     sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
     sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
     sConfigIC.ICFilter    = 0;
-    if (HAL_TIM_IC_ConfigChannel(&htim2, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+    if (HAL_TIM_IC_ConfigChannel(&htim2, &sConfigIC, TIM_CHANNEL_3) != HAL_OK)
     {
         Error_Handler();
     }
-    sConfigIC.ICPolarity  = TIM_INPUTCHANNELPOLARITY_FALLING;
-    sConfigIC.ICSelection = TIM_ICSELECTION_INDIRECTTI;
-    if (HAL_TIM_IC_ConfigChannel(&htim2, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
+    if (HAL_TIM_ConfigTI1Input(&htim2, TIM_TI1SELECTION_XORCOMBINATION) !=
+        HAL_OK)
     {
         Error_Handler();
     }
@@ -577,10 +576,10 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PB0 PB10 PB13 PB15
-                             PB6 PB7 */
-    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_10 | GPIO_PIN_13 | GPIO_PIN_15 |
-                          GPIO_PIN_6 | GPIO_PIN_7;
+    /*Configure GPIO pins : PB0 PB13 PB15 PB6
+                             PB7 */
+    GPIO_InitStruct.Pin =
+        GPIO_PIN_0 | GPIO_PIN_13 | GPIO_PIN_15 | GPIO_PIN_6 | GPIO_PIN_7;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -661,17 +660,14 @@ void RunTask1kHz(void const *argument)
         App_SharedSoftwareWatchdog_AllocateWatchdog();
     App_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1KHZ", period_ms);
 
-
-    uint8_t slatt = 0;
-    slatt++;
-
     for (;;)
     {
         App_CanTx_TransmitPeriodicMessages();
         // Watchdog check-in must be the last function called before putting the
-        frequency = Io_Imd_GetFrequency();
         // task to sleep.
         App_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        frequency = App_FlowMeter_ReadFlowRate(flowmeter);
+        frequency = Io_FlowMeter_GetFlowRate();
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END RunTask1kHz */

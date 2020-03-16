@@ -8,13 +8,12 @@
 void Io_FlowMeter_Init(void);
 
 /**
- * Get frequency from PWM input
- * @return
+ * Get Flow Rate (L/min) from the Flow Meter
  */
-float Io_Imd_GetFrequency(void);
+float Io_FlowMeter_GetFlowRate(void);
 
 /**
  * Called in input capture callback fxn
  * @param htim
  */
-void Io_flowMeter_InputCaptureCallback(TIM_HandleTypeDef *htim);
+void Io_FlowMeter_InputCaptureCallback(TIM_HandleTypeDef *htim);

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <stdlib.h>
+#include "SharedAssert.h"
+
 #define TIM2_FREQUENCY 36000000
 
 struct FlowMeter;
@@ -11,4 +14,8 @@ struct FlowMeter;
  */
 struct FlowMeter *App_FlowMeter_Create(float (*get_flow_rate)(void));
 
-void dummy(struct FlowMeter *ptr);
+/**
+ * Read Flow Rate from Flow Meter
+ *
+ */
+float App_FlowMeter_ReadFlowRate(struct FlowMeter *flowMeter);

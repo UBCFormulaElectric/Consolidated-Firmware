@@ -9,20 +9,31 @@ extern TIM_HandleTypeDef htim2;
 static struct PwmInput *  flowMeter_pwm_input;
 static TIM_HandleTypeDef *flowMeter_htim;
 
-void Io_FlowMeter_Init(void)
-{
-    flowMeter_pwm_input = Io_SharedPwmInput_Create(
-        &htim2, TIM2_FREQUENCY, TIM_CHANNEL_1, TIM_CHANNEL_2);
 
-    flowMeter_htim = &htim2;
-}
-
-float Io_Imd_GetFrequency(void)
+static float Io_FlowMeter_GetFrequency(void)
 {
     return Io_SharedPwmInput_GetFrequency(flowMeter_pwm_input);
 }
 
-void Io_flowMeter_InputCaptureCallback(TIM_HandleTypeDef *htim)
+
+void Io_FlowMeter_Init(void)
+{
+    flowMeter_pwm_input = Io_SharedPwmInput_Create(
+        &htim2, TIM2_FREQUENCY, TIM_CHANNEL_3, TIM_CHANNEL_3);
+
+    flowMeter_htim = &htim2;
+}
+
+
+float Io_FlowMeter_GetFlowRate(void)
+{
+    //Return flow rate (L/min)
+    //Flow rate pulse characteristics: Frequency (Hz) = 7.5 * Flow rate (L/min)
+    return Io_FlowMeter_GetFrequency() / 7.5;
+}
+
+
+void Io_FlowMeter_InputCaptureCallback(TIM_HandleTypeDef *htim)
 {
     shared_assert(htim != NULL);
 
