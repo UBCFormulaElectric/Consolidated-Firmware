@@ -55,7 +55,7 @@ ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 FSM-0 | Startup CAN message | The FSM must transmit a startup message over CAN on boot.
 FSM-10 | State CAN message | The FSM must transmit the state of its state machine at 100Hz.
-FSM-1 | Heartbeat sending | The FSM must transmit a heartbeat over CAN at 100Hz.
+FSM-1 | Heartbeat sending | The FSM must transmit a heartbeat over CAN at 10Hz.
 FSM-2 | Heartbeat receiving | The FSM must throw an AIR shutdown fault once it does not receive three consecutive BMS heartbeats.
 FSM-3 | Mapped pedal percentage reporting | The FSM must report the mapped pedal percentage over CAN at 1kHz, unless overridden.
 FSM-4 | Mapped pedal percentage | - The FSM must map the primary APPS position linearly with dead zones on both the low and high ends of the APPS position. <br/> - The low end dead zone boundary must be defined as 1.5 multiplied by the maximum encoder reading when the pedal is completely depressed. <br/> - The high end dead zone boundary must be experimentally determined to ensure the FSM can send 100% mapped pedal percentage despite any mechanical deflection in the pedal box.
@@ -87,7 +87,7 @@ ID | Title | Description | Associated Competition Rule(s)
 DCM-0 | Startup CAN message | The DCM must transmit a startup message over CAN on boot.
 DCM-21 | State CAN message | The DCM must transmit the state of its state machine at 100Hz.
 DCM-1 | Brake light control | The DCM must enable the brake light through the corresponding GPIO during brake actuation and/or regen, and must disable the brake light otherwise.
-DCM-2 | Heartbeat sending | The DCM must transmit a heartbeat over CAN at 100Hz.
+DCM-2 | Heartbeat sending | The DCM must transmit a heartbeat over CAN at 10Hz.
 DCM-18 | Heartbeat receiving | The DCM must throw an AIR shutdown fault once it does not receive three consecutive BMS heartbeats.
 
 ### DCM Init State <a name="DCM_INIT"></a>
@@ -123,7 +123,7 @@ ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 PDM-0 | Startup CAN message | The PDM must transmit a startup message over CAN on boot.
 PDM-21 | State CAN message | The PDM must transmit the state of its state machine at 100Hz.
-PDM-1 | Heartbeat sending | The PDM must transmit a heartbeat over CAN at 100Hz.
+PDM-1 | Heartbeat sending | The PDM must transmit a heartbeat over CAN at 10Hz.
 PDM-2 | Heartbeat receiving | The PDM must throw an AIR shutdown fault once it does not receive three consecutive BMS heartbeats.
 PDM-3 | 18650 overvoltage handling | When the 24V systems are powered by the 18650s and the OV_FAULT GPIO is low (18650 overvoltage fault condition), the PDM must throw an AIR shutdown fault.
 PDM-4 | 18650 charge fault handling | When the CHRG_FAULT GPIO is low (18650s charge fault condition), the PDM must throw a non-critical fault.
@@ -133,7 +133,7 @@ PDM-11 | Current sensing | The PDM must measure and log all e-fuse currents over
 PDM-12 | E-fuse fail-safe mode | If an e-fuse enters fail-safe mode, the PDM must: <br/> - Throw a non-critical fault. <br/> - Control e-fuses over GPIO. <br/> <br/> If the e-fuse recovers, the PDM must return to SPI communication and clear the non-critical fault.
 PDM-22 | E-fuse fault behavior | - The PDM must continually compare e-fuse currents against their current limits. <br/> - Once the e-fuse current exceeds the current limit for an output, that output is considered to have faulted, and the PDM must set a non-critical fault. <br/> - Once an e-fuse faults, the PDM should retry by disabling the output for progressively longer times, i.e. time = (retry number * 100ms), then re-enable the output. <br/> - The PDM should retry 5 times before leaving an output permanently off, resetable by GLVMS only. This state is considered unrecoverable, and is handled by PDM-13.
 PDM-7 | E-fuse current limits | The PDM's e-fuse current limits must be set to 2.5A for inverter outputs, and 1A for other outputs.
-PDM-13 | Unrecoverable e-fuse fault behavior | The PDM must throw a motor shutdown or non-critical fault (different than the non-critical fault in PDM-22) over CAN depending on the e-fuse in the fault state: <br/> - AUX 1: Non-critical. <br/> - AUX 2: Non-critical. <br/> - Drive Inverter Left: Motor (TODO: consider not shutting down and creating a rudimentary speed limiter, based on worst case BEMF motor parameter (RPM/Vdc max load)). <br/> - Drive Inverter Right: Motor. <br/> - Energy Meter: Motor. <br/> - CAN: Motor. <br/> - AIR SHDN: Motor.
+PDM-13 | Unrecoverable e-fuse fault behavior | The PDM must throw a motor shutdown or non-critical fault (different than the non-critical fault in PDM-22) over CAN depending on the e-fuse in the fault state: <br/> - AUX 1: Non-critical. <br/> - AUX 2: Non-critical. <br/> - Drive Inverter Left: Motor ([TODO: if time permits, run on one inverter](https://github.com/UBCFormulaElectric/Consolidated-Firmware/issues/514)). <br/> - Drive Inverter Right: Motor. <br/> - Energy Meter: Motor. <br/> - CAN: Motor. <br/> - AIR SHDN: Motor.
 
 ### PDM Init State <a name="PDM_INIT"></a>
 ID | Title | Description | Associated Competition Rule(s)
@@ -163,7 +163,7 @@ ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-0 | Startup CAN message | The BMS must transmit a startup message over CAN on boot.
 BMS-31 | State CAN message | The BMS must transmit the state of its state machine at 100Hz.
-BMS-1 | Heartbeat sending | The BMS must transmit a heartbeat over CAN at 100Hz.
+BMS-1 | Heartbeat sending | The BMS must transmit a heartbeat over CAN at 10Hz.
 BMS-2 | Heartbeat receiving | - The BMS must throw an AIR shutdown fault and enter the fault state once it does not receive three consecutive FSM or DCM heartbeats. <br/> - The BMS must throw a non-critical fault once it does not receive three consecutive PDM heartbeats.
 BMS-3 | isoSPI communication failure | - Upon isoSPI communication that results in a packet error code (PEC) mismatch, the BMS must retry communication. <br/> - After three consecutive unsuccessful isoSPI communication attempts, the BMS must throw an AIR shutdown fault and enter the fault state.
 BMS-4 | Cell voltages acquisition and logging | - The BMS must acquire all cell voltages over isoSPI at 100Hz. <br/> - The BMS must log the highest cell, lowest cell, average cell, pack, and segment voltages at 100Hz.
@@ -174,12 +174,13 @@ BMS-9 | Charger detection and logging | - The BMS must check the charger connect
 BMS-10 | Charger enable/disable | The BMS must enable the charger by setting the BMS PON pin high and disable the charger by setting the BMS PON pin low.
 BMS-11 | Contactor weld/stuck open detection | The BMS must check that the contactors are in the desired open or closed state at 1kHz, and if not the BMS must throw an AIR shutdown fault and enter the fault state.
 BMS-36 | IMD data transmission | - 10s after boot, the IMD resistance should settle to its initial value, and the BMS must transmit the IMD resistance, read from the IMD PWM pins, over CAN at 1Hz. <br/> - 2s after boot, IMD status should settle to its initial value, and the BMS must transmit the IMD status over CAN at 1Hz.
-BMS-37 | AIR state transmission | The BMS must transmit the state of the AIRs over CAN at 100Hz.
+BMS-37 | Latch state transmission | The BMS must transmit the states of the BMS, IMD and BSPD latches at 100Hz.
+BMS-38 | AIR state transmission | The BMS must transmit the state of the AIRs over CAN at 100Hz.
 
 ### BMS Init State <a name="BMS_INIT"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-BMS-12 | Precharge | - The BMS must wait for 5 seconds after boot, then wait for the closing of the AIR- contactor, to execute the precharge sequence. <br/> - The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin. <br/> - Upon a successful precharge, the BMS must close the AIR+ contactor. <br/> <br/> A precharge failure occurs when: <br/> - The TS (tractive system) bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. | EV.6.9.1
+BMS-12 | Precharge | - The BMS must wait for 5 seconds after boot, then wait for the closing of the AIR- contactor, to execute the precharge sequence. <br/> - The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin. <br/> - Upon a successful precharge, the BMS must close the AIR+ contactor. <br/> <br/> Upon a precharge failure, the BMS must throw an AIR shutdown fault. A precharge failure occurs when: <br/> - The TS (tractive system) bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. ([TODO: calculate constants](https://github.com/UBCFormulaElectric/Consolidated-Firmware/issues/515))| EV.6.9.1
 BMS-35 | SoC retrieval | The BMS must retrieve SoC from three different EEPROM regions, and use a voting algorithm to identify which data is correct, in case of data corruption.
 BMS-13 | Entering the init state | The BMS state machine must begin in the init state by default.
 BMS-15 | Exiting the init state and entering the charge state | Upon a successful precharge, the BMS must enter the charge state if the charger is connected.
@@ -219,6 +220,7 @@ BMS-30 | Exiting the fault state and entering the init state | Once all AIR shut
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 DIM-0 | Startup CAN message | The DIM must transmit a startup message over CAN on boot.
+DIM-10 | Heartbeat sending | The DIM must transmit a heartbeat over CAN at 10Hz.
 DIM-1 | Heartbeat receiving | The DIM must set the 7-segments all on to display '888' once it does not receive three consecutive BMS heartbeats.
 DIM-2 | Board status LEDs | The DIM must indicate the current status of the BMS, DCM, DIM, FSM and PDM using RGB LEDs, where GREEN = no fault, BLUE = non-critical fault and RED = critical fault. | EV.6.1.11
 DIM-3 | Drive mode switch | The DIM must transmit the drive mode position of the rotary switch over CAN at 1kHz.
