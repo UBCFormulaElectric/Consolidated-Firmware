@@ -257,7 +257,7 @@ void SystemClock_Config(void)
     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
-    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
+    RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
     {
@@ -411,9 +411,9 @@ static void MX_TIM1_Init(void)
 
     /* USER CODE END TIM1_Init 1 */
     htim1.Instance               = TIM1;
-    htim1.Init.Prescaler         = 71;
+    htim1.Init.Prescaler         = 31;
     htim1.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim1.Init.Period            = 99;
+    htim1.Init.Period            = 1150;
     htim1.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim1.Init.RepetitionCounter = 0;
     htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -438,7 +438,7 @@ static void MX_TIM1_Init(void)
         Error_Handler();
     }
     sConfigOC.OCMode       = TIM_OCMODE_PWM1;
-    sConfigOC.Pulse        = 50;
+    sConfigOC.Pulse        = 100;
     sConfigOC.OCPolarity   = TIM_OCPOLARITY_HIGH;
     sConfigOC.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
     sConfigOC.OCFastMode   = TIM_OCFAST_DISABLE;
@@ -523,6 +523,12 @@ static void MX_TIM2_Init(void)
     {
         Error_Handler();
     }
+    sConfigIC.ICPolarity  = TIM_INPUTCHANNELPOLARITY_FALLING;
+    sConfigIC.ICSelection = TIM_ICSELECTION_INDIRECTTI;
+    if (HAL_TIM_IC_ConfigChannel(&htim2, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
+    {
+        Error_Handler();
+    }
     /* USER CODE BEGIN TIM2_Init 2 */
 
     /* USER CODE END TIM2_Init 2 */
@@ -544,6 +550,9 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GPIOA, GPIO_PIN_2, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
         GPIOB, STATUS_R_Pin | STATUS_G_Pin | STATUS_B_Pin, GPIO_PIN_SET);
 
@@ -553,12 +562,19 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PA1 PA2 PA3 PA5
-                             PA6 PA7 PA9 PA10 */
-    GPIO_InitStruct.Pin = GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_3 | GPIO_PIN_5 |
-                          GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_9 | GPIO_PIN_10;
+    /*Configure GPIO pins : PA1 PA3 PA5 PA6
+                             PA7 PA9 PA10 */
+    GPIO_InitStruct.Pin = GPIO_PIN_1 | GPIO_PIN_3 | GPIO_PIN_5 | GPIO_PIN_6 |
+                          GPIO_PIN_7 | GPIO_PIN_9 | GPIO_PIN_10;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : PA2 */
+    GPIO_InitStruct.Pin   = GPIO_PIN_2;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PB0 PB10 PB13 PB15
@@ -645,12 +661,15 @@ void RunTask1kHz(void const *argument)
         App_SharedSoftwareWatchdog_AllocateWatchdog();
     App_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1KHZ", period_ms);
 
-    frequency = Io_Imd_GetFrequency();
+
+    uint8_t slatt = 0;
+    slatt++;
 
     for (;;)
     {
         App_CanTx_TransmitPeriodicMessages();
         // Watchdog check-in must be the last function called before putting the
+        frequency = Io_Imd_GetFrequency();
         // task to sleep.
         App_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);

@@ -1,6 +1,6 @@
 #pragma once
 
-#define TIM2_FREQUENCY 72000000
+#define TIM2_FREQUENCY 36000000
 
 struct FlowMeter;
 
