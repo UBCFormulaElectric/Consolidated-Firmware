@@ -8,7 +8,7 @@
 void Io_FlowMeter_Init(void);
 
 /**
- * Get Flow Rate (L/min) from the Flow Meter
+ * Get flow rate (L/min) from the flow meter
  */
 float Io_FlowMeter_GetFlowRate(void);
 
