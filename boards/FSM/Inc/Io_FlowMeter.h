@@ -3,7 +3,7 @@
 #include <stm32f3xx_hal.h>
 
 /**
- * Initialize Flowmeter
+ * Initialize the flow meter
  */
 void Io_FlowMeter_Init(void);
 
