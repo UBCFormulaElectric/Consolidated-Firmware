@@ -1,6 +1,5 @@
 #include "SharedAssert.h"
 #include "main.h"
-#include "App_FlowMeter.h"
 #include "Io_SharedPwmInput.h"
 #include "Io_FlowMeter.h"
 
@@ -17,7 +16,7 @@ static float Io_FlowMeter_GetFrequency(void)
 void Io_FlowMeter_Init(void)
 {
     flowMeter_pwm_input = Io_SharedPwmInput_Create(
-        &htim2, TIM2_FREQUENCY, TIM_CHANNEL_3, TIM_CHANNEL_3);
+        &htim2, TIM2_FREQUENCY / TIM2_PRESCALER, TIM_CHANNEL_3, TIM_CHANNEL_3);
 
     flowMeter_htim = &htim2;
 }

@@ -1,21 +1,21 @@
 #pragma once
 
 #include <stdlib.h>
+#include <main.h>
 #include "SharedAssert.h"
-
-#define TIM2_FREQUENCY 36000000
 
 struct FlowMeter;
 
 /**
- * Allocate and init flow metenujabesr, get flow rate
- * @param get_flow_rate
+ * Function used to create the flow meter struct
+ * @param get_flow_rate is a function pointer to a function that
+ * acquires the flow meter flow rate
  * @return
  */
 struct FlowMeter *App_FlowMeter_Create(float (*get_flow_rate)(void));
 
 /**
- * Read Flow Rate from Flow Meter
- *
+ * Function reads the flow rate from a liquid flow meter
+ * @param Pointer to the flow meter struct
  */
-float App_FlowMeter_ReadFlowRate(struct FlowMeter *flowMeter);
+float App_FlowMeter_ReadFlowRate(struct FlowMeter *flow_meter);

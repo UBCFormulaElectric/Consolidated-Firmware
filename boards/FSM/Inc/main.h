@@ -54,8 +54,6 @@ extern "C"
 
     /* USER CODE END EM */
 
-    void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
-
     /* Exported functions prototypes
      * ---------------------------------------------*/
     void Error_Handler(void);
@@ -73,12 +71,21 @@ extern "C"
 #define TASK1KHZ_STACK_SIZE 128
 #define TASKCANRX_STACK_SIZE 128
 #define TASKCANTX_STACK_SIZE 128
+#define TIM2_FREQUENCY 72000000
+#define TIM2_AUTO_RELOAD_REG 0xFFFF
+#define TIM2_PWM_MINIMUM_FREQUENCY 1
+#define TIM2_PRESCALER \
+    (TIM2_FREQUENCY / TIM2_AUTO_RELOAD_REG / TIM2_PWM_MINIMUM_FREQUENCY)
+#define UNUSED_GPIO_9_Pin GPIO_PIN_2
+#define UNUSED_GPIO_9_GPIO_Port GPIOA
 #define STEERING_ANGLE_Pin GPIO_PIN_4
 #define STEERING_ANGLE_GPIO_Port GPIOA
 #define UNUSED_GPIO_2_Pin GPIO_PIN_1
 #define UNUSED_GPIO_2_GPIO_Port GPIOB
 #define UNUSED_GPIO_3_Pin GPIO_PIN_2
 #define UNUSED_GPIO_3_GPIO_Port GPIOB
+#define FLOWMETER1_Pin GPIO_PIN_10
+#define FLOWMETER1_GPIO_Port GPIOB
 #define UNUSED_GPIO_5_Pin GPIO_PIN_11
 #define UNUSED_GPIO_5_GPIO_Port GPIOB
 #define UNUSED_GPIO_6_Pin GPIO_PIN_12
