@@ -14,6 +14,6 @@ float Io_FlowMeter_GetFlowRate(void);
 
 /**
  * Called in input capture callback fxn
- * @param htim
+ * @param htim The handle of the timer that triggered the input capture callback function
  */
 void Io_FlowMeter_InputCaptureCallback(TIM_HandleTypeDef *htim);
