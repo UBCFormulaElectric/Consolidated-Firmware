@@ -18,4 +18,4 @@ struct FlowMeter *App_FlowMeter_Create(float (*get_flow_rate)(void));
  * Read Flow Rate from Flow Meter
  *
  */
-float App_FlowMeter_ReadFlowRate(struct FlowMeter *flowMeter);
+float App_FlowMeter_GetFlowRate(struct FlowMeter *flow_meter);
