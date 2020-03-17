@@ -80,6 +80,7 @@ uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
 osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
 struct FlowMeter *flow_meter;
+float             freq;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -126,7 +127,6 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
     /* USER CODE END Init */
 
     /* Configure the system clock */
@@ -144,6 +144,7 @@ int main(void)
     MX_TIM1_Init();
     MX_TIM2_Init();
     /* USER CODE BEGIN 2 */
+    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
     Io_FlowMeter_Init();
     flow_meter = App_FlowMeter_Create(Io_FlowMeter_GetFlowRate);
     /* USER CODE END 2 */
@@ -401,7 +402,7 @@ static void MX_TIM1_Init(void)
     htim1.Instance               = TIM1;
     htim1.Init.Prescaler         = 71;
     htim1.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim1.Init.Period            = 1000;
+    htim1.Init.Period            = 999;
     htim1.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim1.Init.RepetitionCounter = 0;
     htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
@@ -647,6 +648,8 @@ void RunTask1kHz(void const *argument)
         App_CanTx_TransmitPeriodicMessages();
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
+        freq = App_FlowMeter_ReadFlowRate(flow_meter);
+        freq = Io_FlowMeter_GetFlowRate();
         App_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
     }
