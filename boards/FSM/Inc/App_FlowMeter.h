@@ -7,15 +7,15 @@
 struct FlowMeter;
 
 /**
- * Function used to create the flow meter struct
- * @param get_flow_rate is a function pointer to a function that
+ * Create the flow meter struct
+ * @param get_flow_rate A function pointer to a function that
  * acquires the flow meter flow rate
- * @return
+ * @return A pointer to the created FlowMeter struct
  */
 struct FlowMeter *App_FlowMeter_Create(float (*get_flow_rate)(void));
 
 /**
- * Function reads the flow rate from a liquid flow meter
- * @param Pointer to the flow meter struct
+ * Read the flow rate from a liquid flow meter
+ * @param flow_meter A pointer to the FlowMeter struct
  */
 float App_FlowMeter_ReadFlowRate(struct FlowMeter *flow_meter);
