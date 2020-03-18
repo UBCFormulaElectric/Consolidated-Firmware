@@ -3,32 +3,37 @@ from codegen_shared import *
 class AppCanTxFileGenerator(CanFileGenerator):
     def __init__(self, database, output_path, sender, function_prefix):
         super().__init__(database, output_path, sender)
-        self.__cantx_msgs = list(msg for msg in self._get_can_msgs() if sender in msg.senders)
+        self.__cantx_msgs = \
+            list(msg for msg in self._get_can_msgs() if sender in msg.senders)
         self.__database = database
 
         self._sender = sender
         self._function_prefix = function_prefix
-        self._non_periodic_cantx_msgs = list(msg for msg in self.__cantx_msgs if msg.cycle_time == 0)
-        self._periodic_cantx_msgs = list(msg for msg in self.__cantx_msgs if msg.cycle_time > 0)
+        self._non_periodic_cantx_msgs = \
+            list(msg for msg in self.__cantx_msgs if msg.cycle_time == 0)
+        self._periodic_cantx_msgs = \
+            list(msg for msg in self.__cantx_msgs if msg.cycle_time > 0)
         self._periodic_cantx_signals = \
             [CanSignal(signal.type_name, signal.snake_name, msg.snake_name)
              for msg in self._periodic_cantx_msgs for signal in msg.signals]
-
-        self.__init_variables()
 
         # Initialize function objects so we can get its declaration and
         # definition when generating the source and header fie
         self.__init_functions(function_prefix)
 
-    def __init_variables(self):
-        pass
-
     def __init_functions(self, function_prefix):
-        function_params = [("    void (*send_non_periodic_msg_%s)(struct CanMsgs_%s_t* payload)," % (msg.snake_name.upper(), msg.snake_name)) for msg in self._non_periodic_cantx_msgs]
-        init_senders = [("    can_tx_interface->send_non_periodic_msg_%s = send_non_periodic_msg_%s;" % (msg.snake_name.upper(), msg.snake_name.upper())) for msg in self._non_periodic_cantx_msgs]
+        function_params = \
+            [("    void (*send_non_periodic_msg_%s)(struct CanMsgs_%s_t* payload),"
+              % (msg.snake_name.upper(), msg.snake_name))
+             for msg in self._non_periodic_cantx_msgs]
+        init_senders = \
+            [("    can_tx_interface->send_non_periodic_msg_%s = send_non_periodic_msg_%s;"
+              % (msg.snake_name.upper(), msg.snake_name.upper()))
+             for msg in self._non_periodic_cantx_msgs]
 
         self._Create = Function(
-            'struct CanTxInterface* %s_Create(%s)' % (function_prefix, '\n' + '\n'.join(function_params)[:-1]),
+            'struct CanTxInterface* %s_Create(%s)'
+                % (function_prefix, '\n' + '\n'.join(function_params)[:-1]),
             'Allocate and initialize a CAN TX interface',
             '''\
     static struct CanTxInterface can_tx_interfaces[MAX_NUM_OF_CANTX_INTERFACES];
@@ -125,7 +130,8 @@ class AppCanTxSourceFileGenerator(AppCanTxFileGenerator):
             'PeriodicCanTxMsgs',
             [StructMember('struct CanMsgs_%s_t' % msg.snake_name,
                           msg.snake_name,
-                          'INIT_PERIODIC_CANTX_MSG()') for msg in self._periodic_cantx_msgs],
+                          'INIT_PERIODIC_CANTX_MSG()')
+             for msg in self._periodic_cantx_msgs],
             'Periodic CAN TX message')
         self.__CanTxInterface = Struct(
             'CanTxInterface',
@@ -135,7 +141,8 @@ class AppCanTxSourceFileGenerator(AppCanTxFileGenerator):
             [StructMember('void (*send_non_periodic_msg_%s)(struct CanMsgs_%s_t* payload)'
                             % (msg.snake_name.upper(), msg.snake_name),
                           '',
-                          '0') for msg in self._non_periodic_cantx_msgs],
+                          '0')
+             for msg in self._non_periodic_cantx_msgs],
             'Can TX interface')
 
     def __generateHeaderIncludes(self):

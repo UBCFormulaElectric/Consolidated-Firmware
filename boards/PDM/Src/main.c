@@ -32,10 +32,12 @@
 #include "SharedHardFaultHandler.h"
 #include "SharedAssert.h"
 #include "App_StackWaterMark.h"
+#include "App_SharedWorld.h"
 #include "States/App_StateMachine.h"
 #include "App_SoftwareWatchdog.h"
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/App_CanRx.h"
+#include "auto_generated/Io_CanTx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -75,7 +77,7 @@ osThreadId          TaskCanTxHandle;
 uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
 osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
-
+struct World *world;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -108,7 +110,15 @@ int main(void)
     /* USER CODE BEGIN 1 */
     __HAL_DBGMCU_FREEZE_IWDG();
     SharedHardFaultHandler_Init();
-    App_CanTx_Init();
+
+    static struct CanTxInterface *can_tx;
+    can_tx = App_CanTx_Create(
+        Io_CanTx_EnqueueNonPeriodicMsg_PDM_AIR_SHUTDOWN,
+        Io_CanTx_EnqueueNonPeriodicMsg_PDM_MOTOR_SHUTDOWN,
+        Io_CanTx_EnqueueNonPeriodicMsg_PDM_STARTUP,
+        Io_CanTx_EnqueueNonPeriodicMsg_PDM_WATCHDOG_TIMEOUT);
+    world = App_SharedWorld_Create(can_tx);
+
     App_CanRx_Init();
     App_StateMachine_Init();
     /* USER CODE END 1 */
@@ -593,7 +603,9 @@ void RunTask1kHz(void const *argument)
 
     for (;;)
     {
-        App_CanTx_TransmitPeriodicMessages();
+        Io_CanTx_TransmitPeriodicMessages(
+            App_SharedWorld_GetCanTx(world),
+            osKernelSysTick() * portTICK_PERIOD_MS);
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         App_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
