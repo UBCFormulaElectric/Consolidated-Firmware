@@ -41,11 +41,15 @@ if __name__ == "__main__":
                     "[%s] -> [%s] must be less than 32-bit to ensure atomic access on our 32-bit microcontrollers!" % (msg.snake_name, signal.snake_name))
 
     # Generate CAN TX code
-    cantx_source = CanTxSourceFileGenerator(database, os.path.join(args.source_dir, 'App_CanTx.c'), args.board, 'App_CanTx')
-    cantx_source.generateSource()
+    app_cantx_source = AppCanTxSourceFileGenerator(database, os.path.join(args.source_dir, 'App_CanTx.c'), args.board, 'App_CanTx')
+    app_cantx_source.generateSource()
+    io_cantx_source = IoCanTxSourceFileGenerator(database, os.path.join(args.source_dir, 'Io_CanTx.c'), args.board, 'Io_CanTx')
+    io_cantx_source.generateSource()
 
-    cantx_header = CanTxHeaderFileGenerator(database, os.path.join(args.header_dir, 'App_CanTx.h'), args.board, 'App_CanTx')
-    cantx_header.generateHeader()
+    app_cantx_header = AppCanTxHeaderFileGenerator(database, os.path.join(args.header_dir, 'App_CanTx.h'), args.board, 'App_CanTx')
+    app_cantx_header.generateHeader()
+    io_cantx_header = IoCanTxHeaderFileGenerator(database, os.path.join(args.header_dir, 'Io_CanTx.h'), args.board, 'Io_CanTx')
+    io_cantx_header.generateHeader()
 
     # Generate CAN RX code
     canrx_source = CanRxSourceFileGenerator(database, os.path.join(args.source_dir, 'App_CanRx.c'), args.board, 'App_CanRx')
