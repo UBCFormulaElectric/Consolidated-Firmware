@@ -319,6 +319,6 @@ function(create_arm_binary_or_tests_for_board
 endfunction()
 
 add_subdirectory(DCM)
-#add_subdirectory(PDM)
-#add_subdirectory(FSM)
-#add_subdirectory(BMS)
+add_subdirectory(PDM)
+add_subdirectory(FSM)
+add_subdirectory(BMS)
