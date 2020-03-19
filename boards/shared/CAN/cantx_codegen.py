@@ -243,8 +243,8 @@ class IoCanTxFileGenerator(CanFileGenerator):
                                     for msg in self._periodic_cantx_msgs])
 
         self._TransmitPeriodicMsgs = Function('''\
-void %s_TransmitPeriodicMessages(struct CanTxInterface* can_tx_interface, const uint32_t current_ms)''' % function_prefix,
-            'Transmits periodic CAN TX messages according to the cycle time specified in the DBC. This should be called in a 1kHz task.',
+void %s_EnqueuePeriodicMsgs(struct CanTxInterface* can_tx_interface, const uint32_t current_ms)''' % function_prefix,
+            'Enqueue periodic CAN TX messages according to the cycle time specified in the DBC. This should be called in a 1kHz task.',
             FunctionDef)
 
         self._EnqueueNonPeriodicMsgs = list(Function(

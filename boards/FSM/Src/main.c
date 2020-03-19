@@ -493,7 +493,7 @@ void RunTask1kHz(void const *argument)
 
     for (;;)
     {
-        Io_CanTx_TransmitPeriodicMessages(
+        Io_CanTx_EnqueuePeriodicMsgs(
             App_SharedWorld_GetCanTx(world),
             osKernelSysTick() * portTICK_PERIOD_MS);
         // Watchdog check-in must be the last function called before putting the
