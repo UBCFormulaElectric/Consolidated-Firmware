@@ -33,6 +33,8 @@
 #include "App_SharedWorld.h"
 #include "States/App_StateMachine.h"
 #include "App_SoftwareWatchdog.h"
+#include "Io_Imd.h"
+#include "App_Imd.h"
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/App_CanRx.h"
 #include "auto_generated/Io_CanTx.h"
@@ -60,6 +62,8 @@ CAN_HandleTypeDef hcan;
 
 IWDG_HandleTypeDef hiwdg;
 
+TIM_HandleTypeDef htim2;
+
 osThreadId          Task1HzHandle;
 uint32_t            Task1HzBuffer[TASK1HZ_STACK_SIZE];
 osStaticThreadDef_t Task1HzControlBlock;
@@ -74,6 +78,7 @@ uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
 osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
 struct World *world;
+struct Imd *  imd;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -82,6 +87,7 @@ static void MX_GPIO_Init(void);
 static void MX_CAN_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_IWDG_Init(void);
+static void MX_TIM2_Init(void);
 void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
 void        RunTaskCanRx(void const *argument);
@@ -139,8 +145,11 @@ int main(void)
     MX_CAN_Init();
     MX_ADC1_Init();
     MX_IWDG_Init();
+    MX_TIM2_Init();
     /* USER CODE BEGIN 2 */
-
+    Io_Imd_Init();
+    imd = App_Imd_Create(
+        Io_Imd_GetFrequency, Io_Imd_GetDutyCycle, Io_Imd_GetTimeSincePowerOn);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -373,6 +382,71 @@ static void MX_IWDG_Init(void)
 }
 
 /**
+ * @brief TIM2 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM2_Init(void)
+{
+    /* USER CODE BEGIN TIM2_Init 0 */
+
+    /* USER CODE END TIM2_Init 0 */
+
+    TIM_SlaveConfigTypeDef  sSlaveConfig  = { 0 };
+    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
+    TIM_IC_InitTypeDef      sConfigIC     = { 0 };
+
+    /* USER CODE BEGIN TIM2_Init 1 */
+
+    /* USER CODE END TIM2_Init 1 */
+    htim2.Instance               = TIM2;
+    htim2.Init.Prescaler         = TIM2_PRESCALER;
+    htim2.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim2.Init.Period            = TIM2_AUTO_RELOAD_REG;
+    htim2.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if (HAL_TIM_IC_Init(&htim2) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sSlaveConfig.SlaveMode       = TIM_SLAVEMODE_RESET;
+    sSlaveConfig.InputTrigger    = TIM_TS_TI2FP2;
+    sSlaveConfig.TriggerPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
+    sSlaveConfig.TriggerFilter   = 0;
+    if (HAL_TIM_SlaveConfigSynchronization(&htim2, &sSlaveConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigIC.ICPolarity  = TIM_INPUTCHANNELPOLARITY_FALLING;
+    sConfigIC.ICSelection = TIM_ICSELECTION_INDIRECTTI;
+    sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
+    sConfigIC.ICFilter    = 0;
+    if (HAL_TIM_IC_ConfigChannel(&htim2, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigIC.ICPolarity  = TIM_INPUTCHANNELPOLARITY_RISING;
+    sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
+    if (HAL_TIM_IC_ConfigChannel(&htim2, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM2_Init 2 */
+
+    /* USER CODE END TIM2_Init 2 */
+}
+
+/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -397,12 +471,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PA0 PA1 PA2 PA4
-                             PA5 PA6 PA7 PA11
-                             PA12 PA15 */
-    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_4 |
-                          GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_11 |
-                          GPIO_PIN_12 | GPIO_PIN_15;
+    /*Configure GPIO pins : PA0 PA2 PA4 PA5
+                             PA6 PA7 PA11 PA12
+                             PA15 */
+    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_2 | GPIO_PIN_4 | GPIO_PIN_5 |
+                          GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_11 | GPIO_PIN_12 |
+                          GPIO_PIN_15;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -493,6 +567,7 @@ void RunTask1kHz(void const *argument)
         Io_CanTx_EnqueuePeriodicMsgs(
             App_SharedWorld_GetCanTx(world),
             osKernelSysTick() * portTICK_PERIOD_MS);
+        App_Imd_Tick(imd);
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         App_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
@@ -541,7 +616,7 @@ void RunTaskCanTx(void const *argument)
 
 /**
  * @brief  Period elapsed callback in non blocking mode
- * @note   This function is called  when TIM2 interrupt took place, inside
+ * @note   This function is called  when TIM6 interrupt took place, inside
  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
  * a global variable "uwTick" used as application time base.
  * @param  htim : TIM handle
@@ -552,7 +627,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 0 */
 
     /* USER CODE END Callback 0 */
-    if (htim->Instance == TIM2)
+    if (htim->Instance == TIM6)
     {
         HAL_IncTick();
     }

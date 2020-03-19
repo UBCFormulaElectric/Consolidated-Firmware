@@ -242,7 +242,7 @@ class IoCanTxFileGenerator(CanFileGenerator):
                  period='CANMSGS_%s_CYCLE_TIME_MS' % msg.snake_name.upper())
                                     for msg in self._periodic_cantx_msgs])
 
-        self._TransmitPeriodicMsgs = Function('''\
+        self._EnqueuePeriodicMsgs = Function('''\
 void %s_EnqueuePeriodicMsgs(struct CanTxInterface* can_tx_interface, const uint32_t current_ms)''' % function_prefix,
             'Enqueue periodic CAN TX messages according to the cycle time specified in the DBC. This should be called in a 1kHz task.',
             FunctionDef)
@@ -289,7 +289,7 @@ class IoCanTxHeaderFileGenerator(IoCanTxFileGenerator):
 
     def __generateFunctionDeclarations(self):
         function_declarations = []
-        function_declarations.append(self._TransmitPeriodicMsgs.declaration)
+        function_declarations.append(self._EnqueuePeriodicMsgs.declaration)
         function_declarations.append(
             '/** @brief Enqueue non-periodic CAN message to the CAN TX queue */\n'
             + '\n'.join([func.declaration for func in self._EnqueueNonPeriodicMsgs]))
@@ -337,6 +337,6 @@ class IoCanTxSourceFileGenerator(IoCanTxFileGenerator):
 
     def __generateFunctionDefinitions(self):
         function_defs = []
-        function_defs.append(self._TransmitPeriodicMsgs.definition)
+        function_defs.append(self._EnqueuePeriodicMsgs.definition)
         function_defs.extend(func.definition for func in self._EnqueueNonPeriodicMsgs)
         return '\n\n'.join(function_defs)
