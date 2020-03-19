@@ -75,8 +75,6 @@ Pipfile.lock
 *.orig
 
 # CMake-relevant files
-# Note: To un-ignore anything directly under .idea/ (.e.g .idea/misc.xml), you
-# must un-ignore .idea/ first
 CMakeCache.txt
 cmake_install.cmake
 CMakeFiles/
@@ -102,9 +100,6 @@ cmake-build-*
 # STM32CubeMX
 .mxproject
 MXTmpFiles
-
-# We ignore linker scripts because they're all the same, so we just keep one
-boards/**/*.ld
 
 # This unwanted file gets created when you use the STM32CubeMX GUI to generate
 # code. This doesn't happen if you use the STM32CubeMX command-line interface.
