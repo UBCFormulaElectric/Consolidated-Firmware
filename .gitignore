@@ -80,19 +80,15 @@ Pipfile.lock
 CMakeCache.txt
 cmake_install.cmake
 CMakeFiles/
-Build/
 compile_commands.json
 Makefile
-cmake-build-debug/
-*.cbp
-!**/.idea
-src/**/*.xml
-**/.idea/*.iml
-**/.idea/*.xml
-!**/.idea/misc.xml
-!**/.idea/runConfigurations/*
 auto_generated/
 __lib__/
+*.cbp
+
+# Clion Files
+.idea/
+cmake-build-*
 
 # Miscellaneous
 *.tra
