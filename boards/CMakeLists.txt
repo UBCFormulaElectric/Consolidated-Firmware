@@ -1,5 +1,5 @@
-SET(CMAKE_SYSTEM_NAME Generic)
-SET(CMAKE_SYSTEM_VERSION 1)
+set(CMAKE_SYSTEM_NAME Generic)
+set(CMAKE_SYSTEM_VERSION 1)
 cmake_minimum_required(VERSION 3.10)
 
 # Target-platform specific settings
@@ -8,14 +8,13 @@ if("${PLATFORM}" STREQUAL "x86")
     # default compiler settings should be fine
     PROJECT(FORMULA_ELECTRIC_FIRMWARE C CXX)
 elseif("${PLATFORM}" STREQUAL "arm")
-    SET(CMAKE_C_COMPILER_WORKS 1)
-    SET(TOOLCHAIN_PREFIX arm-none-eabi-)
-    SET(CMAKE_ASM_COMPILER  ${TOOLCHAIN_PREFIX}gcc)
-    SET(CMAKE_OBJCOPY ${TOOLCHAIN_PREFIX}objcopy)
-    SET(CMAKE_OBJDUMP ${TOOLCHAIN_PREFIX}objdump)
-    SET(SIZE ${TOOLCHAIN_PREFIX}size)
-
-    SET(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}gcc)
+    set(CMAKE_C_COMPILER_WORKS 1)
+    set(TOOLCHAIN_PREFIX arm-none-eabi-)
+    set(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}gcc)
+    set(CMAKE_ASM_COMPILER ${TOOLCHAIN_PREFIX}gcc)
+    set(CMAKE_OBJCOPY ${TOOLCHAIN_PREFIX}objcopy)
+    set(CMAKE_OBJDUMP ${TOOLCHAIN_PREFIX}objdump)
+    set(SIZE ${TOOLCHAIN_PREFIX}size)
 
     PROJECT(FORMULA_ELECTRIC_FIRMWARE C ASM)
 else()
@@ -31,7 +30,7 @@ set(CMAKE_CXX_STANDARD 17)
 add_subdirectory(${PROJECT_SOURCE_DIR}/shared __shared__)
 
 # Globally Accessible Flags
-SET(FPU_FLAGS
+set(FPU_FLAGS
     -mcpu=cortex-m4 
     -mfloat-abi=hard 
     -mfpu=fpv4-sp-d16
@@ -41,7 +40,7 @@ SET(FPU_FLAGS
 add_subdirectory("${PROJECT_SOURCE_DIR}/../lib" 
                  "${CMAKE_CURRENT_BINARY_DIR}/__lib__")
 
-# Globally Accesible executables/scripts
+# Globally accessible executables/scripts
 if(NOT STM32CUBEMX_BIN_PATH)
     # Default STM32CubeMX path
     if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
@@ -50,31 +49,30 @@ if(NOT STM32CUBEMX_BIN_PATH)
         set(STM32CUBEMX_BIN_PATH /usr/local/STM32CubeMX/STM32CubeMX)
     endif()
 endif()
-SET(GENERATE_CUBE_CODE_SCRIPT_PY ${CMAKE_SOURCE_DIR}/../scripts/utilities/generate_cube_code.py)
-SET(FIX_FORMATTING_SCRIPT_PY ${CMAKE_SOURCE_DIR}/../clang-format/fix_formatting.py)
+set(GENERATE_CUBE_CODE_SCRIPT_PY ${CMAKE_SOURCE_DIR}/../scripts/utilities/generate_cube_code.py)
+set(FIX_FORMATTING_SCRIPT_PY ${CMAKE_SOURCE_DIR}/../clang-format/fix_formatting.py)
 
 # Globally Accessible files
-SET(DBC_FILE ${CMAKE_SOURCE_DIR}/shared/CAN/CanMsgs.dbc)
+set(DBC_FILE ${CMAKE_SOURCE_DIR}/shared/CAN/CanMsgs.dbc)
 
-# Generates code from the given IOC_FILE in the directory where this 
-# function is called from
-function(cube_mx_code_generation IOC_FILE)
-    # Automatically re-generate STM32CubeMX code from the .ioc file
-    # Also re-run clang-format because the STM32CubeMX-generated code 
-    # is not compliant to our clang-format rules.
-    # We create a MD5 hash here of the .ioc file for other targets to depend 
-    # on so that these files only get re-generated when the IOC file changes.
+# Generate STM32CubeMX driver code for BOARD_NAME using the given IOC_FILE in
+# the directory where this function is called from.
+function(cube_mx_code_generation BOARD_NAME IOC_FILE)
     add_custom_command(
         OUTPUT ${IOC_FILE}.md5
         COMMAND pipenv run python 
             ${CMAKE_SOURCE_DIR}/../scripts/utilities/generate_cube_code.py
-            DCM
+            ${BOARD_NAME}
             ${IOC_FILE}
             ${CMAKE_CURRENT_SOURCE_DIR}
             ${STM32CUBEMX_BIN_PATH}
+        # Create a MD5 hash of IOC_FILE for other build targets to depend on, so
+        # this custom command is only executed when IOC_FILE.md5 changes.
         COMMAND pipenv run python ${CMAKE_SOURCE_DIR}/../scripts/utilities/generate_md5_checksum.py
             ${IOC_FILE}
             ${IOC_FILE}.md5
+        # Run clang-format because the STM32CubeMX-generated code is not
+        # compliant to our clang-format rules.
         COMMAND pipenv run python 
             ${CMAKE_CURRENT_SOURCE_DIR}/../../clang-format/fix_formatting.py
             WORKING_DIRECTORY 
@@ -86,10 +84,10 @@ endfunction()
 # Generate C code to store the Git hash in read-only memory
 # Code will be generated in the directory that this function was called from
 function(git_hash_code_generation GIT_HASH_HEADER)
-    add_custom_command( 
+    add_custom_command(
+        OUTPUT "${GIT_HASH_HEADER}"
         COMMAND
             echo "#define GIT_HASH $(git rev-parse head)" > ${GIT_HASH_HEADER}
-        OUTPUT "${GIT_HASH_HEADER}"
         )
 endfunction()
 
@@ -178,16 +176,16 @@ function(create_arm_binary
     set(ASM_FILE ${PROJECT_BINARY_DIR}/${BOARD_NAME}.asm)
     
     add_custom_command(TARGET ${BOARD_NAME}.elf POST_BUILD
-        COMMAND ${CMAKE_OBJCOPY} 
-                -Oihex $<TARGET_FILE:${BOARD_NAME}.elf> ${HEX_FILE}
-        COMMAND ${CMAKE_OBJCOPY} 
-                -Obinary $<TARGET_FILE:${BOARD_NAME}.elf> ${BIN_FILE}
-        COMMAND ${CMAKE_OBJDUMP} 
-                -DS $<TARGET_FILE:${BOARD_NAME}.elf> > ${ASM_FILE}
-        COMMENT "
-                Building ${HEX_FILE}
-                Building ${BIN_FILE}
-                Building ${ASM_FILE}")
+    COMMAND ${CMAKE_OBJCOPY}
+            -Oihex $<TARGET_FILE:${BOARD_NAME}.elf> ${HEX_FILE}
+    COMMAND ${CMAKE_OBJCOPY}
+            -Obinary $<TARGET_FILE:${BOARD_NAME}.elf> ${BIN_FILE}
+    COMMAND ${CMAKE_OBJDUMP}
+            -DS $<TARGET_FILE:${BOARD_NAME}.elf> > ${ASM_FILE}
+    COMMENT "
+Building ${HEX_FILE}
+Building ${BIN_FILE}
+Building ${ASM_FILE}")
 endfunction()
 
 # Generate C code for sending/receiving CAN messages
@@ -202,6 +200,7 @@ endfunction()
 #   SHARED_AUTOGENERATED_INCLUDE_DIR - The folder to place shared generated source files in
 #   APP_CANTX_SRC_FILE - The path for for App layer generated CAN TX code file
 #   APP_CANRX_SRC_FILE - The path for for App layer generated CAN RX code file
+#   IO_CANTX_SRC_FILE - The path for the IO layer generated CAN TX code file
 #   CANMSGS_SRC - The path for the generated code for the DBC
 function(can_code_generation
             BOARD_NAME
@@ -209,13 +208,15 @@ function(can_code_generation
             BOARD_SPECIFIC_AUTOGENERATED_SRC_DIR
             APP_CANTX_SRC_FILE
             APP_CANRX_SRC_FILE
+            IO_CANTX_SRC_FILE
             CANMSGS_SRC
             )
 
     # Generate CAN code using DBC
-    SET(CANMSGS_AUTOGENERATED_SRCS 
+    set(CANMSGS_AUTOGENERATED_SRCS
         ${APP_CANTX_SRC_FILE}
         ${APP_CANRX_SRC_FILE}
+        ${IO_CANTX_SRC_FILE}
         ${CANMSGS_SRC}
         )
     add_custom_command(
@@ -252,28 +253,32 @@ function(create_arm_binary_or_tests_for_board
             LINKER_SCRIPT
             )
     # Construct the paths for the generated CAN code
-    SET(APP_CAN_RX_SRC_FILE_NAME "App_CanRx.c")
-    SET(APP_CAN_TX_SRC_FILE_NAME "App_CanTx.c")
-    SET(CANMSGS_SRC_FILE_NAME "CanMsgs.c")
+    set(APP_CAN_RX_SRC_FILE_NAME "App_CanRx.c")
+    set(APP_CAN_TX_SRC_FILE_NAME "App_CanTx.c")
+    set(IO_CAN_TX_SRC_FILE_NAME "Io_CanTx.c")
+    set(CANMSGS_SRC_FILE_NAME "CanMsgs.c")
 
-    SET(BOARD_SPECIFIC_AUTOGENERATED_INCLUDE_DIR
+    set(BOARD_SPECIFIC_AUTOGENERATED_INCLUDE_DIR
         "${CMAKE_CURRENT_SOURCE_DIR}/Inc/auto_generated")
-    SET(BOARD_SPECIFIC_AUTOGENERATED_SRC_DIR
+    set(BOARD_SPECIFIC_AUTOGENERATED_SRC_DIR
         "${CMAKE_CURRENT_SOURCE_DIR}/Src/auto_generated")
 
-    SET(APP_CAN_RX_SRC_FILE 
+    set(APP_CAN_RX_SRC_FILE
         "${BOARD_SPECIFIC_AUTOGENERATED_SRC_DIR}/${APP_CAN_RX_SRC_FILE_NAME}")
-    SET(APP_CAN_TX_SRC_FILE 
+    set(APP_CAN_TX_SRC_FILE
         "${BOARD_SPECIFIC_AUTOGENERATED_SRC_DIR}/${APP_CAN_TX_SRC_FILE_NAME}")
-    SET(APP_CAN_MSGS_SRC_FILE
+    set(IO_CAN_TX_SRC_FILE
+            "${BOARD_SPECIFIC_AUTOGENERATED_SRC_DIR}/${IO_CAN_TX_SRC_FILE_NAME}")
+    set(APP_CAN_MSGS_SRC_FILE
         "${BOARD_SPECIFIC_AUTOGENERATED_SRC_DIR}/${CANMSGS_SRC_FILE_NAME}")
 
-    SET(AUTOGENERATED_CAN_SRCS
+    set(AUTOGENERATED_CAN_SRCS
         "${APP_CAN_RX_SRC_FILE}"
         "${APP_CAN_TX_SRC_FILE}"
+        "${IO_CAN_TX_SRC_FILE}"
         "${APP_CAN_MSGS_SRC_FILE}"
         )
-    SET(AUTOGENERATED_CAN_INCLUDE_DIRS
+    set(AUTOGENERATED_CAN_INCLUDE_DIRS
         "${BOARD_SPECIFIC_AUTOGENERATED_INCLUDE_DIR}"
         )
 
@@ -282,7 +287,7 @@ function(create_arm_binary_or_tests_for_board
     list(APPEND ARM_BINARY_INCLUDE_DIRS
         "${AUTOGENERATED_CAN_INCLUDE_DIRS}")
 
-    SET(GIT_HASH_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/Inc/git_hash.h")
+    set(GIT_HASH_HEADER "${CMAKE_CURRENT_SOURCE_DIR}/Inc/git_hash.h")
     git_hash_code_generation(${GIT_HASH_HEADER})
 
     can_code_generation(
@@ -291,13 +296,16 @@ function(create_arm_binary_or_tests_for_board
         "${BOARD_SPECIFIC_AUTOGENERATED_SRC_DIR}"
         "${APP_CAN_RX_SRC_FILE}"
         "${APP_CAN_TX_SRC_FILE}"
+        "${IO_CAN_TX_SRC_FILE}"
         "${APP_CAN_MSGS_SRC_FILE}"
         )
 
     if ("${PLATFORM}" STREQUAL "x86")
         create_state_machine_tests()
     elseif("${PLATFORM}" STREQUAL "arm")
-        cube_mx_code_generation("${IOC_FILE}")
+        cube_mx_code_generation(
+            "${BOARD_NAME}"
+            "${IOC_FILE}")
         create_arm_binary(
             "${BOARD_NAME}"
             "${ARM_BINARY_SRCS}"
@@ -311,6 +319,6 @@ function(create_arm_binary_or_tests_for_board
 endfunction()
 
 add_subdirectory(DCM)
-#add_subdirectory(PDM)
-#add_subdirectory(FSM)
-#add_subdirectory(BMS)
+add_subdirectory(PDM)
+add_subdirectory(FSM)
+add_subdirectory(BMS)

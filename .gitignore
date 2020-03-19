@@ -84,7 +84,7 @@ auto_generated/
 __lib__/
 *.cbp
 
-# Clion Files
+# CLion Files
 .idea/
 cmake-build-*
 
