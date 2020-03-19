@@ -14,7 +14,17 @@
 struct PwmInput;
 
 /**
- * Allocate and initialize a PWM input
+ * Allocate and initialize a PWM input using the given (hardware) timer
+ *
+ * @note The given timer must be initialized with a particular case of input
+ *       capture mode:
+ *       - Two ICx signals are mapped on the same TIx input.
+ *       - These 2 ICx signals are active on edges with opposite polarity.
+ *       - One of the two TIxFP signals is selected as trigger input and the
+ *         slave mode controller is configured in reset mode.
+ * @note Not all timers support this particular case of input capture mode.
+ *       Consult the datasheet to double check!
+ *
  * @htim: The handle of the timer measuring the PWM input
  * @timer_frequency_hz: The frequency of the timer measuring the PWM input
  * @rising_edge_tim_channel: The rising edge channel of the timer measuring the
