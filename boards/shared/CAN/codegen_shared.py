@@ -7,20 +7,11 @@ HEADER_TEMPLATE = '''\
  * @note This file is auto-generated for {sender}. !!! Do not modify !!!
  */
 // clang-format off
-#ifndef {header_guard}
-#define {header_guard}
+#pragma once
 
-/******************************************************************************
- * Includes
- ******************************************************************************/
 {headers}
-
-/******************************************************************************
- * Function Prototypes
- ******************************************************************************/
+{forward_declarations}
 {function_declarations}
-
-#endif /* {header_guard} */
 '''
 
 SOURCE_TEMPLATE = '''\
@@ -28,39 +19,13 @@ SOURCE_TEMPLATE = '''\
  * @note This file is auto-generated for {board}. !!! Do not modify !!!
  */
 // clang-format off
-/******************************************************************************
- * Includes
- ******************************************************************************/
+
 {headers}
-
-/******************************************************************************
- * Module Typedefs
- ******************************************************************************/
 {typedefs}
-
-/******************************************************************************
- * Module Preprocessor Macros
- ******************************************************************************/
 {macros}
-
-/******************************************************************************
- * Module Variable Definitions
- ******************************************************************************/
 {variables}
-
-/******************************************************************************
- * Private Function Definitions
- ******************************************************************************/
 {private_function_defs}
-
- /******************************************************************************
- * Private Function Declarations
- ******************************************************************************/
 {private_function_decls}
-
-/******************************************************************************
- * Function Definitions
- ******************************************************************************/
 {function_defs}
 '''
 
@@ -89,10 +54,12 @@ class CanFileGenerator:
             variables=variables, private_function_defs=private_function_defs,
             private_function_decls=private_function_decls,function_defs=function_defs)
 
-    def _generateHeader(self, comment, header_guard, headers, function_declarations):
+    def _generateHeader(self, comment, headers, forward_declarations,
+                        function_declarations):
         return HEADER_TEMPLATE.format(
-            comment=comment, sender=self.__board, header_guard=header_guard,
-            headers=headers, function_declarations=function_declarations)
+            comment=comment, sender=self.__board, headers=headers,
+            forward_declarations=forward_declarations,
+            function_declarations=function_declarations)
 
 class Macro:
     def __init__(self, name, body, comment):

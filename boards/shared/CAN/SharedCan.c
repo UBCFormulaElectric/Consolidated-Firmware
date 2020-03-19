@@ -3,10 +3,14 @@
  ******************************************************************************/
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/App_CanRx.h"
+#include "auto_generated/Io_CanTx.h"
 #include "BoardSpecifics.h"
 #include "SharedCan.h"
 #include "SharedAssert.h"
 #include "SharedFreeRTOS.h"
+#include "App_SharedWorld.h"
+
+extern struct World *world;
 
 /******************************************************************************
  * Module Preprocessor Constants
@@ -37,10 +41,10 @@
 #define _BOARD_STARTUP_STRUCT(board) struct CanMsgs_##board##_startup_t
 
 /** @brief Board-specific function to transmit the CAN startup message */
-#define ENQUEUE_TRANSMIT_BOARD_STARTUP(BOARD, ARG) \
-    _ENQUEUE_BOARD_STARTUP(BOARD, ARG)
-#define _ENQUEUE_BOARD_STARTUP(BOARD, ARG) \
-    App_CanTx_EnqueueNonPeriodicMsg_##BOARD##_STARTUP(ARG)
+#define ENQUEUE_TRANSMIT_BOARD_STARTUP(BOARD, ARG1, ARG2) \
+    _ENQUEUE_BOARD_STARTUP(BOARD, ARG1, ARG2)
+#define _ENQUEUE_BOARD_STARTUP(BOARD, ARG1, ARG2) \
+    App_CanTx_SendNonPeriodicMsg_##BOARD##_STARTUP(ARG1, ARG2)
 
 // The following filter IDs/masks must be used with 16-bit Filter Scale
 // (FSCx = 0) and Identifier Mask Mode (FBMx = 0). In this mode, the identifier
@@ -129,6 +133,11 @@ static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *message);
  * @param  rx_fifo The Rx FIFO that triggered the callback
  */
 static void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo);
+
+/*
+ * @brief Consolidate CAN TX complete callback into one function
+ */
+static inline void Io_CanTxCompleteCallback(void);
 
 /**
  * Initializes the filters on the given CAN interface to allow all msgs through
@@ -229,10 +238,22 @@ static inline void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
             // If the RX FIFO is full, we discard the message and log the
             // overflow over CAN.
             canrx_overflow_count++;
-            App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(canrx_overflow_count);
+            App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(
+                App_SharedWorld_GetCanTx(world), canrx_overflow_count);
         }
 
         portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    }
+}
+
+static inline void Io_CanTxCompleteCallback(void)
+{
+    // We don't want to wake up CAN TX task if there is no message waiting to
+    // be sent.
+    if (uxQueueMessagesWaitingFromISR(CanTxBinarySemaphore.handle) == 0U &&
+        uxQueueMessagesWaitingFromISR(can_tx_msg_fifo.handle) > 0)
+    {
+        xSemaphoreGiveFromISR(CanTxBinarySemaphore.handle, NULL);
     }
 }
 
@@ -280,10 +301,11 @@ void SharedCan_Init(CAN_HandleTypeDef *hcan)
 
     // Broadcast a CAN message to indicate that the system has rebooted
     BOARD_STARTUP_STRUCT(BOARD_NAME_LOWERCASE) pcb_startup = { .dummy = 0 };
-    ENQUEUE_TRANSMIT_BOARD_STARTUP(BOARD_NAME_UPPERCASE, &pcb_startup);
+    ENQUEUE_TRANSMIT_BOARD_STARTUP(
+        BOARD_NAME_UPPERCASE, App_SharedWorld_GetCanTx(world), &pcb_startup);
 }
 
-void App_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message)
+void Io_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message)
 {
     shared_assert(sharedcan_initialized == true);
     shared_assert(message != NULL);
@@ -299,7 +321,8 @@ void App_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message)
             // If the TX FIFO is full, we discard the message and log the
             // overflow over CAN.
             cantx_overflow_count++;
-            App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(cantx_overflow_count);
+            App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(
+                App_SharedWorld_GetCanTx(world), cantx_overflow_count);
         }
         else if (
             uxQueueMessagesWaitingFromISR(CanTxBinarySemaphore.handle) == 0U)
@@ -316,7 +339,8 @@ void App_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message)
             // If the TX FIFO is full, we discard the message and log the
             // overflow over CAN.
             cantx_overflow_count++;
-            App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(cantx_overflow_count);
+            App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(
+                App_SharedWorld_GetCanTx(world), cantx_overflow_count);
         }
         // Without this if-statement, xSemaphore could fail and this would
         // clutter up the Tracealyzer trace.
@@ -354,15 +378,10 @@ void App_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void)
            uxQueueMessagesWaiting(can_tx_msg_fifo.handle) > 0)
     {
         struct CanMsg message;
-        if (xQueuePeek(can_tx_msg_fifo.handle, &message, 0) == pdTRUE)
+
+        if (xQueueReceive(can_tx_msg_fifo.handle, &message, 0) == pdTRUE)
         {
             (void)Io_TransmitCanMessage(&message);
-
-            // Remove the message from CAN TX queue if we were able to transmit
-            // it. This should never fail. If it ever does, then the CAN TX
-            // queue is probably being consumed somewhere else by mistake.
-            shared_assert(
-                xQueueReceive(can_tx_msg_fifo.handle, &message, 0) == pdTRUE);
         }
     }
 }
@@ -383,19 +402,19 @@ void HAL_CAN_TxMailbox0CompleteCallback(CAN_HandleTypeDef *hcan)
 {
     /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
     UNUSED(hcan);
-    xSemaphoreGiveFromISR(CanTxBinarySemaphore.handle, NULL);
+    Io_CanTxCompleteCallback();
 }
 
 void HAL_CAN_TxMailbox1CompleteCallback(CAN_HandleTypeDef *hcan)
 {
     /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
     UNUSED(hcan);
-    xSemaphoreGiveFromISR(CanTxBinarySemaphore.handle, NULL);
+    Io_CanTxCompleteCallback();
 }
 
 void HAL_CAN_TxMailbox2CompleteCallback(CAN_HandleTypeDef *hcan)
 {
     /* NOTE: All transmit mailbox interrupts shall be handled in the same way */
     UNUSED(hcan);
-    xSemaphoreGiveFromISR(CanTxBinarySemaphore.handle, NULL);
+    Io_CanTxCompleteCallback();
 }

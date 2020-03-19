@@ -14,6 +14,7 @@ SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 2|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 3|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 4|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 5|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ WATCHDOG_TIMEOUT : 6|1@1+ (1,0) [0|1] "" Vector__XXX
 
 
 BO_ 66 FSM_CAN_FIFO_OVERFLOW: 8 FSM
@@ -23,6 +24,8 @@ SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" Vector__XXX
 
 BO_ 67 FSM_STARTUP: 0 FSM
 
+BO_ 68 FSM_WATCHDOG_TIMEOUT : 8 FSM
+SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" Vector__XXX
 
 BO_ 80 FSM_AIR_SHUTDOWN: 0 FSM
 
@@ -35,12 +38,15 @@ BO_ 101 PDM_MOTOR_SHUTDOWN: 0 PDM
 
 BO_ 3 BMS_STARTUP: 0 BMS
 
+BO_ 4 BMS_WATCHDOG_TIMEOUT : 8 BMS
+SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" Vector__XXX
 
 BO_ 5 BMS_ERRORS: 8 BMS
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 0|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 1|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 2|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 3|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ WATCHDOG_TIMEOUT : 4|1@1+ (1,0) [0|1] "" Vector__XXX
 
 
 BO_ 96 PDM_ERRORS: 8 PDM
@@ -56,6 +62,7 @@ SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 8|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 9|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 10|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 11|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ WATCHDOG_TIMEOUT : 12|1@1+ (1,0) [0|1] "" Vector__XXX
 
 
 BO_ 98 PDM_CAN_FIFO_OVERFLOW: 8 PDM
@@ -94,12 +101,15 @@ SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" Vector__XXX
 
 BO_ 35 DCM_STARTUP: 0 DCM
 
+BO_ 36 DCM_WATCHDOG_TIMEOUT : 8 DCM
+SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" Vector__XXX
 
 BO_ 37 DCM_ERRORS: 8 DCM
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 0|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 1|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 2|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 3|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ WATCHDOG_TIMEOUT : 4|1@1+ (1,0) [0|1] "" Vector__XXX
 
 
 BO_ 102 PDM_AUX1_AUX2_CURRENT: 8 PDM
@@ -135,6 +145,27 @@ SG_ VBAT : 32|32@1- (1,0) [-3.4E038|3.4E038] "V" Vector__XXX
 BO_ 108 PDM_FLYWIRE: 4 PDM
 SG_ FLYWIRE : 0|32@1- (1,0) [-3.4E038|3.4E038] "V" Vector__XXX
 
+
+BO_ 109 PDM_WATCHDOG_TIMEOUT : 8 PDM
+SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" Vector__XXX
+
+
+BO_ 6 IMD: 8 BMS
+SG_ Condition M : 0|3@1+ (1,0) [0|1] "" Vector__XXX
+SG_ Seconds_Since_Power_On : 3|8@1+ (1,0) [0|1] "Seconds" Vector__XXX
+SG_ Valid_Duty_Cycle : 11|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ Dummy_0Hz m0 : 12|8@1+ (1,0) [0|1] "" Vector__XXX
+SG_ Insulation_Measurement_DCP_10Hz m1 : 12|16@1+ (1,0) [0|1] "kOhm" Vector__XXX
+SG_ Insulation_Measurement_DCP_20Hz m2 : 12|16@1+ (1,0) [0|1] "kOhm" Vector__XXX
+SG_ Speed_Start_Status_30Hz m3 : 12|16@1+ (1,0) [0|1] "" Vector__XXX
+SG_ Dummy_40Hz m4 : 12|8@1+ (1,0) [0|1] "" Vector__XXX
+SG_ Dummy_50Hz m5 : 12|8@1+ (1,0) [0|1] "" Vector__XXX
+SG_ Dummy_Invalid m6 : 12|8@1+ (1,0) [0|1] "" Vector__XXX
+
+
+BO_ 7 IMD_PWM_OUTPUT : 8 BMS
+SG_ Duty_Cycle : 0|32@1- (1,0) [-3.4E038|3.4E038] "%" Vector__XXX
+SG_ Frequency : 32|32@1- (1,0) [-3.4E038|3.4E038] "Hz" Vector__XXX
 
 CM_ BO_ 64 "This message contains a bit for each error that the FSM might throw";
 CM_ BO_ 66 "Indicates that we tried to transmit messages faster then we can send them, so our internal FIFO queue overflowed";
@@ -177,6 +208,8 @@ BA_ "GenMsgCycleTime" BO_ 65 300;
 BA_ "GenMsgCycleTime" BO_ 66 5000;
 BA_ "GenMsgCycleTime" BO_ 1 300;
 BA_ "GenMsgCycleTime" BO_ 5 1000;
+BA_ "GenMsgCycleTime" BO_ 6 1000;
+BA_ "GenMsgCycleTime" BO_ 7 1000;
 BA_ "GenMsgCycleTime" BO_ 33 300;
 BA_ "GenMsgCycleTime" BO_ 37 1000;
 BA_ "GenMsgCycleTime" BO_ 2 5000;
@@ -191,7 +224,8 @@ BA_ "GenMsgCycleTime" BO_ 107 1000;
 BA_ "GenMsgCycleTime" BO_ 108 1000;
 
 
-
+SIG_VALTYPE_ 7 Duty_Cycle : 1;
+SIG_VALTYPE_ 7 Frequency : 1;
 SIG_VALTYPE_ 102 Auxiliary1_Current : 1;
 SIG_VALTYPE_ 102 Auxiliary2_Current : 1;
 SIG_VALTYPE_ 103 Cooling_Pump_Current : 1;
@@ -206,3 +240,4 @@ SIG_VALTYPE_ 107 GLV : 1;
 SIG_VALTYPE_ 107 VBAT : 1;
 SIG_VALTYPE_ 108 FLYWIRE : 1;
 
+VAL_ 6 Condition 6 "IMD_INVALID" 5 "IMD_EARTH_FAULT" 4 "IMD_DEVICE_ERROR" 3 "IMD_SST" 2 "IMD_UNDERVOLTAGE_DETECTED" 1 "IMD_NORMAL" 0 "IMD_SHORT_CIRCUIT";

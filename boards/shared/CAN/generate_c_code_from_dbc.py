@@ -34,21 +34,27 @@ if __name__ == "__main__":
     database = load_file(args.dbc, database_format="dbc")
     for msg in list(msg for msg in map(Message, database.messages)):
         for signal in msg.signals:
-            if signal.type_length > 32:
+            # We don't worry about non-periodic messages because those aren't
+            # store in a global table and thus don't have race condition.
+            if signal.type_length > 32 and msg.cycle_time != 0:
                 raise Exception(
                     "[%s] -> [%s] must be less than 32-bit to ensure atomic access on our 32-bit microcontrollers!" % (msg.snake_name, signal.snake_name))
 
-    # Generate CAN TX code
-    cantx_source = CanTxSourceFileGenerator(database, os.path.join(args.source_dir, 'App_CanTx.c'), args.board, 'App_CanTx')
-    cantx_source.generateSource()
+    # Generate CAN TX code for the App layer
+    app_cantx_source = AppCanTxSourceFileGenerator(database, os.path.join(args.source_dir, 'App_CanTx.c'), args.board, 'App_CanTx')
+    app_cantx_source.generateSource()
+    app_cantx_header = AppCanTxHeaderFileGenerator(database, os.path.join(args.header_dir, 'App_CanTx.h'), args.board, 'App_CanTx')
+    app_cantx_header.generateHeader()
 
-    cantx_header = CanTxHeaderFileGenerator(database, os.path.join(args.header_dir, 'App_CanTx.h'), args.board, 'App_CanTx')
-    cantx_header.generateHeader()
+    # Generate CAN TX code for the IO layer
+    io_cantx_source = IoCanTxSourceFileGenerator(database, os.path.join(args.source_dir, 'Io_CanTx.c'), args.board, 'Io_CanTx')
+    io_cantx_source.generateSource()
+    io_cantx_header = IoCanTxHeaderFileGenerator(database, os.path.join(args.header_dir, 'Io_CanTx.h'), args.board, 'Io_CanTx')
+    io_cantx_header.generateHeader()
 
-    # Generate CAN RX code
+    # Generate CAN RX code for the App layer
     canrx_source = CanRxSourceFileGenerator(database, os.path.join(args.source_dir, 'App_CanRx.c'), args.board, 'App_CanRx')
     canrx_source.generateSource()
-
     canrx_header = CanRxHeaderFileGenerator(database, os.path.join(args.header_dir, 'App_CanRx.h'), args.board, 'App_CanRx')
     canrx_header.generateHeader()
 
