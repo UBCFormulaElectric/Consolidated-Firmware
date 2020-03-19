@@ -67,7 +67,7 @@ function(cube_mx_code_generation IOC_FILE)
     add_custom_command(
         OUTPUT ${IOC_FILE}.md5
         COMMAND pipenv run python 
-            ${CMAKE_SOURCE_DIR}/../../scripts/utilities/generate_cube_code.py
+            ${CMAKE_SOURCE_DIR}/../scripts/utilities/generate_cube_code.py
             DCM
             ${IOC_FILE}
             ${CMAKE_CURRENT_SOURCE_DIR}
