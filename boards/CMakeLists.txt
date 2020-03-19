@@ -41,7 +41,7 @@ SET(FPU_FLAGS
 add_subdirectory("${PROJECT_SOURCE_DIR}/../lib" 
                  "${CMAKE_CURRENT_BINARY_DIR}/__lib__")
 
-# Globally Accesible executables/scripts
+# Globally accessible executables/scripts
 if(NOT STM32CUBEMX_BIN_PATH)
     # Default STM32CubeMX path
     if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
@@ -56,25 +56,24 @@ SET(FIX_FORMATTING_SCRIPT_PY ${CMAKE_SOURCE_DIR}/../clang-format/fix_formatting.
 # Globally Accessible files
 SET(DBC_FILE ${CMAKE_SOURCE_DIR}/shared/CAN/CanMsgs.dbc)
 
-# Generates code from the given IOC_FILE in the directory where this 
-# function is called from
-function(cube_mx_code_generation IOC_FILE)
-    # Automatically re-generate STM32CubeMX code from the .ioc file
-    # Also re-run clang-format because the STM32CubeMX-generated code 
-    # is not compliant to our clang-format rules.
-    # We create a MD5 hash here of the .ioc file for other targets to depend 
-    # on so that these files only get re-generated when the IOC file changes.
+# Generate STM32CubeMX driver code for BOARD_NAME using the given IOC_FILE in
+# the directory where this function is called from.
+function(cube_mx_code_generation BOARD_NAME IOC_FILE)
     add_custom_command(
         OUTPUT ${IOC_FILE}.md5
         COMMAND pipenv run python 
             ${CMAKE_SOURCE_DIR}/../scripts/utilities/generate_cube_code.py
-            DCM
+            ${BOARD_NAME}
             ${IOC_FILE}
             ${CMAKE_CURRENT_SOURCE_DIR}
             ${STM32CUBEMX_BIN_PATH}
+        # Create a MD5 hash of IOC_FILE for other build targets to depend on, so
+        # this custom command is only executed when IOC_FILE.md5 changes.
         COMMAND pipenv run python ${CMAKE_SOURCE_DIR}/../scripts/utilities/generate_md5_checksum.py
             ${IOC_FILE}
             ${IOC_FILE}.md5
+        # Run clang-format because the STM32CubeMX-generated code is not
+        # compliant to our clang-format rules.
         COMMAND pipenv run python 
             ${CMAKE_CURRENT_SOURCE_DIR}/../../clang-format/fix_formatting.py
             WORKING_DIRECTORY 
@@ -305,7 +304,9 @@ function(create_arm_binary_or_tests_for_board
     if ("${PLATFORM}" STREQUAL "x86")
         create_state_machine_tests()
     elseif("${PLATFORM}" STREQUAL "arm")
-        cube_mx_code_generation("${IOC_FILE}")
+        cube_mx_code_generation(
+            "${BOARD_NAME}"
+            "${IOC_FILE}")
         create_arm_binary(
             "${BOARD_NAME}"
             "${ARM_BINARY_SRCS}"
