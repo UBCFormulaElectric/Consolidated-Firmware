@@ -177,16 +177,16 @@ function(create_arm_binary
     set(ASM_FILE ${PROJECT_BINARY_DIR}/${BOARD_NAME}.asm)
     
     add_custom_command(TARGET ${BOARD_NAME}.elf POST_BUILD
-        COMMAND ${CMAKE_OBJCOPY} 
-                -Oihex $<TARGET_FILE:${BOARD_NAME}.elf> ${HEX_FILE}
-        COMMAND ${CMAKE_OBJCOPY} 
-                -Obinary $<TARGET_FILE:${BOARD_NAME}.elf> ${BIN_FILE}
-        COMMAND ${CMAKE_OBJDUMP} 
-                -DS $<TARGET_FILE:${BOARD_NAME}.elf> > ${ASM_FILE}
-        COMMENT "
-                Building ${HEX_FILE}
-                Building ${BIN_FILE}
-                Building ${ASM_FILE}")
+    COMMAND ${CMAKE_OBJCOPY}
+            -Oihex $<TARGET_FILE:${BOARD_NAME}.elf> ${HEX_FILE}
+    COMMAND ${CMAKE_OBJCOPY}
+            -Obinary $<TARGET_FILE:${BOARD_NAME}.elf> ${BIN_FILE}
+    COMMAND ${CMAKE_OBJDUMP}
+            -DS $<TARGET_FILE:${BOARD_NAME}.elf> > ${ASM_FILE}
+    COMMENT "
+Building ${HEX_FILE}
+Building ${BIN_FILE}
+Building ${ASM_FILE}")
 endfunction()
 
 # Generate C code for sending/receiving CAN messages
