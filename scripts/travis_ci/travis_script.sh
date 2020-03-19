@@ -24,11 +24,13 @@ BOARD_NAMES=(
 )
 
 if [ "$RUN_BUILD" = "true" ]; then
-    # Build each project
-    for BOARD_NAME in "${BOARD_NAMES[@]}"
-    do
-        travis_run "cmake boards/$BOARD_NAME/CMakeLists.txt -DSTM32CUBEMX_BIN_PATH=$STM32CUBEMX_BIN_PATH && make -C boards/$BOARD_NAME"
-    done
+    travis_run cd boards
+
+    travis_run cmake -DPLATFORM=arm
+    make
+
+    travis_run cmake -DPLATFORm=x86 .
+    make
 fi
 
 if [ "$RUN_TESTS" = "true" ]; then
