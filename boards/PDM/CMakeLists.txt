@@ -19,6 +19,7 @@ file(GLOB_RECURSE STM32CUBEMX_DRIVER_SRCS
     "Src/syscalls.c"
     )
 SET(IOC_FILE "${CMAKE_SOURCE_DIR}/PDM.ioc")
+SET(LINKER_SCRIPT STM32F302R8Tx_FLASH.ld)
 
 create_arm_binary_or_tests_for_board(
     "PDM"
@@ -27,5 +28,6 @@ create_arm_binary_or_tests_for_board(
     "${ARM_BINARY_INCLUDE_DIRS}"
     "${STM32CUBEMX_DRIVER_SRCS}"
     "${STM32CUBEMX_DRIVER_INCLUDE_DIRS}"
+    "${LINKER_SCRIPT}"
     )
 

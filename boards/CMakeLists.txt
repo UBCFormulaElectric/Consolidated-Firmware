@@ -9,11 +9,14 @@ if("${PLATFORM}" STREQUAL "x86")
     PROJECT(FORMULA_ELECTRIC_FIRMWARE CXX)
 elseif("${PLATFORM}" STREQUAL "arm")
     SET(CMAKE_C_COMPILER_WORKS 1)
-    SET(CMAKE_C_COMPILER arm-none-eabi-gcc)
-    set(CMAKE_ASM_COMPILER  arm-none-eabi-gcc)
-    set(CMAKE_OBJCOPY arm-none-eabi-objcopy)
-    set(CMAKE_OBJDUMP arm-none-eabi-objdump)
-    set(SIZE arm-none-eabi-size)
+    SET(TOOLCHAIN_PREFIX arm-none-eabi-)
+    SET(CMAKE_ASM_COMPILER  ${TOOLCHAIN_PREFIX}gcc)
+    SET(CMAKE_OBJCOPY ${TOOLCHAIN_PREFIX}objcopy)
+    SET(CMAKE_OBJDUMP ${TOOLCHAIN_PREFIX}objdump)
+    SET(SIZE ${TOOLCHAIN_PREFIX}size)
+
+    SET(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}gcc)
+
     PROJECT(FORMULA_ELECTRIC_FIRMWARE C ASM)
 else()
     message(FATAL_ERROR
@@ -52,7 +55,6 @@ SET(FIX_FORMATTING_SCRIPT_PY ${CMAKE_SOURCE_DIR}/../clang-format/fix_formatting.
 
 # Globally Accessible files
 SET(DBC_FILE ${CMAKE_SOURCE_DIR}/shared/CAN/CanMsgs.dbc)
-SET(STM32F302C8_LINKER_SCRIPT ${CMAKE_SOURCE_DIR}/STM32F302C8Tx_FLASH.ld)
 
 # Generates code from the given IOC_FILE in the directory where this 
 # function is called from
@@ -108,6 +110,7 @@ function(create_arm_binary
             ARM_BINARY_INCLUDE_DIRS
             STM32CUBEMX_DRIVER_SRCS 
             STM32CUBEMX_DRIVER_INCLUDE_DIRS
+            LINKER_SCRIPT
             )
     add_executable(${BOARD_NAME}.elf 
         ${ARM_BINARY_SRCS} 
@@ -165,7 +168,7 @@ function(create_arm_binary
     target_link_libraries(${BOARD_NAME}.elf
         "-Wl,-Map=${PROJECT_BINARY_DIR}/${BOARD_NAME}.map"
         "-Wl,-gc-sections,--print-memory-usage"
-        "-Wl,-T ${STM32F302C8_LINKER_SCRIPT}"
+        "-Wl,-T ${LINKER_SCRIPT}"
         ${FPU_FLAGS}
         )
 
@@ -248,6 +251,7 @@ function(create_arm_binary_or_tests_for_board
             ARM_BINARY_INCLUDE_DIRS
             STM32CUBEMX_DRIVER_SRCS 
             STM32CUBEMX_DRIVER_INCLUDE_DIRS
+            LINKER_SCRIPT
             )
     # Construct the paths for the generated CAN code
     SET(APP_CAN_RX_SRC_FILE_NAME "App_CanRx.c")
@@ -308,6 +312,7 @@ function(create_arm_binary_or_tests_for_board
             "${ARM_BINARY_INCLUDE_DIRS}"
             "${STM32CUBEMX_DRIVER_SRCS}"
             "${STM32CUBEMX_DRIVER_INCLUDE_DIRS}"
+            "${LINKER_SCRIPT}"
             )
     endif()
 
