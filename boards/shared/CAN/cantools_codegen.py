@@ -65,5 +65,5 @@ def generate_cantools_c_code(database, database_name, source_dir, header_dir):
     with open(os.path.join(header_dir, filename_h), 'w') as fout:
         fout.write(header)
 
-    with open(os.path.join(header_dir, filename_c), 'w') as fout:
+    with open(os.path.join(source_dir, filename_c), 'w') as fout:
         fout.write(source)
