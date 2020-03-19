@@ -26,11 +26,11 @@ BOARD_NAMES=(
 if [ "$RUN_BUILD" = "true" ]; then
     travis_run cd boards
 
-    travis_run cmake -DPLATFORM=arm
-    make
+    travis_run cmake -DPLATFORM=arm .
+    travis_run make
 
-    travis_run cmake -DPLATFORm=x86 .
-    make
+    travis_run cmake -DPLATFORM=x86 .
+    travis_run make
 fi
 
 if [ "$RUN_TESTS" = "true" ]; then
