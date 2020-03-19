@@ -72,10 +72,14 @@ function(cube_mx_code_generation IOC_FILE)
             ${IOC_FILE}
             ${CMAKE_CURRENT_SOURCE_DIR}
             ${STM32CUBEMX_BIN_PATH}
+        COMMAND pipenv run python ${CMAKE_SOURCE_DIR}/../scripts/utilities/generate_md5_checksum.py
+            ${IOC_FILE}
+            ${IOC_FILE}.md5
         COMMAND pipenv run python 
             ${CMAKE_CURRENT_SOURCE_DIR}/../../clang-format/fix_formatting.py
             WORKING_DIRECTORY 
             ${CMAKE_CURRENT_SOURCE_DIR}
+        DEPENDS ${IOC_FILE}
         )
 endfunction()
 
@@ -307,6 +311,6 @@ function(create_arm_binary_or_tests_for_board
 endfunction()
 
 add_subdirectory(DCM)
-add_subdirectory(PDM)
-add_subdirectory(FSM)
-add_subdirectory(BMS)
+#add_subdirectory(PDM)
+#add_subdirectory(FSM)
+#add_subdirectory(BMS)
