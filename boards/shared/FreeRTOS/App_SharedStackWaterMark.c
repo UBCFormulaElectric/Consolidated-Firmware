@@ -1,5 +1,8 @@
+#include "App_SharedWorld.h"
 #include "App_SharedStackWaterMark.h"
 #include "SharedAssert.h"
+
+extern struct World *world;
 
 /**
  * @brief  Check if the stack high watermark for a task exceeds the specified
@@ -51,7 +54,7 @@ void App_SharedStackWaterMark_Check(
                 *(stacks[i].handle), stacks[i].stack_size,
                 stacks[i].watermark_threshold) == true)
         {
-            stacks[i].log_error(1);
+            stacks[i].log_error(App_SharedWorld_GetCanTx(world), 1);
         }
     }
 }

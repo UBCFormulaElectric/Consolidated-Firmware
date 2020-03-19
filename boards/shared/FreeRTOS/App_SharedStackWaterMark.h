@@ -3,6 +3,7 @@
 #include <FreeRTOS.h>
 #include <task.h>
 #include <stdbool.h>
+#include "App_SharedWorld.h"
 
 /** @brief The information needed to check the stack watermark of a task. */
 struct stack_watermark
@@ -11,7 +12,7 @@ struct stack_watermark
                           // so instead we use a pointer to it.
     uint32_t stack_size;
     float    watermark_threshold;
-    void (*log_error)(uint8_t);
+    void (*log_error)(struct CanTxInterface *, uint8_t);
 };
 
 /**

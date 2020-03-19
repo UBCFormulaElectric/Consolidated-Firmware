@@ -154,8 +154,8 @@ class CanRxHeaderFileGenerator(CanRxFileGenerator):
     def generateHeader(self):
         self._write_output(self._generateHeader(
             'CAN RX Library',
-            '%s_H' % self._function_prefix.upper(),
             self.__generateHeaderIncludes(),
+            self.__generateForwardDeclarations(),
             self.__generateFunctionDeclarations()))
 
     def __generateHeaderIncludes(self):
@@ -163,6 +163,9 @@ class CanRxHeaderFileGenerator(CanRxFileGenerator):
                         '<stdbool.h>']
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])
+
+    def __generateForwardDeclarations(self):
+        return ''
 
     def __generateFunctionDeclarations(self):
         function_declarations = []
