@@ -16,8 +16,8 @@
 # Need to keep .opt/.uvopt/.uvoptx, or else STM32CubeMX code generation will throw an error
 #*.opt
 #*.uvopt
-#*.uvoptx 
-*.uvgui 
+#*.uvoptx
+*.uvgui
 *.uvguix.*
 *.scvd
 
