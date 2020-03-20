@@ -1,5 +1,5 @@
 file(GLOB_RECURSE ARM_BINARY_SOURCES "Src/*.*")
-set(ARM_BINARY_INCLUDE_DIRS 
+set(ARM_BINARY_INCLUDE_DIRS
     "Inc/"
     "Inc/States/"
     )

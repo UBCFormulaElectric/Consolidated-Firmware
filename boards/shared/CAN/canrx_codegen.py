@@ -215,8 +215,8 @@ class CanRxSourceFileGenerator(CanRxFileGenerator):
                         '<semphr.h>',
                         '"auto_generated/%s"' % self._output_name.replace('.c', '.h'),
                         '"auto_generated/CanMsgs.h"',
-                        '"SharedAssert.h"',
-                        '"SharedCan.h"']
+                        '"Io/Io_SharedAssert.h"',
+                        '"Io/Io_SharedCan.h"']
 
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])

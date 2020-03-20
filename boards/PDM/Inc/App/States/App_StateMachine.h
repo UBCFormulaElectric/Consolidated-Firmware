@@ -1,6 +1,6 @@
 #pragma once
 
-#include "App_SharedStateMachine.h"
+#include "App/App_SharedStateMachine.h"
 
 /*
  * Initialize the state machine by adding states to it.
