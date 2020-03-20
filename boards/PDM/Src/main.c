@@ -36,8 +36,8 @@
 #include "App/StateMachine/App_StateMachine.h"
 #include "Io/Io_SoftwareWatchdog.h"
 #include "App/auto_generated/App_CanTx.h"
-#include "auto_generated/App_CanRx.h"
-#include "auto_generated/Io_CanTx.h"
+#include "App/auto_generated/App_CanRx.h"
+#include "Io/auto_generated/Io_CanTx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
