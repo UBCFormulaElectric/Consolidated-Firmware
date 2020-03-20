@@ -36,10 +36,6 @@ set(FPU_FLAGS
     -mfpu=fpv4-sp-d16
     )
 
-# Shared static libraries
-add_subdirectory("${PROJECT_SOURCE_DIR}/../lib" 
-                 "${CMAKE_CURRENT_BINARY_DIR}/__lib__")
-
 # Globally accessible executables/scripts
 if(NOT STM32CUBEMX_BIN_PATH)
     # Default STM32CubeMX path
@@ -141,7 +137,6 @@ function(create_arm_binary
     # Suppress source file warnings for STM32CubeMX drivers
     set_source_files_properties(${STM32CUBEMX_DRIVER_SRCS} 
         PROPERTIES COMPILE_FLAGS "-w") 
-    target_link_libraries(${BOARD_NAME}.elf SEGGER_RTT)
     target_compile_definitions(${BOARD_NAME}.elf
         PRIVATE
             -D__weak=__attribute__\(\(weak\)\) 

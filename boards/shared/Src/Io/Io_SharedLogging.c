@@ -2,7 +2,7 @@
  * Includes
  ******************************************************************************/
 #include "Io/Io_SharedLogging.h"
-#include "lib/SEGGER_RTT/SEGGER_RTT_Conf.h"
+#include "SEGGER_RTT_Conf.h"
 
 /******************************************************************************
  * Module Preprocessor Constants
