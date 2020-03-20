@@ -8,7 +8,7 @@
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedHardFaultHandler_Init(void)
+void Io_SharedHardFaultHandler_Init(void)
 {
     // Div-by-zero exception is disabled by default and must be enabled manually
     SCB->CCR |= SCB_CCR_DIV_0_TRP_Msk;

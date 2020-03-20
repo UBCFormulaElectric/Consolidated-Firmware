@@ -41,12 +41,12 @@ static volatile uint8_t heartbeats_received = 0;
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedHeartbeat_ReceiveHeartbeat(enum PcbHeartBeatEncoding board)
+void Io_SharedHeartbeat_ReceiveHeartbeat(enum PcbHeartBeatEncoding board)
 {
     heartbeats_received |= board;
 }
 
-void SharedHeartbeat_CheckHeartbeatTimeout(uint8_t heartbeats_to_check)
+void Io_SharedHeartbeat_CheckHeartbeatTimeout(uint8_t heartbeats_to_check)
 {
     static uint32_t  previous_timeout_ms = 0;
     const TickType_t current_ms          = osKernelSysTick();
@@ -61,7 +61,7 @@ void SharedHeartbeat_CheckHeartbeatTimeout(uint8_t heartbeats_to_check)
         // Check if the board received all the heartbeats it's listening for
         if (heartbeats_received != heartbeats_to_check)
         {
-            Heartbeat_HandleHeartbeatTimeout(heartbeats_received);
+            Io_Heartbeat_HandleHeartbeatTimeout(heartbeats_received);
         }
 #endif /* DEBUG */
 
@@ -70,14 +70,14 @@ void SharedHeartbeat_CheckHeartbeatTimeout(uint8_t heartbeats_to_check)
     }
 }
 
-__weak void Heartbeat_HandleHeartbeatTimeout(uint8_t heartbeats_received)
+__weak void Io_Heartbeat_HandleHeartbeatTimeout(uint8_t heartbeats_received)
 {
     /* NOTE: This function should not be modified, instead this function should
     be implemented in the Heartbeat.c file */
     UNUSED(heartbeats_received);
 }
 
-__weak void Heartbeat_HandleHeartbeatReception(uint32_t std_id)
+__weak void Io_Heartbeat_HandleHeartbeatReception(uint32_t std_id)
 {
     /* NOTE: This function should not be modified, instead this function should
     be implemented in the Heartbeat.c file */

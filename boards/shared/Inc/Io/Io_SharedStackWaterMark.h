@@ -22,6 +22,6 @@ struct stack_watermark
  * @param stacks An array of stacks whose watermarks we are checking for.
  * @param num_of_stacks Number of stacks in the array.
  */
-void App_SharedStackWaterMark_Check(
+void Io_SharedStackWaterMark_Check(
     struct stack_watermark *stacks,
     size_t                  num_of_stacks);

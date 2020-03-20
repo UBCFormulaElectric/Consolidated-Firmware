@@ -38,7 +38,7 @@ static SoftwareWatchdogTable_t sw_watchdog_table;
 static void (*Io_RefreshHardwareWatchdog)();
 static void (*App_TimeoutCallback)(SoftwareWatchdogHandle_t);
 
-void App_SharedSoftwareWatchdog_Init(
+void Io_SharedSoftwareWatchdog_Init(
     void (*refresh_hardware_watchdog)(),
     void (*timeout_callback)(SoftwareWatchdogHandle_t))
 {
@@ -51,7 +51,7 @@ void App_SharedSoftwareWatchdog_Init(
     App_TimeoutCallback        = timeout_callback;
 }
 
-SoftwareWatchdogHandle_t App_SharedSoftwareWatchdog_AllocateWatchdog(void)
+SoftwareWatchdogHandle_t Io_SharedSoftwareWatchdog_AllocateWatchdog(void)
 {
     shared_assert(
         sw_watchdog_table.allocation_index < MAX_NUM_OF_SOFTWARE_WATCHDOG);
@@ -60,7 +60,7 @@ SoftwareWatchdogHandle_t App_SharedSoftwareWatchdog_AllocateWatchdog(void)
         .watchdogs[sw_watchdog_table.allocation_index++];
 }
 
-void App_SharedSoftwareWatchdog_InitWatchdog(
+void Io_SharedSoftwareWatchdog_InitWatchdog(
     SoftwareWatchdogHandle_t sw_watchdog_handle,
     char *                   name,
     Tick_t                   period_in_ticks)
@@ -79,7 +79,7 @@ void App_SharedSoftwareWatchdog_InitWatchdog(
     sw_watchdog->initialized     = true;
 }
 
-void App_SharedSoftwareWatchdog_CheckInWatchdog(
+void Io_SharedSoftwareWatchdog_CheckInWatchdog(
     SoftwareWatchdogHandle_t sw_watchdog_handle)
 {
     shared_assert(sw_watchdog_handle != NULL);
@@ -92,7 +92,7 @@ void App_SharedSoftwareWatchdog_CheckInWatchdog(
     sw_watchdog->check_in_status = true;
 }
 
-void App_SharedSoftwareWatchdog_CheckForTimeouts(void)
+void Io_SharedSoftwareWatchdog_CheckForTimeouts(void)
 {
     static bool timeout_detected = false;
 
@@ -134,7 +134,7 @@ void App_SharedSoftwareWatchdog_CheckForTimeouts(void)
     }
 }
 
-const char *App_SharedSoftwareWatchdog_GetName(
+const char *Io_SharedSoftwareWatchdog_GetName(
     SoftwareWatchdogHandle_t sw_watchdog_handle)
 {
     SoftwareWatchdog_t *sw_watchdog =

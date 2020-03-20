@@ -39,7 +39,7 @@ static bool App_IsStackAboveWatermarkThreshold(
     return is_stack_above_watermark_threshold;
 }
 
-void App_SharedStackWaterMark_Check(
+void Io_SharedStackWaterMark_Check(
     struct stack_watermark *stacks,
     size_t                  num_of_stacks)
 {

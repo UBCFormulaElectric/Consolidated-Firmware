@@ -53,7 +53,7 @@ typedef uint32_t Tick_t;
  *        operations prior to the reset of the microcontroller. For example, a
  *        message may be written to a log file.
  */
-void App_SharedSoftwareWatchdog_Init(
+void Io_SharedSoftwareWatchdog_Init(
     void (*refresh_hardware_watchdog)(),
     void (*timeout_callback)(SoftwareWatchdogHandle_t));
 
@@ -61,7 +61,7 @@ void App_SharedSoftwareWatchdog_Init(
  * Allocate memory for a software watchdog (if there's space left).
  * @return Handle to the allocated software watchdog
  */
-SoftwareWatchdogHandle_t App_SharedSoftwareWatchdog_AllocateWatchdog(void);
+SoftwareWatchdogHandle_t Io_SharedSoftwareWatchdog_AllocateWatchdog(void);
 
 /**
  * Initialize a software watchdog. Once a software watchdog is initialized, it
@@ -70,7 +70,7 @@ SoftwareWatchdogHandle_t App_SharedSoftwareWatchdog_AllocateWatchdog(void);
  * @param name: Name of the software watchdog
  * @param period_in_ticks: Period of the task in OS ticks
  */
-void App_SharedSoftwareWatchdog_InitWatchdog(
+void Io_SharedSoftwareWatchdog_InitWatchdog(
     SoftwareWatchdogHandle_t sw_watchdog_handle,
     char *                   name,
     Tick_t                   period_in_ticks);
@@ -80,7 +80,7 @@ void App_SharedSoftwareWatchdog_InitWatchdog(
  * end of each period.
  * @param sw_watchdog_handle: Handle to the software watchdog
  */
-void App_SharedSoftwareWatchdog_CheckInWatchdog(
+void Io_SharedSoftwareWatchdog_CheckInWatchdog(
     SoftwareWatchdogHandle_t sw_watchdog_handle);
 
 /**
@@ -91,12 +91,12 @@ void App_SharedSoftwareWatchdog_CheckInWatchdog(
  * @note  This function must be called periodically. It is good practice to call
  *        it from the system tick handler.
  */
-void App_SharedSoftwareWatchdog_CheckForTimeouts(void);
+void Io_SharedSoftwareWatchdog_CheckForTimeouts(void);
 
 /**
  * Get the name of a software watchdog.
  * @param sw_watchdog_handle: Handle to the software watchdog
  * @return Name of the software watchdog
  */
-const char *App_SharedSoftwareWatchdog_GetName(
+const char *Io_SharedSoftwareWatchdog_GetName(
     SoftwareWatchdogHandle_t sw_watchdog_handle);

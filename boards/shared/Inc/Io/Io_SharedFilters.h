@@ -53,7 +53,7 @@
  *                      in seconds
  * @param rc RC time constant
  */
-void SharedFilters_LowPassFilter(
+void Io_SharedFilters_LowPassFilter(
     float32_t *input,
     float32_t *output,
     uint32_t   num_of_samples,

@@ -42,7 +42,7 @@ static void __attribute__((unused)) WaitAndReset(uint32_t delay_ms)
  * Function Definitions
  ******************************************************************************/
 
-void SharedAssert_AssertFailed(char *file_path, uint32_t line, char *expr)
+void Io_SharedAssert_AssertFailed(char *file_path, uint32_t line, char *expr)
 {
     taskDISABLE_INTERRUPTS();
 
@@ -51,7 +51,7 @@ void SharedAssert_AssertFailed(char *file_path, uint32_t line, char *expr)
 
     // Print an assert failure message that is similar to what you would find on
     // an x86 machine
-    SharedLogging_Printf(
+    Io_SharedLogging_Printf(
         "%s:%d %s: Assertion `%s' failed\r\n", __BASENAME__(file_path), line,
         __func__, _expr);
 

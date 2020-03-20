@@ -22,7 +22,7 @@ void App_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
 
     struct CanMsgs_fsm_watchdog_timeout_t payload;
     memcpy(
-        &payload.task_name, App_SharedSoftwareWatchdog_GetName(watchdog),
+        &payload.task_name, Io_SharedSoftwareWatchdog_GetName(watchdog),
         sizeof(payload.task_name));
 
     App_CanTx_SendNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT(

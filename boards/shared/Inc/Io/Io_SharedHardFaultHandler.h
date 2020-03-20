@@ -46,7 +46,7 @@ __attribute__((naked)) void HardFault_Handler(void);
  * @note  Try to call this as early as possible to catch as many exceptions as
  *        possible.
  */
-void SharedHardFaultHandler_Init(void);
+void Io_SharedHardFaultHandler_Init(void);
 
 /**
  * @brief Log information that can help us identify what caused the hard fault.

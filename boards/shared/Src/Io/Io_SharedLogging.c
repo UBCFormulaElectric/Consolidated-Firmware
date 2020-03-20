@@ -34,7 +34,7 @@
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedLogging_Printf(const char *sFormat, ...)
+void Io_SharedLogging_Printf(const char *sFormat, ...)
 {
     va_list ParamList;
 

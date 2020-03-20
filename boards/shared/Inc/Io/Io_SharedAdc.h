@@ -75,7 +75,7 @@
  * @param  vrefint_regular_rank The Regular Rank of VREFINT channel configured
  *         in STM32CubeMX (Starts at 1)
  */
-void SharedAdc_StartAdcInDmaMode(
+void Io_SharedAdc_StartAdcInDmaMode(
     ADC_HandleTypeDef *hadc,
     uint32_t           vrefint_regular_rank);
 
@@ -83,13 +83,13 @@ void SharedAdc_StartAdcInDmaMode(
  * @brief  Get the appropriate maximum ADC value based on the ADC resolution
  * @return Maximum ADC value in bits
  */
-uint32_t SharedAdc_GetAdcMaxValue(void);
+uint32_t Io_SharedAdc_GetAdcMaxValue(void);
 
 /**
  * @brief  Get the array of ADC readings transferred over DMA request
  * @return Pointer to the array of ADC readings
  */
-const uint32_t *SharedAdc_GetAdcValues(void);
+const uint32_t *Io_SharedAdc_GetAdcValues(void);
 
 /**
  * @brief  The VDDA power supply voltage applied to the microcontroller may be
@@ -99,7 +99,7 @@ const uint32_t *SharedAdc_GetAdcValues(void);
  *         evaluate the actual VDDA voltage level.
  * @return Actual VDDA voltage
  */
-float32_t SharedAdc_GetActualVdda(void);
+float32_t Io_SharedAdc_GetActualVdda(void);
 
 /**
  * @brief  Convert the ADC value to a voltage channel using the actual VDDA
@@ -108,6 +108,6 @@ float32_t SharedAdc_GetActualVdda(void);
  *         configured in STM32CubeMXa (Starts at 1)
  * @return The voltage at the ADC channel
  */
-float32_t SharedAdc_GetAdcVoltage(uint32_t regular_rank);
+float32_t Io_SharedAdc_GetAdcVoltage(uint32_t regular_rank);
 
 #endif /* SHARED_ADC_H */

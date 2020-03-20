@@ -56,7 +56,7 @@ static uint16_t GetVrefintCalibrationValue(void);
 
 /**
  * @brief Check if the ADC module has been initialized using
- *        SharedAdc_StartAdcInDmaMode()
+ *        Io_SharedAdc_StartAdcInDmaMode()
  * @note  This should be called at the beginning of functions that require ADC
  *        to be initialized
  */
@@ -103,7 +103,7 @@ static void CheckAdcInitialized(void)
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedAdc_StartAdcInDmaMode(
+void Io_SharedAdc_StartAdcInDmaMode(
     ADC_HandleTypeDef *hadc,
     uint32_t           vrefint_regular_rank)
 {
@@ -137,21 +137,21 @@ void SharedAdc_StartAdcInDmaMode(
     }
 }
 
-uint32_t SharedAdc_GetAdcMaxValue(void)
+uint32_t Io_SharedAdc_GetAdcMaxValue(void)
 {
     CheckAdcInitialized();
 
     return (const uint32_t)adc_max_value;
 }
 
-const uint32_t *SharedAdc_GetAdcValues(void)
+const uint32_t *Io_SharedAdc_GetAdcValues(void)
 {
     CheckAdcInitialized();
 
     return (const uint32_t *)adc_values;
 }
 
-float32_t SharedAdc_GetActualVdda(void)
+float32_t Io_SharedAdc_GetActualVdda(void)
 {
     CheckAdcInitialized();
 
@@ -171,7 +171,7 @@ float32_t SharedAdc_GetActualVdda(void)
         adc_values[vrefint_index]);
 }
 
-float32_t SharedAdc_GetAdcVoltage(uint32_t regular_rank)
+float32_t Io_SharedAdc_GetAdcVoltage(uint32_t regular_rank)
 {
     CheckAdcInitialized();
 
@@ -191,7 +191,7 @@ float32_t SharedAdc_GetAdcVoltage(uint32_t regular_rank)
     //   with 12-bit resolution, it will be 212 - 1 = 4095 or with 8-bit
     //   resolution, 28 - 1 = 255.
 
-    return (float32_t)(SharedAdc_GetActualVdda()) *
-           (float32_t)(SharedAdc_GetAdcValues()[adc_values_index]) /
-           (float32_t)(SharedAdc_GetAdcMaxValue());
+    return (float32_t)(Io_SharedAdc_GetActualVdda()) *
+           (float32_t)(Io_SharedAdc_GetAdcValues()[adc_values_index]) /
+           (float32_t)(Io_SharedAdc_GetAdcMaxValue());
 }

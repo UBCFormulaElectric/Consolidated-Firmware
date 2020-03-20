@@ -72,7 +72,7 @@ struct GPIO_PinPort
  * @param
  */
 
-void SharedGpio_GPIO_WritePin(
+void Io_SharedGpio_GPIO_WritePin(
     GPIO_TypeDef *GPIOx,
     uint16_t      GPIO_Pin,
     uint32_t      User_PinState);

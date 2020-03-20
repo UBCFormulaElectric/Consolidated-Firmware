@@ -35,6 +35,6 @@
  * @param  sFormat Pointer to format string, followed by the arguments for
  *         conversion
  */
-void SharedLogging_Printf(const char *sFormat, ...);
+void Io_SharedLogging_Printf(const char *sFormat, ...);
 
 #endif // SHARED_LOGGING_H

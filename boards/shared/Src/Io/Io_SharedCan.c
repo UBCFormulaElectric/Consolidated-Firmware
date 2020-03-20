@@ -260,7 +260,7 @@ static inline void Io_CanTxCompleteCallback(void)
 /******************************************************************************
  * Function Definitions
  ******************************************************************************/
-void SharedCan_Init(CAN_HandleTypeDef *hcan)
+void Io_SharedCan_Init(CAN_HandleTypeDef *hcan)
 {
     shared_assert(hcan != NULL);
 
@@ -353,7 +353,7 @@ void Io_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message)
     }
 }
 
-void App_SharedCan_ReadRxMessagesIntoTableFromTask(void)
+void Io_SharedCan_ReadRxMessagesIntoTableFromTask(void)
 {
     shared_assert(sharedcan_initialized == true);
 
@@ -368,7 +368,7 @@ void App_SharedCan_ReadRxMessagesIntoTableFromTask(void)
     }
 }
 
-void App_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void)
+void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void)
 {
     shared_assert(sharedcan_initialized == true);
 

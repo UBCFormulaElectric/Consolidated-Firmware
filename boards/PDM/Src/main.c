@@ -109,7 +109,7 @@ int main(void)
 {
     /* USER CODE BEGIN 1 */
     __HAL_DBGMCU_FREEZE_IWDG();
-    SharedHardFaultHandler_Init();
+    Io_SharedHardFaultHandler_Init();
 
     static struct CanTxInterface *can_tx;
     can_tx = App_CanTx_Create(
@@ -348,7 +348,7 @@ static void MX_CAN_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN CAN_Init 2 */
-    SharedCan_Init(&hcan);
+    Io_SharedCan_Init(&hcan);
     /* USER CODE END CAN_Init 2 */
 }
 
@@ -375,7 +375,7 @@ static void MX_IWDG_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
-    App_SharedSoftwareWatchdog_Init(
+    Io_SharedSoftwareWatchdog_Init(
         Io_HardwareWatchdog_Refresh, App_SoftwareWatchdog_TimeoutCallback);
     /* USER CODE END IWDG_Init 2 */
 }
@@ -569,8 +569,8 @@ void RunTask1Hz(void const *argument)
     uint32_t                 PreviousWakeTime = osKernelSysTick();
     static const TickType_t  period_ms        = 1000U;
     SoftwareWatchdogHandle_t watchdog =
-        App_SharedSoftwareWatchdog_AllocateWatchdog();
-    App_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1HZ", period_ms);
+        Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1HZ", period_ms);
 
     for (;;)
     {
@@ -578,8 +578,8 @@ void RunTask1Hz(void const *argument)
         App_StackWaterMark_Check();
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
-        App_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
+        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        (void)Io_SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END 5 */
 }
@@ -598,8 +598,8 @@ void RunTask1kHz(void const *argument)
     uint32_t                 PreviousWakeTime = osKernelSysTick();
     static const TickType_t  period_ms        = 1U;
     SoftwareWatchdogHandle_t watchdog =
-        App_SharedSoftwareWatchdog_AllocateWatchdog();
-    App_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1KHZ", period_ms);
+        Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1KHZ", period_ms);
 
     for (;;)
     {
@@ -608,8 +608,8 @@ void RunTask1kHz(void const *argument)
             osKernelSysTick() * portTICK_PERIOD_MS);
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
-        App_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
+        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        (void)Io_SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END RunTask1kHz */
 }
@@ -628,7 +628,7 @@ void RunTaskCanRx(void const *argument)
 
     for (;;)
     {
-        App_SharedCan_ReadRxMessagesIntoTableFromTask();
+        Io_SharedCan_ReadRxMessagesIntoTableFromTask();
     }
     /* USER CODE END RunTaskCanRx */
 }
@@ -647,7 +647,7 @@ void RunTaskCanTx(void const *argument)
 
     for (;;)
     {
-        App_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
+        Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
     }
     /* USER CODE END RunTaskCanTx */
 }
@@ -681,7 +681,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void Error_Handler(void)
 {
     /* USER CODE BEGIN Error_Handler_Debug */
-    SharedAssert_AssertFailed(file, line, NULL);
+    Io_SharedAssert_AssertFailed(file, line, NULL);
     /* USER CODE END Error_Handler_Debug */
 }
 
@@ -696,7 +696,7 @@ void Error_Handler(void)
 void assert_failed(char *file, uint32_t line)
 {
     /* USER CODE BEGIN 6 */
-    SharedAssert_AssertFailed(file, line, NULL);
+    Io_SharedAssert_AssertFailed(file, line, NULL);
     /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

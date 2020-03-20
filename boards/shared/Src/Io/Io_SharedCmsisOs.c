@@ -39,8 +39,9 @@
  * @param   millisec    time delay value
  * @retval  status code that indicates the execution status of the function.
  */
-osStatus
-    SharedCmsisOs_osDelayUntilMs(uint32_t *PreviousWakeTime, uint32_t millisec)
+osStatus Io_SharedCmsisOs_osDelayUntilMs(
+    uint32_t *PreviousWakeTime,
+    uint32_t  millisec)
 {
     return osDelayUntil(PreviousWakeTime, millisec);
 }

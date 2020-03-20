@@ -54,7 +54,7 @@ typedef CanTxMsgTypeDef CAN_TxHeaderTypeDef;
  * @param hcan Pointer to a CAN_HandleTypeDef structure that contains
  *         the configuration information for the specified CAN.
  */
-void SharedCan_Init(CAN_HandleTypeDef *hcan);
+void Io_SharedCan_Init(CAN_HandleTypeDef *hcan);
 
 /**
  * @brief Send a message to the back of the CAN TX queue
@@ -66,11 +66,11 @@ void Io_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message);
  * @brief For messages that we couldn't handle in ISR context, read them into
  *        memory at the task level.
  */
-void App_SharedCan_ReadRxMessagesIntoTableFromTask(void);
+void Io_SharedCan_ReadRxMessagesIntoTableFromTask(void);
 
 /**
  * @brief Transmit messages in the CAN TX queue over CAN bus
  */
-void App_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void);
+void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void);
 
 #endif /* SHARED_CAN_H */
