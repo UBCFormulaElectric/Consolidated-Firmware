@@ -79,8 +79,7 @@ osThreadId          TaskCanTxHandle;
 uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
 osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
-struct FlowMeter *flow_meter;
-float             freq;
+struct FlowMeter *flow_meter_primary;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -144,9 +143,8 @@ int main(void)
     MX_TIM1_Init();
     MX_TIM2_Init();
     /* USER CODE BEGIN 2 */
-    HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
     Io_FlowMeter_Init();
-    flow_meter = App_FlowMeter_Create(Io_FlowMeter_GetFlowRate);
+    flow_meter_primary = App_FlowMeter_Create(Io_FlowMeter_GetFlowRate);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -508,12 +506,7 @@ static void MX_TIM2_Init(void)
     sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
     sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
     sConfigIC.ICFilter    = 0;
-    if (HAL_TIM_IC_ConfigChannel(&htim2, &sConfigIC, TIM_CHANNEL_3) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    if (HAL_TIM_ConfigTI1Input(&htim2, TIM_TI1SELECTION_XORCOMBINATION) !=
-        HAL_OK)
+    if (HAL_TIM_IC_ConfigChannel(&htim2, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
     {
         Error_Handler();
     }
@@ -547,24 +540,24 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PA1 PA3 PA5 PA6
-                             PA7 PA9 PA10 */
-    GPIO_InitStruct.Pin = GPIO_PIN_1 | GPIO_PIN_3 | GPIO_PIN_5 | GPIO_PIN_6 |
-                          GPIO_PIN_7 | GPIO_PIN_9 | GPIO_PIN_10;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
     /*Configure GPIO pin : UNUSED_GPIO_9_Pin */
     GPIO_InitStruct.Pin  = UNUSED_GPIO_9_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(UNUSED_GPIO_9_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PB0 PB13 PB15 PB6
-                             PB7 */
-    GPIO_InitStruct.Pin =
-        GPIO_PIN_0 | GPIO_PIN_13 | GPIO_PIN_15 | GPIO_PIN_6 | GPIO_PIN_7;
+    /*Configure GPIO pins : PA3 PA5 PA6 PA7
+                             PA9 PA10 */
+    GPIO_InitStruct.Pin = GPIO_PIN_3 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7 |
+                          GPIO_PIN_9 | GPIO_PIN_10;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : PB0 PB10 PB13 PB15
+                             PB6 PB7 */
+    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_10 | GPIO_PIN_13 | GPIO_PIN_15 |
+                          GPIO_PIN_6 | GPIO_PIN_7;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -648,8 +641,7 @@ void RunTask1kHz(void const *argument)
         App_CanTx_TransmitPeriodicMessages();
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
-        freq = App_FlowMeter_ReadFlowRate(flow_meter);
-        freq = Io_FlowMeter_GetFlowRate();
+        freq = App_FlowMeter_ReadFlowRate(flow_meter_primary);
         App_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
         (void)SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
     }
