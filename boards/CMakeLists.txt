@@ -57,7 +57,7 @@ function(cube_mx_code_generation
             BOARD_NAME
             IOC_FILE
             )
-    set(LOG4J_PROPERTIES "$ENV{HOME}/log4j.properties")
+    set(LOG4J_PROPERTIES "$ENV{HOME}/.stm32cubemx/log4j.properties")
     add_custom_command(
         OUTPUT ${IOC_FILE}.md5
                ${LOG4J_PROPERTIES}
