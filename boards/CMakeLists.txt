@@ -164,11 +164,12 @@ function(create_arm_binary
             -specs=nano.specs
         )
 
-    target_link_libraries(${BOARD_NAME}.elf
-        "-Wl,-Map=${PROJECT_BINARY_DIR}/${BOARD_NAME}.map"
-        "-Wl,-gc-sections,--print-memory-usage"
-        "-Wl,-T ${LINKER_SCRIPT}"
-        ${FPU_FLAGS}
+    target_link_options(${BOARD_NAME}.elf
+        PUBLIC
+            -Wl,-Map=${PROJECT_BINARY_DIR}/${BOARD_NAME}.map
+            -Wl,-gc-sections,--print-memory-usage
+            -Wl,-T ${LINKER_SCRIPT}
+            ${FPU_FLAGS}
         )
 
     set(HEX_FILE "$<TARGET_FILE_DIR:${BOARD_NAME}.elf>/${BOARD_NAME}.hex")

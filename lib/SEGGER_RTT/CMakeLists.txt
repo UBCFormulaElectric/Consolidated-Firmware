@@ -10,6 +10,7 @@ target_compile_options(SEGGER_RTT
     PUBLIC
         ${FPU_FLAGS}
     )
-target_link_libraries(SEGGER_RTT
-    ${FPU_FLAGS}
+target_link_options(SEGGER_RTT
+    PUBLIC
+        ${FPU_FLAGS}
     )
