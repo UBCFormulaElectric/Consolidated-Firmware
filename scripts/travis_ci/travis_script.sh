@@ -24,13 +24,13 @@ BOARD_NAMES=(
 )
 
 if [ "$RUN_BUILD" = "true" ]; then
-    travis_run cmake --build boards -DPLATFORM=arm
-    travis_run make --directory=boards
+    travis_run cmake -S boards -B boards/build -DPLATFORM=arm
+    travis_run make --directory=boards/build
 fi
 
 if [ "$RUN_TESTS" = "true" ]; then
-    travis_run cmake --build boards -DPLATFORM=x86
-    travis_run make --directory=boards
+    travis_run cmake -S boards -B boards/build -DPLATFORM=x86
+    travis_run make --directory=boards/build
 fi
 
 if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then
