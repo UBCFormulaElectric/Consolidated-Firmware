@@ -3,6 +3,28 @@
  *        periodic task.
  * @note The current implementation doesn't really support monitoring
  *       "non-periodic" tasks (e.g. CAN TX).
+ * @note Some hints for setting up the hardware watchdog in STM32CubeMX:
+ *       - Use __HAL_DBGMCU_FREEZE_IWDG to stop the IWDG clock when the CPU is
+ *         halted due to a breakpoint, or else the IWDG can likely trigger an
+ *         undesirable system reboot.
+ *       - Create User Constants in STM32CubeMX with the following values:
+ *
+ *             IWDG_WINDOW_DISABLE_VALUE = 4095
+ *             LSI_FREQUENCY             = <LSI Clock Frequency in Hertz.
+ *                                          For example, it is 40000 for
+ *                                          STM32F302R8.>
+ *             IWDG_PRESCALER            = 4
+ *             IWDG_RESET_FREQUENCY      = 5
+ *
+ *           ...then set the following parameters for "Watchdog Clocking" under
+ *           "Parameter Settings" for IWDG:
+ *
+ *              IWDG counter clock prescaler   = 4
+ *              IWDG window value              = IWDG_WINDOW_DISABLE_VALUE
+ *              IWDG down-counter reload value = LSI_FREQUENCY / IWDG_PRESCALER
+ *                                               / IWDG_RESET_FREQUENCY
+ *           In case it was not clear, IWDG_RESET_FREQUENCY = 5 means that the
+ *           IWDG has a frequency of 5Hz, or a period of 200ms.
  */
 #pragma once
 
