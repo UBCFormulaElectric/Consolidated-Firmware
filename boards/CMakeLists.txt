@@ -171,9 +171,9 @@ function(create_arm_binary
         ${FPU_FLAGS}
         )
 
-    set(HEX_FILE ${PROJECT_BINARY_DIR}/${BOARD_NAME}.hex)
-    set(BIN_FILE ${PROJECT_BINARY_DIR}/${BOARD_NAME}.bin)
-    set(ASM_FILE ${PROJECT_BINARY_DIR}/${BOARD_NAME}.asm)
+    set(HEX_FILE "$<TARGET_FILE_DIR:${BOARD_NAME}.elf>/${BOARD_NAME}.hex")
+    set(BIN_FILE "$<TARGET_FILE_DIR:${BOARD_NAME}.elf>/${BOARD_NAME}.bin")
+    set(ASM_FILE "$<TARGET_FILE_DIR:${BOARD_NAME}.elf>/${BOARD_NAME}.asm")
     
     add_custom_command(TARGET ${BOARD_NAME}.elf POST_BUILD
     COMMAND ${CMAKE_OBJCOPY}
