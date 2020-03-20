@@ -2,7 +2,7 @@
 #include "Io/Io_SharedMacros.h"
 #include "Io/Io_StackWaterMark.h"
 #include "Io/Io_SharedStackWaterMark.h"
-#include "auto_generated/App_CanTx.h"
+#include "App/auto_generated/App_CanTx.h"
 
 // We check the stack water mark for the following tasks
 extern TaskHandle_t Task1HzHandle;

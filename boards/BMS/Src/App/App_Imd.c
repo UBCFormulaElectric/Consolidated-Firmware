@@ -1,6 +1,6 @@
-#include "auto_generated/App_CanTx.h"
+#include "App/auto_generated/App_CanTx.h"
 #include "App/App_Imd.h"
-#include "App/App_SharedWorld.h"
+#include "App/World/App_SharedWorld.h"
 #include "Io/Io_SharedAssert.h"
 #include "Io/Io_SharedMacros.h"
 

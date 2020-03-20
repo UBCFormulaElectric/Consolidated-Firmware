@@ -32,10 +32,10 @@
 #include "Io/Io_SharedHardFaultHandler.h"
 #include "Io/Io_SharedAssert.h"
 #include "Io/Io_StackWaterMark.h"
-#include "App/App_SharedWorld.h"
-#include "App/States/App_StateMachine.h"
+#include "App/World/App_SharedWorld.h"
+#include "App/StateMachine/App_StateMachine.h"
 #include "Io/Io_SoftwareWatchdog.h"
-#include "auto_generated/App_CanTx.h"
+#include "App/auto_generated/App_CanTx.h"
 #include "auto_generated/Io_CanTx.h"
 #include "auto_generated/App_CanRx.h"
 /* USER CODE END Includes */

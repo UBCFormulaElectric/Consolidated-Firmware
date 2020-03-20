@@ -3,7 +3,7 @@
 #include <FreeRTOS.h>
 #include <task.h>
 #include <stdbool.h>
-#include "App/App_SharedWorld.h"
+#include "App/World/App_SharedWorld.h"
 
 /** @brief The information needed to check the stack watermark of a task. */
 struct stack_watermark
