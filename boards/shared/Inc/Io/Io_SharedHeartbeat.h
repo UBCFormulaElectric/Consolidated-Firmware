@@ -8,7 +8,7 @@
  * Includes
  ******************************************************************************/
 #include "Io/Io_SharedCan.h"
-#include "BoardSpecifics.h"
+#include "Io/Io_BoardSpecifics.h"
 
 /******************************************************************************
  * Preprocessor Constants

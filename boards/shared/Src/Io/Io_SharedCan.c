@@ -4,7 +4,7 @@
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/App_CanRx.h"
 #include "auto_generated/Io_CanTx.h"
-#include "BoardSpecifics.h"
+#include "Io/Io_BoardSpecifics.h"
 #include "Io/Io_SharedCan.h"
 #include "Io/Io_SharedAssert.h"
 #include "Io/Io_SharedFreeRTOS.h"
