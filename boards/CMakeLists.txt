@@ -36,6 +36,9 @@ set(FPU_FLAGS
     -mfpu=fpv4-sp-d16
     )
 
+# Globally accessible paths
+set(SCRIPTS_DIR ${CMAKE_SOURCE_DIR}/../scripts)
+
 # Globally accessible executables/scripts
 if(NOT STM32CUBEMX_BIN_PATH)
     # Default STM32CubeMX path
@@ -45,11 +48,11 @@ if(NOT STM32CUBEMX_BIN_PATH)
         set(STM32CUBEMX_BIN_PATH /usr/local/STM32CubeMX/STM32CubeMX)
     endif()
 endif()
-set(GENERATE_CUBE_CODE_SCRIPT_PY ${CMAKE_SOURCE_DIR}/../scripts/utilities/generate_cube_code.py)
+set(GENERATE_CUBE_CODE_SCRIPT_PY ${SCRIPTS_DIR}/utilities/generate_cube_code.py)
 set(FIX_FORMATTING_SCRIPT_PY ${CMAKE_SOURCE_DIR}/../clang-format/fix_formatting.py)
 
 # Globally Accessible files
-set(DBC_FILE ${CMAKE_SOURCE_DIR}/shared/CAN/CanMsgs.dbc)
+set(DBC_FILE ${SCRIPTS_DIR}/codegen/CAN/CanMsgs.dbc)
 
 # Generate STM32CubeMX driver code for BOARD_NAME using the given IOC_FILE in
 # the directory where this function is called from.
@@ -62,7 +65,7 @@ function(cube_mx_code_generation
         OUTPUT ${IOC_FILE}.md5
                ${LOG4J_PROPERTIES}
         COMMAND pipenv run python 
-            ${CMAKE_SOURCE_DIR}/../scripts/utilities/generate_cube_code.py
+            ${SCRIPTS_DIR}/utilities/generate_cube_code.py
             --board ${BOARD_NAME}
             --log4j_properties_output ${LOG4J_PROPERTIES}
             --ioc ${IOC_FILE}
@@ -71,7 +74,7 @@ function(cube_mx_code_generation
         # Create a MD5 hash of IOC_FILE for other build targets to depend on, so
         # this custom command is only executed when IOC_FILE.md5 changes.
         COMMAND pipenv run python
-            ${CMAKE_SOURCE_DIR}/../scripts/utilities/generate_md5_checksum.py
+            ${SCRIPTS_DIR}/utilities/generate_md5_checksum.py
             ${IOC_FILE}
             ${IOC_FILE}.md5
         # Run clang-format because the STM32CubeMX-generated code is not
@@ -213,7 +216,7 @@ function(can_code_generation
                ${APP_CANMSG_SRC_OUTPUT}
                ${APP_CANMSG_HEADER_OUTPUT}
         COMMAND pipenv run python 
-                ${CMAKE_SOURCE_DIR}/shared/CAN/generate_c_code_from_dbc.py
+                ${SCRIPTS_DIR}/codegen/CAN/generate_c_code_from_dbc.py
                 --board                    ${BOARD_NAME}
                 --app_can_tx_source_output ${APP_CAN_TX_SRC_OUTPUT}
                 --app_can_tx_header_output ${APP_CAN_TX_HEADER_OUTPUT}
