@@ -213,10 +213,10 @@ class CanRxSourceFileGenerator(CanRxFileGenerator):
                         '<string.h>',
                         '<FreeRTOS.h>',
                         '<semphr.h>',
-                        '"App/auto_generated/%s"' % self._output_name.replace('.c', '.h'),
-                        '"App/auto_generated/CanMsgs.h"',
-                        '"Io/Io_SharedAssert.h"',
-                        '"Io/Io_SharedCan.h"']
+                        '"auto_generated/%s"' % self._output_name.replace('.c', '.h'),
+                        '"auto_generated/CanMsgs.h"',
+                        '"Io_SharedAssert.h"',
+                        '"Io_SharedCan.h"']
 
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])

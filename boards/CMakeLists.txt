@@ -37,6 +37,7 @@ set(FPU_FLAGS
     )
 
 # Globally accessible paths
+set(REPO_ROOT_DIR ${CMAKE_SOURCE_DIR}/../)
 set(SCRIPTS_DIR ${CMAKE_SOURCE_DIR}/../scripts)
 
 # Globally accessible executables/scripts
@@ -49,7 +50,7 @@ if(NOT STM32CUBEMX_BIN_PATH)
     endif()
 endif()
 set(GENERATE_CUBE_CODE_SCRIPT_PY ${SCRIPTS_DIR}/utilities/generate_cube_code.py)
-set(FIX_FORMATTING_SCRIPT_PY ${CMAKE_SOURCE_DIR}/../clang-format/fix_formatting.py)
+set(FIX_FORMATTING_SCRIPT_PY ${REPO_ROOT_DIR}/clang-format/fix_formatting.py)
 
 # Globally Accessible files
 set(DBC_FILE ${SCRIPTS_DIR}/codegen/CAN/CanMsgs.dbc)
@@ -80,7 +81,7 @@ function(cube_mx_code_generation
         # Run clang-format because the STM32CubeMX-generated code is not
         # compliant to our clang-format rules.
         COMMAND pipenv run python 
-            ${CMAKE_CURRENT_SOURCE_DIR}/../../clang-format/fix_formatting.py
+            ${REPO_ROOT_DIR}/clang-format/fix_formatting.py
             WORKING_DIRECTORY 
             ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS ${IOC_FILE}

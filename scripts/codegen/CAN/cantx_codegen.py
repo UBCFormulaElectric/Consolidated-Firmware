@@ -90,7 +90,7 @@ class AppCanTxHeaderFileGenerator(AppCanTxFileGenerator):
 
     def __generateHeaderIncludes(self):
         header_names = ['<stdint.h>',
-                        '"App/auto_generated/CanMsgs.h"']
+                        '"auto_generated/CanMsgs.h"']
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])
 
@@ -148,8 +148,8 @@ class AppCanTxSourceFileGenerator(AppCanTxFileGenerator):
     def __generateHeaderIncludes(self):
         header_names = ['<string.h>',
                         '<stdlib.h>',
-                        '"App/auto_generated/App_CanTx.h"',
-                        '"Io/Io_SharedAssert.h"']
+                        '"auto_generated/App_CanTx.h"',
+                        '"Io_SharedAssert.h"']
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])
 
@@ -278,7 +278,7 @@ class IoCanTxHeaderFileGenerator(IoCanTxFileGenerator):
 
     def __generateHeaderIncludes(self):
         header_names = ['<stdint.h>',
-                        '"App/auto_generated/CanMsgs.h"']
+                        '"auto_generated/CanMsgs.h"']
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])
 
@@ -313,10 +313,10 @@ class IoCanTxSourceFileGenerator(IoCanTxFileGenerator):
         header_names = ['<string.h>',
                         '<FreeRTOS.h>',
                         '<portmacro.h>',
-                        '"Io/auto_generated/Io_CanTx.h"',
-                        '"App/auto_generated/App_CanTx.h"',
-                        '"Io/Io_SharedCan.h"',
-                        '"Io/Io_SharedAssert.h"']
+                        '"auto_generated/Io_CanTx.h"',
+                        '"auto_generated/App_CanTx.h"',
+                        '"Io_SharedCan.h"',
+                        '"Io_SharedAssert.h"']
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])
 
