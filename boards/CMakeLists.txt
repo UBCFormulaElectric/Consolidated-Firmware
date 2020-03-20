@@ -57,14 +57,17 @@ function(cube_mx_code_generation
             BOARD_NAME
             IOC_FILE
             )
+    set(LOG4J_PROPERTIES "$ENV{HOME}/log4j.properties")
     add_custom_command(
         OUTPUT ${IOC_FILE}.md5
+               ${LOG4J_PROPERTIES}
         COMMAND pipenv run python 
             ${CMAKE_SOURCE_DIR}/../scripts/utilities/generate_cube_code.py
-            ${BOARD_NAME}
-            ${IOC_FILE}
-            ${CMAKE_CURRENT_SOURCE_DIR}
-            ${STM32CUBEMX_BIN_PATH}
+            --board ${BOARD_NAME}
+            --log4j_properties_output ${LOG4J_PROPERTIES}
+            --ioc ${IOC_FILE}
+            --codegen_output_dir ${CMAKE_CURRENT_SOURCE_DIR}
+            --cube_bin ${STM32CUBEMX_BIN_PATH}
         # Create a MD5 hash of IOC_FILE for other build targets to depend on, so
         # this custom command is only executed when IOC_FILE.md5 changes.
         COMMAND pipenv run python
