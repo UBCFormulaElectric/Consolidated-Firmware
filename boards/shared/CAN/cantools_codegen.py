@@ -31,13 +31,13 @@ def change_frame_id_capitalization(code: str) -> str:
         lambda match: r'CANMSGS_{}_FRAME_ID'.format(match.group(1).lower()),
         code)
 
-def generate_cantools_c_code(database, database_name, source_dir, header_dir):
+def generate_cantools_c_code(database, database_name, source_path, header_path):
     """
     Generates C source code for the given .dbc file using cantools
     """
     # Prepare names for generate files
-    filename_h = database_name + '.h'
-    filename_c = database_name + '.c'
+    filename_h = os.path.basename(header_path)
+    filename_c = os.path.basename(source_path)
 
     # Generate C source code from cantools
     header, source, _, _ = generate(
@@ -56,8 +56,10 @@ def generate_cantools_c_code(database, database_name, source_dir, header_dir):
     source = purge_timestamps_from_generated_code(source)
 
     # Generate output folders if they don't exist already
+    source_dir = os.path.dirname(source_path)
     if not os.path.exists(source_dir):
         os.makedirs(source_dir)
+    header_dir = os.path.dirname(header_path)
     if not os.path.exists(header_dir):
         os.mkdir(header_dir)
 
