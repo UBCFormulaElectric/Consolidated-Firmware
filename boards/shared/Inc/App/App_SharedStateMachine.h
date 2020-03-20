@@ -1,7 +1,7 @@
 #pragma once
 
 // Application specific configuration options.
-#include "App/App_SharedStateMachineConfig.h"
+#include "App/States/App_SharedStateMachineConfig.h"
 
 // Check all the required application specific macros have been defined in
 // <App_SharedStateMachineConfig.h>.

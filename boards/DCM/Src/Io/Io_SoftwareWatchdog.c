@@ -13,7 +13,7 @@ void Io_HardwareWatchdog_Refresh(void)
     HAL_IWDG_Refresh(&hiwdg);
 }
 
-void App_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
+void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
 {
     BREAK_IF_DEBUGGER_CONNECTED();
 

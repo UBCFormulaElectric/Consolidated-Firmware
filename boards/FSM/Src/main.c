@@ -369,7 +369,7 @@ static void MX_IWDG_Init(void)
     }
     /* USER CODE BEGIN IWDG_Init 2 */
     Io_SharedSoftwareWatchdog_Init(
-        Io_HardwareWatchdog_Refresh, App_SoftwareWatchdog_TimeoutCallback);
+        Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
     /* USER CODE END IWDG_Init 2 */
 }
 
