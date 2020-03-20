@@ -1,8 +1,9 @@
-# Force the user to specify headers as "{App|Io}/<header>"
-set(SHARED_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/inc")
-
-# Find all the source files for shared libraries
-file(GLOB_RECURSE SHARED_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/src/*.c)
+# Shared code that UBC Formula Electric wrote
+set(SHARED_INCLUDE_DIRS
+        "${CMAKE_CURRENT_SOURCE_DIR}/Inc/App"
+        "${CMAKE_CURRENT_SOURCE_DIR}/Inc/Io"
+        )
+file(GLOB_RECURSE SHARED_SRCS ${CMAKE_CURRENT_SOURCE_DIR}/Src/*.c)
 
 # Root directory of where the third-party code is stored
 set(THIRD_PARTY_DIR ${CMAKE_CURRENT_SOURCE_DIR}/third_party)

@@ -3,7 +3,7 @@
 #include <stdbool.h>
 
 // Application specific configuration options.
-#include "App/StateMachine/App_SharedStateConfig.h"
+#include "StateMachine/App_SharedStateConfig.h"
 
 // Check all the required application specific macros have been defined in
 // <App_SharedStateConfig.h>.

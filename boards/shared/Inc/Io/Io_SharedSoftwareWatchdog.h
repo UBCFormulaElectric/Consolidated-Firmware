@@ -32,7 +32,7 @@
 #include <stdbool.h>
 
 // Application specific configuration options
-#include "Io/Io_SharedSoftwareWatchdogConfig.h"
+#include "Io_SharedSoftwareWatchdogConfig.h"
 
 // Check all the required application specific macros have been defined in
 // <Io_SharedSoftwareWatchdogConfig.h>.

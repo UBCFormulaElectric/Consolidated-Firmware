@@ -1,5 +1,5 @@
-#include "Io/Io_SharedAssert.h"
-#include "Io/Io_SharedPwmInput.h"
+#include "Io_SharedAssert.h"
+#include "Io_SharedPwmInput.h"
 
 struct PwmInput
 {

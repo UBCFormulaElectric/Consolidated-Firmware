@@ -8,8 +8,8 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
-#include "App/auto_generated/App_CanTx.h"
-#include "Io/Io_SharedCanMsg.h"
+#include "auto_generated/App_CanTx.h"
+#include "Io_SharedCanMsg.h"
 
 // Check for STM32 microcontroller family
 #ifdef STM32F302x8

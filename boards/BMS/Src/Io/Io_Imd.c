@@ -2,9 +2,9 @@
 #include <task.h>
 
 #include "main.h"
-#include "Io/Io_SharedAssert.h"
-#include "Io/Io_Imd.h"
-#include "Io/Io_SharedPwmInput.h"
+#include "Io_SharedAssert.h"
+#include "Io_Imd.h"
+#include "Io_SharedPwmInput.h"
 
 extern TIM_HandleTypeDef htim2;
 

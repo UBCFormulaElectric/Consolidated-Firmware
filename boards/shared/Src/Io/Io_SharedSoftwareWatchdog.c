@@ -1,8 +1,8 @@
 #include <cmsis_os.h>
 #include <stdbool.h>
 #include <string.h>
-#include "Io/Io_SharedSoftwareWatchdog.h"
-#include "Io/Io_SharedAssert.h"
+#include "Io_SharedSoftwareWatchdog.h"
+#include "Io_SharedAssert.h"
 
 // Convert our anonymous handle to a software watchdog pointer
 #define prvGetWatchdogFromHandle(handle) (SoftwareWatchdog_t *)(handle)

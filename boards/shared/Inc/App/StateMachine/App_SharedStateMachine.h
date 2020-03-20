@@ -1,7 +1,7 @@
 #pragma once
 
 // Application specific configuration options.
-#include "App/StateMachine/App_SharedStateMachineConfig.h"
+#include "StateMachine/App_SharedStateMachineConfig.h"
 
 // Check all the required application specific macros have been defined in
 // <App_SharedStateMachineConfig.h>.
@@ -10,7 +10,7 @@
 #endif
 
 // The state machine library relies on the the state library
-#include "App/StateMachine/App_SharedState.h"
+#include "StateMachine/App_SharedState.h"
 
 // Anonymous type by which state machines are referenced.
 typedef void *StateMachineHandle_t;

@@ -20,7 +20,7 @@
 #endif
 
 #include "arm_math.h"
-#include "Io/Io_BoardSpecifics.h"
+#include "Io_BoardSpecifics.h"
 
 /******************************************************************************
  * Preprocessor Constants

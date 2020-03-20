@@ -1,8 +1,8 @@
-#include "App/auto_generated/App_CanTx.h"
-#include "App/App_Imd.h"
-#include "App/World/App_SharedWorld.h"
-#include "Io/Io_SharedAssert.h"
-#include "Io/Io_SharedMacros.h"
+#include "auto_generated/App_CanTx.h"
+#include "App_Imd.h"
+#include "World/App_SharedWorld.h"
+#include "Io_SharedAssert.h"
+#include "Io_SharedMacros.h"
 
 extern struct World *world;
 

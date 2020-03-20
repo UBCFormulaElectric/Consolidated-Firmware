@@ -1,7 +1,8 @@
 file(GLOB_RECURSE ARM_BINARY_SOURCES "Src/*.*")
 set(ARM_BINARY_INCLUDE_DIRS 
-    "Inc/"
-    "Inc/States/"
+    "Inc/App"
+    "Inc/Io"
+    "Inc"
     )
 set(STM32CUBEMX_DRIVER_INCLUDE_DIRS
     "Drivers/STM32F3xx_HAL_Driver/Inc"

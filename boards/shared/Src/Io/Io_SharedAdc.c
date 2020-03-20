@@ -2,8 +2,8 @@
 /******************************************************************************
  * Includes
  ******************************************************************************/
-#include "Io/Io_SharedAdc.h"
-#include "Io/Io_SharedConstants.h"
+#include "Io_SharedAdc.h"
+#include "Io_SharedConstants.h"
 #include "main.h"
 #include "stdbool.h"
 

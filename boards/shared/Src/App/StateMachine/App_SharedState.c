@@ -1,6 +1,6 @@
 #include <string.h>
-#include "Io/Io_SharedAssert.h"
-#include "App/StateMachine/App_SharedState.h"
+#include "Io_SharedAssert.h"
+#include "StateMachine/App_SharedState.h"
 
 #define MAX_STATE_NAME_LENGTH 16
 typedef struct State

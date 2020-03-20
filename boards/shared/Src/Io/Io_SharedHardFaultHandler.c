@@ -2,8 +2,8 @@
  * Includes
  ******************************************************************************/
 #include <stm32f3xx_hal.h>
-#include "Io/Io_SharedHardFaultHandler.h"
-#include "Io/Io_SharedMacros.h"
+#include "Io_SharedHardFaultHandler.h"
+#include "Io_SharedMacros.h"
 
 /******************************************************************************
  * Function Definitions

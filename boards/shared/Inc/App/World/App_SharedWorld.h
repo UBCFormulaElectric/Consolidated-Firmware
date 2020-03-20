@@ -1,6 +1,6 @@
 #pragma once
 
-#include "App/auto_generated/App_CanTx.h"
+#include "auto_generated/App_CanTx.h"
 
 struct World;
 struct CanTxInterface;

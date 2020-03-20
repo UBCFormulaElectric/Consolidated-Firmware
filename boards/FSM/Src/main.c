@@ -24,20 +24,20 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "Io/Io_SharedSoftwareWatchdog.h"
-#include "Io/Io_SharedConstants.h"
-#include "Io/Io_SharedCmsisOs.h"
-#include "Io/Io_SharedCan.h"
-#include "Io/Io_SharedHeartbeat.h"
-#include "Io/Io_SharedHardFaultHandler.h"
-#include "Io/Io_SharedAssert.h"
-#include "Io/Io_StackWaterMark.h"
-#include "App/World/App_SharedWorld.h"
-#include "App/StateMachine/App_StateMachine.h"
-#include "Io/Io_SoftwareWatchdog.h"
-#include "App/auto_generated/App_CanTx.h"
-#include "Io/auto_generated/Io_CanTx.h"
-#include "App/auto_generated/App_CanRx.h"
+#include "Io_SharedSoftwareWatchdog.h"
+#include "Io_SharedConstants.h"
+#include "Io_SharedCmsisOs.h"
+#include "Io_SharedCan.h"
+#include "Io_SharedHeartbeat.h"
+#include "Io_SharedHardFaultHandler.h"
+#include "Io_SharedAssert.h"
+#include "Io_StackWaterMark.h"
+#include "World/App_SharedWorld.h"
+#include "StateMachine/App_StateMachine.h"
+#include "Io_SoftwareWatchdog.h"
+#include "auto_generated/App_CanTx.h"
+#include "auto_generated/Io_CanTx.h"
+#include "auto_generated/App_CanRx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

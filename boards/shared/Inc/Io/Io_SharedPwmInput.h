@@ -3,7 +3,7 @@
 #include <stm32f3xx_hal.h>
 
 // Application specific configuration options.
-#include "Io/Io_SharedPwmInputConfig.h"
+#include "Io_SharedPwmInputConfig.h"
 
 // Check all the required application specific macros have been defined in
 // <Io_SharedPwmInputConfig.h>.

@@ -13,7 +13,7 @@
  * Includes
  ******************************************************************************/
 #include <stdint.h>
-#include "Io/Io_SharedMacros.h"
+#include "Io_SharedMacros.h"
 
 /******************************************************************************
  * Preprocessor Macros

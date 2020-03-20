@@ -4,9 +4,9 @@
 #include <stm32f3xx_hal.h>
 #include <FreeRTOS.h>
 #include <task.h>
-#include "Io/Io_SharedLogging.h"
-#include "Io/Io_SharedAssert.h"
-#include "Io/Io_SharedMacros.h"
+#include "Io_SharedLogging.h"
+#include "Io_SharedAssert.h"
+#include "Io_SharedMacros.h"
 
 /******************************************************************************
  * Module Preprocessor Constants

@@ -1,4 +1,4 @@
-#include "App/StateMachine/App_InitState.h"
+#include "StateMachine/App_InitState.h"
 
 static StateHandle_t init_state_handle;
 

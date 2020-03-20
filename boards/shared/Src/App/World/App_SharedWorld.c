@@ -1,7 +1,7 @@
 #include <stddef.h>
 
-#include "Io/Io_SharedAssert.h"
-#include "App/World/App_SharedWorld.h"
+#include "Io_SharedAssert.h"
+#include "World/App_SharedWorld.h"
 
 // The current firmware architecture only requires creating a single
 // world for each board.

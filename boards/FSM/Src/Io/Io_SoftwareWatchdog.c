@@ -1,9 +1,9 @@
 #include <stm32f3xx_hal.h>
 #include <string.h>
-#include "App/auto_generated/App_CanTx.h"
-#include "Io/Io_SoftwareWatchdog.h"
-#include "App/World/App_SharedWorld.h"
-#include "Io/Io_SharedMacros.h"
+#include "auto_generated/App_CanTx.h"
+#include "Io_SoftwareWatchdog.h"
+#include "World/App_SharedWorld.h"
+#include "Io_SharedMacros.h"
 
 extern IWDG_HandleTypeDef hiwdg;
 extern struct World *     world;
