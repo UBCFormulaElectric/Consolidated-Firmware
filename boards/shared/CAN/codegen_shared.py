@@ -42,7 +42,7 @@ class CanFileGenerator:
     def _write_output(self, text_output):
         # Generate output folder if it doesn't exist yet
         if not os.path.exists(self._output_dir):
-            os.mkdir(self._output_dir)
+            os.makedirs(self._output_dir)
         # Write file to disk
         with open(os.path.join(self._output_dir, self._output_name), 'w') as fout:
             fout.write(text_output)
