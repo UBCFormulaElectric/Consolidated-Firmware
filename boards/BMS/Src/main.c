@@ -36,7 +36,7 @@
 #include "Io_Imd.h"
 #include "App_Imd.h"
 #include "auto_generated/App_CanTx.h"
-#include "auto_generated/App_CanRx.h"
+#include "auto_generated/Io_CanRx.h"
 #include "auto_generated/Io_CanTx.h"
 /* USER CODE END Includes */
 
@@ -118,7 +118,7 @@ int main(void)
         Io_CanTx_EnqueueNonPeriodicMsg_BMS_WATCHDOG_TIMEOUT);
     world = App_SharedWorld_Create(can_tx);
 
-    App_CanRx_Init();
+    Io_CanRx_Init();
     App_StateMachine_Init();
     /* USER CODE END 1 */
 

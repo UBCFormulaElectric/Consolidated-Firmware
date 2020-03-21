@@ -37,7 +37,7 @@
 #include "Io_SoftwareWatchdog.h"
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/Io_CanTx.h"
-#include "auto_generated/App_CanRx.h"
+#include "auto_generated/Io_CanRx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -115,7 +115,7 @@ int main(void)
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_AIR_SHUTDOWN);
     world = App_SharedWorld_Create(can_tx);
 
-    App_CanRx_Init();
+    Io_CanRx_Init();
     App_StateMachine_Init();
     /* USER CODE END 1 */
 

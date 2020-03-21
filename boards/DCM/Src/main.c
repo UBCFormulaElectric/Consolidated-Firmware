@@ -36,7 +36,7 @@
 #include "StateMachine/App_StateMachine.h"
 #include "Io_SoftwareWatchdog.h"
 #include "auto_generated/App_CanTx.h"
-#include "auto_generated/App_CanRx.h"
+#include "auto_generated/Io_CanRx.h"
 #include "auto_generated/Io_CanTx.h"
 /* USER CODE END Includes */
 
@@ -117,7 +117,7 @@ int main(void)
         Io_CanTx_EnqueueNonPeriodicMsg_DCM_WATCHDOG_TIMEOUT);
     world = App_SharedWorld_Create(can_tx);
 
-    App_CanRx_Init();
+    Io_CanRx_Init();
     App_StateMachine_Init();
     /* USER CODE END 1 */
 

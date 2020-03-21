@@ -1,5 +1,5 @@
 #include "auto_generated/App_CanTx.h"
-#include "auto_generated/App_CanRx.h"
+#include "auto_generated/Io_CanRx.h"
 #include "auto_generated/Io_CanTx.h"
 #include "Io_BoardSpecifics.h"
 #include "Io_SharedCan.h"
@@ -337,8 +337,7 @@ void Io_SharedCan_ReadRxMessagesIntoTableFromTask(void)
     if (xQueueReceive(can_rx_msg_fifo.handle, &message, portMAX_DELAY) ==
         pdTRUE)
     {
-        App_CanRx_ReadMessageIntoTableFromTask(
-            message.std_id, &message.data[0]);
+        Io_CanRx_ReadMessageIntoTableFromTask(message.std_id, &message.data[0]);
     }
 }
 
