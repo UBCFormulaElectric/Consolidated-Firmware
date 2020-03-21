@@ -31,6 +31,17 @@ def change_frame_id_capitalization(code: str) -> str:
         lambda match: r'CANMSGS_{}_FRAME_ID'.format(match.group(1).lower()),
         code)
 
+def remove_app_prefix_from_structs(code: str) -> str:
+    """
+    Remove the App_ prefix from structs. This is done because only function
+    names in the APP layer should have the App_ prefix, where as struct name
+    should not.
+    """
+    return sub(
+        r'struct App_',
+        r'struct ',
+        code)
+
 def generate_cantools_c_code(database, database_name, source_path, header_path):
     """
     Generates C source code for the given .dbc file using cantools
@@ -53,7 +64,10 @@ def generate_cantools_c_code(database, database_name, source_path, header_path):
     # Remove timestamps from generated source code because
     # the timestamps would pollute git diff
     header = purge_timestamps_from_generated_code(header)
+    header = remove_app_prefix_from_structs(header)
     source = purge_timestamps_from_generated_code(source)
+    source = remove_app_prefix_from_structs(source)
+
 
     # Generate output folders if they don't exist already
     source_dir = os.path.dirname(source_path)

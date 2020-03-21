@@ -194,7 +194,7 @@ class CanRxSourceFileGenerator(CanRxFileGenerator):
         self.__CanRxMsgs_MessageSpecific = list(
             Struct('CanRxMsg_%s' % msg.snake_name,
                    [
-                       StructMember('struct App_CanMsgs_%s_t' % msg.snake_name,
+                       StructMember('struct CanMsgs_%s_t' % msg.snake_name,
                                     'payload', 'NULL'),
                        StructMember('SemaphoreHandle_t', 'xSemaphore', 'NULL'),
                        StructMember('StaticSemaphore_t', 'xMutexBuffer', 'NULL')
