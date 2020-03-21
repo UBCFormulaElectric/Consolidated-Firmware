@@ -25,7 +25,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "App_SharedSoftwareWatchdog.h"
+#include "Io_SharedSoftwareWatchdog.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -71,7 +71,7 @@ __weak void vApplicationTickHook(void)
     added here, but the tick hook is called from an interrupt context, so
     code must not attempt to block, and only the interrupt safe FreeRTOS API
     functions can be used (those that end in FromISR()). */
-    App_SharedSoftwareWatchdog_CheckForTimeouts();
+    Io_SharedSoftwareWatchdog_CheckForTimeouts();
 }
 /* USER CODE END 3 */
 
