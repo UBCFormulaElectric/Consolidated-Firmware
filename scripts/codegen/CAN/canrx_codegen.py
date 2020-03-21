@@ -59,11 +59,11 @@ class CanRxFileGenerator(CanFileGenerator):
             for signal in self._canrx_signals]
 
         _CanRxReadMessageIntoTableFromISR_Cases = ['''\
-        case CANMSGS_{msg_uppercase_name}_FRAME_ID:
+        case APP_CANMSGS_{msg_uppercase_name}_FRAME_ID:
         {{
             if (xSemaphoreTakeFromISR({table_name}.{msg_snakecase_name}.xSemaphore, pxHigherPriorityTaskWoken) == pdTRUE)
             {{
-                CanMsgs_{msg_snakecase_name}_unpack(&{table_name}.{msg_snakecase_name}.payload, &data[0], CANMSGS_{msg_uppercase_name}_LENGTH);
+                App_CanMsgs_{msg_snakecase_name}_unpack(&{table_name}.{msg_snakecase_name}.payload, &data[0], APP_CANMSGS_{msg_uppercase_name}_LENGTH);
                 xSemaphoreGiveFromISR({table_name}.{msg_snakecase_name}.xSemaphore, pxHigherPriorityTaskWoken);
             }}
             else
@@ -97,11 +97,11 @@ class CanRxFileGenerator(CanFileGenerator):
                 cases='\n'.join(_CanRxReadMessageIntoTableFromISR_Cases)))
 
         _CanRxReadMessageIntoTableFromTask_Cases = ['''\
-        case CANMSGS_{msg_uppercase_name}_FRAME_ID:
+        case APP_CANMSGS_{msg_uppercase_name}_FRAME_ID:
         {{
             if (xSemaphoreTake({table_name}.{msg_snakecase_name}.xSemaphore, portMAX_DELAY) == pdTRUE)
             {{
-                CanMsgs_{msg_snakecase_name}_unpack(&{table_name}.{msg_snakecase_name}.payload, &data[0], CANMSGS_{msg_uppercase_name}_LENGTH);
+                App_CanMsgs_{msg_snakecase_name}_unpack(&{table_name}.{msg_snakecase_name}.payload, &data[0], APP_CANMSGS_{msg_uppercase_name}_LENGTH);
                 xSemaphoreGive({table_name}.{msg_snakecase_name}.xSemaphore);
             }}
             break;
@@ -194,7 +194,7 @@ class CanRxSourceFileGenerator(CanRxFileGenerator):
         self.__CanRxMsgs_MessageSpecific = list(
             Struct('CanRxMsg_%s' % msg.snake_name,
                    [
-                       StructMember('struct CanMsgs_%s_t' % msg.snake_name,
+                       StructMember('struct App_CanMsgs_%s_t' % msg.snake_name,
                                     'payload', 'NULL'),
                        StructMember('SemaphoreHandle_t', 'xSemaphore', 'NULL'),
                        StructMember('StaticSemaphore_t', 'xMutexBuffer', 'NULL')
@@ -214,7 +214,7 @@ class CanRxSourceFileGenerator(CanRxFileGenerator):
                         '<FreeRTOS.h>',
                         '<semphr.h>',
                         '"auto_generated/%s"' % self._output_name.replace('.c', '.h'),
-                        '"auto_generated/CanMsgs.h"',
+                        '"auto_generated/App_CanMsgs.h"',
                         '"Io_SharedAssert.h"',
                         '"Io_SharedCan.h"']
 

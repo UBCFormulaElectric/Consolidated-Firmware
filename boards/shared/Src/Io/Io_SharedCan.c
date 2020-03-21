@@ -29,7 +29,7 @@ extern struct World *world;
 
 /** @brief Board-specific struct type for the CAN startup message payload */
 #define BOARD_STARTUP_STRUCT(board) _BOARD_STARTUP_STRUCT(board)
-#define _BOARD_STARTUP_STRUCT(board) struct CanMsgs_##board##_startup_t
+#define _BOARD_STARTUP_STRUCT(board) struct App_CanMsgs_##board##_startup_t
 
 /** @brief Board-specific function to transmit the CAN startup message */
 #define ENQUEUE_TRANSMIT_BOARD_STARTUP(BOARD, ARG1, ARG2) \

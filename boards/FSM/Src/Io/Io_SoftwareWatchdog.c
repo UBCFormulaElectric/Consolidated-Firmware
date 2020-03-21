@@ -20,7 +20,7 @@ void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
     App_CanTx_SetPeriodicSignal_WATCHDOG_TIMEOUT(
         App_SharedWorld_GetCanTx(world), true);
 
-    struct CanMsgs_fsm_watchdog_timeout_t payload;
+    struct App_CanMsgs_fsm_watchdog_timeout_t payload;
     memcpy(
         &payload.task_name, Io_SharedSoftwareWatchdog_GetName(watchdog),
         sizeof(payload.task_name));
