@@ -237,9 +237,9 @@ class IoCanTxFileGenerator(CanFileGenerator):
                  msg_packing_function='App_CanMsgs_%s_pack' % msg.snake_name,
                  msg_function_ptr_getter=
                     'App_CanTx_GetPeriodicMsgPointer_%s' % msg.snake_name.upper(),
-                 std_id='APP_CANMSGS_%s_FRAME_ID' % msg.snake_name.upper(),
-                 dlc='APP_CANMSGS_%s_LENGTH' % msg.snake_name.upper(),
-                 period='APP_CANMSGS_%s_CYCLE_TIME_MS' % msg.snake_name.upper())
+                 std_id='CANMSGS_%s_FRAME_ID' % msg.snake_name.upper(),
+                 dlc='CANMSGS_%s_LENGTH' % msg.snake_name.upper(),
+                 period='CANMSGS_%s_CYCLE_TIME_MS' % msg.snake_name.upper())
                                     for msg in self._periodic_cantx_msgs])
 
         self._EnqueuePeriodicMsgs = Function('''\
@@ -256,10 +256,10 @@ void %s_EnqueuePeriodicMsgs(struct CanTxInterface* can_tx_interface, const uint3
 
     struct CanMsg tx_msg;
     memset(&tx_msg, 0, sizeof(tx_msg));
-    tx_msg.std_id = APP_CANMSGS_{msg_name_uppercase}_FRAME_ID;
-    tx_msg.dlc    = APP_CANMSGS_{msg_name_uppercase}_LENGTH;
-    memcpy(&tx_msg.data[0], &payload, APP_CANMSGS_{msg_name_uppercase}_LENGTH);
-    App_CanMsgs_{msg_name_snakecase}_pack(&tx_msg.data[0], payload, APP_CANMSGS_{msg_name_uppercase}_LENGTH);
+    tx_msg.std_id = CANMSGS_{msg_name_uppercase}_FRAME_ID;
+    tx_msg.dlc    = CANMSGS_{msg_name_uppercase}_LENGTH;
+    memcpy(&tx_msg.data[0], &payload, CANMSGS_{msg_name_uppercase}_LENGTH);
+    App_CanMsgs_{msg_name_snakecase}_pack(&tx_msg.data[0], payload, CANMSGS_{msg_name_uppercase}_LENGTH);
     Io_SharedCan_TxMessageQueueSendtoBack(&tx_msg);'''.format(
                 msg_name_uppercase=msg.snake_name.upper(),
                 msg_name_snakecase=msg.snake_name)

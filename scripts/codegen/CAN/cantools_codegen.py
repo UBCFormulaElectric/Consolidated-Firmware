@@ -34,13 +34,25 @@ def change_frame_id_capitalization(code: str) -> str:
 def remove_app_prefix_from_structs(code: str) -> str:
     """
     Remove the App_ prefix from structs. This is done because only function
-    names in the APP layer should have the App_ prefix, where as struct name
+    names in the APP layer should have the App_ prefix, whereas struct names
     should not.
     """
     return sub(
         r'struct App_',
         r'struct ',
         code)
+
+def remove_app_prefix_from_macros(code: str) -> str:
+    """
+    Remove the App_ prefix from structs. This is done because only function
+    names in the APP layer should have the App_ prefix, whereas macro names
+    should not.
+    """
+    return sub(
+        r'APP_',
+        r'',
+        code)
+
 
 def generate_cantools_c_code(database, database_name, source_path, header_path):
     """
@@ -64,10 +76,13 @@ def generate_cantools_c_code(database, database_name, source_path, header_path):
     # Remove timestamps from generated source code because
     # the timestamps would pollute git diff
     header = purge_timestamps_from_generated_code(header)
-    header = remove_app_prefix_from_structs(header)
     source = purge_timestamps_from_generated_code(source)
-    source = remove_app_prefix_from_structs(source)
 
+    # Remove unwanted prefix from struct and macro names
+    header = remove_app_prefix_from_structs(header)
+    header = remove_app_prefix_from_macros(header)
+    source = remove_app_prefix_from_structs(source)
+    source = remove_app_prefix_from_macros(source)
 
     # Generate output folders if they don't exist already
     source_dir = os.path.dirname(source_path)

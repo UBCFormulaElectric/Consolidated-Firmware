@@ -59,11 +59,11 @@ class CanRxFileGenerator(CanFileGenerator):
             for signal in self._canrx_signals]
 
         _CanRxReadMessageIntoTableFromISR_Cases = ['''\
-        case APP_CANMSGS_{msg_uppercase_name}_FRAME_ID:
+        case CANMSGS_{msg_uppercase_name}_FRAME_ID:
         {{
             if (xSemaphoreTakeFromISR({table_name}.{msg_snakecase_name}.xSemaphore, pxHigherPriorityTaskWoken) == pdTRUE)
             {{
-                App_CanMsgs_{msg_snakecase_name}_unpack(&{table_name}.{msg_snakecase_name}.payload, &data[0], APP_CANMSGS_{msg_uppercase_name}_LENGTH);
+                App_CanMsgs_{msg_snakecase_name}_unpack(&{table_name}.{msg_snakecase_name}.payload, &data[0], CANMSGS_{msg_uppercase_name}_LENGTH);
                 xSemaphoreGiveFromISR({table_name}.{msg_snakecase_name}.xSemaphore, pxHigherPriorityTaskWoken);
             }}
             else
@@ -97,11 +97,11 @@ class CanRxFileGenerator(CanFileGenerator):
                 cases='\n'.join(_CanRxReadMessageIntoTableFromISR_Cases)))
 
         _CanRxReadMessageIntoTableFromTask_Cases = ['''\
-        case APP_CANMSGS_{msg_uppercase_name}_FRAME_ID:
+        case CANMSGS_{msg_uppercase_name}_FRAME_ID:
         {{
             if (xSemaphoreTake({table_name}.{msg_snakecase_name}.xSemaphore, portMAX_DELAY) == pdTRUE)
             {{
-                App_CanMsgs_{msg_snakecase_name}_unpack(&{table_name}.{msg_snakecase_name}.payload, &data[0], APP_CANMSGS_{msg_uppercase_name}_LENGTH);
+                App_CanMsgs_{msg_snakecase_name}_unpack(&{table_name}.{msg_snakecase_name}.payload, &data[0], CANMSGS_{msg_uppercase_name}_LENGTH);
                 xSemaphoreGive({table_name}.{msg_snakecase_name}.xSemaphore);
             }}
             break;
