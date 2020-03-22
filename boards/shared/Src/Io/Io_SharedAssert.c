@@ -1,6 +1,3 @@
-/******************************************************************************
- * Includes
- ******************************************************************************/
 #include <stm32f3xx_hal.h>
 #include <FreeRTOS.h>
 #include <task.h>
@@ -8,27 +5,18 @@
 #include "Io_SharedAssert.h"
 #include "Io_SharedMacros.h"
 
-/******************************************************************************
- * Module Preprocessor Constants
- ******************************************************************************/
 /**
  * @brief Delay between detecting an error and performing a system reset. This
  *        value is more-or-less arbitrarily decided.
  */
 #define DELAY_BETWEEN_ERROR_AND_SYSTEM_RESET_MS 500U
 
-/******************************************************************************
- * Private Function Prototypes
- ******************************************************************************/
 /**
  * @brief Simple wrapped to delay some time before performing a system reset.
  * @param delay_ms Amount of time to wait before rebooting
  */
 static void WaitAndReset(uint32_t delay_ms);
 
-/******************************************************************************
- * Private Function Definitions
- ******************************************************************************/
 static void __attribute__((unused)) WaitAndReset(uint32_t delay_ms)
 {
     // Delay a little before shutdown so the debug message can be sent out
@@ -37,10 +25,6 @@ static void __attribute__((unused)) WaitAndReset(uint32_t delay_ms)
     // Trigger a software reboot
     HAL_NVIC_SystemReset();
 }
-
-/******************************************************************************
- * Function Definitions
- ******************************************************************************/
 
 void Io_SharedAssert_AssertFailed(char *file_path, uint32_t line, char *expr)
 {

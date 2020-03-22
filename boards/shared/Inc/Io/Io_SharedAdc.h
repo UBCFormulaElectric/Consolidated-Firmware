@@ -1,44 +1,16 @@
-/**
- * @brief Shared ADC library
- */
-#ifndef SHARED_ADC_H
-#define SHARED_ADC_H
+#pragma once
 
-/******************************************************************************
- * Includes
- ******************************************************************************/
-// Check for STM32 microcontroller family
-#ifdef STM32F302x8
-// Used in DCM 2017, BMS 2017, and PDM 2018
-#include "stm32f3xx_hal.h"
-#elif STM32F042x6
-// Used in FSM 2017 (Shared ADC Library hasn't been tested on F0 yet)
-#include "stm32f0xx_hal.h"
-#else
-#error \
-    "No valid architecture selected - unable to determine what HAL library to use"
-#endif
+#include <stm32f3xx_hal.h>
+#include <arm_math.h>
 
-#include "arm_math.h"
 #include "Io_BoardSpecifics.h"
 
-/******************************************************************************
- * Preprocessor Constants
- ******************************************************************************/
 // clang-format off
 
 // Memory address where you can find the internal reference voltage calibration 
 // values: Raw ADC data acquired at temperature of 30 degC with VDDA = 3.3V 
 // during the manufacturing process
-#ifdef STM32F302x8
 #define VREFINT_CALIBRATION_ADDRESS		(uint16_t *)(0x1FFFF7BA)
-#elif STM32F042x6
-#else
-#define VREFINT_CALIBRATION_ADDRESS		(uint16_t *)(0x1FFFF7BA)
-#error
-    "No valid architecture selected - unable to determine what HAL library to use"
-#endif
-
 
 // Number of microcontroller pins that are configured to be ADC inputs
 #ifndef NUM_ADC_CHANNELS
@@ -51,23 +23,6 @@
 /** @brief Number of VREFINT channel. VREFINT is the internal voltage reference 
  *         that provides a stable (bandgap) voltage output for the ADC. */
 #define NUM_VREFINT_CHANNEL 1
-
-/******************************************************************************
- * Preprocessor Macros
- ******************************************************************************/
-
-/******************************************************************************
- * Typedefs
- ******************************************************************************/
-// clang-format on
-
-/******************************************************************************
- * Global Variables
- ******************************************************************************/
-
-/******************************************************************************
- * Function Prototypes
- ******************************************************************************/
 
 /**
  * @brief  Initialize ADC in DMA mode and the correct max ADC value
@@ -110,4 +65,3 @@ float32_t Io_SharedAdc_GetActualVdda(void);
  */
 float32_t Io_SharedAdc_GetAdcVoltage(uint32_t regular_rank);
 
-#endif /* SHARED_ADC_H */

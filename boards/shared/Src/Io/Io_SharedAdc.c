@@ -1,27 +1,8 @@
-
-/******************************************************************************
- * Includes
- ******************************************************************************/
 #include "Io_SharedAdc.h"
 #include "Io_SharedConstants.h"
 #include "main.h"
 #include "stdbool.h"
 
-/******************************************************************************
- * Module Preprocessor Constants
- ******************************************************************************/
-
-/******************************************************************************
- * Module Preprocessor Macros
- ******************************************************************************/
-
-/******************************************************************************
- * Module Typedefs
- ******************************************************************************/
-
-/******************************************************************************
- * Module Variable Definitions
- ******************************************************************************/
 /** @brief The maximum ADC value depends on the selected ADC resolution */
 static uint32_t adc_max_value;
 
@@ -36,9 +17,6 @@ static uint32_t vrefint_index = NUM_ADC_CHANNELS;
 /** @brief Keep track of whether the ADC has been initialized yet */
 static bool adc_initialized = false;
 
-/******************************************************************************
- * Private Function Prototypes
- *******************************************************************************/
 /**
  * @brief  Configure the maximum ADC value based on ADC resolution
  * @param  hadc ADC handle
@@ -62,9 +40,6 @@ static uint16_t GetVrefintCalibrationValue(void);
  */
 static void CheckAdcInitialized(void);
 
-/******************************************************************************
- * Private Function Definitions
- ******************************************************************************/
 static ErrorStatus InitializeAdcMaxValue(ADC_HandleTypeDef *hadc)
 {
     switch (hadc->Init.Resolution)
@@ -100,9 +75,6 @@ static void CheckAdcInitialized(void)
     }
 }
 
-/******************************************************************************
- * Function Definitions
- ******************************************************************************/
 void Io_SharedAdc_StartAdcInDmaMode(
     ADC_HandleTypeDef *hadc,
     uint32_t           vrefint_regular_rank)
