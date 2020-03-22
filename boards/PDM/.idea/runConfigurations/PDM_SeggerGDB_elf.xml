@@ -1,8 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="PDM_SeggerGDB.elf" type="com.jetbrains.cidr.embedded.customgdbserver.type" factoryName="com.jetbrains.cidr.embedded.customgdbserver.factory" PROGRAM_PARAMS="-select USB -device STM32F302C8 -endian little -if SWD -speed 4000 -ir -LocalhostOnly -vd -rtos GDBServer/RTOSPlugin_FreeRTOS" PASS_PARENT_ENVS_2="true" PROJECT_NAME="PDM" TARGET_NAME="PDM.elf" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="PDM" RUN_TARGET_NAME="PDM.elf">
-    <custom-gdb-server version="1" gdb-connect="localhost:2331" executable="/usr/bin/JLinkGDBServer" reset-cmd="monitor reset" warmup-ms="500" download-type="UPDATED_ONLY" />
-    <method v="2">
-      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-    </method>
-  </configuration>
-</component>

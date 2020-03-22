@@ -75,24 +75,18 @@ Pipfile.lock
 *.orig
 
 # CMake-relevant files
-# Note: To un-ignore anything directly under .idea/ (.e.g .idea/misc.xml), you
-# must un-ignore .idea/ first
 CMakeCache.txt
 cmake_install.cmake
 CMakeFiles/
-Build/
 compile_commands.json
 Makefile
-cmake-build-debug/
-*.cbp
-!**/.idea
-src/**/*.xml
-**/.idea/*.iml
-**/.idea/*.xml
-!**/.idea/misc.xml
-!**/.idea/runConfigurations/*
 auto_generated/
 __lib__/
+*.cbp
+
+# CLion Files
+.idea/
+cmake-build-*
 
 # Miscellaneous
 *.tra
@@ -102,6 +96,7 @@ __lib__/
 *.l1p
 *.l2p
 *.iex
+*.md5
 
 # STM32CubeMX
 .mxproject

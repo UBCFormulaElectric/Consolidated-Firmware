@@ -24,15 +24,16 @@ BOARD_NAMES=(
 )
 
 if [ "$RUN_BUILD" = "true" ]; then
-    # Build each project
+    travis_run cmake -S boards -B boards/build -DPLATFORM=arm
     for BOARD_NAME in "${BOARD_NAMES[@]}"
     do
-        travis_run "cmake boards/$BOARD_NAME/CMakeLists.txt -DSTM32CUBEMX_BIN_PATH=$STM32CUBEMX_BIN_PATH && make -C boards/$BOARD_NAME"
+        travis_run make --directory=boards/build $BOARD_NAME.elf
     done
 fi
 
 if [ "$RUN_TESTS" = "true" ]; then
-    :
+    travis_run cmake -S boards -B boards/build -DPLATFORM=x86
+    travis_run make --directory=boards/build
 fi
 
 if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then
@@ -60,7 +61,13 @@ fi
 if [ "$RUN_CUBE_CODEGEN_CHECKS" = "true" ]; then
     # Use .ioc to update STM32CubeMX auto-generated code
     for BOARD_NAME in "${BOARD_NAMES[@]}"
-      do travis_run python scripts/utilities/generate_cube_code.py $BOARD_NAME boards/$BOARD_NAME/$BOARD_NAME.ioc boards/$BOARD_NAME $STM32CUBEMX_BIN_PATH
+    do travis_run python \
+      scripts/utilities/generate_cube_code.py \
+        --board $BOARD_NAME \
+        --log4j_properties_output ~/.stm32cubemx/log4j.properties \
+        --ioc boards/$BOARD_NAME/$BOARD_NAME.ioc \
+        --codegen_output_dir boards/$BOARD_NAME \
+        --cube_bin $STM32CUBEMX_BIN_PATH
     done
     # Auto-generated STM32CubeMX code doesn't conform to our clang-format so we
     # need to manually format them
