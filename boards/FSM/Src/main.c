@@ -130,6 +130,7 @@ int main(void)
     HAL_Init();
 
     /* USER CODE BEGIN Init */
+    
     /* USER CODE END Init */
 
     /* Configure the system clock */
@@ -214,7 +215,6 @@ int main(void)
 
         /* USER CODE BEGIN 3 */
     }
-
     /* USER CODE END 3 */
 }
 
@@ -381,7 +381,6 @@ static void MX_IWDG_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
-
     App_SharedSoftwareWatchdog_Init(
         Io_HardwareWatchdog_Refresh, App_SoftwareWatchdog_TimeoutCallback);
     /* USER CODE END IWDG_Init 2 */
