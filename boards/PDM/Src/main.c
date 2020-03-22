@@ -113,9 +113,9 @@ int main(void)
 
     static struct CanTxInterface *can_tx;
     can_tx = App_CanTx_Create(
+        Io_CanTx_EnqueueNonPeriodicMsg_PDM_STARTUP,
         Io_CanTx_EnqueueNonPeriodicMsg_PDM_AIR_SHUTDOWN,
         Io_CanTx_EnqueueNonPeriodicMsg_PDM_MOTOR_SHUTDOWN,
-        Io_CanTx_EnqueueNonPeriodicMsg_PDM_STARTUP,
         Io_CanTx_EnqueueNonPeriodicMsg_PDM_WATCHDOG_TIMEOUT);
     world = App_SharedWorld_Create(can_tx);
 
