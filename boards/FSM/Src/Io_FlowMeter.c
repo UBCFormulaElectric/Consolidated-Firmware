@@ -11,7 +11,7 @@ static TIM_HandleTypeDef *flow_meter_htim;
 void Io_FlowMeter_Init(void)
 {
     flow_meter_pwm_input = Io_SharedPwmInput_Create(
-        &htim2, TIM2_FREQUENCY / TIM2_PRESCALER, TIM_CHANNEL_1, TIM_CHANNEL_1);
+        &htim2, TIMx_FREQUENCY / TIMx_PRESCALER, TIM_CHANNEL_1, TIM_CHANNEL_1);
 
     flow_meter_htim = &htim2;
 }
