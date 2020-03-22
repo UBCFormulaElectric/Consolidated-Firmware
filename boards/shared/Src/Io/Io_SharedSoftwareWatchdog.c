@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "Io_SharedSoftwareWatchdog.h"
-#include "Io_SharedAssert.h"
+#include "App_SharedAssert.h"
 
 // Convert our anonymous handle to a software watchdog pointer
 #define prvGetWatchdogFromHandle(handle) (SoftwareWatchdog_t *)(handle)

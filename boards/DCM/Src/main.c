@@ -30,11 +30,13 @@
 #include "Io_SharedCan.h"
 #include "Io_SharedHeartbeat.h"
 #include "Io_SharedHardFaultHandler.h"
-#include "Io_SharedAssert.h"
 #include "Io_StackWaterMark.h"
+#include "Io_SoftwareWatchdog.h"
+
 #include "World/App_SharedWorld.h"
 #include "StateMachine/App_StateMachine.h"
-#include "Io_SoftwareWatchdog.h"
+#include "App_SharedAssert.h"
+
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/Io_CanRx.h"
 #include "auto_generated/Io_CanTx.h"

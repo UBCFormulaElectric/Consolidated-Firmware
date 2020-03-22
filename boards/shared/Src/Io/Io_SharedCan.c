@@ -3,7 +3,7 @@
 #include "auto_generated/Io_CanTx.h"
 #include "Io_BoardSpecifics.h"
 #include "Io_SharedCan.h"
-#include "Io_SharedAssert.h"
+#include "App_SharedAssert.h"
 #include "Io_SharedFreeRTOS.h"
 #include "World/App_SharedWorld.h"
 
