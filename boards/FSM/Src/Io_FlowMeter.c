@@ -3,7 +3,7 @@
 #include "Io_SharedPwmInput.h"
 #include "Io_FlowMeter.h"
 
-extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim4;
 
 static struct PwmInput *  flow_meter_pwm_input;
 static TIM_HandleTypeDef *flow_meter_htim;
@@ -11,9 +11,9 @@ static TIM_HandleTypeDef *flow_meter_htim;
 void Io_FlowMeter_Init(void)
 {
     flow_meter_pwm_input = Io_SharedPwmInput_Create(
-        &htim2, TIMx_FREQUENCY / TIMx_PRESCALER, TIM_CHANNEL_1, TIM_CHANNEL_1);
+        &htim4, TIMx_FREQUENCY / TIMx_PRESCALER, TIM_CHANNEL_1, TIM_CHANNEL_1);
 
-    flow_meter_htim = &htim2;
+    flow_meter_htim = &htim4;
 }
 
 float Io_FlowMeter_GetFlowRate(void)
