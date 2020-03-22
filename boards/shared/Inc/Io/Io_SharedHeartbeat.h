@@ -1,18 +1,11 @@
 /**
  * @brief Shared heartbeat module
  */
+#pragma once
 
-#ifndef SHARED_HEARTBEAT_H
-#define SHARED_HEARTBEAT_H
-/******************************************************************************
- * Includes
- ******************************************************************************/
 #include "Io_SharedCan.h"
 #include "Io_BoardSpecifics.h"
 
-/******************************************************************************
- * Preprocessor Constants
- ******************************************************************************/
 // clang-format off
 // Each board listens to certain other boards' CAN messages through the filters.
 #ifndef PCB_HEARTBEAT_LISTENER
@@ -24,9 +17,6 @@
 // providing heartbeats to other boards.
 //#define DEBUG
 
-/******************************************************************************
- * Preprocessor Macros
- ******************************************************************************/
  /**
   * @brief Check if a board's heartbeat wasn't received
   * @param heartbeats_received One-hot encoding of heartbeats received
@@ -35,9 +25,6 @@
  #define HEARTBEAT_TIMEOUT(heartbeats_received, encoding) \
     ((heartbeats_received & encoding) != encoding)
 
-/******************************************************************************
- * Typedefs
- ******************************************************************************/
 // clang-format on
 /** @brief One-hot board encoding */
 enum PcbHeartBeatEncoding
@@ -48,13 +35,6 @@ enum PcbHeartBeatEncoding
     FSM_HEARTBEAT_ENCODING = (1U << 3U),
 };
 
-/******************************************************************************
- * Global Variables
- ******************************************************************************/
-
-/******************************************************************************
- * Function Prototypes
- ******************************************************************************/
 /**
  * @brief Periodically broadcast heartbeat message for the current PCB. This
  *        functon checks for time differences by incrementing an internal
@@ -95,5 +75,3 @@ void Io_Heartbeat_HandleHeartbeatTimeout(uint8_t heartbeats_received);
  * @param std_id Standard ID of the received CAN message
  */
 void Io_Heartbeat_HandleHeartbeatReception(uint32_t std_id);
-
-#endif /* SHARED_HEARTBEAT_H */

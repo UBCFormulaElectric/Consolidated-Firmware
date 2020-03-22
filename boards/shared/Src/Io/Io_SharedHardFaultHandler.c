@@ -1,13 +1,7 @@
-/******************************************************************************
- * Includes
- ******************************************************************************/
 #include <stm32f3xx_hal.h>
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_SharedMacros.h"
 
-/******************************************************************************
- * Function Definitions
- ******************************************************************************/
 void Io_SharedHardFaultHandler_Init(void)
 {
     // Div-by-zero exception is disabled by default and must be enabled manually

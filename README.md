@@ -126,21 +126,32 @@ In `.clang-format`, the line `CommentPragmas: '\/\*(\*(?!\/_|[^*])*\*\/'` is ine
 - On a similar note, if you made design decisions, please document them in the comments of the PR. We often go back to close PRs to look at why things were done a certain way. It is very helpful for us to know how you came up with your solution when reading through the PR.
 
 ### Coding Conventions
-- Every and **.h** file should start with
+- Source files should roughly look like
 ```
-/**
- * @brief A quick description of what this file does/is for
- */
+{includes}
+{macros, structs, enums, global variables, etc}
+{static function declarations}
+{static function definitions}
+{public function definitions}
+
+```
+- Headers should roughly look like
+```
+{javadoc}
+{#pragma once}
+{includes}
+{macros, structs, enums, global variables, etc}
+{public function declarations}
 ```
 
-- Functions comments (below) should be directly above every function in the **header** file:
+- Function comments (below) should be directly above every function in the **headers**:
 ```
 /**
- * @brief A quick descrption
+ * Description of the purpose of the function
  * @param param_one The first parameter of the function
- * @param param_two The second parameter of the function whose
- *                  description goes longer than one line
- * @return what the function returns if it returns anything
+ * @param param_two The second parameter of the function whose description goes
+ *                  longer than one line
+ * @return What the function returns (not applicable if it returns void)
  */
 ```
 

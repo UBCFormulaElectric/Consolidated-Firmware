@@ -1,16 +1,5 @@
-/**
- * @brief A list of commonly used constants that may be shared between projects
- */
-#ifndef CONSTANTS_H
-#define CONSTANTS_H
+#pragma once
 
-/******************************************************************************
- * Includes
- ******************************************************************************/
-
-/******************************************************************************
- * Preprocessor Constants
- ******************************************************************************/
 // clang-format off
 #define MAX_4_BITS_VALUE  (uint32_t)(15)
 #define MAX_6_BITS_VALUE  (uint32_t)(63)
@@ -26,7 +15,3 @@
  *        preference
  */
 #define ACCELERATOR_PEDAL_POSITION_MAX_TORQUE 1000
-
-// clang-format on
-
-#endif /* CONSTANTS_H */

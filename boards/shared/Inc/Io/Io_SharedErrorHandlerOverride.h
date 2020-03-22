@@ -5,19 +5,11 @@
  *        definition in main.c as if the function prototype is
  *        `void ErrorHandler(char *file, uint32_t line)`
  */
+#pragma once
 
-#ifndef SHARED_HAL_ERROR_HANDLER_H
-#define SHARED_HAL_ERROR_HANDLER_H
-
-/******************************************************************************
- * Includes
- ******************************************************************************/
 #include <stdint.h>
 #include "Io_SharedMacros.h"
 
-/******************************************************************************
- * Preprocessor Macros
- ******************************************************************************/
 // This is a "hack" taken from the ST forum (shorturl.at/iqDKV) to do the
 // following:
 //
@@ -35,5 +27,3 @@
 #define Error_Handler0() _Error_Handler(__FILE__, __LINE__)
 #define Error_Handler1(unused) _Error_Handler(char *file, uint32_t line)
 void _Error_Handler(char *, uint32_t);
-
-#endif // SHARED_HAL_ERROR_HANDLER_H
