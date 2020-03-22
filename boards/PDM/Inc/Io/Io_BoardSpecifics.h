@@ -1,7 +1,7 @@
 /**
  * @brief Board-specific information required by shared libraries
  */
- #pragma once
+#pragma once
 
 #include <stm32f302x8.h>
 
