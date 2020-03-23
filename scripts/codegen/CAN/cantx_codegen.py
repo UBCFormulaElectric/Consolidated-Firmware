@@ -149,7 +149,7 @@ class AppCanTxSourceFileGenerator(AppCanTxFileGenerator):
         header_names = ['<string.h>',
                         '<stdlib.h>',
                         '"auto_generated/App_CanTx.h"',
-                        '"Io_SharedAssert.h"']
+                        '"App_SharedAssert.h"']
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])
 
@@ -316,7 +316,7 @@ class IoCanTxSourceFileGenerator(IoCanTxFileGenerator):
                         '"auto_generated/Io_CanTx.h"',
                         '"auto_generated/App_CanTx.h"',
                         '"Io_SharedCan.h"',
-                        '"Io_SharedAssert.h"']
+                        '"App_SharedAssert.h"']
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])
 
