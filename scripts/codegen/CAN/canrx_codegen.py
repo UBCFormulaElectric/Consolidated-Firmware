@@ -63,7 +63,7 @@ class CanRxFileGenerator(CanFileGenerator):
         {{
             if (xSemaphoreTakeFromISR({table_name}.{msg_snakecase_name}.xSemaphore, pxHigherPriorityTaskWoken) == pdTRUE)
             {{
-                CanMsgs_{msg_snakecase_name}_unpack(&{table_name}.{msg_snakecase_name}.payload, &data[0], CANMSGS_{msg_uppercase_name}_LENGTH);
+                App_CanMsgs_{msg_snakecase_name}_unpack(&{table_name}.{msg_snakecase_name}.payload, &data[0], CANMSGS_{msg_uppercase_name}_LENGTH);
                 xSemaphoreGiveFromISR({table_name}.{msg_snakecase_name}.xSemaphore, pxHigherPriorityTaskWoken);
             }}
             else
@@ -101,7 +101,7 @@ class CanRxFileGenerator(CanFileGenerator):
         {{
             if (xSemaphoreTake({table_name}.{msg_snakecase_name}.xSemaphore, portMAX_DELAY) == pdTRUE)
             {{
-                CanMsgs_{msg_snakecase_name}_unpack(&{table_name}.{msg_snakecase_name}.payload, &data[0], CANMSGS_{msg_uppercase_name}_LENGTH);
+                App_CanMsgs_{msg_snakecase_name}_unpack(&{table_name}.{msg_snakecase_name}.payload, &data[0], CANMSGS_{msg_uppercase_name}_LENGTH);
                 xSemaphoreGive({table_name}.{msg_snakecase_name}.xSemaphore);
             }}
             break;
@@ -214,8 +214,8 @@ class CanRxSourceFileGenerator(CanRxFileGenerator):
                         '<FreeRTOS.h>',
                         '<semphr.h>',
                         '"auto_generated/%s"' % self._output_name.replace('.c', '.h'),
-                        '"auto_generated/CanMsgs.h"',
-                        '"Io_SharedAssert.h"',
+                        '"auto_generated/App_CanMsgs.h"',
+                        '"App_SharedAssert.h"',
                         '"Io_SharedCan.h"']
 
         return '\n'.join(

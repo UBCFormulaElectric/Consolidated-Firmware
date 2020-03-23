@@ -25,18 +25,20 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Io_SharedSoftwareWatchdog.h"
-#include "Io_SharedAssert.h"
 #include "Io_SharedCan.h"
 #include "Io_SharedCmsisOs.h"
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
-#include "World/App_SharedWorld.h"
-#include "StateMachine/App_StateMachine.h"
 #include "Io_SoftwareWatchdog.h"
 #include "Io_Imd.h"
+
+#include "World/App_SharedWorld.h"
+#include "StateMachine/App_StateMachine.h"
+#include "App_SharedAssert.h"
 #include "App_Imd.h"
+
 #include "auto_generated/App_CanTx.h"
-#include "auto_generated/App_CanRx.h"
+#include "auto_generated/Io_CanRx.h"
 #include "auto_generated/Io_CanTx.h"
 /* USER CODE END Includes */
 
@@ -118,7 +120,7 @@ int main(void)
         Io_CanTx_EnqueueNonPeriodicMsg_BMS_WATCHDOG_TIMEOUT);
     world = App_SharedWorld_Create(can_tx);
 
-    App_CanRx_Init();
+    Io_CanRx_Init();
     App_StateMachine_Init();
     /* USER CODE END 1 */
 
