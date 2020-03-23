@@ -3,16 +3,10 @@
  * @note  This library is inspired by the example code here:
  *        https://www.freertos.org/Debugging-Hard-Faults-On-Cortex-M-Microcontrollers.html
  */
-#ifndef SHARED_HARD_FAULT_HANDLER_H
-#define SHARED_HARD_FAULT_HANDLER_H
-/******************************************************************************
- * Includes
- ******************************************************************************/
+#pragma once
+
 #include <stdint.h>
 
-/******************************************************************************
- * Preprocessor Macros
- ******************************************************************************/
 // Right before the the processor enters HardFault_Handler(), the following
 // register values are pushed onto the stack: R0-R4, R12, LR, PC, PSR. These
 // register values make up of what is called a "stack frame". The stack frame
@@ -31,9 +25,6 @@
                    " ldr r1, [r0, #24]                         \n" \
                    " b Io_SharedHardFaultHandler_LogInformation   \n");
 
-/******************************************************************************
- * Function Prototypes
- ******************************************************************************/
 /**
  * @brief Add the naked attributes to HardFault_Handler function declaration.
  * @note  The compiler will not generate prologue and epilogue sequences for
@@ -54,5 +45,3 @@ void Io_SharedHardFaultHandler_Init(void);
  *        occurred.
  */
 void Io_SharedHardFaultHandler_LogInformation(uint32_t *fault_stack);
-
-#endif /* SHARED_HARD_FAULT_HANDLER_H */

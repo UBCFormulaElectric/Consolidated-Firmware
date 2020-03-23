@@ -1,6 +1,3 @@
-/**
- * @brief A shared collection of FreeRTOS utilities
- */
 #pragma once
 
 #include <FreeRTOS.h>

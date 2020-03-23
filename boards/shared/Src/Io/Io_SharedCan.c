@@ -1,6 +1,3 @@
-/******************************************************************************
- * Includes
- ******************************************************************************/
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/App_CanRx.h"
 #include "auto_generated/Io_CanTx.h"
@@ -12,9 +9,6 @@
 
 extern struct World *world;
 
-/******************************************************************************
- * Module Preprocessor Constants
- ******************************************************************************/
 /** @brief Size of a message in the CAN TX queue */
 #define CAN_TX_MSG_FIFO_ITEM_SIZE sizeof(struct CanMsg)
 
@@ -33,9 +27,6 @@ extern struct World *world;
  */
 #define CAN_RX_MSG_FIFO_LENGTH 20
 
-/******************************************************************************
- * Module Preprocessor Macros
- ******************************************************************************/
 /** @brief Board-specific struct type for the CAN startup message payload */
 #define BOARD_STARTUP_STRUCT(board) _BOARD_STARTUP_STRUCT(board)
 #define _BOARD_STARTUP_STRUCT(board) struct CanMsgs_##board##_startup_t
@@ -76,13 +67,6 @@ extern struct World *world;
     INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, CAN_ExtID_NULL)
 #define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
 
-/******************************************************************************
- * Module Typedefs
- ******************************************************************************/
-
-/******************************************************************************
- * Module Variable Definitions
- ******************************************************************************/
 /** @brief FIFO for buffering CAN TX messages */
 static uint8_t
     can_tx_msg_fifo_storage[CAN_TX_MSG_FIFO_LENGTH * CAN_TX_MSG_FIFO_ITEM_SIZE];
@@ -114,9 +98,6 @@ static struct StaticSemaphore CanTxBinarySemaphore = {
     .storage = { { 0 } },
 };
 
-/******************************************************************************
- * Private Function Prototypes
- ******************************************************************************/
 /**
  * @brief Transmits a CAN message
  * @param message CAN message to transmit
@@ -145,10 +126,6 @@ static inline void Io_CanTxCompleteCallback(void);
  * @return SUCCESS if success, otherwise an error code
  */
 static ErrorStatus Io_InitializeAllOpenFilters(CAN_HandleTypeDef *hcan);
-
-/******************************************************************************
- * Private Function Definitions
- ******************************************************************************/
 
 static ErrorStatus Io_InitializeAllOpenFilters(CAN_HandleTypeDef *hcan)
 {
@@ -257,9 +234,6 @@ static inline void Io_CanTxCompleteCallback(void)
     }
 }
 
-/******************************************************************************
- * Function Definitions
- ******************************************************************************/
 void Io_SharedCan_Init(CAN_HandleTypeDef *hcan)
 {
     shared_assert(hcan != NULL);

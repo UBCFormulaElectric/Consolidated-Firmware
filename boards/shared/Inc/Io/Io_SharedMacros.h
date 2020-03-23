@@ -1,16 +1,5 @@
-/**
- * @brief Shared helper macros
- */
-#ifndef SHARED_MACROS_H
-#define SHARED_MACROS_H
+#pragma once
 
-/******************************************************************************
- * Includes
- ******************************************************************************/
-
-/******************************************************************************
- * Preprocessor Macros
- ******************************************************************************/
 // clang-format off
 #define NUM_ELEMENTS_IN_ARRAY(array_pointer) \
     sizeof(array_pointer) / sizeof(array_pointer[0])
@@ -27,5 +16,3 @@ if (CoreDebug->DHCSR & CoreDebug_DHCSR_C_DEBUGEN_Msk) \
 } \
 
 #define min(x, y) (((x) < (y)) ? (x) : (y))
-
-#endif /* SHARED_MACROS_H */
