@@ -3,8 +3,7 @@
  */
 #pragma once
 
-#define BOARD_NAME_LOWERCASE fsm
-#define BOARD_NAME_UPPERCASE FSM
+#define BOARD_NAME_LOWERCASE dim
+#define BOARD_NAME_UPPERCASE DIM
 #define PCB_HEARTBEAT_LISTENER BMS_HEARTBEAT_ENCODING
-// TODO (#309): Correct this
-#define NUM_ADC_CHANNELS (uint32_t)(8)
+#define NUM_ADC_CHANNELS (uint32_t)(1)
