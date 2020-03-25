@@ -24,16 +24,19 @@ BOARD_NAMES=(
 )
 
 if [ "$RUN_BUILD" = "true" ]; then
-    travis_run cmake -S boards -B boards/build -DPLATFORM=arm
+    BUILD_DIR=boards/arm_build
+    travis_run cmake -S boards -B $BUILD_DIR -DPLATFORM=arm
     for BOARD_NAME in "${BOARD_NAMES[@]}"
     do
-        travis_run make --directory=boards/build $BOARD_NAME.elf
+        travis_run make --directory=$BUILD_DIR $BOARD_NAME.elf
     done
 fi
 
 if [ "$RUN_TESTS" = "true" ]; then
-    travis_run cmake -S boards -B boards/build -DPLATFORM=x86
-    travis_run make --directory=boards/build
+    BUILD_DIR=boards/x86_build
+    travis_run cmake -S boards -B $BUILD_DIR -DPLATFORM=x86
+    travis_run make --directory=$BUILD_DIR
+    travis_run cd $BUILD_DIR && ctest && cd -
 fi
 
 if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then

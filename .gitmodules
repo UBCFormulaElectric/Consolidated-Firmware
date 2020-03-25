@@ -4,3 +4,6 @@
 [submodule "boards/shared/profiler-cortex-m4"]
 	path = boards/shared/third_party/profiler-cortex-m4
 	url = https://github.com/UBCFormulaElectric/profiler-cortex-m4
+[submodule "boards/shared/third_party/fff"]
+	path = boards/shared/third_party/fff
+	url = https://github.com/UBCFormulaElectric/fff.git
