@@ -113,6 +113,7 @@ function(create_arm_binary
             ARM_BINARY_APP_AND_IO_INCLUDE_DIRS
             ARM_BINARY_IO_SYSCALLS_SRC
             ARM_LINKER_SCRIPT
+            STM32_DEVICE_DEFINE
             STM32CUBEMX_DRIVER_SRCS
             STM32CUBEMX_DRIVER_INCLUDE_DIRS
             )
@@ -149,7 +150,7 @@ function(create_arm_binary
             -D__weak=__attribute__\(\(weak\)\) 
             -D__packed=__attribute__\(\(__packed__\)\) 
             -DUSE_HAL_DRIVER 
-            -DSTM32F302x8
+            -D${STM32_DEVICE_DEFINE}
             -DARM_MATH_CM4 
             -DARM_MATH_MATRIX_CHECK 
             -DARM_MATH_ROUNDING
@@ -312,6 +313,7 @@ function(create_arm_binary_or_tests_for_board
             ARM_BINARY_IO_INCLUDE_DIRS
             ARM_BINARY_IO_SYSCALLS_SRC
             ARM_LINKER_SCRIPT
+            STM32_DEVICE_DEFINE
             STM32CUBEMX_DRIVER_SRCS
             STM32CUBEMX_DRIVER_INCLUDE_DIRS
             GOOGLETEST_TEST_SRCS
@@ -420,6 +422,7 @@ function(create_arm_binary_or_tests_for_board
             "${ARM_BINARY_APP_AND_IO_INCLUDE_DIRS}"
             "${ARM_BINARY_IO_SYSCALLS_SRC}"
             "${ARM_LINKER_SCRIPT}"
+            "${STM32_DEVICE_DEFINE}"
             "${STM32CUBEMX_DRIVER_SRCS}"
             "${STM32CUBEMX_DRIVER_INCLUDE_DIRS}"
             )
@@ -435,3 +438,4 @@ add_subdirectory(DCM)
 add_subdirectory(PDM)
 add_subdirectory(FSM)
 add_subdirectory(BMS)
+add_subdirectory(DIM)
