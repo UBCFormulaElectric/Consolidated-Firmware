@@ -85,7 +85,9 @@ __lib__/
 *.cbp
 
 # CLion Files
-.idea/
+!**/.idea
+!**/.idea/runConfigurations/*.xml
+**/.idea
 cmake-build-*
 
 # Miscellaneous
