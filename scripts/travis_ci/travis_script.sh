@@ -17,12 +17,11 @@ fi
 
 # Currently supported boards
 BOARD_NAMES=$(get_valid_board_names)
-echo "${BOARD_NAMES[@]}"
 
 if [ "$RUN_BUILD" = "true" ]; then
     BUILD_DIR=boards/arm_build
     travis_run cmake -S boards -B $BUILD_DIR -DPLATFORM=arm
-    for BOARD_NAME in "${BOARD_NAMES[@]}"
+    for BOARD_NAME in $BOARD_NAMES
     do
         travis_run make --directory=$BUILD_DIR $BOARD_NAME.elf
     done
@@ -59,7 +58,7 @@ fi
 
 if [ "$RUN_CUBE_CODEGEN_CHECKS" = "true" ]; then
     # Use .ioc to update STM32CubeMX auto-generated code
-    for BOARD_NAME in "${BOARD_NAMES[@]}"
+    for BOARD_NAME in $BOARD_NAMES
     do travis_run python \
       scripts/utilities/generate_cube_code.py \
         --board $BOARD_NAME \
