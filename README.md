@@ -76,7 +76,19 @@ We use python both for CI (see below), and to generate C code from the `.dbc` de
 **Note: Do not migrate project when opening .ioc file. Newer versions of FreeRTOS (>9) are incompatible with Segger SysView.**
 
 ### CLion
-We edit, compile, and debug our code using [CLion](https://www.jetbrains.com/clion/). Students can obtain a CLion educational license [here](https://www.jetbrains.com/shop/eform/students). To open an existing project, open any one of the board-specific folders under `boards/` (e.g. `boards/DCM`) in **CLion**.
+We edit, compile, and debug our code using [CLion](https://www.jetbrains.com/clion/). Students can obtain a CLion educational license [here](https://www.jetbrains.com/shop/eform/students). Open the `boards` directory in CLion. To compile this CLion project , you must **manually** add CMake profiles by going to: `Settings -> Build, Execution, Deployment -> CMake`. Click on the `+` to add two profiles with the following settings:
+
+```
+// First CMake profile:
+Name: embedded
+Build type: Debug
+CMake options: -DPLATFORM=arm
+
+// Second CMake profile:
+Name: gtest
+Build type: Debug
+CMake options: -DPLATFORM=x86
+```
 
 In each project, there will be two configurations to use: `<board>_SeggerGDB.elf` and `OCD <board>`. Either one can be used for flashing and debugging, but the `<board>_SeggerGDB.elf` has unlimited flash breakpoints among some other extra functionalities. Use `<board>_SeggerGDB.elf` whenever possible.
 

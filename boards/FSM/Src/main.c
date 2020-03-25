@@ -30,17 +30,20 @@
 #include "Io_SharedCan.h"
 #include "Io_SharedHeartbeat.h"
 #include "Io_SharedHardFaultHandler.h"
-#include "Io_SharedAssert.h"
 #include "Io_StackWaterMark.h"
+#include "Io_SoftwareWatchdog.h"
+
 #include "World/App_SharedWorld.h"
 #include "StateMachine/App_StateMachine.h"
-#include "Io_SoftwareWatchdog.h"
+#include "App_SharedAssert.h"
+
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/Io_CanTx.h"
 #include "auto_generated/App_CanRx.h"
 #include "App_FlowMeter.h"
 #include "Io_FlowMeter.h"
 
+#include "auto_generated/Io_CanRx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -119,7 +122,7 @@ int main(void)
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_AIR_SHUTDOWN);
     world = App_SharedWorld_Create(can_tx);
 
-    App_CanRx_Init();
+    Io_CanRx_Init();
     App_StateMachine_Init();
     /* USER CODE END 1 */
 

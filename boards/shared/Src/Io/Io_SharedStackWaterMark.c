@@ -1,6 +1,6 @@
 #include "World/App_SharedWorld.h"
+#include "App_SharedAssert.h"
 #include "Io_SharedStackWaterMark.h"
-#include "Io_SharedAssert.h"
 
 extern struct World *world;
 

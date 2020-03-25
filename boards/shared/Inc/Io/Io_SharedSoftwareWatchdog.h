@@ -1,4 +1,4 @@
-/**
+**
  * @brief Monitor task deadlines by assigning a software watchdog to each
  *        periodic task.
  * @note The current implementation doesn't really support monitoring

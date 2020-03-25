@@ -1,6 +1,6 @@
 #include <stddef.h>
 
-#include "Io_SharedAssert.h"
+#include "App_SharedAssert.h"
 #include "World/App_SharedWorld.h"
 
 // The current firmware architecture only requires creating a single
