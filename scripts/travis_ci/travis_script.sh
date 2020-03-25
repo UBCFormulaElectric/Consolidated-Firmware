@@ -16,12 +16,8 @@ else
 fi
 
 # Currently supported boards
-BOARD_NAMES=(
-    FSM
-    DCM
-    PDM
-    BMS
-)
+BOARD_NAMES=$(get_valid_board_names)
+echo "${BOARD_NAMES[@]}"
 
 if [ "$RUN_BUILD" = "true" ]; then
     BUILD_DIR=boards/arm_build

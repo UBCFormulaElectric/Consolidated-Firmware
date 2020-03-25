@@ -18,3 +18,7 @@ check_installation_path_argument() {
         exit 2
     fi
 }
+
+get_valid_board_names() {
+    echo $(python valid_boards.py)
+}

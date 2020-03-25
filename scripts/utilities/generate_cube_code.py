@@ -8,6 +8,10 @@ from os.path import expanduser
 import subprocess
 import argparse
 
+# TODO: Import this elegantly
+sys.path.insert(1, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..'))
+import valid_boards
+
 CUBE_SCRIPT = '''\
 ###############################################################################
 # This file is auto-generated. DO NOT MODIFY!
@@ -85,7 +89,7 @@ def generate_cubemx_code(board, ioc, codegen_dir, cubemx, log4j_properties):
 if __name__ == '__main__':
     # Parse arguments
     parser = argparse.ArgumentParser()
-    valid_boards = ['DCM', 'FSM', 'PDM', 'BMS']
+    valid_boards = valid_boards.get_valid_board_names()
     parser.add_argument('--board', help='Choose one of the following: ' + ' '.join(valid_boards))
     parser.add_argument('--log4j_properties_output', help='Path to output file storing log4j properties')
     parser.add_argument('--ioc', help='STM32CubeMX .ioc file')

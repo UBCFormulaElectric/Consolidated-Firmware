@@ -9,10 +9,14 @@ from cantools_codegen import *
 from canrx_codegen import *
 from cantx_codegen import *
 
+# TODO: Import this elegantly
+sys.path.insert(1, os.path.join(os.path.dirname(os.path.realpath(__file__)), '..', '..'))
+import valid_boards
+
 if __name__ == "__main__":
     # Parse arguments
     parser = argparse.ArgumentParser()
-    valid_boards = ['FSM', 'DCM', 'PDM', 'BMS']
+    valid_boards = valid_boards.get_valid_board_names()
     parser.add_argument(
         '--board',
         help='Choose one of the following: ' + ' '.join(valid_boards))
