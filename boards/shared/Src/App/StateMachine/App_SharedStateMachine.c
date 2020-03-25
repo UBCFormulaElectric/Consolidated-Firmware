@@ -124,3 +124,16 @@ void App_SharedStateMachine_Tick(StateMachineHandle_t state_machine_handle)
         App_SharedState_RunOnEntry(state_machine->current_state);
     }
 }
+
+StateHandle_t App_SharedStateMachine_GetCurrentState(
+    StateMachineHandle_t state_machine_handle)
+{
+    shared_assert(state_machine_handle != NULL);
+
+    StateMachine_t *state_machine =
+        prvGetStateMachineFromHandle(state_machine_handle);
+
+    shared_assert(state_machine->initialized == true);
+
+    return (StateHandle_t)state_machine->current_state;
+}

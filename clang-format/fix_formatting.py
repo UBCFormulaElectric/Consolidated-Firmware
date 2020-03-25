@@ -54,6 +54,8 @@ def runClangFormat():
     EXCLUDE_DIRS = [
         "Middlewares",  # STM32CubeMX generated libraries
         "Drivers",      # STM32CubeMX generated libraries
+        "cmake-build-embedded",
+        "cmake-build-googletest",
         "cmake-build-debug",
         "CMakeFiles",
         "SEGGER_RTT",

@@ -56,3 +56,11 @@ void App_SharedStateMachine_Init(
  * @param state_machine: State machine
  */
 void App_SharedStateMachine_Tick(StateMachineHandle_t state_machine);
+
+/**
+ * Get the current state of a state machine.
+ * @param state_machine_handle: Handle to the subject state machine.
+ * @return Handle to the current state of the subject state machine.
+ */
+StateHandle_t App_SharedStateMachine_GetCurrentState(
+    StateMachineHandle_t state_machine_handle);

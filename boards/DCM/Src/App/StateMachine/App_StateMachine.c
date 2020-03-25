@@ -35,3 +35,8 @@ void App_StateMachine_Tick(void)
 {
     App_SharedStateMachine_Tick(state_machine);
 }
+
+StateHandle_t App_StateMachine_GetCurrentState(void)
+{
+    return App_SharedStateMachine_GetCurrentState(state_machine);
+}

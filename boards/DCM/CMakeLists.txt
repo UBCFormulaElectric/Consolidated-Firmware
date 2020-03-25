@@ -1,6 +1,16 @@
-file(GLOB_RECURSE ARM_BINARY_SOURCES "Src/*.*")
-set(ARM_BINARY_INCLUDE_DIRS 
+file(GLOB ARM_BINARY_APP_SOURCES
+     "Src/App/*.c"
+     "Src/App/StateMachine/*.c"
+     )
+set(ARM_BINARY_APP_INCLUDE_DIRS
     "Inc/App"
+    )
+file(GLOB ARM_BINARY_IO_SOURCES
+     "Src/*.c"
+     "Src/Io/*.c"
+     "startup/*.s"
+     )
+set(ARM_BINARY_IO_INCLUDE_DIRS
     "Inc/Io"
     "Inc"
     )
@@ -14,20 +24,23 @@ set(STM32CUBEMX_DRIVER_INCLUDE_DIRS
     "Drivers/CMSIS/Include"
     )
 file(GLOB_RECURSE STM32CUBEMX_DRIVER_SRCS 
-    "startup/*.*" 
-    "Middlewares/*.*" 
+    "Middlewares/*.*"
     "Drivers/*.*" 
-    "Src/syscalls.c"
     )
+
+set(ARM_SYSCALLS_SRC "Src/syscalls.c")
 set(IOC_FILE "${CMAKE_CURRENT_SOURCE_DIR}/DCM.ioc")
-set(LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/STM32F302C8Tx_FLASH.ld")
+set(ARM_LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/STM32F302C8Tx_FLASH.ld")
 
 create_arm_binary_or_tests_for_board(
     "DCM"
     "${IOC_FILE}"
-    "${ARM_BINARY_SOURCES}"
-    "${ARM_BINARY_INCLUDE_DIRS}"
+    "${ARM_BINARY_APP_SOURCES}"
+    "${ARM_BINARY_APP_INCLUDE_DIRS}"
+    "${ARM_BINARY_IO_SOURCES}"
+    "${ARM_BINARY_IO_INCLUDE_DIRS}"
     "${STM32CUBEMX_DRIVER_SRCS}"
     "${STM32CUBEMX_DRIVER_INCLUDE_DIRS}"
-    "${LINKER_SCRIPT}"
+    "${ARM_LINKER_SCRIPT}"
+    "${ARM_SYSCALLS_SRC}"
     )
