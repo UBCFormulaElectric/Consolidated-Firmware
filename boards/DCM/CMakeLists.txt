@@ -27,7 +27,9 @@ file(GLOB_RECURSE STM32CUBEMX_DRIVER_SRCS
         )
 set(IOC_FILE "${CMAKE_CURRENT_SOURCE_DIR}/DCM.ioc")
 
-add_subdirectory(Test)
+file(GLOB GOOGLETEST_TEST_SRCS "Test/Src/*.cpp")
+list(REMOVE_ITEM GOOGLETEST_TEST_SRCS "Test/Src/main.cpp")
+set(GOOGLETEST_MAIN_SRC "Test/Src/main.cpp")
 
 create_arm_binary_or_tests_for_board(
     "DCM"
