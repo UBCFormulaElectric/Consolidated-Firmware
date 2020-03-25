@@ -238,6 +238,60 @@ function(can_code_generation
         )
 endfunction()
 
+function(compile_googletest_executables
+        BOARD_NAME
+        TEST_SRCS
+        TEST_MAIN_SRC
+        ARM_BINARY_APP_SRCS
+        ARM_BINARY_APP_INCLUDE_DIRS
+        )
+    foreach(TEST_SRC ${TEST_SRCS})
+        get_filename_component(TEST_BASENAME ${TEST_SRC} NAME_WE)
+        set(TEST_EXECUTABLE_NAME "${BOARD_NAME}_${TEST_BASENAME}")
+        add_executable(${TEST_EXECUTABLE_NAME}
+                ${ARM_BINARY_APP_SRCS}
+                ${SHARED_APP_SRCS}
+                ${TEST_SRC}
+                ${TEST_MAIN_SRC}
+                )
+        target_include_directories(${TEST_EXECUTABLE_NAME}
+                PRIVATE
+                ${ARM_BINARY_APP_INCLUDE_DIRS}
+                ${SHARED_APP_INCLUDE_DIRS}
+                )
+        target_link_libraries(${TEST_EXECUTABLE_NAME} gtest_main)
+        add_test(NAME ${TEST_EXECUTABLE_NAME}
+                COMMAND ${TEST_EXECUTABLE_NAME})
+    endforeach()
+endfunction()
+
+function(download_and_unpack_google_test GOOGLETEST_DOWNLOAD_SCRIPT)
+    # Download and unpack googletest at configure time
+    configure_file(${GOOGLETEST_DOWNLOAD_SCRIPT} googletest-download/CMakeLists.txt)
+    execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+            RESULT_VARIABLE result
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+    if(result)
+        message(FATAL_ERROR "CMake step for googletest failed: ${result}")
+    endif()
+    execute_process(COMMAND ${CMAKE_COMMAND} --build .
+            RESULT_VARIABLE result
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+    if(result)
+        message(FATAL_ERROR "Build step for googletest failed: ${result}")
+    endif()
+
+    # Prevent overriding the parent project's compiler/linker
+    # settings on Windows
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+
+    # Add googletest directly to our build. This defines
+    # the gtest and gtest_main targets.
+    add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
+            ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
+            EXCLUDE_FROM_ALL)
+endfunction()
+
 # Creates the Arm binary or tests for a board, depending on what CPU architecture
 # this is being compiled for.
 #   BOARD_NAME - The name of the board, will be used to name the binary or tests
@@ -367,60 +421,6 @@ function(create_arm_binary_or_tests_for_board
             "${STM32CUBEMX_DRIVER_INCLUDE_DIRS}"
             )
     endif()
-endfunction()
-
-function(compile_googletest_executables
-            BOARD_NAME
-            TEST_SRCS
-            TEST_MAIN_SRC
-            ARM_BINARY_APP_SRCS
-            ARM_BINARY_APP_INCLUDE_DIRS
-            )
-    foreach(TEST_SRC ${TEST_SRCS})
-        get_filename_component(TEST_BASENAME ${TEST_SRC} NAME_WE)
-        set(TEST_EXECUTABLE_NAME "${BOARD_NAME}_${TEST_BASENAME}")
-        add_executable(${TEST_EXECUTABLE_NAME}
-                ${ARM_BINARY_APP_SRCS}
-                ${SHARED_APP_SRCS}
-                ${TEST_SRC}
-                ${TEST_MAIN_SRC}
-                )
-        target_include_directories(${TEST_EXECUTABLE_NAME}
-                PRIVATE
-                    ${ARM_BINARY_APP_INCLUDE_DIRS}
-                    ${SHARED_APP_INCLUDE_DIRS}
-                )
-        target_link_libraries(${TEST_EXECUTABLE_NAME} gtest_main)
-        add_test(NAME ${TEST_EXECUTABLE_NAME}
-                 COMMAND ${TEST_EXECUTABLE_NAME})
-    endforeach()
-endfunction()
-
-function(download_and_unpack_google_test GOOGLETEST_DOWNLOAD_SCRIPT)
-    # Download and unpack googletest at configure time
-    configure_file(${GOOGLETEST_DOWNLOAD_SCRIPT} googletest-download/CMakeLists.txt)
-    execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-            RESULT_VARIABLE result
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
-    if(result)
-        message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-    endif()
-    execute_process(COMMAND ${CMAKE_COMMAND} --build .
-            RESULT_VARIABLE result
-            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
-    if(result)
-        message(FATAL_ERROR "Build step for googletest failed: ${result}")
-    endif()
-
-    # Prevent overriding the parent project's compiler/linker
-    # settings on Windows
-    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-
-    # Add googletest directly to our build. This defines
-    # the gtest and gtest_main targets.
-    add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
-            ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
-            EXCLUDE_FROM_ALL)
 endfunction()
 
 if ("${PLATFORM}" STREQUAL "x86")
