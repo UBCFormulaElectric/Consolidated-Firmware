@@ -32,16 +32,16 @@
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
+#include "Io_FlowMeter.h"
 
 #include "World/App_SharedWorld.h"
 #include "StateMachine/App_StateMachine.h"
 #include "App_SharedAssert.h"
+#include "App_FlowMeter.h"
 
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/Io_CanTx.h"
 #include "auto_generated/Io_CanRx.h"
-#include "App_FlowMeter.h"
-#include "Io_FlowMeter.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -79,7 +79,7 @@ osThreadId          TaskCanTxHandle;
 uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
 osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
-struct FlowMeter *flow_meter_primary, *flow_meter_secondary;
+struct FlowMeter *primary_flow_meter, *secondary_flow_meter;
 struct World *    world;
 /* USER CODE END PV */
 
@@ -148,8 +148,7 @@ int main(void)
     MX_ADC1_Init();
     MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
-    Io_FlowMeter_Init();
-    flow_meter_primary = App_FlowMeter_Create(Io_FlowMeter_GetPrimaryFlowRate);
+    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeter_GetPrimaryFlowRate);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */

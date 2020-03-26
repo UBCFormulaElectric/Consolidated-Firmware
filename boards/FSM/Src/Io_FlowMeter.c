@@ -3,13 +3,8 @@
 #include "Io_SharedPwmInput.h"
 #include "Io_FlowMeter.h"
 
-
 static struct PwmInput *  primary_flow_meter_pwm_input;
 static TIM_HandleTypeDef *primary_flow_meter_htim;
-
-void Io_FlowMeter_Init(void)
-{
-}
 
 float Io_FlowMeter_GetPrimaryFlowRate(void)
 {
