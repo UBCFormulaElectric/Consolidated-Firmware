@@ -8,9 +8,9 @@
 void Io_FlowMeter_Init(void);
 
 /**
- * Get flow rate (L/min) from the flow meter
+ * Get flow rate (L/min) from the primary flow meter
  */
-float Io_FlowMeter_GetFlowRate(void);
+float Io_FlowMeter_GetPrimaryFlowRate(void);
 
 /**
  * Updates the frequency and duty cycle for the flower meter's PWM output. This

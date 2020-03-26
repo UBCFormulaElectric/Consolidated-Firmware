@@ -39,11 +39,9 @@
 
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/Io_CanTx.h"
-#include "auto_generated/App_CanRx.h"
+#include "auto_generated/Io_CanRx.h"
 #include "App_FlowMeter.h"
 #include "Io_FlowMeter.h"
-
-#include "auto_generated/Io_CanRx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -151,7 +149,7 @@ int main(void)
     MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
     Io_FlowMeter_Init();
-    flow_meter_primary = App_FlowMeter_Create(Io_FlowMeter_GetFlowRate);
+    flow_meter_primary = App_FlowMeter_Create(Io_FlowMeter_GetPrimaryFlowRate);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
