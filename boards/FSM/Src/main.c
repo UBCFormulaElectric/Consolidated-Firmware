@@ -82,7 +82,7 @@ uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
 osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
 struct FlowMeter *flow_meter_primary, *flow_meter_secondary;
-struct World *world;
+struct World *    world;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
