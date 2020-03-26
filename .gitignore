@@ -83,6 +83,7 @@ Makefile
 auto_generated/
 __lib__/
 *.cbp
+Testing/
 
 # CLion Files
 !**/.idea

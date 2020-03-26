@@ -55,8 +55,11 @@ def runClangFormat():
         "Middlewares",  # STM32CubeMX generated libraries
         "Drivers",      # STM32CubeMX generated libraries
         "cmake-build-debug",
+        "cmake-build-embedded",
+        "cmake-build-gtest",
         "CMakeFiles",
         "SEGGER_RTT",
+        "fff",
         "TraceRecorder",
         "auto_generated",
         "profiler-cortex-m4",

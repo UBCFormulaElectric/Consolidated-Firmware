@@ -11,7 +11,7 @@ SET(TRACE_RECORDER_INCLUDE_DIRS
 # Base directory of TraceRecorder
 SET(TRACE_RECORDER_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR})
 
-# Make the two variables we just created visible in the parent scope, so that
-# any cmake file that includes this one via `add_subdirectory` can see them
+# Expose the following variables to the parent scope (i.e. The scope of any
+# other CMakeLists.txt that uses add_subdirectory() on this CMakeLists.txt).
 SET(TRACE_RECORDER_INCLUDE_DIRS ${TRACE_RECORDER_INCLUDE_DIRS} PARENT_SCOPE)
 SET(TRACE_RECORDER_BASE_DIR ${TRACE_RECORDER_BASE_DIR} PARENT_SCOPE)
