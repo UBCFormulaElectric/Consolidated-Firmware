@@ -3,8 +3,6 @@
  */
 #pragma once
 
-#include <stm32f302x8.h>
-
 #define BOARD_NAME_LOWERCASE fsm
 #define BOARD_NAME_UPPERCASE FSM
 #define PCB_HEARTBEAT_LISTENER BMS_HEARTBEAT_ENCODING

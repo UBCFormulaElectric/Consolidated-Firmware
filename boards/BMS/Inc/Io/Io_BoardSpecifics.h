@@ -3,8 +3,6 @@
  */
 #pragma once
 
-#include <stm32f302x8.h>
-
 #define BOARD_NAME_LOWERCASE bms
 #define BOARD_NAME_UPPERCASE BMS
 #define PCB_HEARTBEAT_LISTENER 0
