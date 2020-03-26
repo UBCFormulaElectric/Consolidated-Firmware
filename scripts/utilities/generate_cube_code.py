@@ -4,9 +4,10 @@ generate STM32CubeMX code accordingy.
 """
 import sys
 import os
-from os.path import expanduser
 import subprocess
 import argparse
+
+from scripts.utilities.supported_boards import get_board_names
 
 CUBE_SCRIPT = '''\
 ###############################################################################
@@ -85,15 +86,15 @@ def generate_cubemx_code(board, ioc, codegen_dir, cubemx, log4j_properties):
 if __name__ == '__main__':
     # Parse arguments
     parser = argparse.ArgumentParser()
-    valid_boards = ['DCM', 'FSM', 'PDM', 'BMS']
-    parser.add_argument('--board', help='Choose one of the following: ' + ' '.join(valid_boards))
+    supported_boards = get_board_names()
+    parser.add_argument('--board', help='Choose one of the following: ' + ' '.join(supported_boards))
     parser.add_argument('--log4j_properties_output', help='Path to output file storing log4j properties')
     parser.add_argument('--ioc', help='STM32CubeMX .ioc file')
     parser.add_argument('--codegen_output_dir', help='Code generation output folder')
     parser.add_argument('--cube_bin', help='STM32CubeMX binary')
     args = parser.parse_args()
-    if args.board not in valid_boards:
-        print('Error: Invalid board name. Valid options: ' + ' '.join(valid_boards))
+    if args.board not in supported_boards:
+        print('Error: Invalid board name. Valid options: ' + ' '.join(supported_boards))
         sys.exit(1)
 
     generate_cubemx_code(args.board, args.ioc, args.codegen_output_dir, args.cube_bin, args.log4j_properties_output)

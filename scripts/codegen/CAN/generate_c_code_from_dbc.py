@@ -5,17 +5,19 @@ This file contains all the functionality required to generate C code from our
 import logging
 import sys
 import argparse
-from cantools_codegen import *
-from canrx_codegen import *
-from cantx_codegen import *
+
+from scripts.utilities.supported_boards import get_board_names
+from scripts.codegen.CAN.cantools_codegen import *
+from scripts.codegen.CAN.canrx_codegen import *
+from scripts.codegen.CAN.cantx_codegen import *
 
 if __name__ == "__main__":
     # Parse arguments
     parser = argparse.ArgumentParser()
-    valid_boards = ['FSM', 'DCM', 'PDM', 'BMS']
+    supported_boards = get_board_names()
     parser.add_argument(
         '--board',
-        help='Choose one of the following: ' + ' '.join(valid_boards))
+        help='Choose one of the following: ' + ' '.join(supported_boards))
     parser.add_argument(
         '--app_can_tx_source_output',
         help='Path to the output CAN TX source file for the App layer')
@@ -46,9 +48,9 @@ if __name__ == "__main__":
         '--dbc',
         help='Path to the DBC file')
     args = parser.parse_args()
-    if args.board not in valid_boards:
+    if args.board not in supported_boards:
         print('Error: Invalid board name. Valid options: '
-              + ' '.join(valid_boards))
+              + ' '.join(supported_boards))
         sys.exit(1)
 
     # Configure logging level
