@@ -3,8 +3,6 @@
  */
 #pragma once
 
-#include <stm32f302x8.h>
-
 #define BOARD_NAME_LOWERCASE dcm
 #define BOARD_NAME_UPPERCASE DCM
 #define PCB_HEARTBEAT_LISTENER 0
