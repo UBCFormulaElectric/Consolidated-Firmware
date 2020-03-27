@@ -10,7 +10,8 @@ struct FlowMeter;
  * Create the flow meter to read flow rate from
  * @param get_flow_rate A function pointer to a function that
  * acquires the flow rate from the flow meter
- * @return A pointer to the created flow meter, whose ownership is given to the caller
+ * @return A pointer to the created flow meter, whose ownership is given to the
+ * caller
  */
 struct FlowMeter *App_FlowMeter_Create(float (*get_flow_rate)(void));
 
