@@ -1,4 +1,7 @@
 #include "App_SharedStateMachine.h"
+
+// TODO: lots of checks that the `StateMachine` is never null....
+
 struct StateMachine
 {
     struct State *current_state;
@@ -25,6 +28,13 @@ struct StateMachine *
 
     state_machine->current_state = initial_state;
     state_machine->current_state->run_on_enter(state_machine);
+
+    return state_machine;
+}
+
+struct State *
+App_SharedStateMachine_GetCurrentState(struct StateMachine *state_machine){
+    return state_machine->current_state;
 }
 
 void App_SharedStateMachine_TransitionState(

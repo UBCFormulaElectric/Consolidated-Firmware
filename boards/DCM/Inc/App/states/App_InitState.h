@@ -1,13 +1,9 @@
 #pragma once
 
 #include "App_SharedStateMachine.h"
+#include "states/App_RunState.h"
 
 // TODO: move function defs into `.c`?
-
-void (*run_on_enter)(struct StateMachine *state_machine);
-void (*run_on_tick)(struct StateMachine *state_machine);
-void (*run_on_exit)(struct StateMachine *state_machine);
-
 // TODO: proper naming for this struct and function
 
 static void initStateRunOnEnter(struct StateMachine* state_machine){
@@ -22,6 +18,9 @@ static void initStateRunOnEnter(struct StateMachine* state_machine){
 }
 
 static void initStateRunOnTick(struct StateMachine* state_machine){
+    // No need for any safety checks, just run! (this is a demo)
+
+    App_SharedStateMachine_TransitionState(state_machine, getRunState());
 }
 
 static void initStateRunOnExit(struct StateMachine* state_machine){

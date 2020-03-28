@@ -20,8 +20,18 @@ struct State
  * @param initial_state The initial state to start the state machine in
  * @return A created state machine, or NULL if creation was unsuccessful
  */
-struct StateMachine *
-    App_SharedStateMachine_Create(struct World *world, struct State *initial_state);
+struct StateMachine *App_SharedStateMachine_Create(
+    struct World *world,
+    struct State *initial_state);
+
+/**
+ * Get the currently running state in the given state machine
+ * @param state_machine The state machine to get the currently running state
+ *                      from
+ * @return The currently running state from the given state machine
+ */
+struct State *
+    App_SharedStateMachine_GetCurrentState(struct StateMachine *state_machine);
 
 /**
  * Transition the given state machine to a new state
@@ -38,7 +48,8 @@ void App_SharedStateMachine_TransitionState(
  * @param state_machine The state machine to get the world from
  * @return The world from the given state machine
  */
-struct World *App_SharedStateMachine_GetWorld(struct StateMachine *state_machine);
+struct World *
+    App_SharedStateMachine_GetWorld(struct StateMachine *state_machine);
 
 /**
  * Tick the given state machine

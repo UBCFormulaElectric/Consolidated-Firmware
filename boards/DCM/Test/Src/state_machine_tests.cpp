@@ -46,5 +46,22 @@ TEST_F(
     struct StateMachine *state_machine =
         App_SharedStateMachine_Create(world, getInitState());
 
-    ASSERT_TRUE(send_non_periodic_msg_DCM_STARTUP_was_called);
+    ASSERT_NE((size_t)state_machine, NULL);
+
+    EXPECT_TRUE(send_non_periodic_msg_DCM_STARTUP_was_called);
+}
+
+TEST_F(
+    DcmStateMachineTest,
+    check_init_immediately_transitions_to_run_on_first_tick)
+{
+    struct StateMachine *state_machine =
+        App_SharedStateMachine_Create(world, getInitState());
+
+    ASSERT_NE((size_t)state_machine, NULL);
+
+    App_SharedStateMachine_Tick(state_machine);
+
+    EXPECT_EQ(
+        getRunState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
