@@ -18,3 +18,7 @@ check_installation_path_argument() {
         exit 2
     fi
 }
+
+get_valid_board_names() {
+    echo $(pipenv run python -c 'from scripts.utilities.supported_boards import print_space_delimited_board_names; print_space_delimited_board_names()')
+}

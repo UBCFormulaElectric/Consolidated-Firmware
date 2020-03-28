@@ -39,6 +39,9 @@ set(FPU_FLAGS
 # Globally accessible paths
 set(REPO_ROOT_DIR ${CMAKE_SOURCE_DIR}/../)
 set(SCRIPTS_DIR ${CMAKE_SOURCE_DIR}/../scripts)
+set(PIPENV_PROJECT_DIR ${REPO_ROOT_DIR}) # Use "pipenv run" in this directory to
+                                         # ensure the correct PWD gets used in
+                                         # the .env file.
 
 # Globally accessible executables/scripts
 if(NOT STM32CUBEMX_BIN_PATH)
@@ -82,9 +85,8 @@ function(cube_mx_code_generation
         # compliant to our clang-format rules.
         COMMAND pipenv run python
             ${FIX_FORMATTING_SCRIPT_PY}
-            WORKING_DIRECTORY
-            ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS ${IOC_FILE}
+        WORKING_DIRECTORY ${PIPENV_PROJECT_DIR}
         )
 endfunction()
 
@@ -219,7 +221,7 @@ function(can_code_generation
                ${IO_CAN_RX_HEADER_OUTPUT}
                ${APP_CANMSG_SRC_OUTPUT}
                ${APP_CANMSG_HEADER_OUTPUT}
-        COMMAND pipenv run python 
+        COMMAND pipenv run python
                 ${SCRIPTS_DIR}/codegen/CAN/generate_c_code_from_dbc.py
                 --board                    ${BOARD_NAME}
                 --app_can_tx_source_output ${APP_CAN_TX_SRC_OUTPUT}
@@ -231,8 +233,8 @@ function(can_code_generation
                 --cantools_source_output   ${APP_CANMSG_SRC_OUTPUT}
                 --cantools_header_output   ${APP_CANMSG_HEADER_OUTPUT}
                 --dbc                      ${DBC_FILE}
-        WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
         DEPENDS ${DBC_FILE}
+        WORKING_DIRECTORY ${PIPENV_PROJECT_DIR}
         )
 endfunction()
 
