@@ -33,8 +33,9 @@
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
 
-#include "World/App_SharedWorld.h"
-#include "StateMachine/App_StateMachine.h"
+#include "World/App_DcmWorld.h"
+#include "App_SharedStateMachine.h"
+#include "states/App_InitState.h"
 #include "App_SharedAssert.h"
 
 #include "auto_generated/App_CanTx.h"
@@ -79,7 +80,8 @@ osThreadId          TaskCanTxHandle;
 uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
 osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
-struct World *world;
+struct World *       world;
+struct StateMachine *state_machine;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -113,14 +115,15 @@ int main(void)
     __HAL_DBGMCU_FREEZE_IWDG();
     Io_SharedHardFaultHandler_Init();
 
-    static struct CanTxInterface *can_tx;
-    can_tx = App_CanTx_Create(
+    Io_CanRx_Init();
+
+    struct CanTxInterface *can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_DCM_STARTUP,
         Io_CanTx_EnqueueNonPeriodicMsg_DCM_WATCHDOG_TIMEOUT);
-    world = App_SharedWorld_Create(can_tx);
+    world = App_DcmWorld_Create(can_tx);
 
-    Io_CanRx_Init();
-    App_StateMachine_Init();
+    state_machine = App_SharedStateMachine_Create(world, getInitState());
+
     /* USER CODE END 1 */
 
     /* MCU
@@ -536,7 +539,6 @@ void RunTask1Hz(void const *argument)
 
     for (;;)
     {
-        App_StateMachine_Tick();
         App_StackWaterMark_Check();
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
@@ -566,8 +568,11 @@ void RunTask1kHz(void const *argument)
     for (;;)
     {
         Io_CanTx_EnqueuePeriodicMsgs(
-            App_SharedWorld_GetCanTx(world),
+            App_DcmWorld_GetCanTx(world),
             osKernelSysTick() * portTICK_PERIOD_MS);
+
+        App_SharedStateMachine_Tick(state_machine);
+
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
