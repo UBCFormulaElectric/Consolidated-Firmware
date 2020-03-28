@@ -1,9 +1,18 @@
+#include "fff.h"
 #include "gtest/gtest.h"
 
 extern "C"
 {
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
+
+    DEFINE_FFF_GLOBALS;
+    FAKE_VOID_FUNC(
+        send_non_periodic_msg_DCM_STARTUP,
+        struct CanMsgs_dcm_startup_t *);
+    FAKE_VOID_FUNC(
+        send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT,
+        struct CanMsgs_dcm_watchdog_timeout_t *);
 }
 
 class DcmStateMachineTest : public testing::Test
@@ -21,18 +30,6 @@ class DcmStateMachineTest : public testing::Test
     }
     virtual void TearDown() {}
 
-    static void
-        send_non_periodic_msg_DCM_STARTUP(struct CanMsgs_dcm_startup_t *payload)
-    {
-        send_non_periodic_msg_DCM_STARTUP_was_called = true;
-    }
-
-    static void send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT(
-        struct CanMsgs_dcm_watchdog_timeout_t *payload)
-    {
-        send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT_was_called = true;
-    }
-
     inline static bool send_non_periodic_msg_DCM_STARTUP_was_called;
     inline static bool send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT_was_called;
 
@@ -48,7 +45,7 @@ TEST_F(
 
     ASSERT_NE((size_t)state_machine, NULL);
 
-    EXPECT_TRUE(send_non_periodic_msg_DCM_STARTUP_was_called);
+    ASSERT_EQ(1, send_non_periodic_msg_DCM_STARTUP_fake.call_count);
 }
 
 TEST_F(
