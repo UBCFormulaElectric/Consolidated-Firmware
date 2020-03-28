@@ -32,10 +32,12 @@
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
+#include "Io_FlowMeter.h"
 
 #include "World/App_SharedWorld.h"
 #include "StateMachine/App_StateMachine.h"
 #include "App_SharedAssert.h"
+#include "App_FlowMeter.h"
 
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/Io_CanTx.h"
@@ -77,7 +79,8 @@ osThreadId          TaskCanTxHandle;
 uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
 osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
-struct World *world;
+struct FlowMeter *primary_flow_meter, *secondary_flow_meter;
+struct World *    world;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -145,7 +148,7 @@ int main(void)
     MX_ADC1_Init();
     MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
-
+    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeter_GetPrimaryFlowRate);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -391,8 +394,7 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(
-        GPIOB, STATUS_R_Pin | STATUS_G_Pin | STATUS_B_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOB, STATUS_G_Pin | STATUS_B_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pins : PC13 PC14 PC15 */
     GPIO_InitStruct.Pin  = GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15;
@@ -410,21 +412,19 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PB0 PB13 PB15 PB6
-                             PB7 */
-    GPIO_InitStruct.Pin =
-        GPIO_PIN_0 | GPIO_PIN_13 | GPIO_PIN_15 | GPIO_PIN_6 | GPIO_PIN_7;
+    /*Configure GPIO pins : PB0 PB13 PB15 PB4 */
+    GPIO_InitStruct.Pin  = GPIO_PIN_0 | GPIO_PIN_13 | GPIO_PIN_15 | GPIO_PIN_4;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /*Configure GPIO pins : UNUSED_GPIO_2_Pin UNUSED_GPIO_3_Pin
        UNUSED_GPIO_4_Pin UNUSED_GPIO_5_Pin UNUSED_GPIO_6_Pin UNUSED_GPIO_7_Pin
-       UNUSED_GPIO_8_Pin */
+       STATUS_R_Pin COOLANT_FLOW_1_Pin COOLANT_FLOW_2_Pin */
     GPIO_InitStruct.Pin = UNUSED_GPIO_2_Pin | UNUSED_GPIO_3_Pin |
                           UNUSED_GPIO_4_Pin | UNUSED_GPIO_5_Pin |
-                          UNUSED_GPIO_6_Pin | UNUSED_GPIO_7_Pin |
-                          UNUSED_GPIO_8_Pin;
+                          UNUSED_GPIO_6_Pin | UNUSED_GPIO_7_Pin | STATUS_R_Pin |
+                          COOLANT_FLOW_1_Pin | COOLANT_FLOW_2_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -435,10 +435,10 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(BPSD_BRAKE_THRES_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : STATUS_R_Pin STATUS_G_Pin STATUS_B_Pin */
-    GPIO_InitStruct.Pin   = STATUS_R_Pin | STATUS_G_Pin | STATUS_B_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
-    GPIO_InitStruct.Pull  = GPIO_PULLUP;
+    /*Configure GPIO pins : STATUS_G_Pin STATUS_B_Pin */
+    GPIO_InitStruct.Pin   = STATUS_G_Pin | STATUS_B_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
@@ -546,7 +546,7 @@ void RunTaskCanTx(void const *argument)
 
 /**
  * @brief  Period elapsed callback in non blocking mode
- * @note   This function is called  when TIM2 interrupt took place, inside
+ * @note   This function is called  when TIM6 interrupt took place, inside
  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
  * a global variable "uwTick" used as application time base.
  * @param  htim : TIM handle
@@ -557,7 +557,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 0 */
 
     /* USER CODE END Callback 0 */
-    if (htim->Instance == TIM2)
+    if (htim->Instance == TIM6)
     {
         HAL_IncTick();
     }

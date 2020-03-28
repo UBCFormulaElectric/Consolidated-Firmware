@@ -2,12 +2,6 @@
 # ------------------------------------------------------------------------------
 # This script contains shared functions for environment setup scripts.
 # ------------------------------------------------------------------------------
-# Save the parent dir of this so we can always run commands relative to the
-# location of this script, no matter where it is called from. This
-# helps prevent bugs and odd behaviour if this script is run through a symlink
-# or from a different directory.
-CURR_DIR=$(dirname -- "$(readlink -f -- "$BASH_SOURCE")")
-
 # Exit immediately if a command exits with a non-zero status because each step
 set -e
 
@@ -26,5 +20,5 @@ check_installation_path_argument() {
 }
 
 get_valid_board_names() {
-    echo $(python $CURR_DIR/valid_boards.py)
+    echo $(pipenv run python -c 'from scripts.utilities.supported_boards import print_space_delimited_board_names; print_space_delimited_board_names()')
 }
