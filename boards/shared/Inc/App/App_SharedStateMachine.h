@@ -2,6 +2,8 @@
 
 #include "App_StateMachineConfig.h"
 
+#define MAX_STATE_NAME_LENGTH 16
+
 struct StateMachine;
 struct State
 {

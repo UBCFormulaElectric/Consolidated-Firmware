@@ -20,18 +20,12 @@ class DcmStateMachineTest : public testing::Test
   protected:
     virtual void SetUp()
     {
-        send_non_periodic_msg_DCM_STARTUP_was_called          = false;
-        send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT_was_called = false;
-
-        struct CanTxInterface *can_tx_interface = App_CanTx_Create(
+        struct DCMCanTxInterface *can_tx_interface = App_CanTx_Create(
             send_non_periodic_msg_DCM_STARTUP,
             send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT);
         world = App_DcmWorld_Create(can_tx_interface);
     }
     virtual void TearDown() {}
-
-    inline static bool send_non_periodic_msg_DCM_STARTUP_was_called;
-    inline static bool send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT_was_called;
 
     struct World *world;
 };

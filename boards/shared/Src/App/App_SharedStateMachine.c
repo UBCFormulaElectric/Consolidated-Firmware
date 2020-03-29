@@ -2,14 +2,17 @@
 
 // TODO: lots of checks that the `StateMachine` is never null....
 
+#define MAX_NUMBER_OF_STATE_MACHINES 10
+
 struct StateMachine
 {
     struct State *current_state;
     struct World *world;
 };
 
-struct StateMachine *
-    App_SharedStateMachine_Create(struct World *world, struct State *initial_state)
+struct StateMachine *App_SharedStateMachine_Create(
+    struct World *world,
+    struct State *initial_state)
 {
     static struct StateMachine
                   state_machine_allocation_table[MAX_NUMBER_OF_STATE_MACHINES];
@@ -33,7 +36,8 @@ struct StateMachine *
 }
 
 struct State *
-App_SharedStateMachine_GetCurrentState(struct StateMachine *state_machine){
+    App_SharedStateMachine_GetCurrentState(struct StateMachine *state_machine)
+{
     return state_machine->current_state;
 }
 
@@ -46,7 +50,8 @@ void App_SharedStateMachine_TransitionState(
     state_machine->current_state->run_on_enter(state_machine);
 }
 
-struct World *App_SharedStateMachine_GetWorld(struct StateMachine *state_machine)
+struct World *
+    App_SharedStateMachine_GetWorld(struct StateMachine *state_machine)
 {
     return state_machine->world;
 }

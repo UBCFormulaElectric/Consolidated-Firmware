@@ -32,27 +32,28 @@ class AppCanTxFileGenerator(CanFileGenerator):
              for msg in self._non_periodic_cantx_msgs]
 
         self._Create = Function(
-            'struct CanTxInterface* %s_Create(%s)'
-                % (function_prefix, '\n' + '\n'.join(function_params)[:-1]),
+            'struct %sCanTxInterface* %s_Create(%s)'
+                % (self._sender, function_prefix, '\n' + '\n'.join(function_params)[:-1]),
             'Allocate and initialize a CAN TX interface',
             '''\
-    static struct CanTxInterface can_tx_interfaces[MAX_NUM_OF_CANTX_INTERFACES];
+    static struct {sender}CanTxInterface can_tx_interfaces[MAX_NUM_OF_CANTX_INTERFACES];
     static size_t alloc_index = 0;
 
     shared_assert(alloc_index < MAX_NUM_OF_CANTX_INTERFACES);
 
-    struct CanTxInterface* can_tx_interface = &can_tx_interfaces[alloc_index++];
+    struct {sender}CanTxInterface* can_tx_interface = &can_tx_interfaces[alloc_index++];
 
     // TODO: Instead of clearing the table to 0's, use .dbc to fill in the
     // initial signal values
     memset(&can_tx_interface->periodic_can_tx_table, 0, sizeof(can_tx_interface->periodic_can_tx_table));\n\n'''
+    .format(sender=self._sender)
     + '\n'.join(init_senders) + '\n\n'
     + '''\
     return can_tx_interface;''')
 
         self._PeriodicTxSignalSetters = list(Function(
-            'void %s_SetPeriodicSignal_%s(struct CanTxInterface* can_tx_interface, %s value)' % (
-            function_prefix, signal.uppercase_name, signal.type_name),
+            'void %s_SetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface, %s value)' % (
+            function_prefix, signal.uppercase_name, self._sender, signal.type_name),
             '',
             '''\
     can_tx_interface->periodic_can_tx_table.{msg_name}.{signal_name} = value;'''.format(
@@ -61,8 +62,8 @@ class AppCanTxFileGenerator(CanFileGenerator):
         ) for signal in self._periodic_cantx_signals)
 
         self._PeriodicTxMsgPointerGetters = list(Function(
-            'struct CanMsgs_%s_t* %s_GetPeriodicMsgPointer_%s(struct CanTxInterface* can_tx_interface)' % (
-                msg.snake_name, function_prefix, msg.snake_name.upper()),
+            'struct CanMsgs_%s_t* %s_GetPeriodicMsgPointer_%s(struct %sCanTxInterface* can_tx_interface)' % (
+                msg.snake_name, function_prefix, msg.snake_name.upper(), self._sender),
             '',
             '''\
     return &can_tx_interface->periodic_can_tx_table.{msg_name};'''.format(
@@ -70,8 +71,8 @@ class AppCanTxFileGenerator(CanFileGenerator):
         ) for msg in self._periodic_cantx_msgs)
 
         self._SendNonPeriodicMsgs = list(Function(
-        'void %s_SendNonPeriodicMsg_%s(struct CanTxInterface* can_tx_interface, struct CanMsgs_%s_t* payload)' % (
-            function_prefix, msg.snake_name.upper(), msg.snake_name),
+        'void %s_SendNonPeriodicMsg_%s(struct %sCanTxInterface* can_tx_interface, struct CanMsgs_%s_t* payload)' % (
+            function_prefix, msg.snake_name.upper(), self._sender, msg.snake_name),
         '',
         '''\
     can_tx_interface->send_non_periodic_msg_%s(payload);''' % msg.snake_name.upper()
@@ -134,7 +135,7 @@ class AppCanTxSourceFileGenerator(AppCanTxFileGenerator):
              for msg in self._periodic_cantx_msgs],
             'Periodic CAN TX message')
         self.__CanTxInterface = Struct(
-            'CanTxInterface',
+            '{sender}CanTxInterface'.format(sender=self._sender),
             [StructMember('struct PeriodicCanTxMsgs',
                           'periodic_can_tx_table',
                           '0')] +
@@ -167,7 +168,7 @@ class AppCanTxSourceFileGenerator(AppCanTxFileGenerator):
             'Initialize a periodic CAN TX message').declaration)
         macros.append(Macro(
             'MAX_NUM_OF_CANTX_INTERFACES',
-            ' 1',
+            ' 100',
             'Maximum number for CAN TX interfaces').declaration)
         return '\n\n'.join(macros)
 
@@ -243,7 +244,7 @@ class IoCanTxFileGenerator(CanFileGenerator):
                                     for msg in self._periodic_cantx_msgs])
 
         self._EnqueuePeriodicMsgs = Function('''\
-void %s_EnqueuePeriodicMsgs(struct CanTxInterface* can_tx_interface, const uint32_t current_ms)''' % function_prefix,
+void %s_EnqueuePeriodicMsgs(struct %sCanTxInterface* can_tx_interface, const uint32_t current_ms)''' % (function_prefix, self._sender),
             'Enqueue periodic CAN TX messages according to the cycle time specified in the DBC. This should be called in a 1kHz task.',
             FunctionDef)
 
@@ -284,7 +285,7 @@ class IoCanTxHeaderFileGenerator(IoCanTxFileGenerator):
 
     def __generateForwardDeclarations(self):
         forward_declarations = []
-        forward_declarations.append('struct CanTxInterface;')
+        forward_declarations.append('struct {sender}CanTxInterface;'.format(sender=self._sender))
         return '\n' + '\n'.join(forward_declarations)
 
     def __generateFunctionDeclarations(self):

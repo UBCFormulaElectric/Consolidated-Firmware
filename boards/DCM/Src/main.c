@@ -117,7 +117,7 @@ int main(void)
 
     Io_CanRx_Init();
 
-    struct CanTxInterface *can_tx = App_CanTx_Create(
+    struct DCMCanTxInterface *can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_DCM_STARTUP,
         Io_CanTx_EnqueueNonPeriodicMsg_DCM_WATCHDOG_TIMEOUT);
     world = App_DcmWorld_Create(can_tx);
