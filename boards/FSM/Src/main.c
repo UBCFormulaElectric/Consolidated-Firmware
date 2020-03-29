@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
+ * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
  * All rights reserved.</center></h2>
  *
  * This software component is licensed by ST under Ultimate Liberty license
@@ -60,7 +60,7 @@
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
-ADC_HandleTypeDef hadc1;
+ADC_HandleTypeDef hadc2;
 
 CAN_HandleTypeDef hcan;
 
@@ -87,8 +87,8 @@ struct World *    world;
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN_Init(void);
-static void MX_ADC1_Init(void);
 static void MX_IWDG_Init(void);
+static void MX_ADC2_Init(void);
 void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
 void        RunTaskCanRx(void const *argument);
@@ -145,8 +145,8 @@ int main(void)
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_CAN_Init();
-    MX_ADC1_Init();
     MX_IWDG_Init();
+    MX_ADC2_Init();
     /* USER CODE BEGIN 2 */
     primary_flow_meter = App_FlowMeter_Create(Io_FlowMeter_GetPrimaryFlowRate);
     /* USER CODE END 2 */
@@ -253,9 +253,8 @@ void SystemClock_Config(void)
     {
         Error_Handler();
     }
-    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC1;
-    PeriphClkInit.Adc1ClockSelection   = RCC_ADC1PLLCLK_DIV1;
-
+    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC12;
+    PeriphClkInit.Adc12ClockSelection  = RCC_ADC12PLLCLK_DIV1;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
     {
         Error_Handler();
@@ -263,56 +262,56 @@ void SystemClock_Config(void)
 }
 
 /**
- * @brief ADC1 Initialization Function
+ * @brief ADC2 Initialization Function
  * @param None
  * @retval None
  */
-static void MX_ADC1_Init(void)
+static void MX_ADC2_Init(void)
 {
-    /* USER CODE BEGIN ADC1_Init 0 */
+    /* USER CODE BEGIN ADC2_Init 0 */
 
-    /* USER CODE END ADC1_Init 0 */
+    /* USER CODE END ADC2_Init 0 */
 
     ADC_ChannelConfTypeDef sConfig = { 0 };
 
-    /* USER CODE BEGIN ADC1_Init 1 */
+    /* USER CODE BEGIN ADC2_Init 1 */
 
-    /* USER CODE END ADC1_Init 1 */
+    /* USER CODE END ADC2_Init 1 */
     /** Common config
      */
-    hadc1.Instance                   = ADC1;
-    hadc1.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV1;
-    hadc1.Init.Resolution            = ADC_RESOLUTION_12B;
-    hadc1.Init.ScanConvMode          = ADC_SCAN_DISABLE;
-    hadc1.Init.ContinuousConvMode    = DISABLE;
-    hadc1.Init.DiscontinuousConvMode = DISABLE;
-    hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-    hadc1.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
-    hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-    hadc1.Init.NbrOfConversion       = 1;
-    hadc1.Init.DMAContinuousRequests = DISABLE;
-    hadc1.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
-    hadc1.Init.LowPowerAutoWait      = DISABLE;
-    hadc1.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;
-    if (HAL_ADC_Init(&hadc1) != HAL_OK)
+    hadc2.Instance                   = ADC2;
+    hadc2.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV1;
+    hadc2.Init.Resolution            = ADC_RESOLUTION_12B;
+    hadc2.Init.ScanConvMode          = ADC_SCAN_DISABLE;
+    hadc2.Init.ContinuousConvMode    = DISABLE;
+    hadc2.Init.DiscontinuousConvMode = DISABLE;
+    hadc2.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+    hadc2.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
+    hadc2.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+    hadc2.Init.NbrOfConversion       = 1;
+    hadc2.Init.DMAContinuousRequests = DISABLE;
+    hadc2.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
+    hadc2.Init.LowPowerAutoWait      = DISABLE;
+    hadc2.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;
+    if (HAL_ADC_Init(&hadc2) != HAL_OK)
     {
         Error_Handler();
     }
     /** Configure Regular Channel
      */
-    sConfig.Channel      = ADC_CHANNEL_5;
+    sConfig.Channel      = ADC_CHANNEL_1;
     sConfig.Rank         = ADC_REGULAR_RANK_1;
     sConfig.SingleDiff   = ADC_SINGLE_ENDED;
     sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset       = 0;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
     {
         Error_Handler();
     }
-    /* USER CODE BEGIN ADC1_Init 2 */
+    /* USER CODE BEGIN ADC2_Init 2 */
 
-    /* USER CODE END ADC1_Init 2 */
+    /* USER CODE END ADC2_Init 2 */
 }
 
 /**
@@ -518,6 +517,7 @@ void RunTaskCanRx(void const *argument)
     /* USER CODE BEGIN RunTaskCanRx */
     UNUSED(argument);
 
+    /* Infinite loop */
     for (;;)
     {
         Io_SharedCan_ReadRxMessagesIntoTableFromTask();
@@ -537,6 +537,7 @@ void RunTaskCanTx(void const *argument)
     /* USER CODE BEGIN RunTaskCanTx */
     UNUSED(argument);
 
+    /* Infinite loop */
     for (;;)
     {
         Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
@@ -588,7 +589,9 @@ void Error_Handler(void)
 void assert_failed(char *file, uint32_t line)
 {
     /* USER CODE BEGIN 6 */
-    Io_SharedAssert_AssertFailed(file, line, NULL);
+    /* User can add his own implementation to report the file name and line
+       number, tex: printf("Wrong parameters value: file %s on line %d\r\n",
+       file, line) */
     /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
