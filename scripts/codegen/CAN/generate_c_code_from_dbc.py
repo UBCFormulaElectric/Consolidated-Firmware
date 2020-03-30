@@ -31,6 +31,12 @@ if __name__ == "__main__":
         '--io_can_tx_header_output',
         help='Path to the output CAN TX header file for the IO layer')
     parser.add_argument(
+        '--app_can_rx_source_output',
+        help='Path to the output CAN RX source file for the App layer')
+    parser.add_argument(
+        '--app_can_rx_header_output',
+        help='Path to the output CAN RX header file for the App layer')
+    parser.add_argument(
         '--io_can_rx_source_output',
         help='Path to the output CAN RX source file for the IO layer')
     parser.add_argument(
@@ -98,14 +104,28 @@ if __name__ == "__main__":
         function_prefix='Io_CanTx')
     io_cantx_header.generateHeader()
 
+    # Generate CAN RX code for the App layer
+    app_canrx_source = AppCanRxSourceFileGenerator(
+        database=database,
+        output_path=args.app_can_rx_source_output,
+        receiver=args.board,
+        function_prefix='App_CanRx')
+    app_canrx_source.generateSource()
+    app_canrx_header = AppCanRxHeaderFileGenerator(
+        database=database,
+        output_path=args.app_can_rx_header_output,
+        receiver=args.board,
+        function_prefix='App_CanRx')
+    app_canrx_header.generateHeader()
+
     # Generate CAN RX code for the IO layer
-    io_canrx_source = CanRxSourceFileGenerator(
+    io_canrx_source = IoCanRxSourceFileGenerator(
         database=database,
         output_path=args.io_can_rx_source_output,
         receiver=args.board,
         function_prefix='Io_CanRx')
     io_canrx_source.generateSource()
-    io_canrx_header = CanRxHeaderFileGenerator(
+    io_canrx_header = IoCanRxHeaderFileGenerator(
         database=database,
         output_path=args.io_can_rx_header_output,
         receiver=args.board,
