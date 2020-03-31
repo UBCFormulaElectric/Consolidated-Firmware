@@ -1,8 +1,10 @@
+#include <string.h>
+#include <stdlib.h>
+
 #include "auto_generated/App_CanTx.h"
 #include "App_Imd.h"
 #include "App_SharedAssert.h"
 #include "App_SharedMacros.h"
-#include <stdlib.h>
 
 // We only require one IMD per vehicle
 #define MAX_NUM_OF_IMDS 1
@@ -19,40 +21,18 @@ enum SST
     SST_INVALID
 };
 
-// The IMD encodes a condition in its PWM output's frequency
-enum Imd_Condition
+struct Imd_PwmEncoding
 {
-    IMD_SHORT_CIRCUIT,
-    IMD_NORMAL,
-    IMD_UNDERVOLTAGE_DETECTED,
-    IMD_SST,
-    IMD_DEVICE_ERROR,
-    IMD_EARTH_FAULT,
-    NUM_OF_IMD_CONDITIONS,
-    IMD_INVALID = NUM_OF_IMD_CONDITIONS,
+    bool valid_duty_cycle;
+    union {
+        // 0Hz, 40Hz, 50Hz: PWM doesn't encode any information
+        uint8_t dummy;
+        // 10 and 20Hz: Insulation measurement DCP
+        uint16_t insulation_measurement_dcp_kohms;
+        // 30Hz: Speed Start Measurement
+        enum SST speed_start_status;
+    };
 };
-
-// Match the IMD enums with the DBC multiplexer values of the IMD message
-static_assert(
-    IMD_SHORT_CIRCUIT == CANMSGS_BMS_IMD_CONDITION_IMD_SHORT_CIRCUIT_CHOICE,
-    "The IMD short circuit enum must match its DBC multiplexer value");
-static_assert(
-    IMD_NORMAL == CANMSGS_BMS_IMD_CONDITION_IMD_NORMAL_CHOICE,
-    "The IMD normal enum must match its DBC multiplexer value");
-static_assert(
-    IMD_UNDERVOLTAGE_DETECTED ==
-        CANMSGS_BMS_IMD_CONDITION_IMD_UNDERVOLTAGE_DETECTED_CHOICE,
-    "The IMD undervoltage detected enum must match its DBC multiplexer value");
-static_assert(
-    IMD_SST == CANMSGS_BMS_IMD_CONDITION_IMD_SST_CHOICE,
-    "The IMD speed start measurement enum must match its DBC multiplexer "
-    "value");
-static_assert(
-    IMD_DEVICE_ERROR == CANMSGS_BMS_IMD_CONDITION_IMD_DEVICE_ERROR_CHOICE,
-    "The IMD device error enum must match its DBC multiplexer value");
-static_assert(
-    IMD_EARTH_FAULT == CANMSGS_BMS_IMD_CONDITION_IMD_EARTH_FAULT_CHOICE,
-    "The IMD earth fault enum must match its DBC multiplexer value");
 
 struct Imd
 {
@@ -60,18 +40,12 @@ struct Imd
     float (*get_pwm_frequency)(void);
     float (*get_pwm_duty_cycle)(void);
     uint32_t (*get_seconds_since_power_on)(void);
-    struct
-    {
-        bool valid_duty_cycle;
-        union {
-            // 0Hz, 40Hz, 50Hz: PWM doesn't encode any information
-            uint8_t dummy;
-            // 10 and 20Hz: Insulation measurement DCP
-            uint16_t insulation_measurement_dcp_kohms;
-            // 30Hz: Speed Start Measurement
-            enum SST speed_start_status;
-        };
-    } pwm_encoding;
+
+    float                  pwm_frequency;
+    float                  pwm_duty_cycle;
+    uint32_t               seconds_since_power_on;
+    enum Imd_Condition     condition;
+    struct Imd_PwmEncoding pwm_encoding;
 };
 
 /**
@@ -104,7 +78,7 @@ static enum Imd_Condition App_EstimateCondition(const float frequency)
         const uint32_t upper_bound =
             App_GetIdealPwmFrequency(i) + CONDITION_FREQUENCY_TOLERANCE;
 
-        if (frequency > lower_bound && frequency < upper_bound)
+        if (frequency >= lower_bound && frequency <= upper_bound)
         {
             condition = i;
             break;
@@ -148,8 +122,7 @@ struct Imd *App_Imd_Create(
     imd->get_pwm_duty_cycle         = get_pwm_duty_cycle;
     imd->get_seconds_since_power_on = get_seconds_since_power_on;
 
-    imd->pwm_encoding.valid_duty_cycle = false;
-    imd->pwm_encoding.dummy            = 0.0f;
+    memset(&imd->pwm_encoding, 0, sizeof(imd->pwm_encoding));
 
     return imd;
 }
@@ -163,23 +136,14 @@ void App_Imd_Tick(struct Imd *const imd)
 {
     shared_assert(imd != NULL);
 
-    // The IMD takes a short while before its values are stabilized, so it is
-    // useful to keep track of how long it's been since the IMD powered on.
-    App_CanTx_SetPeriodicSignal_SECONDS_SINCE_POWER_ON(
-        imd->can_tx, imd->get_seconds_since_power_on());
-
-    // Use the same frequency and duty cycle throughout the entire tick
-    const float frequency  = imd->get_pwm_frequency();
-    const float duty_cycle = imd->get_pwm_duty_cycle();
-    App_CanTx_SetPeriodicSignal_FREQUENCY(imd->can_tx, frequency);
-    App_CanTx_SetPeriodicSignal_DUTY_CYCLE(imd->can_tx, duty_cycle);
-
-    // Map the PWM frequency to the appropriate IMD condition
-    enum Imd_Condition condition = App_EstimateCondition(frequency);
-    App_CanTx_SetPeriodicSignal_CONDITION(imd->can_tx, condition);
+    // Update internal state at the start of each tick
+    imd->pwm_frequency          = imd->get_pwm_frequency();
+    imd->pwm_duty_cycle         = imd->get_pwm_duty_cycle();
+    imd->seconds_since_power_on = imd->get_seconds_since_power_on();
+    imd->condition              = App_EstimateCondition(imd->pwm_frequency);
 
     // Decode the information encoded in the PWM frequency and duty cycle
-    switch (condition)
+    switch (imd->condition)
     {
         case IMD_SHORT_CIRCUIT:
         {
@@ -193,55 +157,35 @@ void App_Imd_Tick(struct Imd *const imd)
         case IMD_UNDERVOLTAGE_DETECTED:
         {
             imd->pwm_encoding.valid_duty_cycle =
-                (duty_cycle > 5.0f && duty_cycle < 95.0f) ? true : false;
-            App_CanTx_SetPeriodicSignal_VALID_DUTY_CYCLE(
-                imd->can_tx, imd->pwm_encoding.valid_duty_cycle);
+                (imd->pwm_duty_cycle > 5.0f && imd->pwm_duty_cycle < 95.0f)
+                    ? true
+                    : false;
 
             if (imd->pwm_encoding.valid_duty_cycle)
             {
-                const uint16_t resistance_kohms =
-                    1080.0f / (duty_cycle / 100.0f - 0.05f) - 1200.0f;
                 imd->pwm_encoding.insulation_measurement_dcp_kohms =
-                    resistance_kohms;
-
-                if (condition == IMD_NORMAL)
-                {
-                    App_CanTx_SetPeriodicSignal_INSULATION_MEASUREMENT_DCP_10_HZ(
-                        imd->can_tx, resistance_kohms);
-                }
-                else if (condition == IMD_UNDERVOLTAGE_DETECTED)
-                {
-                    App_CanTx_SetPeriodicSignal_INSULATION_MEASUREMENT_DCP_20_HZ(
-                        imd->can_tx, resistance_kohms);
-                }
+                    1080.0f / (imd->pwm_duty_cycle / 100.0f - 0.05f) - 1200.0f;
             }
         }
         break;
         case IMD_SST:
         {
             imd->pwm_encoding.valid_duty_cycle =
-                ((duty_cycle > 5.0f && duty_cycle < 10.0f) ||
-                 (duty_cycle > 90.0f && duty_cycle < 95.0f))
+                ((imd->pwm_duty_cycle > 5.0f && imd->pwm_duty_cycle < 10.0f) ||
+                 (imd->pwm_duty_cycle > 90.0f && imd->pwm_duty_cycle < 95.0f))
                     ? true
                     : false;
-            App_CanTx_SetPeriodicSignal_VALID_DUTY_CYCLE(
-                imd->can_tx, imd->pwm_encoding.valid_duty_cycle);
 
             if (imd->pwm_encoding.valid_duty_cycle)
             {
-                if (duty_cycle > 5.0f && duty_cycle < 10.0f)
+                if (imd->pwm_duty_cycle > 5.0f && imd->pwm_duty_cycle < 10.0f)
                 {
-                    enum SST status                      = SST_GOOD;
-                    imd->pwm_encoding.speed_start_status = status;
-                    App_CanTx_SetPeriodicSignal_SPEED_START_STATUS_30_HZ(
-                        imd->can_tx, status);
+                    imd->pwm_encoding.speed_start_status = SST_GOOD;
                 }
-                else if (duty_cycle > 90.0f && duty_cycle < 95.0f)
+                else if (
+                    imd->pwm_duty_cycle > 90.0f && imd->pwm_duty_cycle < 95.0f)
                 {
-                    enum SST status                      = SST_BAD;
-                    imd->pwm_encoding.speed_start_status = status;
-                    App_CanTx_SetPeriodicSignal_SPEED_START_STATUS_30_HZ(
-                        imd->can_tx, status);
+                    imd->pwm_encoding.speed_start_status = SST_BAD;
                 }
             }
         }
@@ -250,7 +194,9 @@ void App_Imd_Tick(struct Imd *const imd)
         case IMD_EARTH_FAULT:
         {
             imd->pwm_encoding.valid_duty_cycle =
-                (duty_cycle > 47.5f && duty_cycle < 52.5f) ? true : false;
+                (imd->pwm_duty_cycle > 47.5f && imd->pwm_duty_cycle < 52.5f)
+                    ? true
+                    : false;
             imd->pwm_encoding.dummy = 0;
         }
         break;
@@ -268,3 +214,106 @@ void App_Imd_Tick(struct Imd *const imd)
         break;
     }
 }
+
+float App_Imd_GetPwmFrequency(const struct Imd *const imd)
+{
+    return imd->pwm_frequency;
+}
+
+float App_Imd_GetPwmDutyCycle(const struct Imd *const imd)
+{
+    return imd->pwm_duty_cycle;
+}
+
+uint32_t App_Imd_GetSecondsSincePowerOn(const struct Imd *const imd)
+{
+    return imd->seconds_since_power_on;
+}
+
+enum Imd_Condition App_Imd_GetCondition(const struct Imd *const imd)
+{
+    return imd->condition;
+}
+
+struct Imd_PwmEncoding App_Imd_GetPwmEncoding(const struct Imd *const imd)
+{
+    return imd->pwm_encoding;
+}
+
+// TODO: Uncomment and port this over to state machine once ready
+/**
+ * Set the periodic CAN signals related to IMD for the given CAN TX
+ * interface
+ * @param can_tx The CAN TX interface to update periodic CAN signals for
+ * @param imd The IMD to update periodic CAN signals with
+ */
+// void App_RunState_SetImdPeriodicSignals(
+//    struct CanTxInterface * can_tx,
+//    const struct Imd *const imd);
+
+// void App_RunState_SetImdPeriodicSignals(
+//    struct CanTxInterface * can_tx,
+//    const struct Imd *const imd)
+//{
+//    App_CanTx_SetPeriodicSignal_SECONDS_SINCE_POWER_ON(
+//        can_tx, App_Imd_GetSecondsSincePowerOn(imd));
+//    App_CanTx_SetPeriodicSignal_FREQUENCY(can_tx,
+//    App_Imd_GetPwmFrequency(imd)); App_CanTx_SetPeriodicSignal_DUTY_CYCLE(
+//        can_tx, App_Imd_GetPwmDutyCycle(imd));
+
+//    const enum Imd_Condition condition = App_Imd_GetCondition(imd);
+//    App_CanTx_SetPeriodicSignal_CONDITION(can_tx, condition);
+
+//    const struct Imd_PwmEncoding pwm_encoding = App_Imd_GetPwmEncoding(imd);
+
+//    App_CanTx_SetPeriodicSignal_VALID_DUTY_CYCLE(
+//        can_tx, pwm_encoding.valid_duty_cycle);
+
+//    switch (condition)
+//    {
+//        case IMD_SHORT_CIRCUIT:
+//        {
+//            App_CanTx_SetPeriodicSignal_DUMMY_0_HZ(can_tx, 0);
+//        }
+//        break;
+//        case IMD_NORMAL:
+//        {
+//            if (pwm_encoding.valid_duty_cycle == true)
+//            {
+//                App_CanTx_SetPeriodicSignal_INSULATION_MEASUREMENT_DCP_10_HZ(
+//                    can_tx, pwm_encoding.insulation_measurement_dcp_kohms);
+//            }
+//        }
+//        break;
+//        case IMD_UNDERVOLTAGE_DETECTED:
+//        {
+//            if (pwm_encoding.valid_duty_cycle == true)
+//            {
+//                App_CanTx_SetPeriodicSignal_INSULATION_MEASUREMENT_DCP_20_HZ(
+//                    can_tx, pwm_encoding.insulation_measurement_dcp_kohms);
+//            }
+//        }
+//        break;
+//        case IMD_SST:
+//        {
+//            App_CanTx_SetPeriodicSignal_SPEED_START_STATUS_30_HZ(
+//                pwm_encoding.speed_start_status);
+//        }
+//        break;
+//        case IMD_DEVICE_ERROR:
+//        {
+//            App_CanTx_SetPeriodicSignal_DUMMY_40_HZ(can_tx, 0);
+//        }
+//        break;
+//        case IMD_EARTH_FAULT:
+//        {
+//            App_CanTx_SetPeriodicSignal_DUMMY_50_HZ(can_tx, 0);
+//        }
+//        break;
+//        case IMD_INVALID:
+//        {
+//            App_CanTx_SetPeriodicSignal_DUMMY_INVALID(can_tx, 0);
+//        }
+//        break;
+//    }
+//}
