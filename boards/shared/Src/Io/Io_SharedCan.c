@@ -191,35 +191,32 @@ static inline void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
     // Track how many times the CAN TX FIFO has overflowed
     static uint32_t canrx_overflow_count = { 0 };
 
-    BaseType_t          xHigherPriorityTaskWoken = pdFALSE;
     CAN_RxHeaderTypeDef header;
     struct CanMsg       message;
 
     if (HAL_CAN_GetRxMessage(hcan, rx_fifo, &header, &message.data[0]) ==
         HAL_OK)
     {
-        // TODO (#501): We should just return here if rx_header.StdId doesn't
-        // pass the software filter.
-
-        // Copy metadata from HAL's CAN message struct into our custom CAN
-        // message struct
-        message.std_id = header.StdId;
-        message.dlc    = header.DLC;
-
-        // We defer reading the CAN RX message to a task by storing the message
-        // on the CAN RX queue
-        if (xQueueSendToBackFromISR(
-                can_rx_msg_fifo.handle, &message, &xHigherPriorityTaskWoken) !=
-            pdPASS)
+        // Do we care about reading this incoming message at all?
+        if (Io_CanRx_FilterMessageId(header.StdId) == true)
         {
-            // If the RX FIFO is full, we discard the message and log the
-            // overflow over CAN.
-            canrx_overflow_count++;
-            App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(
-                App_SharedWorld_GetCanTx(world), canrx_overflow_count);
-        }
+            // Copy metadata from HAL's CAN message struct into our custom CAN
+            // message struct
+            message.std_id = header.StdId;
+            message.dlc    = header.DLC;
 
-        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+            // We defer reading the CAN RX message to a task by storing the
+            // message on the CAN RX queue
+            if (xQueueSendToBackFromISR(
+                    can_rx_msg_fifo.handle, &message, NULL) != pdPASS)
+            {
+                // If the RX FIFO is full, we discard the message and log the
+                // overflow over CAN.
+                canrx_overflow_count++;
+                App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(
+                    App_SharedWorld_GetCanTx(world), canrx_overflow_count);
+            }
+        }
     }
 }
 
@@ -327,18 +324,15 @@ void Io_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message)
     }
 }
 
-void Io_SharedCan_ReadRxMessagesIntoTableFromTask(void)
+void Io_SharedCan_DequeueCanRxMessage(struct CanMsg *message)
 {
     shared_assert(sharedcan_initialized == true);
-
-    struct CanMsg message;
+    shared_assert(message != NULL);
 
     // Get a message from the RX queue and process it, else block forever.
-    if (xQueueReceive(can_rx_msg_fifo.handle, &message, portMAX_DELAY) ==
-        pdTRUE)
-    {
-        Io_CanRx_ReadMessageIntoTableFromTask(message.std_id, &message.data[0]);
-    }
+    while (xQueueReceive(can_rx_msg_fifo.handle, message, portMAX_DELAY) !=
+           pdTRUE)
+        ;
 }
 
 void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void)

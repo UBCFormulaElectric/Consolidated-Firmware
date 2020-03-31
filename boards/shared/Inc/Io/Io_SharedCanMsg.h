@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 struct CanMsg
 {
     uint32_t std_id;

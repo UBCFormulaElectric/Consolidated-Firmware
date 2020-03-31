@@ -10,9 +10,12 @@
 struct World
 {
     struct CanTxInterface *can_tx_interface;
+    struct CanRxInterface *can_rx_interface;
 };
 
-struct World *App_SharedWorld_Create(struct CanTxInterface *can_tx_interface)
+struct World *App_SharedWorld_Create(
+    struct CanTxInterface *can_tx_interface,
+    struct CanRxInterface *can_rx_interface)
 {
     static struct World worlds[MAX_NUM_OF_WORLDS];
     static size_t       alloc_index = 0;
@@ -21,6 +24,7 @@ struct World *App_SharedWorld_Create(struct CanTxInterface *can_tx_interface)
 
     struct World *world     = &worlds[alloc_index++];
     world->can_tx_interface = can_tx_interface;
+    world->can_rx_interface = can_rx_interface;
 
     return world;
 }
@@ -28,4 +32,9 @@ struct World *App_SharedWorld_Create(struct CanTxInterface *can_tx_interface)
 struct CanTxInterface *App_SharedWorld_GetCanTx(struct World *world)
 {
     return world->can_tx_interface;
+}
+
+struct CanRxInterface *App_SharedWorld_GetCanRx(struct World *world)
+{
+    return world->can_rx_interface;
 }
