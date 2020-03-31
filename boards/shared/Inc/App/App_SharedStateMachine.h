@@ -36,13 +36,13 @@ struct State *
     App_SharedStateMachine_GetCurrentState(struct StateMachine *state_machine);
 
 /**
- * Transition the given state machine to a new state
- * @param state_machine The state machine to transition to a new state
- * @param new_state The new state to transition the state machine to
+ * Set the next state the state machine should go to
+ * @param state_machine The state machine to set the next state on
+ * @param next_state The next state
  */
-void App_SharedStateMachine_TransitionState(
+void App_SharedStateMachine_SetNextState(
     struct StateMachine *state_machine,
-    struct State *       new_state);
+    struct State *       next_state);
 
 // TODO: better jdoc here
 /**
