@@ -51,8 +51,12 @@ TEST_F(
 
     ASSERT_NE((size_t)state_machine, NULL);
 
+    // We need to tick twice, once to run the `Init` state, and once more
+    // to have the state machine transition to the `Run` state.
+    App_SharedStateMachine_Tick(state_machine);
     App_SharedStateMachine_Tick(state_machine);
 
     EXPECT_EQ(
         getRunState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
+

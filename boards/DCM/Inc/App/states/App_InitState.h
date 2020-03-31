@@ -19,7 +19,7 @@ static void initStateRunOnTick(struct StateMachine *state_machine)
 {
     // No need for any safety checks, just run! (this is a demo)
 
-    App_SharedStateMachine_TransitionState(state_machine, getRunState());
+    App_SharedStateMachine_SetNextState(state_machine, getRunState());
 }
 
 static void initStateRunOnExit(struct StateMachine *state_machine) {}
