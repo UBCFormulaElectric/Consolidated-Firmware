@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
+ * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
  * All rights reserved.</center></h2>
  *
  * This software component is licensed by ST under Ultimate Liberty license
@@ -163,7 +163,7 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
- * @brief This function handles CAN TX and USB high priority interrupts.
+ * @brief This function handles USB high priority or CAN_TX interrupts.
  */
 void USB_HP_CAN_TX_IRQHandler(void)
 {
@@ -177,7 +177,7 @@ void USB_HP_CAN_TX_IRQHandler(void)
 }
 
 /**
- * @brief This function handles CAN RX0 and USB low priority interrupts.
+ * @brief This function handles USB low priority or CAN_RX0 interrupts.
  */
 void USB_LP_CAN_RX0_IRQHandler(void)
 {
@@ -205,7 +205,7 @@ void CAN_RX1_IRQHandler(void)
 }
 
 /**
- * @brief This function handles TIM6 global interrupt, DAC interrupts.
+ * @brief This function handles Timer 6 interrupt and DAC underrun interrupts.
  */
 void TIM6_DAC_IRQHandler(void)
 {

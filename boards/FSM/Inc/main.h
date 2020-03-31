@@ -7,7 +7,7 @@
  ******************************************************************************
  * @attention
  *
- * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
+ * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
  * All rights reserved.</center></h2>
  *
  * This software component is licensed by ST under Ultimate Liberty license
@@ -79,8 +79,6 @@ extern "C"
 #define TIMx_AUTO_RELOAD_REG 0xFFFF
 #define TIMx_FREQUENCY 72000000
 #define TIMx_PRESCALER (TIMx_FREQUENCY / TIMx_AUTO_RELOAD_REG)
-#define STEERING_ANGLE_OUT_Pin GPIO_PIN_4
-#define STEERING_ANGLE_OUT_GPIO_Port GPIOA
 #define UNUSED_GPIO_2_Pin GPIO_PIN_1
 #define UNUSED_GPIO_2_GPIO_Port GPIOB
 #define UNUSED_GPIO_3_Pin GPIO_PIN_2
