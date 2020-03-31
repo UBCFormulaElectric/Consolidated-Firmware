@@ -4,6 +4,10 @@
 
 #define MAX_STATE_NAME_LENGTH 16
 
+#ifndef World
+#error "Please define the 'World' type"
+#endif
+
 struct StateMachine;
 struct State
 {
