@@ -6,13 +6,13 @@
  ******************************************************************************
  * @attention
  *
- * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
+ * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
  * All rights reserved.</center></h2>
  *
- * This software component is licensed by ST under BSD 3-Clause license,
- * the "License"; You may not use this file except in compliance with the
- * License. You may obtain a copy of the License at:
- *                        opensource.org/licenses/BSD-3-Clause
+ * This software component is licensed by ST under Ultimate Liberty license
+ * SLA0044, the "License"; You may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at:
+ *                             www.st.com/SLA0044
  *
  ******************************************************************************
  */
@@ -258,9 +258,8 @@ void SystemClock_Config(void)
     {
         Error_Handler();
     }
-    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC1;
-    PeriphClkInit.Adc1ClockSelection   = RCC_ADC1PLLCLK_DIV1;
-
+    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC12;
+    PeriphClkInit.Adc12ClockSelection  = RCC_ADC12PLLCLK_DIV1;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
     {
         Error_Handler();
@@ -278,7 +277,8 @@ static void MX_ADC1_Init(void)
 
     /* USER CODE END ADC1_Init 0 */
 
-    ADC_ChannelConfTypeDef sConfig = { 0 };
+    ADC_MultiModeTypeDef   multimode = { 0 };
+    ADC_ChannelConfTypeDef sConfig   = { 0 };
 
     /* USER CODE BEGIN ADC1_Init 1 */
 
@@ -300,6 +300,13 @@ static void MX_ADC1_Init(void)
     hadc1.Init.LowPowerAutoWait      = DISABLE;
     hadc1.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;
     if (HAL_ADC_Init(&hadc1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure the ADC multi-mode
+     */
+    multimode.Mode = ADC_MODE_INDEPENDENT;
+    if (HAL_ADCEx_MultiModeConfigChannel(&hadc1, &multimode) != HAL_OK)
     {
         Error_Handler();
     }
@@ -660,7 +667,9 @@ void Error_Handler(void)
 void assert_failed(char *file, uint32_t line)
 {
     /* USER CODE BEGIN 6 */
-    Io_SharedAssert_AssertFailed(file, line, NULL);
+    /* User can add his own implementation to report the file name and line
+       number, tex: printf("Wrong parameters value: file %s on line %d\r\n",
+       file, line) */
     /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
