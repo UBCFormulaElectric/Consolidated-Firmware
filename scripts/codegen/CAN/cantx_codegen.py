@@ -55,9 +55,12 @@ class AppCanTxFileGenerator(CanFileGenerator):
             function_prefix, signal.uppercase_name, signal.type_name),
             '',
             '''\
-    can_tx_interface->periodic_can_tx_table.{msg_name}.{signal_name} = value;'''.format(
-                msg_name=signal.msg_name_snakecase,
-                signal_name=signal.snakecase_name)
+    if (App_CanMsgs_{msg_snakecase_name}_{signal_snakecase_name}_is_in_range(value) == true)
+    {{
+        can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name} = value;
+    }}'''.format(
+                msg_snakecase_name=signal.msg_name_snakecase,
+                signal_snakecase_name=signal.snakecase_name)
         ) for signal in self._periodic_cantx_signals)
 
         self._PeriodicTxMsgPointerGetters = list(Function(

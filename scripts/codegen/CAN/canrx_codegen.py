@@ -69,9 +69,12 @@ class AppCanRxFileGenerator(CanRxFileGenerator):
             function_prefix, signal.msg_name_snakecase.upper(), signal.uppercase_name, signal.type_name),
             '',
             '''\
-    can_rx_interface->can_rx_table.{msg_name}.{signal_name} = value;'''.format(
-                msg_name=signal.msg_name_snakecase,
-                signal_name=signal.snakecase_name)
+    if (App_CanMsgs_{msg_snakecase_name}_{signal_snakecase_name}_is_in_range(value) == true)
+    {{
+        can_rx_interface->can_rx_table.{msg_snakecase_name}.{signal_snakecase_name} = value;
+    }}'''.format(
+                msg_snakecase_name=signal.msg_name_snakecase,
+                signal_snakecase_name=signal.snakecase_name)
         ) for signal in self._canrx_signals)
 
 class AppCanRxHeaderFileGenerator(AppCanRxFileGenerator):
@@ -217,15 +220,11 @@ class IoCanRxFileGenerator(CanRxFileGenerator):
                     msg_uppercase_name=msg.snake_name.upper())
 
             signal_setters_fmt = '''
-            if (App_CanMsgs_{msg_snakecase_name}_{signal_name_snakecase}_is_in_range(buffer.{signal_name_snakecase}) == true)
-            {{
-                App_CanRx_{msg_uppercase_name}_SetSignal_{signal_name_uppercase}(
-                    can_rx_interface,
-                    buffer.{signal_name_snakecase});
-            }}'''
+            App_CanRx_{msg_uppercase_name}_SetSignal_{signal_name_uppercase}(
+                can_rx_interface,
+                buffer.{signal_name_snakecase});'''
             signal_setters = '\n'.join([
                 signal_setters_fmt.format(
-                    msg_snakecase_name=msg.snake_name,
                     msg_uppercase_name=msg.snake_name.upper(),
                     signal_name_uppercase=signal.snake_name.upper(),
                     signal_name_snakecase=signal.snake_name)
