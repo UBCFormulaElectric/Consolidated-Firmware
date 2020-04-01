@@ -1,2 +1,0 @@
-## Overview
-## Peripheral Configuration Notes
