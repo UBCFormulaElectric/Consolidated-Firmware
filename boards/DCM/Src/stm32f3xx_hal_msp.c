@@ -7,7 +7,7 @@
  ******************************************************************************
  * @attention
  *
- * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
+ * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
  * All rights reserved.</center></h2>
  *
  * This software component is licensed by ST under Ultimate Liberty license
@@ -94,26 +94,19 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 
         /* USER CODE END ADC1_MspInit 0 */
         /* Peripheral clock enable */
-        __HAL_RCC_ADC1_CLK_ENABLE();
+        __HAL_RCC_ADC12_CLK_ENABLE();
 
         __HAL_RCC_GPIOA_CLK_ENABLE();
-        __HAL_RCC_GPIOB_CLK_ENABLE();
         /**ADC1 GPIO Configuration
         PA0     ------> ADC1_IN1
         PA1     ------> ADC1_IN2
         PA2     ------> ADC1_IN3
-        PB13     ------> ADC1_IN13
         */
         GPIO_InitStruct.Pin = UNUSED_ANALOG_IN1_Pin | UNUSED_ANALOG_IN2_Pin |
                               UNUSED_ANALOG_IN3_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-        GPIO_InitStruct.Pin  = IMON_Pin;
-        GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-        GPIO_InitStruct.Pull = GPIO_NOPULL;
-        HAL_GPIO_Init(IMON_GPIO_Port, &GPIO_InitStruct);
 
         /* USER CODE BEGIN ADC1_MspInit 1 */
 
@@ -135,19 +128,16 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
 
         /* USER CODE END ADC1_MspDeInit 0 */
         /* Peripheral clock disable */
-        __HAL_RCC_ADC1_CLK_DISABLE();
+        __HAL_RCC_ADC12_CLK_DISABLE();
 
         /**ADC1 GPIO Configuration
         PA0     ------> ADC1_IN1
         PA1     ------> ADC1_IN2
         PA2     ------> ADC1_IN3
-        PB13     ------> ADC1_IN13
         */
         HAL_GPIO_DeInit(
             GPIOA, UNUSED_ANALOG_IN1_Pin | UNUSED_ANALOG_IN2_Pin |
                        UNUSED_ANALOG_IN3_Pin);
-
-        HAL_GPIO_DeInit(IMON_GPIO_Port, IMON_Pin);
 
         /* USER CODE BEGIN ADC1_MspDeInit 1 */
 
@@ -181,7 +171,7 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
         GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
-        GPIO_InitStruct.Alternate = GPIO_AF9_TIM1;
+        GPIO_InitStruct.Alternate = GPIO_AF9_CAN;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
         /* CAN interrupt Init */

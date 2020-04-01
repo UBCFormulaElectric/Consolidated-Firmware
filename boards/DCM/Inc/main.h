@@ -95,8 +95,6 @@ extern "C"
 #define INVERTER_L_RUN_GPIO_Port GPIOB
 #define INVERTER_R_RUN_Pin GPIO_PIN_11
 #define INVERTER_R_RUN_GPIO_Port GPIOB
-#define IMON_Pin GPIO_PIN_13
-#define IMON_GPIO_Port GPIOB
 #define IMU_INT_Pin GPIO_PIN_14
 #define IMU_INT_GPIO_Port GPIOB
 #define STATUS_R_Pin GPIO_PIN_8
