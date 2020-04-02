@@ -38,8 +38,9 @@
 #include "App_SharedAssert.h"
 
 #include "auto_generated/App_CanTx.h"
-#include "auto_generated/Io_CanRx.h"
+#include "auto_generated/App_CanRx.h"
 #include "auto_generated/Io_CanTx.h"
+#include "auto_generated/Io_CanRx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -119,9 +120,12 @@ int main(void)
         Io_CanTx_EnqueueNonPeriodicMsg_PDM_AIR_SHUTDOWN,
         Io_CanTx_EnqueueNonPeriodicMsg_PDM_MOTOR_SHUTDOWN,
         Io_CanTx_EnqueueNonPeriodicMsg_PDM_WATCHDOG_TIMEOUT);
-    world = App_SharedWorld_Create(can_tx);
 
-    Io_CanRx_Init();
+    static struct CanRxInterface *can_rx;
+    can_rx = App_CanRx_Create();
+
+    world = App_SharedWorld_Create(can_tx, can_rx);
+
     App_StateMachine_Init();
     /* USER CODE END 1 */
 
@@ -630,7 +634,10 @@ void RunTaskCanRx(void const *argument)
 
     for (;;)
     {
-        Io_SharedCan_ReadRxMessagesIntoTableFromTask();
+        struct CanMsg message;
+        Io_SharedCan_DequeueCanRxMessage(&message);
+        Io_CanRx_UpdateRxTableWithMessage(
+            App_SharedWorld_GetCanRx(world), &message);
     }
     /* USER CODE END RunTaskCanRx */
 }

@@ -131,7 +131,7 @@ class AppCanTxSourceFileGenerator(AppCanTxFileGenerator):
             'PeriodicCanTxMsgs',
             [StructMember('struct CanMsgs_%s_t' % msg.snake_name,
                           msg.snake_name,
-                          'INIT_PERIODIC_CANTX_MSG()')
+                          '0')
              for msg in self._periodic_cantx_msgs],
             'Periodic CAN TX message')
         self.__CanTxInterface = Struct(
@@ -162,10 +162,6 @@ class AppCanTxSourceFileGenerator(AppCanTxFileGenerator):
 
     def __generateMacros(self):
         macros = []
-        macros.append(Macro(
-            'INIT_PERIODIC_CANTX_MSG()',
-            '    {0}',
-            'Initialize a periodic CAN TX message').declaration)
         macros.append(Macro(
             'MAX_NUM_OF_CANTX_INTERFACES',
             ' 100',

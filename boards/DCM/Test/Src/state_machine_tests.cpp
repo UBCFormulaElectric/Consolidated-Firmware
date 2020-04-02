@@ -20,14 +20,17 @@ class DcmStateMachineTest : public testing::Test
   protected:
     virtual void SetUp()
     {
-        struct DCMCanTxInterface *can_tx_interface = App_CanTx_Create(
+        can_tx_interface = App_CanTx_Create(
             send_non_periodic_msg_DCM_STARTUP,
             send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT);
-        world = App_DcmWorld_Create(can_tx_interface);
+        can_rx_interface = App_CanRx_Create();
+        world = App_DcmWorld_Create(can_tx_interface, can_rx_interface);
     }
     virtual void TearDown() {}
 
-    struct World *world;
+    struct World *            world;
+    struct DCMCanTxInterface *can_tx_interface;
+    struct DCMCanRxInterface *can_rx_interface;
 };
 
 TEST_F(
@@ -59,4 +62,3 @@ TEST_F(
     EXPECT_EQ(
         getRunState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
-

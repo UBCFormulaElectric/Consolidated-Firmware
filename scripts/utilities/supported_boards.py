@@ -7,6 +7,7 @@ def get_board_names():
         'PDM',
         'BMS',
         'DCM',
+        'DIM',
     )
     return SUPPORTED_BOARD_NAMES
 

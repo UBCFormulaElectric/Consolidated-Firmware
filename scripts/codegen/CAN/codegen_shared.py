@@ -32,7 +32,7 @@ SOURCE_TEMPLATE = '''\
 class CanFileGenerator:
     def __init__(self, database, output_path, board):
         self._database = database
-        self.__board = board
+        self._board = board
         self._output_dir = os.getcwd() if os.path.dirname(output_path) is '' else os.path.dirname(output_path)
         self._output_name = os.path.basename(output_path)
 
@@ -50,14 +50,14 @@ class CanFileGenerator:
     def _generateSource(self, headers, typedefs, macros, variables, function_defs,
                         private_function_defs='', private_function_decls=''):
         return SOURCE_TEMPLATE.format(
-            board=self.__board, headers=headers, typedefs=typedefs, macros=macros,
+            board=self._board, headers=headers, typedefs=typedefs, macros=macros,
             variables=variables, private_function_defs=private_function_defs,
             private_function_decls=private_function_decls,function_defs=function_defs)
 
     def _generateHeader(self, comment, headers, forward_declarations,
                         function_declarations):
         return HEADER_TEMPLATE.format(
-            comment=comment, sender=self.__board, headers=headers,
+            comment=comment, sender=self._board, headers=headers,
             forward_declarations=forward_declarations,
             function_declarations=function_declarations)
 

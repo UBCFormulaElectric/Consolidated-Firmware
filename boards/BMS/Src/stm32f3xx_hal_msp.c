@@ -7,13 +7,13 @@
  ******************************************************************************
  * @attention
  *
- * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
+ * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
  * All rights reserved.</center></h2>
  *
- * This software component is licensed by ST under BSD 3-Clause license,
- * the "License"; You may not use this file except in compliance with the
- * License. You may obtain a copy of the License at:
- *                        opensource.org/licenses/BSD-3-Clause
+ * This software component is licensed by ST under Ultimate Liberty license
+ * SLA0044, the "License"; You may not use this file except in compliance with
+ * the License. You may obtain a copy of the License at:
+ *                             www.st.com/SLA0044
  *
  ******************************************************************************
  */
@@ -94,7 +94,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
 
         /* USER CODE END ADC1_MspInit 0 */
         /* Peripheral clock enable */
-        __HAL_RCC_ADC1_CLK_ENABLE();
+        __HAL_RCC_ADC12_CLK_ENABLE();
 
         __HAL_RCC_GPIOA_CLK_ENABLE();
         /**ADC1 GPIO Configuration
@@ -125,7 +125,7 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
 
         /* USER CODE END ADC1_MspDeInit 0 */
         /* Peripheral clock disable */
-        __HAL_RCC_ADC1_CLK_DISABLE();
+        __HAL_RCC_ADC12_CLK_DISABLE();
 
         /**ADC1 GPIO Configuration
         PA3     ------> ADC1_IN4
@@ -164,7 +164,7 @@ void HAL_CAN_MspInit(CAN_HandleTypeDef *hcan)
         GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
         GPIO_InitStruct.Pull      = GPIO_NOPULL;
         GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
-        GPIO_InitStruct.Alternate = GPIO_AF9_TIM1;
+        GPIO_InitStruct.Alternate = GPIO_AF9_CAN;
         HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
         /* CAN interrupt Init */

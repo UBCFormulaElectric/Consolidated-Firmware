@@ -8,7 +8,7 @@ BS_:
 BU_: Vector__XXX
 
 BO_ 1 BMS_HEARTBEAT: 1 BMS
-SG_ DUMMY_VARIABLE : 0|1@1+ (1,0) [0|1] "" FSM,DCM,PDM
+SG_ DUMMY_VARIABLE : 0|1@1+ (1,0) [0|1] "" FSM,DCM,PDM,DIM
 
 BO_ 2 BMS_CAN_FIFO_OVERFLOW: 8 BMS
 SG_ tx_overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
@@ -142,6 +142,14 @@ SG_ FLYWIRE : 0|32@1- (1,0) [-3.4E038|3.4E038] "V" Vector__XXX
 BO_ 109 PDM_WATCHDOG_TIMEOUT : 8 PDM
 SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" Vector__XXX
 
+BO_ 120 DIM_HEARTBEAT: 1 DIM
+SG_ DUMMY_VARIABLE : 0|1@1+ (1,0) [0|1] "" FSM,DCM,PDM,BMS
+
+BO_ 121 DIM_CAN_FIFO_OVERFLOW: 8 DIM
+SG_ tx_overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
+SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 122 DIM_STARTUP: 0 DIM
 
 CM_ BO_ 64 "This message contains a bit for each error that the FSM might throw";
 CM_ BO_ 66 "Indicates that we tried to transmit messages faster then we can send them, so our internal FIFO queue overflowed";
@@ -198,6 +206,8 @@ BA_ "GenMsgCycleTime" BO_ 105 1000;
 BA_ "GenMsgCycleTime" BO_ 106 1000;
 BA_ "GenMsgCycleTime" BO_ 107 1000;
 BA_ "GenMsgCycleTime" BO_ 108 1000;
+BA_ "GenMsgCycleTime" BO_ 120 300;
+BA_ "GenMsgCycleTime" BO_ 121 5000;
 
 
 SIG_VALTYPE_ 7 Duty_Cycle : 1;
