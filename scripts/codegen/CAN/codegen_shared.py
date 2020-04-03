@@ -135,12 +135,13 @@ class StructMember:
         self.initial_val = initial_val
 
 class CanSignal:
-    def __init__(self, type_name, signal_name_snakecase, msg_name_snakecase):
+    def __init__(self, type_name, signal_name_snakecase, msg_name_snakecase, initial_value):
         self.type_name=type_name
         self.snakecase_name = signal_name_snakecase
         self.uppercase_name = signal_name_snakecase.upper()
         self.msg_name_snakecase = msg_name_snakecase
         self.msg_name_uppercase = msg_name_snakecase.upper()
+        self.initial_value = initial_value
 
 class Variable:
     def __init__(self, type, name, init_val, comment):

@@ -14,7 +14,7 @@ class CanRxFileGenerator(CanFileGenerator):
                 if self._receiver in signal.receivers:
                     canrx_signals.append(
                         CanSignal(signal.type_name, signal.snake_name,
-                                    msg.snake_name))
+                                    msg.snake_name, signal.initial))
         return canrx_signals
 
     def __get_canrx_msgs(self):
@@ -36,6 +36,14 @@ class AppCanRxFileGenerator(CanRxFileGenerator):
         self.__init_functions(function_prefix)
 
     def __init_functions(self, function_prefix):
+        initial_signal_setters = '\n'.join(
+            ["""\
+    App_CanRx_{msg_name}_SetSignal_{signal_name}(can_rx_interface, {initial_value});""".
+                format(msg_name=signal.msg_name_uppercase,
+                       signal_name=signal.uppercase_name,
+                       initial_value=signal.initial_value if signal.initial_value != None else '0'
+                       ) for signal in self._canrx_signals])
+
         self._Create = Function(
             'struct CanRxInterface* %s_Create(void)' % function_prefix,
             'Allocate and initialize a CAN RX interface',
@@ -46,12 +54,10 @@ class AppCanRxFileGenerator(CanRxFileGenerator):
     shared_assert(alloc_index < MAX_NUM_OF_CANRX_INTERFACES);
     
     struct CanRxInterface* can_rx_interface = &can_rx_interfaces[alloc_index++];
-    
-    // TODO: Instead of clearing the table to 0's, use .dbc to fill in the
-    // initial signal values
-    memset(&can_rx_interface->can_rx_table, 0, sizeof(can_rx_interface->can_rx_table));
 
-    return can_rx_interface;''')
+{initial_signal_setters}
+
+    return can_rx_interface;'''.format(initial_signal_setters=initial_signal_setters))
 
         self._CanRxSignalGetters = [
             Function('%s %s_%s_GetSignal_%s (struct CanRxInterface* can_rx_interface)'

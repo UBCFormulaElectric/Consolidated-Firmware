@@ -179,9 +179,11 @@ CM_ SG_ 108 FLYWIRE "The variable indicates the voltage sense for the Vicor 12V 
 
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
+BA_DEF_ SG_  "GenSigStartValue" INT 0 2147483647;
 
 BA_DEF_DEF_  "BusType" "CAN";
 BA_DEF_DEF_  "GenMsgCycleTime" 0;
+BA_DEF_DEF_  "GenSigStartValue" 0;
 
 BA_ "BusType" "CAN";
 
@@ -209,6 +211,8 @@ BA_ "GenMsgCycleTime" BO_ 108 1000;
 BA_ "GenMsgCycleTime" BO_ 120 300;
 BA_ "GenMsgCycleTime" BO_ 121 5000;
 
+BA_ "GenSigStartValue" SG_ 2  tx_overflow_count 0;
+BA_ "GenSigStartValue" SG_ 2  rx_overflow_count 0;
 
 SIG_VALTYPE_ 7 Duty_Cycle : 1;
 SIG_VALTYPE_ 7 Frequency : 1;
