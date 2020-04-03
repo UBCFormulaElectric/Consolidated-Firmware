@@ -16,6 +16,12 @@ class VoltageCheckTest : public testing::Test
   protected:
     virtual void SetUp()
     {
+        RESET_FAKE(get_voltage);
+        RESET_FAKE(get_min_voltage);
+        RESET_FAKE(get_max_voltage);
+
+        FFF_RESET_HISTORY();
+
         voltage_check = App_VoltageCheck_Create(
             get_voltage, get_min_voltage, get_max_voltage);
     }
