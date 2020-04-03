@@ -45,7 +45,8 @@ TEST_F(VoltageCheckTest, check_voltage_underflow)
 
     App_VoltageCheck_Tick(voltage_check);
 
-    ASSERT_EQ(App_VoltageCheck_GetStatus(voltage_check), VOLTAGECHECK_UNDERVOLTAGE);
+    ASSERT_EQ(
+        App_VoltageCheck_GetStatus(voltage_check), VOLTAGECHECK_UNDERVOLTAGE);
 }
 
 TEST_F(VoltageCheckTest, check_voltage_overflow)
@@ -57,5 +58,6 @@ TEST_F(VoltageCheckTest, check_voltage_overflow)
 
     App_VoltageCheck_Tick(voltage_check);
 
-    ASSERT_EQ(App_VoltageCheck_GetStatus(voltage_check), VOLTAGECHECK_OVERVOLTAGE);
+    ASSERT_EQ(
+        App_VoltageCheck_GetStatus(voltage_check), VOLTAGECHECK_OVERVOLTAGE);
 }
