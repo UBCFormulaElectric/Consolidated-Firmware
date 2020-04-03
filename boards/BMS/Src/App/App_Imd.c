@@ -36,24 +36,24 @@ enum Imd_Condition
 
 // Match the IMD enums with the DBC multiplexer values of the IMD message
 static_assert(
-    IMD_SHORT_CIRCUIT == CANMSGS_IMD_CONDITION_IMD_SHORT_CIRCUIT_CHOICE,
+    IMD_SHORT_CIRCUIT == CANMSGS_BMS_IMD_CONDITION_IMD_SHORT_CIRCUIT_CHOICE,
     "The IMD short circuit enum must match its DBC multiplexer value");
 static_assert(
-    IMD_NORMAL == CANMSGS_IMD_CONDITION_IMD_NORMAL_CHOICE,
+    IMD_NORMAL == CANMSGS_BMS_IMD_CONDITION_IMD_NORMAL_CHOICE,
     "The IMD normal enum must match its DBC multiplexer value");
 static_assert(
     IMD_UNDERVOLTAGE_DETECTED ==
-        CANMSGS_IMD_CONDITION_IMD_UNDERVOLTAGE_DETECTED_CHOICE,
+        CANMSGS_BMS_IMD_CONDITION_IMD_UNDERVOLTAGE_DETECTED_CHOICE,
     "The IMD undervoltage detected enum must match its DBC multiplexer value");
 static_assert(
-    IMD_SST == CANMSGS_IMD_CONDITION_IMD_SST_CHOICE,
+    IMD_SST == CANMSGS_BMS_IMD_CONDITION_IMD_SST_CHOICE,
     "The IMD speed start measurement enum must match its DBC multiplexer "
     "value");
 static_assert(
-    IMD_DEVICE_ERROR == CANMSGS_IMD_CONDITION_IMD_DEVICE_ERROR_CHOICE,
+    IMD_DEVICE_ERROR == CANMSGS_BMS_IMD_CONDITION_IMD_DEVICE_ERROR_CHOICE,
     "The IMD device error enum must match its DBC multiplexer value");
 static_assert(
-    IMD_EARTH_FAULT == CANMSGS_IMD_CONDITION_IMD_EARTH_FAULT_CHOICE,
+    IMD_EARTH_FAULT == CANMSGS_BMS_IMD_CONDITION_IMD_EARTH_FAULT_CHOICE,
     "The IMD earth fault enum must match its DBC multiplexer value");
 
 struct Imd

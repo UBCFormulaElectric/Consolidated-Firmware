@@ -26,7 +26,7 @@ SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 2|1@1+ (1,0) [0|1] "" Vector__XX
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 3|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ WATCHDOG_TIMEOUT : 4|1@1+ (1,0) [0|1] "" Vector__XXX
 
-BO_ 6 IMD: 8 BMS
+BO_ 6 BMS_IMD: 8 BMS
 SG_ Condition M : 0|3@1+ (1,0) [0|1] "" Vector__XXX
 SG_ Seconds_Since_Power_On : 3|8@1+ (1,0) [0|1] "Seconds" Vector__XXX
 SG_ Valid_Duty_Cycle : 11|1@1+ (1,0) [0|1] "" Vector__XXX
@@ -38,7 +38,7 @@ SG_ Dummy_40Hz m4 : 12|8@1+ (1,0) [0|1] "" Vector__XXX
 SG_ Dummy_50Hz m5 : 12|8@1+ (1,0) [0|1] "" Vector__XXX
 SG_ Dummy_Invalid m6 : 12|8@1+ (1,0) [0|1] "" Vector__XXX
 
-BO_ 7 IMD_PWM_OUTPUT : 8 BMS
+BO_ 7 BMS_IMD_PWM_OUTPUT : 8 BMS
 SG_ Duty_Cycle : 0|32@1- (1,0) [-3.4E038|3.4E038] "%" Vector__XXX
 SG_ Frequency : 32|32@1- (1,0) [-3.4E038|3.4E038] "Hz" Vector__XXX
 
