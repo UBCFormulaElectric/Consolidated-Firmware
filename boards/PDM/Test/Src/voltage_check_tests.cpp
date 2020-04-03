@@ -30,11 +30,6 @@ class VoltageCheckTest : public testing::Test
     struct VoltageCheck *voltage_check;
 };
 
-TEST_F(VoltageCheckTest, check_create)
-{
-
-}
-
 TEST_F(VoltageCheckTest, check_voltage_normal)
 {
     get_voltage_fake.return_val = 5.5f;
