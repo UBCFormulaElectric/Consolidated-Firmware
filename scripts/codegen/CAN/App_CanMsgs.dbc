@@ -42,6 +42,9 @@ BO_ 7 IMD_PWM_OUTPUT : 8 BMS
 SG_ Duty_Cycle : 0|32@1- (1,0) [-3.4E038|3.4E038] "%" Vector__XXX
 SG_ Frequency : 32|32@1- (1,0) [-3.4E038|3.4E038] "Hz" Vector__XXX
 
+BO_ 8 BMS_STATE_MACHINE : 1 BMS
+SG_ State : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+
 BO_ 33 DCM_HEARTBEAT: 1 DCM
 SG_ DUMMY_VARIABLE : 0|1@1+ (1,0) [0|1] "" BMS
 
@@ -60,6 +63,9 @@ SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 1|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 2|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 3|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ WATCHDOG_TIMEOUT : 4|1@1+ (1,0) [0|1] "" Vector__XXX
+
+BO_ 38 DCM_STATE_MACHINE : 1 DCM
+SG_ State : 0|8@1+ (1,0) [0|255] "" Vector__XXX
 
 BO_ 64 FSM_ERRORS: 8 FSM
 SG_ papps_out_of_range : 0|1@1+ (1,0) [0|1] "" Vector__XXX
@@ -81,6 +87,9 @@ BO_ 67 FSM_STARTUP: 0 FSM
 
 BO_ 68 FSM_WATCHDOG_TIMEOUT : 8 FSM
 SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" Vector__XXX
+
+BO_ 69 FSM_STATE_MACHINE : 1 FSM
+SG_ State : 0|8@1+ (1,0) [0|255] "" Vector__XXX
 
 BO_ 80 FSM_AIR_SHUTDOWN: 0 FSM
 
@@ -142,14 +151,17 @@ SG_ FLYWIRE : 0|32@1- (1,0) [-3.4E038|3.4E038] "V" Vector__XXX
 BO_ 109 PDM_WATCHDOG_TIMEOUT : 8 PDM
 SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" Vector__XXX
 
-BO_ 120 DIM_HEARTBEAT: 1 DIM
+BO_ 110 PDM_STATE_MACHINE : 1 PDM
+SG_ State : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+
+BO_ 128 DIM_HEARTBEAT: 1 DIM
 SG_ DUMMY_VARIABLE : 0|1@1+ (1,0) [0|1] "" FSM,DCM,PDM,BMS
 
-BO_ 121 DIM_CAN_FIFO_OVERFLOW: 8 DIM
+BO_ 129 DIM_CAN_FIFO_OVERFLOW : 8 DIM
 SG_ tx_overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
 SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" Vector__XXX
 
-BO_ 122 DIM_STARTUP: 0 DIM
+BO_ 130 DIM_STARTUP: 0 DIM
 
 CM_ BO_ 64 "This message contains a bit for each error that the FSM might throw";
 CM_ BO_ 66 "Indicates that we tried to transmit messages faster then we can send them, so our internal FIFO queue overflowed";
@@ -190,12 +202,15 @@ BA_ "GenMsgCycleTime" BO_ 2 5000;
 BA_ "GenMsgCycleTime" BO_ 5 1000;
 BA_ "GenMsgCycleTime" BO_ 6 1000;
 BA_ "GenMsgCycleTime" BO_ 7 1000;
+BA_ "GenMsgCycleTime" BO_ 8 10;
 BA_ "GenMsgCycleTime" BO_ 33 300;
 BA_ "GenMsgCycleTime" BO_ 34 5000;
 BA_ "GenMsgCycleTime" BO_ 37 1000;
+BA_ "GenMsgCycleTime" BO_ 38 10;
 BA_ "GenMsgCycleTime" BO_ 64 1000;
 BA_ "GenMsgCycleTime" BO_ 65 300;
 BA_ "GenMsgCycleTime" BO_ 66 5000;
+BA_ "GenMsgCycleTime" BO_ 69 10;
 BA_ "GenMsgCycleTime" BO_ 96 1000;
 BA_ "GenMsgCycleTime" BO_ 97 300;
 BA_ "GenMsgCycleTime" BO_ 98 5000;
@@ -206,8 +221,9 @@ BA_ "GenMsgCycleTime" BO_ 105 1000;
 BA_ "GenMsgCycleTime" BO_ 106 1000;
 BA_ "GenMsgCycleTime" BO_ 107 1000;
 BA_ "GenMsgCycleTime" BO_ 108 1000;
-BA_ "GenMsgCycleTime" BO_ 120 300;
-BA_ "GenMsgCycleTime" BO_ 121 5000;
+BA_ "GenMsgCycleTime" BO_ 110 10;
+BA_ "GenMsgCycleTime" BO_ 128 300;
+BA_ "GenMsgCycleTime" BO_ 129 5000;
 
 
 SIG_VALTYPE_ 7 Duty_Cycle : 1;
@@ -226,4 +242,8 @@ SIG_VALTYPE_ 107 GLV : 1;
 SIG_VALTYPE_ 107 VBAT : 1;
 SIG_VALTYPE_ 108 FLYWIRE : 1;
 
-VAL_ 6 Condition 6 "IMD_INVALID" 5 "IMD_EARTH_FAULT" 4 "IMD_DEVICE_ERROR" 3 "IMD_SST" 2 "IMD_UNDERVOLTAGE_DETECTED" 1 "IMD_NORMAL" 0 "IMD_SHORT_CIRCUIT";
+VAL_ 6 Condition 0 "IMD_SHORT_CIRCUIT" 1 "IMD_NORMAL" 2 "IMD_UNDERVOLTAGE_DETECTED" 3 "IMD_SST" 4 "IMD_DEVICE_ERROR" 5 "IMD_EARTH_FAULT" 6 "IMD_INVALID";
+VAL_ 8 State 0 "INIT" 1 "CHARGE" 2 "DRIVE" 3 "FAULT";
+VAL_ 38 State 0 "INIT" 1 "DRIVE" 2 "FAULT";
+VAL_ 69 State 0 "AIR-OPEN" 1 "AIR-CLOSED";
+VAL_ 110 State 0 "INIT" 1 "AIR-OPEN" 2 "AIR-CLOSED";
