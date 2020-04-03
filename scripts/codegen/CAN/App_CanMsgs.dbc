@@ -157,7 +157,7 @@ SG_ State : 0|8@1+ (1,0) [0|255] "" Vector__XXX
 BO_ 128 DIM_HEARTBEAT: 1 DIM
 SG_ DUMMY_VARIABLE : 0|1@1+ (1,0) [0|1] "" FSM,DCM,PDM,BMS
 
-BO_ 129 DIM_CAN_FIFO_OVERFLOW : 8 DIM
+BO_ 129 DIM_CAN_FIFO_OVERFLOW: 8 DIM
 SG_ tx_overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
 SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" Vector__XXX
 
