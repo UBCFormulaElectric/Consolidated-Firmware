@@ -48,7 +48,7 @@ class AppCanTxFileGenerator(CanFileGenerator):
 
     shared_assert(alloc_index < MAX_NUM_OF_CANTX_INTERFACES);
 
-    struct CanTxInterface* can_tx_interface = &can_tx_interfaces[alloc_index++];'''
+    struct CanTxInterface* can_tx_interface = &can_tx_interfaces[alloc_index++];\n\n'''
     + '\n'.join(init_senders)
     + '''
 
