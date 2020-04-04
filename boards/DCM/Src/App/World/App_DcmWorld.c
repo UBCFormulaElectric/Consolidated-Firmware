@@ -3,18 +3,17 @@
 
 #include "App_SharedAssert.h"
 
-
 struct DcmWorld
 {
     struct DCMCanTxInterface *can_tx_interface;
-    struct DCMCanRxInterface* can_rx_interface;
+    struct DCMCanRxInterface *can_rx_interface;
 };
 
 struct DcmWorld *App_DcmWorld_Create(
     struct DCMCanTxInterface *can_tx_interface,
     struct DCMCanRxInterface *can_rx_interface)
 {
-    struct DcmWorld *world  = (struct DcmWorld*)malloc(sizeof(struct DcmWorld));
+    struct DcmWorld *world = (struct DcmWorld *)malloc(sizeof(struct DcmWorld));
     shared_assert(world != NULL);
 
     world->can_tx_interface = can_tx_interface;
@@ -23,14 +22,16 @@ struct DcmWorld *App_DcmWorld_Create(
     return world;
 }
 
-void App_DcmWorld_Destroy(struct DcmWorld* dcm_world){
+void App_DcmWorld_Destroy(struct DcmWorld *dcm_world)
+{
     free(dcm_world);
 }
-
 
 struct DCMCanTxInterface *App_DcmWorld_GetCanTx(struct DcmWorld *world)
 {
     return world->can_tx_interface;
 }
 
-struct DcmCanRxInterface *App_SharedWorld_GetCanRx(struct World *world);
+struct DCMCanRxInterface *App_SharedWorld_GetCanRx(struct DcmWorld *world){
+    return world->can_rx_interface;
+}

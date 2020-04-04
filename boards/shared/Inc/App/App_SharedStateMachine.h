@@ -29,7 +29,7 @@ struct State
  * @return A created state machine, or NULL if creation was unsuccessful
  */
 struct StateMachine *App_SharedStateMachine_Create(
-    struct World *world,
+    struct World *      world,
     const struct State *initial_state);
 
 /**
@@ -37,7 +37,7 @@ struct StateMachine *App_SharedStateMachine_Create(
  *
  * @param state_machine The state machine to destroy
  */
-void App_SharedStateMachine_Destroy(struct StateMachine* state_machine);
+void App_SharedStateMachine_Destroy(struct StateMachine *state_machine);
 
 /**
  * Get the currently running state in the given state machine
@@ -45,7 +45,7 @@ void App_SharedStateMachine_Destroy(struct StateMachine* state_machine);
  *                      from
  * @return The currently running state from the given state machine
  */
-struct State *
+const struct State *
     App_SharedStateMachine_GetCurrentState(struct StateMachine *state_machine);
 
 /**
@@ -55,7 +55,7 @@ struct State *
  */
 void App_SharedStateMachine_SetNextState(
     struct StateMachine *state_machine,
-    const struct State *       next_state);
+    const struct State * next_state);
 
 // TODO: better jdoc here
 /**

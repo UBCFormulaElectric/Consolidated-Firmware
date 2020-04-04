@@ -99,10 +99,32 @@ void        RunTaskCanTx(void const *argument);
 
 /* USER CODE BEGIN PFP */
 
+static void CanRxQueueOverflowCallBack(size_t overflow_count);
+static void CanTxQueueOverflowCallBack(size_t overflow_count);
+
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+static void CanRxQueueOverflowCallBack(size_t overflow_count)
+{
+    shared_assert(world != NULL);
+    struct DCMCanTxInterface *can_tx_interface = App_DcmWorld_GetCanTx(world);
+    shared_assert(can_tx_interface != NULL);
+
+    App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(
+        can_tx_interface, overflow_count);
+}
+
+static void CanTxQueueOverflowCallBack(size_t overflow_count)
+{
+    shared_assert(world != NULL);
+    struct DCMCanTxInterface *can_tx_interface = App_DcmWorld_GetCanTx(world);
+    shared_assert(can_tx_interface != NULL);
+
+    App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(
+        can_tx_interface, overflow_count);
+}
 
 /* USER CODE END 0 */
 
@@ -116,16 +138,17 @@ int main(void)
     __HAL_DBGMCU_FREEZE_IWDG();
     Io_SharedHardFaultHandler_Init();
 
-    Io_CanRx_Init();
+    //    Io_CanRx_Init();
 
     struct DCMCanTxInterface *can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_DCM_STARTUP,
         Io_CanTx_EnqueueNonPeriodicMsg_DCM_WATCHDOG_TIMEOUT);
 
-    struct CanRxInterface *can_rx = App_CanRx_Create();
-    world = App_DcmWorld_Create(can_tx, can_rx);
+    struct DCMCanRxInterface *can_rx = App_CanRx_Create();
+    world                            = App_DcmWorld_Create(can_tx, can_rx);
 
-    state_machine = App_SharedStateMachine_Create(world, getInitState());
+    state_machine =
+        App_SharedStateMachine_Create(world, App_State_getInitState());
 
     /* USER CODE END 1 */
 
@@ -361,7 +384,8 @@ static void MX_CAN_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN CAN_Init 2 */
-    Io_SharedCan_Init(&hcan);
+    Io_SharedCan_Init(
+        &hcan, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
     /* USER CODE END CAN_Init 2 */
 }
 

@@ -1,7 +1,7 @@
 #include "states/App_InitState.h"
 #include "states/App_RunState.h"
 
-static const char INIT_STATE_NAME[MAX_STATE_NAME_LENGTH] = "INIT";
+#include "unused.h"
 
 static void initStateRunOnEnter(struct StateMachine *state_machine)
 {
@@ -18,12 +18,14 @@ static void initStateRunOnTick(struct StateMachine *state_machine)
     App_SharedStateMachine_SetNextState(state_machine, App_State_getRunState());
 }
 
-static void initStateRunOnExit(struct StateMachine *state_machine) {}
+static void initStateRunOnExit(struct StateMachine *state_machine) {
+    UNUSED(state_machine);
+}
 
 const struct State *App_State_getInitState()
 {
     static struct State initial_state = {
-        .name = "INIT",
+        .name         = "INIT",
         .run_on_enter = initStateRunOnEnter,
         .run_on_tick  = initStateRunOnTick,
         .run_on_exit  = initStateRunOnExit,

@@ -16,8 +16,15 @@
  * HAL_CAN_Init().
  * @param hcan Pointer to a CAN_HandleTypeDef structure that contains
  *         the configuration information for the specified CAN.
+ * @param tx_overflow_callback A function that will be called with the current
+ *                             overflow count when the tx queue overflows
+ * @param rx_overflow_callback A function that will be called with the current
+ *                             overflow count when the rx queue overflows
  */
-void Io_SharedCan_Init(CAN_HandleTypeDef *hcan);
+void Io_SharedCan_Init(CAN_HandleTypeDef *hcan,
+    void (*tx_overflow_callback)(size_t),
+                       void (*rx_overflow_callback)(size_t)
+    );
 
 /**
  * Send a message to the back of the CAN TX queue

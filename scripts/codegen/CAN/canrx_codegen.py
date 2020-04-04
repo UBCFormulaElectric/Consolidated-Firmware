@@ -249,7 +249,7 @@ class IoCanRxFileGenerator(CanRxFileGenerator):
                          set_signals=signal_setters))
 
         self._CanRxUpdateRxTableWithMessage = Function(
-            'void %s_UpdateRxTableWithMessage(struct %sCanRxInterface* can_rx_interface, struct CanMsg* message)' % (self._receiver, function_prefix),
+            'void %s_UpdateRxTableWithMessage(struct %sCanRxInterface* can_rx_interface, struct CanMsg* message)' % (function_prefix, self._receiver),
             "Update the CAN RX table with the given CAN message.",
             '''\
     shared_assert(can_rx_interface != NULL);
