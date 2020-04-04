@@ -29,7 +29,7 @@ class DcmStateMachineTest : public testing::Test
 
         // Default to starting the state machine in the `init` state
         state_machine =
-            App_SharedStateMachine_Create(world, App_State_getInitState());
+            App_SharedStateMachine_Create(world, App_GetInitState());
 
         // Reset fake functions
         RESET_FAKE(send_non_periodic_msg_DCM_STARTUP);
@@ -71,7 +71,7 @@ TEST_F(
     DcmStateMachineTest,
     check_startup_message_is_broadcasted_on_init_state_entry)
 {
-    SetInitialState(App_State_getInitState());
+    SetInitialState(App_GetInitState());
 
     ASSERT_EQ(1, send_non_periodic_msg_DCM_STARTUP_fake.call_count);
 }
@@ -80,7 +80,7 @@ TEST_F(
     DcmStateMachineTest,
     check_init_immediately_transitions_to_run_on_first_tick)
 {
-    SetInitialState(App_State_getInitState());
+    SetInitialState(App_GetInitState());
 
     // We need to tick twice, once to run the `Init` state, and once more
     // to have the state machine transition to the `Run` state.
@@ -88,6 +88,6 @@ TEST_F(
     App_SharedStateMachine_Tick(state_machine);
 
     EXPECT_EQ(
-        App_State_getRunState(),
+        App_GetRunState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 }

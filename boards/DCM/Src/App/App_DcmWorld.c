@@ -1,7 +1,8 @@
 #include <stddef.h>
 #include <stdlib.h>
-
 #include "App_SharedAssert.h"
+
+#include "App_DcmWorld.h"
 
 struct DcmWorld
 {

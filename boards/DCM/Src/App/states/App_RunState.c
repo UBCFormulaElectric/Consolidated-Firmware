@@ -16,7 +16,7 @@ static void runStateRunOnExit(struct StateMachine *state_machine)
     UNUSED(state_machine);
 }
 
-const struct State *App_State_getRunState()
+const struct State *App_GetRunState()
 {
     static struct State run_state = {
         .name         = "RUN",

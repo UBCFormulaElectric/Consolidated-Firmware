@@ -16,6 +16,12 @@ static struct DCMCanTxInterface *_can_tx_interface = NULL;
 /** @brief The stack watermark threshold as a percentage of the stack size */
 #define STACK_HIGH_WATERMARK_THRESHOLD 0.7f
 
+void App_StackWaterMark_Init(struct DCMCanTxInterface *can_tx_interface)
+{
+    shared_assert(can_tx_interface != NULL);
+    _can_tx_interface = can_tx_interface;
+}
+
 static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
 {
     shared_assert(_can_tx_interface != NULL);
@@ -71,11 +77,6 @@ static struct stack_watermark stack_watermarks[] = {
         .log_error           = logWaterMarkAboveThresholdTaskCanTx,
     },
 };
-
-void App_StackWaterMark_Init(struct DCMCanTxInterface* can_tx_interface) {
-    shared_assert(can_tx_interface != NULL);
-    _can_tx_interface = can_tx_interface;
-}
 
 void App_StackWaterMark_Check(void)
 {

@@ -6,4 +6,4 @@
  * Get a pointer to the Run state.
  * @return A pointer to the Run state. THIS SHOULD NOT BE MODIFIED
  */
-const struct State *App_State_getRunState();
+const struct State *App_GetRunState();
