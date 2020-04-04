@@ -1,16 +1,15 @@
 #include "fff.h"
 #include "gtest/gtest.h"
 
-
 extern "C"
 {
 #include "App_BrakeLight.h"
 
-DEFINE_FFF_GLOBALS;
-FAKE_VALUE_FUNC(bool, is_brake_actuated);
-FAKE_VALUE_FUNC(bool, is_regen_active);
-FAKE_VOID_FUNC(turn_on_brake_light);
-FAKE_VOID_FUNC(turn_off_brake_light);
+    DEFINE_FFF_GLOBALS;
+    FAKE_VALUE_FUNC(bool, is_brake_actuated);
+    FAKE_VALUE_FUNC(bool, is_regen_active);
+    FAKE_VOID_FUNC(turn_on_brake_light);
+    FAKE_VOID_FUNC(turn_off_brake_light);
 }
 
 class BrakeLightTest : public testing::Test
