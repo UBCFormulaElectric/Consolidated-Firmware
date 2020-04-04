@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
+ * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
  * All rights reserved.</center></h2>
  *
  * This software component is licensed by ST under Ultimate Liberty license
@@ -25,7 +25,6 @@
 #include "task.h"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "Io_SharedHardFaultHandler.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -88,7 +87,7 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
     /* USER CODE BEGIN HardFault_IRQn 0 */
-    Io_SharedHardFaultHandler_HandleHardFault();
+
     /* USER CODE END HardFault_IRQn 0 */
     while (1)
     {
@@ -163,7 +162,7 @@ void DebugMon_Handler(void)
 /******************************************************************************/
 
 /**
- * @brief This function handles CAN TX and USB high priority interrupts.
+ * @brief This function handles USB high priority or CAN_TX interrupts.
  */
 void USB_HP_CAN_TX_IRQHandler(void)
 {
@@ -177,7 +176,7 @@ void USB_HP_CAN_TX_IRQHandler(void)
 }
 
 /**
- * @brief This function handles CAN RX0 and USB low priority interrupts.
+ * @brief This function handles USB low priority or CAN_RX0 interrupts.
  */
 void USB_LP_CAN_RX0_IRQHandler(void)
 {

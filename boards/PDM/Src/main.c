@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
+ * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
  * All rights reserved.</center></h2>
  *
  * This software component is licensed by ST under Ultimate Liberty license
@@ -261,9 +261,8 @@ void SystemClock_Config(void)
     {
         Error_Handler();
     }
-    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC1;
-    PeriphClkInit.Adc1ClockSelection   = RCC_ADC1PLLCLK_DIV1;
-
+    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC12;
+    PeriphClkInit.Adc12ClockSelection  = RCC_ADC12PLLCLK_DIV1;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
     {
         Error_Handler();
@@ -281,7 +280,8 @@ static void MX_ADC1_Init(void)
 
     /* USER CODE END ADC1_Init 0 */
 
-    ADC_ChannelConfTypeDef sConfig = { 0 };
+    ADC_MultiModeTypeDef   multimode = { 0 };
+    ADC_ChannelConfTypeDef sConfig   = { 0 };
 
     /* USER CODE BEGIN ADC1_Init 1 */
 
@@ -306,9 +306,16 @@ static void MX_ADC1_Init(void)
     {
         Error_Handler();
     }
+    /** Configure the ADC multi-mode
+     */
+    multimode.Mode = ADC_MODE_INDEPENDENT;
+    if (HAL_ADCEx_MultiModeConfigChannel(&hadc1, &multimode) != HAL_OK)
+    {
+        Error_Handler();
+    }
     /** Configure Regular Channel
      */
-    sConfig.Channel      = ADC_CHANNEL_11;
+    sConfig.Channel      = ADC_CHANNEL_2;
     sConfig.Rank         = ADC_REGULAR_RANK_1;
     sConfig.SingleDiff   = ADC_SINGLE_ENDED;
     sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
@@ -484,6 +491,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+    /*Configure GPIO pin : PF4 */
+    GPIO_InitStruct.Pin  = GPIO_PIN_4;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
+
     /*Configure GPIO pins : PA7 PA15 */
     GPIO_InitStruct.Pin  = GPIO_PIN_7 | GPIO_PIN_15;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
@@ -498,6 +511,14 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull  = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : PB0 PB1 PB11 PB4
+                             PB5 PB6 PB7 */
+    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_11 | GPIO_PIN_4 |
+                          GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PIN_AUX2_Pin PIN_AUX1_Pin */
     GPIO_InitStruct.Pin   = PIN_AUX2_Pin | PIN_AUX1_Pin;

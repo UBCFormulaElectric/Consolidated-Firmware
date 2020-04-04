@@ -1,8 +1,8 @@
 /**
   ******************************************************************************
-  * @file      startup_stm32f302x8.s
+  * @file      startup_stm32f302xc.s
   * @author    MCD Application Team
-  * @brief     STM32F302x6/STM32F302x8 devices vector table for GCC toolchain.
+  * @brief     STM32F302xB/STM32F302xC devices vector table for GCC toolchain.
   *            This module performs:
   *                - Set the initial SP
   *                - Set the initial PC == Reset_Handler,
@@ -175,7 +175,7 @@ g_pfnVectors:
 	.word	DMA1_Channel5_IRQHandler
 	.word	DMA1_Channel6_IRQHandler
 	.word	DMA1_Channel7_IRQHandler
-	.word	ADC1_IRQHandler
+	.word	ADC1_2_IRQHandler
 	.word	USB_HP_CAN_TX_IRQHandler
 	.word	USB_LP_CAN_RX0_IRQHandler
 	.word	CAN_RX1_IRQHandler
@@ -186,13 +186,13 @@ g_pfnVectors:
 	.word	TIM1_TRG_COM_TIM17_IRQHandler
 	.word	TIM1_CC_IRQHandler
 	.word	TIM2_IRQHandler
-	.word	0
-	.word	0
+	.word	TIM3_IRQHandler
+	.word	TIM4_IRQHandler
 	.word	I2C1_EV_IRQHandler
 	.word	I2C1_ER_IRQHandler
 	.word	I2C2_EV_IRQHandler
 	.word	I2C2_ER_IRQHandler
-	.word	0
+	.word	SPI1_IRQHandler
 	.word	SPI2_IRQHandler
 	.word	USART1_IRQHandler
 	.word	USART2_IRQHandler
@@ -209,19 +209,19 @@ g_pfnVectors:
 	.word	0
 	.word	0
 	.word	SPI3_IRQHandler
-	.word	0
-	.word	0
+	.word	UART4_IRQHandler
+	.word	UART5_IRQHandler
 	.word	TIM6_DAC_IRQHandler
 	.word	0
+	.word	DMA2_Channel1_IRQHandler
+	.word	DMA2_Channel2_IRQHandler
+	.word	DMA2_Channel3_IRQHandler
+	.word	DMA2_Channel4_IRQHandler
+	.word	DMA2_Channel5_IRQHandler
 	.word	0
 	.word	0
 	.word	0
-	.word	0
-	.word	0
-	.word	0
-	.word	0
-	.word	0
-	.word	COMP2_IRQHandler
+	.word	COMP1_2_IRQHandler
 	.word	COMP4_6_IRQHandler
 	.word	0
 	.word	0
@@ -229,8 +229,8 @@ g_pfnVectors:
 	.word	0
 	.word	0
 	.word	0
-	.word	I2C3_EV_IRQHandler
-	.word	I2C3_ER_IRQHandler
+	.word	0
+	.word	0
 	.word	USB_HP_IRQHandler
 	.word	USB_LP_IRQHandler
 	.word	USBWakeUp_RMP_IRQHandler
@@ -329,8 +329,8 @@ g_pfnVectors:
 	.weak	DMA1_Channel7_IRQHandler
 	.thumb_set DMA1_Channel7_IRQHandler,Default_Handler
 
-	.weak	ADC1_IRQHandler
-	.thumb_set ADC1_IRQHandler,Default_Handler
+	.weak	ADC1_2_IRQHandler
+	.thumb_set ADC1_2_IRQHandler,Default_Handler
 
 	.weak	USB_HP_CAN_TX_IRQHandler
 	.thumb_set USB_HP_CAN_TX_IRQHandler,Default_Handler
@@ -362,6 +362,12 @@ g_pfnVectors:
 	.weak	TIM2_IRQHandler
 	.thumb_set TIM2_IRQHandler,Default_Handler
 
+	.weak	TIM3_IRQHandler
+	.thumb_set TIM3_IRQHandler,Default_Handler
+
+	.weak	TIM4_IRQHandler
+	.thumb_set TIM4_IRQHandler,Default_Handler
+
 	.weak	I2C1_EV_IRQHandler
 	.thumb_set I2C1_EV_IRQHandler,Default_Handler
 
@@ -373,6 +379,9 @@ g_pfnVectors:
 
 	.weak	I2C2_ER_IRQHandler
 	.thumb_set I2C2_ER_IRQHandler,Default_Handler
+
+	.weak	SPI1_IRQHandler
+	.thumb_set SPI1_IRQHandler,Default_Handler
 
 	.weak	SPI2_IRQHandler
 	.thumb_set SPI2_IRQHandler,Default_Handler
@@ -398,20 +407,35 @@ g_pfnVectors:
 	.weak	SPI3_IRQHandler
 	.thumb_set SPI3_IRQHandler,Default_Handler
 
+	.weak	UART4_IRQHandler
+	.thumb_set UART4_IRQHandler,Default_Handler
+
+	.weak	UART5_IRQHandler
+	.thumb_set UART5_IRQHandler,Default_Handler
+
 	.weak	TIM6_DAC_IRQHandler
 	.thumb_set TIM6_DAC_IRQHandler,Default_Handler
+
+	.weak	DMA2_Channel1_IRQHandler
+	.thumb_set DMA2_Channel1_IRQHandler,Default_Handler
+
+	.weak	DMA2_Channel2_IRQHandler
+	.thumb_set DMA2_Channel2_IRQHandler,Default_Handler
+
+	.weak	DMA2_Channel3_IRQHandler
+	.thumb_set DMA2_Channel3_IRQHandler,Default_Handler
+
+	.weak	DMA2_Channel4_IRQHandler
+	.thumb_set DMA2_Channel4_IRQHandler,Default_Handler
+
+	.weak	DMA2_Channel5_IRQHandler
+	.thumb_set DMA2_Channel5_IRQHandler,Default_Handler
 	
-	.weak	COMP2_IRQHandler
-	.thumb_set COMP2_IRQHandler,Default_Handler
+	.weak	COMP1_2_IRQHandler
+	.thumb_set COMP1_2_IRQHandler,Default_Handler
 	
 	.weak	COMP4_6_IRQHandler
 	.thumb_set COMP4_6_IRQHandler,Default_Handler
-  
-	.weak	I2C3_EV_IRQHandler
-	.thumb_set I2C3_EV_IRQHandler,Default_Handler  
-	
-	.weak	I2C3_ER_IRQHandler
-	.thumb_set I2C3_ER_IRQHandler,Default_Handler	
 	
 	.weak	USB_HP_IRQHandler
 	.thumb_set USB_HP_IRQHandler,Default_Handler
