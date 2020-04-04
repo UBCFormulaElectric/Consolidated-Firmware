@@ -81,10 +81,10 @@ osThreadId          TaskCanTxHandle;
 uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
 osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
-struct World *       world;
-struct StateMachine *state_machine;
-struct DCMCanTxInterface* can_tx;
-struct DCMCanRxInterface* can_rx;
+struct DcmWorld *         world;
+struct StateMachine *     state_machine;
+struct DCMCanTxInterface *can_tx;
+struct DCMCanRxInterface *can_rx;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -112,16 +112,14 @@ static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
     shared_assert(can_tx != NULL);
 
-    App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(
-        can_tx, overflow_count);
+    App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
     shared_assert(can_tx != NULL);
 
-    App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(
-        can_tx, overflow_count);
+    App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
 }
 
 /* USER CODE END 0 */
@@ -141,7 +139,7 @@ int main(void)
         Io_CanTx_EnqueueNonPeriodicMsg_DCM_WATCHDOG_TIMEOUT);
 
     can_rx = App_CanRx_Create();
-    world                            = App_DcmWorld_Create(can_tx, can_rx);
+    world  = App_DcmWorld_Create(can_tx, can_rx);
 
     App_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
