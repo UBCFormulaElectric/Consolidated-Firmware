@@ -565,12 +565,6 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(OV_FAULT_MCU_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PB4 PB5 PB6 PB7 */
-    GPIO_InitStruct.Pin  = GPIO_PIN_4 | GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
     /*Configure GPIO pin : CHRG_FAULT_Pin */
     GPIO_InitStruct.Pin  = CHRG_FAULT_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
