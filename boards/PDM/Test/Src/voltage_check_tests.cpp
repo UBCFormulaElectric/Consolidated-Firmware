@@ -28,14 +28,17 @@ class VoltageCheckTest : public testing::Test
     virtual void TearDown() { App_VoltageCheck_Destroy(voltage_check); }
 
     struct VoltageCheck *voltage_check;
+
+    const float MIN_VOLTAGE = 5.0f;
+    const float MAX_VOLTAGE = 6.0f;
 };
 
 TEST_F(VoltageCheckTest, check_voltage_normal)
 {
-    get_voltage_fake.return_val = 5.5f;
+    get_voltage_fake.return_val = (MIN_VOLTAGE + MAX_VOLTAGE) / 2.0f;
 
-    get_min_voltage_fake.return_val = 5.0;
-    get_max_voltage_fake.return_val = 6.0;
+    get_min_voltage_fake.return_val = MIN_VOLTAGE;
+    get_max_voltage_fake.return_val = MAX_VOLTAGE;
 
     App_VoltageCheck_Tick(voltage_check);
 
@@ -44,10 +47,10 @@ TEST_F(VoltageCheckTest, check_voltage_normal)
 
 TEST_F(VoltageCheckTest, check_voltage_underflow)
 {
-    get_voltage_fake.return_val = 4.9f;
+    get_voltage_fake.return_val = MIN_VOLTAGE - 0.1f;
 
-    get_min_voltage_fake.return_val = 5.0f;
-    get_max_voltage_fake.return_val = 6.0f;
+    get_min_voltage_fake.return_val = MIN_VOLTAGE;
+    get_max_voltage_fake.return_val = MAX_VOLTAGE;
 
     App_VoltageCheck_Tick(voltage_check);
 
@@ -57,10 +60,10 @@ TEST_F(VoltageCheckTest, check_voltage_underflow)
 
 TEST_F(VoltageCheckTest, check_voltage_overflow)
 {
-    get_voltage_fake.return_val = 6.1f;
+    get_voltage_fake.return_val = MAX_VOLTAGE + 0.1f;
 
-    get_min_voltage_fake.return_val = 5.0f;
-    get_max_voltage_fake.return_val = 6.0f;
+    get_min_voltage_fake.return_val = MIN_VOLTAGE;
+    get_max_voltage_fake.return_val = MAX_VOLTAGE;
 
     App_VoltageCheck_Tick(voltage_check);
 
