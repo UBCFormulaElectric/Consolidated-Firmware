@@ -14,7 +14,7 @@ struct StateMachine
 
 struct StateMachine *App_SharedStateMachine_Create(
     struct World *world,
-    struct State *initial_state)
+    const struct State *initial_state)
 {
     struct StateMachine *state_machine = (struct StateMachine*)malloc(sizeof(struct StateMachine));
     shared_assert(state_machine != NULL);
@@ -40,7 +40,7 @@ struct State *
 
 void App_SharedStateMachine_SetNextState(
     struct StateMachine *state_machine,
-    struct State *       next_state)
+    const struct State *       next_state)
 {
     state_machine->next_state = next_state;
 }

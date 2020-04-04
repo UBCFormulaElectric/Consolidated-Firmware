@@ -30,7 +30,7 @@ struct State
  */
 struct StateMachine *App_SharedStateMachine_Create(
     struct World *world,
-    struct State *initial_state);
+    const struct State *initial_state);
 
 /**
  * Destroy the given state machine, freeing the memory associated with it
@@ -55,7 +55,7 @@ struct State *
  */
 void App_SharedStateMachine_SetNextState(
     struct StateMachine *state_machine,
-    struct State *       next_state);
+    const struct State *       next_state);
 
 // TODO: better jdoc here
 /**
