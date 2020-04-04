@@ -1,12 +1,16 @@
 #include <stm32f3xx_hal.h>
 #include <string.h>
-#include "auto_generated/App_CanTx.h"
 #include "Io_SoftwareWatchdog.h"
-#include "World/App_SharedWorld.h"
+#include "App_FsmWorld.h"
 #include "Io_SharedMacros.h"
+#include "App_SharedAssert.h"
 
 extern IWDG_HandleTypeDef hiwdg;
-extern struct World *     world;
+static struct FSMCanTxInterface *  _can_tx = NULL;
+
+void Io_SoftwareWatchdog_Init(struct FSMCanTxInterface* can_tx){
+    _can_tx = can_tx;
+}
 
 void Io_HardwareWatchdog_Refresh(void)
 {
@@ -17,8 +21,9 @@ void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
 {
     BREAK_IF_DEBUGGER_CONNECTED();
 
+    shared_assert(_can_tx != NULL);
     App_CanTx_SetPeriodicSignal_WATCHDOG_TIMEOUT(
-        App_SharedWorld_GetCanTx(world), true);
+        _can_tx, true);
 
     struct CanMsgs_fsm_watchdog_timeout_t payload;
     memcpy(
@@ -26,5 +31,5 @@ void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
         sizeof(payload.task_name));
 
     App_CanTx_SendNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT(
-        App_SharedWorld_GetCanTx(world), &payload);
+        _can_tx, &payload);
 }

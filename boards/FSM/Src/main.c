@@ -34,10 +34,11 @@
 #include "Io_SoftwareWatchdog.h"
 #include "Io_FlowMeter.h"
 
-#include "World/App_SharedWorld.h"
-#include "StateMachine/App_StateMachine.h"
 #include "App_SharedAssert.h"
 #include "App_FlowMeter.h"
+#include "App_FsmWorld.h"
+#include "App_SharedStateMachine.h"
+#include "states/App_InitState.h"
 
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/App_CanRx.h"
@@ -80,8 +81,11 @@ osThreadId          TaskCanTxHandle;
 uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
 osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
-struct FlowMeter *primary_flow_meter, *secondary_flow_meter;
+struct FlowMeter *primary_flow_meter;
 struct World *    world;
+struct StateMachine *state_machine;
+struct FSMCanTxInterface* can_tx;
+struct FSMCanRxInterface* can_rx;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -97,10 +101,30 @@ void        RunTaskCanTx(void const *argument);
 
 /* USER CODE BEGIN PFP */
 
+static void CanRxQueueOverflowCallBack(size_t overflow_count);
+static void CanTxQueueOverflowCallBack(size_t overflow_count);
+
 /* USER CODE END PFP */
+
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+static void CanRxQueueOverflowCallBack(size_t overflow_count)
+{
+    shared_assert(can_tx != NULL);
+
+    App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(
+        can_tx, overflow_count);
+}
+
+static void CanTxQueueOverflowCallBack(size_t overflow_count)
+{
+    shared_assert(can_tx != NULL);
+
+    App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(
+        can_tx, overflow_count);
+}
 
 /* USER CODE END 0 */
 
@@ -114,18 +138,22 @@ int main(void)
     __HAL_DBGMCU_FREEZE_IWDG();
     Io_SharedHardFaultHandler_Init();
 
-    static struct CanTxInterface *can_tx;
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_AIR_SHUTDOWN);
 
-    static struct CanRxInterface *can_rx;
     can_rx = App_CanRx_Create();
 
-    world = App_SharedWorld_Create(can_tx, can_rx);
+    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeter_GetPrimaryFlowRate);
 
-    App_StateMachine_Init();
+    world = App_FsmWorld_Create(can_tx, can_rx);
+
+    state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
+
+    App_StackWaterMark_Init(can_tx);
+    Io_SoftwareWatchdog_Init(can_tx);
+
     /* USER CODE END 1 */
 
     /* MCU
@@ -349,7 +377,8 @@ static void MX_CAN_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN CAN_Init 2 */
-    Io_SharedCan_Init(&hcan);
+    Io_SharedCan_Init(
+        &hcan, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
     /* USER CODE END CAN_Init 2 */
 }
 
@@ -469,7 +498,9 @@ void RunTask1Hz(void const *argument)
 
     for (;;)
     {
-        App_StateMachine_Tick();
+
+        App_SharedStateMachine_Tick(state_machine);
+
         App_StackWaterMark_Check();
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
@@ -499,7 +530,7 @@ void RunTask1kHz(void const *argument)
     for (;;)
     {
         Io_CanTx_EnqueuePeriodicMsgs(
-            App_SharedWorld_GetCanTx(world),
+            can_tx,
             osKernelSysTick() * portTICK_PERIOD_MS);
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
