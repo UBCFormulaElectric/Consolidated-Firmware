@@ -22,13 +22,22 @@ struct State
 /**
  * Create a state machine with the given world
  * @param world A world that will be used by the state machine for all of it's
- *              interactions with the external world.
+ *              interactions with the external world. The created state
+ *              machine will *not* take ownership of this world, and it must
+ *              be kept alive for the lifetime of the created state machine
  * @param initial_state The initial state to start the state machine in
  * @return A created state machine, or NULL if creation was unsuccessful
  */
 struct StateMachine *App_SharedStateMachine_Create(
     struct World *world,
     struct State *initial_state);
+
+/**
+ * Destroy the given state machine, freeing the memory associated with it
+ *
+ * @param state_machine The state machine to destroy
+ */
+void App_SharedStateMachine_Destroy(struct StateMachine* state_machine);
 
 /**
  * Get the currently running state in the given state machine

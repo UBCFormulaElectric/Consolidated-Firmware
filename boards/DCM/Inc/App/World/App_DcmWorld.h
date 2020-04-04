@@ -7,13 +7,22 @@ struct DcmWorld;
 
 /**
  * Allocate and initialize a world in the application layer
- * @param can_tx_interface: The CAN TX interface to register to the world
+ * @param can_tx_interface The CAN TX interface to register to the world. Note
+ *                         that this function does not take ownership of this
+ *                         interface, and so this interface must be kept alive
+ *                         for the lifetime of the created DCM world
  * @return A pointer to the created world, whose ownership is given to the
  * caller
  */
 struct DcmWorld *App_DcmWorld_Create(
     struct DCMCanTxInterface *can_tx_interface,
     struct DCMCanRxInterface *can_rx_interface);
+
+/**
+ * Destroys the given DCM world, freeing the memory associated with it
+ * @param dcm_world The DCM world to de
+ */
+void App_DcmWorld_Destroy(struct DcmWorld* dcm_world);
 
 /**
  * Get the CAN TX interface for the given world
