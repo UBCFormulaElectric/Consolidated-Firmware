@@ -19,6 +19,8 @@ class BrakeLightTest : public testing::Test
     {
         RESET_FAKE(is_brake_actuated);
         RESET_FAKE(is_regen_active);
+        RESET_FAKE(turn_on_brake_light);
+        RESET_FAKE(turn_off_brake_light);
 
         FFF_RESET_HISTORY();
 
@@ -40,6 +42,7 @@ TEST_F(
 
     App_BrakeLight_Tick(brake_light);
     ASSERT_EQ(App_BrakeLight_GetStatus(brake_light), BRAKE_LIGHT_OFF);
+    ASSERT_EQ(turn_off_brake_light_fake.call_count, 1);
 }
 
 TEST_F(BrakeLightTest, non_actuated_brake_and_active_regen_turns_on_brake_light)
@@ -49,6 +52,7 @@ TEST_F(BrakeLightTest, non_actuated_brake_and_active_regen_turns_on_brake_light)
 
     App_BrakeLight_Tick(brake_light);
     ASSERT_EQ(App_BrakeLight_GetStatus(brake_light), BRAKE_LIGHT_ON);
+    ASSERT_EQ(turn_on_brake_light_fake.call_count, 1);
 }
 
 TEST_F(BrakeLightTest, actuated_brake_and_inactive_regen_turns_on_brake_light)
@@ -58,6 +62,7 @@ TEST_F(BrakeLightTest, actuated_brake_and_inactive_regen_turns_on_brake_light)
 
     App_BrakeLight_Tick(brake_light);
     ASSERT_EQ(App_BrakeLight_GetStatus(brake_light), BRAKE_LIGHT_ON);
+    ASSERT_EQ(turn_on_brake_light_fake.call_count, 1);
 }
 
 TEST_F(BrakeLightTest, actuated_brake_and_active_regen_turns_on_brake_light)
@@ -67,4 +72,5 @@ TEST_F(BrakeLightTest, actuated_brake_and_active_regen_turns_on_brake_light)
 
     App_BrakeLight_Tick(brake_light);
     ASSERT_EQ(App_BrakeLight_GetStatus(brake_light), BRAKE_LIGHT_ON);
+    ASSERT_EQ(turn_on_brake_light_fake.call_count, 1);
 }
