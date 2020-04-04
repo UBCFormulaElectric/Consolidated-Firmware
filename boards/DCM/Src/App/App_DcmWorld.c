@@ -35,7 +35,7 @@ struct DCMCanTxInterface *App_DcmWorld_GetCanTx(struct DcmWorld *world)
     return world->can_tx_interface;
 }
 
-struct DCMCanRxInterface *App_SharedWorld_GetCanRx(struct DcmWorld *world)
+struct DCMCanRxInterface *App_DcmWorld_GetCanRx(struct DcmWorld *world)
 {
     shared_assert(world != NULL);
     return world->can_rx_interface;

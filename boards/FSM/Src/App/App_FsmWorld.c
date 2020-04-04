@@ -35,7 +35,7 @@ struct FSMCanTxInterface *App_FsmWorld_GetCanTx(struct FsmWorld *world)
     return world->can_tx_interface;
 }
 
-struct FSMCanRxInterface *App_SharedWorld_GetCanRx(struct FsmWorld *world)
+struct FSMCanRxInterface *App_FsmWorld_GetCanRx(struct FsmWorld *world)
 {
     shared_assert(world != NULL);
     return world->can_rx_interface;

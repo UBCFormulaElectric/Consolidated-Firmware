@@ -6,6 +6,9 @@
 
 struct DimWorld
 {
+    // Dummy pointer otherwise the compiler complains about having a
+    // struct with no pointers
+    void* dummy;
 };
 
 struct DimWorld *App_DimWorld_Create()

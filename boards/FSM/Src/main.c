@@ -552,8 +552,7 @@ void RunTaskCanRx(void const *argument)
     {
         struct CanMsg message;
         Io_SharedCan_DequeueCanRxMessage(&message);
-        Io_CanRx_UpdateRxTableWithMessage(
-            App_SharedWorld_GetCanRx(world), &message);
+        Io_CanRx_UpdateRxTableWithMessage(can_rx, &message);
     }
     /* USER CODE END RunTaskCanRx */
 }

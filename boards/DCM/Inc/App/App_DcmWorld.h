@@ -40,4 +40,4 @@ struct DCMCanTxInterface *App_DcmWorld_GetCanTx(struct DcmWorld *world);
  * @param world: The world to get CAN RX interface for
  * @return The CAN RX interface for the given world
  */
-struct DCMCanRxInterface *App_SharedWorld_GetCanRx(struct DcmWorld *world);
+struct DCMCanRxInterface *App_DcmWorld_GetCanRx(struct DcmWorld *world);

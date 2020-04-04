@@ -632,8 +632,7 @@ void RunTask1kHz(void const *argument)
     for (;;)
     {
         Io_CanTx_EnqueuePeriodicMsgs(
-            can_tx,
-            osKernelSysTick() * portTICK_PERIOD_MS);
+            can_tx, osKernelSysTick() * portTICK_PERIOD_MS);
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
@@ -658,8 +657,7 @@ void RunTaskCanRx(void const *argument)
     {
         struct CanMsg message;
         Io_SharedCan_DequeueCanRxMessage(&message);
-        Io_CanRx_UpdateRxTableWithMessage(
-            App_SharedWorld_GetCanRx(world), &message);
+        Io_CanRx_UpdateRxTableWithMessage(can_rx, &message);
     }
     /* USER CODE END RunTaskCanRx */
 }

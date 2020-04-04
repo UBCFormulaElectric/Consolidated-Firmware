@@ -35,7 +35,7 @@ struct PDMCanTxInterface *App_PdmWorld_GetCanTx(struct PdmWorld *world)
     return world->can_tx_interface;
 }
 
-struct PDMCanRxInterface *App_SharedWorld_GetCanRx(struct PdmWorld *world)
+struct PDMCanRxInterface *App_PdmWorld_GetCanRx(struct PdmWorld *world)
 {
     shared_assert(world != NULL);
     return world->can_rx_interface;

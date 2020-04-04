@@ -11,7 +11,7 @@ extern TaskHandle_t Task1kHzHandle;
 extern TaskHandle_t TaskCanRxHandle;
 extern TaskHandle_t TaskCanTxHandle;
 
-static struct PDMCanTxInterface* _can_tx_interface = NULL;
+static struct PDMCanTxInterface *_can_tx_interface = NULL;
 
 /** @brief The stack watermark threshold as a percentage of the stack size */
 #define STACK_HIGH_WATERMARK_THRESHOLD 0.7f

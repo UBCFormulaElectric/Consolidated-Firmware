@@ -40,4 +40,4 @@ struct PDMCanTxInterface *App_PdmWorld_GetCanTx(struct PdmWorld *world);
  * @param world: The world to get CAN RX interface for
  * @return The CAN RX interface for the given world
  */
-struct PDMCanRxInterface *App_SharedWorld_GetCanRx(struct PdmWorld *world);
+struct PDMCanRxInterface *App_PdmWorld_GetCanRx(struct PdmWorld *world);
