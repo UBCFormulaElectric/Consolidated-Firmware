@@ -231,10 +231,10 @@ static inline void Io_CanTxCompleteCallback(void)
     }
 }
 
-void Io_SharedCan_Init(CAN_HandleTypeDef *hcan,
-                       void (*tx_overflow_callback)(size_t),
-                       void (*rx_overflow_callback)(size_t)
-    )
+void Io_SharedCan_Init(
+    CAN_HandleTypeDef *hcan,
+    void (*tx_overflow_callback)(size_t),
+    void (*rx_overflow_callback)(size_t))
 {
     shared_assert(hcan != NULL);
     shared_assert(tx_overflow_callback != NULL);

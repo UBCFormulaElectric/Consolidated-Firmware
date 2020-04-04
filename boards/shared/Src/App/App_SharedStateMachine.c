@@ -7,7 +7,7 @@ struct StateMachine
 {
     const struct State *next_state;
     const struct State *current_state;
-    struct World *world;
+    struct World *      world;
 };
 
 struct StateMachine *App_SharedStateMachine_Create(
