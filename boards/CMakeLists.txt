@@ -265,6 +265,9 @@ function(compile_googletest_executables
                 ${ARM_BINARY_APP_INCLUDE_DIRS}
                 ${SHARED_APP_INCLUDE_DIRS}
                 )
+        set_target_properties(${TEST_EXECUTABLE_NAME} PROPERTIES COMPILE_FLAGS
+                "-Wall -Werror"
+                )
         target_link_libraries(${TEST_EXECUTABLE_NAME} gtest_main)
         add_test(NAME ${TEST_EXECUTABLE_NAME}
                 COMMAND ${TEST_EXECUTABLE_NAME})
