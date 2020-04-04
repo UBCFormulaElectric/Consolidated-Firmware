@@ -1,14 +1,14 @@
 #include "fff.h"
 #include "gtest/gtest.h"
 
-DEFINE_FFF_GLOBALS;
-FAKE_VALUE_FUNC(float, get_voltage);
-FAKE_VALUE_FUNC(float, get_min_voltage);
-FAKE_VALUE_FUNC(float, get_max_voltage);
-
 extern "C"
 {
 #include "App_VoltageCheck.h"
+
+    DEFINE_FFF_GLOBALS;
+    FAKE_VALUE_FUNC(float, get_voltage);
+    FAKE_VALUE_FUNC(float, get_min_voltage);
+    FAKE_VALUE_FUNC(float, get_max_voltage);
 }
 
 class VoltageCheckTest : public testing::Test
