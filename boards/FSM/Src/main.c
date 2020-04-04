@@ -81,11 +81,11 @@ osThreadId          TaskCanTxHandle;
 uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
 osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
-struct FlowMeter *primary_flow_meter;
-struct World *    world;
-struct StateMachine *state_machine;
-struct FSMCanTxInterface* can_tx;
-struct FSMCanRxInterface* can_rx;
+struct FlowMeter *        primary_flow_meter;
+struct World *            world;
+struct StateMachine *     state_machine;
+struct FSMCanTxInterface *can_tx;
+struct FSMCanRxInterface *can_rx;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -106,7 +106,6 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 
 /* USER CODE END PFP */
 
-
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
@@ -114,16 +113,14 @@ static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
     shared_assert(can_tx != NULL);
 
-    App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(
-        can_tx, overflow_count);
+    App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
     shared_assert(can_tx != NULL);
 
-    App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(
-        can_tx, overflow_count);
+    App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
 }
 
 /* USER CODE END 0 */
@@ -498,7 +495,6 @@ void RunTask1Hz(void const *argument)
 
     for (;;)
     {
-
         App_SharedStateMachine_Tick(state_machine);
 
         App_StackWaterMark_Check();
@@ -530,8 +526,7 @@ void RunTask1kHz(void const *argument)
     for (;;)
     {
         Io_CanTx_EnqueuePeriodicMsgs(
-            can_tx,
-            osKernelSysTick() * portTICK_PERIOD_MS);
+            can_tx, osKernelSysTick() * portTICK_PERIOD_MS);
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
