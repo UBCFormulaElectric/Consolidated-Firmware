@@ -57,7 +57,6 @@ void App_SharedStateMachine_SetNextState(
     struct StateMachine *state_machine,
     const struct State * next_state);
 
-// TODO: better jdoc here
 /**
  * Get the world from the given state machine
  * @param state_machine The state machine to get the world from

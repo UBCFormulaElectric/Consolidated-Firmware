@@ -22,16 +22,19 @@ struct DcmWorld *App_DcmWorld_Create(
     return world;
 }
 
-void App_DcmWorld_Destroy(struct DcmWorld *dcm_world)
+void App_DcmWorld_Destroy(struct DcmWorld *world)
 {
-    free(dcm_world);
+    shared_assert(world != NULL);
+    free(world);
 }
 
 struct DCMCanTxInterface *App_DcmWorld_GetCanTx(struct DcmWorld *world)
 {
+    shared_assert(world != NULL);
     return world->can_tx_interface;
 }
 
 struct DCMCanRxInterface *App_SharedWorld_GetCanRx(struct DcmWorld *world){
+    shared_assert(world != NULL);
     return world->can_rx_interface;
 }
