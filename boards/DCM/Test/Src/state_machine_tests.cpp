@@ -28,7 +28,12 @@ class DcmStateMachineTest : public testing::Test
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, getInitState());
+
+        // Reset fake functions
+        RESET_FAKE(send_non_periodic_msg_DCM_STARTUP);
+        RESET_FAKE(send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT);
     }
+
     virtual void SetInitialState(struct State* initial_state){
         assert(initial_state != NULL);
         if (state_machine != NULL){
@@ -37,6 +42,7 @@ class DcmStateMachineTest : public testing::Test
         state_machine = App_SharedStateMachine_Create(world, initial_state);
         EXPECT_NE(state_machine, NULL);
     }
+
     virtual void TearDown() {
         if (state_machine != NULL){
             App_SharedStateMachine_Destroy(state_machine);

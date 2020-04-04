@@ -15,6 +15,7 @@ struct DcmWorld *App_DcmWorld_Create(
     struct DCMCanRxInterface *can_rx_interface)
 {
     struct DcmWorld *world  = (struct DcmWorld*)malloc(sizeof(struct DcmWorld));
+    shared_assert(world != NULL);
 
     world->can_tx_interface = can_tx_interface;
     world->can_rx_interface = can_rx_interface;

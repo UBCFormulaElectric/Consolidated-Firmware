@@ -1,4 +1,5 @@
 #include "App_SharedStateMachine.h"
+#include "App_SharedAssert.h"
 
 // TODO: lots of checks that the `StateMachine` is never null....
 
@@ -16,6 +17,7 @@ struct StateMachine *App_SharedStateMachine_Create(
     struct State *initial_state)
 {
     struct StateMachine *state_machine = (struct StateMachine*)malloc(sizeof(struct StateMachine));
+    shared_assert(state_machine != NULL);
 
     state_machine->world = world;
 
