@@ -60,6 +60,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+ADC_HandleTypeDef hadc2;
 
 CAN_HandleTypeDef hcan;
 
@@ -91,6 +92,7 @@ static void MX_CAN_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_ADC2_Init(void);
 void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
 void        RunTaskCanRx(void const *argument);
@@ -152,6 +154,7 @@ int main(void)
     MX_ADC1_Init();
     MX_IWDG_Init();
     MX_TIM2_Init();
+    MX_ADC2_Init();
     /* USER CODE BEGIN 2 */
     Io_Imd_Init();
     imd = App_Imd_Create(
@@ -332,6 +335,59 @@ static void MX_ADC1_Init(void)
 }
 
 /**
+ * @brief ADC2 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_ADC2_Init(void)
+{
+    /* USER CODE BEGIN ADC2_Init 0 */
+
+    /* USER CODE END ADC2_Init 0 */
+
+    ADC_ChannelConfTypeDef sConfig = { 0 };
+
+    /* USER CODE BEGIN ADC2_Init 1 */
+
+    /* USER CODE END ADC2_Init 1 */
+    /** Common config
+     */
+    hadc2.Instance                   = ADC2;
+    hadc2.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV1;
+    hadc2.Init.Resolution            = ADC_RESOLUTION_12B;
+    hadc2.Init.ScanConvMode          = ADC_SCAN_DISABLE;
+    hadc2.Init.ContinuousConvMode    = DISABLE;
+    hadc2.Init.DiscontinuousConvMode = DISABLE;
+    hadc2.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
+    hadc2.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
+    hadc2.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
+    hadc2.Init.NbrOfConversion       = 1;
+    hadc2.Init.DMAContinuousRequests = DISABLE;
+    hadc2.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
+    hadc2.Init.LowPowerAutoWait      = DISABLE;
+    hadc2.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;
+    if (HAL_ADC_Init(&hadc2) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure Regular Channel
+     */
+    sConfig.Channel      = ADC_CHANNEL_3;
+    sConfig.Rank         = ADC_REGULAR_RANK_1;
+    sConfig.SingleDiff   = ADC_DIFFERENTIAL_ENDED;
+    sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+    sConfig.OffsetNumber = ADC_OFFSET_NONE;
+    sConfig.Offset       = 0;
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN ADC2_Init 2 */
+
+    /* USER CODE END ADC2_Init 2 */
+}
+
+/**
  * @brief CAN Initialization Function
  * @param None
  * @retval None
@@ -475,31 +531,58 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GPIOC, BRUSA_PON_Pin | TSAL_EN_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(
+        GPIOB,
+        PRE_CHARGE_EN_Pin | AIR_EN_Pin | BMS_OK_Pin | MCU_LATCH_RESET_Pin,
+        GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
         GPIOA, STATUS_R_Pin | STATUS_G_Pin | STATUS_B_Pin, GPIO_PIN_SET);
 
-    /*Configure GPIO pins : PC13 PC14 PC15 */
-    GPIO_InitStruct.Pin  = GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    /*Configure GPIO pin : IMD_OK_Pin */
+    GPIO_InitStruct.Pin  = IMD_OK_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(IMD_OK_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : BRUSA_PON_Pin TSAL_EN_Pin */
+    GPIO_InitStruct.Pin   = BRUSA_PON_Pin | TSAL_EN_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PA0 PA2 PA4 PA5
-                             PA6 PA7 PA11 PA12
-                             PA15 */
-    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_2 | GPIO_PIN_4 | GPIO_PIN_5 |
-                          GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_11 | GPIO_PIN_12 |
-                          GPIO_PIN_15;
+    /*Configure GPIO pin : PA0 */
+    GPIO_InitStruct.Pin  = GPIO_PIN_0;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PB0 PB1 PB2 PB10
-                             PB11 PB4 PB5 */
-    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_10 |
-                          GPIO_PIN_11 | GPIO_PIN_4 | GPIO_PIN_5;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    /*Configure GPIO pins : ACCEL_BRAKE_OK_Pin GPIO1_Pin GPIO2_Pin
+     * CHARGE_STATE_Pin */
+    GPIO_InitStruct.Pin =
+        ACCEL_BRAKE_OK_Pin | GPIO1_Pin | GPIO2_Pin | CHARGE_STATE_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : AIR_POWER_STATUS_Pin OC_SC_OK_Pin BSPD_OK_Pin */
+    GPIO_InitStruct.Pin  = AIR_POWER_STATUS_Pin | OC_SC_OK_Pin | BSPD_OK_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : PRE_CHARGE_EN_Pin AIR_EN_Pin BMS_OK_Pin
+     * MCU_LATCH_RESET_Pin */
+    GPIO_InitStruct.Pin =
+        PRE_CHARGE_EN_Pin | AIR_EN_Pin | BMS_OK_Pin | MCU_LATCH_RESET_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PB12 PB13 PB14 PB15 */
