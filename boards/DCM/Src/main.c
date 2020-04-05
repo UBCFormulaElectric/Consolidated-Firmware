@@ -63,8 +63,6 @@ ADC_HandleTypeDef hadc1;
 
 CAN_HandleTypeDef hcan;
 
-DAC_HandleTypeDef hdac;
-
 IWDG_HandleTypeDef hiwdg;
 
 osThreadId          Task1HzHandle;
@@ -88,7 +86,6 @@ void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_CAN_Init(void);
-static void MX_DAC_Init(void);
 static void MX_IWDG_Init(void);
 void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
@@ -149,7 +146,6 @@ int main(void)
     MX_GPIO_Init();
     MX_ADC1_Init();
     MX_CAN_Init();
-    MX_DAC_Init();
     MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
 
@@ -364,42 +360,6 @@ static void MX_CAN_Init(void)
 }
 
 /**
- * @brief DAC Initialization Function
- * @param None
- * @retval None
- */
-static void MX_DAC_Init(void)
-{
-    /* USER CODE BEGIN DAC_Init 0 */
-
-    /* USER CODE END DAC_Init 0 */
-
-    DAC_ChannelConfTypeDef sConfig = { 0 };
-
-    /* USER CODE BEGIN DAC_Init 1 */
-
-    /* USER CODE END DAC_Init 1 */
-    /** DAC Initialization
-     */
-    hdac.Instance = DAC;
-    if (HAL_DAC_Init(&hdac) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /** DAC channel OUT1 config
-     */
-    sConfig.DAC_Trigger      = DAC_TRIGGER_NONE;
-    sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
-    if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_1) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN DAC_Init 2 */
-
-    /* USER CODE END DAC_Init 2 */
-}
-
-/**
  * @brief IWDG Initialization Function
  * @param None
  * @retval None
@@ -444,78 +404,58 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
-        GPIOB,
-        INVERTER_L_RUN_Pin | INVERTER_R_RUN_Pin | BUZZER_EN_Pin |
-            BRAKE_LIGHT_EN_Pin,
-        GPIO_PIN_RESET);
+        GPIOA, RGB_RED_Pin | RGB_GREEN_Pin | RGB_BLUE_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
-        GPIOA, STATUS_R_Pin | STATUS_G_Pin | STATUS_B_Pin, GPIO_PIN_SET);
+        GPIOB,
+        BRAKE_LIGHT_EN_Pin | INVERTER_L_EN_Pin | INVERTER_R_EN_Pin |
+            BUZZER_EN_Pin,
+        GPIO_PIN_RESET);
 
-    /*Configure GPIO pin : PC13 */
-    GPIO_InitStruct.Pin  = GPIO_PIN_13;
+    /*Configure GPIO pins : PC13 PC14 PC15 */
+    GPIO_InitStruct.Pin  = GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : PA3 */
-    GPIO_InitStruct.Pin  = GPIO_PIN_3;
+    /*Configure GPIO pins : PA2 PA6 PA7 PA8
+                             PA9 PA10 PA15 */
+    GPIO_InitStruct.Pin = GPIO_PIN_2 | GPIO_PIN_6 | GPIO_PIN_7 | GPIO_PIN_8 |
+                          GPIO_PIN_9 | GPIO_PIN_10 | GPIO_PIN_15;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : UNUSED_GPIO1_Pin UNUSED_GPIO2_Pin UNUSED_GPIO3_Pin
-     */
-    GPIO_InitStruct.Pin =
-        UNUSED_GPIO1_Pin | UNUSED_GPIO2_Pin | UNUSED_GPIO3_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    /*Configure GPIO pins : RGB_RED_Pin RGB_GREEN_Pin RGB_BLUE_Pin */
+    GPIO_InitStruct.Pin   = RGB_RED_Pin | RGB_GREEN_Pin | RGB_BLUE_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : UNUSED_GPIO4_Pin UNUSED_GPIO5_Pin UNUSED_GPIO6_Pin
-     */
-    GPIO_InitStruct.Pin =
-        UNUSED_GPIO4_Pin | UNUSED_GPIO5_Pin | UNUSED_GPIO6_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    /*Configure GPIO pins : PB0 PB1 PB2 PB13
+                             PB14 PB15 PB8 */
+    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_13 |
+                          GPIO_PIN_14 | GPIO_PIN_15 | GPIO_PIN_8;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : INVERTER_L_RUN_Pin INVERTER_R_RUN_Pin BUZZER_EN_Pin
-     * BRAKE_LIGHT_EN_Pin */
-    GPIO_InitStruct.Pin = INVERTER_L_RUN_Pin | INVERTER_R_RUN_Pin |
-                          BUZZER_EN_Pin | BRAKE_LIGHT_EN_Pin;
+    /*Configure GPIO pins : BRAKE_LIGHT_EN_Pin INVERTER_L_EN_Pin
+     * INVERTER_R_EN_Pin BUZZER_EN_Pin */
+    GPIO_InitStruct.Pin = BRAKE_LIGHT_EN_Pin | INVERTER_L_EN_Pin |
+                          INVERTER_R_EN_Pin | BUZZER_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PB12 PB13 PB15 PB8
-                             PB9 */
-    GPIO_InitStruct.Pin =
-        GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_15 | GPIO_PIN_8 | GPIO_PIN_9;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    /*Configure GPIO pins : IMU_PIN_1_Pin IMU_PIN_2_Pin */
+    GPIO_InitStruct.Pin  = IMU_PIN_1_Pin | IMU_PIN_2_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : IMU_INT_Pin */
-    GPIO_InitStruct.Pin  = IMU_INT_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(IMU_INT_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : STATUS_R_Pin STATUS_G_Pin STATUS_B_Pin */
-    GPIO_InitStruct.Pin   = STATUS_R_Pin | STATUS_G_Pin | STATUS_B_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
-    GPIO_InitStruct.Pull  = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : BSPD_BRAKE_THRES_Pin */
-    GPIO_InitStruct.Pin  = BSPD_BRAKE_THRES_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(BSPD_BRAKE_THRES_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PB6 PB7 */
     GPIO_InitStruct.Pin       = GPIO_PIN_6 | GPIO_PIN_7;
