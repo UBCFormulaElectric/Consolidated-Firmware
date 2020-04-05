@@ -55,7 +55,7 @@ enum VoltageMonitor_Status App_VoltageMonitor_GetStatus(
     return voltage_monitor->status;
 }
 
-void App_VoltageMonitor_Destroy(struct VoltageMonitor *voltage_monitor)
+void App_VoltageMonitor_Destroy(struct VoltageMonitor *const voltage_monitor)
 {
     free(voltage_monitor);
 }
