@@ -32,16 +32,17 @@ struct BrakeLight *App_BrakeLight_Create(
  * @param brake_light The brake light to destroy
  */
 
-void App_BrakeLight_Destroy(struct BrakeLight *brake_light);
+void App_BrakeLight_Destroy(struct BrakeLight *const brake_light);
 /**
  * Update the status for the given brake light
  * @param brake_light The brake light to update for
  */
-void App_BrakeLight_Tick(struct BrakeLight *brake_light);
+void App_BrakeLight_Tick(struct BrakeLight *const brake_light);
 
 /**
  * Get the status for the given brake light
  * @param brake_light The brake light to get status for
  * @return The status for the given brake light
  */
-enum BrakeLight_Status App_BrakeLight_GetStatus(struct BrakeLight *brake_light);
+enum BrakeLight_Status
+    App_BrakeLight_GetStatus(const struct BrakeLight *const brake_light);

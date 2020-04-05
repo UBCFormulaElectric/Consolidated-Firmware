@@ -33,7 +33,12 @@ struct BrakeLight *App_BrakeLight_Create(
     return brake_light;
 }
 
-void App_BrakeLight_Tick(struct BrakeLight *brake_light)
+void App_BrakeLight_Destroy(struct BrakeLight *const brake_light)
+{
+    free(brake_light);
+}
+
+void App_BrakeLight_Tick(struct BrakeLight *const brake_light)
 {
     if (brake_light->is_brake_actuated() == true ||
         brake_light->is_regen_active() == true)
@@ -48,12 +53,8 @@ void App_BrakeLight_Tick(struct BrakeLight *brake_light)
     }
 }
 
-enum BrakeLight_Status App_BrakeLight_GetStatus(struct BrakeLight *brake_light)
+enum BrakeLight_Status
+    App_BrakeLight_GetStatus(const struct BrakeLight *const brake_light)
 {
     return brake_light->status;
-}
-
-void App_BrakeLight_Destroy(struct BrakeLight *brake_light)
-{
-    free(brake_light);
 }
