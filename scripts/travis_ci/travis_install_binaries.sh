@@ -14,7 +14,7 @@ if [ "$num_arguments" -ne 2 ]; then
     exit 2
 fi
 
-if [ "$RUN_BUILD" = "true" ] || [ "$RUN_TESTS" = "true" ] || [ "$RUN_CUBE_CODEGEN_CHECKS" = "true" ]; then
+if [ "$RUN_ARM_BUILD" = "true" ] || [ "$RUN_X86_TESTS" = "true" ] || [ "$RUN_CUBE_CODEGEN_CHECKS" = "true" ]; then
     INSTALL_DIR=$1
     CUBE_INSTALL_DIR=$2
     # Install binaries

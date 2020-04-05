@@ -7,7 +7,7 @@
  ******************************************************************************
  * @attention
  *
- * <h2><center>&copy; Copyright (c) 2019 STMicroelectronics.
+ * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
  * All rights reserved.</center></h2>
  *
  * This software component is licensed by ST under Ultimate Liberty license
@@ -95,16 +95,10 @@ extern "C"
 #define CSB_DI_L_DI_R_GPIO_Port GPIOC
 #define CSB_GLV_AIR_SHDN_Pin GPIO_PIN_5
 #define CSB_GLV_AIR_SHDN_GPIO_Port GPIOC
-#define IS_GLV_AIR_SHDN_Pin GPIO_PIN_0
-#define IS_GLV_AIR_SHDN_GPIO_Port GPIOB
-#define IS_AUX1_AUX2_Pin GPIO_PIN_1
-#define IS_AUX1_AUX2_GPIO_Port GPIOB
 #define PIN_AUX2_Pin GPIO_PIN_2
 #define PIN_AUX2_GPIO_Port GPIOB
 #define OBSOLETE_IS_AUX1_AUX2_Pin GPIO_PIN_10
 #define OBSOLETE_IS_AUX1_AUX2_GPIO_Port GPIOB
-#define IS_EM_PUMP_Pin GPIO_PIN_11
-#define IS_EM_PUMP_GPIO_Port GPIOB
 #define PIN_AUX1_Pin GPIO_PIN_12
 #define PIN_AUX1_GPIO_Port GPIOB
 #define SCK_Pin GPIO_PIN_13
