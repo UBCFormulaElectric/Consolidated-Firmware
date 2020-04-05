@@ -31,8 +31,8 @@ struct BrakeLight *App_BrakeLight_Create(
  * Destroy the given brake light
  * @param brake_light The brake light to destroy
  */
-
 void App_BrakeLight_Destroy(struct BrakeLight *const brake_light);
+
 /**
  * Update the status for the given brake light
  * @param brake_light The brake light to update for
