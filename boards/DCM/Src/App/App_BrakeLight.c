@@ -28,7 +28,7 @@ struct BrakeLight *App_BrakeLight_Create(
     brake_light->turn_off_brake_light = turn_off_brake_light;
 
     brake_light->turn_off_brake_light();
-    brake_light->status               = BRAKE_LIGHT_OFF;
+    brake_light->status = BRAKE_LIGHT_OFF;
 
     return brake_light;
 }
