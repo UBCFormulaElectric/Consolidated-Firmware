@@ -12,9 +12,9 @@ struct VoltageMonitor
 };
 
 struct VoltageMonitor *App_VoltageMonitor_Create(
-    float (*get_voltage)(void),
-    float (*get_min_voltage)(void),
-    float (*get_max_voltage)(void))
+    float (*const get_voltage)(void),
+    float (*const get_min_voltage)(void),
+    float (*const get_max_voltage)(void))
 {
     struct VoltageMonitor *voltage_monitor =
         malloc(sizeof(struct VoltageMonitor));
@@ -29,7 +29,7 @@ struct VoltageMonitor *App_VoltageMonitor_Create(
     return voltage_monitor;
 }
 
-void App_VoltageMonitor_Tick(struct VoltageMonitor *voltage_monitor)
+void App_VoltageMonitor_Tick(struct VoltageMonitor *const voltage_monitor)
 {
     const float voltage     = voltage_monitor->get_voltage();
     const float min_voltage = voltage_monitor->get_min_voltage();
@@ -49,8 +49,8 @@ void App_VoltageMonitor_Tick(struct VoltageMonitor *voltage_monitor)
     }
 }
 
-enum VoltageMonitor_Status
-    App_VoltageMonitor_GetStatus(struct VoltageMonitor *voltage_monitor)
+enum VoltageMonitor_Status App_VoltageMonitor_GetStatus(
+    const struct VoltageMonitor *const voltage_monitor)
 {
     return voltage_monitor->status;
 }
