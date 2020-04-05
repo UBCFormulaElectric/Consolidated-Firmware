@@ -69,6 +69,8 @@ CAN_HandleTypeDef hcan;
 
 IWDG_HandleTypeDef hiwdg;
 
+TIM_HandleTypeDef htim4;
+
 osThreadId          Task1HzHandle;
 uint32_t            Task1HzBuffer[TASK1HZ_STACK_SIZE];
 osStaticThreadDef_t Task1HzControlBlock;
@@ -95,6 +97,7 @@ static void MX_GPIO_Init(void);
 static void MX_CAN_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_ADC2_Init(void);
+static void MX_TIM4_Init(void);
 void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
 void        RunTaskCanRx(void const *argument);
@@ -173,8 +176,17 @@ int main(void)
     MX_CAN_Init();
     MX_IWDG_Init();
     MX_ADC2_Init();
+    MX_TIM4_Init();
     /* USER CODE BEGIN 2 */
-    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeter_GetPrimaryFlowRate);
+    Io_FlowMeter_Init();
+
+    primary_flow_meter = App_FlowMeter_Create(
+        Io_FlowMeter_GetPrimaryFlowRate,
+        App_CanTx_SetPeriodicSignal_PRIMARY_FLOW_METER_FLOW_RATE);
+
+    secondary_flow_meter = App_FlowMeter_Create(
+        Io_FlowMeter_GetSecondaryFlowRate,
+        App_CanTx_SetPeriodicSignal_SECONDARY_FLOW_METER_FLOW_RATE);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -405,6 +417,69 @@ static void MX_IWDG_Init(void)
 }
 
 /**
+ * @brief TIM4 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM4_Init(void)
+{
+    /* USER CODE BEGIN TIM4_Init 0 */
+
+    /* USER CODE END TIM4_Init 0 */
+
+    TIM_SlaveConfigTypeDef  sSlaveConfig  = { 0 };
+    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
+    TIM_IC_InitTypeDef      sConfigIC     = { 0 };
+
+    /* USER CODE BEGIN TIM4_Init 1 */
+
+    /* USER CODE END TIM4_Init 1 */
+    htim4.Instance               = TIM4;
+    htim4.Init.Prescaler         = TIMx_PRESCALER;
+    htim4.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim4.Init.Period            = TIMx_AUTO_RELOAD_REG;
+    htim4.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if (HAL_TIM_IC_Init(&htim4) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sSlaveConfig.SlaveMode       = TIM_SLAVEMODE_RESET;
+    sSlaveConfig.InputTrigger    = TIM_TS_TI1FP1;
+    sSlaveConfig.TriggerPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
+    sSlaveConfig.TriggerFilter   = 0;
+    if (HAL_TIM_SlaveConfigSynchronization(&htim4, &sSlaveConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigIC.ICPolarity  = TIM_INPUTCHANNELPOLARITY_RISING;
+    sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
+    sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
+    sConfigIC.ICFilter    = 0;
+    if (HAL_TIM_IC_ConfigChannel(&htim4, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if (HAL_TIM_IC_ConfigChannel(&htim4, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM4_Init 2 */
+
+    /* USER CODE END TIM4_Init 2 */
+}
+
+/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -433,11 +508,11 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pins : SECONDARY_APPS_A_Pin SECONDARY_APPS_B_Pin
        SECONDARY_APPS_Z_Pin SECONDARY_APPS_ALARM_Pin PRIMARY_APPS_A_Pin
-       PRIMARY_APPS_B_Pin PRIMARY_APPS_Z_Pin FLOW1_BUFF_Pin FLOW2_BUFF_Pin */
+       PRIMARY_APPS_B_Pin PRIMARY_APPS_Z_Pin */
     GPIO_InitStruct.Pin = SECONDARY_APPS_A_Pin | SECONDARY_APPS_B_Pin |
                           SECONDARY_APPS_Z_Pin | SECONDARY_APPS_ALARM_Pin |
                           PRIMARY_APPS_A_Pin | PRIMARY_APPS_B_Pin |
-                          PRIMARY_APPS_Z_Pin | FLOW1_BUFF_Pin | FLOW2_BUFF_Pin;
+                          PRIMARY_APPS_Z_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);

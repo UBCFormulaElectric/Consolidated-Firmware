@@ -3,9 +3,19 @@
 #include <stm32f3xx_hal.h>
 
 /**
+ * Initializes the primary and secondary flow meter
+ */
+void Io_FlowMeter_Init(void);
+
+/**
  * Get flow rate (L/min) from the primary flow meter
  */
 float Io_FlowMeter_GetPrimaryFlowRate(void);
+
+/**
+ * Get flow rate (L/min) from the secondary flow meter
+ */
+float Io_FlowMeter_GetSecondaryFlowRate(void);
 
 /**
  * Updates the frequency for the flow meter's PWM output. This

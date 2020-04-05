@@ -96,6 +96,10 @@ SG_ State : 0|8@1+ (1,0) [0|255] "" LOGGER
 
 BO_ 306 FSM_AIR_SHUTDOWN: 0 FSM
 
+BO_ 307 FSM_FLOW_METER: 8 FSM
+SG_ Primary_flow_meter_flow_rate : 0|32@1+ (1,0) [0|1] "" Vector__XXX
+SG_ Secondary_flow_meter_flow_rate : 32|32@1+ (1,0) [0|1] "" Vector__XXX
+
 BO_ 400 PDM_ERRORS: 8 PDM
 SG_ MISSING_HEARTBEAT : 0|1@1+ (1,0) [0|1] "" LOGGER
 SG_ BOOST_PGOOD_FAULT : 1|1@1+ (1,0) [0|1] "" LOGGER
