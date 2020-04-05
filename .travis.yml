@@ -44,8 +44,10 @@ script:
 
 matrix:
   include:
-    - name: "Build and Run Tests"
-      env: RUN_BUILD="true" RUN_TESTS="true"
+    - name: "Build ARM Executables"
+      env: RUN_ARM_BUILD="true"
+    - name: "Build and Run x86 Tests"
+      env: RUN_X86_TESTS="true"
     - name: "Check Formatting"
       env: RUN_FORMATTING_CHECKS="true"
     - name: "Check STM32CubeMX Code Generation"
