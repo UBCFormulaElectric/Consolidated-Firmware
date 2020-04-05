@@ -33,8 +33,8 @@ void App_SharedStateMachine_Destroy(struct StateMachine *state_machine)
     free(state_machine);
 }
 
-const struct State *
-    App_SharedStateMachine_GetCurrentState(struct StateMachine *state_machine)
+const struct State *App_SharedStateMachine_GetCurrentState(
+    const struct StateMachine *const state_machine)
 {
     shared_assert(state_machine != NULL);
     return state_machine->current_state;
@@ -48,8 +48,8 @@ void App_SharedStateMachine_SetNextState(
     state_machine->next_state = next_state;
 }
 
-struct World *
-    App_SharedStateMachine_GetWorld(struct StateMachine *state_machine)
+struct World *App_SharedStateMachine_GetWorld(
+    const struct StateMachine *const state_machine)
 {
     shared_assert(state_machine != NULL);
     return state_machine->world;

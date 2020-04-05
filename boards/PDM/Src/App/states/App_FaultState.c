@@ -1,6 +1,6 @@
 #include "states/App_FaultState.h"
 
-#include "unused.h"
+#include "App_SharedMacros.h"
 
 static void FaultStateRunOnEntry(struct StateMachine *state_machine)
 {

@@ -39,10 +39,7 @@ class DcmStateMachineTest : public testing::Test
     virtual void SetInitialState(const struct State *initial_state)
     {
         assert(initial_state != NULL);
-        if (state_machine != NULL)
-        {
-            App_SharedStateMachine_Destroy(state_machine);
-        }
+        App_SharedStateMachine_Destroy(state_machine);
         state_machine = App_SharedStateMachine_Create(world, initial_state);
         EXPECT_TRUE(state_machine);
     }

@@ -45,8 +45,8 @@ void App_SharedStateMachine_Destroy(struct StateMachine *state_machine);
  *                      from
  * @return The currently running state from the given state machine
  */
-const struct State *
-    App_SharedStateMachine_GetCurrentState(struct StateMachine *state_machine);
+const struct State *App_SharedStateMachine_GetCurrentState(
+    const struct StateMachine *state_machine);
 
 /**
  * Set the next state the state machine should go to
@@ -63,7 +63,7 @@ void App_SharedStateMachine_SetNextState(
  * @return The world from the given state machine
  */
 struct World *
-    App_SharedStateMachine_GetWorld(struct StateMachine *state_machine);
+    App_SharedStateMachine_GetWorld(const struct StateMachine *state_machine);
 
 /**
  * Tick the given state machine
