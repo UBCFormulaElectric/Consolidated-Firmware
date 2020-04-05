@@ -163,32 +163,6 @@ SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" Vector__XXX
 
 BO_ 130 DIM_STARTUP: 0 DIM
 
-CM_ BO_ 64 "This message contains a bit for each error that the FSM might throw";
-CM_ BO_ 66 "Indicates that we tried to transmit messages faster then we can send them, so our internal FIFO queue overflowed";
-CM_ BO_ 67 "Sent out by the FSM when it starts up";
-CM_ BO_ 97 "TODO: descriptive comment";
-CM_ BO_ 98 "Indicates that we tried to transmit messages faster then we can send them, so our internal FIFO queue overflowed";
-CM_ BO_ 102 "This message indicates the current being drawn by the auxiliary 1 and 2 outputs";
-CM_ SG_ 102 Auxiliary1_Current "This variable indicates the current being drawn by the auxiliary 1 output";
-CM_ SG_ 102 Auxiliary2_Current "This variable indicates the current being drawn by the auxiliary 2 output";
-CM_ BO_ 103 "This message indicates the current being drawn by the cooling pump and PDM enclosure fan";
-CM_ SG_ 103 Cooling_Pump_Current "This variable indicates the current being drawn by the cooling pump";
-CM_ SG_ 103 PDM_Enclosure_Fan_Current "This variable indicates the current being drawn by the fan on the PDM enclosure";
-CM_ BO_ 104 "This message indicates the current being drawn by the AIR shutdown circuit and the 12V Grounded-Low-Voltage (GLV) system";
-CM_ SG_ 104 AIR_Shutdown_Current "This variable indicates the current being drawn by the AIR shutdown circuit";
-CM_ SG_ 104 Grounded_Low_Voltage_Current "This variable indicates the current being drawn by the 12V Grounded-Low-Voltage (GLV) system";
-CM_ BO_ 105 "This message indicates the current being drawn by the fans on the accumulator";
-CM_ SG_ 105 Accumulator_Segment_Fan_Current "This variable indicates the current being drawn by the fans on the accumulator segments";
-CM_ SG_ 105 Accumulator_Enc_Fan_Current "This variable indicates the current being drawn by the fans on the accumulator enclosure";
-CM_ BO_ 106 "This message indicates the current being drawn by the left and right BAMOCAR D3 controller";
-CM_ SG_ 106 Left_Inverter_GPIOs_Current "This variable indicates the current being drawn by the left BAMOCAR D3 controller";
-CM_ SG_ 106 Right_Inverter_GPIOs_Current "This variable indicates the current being drawn by the right BAMOCAR D3 controller";
-CM_ BO_ 107 "This message indicates the voltage sense for the 12V Grounded Low Voltage (GLV) system and the two on-board 18650s";
-CM_ SG_ 107 GLV "This variable indicates the voltage sense for the 12V powering the Grounded Low Voltage (GLV) system";
-CM_ SG_ 107 VBAT "This variable indicates the the voltage sense for the two on-board 18650s";
-CM_ BO_ 108 "The message indicates the voltage sense for the Vicor 12V output";
-CM_ SG_ 108 FLYWIRE "The variable indicates the voltage sense for the Vicor 12V output";
-
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
 
