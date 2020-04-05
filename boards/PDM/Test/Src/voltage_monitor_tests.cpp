@@ -16,14 +16,14 @@ class VoltageMonitorTest : public testing::Test
   protected:
     virtual void SetUp()
     {
+        voltage_monitor = App_VoltageMonitor_Create(
+            get_voltage, get_min_voltage, get_max_voltage);
+
         RESET_FAKE(get_voltage);
         RESET_FAKE(get_min_voltage);
         RESET_FAKE(get_max_voltage);
 
         FFF_RESET_HISTORY();
-
-        voltage_monitor = App_VoltageMonitor_Create(
-            get_voltage, get_min_voltage, get_max_voltage);
     }
     virtual void TearDown() { App_VoltageMonitor_Destroy(voltage_monitor); }
 
