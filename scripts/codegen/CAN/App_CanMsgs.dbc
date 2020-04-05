@@ -162,9 +162,11 @@ BO_ 502 DIM_STARTUP: 0 DIM
 
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
+BA_DEF_ SG_  "GenSigStartValue" INT 0 2147483647;
 
 BA_DEF_DEF_  "BusType" "CAN";
 BA_DEF_DEF_  "GenMsgCycleTime" 0;
+BA_DEF_DEF_  "GenSigStartValue" 0;
 
 BA_ "BusType" "CAN";
 
@@ -195,6 +197,8 @@ BA_ "GenMsgCycleTime" BO_ 413 10;
 BA_ "GenMsgCycleTime" BO_ 500 300;
 BA_ "GenMsgCycleTime" BO_ 501 5000;
 
+BA_ "GenSigStartValue" SG_ 2  tx_overflow_count 0;
+BA_ "GenSigStartValue" SG_ 2  rx_overflow_count 0;
 
 SIG_VALTYPE_ 106 Duty_Cycle : 1;
 SIG_VALTYPE_ 106 Frequency : 1;
@@ -210,7 +214,6 @@ SIG_VALTYPE_ 410 Left_Inverter_GPIOs_Current : 1;
 SIG_VALTYPE_ 410 Right_Inverter_GPIOs_Current : 1;
 SIG_VALTYPE_ 411 GLV : 1;
 SIG_VALTYPE_ 411 VBAT : 1;
-SIG_VALTYPE_ 108 FLYWIRE : 1;
 
 VAL_ 105 Condition 0 "IMD_SHORT_CIRCUIT" 1 "IMD_NORMAL" 2 "IMD_UNDERVOLTAGE_DETECTED" 3 "IMD_SST" 4 "IMD_DEVICE_ERROR" 5 "IMD_EARTH_FAULT" 6 "IMD_INVALID";
 VAL_ 107 State 0 "INIT" 1 "CHARGE" 2 "DRIVE" 3 "FAULT";
