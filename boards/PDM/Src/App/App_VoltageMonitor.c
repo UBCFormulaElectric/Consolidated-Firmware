@@ -24,7 +24,7 @@ struct VoltageMonitor *App_VoltageMonitor_Create(
     voltage_monitor->get_voltage     = get_voltage;
     voltage_monitor->get_min_voltage = get_min_voltage;
     voltage_monitor->get_max_voltage = get_max_voltage;
-    voltage_monitor->status          = VOLTAGEMONITOR_NORMAL;
+    voltage_monitor->status          = VOLTAGEMONITOR_IN_RANGE;
 
     return voltage_monitor;
 }
@@ -45,7 +45,7 @@ void App_VoltageMonitor_Tick(struct VoltageMonitor *voltage_monitor)
     }
     else
     {
-        voltage_monitor->status = VOLTAGEMONITOR_NORMAL;
+        voltage_monitor->status = VOLTAGEMONITOR_IN_RANGE;
     }
 }
 
