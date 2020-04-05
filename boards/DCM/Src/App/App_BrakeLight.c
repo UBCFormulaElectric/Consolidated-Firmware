@@ -13,10 +13,10 @@ struct BrakeLight
 };
 
 struct BrakeLight *App_BrakeLight_Create(
-    bool (*is_brake_actuated)(void),
-    bool (*is_regen_active)(void),
-    void (*turn_on_brake_light)(void),
-    void (*turn_off_brake_light)(void))
+    bool (*const is_brake_actuated)(void),
+    bool (*const is_regen_active)(void),
+    void (*const turn_on_brake_light)(void),
+    void (*const turn_off_brake_light)(void))
 {
     struct BrakeLight *brake_light = malloc(sizeof(struct BrakeLight));
 

@@ -10,10 +10,10 @@ enum BrakeLight_Status
 
 // TODO: Fill in javadoc once the review looks good
 struct BrakeLight *App_BrakeLight_Create(
-    bool (*is_brake_actuated)(void),
-    bool (*is_regen_active)(void),
-    void (*turn_on_brake_light)(void),
-    void (*turn_off_brake_light)(void));
+    bool (*const is_brake_actuated)(void),
+    bool (*const is_regen_active)(void),
+    void (*const turn_on_brake_light)(void),
+    void (*const turn_off_brake_light)(void));
 
 // TODO: Fill in javadoc once the review looks good
 void App_BrakeLight_Tick(struct BrakeLight *brake_light);
