@@ -87,6 +87,10 @@ extern "C"
 #define INVERTER_L_EN_GPIO_Port GPIOB
 #define INVERTER_R_EN_Pin GPIO_PIN_12
 #define INVERTER_R_EN_GPIO_Port GPIOB
+#define IMU_PIN_1_Pin GPIO_PIN_4
+#define IMU_PIN_1_GPIO_Port GPIOB
+#define IMU_PIN_2_Pin GPIO_PIN_5
+#define IMU_PIN_2_GPIO_Port GPIOB
 #define BUZZER_EN_Pin GPIO_PIN_9
 #define BUZZER_EN_GPIO_Port GPIOB
     /* USER CODE BEGIN Private defines */
