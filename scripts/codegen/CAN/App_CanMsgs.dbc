@@ -154,14 +154,14 @@ SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" Vector__XXX
 BO_ 414 PDM_STATE_MACHINE : 1 PDM
 SG_ State : 0|8@1+ (1,0) [0|255] "" Vector__XXX
 
-BO_ 128 DIM_HEARTBEAT: 1 DIM
+BO_ 500 DIM_HEARTBEAT: 1 DIM
 SG_ DUMMY_VARIABLE : 0|1@1+ (1,0) [0|1] "" FSM,DCM,PDM,BMS
 
-BO_ 129 DIM_CAN_FIFO_OVERFLOW: 8 DIM
+BO_ 501 DIM_CAN_FIFO_OVERFLOW: 8 DIM
 SG_ tx_overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
 SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" Vector__XXX
 
-BO_ 130 DIM_STARTUP: 0 DIM
+BO_ 502 DIM_STARTUP: 0 DIM
 
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
@@ -196,8 +196,8 @@ BA_ "GenMsgCycleTime" BO_ 410 1000;
 BA_ "GenMsgCycleTime" BO_ 411 1000;
 BA_ "GenMsgCycleTime" BO_ 412 1000;
 BA_ "GenMsgCycleTime" BO_ 414 10;
-BA_ "GenMsgCycleTime" BO_ 128 300;
-BA_ "GenMsgCycleTime" BO_ 129 5000;
+BA_ "GenMsgCycleTime" BO_ 500 300;
+BA_ "GenMsgCycleTime" BO_ 501 5000;
 
 
 SIG_VALTYPE_ 7 Duty_Cycle : 1;
