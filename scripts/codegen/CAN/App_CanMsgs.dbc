@@ -5,115 +5,115 @@ NS_ :
 
 BS_:
 
-BU_: Vector__XXX
+BU_: LOGGER BMS DCM FSM PDM DIM
 
 BO_ 100 BMS_HEARTBEAT: 1 BMS
 SG_ DUMMY_VARIABLE : 0|1@1+ (1,0) [0|1] "" FSM,DCM,PDM,DIM
 
 BO_ 101 BMS_CAN_FIFO_OVERFLOW: 8 BMS
-SG_ tx_overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
-SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" Vector__XXX
+SG_ tx_overflow_count : 0|32@1+ (1,0) [0|1] "" LOGGER
+SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" LOGGER
 
 BO_ 102 BMS_STARTUP: 0 BMS
 
 BO_ 103 BMS_WATCHDOG_TIMEOUT : 8 BMS
-SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" Vector__XXX
+SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" LOGGER
 
 BO_ 104 BMS_ERRORS: 8 BMS
-SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 0|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 1|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 2|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 3|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ WATCHDOG_TIMEOUT : 4|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 0|1@1+ (1,0) [0|1] "" LOGGER
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 1|1@1+ (1,0) [0|1] "" LOGGER
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 2|1@1+ (1,0) [0|1] "" LOGGER
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 3|1@1+ (1,0) [0|1] "" LOGGER
+SG_ WATCHDOG_TIMEOUT : 4|1@1+ (1,0) [0|1] "" LOGGER
 
 BO_ 105 BMS_IMD: 8 BMS
-SG_ Condition M : 0|3@1+ (1,0) [0|1] "" Vector__XXX
-SG_ Seconds_Since_Power_On : 3|8@1+ (1,0) [0|1] "Seconds" Vector__XXX
-SG_ Valid_Duty_Cycle : 11|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ Dummy_0Hz m0 : 12|8@1+ (1,0) [0|1] "" Vector__XXX
-SG_ Insulation_Measurement_DCP_10Hz m1 : 12|16@1+ (1,0) [0|1] "kOhm" Vector__XXX
-SG_ Insulation_Measurement_DCP_20Hz m2 : 12|16@1+ (1,0) [0|1] "kOhm" Vector__XXX
-SG_ Speed_Start_Status_30Hz m3 : 12|16@1+ (1,0) [0|1] "" Vector__XXX
-SG_ Dummy_40Hz m4 : 12|8@1+ (1,0) [0|1] "" Vector__XXX
-SG_ Dummy_50Hz m5 : 12|8@1+ (1,0) [0|1] "" Vector__XXX
-SG_ Dummy_Invalid m6 : 12|8@1+ (1,0) [0|1] "" Vector__XXX
+SG_ Condition M : 0|3@1+ (1,0) [0|1] "" LOGGER
+SG_ Seconds_Since_Power_On : 3|8@1+ (1,0) [0|1] "Seconds" LOGGER
+SG_ Valid_Duty_Cycle : 11|1@1+ (1,0) [0|1] "" LOGGER
+SG_ Dummy_0Hz m0 : 12|8@1+ (1,0) [0|1] "" LOGGER
+SG_ Insulation_Measurement_DCP_10Hz m1 : 12|16@1+ (1,0) [0|1] "kOhm" LOGGER
+SG_ Insulation_Measurement_DCP_20Hz m2 : 12|16@1+ (1,0) [0|1] "kOhm" LOGGER
+SG_ Speed_Start_Status_30Hz m3 : 12|16@1+ (1,0) [0|1] "" LOGGER
+SG_ Dummy_40Hz m4 : 12|8@1+ (1,0) [0|1] "" LOGGER
+SG_ Dummy_50Hz m5 : 12|8@1+ (1,0) [0|1] "" LOGGER
+SG_ Dummy_Invalid m6 : 12|8@1+ (1,0) [0|1] "" LOGGER
 
 BO_ 106 BMS_IMD_PWM_OUTPUT : 8 BMS
-SG_ Duty_Cycle : 0|32@1- (1,0) [-3.4E038|3.4E038] "%" Vector__XXX
-SG_ Frequency : 32|32@1- (1,0) [-3.4E038|3.4E038] "Hz" Vector__XXX
+SG_ Duty_Cycle : 0|32@1- (1,0) [-3.4E038|3.4E038] "%" LOGGER
+SG_ Frequency : 32|32@1- (1,0) [-3.4E038|3.4E038] "Hz" LOGGER
 
 BO_ 107 BMS_STATE_MACHINE : 1 BMS
-SG_ State : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+SG_ State : 0|8@1+ (1,0) [0|255] "" LOGGER
 
 BO_ 200 DCM_HEARTBEAT: 1 DCM
 SG_ DUMMY_VARIABLE : 0|1@1+ (1,0) [0|1] "" BMS
 
 BO_ 201 DCM_CAN_FIFO_OVERFLOW: 8 DCM
-SG_ tx_overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
-SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" Vector__XXX
+SG_ tx_overflow_count : 0|32@1+ (1,0) [0|1] "" LOGGER
+SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" LOGGER
 
 BO_ 202 DCM_STARTUP: 0 DCM
 
 BO_ 203 DCM_WATCHDOG_TIMEOUT : 8 DCM
-SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" Vector__XXX
+SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" LOGGER
 
 BO_ 204 DCM_ERRORS: 8 DCM
-SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 0|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 1|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 2|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 3|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ WATCHDOG_TIMEOUT : 4|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 0|1@1+ (1,0) [0|1] "" LOGGER
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 1|1@1+ (1,0) [0|1] "" LOGGER
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 2|1@1+ (1,0) [0|1] "" LOGGER
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 3|1@1+ (1,0) [0|1] "" LOGGER
+SG_ WATCHDOG_TIMEOUT : 4|1@1+ (1,0) [0|1] "" LOGGER
 
 BO_ 205 DCM_STATE_MACHINE : 1 DCM
-SG_ State : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+SG_ State : 0|8@1+ (1,0) [0|255] "" LOGGER
 
 BO_ 300 FSM_ERRORS: 8 FSM
-SG_ papps_out_of_range : 0|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ sapps_out_of_range : 1|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 2|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 3|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 4|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 5|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ WATCHDOG_TIMEOUT : 6|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ papps_out_of_range : 0|1@1+ (1,0) [0|1] "" LOGGER
+SG_ sapps_out_of_range : 1|1@1+ (1,0) [0|1] "" LOGGER
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 2|1@1+ (1,0) [0|1] "" LOGGER
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 3|1@1+ (1,0) [0|1] "" LOGGER
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 4|1@1+ (1,0) [0|1] "" LOGGER
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 5|1@1+ (1,0) [0|1] "" LOGGER
+SG_ WATCHDOG_TIMEOUT : 6|1@1+ (1,0) [0|1] "" LOGGER
 
 BO_ 301 FSM_HEARTBEAT: 1 FSM
 SG_ DUMMY_VARIABLE : 0|1@1+ (1,0) [0|1] "" BMS
 
 BO_ 302 FSM_CAN_FIFO_OVERFLOW: 8 FSM
-SG_ tx_overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
-SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" Vector__XXX
+SG_ tx_overflow_count : 0|32@1+ (1,0) [0|1] "" LOGGER
+SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" LOGGER
 
 BO_ 303 FSM_STARTUP: 0 FSM
 
 BO_ 304 FSM_WATCHDOG_TIMEOUT : 8 FSM
-SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" Vector__XXX
+SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" LOGGER
 
 BO_ 305 FSM_STATE_MACHINE : 1 FSM
-SG_ State : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+SG_ State : 0|8@1+ (1,0) [0|255] "" LOGGER
 
 BO_ 306 FSM_AIR_SHUTDOWN: 0 FSM
 
 BO_ 400 PDM_ERRORS: 8 PDM
-SG_ MISSING_HEARTBEAT : 0|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ BOOST_PGOOD_FAULT : 1|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ CELL_BALANCE_OVERVOLTAGE_FAULT : 2|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ CHARGER_FAULT : 3|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ EFUSE_FAULT : 4|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ _12V_FAULT_UNDER_VOLTAGE : 5|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ _12V_FAULT_OVER_VOLTAGE : 6|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ VBAT_FAULT : 7|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 8|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 9|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 10|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 11|1@1+ (1,0) [0|1] "" Vector__XXX
-SG_ WATCHDOG_TIMEOUT : 12|1@1+ (1,0) [0|1] "" Vector__XXX
+SG_ MISSING_HEARTBEAT : 0|1@1+ (1,0) [0|1] "" LOGGER
+SG_ BOOST_PGOOD_FAULT : 1|1@1+ (1,0) [0|1] "" LOGGER
+SG_ CELL_BALANCE_OVERVOLTAGE_FAULT : 2|1@1+ (1,0) [0|1] "" LOGGER
+SG_ CHARGER_FAULT : 3|1@1+ (1,0) [0|1] "" LOGGER
+SG_ EFUSE_FAULT : 4|1@1+ (1,0) [0|1] "" LOGGER
+SG_ _12V_FAULT_UNDER_VOLTAGE : 5|1@1+ (1,0) [0|1] "" LOGGER
+SG_ _12V_FAULT_OVER_VOLTAGE : 6|1@1+ (1,0) [0|1] "" LOGGER
+SG_ VBAT_FAULT : 7|1@1+ (1,0) [0|1] "" LOGGER
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 8|1@1+ (1,0) [0|1] "" LOGGER
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 9|1@1+ (1,0) [0|1] "" LOGGER
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 10|1@1+ (1,0) [0|1] "" LOGGER
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 11|1@1+ (1,0) [0|1] "" LOGGER
+SG_ WATCHDOG_TIMEOUT : 12|1@1+ (1,0) [0|1] "" LOGGER
 
 BO_ 401 PDM_HEARTBEAT: 1 PDM
 SG_ DUMMY_VARIABLE : 0|1@1+ (1,0) [0|1] "" BMS
 
 BO_ 402 PDM_CAN_FIFO_OVERFLOW: 8 PDM
-SG_ tx_overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
-SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" Vector__XXX
+SG_ tx_overflow_count : 0|32@1+ (1,0) [0|1] "" LOGGER
+SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" LOGGER
 
 BO_ 403 PDM_STARTUP: 0 PDM
 
@@ -122,41 +122,41 @@ BO_ 404 PDM_AIR_SHUTDOWN: 0 PDM
 BO_ 405 PDM_MOTOR_SHUTDOWN: 0 PDM
 
 BO_ 406 PDM_AUX1_AUX2_CURRENT: 8 PDM
-SG_ Auxiliary1_Current : 0|32@1- (1,0) [-3.4E038|3.4E038] "A" Vector__XXX
-SG_ Auxiliary2_Current : 32|32@1- (1,0) [-3.4E038|3.4E038] "A" Vector__XXX
+SG_ Auxiliary1_Current : 0|32@1- (1,0) [-3.4E038|3.4E038] "A" LOGGER
+SG_ Auxiliary2_Current : 32|32@1- (1,0) [-3.4E038|3.4E038] "A" LOGGER
 
 BO_ 407 PDM_COOLING_PDMFAN_CURRENT: 8 PDM
-SG_ Cooling_Pump_Current : 0|32@1- (1,0) [-3.4E038|3.4E038] "A" Vector__XXX
-SG_ PDM_Enclosure_Fan_Current : 32|32@1- (1,0) [-3.4E038|3.4E038] "A" Vector__XXX
+SG_ Cooling_Pump_Current : 0|32@1- (1,0) [-3.4E038|3.4E038] "A" LOGGER
+SG_ PDM_Enclosure_Fan_Current : 32|32@1- (1,0) [-3.4E038|3.4E038] "A" LOGGER
 
 BO_ 408 PDM_AIRSHDN_CANGLV_CURRENT: 8 PDM
-SG_ AIR_Shutdown_Current : 0|32@1- (1,0) [-3.4E038|3.4E038] "A" Vector__XXX
-SG_ Grounded_Low_Voltage_Current : 32|32@1- (1,0) [-3.4E038|3.4E038] "A" Vector__XXX
+SG_ AIR_Shutdown_Current : 0|32@1- (1,0) [-3.4E038|3.4E038] "A" LOGGER
+SG_ Grounded_Low_Voltage_Current : 32|32@1- (1,0) [-3.4E038|3.4E038] "A" LOGGER
 
 BO_ 409 PDM_ACCUMULATOR_FAN_CURRENT: 8 PDM
-SG_ Accumulator_Segment_Fan_Current : 0|32@1- (1,0) [-3.4E038|3.4E038] "A" Vector__XXX
-SG_ Accumulator_Enc_Fan_Current : 32|32@1- (1,0) [-3.4E038|3.4E038] "A" Vector__XXX
+SG_ Accumulator_Segment_Fan_Current : 0|32@1- (1,0) [-3.4E038|3.4E038] "A" LOGGER
+SG_ Accumulator_Enc_Fan_Current : 32|32@1- (1,0) [-3.4E038|3.4E038] "A" LOGGER
 
 BO_ 410 PDM_INVERTER_IO_CURRENT: 8 PDM
-SG_ Left_Inverter_GPIOs_Current : 0|32@1- (1,0) [-3.4E038|3.4E038] "A" Vector__XXX
-SG_ Right_Inverter_GPIOs_Current : 32|32@1- (1,0) [-3.4E038|3.4E038] "A" Vector__XXX
+SG_ Left_Inverter_GPIOs_Current : 0|32@1- (1,0) [-3.4E038|3.4E038] "A" LOGGER
+SG_ Right_Inverter_GPIOs_Current : 32|32@1- (1,0) [-3.4E038|3.4E038] "A" LOGGER
 
 BO_ 411 PDM_GLV_VBAT: 8 PDM
-SG_ GLV : 0|32@1- (1,0) [-3.4E038|3.4E038] "V" Vector__XXX
-SG_ VBAT : 32|32@1- (1,0) [-3.4E038|3.4E038] "V" Vector__XXX
+SG_ GLV : 0|32@1- (1,0) [-3.4E038|3.4E038] "V" LOGGER
+SG_ VBAT : 32|32@1- (1,0) [-3.4E038|3.4E038] "V" LOGGER
 
 BO_ 412 PDM_WATCHDOG_TIMEOUT : 8 PDM
-SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" Vector__XXX
+SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" LOGGER
 
 BO_ 413 PDM_STATE_MACHINE : 1 PDM
-SG_ State : 0|8@1+ (1,0) [0|255] "" Vector__XXX
+SG_ State : 0|8@1+ (1,0) [0|255] "" LOGGER
 
 BO_ 500 DIM_HEARTBEAT: 1 DIM
 SG_ DUMMY_VARIABLE : 0|1@1+ (1,0) [0|1] "" FSM,DCM,PDM,BMS
 
 BO_ 501 DIM_CAN_FIFO_OVERFLOW: 8 DIM
-SG_ tx_overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
-SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" Vector__XXX
+SG_ tx_overflow_count : 0|32@1+ (1,0) [0|1] "" LOGGER
+SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" LOGGER
 
 BO_ 502 DIM_STARTUP: 0 DIM
 
