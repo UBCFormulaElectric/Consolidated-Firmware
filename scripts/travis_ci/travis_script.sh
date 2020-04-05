@@ -24,7 +24,7 @@ if [ "$RUN_ARM_BUILD" = "true" ]; then
     done
 fi
 
-if [ "$RUN_x86_TESTS" = "true" ]; then
+if [ "$RUN_X86_TESTS" = "true" ]; then
     BUILD_DIR=boards/x86_build
     travis_run cmake -S boards -B $BUILD_DIR -DPLATFORM=x86
     travis_run make --directory=$BUILD_DIR
