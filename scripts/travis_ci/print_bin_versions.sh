@@ -6,7 +6,7 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 source $SCRIPT_DIR/travis_shared.sh
 
-if [ "$RUN_BUILD" = "true" ] || [ "$RUN_TESTS" = "true" ] || [ "$RUN_CUBE_CODEGEN_CHECKS" = "true" ]; then
+if [ "$RUN_ARM_BUILD" = "true" ] || [ "$RUN_X86_TESTS" = "true" ] || [ "$RUN_CUBE_CODEGEN_CHECKS" = "true" ]; then
   # CMake
   travis_run cmake --version
   # gcc-arm-none-eabi

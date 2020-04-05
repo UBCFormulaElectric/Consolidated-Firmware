@@ -14,7 +14,7 @@ class CanRxFileGenerator(CanFileGenerator):
                 if self._receiver in signal.receivers:
                     canrx_signals.append(
                         CanSignal(signal.type_name, signal.snake_name,
-                                    msg.snake_name))
+                                    msg.snake_name, signal.initial))
         return canrx_signals
 
     def __get_canrx_msgs(self):
@@ -36,6 +36,14 @@ class AppCanRxFileGenerator(CanRxFileGenerator):
         self.__init_functions(function_prefix)
 
     def __init_functions(self, function_prefix):
+        initial_signal_setters = '\n'.join(
+            ["""\
+    App_CanRx_{msg_name}_SetSignal_{signal_name}(can_rx_interface, {initial_value});""".
+                format(msg_name=signal.msg_name_uppercase,
+                       signal_name=signal.uppercase_name,
+                       initial_value=signal.initial_value if signal.initial_value != None else '0'
+                       ) for signal in self._canrx_signals])
+
         self._Create = Function(
             'struct %sCanRxInterface* %s_Create(void)' % (self._receiver, function_prefix),
             'Allocate and initialize a CAN RX interface',
@@ -46,14 +54,12 @@ class AppCanRxFileGenerator(CanRxFileGenerator):
     shared_assert(alloc_index < MAX_NUM_OF_CANRX_INTERFACES);
     
     struct {board}CanRxInterface* can_rx_interface = &can_rx_interfaces[alloc_index++];
-    
-    // TODO: Instead of clearing the table to 0's, use .dbc to fill in the
-    // initial signal values
-    memset(&can_rx_interface->can_rx_table, 0, sizeof(can_rx_interface->can_rx_table));
+
+{initial_signal_setters}
 
     return can_rx_interface;'''.format(
-        board=self._receiver
-        ))
+        board=self._receiver,
+        initial_signal_setters=initial_signal_setters))
 
         self._CanRxSignalGetters = [
             Function('%s %s_%s_GetSignal_%s (struct %sCanRxInterface* can_rx_interface)'
@@ -74,9 +80,12 @@ class AppCanRxFileGenerator(CanRxFileGenerator):
             signal.uppercase_name, self._receiver, signal.type_name),
             '',
             '''\
-    can_rx_interface->can_rx_table.{msg_name}.{signal_name} = value;'''.format(
-                msg_name=signal.msg_name_snakecase,
-                signal_name=signal.snakecase_name)
+    if (App_CanMsgs_{msg_snakecase_name}_{signal_snakecase_name}_is_in_range(value) == true)
+    {{
+        can_rx_interface->can_rx_table.{msg_snakecase_name}.{signal_snakecase_name} = value;
+    }}'''.format(
+                msg_snakecase_name=signal.msg_name_snakecase,
+                signal_snakecase_name=signal.snakecase_name)
         ) for signal in self._canrx_signals)
 
 class AppCanRxHeaderFileGenerator(AppCanRxFileGenerator):
@@ -222,15 +231,11 @@ class IoCanRxFileGenerator(CanRxFileGenerator):
                     msg_uppercase_name=msg.snake_name.upper())
 
             signal_setters_fmt = '''
-            if (App_CanMsgs_{msg_snakecase_name}_{signal_name_snakecase}_is_in_range(buffer.{signal_name_snakecase}) == true)
-            {{
-                App_CanRx_{msg_uppercase_name}_SetSignal_{signal_name_uppercase}(
-                    can_rx_interface,
-                    buffer.{signal_name_snakecase});
-            }}'''
+            App_CanRx_{msg_uppercase_name}_SetSignal_{signal_name_uppercase}(
+                can_rx_interface,
+                buffer.{signal_name_snakecase});'''
             signal_setters = '\n'.join([
                 signal_setters_fmt.format(
-                    msg_snakecase_name=msg.snake_name,
                     msg_uppercase_name=msg.snake_name.upper(),
                     signal_name_uppercase=signal.snake_name.upper(),
                     signal_name_snakecase=signal.snake_name)
