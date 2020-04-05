@@ -7,26 +7,26 @@ BS_:
 
 BU_: Vector__XXX
 
-BO_ 1 BMS_HEARTBEAT: 1 BMS
+BO_ 100 BMS_HEARTBEAT: 1 BMS
 SG_ DUMMY_VARIABLE : 0|1@1+ (1,0) [0|1] "" FSM,DCM,PDM,DIM
 
-BO_ 2 BMS_CAN_FIFO_OVERFLOW: 8 BMS
+BO_ 101 BMS_CAN_FIFO_OVERFLOW: 8 BMS
 SG_ tx_overflow_count : 0|32@1+ (1,0) [0|1] "" Vector__XXX
 SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" Vector__XXX
 
-BO_ 3 BMS_STARTUP: 0 BMS
+BO_ 102 BMS_STARTUP: 0 BMS
 
-BO_ 4 BMS_WATCHDOG_TIMEOUT : 8 BMS
+BO_ 103 BMS_WATCHDOG_TIMEOUT : 8 BMS
 SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" Vector__XXX
 
-BO_ 5 BMS_ERRORS: 8 BMS
+BO_ 104 BMS_ERRORS: 8 BMS
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 0|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 1|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 2|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 3|1@1+ (1,0) [0|1] "" Vector__XXX
 SG_ WATCHDOG_TIMEOUT : 4|1@1+ (1,0) [0|1] "" Vector__XXX
 
-BO_ 6 BMS_IMD: 8 BMS
+BO_ 105 BMS_IMD: 8 BMS
 SG_ Condition M : 0|3@1+ (1,0) [0|1] "" Vector__XXX
 SG_ Seconds_Since_Power_On : 3|8@1+ (1,0) [0|1] "Seconds" Vector__XXX
 SG_ Valid_Duty_Cycle : 11|1@1+ (1,0) [0|1] "" Vector__XXX
@@ -38,11 +38,11 @@ SG_ Dummy_40Hz m4 : 12|8@1+ (1,0) [0|1] "" Vector__XXX
 SG_ Dummy_50Hz m5 : 12|8@1+ (1,0) [0|1] "" Vector__XXX
 SG_ Dummy_Invalid m6 : 12|8@1+ (1,0) [0|1] "" Vector__XXX
 
-BO_ 7 BMS_IMD_PWM_OUTPUT : 8 BMS
+BO_ 106 BMS_IMD_PWM_OUTPUT : 8 BMS
 SG_ Duty_Cycle : 0|32@1- (1,0) [-3.4E038|3.4E038] "%" Vector__XXX
 SG_ Frequency : 32|32@1- (1,0) [-3.4E038|3.4E038] "Hz" Vector__XXX
 
-BO_ 8 BMS_STATE_MACHINE : 1 BMS
+BO_ 107 BMS_STATE_MACHINE : 1 BMS
 SG_ State : 0|8@1+ (1,0) [0|255] "" Vector__XXX
 
 BO_ 33 DCM_HEARTBEAT: 1 DCM
@@ -171,12 +171,12 @@ BA_DEF_DEF_  "GenMsgCycleTime" 0;
 
 BA_ "BusType" "CAN";
 
-BA_ "GenMsgCycleTime" BO_ 1 300;
-BA_ "GenMsgCycleTime" BO_ 2 5000;
-BA_ "GenMsgCycleTime" BO_ 5 1000;
-BA_ "GenMsgCycleTime" BO_ 6 1000;
-BA_ "GenMsgCycleTime" BO_ 7 1000;
-BA_ "GenMsgCycleTime" BO_ 8 10;
+BA_ "GenMsgCycleTime" BO_ 100 300;
+BA_ "GenMsgCycleTime" BO_ 101 5000;
+BA_ "GenMsgCycleTime" BO_ 104 1000;
+BA_ "GenMsgCycleTime" BO_ 105 1000;
+BA_ "GenMsgCycleTime" BO_ 106 1000;
+BA_ "GenMsgCycleTime" BO_ 107 10;
 BA_ "GenMsgCycleTime" BO_ 33 300;
 BA_ "GenMsgCycleTime" BO_ 34 5000;
 BA_ "GenMsgCycleTime" BO_ 37 1000;
