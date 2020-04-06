@@ -1,4 +1,3 @@
-#include "World/App_SharedWorld.h"
 #include "App_SharedAssert.h"
 #include "Io_SharedStackWaterMark.h"
 
@@ -54,7 +53,7 @@ void Io_SharedStackWaterMark_Check(
                 *(stacks[i].handle), stacks[i].stack_size,
                 stacks[i].watermark_threshold) == true)
         {
-            stacks[i].log_error(App_SharedWorld_GetCanTx(world), 1);
+            stacks[i].log_error(1);
         }
     }
 }

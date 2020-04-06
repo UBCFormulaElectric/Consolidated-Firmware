@@ -45,23 +45,27 @@ class AppCanRxFileGenerator(CanRxFileGenerator):
                        ) for signal in self._canrx_signals])
 
         self._Create = Function(
-            'struct CanRxInterface* %s_Create(void)' % function_prefix,
+            'struct %sCanRxInterface* %s_Create(void)' % (self._receiver, function_prefix),
             'Allocate and initialize a CAN RX interface',
             '''\
-    static struct CanRxInterface can_rx_interfaces[MAX_NUM_OF_CANRX_INTERFACES];
+    static struct {board}CanRxInterface can_rx_interfaces[MAX_NUM_OF_CANRX_INTERFACES];
     static size_t alloc_index = 0;
     
     shared_assert(alloc_index < MAX_NUM_OF_CANRX_INTERFACES);
     
-    struct CanRxInterface* can_rx_interface = &can_rx_interfaces[alloc_index++];
+    struct {board}CanRxInterface* can_rx_interface = &can_rx_interfaces[alloc_index++];
 
 {initial_signal_setters}
 
-    return can_rx_interface;'''.format(initial_signal_setters=initial_signal_setters))
+    return can_rx_interface;'''.format(
+        board=self._receiver,
+        initial_signal_setters=initial_signal_setters))
 
         self._CanRxSignalGetters = [
-            Function('%s %s_%s_GetSignal_%s (struct CanRxInterface* can_rx_interface)'
-                     % (signal.type_name, function_prefix, signal.msg_name_uppercase, signal.uppercase_name),
+            Function('%s %s_%s_GetSignal_%s (struct %sCanRxInterface* can_rx_interface)'
+                     % (signal.type_name, function_prefix, 
+                         signal.msg_name_uppercase, signal.uppercase_name, 
+                         self._receiver),
                      '',
                      '''\
     return can_rx_interface->can_rx_table.{msg_name}.{signal_name};'''.format(
@@ -71,8 +75,9 @@ class AppCanRxFileGenerator(CanRxFileGenerator):
             for signal in self._canrx_signals]
 
         self._CanRxSignalSetters = list(Function(
-            'void %s_%s_SetSignal_%s(struct CanRxInterface* can_rx_interface, %s value)' % (
-            function_prefix, signal.msg_name_snakecase.upper(), signal.uppercase_name, signal.type_name),
+            'void %s_%s_SetSignal_%s(struct %sCanRxInterface* can_rx_interface, %s value)' % (
+            function_prefix, signal.msg_name_snakecase.upper(), 
+            signal.uppercase_name, self._receiver, signal.type_name),
             '',
             '''\
     if (App_CanMsgs_{msg_snakecase_name}_{signal_snakecase_name}_is_in_range(value) == true)
@@ -135,7 +140,7 @@ class AppCanRxSourceFileGenerator(AppCanRxFileGenerator):
                           '0') for msg in self._canrx_msgs],
             'CAN RX Messages')
         self.__CanRxInterface = Struct(
-            'CanRxInterface',
+            '%sCanRxInterface' % self._receiver,
             [StructMember('struct CanRxMsgs',
                           'can_rx_table',
                           0)],
@@ -249,7 +254,7 @@ class IoCanRxFileGenerator(CanRxFileGenerator):
                          set_signals=signal_setters))
 
         self._CanRxUpdateRxTableWithMessage = Function(
-            'void %s_UpdateRxTableWithMessage(struct CanRxInterface* can_rx_interface, struct CanMsg* message)' % function_prefix,
+            'void %s_UpdateRxTableWithMessage(struct %sCanRxInterface* can_rx_interface, struct CanMsg* message)' % (function_prefix, self._receiver),
             "Update the CAN RX table with the given CAN message.",
             '''\
     shared_assert(can_rx_interface != NULL);
@@ -282,7 +287,7 @@ class IoCanRxHeaderFileGenerator(IoCanRxFileGenerator):
 
     def __generateForwardDeclarations(self):
         forward_declarations = []
-        forward_declarations.append('struct CanRxInterface;')
+        forward_declarations.append('struct %sCanRxInterface;' % self._receiver)
         forward_declarations.append('struct CanMsg;')
         return '\n'.join(forward_declarations)
 

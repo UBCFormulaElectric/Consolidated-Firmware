@@ -10,3 +10,8 @@
     (__builtin_strrchr(path, '/') ? __builtin_strrchr(path, '/') + 1 : path)
 
 #define min(x, y) (((x) < (y)) ? (x) : (y))
+
+// Extra guard because HAL defines the same macro
+#ifndef UNUSED
+#define UNUSED(x) (void)(x)
+#endif // UNUSED

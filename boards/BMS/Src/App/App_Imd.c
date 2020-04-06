@@ -1,10 +1,8 @@
 #include "auto_generated/App_CanTx.h"
-#include "World/App_SharedWorld.h"
 #include "App_Imd.h"
 #include "App_SharedAssert.h"
 #include "App_SharedMacros.h"
-
-extern struct World *world;
+#include <stdlib.h>
 
 // We only require one IMD per vehicle
 #define MAX_NUM_OF_IMDS 1
@@ -58,6 +56,7 @@ static_assert(
 
 struct Imd
 {
+    struct BMSCanTxInterface *can_tx;
     float (*get_pwm_frequency)(void);
     float (*get_pwm_duty_cycle)(void);
     uint32_t (*get_seconds_since_power_on)(void);
@@ -131,21 +130,20 @@ static uint32_t App_GetIdealPwmFrequency(const enum Imd_Condition condition)
 }
 
 struct Imd *App_Imd_Create(
-    float (*get_pwm_frequency)(void),
-    float (*get_pwm_duty_cycle)(void),
-    uint32_t (*get_seconds_since_power_on)(void))
+    struct BMSCanTxInterface *const can_tx,
+    float (*const get_pwm_frequency)(void),
+    float (*const get_pwm_duty_cycle)(void),
+    uint32_t (*const get_seconds_since_power_on)(void))
 {
     shared_assert(get_pwm_frequency != NULL);
     shared_assert(get_pwm_duty_cycle != NULL);
     shared_assert(get_seconds_since_power_on != NULL);
+    shared_assert(can_tx != NULL);
 
-    static struct Imd imds[MAX_NUM_OF_IMDS];
-    static size_t     alloc_index = 0;
+    struct Imd *imd = (struct Imd *)malloc(sizeof(struct Imd));
+    shared_assert(imd != NULL);
 
-    shared_assert(alloc_index < MAX_NUM_OF_IMDS);
-
-    struct Imd *const imd = &imds[alloc_index++];
-
+    imd->can_tx                     = can_tx;
     imd->get_pwm_frequency          = get_pwm_frequency;
     imd->get_pwm_duty_cycle         = get_pwm_duty_cycle;
     imd->get_seconds_since_power_on = get_seconds_since_power_on;
@@ -156,6 +154,11 @@ struct Imd *App_Imd_Create(
     return imd;
 }
 
+void App_Imd_Destroy(struct Imd *imd)
+{
+    free(imd);
+}
+
 void App_Imd_Tick(struct Imd *const imd)
 {
     shared_assert(imd != NULL);
@@ -163,20 +166,17 @@ void App_Imd_Tick(struct Imd *const imd)
     // The IMD takes a short while before its values are stabilized, so it is
     // useful to keep track of how long it's been since the IMD powered on.
     App_CanTx_SetPeriodicSignal_SECONDS_SINCE_POWER_ON(
-        App_SharedWorld_GetCanTx(world), imd->get_seconds_since_power_on());
+        imd->can_tx, imd->get_seconds_since_power_on());
 
     // Use the same frequency and duty cycle throughout the entire tick
     const float frequency  = imd->get_pwm_frequency();
     const float duty_cycle = imd->get_pwm_duty_cycle();
-    App_CanTx_SetPeriodicSignal_FREQUENCY(
-        App_SharedWorld_GetCanTx(world), frequency);
-    App_CanTx_SetPeriodicSignal_DUTY_CYCLE(
-        App_SharedWorld_GetCanTx(world), duty_cycle);
+    App_CanTx_SetPeriodicSignal_FREQUENCY(imd->can_tx, frequency);
+    App_CanTx_SetPeriodicSignal_DUTY_CYCLE(imd->can_tx, duty_cycle);
 
     // Map the PWM frequency to the appropriate IMD condition
     enum Imd_Condition condition = App_EstimateCondition(frequency);
-    App_CanTx_SetPeriodicSignal_CONDITION(
-        App_SharedWorld_GetCanTx(world), condition);
+    App_CanTx_SetPeriodicSignal_CONDITION(imd->can_tx, condition);
 
     // Decode the information encoded in the PWM frequency and duty cycle
     switch (condition)
@@ -195,8 +195,7 @@ void App_Imd_Tick(struct Imd *const imd)
             imd->pwm_encoding.valid_duty_cycle =
                 (duty_cycle > 5.0f && duty_cycle < 95.0f) ? true : false;
             App_CanTx_SetPeriodicSignal_VALID_DUTY_CYCLE(
-                App_SharedWorld_GetCanTx(world),
-                imd->pwm_encoding.valid_duty_cycle);
+                imd->can_tx, imd->pwm_encoding.valid_duty_cycle);
 
             if (imd->pwm_encoding.valid_duty_cycle)
             {
@@ -208,12 +207,12 @@ void App_Imd_Tick(struct Imd *const imd)
                 if (condition == IMD_NORMAL)
                 {
                     App_CanTx_SetPeriodicSignal_INSULATION_MEASUREMENT_DCP_10_HZ(
-                        App_SharedWorld_GetCanTx(world), resistance_kohms);
+                        imd->can_tx, resistance_kohms);
                 }
                 else if (condition == IMD_UNDERVOLTAGE_DETECTED)
                 {
                     App_CanTx_SetPeriodicSignal_INSULATION_MEASUREMENT_DCP_20_HZ(
-                        App_SharedWorld_GetCanTx(world), resistance_kohms);
+                        imd->can_tx, resistance_kohms);
                 }
             }
         }
@@ -226,8 +225,7 @@ void App_Imd_Tick(struct Imd *const imd)
                     ? true
                     : false;
             App_CanTx_SetPeriodicSignal_VALID_DUTY_CYCLE(
-                App_SharedWorld_GetCanTx(world),
-                imd->pwm_encoding.valid_duty_cycle);
+                imd->can_tx, imd->pwm_encoding.valid_duty_cycle);
 
             if (imd->pwm_encoding.valid_duty_cycle)
             {
@@ -236,14 +234,14 @@ void App_Imd_Tick(struct Imd *const imd)
                     enum SST status                      = SST_GOOD;
                     imd->pwm_encoding.speed_start_status = status;
                     App_CanTx_SetPeriodicSignal_SPEED_START_STATUS_30_HZ(
-                        App_SharedWorld_GetCanTx(world), status);
+                        imd->can_tx, status);
                 }
                 else if (duty_cycle > 90.0f && duty_cycle < 95.0f)
                 {
                     enum SST status                      = SST_BAD;
                     imd->pwm_encoding.speed_start_status = status;
                     App_CanTx_SetPeriodicSignal_SPEED_START_STATUS_30_HZ(
-                        App_SharedWorld_GetCanTx(world), status);
+                        imd->can_tx, status);
                 }
             }
         }
