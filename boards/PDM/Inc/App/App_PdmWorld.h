@@ -23,7 +23,7 @@ struct PdmWorld *App_PdmWorld_Create(
     struct PDMCanRxInterface *can_rx_interface);
 
 /**
- * Destroys the given PDM world, freeing the memory associated with it
+ * Destroy the given PDM world, freeing the memory associated with it
  * @param world The PDM world to destroy
  */
 void App_PdmWorld_Destroy(struct PdmWorld *world);

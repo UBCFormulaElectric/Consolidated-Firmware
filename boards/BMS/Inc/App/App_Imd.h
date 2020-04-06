@@ -21,13 +21,13 @@ struct Imd *App_Imd_Create(
     uint32_t (*get_seconds_since_power_on)(void));
 
 /**
- * Destroys the given IMD object, freeing any memory it uses
+ * Destroy the given IMD object, freeing any memory it uses
  * @param imd
  */
 void App_Imd_Destroy(struct Imd *imd);
 
 /**
  * Update the given IMD
- * @param imd: The IMD to update
+ * @param imd The IMD to update
  */
 void App_Imd_Tick(struct Imd *const imd);

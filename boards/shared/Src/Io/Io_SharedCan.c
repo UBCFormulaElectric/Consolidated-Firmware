@@ -6,8 +6,6 @@
 #include "App_SharedAssert.h"
 #include "Io_SharedFreeRTOS.h"
 
-extern struct World *world;
-
 /** @brief Size of a message in the CAN TX queue */
 #define CAN_TX_MSG_FIFO_ITEM_SIZE sizeof(struct CanMsg)
 

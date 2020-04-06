@@ -11,8 +11,8 @@ struct FsmWorld
 };
 
 struct FsmWorld *App_FsmWorld_Create(
-    struct FSMCanTxInterface *can_tx_interface,
-    struct FSMCanRxInterface *can_rx_interface)
+    struct FSMCanTxInterface *const can_tx_interface,
+    struct FSMCanRxInterface *const can_rx_interface)
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
     shared_assert(world != NULL);

@@ -13,7 +13,7 @@ struct DimWorld;
 struct DimWorld *App_DimWorld_Create();
 
 /**
- * Destroys the given DIM world, freeing the memory associated with it
+ * Destroy the given DIM world, freeing the memory associated with it
  * @param world The DIM world to destroy
  */
 void App_DimWorld_Destroy(struct DimWorld *world);

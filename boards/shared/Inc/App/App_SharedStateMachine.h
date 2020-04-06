@@ -67,7 +67,6 @@ struct World *
 
 /**
  * Tick the given state machine
- *
  * @param state_machine The state machine to tick
  */
 void App_SharedStateMachine_Tick(struct StateMachine *state_machine);

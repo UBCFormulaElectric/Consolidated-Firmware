@@ -11,8 +11,8 @@ struct PdmWorld
 };
 
 struct PdmWorld *App_PdmWorld_Create(
-    struct PDMCanTxInterface *can_tx_interface,
-    struct PDMCanRxInterface *can_rx_interface)
+    struct PDMCanTxInterface *const can_tx_interface,
+    struct PDMCanRxInterface *const can_rx_interface)
 {
     struct PdmWorld *world = (struct PdmWorld *)malloc(sizeof(struct PdmWorld));
     shared_assert(world != NULL);

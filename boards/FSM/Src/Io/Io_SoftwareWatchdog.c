@@ -8,8 +8,7 @@
 extern IWDG_HandleTypeDef        hiwdg;
 static struct FSMCanTxInterface *_can_tx = NULL;
 
-void Io_SoftwareWatchdog_Init(struct FSMCanTxInterface *can_tx)
-{
+void Io_SoftwareWatchdog_Init(struct FSMCanTxInterface * const can_tx){
     _can_tx = can_tx;
 }
 

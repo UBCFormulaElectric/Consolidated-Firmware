@@ -26,7 +26,7 @@ struct BmsWorld *App_BmsWorld_Create(
     struct Imd *              imd);
 
 /**
- * Destroys the given BMS world, freeing the memory associated with it
+ * Destroy the given BMS world, freeing the memory associated with it
  * @param world The BMS world to destroy
  */
 void App_BmsWorld_Destroy(struct BmsWorld *world);
@@ -46,8 +46,8 @@ struct BMSCanTxInterface *App_BmsWorld_GetCanTx(const struct BmsWorld *world);
 struct BMSCanRxInterface *App_BmsWorld_GetCanRx(const struct BmsWorld *world);
 
 /**
- * Get the IMD from the given World
+ * Get the IMD from the given world
  * @param world The world to get the IMD from
- * @return The IMD fromt the world
+ * @return The IMD from the world
  */
-struct Imd *App_BmsWorld_GetImd(struct BmsWorld *world);
+struct Imd *App_BmsWorld_GetImd(const struct BmsWorld *world);

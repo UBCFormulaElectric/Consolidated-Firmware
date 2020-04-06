@@ -23,7 +23,7 @@ struct DcmWorld *App_DcmWorld_Create(
     struct DCMCanRxInterface *can_rx_interface);
 
 /**
- * Destroys the given DCM world, freeing the memory associated with it
+ * Destroy the given DCM world, freeing the memory associated with it
  * @param world The DCM world to destroy
  */
 void App_DcmWorld_Destroy(struct DcmWorld *world);

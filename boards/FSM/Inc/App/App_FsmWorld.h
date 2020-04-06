@@ -23,7 +23,7 @@ struct FsmWorld *App_FsmWorld_Create(
     struct FSMCanRxInterface *can_rx_interface);
 
 /**
- * Destroys the given FSM world, freeing the memory associated with it
+ * Destroy the given FSM world, freeing the memory associated with it
  * @param world The FSM world to destroy
  */
 void App_FsmWorld_Destroy(struct FsmWorld *world);
