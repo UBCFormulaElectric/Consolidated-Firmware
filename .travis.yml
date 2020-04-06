@@ -42,6 +42,13 @@ before_script:
 script:
   - ./scripts/travis_ci/travis_script.sh $CUBE_INSTALL_DIR/STM32CubeMX
 
+after_success:
+  - echo $TRAVIS_REPO_SLUG
+  - echo $TRAVIS_COMMIT
+  - echo $STAGE
+  - echo $NAME
+  - echo $TRAVIS_PULL_REQUEST_SHA
+
 matrix:
   include:
     - name: "Build ARM Executables"
