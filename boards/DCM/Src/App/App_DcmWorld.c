@@ -29,13 +29,13 @@ void App_DcmWorld_Destroy(struct DcmWorld *world)
     free(world);
 }
 
-struct DCMCanTxInterface *App_DcmWorld_GetCanTx(struct DcmWorld *world)
+struct DCMCanTxInterface *App_DcmWorld_GetCanTx(const struct DcmWorld * const world)
 {
     shared_assert(world != NULL);
     return world->can_tx_interface;
 }
 
-struct DCMCanRxInterface *App_DcmWorld_GetCanRx(struct DcmWorld *world)
+struct DCMCanRxInterface *App_DcmWorld_GetCanRx(const struct DcmWorld * const world)
 {
     shared_assert(world != NULL);
     return world->can_rx_interface;

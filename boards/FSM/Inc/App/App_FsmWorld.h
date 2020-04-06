@@ -33,11 +33,11 @@ void App_FsmWorld_Destroy(struct FsmWorld *world);
  * @param world: The world to get CAN TX interface for
  * @return The CAN TX interface for the given world
  */
-struct FSMCanTxInterface *App_FsmWorld_GetCanTx(struct FsmWorld *world);
+struct FSMCanTxInterface *App_FsmWorld_GetCanTx(const struct FsmWorld *world);
 
 /**
  * Get the CAN RX interface for the given world
  * @param world: The world to get CAN RX interface for
  * @return The CAN RX interface for the given world
  */
-struct FSMCanRxInterface *App_FsmWorld_GetCanRx(struct FsmWorld *world);
+struct FSMCanRxInterface *App_FsmWorld_GetCanRx(const struct FsmWorld *world);

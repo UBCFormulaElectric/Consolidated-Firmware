@@ -29,13 +29,13 @@ void App_PdmWorld_Destroy(struct PdmWorld *world)
     free(world);
 }
 
-struct PDMCanTxInterface *App_PdmWorld_GetCanTx(struct PdmWorld *world)
+struct PDMCanTxInterface *App_PdmWorld_GetCanTx(const struct PdmWorld * const world)
 {
     shared_assert(world != NULL);
     return world->can_tx_interface;
 }
 
-struct PDMCanRxInterface *App_PdmWorld_GetCanRx(struct PdmWorld *world)
+struct PDMCanRxInterface *App_PdmWorld_GetCanRx(const struct PdmWorld * const world)
 {
     shared_assert(world != NULL);
     return world->can_rx_interface;

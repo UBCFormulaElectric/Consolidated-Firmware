@@ -83,13 +83,13 @@ static CAN_HandleTypeDef *sharedcan_hcan = NULL;
  * @brief Callback to call with the current overflow count when the TX
  *        queue overflows
  */
-void (*_tx_overflow_callback)(size_t) = NULL;
+static void (*_tx_overflow_callback)(size_t) = NULL;
 
 /**
  * @brief Callback to call with the current overflow count when the RX
  *        queue overflows
  */
-void (*_rx_overflow_callback)(size_t) = NULL;
+static void (*_rx_overflow_callback)(size_t) = NULL;
 
 /** @brief Boolean flag indicating whether this library is initialized */
 static bool sharedcan_initialized = false;

@@ -32,13 +32,13 @@ void App_BmsWorld_Destroy(struct BmsWorld *world)
     free(world);
 }
 
-struct BMSCanTxInterface *App_BmsWorld_GetCanTx(struct BmsWorld *world)
+struct BMSCanTxInterface *App_BmsWorld_GetCanTx(const struct BmsWorld * const world)
 {
     shared_assert(world != NULL);
     return world->can_tx_interface;
 }
 
-struct BMSCanRxInterface *App_BmsWorld_GetCanRx(struct BmsWorld *world)
+struct BMSCanRxInterface *App_BmsWorld_GetCanRx(const struct BmsWorld * const world)
 {
     shared_assert(world != NULL);
     return world->can_rx_interface;

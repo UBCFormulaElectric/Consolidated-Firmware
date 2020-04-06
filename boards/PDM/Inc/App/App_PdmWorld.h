@@ -33,11 +33,11 @@ void App_PdmWorld_Destroy(struct PdmWorld *world);
  * @param world: The world to get CAN TX interface for
  * @return The CAN TX interface for the given world
  */
-struct PDMCanTxInterface *App_PdmWorld_GetCanTx(struct PdmWorld *world);
+struct PDMCanTxInterface *App_PdmWorld_GetCanTx(const struct PdmWorld *world);
 
 /**
  * Get the CAN RX interface for the given world
  * @param world: The world to get CAN RX interface for
  * @return The CAN RX interface for the given world
  */
-struct PDMCanRxInterface *App_PdmWorld_GetCanRx(struct PdmWorld *world);
+struct PDMCanRxInterface *App_PdmWorld_GetCanRx(const struct PdmWorld *world);

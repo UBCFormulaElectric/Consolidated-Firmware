@@ -46,14 +46,10 @@ class DcmStateMachineTest : public testing::Test
 
     virtual void TearDown()
     {
-        if (state_machine != NULL)
-        {
-            App_SharedStateMachine_Destroy(state_machine);
-        }
-        if (world != NULL)
-        {
-            App_DcmWorld_Destroy(world);
-        }
+        assert(state_machine != NULL);
+        App_SharedStateMachine_Destroy(state_machine);
+        assert(world != NULL);
+        App_DcmWorld_Destroy(world);
         world         = NULL;
         state_machine = NULL;
     }

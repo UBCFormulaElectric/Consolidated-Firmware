@@ -33,11 +33,11 @@ void App_DcmWorld_Destroy(struct DcmWorld *world);
  * @param world: The world to get CAN TX interface for
  * @return The CAN TX interface for the given world
  */
-struct DCMCanTxInterface *App_DcmWorld_GetCanTx(struct DcmWorld *world);
+struct DCMCanTxInterface *App_DcmWorld_GetCanTx(const struct DcmWorld *world);
 
 /**
  * Get the CAN RX interface for the given world
  * @param world: The world to get CAN RX interface for
  * @return The CAN RX interface for the given world
  */
-struct DCMCanRxInterface *App_DcmWorld_GetCanRx(struct DcmWorld *world);
+struct DCMCanRxInterface *App_DcmWorld_GetCanRx(const struct DcmWorld *world);
