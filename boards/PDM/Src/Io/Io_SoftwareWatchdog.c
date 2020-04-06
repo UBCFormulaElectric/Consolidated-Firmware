@@ -8,7 +8,8 @@
 extern IWDG_HandleTypeDef        hiwdg;
 static struct PDMCanTxInterface *_can_tx = NULL;
 
-void Io_SoftwareWatchdog_Init(struct PDMCanTxInterface * const can_tx){
+void Io_SoftwareWatchdog_Init(struct PDMCanTxInterface *const can_tx)
+{
     _can_tx = can_tx;
 }
 

@@ -42,7 +42,7 @@ const struct State *App_SharedStateMachine_GetCurrentState(
 
 void App_SharedStateMachine_SetNextState(
     struct StateMachine *const state_machine,
-    const struct State * const next_state)
+    const struct State *const  next_state)
 {
     shared_assert(state_machine != NULL);
     state_machine->next_state = next_state;

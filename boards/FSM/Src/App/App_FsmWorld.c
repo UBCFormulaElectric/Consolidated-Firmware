@@ -29,13 +29,15 @@ void App_FsmWorld_Destroy(struct FsmWorld *world)
     free(world);
 }
 
-struct FSMCanTxInterface *App_FsmWorld_GetCanTx(const struct FsmWorld * const world)
+struct FSMCanTxInterface *
+    App_FsmWorld_GetCanTx(const struct FsmWorld *const world)
 {
     shared_assert(world != NULL);
     return world->can_tx_interface;
 }
 
-struct FSMCanRxInterface *App_FsmWorld_GetCanRx(const struct FsmWorld * const world)
+struct FSMCanRxInterface *
+    App_FsmWorld_GetCanRx(const struct FsmWorld *const world)
 {
     shared_assert(world != NULL);
     return world->can_rx_interface;
