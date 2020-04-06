@@ -48,6 +48,8 @@ after_success:
   - echo $STAGE
   - echo $NAME
   - echo $TRAVIS_PULL_REQUEST_SHA
+  - echo $TRAVIS_BRANCH
+  - echo $TRAVIS_PULL_REQUEST
 
 matrix:
   include:
