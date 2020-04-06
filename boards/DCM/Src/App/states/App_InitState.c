@@ -5,11 +5,7 @@
 
 static void initStateRunOnEnter(struct StateMachine *state_machine)
 {
-    struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct DCMCanTxInterface *can_tx_interface = App_DcmWorld_GetCanTx(world);
-
-    struct CanMsgs_dcm_startup_t payload = { .dummy = 0 };
-    App_CanTx_SendNonPeriodicMsg_DCM_STARTUP(can_tx_interface, &payload);
+    UNUSED(state_machine);
 }
 
 static void initStateRunOnTick(struct StateMachine *state_machine)
