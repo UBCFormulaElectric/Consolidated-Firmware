@@ -9,6 +9,7 @@ extern "C"
     FAKE_VALUE_FUNC(float, get_voltage);
     FAKE_VALUE_FUNC(float, get_min_voltage);
     FAKE_VALUE_FUNC(float, get_max_voltage);
+    FAKE_VOID_FUNC(voltage_out_of_range_callback, struct VoltageMonitor *);
 }
 
 class VoltageMonitorTest : public testing::Test
@@ -17,11 +18,13 @@ class VoltageMonitorTest : public testing::Test
     virtual void SetUp()
     {
         voltage_monitor = App_VoltageMonitor_Create(
-            get_voltage, get_min_voltage, get_max_voltage);
+            "EXAMPLE_VOLTAGE_MONITOR", get_voltage, get_min_voltage,
+            get_max_voltage, voltage_out_of_range_callback);
 
         RESET_FAKE(get_voltage);
         RESET_FAKE(get_min_voltage);
         RESET_FAKE(get_max_voltage);
+        RESET_FAKE(voltage_out_of_range_callback);
 
         FFF_RESET_HISTORY();
     }
@@ -57,6 +60,7 @@ TEST_F(VoltageMonitorTest, check_undervoltage)
     ASSERT_EQ(
         App_VoltageMonitor_GetStatus(voltage_monitor),
         VOLTAGEMONITOR_UNDERVOLTAGE);
+    ASSERT_EQ(voltage_out_of_range_callback_fake.call_count, 1);
 }
 
 TEST_F(VoltageMonitorTest, check_overvoltage)
@@ -70,4 +74,5 @@ TEST_F(VoltageMonitorTest, check_overvoltage)
     ASSERT_EQ(
         App_VoltageMonitor_GetStatus(voltage_monitor),
         VOLTAGEMONITOR_OVERVOLTAGE);
+    ASSERT_EQ(voltage_out_of_range_callback_fake.call_count, 1);
 }
