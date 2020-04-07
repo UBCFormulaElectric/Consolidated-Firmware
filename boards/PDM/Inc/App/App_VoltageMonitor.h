@@ -21,9 +21,9 @@ enum VoltageMonitor_Status
  */
 struct VoltageMonitor *App_VoltageMonitor_Create(
     const char *const name,
-    float (*const get_voltage)(void),
-    float (*const get_min_voltage)(void),
-    float (*const get_max_voltage)(void),
+    float (*get_voltage)(void),
+    float (*get_min_voltage)(void),
+    float (*get_max_voltage)(void),
     void (*error_callback)(struct VoltageMonitor *));
 
 /**
