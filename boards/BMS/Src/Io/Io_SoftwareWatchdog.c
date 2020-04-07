@@ -6,9 +6,9 @@
 #include "Io_SharedMacros.h"
 
 extern IWDG_HandleTypeDef        hiwdg;
-static struct BMSCanTxInterface *_can_tx = NULL;
+static struct BmsCanTxInterface *_can_tx = NULL;
 
-void Io_SoftwareWatchdog_Init(struct BMSCanTxInterface *const can_tx)
+void Io_SoftwareWatchdog_Init(struct BmsCanTxInterface *const can_tx)
 {
     _can_tx = can_tx;
 }

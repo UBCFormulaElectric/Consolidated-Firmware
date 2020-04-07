@@ -84,8 +84,8 @@ osStaticThreadDef_t TaskCanTxControlBlock;
 struct FlowMeter *        primary_flow_meter;
 struct World *            world;
 struct StateMachine *     state_machine;
-struct FSMCanTxInterface *can_tx;
-struct FSMCanRxInterface *can_rx;
+struct FsmCanTxInterface *can_tx;
+struct FsmCanRxInterface *can_rx;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

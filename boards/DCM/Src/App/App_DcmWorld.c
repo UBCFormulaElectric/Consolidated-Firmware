@@ -6,13 +6,13 @@
 
 struct DcmWorld
 {
-    struct DCMCanTxInterface *can_tx_interface;
-    struct DCMCanRxInterface *can_rx_interface;
+    struct DcmCanTxInterface *can_tx_interface;
+    struct DcmCanRxInterface *can_rx_interface;
 };
 
 struct DcmWorld *App_DcmWorld_Create(
-    struct DCMCanTxInterface *const can_tx_interface,
-    struct DCMCanRxInterface *const can_rx_interface)
+    struct DcmCanTxInterface *const can_tx_interface,
+    struct DcmCanRxInterface *const can_rx_interface)
 {
     struct DcmWorld *world = (struct DcmWorld *)malloc(sizeof(struct DcmWorld));
     shared_assert(world != NULL);
@@ -29,14 +29,14 @@ void App_DcmWorld_Destroy(struct DcmWorld *world)
     free(world);
 }
 
-struct DCMCanTxInterface *
+struct DcmCanTxInterface *
     App_DcmWorld_GetCanTx(const struct DcmWorld *const world)
 {
     shared_assert(world != NULL);
     return world->can_tx_interface;
 }
 
-struct DCMCanRxInterface *
+struct DcmCanRxInterface *
     App_DcmWorld_GetCanRx(const struct DcmWorld *const world)
 {
     shared_assert(world != NULL);
