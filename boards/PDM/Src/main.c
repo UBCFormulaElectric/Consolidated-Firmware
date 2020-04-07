@@ -142,8 +142,7 @@ int main(void)
         Io_CanTx_EnqueueNonPeriodicMsg_PDM_STARTUP,
         Io_CanTx_EnqueueNonPeriodicMsg_PDM_AIR_SHUTDOWN,
         Io_CanTx_EnqueueNonPeriodicMsg_PDM_MOTOR_SHUTDOWN,
-        Io_CanTx_EnqueueNonPeriodicMsg_PDM_WATCHDOG_TIMEOUT,
-        Io_CanTx_EnqueueNonPeriodicMsg_PDM_ERRORS_PAYLOAD);
+        Io_CanTx_EnqueueNonPeriodicMsg_PDM_WATCHDOG_TIMEOUT);
 
     can_rx = App_CanRx_Create();
 
