@@ -6,7 +6,7 @@ struct VoltageMonitor;
  * Initialize the callback functions shared among all voltage monitors
  * @param can_tx_interface CAN TX interface
  */
-void Io_VoltageMonitor_Init(struct PDMCanTxInterface *can_tx_interface);
+void Io_VoltageMonitor_Init(struct PdmCanTxInterface *can_tx_interface);
 
 /**
  * Get VBAT voltage from the ADC

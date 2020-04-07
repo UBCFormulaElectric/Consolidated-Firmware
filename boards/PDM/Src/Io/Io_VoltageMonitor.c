@@ -2,9 +2,9 @@
 #include "App_VoltageMonitor.h"
 #include "Io_VoltageMonitor.h"
 
-static struct PDMCanTxInterface *_can_tx_interface = NULL;
+static struct PdmCanTxInterface *_can_tx_interface = NULL;
 
-void Io_VoltageMonitor_Init(struct PDMCanTxInterface *can_tx_interface)
+void Io_VoltageMonitor_Init(struct PdmCanTxInterface *can_tx_interface)
 {
     _can_tx_interface = can_tx_interface;
 }
