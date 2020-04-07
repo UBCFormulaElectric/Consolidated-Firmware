@@ -1,10 +1,14 @@
 #include "states/App_DriveState.h"
 
 #include "App_SharedMacros.h"
+#include "App_FsmWorld.h"
 
 static void DriveStateRunOnEntry(struct StateMachine *state_machine)
 {
-    UNUSED(state_machine);
+    struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct FSMCanTxInterface *can_tx_interface = App_FsmWorld_GetCanTx(world);
+    App_CanTx_SetPeriodicSignal_STATE(
+        can_tx_interface, CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE);
 }
 
 static void DriveStateRunOnTick(struct StateMachine *state_machine)
