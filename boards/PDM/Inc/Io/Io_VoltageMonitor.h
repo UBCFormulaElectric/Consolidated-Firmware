@@ -9,11 +9,25 @@ struct VoltageMonitor;
 void Io_VoltageMonitor_Init(struct PDMCanTxInterface *can_tx_interface);
 
 /**
- * Callback function that gets called when any voltage monitor encounters an
- * error
+ * Error callback function for VBAT
  * @param voltage_monitor The voltage monitor that triggered the error
  */
-void Io_VoltageMonitor_ErrorCallback(struct VoltageMonitor *voltage_monitor);
+void Io_VoltageMonitor_VbatErrorCallback(
+    struct VoltageMonitor *voltage_monitor);
+
+/**
+ * Error callback function for 24V AUX
+ * @param voltage_monitor The voltage monitor that triggered the error
+ */
+void Io_VoltageMonitor_24vAuxErrorCallback(
+    struct VoltageMonitor *voltage_monitor);
+
+/**
+ * Error callback function for 24V ACC
+ * @param voltage_monitor The voltage monitor that triggered the error
+ */
+void Io_VoltageMonitor_24vAccErrorCallback(
+    struct VoltageMonitor *voltage_monitor);
 
 /**
  * Get VBAT voltage from the ADC
