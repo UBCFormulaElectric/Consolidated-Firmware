@@ -5,26 +5,27 @@
 #include "App_SharedAssert.h"
 #include "App_SharedMacros.h"
 
-// States for speed start measurement
-enum SST
-{
-    SST_GOOD,
-    SST_BAD,
-    SST_INVALID
-};
-
-struct Imd_PwmEncoding
-{
-    bool valid_duty_cycle;
-    union {
-        // 0Hz, 40Hz, 50Hz: PWM doesn't encode any information
-        uint8_t dummy;
-        // 10 and 20Hz: Insulation measurement DCP
-        uint16_t insulation_measurement_dcp_kohms;
-        // 30Hz: Speed Start Measurement
-        enum SST speed_start_status;
-    };
-};
+// Match the IMD enums with the DBC multiplexer values of the IMD message
+static_assert(
+    IMD_SHORT_CIRCUIT == CANMSGS_BMS_IMD_CONDITION_IMD_SHORT_CIRCUIT_CHOICE,
+    "The IMD short circuit enum must match its DBC multiplexer value");
+static_assert(
+    IMD_NORMAL == CANMSGS_BMS_IMD_CONDITION_IMD_NORMAL_CHOICE,
+    "The IMD normal enum must match its DBC multiplexer value");
+static_assert(
+    IMD_UNDERVOLTAGE_DETECTED ==
+        CANMSGS_BMS_IMD_CONDITION_IMD_UNDERVOLTAGE_DETECTED_CHOICE,
+    "The IMD undervoltage detected enum must match its DBC multiplexer value");
+static_assert(
+    IMD_SST == CANMSGS_BMS_IMD_CONDITION_IMD_SST_CHOICE,
+    "The IMD speed start measurement enum must match its DBC multiplexer "
+    "value");
+static_assert(
+    IMD_DEVICE_ERROR == CANMSGS_BMS_IMD_CONDITION_IMD_DEVICE_ERROR_CHOICE,
+    "The IMD device error enum must match its DBC multiplexer value");
+static_assert(
+    IMD_EARTH_FAULT == CANMSGS_BMS_IMD_CONDITION_IMD_EARTH_FAULT_CHOICE,
+    "The IMD earth fault enum must match its DBC multiplexer value");
 
 struct Imd
 {
@@ -234,81 +235,3 @@ struct Imd_PwmEncoding App_Imd_GetPwmEncoding(const struct Imd *const imd)
 {
     return imd->pwm_encoding;
 }
-
-// TODO: Uncomment and port this over to state machine once ready
-/**
- * Set the periodic CAN signals related to IMD for the given CAN TX
- * interface
- * @param can_tx The CAN TX interface to update periodic CAN signals for
- * @param imd The IMD to update periodic CAN signals with
- */
-// void App_RunState_SetImdPeriodicSignals(
-//    struct CanTxInterface * can_tx,
-//    const struct Imd *const imd);
-
-// void App_RunState_SetImdPeriodicSignals(
-//    struct CanTxInterface * can_tx,
-//    const struct Imd *const imd)
-//{
-//    App_CanTx_SetPeriodicSignal_SECONDS_SINCE_POWER_ON(
-//        can_tx, App_Imd_GetSecondsSincePowerOn(imd));
-//    App_CanTx_SetPeriodicSignal_FREQUENCY(can_tx,
-//    App_Imd_GetPwmFrequency(imd)); App_CanTx_SetPeriodicSignal_DUTY_CYCLE(
-//        can_tx, App_Imd_GetPwmDutyCycle(imd));
-
-//    const enum Imd_Condition condition = App_Imd_GetCondition(imd);
-//    App_CanTx_SetPeriodicSignal_CONDITION(can_tx, condition);
-
-//    const struct Imd_PwmEncoding pwm_encoding = App_Imd_GetPwmEncoding(imd);
-
-//    App_CanTx_SetPeriodicSignal_VALID_DUTY_CYCLE(
-//        can_tx, pwm_encoding.valid_duty_cycle);
-
-//    switch (condition)
-//    {
-//        case IMD_SHORT_CIRCUIT:
-//        {
-//            App_CanTx_SetPeriodicSignal_DUMMY_0_HZ(can_tx, 0);
-//        }
-//        break;
-//        case IMD_NORMAL:
-//        {
-//            if (pwm_encoding.valid_duty_cycle == true)
-//            {
-//                App_CanTx_SetPeriodicSignal_INSULATION_MEASUREMENT_DCP_10_HZ(
-//                    can_tx, pwm_encoding.insulation_measurement_dcp_kohms);
-//            }
-//        }
-//        break;
-//        case IMD_UNDERVOLTAGE_DETECTED:
-//        {
-//            if (pwm_encoding.valid_duty_cycle == true)
-//            {
-//                App_CanTx_SetPeriodicSignal_INSULATION_MEASUREMENT_DCP_20_HZ(
-//                    can_tx, pwm_encoding.insulation_measurement_dcp_kohms);
-//            }
-//        }
-//        break;
-//        case IMD_SST:
-//        {
-//            App_CanTx_SetPeriodicSignal_SPEED_START_STATUS_30_HZ(
-//                pwm_encoding.speed_start_status);
-//        }
-//        break;
-//        case IMD_DEVICE_ERROR:
-//        {
-//            App_CanTx_SetPeriodicSignal_DUMMY_40_HZ(can_tx, 0);
-//        }
-//        break;
-//        case IMD_EARTH_FAULT:
-//        {
-//            App_CanTx_SetPeriodicSignal_DUMMY_50_HZ(can_tx, 0);
-//        }
-//        break;
-//        case IMD_INVALID:
-//        {
-//            App_CanTx_SetPeriodicSignal_DUMMY_INVALID(can_tx, 0);
-//        }
-//        break;
-//    }
-//}

@@ -5,6 +5,14 @@
 
 struct Imd;
 
+// States for speed start measurement
+enum SST
+{
+    SST_GOOD,
+    SST_BAD,
+    SST_INVALID
+};
+
 // The IMD encodes a condition in its PWM output's frequency
 enum Imd_Condition
 {
@@ -18,27 +26,18 @@ enum Imd_Condition
     IMD_INVALID = NUM_OF_IMD_CONDITIONS,
 };
 
-// Match the IMD enums with the DBC multiplexer values of the IMD message
-static_assert(
-    IMD_SHORT_CIRCUIT == CANMSGS_BMS_IMD_CONDITION_IMD_SHORT_CIRCUIT_CHOICE,
-    "The IMD short circuit enum must match its DBC multiplexer value");
-static_assert(
-    IMD_NORMAL == CANMSGS_BMS_IMD_CONDITION_IMD_NORMAL_CHOICE,
-    "The IMD normal enum must match its DBC multiplexer value");
-static_assert(
-    IMD_UNDERVOLTAGE_DETECTED ==
-        CANMSGS_BMS_IMD_CONDITION_IMD_UNDERVOLTAGE_DETECTED_CHOICE,
-    "The IMD undervoltage detected enum must match its DBC multiplexer value");
-static_assert(
-    IMD_SST == CANMSGS_BMS_IMD_CONDITION_IMD_SST_CHOICE,
-    "The IMD speed start measurement enum must match its DBC multiplexer "
-    "value");
-static_assert(
-    IMD_DEVICE_ERROR == CANMSGS_BMS_IMD_CONDITION_IMD_DEVICE_ERROR_CHOICE,
-    "The IMD device error enum must match its DBC multiplexer value");
-static_assert(
-    IMD_EARTH_FAULT == CANMSGS_BMS_IMD_CONDITION_IMD_EARTH_FAULT_CHOICE,
-    "The IMD earth fault enum must match its DBC multiplexer value");
+struct Imd_PwmEncoding
+{
+    bool valid_duty_cycle;
+    union {
+        // 0Hz, 40Hz, 50Hz: PWM doesn't encode any information
+        uint8_t dummy;
+        // 10 and 20Hz: Insulation measurement DCP
+        uint16_t insulation_measurement_dcp_kohms;
+        // 30Hz: Speed Start Measurement
+        enum SST speed_start_status;
+    };
+};
 
 /**
  * Allocate and initialize an IMD
