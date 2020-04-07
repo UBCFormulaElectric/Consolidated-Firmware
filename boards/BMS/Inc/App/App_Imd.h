@@ -82,25 +82,25 @@ float App_Imd_GetPwmFrequency(const struct Imd *imd);
  * @param imd The IMD to get PWM duty cycle for
  * @return The PWM duty cycle for the given IMD
  */
-float App_Imd_GetPwmDutyCycle(const struct Imd *const imd);
+float App_Imd_GetPwmDutyCycle(const struct Imd *imd);
 
 /**
  * Get the seconds since power on for the given IMD
  * @param imd The IMD to get seconds since power on for
  * @return The seconds since power on for the given IMD
  */
-uint32_t App_Imd_GetSecondsSincePowerOn(const struct Imd *const imd);
+uint32_t App_Imd_GetSecondsSincePowerOn(const struct Imd *imd);
 
 /**
  * Get the condition for the given IMD
  * @param imd The IMD to get condition for
  * @return The condition for the given IMD
  */
-enum Imd_Condition App_Imd_GetCondition(const struct Imd *const imd);
+enum Imd_Condition App_Imd_GetCondition(const struct Imd *imd);
 
 /**
  * Get the PWM encoding for the given IMD
  * @param imd The IMD to get PWM encoding for
  * @return The PWM encoding for the given IMD
  */
-struct Imd_PwmEncoding App_Imd_GetPwmEncoding(const struct Imd *const imd);
+struct Imd_PwmEncoding App_Imd_GetPwmEncoding(const struct Imd *imd);
