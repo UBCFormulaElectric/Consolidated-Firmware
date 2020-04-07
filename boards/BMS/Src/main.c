@@ -84,8 +84,8 @@ osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
 struct BmsWorld *         world;
 struct StateMachine *     state_machine;
-struct BMSCanTxInterface *can_tx;
-struct BMSCanRxInterface *can_rx;
+struct BmsCanTxInterface *can_tx;
+struct BmsCanRxInterface *can_rx;
 struct Imd *              imd;
 /* USER CODE END PV */
 

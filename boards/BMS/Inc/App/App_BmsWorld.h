@@ -21,8 +21,8 @@ struct BmsWorld;
  * caller
  */
 struct BmsWorld *App_BmsWorld_Create(
-    struct BMSCanTxInterface *can_tx_interface,
-    struct BMSCanRxInterface *can_rx_interface,
+    struct BmsCanTxInterface *can_tx_interface,
+    struct BmsCanRxInterface *can_rx_interface,
     struct Imd *              imd);
 
 /**
@@ -36,14 +36,14 @@ void App_BmsWorld_Destroy(struct BmsWorld *world);
  * @param world: The world to get CAN TX interface for
  * @return The CAN TX interface for the given world
  */
-struct BMSCanTxInterface *App_BmsWorld_GetCanTx(const struct BmsWorld *world);
+struct BmsCanTxInterface *App_BmsWorld_GetCanTx(const struct BmsWorld *world);
 
 /**
  * Get the CAN RX interface for the given world
  * @param world: The world to get CAN RX interface for
  * @return The CAN RX interface for the given world
  */
-struct BMSCanRxInterface *App_BmsWorld_GetCanRx(const struct BmsWorld *world);
+struct BmsCanRxInterface *App_BmsWorld_GetCanRx(const struct BmsWorld *world);
 
 /**
  * Get the IMD from the given world

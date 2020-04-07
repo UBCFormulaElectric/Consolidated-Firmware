@@ -22,8 +22,8 @@ struct PdmWorld;
  *         caller
  */
 struct PdmWorld *App_PdmWorld_Create(
-    struct PDMCanTxInterface *can_tx_interface,
-    struct PDMCanRxInterface *can_rx_interface,
+    struct PdmCanTxInterface *can_tx_interface,
+    struct PdmCanRxInterface *can_rx_interface,
     struct VoltageMonitor *   vbat_volage_monitor,
     struct VoltageMonitor *   _24v_aux_voltage_monitor,
     struct VoltageMonitor *   _24v_acc_voltage_monitor);
@@ -39,14 +39,14 @@ void App_PdmWorld_Destroy(struct PdmWorld *world);
  * @param world: The world to get CAN TX interface for
  * @return The CAN TX interface for the given world
  */
-struct PDMCanTxInterface *App_PdmWorld_GetCanTx(const struct PdmWorld *world);
+struct PdmCanTxInterface *App_PdmWorld_GetCanTx(const struct PdmWorld *world);
 
 /**
  * Get the CAN RX interface for the given world
  * @param world: The world to get CAN RX interface for
  * @return The CAN RX interface for the given world
  */
-struct PDMCanRxInterface *App_PdmWorld_GetCanRx(const struct PdmWorld *world);
+struct PdmCanRxInterface *App_PdmWorld_GetCanRx(const struct PdmWorld *world);
 
 /**
  * Get the VBAT voltage monitor for the given world

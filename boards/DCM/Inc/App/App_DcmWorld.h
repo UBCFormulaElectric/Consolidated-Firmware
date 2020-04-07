@@ -19,8 +19,8 @@ struct DcmWorld;
  * caller
  */
 struct DcmWorld *App_DcmWorld_Create(
-    struct DCMCanTxInterface *can_tx_interface,
-    struct DCMCanRxInterface *can_rx_interface);
+    struct DcmCanTxInterface *can_tx_interface,
+    struct DcmCanRxInterface *can_rx_interface);
 
 /**
  * Destroy the given DCM world, freeing the memory associated with it
@@ -33,11 +33,11 @@ void App_DcmWorld_Destroy(struct DcmWorld *world);
  * @param world: The world to get CAN TX interface for
  * @return The CAN TX interface for the given world
  */
-struct DCMCanTxInterface *App_DcmWorld_GetCanTx(const struct DcmWorld *world);
+struct DcmCanTxInterface *App_DcmWorld_GetCanTx(const struct DcmWorld *world);
 
 /**
  * Get the CAN RX interface for the given world
  * @param world: The world to get CAN RX interface for
  * @return The CAN RX interface for the given world
  */
-struct DCMCanRxInterface *App_DcmWorld_GetCanRx(const struct DcmWorld *world);
+struct DcmCanRxInterface *App_DcmWorld_GetCanRx(const struct DcmWorld *world);

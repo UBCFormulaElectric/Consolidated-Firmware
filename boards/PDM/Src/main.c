@@ -83,8 +83,8 @@ osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
 struct PdmWorld *         world;
 struct StateMachine *     state_machine;
-struct PDMCanTxInterface *can_tx;
-struct PDMCanRxInterface *can_rx;
+struct PdmCanTxInterface *can_tx;
+struct PdmCanRxInterface *can_rx;
 struct VoltageMonitor *   vbat_voltage_monitor;
 struct VoltageMonitor *   _24v_aux_voltage_monitor;
 struct VoltageMonitor *   _24v_acc_voltage_monitor;

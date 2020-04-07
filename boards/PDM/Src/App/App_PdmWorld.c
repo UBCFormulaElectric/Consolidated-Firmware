@@ -6,8 +6,8 @@
 
 struct PdmWorld
 {
-    struct PDMCanTxInterface *can_tx_interface;
-    struct PDMCanRxInterface *can_rx_interface;
+    struct PdmCanTxInterface *can_tx_interface;
+    struct PdmCanRxInterface *can_rx_interface;
     struct VoltageMonitor *   vbat_voltage_monitor;
     struct VoltageMonitor *   _24v_aux_voltage_monitor;
     struct VoltageMonitor *   _24v_acc_voltage_monitor;
@@ -32,18 +32,18 @@ struct PdmWorld *App_PdmWorld_Create(
     return world;
 }
 
-void App_PdmWorld_Destroy(struct PdmWorld *world)
+void App_PdmWorld_Destroy(struct PdmWorld *const world)
 {
     free(world);
 }
 
-struct PDMCanTxInterface *
+struct PdmCanTxInterface *
     App_PdmWorld_GetCanTx(const struct PdmWorld *const world)
 {
     return world->can_tx_interface;
 }
 
-struct PDMCanRxInterface *
+struct PdmCanRxInterface *
     App_PdmWorld_GetCanRx(const struct PdmWorld *const world)
 {
     return world->can_rx_interface;
