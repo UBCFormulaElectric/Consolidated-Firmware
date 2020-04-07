@@ -1,7 +1,6 @@
 #include "states/App_DriveState.h"
 
 #include "App_SharedMacros.h"
-#include "App_FsmWorld.h"
 
 static void DriveStateRunOnEntry(struct StateMachine *state_machine)
 {
