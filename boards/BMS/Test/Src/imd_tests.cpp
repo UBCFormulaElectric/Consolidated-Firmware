@@ -17,13 +17,13 @@ extern "C"
 class Imd_Test : public testing::Test
 {
   protected:
-    virtual void SetUp()
+    void SetUp() override
     {
         imd = App_Imd_Create(
             get_pwm_frequency, get_pwm_frequency_tolerance, get_pwm_duty_cycle,
             get_seconds_since_power_on);
     }
-    virtual void TearDown() { App_Imd_Destroy(imd); }
+    void TearDown() override { App_Imd_Destroy(imd); }
 
     struct Imd *imd;
 };
