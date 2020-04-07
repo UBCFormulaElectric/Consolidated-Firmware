@@ -9,27 +9,6 @@ struct VoltageMonitor;
 void Io_VoltageMonitor_Init(struct PDMCanTxInterface *can_tx_interface);
 
 /**
- * Error callback function for VBAT
- * @param voltage_monitor The voltage monitor that triggered the error
- */
-void Io_VoltageMonitor_VbatErrorCallback(
-    struct VoltageMonitor *voltage_monitor);
-
-/**
- * Error callback function for 24V AUX
- * @param voltage_monitor The voltage monitor that triggered the error
- */
-void Io_VoltageMonitor_24vAuxErrorCallback(
-    struct VoltageMonitor *voltage_monitor);
-
-/**
- * Error callback function for 24V ACC
- * @param voltage_monitor The voltage monitor that triggered the error
- */
-void Io_VoltageMonitor_24vAccErrorCallback(
-    struct VoltageMonitor *voltage_monitor);
-
-/**
  * Get VBAT voltage from the ADC
  * @return VBAT voltage
  */
@@ -45,6 +24,13 @@ float Io_VoltageMonitor_GetVbatMinVoltage(void);
  * @return Minimum threshold for VBAT voltage
  */
 float Io_VoltageMonitor_GetVbatMaxVoltage(void);
+
+/**
+ * Error callback function for VBAT
+ * @param voltage_monitor The voltage monitor that triggered the error
+ */
+void Io_VoltageMonitor_VbatErrorCallback(
+    struct VoltageMonitor *voltage_monitor);
 
 /**
  * Get 24V AUX voltage from the ADC
@@ -65,6 +51,13 @@ float Io_VoltageMonitor_Get24vAuxMinVoltage(void);
 float Io_VoltageMonitor_Get24vAuxMaxVoltage(void);
 
 /**
+ * Error callback function for 24V AUX
+ * @param voltage_monitor The voltage monitor that triggered the error
+ */
+void Io_VoltageMonitor_24vAuxErrorCallback(
+    struct VoltageMonitor *voltage_monitor);
+
+/**
  * Get 24V ACC voltage from the ADC
  * @return 24V ACC voltage
  */
@@ -81,3 +74,10 @@ float Io_VoltageMonitor_Get24vAccMinVoltage(void);
  * @return Maximum threshold for 24V ACC voltage
  */
 float Io_VoltageMonitor_Get24vAccMaxVoltage(void);
+
+/**
+ * Error callback function for 24V ACC
+ * @param voltage_monitor The voltage monitor that triggered the error
+ */
+void Io_VoltageMonitor_24vAccErrorCallback(
+    struct VoltageMonitor *voltage_monitor);
