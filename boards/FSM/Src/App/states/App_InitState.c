@@ -5,7 +5,7 @@
 static void InitStateRunOnEntry(struct StateMachine *state_machine)
 {
     struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct FSMCanTxInterface *can_tx_interface = App_FsmWorld_GetCanTx(world);
+    struct FsmCanTxInterface *can_tx_interface = App_FsmWorld_GetCanTx(world);
     App_CanTx_SetPeriodicSignal_STATE(
         can_tx_interface, CANMSGS_DCM_STATE_MACHINE_STATE_INIT_CHOICE);
 }
