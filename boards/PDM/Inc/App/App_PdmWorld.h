@@ -2,6 +2,7 @@
 
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/App_CanRx.h"
+#include "App_VoltageMonitor.h"
 
 struct PdmWorld;
 
@@ -15,12 +16,16 @@ struct PdmWorld;
  *                         that this function does not take ownership of this
  *                         interface, and so this interface must be kept alive
  *                         for the lifetime of the created PDM world
+ * @param TODO: voltage monitors
  * @return A pointer to the created world, whose ownership is given to the
  * caller
  */
 struct PdmWorld *App_PdmWorld_Create(
-    struct PDMCanTxInterface *can_tx_interface,
-    struct PDMCanRxInterface *can_rx_interface);
+    struct PDMCanTxInterface *   can_tx_interface,
+    struct PDMCanRxInterface *   can_rx_interface,
+    struct VoltageMonitor *const vbat_volage_monitor,
+    struct VoltageMonitor *const _24v_aux_voltage_monitor,
+    struct VoltageMonitor *const _24v_acc_voltage_monitor);
 
 /**
  * Destroy the given PDM world, freeing the memory associated with it
