@@ -1,3 +1,4 @@
+#include "App_VoltageMonitor.h"
 #include "Io_VoltageMonitor.h"
 
 static struct PDMCanTxInterface *_can_tx_interface = NULL;
@@ -35,45 +36,48 @@ void Io_VoltageMonitor_ErrorCallback(struct VoltageMonitor *voltage_monitor)
 
 float Io_VoltageMonitor_GetVbatVoltage(void)
 {
-    return 1.0f;
+    // TODO: Fix hard-coded value once the ADC is configured
+    return 7.0f;
 }
 
 float Io_VoltageMonitor_GetVbatMinVoltage(void)
 {
-    return 0.0f;
+    return 6.0f;
 }
 
 float Io_VoltageMonitor_GetVbatMaxVoltage(void)
 {
-    return 2.0f;
+    return 8.5f;
 }
 
 float Io_VoltageMonitor_Get24vAccVoltage(void)
 {
-    return 1.0f;
+    // TODO: Fix hard-coded value once the ADC is configured
+    return 23.0f;
 }
 
 float Io_VoltageMonitor_Get24vAccMinVoltage(void)
 {
-    return 0.0f;
+    return 22.0f;
 }
 
 float Io_VoltageMonitor_Get24vAccMaxVoltage(void)
 {
-    return 2.0f;
+    return 26.0f;
 }
 
 float Io_VoltageMonitor_Get24vAuxVoltage(void)
 {
-    return 1.0f;
+    // TODO: Fix hard-coded value once the ADC is configured
+    return 23.0f;
 }
 
 float Io_VoltageMonitor_Get24vAuxMinVoltage(void)
 {
-    return 0.0f;
+    return 22.0f;
 }
 
 float Io_VoltageMonitor_Get24vAuxMaxVoltage(void)
 {
-    return 2.0f;
+    return 26.0f;
 }

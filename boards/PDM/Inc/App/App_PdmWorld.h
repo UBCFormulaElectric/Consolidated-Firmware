@@ -21,11 +21,11 @@ struct PdmWorld;
  * caller
  */
 struct PdmWorld *App_PdmWorld_Create(
-    struct PDMCanTxInterface *   can_tx_interface,
-    struct PDMCanRxInterface *   can_rx_interface,
-    struct VoltageMonitor *const vbat_volage_monitor,
-    struct VoltageMonitor *const _24v_aux_voltage_monitor,
-    struct VoltageMonitor *const _24v_acc_voltage_monitor);
+    struct PDMCanTxInterface *can_tx_interface,
+    struct PDMCanRxInterface *can_rx_interface,
+    struct VoltageMonitor *   vbat_volage_monitor,
+    struct VoltageMonitor *   _24v_aux_voltage_monitor,
+    struct VoltageMonitor *   _24v_acc_voltage_monitor);
 
 /**
  * Destroy the given PDM world, freeing the memory associated with it

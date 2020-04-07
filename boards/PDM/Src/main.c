@@ -85,9 +85,9 @@ struct PdmWorld *         world;
 struct StateMachine *     state_machine;
 struct PDMCanTxInterface *can_tx;
 struct PDMCanRxInterface *can_rx;
-struct VoltageMonitor *vbat_voltage_monitor;
-struct VoltageMonitor *_24v_aux_voltage_monitor;
-struct VoltageMonitor *_24v_acc_voltage_monitor;
+struct VoltageMonitor *   vbat_voltage_monitor;
+struct VoltageMonitor *   _24v_aux_voltage_monitor;
+struct VoltageMonitor *   _24v_acc_voltage_monitor;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

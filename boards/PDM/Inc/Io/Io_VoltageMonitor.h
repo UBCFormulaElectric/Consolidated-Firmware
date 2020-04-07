@@ -1,18 +1,19 @@
-#include "App_VoltageMonitor.h"
 #include "auto_generated/App_CanTx.h"
+
+struct VoltageMonitor;
 
 /**
  * Initialize the callback functions shared among all voltage monitors
  * @param can_tx_interface CAN TX interface
  */
-void  Io_VoltageMonitor_Init(struct PDMCanTxInterface *can_tx_interface);
+void Io_VoltageMonitor_Init(struct PDMCanTxInterface *can_tx_interface);
 
 /**
  * Callback function that gets called when any voltage monitor encounters an
  * error
  * @param voltage_monitor The voltage monitor that triggered the error
  */
-void  Io_VoltageMonitor_ErrorCallback(struct VoltageMonitor *voltage_monitor);
+void Io_VoltageMonitor_ErrorCallback(struct VoltageMonitor *voltage_monitor);
 
 /**
  * Get VBAT voltage from the ADC
