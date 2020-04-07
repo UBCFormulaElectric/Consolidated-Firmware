@@ -46,5 +46,10 @@ void App_VoltageMonitor_Tick(struct VoltageMonitor *const voltage_monitor);
 enum VoltageMonitor_Status App_VoltageMonitor_GetStatus(
     const struct VoltageMonitor *const voltage_monitor);
 
-const char *App_VoltageMonitor_GetName(
-    const struct VoltageMonitor *const voltage_monitor);
+/**
+ * Get the name for the given voltage monitor
+ * @param voltage_monitor The voltage monitor to get name for
+ * @return The name for the given voltage monitor
+ */
+const char *
+    App_VoltageMonitor_GetName(const struct VoltageMonitor *voltage_monitor);

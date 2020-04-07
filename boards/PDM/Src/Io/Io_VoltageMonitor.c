@@ -1,3 +1,5 @@
+#include <string.h>
+
 #include "App_VoltageMonitor.h"
 #include "Io_VoltageMonitor.h"
 
@@ -32,6 +34,32 @@ void Io_VoltageMonitor_ErrorCallback(struct VoltageMonitor *voltage_monitor)
         }
         break;
     }
+
+    App_CanTx_SetPeriodicSignal_VOLTAGE_MONITOR_FAULT(_can_tx_interface, 1);
+
+    const char *name = App_VoltageMonitor_GetName(voltage_monitor);
+
+    struct CanMsgs_pdm_errors_payload_t payload;
+    payload.error_id =
+        CANMSGS_PDM_ERRORS_PAYLOAD_ERROR_ID_VOLTAGE_MONITOR_FAULT_CHOICE;
+
+    if (strcmp(name, "INIT") == 0)
+    {
+        payload.voltage_monitor_name =
+            CANMSGS_PDM_ERRORS_PAYLOAD_VOLTAGE_MONITOR_NAME_VBAT_CHOICE;
+    }
+    else if (strcmp(name, "ACC") == 0)
+    {
+        payload.voltage_monitor_name =
+            CANMSGS_PDM_ERRORS_PAYLOAD_VOLTAGE_MONITOR_NAME_24_V_AUX_CHOICE;
+    }
+    else if (strcmp(name, "AUX") == 0)
+    {
+        payload.voltage_monitor_name =
+            CANMSGS_PDM_ERRORS_PAYLOAD_VOLTAGE_MONITOR_NAME_24_V_ACC_CHOICE;
+    }
+
+    App_CanTx_SendNonPeriodicMsg_PDM_ERRORS_PAYLOAD(_can_tx_interface, &payload);
 }
 
 float Io_VoltageMonitor_GetVbatVoltage(void)
