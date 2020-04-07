@@ -18,7 +18,7 @@ struct VoltageMonitor *App_VoltageMonitor_Create(
     float (*const get_voltage)(void),
     float (*const get_min_voltage)(void),
     float (*const get_max_voltage)(void),
-    void (*error_callback)(struct VoltageMonitor *))
+    void (*const error_callback)(struct VoltageMonitor *))
 {
     struct VoltageMonitor *voltage_monitor =
         malloc(sizeof(struct VoltageMonitor));

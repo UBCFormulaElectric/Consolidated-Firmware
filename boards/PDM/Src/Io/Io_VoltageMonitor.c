@@ -16,15 +16,18 @@ void Io_VoltageMonitor_ErrorCallback(struct VoltageMonitor *voltage_monitor)
 
     if (strcmp(name, "INIT") == 0)
     {
-        App_CanTx_SetPeriodicSignal_VOLTAGE_MONITOR_FAULT_VBAT(_can_tx_interface, 1);
+        App_CanTx_SetPeriodicSignal_VOLTAGE_MONITOR_FAULT_VBAT(
+            _can_tx_interface, 1);
     }
     else if (strcmp(name, "AUX") == 0)
     {
-        App_CanTx_SetPeriodicSignal_VOLTAGE_MONITOR_FAULT_24_V_AUX(_can_tx_interface, 1);
+        App_CanTx_SetPeriodicSignal_VOLTAGE_MONITOR_FAULT_24_V_AUX(
+            _can_tx_interface, 1);
     }
     else if (strcmp(name, "ACC") == 0)
     {
-        App_CanTx_SetPeriodicSignal_VOLTAGE_MONITOR_FAULT_24_V_ACC(_can_tx_interface, 1);
+        App_CanTx_SetPeriodicSignal_VOLTAGE_MONITOR_FAULT_24_V_ACC(
+            _can_tx_interface, 1);
     }
 }
 
