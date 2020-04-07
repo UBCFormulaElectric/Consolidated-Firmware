@@ -28,7 +28,15 @@ if [ "$RUN_X86_TESTS" = "true" ]; then
     BUILD_DIR=boards/x86_build
     travis_run cmake -S boards -B $BUILD_DIR -DPLATFORM=x86
     travis_run make --directory=$BUILD_DIR
-    travis_run cd $BUILD_DIR && ctest && cd -
+    travis_run cd $BUILD_DIR && ctest
+
+    return_code=$?
+    if [ $return -ne 0 ]; then
+        echo "Ctest failed. Please check the test log for more information."
+        exit 1
+    else
+        travis_run cd -
+    fi
 fi
 
 if [ "$RUN_FORMATTING_CHECKS" = "true" ]; then
