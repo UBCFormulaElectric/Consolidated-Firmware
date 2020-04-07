@@ -215,15 +215,15 @@ void HAL_CAN_MspDeInit(CAN_HandleTypeDef *hcan)
 }
 
 /**
- * @brief TIM_Base MSP Initialization
+ * @brief TIM_IC MSP Initialization
  * This function configures the hardware resources used in this example
- * @param htim_base: TIM_Base handle pointer
+ * @param htim_ic: TIM_IC handle pointer
  * @retval None
  */
-void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
+void HAL_TIM_IC_MspInit(TIM_HandleTypeDef *htim_ic)
 {
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
-    if (htim_base->Instance == TIM4)
+    if (htim_ic->Instance == TIM4)
     {
         /* USER CODE BEGIN TIM4_MspInit 0 */
 
@@ -253,14 +253,14 @@ void HAL_TIM_Base_MspInit(TIM_HandleTypeDef *htim_base)
 }
 
 /**
- * @brief TIM_Base MSP De-Initialization
+ * @brief TIM_IC MSP De-Initialization
  * This function freeze the hardware resources used in this example
- * @param htim_base: TIM_Base handle pointer
+ * @param htim_ic: TIM_IC handle pointer
  * @retval None
  */
-void HAL_TIM_Base_MspDeInit(TIM_HandleTypeDef *htim_base)
+void HAL_TIM_IC_MspDeInit(TIM_HandleTypeDef *htim_ic)
 {
-    if (htim_base->Instance == TIM4)
+    if (htim_ic->Instance == TIM4)
     {
         /* USER CODE BEGIN TIM4_MspDeInit 0 */
 

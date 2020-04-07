@@ -1,0 +1,3 @@
+#pragma once
+
+#define MAX_NUM_OF_FREQUENCY_ONLY_PWM_INPUTS 2

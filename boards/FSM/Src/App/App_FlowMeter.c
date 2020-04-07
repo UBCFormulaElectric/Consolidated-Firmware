@@ -50,6 +50,4 @@ void App_FlowMeter_Tick(
         App_SharedWorld_GetCanTx(world), primary_flow_rate);
     secondary_flow_meter->set_periodic_signal(
         App_SharedWorld_GetCanTx(world), secondary_flow_rate);
-
-    //App_CanTx_SetPeriodicSignal_PRIMARY_FLOW_METER_FLOW_RATE(App_SharedWorld_GetCanTx(world), primary_flow_rate);
 }

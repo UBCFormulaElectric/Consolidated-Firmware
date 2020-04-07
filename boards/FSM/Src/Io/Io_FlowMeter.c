@@ -1,6 +1,7 @@
 #include <assert.h>
 #include "main.h"
 #include "Io_SharedPwmInput.h"
+#include "Io_SharedFrequencyOnlyPwmInput.h"
 #include "Io_FlowMeter.h"
 
 #define PRIMARY_FLOW_METER_CHANNEL HAL_TIM_ACTIVE_CHANNEL_1
@@ -8,7 +9,7 @@
 
 extern TIM_HandleTypeDef htim4;
 
-static struct PwmInput *primary_flow_meter_pwm_input,
+static struct FrequencyOnlyPwmInput *primary_flow_meter_pwm_input,
     *secondary_flow_meter_pwm_input;
 static TIM_HandleTypeDef *flow_meters_timer_handle;
 
@@ -17,20 +18,23 @@ void Io_FlowMeter_Init(void)
     // Configuring timer handle for both flow meters
     flow_meters_timer_handle = &htim4;
 
-    primary_flow_meter_pwm_input = Io_SharedPwmInput_Create(
-        &htim4, TIMx_FREQUENCY / TIMx_PRESCALER, TIM_CHANNEL_1, TIM_CHANNEL_1);
-    secondary_flow_meter_pwm_input = Io_SharedPwmInput_Create(
-        &htim4, TIMx_FREQUENCY / TIMx_PRESCALER, TIM_CHANNEL_2, TIM_CHANNEL_2);
+    primary_flow_meter_pwm_input = Io_SharedFrequencyOnlyPwmInput_Create(
+        &htim4, TIMx_FREQUENCY / TIMx_PRESCALER, TIM_CHANNEL_1);
+    secondary_flow_meter_pwm_input = Io_SharedFrequencyOnlyPwmInput_Create(
+        &htim4, TIMx_FREQUENCY / TIMx_PRESCALER, TIM_CHANNEL_2);
 }
 
 float Io_FlowMeter_GetPrimaryFlowRate(void)
 {
-    return Io_SharedPwmInput_GetFrequency(primary_flow_meter_pwm_input) / 7.5f;
+    return Io_SharedFrequencyOnlyPwmInput_GetFrequency(
+               primary_flow_meter_pwm_input) /
+           7.5f;
 }
 
 float Io_FlowMeter_GetSecondaryFlowRate(void)
 {
-    return Io_SharedPwmInput_GetFrequency(secondary_flow_meter_pwm_input) /
+    return Io_SharedFrequencyOnlyPwmInput_GetFrequency(
+               secondary_flow_meter_pwm_input) /
            7.5f;
 }
 
@@ -45,12 +49,12 @@ void Io_FlowMeter_InputCaptureCallback(TIM_HandleTypeDef *htim)
     {
         if (htim->Channel == PRIMARY_FLOW_METER_CHANNEL)
         {
-            Io_SharedPwmInput_Tick(primary_flow_meter_pwm_input);
+            Io_SharedFrequencyOnlyPwmInput_Tick(primary_flow_meter_pwm_input);
         }
 
         else if (htim->Channel == SECONDARY_FLOW_METER_CHANNEL)
         {
-            Io_SharedPwmInput_Tick(secondary_flow_meter_pwm_input);
+            Io_SharedFrequencyOnlyPwmInput_Tick(secondary_flow_meter_pwm_input);
         }
     }
 }

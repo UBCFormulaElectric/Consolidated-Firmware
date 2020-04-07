@@ -97,8 +97,8 @@ SG_ State : 0|8@1+ (1,0) [0|255] "" LOGGER
 BO_ 306 FSM_AIR_SHUTDOWN: 0 FSM
 
 BO_ 307 FSM_FLOW_METER: 8 FSM
-SG_ Primary_flow_meter_flow_rate : 0|32@1+ (1,0) [0|1] "" Vector__XXX
-SG_ Secondary_flow_meter_flow_rate : 32|32@1+ (1,0) [0|1] "" Vector__XXX
+SG_ Primary_flow_meter_flow_rate : 0|32@1+ (1,0) [1.0|30.0] "" LOGGER 
+SG_ Secondary_flow_meter_flow_rate : 32|32@1+ (1,0) [1.0|30.0] "" LOGGER
 
 BO_ 400 PDM_ERRORS: 8 PDM
 SG_ MISSING_HEARTBEAT : 0|1@1+ (1,0) [0|1] "" LOGGER
@@ -201,6 +201,7 @@ BA_ "GenMsgCycleTime" BO_ 300 1000;
 BA_ "GenMsgCycleTime" BO_ 301 300;
 BA_ "GenMsgCycleTime" BO_ 302 5000;
 BA_ "GenMsgCycleTime" BO_ 305 10;
+BA_ "GenMsgCycleTime" BO_ 307 1000;
 BA_ "GenMsgCycleTime" BO_ 400 1000;
 BA_ "GenMsgCycleTime" BO_ 401 300;
 BA_ "GenMsgCycleTime" BO_ 402 5000;
@@ -221,6 +222,8 @@ BA_ "GenSigStartValue" SG_ 2  rx_overflow_count 0;
 SIG_VALTYPE_ 106 Duty_Cycle : 1;
 SIG_VALTYPE_ 106 Frequency : 1;
 SIG_VALTYPE_ 108 State_Of_Charge : 1;
+SIG_VALTYPE_ 307 Primary_flow_meter_flow_rate: 1;
+SIG_VALTYPE_ 307 Secondary_flow_meter_flow_rate: 1;
 SIG_VALTYPE_ 406 Auxiliary1_Current : 1;
 SIG_VALTYPE_ 406 Auxiliary2_Current : 1;
 SIG_VALTYPE_ 407 Cooling_Pump_Current : 1;
