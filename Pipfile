@@ -8,6 +8,7 @@ pylint = "*"
 
 [packages]
 cantools = "~=33.1.1"
+stringcase = "~=1.2.0"
 
 [requires]
 python_version = "3"

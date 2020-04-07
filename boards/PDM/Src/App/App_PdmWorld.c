@@ -6,13 +6,13 @@
 
 struct PdmWorld
 {
-    struct PDMCanTxInterface *can_tx_interface;
-    struct PDMCanRxInterface *can_rx_interface;
+    struct PdmCanTxInterface *can_tx_interface;
+    struct PdmCanRxInterface *can_rx_interface;
 };
 
 struct PdmWorld *App_PdmWorld_Create(
-    struct PDMCanTxInterface *const can_tx_interface,
-    struct PDMCanRxInterface *const can_rx_interface)
+    struct PdmCanTxInterface *const can_tx_interface,
+    struct PdmCanRxInterface *const can_rx_interface)
 {
     struct PdmWorld *world = (struct PdmWorld *)malloc(sizeof(struct PdmWorld));
     shared_assert(world != NULL);
@@ -29,14 +29,14 @@ void App_PdmWorld_Destroy(struct PdmWorld *world)
     free(world);
 }
 
-struct PDMCanTxInterface *
+struct PdmCanTxInterface *
     App_PdmWorld_GetCanTx(const struct PdmWorld *const world)
 {
     shared_assert(world != NULL);
     return world->can_tx_interface;
 }
 
-struct PDMCanRxInterface *
+struct PdmCanRxInterface *
     App_PdmWorld_GetCanRx(const struct PdmWorld *const world)
 {
     shared_assert(world != NULL);

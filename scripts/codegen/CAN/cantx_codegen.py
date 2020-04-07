@@ -1,3 +1,4 @@
+import stringcase
 from codegen_shared import *
 
 class AppCanTxFileGenerator(CanFileGenerator):
@@ -40,7 +41,7 @@ class AppCanTxFileGenerator(CanFileGenerator):
 
         self._Create = Function(
             'struct %sCanTxInterface* %s_Create(%s)'
-                % (self._sender, function_prefix, '\n' + '\n'.join(function_params)[:-1]),
+                % (self._sender.capitalize(), function_prefix, '\n' + '\n'.join(function_params)[:-1]),
             'Allocate and initialize a CAN TX interface',
             '''\
     static struct {sender}CanTxInterface can_tx_interfaces[MAX_NUM_OF_CANTX_INTERFACES];
@@ -49,19 +50,19 @@ class AppCanTxFileGenerator(CanFileGenerator):
     shared_assert(alloc_index < MAX_NUM_OF_CANTX_INTERFACES);
 
     struct {sender}CanTxInterface* can_tx_interface = &can_tx_interfaces[alloc_index++];\n\n'''
-    .format(sender=self._sender)
+    .format(sender=self._sender.capitalize())
     + '\n'.join(init_senders)
     + '''
 
 {initial_signal_setters}
 
     return can_tx_interface;'''.format(
-        sender=self._sender,
+        sender=self._sender.capitalize(),
         initial_signal_setters=initial_signal_setters))
 
         self._PeriodicTxSignalSetters = list(Function(
             'void %s_SetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface, %s value)' % (
-            function_prefix, signal.uppercase_name, self._sender, signal.type_name),
+            function_prefix, signal.uppercase_name, self._sender.capitalize(), signal.type_name),
             '',
             '''\
     if (App_CanMsgs_{msg_snakecase_name}_{signal_snakecase_name}_is_in_range(value) == true)
@@ -74,7 +75,7 @@ class AppCanTxFileGenerator(CanFileGenerator):
 
         self._PeriodicTxMsgPointerGetters = list(Function(
             'struct CanMsgs_%s_t* %s_GetPeriodicMsgPointer_%s(struct %sCanTxInterface* can_tx_interface)' % (
-                msg.snake_name, function_prefix, msg.snake_name.upper(), self._sender),
+                msg.snake_name, function_prefix, msg.snake_name.upper(), self._sender.capitalize()),
             '',
             '''\
     return &can_tx_interface->periodic_can_tx_table.{msg_name};'''.format(
@@ -83,7 +84,7 @@ class AppCanTxFileGenerator(CanFileGenerator):
 
         self._SendNonPeriodicMsgs = list(Function(
         'void %s_SendNonPeriodicMsg_%s(struct %sCanTxInterface* can_tx_interface, struct CanMsgs_%s_t* payload)' % (
-            function_prefix, msg.snake_name.upper(), self._sender, msg.snake_name),
+            function_prefix, msg.snake_name.upper(), self._sender.capitalize(), msg.snake_name),
         '',
         '''\
     can_tx_interface->send_non_periodic_msg_%s(payload);''' % msg.snake_name.upper()
@@ -146,7 +147,7 @@ class AppCanTxSourceFileGenerator(AppCanTxFileGenerator):
              for msg in self._periodic_cantx_msgs],
             'Periodic CAN TX message')
         self.__CanTxInterface = Struct(
-            '{sender}CanTxInterface'.format(sender=self._sender),
+            '{sender}CanTxInterface'.format(sender=self._sender.capitalize()),
             [StructMember('struct PeriodicCanTxMsgs',
                           'periodic_can_tx_table',
                           '0')] +
@@ -251,7 +252,7 @@ class IoCanTxFileGenerator(CanFileGenerator):
                                     for msg in self._periodic_cantx_msgs])
 
         self._EnqueuePeriodicMsgs = Function('''\
-void %s_EnqueuePeriodicMsgs(struct %sCanTxInterface* can_tx_interface, const uint32_t current_ms)''' % (function_prefix, self._sender),
+void %s_EnqueuePeriodicMsgs(struct %sCanTxInterface* can_tx_interface, const uint32_t current_ms)''' % (function_prefix, self._sender.capitalize()),
             'Enqueue periodic CAN TX messages according to the cycle time specified in the DBC. This should be called in a 1kHz task.',
             FunctionDef)
 
@@ -292,7 +293,7 @@ class IoCanTxHeaderFileGenerator(IoCanTxFileGenerator):
 
     def __generateForwardDeclarations(self):
         forward_declarations = []
-        forward_declarations.append('struct {sender}CanTxInterface;'.format(sender=self._sender))
+        forward_declarations.append('struct {sender}CanTxInterface;'.format(sender=self._sender.capitalize()))
         return '\n' + '\n'.join(forward_declarations)
 
     def __generateFunctionDeclarations(self):
