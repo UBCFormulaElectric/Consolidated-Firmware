@@ -48,3 +48,21 @@ struct PDMCanRxInterface *
 {
     return world->can_rx_interface;
 }
+
+struct VoltageMonitor *
+    App_PdmWorld_GetVbatVoltageMonitor(const struct PdmWorld *const world)
+{
+    return world->vbat_voltage_monitor;
+}
+
+struct VoltageMonitor *
+    App_PdmWorld_Get24vAuxVoltageMonitor(const struct PdmWorld *const world)
+{
+    return world->_24v_aux_voltage_monitor;
+}
+
+struct VoltageMonitor *
+    App_PdmWorld_Get24vAccVoltageMonitor(const struct PdmWorld *const world)
+{
+    return world->_24v_acc_voltage_monitor;
+}
