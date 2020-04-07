@@ -50,7 +50,11 @@ after_success:
   - echo $TRAVIS_PULL_REQUEST_SHA
   - echo $TRAVIS_BRANCH
   - echo $TRAVIS_PULL_REQUEST
-  - ./scripts/travis_ci/series_ci.sh
+  - |
+    if [ "$RUN_ARM_BUILD" = "true" ]; then
+      echo "Hello"
+      ./scripts/travis_ci/series_ci.sh
+    fi
 
 matrix:
   include:
