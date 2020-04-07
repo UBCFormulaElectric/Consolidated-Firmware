@@ -5,7 +5,6 @@
 
 struct VoltageMonitor
 {
-    const char *name;
     float (*get_voltage)(void);
     float (*get_min_voltage)(void);
     float (*get_max_voltage)(void);
@@ -14,7 +13,6 @@ struct VoltageMonitor
 };
 
 struct VoltageMonitor *App_VoltageMonitor_Create(
-    const char *const name,
     float (*const get_voltage)(void),
     float (*const get_min_voltage)(void),
     float (*const get_max_voltage)(void),
@@ -25,7 +23,6 @@ struct VoltageMonitor *App_VoltageMonitor_Create(
 
     shared_assert(voltage_monitor != NULL);
 
-    voltage_monitor->name            = name;
     voltage_monitor->get_voltage     = get_voltage;
     voltage_monitor->get_min_voltage = get_min_voltage;
     voltage_monitor->get_max_voltage = get_max_voltage;
@@ -66,10 +63,4 @@ enum VoltageMonitor_Status App_VoltageMonitor_GetStatus(
     const struct VoltageMonitor *const voltage_monitor)
 {
     return voltage_monitor->status;
-}
-
-const char *App_VoltageMonitor_GetName(
-    const struct VoltageMonitor *const voltage_monitor)
-{
-    return voltage_monitor->name;
 }

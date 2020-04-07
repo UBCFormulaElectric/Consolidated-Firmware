@@ -147,19 +147,18 @@ int main(void)
     can_rx = App_CanRx_Create();
 
     vbat_voltage_monitor = App_VoltageMonitor_Create(
-        "VBAT", Io_VoltageMonitor_GetVbatVoltage,
-        Io_VoltageMonitor_GetVbatMinVoltage,
+        Io_VoltageMonitor_GetVbatVoltage, Io_VoltageMonitor_GetVbatMinVoltage,
         Io_VoltageMonitor_Get24vAccMaxVoltage,
         Io_VoltageMonitor_VbatErrorCallback);
 
     _24v_aux_voltage_monitor = App_VoltageMonitor_Create(
-        "AUX", Io_VoltageMonitor_Get24vAuxVoltage,
+        Io_VoltageMonitor_Get24vAuxVoltage,
         Io_VoltageMonitor_Get24vAuxMinVoltage,
         Io_VoltageMonitor_Get24vAccMaxVoltage,
         Io_VoltageMonitor_24vAuxErrorCallback);
 
     _24v_acc_voltage_monitor = App_VoltageMonitor_Create(
-        "ACC", Io_VoltageMonitor_Get24vAccVoltage,
+        Io_VoltageMonitor_Get24vAccVoltage,
         Io_VoltageMonitor_Get24vAccMinVoltage,
         Io_VoltageMonitor_Get24vAccMaxVoltage,
         Io_VoltageMonitor_24vAccErrorCallback);

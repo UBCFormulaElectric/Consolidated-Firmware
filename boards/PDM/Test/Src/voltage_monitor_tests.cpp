@@ -18,8 +18,7 @@ class VoltageMonitorTest : public testing::Test
     virtual void SetUp()
     {
         voltage_monitor = App_VoltageMonitor_Create(
-            "EXAMPLE", get_voltage, get_min_voltage, get_max_voltage,
-            error_callback);
+            get_voltage, get_min_voltage, get_max_voltage, error_callback);
 
         RESET_FAKE(get_voltage);
         RESET_FAKE(get_min_voltage);

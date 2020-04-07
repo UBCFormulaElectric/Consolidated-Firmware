@@ -20,7 +20,6 @@ enum VoltageMonitor_Status
  * the caller
  */
 struct VoltageMonitor *App_VoltageMonitor_Create(
-    const char *name,
     float (*get_voltage)(void),
     float (*get_min_voltage)(void),
     float (*get_max_voltage)(void),
@@ -45,11 +44,3 @@ void App_VoltageMonitor_Tick(struct VoltageMonitor *voltage_monitor);
  */
 enum VoltageMonitor_Status
     App_VoltageMonitor_GetStatus(const struct VoltageMonitor *voltage_monitor);
-
-/**
- * Get the name for the given voltage monitor
- * @param voltage_monitor The voltage monitor to get name for
- * @return The name for the given voltage monitor
- */
-const char *
-    App_VoltageMonitor_GetName(const struct VoltageMonitor *voltage_monitor);
