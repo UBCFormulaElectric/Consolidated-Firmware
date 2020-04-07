@@ -20,8 +20,8 @@ float Io_VoltageMonitor_GetVbatVoltage(void);
  */
 float Io_VoltageMonitor_GetVbatMinVoltage(void);
 /**
- * Get the minimum threshold for VBAT voltage
- * @return Minimum threshold for VBAT voltage
+ * Get the maximum threshold for VBAT voltage
+ * @return Maximum threshold for VBAT voltage
  */
 float Io_VoltageMonitor_GetVbatMaxVoltage(void);
 
