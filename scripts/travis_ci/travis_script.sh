@@ -30,8 +30,7 @@ if [ "$RUN_X86_TESTS" = "true" ]; then
     travis_run make --directory=$BUILD_DIR
     travis_run cd $BUILD_DIR && ctest
 
-    return_code=$?
-    if [ $return -ne 0 ]; then
+    if [ $? -ne 0 ]; then
         echo "Ctest failed. Please check the test log for more information."
         exit 1
     else
