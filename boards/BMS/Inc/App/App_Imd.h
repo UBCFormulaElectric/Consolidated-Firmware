@@ -20,30 +20,32 @@ enum Imd_Condition
 
 // Match the IMD enums with the DBC multiplexer values of the IMD message
 static_assert(
-    IMD_SHORT_CIRCUIT == CANMSGS_IMD_CONDITION_IMD_SHORT_CIRCUIT_CHOICE,
+    IMD_SHORT_CIRCUIT == CANMSGS_BMS_IMD_CONDITION_IMD_SHORT_CIRCUIT_CHOICE,
     "The IMD short circuit enum must match its DBC multiplexer value");
 static_assert(
-    IMD_NORMAL == CANMSGS_IMD_CONDITION_IMD_NORMAL_CHOICE,
+    IMD_NORMAL == CANMSGS_BMS_IMD_CONDITION_IMD_NORMAL_CHOICE,
     "The IMD normal enum must match its DBC multiplexer value");
 static_assert(
     IMD_UNDERVOLTAGE_DETECTED ==
-        CANMSGS_IMD_CONDITION_IMD_UNDERVOLTAGE_DETECTED_CHOICE,
+        CANMSGS_BMS_IMD_CONDITION_IMD_UNDERVOLTAGE_DETECTED_CHOICE,
     "The IMD undervoltage detected enum must match its DBC multiplexer value");
 static_assert(
-    IMD_SST == CANMSGS_IMD_CONDITION_IMD_SST_CHOICE,
+    IMD_SST == CANMSGS_BMS_IMD_CONDITION_IMD_SST_CHOICE,
     "The IMD speed start measurement enum must match its DBC multiplexer "
     "value");
 static_assert(
-    IMD_DEVICE_ERROR == CANMSGS_IMD_CONDITION_IMD_DEVICE_ERROR_CHOICE,
+    IMD_DEVICE_ERROR == CANMSGS_BMS_IMD_CONDITION_IMD_DEVICE_ERROR_CHOICE,
     "The IMD device error enum must match its DBC multiplexer value");
 static_assert(
-    IMD_EARTH_FAULT == CANMSGS_IMD_CONDITION_IMD_EARTH_FAULT_CHOICE,
+    IMD_EARTH_FAULT == CANMSGS_BMS_IMD_CONDITION_IMD_EARTH_FAULT_CHOICE,
     "The IMD earth fault enum must match its DBC multiplexer value");
 
 /**
  * Allocate and initialize an IMD
  * @get_pwm_frequency: A function that can be called to get the frequency of the
  *                     IMD's PWM output
+ * @get_pwm_frequency_tolerance: A function that can be called to get the
+ *                               frequency tolerance of the IMD's PWM output
  * @get_pwm_duty_cycle: A function that can be called to get the duty cycle of
  *                      the IMD's PWM output
  * @get_seconds_since_power_on: A function that can be called to get the time of
@@ -51,8 +53,8 @@ static_assert(
  * @return A pointer to the created IMD, whose ownership is given to the caller
  */
 struct Imd *App_Imd_Create(
-    struct BmsCanTxInterface *can_tx,
     float (*get_pwm_frequency)(void),
+    float (*get_pwm_frequency_tolerance)(void),
     float (*get_pwm_duty_cycle)(void),
     uint32_t (*get_seconds_since_power_on)(void));
 
@@ -66,14 +68,14 @@ void App_Imd_Destroy(struct Imd *imd);
  * Update the given IMD
  * @param imd The IMD to update
  */
-void App_Imd_Tick(struct Imd *const imd);
+void App_Imd_Tick(struct Imd *imd);
 
 /**
  * Get the PWM frequency for the given IMD
  * @param imd The IMD to get PWM frequency for
  * @return The PWM frequency for the given IMD
  */
-float App_Imd_GetPwmFrequency(const struct Imd *const imd);
+float App_Imd_GetPwmFrequency(const struct Imd *imd);
 
 /**
  * Get the PWM duty cycle for the given IMD

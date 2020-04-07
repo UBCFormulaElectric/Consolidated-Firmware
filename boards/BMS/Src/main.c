@@ -140,7 +140,7 @@ int main(void)
 
     Io_Imd_Init();
     imd = App_Imd_Create(
-        can_tx, Io_Imd_GetFrequency, Io_Imd_GetDutyCycle,
+        Io_Imd_GetFrequency, Io_Imd_getFrequencyTolerance, Io_Imd_GetDutyCycle,
         Io_Imd_GetTimeSincePowerOn);
 
     can_tx = App_CanTx_Create(

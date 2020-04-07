@@ -23,6 +23,11 @@ float Io_Imd_GetFrequency(void)
     return Io_SharedPwmInput_GetFrequency(imd_pwm_input);
 }
 
+float Io_Imd_getFrequencyTolerance(void)
+{
+    return 2.0f;
+}
+
 float Io_Imd_GetDutyCycle(void)
 {
     return Io_SharedPwmInput_GetDutyCycle(imd_pwm_input);

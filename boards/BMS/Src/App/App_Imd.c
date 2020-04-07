@@ -1,17 +1,9 @@
 #include <string.h>
 #include <stdlib.h>
 
-#include "auto_generated/App_CanTx.h"
 #include "App_Imd.h"
 #include "App_SharedAssert.h"
 #include "App_SharedMacros.h"
-
-// We only require one IMD per vehicle
-#define MAX_NUM_OF_IMDS 1
-
-// The frequency of the IMD's PWM output won't be exact, so need some tolerance
-// in our measurements.
-#define CONDITION_FREQUENCY_TOLERANCE 2U // +/- Hz
 
 // States for speed start measurement
 enum SST
@@ -36,12 +28,13 @@ struct Imd_PwmEncoding
 
 struct Imd
 {
-    struct BmsCanTxInterface *can_tx;
     float (*get_pwm_frequency)(void);
+    float (*get_pwm_frequency_tolerance)(void);
     float (*get_pwm_duty_cycle)(void);
     uint32_t (*get_seconds_since_power_on)(void);
 
     float                  pwm_frequency;
+    float                  pwm_frequency_tolerance;
     float                  pwm_duty_cycle;
     uint32_t               seconds_since_power_on;
     enum Imd_Condition     condition;
@@ -52,18 +45,21 @@ struct Imd
  * Convert the given PWM frequency to an IMD condition. Note the PWM frequency
  * won't be exact so we must do some approximation.
  * @param frequency: The PWM frequency to convert to an IMD condition
+ * @param tolerance: The tolerance allowed in the PWM frequency
  * @return The IMD condition corresponding to the given PWM frequency
  */
-static enum Imd_Condition App_EstimateCondition(const float frequency);
+static enum Imd_Condition
+    App_EstimateCondition(float frequency, float tolerance);
 
 /**
  * Get the ideal frequency for the given IMD condition
  * @param condition: The IMD condition to look up ideal frequency for
  * @return The ideal frequency for the given IMD condition
  */
-static uint32_t App_GetIdealPwmFrequency(const enum Imd_Condition condition);
+static float App_GetIdealPwmFrequency(enum Imd_Condition condition);
 
-static enum Imd_Condition App_EstimateCondition(const float frequency)
+static enum Imd_Condition
+    App_EstimateCondition(const float frequency, const float tolerance)
 {
     enum Imd_Condition condition = IMD_INVALID;
 
@@ -71,12 +67,11 @@ static enum Imd_Condition App_EstimateCondition(const float frequency)
     {
         // Use min() because subtracting from 0Hz (IMD_SHORT_CIRCUIT) causes an
         // underflow
-        const uint32_t lower_bound =
+        const float lower_bound =
             min(App_GetIdealPwmFrequency(i),
-                App_GetIdealPwmFrequency(i) - CONDITION_FREQUENCY_TOLERANCE);
+                App_GetIdealPwmFrequency(i) - tolerance);
 
-        const uint32_t upper_bound =
-            App_GetIdealPwmFrequency(i) + CONDITION_FREQUENCY_TOLERANCE;
+        const float upper_bound = App_GetIdealPwmFrequency(i) + tolerance;
 
         if (frequency >= lower_bound && frequency <= upper_bound)
         {
@@ -88,7 +83,7 @@ static enum Imd_Condition App_EstimateCondition(const float frequency)
     return condition;
 }
 
-static uint32_t App_GetIdealPwmFrequency(const enum Imd_Condition condition)
+static float App_GetIdealPwmFrequency(const enum Imd_Condition condition)
 {
     shared_assert(condition < NUM_OF_IMD_CONDITIONS);
 
@@ -104,43 +99,43 @@ static uint32_t App_GetIdealPwmFrequency(const enum Imd_Condition condition)
 }
 
 struct Imd *App_Imd_Create(
-    struct BmsCanTxInterface *const can_tx,
     float (*const get_pwm_frequency)(void),
+    float (*const get_pwm_frequency_tolerance)(void),
     float (*const get_pwm_duty_cycle)(void),
     uint32_t (*const get_seconds_since_power_on)(void))
 {
     shared_assert(get_pwm_frequency != NULL);
+    shared_assert(get_pwm_frequency_tolerance != NULL);
     shared_assert(get_pwm_duty_cycle != NULL);
     shared_assert(get_seconds_since_power_on != NULL);
-    shared_assert(can_tx != NULL);
 
     struct Imd *imd = (struct Imd *)malloc(sizeof(struct Imd));
     shared_assert(imd != NULL);
 
-    imd->can_tx                     = can_tx;
-    imd->get_pwm_frequency          = get_pwm_frequency;
-    imd->get_pwm_duty_cycle         = get_pwm_duty_cycle;
-    imd->get_seconds_since_power_on = get_seconds_since_power_on;
+    imd->get_pwm_frequency           = get_pwm_frequency;
+    imd->get_pwm_frequency_tolerance = get_pwm_frequency_tolerance;
+    imd->get_pwm_duty_cycle          = get_pwm_duty_cycle;
+    imd->get_seconds_since_power_on  = get_seconds_since_power_on;
 
     memset(&imd->pwm_encoding, 0, sizeof(imd->pwm_encoding));
 
     return imd;
 }
 
-void App_Imd_Destroy(struct Imd *imd)
+void App_Imd_Destroy(struct Imd *const imd)
 {
     free(imd);
 }
 
 void App_Imd_Tick(struct Imd *const imd)
 {
-    shared_assert(imd != NULL);
-
     // Update internal state at the start of each tick
-    imd->pwm_frequency          = imd->get_pwm_frequency();
-    imd->pwm_duty_cycle         = imd->get_pwm_duty_cycle();
-    imd->seconds_since_power_on = imd->get_seconds_since_power_on();
-    imd->condition              = App_EstimateCondition(imd->pwm_frequency);
+    imd->pwm_frequency           = imd->get_pwm_frequency();
+    imd->pwm_frequency_tolerance = imd->get_pwm_frequency_tolerance();
+    imd->pwm_duty_cycle          = imd->get_pwm_duty_cycle();
+    imd->seconds_since_power_on  = imd->get_seconds_since_power_on();
+    imd->condition =
+        App_EstimateCondition(imd->pwm_frequency, imd->pwm_frequency_tolerance);
 
     // Decode the information encoded in the PWM frequency and duty cycle
     switch (imd->condition)

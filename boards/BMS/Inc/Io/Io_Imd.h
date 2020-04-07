@@ -14,6 +14,12 @@ void Io_Imd_Init(void);
 float Io_Imd_GetFrequency(void);
 
 /**
+ * Get the frequency tolerance of the IMD's PWM output
+ * @return The frequency tolerance of the IMD's PWM output
+ */
+float Io_Imd_getFrequencyTolerance(void);
+
+/**
  * Get the duty cycle of the IMD's PWM output
  * @return The duty cycle of the IMD's PWM output
  */

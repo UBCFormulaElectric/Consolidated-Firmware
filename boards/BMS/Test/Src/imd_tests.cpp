@@ -5,22 +5,25 @@
 extern "C"
 {
 #include "App_Imd.h"
+
+    DEFINE_FFF_GLOBALS;
+
+    FAKE_VALUE_FUNC(float, get_pwm_frequency);
+    FAKE_VALUE_FUNC(float, get_pwm_frequency_tolerance);
+    FAKE_VALUE_FUNC(float, get_pwm_duty_cycle);
+    FAKE_VALUE_FUNC(uint32_t, get_seconds_since_power_on);
 }
-
-DEFINE_FFF_GLOBALS;
-
-FAKE_VALUE_FUNC(float, get_pwm_frequency);
-FAKE_VALUE_FUNC(float, get_pwm_duty_cycle);
-FAKE_VALUE_FUNC(uint32_t, get_seconds_since_power_on);
 
 class Imd_Test : public testing::Test
 {
   protected:
-    void SetUp() override
+    virtual void SetUp()
     {
         imd = App_Imd_Create(
-            get_pwm_frequency, get_pwm_duty_cycle, get_seconds_since_power_on);
+            get_pwm_frequency, get_pwm_frequency_tolerance, get_pwm_duty_cycle,
+            get_seconds_since_power_on);
     }
+    virtual void TearDown() { App_Imd_Destroy(imd); }
 
     struct Imd *imd;
 };
@@ -91,6 +94,8 @@ TEST_F(Imd_Test, check_condition_for_ideal_frequency)
         { 54.0, IMD_INVALID },
         { 55.0, IMD_INVALID },
     };
+
+    get_pwm_frequency_tolerance_fake.return_val = 2.0f;
 
     for (auto &entry : lookup_table)
     {
