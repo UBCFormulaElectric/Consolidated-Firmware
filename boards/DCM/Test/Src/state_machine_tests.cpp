@@ -54,10 +54,10 @@ class DcmStateMachineTest : public testing::Test
         state_machine = NULL;
     }
 
-    struct StateMachine *     state_machine;
-    struct World *            world;
-    struct DcmCanTxInterface *can_tx_interface;
-    struct DcmCanRxInterface *can_rx_interface;
+    struct StateMachine *     state_machine{};
+    struct World *            world{};
+    struct DcmCanTxInterface *can_tx_interface{};
+    struct DcmCanRxInterface *can_rx_interface{};
 };
 
 TEST_F(

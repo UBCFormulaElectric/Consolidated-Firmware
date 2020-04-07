@@ -22,6 +22,11 @@ class Imd_Test : public testing::Test
         imd = App_Imd_Create(
             get_pwm_frequency, get_pwm_frequency_tolerance, get_pwm_duty_cycle,
             get_seconds_since_power_on);
+
+        RESET_FAKE(get_pwm_frequency);
+        RESET_FAKE(get_pwm_frequency_tolerance);
+        RESET_FAKE(get_pwm_duty_cycle);
+        RESET_FAKE(get_seconds_since_power_on);
     }
     void TearDown() override { App_Imd_Destroy(imd); }
 

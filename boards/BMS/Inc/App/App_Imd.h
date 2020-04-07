@@ -13,7 +13,7 @@ enum SST
     SST_INVALID
 };
 
-// The IMD encodes a condition in its PWM output's frequency
+// The IMD encodes condition in its PWM output's frequency
 enum Imd_Condition
 {
     IMD_SHORT_CIRCUIT,
