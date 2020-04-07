@@ -7,8 +7,8 @@ curl \
 curl \
   --header "Authorization: Token 5e287d4c-a391-41e9-b2f5-8cfa38525052" \
   --header "Content-Type: application/json" \
-  --data "{\"value\":\"9\",\"sha\":\"${TRAVIS_COMMIT}\"}" \
-  https://seriesci.com/api/thekenu/Consolidated-Firmware/data/one
+  --data "{\"values\":[{\"value\":\"9\",\"line\":\"a\"}],\"sha\":\"${TRAVIS_COMMIT}\"}" \
+  https://seriesci.com/api/thekenu/Consolidated-Firmware/data/many
 
 curl \
   --header "Authorization: Token 5e287d4c-a391-41e9-b2f5-8cfa38525052" \
