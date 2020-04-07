@@ -1,4 +1,3 @@
-import stringcase
 from codegen_shared import *
 
 class AppCanTxFileGenerator(CanFileGenerator):
