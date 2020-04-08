@@ -22,12 +22,12 @@ static void FaultStateRunOnExit(struct StateMachine *const state_machine)
 
 const struct State *App_GetFaultState(void)
 {
-    static struct State drive_state = {
-        .name         = "DRIVE",
+    static struct State fault_state = {
+        .name         = "FAULT",
         .run_on_entry = FaultStateRunOnEntry,
         .run_on_tick  = FaultStateRunOnTick,
         .run_on_exit  = FaultStateRunOnExit,
     };
 
-    return &drive_state;
+    return &fault_state;
 }
