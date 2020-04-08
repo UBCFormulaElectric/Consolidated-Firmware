@@ -4,7 +4,10 @@
 
 static void DriveStateRunOnEntry(struct StateMachine *state_machine)
 {
-    UNUSED(state_machine);
+    struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct BmsCanTxInterface *can_tx_interface = App_BmsWorld_GetCanTx(world);
+    App_CanTx_SetPeriodicSignal_STATE(
+        can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE);
 }
 
 static void DriveStateRunOnTick(struct StateMachine *state_machine)
