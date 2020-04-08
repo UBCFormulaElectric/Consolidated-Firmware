@@ -20,7 +20,7 @@ extern "C"
 class BmsStateMachineTest : public testing::Test
 {
   protected:
-    virtual void SetUp()
+    void SetUp() override
     {
         can_tx_interface = App_CanTx_Create(
             send_non_periodic_msg_BMS_STARTUP,
@@ -39,7 +39,7 @@ class BmsStateMachineTest : public testing::Test
         RESET_FAKE(send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT);
     }
 
-    virtual void TearDown()
+    void TearDown() override
     {
         assert(state_machine != NULL);
         App_SharedStateMachine_Destroy(state_machine);
