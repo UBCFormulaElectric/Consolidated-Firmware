@@ -49,11 +49,11 @@ class BmsStateMachineTest : public testing::Test
         state_machine = NULL;
     }
 
-    struct StateMachine *     state_machine{};
-    struct World *            world{};
-    struct BmsCanTxInterface *can_tx_interface{};
-    struct BmsCanRxInterface *can_rx_interface{};
-    struct Imd* imd{};
+    struct StateMachine *     state_machine;
+    struct World *            world;
+    struct BmsCanTxInterface *can_tx_interface;
+    struct BmsCanRxInterface *can_rx_interface;
+    struct Imd* imd;
 };
 
 TEST_F(
