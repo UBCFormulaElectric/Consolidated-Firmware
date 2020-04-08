@@ -14,7 +14,7 @@ struct State
     // A newline terminated string containing the name of this state
     char name[MAX_STATE_NAME_LENGTH];
 
-    void (*run_on_enter)(struct StateMachine *state_machine);
+    void (*run_on_entry)(struct StateMachine *state_machine);
     void (*run_on_tick)(struct StateMachine *state_machine);
     void (*run_on_exit)(struct StateMachine *state_machine);
 };

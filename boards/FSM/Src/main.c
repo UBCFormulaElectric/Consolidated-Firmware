@@ -38,7 +38,7 @@
 #include "App_FlowMeter.h"
 #include "App_FsmWorld.h"
 #include "App_SharedStateMachine.h"
-#include "states/App_InitState.h"
+#include "states/App_AirOpenState.h"
 
 #include "auto_generated/App_CanTx.h"
 #include "auto_generated/App_CanRx.h"
@@ -146,7 +146,7 @@ int main(void)
 
     world = App_FsmWorld_Create(can_tx, can_rx);
 
-    state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
+    state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 
     App_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);

@@ -21,7 +21,7 @@ const struct State *App_GetInitState()
 {
     static struct State init_state = {
         .name         = "INIT",
-        .run_on_enter = InitStateRunOnEntry,
+        .run_on_entry = InitStateRunOnEntry,
         .run_on_tick  = InitStateRunOnTick,
         .run_on_exit  = InitStateRunOnExit,
     };

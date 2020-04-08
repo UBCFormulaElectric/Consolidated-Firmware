@@ -21,7 +21,7 @@ const struct State *App_GetDriveState()
 {
     static struct State drive_state = {
         .name         = "DRIVE",
-        .run_on_enter = DriveStateRunOnEntry,
+        .run_on_entry = DriveStateRunOnEntry,
         .run_on_tick  = DriveStateRunOnTick,
         .run_on_exit  = DriveStateRunOnExit,
     };

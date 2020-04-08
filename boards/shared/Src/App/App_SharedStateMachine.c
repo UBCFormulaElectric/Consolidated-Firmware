@@ -22,7 +22,7 @@ struct StateMachine *App_SharedStateMachine_Create(
 
     state_machine->current_state = initial_state;
     state_machine->next_state    = initial_state;
-    state_machine->current_state->run_on_enter(state_machine);
+    state_machine->current_state->run_on_entry(state_machine);
 
     return state_machine;
 }
@@ -63,7 +63,7 @@ void App_SharedStateMachine_Tick(struct StateMachine *const state_machine)
     {
         state_machine->current_state->run_on_exit(state_machine);
         state_machine->current_state = state_machine->next_state;
-        state_machine->current_state->run_on_enter(state_machine);
+        state_machine->current_state->run_on_entry(state_machine);
     }
 
     // We assume the next time we tick we will continue in the current state,
