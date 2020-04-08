@@ -3,7 +3,7 @@
 #include "App_Imd.h"
 #include "App_SharedMacros.h"
 
-static void App_RunState_SetImdPeriodicCanSignals(
+static void App_DriveState_SetImdPeriodicCanSignals(
     struct BmsCanTxInterface *can_tx,
     struct Imd *              imd)
 {
@@ -81,7 +81,7 @@ static void DriveStateRunOnTick(struct StateMachine *state_machine)
     struct BmsCanTxInterface *can_tx = App_BmsWorld_GetCanTx(world);
     struct Imd *              imd    = App_BmsWorld_GetImd(world);
 
-    App_RunState_SetImdPeriodicCanSignals(can_tx, imd);
+    App_DriveState_SetImdPeriodicCanSignals(can_tx, imd);
 }
 
 static void DriveStateRunOnExit(struct StateMachine *state_machine)
