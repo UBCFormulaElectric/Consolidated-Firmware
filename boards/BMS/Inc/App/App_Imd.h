@@ -1,8 +1,5 @@
 #pragma once
 
-#include <assert.h>
-#include "auto_generated/App_CanMsgs.h"
-
 struct Imd;
 
 // States for speed start measurement

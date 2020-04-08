@@ -1,6 +1,7 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include "auto_generated/App_CanMsgs.h"
 #include "App_Imd.h"
 #include "App_SharedAssert.h"
 #include "App_SharedMacros.h"
