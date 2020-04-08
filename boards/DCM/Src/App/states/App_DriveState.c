@@ -23,7 +23,7 @@ static void DriveStateRunOnExit(struct StateMachine *const state_machine)
 const struct State *App_GetDriveState(void)
 {
     static struct State drive_state = {
-        .name         = "FAULT",
+        .name         = "DRIVE",
         .run_on_entry = DriveStateRunOnEntry,
         .run_on_tick  = DriveStateRunOnTick,
         .run_on_exit  = DriveStateRunOnExit,

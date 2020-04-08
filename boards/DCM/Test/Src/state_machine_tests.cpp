@@ -81,6 +81,6 @@ TEST_F(
     App_SharedStateMachine_Tick(state_machine);
 
     EXPECT_EQ(
-        App_GetRunState(),
+        App_GetDriveState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 }
