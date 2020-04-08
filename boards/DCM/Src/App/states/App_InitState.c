@@ -3,7 +3,7 @@
 
 #include "App_SharedMacros.h"
 
-static void InitStateRunOnEntry(struct StateMachine *state_machine)
+static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct DcmCanTxInterface *can_tx_interface = App_DcmWorld_GetCanTx(world);
@@ -11,18 +11,18 @@ static void InitStateRunOnEntry(struct StateMachine *state_machine)
         can_tx_interface, CANMSGS_DCM_STATE_MACHINE_STATE_INIT_CHOICE);
 }
 
-static void InitStateRunOnTick(struct StateMachine *state_machine)
+static void InitStateRunOnTick(struct StateMachine *const state_machine)
 {
     // No need for any safety checks, just run! (this is a demo)
     App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
 }
 
-static void InitStateRunOnExit(struct StateMachine *state_machine)
+static void InitStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
 }
 
-const struct State *App_GetInitState()
+const struct State *App_GetInitState(void)
 {
     static struct State init_state = {
         .name         = "INIT",

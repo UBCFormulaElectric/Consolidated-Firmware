@@ -2,7 +2,7 @@
 
 #include "App_SharedMacros.h"
 
-static void InitStateRunOnEntry(struct StateMachine *state_machine)
+static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct BmsCanTxInterface *can_tx_interface = App_BmsWorld_GetCanTx(world);
@@ -10,12 +10,12 @@ static void InitStateRunOnEntry(struct StateMachine *state_machine)
         can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE);
 }
 
-static void InitStateRunOnTick(struct StateMachine *state_machine)
+static void InitStateRunOnTick(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
 }
 
-static void InitStateRunOnExit(struct StateMachine *state_machine)
+static void InitStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
 }

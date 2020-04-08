@@ -2,7 +2,7 @@
 
 #include "App_SharedMacros.h"
 
-static void DriveStateDriveOnEntry(struct StateMachine *state_machine)
+static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct DcmCanTxInterface *can_tx_interface = App_DcmWorld_GetCanTx(world);
@@ -10,12 +10,12 @@ static void DriveStateDriveOnEntry(struct StateMachine *state_machine)
         can_tx_interface, CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE);
 }
 
-static void DriveStateDriveOnTick(struct StateMachine *state_machine)
+static void DriveStateRunOnTick(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
 }
 
-static void DriveStateDriveOnExit(struct StateMachine *state_machine)
+static void DriveStateRunOnExit(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
 }
@@ -23,10 +23,10 @@ static void DriveStateDriveOnExit(struct StateMachine *state_machine)
 const struct State *App_GetDriveState(void)
 {
     static struct State drive_state = {
-        .name         = "DRIVE",
-        .run_on_entry = DriveStateDriveOnEntry,
-        .run_on_tick  = DriveStateDriveOnTick,
-        .run_on_exit  = DriveStateDriveOnExit,
+        .name         = "FAULT",
+        .run_on_entry = DriveStateRunOnEntry,
+        .run_on_tick  = DriveStateRunOnTick,
+        .run_on_exit  = DriveStateRunOnExit,
     };
 
     return &drive_state;
