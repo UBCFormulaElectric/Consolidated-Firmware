@@ -53,7 +53,7 @@ class BmsStateMachineTest : public testing::Test
     struct World *            world{};
     struct BmsCanTxInterface *can_tx_interface{};
     struct BmsCanRxInterface *can_rx_interface{};
-    struct Imd* imd;
+    struct Imd* imd{};
 };
 
 TEST_F(
