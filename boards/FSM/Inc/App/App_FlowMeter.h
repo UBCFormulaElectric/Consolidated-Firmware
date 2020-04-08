@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stddef.h>
+#include <assert.h>
 #include <stdint.h>
 
 struct FlowMeter;
@@ -12,10 +14,11 @@ struct FlowMeter;
  * caller
  */
 struct FlowMeter *App_FlowMeter_Create(
+    struct FsmCanTxInterface *const can_tx,
     float (*get_flow_rate)(void),
     void (*set_periodic_signal)(
-        struct CanTxInterface *can_tx_interface,
-        float                  value));
+        struct FsmCanTxInterface *can_tx_interface,
+        float                     value));
 
 /**
  * Read the flow rate from a flow meter
