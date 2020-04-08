@@ -4,7 +4,7 @@
 
 extern "C"
 {
-DEFINE_FFF_GLOBALS;
+    DEFINE_FFF_GLOBALS;
 #include "imd_fff.h"
 #include "App_Imd.h"
 }

@@ -26,7 +26,7 @@ class BmsStateMachineTest : public testing::Test
             send_non_periodic_msg_BMS_STARTUP,
             send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT);
         can_rx_interface = App_CanRx_Create();
-        imd = App_Imd_Create(
+        imd              = App_Imd_Create(
             get_pwm_frequency, get_pwm_frequency_tolerance, get_pwm_duty_cycle,
             get_seconds_since_power_on);
         world = App_BmsWorld_Create(can_tx_interface, can_rx_interface, imd);
@@ -53,7 +53,7 @@ class BmsStateMachineTest : public testing::Test
     struct World *            world;
     struct BmsCanTxInterface *can_tx_interface;
     struct BmsCanRxInterface *can_rx_interface;
-    struct Imd* imd;
+    struct Imd *              imd;
 };
 
 TEST_F(
