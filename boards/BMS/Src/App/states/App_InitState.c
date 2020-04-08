@@ -1,4 +1,5 @@
 #include "states/App_InitState.h"
+#include "states/App_DriveState.h"
 
 #include "App_SharedMacros.h"
 
@@ -9,7 +10,7 @@ static void InitStateRunOnEntry(struct StateMachine *state_machine)
 
 static void InitStateRunOnTick(struct StateMachine *state_machine)
 {
-    UNUSED(state_machine);
+    App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
 }
 
 static void InitStateRunOnExit(struct StateMachine *state_machine)

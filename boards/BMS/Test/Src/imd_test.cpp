@@ -4,14 +4,9 @@
 
 extern "C"
 {
+DEFINE_FFF_GLOBALS;
+#include "imd_fff.h"
 #include "App_Imd.h"
-
-    DEFINE_FFF_GLOBALS;
-
-    FAKE_VALUE_FUNC(float, get_pwm_frequency);
-    FAKE_VALUE_FUNC(float, get_pwm_frequency_tolerance);
-    FAKE_VALUE_FUNC(float, get_pwm_duty_cycle);
-    FAKE_VALUE_FUNC(uint32_t, get_seconds_since_power_on);
 }
 
 class Imd_Test : public testing::Test

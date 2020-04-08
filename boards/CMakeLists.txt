@@ -254,6 +254,7 @@ endfunction()
 function(compile_googletest_executables
         BOARD_NAME
         TEST_SRCS
+        TEST_INCLUDE_DIRS
         TEST_MAIN_SRC
         ARM_BINARY_APP_SRCS
         ARM_BINARY_APP_INCLUDE_DIRS
@@ -269,6 +270,7 @@ function(compile_googletest_executables
                 )
         target_include_directories(${TEST_EXECUTABLE_NAME}
                 PRIVATE
+                ${TEST_INCLUDE_DIRS}
                 ${ARM_BINARY_APP_INCLUDE_DIRS}
                 ${SHARED_APP_INCLUDE_DIRS}
                 )
@@ -337,6 +339,7 @@ function(create_arm_binary_or_tests_for_board
             STM32CUBEMX_DRIVER_SRCS
             STM32CUBEMX_DRIVER_INCLUDE_DIRS
             GOOGLETEST_TEST_SRCS
+            GOOGLETEST_TEST_INCLUDE_DIRS
             GOOGLETEST_MAIN_SRC
             )
     # Construct the paths for the generated CAN code
@@ -428,6 +431,7 @@ function(create_arm_binary_or_tests_for_board
         compile_googletest_executables(
                 "${BOARD_NAME}"
                 "${GOOGLETEST_TEST_SRCS}"
+                "${GOOGLETEST_TEST_INCLUDE_DIRS}"
                 "${GOOGLETEST_MAIN_SRC}"
                 "${ARM_BINARY_APP_SRCS}"
                 "${ARM_BINARY_APP_INCLUDE_DIRS}"
