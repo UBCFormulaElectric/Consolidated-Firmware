@@ -43,12 +43,9 @@ class AppCanTxFileGenerator(CanFileGenerator):
                 % (self._sender.capitalize(), function_prefix, '\n' + '\n'.join(function_params)[:-1]),
             'Allocate and initialize a CAN TX interface',
             '''\
-    static struct {sender}CanTxInterface can_tx_interfaces[MAX_NUM_OF_CANTX_INTERFACES];
-    static size_t alloc_index = 0;
+    struct {sender}CanTxInterface* can_tx_interface = malloc(sizeof(struct {sender}CanTxInterface));
 
-    shared_assert(alloc_index < MAX_NUM_OF_CANTX_INTERFACES);
-
-    struct {sender}CanTxInterface* can_tx_interface = &can_tx_interfaces[alloc_index++];\n\n'''
+    shared_assert(can_tx_interface != NULL);\n\n'''
     .format(sender=self._sender.capitalize())
     + '\n'.join(init_senders)
     + '''
@@ -58,6 +55,12 @@ class AppCanTxFileGenerator(CanFileGenerator):
     return can_tx_interface;'''.format(
         sender=self._sender.capitalize(),
         initial_signal_setters=initial_signal_setters))
+
+        self._Destroy = Function(
+             'void %s_Destroy(struct %sCanTxInterface* can_tx_interface)'
+                % (function_prefix, self._sender.capitalize()),
+            'Destroy a CAN TX interface, freeing the memory associated with it',
+            '''    free(can_tx_interface);''')
 
         self._PeriodicTxSignalSetters = list(Function(
             'void %s_SetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface, %s value)' % (
@@ -112,6 +115,7 @@ class AppCanTxHeaderFileGenerator(AppCanTxFileGenerator):
     def __generateFunctionDeclarations(self):
         function_declarations = []
         function_declarations.append(self._Create.declaration)
+        function_declarations.append(self._Destroy.declaration)
         function_declarations.append(
             '/** @brief Signal getters for periodic CAN TX messages */\n'
             + '\n'.join([func.declaration for func in self._PeriodicTxSignalSetters]))
@@ -173,10 +177,6 @@ class AppCanTxSourceFileGenerator(AppCanTxFileGenerator):
 
     def __generateMacros(self):
         macros = []
-        macros.append(Macro(
-            'MAX_NUM_OF_CANTX_INTERFACES',
-            ' 100',
-            'Maximum number for CAN TX interfaces').declaration)
         return '\n\n'.join(macros)
 
     def __generateVariables(self):
@@ -194,6 +194,7 @@ class AppCanTxSourceFileGenerator(AppCanTxFileGenerator):
     def __generateFunctionDefinitions(self):
         function_defs = []
         function_defs.append(self._Create.definition)
+        function_defs.append(self._Destroy.definition)
         function_defs.extend(func.definition for func in self._PeriodicTxSignalSetters)
         function_defs.extend(func.definition for func in self._PeriodicTxMsgPointerGetters)
         function_defs.extend(func.definition for func in self._SendNonPeriodicMsgs)
