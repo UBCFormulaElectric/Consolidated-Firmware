@@ -6,14 +6,14 @@
 
 struct BmsWorld
 {
-    struct BMSCanTxInterface *can_tx_interface;
-    struct BMSCanRxInterface *can_rx_interface;
+    struct BmsCanTxInterface *can_tx_interface;
+    struct BmsCanRxInterface *can_rx_interface;
     struct Imd *              imd;
 };
 
 struct BmsWorld *App_BmsWorld_Create(
-    struct BMSCanTxInterface *const can_tx_interface,
-    struct BMSCanRxInterface *const can_rx_interface,
+    struct BmsCanTxInterface *const can_tx_interface,
+    struct BmsCanRxInterface *const can_rx_interface,
     struct Imd *const               imd)
 {
     struct BmsWorld *world = (struct BmsWorld *)malloc(sizeof(struct BmsWorld));
@@ -32,14 +32,14 @@ void App_BmsWorld_Destroy(struct BmsWorld *world)
     free(world);
 }
 
-struct BMSCanTxInterface *
+struct BmsCanTxInterface *
     App_BmsWorld_GetCanTx(const struct BmsWorld *const world)
 {
     shared_assert(world != NULL);
     return world->can_tx_interface;
 }
 
-struct BMSCanRxInterface *
+struct BmsCanRxInterface *
     App_BmsWorld_GetCanRx(const struct BmsWorld *const world)
 {
     shared_assert(world != NULL);

@@ -56,7 +56,7 @@ static_assert(
 
 struct Imd
 {
-    struct BMSCanTxInterface *can_tx;
+    struct BmsCanTxInterface *can_tx;
     float (*get_pwm_frequency)(void);
     float (*get_pwm_duty_cycle)(void);
     uint32_t (*get_seconds_since_power_on)(void);
@@ -130,7 +130,7 @@ static uint32_t App_GetIdealPwmFrequency(const enum Imd_Condition condition)
 }
 
 struct Imd *App_Imd_Create(
-    struct BMSCanTxInterface *const can_tx,
+    struct BmsCanTxInterface *const can_tx,
     float (*const get_pwm_frequency)(void),
     float (*const get_pwm_duty_cycle)(void),
     uint32_t (*const get_seconds_since_power_on)(void))

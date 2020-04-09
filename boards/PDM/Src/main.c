@@ -32,6 +32,7 @@
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
+#include "Io_VoltageMonitor.h"
 
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
@@ -82,8 +83,11 @@ osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
 struct PdmWorld *         world;
 struct StateMachine *     state_machine;
-struct PDMCanTxInterface *can_tx;
-struct PDMCanRxInterface *can_rx;
+struct PdmCanTxInterface *can_tx;
+struct PdmCanRxInterface *can_rx;
+struct VoltageMonitor *   vbat_voltage_monitor;
+struct VoltageMonitor *   _24v_aux_voltage_monitor;
+struct VoltageMonitor *   _24v_acc_voltage_monitor;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -142,11 +146,31 @@ int main(void)
 
     can_rx = App_CanRx_Create();
 
-    world = App_PdmWorld_Create(can_tx, can_rx);
+    vbat_voltage_monitor = App_VoltageMonitor_Create(
+        Io_VoltageMonitor_GetVbatVoltage, Io_VoltageMonitor_GetVbatMinVoltage,
+        Io_VoltageMonitor_Get24vAccMaxVoltage,
+        Io_VoltageMonitor_VbatErrorCallback);
+
+    _24v_aux_voltage_monitor = App_VoltageMonitor_Create(
+        Io_VoltageMonitor_Get24vAuxVoltage,
+        Io_VoltageMonitor_Get24vAuxMinVoltage,
+        Io_VoltageMonitor_Get24vAccMaxVoltage,
+        Io_VoltageMonitor_24vAuxErrorCallback);
+
+    _24v_acc_voltage_monitor = App_VoltageMonitor_Create(
+        Io_VoltageMonitor_Get24vAccVoltage,
+        Io_VoltageMonitor_Get24vAccMinVoltage,
+        Io_VoltageMonitor_Get24vAccMaxVoltage,
+        Io_VoltageMonitor_24vAccErrorCallback);
+
+    world = App_PdmWorld_Create(
+        can_tx, can_rx, vbat_voltage_monitor, _24v_aux_voltage_monitor,
+        _24v_acc_voltage_monitor);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
     Io_SoftwareWatchdog_Init(can_tx);
+    Io_VoltageMonitor_Init(can_tx);
     App_StackWaterMark_Init(can_tx);
     /* USER CODE END 1 */
 

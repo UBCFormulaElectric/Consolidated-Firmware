@@ -19,8 +19,8 @@ struct FsmWorld;
  * caller
  */
 struct FsmWorld *App_FsmWorld_Create(
-    struct FSMCanTxInterface *can_tx_interface,
-    struct FSMCanRxInterface *can_rx_interface);
+    struct FsmCanTxInterface *can_tx_interface,
+    struct FsmCanRxInterface *can_rx_interface);
 
 /**
  * Destroy the given FSM world, freeing the memory associated with it
@@ -33,11 +33,11 @@ void App_FsmWorld_Destroy(struct FsmWorld *world);
  * @param world: The world to get CAN TX interface for
  * @return The CAN TX interface for the given world
  */
-struct FSMCanTxInterface *App_FsmWorld_GetCanTx(const struct FsmWorld *world);
+struct FsmCanTxInterface *App_FsmWorld_GetCanTx(const struct FsmWorld *world);
 
 /**
  * Get the CAN RX interface for the given world
  * @param world: The world to get CAN RX interface for
  * @return The CAN RX interface for the given world
  */
-struct FSMCanRxInterface *App_FsmWorld_GetCanRx(const struct FsmWorld *world);
+struct FsmCanRxInterface *App_FsmWorld_GetCanRx(const struct FsmWorld *world);

@@ -11,12 +11,12 @@ extern TaskHandle_t Task1kHzHandle;
 extern TaskHandle_t TaskCanRxHandle;
 extern TaskHandle_t TaskCanTxHandle;
 
-static struct PDMCanTxInterface *_can_tx_interface = NULL;
+static struct PdmCanTxInterface *_can_tx_interface = NULL;
 
 /** @brief The stack watermark threshold as a percentage of the stack size */
 #define STACK_HIGH_WATERMARK_THRESHOLD 0.7f
 
-void App_StackWaterMark_Init(struct PDMCanTxInterface *can_tx_interface)
+void App_StackWaterMark_Init(struct PdmCanTxInterface *can_tx_interface)
 {
     shared_assert(can_tx_interface != NULL);
     _can_tx_interface = can_tx_interface;

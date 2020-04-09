@@ -6,13 +6,13 @@
 
 struct FsmWorld
 {
-    struct FSMCanTxInterface *can_tx_interface;
-    struct FSMCanRxInterface *can_rx_interface;
+    struct FsmCanTxInterface *can_tx_interface;
+    struct FsmCanRxInterface *can_rx_interface;
 };
 
 struct FsmWorld *App_FsmWorld_Create(
-    struct FSMCanTxInterface *const can_tx_interface,
-    struct FSMCanRxInterface *const can_rx_interface)
+    struct FsmCanTxInterface *const can_tx_interface,
+    struct FsmCanRxInterface *const can_rx_interface)
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
     shared_assert(world != NULL);
@@ -29,14 +29,14 @@ void App_FsmWorld_Destroy(struct FsmWorld *world)
     free(world);
 }
 
-struct FSMCanTxInterface *
+struct FsmCanTxInterface *
     App_FsmWorld_GetCanTx(const struct FsmWorld *const world)
 {
     shared_assert(world != NULL);
     return world->can_tx_interface;
 }
 
-struct FSMCanRxInterface *
+struct FsmCanRxInterface *
     App_FsmWorld_GetCanRx(const struct FsmWorld *const world)
 {
     shared_assert(world != NULL);

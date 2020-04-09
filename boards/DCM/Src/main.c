@@ -81,8 +81,8 @@ osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
 struct DcmWorld *         world;
 struct StateMachine *     state_machine;
-struct DCMCanTxInterface *can_tx;
-struct DCMCanRxInterface *can_rx;
+struct DcmCanTxInterface *can_tx;
+struct DcmCanRxInterface *can_rx;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

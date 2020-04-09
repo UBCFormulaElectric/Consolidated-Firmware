@@ -15,7 +15,7 @@ struct Imd;
  * @return A pointer to the created IMD, whose ownership is given to the caller
  */
 struct Imd *App_Imd_Create(
-    struct BMSCanTxInterface *can_tx,
+    struct BmsCanTxInterface *can_tx,
     float (*get_pwm_frequency)(void),
     float (*get_pwm_duty_cycle)(void),
     uint32_t (*get_seconds_since_power_on)(void));

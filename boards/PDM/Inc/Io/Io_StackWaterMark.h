@@ -6,7 +6,7 @@
  * Init the StackWaterMark monitor
  * @param can_tx_interface
  */
-void App_StackWaterMark_Init(struct PDMCanTxInterface *can_tx_interface);
+void App_StackWaterMark_Init(struct PdmCanTxInterface *can_tx_interface);
 
 /**
  * @brief Check the stack high watermark for FreeRTOS tasks. Typically, you
