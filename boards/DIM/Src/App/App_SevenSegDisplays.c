@@ -46,6 +46,8 @@ struct SevenSegDisplays *App_SevenSegDisplays_Create(
     struct SevenSegDisplays *seven_seg_displays =
         malloc(sizeof(struct SevenSegDisplays));
 
+    shared_assert(seven_seg_displays != NULL);
+
     seven_seg_displays->get_state_of_charge = get_state_of_charge;
     seven_seg_displays->left_display        = left_display;
     seven_seg_displays->middle_display      = middle_display;

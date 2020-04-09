@@ -15,6 +15,8 @@ struct SevenSegDisplay *
     struct SevenSegDisplay *seven_seg_display =
         malloc(sizeof(struct SevenSegDisplay));
 
+    shared_assert(seven_seg_display != NULL);
+
     seven_seg_display->set_digit = set_digit;
 
     return seven_seg_display;
