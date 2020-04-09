@@ -1,4 +1,4 @@
-#include "auto_generated/App_CanTx.h"
+#include "App_CanTx.h"
 
 struct VoltageMonitor;
 
