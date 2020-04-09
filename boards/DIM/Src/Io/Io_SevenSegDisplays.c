@@ -29,7 +29,7 @@ struct SevenSegDisplay_Commands
     uint8_t right;
 };
 
-static SPI_HandleTypeDef _hspi;
+static SPI_HandleTypeDef *_hspi;
 
 static struct SevenSegDisplay_Commands commands;
 
@@ -52,7 +52,7 @@ static const uint8_t command_lookup_table[NUM_HEX_DIGITS] = {
     0x71, // 0xF
 };
 
-void Io_SevenSegDisplays_Init(SPI_HandleTypeDef hspi)
+void Io_SevenSegDisplays_Init(SPI_HandleTypeDef *hspi)
 {
     _hspi = hspi;
 }
@@ -62,7 +62,7 @@ void Io_SevenSegDisplays_WriteCommands(void)
     // The 7-segment displays are daisy chained by shifting registers, so we
     // can't update them individually. Instead, we must update the 7-segment
     // displays all at once.
-    HAL_SPI_Transmit(&_hspi, (uint8_t *)&commands, 3U, 100U);
+    HAL_SPI_Transmit(_hspi, (uint8_t *)&commands, 3U, 100U);
 }
 
 float Io_SevenSegDisplays_GetStateOfCharge(void)

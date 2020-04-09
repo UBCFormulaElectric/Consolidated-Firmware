@@ -82,7 +82,7 @@ void        StartDefaultTask(void const *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    Io_SevenSegDisplays_Init(hspi2);
+    Io_SevenSegDisplays_Init(&hspi2);
 
     struct SevenSegDisplays *seven_seg_displays = App_SevenSegDisplays_Create(
         Io_SevenSegDisplays_GetStateOfCharge,

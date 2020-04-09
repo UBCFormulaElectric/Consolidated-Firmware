@@ -1,6 +1,6 @@
 #pragma once
 
-void  Io_SevenSegDisplays_Init(SPI_HandleTypeDef hspi);
+void  Io_SevenSegDisplays_Init(SPI_HandleTypeDef *hspi);
 void  Io_SevenSegDisplays_WriteCommands(void);
 float Io_SevenSegDisplays_GetStateOfCharge(void);
 void  Io_SevenSegDisplays_SetLeftHexDigit(uint8_t hex_digit);
