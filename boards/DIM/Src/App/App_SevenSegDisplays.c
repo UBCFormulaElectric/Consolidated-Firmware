@@ -1,15 +1,14 @@
 #include <stdlib.h>
 
 #include "App_SevenSegDisplays.h"
-#include "App_SevenSegDisplay.h"
 #include "App_SharedAssert.h"
 
 struct SevenSegDisplays
 {
     float (*get_state_of_charge)(void);
-    struct SevenSegDisplay *left_display;
-    struct SevenSegDisplay *middle_display;
-    struct SevenSegDisplay *right_display;
+    void (*set_left_hex_digit)(uint8_t);
+    void (*set_middle_hex_digit)(uint8_t);
+    void (*set_right_hex_digit)(uint8_t);
 };
 
 static void WriteStateOfCharge(
@@ -29,19 +28,17 @@ static void WriteStateOfCharge(
     uint8_t middle_digit = (state_of_charge_u32 / 10U) % 10U;
     uint8_t right_digit  = state_of_charge_u32 % 10U;
 
-    App_SevenSegDisplay_SetHexDigit(
-        seven_seg_displays->left_display, left_digit);
-    App_SevenSegDisplay_SetHexDigit(
-        seven_seg_displays->middle_display, middle_digit);
-    App_SevenSegDisplay_SetHexDigit(
-        seven_seg_displays->right_display, right_digit);
+    seven_seg_displays->set_left_hex_digit(left_digit);
+    seven_seg_displays->set_middle_hex_digit(middle_digit);
+    seven_seg_displays->set_right_hex_digit(right_digit);
 }
 
 struct SevenSegDisplays *App_SevenSegDisplays_Create(
     float (*const get_state_of_charge)(void),
-    struct SevenSegDisplay *const left_display,
-    struct SevenSegDisplay *const middle_display,
-    struct SevenSegDisplay *const right_display)
+    void (*set_left_hex_digit)(uint8_t),
+    void (*set_middle_hex_digit)(uint8_t),
+    void (*set_right_hex_digit)(uint8_t))
+
 {
     struct SevenSegDisplays *seven_seg_displays =
         malloc(sizeof(struct SevenSegDisplays));
@@ -49,9 +46,9 @@ struct SevenSegDisplays *App_SevenSegDisplays_Create(
     shared_assert(seven_seg_displays != NULL);
 
     seven_seg_displays->get_state_of_charge = get_state_of_charge;
-    seven_seg_displays->left_display        = left_display;
-    seven_seg_displays->middle_display      = middle_display;
-    seven_seg_displays->right_display       = right_display;
+    seven_seg_displays->set_left_hex_digit = set_left_hex_digit;
+    seven_seg_displays->set_middle_hex_digit = set_middle_hex_digit;
+    seven_seg_displays->set_right_hex_digit = set_right_hex_digit;
 
     return seven_seg_displays;
 }

@@ -25,7 +25,6 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "App_SevenSegDisplays.h"
-#include "App_SevenSegDisplay.h"
 
 #include "Io_SevenSegDisplays.h"
 /* USER CODE END Includes */
@@ -50,6 +49,8 @@ ADC_HandleTypeDef hadc2;
 
 CAN_HandleTypeDef hcan;
 
+SPI_HandleTypeDef hspi2;
+
 osThreadId          defaultTaskHandle;
 uint32_t            defaultTaskBuffer[128];
 osStaticThreadDef_t defaultTaskControlBlock;
@@ -62,6 +63,7 @@ void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN_Init(void);
 static void MX_ADC2_Init(void);
+static void MX_SPI2_Init(void);
 void        StartDefaultTask(void const *argument);
 
 /* USER CODE BEGIN PFP */
@@ -80,18 +82,11 @@ void        StartDefaultTask(void const *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    struct SevenSegDisplay *left_seven_seg_display =
-        App_SevenSegDisplay_Create(Io_SevenSegDisplay_SetLeftHexDigit);
-
-    struct SevenSegDisplay *middle_seven_seg_display =
-        App_SevenSegDisplay_Create(Io_SevenSegDisplay_SetLeftHexDigit);
-
-    struct SevenSegDisplay *right_seven_seg_display =
-        App_SevenSegDisplay_Create(Io_SevenSegDisplay_SetLeftHexDigit);
+    Io_SevenSegDisplays_Init(hspi2);
 
     struct SevenSegDisplays *seven_seg_displays = App_SevenSegDisplays_Create(
-        Io_SevenSegDisplay_GetStateOfCharge, left_seven_seg_display,
-        middle_seven_seg_display, right_seven_seg_display);
+        Io_SevenSegDisplays_GetStateOfCharge, Io_SevenSegDisplays_SetLeftHexDigit,
+        Io_SevenSegDisplays_SetMiddleHexDigit, Io_SevenSegDisplays_SetRightHexDigit);
     UNUSED(seven_seg_displays);
     /* USER CODE END 1 */
 
@@ -117,6 +112,7 @@ int main(void)
     MX_GPIO_Init();
     MX_CAN_Init();
     MX_ADC2_Init();
+    MX_SPI2_Init();
     /* USER CODE BEGIN 2 */
 
     /* USER CODE END 2 */
@@ -297,6 +293,44 @@ static void MX_CAN_Init(void)
 }
 
 /**
+ * @brief SPI2 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_SPI2_Init(void)
+{
+    /* USER CODE BEGIN SPI2_Init 0 */
+
+    /* USER CODE END SPI2_Init 0 */
+
+    /* USER CODE BEGIN SPI2_Init 1 */
+
+    /* USER CODE END SPI2_Init 1 */
+    /* SPI2 parameter configuration*/
+    hspi2.Instance               = SPI2;
+    hspi2.Init.Mode              = SPI_MODE_MASTER;
+    hspi2.Init.Direction         = SPI_DIRECTION_1LINE;
+    hspi2.Init.DataSize          = SPI_DATASIZE_4BIT;
+    hspi2.Init.CLKPolarity       = SPI_POLARITY_LOW;
+    hspi2.Init.CLKPhase          = SPI_PHASE_1EDGE;
+    hspi2.Init.NSS               = SPI_NSS_SOFT;
+    hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+    hspi2.Init.FirstBit          = SPI_FIRSTBIT_MSB;
+    hspi2.Init.TIMode            = SPI_TIMODE_DISABLE;
+    hspi2.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
+    hspi2.Init.CRCPolynomial     = 7;
+    hspi2.Init.CRCLength         = SPI_CRC_LENGTH_DATASIZE;
+    hspi2.Init.NSSPMode          = SPI_NSS_PULSE_ENABLE;
+    if (HAL_SPI_Init(&hspi2) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN SPI2_Init 2 */
+
+    /* USER CODE END SPI2_Init 2 */
+}
+
+/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -319,14 +353,15 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(
         GPIOA,
         DCM_BLUE_Pin | DIM_GREEN_Pin | DIM_BLUE_Pin | PDM_RED_Pin |
-            DCM_GREEN_Pin | PDM_BLUE_Pin | FSM_GREEN_Pin | BMS_BLUE_Pin,
+            DCM_GREEN_Pin | PDM_BLUE_Pin | FSM_GREEN_Pin | BMS_BLUE_Pin |
+            SEVENSEG_DIMMING_3V3_Pin,
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
         GPIOB,
         DCM_RED_Pin | BMS_GREEN_Pin | FSM_RED_Pin | FSM_BLUE_Pin | BMS_RED_Pin |
-            SEG_SRCK_Pin | SEG_SEROUT_Pin | SEG_RCK_Pin | IMD_LED_Pin,
+            SEVENSEG_RCK_3V3_Pin | IMD_LED_Pin,
         GPIO_PIN_RESET);
 
     /*Configure GPIO pins : BSPD_LED_Pin DIM_RED_Pin PDM_GREEN_Pin */
@@ -338,21 +373,21 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pins : DCM_BLUE_Pin DIM_GREEN_Pin DIM_BLUE_Pin PDM_RED_Pin
                              DCM_GREEN_Pin PDM_BLUE_Pin FSM_GREEN_Pin
-       BMS_BLUE_Pin */
+       BMS_BLUE_Pin SEVENSEG_DIMMING_3V3_Pin */
     GPIO_InitStruct.Pin = DCM_BLUE_Pin | DIM_GREEN_Pin | DIM_BLUE_Pin |
                           PDM_RED_Pin | DCM_GREEN_Pin | PDM_BLUE_Pin |
-                          FSM_GREEN_Pin | BMS_BLUE_Pin;
+                          FSM_GREEN_Pin | BMS_BLUE_Pin |
+                          SEVENSEG_DIMMING_3V3_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /*Configure GPIO pins : DCM_RED_Pin BMS_GREEN_Pin FSM_RED_Pin FSM_BLUE_Pin
-                             BMS_RED_Pin SEG_SRCK_Pin SEG_SEROUT_Pin SEG_RCK_Pin
-                             IMD_LED_Pin */
+                             BMS_RED_Pin SEVENSEG_RCK_3V3_Pin IMD_LED_Pin */
     GPIO_InitStruct.Pin = DCM_RED_Pin | BMS_GREEN_Pin | FSM_RED_Pin |
-                          FSM_BLUE_Pin | BMS_RED_Pin | SEG_SRCK_Pin |
-                          SEG_SEROUT_Pin | SEG_RCK_Pin | IMD_LED_Pin;
+                          FSM_BLUE_Pin | BMS_RED_Pin | SEVENSEG_RCK_3V3_Pin |
+                          IMD_LED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;

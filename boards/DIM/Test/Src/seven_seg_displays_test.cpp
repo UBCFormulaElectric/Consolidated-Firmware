@@ -3,7 +3,6 @@
 
 extern "C"
 {
-#include "App_SevenSegDisplay.h"
 #include "App_SevenSegDisplays.h"
 
     DEFINE_FFF_GLOBALS;
@@ -18,12 +17,8 @@ class SevenSegDisplaysTest : public testing::Test
   protected:
     void SetUp() override
     {
-        right_display  = App_SevenSegDisplay_Create(set_right_hex_digit);
-        middle_display = App_SevenSegDisplay_Create(set_middle_hex_digit);
-        left_display   = App_SevenSegDisplay_Create(set_left_hex_digit);
-
         seven_segment_displays = App_SevenSegDisplays_Create(
-            get_state_of_charge, left_display, middle_display, right_display);
+            get_state_of_charge, set_left_hex_digit, set_middle_hex_digit, set_right_hex_digit);
 
         RESET_FAKE(get_state_of_charge);
         RESET_FAKE(set_right_hex_digit);
@@ -34,15 +29,9 @@ class SevenSegDisplaysTest : public testing::Test
     }
     void TearDown() override
     {
-        App_SevenSegDisplay_Destroy(right_display);
-        App_SevenSegDisplay_Destroy(middle_display);
-        App_SevenSegDisplay_Destroy(left_display);
         App_SevenSegDisplays_Destroy(seven_segment_displays);
     }
 
-    struct SevenSegDisplay * left_display;
-    struct SevenSegDisplay * middle_display;
-    struct SevenSegDisplay * right_display;
     struct SevenSegDisplays *seven_segment_displays;
 };
 

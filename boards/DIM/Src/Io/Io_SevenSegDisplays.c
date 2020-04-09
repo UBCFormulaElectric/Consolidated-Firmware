@@ -1,3 +1,5 @@
+#include <stm32f3xx_hal.h>
+
 #include "App_SharedAssert.h"
 #include "App_SharedConstants.h"
 
@@ -20,245 +22,73 @@ static_assert(HEX_DIGIT_D == 13, "Hex enum must match its numeric value.");
 static_assert(HEX_DIGIT_E == 14, "Hex enum must match its numeric value.");
 static_assert(HEX_DIGIT_F == 15, "Hex enum must match its numeric value.");
 
-float Io_SevenSegDisplay_GetStateOfCharge(void)
+struct SevenSegDisplay_Commands
+{
+    uint8_t left;
+    uint8_t middle;
+    uint8_t right;
+};
+
+static SPI_HandleTypeDef _hspi;
+
+static struct SevenSegDisplay_Commands commands;
+
+static const uint8_t command_lookup_table[NUM_HEX_DIGITS] = {
+    0x03, // 0x0
+    0x4F, // 0x1
+    0x25, // 0x2
+    0x0D, // 0x3
+    0x99, // 0x4
+    0x49, // 0x5
+    0x41, // 0x6
+    0x1F, // 0x7
+    0x01, // 0x8
+    0x09, // 0x9
+    0x11, // 0xA
+    0x1C, // 0xB
+    0x63, // 0xC
+    0x85, // 0xD
+    0x61, // 0xE
+    0x71, // 0xF
+};
+
+
+void Io_SevenSegDisplays_Init(SPI_HandleTypeDef hspi)
+{
+    _hspi = hspi;
+}
+
+void Io_SevenSegDisplays_WriteCommands(void)
+{
+    // The 7-segment displays are daisy chained by shifting registers, so we
+    // can't update them individually. Instead, we must update the 7-segment
+    // displays all at once.
+    HAL_SPI_Transmit(&_hspi, (uint8_t*)&commands, 3U, 100U);
+}
+
+float Io_SevenSegDisplays_GetStateOfCharge(void)
 {
     // TODO: Read the state of charge from CAN
     return 0.0f;
 }
 
-void Io_SevenSegDisplay_SetLeftHexDigit(uint8_t hex_digit)
+void Io_SevenSegDisplays_SetLeftHexDigit(uint8_t hex_digit)
 {
     shared_assert(hex_digit < NUM_HEX_DIGITS);
 
-    // TODO: Fill in each case with a static function definition that
-    // turns on the appropriate segments in the 7-segment display
-    switch (hex_digit)
-    {
-        case HEX_DIGIT_0:
-        {
-        }
-        break;
-        case HEX_DIGIT_1:
-        {
-        }
-        break;
-        case HEX_DIGIT_2:
-        {
-        }
-        break;
-        case HEX_DIGIT_3:
-        {
-        }
-        break;
-        case HEX_DIGIT_4:
-        {
-        }
-        break;
-        case HEX_DIGIT_5:
-        {
-        }
-        break;
-        case HEX_DIGIT_6:
-        {
-        }
-        break;
-        case HEX_DIGIT_7:
-        {
-        }
-        break;
-        case HEX_DIGIT_8:
-        {
-        }
-        break;
-        case HEX_DIGIT_9:
-        {
-        }
-        break;
-        case HEX_DIGIT_A:
-        {
-        }
-        break;
-        case HEX_DIGIT_B:
-        {
-        }
-        break;
-        case HEX_DIGIT_C:
-        {
-        }
-        break;
-        case HEX_DIGIT_D:
-        {
-        }
-        break;
-        case HEX_DIGIT_E:
-        {
-        }
-        break;
-        case HEX_DIGIT_F:
-        {
-        }
-        break;
-        default:
-        {
-        }
-        break;
-    }
+    commands.left = command_lookup_table[hex_digit];
 }
 
-void Io_SevenSegDisplay_SetMiddleHexDigit(uint8_t hex_digit)
+void Io_SevenSegDisplays_SetMiddleHexDigit(uint8_t hex_digit)
 {
     shared_assert(hex_digit < NUM_HEX_DIGITS);
 
-    // TODO: Fill in each case with a static function definition that
-    // turns on the appropriate segments in the 7-segment display
-    switch (hex_digit)
-    {
-        case HEX_DIGIT_0:
-        {
-        }
-        break;
-        case HEX_DIGIT_1:
-        {
-        }
-        break;
-        case HEX_DIGIT_2:
-        {
-        }
-        break;
-        case HEX_DIGIT_3:
-        {
-        }
-        break;
-        case HEX_DIGIT_4:
-        {
-        }
-        break;
-        case HEX_DIGIT_5:
-        {
-        }
-        break;
-        case HEX_DIGIT_6:
-        {
-        }
-        break;
-        case HEX_DIGIT_7:
-        {
-        }
-        break;
-        case HEX_DIGIT_8:
-        {
-        }
-        break;
-        case HEX_DIGIT_9:
-        {
-        }
-        break;
-        case HEX_DIGIT_A:
-        {
-        }
-        break;
-        case HEX_DIGIT_B:
-        {
-        }
-        break;
-        case HEX_DIGIT_C:
-        {
-        }
-        break;
-        case HEX_DIGIT_D:
-        {
-        }
-        break;
-        case HEX_DIGIT_E:
-        {
-        }
-        break;
-        case HEX_DIGIT_F:
-        {
-        }
-        break;
-        default:
-        {
-        }
-        break;
-    }
+    commands.middle = command_lookup_table[hex_digit];
 }
 
-void Io_SevenSegDisplay_SetRightHexDigit(uint8_t hex_digit)
+void Io_SevenSegDisplays_SetRightHexDigit(uint8_t hex_digit)
 {
     shared_assert(hex_digit < NUM_HEX_DIGITS);
 
-    // TODO: Fill in each case with a static function definition that
-    // turns on the appropriate segments in the 7-segment display
-    switch (hex_digit)
-    {
-        case HEX_DIGIT_0:
-        {
-        }
-        break;
-        case HEX_DIGIT_1:
-        {
-        }
-        break;
-        case HEX_DIGIT_2:
-        {
-        }
-        break;
-        case HEX_DIGIT_3:
-        {
-        }
-        break;
-        case HEX_DIGIT_4:
-        {
-        }
-        break;
-        case HEX_DIGIT_5:
-        {
-        }
-        break;
-        case HEX_DIGIT_6:
-        {
-        }
-        break;
-        case HEX_DIGIT_7:
-        {
-        }
-        break;
-        case HEX_DIGIT_8:
-        {
-        }
-        break;
-        case HEX_DIGIT_9:
-        {
-        }
-        break;
-        case HEX_DIGIT_A:
-        {
-        }
-        break;
-        case HEX_DIGIT_B:
-        {
-        }
-        break;
-        case HEX_DIGIT_C:
-        {
-        }
-        break;
-        case HEX_DIGIT_D:
-        {
-        }
-        break;
-        case HEX_DIGIT_E:
-        {
-        }
-        break;
-        case HEX_DIGIT_F:
-        {
-        }
-        break;
-        default:
-        {
-        }
-        break;
-    }
+    commands.right = command_lookup_table[hex_digit];
 }
