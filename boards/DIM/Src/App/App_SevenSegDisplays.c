@@ -5,33 +5,34 @@
 
 struct SevenSegDisplays
 {
-    struct SevenSegDisplay *right_display;
-    struct SevenSegDisplay *middle_display;
+    float (*get_state_of_charge)(void);
     struct SevenSegDisplay *left_display;
+    struct SevenSegDisplay *middle_display;
+    struct SevenSegDisplay *right_display;
 };
 
-// Do NOT take ownership of individual displays
 struct SevenSegDisplays *App_SevenSegDisplays_Create(
-    struct SevenSegDisplay *right_display,
+    float (*get_state_of_charge)(void),
+    struct SevenSegDisplay *left_display,
     struct SevenSegDisplay *middle_display,
-    struct SevenSegDisplay *left_display)
+    struct SevenSegDisplay *right_display)
 {
     struct SevenSegDisplays *seven_seg_displays =
         malloc(sizeof(struct SevenSegDisplays));
 
-    seven_seg_displays->right_display  = right_display;
-    seven_seg_displays->middle_display = middle_display;
-    seven_seg_displays->left_display   = left_display;
+    seven_seg_displays->get_state_of_charge = get_state_of_charge;
+    seven_seg_displays->left_display        = left_display;
+    seven_seg_displays->middle_display      = middle_display;
+    seven_seg_displays->right_display       = right_display;
 
     return seven_seg_displays;
 }
 
-void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *seven_seg_displays)
-{
-    free(seven_seg_displays);
-}
+static void WriteStateOfCharge(
+    struct SevenSegDisplays *seven_seg_displays,
+    float                    state_of_charge);
 
-void App_SevenSegDisplays_WriteStateOfCharge(
+static void WriteStateOfCharge(
     struct SevenSegDisplays *seven_seg_displays,
     float                    state_of_charge)
 {
@@ -40,13 +41,25 @@ void App_SevenSegDisplays_WriteStateOfCharge(
 
     shared_assert(state_of_charge_u32 <= 100U);
 
-    uint8_t right_digit  = state_of_charge_u32 % 10U;
-    uint8_t middle_digit = (state_of_charge_u32 / 10U) % 10U;
     uint8_t left_digit   = (state_of_charge_u32 / 100U) % 10U;
+    uint8_t middle_digit = (state_of_charge_u32 / 10U) % 10U;
+    uint8_t right_digit  = state_of_charge_u32 % 10U;
 
-    App_SevenSegDisplay_SetDigit(
-        seven_seg_displays->right_display, right_digit);
+    App_SevenSegDisplay_SetDigit(seven_seg_displays->left_display, left_digit);
     App_SevenSegDisplay_SetDigit(
         seven_seg_displays->middle_display, middle_digit);
-    App_SevenSegDisplay_SetDigit(seven_seg_displays->left_display, left_digit);
+    App_SevenSegDisplay_SetDigit(
+        seven_seg_displays->right_display, right_digit);
+}
+
+void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *seven_seg_displays)
+{
+    free(seven_seg_displays);
+}
+
+void App_SevenSegDisplays_WriteStateOfCharge(
+    struct SevenSegDisplays *seven_seg_displays)
+{
+    WriteStateOfCharge(
+        seven_seg_displays, seven_seg_displays->get_state_of_charge());
 }

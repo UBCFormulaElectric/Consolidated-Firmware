@@ -27,8 +27,8 @@ enum SevenSegDisplay_Letter
 };
 
 struct SevenSegDisplay *App_SevenSegDisplay_Create(
-    void (*const set_digit)(enum SevenSegDisplay_Digit digit),
-    void (*const set_letter)(enum SevenSegDisplay_Letter letter));
+    void (*set_digit)(enum SevenSegDisplay_Digit digit),
+    void (*set_letter)(enum SevenSegDisplay_Letter letter));
 
 void App_SevenSegDisplay_Destroy(struct SevenSegDisplay *seven_seg_display);
 void App_SevenSegDisplay_SetDigit(
