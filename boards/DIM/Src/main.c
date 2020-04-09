@@ -85,8 +85,10 @@ int main(void)
     Io_SevenSegDisplays_Init(hspi2);
 
     struct SevenSegDisplays *seven_seg_displays = App_SevenSegDisplays_Create(
-        Io_SevenSegDisplays_GetStateOfCharge, Io_SevenSegDisplays_SetLeftHexDigit,
-        Io_SevenSegDisplays_SetMiddleHexDigit, Io_SevenSegDisplays_SetRightHexDigit);
+        Io_SevenSegDisplays_GetStateOfCharge,
+        Io_SevenSegDisplays_SetLeftHexDigit,
+        Io_SevenSegDisplays_SetMiddleHexDigit,
+        Io_SevenSegDisplays_SetRightHexDigit);
     UNUSED(seven_seg_displays);
     /* USER CODE END 1 */
 

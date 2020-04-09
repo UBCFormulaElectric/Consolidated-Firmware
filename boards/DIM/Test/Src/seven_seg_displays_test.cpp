@@ -18,7 +18,8 @@ class SevenSegDisplaysTest : public testing::Test
     void SetUp() override
     {
         seven_segment_displays = App_SevenSegDisplays_Create(
-            get_state_of_charge, set_left_hex_digit, set_middle_hex_digit, set_right_hex_digit);
+            get_state_of_charge, set_left_hex_digit, set_middle_hex_digit,
+            set_right_hex_digit);
 
         RESET_FAKE(get_state_of_charge);
         RESET_FAKE(set_right_hex_digit);
