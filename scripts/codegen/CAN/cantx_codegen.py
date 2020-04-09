@@ -162,8 +162,7 @@ class AppCanTxSourceFileGenerator(AppCanTxFileGenerator):
             'Can TX interface')
 
     def __generateHeaderIncludes(self):
-        header_names = ['<string.h>',
-                        '<stdlib.h>',
+        header_names = ['<stdlib.h>',
                         '"auto_generated/App_CanTx.h"',
                         '"App_SharedAssert.h"']
         return '\n'.join(
