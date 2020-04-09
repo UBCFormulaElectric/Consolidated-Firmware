@@ -37,10 +37,10 @@
 #include "states/App_InitState.h"
 #include "App_SharedAssert.h"
 
-#include "auto_generated/App_CanTx.h"
-#include "auto_generated/App_CanRx.h"
-#include "auto_generated/Io_CanTx.h"
-#include "auto_generated/Io_CanRx.h"
+#include "App_CanTx.h"
+#include "App_CanRx.h"
+#include "Io_CanTx.h"
+#include "Io_CanRx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

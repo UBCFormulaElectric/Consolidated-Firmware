@@ -148,8 +148,8 @@ class AppCanRxSourceFileGenerator(AppCanRxFileGenerator):
 
     def __generateHeaderIncludes(self):
         header_names = ['<string.h>',
-                        '"auto_generated/App_CanRx.h"',
-                        '"auto_generated/App_CanMsgs.h"',
+                        '"App_CanRx.h"',
+                        '"App_CanMsgs.h"',
                         '"App_SharedAssert.h"']
 
         return '\n'.join(
@@ -312,9 +312,9 @@ class IoCanRxSourceFileGenerator(IoCanRxFileGenerator):
             self.__generatePrivateFunctionDeclarations()))
 
     def __generateHeaderIncludes(self):
-        header_names = ['"auto_generated/App_CanMsgs.h"',
-                        '"auto_generated/App_CanRx.h"',
-                        '"auto_generated/Io_CanRx.h"',
+        header_names = ['"App_CanMsgs.h"',
+                        '"App_CanRx.h"',
+                        '"Io_CanRx.h"',
                         '"Io_SharedCanMsg.h"',
                         '"App_SharedAssert.h"']
 

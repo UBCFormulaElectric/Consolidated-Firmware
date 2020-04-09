@@ -1,6 +1,6 @@
 #include <stm32f3xx_hal.h>
 #include <string.h>
-#include "auto_generated/App_CanTx.h"
+#include "App_CanTx.h"
 #include "Io_SoftwareWatchdog.h"
 #include "App_SharedAssert.h"
 #include "Io_SharedMacros.h"

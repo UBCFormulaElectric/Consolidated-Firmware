@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Io_SharedSoftwareWatchdog.h"
-#include "auto_generated/App_CanTx.h"
+#include "App_CanTx.h"
 
 /**
  * Init the software watchdog

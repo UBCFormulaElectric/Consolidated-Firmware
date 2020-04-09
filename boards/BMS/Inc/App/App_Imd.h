@@ -2,7 +2,7 @@
 
 struct Imd;
 
-#include "auto_generated/App_CanTx.h"
+#include "App_CanTx.h"
 
 /**
  * Allocate and initialize an IMD

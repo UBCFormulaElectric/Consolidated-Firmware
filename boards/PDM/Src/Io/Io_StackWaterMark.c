@@ -3,7 +3,7 @@
 #include "Io_StackWaterMark.h"
 #include "Io_SharedStackWaterMark.h"
 #include "App_SharedAssert.h"
-#include "auto_generated/App_CanTx.h"
+#include "App_CanTx.h"
 
 // We check the stack water mark for the following tasks
 extern TaskHandle_t Task1HzHandle;

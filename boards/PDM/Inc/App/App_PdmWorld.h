@@ -1,7 +1,7 @@
 #pragma once
 
-#include "auto_generated/App_CanTx.h"
-#include "auto_generated/App_CanRx.h"
+#include "App_CanTx.h"
+#include "App_CanRx.h"
 
 struct PdmWorld;
 
