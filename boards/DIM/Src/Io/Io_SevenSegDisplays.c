@@ -256,7 +256,6 @@ void Io_SevenSegDisplay_SetRightHexDigit(uint8_t hex_digit)
         {
         }
         break;
-
         default:
         {
         }
