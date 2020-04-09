@@ -19,7 +19,7 @@ extern "C"
 class DcmStateMachineTest : public testing::Test
 {
   protected:
-    virtual void SetUp()
+    void SetUp() override
     {
         can_tx_interface = App_CanTx_Create(
             send_non_periodic_msg_DCM_STARTUP,
@@ -44,7 +44,7 @@ class DcmStateMachineTest : public testing::Test
         EXPECT_TRUE(state_machine);
     }
 
-    virtual void TearDown()
+    void TearDown() override
     {
         assert(state_machine != NULL);
         App_SharedStateMachine_Destroy(state_machine);
@@ -62,19 +62,8 @@ class DcmStateMachineTest : public testing::Test
 
 TEST_F(
     DcmStateMachineTest,
-    check_startup_message_is_broadcasted_on_init_state_entry)
-{
-    SetInitialState(App_GetInitState());
-
-    ASSERT_EQ(1, send_non_periodic_msg_DCM_STARTUP_fake.call_count);
-}
-
-TEST_F(
-    DcmStateMachineTest,
     check_init_immediately_transitions_to_run_on_first_tick)
 {
-    SetInitialState(App_GetInitState());
-
     // We need to tick twice, once to run the `Init` state, and once more
     // to have the state machine transition to the `Run` state.
     App_SharedStateMachine_Tick(state_machine);
@@ -84,3 +73,21 @@ TEST_F(
         App_GetDriveState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 }
+
+//TEST_F(
+//    DcmStateMachineTest,
+//    check_drive_state_is_broadcasted_over_can)
+//{
+//    App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
+//
+//    App_SharedStateMachine_Tick(state_machine);
+//
+//    EXPECT_EQ(
+//        App_GetDriveState(),
+//        App_SharedStateMachine_GetCurrentState(state_machine));
+//
+//    EXPECT_EQ(
+//        CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE,
+//        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface)
+//        );
+//}

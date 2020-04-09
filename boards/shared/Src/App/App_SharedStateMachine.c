@@ -58,6 +58,9 @@ struct World *App_SharedStateMachine_GetWorld(
 void App_SharedStateMachine_Tick(struct StateMachine *const state_machine)
 {
     shared_assert(state_machine != NULL);
+
+    state_machine->current_state->run_on_tick(state_machine);
+
     // Check if we should transition states
     if (state_machine->next_state != state_machine->current_state)
     {
@@ -70,5 +73,4 @@ void App_SharedStateMachine_Tick(struct StateMachine *const state_machine)
     // unless told otherwise.
     state_machine->next_state = state_machine->current_state;
 
-    state_machine->current_state->run_on_tick(state_machine);
 }
