@@ -5,6 +5,7 @@
 
 float Io_SevenSegDisplay_GetStateOfCharge(void)
 {
+    // TODO: Read the state of charge from CAN
     return 0.0f;
 }
 

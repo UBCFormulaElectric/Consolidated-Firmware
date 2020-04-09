@@ -2,8 +2,6 @@
 
 #include "App_SevenSegDisplay.h"
 
-struct SevenSegDisplays;
-
 // Do NOT take ownership of individual displays
 struct SevenSegDisplays *App_SevenSegDisplays_Create(
     float (*get_state_of_charge)(void),
