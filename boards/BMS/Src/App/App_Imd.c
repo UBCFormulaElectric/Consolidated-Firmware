@@ -31,7 +31,6 @@ static_assert(
 struct Imd
 {
     float (*get_pwm_frequency)(void);
-    float (*get_pwm_frequency_tolerance)(void);
     float (*get_pwm_duty_cycle)(void);
     uint32_t (*get_seconds_since_power_on)(void);
 
@@ -102,22 +101,21 @@ static float App_GetIdealPwmFrequency(const enum Imd_Condition condition)
 
 struct Imd *App_Imd_Create(
     float (*const get_pwm_frequency)(void),
-    float (*const get_pwm_frequency_tolerance)(void),
+    const float pwm_frequency_tolerance,
     float (*const get_pwm_duty_cycle)(void),
     uint32_t (*const get_seconds_since_power_on)(void))
 {
     shared_assert(get_pwm_frequency != NULL);
-    shared_assert(get_pwm_frequency_tolerance != NULL);
     shared_assert(get_pwm_duty_cycle != NULL);
     shared_assert(get_seconds_since_power_on != NULL);
 
     struct Imd *imd = (struct Imd *)malloc(sizeof(struct Imd));
     shared_assert(imd != NULL);
 
-    imd->get_pwm_frequency           = get_pwm_frequency;
-    imd->get_pwm_frequency_tolerance = get_pwm_frequency_tolerance;
-    imd->get_pwm_duty_cycle          = get_pwm_duty_cycle;
-    imd->get_seconds_since_power_on  = get_seconds_since_power_on;
+    imd->get_pwm_frequency          = get_pwm_frequency;
+    imd->pwm_frequency_tolerance    = pwm_frequency_tolerance;
+    imd->get_pwm_duty_cycle         = get_pwm_duty_cycle;
+    imd->get_seconds_since_power_on = get_seconds_since_power_on;
 
     memset(&imd->pwm_encoding, 0, sizeof(imd->pwm_encoding));
 
@@ -132,10 +130,9 @@ void App_Imd_Destroy(struct Imd *const imd)
 void App_Imd_Tick(struct Imd *const imd)
 {
     // Update internal state at the start of each tick
-    imd->pwm_frequency           = imd->get_pwm_frequency();
-    imd->pwm_frequency_tolerance = imd->get_pwm_frequency_tolerance();
-    imd->pwm_duty_cycle          = imd->get_pwm_duty_cycle();
-    imd->seconds_since_power_on  = imd->get_seconds_since_power_on();
+    imd->pwm_frequency          = imd->get_pwm_frequency();
+    imd->pwm_duty_cycle         = imd->get_pwm_duty_cycle();
+    imd->seconds_since_power_on = imd->get_seconds_since_power_on();
     imd->condition =
         App_EstimateCondition(imd->pwm_frequency, imd->pwm_frequency_tolerance);
 

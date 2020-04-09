@@ -15,15 +15,24 @@ class Imd_Test : public testing::Test
     void SetUp() override
     {
         imd = App_Imd_Create(
-            get_pwm_frequency, get_pwm_frequency_tolerance, get_pwm_duty_cycle,
+            get_pwm_frequency, 2.0f, get_pwm_duty_cycle,
             get_seconds_since_power_on);
 
         RESET_FAKE(get_pwm_frequency);
-        RESET_FAKE(get_pwm_frequency_tolerance);
         RESET_FAKE(get_pwm_duty_cycle);
         RESET_FAKE(get_seconds_since_power_on);
     }
+
     void TearDown() override { App_Imd_Destroy(imd); }
+
+    void SetPwmFrequencyTolerance(float tolerance)
+    {
+        assert(imd != NULL);
+        App_Imd_Destroy(imd);
+        imd = App_Imd_Create(
+            get_pwm_frequency, tolerance, get_pwm_duty_cycle,
+            get_seconds_since_power_on);
+    }
 
     struct Imd *imd;
 };
@@ -95,7 +104,7 @@ TEST_F(Imd_Test, check_condition_for_ideal_frequency)
         { 55.0f, IMD_INVALID },
     };
 
-    get_pwm_frequency_tolerance_fake.return_val = 2.0f;
+    SetPwmFrequencyTolerance(2.0f);
 
     for (auto &entry : lookup_table)
     {

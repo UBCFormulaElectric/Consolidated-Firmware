@@ -40,8 +40,8 @@ struct Imd_PwmEncoding
  * Allocate and initialize an IMD
  * @get_pwm_frequency: A function that can be called to get the frequency of the
  *                     IMD's PWM output
- * @get_pwm_frequency_tolerance: A function that can be called to get the
- *                               frequency tolerance of the IMD's PWM output
+ * @pwm_frequency_tolerance: The acceptable tolerance when we match the IMD's
+ *                           PWM output frequency to a condition
  * @get_pwm_duty_cycle: A function that can be called to get the duty cycle of
  *                      the IMD's PWM output
  * @get_seconds_since_power_on: A function that can be called to get the time of
@@ -50,7 +50,7 @@ struct Imd_PwmEncoding
  */
 struct Imd *App_Imd_Create(
     float (*get_pwm_frequency)(void),
-    float (*get_pwm_frequency_tolerance)(void),
+    float pwm_frequency_tolerance,
     float (*get_pwm_duty_cycle)(void),
     uint32_t (*get_seconds_since_power_on)(void));
 
