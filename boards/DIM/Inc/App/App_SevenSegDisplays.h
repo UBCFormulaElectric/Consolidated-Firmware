@@ -12,4 +12,4 @@ struct SevenSegDisplays *App_SevenSegDisplays_Create(
 void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *seven_seg_displays);
 
 void App_SevenSegDisplays_WriteStateOfCharge(
-    struct SevenSegDisplays *seven_seg_displays);
+    const struct SevenSegDisplays *seven_seg_displays);

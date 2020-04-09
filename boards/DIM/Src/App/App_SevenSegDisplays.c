@@ -11,29 +11,12 @@ struct SevenSegDisplays
     struct SevenSegDisplay *right_display;
 };
 
-struct SevenSegDisplays *App_SevenSegDisplays_Create(
-    float (*get_state_of_charge)(void),
-    struct SevenSegDisplay *left_display,
-    struct SevenSegDisplay *middle_display,
-    struct SevenSegDisplay *right_display)
-{
-    struct SevenSegDisplays *seven_seg_displays =
-        malloc(sizeof(struct SevenSegDisplays));
-
-    seven_seg_displays->get_state_of_charge = get_state_of_charge;
-    seven_seg_displays->left_display        = left_display;
-    seven_seg_displays->middle_display      = middle_display;
-    seven_seg_displays->right_display       = right_display;
-
-    return seven_seg_displays;
-}
-
 static void WriteStateOfCharge(
-    struct SevenSegDisplays *seven_seg_displays,
+    const struct SevenSegDisplays *seven_seg_displays,
     float                    state_of_charge);
 
 static void WriteStateOfCharge(
-    struct SevenSegDisplays *seven_seg_displays,
+    const struct SevenSegDisplays *const seven_seg_displays,
     float                    state_of_charge)
 {
     // Truncate the fractional bits of floating point
@@ -53,13 +36,30 @@ static void WriteStateOfCharge(
         seven_seg_displays->right_display, right_digit);
 }
 
-void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *seven_seg_displays)
+struct SevenSegDisplays *App_SevenSegDisplays_Create(
+    float (*const get_state_of_charge)(void),
+    struct SevenSegDisplay *const left_display,
+    struct SevenSegDisplay *const middle_display,
+    struct SevenSegDisplay *const right_display)
+{
+    struct SevenSegDisplays *seven_seg_displays =
+        malloc(sizeof(struct SevenSegDisplays));
+
+    seven_seg_displays->get_state_of_charge = get_state_of_charge;
+    seven_seg_displays->left_display        = left_display;
+    seven_seg_displays->middle_display      = middle_display;
+    seven_seg_displays->right_display       = right_display;
+
+    return seven_seg_displays;
+}
+
+void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *const seven_seg_displays)
 {
     free(seven_seg_displays);
 }
 
 void App_SevenSegDisplays_WriteStateOfCharge(
-    struct SevenSegDisplays *seven_seg_displays)
+    const struct SevenSegDisplays *const seven_seg_displays)
 {
     WriteStateOfCharge(
         seven_seg_displays, seven_seg_displays->get_state_of_charge());
