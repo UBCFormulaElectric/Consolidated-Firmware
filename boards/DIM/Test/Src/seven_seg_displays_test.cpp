@@ -25,8 +25,6 @@ class SevenSegDisplaysTest : public testing::Test
         RESET_FAKE(set_right_hex_digit);
         RESET_FAKE(set_middle_hex_digit);
         RESET_FAKE(set_left_hex_digit);
-
-        FFF_RESET_HISTORY();
     }
     void TearDown() override
     {
@@ -50,11 +48,6 @@ TEST_F(SevenSegDisplaysTest, write_max_state_of_chrage)
     ASSERT_EQ(1, set_left_hex_digit_fake.call_count);
     ASSERT_EQ(1, set_middle_hex_digit_fake.call_count);
     ASSERT_EQ(1, set_right_hex_digit_fake.call_count);
-
-    ASSERT_EQ(fff.call_history[0], (void *)get_state_of_charge);
-    ASSERT_EQ(fff.call_history[1], (void *)set_left_hex_digit);
-    ASSERT_EQ(fff.call_history[2], (void *)set_middle_hex_digit);
-    ASSERT_EQ(fff.call_history[3], (void *)set_right_hex_digit);
 }
 
 TEST_F(SevenSegDisplaysTest, write_min_state_of_chrage)
@@ -71,11 +64,6 @@ TEST_F(SevenSegDisplaysTest, write_min_state_of_chrage)
     ASSERT_EQ(1, set_left_hex_digit_fake.call_count);
     ASSERT_EQ(1, set_middle_hex_digit_fake.call_count);
     ASSERT_EQ(1, set_right_hex_digit_fake.call_count);
-
-    ASSERT_EQ(fff.call_history[0], (void *)get_state_of_charge);
-    ASSERT_EQ(fff.call_history[1], (void *)set_left_hex_digit);
-    ASSERT_EQ(fff.call_history[2], (void *)set_middle_hex_digit);
-    ASSERT_EQ(fff.call_history[3], (void *)set_right_hex_digit);
 }
 
 TEST_F(SevenSegDisplaysTest, write_state_of_chrage_with_decimals)
@@ -92,11 +80,6 @@ TEST_F(SevenSegDisplaysTest, write_state_of_chrage_with_decimals)
     ASSERT_EQ(1, set_left_hex_digit_fake.call_count);
     ASSERT_EQ(1, set_middle_hex_digit_fake.call_count);
     ASSERT_EQ(1, set_right_hex_digit_fake.call_count);
-
-    ASSERT_EQ(fff.call_history[0], (void *)get_state_of_charge);
-    ASSERT_EQ(fff.call_history[1], (void *)set_left_hex_digit);
-    ASSERT_EQ(fff.call_history[2], (void *)set_middle_hex_digit);
-    ASSERT_EQ(fff.call_history[3], (void *)set_right_hex_digit);
 }
 
 TEST_F(SevenSegDisplaysTest, write_overflow_state_of_charge)
