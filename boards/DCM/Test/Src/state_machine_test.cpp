@@ -36,7 +36,7 @@ class DcmStateMachineTest : public testing::Test
         RESET_FAKE(send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT);
     }
 
-    virtual void SetInitialState(const struct State *initial_state)
+    void SetInitialState(const struct State *const initial_state)
     {
         assert(initial_state != NULL);
         App_SharedStateMachine_Destroy(state_machine);
@@ -74,20 +74,14 @@ TEST_F(
         App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
-//TEST_F(
-//    DcmStateMachineTest,
-//    check_drive_state_is_broadcasted_over_can)
-//{
-//    App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
-//
-//    App_SharedStateMachine_Tick(state_machine);
-//
-//    EXPECT_EQ(
-//        App_GetDriveState(),
-//        App_SharedStateMachine_GetCurrentState(state_machine));
-//
-//    EXPECT_EQ(
-//        CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE,
-//        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface)
-//        );
-//}
+TEST_F(
+    DcmStateMachineTest,
+    check_drive_state_is_broadcasted_over_can)
+{
+    SetInitialState(App_GetDriveState());
+
+    EXPECT_EQ(
+        CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface)
+        );
+}
