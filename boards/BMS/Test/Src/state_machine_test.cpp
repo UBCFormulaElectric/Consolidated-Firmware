@@ -7,34 +7,36 @@ extern "C"
 #include "states/App_InitState.h"
 #include "states/App_DriveState.h"
 #include "states/App_FaultState.h"
+#include "states/App_ChargeState.h"
 
     DEFINE_FFF_GLOBALS;
     FAKE_VOID_FUNC(
-        send_non_periodic_msg_DCM_STARTUP,
-        struct CanMsgs_dcm_startup_t *);
+        send_non_periodic_msg_BMS_STARTUP,
+        struct CanMsgs_bms_startup_t *);
     FAKE_VOID_FUNC(
-        send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT,
-        struct CanMsgs_dcm_watchdog_timeout_t *);
+        send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT,
+        struct CanMsgs_bms_watchdog_timeout_t *);
 }
 
-class DcmStateMachineTest : public testing::Test
+class BmsStateMachineTest : public testing::Test
 {
   protected:
     void SetUp() override
     {
         can_tx_interface = App_CanTx_Create(
-            send_non_periodic_msg_DCM_STARTUP,
-            send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT);
+            send_non_periodic_msg_BMS_STARTUP,
+            send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT);
         can_rx_interface = App_CanRx_Create();
-        world = App_DcmWorld_Create(can_tx_interface, can_rx_interface);
+        imd = App_Imd_Create(can_tx_interface);
+        world = App_BmsWorld_Create(can_tx_interface, can_rx_interface);
 
         // Default to starting the state machine in the `init` state
         state_machine =
             App_SharedStateMachine_Create(world, App_GetInitState());
 
         // Reset fake functions
-        RESET_FAKE(send_non_periodic_msg_DCM_STARTUP);
-        RESET_FAKE(send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT);
+        RESET_FAKE(send_non_periodic_msg_BMS_STARTUP);
+        RESET_FAKE(send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -49,19 +51,20 @@ class DcmStateMachineTest : public testing::Test
         assert(state_machine != NULL);
         App_SharedStateMachine_Destroy(state_machine);
         assert(world != NULL);
-        App_DcmWorld_Destroy(world);
+        App_BmsWorld_Destroy(world);
         world         = NULL;
         state_machine = NULL;
     }
 
     struct StateMachine *     state_machine;
     struct World *            world;
-    struct DcmCanTxInterface *can_tx_interface;
-    struct DcmCanRxInterface *can_rx_interface;
+    struct BmsCanTxInterface *can_tx_interface;
+    struct BmsCanRxInterface *can_rx_interface;
+    struct Imd* imd;
 };
 
 TEST_F(
-    DcmStateMachineTest,
+    BmsStateMachineTest,
     check_init_immediately_transitions_to_run_on_first_tick)
 {
     // We need to tick twice, once to run the `Init` state, and once more
@@ -74,29 +77,38 @@ TEST_F(
         App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
-TEST_F(DcmStateMachineTest, check_init_state_is_broadcasted_over_can)
+TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInitState());
 
     EXPECT_EQ(
-        CANMSGS_DCM_STATE_MACHINE_STATE_INIT_CHOICE,
+        CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE,
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
-TEST_F(DcmStateMachineTest, check_drive_state_is_broadcasted_over_can)
+TEST_F(BmsStateMachineTest, check_drive_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetDriveState());
 
     EXPECT_EQ(
-        CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE,
+        CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE,
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
-TEST_F(DcmStateMachineTest, check_fault_state_is_broadcasted_over_can)
+TEST_F(BmsStateMachineTest, check_fault_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetFaultState());
 
     EXPECT_EQ(
-        CANMSGS_DCM_STATE_MACHINE_STATE_FAULT_CHOICE,
+        CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+}
+
+TEST_F(BmsStateMachineTest, check_charge_state_is_broadcasted_over_can)
+{
+    SetInitialState(App_GetChargeState());
+
+    EXPECT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_CHARGE_CHOICE,
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
