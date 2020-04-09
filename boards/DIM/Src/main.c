@@ -24,7 +24,10 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "App_SevenSegDisplays.h"
+#include "App_SevenSegDisplay.h"
 
+#include "Io_SevenSegDisplays.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -77,7 +80,19 @@ void        StartDefaultTask(void const *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
+    struct SevenSegDisplay *left_seven_seg_display =
+        App_SevenSegDisplay_Create(Io_SevenSegDisplay_SetLeftHexDigit);
 
+    struct SevenSegDisplay *middle_seven_seg_display =
+        App_SevenSegDisplay_Create(Io_SevenSegDisplay_SetLeftHexDigit);
+
+    struct SevenSegDisplay *right_seven_seg_display =
+        App_SevenSegDisplay_Create(Io_SevenSegDisplay_SetLeftHexDigit);
+
+    struct SevenSegDisplays *seven_seg_displays = App_SevenSegDisplays_Create(
+        Io_SevenSegDisplay_GetStateOfCharge, left_seven_seg_display,
+        middle_seven_seg_display, right_seven_seg_display);
+    UNUSED(seven_seg_displays);
     /* USER CODE END 1 */
 
     /* MCU

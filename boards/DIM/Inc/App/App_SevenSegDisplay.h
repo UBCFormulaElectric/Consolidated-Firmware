@@ -2,6 +2,8 @@
 
 #include <stdint.h>
 
+struct SevenSegDisplays;
+
 struct SevenSegDisplay *
     App_SevenSegDisplay_Create(void (*set_hex_digit)(uint8_t hex_digit));
 

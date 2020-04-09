@@ -13,11 +13,11 @@ struct SevenSegDisplays
 
 static void WriteStateOfCharge(
     const struct SevenSegDisplays *seven_seg_displays,
-    float                    state_of_charge);
+    float                          state_of_charge);
 
 static void WriteStateOfCharge(
     const struct SevenSegDisplays *const seven_seg_displays,
-    float                    state_of_charge)
+    float                                state_of_charge)
 {
     // Truncate the fractional bits of floating point
     uint32_t state_of_charge_u32 = (uint32_t)state_of_charge;
@@ -53,7 +53,8 @@ struct SevenSegDisplays *App_SevenSegDisplays_Create(
     return seven_seg_displays;
 }
 
-void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *const seven_seg_displays)
+void App_SevenSegDisplays_Destroy(
+    struct SevenSegDisplays *const seven_seg_displays)
 {
     free(seven_seg_displays);
 }

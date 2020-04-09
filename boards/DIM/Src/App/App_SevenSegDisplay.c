@@ -1,28 +1,8 @@
 #include <stdlib.h>
 
 #include "App_SevenSegDisplay.h"
+#include "App_SharedConstants.h"
 #include "App_SharedAssert.h"
-
-enum HexDigits
-{
-    HEX_DIGIT_0,
-    HEX_DIGIT_1,
-    HEX_DIGIT_2,
-    HEX_DIGIT_3,
-    HEX_DIGIT_4,
-    HEX_DIGIT_5,
-    HEX_DIGIT_6,
-    HEX_DIGIT_7,
-    HEX_DIGIT_8,
-    HEX_DIGIT_9,
-    HEX_DIGIT_A,
-    HEX_DIGIT_B,
-    HEX_DIGIT_C,
-    HEX_DIGIT_D,
-    HEX_DIGIT_E,
-    HEX_DIGIT_F,
-    NUM_HEX_DIGITS,
-};
 
 struct SevenSegDisplay
 {
