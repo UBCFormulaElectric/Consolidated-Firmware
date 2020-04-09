@@ -36,14 +36,6 @@ class DcmStateMachineTest : public testing::Test
         RESET_FAKE(send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT);
     }
 
-    virtual void SetInitialState(const struct State *initial_state)
-    {
-        assert(initial_state != NULL);
-        App_SharedStateMachine_Destroy(state_machine);
-        state_machine = App_SharedStateMachine_Create(world, initial_state);
-        EXPECT_TRUE(state_machine);
-    }
-
     virtual void TearDown()
     {
         assert(state_machine != NULL);
@@ -62,19 +54,8 @@ class DcmStateMachineTest : public testing::Test
 
 TEST_F(
     DcmStateMachineTest,
-    check_startup_message_is_broadcasted_on_init_state_entry)
-{
-    SetInitialState(App_GetInitState());
-
-    ASSERT_EQ(1, send_non_periodic_msg_DCM_STARTUP_fake.call_count);
-}
-
-TEST_F(
-    DcmStateMachineTest,
     check_init_immediately_transitions_to_run_on_first_tick)
 {
-    SetInitialState(App_GetInitState());
-
     // We need to tick twice, once to run the `Init` state, and once more
     // to have the state machine transition to the `Run` state.
     App_SharedStateMachine_Tick(state_machine);
