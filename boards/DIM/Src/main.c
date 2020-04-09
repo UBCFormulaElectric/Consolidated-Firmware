@@ -49,11 +49,15 @@ ADC_HandleTypeDef hadc2;
 
 CAN_HandleTypeDef hcan;
 
-SPI_HandleTypeDef hspi2;
-
-osThreadId          defaultTaskHandle;
-uint32_t            defaultTaskBuffer[128];
-osStaticThreadDef_t defaultTaskControlBlock;
+osThreadId          Task100HzHandle;
+uint32_t            Task100HzTaskBuffer[128];
+osStaticThreadDef_t Task100HzTaskControlBlock;
+osThreadId          TaskCanRxHandle;
+uint32_t            TaskCanRxBuffer[128];
+osStaticThreadDef_t TaskCanRxControlBlock;
+osThreadId          TaskCanTxHandle;
+uint32_t            TaskCanTxBuffer[128];
+osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
 
 /* USER CODE END PV */
@@ -64,7 +68,9 @@ static void MX_GPIO_Init(void);
 static void MX_CAN_Init(void);
 static void MX_ADC2_Init(void);
 static void MX_SPI2_Init(void);
-void        StartDefaultTask(void const *argument);
+void        RunTask100Hz(void const *argument);
+void        RunTaskCanRx(void const *argument);
+void        RunTaskCanTx(void const *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -136,11 +142,23 @@ int main(void)
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
-    /* definition and creation of defaultTask */
+    /* definition and creation of Task100Hz */
     osThreadStaticDef(
-        defaultTask, StartDefaultTask, osPriorityNormal, 0, 128,
-        defaultTaskBuffer, &defaultTaskControlBlock);
-    defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+        Task100Hz, RunTask100Hz, osPriorityLow, 0, 128, Task100HzTaskBuffer,
+        &Task100HzTaskControlBlock);
+    Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
+
+    /* definition and creation of TaskCanRx */
+    osThreadStaticDef(
+        TaskCanRx, RunTaskCanRx, osPriorityIdle, 0, 128, TaskCanRxBuffer,
+        &TaskCanRxControlBlock);
+    TaskCanRxHandle = osThreadCreate(osThread(TaskCanRx), NULL);
+
+    /* definition and creation of TaskCanTx */
+    osThreadStaticDef(
+        TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, 128, TaskCanTxBuffer,
+        &TaskCanTxControlBlock);
+    TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -274,10 +292,10 @@ static void MX_CAN_Init(void)
 
     /* USER CODE END CAN_Init 1 */
     hcan.Instance                  = CAN;
-    hcan.Init.Prescaler            = 16;
+    hcan.Init.Prescaler            = 9;
     hcan.Init.Mode                 = CAN_MODE_NORMAL;
-    hcan.Init.SyncJumpWidth        = CAN_SJW_1TQ;
-    hcan.Init.TimeSeg1             = CAN_BS1_1TQ;
+    hcan.Init.SyncJumpWidth        = CAN_SJW_4TQ;
+    hcan.Init.TimeSeg1             = CAN_BS1_6TQ;
     hcan.Init.TimeSeg2             = CAN_BS2_1TQ;
     hcan.Init.TimeTriggeredMode    = DISABLE;
     hcan.Init.AutoBusOff           = DISABLE;
@@ -414,14 +432,14 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_StartDefaultTask */
+/* USER CODE BEGIN Header_RunTask100Hz */
 /**
- * @brief  Function implementing the defaultTask thread.
+ * @brief  Function implementing the Task100Hz thread.
  * @param  argument: Not used
  * @retval None
  */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void const *argument)
+/* USER CODE END Header_RunTask100Hz */
+void RunTask100Hz(void const *argument)
 {
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
@@ -432,6 +450,46 @@ void StartDefaultTask(void const *argument)
         osDelay(1);
     }
     /* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_RunTaskCanRx */
+/**
+ * @brief Function implementing the TaskCanRx thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskCanRx */
+void RunTaskCanRx(void const *argument)
+{
+    /* USER CODE BEGIN RunTaskCanRx */
+    UNUSED(argument);
+
+    /* Infinite loop */
+    for (;;)
+    {
+        osDelay(1);
+    }
+    /* USER CODE END RunTaskCanRx */
+}
+
+/* USER CODE BEGIN Header_RunTaskCanTx */
+/**
+ * @brief Function implementing the TaskCanTx thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskCanTx */
+void RunTaskCanTx(void const *argument)
+{
+    /* USER CODE BEGIN RunTaskCanTx */
+    UNUSED(argument);
+
+    /* Infinite loop */
+    for (;;)
+    {
+        osDelay(1);
+    }
+    /* USER CODE END RunTaskCanTx */
 }
 
 /**
