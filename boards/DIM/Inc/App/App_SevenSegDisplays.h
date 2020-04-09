@@ -1,6 +1,6 @@
 #pragma once
 
-#include "App_SevenSegDisplay.h"
+struct SevenSegDisplay;
 
 // Do NOT take ownership of individual displays
 struct SevenSegDisplays *App_SevenSegDisplays_Create(

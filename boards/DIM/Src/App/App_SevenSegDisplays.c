@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "App_SevenSegDisplays.h"
+#include "App_SevenSegDisplay.h"
 #include "App_SharedAssert.h"
 
 struct SevenSegDisplays
