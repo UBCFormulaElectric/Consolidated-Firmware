@@ -109,9 +109,18 @@ TEST_F(SevenSegDisplaysTest, write_state_of_chrage_with_decimals)
     ASSERT_EQ(fff.call_history[3], (void *)set_right_hex_digit);
 }
 
+TEST_F(SevenSegDisplaysTest, write_overflow_state_of_charge)
+{
+    get_state_of_charge_fake.return_val = 101.0f;
+
+    ASSERT_DEATH(
+        { App_SevenSegDisplays_WriteStateOfCharge(seven_segment_displays); },
+        "");
+}
+
 TEST_F(SevenSegDisplaysTest, write_underflow_state_of_charge)
 {
-    get_state_of_charge_fake.return_val = 101.f;
+    get_state_of_charge_fake.return_val = -1.0f;
 
     ASSERT_DEATH(
         { App_SevenSegDisplays_WriteStateOfCharge(seven_segment_displays); },
