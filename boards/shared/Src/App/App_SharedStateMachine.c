@@ -72,5 +72,4 @@ void App_SharedStateMachine_Tick(struct StateMachine *const state_machine)
     // We assume the next time we tick we will continue in the current state,
     // unless told otherwise.
     state_machine->next_state = state_machine->current_state;
-
 }

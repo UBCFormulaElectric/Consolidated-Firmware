@@ -6,6 +6,7 @@ extern "C"
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
 #include "states/App_DriveState.h"
+#include "states/App_FaultState.h"
 
     DEFINE_FFF_GLOBALS;
     FAKE_VOID_FUNC(
@@ -74,14 +75,29 @@ TEST_F(
         App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
-TEST_F(
-    DcmStateMachineTest,
-    check_drive_state_is_broadcasted_over_can)
+TEST_F(DcmStateMachineTest, check_init_state_is_broadcasted_over_can)
+{
+    SetInitialState(App_GetInitState());
+
+    EXPECT_EQ(
+        CANMSGS_DCM_STATE_MACHINE_STATE_INIT_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+}
+
+TEST_F(DcmStateMachineTest, check_drive_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetDriveState());
 
     EXPECT_EQ(
         CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE,
-        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface)
-        );
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+}
+
+TEST_F(DcmStateMachineTest, check_fault_state_is_broadcasted_over_can)
+{
+    SetInitialState(App_GetFaultState());
+
+    EXPECT_EQ(
+        CANMSGS_DCM_STATE_MACHINE_STATE_FAULT_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
