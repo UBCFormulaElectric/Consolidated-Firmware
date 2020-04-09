@@ -45,10 +45,11 @@ static void WriteStateOfCharge(
     uint8_t middle_digit = (state_of_charge_u32 / 10U) % 10U;
     uint8_t right_digit  = state_of_charge_u32 % 10U;
 
-    App_SevenSegDisplay_SetDigit(seven_seg_displays->left_display, left_digit);
-    App_SevenSegDisplay_SetDigit(
+    App_SevenSegDisplay_SetHexDigit(
+        seven_seg_displays->left_display, left_digit);
+    App_SevenSegDisplay_SetHexDigit(
         seven_seg_displays->middle_display, middle_digit);
-    App_SevenSegDisplay_SetDigit(
+    App_SevenSegDisplay_SetHexDigit(
         seven_seg_displays->right_display, right_digit);
 }
 

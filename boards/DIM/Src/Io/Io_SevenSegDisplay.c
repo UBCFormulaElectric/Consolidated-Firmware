@@ -1,7 +1,7 @@
 #include "Io_SevenSegDisplay.h"
 #include "App_SharedAssert.h"
 
-void Io_SevenSegDisplay_SetDigit(enum SevenSegDisplay_Digit digit)
+void Io_SevenSegDisplay_SetDigit(uint8_t digit)
 {
     shared_assert(digit < NUM_SEVEN_SEG_DISPLAY_DIGITS);
 
