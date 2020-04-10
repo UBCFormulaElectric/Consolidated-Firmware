@@ -23,11 +23,6 @@ static void App_DriveState_SetImdPeriodicCanSignals(
 
     switch (condition)
     {
-        case IMD_SHORT_CIRCUIT:
-        {
-            App_CanTx_SetPeriodicSignal_DUMMY_0_HZ(can_tx, 0);
-        }
-        break;
         case IMD_NORMAL:
         {
             if (pwm_encoding.valid_duty_cycle == true)
@@ -52,19 +47,12 @@ static void App_DriveState_SetImdPeriodicCanSignals(
                 can_tx, pwm_encoding.speed_start_status);
         }
         break;
+        case IMD_SHORT_CIRCUIT:
         case IMD_DEVICE_ERROR:
-        {
-            App_CanTx_SetPeriodicSignal_DUMMY_40_HZ(can_tx, 0);
-        }
-        break;
         case IMD_EARTH_FAULT:
-        {
-            App_CanTx_SetPeriodicSignal_DUMMY_50_HZ(can_tx, 0);
-        }
-        break;
         case IMD_INVALID:
         {
-            App_CanTx_SetPeriodicSignal_DUMMY_INVALID(can_tx, 0);
+            // Nothing to do for conditions that don't carry a payload
         }
         break;
     }
