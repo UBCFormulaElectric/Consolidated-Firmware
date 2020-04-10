@@ -49,6 +49,8 @@ ADC_HandleTypeDef hadc2;
 
 CAN_HandleTypeDef hcan;
 
+SPI_HandleTypeDef hspi2;
+
 osThreadId          Task100HzHandle;
 uint32_t            Task100HzTaskBuffer[128];
 osStaticThreadDef_t Task100HzTaskControlBlock;
