@@ -24,7 +24,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include "auto_generated/App_CanRx.h"
+#include "App_CanRx.h"
 #include "App_SevenSegDisplays.h"
 
 #include "Io_SevenSegDisplays.h"
