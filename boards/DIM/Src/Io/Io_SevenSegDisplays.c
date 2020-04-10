@@ -65,12 +65,6 @@ void Io_SevenSegDisplays_WriteCommands(void)
     HAL_SPI_Transmit(_hspi, (uint8_t *)&commands, 3U, 100U);
 }
 
-float Io_SevenSegDisplays_GetStateOfCharge(void)
-{
-    // TODO: Read the state of charge from CAN
-    return 0.0f;
-}
-
 void Io_SevenSegDisplays_SetLeftHexDigit(uint8_t hex_digit)
 {
     shared_assert(hex_digit < NUM_HEX_DIGITS);

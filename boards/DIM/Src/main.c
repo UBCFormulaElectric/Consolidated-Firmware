@@ -24,6 +24,7 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "auto_generated/App_CanRx.h"
 #include "App_SevenSegDisplays.h"
 
 #include "Io_SevenSegDisplays.h"
@@ -93,7 +94,6 @@ int main(void)
     Io_SevenSegDisplays_Init(&hspi2);
 
     struct SevenSegDisplays *seven_seg_displays = App_SevenSegDisplays_Create(
-        Io_SevenSegDisplays_GetStateOfCharge,
         Io_SevenSegDisplays_SetLeftHexDigit,
         Io_SevenSegDisplays_SetMiddleHexDigit,
         Io_SevenSegDisplays_SetRightHexDigit);
