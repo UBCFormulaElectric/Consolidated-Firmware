@@ -29,14 +29,12 @@ struct StateMachine *App_SharedStateMachine_Create(
 
 void App_SharedStateMachine_Destroy(struct StateMachine *const state_machine)
 {
-    shared_assert(state_machine != NULL);
     free(state_machine);
 }
 
 const struct State *App_SharedStateMachine_GetCurrentState(
     const struct StateMachine *const state_machine)
 {
-    shared_assert(state_machine != NULL);
     return state_machine->current_state;
 }
 
@@ -44,21 +42,17 @@ void App_SharedStateMachine_SetNextState(
     struct StateMachine *const state_machine,
     const struct State *const  next_state)
 {
-    shared_assert(state_machine != NULL);
     state_machine->next_state = next_state;
 }
 
 struct World *App_SharedStateMachine_GetWorld(
     const struct StateMachine *const state_machine)
 {
-    shared_assert(state_machine != NULL);
     return state_machine->world;
 }
 
 void App_SharedStateMachine_Tick(struct StateMachine *const state_machine)
 {
-    shared_assert(state_machine != NULL);
-
     state_machine->current_state->run_on_tick(state_machine);
 
     // Check if we should transition states

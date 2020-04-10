@@ -4,6 +4,8 @@
 extern "C"
 {
 #include "App_SharedStateMachine.h"
+#include "App_CanTx.h"
+#include "App_CanRx.h"
 #include "states/App_InitState.h"
 #include "states/App_DriveState.h"
 #include "states/App_FaultState.h"
@@ -16,6 +18,11 @@ extern "C"
     FAKE_VOID_FUNC(
         send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT,
         struct CanMsgs_bms_watchdog_timeout_t *);
+
+    FAKE_VALUE_FUNC(float, get_pwm_frequency);
+    FAKE_VALUE_FUNC(float, get_pwm_frequency_tolerance);
+    FAKE_VALUE_FUNC(float, get_pwm_duty_cycle);
+    FAKE_VALUE_FUNC(uint32_t, get_seconds_since_power_on);
 }
 
 class BmsStateMachineTest : public testing::Test
@@ -27,8 +34,10 @@ class BmsStateMachineTest : public testing::Test
             send_non_periodic_msg_BMS_STARTUP,
             send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT);
         can_rx_interface = App_CanRx_Create();
-        imd = App_Imd_Create(can_tx_interface);
-        world = App_BmsWorld_Create(can_tx_interface, can_rx_interface);
+        imd              = App_Imd_Create(
+            can_tx_interface, get_pwm_frequency, get_pwm_duty_cycle,
+            get_seconds_since_power_on);
+        world = App_BmsWorld_Create(can_tx_interface, can_rx_interface, imd);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -37,45 +46,49 @@ class BmsStateMachineTest : public testing::Test
         // Reset fake functions
         RESET_FAKE(send_non_periodic_msg_BMS_STARTUP);
         RESET_FAKE(send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT);
+        RESET_FAKE(get_pwm_frequency);
+        RESET_FAKE(get_pwm_frequency_tolerance);
+        RESET_FAKE(get_pwm_duty_cycle);
+        RESET_FAKE(get_seconds_since_power_on);
     }
 
     void SetInitialState(const struct State *const initial_state)
     {
         App_SharedStateMachine_Destroy(state_machine);
         state_machine = App_SharedStateMachine_Create(world, initial_state);
-        EXPECT_TRUE(state_machine);
+        ASSERT_TRUE(state_machine != NULL);
+        ASSERT_EQ(
+            initial_state,
+            App_SharedStateMachine_GetCurrentState(state_machine));
     }
 
     void TearDown() override
     {
-        assert(state_machine != NULL);
-        App_SharedStateMachine_Destroy(state_machine);
-        assert(world != NULL);
+        ASSERT_TRUE(world != NULL);
+        ASSERT_TRUE(can_tx_interface != NULL);
+        ASSERT_TRUE(can_rx_interface != NULL);
+        ASSERT_TRUE(imd != NULL);
+        ASSERT_TRUE(state_machine != NULL);
+
         App_BmsWorld_Destroy(world);
-        world         = NULL;
-        state_machine = NULL;
+        App_CanTx_Destroy(can_tx_interface);
+        App_CanRx_Destroy(can_rx_interface);
+        App_Imd_Destroy(imd);
+        App_SharedStateMachine_Destroy(state_machine);
+
+        world            = NULL;
+        can_tx_interface = NULL;
+        can_rx_interface = NULL;
+        imd              = NULL;
+        state_machine    = NULL;
     }
 
-    struct StateMachine *     state_machine;
     struct World *            world;
     struct BmsCanTxInterface *can_tx_interface;
     struct BmsCanRxInterface *can_rx_interface;
-    struct Imd* imd;
+    struct Imd *              imd;
+    struct StateMachine *     state_machine;
 };
-
-TEST_F(
-    BmsStateMachineTest,
-    check_init_immediately_transitions_to_run_on_first_tick)
-{
-    // We need to tick twice, once to run the `Init` state, and once more
-    // to have the state machine transition to the `Run` state.
-    App_SharedStateMachine_Tick(state_machine);
-    App_SharedStateMachine_Tick(state_machine);
-
-    EXPECT_EQ(
-        App_GetDriveState(),
-        App_SharedStateMachine_GetCurrentState(state_machine));
-}
 
 TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
 {
