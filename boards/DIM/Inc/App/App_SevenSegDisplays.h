@@ -22,5 +22,5 @@ void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *seven_seg_displays);
 
 void App_SevenSegDisplays_SetValue(
     const struct SevenSegDisplays *seven_seg_displays,
-    const uint8_t                        chars[],
+    const uint8_t                  chars[],
     size_t                         num_chars);
