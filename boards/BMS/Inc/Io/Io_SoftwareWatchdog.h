@@ -1,6 +1,6 @@
 #pragma once
 
-#include "auto_generated/App_CanTx.h"
+#include "App_CanTx.h"
 #include "Io_SharedSoftwareWatchdog.h"
 
 /**
