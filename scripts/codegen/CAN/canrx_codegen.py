@@ -48,18 +48,21 @@ class AppCanRxFileGenerator(CanRxFileGenerator):
             'struct %sCanRxInterface* %s_Create(void)' % (self._receiver.capitalize(), function_prefix),
             'Allocate and initialize a CAN RX interface',
             '''\
-    static struct {board}CanRxInterface can_rx_interfaces[MAX_NUM_OF_CANRX_INTERFACES];
-    static size_t alloc_index = 0;
+    struct {board}CanRxInterface* can_rx_interface = malloc(sizeof(struct {board}CanRxInterface));
     
-    shared_assert(alloc_index < MAX_NUM_OF_CANRX_INTERFACES);
+    shared_assert(can_rx_interface != NULL);
     
-    struct {board}CanRxInterface* can_rx_interface = &can_rx_interfaces[alloc_index++];
-
 {initial_signal_setters}
 
     return can_rx_interface;'''.format(
         board=self._receiver.capitalize(),
         initial_signal_setters=initial_signal_setters))
+
+        self._Destroy = Function(
+             'void %s_Destroy(struct %sCanRxInterface* can_rx_interface)'
+                % (function_prefix, self._receiver.capitalize()),
+            'Destroy a CAN RX interface, freeing the memory associated with it',
+            '''    free(can_rx_interface);''')
 
         self._CanRxSignalGetters = [
             Function('%s %s_%s_GetSignal_%s (struct %sCanRxInterface* can_rx_interface)'
@@ -109,6 +112,7 @@ class AppCanRxHeaderFileGenerator(AppCanRxFileGenerator):
     def __generateFunctionDeclarations(self):
         function_declarations = []
         function_declarations.append(self._Create.declaration)
+        function_declarations.append(self._Destroy.declaration)
         function_declarations.append(
             '/** @brief CAN RX signal getters */\n'
             + '\n'.join([func.declaration for func in self._CanRxSignalGetters]))
@@ -147,7 +151,7 @@ class AppCanRxSourceFileGenerator(AppCanRxFileGenerator):
             'CAN RX interface')
 
     def __generateHeaderIncludes(self):
-        header_names = ['<string.h>',
+        header_names = ['<stdlib.h>',
                         '"App_CanRx.h"',
                         '"App_CanMsgs.h"',
                         '"App_SharedAssert.h"']
@@ -163,10 +167,6 @@ class AppCanRxSourceFileGenerator(AppCanRxFileGenerator):
 
     def __generateMacros(self):
         macros = []
-        macros.append(Macro(
-            'MAX_NUM_OF_CANRX_INTERFACES',
-            ' 1',
-            'Maximum number for CAN RX interfaces').declaration)
         return '\n' + '\n'.join(macros)
 
     def __generateVariables(self):
@@ -184,6 +184,7 @@ class AppCanRxSourceFileGenerator(AppCanRxFileGenerator):
     def __generateFunctionDefinitions(self):
         function_defs = []
         function_defs.append(self._Create.definition)
+        function_defs.append(self._Destroy.definition)
         function_defs.extend([func.definition for func in self._CanRxSignalGetters])
         function_defs.extend([func.definition for func in self._CanRxSignalSetters])
         return '\n\n'.join(function_defs)
