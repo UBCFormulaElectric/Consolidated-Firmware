@@ -27,12 +27,11 @@ struct Imd_PwmEncoding
 {
     bool valid_duty_cycle;
     union {
-        // 0Hz, 40Hz, 50Hz: PWM doesn't encode any information
-        uint8_t dummy;
         // 10 and 20Hz: Insulation measurement DCP
         uint16_t insulation_measurement_dcp_kohms;
         // 30Hz: Speed Start Measurement
         enum SST speed_start_status;
+        // 0Hz, 40Hz, 50Hz: PWM doesn't encode any information
     };
 };
 
@@ -40,8 +39,8 @@ struct Imd_PwmEncoding
  * Allocate and initialize an IMD
  * @get_pwm_frequency: A function that can be called to get the frequency of the
  *                     IMD's PWM output
- * @pwm_frequency_tolerance: The acceptable tolerance when we match the IMD's
- *                           PWM output frequency to a condition
+ * @pwm_frequency_tolerance: The acceptable tolerance when we map the IMD's PWM
+ *                           output frequency to a condition
  * @get_pwm_duty_cycle: A function that can be called to get the duty cycle of
  *                      the IMD's PWM output
  * @get_seconds_since_power_on: A function that can be called to get the time of

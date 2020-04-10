@@ -144,7 +144,6 @@ void App_Imd_Tick(struct Imd *const imd)
             // This condition doesn't use duty cycle to encode information so
             // any duty cycle is valid.
             imd->pwm_encoding.valid_duty_cycle = true;
-            imd->pwm_encoding.dummy            = 0;
         }
         break;
         case IMD_NORMAL:
@@ -191,19 +190,16 @@ void App_Imd_Tick(struct Imd *const imd)
                 (imd->pwm_duty_cycle > 47.5f && imd->pwm_duty_cycle < 52.5f)
                     ? true
                     : false;
-            imd->pwm_encoding.dummy = 0;
         }
         break;
         case IMD_INVALID:
         {
             imd->pwm_encoding.valid_duty_cycle = false;
-            imd->pwm_encoding.dummy            = 0;
         }
         break;
         default:
         {
             imd->pwm_encoding.valid_duty_cycle = false;
-            imd->pwm_encoding.dummy            = 0;
         }
         break;
     }
