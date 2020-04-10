@@ -1,4 +1,4 @@
-#include "auto_generated/App_CanTx.h"
+#include "App_CanTx.h"
 #include "App_Imd.h"
 #include "App_SharedAssert.h"
 #include "App_SharedMacros.h"
