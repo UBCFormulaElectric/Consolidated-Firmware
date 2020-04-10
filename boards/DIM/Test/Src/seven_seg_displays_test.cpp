@@ -1,9 +1,11 @@
-#include <math.h>
-#include "App_SharedConstants.h"
-
+extern "C"
+{
 // The argument history needs to be long enough for us to test write every
 // one of the possible 16x16x16 = 4096 values on the three 7-segment displays
-#define FFF_ARG_HISTORY_LEN (size_t)pow((float)NUM_HEX_DIGITS, (float)3)
+#include <math.h>
+#include "App_SharedConstants.h"
+#define FFF_ARG_HISTORY_LEN (size_t) pow((float)NUM_HEX_DIGITS, (float)3)
+}
 
 #include "fff.h"
 #include "gtest/gtest.h"
@@ -41,7 +43,7 @@ class SevenSegDisplaysTest : public testing::Test
 TEST_F(SevenSegDisplaysTest, write_hexadecimal_values)
 {
     uint8_t input[NUM_SEVEN_SEG_DISPLAYS_DIGITS] = { 0, 0, 0 };
-    int     count = 0;
+    int     count                                = 0;
 
     for (size_t left_digit = 0; left_digit < NUM_HEX_DIGITS; left_digit++)
     {
@@ -67,14 +69,15 @@ TEST_F(SevenSegDisplaysTest, write_hexadecimal_values)
                 ASSERT_EQ(count, set_middle_hex_digit_fake.call_count);
                 ASSERT_EQ(count, set_right_hex_digit_fake.call_count);
 
-                ASSERT_EQ(left_digit,
-                    set_left_hex_digit_fake.arg0_history[count-1]);
+                ASSERT_EQ(
+                    left_digit,
+                    set_left_hex_digit_fake.arg0_history[count - 1]);
                 ASSERT_EQ(
                     middle_digit,
-                    set_middle_hex_digit_fake.arg0_history[count-1]);
+                    set_middle_hex_digit_fake.arg0_history[count - 1]);
                 ASSERT_EQ(
                     right_digit,
-                    set_right_hex_digit_fake.arg0_history[count-1]);
+                    set_right_hex_digit_fake.arg0_history[count - 1]);
 
                 // Sanity check to make sure the argument history is long enough
                 ASSERT_EQ(0, set_left_hex_digit_fake.arg_histories_dropped);

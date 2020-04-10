@@ -37,9 +37,9 @@ void App_SevenSegDisplays_Destroy(
 }
 
 void App_SevenSegDisplays_SetValue(
-    const struct SevenSegDisplays *seven_seg_displays,
-    uint8_t                        chars[],
-    size_t                         num_chars)
+    const struct SevenSegDisplays *const seven_seg_displays,
+    const uint8_t                        chars[],
+    size_t                               num_chars)
 {
     shared_assert(num_chars <= NUM_SEVEN_SEG_DISPLAYS_DIGITS);
 
