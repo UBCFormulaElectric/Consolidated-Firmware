@@ -47,6 +47,8 @@ There are two types of faults:
     - [BMS Drive State](#BMS_DRIVE)
     - [BMS Fault State](#BMS_FAULT)
 - [DIM (Dashoard Interface Module)](#DIM)
+    - [DIM Stateless](#DIM_STATELESS)
+    - [DIM Drive State](#DIM_DRIVE)
 
 ## FSM <a name="FSM"></a>
 
@@ -217,11 +219,21 @@ BMS-29 | Entering the fault state | The BMS must open both contactors.
 BMS-30 | Exiting the fault state and entering the init state | Once all AIR shutdown faults are cleared, the BMS must exit the fault state and enter the init state.
 
 ## DIM <a name="DIM"></a>
+
+### DIM Stateless <a name="DIM_STATELESS"></a>
+
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 DIM-0 | Startup CAN message | The DIM must transmit a startup message over CAN on boot.
+DCM-12 | State CAN message | The DCM must transmit the state of its state machine at 100Hz.
 DIM-10 | Heartbeat sending | The DIM must transmit a heartbeat over CAN at 10Hz.
 DIM-1 | Heartbeat receiving | The DIM must set the 7-segments all on to display '888' once it does not receive three consecutive BMS heartbeats.
+
+### DIM Drive State <a name="DIM_DRIVE"></a>
+
+ID | Title | Description | Associated Competition Rule(s)
+--- | --- | --- | ---
+DIM-11 | Entering the Drive state | The DIM state machine must begin in the Drive state by default.
 DIM-2 | Board status LEDs | The DIM must indicate the current status of the BMS, DCM, DIM, FSM and PDM using RGB LEDs, where GREEN = no fault, BLUE = non-critical fault and RED = critical fault. | EV.6.1.11
 DIM-3 | Drive mode switch | The DIM must transmit the drive mode position of the rotary switch over CAN at 1kHz.
 DIM-4 |  Start, traction control, torque vectoring switches | For each of the switches, the DIM must: <br/> - Transmit the on/off switch status of over CAN at 1kHz. <br/> - Set the corresponding green status LEDs when the switch is on.
