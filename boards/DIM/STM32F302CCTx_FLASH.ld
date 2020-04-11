@@ -76,6 +76,13 @@ SECTIONS
     . = ALIGN(4);
   } >FLASH
 
+  /* TL85 program code */
+  .tl85.funcs :
+  {
+    . = ALIGN(4);
+    *(.tl85*)
+  }
+
   /* The program code and other data goes into FLASH */
   .text :
   {

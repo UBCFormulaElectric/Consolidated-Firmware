@@ -70,7 +70,7 @@ void        RunTaskCanRx(void const *argument);
 void        RunTaskCanTx(void const *argument);
 
 /* USER CODE BEGIN PFP */
-
+#include "App_Milestone4Demo.h"
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
@@ -85,7 +85,9 @@ void        RunTaskCanTx(void const *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-
+    SetWheelSpeed(0.0f);
+    SetBatteryVoltage(0.0f);
+    SetTirePressure(0.0f);
     /* USER CODE END 1 */
 
     /* MCU
