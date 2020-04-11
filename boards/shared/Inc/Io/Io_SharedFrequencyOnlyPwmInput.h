@@ -5,69 +5,59 @@
 
 #include "Io_SharedFrequencyOnlyPwmInputConfig.h"
 
-#define MAX_NUM_OF_FREQ_ONLY_PWM_INPUT 2
-
-#ifndef MAX_NUM_OF_FREQ_ONLY_PWM_INPUT
+#ifndef MAX_NUM_OF_FREQ_ONLY_PWM_INPUTS
 #error Missing definition: MAX_NUM_OF_FREQ_ONLY_PWM_INPUTS must be defined in Io_SharedFreqOnlyPwmInputConfig.h.
 #endif
 
-struct FrequencyOnlyPwmInput;
+struct FreqOnlyPwmInput;
 
 /**
  * Allocate and initialize a PWM input using the given (hardware) timer
  *
- * @note The given timer must be initialized with a particular case of input
- *       capture mode:
+ * @note The given timer must be initialized with:
  *       - Input Capture direct mode on Channel A
  *       - Input Capture direct mode on Channel B
  *
- * @htim: The handle of the timer measuring the PWM input
- * @timer_frequency_hz: The frequency of the timer measuring the PWM input
- * @rising_edge_tim_channel: The rising edge channel of the timer measuring the
- * PWM input
+ * @param htim: The handle of the timer measuring the PWM input
+ * @param timer_frequency_hz: The frequency of the timer measuring the PWM input
+ * @param rising_edge_tim_channel: The rising edge channel of the timer
+ * measuring the PWM input
  * @return Pointer to the allocated and initialized PWM input
  */
-struct FrequencyOnlyPwmInput *Io_SharedFrequencyOnlyPwmInput_Create(
+struct FreqOnlyPwmInput *Io_SharedFreqOnlyPwmInput_Create(
     TIM_HandleTypeDef *htim,
     float              timer_frequency_hz,
     uint32_t           rising_edge_tim_channel);
 
 /**
- * Get the frequency for the given PWM input
- * @param frequency_only_pwm_input: The PWM input to get frequency for
+ * Get the frequency for the
+ * @param pwm_input: The PWM input to get frequency for
  * @return The frequency for the given PWM input
  */
-float Io_SharedFrequencyOnlyPwmInput_GetFrequency(
-    struct FrequencyOnlyPwmInput *const frequency_only_pwm_input);
+float Io_SharedFreqOnlyPwmInput_GetFrequency(
+    struct FreqOnlyPwmInput *pwm_input);
 
 /**
- * Update the frequency and duty cycle for the given PWM input channel (Channel
- * A)
+ * Update the frequency and for the given PWM input channel
+ *
+ * @note The function captures the value of first rising edge, and then captures
+ *       the second rising edge from the capture compare unit. The difference
+ *       between these two values, rising_edge_delta are computed and used to
+ *       compute the frequency of the pwm input signal
+ *
  * @param pwm_input: The PWM input to update for
- */
-void Io_SharedFrequencyOnlyPwmInput_Channel_A_Tick(
-    struct FrequencyOnlyPwmInput *const frequency_only_pwm_input);
+ **/
+void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *pwm_input);
 
 /**
- * Update the frequency and duty cycle for the given PWM input channel (Channel
- * B)
- * @param pwm_input: The PWM input to update for
+ * Increments elapsed tick counter after a period elapsed interrupt occurs
+ *
+ * @param pwm_input : The PWM input used to update the frequency when
+ * captured PWM enters invalid range
+ * @param elapsed_count : Stores the number of times the CNT
+ * register for TIMx overflows
+ * @return The updated number of times the CNT register for TIMx overflows
  */
-void Io_SharedFrequencyOnlyPwmInput_Channel_B_Tick(
-    struct FrequencyOnlyPwmInput *const frequency_only_pwm_input);
-
-/**
- * Detects whether timer period has elapsed for the timer located on the
- * given PWM input channel (Channel A)
- * @param frequency_only_pwm_input
- */
-void Io_SharedFrequencyOnlyPwmInput_Period_Elapsed_Tick_Channel_A(
-    struct FrequencyOnlyPwmInput *const frequency_only_pwm_input);
-
-/**
- * Detects whether timer period has elapsed for the timer located on the
- * given PWM input channel (Channel B)
- * @param frequency_only_pwm_input
- */
-void Io_SharedFrequencyOnlyPwmInput_Period_Elapsed_Tick_Channel_B(
-    struct FrequencyOnlyPwmInput *const frequency_only_pwm_input);
+size_t Io_SharedFreqOnlyPwmInput_Elapsed_Tick(
+    struct FreqOnlyPwmInput *pwm_input,
+    size_t                   elapsed_count);

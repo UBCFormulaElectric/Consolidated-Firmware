@@ -1,18 +1,20 @@
 #include <main.h>
-#include "App_SharedAssert.h"
+#include <math.h>
+#include <assert.h>
 #include "Io_SharedFrequencyOnlyPwmInput.h"
 
-#define MAXIMUM_OVERFLOW_COUNT 2
+#define MAX_TIMER_PERIOD_ELAPSED_COUNT 2
+#define AUTO_RELOAD_REG 65535
 
-static size_t timer_cnt_reg_overflow_count_a = 0;
-static size_t timer_period_elapsed_count_b   = 0;
-
-struct FrequencyOnlyPwmInput
+struct FreqOnlyPwmInput
 {
     float              frequency_hz;
     TIM_HandleTypeDef *htim;
     float              timer_frequency_hz;
     uint32_t           rising_edge_tim_channel;
+    bool               first_tick;
+    uint32_t           curr_rising_edge;
+    uint32_t           prev_rising_edge;
 };
 
 /**
@@ -21,182 +23,105 @@ struct FrequencyOnlyPwmInput
  * @param frequency_hz: Frequency, in Hz
  */
 static void Io_SetFrequency(
-    struct FrequencyOnlyPwmInput *const frequency_only_pwm_input,
-    const float                         frequency_hz);
+    struct FreqOnlyPwmInput *pwm_input,
+    const float              frequency_hz);
 
 static void Io_SetFrequency(
-    struct FrequencyOnlyPwmInput *const frequency_only_pwm_input,
-    const float                         frequency_hz)
+    struct FreqOnlyPwmInput *const pwm_input,
+    const float                    frequency_hz)
 {
-    shared_assert(frequency_only_pwm_input != NULL);
-    shared_assert(frequency_hz >= 0.0f);
+    assert(frequency_hz >= 0.0f || isnanf(frequency_hz));
 
-    frequency_only_pwm_input->frequency_hz = frequency_hz;
+    pwm_input->frequency_hz = frequency_hz;
 }
 
-struct FrequencyOnlyPwmInput *Io_SharedFrequencyOnlyPwmInput_Create(
+struct FreqOnlyPwmInput *Io_SharedFreqOnlyPwmInput_Create(
     TIM_HandleTypeDef *htim,
     float              timer_frequency_hz,
     uint32_t           rising_edge_timer_channel)
 {
-    shared_assert(htim != NULL);
-    static struct FrequencyOnlyPwmInput
-                  freq_only_pwm_inputs[MAX_NUM_OF_FREQ_ONLY_PWM_INPUT];
-    static size_t alloc_index = 0;
+    assert(htim != NULL);
+    static struct FreqOnlyPwmInput pwm_inputs[MAX_NUM_OF_FREQ_ONLY_PWM_INPUTS];
+    static size_t                  alloc_index = 0;
 
-    shared_assert(alloc_index < MAX_NUM_OF_FREQ_ONLY_PWM_INPUT);
+    assert(alloc_index < MAX_NUM_OF_FREQ_ONLY_PWM_INPUTS);
 
-    struct FrequencyOnlyPwmInput *const frequency_only_pwm_input =
-        &freq_only_pwm_inputs[alloc_index++];
+    struct FreqOnlyPwmInput *const pwm_input = &pwm_inputs[alloc_index++];
 
-    frequency_only_pwm_input->htim               = htim;
-    frequency_only_pwm_input->timer_frequency_hz = timer_frequency_hz;
-    frequency_only_pwm_input->rising_edge_tim_channel =
-        rising_edge_timer_channel;
+    pwm_input->htim                    = htim;
+    pwm_input->timer_frequency_hz      = timer_frequency_hz;
+    pwm_input->rising_edge_tim_channel = rising_edge_timer_channel;
+    pwm_input->first_tick              = true;
 
     HAL_TIM_IC_Start_IT(htim, rising_edge_timer_channel);
     HAL_TIM_Base_Start_IT(htim);
 
-    return frequency_only_pwm_input;
+    return pwm_input;
 }
 
-void Io_SharedFrequencyOnlyPwmInput_Channel_A_Tick(
-    struct FrequencyOnlyPwmInput *const frequency_only_pwm_input)
+void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *const pwm_input)
 {
-    shared_assert(frequency_only_pwm_input != NULL);
-
-    // Resets the CNT register period elapsed counter
-    timer_cnt_reg_overflow_count_a = 0U;
-
-    static bool     channel_a_first_tick = true;
-    static uint32_t channel_a_rising_edge_delta, channel_a_current_rising_edge,
-        channel_a_previous_rising_edge;
-
-    if (channel_a_first_tick)
+    if (pwm_input->first_tick)
     {
-        UNUSED(channel_a_rising_edge_delta);
-        channel_a_current_rising_edge = HAL_TIM_ReadCapturedValue(
-            frequency_only_pwm_input->htim,
-            frequency_only_pwm_input->rising_edge_tim_channel);
-        channel_a_first_tick = false;
+        pwm_input->curr_rising_edge = HAL_TIM_ReadCapturedValue(
+            pwm_input->htim, pwm_input->rising_edge_tim_channel);
+        pwm_input->first_tick = false;
     }
-
     else
     {
-        channel_a_first_tick           = true;
-        channel_a_previous_rising_edge = channel_a_current_rising_edge;
-        channel_a_current_rising_edge  = HAL_TIM_ReadCapturedValue(
-            frequency_only_pwm_input->htim,
-            frequency_only_pwm_input->rising_edge_tim_channel);
+        pwm_input->first_tick       = true;
+        pwm_input->prev_rising_edge = pwm_input->curr_rising_edge;
+        pwm_input->curr_rising_edge = HAL_TIM_ReadCapturedValue(
+            pwm_input->htim, pwm_input->rising_edge_tim_channel);
+
+        uint32_t rising_edge_delta;
+        uint32_t prev_rising_edge = pwm_input->prev_rising_edge;
+        uint32_t curr_rising_edge = pwm_input->curr_rising_edge;
 
         // Check if the counter value has overflowed
-        channel_a_rising_edge_delta =
-            (channel_a_current_rising_edge > channel_a_previous_rising_edge)
-                ? channel_a_current_rising_edge - channel_a_previous_rising_edge
-                : (channel_a_current_rising_edge <
-                   channel_a_previous_rising_edge)
-                      ? (TIMx_AUTO_RELOAD_REG - channel_a_previous_rising_edge +
-                         channel_a_current_rising_edge + 1)
-                      : 0U;
-
-        // Checks if rising_edge_delta is equal to 0
-        if (channel_a_rising_edge_delta != 0U)
+        if (curr_rising_edge > prev_rising_edge)
         {
-            Io_SetFrequency(
-                frequency_only_pwm_input,
-                (float)frequency_only_pwm_input->timer_frequency_hz /
-                    channel_a_rising_edge_delta);
+            rising_edge_delta = curr_rising_edge - prev_rising_edge;
+        }
+        else if (curr_rising_edge < prev_rising_edge)
+        {
+            rising_edge_delta =
+                AUTO_RELOAD_REG - prev_rising_edge + curr_rising_edge + 1;
         }
         else
         {
-            // TODO: How to handle cases where the difference is 0
-            Io_SetFrequency(frequency_only_pwm_input, 0.0f);
+            rising_edge_delta = 0U;
         }
-    }
-}
 
-void Io_SharedFrequencyOnlyPwmInput_Channel_B_Tick(
-    struct FrequencyOnlyPwmInput *const frequency_only_pwm_input)
-{
-    shared_assert(frequency_only_pwm_input != NULL);
-
-    // Resets the CNT register period elapsed counter
-    timer_period_elapsed_count_b = 0U;
-
-    static bool     channel_b_first_tick = true;
-    static uint32_t channel_b_rising_edge_delta, channel_b_current_rising_edge,
-        channel_b_previous_rising_edge;
-
-    if (channel_b_first_tick)
-    {
-        UNUSED(channel_b_rising_edge_delta);
-        channel_b_current_rising_edge = HAL_TIM_ReadCapturedValue(
-            frequency_only_pwm_input->htim,
-            frequency_only_pwm_input->rising_edge_tim_channel);
-        channel_b_first_tick = false;
-    }
-
-    else
-    {
-        channel_b_first_tick           = true;
-        channel_b_previous_rising_edge = channel_b_current_rising_edge;
-        channel_b_current_rising_edge  = HAL_TIM_ReadCapturedValue(
-            frequency_only_pwm_input->htim,
-            frequency_only_pwm_input->rising_edge_tim_channel);
-
-        // Check if the counter value has overflowed
-        channel_b_rising_edge_delta =
-            (channel_b_current_rising_edge > channel_b_previous_rising_edge)
-                ? channel_b_current_rising_edge - channel_b_previous_rising_edge
-                : (channel_b_current_rising_edge <
-                   channel_b_previous_rising_edge)
-                      ? (TIMx_AUTO_RELOAD_REG - channel_b_previous_rising_edge +
-                         channel_b_current_rising_edge + 1)
-                      : 0U;
-
-        // Checks if rising_edge_delta is equal to 0
-        if (channel_b_rising_edge_delta != 0U)
+        if (rising_edge_delta != 0U)
         {
             Io_SetFrequency(
-                frequency_only_pwm_input,
-                (float)frequency_only_pwm_input->timer_frequency_hz /
-                    channel_b_rising_edge_delta);
+                pwm_input,
+                (float)pwm_input->timer_frequency_hz / rising_edge_delta);
         }
         else
         {
-            // TODO: How to handle cases where the difference is 0
-            Io_SetFrequency(frequency_only_pwm_input, 0.0f);
+            Io_SetFrequency(pwm_input, NAN);
         }
     }
 }
 
-float Io_SharedFrequencyOnlyPwmInput_GetFrequency(
-    struct FrequencyOnlyPwmInput *const frequency_only_pwm_input)
+size_t Io_SharedFreqOnlyPwmInput_Elapsed_Tick(
+    struct FreqOnlyPwmInput *const pwm_input,
+    size_t                         elapsed_count)
 {
-    shared_assert(frequency_only_pwm_input != NULL);
-    return frequency_only_pwm_input->frequency_hz;
+    elapsed_count++;
+
+    if (elapsed_count >= MAX_TIMER_PERIOD_ELAPSED_COUNT)
+    {
+        Io_SetFrequency(pwm_input, NAN);
+    }
+
+    return elapsed_count;
 }
 
-void Io_SharedFrequencyOnlyPwmInput_Period_Elapsed_Tick_Channel_A(
-    struct FrequencyOnlyPwmInput *const frequency_only_pwm_input)
+float Io_SharedFreqOnlyPwmInput_GetFrequency(
+    struct FreqOnlyPwmInput *const pwm_input)
 {
-    shared_assert(frequency_only_pwm_input != NULL);
-    timer_cnt_reg_overflow_count_a++;
-
-    if (timer_cnt_reg_overflow_count_a >= MAXIMUM_OVERFLOW_COUNT)
-    {
-        Io_SetFrequency(frequency_only_pwm_input, 0.0f);
-    }
-}
-
-void Io_SharedFrequencyOnlyPwmInput_Period_Elapsed_Tick_Channel_B(
-    struct FrequencyOnlyPwmInput *const frequency_only_pwm_input)
-{
-    shared_assert(frequency_only_pwm_input != NULL);
-    timer_period_elapsed_count_b++;
-
-    if (timer_period_elapsed_count_b >= MAXIMUM_OVERFLOW_COUNT)
-    {
-        Io_SetFrequency(frequency_only_pwm_input, 0.0f);
-    }
+    return pwm_input->frequency_hz;
 }

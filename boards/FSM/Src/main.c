@@ -34,7 +34,7 @@
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
-#include "Io_FlowMeter.h"
+#include "Io_FlowMeters.h"
 
 #include "App_FlowMeter.h"
 #include "App_FsmWorld.h"
@@ -84,7 +84,7 @@ osThreadId          TaskCanTxHandle;
 uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
 osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
-struct FlowMeter * primary_flow_meter, *secondary_flow_meter;
+struct FlowMeter *        primary_flow_meter, *secondary_flow_meter;
 struct World *            world;
 struct StateMachine *     state_machine;
 struct FsmCanTxInterface *can_tx;
@@ -176,15 +176,11 @@ int main(void)
     MX_ADC2_Init();
     MX_TIM4_Init();
     /* USER CODE BEGIN 2 */
-    Io_FlowMeter_Init();
-
-    primary_flow_meter = App_FlowMeter_Create(
-        can_tx, Io_FlowMeter_GetPrimaryFlowRate,
-        App_CanTx_SetPeriodicSignal_PRIMARY_FLOW_METER_FLOW_RATE);
-
-    secondary_flow_meter = App_FlowMeter_Create(
-        can_tx, Io_FlowMeter_GetSecondaryFlowRate,
-        App_CanTx_SetPeriodicSignal_SECONDARY_FLOW_METER_FLOW_RATE);
+    Io_FlowMeters_Init(&htim4);
+    primary_flow_meter =
+        App_FlowMeter_Create(can_tx, Io_FlowMeters_GetPrimaryFlowRate);
+    secondary_flow_meter =
+        App_FlowMeter_Create(can_tx, Io_FlowMeters_GetSecondaryFlowRate);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -594,7 +590,8 @@ void RunTask1kHz(void const *argument)
     {
         Io_CanTx_EnqueuePeriodicMsgs(
             can_tx, osKernelSysTick() * portTICK_PERIOD_MS);
-        App_FlowMeter_Tick(primary_flow_meter, secondary_flow_meter);
+        App_FlowMeter_TickPrimary(primary_flow_meter);
+        App_FlowMeter_TickSecondary(secondary_flow_meter);
         // Watchdog check-in must be the last function called before putting
         // the task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
@@ -658,7 +655,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 0 */
     if (htim->Instance == TIM4)
     {
-        Io_FlowMeter_Timer_Period_Elapsed_Tick();
+        Io_FlowMeters_Elapsed_TickPrimary();
+        Io_FlowMeters_Elapsed_TickSecondary();
     }
     /* USER CODE END Callback 0 */
     if (htim->Instance == TIM6)
