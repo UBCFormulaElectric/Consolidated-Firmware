@@ -1,4 +1,4 @@
-#include <string.h>
+#include <stddef.h>
 #include "App_FlowMeter.h"
 
 #define MAX_NUM_OF_FLOWMETERS 2
