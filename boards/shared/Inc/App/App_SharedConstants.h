@@ -11,7 +11,7 @@
 #define MAX_32_BITS_VALUE (uint32_t)(4294967295)
 
 // Generic enum for hexadecimal digits. The order of the enums is important and
-// shouldn'tbe changed.
+// shouldn't be changed.
 enum HexDigit
 {
     HEX_DIGIT_0,
