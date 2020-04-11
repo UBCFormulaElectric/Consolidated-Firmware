@@ -163,6 +163,14 @@ SG_ rx_overflow_count : 32|32@1+ (1,0) [0|1] "" LOGGER
 
 BO_ 502 DIM_STARTUP: 0 DIM
 
+BO_ 998 FAULT_OUTPUTS: 1 LOGGER
+SG_ MotorShutdown : 0|1@1+ (1,0) [0|1] "" DIM
+
+BO_ 999 SIGNAL_INJECTION: 8 LOGGER
+SG_ Value : 0|32@1- (1,0) [-3.4E038|3.4E038] "" DIM
+SG_ Signal_ID : 32|16@1+ (1,0) [0|65535] "" DIM
+SG_ Enable_Override : 48|1@1+ (1,0) [0|0] "" DIM
+
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
 BA_DEF_ SG_  "GenSigStartValue" INT 0 2147483647;
