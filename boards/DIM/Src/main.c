@@ -26,6 +26,7 @@
 /* USER CODE BEGIN Includes */
 #include "App_CanRx.h"
 #include "App_SevenSegDisplays.h"
+#include "App_SevenSegDisplay.h"
 
 #include "Io_SevenSegDisplays.h"
 /* USER CODE END Includes */
@@ -93,10 +94,17 @@ int main(void)
     /* USER CODE BEGIN 1 */
     Io_SevenSegDisplays_Init(&hspi2);
 
+    struct SevenSegDisplay *left_seven_seg_display =
+        App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetLeftHexDigit);
+    struct SevenSegDisplay *middle_seven_seg_display =
+        App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetMiddleHexDigit);
+    struct SevenSegDisplay *right_seven_seg_display =
+        App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetRightHexDigit);
+
     struct SevenSegDisplays *seven_seg_displays = App_SevenSegDisplays_Create(
-        Io_SevenSegDisplays_SetLeftHexDigit,
-        Io_SevenSegDisplays_SetMiddleHexDigit,
-        Io_SevenSegDisplays_SetRightHexDigit);
+        left_seven_seg_display, middle_seven_seg_display,
+        right_seven_seg_display);
+
     UNUSED(seven_seg_displays);
     /* USER CODE END 1 */
 
