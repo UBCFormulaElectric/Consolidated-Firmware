@@ -431,7 +431,9 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+#include "App_SharedAssert.h"
+#include "App_SharedConstants.h"
+#include <string.h>
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_RunTask100Hz */
@@ -449,7 +451,40 @@ void RunTask100Hz(void const *argument)
     /* Infinite loop */
     for (;;)
     {
-        osDelay(1);
+        static const uint8_t command_lookup_table[NUM_HEX_DIGITS] = {
+            0x3F, // 0x0
+            0x06, // 0x1
+            0x5B, // 0x2
+            0x4F, // 0x3
+            0x66, // 0x4
+            0x6D, // 0x5
+            0x7D, // 0x6
+            0x07, // 0x7
+            0x7F, // 0x8
+            0x67, // 0x9
+            0x77, // 0xA
+            0x7C, // 0xB
+            0x39, // 0xC
+            0x5E, // 0xD
+            0x79, // 0xE
+            0x71, // 0xF
+        };
+
+        HAL_GPIO_WritePin(
+            SEVENSEG_DIMMING_3V3_GPIO_Port, SEVENSEG_DIMMING_3V3_Pin,
+            GPIO_PIN_RESET);
+        static int i = 0;
+        uint8_t    data[3];
+        memset(data, command_lookup_table[i % 16], sizeof(data));
+        shared_assert(HAL_SPI_Transmit(&hspi2, data, 3, 300) == HAL_OK);
+        HAL_GPIO_WritePin(
+            SEVENSEG_RCK_3V3_GPIO_Port, SEVENSEG_RCK_3V3_Pin, GPIO_PIN_RESET);
+        HAL_GPIO_WritePin(
+            SEVENSEG_RCK_3V3_GPIO_Port, SEVENSEG_RCK_3V3_Pin, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(
+            SEVENSEG_RCK_3V3_GPIO_Port, SEVENSEG_RCK_3V3_Pin, GPIO_PIN_RESET);
+        i++;
+        osDelay(1000U);
     }
     /* USER CODE END 5 */
 }
