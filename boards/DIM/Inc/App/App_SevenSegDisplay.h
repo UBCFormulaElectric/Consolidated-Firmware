@@ -10,11 +10,10 @@ struct SevenSegHexDigit
     enum HexDigit value;
 };
 
-struct SevenSegDisplay *App_SevenSegDisplay_Create(
-    void (*set_hex_digit)(struct SevenSegHexDigit));
+struct SevenSegDisplay *
+    App_SevenSegDisplay_Create(void (*set_hex_digit)(struct SevenSegHexDigit));
 
-void App_SevenSegDisplay_Destroy(
-    struct SevenSegDisplay *seven_seg_display);
+void App_SevenSegDisplay_Destroy(struct SevenSegDisplay *seven_seg_display);
 
 void App_SevenSegDisplay_SetDigit(
     const struct SevenSegDisplay *seven_seg_display,

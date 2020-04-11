@@ -2,14 +2,16 @@
 
 #include <stdint.h>
 
+#include "App_ErrorCode.h"
+
 struct SevenSegDisplay;
 
-enum SevenSegDisplays_Digit
+enum
 {
-    SEVEN_SEG_DISPLAYS_LEFT_DIGIT,
-    SEVEN_SEG_DISPLAYS_MIDDLE_DIGIT,
-    SEVEN_SEG_DISPLAYS_RIGHT_DIGIT,
-    NUM_SEVEN_SEG_DISPLAYS_DIGITS,
+    LEFT_SEVEN_SEG_DISPLAY,
+    MIDDLE_SEVEN_SEG_DISPLAY,
+    RIGHT_SEVEN_SEG_DISPLAY,
+    NUM_SEVEN_SEG_DISPLAYS,
 };
 
 // Do NOT take ownership of individual displays
@@ -20,7 +22,7 @@ struct SevenSegDisplays *App_SevenSegDisplays_Create(
 
 void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *seven_seg_displays);
 
-void App_SevenSegDisplays_SetHexDigits(
-    const struct SevenSegDisplays *seven_seg_displays,
-    const uint8_t                  hex_digits[],
+ErrorCode App_SevenSegDisplays_SetHexDigits(
+    const struct SevenSegDisplays *constseven_seg_displays,
+    const uint8_t *                hex_digits,
     size_t                         num_hex_digits);

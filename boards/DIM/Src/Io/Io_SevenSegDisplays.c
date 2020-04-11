@@ -32,7 +32,7 @@ static SPI_HandleTypeDef *_hspi;
 
 // The 7-segment displays are controlled by sending 8-bit command values to
 // shift registers via SPI
-static uint8_t commands[NUM_SEVEN_SEG_DISPLAYS_DIGITS];
+static uint8_t commands[NUM_SEVEN_SEG_DISPLAYS];
 
 // clang-format off
 static const struct CommandLookupTable command_lookup_table =
@@ -70,21 +70,20 @@ void Io_SevenSegDisplays_WriteCommands(void)
     // The 7-segment displays are daisy chained by shifting registers, so we
     // can't update them individually. Instead, we must update the 7-segment
     // displays all at once.
-    HAL_SPI_Transmit(_hspi, commands, NUM_SEVEN_SEG_DISPLAYS_DIGITS, 100U);
+    HAL_SPI_Transmit(_hspi, commands, NUM_SEVEN_SEG_DISPLAYS, 100U);
 }
 
 void Io_SevenSegDisplays_SetLeftHexDigit(struct SevenSegHexDigit hex_digit)
 {
     if (hex_digit.enabled == false)
     {
-        commands[SEVEN_SEG_DISPLAYS_LEFT_DIGIT] =
-            command_lookup_table.disable;
+        commands[LEFT_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
     }
     else
     {
         shared_assert(hex_digit.value < NUM_HEX_DIGITS);
 
-        commands[SEVEN_SEG_DISPLAYS_LEFT_DIGIT] =
+        commands[LEFT_SEVEN_SEG_DISPLAY] =
             command_lookup_table.values[hex_digit.value];
     }
 }
@@ -93,14 +92,13 @@ void Io_SevenSegDisplays_SetMiddleHexDigit(struct SevenSegHexDigit hex_digit)
 {
     if (hex_digit.enabled == false)
     {
-        commands[SEVEN_SEG_DISPLAYS_MIDDLE_DIGIT] =
-            command_lookup_table.disable;
+        commands[MIDDLE_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
     }
     else
     {
         shared_assert(hex_digit.value < NUM_HEX_DIGITS);
 
-        commands[SEVEN_SEG_DISPLAYS_MIDDLE_DIGIT] =
+        commands[MIDDLE_SEVEN_SEG_DISPLAY] =
             command_lookup_table.values[hex_digit.value];
     }
 }
@@ -109,14 +107,13 @@ void Io_SevenSegDisplays_SetRightHexDigit(struct SevenSegHexDigit hex_digit)
 {
     if (hex_digit.enabled == false)
     {
-        commands[SEVEN_SEG_DISPLAYS_RIGHT_DIGIT] =
-            command_lookup_table.disable;
+        commands[RIGHT_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
     }
     else
     {
         shared_assert(hex_digit.value < NUM_HEX_DIGITS);
 
-        commands[SEVEN_SEG_DISPLAYS_RIGHT_DIGIT] =
+        commands[RIGHT_SEVEN_SEG_DISPLAY] =
             command_lookup_table.values[hex_digit.value];
     }
 }
