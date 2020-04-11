@@ -20,11 +20,11 @@ struct SevenSegDisplays *App_SevenSegDisplays_Create(
 
     shared_assert(seven_seg_displays != NULL);
 
-    seven_seg_displays->displays[SEVEN_SEG_DISPLAYS_LEFT_HEX_DIGIT] =
+    seven_seg_displays->displays[SEVEN_SEG_DISPLAYS_LEFT_DIGIT] =
         left_seven_seg_display;
-    seven_seg_displays->displays[SEVEN_SEG_DISPLAYS_MIDDLE_HEX_DIGIT] =
+    seven_seg_displays->displays[SEVEN_SEG_DISPLAYS_MIDDLE_DIGIT] =
         middle_seven_seg_display;
-    seven_seg_displays->displays[SEVEN_SEG_DISPLAYS_RIGHT_HEX_DIGIT] =
+    seven_seg_displays->displays[SEVEN_SEG_DISPLAYS_RIGHT_DIGIT] =
         right_seven_seg_display;
 
     return seven_seg_displays;

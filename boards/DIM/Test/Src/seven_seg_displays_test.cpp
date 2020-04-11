@@ -40,12 +40,23 @@ class SevenSegDisplaysTest : public testing::Test
         RESET_FAKE(set_middle_hex_digit);
         RESET_FAKE(set_left_hex_digit);
     }
+
     void TearDown() override
     {
+        ASSERT_TRUE(left_seven_seg_display != NULL);
+        ASSERT_TRUE(middle_seven_seg_display != NULL);
+        ASSERT_TRUE(right_seven_seg_display != NULL);
+        ASSERT_TRUE(seven_segment_displays != NULL);
+
         App_SevenSegDisplay_Destroy(left_seven_seg_display);
         App_SevenSegDisplay_Destroy(middle_seven_seg_display);
         App_SevenSegDisplay_Destroy(right_seven_seg_display);
         App_SevenSegDisplays_Destroy(seven_segment_displays);
+
+        left_seven_seg_display = NULL;
+        middle_seven_seg_display = NULL;
+        right_seven_seg_display = NULL;
+        seven_segment_displays = NULL;
     }
 
     struct SevenSegDisplays *seven_segment_displays;
@@ -61,20 +72,18 @@ TEST_F(SevenSegDisplaysTest, write_hexadecimal_values)
 
     uint8_t input[NUM_SEVEN_SEG_DISPLAYS_DIGITS] = { 0, 0, 0 };
 
-    for (size_t left_digit = 0; left_digit < NUM_HEX_DIGITS; left_digit++)
+    for (input[SEVEN_SEG_DISPLAYS_LEFT_DIGIT] = 0;
+         input[SEVEN_SEG_DISPLAYS_LEFT_DIGIT] < NUM_HEX_DIGITS;
+         input[SEVEN_SEG_DISPLAYS_LEFT_DIGIT]++)
     {
-        input[SEVEN_SEG_DISPLAYS_LEFT_HEX_DIGIT] = left_digit;
-
-        for (size_t middle_digit = 0; middle_digit < NUM_HEX_DIGITS;
-             middle_digit++)
+        for (input[SEVEN_SEG_DISPLAYS_MIDDLE_DIGIT] = 0;
+             input[SEVEN_SEG_DISPLAYS_MIDDLE_DIGIT] < NUM_HEX_DIGITS;
+             input[SEVEN_SEG_DISPLAYS_MIDDLE_DIGIT]++)
         {
-            input[SEVEN_SEG_DISPLAYS_MIDDLE_HEX_DIGIT] = middle_digit;
-
-            for (size_t right_digit = 0; right_digit < NUM_HEX_DIGITS;
-                 right_digit++)
+            for (input[SEVEN_SEG_DISPLAYS_RIGHT_DIGIT] = 0;
+                 input[SEVEN_SEG_DISPLAYS_RIGHT_DIGIT] < NUM_HEX_DIGITS;
+                 input[SEVEN_SEG_DISPLAYS_RIGHT_DIGIT]++)
             {
-                input[SEVEN_SEG_DISPLAYS_RIGHT_HEX_DIGIT] = right_digit;
-
                 App_SevenSegDisplays_SetHexDigits(
                     seven_segment_displays, input,
                     NUM_SEVEN_SEG_DISPLAYS_DIGITS);
@@ -85,34 +94,40 @@ TEST_F(SevenSegDisplaysTest, write_hexadecimal_values)
                 ASSERT_EQ(count, set_middle_hex_digit_fake.call_count);
                 ASSERT_EQ(count, set_right_hex_digit_fake.call_count);
 
-                struct SevenSegHexDigit _left_digit = {
-                    .enabled = true, .value = (enum HexDigit)left_digit
+                struct SevenSegHexDigit digits[NUM_SEVEN_SEG_DISPLAYS_DIGITS];
+                digits[SEVEN_SEG_DISPLAYS_LEFT_DIGIT] = {
+                    .enabled = true,
+                    .value = (enum HexDigit)input[SEVEN_SEG_DISPLAYS_LEFT_DIGIT]
                 };
-                struct SevenSegHexDigit _middle_digit = {
-                    .enabled = true, .value = (enum HexDigit)middle_digit
+                digits[SEVEN_SEG_DISPLAYS_MIDDLE_DIGIT] = {
+                    .enabled = true,
+                    .value =
+                        (enum HexDigit)input[SEVEN_SEG_DISPLAYS_MIDDLE_DIGIT]
                 };
-                struct SevenSegHexDigit _right_digit = {
-                    .enabled = true, .value = (enum HexDigit)right_digit
+                digits[SEVEN_SEG_DISPLAYS_RIGHT_DIGIT] = {
+                    .enabled = true,
+                    .value =
+                        (enum HexDigit)input[SEVEN_SEG_DISPLAYS_RIGHT_DIGIT]
                 };
 
                 ASSERT_EQ(
-                    _left_digit.enabled,
+                    digits[SEVEN_SEG_DISPLAYS_LEFT_DIGIT].enabled,
                     set_left_hex_digit_fake.arg0_history[count - 1].enabled);
                 ASSERT_EQ(
-                    _middle_digit.enabled,
+                    digits[SEVEN_SEG_DISPLAYS_MIDDLE_DIGIT].enabled,
                     set_middle_hex_digit_fake.arg0_history[count - 1].enabled);
                 ASSERT_EQ(
-                    _right_digit.enabled,
+                    digits[SEVEN_SEG_DISPLAYS_RIGHT_DIGIT].enabled,
                     set_right_hex_digit_fake.arg0_history[count - 1].enabled);
 
                 ASSERT_EQ(
-                    _left_digit.value,
+                    digits[SEVEN_SEG_DISPLAYS_LEFT_DIGIT].value,
                     set_left_hex_digit_fake.arg0_history[count - 1].value);
                 ASSERT_EQ(
-                    _middle_digit.value,
+                    digits[SEVEN_SEG_DISPLAYS_MIDDLE_DIGIT].value,
                     set_middle_hex_digit_fake.arg0_history[count - 1].value);
                 ASSERT_EQ(
-                    _right_digit.value,
+                    digits[SEVEN_SEG_DISPLAYS_RIGHT_DIGIT].value,
                     set_right_hex_digit_fake.arg0_history[count - 1].value);
 
                 // Sanity check to make sure the argument history is long enough

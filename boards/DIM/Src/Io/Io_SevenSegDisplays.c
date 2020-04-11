@@ -77,14 +77,14 @@ void Io_SevenSegDisplays_SetLeftHexDigit(struct SevenSegHexDigit hex_digit)
 {
     if (hex_digit.enabled == false)
     {
-        commands[SEVEN_SEG_DISPLAYS_LEFT_HEX_DIGIT] =
+        commands[SEVEN_SEG_DISPLAYS_LEFT_DIGIT] =
             command_lookup_table.disable;
     }
     else
     {
         shared_assert(hex_digit.value < NUM_HEX_DIGITS);
 
-        commands[SEVEN_SEG_DISPLAYS_LEFT_HEX_DIGIT] =
+        commands[SEVEN_SEG_DISPLAYS_LEFT_DIGIT] =
             command_lookup_table.values[hex_digit.value];
     }
 }
@@ -93,14 +93,14 @@ void Io_SevenSegDisplays_SetMiddleHexDigit(struct SevenSegHexDigit hex_digit)
 {
     if (hex_digit.enabled == false)
     {
-        commands[SEVEN_SEG_DISPLAYS_MIDDLE_HEX_DIGIT] =
+        commands[SEVEN_SEG_DISPLAYS_MIDDLE_DIGIT] =
             command_lookup_table.disable;
     }
     else
     {
         shared_assert(hex_digit.value < NUM_HEX_DIGITS);
 
-        commands[SEVEN_SEG_DISPLAYS_MIDDLE_HEX_DIGIT] =
+        commands[SEVEN_SEG_DISPLAYS_MIDDLE_DIGIT] =
             command_lookup_table.values[hex_digit.value];
     }
 }
@@ -109,14 +109,14 @@ void Io_SevenSegDisplays_SetRightHexDigit(struct SevenSegHexDigit hex_digit)
 {
     if (hex_digit.enabled == false)
     {
-        commands[SEVEN_SEG_DISPLAYS_RIGHT_HEX_DIGIT] =
+        commands[SEVEN_SEG_DISPLAYS_RIGHT_DIGIT] =
             command_lookup_table.disable;
     }
     else
     {
         shared_assert(hex_digit.value < NUM_HEX_DIGITS);
 
-        commands[SEVEN_SEG_DISPLAYS_RIGHT_HEX_DIGIT] =
+        commands[SEVEN_SEG_DISPLAYS_RIGHT_DIGIT] =
             command_lookup_table.values[hex_digit.value];
     }
 }
