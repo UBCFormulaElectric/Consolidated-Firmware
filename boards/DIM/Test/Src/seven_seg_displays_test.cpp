@@ -184,7 +184,7 @@ TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_values)
     }
 }
 
-TEST_F(SevenSegDisplaysTest, write_invalid_value_to_each_7_seg_display)
+TEST_F(SevenSegDisplaysTest, write_underflow_value_to_each_7_seg_display)
 {
     constexpr size_t num_inputs = NUM_SEVEN_SEG_DISPLAYS;
     uint8_t          input[num_inputs];
@@ -193,8 +193,33 @@ TEST_F(SevenSegDisplaysTest, write_invalid_value_to_each_7_seg_display)
     {
         memset(input, 0, sizeof(input));
 
-        constexpr uint8_t invalid_input = NUM_HEX_DIGITS;
-        input[i]                        = invalid_input;
+        constexpr uint8_t underflow_input = HEX_DIGIT_0 - 1;
+        input[i]                          = underflow_input;
+
+        ErrorCode error_code = App_SevenSegDisplays_SetHexDigits(
+            seven_segment_displays, input, num_inputs);
+
+        EXPECT_EQ(ERROR_CODE_INVALID_ARGS, error_code);
+
+        // We should not write to any of the 7 segment displays if any of the
+        // inputs is invalid
+        ASSERT_EQ(0, set_left_hex_digit_fake.call_count);
+        ASSERT_EQ(0, set_middle_hex_digit_fake.call_count);
+        ASSERT_EQ(0, set_right_hex_digit_fake.call_count);
+    }
+}
+
+TEST_F(SevenSegDisplaysTest, write_overflow_value_to_each_7_seg_display)
+{
+    constexpr size_t num_inputs = NUM_SEVEN_SEG_DISPLAYS;
+    uint8_t          input[num_inputs];
+
+    for (size_t i = 0; i < num_inputs; i++)
+    {
+        memset(input, 0, sizeof(input));
+
+        constexpr uint8_t overflow_input = HEX_DIGIT_F + 1;
+        input[i]                         = overflow_input;
 
         ErrorCode error_code = App_SevenSegDisplays_SetHexDigits(
             seven_segment_displays, input, num_inputs);
