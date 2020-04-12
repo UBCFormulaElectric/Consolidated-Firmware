@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stm32f3xx_hal.h>
+
 // clang-format off
 
 /* @brief Set a software breakpoint if debugger is connected */

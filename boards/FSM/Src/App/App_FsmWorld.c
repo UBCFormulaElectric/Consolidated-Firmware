@@ -1,6 +1,6 @@
 #include <stddef.h>
 #include <stdlib.h>
-#include "App_SharedAssert.h"
+#include <assert.h>
 
 #include "App_FsmWorld.h"
 
@@ -15,7 +15,7 @@ struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanRxInterface *const can_rx_interface)
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
-    shared_assert(world != NULL);
+    assert(world != NULL);
 
     world->can_tx_interface = can_tx_interface;
     world->can_rx_interface = can_rx_interface;
@@ -25,20 +25,17 @@ struct FsmWorld *App_FsmWorld_Create(
 
 void App_FsmWorld_Destroy(struct FsmWorld *world)
 {
-    shared_assert(world != NULL);
     free(world);
 }
 
 struct FsmCanTxInterface *
     App_FsmWorld_GetCanTx(const struct FsmWorld *const world)
 {
-    shared_assert(world != NULL);
     return world->can_tx_interface;
 }
 
 struct FsmCanRxInterface *
     App_FsmWorld_GetCanRx(const struct FsmWorld *const world)
 {
-    shared_assert(world != NULL);
     return world->can_rx_interface;
 }

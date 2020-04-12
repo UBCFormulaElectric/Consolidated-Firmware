@@ -24,6 +24,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <assert.h>
+
 #include "Io_SharedSoftwareWatchdog.h"
 #include "Io_SharedConstants.h"
 #include "Io_SharedCmsisOs.h"
@@ -34,7 +36,6 @@
 #include "Io_SoftwareWatchdog.h"
 #include "Io_FlowMeter.h"
 
-#include "App_SharedAssert.h"
 #include "App_FlowMeter.h"
 #include "App_FsmWorld.h"
 #include "App_SharedStateMachine.h"
@@ -111,15 +112,11 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    shared_assert(can_tx != NULL);
-
     App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    shared_assert(can_tx != NULL);
-
     App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
 }
 
@@ -616,7 +613,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void Error_Handler(void)
 {
     /* USER CODE BEGIN Error_Handler_Debug */
-    Io_SharedAssert_AssertFailed(file, line, NULL);
+    __assert_func(file, line, "Error_Handler", "Error_Handler");
     /* USER CODE END Error_Handler_Debug */
 }
 
@@ -631,9 +628,7 @@ void Error_Handler(void)
 void assert_failed(char *file, uint32_t line)
 {
     /* USER CODE BEGIN 6 */
-    /* User can add his own implementation to report the file name and line
-       number, tex: printf("Wrong parameters value: file %s on line %d\r\n",
-       file, line) */
+    __assert_func(file, line, "assert_failed", "assert_failed");
     /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */
