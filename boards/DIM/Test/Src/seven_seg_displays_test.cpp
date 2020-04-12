@@ -69,7 +69,7 @@ class SevenSegDisplaysTest : public testing::Test
 TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_value)
 {
     // Counter used as index for the argument history of fake functions
-    int count = 1;
+    size_t count = 1;
 
     constexpr size_t num_inputs        = 1;
     uint8_t          input[num_inputs] = { 0 };
@@ -99,7 +99,7 @@ TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_value)
 TEST_F(SevenSegDisplaysTest, set_two_hexadecimal_values)
 {
     // Counter used as index for the argument history of fake functions
-    int count = 1;
+    size_t count = 1;
 
     constexpr size_t num_inputs        = 2;
     uint8_t          input[num_inputs] = { 0, 0 };
@@ -137,7 +137,7 @@ TEST_F(SevenSegDisplaysTest, set_two_hexadecimal_values)
 TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_values)
 {
     // Counter used as index for the argument history of fake functions
-    int count = 1;
+    size_t count = 1;
 
     constexpr size_t num_inputs        = 3;
     uint8_t          input[num_inputs] = { 0, 0, 0 };
@@ -187,9 +187,9 @@ TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_values)
 TEST_F(SevenSegDisplaysTest, write_invalid_value_to_each_7_seg_display)
 {
     constexpr size_t num_inputs = NUM_SEVEN_SEG_DISPLAYS;
-    uint8_t input[num_inputs];
+    uint8_t          input[num_inputs];
 
-    for (size_t i = 0; i < num_inputs ; i++)
+    for (size_t i = 0; i < num_inputs; i++)
     {
         memset(input, 0, sizeof(input));
 

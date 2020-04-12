@@ -39,7 +39,7 @@ void App_SevenSegDisplays_Destroy(
 
 ErrorCode App_SevenSegDisplays_SetHexDigits(
     const struct SevenSegDisplays *const seven_seg_displays,
-    const uint8_t                       hex_digits[],
+    const uint8_t                        hex_digits[],
     size_t                               num_hex_digits)
 {
     if (num_hex_digits > NUM_SEVEN_SEG_DISPLAYS)

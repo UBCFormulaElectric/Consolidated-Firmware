@@ -23,6 +23,6 @@ struct SevenSegDisplays *App_SevenSegDisplays_Create(
 void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *seven_seg_displays);
 
 ErrorCode App_SevenSegDisplays_SetHexDigits(
-    const struct SevenSegDisplays * seven_seg_displays,
-    const uint8_t                 hex_digits[],
+    const struct SevenSegDisplays *seven_seg_displays,
+    const uint8_t                  hex_digits[],
     size_t                         num_hex_digits);
