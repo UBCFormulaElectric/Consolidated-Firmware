@@ -1,9 +1,9 @@
 #include <stm32f3xx_hal.h>
 #include <string.h>
+#include <assert.h>
 #include "Io_SoftwareWatchdog.h"
 #include "App_FsmWorld.h"
 #include "Io_SharedMacros.h"
-#include <assert.h>
 
 extern IWDG_HandleTypeDef        hiwdg;
 static struct FsmCanTxInterface *_can_tx = NULL;

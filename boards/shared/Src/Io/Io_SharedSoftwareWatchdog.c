@@ -53,8 +53,7 @@ void Io_SharedSoftwareWatchdog_Init(
 
 SoftwareWatchdogHandle_t Io_SharedSoftwareWatchdog_AllocateWatchdog(void)
 {
-    assert(
-        sw_watchdog_table.allocation_index < MAX_NUM_OF_SOFTWARE_WATCHDOG);
+    assert(sw_watchdog_table.allocation_index < MAX_NUM_OF_SOFTWARE_WATCHDOG);
 
     return (SoftwareWatchdogHandle_t)&sw_watchdog_table
         .watchdogs[sw_watchdog_table.allocation_index++];

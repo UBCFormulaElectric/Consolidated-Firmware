@@ -25,20 +25,17 @@ struct FsmWorld *App_FsmWorld_Create(
 
 void App_FsmWorld_Destroy(struct FsmWorld *world)
 {
-    assert(world != NULL);
     free(world);
 }
 
 struct FsmCanTxInterface *
     App_FsmWorld_GetCanTx(const struct FsmWorld *const world)
 {
-    assert(world != NULL);
     return world->can_tx_interface;
 }
 
 struct FsmCanRxInterface *
     App_FsmWorld_GetCanRx(const struct FsmWorld *const world)
 {
-    assert(world != NULL);
     return world->can_rx_interface;
 }
