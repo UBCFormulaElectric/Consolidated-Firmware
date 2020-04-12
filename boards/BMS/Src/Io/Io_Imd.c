@@ -2,7 +2,7 @@
 #include <task.h>
 
 #include "main.h"
-#include "App_SharedAssert.h"
+#include <assert.h>
 #include "Io_Imd.h"
 #include "Io_SharedPwmInput.h"
 
@@ -30,7 +30,7 @@ float Io_Imd_GetDutyCycle(void)
 
 void Io_Imd_InputCaptureCallback(TIM_HandleTypeDef *htim)
 {
-    shared_assert(htim != NULL);
+    assert(htim != NULL);
 
     if (htim == imd_htim)
     {

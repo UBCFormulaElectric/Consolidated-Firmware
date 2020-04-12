@@ -1,4 +1,4 @@
-#include "App_SharedAssert.h"
+#include <assert.h>
 #include "Io_SharedStackWaterMark.h"
 
 extern struct World *world;
@@ -23,7 +23,7 @@ static bool App_IsStackAboveWatermarkThreshold(
     uint32_t     stack_size,
     float        watermark_threshold)
 {
-    shared_assert((0.0 < watermark_threshold) && (watermark_threshold < 1.0));
+    assert((0.0 < watermark_threshold) && (watermark_threshold < 1.0));
 
     bool is_stack_above_watermark_threshold = false;
 
@@ -42,12 +42,12 @@ void Io_SharedStackWaterMark_Check(
     struct stack_watermark *stacks,
     size_t                  num_of_stacks)
 {
-    shared_assert(stacks != NULL);
+    assert(stacks != NULL);
 
     for (size_t i = 0; i < num_of_stacks; i++)
     {
-        shared_assert(*(stacks[i].handle) != NULL);
-        shared_assert(stacks[i].log_error != NULL);
+        assert(*(stacks[i].handle) != NULL);
+        assert(stacks[i].log_error != NULL);
 
         if (App_IsStackAboveWatermarkThreshold(
                 *(stacks[i].handle), stacks[i].stack_size,

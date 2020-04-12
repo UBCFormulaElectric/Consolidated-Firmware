@@ -36,7 +36,7 @@
 
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
-#include "App_SharedAssert.h"
+#include <assert.h>
 
 #include "App_CanTx.h"
 #include "App_CanRx.h"
@@ -114,14 +114,14 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    shared_assert(can_tx != NULL);
+    assert(can_tx != NULL);
 
     App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    shared_assert(can_tx != NULL);
+    assert(can_tx != NULL);
 
     App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
 }

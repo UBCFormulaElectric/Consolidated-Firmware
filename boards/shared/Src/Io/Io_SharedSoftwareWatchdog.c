@@ -2,7 +2,7 @@
 #include <stdbool.h>
 #include <string.h>
 #include "Io_SharedSoftwareWatchdog.h"
-#include "App_SharedAssert.h"
+#include <assert.h>
 
 // Convert our anonymous handle to a software watchdog pointer
 #define prvGetWatchdogFromHandle(handle) (SoftwareWatchdog_t *)(handle)
@@ -42,8 +42,8 @@ void Io_SharedSoftwareWatchdog_Init(
     void (*refresh_hardware_watchdog)(),
     void (*timeout_callback)(SoftwareWatchdogHandle_t))
 {
-    shared_assert(refresh_hardware_watchdog != NULL);
-    shared_assert(timeout_callback != NULL);
+    assert(refresh_hardware_watchdog != NULL);
+    assert(timeout_callback != NULL);
 
     memset(&sw_watchdog_table, 0, sizeof(sw_watchdog_table));
 
@@ -53,7 +53,7 @@ void Io_SharedSoftwareWatchdog_Init(
 
 SoftwareWatchdogHandle_t Io_SharedSoftwareWatchdog_AllocateWatchdog(void)
 {
-    shared_assert(
+    assert(
         sw_watchdog_table.allocation_index < MAX_NUM_OF_SOFTWARE_WATCHDOG);
 
     return (SoftwareWatchdogHandle_t)&sw_watchdog_table
@@ -65,8 +65,8 @@ void Io_SharedSoftwareWatchdog_InitWatchdog(
     char *                   name,
     Tick_t                   period_in_ticks)
 {
-    shared_assert(sw_watchdog_handle != NULL);
-    shared_assert(name != NULL);
+    assert(sw_watchdog_handle != NULL);
+    assert(name != NULL);
 
     SoftwareWatchdog_t *sw_watchdog =
         prvGetWatchdogFromHandle(sw_watchdog_handle);
@@ -82,12 +82,12 @@ void Io_SharedSoftwareWatchdog_InitWatchdog(
 void Io_SharedSoftwareWatchdog_CheckInWatchdog(
     SoftwareWatchdogHandle_t sw_watchdog_handle)
 {
-    shared_assert(sw_watchdog_handle != NULL);
+    assert(sw_watchdog_handle != NULL);
 
     SoftwareWatchdog_t *sw_watchdog =
         prvGetWatchdogFromHandle(sw_watchdog_handle);
 
-    shared_assert(sw_watchdog->initialized == true);
+    assert(sw_watchdog->initialized == true);
 
     sw_watchdog->check_in_status = true;
 }
@@ -117,7 +117,7 @@ void Io_SharedSoftwareWatchdog_CheckForTimeouts(void)
                 sw_watchdog_table.watchdogs[i].deadline +=
                     sw_watchdog_table.watchdogs[i].period;
 
-                shared_assert(Io_RefreshHardwareWatchdog != NULL);
+                assert(Io_RefreshHardwareWatchdog != NULL);
                 Io_RefreshHardwareWatchdog();
             }
             else

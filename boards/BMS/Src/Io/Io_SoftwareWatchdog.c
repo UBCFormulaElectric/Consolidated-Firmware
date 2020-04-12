@@ -2,7 +2,7 @@
 #include <string.h>
 #include "App_CanTx.h"
 #include "Io_SoftwareWatchdog.h"
-#include "App_SharedAssert.h"
+#include <assert.h>
 #include "Io_SharedMacros.h"
 
 extern IWDG_HandleTypeDef        hiwdg;
@@ -22,7 +22,7 @@ void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
 {
     BREAK_IF_DEBUGGER_CONNECTED();
 
-    shared_assert(_can_tx != NULL);
+    assert(_can_tx != NULL);
     App_CanTx_SetPeriodicSignal_WATCHDOG_TIMEOUT(_can_tx, true);
 
     struct CanMsgs_bms_watchdog_timeout_t payload;

@@ -1,5 +1,5 @@
 #include "App_SharedStateMachine.h"
-#include "App_SharedAssert.h"
+#include <assert.h>
 
 #include <stdlib.h>
 
@@ -16,7 +16,7 @@ struct StateMachine *App_SharedStateMachine_Create(
 {
     struct StateMachine *state_machine =
         (struct StateMachine *)malloc(sizeof(struct StateMachine));
-    shared_assert(state_machine != NULL);
+    assert(state_machine != NULL);
 
     state_machine->world = world;
 

@@ -3,7 +3,7 @@
 #include "Io_CanTx.h"
 #include "Io_BoardSpecifics.h"
 #include "Io_SharedCan.h"
-#include "App_SharedAssert.h"
+#include <assert.h>
 #include "Io_SharedFreeRTOS.h"
 
 /** @brief Size of a message in the CAN TX queue */
@@ -128,7 +128,7 @@ static ErrorStatus Io_InitializeAllOpenFilters(CAN_HandleTypeDef *hcan);
 
 static ErrorStatus Io_InitializeAllOpenFilters(CAN_HandleTypeDef *hcan)
 {
-    shared_assert(hcan != NULL);
+    assert(hcan != NULL);
 
     /* Configure a single filter bank that accepts any message */
     CAN_FilterTypeDef can_filter;
@@ -151,8 +151,8 @@ static ErrorStatus Io_InitializeAllOpenFilters(CAN_HandleTypeDef *hcan)
 
 static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *message)
 {
-    shared_assert(sharedcan_initialized == true);
-    shared_assert(message != NULL);
+    assert(sharedcan_initialized == true);
+    assert(message != NULL);
 
     // Indicates the mailbox used for transmission, not currently used
     uint32_t mailbox = 0;
@@ -184,8 +184,8 @@ static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *message)
 
 static inline void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 {
-    shared_assert(sharedcan_initialized == true);
-    shared_assert(hcan != NULL);
+    assert(sharedcan_initialized == true);
+    assert(hcan != NULL);
 
     // Track how many times the CAN TX FIFO has overflowed
     static uint32_t canrx_overflow_count = { 0 };
@@ -234,9 +234,9 @@ void Io_SharedCan_Init(
     void (*tx_overflow_callback)(size_t),
     void (*rx_overflow_callback)(size_t))
 {
-    shared_assert(hcan != NULL);
-    shared_assert(tx_overflow_callback != NULL);
-    shared_assert(rx_overflow_callback != NULL);
+    assert(hcan != NULL);
+    assert(tx_overflow_callback != NULL);
+    assert(rx_overflow_callback != NULL);
 
     _rx_overflow_callback = rx_overflow_callback;
     _tx_overflow_callback = tx_overflow_callback;
@@ -245,30 +245,30 @@ void Io_SharedCan_Init(
     can_tx_msg_fifo.handle = xQueueCreateStatic(
         CAN_TX_MSG_FIFO_LENGTH, CAN_TX_MSG_FIFO_ITEM_SIZE,
         can_tx_msg_fifo.storage, &can_tx_msg_fifo.state);
-    shared_assert(can_tx_msg_fifo.handle != NULL);
+    assert(can_tx_msg_fifo.handle != NULL);
 
     // Initialize binary semaphore for CAN TX task
     CanTxBinarySemaphore.handle =
         xSemaphoreCreateBinaryStatic(&CanTxBinarySemaphore.storage);
-    shared_assert(CanTxBinarySemaphore.handle);
+    assert(CanTxBinarySemaphore.handle);
 
     // Initialize CAN RX software queue
     can_rx_msg_fifo.handle = xQueueCreateStatic(
         CAN_RX_MSG_FIFO_LENGTH, CAN_RX_MSG_FIFO_ITEM_SIZE,
         can_rx_msg_fifo.storage, &can_rx_msg_fifo.state);
-    shared_assert(can_rx_msg_fifo.handle != NULL);
+    assert(can_rx_msg_fifo.handle != NULL);
 
     // Initialize CAN RX hardware filters
-    shared_assert(Io_InitializeAllOpenFilters(hcan) == SUCCESS);
+    assert(Io_InitializeAllOpenFilters(hcan) == SUCCESS);
 
     // Configure interrupt mode for CAN peripheral
-    shared_assert(
+    assert(
         HAL_CAN_ActivateNotification(
             hcan, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING |
                       CAN_IT_RX_FIFO1_MSG_PENDING) == HAL_OK);
 
     // Enable the CAN peripheral
-    shared_assert(HAL_CAN_Start(hcan) == HAL_OK);
+    assert(HAL_CAN_Start(hcan) == HAL_OK);
 
     // Save a copy of the CAN handle that shall be used in this library
     sharedcan_hcan = hcan;
@@ -279,8 +279,8 @@ void Io_SharedCan_Init(
 
 void Io_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message)
 {
-    shared_assert(sharedcan_initialized == true);
-    shared_assert(message != NULL);
+    assert(sharedcan_initialized == true);
+    assert(message != NULL);
 
     // Track how many times the CAN TX FIFO has overflowed
     static uint32_t cantx_overflow_count = { 0 };
@@ -325,8 +325,8 @@ void Io_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message)
 
 void Io_SharedCan_DequeueCanRxMessage(struct CanMsg *message)
 {
-    shared_assert(sharedcan_initialized == true);
-    shared_assert(message != NULL);
+    assert(sharedcan_initialized == true);
+    assert(message != NULL);
 
     // Get a message from the RX queue and process it, else block forever.
     while (xQueueReceive(can_rx_msg_fifo.handle, message, portMAX_DELAY) !=
@@ -336,7 +336,7 @@ void Io_SharedCan_DequeueCanRxMessage(struct CanMsg *message)
 
 void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void)
 {
-    shared_assert(sharedcan_initialized == true);
+    assert(sharedcan_initialized == true);
 
     xSemaphoreTake(CanTxBinarySemaphore.handle, portMAX_DELAY);
 
