@@ -7,42 +7,6 @@ import argparse
 import pprint
 from termcolor import colored
 
-def can_init(dbc):
-    os.system("sudo ip link set can0 type can bitrate 500000")
-    os.system("sudo ip link set up can0")
-    dbc = cantools.database.load_file(dbc)
-    bus = can.interface.Bus(bustype='socketcan', channel='can0', bitrate=500000)
-    return [dbc, bus]
-
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--test_json')
-    parser.add_argument('--signal_json')
-    parser.add_argument('--dbc')
-    args = parser.parse_args()
-
-    with open(args.test_json) as f:
-      tests = json.load(f)['Tests']
-
-    # pprint.pprint(tests)
-
-    with open(args.signal_json) as f:
-        mock_signals = json.load(f)['Mock_Signals']
-
-    dbc, bus = can_init(args.dbc)
-    run_tests(tests, dbc, mock_signals)
-
-#{'End_Value': 20,
-# 'Fault_Above_Threshold_(T/F)': True,
-# 'Fault_Active_High_(T/F)': True,
-# 'Fault_CAN_Signal_Name': 'MotorShutdown',
-# 'Mock_CAN_Signal_Name': 'SetBatteryVoltage',
-# 'Mock_Signal_Name': 'BatteryVoltage',
-# 'Start_Value': 10,
-# 'Step_Value': 2,
-# 'Test_Description': 'Dummy Description',
-# 'Threshold_Value': 15}]
-
 def _get_signal_id(mock_signals, signal_name):
     """
     Given a signal name, return the corresponding mock signal ID
@@ -84,6 +48,18 @@ def _get_expected_fault_signal(is_fault_above_threshold, is_fault_active_high):
 
     return expected_fault_signal
 
+def dbc_init(dbc):
+    return cantools.database.load_file(dbc)
+
+def can_init(can_bustype, can_bitrate, can_channel):
+    """
+    can_bustype: String
+    can_bitrate: Integer
+    can_channel: String
+    """
+    os.system("sudo ip link set {} type can bitrate {}".format(can_channel, can_bitrate))
+    os.system("sudo ip link set up {}".format(can_channel))
+    return can.interface.Bus(bustype=can_bustype, channel=can_channel bitrate=can_bitrate)
 
 def run_tests(tests, dbc, mock_signals):
     for test in tests:
@@ -155,6 +131,26 @@ def run_tests(tests, dbc, mock_signals):
             data = stop_message_payload,
             is_extended_id = False)
         bus.send(stop_message)
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--test_json')
+    parser.add_argument('--signal_json')
+    parser.add_argument('--dbc')
+    args = parser.parse_args()
+
+    with open(args.test_json) as f:
+      tests = json.load(f)['Tests']
+
+    # pprint.pprint(tests)
+
+    with open(args.signal_json) as f:
+        mock_signals = json.load(f)['Mock_Signals']
+
+    bus = can_init('socketcan', 500000, 'can0')
+    dbc = dbc_init(args.dbc)
+    run_tests(tests, dbc, mock_signals)
+
 
 if __name__ == '__main__':
     main()
