@@ -125,8 +125,6 @@ static ErrorStatus Io_InitializeAllOpenFilters(CAN_HandleTypeDef *hcan);
 
 static ErrorStatus Io_InitializeAllOpenFilters(CAN_HandleTypeDef *hcan)
 {
-    assert(hcan != NULL);
-
     /* Configure a single filter bank that accepts any message */
     CAN_FilterTypeDef can_filter;
     can_filter.FilterMode           = CAN_FILTERMODE_IDMASK;
@@ -148,8 +146,6 @@ static ErrorStatus Io_InitializeAllOpenFilters(CAN_HandleTypeDef *hcan)
 
 static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *message)
 {
-    assert(message != NULL);
-
     // Indicates the mailbox used for transmission, not currently used
     uint32_t mailbox = 0;
 
@@ -180,9 +176,6 @@ static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *message)
 
 static inline void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 {
-    assert(hcan != NULL);
-
-
     static uint32_t canrx_overflow_count = { 0 };
 
     CAN_RxHeaderTypeDef header;
@@ -271,8 +264,6 @@ void Io_SharedCan_Init(
 
 void Io_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message)
 {
-    assert(message != NULL);
-
     // Track how many times the CAN TX FIFO has overflowed
     static uint32_t cantx_overflow_count = { 0 };
 
@@ -316,8 +307,6 @@ void Io_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message)
 
 void Io_SharedCan_DequeueCanRxMessage(struct CanMsg *message)
 {
-    assert(message != NULL);
-
     // Get a message from the RX queue and process it, else block forever.
     while (xQueueReceive(can_rx_msg_fifo.handle, message, portMAX_DELAY) !=
            pdTRUE)

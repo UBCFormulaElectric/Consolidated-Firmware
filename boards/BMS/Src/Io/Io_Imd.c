@@ -1,8 +1,8 @@
 #include <FreeRTOS.h>
 #include <task.h>
+#include <assert.h>
 
 #include "main.h"
-#include <assert.h>
 #include "Io_Imd.h"
 #include "Io_SharedPwmInput.h"
 
@@ -30,8 +30,6 @@ float Io_Imd_GetDutyCycle(void)
 
 void Io_Imd_InputCaptureCallback(TIM_HandleTypeDef *htim)
 {
-    assert(htim != NULL);
-
     if (htim == imd_htim)
     {
         Io_SharedPwmInput_Tick(imd_pwm_input);

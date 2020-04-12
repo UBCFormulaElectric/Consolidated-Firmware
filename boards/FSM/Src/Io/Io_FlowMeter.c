@@ -13,8 +13,6 @@ float Io_FlowMeter_GetPrimaryFlowRate(void)
 
 void Io_FlowMeter_InputCaptureCallback(TIM_HandleTypeDef *htim)
 {
-    assert(htim != NULL);
-
     if (htim == primary_flow_meter_htim)
     {
         Io_SharedPwmInput_Tick(primary_flow_meter_pwm_input);

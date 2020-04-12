@@ -42,13 +42,8 @@ void Io_SharedStackWaterMark_Check(
     struct stack_watermark *stacks,
     size_t                  num_of_stacks)
 {
-    assert(stacks != NULL);
-
     for (size_t i = 0; i < num_of_stacks; i++)
     {
-        assert(*(stacks[i].handle) != NULL);
-        assert(stacks[i].log_error != NULL);
-
         if (App_IsStackAboveWatermarkThreshold(
                 *(stacks[i].handle), stacks[i].stack_size,
                 stacks[i].watermark_threshold) == true)
