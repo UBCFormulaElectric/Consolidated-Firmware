@@ -4,6 +4,8 @@
 extern "C"
 {
 #include "App_SharedStateMachine.h"
+#include "App_SevenSegDisplays.h"
+#include "App_SevenSegDisplay.h"
 #include "states/App_DriveState.h"
 
     DEFINE_FFF_GLOBALS;
@@ -13,6 +15,9 @@ extern "C"
     FAKE_VOID_FUNC(
         send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT,
         struct CanMsgs_dim_watchdog_timeout_t *);
+    FAKE_VOID_FUNC(set_right_hex_digit, struct SevenSegHexDigit);
+    FAKE_VOID_FUNC(set_middle_hex_digit, struct SevenSegHexDigit);
+    FAKE_VOID_FUNC(set_left_hex_digit, struct SevenSegHexDigit);
 }
 
 class DimStateMachineTest : public testing::Test
@@ -23,8 +28,17 @@ class DimStateMachineTest : public testing::Test
         can_tx_interface = App_CanTx_Create(
             send_non_periodic_msg_DIM_STARTUP,
             send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT);
-        can_rx_interface = App_CanRx_Create();
-        world = App_DimWorld_Create(can_tx_interface, can_rx_interface);
+        can_rx_interface       = App_CanRx_Create();
+        left_seven_seg_display = App_SevenSegDisplay_Create(set_left_hex_digit);
+        middle_seven_seg_display =
+            App_SevenSegDisplay_Create(set_middle_hex_digit);
+        right_seven_seg_display =
+            App_SevenSegDisplay_Create(set_right_hex_digit);
+        seven_seg_displays = App_SevenSegDisplays_Create(
+            left_seven_seg_display, middle_seven_seg_display,
+            right_seven_seg_display);
+        world = App_DimWorld_Create(
+            can_tx_interface, can_rx_interface, seven_seg_displays);
 
         // Default to starting the state machine in the `Drive` state
         state_machine =
@@ -67,6 +81,10 @@ class DimStateMachineTest : public testing::Test
     struct DimCanTxInterface *can_tx_interface;
     struct DimCanRxInterface *can_rx_interface;
     struct StateMachine *     state_machine;
+    struct SevenSegDisplay *  left_seven_seg_display;
+    struct SevenSegDisplay *  middle_seven_seg_display;
+    struct SevenSegDisplay *  right_seven_seg_display;
+    struct SevenSegDisplays * seven_seg_displays;
 };
 
 TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
