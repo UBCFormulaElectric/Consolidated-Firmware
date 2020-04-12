@@ -68,7 +68,8 @@ class SevenSegDisplaysTest : public testing::Test
 
 TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_value)
 {
-    // Counter used as index for the argument history of fake functions
+    // Counter used as index for the argument history and call count of fake
+    // functions
     size_t count = 1;
 
     constexpr size_t num_inputs        = 1;
@@ -98,7 +99,8 @@ TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_value)
 
 TEST_F(SevenSegDisplaysTest, set_two_hexadecimal_values)
 {
-    // Counter used as index for the argument history of fake functions
+    // Counter used as index for the argument history and call count of fake
+    // functions
     size_t count = 1;
 
     constexpr size_t num_inputs        = 2;
@@ -136,7 +138,8 @@ TEST_F(SevenSegDisplaysTest, set_two_hexadecimal_values)
 
 TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_values)
 {
-    // Counter used as index for the argument history of fake functions
+    // Counter used as index for the argument history and call count of fake
+    // functions
     size_t count = 1;
 
     constexpr size_t num_inputs        = 3;
