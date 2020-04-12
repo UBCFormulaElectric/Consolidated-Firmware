@@ -27,7 +27,7 @@ void App_SevenSegDisplay_Destroy(
     free(seven_seg_display);
 }
 
-void App_SevenSegDisplay_SetDigit(
+void App_SevenSegDisplay_SetHexDigit(
     const struct SevenSegDisplay *const seven_seg_display,
     const struct SevenSegHexDigit       hex_digit)
 {

@@ -15,6 +15,6 @@ struct SevenSegDisplay *
 
 void App_SevenSegDisplay_Destroy(struct SevenSegDisplay *seven_seg_display);
 
-void App_SevenSegDisplay_SetDigit(
+void App_SevenSegDisplay_SetHexDigit(
     const struct SevenSegDisplay *seven_seg_display,
     struct SevenSegHexDigit       hex_digit);

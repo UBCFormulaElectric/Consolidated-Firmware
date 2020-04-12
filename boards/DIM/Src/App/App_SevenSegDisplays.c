@@ -74,7 +74,7 @@ ErrorCode App_SevenSegDisplays_SetHexDigits(
             hex_digit.enabled = false;
         }
 
-        App_SevenSegDisplay_SetDigit(
+        App_SevenSegDisplay_SetHexDigit(
             seven_seg_displays->displays[i], hex_digit);
     }
 
