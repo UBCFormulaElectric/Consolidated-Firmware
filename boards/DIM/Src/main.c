@@ -26,6 +26,14 @@
 /* USER CODE BEGIN Includes */
 #include <assert.h>
 
+#include "App_DimWorld.h"
+#include "App_SharedAssert.h"
+#include "App_CanTx.h"
+#include "App_CanRx.h"
+
+#include "Io_CanTx.h"
+#include "Io_CanRx.h"
+#include "Io_SharedCan.h"
 #include "Io_SharedErrorHandlerOverride.h"
 /* USER CODE END Includes */
 
@@ -58,8 +66,13 @@ osStaticThreadDef_t TaskCanRxControlBlock;
 osThreadId          TaskCanTxHandle;
 uint32_t            TaskCanTxBuffer[128];
 osStaticThreadDef_t TaskCanTxControlBlock;
+osThreadId          Task1kHzHandle;
+uint32_t            Task1kHzBuffer[128];
+osStaticThreadDef_t Task1kHzControlBlock;
 /* USER CODE BEGIN PV */
-
+struct DimWorld *         world;
+struct DimCanTxInterface *can_tx;
+struct DimCanRxInterface *can_rx;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -70,6 +83,7 @@ static void MX_ADC2_Init(void);
 void        RunTask100Hz(void const *argument);
 void        RunTaskCanRx(void const *argument);
 void        RunTaskCanTx(void const *argument);
+void        StartTask1kHz(void const *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -77,7 +91,15 @@ void        RunTaskCanTx(void const *argument);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+static void CanRxQueueOverflowCallBack(size_t overflow_count)
+{
+    App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count);
+}
 
+static void CanTxQueueOverflowCallBack(size_t overflow_count)
+{
+    App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
+}
 /* USER CODE END 0 */
 
 /**
@@ -87,7 +109,13 @@ void        RunTaskCanTx(void const *argument);
 int main(void)
 {
     /* USER CODE BEGIN 1 */
+    can_tx = App_CanTx_Create(
+        Io_CanTx_EnqueueNonPeriodicMsg_DIM_STARTUP,
+        Io_CanTx_EnqueueNonPeriodicMsg_DIM_WATCHDOG_TIMEOUT);
 
+    can_rx = App_CanRx_Create();
+
+    world = App_DimWorld_Create(can_tx, can_rx);
     /* USER CODE END 1 */
 
     /* MCU
@@ -150,6 +178,12 @@ int main(void)
         TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, 128, TaskCanTxBuffer,
         &TaskCanTxControlBlock);
     TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
+
+    /* definition and creation of Task1kHz */
+    osThreadStaticDef(
+        Task1kHz, StartTask1kHz, osPriorityBelowNormal, 0, 128, Task1kHzBuffer,
+        &Task1kHzControlBlock);
+    Task1kHzHandle = osThreadCreate(osThread(Task1kHz), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -299,7 +333,8 @@ static void MX_CAN_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN CAN_Init 2 */
-
+    Io_SharedCan_Init(
+        &hcan, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
     /* USER CODE END CAN_Init 2 */
 }
 
@@ -395,11 +430,13 @@ void RunTask100Hz(void const *argument)
 {
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
+    uint32_t                PreviousWakeTime = osKernelSysTick();
+    static const TickType_t period_ms        = 10;
 
     /* Infinite loop */
     for (;;)
     {
-        osDelay(1);
+        osDelayUntil(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END 5 */
 }
@@ -419,7 +456,10 @@ void RunTaskCanRx(void const *argument)
     /* Infinite loop */
     for (;;)
     {
-        osDelay(1);
+        struct CanMsg message;
+        Io_SharedCan_DequeueCanRxMessage(&message);
+        Io_CanRx_UpdateRxTableWithMessage(
+            App_DimWorld_GetCanRx(world), &message);
     }
     /* USER CODE END RunTaskCanRx */
 }
@@ -439,9 +479,33 @@ void RunTaskCanTx(void const *argument)
     /* Infinite loop */
     for (;;)
     {
-        osDelay(1);
+        Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
     }
     /* USER CODE END RunTaskCanTx */
+}
+
+/* USER CODE BEGIN Header_StartTask1kHz */
+/**
+ * @brief Function implementing the Task1kHz thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_StartTask1kHz */
+void StartTask1kHz(void const *argument)
+{
+    /* USER CODE BEGIN StartTask1kHz */
+    UNUSED(argument);
+    uint32_t                PreviousWakeTime = osKernelSysTick();
+    static const TickType_t period_ms        = 1;
+
+    /* Infinite loop */
+    for (;;)
+    {
+        Io_CanTx_EnqueuePeriodicMsgs(
+            can_tx, osKernelSysTick() * portTICK_PERIOD_MS);
+        osDelayUntil(&PreviousWakeTime, period_ms);
+    }
+    /* USER CODE END StartTask1kHz */
 }
 
 /**
