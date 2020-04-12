@@ -66,7 +66,7 @@ class SevenSegDisplaysTest : public testing::Test
     struct SevenSegDisplay * right_seven_seg_display;
 };
 
-TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_value)
+TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_digit)
 {
     // Counter used as index for the argument history and call count of fake
     // functions
@@ -92,13 +92,15 @@ TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_value)
         ASSERT_EQ(
             false, set_right_hex_digit_fake.arg0_history[count - 1].enabled);
 
+        // The value for the middle and right digits are not asserted because we
+        // are only writing one digit
         ASSERT_EQ(
             input[LEFT_SEVEN_SEG_DISPLAY],
             set_left_hex_digit_fake.arg0_history[count - 1].value);
     }
 }
 
-TEST_F(SevenSegDisplaysTest, set_two_hexadecimal_values)
+TEST_F(SevenSegDisplaysTest, set_two_hexadecimal_digits)
 {
     // Counter used as index for the argument history and call count of fake
     // functions
@@ -128,6 +130,8 @@ TEST_F(SevenSegDisplaysTest, set_two_hexadecimal_values)
                 false,
                 set_right_hex_digit_fake.arg0_history[count - 1].enabled);
 
+            // The value for the right digit is not asserted because we are only
+            // writing two digits
             ASSERT_EQ(
                 input[0],
                 set_left_hex_digit_fake.arg0_history[count - 1].value);
@@ -138,7 +142,7 @@ TEST_F(SevenSegDisplaysTest, set_two_hexadecimal_values)
     }
 }
 
-TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_values)
+TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_digits)
 {
     // Counter used as index for the argument history and call count of fake
     // functions
@@ -190,7 +194,7 @@ TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_values)
     }
 }
 
-TEST_F(SevenSegDisplaysTest, write_underflow_value_to_each_7_seg_display)
+TEST_F(SevenSegDisplaysTest, write_underflow_digit_to_each_7_seg_display)
 {
     constexpr size_t num_inputs = NUM_SEVEN_SEG_DISPLAYS;
     uint8_t          input[num_inputs];
@@ -214,7 +218,7 @@ TEST_F(SevenSegDisplaysTest, write_underflow_value_to_each_7_seg_display)
     }
 }
 
-TEST_F(SevenSegDisplaysTest, write_overflow_value_to_each_7_seg_display)
+TEST_F(SevenSegDisplaysTest, write_overflow_digit_to_each_7_seg_display)
 {
     constexpr size_t num_inputs = NUM_SEVEN_SEG_DISPLAYS;
     uint8_t          input[num_inputs];
