@@ -45,6 +45,9 @@ SG_ Frequency : 32|32@1- (1,0) [-3.4E038|3.4E038] "Hz" LOGGER
 BO_ 107 BMS_STATE_MACHINE : 1 BMS
 SG_ State : 0|8@1+ (1,0) [0|255] "" LOGGER
 
+BO_ 108 BMS_STATE_OF_CHARGE: 4 BMS
+SG_ State_Of_Charge : 0|32@1- (1,0) [0|1E002] "%" DIM
+
 BO_ 200 DCM_HEARTBEAT: 1 DCM
 SG_ DUMMY_VARIABLE : 0|1@1+ (1,0) [0|1] "" BMS
 
@@ -185,6 +188,7 @@ BA_ "GenMsgCycleTime" BO_ 104 1000;
 BA_ "GenMsgCycleTime" BO_ 105 1000;
 BA_ "GenMsgCycleTime" BO_ 106 1000;
 BA_ "GenMsgCycleTime" BO_ 107 10;
+BA_ "GenMsgCycleTime" BO_ 108 1000;
 BA_ "GenMsgCycleTime" BO_ 200 300;
 BA_ "GenMsgCycleTime" BO_ 201 5000;
 BA_ "GenMsgCycleTime" BO_ 204 1000;
@@ -212,6 +216,7 @@ BA_ "GenSigStartValue" SG_ 2  rx_overflow_count 0;
 
 SIG_VALTYPE_ 106 Duty_Cycle : 1;
 SIG_VALTYPE_ 106 Frequency : 1;
+SIG_VALTYPE_ 108 State_Of_Charge : 1;
 SIG_VALTYPE_ 406 Auxiliary1_Current : 1;
 SIG_VALTYPE_ 406 Auxiliary2_Current : 1;
 SIG_VALTYPE_ 407 Cooling_Pump_Current : 1;

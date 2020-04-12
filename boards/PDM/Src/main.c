@@ -27,7 +27,7 @@
 #include <assert.h>
 
 #include "Io_SharedSoftwareWatchdog.h"
-#include "Io_SharedConstants.h"
+#include "App_SharedConstants.h"
 #include "Io_SharedCmsisOs.h"
 #include "Io_SharedCan.h"
 #include "Io_SharedHeartbeat.h"
