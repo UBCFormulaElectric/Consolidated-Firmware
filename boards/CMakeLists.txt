@@ -178,7 +178,8 @@ function(create_arm_binary
             -fmessage-length=0 
             -Wall 
             -Werror 
-            -Wextra -pedantic 
+            -Wextra
+            -pedantic
             -specs=nosys.specs 
             -specs=nano.specs
         )
@@ -274,8 +275,10 @@ function(compile_googletest_executables
                 ${ARM_BINARY_APP_INCLUDE_DIRS}
                 ${SHARED_APP_INCLUDE_DIRS}
                 )
-        set_target_properties(${TEST_EXECUTABLE_NAME} PROPERTIES COMPILE_FLAGS
-                "-Wall -Werror"
+        target_compile_options(${TEST_EXECUTABLE_NAME}
+            PUBLIC
+                -Wall
+                -Werror
                 )
         target_link_libraries(${TEST_EXECUTABLE_NAME} gtest_main)
         add_test(NAME ${TEST_EXECUTABLE_NAME}

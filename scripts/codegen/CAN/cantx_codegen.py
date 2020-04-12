@@ -75,6 +75,16 @@ class AppCanTxFileGenerator(CanFileGenerator):
                 signal_snakecase_name=signal.snakecase_name)
         ) for signal in self._periodic_cantx_signals)
 
+        self._PeriodicTxSignalGetters = list(Function(
+            '%s %s_GetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface)' % (
+            signal.type_name, function_prefix, signal.uppercase_name, self._sender.capitalize()),
+            '',
+            '''\
+        return can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name};'''.format(
+                msg_snakecase_name=signal.msg_name_snakecase,
+                signal_snakecase_name=signal.snakecase_name)
+        ) for signal in self._periodic_cantx_signals)
+
         self._PeriodicTxMsgPointerGetters = list(Function(
             'struct CanMsgs_%s_t* %s_GetPeriodicMsgPointer_%s(struct %sCanTxInterface* can_tx_interface)' % (
                 msg.snake_name, function_prefix, msg.snake_name.upper(), self._sender.capitalize()),
@@ -117,8 +127,11 @@ class AppCanTxHeaderFileGenerator(AppCanTxFileGenerator):
         function_declarations.append(self._Create.declaration)
         function_declarations.append(self._Destroy.declaration)
         function_declarations.append(
-            '/** @brief Signal getters for periodic CAN TX messages */\n'
+            '/** @brief Signal setters for periodic CAN TX messages */\n'
             + '\n'.join([func.declaration for func in self._PeriodicTxSignalSetters]))
+        function_declarations.append(
+            '/** @brief Signal getters for periodic CAN TX messages */\n'
+            + '\n'.join([func.declaration for func in self._PeriodicTxSignalGetters]))
         function_declarations.append(
             '/** @brief Getter for pointer to an entry in the periodic CAN TX message table */\n'
             + '\n'.join([func.declaration for func in self._PeriodicTxMsgPointerGetters]))
@@ -195,6 +208,7 @@ class AppCanTxSourceFileGenerator(AppCanTxFileGenerator):
         function_defs.append(self._Create.definition)
         function_defs.append(self._Destroy.definition)
         function_defs.extend(func.definition for func in self._PeriodicTxSignalSetters)
+        function_defs.extend(func.definition for func in self._PeriodicTxSignalGetters)
         function_defs.extend(func.definition for func in self._PeriodicTxMsgPointerGetters)
         function_defs.extend(func.definition for func in self._SendNonPeriodicMsgs)
         return '\n\n'.join(function_defs)
