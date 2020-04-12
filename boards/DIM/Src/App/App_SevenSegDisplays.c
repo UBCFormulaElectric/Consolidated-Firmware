@@ -1,10 +1,10 @@
 #include <stdlib.h>
+#include <assert.h>
 
 #include "App_ErrorCode.h"
 #include "App_SevenSegDisplays.h"
 #include "App_SevenSegDisplay.h"
 #include "App_SharedConstants.h"
-#include "App_SharedAssert.h"
 
 struct SevenSegDisplays
 {
@@ -19,7 +19,7 @@ struct SevenSegDisplays *App_SevenSegDisplays_Create(
     struct SevenSegDisplays *seven_seg_displays =
         malloc(sizeof(struct SevenSegDisplays));
 
-    shared_assert(seven_seg_displays != NULL);
+    assert(seven_seg_displays != NULL);
 
     seven_seg_displays->displays[LEFT_SEVEN_SEG_DISPLAY] =
         left_seven_seg_display;

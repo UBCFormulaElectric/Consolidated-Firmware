@@ -1,6 +1,5 @@
 #include <stm32f3xx_hal.h>
-
-#include "App_SharedAssert.h"
+#include <assert.h>
 
 #include "App_SevenSegDisplays.h"
 #include "Io_SevenSegDisplays.h"
@@ -81,7 +80,7 @@ void Io_SevenSegDisplays_SetLeftHexDigit(struct SevenSegHexDigit hex_digit)
     }
     else
     {
-        shared_assert(hex_digit.value < NUM_HEX_DIGITS);
+        assert(hex_digit.value < NUM_HEX_DIGITS);
 
         commands[LEFT_SEVEN_SEG_DISPLAY] =
             command_lookup_table.values[hex_digit.value];
@@ -96,7 +95,7 @@ void Io_SevenSegDisplays_SetMiddleHexDigit(struct SevenSegHexDigit hex_digit)
     }
     else
     {
-        shared_assert(hex_digit.value < NUM_HEX_DIGITS);
+        assert(hex_digit.value < NUM_HEX_DIGITS);
 
         commands[MIDDLE_SEVEN_SEG_DISPLAY] =
             command_lookup_table.values[hex_digit.value];
@@ -111,7 +110,7 @@ void Io_SevenSegDisplays_SetRightHexDigit(struct SevenSegHexDigit hex_digit)
     }
     else
     {
-        shared_assert(hex_digit.value < NUM_HEX_DIGITS);
+        assert(hex_digit.value < NUM_HEX_DIGITS);
 
         commands[RIGHT_SEVEN_SEG_DISPLAY] =
             command_lookup_table.values[hex_digit.value];

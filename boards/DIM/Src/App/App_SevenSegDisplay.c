@@ -1,7 +1,7 @@
 #include <stdlib.h>
+#include <assert.h>
 
 #include "App_SevenSegDisplay.h"
-#include "App_SharedAssert.h"
 
 struct SevenSegDisplay
 {
@@ -14,7 +14,7 @@ struct SevenSegDisplay *App_SevenSegDisplay_Create(
     struct SevenSegDisplay *seven_seg_displays =
         malloc(sizeof(struct SevenSegDisplay));
 
-    shared_assert(seven_seg_displays != NULL);
+    assert(seven_seg_displays != NULL);
 
     seven_seg_displays->set_hex_digit = set_hex_digit;
 
