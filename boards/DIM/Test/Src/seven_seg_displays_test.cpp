@@ -79,8 +79,6 @@ TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_value)
         App_SevenSegDisplays_SetHexDigits(
             seven_segment_displays, input, num_inputs);
 
-//        count++;
-
         ASSERT_EQ(count, set_left_hex_digit_fake.call_count);
         ASSERT_EQ(count, set_middle_hex_digit_fake.call_count);
         ASSERT_EQ(count, set_right_hex_digit_fake.call_count);
