@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdbool.h>
-
 #include "App_SharedConstants.h"
 
 struct SevenSegHexDigit

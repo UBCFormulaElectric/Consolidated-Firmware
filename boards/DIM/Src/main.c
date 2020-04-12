@@ -78,6 +78,10 @@ osStaticThreadDef_t Task1kHzControlBlock;
 struct DimWorld *         world;
 struct DimCanTxInterface *can_tx;
 struct DimCanRxInterface *can_rx;
+struct SevenSegDisplay *  left_seven_seg_display;
+struct SevenSegDisplay *  middle_seven_seg_display;
+struct SevenSegDisplay *  right_seven_seg_display;
+struct SevenSegDisplays * seven_seg_displays;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -117,18 +121,16 @@ int main(void)
     /* USER CODE BEGIN 1 */
     Io_SevenSegDisplays_Init(&hspi2);
 
-    struct SevenSegDisplay *left_seven_seg_display =
+    left_seven_seg_display =
         App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetLeftHexDigit);
-    struct SevenSegDisplay *middle_seven_seg_display =
+    middle_seven_seg_display =
         App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetMiddleHexDigit);
-    struct SevenSegDisplay *right_seven_seg_display =
+    right_seven_seg_display =
         App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetRightHexDigit);
 
-    struct SevenSegDisplays *seven_seg_displays = App_SevenSegDisplays_Create(
+    seven_seg_displays = App_SevenSegDisplays_Create(
         left_seven_seg_display, middle_seven_seg_display,
         right_seven_seg_display);
-
-    UNUSED(seven_seg_displays);
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_DIM_STARTUP,
@@ -136,7 +138,7 @@ int main(void)
 
     can_rx = App_CanRx_Create();
 
-    world = App_DimWorld_Create(can_tx, can_rx);
+    world = App_DimWorld_Create(can_tx, can_rx, seven_seg_displays);
     /* USER CODE END 1 */
 
     /* MCU

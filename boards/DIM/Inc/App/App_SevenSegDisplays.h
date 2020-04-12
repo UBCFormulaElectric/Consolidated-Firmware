@@ -1,7 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-
 #include "App_ErrorCode.h"
 
 struct SevenSegDisplay;
