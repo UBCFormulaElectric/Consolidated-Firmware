@@ -24,6 +24,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <assert.h>
+
 #include "Io_SharedSoftwareWatchdog.h"
 #include "Io_SharedCan.h"
 #include "Io_SharedCmsisOs.h"
@@ -34,7 +36,6 @@
 
 #include "App_BmsWorld.h"
 #include "App_SharedStateMachine.h"
-#include <assert.h>
 #include "states/App_InitState.h"
 #include "App_Imd.h"
 

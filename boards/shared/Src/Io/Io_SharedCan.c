@@ -89,9 +89,6 @@ static void (*_tx_overflow_callback)(size_t) = NULL;
  */
 static void (*_rx_overflow_callback)(size_t) = NULL;
 
-/** @brief Boolean flag indicating whether this library is initialized */
-static bool sharedcan_initialized = false;
-
 static struct StaticSemaphore CanTxBinarySemaphore = {
     .handle  = NULL,
     .storage = { { 0 } },
@@ -151,7 +148,6 @@ static ErrorStatus Io_InitializeAllOpenFilters(CAN_HandleTypeDef *hcan)
 
 static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *message)
 {
-    assert(sharedcan_initialized == true);
     assert(message != NULL);
 
     // Indicates the mailbox used for transmission, not currently used
@@ -184,10 +180,9 @@ static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *message)
 
 static inline void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 {
-    assert(sharedcan_initialized == true);
     assert(hcan != NULL);
 
-    // Track how many times the CAN TX FIFO has overflowed
+
     static uint32_t canrx_overflow_count = { 0 };
 
     CAN_RxHeaderTypeDef header;
@@ -272,14 +267,10 @@ void Io_SharedCan_Init(
 
     // Save a copy of the CAN handle that shall be used in this library
     sharedcan_hcan = hcan;
-
-    // Set a boolean to indicate that the library is ready be used
-    sharedcan_initialized = true;
 }
 
 void Io_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message)
 {
-    assert(sharedcan_initialized == true);
     assert(message != NULL);
 
     // Track how many times the CAN TX FIFO has overflowed
@@ -325,7 +316,6 @@ void Io_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message)
 
 void Io_SharedCan_DequeueCanRxMessage(struct CanMsg *message)
 {
-    assert(sharedcan_initialized == true);
     assert(message != NULL);
 
     // Get a message from the RX queue and process it, else block forever.
@@ -336,8 +326,6 @@ void Io_SharedCan_DequeueCanRxMessage(struct CanMsg *message)
 
 void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void)
 {
-    assert(sharedcan_initialized == true);
-
     xSemaphoreTake(CanTxBinarySemaphore.handle, portMAX_DELAY);
 
     while (HAL_CAN_GetTxMailboxesFreeLevel(sharedcan_hcan) > 0 &&

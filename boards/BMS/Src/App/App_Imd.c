@@ -1,8 +1,9 @@
+#include <assert.h>
+#include <stdlib.h>
+
 #include "App_CanTx.h"
 #include "App_Imd.h"
-#include <assert.h>
 #include "App_SharedMacros.h"
-#include <stdlib.h>
 
 // We only require one IMD per vehicle
 #define MAX_NUM_OF_IMDS 1
@@ -161,8 +162,6 @@ void App_Imd_Destroy(struct Imd *imd)
 
 void App_Imd_Tick(struct Imd *const imd)
 {
-    assert(imd != NULL);
-
     // The IMD takes a short while before its values are stabilized, so it is
     // useful to keep track of how long it's been since the IMD powered on.
     App_CanTx_SetPeriodicSignal_SECONDS_SINCE_POWER_ON(

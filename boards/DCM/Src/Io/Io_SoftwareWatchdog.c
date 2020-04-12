@@ -1,7 +1,7 @@
 #include <stm32f3xx_hal.h>
 #include <string.h>
-#include "Io_SoftwareWatchdog.h"
 #include <assert.h>
+#include "Io_SoftwareWatchdog.h"
 #include "Io_SharedMacros.h"
 
 extern IWDG_HandleTypeDef        hiwdg;
@@ -21,7 +21,6 @@ void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
 {
     BREAK_IF_DEBUGGER_CONNECTED();
 
-    assert(_can_tx != NULL);
     App_CanTx_SetPeriodicSignal_WATCHDOG_TIMEOUT(_can_tx, true);
 
     struct CanMsgs_dcm_watchdog_timeout_t payload;

@@ -28,26 +28,22 @@ struct BmsWorld *App_BmsWorld_Create(
 
 void App_BmsWorld_Destroy(struct BmsWorld *world)
 {
-    assert(world != NULL);
     free(world);
 }
 
 struct BmsCanTxInterface *
     App_BmsWorld_GetCanTx(const struct BmsWorld *const world)
 {
-    assert(world != NULL);
     return world->can_tx_interface;
 }
 
 struct BmsCanRxInterface *
     App_BmsWorld_GetCanRx(const struct BmsWorld *const world)
 {
-    assert(world != NULL);
     return world->can_rx_interface;
 }
 
 struct Imd *App_BmsWorld_GetImd(const struct BmsWorld *const world)
 {
-    assert(world != NULL);
     return world->imd;
 }

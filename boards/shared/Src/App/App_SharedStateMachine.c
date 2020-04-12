@@ -1,7 +1,7 @@
-#include "App_SharedStateMachine.h"
 #include <assert.h>
-
 #include <stdlib.h>
+
+#include "App_SharedStateMachine.h"
 
 struct StateMachine
 {

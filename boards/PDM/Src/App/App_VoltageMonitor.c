@@ -1,7 +1,7 @@
 #include <stdlib.h>
+#include <assert.h>
 
 #include "App_VoltageMonitor.h"
-#include <assert.h>
 
 struct VoltageMonitor
 {

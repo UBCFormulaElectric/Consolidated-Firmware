@@ -24,6 +24,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <assert.h>
+
 #include "Io_SharedSoftwareWatchdog.h"
 #include "Io_SharedConstants.h"
 #include "Io_SharedCmsisOs.h"
@@ -34,7 +36,6 @@
 #include "Io_SoftwareWatchdog.h"
 #include "Io_FlowMeter.h"
 
-#include <assert.h>
 #include "App_FlowMeter.h"
 #include "App_FsmWorld.h"
 #include "App_SharedStateMachine.h"
@@ -111,15 +112,11 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    assert(can_tx != NULL);
-
     App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    assert(can_tx != NULL);
-
     App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
 }
 

@@ -1,8 +1,9 @@
+#include <assert.h>
+
 #include "main.h"
 #include "App_SharedMacros.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SharedStackWaterMark.h"
-#include <assert.h>
 #include "App_CanTx.h"
 
 // We check the stack water mark for the following tasks
@@ -24,28 +25,24 @@ void App_StackWaterMark_Init(struct PdmCanTxInterface *can_tx_interface)
 
 static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
 {
-    assert(_can_tx_interface != NULL);
     App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_KHZ(
         _can_tx_interface, error);
 }
 
 static void logWaterMarkAboveThresholdTask1Hz(uint8_t error)
 {
-    assert(_can_tx_interface != NULL);
     App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_HZ(
         _can_tx_interface, error);
 }
 
 static void logWaterMarkAboveThresholdTaskCanRx(uint8_t error)
 {
-    assert(_can_tx_interface != NULL);
     App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX(
         _can_tx_interface, error);
 }
 
 static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 {
-    assert(_can_tx_interface != NULL);
     App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX(
         _can_tx_interface, error);
 }

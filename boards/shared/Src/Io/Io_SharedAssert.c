@@ -22,5 +22,6 @@ void __assert_func(
 
     for (;;)
     {
+        // Trap in a infinite loop, waiting for the hardware watchdog to reset
     }
 }

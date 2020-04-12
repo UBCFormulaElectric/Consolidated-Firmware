@@ -1,7 +1,7 @@
 #include <stdlib.h>
+#include <assert.h>
 
 #include "App_BrakeLight.h"
-#include <assert.h>
 
 struct BrakeLight
 {
@@ -40,14 +40,11 @@ struct BrakeLight *App_BrakeLight_Create(
 
 void App_BrakeLight_Destroy(struct BrakeLight *const brake_light)
 {
-    assert(brake_light != NULL);
     free(brake_light);
 }
 
 void App_BrakeLight_Tick(struct BrakeLight *const brake_light)
 {
-    assert(brake_light != NULL);
-
     if (brake_light->is_brake_actuated() == true ||
         brake_light->is_regen_active() == true)
     {
@@ -64,6 +61,5 @@ void App_BrakeLight_Tick(struct BrakeLight *const brake_light)
 enum BrakeLight_Status
     App_BrakeLight_GetStatus(const struct BrakeLight *const brake_light)
 {
-    assert(brake_light != NULL);
     return brake_light->status;
 }
