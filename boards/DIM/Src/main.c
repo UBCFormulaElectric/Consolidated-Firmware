@@ -479,9 +479,7 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-#include "App_SharedAssert.h"
-#include "App_SharedConstants.h"
-#include <string.h>
+
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_RunTask100Hz */
