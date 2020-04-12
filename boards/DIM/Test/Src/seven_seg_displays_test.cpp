@@ -14,6 +14,7 @@ extern "C"
 {
 #include "App_SevenSegDisplays.h"
 #include "App_SevenSegDisplay.h"
+#include "App_ErrorCode.h"
 
     DEFINE_FFF_GLOBALS;
     FAKE_VOID_FUNC(set_right_hex_digit, struct SevenSegHexDigit);
@@ -191,18 +192,16 @@ TEST_F(SevenSegDisplaysTest, write_three_hexadecimal_values)
 
 TEST_F(SevenSegDisplaysTest, set_invalid_value)
 {
+    constexpr int invalid_input = NUM_HEX_DIGITS;
     uint8_t input[NUM_SEVEN_SEG_DISPLAYS];
 
     // Set an invalid hex value for each display
     for (size_t i = 0; i < NUM_SEVEN_SEG_DISPLAYS; i++)
     {
         memset(input, 0, sizeof(input));
-        input[i] = NUM_HEX_DIGITS;
-        ASSERT_DEATH(
-            {
-                App_SevenSegDisplays_SetHexDigits(
-                    seven_segment_displays, input, NUM_SEVEN_SEG_DISPLAYS);
-            },
-            "");
+        input[i] = invalid_input;
+        EXPECT_EQ(ERROR_CODE_INVALID_ARGS, App_SevenSegDisplays_SetHexDigits(
+                    seven_segment_displays, input, NUM_SEVEN_SEG_DISPLAYS));
+
     }
 }

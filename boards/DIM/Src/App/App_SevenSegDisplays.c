@@ -50,7 +50,7 @@ ErrorCode App_SevenSegDisplays_SetHexDigits(
 
         if (i < num_hex_digits)
         {
-            if (hex_digits[i] < NUM_HEX_DIGITS)
+            if (hex_digits[i] >= NUM_HEX_DIGITS)
             {
                 return ERROR_CODE_INVALID_ARGS;
             }
@@ -60,7 +60,9 @@ ErrorCode App_SevenSegDisplays_SetHexDigits(
         }
         else
         {
-            // We turn off the 7-segment displays with unspecified values
+            // We turn off the 7-segment displays with unspecified values. For
+            // example, if the callers wants to write 0xF, we would turn off the
+            // right and middle 7-segment displays.
             hex_digit.enabled = false;
         }
 
