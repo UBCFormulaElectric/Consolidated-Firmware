@@ -194,7 +194,7 @@ TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_digits)
     }
 }
 
-TEST_F(SevenSegDisplaysTest, write_underflow_digit_to_each_7_seg_display)
+TEST_F(SevenSegDisplaysTest, set_underflow_digit_to_each_7_seg_display)
 {
     constexpr size_t num_inputs = NUM_SEVEN_SEG_DISPLAYS;
     uint8_t          input[num_inputs];
@@ -218,7 +218,7 @@ TEST_F(SevenSegDisplaysTest, write_underflow_digit_to_each_7_seg_display)
     }
 }
 
-TEST_F(SevenSegDisplaysTest, write_overflow_digit_to_each_7_seg_display)
+TEST_F(SevenSegDisplaysTest, set_overflow_digit_to_each_7_seg_display)
 {
     constexpr size_t num_inputs = NUM_SEVEN_SEG_DISPLAYS;
     uint8_t          input[num_inputs];
