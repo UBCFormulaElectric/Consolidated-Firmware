@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stdbool.h>
 #include "App_SevenSegDisplay.h"
 
 void Io_SevenSegDisplays_Init(SPI_HandleTypeDef *hspi);
