@@ -1,6 +1,6 @@
 #include <stddef.h>
 #include <stdlib.h>
-#include "App_SharedAssert.h"
+#include <assert.h>
 
 #include "App_DimWorld.h"
 
@@ -15,7 +15,7 @@ struct DimWorld *App_DimWorld_Create(
     struct DimCanRxInterface *const can_rx_interface)
 {
     struct DimWorld *world = (struct DimWorld *)malloc(sizeof(struct DimWorld));
-    shared_assert(world != NULL);
+    assert(world != NULL);
 
     world->can_tx_interface = can_tx_interface;
     world->can_rx_interface = can_rx_interface;

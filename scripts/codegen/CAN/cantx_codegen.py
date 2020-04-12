@@ -45,7 +45,7 @@ class AppCanTxFileGenerator(CanFileGenerator):
             '''\
     struct {sender}CanTxInterface* can_tx_interface = malloc(sizeof(struct {sender}CanTxInterface));
 
-    shared_assert(can_tx_interface != NULL);\n\n'''
+    assert(can_tx_interface != NULL);\n\n'''
     .format(sender=self._sender.capitalize())
     + '\n'.join(init_senders)
     + '''
@@ -176,8 +176,8 @@ class AppCanTxSourceFileGenerator(AppCanTxFileGenerator):
 
     def __generateHeaderIncludes(self):
         header_names = ['<stdlib.h>',
-                        '"App_CanTx.h"',
-                        '"App_SharedAssert.h"']
+                        '<assert.h>',
+                        '"App_CanTx.h"']
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])
 
@@ -274,7 +274,7 @@ void %s_EnqueuePeriodicMsgs(struct %sCanTxInterface* can_tx_interface, const uin
             % (function_prefix, msg.snake_name.upper(), msg.snake_name),
             '',
             '''\
-    shared_assert(payload != NULL);
+    assert(payload != NULL);
 
     struct CanMsg tx_msg;
     memset(&tx_msg, 0, sizeof(tx_msg));
@@ -335,10 +335,10 @@ class IoCanTxSourceFileGenerator(IoCanTxFileGenerator):
         header_names = ['<string.h>',
                         '<FreeRTOS.h>',
                         '<portmacro.h>',
+                        '<assert.h>',
                         '"Io_CanTx.h"',
                         '"App_CanTx.h"',
-                        '"Io_SharedCan.h"',
-                        '"App_SharedAssert.h"']
+                        '"Io_SharedCan.h"']
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])
 

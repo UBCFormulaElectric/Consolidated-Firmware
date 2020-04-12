@@ -1,6 +1,6 @@
 #include <stddef.h>
 #include <stdlib.h>
-#include "App_SharedAssert.h"
+#include <assert.h>
 
 #include "App_PdmWorld.h"
 
@@ -21,7 +21,7 @@ struct PdmWorld *App_PdmWorld_Create(
     struct VoltageMonitor *const    _24v_acc_voltage_monitor)
 {
     struct PdmWorld *world = (struct PdmWorld *)malloc(sizeof(struct PdmWorld));
-    shared_assert(world != NULL);
+    assert(world != NULL);
 
     world->can_tx_interface         = can_tx_interface;
     world->can_rx_interface         = can_rx_interface;

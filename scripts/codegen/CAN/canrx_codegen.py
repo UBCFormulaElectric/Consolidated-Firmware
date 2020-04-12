@@ -50,7 +50,7 @@ class AppCanRxFileGenerator(CanRxFileGenerator):
             '''\
     struct {board}CanRxInterface* can_rx_interface = malloc(sizeof(struct {board}CanRxInterface));
     
-    shared_assert(can_rx_interface != NULL);
+    assert(can_rx_interface != NULL);
     
 {initial_signal_setters}
 
@@ -152,9 +152,9 @@ class AppCanRxSourceFileGenerator(AppCanRxFileGenerator):
 
     def __generateHeaderIncludes(self):
         header_names = ['<stdlib.h>',
+                        '<assert.h>',
                         '"App_CanRx.h"',
-                        '"App_CanMsgs.h"',
-                        '"App_SharedAssert.h"']
+                        '"App_CanMsgs.h"']
 
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])
@@ -258,8 +258,8 @@ class IoCanRxFileGenerator(CanRxFileGenerator):
             'void %s_UpdateRxTableWithMessage(struct %sCanRxInterface* can_rx_interface, struct CanMsg* message)' % (function_prefix, self._receiver.capitalize()),
             "Update the CAN RX table with the given CAN message.",
             '''\
-    shared_assert(can_rx_interface != NULL);
-    shared_assert(message != NULL);
+    assert(can_rx_interface != NULL);
+    assert(message != NULL);
 
     switch (message->std_id)
     {{
@@ -313,11 +313,11 @@ class IoCanRxSourceFileGenerator(IoCanRxFileGenerator):
             self.__generatePrivateFunctionDeclarations()))
 
     def __generateHeaderIncludes(self):
-        header_names = ['"App_CanMsgs.h"',
+        header_names = ['<assert.h>',
+                        '"App_CanMsgs.h"',
                         '"App_CanRx.h"',
                         '"Io_CanRx.h"',
-                        '"Io_SharedCanMsg.h"',
-                        '"App_SharedAssert.h"']
+                        '"Io_SharedCanMsg.h"']
 
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])
