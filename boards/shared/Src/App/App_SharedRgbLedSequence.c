@@ -1,7 +1,7 @@
 #include <stddef.h>
 
 #include "App_SharedRgbLedSequence.h"
-#include "App_SharedAssert.h"
+#include <assert.h>
 
 #define MAX_NUM_OF_LED_SEQUENCE 1
 
@@ -25,14 +25,14 @@ struct RgbLedSequence *App_SharedRgbLedSequence_Create(
     void (*turn_on_green_led)(),
     void (*turn_on_blue_led)())
 {
-    shared_assert(turn_on_red_led != NULL);
-    shared_assert(turn_on_green_led != NULL);
-    shared_assert(turn_on_blue_led != NULL);
+    assert(turn_on_red_led != NULL);
+    assert(turn_on_green_led != NULL);
+    assert(turn_on_blue_led != NULL);
 
     static struct RgbLedSequence led_sequences[MAX_NUM_OF_LED_SEQUENCE];
     static size_t                alloc_index = 0;
 
-    shared_assert(alloc_index < MAX_NUM_OF_LED_SEQUENCE);
+    assert(alloc_index < MAX_NUM_OF_LED_SEQUENCE);
 
     struct RgbLedSequence *rgb_led_sequence = &led_sequences[alloc_index++];
     rgb_led_sequence->turn_on_red_led       = turn_on_red_led;
