@@ -5,7 +5,8 @@
 
 struct SevenSegHexDigit
 {
-    // If enabled is false, then value is ignored.
+    // If "enabled" is false, then the 7-segment display is turned off instead
+    // of displaying "value".
     bool          enabled;
     enum HexDigit value;
 };
