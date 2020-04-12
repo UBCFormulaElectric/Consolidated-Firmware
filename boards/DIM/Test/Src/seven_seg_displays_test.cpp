@@ -66,20 +66,20 @@ class SevenSegDisplaysTest : public testing::Test
     struct SevenSegDisplay * right_seven_seg_display;
 };
 
-TEST_F(SevenSegDisplaysTest, write_one_hexadecimal_values)
+TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_value)
 {
     // Counter used as index for the argument history of fake functions
-    int count = 0;
+    int count = 1;
 
-    constexpr size_t input_size        = 1;
-    uint8_t          input[input_size] = { 0 };
+    constexpr size_t num_inputs        = 1;
+    uint8_t          input[num_inputs] = { 0 };
 
-    for (input[0] = 0; input[0] < NUM_HEX_DIGITS; input[0]++)
+    for (input[0] = 0; input[0] < NUM_HEX_DIGITS; input[0]++, count++)
     {
         App_SevenSegDisplays_SetHexDigits(
-            seven_segment_displays, input, input_size);
+            seven_segment_displays, input, num_inputs);
 
-        count++;
+//        count++;
 
         ASSERT_EQ(count, set_left_hex_digit_fake.call_count);
         ASSERT_EQ(count, set_middle_hex_digit_fake.call_count);
@@ -98,22 +98,20 @@ TEST_F(SevenSegDisplaysTest, write_one_hexadecimal_values)
     }
 }
 
-TEST_F(SevenSegDisplaysTest, write_two_hexadecimal_values)
+TEST_F(SevenSegDisplaysTest, set_two_hexadecimal_values)
 {
     // Counter used as index for the argument history of fake functions
-    int count = 0;
+    int count = 1;
 
-    constexpr size_t input_size        = 2;
-    uint8_t          input[input_size] = { 0, 0 };
+    constexpr size_t num_inputs        = 2;
+    uint8_t          input[num_inputs] = { 0, 0 };
 
     for (input[0] = 0; input[0] < NUM_HEX_DIGITS; input[0]++)
     {
-        for (input[1] = 0; input[1] < NUM_HEX_DIGITS; input[1]++)
+        for (input[1] = 0; input[1] < NUM_HEX_DIGITS; input[1]++, count++)
         {
             App_SevenSegDisplays_SetHexDigits(
-                seven_segment_displays, input, input_size);
-
-            count++;
+                seven_segment_displays, input, num_inputs);
 
             ASSERT_EQ(count, set_left_hex_digit_fake.call_count);
             ASSERT_EQ(count, set_middle_hex_digit_fake.call_count);
@@ -138,24 +136,22 @@ TEST_F(SevenSegDisplaysTest, write_two_hexadecimal_values)
     }
 }
 
-TEST_F(SevenSegDisplaysTest, write_three_hexadecimal_values)
+TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_values)
 {
     // Counter used as index for the argument history of fake functions
-    int count = 0;
+    int count = 1;
 
-    constexpr size_t input_size        = 3;
-    uint8_t          input[input_size] = { 0, 0, 0 };
+    constexpr size_t num_inputs        = 3;
+    uint8_t          input[num_inputs] = { 0, 0, 0 };
 
     for (input[0] = 0; input[0] < NUM_HEX_DIGITS; input[0]++)
     {
         for (input[1] = 0; input[1] < NUM_HEX_DIGITS; input[1]++)
         {
-            for (input[2] = 0; input[2] < NUM_HEX_DIGITS; input[2]++)
+            for (input[2] = 0; input[2] < NUM_HEX_DIGITS; input[2]++, count++)
             {
                 App_SevenSegDisplays_SetHexDigits(
-                    seven_segment_displays, input, input_size);
-
-                count++;
+                    seven_segment_displays, input, num_inputs);
 
                 ASSERT_EQ(count, set_left_hex_digit_fake.call_count);
                 ASSERT_EQ(count, set_middle_hex_digit_fake.call_count);
@@ -190,18 +186,27 @@ TEST_F(SevenSegDisplaysTest, write_three_hexadecimal_values)
     }
 }
 
-TEST_F(SevenSegDisplaysTest, set_invalid_value)
+TEST_F(SevenSegDisplaysTest, write_invalid_value_to_each_7_seg_display)
 {
-    constexpr int invalid_input = NUM_HEX_DIGITS;
-    uint8_t input[NUM_SEVEN_SEG_DISPLAYS];
+    constexpr size_t num_inputs = NUM_SEVEN_SEG_DISPLAYS;
+    uint8_t input[num_inputs];
 
-    // Set an invalid hex value for each display
-    for (size_t i = 0; i < NUM_SEVEN_SEG_DISPLAYS; i++)
+    for (size_t i = 0; i < num_inputs ; i++)
     {
         memset(input, 0, sizeof(input));
-        input[i] = invalid_input;
-        EXPECT_EQ(ERROR_CODE_INVALID_ARGS, App_SevenSegDisplays_SetHexDigits(
-                    seven_segment_displays, input, NUM_SEVEN_SEG_DISPLAYS));
 
+        constexpr uint8_t invalid_input = NUM_HEX_DIGITS;
+        input[i]                        = invalid_input;
+
+        ErrorCode error_code = App_SevenSegDisplays_SetHexDigits(
+            seven_segment_displays, input, num_inputs);
+
+        EXPECT_EQ(ERROR_CODE_INVALID_ARGS, error_code);
+
+        // We should not write to any of the 7 segment displays if any of the
+        // inputs is invalid
+        ASSERT_EQ(0, set_left_hex_digit_fake.call_count);
+        ASSERT_EQ(0, set_middle_hex_digit_fake.call_count);
+        ASSERT_EQ(0, set_right_hex_digit_fake.call_count);
     }
 }
