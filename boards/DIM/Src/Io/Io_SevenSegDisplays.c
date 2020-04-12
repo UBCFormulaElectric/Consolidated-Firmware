@@ -59,7 +59,7 @@ static const struct CommandLookupTable command_lookup_table =
 };
 // clang-format on
 
-void Io_SevenSegDisplays_Init(SPI_HandleTypeDef *hspi)
+void Io_SevenSegDisplays_Init(SPI_HandleTypeDef *const hspi)
 {
     _hspi = hspi;
 }

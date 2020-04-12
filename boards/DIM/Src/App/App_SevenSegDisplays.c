@@ -4,7 +4,6 @@
 #include "App_ErrorCode.h"
 #include "App_SevenSegDisplays.h"
 #include "App_SevenSegDisplay.h"
-#include "App_SharedConstants.h"
 
 struct SevenSegDisplays
 {
