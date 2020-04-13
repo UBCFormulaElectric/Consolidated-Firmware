@@ -24,23 +24,25 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <assert.h>
+
 #include "Io_SharedSoftwareWatchdog.h"
-#include "Io_SharedConstants.h"
+#include "App_SharedConstants.h"
 #include "Io_SharedCmsisOs.h"
 #include "Io_SharedCan.h"
 #include "Io_SharedHeartbeat.h"
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
+#include "Io_VoltageMonitor.h"
 
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
-#include "App_SharedAssert.h"
 
-#include "auto_generated/App_CanTx.h"
-#include "auto_generated/App_CanRx.h"
-#include "auto_generated/Io_CanTx.h"
-#include "auto_generated/Io_CanRx.h"
+#include "App_CanTx.h"
+#include "App_CanRx.h"
+#include "Io_CanTx.h"
+#include "Io_CanRx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -84,6 +86,9 @@ struct PdmWorld *         world;
 struct StateMachine *     state_machine;
 struct PdmCanTxInterface *can_tx;
 struct PdmCanRxInterface *can_rx;
+struct VoltageMonitor *   vbat_voltage_monitor;
+struct VoltageMonitor *   _24v_aux_voltage_monitor;
+struct VoltageMonitor *   _24v_acc_voltage_monitor;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -110,15 +115,11 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    shared_assert(can_tx != NULL);
-
     App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    shared_assert(can_tx != NULL);
-
     App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
 }
 
@@ -142,11 +143,31 @@ int main(void)
 
     can_rx = App_CanRx_Create();
 
-    world = App_PdmWorld_Create(can_tx, can_rx);
+    vbat_voltage_monitor = App_VoltageMonitor_Create(
+        Io_VoltageMonitor_GetVbatVoltage, Io_VoltageMonitor_GetVbatMinVoltage,
+        Io_VoltageMonitor_Get24vAccMaxVoltage,
+        Io_VoltageMonitor_VbatErrorCallback);
+
+    _24v_aux_voltage_monitor = App_VoltageMonitor_Create(
+        Io_VoltageMonitor_Get24vAuxVoltage,
+        Io_VoltageMonitor_Get24vAuxMinVoltage,
+        Io_VoltageMonitor_Get24vAccMaxVoltage,
+        Io_VoltageMonitor_24vAuxErrorCallback);
+
+    _24v_acc_voltage_monitor = App_VoltageMonitor_Create(
+        Io_VoltageMonitor_Get24vAccVoltage,
+        Io_VoltageMonitor_Get24vAccMinVoltage,
+        Io_VoltageMonitor_Get24vAccMaxVoltage,
+        Io_VoltageMonitor_24vAccErrorCallback);
+
+    world = App_PdmWorld_Create(
+        can_tx, can_rx, vbat_voltage_monitor, _24v_aux_voltage_monitor,
+        _24v_acc_voltage_monitor);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
     Io_SoftwareWatchdog_Init(can_tx);
+    Io_VoltageMonitor_Init(can_tx);
     App_StackWaterMark_Init(can_tx);
     /* USER CODE END 1 */
 
@@ -725,7 +746,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void Error_Handler(void)
 {
     /* USER CODE BEGIN Error_Handler_Debug */
-    Io_SharedAssert_AssertFailed(file, line, NULL);
+    __assert_func(file, line, "Error_Handler", "Error_Handler");
     /* USER CODE END Error_Handler_Debug */
 }
 
@@ -740,7 +761,7 @@ void Error_Handler(void)
 void assert_failed(char *file, uint32_t line)
 {
     /* USER CODE BEGIN 6 */
-    Io_SharedAssert_AssertFailed(file, line, NULL);
+    __assert_func(file, line, "assert_failed", "assert_failed");
     /* USER CODE END 6 */
 }
 #endif /* USE_FULL_ASSERT */

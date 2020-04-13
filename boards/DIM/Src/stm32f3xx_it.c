@@ -58,6 +58,8 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern CAN_HandleTypeDef hcan;
+extern SPI_HandleTypeDef hspi2;
 extern TIM_HandleTypeDef htim6;
 
 /* USER CODE BEGIN EV */
@@ -159,6 +161,62 @@ void DebugMon_Handler(void)
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32f3xx.s).                    */
 /******************************************************************************/
+
+/**
+ * @brief This function handles USB high priority or CAN_TX interrupts.
+ */
+void USB_HP_CAN_TX_IRQHandler(void)
+{
+    /* USER CODE BEGIN USB_HP_CAN_TX_IRQn 0 */
+
+    /* USER CODE END USB_HP_CAN_TX_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan);
+    /* USER CODE BEGIN USB_HP_CAN_TX_IRQn 1 */
+
+    /* USER CODE END USB_HP_CAN_TX_IRQn 1 */
+}
+
+/**
+ * @brief This function handles USB low priority or CAN_RX0 interrupts.
+ */
+void USB_LP_CAN_RX0_IRQHandler(void)
+{
+    /* USER CODE BEGIN USB_LP_CAN_RX0_IRQn 0 */
+
+    /* USER CODE END USB_LP_CAN_RX0_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan);
+    /* USER CODE BEGIN USB_LP_CAN_RX0_IRQn 1 */
+
+    /* USER CODE END USB_LP_CAN_RX0_IRQn 1 */
+}
+
+/**
+ * @brief This function handles CAN RX1 interrupt.
+ */
+void CAN_RX1_IRQHandler(void)
+{
+    /* USER CODE BEGIN CAN_RX1_IRQn 0 */
+
+    /* USER CODE END CAN_RX1_IRQn 0 */
+    HAL_CAN_IRQHandler(&hcan);
+    /* USER CODE BEGIN CAN_RX1_IRQn 1 */
+
+    /* USER CODE END CAN_RX1_IRQn 1 */
+}
+
+/**
+ * @brief This function handles SPI2 global interrupt.
+ */
+void SPI2_IRQHandler(void)
+{
+    /* USER CODE BEGIN SPI2_IRQn 0 */
+
+    /* USER CODE END SPI2_IRQn 0 */
+    HAL_SPI_IRQHandler(&hspi2);
+    /* USER CODE BEGIN SPI2_IRQn 1 */
+
+    /* USER CODE END SPI2_IRQn 1 */
+}
 
 /**
  * @brief This function handles Timer 6 interrupt and DAC underrun interrupts.

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "App_CanTx.h"
+
 struct VoltageMonitor;
 
 enum VoltageMonitor_Status
@@ -18,26 +20,27 @@ enum VoltageMonitor_Status
  * the caller
  */
 struct VoltageMonitor *App_VoltageMonitor_Create(
-    float (*const get_voltage)(void),
-    float (*const get_min_voltage)(void),
-    float (*const get_max_voltage)(void));
+    float (*get_voltage)(void),
+    float (*get_min_voltage)(void),
+    float (*get_max_voltage)(void),
+    void (*error_callback)(struct VoltageMonitor *));
+
+/**
+ * Destroy the given voltage monitor
+ * @param voltage_monitor The voltage monitor to destroy
+ */
+void App_VoltageMonitor_Destroy(struct VoltageMonitor *voltage_check);
 
 /**
  * Update the status for the given voltage monitor
  * @param voltage_monitor The voltage monitor to update for
  */
-void App_VoltageMonitor_Tick(struct VoltageMonitor *const voltage_monitor);
+void App_VoltageMonitor_Tick(struct VoltageMonitor *voltage_monitor);
 
 /**
  * Get the status for the given voltage monitor
  * @param voltage_monitor The voltage monitor to get status for
  * @return The status for the given voltage monitor
  */
-enum VoltageMonitor_Status App_VoltageMonitor_GetStatus(
-    const struct VoltageMonitor *const voltage_monitor);
-
-/**
- * Destroy the given voltage monitor
- * @param voltage_monitor The voltage monitor to destroy
- */
-void App_VoltageMonitor_Destroy(struct VoltageMonitor *const voltage_check);
+enum VoltageMonitor_Status
+    App_VoltageMonitor_GetStatus(const struct VoltageMonitor *voltage_monitor);

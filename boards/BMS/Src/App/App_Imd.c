@@ -1,10 +1,10 @@
 #include <string.h>
 #include <stdlib.h>
+#include <assert.h>
 
-#include "auto_generated/App_CanMsgs.h"
-#include "App_Imd.h"
-#include "App_SharedAssert.h"
+#include "App_CanMsgs.h"
 #include "App_SharedMacros.h"
+#include "App_Imd.h"
 
 // Match the IMD enums with the DBC multiplexer values of the IMD message
 static_assert(
@@ -86,7 +86,7 @@ static enum Imd_Condition
 
 static float App_GetIdealPwmFrequency(const enum Imd_Condition condition)
 {
-    shared_assert(condition < NUM_OF_IMD_CONDITIONS);
+    assert(condition < NUM_OF_IMD_CONDITIONS);
 
     // Key: IMD condition
     // Value: PWM output frequency
@@ -105,12 +105,12 @@ struct Imd *App_Imd_Create(
     float (*const get_pwm_duty_cycle)(void),
     uint32_t (*const get_seconds_since_power_on)(void))
 {
-    shared_assert(get_pwm_frequency != NULL);
-    shared_assert(get_pwm_duty_cycle != NULL);
-    shared_assert(get_seconds_since_power_on != NULL);
+    assert(get_pwm_frequency != NULL);
+    assert(get_pwm_duty_cycle != NULL);
+    assert(get_seconds_since_power_on != NULL);
 
     struct Imd *imd = (struct Imd *)malloc(sizeof(struct Imd));
-    shared_assert(imd != NULL);
+    assert(imd != NULL);
 
     imd->get_pwm_frequency          = get_pwm_frequency;
     imd->pwm_frequency_tolerance    = pwm_frequency_tolerance;

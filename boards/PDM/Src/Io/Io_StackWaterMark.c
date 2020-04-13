@@ -1,9 +1,10 @@
+#include <assert.h>
+
 #include "main.h"
 #include "App_SharedMacros.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SharedStackWaterMark.h"
-#include "App_SharedAssert.h"
-#include "auto_generated/App_CanTx.h"
+#include "App_CanTx.h"
 
 // We check the stack water mark for the following tasks
 extern TaskHandle_t Task1HzHandle;
@@ -18,34 +19,30 @@ static struct PdmCanTxInterface *_can_tx_interface = NULL;
 
 void App_StackWaterMark_Init(struct PdmCanTxInterface *can_tx_interface)
 {
-    shared_assert(can_tx_interface != NULL);
+    assert(can_tx_interface != NULL);
     _can_tx_interface = can_tx_interface;
 }
 
 static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
 {
-    shared_assert(_can_tx_interface != NULL);
     App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_KHZ(
         _can_tx_interface, error);
 }
 
 static void logWaterMarkAboveThresholdTask1Hz(uint8_t error)
 {
-    shared_assert(_can_tx_interface != NULL);
     App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_HZ(
         _can_tx_interface, error);
 }
 
 static void logWaterMarkAboveThresholdTaskCanRx(uint8_t error)
 {
-    shared_assert(_can_tx_interface != NULL);
     App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX(
         _can_tx_interface, error);
 }
 
 static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 {
-    shared_assert(_can_tx_interface != NULL);
     App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX(
         _can_tx_interface, error);
 }

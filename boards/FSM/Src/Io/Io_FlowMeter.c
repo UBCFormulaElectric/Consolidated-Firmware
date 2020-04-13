@@ -1,4 +1,4 @@
-#include "App_SharedAssert.h"
+#include <assert.h>
 #include "main.h"
 #include "Io_SharedPwmInput.h"
 #include "Io_FlowMeter.h"
@@ -13,8 +13,6 @@ float Io_FlowMeter_GetPrimaryFlowRate(void)
 
 void Io_FlowMeter_InputCaptureCallback(TIM_HandleTypeDef *htim)
 {
-    shared_assert(htim != NULL);
-
     if (htim == primary_flow_meter_htim)
     {
         Io_SharedPwmInput_Tick(primary_flow_meter_pwm_input);

@@ -43,12 +43,9 @@ class AppCanTxFileGenerator(CanFileGenerator):
                 % (self._sender.capitalize(), function_prefix, '\n' + '\n'.join(function_params)[:-1]),
             'Allocate and initialize a CAN TX interface',
             '''\
-    static struct {sender}CanTxInterface can_tx_interfaces[MAX_NUM_OF_CANTX_INTERFACES];
-    static size_t alloc_index = 0;
+    struct {sender}CanTxInterface* can_tx_interface = malloc(sizeof(struct {sender}CanTxInterface));
 
-    shared_assert(alloc_index < MAX_NUM_OF_CANTX_INTERFACES);
-
-    struct {sender}CanTxInterface* can_tx_interface = &can_tx_interfaces[alloc_index++];\n\n'''
+    assert(can_tx_interface != NULL);\n\n'''
     .format(sender=self._sender.capitalize())
     + '\n'.join(init_senders)
     + '''
@@ -59,6 +56,12 @@ class AppCanTxFileGenerator(CanFileGenerator):
         sender=self._sender.capitalize(),
         initial_signal_setters=initial_signal_setters))
 
+        self._Destroy = Function(
+             'void %s_Destroy(struct %sCanTxInterface* can_tx_interface)'
+                % (function_prefix, self._sender.capitalize()),
+            'Destroy a CAN TX interface, freeing the memory associated with it',
+            '''    free(can_tx_interface);''')
+
         self._PeriodicTxSignalSetters = list(Function(
             'void %s_SetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface, %s value)' % (
             function_prefix, signal.uppercase_name, self._sender.capitalize(), signal.type_name),
@@ -68,6 +71,16 @@ class AppCanTxFileGenerator(CanFileGenerator):
     {{
         can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name} = value;
     }}'''.format(
+                msg_snakecase_name=signal.msg_name_snakecase,
+                signal_snakecase_name=signal.snakecase_name)
+        ) for signal in self._periodic_cantx_signals)
+
+        self._PeriodicTxSignalGetters = list(Function(
+            '%s %s_GetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface)' % (
+            signal.type_name, function_prefix, signal.uppercase_name, self._sender.capitalize()),
+            '',
+            '''\
+        return can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name};'''.format(
                 msg_snakecase_name=signal.msg_name_snakecase,
                 signal_snakecase_name=signal.snakecase_name)
         ) for signal in self._periodic_cantx_signals)
@@ -102,7 +115,7 @@ class AppCanTxHeaderFileGenerator(AppCanTxFileGenerator):
 
     def __generateHeaderIncludes(self):
         header_names = ['<stdint.h>',
-                        '"auto_generated/App_CanMsgs.h"']
+                        '"App_CanMsgs.h"']
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])
 
@@ -112,9 +125,13 @@ class AppCanTxHeaderFileGenerator(AppCanTxFileGenerator):
     def __generateFunctionDeclarations(self):
         function_declarations = []
         function_declarations.append(self._Create.declaration)
+        function_declarations.append(self._Destroy.declaration)
+        function_declarations.append(
+            '/** @brief Signal setters for periodic CAN TX messages */\n'
+            + '\n'.join([func.declaration for func in self._PeriodicTxSignalSetters]))
         function_declarations.append(
             '/** @brief Signal getters for periodic CAN TX messages */\n'
-            + '\n'.join([func.declaration for func in self._PeriodicTxSignalSetters]))
+            + '\n'.join([func.declaration for func in self._PeriodicTxSignalGetters]))
         function_declarations.append(
             '/** @brief Getter for pointer to an entry in the periodic CAN TX message table */\n'
             + '\n'.join([func.declaration for func in self._PeriodicTxMsgPointerGetters]))
@@ -158,10 +175,9 @@ class AppCanTxSourceFileGenerator(AppCanTxFileGenerator):
             'Can TX interface')
 
     def __generateHeaderIncludes(self):
-        header_names = ['<string.h>',
-                        '<stdlib.h>',
-                        '"auto_generated/App_CanTx.h"',
-                        '"App_SharedAssert.h"']
+        header_names = ['<stdlib.h>',
+                        '<assert.h>',
+                        '"App_CanTx.h"']
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])
 
@@ -173,10 +189,6 @@ class AppCanTxSourceFileGenerator(AppCanTxFileGenerator):
 
     def __generateMacros(self):
         macros = []
-        macros.append(Macro(
-            'MAX_NUM_OF_CANTX_INTERFACES',
-            ' 100',
-            'Maximum number for CAN TX interfaces').declaration)
         return '\n\n'.join(macros)
 
     def __generateVariables(self):
@@ -194,7 +206,9 @@ class AppCanTxSourceFileGenerator(AppCanTxFileGenerator):
     def __generateFunctionDefinitions(self):
         function_defs = []
         function_defs.append(self._Create.definition)
+        function_defs.append(self._Destroy.definition)
         function_defs.extend(func.definition for func in self._PeriodicTxSignalSetters)
+        function_defs.extend(func.definition for func in self._PeriodicTxSignalGetters)
         function_defs.extend(func.definition for func in self._PeriodicTxMsgPointerGetters)
         function_defs.extend(func.definition for func in self._SendNonPeriodicMsgs)
         return '\n\n'.join(function_defs)
@@ -260,7 +274,7 @@ void %s_EnqueuePeriodicMsgs(struct %sCanTxInterface* can_tx_interface, const uin
             % (function_prefix, msg.snake_name.upper(), msg.snake_name),
             '',
             '''\
-    shared_assert(payload != NULL);
+    assert(payload != NULL);
 
     struct CanMsg tx_msg;
     memset(&tx_msg, 0, sizeof(tx_msg));
@@ -286,7 +300,7 @@ class IoCanTxHeaderFileGenerator(IoCanTxFileGenerator):
 
     def __generateHeaderIncludes(self):
         header_names = ['<stdint.h>',
-                        '"auto_generated/App_CanMsgs.h"']
+                        '"App_CanMsgs.h"']
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])
 
@@ -321,10 +335,10 @@ class IoCanTxSourceFileGenerator(IoCanTxFileGenerator):
         header_names = ['<string.h>',
                         '<FreeRTOS.h>',
                         '<portmacro.h>',
-                        '"auto_generated/Io_CanTx.h"',
-                        '"auto_generated/App_CanTx.h"',
-                        '"Io_SharedCan.h"',
-                        '"App_SharedAssert.h"']
+                        '<assert.h>',
+                        '"Io_CanTx.h"',
+                        '"App_CanTx.h"',
+                        '"Io_SharedCan.h"']
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])
 
