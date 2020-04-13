@@ -59,9 +59,9 @@ def can_init(can_bustype, can_bitrate, can_channel):
     """
     os.system("sudo ip link set {} type can bitrate {}".format(can_channel, can_bitrate))
     os.system("sudo ip link set up {}".format(can_channel))
-    return can.interface.Bus(bustype=can_bustype, channel=can_channel bitrate=can_bitrate)
+    return can.interface.Bus(bustype=can_bustype, channel=can_channel, bitrate=can_bitrate)
 
-def run_tests(tests, dbc, mock_signals):
+def run_tests(bus, tests, dbc, mock_signals):
     for test in tests:
         fault_threshold = test['Threshold_Value']
         start_value = test['Start_Value']
@@ -149,7 +149,7 @@ def main():
 
     bus = can_init('socketcan', 500000, 'can0')
     dbc = dbc_init(args.dbc)
-    run_tests(tests, dbc, mock_signals)
+    run_tests(bus, tests, dbc, mock_signals)
 
 
 if __name__ == '__main__':
