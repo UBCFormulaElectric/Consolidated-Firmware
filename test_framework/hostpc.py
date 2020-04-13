@@ -1,5 +1,6 @@
 import cantools
 import can
+import csv
 import os
 import time
 import json
@@ -82,7 +83,7 @@ def plot_csv(csv, signal):
     plt.tight_layout() # FIXME: Is this distracting?
 
 
-async def test_cb(bus, dbc, test, reader, mock_signal_lut):
+async def test_cb(bus, dbc, test, reader, mock_signal_lut, start_time):
     fault_threshold = test['Threshold_Value']
     start_value = test['Start_Value']
     end_value = test['End_Value']
@@ -91,74 +92,95 @@ async def test_cb(bus, dbc, test, reader, mock_signal_lut):
     signal_injection_msg = dbc.get_message_by_name('SIGNAL_INJECTION')
     signal_id = _get_signal_id(mock_signal_lut, test['Mock_CAN_Signal_Name'])
 
-    # Send message for each value
-    for value in range(start_value, end_value, step_value):
-        print(colored(
-            "{} [INJECT] {} = {}".format(test['Test_Name'], test['Mock_CAN_Signal_Name'], str(value)),
-            'yellow'))
+    field_names = ['timestamp', 'value', 'threshold']
+    with open('{}.csv'.format(test['Test_Name']), 'w') as csv_file:
+        csv_writer = csv.DictWriter(csv_file, fieldnames = field_names)
+        csv_writer.writeheader()
 
-        # Inject signal value
-        signal_injection_payload = signal_injection_msg.encode({
-            'Value': value,
-            'Signal_ID': signal_id,
-            'Enable_Override': 1,})
-        start_message = can.Message(
-            arbitration_id = signal_injection_msg.frame_id,
-            data = signal_injection_payload,
-            is_extended_id = False)
-        bus.send(start_message)
-    
-        # @warning: The message reception is built with the assumption that
-        #           the device-under-test will be continuously broadcasting
-        #           message! If it doesn't, the test will block and never
-        #           complete (TODO: Validate it really doesn't complete)
+    with open('{}.csv'.format(test['Test_Name']), 'a') as csv_file:
+        csv_writer = csv.DictWriter(csv_file, fieldnames = field_names)
+
+        # Send message for each value
+        for value in range(start_value, end_value, step_value):
+            print(colored(
+                "{} [INJECT] {} = {}".format(test['Test_Name'],
+                                             test['Mock_CAN_Signal_Name'],
+                                             str(value)),
+                'yellow'))
+
+            # Inject signal value
+            signal_injection_payload = signal_injection_msg.encode({
+                'Value': value,
+                'Signal_ID': signal_id,
+                'Enable_Override': 1,})
+            start_message = can.Message(
+                arbitration_id = signal_injection_msg.frame_id,
+                data = signal_injection_payload,
+                is_extended_id = False)
+            bus.send(start_message)
         
-        # Drop all the received message for 1 second
-        start_ms = int(round(time.time() * 1000))
-        delay_ms = 1000
-        while (int(round(time.time() * 1000)) - start_ms) < delay_ms:
-            received_message = await reader.get_message()
-          
-        # Wait until we received the message containing the fault signal
-        fault_message = _get_message_by_signal_name(
-            dbc,
-            test['Fault_CAN_Signal_Name'])
-        while received_message.arbitration_id != fault_message.frame_id:
-            received_message = await reader.get_message()
+            # @warning: The message reception is built with the assumption that
+            #           the device-under-test will be continuously broadcasting
+            #           message! If it doesn't, the test will block and never
+            #           complete (TODO: Validate it really doesn't complete)
+            
+            # Drop all the received message for 1 second
+            start_ms = int(round(time.time() * 1000))
+            delay_ms = 1000
+            while (int(round(time.time() * 1000)) - start_ms) < delay_ms:
+                received_message = await reader.get_message()
+              
+            # Wait until we received the message containing the fault signal
+            fault_message = _get_message_by_signal_name(
+                dbc,
+                test['Fault_CAN_Signal_Name'])
+            while received_message.arbitration_id != fault_message.frame_id:
+                received_message = await reader.get_message()
 
-        # Calculate the expected fault signal value
-        expected_fault_signal = _get_expected_fault_signal(
-            value,
-            fault_threshold,
-            test['Fault_Above_Threshold_(T/F)'],
-            test['Fault_Active_High_(T/F)'])
-        print(colored(
-            "{} [EXPECT] {} = {}".format(test['Test_Name'],
-                                         test['Fault_CAN_Signal_Name'],
-                                         expected_fault_signal),
-            'blue'))
+            # Calculate the expected fault signal value
+            expected_fault_signal = _get_expected_fault_signal(
+                value,
+                fault_threshold,
+                test['Fault_Above_Threshold_(T/F)'],
+                test['Fault_Active_High_(T/F)'])
+            print(colored(
+                "{} [EXPECT] {} = {}".format(test['Test_Name'],
+                                             test['Fault_CAN_Signal_Name'],
+                                             expected_fault_signal),
+                'blue'))
 
-        # Check what fault signal value we measured
-        decoded_message = dbc.decode_message(
-            received_message.arbitration_id,
-            received_message.data)
-        fault_signal = decoded_message[test['Fault_CAN_Signal_Name']]
-        print(colored(
-            "{} [ACTUAL] {} = {}".format(test['Test_Name'],
-                                         test['Fault_CAN_Signal_Name'],
-                                         fault_signal),
-            'blue'))
+            # Check what fault signal value we measured
+            decoded_message = dbc.decode_message(
+                received_message.arbitration_id,
+                received_message.data)
+            fault_signal = decoded_message[test['Fault_CAN_Signal_Name']]
+            print(colored(
+                "{} [ACTUAL] {} = {}".format(test['Test_Name'],
+                                             test['Fault_CAN_Signal_Name'],
+                                             fault_signal),
+                'blue'))
+            
+            info = {
+                'timestamp': time.time() - start_time,
+                'value': value,
+                'threshold': fault_threshold,
+            }
 
-    # Stop injecting signal
-    stop_message_payload = signal_injection_msg.encode({
-       'Value': 0, # This field is ignored so it's given an arbitrary value
-       'Signal_ID': signal_id,
-       'Enable_Override': 0})
-    stop_message = can.Message(
-        arbitration_id = signal_injection_msg.frame_id,
-        data = stop_message_payload,
-        is_extended_id = False)
-    bus.send(stop_message)
+            csv_writer.writerow(info)
+
+        csv_file.close()
+
+        # Stop injecting signal
+        stop_message_payload = signal_injection_msg.encode({
+           'Value': 0, # This field is ignored so it's given an arbitrary value
+           'Signal_ID': signal_id,
+           'Enable_Override': 0})
+        stop_message = can.Message(
+            arbitration_id = signal_injection_msg.frame_id,
+            data = stop_message_payload,
+            is_extended_id = False)
+        bus.send(stop_message)
+
     
 async def run_tests(bus, tests, dbc, mock_signal_lut):
     readers = {}
@@ -172,8 +194,11 @@ async def run_tests(bus, tests, dbc, mock_signal_lut):
     # unique reader. So we simply use list(myDict.value()) for conversion.
     notifier = can.Notifier(bus, list(readers.values()), loop=loop)
 
+    # Timestamps in csv files will be relative to this
+    global_start_time = time.time()
+
     await asyncio.gather(
-            *(test_cb(bus, dbc, test, readers[test['Test_Name']], mock_signal_lut)
+            *(test_cb(bus, dbc, test, readers[test['Test_Name']], mock_signal_lut, global_start_time)
             for test in tests))
 
 def main():
