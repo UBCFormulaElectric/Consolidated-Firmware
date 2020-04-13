@@ -2,18 +2,6 @@
     "Tests":
     [
         {
-            "Start_Value": 0,
-            "End_Value": 10,
-            "Step_Value": 2,
-            "Threshold_Value": 5,
-            "Fault_CAN_Signal_Name": "MotorShutdown",
-            "Fault_Above_Threshold_(T/F)": true,
-            "Fault_Active_High_(T/F)": true,
-            "Test_Description": "Dummy Description",
-            "Mock_Signal_Name": "WheelSpeed",
-            "Mock_CAN_Signal_Name": "SetWheelSpeed"
-        },
-        {
             "Start_Value": 10,
             "End_Value": 20,
             "Step_Value": 2,
@@ -21,9 +9,9 @@
             "Fault_CAN_Signal_Name": "MotorShutdown",
             "Fault_Above_Threshold_(T/F)": true,
             "Fault_Active_High_(T/F)": true,
-            "Test_Description": "Dummy Description",
-            "Mock_Signal_Name": "BatteryVoltage",
-            "Mock_CAN_Signal_Name": "SetBatteryVoltage"
+            "Test_Name": "Dummy_Name",
+            "Mock_Signal_Name": "WheelSpeed",
+            "Mock_CAN_Signal_Name": "SetWheelSpeed"
         }
     ]
 }

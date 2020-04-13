@@ -74,11 +74,11 @@ async def common_fake_signal_cb(bus, dbc, fake_signal):
                decoded_rx_msg['Signal_ID'] == fake_signal.id:
 
                 # Invoke the callback function unique to this signal
-                fake_signal.cb(bus, dbc, decoded_rx_msg['Value'])
+                await fake_signal.cb(bus, dbc, decoded_rx_msg['Value'])
 
             # Delete this
             # Invoke the callback function unique to this signal
-            fake_signal.cb(bus, dbc, decoded_rx_msg['Value'])
+            # fake_signal.cb(bus, dbc, decoded_rx_msg['Value'])
 
 
 class MockSignal:
@@ -91,28 +91,55 @@ class MockSignal:
         self.reader = reader
         self.id = ID
 
-def SetWheelSpeedCb(bus, dbc, wheel_speed):
-    if True:
-    # if wheel_speed > 5:
+async def SetWheelSpeedCb(bus, dbc, wheel_speed):
 
-        fault_outputs_msg = dbc.get_message_by_name('FAULT_OUTPUTS')
-        # Inject signal value
-        fault_outputs_payload = fault_outputs_msg.encode({'MotorShutdown': 1})
+    fault_outputs_msg = dbc.get_message_by_name('FAULT_OUTPUTS')
 
-        tx_msg = can.Message(
-            arbitration_id = fault_outputs_msg.frame_id,
-            data = fault_outputs_payload,
-            is_extended_id = False)
-        bus.send(tx_msg)
+    # Default value for the first call:
+    fault_outputs_payload = fault_outputs_msg.encode({'MotorShutdown': 0, 'BatteryShutdown': 0})
 
-        print('wheel')
+    if wheel_speed > 15:
+        fault_outputs_payload = fault_outputs_msg.encode({'MotorShutdown': 1, 'BatteryShutdown': 0})
+    else:
+        fault_outputs_payload = fault_outputs_msg.encode({'MotorShutdown': 0, 'BatteryShutdown': 0})
 
-def SetTirePressureCb(bus, dbc, tire_pressure):
+    # For testing, let's send periodic message for about 1 sec at 5Hz or else hostpc.py will freeze
+    tx_msg = can.Message(
+        arbitration_id = fault_outputs_msg.frame_id,
+        data = fault_outputs_payload,
+        is_extended_id = False)
+    task = bus.send_periodic(tx_msg, 0.2)
+
+    task.start()
+    await asyncio.sleep(1)
+    task.stop()
+    
+
+async def SetTirePressureCb(bus, dbc, tire_pressure):
     print('tire')
 
-def SetBatteryVoltageCb(bus, dbc, voltage):
-    if voltage > 15:
-        print('bat_volt')
+async def SetBatteryVoltageCb(bus, dbc, voltage):
+
+    fault_outputs_msg = dbc.get_message_by_name('FAULT_OUTPUTS')
+
+    # Default value for the first call:
+    fault_outputs_payload = fault_outputs_msg.encode({'BatteryShutdown': 0, 'MotorShutdown': 0})
+
+    if voltage > 35:
+        fault_outputs_payload = fault_outputs_msg.encode({'BatteryShutdown': 1, 'MotorShutdown': 0})
+    else:
+        fault_outputs_payload = fault_outputs_msg.encode({'BatteryShutdown': 0, 'MotorShutdown': 0})
+
+    # For testing, let's send periodic message for about 1 sec at 5Hz or else hostpc.py will freeze
+    tx_msg = can.Message(
+        arbitration_id = fault_outputs_msg.frame_id,
+        data = fault_outputs_payload,
+        is_extended_id = False)
+    task = bus.send_periodic(tx_msg, 0.2)
+
+    task.start()
+    await asyncio.sleep(1)
+    task.stop()
 
 async def fake_responses(bus, dbc, mock_signal_lut):
     """

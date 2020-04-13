@@ -165,6 +165,7 @@ BO_ 502 DIM_STARTUP: 0 DIM
 
 BO_ 998 FAULT_OUTPUTS: 1 LOGGER
 SG_ MotorShutdown : 0|1@1+ (1,0) [0|1] "" DIM
+SG_ BatteryShutdown : 1|1@1+ (1,0) [0|1] "" DIM
 
 BO_ 999 SIGNAL_INJECTION: 8 LOGGER
 SG_ Value : 0|32@1- (1,0) [-3.4E038|3.4E038] "" DIM
