@@ -1,6 +1,6 @@
 #include <stddef.h>
 #include <stdlib.h>
-#include "App_SharedAssert.h"
+#include <assert.h>
 
 #include "App_DcmWorld.h"
 
@@ -15,7 +15,7 @@ struct DcmWorld *App_DcmWorld_Create(
     struct DcmCanRxInterface *const can_rx_interface)
 {
     struct DcmWorld *world = (struct DcmWorld *)malloc(sizeof(struct DcmWorld));
-    shared_assert(world != NULL);
+    assert(world != NULL);
 
     world->can_tx_interface = can_tx_interface;
     world->can_rx_interface = can_rx_interface;
@@ -25,20 +25,17 @@ struct DcmWorld *App_DcmWorld_Create(
 
 void App_DcmWorld_Destroy(struct DcmWorld *world)
 {
-    shared_assert(world != NULL);
     free(world);
 }
 
 struct DcmCanTxInterface *
     App_DcmWorld_GetCanTx(const struct DcmWorld *const world)
 {
-    shared_assert(world != NULL);
     return world->can_tx_interface;
 }
 
 struct DcmCanRxInterface *
     App_DcmWorld_GetCanRx(const struct DcmWorld *const world)
 {
-    shared_assert(world != NULL);
     return world->can_rx_interface;
 }

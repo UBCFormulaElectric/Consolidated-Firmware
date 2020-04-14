@@ -1,8 +1,6 @@
 #pragma once
 
 #include <stdint.h>
-#include <main.h>
-#include "App_SharedAssert.h"
 
 struct FlowMeter;
 

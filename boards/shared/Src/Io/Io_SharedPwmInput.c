@@ -1,4 +1,4 @@
-#include "App_SharedAssert.h"
+#include <assert.h>
 #include "Io_SharedPwmInput.h"
 
 struct PwmInput
@@ -30,8 +30,7 @@ static void
 static void
     Io_SetDutyCycle(struct PwmInput *const pwm_input, const float duty_cycle)
 {
-    shared_assert(pwm_input != NULL);
-    shared_assert(duty_cycle >= 0.0f);
+    assert(duty_cycle >= 0.0f);
 
     pwm_input->duty_cycle = duty_cycle;
 }
@@ -39,8 +38,7 @@ static void
 static void
     Io_SetFrequency(struct PwmInput *const pwm_input, const float frequency_hz)
 {
-    shared_assert(pwm_input != NULL);
-    shared_assert(frequency_hz >= 0.0f);
+    assert(frequency_hz >= 0.0f);
 
     pwm_input->frequency_hz = frequency_hz;
 }
@@ -51,12 +49,12 @@ struct PwmInput *Io_SharedPwmInput_Create(
     uint32_t           rising_edge_tim_channel,
     uint32_t           falling_edge_tim_channel)
 {
-    shared_assert(htim != NULL);
+    assert(htim != NULL);
 
     static struct PwmInput pwm_inputs[MAX_NUM_OF_PWM_INPUTS];
     static size_t          alloc_index = 0;
 
-    shared_assert(alloc_index < MAX_NUM_OF_PWM_INPUTS);
+    assert(alloc_index < MAX_NUM_OF_PWM_INPUTS);
 
     struct PwmInput *const pwm_input = &pwm_inputs[alloc_index++];
 
@@ -73,8 +71,6 @@ struct PwmInput *Io_SharedPwmInput_Create(
 
 void Io_SharedPwmInput_Tick(struct PwmInput *const pwm_input)
 {
-    shared_assert(pwm_input != NULL);
-
     uint32_t ic_rising_edge = HAL_TIM_ReadCapturedValue(
         pwm_input->htim, pwm_input->rising_edge_tim_channel);
 
@@ -97,14 +93,10 @@ void Io_SharedPwmInput_Tick(struct PwmInput *const pwm_input)
 
 float Io_SharedPwmInput_GetDutyCycle(const struct PwmInput *const pwm_input)
 {
-    shared_assert(pwm_input != NULL);
-
     return pwm_input->duty_cycle;
 }
 
 float Io_SharedPwmInput_GetFrequency(const struct PwmInput *const pwm_input)
 {
-    shared_assert(pwm_input != NULL);
-
     return pwm_input->frequency_hz;
 }

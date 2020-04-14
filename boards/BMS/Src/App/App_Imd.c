@@ -1,8 +1,9 @@
+#include <assert.h>
+#include <stdlib.h>
+
 #include "App_CanTx.h"
 #include "App_Imd.h"
-#include "App_SharedAssert.h"
 #include "App_SharedMacros.h"
-#include <stdlib.h>
 
 // We only require one IMD per vehicle
 #define MAX_NUM_OF_IMDS 1
@@ -116,7 +117,7 @@ static enum Imd_Condition App_EstimateCondition(const float frequency)
 
 static uint32_t App_GetIdealPwmFrequency(const enum Imd_Condition condition)
 {
-    shared_assert(condition < NUM_OF_IMD_CONDITIONS);
+    assert(condition < NUM_OF_IMD_CONDITIONS);
 
     // Key: IMD condition
     // Value: PWM output frequency
@@ -135,13 +136,13 @@ struct Imd *App_Imd_Create(
     float (*const get_pwm_duty_cycle)(void),
     uint32_t (*const get_seconds_since_power_on)(void))
 {
-    shared_assert(get_pwm_frequency != NULL);
-    shared_assert(get_pwm_duty_cycle != NULL);
-    shared_assert(get_seconds_since_power_on != NULL);
-    shared_assert(can_tx != NULL);
+    assert(get_pwm_frequency != NULL);
+    assert(get_pwm_duty_cycle != NULL);
+    assert(get_seconds_since_power_on != NULL);
+    assert(can_tx != NULL);
 
     struct Imd *imd = (struct Imd *)malloc(sizeof(struct Imd));
-    shared_assert(imd != NULL);
+    assert(imd != NULL);
 
     imd->can_tx                     = can_tx;
     imd->get_pwm_frequency          = get_pwm_frequency;
@@ -161,8 +162,6 @@ void App_Imd_Destroy(struct Imd *imd)
 
 void App_Imd_Tick(struct Imd *const imd)
 {
-    shared_assert(imd != NULL);
-
     // The IMD takes a short while before its values are stabilized, so it is
     // useful to keep track of how long it's been since the IMD powered on.
     App_CanTx_SetPeriodicSignal_SECONDS_SINCE_POWER_ON(

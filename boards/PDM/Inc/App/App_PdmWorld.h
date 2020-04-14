@@ -24,7 +24,7 @@ struct PdmWorld;
 struct PdmWorld *App_PdmWorld_Create(
     struct PdmCanTxInterface *can_tx_interface,
     struct PdmCanRxInterface *can_rx_interface,
-    struct VoltageMonitor *   vbat_volage_monitor,
+    struct VoltageMonitor *   vbat_voltage_monitor,
     struct VoltageMonitor *   _24v_aux_voltage_monitor,
     struct VoltageMonitor *   _24v_acc_voltage_monitor);
 

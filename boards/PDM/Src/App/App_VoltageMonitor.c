@@ -1,7 +1,7 @@
 #include <stdlib.h>
+#include <assert.h>
 
 #include "App_VoltageMonitor.h"
-#include "App_SharedAssert.h"
 
 struct VoltageMonitor
 {
@@ -21,7 +21,7 @@ struct VoltageMonitor *App_VoltageMonitor_Create(
     struct VoltageMonitor *voltage_monitor =
         malloc(sizeof(struct VoltageMonitor));
 
-    shared_assert(voltage_monitor != NULL);
+    assert(voltage_monitor != NULL);
 
     voltage_monitor->get_voltage     = get_voltage;
     voltage_monitor->get_min_voltage = get_min_voltage;
