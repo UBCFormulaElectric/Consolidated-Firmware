@@ -11,15 +11,17 @@ fi
 # $ arm-none-eabi-size /path/to/elf
 #   text    data     bss     dec     hex filename
 #  17652    1092    2784   21528    5418 /path/to/elf
+
+echo $PWD
 size_output=($(arm-none-eabi-size $ELF | grep -P [0-9]+ -o))
 
 text="${size_output[0]}"
 data="${size_output[1]}"
 bss="${size_output[2]}"
 
-echo($text)
-echo($data)
-echo($bss)
+echo $text
+echo $data
+echo $bss
 
 curl \
   --header "Authorization: Token 92cb0c5d-2b14-41c0-9cfc-06fa089aa108" \

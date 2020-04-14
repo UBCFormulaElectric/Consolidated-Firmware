@@ -22,7 +22,7 @@ if [ "$RUN_ARM_BUILD" = "true" ]; then
     do
         travis_run make --directory=$BUILD_DIR $BOARD.elf
         # Upload the text/data/bss size to SeriesCI
-        travis_run ./scripts/travis_ci/series_ci.sh $BOARD $BUILD_DIR/$BOARD.elf
+        travis_run ./scripts/travis_ci/series_ci.sh $BOARD $BUILD_DIR/$BOARD/$BOARD.elf
     done
 fi
 
