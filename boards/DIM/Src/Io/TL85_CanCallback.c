@@ -59,7 +59,7 @@ void TL85_CanCallback(uint32_t stdid, uint8_t data[8])
     {
         struct CanMsgs_signal_injection_t request;
 
-        App_CanMsgs_signal_injection_test_unpack(
+        App_CanMsgs_signal_injection_unpack(
             &request, data, CANMSGS_SIGNAL_INJECTION_LENGTH);
 
         uint32_t signal_id = request.signal_id;

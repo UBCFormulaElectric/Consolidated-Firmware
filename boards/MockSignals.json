@@ -1,1 +1,1 @@
-{"Mock_Signals": [{"signal_type": "float", "signal_id": 0, "signal_name": "SetTirePressure"}, {"signal_type": "float", "signal_id": 1, "signal_name": "SetBatteryVoltage"}, {"signal_type": "float", "signal_id": 2, "signal_name": "SetWheelSpeed"}]}
+{"Mocked_Signals": [{"signal_id": 0, "signal_name": "SetTirePressure", "signal_type": "float"}, {"signal_id": 1, "signal_name": "SetBatteryVoltage", "signal_type": "float"}, {"signal_id": 2, "signal_name": "SetWheelSpeed", "signal_type": "float"}]}
