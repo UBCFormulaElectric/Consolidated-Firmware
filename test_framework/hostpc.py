@@ -74,18 +74,24 @@ def can_init(can_bustype, can_bitrate, can_channel):
     os.system("sudo ip link set up {}".format(can_channel))
     return can.interface.Bus(bustype=can_bustype, channel=can_channel, bitrate=can_bitrate)
 
-def plot_test_csv(test, csv):
+def plot_test_csv(test, csv, axarr):
     data = pd.read_csv(csv)
     x = data['timestamp']
+    
+    axarr[0].clear()
+    axarr[0].set_title('Injected Signal')
+    axarr[0].plot(x, data['threshold'], color='green', label='Threshold', linestyle='dashed')
+    axarr[0].plot(x, data['value'], label=test['Mock_CAN_Signal_Name'])
+    axarr[0].set_xlabel('time [s]')    
+    axarr[0].legend()
 
-    # Use plt.cla() to clear the axis each time, or else we get multiple lines
-    # overlapped on top of each other
-    plt.cla()
+    axarr[1].clear()
+    axarr[1].set_title('Fault Output')
+    axarr[1].plot(x, data['actual'], label='Actual')
+    axarr[1].plot(x, data['expected'], label='Expected', linewidth=5, linestyle='dashed')
+    axarr[1].set_xlabel('time [s]')    
+    axarr[1].legend()
 
-    plt.plot(x, data['threshold'], label='Threshold')
-    plt.plot(x, data['value'], label=test['Mock_CAN_Signal_Name'])
-
-    plt.legend(loc='upper left')
     plt.tight_layout()
 
     plt.draw()
@@ -100,7 +106,7 @@ async def test_cb(bus, dbc, test, reader, mock_signal_lut, start_time):
     signal_injection_msg = dbc.get_message_by_name('SIGNAL_INJECTION')
     signal_id = _get_signal_id(mock_signal_lut, test['Mock_CAN_Signal_Name'])
 
-    field_names = ['timestamp', 'value', 'threshold']
+    field_names = ['timestamp', 'value', 'threshold', 'actual', 'expected']
     csv_name = '{}.csv'.format(test['Test_Name'])
     with open(csv_name, 'w') as csv_file:
         csv_writer = csv.DictWriter(csv_file, fieldnames = field_names)
@@ -108,6 +114,10 @@ async def test_cb(bus, dbc, test, reader, mock_signal_lut, start_time):
 
     plt.ion()
     plt.show()
+
+    fig, axarr = plt.subplots(2, sharex=True)
+    fig.tight_layout()
+    fig.set_size_inches(10,10)
 
     # Send message for each value
     for value in range(start_value, end_value, step_value):
@@ -176,12 +186,14 @@ async def test_cb(bus, dbc, test, reader, mock_signal_lut, start_time):
                 'timestamp': time.time() - start_time,
                 'value': value,
                 'threshold': fault_threshold,
+                'actual': fault_signal,
+                'expected': expected_fault_signal
             }
 
             csv_writer.writerow(info)
             csv_file.close()
 
-            plot_test_csv(test, csv_name)
+            plot_test_csv(test, csv_name, axarr)
 
     # Stop injecting signal
     stop_message_payload = signal_injection_msg.encode({
