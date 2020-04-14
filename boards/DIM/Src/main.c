@@ -499,9 +499,9 @@ void RunTask100Hz(void const *argument)
     /* Infinite loop */
     for (;;)
     {
-        SetWheelSpeed(0.0f);
-        SetBatteryVoltage(0.0f);
-        SetTirePressure(0.0f);
+        SetWheelSpeed(1.0f);
+        SetBatteryVoltage(2.0f);
+        SetTirePressure(3.0f);
 
         osDelayUntil(&PreviousWakeTime, period_ms);
     }
