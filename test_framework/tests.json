@@ -3,7 +3,7 @@
     [
         {
             "Start_Value": 10,
-            "End_Value": 20,
+            "End_Value": 40,
             "Step_Value": 2,
             "Threshold_Value": 15,
             "Fault_CAN_Signal_Name": "MotorShutdown",

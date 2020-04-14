@@ -1,5 +1,6 @@
 import cantools
 import can
+import numpy as np
 import csv
 import os
 import time
@@ -7,7 +8,12 @@ import json
 import argparse
 import pprint
 import asyncio
+import pandas as pd
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
 from termcolor import colored
+
+plt.style.use('fivethirtyeight')
 
 def _get_signal_id(mock_signal_lut, signal_name):
     """
@@ -68,20 +74,22 @@ def can_init(can_bustype, can_bitrate, can_channel):
     os.system("sudo ip link set up {}".format(can_channel))
     return can.interface.Bus(bustype=can_bustype, channel=can_channel, bitrate=can_bitrate)
 
-def plot_csv(csv, signal):
-    """
-    Plot the csv data for the given signal
-    """
+def plot_test_csv(test, csv):
     data = pd.read_csv(csv)
     x = data['timestamp']
-    y = data['value']
 
-    plt.cla() # Clear the plot each time to avoid overlapping lines
-    
-    plt.plot(x, y, label='Signal Value')
-    plot.legeng(loc='upper left')
-    plt.tight_layout() # FIXME: Is this distracting?
+    # Use plt.cla() to clear the axis each time, or else we get multiple lines
+    # overlapped on top of each other
+    plt.cla()
 
+    plt.plot(x, data['threshold'], label='Threshold')
+    plt.plot(x, data['value'], label=test['Mock_CAN_Signal_Name'])
+
+    plt.legend(loc='upper left')
+    plt.tight_layout()
+
+    plt.draw()
+    plt.pause(0.001)
 
 async def test_cb(bus, dbc, test, reader, mock_signal_lut, start_time):
     fault_threshold = test['Threshold_Value']
@@ -93,15 +101,19 @@ async def test_cb(bus, dbc, test, reader, mock_signal_lut, start_time):
     signal_id = _get_signal_id(mock_signal_lut, test['Mock_CAN_Signal_Name'])
 
     field_names = ['timestamp', 'value', 'threshold']
-    with open('{}.csv'.format(test['Test_Name']), 'w') as csv_file:
+    csv_name = '{}.csv'.format(test['Test_Name'])
+    with open(csv_name, 'w') as csv_file:
         csv_writer = csv.DictWriter(csv_file, fieldnames = field_names)
         csv_writer.writeheader()
 
-    with open('{}.csv'.format(test['Test_Name']), 'a') as csv_file:
-        csv_writer = csv.DictWriter(csv_file, fieldnames = field_names)
+    plt.ion()
+    plt.show()
 
-        # Send message for each value
-        for value in range(start_value, end_value, step_value):
+    # Send message for each value
+    for value in range(start_value, end_value, step_value):
+        with open(csv_name, 'a') as csv_file:
+            csv_writer = csv.DictWriter(csv_file, fieldnames = field_names)
+
             print(colored(
                 "{} [INJECT] {} = {}".format(test['Test_Name'],
                                              test['Mock_CAN_Signal_Name'],
@@ -167,20 +179,22 @@ async def test_cb(bus, dbc, test, reader, mock_signal_lut, start_time):
             }
 
             csv_writer.writerow(info)
+            csv_file.close()
 
-        csv_file.close()
+            plot_test_csv(test, csv_name)
 
-        # Stop injecting signal
-        stop_message_payload = signal_injection_msg.encode({
+    # Stop injecting signal
+    stop_message_payload = signal_injection_msg.encode({
            'Value': 0, # This field is ignored so it's given an arbitrary value
            'Signal_ID': signal_id,
            'Enable_Override': 0})
-        stop_message = can.Message(
-            arbitration_id = signal_injection_msg.frame_id,
-            data = stop_message_payload,
-            is_extended_id = False)
-        bus.send(stop_message)
+    stop_message = can.Message(
+        arbitration_id = signal_injection_msg.frame_id,
+        data = stop_message_payload,
+        is_extended_id = False)
+    bus.send(stop_message)
 
+    await asyncio.sleep(10)
     
 async def run_tests(bus, tests, dbc, mock_signal_lut):
     readers = {}
