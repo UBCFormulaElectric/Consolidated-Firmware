@@ -21,6 +21,8 @@ if [ "$RUN_ARM_BUILD" = "true" ]; then
     for BOARD in $(get_valid_board_names)
     do
         travis_run make --directory=$BUILD_DIR $BOARD.elf
+        # Upload the text/data/bss size to SeriesCI
+        travis_run ./scripts/travis_ci/series_ci.sh $BOARD $BUILD_DIR/$BOARD.elf
     done
 fi
 
