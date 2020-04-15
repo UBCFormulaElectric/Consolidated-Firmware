@@ -27,7 +27,7 @@ SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 3|1@1+ (1,0) [0|1] "" LOGGER
 SG_ WATCHDOG_TIMEOUT : 4|1@1+ (1,0) [0|1] "" LOGGER
 
 BO_ 105 BMS_IMD: 8 BMS
-SG_ Condition M : 0|3@1+ (1,0) [0|1] "" LOGGER
+SG_ Condition M : 0|3@1+ (1,0) [0|6] "" LOGGER
 SG_ Seconds_Since_Power_On : 3|8@1+ (1,0) [0|255] "Seconds" LOGGER
 SG_ Valid_Duty_Cycle : 11|1@1+ (1,0) [0|1] "" LOGGER
 SG_ Insulation_Measurement_DCP_10Hz m1 : 12|16@1+ (1,0) [0|65535] "kOhm" LOGGER

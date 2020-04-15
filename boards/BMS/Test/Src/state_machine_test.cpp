@@ -142,13 +142,15 @@ TEST_F(
         SetInitialState(state);
 
         get_pwm_frequency_fake.return_val = fake_frequency;
-        fake_frequency++;
 
         App_SharedStateMachine_Tick(state_machine);
 
-        // Use a different frequency each time to avoid false positives
         EXPECT_EQ(
-            3.45f, App_CanTx_GetPeriodicSignal_FREQUENCY(can_tx_interface));
+            fake_frequency,
+            App_CanTx_GetPeriodicSignal_FREQUENCY(can_tx_interface));
+
+        // Use a different frequency each time to avoid false positives
+        fake_frequency++;
     }
 }
 
@@ -167,9 +169,140 @@ TEST_F(
         App_SharedStateMachine_Tick(state_machine);
 
         EXPECT_EQ(
-            3.45f, App_CanTx_GetPeriodicSignal_DUTY_CYCLE(can_tx_interface));
+            fake_duty_cycle,
+            App_CanTx_GetPeriodicSignal_DUTY_CYCLE(can_tx_interface));
 
         // Use a different duty cycle each time to avoid false positives
         fake_duty_cycle++;
     }
 }
+
+TEST_F(
+    BmsStateMachineTest,
+    check_imd_insulation_resistance_10hz_is_broadcasted_over_can_in_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        get_pwm_frequency_fake.return_val = 10.0f;
+
+        // Test an arbitrarily chosen valid resistance
+        get_pwm_duty_cycle_fake.return_val = 50.0f;
+        App_SharedStateMachine_Tick(state_machine);
+        EXPECT_EQ(
+            IMD_NORMAL,
+            App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
+        EXPECT_EQ(
+            true,
+            App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
+        EXPECT_EQ(
+            1200, App_CanTx_GetPeriodicSignal_INSULATION_MEASUREMENT_DCP_10_HZ(
+                      can_tx_interface));
+
+        // Test an arbitrarily chosen invalid resistance
+        get_pwm_duty_cycle_fake.return_val = 0.0f;
+        App_SharedStateMachine_Tick(state_machine);
+        EXPECT_EQ(
+            IMD_NORMAL,
+            App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
+        EXPECT_EQ(
+            false,
+            App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
+    }
+}
+
+TEST_F(
+    BmsStateMachineTest,
+    check_imd_insulation_resistance_20hz_is_broadcasted_over_can_in_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        get_pwm_frequency_fake.return_val = 20.0f;
+
+        // Test an arbitrarily chosen valid resistance
+        get_pwm_duty_cycle_fake.return_val = 50.0f;
+        App_SharedStateMachine_Tick(state_machine);
+        EXPECT_EQ(
+            IMD_UNDERVOLTAGE_DETECTED,
+            App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
+        EXPECT_EQ(
+            true,
+            App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
+        EXPECT_EQ(
+            1200, App_CanTx_GetPeriodicSignal_INSULATION_MEASUREMENT_DCP_20_HZ(
+                      can_tx_interface));
+
+        // Test an arbitrarily chosen invalid resistance
+        get_pwm_duty_cycle_fake.return_val = 0.0f;
+        App_SharedStateMachine_Tick(state_machine);
+        EXPECT_EQ(
+            IMD_UNDERVOLTAGE_DETECTED,
+            App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
+        EXPECT_EQ(
+            false,
+            App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
+    }
+}
+
+TEST_F(
+    BmsStateMachineTest,
+    check_imd_speed_start_status_30hz_is_broadcasted_over_can_in_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        get_pwm_frequency_fake.return_val = 30.0f;
+
+        // Test an arbitrarily chosen SST_GOOD
+        get_pwm_duty_cycle_fake.return_val = 7.5f;
+        App_SharedStateMachine_Tick(state_machine);
+        EXPECT_EQ(
+            IMD_SST, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
+        EXPECT_EQ(
+            true,
+            App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
+        EXPECT_EQ(
+            SST_GOOD, App_CanTx_GetPeriodicSignal_SPEED_START_STATUS_30_HZ(
+                          can_tx_interface));
+
+        // Test an arbitrarily chosen SST_BAD
+        get_pwm_duty_cycle_fake.return_val = 92.5f;
+        App_SharedStateMachine_Tick(state_machine);
+        EXPECT_EQ(
+            IMD_SST, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
+        EXPECT_EQ(
+            true,
+            App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
+        EXPECT_EQ(
+            SST_BAD, App_CanTx_GetPeriodicSignal_SPEED_START_STATUS_30_HZ(
+                         can_tx_interface));
+
+        // Test an arbitrarily chosen invalid SST status
+        get_pwm_duty_cycle_fake.return_val = 0.0f;
+        App_SharedStateMachine_Tick(state_machine);
+        EXPECT_EQ(
+            IMD_SST, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
+        EXPECT_EQ(
+            false,
+            App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
+    }
+}
+
+TEST_F(
+    BmsStateMachineTest,
+    check_imd_seconds_since_power_on_is_broadcasted_over_can_in_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+        get_seconds_since_power_on_fake.return_val = 123;
+        App_SharedStateMachine_Tick(state_machine);
+        EXPECT_EQ(
+            123, App_CanTx_GetPeriodicSignal_SECONDS_SINCE_POWER_ON(
+                     can_tx_interface));
+    }
+};
