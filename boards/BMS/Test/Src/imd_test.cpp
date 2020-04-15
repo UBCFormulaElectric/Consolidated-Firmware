@@ -41,7 +41,7 @@ class Imd_Test : public testing::Test
 
     void SetImdCondition(enum Imd_Condition condition)
     {
-        float mapping[NUM_OF_IMD_CONDITIONS] = {
+        const float mapping[NUM_OF_IMD_CONDITIONS] = {
             [IMD_SHORT_CIRCUIT] = 0.0f,          [IMD_NORMAL] = 10.0f,
             [IMD_UNDERVOLTAGE_DETECTED] = 20.0f, [IMD_SST] = 30.0f,
             [IMD_DEVICE_ERROR] = 40.0f,          [IMD_EARTH_FAULT] = 50.0f,
