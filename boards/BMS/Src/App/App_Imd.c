@@ -166,10 +166,11 @@ void App_Imd_Tick(struct Imd *const imd)
                 }
                 else
                 {
-                    // The formula for calculating the insulation resistance
-                    // isn't exact once we go below ~7.1% duty cycle. So we
-                    // saturate the value at 50MOhms to get well-defined
-                    // behaviour.
+                    // The insulation resistance is supposed to be saturate at
+                    // 50MOhms, but the formula for calculating the insulation
+                    // resistance exceeds 50Ohms once the duty cycle is below
+                    // ~7.1%. Thus, we manually saturate the value at 50MOhms to
+                    // get well-defined behaviours.
                     uint32_t resistance =
                         1080.0f / (imd->pwm_duty_cycle / 100.0f - 0.05f) -
                         1200.0f;
