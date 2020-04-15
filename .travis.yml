@@ -28,9 +28,11 @@ install:
 
 addons:
   apt_packages:
-    - lib32bz2-1.0
-    - lib32ncurses5
-    - lib32z1
+    # The GCC ARM embedded toolchain is 32-bit while the Travis CI environment
+    # is 64-bit. Therefore, we require the following libraries to be installed.
+    - libbz2-1.0:i386
+    - libncurses5:i386
+    - libz1:i386
 
 before_script:
   - ./scripts/travis_ci/print_bin_versions.sh
