@@ -30,7 +30,7 @@ void App_SetPeriodicCanSignals_Imd(
                     can_tx, pwm_encoding.insulation_measurement_dcp_kohms);
             }
         }
-            break;
+        break;
         case IMD_UNDERVOLTAGE_DETECTED:
         {
             if (pwm_encoding.valid_duty_cycle == true)
@@ -39,13 +39,13 @@ void App_SetPeriodicCanSignals_Imd(
                     can_tx, pwm_encoding.insulation_measurement_dcp_kohms);
             }
         }
-            break;
+        break;
         case IMD_SST:
         {
             App_CanTx_SetPeriodicSignal_SPEED_START_STATUS_30_HZ(
                 can_tx, pwm_encoding.speed_start_status);
         }
-            break;
+        break;
         case IMD_SHORT_CIRCUIT:
         case IMD_DEVICE_ERROR:
         case IMD_EARTH_FAULT:
@@ -53,6 +53,6 @@ void App_SetPeriodicCanSignals_Imd(
         {
             // Nothing to do for conditions that don't carry a payload
         }
-            break;
+        break;
     }
 }

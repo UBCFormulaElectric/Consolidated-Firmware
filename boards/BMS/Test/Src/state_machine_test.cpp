@@ -19,8 +19,6 @@ extern "C"
         send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT,
         struct CanMsgs_bms_watchdog_timeout_t *);
 #include "imd_fff.h"
-
-
 }
 
 class BmsStateMachineTest : public testing::Test
