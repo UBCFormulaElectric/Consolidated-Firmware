@@ -1,6 +1,6 @@
 # Note: Setting `sudo` to `required` will add 20-50s to CI image boot time
 os: linux
-dist: trusty
+dist: bionic
 sudo: false
 language: python
 python: "3.6"
