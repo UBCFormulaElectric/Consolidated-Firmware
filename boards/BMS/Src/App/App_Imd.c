@@ -64,7 +64,8 @@ struct Imd
     struct
     {
         bool valid_duty_cycle;
-        union {
+        union
+        {
             // 0Hz, 40Hz, 50Hz: PWM doesn't encode any information
             uint8_t dummy;
             // 10 and 20Hz: Insulation measurement DCP
