@@ -148,18 +148,20 @@ TEST_F(
     BmsStateMachineTest,
     check_imd_frequency_is_broadcasted_over_can_in_all_states)
 {
-    for (auto &state : GetAllStates())
-    {
-        // To avoid false positives, we use a different duty cycle each time
-        static float fake_frequency = 0.0f;
-        get_pwm_frequency_fake.return_val = fake_frequency++;
+    float fake_frequency = 0.0f;
 
+    for (const auto &state : GetAllStates())
+    {
         SetInitialState(state);
+        get_pwm_frequency_fake.return_val = fake_frequency;
         App_SharedStateMachine_Tick(state_machine);
 
         EXPECT_EQ(
             fake_frequency,
             App_CanTx_GetPeriodicSignal_FREQUENCY(can_tx_interface));
+
+        // To avoid false positives, we use a different duty cycle each time
+        fake_frequency++;
     }
 }
 
@@ -167,18 +169,20 @@ TEST_F(
     BmsStateMachineTest,
     check_imd_duty_cycle_is_broadcasted_over_can_in_all_states)
 {
-    for (auto &state : GetAllStates())
-    {
-        // To avoid false positives, we use a different duty cycle each time
-        static float fake_duty_cycle = 0.0f;
-        get_pwm_duty_cycle_fake.return_val = fake_duty_cycle++;
+    float fake_duty_cycle = 0.0f;
 
+    for (const auto &state : GetAllStates())
+    {
         SetInitialState(state);
+        get_pwm_duty_cycle_fake.return_val = fake_duty_cycle;
         App_SharedStateMachine_Tick(state_machine);
 
         EXPECT_EQ(
             fake_duty_cycle,
             App_CanTx_GetPeriodicSignal_DUTY_CYCLE(can_tx_interface));
+
+        // To avoid false positives, we use a different frequency each time
+        fake_duty_cycle++;
     }
 }
 
