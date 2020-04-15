@@ -1,5 +1,6 @@
 #include "fff.h"
 #include "gtest/gtest.h"
+#include "Bms_Test.h"
 
 extern "C"
 {
@@ -18,10 +19,10 @@ extern "C"
     FAKE_VOID_FUNC(
         send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT,
         struct CanMsgs_bms_watchdog_timeout_t *);
-#include "imd_fff.h"
+#include "Imd_fff.h"
 }
 
-class BmsStateMachineTest : public testing::Test
+class BmsStateMachineTest : public BmsTest
 {
   protected:
     void SetUp() override
@@ -104,7 +105,6 @@ class BmsStateMachineTest : public testing::Test
     struct World *            world;
     struct BmsCanTxInterface *can_tx_interface;
     struct BmsCanRxInterface *can_rx_interface;
-    struct Imd *              imd;
     struct StateMachine *     state_machine;
 };
 

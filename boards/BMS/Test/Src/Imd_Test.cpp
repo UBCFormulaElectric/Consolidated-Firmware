@@ -1,15 +1,17 @@
 #include "fff.h"
 #include <gtest/gtest.h>
 #include <utility>
+#include "Bms_Test.h"
 
 extern "C"
 {
-    DEFINE_FFF_GLOBALS;
-#include "imd_fff.h"
 #include "App_Imd.h"
+
+    DEFINE_FFF_GLOBALS;
+#include "Imd_fff.h"
 }
 
-class Imd_Test : public testing::Test
+class ImdTest : public BmsTest
 {
   protected:
     void SetUp() override
@@ -38,25 +40,10 @@ class Imd_Test : public testing::Test
             get_pwm_frequency, tolerance, get_pwm_duty_cycle,
             get_seconds_since_power_on);
     }
-
-    void SetImdCondition(enum Imd_Condition condition)
-    {
-        const float mapping[NUM_OF_IMD_CONDITIONS] = {
-            [IMD_SHORT_CIRCUIT] = 0.0f,          [IMD_NORMAL] = 10.0f,
-            [IMD_UNDERVOLTAGE_DETECTED] = 20.0f, [IMD_SST] = 30.0f,
-            [IMD_DEVICE_ERROR] = 40.0f,          [IMD_EARTH_FAULT] = 50.0f,
-        };
-
-        get_pwm_frequency_fake.return_val = mapping[condition];
-        App_Imd_Tick(imd);
-        ASSERT_EQ(condition, App_Imd_GetCondition(imd));
-    }
-
-    struct Imd *imd;
 };
 
 TEST_F(
-    Imd_Test,
+    ImdTest,
     check_insulation_resistance_for_normal_and_undervoltage_conditions)
 {
     std::vector<enum Imd_Condition> conditions = { IMD_NORMAL,
@@ -64,7 +51,7 @@ TEST_F(
 
     for (auto &condition : conditions)
     {
-        SetImdCondition(condition);
+        SetImdCondition(get_pwm_frequency_fake.return_val, condition);
 
         // From ISOMETER® IR155-3203/IR155-3204 manual:
         //     Insulation Resistance =
@@ -103,9 +90,9 @@ TEST_F(
     }
 }
 
-TEST_F(Imd_Test, check_good_and_bad_evaluation_for_sst_condition)
+TEST_F(ImdTest, check_good_and_bad_evaluation_for_sst_condition)
 {
-    SetImdCondition(IMD_SST);
+    SetImdCondition(get_pwm_frequency_fake.return_val, IMD_SST);
 
     // From ISOMETER® IR155-3203/IR155-3204 manual:
     //     Duty cycle => 5...10% ("good")
@@ -159,9 +146,9 @@ TEST_F(Imd_Test, check_good_and_bad_evaluation_for_sst_condition)
     ASSERT_EQ(false, App_Imd_GetPwmEncoding(imd).valid_duty_cycle);
 }
 
-TEST_F(Imd_Test, check_pwm_encoding_for_device_error_condition)
+TEST_F(ImdTest, check_pwm_encoding_for_device_error_condition)
 {
-    SetImdCondition(IMD_DEVICE_ERROR);
+    SetImdCondition(get_pwm_frequency_fake.return_val, IMD_DEVICE_ERROR);
 
     // From ISOMETER® IR155-3203/IR155-3204 manual:
     //     Duty cycle => 47.5...52.5%
@@ -186,9 +173,9 @@ TEST_F(Imd_Test, check_pwm_encoding_for_device_error_condition)
     ASSERT_EQ(false, App_Imd_GetPwmEncoding(imd).valid_duty_cycle);
 }
 
-TEST_F(Imd_Test, check_pwm_encoding_for_earth_fault_condition)
+TEST_F(ImdTest, check_pwm_encoding_for_earth_fault_condition)
 {
-    SetImdCondition(IMD_EARTH_FAULT);
+    SetImdCondition(get_pwm_frequency_fake.return_val, IMD_EARTH_FAULT);
 
     // From ISOMETER® IR155-3203/IR155-3204 manual:
     //     Duty cycle => 47.5...52.5%
@@ -213,7 +200,7 @@ TEST_F(Imd_Test, check_pwm_encoding_for_earth_fault_condition)
     ASSERT_EQ(false, App_Imd_GetPwmEncoding(imd).valid_duty_cycle);
 }
 
-TEST_F(Imd_Test, check_mapping_for_frequency_to_condition)
+TEST_F(ImdTest, check_mapping_for_frequency_to_condition)
 {
     struct ConditionLut
     {
