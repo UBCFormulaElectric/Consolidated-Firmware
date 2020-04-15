@@ -14,6 +14,10 @@ env:
     - CUBE_INSTALL_DIR=$INSTALL_DIR/STM32CubeMX
     - PYTHONPATH=$PWD
 
+services:
+  # Use xvfb to run programs requiring a GUI (e.g. STM32CubeMX code generation)
+  - xvfb
+
 before_install:
   - ./scripts/travis_ci/pull_git_submodules.sh
   - pip install pipenv
@@ -36,10 +40,6 @@ addons:
 
 before_script:
   - ./scripts/travis_ci/print_bin_versions.sh
-  # Use xvfb to run tests that require a GUI (e.g. STM32CubeMX code generation)
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
-  - sleep 3 # Give xvfb some time to start
 
 script:
   - ./scripts/travis_ci/travis_script.sh $CUBE_INSTALL_DIR/STM32CubeMX
