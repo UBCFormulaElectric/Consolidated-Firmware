@@ -150,33 +150,54 @@ void App_Imd_Tick(struct Imd *const imd)
         case IMD_UNDERVOLTAGE_DETECTED:
         {
             imd->pwm_encoding.valid_duty_cycle =
-                (imd->pwm_duty_cycle > 5.0f && imd->pwm_duty_cycle < 95.0f)
+                (imd->pwm_duty_cycle >= 5.0f && imd->pwm_duty_cycle <= 95.0f)
                     ? true
                     : false;
 
             if (imd->pwm_encoding.valid_duty_cycle)
             {
-                imd->pwm_encoding.insulation_measurement_dcp_kohms =
-                    1080.0f / (imd->pwm_duty_cycle / 100.0f - 0.05f) - 1200.0f;
+                if (imd->pwm_duty_cycle == 5.0f)
+                {
+                    // The formula for calculating the insulation resistance
+                    // causes a div-by-zero if the duty cycle is 5%.
+                    // Curiously, 5% duty cycle is still defined as valid so
+                    // we hard-code the resistance to be 50MOhms.
+                    imd->pwm_encoding.insulation_measurement_dcp_kohms = 50000;
+                }
+                else
+                {
+                    // The formula for calculating the insulation resistance
+                    // isn't exact once we go below ~7.1% duty cycle. So we
+                    // saturate the value at 50MOhms to get well-defined
+                    // behaviour.
+                    uint32_t resistance =
+                        1080.0f / (imd->pwm_duty_cycle / 100.0f - 0.05f) -
+                        1200.0f;
+
+                    imd->pwm_encoding.insulation_measurement_dcp_kohms =
+                        min(resistance, 50000);
+                }
             }
         }
         break;
         case IMD_SST:
         {
             imd->pwm_encoding.valid_duty_cycle =
-                ((imd->pwm_duty_cycle > 5.0f && imd->pwm_duty_cycle < 10.0f) ||
-                 (imd->pwm_duty_cycle > 90.0f && imd->pwm_duty_cycle < 95.0f))
+                ((imd->pwm_duty_cycle >= 5.0f &&
+                  imd->pwm_duty_cycle <= 10.0f) ||
+                 (imd->pwm_duty_cycle >= 90.0f && imd->pwm_duty_cycle <= 95.0f))
                     ? true
                     : false;
 
             if (imd->pwm_encoding.valid_duty_cycle)
             {
-                if (imd->pwm_duty_cycle > 5.0f && imd->pwm_duty_cycle < 10.0f)
+                if (imd->pwm_duty_cycle >= 5.0f && imd->pwm_duty_cycle <= 10.0f)
                 {
                     imd->pwm_encoding.speed_start_status = SST_GOOD;
                 }
                 else if (
-                    imd->pwm_duty_cycle > 90.0f && imd->pwm_duty_cycle < 95.0f)
+                    imd->pwm_duty_cycle >= 90.0f &&
+                    imd->pwm_duty_cycle <= 95.0f)
                 {
                     imd->pwm_encoding.speed_start_status = SST_BAD;
                 }
@@ -187,7 +208,7 @@ void App_Imd_Tick(struct Imd *const imd)
         case IMD_EARTH_FAULT:
         {
             imd->pwm_encoding.valid_duty_cycle =
-                (imd->pwm_duty_cycle > 47.5f && imd->pwm_duty_cycle < 52.5f)
+                (imd->pwm_duty_cycle >= 47.5f && imd->pwm_duty_cycle <= 52.5f)
                     ? true
                     : false;
         }

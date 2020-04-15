@@ -1,17 +1,8 @@
 #include "fff.h"
-#include "imd_fff.h"
 #include "gtest/gtest.h"
 
 extern "C"
 {
-#include "App_SharedStateMachine.h"
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "states/App_InitState.h"
-#include "states/App_DriveState.h"
-#include "states/App_FaultState.h"
-#include "states/App_ChargeState.h"
-
     DEFINE_FFF_GLOBALS;
     FAKE_VOID_FUNC(
         send_non_periodic_msg_BMS_STARTUP,
@@ -19,6 +10,15 @@ extern "C"
     FAKE_VOID_FUNC(
         send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT,
         struct CanMsgs_bms_watchdog_timeout_t *);
+#include "imd_fff.h"
+
+#include "App_SharedStateMachine.h"
+#include "App_CanTx.h"
+#include "App_CanRx.h"
+#include "states/App_InitState.h"
+#include "states/App_DriveState.h"
+#include "states/App_FaultState.h"
+#include "states/App_ChargeState.h"
 }
 
 class BmsStateMachineTest : public testing::Test
@@ -55,6 +55,16 @@ class BmsStateMachineTest : public testing::Test
         ASSERT_EQ(
             initial_state,
             App_SharedStateMachine_GetCurrentState(state_machine));
+    }
+
+    std::vector<const struct State *> GetAllStates(void)
+    {
+        return std::vector<const struct State *>{
+            App_GetInitState(),
+            App_GetDriveState(),
+            App_GetChargeState(),
+            App_GetFaultState(),
+        };
     }
 
     void TearDown() override
@@ -119,4 +129,47 @@ TEST_F(BmsStateMachineTest, check_charge_state_is_broadcasted_over_can)
     EXPECT_EQ(
         CANMSGS_BMS_STATE_MACHINE_STATE_CHARGE_CHOICE,
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+}
+
+TEST_F(
+    BmsStateMachineTest,
+    check_imd_frequency_is_broadcasted_over_can_in_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        static float fake_frequency = 0.0f;
+
+        SetInitialState(state);
+
+        get_pwm_frequency_fake.return_val = fake_frequency;
+        fake_frequency++;
+
+        App_SharedStateMachine_Tick(state_machine);
+
+        // Use a different frequency each time to avoid false positives
+        EXPECT_EQ(
+            3.45f, App_CanTx_GetPeriodicSignal_FREQUENCY(can_tx_interface));
+    }
+}
+
+TEST_F(
+    BmsStateMachineTest,
+    check_imd_duty_cycle_is_broadcasted_over_can_in_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        static float fake_duty_cycle = 0.0f;
+
+        SetInitialState(state);
+
+        get_pwm_duty_cycle_fake.return_val = fake_duty_cycle;
+
+        App_SharedStateMachine_Tick(state_machine);
+
+        EXPECT_EQ(
+            3.45f, App_CanTx_GetPeriodicSignal_DUTY_CYCLE(can_tx_interface));
+
+        // Use a different duty cycle each time to avoid false positives
+        fake_duty_cycle++;
+    }
 }
