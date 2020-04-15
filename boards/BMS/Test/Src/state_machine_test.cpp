@@ -3,6 +3,14 @@
 
 extern "C"
 {
+#include "App_SharedStateMachine.h"
+#include "App_CanTx.h"
+#include "App_CanRx.h"
+#include "states/App_InitState.h"
+#include "states/App_DriveState.h"
+#include "states/App_FaultState.h"
+#include "states/App_ChargeState.h"
+
     DEFINE_FFF_GLOBALS;
     FAKE_VOID_FUNC(
         send_non_periodic_msg_BMS_STARTUP,
@@ -12,13 +20,7 @@ extern "C"
         struct CanMsgs_bms_watchdog_timeout_t *);
 #include "imd_fff.h"
 
-#include "App_SharedStateMachine.h"
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "states/App_InitState.h"
-#include "states/App_DriveState.h"
-#include "states/App_FaultState.h"
-#include "states/App_ChargeState.h"
+
 }
 
 class BmsStateMachineTest : public testing::Test
