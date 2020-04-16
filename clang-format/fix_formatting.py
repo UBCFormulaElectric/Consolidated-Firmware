@@ -26,7 +26,7 @@ def runClangFormat():
     :return: Exit code 0 if success; any other number for an error code
     """
     # Construct the command line input
-    CLANG_FORMAT_VERSION = "7.0"
+    CLANG_FORMAT_VERSION = "10.0"
     CLANG_FORMAT_BINARY = os.path.join(".", "clang-format-") + CLANG_FORMAT_VERSION
     CLANG_FORMAT_OPTIONS = " -i --style=file "
 
@@ -42,8 +42,6 @@ def runClangFormat():
 
     # Files ignored by clang-format
     EXCLUDE_FILES = [
-        "CanMsgs.c",
-        "CanMsgs.h",
         # Everytime we format these 2 files, we get an unwanted '\' at the end.
         # Ignore them from clang-format as a workaround.
         "stm32f3xx_hal_conf.h",
@@ -57,7 +55,6 @@ def runClangFormat():
         "cmake-build-debug",
         "cmake-build-embedded",
         "cmake-build-gtest",
-        "CMakeFiles",
         "SEGGER_RTT",
         "fff",
         "TraceRecorder",
