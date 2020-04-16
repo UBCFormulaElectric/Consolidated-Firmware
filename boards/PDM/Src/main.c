@@ -30,7 +30,6 @@
 #include "App_SharedConstants.h"
 #include "Io_SharedCmsisOs.h"
 #include "Io_SharedCan.h"
-#include "Io_SharedHeartbeat.h"
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
