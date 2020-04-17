@@ -21,6 +21,7 @@ struct FreqOnlyPwmInput;
  * @param timer_frequency_hz: The frequency of the timer measuring the PWM input
  * @param rising_edge_tim_channel: The rising edge channel of the timer
  * measuring the PWM input
+ * @param timer_auto_reload_reg : Maximum value that the counter can count to
  * @return Pointer to the allocated and initialized PWM input
  */
 struct FreqOnlyPwmInput *Io_SharedFreqOnlyPwmInput_Create(

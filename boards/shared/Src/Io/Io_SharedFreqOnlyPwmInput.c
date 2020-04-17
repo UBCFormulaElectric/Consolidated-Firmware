@@ -1,4 +1,4 @@
-#include <main.h>
+#include "main.h"
 #include <math.h>
 #include <assert.h>
 #include "Io_SharedFreqOnlyPwmInput.h"
@@ -81,7 +81,6 @@ void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *const pwm_input)
     }
     else
     {
-        pwm_input->first_tick       = true;
         pwm_input->prev_rising_edge = pwm_input->curr_rising_edge;
         pwm_input->curr_rising_edge = HAL_TIM_ReadCapturedValue(
             pwm_input->htim, pwm_input->rising_edge_tim_channel);
