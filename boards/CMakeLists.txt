@@ -253,7 +253,7 @@ function(can_code_generation
         )
 endfunction()
 
-function(compile_googletest_executables
+function(compile_googletest_executable
         BOARD_NAME
         TEST_SRCS
         TEST_INCLUDE_DIRS
@@ -261,31 +261,29 @@ function(compile_googletest_executables
         ARM_BINARY_APP_SRCS
         ARM_BINARY_APP_INCLUDE_DIRS
         )
-    foreach(TEST_SRC ${TEST_SRCS})
-        get_filename_component(TEST_BASENAME ${TEST_SRC} NAME_WE)
-        set(TEST_EXECUTABLE_NAME "${BOARD_NAME}_${TEST_BASENAME}")
-        add_executable(${TEST_EXECUTABLE_NAME}
-                ${ARM_BINARY_APP_SRCS}
-                ${SHARED_APP_SRCS}
-                ${TEST_SRC}
-                ${TEST_MAIN_SRC}
-                )
-        add_dependencies(all_tests ${TEST_EXECUTABLE_NAME})
-        target_include_directories(${TEST_EXECUTABLE_NAME}
-                PRIVATE
-                ${TEST_INCLUDE_DIRS}
-                ${ARM_BINARY_APP_INCLUDE_DIRS}
-                ${SHARED_APP_INCLUDE_DIRS}
-                )
-        target_compile_options(${TEST_EXECUTABLE_NAME}
-            PUBLIC
-                -Wall
-                -Werror
-                )
-        target_link_libraries(${TEST_EXECUTABLE_NAME} gtest_main)
-        add_test(NAME ${TEST_EXECUTABLE_NAME}
-                COMMAND ${TEST_EXECUTABLE_NAME})
-    endforeach()
+
+    set(TEST_EXECUTABLE_NAME "${BOARD_NAME}_test")
+    add_executable(${TEST_EXECUTABLE_NAME}
+            ${TEST_SRCS}
+            ${ARM_BINARY_APP_SRCS}
+            ${SHARED_APP_SRCS}
+            )
+    add_dependencies(all_tests ${TEST_EXECUTABLE_NAME})
+    target_include_directories(${TEST_EXECUTABLE_NAME}
+        PRIVATE
+            ${TEST_INCLUDE_DIRS}
+            ${ARM_BINARY_APP_INCLUDE_DIRS}
+            ${SHARED_APP_INCLUDE_DIRS}
+            )
+    target_compile_options(${TEST_EXECUTABLE_NAME}
+        PUBLIC
+            -Wall
+            -Werror
+            -g
+            )
+    target_link_libraries(${TEST_EXECUTABLE_NAME} gtest_main)
+    add_test(NAME ${TEST_EXECUTABLE_NAME}
+             COMMAND ${TEST_EXECUTABLE_NAME})
 endfunction()
 
 function(download_and_unpack_google_test GOOGLETEST_DOWNLOAD_SCRIPT)
@@ -433,7 +431,7 @@ function(create_arm_binary_or_tests_for_board
     git_hash_code_generation(${GIT_HASH_HEADER})
 
     if ("${PLATFORM}" STREQUAL "x86")
-        compile_googletest_executables(
+        compile_googletest_executable(
                 "${BOARD_NAME}"
                 "${GOOGLETEST_TEST_SRCS}"
                 "${GOOGLETEST_TEST_INCLUDE_DIRS}"
