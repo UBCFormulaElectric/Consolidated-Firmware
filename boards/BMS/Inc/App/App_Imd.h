@@ -26,7 +26,8 @@ enum Imd_Condition
 struct Imd_PwmEncoding
 {
     bool valid_duty_cycle;
-    union {
+    union
+    {
         // 10 and 20Hz: Insulation measurement DCP
         uint16_t insulation_measurement_dcp_kohms;
         // 30Hz: Speed Start Measurement
