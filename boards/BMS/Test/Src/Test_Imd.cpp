@@ -47,7 +47,7 @@ TEST_F(
 
     for (auto &condition : conditions)
     {
-        SetImdCondition(get_pwm_frequency_fake.return_val, condition);
+        SetImdCondition(condition, get_pwm_frequency_fake.return_val);
 
         // From ISOMETER® IR155-3203/IR155-3204 manual:
         //     Insulation Resistance =
@@ -88,7 +88,7 @@ TEST_F(
 
 TEST_F(ImdTest, check_good_and_bad_evaluation_for_sst_condition)
 {
-    SetImdCondition(get_pwm_frequency_fake.return_val, IMD_SST);
+    SetImdCondition(IMD_SST, get_pwm_frequency_fake.return_val);
 
     // From ISOMETER® IR155-3203/IR155-3204 manual:
     //     Duty cycle => 5...10% ("good")
@@ -144,7 +144,7 @@ TEST_F(ImdTest, check_good_and_bad_evaluation_for_sst_condition)
 
 TEST_F(ImdTest, check_pwm_encoding_for_device_error_condition)
 {
-    SetImdCondition(get_pwm_frequency_fake.return_val, IMD_DEVICE_ERROR);
+    SetImdCondition(IMD_DEVICE_ERROR, get_pwm_frequency_fake.return_val);
 
     // From ISOMETER® IR155-3203/IR155-3204 manual:
     //     Duty cycle => 47.5...52.5%
@@ -171,7 +171,7 @@ TEST_F(ImdTest, check_pwm_encoding_for_device_error_condition)
 
 TEST_F(ImdTest, check_pwm_encoding_for_earth_fault_condition)
 {
-    SetImdCondition(get_pwm_frequency_fake.return_val, IMD_EARTH_FAULT);
+    SetImdCondition(IMD_EARTH_FAULT, get_pwm_frequency_fake.return_val);
 
     // From ISOMETER® IR155-3203/IR155-3204 manual:
     //     Duty cycle => 47.5...52.5%

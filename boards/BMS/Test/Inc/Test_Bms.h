@@ -11,5 +11,7 @@ class BmsTest : public testing::Test
 {
   protected:
     struct Imd *imd;
-    void SetImdCondition(float &fff_return_val, enum Imd_Condition condition);
+    void        SetImdCondition(
+               enum Imd_Condition condition,
+               float &            fake_pwm_frequency_return_val);
 };
