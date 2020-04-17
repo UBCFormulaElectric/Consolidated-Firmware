@@ -50,6 +50,7 @@ if(NOT STM32CUBEMX_BIN_PATH)
     endif()
 endif()
 
+
 # Globally accessible targets
 if("${PLATFORM}" STREQUAL "x86")
     # This target can be used to build the tests for all the boards
@@ -266,7 +267,7 @@ function(compile_googletest_executables
                 ${TEST_SRC}
                 ${TEST_MAIN_SRC}
                 )
-        add_dependencies(all_tests ${TEST_EXECUTABLE_NAME})
+        # add_dependencies(all_tests ${TEST_EXECUTABLE_NAME})
         target_include_directories(${TEST_EXECUTABLE_NAME}
                 PRIVATE
                 ${ARM_BINARY_APP_INCLUDE_DIRS}
