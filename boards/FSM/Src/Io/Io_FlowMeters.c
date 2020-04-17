@@ -1,5 +1,5 @@
 #include "main.h"
-#include "Io_SharedFrequencyOnlyPwmInput.h"
+#include "Io_SharedFreqOnlyPwmInput.h"
 #include "Io_FlowMeters.h"
 #include <assert.h>
 
@@ -23,9 +23,11 @@ void Io_FlowMeters_Init(TIM_HandleTypeDef *htim)
     secondary_flow_meter.active_channel = HAL_TIM_ACTIVE_CHANNEL_2;
 
     primary_flow_meter.pwm_input = Io_SharedFreqOnlyPwmInput_Create(
-        htim, TIMx_FREQUENCY / TIMx_PRESCALER, TIM_CHANNEL_1);
+        htim, TIMx_FREQUENCY / TIMx_PRESCALER, TIM_CHANNEL_1,
+        TIMx_AUTO_RELOAD_REG);
     secondary_flow_meter.pwm_input = Io_SharedFreqOnlyPwmInput_Create(
-        htim, TIMx_FREQUENCY / TIMx_PRESCALER, TIM_CHANNEL_2);
+        htim, TIMx_FREQUENCY / TIMx_PRESCALER, TIM_CHANNEL_2,
+        TIMx_AUTO_RELOAD_REG);
 }
 
 float Io_FlowMeters_GetPrimaryFlowRate(void)
@@ -63,7 +65,7 @@ void Io_FlowMeters_InputCaptureCallback(TIM_HandleTypeDef *htim)
 
     else if (
         htim == secondary_flow_meter.htim &&
-        htim->Channel == primary_flow_meter.active_channel)
+        htim->Channel == secondary_flow_meter.active_channel)
     {
         Io_FlowMeters_TickSecondary();
     }

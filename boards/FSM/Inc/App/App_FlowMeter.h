@@ -4,7 +4,6 @@ struct FlowMeter;
 
 /**
  * Create the flow meter to read flow rate from
- * @param can_tx : A CanTx interface for the FSM
  * @param get_flow_rate : A function pointer to a function that
  * acquires the flow rate from the flow meter
  * @return A pointer to the created flow meter, whose ownership is given to the
