@@ -1,9 +1,6 @@
-#include <gtest/gtest.h>
-#include <utility>
 #include "Test_Imd.h"
 
 DEFINE_FAKE_VALUE_FUNC(float, get_pwm_frequency);
-DEFINE_FAKE_VALUE_FUNC(float, get_pwm_frequency_tolerance);
 DEFINE_FAKE_VALUE_FUNC(float, get_pwm_duty_cycle);
 DEFINE_FAKE_VALUE_FUNC(uint32_t, get_seconds_since_power_on);
 
@@ -12,8 +9,10 @@ class ImdTest : public BmsTest
   protected:
     void SetUp() override
     {
+        constexpr float DEFAULT_FREQUENCY_TOLERANCE = 2.0f;
+
         imd = App_Imd_Create(
-            get_pwm_frequency, 2.0f, get_pwm_duty_cycle,
+            get_pwm_frequency, DEFAULT_FREQUENCY_TOLERANCE, get_pwm_duty_cycle,
             get_seconds_since_power_on);
 
         RESET_FAKE(get_pwm_frequency);

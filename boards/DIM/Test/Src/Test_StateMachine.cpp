@@ -1,4 +1,3 @@
-#include <gtest/gtest.h>
 #include "Test_SevenSegDisplays.h"
 #include "Test_StateMachine.h"
 
@@ -9,7 +8,7 @@ DEFINE_FAKE_VOID_FUNC(
     send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT,
     struct CanMsgs_dim_watchdog_timeout_t *);
 
-class DimStateMachineTest : public testing::Test
+class DimStateMachineTest : public DimTest
 {
   protected:
     void SetUp() override

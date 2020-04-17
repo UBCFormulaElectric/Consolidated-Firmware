@@ -1,4 +1,3 @@
-#include <gtest/gtest.h>
 #include "Test_StateMachine.h"
 
 DEFINE_FAKE_VOID_FUNC(
@@ -29,7 +28,7 @@ FAKE_VALUE_FUNC(float, Get24vAccMinVoltage);
 FAKE_VALUE_FUNC(float, Get24vAccMaxVoltage);
 FAKE_VOID_FUNC(_24vAccErrorCallback, struct VoltageMonitor *);
 
-class PdmStateMachineTest : public testing::Test
+class PdmStateMachineTest : public PdmTest
 {
   protected:
     void SetUp() override

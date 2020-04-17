@@ -1,4 +1,3 @@
-#include <gtest/gtest.h>
 #include "Test_Dcm.h"
 
 extern "C"
@@ -11,7 +10,7 @@ FAKE_VALUE_FUNC(bool, is_regen_active);
 FAKE_VOID_FUNC(turn_on_brake_light);
 FAKE_VOID_FUNC(turn_off_brake_light);
 
-class BrakeLightTest : public testing::Test
+class BrakeLightTest : public DcmTest
 {
   protected:
     virtual void SetUp()

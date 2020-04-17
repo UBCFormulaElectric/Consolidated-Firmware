@@ -7,3 +7,9 @@
 #define FFF_ARG_HISTORY_LEN (size_t) pow((float)NUM_HEX_DIGITS, (float)3)
 
 #include <fff.h>
+#include <gtest/gtest.h>
+
+class DimTest : public testing::Test
+{
+    // TODO: Put any shared code between tests here
+};

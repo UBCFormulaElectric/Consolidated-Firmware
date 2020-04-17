@@ -1,4 +1,3 @@
-#include <gtest/gtest.h>
 #include "Test_Dcm.h"
 
 extern "C"
@@ -16,7 +15,7 @@ FAKE_VOID_FUNC(
     send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT,
     struct CanMsgs_dcm_watchdog_timeout_t *);
 
-class DcmStateMachineTest : public testing::Test
+class DcmStateMachineTest : public DcmTest
 {
   protected:
     void SetUp() override

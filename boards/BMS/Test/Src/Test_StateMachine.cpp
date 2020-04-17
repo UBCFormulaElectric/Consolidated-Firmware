@@ -1,4 +1,3 @@
-#include <gtest/gtest.h>
 #include "Test_StateMachine.h"
 #include "Test_Imd.h"
 
@@ -30,7 +29,6 @@ class BmsStateMachineTest : public BmsTest
         RESET_FAKE(send_non_periodic_msg_BMS_STARTUP);
         RESET_FAKE(send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT);
         RESET_FAKE(get_pwm_frequency);
-        RESET_FAKE(get_pwm_frequency_tolerance);
         RESET_FAKE(get_pwm_duty_cycle);
         RESET_FAKE(get_seconds_since_power_on);
     }

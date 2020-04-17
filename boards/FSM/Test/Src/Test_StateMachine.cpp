@@ -1,5 +1,4 @@
-#include <fff.h>
-#include <gtest/gtest.h>
+#include "Test_Fsm.h"
 
 extern "C"
 {
@@ -18,7 +17,7 @@ FAKE_VOID_FUNC(
     send_non_periodic_msg_FSM_WATCHDOG_TIMEOUT,
     struct CanMsgs_fsm_watchdog_timeout_t *);
 
-class FsmStateMachineTest : public testing::Test
+class FsmStateMachineTest : public FsmTest
 {
   protected:
     void SetUp() override
