@@ -1,5 +1,4 @@
-#include "fff.h"
-#include "gtest/gtest.h"
+#include "Test_Dcm.h"
 
 extern "C"
 {
@@ -7,17 +6,16 @@ extern "C"
 #include "states/App_InitState.h"
 #include "states/App_DriveState.h"
 #include "states/App_FaultState.h"
-
-    DEFINE_FFF_GLOBALS;
-    FAKE_VOID_FUNC(
-        send_non_periodic_msg_DCM_STARTUP,
-        struct CanMsgs_dcm_startup_t *);
-    FAKE_VOID_FUNC(
-        send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT,
-        struct CanMsgs_dcm_watchdog_timeout_t *);
 }
 
-class DcmStateMachineTest : public testing::Test
+FAKE_VOID_FUNC(
+    send_non_periodic_msg_DCM_STARTUP,
+    struct CanMsgs_dcm_startup_t *);
+FAKE_VOID_FUNC(
+    send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT,
+    struct CanMsgs_dcm_watchdog_timeout_t *);
+
+class DcmStateMachineTest : public DcmTest
 {
   protected:
     void SetUp() override
