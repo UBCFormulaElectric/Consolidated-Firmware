@@ -6,7 +6,7 @@
 #include "Io_SharedFrequencyOnlyPwmInputConfig.h"
 
 #ifndef MAX_NUM_OF_FREQ_ONLY_PWM_INPUTS
-#error Missing definition: MAX_NUM_OF_FREQ_ONLY_PWM_INPUTS must be defined in Io_SharedFreqOnlyPwmInputConfig.h.
+#define MAX_NUM_OF_FREQ_ONLY_PWM_INPUTS 0
 #endif
 
 struct FreqOnlyPwmInput;
@@ -15,8 +15,7 @@ struct FreqOnlyPwmInput;
  * Allocate and initialize a PWM input using the given (hardware) timer
  *
  * @note The given timer must be initialized with:
- *       - Input Capture direct mode on Channel A
- *       - Input Capture direct mode on Channel B
+ *       - Input Capture direct mode
  *
  * @param htim: The handle of the timer measuring the PWM input
  * @param timer_frequency_hz: The frequency of the timer measuring the PWM input
@@ -58,6 +57,4 @@ void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *pwm_input);
  * register for TIMx overflows
  * @return The updated number of times the CNT register for TIMx overflows
  */
-size_t Io_SharedFreqOnlyPwmInput_Elapsed_Tick(
-    struct FreqOnlyPwmInput *pwm_input,
-    size_t                   elapsed_count);
+void Io_SharedFreqOnlyPwmInput_Elapsed_Tick(struct FreqOnlyPwmInput *pwm_input);

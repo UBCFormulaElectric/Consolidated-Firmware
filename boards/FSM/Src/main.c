@@ -177,10 +177,9 @@ int main(void)
     MX_TIM4_Init();
     /* USER CODE BEGIN 2 */
     Io_FlowMeters_Init(&htim4);
-    primary_flow_meter =
-        App_FlowMeter_Create(can_tx, Io_FlowMeters_GetPrimaryFlowRate);
+    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeters_GetPrimaryFlowRate);
     secondary_flow_meter =
-        App_FlowMeter_Create(can_tx, Io_FlowMeters_GetSecondaryFlowRate);
+        App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -590,8 +589,8 @@ void RunTask1kHz(void const *argument)
     {
         Io_CanTx_EnqueuePeriodicMsgs(
             can_tx, osKernelSysTick() * portTICK_PERIOD_MS);
-        App_FlowMeter_TickPrimary(primary_flow_meter);
-        App_FlowMeter_TickSecondary(secondary_flow_meter);
+        App_FlowMeter_Tick(primary_flow_meter);
+        App_FlowMeter_Tick(secondary_flow_meter);
         // Watchdog check-in must be the last function called before putting
         // the task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
