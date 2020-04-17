@@ -1,23 +1,22 @@
-#include "fff.h"
-#include "gtest/gtest.h"
+#include <fff.h>
+#include <gtest/gtest.h>
 
 extern "C"
 {
 #include "App_SharedStateMachine.h"
 #include "states/App_AirOpenState.h"
 #include "states/App_AirClosedState.h"
-
-    DEFINE_FFF_GLOBALS;
-    FAKE_VOID_FUNC(
-        send_non_periodic_msg_FSM_STARTUP,
-        struct CanMsgs_fsm_startup_t *);
-    FAKE_VOID_FUNC(
-        send_non_periodic_msg_FSM_AIR_SHUTDOWN,
-        struct CanMsgs_fsm_air_shutdown_t *);
-    FAKE_VOID_FUNC(
-        send_non_periodic_msg_FSM_WATCHDOG_TIMEOUT,
-        struct CanMsgs_fsm_watchdog_timeout_t *);
 }
+
+FAKE_VOID_FUNC(
+    send_non_periodic_msg_FSM_STARTUP,
+    struct CanMsgs_fsm_startup_t *);
+FAKE_VOID_FUNC(
+    send_non_periodic_msg_FSM_AIR_SHUTDOWN,
+    struct CanMsgs_fsm_air_shutdown_t *);
+FAKE_VOID_FUNC(
+    send_non_periodic_msg_FSM_WATCHDOG_TIMEOUT,
+    struct CanMsgs_fsm_watchdog_timeout_t *);
 
 class FsmStateMachineTest : public testing::Test
 {

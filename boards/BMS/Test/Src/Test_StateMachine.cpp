@@ -1,26 +1,13 @@
-#include "fff.h"
-#include "gtest/gtest.h"
-#include "Bms_Test.h"
+#include <gtest/gtest.h>
+#include "Test_StateMachine.h"
+#include "Test_Imd.h"
 
-extern "C"
-{
-#include "App_SharedStateMachine.h"
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "states/App_InitState.h"
-#include "states/App_DriveState.h"
-#include "states/App_FaultState.h"
-#include "states/App_ChargeState.h"
-
-    DEFINE_FFF_GLOBALS;
-    FAKE_VOID_FUNC(
-        send_non_periodic_msg_BMS_STARTUP,
-        struct CanMsgs_bms_startup_t *);
-    FAKE_VOID_FUNC(
-        send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT,
-        struct CanMsgs_bms_watchdog_timeout_t *);
-#include "Imd_fff.h"
-}
+DEFINE_FAKE_VOID_FUNC(
+    send_non_periodic_msg_BMS_STARTUP,
+    struct CanMsgs_bms_startup_t *);
+DEFINE_FAKE_VOID_FUNC(
+    send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT,
+    struct CanMsgs_bms_watchdog_timeout_t *);
 
 class BmsStateMachineTest : public BmsTest
 {

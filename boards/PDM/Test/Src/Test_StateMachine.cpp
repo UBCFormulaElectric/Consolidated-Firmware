@@ -1,42 +1,33 @@
-#include "fff.h"
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+#include "Test_StateMachine.h"
 
-extern "C"
-{
-#include "App_SharedStateMachine.h"
-#include "states/App_InitState.h"
-#include "states/App_AirOpenState.h"
-#include "states/App_AirClosedState.h"
+DEFINE_FAKE_VOID_FUNC(
+    send_non_periodic_msg_PDM_STARTUP,
+    struct CanMsgs_pdm_startup_t *);
+DEFINE_FAKE_VOID_FUNC(
+    send_non_periodic_msg_PDM_AIR_SHUTDOWN,
+    struct CanMsgs_pdm_air_shutdown_t *);
+DEFINE_FAKE_VOID_FUNC(
+    send_non_periodic_msg_PDM_MOTOR_SHUTDOWN,
+    struct CanMsgs_pdm_motor_shutdown_t *);
+DEFINE_FAKE_VOID_FUNC(
+    send_non_periodic_msg_PDM_WATCHDOG_TIMEOUT,
+    struct CanMsgs_pdm_watchdog_timeout_t *);
 
-    DEFINE_FFF_GLOBALS;
-    FAKE_VOID_FUNC(
-        send_non_periodic_msg_PDM_STARTUP,
-        struct CanMsgs_pdm_startup_t *);
-    FAKE_VOID_FUNC(
-        send_non_periodic_msg_PDM_AIR_SHUTDOWN,
-        struct CanMsgs_pdm_air_shutdown_t *);
-    FAKE_VOID_FUNC(
-        send_non_periodic_msg_PDM_MOTOR_SHUTDOWN,
-        struct CanMsgs_pdm_motor_shutdown_t *);
-    FAKE_VOID_FUNC(
-        send_non_periodic_msg_PDM_WATCHDOG_TIMEOUT,
-        struct CanMsgs_pdm_watchdog_timeout_t *);
+FAKE_VALUE_FUNC(float, GetVbatVoltage);
+FAKE_VALUE_FUNC(float, GetVbatMinVoltage);
+FAKE_VALUE_FUNC(float, GetVbatMaxVoltage);
+FAKE_VOID_FUNC(VbatErrorCallback, struct VoltageMonitor *);
 
-    FAKE_VALUE_FUNC(float, GetVbatVoltage);
-    FAKE_VALUE_FUNC(float, GetVbatMinVoltage);
-    FAKE_VALUE_FUNC(float, GetVbatMaxVoltage);
-    FAKE_VOID_FUNC(VbatErrorCallback, struct VoltageMonitor *);
+FAKE_VALUE_FUNC(float, Get24vAuxVoltage);
+FAKE_VALUE_FUNC(float, Get24vAuxMinVoltage);
+FAKE_VALUE_FUNC(float, Get24vAuxMaxVoltage);
+FAKE_VOID_FUNC(_24vAuxErrorCallback, struct VoltageMonitor *);
 
-    FAKE_VALUE_FUNC(float, Get24vAuxVoltage);
-    FAKE_VALUE_FUNC(float, Get24vAuxMinVoltage);
-    FAKE_VALUE_FUNC(float, Get24vAuxMaxVoltage);
-    FAKE_VOID_FUNC(_24vAuxErrorCallback, struct VoltageMonitor *);
-
-    FAKE_VALUE_FUNC(float, Get24vAccVoltage);
-    FAKE_VALUE_FUNC(float, Get24vAccMinVoltage);
-    FAKE_VALUE_FUNC(float, Get24vAccMaxVoltage);
-    FAKE_VOID_FUNC(_24vAccErrorCallback, struct VoltageMonitor *);
-}
+FAKE_VALUE_FUNC(float, Get24vAccVoltage);
+FAKE_VALUE_FUNC(float, Get24vAccMinVoltage);
+FAKE_VALUE_FUNC(float, Get24vAccMaxVoltage);
+FAKE_VOID_FUNC(_24vAccErrorCallback, struct VoltageMonitor *);
 
 class PdmStateMachineTest : public testing::Test
 {

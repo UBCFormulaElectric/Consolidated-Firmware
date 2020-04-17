@@ -1,15 +1,11 @@
-#include "fff.h"
 #include <gtest/gtest.h>
 #include <utility>
-#include "Bms_Test.h"
+#include "Test_Imd.h"
 
-extern "C"
-{
-#include "App_Imd.h"
-
-    DEFINE_FFF_GLOBALS;
-#include "Imd_fff.h"
-}
+DEFINE_FAKE_VALUE_FUNC(float, get_pwm_frequency);
+DEFINE_FAKE_VALUE_FUNC(float, get_pwm_frequency_tolerance);
+DEFINE_FAKE_VALUE_FUNC(float, get_pwm_duty_cycle);
+DEFINE_FAKE_VALUE_FUNC(uint32_t, get_seconds_since_power_on);
 
 class ImdTest : public BmsTest
 {
