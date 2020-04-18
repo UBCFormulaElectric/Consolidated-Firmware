@@ -1,26 +1,14 @@
-#include "fff.h"
-#include "gtest/gtest.h"
+#include "Test_SevenSegDisplays.h"
+#include "Test_StateMachine.h"
 
-extern "C"
-{
-#include "App_SharedStateMachine.h"
-#include "App_SevenSegDisplays.h"
-#include "App_SevenSegDisplay.h"
-#include "states/App_DriveState.h"
+DEFINE_FAKE_VOID_FUNC(
+    send_non_periodic_msg_DIM_STARTUP,
+    struct CanMsgs_dim_startup_t *);
+DEFINE_FAKE_VOID_FUNC(
+    send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT,
+    struct CanMsgs_dim_watchdog_timeout_t *);
 
-    DEFINE_FFF_GLOBALS;
-    FAKE_VOID_FUNC(
-        send_non_periodic_msg_DIM_STARTUP,
-        struct CanMsgs_dim_startup_t *);
-    FAKE_VOID_FUNC(
-        send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT,
-        struct CanMsgs_dim_watchdog_timeout_t *);
-    FAKE_VOID_FUNC(set_right_hex_digit, struct SevenSegHexDigit);
-    FAKE_VOID_FUNC(set_middle_hex_digit, struct SevenSegHexDigit);
-    FAKE_VOID_FUNC(set_left_hex_digit, struct SevenSegHexDigit);
-}
-
-class DimStateMachineTest : public testing::Test
+class DimStateMachineTest : public DimTest
 {
   protected:
     void SetUp() override
