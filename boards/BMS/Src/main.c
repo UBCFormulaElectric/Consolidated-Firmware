@@ -187,6 +187,8 @@ int main(void)
     MX_TIM2_Init();
     MX_ADC2_Init();
     /* USER CODE BEGIN 2 */
+    struct CanMsgs_bms_startup_t payload = { .dummy = 0 };
+    App_CanTx_SendNonPeriodicMsg_BMS_STARTUP(can_tx, &payload);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */

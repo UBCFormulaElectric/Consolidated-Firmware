@@ -172,10 +172,8 @@ int main(void)
     MX_CAN_Init();
     MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
-
     struct CanMsgs_dcm_startup_t payload = { .dummy = 0 };
     App_CanTx_SendNonPeriodicMsg_DCM_STARTUP(can_tx, &payload);
-
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */

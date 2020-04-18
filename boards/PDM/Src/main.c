@@ -35,12 +35,14 @@
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
 #include "Io_VoltageMonitor.h"
+#include "Io_HeartbeatMonitor.h"
 
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_SharedConstants.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
+#include "App_SharedHeartbeatMonitor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -87,6 +89,7 @@ struct PdmCanRxInterface *can_rx;
 struct VoltageMonitor *   vbat_voltage_monitor;
 struct VoltageMonitor *   _24v_aux_voltage_monitor;
 struct VoltageMonitor *   _24v_acc_voltage_monitor;
+struct HeartbeatMonitor * heartbeat_monitor;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -158,6 +161,10 @@ int main(void)
         Io_VoltageMonitor_Get24vAccMaxVoltage,
         Io_VoltageMonitor_24vAccErrorCallback);
 
+    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+        Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
+        Io_HeartbeatMonitor_TimeoutCallback);
+
     world = App_PdmWorld_Create(
         can_tx, can_rx, vbat_voltage_monitor, _24v_aux_voltage_monitor,
         _24v_acc_voltage_monitor, NULL);
@@ -194,7 +201,8 @@ int main(void)
     MX_ADC1_Init();
     MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
-
+    struct CanMsgs_pdm_startup_t payload = { .dummy = 0 };
+    App_CanTx_SendNonPeriodicMsg_PDM_STARTUP(can_tx, &payload);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
