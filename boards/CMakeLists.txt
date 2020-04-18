@@ -26,9 +26,6 @@ message("Platform: ${PLATFORM}")
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
-# Shared code global to all boards
-add_subdirectory(${PROJECT_SOURCE_DIR}/shared __shared__)
-
 # Globally Accessible ARM Flags
 set(FPU_FLAGS
     -mcpu=cortex-m4 
@@ -260,7 +257,6 @@ function(compile_googletest_executable
         ARM_BINARY_APP_SRCS
         ARM_BINARY_APP_INCLUDE_DIRS
         )
-
     set(TEST_EXECUTABLE_NAME "${BOARD_NAME}_test")
     add_executable(${TEST_EXECUTABLE_NAME}
             ${TEST_SRCS}
@@ -469,6 +465,7 @@ if ("${PLATFORM}" STREQUAL "x86")
     enable_testing()
 endif()
 
+add_subdirectory(shared __shared__)
 add_subdirectory(DCM)
 add_subdirectory(PDM)
 add_subdirectory(FSM)
