@@ -263,7 +263,7 @@ function(compile_googletest_executable
             ${ARM_BINARY_APP_SRCS}
             ${SHARED_APP_SRCS}
             )
-    # add_dependencies(all_tests ${TEST_EXECUTABLE_NAME})
+    add_dependencies(all_tests ${TEST_EXECUTABLE_NAME})
     target_include_directories(${TEST_EXECUTABLE_NAME}
         PRIVATE
             ${TEST_INCLUDE_DIRS}
@@ -465,9 +465,7 @@ if ("${PLATFORM}" STREQUAL "x86")
     enable_testing()
 endif()
 
-# Shared code accessible to all boards
 add_subdirectory(shared __shared__)
-
 add_subdirectory(DCM)
 add_subdirectory(PDM)
 add_subdirectory(FSM)

@@ -42,10 +42,12 @@ file(GLOB GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")
 list(REMOVE_ITEM GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/main.cpp")
 set(GOOGLETEST_TEST_INCLUDE_DIRS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc")
 
-compile_googletest_executable(
-        SHARED
-        "${GOOGLETEST_TEST_SRCS}"
-        "${GOOGLETEST_TEST_INCLUDE_DIRS}"
-        "${ARM_BINARY_APP_SRCS}"
-        "${ARM_BINARY_APP_INCLUDE_DIRS}"
-)
+if ("${PLATFORM}" STREQUAL "x86")
+    compile_googletest_executable(
+            SHARED
+            "${GOOGLETEST_TEST_SRCS}"
+            "${GOOGLETEST_TEST_INCLUDE_DIRS}"
+            "${ARM_BINARY_APP_SRCS}"
+            "${ARM_BINARY_APP_INCLUDE_DIRS}"
+    )
+endif()
