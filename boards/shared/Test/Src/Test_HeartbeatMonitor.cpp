@@ -23,7 +23,7 @@ class SharedHeartbeatMonitorTest : public SharedTest
 
     void TearDown() override
     {
-        EXPECT_TRUE(heartbeat_monitor != NULL);
+        ASSERT_TRUE(heartbeat_monitor != NULL);
         App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
         heartbeat_monitor = NULL;
     }
@@ -46,7 +46,7 @@ TEST_F(
         for (uint32_t j = 0; j < DEFAULT_TIMEOUT_PERIOD_MS; j++)
         {
             App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
-            EXPECT_EQ(i, timeout_callback_fake.call_count);
+            ASSERT_EQ(i, timeout_callback_fake.call_count);
             get_current_ms_fake.return_val++;
         }
     }
@@ -66,7 +66,7 @@ TEST_F(
         for (uint32_t j = 0; j < DEFAULT_TIMEOUT_PERIOD_MS; j++)
         {
             App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
-            EXPECT_EQ(i, timeout_callback_fake.call_count);
+            ASSERT_EQ(i, timeout_callback_fake.call_count);
             get_current_ms_fake.return_val++;
         }
     }
@@ -86,7 +86,7 @@ TEST_F(
         for (uint32_t j = 0; j < DEFAULT_TIMEOUT_PERIOD_MS; j++)
         {
             App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
-            EXPECT_EQ(0, timeout_callback_fake.call_count);
+            ASSERT_EQ(0, timeout_callback_fake.call_count);
             get_current_ms_fake.return_val++;
         }
     }
@@ -102,7 +102,7 @@ TEST_F(
     for (uint32_t j = 0; j < DEFAULT_TIMEOUT_PERIOD_MS; j++)
     {
         App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
-        EXPECT_EQ(0, timeout_callback_fake.call_count);
+        ASSERT_EQ(0, timeout_callback_fake.call_count);
         get_current_ms_fake.return_val++;
     }
 
@@ -111,7 +111,7 @@ TEST_F(
     for (uint32_t j = 0; j < DEFAULT_TIMEOUT_PERIOD_MS - 1; j++)
     {
         App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
-        EXPECT_EQ(1, timeout_callback_fake.call_count);
+        ASSERT_EQ(1, timeout_callback_fake.call_count);
         get_current_ms_fake.return_val++;
     }
 
@@ -121,7 +121,7 @@ TEST_F(
         for (uint32_t j = 0; j < DEFAULT_TIMEOUT_PERIOD_MS; j++)
         {
             App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
-            EXPECT_EQ(i, timeout_callback_fake.call_count);
+            ASSERT_EQ(i, timeout_callback_fake.call_count);
             get_current_ms_fake.return_val++;
         }
     }
