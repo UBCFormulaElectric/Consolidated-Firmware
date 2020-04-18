@@ -41,6 +41,7 @@
 #include "Io_SharedCan.h"
 #include "Io_SharedErrorHandlerOverride.h"
 #include "Io_SharedHardFaultHandler.h"
+#include "Io_HeartbeatMonitor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -146,9 +147,11 @@ int main(void)
 
     can_rx = App_CanRx_Create();
 
-    heartbeat_monitor = App_SharedHeartbeatMonitor_Create();
+    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+        Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT, NULL);
 
-    world = App_DimWorld_Create(can_tx, can_rx, seven_seg_displays);
+    world = App_DimWorld_Create(
+        can_tx, can_rx, seven_seg_displays, heartbeat_monitor);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
     /* USER CODE END 1 */

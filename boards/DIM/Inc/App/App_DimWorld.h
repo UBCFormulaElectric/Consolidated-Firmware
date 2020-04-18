@@ -23,8 +23,7 @@ struct DimWorld *App_DimWorld_Create(
     struct DimCanTxInterface *can_tx_interface,
     struct DimCanRxInterface *can_rx_interface,
     struct SevenSegDisplays * seven_seg_displays,
-    struct HeartbeatMonitor * heartbeat_monitor
-    );
+    struct HeartbeatMonitor * heartbeat_monitor);
 
 /**
  * Destroy the given DIM world, freeing the memory associated with it
@@ -54,5 +53,5 @@ struct DimCanRxInterface *App_DimWorld_GetCanRx(const struct DimWorld *world);
 struct SevenSegDisplays *
     App_DimWorld_GetSevenSegDisplays(const struct DimWorld *world);
 
-struct HeartbeatMonitor*
-    App_DimWorld_GetHeartbeatMonitor(const struct DimWorld* world);
+struct HeartbeatMonitor *
+    App_DimWorld_GetHeartbeatMonitor(const struct DimWorld *world);
