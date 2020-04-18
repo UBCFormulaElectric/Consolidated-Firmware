@@ -27,6 +27,7 @@ class SharedHeartbeatMonitorTest : public SharedTest
         App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
         heartbeat_monitor = NULL;
     }
+
     const enum HeartbeatOneHot DEFAULT_BOARDS_TO_CHECK = (enum HeartbeatOneHot)(
         BMS_HEARTBEAT_ONE_HOT | PDM_HEARTBEAT_ONE_HOT | DCM_HEARTBEAT_ONE_HOT);
     const uint32_t DEFAULT_TIMEOUT_PERIOD_MS = 500U;
@@ -86,6 +87,41 @@ TEST_F(
         {
             App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
             EXPECT_EQ(0, timeout_callback_fake.call_count);
+            get_current_ms_fake.return_val++;
+        }
+    }
+}
+
+TEST_F(
+    SharedHeartbeatMonitorTest,
+    check_timing_does_not_drift_if_we_miss_hardware_timer_tick)
+{
+    constexpr uint32_t NUM_CONSECUTIVE_TIMEOUTS = 10;
+
+    // First period: No skipped timer tick
+    for (uint32_t j = 0; j < DEFAULT_TIMEOUT_PERIOD_MS; j++)
+    {
+        App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
+        EXPECT_EQ(0, timeout_callback_fake.call_count);
+        get_current_ms_fake.return_val++;
+    }
+
+    // Second period: Skip one timer tick
+    get_current_ms_fake.return_val++;
+    for (uint32_t j = 0; j < DEFAULT_TIMEOUT_PERIOD_MS - 1; j++)
+    {
+        App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
+        EXPECT_EQ(1, timeout_callback_fake.call_count);
+        get_current_ms_fake.return_val++;
+    }
+
+    // Third period onward: No skipped timer tick
+    for (uint32_t i = 2; i < NUM_CONSECUTIVE_TIMEOUTS - 1; i++)
+    {
+        for (uint32_t j = 0; j < DEFAULT_TIMEOUT_PERIOD_MS; j++)
+        {
+            App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
+            EXPECT_EQ(i, timeout_callback_fake.call_count);
             get_current_ms_fake.return_val++;
         }
     }

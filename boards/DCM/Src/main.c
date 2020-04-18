@@ -27,21 +27,22 @@
 #include <assert.h>
 
 #include "Io_SharedSoftwareWatchdog.h"
-#include "App_SharedConstants.h"
+#include "Io_CanTx.h"
+#include "Io_CanRx.h"
 #include "Io_SharedCmsisOs.h"
 #include "Io_SharedCan.h"
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
+#include "Io_HeartbeatMonitor.h"
 
 #include "App_DcmWorld.h"
-#include "App_SharedStateMachine.h"
-#include "states/App_InitState.h"
-
 #include "App_CanTx.h"
 #include "App_CanRx.h"
-#include "Io_CanTx.h"
-#include "Io_CanRx.h"
+#include "App_SharedStateMachine.h"
+#include "states/App_InitState.h"
+#include "App_SharedConstants.h"
+#include "App_SharedHeartbeatMonitor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -83,6 +84,7 @@ struct DcmWorld *         world;
 struct StateMachine *     state_machine;
 struct DcmCanTxInterface *can_tx;
 struct DcmCanRxInterface *can_rx;
+struct HeartbeatMonitor * heartbeat_monitor;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -131,8 +133,11 @@ int main(void)
         Io_CanTx_EnqueueNonPeriodicMsg_DCM_STARTUP,
         Io_CanTx_EnqueueNonPeriodicMsg_DCM_WATCHDOG_TIMEOUT);
 
-    can_rx = App_CanRx_Create();
-    world  = App_DcmWorld_Create(can_tx, can_rx);
+    can_rx            = App_CanRx_Create();
+    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+        Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
+        Io_HeartbeatMonitor_TimeoutCallback);
+    world = App_DcmWorld_Create(can_tx, can_rx, heartbeat_monitor);
 
     App_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);

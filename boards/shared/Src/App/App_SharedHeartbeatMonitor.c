@@ -38,7 +38,7 @@ struct HeartbeatMonitor *App_SharedHeartbeatMonitor_Create(
 }
 
 void App_SharedHeartbeatMonitor_Destroy(
-    struct HeartbeatMonitor *heartbeat_monitor)
+    struct HeartbeatMonitor *const heartbeat_monitor)
 {
     free(heartbeat_monitor);
 }
@@ -51,7 +51,8 @@ void App_SharedHeartbeatMonitor_Tick(
     if ((current_ms - heartbeat_monitor->previous_timeout_ms) >=
         heartbeat_monitor->timeout_period_ms)
     {
-        heartbeat_monitor->previous_timeout_ms = current_ms;
+        heartbeat_monitor->previous_timeout_ms +=
+            heartbeat_monitor->timeout_period_ms;
 
 #ifndef DEBUG
         // Check if the board received all the heartbeats it's listening for

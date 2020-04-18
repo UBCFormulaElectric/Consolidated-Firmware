@@ -26,6 +26,8 @@
 /* USER CODE BEGIN Includes */
 #include <assert.h>
 
+#include "Io_CanTx.h"
+#include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
 #include "Io_SharedCan.h"
 #include "Io_SharedCmsisOs.h"
@@ -33,16 +35,15 @@
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
 #include "Io_Imd.h"
+#include "Io_HeartbeatMonitor.h"
 
 #include "App_BmsWorld.h"
+#include "App_CanTx.h"
+#include "App_CanRx.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
 #include "App_Imd.h"
-
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "Io_CanTx.h"
-#include "Io_CanRx.h"
+#include "App_SharedHeartbeatMonitor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -88,6 +89,7 @@ struct StateMachine *     state_machine;
 struct BmsCanTxInterface *can_tx;
 struct BmsCanRxInterface *can_rx;
 struct Imd *              imd;
+struct HeartbeatMonitor * heartbeat_monitor;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -146,7 +148,12 @@ int main(void)
 
     can_rx = App_CanRx_Create();
 
-    world = App_BmsWorld_Create(can_tx, can_rx, imd);
+    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+        Io_HeartbeatMonitor_GetCurrentMs, 300U,
+        FSM_HEARTBEAT_ONE_HOT | DCM_HEARTBEAT_ONE_HOT | PDM_HEARTBEAT_ONE_HOT,
+        Io_HeartbeatMonitor_TimeoutCallback);
+
+    world = App_BmsWorld_Create(can_tx, can_rx, imd, NULL);
 
     App_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);

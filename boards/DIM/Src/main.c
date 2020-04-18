@@ -148,7 +148,8 @@ int main(void)
     can_rx = App_CanRx_Create();
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT, NULL);
+        Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
+        Io_HeartbeatMonitor_TimeoutCallback);
 
     world = App_DimWorld_Create(
         can_tx, can_rx, seven_seg_displays, heartbeat_monitor);

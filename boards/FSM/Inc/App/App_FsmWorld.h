@@ -2,25 +2,25 @@
 
 #include "App_CanTx.h"
 #include "App_CanRx.h"
+#include "App_SharedHeartbeatMonitor.h"
 
 struct FsmWorld;
 
 /**
  * Allocate and initialize a world in the application layer
- * @param can_tx_interface The CAN TX interface to register to the world. Note
- *                         that this function does not take ownership of this
- *                         interface, and so this interface must be kept alive
- *                         for the lifetime of the created FSM world
- * @param can_rx_interface The CAN RX interface to register to the world. Note
- *                         that this function does not take ownership of this
- *                         interface, and so this interface must be kept alive
- *                         for the lifetime of the created FSM world
+ * @param can_tx_interface The CAN TX interface to register to the world
+ * @param can_rx_interface The CAN RX interface to register to the world
+ * @param heartbeat_monitor The heartbeat monitor to register to the world
+ * @note This function does __not__ take ownership of any of the interfaces
+ *       passed into it, which means the every interface must be kept alive for
+ *       the lifetime of the created world
  * @return A pointer to the created world, whose ownership is given to the
  * caller
  */
 struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanTxInterface *can_tx_interface,
-    struct FsmCanRxInterface *can_rx_interface);
+    struct FsmCanRxInterface *can_rx_interface,
+    struct HeartbeatMonitor * heartbeat_monitor);
 
 /**
  * Destroy the given FSM world, freeing the memory associated with it
@@ -28,16 +28,7 @@ struct FsmWorld *App_FsmWorld_Create(
  */
 void App_FsmWorld_Destroy(struct FsmWorld *world);
 
-/**
- * Get the CAN TX interface for the given world
- * @param world: The world to get CAN TX interface for
- * @return The CAN TX interface for the given world
- */
 struct FsmCanTxInterface *App_FsmWorld_GetCanTx(const struct FsmWorld *world);
-
-/**
- * Get the CAN RX interface for the given world
- * @param world: The world to get CAN RX interface for
- * @return The CAN RX interface for the given world
- */
 struct FsmCanRxInterface *App_FsmWorld_GetCanRx(const struct FsmWorld *world);
+struct HeartbeatMonitor *
+    App_FsmWorld_GetHeartbeatMonitor(const struct FsmWorld *world);

@@ -26,24 +26,25 @@
 /* USER CODE BEGIN Includes */
 #include <assert.h>
 
+#include "Io_CanTx.h"
+#include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
-#include "App_SharedConstants.h"
 #include "Io_SharedCmsisOs.h"
 #include "Io_SharedCan.h"
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
 #include "Io_FlowMeter.h"
+#include "Io_HeartbeatMonitor.h"
 
+#include "App_CanTx.h"
+#include "App_CanRx.h"
 #include "App_FlowMeter.h"
 #include "App_FsmWorld.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_AirOpenState.h"
-
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "Io_CanTx.h"
-#include "Io_CanRx.h"
+#include "App_SharedConstants.h"
+#include "App_SharedHeartbeatMonitor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -86,6 +87,7 @@ struct World *            world;
 struct StateMachine *     state_machine;
 struct FsmCanTxInterface *can_tx;
 struct FsmCanRxInterface *can_rx;
+struct HeartbeatMonitor * heartbeat_monitor;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -140,7 +142,11 @@ int main(void)
 
     primary_flow_meter = App_FlowMeter_Create(Io_FlowMeter_GetPrimaryFlowRate);
 
-    world = App_FsmWorld_Create(can_tx, can_rx);
+    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+        Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
+        Io_HeartbeatMonitor_TimeoutCallback);
+
+    world = App_FsmWorld_Create(can_tx, can_rx, heartbeat_monitor);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 

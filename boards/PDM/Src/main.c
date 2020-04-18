@@ -161,7 +161,7 @@ int main(void)
 
     world = App_PdmWorld_Create(
         can_tx, can_rx, vbat_voltage_monitor, _24v_aux_voltage_monitor,
-        _24v_acc_voltage_monitor);
+        _24v_acc_voltage_monitor, NULL);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
