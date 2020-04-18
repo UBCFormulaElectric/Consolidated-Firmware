@@ -28,6 +28,8 @@ struct HeartbeatMonitor *App_SharedHeartbeatMonitor_Create(
 
     heartbeat_monitor->get_current_ms      = get_current_ms;
     heartbeat_monitor->timeout_period_ms   = timeout_period_ms;
+    heartbeat_monitor->previous_timeout_ms = 0U;
+    heartbeat_monitor->heartbeats_checked_in = 0;
     heartbeat_monitor->heartbeats_to_check = heartbeats_to_check;
     heartbeat_monitor->timeout_callback    = timeout_callback;
 

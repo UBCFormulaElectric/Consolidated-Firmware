@@ -3,37 +3,35 @@
 
 extern "C"
 {
-#include "App_SharedHeartbeat.h"
-
-    DEFINE_FFF_GLOBALS;
-    FAKE_VALUE_FUNC(uint32_t, get_current_ms);
-    FAKE_VOID_FUNC(
-        timeout_callback,
-        enum HeartbeatOneHot,
-        enum HeartbeatOneHot);
+#include "App_SharedHeartbeatMonitor.h"
 }
+
+DEFINE_FFF_GLOBALS;
+FAKE_VALUE_FUNC(uint32_t, get_current_ms);
+FAKE_VOID_FUNC(timeout_callback, enum HeartbeatOneHot, enum HeartbeatOneHot);
 
 class SharedHeartbeatMonitorTest : public testing::Test
 {
   protected:
     void SetUp() override
     {
-        constexpr uint32_t             DEFAULT_TIMEOUT_PERIOD_MS = 500U;
-        constexpr enum HeartbeatOneHot DEFAULT_BOARDS_TO_CHECK =
-            BMS_HEARTBEAT_ONE_HOT | PDM_HEARTBEAT_ONE_HOT |
-            DIM_HEARTBEAT_ONE_HOT;
-
-        struct HeartbeatMonitor *App_SharedHeartbeatMonitor_Create(
+        heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             get_current_ms, DEFAULT_TIMEOUT_PERIOD_MS, DEFAULT_BOARDS_TO_CHECK,
             timeout_callback);
+
+        RESET_FAKE(get_current_ms);
+        RESET_FAKE(timeout_callback);
     }
 
     void TearDown() override
     {
-        ASSERT_TRUE(heartbeat_monitor != NULL);
+        EXPECT_TRUE(heartbeat_monitor != NULL);
         App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
         heartbeat_monitor = NULL;
     }
+    const enum HeartbeatOneHot DEFAULT_BOARDS_TO_CHECK = (enum HeartbeatOneHot)(
+        BMS_HEARTBEAT_ONE_HOT | PDM_HEARTBEAT_ONE_HOT | DCM_HEARTBEAT_ONE_HOT);
+    const uint32_t           DEFAULT_TIMEOUT_PERIOD_MS = 500U;
 
     struct HeartbeatMonitor *heartbeat_monitor;
 };
@@ -49,13 +47,9 @@ TEST_F(
         for (uint32_t j = 0; j < DEFAULT_TIMEOUT_PERIOD_MS; j++)
         {
             App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
-            ASSERT_EQ(i, timeout_callback.call_count);
+            EXPECT_EQ(i, timeout_callback_fake.call_count);
             get_current_ms_fake.return_val++;
         }
-
-        App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
-        ASSERT_EQ(i + 1, timeout_callback.call_count);
-        get_current_ms_fake.return_val++;
     }
 }
 
@@ -67,18 +61,15 @@ TEST_F(
 
     for (uint32_t i = 0; i < NUM_CONSECUTIVE_TIMEOUTS; i++)
     {
-        App_SharedHeartbeatMonitor_CheckIn(BMS_HEARTBEAT_ONE_HOT);
+        App_SharedHeartbeatMonitor_CheckIn(
+            heartbeat_monitor, BMS_HEARTBEAT_ONE_HOT);
 
         for (uint32_t j = 0; j < DEFAULT_TIMEOUT_PERIOD_MS; j++)
         {
             App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
-            ASSERT_EQ(i, timeout_callback.call_count);
+            EXPECT_EQ(i, timeout_callback_fake.call_count);
             get_current_ms_fake.return_val++;
         }
-
-        App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
-        ASSERT_EQ(i + 1, timeout_callback.call_count);
-        get_current_ms_fake.return_val++;
     }
 }
 
@@ -90,17 +81,14 @@ TEST_F(
 
     for (uint32_t i = 0; i < NUM_CONSECUTIVE_TIMEOUTS; i++)
     {
-        App_SharedHeartbeatMonitor_CheckIn(DEFAULT_BOARDS_TO_CHECK);
+        App_SharedHeartbeatMonitor_CheckIn(
+            heartbeat_monitor, DEFAULT_BOARDS_TO_CHECK);
 
         for (uint32_t j = 0; j < DEFAULT_TIMEOUT_PERIOD_MS; j++)
         {
             App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
-            ASSERT_EQ(0, timeout_callback.call_count);
+            EXPECT_EQ(0, timeout_callback_fake.call_count);
             get_current_ms_fake.return_val++;
         }
-
-        App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
-        ASSERT_EQ(0, timeout_callback.call_count);
-        get_current_ms_fake.return_val++;
     }
 }
