@@ -54,7 +54,7 @@ void App_SharedHeartbeatMonitor_Tick(
         heartbeat_monitor->previous_timeout_ms +=
             heartbeat_monitor->timeout_period_ms;
 
-#ifndef DEBUG
+#ifdef NDEBUG
         // Check if the board received all the heartbeats it's listening for
         if (heartbeat_monitor->heartbeats_to_check !=
             heartbeat_monitor->heartbeats_checked_in)
