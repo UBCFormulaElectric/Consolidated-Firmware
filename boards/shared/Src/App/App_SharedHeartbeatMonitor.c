@@ -20,18 +20,19 @@ struct HeartbeatMonitor *App_SharedHeartbeatMonitor_Create(
     void (*const timeout_callback)(enum HeartbeatOneHot, enum HeartbeatOneHot))
 {
     assert(get_current_ms != NULL);
+    assert(timeout_callback != NULL);
 
     struct HeartbeatMonitor *const heartbeat_monitor =
         malloc(sizeof(struct HeartbeatMonitor));
 
     assert(heartbeat_monitor != NULL);
 
-    heartbeat_monitor->get_current_ms      = get_current_ms;
-    heartbeat_monitor->timeout_period_ms   = timeout_period_ms;
-    heartbeat_monitor->previous_timeout_ms = 0U;
+    heartbeat_monitor->get_current_ms        = get_current_ms;
+    heartbeat_monitor->timeout_period_ms     = timeout_period_ms;
+    heartbeat_monitor->previous_timeout_ms   = 0U;
     heartbeat_monitor->heartbeats_checked_in = 0;
-    heartbeat_monitor->heartbeats_to_check = heartbeats_to_check;
-    heartbeat_monitor->timeout_callback    = timeout_callback;
+    heartbeat_monitor->heartbeats_to_check   = heartbeats_to_check;
+    heartbeat_monitor->timeout_callback      = timeout_callback;
 
     return heartbeat_monitor;
 }

@@ -31,7 +31,7 @@ class SharedHeartbeatMonitorTest : public testing::Test
     }
     const enum HeartbeatOneHot DEFAULT_BOARDS_TO_CHECK = (enum HeartbeatOneHot)(
         BMS_HEARTBEAT_ONE_HOT | PDM_HEARTBEAT_ONE_HOT | DCM_HEARTBEAT_ONE_HOT);
-    const uint32_t           DEFAULT_TIMEOUT_PERIOD_MS = 500U;
+    const uint32_t DEFAULT_TIMEOUT_PERIOD_MS = 500U;
 
     struct HeartbeatMonitor *heartbeat_monitor;
 };

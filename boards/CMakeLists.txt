@@ -465,7 +465,9 @@ if ("${PLATFORM}" STREQUAL "x86")
     enable_testing()
 endif()
 
+# Shared code accessible to all boards
 add_subdirectory(shared __shared__)
+
 add_subdirectory(DCM)
 add_subdirectory(PDM)
 add_subdirectory(FSM)
