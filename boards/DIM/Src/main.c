@@ -181,7 +181,8 @@ int main(void)
     MX_ADC2_Init();
     MX_SPI2_Init();
     /* USER CODE BEGIN 2 */
-
+    struct CanMsgs_dim_startup_t payload = { .dummy = 0 };
+    App_CanTx_SendNonPeriodicMsg_DIM_STARTUP(can_tx, &payload);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */

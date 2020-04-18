@@ -153,7 +153,7 @@ int main(void)
         FSM_HEARTBEAT_ONE_HOT | DCM_HEARTBEAT_ONE_HOT | PDM_HEARTBEAT_ONE_HOT,
         Io_HeartbeatMonitor_TimeoutCallback);
 
-    world = App_BmsWorld_Create(can_tx, can_rx, imd, NULL);
+    world = App_BmsWorld_Create(can_tx, can_rx, imd, heartbeat_monitor);
 
     App_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);

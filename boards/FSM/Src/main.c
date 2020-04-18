@@ -180,6 +180,9 @@ int main(void)
     MX_ADC2_Init();
     /* USER CODE BEGIN 2 */
     primary_flow_meter = App_FlowMeter_Create(Io_FlowMeter_GetPrimaryFlowRate);
+
+    struct CanMsgs_fsm_startup_t payload = { .dummy = 0 };
+    App_CanTx_SendNonPeriodicMsg_FSM_STARTUP(can_tx, &payload);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */

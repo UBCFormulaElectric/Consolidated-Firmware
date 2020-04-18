@@ -133,10 +133,12 @@ int main(void)
         Io_CanTx_EnqueueNonPeriodicMsg_DCM_STARTUP,
         Io_CanTx_EnqueueNonPeriodicMsg_DCM_WATCHDOG_TIMEOUT);
 
-    can_rx            = App_CanRx_Create();
+    can_rx = App_CanRx_Create();
+
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
         Io_HeartbeatMonitor_TimeoutCallback);
+
     world = App_DcmWorld_Create(can_tx, can_rx, heartbeat_monitor);
 
     App_StackWaterMark_Init(can_tx);
