@@ -1,12 +1,10 @@
-#include "fff.h"
-#include "gtest/gtest.h"
+#include "Test_Shared.h"
 
 extern "C"
 {
 #include "App_SharedHeartbeatMonitor.h"
 }
 
-DEFINE_FFF_GLOBALS;
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
 FAKE_VOID_FUNC(timeout_callback, enum HeartbeatOneHot, enum HeartbeatOneHot);
 
