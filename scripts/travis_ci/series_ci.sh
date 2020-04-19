@@ -26,5 +26,5 @@ echo $bss
 curl \
   --header "Authorization: Token 27d62d1f-71c6-4075-95b5-f7aec56d0204" \
   --header "Content-Type: application/json" \
-  --data "{\"values\":[{\"value\":\"$text\",\"line\":\"text\"},{\"value\":\"$data\",\"line\":\"data\"},{\"value\":\"$bss\",\"line\":\"bss\"}],\"sha\":\"${TRAVIS_COMMIT}\"}" \
+  --data "{\"values\":[{\"value\":\"$text\",\"line\":\"text\"},{\"value\":\"$data\",\"line\":\"data\"},{\"value\":\"$bss\",\"line\":\"bss\"}],\"sha\":\"${TRAVIS_PULL_REQUEST_SHA}\"}" \
   https://seriesci.com/api/UBCFormulaElectric/Consolidated-Firmware/$SERIES_NAME/many
