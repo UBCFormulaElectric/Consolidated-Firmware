@@ -17,7 +17,6 @@ struct FreqOnlyPwmInput
     uint32_t           curr_rising_edge;
     uint32_t           prev_rising_edge;
 
-    // Elapsed tick counts the number of times which a timer overflow occurs
     size_t elapsed_tick;
 };
 
