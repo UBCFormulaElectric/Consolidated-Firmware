@@ -4,18 +4,19 @@
 #include <stdbool.h>
 #include "Io_SharedFreqOnlyPwmInput.h"
 
-#define MAX_TIMER_PERIOD_ELAPSED_COUNT 2
-
 struct FreqOnlyPwmInput
 {
-    float              frequency_hz;
-    TIM_HandleTypeDef *htim;
-    float              timer_frequency_hz;
-    uint32_t           rising_edge_tim_channel;
-    uint32_t           timer_auto_reload_reg;
-    bool               first_tick;
-    uint32_t           curr_rising_edge;
-    uint32_t           prev_rising_edge;
+    float frequency_hz;
+
+    TIM_HandleTypeDef *   htim;
+    float                 timer_frequency_hz;
+    uint32_t              rising_edge_tim_channel;
+    uint32_t              timer_auto_reload_reg;
+    HAL_TIM_ActiveChannel timer_active_channel;
+
+    bool     first_tick;
+    uint32_t curr_rising_edge;
+    uint32_t prev_rising_edge;
 
     size_t timer_overflow_count;
 };
@@ -39,10 +40,11 @@ static void Io_SetFrequency(
 }
 
 struct FreqOnlyPwmInput *Io_SharedFreqOnlyPwmInput_Create(
-    TIM_HandleTypeDef *htim,
-    float              timer_frequency_hz,
-    uint32_t           rising_edge_timer_channel,
-    uint32_t           timer_auto_reload_reg)
+    TIM_HandleTypeDef *   htim,
+    float                 timer_frequency_hz,
+    uint32_t              rising_edge_timer_channel,
+    uint32_t              timer_auto_reload_reg,
+    HAL_TIM_ActiveChannel timer_active_channel)
 {
     assert(htim != NULL);
     static struct FreqOnlyPwmInput pwm_inputs[MAX_NUM_OF_FREQ_ONLY_PWM_INPUTS];
@@ -57,10 +59,11 @@ struct FreqOnlyPwmInput *Io_SharedFreqOnlyPwmInput_Create(
     pwm_input->timer_frequency_hz      = timer_frequency_hz;
     pwm_input->rising_edge_tim_channel = rising_edge_timer_channel;
     pwm_input->timer_auto_reload_reg   = timer_auto_reload_reg;
+    pwm_input->timer_active_channel    = timer_active_channel;
     pwm_input->prev_rising_edge        = 0U;
     pwm_input->curr_rising_edge        = 0U;
     pwm_input->first_tick              = true;
-    pwm_input->elapsed_tick            = 0U;
+    pwm_input->timer_overflow_count    = 0U;
 
     HAL_TIM_IC_Start_IT(htim, rising_edge_timer_channel);
     HAL_TIM_Base_Start_IT(htim);
@@ -68,10 +71,34 @@ struct FreqOnlyPwmInput *Io_SharedFreqOnlyPwmInput_Create(
     return pwm_input;
 }
 
+float Io_SharedFreqOnlyPwmInput_GetFrequency(
+    struct FreqOnlyPwmInput *const pwm_input)
+{
+    return pwm_input->frequency_hz;
+}
+
+TIM_HandleTypeDef *Io_SharedFreqOnlyPwmInput_GetTimerHandle(
+    struct FreqOnlyPwmInput *const pwm_input)
+{
+    return pwm_input->htim;
+}
+
+HAL_TIM_ActiveChannel Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(
+    struct FreqOnlyPwmInput *const pwm_input)
+{
+    return pwm_input->timer_active_channel;
+}
+
+/**
+ * @note The function captures the value of first rising edge, and then captures
+ *       the second rising edge from the capture compare unit. The difference
+ *       between these two values, rising_edge_delta are computed and used to
+ *       compute the frequency of the pwm input signal
+ */
 void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *const pwm_input)
 {
     // Reset elapsed tick counter for the flow meter
-    pwm_input->elapsed_tick = 0U;
+    pwm_input->timer_overflow_count = 0U;
 
     if (pwm_input->first_tick)
     {
@@ -93,12 +120,11 @@ void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *const pwm_input)
         {
             rising_edge_delta = curr_rising_edge - prev_rising_edge;
             Io_SetFrequency(
-                pwm_input,
-                pwm_input->timer_frequency_hz / rising_edge_delta);
+                pwm_input, pwm_input->timer_frequency_hz / rising_edge_delta);
         }
         else if (curr_rising_edge < prev_rising_edge)
         {
-             // Occurs when the counter rolls over
+            // Occurs when the counter rolls over
             rising_edge_delta = pwm_input->timer_auto_reload_reg -
                                 prev_rising_edge + curr_rising_edge + 1;
             Io_SetFrequency(
@@ -107,27 +133,22 @@ void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *const pwm_input)
         }
         else
         {
-            // Occurs when the counter rolls over (i.e. The PWM frequency being measured is too low), or either when a tick arrives before the counter can upcount ((i.e. The PWM frequency being measured is too high)
+            // Occurs when the counter rolls over (i.e. The PWM frequency being
+            // measured is too low), or either when a tick arrives before the
+            // counter can upcount ((i.e. The PWM frequency being measured is
+            // too high)
             Io_SetFrequency(pwm_input, NAN);
         }
     }
 }
 
-void Io_SharedFreqOnlyPwmInput_Elapsed_Tick(
+void Io_SharedFreqOnlyPwmInput_TimerOverflowUpdate(
     struct FreqOnlyPwmInput *const pwm_input)
 {
-    // Elapsed tick counts the number of times where the timer counter overflows
-    const size_t elapsed_tick = ++pwm_input->elapsed_tick;
-
-    // If the timer overflows twice without a rising edge, the PWM signal is likely inactive and its frequency can't be computed
-    if (elapsed_tick >= 2U)
+    // If the timer overflows twice without a rising edge, the PWM signal is
+    // likely inactive and its frequency can't be computed
+    if (++pwm_input->timer_overflow_count == 2U)
     {
         Io_SetFrequency(pwm_input, NAN);
     }
-}
-
-float Io_SharedFreqOnlyPwmInput_GetFrequency(
-    struct FreqOnlyPwmInput *const pwm_input)
-{
-    return pwm_input->frequency_hz;
 }

@@ -149,6 +149,10 @@ int main(void)
     App_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
 
+    Io_FlowMeters_Init(&htim4);
+    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeters_GetPrimaryFlowRate);
+    secondary_flow_meter =
+        App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
     /* USER CODE END 1 */
 
     /* MCU
@@ -176,10 +180,7 @@ int main(void)
     MX_ADC2_Init();
     MX_TIM4_Init();
     /* USER CODE BEGIN 2 */
-    Io_FlowMeters_Init(&htim4);
-    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeters_GetPrimaryFlowRate);
-    secondary_flow_meter =
-        App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
+
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -427,9 +428,9 @@ static void MX_TIM4_Init(void)
 
     /* USER CODE END TIM4_Init 1 */
     htim4.Instance               = TIM4;
-    htim4.Init.Prescaler         = TIMx_PRESCALER;
+    htim4.Init.Prescaler         = TIM4_PRESCALER;
     htim4.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim4.Init.Period            = TIMx_AUTO_RELOAD_REG;
+    htim4.Init.Period            = TIM4_AUTO_RELOAD_REG;
     htim4.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_IC_Init(&htim4) != HAL_OK)
@@ -653,8 +654,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 0 */
     if (htim->Instance == TIM4)
     {
-        Io_FlowMeters_Elapsed_TickPrimary();
-        Io_FlowMeters_Elapsed_TickSecondary();
+        Io_FlowMeters_CheckIfPrimaryIsActive();
+        Io_FlowMeters_CheckIfSecondaryIsActive();
     }
     /* USER CODE END Callback 0 */
     if (htim->Instance == TIM6)

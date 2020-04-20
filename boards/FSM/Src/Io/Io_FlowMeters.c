@@ -3,79 +3,55 @@
 #include "Io_SharedFreqOnlyPwmInput.h"
 #include "Io_FlowMeters.h"
 
-struct FlowMeters_Context
-{
-    struct FreqOnlyPwmInput *pwm_input;
-    TIM_HandleTypeDef *      htim;
-    HAL_TIM_ActiveChannel    active_channel;
-};
-
-static struct FlowMeters_Context primary_flow_meter, secondary_flow_meter;
+static struct FreqOnlyPwmInput *primary_flow_meter, *secondary_flow_meter;
 
 void Io_FlowMeters_Init(TIM_HandleTypeDef *htim)
 {
     assert(htim != NULL);
 
-    primary_flow_meter.htim   = htim;
-    secondary_flow_meter.htim = htim;
-
-    primary_flow_meter.active_channel   = HAL_TIM_ACTIVE_CHANNEL_1;
-    secondary_flow_meter.active_channel = HAL_TIM_ACTIVE_CHANNEL_2;
-
-    primary_flow_meter.pwm_input = Io_SharedFreqOnlyPwmInput_Create(
-        htim, TIMx_FREQUENCY / TIMx_PRESCALER, TIM_CHANNEL_1,
-        TIMx_AUTO_RELOAD_REG);
-    secondary_flow_meter.pwm_input = Io_SharedFreqOnlyPwmInput_Create(
-        htim, TIMx_FREQUENCY / TIMx_PRESCALER, TIM_CHANNEL_2,
-        TIMx_AUTO_RELOAD_REG);
+    primary_flow_meter = Io_SharedFreqOnlyPwmInput_Create(
+        htim, TIMx_FREQUENCY / TIM4_PRESCALER, TIM_CHANNEL_1,
+        TIM4_AUTO_RELOAD_REG, HAL_TIM_ACTIVE_CHANNEL_1);
+    secondary_flow_meter = Io_SharedFreqOnlyPwmInput_Create(
+        htim, TIMx_FREQUENCY / TIM4_PRESCALER, TIM_CHANNEL_2,
+        TIM4_AUTO_RELOAD_REG, HAL_TIM_ACTIVE_CHANNEL_2);
 }
 
 float Io_FlowMeters_GetPrimaryFlowRate(void)
 {
-    return Io_SharedFreqOnlyPwmInput_GetFrequency(
-               primary_flow_meter.pwm_input) /
-           7.5f;
+    return Io_SharedFreqOnlyPwmInput_GetFrequency(primary_flow_meter) / 7.5f;
 }
 
 float Io_FlowMeters_GetSecondaryFlowRate(void)
 {
-    return Io_SharedFreqOnlyPwmInput_GetFrequency(
-               secondary_flow_meter.pwm_input) /
-           7.5f;
-}
-
-void Io_FlowMeters_TickPrimary(void)
-{
-    Io_SharedFreqOnlyPwmInput_Tick(primary_flow_meter.pwm_input);
-}
-
-void Io_FlowMeters_TickSecondary(void)
-{
-    Io_SharedFreqOnlyPwmInput_Tick(secondary_flow_meter.pwm_input);
+    return Io_SharedFreqOnlyPwmInput_GetFrequency(secondary_flow_meter) / 7.5f;
 }
 
 void Io_FlowMeters_InputCaptureCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim == primary_flow_meter.htim &&
-        htim->Channel == primary_flow_meter.active_channel)
+    if (htim == Io_SharedFreqOnlyPwmInput_GetTimerHandle(primary_flow_meter) &&
+        htim->Channel ==
+            Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(primary_flow_meter))
     {
-        Io_FlowMeters_TickPrimary();
+        Io_SharedFreqOnlyPwmInput_Tick(primary_flow_meter);
     }
 
     else if (
-        htim == secondary_flow_meter.htim &&
-        htim->Channel == secondary_flow_meter.active_channel)
+        htim ==
+            Io_SharedFreqOnlyPwmInput_GetTimerHandle(secondary_flow_meter) &&
+        htim->Channel == Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(
+                             secondary_flow_meter))
     {
-        Io_FlowMeters_TickSecondary();
+        Io_SharedFreqOnlyPwmInput_Tick(secondary_flow_meter);
     }
 }
 
-void Io_FlowMeters_Elapsed_TickPrimary(void)
+void Io_FlowMeters_CheckIfPrimaryIsActive(void)
 {
-    Io_SharedFreqOnlyPwmInput_Elapsed_Tick(primary_flow_meter.pwm_input);
+    Io_SharedFreqOnlyPwmInput_TimerOverflowUpdate(primary_flow_meter);
 }
 
-void Io_FlowMeters_Elapsed_TickSecondary(void)
+void Io_FlowMeters_CheckIfSecondaryIsActive(void)
 {
-    Io_SharedFreqOnlyPwmInput_Elapsed_Tick(secondary_flow_meter.pwm_input);
+    Io_SharedFreqOnlyPwmInput_TimerOverflowUpdate(secondary_flow_meter);
 }
