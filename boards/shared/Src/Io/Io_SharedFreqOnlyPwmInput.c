@@ -10,7 +10,7 @@ struct FreqOnlyPwmInput
 
     TIM_HandleTypeDef *   htim;
     float                 timer_frequency_hz;
-    uint32_t              rising_edge_tim_channel;
+    uint32_t              tim_channel;
     uint32_t              timer_auto_reload_reg;
     HAL_TIM_ActiveChannel timer_active_channel;
 
