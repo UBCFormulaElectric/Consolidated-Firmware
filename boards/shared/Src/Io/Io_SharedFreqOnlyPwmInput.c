@@ -84,7 +84,7 @@ TIM_HandleTypeDef *Io_SharedFreqOnlyPwmInput_GetTimerHandle(
 }
 
 HAL_TIM_ActiveChannel Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(
-    struct FreqOnlyPwmInput *const pwm_input)
+    const struct FreqOnlyPwmInput *const pwm_input)
 {
     return pwm_input->timer_active_channel;
 }
