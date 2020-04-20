@@ -27,7 +27,8 @@ float Io_FlowMeters_GetSecondaryFlowRate(void);
 void Io_FlowMeters_InputCaptureCallback(TIM_HandleTypeDef *htim);
 
 /**
- * Detects when timer CNT register overflowed, and checks if positive edges are
+ * Check if the PWM signal of the primary flow meter is active. If it is inactive (i.e. It has been unplugged or unpowered), set the frequency to NaN.
+ @note This function should be called in the timer overflow interrupt
  * detected from the primary flow meter. Outputs NaN in situations where edges
  * triggered interrupts are not detected.
  */
