@@ -48,10 +48,10 @@ void Io_FlowMeters_InputCaptureCallback(TIM_HandleTypeDef *htim)
 
 void Io_FlowMeters_CheckIfPrimaryIsActive(void)
 {
-    Io_SharedFreqOnlyPwmInput_TimerOverflowUpdate(primary_flow_meter);
+    Io_SharedFreqOnlyPwmInput_CheckIfPwmIsActive(primary_flow_meter);
 }
 
 void Io_FlowMeters_CheckIfSecondaryIsActive(void)
 {
-    Io_SharedFreqOnlyPwmInput_TimerOverflowUpdate(secondary_flow_meter);
+    Io_SharedFreqOnlyPwmInput_CheckIfPwmIsActive(secondary_flow_meter);
 }

@@ -34,7 +34,7 @@ struct FreqOnlyPwmInput *Io_SharedFreqOnlyPwmInput_Create(
  * @return The frequency for the given PWM input
  */
 float Io_SharedFreqOnlyPwmInput_GetFrequency(
-    struct FreqOnlyPwmInput *pwm_input);
+    const struct FreqOnlyPwmInput *pwm_input);
 
 /**
  * Get the timer handle for the given PWM input
@@ -42,7 +42,7 @@ float Io_SharedFreqOnlyPwmInput_GetFrequency(
  * @return The timer handle for the given PWM input
  */
 TIM_HandleTypeDef *Io_SharedFreqOnlyPwmInput_GetTimerHandle(
-    struct FreqOnlyPwmInput *pwm_input);
+    const struct FreqOnlyPwmInput *pwm_input);
 
 /**
  * Get the configured active timer channel for the given PWM input
@@ -51,7 +51,7 @@ TIM_HandleTypeDef *Io_SharedFreqOnlyPwmInput_GetTimerHandle(
  * @return The configured active timer channel for the given PWM input
  */
 HAL_TIM_ActiveChannel Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(
-    struct FreqOnlyPwmInput *pwm_input);
+    const struct FreqOnlyPwmInput *pwm_input);
 
 /**
  * Update the frequency for the given PWM input
@@ -62,7 +62,7 @@ void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *pwm_input);
 
 /**
  * Check if the given PWM signal is active. If it is inactive (i.e. It has been
- * unplugged or unpowered), set the frequency to NaN.                                                                
+ * unplugged or unpowered), set the frequency to NaN.
  * @note This function should be called in the timer overflow interrupt
  *       for the PWM signal
  * @param pwm_input: The PWM input to check for
