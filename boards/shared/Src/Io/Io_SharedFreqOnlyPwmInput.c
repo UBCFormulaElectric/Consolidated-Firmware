@@ -78,7 +78,7 @@ float Io_SharedFreqOnlyPwmInput_GetFrequency(
 }
 
 TIM_HandleTypeDef *Io_SharedFreqOnlyPwmInput_GetTimerHandle(
-    struct FreqOnlyPwmInput *const pwm_input)
+    const struct FreqOnlyPwmInput *const pwm_input)
 {
     return pwm_input->htim;
 }
