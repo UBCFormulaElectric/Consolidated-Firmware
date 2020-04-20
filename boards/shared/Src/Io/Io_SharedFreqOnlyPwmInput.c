@@ -42,7 +42,7 @@ static void Io_SetFrequency(
 struct FreqOnlyPwmInput *Io_SharedFreqOnlyPwmInput_Create(
     TIM_HandleTypeDef *   htim,
     float                 timer_frequency_hz,
-    uint32_t              rising_edge_timer_channel,
+    uint32_t              tim_channel,
     uint32_t              timer_auto_reload_reg,
     HAL_TIM_ActiveChannel timer_active_channel)
 {
@@ -54,18 +54,18 @@ struct FreqOnlyPwmInput *Io_SharedFreqOnlyPwmInput_Create(
 
     struct FreqOnlyPwmInput *const pwm_input = &pwm_inputs[alloc_index++];
 
-    pwm_input->frequency_hz            = NAN;
-    pwm_input->htim                    = htim;
-    pwm_input->timer_frequency_hz      = timer_frequency_hz;
-    pwm_input->rising_edge_tim_channel = rising_edge_timer_channel;
-    pwm_input->timer_auto_reload_reg   = timer_auto_reload_reg;
-    pwm_input->timer_active_channel    = timer_active_channel;
-    pwm_input->prev_rising_edge        = 0U;
-    pwm_input->curr_rising_edge        = 0U;
-    pwm_input->first_tick              = true;
-    pwm_input->timer_overflow_count    = 0U;
+    pwm_input->frequency_hz          = NAN;
+    pwm_input->htim                  = htim;
+    pwm_input->timer_frequency_hz    = timer_frequency_hz;
+    pwm_input->tim_channel           = tim_channel;
+    pwm_input->timer_auto_reload_reg = timer_auto_reload_reg;
+    pwm_input->timer_active_channel  = timer_active_channel;
+    pwm_input->prev_rising_edge      = 0U;
+    pwm_input->curr_rising_edge      = 0U;
+    pwm_input->first_tick            = true;
+    pwm_input->timer_overflow_count  = 0U;
 
-    HAL_TIM_IC_Start_IT(htim, rising_edge_timer_channel);
+    HAL_TIM_IC_Start_IT(htim, tim_channel);
     HAL_TIM_Base_Start_IT(htim);
 
     return pwm_input;
@@ -78,13 +78,13 @@ float Io_SharedFreqOnlyPwmInput_GetFrequency(
 }
 
 TIM_HandleTypeDef *Io_SharedFreqOnlyPwmInput_GetTimerHandle(
-    const struct FreqOnlyPwmInput *const pwm_input)
+    struct FreqOnlyPwmInput *const pwm_input)
 {
     return pwm_input->htim;
 }
 
 HAL_TIM_ActiveChannel Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(
-    const struct FreqOnlyPwmInput *const pwm_input)
+    struct FreqOnlyPwmInput *const pwm_input)
 {
     return pwm_input->timer_active_channel;
 }
@@ -101,14 +101,14 @@ void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *const pwm_input)
     if (pwm_input->first_tick)
     {
         pwm_input->curr_rising_edge = HAL_TIM_ReadCapturedValue(
-            pwm_input->htim, pwm_input->rising_edge_tim_channel);
+            pwm_input->htim, pwm_input->tim_channel);
         pwm_input->first_tick = false;
     }
     else
     {
         pwm_input->prev_rising_edge = pwm_input->curr_rising_edge;
         pwm_input->curr_rising_edge = HAL_TIM_ReadCapturedValue(
-            pwm_input->htim, pwm_input->rising_edge_tim_channel);
+            pwm_input->htim, pwm_input->tim_channel);
 
         uint32_t       rising_edge_delta;
         const uint32_t prev_rising_edge = pwm_input->prev_rising_edge;

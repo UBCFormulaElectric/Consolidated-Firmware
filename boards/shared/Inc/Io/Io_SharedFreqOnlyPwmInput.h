@@ -42,7 +42,7 @@ float Io_SharedFreqOnlyPwmInput_GetFrequency(
  * @return The timer handle for the given PWM input
  */
 TIM_HandleTypeDef *Io_SharedFreqOnlyPwmInput_GetTimerHandle(
-    struct FreqOnlyPwmInput *const pwm_input);
+    struct FreqOnlyPwmInput *pwm_input);
 
 /**
  * Get the configured active timer channel for the given PWM input
@@ -51,7 +51,7 @@ TIM_HandleTypeDef *Io_SharedFreqOnlyPwmInput_GetTimerHandle(
  * @return The configured active timer channel for the given PWM input
  */
 HAL_TIM_ActiveChannel Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(
-    struct FreqOnlyPwmInput *const pwm_input);
+    struct FreqOnlyPwmInput *pwm_input);
 
 /**
  * Update the frequency for the given PWM input

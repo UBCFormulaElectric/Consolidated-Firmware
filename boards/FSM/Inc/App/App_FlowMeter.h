@@ -16,7 +16,7 @@ struct FlowMeter *App_FlowMeter_Create(float (*get_flow_rate)(void));
  * @param flow_meter : The flow meter to read the flow rate from
  * @return The flow rate of the flow meter (L/min)
  */
-float App_FlowMeter_ReadFlowRate(struct FlowMeter *flow_meter);
+float App_FlowMeter_GetFlowRate(struct FlowMeter *flow_meter);
 
 /**
  * Update flow rate for the flow meter
