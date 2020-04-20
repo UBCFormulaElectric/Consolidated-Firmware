@@ -89,16 +89,17 @@ HAL_TIM_ActiveChannel Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(
     return pwm_input->timer_active_channel;
 }
 
-/**
- * @note The function captures the value of first rising edge, and then captures
- *       the second rising edge from the capture compare unit. The difference
- *       between these two values, rising_edge_delta are computed and used to
- *       compute the frequency of the pwm input signal
- */
 void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *const pwm_input)
 {
     // Reset elapsed tick counter for the flow meter
     pwm_input->timer_overflow_count = 0U;
+
+    /**
+     * @note The function captures the value of first rising edge, and then
+     * captures the second rising edge from the capture compare unit. The
+     * difference between these two values, rising_edge_delta are computed and
+     * used to compute the frequency of the pwm input signal
+     */
 
     if (pwm_input->first_tick)
     {
