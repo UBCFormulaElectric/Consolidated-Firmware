@@ -19,10 +19,10 @@ float Io_FlowMeters_GetPrimaryFlowRate(void);
 float Io_FlowMeters_GetSecondaryFlowRate(void);
 
 /**
- * Updates the frequency for the flow meter's PWM output. This
- * should be called in the input capture callback function.
- * @param htim : The handle of the timer that triggered the input capture
- * callback function
+ * Update the frequency for the primary and secondary flow meter's PWM outputs.
+ * @note This function should be called in the input capture callback function.
+ * @param htim: The handle of the timer that triggered the input capture
+ *              callback function
  */
 void Io_FlowMeters_InputCaptureCallback(TIM_HandleTypeDef *htim);
 
