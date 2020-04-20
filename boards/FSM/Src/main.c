@@ -143,7 +143,10 @@ int main(void)
 
     can_rx = App_CanRx_Create();
 
-    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeter_GetPrimaryFlowRate);
+    Io_FlowMeters_Init(&htim4);
+    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeters_GetPrimaryFlowRate);
+    secondary_flow_meter =
+        App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
@@ -155,11 +158,6 @@ int main(void)
 
     App_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
-
-    Io_FlowMeters_Init(&htim4);
-    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeters_GetPrimaryFlowRate);
-    secondary_flow_meter =
-        App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
     /* USER CODE END 1 */
 
     /* MCU
@@ -187,7 +185,7 @@ int main(void)
     MX_ADC2_Init();
     MX_TIM4_Init();
     /* USER CODE BEGIN 2 */
-  
+
     struct CanMsgs_fsm_startup_t payload = { .dummy = 0 };
     App_CanTx_SendNonPeriodicMsg_FSM_STARTUP(can_tx, &payload);
     /* USER CODE END 2 */
