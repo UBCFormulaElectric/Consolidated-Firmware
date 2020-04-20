@@ -56,7 +56,6 @@ void Io_FlowMeters_TickSecondary(void)
 
 void Io_FlowMeters_InputCaptureCallback(TIM_HandleTypeDef *htim)
 {
-    // Primary and secondary flow meter timer handler are the same
     if (htim == primary_flow_meter.htim &&
         htim->Channel == primary_flow_meter.active_channel)
     {
