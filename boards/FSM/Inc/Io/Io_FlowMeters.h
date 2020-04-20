@@ -32,7 +32,7 @@ void Io_FlowMeters_InputCaptureCallback(TIM_HandleTypeDef *htim);
  * detected from the primary flow meter. Outputs NaN in situations where edges
  * triggered interrupts are not detected.
  */
-void Io_FlowMeters_Elapsed_TickPrimary(void);
+void Io_FlowMeters_CheckIfPrimaryIsActive(void);
 
 /**
  * Detects when timer CNT register overflowed, and checks if positive edges are
