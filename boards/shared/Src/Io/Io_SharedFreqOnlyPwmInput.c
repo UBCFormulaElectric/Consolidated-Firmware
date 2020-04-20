@@ -133,7 +133,7 @@ void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *const pwm_input)
         {
             // Occurs when the counter rolls over (i.e. The PWM frequency being
             // measured is too low), or either when a tick arrives before the
-            // counter can upcount ((i.e. The PWM frequency being measured is
+            // counter can upcount (i.e. The PWM frequency being measured is
             // too high)
             Io_SetFrequency(pwm_input, NAN);
         }
