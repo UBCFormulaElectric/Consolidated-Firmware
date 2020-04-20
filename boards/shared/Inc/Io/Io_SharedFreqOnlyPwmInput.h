@@ -31,7 +31,7 @@ struct FreqOnlyPwmInput *Io_SharedFreqOnlyPwmInput_Create(
     uint32_t           timer_auto_reload_reg);
 
 /**
- * Get the frequency for the
+ * Get the frequency for the given PWM input
  * @param pwm_input: The PWM input to get frequency for
  * @return The frequency for the given PWM input
  */
