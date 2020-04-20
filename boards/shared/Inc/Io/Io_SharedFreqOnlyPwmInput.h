@@ -39,7 +39,7 @@ float Io_SharedFreqOnlyPwmInput_GetFrequency(
     struct FreqOnlyPwmInput *pwm_input);
 
 /**
- * Update the frequency and for the given PWM input channel
+ * Update the frequency for the given PWM input
  *
  * @note The function captures the value of first rising edge, and then captures
  *       the second rising edge from the capture compare unit. The difference
