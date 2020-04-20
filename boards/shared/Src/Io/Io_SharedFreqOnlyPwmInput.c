@@ -17,7 +17,7 @@ struct FreqOnlyPwmInput
     uint32_t           curr_rising_edge;
     uint32_t           prev_rising_edge;
 
-    size_t elapsed_tick;
+    size_t timer_overflow_count;
 };
 
 /**
