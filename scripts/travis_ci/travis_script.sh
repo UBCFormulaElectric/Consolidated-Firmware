@@ -26,9 +26,11 @@ fi
 
 if [ "$RUN_X86_TESTS" = "true" ]; then
     BUILD_DIR=boards/x86_build
-    travis_run cmake -S boards -B $BUILD_DIR -DPLATFORM=x86
+    # Use Release build for testing because the heartbeat monitor relies on it
+    # for code logic
+    travis_run cmake -S boards -B $BUILD_DIR -DPLATFORM=x86 -DCMAKE_BUILD_TYPE=Release
     travis_run make --directory=$BUILD_DIR
-    travis_run "cd $BUILD_DIR && ctest"
+    travis_run "cd $BUILD_DIR && ctest --verbose"
     CTEST_RETURN_CODE=$?
 
     if [ $CTEST_RETURN_CODE -ne 0 ]; then
