@@ -31,6 +31,6 @@ float App_FlowMeter_ReadFlowRate(const struct FlowMeter *const flow_meter)
 
 void App_FlowMeter_Tick(struct FlowMeter *flow_meter)
 {
-    const float flow_rate = flow_meter->get_flow_rate();
+    flow_meter->flow_rate= flow_meter->get_flow_rate();
     flow_meter->flow_rate = flow_rate;
 }
