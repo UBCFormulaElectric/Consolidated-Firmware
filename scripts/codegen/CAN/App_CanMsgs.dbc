@@ -178,23 +178,23 @@ BA_DEF_DEF_  "GenSigStartValue" 0;
 
 BA_ "BusType" "CAN";
 
-BA_ "GenMsgCycleTime" BO_ 100 300;
+BA_ "GenMsgCycleTime" BO_ 100 100;
 BA_ "GenMsgCycleTime" BO_ 101 5000;
 BA_ "GenMsgCycleTime" BO_ 104 1000;
 BA_ "GenMsgCycleTime" BO_ 105 1000;
 BA_ "GenMsgCycleTime" BO_ 106 1000;
 BA_ "GenMsgCycleTime" BO_ 107 10;
 BA_ "GenMsgCycleTime" BO_ 108 1000;
-BA_ "GenMsgCycleTime" BO_ 200 300;
+BA_ "GenMsgCycleTime" BO_ 200 100;
 BA_ "GenMsgCycleTime" BO_ 201 5000;
 BA_ "GenMsgCycleTime" BO_ 204 1000;
 BA_ "GenMsgCycleTime" BO_ 205 10;
 BA_ "GenMsgCycleTime" BO_ 300 1000;
-BA_ "GenMsgCycleTime" BO_ 301 300;
+BA_ "GenMsgCycleTime" BO_ 301 100;
 BA_ "GenMsgCycleTime" BO_ 302 5000;
 BA_ "GenMsgCycleTime" BO_ 305 10;
 BA_ "GenMsgCycleTime" BO_ 400 1000;
-BA_ "GenMsgCycleTime" BO_ 401 300;
+BA_ "GenMsgCycleTime" BO_ 401 100;
 BA_ "GenMsgCycleTime" BO_ 402 5000;
 BA_ "GenMsgCycleTime" BO_ 406 1000;
 BA_ "GenMsgCycleTime" BO_ 407 1000;
@@ -203,7 +203,7 @@ BA_ "GenMsgCycleTime" BO_ 409 1000;
 BA_ "GenMsgCycleTime" BO_ 410 1000;
 BA_ "GenMsgCycleTime" BO_ 411 1000;
 BA_ "GenMsgCycleTime" BO_ 413 10;
-BA_ "GenMsgCycleTime" BO_ 500 300;
+BA_ "GenMsgCycleTime" BO_ 500 100;
 BA_ "GenMsgCycleTime" BO_ 501 5000;
 BA_ "GenMsgCycleTime" BO_ 503 10;
 

@@ -310,4 +310,4 @@ TEST_F(
             123, App_CanTx_GetPeriodicSignal_SECONDS_SINCE_POWER_ON(
                      can_tx_interface));
     }
-};
+}
