@@ -89,7 +89,6 @@ void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *const pwm_input)
         const uint32_t prev_rising_edge = pwm_input->prev_rising_edge;
         const uint32_t curr_rising_edge = pwm_input->curr_rising_edge;
 
-        // Check if the counter value has overflowed
         if (curr_rising_edge > prev_rising_edge)
         {
             rising_edge_delta = curr_rising_edge - prev_rising_edge;
