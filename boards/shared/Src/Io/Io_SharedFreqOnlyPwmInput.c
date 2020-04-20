@@ -119,7 +119,8 @@ void Io_SharedFreqOnlyPwmInput_Elapsed_Tick(
     // Elapsed tick counts the number of times where the timer counter overflows
     const size_t elapsed_tick = ++pwm_input->elapsed_tick;
 
-    if (elapsed_tick >= MAX_TIMER_PERIOD_ELAPSED_COUNT)
+    // If the timer overflows twice without a rising edge, the PWM signal is likely inactive and its frequency can't be computed
+    if (elapsed_tick >= 2U)
     {
         Io_SetFrequency(pwm_input, NAN);
     }
