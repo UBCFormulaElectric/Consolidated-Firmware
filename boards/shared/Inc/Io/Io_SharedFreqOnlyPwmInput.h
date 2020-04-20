@@ -37,10 +37,9 @@ float Io_SharedFreqOnlyPwmInput_GetFrequency(
     struct FreqOnlyPwmInput *pwm_input);
 
 /**
- * Gets the timer handle for the given PWM input
- *
- * @param pwm_input : The PWM input used to get the timer handle
- * @return Pointer to htim configured for the flow meter channel
+ * Get the timer handle for the given PWM input
+ * @param pwm_input: The PWM input used to get the timer handle
+ * @return The timer handle for the given PWM input
  */
 TIM_HandleTypeDef *Io_SharedFreqOnlyPwmInput_GetTimerHandle(
     struct FreqOnlyPwmInput *const pwm_input);
