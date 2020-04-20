@@ -1,5 +1,5 @@
-#include "App_CanTx.h"
 #include <assert.h>
+#include "App_CanTx.h"
 
 #define MAX_NUM_OF_FLOWMETERS 2
 
@@ -31,6 +31,5 @@ float App_FlowMeter_ReadFlowRate(const struct FlowMeter *const flow_meter)
 
 void App_FlowMeter_Tick(struct FlowMeter *flow_meter)
 {
-    flow_meter->flow_rate= flow_meter->get_flow_rate();
-    flow_meter->flow_rate = flow_rate;
+    flow_meter->flow_rate = flow_meter->get_flow_rate();
 }

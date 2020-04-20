@@ -1,6 +1,7 @@
-#include "main.h"
 #include <math.h>
 #include <assert.h>
+#include <stm32f3xx_hal.h>
+#include <stdbool.h>
 #include "Io_SharedFreqOnlyPwmInput.h"
 
 #define MAX_TIMER_PERIOD_ELAPSED_COUNT 2
@@ -97,7 +98,6 @@ void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *const pwm_input)
                 pwm_input,
                 (float)pwm_input->timer_frequency_hz / rising_edge_delta);
         }
-
         else if (curr_rising_edge < prev_rising_edge)
         {
             rising_edge_delta = pwm_input->timer_auto_reload_reg -
@@ -106,9 +106,9 @@ void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *const pwm_input)
                 pwm_input,
                 (float)pwm_input->timer_frequency_hz / rising_edge_delta);
         }
-
         else
         {
+            //Occurs when the counter rolls over, or either when a tick arrives before the counter can upcount
             Io_SetFrequency(pwm_input, NAN);
         }
     }

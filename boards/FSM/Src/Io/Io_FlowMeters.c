@@ -1,7 +1,7 @@
+#include <assert.h>
 #include "main.h"
 #include "Io_SharedFreqOnlyPwmInput.h"
 #include "Io_FlowMeters.h"
-#include <assert.h>
 
 struct FlowMeters_Context
 {

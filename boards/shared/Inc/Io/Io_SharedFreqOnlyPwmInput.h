@@ -1,12 +1,8 @@
 #pragma once
-
-#include <stm32f3xx_hal.h>
-#include <stdbool.h>
-
 #include "Io_SharedFreqOnlyPwmInputConfig.h"
 
 #ifndef MAX_NUM_OF_FREQ_ONLY_PWM_INPUTS
-#define MAX_NUM_OF_FREQ_ONLY_PWM_INPUTS 0
+#define MAX_NUM_OF_FREQ_ONLY_PWM_INPUTS 1
 #endif
 
 struct FreqOnlyPwmInput;
@@ -55,8 +51,5 @@ void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *pwm_input);
  *
  * @param pwm_input : The PWM input used to update the frequency when
  * captured PWM enters invalid range
- * @param elapsed_count : Stores the number of times the CNT
- * register for TIMx overflows
- * @return The updated number of times the CNT register for TIMx overflows
  */
 void Io_SharedFreqOnlyPwmInput_Elapsed_Tick(struct FreqOnlyPwmInput *pwm_input);
