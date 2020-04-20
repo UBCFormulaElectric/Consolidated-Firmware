@@ -1,28 +1,10 @@
-extern "C"
-{
-// The argument history needs to be long enough for us to test write every
-// one of the possible 16x16x16 = 4096 values on the three 7-segment displays
-#include <math.h>
-#include "App_SharedConstants.h"
-#define FFF_ARG_HISTORY_LEN (size_t) pow((float)NUM_HEX_DIGITS, (float)3)
-}
+#include "Test_SevenSegDisplays.h"
 
-#include "fff.h"
-#include "gtest/gtest.h"
+DEFINE_FAKE_VOID_FUNC(set_right_hex_digit, struct SevenSegHexDigit);
+DEFINE_FAKE_VOID_FUNC(set_middle_hex_digit, struct SevenSegHexDigit);
+DEFINE_FAKE_VOID_FUNC(set_left_hex_digit, struct SevenSegHexDigit);
 
-extern "C"
-{
-#include "App_SevenSegDisplays.h"
-#include "App_SevenSegDisplay.h"
-#include "App_ErrorCode.h"
-
-    DEFINE_FFF_GLOBALS;
-    FAKE_VOID_FUNC(set_right_hex_digit, struct SevenSegHexDigit);
-    FAKE_VOID_FUNC(set_middle_hex_digit, struct SevenSegHexDigit);
-    FAKE_VOID_FUNC(set_left_hex_digit, struct SevenSegHexDigit);
-}
-
-class SevenSegDisplaysTest : public testing::Test
+class SevenSegDisplaysTest : public DimTest
 {
   protected:
     void SetUp() override

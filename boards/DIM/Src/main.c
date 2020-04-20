@@ -27,9 +27,11 @@
 #include <assert.h>
 
 #include "App_DimWorld.h"
-#include "App_SharedAssert.h"
 #include "App_SevenSegDisplays.h"
 #include "App_SevenSegDisplay.h"
+#include "App_SharedHeartbeatMonitor.h"
+#include "App_SharedStateMachine.h"
+#include "states/App_DriveState.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 
@@ -38,6 +40,8 @@
 #include "Io_SevenSegDisplays.h"
 #include "Io_SharedCan.h"
 #include "Io_SharedErrorHandlerOverride.h"
+#include "Io_SharedHardFaultHandler.h"
+#include "Io_HeartbeatMonitor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -76,12 +80,14 @@ uint32_t            Task1kHzBuffer[128];
 osStaticThreadDef_t Task1kHzControlBlock;
 /* USER CODE BEGIN PV */
 struct DimWorld *         world;
+struct StateMachine *     state_machine;
 struct DimCanTxInterface *can_tx;
 struct DimCanRxInterface *can_rx;
 struct SevenSegDisplay *  left_seven_seg_display;
 struct SevenSegDisplay *  middle_seven_seg_display;
 struct SevenSegDisplay *  right_seven_seg_display;
 struct SevenSegDisplays * seven_seg_displays;
+struct HeartbeatMonitor * heartbeat_monitor;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -119,6 +125,9 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count)
 int main(void)
 {
     /* USER CODE BEGIN 1 */
+    __HAL_DBGMCU_FREEZE_IWDG();
+    Io_SharedHardFaultHandler_Init();
+
     Io_SevenSegDisplays_Init(&hspi2);
 
     left_seven_seg_display =
@@ -138,7 +147,14 @@ int main(void)
 
     can_rx = App_CanRx_Create();
 
-    world = App_DimWorld_Create(can_tx, can_rx, seven_seg_displays);
+    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+        Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
+        Io_HeartbeatMonitor_TimeoutCallback);
+
+    world = App_DimWorld_Create(
+        can_tx, can_rx, seven_seg_displays, heartbeat_monitor);
+
+    state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
     /* USER CODE END 1 */
 
     /* MCU
@@ -165,7 +181,8 @@ int main(void)
     MX_ADC2_Init();
     MX_SPI2_Init();
     /* USER CODE BEGIN 2 */
-
+    struct CanMsgs_dim_startup_t payload = { .dummy = 0 };
+    App_CanTx_SendNonPeriodicMsg_DIM_STARTUP(can_tx, &payload);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
