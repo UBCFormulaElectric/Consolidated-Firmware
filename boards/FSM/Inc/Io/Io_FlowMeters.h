@@ -41,7 +41,6 @@ void Io_FlowMeters_CheckIfPrimaryIsActive(void);
  * inactive (i.e. It has been unplugged or unpowered), set the frequency to NaN.
  *
  * @note This function should be called in the timer overflow interrupt
- * detected from the primary flow meter. Outputs NaN in situations where edge
- * triggered interrupts are not detected.
+ *       for the PWM signal of the primary flow meter.
  */
 void Io_FlowMeters_CheckIfSecondaryIsActive(void);
