@@ -91,7 +91,7 @@ HAL_TIM_ActiveChannel Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(
 
 void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *const pwm_input)
 {
-    // Reset elapsed tick counter for the flow meter
+    // Reset the timer overflow count to indicate that the PWM signal is active
     pwm_input->timer_overflow_count = 0U;
 
     // We store the counter values captured during two most recent rising edges.
