@@ -94,12 +94,9 @@ void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *const pwm_input)
     // Reset elapsed tick counter for the flow meter
     pwm_input->timer_overflow_count = 0U;
 
-    /**
-     * @note The function captures the value of first rising edge, and then
-     * captures the second rising edge from the capture compare unit. The
-     * difference between these two values, rising_edge_delta are computed and
-     * used to compute the frequency of the pwm input signal
-     */
+    // We store the counter values captured during two most recent rising edges.
+    // The difference between these two counter values is used to compute the
+    // frequency of the PWM input signal.
 
     if (pwm_input->first_tick)
     {
