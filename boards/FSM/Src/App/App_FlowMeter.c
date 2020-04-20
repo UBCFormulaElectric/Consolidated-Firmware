@@ -24,7 +24,7 @@ struct FlowMeter *App_FlowMeter_Create(float (*get_flow_rate)(void))
     return flow_meter;
 }
 
-float App_FlowMeter_ReadFlowRate(struct FlowMeter *flow_meter)
+float App_FlowMeter_ReadFlowRate(const struct FlowMeter *const flow_meter)
 {
     return flow_meter->flow_rate;
 }
