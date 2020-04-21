@@ -63,13 +63,6 @@ class DimStateMachineTest : public DimTest
             App_SharedStateMachine_GetCurrentState(state_machine));
     }
 
-    std::vector<const struct State *> GetAllStates(void)
-    {
-        return std::vector<const struct State *>{
-            App_GetDriveState(),
-        };
-    }
-
     void TearDown() override
     {
         DimTest::TearDown();

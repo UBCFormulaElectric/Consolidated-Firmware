@@ -209,7 +209,6 @@ BA_ "GenMsgCycleTime" BO_ 503 10;
 
 BA_ "GenSigStartValue" SG_ 2  tx_overflow_count 0;
 BA_ "GenSigStartValue" SG_ 2  rx_overflow_count 0;
-BA_ "GenSigStartValue" SG_ 108 State_Of_Charge 55;
 
 SIG_VALTYPE_ 106 Duty_Cycle : 1;
 SIG_VALTYPE_ 106 Frequency : 1;
