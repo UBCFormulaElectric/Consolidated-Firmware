@@ -23,7 +23,7 @@ TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_digit)
     {
         ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(
             seven_segment_displays, input, num_inputs);
-        ASSERT_EQ(EXIT_CODE_OK, exit_status);
+        ASSERT_EQ(EXIT_CODE_OK, exit_code);
 
         ASSERT_EQ(count, set_left_hex_digit_fake.call_count);
         ASSERT_EQ(count, set_middle_hex_digit_fake.call_count);
@@ -59,7 +59,7 @@ TEST_F(SevenSegDisplaysTest, set_two_hexadecimal_digits)
         {
             ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(
                 seven_segment_displays, input, num_inputs);
-            ASSERT_EQ(EXIT_CODE_OK, exit_status);
+            ASSERT_EQ(EXIT_CODE_OK, exit_code);
 
             ASSERT_EQ(count, set_left_hex_digit_fake.call_count);
             ASSERT_EQ(count, set_middle_hex_digit_fake.call_count);
@@ -103,7 +103,7 @@ TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_digits)
             {
                 ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(
                     seven_segment_displays, input, num_inputs);
-                ASSERT_EQ(EXIT_CODE_OK, exit_status);
+                ASSERT_EQ(EXIT_CODE_OK, exit_code);
 
                 ASSERT_EQ(count, set_left_hex_digit_fake.call_count);
                 ASSERT_EQ(count, set_middle_hex_digit_fake.call_count);
@@ -152,7 +152,7 @@ TEST_F(SevenSegDisplaysTest, set_underflow_digit_to_each_7_seg_display)
 
         ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(
             seven_segment_displays, input, num_inputs);
-        EXPECT_EQ(EXIT_CODE_INVALID_ARGS, exit_status);
+        EXPECT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);
 
         // We should not write to any of the 7 segment displays if any of the
         // inputs is invalid
@@ -176,7 +176,7 @@ TEST_F(SevenSegDisplaysTest, set_overflow_digit_to_each_7_seg_display)
 
         ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(
             seven_segment_displays, input, num_inputs);
-        EXPECT_EQ(EXIT_CODE_INVALID_ARGS, exit_status);
+        EXPECT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);
 
         // We should not write to any of the 7 segment displays if any of the
         // inputs is invalid

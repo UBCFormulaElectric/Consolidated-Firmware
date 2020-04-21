@@ -51,11 +51,11 @@ TEST_F(SocDigitsTest, set_invalid_state_of_charges)
     ExitCode exit_code;
     float    epsilon;
 
-    epsilon     = std::nextafter(0.0f, std::numeric_limits<float>::min());
-    exit_status = App_SocDigits_Convert(0.0f - epsilon, &soc_digits);
-    ASSERT_EQ(exit_status, EXIT_CODE_INVALID_ARGS);
+    epsilon   = std::nextafter(0.0f, std::numeric_limits<float>::min());
+    exit_code = App_SocDigits_Convert(0.0f - epsilon, &soc_digits);
+    ASSERT_EQ(exit_code, EXIT_CODE_INVALID_ARGS);
 
-    epsilon     = std::nextafter(100.0f, std::numeric_limits<float>::max());
-    exit_status = App_SocDigits_Convert(100.0f + epsilon, &soc_digits);
-    ASSERT_EQ(exit_status, EXIT_CODE_INVALID_ARGS);
+    epsilon   = std::nextafter(100.0f, std::numeric_limits<float>::max());
+    exit_code = App_SocDigits_Convert(100.0f + epsilon, &soc_digits);
+    ASSERT_EQ(exit_code, EXIT_CODE_INVALID_ARGS);
 }
