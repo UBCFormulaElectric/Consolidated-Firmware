@@ -13,10 +13,9 @@ struct FreqOnlyPwmInput;
  * @note The given timer must be initialized with Input Capture Direct Mode
  * @param htim: The handle of the timer measuring the PWM input
  * @param timer_frequency_hz: The frequency of the timer measuring the PWM input
- * @param rising_edge_tim_channel: The rising edge channel of the timer
- * measuring the PWM input
- * @param timer_auto_reload_reg : Maximum value that the counter can count to
- * @param timer_active_channel: Channel where we expect the interrupt to occur
+ * @param tim_channel: The timer channel measuring the PWM input
+ * @param tim_auto_reload_reg: Maximum value that the counter can count to
+ * @param tim_active_channel: The active timer channel measuring the PWM input
  * @return Pointer to the allocated and initialized PWM input
  */
 struct FreqOnlyPwmInput *Io_SharedFreqOnlyPwmInput_Create(
