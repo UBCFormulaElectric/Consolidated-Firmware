@@ -20,6 +20,6 @@ struct SocDigits
  *           num_digits = 2
  * @param soc The state of charge to convert
  * @param soc_digits The buffer for storing the individual digits
- * @return ERROR_CODE_INVALID_ARGS if the given state of charge is out-of-bound
+ * @return EXIT_CODE_INVALID_ARGS if the given state of charge is out-of-bound
  */
-ErrorCode App_SocDigits_Convert(float soc, struct SocDigits *soc_digits);
+ExitCode App_SocDigits_Convert(float soc, struct SocDigits *soc_digits);

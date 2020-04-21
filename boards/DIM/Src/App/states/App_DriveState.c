@@ -15,6 +15,7 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 static void DriveStateRunOnTick(struct StateMachine *const state_machine)
 {
     struct DimWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct DimCanTxInterface *can_tx = App_DimWorld_GetCanTx(world);
     struct DimCanRxInterface *can_rx = App_DimWorld_GetCanRx(world);
     struct SevenSegDisplays * seven_seg_displays =
         App_DimWorld_GetSevenSegDisplays(world);
@@ -23,12 +24,18 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
 
     struct SocDigits soc_digits;
 
-    App_SocDigits_Convert(
-        App_CanRx_BMS_STATE_OF_CHARGE_GetSignal_STATE_OF_CHARGE(can_rx),
-        &soc_digits);
-
-    App_SevenSegDisplays_SetHexDigits(
-        seven_seg_displays, soc_digits.digits, soc_digits.num_digits);
+    if (EXIT_CODE_OK(App_SocDigits_Convert(
+            App_CanRx_BMS_STATE_OF_CHARGE_GetSignal_STATE_OF_CHARGE(can_rx),
+            &soc_digits)))
+    {
+        App_SevenSegDisplays_SetHexDigits(
+            seven_seg_displays, soc_digits.digits, soc_digits.num_digits);
+        App_CanTx_SetPeriodicSignal_INVALID_STATE_OF_CHARGE(can_tx, false);
+    }
+    else
+    {
+        App_CanTx_SetPeriodicSignal_INVALID_STATE_OF_CHARGE(can_tx, true);
+    }
 
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
 }

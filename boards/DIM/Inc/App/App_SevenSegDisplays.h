@@ -43,11 +43,11 @@ void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *seven_seg_displays);
  * @param hex_digits The hexadecimal digits to set
  * @param num_hex_digits The number of hexadecimal digits to write, up to a
  *                       maximum of 3
- * @return ERROR_CODE_INVALID_ARGS if more than 3 hexadecimal digits are
+ * @return EXIT_CODE_INVALID_ARGS if more than 3 hexadecimal digits are
  *         requested, or if any of the requested digits contains a value that
  *         is not in the range of [0x0-0xF]
  */
-ErrorCode App_SevenSegDisplays_SetHexDigits(
+ExitCode App_SevenSegDisplays_SetHexDigits(
     const struct SevenSegDisplays *seven_seg_displays,
     const uint8_t                  hex_digits[],
     size_t                         num_hex_digits);

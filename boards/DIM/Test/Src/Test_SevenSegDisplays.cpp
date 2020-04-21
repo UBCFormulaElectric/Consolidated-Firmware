@@ -21,9 +21,9 @@ TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_digit)
 
     for (input[0] = 0; input[0] < NUM_HEX_DIGITS; input[0]++, count++)
     {
-        ErrorCode error_code = App_SevenSegDisplays_SetHexDigits(
+        ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(
             seven_segment_displays, input, num_inputs);
-        ASSERT_EQ(ERROR_CODE_OK, error_code);
+        ASSERT_EQ(EXIT_CODE_OK, exit_status);
 
         ASSERT_EQ(count, set_left_hex_digit_fake.call_count);
         ASSERT_EQ(count, set_middle_hex_digit_fake.call_count);
@@ -57,9 +57,9 @@ TEST_F(SevenSegDisplaysTest, set_two_hexadecimal_digits)
     {
         for (input[1] = 0; input[1] < NUM_HEX_DIGITS; input[1]++, count++)
         {
-            ErrorCode error_code = App_SevenSegDisplays_SetHexDigits(
+            ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(
                 seven_segment_displays, input, num_inputs);
-            ASSERT_EQ(ERROR_CODE_OK, error_code);
+            ASSERT_EQ(EXIT_CODE_OK, exit_status);
 
             ASSERT_EQ(count, set_left_hex_digit_fake.call_count);
             ASSERT_EQ(count, set_middle_hex_digit_fake.call_count);
@@ -101,9 +101,9 @@ TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_digits)
         {
             for (input[2] = 0; input[2] < NUM_HEX_DIGITS; input[2]++, count++)
             {
-                ErrorCode error_code = App_SevenSegDisplays_SetHexDigits(
+                ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(
                     seven_segment_displays, input, num_inputs);
-                ASSERT_EQ(ERROR_CODE_OK, error_code);
+                ASSERT_EQ(EXIT_CODE_OK, exit_status);
 
                 ASSERT_EQ(count, set_left_hex_digit_fake.call_count);
                 ASSERT_EQ(count, set_middle_hex_digit_fake.call_count);
@@ -150,9 +150,9 @@ TEST_F(SevenSegDisplaysTest, set_underflow_digit_to_each_7_seg_display)
         constexpr uint8_t underflow_input = HEX_DIGIT_0 - 1;
         input[i]                          = underflow_input;
 
-        ErrorCode error_code = App_SevenSegDisplays_SetHexDigits(
+        ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(
             seven_segment_displays, input, num_inputs);
-        EXPECT_EQ(ERROR_CODE_INVALID_ARGS, error_code);
+        EXPECT_EQ(EXIT_CODE_INVALID_ARGS, exit_status);
 
         // We should not write to any of the 7 segment displays if any of the
         // inputs is invalid
@@ -174,9 +174,9 @@ TEST_F(SevenSegDisplaysTest, set_overflow_digit_to_each_7_seg_display)
         constexpr uint8_t overflow_input = HEX_DIGIT_F + 1;
         input[i]                         = overflow_input;
 
-        ErrorCode error_code = App_SevenSegDisplays_SetHexDigits(
+        ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(
             seven_segment_displays, input, num_inputs);
-        EXPECT_EQ(ERROR_CODE_INVALID_ARGS, error_code);
+        EXPECT_EQ(EXIT_CODE_INVALID_ARGS, exit_status);
 
         // We should not write to any of the 7 segment displays if any of the
         // inputs is invalid

@@ -1,10 +1,10 @@
 #include "App_SocDigits.h"
 
-ErrorCode App_SocDigits_Convert(float soc, struct SocDigits *const soc_digits)
+ExitCode App_SocDigits_Convert(float soc, struct SocDigits *const soc_digits)
 {
     if (soc < 0.0f || soc > 100.0f)
     {
-        return ERROR_CODE_INVALID_ARGS;
+        return EXIT_CODE_INVALID_ARGS;
     }
 
     // The decimal points must be truncated from state of charge because the
@@ -26,5 +26,5 @@ ErrorCode App_SocDigits_Convert(float soc, struct SocDigits *const soc_digits)
         }
     }
 
-    return ERROR_CODE_OK;
+    return EXIT_CODE_OK;
 }

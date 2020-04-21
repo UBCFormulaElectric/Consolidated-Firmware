@@ -36,14 +36,14 @@ void App_SevenSegDisplays_Destroy(
     free(seven_seg_displays);
 }
 
-ErrorCode App_SevenSegDisplays_SetHexDigits(
+ExitCode App_SevenSegDisplays_SetHexDigits(
     const struct SevenSegDisplays *const seven_seg_displays,
     const uint8_t                        hex_digits[],
     size_t                               num_hex_digits)
 {
     if (num_hex_digits > NUM_SEVEN_SEG_DISPLAYS)
     {
-        return ERROR_CODE_INVALID_ARGS;
+        return EXIT_CODE_INVALID_ARGS;
     }
 
     // If any of the input digits is invalid, we don't write anything to the
@@ -52,7 +52,7 @@ ErrorCode App_SevenSegDisplays_SetHexDigits(
     {
         if (hex_digits[i] >= NUM_HEX_DIGITS)
         {
-            return ERROR_CODE_INVALID_ARGS;
+            return EXIT_CODE_INVALID_ARGS;
         }
     }
 
@@ -77,5 +77,5 @@ ErrorCode App_SevenSegDisplays_SetHexDigits(
             seven_seg_displays->displays[i], hex_digit);
     }
 
-    return ERROR_CODE_OK;
+    return EXIT_CODE_OK;
 }
