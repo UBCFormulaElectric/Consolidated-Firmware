@@ -16,7 +16,7 @@ There are two types of faults:
 - Critical Faults:
     - These faults are further sub-divided based on how they are handled:
         - Motor shutdown fault: Disable the inverters through a zero torque request
-        - AIR shutdown fault: Opens the AIRs, then disable the inverters through a zero torque request
+        - AIR shutdown fault: Open the AIRs, then disable the inverters through a zero torque request
 - Non-critical:
     - All other faults, for logging and debugging purposes
 
