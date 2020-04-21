@@ -9,7 +9,24 @@
 #include <fff.h>
 #include <gtest/gtest.h>
 
+#include "Test_SevenSegDisplays.h"
+
+extern "C"
+{
+#include "App_SevenSegDisplay.h"
+#include "App_SevenSegDisplays.h"
+#include "App_SocDigits.h"
+}
+
 class DimTest : public testing::Test
 {
-    // TODO: Put any shared code between tests here
+  protected:
+    struct SevenSegDisplay *  left_seven_seg_display;
+    struct SevenSegDisplay *  middle_seven_seg_display;
+    struct SevenSegDisplay *  right_seven_seg_display;
+    struct SevenSegDisplays * seven_segment_displays;
+    struct SocDigits* soc_digits;
+
+    void SetUp() override;
+    void TearDown() override;
 };
