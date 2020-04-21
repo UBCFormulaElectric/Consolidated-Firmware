@@ -49,14 +49,13 @@ TEST_F(SocDigitsTest, set_valid_state_of_charges_with_trailing_decimals)
 TEST_F(SocDigitsTest, set_invalid_state_of_charges)
 {
     ErrorCode error_code;
+    float     epsilon;
 
-    error_code = App_SocDigits_Convert(
-        0.0f - std::nextafter(0.0f, std::numeric_limits<float>::min()),
-        &soc_digits);
+    epsilon    = std::nextafter(0.0f, std::numeric_limits<float>::min());
+    error_code = App_SocDigits_Convert(0.0f - epsilon, &soc_digits);
     ASSERT_EQ(error_code, ERROR_CODE_INVALID_ARGS);
 
-    error_code = App_SocDigits_Convert(
-        100.0f + std::nextafter(100.0f, std::numeric_limits<float>::max()),
-        &soc_digits);
+    epsilon    = std::nextafter(100.0f, std::numeric_limits<float>::max());
+    error_code = App_SocDigits_Convert(100.0f + epsilon, &soc_digits);
     ASSERT_EQ(error_code, ERROR_CODE_INVALID_ARGS);
 }
