@@ -81,7 +81,7 @@ void Io_SevenSegDisplays_WriteCommands(void)
     // displays all at once.
     HAL_SPI_Transmit(_hspi, commands, NUM_SEVEN_SEG_DISPLAYS, 100U);
 
-    // A pulse to RCK transfers the data to the storage registers in the shift
+    // A pulse to RCK transfers data from the shift registers to the storage
     // registers, completing the write command.
     HAL_GPIO_TogglePin(SEVENSEG_RCK_3V3_GPIO_Port, SEVENSEG_RCK_3V3_Pin);
     HAL_GPIO_TogglePin(SEVENSEG_RCK_3V3_GPIO_Port, SEVENSEG_RCK_3V3_Pin);
