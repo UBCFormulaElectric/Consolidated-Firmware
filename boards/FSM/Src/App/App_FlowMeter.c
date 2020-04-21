@@ -1,12 +1,12 @@
-#include <stddef.h>
 #include <assert.h>
-#include "App_FlowMeter.h"
+#include <stddef.h>
 
 #define MAX_NUM_OF_FLOWMETERS 2
 
 struct FlowMeter
 {
     float (*get_flow_rate)(void);
+    float flow_rate;
 };
 
 struct FlowMeter *App_FlowMeter_Create(float (*get_flow_rate)(void))
@@ -24,7 +24,12 @@ struct FlowMeter *App_FlowMeter_Create(float (*get_flow_rate)(void))
     return flow_meter;
 }
 
-float App_FlowMeter_ReadFlowRate(struct FlowMeter *flow_meter)
+float App_FlowMeter_GetFlowRate(const struct FlowMeter *const flow_meter)
 {
-    return flow_meter->get_flow_rate();
+    return flow_meter->flow_rate;
+}
+
+void App_FlowMeter_Tick(struct FlowMeter *const flow_meter)
+{
+    flow_meter->flow_rate = flow_meter->get_flow_rate();
 }

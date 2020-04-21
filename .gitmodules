@@ -1,6 +1,6 @@
 [submodule "tools/cmsis-svd"]
 	path = tools/cmsis-svd
-	url = https://github.com/posborne/cmsis-svd.git 
+	url = https://github.com/posborne/cmsis-svd.git
 [submodule "boards/shared/profiler-cortex-m4"]
 	path = boards/shared/third_party/profiler-cortex-m4
 	url = https://github.com/UBCFormulaElectric/profiler-cortex-m4

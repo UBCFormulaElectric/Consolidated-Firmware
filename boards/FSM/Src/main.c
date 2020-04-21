@@ -34,7 +34,7 @@
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
-#include "Io_FlowMeter.h"
+#include "Io_FlowMeters.h"
 #include "Io_HeartbeatMonitor.h"
 
 #include "App_CanTx.h"
@@ -69,6 +69,8 @@ CAN_HandleTypeDef hcan;
 
 IWDG_HandleTypeDef hiwdg;
 
+TIM_HandleTypeDef htim4;
+
 osThreadId          Task1HzHandle;
 uint32_t            Task1HzBuffer[TASK1HZ_STACK_SIZE];
 osStaticThreadDef_t Task1HzControlBlock;
@@ -82,7 +84,7 @@ osThreadId          TaskCanTxHandle;
 uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
 osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
-struct FlowMeter *        primary_flow_meter;
+struct FlowMeter *        primary_flow_meter, *secondary_flow_meter;
 struct World *            world;
 struct StateMachine *     state_machine;
 struct FsmCanTxInterface *can_tx;
@@ -96,6 +98,7 @@ static void MX_GPIO_Init(void);
 static void MX_CAN_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_ADC2_Init(void);
+static void MX_TIM4_Init(void);
 void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
 void        RunTaskCanRx(void const *argument);
@@ -140,8 +143,6 @@ int main(void)
 
     can_rx = App_CanRx_Create();
 
-    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeter_GetPrimaryFlowRate);
-
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
         Io_HeartbeatMonitor_TimeoutCallback);
@@ -152,7 +153,6 @@ int main(void)
 
     App_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
-
     /* USER CODE END 1 */
 
     /* MCU
@@ -178,8 +178,12 @@ int main(void)
     MX_CAN_Init();
     MX_IWDG_Init();
     MX_ADC2_Init();
+    MX_TIM4_Init();
     /* USER CODE BEGIN 2 */
-    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeter_GetPrimaryFlowRate);
+    Io_FlowMeters_Init(&htim4);
+    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeters_GetPrimaryFlowRate);
+    secondary_flow_meter =
+        App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
 
     struct CanMsgs_fsm_startup_t payload = { .dummy = 0 };
     App_CanTx_SendNonPeriodicMsg_FSM_STARTUP(can_tx, &payload);
@@ -413,6 +417,56 @@ static void MX_IWDG_Init(void)
 }
 
 /**
+ * @brief TIM4 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM4_Init(void)
+{
+    /* USER CODE BEGIN TIM4_Init 0 */
+
+    /* USER CODE END TIM4_Init 0 */
+
+    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
+    TIM_IC_InitTypeDef      sConfigIC     = { 0 };
+
+    /* USER CODE BEGIN TIM4_Init 1 */
+
+    /* USER CODE END TIM4_Init 1 */
+    htim4.Instance               = TIM4;
+    htim4.Init.Prescaler         = TIM4_PRESCALER;
+    htim4.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim4.Init.Period            = TIM4_AUTO_RELOAD_REG;
+    htim4.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_IC_Init(&htim4) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigIC.ICPolarity  = TIM_INPUTCHANNELPOLARITY_RISING;
+    sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
+    sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
+    sConfigIC.ICFilter    = 0;
+    if (HAL_TIM_IC_ConfigChannel(&htim4, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if (HAL_TIM_IC_ConfigChannel(&htim4, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM4_Init 2 */
+
+    /* USER CODE END TIM4_Init 2 */
+}
+
+/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -441,11 +495,11 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pins : SECONDARY_APPS_A_Pin SECONDARY_APPS_B_Pin
        SECONDARY_APPS_Z_Pin SECONDARY_APPS_ALARM_Pin PRIMARY_APPS_A_Pin
-       PRIMARY_APPS_B_Pin PRIMARY_APPS_Z_Pin FLOW1_BUFF_Pin FLOW2_BUFF_Pin */
+       PRIMARY_APPS_B_Pin PRIMARY_APPS_Z_Pin */
     GPIO_InitStruct.Pin = SECONDARY_APPS_A_Pin | SECONDARY_APPS_B_Pin |
                           SECONDARY_APPS_Z_Pin | SECONDARY_APPS_ALARM_Pin |
                           PRIMARY_APPS_A_Pin | PRIMARY_APPS_B_Pin |
-                          PRIMARY_APPS_Z_Pin | FLOW1_BUFF_Pin | FLOW2_BUFF_Pin;
+                          PRIMARY_APPS_Z_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -511,7 +565,6 @@ void RunTask1Hz(void const *argument)
     for (;;)
     {
         App_SharedStateMachine_Tick(state_machine);
-
         App_StackWaterMark_Check();
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
@@ -542,8 +595,10 @@ void RunTask1kHz(void const *argument)
     {
         Io_CanTx_EnqueuePeriodicMsgs(
             can_tx, osKernelSysTick() * portTICK_PERIOD_MS);
-        // Watchdog check-in must be the last function called before putting the
-        // task to sleep.
+        App_FlowMeter_Tick(primary_flow_meter);
+        App_FlowMeter_Tick(secondary_flow_meter);
+        // Watchdog check-in must be the last function called before putting
+        // the task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
         (void)Io_SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
     }
@@ -603,7 +658,11 @@ void RunTaskCanTx(void const *argument)
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     /* USER CODE BEGIN Callback 0 */
-
+    if (htim->Instance == TIM4)
+    {
+        Io_FlowMeters_CheckIfPrimaryIsActive();
+        Io_FlowMeters_CheckIfSecondaryIsActive();
+    }
     /* USER CODE END Callback 0 */
     if (htim->Instance == TIM6)
     {
