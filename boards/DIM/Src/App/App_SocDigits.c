@@ -1,6 +1,6 @@
 #include "App_SocDigits.h"
 
-ErrorCode App_SocDigits_Convert(float soc, struct SocDigits *soc_digits)
+ErrorCode App_SocDigits_Convert(float soc, struct SocDigits *const soc_digits)
 {
     if (soc < 0.0f || soc > 100.0f)
     {
