@@ -34,6 +34,7 @@
 #include "states/App_DriveState.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
+#include "App_RegenPaddle.h"
 
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
@@ -42,6 +43,7 @@
 #include "Io_SharedErrorHandlerOverride.h"
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_HeartbeatMonitor.h"
+#include "Io_RegenPaddle.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -88,6 +90,7 @@ struct SevenSegDisplay *  middle_seven_seg_display;
 struct SevenSegDisplay *  right_seven_seg_display;
 struct SevenSegDisplays * seven_seg_displays;
 struct HeartbeatMonitor * heartbeat_monitor;
+struct RegenPaddle *      regen_paddle;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -151,8 +154,11 @@ int main(void)
         Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
         Io_HeartbeatMonitor_TimeoutCallback);
 
+    regen_paddle =
+        App_RegenPaddle_Create(Io_RegenPaddle_GetPaddlePosition, 5.0f, 95.0f);
+
     world = App_DimWorld_Create(
-        can_tx, can_rx, seven_seg_displays, heartbeat_monitor);
+        can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
     /* USER CODE END 1 */
