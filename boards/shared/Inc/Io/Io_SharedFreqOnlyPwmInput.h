@@ -45,10 +45,9 @@ TIM_HandleTypeDef *Io_SharedFreqOnlyPwmInput_GetTimerHandle(
     const struct FreqOnlyPwmInput *pwm_input);
 
 /**
- * Get the configured active timer channel for the given PWM input
- * @param pwm_input: The PWM input used to get the configured active timer
- *                   channel
- * @return The configured active timer channel for the given PWM input
+ * Get the active timer channel for the given PWM input
+ * @param pwm_input: The PWM input used to get the active timer channel
+ * @return The active timer channel for the given PWM input
  */
 HAL_TIM_ActiveChannel Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(
     const struct FreqOnlyPwmInput *pwm_input);
