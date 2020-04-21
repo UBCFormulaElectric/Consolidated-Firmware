@@ -39,7 +39,7 @@ class DimStateMachineTest : public DimTest
             DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
 
         world = App_DimWorld_Create(
-            can_tx_interface, can_rx_interface, seven_segment_displays,
+            can_tx_interface, can_rx_interface, seven_seg_displays,
             heartbeat_monitor);
 
         // Default to starting the state machine in the `Drive` state

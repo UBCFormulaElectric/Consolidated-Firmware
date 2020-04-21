@@ -79,3 +79,35 @@ ExitCode App_SevenSegDisplays_SetHexDigits(
 
     return EXIT_CODE_OK;
 }
+
+ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(
+    const struct SevenSegDisplays *const seven_seg_displays,
+    uint32_t value)
+{
+    // We do not support numbers with more than four base-10 digits
+    if (value > 999U)
+    {
+        return EXIT_CODE_INVALID_ARGS;
+    }
+
+    uint8_t digits[NUM_SEVEN_SEG_DISPLAYS];
+
+    // Turn the base-10 value into individual digits. We treat a value of 0
+    // as having 1 digit, which is why num_digits starts counting
+    // from 1.
+    for (uint8_t num_digits = 1; num_digits <= 3; num_digits++)
+    {
+        digits[num_digits - 1] = value % 10;
+
+        value /= 10;
+
+        if (value == 0)
+        {
+            App_SevenSegDisplays_SetHexDigits(
+                seven_seg_displays, digits, num_digits);
+            break;
+        }
+    }
+
+    return EXIT_CODE_OK;
+}

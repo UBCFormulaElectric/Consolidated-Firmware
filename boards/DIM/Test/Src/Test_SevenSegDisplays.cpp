@@ -22,7 +22,7 @@ TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_digit)
     for (input[0] = 0; input[0] < NUM_HEX_DIGITS; input[0]++, count++)
     {
         ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(
-            seven_segment_displays, input, num_inputs);
+            seven_seg_displays, input, num_inputs);
         ASSERT_EQ(EXIT_CODE_OK, exit_code);
 
         ASSERT_EQ(count, set_left_hex_digit_fake.call_count);
@@ -58,7 +58,7 @@ TEST_F(SevenSegDisplaysTest, set_two_hexadecimal_digits)
         for (input[1] = 0; input[1] < NUM_HEX_DIGITS; input[1]++, count++)
         {
             ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(
-                seven_segment_displays, input, num_inputs);
+                seven_seg_displays, input, num_inputs);
             ASSERT_EQ(EXIT_CODE_OK, exit_code);
 
             ASSERT_EQ(count, set_left_hex_digit_fake.call_count);
@@ -102,7 +102,7 @@ TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_digits)
             for (input[2] = 0; input[2] < NUM_HEX_DIGITS; input[2]++, count++)
             {
                 ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(
-                    seven_segment_displays, input, num_inputs);
+                    seven_seg_displays, input, num_inputs);
                 ASSERT_EQ(EXIT_CODE_OK, exit_code);
 
                 ASSERT_EQ(count, set_left_hex_digit_fake.call_count);
@@ -151,7 +151,7 @@ TEST_F(SevenSegDisplaysTest, set_underflow_digit_to_each_7_seg_display)
         input[i]                          = underflow_input;
 
         ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(
-            seven_segment_displays, input, num_inputs);
+            seven_seg_displays, input, num_inputs);
         EXPECT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);
 
         // We should not write to any of the 7 segment displays if any of the
@@ -175,7 +175,7 @@ TEST_F(SevenSegDisplaysTest, set_overflow_digit_to_each_7_seg_display)
         input[i]                         = overflow_input;
 
         ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(
-            seven_segment_displays, input, num_inputs);
+            seven_seg_displays, input, num_inputs);
         EXPECT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);
 
         // We should not write to any of the 7 segment displays if any of the
@@ -184,4 +184,48 @@ TEST_F(SevenSegDisplaysTest, set_overflow_digit_to_each_7_seg_display)
         ASSERT_EQ(0, set_middle_hex_digit_fake.call_count);
         ASSERT_EQ(0, set_right_hex_digit_fake.call_count);
     }
+}
+
+TEST_F(SevenSegDisplaysTest, set_valid_unsigned_base10_values)
+{
+    App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 0);
+    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[0].enabled);
+    ASSERT_EQ(false, set_middle_hex_digit_fake.arg0_history[0].enabled);
+    ASSERT_EQ(false, set_right_hex_digit_fake.arg0_history[0].enabled);
+    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[0].value);
+
+    App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 500);
+    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[1].value);
+    ASSERT_EQ(0, set_middle_hex_digit_fake.arg0_history[1].value);
+    ASSERT_EQ(5, set_right_hex_digit_fake.arg0_history[1].value);
+
+    App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 999);
+    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[2].enabled);
+    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_history[2].enabled);
+    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_history[2].enabled);
+    ASSERT_EQ(9, set_left_hex_digit_fake.arg0_history[2].value);
+    ASSERT_EQ(9, set_middle_hex_digit_fake.arg0_history[2].value);
+    ASSERT_EQ(9, set_right_hex_digit_fake.arg0_history[2].value);
+}
+
+TEST_F(SevenSegDisplaysTest, set_invalid_unsigned_base10_values)
+{
+    ExitCode exit_code;
+
+    exit_code = EXIT_CODE_OK;
+    exit_code =
+        App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, -1);
+    ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);
+
+    exit_code = EXIT_CODE_OK;
+    exit_code =
+        App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 1000);
+    ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);
+
+    ASSERT_EQ(0, set_left_hex_digit_fake.call_count);
+    ASSERT_EQ(0, set_middle_hex_digit_fake.call_count);
+    ASSERT_EQ(0, set_right_hex_digit_fake.call_count);
 }

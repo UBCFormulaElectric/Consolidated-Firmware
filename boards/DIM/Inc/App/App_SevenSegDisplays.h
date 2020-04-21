@@ -51,3 +51,16 @@ ExitCode App_SevenSegDisplays_SetHexDigits(
     const struct SevenSegDisplays *seven_seg_displays,
     const uint8_t                  hex_digits[],
     size_t                         num_hex_digits);
+
+/**
+ * Set an unsigned base-10 value on the given group of 7-segment displays
+ * @note Since there are only three 7-segment displays, this function can only
+ *       accept value for 0 to 999.
+ * @param seven_seg_displays The group of 7-segment displays to set base-10
+ *                           value for
+ * @param value An unsigned base-10 value to set
+ * @return EXIT_CODE_INVALID_ARGS if the given value is out-of-bound
+ */
+ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(
+    const struct SevenSegDisplays *seven_seg_displays,
+    uint32_t value);

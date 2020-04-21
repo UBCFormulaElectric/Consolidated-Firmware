@@ -15,7 +15,6 @@ extern "C"
 {
 #include "App_SevenSegDisplay.h"
 #include "App_SevenSegDisplays.h"
-#include "App_SocDigits.h"
 }
 
 class DimTest : public testing::Test
@@ -24,8 +23,7 @@ class DimTest : public testing::Test
     struct SevenSegDisplay * left_seven_seg_display;
     struct SevenSegDisplay * middle_seven_seg_display;
     struct SevenSegDisplay * right_seven_seg_display;
-    struct SevenSegDisplays *seven_segment_displays;
-    struct SocDigits         soc_digits;
+    struct SevenSegDisplays *seven_seg_displays;
 
     void SetUp() override;
     void TearDown() override;
