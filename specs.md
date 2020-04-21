@@ -12,17 +12,11 @@ Each specification has an unique ID, short title, and detailed description. It m
 1. All abbreviations (`AIR`, `APPS`, etc.) should be spelled out fully the first time they appear in a given row in the table. This means that if `APPS` appears in `FSM-0` and `FSM-22`, it should be spelled out as `APPS (acceleration pedal position sensor)` in _both_ `FSM-0` and `FSM-22`.
 
 ## Background Info
-
-There are two types of shutdown:
-- Motor shutdown:
-    - Disable the inverters through a zero torque request
-- AIR shutdown:
-    - Opens the AIRs
-    - Performs a motor shutdown as well
-
 There are two types of faults:
 - Critical Faults:
-    - Handled by shutting down AIRs/motor
+    - These faults are further sub-divided based on how they are handled:
+        - Motor shutdown fault: Disable the inverters through a zero torque request
+        - AIR shutdown fault: Open the AIRs, then disable the inverters through a zero torque request
 - Non-critical:
     - All other faults, for logging and debugging purposes
 
