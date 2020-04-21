@@ -54,11 +54,11 @@ ExitCode App_SevenSegDisplays_SetHexDigits(
 
 /**
  * Set an unsigned base-10 value on the given group of 7-segment displays
- * @note Since there are only three 7-segment displays, this function can only
- *       accept value for 0 to 999.
+ * @note The value that can be set is constrained by the number of 7-segment
+ *       displays. Use the return code to see if the requested value is valid.
  * @param seven_seg_displays The group of 7-segment displays to set base-10
  *                           value for
- * @param value An unsigned base-10 value to set
+ * @param value The unsigned base-10 value to set
  * @return EXIT_CODE_INVALID_ARGS if the given value is out-of-bound
  */
 ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(
