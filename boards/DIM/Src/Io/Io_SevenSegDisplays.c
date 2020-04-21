@@ -76,16 +76,12 @@ void Io_SevenSegDisplays_Init(SPI_HandleTypeDef *const hspi)
 
 void Io_SevenSegDisplays_WriteCommands(void)
 {
-    //    commands[0] = command_lookup_table.values[7];
-    //    commands[1] = command_lookup_table.values[8];
-    //    commands[2] = command_lookup_table.values[9];
-
     // The 7-segment displays are daisy chained by shifting registers, so we
     // can't update them individually. Instead, we must update the 7-segment
     // displays all at once.
-    HAL_SPI_Transmit(_hspi, commands, NUM_SEVEN_SEG_DISPLAYS, 1U);
+    HAL_SPI_Transmit(_hspi, commands, NUM_SEVEN_SEG_DISPLAYS, 100U);
 
-    // A pulse to RCK transfer the data to the storage registers in the shift
+    // A pulse to RCK transfers the data to the storage registers in the shift
     // registers, completing the write command.
     HAL_GPIO_TogglePin(SEVENSEG_RCK_3V3_GPIO_Port, SEVENSEG_RCK_3V3_Pin);
     HAL_GPIO_TogglePin(SEVENSEG_RCK_3V3_GPIO_Port, SEVENSEG_RCK_3V3_Pin);
