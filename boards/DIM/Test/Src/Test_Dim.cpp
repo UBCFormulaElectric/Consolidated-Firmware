@@ -7,7 +7,7 @@ void DimTest::SetUp()
     left_seven_seg_display   = App_SevenSegDisplay_Create(set_left_hex_digit);
     middle_seven_seg_display = App_SevenSegDisplay_Create(set_middle_hex_digit);
     right_seven_seg_display  = App_SevenSegDisplay_Create(set_right_hex_digit);
-    seven_seg_displays   = App_SevenSegDisplays_Create(
+    seven_seg_displays       = App_SevenSegDisplays_Create(
         left_seven_seg_display, middle_seven_seg_display,
         right_seven_seg_display);
 
@@ -31,5 +31,5 @@ void DimTest::TearDown()
     left_seven_seg_display   = NULL;
     middle_seven_seg_display = NULL;
     right_seven_seg_display  = NULL;
-    seven_seg_displays   = NULL;
+    seven_seg_displays       = NULL;
 }

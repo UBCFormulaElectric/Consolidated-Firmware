@@ -113,34 +113,30 @@ TEST_F(
     DimStateMachineTest,
     check_7_seg_displays_show_state_of_charge_in_drive_state)
 {
-    size_t count = 0;
-
     App_CanRx_BMS_STATE_OF_CHARGE_SetSignal_STATE_OF_CHARGE(
         can_rx_interface, 0.0f);
     App_SharedStateMachine_Tick(state_machine);
-    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[count].enabled);
-    ASSERT_EQ(false, set_middle_hex_digit_fake.arg0_history[count].enabled);
-    ASSERT_EQ(false, set_right_hex_digit_fake.arg0_history[count].enabled);
-    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[count].value);
-    count++;
+    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[0].enabled);
+    ASSERT_EQ(false, set_middle_hex_digit_fake.arg0_history[0].enabled);
+    ASSERT_EQ(false, set_right_hex_digit_fake.arg0_history[0].enabled);
+    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[0].value);
 
     App_CanRx_BMS_STATE_OF_CHARGE_SetSignal_STATE_OF_CHARGE(
         can_rx_interface, 50.0f);
     App_SharedStateMachine_Tick(state_machine);
-    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[count].enabled);
-    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_history[count].enabled);
-    ASSERT_EQ(false, set_right_hex_digit_fake.arg0_history[count].enabled);
-    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[count].value);
-    ASSERT_EQ(5, set_middle_hex_digit_fake.arg0_history[count].value);
-    count++;
+    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(false, set_right_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[1].value);
+    ASSERT_EQ(5, set_middle_hex_digit_fake.arg0_history[1].value);
 
     App_CanRx_BMS_STATE_OF_CHARGE_SetSignal_STATE_OF_CHARGE(
         can_rx_interface, 100.0f);
     App_SharedStateMachine_Tick(state_machine);
-    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[count].enabled);
-    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_history[count].enabled);
-    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_history[count].enabled);
-    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[count].value);
-    ASSERT_EQ(0, set_middle_hex_digit_fake.arg0_history[count].value);
-    ASSERT_EQ(1, set_right_hex_digit_fake.arg0_history[count].value);
+    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[2].enabled);
+    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_history[2].enabled);
+    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_history[2].enabled);
+    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[2].value);
+    ASSERT_EQ(0, set_middle_hex_digit_fake.arg0_history[2].value);
+    ASSERT_EQ(1, set_right_hex_digit_fake.arg0_history[2].value);
 }

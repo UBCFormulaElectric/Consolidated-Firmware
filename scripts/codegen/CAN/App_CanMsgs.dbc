@@ -168,9 +168,6 @@ SG_ State : 0|8@1+ (1,0) [0|255] "" LOGGER
 BO_ 504 DIM_WATCHDOG_TIMEOUT: 8 DIM
 SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" LOGGER
 
-BO_ 505 DIM_ERRORS: 8 DIM
-SG_ INVALID_STATE_OF_CHARGE : 0|1@1+ (1,0) [0|1] "" LOGGER
-
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
 BA_DEF_ SG_  "GenSigStartValue" INT 0 2147483647;
@@ -209,10 +206,10 @@ BA_ "GenMsgCycleTime" BO_ 413 10;
 BA_ "GenMsgCycleTime" BO_ 500 300;
 BA_ "GenMsgCycleTime" BO_ 501 5000;
 BA_ "GenMsgCycleTime" BO_ 503 10;
-BA_ "GenMsgCycleTime" BO_ 505 1000;
 
 BA_ "GenSigStartValue" SG_ 2  tx_overflow_count 0;
 BA_ "GenSigStartValue" SG_ 2  rx_overflow_count 0;
+BA_ "GenSigStartValue" SG_ 108 State_Of_Charge 55;
 
 SIG_VALTYPE_ 106 Duty_Cycle : 1;
 SIG_VALTYPE_ 106 Frequency : 1;

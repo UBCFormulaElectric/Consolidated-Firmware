@@ -63,4 +63,4 @@ ExitCode App_SevenSegDisplays_SetHexDigits(
  */
 ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(
     const struct SevenSegDisplays *seven_seg_displays,
-    uint32_t value);
+    uint32_t                       value);

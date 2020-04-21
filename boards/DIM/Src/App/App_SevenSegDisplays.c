@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <assert.h>
+#include <math.h>
 
 #include "App_ErrorCode.h"
 #include "App_SevenSegDisplays.h"
@@ -82,10 +83,9 @@ ExitCode App_SevenSegDisplays_SetHexDigits(
 
 ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(
     const struct SevenSegDisplays *const seven_seg_displays,
-    uint32_t value)
+    uint32_t                             value)
 {
-    // We do not support numbers with more than four base-10 digits
-    if (value > 999U)
+    if (value > pow(10, NUM_SEVEN_SEG_DISPLAYS) - 1)
     {
         return EXIT_CODE_INVALID_ARGS;
     }
@@ -93,12 +93,11 @@ ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(
     uint8_t digits[NUM_SEVEN_SEG_DISPLAYS];
 
     // Turn the base-10 value into individual digits. We treat a value of 0
-    // as having 1 digit, which is why num_digits starts counting
-    // from 1.
-    for (uint8_t num_digits = 1; num_digits <= 3; num_digits++)
+    // as having 1 digit, which is why num_digits starts counting from 1.
+    for (uint8_t num_digits = 1; num_digits <= NUM_SEVEN_SEG_DISPLAYS;
+         num_digits++)
     {
         digits[num_digits - 1] = value % 10;
-
         value /= 10;
 
         if (value == 0)
