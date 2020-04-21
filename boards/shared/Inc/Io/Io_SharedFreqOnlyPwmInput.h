@@ -8,11 +8,9 @@
 struct FreqOnlyPwmInput;
 
 /**
- * Allocate and initialize a PWM input using the given (hardware) timer
+ * Allocate and initialize a frequency-only PWM input using the given (hardware) timer
  *
- * @note The given timer must be initialized with:
- *       - Input Capture direct mode
- *
+ * @note The given timer must be initialized with Input Capture Direct Mode
  * @param htim: The handle of the timer measuring the PWM input
  * @param timer_frequency_hz: The frequency of the timer measuring the PWM input
  * @param rising_edge_tim_channel: The rising edge channel of the timer
