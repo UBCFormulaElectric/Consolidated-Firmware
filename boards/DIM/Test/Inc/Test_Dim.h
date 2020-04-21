@@ -9,8 +9,6 @@
 #include <fff.h>
 #include <gtest/gtest.h>
 
-#include "Test_SevenSegDisplays.h"
-
 extern "C"
 {
 #include "App_SevenSegDisplay.h"

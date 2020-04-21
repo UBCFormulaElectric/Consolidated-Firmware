@@ -1,4 +1,5 @@
 #include "Test_Dim.h"
+#include "Test_SevenSegDisplays.h"
 
 DEFINE_FFF_GLOBALS;
 
