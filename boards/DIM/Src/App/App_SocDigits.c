@@ -21,9 +21,7 @@ void App_SocDigits_Destroy(struct SocDigits *const soc_digits)
     free(soc_digits);
 }
 
-ErrorCode App_SocDigits_Tick(
-    struct SocDigits *const soc_digits,
-    float                   soc)
+ErrorCode App_SocDigits_Tick(struct SocDigits *const soc_digits, float soc)
 {
     if (soc < 0.0f || soc > 100.0f)
     {

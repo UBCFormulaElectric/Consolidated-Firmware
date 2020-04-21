@@ -15,8 +15,8 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 static void DriveStateRunOnTick(struct StateMachine *const state_machine)
 {
     struct DimWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct DimCanRxInterface *can_rx = App_DimWorld_GetCanRx(world);
-    struct SocDigits *soc_digits = App_DimWorld_GetSocDigits(world);
+    struct DimCanRxInterface *can_rx     = App_DimWorld_GetCanRx(world);
+    struct SocDigits *        soc_digits = App_DimWorld_GetSocDigits(world);
     struct SevenSegDisplays * seven_seg_displays =
         App_DimWorld_GetSevenSegDisplays(world);
     struct HeartbeatMonitor *heartbeat_monitor =

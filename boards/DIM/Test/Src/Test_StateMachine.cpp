@@ -116,7 +116,7 @@ TEST_F(
     // We don't check any out-of-bound values because the CAN RX interface
     // is responsible for discarding out-of_bound values
 
-    size_t count = 1;
+    size_t count = 0;
 
     for (const auto &state : GetAllStates())
     {
@@ -127,14 +127,11 @@ TEST_F(
 
         App_SharedStateMachine_Tick(state_machine);
 
-        ASSERT_EQ(
-            true, set_left_hex_digit_fake.arg0_history[count - 1].enabled);
-        ASSERT_EQ(
-            false, set_middle_hex_digit_fake.arg0_history[count - 1].enabled);
-        ASSERT_EQ(
-            false, set_right_hex_digit_fake.arg0_history[count - 1].enabled);
+        ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[count].enabled);
+        ASSERT_EQ(false, set_middle_hex_digit_fake.arg0_history[count].enabled);
+        ASSERT_EQ(false, set_right_hex_digit_fake.arg0_history[count].enabled);
 
-        ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[count - 1].value);
+        ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[count].value);
 
         count++;
     }
@@ -148,15 +145,12 @@ TEST_F(
 
         App_SharedStateMachine_Tick(state_machine);
 
-        ASSERT_EQ(
-            true, set_left_hex_digit_fake.arg0_history[count - 1].enabled);
-        ASSERT_EQ(
-            true, set_middle_hex_digit_fake.arg0_history[count - 1].enabled);
-        ASSERT_EQ(
-            false, set_right_hex_digit_fake.arg0_history[count - 1].enabled);
+        ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[count].enabled);
+        ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_history[count].enabled);
+        ASSERT_EQ(false, set_right_hex_digit_fake.arg0_history[count].enabled);
 
-        ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[count - 1].value);
-        ASSERT_EQ(5, set_middle_hex_digit_fake.arg0_history[count - 1].value);
+        ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[count].value);
+        ASSERT_EQ(5, set_middle_hex_digit_fake.arg0_history[count].value);
 
         count++;
     }
@@ -170,16 +164,13 @@ TEST_F(
 
         App_SharedStateMachine_Tick(state_machine);
 
-        ASSERT_EQ(
-            true, set_left_hex_digit_fake.arg0_history[count - 1].enabled);
-        ASSERT_EQ(
-            true, set_middle_hex_digit_fake.arg0_history[count - 1].enabled);
-        ASSERT_EQ(
-            true, set_right_hex_digit_fake.arg0_history[count - 1].enabled);
+        ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[count].enabled);
+        ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_history[count].enabled);
+        ASSERT_EQ(true, set_right_hex_digit_fake.arg0_history[count].enabled);
 
-        ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[count - 1].value);
-        ASSERT_EQ(0, set_middle_hex_digit_fake.arg0_history[count - 1].value);
-        ASSERT_EQ(1, set_right_hex_digit_fake.arg0_history[count - 1].value);
+        ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[count].value);
+        ASSERT_EQ(0, set_middle_hex_digit_fake.arg0_history[count].value);
+        ASSERT_EQ(1, set_right_hex_digit_fake.arg0_history[count].value);
 
         count++;
     }
