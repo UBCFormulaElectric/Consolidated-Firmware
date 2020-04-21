@@ -89,7 +89,7 @@ struct SevenSegDisplay *  middle_seven_seg_display;
 struct SevenSegDisplay *  right_seven_seg_display;
 struct SevenSegDisplays * seven_seg_displays;
 struct HeartbeatMonitor * heartbeat_monitor;
-struct SocDigits* soc_digits;
+struct SocDigits *        soc_digits;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

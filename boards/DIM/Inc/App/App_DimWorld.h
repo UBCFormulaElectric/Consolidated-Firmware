@@ -39,5 +39,5 @@ struct DimCanRxInterface *App_DimWorld_GetCanRx(const struct DimWorld *world);
 struct SevenSegDisplays *
     App_DimWorld_GetSevenSegDisplays(const struct DimWorld *world);
 struct HeartbeatMonitor *
-    App_DimWorld_GetHeartbeatMonitor(const struct DimWorld *world);
+                  App_DimWorld_GetHeartbeatMonitor(const struct DimWorld *world);
 struct SocDigits *App_DimWorld_GetSocDigits(const struct DimWorld *world);

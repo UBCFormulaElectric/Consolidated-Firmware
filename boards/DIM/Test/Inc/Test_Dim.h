@@ -21,11 +21,11 @@ extern "C"
 class DimTest : public testing::Test
 {
   protected:
-    struct SevenSegDisplay *  left_seven_seg_display;
-    struct SevenSegDisplay *  middle_seven_seg_display;
-    struct SevenSegDisplay *  right_seven_seg_display;
-    struct SevenSegDisplays * seven_segment_displays;
-    struct SocDigits* soc_digits;
+    struct SevenSegDisplay * left_seven_seg_display;
+    struct SevenSegDisplay * middle_seven_seg_display;
+    struct SevenSegDisplay * right_seven_seg_display;
+    struct SevenSegDisplays *seven_segment_displays;
+    struct SocDigits *       soc_digits;
 
     void SetUp() override;
     void TearDown() override;

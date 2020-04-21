@@ -38,7 +38,6 @@ class DimStateMachineTest : public DimTest
             get_current_ms, DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS,
             DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
 
-
         world = App_DimWorld_Create(
             can_tx_interface, can_rx_interface, seven_segment_displays,
             heartbeat_monitor, soc_digits);

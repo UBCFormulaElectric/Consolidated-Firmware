@@ -4,9 +4,9 @@
 
 #include "App_SocDigits.h"
 
-struct SocDigits* App_SocDigits_Create(void)
+struct SocDigits *App_SocDigits_Create(void)
 {
-    struct SocDigits* soc_digits = malloc(sizeof(struct SocDigits));
+    struct SocDigits *soc_digits = malloc(sizeof(struct SocDigits));
 
     assert(soc_digits != NULL);
 
@@ -16,12 +16,14 @@ struct SocDigits* App_SocDigits_Create(void)
     return soc_digits;
 }
 
-void App_SocDigits_Destroy(struct SocDigits* const soc_digits)
+void App_SocDigits_Destroy(struct SocDigits *const soc_digits)
 {
     free(soc_digits);
 }
 
-ErrorCode App_SocDigits_Tick(struct SocDigits* const soc_digits, float state_of_charge)
+ErrorCode App_SocDigits_Tick(
+    struct SocDigits *const soc_digits,
+    float                   state_of_charge)
 {
     if (state_of_charge < 0.0f || state_of_charge > 100.0f)
     {
@@ -50,12 +52,12 @@ ErrorCode App_SocDigits_Tick(struct SocDigits* const soc_digits, float state_of_
     return ERROR_CODE_OK;
 }
 
-const uint8_t* App_SocDigits_GetDigits(const struct SocDigits* const soc_digits)
+const uint8_t *App_SocDigits_GetDigits(const struct SocDigits *const soc_digits)
 {
     return soc_digits->digits;
 }
 
-uint8_t App_SocDigits_GetNumDigits(const struct SocDigits* const soc_digits)
+uint8_t App_SocDigits_GetNumDigits(const struct SocDigits *const soc_digits)
 {
     return soc_digits->num_digits;
 }

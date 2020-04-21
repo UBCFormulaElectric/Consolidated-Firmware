@@ -76,9 +76,9 @@ void Io_SevenSegDisplays_Init(SPI_HandleTypeDef *const hspi)
 
 void Io_SevenSegDisplays_WriteCommands(void)
 {
-//    commands[0] = command_lookup_table.values[7];
-//    commands[1] = command_lookup_table.values[8];
-//    commands[2] = command_lookup_table.values[9];
+    //    commands[0] = command_lookup_table.values[7];
+    //    commands[1] = command_lookup_table.values[8];
+    //    commands[2] = command_lookup_table.values[9];
 
     // The 7-segment displays are daisy chained by shifting registers, so we
     // can't update them individually. Instead, we must update the 7-segment
