@@ -34,7 +34,6 @@
 #include "states/App_DriveState.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
-#include "App_SocDigits.h"
 
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
