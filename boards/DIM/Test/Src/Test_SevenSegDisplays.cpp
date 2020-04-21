@@ -213,14 +213,7 @@ TEST_F(SevenSegDisplaysTest, set_valid_unsigned_base10_values)
 
 TEST_F(SevenSegDisplaysTest, set_invalid_unsigned_base10_values)
 {
-    ExitCode exit_code;
-
-    exit_code = EXIT_CODE_OK;
-    exit_code =
-        App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, -1);
-    ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);
-
-    exit_code = EXIT_CODE_OK;
+    ExitCode exit_code = EXIT_CODE_OK;
     exit_code =
         App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 1000);
     ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);
