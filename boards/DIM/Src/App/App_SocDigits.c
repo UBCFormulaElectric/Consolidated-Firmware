@@ -4,6 +4,12 @@
 
 #include "App_SocDigits.h"
 
+struct SocDigits
+{
+    uint8_t digits[3];
+    uint8_t num_digits;
+};
+
 struct SocDigits *App_SocDigits_Create(void)
 {
     struct SocDigits *soc_digits = malloc(sizeof(struct SocDigits));
