@@ -40,7 +40,7 @@ class DimStateMachineTest : public DimTest
 
         world = App_DimWorld_Create(
             can_tx_interface, can_rx_interface, seven_segment_displays,
-            heartbeat_monitor, soc_digits);
+            heartbeat_monitor);
 
         // Default to starting the state machine in the `Drive` state
         state_machine =

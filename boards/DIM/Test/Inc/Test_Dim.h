@@ -25,7 +25,7 @@ class DimTest : public testing::Test
     struct SevenSegDisplay * middle_seven_seg_display;
     struct SevenSegDisplay * right_seven_seg_display;
     struct SevenSegDisplays *seven_segment_displays;
-    struct SocDigits *       soc_digits;
+    struct SocDigits         soc_digits;
 
     void SetUp() override;
     void TearDown() override;
