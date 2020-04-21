@@ -183,7 +183,7 @@ int main(void)
     Io_FlowMeters_Init(&htim4);
     primary_flow_meter = App_FlowMeter_Create(Io_FlowMeters_GetPrimaryFlowRate);
     secondary_flow_meter =
-            App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
+        App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
 
     struct CanMsgs_fsm_startup_t payload = { .dummy = 0 };
     App_CanTx_SendNonPeriodicMsg_FSM_STARTUP(can_tx, &payload);
