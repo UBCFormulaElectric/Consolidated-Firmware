@@ -23,10 +23,10 @@ struct FreqOnlyPwmInput;
  */
 struct FreqOnlyPwmInput *Io_SharedFreqOnlyPwmInput_Create(
     TIM_HandleTypeDef *   htim,
-    float                 timer_frequency_hz,
-    uint32_t              rising_edge_tim_channel,
-    uint32_t              timer_auto_reload_reg,
-    HAL_TIM_ActiveChannel timer_active_channel);
+    float                 tim_frequency_hz,
+    uint32_t              tim_channel,
+    uint32_t              tim_auto_reload_reg,
+    HAL_TIM_ActiveChannel tim_active_channel);
 
 /**
  * Get the frequency for the given PWM input
