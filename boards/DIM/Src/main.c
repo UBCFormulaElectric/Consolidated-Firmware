@@ -139,7 +139,7 @@ int main(void)
 
     seven_seg_displays = App_SevenSegDisplays_Create(
         left_seven_seg_display, middle_seven_seg_display,
-        right_seven_seg_display);
+        right_seven_seg_display, Io_SevenSegDisplays_WriteCommands);
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_DIM_STARTUP,
@@ -517,7 +517,6 @@ void RunTask100Hz(void const *argument)
     for (;;)
     {
         App_SharedStateMachine_Tick(state_machine);
-        Io_SevenSegDisplays_WriteCommands();
         osDelayUntil(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END 5 */

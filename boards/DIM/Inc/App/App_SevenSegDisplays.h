@@ -18,6 +18,8 @@ enum
  * @param left_seven_seg_display The left 7-segment display
  * @param middle_seven_seg_display The middle 7-segment display
  * @param right_seven_seg_display The right 7-segment display
+ * @param set_value_callback The function to call after we set a value to the
+ *                           7-segment displays
  * @note This function does __not__ take ownership of any of the 7-segment
  *       displays passed into it, which means the every interface must be kept
  *       alive for the lifetime of this created group of 7-segment displays
@@ -27,7 +29,8 @@ enum
 struct SevenSegDisplays *App_SevenSegDisplays_Create(
     struct SevenSegDisplay *left_seven_seg_display,
     struct SevenSegDisplay *middle_seven_seg_display,
-    struct SevenSegDisplay *right_seven_seg_display);
+    struct SevenSegDisplay *right_seven_seg_display,
+    void (*set_value_callback)(void));
 
 /**
  * Destroy the given group of three 7-segment displays, freeing the memory

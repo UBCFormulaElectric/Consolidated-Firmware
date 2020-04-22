@@ -9,12 +9,14 @@
 struct SevenSegDisplays
 {
     struct SevenSegDisplay *displays[NUM_SEVEN_SEG_DISPLAYS];
+    void (*set_value_callback)(void);
 };
 
 struct SevenSegDisplays *App_SevenSegDisplays_Create(
     struct SevenSegDisplay *const left_seven_seg_display,
     struct SevenSegDisplay *const middle_seven_seg_display,
-    struct SevenSegDisplay *const right_seven_seg_display)
+    struct SevenSegDisplay *const right_seven_seg_display,
+    void (*set_value_callback)(void))
 {
     struct SevenSegDisplays *seven_seg_displays =
         malloc(sizeof(struct SevenSegDisplays));
@@ -27,6 +29,7 @@ struct SevenSegDisplays *App_SevenSegDisplays_Create(
         middle_seven_seg_display;
     seven_seg_displays->displays[RIGHT_SEVEN_SEG_DISPLAY] =
         right_seven_seg_display;
+    seven_seg_displays->set_value_callback = set_value_callback;
 
     return seven_seg_displays;
 }
@@ -78,6 +81,11 @@ ExitCode App_SevenSegDisplays_SetHexDigits(
             seven_seg_displays->displays[i], hex_digit);
     }
 
+    if (seven_seg_displays->set_value_callback != NULL)
+    {
+        seven_seg_displays->set_value_callback();
+    }
+
     return EXIT_CODE_OK;
 }
 
@@ -106,6 +114,11 @@ ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(
                 seven_seg_displays, digits, num_digits);
             break;
         }
+    }
+
+    if (seven_seg_displays->set_value_callback != NULL)
+    {
+        seven_seg_displays->set_value_callback();
     }
 
     return EXIT_CODE_OK;
