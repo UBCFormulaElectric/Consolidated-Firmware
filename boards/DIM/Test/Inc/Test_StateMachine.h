@@ -5,8 +5,6 @@
 extern "C"
 {
 #include "App_SharedStateMachine.h"
-#include "App_SevenSegDisplays.h"
-#include "App_SevenSegDisplay.h"
 #include "states/App_DriveState.h"
 }
 

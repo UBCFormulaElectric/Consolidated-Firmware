@@ -18,12 +18,12 @@ FAKE_VOID_FUNC(
     enum HeartbeatOneHot,
     enum HeartbeatOneHot);
 
-class DimStateMachineTest : public DimTest
+class DimStateMachineTest : public SevenSegDisplaysTest
 {
   protected:
     void SetUp() override
     {
-        DimTest::SetUp();
+        SevenSegDisplaysTest::SetUp();
 
         constexpr uint32_t DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS = 500U;
         constexpr enum HeartbeatOneHot DEFAULT_HEARTBEAT_BOARDS_TO_CHECK =
@@ -65,7 +65,7 @@ class DimStateMachineTest : public DimTest
 
     void TearDown() override
     {
-        DimTest::TearDown();
+        SevenSegDisplaysTest::TearDown();
 
         ASSERT_TRUE(world != NULL);
         ASSERT_TRUE(can_tx_interface != NULL);
