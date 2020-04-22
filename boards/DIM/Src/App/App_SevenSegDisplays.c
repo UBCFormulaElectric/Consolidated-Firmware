@@ -45,7 +45,7 @@ ExitCode App_SevenSegDisplays_SetHexDigits(
     const uint8_t                        hex_digits[],
     size_t                               num_hex_digits)
 {
-    if (num_hex_digits > NUM_SEVEN_SEG_DISPLAYS)
+    if (num_hex_digits > NUM_SEVEN_SEG_DISPLAYS || num_hex_digits == 0)
     {
         return EXIT_CODE_INVALID_ARGS;
     }
@@ -114,11 +114,6 @@ ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(
                 seven_seg_displays, digits, num_digits);
             break;
         }
-    }
-
-    if (seven_seg_displays->set_value_callback != NULL)
-    {
-        seven_seg_displays->set_value_callback();
     }
 
     return EXIT_CODE_OK;
