@@ -1,15 +1,17 @@
+#include "Test_Dim.h"
 #include "Test_SevenSegDisplays.h"
-#include "Test_StateMachine.h"
 
 extern "C"
 {
 #include "App_SharedHeartbeatMonitor.h"
+#include "App_SharedStateMachine.h"
+#include "states/App_DriveState.h"
 }
 
-DEFINE_FAKE_VOID_FUNC(
+FAKE_VOID_FUNC(
     send_non_periodic_msg_DIM_STARTUP,
     struct CanMsgs_dim_startup_t *);
-DEFINE_FAKE_VOID_FUNC(
+FAKE_VOID_FUNC(
     send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT,
     struct CanMsgs_dim_watchdog_timeout_t *);
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);

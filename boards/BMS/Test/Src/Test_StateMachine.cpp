@@ -1,15 +1,21 @@
-#include "Test_StateMachine.h"
+#include "Test_Bms.h"
 #include "Test_Imd.h"
 
 extern "C"
 {
 #include "App_SharedHeartbeatMonitor.h"
+#include "App_CanTx.h"
+#include "App_CanRx.h"
+#include "states/App_InitState.h"
+#include "states/App_DriveState.h"
+#include "states/App_FaultState.h"
+#include "states/App_ChargeState.h"
 }
 
-DEFINE_FAKE_VOID_FUNC(
+FAKE_VOID_FUNC(
     send_non_periodic_msg_BMS_STARTUP,
     struct CanMsgs_bms_startup_t *);
-DEFINE_FAKE_VOID_FUNC(
+FAKE_VOID_FUNC(
     send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT,
     struct CanMsgs_bms_watchdog_timeout_t *);
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);

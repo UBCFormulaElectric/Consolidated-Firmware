@@ -20,7 +20,7 @@ FAKE_VOID_FUNC(
     enum HeartbeatOneHot,
     enum HeartbeatOneHot);
 
-class DcmStateMachineTest : public DcmTest
+class DcmStateMachineTest : public testing::Test
 {
   protected:
     void SetUp() override

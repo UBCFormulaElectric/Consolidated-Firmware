@@ -8,7 +8,7 @@ extern "C"
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
 FAKE_VOID_FUNC(timeout_callback, enum HeartbeatOneHot, enum HeartbeatOneHot);
 
-class SharedHeartbeatMonitorTest : public SharedTest
+class SharedHeartbeatMonitorTest : public testing::Test
 {
   protected:
     void SetUp() override

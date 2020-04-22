@@ -23,7 +23,7 @@ FAKE_VOID_FUNC(
     enum HeartbeatOneHot,
     enum HeartbeatOneHot);
 
-class FsmStateMachineTest : public FsmTest
+class FsmStateMachineTest : public testing::Test
 {
   protected:
     void SetUp() override
