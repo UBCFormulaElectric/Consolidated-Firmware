@@ -18,7 +18,7 @@ FAKE_VOID_FUNC(
     enum HeartbeatOneHot,
     enum HeartbeatOneHot);
 
-class BmsStateMachineTest : public BmsTest
+class BmsStateMachineTest : public ImdTest
 {
   protected:
     void SetUp() override
