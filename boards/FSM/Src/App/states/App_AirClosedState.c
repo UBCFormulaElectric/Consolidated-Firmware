@@ -1,5 +1,5 @@
 #include "states/App_AirClosedState.h"
-
+#include "App_SetPeriodicCanSignals.h"
 #include "App_SharedMacros.h"
 
 static void AirClosedStateRunOnEntry(struct StateMachine *const state_machine)
@@ -12,7 +12,19 @@ static void AirClosedStateRunOnEntry(struct StateMachine *const state_machine)
 
 static void AirClosedStateRunOnTick(struct StateMachine *const state_machine)
 {
-    UNUSED(state_machine);
+    struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct FsmCanTxInterface *can_tx_interface = App_FsmWorld_GetCanTx(world);
+    struct FlowMeter *        primary_flow_meter =
+        App_FsmWorld_GetPrimaryFlowMeter(world);
+    struct FlowMeter *secondary_flow_meter =
+            App_FsmWorld_GetSecondaryFlowMeter(world);
+
+    App_FlowMeter_Tick(primary_flow_meter);
+    App_FlowMeter_Tick(secondary_flow_meter);
+    App_SetPeriodicCanSignals_PrimaryFlowMeter(
+        can_tx_interface, primary_flow_meter);
+    App_SetPeriodicCanSignals_SecondaryFlowMeter(
+            can_tx_interface, secondary_flow_meter);
 }
 
 static void AirClosedStateRunOnExit(struct StateMachine *const state_machine)

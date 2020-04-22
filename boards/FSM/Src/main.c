@@ -136,6 +136,11 @@ int main(void)
     __HAL_DBGMCU_FREEZE_IWDG();
     Io_SharedHardFaultHandler_Init();
 
+    Io_FlowMeters_Init(&htim4);
+    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeters_GetPrimaryFlowRate);
+    secondary_flow_meter =
+        App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
+
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
@@ -147,7 +152,9 @@ int main(void)
         Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
         Io_HeartbeatMonitor_TimeoutCallback);
 
-    world = App_FsmWorld_Create(can_tx, can_rx, heartbeat_monitor);
+    world = App_FsmWorld_Create(
+        can_tx, can_rx, heartbeat_monitor, primary_flow_meter,
+        secondary_flow_meter);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 
