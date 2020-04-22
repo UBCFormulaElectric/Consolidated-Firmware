@@ -16,7 +16,7 @@ struct SevenSegDisplays *App_SevenSegDisplays_Create(
     struct SevenSegDisplay *const left_seven_seg_display,
     struct SevenSegDisplay *const middle_seven_seg_display,
     struct SevenSegDisplay *const right_seven_seg_display,
-    void (*set_value_callback)(void))
+    void (*const set_value_callback)(void))
 {
     struct SevenSegDisplays *seven_seg_displays =
         malloc(sizeof(struct SevenSegDisplays));

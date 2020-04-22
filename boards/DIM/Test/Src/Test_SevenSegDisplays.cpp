@@ -251,7 +251,7 @@ TEST_F(SevenSegDisplaysTest, set_invalid_unsigned_base10_values)
     ASSERT_EQ(0, set_right_hex_digit_fake.call_count);
 }
 
-TEST_F(SevenSegDisplaysTest, set_hex_digits_invokes_callback_function)
+TEST_F(SevenSegDisplaysTest, set_valid_hex_digits_invokes_callback_function)
 {
     const uint8_t hex_digits[NUM_SEVEN_SEG_DISPLAYS] = { 1, 2, 3 };
 
@@ -294,7 +294,7 @@ TEST_F(
 
 TEST_F(
     SevenSegDisplaysTest,
-    set_unsigned_base10_value_invokes_callback_function)
+    set_valid_unsigned_base10_value_invokes_callback_function)
 {
     ExitCode exit_code =
         App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 1);
