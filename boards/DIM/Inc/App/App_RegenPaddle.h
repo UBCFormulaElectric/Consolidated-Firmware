@@ -16,7 +16,7 @@ struct RegenPaddle *App_RegenPaddle_Create(
     uint32_t (*get_paddle_position)(void),
     uint32_t lower_deadzone,
     uint32_t upper_deadzone);
-void  App_RegenPaddle_Destroy(struct RegenPaddle *regen_paddle);
+void      App_RegenPaddle_Destroy(struct RegenPaddle *regen_paddle);
 ErrorCode App_RegenPaddle_Tick(struct RegenPaddle *regen_paddle);
-uint32_t App_RegenPaddle_GetRegen(const struct RegenPaddle *regen_paddle);
-uint32_t App_RegenPaddle_GetPosition(const struct RegenPaddle *regen_paddle);
+uint32_t  App_RegenPaddle_GetRegen(const struct RegenPaddle *regen_paddle);
+uint32_t  App_RegenPaddle_GetPosition(const struct RegenPaddle *regen_paddle);

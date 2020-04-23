@@ -13,8 +13,8 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 static void DriveStateRunOnTick(struct StateMachine *const state_machine)
 {
     struct DimWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct DimCanTxInterface *can_tx = App_DimWorld_GetCanTx(world);
-    struct RegenPaddle *regen_paddle = App_DimWorld_GetRegenPaddle(world);
+    struct DimCanTxInterface *can_tx       = App_DimWorld_GetCanTx(world);
+    struct RegenPaddle *      regen_paddle = App_DimWorld_GetRegenPaddle(world);
     App_RegenPaddle_Tick(regen_paddle);
     App_RegenPaddle_GetRegen(regen_paddle);
 
@@ -23,7 +23,7 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_REGEN(
         can_tx, App_RegenPaddle_GetRegen(regen_paddle));
 
-    struct HeartbeatMonitor * heartbeat_monitor =
+    struct HeartbeatMonitor *heartbeat_monitor =
         App_DimWorld_GetHeartbeatMonitor(world);
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
 }
