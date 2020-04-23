@@ -6,8 +6,8 @@
 /**
  * Allocate and initialize a regen paddle
  * @param get_paddle_position A function that can be called to get the paddle
- *                            position as a percentage, where 0% means not
- *                            pressed at all and 100% means pressed all the way
+ *                            position as a percentage, where 0 means not
+ *                            pressed at all and 100 means pressed all the way
  * @param lower_deadzone The paddle position threshold of lower deadzone
  * @param upper_deadzone The paddle position threshold of upper deadzone
  * @return The created regen paddle, whose ownership is given to the caller
