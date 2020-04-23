@@ -2,7 +2,7 @@
 
 DEFINE_FAKE_VALUE_FUNC(float, get_flow_rate);
 
-class FlowMeterTest : public FsmTest
+class FlowMeterTest : public testing::Test
 {
   protected:
     struct FlowMeter *flow_meter;
