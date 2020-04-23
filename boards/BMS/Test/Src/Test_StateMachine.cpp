@@ -61,26 +61,6 @@ class BmsStateMachineTest : public ImdTest
         RESET_FAKE(heartbeat_timeout_callback);
     }
 
-    void SetInitialState(const struct State *const initial_state)
-    {
-        App_SharedStateMachine_Destroy(state_machine);
-        state_machine = App_SharedStateMachine_Create(world, initial_state);
-        ASSERT_TRUE(state_machine != NULL);
-        ASSERT_EQ(
-            initial_state,
-            App_SharedStateMachine_GetCurrentState(state_machine));
-    }
-
-    std::vector<const struct State *> GetAllStates(void)
-    {
-        return std::vector<const struct State *>{
-            App_GetInitState(),
-            App_GetDriveState(),
-            App_GetChargeState(),
-            App_GetFaultState(),
-        };
-    }
-
     void TearDown() override
     {
         ASSERT_TRUE(world != NULL);
@@ -103,6 +83,26 @@ class BmsStateMachineTest : public ImdTest
         imd               = NULL;
         state_machine     = NULL;
         heartbeat_monitor = NULL;
+    }
+
+    void SetInitialState(const struct State *const initial_state)
+    {
+        App_SharedStateMachine_Destroy(state_machine);
+        state_machine = App_SharedStateMachine_Create(world, initial_state);
+        ASSERT_TRUE(state_machine != NULL);
+        ASSERT_EQ(
+            initial_state,
+            App_SharedStateMachine_GetCurrentState(state_machine));
+    }
+
+    std::vector<const struct State *> GetAllStates(void)
+    {
+        return std::vector<const struct State *>{
+            App_GetInitState(),
+            App_GetDriveState(),
+            App_GetChargeState(),
+            App_GetFaultState(),
+        };
     }
 
     struct World *            world;

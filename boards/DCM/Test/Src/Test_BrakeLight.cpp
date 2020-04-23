@@ -13,7 +13,7 @@ FAKE_VOID_FUNC(turn_off_brake_light);
 class BrakeLightTest : public testing::Test
 {
   protected:
-    virtual void SetUp()
+    void SetUp() override
     {
         brake_light = App_BrakeLight_Create(
             is_brake_actuated, is_regen_active, turn_on_brake_light,
@@ -26,7 +26,7 @@ class BrakeLightTest : public testing::Test
 
         FFF_RESET_HISTORY();
     }
-    virtual void TearDown() { App_BrakeLight_Destroy(brake_light); }
+    void TearDown() override { App_BrakeLight_Destroy(brake_light); }
 
     struct BrakeLight *brake_light;
 };

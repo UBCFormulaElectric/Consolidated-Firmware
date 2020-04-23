@@ -44,16 +44,6 @@ class DcmStateMachineTest : public testing::Test
             App_SharedStateMachine_Create(world, App_GetInitState());
     }
 
-    void SetInitialState(const struct State *const initial_state)
-    {
-        App_SharedStateMachine_Destroy(state_machine);
-        state_machine = App_SharedStateMachine_Create(world, initial_state);
-        ASSERT_TRUE(state_machine != NULL);
-        ASSERT_EQ(
-            initial_state,
-            App_SharedStateMachine_GetCurrentState(state_machine));
-    }
-
     void TearDown() override
     {
         ASSERT_TRUE(world != NULL);
@@ -73,6 +63,16 @@ class DcmStateMachineTest : public testing::Test
         can_rx_interface  = NULL;
         state_machine     = NULL;
         heartbeat_monitor = NULL;
+    }
+
+    void SetInitialState(const struct State *const initial_state)
+    {
+        App_SharedStateMachine_Destroy(state_machine);
+        state_machine = App_SharedStateMachine_Create(world, initial_state);
+        ASSERT_TRUE(state_machine != NULL);
+        ASSERT_EQ(
+            initial_state,
+            App_SharedStateMachine_GetCurrentState(state_machine));
     }
 
     struct World *            world;

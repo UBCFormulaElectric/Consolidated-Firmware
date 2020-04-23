@@ -280,6 +280,7 @@ TEST_F(
         ASSERT_EQ(0, set_value_callback_fake.call_count);
     }
 }
+
 TEST_F(
     SevenSegDisplaysTest,
     invalid_num_digits_for_set_hex_digits_does_not_invoke_callback_function)

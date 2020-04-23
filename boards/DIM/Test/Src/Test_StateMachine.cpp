@@ -55,16 +55,6 @@ class DimStateMachineTest : public SevenSegDisplaysTest
         RESET_FAKE(heartbeat_timeout_callback);
     }
 
-    void SetInitialState(const struct State *const initial_state)
-    {
-        App_SharedStateMachine_Destroy(state_machine);
-        state_machine = App_SharedStateMachine_Create(world, initial_state);
-        ASSERT_TRUE(state_machine != NULL);
-        ASSERT_EQ(
-            initial_state,
-            App_SharedStateMachine_GetCurrentState(state_machine));
-    }
-
     void TearDown() override
     {
         SevenSegDisplaysTest::TearDown();
@@ -86,6 +76,16 @@ class DimStateMachineTest : public SevenSegDisplaysTest
         can_rx_interface  = NULL;
         state_machine     = NULL;
         heartbeat_monitor = NULL;
+    }
+
+    void SetInitialState(const struct State *const initial_state)
+    {
+        App_SharedStateMachine_Destroy(state_machine);
+        state_machine = App_SharedStateMachine_Create(world, initial_state);
+        ASSERT_TRUE(state_machine != NULL);
+        ASSERT_EQ(
+            initial_state,
+            App_SharedStateMachine_GetCurrentState(state_machine));
     }
 
     struct World *            world;
