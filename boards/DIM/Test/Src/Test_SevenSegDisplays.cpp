@@ -3,7 +3,7 @@
 DEFINE_FAKE_VOID_FUNC(set_right_hex_digit, struct SevenSegHexDigit);
 DEFINE_FAKE_VOID_FUNC(set_middle_hex_digit, struct SevenSegHexDigit);
 DEFINE_FAKE_VOID_FUNC(set_left_hex_digit, struct SevenSegHexDigit);
-DEFINE_FAKE_VOID_FUNC(set_value_callback);
+DEFINE_FAKE_VOID_FUNC(display_value_callback);
 
 void SevenSegDisplaysTest::SetUp()
 {
@@ -12,12 +12,12 @@ void SevenSegDisplaysTest::SetUp()
     right_seven_seg_display  = App_SevenSegDisplay_Create(set_right_hex_digit);
     seven_seg_displays       = App_SevenSegDisplays_Create(
         left_seven_seg_display, middle_seven_seg_display,
-        right_seven_seg_display, set_value_callback);
+        right_seven_seg_display, display_value_callback);
 
     RESET_FAKE(set_right_hex_digit);
     RESET_FAKE(set_middle_hex_digit);
     RESET_FAKE(set_left_hex_digit);
-    RESET_FAKE(set_value_callback);
+    RESET_FAKE(display_value_callback);
 }
 
 void SevenSegDisplaysTest::TearDown()
@@ -260,7 +260,7 @@ TEST_F(SevenSegDisplaysTest, set_valid_hex_digits_invokes_callback_function)
         ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(
             seven_seg_displays, hex_digits, i);
         ASSERT_EQ(EXIT_CODE_OK, exit_code);
-        ASSERT_EQ(i, set_value_callback_fake.call_count);
+        ASSERT_EQ(i, display_value_callback_fake.call_count);
     }
 }
 
@@ -277,7 +277,7 @@ TEST_F(
         ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(
             seven_seg_displays, hex_digits, i);
         ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);
-        ASSERT_EQ(0, set_value_callback_fake.call_count);
+        ASSERT_EQ(0, display_value_callback_fake.call_count);
     }
 }
 
@@ -290,7 +290,7 @@ TEST_F(
     ExitCode exit_code =
         App_SevenSegDisplays_SetHexDigits(seven_seg_displays, hex_digits, 0);
     ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);
-    ASSERT_EQ(0, set_value_callback_fake.call_count);
+    ASSERT_EQ(0, display_value_callback_fake.call_count);
 }
 
 TEST_F(
@@ -300,7 +300,7 @@ TEST_F(
     ExitCode exit_code =
         App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 1);
     ASSERT_EQ(EXIT_CODE_OK, exit_code);
-    ASSERT_EQ(1, set_value_callback_fake.call_count);
+    ASSERT_EQ(1, display_value_callback_fake.call_count);
 }
 
 TEST_F(
@@ -310,5 +310,5 @@ TEST_F(
     ExitCode exit_code =
         App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 1000);
     ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);
-    ASSERT_EQ(0, set_value_callback_fake.call_count);
+    ASSERT_EQ(0, display_value_callback_fake.call_count);
 }

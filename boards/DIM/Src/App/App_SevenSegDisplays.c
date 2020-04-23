@@ -9,16 +9,16 @@
 struct SevenSegDisplays
 {
     struct SevenSegDisplay *displays[NUM_SEVEN_SEG_DISPLAYS];
-    void (*set_value_callback)(void);
+    void (*display_value_callback)(void);
 };
 
 struct SevenSegDisplays *App_SevenSegDisplays_Create(
     struct SevenSegDisplay *const left_seven_seg_display,
     struct SevenSegDisplay *const middle_seven_seg_display,
     struct SevenSegDisplay *const right_seven_seg_display,
-    void (*const set_value_callback)(void))
+    void (*const display_value_callback)(void))
 {
-    assert(set_value_callback != NULL);
+    assert(display_value_callback != NULL);
 
     struct SevenSegDisplays *seven_seg_displays =
         malloc(sizeof(struct SevenSegDisplays));
@@ -31,7 +31,7 @@ struct SevenSegDisplays *App_SevenSegDisplays_Create(
         middle_seven_seg_display;
     seven_seg_displays->displays[RIGHT_SEVEN_SEG_DISPLAY] =
         right_seven_seg_display;
-    seven_seg_displays->set_value_callback = set_value_callback;
+    seven_seg_displays->display_value_callback = display_value_callback;
 
     return seven_seg_displays;
 }
@@ -83,7 +83,7 @@ ExitCode App_SevenSegDisplays_SetHexDigits(
             seven_seg_displays->displays[i], hex_digit);
     }
 
-    seven_seg_displays->set_value_callback();
+    seven_seg_displays->display_value_callback();
 
     return EXIT_CODE_OK;
 }

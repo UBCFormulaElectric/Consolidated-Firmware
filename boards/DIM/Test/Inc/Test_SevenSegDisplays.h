@@ -11,7 +11,7 @@ extern "C"
 DECLARE_FAKE_VOID_FUNC(set_right_hex_digit, struct SevenSegHexDigit);
 DECLARE_FAKE_VOID_FUNC(set_middle_hex_digit, struct SevenSegHexDigit);
 DECLARE_FAKE_VOID_FUNC(set_left_hex_digit, struct SevenSegHexDigit);
-DECLARE_FAKE_VOID_FUNC(set_value_callback);
+DECLARE_FAKE_VOID_FUNC(display_value_callback);
 
 class SevenSegDisplaysTest : public testing::Test
 {
