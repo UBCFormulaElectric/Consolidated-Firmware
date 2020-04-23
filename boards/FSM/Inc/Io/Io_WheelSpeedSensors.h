@@ -33,6 +33,19 @@ void Io_WheelSpeedSensors_InputCaptureCallback(TIM_HandleTypeDef *htim);
 
 /**
  * Check if the PWM signal of the left wheel speed sensor is active. If
+ * @brief Gets the wheel speed in km/h from the left wheel speed sensor
+ * @return Returns the wheel speed in km/h
+ */
+float Io_WheelSpeedSensors_GetLeftSpeed(void);
+
+/**
+ * Gets the wheel speed in km/h from the right wheel speed sensor
+ * @return Returns the wheel speed in km/h
+ */
+float Io_WheelSpeedSensors_GetRightSpeed(void);
+
+/**
+ * Check if the PWM signal of the left wheel speed sensor is active. If
  * it is inactive (i.e. It has been unplugged or unpowered), set the frequency
  * to NaN.
  *

@@ -14,7 +14,7 @@ static const float  ARC_LENGTH_PER_RELUCTOR_TOOTH =
 static struct FreqOnlyPwmInput *left_wheel_speed_sensor,
     *right_wheel_speed_sensor;
 
-void Io_WheelSpeedSensors_Init(
+void Io_WheelSpeeds_Init(
     TIM_HandleTypeDef *htim_left_wheel_speed_sensor,
     TIM_HandleTypeDef *htim_right_wheel_speed_sensor)
 {
