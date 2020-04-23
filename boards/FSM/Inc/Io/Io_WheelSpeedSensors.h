@@ -45,6 +45,14 @@ float Io_WheelSpeedSensors_GetLeftSpeed(void);
 float Io_WheelSpeedSensors_GetRightSpeed(void);
 
 /**
+ * Update the frequency for the left and right wheel speed sensors.
+ * @note This function should be called in the input capture callback function.
+ * @param htim The handle of the timer that triggered the input capture callback
+ * function
+ */
+void Io_WheelSpeedSensors_InputCaptureCallback(TIM_HandleTypeDef *htim);
+
+/**
  * Check if the PWM signal of the left wheel speed sensor is active. If
  * it is inactive (i.e. It has been unplugged or unpowered), set the frequency
  * to NaN.

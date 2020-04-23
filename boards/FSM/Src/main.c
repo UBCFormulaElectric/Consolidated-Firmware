@@ -36,13 +36,22 @@
 #include "Io_SoftwareWatchdog.h"
 #include "Io_FlowMeters.h"
 #include "Io_HeartbeatMonitor.h"
+<<<<<<< HEAD
 #include "Io_RgbLedSequence.h"
+=======
+>>>>>>> Add app code for wheel speed sensors
 #include "Io_WheelSpeedSensors.h"
 
 #include "App_FsmWorld.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_AirOpenState.h"
+<<<<<<< HEAD
 #include "configs/App_HeartbeatMonitorConfig.h"
+=======
+#include "App_SharedConstants.h"
+#include "App_SharedHeartbeatMonitor.h"
+#include "App_WheelSpeedSensor.h"
+>>>>>>> Add app code for wheel speed sensors
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -85,6 +94,7 @@ uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
 osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
 struct FlowMeter *        primary_flow_meter, *secondary_flow_meter;
+struct WheelSpeedSensor * left_wheel_speed_sensor, *right_wheel_speed_sensor;
 struct World *            world;
 struct StateMachine *     state_machine;
 struct FsmCanTxInterface *can_tx;
@@ -168,6 +178,12 @@ int main(void)
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
     Io_SharedHardFaultHandler_Init();
+
+    Io_WheelSpeedSensors_Init(&htim16, &htim17);
+    left_wheel_speed_sensor =
+        App_WheelSpeedSensor_Create(Io_WheelSpeedSensors_GetLeftSpeed);
+    right_wheel_speed_sensor =
+        App_WheelSpeedSensor_Create(Io_WheelSpeedSensors_GetRightSpeed);
 
     Io_FlowMeters_Init(&htim4);
     primary_flow_meter = App_FlowMeter_Create(Io_FlowMeters_GetPrimaryFlowRate);
@@ -763,6 +779,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     {
         Io_FlowMeters_CheckIfPrimaryIsActive();
         Io_FlowMeters_CheckIfSecondaryIsActive();
+    }
+    else if (htim->Instance == TIM16)
+    {
+        Io_WheelSpeedSensors_CheckIfLeftSensorIsActive();
+    }
+    else if (htim->Instance == TIM17)
+    {
+        Io_WheelSpeedSensors_CheckIfRightSensorIsActive();
     }
     /* USER CODE END Callback 0 */
     if (htim->Instance == TIM6)

@@ -90,7 +90,9 @@ HAL_TIM_ActiveChannel Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(
 
 void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *const pwm_input)
 {
-    // Reset the timer overflow count to indicate that the PWM signal is active
+    // Reset the timer overflow
+    // couhttps://github.com/pasitlaothamatas/Consolidated-Firmwarent to
+    // indicate that the PWM signal is active
     pwm_input->tim_overflow_count = 0U;
 
     // We store the counter values captured during two most recent rising edges.

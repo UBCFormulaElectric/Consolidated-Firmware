@@ -104,6 +104,10 @@ SG_ Secondary_Flow_Rate : 32|32@1+ (1,0) [0|100] "L/min" DEBUG
 BO_ 308 FSM_BRAKE: 1 FSM
 SG_ BRAKE_IS_ACTUATED : 0|1@1+ (1,0) [0|1] "" DCM
 
+BO_ 308 FSM_WHEEL_SPEED_SENSOR: 8 FSM
+SG_ Left_Wheel_Speed : 0|32@1+ (1,0) [0|0] "km/h" LOGGER
+SG_ Right_Wheel_Speed : 32|32@1+ (1,0) [0|0] "km/h" LOGGER
+
 BO_ 400 PDM_ERRORS: 8 PDM
 SG_ MISSING_HEARTBEAT : 0|1@1+ (1,0) [0|1] "" DEBUG
 SG_ BOOST_PGOOD_FAULT : 1|1@1+ (1,0) [0|1] "" DEBUG
@@ -230,7 +234,7 @@ BA_ "GenMsgCycleTime" BO_ 301 100;
 BA_ "GenMsgCycleTime" BO_ 302 5000;
 BA_ "GenMsgCycleTime" BO_ 305 10;
 BA_ "GenMsgCycleTime" BO_ 307 1000;
-BA_ "GenMsgCycleTime" BO_ 308 10;
+BA_ "GenMsgCycleTime" BO_ 308 1;
 BA_ "GenMsgCycleTime" BO_ 400 1000;
 BA_ "GenMsgCycleTime" BO_ 401 100;
 BA_ "GenMsgCycleTime" BO_ 402 5000;
@@ -258,6 +262,8 @@ SIG_VALTYPE_ 108 State_Of_Charge : 1;
 SIG_VALTYPE_ 206 Torque_Request : 1;
 SIG_VALTYPE_ 307 Primary_Flow_Rate: 1;
 SIG_VALTYPE_ 307 Secondary_Flow_Rate: 1;
+SIG_VALTYPE_ 308 Left_Wheel_Speed: 1;
+SIG_VALTYPE_ 308 Right_Wheel_Speed: 1;
 SIG_VALTYPE_ 406 Auxiliary1_Current : 1;
 SIG_VALTYPE_ 406 Auxiliary2_Current : 1;
 SIG_VALTYPE_ 407 Energy_Meter_Current : 1;
