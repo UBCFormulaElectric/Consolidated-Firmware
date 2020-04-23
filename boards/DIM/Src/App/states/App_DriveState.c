@@ -19,7 +19,7 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
     App_RegenPaddle_GetRegen(regen_paddle);
 
     App_CanTx_SetPeriodicSignal_PADDLE_POSITION(
-        can_tx, App_RegenPaddle_GetPosition(regen_paddle));
+        can_tx, App_RegenPaddle_GetPaddlePosition(regen_paddle));
     App_CanTx_SetPeriodicSignal_REGEN(
         can_tx, App_RegenPaddle_GetRegen(regen_paddle));
 

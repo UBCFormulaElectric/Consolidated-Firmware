@@ -67,8 +67,8 @@ uint32_t App_RegenPaddle_GetRegen(const struct RegenPaddle *const regen_paddle)
     return regen_paddle->regen;
 }
 
-uint32_t
-    App_RegenPaddle_GetPosition(const struct RegenPaddle *const regen_paddle)
+uint32_t App_RegenPaddle_GetPaddlePosition(
+    const struct RegenPaddle *const regen_paddle)
 {
     return regen_paddle->paddle_position;
 }

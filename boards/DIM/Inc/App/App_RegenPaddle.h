@@ -19,6 +19,7 @@ struct RegenPaddle *App_RegenPaddle_Create(
     uint32_t (*get_paddle_position)(void),
     uint32_t lower_deadzone,
     uint32_t upper_deadzone);
+
 void App_RegenPaddle_Destroy(struct RegenPaddle *regen_paddle);
 
 /**
@@ -28,5 +29,20 @@ void App_RegenPaddle_Destroy(struct RegenPaddle *regen_paddle);
  *                                 range 0 to 100 inclusive
  */
 ErrorCode App_RegenPaddle_Tick(struct RegenPaddle *regen_paddle);
-uint32_t  App_RegenPaddle_GetRegen(const struct RegenPaddle *regen_paddle);
-uint32_t  App_RegenPaddle_GetPosition(const struct RegenPaddle *regen_paddle);
+
+/**
+ * Get the regen for the given regen paddle, where 0 means no regen and 100
+ * means maximum regen.
+ * @param regen_paddle The regen paddle to get regen for
+ * @return The regen for the given regen paddle
+ */
+uint32_t App_RegenPaddle_GetRegen(const struct RegenPaddle *regen_paddle);
+
+/**
+ * Get the paddle position for the given regen paddle, where 0 means not pressed
+ * at all and 100 means pressed all the way.
+ * @param regen_paddle The regen paddle to get paddle position for
+ * @return The paddle position for the given regen paddle
+ */
+uint32_t
+    App_RegenPaddle_GetPaddlePosition(const struct RegenPaddle *regen_paddle);
