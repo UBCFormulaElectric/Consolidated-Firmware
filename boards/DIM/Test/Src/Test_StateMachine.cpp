@@ -1,15 +1,19 @@
 #include "Test_SevenSegDisplays.h"
-#include "Test_StateMachine.h"
+#include "Test_RegenPaddle.h"
 
 extern "C"
 {
 #include "App_SharedHeartbeatMonitor.h"
+#include "App_SharedStateMachine.h"
+#include "App_SevenSegDisplays.h"
+#include "App_SevenSegDisplay.h"
+#include "states/App_DriveState.h"
 }
 
-DEFINE_FAKE_VOID_FUNC(
+FAKE_VOID_FUNC(
     send_non_periodic_msg_DIM_STARTUP,
     struct CanMsgs_dim_startup_t *);
-DEFINE_FAKE_VOID_FUNC(
+FAKE_VOID_FUNC(
     send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT,
     struct CanMsgs_dim_watchdog_timeout_t *);
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
@@ -18,11 +22,13 @@ FAKE_VOID_FUNC(
     enum HeartbeatOneHot,
     enum HeartbeatOneHot);
 
-class DimStateMachineTest : public DimTest
+class DimStateMachineTest : public RegenPaddleTest
 {
   protected:
     void SetUp() override
     {
+        RegenPaddleTest::SetUp();
+
         constexpr uint32_t DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS = 500U;
         constexpr enum HeartbeatOneHot DEFAULT_HEARTBEAT_BOARDS_TO_CHECK =
             BMS_HEARTBEAT_ONE_HOT;
@@ -44,7 +50,7 @@ class DimStateMachineTest : public DimTest
             DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
         world = App_DimWorld_Create(
             can_tx_interface, can_rx_interface, seven_seg_displays,
-            heartbeat_monitor);
+            heartbeat_monitor, regen_paddle);
 
         // Default to starting the state machine in the `Drive` state
         state_machine =
@@ -69,6 +75,8 @@ class DimStateMachineTest : public DimTest
 
     void TearDown() override
     {
+        RegenPaddleTest::TearDown();
+
         ASSERT_TRUE(world != NULL);
         ASSERT_TRUE(can_tx_interface != NULL);
         ASSERT_TRUE(can_rx_interface != NULL);

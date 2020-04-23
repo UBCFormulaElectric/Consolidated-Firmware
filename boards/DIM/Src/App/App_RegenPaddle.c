@@ -4,16 +4,17 @@
 
 struct RegenPaddle
 {
-    float (*get_paddle_position)(void);
-    float lower_deadzone;
-    float upper_deadzone;
-    float regen_output;
+    uint32_t (*get_paddle_position)(void);
+    uint32_t lower_deadzone;
+    uint32_t upper_deadzone;
+    uint32_t paddle_position;
+    uint32_t regen;
 };
 
 struct RegenPaddle *App_RegenPaddle_Create(
-    float (*const get_pedal_position)(void),
-    float lower_deadzone,
-    float upper_deadzone)
+    uint32_t (*const get_pedal_position)(void),
+    uint32_t lower_deadzone,
+    uint32_t upper_deadzone)
 {
     struct RegenPaddle *regen_paddle = malloc(sizeof(struct RegenPaddle));
 
@@ -31,28 +32,43 @@ void App_RegenPaddle_Destroy(struct RegenPaddle *const regen_paddle)
     free(regen_paddle);
 }
 
-void App_RegenPaddle_Tick(struct RegenPaddle *const regen_paddle)
+ErrorCode App_RegenPaddle_Tick(struct RegenPaddle *const regen_paddle)
 {
-    const float paddle_pressed = regen_paddle->get_paddle_position();
+    const uint32_t paddle_position = regen_paddle->get_paddle_position();
 
-    if (paddle_pressed > regen_paddle->upper_deadzone)
+    if (paddle_position > 100)
     {
-        regen_paddle->regen_output = 100.0f;
+        return ERROR_CODE_OUT_OF_RANGE;
     }
-    else if (paddle_pressed < regen_paddle->lower_deadzone)
+
+    regen_paddle->paddle_position = paddle_position;
+
+    if (regen_paddle->paddle_position > regen_paddle->upper_deadzone)
     {
-        regen_paddle->regen_output = 0.0f;
+        regen_paddle->regen = 100;
+    }
+    else if (regen_paddle->paddle_position < regen_paddle->lower_deadzone)
+    {
+        regen_paddle->regen = 0;
     }
     else
     {
-        regen_paddle->regen_output =
-            (paddle_pressed - regen_paddle->lower_deadzone) /
+        regen_paddle->regen =
+            (regen_paddle->paddle_position - regen_paddle->lower_deadzone) /
             (regen_paddle->upper_deadzone - regen_paddle->lower_deadzone) *
-            100.0f;
+            100;
     }
+
+    return ERROR_CODE_OK;
 }
 
-float App_RegenPaddle_GetRegen(const struct RegenPaddle *const regen_paddle)
+uint32_t App_RegenPaddle_GetRegen(const struct RegenPaddle *const regen_paddle)
 {
-    return regen_paddle->regen_output;
+    return regen_paddle->regen;
+}
+
+uint32_t App_RegenPaddle_GetPosition(
+    const struct RegenPaddle *const regen_paddle)
+{
+    return regen_paddle->paddle_position;
 }

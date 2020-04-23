@@ -4,7 +4,7 @@ DEFINE_FAKE_VOID_FUNC(set_right_hex_digit, struct SevenSegHexDigit);
 DEFINE_FAKE_VOID_FUNC(set_middle_hex_digit, struct SevenSegHexDigit);
 DEFINE_FAKE_VOID_FUNC(set_left_hex_digit, struct SevenSegHexDigit);
 
-class SevenSegDisplaysTest : public DimTest
+class SevenSegDisplaysTest : public testing::Test
 {
   protected:
     void SetUp() override

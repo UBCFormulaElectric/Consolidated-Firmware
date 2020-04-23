@@ -155,7 +155,7 @@ int main(void)
         Io_HeartbeatMonitor_TimeoutCallback);
 
     regen_paddle =
-        App_RegenPaddle_Create(Io_RegenPaddle_GetPaddlePosition, 5.0f, 95.0f);
+        App_RegenPaddle_Create(Io_RegenPaddle_GetPaddlePosition, 5, 95);
 
     world = App_DimWorld_Create(
         can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle);

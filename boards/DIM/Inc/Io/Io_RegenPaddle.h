@@ -1,3 +1,5 @@
 #pragma once
 
-float Io_RegenPaddle_GetPaddlePosition(void);
+#include <stdint.h>
+
+uint32_t Io_RegenPaddle_GetPaddlePosition(void);
