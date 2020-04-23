@@ -8,6 +8,9 @@ extern "C"
 #include "App_SharedHeartbeatMonitor.h"
 }
 
+DECLARE_FAKE_VALUE_FUNC(float, get_primary_flow_rate);
+DECLARE_FAKE_VALUE_FUNC(float, get_secondary_flow_rate);
+
 FAKE_VOID_FUNC(
     send_non_periodic_msg_FSM_STARTUP,
     struct CanMsgs_fsm_startup_t *);
@@ -142,12 +145,14 @@ TEST_F(
     FsmStateMachineTest,
     check_if_primary_and_secondary_flow_rates_are_broadcasted_over_can_in_all_states)
 {
+
     float fake_frequency = 1.0f;
 
     for (const auto &state : GetAllStates())
     {
         SetInitialState(state);
-        get_flow_rate_fake.return_val = fake_frequency;
+        get_primary_flow_rate_fake.return_val = fake_frequency;
+        get_secondary_flow_rate_fake.return_val = fake_frequency;
         App_SharedStateMachine_Tick(state_machine);
 
         EXPECT_EQ(
@@ -157,6 +162,7 @@ TEST_F(
             fake_frequency,
             App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE(can_tx_interface));
 
+        //Increment fake_frequency to ensure that a new measured frequency is updated between state machine transitions
         fake_frequency++;
     }
 }

@@ -8,3 +8,4 @@ extern "C"
 }
 
 DECLARE_FAKE_VALUE_FUNC(float, get_flow_rate);
+
