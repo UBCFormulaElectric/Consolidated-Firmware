@@ -54,9 +54,9 @@ ErrorCode App_RegenPaddle_Tick(struct RegenPaddle *const regen_paddle)
     else
     {
         regen_paddle->regen =
+            100 *
             (regen_paddle->paddle_position - regen_paddle->lower_deadzone) /
-            (regen_paddle->upper_deadzone - regen_paddle->lower_deadzone) *
-            100;
+            (regen_paddle->upper_deadzone - regen_paddle->lower_deadzone);
     }
 
     return ERROR_CODE_OK;
@@ -67,8 +67,8 @@ uint32_t App_RegenPaddle_GetRegen(const struct RegenPaddle *const regen_paddle)
     return regen_paddle->regen;
 }
 
-uint32_t App_RegenPaddle_GetPosition(
-    const struct RegenPaddle *const regen_paddle)
+uint32_t
+    App_RegenPaddle_GetPosition(const struct RegenPaddle *const regen_paddle)
 {
     return regen_paddle->paddle_position;
 }

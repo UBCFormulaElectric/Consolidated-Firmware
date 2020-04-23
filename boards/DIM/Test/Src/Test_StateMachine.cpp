@@ -115,3 +115,13 @@ TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
         CANMSGS_DIM_STATE_MACHINE_STATE_DRIVE_CHOICE,
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
+
+TEST_F(DimStateMachineTest, check_paddle_position_is_broadcasted_over_can)
+{
+
+}
+
+TEST_F(DimStateMachineTest, check_regen_is_broadcasted_over_can)
+{
+
+}
