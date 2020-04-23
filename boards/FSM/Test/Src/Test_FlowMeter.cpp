@@ -23,8 +23,7 @@ class FlowMeterTest : public FsmTest
 
 TEST_F(FlowMeterTest, check_if_flow_rate_is_updated_after_tick)
 {
-    constexpr float PWM_CAPTURED_FREQUENCY = 1.0f;
-    get_flow_rate_fake.return_val          = PWM_CAPTURED_FREQUENCY;
+    get_flow_rate_fake.return_val          = 1.0f;
     App_FlowMeter_Tick(flow_meter);
     ASSERT_EQ(
         get_flow_rate_fake.return_val, App_FlowMeter_GetFlowRate(flow_meter));
