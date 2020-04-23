@@ -25,16 +25,27 @@ if [ "$RUN_ARM_BUILD" = "true" ]; then
 fi
 
 if [ "$RUN_X86_TESTS" = "true" ]; then
-    BUILD_DIR=boards/x86_build
-    # Use Release build for testing because the heartbeat monitor relies on it
-    # for code logic
-    travis_run cmake -S boards -B $BUILD_DIR -DPLATFORM=x86 -DCMAKE_BUILD_TYPE=Release
-    travis_run make --directory=$BUILD_DIR
-    travis_run "cd $BUILD_DIR && ctest --verbose"
+    # The heartbeat monitor logic is different in Release and Debug build type,
+    # so we run the tests twice.
+    RELEASE_BUILD_DIR=boards/x86_build_release
+    travis_run cmake -S boards -B $RELEASE_BUILD_DIR -DPLATFORM=x86 -DCMAKE_BUILD_TYPE=Release
+    travis_run make --directory=$RELEASE_BUILD_DIR
+    travis_run "cd $RELEASE_BUILD_DIR && ctest --verbose"
     CTEST_RETURN_CODE=$?
 
     if [ $CTEST_RETURN_CODE -ne 0 ]; then
-        echo "Ctest failed. Please check the test log for more information."
+        echo "Ctest (Release Build) failed. Please check the test log for more information."
+        exit 1
+    fi
+
+    DEBUG_BUILD_DIR=boards/x86_build_debug
+    travis_run cmake -S boards -B $DEBUG_BUILD_DIR -DPLATFORM=x86 -DCMAKE_BUILD_TYPE=Debug
+    travis_run make --directory=$DEBUG_BUILD_DIR
+    travis_run "cd $DEBUG_BUILD_DIR && ctest --verbose"
+    CTEST_RETURN_CODE=$?
+
+    if [ $CTEST_RETURN_CODE -ne 0 ]; then
+        echo "Ctest (Debug Build) failed. Please check the test log for more information."
         exit 1
     else
         travis_run cd -
