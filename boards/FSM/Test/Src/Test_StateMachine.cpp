@@ -135,13 +135,12 @@ TEST_F(
     FsmStateMachineTest,
     check_if_primary_and_secondary_flow_rates_are_broadcasted_over_can_in_all_states)
 {
-
     float fake_frequency = 1.0f;
 
     for (const auto &state : GetAllStates())
     {
         SetInitialState(state);
-        get_primary_flow_rate_fake.return_val = fake_frequency;
+        get_primary_flow_rate_fake.return_val   = fake_frequency;
         get_secondary_flow_rate_fake.return_val = fake_frequency;
         App_SharedStateMachine_Tick(state_machine);
 
