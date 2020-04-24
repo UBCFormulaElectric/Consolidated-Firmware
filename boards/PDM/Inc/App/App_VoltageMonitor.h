@@ -1,14 +1,12 @@
 #pragma once
 
-#include "App_CanTx.h"
-
 struct VoltageMonitor;
 
 enum VoltageMonitor_Status
 {
-    VOLTAGEMONITOR_IN_RANGE,
-    VOLTAGEMONITOR_UNDERVOLTAGE,
-    VOLTAGEMONITOR_OVERVOLTAGE
+    VOLTAGE_IN_RANGE,
+    UNDERVOLTAGE,
+    OVERVOLTAGE
 };
 
 /**
@@ -29,7 +27,7 @@ struct VoltageMonitor *App_VoltageMonitor_Create(
  * Destroy the given voltage monitor
  * @param voltage_monitor The voltage monitor to destroy
  */
-void App_VoltageMonitor_Destroy(struct VoltageMonitor *voltage_check);
+void App_VoltageMonitor_Destroy(struct VoltageMonitor *voltage_monitor);
 
 /**
  * Update the status for the given voltage monitor
