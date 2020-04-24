@@ -198,7 +198,10 @@ int main(void)
 
     world = App_PdmWorld_Create(
         can_tx, can_rx, vbat_voltage_check, _24v_aux_voltage_check,
-        _24v_acc_voltage_check, NULL);
+        _24v_acc_voltage_check, aux1_current_check, aux2_current_check,
+        left_inverter_current_check, right_inverter_current_check,
+        energy_meter_current_check, can_current_check,
+        air_shutdown_current_check, heartbeat_monitor);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 

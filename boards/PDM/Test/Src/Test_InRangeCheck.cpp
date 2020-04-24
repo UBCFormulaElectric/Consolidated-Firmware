@@ -9,7 +9,7 @@ extern "C"
 FAKE_VALUE_FUNC(float, get_value);
 FAKE_VOID_FUNC(error_callback, struct InRangeCheck *);
 
-class InRangeCheckTest : public PdmTest
+class InRangeCheckTest : public testing::Test
 {
   protected:
     virtual void SetUp()
