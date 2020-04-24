@@ -1,15 +1,21 @@
-#include "Test_StateMachine.h"
+#include "Test_Bms.h"
 #include "Test_Imd.h"
 
 extern "C"
 {
 #include "App_SharedHeartbeatMonitor.h"
+#include "App_CanTx.h"
+#include "App_CanRx.h"
+#include "states/App_InitState.h"
+#include "states/App_DriveState.h"
+#include "states/App_FaultState.h"
+#include "states/App_ChargeState.h"
 }
 
-DEFINE_FAKE_VOID_FUNC(
+FAKE_VOID_FUNC(
     send_non_periodic_msg_BMS_STARTUP,
     struct CanMsgs_bms_startup_t *);
-DEFINE_FAKE_VOID_FUNC(
+FAKE_VOID_FUNC(
     send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT,
     struct CanMsgs_bms_watchdog_timeout_t *);
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
@@ -18,7 +24,7 @@ FAKE_VOID_FUNC(
     enum HeartbeatOneHot,
     enum HeartbeatOneHot);
 
-class BmsStateMachineTest : public BmsTest
+class BmsStateMachineTest : public ImdTest
 {
   protected:
     void SetUp() override
@@ -55,26 +61,6 @@ class BmsStateMachineTest : public BmsTest
         RESET_FAKE(heartbeat_timeout_callback);
     }
 
-    void SetInitialState(const struct State *const initial_state)
-    {
-        App_SharedStateMachine_Destroy(state_machine);
-        state_machine = App_SharedStateMachine_Create(world, initial_state);
-        ASSERT_TRUE(state_machine != NULL);
-        ASSERT_EQ(
-            initial_state,
-            App_SharedStateMachine_GetCurrentState(state_machine));
-    }
-
-    std::vector<const struct State *> GetAllStates(void)
-    {
-        return std::vector<const struct State *>{
-            App_GetInitState(),
-            App_GetDriveState(),
-            App_GetChargeState(),
-            App_GetFaultState(),
-        };
-    }
-
     void TearDown() override
     {
         ASSERT_TRUE(world != NULL);
@@ -97,6 +83,26 @@ class BmsStateMachineTest : public BmsTest
         imd               = NULL;
         state_machine     = NULL;
         heartbeat_monitor = NULL;
+    }
+
+    void SetInitialState(const struct State *const initial_state)
+    {
+        App_SharedStateMachine_Destroy(state_machine);
+        state_machine = App_SharedStateMachine_Create(world, initial_state);
+        ASSERT_TRUE(state_machine != NULL);
+        ASSERT_EQ(
+            initial_state,
+            App_SharedStateMachine_GetCurrentState(state_machine));
+    }
+
+    std::vector<const struct State *> GetAllStates(void)
+    {
+        return std::vector<const struct State *>{
+            App_GetInitState(),
+            App_GetDriveState(),
+            App_GetChargeState(),
+            App_GetFaultState(),
+        };
     }
 
     struct World *            world;

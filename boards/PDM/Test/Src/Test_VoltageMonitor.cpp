@@ -1,4 +1,4 @@
-#include "Test_VoltageMonitor.h"
+#include "Test_Pdm.h"
 
 extern "C"
 {
@@ -10,10 +10,10 @@ FAKE_VALUE_FUNC(float, get_min_voltage);
 FAKE_VALUE_FUNC(float, get_max_voltage);
 FAKE_VOID_FUNC(error_callback, struct VoltageMonitor *);
 
-class VoltageMonitorTest : public PdmTest
+class VoltageMonitorTest : public testing::Test
 {
   protected:
-    virtual void SetUp()
+    void SetUp() override
     {
         voltage_monitor = App_VoltageMonitor_Create(
             get_voltage, get_min_voltage, get_max_voltage, error_callback);
@@ -25,7 +25,7 @@ class VoltageMonitorTest : public PdmTest
 
         FFF_RESET_HISTORY();
     }
-    virtual void TearDown() { App_VoltageMonitor_Destroy(voltage_monitor); }
+    void TearDown() override { App_VoltageMonitor_Destroy(voltage_monitor); }
 
     struct VoltageMonitor *voltage_monitor;
 
