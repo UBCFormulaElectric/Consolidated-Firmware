@@ -8,9 +8,6 @@ extern "C"
 #include "App_SharedHeartbeatMonitor.h"
 }
 
-DECLARE_FAKE_VALUE_FUNC(float, get_primary_flow_rate);
-DECLARE_FAKE_VALUE_FUNC(float, get_secondary_flow_rate);
-
 FAKE_VOID_FUNC(
     send_non_periodic_msg_FSM_STARTUP,
     struct CanMsgs_fsm_startup_t *);
@@ -25,6 +22,8 @@ FAKE_VOID_FUNC(
     heartbeat_timeout_callback,
     enum HeartbeatOneHot,
     enum HeartbeatOneHot);
+FAKE_VALUE_FUNC(float, get_primary_flow_rate);
+FAKE_VALUE_FUNC(float, get_secondary_flow_rate);
 
 class FsmStateMachineTest : public testing::Test
 {
@@ -43,8 +42,8 @@ class FsmStateMachineTest : public testing::Test
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             get_current_ms, DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS,
             DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
-        primary_flow_meter   = App_FlowMeter_Create(get_flow_rate);
-        secondary_flow_meter = App_FlowMeter_Create(get_flow_rate);
+        primary_flow_meter   = App_FlowMeter_Create(get_primary_flow_rate);
+        secondary_flow_meter = App_FlowMeter_Create(get_secondary_flow_rate);
 
         world = App_FsmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
@@ -60,7 +59,8 @@ class FsmStateMachineTest : public testing::Test
         RESET_FAKE(send_non_periodic_msg_FSM_WATCHDOG_TIMEOUT);
         RESET_FAKE(get_current_ms);
         RESET_FAKE(heartbeat_timeout_callback);
-        RESET_FAKE(get_flow_rate);
+        RESET_FAKE(get_primary_flow_rate);
+        RESET_FAKE(get_secondary_flow_rate);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -162,7 +162,7 @@ TEST_F(
             fake_frequency,
             App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE(can_tx_interface));
 
-        //Increment fake_frequency to ensure that a new measured frequency is updated between state machine transitions
+        //Increment fake_frequency to ensure that measured frequency is updated in all state machine transitions
         fake_frequency++;
     }
 }

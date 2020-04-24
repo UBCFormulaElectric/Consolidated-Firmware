@@ -1,6 +1,6 @@
-#include "Test_FlowMeter.h"
+#include "Test_Fsm.h"
 
-DEFINE_FAKE_VALUE_FUNC(float, get_flow_rate);
+FAKE_VALUE_FUNC(float, get_flow_rate);
 
 class FlowMeterTest : public testing::Test
 {

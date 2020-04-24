@@ -3,6 +3,11 @@
 #include <fff.h>
 #include <gtest/gtest.h>
 
+extern "C"
+{
+#include "App_FlowMeter.h"
+}
+
 class FsmTest : public testing::Test
 {
   protected:
