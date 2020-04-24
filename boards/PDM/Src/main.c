@@ -34,7 +34,8 @@
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
-#include "Io_VoltageMonitor.h"
+#include "Io_VoltageCheck.h"
+#include "Io_CurrentCheck.h"
 #include "Io_HeartbeatMonitor.h"
 
 #include "App_CanTx.h"
@@ -86,9 +87,16 @@ struct PdmWorld *         world;
 struct StateMachine *     state_machine;
 struct PdmCanTxInterface *can_tx;
 struct PdmCanRxInterface *can_rx;
-struct VoltageMonitor *   vbat_voltage_monitor;
-struct VoltageMonitor *   _24v_aux_voltage_monitor;
-struct VoltageMonitor *   _24v_acc_voltage_monitor;
+struct InRangeCheck *     vbat_voltage_check;
+struct InRangeCheck *     _24v_aux_voltage_check;
+struct InRangeCheck *     _24v_acc_voltage_check;
+struct InRangeCheck *     aux1_current_check;
+struct InRangeCheck *     aux2_current_check;
+struct InRangeCheck *     left_inverter_current_check;
+struct InRangeCheck *     right_inverter_current_check;
+struct InRangeCheck *     energy_meter_current_check;
+struct InRangeCheck *     can_current_check;
+struct InRangeCheck *     air_shutdown_current_check;
 struct HeartbeatMonitor * heartbeat_monitor;
 /* USER CODE END PV */
 
@@ -144,35 +152,59 @@ int main(void)
 
     can_rx = App_CanRx_Create();
 
-    vbat_voltage_monitor = App_VoltageMonitor_Create(
-        Io_VoltageMonitor_GetVbatVoltage, Io_VoltageMonitor_GetVbatMinVoltage,
-        Io_VoltageMonitor_Get24vAccMaxVoltage,
-        Io_VoltageMonitor_VbatErrorCallback);
+    vbat_voltage_check = App_InRangeCheck_Create(
+        Io_VoltageInRangeCheck_GetVbatVoltage, 6.0f, 8.5f,
+        Io_VoltageInRangeCheck_VbatErrorCallback);
 
-    _24v_aux_voltage_monitor = App_VoltageMonitor_Create(
-        Io_VoltageMonitor_Get24vAuxVoltage,
-        Io_VoltageMonitor_Get24vAuxMinVoltage,
-        Io_VoltageMonitor_Get24vAccMaxVoltage,
-        Io_VoltageMonitor_24vAuxErrorCallback);
+    _24v_aux_voltage_check = App_InRangeCheck_Create(
+        Io_VoltageInRangeCheck_Get24vAuxVoltage, 22.0f, 26.0f,
+        Io_VoltageInRangeCheck_24vAuxErrorCallback);
 
-    _24v_acc_voltage_monitor = App_VoltageMonitor_Create(
-        Io_VoltageMonitor_Get24vAccVoltage,
-        Io_VoltageMonitor_Get24vAccMinVoltage,
-        Io_VoltageMonitor_Get24vAccMaxVoltage,
-        Io_VoltageMonitor_24vAccErrorCallback);
+    _24v_acc_voltage_check = App_InRangeCheck_Create(
+        Io_VoltageInRangeCheck_Get24vAccVoltage, 22.0f, 26.0f,
+        Io_VoltageInRangeCheck_24vAccErrorCallback);
+
+    aux1_current_check = App_InRangeCheck_Create(
+        Io_CurrentInRangeCheck_GetAux1Current, 0.0f, 1.0f,
+        Io_CurrentInRangeCheck_Aux1ErrorCallback);
+
+    aux2_current_check = App_InRangeCheck_Create(
+        Io_CurrentInRangeCheck_GetAux1Current, 0.0f, 1.0f,
+        Io_CurrentInRangeCheck_Aux1ErrorCallback);
+
+    left_inverter_current_check = App_InRangeCheck_Create(
+        Io_CurrentInRangeCheck_GetLeftInverterCurrent, 0.0f, 2.5f,
+        Io_CurrentInRangeCheck_LeftInverterErrorCallback);
+
+    right_inverter_current_check = App_InRangeCheck_Create(
+        Io_CurrentInRangeCheck_GetRightInverterCurrent, 0.0f, 2.5f,
+        Io_CurrentInRangeCheck_RightInverterErrorCallback);
+
+    energy_meter_current_check = App_InRangeCheck_Create(
+        Io_CurrentInRangeCheck_GetEnergyMeterCurrent, 0.0f, 1.0f,
+        Io_CurrentInRangeCheck_EnergyMeterErrorCallback);
+
+    can_current_check = App_InRangeCheck_Create(
+        Io_CurrentInRangeCheck_GetCanCurrent, 0.0f, 1.0f,
+        Io_CurrentInRangeCheck_CanErrorCallback);
+
+    air_shutdown_current_check = App_InRangeCheck_Create(
+        Io_CurrentInRangeCheck_GetAirShutdownCurrent, 0.0f, 1.0f,
+        Io_CurrentInRangeCheck_AirShutdownErrorCallback);
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
         Io_HeartbeatMonitor_TimeoutCallback);
 
     world = App_PdmWorld_Create(
-        can_tx, can_rx, vbat_voltage_monitor, _24v_aux_voltage_monitor,
-        _24v_acc_voltage_monitor, NULL);
+        can_tx, can_rx, vbat_voltage_check, _24v_aux_voltage_check,
+        _24v_acc_voltage_check, NULL);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
     Io_SoftwareWatchdog_Init(can_tx);
-    Io_VoltageMonitor_Init(can_tx);
+    Io_VoltageInRangeCheck_Init(can_tx);
+    Io_CurrentInRangeCheck_Init(can_tx);
     App_StackWaterMark_Init(can_tx);
     /* USER CODE END 1 */
 

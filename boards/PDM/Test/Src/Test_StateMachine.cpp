@@ -19,19 +19,13 @@ DEFINE_FAKE_VOID_FUNC(
     struct CanMsgs_pdm_watchdog_timeout_t *);
 
 FAKE_VALUE_FUNC(float, GetVbatVoltage);
-FAKE_VALUE_FUNC(float, GetVbatMinVoltage);
-FAKE_VALUE_FUNC(float, GetVbatMaxVoltage);
-FAKE_VOID_FUNC(VbatErrorCallback, struct VoltageMonitor *);
+FAKE_VOID_FUNC(VbatErrorCallback, struct InRangeCheck *);
 
 FAKE_VALUE_FUNC(float, Get24vAuxVoltage);
-FAKE_VALUE_FUNC(float, Get24vAuxMinVoltage);
-FAKE_VALUE_FUNC(float, Get24vAuxMaxVoltage);
-FAKE_VOID_FUNC(_24vAuxErrorCallback, struct VoltageMonitor *);
+FAKE_VOID_FUNC(_24vAuxErrorCallback, struct InRangeCheck *);
 
 FAKE_VALUE_FUNC(float, Get24vAccVoltage);
-FAKE_VALUE_FUNC(float, Get24vAccMinVoltage);
-FAKE_VALUE_FUNC(float, Get24vAccMaxVoltage);
-FAKE_VOID_FUNC(_24vAccErrorCallback, struct VoltageMonitor *);
+FAKE_VOID_FUNC(_24vAccErrorCallback, struct InRangeCheck *);
 
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
 FAKE_VOID_FUNC(
@@ -53,23 +47,19 @@ class PdmStateMachineTest : public PdmTest
             send_non_periodic_msg_PDM_AIR_SHUTDOWN,
             send_non_periodic_msg_PDM_MOTOR_SHUTDOWN,
             send_non_periodic_msg_PDM_WATCHDOG_TIMEOUT);
-        can_rx_interface     = App_CanRx_Create();
-        vbat_voltage_monitor = App_VoltageMonitor_Create(
-            GetVbatVoltage, GetVbatMinVoltage, GetVbatMaxVoltage,
-            VbatErrorCallback);
-        _24v_aux_voltage_monitor = App_VoltageMonitor_Create(
-            Get24vAccVoltage, Get24vAccMinVoltage, Get24vAccMaxVoltage,
-            _24vAuxErrorCallback);
-        _24v_acc_voltage_monitor = App_VoltageMonitor_Create(
-            Get24vAccVoltage, Get24vAccMinVoltage, Get24vAccMaxVoltage,
-            _24vAccErrorCallback);
-        heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+        can_rx_interface   = App_CanRx_Create();
+        vbat_voltage_check = App_InRangeCheck_Create(
+            GetVbatVoltage, 22.0f, 26.0f, VbatErrorCallback);
+        _24v_aux_voltage_check = App_InRangeCheck_Create(
+            Get24vAccVoltage, 22.0f, 26.0f, _24vAuxErrorCallback);
+        _24v_acc_voltage_check = App_InRangeCheck_Create(
+            Get24vAccVoltage, 22.0f, 26.0f, _24vAccErrorCallback);
+        heartbeat_check = App_SharedHeartbeatMonitor_Create(
             get_current_ms, DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS,
             DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
         world = App_PdmWorld_Create(
-            can_tx_interface, can_rx_interface, vbat_voltage_monitor,
-            _24v_aux_voltage_monitor, _24v_acc_voltage_monitor,
-            heartbeat_monitor);
+            can_tx_interface, can_rx_interface, vbat_voltage_check,
+            _24v_aux_voltage_check, _24v_acc_voltage_check, heartbeat_check);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -81,16 +71,10 @@ class PdmStateMachineTest : public PdmTest
         RESET_FAKE(send_non_periodic_msg_PDM_MOTOR_SHUTDOWN);
         RESET_FAKE(send_non_periodic_msg_PDM_WATCHDOG_TIMEOUT);
         RESET_FAKE(GetVbatVoltage);
-        RESET_FAKE(GetVbatMinVoltage);
-        RESET_FAKE(GetVbatMaxVoltage);
         RESET_FAKE(VbatErrorCallback);
         RESET_FAKE(Get24vAuxVoltage);
-        RESET_FAKE(Get24vAuxMinVoltage);
-        RESET_FAKE(Get24vAuxMaxVoltage);
         RESET_FAKE(_24vAuxErrorCallback);
         RESET_FAKE(Get24vAccVoltage);
-        RESET_FAKE(Get24vAccMinVoltage);
-        RESET_FAKE(Get24vAccMaxVoltage);
         RESET_FAKE(_24vAccErrorCallback);
         RESET_FAKE(get_current_ms);
         RESET_FAKE(heartbeat_timeout_callback);
@@ -111,39 +95,39 @@ class PdmStateMachineTest : public PdmTest
         ASSERT_TRUE(world != NULL);
         ASSERT_TRUE(can_tx_interface != NULL);
         ASSERT_TRUE(can_rx_interface != NULL);
-        ASSERT_TRUE(vbat_voltage_monitor != NULL);
-        ASSERT_TRUE(_24v_aux_voltage_monitor != NULL);
-        ASSERT_TRUE(_24v_acc_voltage_monitor != NULL);
+        ASSERT_TRUE(vbat_voltage_check != NULL);
+        ASSERT_TRUE(_24v_aux_voltage_check != NULL);
+        ASSERT_TRUE(_24v_acc_voltage_check != NULL);
         ASSERT_TRUE(state_machine != NULL);
-        ASSERT_TRUE(heartbeat_monitor != NULL);
+        ASSERT_TRUE(heartbeat_check != NULL);
 
         App_PdmWorld_Destroy(world);
         App_CanTx_Destroy(can_tx_interface);
         App_CanRx_Destroy(can_rx_interface);
-        App_VoltageMonitor_Destroy(vbat_voltage_monitor);
-        App_VoltageMonitor_Destroy(_24v_aux_voltage_monitor);
-        App_VoltageMonitor_Destroy(_24v_acc_voltage_monitor);
+        App_InRangeCheck_Destroy(vbat_voltage_check);
+        App_InRangeCheck_Destroy(_24v_aux_voltage_check);
+        App_InRangeCheck_Destroy(_24v_acc_voltage_check);
         App_SharedStateMachine_Destroy(state_machine);
-        App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
+        App_SharedHeartbeatMonitor_Destroy(heartbeat_check);
 
-        world                    = NULL;
-        can_tx_interface         = NULL;
-        can_rx_interface         = NULL;
-        vbat_voltage_monitor     = NULL;
-        _24v_aux_voltage_monitor = NULL;
-        _24v_acc_voltage_monitor = NULL;
-        state_machine            = NULL;
-        heartbeat_monitor        = NULL;
+        world                  = NULL;
+        can_tx_interface       = NULL;
+        can_rx_interface       = NULL;
+        vbat_voltage_check     = NULL;
+        _24v_aux_voltage_check = NULL;
+        _24v_acc_voltage_check = NULL;
+        state_machine          = NULL;
+        heartbeat_check        = NULL;
     }
 
     struct World *            world;
     struct PdmCanTxInterface *can_tx_interface;
     struct PdmCanRxInterface *can_rx_interface;
-    struct VoltageMonitor *   vbat_voltage_monitor;
-    struct VoltageMonitor *   _24v_aux_voltage_monitor;
-    struct VoltageMonitor *   _24v_acc_voltage_monitor;
+    struct InRangeCheck *     vbat_voltage_check;
+    struct InRangeCheck *     _24v_aux_voltage_check;
+    struct InRangeCheck *     _24v_acc_voltage_check;
     struct StateMachine *     state_machine;
-    struct HeartbeatMonitor * heartbeat_monitor;
+    struct HeartbeatMonitor * heartbeat_check;
 };
 
 TEST_F(PdmStateMachineTest, check_init_state_is_broadcasted_over_can)

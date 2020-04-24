@@ -2,7 +2,7 @@
 
 #include "App_CanTx.h"
 #include "App_CanRx.h"
-#include "App_VoltageMonitor.h"
+#include "App_InRangeCheck.h"
 #include "App_SharedHeartbeatMonitor.h"
 
 struct PdmWorld;
@@ -25,9 +25,9 @@ struct PdmWorld;
 struct PdmWorld *App_PdmWorld_Create(
     struct PdmCanTxInterface *can_tx_interface,
     struct PdmCanRxInterface *can_rx_interface,
-    struct VoltageMonitor *   vbat_voltage_monitor,
-    struct VoltageMonitor *   _24v_aux_voltage_monitor,
-    struct VoltageMonitor *   _24v_acc_voltage_monitor,
+    struct InRangeCheck *     vbat_voltage_monitor,
+    struct InRangeCheck *     _24v_aux_voltage_monitor,
+    struct InRangeCheck *     _24v_acc_voltage_monitor,
     struct HeartbeatMonitor * heartbeat_monitor);
 
 /**
@@ -38,11 +38,11 @@ void App_PdmWorld_Destroy(struct PdmWorld *world);
 
 struct PdmCanTxInterface *App_PdmWorld_GetCanTx(const struct PdmWorld *world);
 struct PdmCanRxInterface *App_PdmWorld_GetCanRx(const struct PdmWorld *world);
-struct VoltageMonitor *
-    App_PdmWorld_GetVbatVoltageMonitor(const struct PdmWorld *world);
-struct VoltageMonitor *
-    App_PdmWorld_Get24vAuxVoltageMonitor(const struct PdmWorld *world);
-struct VoltageMonitor *
-    App_PdmWorld_Get24vAccVoltageMonitor(const struct PdmWorld *world);
+struct InRangeCheck *
+    App_PdmWorld_GetVbatInRangeCheck(const struct PdmWorld *world);
+struct InRangeCheck *
+    App_PdmWorld_Get24vAuxInRangeCheck(const struct PdmWorld *world);
+struct InRangeCheck *
+    App_PdmWorld_Get24vAccInRangeCheck(const struct PdmWorld *world);
 struct HeartbeatMonitor *
     App_PdmWorld_GetHeartbeatMonitor(const struct PdmWorld *world);

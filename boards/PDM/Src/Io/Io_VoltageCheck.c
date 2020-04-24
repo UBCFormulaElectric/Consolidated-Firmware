@@ -1,0 +1,76 @@
+#include "App_InRangeCheck.h"
+#include "Io_VoltageCheck.h"
+
+static struct PdmCanTxInterface *_can_tx_interface = NULL;
+
+void Io_VoltageInRangeCheck_Init(struct PdmCanTxInterface *can_tx_interface)
+{
+    _can_tx_interface = can_tx_interface;
+}
+
+float Io_VoltageInRangeCheck_GetVbatVoltage(void)
+{
+    // TODO: Fix hard-coded value once the ADC is configured
+    return 7.0f;
+}
+
+void Io_VoltageInRangeCheck_VbatErrorCallback(
+    struct InRangeCheck *voltage_check)
+{
+    enum InRangeCheck_Status status = App_InRangeCheck_GetStatus(voltage_check);
+
+    if (status == VALUE_UNDERFLOW)
+    {
+        App_CanTx_SetPeriodicSignal_UNDERVOLTAGE_VBAT(_can_tx_interface, true);
+    }
+    else if (status == VALUE_OVERFLOW)
+    {
+        App_CanTx_SetPeriodicSignal_OVERVOLTAGE_VBAT(_can_tx_interface, true);
+    }
+}
+
+float Io_VoltageInRangeCheck_Get24vAuxVoltage(void)
+{
+    // TODO: Fix hard-coded value once the ADC is configured
+    return 23.0f;
+}
+
+void Io_VoltageInRangeCheck_24vAuxErrorCallback(
+    struct InRangeCheck *voltage_check)
+{
+    enum InRangeCheck_Status status = App_InRangeCheck_GetStatus(voltage_check);
+
+    if (status == VALUE_UNDERFLOW)
+    {
+        App_CanTx_SetPeriodicSignal_UNDERVOLTAGE_24_V_AUX(
+            _can_tx_interface, true);
+    }
+    else if (status == VALUE_OVERFLOW)
+    {
+        App_CanTx_SetPeriodicSignal_OVERVOLTAGE_24_V_AUX(
+            _can_tx_interface, true);
+    }
+}
+
+float Io_VoltageInRangeCheck_Get24vAccVoltage(void)
+{
+    // TODO: Fix hard-coded value once the ADC is configured
+    return 23.0f;
+}
+
+void Io_VoltageInRangeCheck_24vAccErrorCallback(
+    struct InRangeCheck *voltage_check)
+{
+    enum InRangeCheck_Status status = App_InRangeCheck_GetStatus(voltage_check);
+
+    if (status == VALUE_UNDERFLOW)
+    {
+        App_CanTx_SetPeriodicSignal_UNDERVOLTAGE_24_V_ACC(
+            _can_tx_interface, true);
+    }
+    else if (status == VALUE_OVERFLOW)
+    {
+        App_CanTx_SetPeriodicSignal_OVERVOLTAGE_24_V_ACC(
+            _can_tx_interface, true);
+    }
+}

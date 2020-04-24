@@ -8,18 +8,18 @@ struct PdmWorld
 {
     struct PdmCanTxInterface *can_tx_interface;
     struct PdmCanRxInterface *can_rx_interface;
-    struct VoltageMonitor *   vbat_voltage_monitor;
-    struct VoltageMonitor *   _24v_aux_voltage_monitor;
-    struct VoltageMonitor *   _24v_acc_voltage_monitor;
+    struct InRangeCheck *     vbat_voltage_monitor;
+    struct InRangeCheck *     _24v_aux_voltage_monitor;
+    struct InRangeCheck *     _24v_acc_voltage_monitor;
     struct HeartbeatMonitor * heartbeat_monitor;
 };
 
 struct PdmWorld *App_PdmWorld_Create(
     struct PdmCanTxInterface *const can_tx_interface,
     struct PdmCanRxInterface *const can_rx_interface,
-    struct VoltageMonitor *const    vbat_voltage_monitor,
-    struct VoltageMonitor *const    _24v_aux_voltage_monitor,
-    struct VoltageMonitor *const    _24v_acc_voltage_monitor,
+    struct InRangeCheck *const      vbat_voltage_monitor,
+    struct InRangeCheck *const      _24v_aux_voltage_monitor,
+    struct InRangeCheck *const      _24v_acc_voltage_monitor,
     struct HeartbeatMonitor *const  heartbeat_monitor)
 {
     struct PdmWorld *world = (struct PdmWorld *)malloc(sizeof(struct PdmWorld));
@@ -52,20 +52,20 @@ struct PdmCanRxInterface *
     return world->can_rx_interface;
 }
 
-struct VoltageMonitor *
-    App_PdmWorld_GetVbatVoltageMonitor(const struct PdmWorld *const world)
+struct InRangeCheck *
+    App_PdmWorld_GetVbatInRangeCheck(const struct PdmWorld *const world)
 {
     return world->vbat_voltage_monitor;
 }
 
-struct VoltageMonitor *
-    App_PdmWorld_Get24vAuxVoltageMonitor(const struct PdmWorld *const world)
+struct InRangeCheck *
+    App_PdmWorld_Get24vAuxInRangeCheck(const struct PdmWorld *const world)
 {
     return world->_24v_aux_voltage_monitor;
 }
 
-struct VoltageMonitor *
-    App_PdmWorld_Get24vAccVoltageMonitor(const struct PdmWorld *const world)
+struct InRangeCheck *
+    App_PdmWorld_Get24vAccInRangeCheck(const struct PdmWorld *const world)
 {
     return world->_24v_acc_voltage_monitor;
 }
