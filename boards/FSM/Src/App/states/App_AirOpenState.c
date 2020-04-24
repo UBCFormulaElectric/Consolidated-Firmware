@@ -14,8 +14,7 @@ static void AirOpenStateRunOnTick(struct StateMachine *const state_machine)
 {
     struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct FsmCanTxInterface *can_tx_interface = App_FsmWorld_GetCanTx(world);
-    struct FlowMeter *        primary_flow_meter =
-        App_FsmWorld_GetPrimaryFlowMeter(world);
+    struct FlowMeter *        primary_flow_meter =App_FsmWorld_GetPrimaryFlowMeter(world);
     struct FlowMeter *secondary_flow_meter =
         App_FsmWorld_GetSecondaryFlowMeter(world);
 

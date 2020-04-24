@@ -25,7 +25,7 @@ FAKE_VOID_FUNC(
 FAKE_VALUE_FUNC(float, get_primary_flow_rate);
 FAKE_VALUE_FUNC(float, get_secondary_flow_rate);
 
-class FsmStateMachineTest : public testing::Test
+class FsmStateMachineTest : public FsmTest
 {
   protected:
     void SetUp() override
@@ -106,16 +106,6 @@ class FsmStateMachineTest : public testing::Test
         secondary_flow_meter = NULL;
     }
 
-    void SetInitialState(const struct State *const initial_state)
-    {
-        App_SharedStateMachine_Destroy(state_machine);
-        state_machine = App_SharedStateMachine_Create(world, initial_state);
-        ASSERT_TRUE(state_machine != NULL);
-        ASSERT_EQ(
-            initial_state,
-            App_SharedStateMachine_GetCurrentState(state_machine));
-    }
-
     struct World *            world;
     struct FsmCanTxInterface *can_tx_interface;
     struct FsmCanRxInterface *can_rx_interface;
@@ -162,7 +152,6 @@ TEST_F(
             fake_frequency,
             App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE(can_tx_interface));
 
-        //Increment fake_frequency to ensure that measured frequency is updated in all state machine transitions
-        fake_frequency++;
+        // To avoid false positives, we use a different frequency each time
     }
 }
