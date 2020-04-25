@@ -38,35 +38,42 @@ class InRangeCheckTest : public testing::Test
 
 TEST_F(InRangeCheckTest, value_in_range)
 {
+    float buffer              = 0.0f;
     get_value_fake.return_val = (DEFAULT_MIN_VALUE + DEFAULT_MAX_VAVLUE) / 2.0f;
-    App_InRangeCheck_Tick(in_range_check);
-    ASSERT_EQ(App_InRangeCheck_GetStatus(in_range_check), VALUE_IN_RANGE);
+    ASSERT_EQ(
+        VALUE_IN_RANGE, App_InRangeCheck_GetValue(in_range_check, &buffer));
 }
 
 TEST_F(InRangeCheckTest, value_undervalue)
 {
+    float buffer              = 0.0f;
     get_value_fake.return_val = DEFAULT_MIN_VALUE;
-    App_InRangeCheck_Tick(in_range_check);
-    ASSERT_EQ(App_InRangeCheck_GetStatus(in_range_check), VALUE_IN_RANGE);
+    ASSERT_EQ(
+        VALUE_IN_RANGE, App_InRangeCheck_GetValue(in_range_check, &buffer));
     ASSERT_EQ(error_callback_fake.call_count, 0);
 
     get_value_fake.return_val =
         std::nextafter(DEFAULT_MIN_VALUE, std::numeric_limits<float>::min());
-    App_InRangeCheck_Tick(in_range_check);
-    ASSERT_EQ(App_InRangeCheck_GetStatus(in_range_check), VALUE_UNDERFLOW);
+    ASSERT_EQ(
+        VALUE_UNDERFLOW, App_InRangeCheck_GetValue(in_range_check, &buffer));
     ASSERT_EQ(error_callback_fake.call_count, 1);
 }
 
 TEST_F(InRangeCheckTest, value_overflow)
 {
+    float buffer;
     get_value_fake.return_val = DEFAULT_MAX_VAVLUE;
-    App_InRangeCheck_Tick(in_range_check);
-    ASSERT_EQ(App_InRangeCheck_GetStatus(in_range_check), VALUE_IN_RANGE);
+    ASSERT_EQ(
+        VALUE_IN_RANGE, App_InRangeCheck_GetValue(in_range_check, &buffer));
+    ASSERT_EQ(DEFAULT_MAX_VAVLUE, buffer);
     ASSERT_EQ(error_callback_fake.call_count, 0);
 
     get_value_fake.return_val =
         std::nextafter(DEFAULT_MAX_VAVLUE, std::numeric_limits<float>::max());
-    App_InRangeCheck_Tick(in_range_check);
-    ASSERT_EQ(App_InRangeCheck_GetStatus(in_range_check), VALUE_OVERFLOW);
+    ASSERT_EQ(
+        VALUE_OVERFLOW, App_InRangeCheck_GetValue(in_range_check, &buffer));
+    ASSERT_EQ(
+        std::nextafter(DEFAULT_MAX_VAVLUE, std::numeric_limits<float>::max()),
+        buffer);
     ASSERT_EQ(error_callback_fake.call_count, 1);
 }

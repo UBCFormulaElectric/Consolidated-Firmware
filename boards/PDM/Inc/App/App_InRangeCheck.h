@@ -23,7 +23,7 @@ struct InRangeCheck *App_InRangeCheck_Create(
     float (*get_value)(void),
     float min_value,
     float max_value,
-    void (*error_callback)(struct InRangeCheck *));
+    void (*error_callback)(enum InRangeCheck_Status));
 
 /**
  * Destroy the given in-range check
@@ -31,23 +31,6 @@ struct InRangeCheck *App_InRangeCheck_Create(
  */
 void App_InRangeCheck_Destroy(struct InRangeCheck *in_range_check);
 
-/**
- * Update the status for the given in-range check
- * @param in_range_check The in-range check to update for
- */
-void App_InRangeCheck_Tick(struct InRangeCheck *in_range_check);
-
-/**
- * Get the status for the given in-range check
- * @param in_range_check The in-range check to get status for
- * @return The status for the given in-range check
- */
-enum InRangeCheck_Status
-    App_InRangeCheck_GetStatus(const struct InRangeCheck *in_range_check);
-
-/**
- * Get the value for the given in-range check
- * @param in_range_check The in-range check to get value for
- * @return The value for the given in-range check
- */
-float App_InRangeCheck_GetValue(const struct InRangeCheck *in_range_check);
+enum InRangeCheck_Status App_InRangeCheck_GetValue(
+    struct InRangeCheck *const in_range_check,
+    float *                    value_buffer);

@@ -9,29 +9,26 @@ struct InRangeCheck;
 void Io_CurrentInRangeCheck_Init(struct PdmCanTxInterface *can_tx_interface);
 
 float Io_CurrentInRangeCheck_GetAux1Current(void);
-void  Io_CurrentInRangeCheck_Aux1ErrorCallback(
-     struct InRangeCheck *current_check);
+void  Io_CurrentInRangeCheck_Aux1ErrorCallback(enum InRangeCheck_Status status);
 
 float Io_CurrentInRangeCheck_GetAux2Current(void);
-void  Io_CurrentInRangeCheck_Aux2ErrorCallback(
-     struct InRangeCheck *current_check);
+void  Io_CurrentInRangeCheck_Aux2ErrorCallback(enum InRangeCheck_Status status);
 
 float Io_CurrentInRangeCheck_GetLeftInverterCurrent(void);
 void  Io_CurrentInRangeCheck_LeftInverterErrorCallback(
-     struct InRangeCheck *current_check);
+     enum InRangeCheck_Status status);
 
 float Io_CurrentInRangeCheck_GetRightInverterCurrent(void);
 void  Io_CurrentInRangeCheck_RightInverterErrorCallback(
-     struct InRangeCheck *current_check);
+     enum InRangeCheck_Status status);
 
 float Io_CurrentInRangeCheck_GetEnergyMeterCurrent(void);
 void  Io_CurrentInRangeCheck_EnergyMeterErrorCallback(
-     struct InRangeCheck *current_check);
+     enum InRangeCheck_Status status);
 
 float Io_CurrentInRangeCheck_GetCanCurrent(void);
-void  Io_CurrentInRangeCheck_CanErrorCallback(
-     struct InRangeCheck *current_check);
+void  Io_CurrentInRangeCheck_CanErrorCallback(enum InRangeCheck_Status status);
 
 float Io_CurrentInRangeCheck_GetAirShutdownCurrent(void);
 void  Io_CurrentInRangeCheck_AirShutdownErrorCallback(
-     struct InRangeCheck *current_check);
+     enum InRangeCheck_Status status);

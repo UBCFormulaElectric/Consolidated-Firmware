@@ -139,12 +139,12 @@ class PdmStateMachineTest : public testing::Test
     void TearDown() override
     {
         ASSERT_TRUE(world != NULL);
+        ASSERT_TRUE(state_machine != NULL);
         ASSERT_TRUE(can_tx_interface != NULL);
         ASSERT_TRUE(can_rx_interface != NULL);
         ASSERT_TRUE(vbat_voltage_check != NULL);
         ASSERT_TRUE(_24v_aux_voltage_check != NULL);
         ASSERT_TRUE(_24v_acc_voltage_check != NULL);
-        ASSERT_TRUE(state_machine != NULL);
         ASSERT_TRUE(aux1_current_check != NULL);
         ASSERT_TRUE(aux2_current_check != NULL);
         ASSERT_TRUE(left_inverter_current_check != NULL);
@@ -155,12 +155,12 @@ class PdmStateMachineTest : public testing::Test
         ASSERT_TRUE(heartbeat_monitor != NULL);
 
         App_PdmWorld_Destroy(world);
+        App_SharedStateMachine_Destroy(state_machine);
         App_CanTx_Destroy(can_tx_interface);
         App_CanRx_Destroy(can_rx_interface);
         App_InRangeCheck_Destroy(vbat_voltage_check);
         App_InRangeCheck_Destroy(_24v_aux_voltage_check);
         App_InRangeCheck_Destroy(_24v_acc_voltage_check);
-        App_SharedStateMachine_Destroy(state_machine);
         App_InRangeCheck_Destroy(aux1_current_check);
         App_InRangeCheck_Destroy(aux2_current_check);
         App_InRangeCheck_Destroy(left_inverter_current_check);
@@ -171,12 +171,12 @@ class PdmStateMachineTest : public testing::Test
         App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
 
         world                        = NULL;
+        state_machine                = NULL;
         can_tx_interface             = NULL;
         can_rx_interface             = NULL;
         vbat_voltage_check           = NULL;
         _24v_aux_voltage_check       = NULL;
         _24v_acc_voltage_check       = NULL;
-        state_machine                = NULL;
         aux1_current_check           = NULL;
         aux2_current_check           = NULL;
         left_inverter_current_check  = NULL;
@@ -198,12 +198,12 @@ class PdmStateMachineTest : public testing::Test
     }
 
     struct World *            world;
+    struct StateMachine *     state_machine;
     struct PdmCanTxInterface *can_tx_interface;
     struct PdmCanRxInterface *can_rx_interface;
     struct InRangeCheck *     vbat_voltage_check;
     struct InRangeCheck *     _24v_aux_voltage_check;
     struct InRangeCheck *     _24v_acc_voltage_check;
-    struct StateMachine *     state_machine;
     struct InRangeCheck *     aux1_current_check;
     struct InRangeCheck *     aux2_current_check;
     struct InRangeCheck *     left_inverter_current_check;
@@ -239,4 +239,10 @@ TEST_F(PdmStateMachineTest, check_air_closed_state_is_broadcasted_over_can)
     EXPECT_EQ(
         CANMSGS_PDM_STATE_MACHINE_STATE_AIR_CLOSED_CHOICE,
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+}
+
+
+TEST_F(PdmStateMachineTest, check_vbat_voltage_is_broadcasted_over_can_in_all_states)
+{
+
 }

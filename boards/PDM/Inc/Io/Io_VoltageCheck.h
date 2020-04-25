@@ -1,6 +1,5 @@
 #include "App_CanTx.h"
-
-struct InRangeCheck;
+#include "App_InRangeCheck.h"
 
 /**
  * Initialize the callback functions shared among all voltage checks
@@ -9,13 +8,12 @@ struct InRangeCheck;
 void Io_VoltageInRangeCheck_Init(struct PdmCanTxInterface *can_tx_interface);
 
 float Io_VoltageInRangeCheck_GetVbatVoltage(void);
-void  Io_VoltageInRangeCheck_VbatErrorCallback(
-     struct InRangeCheck *in_range_check);
+void  Io_VoltageInRangeCheck_VbatErrorCallback(enum InRangeCheck_Status status);
 
 float Io_VoltageInRangeCheck_Get24vAuxVoltage(void);
 void  Io_VoltageInRangeCheck_24vAuxErrorCallback(
-     struct InRangeCheck *in_range_check);
+     enum InRangeCheck_Status status);
 
 float Io_VoltageInRangeCheck_Get24vAccVoltage(void);
 void  Io_VoltageInRangeCheck_24vAccErrorCallback(
-     struct InRangeCheck *in_range_check);
+     enum InRangeCheck_Status status);

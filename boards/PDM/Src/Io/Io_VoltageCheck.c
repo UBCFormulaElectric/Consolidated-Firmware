@@ -14,11 +14,8 @@ float Io_VoltageInRangeCheck_GetVbatVoltage(void)
     return 7.0f;
 }
 
-void Io_VoltageInRangeCheck_VbatErrorCallback(
-    struct InRangeCheck *voltage_check)
+void Io_VoltageInRangeCheck_VbatErrorCallback(enum InRangeCheck_Status status)
 {
-    enum InRangeCheck_Status status = App_InRangeCheck_GetStatus(voltage_check);
-
     if (status == VALUE_UNDERFLOW)
     {
         App_CanTx_SetPeriodicSignal_UNDERVOLTAGE_VBAT(_can_tx_interface, true);
@@ -35,11 +32,8 @@ float Io_VoltageInRangeCheck_Get24vAuxVoltage(void)
     return 23.0f;
 }
 
-void Io_VoltageInRangeCheck_24vAuxErrorCallback(
-    struct InRangeCheck *voltage_check)
+void Io_VoltageInRangeCheck_24vAuxErrorCallback(enum InRangeCheck_Status status)
 {
-    enum InRangeCheck_Status status = App_InRangeCheck_GetStatus(voltage_check);
-
     if (status == VALUE_UNDERFLOW)
     {
         App_CanTx_SetPeriodicSignal_UNDERVOLTAGE_24_V_AUX(
@@ -58,11 +52,8 @@ float Io_VoltageInRangeCheck_Get24vAccVoltage(void)
     return 23.0f;
 }
 
-void Io_VoltageInRangeCheck_24vAccErrorCallback(
-    struct InRangeCheck *voltage_check)
+void Io_VoltageInRangeCheck_24vAccErrorCallback(enum InRangeCheck_Status status)
 {
-    enum InRangeCheck_Status status = App_InRangeCheck_GetStatus(voltage_check);
-
     if (status == VALUE_UNDERFLOW)
     {
         App_CanTx_SetPeriodicSignal_UNDERVOLTAGE_24_V_ACC(
