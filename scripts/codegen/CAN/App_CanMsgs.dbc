@@ -169,8 +169,8 @@ BO_ 504 DIM_WATCHDOG_TIMEOUT: 8 DIM
 SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" LOGGER
 
 BO_ 505 DIM_REGEN_PADDLE: 8 DIM
-SG_ Paddle_Position: 0|32@1+ (1,0) [0|100] "%" LOGGER
-SG_ Regen: 32|32@1+ (1,0) [0|100] "%" LOGGER
+SG_ Raw_Paddle_Position : 0|32@1+ (1,0) [0|100] "%" LOGGER
+SG_ Mapped_Paddle_Position : 32|32@1+ (1,0) [0|100] "%" LOGGER
 
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;

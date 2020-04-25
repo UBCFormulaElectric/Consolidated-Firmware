@@ -16,12 +16,12 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
     struct DimCanTxInterface *can_tx       = App_DimWorld_GetCanTx(world);
     struct RegenPaddle *      regen_paddle = App_DimWorld_GetRegenPaddle(world);
     App_RegenPaddle_Tick(regen_paddle);
-    App_RegenPaddle_GetRegen(regen_paddle);
+    App_RegenPaddle_GetMappedPaddlePosition(regen_paddle);
 
-    App_CanTx_SetPeriodicSignal_PADDLE_POSITION(
+    App_CanTx_SetPeriodicSignal_RAW_PADDLE_POSITION(
         can_tx, App_RegenPaddle_GetPaddlePosition(regen_paddle));
-    App_CanTx_SetPeriodicSignal_REGEN(
-        can_tx, App_RegenPaddle_GetRegen(regen_paddle));
+    App_CanTx_SetPeriodicSignal_MAPPED_PADDLE_POSITION(
+        can_tx, App_RegenPaddle_GetMappedPaddlePosition(regen_paddle));
 
     struct HeartbeatMonitor *heartbeat_monitor =
         App_DimWorld_GetHeartbeatMonitor(world);

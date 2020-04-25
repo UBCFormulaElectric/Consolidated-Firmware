@@ -36,7 +36,8 @@ ErrorCode App_RegenPaddle_Tick(struct RegenPaddle *regen_paddle);
  * @param regen_paddle The regen paddle to get regen for
  * @return The regen for the given regen paddle
  */
-uint32_t App_RegenPaddle_GetRegen(const struct RegenPaddle *regen_paddle);
+uint32_t App_RegenPaddle_GetMappedPaddlePosition(
+    const struct RegenPaddle *regen_paddle);
 
 /**
  * Get the paddle position for the given regen paddle, where 0 means not pressed

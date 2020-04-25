@@ -118,17 +118,21 @@ TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
 
 TEST_F(
     DimStateMachineTest,
-    check_paddle_position_is_broadcasted_over_can_in_drive_state)
+    check_raw_paddle_position_is_broadcasted_over_can_in_drive_state)
 {
     get_paddle_position_fake.return_val = 50;
     App_SharedStateMachine_Tick(state_machine);
     ASSERT_EQ(
-        50, App_CanTx_GetPeriodicSignal_PADDLE_POSITION(can_tx_interface));
+        50, App_CanTx_GetPeriodicSignal_RAW_PADDLE_POSITION(can_tx_interface));
 }
 
-TEST_F(DimStateMachineTest, check_regen_is_broadcasted_over_can_in_drive_state)
+TEST_F(
+    DimStateMachineTest,
+    check_mapped_paddle_position_is_broadcasted_over_can_in_drive_state)
 {
     get_paddle_position_fake.return_val = 50;
     App_SharedStateMachine_Tick(state_machine);
-    ASSERT_EQ(50, App_CanTx_GetPeriodicSignal_REGEN(can_tx_interface));
+    ASSERT_EQ(
+        50,
+        App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
 }
