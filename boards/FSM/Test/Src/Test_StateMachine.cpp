@@ -152,5 +152,6 @@ TEST_F(
             App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE(can_tx_interface));
 
         // To avoid false positives, we use a different frequency each time
+        fake_frequency++;
     }
 }
