@@ -241,8 +241,8 @@ TEST_F(PdmStateMachineTest, check_air_closed_state_is_broadcasted_over_can)
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
-
-TEST_F(PdmStateMachineTest, check_vbat_voltage_is_broadcasted_over_can_in_all_states)
+TEST_F(
+    PdmStateMachineTest,
+    check_vbat_voltage_is_broadcasted_over_can_in_all_states)
 {
-
 }

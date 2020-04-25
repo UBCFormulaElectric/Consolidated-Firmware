@@ -35,11 +35,11 @@ void App_InRangeCheck_Destroy(struct InRangeCheck *const in_range_check)
 }
 
 enum InRangeCheck_Status App_InRangeCheck_GetValue(
-    struct InRangeCheck *const in_range_check,
-    float *const                    value_buffer)
+    const struct InRangeCheck *const in_range_check,
+    float *const                     value_buffer)
 {
     const float              value  = in_range_check->get_value();
-    enum InRangeCheck_Status status = UNINITIALIZED_VALUE;
+    enum InRangeCheck_Status status = VALUE_IN_RANGE;
 
     if (value < in_range_check->min_value)
     {
@@ -50,10 +50,6 @@ enum InRangeCheck_Status App_InRangeCheck_GetValue(
     {
         status = VALUE_OVERFLOW;
         in_range_check->error_callback(status);
-    }
-    else
-    {
-        status = VALUE_IN_RANGE;
     }
 
     *value_buffer = value;
