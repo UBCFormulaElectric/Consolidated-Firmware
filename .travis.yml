@@ -13,7 +13,8 @@ env:
     - INSTALL_DIR=/usr/local
     - CUBE_INSTALL_DIR=$INSTALL_DIR/STM32CubeMX
     - PYTHONPATH=$PWD
-
+    - secure: lJpBI5yEBcbIMOXQv2P3T9f2Dl3rgQqk2SWHCaewyFnpco0C41SWdZswS3V+R53w0Q+C+M4kECtMyLNgsV7mqu8+5NH/+mTP9eyXtcAxQS2WHeGT5BFniULoR5UBnB0t0dyj0nfute5rwnxvVf4LD038SwGRG8gjFsTFgcgNfehN+OgIK2nNKxddg5mQ3nKfZINY8heCmN11S3tZt7k2WRgVC/reOXtPDgdeUQXmr+QSatL4b15F5WmDpOSFMXurVGuNOn7J8YX5C9Ly6ydE3BHlblDDZotHmzfnAz37Kr2H6iJR3PrHcbRzMdA6/obf21RVq343c2wtcOSQL6fXkHc06RiplI6Cq0djBYtXPtTz2pAVJNNLCzTT9+wmWEIOTqx3u4ngpx9mIvLBonLVKkwT95Jd/8U4xzYDGakFj0dfBiMxi2JwwDOC6CpXbVckOqGhEkS15JkeGzRAZ3WN8o/kR+QDdu5jYbUfoV47vb2WrA2AuioS7ltp/GWeRuGtMm+SACSiAqZ5KkbT0PRYpAx8NPEgqWZxmfOwZDJRRaTlyH6Ix2emrGSnjmDT1b8KaFNwSf8/t0uduaDbRn8zaGFnXY+Qbcs7P59TTvaQDvHE8rGWJbpvPVk4GJShRk6xiVkcx6++UM+U/IBxm+WSotZkzRhgj/zHl+zLJJQG18o=
+    - echo $SOMEVAR
 services:
   # Use xvfb to run programs requiring a GUI (e.g. STM32CubeMX code generation)
   - xvfb
