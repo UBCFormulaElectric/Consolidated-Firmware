@@ -4,7 +4,12 @@ if [ "$#" -ne 2 ]; then
 else
     SERIES_NAME=$1
     ELF=$2
+    SHA=$3
 fi
+
+echo $SERIES_NAME
+echo $ELF
+echo $SHA
 
 # Example output of arm-none-eabi-size:
 #
@@ -26,5 +31,5 @@ echo $bss
 curl \
   --header "Authorization: Token 27d62d1f-71c6-4075-95b5-f7aec56d0204" \
   --header "Content-Type: application/json" \
-  --data "{\"values\":[{\"value\":\"$text\",\"line\":\"text\"},{\"value\":\"$data\",\"line\":\"data\"},{\"value\":\"$bss\",\"line\":\"bss\"}],\"sha\":\"${TRAVIS_PULL_REQUEST_SHA}\"}" \
+  --data "{\"values\":[{\"value\":\"$text\",\"line\":\"text\"},{\"value\":\"$data\",\"line\":\"data\"},{\"value\":\"$bss\",\"line\":\"bss\"}],\"sha\":\"$SHA\"}" \
   https://seriesci.com/api/UBCFormulaElectric/Consolidated-Firmware/$SERIES_NAME/many

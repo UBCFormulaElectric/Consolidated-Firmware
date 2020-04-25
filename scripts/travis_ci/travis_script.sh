@@ -21,9 +21,12 @@ if [ "$RUN_ARM_BUILD" = "true" ]; then
     for BOARD in $(get_valid_board_names)
     do
         travis_run make --directory=$BUILD_DIR $BOARD.elf
-        # Upload the text/data/bss size to SeriesCI
-        if [ ! "$TRAVIS_PULL_REQUEST" = "false" ]; then
-            travis_run ./scripts/travis_ci/series_ci.sh $BOARD $BUILD_DIR/$BOARD/$BOARD.elf
+        # Upload the text/data/bss size to SeriesCI. For pull-request builds,
+        # we use ${TRAVIS_PULL_REQUEST_SHA} to get the branch commit SHA.
+        if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
+            travis_run ./scripts/travis_ci/series_ci.sh $BOARD $BUILD_DIR/$BOARD/$BOARD.elf ${TRAVIS_COMMIT}
+        else
+            travis_run ./scripts/travis_ci/series_ci.sh $BOARD $BUILD_DIR/$BOARD/$BOARD.elf ${TRAVIS_PULL_REQUEST_SHA}
         fi
     done
 fi
