@@ -11,7 +11,7 @@ enum InRangeCheck_Status
 
 /**
  * Allocate and initialize an in-range check to check whether a value is in
- * the given min/max value range
+ * the given min/max range
  * @get_voltage A function that can be called to get the value
  * @min_value Minimum value in the range, inclusive
  * @max_value Maximum value in the range, inclusive
