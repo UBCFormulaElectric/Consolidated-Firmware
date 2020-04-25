@@ -23,7 +23,7 @@ class FlowMeterTest : public testing::Test
         flow_meter = NULL;
     }
 
-    struct FlowMeter * flow_meter;
+    struct FlowMeter *flow_meter;
 };
 
 TEST_F(FlowMeterTest, check_if_flow_rate_is_updated_after_tick)

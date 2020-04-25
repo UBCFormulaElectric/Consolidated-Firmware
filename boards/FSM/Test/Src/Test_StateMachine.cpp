@@ -97,8 +97,8 @@ class FsmStateMachineTest : public testing::Test
         state_machine = App_SharedStateMachine_Create(world, initial_state);
         ASSERT_TRUE(state_machine != NULL);
         ASSERT_EQ(
-                initial_state,
-                App_SharedStateMachine_GetCurrentState(state_machine));
+            initial_state,
+            App_SharedStateMachine_GetCurrentState(state_machine));
     }
 
     std::vector<const struct State *> GetAllStates(void)
@@ -112,8 +112,8 @@ class FsmStateMachineTest : public testing::Test
     struct FsmCanRxInterface *can_rx_interface;
     struct StateMachine *     state_machine;
     struct HeartbeatMonitor * heartbeat_monitor;
-    struct FlowMeter * primary_flow_meter;
-    struct FlowMeter * secondary_flow_meter;
+    struct FlowMeter *        primary_flow_meter;
+    struct FlowMeter *        secondary_flow_meter;
 };
 
 TEST_F(FsmStateMachineTest, check_air_open_state_is_broadcasted_over_can)
