@@ -1,5 +1,5 @@
-if [ "$#" -ne 2 ]; then
-    echo "Please provide the Series name and the .ELF file as arguments!"
+if [ "$#" -ne 3 ]; then
+    echo "Please provide the Series name, the .ELF file, and SHA as arguments!"
     exit 1
 else
     SERIES_NAME=$1
