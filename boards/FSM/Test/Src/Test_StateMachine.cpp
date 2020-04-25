@@ -25,7 +25,7 @@ FAKE_VOID_FUNC(
 FAKE_VALUE_FUNC(float, get_primary_flow_rate);
 FAKE_VALUE_FUNC(float, get_secondary_flow_rate);
 
-class FsmStateMachineTest : public FsmTest
+class FsmStateMachineTest : public testing::Test
 {
   protected:
     void SetUp() override
@@ -63,22 +63,6 @@ class FsmStateMachineTest : public FsmTest
         RESET_FAKE(get_secondary_flow_rate);
     }
 
-    void SetInitialState(const struct State *const initial_state)
-    {
-        App_SharedStateMachine_Destroy(state_machine);
-        state_machine = App_SharedStateMachine_Create(world, initial_state);
-        ASSERT_TRUE(state_machine != NULL);
-        ASSERT_EQ(
-            initial_state,
-            App_SharedStateMachine_GetCurrentState(state_machine));
-    }
-
-    std::vector<const struct State *> GetAllStates(void)
-    {
-        return std::vector<const struct State *>{ App_GetAirOpenState(),
-                                                  App_GetAirClosedState() };
-    }
-
     void TearDown() override
     {
         ASSERT_TRUE(world != NULL);
@@ -104,6 +88,22 @@ class FsmStateMachineTest : public FsmTest
         heartbeat_monitor    = NULL;
         primary_flow_meter   = NULL;
         secondary_flow_meter = NULL;
+    }
+
+    void SetInitialState(const struct State *const initial_state)
+    {
+        App_SharedStateMachine_Destroy(state_machine);
+        state_machine = App_SharedStateMachine_Create(world, initial_state);
+        ASSERT_TRUE(state_machine != NULL);
+        ASSERT_EQ(
+                initial_state,
+                App_SharedStateMachine_GetCurrentState(state_machine));
+    }
+
+    std::vector<const struct State *> GetAllStates(void)
+    {
+        return std::vector<const struct State *>{ App_GetAirOpenState(),
+                                                  App_GetAirClosedState() };
     }
 
     struct World *            world;

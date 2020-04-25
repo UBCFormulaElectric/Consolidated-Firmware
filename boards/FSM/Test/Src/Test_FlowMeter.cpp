@@ -5,8 +5,6 @@ FAKE_VALUE_FUNC(float, get_flow_rate);
 class FlowMeterTest : public testing::Test
 {
   protected:
-    struct FlowMeter *flow_meter;
-
     void SetUp() override
     {
         flow_meter = App_FlowMeter_Create(get_flow_rate);
@@ -19,6 +17,8 @@ class FlowMeterTest : public testing::Test
         App_FlowMeter_Destroy(flow_meter);
         flow_meter = NULL;
     }
+
+    struct FlowMeter * flow_meter;
 };
 
 TEST_F(FlowMeterTest, check_if_flow_rate_is_updated_after_tick)
