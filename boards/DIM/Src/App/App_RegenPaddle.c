@@ -7,7 +7,7 @@ struct RegenPaddle
     uint32_t (*get_paddle_position)(void);
     uint32_t lower_deadzone;
     uint32_t upper_deadzone;
-    uint32_t paddle_position;
+    uint32_t raw_paddle_position;
     uint32_t mapped_paddle_position;
 };
 
@@ -41,13 +41,13 @@ ErrorCode App_RegenPaddle_Tick(struct RegenPaddle *const regen_paddle)
         return ERROR_CODE_OUT_OF_RANGE;
     }
 
-    regen_paddle->paddle_position = paddle_position;
+    regen_paddle->raw_paddle_position = paddle_position;
 
-    if (regen_paddle->paddle_position > regen_paddle->upper_deadzone)
+    if (regen_paddle->raw_paddle_position > regen_paddle->upper_deadzone)
     {
         regen_paddle->mapped_paddle_position = 100;
     }
-    else if (regen_paddle->paddle_position < regen_paddle->lower_deadzone)
+    else if (regen_paddle->raw_paddle_position < regen_paddle->lower_deadzone)
     {
         regen_paddle->mapped_paddle_position = 0;
     }
@@ -55,7 +55,7 @@ ErrorCode App_RegenPaddle_Tick(struct RegenPaddle *const regen_paddle)
     {
         regen_paddle->mapped_paddle_position =
             100 *
-            (regen_paddle->paddle_position - regen_paddle->lower_deadzone) /
+            (regen_paddle->raw_paddle_position - regen_paddle->lower_deadzone) /
             (regen_paddle->upper_deadzone - regen_paddle->lower_deadzone);
     }
 
@@ -68,8 +68,8 @@ uint32_t App_RegenPaddle_GetMappedPaddlePosition(
     return regen_paddle->mapped_paddle_position;
 }
 
-uint32_t App_RegenPaddle_GetPaddlePosition(
+uint32_t App_RegenPaddle_GetRawPaddlePosition(
     const struct RegenPaddle *const regen_paddle)
 {
-    return regen_paddle->paddle_position;
+    return regen_paddle->raw_paddle_position;
 }

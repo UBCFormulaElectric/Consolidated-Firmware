@@ -46,4 +46,4 @@ uint32_t App_RegenPaddle_GetMappedPaddlePosition(
  * @return The paddle position for the given regen paddle
  */
 uint32_t
-    App_RegenPaddle_GetPaddlePosition(const struct RegenPaddle *regen_paddle);
+    App_RegenPaddle_GetRawPaddlePosition(const struct RegenPaddle *regen_paddle);
