@@ -12,7 +12,7 @@ FAKE_VOID_FUNC(error_callback, enum InRangeCheck_Status);
 class InRangeCheckTest : public testing::Test
 {
   protected:
-    virtual void SetUp()
+    void SetUp() override
     {
         in_range_check = App_InRangeCheck_Create(
             get_value, DEFAULT_MIN_VALUE, DEFAULT_MAX_VAVLUE, error_callback);
@@ -23,7 +23,7 @@ class InRangeCheckTest : public testing::Test
         FFF_RESET_HISTORY();
     }
 
-    virtual void TearDown()
+    void TearDown() override
     {
         ASSERT_TRUE(in_range_check != NULL);
         App_InRangeCheck_Destroy(in_range_check);
