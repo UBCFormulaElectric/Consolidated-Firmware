@@ -1,3 +1,4 @@
+echo "$#"
 if [ "$#" -ne 3 ]; then
     echo "Please provide the Series name, the .ELF file, and SHA as arguments!"
     exit 1
