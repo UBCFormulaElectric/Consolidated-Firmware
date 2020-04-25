@@ -7,7 +7,7 @@ extern "C"
 }
 
 FAKE_VALUE_FUNC(float, get_value);
-FAKE_VOID_FUNC(error_callback, struct InRangeCheck *);
+FAKE_VOID_FUNC(error_callback, enum InRangeCheck_Status);
 
 class InRangeCheckTest : public testing::Test
 {
@@ -42,20 +42,24 @@ TEST_F(InRangeCheckTest, value_in_range)
     get_value_fake.return_val = (DEFAULT_MIN_VALUE + DEFAULT_MAX_VAVLUE) / 2.0f;
     ASSERT_EQ(
         VALUE_IN_RANGE, App_InRangeCheck_GetValue(in_range_check, &buffer));
+    ASSERT_EQ(get_value_fake.return_val, buffer);
+    ASSERT_EQ(error_callback_fake.call_count, 0);
 }
 
-TEST_F(InRangeCheckTest, value_undervalue)
+TEST_F(InRangeCheckTest, value_underflow)
 {
     float buffer              = 0.0f;
     get_value_fake.return_val = DEFAULT_MIN_VALUE;
     ASSERT_EQ(
         VALUE_IN_RANGE, App_InRangeCheck_GetValue(in_range_check, &buffer));
+    ASSERT_EQ(get_value_fake.return_val, buffer);
     ASSERT_EQ(error_callback_fake.call_count, 0);
 
     get_value_fake.return_val =
         std::nextafter(DEFAULT_MIN_VALUE, std::numeric_limits<float>::min());
     ASSERT_EQ(
         VALUE_UNDERFLOW, App_InRangeCheck_GetValue(in_range_check, &buffer));
+    ASSERT_EQ(get_value_fake.return_val, buffer);
     ASSERT_EQ(error_callback_fake.call_count, 1);
 }
 
@@ -65,15 +69,13 @@ TEST_F(InRangeCheckTest, value_overflow)
     get_value_fake.return_val = DEFAULT_MAX_VAVLUE;
     ASSERT_EQ(
         VALUE_IN_RANGE, App_InRangeCheck_GetValue(in_range_check, &buffer));
-    ASSERT_EQ(DEFAULT_MAX_VAVLUE, buffer);
+    ASSERT_EQ(get_value_fake.return_val, buffer);
     ASSERT_EQ(error_callback_fake.call_count, 0);
 
     get_value_fake.return_val =
         std::nextafter(DEFAULT_MAX_VAVLUE, std::numeric_limits<float>::max());
     ASSERT_EQ(
         VALUE_OVERFLOW, App_InRangeCheck_GetValue(in_range_check, &buffer));
-    ASSERT_EQ(
-        std::nextafter(DEFAULT_MAX_VAVLUE, std::numeric_limits<float>::max()),
-        buffer);
+    ASSERT_EQ(get_value_fake.return_val, buffer);
     ASSERT_EQ(error_callback_fake.call_count, 1);
 }
