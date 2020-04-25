@@ -42,6 +42,8 @@ before_script:
   - ./scripts/travis_ci/print_bin_versions.sh
 
 script:
+  - echo $(SeriesCI_Token)
+  - echo ${SeriesCI_Token}
   - ./scripts/travis_ci/travis_script.sh $CUBE_INSTALL_DIR/STM32CubeMX
 
 matrix:
