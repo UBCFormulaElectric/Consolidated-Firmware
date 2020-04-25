@@ -20,7 +20,7 @@ data="${size_output[1]}"
 bss="${size_output[2]}"
 
 curl \
-  --header "Authorization: Token 27d62d1f-71c6-4075-95b5-f7aec56d020" \
+  --header "Authorization: Token $SeriesCI_Token" \
   --header "Content-Type: application/json" \
   --data "{\"values\":[{\"value\":\"$text\",\"line\":\"text\"},{\"value\":\"$data\",\"line\":\"data\"},{\"value\":\"$bss\",\"line\":\"bss\"}],\"sha\":\"$SHA\"}" \
   https://seriesci.com/api/UBCFormulaElectric/Consolidated-Firmware/$SERIES_NAME/many
