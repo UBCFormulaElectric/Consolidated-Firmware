@@ -6,6 +6,7 @@ extern "C"
 #include "states/App_AirOpenState.h"
 #include "states/App_AirClosedState.h"
 #include "App_SharedHeartbeatMonitor.h"
+#include "App_FlowMeter.h"
 }
 
 FAKE_VOID_FUNC(
@@ -111,6 +112,8 @@ class FsmStateMachineTest : public testing::Test
     struct FsmCanRxInterface *can_rx_interface;
     struct StateMachine *     state_machine;
     struct HeartbeatMonitor * heartbeat_monitor;
+    struct FlowMeter * primary_flow_meter;
+    struct FlowMeter * secondary_flow_meter;
 };
 
 TEST_F(FsmStateMachineTest, check_air_open_state_is_broadcasted_over_can)

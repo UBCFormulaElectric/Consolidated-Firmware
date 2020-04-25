@@ -1,5 +1,10 @@
 #include "Test_Fsm.h"
 
+extern "C"
+{
+#include "App_FlowMeter.h"
+}
+
 FAKE_VALUE_FUNC(float, get_flow_rate);
 
 class FlowMeterTest : public testing::Test
