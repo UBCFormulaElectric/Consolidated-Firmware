@@ -4,7 +4,7 @@
 
 struct RegenPaddle
 {
-    uint32_t (*get_paddle_position)(void);
+    uint32_t (*get_raw_paddle_position)(void);
     uint32_t lower_deadzone;
     uint32_t upper_deadzone;
     uint32_t raw_paddle_position;
@@ -20,7 +20,7 @@ struct RegenPaddle *App_RegenPaddle_Create(
 
     assert(regen_paddle != NULL);
 
-    regen_paddle->get_paddle_position = get_pedal_position;
+    regen_paddle->get_raw_paddle_position = get_pedal_position;
     regen_paddle->lower_deadzone      = lower_deadzone;
     regen_paddle->upper_deadzone      = upper_deadzone;
 
@@ -34,7 +34,7 @@ void App_RegenPaddle_Destroy(struct RegenPaddle *const regen_paddle)
 
 ErrorCode App_RegenPaddle_Tick(struct RegenPaddle *const regen_paddle)
 {
-    const uint32_t paddle_position = regen_paddle->get_paddle_position();
+    const uint32_t paddle_position = regen_paddle->get_raw_paddle_position();
 
     if (paddle_position > 100)
     {

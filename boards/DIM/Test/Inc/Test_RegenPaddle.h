@@ -2,7 +2,7 @@
 
 #include "Test_Dim.h"
 
-DECLARE_FAKE_VALUE_FUNC(uint32_t, get_paddle_position);
+DECLARE_FAKE_VALUE_FUNC(uint32_t, get_raw_paddle_position);
 
 class RegenPaddleTest : public testing::Test
 {

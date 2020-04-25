@@ -120,7 +120,7 @@ TEST_F(
     DimStateMachineTest,
     check_raw_paddle_position_is_broadcasted_over_can_in_drive_state)
 {
-    get_paddle_position_fake.return_val = 50;
+    get_raw_paddle_position_fake.return_val = 50;
     App_SharedStateMachine_Tick(state_machine);
     ASSERT_EQ(
         50, App_CanTx_GetPeriodicSignal_RAW_PADDLE_POSITION(can_tx_interface));
@@ -130,7 +130,7 @@ TEST_F(
     DimStateMachineTest,
     check_mapped_paddle_position_is_broadcasted_over_can_in_drive_state)
 {
-    get_paddle_position_fake.return_val = 50;
+    get_raw_paddle_position_fake.return_val = 50;
     App_SharedStateMachine_Tick(state_machine);
     ASSERT_EQ(
         50,
