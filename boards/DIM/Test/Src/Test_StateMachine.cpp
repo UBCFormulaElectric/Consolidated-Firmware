@@ -109,7 +109,7 @@ TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
- TEST_F(
+TEST_F(
     DimStateMachineTest,
     check_7_seg_displays_show_state_of_charge_in_drive_state)
 {
@@ -141,18 +141,17 @@ TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
     ASSERT_EQ(1, set_right_hex_digit_fake.arg0_history[2].value);
 }
 
- TEST_F(
+TEST_F(
     DimStateMachineTest,
     check_raw_paddle_position_is_broadcasted_over_can_in_drive_state)
 {
     get_raw_paddle_position_fake.return_val = 50;
     App_SharedStateMachine_Tick(state_machine);
     ASSERT_EQ(
-        50,
-        App_CanTx_GetPeriodicSignal_RAW_PADDLE_POSITION(can_tx_interface));
+        50, App_CanTx_GetPeriodicSignal_RAW_PADDLE_POSITION(can_tx_interface));
 }
 
- TEST_F(
+TEST_F(
     DimStateMachineTest,
     check_mapped_paddle_position_is_broadcasted_over_can_in_drive_state)
 {

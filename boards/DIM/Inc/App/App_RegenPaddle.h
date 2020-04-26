@@ -8,12 +8,12 @@
  * @param get_raw_paddle_position A function that can be called to get the raw
  *                                paddle position, where 0 means not pressed at
  *                                all and 100 means pressed all the way. Any
- *                                paddle position outside of this range is
+ *                                raw paddle position outside of this range is
  *                                considered invalid.
- * @param lower_deadzone Any raw paddle position >= 0 and less than this value
- *                       will map to a regen value of 0
- * @param upper_deadzone Any raw paddle position <= 100 and greater than this
- *                       value will map to a regen value of 100
+ * @param lower_deadzone Any raw paddle position >= 0 and less than or equal to
+ *                       this value will map to a regen value of 0
+ * @param upper_deadzone Any raw paddle position <= 100 and greater than or
+ *                       equal to this value will map to a regen value of 100
  * @return The created regen paddle, whose ownership is given to the caller
  */
 struct RegenPaddle *App_RegenPaddle_Create(
