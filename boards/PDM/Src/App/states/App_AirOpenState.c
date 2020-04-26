@@ -1,6 +1,7 @@
 #include "states/App_AirOpenState.h"
 
 #include "App_SharedMacros.h"
+#include "App_SetPeriodicCanSignals.h"
 
 static void AirOpenStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -36,39 +37,41 @@ static void AirOpenStateRunOnTick(struct StateMachine *const state_machine)
     struct InRangeCheck *air_shutdown_current_check =
         App_PdmWorld_GetAirShutdownCurrentCheck(world);
 
-    float voltage_buffer;
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx, vbat_voltage_check, App_CanTx_SetPeriodicSignal_VBAT);
 
-    App_InRangeCheck_GetValue(vbat_voltage_check, &voltage_buffer);
-    App_CanTx_SetPeriodicSignal_VBAT(can_tx, voltage_buffer);
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx, _24v_aux_voltage_check, App_CanTx_SetPeriodicSignal__24_V_AUX);
 
-    App_InRangeCheck_GetValue(_24v_aux_voltage_check, &voltage_buffer);
-    App_CanTx_SetPeriodicSignal__24_V_AUX(can_tx, voltage_buffer);
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx, _24v_acc_voltage_check, App_CanTx_SetPeriodicSignal__24_V_ACC);
 
-    App_InRangeCheck_GetValue(_24v_acc_voltage_check, &voltage_buffer);
-    App_CanTx_SetPeriodicSignal__24_V_ACC(can_tx, voltage_buffer);
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx, aux1_current_check,
+        App_CanTx_SetPeriodicSignal_AUXILIARY1_CURRENT);
 
-    float current_buffer;
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx, aux2_current_check,
+        App_CanTx_SetPeriodicSignal_AUXILIARY2_CURRENT);
 
-    App_InRangeCheck_GetValue(aux1_current_check, &current_buffer);
-    App_CanTx_SetPeriodicSignal_AUXILIARY1_CURRENT(can_tx, current_buffer);
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx, left_inverter_current_check,
+        App_CanTx_SetPeriodicSignal_LEFT_INVERTER_CURRENT);
 
-    App_InRangeCheck_GetValue(aux2_current_check, &current_buffer);
-    App_CanTx_SetPeriodicSignal_AUXILIARY2_CURRENT(can_tx, current_buffer);
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx, right_inverter_current_check,
+        App_CanTx_SetPeriodicSignal_RIGHT_INVERTER_CURRENT);
 
-    App_InRangeCheck_GetValue(left_inverter_current_check, &current_buffer);
-    App_CanTx_SetPeriodicSignal_LEFT_INVERTER_CURRENT(can_tx, current_buffer);
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx, energy_meter_current_check,
+        App_CanTx_SetPeriodicSignal_ENERGY_METER_CURRENT);
 
-    App_InRangeCheck_GetValue(right_inverter_current_check, &current_buffer);
-    App_CanTx_SetPeriodicSignal_RIGHT_INVERTER_CURRENT(can_tx, current_buffer);
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx, can_current_check, App_CanTx_SetPeriodicSignal_GLV_CURRENT);
 
-    App_InRangeCheck_GetValue(energy_meter_current_check, &current_buffer);
-    App_CanTx_SetPeriodicSignal_ENERGY_METER_CURRENT(can_tx, current_buffer);
-
-    App_InRangeCheck_GetValue(can_current_check, &current_buffer);
-    App_CanTx_SetPeriodicSignal_GLV_CURRENT(can_tx, current_buffer);
-
-    App_InRangeCheck_GetValue(air_shutdown_current_check, &current_buffer);
-    App_CanTx_SetPeriodicSignal_AIR_SHUTDOWN_CURRENT(can_tx, current_buffer);
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx, air_shutdown_current_check,
+        App_CanTx_SetPeriodicSignal_AIR_SHUTDOWN_CURRENT);
 }
 
 static void AirOpenStateRunOnExit(struct StateMachine *const state_machine)

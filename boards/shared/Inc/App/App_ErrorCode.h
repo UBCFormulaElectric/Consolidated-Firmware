@@ -4,6 +4,7 @@ typedef enum
 {
     EXIT_CODE_OK = 0,
     EXIT_CODE_INVALID_ARGS,
+    EXIT_CODE_OUT_OF_RANGE,
     NUM_EXIT_STATUSES,
 } ExitCode;
 

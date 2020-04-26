@@ -1,7 +1,27 @@
-#include "App_InRangeCheck.h"
 #include "Io_CurrentCheck.h"
 
 static struct PdmCanTxInterface *_can_tx = NULL;
+
+// Convenient function to set the appropriate CAN signals in each error callback
+static void App_SetOutOfRangeCanSignals(
+    enum InRangeCheck_ErrorStatus status,
+    void (*const underflow_setter)(struct PdmCanTxInterface *, uint8_t),
+    void (*const overflow_setter)(struct PdmCanTxInterface *, uint8_t))
+{
+    switch (status)
+    {
+        case VALUE_UNDERFLOW:
+        {
+            underflow_setter(_can_tx, true);
+        }
+        break;
+        case VALUE_OVERFLOW:
+        {
+            overflow_setter(_can_tx, true);
+        }
+        break;
+    }
+}
 
 void Io_CurrentInRangeCheck_Init(struct PdmCanTxInterface *can_tx)
 {
@@ -14,16 +34,12 @@ float Io_CurrentInRangeCheck_GetAux1Current(void)
     return 0.5f;
 }
 
-void Io_CurrentInRangeCheck_Aux1ErrorCallback(enum InRangeCheck_Status status)
+void Io_CurrentInRangeCheck_Aux1ErrorCallback(
+    enum InRangeCheck_ErrorStatus status)
 {
-    if (status == VALUE_UNDERFLOW)
-    {
-        App_CanTx_SetPeriodicSignal_UNDERCURRENT_AUX_1(_can_tx, true);
-    }
-    else if (status == VALUE_OVERFLOW)
-    {
-        App_CanTx_SetPeriodicSignal_OVERCURRENT_AUX_1(_can_tx, true);
-    }
+    App_SetOutOfRangeCanSignals(
+        status, App_CanTx_SetPeriodicSignal_UNDERCURRENT_AUX_1,
+        App_CanTx_SetPeriodicSignal_OVERCURRENT_AUX_1);
 }
 
 float Io_CurrentInRangeCheck_GetAux2Current(void)
@@ -32,16 +48,12 @@ float Io_CurrentInRangeCheck_GetAux2Current(void)
     return 0.5f;
 }
 
-void Io_CurrentInRangeCheck_Aux2ErrorCallback(enum InRangeCheck_Status status)
+void Io_CurrentInRangeCheck_Aux2ErrorCallback(
+    enum InRangeCheck_ErrorStatus status)
 {
-    if (status == VALUE_UNDERFLOW)
-    {
-        App_CanTx_SetPeriodicSignal_UNDERCURRENT_AUX_2(_can_tx, true);
-    }
-    else if (status == VALUE_OVERFLOW)
-    {
-        App_CanTx_SetPeriodicSignal_OVERCURRENT_AUX_2(_can_tx, true);
-    }
+    App_SetOutOfRangeCanSignals(
+        status, App_CanTx_SetPeriodicSignal_UNDERCURRENT_AUX_2,
+        App_CanTx_SetPeriodicSignal_OVERCURRENT_AUX_2);
 }
 
 float Io_CurrentInRangeCheck_GetLeftInverterCurrent(void)
@@ -51,16 +63,11 @@ float Io_CurrentInRangeCheck_GetLeftInverterCurrent(void)
 }
 
 void Io_CurrentInRangeCheck_LeftInverterErrorCallback(
-    enum InRangeCheck_Status status)
+    enum InRangeCheck_ErrorStatus status)
 {
-    if (status == VALUE_UNDERFLOW)
-    {
-        App_CanTx_SetPeriodicSignal_UNDERCURRENT_LEFT_INVERTER(_can_tx, true);
-    }
-    else if (status == VALUE_OVERFLOW)
-    {
-        App_CanTx_SetPeriodicSignal_OVERCURRENT_LEFT_INVERTER(_can_tx, true);
-    }
+    App_SetOutOfRangeCanSignals(
+        status, App_CanTx_SetPeriodicSignal_UNDERCURRENT_LEFT_INVERTER,
+        App_CanTx_SetPeriodicSignal_OVERCURRENT_LEFT_INVERTER);
 }
 
 float Io_CurrentInRangeCheck_GetRightInverterCurrent(void)
@@ -70,16 +77,11 @@ float Io_CurrentInRangeCheck_GetRightInverterCurrent(void)
 }
 
 void Io_CurrentInRangeCheck_RightInverterErrorCallback(
-    enum InRangeCheck_Status status)
+    enum InRangeCheck_ErrorStatus status)
 {
-    if (status == VALUE_UNDERFLOW)
-    {
-        App_CanTx_SetPeriodicSignal_UNDERCURRENT_RIGHT_INVERTER(_can_tx, true);
-    }
-    else if (status == VALUE_OVERFLOW)
-    {
-        App_CanTx_SetPeriodicSignal_OVERCURRENT_RIGHT_INVERTER(_can_tx, true);
-    }
+    App_SetOutOfRangeCanSignals(
+        status, App_CanTx_SetPeriodicSignal_UNDERCURRENT_RIGHT_INVERTER,
+        App_CanTx_SetPeriodicSignal_OVERCURRENT_RIGHT_INVERTER);
 }
 
 float Io_CurrentInRangeCheck_GetEnergyMeterCurrent(void)
@@ -89,16 +91,11 @@ float Io_CurrentInRangeCheck_GetEnergyMeterCurrent(void)
 }
 
 void Io_CurrentInRangeCheck_EnergyMeterErrorCallback(
-    enum InRangeCheck_Status status)
+    enum InRangeCheck_ErrorStatus status)
 {
-    if (status == VALUE_UNDERFLOW)
-    {
-        App_CanTx_SetPeriodicSignal_UNDERCURRENT_ENERGY_METER(_can_tx, true);
-    }
-    else if (status == VALUE_OVERFLOW)
-    {
-        App_CanTx_SetPeriodicSignal_OVERCURRENT_ENERGY_METER(_can_tx, true);
-    }
+    App_SetOutOfRangeCanSignals(
+        status, App_CanTx_SetPeriodicSignal_UNDERCURRENT_ENERGY_METER,
+        App_CanTx_SetPeriodicSignal_OVERCURRENT_ENERGY_METER);
 }
 
 float Io_CurrentInRangeCheck_GetCanCurrent(void)
@@ -107,16 +104,12 @@ float Io_CurrentInRangeCheck_GetCanCurrent(void)
     return 0.5f;
 }
 
-void Io_CurrentInRangeCheck_CanErrorCallback(enum InRangeCheck_Status status)
+void Io_CurrentInRangeCheck_CanErrorCallback(
+    enum InRangeCheck_ErrorStatus status)
 {
-    if (status == VALUE_UNDERFLOW)
-    {
-        App_CanTx_SetPeriodicSignal_UNDERCURRENT_CAN(_can_tx, true);
-    }
-    else if (status == VALUE_OVERFLOW)
-    {
-        App_CanTx_SetPeriodicSignal_OVERCURRENT_CAN(_can_tx, true);
-    }
+    App_SetOutOfRangeCanSignals(
+        status, App_CanTx_SetPeriodicSignal_UNDERCURRENT_CAN,
+        App_CanTx_SetPeriodicSignal_OVERCURRENT_CAN);
 }
 
 float Io_CurrentInRangeCheck_GetAirShutdownCurrent(void)
@@ -126,14 +119,9 @@ float Io_CurrentInRangeCheck_GetAirShutdownCurrent(void)
 }
 
 void Io_CurrentInRangeCheck_AirShutdownErrorCallback(
-    enum InRangeCheck_Status status)
+    enum InRangeCheck_ErrorStatus status)
 {
-    if (status == VALUE_UNDERFLOW)
-    {
-        App_CanTx_SetPeriodicSignal_UNDERCURRENT_AIR_SHUTDOWN(_can_tx, true);
-    }
-    else if (status == VALUE_OVERFLOW)
-    {
-        App_CanTx_SetPeriodicSignal_OVERCURRENT_AIR_SHUTDOWN(_can_tx, true);
-    }
+    App_SetOutOfRangeCanSignals(
+        status, App_CanTx_SetPeriodicSignal_UNDERCURRENT_AIR_SHUTDOWN,
+        App_CanTx_SetPeriodicSignal_OVERCURRENT_AIR_SHUTDOWN);
 }

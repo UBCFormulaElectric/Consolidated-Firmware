@@ -8,14 +8,14 @@ struct InRangeCheck
     float (*get_value)(void);
     float min_value;
     float max_value;
-    void (*error_callback)(enum InRangeCheck_Status);
+    void (*error_callback)(enum InRangeCheck_ErrorStatus);
 };
 
 struct InRangeCheck *App_InRangeCheck_Create(
     float (*const get_value)(void),
     float min_value,
     float max_value,
-    void (*const error_callback)(enum InRangeCheck_Status))
+    void (*const error_callback)(enum InRangeCheck_ErrorStatus))
 {
     struct InRangeCheck *in_range_check = malloc(sizeof(struct InRangeCheck));
 
@@ -34,25 +34,27 @@ void App_InRangeCheck_Destroy(struct InRangeCheck *const in_range_check)
     free(in_range_check);
 }
 
-enum InRangeCheck_Status App_InRangeCheck_GetValue(
+ExitCode App_InRangeCheck_GetValue(
     const struct InRangeCheck *const in_range_check,
-    float *const                     value_buffer)
+    float *const                     returned_value)
 {
-    const float              value  = in_range_check->get_value();
-    enum InRangeCheck_Status status = VALUE_IN_RANGE;
+    const float value     = in_range_check->get_value();
+    ExitCode    exit_code = EXIT_CODE_OUT_OF_RANGE;
 
     if (value < in_range_check->min_value)
     {
-        status = VALUE_UNDERFLOW;
-        in_range_check->error_callback(status);
+        in_range_check->error_callback(VALUE_UNDERFLOW);
     }
     else if (value > in_range_check->max_value)
     {
-        status = VALUE_OVERFLOW;
-        in_range_check->error_callback(status);
+        in_range_check->error_callback(VALUE_OVERFLOW);
+    }
+    else
+    {
+        exit_code = EXIT_CODE_OK;
     }
 
-    *value_buffer = value;
+    *returned_value = value;
 
-    return status;
+    return exit_code;
 }

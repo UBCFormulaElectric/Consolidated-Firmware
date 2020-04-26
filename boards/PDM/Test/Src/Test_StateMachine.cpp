@@ -23,34 +23,34 @@ FAKE_VOID_FUNC(
     struct CanMsgs_pdm_watchdog_timeout_t *);
 
 FAKE_VALUE_FUNC(float, GetVbatVoltage);
-FAKE_VOID_FUNC(VbatErrorCallback, enum InRangeCheck_Status);
+FAKE_VOID_FUNC(VbatErrorCallback, enum InRangeCheck_ErrorStatus);
 
 FAKE_VALUE_FUNC(float, Get24vAuxVoltage);
-FAKE_VOID_FUNC(_24vAuxErrorCallback, enum InRangeCheck_Status);
+FAKE_VOID_FUNC(_24vAuxErrorCallback, enum InRangeCheck_ErrorStatus);
 
 FAKE_VALUE_FUNC(float, Get24vAccVoltage);
-FAKE_VOID_FUNC(_24vAccErrorCallback, enum InRangeCheck_Status);
+FAKE_VOID_FUNC(_24vAccErrorCallback, enum InRangeCheck_ErrorStatus);
 
 FAKE_VALUE_FUNC(float, GetAux1Current);
-FAKE_VOID_FUNC(Aux1ErrorCallback, enum InRangeCheck_Status);
+FAKE_VOID_FUNC(Aux1ErrorCallback, enum InRangeCheck_ErrorStatus);
 
 FAKE_VALUE_FUNC(float, GetAux2Current);
-FAKE_VOID_FUNC(Aux2ErrorCallback, enum InRangeCheck_Status);
+FAKE_VOID_FUNC(Aux2ErrorCallback, enum InRangeCheck_ErrorStatus);
 
 FAKE_VALUE_FUNC(float, GetLeftInverterCurrent);
-FAKE_VOID_FUNC(LeftInverterErrorCallback, enum InRangeCheck_Status);
+FAKE_VOID_FUNC(LeftInverterErrorCallback, enum InRangeCheck_ErrorStatus);
 
 FAKE_VALUE_FUNC(float, GetRightInverterCurrent);
-FAKE_VOID_FUNC(RightInverterErrorCallback, enum InRangeCheck_Status);
+FAKE_VOID_FUNC(RightInverterErrorCallback, enum InRangeCheck_ErrorStatus);
 
 FAKE_VALUE_FUNC(float, GetEnergyMeterCurrent);
-FAKE_VOID_FUNC(EnergyMeterErrorCallback, enum InRangeCheck_Status);
+FAKE_VOID_FUNC(EnergyMeterErrorCallback, enum InRangeCheck_ErrorStatus);
 
 FAKE_VALUE_FUNC(float, GetCanCurrent);
-FAKE_VOID_FUNC(CanErrorCallback, enum InRangeCheck_Status);
+FAKE_VOID_FUNC(CanErrorCallback, enum InRangeCheck_ErrorStatus);
 
 FAKE_VALUE_FUNC(float, GetAirShutdownCurrent);
-FAKE_VOID_FUNC(AirShutdownErrorCallback, enum InRangeCheck_Status);
+FAKE_VOID_FUNC(AirShutdownErrorCallback, enum InRangeCheck_ErrorStatus);
 
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
 FAKE_VOID_FUNC(

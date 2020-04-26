@@ -2,18 +2,19 @@
 #include "App_InRangeCheck.h"
 
 /**
- * Initialize the callback functions shared among all voltage checks
+ * Register the CAN TX interface to be used in each error callback function
  * @param can_tx_interface CAN TX interface
  */
-void Io_VoltageInRangeCheck_Init(struct PdmCanTxInterface *can_tx_interface);
+void Io_VoltageInRangeCheck_Init(struct PdmCanTxInterface *can_tx);
 
 float Io_VoltageInRangeCheck_GetVbatVoltage(void);
-void  Io_VoltageInRangeCheck_VbatErrorCallback(enum InRangeCheck_Status status);
+void  Io_VoltageInRangeCheck_VbatErrorCallback(
+     enum InRangeCheck_ErrorStatus status);
 
 float Io_VoltageInRangeCheck_Get24vAuxVoltage(void);
 void  Io_VoltageInRangeCheck_24vAuxErrorCallback(
-     enum InRangeCheck_Status status);
+     enum InRangeCheck_ErrorStatus status);
 
 float Io_VoltageInRangeCheck_Get24vAccVoltage(void);
 void  Io_VoltageInRangeCheck_24vAccErrorCallback(
-     enum InRangeCheck_Status status);
+     enum InRangeCheck_ErrorStatus status);
