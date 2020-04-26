@@ -12,6 +12,12 @@ struct FlowMeter;
 struct FlowMeter *App_FlowMeter_Create(float (*get_flow_rate)(void));
 
 /**
+ * Destroy the given flow meter object, freeing any memory that it uses
+ * @param flow_meter The flow meter to destroy
+ */
+void App_FlowMeter_Destroy(struct FlowMeter *flow_meter);
+
+/**
  * Read the flow rate from a flow meter
  * @param flow_meter : The flow meter to read the flow rate from
  * @return The flow rate of the flow meter (L/min)
