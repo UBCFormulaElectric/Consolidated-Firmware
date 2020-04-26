@@ -10,7 +10,8 @@ DEFINE_FAKE_VALUE_FUNC(uint32_t, get_raw_paddle_position);
 void RegenPaddleTest::SetUp()
 {
     regen_paddle = App_RegenPaddle_Create(
-        get_raw_paddle_position, DEFAULT_LOWER_DEADZONE, DEFAULT_UPPER_DEADZONE);
+        get_raw_paddle_position, DEFAULT_LOWER_DEADZONE,
+        DEFAULT_UPPER_DEADZONE);
 }
 
 void RegenPaddleTest::TearDown()

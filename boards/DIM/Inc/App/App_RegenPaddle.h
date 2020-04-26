@@ -10,10 +10,10 @@
  *                                all and 100 means pressed all the way. Any
  *                                paddle position outside of this range is
  *                                considered invalid.
- * @param lower_deadzone Any paddle position equal to or less than this will map
- *                       to a regen value of 0
- * @param upper_deadzone Any paddle position equal to or greater than this will
- *                       map to a regen value of 100
+ * @param lower_deadzone Any raw paddle position >= 0 and less than this value
+ *                       will map to a regen value of 0
+ * @param upper_deadzone Any raw paddle position <= 100 and greater than this
+ *                       value will map to a regen value of 100
  * @return The created regen paddle, whose ownership is given to the caller
  */
 struct RegenPaddle *App_RegenPaddle_Create(
@@ -24,27 +24,23 @@ struct RegenPaddle *App_RegenPaddle_Create(
 void App_RegenPaddle_Destroy(struct RegenPaddle *regen_paddle);
 
 /**
- * Update the raw and mapped paddle position value for the given regen paddle
- * @param regen_paddle The regen paddle to update
- * @return ERROR_CODE_OUT_OF_RANGE If we read a raw paddle position not within
- *                                 the range 0 to 100 inclusive
- */
-ErrorCode App_RegenPaddle_Tick(struct RegenPaddle *regen_paddle);
-
-/**
  * Get the raw paddle position for the given regen paddle, where 0 means not
  * pressed at all and 100 means pressed all the way
  * @param regen_paddle The regen paddle to get raw paddle position for
- * @return The raw paddle position for the given regen paddle
+ * @return ERROR_CODE_OUT_OF_RANGE If we read a raw paddle position that is not
+ *                                 between 0 to 100 inclusive
  */
-uint32_t App_RegenPaddle_GetMappedPaddlePosition(
-    const struct RegenPaddle *regen_paddle);
+ErrorCode App_RegenPaddle_GetRawPaddlePosition(
+    const struct RegenPaddle *regen_paddle,
+    uint32_t *                returned_raw_paddle_position);
 
 /**
  * Get the mapped paddle position for the given regen paddle, where 0 means no
  * regen and 100 means maximum regen
  * @param regen_paddle The regen paddle to get mapped paddle position for
- * @return The mapped paddle position for the given regen paddle
+ * @return ERROR_CODE_OUT_OF_RANGE If we read a raw paddle position that is not
+ *                                 between 0 to 100 inclusive
  */
-uint32_t
-    App_RegenPaddle_GetRawPaddlePosition(const struct RegenPaddle *regen_paddle);
+ErrorCode App_RegenPaddle_GetMappedPaddlePosition(
+    const struct RegenPaddle *regen_paddle,
+    uint32_t *                returned_mapped_paddle_position);
