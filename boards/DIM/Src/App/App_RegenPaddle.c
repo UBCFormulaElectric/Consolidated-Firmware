@@ -30,37 +30,37 @@ void App_RegenPaddle_Destroy(struct RegenPaddle *const regen_paddle)
     free(regen_paddle);
 }
 
-ErrorCode App_RegenPaddle_GetRawPaddlePosition(
+ExitCode App_RegenPaddle_GetRawPaddlePosition(
     const struct RegenPaddle *const regen_paddle,
     uint32_t *const                 returned_raw_paddle_position)
 {
     const uint32_t raw_paddle_position =
         regen_paddle->get_raw_paddle_position();
-    ErrorCode error_code = ERROR_CODE_OK;
+    ExitCode exit_code = EXIT_CODE_OK;
 
     if (raw_paddle_position > 100)
     {
-        error_code = ERROR_CODE_OUT_OF_RANGE;
+        exit_code = EXIT_CODE_OUT_OF_RANGE;
     }
     else
     {
         *returned_raw_paddle_position = raw_paddle_position;
     }
 
-    return error_code;
+    return exit_code;
 }
 
-ErrorCode App_RegenPaddle_GetMappedPaddlePosition(
+ExitCode App_RegenPaddle_GetMappedPaddlePosition(
     const struct RegenPaddle *const regen_paddle,
     uint32_t *const                 returned_mapped_paddle_position)
 {
     const uint32_t raw_paddle_position =
         regen_paddle->get_raw_paddle_position();
-    ErrorCode error_code = ERROR_CODE_OK;
+    ExitCode exit_code = EXIT_CODE_OK;
 
     if (raw_paddle_position > 100)
     {
-        error_code = ERROR_CODE_OUT_OF_RANGE;
+        exit_code = EXIT_CODE_OUT_OF_RANGE;
     }
     else
     {
@@ -80,5 +80,5 @@ ErrorCode App_RegenPaddle_GetMappedPaddlePosition(
         }
     }
 
-    return error_code;
+    return exit_code;
 }

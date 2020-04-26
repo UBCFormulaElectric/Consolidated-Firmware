@@ -30,7 +30,7 @@ void App_RegenPaddle_Destroy(struct RegenPaddle *regen_paddle);
  * @return ERROR_CODE_OUT_OF_RANGE If we read a raw paddle position that is not
  *                                 between 0 to 100 inclusive
  */
-ErrorCode App_RegenPaddle_GetRawPaddlePosition(
+ExitCode App_RegenPaddle_GetRawPaddlePosition(
     const struct RegenPaddle *regen_paddle,
     uint32_t *                returned_raw_paddle_position);
 
@@ -41,6 +41,6 @@ ErrorCode App_RegenPaddle_GetRawPaddlePosition(
  * @return ERROR_CODE_OUT_OF_RANGE If we read a raw paddle position that is not
  *                                 between 0 to 100 inclusive
  */
-ErrorCode App_RegenPaddle_GetMappedPaddlePosition(
+ExitCode App_RegenPaddle_GetMappedPaddlePosition(
     const struct RegenPaddle *regen_paddle,
     uint32_t *                returned_mapped_paddle_position);

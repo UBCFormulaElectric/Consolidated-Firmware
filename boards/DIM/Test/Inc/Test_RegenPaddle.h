@@ -4,7 +4,7 @@
 
 DECLARE_FAKE_VALUE_FUNC(uint32_t, get_raw_paddle_position);
 
-class RegenPaddleTest : public testing::Test
+class RegenPaddleTest : public virtual testing::Test
 {
   protected:
     void SetUp() override;

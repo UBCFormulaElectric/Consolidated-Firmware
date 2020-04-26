@@ -14,24 +14,27 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 static void DriveStateRunOnTick(struct StateMachine *const state_machine)
 {
     struct DimWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct DimCanTxInterface *can_tx       = App_DimWorld_GetCanTx(world);
-    struct RegenPaddle *      regen_paddle = App_DimWorld_GetRegenPaddle(world);
-
-    uint32_t buffer;
-
-    App_RegenPaddle_GetMappedPaddlePosition(regen_paddle, &buffer);
-
-    App_CanTx_SetPeriodicSignal_RAW_PADDLE_POSITION(
-        can_tx, buffer);
-
-    App_CanTx_SetPeriodicSignal_MAPPED_PADDLE_POSITION(
-        can_tx, App_RegenPaddle_GetMappedPaddlePosition(regen_paddle));
-
+    struct DimCanTxInterface *can_tx = App_DimWorld_GetCanTx(world);
     struct DimCanRxInterface *can_rx = App_DimWorld_GetCanRx(world);
     struct SevenSegDisplays * seven_seg_displays =
         App_DimWorld_GetSevenSegDisplays(world);
     struct HeartbeatMonitor *heartbeat_monitor =
         App_DimWorld_GetHeartbeatMonitor(world);
+    struct RegenPaddle *regen_paddle = App_DimWorld_GetRegenPaddle(world);
+
+    uint32_t buffer;
+
+    if (EXIT_CODE_OK(
+            App_RegenPaddle_GetRawPaddlePosition(regen_paddle, &buffer)))
+    {
+        App_CanTx_SetPeriodicSignal_RAW_PADDLE_POSITION(can_tx, buffer);
+    }
+
+    if (EXIT_CODE_OK(
+            App_RegenPaddle_GetMappedPaddlePosition(regen_paddle, &buffer)))
+    {
+        App_CanTx_SetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx, buffer);
+    }
 
     App_SevenSegDisplays_SetUnsignedBase10Value(
         seven_seg_displays,
