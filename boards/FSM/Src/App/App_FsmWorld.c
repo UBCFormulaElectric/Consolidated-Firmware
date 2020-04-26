@@ -12,6 +12,8 @@ struct FsmWorld
     struct FlowMeter *        primary_flow_meter;
     struct FlowMeter *        secondary_flow_meter;
     struct RgbLedSequence *   rgb_led_sequence;
+    struct WheelSpeedSensor * left_wheel_speed;
+    struct WheelSpeedSensor * right_wheel_speed;
 };
 
 struct FsmWorld *App_FsmWorld_Create(
@@ -21,6 +23,8 @@ struct FsmWorld *App_FsmWorld_Create(
     struct FlowMeter *const         primary_flow_meter,
     struct FlowMeter *const         secondary_flow_meter,
     struct RgbLedSequence *const    rgb_led_sequence)
+    struct WheelSpeedSensor *const  left_wheel_speed,
+    struct WheelSpeedSensor *const  right_wheel_speed)
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
     assert(world != NULL);
@@ -31,6 +35,8 @@ struct FsmWorld *App_FsmWorld_Create(
     world->primary_flow_meter   = primary_flow_meter;
     world->secondary_flow_meter = secondary_flow_meter;
     world->rgb_led_sequence     = rgb_led_sequence;
+    world->left_wheel_speed     = left_wheel_speed;
+    world->right_wheel_speed    = right_wheel_speed;
 
     return world;
 }
@@ -74,4 +80,15 @@ struct RgbLedSequence *
     App_FsmWorld_GetRgbLedSequence(const struct FsmWorld *const world)
 {
     return world->rgb_led_sequence;
+
+struct WheelSpeedSensor *
+    App_FsmWorld_GetLeftWheelSpeedSensor(const struct FsmWorld *const world)
+{
+    return world->left_wheel_speed;
+}
+
+struct WheelSpeedSensor *
+    App_FsmWorld_GetRightWheelSpeedSensor(const struct FsmWorld *const world)
+{
+    return world->right_wheel_speed;
 }

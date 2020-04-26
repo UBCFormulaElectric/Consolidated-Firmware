@@ -5,6 +5,7 @@
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_FlowMeter.h"
 #include "App_SharedRgbLedSequence.h"
+#include "App_WheelSpeedSensor.h"
 
 struct FsmWorld;
 
@@ -24,6 +25,8 @@ struct FsmWorld *App_FsmWorld_Create(
     struct FlowMeter *        primary_flow_meter,
     struct FlowMeter *        secondary_flow_meter,
     struct RgbLedSequence *   rgb_led_sequence);
+    struct WheelSpeedSensor * left_wheel_speed,
+    struct WheelSpeedSensor * right_wheel_speed);
 
 /**
  * Deallocate the memory used by the given world
@@ -76,3 +79,8 @@ struct FlowMeter *
  */
 struct RgbLedSequence *
     App_FsmWorld_GetRgbLedSequence(const struct FsmWorld *world);
+
+struct WheelSpeedSensor *
+    App_FsmWorld_GetLeftWheelSpeedSensor(const struct FsmWorld *world);
+struct WheelSpeedSensor *
+    App_FsmWorld_GetRightWheelSpeedSensor(const struct FsmWorld *world);

@@ -146,7 +146,43 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count)
 int main(void)
 {
     /* USER CODE BEGIN 1 */
+<<<<<<< HEAD
 
+=======
+    __HAL_DBGMCU_FREEZE_IWDG();
+    Io_SharedHardFaultHandler_Init();
+
+    Io_FlowMeters_Init(&htim4);
+    Io_WheelSpeedSensors_Init(&htim16, &htim17);
+    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeters_GetPrimaryFlowRate);
+    secondary_flow_meter =
+        App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
+    left_wheel_speed_sensor =
+        App_WheelSpeedSensor_Create(Io_WheelSpeedSensors_GetLeftSpeed);
+    right_wheel_speed_sensor =
+        App_WheelSpeedSensor_Create(Io_WheelSpeedSensors_GetRightSpeed);
+
+    can_tx = App_CanTx_Create(
+        Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
+        Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
+        Io_CanTx_EnqueueNonPeriodicMsg_FSM_AIR_SHUTDOWN);
+
+    can_rx = App_CanRx_Create();
+
+    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+        Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
+        Io_HeartbeatMonitor_TimeoutCallback);
+
+    world = App_FsmWorld_Create(
+        can_tx, can_rx, heartbeat_monitor, primary_flow_meter,
+        secondary_flow_meter, left_wheel_speed_sensor,
+        right_wheel_speed_sensor);
+
+    state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
+
+    App_StackWaterMark_Init(can_tx);
+    Io_SoftwareWatchdog_Init(can_tx);
+>>>>>>> Add simple wheel speed tests
     /* USER CODE END 1 */
 
     /* MCU

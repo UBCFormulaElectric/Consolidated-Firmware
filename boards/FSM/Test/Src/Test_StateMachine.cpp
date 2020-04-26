@@ -28,9 +28,14 @@ FAKE_VOID_FUNC(
     enum HeartbeatOneHot);
 FAKE_VALUE_FUNC(float, get_primary_flow_rate);
 FAKE_VALUE_FUNC(float, get_secondary_flow_rate);
+<<<<<<< HEAD
 FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
+=======
+FAKE_VALUE_FUNC(float, get_left_wheel_speed);
+FAKE_VALUE_FUNC(float, get_right_wheel_speed);
+>>>>>>> Add simple wheel speed tests
 
 class FsmStateMachineTest : public testing::Test
 {
@@ -51,13 +56,22 @@ class FsmStateMachineTest : public testing::Test
         primary_flow_meter = App_FlowMeter_Create(get_primary_flow_rate);
 
         secondary_flow_meter = App_FlowMeter_Create(get_secondary_flow_rate);
+        left_wheel_speed_sensor =
+            App_WheelSpeedSensor_Create(get_left_wheel_speed);
+        right_wheel_speed_sensor =
+            App_WheelSpeedSensor_Create(get_right_wheel_speed);
 
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
         world = App_FsmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
+<<<<<<< HEAD
             primary_flow_meter, secondary_flow_meter, rgb_led_sequence);
+=======
+            primary_flow_meter, secondary_flow_meter, left_wheel_speed_sensor,
+            right_wheel_speed_sensor);
+>>>>>>> Add simple wheel speed tests
 
         // Default to starting the state machine in the `AIR_OPEN` state
         state_machine =
@@ -71,13 +85,19 @@ class FsmStateMachineTest : public testing::Test
         RESET_FAKE(heartbeat_timeout_callback);
         RESET_FAKE(get_primary_flow_rate);
         RESET_FAKE(get_secondary_flow_rate);
+<<<<<<< HEAD
         RESET_FAKE(turn_on_red_led);
         RESET_FAKE(turn_on_green_led);
         RESET_FAKE(turn_on_blue_led);
+=======
+        RESET_FAKE(get_left_wheel_speed);
+        RESET_FAKE(get_right_wheel_speed);
+>>>>>>> Add simple wheel speed tests
     }
 
     void TearDown() override
     {
+<<<<<<< HEAD
         TearDownObject(world, App_FsmWorld_Destroy);
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
         TearDownObject(can_tx_interface, App_CanTx_Destroy);
@@ -86,6 +106,37 @@ class FsmStateMachineTest : public testing::Test
         TearDownObject(primary_flow_meter, App_FlowMeter_Destroy);
         TearDownObject(secondary_flow_meter, App_FlowMeter_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
+=======
+        ASSERT_TRUE(world != NULL);
+        ASSERT_TRUE(can_tx_interface != NULL);
+        ASSERT_TRUE(can_rx_interface != NULL);
+        ASSERT_TRUE(state_machine != NULL);
+        ASSERT_TRUE(heartbeat_monitor != NULL);
+        ASSERT_TRUE(primary_flow_meter != NULL);
+        ASSERT_TRUE(secondary_flow_meter != NULL);
+        ASSERT_TRUE(left_wheel_speed_sensor != NULL);
+        ASSERT_TRUE(right_wheel_speed_sensor != NULL);
+
+        App_FsmWorld_Destroy(world);
+        App_CanTx_Destroy(can_tx_interface);
+        App_CanRx_Destroy(can_rx_interface);
+        App_SharedStateMachine_Destroy(state_machine);
+        App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
+        App_FlowMeter_Destroy(primary_flow_meter);
+        App_FlowMeter_Destroy(secondary_flow_meter);
+        App_WheelSpeedSensor_Destroy(left_wheel_speed_sensor);
+        App_WheelSpeedSensor_Destroy(right_wheel_speed_sensor);
+
+        world                    = NULL;
+        can_tx_interface         = NULL;
+        can_rx_interface         = NULL;
+        state_machine            = NULL;
+        heartbeat_monitor        = NULL;
+        primary_flow_meter       = NULL;
+        secondary_flow_meter     = NULL;
+        left_wheel_speed_sensor  = NULL;
+        right_wheel_speed_sensor = NULL;
+>>>>>>> Add simple wheel speed tests
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -110,7 +161,12 @@ class FsmStateMachineTest : public testing::Test
     struct HeartbeatMonitor * heartbeat_monitor;
     struct FlowMeter *        primary_flow_meter;
     struct FlowMeter *        secondary_flow_meter;
+<<<<<<< HEAD
     struct RgbLedSequence *   rgb_led_sequence;
+=======
+    struct WheelSpeedSensor * left_wheel_speed_sensor;
+    struct WheelSpeedSensor * right_wheel_speed_sensor;
+>>>>>>> Add simple wheel speed tests
 };
 
 // FSM-10
@@ -138,24 +194,55 @@ TEST_F(
     FsmStateMachineTest,
     check_if_primary_and_secondary_flow_rates_are_broadcasted_over_can_in_all_states)
 {
-    float fake_frequency = 1.0f;
+    float fake_flow_rate = 1.0f;
 
     for (const auto &state : GetAllStates())
     {
         SetInitialState(state);
+<<<<<<< HEAD
         get_primary_flow_rate_fake.return_val   = fake_frequency;
         get_secondary_flow_rate_fake.return_val = fake_frequency;
         App_SharedStateMachine_Tick1kHz(state_machine);
+=======
+        get_primary_flow_rate_fake.return_val   = fake_flow_rate;
+        get_secondary_flow_rate_fake.return_val = fake_flow_rate;
+        App_SharedStateMachine_Tick(state_machine);
+>>>>>>> Add simple wheel speed tests
 
         EXPECT_EQ(
-            fake_frequency,
+            fake_flow_rate,
             App_CanTx_GetPeriodicSignal_PRIMARY_FLOW_RATE(can_tx_interface));
         EXPECT_EQ(
-            fake_frequency,
+            fake_flow_rate,
             App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE(can_tx_interface));
 
-        // To avoid false positives, we use a different frequency each time
-        fake_frequency++;
+        // To avoid false positives, we use a different wheel speed each time
+        fake_flow_rate++;
+    }
+}
+
+TEST_F(
+    FsmStateMachineTest,
+    check_if_left_wheel_speed_and_right_wheel_speeds_are_broadcasted_over_can_in_all_states)
+{
+    float fake_wheel_speed = 1.0f;
+
+    for (const auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+        get_left_wheel_speed_fake.return_val  = fake_wheel_speed;
+        get_right_wheel_speed_fake.return_val = fake_wheel_speed;
+        App_SharedStateMachine_Tick(state_machine);
+
+        EXPECT_EQ(
+            fake_wheel_speed,
+            App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED(can_tx_interface));
+        EXPECT_EQ(
+            fake_wheel_speed,
+            App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED(can_tx_interface));
+
+        // To avoid false positives, we use a different wheel speed each time
+        fake_wheel_speed++;
     }
 }
 
