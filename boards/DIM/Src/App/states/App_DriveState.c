@@ -15,11 +15,14 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
     struct DimWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct DimCanTxInterface *can_tx       = App_DimWorld_GetCanTx(world);
     struct RegenPaddle *      regen_paddle = App_DimWorld_GetRegenPaddle(world);
-    App_RegenPaddle_Tick(regen_paddle);
-    App_RegenPaddle_GetMappedPaddlePosition(regen_paddle);
+
+    uint32_t buffer;
+
+    App_RegenPaddle_GetMappedPaddlePosition(regen_paddle, &buffer);
 
     App_CanTx_SetPeriodicSignal_RAW_PADDLE_POSITION(
-        can_tx, App_RegenPaddle_GetRawPaddlePosition(regen_paddle));
+        can_tx, buffer);
+
     App_CanTx_SetPeriodicSignal_MAPPED_PADDLE_POSITION(
         can_tx, App_RegenPaddle_GetMappedPaddlePosition(regen_paddle));
 
