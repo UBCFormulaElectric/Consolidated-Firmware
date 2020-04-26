@@ -10,8 +10,6 @@ void App_SetPeriodicCanSignals_InRangeCheck(
 {
     float buffer;
 
-    if (EXIT_CODE_OK(App_InRangeCheck_GetValue(in_range_check, &buffer)))
-    {
-        can_signal_setter(can_tx, buffer);
-    }
+    App_InRangeCheck_GetValue(in_range_check, &buffer);
+    can_signal_setter(can_tx, buffer);
 }

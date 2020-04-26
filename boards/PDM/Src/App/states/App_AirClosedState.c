@@ -39,36 +39,28 @@ static void AirClosedStateRunOnTick(struct StateMachine *const state_machine)
 
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, vbat_voltage_check, App_CanTx_SetPeriodicSignal_VBAT);
-
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, _24v_aux_voltage_check, App_CanTx_SetPeriodicSignal__24_V_AUX);
-
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, _24v_acc_voltage_check, App_CanTx_SetPeriodicSignal__24_V_ACC);
 
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, aux1_current_check,
         App_CanTx_SetPeriodicSignal_AUXILIARY1_CURRENT);
-
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, aux2_current_check,
         App_CanTx_SetPeriodicSignal_AUXILIARY2_CURRENT);
-
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, left_inverter_current_check,
         App_CanTx_SetPeriodicSignal_LEFT_INVERTER_CURRENT);
-
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, right_inverter_current_check,
         App_CanTx_SetPeriodicSignal_RIGHT_INVERTER_CURRENT);
-
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, energy_meter_current_check,
         App_CanTx_SetPeriodicSignal_ENERGY_METER_CURRENT);
-
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, can_current_check, App_CanTx_SetPeriodicSignal_GLV_CURRENT);
-
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, air_shutdown_current_check,
         App_CanTx_SetPeriodicSignal_AIR_SHUTDOWN_CURRENT);
