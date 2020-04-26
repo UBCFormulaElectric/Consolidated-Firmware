@@ -4,9 +4,9 @@
 #include "App_ErrorCode.h"
 
 void App_SetPeriodicCanSignals_InRangeCheck(
-    struct PdmCanTxInterface *const can_tx,
-    const struct InRangeCheck* const in_range_check,
-    void (*const can_signal_setter)(struct PdmCanTxInterface*, float))
+    struct PdmCanTxInterface *const  can_tx,
+    const struct InRangeCheck *const in_range_check,
+    void (*const can_signal_setter)(struct PdmCanTxInterface *, float))
 {
     float buffer;
 
