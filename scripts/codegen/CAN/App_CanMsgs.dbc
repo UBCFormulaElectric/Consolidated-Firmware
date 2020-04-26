@@ -148,9 +148,9 @@ BO_ 406 PDM_AUX1_AUX2_CURRENT: 8 PDM
 SG_ Auxiliary1_Current : 0|32@1- (1,0) [-3.4E038|3.4E038] "A" LOGGER
 SG_ Auxiliary2_Current : 32|32@1- (1,0) [-3.4E038|3.4E038] "A" LOGGER
 
-BO_ 407 PDM_COOLING_ENERGY_METER_CURRENT: 8 PDM
-SG_ Cooling_Pump_Current : 0|32@1- (1,0) [-3.4E038|3.4E038] "A" LOGGER
-SG_ Energy_Meter_Current : 32|32@1- (1,0) [-3.4E038|3.4E038] "A" LOGGER
+BO_ 407 PDM_ENERGY_METER_CURRENT: 8 PDM
+SG_ Energy_Meter_Current : 0|32@1- (1,0) [-3.4E038|3.4E038] "A" LOGGER
+SG_ Unused : 32|32@1- (1,0) [-3.4E038|3.4E038] "A" LOGGER
 
 BO_ 408 PDM_AIRSHDN_CANGLV_CURRENT: 8 PDM
 SG_ AIR_Shutdown_Current : 0|32@1- (1,0) [-3.4E038|3.4E038] "A" LOGGER
@@ -238,7 +238,6 @@ SIG_VALTYPE_ 307 Primary_flow_meter_flow_rate: 1;
 SIG_VALTYPE_ 307 Secondary_flow_meter_flow_rate: 1;
 SIG_VALTYPE_ 406 Auxiliary1_Current : 1;
 SIG_VALTYPE_ 406 Auxiliary2_Current : 1;
-SIG_VALTYPE_ 407 Cooling_Pump_Current : 1;
 SIG_VALTYPE_ 407 Energy_Meter_Current : 1;
 SIG_VALTYPE_ 408 AIR_Shutdown_Current : 1;
 SIG_VALTYPE_ 408 GLV_Current : 1;
