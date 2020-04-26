@@ -148,7 +148,8 @@ TEST_F(
     get_raw_paddle_position_fake.return_val = 50;
     App_SharedStateMachine_Tick(state_machine);
     ASSERT_EQ(
-        50, App_CanTx_GetPeriodicSignal_RAW_PADDLE_POSITION(can_tx_interface));
+        get_raw_paddle_position_fake.return_val,
+        App_CanTx_GetPeriodicSignal_RAW_PADDLE_POSITION(can_tx_interface));
 }
 
 TEST_F(
@@ -158,6 +159,6 @@ TEST_F(
     get_raw_paddle_position_fake.return_val = 50;
     App_SharedStateMachine_Tick(state_machine);
     ASSERT_EQ(
-        50,
+        get_raw_paddle_position_fake.return_val,
         App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
 }
