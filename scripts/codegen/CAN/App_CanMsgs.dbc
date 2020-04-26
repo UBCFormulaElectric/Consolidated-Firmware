@@ -92,6 +92,10 @@ SG_ State : 0|8@1+ (1,0) [0|255] "" LOGGER
 
 BO_ 306 FSM_AIR_SHUTDOWN: 0 FSM
 
+BO_ 307 FSM_FLOW_METER: 8 FSM
+SG_ Primary_Flow_Rate : 0|32@1+ (1,0) [0|0] "L/min" LOGGER 
+SG_ Secondary_Flow_Rate : 32|32@1+ (1,0) [0|0] "L/min" LOGGER
+
 BO_ 400 PDM_ERRORS: 8 PDM
 SG_ MISSING_HEARTBEAT : 0|1@1+ (1,0) [0|1] "" LOGGER
 SG_ BOOST_PGOOD_FAULT : 1|1@1+ (1,0) [0|1] "" LOGGER
@@ -197,6 +201,7 @@ BA_ "GenMsgCycleTime" BO_ 300 1000;
 BA_ "GenMsgCycleTime" BO_ 301 100;
 BA_ "GenMsgCycleTime" BO_ 302 5000;
 BA_ "GenMsgCycleTime" BO_ 305 10;
+BA_ "GenMsgCycleTime" BO_ 307 1000;
 BA_ "GenMsgCycleTime" BO_ 400 1000;
 BA_ "GenMsgCycleTime" BO_ 401 100;
 BA_ "GenMsgCycleTime" BO_ 402 5000;
@@ -218,6 +223,8 @@ BA_ "GenSigStartValue" SG_ 2  rx_overflow_count 0;
 SIG_VALTYPE_ 106 Duty_Cycle : 1;
 SIG_VALTYPE_ 106 Frequency : 1;
 SIG_VALTYPE_ 108 State_Of_Charge : 1;
+SIG_VALTYPE_ 307 Primary_Flow_Rate: 1;
+SIG_VALTYPE_ 307 Secondary_Flow_Rate: 1;
 SIG_VALTYPE_ 406 Auxiliary1_Current : 1;
 SIG_VALTYPE_ 406 Auxiliary2_Current : 1;
 SIG_VALTYPE_ 407 Cooling_Pump_Current : 1;

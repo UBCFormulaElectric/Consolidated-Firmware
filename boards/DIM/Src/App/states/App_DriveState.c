@@ -1,6 +1,7 @@
 #include "states/App_DriveState.h"
 
 #include "App_SharedMacros.h"
+#include "App_SevenSegDisplays.h"
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -26,8 +27,16 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_MAPPED_PADDLE_POSITION(
         can_tx, App_RegenPaddle_GetMappedPaddlePosition(regen_paddle));
 
+    struct DimCanRxInterface *can_rx = App_DimWorld_GetCanRx(world);
+    struct SevenSegDisplays * seven_seg_displays =
+        App_DimWorld_GetSevenSegDisplays(world);
     struct HeartbeatMonitor *heartbeat_monitor =
         App_DimWorld_GetHeartbeatMonitor(world);
+
+    App_SevenSegDisplays_SetUnsignedBase10Value(
+        seven_seg_displays,
+        App_CanRx_BMS_STATE_OF_CHARGE_GetSignal_STATE_OF_CHARGE(can_rx));
+
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
 }
 
