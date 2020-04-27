@@ -10,13 +10,15 @@ struct DimWorld
     struct DimCanRxInterface *can_rx_interface;
     struct SevenSegDisplays * seven_seg_displays;
     struct HeartbeatMonitor * heartbeat_monitor;
+    struct RotarySwitch* rotary_switch;
 };
 
 struct DimWorld *App_DimWorld_Create(
     struct DimCanTxInterface *const can_tx_interface,
     struct DimCanRxInterface *const can_rx_interface,
     struct SevenSegDisplays *const  seven_seg_displays,
-    struct HeartbeatMonitor *const  heartbeat_monitor)
+    struct HeartbeatMonitor *const  heartbeat_monitor,
+    struct RotarySwitch* const rotary_switch)
 {
     struct DimWorld *world = (struct DimWorld *)malloc(sizeof(struct DimWorld));
     assert(world != NULL);
@@ -25,6 +27,7 @@ struct DimWorld *App_DimWorld_Create(
     world->can_rx_interface   = can_rx_interface;
     world->seven_seg_displays = seven_seg_displays;
     world->heartbeat_monitor  = heartbeat_monitor;
+    world->rotary_switch = rotary_switch;
 
     return world;
 }
@@ -56,4 +59,10 @@ struct HeartbeatMonitor *
     App_DimWorld_GetHeartbeatMonitor(const struct DimWorld *const world)
 {
     return world->heartbeat_monitor;
+}
+
+struct RotarySwitch *
+App_DimWorld_GetRotarySwitch(const struct DimWorld* world)
+{
+    return world->rotary_switch;
 }

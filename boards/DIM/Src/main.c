@@ -34,6 +34,7 @@
 #include "states/App_DriveState.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
+#include "App_RotarySwitch.h"
 
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
@@ -42,6 +43,7 @@
 #include "Io_SharedErrorHandlerOverride.h"
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_HeartbeatMonitor.h"
+#include "Io_RotarySwitch.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -88,6 +90,7 @@ struct SevenSegDisplay *  middle_seven_seg_display;
 struct SevenSegDisplay *  right_seven_seg_display;
 struct SevenSegDisplays * seven_seg_displays;
 struct HeartbeatMonitor * heartbeat_monitor;
+struct RotarySwitch* rotary_switch;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -126,6 +129,7 @@ int main(void)
 {
     /* USER CODE BEGIN 1 */
     __HAL_DBGMCU_FREEZE_IWDG();
+
     Io_SharedHardFaultHandler_Init();
 
     Io_SevenSegDisplays_Init(&hspi2);
@@ -151,8 +155,10 @@ int main(void)
         Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
         Io_HeartbeatMonitor_TimeoutCallback);
 
+    rotary_switch = App_RotarySwitch_Create(Io_RotarySwitch_GetDriveMode);
+
     world = App_DimWorld_Create(
-        can_tx, can_rx, seven_seg_displays, heartbeat_monitor);
+        can_tx, can_rx, seven_seg_displays, heartbeat_monitor, rotary_switch);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
     /* USER CODE END 1 */
@@ -183,6 +189,8 @@ int main(void)
     /* USER CODE BEGIN 2 */
     struct CanMsgs_dim_startup_t payload = { .dummy = 0 };
     App_CanTx_SendNonPeriodicMsg_DIM_STARTUP(can_tx, &payload);
+
+    Io_RotarySwitch_Init();
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
