@@ -1,12 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
-
-#define FSM_CAN App_CanRx_FSM_ERRORS
-#define DCM_CAN App_CanRx_DCM_ERRORS
-#define PDM_CAN App_CanRx_PDM_ERRORS
-#define DIM_CAN App_CanRx_DIM_ERRORS
-#define BMS_CAN App_CanTx
+#include "App_FaultManagerConfig.h"
 
 #ifndef FSM_CAN
 #error "Please define FSM_CAN"

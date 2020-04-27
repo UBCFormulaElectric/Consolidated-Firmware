@@ -53,6 +53,7 @@ bool App_FaultManager_HasDimCriticalFaultManager(void)
 {
     void *can = _dim_can;
     add_critical_fault(DIM_CAN, CRITICAL_FAULT);
+    add_critical_fault(DIM_CAN, CRITICAL_FAULT_2);
     return false;
 }
 
