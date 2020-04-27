@@ -18,19 +18,30 @@ static void AirOpenStateRunOnTick(struct StateMachine *const state_machine)
         App_FsmWorld_GetPrimaryFlowMeter(world);
     struct FlowMeter *secondary_flow_meter =
         App_FsmWorld_GetSecondaryFlowMeter(world);
-    struct WheelSpeedSensor *left_wheel_speed =
+    struct WheelSpeedSensor *left_wheel_speed_sensor =
         App_FsmWorld_GetLeftWheelSpeedSensor(world);
-    struct WheelSpeedSensor *right_wheel_speed =
+    struct WheelSpeedSensor *right_wheel_speed_sensor =
         App_FsmWorld_GetRightWheelSpeedSensor(world);
 
+<<<<<<< HEAD
+=======
+    App_FlowMeter_Tick(primary_flow_meter);
+    App_FlowMeter_Tick(secondary_flow_meter);
+    App_WheelSpeedSensor_Tick(left_wheel_speed_sensor);
+    App_WheelSpeedSensor_Tick(right_wheel_speed_sensor);
+
+>>>>>>> Add non critical fault flag
     App_SetPeriodicCanSignals_PrimaryFlowMeter(
         can_tx_interface, primary_flow_meter);
     App_SetPeriodicCanSignals_SecondaryFlowMeter(
         can_tx_interface, secondary_flow_meter);
     App_SetPeriodicCanSignals_LeftWheelSpeedSensor(
-        can_tx_interface, left_wheel_speed);
+        can_tx_interface, left_wheel_speed_sensor);
     App_SetPeriodicCanSignals_RightWheelSpeedSensor(
-        can_tx_interface, right_wheel_speed);
+        can_tx_interface, right_wheel_speed_sensor);
+
+    App_SetPeriodicCanSignals_WheelSpeedNonCriticalFault(
+        can_tx_interface, left_wheel_speed_sensor, right_wheel_speed_sensor);
 }
 
 static void AirOpenStateRunOnExit(struct StateMachine *const state_machine)

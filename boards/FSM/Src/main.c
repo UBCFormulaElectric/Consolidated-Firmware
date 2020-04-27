@@ -24,8 +24,6 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-#include <assert.h>
-
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
@@ -36,22 +34,15 @@
 #include "Io_SoftwareWatchdog.h"
 #include "Io_FlowMeters.h"
 #include "Io_HeartbeatMonitor.h"
-<<<<<<< HEAD
 #include "Io_RgbLedSequence.h"
-=======
->>>>>>> Add app code for wheel speed sensors
 #include "Io_WheelSpeedSensors.h"
 
 #include "App_FsmWorld.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_AirOpenState.h"
-<<<<<<< HEAD
 #include "configs/App_HeartbeatMonitorConfig.h"
-=======
 #include "App_SharedConstants.h"
 #include "App_SharedHeartbeatMonitor.h"
-#include "App_WheelSpeedSensor.h"
->>>>>>> Add app code for wheel speed sensors
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -146,21 +137,8 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count)
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-<<<<<<< HEAD
-
-=======
     __HAL_DBGMCU_FREEZE_IWDG();
     Io_SharedHardFaultHandler_Init();
-
-    Io_FlowMeters_Init(&htim4);
-    Io_WheelSpeedSensors_Init(&htim16, &htim17);
-    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeters_GetPrimaryFlowRate);
-    secondary_flow_meter =
-        App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
-    left_wheel_speed_sensor =
-        App_WheelSpeedSensor_Create(Io_WheelSpeedSensors_GetLeftSpeed);
-    right_wheel_speed_sensor =
-        App_WheelSpeedSensor_Create(Io_WheelSpeedSensors_GetRightSpeed);
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
@@ -182,7 +160,6 @@ int main(void)
 
     App_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
->>>>>>> Add simple wheel speed tests
     /* USER CODE END 1 */
 
     /* MCU
@@ -215,6 +192,11 @@ int main(void)
     __HAL_DBGMCU_FREEZE_IWDG();
     Io_SharedHardFaultHandler_Init();
 
+    Io_FlowMeters_Init(&htim4);
+    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeters_GetPrimaryFlowRate);
+    secondary_flow_meter =
+        App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
+
     Io_WheelSpeedSensors_Init(&htim16, &htim17);
     left_wheel_speed_sensor =
         App_WheelSpeedSensor_Create(Io_WheelSpeedSensors_GetLeftSpeed);
@@ -245,7 +227,7 @@ int main(void)
 
     world = App_FsmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, primary_flow_meter,
-        secondary_flow_meter, rgb_led_sequence);
+        secondary_flow_meter, left_wheel_speed_sensor, right_wheel_speed_sensor);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 

@@ -1,7 +1,5 @@
 #include "App_SetPeriodicCanSignals.h"
 #include "App_CanTx.h"
-<<<<<<< HEAD
-=======
 #include "App_FlowMeter.h"
 #include "App_WheelSpeedSensor.h"
 
@@ -36,4 +34,18 @@ void App_SetPeriodicCanSignals_RightWheelSpeedSensor(
     App_CanTx_SetPeriodicSignal_RIGHT_WHEEL_SPEED(
         can_tx, App_WheelSpeedSensor_GetWheelSpeed(wheel_speed_sensor));
 }
->>>>>>> Add simple wheel speed tests
+
+void App_SetPeriodicCanSignals_WheelSpeedNonCriticalFault(
+    struct FsmCanTxInterface *can_tx,
+    struct WheelSpeedSensor * left_wheel_sensor,
+    struct WheelSpeedSensor * right_wheel_sensor)
+{
+    const enum WheelSpeedStatus left_wheel_status =
+        App_WheelSpeedSensor_GetStatus(left_wheel_sensor);
+    const enum WheelSpeedStatus right_wheel_status =
+        App_WheelSpeedSensor_GetStatus(right_wheel_sensor);
+
+    App_CanTx_SetPeriodicSignal_WHEEL_SPEED_NON_CRITICAL_FAULT(
+        can_tx, (left_wheel_status == WHEEL_SPEED_NON_CRITICAL_FAULT ||
+                 right_wheel_status == WHEEL_SPEED_NON_CRITICAL_FAULT));
+}

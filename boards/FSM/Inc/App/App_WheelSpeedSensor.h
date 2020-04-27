@@ -1,6 +1,11 @@
 #pragma once
 
 struct WheelSpeedSensor;
+enum WheelSpeedStatus
+{
+    WHEEL_SPEED_NORMAL,
+    WHEEL_SPEED_NON_CRITICAL_FAULT
+};
 
 /**
  * Create the wheel speed sensor to read the wheel speed from
@@ -13,5 +18,7 @@ struct WheelSpeedSensor *
       App_WheelSpeedSensor_Create(float (*get_wheel_speed)(void));
 void  App_WheelSpeedSensor_Destroy(struct WheelSpeedSensor *wheel_speed_sensor);
 float App_WheelSpeedSensor_GetWheelSpeed(
+    const struct WheelSpeedSensor *wheel_speed_sensor);
+enum WheelSpeedStatus App_WheelSpeedSensor_GetStatus(
     const struct WheelSpeedSensor *wheel_speed_sensor);
 void App_WheelSpeedSensor_Tick(struct WheelSpeedSensor *wheel_speed_sensor);
