@@ -23,7 +23,6 @@ if [ "$RUN_ARM_BUILD" = "true" ]; then
         travis_run make --directory=$BUILD_DIR $BOARD.elf
         # Upload the text/data/bss size to SeriesCI. For pull-request builds,
         # we use ${TRAVIS_PULL_REQUEST_SHA} to get the branch commit SHA. 
-        SHA=""
         if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
             # Travis CI Branch build
             SHA=${TRAVIS_COMMIT}
