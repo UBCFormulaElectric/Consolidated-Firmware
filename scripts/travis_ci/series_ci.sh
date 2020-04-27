@@ -30,8 +30,8 @@ bss="${size_output[2]}"
 flash="$(echo "scale=2; 100 * ($text + $data) / $FLASH_MAX_SIZE" | bc)%"
 ram="$(echo "scale=2; 100 * ($data + $bss) / $RAM_MAX_SIZE" | bc)%"
 
-echo $flash
-echo $ram
+echo FLASH: $flash
+echo RAM: $ram
 
 curl \
   --header "Authorization: Token 27d62d1f-71c6-4075-95b5-f7aec56d0204" \
