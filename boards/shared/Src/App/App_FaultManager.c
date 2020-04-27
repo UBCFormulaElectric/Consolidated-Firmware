@@ -28,28 +28,28 @@ void App_FaultManager_Init(
     _bms_can = bms_can;
 }
 
-bool App_FaultManager_HasFsmCriticalFaultManager(void)
+bool App_FaultManager_HasFsmCriticalFault(void)
 {
     void *can = _fsm_can;
     add_critical_fault(FSM_CAN, CRITICAL_FAULT);
     return false;
 }
 
-bool App_FaultManager_HasDcmCriticalFaultManager(void)
+bool App_FaultManager_HasDcmCriticalFault(void)
 {
     void *can = _dcm_can;
     add_critical_fault(DCM_CAN, CRITICAL_FAULT);
     return false;
 }
 
-bool App_FaultManager_HasPdmCriticalFaultManager(void)
+bool App_FaultManager_HasPdmCriticalFault(void)
 {
     void *can = _pdm_can;
     add_critical_fault(PDM_CAN, CRITICAL_FAULT);
     return false;
 }
 
-bool App_FaultManager_HasDimCriticalFaultManager(void)
+bool App_FaultManager_HasDimCriticalFault(void)
 {
     void *can = _dim_can;
     add_critical_fault(DIM_CAN, CRITICAL_FAULT);
@@ -57,14 +57,14 @@ bool App_FaultManager_HasDimCriticalFaultManager(void)
     return false;
 }
 
-bool App_FaultManager_HasBmsCriticalFaultManager(void)
+bool App_FaultManager_HasBmsCriticalFault(void)
 {
     void *can = _bms_can;
     add_critical_fault(BMS_CAN, CRITICAL_FAULT);
     return false;
 }
 
-bool App_FaultManager_HasCriticalFaultManager(void)
+bool App_FaultManager_HasCriticalFault(void)
 {
     if (App_FaultManager_HasFsmCriticalFaultManager() ||
         App_FaultManager_HasDcmCriticalFaultManager() ||
