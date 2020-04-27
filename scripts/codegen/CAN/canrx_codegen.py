@@ -5,17 +5,16 @@ class CanRxFileGenerator(CanFileGenerator):
         super().__init__(database, output_path, receiver)
         self._receiver = receiver
         self._canrx_msgs = self.__get_canrx_msgs()
-        self._canrx_signals = self.__get_canrx_signals()
-
-    def __get_canrx_signals(self):
-        canrx_signals = []
-        for msg in self.__get_canrx_msgs():
-            for signal in msg.signals:
-                if self._receiver in signal.receivers:
-                    canrx_signals.append(
-                        CanSignal(signal.type_name, signal.snake_name,
-                                    msg.snake_name, signal.initial))
-        return canrx_signals
+        self._non_periodic_canrx_msgs = \
+            list(msg for msg in self._canrx_msgs if msg.cycle_time == 0)
+        self._periodic_canrx_msgs = \
+            list(msg for msg in self._canrx_msgs if msg.cycle_time > 0)
+        self._non_periodic_canrx_signals = \
+            [CanSignal(signal.type_name, signal.snake_name, msg.snake_name, signal.initial)
+             for msg in self._non_periodic_canrx_msgs for signal in msg.signals]
+        self._periodic_canrx_signals = \
+            [CanSignal(signal.type_name, signal.snake_name, msg.snake_name, signal.initial)
+             for msg in self._periodic_canrx_msgs for signal in msg.signals]
 
     def __get_canrx_msgs(self):
         canrx_msg = []
@@ -38,11 +37,11 @@ class AppCanRxFileGenerator(CanRxFileGenerator):
     def __init_functions(self, function_prefix):
         initial_signal_setters = '\n'.join(
             ["""\
-    App_CanRx_{msg_name}_SetSignal_{signal_name}(can_rx_interface, {initial_value});""".
+    App_CanRx_{msg_name}_SetPeriodicSignal_{signal_name}(can_rx_interface, {initial_value});""".
                 format(msg_name=signal.msg_name_uppercase,
                        signal_name=signal.uppercase_name,
                        initial_value=signal.initial_value if signal.initial_value != None else '0'
-                       ) for signal in self._canrx_signals])
+                       ) for signal in self._periodic_canrx_signals])
 
         self._Create = Function(
             'struct %sCanRxInterface* %s_Create(void)' % (self._receiver.capitalize(), function_prefix),
@@ -64,8 +63,8 @@ class AppCanRxFileGenerator(CanRxFileGenerator):
             'Destroy a CAN RX interface, freeing the memory associated with it',
             '''    free(can_rx_interface);''')
 
-        self._CanRxSignalGetters = [
-            Function('%s %s_%s_GetSignal_%s (struct %sCanRxInterface* can_rx_interface)'
+        self._CanPeriodicRxSignalGetters = [
+            Function('%s %s_%s_GetPeriodicSignal_%s (struct %sCanRxInterface* can_rx_interface)'
                      % (signal.type_name, function_prefix, 
                          signal.msg_name_uppercase, signal.uppercase_name, 
                          self._receiver.capitalize()),
@@ -75,10 +74,10 @@ class AppCanRxFileGenerator(CanRxFileGenerator):
                          signal_type=signal.type_name,
                          signal_name=signal.snakecase_name,
                          msg_name=signal.msg_name_snakecase))
-            for signal in self._canrx_signals]
+            for signal in self._periodic_canrx_signals]
 
-        self._CanRxSignalSetters = list(Function(
-            'void %s_%s_SetSignal_%s(struct %sCanRxInterface* can_rx_interface, %s value)' % (
+        self._CanPeriodicRxSignalSetters = list(Function(
+            'void %s_%s_SetPeriodicSignal_%s(struct %sCanRxInterface* can_rx_interface, %s value)' % (
             function_prefix, signal.msg_name_snakecase.upper(), 
             signal.uppercase_name, self._receiver.capitalize(), signal.type_name),
             '',
@@ -89,7 +88,34 @@ class AppCanRxFileGenerator(CanRxFileGenerator):
     }}'''.format(
                 msg_snakecase_name=signal.msg_name_snakecase,
                 signal_snakecase_name=signal.snakecase_name)
-        ) for signal in self._canrx_signals)
+        ) for signal in self._periodic_canrx_signals)
+
+        self._CanNonPeriodicRxSignalGetters = [
+            Function('%s %s_%s_GetNonPeriodicSignal_%s (struct %sCanRxInterface* can_rx_interface)'
+                     % (signal.type_name, function_prefix, 
+                         signal.msg_name_uppercase, signal.uppercase_name, 
+                         self._receiver.capitalize()),
+                     '',
+                     '''\
+    return can_rx_interface->can_rx_table.{msg_name}.{signal_name};'''.format(
+                         signal_type=signal.type_name,
+                         signal_name=signal.snakecase_name,
+                         msg_name=signal.msg_name_snakecase))
+            for signal in self._non_periodic_canrx_signals]
+
+        self._CanNonPeriodicRxSignalSetters = list(Function(
+            'void %s_%s_SetNonPeriodicSignal_%s(struct %sCanRxInterface* can_rx_interface, %s value)' % (
+            function_prefix, signal.msg_name_snakecase.upper(), 
+            signal.uppercase_name, self._receiver.capitalize(), signal.type_name),
+            '',
+            '''\
+    if (App_CanMsgs_{msg_snakecase_name}_{signal_snakecase_name}_is_in_range(value) == true)
+    {{
+        can_rx_interface->can_rx_table.{msg_snakecase_name}.{signal_snakecase_name} = value;
+    }}'''.format(
+                msg_snakecase_name=signal.msg_name_snakecase,
+                signal_snakecase_name=signal.snakecase_name)
+        ) for signal in self._non_periodic_canrx_signals)
 
 class AppCanRxHeaderFileGenerator(AppCanRxFileGenerator):
     def __init__(self, database, output_path, receiver, function_prefix):
@@ -114,11 +140,17 @@ class AppCanRxHeaderFileGenerator(AppCanRxFileGenerator):
         function_declarations.append(self._Create.declaration)
         function_declarations.append(self._Destroy.declaration)
         function_declarations.append(
-            '/** @brief CAN RX signal getters */\n'
-            + '\n'.join([func.declaration for func in self._CanRxSignalGetters]))
+            '/** @brief CAN periodic RX signal getters */\n'
+            + '\n'.join([func.declaration for func in self._CanPeriodicRxSignalGetters]))
         function_declarations.append(
-            '/** @brief CAN RX signal setters */\n'
-            + '\n'.join([func.declaration for func in self._CanRxSignalSetters]))
+            '/** @brief CAN periodic RX signal setters */\n'
+            + '\n'.join([func.declaration for func in self._CanPeriodicRxSignalSetters]))
+        function_declarations.append(
+            '/** @brief CAN non-periodic RX signal getters */\n'
+            + '\n'.join([func.declaration for func in self._CanNonPeriodicRxSignalGetters]))
+        function_declarations.append(
+            '/** @brief CAN non-periodic RX signal setters */\n'
+            + '\n'.join([func.declaration for func in self._CanNonPeriodicRxSignalSetters]))
         return '\n\n'.join(function_declarations)
 
 class AppCanRxSourceFileGenerator(AppCanRxFileGenerator):
@@ -185,8 +217,10 @@ class AppCanRxSourceFileGenerator(AppCanRxFileGenerator):
         function_defs = []
         function_defs.append(self._Create.definition)
         function_defs.append(self._Destroy.definition)
-        function_defs.extend([func.definition for func in self._CanRxSignalGetters])
-        function_defs.extend([func.definition for func in self._CanRxSignalSetters])
+        function_defs.extend([func.definition for func in self._CanPeriodicRxSignalGetters])
+        function_defs.extend([func.definition for func in self._CanPeriodicRxSignalSetters])
+        function_defs.extend([func.definition for func in self._CanNonPeriodicRxSignalGetters])
+        function_defs.extend([func.definition for func in self._CanNonPeriodicRxSignalSetters])
         return '\n\n'.join(function_defs)
 
 class IoCanRxFileGenerator(CanRxFileGenerator):
@@ -232,9 +266,15 @@ class IoCanRxFileGenerator(CanRxFileGenerator):
                     msg_uppercase_name=msg.snake_name.upper())
 
             signal_setters_fmt = '''
-            App_CanRx_{msg_uppercase_name}_SetSignal_{signal_name_uppercase}(
+            App_CanRx_{msg_uppercase_name}_SetPeriodicSignal_{signal_name_uppercase}(
                 can_rx_interface,
                 buffer.{signal_name_snakecase});'''
+            
+            # The function name is different for periodic and non-periodic messages
+            if msg.cycle_time == 0:
+                signal_setters_fmt = signal_setters_fmt.replace(
+                    "SetPeriodicSignal", "SetNonPeriodicSignal")
+
             signal_setters = '\n'.join([
                 signal_setters_fmt.format(
                     msg_uppercase_name=msg.snake_name.upper(),

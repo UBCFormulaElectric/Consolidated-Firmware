@@ -178,6 +178,7 @@ SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" LOGGER
 
 BO_ 505 DIM_ERRORS: 8 DIM
 SG_ CRITICAL_FAULT : 0|1@1+ (1,0) [0|1] "" BMS,FSM,DCM,PDM
+SG_ CRITICAL_FAULT_2 : 1|1@1+ (1,0) [0|1] "" BMS,FSM,DCM,PDM
 
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
@@ -218,6 +219,7 @@ BA_ "GenMsgCycleTime" BO_ 413 10;
 BA_ "GenMsgCycleTime" BO_ 500 100;
 BA_ "GenMsgCycleTime" BO_ 501 5000;
 BA_ "GenMsgCycleTime" BO_ 503 10;
+BA_ "GenMsgCycleTime" BO_ 505 1000;
 
 BA_ "GenSigStartValue" SG_ 2  tx_overflow_count 0;
 BA_ "GenSigStartValue" SG_ 2  rx_overflow_count 0;
