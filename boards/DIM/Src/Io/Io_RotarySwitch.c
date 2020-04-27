@@ -1,5 +1,5 @@
 #include "main.h"
-#include "Io_DriveMode.h"
+#include "Io_RotarySwitch.h"
 
 static enum DriveMode drive_mode = DRIVE_MODE_INVALID;
 
