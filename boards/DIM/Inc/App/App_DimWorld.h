@@ -4,6 +4,7 @@
 #include "App_CanRx.h"
 #include "App_SevenSegDisplays.h"
 #include "App_SharedHeartbeatMonitor.h"
+#include "App_RegenPaddle.h"
 #include "App_RotarySwitch.h"
 
 struct DimWorld;
@@ -26,6 +27,7 @@ struct DimWorld *App_DimWorld_Create(
     struct DimCanRxInterface *can_rx_interface,
     struct SevenSegDisplays * seven_seg_displays,
     struct HeartbeatMonitor * heartbeat_monitor,
+    struct RegenPaddle *      regen_paddle,
     struct RotarySwitch *     rotary_switch);
 
 /**
@@ -40,4 +42,5 @@ struct SevenSegDisplays *
     App_DimWorld_GetSevenSegDisplays(const struct DimWorld *world);
 struct HeartbeatMonitor *
                      App_DimWorld_GetHeartbeatMonitor(const struct DimWorld *world);
+struct RegenPaddle * App_DimWorld_GetRegenPaddle(const struct DimWorld *world);
 struct RotarySwitch *App_DimWorld_GetRotarySwitch(const struct DimWorld *world);

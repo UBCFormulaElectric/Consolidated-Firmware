@@ -21,7 +21,22 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
         App_DimWorld_GetSevenSegDisplays(world);
     struct HeartbeatMonitor *heartbeat_monitor =
         App_DimWorld_GetHeartbeatMonitor(world);
+    struct RegenPaddle * regen_paddle  = App_DimWorld_GetRegenPaddle(world);
     struct RotarySwitch *rotary_switch = App_DimWorld_GetRotarySwitch(world);
+
+    uint32_t buffer;
+
+    if (EXIT_CODE_OK(
+            App_RegenPaddle_GetRawPaddlePosition(regen_paddle, &buffer)))
+    {
+        App_CanTx_SetPeriodicSignal_RAW_PADDLE_POSITION(can_tx, buffer);
+    }
+
+    if (EXIT_CODE_OK(
+            App_RegenPaddle_GetMappedPaddlePosition(regen_paddle, &buffer)))
+    {
+        App_CanTx_SetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx, buffer);
+    }
 
     App_SevenSegDisplays_SetUnsignedBase10Value(
         seven_seg_displays,

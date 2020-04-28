@@ -34,6 +34,7 @@
 #include "states/App_DriveState.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
+#include "App_RegenPaddle.h"
 #include "App_RotarySwitch.h"
 
 #include "Io_CanTx.h"
@@ -43,6 +44,7 @@
 #include "Io_SharedErrorHandlerOverride.h"
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_HeartbeatMonitor.h"
+#include "Io_RegenPaddle.h"
 #include "Io_RotarySwitch.h"
 /* USER CODE END Includes */
 
@@ -90,6 +92,7 @@ struct SevenSegDisplay *  middle_seven_seg_display;
 struct SevenSegDisplay *  right_seven_seg_display;
 struct SevenSegDisplays * seven_seg_displays;
 struct HeartbeatMonitor * heartbeat_monitor;
+struct RegenPaddle *      regen_paddle;
 struct RotarySwitch *     rotary_switch;
 /* USER CODE END PV */
 
@@ -128,6 +131,33 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count)
 int main(void)
 {
     /* USER CODE BEGIN 1 */
+
+    /* USER CODE END 1 */
+
+    /* MCU
+     * Configuration--------------------------------------------------------*/
+
+    /* Reset of all peripherals, Initializes the Flash interface and the
+     * Systick. */
+    HAL_Init();
+
+    /* USER CODE BEGIN Init */
+
+    /* USER CODE END Init */
+
+    /* Configure the system clock */
+    SystemClock_Config();
+
+    /* USER CODE BEGIN SysInit */
+
+    /* USER CODE END SysInit */
+
+    /* Initialize all configured peripherals */
+    MX_GPIO_Init();
+    MX_CAN_Init();
+    MX_ADC2_Init();
+    MX_SPI2_Init();
+    /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
 
     Io_SharedHardFaultHandler_Init();
@@ -155,38 +185,17 @@ int main(void)
         Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
         Io_HeartbeatMonitor_TimeoutCallback);
 
+    regen_paddle =
+        App_RegenPaddle_Create(Io_RegenPaddle_GetPaddlePosition, 5, 95);
+
     rotary_switch = App_RotarySwitch_Create(Io_RotarySwitch_GetDriveMode);
 
     world = App_DimWorld_Create(
-        can_tx, can_rx, seven_seg_displays, heartbeat_monitor, rotary_switch);
+        can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle,
+        rotary_switch);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
-    /* USER CODE END 1 */
 
-    /* MCU
-     * Configuration--------------------------------------------------------*/
-
-    /* Reset of all peripherals, Initializes the Flash interface and the
-     * Systick. */
-    HAL_Init();
-
-    /* USER CODE BEGIN Init */
-
-    /* USER CODE END Init */
-
-    /* Configure the system clock */
-    SystemClock_Config();
-
-    /* USER CODE BEGIN SysInit */
-
-    /* USER CODE END SysInit */
-
-    /* Initialize all configured peripherals */
-    MX_GPIO_Init();
-    MX_CAN_Init();
-    MX_ADC2_Init();
-    MX_SPI2_Init();
-    /* USER CODE BEGIN 2 */
     struct CanMsgs_dim_startup_t payload = { .dummy = 0 };
     App_CanTx_SendNonPeriodicMsg_DIM_STARTUP(can_tx, &payload);
     /* USER CODE END 2 */
