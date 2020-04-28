@@ -39,14 +39,14 @@ struct RotarySwitch *
     return rotary_switch;
 }
 
-void App_RotarySwitch_Destroy(struct RotarySwitch *rotary_switch)
+void App_RotarySwitch_Destroy(struct RotarySwitch *const rotary_switch)
 {
     free(rotary_switch);
 }
 
 ExitCode App_RotarySwitch_GetDriveMode(
-    const struct RotarySwitch *rotary_switch,
-    enum DriveMode *           returned_drive_mode)
+    const struct RotarySwitch *const rotary_switch,
+    enum DriveMode *const            returned_drive_mode)
 {
     enum DriveMode drive_mode = rotary_switch->get_drive_mode();
     ExitCode       exit_code  = EXIT_CODE_OK;
