@@ -28,14 +28,11 @@ FAKE_VOID_FUNC(
     enum HeartbeatOneHot);
 FAKE_VALUE_FUNC(float, get_primary_flow_rate);
 FAKE_VALUE_FUNC(float, get_secondary_flow_rate);
-<<<<<<< HEAD
 FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
-=======
 FAKE_VALUE_FUNC(float, get_left_wheel_speed);
 FAKE_VALUE_FUNC(float, get_right_wheel_speed);
->>>>>>> Add simple wheel speed tests
 
 class FsmStateMachineTest : public testing::Test
 {
@@ -66,12 +63,9 @@ class FsmStateMachineTest : public testing::Test
 
         world = App_FsmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
-<<<<<<< HEAD
             primary_flow_meter, secondary_flow_meter, rgb_led_sequence);
-=======
             primary_flow_meter, secondary_flow_meter, left_wheel_speed_sensor,
             right_wheel_speed_sensor);
->>>>>>> Add simple wheel speed tests
 
         // Default to starting the state machine in the `AIR_OPEN` state
         state_machine =
@@ -85,19 +79,15 @@ class FsmStateMachineTest : public testing::Test
         RESET_FAKE(heartbeat_timeout_callback);
         RESET_FAKE(get_primary_flow_rate);
         RESET_FAKE(get_secondary_flow_rate);
-<<<<<<< HEAD
         RESET_FAKE(turn_on_red_led);
         RESET_FAKE(turn_on_green_led);
         RESET_FAKE(turn_on_blue_led);
-=======
         RESET_FAKE(get_left_wheel_speed);
         RESET_FAKE(get_right_wheel_speed);
->>>>>>> Add simple wheel speed tests
     }
 
     void TearDown() override
     {
-<<<<<<< HEAD
         TearDownObject(world, App_FsmWorld_Destroy);
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
         TearDownObject(can_tx_interface, App_CanTx_Destroy);
@@ -106,7 +96,7 @@ class FsmStateMachineTest : public testing::Test
         TearDownObject(primary_flow_meter, App_FlowMeter_Destroy);
         TearDownObject(secondary_flow_meter, App_FlowMeter_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
-=======
+
         ASSERT_TRUE(world != NULL);
         ASSERT_TRUE(can_tx_interface != NULL);
         ASSERT_TRUE(can_rx_interface != NULL);
@@ -136,7 +126,6 @@ class FsmStateMachineTest : public testing::Test
         secondary_flow_meter     = NULL;
         left_wheel_speed_sensor  = NULL;
         right_wheel_speed_sensor = NULL;
->>>>>>> Add simple wheel speed tests
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -161,12 +150,9 @@ class FsmStateMachineTest : public testing::Test
     struct HeartbeatMonitor * heartbeat_monitor;
     struct FlowMeter *        primary_flow_meter;
     struct FlowMeter *        secondary_flow_meter;
-<<<<<<< HEAD
     struct RgbLedSequence *   rgb_led_sequence;
-=======
     struct WheelSpeedSensor * left_wheel_speed_sensor;
     struct WheelSpeedSensor * right_wheel_speed_sensor;
->>>>>>> Add simple wheel speed tests
 };
 
 // FSM-10
@@ -199,15 +185,10 @@ TEST_F(
     for (const auto &state : GetAllStates())
     {
         SetInitialState(state);
-<<<<<<< HEAD
-        get_primary_flow_rate_fake.return_val   = fake_frequency;
-        get_secondary_flow_rate_fake.return_val = fake_frequency;
-        App_SharedStateMachine_Tick1kHz(state_machine);
-=======
+
         get_primary_flow_rate_fake.return_val   = fake_flow_rate;
         get_secondary_flow_rate_fake.return_val = fake_flow_rate;
         App_SharedStateMachine_Tick(state_machine);
->>>>>>> Add simple wheel speed tests
 
         EXPECT_EQ(
             fake_flow_rate,
@@ -247,3 +228,62 @@ TEST_F(
 }
 
 } // namespace StateMachineTest
+
+TEST_F(
+    FsmStateMachineTest,
+    check_if_wheel_speed_non_critical_fault_is_broadcasted_over_can_in_all_states)
+{
+    // The FSM sends a wheel speed non-critical fault when one of the wheel
+    // speeds measured is (1) Inactive or (2) Greater than 150 km/h. The
+    // Wheel_Speed_Non_Critical_Fault flag is set to 1 while active
+
+    float fake_left_wheel_speed  = 1.0f;
+    float fake_right_wheel_speed = 1.0f;
+
+    for (const auto &state : GetAllStates())
+    {
+        //Testing both wheel speeds below the threshold
+        SetInitialState(state);
+        get_left_wheel_speed_fake.return_val  = fake_left_wheel_speed;
+        get_right_wheel_speed_fake.return_val = fake_right_wheel_speed;
+        App_SharedStateMachine_Tick(state_machine);
+        EXPECT_EQ(
+            false, App_CanTx_GetPeriodicSignal_WHEEL_SPEED_NON_CRITICAL_FAULT(
+                       can_tx_interface));
+
+        //Testing the right wheel speed above the threshold
+        fake_left_wheel_speed++;
+        fake_right_wheel_speed                = 200.0f;
+        get_left_wheel_speed_fake.return_val  = fake_left_wheel_speed;
+        get_right_wheel_speed_fake.return_val = fake_right_wheel_speed;
+        App_SharedStateMachine_Tick(state_machine);
+        EXPECT_EQ(
+            true, App_CanTx_GetPeriodicSignal_WHEEL_SPEED_NON_CRITICAL_FAULT(
+                      can_tx_interface));
+
+        //Testing the left wheel speed above the threshold
+        fake_left_wheel_speed = 200.0f;
+        fake_right_wheel_speed = 10.0f;
+        get_left_wheel_speed_fake.return_val  = fake_left_wheel_speed;
+        get_right_wheel_speed_fake.return_val = fake_right_wheel_speed;
+        App_SharedStateMachine_Tick(state_machine);
+        EXPECT_EQ(
+            true, App_CanTx_GetPeriodicSignal_WHEEL_SPEED_NON_CRITICAL_FAULT(
+                      can_tx_interface));
+
+        //Testing both wheel speeds values above the threshold
+        fake_left_wheel_speed++;
+        fake_right_wheel_speed = 200.0f;
+        get_left_wheel_speed_fake.return_val  = fake_left_wheel_speed;
+        get_right_wheel_speed_fake.return_val = fake_right_wheel_speed;
+        App_SharedStateMachine_Tick(state_machine);
+        EXPECT_EQ(
+            true, App_CanTx_GetPeriodicSignal_WHEEL_SPEED_NON_CRITICAL_FAULT(
+                      can_tx_interface));
+
+        // Reset both wheel speed values to reset the
+        // wheel_speed_critical_fault_flag for the next state transition
+        fake_left_wheel_speed  = 1.0f;
+        fake_right_wheel_speed = 1.0f;
+    }
+}

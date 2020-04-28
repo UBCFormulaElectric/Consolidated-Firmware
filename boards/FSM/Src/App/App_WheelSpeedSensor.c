@@ -37,8 +37,9 @@ void App_WheelSpeedSensor_Destroy(
 }
 
 float App_WheelSpeedSensor_GetWheelSpeed(
-    const struct WheelSpeedSensor *const wheel_speed_sensor)
+    struct WheelSpeedSensor *const wheel_speed_sensor)
 {
+    wheel_speed_sensor->wheel_speed = wheel_speed_sensor->get_wheel_speed();
     return wheel_speed_sensor->wheel_speed;
 }
 
@@ -58,15 +59,9 @@ static enum WheelSpeedStatus
 }
 
 enum WheelSpeedStatus App_WheelSpeedSensor_GetStatus(
-    const struct WheelSpeedSensor *const wheel_speed_sensor)
-{
-    return wheel_speed_sensor->status;
-}
-
-void App_WheelSpeedSensor_Tick(
     struct WheelSpeedSensor *const wheel_speed_sensor)
 {
-    wheel_speed_sensor->wheel_speed = wheel_speed_sensor->get_wheel_speed();
     wheel_speed_sensor->status =
         App_WheelSpeedSensor_CheckStatus(wheel_speed_sensor->wheel_speed);
+    return wheel_speed_sensor->status;
 }

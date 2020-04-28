@@ -23,6 +23,12 @@ static void AirClosedStateRunOnTick(struct StateMachine *const state_machine)
     struct WheelSpeedSensor *right_wheel_speed_sensor =
         App_FsmWorld_GetRightWheelSpeedSensor(world);
 
+<<<<<<< HEAD
+=======
+    App_FlowMeter_Tick(primary_flow_meter);
+    App_FlowMeter_Tick(secondary_flow_meter);
+
+>>>>>>> remove tick, add more tests for fault state
     App_SetPeriodicCanSignals_PrimaryFlowMeter(
         can_tx_interface, primary_flow_meter);
     App_SetPeriodicCanSignals_SecondaryFlowMeter(
