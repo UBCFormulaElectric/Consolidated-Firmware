@@ -6,12 +6,12 @@ struct RotarySwitch;
 
 enum DriveMode
 {
-    DRIVE_MODE_INVALID,
     DRIVE_MODE1,
     DRIVE_MODE2,
     DRIVE_MODE3,
     DRIVE_MODE4,
     DRIVE_MODE5,
+    DRIVE_MODE_INVALID,
     NUM_DRIVE_MODE,
 };
 
