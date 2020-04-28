@@ -90,7 +90,7 @@ struct SevenSegDisplay *  middle_seven_seg_display;
 struct SevenSegDisplay *  right_seven_seg_display;
 struct SevenSegDisplays * seven_seg_displays;
 struct HeartbeatMonitor * heartbeat_monitor;
-struct RotarySwitch* rotary_switch;
+struct RotarySwitch *     rotary_switch;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -488,30 +488,19 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : DRIVE_MODE5_Pin DRIVE_MODE1_Pin */
-    GPIO_InitStruct.Pin  = DRIVE_MODE5_Pin | DRIVE_MODE1_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+    /*Configure GPIO pins : DRIVE_MODE5_Pin DRIVE_MODE1_Pin TRAC_CTRL_Pin
+       TORQ_VECT_Pin IGNTN_Pin */
+    GPIO_InitStruct.Pin = DRIVE_MODE5_Pin | DRIVE_MODE1_Pin | TRAC_CTRL_Pin |
+                          TORQ_VECT_Pin | IGNTN_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
     /*Configure GPIO pins : DRIVE_MODE4_Pin DRIVE_MODE3_Pin DRIVE_MODE2_Pin */
     GPIO_InitStruct.Pin  = DRIVE_MODE4_Pin | DRIVE_MODE3_Pin | DRIVE_MODE2_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : TRAC_CTRL_Pin TORQ_VECT_Pin IGNTN_Pin */
-    GPIO_InitStruct.Pin  = TRAC_CTRL_Pin | TORQ_VECT_Pin | IGNTN_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-    /* EXTI interrupt init*/
-    HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
-    HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
-
-    HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
-    HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 }
 
 /* USER CODE BEGIN 4 */

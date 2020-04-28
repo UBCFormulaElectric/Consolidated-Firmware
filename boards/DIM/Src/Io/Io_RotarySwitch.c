@@ -10,23 +10,27 @@ void Io_RotarySwitch_Init(void)
     {
         drive_mode = DRIVE_MODE1;
     }
-    else if (HAL_GPIO_ReadPin(DRIVE_MODE2_GPIO_Port, DRIVE_MODE2_Pin) ==
+    else if (
+        HAL_GPIO_ReadPin(DRIVE_MODE2_GPIO_Port, DRIVE_MODE2_Pin) ==
         GPIO_PIN_SET)
     {
         drive_mode = DRIVE_MODE2;
     }
-    else if (HAL_GPIO_ReadPin(DRIVE_MODE3_GPIO_Port, DRIVE_MODE3_Pin) ==
-             GPIO_PIN_SET)
+    else if (
+        HAL_GPIO_ReadPin(DRIVE_MODE3_GPIO_Port, DRIVE_MODE3_Pin) ==
+        GPIO_PIN_SET)
     {
         drive_mode = DRIVE_MODE3;
     }
-    else if (HAL_GPIO_ReadPin(DRIVE_MODE4_GPIO_Port, DRIVE_MODE4_Pin) ==
-             GPIO_PIN_SET)
+    else if (
+        HAL_GPIO_ReadPin(DRIVE_MODE4_GPIO_Port, DRIVE_MODE4_Pin) ==
+        GPIO_PIN_SET)
     {
         drive_mode = DRIVE_MODE4;
     }
-    else if (HAL_GPIO_ReadPin(DRIVE_MODE5_GPIO_Port, DRIVE_MODE5_Pin) ==
-             GPIO_PIN_SET)
+    else if (
+        HAL_GPIO_ReadPin(DRIVE_MODE5_GPIO_Port, DRIVE_MODE5_Pin) ==
+        GPIO_PIN_SET)
     {
         drive_mode = DRIVE_MODE5;
     }
