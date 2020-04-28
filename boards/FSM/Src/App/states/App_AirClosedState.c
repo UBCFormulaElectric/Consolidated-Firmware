@@ -31,6 +31,9 @@ static void AirClosedStateRunOnTick(struct StateMachine *const state_machine)
         can_tx_interface, left_wheel_speed_sensor);
     App_SetPeriodicCanSignals_RightWheelSpeedSensor(
         can_tx_interface, right_wheel_speed_sensor);
+
+    App_SetPeriodicCanSignals_WheelSpeedNonCriticalFault(
+        can_tx_interface, left_wheel_speed_sensor, right_wheel_speed_sensor);
 }
 
 static void AirClosedStateRunOnExit(struct StateMachine *const state_machine)
