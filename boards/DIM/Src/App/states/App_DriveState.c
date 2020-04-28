@@ -78,7 +78,7 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
     struct HeartbeatMonitor *heartbeat_monitor =
         App_DimWorld_GetHeartbeatMonitor(world);
     struct RegenPaddle * regen_paddle  = App_DimWorld_GetRegenPaddle(world);
-    struct RotarySwitch *rotary_switch = App_DimWorld_GetRotarySwitch(world);
+    struct RotarySwitch *rotary_switch = App_DimWorld_GetDriveModeSwitch(world);
 
     uint32_t buffer;
 

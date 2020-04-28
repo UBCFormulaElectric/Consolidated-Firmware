@@ -93,7 +93,7 @@ struct SevenSegDisplay *  right_seven_seg_display;
 struct SevenSegDisplays * seven_seg_displays;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RegenPaddle *      regen_paddle;
-struct RotarySwitch *     rotary_switch;
+struct RotarySwitch *     drive_mode_switch;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -188,11 +188,12 @@ int main(void)
     regen_paddle =
         App_RegenPaddle_Create(Io_RegenPaddle_GetPaddlePosition, 5, 95);
 
-    rotary_switch = App_RotarySwitch_Create(Io_RotarySwitch_GetDriveMode, 6);
+    drive_mode_switch =
+        App_RotarySwitch_Create(Io_RotarySwitch_GetDriveMode, 6);
 
     world = App_DimWorld_Create(
         can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle,
-        rotary_switch);
+        drive_mode_switch);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 
