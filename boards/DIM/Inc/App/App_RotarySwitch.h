@@ -1,23 +1,14 @@
 #pragma once
 
+#include <stdint.h>
 #include "App_ErrorCode.h"
 
 struct RotarySwitch;
 
-enum DriveMode
-{
-    DRIVE_MODE1,
-    DRIVE_MODE2,
-    DRIVE_MODE3,
-    DRIVE_MODE4,
-    DRIVE_MODE5,
-    DRIVE_MODE_INVALID,
-    NUM_DRIVE_MODE,
-};
-
-struct RotarySwitch *
-         App_RotarySwitch_Create(enum DriveMode (*get_drive_mode)(void));
+struct RotarySwitch *App_RotarySwitch_Create(
+    uint32_t (*get_position)(void),
+    uint32_t num_positions);
 void     App_RotarySwitch_Destroy(struct RotarySwitch *rotary_switch);
-ExitCode App_RotarySwitch_GetDriveMode(
+ExitCode App_RotarySwitch_GetPosition(
     const struct RotarySwitch *rotary_switch,
-    enum DriveMode *           returned_drive_mode);
+    uint32_t *                 returned_position);

@@ -172,9 +172,9 @@ TEST_F(
     DimStateMachineTest,
     check_drive_mode_is_broadcasted_over_can_in_drive_state)
 {
-    get_drive_mode_fake.return_val = DRIVE_MODE3;
+    get_position_fake.return_val = 2;
     App_SharedStateMachine_Tick(state_machine);
     ASSERT_EQ(
-        get_drive_mode_fake.return_val,
+        CANMSGS_DIM_ROTARY_SWITCH_DRIVE_MODE_DRIVE_MODE_3_CHOICE,
         App_CanTx_GetPeriodicSignal_DRIVE_MODE(can_tx_interface));
 }

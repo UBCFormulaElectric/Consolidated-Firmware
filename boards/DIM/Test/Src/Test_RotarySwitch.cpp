@@ -1,10 +1,11 @@
 #include "Test_RotarySwitch.h"
 
-DEFINE_FAKE_VALUE_FUNC(enum DriveMode, get_drive_mode);
+DEFINE_FAKE_VALUE_FUNC(uint32_t, get_position);
 
 void RotarySwitchTest::SetUp()
 {
-    rotary_switch = App_RotarySwitch_Create(get_drive_mode);
+    rotary_switch =
+        App_RotarySwitch_Create(get_position, NUM_ROTARY_SWITCH_POSITIONS);
 }
 
 void RotarySwitchTest::TearDown()
@@ -14,29 +15,28 @@ void RotarySwitchTest::TearDown()
     rotary_switch = NULL;
 }
 
-TEST_F(RotarySwitchTest, valid_drive_mode)
+TEST_F(RotarySwitchTest, valid_switch_position)
 {
-    enum DriveMode buffer = NUM_DRIVE_MODE;
+    uint32_t buffer = NUM_ROTARY_SWITCH_POSITIONS;
 
-    for (int mode = DRIVE_MODE1; mode != NUM_DRIVE_MODE; mode++)
+    for (size_t pos = 0; pos != NUM_ROTARY_SWITCH_POSITIONS; pos++)
     {
-        get_drive_mode_fake.return_val = (enum DriveMode)mode;
+        get_position_fake.return_val = (uint32_t)pos;
 
         ASSERT_EQ(
-            EXIT_CODE_OK,
-            App_RotarySwitch_GetDriveMode(rotary_switch, &buffer));
-        ASSERT_EQ(get_drive_mode_fake.return_val, buffer);
+            EXIT_CODE_OK, App_RotarySwitch_GetPosition(rotary_switch, &buffer));
+        ASSERT_EQ(get_position_fake.return_val, buffer);
     }
 }
 
-TEST_F(RotarySwitchTest, invalid_drive_mode)
+TEST_F(RotarySwitchTest, invalid_switch_position)
 {
-    enum DriveMode buffer = DRIVE_MODE1;
+    uint32_t buffer = 0;
 
-    get_drive_mode_fake.return_val = NUM_DRIVE_MODE;
+    get_position_fake.return_val = NUM_ROTARY_SWITCH_POSITIONS;
 
     ASSERT_EQ(
         EXIT_CODE_OUT_OF_RANGE,
-        App_RotarySwitch_GetDriveMode(rotary_switch, &buffer));
-    ASSERT_EQ(get_drive_mode_fake.return_val, buffer);
+        App_RotarySwitch_GetPosition(rotary_switch, &buffer));
+    ASSERT_EQ(get_position_fake.return_val, buffer);
 }

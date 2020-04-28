@@ -4,6 +4,62 @@
 #include "App_SevenSegDisplays.h"
 #include "App_ErrorCode.h"
 
+static void App_SetPeriodicCanSignals_DriveMode(
+    struct DimCanTxInterface *can_tx,
+    uint32_t                  switch_position)
+{
+    switch (switch_position)
+    {
+        case 0:
+        {
+            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
+                can_tx,
+                CANMSGS_DIM_ROTARY_SWITCH_DRIVE_MODE_DRIVE_MODE_1_CHOICE);
+        }
+        break;
+        case 1:
+        {
+            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
+                can_tx,
+                CANMSGS_DIM_ROTARY_SWITCH_DRIVE_MODE_DRIVE_MODE_2_CHOICE);
+        }
+        break;
+        case 2:
+        {
+            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
+                can_tx,
+                CANMSGS_DIM_ROTARY_SWITCH_DRIVE_MODE_DRIVE_MODE_3_CHOICE);
+        }
+        break;
+        case 3:
+        {
+            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
+                can_tx,
+                CANMSGS_DIM_ROTARY_SWITCH_DRIVE_MODE_DRIVE_MODE_4_CHOICE);
+        }
+        break;
+        case 4:
+        {
+            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
+                can_tx,
+                CANMSGS_DIM_ROTARY_SWITCH_DRIVE_MODE_DRIVE_MODE_5_CHOICE);
+        }
+        break;
+        case 5:
+        {
+            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
+                can_tx,
+                CANMSGS_DIM_ROTARY_SWITCH_DRIVE_MODE_DRIVE_MODE_INVALID_CHOICE);
+        }
+        break;
+        default:
+        {
+            // Should never reach here
+            break;
+        }
+    }
+}
+
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct DimWorld *world = App_SharedStateMachine_GetWorld(state_machine);
@@ -42,10 +98,9 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
         seven_seg_displays,
         App_CanRx_BMS_STATE_OF_CHARGE_GetSignal_STATE_OF_CHARGE(can_rx));
 
-    enum DriveMode drive_mode;
-    if (EXIT_CODE_OK(App_RotarySwitch_GetDriveMode(rotary_switch, &drive_mode)))
+    if (EXIT_CODE_OK(App_RotarySwitch_GetPosition(rotary_switch, &buffer)))
     {
-        App_CanTx_SetPeriodicSignal_DRIVE_MODE(can_tx, drive_mode);
+        App_SetPeriodicCanSignals_DriveMode(can_tx, buffer);
     }
 
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);

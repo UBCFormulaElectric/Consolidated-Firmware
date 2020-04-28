@@ -2,4 +2,4 @@
 
 #include "App_RotarySwitch.h"
 
-enum DriveMode Io_RotarySwitch_GetDriveMode(void);
+uint32_t Io_RotarySwitch_GetDriveMode(void);

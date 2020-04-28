@@ -188,7 +188,7 @@ int main(void)
     regen_paddle =
         App_RegenPaddle_Create(Io_RegenPaddle_GetPaddlePosition, 5, 95);
 
-    rotary_switch = App_RotarySwitch_Create(Io_RotarySwitch_GetDriveMode);
+    rotary_switch = App_RotarySwitch_Create(Io_RotarySwitch_GetDriveMode, 6);
 
     world = App_DimWorld_Create(
         can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle,

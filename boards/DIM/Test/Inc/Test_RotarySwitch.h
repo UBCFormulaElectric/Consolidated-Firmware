@@ -7,7 +7,7 @@ extern "C"
 #include "App_RotarySwitch.h"
 }
 
-DECLARE_FAKE_VALUE_FUNC(enum DriveMode, get_drive_mode);
+DECLARE_FAKE_VALUE_FUNC(uint32_t, get_position);
 
 class RotarySwitchTest : public virtual testing::Test
 {
@@ -16,4 +16,5 @@ class RotarySwitchTest : public virtual testing::Test
     void TearDown() override;
 
     struct RotarySwitch *rotary_switch;
+    const uint32_t       NUM_ROTARY_SWITCH_POSITIONS = 6;
 };
