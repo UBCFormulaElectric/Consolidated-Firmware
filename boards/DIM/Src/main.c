@@ -125,6 +125,33 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count)
 int main(void)
 {
     /* USER CODE BEGIN 1 */
+
+    /* USER CODE END 1 */
+
+    /* MCU
+     * Configuration--------------------------------------------------------*/
+
+    /* Reset of all peripherals, Initializes the Flash interface and the
+     * Systick. */
+    HAL_Init();
+
+    /* USER CODE BEGIN Init */
+
+    /* USER CODE END Init */
+
+    /* Configure the system clock */
+    SystemClock_Config();
+
+    /* USER CODE BEGIN SysInit */
+
+    /* USER CODE END SysInit */
+
+    /* Initialize all configured peripherals */
+    MX_GPIO_Init();
+    MX_CAN_Init();
+    MX_ADC2_Init();
+    MX_SPI2_Init();
+    /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
     Io_SharedHardFaultHandler_Init();
 
@@ -155,32 +182,7 @@ int main(void)
         can_tx, can_rx, seven_seg_displays, heartbeat_monitor);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
-    /* USER CODE END 1 */
 
-    /* MCU
-     * Configuration--------------------------------------------------------*/
-
-    /* Reset of all peripherals, Initializes the Flash interface and the
-     * Systick. */
-    HAL_Init();
-
-    /* USER CODE BEGIN Init */
-
-    /* USER CODE END Init */
-
-    /* Configure the system clock */
-    SystemClock_Config();
-
-    /* USER CODE BEGIN SysInit */
-
-    /* USER CODE END SysInit */
-
-    /* Initialize all configured peripherals */
-    MX_GPIO_Init();
-    MX_CAN_Init();
-    MX_ADC2_Init();
-    MX_SPI2_Init();
-    /* USER CODE BEGIN 2 */
     struct CanMsgs_dim_startup_t payload = { .dummy = 0 };
     App_CanTx_SendNonPeriodicMsg_DIM_STARTUP(can_tx, &payload);
     /* USER CODE END 2 */
