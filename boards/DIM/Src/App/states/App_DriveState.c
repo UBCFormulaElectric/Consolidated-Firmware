@@ -98,7 +98,8 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
         seven_seg_displays,
         App_CanRx_BMS_STATE_OF_CHARGE_GetSignal_STATE_OF_CHARGE(can_rx));
 
-    if (EXIT_CODE_OK(App_RotarySwitch_GetPosition(rotary_switch, &buffer)))
+    if (EXIT_CODE_OK(
+            App_RotarySwitch_GetSwitchPosition(rotary_switch, &buffer)))
     {
         App_SetPeriodicCanSignals_DriveMode(can_tx, buffer);
     }

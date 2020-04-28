@@ -27,6 +27,7 @@ void App_RegenPaddle_Destroy(struct RegenPaddle *regen_paddle);
  * Get the raw paddle position for the given regen paddle, where 0 means not
  * pressed at all and 100 means pressed all the way
  * @param regen_paddle The regen paddle to get raw paddle position for
+ * @param returned_raw_paddle_position Buffer to hold the raw paddle position
  * @return ERROR_CODE_OUT_OF_RANGE If we read a raw paddle position that is not
  *                                 between 0 to 100 inclusive
  */
@@ -38,6 +39,8 @@ ExitCode App_RegenPaddle_GetRawPaddlePosition(
  * Get the mapped paddle position for the given regen paddle, where 0 means no
  * regen and 100 means maximum regen
  * @param regen_paddle The regen paddle to get mapped paddle position for
+ * @param returned_mapped_paddle_position Buffer to hold the mapped paddle
+ *                                        position
  * @return ERROR_CODE_OUT_OF_RANGE If we read a raw paddle position that is not
  *                                 between 0 to 100 inclusive
  */

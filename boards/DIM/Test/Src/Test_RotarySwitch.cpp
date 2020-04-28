@@ -24,7 +24,8 @@ TEST_F(RotarySwitchTest, valid_switch_position)
         get_position_fake.return_val = (uint32_t)pos;
 
         ASSERT_EQ(
-            EXIT_CODE_OK, App_RotarySwitch_GetPosition(rotary_switch, &buffer));
+            EXIT_CODE_OK,
+            App_RotarySwitch_GetSwitchPosition(rotary_switch, &buffer));
         ASSERT_EQ(get_position_fake.return_val, buffer);
     }
 }
@@ -37,6 +38,6 @@ TEST_F(RotarySwitchTest, invalid_switch_position)
 
     ASSERT_EQ(
         EXIT_CODE_OUT_OF_RANGE,
-        App_RotarySwitch_GetPosition(rotary_switch, &buffer));
+        App_RotarySwitch_GetSwitchPosition(rotary_switch, &buffer));
     ASSERT_EQ(get_position_fake.return_val, buffer);
 }
