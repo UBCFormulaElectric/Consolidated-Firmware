@@ -16,10 +16,8 @@ enum DriveMode
 };
 
 struct RotarySwitch *
-    App_RotarySwitch_Create(enum DriveMode (*get_drive_mode)(void));
-
-void App_RotarySwitch_Destroy(struct RotarySwitch *rotary_switch);
-
+         App_RotarySwitch_Create(enum DriveMode (*get_drive_mode)(void));
+void     App_RotarySwitch_Destroy(struct RotarySwitch *rotary_switch);
 ExitCode App_RotarySwitch_GetDriveMode(
     const struct RotarySwitch *rotary_switch,
     enum DriveMode *           returned_drive_mode);
