@@ -190,7 +190,6 @@ int main(void)
     struct CanMsgs_dim_startup_t payload = { .dummy = 0 };
     App_CanTx_SendNonPeriodicMsg_DIM_STARTUP(can_tx, &payload);
 
-    Io_RotarySwitch_Init();
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
