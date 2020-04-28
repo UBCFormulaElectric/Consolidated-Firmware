@@ -42,13 +42,13 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
         seven_seg_displays,
         App_CanRx_BMS_STATE_OF_CHARGE_GetSignal_STATE_OF_CHARGE(can_rx));
 
-    App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
-
     enum DriveMode drive_mode;
     if (EXIT_CODE_OK(App_RotarySwitch_GetDriveMode(rotary_switch, &drive_mode)))
     {
         App_CanTx_SetPeriodicSignal_DRIVE_MODE(can_tx, drive_mode);
     }
+
+    App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
 }
 
 static void DriveStateRunOnExit(struct StateMachine *const state_machine)
