@@ -35,6 +35,7 @@
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_RegenPaddle.h"
+#include "App_SharedRgbLedSequence.h"
 
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
@@ -44,6 +45,7 @@
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RegenPaddle.h"
+#include "Io_RgbLedSequence.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -91,6 +93,7 @@ struct SevenSegDisplay *  right_seven_seg_display;
 struct SevenSegDisplays * seven_seg_displays;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RegenPaddle *      regen_paddle;
+struct RgbLedSequence *   rgb_led_sequence;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -183,6 +186,10 @@ int main(void)
 
     regen_paddle =
         App_RegenPaddle_Create(Io_RegenPaddle_GetPaddlePosition, 5, 95);
+
+    rgb_led_sequence = App_SharedRgbLedSequence_Create(
+        Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
+        Io_RgbLedSequence_TurnOnGreenLed);
 
     world = App_DimWorld_Create(
         can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle);
@@ -519,11 +526,12 @@ void RunTask100Hz(void const *argument)
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
     uint32_t                PreviousWakeTime = osKernelSysTick();
-    static const TickType_t period_ms        = 10;
+    static const TickType_t period_ms        = 1000;
 
     /* Infinite loop */
     for (;;)
     {
+        App_SharedRgbLedSequence_Tick(rgb_led_sequence);
         App_SharedStateMachine_Tick(state_machine);
         osDelayUntil(&PreviousWakeTime, period_ms);
     }
