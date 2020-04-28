@@ -25,7 +25,6 @@ TEST_F(RotarySwitchTest, valid_drive_mode)
         ASSERT_EQ(
             EXIT_CODE_OK,
             App_RotarySwitch_GetDriveMode(rotary_switch, &buffer));
-
         ASSERT_EQ(get_drive_mode_fake.return_val, buffer);
     }
 }
@@ -39,6 +38,5 @@ TEST_F(RotarySwitchTest, invalid_drive_mode)
     ASSERT_EQ(
         EXIT_CODE_OUT_OF_RANGE,
         App_RotarySwitch_GetDriveMode(rotary_switch, &buffer));
-
     ASSERT_EQ(get_drive_mode_fake.return_val, buffer);
 }
