@@ -37,15 +37,15 @@ void App_SetPeriodicCanSignals_RightWheelSpeedSensor(
 
 void App_SetPeriodicCanSignals_WheelSpeedNonCriticalFault(
     struct FsmCanTxInterface *can_tx,
-    struct WheelSpeedSensor * left_wheel_sensor,
-    struct WheelSpeedSensor * right_wheel_sensor)
+    struct WheelSpeedSensor * left_wheel_speed_sensor,
+    struct WheelSpeedSensor * right_wheel_speed_sensor)
 {
-    const enum WheelSpeedStatus left_wheel_status =
-        App_WheelSpeedSensor_GetStatus(left_wheel_sensor);
-    const enum WheelSpeedStatus right_wheel_status =
-        App_WheelSpeedSensor_GetStatus(right_wheel_sensor);
+    const enum WheelSpeedFaultStatus left_wheel_speed_status =
+        App_WheelSpeedSensor_GetFaultStatus(left_wheel_speed_sensor);
+    const enum WheelSpeedFaultStatus right_wheel_speed_status =
+        App_WheelSpeedSensor_GetFaultStatus(right_wheel_speed_sensor);
 
     App_CanTx_SetPeriodicSignal_WHEEL_SPEED_NON_CRITICAL_FAULT(
-        can_tx, (left_wheel_status == WHEEL_SPEED_NON_CRITICAL_FAULT ||
-                 right_wheel_status == WHEEL_SPEED_NON_CRITICAL_FAULT));
+        can_tx, (left_wheel_speed_status == WHEEL_SPEED_NON_CRITICAL_FAULT ||
+                 right_wheel_speed_status == WHEEL_SPEED_NON_CRITICAL_FAULT));
 }

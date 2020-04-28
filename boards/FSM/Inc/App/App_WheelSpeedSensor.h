@@ -2,7 +2,7 @@
 
 struct WheelSpeedSensor;
 
-enum WheelSpeedStatus
+enum WheelSpeedFaultStatus
 {
     WHEEL_SPEED_NORMAL,
     WHEEL_SPEED_NON_CRITICAL_FAULT
@@ -16,9 +16,27 @@ enum WheelSpeedStatus
  * to the caller
  */
 struct WheelSpeedSensor *
-      App_WheelSpeedSensor_Create(float (*get_wheel_speed)(void));
-void  App_WheelSpeedSensor_Destroy(struct WheelSpeedSensor *wheel_speed_sensor);
+    App_WheelSpeedSensor_Create(float (*get_wheel_speed)(void));
+
+/**
+ * Destroying the wheel speed sensor object freeing any memory that it uses
+ * @param wheel_speed_sensor The wheel speed sensor to destroy
+ */
+void App_WheelSpeedSensor_Destroy(struct WheelSpeedSensor *wheel_speed_sensor);
+
+/**
+ * Get the wheel speed in km/h from a wheel speed sensor
+ * @param wheel_speed_sensor The wheel speed sensor to acquire and update the
+ * wheel speed from
+ * @return The wheel speed in km/h
+ */
 float App_WheelSpeedSensor_GetWheelSpeed(
     struct WheelSpeedSensor *wheel_speed_sensor);
-enum WheelSpeedStatus
-    App_WheelSpeedSensor_GetStatus(struct WheelSpeedSensor *wheel_speed_sensor);
+
+/**
+ * Get the fault status from a wheel speed sensor
+ * @param wheel_speed_sensor The wheel speed sensor to get the fault status from
+ * @return The fault status of the given wheel speed sensor
+ */
+enum WheelSpeedFaultStatus App_WheelSpeedSensor_GetFaultStatus(
+    struct WheelSpeedSensor *wheel_speed_sensor);

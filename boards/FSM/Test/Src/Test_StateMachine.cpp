@@ -237,53 +237,45 @@ TEST_F(
     // speeds measured is (1) Inactive or (2) Greater than 150 km/h. The
     // Wheel_Speed_Non_Critical_Fault flag is set to 1 while active
 
-    float fake_left_wheel_speed  = 1.0f;
-    float fake_right_wheel_speed = 1.0f;
-
     for (const auto &state : GetAllStates())
     {
-        //Testing both wheel speeds below the threshold
+        // Testing both wheel speeds below the threshold
         SetInitialState(state);
-        get_left_wheel_speed_fake.return_val  = fake_left_wheel_speed;
-        get_right_wheel_speed_fake.return_val = fake_right_wheel_speed;
+        get_left_wheel_speed_fake.return_val  = 1.0f;
+        get_right_wheel_speed_fake.return_val = 1.0f;
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_EQ(
             false, App_CanTx_GetPeriodicSignal_WHEEL_SPEED_NON_CRITICAL_FAULT(
                        can_tx_interface));
 
-        //Testing the right wheel speed above the threshold
-        fake_left_wheel_speed++;
-        fake_right_wheel_speed                = 200.0f;
-        get_left_wheel_speed_fake.return_val  = fake_left_wheel_speed;
-        get_right_wheel_speed_fake.return_val = fake_right_wheel_speed;
+        // Testing the right wheel speed above the threshold while the left
+        // wheel speed is below the threshold
+
+        // To avoid false positives, we use a different left wheel speed
+        get_left_wheel_speed_fake.return_val  = 2.0f;
+        get_right_wheel_speed_fake.return_val = 200.0f;
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_EQ(
             true, App_CanTx_GetPeriodicSignal_WHEEL_SPEED_NON_CRITICAL_FAULT(
                       can_tx_interface));
 
-        //Testing the left wheel speed above the threshold
-        fake_left_wheel_speed = 200.0f;
-        fake_right_wheel_speed = 10.0f;
-        get_left_wheel_speed_fake.return_val  = fake_left_wheel_speed;
-        get_right_wheel_speed_fake.return_val = fake_right_wheel_speed;
+        // Testing the left wheel speed above the threshold while the right
+        // wheel speed is below the threshold
+        get_left_wheel_speed_fake.return_val  = 200.0f;
+        get_right_wheel_speed_fake.return_val = 2.0f;
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_EQ(
             true, App_CanTx_GetPeriodicSignal_WHEEL_SPEED_NON_CRITICAL_FAULT(
                       can_tx_interface));
 
-        //Testing both wheel speeds values above the threshold
-        fake_left_wheel_speed++;
-        fake_right_wheel_speed = 200.0f;
-        get_left_wheel_speed_fake.return_val  = fake_left_wheel_speed;
-        get_right_wheel_speed_fake.return_val = fake_right_wheel_speed;
+        // Testing both wheel speed values which are above the threshold
+
+        // To avoid false positives, we use a different left wheel speed
+        get_left_wheel_speed_fake.return_val  = 201.0f;
+        get_right_wheel_speed_fake.return_val = 200.0f;
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_EQ(
             true, App_CanTx_GetPeriodicSignal_WHEEL_SPEED_NON_CRITICAL_FAULT(
                       can_tx_interface));
-
-        // Reset both wheel speed values to reset the
-        // wheel_speed_critical_fault_flag for the next state transition
-        fake_left_wheel_speed  = 1.0f;
-        fake_right_wheel_speed = 1.0f;
     }
 }

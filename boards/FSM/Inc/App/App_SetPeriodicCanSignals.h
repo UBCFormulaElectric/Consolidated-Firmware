@@ -22,5 +22,5 @@ void App_SetPeriodicCanSignals_RightWheelSpeedSensor(
 
 void App_SetPeriodicCanSignals_WheelSpeedNonCriticalFault(
     struct FsmCanTxInterface *can_tx,
-    struct WheelSpeedSensor * left_wheel_sensor,
-    struct WheelSpeedSensor * right_wheel_sensor);
+    struct WheelSpeedSensor * left_wheel_speed_sensor,
+    struct WheelSpeedSensor * right_wheel_speed_sensor);

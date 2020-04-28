@@ -137,6 +137,7 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count)
 int main(void)
 {
     /* USER CODE BEGIN 1 */
+<<<<<<< HEAD
     __HAL_DBGMCU_FREEZE_IWDG();
     Io_SharedHardFaultHandler_Init();
 
@@ -160,6 +161,9 @@ int main(void)
 
     App_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
+=======
+
+>>>>>>> wip
     /* USER CODE END 1 */
 
     /* MCU
@@ -227,7 +231,8 @@ int main(void)
 
     world = App_FsmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, primary_flow_meter,
-        secondary_flow_meter, left_wheel_speed_sensor, right_wheel_speed_sensor);
+        secondary_flow_meter, left_wheel_speed_sensor,
+        right_wheel_speed_sensor);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 

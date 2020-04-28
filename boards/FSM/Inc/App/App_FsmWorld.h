@@ -27,6 +27,8 @@ struct FsmWorld *App_FsmWorld_Create(
     struct RgbLedSequence *   rgb_led_sequence);
     struct WheelSpeedSensor * left_wheel_speed,
     struct WheelSpeedSensor * right_wheel_speed);
+    struct WheelSpeedSensor * left_wheel_speed_sensor,
+    struct WheelSpeedSensor * right_wheel_speed_sensor);
 
 /**
  * Deallocate the memory used by the given world
