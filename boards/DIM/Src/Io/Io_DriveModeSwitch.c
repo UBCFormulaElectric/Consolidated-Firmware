@@ -1,7 +1,7 @@
 #include "main.h"
-#include "Io_RotarySwitch.h"
+#include "Io_DriveModeSwitch.h"
 
-uint32_t Io_RotarySwitch_GetDriveMode(void)
+uint32_t Io_DriveModeSwitch_GetPosition(void)
 {
     uint32_t position = -1;
 

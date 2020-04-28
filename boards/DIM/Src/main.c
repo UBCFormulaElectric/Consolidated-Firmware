@@ -45,7 +45,7 @@
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RegenPaddle.h"
-#include "Io_RotarySwitch.h"
+#include "Io_DriveModeSwitch.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -189,7 +189,7 @@ int main(void)
         App_RegenPaddle_Create(Io_RegenPaddle_GetPaddlePosition, 5, 95);
 
     drive_mode_switch =
-        App_RotarySwitch_Create(Io_RotarySwitch_GetDriveMode, 6);
+        App_RotarySwitch_Create(Io_DriveModeSwitch_GetPosition, 6);
 
     world = App_DimWorld_Create(
         can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle,

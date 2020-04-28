@@ -2,26 +2,6 @@
 #include <assert.h>
 #include "App_RotarySwitch.h"
 
-// static_assert(
-//    DRIVE_MODE1 == CANMSGS_DIM_ROTARY_SWITCH_DRIVE_MODE_DRIVE_MODE_1_CHOICE,
-//    "DRIVE_MODE1 must match its DBC signal choice");
-// static_assert(
-//    DRIVE_MODE2 == CANMSGS_DIM_ROTARY_SWITCH_DRIVE_MODE_DRIVE_MODE_2_CHOICE,
-//    "DRIVE_MODE2 must match its DBC signal choice");
-// static_assert(
-//    DRIVE_MODE3 == CANMSGS_DIM_ROTARY_SWITCH_DRIVE_MODE_DRIVE_MODE_3_CHOICE,
-//    "DRIVE_MODE3 must match its DBC signal choice");
-// static_assert(
-//    DRIVE_MODE4 == CANMSGS_DIM_ROTARY_SWITCH_DRIVE_MODE_DRIVE_MODE_4_CHOICE,
-//    "DRIVE_MODE4 must match its DBC signal choice");
-// static_assert(
-//    DRIVE_MODE5 == CANMSGS_DIM_ROTARY_SWITCH_DRIVE_MODE_DRIVE_MODE_5_CHOICE,
-//    "DRIVE_MODE5 must match its DBC signal choice");
-// static_assert(
-//    DRIVE_MODE_INVALID ==
-//        CANMSGS_DIM_ROTARY_SWITCH_DRIVE_MODE_DRIVE_MODE_INVALID_CHOICE,
-//    "DRIVE_MODE_INVALID must match its DBC signal choice");
-
 struct RotarySwitch
 {
     uint32_t (*get_position)(void);
