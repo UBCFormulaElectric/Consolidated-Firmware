@@ -19,7 +19,8 @@ struct RotarySwitch *App_RotarySwitch_Create(
 void App_RotarySwitch_Destroy(struct RotarySwitch *rotary_switch);
 
 /**
- * Get the switch position for the given rotary switch
+ * Get the switch position for the given rotary switch, which starts counting
+ * from 0 (e.g. A 6-position rotary switch would have position 0 to position 5)
  * @param rotary_switch The rotary switch to get switch position for
  * @param returned_switch_position Buffer to hold the switch position
  * @return EXIT_CODE_OUT_OF_RANGE If the switch position exceeds the total
