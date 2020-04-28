@@ -2,11 +2,6 @@
 
 #include "Test_Dim.h"
 
-extern "C"
-{
-#include "App_RotarySwitch.h"
-}
-
 DECLARE_FAKE_VALUE_FUNC(uint32_t, get_position);
 
 class RotarySwitchTest : public virtual testing::Test

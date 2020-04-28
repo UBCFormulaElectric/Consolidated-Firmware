@@ -1,5 +1,10 @@
 #include "Test_RotarySwitch.h"
 
+extern "C"
+{
+#include "App_RotarySwitch.h"
+}
+
 DEFINE_FAKE_VALUE_FUNC(uint32_t, get_position);
 
 void RotarySwitchTest::SetUp()
