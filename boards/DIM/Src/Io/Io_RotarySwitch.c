@@ -5,6 +5,7 @@ enum DriveMode Io_RotarySwitch_GetDriveMode(void)
 {
     enum DriveMode drive_mode = DRIVE_MODE_INVALID;
 
+    // The DRIVE_MODE pins are active high
     if (HAL_GPIO_ReadPin(DRIVE_MODE1_GPIO_Port, DRIVE_MODE1_Pin) ==
         GPIO_PIN_SET)
     {

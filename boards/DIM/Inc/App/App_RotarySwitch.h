@@ -2,6 +2,8 @@
 
 #include "App_ErrorCode.h"
 
+struct RotarySwitch;
+
 enum DriveMode
 {
     DRIVE_MODE_INVALID,
@@ -12,8 +14,6 @@ enum DriveMode
     DRIVE_MODE5,
     NUM_DRIVE_MODE,
 };
-
-struct RotarySwitch;
 
 struct RotarySwitch *
     App_RotarySwitch_Create(enum DriveMode (*get_drive_mode)(void));
