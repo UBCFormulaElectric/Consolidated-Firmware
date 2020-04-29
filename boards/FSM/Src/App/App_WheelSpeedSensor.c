@@ -6,7 +6,6 @@
 
 struct WheelSpeedSensor
 {
-    float wheel_speed;
     float (*get_wheel_speed)(void);
 
     enum WheelSpeedFaultStatus status;
@@ -24,7 +23,6 @@ struct WheelSpeedSensor *
 
     assert(wheel_speed_sensor != NULL);
 
-    wheel_speed_sensor->wheel_speed     = NAN;
     wheel_speed_sensor->get_wheel_speed = get_wheel_speed;
     wheel_speed_sensor->status          = WHEEL_SPEED_NORMAL;
 
@@ -40,8 +38,7 @@ void App_WheelSpeedSensor_Destroy(
 float App_WheelSpeedSensor_GetWheelSpeed(
     struct WheelSpeedSensor *const wheel_speed_sensor)
 {
-    wheel_speed_sensor->wheel_speed = wheel_speed_sensor->get_wheel_speed();
-    return wheel_speed_sensor->wheel_speed;
+    return wheel_speed_sensor->get_wheel_speed();
 }
 
 static enum WheelSpeedFaultStatus
@@ -58,6 +55,6 @@ enum WheelSpeedFaultStatus App_WheelSpeedSensor_GetFaultStatus(
     struct WheelSpeedSensor *const wheel_speed_sensor)
 {
     wheel_speed_sensor->status =
-        App_WheelSpeedSensor_CheckStatus(wheel_speed_sensor->wheel_speed);
+        App_WheelSpeedSensor_CheckStatus(wheel_speed_sensor->get_wheel_speed());
     return wheel_speed_sensor->status;
 }

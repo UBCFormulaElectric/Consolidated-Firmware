@@ -27,7 +27,7 @@ class WheelSpeedSensorTest : public testing::Test
     struct WheelSpeedSensor *wheel_speed_sensor;
 };
 
-TEST_F(WheelSpeedSensorTest, check_if_wheel_speed_is_updated_after_tick)
+TEST_F(WheelSpeedSensorTest, check_if_wheel_speed_is_updated)
 {
     get_wheel_speed_fake.return_val = 1.0f;
     ASSERT_EQ(

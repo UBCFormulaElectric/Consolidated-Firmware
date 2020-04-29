@@ -137,7 +137,6 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count)
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-<<<<<<< HEAD
     __HAL_DBGMCU_FREEZE_IWDG();
     Io_SharedHardFaultHandler_Init();
 
@@ -161,9 +160,6 @@ int main(void)
 
     App_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
-=======
-
->>>>>>> wip
     /* USER CODE END 1 */
 
     /* MCU
