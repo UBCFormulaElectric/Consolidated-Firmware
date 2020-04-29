@@ -35,14 +35,12 @@
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
 #include "Io_HeartbeatMonitor.h"
+#include "Io_RgbLedSequence.h"
 
 #include "App_DcmWorld.h"
-#include "App_CanTx.h"
-#include "App_CanRx.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
 #include "App_SharedConstants.h"
-#include "App_SharedHeartbeatMonitor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -85,6 +83,7 @@ struct StateMachine *     state_machine;
 struct DcmCanTxInterface *can_tx;
 struct DcmCanRxInterface *can_rx;
 struct HeartbeatMonitor * heartbeat_monitor;
+struct RgbLedSequence *   rgb_led_sequence;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -166,7 +165,12 @@ int main(void)
         Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
         Io_HeartbeatMonitor_TimeoutCallback);
 
-    world = App_DcmWorld_Create(can_tx, can_rx, heartbeat_monitor);
+    rgb_led_sequence = App_SharedRgbLedSequence_Create(
+        Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
+        Io_RgbLedSequence_TurnOnGreenLed);
+
+    world = App_DcmWorld_Create(
+        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence);
 
     App_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);

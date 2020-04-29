@@ -36,13 +36,12 @@
 #include "Io_SoftwareWatchdog.h"
 #include "Io_VoltageMonitor.h"
 #include "Io_HeartbeatMonitor.h"
+#include "Io_RgbLedSequence.h"
 
-#include "App_CanTx.h"
-#include "App_CanRx.h"
+#include "App_PdmWorld.h"
 #include "App_SharedConstants.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
-#include "App_SharedHeartbeatMonitor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -90,6 +89,7 @@ struct VoltageMonitor *   vbat_voltage_monitor;
 struct VoltageMonitor *   _24v_aux_voltage_monitor;
 struct VoltageMonitor *   _24v_acc_voltage_monitor;
 struct HeartbeatMonitor * heartbeat_monitor;
+struct RgbLedSequence *   rgb_led_sequence;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -193,9 +193,13 @@ int main(void)
         Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
         Io_HeartbeatMonitor_TimeoutCallback);
 
+    rgb_led_sequence = App_SharedRgbLedSequence_Create(
+        Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
+        Io_RgbLedSequence_TurnOnGreenLed);
+
     world = App_PdmWorld_Create(
         can_tx, can_rx, vbat_voltage_monitor, _24v_aux_voltage_monitor,
-        _24v_acc_voltage_monitor, NULL);
+        _24v_acc_voltage_monitor, heartbeat_monitor, rgb_led_sequence);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 

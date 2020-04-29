@@ -27,15 +27,9 @@
 #include <assert.h>
 
 #include "App_DimWorld.h"
-#include "App_SevenSegDisplays.h"
 #include "App_SevenSegDisplay.h"
-#include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_DriveState.h"
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "App_RegenPaddle.h"
-#include "App_SharedRgbLedSequence.h"
 
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"

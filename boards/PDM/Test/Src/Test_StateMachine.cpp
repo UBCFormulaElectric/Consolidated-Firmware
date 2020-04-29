@@ -43,6 +43,10 @@ FAKE_VOID_FUNC(
     enum HeartbeatOneHot,
     enum HeartbeatOneHot);
 
+FAKE_VOID_FUNC(turn_on_red_led);
+FAKE_VOID_FUNC(turn_on_green_led);
+FAKE_VOID_FUNC(turn_on_blue_led);
+
 class PdmStateMachineTest : public testing::Test
 {
   protected:
@@ -73,7 +77,7 @@ class PdmStateMachineTest : public testing::Test
         world = App_PdmWorld_Create(
             can_tx_interface, can_rx_interface, vbat_voltage_monitor,
             _24v_aux_voltage_monitor, _24v_acc_voltage_monitor,
-            heartbeat_monitor);
+            heartbeat_monitor, NULL);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -98,6 +102,9 @@ class PdmStateMachineTest : public testing::Test
         RESET_FAKE(_24vAccErrorCallback);
         RESET_FAKE(get_current_ms);
         RESET_FAKE(heartbeat_timeout_callback);
+        RESET_FAKE(turn_on_red_led);
+        RESET_FAKE(turn_on_green_led);
+        RESET_FAKE(turn_on_blue_led);
     }
 
     void TearDown() override
@@ -110,6 +117,7 @@ class PdmStateMachineTest : public testing::Test
         ASSERT_TRUE(_24v_acc_voltage_monitor != NULL);
         ASSERT_TRUE(state_machine != NULL);
         ASSERT_TRUE(heartbeat_monitor != NULL);
+        ASSERT_TRUE(rgb_led_sequence != NULL);
 
         App_PdmWorld_Destroy(world);
         App_CanTx_Destroy(can_tx_interface);
@@ -119,6 +127,7 @@ class PdmStateMachineTest : public testing::Test
         App_VoltageMonitor_Destroy(_24v_acc_voltage_monitor);
         App_SharedStateMachine_Destroy(state_machine);
         App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
+        App_SharedRgbLedSequence_Destroy(rgb_led_sequence);
 
         world                    = NULL;
         can_tx_interface         = NULL;
@@ -128,6 +137,7 @@ class PdmStateMachineTest : public testing::Test
         _24v_acc_voltage_monitor = NULL;
         state_machine            = NULL;
         heartbeat_monitor        = NULL;
+        rgb_led_sequence         = NULL;
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -148,6 +158,7 @@ class PdmStateMachineTest : public testing::Test
     struct VoltageMonitor *   _24v_acc_voltage_monitor;
     struct StateMachine *     state_machine;
     struct HeartbeatMonitor * heartbeat_monitor;
+    struct RgbLedSequence *   rgb_led_sequence;
 };
 
 TEST_F(PdmStateMachineTest, check_init_state_is_broadcasted_over_can)
