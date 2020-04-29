@@ -23,17 +23,6 @@ static void AirClosedStateRunOnTick(struct StateMachine *const state_machine)
     struct WheelSpeedSensor *right_wheel_speed_sensor =
         App_FsmWorld_GetRightWheelSpeedSensor(world);
 
-<<<<<<< HEAD
-=======
-    App_FlowMeter_Tick(primary_flow_meter);
-    App_FlowMeter_Tick(secondary_flow_meter);
-
->>>>>>> remove tick, add more tests for fault state
-    App_SetPeriodicCanSignals_PrimaryFlowMeter(
-        can_tx_interface, primary_flow_meter);
-    App_SetPeriodicCanSignals_SecondaryFlowMeter(
-        can_tx_interface, secondary_flow_meter);
-
     const float left_wheel_speed =
         App_Wheel_GetWheelSpeed(left_wheel_speed_sensor);
     const float right_wheel_speed =
@@ -64,6 +53,19 @@ static void AirClosedStateRunOnTick(struct StateMachine *const state_machine)
         App_CanTx_SetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
             can_tx_interface, false);
     }
+
+    App_CanTx_SetPeriodicSignal_PRIMARY_FLOW_RATE(
+        can_tx_interface, App_FlowMeter_GetFlowRate(primary_flow_meter));
+    App_CanTx_SetPeriodicSignal_SECONDARY_FLOW_RATE(
+        can_tx_interface, App_FlowMeter_GetFlowRate(secondary_flow_meter));
+    App_SetPeriodicSignals_WheelSpeed(
+        can_tx_interface, left_wheel_speed_sensor,
+        App_CanTx_SetPeriodicSignal_LEFT_WHEEL_SPEED,
+        App_CanTx_SetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE);
+    App_SetPeriodicSignals_WheelSpeed(
+        can_tx_interface, right_wheel_speed_sensor,
+        App_CanTx_SetPeriodicSignal_RIGHT_WHEEL_SPEED,
+        App_CanTx_SetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE);
 }
 
 static void AirClosedStateRunOnExit(struct StateMachine *const state_machine)
