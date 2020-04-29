@@ -443,16 +443,20 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(
-        GPIOC, BSPD_LED_Pin | DIM_RED_Pin | PDM_GREEN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, BSPD_LED_Pin | PDM_GREEN_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(DIM_RED_GPIO_Port, DIM_RED_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
         GPIOA,
-        DCM_BLUE_Pin | DIM_GREEN_Pin | DIM_BLUE_Pin | PDM_RED_Pin |
-            DCM_GREEN_Pin | PDM_BLUE_Pin | FSM_GREEN_Pin | BMS_BLUE_Pin |
-            SEVENSEG_DIMMING_3V3_Pin,
+        DCM_BLUE_Pin | PDM_RED_Pin | DCM_GREEN_Pin | PDM_BLUE_Pin |
+            FSM_GREEN_Pin | BMS_BLUE_Pin | SEVENSEG_DIMMING_3V3_Pin,
         GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GPIOA, DIM_GREEN_Pin | DIM_BLUE_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
