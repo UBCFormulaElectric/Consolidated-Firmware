@@ -235,48 +235,51 @@ TEST_F(
     check_if_wheel_speed_non_critical_fault_is_broadcasted_over_can_in_all_states)
 {
     // The FSM sends a wheel speed non-critical fault when one of the wheel
-    // speeds measured is (1) Inactive or (2) Greater than 150 km/h. The
-    // Wheel_Speed_Non_Critical_Fault flag is set to 1 while active
+    // speeds measured is greater than 150 km/h. The WHEEL_SPEED_OUT_OF_RANGE flag is set to 1 while active
+    const float wheel_speed_threshold = 150.0f;
 
     for (const auto &state : GetAllStates())
     {
-        // Testing both wheel speeds below the threshold
         SetInitialState(state);
         get_left_wheel_speed_fake.return_val  = 1.0f;
         get_right_wheel_speed_fake.return_val = 1.0f;
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_EQ(
-            false, App_CanTx_GetPeriodicSignal_WHEEL_SPEED_NON_CRITICAL_FAULT(
+            false, App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
                        can_tx_interface));
+        EXPECT_EQ(
+                false, App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
+                can_tx_interface));
 
-        // Testing the right wheel speed above the threshold while the left
-        // wheel speed is below the threshold
-
-        // To avoid false positives, we use a different left wheel speed
-        get_left_wheel_speed_fake.return_val  = 2.0f;
-        get_right_wheel_speed_fake.return_val = 200.0f;
+        get_left_wheel_speed_fake.return_val  = wheel_speed_threshold;
+        get_right_wheel_speed_fake.return_val = wheel_speed_threshold;
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_EQ(
-            true, App_CanTx_GetPeriodicSignal_WHEEL_SPEED_NON_CRITICAL_FAULT(
-                      can_tx_interface));
+                false, App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
+                can_tx_interface));
+        EXPECT_EQ(
+                false, App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
+                can_tx_interface));
 
-        // Testing the left wheel speed above the threshold while the right
-        // wheel speed is below the threshold
+        get_left_wheel_speed_fake.return_val  = wheel_speed_threshold + 0.01f;
+        get_right_wheel_speed_fake.return_val = wheel_speed_threshold + 0.01f;
+        App_SharedStateMachine_Tick(state_machine);
+        EXPECT_EQ(
+                true, App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
+                can_tx_interface));
+        EXPECT_EQ(
+                true, App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
+                can_tx_interface));
+
         get_left_wheel_speed_fake.return_val  = 200.0f;
-        get_right_wheel_speed_fake.return_val = 2.0f;
-        App_SharedStateMachine_Tick(state_machine);
-        EXPECT_EQ(
-            true, App_CanTx_GetPeriodicSignal_WHEEL_SPEED_NON_CRITICAL_FAULT(
-                      can_tx_interface));
-
-        // Testing both wheel speed values which are above the threshold
-
-        // To avoid false positives, we use a different left wheel speed
-        get_left_wheel_speed_fake.return_val  = 201.0f;
         get_right_wheel_speed_fake.return_val = 200.0f;
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_EQ(
-            true, App_CanTx_GetPeriodicSignal_WHEEL_SPEED_NON_CRITICAL_FAULT(
-                      can_tx_interface));
+                true, App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
+                can_tx_interface));
+        EXPECT_EQ(
+                true, App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
+                can_tx_interface));
+
     }
 }

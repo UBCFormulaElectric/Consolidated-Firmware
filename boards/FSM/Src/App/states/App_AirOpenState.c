@@ -37,15 +37,25 @@ static void AirOpenStateRunOnTick(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_RIGHT_WHEEL_SPEED(
         can_tx_interface, right_wheel_speed);
 
-    if ((left_wheel_speed > App_Wheel_GetThreshold(left_wheel_speed_sensor)) ||
-        (right_wheel_speed > App_Wheel_GetThreshold(right_wheel_speed_sensor)))
+    if (left_wheel_speed > App_Wheel_GetThreshold(left_wheel_speed_sensor))
     {
-        App_CanTx_SetPeriodicSignal_WHEEL_SPEED_NON_CRITICAL_FAULT(
+        App_CanTx_SetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
             can_tx_interface, true);
     }
     else
     {
-        App_CanTx_SetPeriodicSignal_WHEEL_SPEED_NON_CRITICAL_FAULT(
+        App_CanTx_SetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
+            can_tx_interface, false);
+    }
+
+    if (right_wheel_speed > App_Wheel_GetThreshold(right_wheel_speed_sensor))
+    {
+        App_CanTx_SetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
+            can_tx_interface, true);
+    }
+    else
+    {
+        App_CanTx_SetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
             can_tx_interface, false);
     }
 }

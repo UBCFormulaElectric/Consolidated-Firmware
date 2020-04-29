@@ -206,7 +206,8 @@ int main(void)
         App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
 
     Io_Wheels_Init(&htim16, &htim17);
-    left_wheel_speed_sensor = App_Wheel_Create(Io_Wheels_GetLeftSpeedKmh, 150.0f);
+    left_wheel_speed_sensor =
+        App_Wheel_Create(Io_Wheels_GetLeftSpeedKmh, 150.0f);
     right_wheel_speed_sensor =
         App_Wheel_Create(Io_Wheels_GetRightSpeedKmh, 150.0f);
 
