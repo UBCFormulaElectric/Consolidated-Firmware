@@ -74,10 +74,12 @@ class PdmStateMachineTest : public testing::Test
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             get_current_ms, DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS,
             DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
+        rgb_led_sequence = App_SharedRgbLedSequence_Create(
+            turn_on_red_led, turn_on_green_led, turn_on_blue_led);
         world = App_PdmWorld_Create(
             can_tx_interface, can_rx_interface, vbat_voltage_monitor,
             _24v_aux_voltage_monitor, _24v_acc_voltage_monitor,
-            heartbeat_monitor, NULL);
+            heartbeat_monitor, rgb_led_sequence);
 
         // Default to starting the state machine in the `init` state
         state_machine =
