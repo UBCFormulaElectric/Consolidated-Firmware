@@ -38,7 +38,7 @@ TEST_F(RgbLedSequenceTest, cycle_red_green_blue)
                                     &turn_on_green_led_fake.call_count,
                                     &turn_on_blue_led_fake.call_count };
 
-    // Verify that we cycle through red, green, blue, red, etc.
+    // Verify that we cycle through red, green, blue, red, etc. for 100 times
     for (size_t i = 0; i < 100; i++)
     {
         App_SharedRgbLedSequence_Tick(rgb_led_sequence);
