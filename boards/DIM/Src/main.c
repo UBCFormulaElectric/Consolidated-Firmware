@@ -192,7 +192,8 @@ int main(void)
         Io_RgbLedSequence_TurnOnGreenLed);
 
     world = App_DimWorld_Create(
-        can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle);
+        can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle,
+        rgb_led_sequence);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 
@@ -526,12 +527,11 @@ void RunTask100Hz(void const *argument)
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
     uint32_t                PreviousWakeTime = osKernelSysTick();
-    static const TickType_t period_ms        = 1000;
+    static const TickType_t period_ms        = 10;
 
     /* Infinite loop */
     for (;;)
     {
-        App_SharedRgbLedSequence_Tick(rgb_led_sequence);
         App_SharedStateMachine_Tick(state_machine);
         osDelayUntil(&PreviousWakeTime, period_ms);
     }

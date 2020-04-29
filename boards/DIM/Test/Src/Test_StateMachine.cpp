@@ -9,6 +9,7 @@ extern "C"
 #include "App_SevenSegDisplays.h"
 #include "App_SevenSegDisplay.h"
 #include "states/App_DriveState.h"
+#include "App_SharedRgbLedSequence.h"
 }
 
 FAKE_VOID_FUNC(
@@ -44,9 +45,13 @@ class DimStateMachineTest : public SevenSegDisplaysTest, public RegenPaddleTest
             get_current_ms, DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS,
             DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
 
+        rgb_led_sequence = App_SharedRgbLedSequence_Create(
+
+            );
+
         world = App_DimWorld_Create(
             can_tx_interface, can_rx_interface, seven_seg_displays,
-            heartbeat_monitor, regen_paddle);
+            heartbeat_monitor, regen_paddle, rgb_led_sequence);
 
         // Default to starting the state machine in the `Drive` state
         state_machine =
