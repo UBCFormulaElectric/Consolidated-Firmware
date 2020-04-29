@@ -34,8 +34,12 @@
 #include "Io_SoftwareWatchdog.h"
 #include "Io_FlowMeters.h"
 #include "Io_HeartbeatMonitor.h"
+<<<<<<< HEAD
 #include "Io_RgbLedSequence.h"
 #include "Io_WheelSpeedSensors.h"
+=======
+#include "Io_Wheels.h"
+>>>>>>> wip
 
 #include "App_FsmWorld.h"
 #include "App_SharedStateMachine.h"
@@ -43,6 +47,10 @@
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "App_SharedConstants.h"
 #include "App_SharedHeartbeatMonitor.h"
+<<<<<<< HEAD
+=======
+#include "App_Wheel.h"
+>>>>>>> wip
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -197,16 +205,10 @@ int main(void)
     secondary_flow_meter =
         App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
 
-    Io_WheelSpeedSensors_Init(&htim16, &htim17);
-    left_wheel_speed_sensor =
-        App_WheelSpeedSensor_Create(Io_WheelSpeedSensors_GetLeftSpeed);
+    Io_Wheels_Init(&htim16, &htim17);
+    left_wheel_speed_sensor = App_Wheel_Create(Io_Wheels_GetLeftSpeedKmh, 150.0f);
     right_wheel_speed_sensor =
-        App_WheelSpeedSensor_Create(Io_WheelSpeedSensors_GetRightSpeed);
-
-    Io_FlowMeters_Init(&htim4);
-    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeters_GetPrimaryFlowRate);
-    secondary_flow_meter =
-        App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
+        App_Wheel_Create(Io_Wheels_GetRightSpeedKmh, 150.0f);
 
     Io_WheelSpeedSensors_Init(&htim16, &htim17);
 
@@ -801,11 +803,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     }
     else if (htim->Instance == TIM16)
     {
-        Io_WheelSpeedSensors_CheckIfLeftSensorIsActive();
+        Io_Wheels_CheckIfLeftSensorIsActive();
     }
     else if (htim->Instance == TIM17)
     {
-        Io_WheelSpeedSensors_CheckIfRightSensorIsActive();
+        Io_Wheels_CheckIfRightSensorIsActive();
     }
     /* USER CODE END Callback 0 */
     if (htim->Instance == TIM6)

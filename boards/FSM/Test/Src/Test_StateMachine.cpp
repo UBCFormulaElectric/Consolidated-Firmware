@@ -8,6 +8,7 @@ extern "C"
 #include "states/App_AirOpenState.h"
 #include "states/App_AirClosedState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
+#include "App_Wheel.h"
 }
 
 namespace StateMachineTest
@@ -54,9 +55,9 @@ class FsmStateMachineTest : public testing::Test
 
         secondary_flow_meter = App_FlowMeter_Create(get_secondary_flow_rate);
         left_wheel_speed_sensor =
-            App_WheelSpeedSensor_Create(get_left_wheel_speed);
+            App_Wheel_Create(get_left_wheel_speed, 150.0f);
         right_wheel_speed_sensor =
-            App_WheelSpeedSensor_Create(get_right_wheel_speed);
+            App_Wheel_Create(get_right_wheel_speed, 150.0f);
 
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
@@ -114,8 +115,8 @@ class FsmStateMachineTest : public testing::Test
         App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
         App_FlowMeter_Destroy(primary_flow_meter);
         App_FlowMeter_Destroy(secondary_flow_meter);
-        App_WheelSpeedSensor_Destroy(left_wheel_speed_sensor);
-        App_WheelSpeedSensor_Destroy(right_wheel_speed_sensor);
+        App_Wheel_Destroy(left_wheel_speed_sensor);
+        App_Wheel_Destroy(right_wheel_speed_sensor);
 
         world                    = NULL;
         can_tx_interface         = NULL;

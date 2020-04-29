@@ -7,7 +7,7 @@
  * @param htim_left_wheel_speed Timer handle for the left wheel speed
  * @param htim_right_wheel_speed Timer handle for the right wheel speed
  */
-void Io_WheelSpeedSensors_Init(
+void Io_Wheels_Init(
     TIM_HandleTypeDef *htim_left_wheel_speed,
     TIM_HandleTypeDef *htim_right_wheel_speed);
 
@@ -32,17 +32,16 @@ float Io_WheelSpeedSensors_GetRightSpeedKph(void);
 void Io_WheelSpeedSensors_InputCaptureCallback(TIM_HandleTypeDef *htim);
 
 /**
- * Check if the PWM signal of the left wheel speed sensor is active. If
- * @brief Gets the wheel speed in km/h from the left wheel speed sensor
+ * Gets the wheel speed in km/h from the left wheel speed sensor
  * @return Returns the wheel speed in km/h
  */
-float Io_WheelSpeedSensors_GetLeftSpeed(void);
+float Io_Wheels_GetLeftSpeedKmh(void);
 
 /**
  * Gets the wheel speed in km/h from the right wheel speed sensor
  * @return Returns the wheel speed in km/h
  */
-float Io_WheelSpeedSensors_GetRightSpeed(void);
+float Io_Wheels_GetRightSpeedKmh(void);
 
 /**
  * Update the frequency for the left and right wheel speed sensors.
@@ -50,7 +49,7 @@ float Io_WheelSpeedSensors_GetRightSpeed(void);
  * @param htim The handle of the timer that triggered the input capture callback
  * function
  */
-void Io_WheelSpeedSensors_InputCaptureCallback(TIM_HandleTypeDef *htim);
+void Io_Wheels_InputCaptureCallback(TIM_HandleTypeDef *htim);
 
 /**
  * Check if the PWM signal of the left wheel speed sensor is active. If
@@ -60,7 +59,7 @@ void Io_WheelSpeedSensors_InputCaptureCallback(TIM_HandleTypeDef *htim);
  * @note This function should be called in the timer overflow interrupt
  *       for the PWM signal of the left wheel speed sensor.
  */
-void Io_WheelSpeedSensors_CheckIfLeftSensorIsActive(void);
+void Io_Wheels_CheckIfLeftSensorIsActive(void);
 
 /**
  * Check if the PWM signal of the right wheel speed sensor is active. If
@@ -70,4 +69,4 @@ void Io_WheelSpeedSensors_CheckIfLeftSensorIsActive(void);
  * @note This function should be called in the timer overflow interrupt
  *       for the PWM signal of the right wheel speed sensor.
  */
-void Io_WheelSpeedSensors_CheckIfRightSensorIsActive(void);
+void Io_Wheels_CheckIfRightSensorIsActive(void);

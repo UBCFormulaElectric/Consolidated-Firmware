@@ -5,7 +5,7 @@
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_FlowMeter.h"
 #include "App_SharedRgbLedSequence.h"
-#include "App_WheelSpeedSensor.h"
+#include "App_Wheel.h"
 
 struct FsmWorld;
 

@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <math.h>
-#include "Io_WheelSpeedSensors.h"
+
+#include "Io_Wheels.h"
 #include "Io_SharedFreqOnlyPwmInput.h"
 #include "main.h"
 
@@ -14,7 +15,7 @@ static const float  ARC_LENGTH_PER_RELUCTOR_TOOTH =
 static struct FreqOnlyPwmInput *left_wheel_speed_sensor,
     *right_wheel_speed_sensor;
 
-void Io_WheelSpeedSensors_Init(
+void Io_Wheels_Init(
     TIM_HandleTypeDef *htim_left_wheel_speed_sensor,
     TIM_HandleTypeDef *htim_right_wheel_speed_sensor)
 {
@@ -30,19 +31,19 @@ void Io_WheelSpeedSensors_Init(
         TIM_CHANNEL_1, TIM17_AUTO_RELOAD_REG, HAL_TIM_ACTIVE_CHANNEL_1);
 }
 
-float Io_WheelSpeedSensors_GetLeftSpeedKph(void)
+float Io_Wheels_GetLeftSpeedKmh(void)
 {
     return MPS_TO_KPH_CONVERSION_FACTOR * ARC_LENGTH_PER_RELUCTOR_TOOTH *
            Io_SharedFreqOnlyPwmInput_GetFrequency(left_wheel_speed_sensor);
 }
 
-float Io_WheelSpeedSensors_GetRightSpeedKph(void)
+float Io_Wheels_GetRightSpeedKmh(void)
 {
     return MPS_TO_KPH_CONVERSION_FACTOR * ARC_LENGTH_PER_RELUCTOR_TOOTH *
            Io_SharedFreqOnlyPwmInput_GetFrequency(right_wheel_speed_sensor);
 }
 
-void Io_WheelSpeedSensors_InputCaptureCallback(TIM_HandleTypeDef *htim)
+void Io_Wheels_InputCaptureCallback(TIM_HandleTypeDef *htim)
 {
     if (htim ==
             Io_SharedFreqOnlyPwmInput_GetTimerHandle(left_wheel_speed_sensor) &&
@@ -62,12 +63,12 @@ void Io_WheelSpeedSensors_InputCaptureCallback(TIM_HandleTypeDef *htim)
     }
 }
 
-void Io_WheelSpeedSensors_CheckIfRightSensorIsActive(void)
+void Io_Wheels_CheckIfRightSensorIsActive(void)
 {
     Io_SharedFreqOnlyPwmInput_CheckIfPwmIsActive(right_wheel_speed_sensor);
 }
 
-void Io_WheelSpeedSensors_CheckIfLeftSensorIsActive(void)
+void Io_Wheels_CheckIfLeftSensorIsActive(void)
 {
     Io_SharedFreqOnlyPwmInput_CheckIfPwmIsActive(left_wheel_speed_sensor);
 }

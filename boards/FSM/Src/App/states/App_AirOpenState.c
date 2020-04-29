@@ -27,13 +27,27 @@ static void AirOpenStateRunOnTick(struct StateMachine *const state_machine)
         can_tx_interface, primary_flow_meter);
     App_SetPeriodicCanSignals_SecondaryFlowMeter(
         can_tx_interface, secondary_flow_meter);
-    App_SetPeriodicCanSignals_LeftWheelSpeedSensor(
-        can_tx_interface, left_wheel_speed_sensor);
-    App_SetPeriodicCanSignals_RightWheelSpeedSensor(
-        can_tx_interface, right_wheel_speed_sensor);
 
-    App_SetPeriodicCanSignals_WheelSpeedNonCriticalFault(
-        can_tx_interface, left_wheel_speed_sensor, right_wheel_speed_sensor);
+    const float left_wheel_speed =
+        App_Wheel_GetWheelSpeed(left_wheel_speed_sensor);
+    const float right_wheel_speed =
+        App_Wheel_GetWheelSpeed(right_wheel_speed_sensor);
+    App_CanTx_SetPeriodicSignal_LEFT_WHEEL_SPEED(
+        can_tx_interface, left_wheel_speed);
+    App_CanTx_SetPeriodicSignal_RIGHT_WHEEL_SPEED(
+        can_tx_interface, right_wheel_speed);
+
+    if ((left_wheel_speed > App_Wheel_GetThreshold(left_wheel_speed_sensor)) ||
+        (right_wheel_speed > App_Wheel_GetThreshold(right_wheel_speed_sensor)))
+    {
+        App_CanTx_SetPeriodicSignal_WHEEL_SPEED_NON_CRITICAL_FAULT(
+            can_tx_interface, true);
+    }
+    else
+    {
+        App_CanTx_SetPeriodicSignal_WHEEL_SPEED_NON_CRITICAL_FAULT(
+            can_tx_interface, false);
+    }
 }
 
 static void AirOpenStateRunOnExit(struct StateMachine *const state_machine)
