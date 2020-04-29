@@ -23,12 +23,12 @@ struct DimWorld;
  * caller
  */
 struct DimWorld *App_DimWorld_Create(
-    struct DimCanTxInterface *const can_tx_interface,
-    struct DimCanRxInterface *const can_rx_interface,
-    struct SevenSegDisplays *const  seven_seg_displays,
-    struct HeartbeatMonitor *const  heartbeat_monitor,
-    struct RegenPaddle *            regen_paddle,
-    struct RgbLedSequence *         rgb_led_sequence);
+    struct DimCanTxInterface *can_tx_interface,
+    struct DimCanRxInterface *can_rx_interface,
+    struct SevenSegDisplays * seven_seg_displays,
+    struct HeartbeatMonitor * heartbeat_monitor,
+    struct RegenPaddle *      regen_paddle,
+    struct RgbLedSequence *   rgb_led_sequence);
 
 /**
  * Destroy the given DIM world, freeing the memory associated with it

@@ -19,7 +19,7 @@ struct DimWorld *App_DimWorld_Create(
     struct DimCanRxInterface *const can_rx_interface,
     struct SevenSegDisplays *const  seven_seg_displays,
     struct HeartbeatMonitor *const  heartbeat_monitor,
-    struct RegenPaddle *            regen_paddle,
+    struct RegenPaddle *const       regen_paddle,
     struct RgbLedSequence *const    rgb_led_sequence)
 {
     struct DimWorld *world = (struct DimWorld *)malloc(sizeof(struct DimWorld));
