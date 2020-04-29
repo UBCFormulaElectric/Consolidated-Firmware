@@ -48,7 +48,7 @@ class FsmStateMachineTest : public testing::Test
             DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
         primary_flow_meter   = App_FlowMeter_Create(get_primary_flow_rate);
         secondary_flow_meter = App_FlowMeter_Create(get_secondary_flow_rate);
-        rgb_led_sequence = App_SharedRgbLedSequence_Create(
+        rgb_led_sequence     = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
         world = App_FsmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,

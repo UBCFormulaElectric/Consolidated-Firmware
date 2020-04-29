@@ -42,7 +42,8 @@ class DcmStateMachineTest : public testing::Test
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
         world = App_DcmWorld_Create(
-            can_tx_interface, can_rx_interface, heartbeat_monitor, rgb_led_sequence);
+            can_tx_interface, can_rx_interface, heartbeat_monitor,
+            rgb_led_sequence);
 
         // Default to starting the state machine in the `init` state
         state_machine =
