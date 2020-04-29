@@ -7,12 +7,7 @@
 struct WheelSpeedSensor
 {
     float (*get_wheel_speed)(void);
-
-    enum WheelSpeedFaultStatus status;
 };
-
-static enum WheelSpeedFaultStatus
-    App_WheelSpeedSensor_CheckFaultStatus(float wheel_speed);
 
 struct WheelSpeedSensor *
     App_WheelSpeedSensor_Create(float (*get_wheel_speed)(void))
@@ -24,8 +19,6 @@ struct WheelSpeedSensor *
     assert(wheel_speed_sensor != NULL);
 
     wheel_speed_sensor->get_wheel_speed = get_wheel_speed;
-    wheel_speed_sensor->status          = WHEEL_SPEED_NORMAL;
-
     return wheel_speed_sensor;
 }
 
@@ -41,20 +34,11 @@ float App_WheelSpeedSensor_GetWheelSpeed(
     return wheel_speed_sensor->get_wheel_speed();
 }
 
-static enum WheelSpeedFaultStatus
-    App_WheelSpeedSensor_CheckFaultStatus(const float wheel_speed)
-{
-    // Send a non critical fault when the wheel speed is above 150 km/h OR when
-    // the wheel speed sensor is inactive
-    return (isnanf(wheel_speed) || wheel_speed > 150.0f)
-               ? WHEEL_SPEED_NON_CRITICAL_FAULT
-               : WHEEL_SPEED_NORMAL;
-}
-
 enum WheelSpeedFaultStatus App_WheelSpeedSensor_GetFaultStatus(
     struct WheelSpeedSensor *const wheel_speed_sensor)
 {
-    wheel_speed_sensor->status = App_WheelSpeedSensor_CheckFaultStatus(
-        wheel_speed_sensor->get_wheel_speed());
-    return wheel_speed_sensor->status;
+    const float wheel_speed = wheel_speed_sensor->get_wheel_speed();
+    return (isnanf(wheel_speed) || wheel_speed > 150.0f)
+               ? WHEEL_SPEED_NON_CRITICAL_FAULT
+               : WHEEL_SPEED_NORMAL;
 }
