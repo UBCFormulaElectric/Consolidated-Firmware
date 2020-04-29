@@ -235,7 +235,8 @@ TEST_F(
     check_if_wheel_speed_non_critical_fault_is_broadcasted_over_can_in_all_states)
 {
     // The FSM sends a wheel speed non-critical fault when one of the wheel
-    // speeds measured is greater than 150 km/h. The WHEEL_SPEED_OUT_OF_RANGE flag is set to 1 while active
+    // speeds measured is greater than 150 km/h. The WHEEL_SPEED_OUT_OF_RANGE
+    // flag is set to 1 while active
     const float wheel_speed_threshold = 150.0f;
 
     for (const auto &state : GetAllStates())
@@ -248,38 +249,37 @@ TEST_F(
             false, App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
                        can_tx_interface));
         EXPECT_EQ(
-                false, App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
-                can_tx_interface));
+            false, App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
+                       can_tx_interface));
 
         get_left_wheel_speed_fake.return_val  = wheel_speed_threshold;
         get_right_wheel_speed_fake.return_val = wheel_speed_threshold;
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_EQ(
-                false, App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
-                can_tx_interface));
+            false, App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
+                       can_tx_interface));
         EXPECT_EQ(
-                false, App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
-                can_tx_interface));
+            false, App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
+                       can_tx_interface));
 
         get_left_wheel_speed_fake.return_val  = wheel_speed_threshold + 0.01f;
         get_right_wheel_speed_fake.return_val = wheel_speed_threshold + 0.01f;
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_EQ(
-                true, App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
-                can_tx_interface));
+            true, App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
+                      can_tx_interface));
         EXPECT_EQ(
-                true, App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
-                can_tx_interface));
+            true, App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
+                      can_tx_interface));
 
         get_left_wheel_speed_fake.return_val  = 200.0f;
         get_right_wheel_speed_fake.return_val = 200.0f;
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_EQ(
-                true, App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
-                can_tx_interface));
+            true, App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
+                      can_tx_interface));
         EXPECT_EQ(
-                true, App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
-                can_tx_interface));
-
+            true, App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
+                      can_tx_interface));
     }
 }
