@@ -177,9 +177,9 @@ SG_ Raw_Paddle_Position : 0|32@1+ (1,0) [0|100] "%" LOGGER
 SG_ Mapped_Paddle_Position : 32|32@1+ (1,0) [0|100] "%" LOGGER
 
 BO_ 507 DIM_SWITCHES: 1 DIM
-SG_ Start_Switch_Is_On : 0|1@1+ (1,0) [0|1] "" LOGGER
-SG_ Traction_Control_Switch_Is_On : 1|1@1+ (1,0) [0|1] "" LOGGER
-SG_ Torque_Vectoring_Switch_Is_On : 2|1@1+ (1,0) [0|1] "" LOGGER
+SG_ Start_Switch_Is_On : 0|1@1+ (1,0) [0|1] "" DCM
+SG_ Traction_Control_Switch_Is_On : 1|1@1+ (1,0) [0|1] "" DCM
+SG_ Torque_Vectoring_Switch_Is_On : 2|1@1+ (1,0) [0|1] "" DCM
 
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
