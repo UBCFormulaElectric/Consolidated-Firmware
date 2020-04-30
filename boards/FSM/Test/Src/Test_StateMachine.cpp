@@ -25,6 +25,9 @@ FAKE_VOID_FUNC(
     enum HeartbeatOneHot);
 FAKE_VALUE_FUNC(float, get_primary_flow_rate);
 FAKE_VALUE_FUNC(float, get_secondary_flow_rate);
+FAKE_VOID_FUNC(turn_on_red_led);
+FAKE_VOID_FUNC(turn_on_green_led);
+FAKE_VOID_FUNC(turn_on_blue_led);
 
 class FsmStateMachineTest : public testing::Test
 {
@@ -45,10 +48,11 @@ class FsmStateMachineTest : public testing::Test
             DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
         primary_flow_meter   = App_FlowMeter_Create(get_primary_flow_rate);
         secondary_flow_meter = App_FlowMeter_Create(get_secondary_flow_rate);
-
+        rgb_led_sequence     = App_SharedRgbLedSequence_Create(
+            turn_on_red_led, turn_on_green_led, turn_on_blue_led);
         world = App_FsmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
-            primary_flow_meter, secondary_flow_meter);
+            primary_flow_meter, secondary_flow_meter, rgb_led_sequence);
 
         // Default to starting the state machine in the `AIR_OPEN` state
         state_machine =
@@ -62,6 +66,9 @@ class FsmStateMachineTest : public testing::Test
         RESET_FAKE(heartbeat_timeout_callback);
         RESET_FAKE(get_primary_flow_rate);
         RESET_FAKE(get_secondary_flow_rate);
+        RESET_FAKE(turn_on_red_led);
+        RESET_FAKE(turn_on_green_led);
+        RESET_FAKE(turn_on_blue_led);
     }
 
     void TearDown() override
@@ -73,6 +80,7 @@ class FsmStateMachineTest : public testing::Test
         ASSERT_TRUE(heartbeat_monitor != NULL);
         ASSERT_TRUE(primary_flow_meter != NULL);
         ASSERT_TRUE(secondary_flow_meter != NULL);
+        ASSERT_TRUE(rgb_led_sequence != NULL);
 
         App_FsmWorld_Destroy(world);
         App_CanTx_Destroy(can_tx_interface);
@@ -81,6 +89,7 @@ class FsmStateMachineTest : public testing::Test
         App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
         App_FlowMeter_Destroy(primary_flow_meter);
         App_FlowMeter_Destroy(secondary_flow_meter);
+        App_SharedRgbLedSequence_Destroy(rgb_led_sequence);
 
         world                = NULL;
         can_tx_interface     = NULL;
@@ -89,6 +98,7 @@ class FsmStateMachineTest : public testing::Test
         heartbeat_monitor    = NULL;
         primary_flow_meter   = NULL;
         secondary_flow_meter = NULL;
+        rgb_led_sequence     = NULL;
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -114,6 +124,7 @@ class FsmStateMachineTest : public testing::Test
     struct HeartbeatMonitor * heartbeat_monitor;
     struct FlowMeter *        primary_flow_meter;
     struct FlowMeter *        secondary_flow_meter;
+    struct RgbLedSequence *   rgb_led_sequence;
 };
 
 TEST_F(FsmStateMachineTest, check_air_open_state_is_broadcasted_over_can)
