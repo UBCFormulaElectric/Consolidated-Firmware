@@ -11,6 +11,7 @@ struct DimWorld
     struct SevenSegDisplays * seven_seg_displays;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RegenPaddle *      regen_paddle;
+    struct RgbLedSequence *   rgb_led_sequence;
     struct RotarySwitch *     drive_mode_switch;
 };
 
@@ -20,6 +21,7 @@ struct DimWorld *App_DimWorld_Create(
     struct SevenSegDisplays *const  seven_seg_displays,
     struct HeartbeatMonitor *const  heartbeat_monitor,
     struct RegenPaddle *const       regen_paddle,
+    struct RgbLedSequence *const    rgb_led_sequence,
     struct RotarySwitch *const      drive_mode_switch)
 {
     struct DimWorld *world = (struct DimWorld *)malloc(sizeof(struct DimWorld));
@@ -30,6 +32,7 @@ struct DimWorld *App_DimWorld_Create(
     world->seven_seg_displays = seven_seg_displays;
     world->heartbeat_monitor  = heartbeat_monitor;
     world->regen_paddle       = regen_paddle;
+    world->rgb_led_sequence   = rgb_led_sequence;
     world->drive_mode_switch  = drive_mode_switch;
 
     return world;
@@ -70,8 +73,15 @@ struct RegenPaddle *
     return world->regen_paddle;
 }
 
+struct RgbLedSequence *
+    App_DimWorld_GetRgbLedSequence(const struct DimWorld *const world)
+{
+    return world->rgb_led_sequence;
+}
+
 struct RotarySwitch *
-    App_DimWorld_GetDriveModeSwitch(const struct DimWorld *world)
+    App_DimWorld_GetDriveModeSwitch(const struct DimWorld *const world)
 {
     return world->drive_mode_switch;
 }
+

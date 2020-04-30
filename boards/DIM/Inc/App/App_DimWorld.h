@@ -5,6 +5,7 @@
 #include "App_SevenSegDisplays.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_RegenPaddle.h"
+#include "App_SharedRgbLedSequence.h"
 #include "App_RotarySwitch.h"
 
 struct DimWorld;
@@ -28,6 +29,7 @@ struct DimWorld *App_DimWorld_Create(
     struct SevenSegDisplays * seven_seg_displays,
     struct HeartbeatMonitor * heartbeat_monitor,
     struct RegenPaddle *      regen_paddle,
+    struct RgbLedSequence *   rgb_led_sequence,
     struct RotarySwitch *     drive_mode_switch);
 
 /**
@@ -43,5 +45,7 @@ struct SevenSegDisplays *
 struct HeartbeatMonitor *
                     App_DimWorld_GetHeartbeatMonitor(const struct DimWorld *world);
 struct RegenPaddle *App_DimWorld_GetRegenPaddle(const struct DimWorld *world);
+struct RgbLedSequence *
+    App_DimWorld_GetRgbLedSequence(const struct DimWorld *world);
 struct RotarySwitch *
     App_DimWorld_GetDriveModeSwitch(const struct DimWorld *world);

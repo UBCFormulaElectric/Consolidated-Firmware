@@ -12,6 +12,7 @@ struct PdmWorld
     struct VoltageMonitor *   _24v_aux_voltage_monitor;
     struct VoltageMonitor *   _24v_acc_voltage_monitor;
     struct HeartbeatMonitor * heartbeat_monitor;
+    struct RgbLedSequence *   rgb_led_sequence;
 };
 
 struct PdmWorld *App_PdmWorld_Create(
@@ -20,7 +21,8 @@ struct PdmWorld *App_PdmWorld_Create(
     struct VoltageMonitor *const    vbat_voltage_monitor,
     struct VoltageMonitor *const    _24v_aux_voltage_monitor,
     struct VoltageMonitor *const    _24v_acc_voltage_monitor,
-    struct HeartbeatMonitor *const  heartbeat_monitor)
+    struct HeartbeatMonitor *const  heartbeat_monitor,
+    struct RgbLedSequence *const    rgb_led_sequence)
 {
     struct PdmWorld *world = (struct PdmWorld *)malloc(sizeof(struct PdmWorld));
     assert(world != NULL);
@@ -31,6 +33,7 @@ struct PdmWorld *App_PdmWorld_Create(
     world->_24v_aux_voltage_monitor = _24v_aux_voltage_monitor;
     world->_24v_acc_voltage_monitor = _24v_acc_voltage_monitor;
     world->heartbeat_monitor        = heartbeat_monitor;
+    world->rgb_led_sequence         = rgb_led_sequence;
 
     return world;
 }
@@ -74,4 +77,10 @@ struct HeartbeatMonitor *
     App_PdmWorld_GetHeartbeatMonitor(const struct PdmWorld *const world)
 {
     return world->heartbeat_monitor;
+}
+
+struct RgbLedSequence *
+    App_PdmWorld_GetRgbLedSequence(const struct PdmWorld *const world)
+{
+    return world->rgb_led_sequence;
 }

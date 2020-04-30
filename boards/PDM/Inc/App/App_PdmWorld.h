@@ -4,6 +4,7 @@
 #include "App_CanRx.h"
 #include "App_VoltageMonitor.h"
 #include "App_SharedHeartbeatMonitor.h"
+#include "App_SharedRgbLedSequence.h"
 
 struct PdmWorld;
 
@@ -28,7 +29,8 @@ struct PdmWorld *App_PdmWorld_Create(
     struct VoltageMonitor *   vbat_voltage_monitor,
     struct VoltageMonitor *   _24v_aux_voltage_monitor,
     struct VoltageMonitor *   _24v_acc_voltage_monitor,
-    struct HeartbeatMonitor * heartbeat_monitor);
+    struct HeartbeatMonitor * heartbeat_monitor,
+    struct RgbLedSequence *   rgb_led_sequence);
 
 /**
  * Destroy the given PDM world, freeing the memory associated with it
@@ -46,3 +48,5 @@ struct VoltageMonitor *
     App_PdmWorld_Get24vAccVoltageMonitor(const struct PdmWorld *world);
 struct HeartbeatMonitor *
     App_PdmWorld_GetHeartbeatMonitor(const struct PdmWorld *world);
+struct RgbLedSequence *
+    App_PdmWorld_GetRgbLedSequence(const struct PdmWorld *world);
