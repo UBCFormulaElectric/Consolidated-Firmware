@@ -47,30 +47,30 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
 
     if (App_BinarySwitch_IsTurnedOn(start_switch))
     {
-        App_CanTx_SetPeriodicSignal_START_SWITCH_IS_ON(can_tx, true);
+        App_CanTx_SetPeriodicSignal_START_SWITCH(can_tx, true);
     }
     else
     {
-        App_CanTx_SetPeriodicSignal_START_SWITCH_IS_ON(can_tx, false);
+        App_CanTx_SetPeriodicSignal_START_SWITCH(can_tx, false);
     }
 
     if (App_BinarySwitch_IsTurnedOn(traction_control_switch))
     {
-        App_CanTx_SetPeriodicSignal_TRACTION_CONTROL_SWITCH_IS_ON(can_tx, true);
+        App_CanTx_SetPeriodicSignal_TRACTION_CONTROL_SWITCH(can_tx, true);
     }
     else
     {
-        App_CanTx_SetPeriodicSignal_TRACTION_CONTROL_SWITCH_IS_ON(
+        App_CanTx_SetPeriodicSignal_TRACTION_CONTROL_SWITCH(
             can_tx, false);
     }
 
     if (App_BinarySwitch_IsTurnedOn(torque_vectoring_switch))
     {
-        App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH_IS_ON(can_tx, true);
+        App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH(can_tx, true);
     }
     else
     {
-        App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH_IS_ON(
+        App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH(
             can_tx, false);
     }
 
