@@ -84,4 +84,3 @@ struct RotarySwitch *
 {
     return world->drive_mode_switch;
 }
-
