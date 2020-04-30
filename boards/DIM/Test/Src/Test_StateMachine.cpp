@@ -10,6 +10,7 @@ extern "C"
 #include "App_SevenSegDisplay.h"
 #include "states/App_DriveState.h"
 #include "App_SharedRgbLedSequence.h"
+#include "App_CanMsgs.h"
 }
 
 FAKE_VOID_FUNC(
@@ -211,13 +212,14 @@ TEST_F(
     start_switch_is_turned_on_fake.return_val = false;
     App_SharedStateMachine_Tick(state_machine);
     ASSERT_EQ(
-        false,
-        App_CanTx_GetPeriodicSignal_START_SWITCH_IS_ON(can_tx_interface));
+        CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE,
+        App_CanTx_GetPeriodicSignal_START_SWITCH(can_tx_interface));
 
     start_switch_is_turned_on_fake.return_val = true;
     App_SharedStateMachine_Tick(state_machine);
     ASSERT_EQ(
-        true, App_CanTx_GetPeriodicSignal_START_SWITCH_IS_ON(can_tx_interface));
+        CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE,
+        App_CanTx_GetPeriodicSignal_START_SWITCH(can_tx_interface));
 }
 
 TEST_F(
@@ -227,14 +229,14 @@ TEST_F(
     traction_control_switch_is_turned_on_fake.return_val = false;
     App_SharedStateMachine_Tick(state_machine);
     ASSERT_EQ(
-        false, App_CanTx_GetPeriodicSignal_TRACTION_CONTROL_SWITCH_IS_ON(
-                   can_tx_interface));
+        CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE,
+        App_CanTx_GetPeriodicSignal_TRACTION_CONTROL_SWITCH(can_tx_interface));
 
     traction_control_switch_is_turned_on_fake.return_val = true;
     App_SharedStateMachine_Tick(state_machine);
     ASSERT_EQ(
-        true, App_CanTx_GetPeriodicSignal_TRACTION_CONTROL_SWITCH_IS_ON(
-                  can_tx_interface));
+        CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE,
+        App_CanTx_GetPeriodicSignal_TRACTION_CONTROL_SWITCH(can_tx_interface));
 }
 
 TEST_F(
@@ -244,12 +246,12 @@ TEST_F(
     torque_vectoring_switch_is_turned_on_fake.return_val = false;
     App_SharedStateMachine_Tick(state_machine);
     ASSERT_EQ(
-        false, App_CanTx_GetPeriodicSignal_TORQUE_VECTORING_SWITCH_IS_ON(
-                   can_tx_interface));
+        CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE,
+        App_CanTx_GetPeriodicSignal_TORQUE_VECTORING_SWITCH(can_tx_interface));
 
     torque_vectoring_switch_is_turned_on_fake.return_val = true;
     App_SharedStateMachine_Tick(state_machine);
     ASSERT_EQ(
-        true, App_CanTx_GetPeriodicSignal_TORQUE_VECTORING_SWITCH_IS_ON(
-                  can_tx_interface));
+        CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE,
+        App_CanTx_GetPeriodicSignal_TORQUE_VECTORING_SWITCH(can_tx_interface));
 }
