@@ -20,7 +20,12 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
         App_DimWorld_GetSevenSegDisplays(world);
     struct HeartbeatMonitor *heartbeat_monitor =
         App_DimWorld_GetHeartbeatMonitor(world);
-    struct RegenPaddle *regen_paddle = App_DimWorld_GetRegenPaddle(world);
+    struct RegenPaddle * regen_paddle = App_DimWorld_GetRegenPaddle(world);
+    struct BinarySwitch *start_switch = App_DimWorld_GetStartSwitch(world);
+    struct BinarySwitch *traction_control_switch =
+        App_DimWorld_GetTractionControlSwitch(world);
+    struct BinarySwitch *torque_vectoring_switch =
+        App_DimWorld_GetTorqueVectoringSwitch(world);
 
     uint32_t buffer;
 
@@ -39,6 +44,35 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
     App_SevenSegDisplays_SetUnsignedBase10Value(
         seven_seg_displays,
         App_CanRx_BMS_STATE_OF_CHARGE_GetSignal_STATE_OF_CHARGE(can_rx));
+
+    if (App_BinarySwitch_IsTurnedOn(start_switch))
+    {
+        App_CanTx_SetPeriodicSignal_START_SWITCH_IS_ON(can_tx, true);
+    }
+    else
+    {
+        App_CanTx_SetPeriodicSignal_START_SWITCH_IS_ON(can_tx, false);
+    }
+
+    if (App_BinarySwitch_IsTurnedOn(traction_control_switch))
+    {
+        App_CanTx_SetPeriodicSignal_TRACTION_CONTROL_SWITCH_IS_ON(can_tx, true);
+    }
+    else
+    {
+        App_CanTx_SetPeriodicSignal_TRACTION_CONTROL_SWITCH_IS_ON(
+            can_tx, false);
+    }
+
+    if (App_BinarySwitch_IsTurnedOn(torque_vectoring_switch))
+    {
+        App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH_IS_ON(can_tx, true);
+    }
+    else
+    {
+        App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH_IS_ON(
+            can_tx, false);
+    }
 
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
 }

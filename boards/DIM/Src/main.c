@@ -40,6 +40,7 @@
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RegenPaddle.h"
 #include "Io_RgbLedSequence.h"
+#include "Io_Switches.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -88,6 +89,9 @@ struct SevenSegDisplays * seven_seg_displays;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RegenPaddle *      regen_paddle;
 struct RgbLedSequence *   rgb_led_sequence;
+struct BinarySwitch *     start_switch;
+struct BinarySwitch *     traction_control_switch;
+struct BinarySwitch *     torque_vectoring_switch;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -185,9 +189,18 @@ int main(void)
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
         Io_RgbLedSequence_TurnOnGreenLed);
 
+    start_switch = App_BinarySwitch_Create(Io_Switches_StartSwitchIsTurnedOn);
+
+    traction_control_switch =
+        App_BinarySwitch_Create(Io_Switches_TractionControlSwitchIsTurnedOn);
+
+    torque_vectoring_switch =
+        App_BinarySwitch_Create(Io_Switches_TorqueVectoringSwitchIsTurnedOn);
+
     world = App_DimWorld_Create(
         can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle,
-        rgb_led_sequence);
+        rgb_led_sequence, start_switch, traction_control_switch,
+        torque_vectoring_switch);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 

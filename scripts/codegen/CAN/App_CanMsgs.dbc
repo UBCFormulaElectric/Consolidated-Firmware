@@ -176,6 +176,11 @@ BO_ 505 DIM_REGEN_PADDLE: 8 DIM
 SG_ Raw_Paddle_Position : 0|32@1+ (1,0) [0|100] "%" LOGGER
 SG_ Mapped_Paddle_Position : 32|32@1+ (1,0) [0|100] "%" LOGGER
 
+BO_ 507 DIM_SWITCHES: 1 DIM
+SG_ Start_Switch_Is_On : 0|1@1+ (1,0) [0|1] "" LOGGER
+SG_ Traction_Control_Switch_Is_On : 1|1@1+ (1,0) [0|1] "" LOGGER
+SG_ Torque_Vectoring_Switch_Is_On : 2|1@1+ (1,0) [0|1] "" LOGGER
+
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
 BA_DEF_ SG_  "GenSigStartValue" INT 0 2147483647;
@@ -216,6 +221,7 @@ BA_ "GenMsgCycleTime" BO_ 500 100;
 BA_ "GenMsgCycleTime" BO_ 501 5000;
 BA_ "GenMsgCycleTime" BO_ 503 10;
 BA_ "GenMsgCycleTime" BO_ 505 10;
+BA_ "GenMsgCycleTime" BO_ 507 10;
 
 BA_ "GenSigStartValue" SG_ 2  tx_overflow_count 0;
 BA_ "GenSigStartValue" SG_ 2  rx_overflow_count 0;

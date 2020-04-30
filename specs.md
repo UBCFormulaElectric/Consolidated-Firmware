@@ -230,7 +230,7 @@ ID | Title | Description | Associated Competition Rule(s)
 DIM-11 | Entering the Drive state | The DIM state machine must begin in the Drive state by default.
 DIM-2 | Board status LEDs | The DIM must indicate the current status of the BMS, DCM, DIM, FSM and PDM using RGB LEDs, where GREEN = no fault, BLUE = non-critical fault and RED = critical fault. | EV.6.1.11
 DIM-3 | Drive mode switch | The DIM must transmit the drive mode position of the rotary switch over CAN at 1kHz.
-DIM-4 |  Start, traction control, torque vectoring switches | For each of the switches, the DIM must: <br/> - Transmit the on/off switch status of over CAN at 1kHz. <br/> - Set the corresponding green status LEDs when the switch is on.
+DIM-4 |  Start, traction control, torque vectoring switches | For each of the switches, the DIM must transmit the on/off switch status over CAN at 100Hz
 DIM-5 | IMD LED | The DIM must turn on the IMD LED when it receives IMD fault status from BMS over CAN. | EV.8.5.5
 DIM-6 | BSPD LED | The DIM must turn on the BSPD LED when it receives BSPD fault status from FSM over CAN.
 DIM-7 | Mapped regen paddle percentage reporting | The DIM must report the mapped regen paddle percentage over CAN at 100Hz.
