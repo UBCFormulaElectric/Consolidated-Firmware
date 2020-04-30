@@ -26,6 +26,9 @@ FAKE_VOID_FUNC(
 FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
+FAKE_VALUE_FUNC(bool, start_switch_is_turned_on);
+FAKE_VALUE_FUNC(bool, traction_control_switch_is_turned_on);
+FAKE_VALUE_FUNC(bool, torque_vectoring_switch_is_turned_on);
 
 class DimStateMachineTest : public SevenSegDisplaysTest, public RegenPaddleTest
 {
@@ -51,9 +54,18 @@ class DimStateMachineTest : public SevenSegDisplaysTest, public RegenPaddleTest
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
+        start_switch = App_BinarySwitch_Create(start_switch_is_turned_on);
+
+        traction_control_switch =
+            App_BinarySwitch_Create(traction_control_switch_is_turned_on);
+
+        torque_vectoring_switch =
+            App_BinarySwitch_Create(torque_vectoring_switch_is_turned_on);
+
         world = App_DimWorld_Create(
             can_tx_interface, can_rx_interface, seven_seg_displays,
-            heartbeat_monitor, regen_paddle, rgb_led_sequence);
+            heartbeat_monitor, regen_paddle, rgb_led_sequence, start_switch,
+            traction_control_switch, torque_vectoring_switch);
 
         // Default to starting the state machine in the `Drive` state
         state_machine =
@@ -67,6 +79,9 @@ class DimStateMachineTest : public SevenSegDisplaysTest, public RegenPaddleTest
         RESET_FAKE(turn_on_red_led);
         RESET_FAKE(turn_on_green_led);
         RESET_FAKE(turn_on_blue_led);
+        RESET_FAKE(start_switch_is_turned_on);
+        RESET_FAKE(traction_control_switch_is_turned_on);
+        RESET_FAKE(torque_vectoring_switch_is_turned_on);
     }
 
     void TearDown() override
@@ -80,6 +95,9 @@ class DimStateMachineTest : public SevenSegDisplaysTest, public RegenPaddleTest
         ASSERT_TRUE(state_machine != NULL);
         ASSERT_TRUE(heartbeat_monitor != NULL);
         ASSERT_TRUE(rgb_led_sequence != NULL);
+        ASSERT_TRUE(start_switch != NULL);
+        ASSERT_TRUE(traction_control_switch != NULL);
+        ASSERT_TRUE(torque_vectoring_switch != NULL);
 
         App_DimWorld_Destroy(world);
         App_CanTx_Destroy(can_tx_interface);
@@ -87,13 +105,19 @@ class DimStateMachineTest : public SevenSegDisplaysTest, public RegenPaddleTest
         App_SharedStateMachine_Destroy(state_machine);
         App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
         App_SharedRgbLedSequence_Destroy(rgb_led_sequence);
+        App_BinarySwitch_Destroy(start_switch);
+        App_BinarySwitch_Destroy(traction_control_switch);
+        App_BinarySwitch_Destroy(torque_vectoring_switch);
 
-        world             = NULL;
-        can_tx_interface  = NULL;
-        can_rx_interface  = NULL;
-        state_machine     = NULL;
-        heartbeat_monitor = NULL;
-        rgb_led_sequence  = NULL;
+        world                   = NULL;
+        can_tx_interface        = NULL;
+        can_rx_interface        = NULL;
+        state_machine           = NULL;
+        heartbeat_monitor       = NULL;
+        rgb_led_sequence        = NULL;
+        start_switch            = NULL;
+        traction_control_switch = NULL;
+        torque_vectoring_switch = NULL;
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -112,6 +136,9 @@ class DimStateMachineTest : public SevenSegDisplaysTest, public RegenPaddleTest
     struct StateMachine *     state_machine;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
+    struct BinarySwitch *     start_switch;
+    struct BinarySwitch *     traction_control_switch;
+    struct BinarySwitch *     torque_vectoring_switch;
 };
 
 TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
@@ -175,4 +202,54 @@ TEST_F(
     ASSERT_EQ(
         get_raw_paddle_position_fake.return_val,
         App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
+}
+
+TEST_F(
+    DimStateMachineTest,
+    check_start_switch_is_broadcasted_over_can_in_drive_state)
+{
+    start_switch_is_turned_on_fake.return_val = false;
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(
+        false,
+        App_CanTx_GetPeriodicSignal_START_SWITCH_IS_ON(can_tx_interface));
+
+    start_switch_is_turned_on_fake.return_val = true;
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(
+        true, App_CanTx_GetPeriodicSignal_START_SWITCH_IS_ON(can_tx_interface));
+}
+
+TEST_F(
+    DimStateMachineTest,
+    check_traction_control_switch_is_broadcasted_over_can_in_drive_state)
+{
+    traction_control_switch_is_turned_on_fake.return_val = false;
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(
+        false, App_CanTx_GetPeriodicSignal_TRACTION_CONTROL_SWITCH_IS_ON(
+                   can_tx_interface));
+
+    traction_control_switch_is_turned_on_fake.return_val = true;
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(
+        true, App_CanTx_GetPeriodicSignal_TRACTION_CONTROL_SWITCH_IS_ON(
+                  can_tx_interface));
+}
+
+TEST_F(
+    DimStateMachineTest,
+    check_torque_vectoring_switch_is_broadcasted_over_can_in_drive_state)
+{
+    torque_vectoring_switch_is_turned_on_fake.return_val = false;
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(
+        false, App_CanTx_GetPeriodicSignal_TORQUE_VECTORING_SWITCH_IS_ON(
+                   can_tx_interface));
+
+    torque_vectoring_switch_is_turned_on_fake.return_val = true;
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(
+        true, App_CanTx_GetPeriodicSignal_TORQUE_VECTORING_SWITCH_IS_ON(
+                  can_tx_interface));
 }
