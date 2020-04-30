@@ -47,31 +47,35 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
 
     if (App_BinarySwitch_IsTurnedOn(start_switch))
     {
-        App_CanTx_SetPeriodicSignal_START_SWITCH(can_tx, true);
+        App_CanTx_SetPeriodicSignal_START_SWITCH(
+            can_tx, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
     }
     else
     {
-        App_CanTx_SetPeriodicSignal_START_SWITCH(can_tx, false);
+        App_CanTx_SetPeriodicSignal_START_SWITCH(
+            can_tx, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
     }
 
     if (App_BinarySwitch_IsTurnedOn(traction_control_switch))
     {
-        App_CanTx_SetPeriodicSignal_TRACTION_CONTROL_SWITCH(can_tx, true);
+        App_CanTx_SetPeriodicSignal_TRACTION_CONTROL_SWITCH(
+            can_tx, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
     }
     else
     {
         App_CanTx_SetPeriodicSignal_TRACTION_CONTROL_SWITCH(
-            can_tx, false);
+            can_tx, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
     }
 
     if (App_BinarySwitch_IsTurnedOn(torque_vectoring_switch))
     {
-        App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH(can_tx, true);
+        App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH(
+            can_tx, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
     }
     else
     {
         App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH(
-            can_tx, false);
+            can_tx, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
     }
 
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
