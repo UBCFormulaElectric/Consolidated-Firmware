@@ -4,6 +4,7 @@
 #include "App_CanRx.h"
 #include "App_Imd.h"
 #include "App_SharedHeartbeatMonitor.h"
+#include "App_SharedRgbLedSequence.h"
 
 struct BmsWorld;
 
@@ -20,7 +21,8 @@ struct BmsWorld *App_BmsWorld_Create(
     struct BmsCanTxInterface *can_tx_interface,
     struct BmsCanRxInterface *can_rx_interface,
     struct Imd *              imd,
-    struct HeartbeatMonitor * heartbeat_monitor);
+    struct HeartbeatMonitor * heartbeat_monitor,
+    struct RgbLedSequence *   rgb_led_sequence);
 
 /**
  * Destroy the given BMS world, freeing the memory associated with it
@@ -33,3 +35,5 @@ struct BmsCanRxInterface *App_BmsWorld_GetCanRx(const struct BmsWorld *world);
 struct Imd *              App_BmsWorld_GetImd(const struct BmsWorld *world);
 struct HeartbeatMonitor *
     App_BmsWorld_GetHeartbeatMonitor(const struct BmsWorld *world);
+struct RgbLedSequence *
+    App_BmsWorld_GetRgbLedSequence(const struct BmsWorld *world);

@@ -3,6 +3,7 @@
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_SharedHeartbeatMonitor.h"
+#include "App_SharedRgbLedSequence.h"
 
 struct DcmWorld;
 
@@ -18,7 +19,8 @@ struct DcmWorld;
 struct DcmWorld *App_DcmWorld_Create(
     struct DcmCanTxInterface *can_tx_interface,
     struct DcmCanRxInterface *can_rx_interface,
-    struct HeartbeatMonitor * heartbeat_monitor);
+    struct HeartbeatMonitor * heartbeat_monitor,
+    struct RgbLedSequence *   rgb_led_sequence);
 
 /**
  * Destroy the given DCM world, freeing the memory associated with it
@@ -30,3 +32,5 @@ struct DcmCanTxInterface *App_DcmWorld_GetCanTx(const struct DcmWorld *world);
 struct DcmCanRxInterface *App_DcmWorld_GetCanRx(const struct DcmWorld *world);
 struct HeartbeatMonitor *
     App_DcmWorld_GetHeartbeatMonitor(const struct DcmWorld *world);
+struct RgbLedSequence *
+    App_DcmWorld_GetRgbLedSequence(const struct DcmWorld *world);

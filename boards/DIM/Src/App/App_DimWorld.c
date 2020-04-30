@@ -10,13 +10,17 @@ struct DimWorld
     struct DimCanRxInterface *can_rx_interface;
     struct SevenSegDisplays * seven_seg_displays;
     struct HeartbeatMonitor * heartbeat_monitor;
+    struct RegenPaddle *      regen_paddle;
+    struct RgbLedSequence *   rgb_led_sequence;
 };
 
 struct DimWorld *App_DimWorld_Create(
     struct DimCanTxInterface *const can_tx_interface,
     struct DimCanRxInterface *const can_rx_interface,
     struct SevenSegDisplays *const  seven_seg_displays,
-    struct HeartbeatMonitor *const  heartbeat_monitor)
+    struct HeartbeatMonitor *const  heartbeat_monitor,
+    struct RegenPaddle *const       regen_paddle,
+    struct RgbLedSequence *const    rgb_led_sequence)
 {
     struct DimWorld *world = (struct DimWorld *)malloc(sizeof(struct DimWorld));
     assert(world != NULL);
@@ -25,6 +29,8 @@ struct DimWorld *App_DimWorld_Create(
     world->can_rx_interface   = can_rx_interface;
     world->seven_seg_displays = seven_seg_displays;
     world->heartbeat_monitor  = heartbeat_monitor;
+    world->regen_paddle       = regen_paddle;
+    world->rgb_led_sequence   = rgb_led_sequence;
 
     return world;
 }
@@ -56,4 +62,16 @@ struct HeartbeatMonitor *
     App_DimWorld_GetHeartbeatMonitor(const struct DimWorld *const world)
 {
     return world->heartbeat_monitor;
+}
+
+struct RegenPaddle *
+    App_DimWorld_GetRegenPaddle(const struct DimWorld *const world)
+{
+    return world->regen_paddle;
+}
+
+struct RgbLedSequence *
+    App_DimWorld_GetRgbLedSequence(const struct DimWorld *const world)
+{
+    return world->rgb_led_sequence;
 }

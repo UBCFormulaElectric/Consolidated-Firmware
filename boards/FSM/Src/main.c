@@ -36,15 +36,12 @@
 #include "Io_SoftwareWatchdog.h"
 #include "Io_FlowMeters.h"
 #include "Io_HeartbeatMonitor.h"
+#include "Io_RgbLedSequence.h"
 
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "App_FlowMeter.h"
 #include "App_FsmWorld.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_AirOpenState.h"
 #include "App_SharedConstants.h"
-#include "App_SharedHeartbeatMonitor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -90,6 +87,7 @@ struct StateMachine *     state_machine;
 struct FsmCanTxInterface *can_tx;
 struct FsmCanRxInterface *can_rx;
 struct HeartbeatMonitor * heartbeat_monitor;
+struct RgbLedSequence *   rgb_led_sequence;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -133,33 +131,7 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count)
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    __HAL_DBGMCU_FREEZE_IWDG();
-    Io_SharedHardFaultHandler_Init();
 
-    Io_FlowMeters_Init(&htim4);
-    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeters_GetPrimaryFlowRate);
-    secondary_flow_meter =
-        App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
-
-    can_tx = App_CanTx_Create(
-        Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
-        Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
-        Io_CanTx_EnqueueNonPeriodicMsg_FSM_AIR_SHUTDOWN);
-
-    can_rx = App_CanRx_Create();
-
-    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
-        Io_HeartbeatMonitor_TimeoutCallback);
-
-    world = App_FsmWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, primary_flow_meter,
-        secondary_flow_meter);
-
-    state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
-
-    App_StackWaterMark_Init(can_tx);
-    Io_SoftwareWatchdog_Init(can_tx);
     /* USER CODE END 1 */
 
     /* MCU
@@ -187,10 +159,37 @@ int main(void)
     MX_ADC2_Init();
     MX_TIM4_Init();
     /* USER CODE BEGIN 2 */
+    __HAL_DBGMCU_FREEZE_IWDG();
+    Io_SharedHardFaultHandler_Init();
+
     Io_FlowMeters_Init(&htim4);
     primary_flow_meter = App_FlowMeter_Create(Io_FlowMeters_GetPrimaryFlowRate);
     secondary_flow_meter =
         App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
+
+    can_tx = App_CanTx_Create(
+        Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
+        Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
+        Io_CanTx_EnqueueNonPeriodicMsg_FSM_AIR_SHUTDOWN);
+
+    can_rx = App_CanRx_Create();
+
+    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+        Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
+        Io_HeartbeatMonitor_TimeoutCallback);
+
+    rgb_led_sequence = App_SharedRgbLedSequence_Create(
+        Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
+        Io_RgbLedSequence_TurnOnGreenLed);
+
+    world = App_FsmWorld_Create(
+        can_tx, can_rx, heartbeat_monitor, primary_flow_meter,
+        secondary_flow_meter, rgb_led_sequence);
+
+    state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
+
+    App_StackWaterMark_Init(can_tx);
+    Io_SoftwareWatchdog_Init(can_tx);
 
     struct CanMsgs_fsm_startup_t payload = { .dummy = 0 };
     App_CanTx_SendNonPeriodicMsg_FSM_STARTUP(can_tx, &payload);
@@ -489,10 +488,10 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOA, STATUS_R_Pin | STATUS_G_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOA, STATUS_R_Pin | STATUS_G_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(STATUS_B_GPIO_Port, STATUS_B_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(STATUS_B_GPIO_Port, STATUS_B_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pins : PC13 PC14 PC15 */
     GPIO_InitStruct.Pin  = GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15;

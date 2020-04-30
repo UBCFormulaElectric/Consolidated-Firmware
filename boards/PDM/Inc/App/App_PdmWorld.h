@@ -4,6 +4,7 @@
 #include "App_CanRx.h"
 #include "App_InRangeCheck.h"
 #include "App_SharedHeartbeatMonitor.h"
+#include "App_SharedRgbLedSequence.h"
 
 struct PdmWorld;
 
@@ -29,7 +30,8 @@ struct PdmWorld *App_PdmWorld_Create(
     struct InRangeCheck *     energy_meter_current_check,
     struct InRangeCheck *     can_current_check,
     struct InRangeCheck *     air_shutdown_current_check,
-    struct HeartbeatMonitor * heartbeat_monitor);
+    struct HeartbeatMonitor * heartbeat_monitor,
+    struct RgbLedSequence *   rgb_led_sequence);
 
 /**
  * Destroy the given PDM world, freeing the memory associated with it
@@ -61,3 +63,5 @@ struct InRangeCheck *
     App_PdmWorld_GetAirShutdownCurrentCheck(const struct PdmWorld *world);
 struct HeartbeatMonitor *
     App_PdmWorld_GetHeartbeatMonitor(const struct PdmWorld *world);
+struct RgbLedSequence *
+    App_PdmWorld_GetRgbLedSequence(const struct PdmWorld *world);

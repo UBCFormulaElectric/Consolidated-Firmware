@@ -4,6 +4,8 @@
 #include "App_CanRx.h"
 #include "App_SevenSegDisplays.h"
 #include "App_SharedHeartbeatMonitor.h"
+#include "App_RegenPaddle.h"
+#include "App_SharedRgbLedSequence.h"
 
 struct DimWorld;
 
@@ -20,7 +22,9 @@ struct DimWorld *App_DimWorld_Create(
     struct DimCanTxInterface *can_tx_interface,
     struct DimCanRxInterface *can_rx_interface,
     struct SevenSegDisplays * seven_seg_displays,
-    struct HeartbeatMonitor * heartbeat_monitor);
+    struct HeartbeatMonitor * heartbeat_monitor,
+    struct RegenPaddle *      regen_paddle,
+    struct RgbLedSequence *   rgb_led_sequence);
 
 /**
  * Destroy the given DIM world, freeing the memory associated with it
@@ -33,4 +37,7 @@ struct DimCanRxInterface *App_DimWorld_GetCanRx(const struct DimWorld *world);
 struct SevenSegDisplays *
     App_DimWorld_GetSevenSegDisplays(const struct DimWorld *world);
 struct HeartbeatMonitor *
-    App_DimWorld_GetHeartbeatMonitor(const struct DimWorld *world);
+                    App_DimWorld_GetHeartbeatMonitor(const struct DimWorld *world);
+struct RegenPaddle *App_DimWorld_GetRegenPaddle(const struct DimWorld *world);
+struct RgbLedSequence *
+    App_DimWorld_GetRgbLedSequence(const struct DimWorld *world);

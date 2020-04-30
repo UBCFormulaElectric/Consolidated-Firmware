@@ -27,13 +27,9 @@
 #include <assert.h>
 
 #include "App_DimWorld.h"
-#include "App_SevenSegDisplays.h"
 #include "App_SevenSegDisplay.h"
-#include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_DriveState.h"
-#include "App_CanTx.h"
-#include "App_CanRx.h"
 
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
@@ -42,6 +38,8 @@
 #include "Io_SharedErrorHandlerOverride.h"
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_HeartbeatMonitor.h"
+#include "Io_RegenPaddle.h"
+#include "Io_RgbLedSequence.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -88,6 +86,8 @@ struct SevenSegDisplay *  middle_seven_seg_display;
 struct SevenSegDisplay *  right_seven_seg_display;
 struct SevenSegDisplays * seven_seg_displays;
 struct HeartbeatMonitor * heartbeat_monitor;
+struct RegenPaddle *      regen_paddle;
+struct RgbLedSequence *   rgb_led_sequence;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -125,36 +125,7 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count)
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    __HAL_DBGMCU_FREEZE_IWDG();
-    Io_SharedHardFaultHandler_Init();
 
-    Io_SevenSegDisplays_Init(&hspi2);
-
-    left_seven_seg_display =
-        App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetLeftHexDigit);
-    middle_seven_seg_display =
-        App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetMiddleHexDigit);
-    right_seven_seg_display =
-        App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetRightHexDigit);
-
-    seven_seg_displays = App_SevenSegDisplays_Create(
-        left_seven_seg_display, middle_seven_seg_display,
-        right_seven_seg_display, Io_SevenSegDisplays_WriteCommands);
-
-    can_tx = App_CanTx_Create(
-        Io_CanTx_EnqueueNonPeriodicMsg_DIM_STARTUP,
-        Io_CanTx_EnqueueNonPeriodicMsg_DIM_WATCHDOG_TIMEOUT);
-
-    can_rx = App_CanRx_Create();
-
-    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
-        Io_HeartbeatMonitor_TimeoutCallback);
-
-    world = App_DimWorld_Create(
-        can_tx, can_rx, seven_seg_displays, heartbeat_monitor);
-
-    state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
     /* USER CODE END 1 */
 
     /* MCU
@@ -181,6 +152,45 @@ int main(void)
     MX_ADC2_Init();
     MX_SPI2_Init();
     /* USER CODE BEGIN 2 */
+    __HAL_DBGMCU_FREEZE_IWDG();
+    Io_SharedHardFaultHandler_Init();
+
+    Io_SevenSegDisplays_Init(&hspi2);
+
+    left_seven_seg_display =
+        App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetLeftHexDigit);
+    middle_seven_seg_display =
+        App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetMiddleHexDigit);
+    right_seven_seg_display =
+        App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetRightHexDigit);
+
+    seven_seg_displays = App_SevenSegDisplays_Create(
+        left_seven_seg_display, middle_seven_seg_display,
+        right_seven_seg_display, Io_SevenSegDisplays_WriteCommands);
+
+    can_tx = App_CanTx_Create(
+        Io_CanTx_EnqueueNonPeriodicMsg_DIM_STARTUP,
+        Io_CanTx_EnqueueNonPeriodicMsg_DIM_WATCHDOG_TIMEOUT);
+
+    can_rx = App_CanRx_Create();
+
+    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+        Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
+        Io_HeartbeatMonitor_TimeoutCallback);
+
+    regen_paddle =
+        App_RegenPaddle_Create(Io_RegenPaddle_GetPaddlePosition, 5, 95);
+
+    rgb_led_sequence = App_SharedRgbLedSequence_Create(
+        Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
+        Io_RgbLedSequence_TurnOnGreenLed);
+
+    world = App_DimWorld_Create(
+        can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle,
+        rgb_led_sequence);
+
+    state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
+
     struct CanMsgs_dim_startup_t payload = { .dummy = 0 };
     App_CanTx_SendNonPeriodicMsg_DIM_STARTUP(can_tx, &payload);
     /* USER CODE END 2 */
@@ -433,16 +443,20 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(
-        GPIOC, BSPD_LED_Pin | DIM_RED_Pin | PDM_GREEN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, BSPD_LED_Pin | PDM_GREEN_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(DIM_RED_GPIO_Port, DIM_RED_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
         GPIOA,
-        DCM_BLUE_Pin | DIM_GREEN_Pin | DIM_BLUE_Pin | PDM_RED_Pin |
-            DCM_GREEN_Pin | PDM_BLUE_Pin | FSM_GREEN_Pin | BMS_BLUE_Pin |
-            SEVENSEG_DIMMING_3V3_Pin,
+        DCM_BLUE_Pin | PDM_RED_Pin | DCM_GREEN_Pin | PDM_BLUE_Pin |
+            FSM_GREEN_Pin | BMS_BLUE_Pin | SEVENSEG_DIMMING_3V3_Pin,
         GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GPIOA, DIM_GREEN_Pin | DIM_BLUE_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(

@@ -36,14 +36,11 @@
 #include "Io_SoftwareWatchdog.h"
 #include "Io_Imd.h"
 #include "Io_HeartbeatMonitor.h"
+#include "Io_RgbLedSequence.h"
 
 #include "App_BmsWorld.h"
-#include "App_CanTx.h"
-#include "App_CanRx.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
-#include "App_Imd.h"
-#include "App_SharedHeartbeatMonitor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -90,6 +87,7 @@ struct BmsCanTxInterface *can_tx;
 struct BmsCanRxInterface *can_rx;
 struct Imd *              imd;
 struct HeartbeatMonitor * heartbeat_monitor;
+struct RgbLedSequence *   rgb_led_sequence;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -134,31 +132,7 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count)
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    __HAL_DBGMCU_FREEZE_IWDG();
-    Io_SharedHardFaultHandler_Init();
 
-    Io_Imd_Init();
-    imd = App_Imd_Create(
-        Io_Imd_GetFrequency, 2.0f, Io_Imd_GetDutyCycle,
-        Io_Imd_GetTimeSincePowerOn);
-
-    can_tx = App_CanTx_Create(
-        Io_CanTx_EnqueueNonPeriodicMsg_BMS_STARTUP,
-        Io_CanTx_EnqueueNonPeriodicMsg_BMS_WATCHDOG_TIMEOUT);
-
-    can_rx = App_CanRx_Create();
-
-    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_HeartbeatMonitor_GetCurrentMs, 300U,
-        FSM_HEARTBEAT_ONE_HOT | DCM_HEARTBEAT_ONE_HOT | PDM_HEARTBEAT_ONE_HOT,
-        Io_HeartbeatMonitor_TimeoutCallback);
-
-    world = App_BmsWorld_Create(can_tx, can_rx, imd, heartbeat_monitor);
-
-    App_StackWaterMark_Init(can_tx);
-    Io_SoftwareWatchdog_Init(can_tx);
-
-    state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
     /* USER CODE END 1 */
 
     /* MCU
@@ -187,6 +161,37 @@ int main(void)
     MX_TIM2_Init();
     MX_ADC2_Init();
     /* USER CODE BEGIN 2 */
+    __HAL_DBGMCU_FREEZE_IWDG();
+    Io_SharedHardFaultHandler_Init();
+
+    Io_Imd_Init();
+    imd = App_Imd_Create(
+        Io_Imd_GetFrequency, 2.0f, Io_Imd_GetDutyCycle,
+        Io_Imd_GetTimeSincePowerOn);
+
+    can_tx = App_CanTx_Create(
+        Io_CanTx_EnqueueNonPeriodicMsg_BMS_STARTUP,
+        Io_CanTx_EnqueueNonPeriodicMsg_BMS_WATCHDOG_TIMEOUT);
+
+    can_rx = App_CanRx_Create();
+
+    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+        Io_HeartbeatMonitor_GetCurrentMs, 300U,
+        FSM_HEARTBEAT_ONE_HOT | DCM_HEARTBEAT_ONE_HOT | PDM_HEARTBEAT_ONE_HOT,
+        Io_HeartbeatMonitor_TimeoutCallback);
+
+    rgb_led_sequence = App_SharedRgbLedSequence_Create(
+        Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
+        Io_RgbLedSequence_TurnOnGreenLed);
+
+    world = App_BmsWorld_Create(
+        can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence);
+
+    App_StackWaterMark_Init(can_tx);
+    Io_SoftwareWatchdog_Init(can_tx);
+
+    state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
+
     struct CanMsgs_bms_startup_t payload = { .dummy = 0 };
     App_CanTx_SendNonPeriodicMsg_BMS_STARTUP(can_tx, &payload);
     /* USER CODE END 2 */

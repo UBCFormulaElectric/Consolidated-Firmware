@@ -37,13 +37,12 @@
 #include "Io_VoltageCheck.h"
 #include "Io_CurrentCheck.h"
 #include "Io_HeartbeatMonitor.h"
+#include "Io_RgbLedSequence.h"
 
-#include "App_CanTx.h"
-#include "App_CanRx.h"
+#include "App_PdmWorld.h"
 #include "App_SharedConstants.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
-#include "App_SharedHeartbeatMonitor.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -98,6 +97,7 @@ struct InRangeCheck *     energy_meter_current_check;
 struct InRangeCheck *     can_current_check;
 struct InRangeCheck *     air_shutdown_current_check;
 struct HeartbeatMonitor * heartbeat_monitor;
+struct RgbLedSequence *   rgb_led_sequence;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -141,6 +141,34 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count)
 int main(void)
 {
     /* USER CODE BEGIN 1 */
+
+    /* USER CODE END 1 */
+
+    /* MCU
+     * Configuration--------------------------------------------------------*/
+
+    /* Reset of all peripherals, Initializes the Flash interface and the
+     * Systick. */
+    HAL_Init();
+
+    /* USER CODE BEGIN Init */
+
+    /* USER CODE END Init */
+
+    /* Configure the system clock */
+    SystemClock_Config();
+
+    /* USER CODE BEGIN SysInit */
+
+    /* USER CODE END SysInit */
+
+    /* Initialize all configured peripherals */
+    MX_GPIO_Init();
+    MX_CAN_Init();
+    MX_SPI2_Init();
+    MX_ADC1_Init();
+    MX_IWDG_Init();
+    /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
     Io_SharedHardFaultHandler_Init();
 
@@ -196,12 +224,16 @@ int main(void)
         Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
         Io_HeartbeatMonitor_TimeoutCallback);
 
+    rgb_led_sequence = App_SharedRgbLedSequence_Create(
+        Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
+        Io_RgbLedSequence_TurnOnGreenLed);
+
     world = App_PdmWorld_Create(
         can_tx, can_rx, vbat_voltage_check, _24v_aux_voltage_check,
         _24v_acc_voltage_check, aux1_current_check, aux2_current_check,
         left_inverter_current_check, right_inverter_current_check,
         energy_meter_current_check, can_current_check,
-        air_shutdown_current_check, heartbeat_monitor);
+        air_shutdown_current_check, heartbeat_monitor, rgb_led_sequence);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
@@ -209,33 +241,7 @@ int main(void)
     Io_VoltageInRangeCheck_Init(can_tx);
     Io_CurrentInRangeCheck_Init(can_tx);
     App_StackWaterMark_Init(can_tx);
-    /* USER CODE END 1 */
 
-    /* MCU
-     * Configuration--------------------------------------------------------*/
-
-    /* Reset of all peripherals, Initializes the Flash interface and the
-     * Systick. */
-    HAL_Init();
-
-    /* USER CODE BEGIN Init */
-
-    /* USER CODE END Init */
-
-    /* Configure the system clock */
-    SystemClock_Config();
-
-    /* USER CODE BEGIN SysInit */
-
-    /* USER CODE END SysInit */
-
-    /* Initialize all configured peripherals */
-    MX_GPIO_Init();
-    MX_CAN_Init();
-    MX_SPI2_Init();
-    MX_ADC1_Init();
-    MX_IWDG_Init();
-    /* USER CODE BEGIN 2 */
     struct CanMsgs_pdm_startup_t payload = { .dummy = 0 };
     App_CanTx_SendNonPeriodicMsg_PDM_STARTUP(can_tx, &payload);
     /* USER CODE END 2 */

@@ -58,6 +58,10 @@ FAKE_VOID_FUNC(
     enum HeartbeatOneHot,
     enum HeartbeatOneHot);
 
+FAKE_VOID_FUNC(turn_on_red_led);
+FAKE_VOID_FUNC(turn_on_green_led);
+FAKE_VOID_FUNC(turn_on_blue_led);
+
 class PdmStateMachineTest : public testing::Test
 {
   protected:
@@ -96,12 +100,14 @@ class PdmStateMachineTest : public testing::Test
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             get_current_ms, DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS,
             DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
+        rgb_led_sequence = App_SharedRgbLedSequence_Create(
+            turn_on_red_led, turn_on_green_led, turn_on_blue_led);
         world = App_PdmWorld_Create(
             can_tx_interface, can_rx_interface, vbat_voltage_check,
             _24v_aux_voltage_check, _24v_acc_voltage_check, aux1_current_check,
             aux2_current_check, left_inverter_current_check,
             right_inverter_current_check, energy_meter_current_check,
-            can_current_check, air_shutdown_current_check, heartbeat_monitor);
+            can_current_check, air_shutdown_current_check, heartbeat_monitor, rgb_led_sequence);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -134,6 +140,9 @@ class PdmStateMachineTest : public testing::Test
         RESET_FAKE(AirShutdownErrorCallback);
         RESET_FAKE(get_current_ms);
         RESET_FAKE(heartbeat_timeout_callback);
+        RESET_FAKE(turn_on_red_led);
+        RESET_FAKE(turn_on_green_led);
+        RESET_FAKE(turn_on_blue_led);
     }
 
     void TearDown() override
@@ -153,6 +162,7 @@ class PdmStateMachineTest : public testing::Test
         ASSERT_TRUE(can_current_check != NULL);
         ASSERT_TRUE(air_shutdown_current_check != NULL);
         ASSERT_TRUE(heartbeat_monitor != NULL);
+        ASSERT_TRUE(rgb_led_sequence != NULL);
 
         App_PdmWorld_Destroy(world);
         App_SharedStateMachine_Destroy(state_machine);
@@ -169,6 +179,7 @@ class PdmStateMachineTest : public testing::Test
         App_InRangeCheck_Destroy(can_current_check);
         App_InRangeCheck_Destroy(air_shutdown_current_check);
         App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
+        App_SharedRgbLedSequence_Destroy(rgb_led_sequence);
 
         world                        = NULL;
         state_machine                = NULL;
@@ -185,6 +196,7 @@ class PdmStateMachineTest : public testing::Test
         can_current_check            = NULL;
         air_shutdown_current_check   = NULL;
         heartbeat_monitor            = NULL;
+        rgb_led_sequence         = NULL;
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -212,6 +224,7 @@ class PdmStateMachineTest : public testing::Test
     struct InRangeCheck *     can_current_check;
     struct InRangeCheck *     air_shutdown_current_check;
     struct HeartbeatMonitor * heartbeat_monitor;
+    struct RgbLedSequence *   rgb_led_sequence;
 };
 
 TEST_F(PdmStateMachineTest, check_init_state_is_broadcasted_over_can)
