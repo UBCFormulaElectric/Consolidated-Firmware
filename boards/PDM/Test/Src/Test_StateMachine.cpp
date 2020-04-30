@@ -107,7 +107,8 @@ class PdmStateMachineTest : public testing::Test
             _24v_aux_voltage_check, _24v_acc_voltage_check, aux1_current_check,
             aux2_current_check, left_inverter_current_check,
             right_inverter_current_check, energy_meter_current_check,
-            can_current_check, air_shutdown_current_check, heartbeat_monitor, rgb_led_sequence);
+            can_current_check, air_shutdown_current_check, heartbeat_monitor,
+            rgb_led_sequence);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -196,7 +197,7 @@ class PdmStateMachineTest : public testing::Test
         can_current_check            = NULL;
         air_shutdown_current_check   = NULL;
         heartbeat_monitor            = NULL;
-        rgb_led_sequence         = NULL;
+        rgb_led_sequence             = NULL;
     }
 
     void SetInitialState(const struct State *const initial_state)
