@@ -181,44 +181,34 @@ int main(void)
     can_rx = App_CanRx_Create();
 
     vbat_voltage_check = App_InRangeCheck_Create(
-        Io_VoltageInRangeCheck_GetVbatVoltage, 6.0f, 8.5f,
-        Io_VoltageInRangeCheck_VbatErrorCallback);
+        Io_VoltageInRangeCheck_GetVbatVoltage, 6.0f, 8.5f);
 
     _24v_aux_voltage_check = App_InRangeCheck_Create(
-        Io_VoltageInRangeCheck_Get24vAuxVoltage, 22.0f, 26.0f,
-        Io_VoltageInRangeCheck_24vAuxErrorCallback);
+        Io_VoltageInRangeCheck_Get24vAuxVoltage, 22.0f, 26.0f);
 
     _24v_acc_voltage_check = App_InRangeCheck_Create(
-        Io_VoltageInRangeCheck_Get24vAccVoltage, 22.0f, 26.0f,
-        Io_VoltageInRangeCheck_24vAccErrorCallback);
+        Io_VoltageInRangeCheck_Get24vAccVoltage, 22.0f, 26.0f);
 
     aux1_current_check = App_InRangeCheck_Create(
-        Io_CurrentInRangeCheck_GetAux1Current, 0.0f, 1.0f,
-        Io_CurrentInRangeCheck_Aux1ErrorCallback);
+        Io_CurrentInRangeCheck_GetAux1Current, 0.0f, 1.0f);
 
     aux2_current_check = App_InRangeCheck_Create(
-        Io_CurrentInRangeCheck_GetAux1Current, 0.0f, 1.0f,
-        Io_CurrentInRangeCheck_Aux1ErrorCallback);
+        Io_CurrentInRangeCheck_GetAux1Current, 0.0f, 1.0f);
 
     left_inverter_current_check = App_InRangeCheck_Create(
-        Io_CurrentInRangeCheck_GetLeftInverterCurrent, 0.0f, 2.5f,
-        Io_CurrentInRangeCheck_LeftInverterErrorCallback);
+        Io_CurrentInRangeCheck_GetLeftInverterCurrent, 0.0f, 2.5f);
 
     right_inverter_current_check = App_InRangeCheck_Create(
-        Io_CurrentInRangeCheck_GetRightInverterCurrent, 0.0f, 2.5f,
-        Io_CurrentInRangeCheck_RightInverterErrorCallback);
+        Io_CurrentInRangeCheck_GetRightInverterCurrent, 0.0f, 2.5f);
 
     energy_meter_current_check = App_InRangeCheck_Create(
-        Io_CurrentInRangeCheck_GetEnergyMeterCurrent, 0.0f, 1.0f,
-        Io_CurrentInRangeCheck_EnergyMeterErrorCallback);
+        Io_CurrentInRangeCheck_GetEnergyMeterCurrent, 0.0f, 1.0f);
 
     can_current_check = App_InRangeCheck_Create(
-        Io_CurrentInRangeCheck_GetCanCurrent, 0.0f, 1.0f,
-        Io_CurrentInRangeCheck_CanErrorCallback);
+        Io_CurrentInRangeCheck_GetCanCurrent, 0.0f, 1.0f);
 
     air_shutdown_current_check = App_InRangeCheck_Create(
-        Io_CurrentInRangeCheck_GetAirShutdownCurrent, 0.0f, 1.0f,
-        Io_CurrentInRangeCheck_AirShutdownErrorCallback);
+        Io_CurrentInRangeCheck_GetAirShutdownCurrent, 0.0f, 1.0f);
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
@@ -238,8 +228,6 @@ int main(void)
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
     Io_SoftwareWatchdog_Init(can_tx);
-    Io_VoltageInRangeCheck_Init(can_tx);
-    Io_CurrentInRangeCheck_Init(can_tx);
     App_StackWaterMark_Init(can_tx);
 
     struct CanMsgs_pdm_startup_t payload = { .dummy = 0 };

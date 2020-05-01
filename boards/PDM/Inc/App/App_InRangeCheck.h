@@ -4,8 +4,9 @@
 
 struct InRangeCheck;
 
-enum InRangeCheck_ErrorStatus
+enum InRangeCheck_Status
 {
+    VALUE_IN_RANGE,
     VALUE_UNDERFLOW,
     VALUE_OVERFLOW,
 };
@@ -16,17 +17,12 @@ enum InRangeCheck_ErrorStatus
  * @get_value A function that can be called to get the value
  * @min_value Minimum value in the range, inclusive
  * @max_value Maximum value in the range, inclusive
- * @error_callback The function to call when the value is outside of the
- *                 specified range. The argument is an error status that encodes
- *                 whether an underflow or overflow occured.
- * @return A pointer to the created in-range check, whose ownership is given
- * to the caller
+ * @return The created in-range check, whose ownership is given to the caller
  */
 struct InRangeCheck *App_InRangeCheck_Create(
     float (*get_value)(void),
     float min_value,
-    float max_value,
-    void (*error_callback)(enum InRangeCheck_ErrorStatus));
+    float max_value);
 
 void App_InRangeCheck_Destroy(struct InRangeCheck *in_range_check);
 
@@ -39,6 +35,6 @@ void App_InRangeCheck_Destroy(struct InRangeCheck *in_range_check);
  * @param returned_value The buffer to store the value in
  * @return EXIT_CODE_OUT_OF_RANGE if the value is outside of the specified range
  */
-ExitCode App_InRangeCheck_GetValue(
-    const struct InRangeCheck *in_range_check,
-    float *                    returned_value);
+enum InRangeCheck_Status App_InRangeCheck_GetValue(
+    const struct InRangeCheck *const in_range_check,
+    float *                          returned_value);

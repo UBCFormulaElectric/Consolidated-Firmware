@@ -7,7 +7,6 @@ extern "C"
 }
 
 FAKE_VALUE_FUNC(float, get_value);
-FAKE_VOID_FUNC(error_callback, enum InRangeCheck_ErrorStatus);
 
 class InRangeCheckTest : public testing::Test
 {
@@ -15,10 +14,9 @@ class InRangeCheckTest : public testing::Test
     void SetUp() override
     {
         in_range_check = App_InRangeCheck_Create(
-            get_value, DEFAULT_MIN_VALUE, DEFAULT_MAX_VAVLUE, error_callback);
+            get_value, DEFAULT_MIN_VALUE, DEFAULT_MAX_VAVLUE);
 
         RESET_FAKE(get_value);
-        RESET_FAKE(error_callback);
 
         FFF_RESET_HISTORY();
     }
@@ -38,43 +36,44 @@ class InRangeCheckTest : public testing::Test
 
 TEST_F(InRangeCheckTest, value_in_range)
 {
-    float buffer              = 0.0f;
+    float value;
+
     get_value_fake.return_val = (DEFAULT_MIN_VALUE + DEFAULT_MAX_VAVLUE) / 2.0f;
-    ASSERT_EQ(EXIT_CODE_OK, App_InRangeCheck_GetValue(in_range_check, &buffer));
-    ASSERT_EQ(get_value_fake.return_val, buffer);
-    ASSERT_EQ(error_callback_fake.call_count, 0);
+    ASSERT_EQ(
+        VALUE_IN_RANGE, App_InRangeCheck_GetValue(in_range_check, &value));
+    ASSERT_EQ(get_value_fake.return_val, value);
 }
 
 TEST_F(InRangeCheckTest, value_underflow)
 {
-    float buffer              = 0.0f;
+    float value;
+
+    // The range is inclusive, so the minimum value should not trigger an error
     get_value_fake.return_val = DEFAULT_MIN_VALUE;
-    ASSERT_EQ(EXIT_CODE_OK, App_InRangeCheck_GetValue(in_range_check, &buffer));
-    ASSERT_EQ(get_value_fake.return_val, buffer);
-    ASSERT_EQ(error_callback_fake.call_count, 0);
+    ASSERT_EQ(
+        VALUE_IN_RANGE, App_InRangeCheck_GetValue(in_range_check, &value));
+    ASSERT_EQ(get_value_fake.return_val, value);
 
     get_value_fake.return_val =
         std::nextafter(DEFAULT_MIN_VALUE, std::numeric_limits<float>::min());
     ASSERT_EQ(
-        EXIT_CODE_OUT_OF_RANGE,
-        App_InRangeCheck_GetValue(in_range_check, &buffer));
-    ASSERT_EQ(get_value_fake.return_val, buffer);
-    ASSERT_EQ(error_callback_fake.call_count, 1);
+        VALUE_UNDERFLOW, App_InRangeCheck_GetValue(in_range_check, &value));
+    ASSERT_EQ(get_value_fake.return_val, value);
 }
 
 TEST_F(InRangeCheckTest, value_overflow)
 {
-    float buffer;
+    float value;
+
+    // The range is inclusive, so the maximum value should not trigger an error
     get_value_fake.return_val = DEFAULT_MAX_VAVLUE;
-    ASSERT_EQ(EXIT_CODE_OK, App_InRangeCheck_GetValue(in_range_check, &buffer));
-    ASSERT_EQ(get_value_fake.return_val, buffer);
-    ASSERT_EQ(error_callback_fake.call_count, 0);
+    ASSERT_EQ(
+        VALUE_IN_RANGE, App_InRangeCheck_GetValue(in_range_check, &value));
+    ASSERT_EQ(get_value_fake.return_val, value);
 
     get_value_fake.return_val =
         std::nextafter(DEFAULT_MAX_VAVLUE, std::numeric_limits<float>::max());
     ASSERT_EQ(
-        EXIT_CODE_OUT_OF_RANGE,
-        App_InRangeCheck_GetValue(in_range_check, &buffer));
-    ASSERT_EQ(get_value_fake.return_val, buffer);
-    ASSERT_EQ(error_callback_fake.call_count, 1);
+        VALUE_OVERFLOW, App_InRangeCheck_GetValue(in_range_check, &value));
+    ASSERT_EQ(get_value_fake.return_val, value);
 }

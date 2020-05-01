@@ -1,15 +1,37 @@
 #include "App_SetPeriodicCanSignals.h"
 #include "App_CanTx.h"
 #include "App_InRangeCheck.h"
-#include "App_ErrorCode.h"
 
 void App_SetPeriodicCanSignals_InRangeCheck(
     struct PdmCanTxInterface *const  can_tx,
     const struct InRangeCheck *const in_range_check,
-    void (*const can_signal_setter)(struct PdmCanTxInterface *, float))
+    void (*const can_signal_setter)(struct PdmCanTxInterface *, float),
+    void (*const underflow_setter)(struct PdmCanTxInterface *, uint8_t),
+    void (*const overflow_setter)(struct PdmCanTxInterface *, uint8_t))
 {
-    float buffer;
+    float                    value;
+    enum InRangeCheck_Status status =
+        App_InRangeCheck_GetValue(in_range_check, &value);
 
-    App_InRangeCheck_GetValue(in_range_check, &buffer);
-    can_signal_setter(can_tx, buffer);
+    switch (status)
+    {
+        case VALUE_IN_RANGE:
+        {
+            underflow_setter(can_tx, false);
+            overflow_setter(can_tx, false);
+        }
+        break;
+        case VALUE_UNDERFLOW:
+        {
+            underflow_setter(can_tx, true);
+        }
+        break;
+        case VALUE_OVERFLOW:
+        {
+            overflow_setter(can_tx, true);
+        }
+        break;
+    }
+
+    can_signal_setter(can_tx, value);
 }

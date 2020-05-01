@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 struct PdmCanTxInterface;
 struct InRangeCheck;
 
@@ -7,4 +9,6 @@ struct InRangeCheck;
 void App_SetPeriodicCanSignals_InRangeCheck(
     struct PdmCanTxInterface * can_tx,
     const struct InRangeCheck *in_range_check,
-    void (*can_signal_setter)(struct PdmCanTxInterface *, float));
+    void (*can_signal_setter)(struct PdmCanTxInterface *, float),
+    void (*const underflow_setter)(struct PdmCanTxInterface *, uint8_t),
+    void (*const overflow_setter)(struct PdmCanTxInterface *, uint8_t));

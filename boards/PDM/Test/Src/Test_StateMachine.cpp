@@ -23,34 +23,34 @@ FAKE_VOID_FUNC(
     struct CanMsgs_pdm_watchdog_timeout_t *);
 
 FAKE_VALUE_FUNC(float, GetVbatVoltage);
-FAKE_VOID_FUNC(VbatErrorCallback, enum InRangeCheck_ErrorStatus);
+FAKE_VOID_FUNC(VbatErrorCallback, enum InRangeCheck_Status);
 
 FAKE_VALUE_FUNC(float, Get24vAuxVoltage);
-FAKE_VOID_FUNC(_24vAuxErrorCallback, enum InRangeCheck_ErrorStatus);
+FAKE_VOID_FUNC(_24vAuxErrorCallback, enum InRangeCheck_Status);
 
 FAKE_VALUE_FUNC(float, Get24vAccVoltage);
-FAKE_VOID_FUNC(_24vAccErrorCallback, enum InRangeCheck_ErrorStatus);
+FAKE_VOID_FUNC(_24vAccErrorCallback, enum InRangeCheck_Status);
 
 FAKE_VALUE_FUNC(float, GetAux1Current);
-FAKE_VOID_FUNC(Aux1ErrorCallback, enum InRangeCheck_ErrorStatus);
+FAKE_VOID_FUNC(Aux1ErrorCallback, enum InRangeCheck_Status);
 
 FAKE_VALUE_FUNC(float, GetAux2Current);
-FAKE_VOID_FUNC(Aux2ErrorCallback, enum InRangeCheck_ErrorStatus);
+FAKE_VOID_FUNC(Aux2ErrorCallback, enum InRangeCheck_Status);
 
 FAKE_VALUE_FUNC(float, GetLeftInverterCurrent);
-FAKE_VOID_FUNC(LeftInverterErrorCallback, enum InRangeCheck_ErrorStatus);
+FAKE_VOID_FUNC(LeftInverterErrorCallback, enum InRangeCheck_Status);
 
 FAKE_VALUE_FUNC(float, GetRightInverterCurrent);
-FAKE_VOID_FUNC(RightInverterErrorCallback, enum InRangeCheck_ErrorStatus);
+FAKE_VOID_FUNC(RightInverterErrorCallback, enum InRangeCheck_Status);
 
 FAKE_VALUE_FUNC(float, GetEnergyMeterCurrent);
-FAKE_VOID_FUNC(EnergyMeterErrorCallback, enum InRangeCheck_ErrorStatus);
+FAKE_VOID_FUNC(EnergyMeterErrorCallback, enum InRangeCheck_Status);
 
 FAKE_VALUE_FUNC(float, GetCanCurrent);
-FAKE_VOID_FUNC(CanErrorCallback, enum InRangeCheck_ErrorStatus);
+FAKE_VOID_FUNC(CanErrorCallback, enum InRangeCheck_Status);
 
 FAKE_VALUE_FUNC(float, GetAirShutdownCurrent);
-FAKE_VOID_FUNC(AirShutdownErrorCallback, enum InRangeCheck_ErrorStatus);
+FAKE_VOID_FUNC(AirShutdownErrorCallback, enum InRangeCheck_Status);
 
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
 FAKE_VOID_FUNC(
@@ -76,27 +76,26 @@ class PdmStateMachineTest : public testing::Test
             send_non_periodic_msg_PDM_AIR_SHUTDOWN,
             send_non_periodic_msg_PDM_MOTOR_SHUTDOWN,
             send_non_periodic_msg_PDM_WATCHDOG_TIMEOUT);
-        can_rx_interface   = App_CanRx_Create();
-        vbat_voltage_check = App_InRangeCheck_Create(
-            GetVbatVoltage, 22.0f, 26.0f, VbatErrorCallback);
-        _24v_aux_voltage_check = App_InRangeCheck_Create(
-            Get24vAccVoltage, 22.0f, 26.0f, _24vAuxErrorCallback);
-        _24v_acc_voltage_check = App_InRangeCheck_Create(
-            Get24vAccVoltage, 22.0f, 26.0f, _24vAccErrorCallback);
-        aux1_current_check = App_InRangeCheck_Create(
-            GetAux1Current, 0.0f, 1.0f, Aux1ErrorCallback);
-        aux2_current_check = App_InRangeCheck_Create(
-            GetAux1Current, 0.0f, 1.0f, Aux1ErrorCallback);
-        left_inverter_current_check = App_InRangeCheck_Create(
-            GetLeftInverterCurrent, 0.0f, 2.5f, LeftInverterErrorCallback);
-        right_inverter_current_check = App_InRangeCheck_Create(
-            GetRightInverterCurrent, 0.0f, 2.5f, RightInverterErrorCallback);
-        energy_meter_current_check = App_InRangeCheck_Create(
-            GetEnergyMeterCurrent, 0.0f, 1.0f, EnergyMeterErrorCallback);
-        can_current_check = App_InRangeCheck_Create(
-            GetCanCurrent, 0.0f, 1.0f, CanErrorCallback);
-        air_shutdown_current_check = App_InRangeCheck_Create(
-            GetAirShutdownCurrent, 0.0f, 1.0f, AirShutdownErrorCallback);
+        can_rx_interface = App_CanRx_Create();
+        vbat_voltage_check =
+            App_InRangeCheck_Create(GetVbatVoltage, 22.0f, 26.0f);
+        _24v_aux_voltage_check =
+            App_InRangeCheck_Create(Get24vAccVoltage, 22.0f, 26.0f);
+        _24v_acc_voltage_check =
+            App_InRangeCheck_Create(Get24vAccVoltage, 22.0f, 26.0f);
+        aux1_current_check =
+            App_InRangeCheck_Create(GetAux1Current, 0.0f, 1.0f);
+        aux2_current_check =
+            App_InRangeCheck_Create(GetAux1Current, 0.0f, 1.0f);
+        left_inverter_current_check =
+            App_InRangeCheck_Create(GetLeftInverterCurrent, 0.0f, 2.5f);
+        right_inverter_current_check =
+            App_InRangeCheck_Create(GetRightInverterCurrent, 0.0f, 2.5f);
+        energy_meter_current_check =
+            App_InRangeCheck_Create(GetEnergyMeterCurrent, 0.0f, 1.0f);
+        can_current_check = App_InRangeCheck_Create(GetCanCurrent, 0.0f, 1.0f);
+        air_shutdown_current_check =
+            App_InRangeCheck_Create(GetAirShutdownCurrent, 0.0f, 1.0f);
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             get_current_ms, DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS,
             DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
@@ -210,6 +209,15 @@ class PdmStateMachineTest : public testing::Test
             App_SharedStateMachine_GetCurrentState(state_machine));
     }
 
+    std::vector<const struct State *> GetAllStates(void)
+    {
+        return std::vector<const struct State *>{
+            App_GetInitState(),
+            App_GetAirClosedState(),
+            App_GetAirOpenState(),
+        };
+    }
+
     struct World *            world;
     struct StateMachine *     state_machine;
     struct PdmCanTxInterface *can_tx_interface;
@@ -259,4 +267,48 @@ TEST_F(
     PdmStateMachineTest,
     check_vbat_voltage_is_broadcasted_over_can_in_all_states)
 {
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+        App_SharedStateMachine_Tick(state_machine);
+        EXPECT_EQ(
+            App_CanTx_GetPeriodicSignal_VBAT(can_tx_interface),
+            GetVbatVoltage_fake.return_val);
+
+        // Use a different voltage each time to avoid false positives
+        GetVbatVoltage_fake.return_val++;
+    }
+}
+
+TEST_F(
+    PdmStateMachineTest,
+    check_vbat_voltage_errors_are_broadcasted_over_can_in_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        if (state != App_GetInitState())
+        {
+            SetInitialState(state);
+
+            // Overvoltage error
+            GetVbatVoltage_fake.return_val = std::numeric_limits<float>::min();
+            EXPECT_EQ(
+                App_CanTx_GetPeriodicSignal_UNDERVOLTAGE_VBAT(can_tx_interface),
+                false);
+            App_SharedStateMachine_Tick(state_machine);
+            EXPECT_EQ(
+                App_CanTx_GetPeriodicSignal_UNDERVOLTAGE_VBAT(can_tx_interface),
+                true);
+
+            // Undervoltage error
+            GetVbatVoltage_fake.return_val = std::numeric_limits<float>::max();
+            EXPECT_EQ(
+                App_CanTx_GetPeriodicSignal_OVERVOLTAGE_VBAT(can_tx_interface),
+                false);
+            App_SharedStateMachine_Tick(state_machine);
+            EXPECT_EQ(
+                App_CanTx_GetPeriodicSignal_OVERVOLTAGE_VBAT(can_tx_interface),
+                true);
+        }
+    }
 }
