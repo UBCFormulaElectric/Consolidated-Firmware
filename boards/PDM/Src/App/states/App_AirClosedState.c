@@ -13,7 +13,7 @@ static void AirClosedStateRunOnEntry(struct StateMachine *const state_machine)
 
 static void AirClosedStateRunOnTick(struct StateMachine *const state_machine)
 {
-    struct PdmWorld* world = App_SharedStateMachine_GetWorld(state_machine);
+    struct PdmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     App_SetPeriodicCanSignals_CurrentChecks(world);
     App_SetPeriodicCanSignals_VoltageChecks(world);
 }

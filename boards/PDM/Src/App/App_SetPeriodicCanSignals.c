@@ -34,7 +34,7 @@ void App_SetPeriodicCanSignals_InRangeCheck(
     can_signal_setter(can_tx, value);
 }
 
-void App_SetPeriodicCanSignals_CurrentChecks(struct PdmWorld* world)
+void App_SetPeriodicCanSignals_CurrentChecks(struct PdmWorld *world)
 {
     struct PdmCanTxInterface *can_tx = App_PdmWorld_GetCanTx(world);
 
@@ -89,11 +89,11 @@ void App_SetPeriodicCanSignals_CurrentChecks(struct PdmWorld* world)
         App_CanTx_SetPeriodicSignal_OVERCURRENT_AIR_SHUTDOWN);
 }
 
-void App_SetPeriodicCanSignals_VoltageChecks(struct PdmWorld* world)
+void App_SetPeriodicCanSignals_VoltageChecks(struct PdmWorld *world)
 {
     struct PdmCanTxInterface *can_tx = App_PdmWorld_GetCanTx(world);
 
-    struct InRangeCheck *     vbat_voltage_check =
+    struct InRangeCheck *vbat_voltage_check =
         App_PdmWorld_GetVbatInRangeCheck(world);
     struct InRangeCheck *_24v_aux_voltage_check =
         App_PdmWorld_Get24vAuxInRangeCheck(world);
@@ -113,4 +113,3 @@ void App_SetPeriodicCanSignals_VoltageChecks(struct PdmWorld* world)
         App_CanTx_SetPeriodicSignal_UNDERVOLTAGE_24_V_ACC,
         App_CanTx_SetPeriodicSignal_OVERVOLTAGE_24_V_ACC);
 }
-

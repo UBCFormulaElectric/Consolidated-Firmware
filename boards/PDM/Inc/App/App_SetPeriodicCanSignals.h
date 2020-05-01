@@ -12,5 +12,5 @@ void App_SetPeriodicCanSignals_InRangeCheck(
     void (*const underflow_setter)(struct PdmCanTxInterface *, uint8_t),
     void (*const overflow_setter)(struct PdmCanTxInterface *, uint8_t));
 
-void App_SetPeriodicCanSignals_CurrentChecks(struct PdmWorld* world);
-void App_SetPeriodicCanSignals_VoltageChecks(struct PdmWorld* world);
+void App_SetPeriodicCanSignals_CurrentChecks(struct PdmWorld *world);
+void App_SetPeriodicCanSignals_VoltageChecks(struct PdmWorld *world);
