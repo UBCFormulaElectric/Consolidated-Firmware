@@ -40,6 +40,8 @@
 #include "Io_RgbLedSequence.h"
 
 #include "App_PdmWorld.h"
+#include "App_CurrentLimits.h"
+#include "App_VoltageLimits.h"
 #include "App_SharedConstants.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
@@ -181,34 +183,43 @@ int main(void)
     can_rx = App_CanRx_Create();
 
     vbat_voltage_check = App_InRangeCheck_Create(
-        Io_VoltageInRangeCheck_GetVbatVoltage, 6.0f, 8.5f);
+        Io_VoltageInRangeCheck_GetVbatVoltage, VBAT_MIN_VOLTAGE,
+        VBAT_MAX_VOLTAGE);
 
     _24v_aux_voltage_check = App_InRangeCheck_Create(
-        Io_VoltageInRangeCheck_Get24vAuxVoltage, 22.0f, 26.0f);
+        Io_VoltageInRangeCheck_Get24vAuxVoltage, _24V_AUX_MIN_VOLTAGE,
+        _24V_AUX_MAX_VOLTAGE);
 
     _24v_acc_voltage_check = App_InRangeCheck_Create(
-        Io_VoltageInRangeCheck_Get24vAccVoltage, 22.0f, 26.0f);
+        Io_VoltageInRangeCheck_Get24vAccVoltage, _24V_ACC_MIN_VOLTAGE,
+        _24V_ACC_MAX_VOLTAGE);
 
     aux1_current_check = App_InRangeCheck_Create(
-        Io_CurrentInRangeCheck_GetAux1Current, 0.0f, 1.0f);
+        Io_CurrentInRangeCheck_GetAux1Current, AUX1_MIN_CURRENT,
+        AUX1_MAX_CURRENT);
 
     aux2_current_check = App_InRangeCheck_Create(
-        Io_CurrentInRangeCheck_GetAux1Current, 0.0f, 1.0f);
+        Io_CurrentInRangeCheck_GetAux1Current, AUX2_MIN_CURRENT,
+        AUX2_MAX_CURRENT);
 
     left_inverter_current_check = App_InRangeCheck_Create(
-        Io_CurrentInRangeCheck_GetLeftInverterCurrent, 0.0f, 2.5f);
+        Io_CurrentInRangeCheck_GetLeftInverterCurrent,
+        LEFT_INVERTER_MIN_CURRENT, LEFT_INVERTER_MAX_CURRENT);
 
     right_inverter_current_check = App_InRangeCheck_Create(
-        Io_CurrentInRangeCheck_GetRightInverterCurrent, 0.0f, 2.5f);
+        Io_CurrentInRangeCheck_GetRightInverterCurrent,
+        RIGHT_INVERTER_MIN_CURRENT, RIGHT_INVERTER_MAX_CURRENT);
 
     energy_meter_current_check = App_InRangeCheck_Create(
-        Io_CurrentInRangeCheck_GetEnergyMeterCurrent, 0.0f, 1.0f);
+        Io_CurrentInRangeCheck_GetEnergyMeterCurrent, ENERGY_METER_MIN_CURRENT,
+        ENERGY_METER_MAX_CURRENT);
 
     can_current_check = App_InRangeCheck_Create(
-        Io_CurrentInRangeCheck_GetCanCurrent, 0.0f, 1.0f);
+        Io_CurrentInRangeCheck_GetCanCurrent, CAN_MIN_CURRENT, CAN_MAX_CURRENT);
 
     air_shutdown_current_check = App_InRangeCheck_Create(
-        Io_CurrentInRangeCheck_GetAirShutdownCurrent, 0.0f, 1.0f);
+        Io_CurrentInRangeCheck_GetAirShutdownCurrent, AIR_SHDN_MIN_CURRENT,
+        AIR_SHDN_MAX_CURRENT);
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,

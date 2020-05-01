@@ -1,3 +1,4 @@
+#include <math.h>
 #include "Test_Pdm.h"
 
 extern "C"
@@ -7,6 +8,8 @@ extern "C"
 #include "states/App_InitState.h"
 #include "states/App_AirOpenState.h"
 #include "states/App_AirClosedState.h"
+#include "App_VoltageLimits.h"
+#include "App_CurrentLimits.h"
 }
 
 FAKE_VOID_FUNC(
@@ -57,26 +60,30 @@ class PdmStateMachineTest : public testing::Test
             send_non_periodic_msg_PDM_AIR_SHUTDOWN,
             send_non_periodic_msg_PDM_MOTOR_SHUTDOWN,
             send_non_periodic_msg_PDM_WATCHDOG_TIMEOUT);
-        can_rx_interface = App_CanRx_Create();
-        vbat_voltage_check =
-            App_InRangeCheck_Create(GetVbatVoltage, 22.0f, 26.0f);
-        _24v_aux_voltage_check =
-            App_InRangeCheck_Create(Get24vAccVoltage, 22.0f, 26.0f);
-        _24v_acc_voltage_check =
-            App_InRangeCheck_Create(Get24vAccVoltage, 22.0f, 26.0f);
-        aux1_current_check =
-            App_InRangeCheck_Create(GetAux1Current, 0.0f, 1.0f);
-        aux2_current_check =
-            App_InRangeCheck_Create(GetAux1Current, 0.0f, 1.0f);
-        left_inverter_current_check =
-            App_InRangeCheck_Create(GetLeftInverterCurrent, 0.0f, 2.5f);
-        right_inverter_current_check =
-            App_InRangeCheck_Create(GetRightInverterCurrent, 0.0f, 2.5f);
-        energy_meter_current_check =
-            App_InRangeCheck_Create(GetEnergyMeterCurrent, 0.0f, 1.0f);
-        can_current_check = App_InRangeCheck_Create(GetCanCurrent, 0.0f, 1.0f);
-        air_shutdown_current_check =
-            App_InRangeCheck_Create(GetAirShutdownCurrent, 0.0f, 1.0f);
+        can_rx_interface   = App_CanRx_Create();
+        vbat_voltage_check = App_InRangeCheck_Create(
+            GetVbatVoltage, VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE);
+        _24v_aux_voltage_check = App_InRangeCheck_Create(
+            Get24vAuxVoltage, _24V_AUX_MIN_VOLTAGE, _24V_AUX_MAX_VOLTAGE);
+        _24v_acc_voltage_check = App_InRangeCheck_Create(
+            Get24vAccVoltage, _24V_ACC_MIN_VOLTAGE, _24V_ACC_MAX_VOLTAGE);
+        aux1_current_check = App_InRangeCheck_Create(
+            GetAux1Current, AUX1_MIN_CURRENT, AUX1_MAX_CURRENT);
+        aux2_current_check = App_InRangeCheck_Create(
+            GetAux1Current, AUX2_MIN_CURRENT, AUX2_MAX_CURRENT);
+        left_inverter_current_check = App_InRangeCheck_Create(
+            GetLeftInverterCurrent, LEFT_INVERTER_MIN_CURRENT,
+            LEFT_INVERTER_MAX_CURRENT);
+        right_inverter_current_check = App_InRangeCheck_Create(
+            GetRightInverterCurrent, RIGHT_INVERTER_MIN_CURRENT,
+            RIGHT_INVERTER_MAX_CURRENT);
+        energy_meter_current_check = App_InRangeCheck_Create(
+            GetEnergyMeterCurrent, ENERGY_METER_MIN_CURRENT,
+            ENERGY_METER_MAX_CURRENT);
+        can_current_check = App_InRangeCheck_Create(
+            GetCanCurrent, CAN_MIN_CURRENT, CAN_MAX_CURRENT);
+        air_shutdown_current_check = App_InRangeCheck_Create(
+            GetAirShutdownCurrent, AIR_SHDN_MIN_CURRENT, AIR_SHDN_MAX_CURRENT);
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             get_current_ms, DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS,
             DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
@@ -189,6 +196,132 @@ class PdmStateMachineTest : public testing::Test
         };
     }
 
+    std::vector<const struct State *> GetAllStatesExceptForInit(void)
+    {
+        std::vector<const struct State *> vec = GetAllStates();
+
+        vec.erase(
+            std::remove(vec.begin(), vec.end(), App_GetInitState()), vec.end());
+
+        return vec;
+    }
+
+    void CheckCurrentCanSignalsInNonInitStates(
+        float  min_current,
+        float  max_current,
+        float &fake_current,
+        float (*current_can_signal_getter)(struct PdmCanTxInterface *),
+        uint8_t (*undercurrent_can_signal_getter)(struct PdmCanTxInterface *),
+        uint8_t (*overcurrent_can_signal_getter)(struct PdmCanTxInterface *))
+    {
+        for (auto &state : GetAllStatesExceptForInit())
+        {
+            SetInitialState(state);
+
+            // Normal Value
+            fake_current = (min_current + max_current) / 2;
+            App_SharedStateMachine_Tick(state_machine);
+            EXPECT_EQ(
+                fake_current, current_can_signal_getter(can_tx_interface));
+            EXPECT_EQ(undercurrent_can_signal_getter(can_tx_interface), false);
+            EXPECT_EQ(overcurrent_can_signal_getter(can_tx_interface), false);
+
+            // Under-current
+            fake_current = std::nextafter(
+                min_current, std::numeric_limits<float>::lowest());
+            App_SharedStateMachine_Tick(state_machine);
+            EXPECT_EQ(
+                fake_current, current_can_signal_getter(can_tx_interface));
+            EXPECT_EQ(undercurrent_can_signal_getter(can_tx_interface), true);
+            EXPECT_EQ(overcurrent_can_signal_getter(can_tx_interface), false);
+
+            // Over-current
+            fake_current =
+                std::nextafter(max_current, std::numeric_limits<float>::max());
+            App_SharedStateMachine_Tick(state_machine);
+            EXPECT_EQ(
+                fake_current, current_can_signal_getter(can_tx_interface));
+            EXPECT_EQ(undercurrent_can_signal_getter(can_tx_interface), true);
+            EXPECT_EQ(overcurrent_can_signal_getter(can_tx_interface), true);
+        }
+    }
+
+    void CheckCurrentCanSignalsInInitState(
+        float  min_current,
+        float  max_current,
+        float &fake_current,
+        float (*current_can_signal_getter)(struct PdmCanTxInterface *),
+        uint8_t (*undercurrent_can_signal_getter)(struct PdmCanTxInterface *),
+        uint8_t (*overcurrent_can_signal_getter)(struct PdmCanTxInterface *))
+    {
+        // The INIT state is unique because the load switches are not ready
+        // to be used yet so we expect NAN to be set
+        SetInitialState(App_GetInitState());
+
+        // Normal Value
+        fake_current = (min_current + max_current) / 2;
+        App_SharedStateMachine_Tick(state_machine);
+        EXPECT_TRUE(isnanf(current_can_signal_getter(can_tx_interface)));
+        EXPECT_EQ(undercurrent_can_signal_getter(can_tx_interface), false);
+        EXPECT_EQ(overcurrent_can_signal_getter(can_tx_interface), false);
+
+        // Under-current
+        fake_current =
+            std::nextafter(min_current, std::numeric_limits<float>::lowest());
+        App_SharedStateMachine_Tick(state_machine);
+        EXPECT_TRUE(isnanf(current_can_signal_getter(can_tx_interface)));
+        EXPECT_EQ(undercurrent_can_signal_getter(can_tx_interface), false);
+        EXPECT_EQ(overcurrent_can_signal_getter(can_tx_interface), false);
+
+        // Over-current
+        fake_current =
+            std::nextafter(max_current, std::numeric_limits<float>::max());
+        App_SharedStateMachine_Tick(state_machine);
+        EXPECT_TRUE(isnanf(current_can_signal_getter(can_tx_interface)));
+        EXPECT_EQ(undercurrent_can_signal_getter(can_tx_interface), false);
+        EXPECT_EQ(overcurrent_can_signal_getter(can_tx_interface), false);
+    }
+
+    void CheckVoltageCanSignalsInAllStates(
+        float  min_voltage,
+        float  max_voltage,
+        float &fake_voltage,
+        float (*voltage_can_signal_getter)(struct PdmCanTxInterface *),
+        uint8_t (*undervoltage_can_signal_getter)(struct PdmCanTxInterface *),
+        uint8_t (*overvoltage_can_signal_getter)(struct PdmCanTxInterface *))
+    {
+        for (auto &state : GetAllStates())
+        {
+            SetInitialState(state);
+
+            // Normal Value
+            fake_voltage = (min_voltage + max_voltage) / 2;
+            App_SharedStateMachine_Tick(state_machine);
+            EXPECT_EQ(
+                fake_voltage, voltage_can_signal_getter(can_tx_interface));
+            EXPECT_EQ(undervoltage_can_signal_getter(can_tx_interface), false);
+            EXPECT_EQ(overvoltage_can_signal_getter(can_tx_interface), false);
+
+            // Under-voltage
+            fake_voltage = std::nextafter(
+                min_voltage, std::numeric_limits<float>::lowest());
+            App_SharedStateMachine_Tick(state_machine);
+            EXPECT_EQ(
+                fake_voltage, voltage_can_signal_getter(can_tx_interface));
+            EXPECT_EQ(undervoltage_can_signal_getter(can_tx_interface), true);
+            EXPECT_EQ(overvoltage_can_signal_getter(can_tx_interface), false);
+
+            // Over-voltage
+            fake_voltage =
+                std::nextafter(max_voltage, std::numeric_limits<float>::max());
+            App_SharedStateMachine_Tick(state_machine);
+            EXPECT_EQ(
+                fake_voltage, voltage_can_signal_getter(can_tx_interface));
+            EXPECT_EQ(undervoltage_can_signal_getter(can_tx_interface), true);
+            EXPECT_EQ(overvoltage_can_signal_getter(can_tx_interface), true);
+        }
+    }
+
     struct World *            world;
     struct StateMachine *     state_machine;
     struct PdmCanTxInterface *can_tx_interface;
@@ -234,134 +367,29 @@ TEST_F(PdmStateMachineTest, check_air_closed_state_is_broadcasted_over_can)
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
-TEST_F(PdmStateMachineTest, check_vbat_voltage_can_signals)
+TEST_F(PdmStateMachineTest, check_vbat_voltage_can_signals_in_all_states)
 {
-    for (auto &state : GetAllStates())
-    {
-        SetInitialState(state);
-
-        // Normal Value
-        GetVbatVoltage_fake.return_val = 23.0f;
-        App_SharedStateMachine_Tick(state_machine);
-        EXPECT_EQ(
-            App_CanTx_GetPeriodicSignal_UNDERVOLTAGE_VBAT(can_tx_interface),
-            false);
-        EXPECT_EQ(
-            App_CanTx_GetPeriodicSignal_OVERVOLTAGE_VBAT(can_tx_interface),
-            false);
-
-        // Overvoltage error
-        GetVbatVoltage_fake.return_val = std::numeric_limits<float>::lowest();
-        App_SharedStateMachine_Tick(state_machine);
-        EXPECT_EQ(
-            App_CanTx_GetPeriodicSignal_UNDERVOLTAGE_VBAT(can_tx_interface),
-            true);
-        EXPECT_EQ(
-            App_CanTx_GetPeriodicSignal_OVERVOLTAGE_VBAT(can_tx_interface),
-            false);
-
-        // Undervoltage error
-        GetVbatVoltage_fake.return_val = std::numeric_limits<float>::max();
-        App_SharedStateMachine_Tick(state_machine);
-        EXPECT_EQ(
-            App_CanTx_GetPeriodicSignal_UNDERVOLTAGE_VBAT(can_tx_interface),
-            true);
-        EXPECT_EQ(
-            App_CanTx_GetPeriodicSignal_OVERVOLTAGE_VBAT(can_tx_interface),
-            true);
-    }
+    CheckVoltageCanSignalsInAllStates(
+        VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE, GetVbatVoltage_fake.return_val,
+        App_CanTx_GetPeriodicSignal_VBAT,
+        App_CanTx_GetPeriodicSignal_UNDERVOLTAGE_VBAT,
+        App_CanTx_GetPeriodicSignal_OVERVOLTAGE_VBAT);
 }
 
-TEST_F(PdmStateMachineTest, check_aux1_current_can_signals)
+TEST_F(PdmStateMachineTest, check_aux1_current_can_signals_in_non_init_states)
 {
-    for (auto &state : GetAllStates())
-    {
-        SetInitialState(state);
+    CheckCurrentCanSignalsInNonInitStates(
+        AUX1_MIN_CURRENT, AUX1_MAX_CURRENT, GetAux1Current_fake.return_val,
+        App_CanTx_GetPeriodicSignal_AUXILIARY1_CURRENT,
+        App_CanTx_GetPeriodicSignal_UNDERCURRENT_AUX_1,
+        App_CanTx_GetPeriodicSignal_OVERCURRENT_AUX_1);
+}
 
-        if (state == App_GetInitState())
-        {
-            // The INIT state is unique because the load switches are not ready
-            // to be used yet so we expect nothing to be set
-
-            // Normal Value
-            GetAux1Current_fake.return_val = 0.0f;
-            App_SharedStateMachine_Tick(state_machine);
-            EXPECT_TRUE(isnanf(App_CanTx_GetPeriodicSignal_AUXILIARY1_CURRENT(
-                can_tx_interface)));
-            EXPECT_EQ(
-                App_CanTx_GetPeriodicSignal_UNDERCURRENT_AUX_1(
-                    can_tx_interface),
-                false);
-            EXPECT_EQ(
-                App_CanTx_GetPeriodicSignal_OVERCURRENT_AUX_1(can_tx_interface),
-                false);
-
-            // Over-current
-            GetAux1Current_fake.return_val =
-                std::numeric_limits<float>::lowest();
-            App_SharedStateMachine_Tick(state_machine);
-            EXPECT_TRUE(isnanf(App_CanTx_GetPeriodicSignal_AUXILIARY1_CURRENT(
-                can_tx_interface)));
-            EXPECT_EQ(
-                App_CanTx_GetPeriodicSignal_UNDERCURRENT_AUX_1(
-                    can_tx_interface),
-                false);
-            EXPECT_EQ(
-                App_CanTx_GetPeriodicSignal_OVERCURRENT_AUX_1(can_tx_interface),
-                false);
-
-            // Under-current error
-            GetAux1Current_fake.return_val = std::numeric_limits<float>::max();
-            App_SharedStateMachine_Tick(state_machine);
-            EXPECT_TRUE(isnanf(App_CanTx_GetPeriodicSignal_AUXILIARY1_CURRENT(
-                can_tx_interface)));
-            EXPECT_EQ(
-                App_CanTx_GetPeriodicSignal_UNDERCURRENT_AUX_1(
-                    can_tx_interface),
-                false);
-            EXPECT_EQ(
-                App_CanTx_GetPeriodicSignal_OVERCURRENT_AUX_1(can_tx_interface),
-                false);
-        }
-        else
-        {
-            // Normal Value
-            GetAux1Current_fake.return_val = 0.0f;
-            App_SharedStateMachine_Tick(state_machine);
-            EXPECT_EQ(
-                GetAux1Current_fake.return_val,
-                App_CanTx_GetPeriodicSignal_AUXILIARY1_CURRENT(
-                    can_tx_interface));
-            EXPECT_EQ(
-                App_CanTx_GetPeriodicSignal_UNDERCURRENT_AUX_1(
-                    can_tx_interface),
-                false);
-            EXPECT_EQ(
-                App_CanTx_GetPeriodicSignal_OVERCURRENT_AUX_1(can_tx_interface),
-                false);
-
-            // Over-current
-            GetAux1Current_fake.return_val =
-                std::numeric_limits<float>::lowest();
-            App_SharedStateMachine_Tick(state_machine);
-            EXPECT_EQ(
-                App_CanTx_GetPeriodicSignal_UNDERCURRENT_AUX_1(
-                    can_tx_interface),
-                true);
-            EXPECT_EQ(
-                App_CanTx_GetPeriodicSignal_OVERCURRENT_AUX_1(can_tx_interface),
-                false);
-
-            // Under-current
-            GetAux1Current_fake.return_val = std::numeric_limits<float>::max();
-            App_SharedStateMachine_Tick(state_machine);
-            EXPECT_EQ(
-                App_CanTx_GetPeriodicSignal_UNDERCURRENT_AUX_1(
-                    can_tx_interface),
-                true);
-            EXPECT_EQ(
-                App_CanTx_GetPeriodicSignal_OVERCURRENT_AUX_1(can_tx_interface),
-                true);
-        }
-    }
+TEST_F(PdmStateMachineTest, check_aux1_current_can_signals_in_init_state)
+{
+    CheckCurrentCanSignalsInInitState(
+        AUX1_MIN_CURRENT, AUX1_MAX_CURRENT, GetAux1Current_fake.return_val,
+        App_CanTx_GetPeriodicSignal_AUXILIARY1_CURRENT,
+        App_CanTx_GetPeriodicSignal_UNDERCURRENT_AUX_1,
+        App_CanTx_GetPeriodicSignal_OVERCURRENT_AUX_1);
 }
