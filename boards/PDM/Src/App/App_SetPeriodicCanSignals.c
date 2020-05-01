@@ -1,6 +1,7 @@
 #include "App_SetPeriodicCanSignals.h"
 
-void App_SetPeriodicCanSignals_InRangeCheck(
+// Even if the value is out-of-range, we still use it to set the CAN TX signal
+static void App_SetPeriodicCanSignals_InRangeCheck(
     struct PdmCanTxInterface *const  can_tx,
     const struct InRangeCheck *const in_range_check,
     void (*const can_signal_setter)(struct PdmCanTxInterface *, float),
