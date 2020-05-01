@@ -40,10 +40,7 @@
 #include "Io_WheelSpeedSensors.h"
 =======
 #include "Io_Wheels.h"
->>>>>>> wip
-=======
 #include "Io_WheelSpeedSensors.h"
->>>>>>> wip
 
 #include "App_FsmWorld.h"
 #include "App_SharedStateMachine.h"
@@ -51,14 +48,7 @@
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "App_SharedConstants.h"
 #include "App_SharedHeartbeatMonitor.h"
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
 #include "App_Wheel.h"
->>>>>>> wip
-=======
-#include "App_WheelSpeedSensor.h"
->>>>>>> wip
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

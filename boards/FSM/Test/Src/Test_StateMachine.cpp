@@ -58,7 +58,6 @@ class FsmStateMachineTest : public testing::Test
             App_WheelSpeedSensor_Create(get_left_wheel_speed);
         right_wheel_speed_sensor =
             App_WheelSpeedSensor_Create(get_right_wheel_speed);
-
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
@@ -127,6 +126,7 @@ class FsmStateMachineTest : public testing::Test
         secondary_flow_meter     = NULL;
         left_wheel_speed_sensor  = NULL;
         right_wheel_speed_sensor = NULL;
+        rgb_led_sequence         = NULL;
     }
 
     void SetInitialState(const struct State *const initial_state)
