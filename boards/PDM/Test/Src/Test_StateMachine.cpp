@@ -286,6 +286,8 @@ TEST_F(PdmStateMachineTest, check_aux1_current_can_signals)
             // Normal Value
             GetAux1Current_fake.return_val = 0.0f;
             App_SharedStateMachine_Tick(state_machine);
+            EXPECT_TRUE(isnanf(App_CanTx_GetPeriodicSignal_AUXILIARY1_CURRENT(
+                can_tx_interface)));
             EXPECT_EQ(
                 App_CanTx_GetPeriodicSignal_UNDERCURRENT_AUX_1(
                     can_tx_interface),
@@ -298,14 +300,25 @@ TEST_F(PdmStateMachineTest, check_aux1_current_can_signals)
             GetAux1Current_fake.return_val =
                 std::numeric_limits<float>::lowest();
             App_SharedStateMachine_Tick(state_machine);
+            EXPECT_TRUE(isnanf(App_CanTx_GetPeriodicSignal_AUXILIARY1_CURRENT(
+                can_tx_interface)));
             EXPECT_EQ(
                 App_CanTx_GetPeriodicSignal_UNDERCURRENT_AUX_1(
                     can_tx_interface),
+                false);
+            EXPECT_EQ(
+                App_CanTx_GetPeriodicSignal_OVERCURRENT_AUX_1(can_tx_interface),
                 false);
 
             // Under-current error
             GetAux1Current_fake.return_val = std::numeric_limits<float>::max();
             App_SharedStateMachine_Tick(state_machine);
+            EXPECT_TRUE(isnanf(App_CanTx_GetPeriodicSignal_AUXILIARY1_CURRENT(
+                can_tx_interface)));
+            EXPECT_EQ(
+                App_CanTx_GetPeriodicSignal_UNDERCURRENT_AUX_1(
+                    can_tx_interface),
+                false);
             EXPECT_EQ(
                 App_CanTx_GetPeriodicSignal_OVERCURRENT_AUX_1(can_tx_interface),
                 false);
