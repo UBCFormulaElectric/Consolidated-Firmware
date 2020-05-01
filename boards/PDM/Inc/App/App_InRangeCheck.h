@@ -32,8 +32,10 @@ void App_InRangeCheck_Destroy(struct InRangeCheck *in_range_check);
  *       to the provided buffer. It is up the the caller to use the return value
  *       to determine whether the value in the buffer is in range.
  * @param in_range_check The in-range check to get value for
- * @param returned_value The buffer to store the value in
- * @return EXIT_CODE_OUT_OF_RANGE if the value is outside of the specified range
+ * @param returned_value This will be set to the value
+ * @return VALUE_IN_RANGE if the value is within the specified range
+ *         VALUE_UNDERFLOW if the value is below the specified range
+ *         VALUE_OVERFLOW if the value is above the specified range
  */
 enum InRangeCheck_Status App_InRangeCheck_GetValue(
     const struct InRangeCheck *const in_range_check,

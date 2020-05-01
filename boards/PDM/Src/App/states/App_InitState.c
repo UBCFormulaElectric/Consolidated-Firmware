@@ -3,6 +3,7 @@
 #include "states/App_InitState.h"
 
 #include "App_SharedMacros.h"
+#include "App_SetPeriodicCanSignals.h"
 
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -15,8 +16,9 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 static void InitStateRunOnTick(struct StateMachine *const state_machine)
 {
     struct PdmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-
     struct PdmCanTxInterface *can_tx = App_PdmWorld_GetCanTx(world);
+
+    App_SetPeriodicCanSignals_VoltageChecks(world);
 
     // The e-fuse watchdog may have timed out due to the boot-up delay, so we
     // will assume that there is no current to be read in this state.

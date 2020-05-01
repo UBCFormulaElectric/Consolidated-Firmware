@@ -15,8 +15,9 @@ struct InRangeCheck *App_InRangeCheck_Create(
     float min_value,
     float max_value)
 {
-    struct InRangeCheck *in_range_check = malloc(sizeof(struct InRangeCheck));
+    assert(get_value != NULL);
 
+    struct InRangeCheck *in_range_check = malloc(sizeof(struct InRangeCheck));
     assert(in_range_check != NULL);
 
     in_range_check->get_value = get_value;
