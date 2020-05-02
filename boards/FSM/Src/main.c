@@ -601,8 +601,6 @@ void RunTask1kHz(void const *argument)
     {
         Io_CanTx_EnqueuePeriodicMsgs(
             can_tx, osKernelSysTick() * portTICK_PERIOD_MS);
-        App_FlowMeter_Tick(primary_flow_meter);
-        App_FlowMeter_Tick(secondary_flow_meter);
         // Watchdog check-in must be the last function called before putting
         // the task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
