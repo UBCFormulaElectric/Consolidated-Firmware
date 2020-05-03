@@ -2,6 +2,66 @@
 
 #include "App_SharedMacros.h"
 #include "App_SevenSegDisplays.h"
+#include "App_ErrorCode.h"
+
+static void App_SetPeriodicCanSignals_DriveMode(
+    struct DimCanTxInterface *can_tx,
+    uint32_t                  switch_position)
+{
+    switch (switch_position)
+    {
+        case 0:
+        {
+            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
+                can_tx,
+                CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_1_CHOICE);
+        }
+        break;
+        case 1:
+        {
+            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
+                can_tx,
+                CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_2_CHOICE);
+        }
+        break;
+        case 2:
+        {
+            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
+                can_tx,
+                CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_3_CHOICE);
+        }
+        break;
+        case 3:
+        {
+            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
+                can_tx,
+                CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_4_CHOICE);
+        }
+        break;
+        case 4:
+        {
+            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
+                can_tx,
+                CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_5_CHOICE);
+        }
+        break;
+        case 5:
+        {
+            // The drive mode switch has 6 physical positions, but specs.md only
+            // mentions 5 drive modes so the 6th switch position is treated
+            // as invalid.
+            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
+                can_tx,
+                CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_INVALID_CHOICE);
+        }
+        break;
+        default:
+        {
+            // Should never reach here
+            break;
+        }
+    }
+}
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -20,7 +80,9 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
         App_DimWorld_GetSevenSegDisplays(world);
     struct HeartbeatMonitor *heartbeat_monitor =
         App_DimWorld_GetHeartbeatMonitor(world);
-    struct RegenPaddle *regen_paddle = App_DimWorld_GetRegenPaddle(world);
+    struct RegenPaddle * regen_paddle = App_DimWorld_GetRegenPaddle(world);
+    struct RotarySwitch *drive_mode_switch =
+        App_DimWorld_GetDriveModeSwitch(world);
 
     uint32_t buffer;
 
@@ -39,6 +101,12 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
     App_SevenSegDisplays_SetUnsignedBase10Value(
         seven_seg_displays,
         App_CanRx_BMS_STATE_OF_CHARGE_GetSignal_STATE_OF_CHARGE(can_rx));
+
+    if (EXIT_CODE_OK(
+            App_RotarySwitch_GetSwitchPosition(drive_mode_switch, &buffer)))
+    {
+        App_SetPeriodicCanSignals_DriveMode(can_tx, buffer);
+    }
 
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
 }
