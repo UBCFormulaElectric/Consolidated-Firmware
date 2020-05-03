@@ -65,7 +65,7 @@ class AppCanRxFileGenerator(CanRxFileGenerator):
             '''    free(can_rx_interface);''')
 
         self._CanRxSignalGetters = [
-            Function('%s %s_%s_GetSignal_%s (struct %sCanRxInterface* can_rx_interface)'
+            Function('%s %s_%s_GetSignal_%s (const struct %sCanRxInterface* can_rx_interface)'
                      % (signal.type_name, function_prefix, 
                          signal.msg_name_uppercase, signal.uppercase_name, 
                          self._receiver.capitalize()),
@@ -255,7 +255,7 @@ class IoCanRxFileGenerator(CanRxFileGenerator):
                          set_signals=signal_setters))
 
         self._CanRxUpdateRxTableWithMessage = Function(
-            'void %s_UpdateRxTableWithMessage(struct %sCanRxInterface* can_rx_interface, struct CanMsg* message)' % (function_prefix, self._receiver.capitalize()),
+            'void %s_UpdateRxTableWithMessage(struct %sCanRxInterface* can_rx_interface, const struct CanMsg* message)' % (function_prefix, self._receiver.capitalize()),
             "Update the CAN RX table with the given CAN message.",
             '''\
     assert(can_rx_interface != NULL);

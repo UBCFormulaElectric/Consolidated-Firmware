@@ -1,9 +1,10 @@
+#include <assert.h>
+
 #include "App_CanTx.h"
 #include "Io_CanRx.h"
 #include "Io_CanTx.h"
 #include "Io_BoardSpecifics.h"
 #include "Io_SharedCan.h"
-#include <assert.h>
 #include "Io_SharedFreeRTOS.h"
 
 /** @brief Size of a message in the CAN TX queue */
@@ -262,7 +263,7 @@ void Io_SharedCan_Init(
     sharedcan_hcan = hcan;
 }
 
-void Io_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message)
+void Io_SharedCan_TxMessageQueueSendtoBack(const struct CanMsg *message)
 {
     // Track how many times the CAN TX FIFO has overflowed
     static uint32_t cantx_overflow_count = { 0 };
