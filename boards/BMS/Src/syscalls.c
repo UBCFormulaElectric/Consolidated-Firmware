@@ -113,7 +113,7 @@ __attribute__((weak)) int _write(int file, char *ptr, int len)
     return len;
 }
 
-caddr_t _sbrk(int incr)
+__attribute__((weak)) caddr_t _sbrk(int incr)
 {
     extern char  end asm("end");
     static char *heap_end;

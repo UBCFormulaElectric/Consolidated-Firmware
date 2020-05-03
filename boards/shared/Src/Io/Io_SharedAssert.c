@@ -1,5 +1,5 @@
+#include <stdio.h>
 #include "App_SharedMacros.h"
-#include "Io_SharedLogging.h"
 #include "Io_SharedMacros.h"
 
 static char buffer[100];
@@ -16,7 +16,7 @@ void __assert_func(
         buffer, sizeof(buffer), "%s:%d %s: Assertion `%s' failed\r\n",
         __BASENAME__(file), line, func, failedexpr);
 
-    Io_SharedLogging_Printf(buffer);
+    printf(buffer);
 
     BREAK_IF_DEBUGGER_CONNECTED();
 
