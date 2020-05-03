@@ -63,6 +63,23 @@ static void App_SetPeriodicCanSignals_DriveMode(
     }
 }
 
+static void App_SetPeriodicCanSignals_BinarySwitch(
+    struct DimCanTxInterface *can_tx,
+    struct BinarySwitch *     binary_switch,
+    void (*can_signal_setter)(struct DimCanTxInterface *, uint8_t value),
+    uint32_t on_choice,
+    uint32_t off_choice)
+{
+    if (App_BinarySwitch_IsTurnedOn(binary_switch))
+    {
+        can_signal_setter(can_tx, on_choice);
+    }
+    else
+    {
+        can_signal_setter(can_tx, off_choice);
+    }
+}
+
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct DimWorld *world = App_SharedStateMachine_GetWorld(state_machine);
@@ -113,38 +130,22 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
         App_SetPeriodicCanSignals_DriveMode(can_tx, buffer);
     }
 
-    if (App_BinarySwitch_IsTurnedOn(start_switch))
-    {
-        App_CanTx_SetPeriodicSignal_START_SWITCH(
-            can_tx, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
-    }
-    else
-    {
-        App_CanTx_SetPeriodicSignal_START_SWITCH(
-            can_tx, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
-    }
+    App_SetPeriodicCanSignals_BinarySwitch(
+        can_tx, start_switch, App_CanTx_SetPeriodicSignal_START_SWITCH,
+        CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE,
+        CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
 
-    if (App_BinarySwitch_IsTurnedOn(traction_control_switch))
-    {
-        App_CanTx_SetPeriodicSignal_TRACTION_CONTROL_SWITCH(
-            can_tx, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
-    }
-    else
-    {
-        App_CanTx_SetPeriodicSignal_TRACTION_CONTROL_SWITCH(
-            can_tx, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
-    }
+    App_SetPeriodicCanSignals_BinarySwitch(
+        can_tx, traction_control_switch,
+        App_CanTx_SetPeriodicSignal_TRACTION_CONTROL_SWITCH,
+        CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE,
+        CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
 
-    if (App_BinarySwitch_IsTurnedOn(torque_vectoring_switch))
-    {
-        App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH(
-            can_tx, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
-    }
-    else
-    {
-        App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH(
-            can_tx, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
-    }
+    App_SetPeriodicCanSignals_BinarySwitch(
+        can_tx, torque_vectoring_switch,
+        App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH,
+        CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE,
+        CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
 
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
 }
