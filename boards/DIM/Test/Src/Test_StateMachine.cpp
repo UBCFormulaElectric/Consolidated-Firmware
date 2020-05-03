@@ -212,7 +212,7 @@ TEST_F(
         App_CanTx_GetPeriodicSignal_DRIVE_MODE(can_tx_interface));
 }
 
-TEST_F(DimStateMachineTest, turn_on_imd_led)
+TEST_F(DimStateMachineTest, imd_led_control_in_drive_state)
 {
     App_CanRx_BMS_IMD_SetSignal_OK_HS(can_rx_interface, false);
     App_SharedStateMachine_Tick(state_machine);
@@ -230,7 +230,7 @@ TEST_F(DimStateMachineTest, turn_on_imd_led)
     ASSERT_EQ(2, turn_off_imd_led_fake.call_count);
 }
 
-TEST_F(DimStateMachineTest, turn_on_bspd_led)
+TEST_F(DimStateMachineTest, bspd_led_control_in_drive_state)
 {
     App_CanRx_FSM_ERRORS_SetSignal_BSPD_FAULT(can_rx_interface, false);
     App_SharedStateMachine_Tick(state_machine);
