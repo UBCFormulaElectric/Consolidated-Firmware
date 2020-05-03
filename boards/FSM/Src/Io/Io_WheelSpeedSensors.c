@@ -5,9 +5,9 @@
 #include "main.h"
 
 // Note: Unit for length is measured in metres unless specified
-static const float  MPS_TO_KPH_CONVERSION_FACTOR = 3.6;
+static const float  MPS_TO_KPH_CONVERSION_FACTOR = 3.6f;
 static const size_t RELUCTOR_RING_TOOTH_COUNT    = 48;
-static const float  TIRE_DIAMETER                = 0.4572;
+static const float  TIRE_DIAMETER                = 0.4572f;
 static const float  ARC_LENGTH_PER_RELUCTOR_TOOTH =
     (float)((M_PI * TIRE_DIAMETER) / RELUCTOR_RING_TOOTH_COUNT);
 
