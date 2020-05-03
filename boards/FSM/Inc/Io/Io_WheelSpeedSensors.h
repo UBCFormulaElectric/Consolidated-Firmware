@@ -18,7 +18,7 @@ void Io_WheelSpeedSensors_Init(
 float Io_WheelSpeedSensors_GetLeftSpeedKph(void);
 
 /**
- * Gets the wheel speed in km/h from the right wheel speed sensor
+ * Get the wheel speed in km/h from the right wheel speed sensor
  * @return Returns the wheel speed in km/h
  */
 float Io_WheelSpeedSensors_GetRightSpeedKph(void);
