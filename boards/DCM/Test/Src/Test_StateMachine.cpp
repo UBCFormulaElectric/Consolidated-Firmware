@@ -10,10 +10,10 @@ extern "C"
 
 FAKE_VOID_FUNC(
     send_non_periodic_msg_DCM_STARTUP,
-    struct CanMsgs_dcm_startup_t *);
+    const struct CanMsgs_dcm_startup_t *);
 FAKE_VOID_FUNC(
     send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT,
-    struct CanMsgs_dcm_watchdog_timeout_t *);
+    const struct CanMsgs_dcm_watchdog_timeout_t *);
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
 FAKE_VOID_FUNC(
     heartbeat_timeout_callback,

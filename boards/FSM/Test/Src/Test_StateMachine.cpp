@@ -11,13 +11,13 @@ extern "C"
 
 FAKE_VOID_FUNC(
     send_non_periodic_msg_FSM_STARTUP,
-    struct CanMsgs_fsm_startup_t *);
+    const struct CanMsgs_fsm_startup_t *);
 FAKE_VOID_FUNC(
     send_non_periodic_msg_FSM_AIR_SHUTDOWN,
-    struct CanMsgs_fsm_air_shutdown_t *);
+    const struct CanMsgs_fsm_air_shutdown_t *);
 FAKE_VOID_FUNC(
     send_non_periodic_msg_FSM_WATCHDOG_TIMEOUT,
-    struct CanMsgs_fsm_watchdog_timeout_t *);
+    const struct CanMsgs_fsm_watchdog_timeout_t *);
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
 FAKE_VOID_FUNC(
     heartbeat_timeout_callback,
