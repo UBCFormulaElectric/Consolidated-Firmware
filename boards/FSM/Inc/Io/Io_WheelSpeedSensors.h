@@ -3,7 +3,7 @@
 #include <stm32f3xx_hal.h>
 
 /**
- * Initializes the left and right wheel speed sensors
+ * Initialize the left and right wheel speed sensors
  * @param htim_left_wheel_speed Timer handle for the left wheel speed
  * @param htim_right_wheel_speed Timer handle for the right wheel speed
  */
