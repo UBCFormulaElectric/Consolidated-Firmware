@@ -12,6 +12,7 @@ struct DimWorld
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RegenPaddle *      regen_paddle;
     struct RgbLedSequence *   rgb_led_sequence;
+    struct RotarySwitch *     drive_mode_switch;
     struct BinarySwitch *     start_switch;
     struct BinarySwitch *     traction_control_switch;
     struct BinarySwitch *     torque_vectoring_switch;
@@ -24,6 +25,7 @@ struct DimWorld *App_DimWorld_Create(
     struct HeartbeatMonitor *const  heartbeat_monitor,
     struct RegenPaddle *const       regen_paddle,
     struct RgbLedSequence *const    rgb_led_sequence,
+    struct RotarySwitch *const      drive_mode_switch,
     struct BinarySwitch *const      start_switch,
     struct BinarySwitch *const      traction_control_switch,
     struct BinarySwitch *const      torque_vectoring_switch)
@@ -37,6 +39,7 @@ struct DimWorld *App_DimWorld_Create(
     world->heartbeat_monitor       = heartbeat_monitor;
     world->regen_paddle            = regen_paddle;
     world->rgb_led_sequence        = rgb_led_sequence;
+    world->drive_mode_switch       = drive_mode_switch;
     world->start_switch            = start_switch;
     world->traction_control_switch = traction_control_switch;
     world->torque_vectoring_switch = torque_vectoring_switch;
@@ -83,6 +86,12 @@ struct RgbLedSequence *
     App_DimWorld_GetRgbLedSequence(const struct DimWorld *const world)
 {
     return world->rgb_led_sequence;
+}
+
+struct RotarySwitch *
+    App_DimWorld_GetDriveModeSwitch(const struct DimWorld *const world)
+{
+    return world->drive_mode_switch;
 }
 
 struct BinarySwitch *

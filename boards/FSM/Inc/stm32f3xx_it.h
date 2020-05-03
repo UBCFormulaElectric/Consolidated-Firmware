@@ -62,6 +62,8 @@ extern "C"
     void USB_HP_CAN_TX_IRQHandler(void);
     void USB_LP_CAN_RX0_IRQHandler(void);
     void CAN_RX1_IRQHandler(void);
+    void TIM1_UP_TIM16_IRQHandler(void);
+    void TIM1_TRG_COM_TIM17_IRQHandler(void);
     void TIM4_IRQHandler(void);
     void TIM6_DAC_IRQHandler(void);
     /* USER CODE BEGIN EFP */

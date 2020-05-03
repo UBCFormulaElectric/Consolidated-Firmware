@@ -176,6 +176,9 @@ BO_ 505 DIM_REGEN_PADDLE: 8 DIM
 SG_ Raw_Paddle_Position : 0|32@1+ (1,0) [0|100] "%" LOGGER
 SG_ Mapped_Paddle_Position : 32|32@1+ (1,0) [0|100] "%" LOGGER
 
+BO_ 506 DIM_DRIVE_MODE_SWITCH: 1 DIM
+SG_ Drive_Mode : 0|3@1+ (1,0) [0|5] "" DCM
+
 BO_ 507 DIM_SWITCHES: 1 DIM
 SG_ Start_Switch : 0|1@1+ (1,0) [0|1] "" DCM
 SG_ Traction_Control_Switch : 1|1@1+ (1,0) [0|1] "" DCM
@@ -221,6 +224,7 @@ BA_ "GenMsgCycleTime" BO_ 500 100;
 BA_ "GenMsgCycleTime" BO_ 501 5000;
 BA_ "GenMsgCycleTime" BO_ 503 10;
 BA_ "GenMsgCycleTime" BO_ 505 10;
+BA_ "GenMsgCycleTime" BO_ 506 10;
 BA_ "GenMsgCycleTime" BO_ 507 10;
 
 BA_ "GenSigStartValue" SG_ 2  tx_overflow_count 0;
@@ -250,6 +254,7 @@ VAL_ 205 State 0 "INIT" 1 "DRIVE" 2 "FAULT";
 VAL_ 305 State 0 "AIR_OPEN" 1 "AIR_CLOSED";
 VAL_ 413 State 0 "INIT" 1 "AIR_OPEN" 2 "AIR_CLOSED";
 VAL_ 503 State 0 "DRIVE";
+VAL_ 506 Drive_Mode 0 "DRIVE_MODE_1" 1 "DRIVE_MODE_2" 2 "DRIVE_MODE_3" 3 "DRIVE_MODE_4" 4 "DRIVE_MODE_5" 5 "DRIVE_MODE_INVALID";
 VAL_ 507 Start_Switch 0 "OFF" 1 "ON";
 VAL_ 507 Traction_Control_Switch 0 "OFF" 1 "ON";
 VAL_ 507 Torque_Vectoring_Switch  0 "OFF" 1 "ON";

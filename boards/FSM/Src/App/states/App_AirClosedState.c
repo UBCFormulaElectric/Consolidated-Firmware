@@ -19,12 +19,10 @@ static void AirClosedStateRunOnTick(struct StateMachine *const state_machine)
     struct FlowMeter *secondary_flow_meter =
         App_FsmWorld_GetSecondaryFlowMeter(world);
 
-    App_FlowMeter_Tick(primary_flow_meter);
-    App_FlowMeter_Tick(secondary_flow_meter);
-    App_SetPeriodicCanSignals_PrimaryFlowMeter(
-        can_tx_interface, primary_flow_meter);
-    App_SetPeriodicCanSignals_SecondaryFlowMeter(
-        can_tx_interface, secondary_flow_meter);
+    App_CanTx_SetPeriodicSignal_PRIMARY_FLOW_RATE(
+        can_tx_interface, App_FlowMeter_GetFlowRate(primary_flow_meter));
+    App_CanTx_SetPeriodicSignal_SECONDARY_FLOW_RATE(
+        can_tx_interface, App_FlowMeter_GetFlowRate(secondary_flow_meter));
 }
 
 static void AirClosedStateRunOnExit(struct StateMachine *const state_machine)

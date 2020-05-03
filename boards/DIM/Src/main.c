@@ -40,6 +40,7 @@
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RegenPaddle.h"
 #include "Io_RgbLedSequence.h"
+#include "Io_DriveModeSwitch.h"
 #include "Io_Switches.h"
 /* USER CODE END Includes */
 
@@ -89,6 +90,7 @@ struct SevenSegDisplays * seven_seg_displays;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RegenPaddle *      regen_paddle;
 struct RgbLedSequence *   rgb_led_sequence;
+struct RotarySwitch *     drive_mode_switch;
 struct BinarySwitch *     start_switch;
 struct BinarySwitch *     traction_control_switch;
 struct BinarySwitch *     torque_vectoring_switch;
@@ -157,6 +159,7 @@ int main(void)
     MX_SPI2_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
+
     Io_SharedHardFaultHandler_Init();
 
     Io_SevenSegDisplays_Init(&hspi2);
@@ -189,6 +192,9 @@ int main(void)
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
         Io_RgbLedSequence_TurnOnGreenLed);
 
+    drive_mode_switch =
+        App_RotarySwitch_Create(Io_DriveModeSwitch_GetPosition, 6);
+
     start_switch = App_BinarySwitch_Create(Io_Switches_StartSwitchIsTurnedOn);
 
     traction_control_switch =
@@ -199,8 +205,8 @@ int main(void)
 
     world = App_DimWorld_Create(
         can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle,
-        rgb_led_sequence, start_switch, traction_control_switch,
-        torque_vectoring_switch);
+        rgb_led_sequence, drive_mode_switch, start_switch,
+        traction_control_switch, torque_vectoring_switch);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 

@@ -6,6 +6,7 @@
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_RegenPaddle.h"
 #include "App_SharedRgbLedSequence.h"
+#include "App_RotarySwitch.h"
 #include "App_BinarySwitch.h"
 
 struct DimWorld;
@@ -30,6 +31,7 @@ struct DimWorld *App_DimWorld_Create(
     struct HeartbeatMonitor * heartbeat_monitor,
     struct RegenPaddle *      regen_paddle,
     struct RgbLedSequence *   rgb_led_sequence,
+    struct RotarySwitch *     drive_mode_switch,
     struct BinarySwitch *     start_switch,
     struct BinarySwitch *     traction_control_switch,
     struct BinarySwitch *     torque_vectoring_switch);
@@ -48,7 +50,10 @@ struct HeartbeatMonitor *
                     App_DimWorld_GetHeartbeatMonitor(const struct DimWorld *world);
 struct RegenPaddle *App_DimWorld_GetRegenPaddle(const struct DimWorld *world);
 struct RgbLedSequence *
-                     App_DimWorld_GetRgbLedSequence(const struct DimWorld *world);
+    App_DimWorld_GetRgbLedSequence(const struct DimWorld *world);
+struct RotarySwitch *
+    App_DimWorld_GetDriveModeSwitch(const struct DimWorld *world);
+
 struct BinarySwitch *App_DimWorld_GetStartSwitch(const struct DimWorld *world);
 struct BinarySwitch *
     App_DimWorld_GetTractionControlSwitch(const struct DimWorld *world);

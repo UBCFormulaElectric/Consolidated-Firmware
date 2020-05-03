@@ -1,6 +1,7 @@
 #include "Test_Dim.h"
 #include "Test_SevenSegDisplays.h"
 #include "Test_RegenPaddle.h"
+#include "Test_RotarySwitch.h"
 
 extern "C"
 {
@@ -31,13 +32,16 @@ FAKE_VALUE_FUNC(bool, start_switch_is_turned_on);
 FAKE_VALUE_FUNC(bool, traction_control_switch_is_turned_on);
 FAKE_VALUE_FUNC(bool, torque_vectoring_switch_is_turned_on);
 
-class DimStateMachineTest : public SevenSegDisplaysTest, public RegenPaddleTest
+class DimStateMachineTest : public SevenSegDisplaysTest,
+                            public RegenPaddleTest,
+                            public RotarySwitchTest
 {
   protected:
     void SetUp() override
     {
         SevenSegDisplaysTest::SetUp();
         RegenPaddleTest::SetUp();
+        RotarySwitchTest::SetUp();
 
         constexpr uint32_t DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS = 500U;
         constexpr enum HeartbeatOneHot DEFAULT_HEARTBEAT_BOARDS_TO_CHECK =
@@ -65,8 +69,8 @@ class DimStateMachineTest : public SevenSegDisplaysTest, public RegenPaddleTest
 
         world = App_DimWorld_Create(
             can_tx_interface, can_rx_interface, seven_seg_displays,
-            heartbeat_monitor, regen_paddle, rgb_led_sequence, start_switch,
-            traction_control_switch, torque_vectoring_switch);
+            heartbeat_monitor, regen_paddle, rgb_led_sequence, rotary_switch,
+            start_switch, traction_control_switch, torque_vectoring_switch);
 
         // Default to starting the state machine in the `Drive` state
         state_machine =
@@ -89,6 +93,7 @@ class DimStateMachineTest : public SevenSegDisplaysTest, public RegenPaddleTest
     {
         SevenSegDisplaysTest::TearDown();
         RegenPaddleTest::TearDown();
+        RotarySwitchTest::TearDown();
 
         ASSERT_TRUE(world != NULL);
         ASSERT_TRUE(can_tx_interface != NULL);
@@ -203,6 +208,17 @@ TEST_F(
     ASSERT_EQ(
         get_raw_paddle_position_fake.return_val,
         App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
+}
+
+TEST_F(
+    DimStateMachineTest,
+    check_drive_mode_is_broadcasted_over_can_in_drive_state)
+{
+    get_position_fake.return_val = 2;
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(
+        CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_3_CHOICE,
+        App_CanTx_GetPeriodicSignal_DRIVE_MODE(can_tx_interface));
 }
 
 TEST_F(
