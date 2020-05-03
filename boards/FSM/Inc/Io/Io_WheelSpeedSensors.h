@@ -12,7 +12,7 @@ void Io_WheelSpeedSensors_Init(
     TIM_HandleTypeDef *htim_right_wheel_speed);
 
 /**
- * Gets the wheel speed in km/h from the left wheel speed sensor
+ * Get the wheel speed in km/h from the left wheel speed sensor
  * @return The wheel speed in km/h
  */
 float Io_WheelSpeedSensors_GetLeftSpeedKph(void);
