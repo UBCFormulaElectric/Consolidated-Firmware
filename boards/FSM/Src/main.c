@@ -37,6 +37,7 @@
 #include "Io_FlowMeters.h"
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
+#include "Io_WheelSpeedSensors.h"
 
 #include "App_FsmWorld.h"
 #include "App_SharedStateMachine.h"
@@ -172,6 +173,8 @@ int main(void)
     primary_flow_meter = App_FlowMeter_Create(Io_FlowMeters_GetPrimaryFlowRate);
     secondary_flow_meter =
         App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
+
+    Io_WheelSpeedSensors_Init(&htim16, &htim17);
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
