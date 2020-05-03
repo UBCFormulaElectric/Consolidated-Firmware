@@ -189,6 +189,6 @@ TEST_F(
     get_position_fake.return_val = 2;
     App_SharedStateMachine_Tick(state_machine);
     ASSERT_EQ(
-        CANMSGS_DIM_ROTARY_SWITCH_DRIVE_MODE_DRIVE_MODE_3_CHOICE,
+        CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_3_CHOICE,
         App_CanTx_GetPeriodicSignal_DRIVE_MODE(can_tx_interface));
 }

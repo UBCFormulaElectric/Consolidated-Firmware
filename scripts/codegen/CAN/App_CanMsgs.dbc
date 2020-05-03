@@ -176,7 +176,7 @@ BO_ 505 DIM_REGEN_PADDLE: 8 DIM
 SG_ Raw_Paddle_Position : 0|32@1+ (1,0) [0|100] "%" LOGGER
 SG_ Mapped_Paddle_Position : 32|32@1+ (1,0) [0|100] "%" LOGGER
 
-BO_ 506 DIM_ROTARY_SWITCH: 1 DIM
+BO_ 506 DIM_DRIVE_MODE_SWITCH: 1 DIM
 SG_ Drive_Mode : 0|3@1+ (1,0) [0|5] "" DCM
 
 BA_DEF_  "BusType" STRING ;

@@ -1,5 +1,5 @@
 #pragma once
 
-#include "App_RotarySwitch.h"
+#include <stdint.h>
 
 uint32_t Io_DriveModeSwitch_GetPosition(void);
