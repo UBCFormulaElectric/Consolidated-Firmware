@@ -23,7 +23,7 @@ class AppCanTxFileGenerator(CanFileGenerator):
 
     def __init_functions(self, function_prefix):
         function_params = \
-            [("    void (*send_non_periodic_msg_%s)(struct CanMsgs_%s_t* payload),"
+            [("    void (*send_non_periodic_msg_%s)(const struct CanMsgs_%s_t* payload),"
               % (msg.snake_name.upper(), msg.snake_name))
              for msg in self._non_periodic_cantx_msgs]
         init_senders = \
@@ -76,7 +76,7 @@ class AppCanTxFileGenerator(CanFileGenerator):
         ) for signal in self._periodic_cantx_signals)
 
         self._PeriodicTxSignalGetters = list(Function(
-            '%s %s_GetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface)' % (
+            '%s %s_GetPeriodicSignal_%s(const struct %sCanTxInterface* can_tx_interface)' % (
             signal.type_name, function_prefix, signal.uppercase_name, self._sender.capitalize()),
             '',
             '''\
@@ -86,7 +86,7 @@ class AppCanTxFileGenerator(CanFileGenerator):
         ) for signal in self._periodic_cantx_signals)
 
         self._PeriodicTxMsgPointerGetters = list(Function(
-            'struct CanMsgs_%s_t* %s_GetPeriodicMsgPointer_%s(struct %sCanTxInterface* can_tx_interface)' % (
+            'const struct CanMsgs_%s_t* %s_GetPeriodicMsgPointer_%s(const struct %sCanTxInterface* can_tx_interface)' % (
                 msg.snake_name, function_prefix, msg.snake_name.upper(), self._sender.capitalize()),
             '',
             '''\
@@ -95,7 +95,7 @@ class AppCanTxFileGenerator(CanFileGenerator):
         ) for msg in self._periodic_cantx_msgs)
 
         self._SendNonPeriodicMsgs = list(Function(
-        'void %s_SendNonPeriodicMsg_%s(struct %sCanTxInterface* can_tx_interface, struct CanMsgs_%s_t* payload)' % (
+        'void %s_SendNonPeriodicMsg_%s(const struct %sCanTxInterface* can_tx_interface, const struct CanMsgs_%s_t* payload)' % (
             function_prefix, msg.snake_name.upper(), self._sender.capitalize(), msg.snake_name),
         '',
         '''\
@@ -167,7 +167,7 @@ class AppCanTxSourceFileGenerator(AppCanTxFileGenerator):
             [StructMember('struct PeriodicCanTxMsgs',
                           'periodic_can_tx_table',
                           '0')] +
-            [StructMember('void (*send_non_periodic_msg_%s)(struct CanMsgs_%s_t* payload)'
+            [StructMember('void (*send_non_periodic_msg_%s)(const struct CanMsgs_%s_t* payload)'
                             % (msg.snake_name.upper(), msg.snake_name),
                           '',
                           '0')
@@ -270,7 +270,7 @@ void %s_EnqueuePeriodicMsgs(struct %sCanTxInterface* can_tx_interface, const uin
             FunctionDef)
 
         self._EnqueueNonPeriodicMsgs = list(Function(
-            'void %s_EnqueueNonPeriodicMsg_%s(struct CanMsgs_%s_t* payload)'
+            'void %s_EnqueueNonPeriodicMsg_%s(const struct CanMsgs_%s_t* payload)'
             % (function_prefix, msg.snake_name.upper(), msg.snake_name),
             '',
             '''\

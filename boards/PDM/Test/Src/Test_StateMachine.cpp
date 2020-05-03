@@ -11,16 +11,16 @@ extern "C"
 
 FAKE_VOID_FUNC(
     send_non_periodic_msg_PDM_STARTUP,
-    struct CanMsgs_pdm_startup_t *);
+    const struct CanMsgs_pdm_startup_t *);
 FAKE_VOID_FUNC(
     send_non_periodic_msg_PDM_AIR_SHUTDOWN,
-    struct CanMsgs_pdm_air_shutdown_t *);
+    const struct CanMsgs_pdm_air_shutdown_t *);
 FAKE_VOID_FUNC(
     send_non_periodic_msg_PDM_MOTOR_SHUTDOWN,
-    struct CanMsgs_pdm_motor_shutdown_t *);
+    const struct CanMsgs_pdm_motor_shutdown_t *);
 FAKE_VOID_FUNC(
     send_non_periodic_msg_PDM_WATCHDOG_TIMEOUT,
-    struct CanMsgs_pdm_watchdog_timeout_t *);
+    const struct CanMsgs_pdm_watchdog_timeout_t *);
 
 FAKE_VALUE_FUNC(float, GetVbatVoltage);
 FAKE_VALUE_FUNC(float, GetVbatMinVoltage);
