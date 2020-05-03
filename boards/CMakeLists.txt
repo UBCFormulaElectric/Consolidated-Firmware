@@ -186,6 +186,7 @@ function(create_arm_binary
             -Wl,-Map=${PROJECT_BINARY_DIR}/${BOARD_NAME}.map
             -Wl,-gc-sections,--print-memory-usage
             -Wl,-T ${ARM_LINKER_SCRIPT}
+            --specs=nano.specs
         )
 
     set(HEX_FILE "${BOARD_NAME}.hex")
