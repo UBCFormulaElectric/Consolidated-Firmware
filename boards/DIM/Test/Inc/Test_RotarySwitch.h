@@ -11,5 +11,5 @@ class RotarySwitchTest : public virtual testing::Test
     void TearDown() override;
 
     struct RotarySwitch *rotary_switch;
-    const uint32_t       NUM_ROTARY_SWITCH_POSITIONS = 6;
+    const uint32_t       DEFAULT_NUM_ROTARY_SWITCH_POSITIONS = 6;
 };

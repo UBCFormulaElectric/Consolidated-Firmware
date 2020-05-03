@@ -9,8 +9,8 @@ DEFINE_FAKE_VALUE_FUNC(uint32_t, get_position);
 
 void RotarySwitchTest::SetUp()
 {
-    rotary_switch =
-        App_RotarySwitch_Create(get_position, NUM_ROTARY_SWITCH_POSITIONS);
+    rotary_switch = App_RotarySwitch_Create(
+        get_position, DEFAULT_NUM_ROTARY_SWITCH_POSITIONS);
 }
 
 void RotarySwitchTest::TearDown()
@@ -22,9 +22,9 @@ void RotarySwitchTest::TearDown()
 
 TEST_F(RotarySwitchTest, valid_switch_position)
 {
-    uint32_t buffer = NUM_ROTARY_SWITCH_POSITIONS;
+    uint32_t buffer = DEFAULT_NUM_ROTARY_SWITCH_POSITIONS;
 
-    for (size_t pos = 0; pos != NUM_ROTARY_SWITCH_POSITIONS; pos++)
+    for (size_t pos = 0; pos != DEFAULT_NUM_ROTARY_SWITCH_POSITIONS; pos++)
     {
         get_position_fake.return_val = (uint32_t)pos;
 
@@ -39,7 +39,7 @@ TEST_F(RotarySwitchTest, invalid_switch_position)
 {
     uint32_t buffer = 0;
 
-    get_position_fake.return_val = NUM_ROTARY_SWITCH_POSITIONS;
+    get_position_fake.return_val = DEFAULT_NUM_ROTARY_SWITCH_POSITIONS;
 
     ASSERT_EQ(
         EXIT_CODE_OUT_OF_RANGE,
