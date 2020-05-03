@@ -2,6 +2,7 @@
 #include "Test_SevenSegDisplays.h"
 #include "Test_RegenPaddle.h"
 #include "Test_RotarySwitch.h"
+#include "Test_Led.h"
 
 extern "C"
 {
@@ -11,6 +12,7 @@ extern "C"
 #include "App_SevenSegDisplay.h"
 #include "states/App_DriveState.h"
 #include "App_SharedRgbLedSequence.h"
+#include "App_Led.h"
 }
 
 FAKE_VOID_FUNC(
@@ -28,9 +30,15 @@ FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
 
+FAKE_VOID_FUNC(turn_on_imd_led);
+FAKE_VOID_FUNC(turn_off_imd_led);
+FAKE_VOID_FUNC(turn_on_bspd_led);
+FAKE_VOID_FUNC(turn_off_bspd_led);
+
 class DimStateMachineTest : public SevenSegDisplaysTest,
                             public RegenPaddleTest,
-                            public RotarySwitchTest
+                            public RotarySwitchTest,
+                            public LedTest
 {
   protected:
     void SetUp() override
@@ -38,6 +46,8 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
         SevenSegDisplaysTest::SetUp();
         RegenPaddleTest::SetUp();
         RotarySwitchTest::SetUp();
+        LedTest::SetupLed(imd_led, turn_on_imd_led, turn_off_imd_led);
+        LedTest::SetupLed(bspd_led, turn_on_bspd_led, turn_off_bspd_led);
 
         constexpr uint32_t DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS = 500U;
         constexpr enum HeartbeatOneHot DEFAULT_HEARTBEAT_BOARDS_TO_CHECK =
@@ -57,7 +67,8 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
 
         world = App_DimWorld_Create(
             can_tx_interface, can_rx_interface, seven_seg_displays,
-            heartbeat_monitor, regen_paddle, rgb_led_sequence, rotary_switch);
+            heartbeat_monitor, regen_paddle, rgb_led_sequence, rotary_switch,
+            imd_led, bspd_led);
 
         // Default to starting the state machine in the `Drive` state
         state_machine =
@@ -71,6 +82,10 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
         RESET_FAKE(turn_on_red_led);
         RESET_FAKE(turn_on_green_led);
         RESET_FAKE(turn_on_blue_led);
+        RESET_FAKE(turn_on_imd_led);
+        RESET_FAKE(turn_off_imd_led);
+        RESET_FAKE(turn_on_bspd_led);
+        RESET_FAKE(turn_off_bspd_led);
     }
 
     void TearDown() override
@@ -78,6 +93,8 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
         SevenSegDisplaysTest::TearDown();
         RegenPaddleTest::TearDown();
         RotarySwitchTest::TearDown();
+        LedTest::TearDownLed(imd_led);
+        LedTest::TearDownLed(bspd_led);
 
         ASSERT_TRUE(world != NULL);
         ASSERT_TRUE(can_tx_interface != NULL);
@@ -117,6 +134,8 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
     struct StateMachine *     state_machine;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
+    struct Led *              imd_led;
+    struct Led *              bspd_led;
 };
 
 TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
@@ -191,4 +210,40 @@ TEST_F(
     ASSERT_EQ(
         CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_3_CHOICE,
         App_CanTx_GetPeriodicSignal_DRIVE_MODE(can_tx_interface));
+}
+
+TEST_F(DimStateMachineTest, turn_on_imd_led)
+{
+    App_CanRx_BMS_IMD_SetSignal_OK_HS(can_rx_interface, false);
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(0, turn_on_imd_led_fake.call_count);
+    ASSERT_EQ(1, turn_off_imd_led_fake.call_count);
+
+    App_CanRx_BMS_IMD_SetSignal_OK_HS(can_rx_interface, true);
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(1, turn_on_imd_led_fake.call_count);
+    ASSERT_EQ(1, turn_off_imd_led_fake.call_count);
+
+    App_CanRx_BMS_IMD_SetSignal_OK_HS(can_rx_interface, false);
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(1, turn_on_imd_led_fake.call_count);
+    ASSERT_EQ(2, turn_off_imd_led_fake.call_count);
+}
+
+TEST_F(DimStateMachineTest, turn_on_bspd_led)
+{
+    App_CanRx_FSM_ERRORS_SetSignal_BSPD_FAULT(can_rx_interface, false);
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(0, turn_on_bspd_led_fake.call_count);
+    ASSERT_EQ(1, turn_off_bspd_led_fake.call_count);
+
+    App_CanRx_FSM_ERRORS_SetSignal_BSPD_FAULT(can_rx_interface, true);
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(1, turn_on_bspd_led_fake.call_count);
+    ASSERT_EQ(1, turn_off_bspd_led_fake.call_count);
+
+    App_CanRx_FSM_ERRORS_SetSignal_BSPD_FAULT(can_rx_interface, false);
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(1, turn_on_bspd_led_fake.call_count);
+    ASSERT_EQ(2, turn_off_bspd_led_fake.call_count);
 }

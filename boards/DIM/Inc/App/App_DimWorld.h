@@ -7,6 +7,7 @@
 #include "App_RegenPaddle.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_RotarySwitch.h"
+#include "App_Led.h"
 
 struct DimWorld;
 
@@ -30,7 +31,9 @@ struct DimWorld *App_DimWorld_Create(
     struct HeartbeatMonitor * heartbeat_monitor,
     struct RegenPaddle *      regen_paddle,
     struct RgbLedSequence *   rgb_led_sequence,
-    struct RotarySwitch *     drive_mode_switch);
+    struct RotarySwitch *     drive_mode_switch,
+    struct Led *              imd_led,
+    struct Led *              bspd_led);
 
 /**
  * Destroy the given DIM world, freeing the memory associated with it
@@ -48,4 +51,6 @@ struct RegenPaddle *App_DimWorld_GetRegenPaddle(const struct DimWorld *world);
 struct RgbLedSequence *
     App_DimWorld_GetRgbLedSequence(const struct DimWorld *world);
 struct RotarySwitch *
-    App_DimWorld_GetDriveModeSwitch(const struct DimWorld *world);
+            App_DimWorld_GetDriveModeSwitch(const struct DimWorld *world);
+struct Led *App_DimWorld_GetImdLed(const struct DimWorld *world);
+struct Led *App_DimWorld_GetBspdLed(const struct DimWorld *world);
