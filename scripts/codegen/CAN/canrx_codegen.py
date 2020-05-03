@@ -282,7 +282,8 @@ class IoCanRxHeaderFileGenerator(IoCanRxFileGenerator):
             self.__generateFunctionDeclarations()))
 
     def __generateHeaderIncludes(self):
-        header_names = []
+        header_names = ['<stdbool.h>',
+                        '<stdint.h>']
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])
 
