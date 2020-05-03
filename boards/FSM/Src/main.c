@@ -37,6 +37,7 @@
 #include "Io_FlowMeters.h"
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
+#include "Io_WheelSpeedSensors.h"
 
 #include "App_FsmWorld.h"
 #include "App_SharedStateMachine.h"
@@ -67,6 +68,8 @@ CAN_HandleTypeDef hcan;
 IWDG_HandleTypeDef hiwdg;
 
 TIM_HandleTypeDef htim4;
+TIM_HandleTypeDef htim16;
+TIM_HandleTypeDef htim17;
 
 osThreadId          Task1HzHandle;
 uint32_t            Task1HzBuffer[TASK1HZ_STACK_SIZE];
@@ -97,6 +100,8 @@ static void MX_CAN_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_ADC2_Init(void);
 static void MX_TIM4_Init(void);
+static void MX_TIM16_Init(void);
+static void MX_TIM17_Init(void);
 void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
 void        RunTaskCanRx(void const *argument);
@@ -158,6 +163,8 @@ int main(void)
     MX_IWDG_Init();
     MX_ADC2_Init();
     MX_TIM4_Init();
+    MX_TIM16_Init();
+    MX_TIM17_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
     Io_SharedHardFaultHandler_Init();
@@ -166,6 +173,8 @@ int main(void)
     primary_flow_meter = App_FlowMeter_Create(Io_FlowMeters_GetPrimaryFlowRate);
     secondary_flow_meter =
         App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
+
+    Io_WheelSpeedSensors_Init(&htim16, &htim17);
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
@@ -473,6 +482,94 @@ static void MX_TIM4_Init(void)
 }
 
 /**
+ * @brief TIM16 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM16_Init(void)
+{
+    /* USER CODE BEGIN TIM16_Init 0 */
+
+    /* USER CODE END TIM16_Init 0 */
+
+    TIM_IC_InitTypeDef sConfigIC = { 0 };
+
+    /* USER CODE BEGIN TIM16_Init 1 */
+
+    /* USER CODE END TIM16_Init 1 */
+    htim16.Instance               = TIM16;
+    htim16.Init.Prescaler         = TIM16_PRESCALER;
+    htim16.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim16.Init.Period            = TIM16_AUTO_RELOAD_REG;
+    htim16.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim16.Init.RepetitionCounter = 0;
+    htim16.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim16) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if (HAL_TIM_IC_Init(&htim16) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigIC.ICPolarity  = TIM_INPUTCHANNELPOLARITY_RISING;
+    sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
+    sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
+    sConfigIC.ICFilter    = 0;
+    if (HAL_TIM_IC_ConfigChannel(&htim16, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM16_Init 2 */
+
+    /* USER CODE END TIM16_Init 2 */
+}
+
+/**
+ * @brief TIM17 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM17_Init(void)
+{
+    /* USER CODE BEGIN TIM17_Init 0 */
+
+    /* USER CODE END TIM17_Init 0 */
+
+    TIM_IC_InitTypeDef sConfigIC = { 0 };
+
+    /* USER CODE BEGIN TIM17_Init 1 */
+
+    /* USER CODE END TIM17_Init 1 */
+    htim17.Instance               = TIM17;
+    htim17.Init.Prescaler         = TIM17_PRESCALER;
+    htim17.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim17.Init.Period            = TIM17_AUTO_RELOAD_REG;
+    htim17.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim17.Init.RepetitionCounter = 0;
+    htim17.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim17) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if (HAL_TIM_IC_Init(&htim17) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigIC.ICPolarity  = TIM_INPUTCHANNELPOLARITY_RISING;
+    sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
+    sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
+    sConfigIC.ICFilter    = 0;
+    if (HAL_TIM_IC_ConfigChannel(&htim17, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM17_Init 2 */
+
+    /* USER CODE END TIM17_Init 2 */
+}
+
+/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -532,10 +629,8 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PRIMARY_APPS_ALARM_Pin FL_WHEEL_SPEED_Pin
-     * FR_WHEEL_SPEED_Pin BRAKE_OC_SC_OK_Pin */
-    GPIO_InitStruct.Pin = PRIMARY_APPS_ALARM_Pin | FL_WHEEL_SPEED_Pin |
-                          FR_WHEEL_SPEED_Pin | BRAKE_OC_SC_OK_Pin;
+    /*Configure GPIO pins : PRIMARY_APPS_ALARM_Pin BRAKE_OC_SC_OK_Pin */
+    GPIO_InitStruct.Pin  = PRIMARY_APPS_ALARM_Pin | BRAKE_OC_SC_OK_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
