@@ -108,7 +108,10 @@
     }
 #endif
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wpedantic"
 register char * stack_ptr asm("sp");
+#pragma GCC diagnostic pop
 
 #ifdef STM_VERSION // Use STM CubeMX LD symbols for heap+stack area
     // To avoid modifying STM LD file (and then having CubeMX trash it), use available STM symbols
@@ -194,12 +197,13 @@ void * _sbrk_r(struct _reent *pReent, int incr) {
 // ... because the current _reent structure is pointed to by global _impure_ptr
 char * sbrk(int incr) { return _sbrk_r(_impure_ptr, incr); }
 //! _sbrk is a synonym for sbrk.
-char * _sbrk(int incr) { return sbrk(incr); };
+char * _sbrk(int incr) { return sbrk(incr); }
 
 #ifdef MALLOCS_INSIDE_ISRs // block interrupts during free-storage use
   static UBaseType_t malLock_uxSavedInterruptStatus;
 #endif
 void __malloc_lock(struct _reent *r)     {
+  (void)r;
   #if defined(MALLOCS_INSIDE_ISRs)
     DRN_ENTER_CRITICAL_SECTION(malLock_uxSavedInterruptStatus);
   #else
@@ -207,21 +211,22 @@ void __malloc_lock(struct _reent *r)     {
     configASSERT( !insideAnISR ); // Make damn sure no more mallocs inside ISRs!!
     vTaskSuspendAll();
   #endif
-};
+}
 void __malloc_unlock(struct _reent *r)   {
+  (void)r;
   #if defined(MALLOCS_INSIDE_ISRs)
     DRN_EXIT_CRITICAL_SECTION(malLock_uxSavedInterruptStatus);
   #else
     (void)xTaskResumeAll();
   #endif
-};
+}
 
 // newlib also requires implementing locks for the application's environment memory space,
 // accessed by newlib's setenv() and getenv() functions.
 // As these are trivial functions, momentarily suspend task switching (rather than semaphore).
 // ToDo: Move __env_lock/unlock to a separate newlib helper file.
-void __env_lock()    {       vTaskSuspendAll(); };
-void __env_unlock()  { (void)xTaskResumeAll();  };
+void __env_lock()    {       vTaskSuspendAll(); }
+void __env_unlock()  { (void)xTaskResumeAll();  }
 
 #if 1 // Provide malloc debug and accounting wrappers
   /// /brief  Wrap malloc/malloc_r to help debug who requests memory and why.
@@ -238,8 +243,9 @@ void __env_unlock()  { (void)xTaskResumeAll();  };
       void *p = __real_malloc(nbytes); // will call malloc_r...
     inside_malloc = false;
     return p;
-  };
+  }
   void *__wrap__malloc_r(void *reent, size_t nbytes) {
+    (void)reent;
     extern void * __real__malloc_r(size_t nbytes);
     if(!inside_malloc) {
       MallocCallCnt++;
@@ -247,7 +253,7 @@ void __env_unlock()  { (void)xTaskResumeAll();  };
     };
     void *p = __real__malloc_r(nbytes);
     return p;
-  };
+  }
 #endif
 
 // ================================================================================================
@@ -260,7 +266,7 @@ void *pvPortMalloc( size_t xSize ) PRIVILEGED_FUNCTION {
 }
 void vPortFree( void *pv ) PRIVILEGED_FUNCTION {
     free(pv);
-};
+}
 
 size_t xPortGetFreeHeapSize( void ) PRIVILEGED_FUNCTION {
     struct mallinfo mi = mallinfo(); // available space now managed by newlib
@@ -271,4 +277,4 @@ size_t xPortGetFreeHeapSize( void ) PRIVILEGED_FUNCTION {
 // So, no implementation is provided: size_t xPortGetMinimumEverFreeHeapSize( void ) PRIVILEGED_FUNCTION;
 
 //! No implementation needed, but stub provided in case application already calls vPortInitialiseBlocks
-void vPortInitialiseBlocks( void ) PRIVILEGED_FUNCTION {};
+void vPortInitialiseBlocks( void ) PRIVILEGED_FUNCTION {}
