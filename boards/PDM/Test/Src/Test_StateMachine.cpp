@@ -269,8 +269,9 @@ class PdmStateMachineTest : public InRangeCheckTest
         float  max_voltage,
         float &fake_voltage,
         float (*voltage_can_signal_getter)(struct PdmCanTxInterface *),
-        uint8_t (*undervoltage_can_signal_getter)(struct PdmCanTxInterface *),
-        uint8_t (*overvoltage_can_signal_getter)(struct PdmCanTxInterface *))
+        uint8_t (*out_of_range_can_signal_getter)(struct PdmCanTxInterface *),
+        uint8_t in_range_choice, uint8_t underflow_choice,
+        uint8_t overflow_choice)
     {
         for (auto &state : GetAllStates())
         {
@@ -281,8 +282,7 @@ class PdmStateMachineTest : public InRangeCheckTest
             App_SharedStateMachine_Tick(state_machine);
             EXPECT_EQ(
                 fake_voltage, voltage_can_signal_getter(can_tx_interface));
-            EXPECT_EQ(undervoltage_can_signal_getter(can_tx_interface), false);
-            EXPECT_EQ(overvoltage_can_signal_getter(can_tx_interface), false);
+            EXPECT_EQ(in_range_choice, out_of_range_can_signal_getter(can_tx_interface));
 
             // Under-voltage
             fake_voltage = std::nextafter(
@@ -290,8 +290,7 @@ class PdmStateMachineTest : public InRangeCheckTest
             App_SharedStateMachine_Tick(state_machine);
             EXPECT_EQ(
                 fake_voltage, voltage_can_signal_getter(can_tx_interface));
-            EXPECT_EQ(undervoltage_can_signal_getter(can_tx_interface), true);
-            EXPECT_EQ(overvoltage_can_signal_getter(can_tx_interface), false);
+            EXPECT_EQ(underflow_choice, out_of_range_can_signal_getter(can_tx_interface));
 
             // Over-voltage
             fake_voltage =
@@ -299,8 +298,7 @@ class PdmStateMachineTest : public InRangeCheckTest
             App_SharedStateMachine_Tick(state_machine);
             EXPECT_EQ(
                 fake_voltage, voltage_can_signal_getter(can_tx_interface));
-            EXPECT_EQ(undervoltage_can_signal_getter(can_tx_interface), true);
-            EXPECT_EQ(overvoltage_can_signal_getter(can_tx_interface), true);
+            EXPECT_EQ(overflow_choice, out_of_range_can_signal_getter(can_tx_interface));
         }
     }
 
@@ -354,8 +352,10 @@ TEST_F(PdmStateMachineTest, check_vbat_voltage_can_signals_in_all_states)
     CheckVoltageCanSignalsInAllStates(
         VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE, GetVbatVoltage_fake.return_val,
         App_CanTx_GetPeriodicSignal_VBAT,
-        App_CanTx_GetPeriodicSignal_UNDERVOLTAGE_VBAT,
-        App_CanTx_GetPeriodicSignal_OVERVOLTAGE_VBAT);
+        App_CanTx_GetPeriodicSignal_VBAT_VOLATGE_OUT_OF_RANGE,
+        CANMSGS_PDM_ERRORS_VBAT_VOLATGE_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS_VBAT_VOLATGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_PDM_ERRORS_VBAT_VOLATGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
 TEST_F(PdmStateMachineTest, check_aux1_current_can_signals_in_non_init_states)
@@ -363,8 +363,10 @@ TEST_F(PdmStateMachineTest, check_aux1_current_can_signals_in_non_init_states)
     CheckCurrentCanSignalsInNonInitStates(
         AUX1_MIN_CURRENT, AUX1_MAX_CURRENT, GetAux1Current_fake.return_val,
         App_CanTx_GetPeriodicSignal_AUXILIARY1_CURRENT,
-        App_CanTx_GetPeriodicSignal_UNDERCURRENT_AUX_1,
-        App_CanTx_GetPeriodicSignal_OVERCURRENT_AUX_1);
+        App_CanTx_GetPeriodicSignal_AUX1_CURRENT_OUT_OF_RANGE,
+        CANMSGS_PDM_ERRORS_AUX1_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS_AUX1_CURRENT_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_PDM_ERRORS_AUX1_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
 TEST_F(PdmStateMachineTest, check_aux1_current_can_signals_in_init_state)

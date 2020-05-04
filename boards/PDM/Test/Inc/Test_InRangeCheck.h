@@ -4,10 +4,8 @@
 
 class InRangeCheckTest : public virtual testing::Test
 {
-  public:
-    void TearDownInRangeCheck(struct InRangeCheck*& in_range_check_to_teardown);
-
   protected:
+    void TearDownInRangeCheck(struct InRangeCheck*& in_range_check_to_teardown);
     void SetUp() override;
     void TearDown() override;
 

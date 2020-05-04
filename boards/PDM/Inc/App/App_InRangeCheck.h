@@ -24,6 +24,10 @@ struct InRangeCheck *App_InRangeCheck_Create(
     float min_value,
     float max_value);
 
+/**
+ * Deallocate the memory used by the given in-range check
+ * @param in_range_check The in-range check to deallocate
+ */
 void App_InRangeCheck_Destroy(struct InRangeCheck *in_range_check);
 
 /**
