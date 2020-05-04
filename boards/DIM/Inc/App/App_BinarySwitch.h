@@ -12,6 +12,10 @@ struct BinarySwitch;
  */
 struct BinarySwitch *App_BinarySwitch_Create(bool (*is_turned_on)(void));
 
+/**
+ * Deallocate the memory used by the given binary switch
+ * @param binary_switch The binary switch to deallocate
+ */
 void App_BinarySwitch_Destroy(struct BinarySwitch *binary_switch);
 
 /**
