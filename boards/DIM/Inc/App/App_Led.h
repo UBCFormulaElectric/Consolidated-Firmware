@@ -9,6 +9,10 @@
 struct Led *
     App_Led_Create(void (*turn_on_led)(void), void (*turn_off_led)(void));
 
+/**
+ * Deallocate the memory used by the given LED
+ * @param led The LED to deallocate
+ */
 void App_Led_Destroy(struct Led *led);
 
 /**
