@@ -61,14 +61,13 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
-        start_switch =
-            BinarySwitchTest::SetUpBinarySwitch(start_switch_is_turned_on);
+        start_switch = App_BinarySwitch_Create(start_switch_is_turned_on);
 
-        traction_control_switch = BinarySwitchTest::SetUpBinarySwitch(
-            traction_control_switch_is_turned_on);
+        traction_control_switch =
+            App_BinarySwitch_Create(traction_control_switch_is_turned_on);
 
-        torque_vectoring_switch = BinarySwitchTest::SetUpBinarySwitch(
-            torque_vectoring_switch_is_turned_on);
+        torque_vectoring_switch =
+            App_BinarySwitch_Create(torque_vectoring_switch_is_turned_on);
 
         world = App_DimWorld_Create(
             can_tx_interface, can_rx_interface, seven_seg_displays,

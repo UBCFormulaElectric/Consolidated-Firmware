@@ -5,11 +5,10 @@
 class BinarySwitchTest : public virtual testing::Test
 {
   public:
-    struct BinarySwitch *SetUpBinarySwitch(bool (*is_turned_on)(void));
-    void TearDownBinarySwitch(struct BinarySwitch *&binary_switch);
+    void TearDownBinarySwitch(struct BinarySwitch *&binary_switch_to_teardown);
 
   protected:
     void                 SetUp() override;
     void                 TearDown() override;
-    struct BinarySwitch *_binary_switch;
+    struct BinarySwitch *binary_switch;
 };
