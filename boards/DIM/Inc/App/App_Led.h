@@ -4,7 +4,7 @@
  * Allocate and initialize a LED
  * @param turn_on_led A function that can be called to turn on the LED
  * @param turn_off_led A function that can be called to turn off the LED
- * @return
+ * @return The created LED, whose ownership is given to the caller
  */
 struct Led *
     App_Led_Create(void (*turn_on_led)(void), void (*turn_off_led)(void));
