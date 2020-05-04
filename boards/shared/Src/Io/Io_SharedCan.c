@@ -1,27 +1,14 @@
-#include "App_CanTx.h"
+#include <assert.h>
+
 #include "Io_CanRx.h"
 #include "Io_CanTx.h"
-#include "Io_BoardSpecifics.h"
 #include "Io_SharedCan.h"
-#include <assert.h>
 #include "Io_SharedFreeRTOS.h"
 
-/** @brief Size of a message in the CAN TX queue */
 #define CAN_TX_MSG_FIFO_ITEM_SIZE sizeof(struct CanMsg)
-
-/**
- * @brief Number of messages in the CAN TX queue. This value should be increased
- *        if CAN TX overflow happens frequently.
- */
 #define CAN_TX_MSG_FIFO_LENGTH 20
 
-/** @brief Size of a message in the CAN RX queue */
 #define CAN_RX_MSG_FIFO_ITEM_SIZE sizeof(struct CanMsg)
-
-/**
- * @brief Number of messages in the CAN RX queue. This value should be increased
- *        if CAN RX overflow happens frequently.
- */
 #define CAN_RX_MSG_FIFO_LENGTH 20
 
 // The following filter IDs/masks must be used with 16-bit Filter Scale
@@ -54,7 +41,6 @@
     INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, CAN_ExtID_NULL)
 #define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
 
-/** @brief FIFO for buffering CAN TX messages */
 static uint8_t
     can_tx_msg_fifo_storage[CAN_TX_MSG_FIFO_LENGTH * CAN_TX_MSG_FIFO_ITEM_SIZE];
 
@@ -64,7 +50,6 @@ static struct StaticQueue can_tx_msg_fifo = {
     .handle  = NULL,
 };
 
-/** @brief FIFO for buffering CAN RX messages */
 static uint8_t
     can_rx_msg_fifo_storage[CAN_TX_MSG_FIFO_LENGTH * CAN_TX_MSG_FIFO_ITEM_SIZE];
 
@@ -74,7 +59,6 @@ static struct StaticQueue can_rx_msg_fifo = {
     .handle  = NULL,
 };
 
-/** @brief Handle used to interface with underlying CAN hardware */
 static CAN_HandleTypeDef *sharedcan_hcan = NULL;
 
 /**
@@ -262,7 +246,7 @@ void Io_SharedCan_Init(
     sharedcan_hcan = hcan;
 }
 
-void Io_SharedCan_TxMessageQueueSendtoBack(struct CanMsg *message)
+void Io_SharedCan_TxMessageQueueSendtoBack(const struct CanMsg *message)
 {
     // Track how many times the CAN TX FIFO has overflowed
     static uint32_t cantx_overflow_count = { 0 };

@@ -2,6 +2,7 @@
 #include "Test_SevenSegDisplays.h"
 #include "Test_RegenPaddle.h"
 #include "Test_RotarySwitch.h"
+#include "Test_Led.h"
 #include "Test_BinarySwitch.h"
 
 extern "C"
@@ -12,15 +13,16 @@ extern "C"
 #include "App_SevenSegDisplay.h"
 #include "states/App_DriveState.h"
 #include "App_SharedRgbLedSequence.h"
+#include "App_Led.h"
 #include "App_CanMsgs.h"
 }
 
 FAKE_VOID_FUNC(
     send_non_periodic_msg_DIM_STARTUP,
-    struct CanMsgs_dim_startup_t *);
+    const struct CanMsgs_dim_startup_t *);
 FAKE_VOID_FUNC(
     send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT,
-    struct CanMsgs_dim_watchdog_timeout_t *);
+    const struct CanMsgs_dim_watchdog_timeout_t *);
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
 FAKE_VOID_FUNC(
     heartbeat_timeout_callback,
@@ -33,9 +35,15 @@ FAKE_VALUE_FUNC(bool, start_switch_is_turned_on);
 FAKE_VALUE_FUNC(bool, traction_control_switch_is_turned_on);
 FAKE_VALUE_FUNC(bool, torque_vectoring_switch_is_turned_on);
 
+FAKE_VOID_FUNC(turn_on_imd_led);
+FAKE_VOID_FUNC(turn_off_imd_led);
+FAKE_VOID_FUNC(turn_on_bspd_led);
+FAKE_VOID_FUNC(turn_off_bspd_led);
+
 class DimStateMachineTest : public SevenSegDisplaysTest,
                             public RegenPaddleTest,
                             public RotarySwitchTest,
+                            public LedTest,
                             public BinarySwitchTest
 {
   protected:
@@ -61,6 +69,10 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
+        imd_led = App_Led_Create(turn_on_imd_led, turn_off_imd_led);
+
+        bspd_led = App_Led_Create(turn_on_bspd_led, turn_off_bspd_led);
+
         start_switch = App_BinarySwitch_Create(start_switch_is_turned_on);
 
         traction_control_switch =
@@ -72,7 +84,8 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
         world = App_DimWorld_Create(
             can_tx_interface, can_rx_interface, seven_seg_displays,
             heartbeat_monitor, regen_paddle, rgb_led_sequence, rotary_switch,
-            start_switch, traction_control_switch, torque_vectoring_switch);
+            imd_led, bspd_led, start_switch, traction_control_switch,
+            torque_vectoring_switch);
 
         // Default to starting the state machine in the `Drive` state
         state_machine =
@@ -86,6 +99,10 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
         RESET_FAKE(turn_on_red_led);
         RESET_FAKE(turn_on_green_led);
         RESET_FAKE(turn_on_blue_led);
+        RESET_FAKE(turn_on_imd_led);
+        RESET_FAKE(turn_off_imd_led);
+        RESET_FAKE(turn_on_bspd_led);
+        RESET_FAKE(turn_off_bspd_led);
         RESET_FAKE(start_switch_is_turned_on);
         RESET_FAKE(traction_control_switch_is_turned_on);
         RESET_FAKE(torque_vectoring_switch_is_turned_on);
@@ -96,6 +113,8 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
         SevenSegDisplaysTest::TearDown();
         RegenPaddleTest::TearDown();
         RotarySwitchTest::TearDown();
+        LedTest::TearDownLed(imd_led);
+        LedTest::TearDownLed(bspd_led);
 
         BinarySwitchTest::TearDownBinarySwitch(start_switch);
         BinarySwitchTest::TearDownBinarySwitch(traction_control_switch);
@@ -139,6 +158,8 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
     struct StateMachine *     state_machine;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
+    struct Led *              imd_led;
+    struct Led *              bspd_led;
     struct BinarySwitch *     start_switch;
     struct BinarySwitch *     traction_control_switch;
     struct BinarySwitch *     torque_vectoring_switch;
@@ -267,4 +288,43 @@ TEST_F(
     ASSERT_EQ(
         CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE,
         App_CanTx_GetPeriodicSignal_TORQUE_VECTORING_SWITCH(can_tx_interface));
+}
+
+TEST_F(DimStateMachineTest, imd_led_control_in_drive_state)
+{
+    App_CanRx_BMS_IMD_SetSignal_OK_HS(
+        can_rx_interface, CANMSGS_BMS_IMD_OK_HS_NO_FAULT_CHOICE);
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(0, turn_on_imd_led_fake.call_count);
+    ASSERT_EQ(1, turn_off_imd_led_fake.call_count);
+
+    App_CanRx_BMS_IMD_SetSignal_OK_HS(
+        can_rx_interface, CANMSGS_BMS_IMD_OK_HS_FAULT_CHOICE);
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(1, turn_on_imd_led_fake.call_count);
+    ASSERT_EQ(1, turn_off_imd_led_fake.call_count);
+
+    App_CanRx_BMS_IMD_SetSignal_OK_HS(
+        can_rx_interface, CANMSGS_BMS_IMD_OK_HS_NO_FAULT_CHOICE);
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(1, turn_on_imd_led_fake.call_count);
+    ASSERT_EQ(2, turn_off_imd_led_fake.call_count);
+}
+
+TEST_F(DimStateMachineTest, bspd_led_control_in_drive_state)
+{
+    App_CanRx_FSM_ERRORS_SetSignal_BSPD_FAULT(can_rx_interface, false);
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(0, turn_on_bspd_led_fake.call_count);
+    ASSERT_EQ(1, turn_off_bspd_led_fake.call_count);
+
+    App_CanRx_FSM_ERRORS_SetSignal_BSPD_FAULT(can_rx_interface, true);
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(1, turn_on_bspd_led_fake.call_count);
+    ASSERT_EQ(1, turn_off_bspd_led_fake.call_count);
+
+    App_CanRx_FSM_ERRORS_SetSignal_BSPD_FAULT(can_rx_interface, false);
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(1, turn_on_bspd_led_fake.call_count);
+    ASSERT_EQ(2, turn_off_bspd_led_fake.call_count);
 }

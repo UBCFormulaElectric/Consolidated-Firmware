@@ -7,6 +7,7 @@
 #include "App_RegenPaddle.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_RotarySwitch.h"
+#include "App_Led.h"
 #include "App_BinarySwitch.h"
 
 struct DimWorld;
@@ -32,6 +33,8 @@ struct DimWorld *App_DimWorld_Create(
     struct RegenPaddle *      regen_paddle,
     struct RgbLedSequence *   rgb_led_sequence,
     struct RotarySwitch *     drive_mode_switch,
+    struct Led *              imd_led,
+    struct Led *              bspd_led,
     struct BinarySwitch *     start_switch,
     struct BinarySwitch *     traction_control_switch,
     struct BinarySwitch *     torque_vectoring_switch);
@@ -116,3 +119,17 @@ struct BinarySwitch *
  */
 struct BinarySwitch *
     App_DimWorld_GetTorqueVectoringSwitch(const struct DimWorld *world);
+
+/**
+ * Get the IMD LED for the given world
+ * @param world The world to get IMD LED for
+ * @return The IMD LED for the given world
+ */
+struct Led *App_DimWorld_GetImdLed(const struct DimWorld *world);
+
+/**
+ * Get the BSPD LED for the given world
+ * @param world The world to get BSPD LED for
+ * @return The BSPD LED for the given world
+ */
+struct Led *App_DimWorld_GetBspdLed(const struct DimWorld *world);
