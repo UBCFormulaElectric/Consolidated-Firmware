@@ -46,8 +46,6 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
         SevenSegDisplaysTest::SetUp();
         RegenPaddleTest::SetUp();
         RotarySwitchTest::SetUp();
-        LedTest::SetupLed(imd_led, turn_on_imd_led, turn_off_imd_led);
-        LedTest::SetupLed(bspd_led, turn_on_bspd_led, turn_off_bspd_led);
 
         constexpr uint32_t DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS = 500U;
         constexpr enum HeartbeatOneHot DEFAULT_HEARTBEAT_BOARDS_TO_CHECK =
@@ -64,6 +62,10 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
 
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
+
+        imd_led = App_Led_Create(turn_on_imd_led, turn_off_imd_led);
+
+        bspd_led = App_Led_Create(turn_on_bspd_led, turn_off_bspd_led);
 
         world = App_DimWorld_Create(
             can_tx_interface, can_rx_interface, seven_seg_displays,

@@ -5,32 +5,42 @@ extern "C"
 #include "App_Led.h"
 }
 
-FAKE_VOID_FUNC(prv_turn_on_led);
-FAKE_VOID_FUNC(prv_turn_off_led);
+FAKE_VOID_FUNC(turn_on_led);
+FAKE_VOID_FUNC(turn_off_led);
 
-void LedTest::SetupLed(
-    struct Led *&led,
-    void (*turn_on_led)(void),
-    void (*turn_off_led)(void))
+void LedTest::TearDownLed(struct Led *&led_to_teardown)
 {
-    led = App_Led_Create(turn_on_led, turn_off_led);
+    ASSERT_TRUE(led_to_teardown != NULL);
+    App_Led_Destroy(led_to_teardown);
+    led_to_teardown = NULL;
 }
 
-void LedTest::TearDownLed(struct Led *&led)
+void LedTest::SetUp()
+{
+    led = App_Led_Create(turn_on_led, turn_off_led);
+
+    RESET_FAKE(turn_on_led);
+    RESET_FAKE(turn_off_led);
+}
+
+void LedTest::TearDown()
 {
     ASSERT_TRUE(led != NULL);
     App_Led_Destroy(led);
     led = NULL;
 }
 
-void LedTest::SetUp()
+TEST_F(LedTest, toggle_led)
 {
-    prv_led = App_Led_Create(prv_turn_on_led, prv_turn_off_led);
-}
+    App_Led_TurnOff(led);
+    ASSERT_EQ(0, turn_on_led_fake.call_count);
+    ASSERT_EQ(1, turn_off_led_fake.call_count);
 
-void LedTest::TearDown()
-{
-    ASSERT_TRUE(prv_led != NULL);
-    App_Led_Destroy(prv_led);
-    prv_led = NULL;
+    App_Led_TurnOn(led);
+    ASSERT_EQ(1, turn_on_led_fake.call_count);
+    ASSERT_EQ(1, turn_off_led_fake.call_count);
+
+    App_Led_TurnOff(led);
+    ASSERT_EQ(1, turn_on_led_fake.call_count);
+    ASSERT_EQ(2, turn_off_led_fake.call_count);
 }
