@@ -110,7 +110,8 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
         App_SetPeriodicCanSignals_DriveMode(can_tx, buffer);
     }
 
-    if (App_CanRx_BMS_IMD_GetSignal_OK_HS(can_rx))
+    if (App_CanRx_BMS_IMD_GetSignal_OK_HS(can_rx) ==
+        CANMSGS_BMS_IMD_OK_HS_FAULT_CHOICE)
     {
         App_Led_TurnOn(imd_led);
     }

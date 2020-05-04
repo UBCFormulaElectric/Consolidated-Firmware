@@ -216,17 +216,20 @@ TEST_F(
 
 TEST_F(DimStateMachineTest, imd_led_control_in_drive_state)
 {
-    App_CanRx_BMS_IMD_SetSignal_OK_HS(can_rx_interface, false);
+    App_CanRx_BMS_IMD_SetSignal_OK_HS(
+        can_rx_interface, CANMSGS_BMS_IMD_OK_HS_NO_FAULT_CHOICE);
     App_SharedStateMachine_Tick(state_machine);
     ASSERT_EQ(0, turn_on_imd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_imd_led_fake.call_count);
 
-    App_CanRx_BMS_IMD_SetSignal_OK_HS(can_rx_interface, true);
+    App_CanRx_BMS_IMD_SetSignal_OK_HS(
+        can_rx_interface, CANMSGS_BMS_IMD_OK_HS_FAULT_CHOICE);
     App_SharedStateMachine_Tick(state_machine);
     ASSERT_EQ(1, turn_on_imd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_imd_led_fake.call_count);
 
-    App_CanRx_BMS_IMD_SetSignal_OK_HS(can_rx_interface, false);
+    App_CanRx_BMS_IMD_SetSignal_OK_HS(
+        can_rx_interface, CANMSGS_BMS_IMD_OK_HS_NO_FAULT_CHOICE);
     App_SharedStateMachine_Tick(state_machine);
     ASSERT_EQ(1, turn_on_imd_led_fake.call_count);
     ASSERT_EQ(2, turn_off_imd_led_fake.call_count);
