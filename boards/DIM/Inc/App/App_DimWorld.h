@@ -52,8 +52,7 @@ struct RegenPaddle *App_DimWorld_GetRegenPaddle(const struct DimWorld *world);
 struct RgbLedSequence *
     App_DimWorld_GetRgbLedSequence(const struct DimWorld *world);
 struct RotarySwitch *
-    App_DimWorld_GetDriveModeSwitch(const struct DimWorld *world);
-
+                     App_DimWorld_GetDriveModeSwitch(const struct DimWorld *world);
 struct BinarySwitch *App_DimWorld_GetStartSwitch(const struct DimWorld *world);
 struct BinarySwitch *
     App_DimWorld_GetTractionControlSwitch(const struct DimWorld *world);

@@ -2,6 +2,7 @@
 #include "Test_SevenSegDisplays.h"
 #include "Test_RegenPaddle.h"
 #include "Test_RotarySwitch.h"
+#include "Test_BinarySwitch.h"
 
 extern "C"
 {
@@ -34,7 +35,8 @@ FAKE_VALUE_FUNC(bool, torque_vectoring_switch_is_turned_on);
 
 class DimStateMachineTest : public SevenSegDisplaysTest,
                             public RegenPaddleTest,
-                            public RotarySwitchTest
+                            public RotarySwitchTest,
+                            public BinarySwitchTest
 {
   protected:
     void SetUp() override
@@ -59,13 +61,14 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
-        start_switch = App_BinarySwitch_Create(start_switch_is_turned_on);
+        start_switch =
+            BinarySwitchTest::SetUpBinarySwitch(start_switch_is_turned_on);
 
-        traction_control_switch =
-            App_BinarySwitch_Create(traction_control_switch_is_turned_on);
+        traction_control_switch = BinarySwitchTest::SetUpBinarySwitch(
+            traction_control_switch_is_turned_on);
 
-        torque_vectoring_switch =
-            App_BinarySwitch_Create(torque_vectoring_switch_is_turned_on);
+        torque_vectoring_switch = BinarySwitchTest::SetUpBinarySwitch(
+            torque_vectoring_switch_is_turned_on);
 
         world = App_DimWorld_Create(
             can_tx_interface, can_rx_interface, seven_seg_displays,
@@ -95,15 +98,16 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
         RegenPaddleTest::TearDown();
         RotarySwitchTest::TearDown();
 
+        BinarySwitchTest::TearDownBinarySwitch(start_switch);
+        BinarySwitchTest::TearDownBinarySwitch(traction_control_switch);
+        BinarySwitchTest::TearDownBinarySwitch(torque_vectoring_switch);
+
         ASSERT_TRUE(world != NULL);
         ASSERT_TRUE(can_tx_interface != NULL);
         ASSERT_TRUE(can_rx_interface != NULL);
         ASSERT_TRUE(state_machine != NULL);
         ASSERT_TRUE(heartbeat_monitor != NULL);
         ASSERT_TRUE(rgb_led_sequence != NULL);
-        ASSERT_TRUE(start_switch != NULL);
-        ASSERT_TRUE(traction_control_switch != NULL);
-        ASSERT_TRUE(torque_vectoring_switch != NULL);
 
         App_DimWorld_Destroy(world);
         App_CanTx_Destroy(can_tx_interface);
@@ -111,19 +115,13 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
         App_SharedStateMachine_Destroy(state_machine);
         App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
         App_SharedRgbLedSequence_Destroy(rgb_led_sequence);
-        App_BinarySwitch_Destroy(start_switch);
-        App_BinarySwitch_Destroy(traction_control_switch);
-        App_BinarySwitch_Destroy(torque_vectoring_switch);
 
-        world                   = NULL;
-        can_tx_interface        = NULL;
-        can_rx_interface        = NULL;
-        state_machine           = NULL;
-        heartbeat_monitor       = NULL;
-        rgb_led_sequence        = NULL;
-        start_switch            = NULL;
-        traction_control_switch = NULL;
-        torque_vectoring_switch = NULL;
+        world             = NULL;
+        can_tx_interface  = NULL;
+        can_rx_interface  = NULL;
+        state_machine     = NULL;
+        heartbeat_monitor = NULL;
+        rgb_led_sequence  = NULL;
     }
 
     void SetInitialState(const struct State *const initial_state)
