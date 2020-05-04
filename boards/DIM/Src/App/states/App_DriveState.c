@@ -83,6 +83,8 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
     struct RegenPaddle * regen_paddle = App_DimWorld_GetRegenPaddle(world);
     struct RotarySwitch *drive_mode_switch =
         App_DimWorld_GetDriveModeSwitch(world);
+    struct Led *imd_led  = App_DimWorld_GetImdLed(world);
+    struct Led *bspd_led = App_DimWorld_GetBspdLed(world);
 
     uint32_t buffer;
 
@@ -106,6 +108,25 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
             App_RotarySwitch_GetSwitchPosition(drive_mode_switch, &buffer)))
     {
         App_SetPeriodicCanSignals_DriveMode(can_tx, buffer);
+    }
+
+    if (App_CanRx_BMS_IMD_GetSignal_OK_HS(can_rx) ==
+        CANMSGS_BMS_IMD_OK_HS_FAULT_CHOICE)
+    {
+        App_Led_TurnOn(imd_led);
+    }
+    else
+    {
+        App_Led_TurnOff(imd_led);
+    }
+
+    if (App_CanRx_FSM_ERRORS_GetSignal_BSPD_FAULT(can_rx))
+    {
+        App_Led_TurnOn(bspd_led);
+    }
+    else
+    {
+        App_Led_TurnOff(bspd_led);
     }
 
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);

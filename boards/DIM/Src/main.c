@@ -41,6 +41,7 @@
 #include "Io_RegenPaddle.h"
 #include "Io_RgbLedSequence.h"
 #include "Io_DriveModeSwitch.h"
+#include "Io_Leds.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -90,6 +91,8 @@ struct HeartbeatMonitor * heartbeat_monitor;
 struct RegenPaddle *      regen_paddle;
 struct RgbLedSequence *   rgb_led_sequence;
 struct RotarySwitch *     drive_mode_switch;
+struct Led *              imd_led;
+struct Led *              bspd_led;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -191,9 +194,13 @@ int main(void)
     drive_mode_switch =
         App_RotarySwitch_Create(Io_DriveModeSwitch_GetPosition, 6);
 
+    imd_led = App_Led_Create(Io_Leds_TurnOnImdLed, Io_Leds_TurnOffImdLed);
+
+    bspd_led = App_Led_Create(Io_Leds_TurnOnBspdLed, Io_Leds_TurnOffBspdLed);
+
     world = App_DimWorld_Create(
         can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle,
-        rgb_led_sequence, drive_mode_switch);
+        rgb_led_sequence, drive_mode_switch, imd_led, bspd_led);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 
