@@ -17,6 +17,6 @@ void App_BinarySwitch_Destroy(struct BinarySwitch *binary_switch);
 /**
  * Check if the given binary switch is turned on
  * @param binary_switch The binary switch to check if it's turned on
- * @return A boolean indicating whether the binary switch is turned on
+ * @return true if the given binary switch is turned on, else false
  */
 bool App_BinarySwitch_IsTurnedOn(const struct BinarySwitch *binary_switch);
