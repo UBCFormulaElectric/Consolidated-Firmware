@@ -1,9 +1,0 @@
-#pragma once
-
-float Io_CurrentInRangeCheck_GetAux1Current(void);
-float Io_CurrentInRangeCheck_GetAux2Current(void);
-float Io_CurrentInRangeCheck_GetLeftInverterCurrent(void);
-float Io_CurrentInRangeCheck_GetRightInverterCurrent(void);
-float Io_CurrentInRangeCheck_GetEnergyMeterCurrent(void);
-float Io_CurrentInRangeCheck_GetCanCurrent(void);
-float Io_CurrentInRangeCheck_GetAirShutdownCurrent(void);

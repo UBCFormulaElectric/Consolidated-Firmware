@@ -1,39 +1,7 @@
+#include "App_SharedSetPeriodicCanSignals.h"
 #include "App_SetPeriodicCanSignals.h"
 
-// Even if the value is out-of-range, we still use it to set the CAN TX signal
-static void App_SetPeriodicCanSignals_InRangeCheck(
-    struct PdmCanTxInterface *const  can_tx,
-    const struct InRangeCheck *const in_range_check,
-    void (*const can_signal_setter)(struct PdmCanTxInterface *, float),
-    void (*const underflow_setter)(struct PdmCanTxInterface *, uint8_t),
-    void (*const overflow_setter)(struct PdmCanTxInterface *, uint8_t))
-{
-    float                    value;
-    enum InRangeCheck_Status status =
-        App_InRangeCheck_GetValue(in_range_check, &value);
-
-    switch (status)
-    {
-        case VALUE_IN_RANGE:
-        {
-            underflow_setter(can_tx, false);
-            overflow_setter(can_tx, false);
-        }
-        break;
-        case VALUE_UNDERFLOW:
-        {
-            underflow_setter(can_tx, true);
-        }
-        break;
-        case VALUE_OVERFLOW:
-        {
-            overflow_setter(can_tx, true);
-        }
-        break;
-    }
-
-    can_signal_setter(can_tx, value);
-}
+STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(PdmCanTxInterface)
 
 void App_SetPeriodicCanSignals_CurrentChecks(struct PdmWorld *world)
 {

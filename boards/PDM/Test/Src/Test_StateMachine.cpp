@@ -1,5 +1,6 @@
 #include <math.h>
 #include "Test_Pdm.h"
+#include "Test_InRangeCheck.h"
 
 extern "C"
 {
@@ -46,7 +47,7 @@ FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
 
-class PdmStateMachineTest : public testing::Test
+class PdmStateMachineTest : public InRangeCheckTest
 {
   protected:
     void SetUp() override
@@ -125,20 +126,21 @@ class PdmStateMachineTest : public testing::Test
 
     void TearDown() override
     {
+        InRangeCheckTest::TearDownInRangeCheck(vbat_voltage_check);
+        InRangeCheckTest::TearDownInRangeCheck(_24v_aux_voltage_check);
+        InRangeCheckTest::TearDownInRangeCheck(_24v_acc_voltage_check);
+        InRangeCheckTest::TearDownInRangeCheck(aux1_current_check);
+        InRangeCheckTest::TearDownInRangeCheck(aux2_current_check);
+        InRangeCheckTest::TearDownInRangeCheck(left_inverter_current_check);
+        InRangeCheckTest::TearDownInRangeCheck(right_inverter_current_check);
+        InRangeCheckTest::TearDownInRangeCheck(energy_meter_current_check);
+        InRangeCheckTest::TearDownInRangeCheck(can_current_check);
+        InRangeCheckTest::TearDownInRangeCheck(air_shutdown_current_check);
+
         ASSERT_TRUE(world != NULL);
         ASSERT_TRUE(state_machine != NULL);
         ASSERT_TRUE(can_tx_interface != NULL);
         ASSERT_TRUE(can_rx_interface != NULL);
-        ASSERT_TRUE(vbat_voltage_check != NULL);
-        ASSERT_TRUE(_24v_aux_voltage_check != NULL);
-        ASSERT_TRUE(_24v_acc_voltage_check != NULL);
-        ASSERT_TRUE(aux1_current_check != NULL);
-        ASSERT_TRUE(aux2_current_check != NULL);
-        ASSERT_TRUE(left_inverter_current_check != NULL);
-        ASSERT_TRUE(right_inverter_current_check != NULL);
-        ASSERT_TRUE(energy_meter_current_check != NULL);
-        ASSERT_TRUE(can_current_check != NULL);
-        ASSERT_TRUE(air_shutdown_current_check != NULL);
         ASSERT_TRUE(heartbeat_monitor != NULL);
         ASSERT_TRUE(rgb_led_sequence != NULL);
 
@@ -146,35 +148,15 @@ class PdmStateMachineTest : public testing::Test
         App_SharedStateMachine_Destroy(state_machine);
         App_CanTx_Destroy(can_tx_interface);
         App_CanRx_Destroy(can_rx_interface);
-        App_InRangeCheck_Destroy(vbat_voltage_check);
-        App_InRangeCheck_Destroy(_24v_aux_voltage_check);
-        App_InRangeCheck_Destroy(_24v_acc_voltage_check);
-        App_InRangeCheck_Destroy(aux1_current_check);
-        App_InRangeCheck_Destroy(aux2_current_check);
-        App_InRangeCheck_Destroy(left_inverter_current_check);
-        App_InRangeCheck_Destroy(right_inverter_current_check);
-        App_InRangeCheck_Destroy(energy_meter_current_check);
-        App_InRangeCheck_Destroy(can_current_check);
-        App_InRangeCheck_Destroy(air_shutdown_current_check);
         App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
         App_SharedRgbLedSequence_Destroy(rgb_led_sequence);
 
-        world                        = NULL;
-        state_machine                = NULL;
-        can_tx_interface             = NULL;
-        can_rx_interface             = NULL;
-        vbat_voltage_check           = NULL;
-        _24v_aux_voltage_check       = NULL;
-        _24v_acc_voltage_check       = NULL;
-        aux1_current_check           = NULL;
-        aux2_current_check           = NULL;
-        left_inverter_current_check  = NULL;
-        right_inverter_current_check = NULL;
-        energy_meter_current_check   = NULL;
-        can_current_check            = NULL;
-        air_shutdown_current_check   = NULL;
-        heartbeat_monitor            = NULL;
-        rgb_led_sequence             = NULL;
+        world             = NULL;
+        state_machine     = NULL;
+        can_tx_interface  = NULL;
+        can_rx_interface  = NULL;
+        heartbeat_monitor = NULL;
+        rgb_led_sequence  = NULL;
     }
 
     void SetInitialState(const struct State *const initial_state)
