@@ -15,6 +15,7 @@ extern "C"
 #include "App_SharedRgbLedSequence.h"
 #include "App_Led.h"
 #include "App_CanMsgs.h"
+#include "App_Switches.h"
 }
 
 FAKE_VOID_FUNC(
@@ -31,6 +32,9 @@ FAKE_VOID_FUNC(
 FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
+
+FAKE_VALUE_FUNC(uint32_t, get_drive_mode_switch_position);
+
 FAKE_VALUE_FUNC(bool, start_switch_is_turned_on);
 FAKE_VALUE_FUNC(bool, traction_control_switch_is_turned_on);
 FAKE_VALUE_FUNC(bool, torque_vectoring_switch_is_turned_on);
@@ -51,7 +55,6 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
     {
         SevenSegDisplaysTest::SetUp();
         RegenPaddleTest::SetUp();
-        RotarySwitchTest::SetUp();
 
         constexpr uint32_t DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS = 500U;
         constexpr enum HeartbeatOneHot DEFAULT_HEARTBEAT_BOARDS_TO_CHECK =
@@ -69,6 +72,9 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
+        drive_mode_switch = App_RotarySwitch_Create(
+            get_drive_mode_switch_position, NUM_DRIVE_MODE_SWITCH_POSITIONS);
+
         imd_led = App_Led_Create(turn_on_imd_led, turn_off_imd_led);
 
         bspd_led = App_Led_Create(turn_on_bspd_led, turn_off_bspd_led);
@@ -83,9 +89,9 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
 
         world = App_DimWorld_Create(
             can_tx_interface, can_rx_interface, seven_seg_displays,
-            heartbeat_monitor, regen_paddle, rgb_led_sequence, rotary_switch,
-            imd_led, bspd_led, start_switch, traction_control_switch,
-            torque_vectoring_switch);
+            heartbeat_monitor, regen_paddle, rgb_led_sequence,
+            drive_mode_switch, imd_led, bspd_led, start_switch,
+            traction_control_switch, torque_vectoring_switch);
 
         // Default to starting the state machine in the `Drive` state
         state_machine =
@@ -112,7 +118,9 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
     {
         SevenSegDisplaysTest::TearDown();
         RegenPaddleTest::TearDown();
-        RotarySwitchTest::TearDown();
+
+        RotarySwitchTest::TearDownRotarySwitch(drive_mode_switch);
+
         LedTest::TearDownLed(imd_led);
         LedTest::TearDownLed(bspd_led);
 
@@ -163,6 +171,7 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
     struct BinarySwitch *     start_switch;
     struct BinarySwitch *     traction_control_switch;
     struct BinarySwitch *     torque_vectoring_switch;
+    struct RotarySwitch *     drive_mode_switch;
 };
 
 TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
@@ -232,7 +241,7 @@ TEST_F(
     DimStateMachineTest,
     check_drive_mode_is_broadcasted_over_can_in_drive_state)
 {
-    get_position_fake.return_val = 2;
+    get_drive_mode_switch_position_fake.return_val = 2;
     App_SharedStateMachine_Tick(state_machine);
     ASSERT_EQ(
         CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_3_CHOICE,

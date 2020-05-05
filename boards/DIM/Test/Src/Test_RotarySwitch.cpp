@@ -5,7 +5,7 @@ extern "C"
 #include "App_RotarySwitch.h"
 }
 
-DEFINE_FAKE_VALUE_FUNC(uint32_t, get_position);
+FAKE_VALUE_FUNC(uint32_t, get_position);
 
 void RotarySwitchTest::SetUp()
 {
@@ -18,6 +18,14 @@ void RotarySwitchTest::TearDown()
     ASSERT_TRUE(rotary_switch != NULL);
     App_RotarySwitch_Destroy(rotary_switch);
     rotary_switch = NULL;
+}
+
+void RotarySwitchTest::TearDownRotarySwitch(
+    struct RotarySwitch *&rotary_switch_to_teardown)
+{
+    ASSERT_TRUE(rotary_switch_to_teardown != NULL);
+    App_RotarySwitch_Destroy(rotary_switch_to_teardown);
+    rotary_switch_to_teardown = NULL;
 }
 
 TEST_F(RotarySwitchTest, valid_switch_position)

@@ -28,6 +28,7 @@
 
 #include "App_DimWorld.h"
 #include "App_SevenSegDisplay.h"
+#include "App_Switches"
 #include "App_SharedStateMachine.h"
 #include "states/App_DriveState.h"
 
@@ -195,8 +196,8 @@ int main(void)
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
         Io_RgbLedSequence_TurnOnGreenLed);
 
-    drive_mode_switch =
-        App_RotarySwitch_Create(Io_DriveModeSwitch_GetPosition, 6);
+    drive_mode_switch = App_RotarySwitch_Create(
+        Io_DriveModeSwitch_GetPosition, NUM_DRIVE_MODE_SWITCH_POSITIONS);
 
     imd_led = App_Led_Create(Io_Leds_TurnOnImdLed, Io_Leds_TurnOffImdLed);
 
