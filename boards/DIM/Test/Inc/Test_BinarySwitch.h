@@ -4,11 +4,9 @@
 
 class BinarySwitchTest : public virtual testing::Test
 {
-  public:
-    void TearDownBinarySwitch(struct BinarySwitch *&binary_switch_to_teardown);
-
   protected:
-    void                 SetUp() override;
-    void                 TearDown() override;
+    void SetUp() override;
+    void TearDown() override;
+    void TearDownBinarySwitch(struct BinarySwitch *&binary_switch_to_teardown);
     struct BinarySwitch *binary_switch;
 };
