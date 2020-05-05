@@ -15,6 +15,9 @@ struct DimWorld
     struct RotarySwitch *     drive_mode_switch;
     struct Led *              imd_led;
     struct Led *              bspd_led;
+    struct BinarySwitch *     start_switch;
+    struct BinarySwitch *     traction_control_switch;
+    struct BinarySwitch *     torque_vectoring_switch;
 };
 
 struct DimWorld *App_DimWorld_Create(
@@ -26,20 +29,26 @@ struct DimWorld *App_DimWorld_Create(
     struct RgbLedSequence *const    rgb_led_sequence,
     struct RotarySwitch *const      drive_mode_switch,
     struct Led *const               imd_led,
-    struct Led *const               bspd_led)
+    struct Led *const               bspd_led,
+    struct BinarySwitch *const      start_switch,
+    struct BinarySwitch *const      traction_control_switch,
+    struct BinarySwitch *const      torque_vectoring_switch)
 {
     struct DimWorld *world = (struct DimWorld *)malloc(sizeof(struct DimWorld));
     assert(world != NULL);
 
-    world->can_tx_interface   = can_tx_interface;
-    world->can_rx_interface   = can_rx_interface;
-    world->seven_seg_displays = seven_seg_displays;
-    world->heartbeat_monitor  = heartbeat_monitor;
-    world->regen_paddle       = regen_paddle;
-    world->rgb_led_sequence   = rgb_led_sequence;
-    world->drive_mode_switch  = drive_mode_switch;
-    world->imd_led            = imd_led;
-    world->bspd_led           = bspd_led;
+    world->can_tx_interface        = can_tx_interface;
+    world->can_rx_interface        = can_rx_interface;
+    world->seven_seg_displays      = seven_seg_displays;
+    world->heartbeat_monitor       = heartbeat_monitor;
+    world->regen_paddle            = regen_paddle;
+    world->rgb_led_sequence        = rgb_led_sequence;
+    world->drive_mode_switch       = drive_mode_switch;
+    world->imd_led                 = imd_led;
+    world->bspd_led                = bspd_led;
+    world->start_switch            = start_switch;
+    world->traction_control_switch = traction_control_switch;
+    world->torque_vectoring_switch = torque_vectoring_switch;
 
     return world;
 }
@@ -99,4 +108,22 @@ struct Led *App_DimWorld_GetImdLed(const struct DimWorld *const world)
 struct Led *App_DimWorld_GetBspdLed(const struct DimWorld *world)
 {
     return world->bspd_led;
+}
+
+struct BinarySwitch *
+    App_DimWorld_GetStartSwitch(const struct DimWorld *const world)
+{
+    return world->start_switch;
+}
+
+struct BinarySwitch *
+    App_DimWorld_GetTractionControlSwitch(const struct DimWorld *const world)
+{
+    return world->traction_control_switch;
+}
+
+struct BinarySwitch *
+    App_DimWorld_GetTorqueVectoringSwitch(const struct DimWorld *const world)
+{
+    return world->torque_vectoring_switch;
 }

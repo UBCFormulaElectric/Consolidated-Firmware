@@ -68,28 +68,31 @@ class BmsStateMachineTest : public ImdTest
 
     void TearDown() override
     {
+        ASSERT_TRUE(world != NULL);
+        App_BmsWorld_Destroy(world);
+        world = NULL;
+
+        ASSERT_TRUE(can_tx_interface != NULL);
+        App_CanTx_Destroy(can_tx_interface);
+        can_tx_interface = NULL;
+
+        ASSERT_TRUE(can_rx_interface != NULL);
+        App_CanRx_Destroy(can_rx_interface);
+        can_rx_interface = NULL;
+
         ImdTest::TearDown();
 
-        ASSERT_TRUE(world != NULL);
-        ASSERT_TRUE(can_tx_interface != NULL);
-        ASSERT_TRUE(can_rx_interface != NULL);
-        ASSERT_TRUE(state_machine != NULL);
         ASSERT_TRUE(heartbeat_monitor != NULL);
-        ASSERT_TRUE(rgb_led_sequence != NULL);
-
-        App_BmsWorld_Destroy(world);
-        App_CanTx_Destroy(can_tx_interface);
-        App_CanRx_Destroy(can_rx_interface);
-        App_SharedStateMachine_Destroy(state_machine);
         App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
-        App_SharedRgbLedSequence_Destroy(rgb_led_sequence);
-
-        world             = NULL;
-        can_tx_interface  = NULL;
-        can_rx_interface  = NULL;
-        state_machine     = NULL;
         heartbeat_monitor = NULL;
-        rgb_led_sequence  = NULL;
+
+        ASSERT_TRUE(rgb_led_sequence != NULL);
+        App_SharedRgbLedSequence_Destroy(rgb_led_sequence);
+        rgb_led_sequence = NULL;
+
+        ASSERT_TRUE(state_machine != NULL);
+        App_SharedStateMachine_Destroy(state_machine);
+        state_machine = NULL;
     }
 
     void SetInitialState(const struct State *const initial_state)

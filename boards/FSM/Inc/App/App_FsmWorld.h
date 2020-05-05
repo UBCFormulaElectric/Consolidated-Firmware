@@ -30,18 +30,53 @@ struct FsmWorld *App_FsmWorld_Create(
     struct RgbLedSequence *   rgb_led_sequence);
 
 /**
- * Destroy the given FSM world, freeing the memory associated with it
- * @param world The FSM world to destroy
+ * Deallocate the memory used by the given world
+ * @param world The world to deallocate
  */
 void App_FsmWorld_Destroy(struct FsmWorld *world);
 
+/**
+ * Get the CAN TX interface for the given world
+ * @param world The world to get CAN TX interface for
+ * @return The CAN TX interface for the given world
+ */
 struct FsmCanTxInterface *App_FsmWorld_GetCanTx(const struct FsmWorld *world);
+
+/**
+ * Get the CAN RX interface for the given world
+ * @param world The world to get CAN RX interface for
+ * @return The CAN RX interface for the given world
+ */
 struct FsmCanRxInterface *App_FsmWorld_GetCanRx(const struct FsmWorld *world);
+
+/**
+ * Get the heartbeat monitor for the given world
+ * @param world The world to get heartbeat monitor for
+ * @return The heartbeat monitor for the given world
+ */
 struct HeartbeatMonitor *
     App_FsmWorld_GetHeartbeatMonitor(const struct FsmWorld *world);
+
+/**
+ * Get the primary flow meter for the given world
+ * @param world The world to get primary flow meter for
+ * @return The primary flow meter for the given world
+ */
 struct FlowMeter *
     App_FsmWorld_GetPrimaryFlowMeter(const struct FsmWorld *world);
+
+/**
+ * Get the secondary flow meter for the given world
+ * @param world The world to get secondary flow meter for
+ * @return The secondary flow meter for the given world
+ */
 struct FlowMeter *
     App_FsmWorld_GetSecondaryFlowMeter(const struct FsmWorld *world);
+
+/**
+ * Get the RGB LED sequence for the given world
+ * @param world The world to get RGB LED sequence for
+ * @return The RGB LED sequence for the given world
+ */
 struct RgbLedSequence *
     App_FsmWorld_GetRgbLedSequence(const struct FsmWorld *world);

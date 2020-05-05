@@ -4,11 +4,9 @@
 
 class LedTest : public virtual testing::Test
 {
-  public:
-    void TearDownLed(struct Led *&led);
-
   protected:
     void        SetUp() override;
     void        TearDown() override;
+    void        TearDownLed(struct Led *&led);
     struct Led *led;
 };

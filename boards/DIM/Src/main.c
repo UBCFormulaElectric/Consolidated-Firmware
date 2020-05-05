@@ -28,6 +28,7 @@
 
 #include "App_DimWorld.h"
 #include "App_SevenSegDisplay.h"
+#include "App_Switches.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_DriveState.h"
 
@@ -42,6 +43,7 @@
 #include "Io_RgbLedSequence.h"
 #include "Io_DriveModeSwitch.h"
 #include "Io_Leds.h"
+#include "Io_Switches.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -93,6 +95,9 @@ struct RgbLedSequence *   rgb_led_sequence;
 struct RotarySwitch *     drive_mode_switch;
 struct Led *              imd_led;
 struct Led *              bspd_led;
+struct BinarySwitch *     start_switch;
+struct BinarySwitch *     traction_control_switch;
+struct BinarySwitch *     torque_vectoring_switch;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -191,16 +196,25 @@ int main(void)
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
         Io_RgbLedSequence_TurnOnGreenLed);
 
-    drive_mode_switch =
-        App_RotarySwitch_Create(Io_DriveModeSwitch_GetPosition, 6);
+    drive_mode_switch = App_RotarySwitch_Create(
+        Io_DriveModeSwitch_GetPosition, NUM_DRIVE_MODE_SWITCH_POSITIONS);
 
     imd_led = App_Led_Create(Io_Leds_TurnOnImdLed, Io_Leds_TurnOffImdLed);
 
     bspd_led = App_Led_Create(Io_Leds_TurnOnBspdLed, Io_Leds_TurnOffBspdLed);
 
+    start_switch = App_BinarySwitch_Create(Io_Switches_StartSwitchIsTurnedOn);
+
+    traction_control_switch =
+        App_BinarySwitch_Create(Io_Switches_TractionControlSwitchIsTurnedOn);
+
+    torque_vectoring_switch =
+        App_BinarySwitch_Create(Io_Switches_TorqueVectoringSwitchIsTurnedOn);
+
     world = App_DimWorld_Create(
         can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle,
-        rgb_led_sequence, drive_mode_switch, imd_led, bspd_led);
+        rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, start_switch,
+        traction_control_switch, torque_vectoring_switch);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 

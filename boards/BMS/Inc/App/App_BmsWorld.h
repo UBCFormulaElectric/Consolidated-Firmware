@@ -33,10 +33,39 @@ struct BmsWorld *App_BmsWorld_Create(
  */
 void App_BmsWorld_Destroy(struct BmsWorld *world);
 
+/**
+ * Get the CAN TX interface for the given world
+ * @param world The world to get CAN TX interface for
+ * @return The CAN TX interface for the given world
+ */
 struct BmsCanTxInterface *App_BmsWorld_GetCanTx(const struct BmsWorld *world);
+
+/**
+ * Get the CAN RX interface for the given world
+ * @param world The world to get CAN RX interface for
+ * @return The CAN RX interface for the given world
+ */
 struct BmsCanRxInterface *App_BmsWorld_GetCanRx(const struct BmsWorld *world);
-struct Imd *              App_BmsWorld_GetImd(const struct BmsWorld *world);
+
+/**
+ * Get the IMD for the given world
+ * @param world The world to get IMD for
+ * @return The IMD for the given world
+ */
+struct Imd *App_BmsWorld_GetImd(const struct BmsWorld *world);
+
+/**
+ * Get the heartbeat monitor for the given world
+ * @param world The world to get heartbeat monitor for
+ * @return The heartbeat monitor for the given world
+ */
 struct HeartbeatMonitor *
     App_BmsWorld_GetHeartbeatMonitor(const struct BmsWorld *world);
+
+/**
+ * Get the RGB LED sequence for the given world
+ * @param world The world to get RGB LED sequence for
+ * @return The RGB LED sequence for the given world
+ */
 struct RgbLedSequence *
     App_BmsWorld_GetRgbLedSequence(const struct BmsWorld *world);
