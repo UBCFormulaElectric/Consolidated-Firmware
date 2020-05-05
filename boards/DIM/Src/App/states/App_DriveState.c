@@ -2,6 +2,83 @@
 
 #include "App_SharedMacros.h"
 #include "App_SevenSegDisplays.h"
+#include "App_ErrorCode.h"
+
+static void App_SetPeriodicCanSignals_DriveMode(
+    struct DimCanTxInterface *can_tx,
+    uint32_t                  switch_position)
+{
+    switch (switch_position)
+    {
+        case 0:
+        {
+            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
+                can_tx,
+                CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_1_CHOICE);
+        }
+        break;
+        case 1:
+        {
+            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
+                can_tx,
+                CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_2_CHOICE);
+        }
+        break;
+        case 2:
+        {
+            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
+                can_tx,
+                CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_3_CHOICE);
+        }
+        break;
+        case 3:
+        {
+            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
+                can_tx,
+                CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_4_CHOICE);
+        }
+        break;
+        case 4:
+        {
+            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
+                can_tx,
+                CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_5_CHOICE);
+        }
+        break;
+        case 5:
+        {
+            // The drive mode switch has 6 physical positions, but specs.md only
+            // mentions 5 drive modes so the 6th switch position is treated
+            // as invalid.
+            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
+                can_tx,
+                CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_INVALID_CHOICE);
+        }
+        break;
+        default:
+        {
+            // Should never reach here
+            break;
+        }
+    }
+}
+
+static void App_SetPeriodicCanSignals_BinarySwitch(
+    struct DimCanTxInterface *can_tx,
+    struct BinarySwitch *     binary_switch,
+    void (*can_signal_setter)(struct DimCanTxInterface *, uint8_t value),
+    uint32_t on_choice,
+    uint32_t off_choice)
+{
+    if (App_BinarySwitch_IsTurnedOn(binary_switch))
+    {
+        can_signal_setter(can_tx, on_choice);
+    }
+    else
+    {
+        can_signal_setter(can_tx, off_choice);
+    }
+}
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -20,7 +97,16 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
         App_DimWorld_GetSevenSegDisplays(world);
     struct HeartbeatMonitor *heartbeat_monitor =
         App_DimWorld_GetHeartbeatMonitor(world);
-    struct RegenPaddle *regen_paddle = App_DimWorld_GetRegenPaddle(world);
+    struct RegenPaddle * regen_paddle = App_DimWorld_GetRegenPaddle(world);
+    struct RotarySwitch *drive_mode_switch =
+        App_DimWorld_GetDriveModeSwitch(world);
+    struct Led *         imd_led      = App_DimWorld_GetImdLed(world);
+    struct Led *         bspd_led     = App_DimWorld_GetBspdLed(world);
+    struct BinarySwitch *start_switch = App_DimWorld_GetStartSwitch(world);
+    struct BinarySwitch *traction_control_switch =
+        App_DimWorld_GetTractionControlSwitch(world);
+    struct BinarySwitch *torque_vectoring_switch =
+        App_DimWorld_GetTorqueVectoringSwitch(world);
 
     uint32_t buffer;
 
@@ -39,6 +125,48 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
     App_SevenSegDisplays_SetUnsignedBase10Value(
         seven_seg_displays,
         App_CanRx_BMS_STATE_OF_CHARGE_GetSignal_STATE_OF_CHARGE(can_rx));
+
+    if (EXIT_CODE_OK(
+            App_RotarySwitch_GetSwitchPosition(drive_mode_switch, &buffer)))
+    {
+        App_SetPeriodicCanSignals_DriveMode(can_tx, buffer);
+    }
+
+    if (App_CanRx_BMS_IMD_GetSignal_OK_HS(can_rx) ==
+        CANMSGS_BMS_IMD_OK_HS_FAULT_CHOICE)
+    {
+        App_Led_TurnOn(imd_led);
+    }
+    else
+    {
+        App_Led_TurnOff(imd_led);
+    }
+
+    if (App_CanRx_FSM_ERRORS_GetSignal_BSPD_FAULT(can_rx))
+    {
+        App_Led_TurnOn(bspd_led);
+    }
+    else
+    {
+        App_Led_TurnOff(bspd_led);
+    }
+
+    App_SetPeriodicCanSignals_BinarySwitch(
+        can_tx, start_switch, App_CanTx_SetPeriodicSignal_START_SWITCH,
+        CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE,
+        CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
+
+    App_SetPeriodicCanSignals_BinarySwitch(
+        can_tx, traction_control_switch,
+        App_CanTx_SetPeriodicSignal_TRACTION_CONTROL_SWITCH,
+        CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE,
+        CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
+
+    App_SetPeriodicCanSignals_BinarySwitch(
+        can_tx, torque_vectoring_switch,
+        App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH,
+        CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE,
+        CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
 
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
 }

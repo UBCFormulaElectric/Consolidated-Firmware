@@ -1,4 +1,5 @@
 #include "Test_Fsm.h"
+#include "Test_FlowMeter.h"
 
 extern "C"
 {
@@ -11,13 +12,13 @@ extern "C"
 
 FAKE_VOID_FUNC(
     send_non_periodic_msg_FSM_STARTUP,
-    struct CanMsgs_fsm_startup_t *);
+    const struct CanMsgs_fsm_startup_t *);
 FAKE_VOID_FUNC(
     send_non_periodic_msg_FSM_AIR_SHUTDOWN,
-    struct CanMsgs_fsm_air_shutdown_t *);
+    const struct CanMsgs_fsm_air_shutdown_t *);
 FAKE_VOID_FUNC(
     send_non_periodic_msg_FSM_WATCHDOG_TIMEOUT,
-    struct CanMsgs_fsm_watchdog_timeout_t *);
+    const struct CanMsgs_fsm_watchdog_timeout_t *);
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
 FAKE_VOID_FUNC(
     heartbeat_timeout_callback,
@@ -29,7 +30,7 @@ FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
 
-class FsmStateMachineTest : public testing::Test
+class FsmStateMachineTest : public FlowMeterTest
 {
   protected:
     void SetUp() override
@@ -74,31 +75,31 @@ class FsmStateMachineTest : public testing::Test
     void TearDown() override
     {
         ASSERT_TRUE(world != NULL);
-        ASSERT_TRUE(can_tx_interface != NULL);
-        ASSERT_TRUE(can_rx_interface != NULL);
-        ASSERT_TRUE(state_machine != NULL);
-        ASSERT_TRUE(heartbeat_monitor != NULL);
-        ASSERT_TRUE(primary_flow_meter != NULL);
-        ASSERT_TRUE(secondary_flow_meter != NULL);
-        ASSERT_TRUE(rgb_led_sequence != NULL);
-
         App_FsmWorld_Destroy(world);
-        App_CanTx_Destroy(can_tx_interface);
-        App_CanRx_Destroy(can_rx_interface);
-        App_SharedStateMachine_Destroy(state_machine);
-        App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
-        App_FlowMeter_Destroy(primary_flow_meter);
-        App_FlowMeter_Destroy(secondary_flow_meter);
-        App_SharedRgbLedSequence_Destroy(rgb_led_sequence);
+        world = NULL;
 
-        world                = NULL;
-        can_tx_interface     = NULL;
-        can_rx_interface     = NULL;
-        state_machine        = NULL;
-        heartbeat_monitor    = NULL;
-        primary_flow_meter   = NULL;
-        secondary_flow_meter = NULL;
-        rgb_led_sequence     = NULL;
+        ASSERT_TRUE(can_tx_interface != NULL);
+        App_CanTx_Destroy(can_tx_interface);
+        can_tx_interface = NULL;
+
+        ASSERT_TRUE(can_rx_interface != NULL);
+        App_CanRx_Destroy(can_rx_interface);
+        can_rx_interface = NULL;
+
+        ASSERT_TRUE(state_machine != NULL);
+        App_SharedStateMachine_Destroy(state_machine);
+        state_machine = NULL;
+
+        ASSERT_TRUE(heartbeat_monitor != NULL);
+        App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
+        heartbeat_monitor = NULL;
+
+        FlowMeterTest::TearDownFlowMeter(primary_flow_meter);
+        FlowMeterTest::TearDownFlowMeter(secondary_flow_meter);
+
+        ASSERT_TRUE(rgb_led_sequence != NULL);
+        App_SharedRgbLedSequence_Destroy(rgb_led_sequence);
+        rgb_led_sequence = NULL;
     }
 
     void SetInitialState(const struct State *const initial_state)

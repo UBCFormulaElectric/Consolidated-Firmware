@@ -28,6 +28,10 @@ list(APPEND SHARED_IO_SRCS ${SEGGER_RTT_SRCS})
 # Import include directory for fff.h
 list(APPEND SHARED_APP_INCLUDE_DIRS ${THIRD_PARTY_DIR}/fff)
 
+# Import include and source directories for Cortex M4 profiler
+file(GLOB_RECURSE NEWLIB_FREERTOS_PATCH_SRCS ${THIRD_PARTY_DIR}/newlib_freertos_patch/*.c)
+list(APPEND SHARED_IO_SRCS ${NEWLIB_FREERTOS_PATCH_SRCS})
+
 # Expose the following variables to the parent scope (i.e. The scope of any
 # other CMakeLists.txt that uses add_subdirectory() on this CMakeLists.txt).
 set(SHARED_APP_SRCS ${SHARED_APP_SRCS} PARENT_SCOPE)

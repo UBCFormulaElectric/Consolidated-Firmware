@@ -15,16 +15,16 @@ extern "C"
 
 FAKE_VOID_FUNC(
     send_non_periodic_msg_PDM_STARTUP,
-    struct CanMsgs_pdm_startup_t *);
+    const struct CanMsgs_pdm_startup_t *);
 FAKE_VOID_FUNC(
     send_non_periodic_msg_PDM_AIR_SHUTDOWN,
-    struct CanMsgs_pdm_air_shutdown_t *);
+    const struct CanMsgs_pdm_air_shutdown_t *);
 FAKE_VOID_FUNC(
     send_non_periodic_msg_PDM_MOTOR_SHUTDOWN,
-    struct CanMsgs_pdm_motor_shutdown_t *);
+    const struct CanMsgs_pdm_motor_shutdown_t *);
 FAKE_VOID_FUNC(
     send_non_periodic_msg_PDM_WATCHDOG_TIMEOUT,
-    struct CanMsgs_pdm_watchdog_timeout_t *);
+    const struct CanMsgs_pdm_watchdog_timeout_t *);
 
 FAKE_VALUE_FUNC(float, GetVbatVoltage);
 FAKE_VALUE_FUNC(float, Get24vAuxVoltage);
@@ -138,25 +138,40 @@ class PdmStateMachineTest : public InRangeCheckTest
         InRangeCheckTest::TearDownInRangeCheck(air_shutdown_current_check);
 
         ASSERT_TRUE(world != NULL);
-        ASSERT_TRUE(state_machine != NULL);
-        ASSERT_TRUE(can_tx_interface != NULL);
-        ASSERT_TRUE(can_rx_interface != NULL);
-        ASSERT_TRUE(heartbeat_monitor != NULL);
-        ASSERT_TRUE(rgb_led_sequence != NULL);
-
         App_PdmWorld_Destroy(world);
-        App_SharedStateMachine_Destroy(state_machine);
-        App_CanTx_Destroy(can_tx_interface);
-        App_CanRx_Destroy(can_rx_interface);
-        App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
-        App_SharedRgbLedSequence_Destroy(rgb_led_sequence);
+        world = NULL;
 
-        world             = NULL;
-        state_machine     = NULL;
-        can_tx_interface  = NULL;
-        can_rx_interface  = NULL;
+        ASSERT_TRUE(can_tx_interface != NULL);
+        App_CanTx_Destroy(can_tx_interface);
+        can_tx_interface = NULL;
+
+        ASSERT_TRUE(can_rx_interface != NULL);
+        App_CanRx_Destroy(can_rx_interface);
+        can_rx_interface = NULL;
+
+        ASSERT_TRUE(vbat_voltage_monitor != NULL);
+        App_VoltageMonitor_Destroy(vbat_voltage_monitor);
+        vbat_voltage_monitor = NULL;
+
+        ASSERT_TRUE(_24v_aux_voltage_monitor != NULL);
+        App_VoltageMonitor_Destroy(_24v_aux_voltage_monitor);
+        _24v_aux_voltage_monitor = NULL;
+
+        ASSERT_TRUE(_24v_acc_voltage_monitor != NULL);
+        App_VoltageMonitor_Destroy(_24v_acc_voltage_monitor);
+        _24v_acc_voltage_monitor = NULL;
+
+        ASSERT_TRUE(state_machine != NULL);
+        App_SharedStateMachine_Destroy(state_machine);
+        state_machine = NULL;
+
+        ASSERT_TRUE(heartbeat_monitor != NULL);
+        App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
         heartbeat_monitor = NULL;
-        rgb_led_sequence  = NULL;
+
+        ASSERT_TRUE(rgb_led_sequence != NULL);
+        App_SharedRgbLedSequence_Destroy(rgb_led_sequence);
+        rgb_led_sequence = NULL;
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -270,7 +285,8 @@ class PdmStateMachineTest : public InRangeCheckTest
         float &fake_voltage,
         float (*voltage_can_signal_getter)(struct PdmCanTxInterface *),
         uint8_t (*out_of_range_can_signal_getter)(struct PdmCanTxInterface *),
-        uint8_t in_range_choice, uint8_t underflow_choice,
+        uint8_t in_range_choice,
+        uint8_t underflow_choice,
         uint8_t overflow_choice)
     {
         for (auto &state : GetAllStates())
@@ -282,7 +298,9 @@ class PdmStateMachineTest : public InRangeCheckTest
             App_SharedStateMachine_Tick(state_machine);
             EXPECT_EQ(
                 fake_voltage, voltage_can_signal_getter(can_tx_interface));
-            EXPECT_EQ(in_range_choice, out_of_range_can_signal_getter(can_tx_interface));
+            EXPECT_EQ(
+                in_range_choice,
+                out_of_range_can_signal_getter(can_tx_interface));
 
             // Under-voltage
             fake_voltage = std::nextafter(
@@ -290,7 +308,9 @@ class PdmStateMachineTest : public InRangeCheckTest
             App_SharedStateMachine_Tick(state_machine);
             EXPECT_EQ(
                 fake_voltage, voltage_can_signal_getter(can_tx_interface));
-            EXPECT_EQ(underflow_choice, out_of_range_can_signal_getter(can_tx_interface));
+            EXPECT_EQ(
+                underflow_choice,
+                out_of_range_can_signal_getter(can_tx_interface));
 
             // Over-voltage
             fake_voltage =
@@ -298,7 +318,9 @@ class PdmStateMachineTest : public InRangeCheckTest
             App_SharedStateMachine_Tick(state_machine);
             EXPECT_EQ(
                 fake_voltage, voltage_can_signal_getter(can_tx_interface));
-            EXPECT_EQ(overflow_choice, out_of_range_can_signal_getter(can_tx_interface));
+            EXPECT_EQ(
+                overflow_choice,
+                out_of_range_can_signal_getter(can_tx_interface));
         }
     }
 

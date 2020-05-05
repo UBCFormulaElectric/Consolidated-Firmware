@@ -28,9 +28,32 @@ struct DcmWorld *App_DcmWorld_Create(
  */
 void App_DcmWorld_Destroy(struct DcmWorld *world);
 
+/**
+ * Get the CAN TX interface for the given world
+ * @param world The world to get CAN TX interface for
+ * @return The CAN TX interface for the given world
+ */
 struct DcmCanTxInterface *App_DcmWorld_GetCanTx(const struct DcmWorld *world);
+
+/**
+ * Get the CAN RX interface for the given world
+ * @param world The world to get CAN RX interface for
+ * @return The CAN RX interface for the given world
+ */
 struct DcmCanRxInterface *App_DcmWorld_GetCanRx(const struct DcmWorld *world);
+
+/**
+ * Get the heartbeat monitor for the given world
+ * @param world The world to get heartbeat monitor for
+ * @return The heartbeat monitor for the given world
+ */
 struct HeartbeatMonitor *
     App_DcmWorld_GetHeartbeatMonitor(const struct DcmWorld *world);
+
+/**
+ * Get the RGB LED sequence for the given world
+ * @param world The world to get RGB LED sequence for
+ * @return The RGB LED sequence for the given world
+ */
 struct RgbLedSequence *
     App_DcmWorld_GetRgbLedSequence(const struct DcmWorld *world);
