@@ -28,7 +28,7 @@
 
 #include "App_DimWorld.h"
 #include "App_SevenSegDisplay.h"
-#include "App_Switches"
+#include "App_Switches.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_DriveState.h"
 
