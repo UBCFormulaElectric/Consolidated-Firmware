@@ -8,13 +8,6 @@ extern "C"
 FAKE_VOID_FUNC(turn_on_led);
 FAKE_VOID_FUNC(turn_off_led);
 
-void LedTest::TearDownLed(struct Led *&led_to_teardown)
-{
-    ASSERT_TRUE(led_to_teardown != NULL);
-    App_Led_Destroy(led_to_teardown);
-    led_to_teardown = NULL;
-}
-
 void LedTest::SetUp()
 {
     led = App_Led_Create(turn_on_led, turn_off_led);
@@ -28,6 +21,13 @@ void LedTest::TearDown()
     ASSERT_TRUE(led != NULL);
     App_Led_Destroy(led);
     led = NULL;
+}
+
+void LedTest::TearDownLed(struct Led *&led_to_teardown)
+{
+    ASSERT_TRUE(led_to_teardown != NULL);
+    App_Led_Destroy(led_to_teardown);
+    led_to_teardown = NULL;
 }
 
 TEST_F(LedTest, toggle_led)
