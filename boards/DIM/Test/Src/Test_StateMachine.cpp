@@ -102,6 +102,7 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
         RESET_FAKE(send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT);
         RESET_FAKE(get_current_ms);
         RESET_FAKE(heartbeat_timeout_callback);
+        RESET_FAKE(get_drive_mode_switch_position);
         RESET_FAKE(turn_on_red_led);
         RESET_FAKE(turn_on_green_led);
         RESET_FAKE(turn_on_blue_led);
@@ -116,38 +117,39 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
 
     void TearDown() override
     {
+        ASSERT_TRUE(world != NULL);
+        App_DimWorld_Destroy(world);
+        world = NULL;
+
+        ASSERT_TRUE(can_tx_interface != NULL);
+        App_CanTx_Destroy(can_tx_interface);
+        can_tx_interface = NULL;
+
+        ASSERT_TRUE(can_rx_interface != NULL);
+        App_CanRx_Destroy(can_rx_interface);
+        can_rx_interface = NULL;
+
         SevenSegDisplaysTest::TearDown();
         RegenPaddleTest::TearDown();
 
-        RotarySwitchTest::TearDownRotarySwitch(drive_mode_switch);
+        ASSERT_TRUE(heartbeat_monitor != NULL);
+        App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
+        heartbeat_monitor = NULL;
 
+        ASSERT_TRUE(rgb_led_sequence != NULL);
+        App_SharedRgbLedSequence_Destroy(rgb_led_sequence);
+        rgb_led_sequence = NULL;
+
+        RotarySwitchTest::TearDownRotarySwitch(drive_mode_switch);
         LedTest::TearDownLed(imd_led);
         LedTest::TearDownLed(bspd_led);
-
         BinarySwitchTest::TearDownBinarySwitch(start_switch);
         BinarySwitchTest::TearDownBinarySwitch(traction_control_switch);
         BinarySwitchTest::TearDownBinarySwitch(torque_vectoring_switch);
 
-        ASSERT_TRUE(world != NULL);
-        ASSERT_TRUE(can_tx_interface != NULL);
-        ASSERT_TRUE(can_rx_interface != NULL);
         ASSERT_TRUE(state_machine != NULL);
-        ASSERT_TRUE(heartbeat_monitor != NULL);
-        ASSERT_TRUE(rgb_led_sequence != NULL);
-
-        App_DimWorld_Destroy(world);
-        App_CanTx_Destroy(can_tx_interface);
-        App_CanRx_Destroy(can_rx_interface);
         App_SharedStateMachine_Destroy(state_machine);
-        App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
-        App_SharedRgbLedSequence_Destroy(rgb_led_sequence);
-
-        world             = NULL;
-        can_tx_interface  = NULL;
-        can_rx_interface  = NULL;
-        state_machine     = NULL;
-        heartbeat_monitor = NULL;
-        rgb_led_sequence  = NULL;
+        state_machine = NULL;
     }
 
     void SetInitialState(const struct State *const initial_state)
