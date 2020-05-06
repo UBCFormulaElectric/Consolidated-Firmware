@@ -160,9 +160,8 @@ class PdmStateMachineTest : public testing::Test
 
     void SetInitialState(const struct State *const initial_state)
     {
-        App_SharedStateMachine_Destroy(state_machine);
+        TearDownObject(state_machine, App_SharedStateMachine_Destroy);
         state_machine = App_SharedStateMachine_Create(world, initial_state);
-        ASSERT_TRUE(state_machine != NULL);
         ASSERT_EQ(
             initial_state,
             App_SharedStateMachine_GetCurrentState(state_machine));

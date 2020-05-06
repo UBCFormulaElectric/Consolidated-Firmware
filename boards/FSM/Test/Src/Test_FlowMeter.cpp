@@ -7,7 +7,7 @@ extern "C"
 
 FAKE_VALUE_FUNC(float, get_flow_rate);
 
-class FlowMeterTest : public virtual testing::Test
+class FlowMeterTest : public testing::Test
 {
   protected:
     void SetUp() override

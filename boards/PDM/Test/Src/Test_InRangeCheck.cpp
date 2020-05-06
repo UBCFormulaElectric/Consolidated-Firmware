@@ -8,7 +8,7 @@ extern "C"
 
 FAKE_VALUE_FUNC(float, get_value);
 
-class InRangeCheckTest : public virtual testing::Test
+class InRangeCheckTest : public testing::Test
 {
   protected:
     void SetUp() override

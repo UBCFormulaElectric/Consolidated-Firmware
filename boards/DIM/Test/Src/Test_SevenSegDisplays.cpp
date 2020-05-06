@@ -11,7 +11,7 @@ FAKE_VOID_FUNC(prv_set_middle_hex_digit, struct SevenSegHexDigit);
 FAKE_VOID_FUNC(prv_set_left_hex_digit, struct SevenSegHexDigit);
 FAKE_VOID_FUNC(prv_display_value_callback);
 
-class SevenSegDisplaysTest : public virtual testing::Test
+class SevenSegDisplaysTest : public testing::Test
 {
   protected:
     void SetUp() override

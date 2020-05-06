@@ -10,7 +10,7 @@ extern "C"
 #include "App_SharedRgbLedSequence.h"
 #include "App_Led.h"
 #include "App_CanMsgs.h"
-#include "App_Switches.h"
+#include "App_RotarySwitchConfig.h"
 #include "App_RegenPaddleConfig.h"
 }
 
@@ -154,9 +154,8 @@ class DimStateMachineTest : public testing::Test
 
     void SetInitialState(const struct State *const initial_state)
     {
-        App_SharedStateMachine_Destroy(state_machine);
+        TearDownObject(state_machine, App_SharedStateMachine_Destroy);
         state_machine = App_SharedStateMachine_Create(world, initial_state);
-        ASSERT_TRUE(state_machine != NULL);
         ASSERT_EQ(
             initial_state,
             App_SharedStateMachine_GetCurrentState(state_machine));

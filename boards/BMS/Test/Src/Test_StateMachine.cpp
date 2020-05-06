@@ -6,6 +6,7 @@ extern "C"
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
+#include "App_ImdConfig.h"
 #include "states/App_InitState.h"
 #include "states/App_DriveState.h"
 #include "states/App_FaultState.h"
@@ -18,6 +19,9 @@ FAKE_VOID_FUNC(
 FAKE_VOID_FUNC(
     send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT,
     const struct CanMsgs_bms_watchdog_timeout_t *);
+FAKE_VALUE_FUNC(float, get_imd_pwm_frequency);
+FAKE_VALUE_FUNC(float, get_imd_pwm_duty_cycle);
+FAKE_VALUE_FUNC(uint32_t, get_imd_seconds_since_power_on);
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
 FAKE_VOID_FUNC(
     heartbeat_timeout_callback,
@@ -27,13 +31,11 @@ FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
 
-class BmsStateMachineTest : public ImdTest
+class BmsStateMachineTest : public testing::Test
 {
   protected:
     void SetUp() override
     {
-        ImdTest::SetUp();
-
         constexpr uint32_t DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS = 500U;
         constexpr enum HeartbeatOneHot DEFAULT_HEARTBEAT_BOARDS_TO_CHECK =
             (enum HeartbeatOneHot)(
@@ -43,12 +45,20 @@ class BmsStateMachineTest : public ImdTest
         can_tx_interface = App_CanTx_Create(
             send_non_periodic_msg_BMS_STARTUP,
             send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT);
-        can_rx_interface  = App_CanRx_Create();
+
+        can_rx_interface = App_CanRx_Create();
+
+        imd = App_Imd_Create(
+            get_imd_pwm_frequency, IMD_FREQUENCY_TOLERANCE,
+            get_imd_pwm_duty_cycle, get_imd_seconds_since_power_on);
+
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             get_current_ms, DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS,
             DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
+
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
+
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
             rgb_led_sequence);
@@ -59,6 +69,9 @@ class BmsStateMachineTest : public ImdTest
 
         RESET_FAKE(send_non_periodic_msg_BMS_STARTUP);
         RESET_FAKE(send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT);
+        RESET_FAKE(get_imd_pwm_frequency);
+        RESET_FAKE(get_imd_pwm_duty_cycle);
+        RESET_FAKE(get_imd_seconds_since_power_on);
         RESET_FAKE(get_current_ms);
         RESET_FAKE(heartbeat_timeout_callback);
         RESET_FAKE(turn_on_red_led);
@@ -68,38 +81,19 @@ class BmsStateMachineTest : public ImdTest
 
     void TearDown() override
     {
-        ASSERT_TRUE(world != NULL);
-        App_BmsWorld_Destroy(world);
-        world = NULL;
-
-        ASSERT_TRUE(can_tx_interface != NULL);
-        App_CanTx_Destroy(can_tx_interface);
-        can_tx_interface = NULL;
-
-        ASSERT_TRUE(can_rx_interface != NULL);
-        App_CanRx_Destroy(can_rx_interface);
-        can_rx_interface = NULL;
-
-        ImdTest::TearDown();
-
-        ASSERT_TRUE(heartbeat_monitor != NULL);
-        App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
-        heartbeat_monitor = NULL;
-
-        ASSERT_TRUE(rgb_led_sequence != NULL);
-        App_SharedRgbLedSequence_Destroy(rgb_led_sequence);
-        rgb_led_sequence = NULL;
-
-        ASSERT_TRUE(state_machine != NULL);
-        App_SharedStateMachine_Destroy(state_machine);
-        state_machine = NULL;
+        TearDownObject(world, App_BmsWorld_Destroy);
+        TearDownObject(state_machine, App_SharedStateMachine_Destroy);
+        TearDownObject(can_tx_interface, App_CanTx_Destroy);
+        TearDownObject(can_rx_interface, App_CanRx_Destroy);
+        TearDownObject(imd, App_Imd_Destroy);
+        TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
+        TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
     {
-        App_SharedStateMachine_Destroy(state_machine);
+        TearDownObject(state_machine, App_SharedStateMachine_Destroy);
         state_machine = App_SharedStateMachine_Create(world, initial_state);
-        ASSERT_TRUE(state_machine != NULL);
         ASSERT_EQ(
             initial_state,
             App_SharedStateMachine_GetCurrentState(state_machine));
@@ -116,9 +110,10 @@ class BmsStateMachineTest : public ImdTest
     }
 
     struct World *            world;
+    struct StateMachine *     state_machine;
     struct BmsCanTxInterface *can_tx_interface;
     struct BmsCanRxInterface *can_rx_interface;
-    struct StateMachine *     state_machine;
+    struct Imd *              imd;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
 };
@@ -168,7 +163,7 @@ TEST_F(
     for (const auto &state : GetAllStates())
     {
         SetInitialState(state);
-        get_pwm_frequency_fake.return_val = fake_frequency;
+        get_imd_pwm_frequency_fake.return_val = fake_frequency;
         App_SharedStateMachine_Tick(state_machine);
 
         EXPECT_EQ(
@@ -189,7 +184,7 @@ TEST_F(
     for (const auto &state : GetAllStates())
     {
         SetInitialState(state);
-        get_pwm_duty_cycle_fake.return_val = fake_duty_cycle;
+        get_imd_pwm_duty_cycle_fake.return_val = fake_duty_cycle;
         App_SharedStateMachine_Tick(state_machine);
 
         EXPECT_EQ(
@@ -208,10 +203,11 @@ TEST_F(
     for (auto &state : GetAllStates())
     {
         SetInitialState(state);
-        SetImdCondition(IMD_NORMAL, get_pwm_frequency_fake.return_val);
+        ImdTest::SetImdCondition(
+            imd, IMD_NORMAL, get_imd_pwm_frequency_fake.return_val);
 
         // Test an arbitrarily chosen valid resistance
-        get_pwm_duty_cycle_fake.return_val = 50.0f;
+        get_imd_pwm_duty_cycle_fake.return_val = 50.0f;
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_EQ(
             IMD_NORMAL,
@@ -224,7 +220,7 @@ TEST_F(
                       can_tx_interface));
 
         // Test an arbitrarily chosen invalid resistance
-        get_pwm_duty_cycle_fake.return_val = 0.0f;
+        get_imd_pwm_duty_cycle_fake.return_val = 0.0f;
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_EQ(
             IMD_NORMAL,
@@ -242,11 +238,12 @@ TEST_F(
     for (auto &state : GetAllStates())
     {
         SetInitialState(state);
-        SetImdCondition(
-            IMD_UNDERVOLTAGE_DETECTED, get_pwm_frequency_fake.return_val);
+        ImdTest::SetImdCondition(
+            imd, IMD_UNDERVOLTAGE_DETECTED,
+            get_imd_pwm_frequency_fake.return_val);
 
         // Test an arbitrarily chosen valid resistance
-        get_pwm_duty_cycle_fake.return_val = 50.0f;
+        get_imd_pwm_duty_cycle_fake.return_val = 50.0f;
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_EQ(
             IMD_UNDERVOLTAGE_DETECTED,
@@ -259,7 +256,7 @@ TEST_F(
                       can_tx_interface));
 
         // Test an arbitrarily chosen invalid resistance
-        get_pwm_duty_cycle_fake.return_val = 0.0f;
+        get_imd_pwm_duty_cycle_fake.return_val = 0.0f;
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_EQ(
             IMD_UNDERVOLTAGE_DETECTED,
@@ -277,10 +274,11 @@ TEST_F(
     for (auto &state : GetAllStates())
     {
         SetInitialState(state);
-        SetImdCondition(IMD_SST, get_pwm_frequency_fake.return_val);
+        ImdTest::SetImdCondition(
+            imd, IMD_SST, get_imd_pwm_frequency_fake.return_val);
 
         // Test an arbitrarily chosen SST_GOOD
-        get_pwm_duty_cycle_fake.return_val = 7.5f;
+        get_imd_pwm_duty_cycle_fake.return_val = 7.5f;
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_EQ(
             IMD_SST, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
@@ -292,7 +290,7 @@ TEST_F(
                           can_tx_interface));
 
         // Test an arbitrarily chosen SST_BAD
-        get_pwm_duty_cycle_fake.return_val = 92.5f;
+        get_imd_pwm_duty_cycle_fake.return_val = 92.5f;
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_EQ(
             IMD_SST, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
@@ -304,7 +302,7 @@ TEST_F(
                          can_tx_interface));
 
         // Test an arbitrarily chosen invalid SST status
-        get_pwm_duty_cycle_fake.return_val = 0.0f;
+        get_imd_pwm_duty_cycle_fake.return_val = 0.0f;
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_EQ(
             IMD_SST, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
@@ -321,7 +319,7 @@ TEST_F(
     for (auto &state : GetAllStates())
     {
         SetInitialState(state);
-        get_seconds_since_power_on_fake.return_val = 123;
+        get_imd_seconds_since_power_on_fake.return_val = 123;
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_EQ(
             123, App_CanTx_GetPeriodicSignal_SECONDS_SINCE_POWER_ON(

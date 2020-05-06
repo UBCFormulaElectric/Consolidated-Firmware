@@ -1,4 +1,4 @@
-#include "Test_RegenPaddle.h"
+#include "Test_Dim.h"
 
 extern "C"
 {
@@ -7,19 +7,25 @@ extern "C"
 
 FAKE_VALUE_FUNC(uint32_t, prv_get_raw_paddle_position);
 
-void RegenPaddleTest::SetUp()
+class RegenPaddleTest : public testing::Test
 {
-    regen_paddle = App_RegenPaddle_Create(
-        prv_get_raw_paddle_position, DEFAULT_LOWER_DEADZONE,
-        DEFAULT_UPPER_DEADZONE);
-}
+  protected:
+    void SetUp() override
+    {
+        regen_paddle = App_RegenPaddle_Create(
+            prv_get_raw_paddle_position, DEFAULT_LOWER_DEADZONE,
+            DEFAULT_UPPER_DEADZONE);
+    }
 
-void RegenPaddleTest::TearDown()
-{
-    ASSERT_TRUE(regen_paddle != NULL);
-    App_RegenPaddle_Destroy(regen_paddle);
-    regen_paddle = NULL;
-}
+    void TearDown() override
+    {
+        TearDownObject(regen_paddle, App_RegenPaddle_Destroy);
+    }
+
+    const uint32_t      DEFAULT_LOWER_DEADZONE = 5;
+    const uint32_t      DEFAULT_UPPER_DEADZONE = 95;
+    struct RegenPaddle *regen_paddle;
+};
 
 TEST_F(RegenPaddleTest, lower_deadzone)
 {
