@@ -86,5 +86,6 @@ TEST_F(InRangeCheckTest, invalid_min_and_max)
     const float min_value =
         std::nextafter(max_value, std::numeric_limits<float>::max());
 
-    ASSERT_DEBUG_DEATH(App_InRangeCheck_Create(get_value, min_value, max_value), "");
+    ASSERT_DEBUG_DEATH(
+        App_InRangeCheck_Create(get_value, min_value, max_value), "");
 }
