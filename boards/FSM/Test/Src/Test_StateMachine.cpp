@@ -3,10 +3,11 @@
 extern "C"
 {
 #include "App_SharedStateMachine.h"
-#include "states/App_AirOpenState.h"
-#include "states/App_AirClosedState.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_FlowMeter.h"
+#include "states/App_AirOpenState.h"
+#include "states/App_AirClosedState.h"
+#include "configs/App_HeartbeatMonitorConfig.h"
 }
 
 namespace StateMachineTest
@@ -36,10 +37,6 @@ class FsmStateMachineTest : public testing::Test
   protected:
     void SetUp() override
     {
-        constexpr uint32_t DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS = 500U;
-        constexpr enum HeartbeatOneHot DEFAULT_HEARTBEAT_BOARDS_TO_CHECK =
-            BMS_HEARTBEAT_ONE_HOT;
-
         can_tx_interface = App_CanTx_Create(
             send_non_periodic_msg_FSM_STARTUP,
             send_non_periodic_msg_FSM_WATCHDOG_TIMEOUT,
@@ -48,8 +45,8 @@ class FsmStateMachineTest : public testing::Test
         can_rx_interface = App_CanRx_Create();
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-            get_current_ms, DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS,
-            DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
+            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS,
+            HEARTBEAT_MONITOR_BOARDS_TO_CHECK, heartbeat_timeout_callback);
 
         primary_flow_meter = App_FlowMeter_Create(get_primary_flow_rate);
 

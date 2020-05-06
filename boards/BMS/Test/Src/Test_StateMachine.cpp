@@ -3,14 +3,13 @@
 
 extern "C"
 {
-#include "App_SharedHeartbeatMonitor.h"
-#include "App_CanTx.h"
-#include "App_CanRx.h"
-#include "App_ImdConfig.h"
+#include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
 #include "states/App_DriveState.h"
 #include "states/App_FaultState.h"
 #include "states/App_ChargeState.h"
+#include "configs/App_HeartbeatMonitorConfig.h"
+#include "configs/App_ImdConfig.h"
 }
 
 namespace StateMachineTest
@@ -38,12 +37,6 @@ class BmsStateMachineTest : public testing::Test
   protected:
     void SetUp() override
     {
-        constexpr uint32_t DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS = 500U;
-        constexpr enum HeartbeatOneHot DEFAULT_HEARTBEAT_BOARDS_TO_CHECK =
-            (enum HeartbeatOneHot)(
-                FSM_HEARTBEAT_ONE_HOT | DCM_HEARTBEAT_ONE_HOT |
-                PDM_HEARTBEAT_ONE_HOT);
-
         can_tx_interface = App_CanTx_Create(
             send_non_periodic_msg_BMS_STARTUP,
             send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT);
@@ -55,8 +48,8 @@ class BmsStateMachineTest : public testing::Test
             get_seconds_since_power_on);
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-            get_current_ms, DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS,
-            DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
+            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS,
+            HEARTBEAT_MONITOR_BOARDS_TO_CHECK, heartbeat_timeout_callback);
 
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);

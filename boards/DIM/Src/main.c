@@ -28,10 +28,11 @@
 
 #include "App_DimWorld.h"
 #include "App_SevenSegDisplay.h"
-#include "App_RotarySwitchConfig.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_DriveState.h"
-#include "App_RegenPaddleConfig.h"
+#include "configs/App_RotarySwitchConfig.h"
+#include "configs/App_RegenPaddleConfig.h"
+#include "configs/App_HeartbeatMonitorConfig.h"
 
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
@@ -187,8 +188,8 @@ int main(void)
     can_rx = App_CanRx_Create();
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
-        Io_HeartbeatMonitor_TimeoutCallback);
+        Io_HeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS,
+        HEARTBEAT_MONITOR_BOARDS_TO_CHECK, Io_HeartbeatMonitor_TimeoutCallback);
 
     regen_paddle = App_RegenPaddle_Create(
         Io_RegenPaddle_GetPaddlePosition, REGEN_PADDLE_LOWER_DEADZONE,

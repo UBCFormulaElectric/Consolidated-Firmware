@@ -1,6 +1,6 @@
 #pragma once
 
-#include "App_SharedStateMachineConfig.h"
+#include "configs/App_SharedStateMachineConfig.h"
 
 #define MAX_STATE_NAME_LENGTH 16
 

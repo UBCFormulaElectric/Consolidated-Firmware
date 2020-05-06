@@ -6,12 +6,13 @@ extern "C"
 #include "App_SharedStateMachine.h"
 #include "App_SevenSegDisplays.h"
 #include "App_SevenSegDisplay.h"
-#include "states/App_DriveState.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_Led.h"
 #include "App_CanMsgs.h"
-#include "App_RotarySwitchConfig.h"
-#include "App_RegenPaddleConfig.h"
+#include "states/App_DriveState.h"
+#include "configs/App_RotarySwitchConfig.h"
+#include "configs/App_RegenPaddleConfig.h"
+#include "configs/App_HeartbeatMonitorConfig.h"
 }
 
 namespace StateMachineTest
@@ -56,10 +57,6 @@ class DimStateMachineTest : public testing::Test
   protected:
     void SetUp() override
     {
-        constexpr uint32_t DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS = 500U;
-        constexpr enum HeartbeatOneHot DEFAULT_HEARTBEAT_BOARDS_TO_CHECK =
-            BMS_HEARTBEAT_ONE_HOT;
-
         can_tx_interface = App_CanTx_Create(
             send_non_periodic_msg_DIM_STARTUP,
             send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT);
@@ -76,8 +73,8 @@ class DimStateMachineTest : public testing::Test
             right_seven_seg_display, display_value_callback);
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-            get_current_ms, DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS,
-            DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
+            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS,
+            HEARTBEAT_MONITOR_BOARDS_TO_CHECK, heartbeat_timeout_callback);
 
         regen_paddle = App_RegenPaddle_Create(
             get_raw_paddle_position, REGEN_PADDLE_LOWER_DEADZONE,

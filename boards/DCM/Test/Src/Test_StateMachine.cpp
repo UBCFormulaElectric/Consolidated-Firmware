@@ -6,6 +6,7 @@ extern "C"
 #include "states/App_InitState.h"
 #include "states/App_DriveState.h"
 #include "states/App_FaultState.h"
+#include "configs/App_HeartbeatMonitorConfig.h"
 }
 
 namespace StateMachineTest
@@ -30,10 +31,6 @@ class DcmStateMachineTest : public testing::Test
   protected:
     void SetUp() override
     {
-        constexpr uint32_t DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS = 500U;
-        constexpr enum HeartbeatOneHot DEFAULT_HEARTBEAT_BOARDS_TO_CHECK =
-            BMS_HEARTBEAT_ONE_HOT;
-
         can_tx_interface = App_CanTx_Create(
             send_non_periodic_msg_DCM_STARTUP,
             send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT);
@@ -41,8 +38,8 @@ class DcmStateMachineTest : public testing::Test
         can_rx_interface = App_CanRx_Create();
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-            get_current_ms, DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS,
-            DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
+            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS,
+            HEARTBEAT_MONITOR_BOARDS_TO_CHECK, heartbeat_timeout_callback);
 
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
