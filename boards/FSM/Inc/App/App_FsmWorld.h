@@ -9,12 +9,8 @@
 struct FsmWorld;
 
 /**
- * Allocate and initialize a world in the application layer
- * @param can_tx_interface The CAN TX interface to register to the world
- * @param can_rx_interface The CAN RX interface to register to the world
- * @param heartbeat_monitor The heartbeat monitor to register to the world
- * @param primary_flow_meter The primary flow meter to register to the world
- * @param secondary_flow_meter The secondary flow meter to register to the world
+ * Allocate and initialize a world in the application layer by registering
+ * interfaces to it
  * @note This function does __not__ take ownership of any of the interfaces
  *       passed into it, which means the every interface must be kept alive for
  *       the lifetime of the created world

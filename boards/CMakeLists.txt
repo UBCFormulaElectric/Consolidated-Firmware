@@ -166,7 +166,7 @@ function(create_arm_binary
     target_compile_options(${BOARD_NAME}.elf
         PUBLIC
             ${FPU_FLAGS}
-            -mthumb 
+            -mthumb
             -mthumb-interwork 
             -ffunction-sections 
             -fdata-sections

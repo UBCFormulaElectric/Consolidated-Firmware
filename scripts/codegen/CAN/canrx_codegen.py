@@ -14,7 +14,7 @@ class CanRxFileGenerator(CanFileGenerator):
                 if self._receiver in signal.receivers:
                     canrx_signals.append(
                         CanSignal(signal.type_name, signal.snake_name,
-                                    msg.snake_name, signal.initial))
+                                    msg.snake_name, signal.initial, signal.is_float))
         return canrx_signals
 
     def __get_canrx_msgs(self):

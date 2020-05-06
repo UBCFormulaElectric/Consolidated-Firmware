@@ -34,11 +34,14 @@
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
-#include "Io_VoltageMonitor.h"
+#include "Io_VoltageSense.h"
+#include "Io_CurrentSense.h"
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
 
 #include "App_PdmWorld.h"
+#include "App_CurrentLimits.h"
+#include "App_VoltageLimits.h"
 #include "App_SharedConstants.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
@@ -85,9 +88,16 @@ struct PdmWorld *         world;
 struct StateMachine *     state_machine;
 struct PdmCanTxInterface *can_tx;
 struct PdmCanRxInterface *can_rx;
-struct VoltageMonitor *   vbat_voltage_monitor;
-struct VoltageMonitor *   _24v_aux_voltage_monitor;
-struct VoltageMonitor *   _24v_acc_voltage_monitor;
+struct InRangeCheck *     vbat_voltage_check;
+struct InRangeCheck *     _24v_aux_voltage_check;
+struct InRangeCheck *     _24v_acc_voltage_check;
+struct InRangeCheck *     aux1_current_check;
+struct InRangeCheck *     aux2_current_check;
+struct InRangeCheck *     left_inverter_current_check;
+struct InRangeCheck *     right_inverter_current_check;
+struct InRangeCheck *     energy_meter_current_check;
+struct InRangeCheck *     can_current_check;
+struct InRangeCheck *     air_shutdown_current_check;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
 /* USER CODE END PV */
@@ -172,22 +182,41 @@ int main(void)
 
     can_rx = App_CanRx_Create();
 
-    vbat_voltage_monitor = App_VoltageMonitor_Create(
-        Io_VoltageMonitor_GetVbatVoltage, Io_VoltageMonitor_GetVbatMinVoltage,
-        Io_VoltageMonitor_Get24vAccMaxVoltage,
-        Io_VoltageMonitor_VbatErrorCallback);
+    vbat_voltage_check = App_InRangeCheck_Create(
+        Io_VoltageSense_GetVbatVoltage, VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE);
 
-    _24v_aux_voltage_monitor = App_VoltageMonitor_Create(
-        Io_VoltageMonitor_Get24vAuxVoltage,
-        Io_VoltageMonitor_Get24vAuxMinVoltage,
-        Io_VoltageMonitor_Get24vAccMaxVoltage,
-        Io_VoltageMonitor_24vAuxErrorCallback);
+    _24v_aux_voltage_check = App_InRangeCheck_Create(
+        Io_VoltageSense_Get24vAuxVoltage, _24V_AUX_MIN_VOLTAGE,
+        _24V_AUX_MAX_VOLTAGE);
 
-    _24v_acc_voltage_monitor = App_VoltageMonitor_Create(
-        Io_VoltageMonitor_Get24vAccVoltage,
-        Io_VoltageMonitor_Get24vAccMinVoltage,
-        Io_VoltageMonitor_Get24vAccMaxVoltage,
-        Io_VoltageMonitor_24vAccErrorCallback);
+    _24v_acc_voltage_check = App_InRangeCheck_Create(
+        Io_VoltageSense_Get24vAccVoltage, _24V_ACC_MIN_VOLTAGE,
+        _24V_ACC_MAX_VOLTAGE);
+
+    aux1_current_check = App_InRangeCheck_Create(
+        Io_CurrentSense_GetAux1Current, AUX1_MIN_CURRENT, AUX1_MAX_CURRENT);
+
+    aux2_current_check = App_InRangeCheck_Create(
+        Io_CurrentSense_GetAux1Current, AUX2_MIN_CURRENT, AUX2_MAX_CURRENT);
+
+    left_inverter_current_check = App_InRangeCheck_Create(
+        Io_CurrentSense_GetLeftInverterCurrent, LEFT_INVERTER_MIN_CURRENT,
+        LEFT_INVERTER_MAX_CURRENT);
+
+    right_inverter_current_check = App_InRangeCheck_Create(
+        Io_CurrentSense_GetRightInverterCurrent, RIGHT_INVERTER_MIN_CURRENT,
+        RIGHT_INVERTER_MAX_CURRENT);
+
+    energy_meter_current_check = App_InRangeCheck_Create(
+        Io_CurrentSense_GetEnergyMeterCurrent, ENERGY_METER_MIN_CURRENT,
+        ENERGY_METER_MAX_CURRENT);
+
+    can_current_check = App_InRangeCheck_Create(
+        Io_CurrentSense_GetCanCurrent, CAN_MIN_CURRENT, CAN_MAX_CURRENT);
+
+    air_shutdown_current_check = App_InRangeCheck_Create(
+        Io_CurrentSense_GetAirShutdownCurrent, AIR_SHUTDOWN_MIN_CURRENT,
+        AIR_SHUTDOWN_MAX_CURRENT);
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
@@ -198,13 +227,15 @@ int main(void)
         Io_RgbLedSequence_TurnOnGreenLed);
 
     world = App_PdmWorld_Create(
-        can_tx, can_rx, vbat_voltage_monitor, _24v_aux_voltage_monitor,
-        _24v_acc_voltage_monitor, heartbeat_monitor, rgb_led_sequence);
+        can_tx, can_rx, vbat_voltage_check, _24v_aux_voltage_check,
+        _24v_acc_voltage_check, aux1_current_check, aux2_current_check,
+        left_inverter_current_check, right_inverter_current_check,
+        energy_meter_current_check, can_current_check,
+        air_shutdown_current_check, heartbeat_monitor, rgb_led_sequence);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
     Io_SoftwareWatchdog_Init(can_tx);
-    Io_VoltageMonitor_Init(can_tx);
     App_StackWaterMark_Init(can_tx);
 
     struct CanMsgs_pdm_startup_t payload = { .dummy = 0 };

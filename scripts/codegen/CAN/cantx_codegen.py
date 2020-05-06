@@ -14,7 +14,7 @@ class AppCanTxFileGenerator(CanFileGenerator):
         self._periodic_cantx_msgs = \
             list(msg for msg in self.__cantx_msgs if msg.cycle_time > 0)
         self._periodic_cantx_signals = \
-            [CanSignal(signal.type_name, signal.snake_name, msg.snake_name, signal.initial)
+            [CanSignal(signal.type_name, signal.snake_name, msg.snake_name, signal.initial, signal.is_float)
              for msg in self._periodic_cantx_msgs for signal in msg.signals]
 
         # Initialize function objects so we can get its declaration and
@@ -62,18 +62,33 @@ class AppCanTxFileGenerator(CanFileGenerator):
             'Destroy a CAN TX interface, freeing the memory associated with it',
             '''    free(can_tx_interface);''')
 
-        self._PeriodicTxSignalSetters = list(Function(
-            'void %s_SetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface, %s value)' % (
-            function_prefix, signal.uppercase_name, self._sender.capitalize(), signal.type_name),
-            '',
-            '''\
-    if (App_CanMsgs_{msg_snakecase_name}_{signal_snakecase_name}_is_in_range(value) == true)
+        lst = []
+
+        for signal in self._periodic_cantx_signals:
+            if signal.is_float:
+                lst.append(Function(
+                    'void %s_SetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface, %s value)' % (
+                    function_prefix, signal.uppercase_name, self._sender.capitalize(), signal.type_name),
+                    '',
+                    '''\
+    if (App_CanMsgs_{msg_snakecase_name}_{signal_snakecase_name}_is_in_range(value) || isnanf(value))
     {{
         can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name} = value;
-    }}'''.format(
-                msg_snakecase_name=signal.msg_name_snakecase,
-                signal_snakecase_name=signal.snakecase_name)
-        ) for signal in self._periodic_cantx_signals)
+    }}'''.format(msg_snakecase_name=signal.msg_name_snakecase,
+                 signal_snakecase_name=signal.snakecase_name)))
+            else:
+                lst.append(Function(
+                    'void %s_SetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface, %s value)' % (
+                    function_prefix, signal.uppercase_name, self._sender.capitalize(), signal.type_name),
+                    '',
+                    '''\
+    if (App_CanMsgs_{msg_snakecase_name}_{signal_snakecase_name}_is_in_range(value))
+    {{
+        can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name} = value;
+    }}'''.format(msg_snakecase_name=signal.msg_name_snakecase,
+                 signal_snakecase_name=signal.snakecase_name)))
+
+        self._PeriodicTxSignalSetters = lst
 
         self._PeriodicTxSignalGetters = list(Function(
             '%s %s_GetPeriodicSignal_%s(const struct %sCanTxInterface* can_tx_interface)' % (
@@ -177,6 +192,7 @@ class AppCanTxSourceFileGenerator(AppCanTxFileGenerator):
     def __generateHeaderIncludes(self):
         header_names = ['<stdlib.h>',
                         '<assert.h>',
+                        '<math.h>',
                         '"App_CanTx.h"']
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])
@@ -224,7 +240,7 @@ class IoCanTxFileGenerator(CanFileGenerator):
         self._non_periodic_cantx_msgs = list(msg for msg in self.__cantx_msgs if msg.cycle_time == 0)
         self._periodic_cantx_msgs = list(msg for msg in self.__cantx_msgs if msg.cycle_time > 0)
         self._periodic_cantx_signals = \
-            [CanSignal(signal.type_name, signal.snake_name, msg.snake_name, signal.initial)
+            [CanSignal(signal.type_name, signal.snake_name, msg.snake_name, signal.initial, signal.is_float)
              for msg in self._periodic_cantx_msgs for signal in msg.signals]
 
         # Initialize function objects so we can get its declaration and
