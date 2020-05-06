@@ -8,6 +8,8 @@ extern "C"
 #include "states/App_FaultState.h"
 }
 
+namespace StateMachineTest
+{
 FAKE_VOID_FUNC(
     send_non_periodic_msg_DCM_STARTUP,
     const struct CanMsgs_dcm_startup_t *);
@@ -22,6 +24,10 @@ FAKE_VOID_FUNC(
 FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
+FAKE_VALUE_FUNC(bool, is_brake_actuated);
+FAKE_VALUE_FUNC(bool, is_regen_active);
+FAKE_VOID_FUNC(turn_on_brake_light);
+FAKE_VOID_FUNC(turn_off_brake_light);
 
 class DcmStateMachineTest : public testing::Test
 {
@@ -41,9 +47,12 @@ class DcmStateMachineTest : public testing::Test
             DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
+        brake_light = App_BrakeLight_Create(
+            is_brake_actuated, is_regen_active, turn_on_brake_light,
+            turn_off_brake_light);
         world = App_DcmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
-            rgb_led_sequence);
+            rgb_led_sequence, brake_light);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -101,6 +110,7 @@ class DcmStateMachineTest : public testing::Test
     struct StateMachine *     state_machine;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
+    struct BrakeLight *       brake_light;
 };
 
 TEST_F(
@@ -143,3 +153,5 @@ TEST_F(DcmStateMachineTest, check_fault_state_is_broadcasted_over_can)
         CANMSGS_DCM_STATE_MACHINE_STATE_FAULT_CHOICE,
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
+
+} // namespace StateMachineTest

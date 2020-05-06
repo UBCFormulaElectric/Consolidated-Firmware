@@ -2,12 +2,6 @@
 
 #include <stdbool.h>
 
-enum BrakeLight_Status
-{
-    BRAKE_LIGHT_ON,
-    BRAKE_LIGHT_OFF,
-};
-
 /**
  * Allocate and initialize a brake light
  * @param is_brake_actuated A function that can be called to check if the brake
@@ -22,27 +16,27 @@ enum BrakeLight_Status
  * the caller
  */
 struct BrakeLight *App_BrakeLight_Create(
-    bool (*const is_brake_actuated)(void),
-    bool (*const is_regen_active)(void),
-    void (*const turn_on_brake_light)(void),
-    void (*const turn_off_brake_light)(void));
+    bool (*is_brake_actuated)(void),
+    bool (*is_regen_active)(void),
+    void (*turn_on_brake_light)(void),
+    void (*turn_off_brake_light)(void));
 
 /**
  * Destroy the given brake light
  * @param brake_light The brake light to destroy
  */
-void App_BrakeLight_Destroy(struct BrakeLight *const brake_light);
+void App_BrakeLight_Destroy(struct BrakeLight *brake_light);
 
 /**
- * Update the status for the given brake light
- * @param brake_light The brake light to update for
+ * Turn the given brake light on or off depending on whether the brake is
+ * actuated and/or regen is active
+ * @param brake_light The brake light to tick
  */
-void App_BrakeLight_Tick(struct BrakeLight *const brake_light);
+void App_BrakeLight_Tick(struct BrakeLight *brake_light);
 
 /**
- * Get the status for the given brake light
- * @param brake_light The brake light to get status for
- * @return The status for the given brake light
+ * Check if the given brake light is turned on
+ * @param brake_light The brake light to check if it's turned on
+ * @return true if the brake light is turned on, else false
  */
-enum BrakeLight_Status
-    App_BrakeLight_GetStatus(const struct BrakeLight *const brake_light);
+bool App_BrakeLight_IsTurnedOn(const struct BrakeLight *brake_light);

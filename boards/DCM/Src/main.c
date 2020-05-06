@@ -36,6 +36,7 @@
 #include "Io_SoftwareWatchdog.h"
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
+#include "Io_BrakeLight.h"
 
 #include "App_DcmWorld.h"
 #include "App_SharedStateMachine.h"
@@ -84,6 +85,7 @@ struct DcmCanTxInterface *can_tx;
 struct DcmCanRxInterface *can_rx;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
+struct BrakeLight *       brake_light;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -114,6 +116,17 @@ static void CanRxQueueOverflowCallBack(size_t overflow_count)
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
     App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
+}
+
+static bool IsBrakeActuated(void)
+{
+    return App_CanRx_FSM_BRAKE_GetSignal_BRAKE_IS_ACTUATED(can_rx) == true;
+}
+
+static bool IsRegenActive(void)
+{
+    // Regen is active when the torque request in negative
+    return App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx) < 0.0f;
 }
 
 /* USER CODE END 0 */
@@ -169,8 +182,12 @@ int main(void)
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
         Io_RgbLedSequence_TurnOnGreenLed);
 
+    brake_light = App_BrakeLight_Create(
+        IsBrakeActuated, IsRegenActive, Io_BrakeLight_TurnOn,
+        Io_BrakeLight_TurnOff);
+
     world = App_DcmWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence);
+        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, brake_light);
 
     App_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);

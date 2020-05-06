@@ -40,7 +40,7 @@ TEST_F(
 
     App_BrakeLight_Tick(brake_light);
 
-    ASSERT_EQ(App_BrakeLight_GetStatus(brake_light), BRAKE_LIGHT_OFF);
+    ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), false);
     ASSERT_EQ(turn_off_brake_light_fake.call_count, 1);
 }
 
@@ -51,7 +51,7 @@ TEST_F(BrakeLightTest, non_actuated_brake_and_active_regen_turns_on_brake_light)
 
     App_BrakeLight_Tick(brake_light);
 
-    ASSERT_EQ(App_BrakeLight_GetStatus(brake_light), BRAKE_LIGHT_ON);
+    ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), true);
     ASSERT_EQ(turn_on_brake_light_fake.call_count, 1);
 }
 
@@ -62,7 +62,7 @@ TEST_F(BrakeLightTest, actuated_brake_and_inactive_regen_turns_on_brake_light)
 
     App_BrakeLight_Tick(brake_light);
 
-    ASSERT_EQ(App_BrakeLight_GetStatus(brake_light), BRAKE_LIGHT_ON);
+    ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), true);
     ASSERT_EQ(turn_on_brake_light_fake.call_count, 1);
 }
 
@@ -73,6 +73,6 @@ TEST_F(BrakeLightTest, actuated_brake_and_active_regen_turns_on_brake_light)
 
     App_BrakeLight_Tick(brake_light);
 
-    ASSERT_EQ(App_BrakeLight_GetStatus(brake_light), BRAKE_LIGHT_ON);
+    ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), true);
     ASSERT_EQ(turn_on_brake_light_fake.call_count, 1);
 }
