@@ -3,7 +3,7 @@
 
 STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(PdmCanTxInterface)
 
-void App_SetPeriodicCanSignals_CurrentChecks(struct PdmWorld *world)
+void App_SetPeriodicCanSignals_CurrentChecks(const struct PdmWorld *world)
 {
     struct PdmCanTxInterface *can_tx = App_PdmWorld_GetCanTx(world);
 
@@ -78,7 +78,7 @@ void App_SetPeriodicCanSignals_CurrentChecks(struct PdmWorld *world)
         CANMSGS_PDM_ERRORS_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
-void App_SetPeriodicCanSignals_VoltageChecks(struct PdmWorld *world)
+void App_SetPeriodicCanSignals_VoltageChecks(const struct PdmWorld *world)
 {
     struct PdmCanTxInterface *can_tx = App_PdmWorld_GetCanTx(world);
 
