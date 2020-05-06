@@ -11,10 +11,11 @@ class ImdTest : public testing::Test
 {
   public:
     static void SetImdCondition(
-        struct Imd *       imd,
+        struct Imd *       imd_to_set,
         enum Imd_Condition condition,
         float &            fake_pwm_frequency_return_val);
-    static void SetPwmFrequencyTolerance(struct Imd *imd, float tolerance);
+    static void
+        SetPwmFrequencyTolerance(struct Imd *imd_to_set, float tolerance);
 
   protected:
     void SetUp() override;

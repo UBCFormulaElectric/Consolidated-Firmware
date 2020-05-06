@@ -5,7 +5,7 @@ FAKE_VALUE_FUNC(float, get_pwm_duty_cycle);
 FAKE_VALUE_FUNC(uint32_t, get_seconds_since_power_on);
 
 void ImdTest::SetImdCondition(
-    struct Imd *       _imd,
+    struct Imd *       imd_to_set,
     enum Imd_Condition condition,
     float &            fake_pwm_frequency_return_val)
 {
@@ -16,14 +16,14 @@ void ImdTest::SetImdCondition(
     };
 
     fake_pwm_frequency_return_val = mapping[condition];
-    App_Imd_Tick(_imd);
-    ASSERT_EQ(condition, App_Imd_GetCondition(_imd));
+    App_Imd_Tick(imd_to_set);
+    ASSERT_EQ(condition, App_Imd_GetCondition(imd_to_set));
 }
 
-void ImdTest::SetPwmFrequencyTolerance(struct Imd *_imd, float tolerance)
+void ImdTest::SetPwmFrequencyTolerance(struct Imd *imd_to_set, float tolerance)
 {
-    TearDownObject(_imd, App_Imd_Destroy);
-    _imd = App_Imd_Create(
+    TearDownObject(imd_to_set, App_Imd_Destroy);
+    imd_to_set = App_Imd_Create(
         get_pwm_frequency, tolerance, get_pwm_duty_cycle,
         get_seconds_since_power_on);
 }
