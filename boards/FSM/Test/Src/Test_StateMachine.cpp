@@ -9,6 +9,8 @@ extern "C"
 #include "App_FlowMeter.h"
 }
 
+namespace StateMachineTest
+{
 FAKE_VOID_FUNC(
     send_non_periodic_msg_FSM_STARTUP,
     const struct CanMsgs_fsm_startup_t *);
@@ -156,3 +158,5 @@ TEST_F(
         fake_frequency++;
     }
 }
+
+} // namespace StateMachineTest

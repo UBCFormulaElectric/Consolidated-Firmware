@@ -12,6 +12,8 @@ extern "C"
 #include "App_CurrentLimits.h"
 }
 
+namespace StateMachineTest
+{
 FAKE_VOID_FUNC(
     send_non_periodic_msg_PDM_STARTUP,
     const struct CanMsgs_pdm_startup_t *);
@@ -559,3 +561,5 @@ TEST_F(
         App_CanTx_GetPeriodicSignal_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE,
         CANMSGS_PDM_ERRORS_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE);
 }
+
+} // namespace StateMachineTest

@@ -16,8 +16,7 @@ class SevenSegDisplaysTest : public testing::Test
   protected:
     void SetUp() override
     {
-        left_seven_seg_display =
-            App_SevenSegDisplay_Create(set_left_hex_digit);
+        left_seven_seg_display = App_SevenSegDisplay_Create(set_left_hex_digit);
         middle_seven_seg_display =
             App_SevenSegDisplay_Create(set_middle_hex_digit);
         right_seven_seg_display =
@@ -68,11 +67,9 @@ TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_digit)
         ASSERT_EQ(
             true, set_left_hex_digit_fake.arg0_history[count - 1].enabled);
         ASSERT_EQ(
-            false,
-            set_middle_hex_digit_fake.arg0_history[count - 1].enabled);
+            false, set_middle_hex_digit_fake.arg0_history[count - 1].enabled);
         ASSERT_EQ(
-            false,
-            set_right_hex_digit_fake.arg0_history[count - 1].enabled);
+            false, set_right_hex_digit_fake.arg0_history[count - 1].enabled);
 
         // The value for the middle and right digits are not asserted because we
         // are only writing one digit
@@ -104,8 +101,7 @@ TEST_F(SevenSegDisplaysTest, set_two_hexadecimal_digits)
             ASSERT_EQ(count, set_right_hex_digit_fake.call_count);
 
             ASSERT_EQ(
-                true,
-                set_left_hex_digit_fake.arg0_history[count - 1].enabled);
+                true, set_left_hex_digit_fake.arg0_history[count - 1].enabled);
             ASSERT_EQ(
                 true,
                 set_middle_hex_digit_fake.arg0_history[count - 1].enabled);
@@ -149,32 +145,29 @@ TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_digits)
                 ASSERT_EQ(count, set_right_hex_digit_fake.call_count);
 
                 ASSERT_EQ(
-                    true, set_left_hex_digit_fake.arg0_history[count - 1]
-                              .enabled);
+                    true,
+                    set_left_hex_digit_fake.arg0_history[count - 1].enabled);
                 ASSERT_EQ(
-                    true, set_middle_hex_digit_fake.arg0_history[count - 1]
-                              .enabled);
+                    true,
+                    set_middle_hex_digit_fake.arg0_history[count - 1].enabled);
                 ASSERT_EQ(
-                    true, set_right_hex_digit_fake.arg0_history[count - 1]
-                              .enabled);
+                    true,
+                    set_right_hex_digit_fake.arg0_history[count - 1].enabled);
 
                 ASSERT_EQ(
                     input[0],
                     set_left_hex_digit_fake.arg0_history[count - 1].value);
                 ASSERT_EQ(
                     input[1],
-                    set_middle_hex_digit_fake.arg0_history[count - 1]
-                        .value);
+                    set_middle_hex_digit_fake.arg0_history[count - 1].value);
                 ASSERT_EQ(
                     input[2],
                     set_right_hex_digit_fake.arg0_history[count - 1].value);
 
                 // Sanity check to make sure the argument history is long enough
                 ASSERT_EQ(0, set_left_hex_digit_fake.arg_histories_dropped);
-                ASSERT_EQ(
-                    0, set_middle_hex_digit_fake.arg_histories_dropped);
-                ASSERT_EQ(
-                    0, set_right_hex_digit_fake.arg_histories_dropped);
+                ASSERT_EQ(0, set_middle_hex_digit_fake.arg_histories_dropped);
+                ASSERT_EQ(0, set_right_hex_digit_fake.arg_histories_dropped);
             }
         }
     }

@@ -8,6 +8,8 @@ extern "C"
 #include "states/App_FaultState.h"
 }
 
+namespace StateMachineTest
+{
 FAKE_VOID_FUNC(
     send_non_periodic_msg_DCM_STARTUP,
     const struct CanMsgs_dcm_startup_t *);
@@ -129,3 +131,5 @@ TEST_F(DcmStateMachineTest, check_fault_state_is_broadcasted_over_can)
         CANMSGS_DCM_STATE_MACHINE_STATE_FAULT_CHOICE,
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
+
+} // namespace StateMachineTest
