@@ -21,6 +21,10 @@ struct RegenPaddle *App_RegenPaddle_Create(
     uint32_t lower_deadzone,
     uint32_t upper_deadzone);
 
+/**
+ * Deallocate the memory used by the given regen paddle
+ * @param regen_paddle The regen paddle to deallocate
+ */
 void App_RegenPaddle_Destroy(struct RegenPaddle *regen_paddle);
 
 /**
