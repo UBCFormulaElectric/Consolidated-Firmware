@@ -14,6 +14,8 @@ extern "C"
 #include "App_RegenPaddleConfig.h"
 }
 
+namespace StateMachineTest
+{
 FAKE_VOID_FUNC(
     send_non_periodic_msg_DIM_STARTUP,
     const struct CanMsgs_dim_startup_t *);
@@ -343,3 +345,5 @@ TEST_F(DimStateMachineTest, bspd_led_control_in_drive_state)
     ASSERT_EQ(1, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(2, turn_off_bspd_led_fake.call_count);
 }
+
+} // namespace StateMachineTest
