@@ -77,3 +77,14 @@ TEST_F(InRangeCheckTest, value_overflow)
         VALUE_OVERFLOW, App_InRangeCheck_GetValue(in_range_check, &value));
     ASSERT_EQ(get_value_fake.return_val, value);
 }
+
+TEST_F(InRangeCheckTest, invalid_min_and_max)
+{
+    // It doesn't make sense to perform a range check if the min_value is
+    // greater than the max_value.
+    const float max_value = 1.0f;
+    const float min_value =
+        std::nextafter(max_value, std::numeric_limits<float>::max());
+
+    ASSERT_DEATH(App_InRangeCheck_Create(get_value, min_value, max_value), "");
+}

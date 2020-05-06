@@ -1,41 +1,7 @@
 #include "App_SharedSetPeriodicCanSignals.h"
 #include "App_SetPeriodicCanSignals.h"
 
-// STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(PdmCanTxInterface)
-static void App_SetPeriodicCanSignals_InRangeCheck(
-    struct PdmCanTxInterface *const  can_tx,
-    const struct InRangeCheck *const in_range_check,
-    void (*const can_signal_setter)(struct PdmCanTxInterface *, float),
-    void (*const out_of_range_setter)(struct PdmCanTxInterface *, uint8_t),
-    uint8_t in_range_choice,
-    uint8_t underflow_choice,
-    uint8_t overflow_choice)
-{
-    float                    value;
-    enum InRangeCheck_Status status =
-        App_InRangeCheck_GetValue(in_range_check, &value);
-
-    switch (status)
-    {
-        case VALUE_IN_RANGE:
-        {
-            out_of_range_setter(can_tx, in_range_choice);
-        }
-        break;
-        case VALUE_UNDERFLOW:
-        {
-            out_of_range_setter(can_tx, underflow_choice);
-        }
-        break;
-        case VALUE_OVERFLOW:
-        {
-            out_of_range_setter(can_tx, overflow_choice);
-        }
-        break;
-    }
-
-    can_signal_setter(can_tx, value);
-}
+STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(PdmCanTxInterface)
 
 void App_SetPeriodicCanSignals_CurrentChecks(struct PdmWorld *world)
 {
