@@ -86,6 +86,7 @@ DCM-21 | State CAN message | The DCM must transmit the state of its state machin
 DCM-1 | Brake light control | The DCM must enable the brake light through the corresponding GPIO during brake actuation and/or regen, and must disable the brake light otherwise.
 DCM-2 | Heartbeat sending | The DCM must transmit a heartbeat over CAN at 10Hz.
 DCM-18 | Heartbeat receiving | The DCM must throw an AIR shutdown fault once it does not receive three consecutive BMS heartbeats.
+DCM-19 | Torque Request Reporting | - The DCM must report the torque request over CAN at 100Hz
 
 ### DCM Init State <a name="DCM_INIT"></a>
 ID | Title | Description | Associated Competition Rule(s)
