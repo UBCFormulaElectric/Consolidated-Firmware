@@ -1,42 +1,50 @@
-#include "Test_SevenSegDisplays.h"
+#include "Test_Dim.h"
 
-DEFINE_FAKE_VOID_FUNC(set_right_hex_digit, struct SevenSegHexDigit);
-DEFINE_FAKE_VOID_FUNC(set_middle_hex_digit, struct SevenSegHexDigit);
-DEFINE_FAKE_VOID_FUNC(set_left_hex_digit, struct SevenSegHexDigit);
-DEFINE_FAKE_VOID_FUNC(display_value_callback);
-
-void SevenSegDisplaysTest::SetUp()
+extern "C"
 {
-    left_seven_seg_display   = App_SevenSegDisplay_Create(set_left_hex_digit);
-    middle_seven_seg_display = App_SevenSegDisplay_Create(set_middle_hex_digit);
-    right_seven_seg_display  = App_SevenSegDisplay_Create(set_right_hex_digit);
-    seven_seg_displays       = App_SevenSegDisplays_Create(
-        left_seven_seg_display, middle_seven_seg_display,
-        right_seven_seg_display, display_value_callback);
-
-    RESET_FAKE(set_right_hex_digit);
-    RESET_FAKE(set_middle_hex_digit);
-    RESET_FAKE(set_left_hex_digit);
-    RESET_FAKE(display_value_callback);
+#include "App_SevenSegDisplays.h"
+#include "App_SevenSegDisplay.h"
 }
 
-void SevenSegDisplaysTest::TearDown()
+FAKE_VOID_FUNC(prv_set_right_hex_digit, struct SevenSegHexDigit);
+FAKE_VOID_FUNC(prv_set_middle_hex_digit, struct SevenSegHexDigit);
+FAKE_VOID_FUNC(prv_set_left_hex_digit, struct SevenSegHexDigit);
+FAKE_VOID_FUNC(prv_display_value_callback);
+
+class SevenSegDisplaysTest : public virtual testing::Test
 {
-    ASSERT_TRUE(left_seven_seg_display != NULL);
-    ASSERT_TRUE(middle_seven_seg_display != NULL);
-    ASSERT_TRUE(right_seven_seg_display != NULL);
-    ASSERT_TRUE(seven_seg_displays != NULL);
+  protected:
+    void SetUp() override
+    {
+        left_seven_seg_display =
+            App_SevenSegDisplay_Create(prv_set_left_hex_digit);
+        middle_seven_seg_display =
+            App_SevenSegDisplay_Create(prv_set_middle_hex_digit);
+        right_seven_seg_display =
+            App_SevenSegDisplay_Create(prv_set_right_hex_digit);
+        seven_seg_displays = App_SevenSegDisplays_Create(
+            left_seven_seg_display, middle_seven_seg_display,
+            right_seven_seg_display, prv_display_value_callback);
 
-    App_SevenSegDisplay_Destroy(left_seven_seg_display);
-    App_SevenSegDisplay_Destroy(middle_seven_seg_display);
-    App_SevenSegDisplay_Destroy(right_seven_seg_display);
-    App_SevenSegDisplays_Destroy(seven_seg_displays);
+        RESET_FAKE(prv_set_right_hex_digit);
+        RESET_FAKE(prv_set_middle_hex_digit);
+        RESET_FAKE(prv_set_left_hex_digit);
+        RESET_FAKE(prv_display_value_callback);
+    }
 
-    left_seven_seg_display   = NULL;
-    middle_seven_seg_display = NULL;
-    right_seven_seg_display  = NULL;
-    seven_seg_displays       = NULL;
-}
+    void TearDown() override
+    {
+        TearDownObject(left_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(middle_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(right_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(seven_seg_displays, App_SevenSegDisplays_Destroy);
+    }
+
+    struct SevenSegDisplay * left_seven_seg_display;
+    struct SevenSegDisplay * middle_seven_seg_display;
+    struct SevenSegDisplay * right_seven_seg_display;
+    struct SevenSegDisplays *seven_seg_displays;
+};
 
 TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_digit)
 {
@@ -53,22 +61,24 @@ TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_digit)
             seven_seg_displays, input, num_inputs);
         ASSERT_EQ(EXIT_CODE_OK, exit_code);
 
-        ASSERT_EQ(count, set_left_hex_digit_fake.call_count);
-        ASSERT_EQ(count, set_middle_hex_digit_fake.call_count);
-        ASSERT_EQ(count, set_right_hex_digit_fake.call_count);
+        ASSERT_EQ(count, prv_set_left_hex_digit_fake.call_count);
+        ASSERT_EQ(count, prv_set_middle_hex_digit_fake.call_count);
+        ASSERT_EQ(count, prv_set_right_hex_digit_fake.call_count);
 
         ASSERT_EQ(
-            true, set_left_hex_digit_fake.arg0_history[count - 1].enabled);
+            true, prv_set_left_hex_digit_fake.arg0_history[count - 1].enabled);
         ASSERT_EQ(
-            false, set_middle_hex_digit_fake.arg0_history[count - 1].enabled);
+            false,
+            prv_set_middle_hex_digit_fake.arg0_history[count - 1].enabled);
         ASSERT_EQ(
-            false, set_right_hex_digit_fake.arg0_history[count - 1].enabled);
+            false,
+            prv_set_right_hex_digit_fake.arg0_history[count - 1].enabled);
 
         // The value for the middle and right digits are not asserted because we
         // are only writing one digit
         ASSERT_EQ(
             input[LEFT_SEVEN_SEG_DISPLAY],
-            set_left_hex_digit_fake.arg0_history[count - 1].value);
+            prv_set_left_hex_digit_fake.arg0_history[count - 1].value);
     }
 }
 
@@ -89,27 +99,28 @@ TEST_F(SevenSegDisplaysTest, set_two_hexadecimal_digits)
                 seven_seg_displays, input, num_inputs);
             ASSERT_EQ(EXIT_CODE_OK, exit_code);
 
-            ASSERT_EQ(count, set_left_hex_digit_fake.call_count);
-            ASSERT_EQ(count, set_middle_hex_digit_fake.call_count);
-            ASSERT_EQ(count, set_right_hex_digit_fake.call_count);
+            ASSERT_EQ(count, prv_set_left_hex_digit_fake.call_count);
+            ASSERT_EQ(count, prv_set_middle_hex_digit_fake.call_count);
+            ASSERT_EQ(count, prv_set_right_hex_digit_fake.call_count);
 
             ASSERT_EQ(
-                true, set_left_hex_digit_fake.arg0_history[count - 1].enabled);
+                true,
+                prv_set_left_hex_digit_fake.arg0_history[count - 1].enabled);
             ASSERT_EQ(
                 true,
-                set_middle_hex_digit_fake.arg0_history[count - 1].enabled);
+                prv_set_middle_hex_digit_fake.arg0_history[count - 1].enabled);
             ASSERT_EQ(
                 false,
-                set_right_hex_digit_fake.arg0_history[count - 1].enabled);
+                prv_set_right_hex_digit_fake.arg0_history[count - 1].enabled);
 
             // The value for the right digit is not asserted because we are only
             // writing two digits
             ASSERT_EQ(
                 input[0],
-                set_left_hex_digit_fake.arg0_history[count - 1].value);
+                prv_set_left_hex_digit_fake.arg0_history[count - 1].value);
             ASSERT_EQ(
                 input[1],
-                set_middle_hex_digit_fake.arg0_history[count - 1].value);
+                prv_set_middle_hex_digit_fake.arg0_history[count - 1].value);
         }
     }
 }
@@ -133,34 +144,37 @@ TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_digits)
                     seven_seg_displays, input, num_inputs);
                 ASSERT_EQ(EXIT_CODE_OK, exit_code);
 
-                ASSERT_EQ(count, set_left_hex_digit_fake.call_count);
-                ASSERT_EQ(count, set_middle_hex_digit_fake.call_count);
-                ASSERT_EQ(count, set_right_hex_digit_fake.call_count);
+                ASSERT_EQ(count, prv_set_left_hex_digit_fake.call_count);
+                ASSERT_EQ(count, prv_set_middle_hex_digit_fake.call_count);
+                ASSERT_EQ(count, prv_set_right_hex_digit_fake.call_count);
 
                 ASSERT_EQ(
-                    true,
-                    set_left_hex_digit_fake.arg0_history[count - 1].enabled);
+                    true, prv_set_left_hex_digit_fake.arg0_history[count - 1]
+                              .enabled);
                 ASSERT_EQ(
-                    true,
-                    set_middle_hex_digit_fake.arg0_history[count - 1].enabled);
+                    true, prv_set_middle_hex_digit_fake.arg0_history[count - 1]
+                              .enabled);
                 ASSERT_EQ(
-                    true,
-                    set_right_hex_digit_fake.arg0_history[count - 1].enabled);
+                    true, prv_set_right_hex_digit_fake.arg0_history[count - 1]
+                              .enabled);
 
                 ASSERT_EQ(
                     input[0],
-                    set_left_hex_digit_fake.arg0_history[count - 1].value);
+                    prv_set_left_hex_digit_fake.arg0_history[count - 1].value);
                 ASSERT_EQ(
                     input[1],
-                    set_middle_hex_digit_fake.arg0_history[count - 1].value);
+                    prv_set_middle_hex_digit_fake.arg0_history[count - 1]
+                        .value);
                 ASSERT_EQ(
                     input[2],
-                    set_right_hex_digit_fake.arg0_history[count - 1].value);
+                    prv_set_right_hex_digit_fake.arg0_history[count - 1].value);
 
                 // Sanity check to make sure the argument history is long enough
-                ASSERT_EQ(0, set_left_hex_digit_fake.arg_histories_dropped);
-                ASSERT_EQ(0, set_middle_hex_digit_fake.arg_histories_dropped);
-                ASSERT_EQ(0, set_right_hex_digit_fake.arg_histories_dropped);
+                ASSERT_EQ(0, prv_set_left_hex_digit_fake.arg_histories_dropped);
+                ASSERT_EQ(
+                    0, prv_set_middle_hex_digit_fake.arg_histories_dropped);
+                ASSERT_EQ(
+                    0, prv_set_right_hex_digit_fake.arg_histories_dropped);
             }
         }
     }
@@ -184,9 +198,9 @@ TEST_F(SevenSegDisplaysTest, set_underflow_digit_to_each_7_seg_display)
 
         // We should not write to any of the 7 segment displays if any of the
         // inputs is invalid
-        ASSERT_EQ(0, set_left_hex_digit_fake.call_count);
-        ASSERT_EQ(0, set_middle_hex_digit_fake.call_count);
-        ASSERT_EQ(0, set_right_hex_digit_fake.call_count);
+        ASSERT_EQ(0, prv_set_left_hex_digit_fake.call_count);
+        ASSERT_EQ(0, prv_set_middle_hex_digit_fake.call_count);
+        ASSERT_EQ(0, prv_set_right_hex_digit_fake.call_count);
     }
 }
 
@@ -208,35 +222,35 @@ TEST_F(SevenSegDisplaysTest, set_overflow_digit_to_each_7_seg_display)
 
         // We should not write to any of the 7 segment displays if any of the
         // inputs is invalid
-        ASSERT_EQ(0, set_left_hex_digit_fake.call_count);
-        ASSERT_EQ(0, set_middle_hex_digit_fake.call_count);
-        ASSERT_EQ(0, set_right_hex_digit_fake.call_count);
+        ASSERT_EQ(0, prv_set_left_hex_digit_fake.call_count);
+        ASSERT_EQ(0, prv_set_middle_hex_digit_fake.call_count);
+        ASSERT_EQ(0, prv_set_right_hex_digit_fake.call_count);
     }
 }
 
 TEST_F(SevenSegDisplaysTest, set_valid_unsigned_base10_values)
 {
     App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 0);
-    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[0].enabled);
-    ASSERT_EQ(false, set_middle_hex_digit_fake.arg0_history[0].enabled);
-    ASSERT_EQ(false, set_right_hex_digit_fake.arg0_history[0].enabled);
-    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[0].value);
+    ASSERT_EQ(true, prv_set_left_hex_digit_fake.arg0_history[0].enabled);
+    ASSERT_EQ(false, prv_set_middle_hex_digit_fake.arg0_history[0].enabled);
+    ASSERT_EQ(false, prv_set_right_hex_digit_fake.arg0_history[0].enabled);
+    ASSERT_EQ(0, prv_set_left_hex_digit_fake.arg0_history[0].value);
 
     App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 500);
-    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[1].enabled);
-    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_history[1].enabled);
-    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_history[1].enabled);
-    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[1].value);
-    ASSERT_EQ(0, set_middle_hex_digit_fake.arg0_history[1].value);
-    ASSERT_EQ(5, set_right_hex_digit_fake.arg0_history[1].value);
+    ASSERT_EQ(true, prv_set_left_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(true, prv_set_middle_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(true, prv_set_right_hex_digit_fake.arg0_history[1].enabled);
+    ASSERT_EQ(0, prv_set_left_hex_digit_fake.arg0_history[1].value);
+    ASSERT_EQ(0, prv_set_middle_hex_digit_fake.arg0_history[1].value);
+    ASSERT_EQ(5, prv_set_right_hex_digit_fake.arg0_history[1].value);
 
     App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 999);
-    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[2].enabled);
-    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_history[2].enabled);
-    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_history[2].enabled);
-    ASSERT_EQ(9, set_left_hex_digit_fake.arg0_history[2].value);
-    ASSERT_EQ(9, set_middle_hex_digit_fake.arg0_history[2].value);
-    ASSERT_EQ(9, set_right_hex_digit_fake.arg0_history[2].value);
+    ASSERT_EQ(true, prv_set_left_hex_digit_fake.arg0_history[2].enabled);
+    ASSERT_EQ(true, prv_set_middle_hex_digit_fake.arg0_history[2].enabled);
+    ASSERT_EQ(true, prv_set_right_hex_digit_fake.arg0_history[2].enabled);
+    ASSERT_EQ(9, prv_set_left_hex_digit_fake.arg0_history[2].value);
+    ASSERT_EQ(9, prv_set_middle_hex_digit_fake.arg0_history[2].value);
+    ASSERT_EQ(9, prv_set_right_hex_digit_fake.arg0_history[2].value);
 }
 
 TEST_F(SevenSegDisplaysTest, set_invalid_unsigned_base10_values)
@@ -246,9 +260,9 @@ TEST_F(SevenSegDisplaysTest, set_invalid_unsigned_base10_values)
         App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 1000);
     ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);
 
-    ASSERT_EQ(0, set_left_hex_digit_fake.call_count);
-    ASSERT_EQ(0, set_middle_hex_digit_fake.call_count);
-    ASSERT_EQ(0, set_right_hex_digit_fake.call_count);
+    ASSERT_EQ(0, prv_set_left_hex_digit_fake.call_count);
+    ASSERT_EQ(0, prv_set_middle_hex_digit_fake.call_count);
+    ASSERT_EQ(0, prv_set_right_hex_digit_fake.call_count);
 }
 
 TEST_F(SevenSegDisplaysTest, set_valid_hex_digits_invokes_callback_function)
@@ -260,7 +274,7 @@ TEST_F(SevenSegDisplaysTest, set_valid_hex_digits_invokes_callback_function)
         ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(
             seven_seg_displays, hex_digits, i);
         ASSERT_EQ(EXIT_CODE_OK, exit_code);
-        ASSERT_EQ(i, display_value_callback_fake.call_count);
+        ASSERT_EQ(i, prv_display_value_callback_fake.call_count);
     }
 }
 
@@ -277,7 +291,7 @@ TEST_F(
         ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(
             seven_seg_displays, hex_digits, i);
         ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);
-        ASSERT_EQ(0, display_value_callback_fake.call_count);
+        ASSERT_EQ(0, prv_display_value_callback_fake.call_count);
     }
 }
 
@@ -290,7 +304,7 @@ TEST_F(
     ExitCode exit_code =
         App_SevenSegDisplays_SetHexDigits(seven_seg_displays, hex_digits, 0);
     ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);
-    ASSERT_EQ(0, display_value_callback_fake.call_count);
+    ASSERT_EQ(0, prv_display_value_callback_fake.call_count);
 }
 
 TEST_F(
@@ -300,7 +314,7 @@ TEST_F(
     ExitCode exit_code =
         App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 1);
     ASSERT_EQ(EXIT_CODE_OK, exit_code);
-    ASSERT_EQ(1, display_value_callback_fake.call_count);
+    ASSERT_EQ(1, prv_display_value_callback_fake.call_count);
 }
 
 TEST_F(
@@ -310,5 +324,5 @@ TEST_F(
     ExitCode exit_code =
         App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 1000);
     ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);
-    ASSERT_EQ(0, display_value_callback_fake.call_count);
+    ASSERT_EQ(0, prv_display_value_callback_fake.call_count);
 }

@@ -1,9 +1,4 @@
 #include "Test_Dim.h"
-#include "Test_SevenSegDisplays.h"
-#include "Test_RegenPaddle.h"
-#include "Test_RotarySwitch.h"
-#include "Test_Led.h"
-#include "Test_BinarySwitch.h"
 
 extern "C"
 {
@@ -16,6 +11,7 @@ extern "C"
 #include "App_Led.h"
 #include "App_CanMsgs.h"
 #include "App_Switches.h"
+#include "App_RegenPaddleConfig.h"
 }
 
 FAKE_VOID_FUNC(
@@ -24,11 +20,20 @@ FAKE_VOID_FUNC(
 FAKE_VOID_FUNC(
     send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT,
     const struct CanMsgs_dim_watchdog_timeout_t *);
+
+FAKE_VOID_FUNC(set_right_hex_digit, struct SevenSegHexDigit);
+FAKE_VOID_FUNC(set_middle_hex_digit, struct SevenSegHexDigit);
+FAKE_VOID_FUNC(set_left_hex_digit, struct SevenSegHexDigit);
+FAKE_VOID_FUNC(display_value_callback);
+
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
 FAKE_VOID_FUNC(
     heartbeat_timeout_callback,
     enum HeartbeatOneHot,
     enum HeartbeatOneHot);
+
+FAKE_VALUE_FUNC(uint32_t, get_raw_paddle_position);
+
 FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
@@ -44,18 +49,11 @@ FAKE_VOID_FUNC(turn_off_imd_led);
 FAKE_VOID_FUNC(turn_on_bspd_led);
 FAKE_VOID_FUNC(turn_off_bspd_led);
 
-class DimStateMachineTest : public SevenSegDisplaysTest,
-                            public RegenPaddleTest,
-                            public RotarySwitchTest,
-                            public LedTest,
-                            public BinarySwitchTest
+class DimStateMachineTest : public testing::Test
 {
   protected:
     void SetUp() override
     {
-        SevenSegDisplaysTest::SetUp();
-        RegenPaddleTest::SetUp();
-
         constexpr uint32_t DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS = 500U;
         constexpr enum HeartbeatOneHot DEFAULT_HEARTBEAT_BOARDS_TO_CHECK =
             BMS_HEARTBEAT_ONE_HOT;
@@ -65,9 +63,23 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
             send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT);
         can_rx_interface = App_CanRx_Create();
 
+        left_seven_seg_display = App_SevenSegDisplay_Create(set_left_hex_digit);
+        middle_seven_seg_display =
+            App_SevenSegDisplay_Create(set_middle_hex_digit);
+        right_seven_seg_display =
+            App_SevenSegDisplay_Create(set_right_hex_digit);
+
+        seven_seg_displays = App_SevenSegDisplays_Create(
+            left_seven_seg_display, middle_seven_seg_display,
+            right_seven_seg_display, display_value_callback);
+
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             get_current_ms, DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS,
             DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
+
+        regen_paddle = App_RegenPaddle_Create(
+            get_raw_paddle_position, REGEN_PADDLE_LOWER_DEADZONE,
+            REGEN_PADDLE_UPPER_DEADZONE);
 
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
@@ -100,6 +112,10 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
         // Reset fake functions
         RESET_FAKE(send_non_periodic_msg_DIM_STARTUP);
         RESET_FAKE(send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT);
+        RESET_FAKE(set_right_hex_digit);
+        RESET_FAKE(set_middle_hex_digit);
+        RESET_FAKE(set_left_hex_digit);
+        RESET_FAKE(display_value_callback);
         RESET_FAKE(get_current_ms);
         RESET_FAKE(heartbeat_timeout_callback);
         RESET_FAKE(get_drive_mode_switch_position);
@@ -117,39 +133,23 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
 
     void TearDown() override
     {
-        ASSERT_TRUE(world != NULL);
-        App_DimWorld_Destroy(world);
-        world = NULL;
-
-        ASSERT_TRUE(can_tx_interface != NULL);
-        App_CanTx_Destroy(can_tx_interface);
-        can_tx_interface = NULL;
-
-        ASSERT_TRUE(can_rx_interface != NULL);
-        App_CanRx_Destroy(can_rx_interface);
-        can_rx_interface = NULL;
-
-        SevenSegDisplaysTest::TearDown();
-        RegenPaddleTest::TearDown();
-
-        ASSERT_TRUE(heartbeat_monitor != NULL);
-        App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
-        heartbeat_monitor = NULL;
-
-        ASSERT_TRUE(rgb_led_sequence != NULL);
-        App_SharedRgbLedSequence_Destroy(rgb_led_sequence);
-        rgb_led_sequence = NULL;
-
-        RotarySwitchTest::TearDownRotarySwitch(drive_mode_switch);
-        LedTest::TearDownLed(imd_led);
-        LedTest::TearDownLed(bspd_led);
-        BinarySwitchTest::TearDownBinarySwitch(start_switch);
-        BinarySwitchTest::TearDownBinarySwitch(traction_control_switch);
-        BinarySwitchTest::TearDownBinarySwitch(torque_vectoring_switch);
-
-        ASSERT_TRUE(state_machine != NULL);
-        App_SharedStateMachine_Destroy(state_machine);
-        state_machine = NULL;
+        TearDownObject(world, App_DimWorld_Destroy);
+        TearDownObject(state_machine, App_SharedStateMachine_Destroy);
+        TearDownObject(can_tx_interface, App_CanTx_Destroy);
+        TearDownObject(can_rx_interface, App_CanRx_Destroy);
+        TearDownObject(left_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(middle_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(right_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(seven_seg_displays, App_SevenSegDisplays_Destroy);
+        TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
+        TearDownObject(regen_paddle, App_RegenPaddle_Destroy);
+        TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
+        TearDownObject(drive_mode_switch, App_RotarySwitch_Destroy);
+        TearDownObject(imd_led, App_Led_Destroy);
+        TearDownObject(bspd_led, App_Led_Destroy);
+        TearDownObject(start_switch, App_BinarySwitch_Destroy);
+        TearDownObject(traction_control_switch, App_BinarySwitch_Destroy);
+        TearDownObject(torque_vectoring_switch, App_BinarySwitch_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -163,11 +163,16 @@ class DimStateMachineTest : public SevenSegDisplaysTest,
     }
 
     struct World *            world;
+    struct StateMachine *     state_machine;
     struct DimCanTxInterface *can_tx_interface;
     struct DimCanRxInterface *can_rx_interface;
-    struct StateMachine *     state_machine;
+    struct SevenSegDisplay *  left_seven_seg_display;
+    struct SevenSegDisplay *  middle_seven_seg_display;
+    struct SevenSegDisplay *  right_seven_seg_display;
+    struct SevenSegDisplays * seven_seg_displays;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
+    struct RegenPaddle *      regen_paddle;
     struct Led *              imd_led;
     struct Led *              bspd_led;
     struct BinarySwitch *     start_switch;

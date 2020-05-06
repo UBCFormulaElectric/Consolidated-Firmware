@@ -1,6 +1,5 @@
 #include <math.h>
 #include "Test_Pdm.h"
-#include "Test_InRangeCheck.h"
 
 extern "C"
 {
@@ -47,7 +46,7 @@ FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
 
-class PdmStateMachineTest : public InRangeCheckTest
+class PdmStateMachineTest : public testing::Test
 {
   protected:
     void SetUp() override
@@ -61,36 +60,50 @@ class PdmStateMachineTest : public InRangeCheckTest
             send_non_periodic_msg_PDM_AIR_SHUTDOWN,
             send_non_periodic_msg_PDM_MOTOR_SHUTDOWN,
             send_non_periodic_msg_PDM_WATCHDOG_TIMEOUT);
-        can_rx_interface   = App_CanRx_Create();
+
+        can_rx_interface = App_CanRx_Create();
+
         vbat_voltage_check = App_InRangeCheck_Create(
             GetVbatVoltage, VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE);
+
         _24v_aux_voltage_check = App_InRangeCheck_Create(
             Get24vAuxVoltage, _24V_AUX_MIN_VOLTAGE, _24V_AUX_MAX_VOLTAGE);
+
         _24v_acc_voltage_check = App_InRangeCheck_Create(
             Get24vAccVoltage, _24V_ACC_MIN_VOLTAGE, _24V_ACC_MAX_VOLTAGE);
+
         aux1_current_check = App_InRangeCheck_Create(
             GetAux1Current, AUX1_MIN_CURRENT, AUX1_MAX_CURRENT);
+
         aux2_current_check = App_InRangeCheck_Create(
             GetAux2Current, AUX2_MIN_CURRENT, AUX2_MAX_CURRENT);
+
         left_inverter_current_check = App_InRangeCheck_Create(
             GetLeftInverterCurrent, LEFT_INVERTER_MIN_CURRENT,
             LEFT_INVERTER_MAX_CURRENT);
+
         right_inverter_current_check = App_InRangeCheck_Create(
             GetRightInverterCurrent, RIGHT_INVERTER_MIN_CURRENT,
             RIGHT_INVERTER_MAX_CURRENT);
+
         energy_meter_current_check = App_InRangeCheck_Create(
             GetEnergyMeterCurrent, ENERGY_METER_MIN_CURRENT,
             ENERGY_METER_MAX_CURRENT);
+
         can_current_check = App_InRangeCheck_Create(
             GetCanCurrent, CAN_MIN_CURRENT, CAN_MAX_CURRENT);
+
         air_shutdown_current_check = App_InRangeCheck_Create(
             GetAirShutdownCurrent, AIR_SHUTDOWN_MIN_CURRENT,
             AIR_SHUTDOWN_MAX_CURRENT);
+
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             get_current_ms, DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS,
             DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
+
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
+
         world = App_PdmWorld_Create(
             can_tx_interface, can_rx_interface, vbat_voltage_check,
             _24v_aux_voltage_check, _24v_acc_voltage_check, aux1_current_check,
@@ -127,40 +140,22 @@ class PdmStateMachineTest : public InRangeCheckTest
 
     void TearDown() override
     {
-        InRangeCheckTest::TearDownInRangeCheck(vbat_voltage_check);
-        InRangeCheckTest::TearDownInRangeCheck(_24v_aux_voltage_check);
-        InRangeCheckTest::TearDownInRangeCheck(_24v_acc_voltage_check);
-        InRangeCheckTest::TearDownInRangeCheck(aux1_current_check);
-        InRangeCheckTest::TearDownInRangeCheck(aux2_current_check);
-        InRangeCheckTest::TearDownInRangeCheck(left_inverter_current_check);
-        InRangeCheckTest::TearDownInRangeCheck(right_inverter_current_check);
-        InRangeCheckTest::TearDownInRangeCheck(energy_meter_current_check);
-        InRangeCheckTest::TearDownInRangeCheck(can_current_check);
-        InRangeCheckTest::TearDownInRangeCheck(air_shutdown_current_check);
-
-        ASSERT_TRUE(world != NULL);
-        App_PdmWorld_Destroy(world);
-        world = NULL;
-
-        ASSERT_TRUE(can_tx_interface != NULL);
-        App_CanTx_Destroy(can_tx_interface);
-        can_tx_interface = NULL;
-
-        ASSERT_TRUE(can_rx_interface != NULL);
-        App_CanRx_Destroy(can_rx_interface);
-        can_rx_interface = NULL;
-
-        ASSERT_TRUE(state_machine != NULL);
-        App_SharedStateMachine_Destroy(state_machine);
-        state_machine = NULL;
-
-        ASSERT_TRUE(heartbeat_monitor != NULL);
-        App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
-        heartbeat_monitor = NULL;
-
-        ASSERT_TRUE(rgb_led_sequence != NULL);
-        App_SharedRgbLedSequence_Destroy(rgb_led_sequence);
-        rgb_led_sequence = NULL;
+        TearDownObject(world, App_PdmWorld_Destroy);
+        TearDownObject(can_tx_interface, App_CanTx_Destroy);
+        TearDownObject(can_rx_interface, App_CanRx_Destroy);
+        TearDownObject(vbat_voltage_check, App_InRangeCheck_Destroy);
+        TearDownObject(_24v_aux_voltage_check, App_InRangeCheck_Destroy);
+        TearDownObject(_24v_acc_voltage_check, App_InRangeCheck_Destroy);
+        TearDownObject(aux1_current_check, App_InRangeCheck_Destroy);
+        TearDownObject(aux2_current_check, App_InRangeCheck_Destroy);
+        TearDownObject(left_inverter_current_check, App_InRangeCheck_Destroy);
+        TearDownObject(right_inverter_current_check, App_InRangeCheck_Destroy);
+        TearDownObject(energy_meter_current_check, App_InRangeCheck_Destroy);
+        TearDownObject(can_current_check, App_InRangeCheck_Destroy);
+        TearDownObject(air_shutdown_current_check, App_InRangeCheck_Destroy);
+        TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
+        TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
+        TearDownObject(state_machine, App_SharedStateMachine_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)

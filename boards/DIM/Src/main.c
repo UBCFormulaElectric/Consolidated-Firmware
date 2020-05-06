@@ -31,6 +31,7 @@
 #include "App_Switches.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_DriveState.h"
+#include "App_RegenPaddleConfig.h"
 
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
@@ -189,8 +190,9 @@ int main(void)
         Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
         Io_HeartbeatMonitor_TimeoutCallback);
 
-    regen_paddle =
-        App_RegenPaddle_Create(Io_RegenPaddle_GetPaddlePosition, 5, 95);
+    regen_paddle = App_RegenPaddle_Create(
+        Io_RegenPaddle_GetPaddlePosition, REGEN_PADDLE_LOWER_DEADZONE,
+        REGEN_PADDLE_UPPER_DEADZONE);
 
     rgb_led_sequence = App_SharedRgbLedSequence_Create(
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,

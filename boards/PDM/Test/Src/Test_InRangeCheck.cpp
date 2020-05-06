@@ -1,5 +1,5 @@
 #include <math.h>
-#include "Test_InRangeCheck.h"
+#include "Test_Pdm.h"
 
 extern "C"
 {
@@ -8,29 +8,28 @@ extern "C"
 
 FAKE_VALUE_FUNC(float, get_value);
 
-void InRangeCheckTest::TearDownInRangeCheck(
-    struct InRangeCheck *&in_range_check_to_teardown)
+class InRangeCheckTest : public virtual testing::Test
 {
-    ASSERT_TRUE(in_range_check_to_teardown != NULL);
-    App_InRangeCheck_Destroy(in_range_check_to_teardown);
-    in_range_check_to_teardown = NULL;
-}
+  protected:
+    void SetUp() override
+    {
+        in_range_check = App_InRangeCheck_Create(
+            get_value, DEFAULT_IN_RANGE_CHECK_MIN_VALUE,
+            DEFAULT_IN_RANGE_CHECK_MAX_VALUE);
 
-void InRangeCheckTest::SetUp()
-{
-    in_range_check = App_InRangeCheck_Create(
-        get_value, DEFAULT_IN_RANGE_CHECK_MIN_VALUE,
-        DEFAULT_IN_RANGE_CHECK_MAX_VALUE);
+        RESET_FAKE(get_value);
+    }
 
-    RESET_FAKE(get_value);
-}
+    void TearDown() override
+    {
+        TearDownObject(in_range_check, App_InRangeCheck_Destroy);
+    }
 
-void InRangeCheckTest::TearDown()
-{
-    ASSERT_TRUE(in_range_check != NULL);
-    App_InRangeCheck_Destroy(in_range_check);
-    in_range_check = NULL;
-}
+    struct InRangeCheck *in_range_check;
+
+    const float DEFAULT_IN_RANGE_CHECK_MIN_VALUE = 5.0f;
+    const float DEFAULT_IN_RANGE_CHECK_MAX_VALUE = 6.0f;
+};
 
 TEST_F(InRangeCheckTest, value_in_range)
 {
