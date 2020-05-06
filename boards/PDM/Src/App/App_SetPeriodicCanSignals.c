@@ -1,7 +1,41 @@
 #include "App_SharedSetPeriodicCanSignals.h"
 #include "App_SetPeriodicCanSignals.h"
 
-STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(PdmCanTxInterface)
+// STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(PdmCanTxInterface)
+static void App_SetPeriodicCanSignals_InRangeCheck(
+    struct PdmCanTxInterface *const  can_tx,
+    const struct InRangeCheck *const in_range_check,
+    void (*const can_signal_setter)(struct PdmCanTxInterface *, float),
+    void (*const out_of_range_setter)(struct PdmCanTxInterface *, uint8_t),
+    uint8_t in_range_choice,
+    uint8_t underflow_choice,
+    uint8_t overflow_choice)
+{
+    float                    value;
+    enum InRangeCheck_Status status =
+        App_InRangeCheck_GetValue(in_range_check, &value);
+
+    switch (status)
+    {
+        case VALUE_IN_RANGE:
+        {
+            out_of_range_setter(can_tx, in_range_choice);
+        }
+        break;
+        case VALUE_UNDERFLOW:
+        {
+            out_of_range_setter(can_tx, underflow_choice);
+        }
+        break;
+        case VALUE_OVERFLOW:
+        {
+            out_of_range_setter(can_tx, overflow_choice);
+        }
+        break;
+    }
+
+    can_signal_setter(can_tx, value);
+}
 
 void App_SetPeriodicCanSignals_CurrentChecks(struct PdmWorld *world)
 {
@@ -63,7 +97,7 @@ void App_SetPeriodicCanSignals_CurrentChecks(struct PdmWorld *world)
         CANMSGS_PDM_ERRORS_ENERGY_METER_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, can_current_check, App_CanTx_SetPeriodicSignal_GLV_CURRENT,
+        can_tx, can_current_check, App_CanTx_SetPeriodicSignal_CAN_CURRENT,
         App_CanTx_SetPeriodicSignal_CAN_CURRENT_OUT_OF_RANGE,
         CANMSGS_PDM_ERRORS_CAN_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE,
         CANMSGS_PDM_ERRORS_CAN_CURRENT_OUT_OF_RANGE_UNDERFLOW_CHOICE,
@@ -91,10 +125,10 @@ void App_SetPeriodicCanSignals_VoltageChecks(struct PdmWorld *world)
 
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, vbat_voltage_check, App_CanTx_SetPeriodicSignal_VBAT,
-        App_CanTx_SetPeriodicSignal_VBAT_VOLATGE_OUT_OF_RANGE,
-        CANMSGS_PDM_ERRORS_VBAT_VOLATGE_OUT_OF_RANGE_IN_RANGE_CHOICE,
-        CANMSGS_PDM_ERRORS_VBAT_VOLATGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-        CANMSGS_PDM_ERRORS_VBAT_VOLATGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+        App_CanTx_SetPeriodicSignal_VBAT_VOLTAGE_OUT_OF_RANGE,
+        CANMSGS_PDM_ERRORS_VBAT_VOLTAGE_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS_VBAT_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_PDM_ERRORS_VBAT_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, _24v_aux_voltage_check, App_CanTx_SetPeriodicSignal__24_V_AUX,

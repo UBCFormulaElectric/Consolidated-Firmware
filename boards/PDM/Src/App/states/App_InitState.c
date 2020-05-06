@@ -27,7 +27,7 @@ static void InitStateRunOnTick(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_LEFT_INVERTER_CURRENT(can_tx, NAN);
     App_CanTx_SetPeriodicSignal_RIGHT_INVERTER_CURRENT(can_tx, NAN);
     App_CanTx_SetPeriodicSignal_ENERGY_METER_CURRENT(can_tx, NAN);
-    App_CanTx_SetPeriodicSignal_GLV_CURRENT(can_tx, NAN);
+    App_CanTx_SetPeriodicSignal_CAN_CURRENT(can_tx, NAN);
     App_CanTx_SetPeriodicSignal_AIR_SHUTDOWN_CURRENT(can_tx, NAN);
 }
 

@@ -1,13 +1,13 @@
 #pragma once
 
 /**
- * Get the Auxiliary 1 current, in amps
+ * Get the auxiliary 1 current, in amps
  * @return The auxiliary 1 current, in amps
  */
 float Io_CurrentSense_GetAux1Current(void);
 
 /**
- * Get the Auxiliary 2 current, in amps
+ * Get the auxiliary 2 current, in amps
  * @return The auxiliary 2 current, in amps
  */
 float Io_CurrentSense_GetAux2Current(void);

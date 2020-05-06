@@ -71,7 +71,7 @@ class PdmStateMachineTest : public InRangeCheckTest
         aux1_current_check = App_InRangeCheck_Create(
             GetAux1Current, AUX1_MIN_CURRENT, AUX1_MAX_CURRENT);
         aux2_current_check = App_InRangeCheck_Create(
-            GetAux1Current, AUX2_MIN_CURRENT, AUX2_MAX_CURRENT);
+            GetAux2Current, AUX2_MIN_CURRENT, AUX2_MAX_CURRENT);
         left_inverter_current_check = App_InRangeCheck_Create(
             GetLeftInverterCurrent, LEFT_INVERTER_MIN_CURRENT,
             LEFT_INVERTER_MAX_CURRENT);
@@ -84,7 +84,8 @@ class PdmStateMachineTest : public InRangeCheckTest
         can_current_check = App_InRangeCheck_Create(
             GetCanCurrent, CAN_MIN_CURRENT, CAN_MAX_CURRENT);
         air_shutdown_current_check = App_InRangeCheck_Create(
-            GetAirShutdownCurrent, AIR_SHDN_MIN_CURRENT, AIR_SHDN_MAX_CURRENT);
+            GetAirShutdownCurrent, AIR_SHUTDOWN_MIN_CURRENT,
+            AIR_SHUTDOWN_MAX_CURRENT);
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             get_current_ms, DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS,
             DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
@@ -149,18 +150,6 @@ class PdmStateMachineTest : public InRangeCheckTest
         App_CanRx_Destroy(can_rx_interface);
         can_rx_interface = NULL;
 
-        ASSERT_TRUE(vbat_voltage_monitor != NULL);
-        App_VoltageMonitor_Destroy(vbat_voltage_monitor);
-        vbat_voltage_monitor = NULL;
-
-        ASSERT_TRUE(_24v_aux_voltage_monitor != NULL);
-        App_VoltageMonitor_Destroy(_24v_aux_voltage_monitor);
-        _24v_aux_voltage_monitor = NULL;
-
-        ASSERT_TRUE(_24v_acc_voltage_monitor != NULL);
-        App_VoltageMonitor_Destroy(_24v_acc_voltage_monitor);
-        _24v_acc_voltage_monitor = NULL;
-
         ASSERT_TRUE(state_machine != NULL);
         App_SharedStateMachine_Destroy(state_machine);
         state_machine = NULL;
@@ -207,9 +196,12 @@ class PdmStateMachineTest : public InRangeCheckTest
         float  min_current,
         float  max_current,
         float &fake_current,
-        float (*current_can_signal_getter)(struct PdmCanTxInterface *),
-        uint8_t (*undercurrent_can_signal_getter)(struct PdmCanTxInterface *),
-        uint8_t (*overcurrent_can_signal_getter)(struct PdmCanTxInterface *))
+        float (*current_can_signal_getter)(const struct PdmCanTxInterface *),
+        uint8_t (*out_of_range_can_signal_getter)(
+            const struct PdmCanTxInterface *),
+        uint8_t in_range_choice,
+        uint8_t underflow_choice,
+        uint8_t overflow_choice)
     {
         for (auto &state : GetAllStatesExceptForInit())
         {
@@ -220,8 +212,9 @@ class PdmStateMachineTest : public InRangeCheckTest
             App_SharedStateMachine_Tick(state_machine);
             EXPECT_EQ(
                 fake_current, current_can_signal_getter(can_tx_interface));
-            EXPECT_EQ(undercurrent_can_signal_getter(can_tx_interface), false);
-            EXPECT_EQ(overcurrent_can_signal_getter(can_tx_interface), false);
+            EXPECT_EQ(
+                in_range_choice,
+                out_of_range_can_signal_getter(can_tx_interface));
 
             // Under-current
             fake_current = std::nextafter(
@@ -229,8 +222,9 @@ class PdmStateMachineTest : public InRangeCheckTest
             App_SharedStateMachine_Tick(state_machine);
             EXPECT_EQ(
                 fake_current, current_can_signal_getter(can_tx_interface));
-            EXPECT_EQ(undercurrent_can_signal_getter(can_tx_interface), true);
-            EXPECT_EQ(overcurrent_can_signal_getter(can_tx_interface), false);
+            EXPECT_EQ(
+                underflow_choice,
+                out_of_range_can_signal_getter(can_tx_interface));
 
             // Over-current
             fake_current =
@@ -238,8 +232,9 @@ class PdmStateMachineTest : public InRangeCheckTest
             App_SharedStateMachine_Tick(state_machine);
             EXPECT_EQ(
                 fake_current, current_can_signal_getter(can_tx_interface));
-            EXPECT_EQ(undercurrent_can_signal_getter(can_tx_interface), true);
-            EXPECT_EQ(overcurrent_can_signal_getter(can_tx_interface), true);
+            EXPECT_EQ(
+                overflow_choice,
+                out_of_range_can_signal_getter(can_tx_interface));
         }
     }
 
@@ -247,44 +242,49 @@ class PdmStateMachineTest : public InRangeCheckTest
         float  min_current,
         float  max_current,
         float &fake_current,
-        float (*current_can_signal_getter)(struct PdmCanTxInterface *),
-        uint8_t (*undercurrent_can_signal_getter)(struct PdmCanTxInterface *),
-        uint8_t (*overcurrent_can_signal_getter)(struct PdmCanTxInterface *))
+        float (*current_can_signal_getter)(const struct PdmCanTxInterface *),
+        uint8_t (*out_of_range_can_signal_getter)(
+            const struct PdmCanTxInterface *),
+        uint8_t in_range_choice)
     {
-        // The INIT state is unique because the load switches are not ready
-        // to be used yet so we expect NAN to be set
+        // In the INIT state, the load switches aren't ready yet. Therefore, the
+        // current readings reported by the IO layer are assumed to be garbage.
+        // To get around this, we simply hard-code the CAN TX current signals
+        // as NAN in the INIT state.
+
         SetInitialState(App_GetInitState());
 
         // Normal Value
         fake_current = (min_current + max_current) / 2;
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_TRUE(isnanf(current_can_signal_getter(can_tx_interface)));
-        EXPECT_EQ(undercurrent_can_signal_getter(can_tx_interface), false);
-        EXPECT_EQ(overcurrent_can_signal_getter(can_tx_interface), false);
+        EXPECT_EQ(
+            in_range_choice, out_of_range_can_signal_getter(can_tx_interface));
 
         // Under-current
         fake_current =
             std::nextafter(min_current, std::numeric_limits<float>::lowest());
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_TRUE(isnanf(current_can_signal_getter(can_tx_interface)));
-        EXPECT_EQ(undercurrent_can_signal_getter(can_tx_interface), false);
-        EXPECT_EQ(overcurrent_can_signal_getter(can_tx_interface), false);
+        EXPECT_EQ(
+            in_range_choice, out_of_range_can_signal_getter(can_tx_interface));
 
         // Over-current
         fake_current =
             std::nextafter(max_current, std::numeric_limits<float>::max());
         App_SharedStateMachine_Tick(state_machine);
         EXPECT_TRUE(isnanf(current_can_signal_getter(can_tx_interface)));
-        EXPECT_EQ(undercurrent_can_signal_getter(can_tx_interface), false);
-        EXPECT_EQ(overcurrent_can_signal_getter(can_tx_interface), false);
+        EXPECT_EQ(
+            in_range_choice, out_of_range_can_signal_getter(can_tx_interface));
     }
 
     void CheckVoltageCanSignalsInAllStates(
         float  min_voltage,
         float  max_voltage,
         float &fake_voltage,
-        float (*voltage_can_signal_getter)(struct PdmCanTxInterface *),
-        uint8_t (*out_of_range_can_signal_getter)(struct PdmCanTxInterface *),
+        float (*voltage_can_signal_getter)(const struct PdmCanTxInterface *),
+        uint8_t (*out_of_range_can_signal_getter)(
+            const struct PdmCanTxInterface *),
         uint8_t in_range_choice,
         uint8_t underflow_choice,
         uint8_t overflow_choice)
@@ -374,10 +374,32 @@ TEST_F(PdmStateMachineTest, check_vbat_voltage_can_signals_in_all_states)
     CheckVoltageCanSignalsInAllStates(
         VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE, GetVbatVoltage_fake.return_val,
         App_CanTx_GetPeriodicSignal_VBAT,
-        App_CanTx_GetPeriodicSignal_VBAT_VOLATGE_OUT_OF_RANGE,
-        CANMSGS_PDM_ERRORS_VBAT_VOLATGE_OUT_OF_RANGE_IN_RANGE_CHOICE,
-        CANMSGS_PDM_ERRORS_VBAT_VOLATGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-        CANMSGS_PDM_ERRORS_VBAT_VOLATGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+        App_CanTx_GetPeriodicSignal_VBAT_VOLTAGE_OUT_OF_RANGE,
+        CANMSGS_PDM_ERRORS_VBAT_VOLTAGE_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS_VBAT_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_PDM_ERRORS_VBAT_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+}
+
+TEST_F(PdmStateMachineTest, check_24v_aux_voltage_can_signals_in_all_states)
+{
+    CheckVoltageCanSignalsInAllStates(
+        _24V_AUX_MIN_VOLTAGE, _24V_AUX_MAX_VOLTAGE,
+        Get24vAuxVoltage_fake.return_val, App_CanTx_GetPeriodicSignal__24_V_AUX,
+        App_CanTx_GetPeriodicSignal__24_V_AUX_VOLTAGE_OUT_OF_RANGE,
+        CANMSGS_PDM_ERRORS__24_V_AUX_VOLTAGE_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS__24_V_AUX_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_PDM_ERRORS__24_V_AUX_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+}
+
+TEST_F(PdmStateMachineTest, check_24v_acc_voltage_can_signals_in_all_states)
+{
+    CheckVoltageCanSignalsInAllStates(
+        _24V_ACC_MIN_VOLTAGE, _24V_ACC_MAX_VOLTAGE,
+        Get24vAccVoltage_fake.return_val, App_CanTx_GetPeriodicSignal__24_V_ACC,
+        App_CanTx_GetPeriodicSignal__24_V_ACC_VOLTAGE_OUT_OF_RANGE,
+        CANMSGS_PDM_ERRORS__24_V_ACC_VOLTAGE_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS__24_V_ACC_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_PDM_ERRORS__24_V_ACC_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
 TEST_F(PdmStateMachineTest, check_aux1_current_can_signals_in_non_init_states)
@@ -396,6 +418,150 @@ TEST_F(PdmStateMachineTest, check_aux1_current_can_signals_in_init_state)
     CheckCurrentCanSignalsInInitState(
         AUX1_MIN_CURRENT, AUX1_MAX_CURRENT, GetAux1Current_fake.return_val,
         App_CanTx_GetPeriodicSignal_AUXILIARY1_CURRENT,
-        App_CanTx_GetPeriodicSignal_UNDERCURRENT_AUX_1,
-        App_CanTx_GetPeriodicSignal_OVERCURRENT_AUX_1);
+        App_CanTx_GetPeriodicSignal_AUX1_CURRENT_OUT_OF_RANGE,
+        CANMSGS_PDM_ERRORS_AUX1_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE);
+}
+
+TEST_F(PdmStateMachineTest, check_aux2_current_can_signals_in_non_init_states)
+{
+    CheckCurrentCanSignalsInNonInitStates(
+        AUX2_MIN_CURRENT, AUX2_MAX_CURRENT, GetAux2Current_fake.return_val,
+        App_CanTx_GetPeriodicSignal_AUXILIARY2_CURRENT,
+        App_CanTx_GetPeriodicSignal_AUX2_CURRENT_OUT_OF_RANGE,
+        CANMSGS_PDM_ERRORS_AUX2_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS_AUX2_CURRENT_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_PDM_ERRORS_AUX2_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
+}
+
+TEST_F(PdmStateMachineTest, check_aux2_current_can_signals_in_init_state)
+{
+    CheckCurrentCanSignalsInInitState(
+        AUX2_MIN_CURRENT, AUX2_MAX_CURRENT, GetAux2Current_fake.return_val,
+        App_CanTx_GetPeriodicSignal_AUXILIARY2_CURRENT,
+        App_CanTx_GetPeriodicSignal_AUX2_CURRENT_OUT_OF_RANGE,
+        CANMSGS_PDM_ERRORS_AUX2_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE);
+}
+
+TEST_F(
+    PdmStateMachineTest,
+    check_left_inverter_current_can_signals_in_non_init_states)
+{
+    CheckCurrentCanSignalsInNonInitStates(
+        LEFT_INVERTER_MIN_CURRENT, LEFT_INVERTER_MAX_CURRENT,
+        GetLeftInverterCurrent_fake.return_val,
+        App_CanTx_GetPeriodicSignal_LEFT_INVERTER_CURRENT,
+        App_CanTx_GetPeriodicSignal_LEFT_INVERTER_CURRENT_OUT_OF_RANGE,
+        CANMSGS_PDM_ERRORS_LEFT_INVERTER_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS_LEFT_INVERTER_CURRENT_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_PDM_ERRORS_LEFT_INVERTER_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
+}
+
+TEST_F(
+    PdmStateMachineTest,
+    check_left_inverter_current_can_signals_in_init_state)
+{
+    CheckCurrentCanSignalsInInitState(
+        LEFT_INVERTER_MIN_CURRENT, LEFT_INVERTER_MAX_CURRENT,
+        GetLeftInverterCurrent_fake.return_val,
+        App_CanTx_GetPeriodicSignal_LEFT_INVERTER_CURRENT,
+        App_CanTx_GetPeriodicSignal_LEFT_INVERTER_CURRENT_OUT_OF_RANGE,
+        CANMSGS_PDM_ERRORS_LEFT_INVERTER_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE);
+}
+
+TEST_F(
+    PdmStateMachineTest,
+    check_right_inverter_current_can_signals_in_non_init_states)
+{
+    CheckCurrentCanSignalsInNonInitStates(
+        RIGHT_INVERTER_MIN_CURRENT, RIGHT_INVERTER_MAX_CURRENT,
+        GetRightInverterCurrent_fake.return_val,
+        App_CanTx_GetPeriodicSignal_RIGHT_INVERTER_CURRENT,
+        App_CanTx_GetPeriodicSignal_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE,
+        CANMSGS_PDM_ERRORS_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_PDM_ERRORS_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
+}
+
+TEST_F(
+    PdmStateMachineTest,
+    check_right_inverter_current_can_signals_in_init_state)
+{
+    CheckCurrentCanSignalsInInitState(
+        RIGHT_INVERTER_MIN_CURRENT, RIGHT_INVERTER_MAX_CURRENT,
+        GetRightInverterCurrent_fake.return_val,
+        App_CanTx_GetPeriodicSignal_RIGHT_INVERTER_CURRENT,
+        App_CanTx_GetPeriodicSignal_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE,
+        CANMSGS_PDM_ERRORS_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE);
+}
+
+TEST_F(
+    PdmStateMachineTest,
+    check_energy_meter_current_can_signals_in_non_init_states)
+{
+    CheckCurrentCanSignalsInNonInitStates(
+        ENERGY_METER_MIN_CURRENT, ENERGY_METER_MAX_CURRENT,
+        GetEnergyMeterCurrent_fake.return_val,
+        App_CanTx_GetPeriodicSignal_ENERGY_METER_CURRENT,
+        App_CanTx_GetPeriodicSignal_ENERGY_METER_CURRENT_OUT_OF_RANGE,
+        CANMSGS_PDM_ERRORS_ENERGY_METER_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS_ENERGY_METER_CURRENT_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_PDM_ERRORS_ENERGY_METER_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
+}
+
+TEST_F(
+    PdmStateMachineTest,
+    check_energy_meter_current_can_signals_in_init_state)
+{
+    CheckCurrentCanSignalsInInitState(
+        ENERGY_METER_MIN_CURRENT, ENERGY_METER_MAX_CURRENT,
+        GetEnergyMeterCurrent_fake.return_val,
+        App_CanTx_GetPeriodicSignal_ENERGY_METER_CURRENT,
+        App_CanTx_GetPeriodicSignal_ENERGY_METER_CURRENT_OUT_OF_RANGE,
+        CANMSGS_PDM_ERRORS_ENERGY_METER_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE);
+}
+
+TEST_F(PdmStateMachineTest, check_can_current_can_signals_in_non_init_states)
+{
+    CheckCurrentCanSignalsInNonInitStates(
+        CAN_MIN_CURRENT, CAN_MAX_CURRENT, GetCanCurrent_fake.return_val,
+        App_CanTx_GetPeriodicSignal_CAN_CURRENT,
+        App_CanTx_GetPeriodicSignal_CAN_CURRENT_OUT_OF_RANGE,
+        CANMSGS_PDM_ERRORS_CAN_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS_CAN_CURRENT_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_PDM_ERRORS_CAN_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
+}
+
+TEST_F(PdmStateMachineTest, check_can_current_can_signals_in_init_state)
+{
+    CheckCurrentCanSignalsInInitState(
+        CAN_MIN_CURRENT, CAN_MAX_CURRENT, GetCanCurrent_fake.return_val,
+        App_CanTx_GetPeriodicSignal_CAN_CURRENT,
+        App_CanTx_GetPeriodicSignal_CAN_CURRENT_OUT_OF_RANGE,
+        CANMSGS_PDM_ERRORS_CAN_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE);
+}
+
+TEST_F(
+    PdmStateMachineTest,
+    check_air_shutdown_current_can_signals_in_non_init_states)
+{
+    CheckCurrentCanSignalsInNonInitStates(
+        AIR_SHUTDOWN_MIN_CURRENT, AIR_SHUTDOWN_MAX_CURRENT,
+        GetAirShutdownCurrent_fake.return_val,
+        App_CanTx_GetPeriodicSignal_AIR_SHUTDOWN_CURRENT,
+        App_CanTx_GetPeriodicSignal_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE,
+        CANMSGS_PDM_ERRORS_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_PDM_ERRORS_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
+}
+
+TEST_F(
+    PdmStateMachineTest,
+    check_air_shutdown_current_can_signals_in_init_state)
+{
+    CheckCurrentCanSignalsInInitState(
+        AIR_SHUTDOWN_MIN_CURRENT, AIR_SHUTDOWN_MAX_CURRENT,
+        GetAirShutdownCurrent_fake.return_val,
+        App_CanTx_GetPeriodicSignal_AIR_SHUTDOWN_CURRENT,
+        App_CanTx_GetPeriodicSignal_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE,
+        CANMSGS_PDM_ERRORS_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE);
 }

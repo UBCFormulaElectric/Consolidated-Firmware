@@ -215,8 +215,8 @@ int main(void)
         Io_CurrentSense_GetCanCurrent, CAN_MIN_CURRENT, CAN_MAX_CURRENT);
 
     air_shutdown_current_check = App_InRangeCheck_Create(
-        Io_CurrentSense_GetAirShutdownCurrent, AIR_SHDN_MIN_CURRENT,
-        AIR_SHDN_MAX_CURRENT);
+        Io_CurrentSense_GetAirShutdownCurrent, AIR_SHUTDOWN_MIN_CURRENT,
+        AIR_SHUTDOWN_MAX_CURRENT);
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
