@@ -142,11 +142,12 @@ function(create_arm_binary
             ${SHARED_APP_INCLUDE_DIRS}
             ${SHARED_IO_INCLUDE_DIRS}
         )
-    # Suppress header file warnings for STM32CubeMX drivers by marking them as 
-    # system includes
+    # Suppress header file warnings for STM32CubeMX drivers third-party IO code
+    # by marking them as system includes
     target_include_directories(${BOARD_NAME}.elf SYSTEM
         PRIVATE
             ${STM32CUBEMX_DRIVER_INCLUDE_DIRS}
+            ${SHARED_IO_THIRD_PARTY_INCLUDE_DIRS}
         )
     # Suppress source file warnings for STM32CubeMX drivers, syscalls.c, and any
     # third-party IO code we do not want to modify.
