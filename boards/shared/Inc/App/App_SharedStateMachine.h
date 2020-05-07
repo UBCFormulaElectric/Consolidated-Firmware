@@ -33,9 +33,8 @@ struct StateMachine *App_SharedStateMachine_Create(
     const struct State *initial_state);
 
 /**
- * Destroy the given state machine, freeing the memory associated with it
- *
- * @param state_machine The state machine to destroy
+ * Deallocate the memory used by the given state machine
+ * @param state_machine The state machine to deallocate
  */
 void App_SharedStateMachine_Destroy(struct StateMachine *state_machine);
 
