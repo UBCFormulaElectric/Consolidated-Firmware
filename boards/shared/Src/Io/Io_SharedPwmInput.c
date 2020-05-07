@@ -1,3 +1,4 @@
+#pragma GCC diagnostic ignored "-Wconversion"
 #include <assert.h>
 #include "Io_SharedPwmInput.h"
 

@@ -183,6 +183,7 @@ function(create_arm_binary
             -Wshadow
             -Wundef
             -fstack-usage
+            -Wconversion
         )
     target_link_options(${BOARD_NAME}.elf
         PUBLIC

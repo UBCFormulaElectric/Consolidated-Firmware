@@ -90,10 +90,10 @@ static float App_GetIdealPwmFrequency(const enum Imd_Condition condition)
 
     // Key: IMD condition
     // Value: PWM output frequency
-    static const uint32_t imd_frequency_lookup[NUM_OF_IMD_CONDITIONS] = {
-        [IMD_SHORT_CIRCUIT] = 0U,          [IMD_NORMAL] = 10U,
-        [IMD_UNDERVOLTAGE_DETECTED] = 20U, [IMD_SST] = 30U,
-        [IMD_DEVICE_ERROR] = 40U,          [IMD_EARTH_FAULT] = 50U,
+    static const float imd_frequency_lookup[NUM_OF_IMD_CONDITIONS] = {
+        [IMD_SHORT_CIRCUIT] = 0.0f,          [IMD_NORMAL] = 10.0f,
+        [IMD_UNDERVOLTAGE_DETECTED] = 20.0f, [IMD_SST] = 30.0f,
+        [IMD_DEVICE_ERROR] = 40.0f,          [IMD_EARTH_FAULT] = 50.0f,
     };
 
     return imd_frequency_lookup[condition];
@@ -171,12 +171,12 @@ void App_Imd_Tick(struct Imd *const imd)
                     // resistance exceeds 50Ohms once the duty cycle is below
                     // ~7.1%. Thus, we manually saturate the value at 50MOhms to
                     // get well-defined behaviours.
-                    uint32_t resistance =
+                    uint32_t resistance = (uint32_t)(
                         1080.0f / (imd->pwm_duty_cycle / 100.0f - 0.05f) -
-                        1200.0f;
+                        1200.0f);
 
                     imd->pwm_encoding.insulation_measurement_dcp_kohms =
-                        min(resistance, 50000);
+                        (uint16_t)min(resistance, 50000);
                 }
             }
         }
@@ -237,9 +237,9 @@ float App_Imd_GetPwmDutyCycle(const struct Imd *const imd)
     return imd->pwm_duty_cycle;
 }
 
-uint32_t App_Imd_GetSecondsSincePowerOn(const struct Imd *const imd)
+uint8_t App_Imd_GetSecondsSincePowerOn(const struct Imd *const imd)
 {
-    return imd->seconds_since_power_on;
+    return (uint8_t)imd->seconds_since_power_on;
 }
 
 enum Imd_Condition App_Imd_GetCondition(const struct Imd *const imd)

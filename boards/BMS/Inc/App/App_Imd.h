@@ -85,7 +85,7 @@ float App_Imd_GetPwmDutyCycle(const struct Imd *imd);
  * @param imd The IMD to get seconds since power on for
  * @return The seconds since power on for the given IMD
  */
-uint32_t App_Imd_GetSecondsSincePowerOn(const struct Imd *imd);
+uint8_t App_Imd_GetSecondsSincePowerOn(const struct Imd *imd);
 
 /**
  * Get the condition for the given IMD

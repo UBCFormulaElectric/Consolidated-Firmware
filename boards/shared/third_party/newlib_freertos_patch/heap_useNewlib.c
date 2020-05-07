@@ -1,3 +1,4 @@
+#pragma GCC diagnostic ignored "-Wsign-conversion"
 // clang-format off
 /**
  * \file heap_useNewlib.c

@@ -117,7 +117,8 @@ void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *const pwm_input)
         {
             rising_edge_delta = curr_rising_edge - prev_rising_edge;
             Io_SetFrequency(
-                pwm_input, pwm_input->tim_frequency_hz / rising_edge_delta);
+                pwm_input,
+                pwm_input->tim_frequency_hz / (float)rising_edge_delta);
         }
         else if (curr_rising_edge < prev_rising_edge)
         {
@@ -126,7 +127,7 @@ void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *const pwm_input)
                                 prev_rising_edge + curr_rising_edge + 1;
             Io_SetFrequency(
                 pwm_input,
-                (float)pwm_input->tim_frequency_hz / rising_edge_delta);
+                (float)pwm_input->tim_frequency_hz / (float)rising_edge_delta);
         }
         else
         {
