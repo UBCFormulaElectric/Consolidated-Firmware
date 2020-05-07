@@ -170,7 +170,7 @@ function(create_arm_binary
             -mthumb-interwork
             -ffunction-sections
             -fdata-sections
-            -g
+            -g3
             -fno-common
             -fmessage-length=0
             -Wall
