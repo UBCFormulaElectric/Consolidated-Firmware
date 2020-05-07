@@ -12,7 +12,7 @@ set(ARM_BINARY_IO_INCLUDE_DIRS
 set(ARM_BINARY_IO_SYSCALLS_SRC "Src/syscalls.c")
 set(ARM_LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/STM32F302CCTx_FLASH.ld")
 
-set(STM32CUBEMX_DRIVER_INCLUDE_DIRS
+set(ARM_BINARY_IO_THIRD_PARTY_INCLUDE_DIRS
         "Drivers/STM32F3xx_HAL_Driver/Inc"
         "Drivers/STM32F3xx_HAL_Driver/Inc/Legacy"
         "Middlewares/Third_Party/FreeRTOS/Source/include"
@@ -21,7 +21,7 @@ set(STM32CUBEMX_DRIVER_INCLUDE_DIRS
         "Drivers/CMSIS/Device/ST/STM32F3xx/Include"
         "Drivers/CMSIS/Include"
         )
-file(GLOB_RECURSE STM32CUBEMX_DRIVER_SRCS
+file(GLOB_RECURSE ARM_BINARY_IO_THIRD_PARTY_SRCS
         "Middlewares/*.c"
         "Drivers/*.c"
         )
@@ -42,8 +42,8 @@ create_arm_binary_or_tests_for_board(
     "${ARM_BINARY_IO_SYSCALLS_SRC}"
     "${ARM_LINKER_SCRIPT}"
     "${STM32_DEVICE_TYPE}"
-    "${STM32CUBEMX_DRIVER_SRCS}"
-    "${STM32CUBEMX_DRIVER_INCLUDE_DIRS}"
+    "${ARM_BINARY_IO_THIRD_PARTY_SRCS}"
+    "${ARM_BINARY_IO_THIRD_PARTY_INCLUDE_DIRS}"
     "${GOOGLETEST_TEST_SRCS}"
     "${GOOGLETEST_TEST_INCLUDE_DIRS}"
 )
