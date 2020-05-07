@@ -167,19 +167,22 @@ function(create_arm_binary
         PUBLIC
             ${FPU_FLAGS}
             -mthumb
-            -mthumb-interwork 
-            -ffunction-sections 
+            -mthumb-interwork
+            -ffunction-sections
             -fdata-sections
-            -g 
-            -fno-common 
-            -fmessage-length=0 
-            -Wall 
-            -Werror 
+            -g
+            -fno-common
+            -fmessage-length=0
+            -Wall
+            -Werror
             -Wextra
             -pedantic
-            -specs=nosys.specs 
+            -specs=nosys.specs
             -specs=nano.specs
             -Wdouble-promotion
+            -Wshadow
+            -Wundef
+            -fstack-usage
         )
     target_link_options(${BOARD_NAME}.elf
         PUBLIC
