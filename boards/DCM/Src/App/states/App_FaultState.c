@@ -25,8 +25,8 @@ const struct State *App_GetFaultState(void)
     static struct State fault_state = {
         .name             = "FAULT",
         .run_on_entry     = FaultStateRunOnEntry,
-        .run_on_tick_1Hz = FaultStateRunOnTick,
-        .run_on_tick_1kHz = NULL,
+        .run_on_tick_1Hz = NULL,
+        .run_on_tick_1kHz = FaultStateRunOnTick,
         .run_on_exit      = FaultStateRunOnExit,
     };
 
