@@ -27,7 +27,8 @@ const struct State *App_GetInitState(void)
     static struct State init_state = {
         .name         = "INIT",
         .run_on_entry = InitStateRunOnEntry,
-        .run_on_tick  = InitStateRunOnTick,
+        .run_on_tick_1Hz = InitStateRunOnTick,
+        .run_on_tick_1kHz = NULL,
         .run_on_exit  = InitStateRunOnExit,
     };
 

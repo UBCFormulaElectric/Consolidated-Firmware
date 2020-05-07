@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include "App_SharedStateMachine.h"
 
@@ -9,6 +10,38 @@ struct StateMachine
     const struct State *current_state;
     struct World *      world;
 };
+
+/**
+ * Run the given tick function over the given state machine if the tick function
+ * is not null
+ *
+ * @param state_machine The state machine to run the tick function over
+ * @param tick_function The tick function to run over the state machine
+ */
+void App_SharedStateMachine_RunStateTickFunctionIfNotNull(
+    struct StateMachine *const state_machine,
+    void (*tick_function)(struct StateMachine *))
+{
+    if (tick_function == NULL)
+    {
+        // Nothing to do
+        return;
+    }
+
+    tick_function(state_machine);
+
+    // Check if we should transition states
+    if (state_machine->next_state != state_machine->current_state)
+    {
+        state_machine->current_state->run_on_exit(state_machine);
+        state_machine->current_state = state_machine->next_state;
+        state_machine->current_state->run_on_entry(state_machine);
+    }
+
+    // We assume the next time we tick we will continue in the current state,
+    // unless told otherwise.
+    state_machine->next_state = state_machine->current_state;
+}
 
 struct StateMachine *App_SharedStateMachine_Create(
     struct World *      world,
@@ -51,19 +84,14 @@ struct World *App_SharedStateMachine_GetWorld(
     return state_machine->world;
 }
 
-void App_SharedStateMachine_Tick(struct StateMachine *const state_machine)
+void App_SharedStateMachine_Tick1Hz(struct StateMachine *const state_machine)
 {
-    state_machine->current_state->run_on_tick(state_machine);
+    App_SharedStateMachine_RunStateTickFunctionIfNotNull(
+        state_machine, state_machine->current_state->run_on_tick_1Hz);
+}
 
-    // Check if we should transition states
-    if (state_machine->next_state != state_machine->current_state)
-    {
-        state_machine->current_state->run_on_exit(state_machine);
-        state_machine->current_state = state_machine->next_state;
-        state_machine->current_state->run_on_entry(state_machine);
-    }
-
-    // We assume the next time we tick we will continue in the current state,
-    // unless told otherwise.
-    state_machine->next_state = state_machine->current_state;
+void App_SharedStateMachine_Tick1kHz(struct StateMachine *const state_machine)
+{
+    App_SharedStateMachine_RunStateTickFunctionIfNotNull(
+        state_machine, state_machine->current_state->run_on_tick_1kHz);
 }

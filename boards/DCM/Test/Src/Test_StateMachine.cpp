@@ -109,8 +109,8 @@ TEST_F(
 {
     // We need to tick twice, once to run the `Init` state, and once more
     // to have the state machine transition to the `Run` state.
-    App_SharedStateMachine_Tick(state_machine);
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1Hz(state_machine);
+    App_SharedStateMachine_Tick1Hz(state_machine);
 
     EXPECT_EQ(
         App_GetDriveState(),
