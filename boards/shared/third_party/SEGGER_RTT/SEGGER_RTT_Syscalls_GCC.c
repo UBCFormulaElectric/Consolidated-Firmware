@@ -1,4 +1,3 @@
-#pragma GCC diagnostic ignored "-Wsign-conversion"
 /*********************************************************************
 *                    SEGGER Microcontroller GmbH                     *
 *       Solutions for real time microcontroller applications         *

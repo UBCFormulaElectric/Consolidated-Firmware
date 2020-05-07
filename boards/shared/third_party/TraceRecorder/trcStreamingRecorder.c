@@ -1,4 +1,3 @@
-#pragma GCC diagnostic ignored "-Wsign-conversion"
 /*******************************************************************************
  * Trace Recorder Library for Tracealyzer v4.3.5
  * Percepio AB, www.percepio.com
