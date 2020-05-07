@@ -1,0 +1,93 @@
+#include <gtest/gtest.h>
+#include <fff.h>
+
+extern "C"
+{
+#include "App_SharedStateMachine.h"
+}
+
+#include "App_TestWorld.h"
+
+FAKE_VOID_FUNC(state_A_entry, struct StateMachine *);
+FAKE_VOID_FUNC(state_A_tick_1kHz, struct StateMachine *);
+FAKE_VOID_FUNC(state_A_exit, struct StateMachine *);
+FAKE_VOID_FUNC(state_B_entry, struct StateMachine *);
+FAKE_VOID_FUNC(state_B_tick_1Hz, struct StateMachine *);
+FAKE_VOID_FUNC(state_B_tick_1kHz, struct StateMachine *);
+FAKE_VOID_FUNC(state_B_exit, struct StateMachine *);
+
+static struct State state_A;
+static struct State state_B;
+
+class SharedStateMachineTest : public testing::Test
+{
+  protected:
+    void SetUp() override
+    {
+        world = App_TestWorld_Create();
+
+        state_A.run_on_entry = state_A_entry;
+        state_A.run_on_tick_1Hz = state_A_tick_1Hz;
+        state_A.run_on_tick_1kHz = state_A_tick_1kHz;
+        state_A.run_on_exit = state_A_exit;
+
+        state_B.run_on_entry = state_B_entry;
+        state_B.run_on_tick_1Hz = state_B_tick_1Hz;
+        state_B.run_on_tick_1kHz = state_B_tick_1kHz;
+        state_B.run_on_exit = state_B_exit;
+
+        state_machine = App_SharedStateMachine_Create(world, &state_A);
+
+        RESET_FAKE(state_A_entry);
+        RESET_FAKE(state_A_tick_1kHz);
+        RESET_FAKE(state_A_exit);
+        RESET_FAKE(state_B_entry);
+        RESET_FAKE(state_B_tick_1Hz);
+        RESET_FAKE(state_B_tick_1kHz);
+        RESET_FAKE(state_B_exit);
+    }
+
+    void TearDown() override
+    {
+        ASSERT_TRUE(world != NULL);
+        App_TestWorld_Destroy(world);
+
+        ASSERT_TRUE(state_machine != NULL);
+        App_SharedStateMachine_Destroy(state_machine);
+        state_machine = NULL;
+    }
+
+    void SetInitialState(const struct State *const initial_state)
+    {
+        App_SharedStateMachine_Destroy(state_machine);
+        state_machine = App_SharedStateMachine_Create(world, initial_state);
+        ASSERT_TRUE(state_machine != NULL);
+        ASSERT_EQ(
+            initial_state,
+            App_SharedStateMachine_GetCurrentState(state_machine));
+    }
+
+    // We provide our own implementation of the 1hz tick for state_A
+    // here so that we can simulate a state transition in a tick
+    static void state_A_tick_1Hz(struct StateMachine* state_machine){
+        App_SharedStateMachine_SetNextState(state_machine, &state_B);
+    }
+
+    struct World *       world;
+    struct StateMachine *state_machine;
+};
+
+TEST_F(
+    SharedStateMachineTest,
+    check_that_switching_states_in_tick_switches_states_for_all_ticks)
+{
+    // Check that when we transition states in a tick function at one frequency,
+    // that all the other frequencies also transition state
+    SetInitialState(&state_A);
+
+    App_SharedStateMachine_Tick1Hz(state_machine);
+
+    App_SharedStateMachine_Tick1kHz(state_machine);
+
+    EXPECT_EQ(state_B_tick_1kHz_fake.call_count, 1);
+}
