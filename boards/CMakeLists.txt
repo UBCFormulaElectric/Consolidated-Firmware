@@ -179,6 +179,7 @@ function(create_arm_binary
             -pedantic
             -specs=nosys.specs 
             -specs=nano.specs
+            -Wdouble-promotion
         )
     target_link_options(${BOARD_NAME}.elf
         PUBLIC
