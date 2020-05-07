@@ -39,7 +39,6 @@ create_arm_binary_or_tests_for_board(
     "${ARM_BINARY_APP_INCLUDE_DIRS}"
     "${ARM_BINARY_IO_SRCS}"
     "${ARM_BINARY_IO_INCLUDE_DIRS}"
-    "${ARM_BINARY_IO_SYSCALLS_SRC}"
     "${ARM_LINKER_SCRIPT}"
     "${STM32_DEVICE_TYPE}"
     "${ARM_BINARY_IO_THIRD_PARTY_SRCS}"
