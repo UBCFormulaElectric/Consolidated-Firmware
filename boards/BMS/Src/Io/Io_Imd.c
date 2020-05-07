@@ -36,10 +36,10 @@ void Io_Imd_InputCaptureCallback(TIM_HandleTypeDef *htim)
     }
 }
 
-uint32_t Io_Imd_GetTimeSincePowerOn(void)
+uint16_t Io_Imd_GetTimeSincePowerOn(void)
 {
     // The IMD shares the same power rail as the BMS, so we assume that the IMD
     // and BMS boot up at the same time. In other words, the IMD has been ON
     // for just as long as the BMS.
-    return (xTaskGetTickCount() * portTICK_RATE_MS) / 1000U;
+    return (uint16_t)(xTaskGetTickCount() * portTICK_RATE_MS) / 1000U;
 }

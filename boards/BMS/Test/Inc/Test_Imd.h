@@ -8,7 +8,7 @@ extern "C"
 }
 
 DECLARE_FAKE_VALUE_FUNC(float, get_pwm_duty_cycle);
-DECLARE_FAKE_VALUE_FUNC(uint32_t, get_seconds_since_power_on);
+DECLARE_FAKE_VALUE_FUNC(uint16_t, get_seconds_since_power_on);
 DECLARE_FAKE_VALUE_FUNC(float, get_pwm_frequency);
 
 class ImdTest : public testing::Test

@@ -2,7 +2,7 @@
 
 DEFINE_FAKE_VALUE_FUNC(float, get_pwm_frequency);
 DEFINE_FAKE_VALUE_FUNC(float, get_pwm_duty_cycle);
-DEFINE_FAKE_VALUE_FUNC(uint32_t, get_seconds_since_power_on);
+DEFINE_FAKE_VALUE_FUNC(uint16_t, get_seconds_since_power_on);
 
 void ImdTest::SetUp()
 {

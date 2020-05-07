@@ -32,12 +32,12 @@ struct Imd
 {
     float (*get_pwm_frequency)(void);
     float (*get_pwm_duty_cycle)(void);
-    uint32_t (*get_seconds_since_power_on)(void);
+    uint16_t (*get_seconds_since_power_on)(void);
 
     float                  pwm_frequency;
     float                  pwm_frequency_tolerance;
     float                  pwm_duty_cycle;
-    uint32_t               seconds_since_power_on;
+    uint16_t               seconds_since_power_on;
     enum Imd_Condition     condition;
     struct Imd_PwmEncoding pwm_encoding;
 };
@@ -103,7 +103,7 @@ struct Imd *App_Imd_Create(
     float (*const get_pwm_frequency)(void),
     const float pwm_frequency_tolerance,
     float (*const get_pwm_duty_cycle)(void),
-    uint32_t (*const get_seconds_since_power_on)(void))
+    uint16_t (*const get_seconds_since_power_on)(void))
 {
     assert(get_pwm_frequency != NULL);
     assert(get_pwm_duty_cycle != NULL);
@@ -171,12 +171,12 @@ void App_Imd_Tick(struct Imd *const imd)
                     // resistance exceeds 50Ohms once the duty cycle is below
                     // ~7.1%. Thus, we manually saturate the value at 50MOhms to
                     // get well-defined behaviours.
-                    uint32_t resistance = (uint32_t)(
+                    uint16_t resistance = (uint16_t)(
                         1080.0f / (imd->pwm_duty_cycle / 100.0f - 0.05f) -
                         1200.0f);
 
                     imd->pwm_encoding.insulation_measurement_dcp_kohms =
-                        (uint16_t)min(resistance, 50000);
+                        min(resistance, 50000);
                 }
             }
         }
@@ -237,9 +237,9 @@ float App_Imd_GetPwmDutyCycle(const struct Imd *const imd)
     return imd->pwm_duty_cycle;
 }
 
-uint8_t App_Imd_GetSecondsSincePowerOn(const struct Imd *const imd)
+uint16_t App_Imd_GetSecondsSincePowerOn(const struct Imd *imd)
 {
-    return (uint8_t)imd->seconds_since_power_on;
+    return imd->seconds_since_power_on;
 }
 
 enum Imd_Condition App_Imd_GetCondition(const struct Imd *const imd)

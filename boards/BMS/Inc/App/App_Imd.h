@@ -52,7 +52,7 @@ struct Imd *App_Imd_Create(
     float (*get_pwm_frequency)(void),
     float pwm_frequency_tolerance,
     float (*get_pwm_duty_cycle)(void),
-    uint32_t (*get_seconds_since_power_on)(void));
+    uint16_t (*get_seconds_since_power_on)(void));
 
 /**
  * Destroy the given IMD object, freeing any memory it uses
@@ -85,7 +85,7 @@ float App_Imd_GetPwmDutyCycle(const struct Imd *imd);
  * @param imd The IMD to get seconds since power on for
  * @return The seconds since power on for the given IMD
  */
-uint8_t App_Imd_GetSecondsSincePowerOn(const struct Imd *imd);
+uint16_t App_Imd_GetSecondsSincePowerOn(const struct Imd *imd);
 
 /**
  * Get the condition for the given IMD
