@@ -4,11 +4,9 @@ extern "C"
 {
 #include "App_SharedStateMachine.h"
 #include "App_SharedHeartbeatMonitor.h"
-#include "App_FlowMeter.h"
 #include "states/App_AirOpenState.h"
 #include "states/App_AirClosedState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
-#include "App_Wheel.h"
 }
 
 namespace StateMachineTest
