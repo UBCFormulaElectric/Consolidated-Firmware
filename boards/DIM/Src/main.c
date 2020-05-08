@@ -30,6 +30,7 @@
 #include "App_SevenSegDisplay.h"
 #include "App_Switches.h"
 #include "App_SharedStateMachine.h"
+#include "App_SharedLog.h"
 #include "states/App_DriveState.h"
 
 #include "Io_CanTx.h"
@@ -165,6 +166,10 @@ int main(void)
     __HAL_DBGMCU_FREEZE_IWDG();
 
     Io_SharedHardFaultHandler_Init();
+
+    LOG_DEBUG("Hello world\n");
+    LOG_WARN("Hello world\n");
+    LOG_ERROR("Hello world\n");
 
     Io_SevenSegDisplays_Init(&hspi2);
 
