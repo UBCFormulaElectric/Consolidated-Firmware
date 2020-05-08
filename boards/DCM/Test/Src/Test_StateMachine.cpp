@@ -51,7 +51,7 @@ class DcmStateMachineTest : public testing::Test
         brake_light = App_BrakeLight_Create(
             is_brake_actuated, is_regen_active, turn_on_brake_light,
             turn_off_brake_light);
-            
+
         world = App_DcmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
             rgb_led_sequence, brake_light);
