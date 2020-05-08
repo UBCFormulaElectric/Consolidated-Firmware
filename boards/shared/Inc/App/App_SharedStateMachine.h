@@ -20,7 +20,6 @@ struct State
     void (*run_on_exit)(struct StateMachine *state_machine);
 };
 
-
 /**
  * Create a state machine with the given world
  * @param world A world that will be used by the state machine for all of it's
@@ -67,7 +66,7 @@ struct World *
     App_SharedStateMachine_GetWorld(const struct StateMachine *state_machine);
 
 /**
- * Tick the 10hz function of the given state machine
+ * Tick the 1hz function of the given state machine
  * @param state_machine The state machine to tick
  */
 void App_SharedStateMachine_Tick1Hz(struct StateMachine *state_machine);

@@ -51,6 +51,7 @@ class SharedStateMachineTest : public testing::Test
     {
         ASSERT_TRUE(world != NULL);
         App_TestWorld_Destroy(world);
+        world = NULL;
 
         ASSERT_TRUE(state_machine != NULL);
         App_SharedStateMachine_Destroy(state_machine);
