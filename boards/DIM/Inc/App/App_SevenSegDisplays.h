@@ -33,9 +33,8 @@ struct SevenSegDisplays *App_SevenSegDisplays_Create(
     void (*display_value_callback)(void));
 
 /**
- * Destroy the given group of three 7-segment displays, freeing the memory
- * associated with it
- * @param world The group of three 7-segment displays to destroy
+ * Deallocate the memory used by the given group of 7-segment displays
+ * @param seven_seg_displays The group of 7-segment displays to deallocate
  */
 void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *seven_seg_displays);
 

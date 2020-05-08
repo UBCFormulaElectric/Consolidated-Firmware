@@ -1,4 +1,4 @@
-#include "Test_RotarySwitch.h"
+#include "Test_Dim.h"
 
 extern "C"
 {
@@ -7,26 +7,23 @@ extern "C"
 
 FAKE_VALUE_FUNC(uint32_t, get_position);
 
-void RotarySwitchTest::SetUp()
+class RotarySwitchTest : public testing::Test
 {
-    rotary_switch = App_RotarySwitch_Create(
-        get_position, DEFAULT_NUM_ROTARY_SWITCH_POSITIONS);
-}
+  protected:
+    void SetUp() override
+    {
+        rotary_switch = App_RotarySwitch_Create(
+            get_position, DEFAULT_NUM_ROTARY_SWITCH_POSITIONS);
+    }
 
-void RotarySwitchTest::TearDown()
-{
-    ASSERT_TRUE(rotary_switch != NULL);
-    App_RotarySwitch_Destroy(rotary_switch);
-    rotary_switch = NULL;
-}
+    void TearDown() override
+    {
+        TearDownObject(rotary_switch, App_RotarySwitch_Destroy);
+    }
 
-void RotarySwitchTest::TearDownRotarySwitch(
-    struct RotarySwitch *&rotary_switch_to_teardown)
-{
-    ASSERT_TRUE(rotary_switch_to_teardown != NULL);
-    App_RotarySwitch_Destroy(rotary_switch_to_teardown);
-    rotary_switch_to_teardown = NULL;
-}
+    struct RotarySwitch *rotary_switch;
+    const uint32_t       DEFAULT_NUM_ROTARY_SWITCH_POSITIONS = 6;
+};
 
 TEST_F(RotarySwitchTest, valid_switch_position)
 {
