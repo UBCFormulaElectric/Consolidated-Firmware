@@ -9,26 +9,18 @@ struct FsmWorld
     struct FsmCanTxInterface *can_tx_interface;
     struct FsmCanRxInterface *can_rx_interface;
     struct HeartbeatMonitor * heartbeat_monitor;
-    struct FlowMeter *        primary_flow_meter;
-    struct FlowMeter *        secondary_flow_meter;
+    struct InRangeCheck *     primary_flow_rate_in_range_check;
+    struct InRangeCheck *     secondary_flow_rate_in_range_check;
+    struct InRangeCheck *     left_wheel_speed_in_range_check;
+    struct InRangeCheck *     right_wheel_speed_in_range_check;
     struct RgbLedSequence *   rgb_led_sequence;
-    struct WheelSpeedSensor * left_wheel_speed;
-    struct WheelSpeedSensor * right_wheel_speed;
-    struct WheelSpeedSensor * left_wheel_speed_sensor;
-    struct WheelSpeedSensor * right_wheel_speed_sensor;
 };
 
 struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanTxInterface *const can_tx_interface,
     struct FsmCanRxInterface *const can_rx_interface,
     struct HeartbeatMonitor *const  heartbeat_monitor,
-    struct FlowMeter *const         primary_flow_meter,
-    struct FlowMeter *const         secondary_flow_meter,
     struct RgbLedSequence *const    rgb_led_sequence)
-    struct WheelSpeedSensor *const  left_wheel_speed,
-    struct WheelSpeedSensor *const  right_wheel_speed)
-    struct WheelSpeedSensor *const  left_wheel_speed_sensor,
-    struct WheelSpeedSensor *const  right_wheel_speed_sensor,
     struct RgbLedSequence *const    rgb_led_sequence)
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
