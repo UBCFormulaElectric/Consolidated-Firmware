@@ -55,8 +55,8 @@ struct Imd *App_Imd_Create(
     uint32_t (*get_seconds_since_power_on)(void));
 
 /**
- * Destroy the given IMD object, freeing any memory it uses
- * @param imd
+ * Deallocate the memory used by the given IMD
+ * @param imd The IMD to deallocate
  */
 void App_Imd_Destroy(struct Imd *imd);
 

@@ -25,8 +25,8 @@ struct BmsWorld *App_BmsWorld_Create(
     struct RgbLedSequence *   rgb_led_sequence);
 
 /**
- * Destroy the given BMS world, freeing the memory associated with it
- * @param world The BMS world to destroy
+ * Deallocate the memory used by the given world
+ * @param world The world to deallocate
  */
 void App_BmsWorld_Destroy(struct BmsWorld *world);
 

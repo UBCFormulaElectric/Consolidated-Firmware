@@ -25,8 +25,8 @@ struct DcmWorld *App_DcmWorld_Create(
     struct BrakeLight *       brake_light);
 
 /**
- * Destroy the given DCM world, freeing the memory associated with it
- * @param world The DCM world to destroy
+ * Deallocate the memory used by the given world
+ * @param world The world to deallocate
  */
 void App_DcmWorld_Destroy(struct DcmWorld *world);
 

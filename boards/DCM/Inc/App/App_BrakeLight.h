@@ -22,8 +22,8 @@ struct BrakeLight *App_BrakeLight_Create(
     void (*turn_off_brake_light)(void));
 
 /**
- * Destroy the given brake light
- * @param brake_light The brake light to destroy
+ * Deallocate the memory used by the given brake light
+ * @param brake_light The brake light to deallocate
  */
 void App_BrakeLight_Destroy(struct BrakeLight *brake_light);
 

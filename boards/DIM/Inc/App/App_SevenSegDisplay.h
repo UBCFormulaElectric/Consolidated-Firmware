@@ -22,8 +22,8 @@ struct SevenSegDisplay *
     App_SevenSegDisplay_Create(void (*set_hex_digit)(struct SevenSegHexDigit));
 
 /**
- * Destroy the given 7-segment display, freeing any memory it uses
- * @param The 7-segment display to destroy
+ * Deallocate the memory used by the given 7-segment display
+ * @param seven_seg_display The 7-segment display to deallocate
  */
 void App_SevenSegDisplay_Destroy(struct SevenSegDisplay *seven_seg_display);
 
