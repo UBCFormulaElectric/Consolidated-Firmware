@@ -55,24 +55,24 @@ struct PdmCanRxInterface *App_PdmWorld_GetCanRx(const struct PdmWorld *world);
 
 /**
  * Get the VBAT voltage in-range check for the given world
- * @param world The world to get VBAT in-range check for
- * @return The VBAT in-range check for the given world
+ * @param world The world to get VBAT voltage in-range check for
+ * @return The VBAT voltage in-range check for the given world
  */
 struct InRangeCheck *
     App_PdmWorld_GetVbatVoltageInRangeCheck(const struct PdmWorld *world);
 
 /**
  * Get the 24V AUX voltage in-range check for the given world
- * @param world The world to get 24V AUX in-range check for
- * @return The 24V AUX in-range check for the given world
+ * @param world The world to get 24V AUX voltage in-range check for
+ * @return The 24V AUX voltage in-range check for the given world
  */
 struct InRangeCheck *
     App_PdmWorld_Get24vAuxVoltageInRangeCheck(const struct PdmWorld *world);
 
 /**
  * Get the 24V ACC voltage in-range check for the given world
- * @param world The world to get 24V ACC in-range check for
- * @return The 24V ACC in-range check for the given world
+ * @param world The world to get 24V ACC voltage in-range check for
+ * @return The 24V ACC voltage in-range check for the given world
  */
 struct InRangeCheck *
     App_PdmWorld_Get24vAccVoltageInRangeCheck(const struct PdmWorld *world);
