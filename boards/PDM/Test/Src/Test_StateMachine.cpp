@@ -145,15 +145,21 @@ class PdmStateMachineTest : public testing::Test
         TearDownObject(can_tx_interface, App_CanTx_Destroy);
         TearDownObject(can_rx_interface, App_CanRx_Destroy);
         TearDownObject(vbat_voltage_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(_24v_aux_voltage_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(_24v_acc_voltage_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            _24v_aux_voltage_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            _24v_acc_voltage_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(aux1_current_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(aux2_current_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(left_inverter_current_in_range__check, App_InRangeCheck_Destroy);
-        TearDownObject(right_inverter_current_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(energy_meter_current_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            left_inverter_current_in_range__check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            right_inverter_current_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            energy_meter_current_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(can_current_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(air_shutdown_current_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            air_shutdown_current_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
