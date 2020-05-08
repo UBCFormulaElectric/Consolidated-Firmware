@@ -16,6 +16,10 @@ struct RgbLedSequence *App_SharedRgbLedSequence_Create(
     void (*turn_on_green_led)(void),
     void (*turn_on_blue_led)(void));
 
+/**
+ * Deallocate the memory used by the given RGB LED sequence
+ * @param rgb_led_sequence The RGB LED sequence to deallocate
+ */
 void App_SharedRgbLedSequence_Destroy(struct RgbLedSequence *rgb_led_sequence);
 
 /**

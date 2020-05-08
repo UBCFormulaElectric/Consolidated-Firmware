@@ -15,7 +15,10 @@ struct RotarySwitch;
 struct RotarySwitch *App_RotarySwitch_Create(
     uint32_t (*get_switch_position)(void),
     uint32_t num_switch_positions);
-
+/**
+ * Deallocate the memory used by the given rotary switch
+ * @param rotary_switch The rotary switch to deallocate
+ */
 void App_RotarySwitch_Destroy(struct RotarySwitch *rotary_switch);
 
 /**
