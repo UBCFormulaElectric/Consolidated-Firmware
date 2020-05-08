@@ -2,6 +2,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifdef __arm__
+#include <FreeRTOS.h>
+#include <semphr.h>
+#endif
+
 #include "App_SharedStateMachine.h"
 
 struct StateMachine
@@ -10,6 +15,10 @@ struct StateMachine
     const struct State *current_state;
     struct World *      world;
 };
+
+#ifdef __arm__
+static SemaphoreHandle_t state_tick_mutex;
+#endif
 
 /**
  * Run the given tick function over the given state machine if the tick function
@@ -22,6 +31,8 @@ void App_SharedStateMachine_RunStateTickFunctionIfNotNull(
     struct StateMachine *const state_machine,
     void (*tick_function)(struct StateMachine *))
 {
+    xSemaphoreTake(state_tick_mutex, portMAX_DELAY);
+
     if (tick_function == NULL)
     {
         // Nothing to do
@@ -41,6 +52,8 @@ void App_SharedStateMachine_RunStateTickFunctionIfNotNull(
     // We assume the next time we tick we will continue in the current state,
     // unless told otherwise.
     state_machine->next_state = state_machine->current_state;
+
+    xSemaphoreGive(state_tick_mutex);
 }
 
 struct StateMachine *App_SharedStateMachine_Create(

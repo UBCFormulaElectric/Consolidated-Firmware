@@ -26,15 +26,15 @@ class SharedStateMachineTest : public testing::Test
     {
         world = App_TestWorld_Create();
 
-        state_A.run_on_entry = state_A_entry;
-        state_A.run_on_tick_1Hz = state_A_tick_1Hz;
+        state_A.run_on_entry     = state_A_entry;
+        state_A.run_on_tick_1Hz  = state_A_tick_1Hz;
         state_A.run_on_tick_1kHz = state_A_tick_1kHz;
-        state_A.run_on_exit = state_A_exit;
+        state_A.run_on_exit      = state_A_exit;
 
-        state_B.run_on_entry = state_B_entry;
-        state_B.run_on_tick_1Hz = state_B_tick_1Hz;
+        state_B.run_on_entry     = state_B_entry;
+        state_B.run_on_tick_1Hz  = state_B_tick_1Hz;
         state_B.run_on_tick_1kHz = state_B_tick_1kHz;
-        state_B.run_on_exit = state_B_exit;
+        state_B.run_on_exit      = state_B_exit;
 
         state_machine = App_SharedStateMachine_Create(world, &state_A);
 
@@ -70,7 +70,8 @@ class SharedStateMachineTest : public testing::Test
 
     // We provide our own implementation of the 1hz tick for state_A
     // here so that we can simulate a state transition in a tick
-    static void state_A_tick_1Hz(struct StateMachine* state_machine){
+    static void state_A_tick_1Hz(struct StateMachine *state_machine)
+    {
         App_SharedStateMachine_SetNextState(state_machine, &state_B);
     }
 
