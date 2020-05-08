@@ -3,9 +3,7 @@
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_SharedHeartbeatMonitor.h"
-#include "App_FlowMeter.h"
 #include "App_SharedRgbLedSequence.h"
-#include "App_Wheel.h"
 
 struct FsmWorld;
 
@@ -69,8 +67,12 @@ struct FlowMeter *
  * @param world The world to get secondary flow meter for
  * @return The secondary flow meter for the given world
  */
-struct FlowMeter *
-    App_FsmWorld_GetSecondaryFlowMeter(const struct FsmWorld *world);
+struct InRangeCheck *
+    App_FsmWorld_GetSecondaryFlowRateInRangeCheck(const struct FsmWorld *world);
+struct InRangeCheck *
+    App_FsmWorld_GetLeftWheelSpeedInRangeCheck(const struct FsmWorld *world);
+struct InRangeCheck *
+    App_FsmWorld_GetRightWheelSpeedInRangeCheck(const struct FsmWorld *world);
 
 /**
  * Get the RGB LED sequence for the given world
