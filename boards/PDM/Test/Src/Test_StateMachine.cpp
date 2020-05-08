@@ -152,7 +152,7 @@ class PdmStateMachineTest : public testing::Test
         TearDownObject(aux1_current_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(aux2_current_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(
-            left_inverter_current_in_range__check, App_InRangeCheck_Destroy);
+            left_inverter_current_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(
             right_inverter_current_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(
