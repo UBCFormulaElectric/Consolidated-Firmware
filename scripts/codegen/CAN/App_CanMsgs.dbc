@@ -28,12 +28,12 @@ SG_ WATCHDOG_TIMEOUT : 4|1@1+ (1,0) [0|1] "" LOGGER
 
 BO_ 105 BMS_IMD: 8 BMS
 SG_ Condition M : 0|3@1+ (1,0) [0|6] "" LOGGER
-SG_ Seconds_Since_Power_On : 3|8@1+ (1,0) [0|255] "Seconds" LOGGER
-SG_ Valid_Duty_Cycle : 11|1@1+ (1,0) [0|1] "" LOGGER
-SG_ Insulation_Measurement_DCP_10Hz m1 : 12|16@1+ (1,0) [0|65535] "kOhm" LOGGER
-SG_ Insulation_Measurement_DCP_20Hz m2 : 12|16@1+ (1,0) [0|65535] "kOhm" LOGGER
-SG_ Speed_Start_Status_30Hz m3 : 12|16@1+ (1,0) [0|65535] "" LOGGER
-SG_ OK_HS : 28|1@1+ (1,0) [0|1] "" DIM
+SG_ Seconds_Since_Power_On : 3|16@1+ (1,0) [0|255] "Seconds" LOGGER
+SG_ Valid_Duty_Cycle : 19|1@1+ (1,0) [0|1] "" LOGGER
+SG_ Insulation_Measurement_DCP_10Hz m1 : 20|16@1+ (1,0) [0|65535] "kOhm" LOGGER
+SG_ Insulation_Measurement_DCP_20Hz m2 : 20|16@1+ (1,0) [0|65535] "kOhm" LOGGER
+SG_ Speed_Start_Status_30Hz m3 : 20|16@1+ (1,0) [0|65535] "" LOGGER
+SG_ OK_HS : 36|1@1+ (1,0) [0|1] "" DIM
 
 BO_ 106 BMS_IMD_PWM_OUTPUT : 8 BMS
 SG_ Duty_Cycle : 0|32@1- (1,0) [0|1E02] "%" LOGGER

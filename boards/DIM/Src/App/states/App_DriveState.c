@@ -67,8 +67,8 @@ static void App_SetPeriodicCanSignals_BinarySwitch(
     struct DimCanTxInterface *can_tx,
     struct BinarySwitch *     binary_switch,
     void (*can_signal_setter)(struct DimCanTxInterface *, uint8_t value),
-    uint32_t on_choice,
-    uint32_t off_choice)
+    uint8_t on_choice,
+    uint8_t off_choice)
 {
     if (App_BinarySwitch_IsTurnedOn(binary_switch))
     {
@@ -124,7 +124,8 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
 
     App_SevenSegDisplays_SetUnsignedBase10Value(
         seven_seg_displays,
-        App_CanRx_BMS_STATE_OF_CHARGE_GetSignal_STATE_OF_CHARGE(can_rx));
+        (uint32_t)App_CanRx_BMS_STATE_OF_CHARGE_GetSignal_STATE_OF_CHARGE(
+            can_rx));
 
     if (EXIT_CODE_OK(
             App_RotarySwitch_GetSwitchPosition(drive_mode_switch, &buffer)))

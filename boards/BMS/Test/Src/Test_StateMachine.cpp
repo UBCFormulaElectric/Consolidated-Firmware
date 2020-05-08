@@ -22,7 +22,7 @@ FAKE_VOID_FUNC(
     const struct CanMsgs_bms_watchdog_timeout_t *);
 FAKE_VALUE_FUNC(float, get_pwm_frequency);
 FAKE_VALUE_FUNC(float, get_pwm_duty_cycle);
-FAKE_VALUE_FUNC(uint32_t, get_seconds_since_power_on);
+FAKE_VALUE_FUNC(uint16_t, get_seconds_since_power_on);
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
 FAKE_VOID_FUNC(
     heartbeat_timeout_callback,

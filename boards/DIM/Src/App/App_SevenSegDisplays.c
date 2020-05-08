@@ -104,7 +104,7 @@ ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(
     for (uint8_t num_digits = 1; num_digits <= NUM_SEVEN_SEG_DISPLAYS;
          num_digits++)
     {
-        digits[num_digits - 1] = value % 10;
+        digits[num_digits - 1] = (uint8_t)(value % 10);
         value /= 10;
 
         if (value == 0)
