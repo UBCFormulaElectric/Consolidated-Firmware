@@ -14,14 +14,15 @@ static void AirOpenStateRunOnTick(struct StateMachine *const state_machine)
 {
     struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct FsmCanTxInterface *can_tx_interface = App_FsmWorld_GetCanTx(world);
-    struct FlowMeter *        primary_flow_meter =
-        App_FsmWorld_GetPrimaryFlowMeter(world);
-    struct FlowMeter *secondary_flow_meter =
-        App_FsmWorld_GetSecondaryFlowMeter(world);
-    struct WheelSpeedSensor *left_wheel_speed_sensor =
-        App_FsmWorld_GetLeftWheelSpeedSensor(world);
-    struct WheelSpeedSensor *right_wheel_speed_sensor =
-        App_FsmWorld_GetRightWheelSpeedSensor(world);
+
+    struct InRangeCheck *     primary_flow_meter =
+        App_FsmWorld_GetPrimaryFlowRateCheck(world);
+    struct InRangeCheck *secondary_flow_meter =
+        App_FsmWorld_GetSecondaryFlowRateCheck(world);
+    struct InRangeCheck *left_wheel_speed_sensor =
+        App_FsmWorld_GetLeftWheelSpeedCheck(world);
+    struct InRangeCheck *right_wheel_speed_sensor =
+        App_FsmWorld_GetRightWheelSpeedCheck(world);
 
     App_SetPeriodicCanSignals_PrimaryFlowMeter(
         can_tx_interface, primary_flow_meter);

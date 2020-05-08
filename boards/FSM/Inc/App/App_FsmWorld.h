@@ -6,6 +6,7 @@
 #include "App_SharedRgbLedSequence.h"
 
 struct FsmWorld;
+struct InRangeCheck;
 
 /**
  * Allocate and initialize a world in the application layer by registering
@@ -20,10 +21,10 @@ struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanTxInterface *can_tx_interface,
     struct FsmCanRxInterface *can_rx_interface,
     struct HeartbeatMonitor * heartbeat_monitor,
-    struct FlowMeter *        primary_flow_meter,
-    struct FlowMeter *        secondary_flow_meter,
-    struct WheelSpeedSensor * left_wheel_speed_sensor,
-    struct WheelSpeedSensor * right_wheel_speed_sensor,
+    struct  InRangeCheck *        primary_flow_meter,
+    struct  InRangeCheck *        secondary_flow_meter,
+    struct InRangeCheck * left_wheel_speed_sensor,
+    struct InRangeCheck * right_wheel_speed_sensor,
     struct RgbLedSequence *   rgb_led_sequence);
 
 /**
@@ -59,8 +60,8 @@ struct HeartbeatMonitor *
  * @param world The world to get primary flow meter for
  * @return The primary flow meter for the given world
  */
-struct FlowMeter *
-    App_FsmWorld_GetPrimaryFlowMeter(const struct FsmWorld *world);
+struct InRangeCheck *
+    App_FsmWorld_GetPrimaryFlowRateCheck(const struct FsmWorld *world);
 
 /**
  * Get the secondary flow meter for the given world
@@ -68,11 +69,12 @@ struct FlowMeter *
  * @return The secondary flow meter for the given world
  */
 struct InRangeCheck *
-    App_FsmWorld_GetSecondaryFlowRateInRangeCheck(const struct FsmWorld *world);
+    App_FsmWorld_GetSecondaryFlowRateCheck(const struct FsmWorld *world);
+
 struct InRangeCheck *
-    App_FsmWorld_GetLeftWheelSpeedInRangeCheck(const struct FsmWorld *world);
+    App_FsmWorld_GetLeftWheelSpeedCheck(const struct FsmWorld *world);
 struct InRangeCheck *
-    App_FsmWorld_GetRightWheelSpeedInRangeCheck(const struct FsmWorld *world);
+    App_FsmWorld_GetRightWheelSpeedCheck(const struct FsmWorld *world);
 
 /**
  * Get the RGB LED sequence for the given world
@@ -81,8 +83,3 @@ struct InRangeCheck *
  */
 struct RgbLedSequence *
     App_FsmWorld_GetRgbLedSequence(const struct FsmWorld *world);
-
-struct WheelSpeedSensor *
-    App_FsmWorld_GetLeftWheelSpeedSensor(const struct FsmWorld *world);
-struct WheelSpeedSensor *
-    App_FsmWorld_GetRightWheelSpeedSensor(const struct FsmWorld *world);

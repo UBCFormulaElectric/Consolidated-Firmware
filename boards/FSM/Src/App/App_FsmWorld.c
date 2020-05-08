@@ -21,19 +21,24 @@ struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanRxInterface *const can_rx_interface,
     struct HeartbeatMonitor *const  heartbeat_monitor,
     struct RgbLedSequence *const    rgb_led_sequence)
+    struct InRangeCheck *const      primary_flow_rate_in_range_check,
+    struct InRangeCheck *const      secondary_flow_rate_in_range_check,
+    struct InRangeCheck *const      left_wheel_speed_in_range_check,
+    struct InRangeCheck *const      right_wheel_speed_in_range_check,
     struct RgbLedSequence *const    rgb_led_sequence)
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
     assert(world != NULL);
 
-    world->can_tx_interface     = can_tx_interface;
-    world->can_rx_interface     = can_rx_interface;
-    world->heartbeat_monitor    = heartbeat_monitor;
-    world->primary_flow_meter   = primary_flow_meter;
-    world->secondary_flow_meter = secondary_flow_meter;
-    world->rgb_led_sequence     = rgb_led_sequence;
-    world->left_wheel_speed     = left_wheel_speed;
-    world->right_wheel_speed    = right_wheel_speed;
+    world->can_tx_interface                 = can_tx_interface;
+    world->can_rx_interface                 = can_rx_interface;
+    world->heartbeat_monitor                = heartbeat_monitor;
+    world->primary_flow_rate_in_range_check = primary_flow_rate_in_range_check;
+    world->secondary_flow_rate_in_range_check =
+        secondary_flow_rate_in_range_check;
+    world->left_wheel_speed_in_range_check  = left_wheel_speed_in_range_check;
+    world->right_wheel_speed_in_range_check = right_wheel_speed_in_range_check;
+    world->rgb_led_sequence                 = rgb_led_sequence;
 
     return world;
 }
@@ -61,16 +66,16 @@ struct HeartbeatMonitor *
     return world->heartbeat_monitor;
 }
 
-struct FlowMeter *
-    App_FsmWorld_GetPrimaryFlowMeter(const struct FsmWorld *const world)
+struct InRangeCheck *
+    App_FsmWorld_GetPrimaryFlowRateCheck(const struct FsmWorld *const world)
 {
-    return world->primary_flow_meter;
+    return world->primary_flow_rate_in_range_check;
 }
 
-struct FlowMeter *
-    App_FsmWorld_GetSecondaryFlowMeter(const struct FsmWorld *const world)
+struct InRangeCheck *
+    App_FsmWorld_GetSecondaryFlowRateCheck(const struct FsmWorld *const world)
 {
-    return world->secondary_flow_meter;
+    return world->secondary_flow_rate_in_range_check;
 }
 
 struct RgbLedSequence *
@@ -78,16 +83,16 @@ struct RgbLedSequence *
 {
     return world->rgb_led_sequence;
 
-struct WheelSpeedSensor *
-    App_FsmWorld_GetLeftWheelSpeedSensor(const struct FsmWorld *const world)
+struct InRangeCheck *
+    App_FsmWorld_GetLeftWheelSpeedCheck(const struct FsmWorld *const world)
 {
-    return world->left_wheel_speed_sensor;
+    return world->left_wheel_speed_in_range_check;
 }
 
-struct WheelSpeedSensor *
-    App_FsmWorld_GetRightWheelSpeedSensor(const struct FsmWorld *const world)
+struct InRangeCheck *
+    App_FsmWorld_GetRightWheelSpeedCheck(const struct FsmWorld *const world)
 {
-    return world->right_wheel_speed_sensor;
+    return world->right_wheel_speed_in_range_check;
 }
 
 struct RgbLedSequence *
