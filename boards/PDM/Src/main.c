@@ -38,12 +38,14 @@
 #include "Io_CurrentSense.h"
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
+#include "Io_Efuse_22XS4200.h"
 
 #include "App_PdmWorld.h"
 #include "App_CurrentLimits.h"
 #include "App_VoltageLimits.h"
 #include "App_SharedConstants.h"
 #include "App_SharedStateMachine.h"
+#include "App_Efuse_22XS4200.h"
 #include "states/App_InitState.h"
 /* USER CODE END Includes */
 
@@ -100,6 +102,11 @@ struct InRangeCheck *     can_current_check;
 struct InRangeCheck *     air_shutdown_current_check;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
+struct E_Fuse *           e_fuse1;
+struct E_Fuse *           e_fuse2;
+struct E_Fuse *           e_fuse3;
+struct E_Fuse *           e_fuse4;
+struct E_Fuses *          e_fuses;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -181,6 +188,27 @@ int main(void)
         Io_CanTx_EnqueueNonPeriodicMsg_PDM_WATCHDOG_TIMEOUT);
 
     can_rx = App_CanRx_Create();
+
+    Io_Efuse_22XS4200_Init(&hspi2);
+
+    e_fuse1 = App_E_Fuse_Create(
+        CSB_AUX1_AUX2_GPIO_Port, CSB_AUX1_AUX2_Pin,
+        CUR_SYNC_AUX1_AUX2_GPIO_Port, CUR_SYNC_AUX1_AUX2_Pin);
+    e_fuse2 = App_E_Fuse_Create(
+        CSB_EM_PUMP_GPIO_Port, CSB_EM_PUMP_Pin, CUR_SYNC_EM_PUMP_GPIO_Port,
+        CUR_SYNC_EM_PUMP_Pin);
+    e_fuse3 = App_E_Fuse_Create(
+        CSB_DI_L_DI_R_GPIO_Port, CSB_DI_L_DI_R_Pin,
+        CUR_SYNC_DI_L_DI_R_GPIO_Port, CUR_SYNC_DI_L_DI_R_Pin);
+    e_fuse4 = App_E_Fuse_Create(
+        CSB_GLV_AIR_SHDN_GPIO_Port, CSB_GLV_AIR_SHDN_Pin,
+        CUR_SYNC_GLV_AIR_SHDN_GPIO_Port, CUR_SYNC_GLV_AIR_SHDN_Pin);
+    e_fuses = App_E_Fuses_Create(e_fuse1, e_fuse2, e_fuse3, e_fuse4);
+
+    App_Efuse_22XS4200_configureEfuses(e_fuses);
+
+    App_Efuse_22XS4200_UpdateEfusesStatus(e_fuses);
+    App_Efuse_22XS4200_UpdateEfusesFaults(e_fuses);
 
     vbat_voltage_check = App_InRangeCheck_Create(
         Io_VoltageSense_GetVbatVoltage, VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE);

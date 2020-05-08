@@ -7,6 +7,7 @@ import os
 import subprocess
 import argparse
 
+print(os.getcwd())
 from scripts.utilities.supported_boards import get_board_names
 
 CUBE_SCRIPT = '''\
