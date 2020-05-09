@@ -62,37 +62,37 @@ class PdmStateMachineTest : public testing::Test
 
         can_rx_interface = App_CanRx_Create();
 
-        vbat_voltage_check = App_InRangeCheck_Create(
+        vbat_voltage_in_range_check = App_InRangeCheck_Create(
             GetVbatVoltage, VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE);
 
-        _24v_aux_voltage_check = App_InRangeCheck_Create(
+        _24v_aux_voltage_in_range_check = App_InRangeCheck_Create(
             Get24vAuxVoltage, _24V_AUX_MIN_VOLTAGE, _24V_AUX_MAX_VOLTAGE);
 
-        _24v_acc_voltage_check = App_InRangeCheck_Create(
+        _24v_acc_voltage_in_range_check = App_InRangeCheck_Create(
             Get24vAccVoltage, _24V_ACC_MIN_VOLTAGE, _24V_ACC_MAX_VOLTAGE);
 
-        aux1_current_check = App_InRangeCheck_Create(
+        aux1_current_in_range_check = App_InRangeCheck_Create(
             GetAux1Current, AUX1_MIN_CURRENT, AUX1_MAX_CURRENT);
 
-        aux2_current_check = App_InRangeCheck_Create(
+        aux2_current_in_range_check = App_InRangeCheck_Create(
             GetAux2Current, AUX2_MIN_CURRENT, AUX2_MAX_CURRENT);
 
-        left_inverter_current_check = App_InRangeCheck_Create(
+        left_inverter_current_in_range_check = App_InRangeCheck_Create(
             GetLeftInverterCurrent, LEFT_INVERTER_MIN_CURRENT,
             LEFT_INVERTER_MAX_CURRENT);
 
-        right_inverter_current_check = App_InRangeCheck_Create(
+        right_inverter_current_in_range_check = App_InRangeCheck_Create(
             GetRightInverterCurrent, RIGHT_INVERTER_MIN_CURRENT,
             RIGHT_INVERTER_MAX_CURRENT);
 
-        energy_meter_current_check = App_InRangeCheck_Create(
+        energy_meter_current_in_range_check = App_InRangeCheck_Create(
             GetEnergyMeterCurrent, ENERGY_METER_MIN_CURRENT,
             ENERGY_METER_MAX_CURRENT);
 
-        can_current_check = App_InRangeCheck_Create(
+        can_current_in_range_check = App_InRangeCheck_Create(
             GetCanCurrent, CAN_MIN_CURRENT, CAN_MAX_CURRENT);
 
-        air_shutdown_current_check = App_InRangeCheck_Create(
+        air_shutdown_current_in_range_check = App_InRangeCheck_Create(
             GetAirShutdownCurrent, AIR_SHUTDOWN_MIN_CURRENT,
             AIR_SHUTDOWN_MAX_CURRENT);
 
@@ -104,11 +104,13 @@ class PdmStateMachineTest : public testing::Test
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
         world = App_PdmWorld_Create(
-            can_tx_interface, can_rx_interface, vbat_voltage_check,
-            _24v_aux_voltage_check, _24v_acc_voltage_check, aux1_current_check,
-            aux2_current_check, left_inverter_current_check,
-            right_inverter_current_check, energy_meter_current_check,
-            can_current_check, air_shutdown_current_check, heartbeat_monitor,
+            can_tx_interface, can_rx_interface, vbat_voltage_in_range_check,
+            _24v_aux_voltage_in_range_check, _24v_acc_voltage_in_range_check,
+            aux1_current_in_range_check, aux2_current_in_range_check,
+            left_inverter_current_in_range_check,
+            right_inverter_current_in_range_check,
+            energy_meter_current_in_range_check, can_current_in_range_check,
+            air_shutdown_current_in_range_check, heartbeat_monitor,
             rgb_led_sequence);
 
         // Default to starting the state machine in the `init` state
@@ -142,16 +144,22 @@ class PdmStateMachineTest : public testing::Test
         TearDownObject(world, App_PdmWorld_Destroy);
         TearDownObject(can_tx_interface, App_CanTx_Destroy);
         TearDownObject(can_rx_interface, App_CanRx_Destroy);
-        TearDownObject(vbat_voltage_check, App_InRangeCheck_Destroy);
-        TearDownObject(_24v_aux_voltage_check, App_InRangeCheck_Destroy);
-        TearDownObject(_24v_acc_voltage_check, App_InRangeCheck_Destroy);
-        TearDownObject(aux1_current_check, App_InRangeCheck_Destroy);
-        TearDownObject(aux2_current_check, App_InRangeCheck_Destroy);
-        TearDownObject(left_inverter_current_check, App_InRangeCheck_Destroy);
-        TearDownObject(right_inverter_current_check, App_InRangeCheck_Destroy);
-        TearDownObject(energy_meter_current_check, App_InRangeCheck_Destroy);
-        TearDownObject(can_current_check, App_InRangeCheck_Destroy);
-        TearDownObject(air_shutdown_current_check, App_InRangeCheck_Destroy);
+        TearDownObject(vbat_voltage_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            _24v_aux_voltage_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            _24v_acc_voltage_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(aux1_current_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(aux2_current_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            left_inverter_current_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            right_inverter_current_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            energy_meter_current_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(can_current_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            air_shutdown_current_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
@@ -321,16 +329,16 @@ class PdmStateMachineTest : public testing::Test
     struct StateMachine *     state_machine;
     struct PdmCanTxInterface *can_tx_interface;
     struct PdmCanRxInterface *can_rx_interface;
-    struct InRangeCheck *     vbat_voltage_check;
-    struct InRangeCheck *     _24v_aux_voltage_check;
-    struct InRangeCheck *     _24v_acc_voltage_check;
-    struct InRangeCheck *     aux1_current_check;
-    struct InRangeCheck *     aux2_current_check;
-    struct InRangeCheck *     left_inverter_current_check;
-    struct InRangeCheck *     right_inverter_current_check;
-    struct InRangeCheck *     energy_meter_current_check;
-    struct InRangeCheck *     can_current_check;
-    struct InRangeCheck *     air_shutdown_current_check;
+    struct InRangeCheck *     vbat_voltage_in_range_check;
+    struct InRangeCheck *     _24v_aux_voltage_in_range_check;
+    struct InRangeCheck *     _24v_acc_voltage_in_range_check;
+    struct InRangeCheck *     aux1_current_in_range_check;
+    struct InRangeCheck *     aux2_current_in_range_check;
+    struct InRangeCheck *     left_inverter_current_in_range_check;
+    struct InRangeCheck *     right_inverter_current_in_range_check;
+    struct InRangeCheck *     energy_meter_current_in_range_check;
+    struct InRangeCheck *     can_current_in_range_check;
+    struct InRangeCheck *     air_shutdown_current_in_range_check;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
 };
