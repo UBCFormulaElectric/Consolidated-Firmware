@@ -93,13 +93,13 @@ class AppCanTxFileGenerator(CanFileGenerator):
 
         self._PeriodicTxSignalGetters = list(Function(
             '%s %s_GetPeriodicSignal_%s(const struct %sCanTxInterface* can_tx_interface)' % (
-            signal.type_name, function_prefix, signal.uppercase_name, self._sender.capitalize()),
+            signal.type_name, function_prefix, signal.snake_name.upper(), self._sender.capitalize()),
             '',
             '''\
         return can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name};'''.format(
-                msg_snakecase_name=signal.msg_name_snakecase,
-                signal_snakecase_name=signal.snakecase_name)
-        ) for signal in self._periodic_cantx_signals)
+                msg_snakecase_name=msg.snake_name,
+                signal_snakecase_name=signal.snake_name)
+        ) for msg in self._periodic_cantx_msgs for signal in msg.signals)
 
         self._PeriodicTxMsgPointerGetters = list(Function(
             'const struct CanMsgs_%s_t* %s_GetPeriodicMsgPointer_%s(const struct %sCanTxInterface* can_tx_interface)' % (
