@@ -34,9 +34,9 @@ class AppCanTxFileGenerator(CanFileGenerator):
         initial_signal_setters = '\n'.join(
             ["""\
     App_CanTx_SetPeriodicSignal_{signal_name}(can_tx_interface, {initial_value});""".
-                 format(signal_name=signal.uppercase_name,
-                        initial_value=signal.initial_value if signal.initial_value != None else '0'
-                        ) for signal in self._periodic_cantx_signals])
+                 format(signal_name=signal.snake_name.upper(),
+                        initial_value=signal.initial if signal.initial != None else '0'
+                        ) for msg in self._periodic_cantx_msgs for signal in msg.signals])
 
         self._Create = Function(
             'struct %sCanTxInterface* %s_Create(%s)'
@@ -64,29 +64,30 @@ class AppCanTxFileGenerator(CanFileGenerator):
 
         lst = []
 
-        for signal in self._periodic_cantx_signals:
-            if signal.is_float:
-                lst.append(Function(
-                    'void %s_SetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface, %s value)' % (
-                    function_prefix, signal.uppercase_name, self._sender.capitalize(), signal.type_name),
-                    '',
-                    '''\
+        for msg in self._periodic_cantx_msgs:
+            for signal in msg.signals:
+                if signal.is_float:
+                    lst.append(Function(
+                        'void %s_SetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface, %s value)' % (
+                        function_prefix, signal.snake_name.upper(), self._sender.capitalize(), signal.type_name),
+                        '',
+                        '''\
     if (App_CanMsgs_{msg_snakecase_name}_{signal_snakecase_name}_is_in_range(value) || isnanf(value))
     {{
         can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name} = value;
-    }}'''.format(msg_snakecase_name=signal.msg_name_snakecase,
-                 signal_snakecase_name=signal.snakecase_name)))
-            else:
-                lst.append(Function(
-                    'void %s_SetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface, %s value)' % (
-                    function_prefix, signal.uppercase_name, self._sender.capitalize(), signal.type_name),
-                    '',
-                    '''\
+    }}'''.format(msg_snakecase_name=msg.snake_name,
+                 signal_snakecase_name=signal.snake_name)))
+                else:
+                    lst.append(Function(
+                        'void %s_SetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface, %s value)' % (
+                        function_prefix, signal.snake_name.upper(), self._sender.capitalize(), signal.type_name),
+                        '',
+                        '''\
     if (App_CanMsgs_{msg_snakecase_name}_{signal_snakecase_name}_is_in_range(value))
     {{
         can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name} = value;
-    }}'''.format(msg_snakecase_name=signal.msg_name_snakecase,
-                 signal_snakecase_name=signal.snakecase_name)))
+    }}'''.format(msg_snakecase_name=msg.snake_name,
+                 signal_snakecase_name=signal.snake_name)))
 
         self._PeriodicTxSignalSetters = lst
 
