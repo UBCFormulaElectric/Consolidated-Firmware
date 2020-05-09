@@ -13,9 +13,6 @@ class AppCanTxFileGenerator(CanFileGenerator):
             list(msg for msg in self.__cantx_msgs if msg.cycle_time == 0)
         self._periodic_cantx_msgs = \
             list(msg for msg in self.__cantx_msgs if msg.cycle_time > 0)
-        self._periodic_cantx_signals = \
-            [CanSignal(signal.type_name, signal.snake_name, msg.snake_name, signal.initial, signal.is_float)
-             for msg in self._periodic_cantx_msgs for signal in msg.signals]
 
         # Initialize function objects so we can get its declaration and
         # definition when generating the source and header fie
@@ -240,9 +237,6 @@ class IoCanTxFileGenerator(CanFileGenerator):
         self._function_prefix = function_prefix
         self._non_periodic_cantx_msgs = list(msg for msg in self.__cantx_msgs if msg.cycle_time == 0)
         self._periodic_cantx_msgs = list(msg for msg in self.__cantx_msgs if msg.cycle_time > 0)
-        self._periodic_cantx_signals = \
-            [CanSignal(signal.type_name, signal.snake_name, msg.snake_name, signal.initial, signal.is_float)
-             for msg in self._periodic_cantx_msgs for signal in msg.signals]
 
         # Initialize function objects so we can get its declaration and
         # definition when generating the source and header fie

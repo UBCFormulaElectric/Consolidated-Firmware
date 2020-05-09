@@ -39,10 +39,10 @@ class AppCanRxFileGenerator(CanRxFileGenerator):
         initial_signal_setters = '\n'.join(
             ["""\
     App_CanRx_{msg_name}_SetSignal_{signal_name}(can_rx_interface, {initial_value});""".
-                format(msg_name=signal.msg_name_uppercase,
-                       signal_name=signal.uppercase_name,
-                       initial_value=signal.initial_value if signal.initial_value != None else '0'
-                       ) for signal in self._canrx_signals])
+                format(msg_name=msg.snake_name.upper(),
+                       signal_name=signal.snake_name.upper(),
+                       initial_value=signal.initial if signal.initial != None else '0'
+                       ) for msg in self._canrx_msgs for signal in msg.signals])
 
         self._Create = Function(
             'struct %sCanRxInterface* %s_Create(void)' % (self._receiver.capitalize(), function_prefix),
