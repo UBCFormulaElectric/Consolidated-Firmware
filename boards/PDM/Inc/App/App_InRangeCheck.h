@@ -1,6 +1,6 @@
 #pragma once
 
-#include "App_ErrorCode.h"
+#include "App_SharedExitStatus.h"
 
 struct InRangeCheck;
 
