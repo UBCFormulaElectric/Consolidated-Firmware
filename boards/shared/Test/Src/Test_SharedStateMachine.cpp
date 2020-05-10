@@ -17,9 +17,12 @@ FAKE_VOID_FUNC(state_B_entry, struct StateMachine *);
 FAKE_VOID_FUNC(state_B_tick_1Hz, struct StateMachine *);
 FAKE_VOID_FUNC(state_B_tick_1kHz, struct StateMachine *);
 FAKE_VOID_FUNC(state_B_exit, struct StateMachine *);
+FAKE_VOID_FUNC(state_C_entry, struct StateMachine *);
+FAKE_VOID_FUNC(state_C_exit, struct StateMachine *);
 
 static struct State state_A;
 static struct State state_B;
+static struct State state_C;
 
 class SharedStateMachineTest : public testing::Test
 {
@@ -37,6 +40,11 @@ class SharedStateMachineTest : public testing::Test
         state_B.run_on_tick_1Hz  = state_B_tick_1Hz;
         state_B.run_on_tick_1kHz = state_B_tick_1kHz;
         state_B.run_on_exit      = state_B_exit;
+
+        state_C.run_on_entry     = state_C_entry;
+        state_C.run_on_tick_1Hz  = NULL;
+        state_C.run_on_tick_1kHz = NULL;
+        state_C.run_on_exit      = state_C_exit;
 
         state_machine = App_SharedStateMachine_Create(world, &state_A);
 
@@ -89,4 +97,19 @@ TEST_F(
     App_SharedStateMachine_Tick1kHz(state_machine);
 
     EXPECT_EQ(state_B_tick_1kHz_fake.call_count, 1);
+}
+
+TEST_F(
+    SharedStateMachineTest,
+    check_that_null_tick_functions_dont_deadlock){
+    // This test was created to reproduce a bug whereby we would take the mutex
+    // with a null tick function and then would return without releasing it.
+    // Then the next time we called `tick` we would be stuck forever waiting
+    // for a lock on the mutex.
+    // The failure case for this test is it timing out. As long as it finishes
+    // we know we didn't deadlock.
+
+    SetInitialState(&state_C);
+    App_SharedStateMachine_Tick1Hz(state_machine);
+    App_SharedStateMachine_Tick1Hz(state_machine);
 }

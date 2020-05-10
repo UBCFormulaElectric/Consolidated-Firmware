@@ -4,7 +4,10 @@
 
 #ifdef __arm__
 #include <FreeRTOS.h>
-#include <semphr.h>
+#elif __unix__
+#include <pthread.h>
+#else
+#error "Could not determine what CPU this is being compiled for."
 #endif
 
 #include "App_SharedStateMachine.h"
@@ -17,6 +20,8 @@ struct StateMachine
 #ifdef __arm__
     StaticSemaphore_t state_tick_mutex_storage;
     SemaphoreHandle_t state_tick_mutex;
+#elif __unix__
+    pthread_mutex_t state_tick_mutex;
 #endif
 };
 
@@ -31,15 +36,17 @@ void App_SharedStateMachine_RunStateTickFunctionIfNotNull(
     struct StateMachine *const state_machine,
     void (*tick_function)(struct StateMachine *))
 {
-#ifdef __arm__
-    xSemaphoreTake(state_machine->state_tick_mutex, portMAX_DELAY);
-#endif
-
     if (tick_function == NULL)
     {
         // Nothing to do
         return;
     }
+
+#ifdef __arm__
+    xSemaphoreTake(state_machine->state_tick_mutex, portMAX_DELAY);
+#elif __unix__
+    pthread_mutex_lock(&(state_machine->state_tick_mutex));
+#endif
 
     tick_function(state_machine);
 
@@ -57,6 +64,8 @@ void App_SharedStateMachine_RunStateTickFunctionIfNotNull(
 
 #ifdef __arm__
     xSemaphoreGive(state_machine->state_tick_mutex);
+#elif __unix__
+    pthread_mutex_unlock(&(state_machine->state_tick_mutex));
 #endif
 }
 
@@ -76,6 +85,8 @@ struct StateMachine *App_SharedStateMachine_Create(
 #ifdef __arm__
     state_machine->state_tick_mutex =
         xSemaphoreCreateMutexStatic(&(state_machine->state_tick_mutex_storage));
+#elif __unix__
+    pthread_mutex_init(&(state_machine->state_tick_mutex), NULL);
 #endif
 
     return state_machine;
