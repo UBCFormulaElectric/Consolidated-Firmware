@@ -7,8 +7,7 @@
         const struct InRangeCheck *in_range_check,                             \
         void (*const can_signal_setter)(struct CAN_TX_INTERFACE *, float),     \
         void (*const out_of_range_setter)(struct CAN_TX_INTERFACE *, uint8_t), \
-        uint8_t in_range_choice, uint8_t underflow_choice,                     \
-        uint8_t overflow_choice)                                               \
+        uint8_t ok_choice, uint8_t underflow_choice, uint8_t overflow_choice)  \
     {                                                                          \
         float                    value;                                        \
         enum InRangeCheck_Status status =                                      \
@@ -18,7 +17,7 @@
         {                                                                      \
             case VALUE_IN_RANGE:                                               \
             {                                                                  \
-                out_of_range_setter(can_tx, in_range_choice);                  \
+                out_of_range_setter(can_tx, ok_choice);                        \
             }                                                                  \
             break;                                                             \
             case VALUE_UNDERFLOW:                                              \

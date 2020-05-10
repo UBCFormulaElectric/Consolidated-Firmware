@@ -1,4 +1,68 @@
 from codegen_shared import *
+from decimal import Decimal
+
+def _format_decimal(value, is_float=False):
+    if int(value) == value:
+        value = int(value)
+
+        if is_float:
+            return str(value) + '.0'
+        else:
+            return str(value)
+    else:
+        return str(value)
+
+def _generate_clamp(signal):
+    """
+    Generate a clamping expression for a given CAN signal value
+    """
+    scale = signal.decimal.scale
+    offset = (signal.decimal.offset / scale)
+    minimum = signal.decimal.minimum
+    maximum = signal.decimal.maximum
+
+    if minimum is not None:
+        minimum = (minimum / scale - offset)
+
+    if maximum is not None:
+        maximum = (maximum / scale - offset)
+
+    if minimum is None and signal.minimum_value is not None:
+        if signal.minimum_value > signal.minimum_type_value:
+            minimum = signal.minimum_value
+
+    if maximum is None and signal.maximum_value is not None:
+        if signal.maximum_value < signal.maximum_type_value:
+            maximum = signal.maximum_value
+
+    suffix = signal.type_suffix
+    check = []
+
+    if minimum is not None:
+        if not signal.is_float:
+            minimum = Decimal(int(minimum))
+
+        minimum_type_value = signal.minimum_type_value
+
+        if (minimum_type_value is None) or (minimum > minimum_type_value):
+            minimum = _format_decimal(minimum, signal.is_float)
+            check.append('(value < {minimum}) ? {minimum} :'.format(minimum=minimum + suffix))
+
+    if maximum is not None:
+        if not signal.is_float:
+            maximum = Decimal(int(maximum))
+
+        maximum_type_value = signal.maximum_type_value
+
+        if (maximum_type_value is None) or (maximum < maximum_type_value):
+            maximum = _format_decimal(maximum, signal.is_float)
+            check.append('(value > {maximum}) ? {maximum} : value'.format(maximum=maximum + suffix))
+
+    if not check:
+        return '(void)value;'
+    else:
+        return 'value = {};'.format(' '.join(check))
+
 
 class AppCanTxFileGenerator(CanFileGenerator):
     def __init__(self, database, output_path, sender, function_prefix):
@@ -13,9 +77,6 @@ class AppCanTxFileGenerator(CanFileGenerator):
             list(msg for msg in self.__cantx_msgs if msg.cycle_time == 0)
         self._periodic_cantx_msgs = \
             list(msg for msg in self.__cantx_msgs if msg.cycle_time > 0)
-        self._periodic_cantx_signals = \
-            [CanSignal(signal.type_name, signal.snake_name, msg.snake_name, signal.initial, signal.is_float)
-             for msg in self._periodic_cantx_msgs for signal in msg.signals]
 
         # Initialize function objects so we can get its declaration and
         # definition when generating the source and header fie
@@ -34,9 +95,9 @@ class AppCanTxFileGenerator(CanFileGenerator):
         initial_signal_setters = '\n'.join(
             ["""\
     App_CanTx_SetPeriodicSignal_{signal_name}(can_tx_interface, {initial_value});""".
-                 format(signal_name=signal.uppercase_name,
-                        initial_value=signal.initial_value if signal.initial_value != None else '0'
-                        ) for signal in self._periodic_cantx_signals])
+                 format(signal_name=signal.snake_name.upper(),
+                        initial_value=signal.initial if signal.initial != None else '0'
+                        ) for msg in self._periodic_cantx_msgs for signal in msg.signals])
 
         self._Create = Function(
             'struct %sCanTxInterface* %s_Create(%s)'
@@ -64,41 +125,53 @@ class AppCanTxFileGenerator(CanFileGenerator):
 
         lst = []
 
-        for signal in self._periodic_cantx_signals:
-            if signal.is_float:
-                lst.append(Function(
-                    'void %s_SetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface, %s value)' % (
-                    function_prefix, signal.uppercase_name, self._sender.capitalize(), signal.type_name),
-                    '',
-                    '''\
-    if (App_CanMsgs_{msg_snakecase_name}_{signal_snakecase_name}_is_in_range(value) || isnanf(value))
+        for msg in self._periodic_cantx_msgs:
+            for signal in msg.signals:
+
+                clamp = _generate_clamp(signal)
+             
+                if signal.is_float:
+                    lst.append(Function(
+                        'void %s_SetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface, %s value)' % (
+                        function_prefix, signal.snake_name.upper(), self._sender.capitalize(), signal.type_name),
+                        '',
+                        '''\
+    if (isnanf(value))
     {{
         can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name} = value;
-    }}'''.format(msg_snakecase_name=signal.msg_name_snakecase,
-                 signal_snakecase_name=signal.snakecase_name)))
-            else:
-                lst.append(Function(
-                    'void %s_SetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface, %s value)' % (
-                    function_prefix, signal.uppercase_name, self._sender.capitalize(), signal.type_name),
-                    '',
-                    '''\
-    if (App_CanMsgs_{msg_snakecase_name}_{signal_snakecase_name}_is_in_range(value))
+    }}
+    else
     {{
+        // Clamp the given value if it is out of range
+        {clamp}
         can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name} = value;
-    }}'''.format(msg_snakecase_name=signal.msg_name_snakecase,
-                 signal_snakecase_name=signal.snakecase_name)))
+    }}'''.format(msg_snakecase_name=msg.snake_name,
+                 signal_snakecase_name=signal.snake_name,
+                 clamp=clamp)))
+                else:
+                    lst.append(Function(
+                        'void %s_SetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface, %s value)' % (
+                        function_prefix, signal.snake_name.upper(), self._sender.capitalize(), signal.type_name),
+                        '',
+                        '''\
+    // Clamp the given value if it is out of range
+    {clamp}
+    can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name} = value;'''.format(
+            msg_snakecase_name=msg.snake_name,
+            signal_snakecase_name=signal.snake_name,
+            clamp=clamp)))
 
         self._PeriodicTxSignalSetters = lst
 
         self._PeriodicTxSignalGetters = list(Function(
             '%s %s_GetPeriodicSignal_%s(const struct %sCanTxInterface* can_tx_interface)' % (
-            signal.type_name, function_prefix, signal.uppercase_name, self._sender.capitalize()),
+            signal.type_name, function_prefix, signal.snake_name.upper(), self._sender.capitalize()),
             '',
             '''\
-        return can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name};'''.format(
-                msg_snakecase_name=signal.msg_name_snakecase,
-                signal_snakecase_name=signal.snakecase_name)
-        ) for signal in self._periodic_cantx_signals)
+    return can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name};'''.format(
+                msg_snakecase_name=msg.snake_name,
+                signal_snakecase_name=signal.snake_name)
+        ) for msg in self._periodic_cantx_msgs for signal in msg.signals)
 
         self._PeriodicTxMsgPointerGetters = list(Function(
             'const struct CanMsgs_%s_t* %s_GetPeriodicMsgPointer_%s(const struct %sCanTxInterface* can_tx_interface)' % (
@@ -239,9 +312,6 @@ class IoCanTxFileGenerator(CanFileGenerator):
         self._function_prefix = function_prefix
         self._non_periodic_cantx_msgs = list(msg for msg in self.__cantx_msgs if msg.cycle_time == 0)
         self._periodic_cantx_msgs = list(msg for msg in self.__cantx_msgs if msg.cycle_time > 0)
-        self._periodic_cantx_signals = \
-            [CanSignal(signal.type_name, signal.snake_name, msg.snake_name, signal.initial, signal.is_float)
-             for msg in self._periodic_cantx_msgs for signal in msg.signals]
 
         # Initialize function objects so we can get its declaration and
         # definition when generating the source and header fie
