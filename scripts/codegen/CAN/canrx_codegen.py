@@ -5,17 +5,6 @@ class CanRxFileGenerator(CanFileGenerator):
         super().__init__(database, output_path, receiver)
         self._receiver = receiver
         self._canrx_msgs = self.__get_canrx_msgs()
-        self._canrx_signals = self.__get_canrx_signals()
-
-    def __get_canrx_signals(self):
-        canrx_signals = []
-        for msg in self.__get_canrx_msgs():
-            for signal in msg.signals:
-                if self._receiver in signal.receivers:
-                    canrx_signals.append(
-                        CanSignal(signal.type_name, signal.snake_name,
-                                    msg.snake_name, signal.initial, signal.is_float))
-        return canrx_signals
 
     def __get_canrx_msgs(self):
         canrx_msg = []
@@ -67,29 +56,29 @@ class AppCanRxFileGenerator(CanRxFileGenerator):
         self._CanRxSignalGetters = [
             Function('%s %s_%s_GetSignal_%s (const struct %sCanRxInterface* can_rx_interface)'
                      % (signal.type_name, function_prefix, 
-                         signal.msg_name_uppercase, signal.uppercase_name, 
+                         msg.snake_name.upper(), signal.snake_name.upper(), 
                          self._receiver.capitalize()),
                      '',
                      '''\
     return can_rx_interface->can_rx_table.{msg_name}.{signal_name};'''.format(
                          signal_type=signal.type_name,
-                         signal_name=signal.snakecase_name,
-                         msg_name=signal.msg_name_snakecase))
-            for signal in self._canrx_signals]
+                         signal_name=signal.snake_name,
+                         msg_name=msg.snake_name))
+            for msg in self._canrx_msgs for signal in msg.signals]
 
         self._CanRxSignalSetters = list(Function(
             'void %s_%s_SetSignal_%s(struct %sCanRxInterface* can_rx_interface, %s value)' % (
-            function_prefix, signal.msg_name_snakecase.upper(), 
-            signal.uppercase_name, self._receiver.capitalize(), signal.type_name),
+            function_prefix, msg.snake_name.upper(), 
+            signal.snake_name.upper(), self._receiver.capitalize(), signal.type_name),
             '',
             '''\
     if (App_CanMsgs_{msg_snakecase_name}_{signal_snakecase_name}_is_in_range(value) == true)
     {{
         can_rx_interface->can_rx_table.{msg_snakecase_name}.{signal_snakecase_name} = value;
     }}'''.format(
-                msg_snakecase_name=signal.msg_name_snakecase,
-                signal_snakecase_name=signal.snakecase_name)
-        ) for signal in self._canrx_signals)
+                msg_snakecase_name=msg.snake_name,
+                signal_snakecase_name=signal.snake_name)
+        ) for msg in self._canrx_msgs for signal in msg.signals)
 
 class AppCanRxHeaderFileGenerator(AppCanRxFileGenerator):
     def __init__(self, database, output_path, receiver, function_prefix):
