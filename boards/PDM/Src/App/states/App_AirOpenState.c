@@ -14,8 +14,8 @@ static void AirOpenStateRunOnEntry(struct StateMachine *const state_machine)
 static void AirOpenStateRunOnTick(struct StateMachine *const state_machine)
 {
     struct PdmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    App_SetPeriodicCanSignals_CurrentChecks(world);
-    App_SetPeriodicCanSignals_VoltageChecks(world);
+    App_SetPeriodicCanSignals_CurrentInRangeChecks(world);
+    App_SetPeriodicCanSignals_VoltageInRangeChecks(world);
 }
 
 static void AirOpenStateRunOnExit(struct StateMachine *const state_machine)

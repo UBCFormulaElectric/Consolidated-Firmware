@@ -140,7 +140,7 @@ float32_t Io_SharedAdc_GetActualVdda(void)
 
     return (float32_t)(
         3.3f * (float32_t)(GetVrefintCalibrationValue()) /
-        adc_values[vrefint_index]);
+        (float)adc_values[vrefint_index]);
 }
 
 float32_t Io_SharedAdc_GetAdcVoltage(uint32_t regular_rank)

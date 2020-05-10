@@ -1,9 +1,10 @@
+#include <limits.h>
 #include "main.h"
 #include "Io_DriveModeSwitch.h"
 
 uint32_t Io_DriveModeSwitch_GetPosition(void)
 {
-    uint32_t position = -1;
+    uint32_t position = UINT_MAX;
 
     // The DRIVE_MODE pins are active high
     if (HAL_GPIO_ReadPin(DRIVE_MODE1_GPIO_Port, DRIVE_MODE1_Pin) ==

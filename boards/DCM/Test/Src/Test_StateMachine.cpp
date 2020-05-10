@@ -6,8 +6,11 @@ extern "C"
 #include "states/App_InitState.h"
 #include "states/App_DriveState.h"
 #include "states/App_FaultState.h"
+#include "configs/App_HeartbeatMonitorConfig.h"
 }
 
+namespace StateMachineTest
+{
 FAKE_VOID_FUNC(
     send_non_periodic_msg_DCM_STARTUP,
     const struct CanMsgs_dcm_startup_t *);
@@ -28,19 +31,19 @@ class DcmStateMachineTest : public testing::Test
   protected:
     void SetUp() override
     {
-        constexpr uint32_t DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS = 500U;
-        constexpr enum HeartbeatOneHot DEFAULT_HEARTBEAT_BOARDS_TO_CHECK =
-            BMS_HEARTBEAT_ONE_HOT;
-
         can_tx_interface = App_CanTx_Create(
             send_non_periodic_msg_DCM_STARTUP,
             send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT);
-        can_rx_interface  = App_CanRx_Create();
+
+        can_rx_interface = App_CanRx_Create();
+
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-            get_current_ms, DEFAULT_HEARTBEAT_TIMEOUT_PERIOD_MS,
-            DEFAULT_HEARTBEAT_BOARDS_TO_CHECK, heartbeat_timeout_callback);
+            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS,
+            HEARTBEAT_MONITOR_BOARDS_TO_CHECK, heartbeat_timeout_callback);
+
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
+
         world = App_DcmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
             rgb_led_sequence);
@@ -60,45 +63,27 @@ class DcmStateMachineTest : public testing::Test
 
     void TearDown() override
     {
-        ASSERT_TRUE(world != NULL);
-        App_DcmWorld_Destroy(world);
-        world = NULL;
-
-        ASSERT_TRUE(can_tx_interface != NULL);
-        App_CanTx_Destroy(can_tx_interface);
-        can_tx_interface = NULL;
-
-        ASSERT_TRUE(can_rx_interface != NULL);
-        App_CanRx_Destroy(can_rx_interface);
-        can_rx_interface = NULL;
-
-        ASSERT_TRUE(heartbeat_monitor != NULL);
-        App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
-        heartbeat_monitor = NULL;
-
-        ASSERT_TRUE(rgb_led_sequence != NULL);
-        App_SharedRgbLedSequence_Destroy(rgb_led_sequence);
-        rgb_led_sequence = NULL;
-
-        ASSERT_TRUE(state_machine != NULL);
-        App_SharedStateMachine_Destroy(state_machine);
-        state_machine = NULL;
+        TearDownObject(world, App_DcmWorld_Destroy);
+        TearDownObject(state_machine, App_SharedStateMachine_Destroy);
+        TearDownObject(can_tx_interface, App_CanTx_Destroy);
+        TearDownObject(can_rx_interface, App_CanRx_Destroy);
+        TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
+        TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
     {
-        App_SharedStateMachine_Destroy(state_machine);
+        TearDownObject(state_machine, App_SharedStateMachine_Destroy);
         state_machine = App_SharedStateMachine_Create(world, initial_state);
-        ASSERT_TRUE(state_machine != NULL);
         ASSERT_EQ(
             initial_state,
             App_SharedStateMachine_GetCurrentState(state_machine));
     }
 
     struct World *            world;
+    struct StateMachine *     state_machine;
     struct DcmCanTxInterface *can_tx_interface;
     struct DcmCanRxInterface *can_rx_interface;
-    struct StateMachine *     state_machine;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
 };
@@ -143,3 +128,5 @@ TEST_F(DcmStateMachineTest, check_fault_state_is_broadcasted_over_can)
         CANMSGS_DCM_STATE_MACHINE_STATE_FAULT_CHOICE,
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
+
+} // namespace StateMachineTest
