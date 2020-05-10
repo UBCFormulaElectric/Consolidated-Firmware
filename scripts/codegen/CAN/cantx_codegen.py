@@ -12,8 +12,10 @@ def _format_decimal(value, is_float=False):
     else:
         return str(value)
 
-def _generate_is_in_range(signal):
-
+def _generate_clamp(signal):
+    """
+    Generate a clamping expression for a given CAN signal value
+    """
     scale = signal.decimal.scale
     offset = (signal.decimal.offset / scale)
     minimum = signal.decimal.minimum
@@ -126,7 +128,7 @@ class AppCanTxFileGenerator(CanFileGenerator):
         for msg in self._periodic_cantx_msgs:
             for signal in msg.signals:
 
-                check = _generate_is_in_range(signal)
+                clamp = _generate_clamp(signal)
              
                 if signal.is_float:
                     lst.append(Function(
@@ -142,11 +144,11 @@ class AppCanTxFileGenerator(CanFileGenerator):
     else
     {{
         // Clamp the given value if it is out of range
-        {check}
+        {clamp}
         can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name} = value;
     }}'''.format(msg_snakecase_name=msg.snake_name,
                  signal_snakecase_name=signal.snake_name,
-                 check=check)))
+                 clamp=clamp)))
                 else:
                     lst.append(Function(
                         'void %s_SetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface, %s value)' % (
@@ -154,11 +156,11 @@ class AppCanTxFileGenerator(CanFileGenerator):
                         '',
                         '''\
     // Clamp the given value if it is out of range
-    {check}
+    {clamp}
     can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name} = value;'''.format(
             msg_snakecase_name=msg.snake_name,
             signal_snakecase_name=signal.snake_name,
-            check=check)))
+            clamp=clamp)))
 
         self._PeriodicTxSignalSetters = lst
 
