@@ -1,12 +1,14 @@
 #include <gtest/gtest.h>
 #include <fff.h>
 
+#include "Test_Utils.h"
+#include "App_TestWorld.h"
+
 extern "C"
 {
 #include "App_SharedStateMachine.h"
 }
 
-#include "App_TestWorld.h"
 
 FAKE_VOID_FUNC(state_A_entry, struct StateMachine *);
 FAKE_VOID_FUNC(state_A_tick_1kHz, struct StateMachine *);
@@ -49,13 +51,8 @@ class SharedStateMachineTest : public testing::Test
 
     void TearDown() override
     {
-        ASSERT_TRUE(world != NULL);
-        App_TestWorld_Destroy(world);
-        world = NULL;
-
-        ASSERT_TRUE(state_machine != NULL);
-        App_SharedStateMachine_Destroy(state_machine);
-        state_machine = NULL;
+        TearDownObject(world, App_TestWorld_Destroy);
+        TearDownObject(state_machine, App_SharedStateMachine_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)

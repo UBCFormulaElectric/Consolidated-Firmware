@@ -14,12 +14,11 @@ struct StateMachine
     const struct State *next_state;
     const struct State *current_state;
     struct World *      world;
-};
-
 #ifdef __arm__
-static StaticSemaphore_t state_tick_mutex_storage;
-static SemaphoreHandle_t state_tick_mutex;
+    StaticSemaphore_t state_tick_mutex_storage;
+    SemaphoreHandle_t state_tick_mutex;
 #endif
+};
 
 /**
  * Run the given tick function over the given state machine if the tick function
@@ -33,7 +32,7 @@ void App_SharedStateMachine_RunStateTickFunctionIfNotNull(
     void (*tick_function)(struct StateMachine *))
 {
 #ifdef __arm__
-    xSemaphoreTake(state_tick_mutex, portMAX_DELAY);
+    xSemaphoreTake(state_machine->state_tick_mutex, portMAX_DELAY);
 #endif
 
     if (tick_function == NULL)
@@ -57,7 +56,7 @@ void App_SharedStateMachine_RunStateTickFunctionIfNotNull(
     state_machine->next_state = state_machine->current_state;
 
 #ifdef __arm__
-    xSemaphoreGive(state_tick_mutex);
+    xSemaphoreGive(state_machine->state_tick_mutex);
 #endif
 }
 
@@ -65,10 +64,6 @@ struct StateMachine *App_SharedStateMachine_Create(
     struct World *      world,
     const struct State *initial_state)
 {
-#ifdef __arm__
-    state_tick_mutex = xSemaphoreCreateMutexStatic(&state_tick_mutex_storage);
-#endif
-
     struct StateMachine *state_machine =
         (struct StateMachine *)malloc(sizeof(struct StateMachine));
     assert(state_machine != NULL);
@@ -78,6 +73,10 @@ struct StateMachine *App_SharedStateMachine_Create(
     state_machine->current_state = initial_state;
     state_machine->next_state    = initial_state;
     state_machine->current_state->run_on_entry(state_machine);
+#ifdef __arm__
+    state_machine->state_tick_mutex =
+        xSemaphoreCreateMutexStatic(&(state_machine->state_tick_mutex_storage));
+#endif
 
     return state_machine;
 }
