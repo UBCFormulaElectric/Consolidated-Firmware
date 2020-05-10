@@ -213,8 +213,6 @@ class PdmStateMachineTest : public testing::Test
                 min_current, std::numeric_limits<float>::lowest());
             App_SharedStateMachine_Tick(state_machine);
             EXPECT_EQ(
-                fake_current, current_can_signal_getter(can_tx_interface));
-            EXPECT_EQ(
                 underflow_choice,
                 out_of_range_can_signal_getter(can_tx_interface));
 
@@ -222,8 +220,6 @@ class PdmStateMachineTest : public testing::Test
             fake_current =
                 std::nextafter(max_current, std::numeric_limits<float>::max());
             App_SharedStateMachine_Tick(state_machine);
-            EXPECT_EQ(
-                fake_current, current_can_signal_getter(can_tx_interface));
             EXPECT_EQ(
                 overflow_choice,
                 out_of_range_can_signal_getter(can_tx_interface));
@@ -295,8 +291,6 @@ class PdmStateMachineTest : public testing::Test
                 min_voltage, std::numeric_limits<float>::lowest());
             App_SharedStateMachine_Tick(state_machine);
             EXPECT_EQ(
-                fake_voltage, voltage_can_signal_getter(can_tx_interface));
-            EXPECT_EQ(
                 underflow_choice,
                 out_of_range_can_signal_getter(can_tx_interface));
 
@@ -304,8 +298,6 @@ class PdmStateMachineTest : public testing::Test
             fake_voltage =
                 std::nextafter(max_voltage, std::numeric_limits<float>::max());
             App_SharedStateMachine_Tick(state_machine);
-            EXPECT_EQ(
-                fake_voltage, voltage_can_signal_getter(can_tx_interface));
             EXPECT_EQ(
                 overflow_choice,
                 out_of_range_can_signal_getter(can_tx_interface));
