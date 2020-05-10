@@ -636,7 +636,8 @@ struct Efuse
 void Io_Efuse_Init(SPI_HandleTypeDef *const hspi);
 
 /**
- * Configures the Efuse's registers using the values defined in: REGISTERNAME_CONFIG
+ * Configures the Efuse's registers using the values defined in:
+ * REGISTERNAME_CONFIG
  * @param e_fuse Pointer to Efuse structure being configured
  */
 void Io_Efuse_ConfigureEfuse(struct Efuse *e_fuse);
@@ -653,7 +654,7 @@ void Io_Efuse_ConfigureEfuse(struct Efuse *e_fuse);
  * @param e_fuse Pointer to Efuse structure being configured
  */
 void Io_Efuse_Configure_Channel_Monitoring(
-    uint8_t        selection,
+    uint8_t       selection,
     struct Efuse *e_fuse);
 
 /**
@@ -664,8 +665,8 @@ void Io_Efuse_Configure_Channel_Monitoring(
 void Io_Efuse_UpdateStatus(struct Efuse *e_fuse);
 
 /**
- * Get the value of the Efuse's Fault Register over SPI and updates the Efuse handle's fault status
- * handle's fault status
+ * Get the value of the Efuse's Fault Register over SPI and updates the Efuse
+ * handle's fault status handle's fault status
  * @param e_fuse Pointer to Efuse structure being checked
  */
 void Io_Efuse_UpdateFaults(struct Efuse *e_fuse);
@@ -677,8 +678,8 @@ void Io_Efuse_UpdateFaults(struct Efuse *e_fuse);
  * @param e_fuse Pointer to Efuse structure being written to
  */
 void Io_Efuse_WriteReg(
-    uint8_t        register_address,
-    uint16_t       register_value,
+    uint8_t       register_address,
+    uint16_t      register_value,
     struct Efuse *e_fuse);
 
 /**
@@ -687,17 +688,16 @@ void Io_Efuse_WriteReg(
  * @param e_fuse Pointer to Efuse structure being read from
  * @return Contents of the addressed register
  */
-uint16_t
-    Io_Efuse_ReadReg(uint8_t register_address, struct Efuse *e_fuse);
+uint16_t Io_Efuse_ReadReg(uint8_t register_address, struct Efuse *e_fuse);
 
 /**
  * Calculates the parity of the SPI command to be sent to the Efuse.
  * Using the XOR sum of bits method taken from:
  * https://en.wikipedia.org/wiki/Parity_bit#Parity
  * @param spi_command Original SPI command without the parity bit
- * @return Returns 1 if the parity bit needs to be set, else returns 0
+ * @return Returns true if the parity bit needs to be set
  */
-uint8_t Io_Efuse_Cal_Parity_Bit(uint16_t spi_command);
+bool Io_Efuse_Set_Parity_Bit(uint16_t spi_command);
 
 /**
  * Write SPI data to Efuse in blocking mode
