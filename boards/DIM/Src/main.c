@@ -29,6 +29,7 @@
 #include "App_DimWorld.h"
 #include "App_SevenSegDisplay.h"
 #include "App_SharedStateMachine.h"
+#include "App_SharedExitStatus.h"
 #include "states/App_DriveState.h"
 #include "configs/App_RotarySwitchConfig.h"
 #include "configs/App_RegenPaddleConfig.h"
@@ -556,6 +557,8 @@ void RunTask100Hz(void const *argument)
     UNUSED(argument);
     uint32_t                PreviousWakeTime = osKernelSysTick();
     static const TickType_t period_ms        = 10;
+    static struct ExitStatus exit_status;
+    vTaskSetThreadLocalStoragePointer(NULL, 0, &exit_status);
 
     /* Infinite loop */
     for (;;)
@@ -577,6 +580,8 @@ void RunTaskCanRx(void const *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
     UNUSED(argument);
+    static struct ExitStatus exit_status;
+    vTaskSetThreadLocalStoragePointer(NULL, 0, &exit_status);
 
     /* Infinite loop */
     for (;;)
@@ -600,6 +605,8 @@ void RunTaskCanTx(void const *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
     UNUSED(argument);
+    static struct ExitStatus exit_status;
+    vTaskSetThreadLocalStoragePointer(NULL, 0, &exit_status);
 
     /* Infinite loop */
     for (;;)
@@ -622,6 +629,8 @@ void StartTask1kHz(void const *argument)
     UNUSED(argument);
     uint32_t                PreviousWakeTime = osKernelSysTick();
     static const TickType_t period_ms        = 1;
+    static struct ExitStatus exit_status;
+    vTaskSetThreadLocalStoragePointer(NULL, 0, &exit_status);
 
     /* Infinite loop */
     for (;;)

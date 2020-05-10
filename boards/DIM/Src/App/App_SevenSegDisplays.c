@@ -85,7 +85,7 @@ ExitCode App_SevenSegDisplays_SetHexDigits(
 
     seven_seg_displays->display_value_callback();
 
-    return EXIT_CODE_OK;
+    return EXIT_CODE(EXIT_CODE_OK);
 }
 
 ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(
@@ -94,7 +94,7 @@ ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(
 {
     if (value > pow(10, NUM_SEVEN_SEG_DISPLAYS) - 1)
     {
-        return EXIT_CODE_INVALID_ARGS;
+        return EXIT_CODE(EXIT_CODE_INVALID_ARGS);
     }
 
     uint8_t digits[NUM_SEVEN_SEG_DISPLAYS];
@@ -115,5 +115,5 @@ ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(
         }
     }
 
-    return EXIT_CODE_OK;
+    return EXIT_CODE(EXIT_CODE_OK);
 }

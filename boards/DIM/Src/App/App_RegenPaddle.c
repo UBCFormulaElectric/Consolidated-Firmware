@@ -36,18 +36,16 @@ ExitCode App_RegenPaddle_GetRawPaddlePosition(
 {
     const uint32_t raw_paddle_position =
         regen_paddle->get_raw_paddle_position();
-    ExitCode exit_code = EXIT_CODE_OK;
 
     if (raw_paddle_position > 100)
     {
-        exit_code = EXIT_CODE_OUT_OF_RANGE;
+        return EXIT_CODE(EXIT_CODE_OUT_OF_RANGE);
     }
     else
     {
         *returned_raw_paddle_position = raw_paddle_position;
+        return EXIT_CODE(EXIT_CODE_OK);
     }
-
-    return exit_code;
 }
 
 ExitCode App_RegenPaddle_GetMappedPaddlePosition(
@@ -56,11 +54,10 @@ ExitCode App_RegenPaddle_GetMappedPaddlePosition(
 {
     const uint32_t raw_paddle_position =
         regen_paddle->get_raw_paddle_position();
-    ExitCode exit_code = EXIT_CODE_OK;
 
     if (raw_paddle_position > 100)
     {
-        exit_code = EXIT_CODE_OUT_OF_RANGE;
+        return EXIT_CODE(EXIT_CODE_OUT_OF_RANGE);
     }
     else
     {
@@ -78,7 +75,7 @@ ExitCode App_RegenPaddle_GetMappedPaddlePosition(
                 100 * (raw_paddle_position - regen_paddle->lower_deadzone) /
                 (regen_paddle->upper_deadzone - regen_paddle->lower_deadzone);
         }
-    }
 
-    return exit_code;
+        return EXIT_CODE(EXIT_CODE_OK);
+    }
 }
