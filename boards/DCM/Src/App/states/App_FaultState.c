@@ -13,7 +13,6 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 
 static void FaultStateRunOnTick(struct StateMachine *const state_machine)
 {
-
     App_AllStatesRunOnTick(state_machine);
 }
 

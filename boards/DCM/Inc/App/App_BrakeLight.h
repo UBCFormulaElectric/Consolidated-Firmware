@@ -27,7 +27,7 @@ void App_BrakeLight_Destroy(struct BrakeLight *brake_light);
  * @param is_brake_actuated True if the brake exceeds its actuation threshold,
  *                          else false
  * @param is_regen_active True if negative torque (regenetrative braking) is
- *                        sent to the inverter, else false
+ *                        being sent to the inverter, else false
  */
 void App_BrakeLight_SetLightStatus(
     struct BrakeLight *brake_light,
