@@ -697,7 +697,7 @@ uint16_t Io_Efuse_ReadReg(uint8_t register_address, struct Efuse *e_fuse);
  * @param spi_command Original SPI command without the parity bit
  * @return Returns true if the parity bit needs to be set
  */
-bool Io_Efuse_Set_Parity_Bit(uint16_t spi_command);
+bool Io_Efuse_SetParityBit(uint16_t* spi_command);
 
 /**
  * Write SPI data to Efuse in blocking mode
