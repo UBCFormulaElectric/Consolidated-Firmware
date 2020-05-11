@@ -94,9 +94,8 @@ void Io_Efuse_WriteReg(
     // Invert watchdog bit state for next write
     e_fuse->watch_dog_state = !e_fuse->watch_dog_state;
     // Compute parity
-    set_parity_bit = Io_Efuse_Set_Parity_Bit(command);
-    // Set parity value
-    if (set_parity_bit)
+    // Compute and set parity value
+    if (Io_Efuse_Set_Parity_Bit(command)
     {
         SET_BIT(command, PARITY_BIT);
     }
