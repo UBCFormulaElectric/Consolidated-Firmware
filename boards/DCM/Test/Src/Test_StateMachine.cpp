@@ -1,3 +1,4 @@
+#include <math.h>
 #include "Test_Dcm.h"
 
 extern "C"
@@ -25,8 +26,6 @@ FAKE_VOID_FUNC(
 FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
-FAKE_VALUE_FUNC(bool, is_brake_actuated);
-FAKE_VALUE_FUNC(bool, is_regen_active);
 FAKE_VOID_FUNC(turn_on_brake_light);
 FAKE_VOID_FUNC(turn_off_brake_light);
 
@@ -48,9 +47,8 @@ class DcmStateMachineTest : public testing::Test
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
-        brake_light = App_BrakeLight_Create(
-            is_brake_actuated, is_regen_active, turn_on_brake_light,
-            turn_off_brake_light);
+        brake_light =
+            App_BrakeLight_Create(turn_on_brake_light, turn_off_brake_light);
 
         world = App_DcmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
@@ -67,6 +65,8 @@ class DcmStateMachineTest : public testing::Test
         RESET_FAKE(turn_on_red_led);
         RESET_FAKE(turn_on_green_led);
         RESET_FAKE(turn_on_blue_led);
+        RESET_FAKE(turn_on_brake_light);
+        RESET_FAKE(turn_off_brake_light);
     }
 
     void TearDown() override
@@ -86,6 +86,15 @@ class DcmStateMachineTest : public testing::Test
         ASSERT_EQ(
             initial_state,
             App_SharedStateMachine_GetCurrentState(state_machine));
+    }
+
+    std::vector<const struct State *> GetAllStates(void)
+    {
+        return std::vector<const struct State *>{
+            App_GetInitState(),
+            App_GetDriveState(),
+            App_GetFaultState(),
+        };
     }
 
     struct World *            world;
@@ -136,6 +145,60 @@ TEST_F(DcmStateMachineTest, check_fault_state_is_broadcasted_over_can)
     EXPECT_EQ(
         CANMSGS_DCM_STATE_MACHINE_STATE_FAULT_CHOICE,
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+}
+
+TEST_F(DcmStateMachineTest, brake_light_control_in_all_states)
+{
+    for (const auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        // Brake = Not actuated
+        // Regen = Not active
+        App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(
+            can_rx_interface, false);
+        App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 0.0f);
+        App_SharedStateMachine_Tick(state_machine);
+        ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), false);
+        ASSERT_EQ(turn_on_brake_light_fake.call_count, 0);
+        ASSERT_EQ(turn_off_brake_light_fake.call_count, 1);
+
+        // Brake = Not actuated
+        // Regen = Active
+        App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(
+            can_rx_interface, false);
+        App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(
+            can_tx_interface,
+            std::nextafter(0.0f, std::numeric_limits<float>::lowest()));
+        App_SharedStateMachine_Tick(state_machine);
+        ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), true);
+        ASSERT_EQ(turn_on_brake_light_fake.call_count, 1);
+        ASSERT_EQ(turn_off_brake_light_fake.call_count, 1);
+
+        // Brake = Actuated
+        // Regen = Not active
+        App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(can_rx_interface, true);
+        App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 0.0f);
+        App_SharedStateMachine_Tick(state_machine);
+        ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), true);
+        ASSERT_EQ(turn_on_brake_light_fake.call_count, 2);
+        ASSERT_EQ(turn_off_brake_light_fake.call_count, 1);
+
+        // Brake = Actuated
+        // Regen = Active
+        App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(can_rx_interface, true);
+        App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(
+            can_tx_interface,
+            std::nextafter(0.0f, std::numeric_limits<float>::lowest()));
+        App_SharedStateMachine_Tick(state_machine);
+        ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), true);
+        ASSERT_EQ(turn_on_brake_light_fake.call_count, 3);
+        ASSERT_EQ(turn_off_brake_light_fake.call_count, 1);
+
+        // Manually reset the call count for the fake functions
+        RESET_FAKE(turn_on_brake_light);
+        RESET_FAKE(turn_off_brake_light);
+    }
 }
 
 } // namespace StateMachineTest
