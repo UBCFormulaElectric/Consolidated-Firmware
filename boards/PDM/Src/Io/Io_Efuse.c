@@ -32,7 +32,7 @@ void Io_Efuse_ConfigureEfuse(struct Efuse *e_fuse)
     Io_Efuse_WriteReg(SI_OCR_1_ADDR, OCR_1_CONFIG, e_fuse);
 }
 
-void Io_Efuse_Configure_Channel_Monitoring(
+void Io_Efuse_ConfigureChannelMonitoring(
     uint8_t       selection,
     struct Efuse *e_fuse)
 {
@@ -75,7 +75,6 @@ void Io_Efuse_WriteReg(
 {
     HAL_StatusTypeDef status;
     uint16_t          command        = 0x0000U;
-    bool              set_parity_bit = false;
 
     // Place the register address into bits 10->13
     command =
@@ -93,28 +92,22 @@ void Io_Efuse_WriteReg(
     }
     // Invert watchdog bit state for next write
     e_fuse->watch_dog_state = !e_fuse->watch_dog_state;
-    // Compute parity
-    // Compute and set parity value
-    if (Io_Efuse_Set_Parity_Bit(command)
-    {
-        SET_BIT(command, PARITY_BIT);
-    }
-    else
-    {
-        CLEAR_BIT(command, PARITY_BIT);
-    }
-    status = Io_Efuse_WriteToEfuse(
-        &command, e_fuse->chip_select.GPIO_Port, e_fuse->chip_select.GPIO_Pin);
+
+    // Compute and set/clear parity value
+    Io_Efuse_SetParityBit(&command);
+
+        status = Io_Efuse_WriteToEfuse(
+            &command, e_fuse->chip_select.GPIO_Port,
+            e_fuse->chip_select.GPIO_Pin);
     UNUSED(status);
 }
 
 uint16_t Io_Efuse_ReadReg(uint8_t register_address, struct Efuse *e_fuse)
 {
     HAL_StatusTypeDef status;
-    uint16_t          command        = 0x0000U;
-    bool              set_parity_bit = false;
-    uint16_t          tx_data[]      = { 0x0000U };
-    uint16_t          rx_data[]      = { 0x0000U };
+    uint16_t          command   = 0x0000U;
+    uint16_t          tx_data[] = { 0x0000U };
+    uint16_t          rx_data[] = { 0x0000U };
 
     // Place the Status Register address into bits 10->13
     command =
@@ -134,17 +127,10 @@ uint16_t Io_Efuse_ReadReg(uint8_t register_address, struct Efuse *e_fuse)
     }
     // Invert watchdog bit state for next write
     e_fuse->watch_dog_state = !e_fuse->watch_dog_state;
-    // Compute parity
-    set_parity_bit = Io_Efuse_Set_Parity_Bit(command);
-    // Set parity value
-    if (set_parity_bit)
-    {
-        SET_BIT(command, PARITY_BIT);
-    }
-    else
-    {
-        CLEAR_BIT(command, PARITY_BIT);
-    }
+
+    // Compute and set/clear parity bit
+    Io_Efuse_SetParityBit(&command);
+
     tx_data[0] = command;
     status     = Io_Efuse_ReadFromEfuse(
         tx_data, rx_data, e_fuse->chip_select.GPIO_Port,
@@ -155,15 +141,24 @@ uint16_t Io_Efuse_ReadReg(uint8_t register_address, struct Efuse *e_fuse)
     return rx_data[0];
 }
 
-bool Io_Efuse_Set_Parity_Bit(uint16_t spi_command)
+void SetParityBit(uint16_t *spi_command)
 {
-    uint8_t parity_bit;
+    uint16_t spi_data = *spi_command;
+    uint8_t  parity_bit;
     // Calculate parity for bits in spi command
-    for (parity_bit = 0; spi_command > 0; spi_command >>= 1)
+    for (parity_bit = 0; spi_data > 0; spi_data >>= 1)
     {
-        parity_bit ^= (spi_command & 1);
+        parity_bit ^= (spi_data & 1);
     }
-    return ((parity_bit == 1) ? true : false);
+
+    if (parity_bit == 1)
+    {
+        SET_BIT(*spi_command, PARITY_BIT);
+    }
+    else
+    {
+        CLEAR_BIT(*spi_command, PARITY_BIT);
+    }
 }
 
 HAL_StatusTypeDef Io_Efuse_WriteToEfuse(
@@ -175,36 +170,32 @@ HAL_StatusTypeDef Io_Efuse_WriteToEfuse(
 
     HAL_GPIO_WritePin(GPIO_Port, GPIO_Pin, GPIO_PIN_RESET);
     status = HAL_SPI_Transmit(efuse_spi_handle, (uint8_t *)TxData, 1U, 100U);
-    while (efuse_spi_handle->State != HAL_SPI_STATE_READY)
-    {
-    }
     HAL_GPIO_WritePin(GPIO_Port, GPIO_Pin, GPIO_PIN_SET);
 
     return status;
 }
 
 HAL_StatusTypeDef Io_Efuse_ReadFromEfuse(
-    uint16_t *    TxData,
-    uint16_t *    RxData,
-    GPIO_TypeDef *GPIO_Port,
-    uint16_t      GPIO_Pin)
+    uint16_t *    tx_data,
+    uint16_t *    rx_data,
+    GPIO_TypeDef *chip_select_port,
+    uint16_t      chip_select_pin)
 {
     HAL_StatusTypeDef transmit_status, receive_status;
+
     // Send command to read from status register
     // Data is returned on the following SPI transfer
-    HAL_GPIO_WritePin(GPIO_Port, GPIO_Pin, GPIO_PIN_RESET);
-    transmit_status = HAL_SPI_Transmit(efuse_spi_handle, (uint8_t *)TxData, 1U, 100U);
-    while (efuse_spi_handle->State != HAL_SPI_STATE_READY)
-    {
-    }
-    HAL_GPIO_WritePin(GPIO_Port, GPIO_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_RESET);
+    transmit_status =
+        HAL_SPI_Transmit(efuse_spi_handle, (uint8_t *)tx_data, 1U, 100U);
+    HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_SET);
+
     // Receive data from E-fuse
-    HAL_GPIO_WritePin(GPIO_Port, GPIO_Pin, GPIO_PIN_RESET);
-    receive_status = HAL_SPI_Receive(efuse_spi_handle, (uint8_t *)RxData, 1U, 100U);
-    while (efuse_spi_handle->State != HAL_SPI_STATE_READY)
-    {
-    }
-    HAL_GPIO_WritePin(GPIO_Port, GPIO_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_RESET);
+    receive_status =
+        HAL_SPI_Receive(efuse_spi_handle, (uint8_t *)rx_data, 1U, 100U);
+    HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_SET);
+
     UNUSED(transmit_status);
     return receive_status;
 }

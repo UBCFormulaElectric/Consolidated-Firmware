@@ -677,7 +677,7 @@ void Io_Efuse_UpdateFaults(struct Efuse *e_fuse);
  * @param register_value Value being written to the Serial Input register
  * @param e_fuse Pointer to Efuse structure being written to
  */
-void Io_Efuse_WriteRegister(
+void Io_Efuse_WriteReg(
     uint8_t       register_address,
     uint16_t      register_value,
     struct Efuse *e_fuse);
@@ -688,39 +688,38 @@ void Io_Efuse_WriteRegister(
  * @param e_fuse Pointer to Efuse structure being read from
  * @return Contents of the addressed register
  */
-uint16_t Io_Efuse_ReadRegister(uint8_t register_address, struct Efuse *e_fuse);
+uint16_t Io_Efuse_ReadReg(uint8_t register_address, struct Efuse *e_fuse);
 
 /**
- * Calculates the parity of the SPI command to be sent to the Efuse.
- * Using the XOR sum of bits method taken from:
+ * Calculates the parity of the SPI command to be sent to the Efuse and
+ * sets/clears the parity bit. Using the XOR sum of bits method taken from:
  * https://en.wikipedia.org/wiki/Parity_bit#Parity
  * @param spi_command Original SPI command without the parity bit
- * @return Returns true if the parity bit needs to be set
  */
-bool Io_Efuse_SetParityBit(uint16_t* spi_command);
+void Io_Efuse_SetParityBit(uint16_t *spi_command);
 
 /**
  * Write SPI data to Efuse in blocking mode
- * @param *TxData Pointer to data being sent to the Efuse
- * @param *GPIO_Port Handle to Efuse's chip-select GPIO port
- * @param GPIO_Pin Efuse's chip-select GPIO pin
+ * @param tx_data Pointer to data being sent to the Efuse
+ * @param chip_select_port Handle to Efuse's chip-select GPIO port
+ * @param chip_select_pin Efuse's chip-select GPIO pin
  * @return Status of the SPI transfer
  */
 HAL_StatusTypeDef Io_Efuse_WriteToEfuse(
-    uint16_t *    TxData,
-    GPIO_TypeDef *GPIO_Port,
-    uint16_t      GPIO_Pin);
+    uint16_t *    tx_data,
+    GPIO_TypeDef *chip_select_port,
+    uint16_t      chip_select_pin);
 
 /**
  * Read SPI data from Efuse in blocking mode
- * @param *TxData Pointer to data being sent to the Efuse
- * @param *RxData Pointer to data being received from the Efuse
- * @param *GPIO_Port Handle to Efuse's chip-select GPIO port
- * @param GPIO_Pin Efuse's chip-select GPIO pin
+ * @param tx_data Pointer to data being sent to the Efuse
+ * @param rx_data Pointer to data being received from the Efuse
+ * @param chip_select_port Handle to Efuse's chip-select GPIO port
+ * @param chip_select_pin Efuse's chip-select GPIO pin
  * @return Status of the SPI transfer
  */
 HAL_StatusTypeDef Io_Efuse_ReadFromEfuse(
-    uint16_t *    TxData,
-    uint16_t *    RxData,
-    GPIO_TypeDef *GPIO_Port,
-    uint16_t      GPIO_Pin);
+    uint16_t *    tx_data,
+    uint16_t *    rx_data,
+    GPIO_TypeDef *chip_select_port,
+    uint16_t      chip_select_pin);
