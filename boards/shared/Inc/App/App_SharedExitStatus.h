@@ -1,5 +1,9 @@
 #pragma once
 
+/**
+ *
+ */
+
 #include "App_SharedMacros.h"
 
 typedef enum
@@ -20,13 +24,17 @@ struct ExitStatus
 
 typedef void (*ExitStatusCallback)(struct ExitStatus status);
 
-#define EXIT_CODE(code)          \
-    App_SharedExitStatus_Update(code, __FILE__ ":" STRINGIFY(__LINE__), __func__, "")
+// clang-format off
+#define EXIT_CODE(code)                  \
+    App_SharedExitStatus_Update(         \
+        code, STRINGIFY(__BASENAME__(__FILE__) : __LINE__), __func__, "")
 
-#define EXIT_MSG(code, message)  \
-    App_SharedExitStatus_Update(code, __FILE__ ":" STRINGIFY(__LINE__), __func__, message)
+#define EXIT_MSG(code, message)          \
+    App_SharedExitStatus_Update(         \
+        code, STRINGIFY(__BASENAME__(__FILE__) : __LINE__), __func__, message)
 
 #define EXIT_CODE_OK(code) (EXIT_CODE_OK == (code))
+// clang-format on
 
 /**
  * Update the thread-local exit status with the given information
@@ -47,10 +55,10 @@ ExitCode App_SharedExitStatus_Update(
     const char *message);
 
 /**
- * Set the callback function, which is called whenever the thread-local exit
- * status changes
- * @note The exit statuses share the same callback, so make sure the callback
- *       function is reentrant in multi-threaded environment
+ * Set the callback function, which is called whenever the thread-local
+ * exit status changes
+ * @note The exit statuses share the same callback, so make sure the
+ * callback function is reentrant in multi-threaded environment
  * @param callback The callback function to set
  */
 void App_SharedExitStatus_SetUpdateCallback(ExitStatusCallback callback);
@@ -60,5 +68,3 @@ void App_SharedExitStatus_SetUpdateCallback(ExitStatusCallback callback);
  * @return A copy of the exit status
  */
 struct ExitStatus App_SharedExitStatus_Get(void);
-
-

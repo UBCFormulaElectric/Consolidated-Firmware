@@ -555,8 +555,8 @@ void RunTask100Hz(void const *argument)
 {
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
-    uint32_t                PreviousWakeTime = osKernelSysTick();
-    static const TickType_t period_ms        = 10;
+    uint32_t                 PreviousWakeTime = osKernelSysTick();
+    static const TickType_t  period_ms        = 10;
     static struct ExitStatus exit_status;
     vTaskSetThreadLocalStoragePointer(NULL, 0, &exit_status);
 
@@ -627,8 +627,8 @@ void StartTask1kHz(void const *argument)
 {
     /* USER CODE BEGIN StartTask1kHz */
     UNUSED(argument);
-    uint32_t                PreviousWakeTime = osKernelSysTick();
-    static const TickType_t period_ms        = 1;
+    uint32_t                 PreviousWakeTime = osKernelSysTick();
+    static const TickType_t  period_ms        = 1;
     static struct ExitStatus exit_status;
     vTaskSetThreadLocalStoragePointer(NULL, 0, &exit_status);
 

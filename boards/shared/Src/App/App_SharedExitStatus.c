@@ -18,23 +18,21 @@ static struct ExitStatus *App_GetThreadLocalExitStatus(void)
         .code = EXIT_CODE_OK, .source = "", .caller = "", .message = ""
     };
 
-    struct ExitStatus *exit_status = &main_thread_exit_status;
-
-    // Once the scheduler has started, we must use the FreeRTOSS thread-local
-    // storage API to get the thread-local exit status
-    if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED)
+    if (xTaskGetSchedulerState() == taskSCHEDULER_NOT_STARTED)
     {
-        exit_status =
-            (struct ExitStatus *)pvTaskGetThreadLocalStoragePointer(NULL, 0);
+        return &main_thread_exit_status;
+    }
+    else
+    {
+        // Once the scheduler has started, we use the thread-local exit status
+        return (struct ExitStatus *)pvTaskGetThreadLocalStoragePointer(NULL, 0);
     }
 #else
     static __thread struct ExitStatus thread_local_exit_status = {
         .code = EXIT_CODE_OK, .source = "", .caller = "", .message = ""
     };
-    struct ExitStatus *exit_status = &thread_local_exit_status;
+    return &thread_local_exit_status;
 #endif
-
-    return exit_status;
 }
 
 ExitCode App_SharedExitStatus_Update(
