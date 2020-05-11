@@ -4,16 +4,11 @@
 
 /**
  * Allocate and initialize a brake light
- * @param is_brake_actuated A function that can be called to check if the brake
- *                          is actuated
- * @param is_regen_active A function that can be called to check if the regen
- *                        braking is active
  * @param turn_on_brake_light A function that can be called to turn on the brake
  *                            light
  * @param turn_off_brake_light A function that can be called to turn off the
  *                             brake light
- * @return A pointer to the created brake light, whose ownership is given to
- * the caller
+ * @return The created brake light, whose ownership is given to the caller
  */
 struct BrakeLight *App_BrakeLight_Create(
     void (*turn_on_brake_light)(void),
@@ -26,13 +21,13 @@ struct BrakeLight *App_BrakeLight_Create(
 void App_BrakeLight_Destroy(struct BrakeLight *brake_light);
 
 /**
- * Turn the given brake light on or off depending on whether the brake is
- * actuated and/or regen is active
- * @param brake_light The brake light to tick
+ * Turn on the given brake light if the brake is actuated and/or the regen is
+ * active, else turn off the given brake light
+ * @param brake_light The brake light to turn on/off
  * @param is_brake_actuated True if the brake exceeds its actuation threshold,
  *                          else false
  * @param is_regen_active True if negative torque (regenetrative braking) is
- *                        sent to the inverter
+ *                        sent to the inverter, else false
  */
 void App_BrakeLight_SetLightStatus(
     struct BrakeLight *brake_light,
