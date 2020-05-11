@@ -666,7 +666,7 @@ void Io_Efuse_UpdateStatus(struct Efuse *e_fuse);
 
 /**
  * Get the value of the Efuse's Fault Register over SPI and updates the Efuse
- * handle's fault status handle's fault status
+ * fault status
  * @param e_fuse Pointer to Efuse structure being checked
  */
 void Io_Efuse_UpdateFaults(struct Efuse *e_fuse);
