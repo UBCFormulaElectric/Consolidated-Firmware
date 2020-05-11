@@ -688,7 +688,7 @@ void Io_Efuse_WriteRegister(
  * @param e_fuse Pointer to Efuse structure being read from
  * @return Contents of the addressed register
  */
-uint16_t Io_Efuse_ReadReg(uint8_t register_address, struct Efuse *e_fuse);
+uint16_t Io_Efuse_ReadRegister(uint8_t register_address, struct Efuse *e_fuse);
 
 /**
  * Calculates the parity of the SPI command to be sent to the Efuse.
