@@ -677,7 +677,7 @@ void Io_Efuse_UpdateFaults(struct Efuse *e_fuse);
  * @param register_value Value being written to the Serial Input register
  * @param e_fuse Pointer to Efuse structure being written to
  */
-void Io_Efuse_WriteReg(
+void Io_Efuse_WriteRegister(
     uint8_t       register_address,
     uint16_t      register_value,
     struct Efuse *e_fuse);
