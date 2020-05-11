@@ -1,9 +1,6 @@
-#include <stddef.h>
-
-#include "App_SharedRgbLedSequence.h"
+#include <stdlib.h>
 #include <assert.h>
-
-#define MAX_NUM_OF_LED_SEQUENCE 1
+#include "App_SharedRgbLedSequence.h"
 
 enum RgbLedSequenceState
 {
@@ -21,28 +18,33 @@ struct RgbLedSequence
 };
 
 struct RgbLedSequence *App_SharedRgbLedSequence_Create(
-    void (*turn_on_red_led)(),
-    void (*turn_on_green_led)(),
-    void (*turn_on_blue_led)())
+    void (*const turn_on_red_led)(void),
+    void (*const turn_on_green_led)(void),
+    void (*const turn_on_blue_led)(void))
 {
     assert(turn_on_red_led != NULL);
     assert(turn_on_green_led != NULL);
     assert(turn_on_blue_led != NULL);
 
-    static struct RgbLedSequence led_sequences[MAX_NUM_OF_LED_SEQUENCE];
-    static size_t                alloc_index = 0;
+    struct RgbLedSequence *rgb_led_sequence =
+        malloc(sizeof(struct RgbLedSequence));
 
-    assert(alloc_index < MAX_NUM_OF_LED_SEQUENCE);
+    assert(rgb_led_sequence != NULL);
 
-    struct RgbLedSequence *rgb_led_sequence = &led_sequences[alloc_index++];
-    rgb_led_sequence->turn_on_red_led       = turn_on_red_led;
-    rgb_led_sequence->turn_on_green_led     = turn_on_green_led;
-    rgb_led_sequence->turn_on_blue_led      = turn_on_blue_led;
+    rgb_led_sequence->turn_on_red_led   = turn_on_red_led;
+    rgb_led_sequence->turn_on_green_led = turn_on_green_led;
+    rgb_led_sequence->turn_on_blue_led  = turn_on_blue_led;
 
     // Arbitrary choice to start in the RED_LED_ON state
     rgb_led_sequence->state = RED_LED_ON;
 
     return rgb_led_sequence;
+}
+
+void App_SharedRgbLedSequence_Destroy(
+    struct RgbLedSequence *const rgb_led_sequence)
+{
+    free(rgb_led_sequence);
 }
 
 void App_SharedRgbLedSequence_Tick(

@@ -23,7 +23,7 @@ static bool App_IsStackAboveWatermarkThreshold(
     uint32_t     stack_size,
     float        watermark_threshold)
 {
-    assert((0.0 < watermark_threshold) && (watermark_threshold < 1.0));
+    assert((0.0f < watermark_threshold) && (watermark_threshold < 1.0f));
 
     bool is_stack_above_watermark_threshold = false;
 

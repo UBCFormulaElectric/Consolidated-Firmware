@@ -16,6 +16,16 @@ class CanRxFileGenerator(CanFileGenerator):
             [CanSignal(signal.type_name, signal.snake_name, msg.snake_name, signal.initial)
              for msg in self._periodic_canrx_msgs for signal in msg.signals]
 
+    def __get_canrx_signals(self):
+        canrx_signals = []
+        for msg in self.__get_canrx_msgs():
+            for signal in msg.signals:
+                if self._receiver in signal.receivers:
+                    canrx_signals.append(
+                        CanSignal(signal.type_name, signal.snake_name,
+                                    msg.snake_name, signal.initial, signal.is_float))
+        return canrx_signals
+
     def __get_canrx_msgs(self):
         canrx_msg = []
         for msg in self._get_can_msgs():
@@ -295,7 +305,7 @@ class IoCanRxFileGenerator(CanRxFileGenerator):
                          set_signals=signal_setters))
 
         self._CanRxUpdateRxTableWithMessage = Function(
-            'void %s_UpdateRxTableWithMessage(struct %sCanRxInterface* can_rx_interface, struct CanMsg* message)' % (function_prefix, self._receiver.capitalize()),
+            'void %s_UpdateRxTableWithMessage(struct %sCanRxInterface* can_rx_interface, const struct CanMsg* message)' % (function_prefix, self._receiver.capitalize()),
             "Update the CAN RX table with the given CAN message.",
             '''\
     assert(can_rx_interface != NULL);
@@ -322,7 +332,8 @@ class IoCanRxHeaderFileGenerator(IoCanRxFileGenerator):
             self.__generateFunctionDeclarations()))
 
     def __generateHeaderIncludes(self):
-        header_names = []
+        header_names = ['<stdbool.h>',
+                        '<stdint.h>']
         return '\n'.join(
             [HeaderInclude(name).get_include() for name in header_names])
 

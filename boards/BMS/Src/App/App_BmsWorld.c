@@ -1,4 +1,3 @@
-#include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
 
@@ -10,13 +9,15 @@ struct BmsWorld
     struct BmsCanRxInterface *can_rx_interface;
     struct Imd *              imd;
     struct HeartbeatMonitor * heartbeat_monitor;
+    struct RgbLedSequence *   rgb_led_sequence;
 };
 
 struct BmsWorld *App_BmsWorld_Create(
     struct BmsCanTxInterface *const can_tx_interface,
     struct BmsCanRxInterface *const can_rx_interface,
     struct Imd *const               imd,
-    struct HeartbeatMonitor *const  heartbeat_monitor)
+    struct HeartbeatMonitor *const  heartbeat_monitor,
+    struct RgbLedSequence *const    rgb_led_sequence)
 {
     struct BmsWorld *world = (struct BmsWorld *)malloc(sizeof(struct BmsWorld));
     assert(world != NULL);
@@ -25,6 +26,7 @@ struct BmsWorld *App_BmsWorld_Create(
     world->can_rx_interface  = can_rx_interface;
     world->imd               = imd;
     world->heartbeat_monitor = heartbeat_monitor;
+    world->rgb_led_sequence  = rgb_led_sequence;
 
     return world;
 }
@@ -55,4 +57,10 @@ struct HeartbeatMonitor *
     App_BmsWorld_GetHeartbeatMonitor(const struct BmsWorld *const world)
 {
     return world->heartbeat_monitor;
+}
+
+struct RgbLedSequence *
+    App_BmsWorld_GetRgbLedSequence(const struct BmsWorld *const world)
+{
+    return world->rgb_led_sequence;
 }

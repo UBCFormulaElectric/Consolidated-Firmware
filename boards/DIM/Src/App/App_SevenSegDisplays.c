@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <assert.h>
+#include <math.h>
 
 #include "App_ErrorCode.h"
 #include "App_SevenSegDisplays.h"
@@ -8,13 +9,17 @@
 struct SevenSegDisplays
 {
     struct SevenSegDisplay *displays[NUM_SEVEN_SEG_DISPLAYS];
+    void (*display_value_callback)(void);
 };
 
 struct SevenSegDisplays *App_SevenSegDisplays_Create(
     struct SevenSegDisplay *const left_seven_seg_display,
     struct SevenSegDisplay *const middle_seven_seg_display,
-    struct SevenSegDisplay *const right_seven_seg_display)
+    struct SevenSegDisplay *const right_seven_seg_display,
+    void (*const display_value_callback)(void))
 {
+    assert(display_value_callback != NULL);
+
     struct SevenSegDisplays *seven_seg_displays =
         malloc(sizeof(struct SevenSegDisplays));
 
@@ -26,6 +31,7 @@ struct SevenSegDisplays *App_SevenSegDisplays_Create(
         middle_seven_seg_display;
     seven_seg_displays->displays[RIGHT_SEVEN_SEG_DISPLAY] =
         right_seven_seg_display;
+    seven_seg_displays->display_value_callback = display_value_callback;
 
     return seven_seg_displays;
 }
@@ -36,14 +42,14 @@ void App_SevenSegDisplays_Destroy(
     free(seven_seg_displays);
 }
 
-ErrorCode App_SevenSegDisplays_SetHexDigits(
+ExitCode App_SevenSegDisplays_SetHexDigits(
     const struct SevenSegDisplays *const seven_seg_displays,
     const uint8_t                        hex_digits[],
     size_t                               num_hex_digits)
 {
-    if (num_hex_digits > NUM_SEVEN_SEG_DISPLAYS)
+    if (num_hex_digits > NUM_SEVEN_SEG_DISPLAYS || num_hex_digits == 0)
     {
-        return ERROR_CODE_INVALID_ARGS;
+        return EXIT_CODE_INVALID_ARGS;
     }
 
     // If any of the input digits is invalid, we don't write anything to the
@@ -52,7 +58,7 @@ ErrorCode App_SevenSegDisplays_SetHexDigits(
     {
         if (hex_digits[i] >= NUM_HEX_DIGITS)
         {
-            return ERROR_CODE_INVALID_ARGS;
+            return EXIT_CODE_INVALID_ARGS;
         }
     }
 
@@ -77,5 +83,37 @@ ErrorCode App_SevenSegDisplays_SetHexDigits(
             seven_seg_displays->displays[i], hex_digit);
     }
 
-    return ERROR_CODE_OK;
+    seven_seg_displays->display_value_callback();
+
+    return EXIT_CODE_OK;
+}
+
+ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(
+    const struct SevenSegDisplays *const seven_seg_displays,
+    uint32_t                             value)
+{
+    if (value > pow(10, NUM_SEVEN_SEG_DISPLAYS) - 1)
+    {
+        return EXIT_CODE_INVALID_ARGS;
+    }
+
+    uint8_t digits[NUM_SEVEN_SEG_DISPLAYS];
+
+    // Turn the base-10 value into individual digits. We treat a value of 0
+    // as having 1 digit, which is why num_digits starts counting from 1.
+    for (uint8_t num_digits = 1; num_digits <= NUM_SEVEN_SEG_DISPLAYS;
+         num_digits++)
+    {
+        digits[num_digits - 1] = (uint8_t)(value % 10);
+        value /= 10;
+
+        if (value == 0)
+        {
+            App_SevenSegDisplays_SetHexDigits(
+                seven_seg_displays, digits, num_digits);
+            break;
+        }
+    }
+
+    return EXIT_CODE_OK;
 }

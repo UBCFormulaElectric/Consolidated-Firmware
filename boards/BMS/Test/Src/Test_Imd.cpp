@@ -1,41 +1,50 @@
 #include "Test_Imd.h"
 
-DEFINE_FAKE_VALUE_FUNC(float, get_pwm_frequency);
-DEFINE_FAKE_VALUE_FUNC(float, get_pwm_duty_cycle);
-DEFINE_FAKE_VALUE_FUNC(uint32_t, get_seconds_since_power_on);
+FAKE_VALUE_FUNC(float, get_pwm_frequency);
+FAKE_VALUE_FUNC(float, get_pwm_duty_cycle);
+FAKE_VALUE_FUNC(uint16_t, get_seconds_since_power_on);
 
-class ImdTest : public BmsTest
+void ImdTest::SetImdCondition(
+    struct Imd *       imd_to_set,
+    enum Imd_Condition condition,
+    float &            fake_pwm_frequency_return_val)
 {
-  protected:
-    void SetUp() override
-    {
-        constexpr float DEFAULT_FREQUENCY_TOLERANCE = 2.0f;
+    const float mapping[NUM_OF_IMD_CONDITIONS] = {
+        [IMD_SHORT_CIRCUIT] = 0.0f,          [IMD_NORMAL] = 10.0f,
+        [IMD_UNDERVOLTAGE_DETECTED] = 20.0f, [IMD_SST] = 30.0f,
+        [IMD_DEVICE_ERROR] = 40.0f,          [IMD_EARTH_FAULT] = 50.0f,
+    };
 
-        imd = App_Imd_Create(
-            get_pwm_frequency, DEFAULT_FREQUENCY_TOLERANCE, get_pwm_duty_cycle,
-            get_seconds_since_power_on);
+    fake_pwm_frequency_return_val = mapping[condition];
+    App_Imd_Tick(imd_to_set);
+    ASSERT_EQ(condition, App_Imd_GetCondition(imd_to_set));
+}
 
-        RESET_FAKE(get_pwm_frequency);
-        RESET_FAKE(get_pwm_duty_cycle);
-        RESET_FAKE(get_seconds_since_power_on);
-    }
+void ImdTest::SetPwmFrequencyTolerance(struct Imd *imd_to_set, float tolerance)
+{
+    TearDownObject(imd_to_set, App_Imd_Destroy);
+    imd_to_set = App_Imd_Create(
+        get_pwm_frequency, tolerance, get_pwm_duty_cycle,
+        get_seconds_since_power_on);
+}
 
-    void TearDown() override
-    {
-        ASSERT_TRUE(imd != NULL);
-        App_Imd_Destroy(imd);
-        imd = NULL;
-    }
+void ImdTest::SetUp()
+{
+    constexpr float DEFAULT_FREQUENCY_TOLERANCE = 2.0f;
 
-    void SetPwmFrequencyTolerance(float tolerance)
-    {
-        ASSERT_TRUE(imd != NULL);
-        App_Imd_Destroy(imd);
-        imd = App_Imd_Create(
-            get_pwm_frequency, tolerance, get_pwm_duty_cycle,
-            get_seconds_since_power_on);
-    }
-};
+    imd = App_Imd_Create(
+        get_pwm_frequency, DEFAULT_FREQUENCY_TOLERANCE, get_pwm_duty_cycle,
+        get_seconds_since_power_on);
+
+    RESET_FAKE(get_pwm_frequency);
+    RESET_FAKE(get_pwm_duty_cycle);
+    RESET_FAKE(get_seconds_since_power_on);
+}
+
+void ImdTest::TearDown()
+{
+    TearDownObject(imd, App_Imd_Destroy);
+}
 
 TEST_F(
     ImdTest,
@@ -46,7 +55,7 @@ TEST_F(
 
     for (auto &condition : conditions)
     {
-        SetImdCondition(condition, get_pwm_frequency_fake.return_val);
+        SetImdCondition(imd, condition, get_pwm_frequency_fake.return_val);
 
         // From ISOMETER® IR155-3203/IR155-3204 manual:
         //     Insulation Resistance =
@@ -87,7 +96,7 @@ TEST_F(
 
 TEST_F(ImdTest, check_good_and_bad_evaluation_for_sst_condition)
 {
-    SetImdCondition(IMD_SST, get_pwm_frequency_fake.return_val);
+    SetImdCondition(imd, IMD_SST, get_pwm_frequency_fake.return_val);
 
     // From ISOMETER® IR155-3203/IR155-3204 manual:
     //     Duty cycle => 5...10% ("good")
@@ -143,7 +152,7 @@ TEST_F(ImdTest, check_good_and_bad_evaluation_for_sst_condition)
 
 TEST_F(ImdTest, check_pwm_encoding_for_device_error_condition)
 {
-    SetImdCondition(IMD_DEVICE_ERROR, get_pwm_frequency_fake.return_val);
+    SetImdCondition(imd, IMD_DEVICE_ERROR, get_pwm_frequency_fake.return_val);
 
     // From ISOMETER® IR155-3203/IR155-3204 manual:
     //     Duty cycle => 47.5...52.5%
@@ -170,7 +179,7 @@ TEST_F(ImdTest, check_pwm_encoding_for_device_error_condition)
 
 TEST_F(ImdTest, check_pwm_encoding_for_earth_fault_condition)
 {
-    SetImdCondition(IMD_EARTH_FAULT, get_pwm_frequency_fake.return_val);
+    SetImdCondition(imd, IMD_EARTH_FAULT, get_pwm_frequency_fake.return_val);
 
     // From ISOMETER® IR155-3203/IR155-3204 manual:
     //     Duty cycle => 47.5...52.5%
@@ -238,7 +247,7 @@ TEST_F(ImdTest, check_mapping_for_frequency_to_condition)
         { 53.0f, IMD_INVALID },
     };
 
-    SetPwmFrequencyTolerance(2.0f);
+    SetPwmFrequencyTolerance(imd, 2.0f);
 
     for (auto &entry : lookup_table)
     {

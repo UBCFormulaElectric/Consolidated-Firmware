@@ -2,7 +2,10 @@
 
 typedef enum
 {
-    ERROR_CODE_OK = 0,
-    ERROR_CODE_INVALID_ARGS,
-    NUM_ERROR_CODES,
-} ErrorCode;
+    EXIT_CODE_OK = 0,
+    EXIT_CODE_INVALID_ARGS,
+    EXIT_CODE_OUT_OF_RANGE,
+    NUM_EXIT_CODES,
+} ExitCode;
+
+#define EXIT_CODE_OK(code) (EXIT_CODE_OK == (code))

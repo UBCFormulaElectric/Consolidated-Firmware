@@ -45,7 +45,7 @@ static void
 
 struct PwmInput *Io_SharedPwmInput_Create(
     TIM_HandleTypeDef *htim,
-    uint32_t           timer_frequency_hz,
+    float              timer_frequency_hz,
     uint32_t           rising_edge_tim_channel,
     uint32_t           falling_edge_tim_channel)
 {
@@ -79,10 +79,11 @@ void Io_SharedPwmInput_Tick(struct PwmInput *const pwm_input)
         uint32_t ic_falling_edge = HAL_TIM_ReadCapturedValue(
             pwm_input->htim, pwm_input->falling_edge_tim_channel);
 
-        Io_SetDutyCycle(pwm_input, ic_falling_edge * 100.0f / ic_rising_edge);
+        Io_SetDutyCycle(
+            pwm_input, (float)ic_falling_edge * 100.0f / (float)ic_rising_edge);
 
         Io_SetFrequency(
-            pwm_input, pwm_input->timer_frequency_hz / ic_rising_edge);
+            pwm_input, pwm_input->timer_frequency_hz / (float)ic_rising_edge);
     }
     else
     {

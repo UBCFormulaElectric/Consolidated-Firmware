@@ -3,6 +3,7 @@
 
 #include "App_SevenSegDisplays.h"
 #include "Io_SevenSegDisplays.h"
+#include "main.h"
 
 static_assert(HEX_DIGIT_0 == 0, "Hex enum must match its numeric value.");
 static_assert(HEX_DIGIT_1 == 1, "Hex enum must match its numeric value.");
@@ -62,6 +63,15 @@ static const struct CommandLookupTable command_lookup_table =
 void Io_SevenSegDisplays_Init(SPI_HandleTypeDef *const hspi)
 {
     _hspi = hspi;
+
+    // RCK pin is normally held low
+    HAL_GPIO_WritePin(
+        SEVENSEG_RCK_3V3_GPIO_Port, SEVENSEG_RCK_3V3_Pin, GPIO_PIN_RESET);
+
+    // Full brightness
+    HAL_GPIO_WritePin(
+        SEVENSEG_DIMMING_3V3_GPIO_Port, SEVENSEG_DIMMING_3V3_Pin,
+        GPIO_PIN_RESET);
 }
 
 void Io_SevenSegDisplays_WriteCommands(void)
@@ -70,6 +80,11 @@ void Io_SevenSegDisplays_WriteCommands(void)
     // can't update them individually. Instead, we must update the 7-segment
     // displays all at once.
     HAL_SPI_Transmit(_hspi, commands, NUM_SEVEN_SEG_DISPLAYS, 100U);
+
+    // A pulse to RCK transfers data from the shift registers to the storage
+    // registers, completing the write command.
+    HAL_GPIO_TogglePin(SEVENSEG_RCK_3V3_GPIO_Port, SEVENSEG_RCK_3V3_Pin);
+    HAL_GPIO_TogglePin(SEVENSEG_RCK_3V3_GPIO_Port, SEVENSEG_RCK_3V3_Pin);
 }
 
 void Io_SevenSegDisplays_SetLeftHexDigit(struct SevenSegHexDigit hex_digit)

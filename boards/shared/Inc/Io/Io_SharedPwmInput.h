@@ -35,7 +35,7 @@ struct PwmInput;
  */
 struct PwmInput *Io_SharedPwmInput_Create(
     TIM_HandleTypeDef *htim,
-    uint32_t           timer_frequency_hz,
+    float              timer_frequency_hz,
     uint32_t           rising_edge_tim_channel,
     uint32_t           falling_edge_tim_channel);
 

@@ -1,6 +1,7 @@
 #include "states/App_AirClosedState.h"
 
 #include "App_SharedMacros.h"
+#include "App_SetPeriodicCanSignals.h"
 
 static void AirClosedStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -12,7 +13,9 @@ static void AirClosedStateRunOnEntry(struct StateMachine *const state_machine)
 
 static void AirClosedStateRunOnTick(struct StateMachine *const state_machine)
 {
-    UNUSED(state_machine);
+    struct PdmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    App_SetPeriodicCanSignals_CurrentChecks(world);
+    App_SetPeriodicCanSignals_VoltageChecks(world);
 }
 
 static void AirClosedStateRunOnExit(struct StateMachine *const state_machine)

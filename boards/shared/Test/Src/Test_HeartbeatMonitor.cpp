@@ -8,7 +8,7 @@ extern "C"
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
 FAKE_VOID_FUNC(timeout_callback, enum HeartbeatOneHot, enum HeartbeatOneHot);
 
-class SharedHeartbeatMonitorTest : public SharedTest
+class SharedHeartbeatMonitorTest : public testing::Test
 {
   protected:
     void SetUp() override
@@ -46,7 +46,11 @@ TEST_F(
         for (uint32_t j = 0; j < DEFAULT_TIMEOUT_PERIOD_MS; j++)
         {
             App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
+#ifdef NDEBUG
             ASSERT_EQ(i, timeout_callback_fake.call_count);
+#else
+            ASSERT_EQ(0, timeout_callback_fake.call_count);
+#endif
             get_current_ms_fake.return_val++;
         }
     }
@@ -66,7 +70,11 @@ TEST_F(
         for (uint32_t j = 0; j < DEFAULT_TIMEOUT_PERIOD_MS; j++)
         {
             App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
+#ifdef NDEBUG
             ASSERT_EQ(i, timeout_callback_fake.call_count);
+#else
+            ASSERT_EQ(0, timeout_callback_fake.call_count);
+#endif
             get_current_ms_fake.return_val++;
         }
     }
@@ -86,7 +94,11 @@ TEST_F(
         for (uint32_t j = 0; j < DEFAULT_TIMEOUT_PERIOD_MS; j++)
         {
             App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
+#ifdef NDEBUG
             ASSERT_EQ(0, timeout_callback_fake.call_count);
+#else
+            ASSERT_EQ(0, timeout_callback_fake.call_count);
+#endif
             get_current_ms_fake.return_val++;
         }
     }
@@ -102,7 +114,11 @@ TEST_F(
     for (uint32_t j = 0; j < DEFAULT_TIMEOUT_PERIOD_MS; j++)
     {
         App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
+#ifdef NDEBUG
         ASSERT_EQ(0, timeout_callback_fake.call_count);
+#else
+        ASSERT_EQ(0, timeout_callback_fake.call_count);
+#endif
         get_current_ms_fake.return_val++;
     }
 
@@ -111,7 +127,11 @@ TEST_F(
     for (uint32_t j = 0; j < DEFAULT_TIMEOUT_PERIOD_MS - 1; j++)
     {
         App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
+#ifdef NDEBUG
         ASSERT_EQ(1, timeout_callback_fake.call_count);
+#else
+        ASSERT_EQ(0, timeout_callback_fake.call_count);
+#endif
         get_current_ms_fake.return_val++;
     }
 
@@ -121,7 +141,11 @@ TEST_F(
         for (uint32_t j = 0; j < DEFAULT_TIMEOUT_PERIOD_MS; j++)
         {
             App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
+#ifdef NDEBUG
             ASSERT_EQ(i, timeout_callback_fake.call_count);
+#else
+            ASSERT_EQ(0, timeout_callback_fake.call_count);
+#endif
             get_current_ms_fake.return_val++;
         }
     }

@@ -9,7 +9,4 @@
 #include <fff.h>
 #include <gtest/gtest.h>
 
-class DimTest : public testing::Test
-{
-    // TODO: Put any shared code between tests here
-};
+#include "Test_Utils.h"

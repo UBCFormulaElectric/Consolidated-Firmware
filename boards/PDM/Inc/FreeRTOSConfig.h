@@ -182,6 +182,9 @@ standard names. */
 #if (configUSE_TRACE_FACILITY == 1)
 #include "trcRecorder.h"
 #endif
+
+// Required for thread-safety of newlib sprintf, strtok, etc...
+#define configUSE_NEWLIB_REENTRANT 1
 /* USER CODE END Defines */
 
 #endif /* FREERTOS_CONFIG_H */

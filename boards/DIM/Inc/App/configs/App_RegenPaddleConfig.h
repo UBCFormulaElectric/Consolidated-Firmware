@@ -1,0 +1,4 @@
+#pragma once
+
+#define REGEN_PADDLE_LOWER_DEADZONE 5
+#define REGEN_PADDLE_UPPER_DEADZONE 95
