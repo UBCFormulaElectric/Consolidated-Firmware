@@ -1,3 +1,4 @@
+#include "states/App_AllStates.h"
 #include "states/App_FaultState.h"
 
 #include "App_SharedMacros.h"
@@ -12,7 +13,7 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 
 static void FaultStateRunOnTick(struct StateMachine *const state_machine)
 {
-    UNUSED(state_machine);
+    App_AllStatesRunOnTick(state_machine);
 }
 
 static void FaultStateRunOnExit(struct StateMachine *const state_machine)

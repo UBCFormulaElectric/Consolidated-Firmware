@@ -67,6 +67,9 @@ SG_ WATCHDOG_TIMEOUT : 4|1@1+ (1,0) [0|1] "" LOGGER
 BO_ 205 DCM_STATE_MACHINE : 1 DCM
 SG_ State : 0|8@1+ (1,0) [0|255] "" LOGGER
 
+BO_ 206 DCM_TORQUE_REQUEST : 4 DCM
+SG_ Torque_Request : 0|32@1+ (1,0) [-3.4E038|3.4E038] "" LOGGER
+
 BO_ 300 FSM_ERRORS: 8 FSM
 SG_ papps_out_of_range : 0|1@1+ (1,0) [0|1] "" LOGGER
 SG_ sapps_out_of_range : 1|1@1+ (1,0) [0|1] "" LOGGER
@@ -97,6 +100,9 @@ BO_ 306 FSM_AIR_SHUTDOWN: 0 FSM
 BO_ 307 FSM_FLOW_METER: 8 FSM
 SG_ Primary_Flow_Rate : 0|32@1+ (1,0) [0|100] "L/min" LOGGER 
 SG_ Secondary_Flow_Rate : 32|32@1+ (1,0) [0|100] "L/min" LOGGER
+
+BO_ 308 FSM_BRAKE: 1 FSM
+SG_ BRAKE_IS_ACTUATED : 0|1@1+ (1,0) [0|1] "" DCM
 
 BO_ 400 PDM_ERRORS: 8 PDM
 SG_ MISSING_HEARTBEAT : 0|1@1+ (1,0) [0|1] "" LOGGER
@@ -210,11 +216,13 @@ BA_ "GenMsgCycleTime" BO_ 200 100;
 BA_ "GenMsgCycleTime" BO_ 201 5000;
 BA_ "GenMsgCycleTime" BO_ 204 1000;
 BA_ "GenMsgCycleTime" BO_ 205 10;
+BA_ "GenMsgCycleTime" BO_ 206 10;
 BA_ "GenMsgCycleTime" BO_ 300 1000;
 BA_ "GenMsgCycleTime" BO_ 301 100;
 BA_ "GenMsgCycleTime" BO_ 302 5000;
 BA_ "GenMsgCycleTime" BO_ 305 10;
 BA_ "GenMsgCycleTime" BO_ 307 1000;
+BA_ "GenMsgCycleTime" BO_ 308 10;
 BA_ "GenMsgCycleTime" BO_ 400 1000;
 BA_ "GenMsgCycleTime" BO_ 401 100;
 BA_ "GenMsgCycleTime" BO_ 402 5000;
@@ -238,6 +246,7 @@ BA_ "GenSigStartValue" SG_ 2  rx_overflow_count 0;
 SIG_VALTYPE_ 106 Duty_Cycle : 1;
 SIG_VALTYPE_ 106 Frequency : 1;
 SIG_VALTYPE_ 108 State_Of_Charge : 1;
+SIG_VALTYPE_ 206 Torque_Request : 1;
 SIG_VALTYPE_ 307 Primary_Flow_Rate: 1;
 SIG_VALTYPE_ 307 Secondary_Flow_Rate: 1;
 SIG_VALTYPE_ 406 Auxiliary1_Current : 1;

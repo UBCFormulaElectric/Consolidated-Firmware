@@ -1,3 +1,4 @@
+#include "states/App_AllStates.h"
 #include "states/App_InitState.h"
 #include "states/App_DriveState.h"
 
@@ -13,6 +14,8 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 
 static void InitStateRunOnTick(struct StateMachine *const state_machine)
 {
+    App_AllStatesRunOnTick(state_machine);
+
     // No need for any safety checks, just run! (this is a demo)
     App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
 }
