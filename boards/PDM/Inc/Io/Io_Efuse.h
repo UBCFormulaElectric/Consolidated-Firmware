@@ -653,7 +653,7 @@ void Io_Efuse_ConfigureEfuse(struct Efuse *e_fuse);
  * channels (for Parallel mode)
  * @param e_fuse Pointer to Efuse structure being configured
  */
-void Io_Efuse_Configure_Channel_Monitoring(
+void Io_Efuse_ConfigureChannelMonitoring(
     uint8_t       selection,
     struct Efuse *e_fuse);
 
