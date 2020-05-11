@@ -27,11 +27,11 @@ typedef void (*ExitStatusCallback)(struct ExitStatus status);
 // clang-format off
 #define EXIT_CODE(code)                  \
     App_SharedExitStatus_Update(         \
-        code, STRINGIFY(__BASENAME__(__FILE__) : __LINE__), __func__, "")
+        code, __BASENAME__(__FILE__) , __func__, "")
 
 #define EXIT_MSG(code, message)          \
     App_SharedExitStatus_Update(         \
-        code, STRINGIFY(__BASENAME__(__FILE__) : __LINE__), __func__, message)
+        code, __BASENAME__(__FILE__) , __func__, message)
 
 #define EXIT_CODE_OK(code) (EXIT_CODE_OK == (code))
 // clang-format on

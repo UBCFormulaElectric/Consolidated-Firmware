@@ -222,6 +222,8 @@ int main(void)
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 
+    App_SharedExitStatus_SetUpdateCallback(App_ExitStatusCallback);
+
     struct CanMsgs_dim_startup_t payload = { .dummy = 0 };
     App_CanTx_SendNonPeriodicMsg_DIM_STARTUP(can_tx, &payload);
     /* USER CODE END 2 */

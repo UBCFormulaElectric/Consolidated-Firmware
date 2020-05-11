@@ -1,7 +1,7 @@
 #ifdef __arm__
 #include <FreeRTOS.h>
 #include <task.h>
-#else
+#elif __unix__
 #include <pthread.h>
 #endif
 
