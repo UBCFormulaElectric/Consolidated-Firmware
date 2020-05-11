@@ -1,13 +1,13 @@
 #pragma once
 
-struct DcmCanTxInterface;
+struct DimCanTxInterface;
 
 /**
  * Register the CAN TX interface to be used in stack high watermark error
  * callbacks
  * @param can_tx_interface The CAN TX interface to register
  */
-void Io_StackWaterMark_Init(struct DcmCanTxInterface *can_tx_interface);
+void Io_StackWaterMark_Init(struct DimCanTxInterface *can_tx_interface);
 
 /**
  * Check the stack high watermark for FreeRTOS tasks. Typically, you would call

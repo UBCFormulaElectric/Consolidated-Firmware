@@ -1,7 +1,8 @@
 #pragma once
 
-#include "App_CanTx.h"
 #include "Io_SharedSoftwareWatchdog.h"
+
+struct BmsCanTxInterface;
 
 /**
  * Init the software watchdog

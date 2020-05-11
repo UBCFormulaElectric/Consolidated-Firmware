@@ -64,6 +64,15 @@ extern "C"
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define TASK1HZ_STACK_SIZE 128
+#define TASK1KHZ_STACK_SIZE 128
+#define TASK100HZ_STACK_SIZE 128
+#define TASKCANTX_STACK_SIZE 128
+#define TASKCANRX_STACK_SIZE 128
+#define IWDG_WINDOW_DISABLE_VALUE 4095
+#define IWDG_PRESCALER 4
+#define IWDG_RESET_FREQUENCY 5
+#define LSI_FREQUENCY 40000
 #define BSPD_LED_Pin GPIO_PIN_13
 #define BSPD_LED_GPIO_Port GPIOC
 #define DIM_RED_Pin GPIO_PIN_14

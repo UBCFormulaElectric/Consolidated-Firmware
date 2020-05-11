@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Trace Recorder Library for Tracealyzer v4.3.5
+ * Trace Recorder Library for Tracealyzer v4.3.8
  * Percepio AB, www.percepio.com
  *
  * trcStreamingConfig.h

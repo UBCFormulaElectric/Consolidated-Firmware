@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Trace Recorder Library for Tracealyzer v4.3.5
+ * Trace Recorder Library for Tracealyzer v4.3.8
  * Percepio AB, www.percepio.com
  *
  * trcKernelPort.c
@@ -129,24 +129,28 @@ void prvReportStackUsage(void);
 
 #endif /* (TRC_CFG_RECORDER_MODE == TRC_RECORDER_MODE_STREAMING) || (defined(TRC_CFG_ENABLE_STACK_MONITOR) && (TRC_CFG_ENABLE_STACK_MONITOR == 1) && (TRC_CFG_SCHEDULING_ONLY == 0)) */
 
-#if (TRC_CFG_INCLUDE_TIMER_EVENTS == 1 && TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X)
+#if (TRC_CFG_INCLUDE_TIMER_EVENTS == 1 && TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X)
 /* If the project does not include the FreeRTOS timers, TRC_CFG_INCLUDE_TIMER_EVENTS must be set to 0 */
 #include "timers.h"
-#endif /* (TRC_CFG_INCLUDE_TIMER_EVENTS == 1 && TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X) */
+#endif /* (TRC_CFG_INCLUDE_TIMER_EVENTS == 1 && TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X) */
 
-#if (TRC_CFG_INCLUDE_EVENT_GROUP_EVENTS == 1 && TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X)
+#if (TRC_CFG_INCLUDE_EVENT_GROUP_EVENTS == 1 && TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X)
 /* If the project does not include the FreeRTOS event groups, TRC_CFG_INCLUDE_TIMER_EVENTS must be set to 0 */
 #include "event_groups.h"
-#endif /* (TRC_CFG_INCLUDE_EVENT_GROUP_EVENTS == 1 && TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X) */
+#endif /* (TRC_CFG_INCLUDE_EVENT_GROUP_EVENTS == 1 && TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X) */
 
 #if (TRC_CFG_INCLUDE_STREAM_BUFFER_EVENTS == 1 && TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_10_0_0)
 /* If the project does not include the FreeRTOS stream buffers, TRC_CFG_INCLUDE_STREAM_BUFFER_EVENTS must be set to 0 */
 #include "stream_buffer.h"
 #endif /* (TRC_CFG_INCLUDE_STREAM_BUFFER_EVENTS == 1 && TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_10_0_0) */
 
+#if (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_10_3_0) && (configUSE_QUEUE_SETS == 1)
+#error "When using FreeRTOS v10.3.0 and v10.3.1, please make sure that the trace point in prvNotifyQueueSetContainer() in queue.c is renamed from traceQUEUE_SEND to traceQUEUE_SET_SEND in order to tell them apart from other traceQUEUE_SEND trace points. Then comment out this #error."
+#endif /* (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_10_3_0) && (configUSE_QUEUE_SETS == 1) */
+
 uint32_t prvTraceGetQueueNumber(void* handle);
 
-#if (TRC_CFG_FREERTOS_VERSION < TRC_FREERTOS_VERSION_8_X)
+#if (TRC_CFG_FREERTOS_VERSION < TRC_FREERTOS_VERSION_8_X_X)
 
 extern unsigned char ucQueueGetQueueNumber( xQueueHandle pxQueue );
 extern void vQueueSetQueueNumber( xQueueHandle pxQueue, unsigned char ucQueueNumber );
@@ -161,7 +165,7 @@ uint32_t prvTraceGetQueueNumber(void* handle)
 {
 	return (uint32_t)uxQueueGetQueueNumber(handle);
 }
-#endif /* (TRC_CFG_FREERTOS_VERSION < TRC_FREERTOS_VERSION_8_X) */
+#endif /* (TRC_CFG_FREERTOS_VERSION < TRC_FREERTOS_VERSION_8_X_X) */
 
 uint8_t prvTraceGetQueueType(void* handle)
 {
@@ -289,7 +293,7 @@ void prvTraceSetStreamBufferNumberHigh16(void* handle, uint16_t value)
 
 #define CS_TYPE_INVALID 0xFFFFFFFF
 
-int cortex_a9_enter_critical(void)
+int cortex_a9_r5_enter_critical(void)
 {
 	uint32_t cs_type = CS_TYPE_INVALID;
 
@@ -320,7 +324,7 @@ int cortex_a9_enter_critical(void)
 	return cs_type;
 }
 
-void cortex_a9_exit_critical(int cs_type)
+void cortex_a9_r5_exit_critical(int cs_type)
 {
 	switch (cs_type)
 	{
@@ -572,7 +576,7 @@ void vTraceSetMutexName(void* object, const char* name)
 	vTraceStoreKernelObjectName(object, name);
 }
 
-#if (TRC_CFG_INCLUDE_EVENT_GROUP_EVENTS == 1 && TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X)
+#if (TRC_CFG_INCLUDE_EVENT_GROUP_EVENTS == 1 && TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X)
 /*******************************************************************************
 * vTraceSetEventGroupName(void* object, const char* name)
 *
@@ -585,7 +589,7 @@ void vTraceSetEventGroupName(void* object, const char* name)
 {
 	vTraceStoreKernelObjectName(object, name);
 }
-#endif /* (TRC_CFG_INCLUDE_EVENT_GROUP_EVENTS == 1 && TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X) */
+#endif /* (TRC_CFG_INCLUDE_EVENT_GROUP_EVENTS == 1 && TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X) */
 
 #if (TRC_CFG_INCLUDE_STREAM_BUFFER_EVENTS == 1 && TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_10_0_0)
 /*******************************************************************************
@@ -820,7 +824,7 @@ void vTraceSetMutexName(void* object, const char* name)
 	prvTraceSetObjectName(TRACE_CLASS_MUTEX, TRACE_GET_OBJECT_NUMBER(QUEUE, object), name);
 }
 
-#if (TRC_CFG_INCLUDE_EVENT_GROUP_EVENTS == 1 && TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X)
+#if (TRC_CFG_INCLUDE_EVENT_GROUP_EVENTS == 1 && TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X)
 /*******************************************************************************
 * vTraceSetEventGroupName(void* object, const char* name)
 *
@@ -833,7 +837,7 @@ void vTraceSetEventGroupName(void* object, const char* name)
 {
 	prvTraceSetObjectName(TRACE_CLASS_EVENTGROUP, TRACE_GET_OBJECT_NUMBER(EVENTGROUP, object), name);
 }
-#endif /* (TRC_CFG_INCLUDE_EVENT_GROUP_EVENTS == 1 && TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X) */
+#endif /* (TRC_CFG_INCLUDE_EVENT_GROUP_EVENTS == 1 && TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X) */
 
 #if (TRC_CFG_INCLUDE_STREAM_BUFFER_EVENTS == 1 && TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_10_0_0)
 /*******************************************************************************
