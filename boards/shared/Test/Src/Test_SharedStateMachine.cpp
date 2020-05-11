@@ -9,7 +9,6 @@ extern "C"
 #include "App_SharedStateMachine.h"
 }
 
-
 FAKE_VOID_FUNC(state_A_entry, struct StateMachine *);
 FAKE_VOID_FUNC(state_A_tick_1kHz, struct StateMachine *);
 FAKE_VOID_FUNC(state_A_exit, struct StateMachine *);
@@ -99,9 +98,8 @@ TEST_F(
     EXPECT_EQ(state_B_tick_1kHz_fake.call_count, 1);
 }
 
-TEST_F(
-    SharedStateMachineTest,
-    check_that_null_tick_functions_dont_deadlock){
+TEST_F(SharedStateMachineTest, check_that_null_tick_functions_dont_deadlock)
+{
     // This test was created to reproduce a bug whereby we would take the mutex
     // with a null tick function and then would return without releasing it.
     // Then the next time we called `tick` we would be stuck forever waiting

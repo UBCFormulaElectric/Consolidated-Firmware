@@ -4,6 +4,7 @@
 
 #ifdef __arm__
 #include <FreeRTOS.h>
+#include <semphr.h>
 #elif __unix__
 #include <pthread.h>
 #else
