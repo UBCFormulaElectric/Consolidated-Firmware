@@ -124,8 +124,9 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
 
     App_SevenSegDisplays_SetUnsignedBase10Value(
         seven_seg_displays,
-        (uint32_t)App_CanRx_BMS_STATE_OF_CHARGE_GetSignal_STATE_OF_CHARGE(
-            can_rx));
+        (uint32_t)
+            App_CanRx_BMS_STATE_OF_CHARGE_GetPeriodicSignal_STATE_OF_CHARGE(
+                can_rx));
 
     if (EXIT_CODE_OK(
             App_RotarySwitch_GetSwitchPosition(drive_mode_switch, &buffer)))
@@ -133,7 +134,7 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
         App_SetPeriodicCanSignals_DriveMode(can_tx, buffer);
     }
 
-    if (App_CanRx_BMS_IMD_GetSignal_OK_HS(can_rx) ==
+    if (App_CanRx_BMS_IMD_GetPeriodicSignal_OK_HS(can_rx) ==
         CANMSGS_BMS_IMD_OK_HS_FAULT_CHOICE)
     {
         App_Led_TurnOn(imd_led);
@@ -143,7 +144,7 @@ static void DriveStateRunOnTick(struct StateMachine *const state_machine)
         App_Led_TurnOff(imd_led);
     }
 
-    if (App_CanRx_FSM_ERRORS_GetSignal_BSPD_FAULT(can_rx))
+    if (App_CanRx_FSM_ERRORS_GetPeriodicSignal_BSPD_FAULT(can_rx))
     {
         App_Led_TurnOn(bspd_led);
     }
