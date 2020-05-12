@@ -28,7 +28,7 @@ struct AdcInput;
  * @return A pointer to the allocated and initialized ADC instance
  */
 struct AdcInput *
-    Io_SharedAdc_Create(ADC_HandleTypeDef *adc_handle, size_t vrefint_rank);
+    Io_SharedAdc_Init(ADC_HandleTypeDef *adc_handle, size_t vrefint_rank);
 
 /**
  * Gets the ADC voltage of the given channel from the given ADC instance

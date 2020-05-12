@@ -49,7 +49,7 @@ static ErrorStatus
 }
 
 struct AdcInput *
-    Io_SharedAdc_Create(ADC_HandleTypeDef *hadc, size_t vrefint_index)
+    Io_SharedAdc_Init(ADC_HandleTypeDef *hadc, size_t vrefint_index)
 {
     assert(hadc != NULL);
 

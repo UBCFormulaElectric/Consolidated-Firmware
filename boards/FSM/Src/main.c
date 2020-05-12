@@ -181,7 +181,7 @@ int main(void)
 
     Io_WheelSpeedSensors_Init(&htim16, &htim17);
 
-    adc2 = Io_SharedAdc_Create(&hadc2, 1U);
+    adc2 = Io_SharedAdc_Init(&hadc2, 1U);
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
