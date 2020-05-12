@@ -38,6 +38,7 @@
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
 #include "Io_WheelSpeedSensors.h"
+#include "Io_SharedAdc.h"
 
 #include "App_FsmWorld.h"
 #include "App_SharedStateMachine.h"
@@ -62,6 +63,7 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc2;
+DMA_HandleTypeDef hdma_adc2;
 
 CAN_HandleTypeDef hcan;
 
@@ -91,11 +93,13 @@ struct FsmCanTxInterface *can_tx;
 struct FsmCanRxInterface *can_rx;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
+struct AdcInput *         adc2;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_CAN_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_ADC2_Init(void);
@@ -159,6 +163,7 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
+    MX_DMA_Init();
     MX_CAN_Init();
     MX_IWDG_Init();
     MX_ADC2_Init();
@@ -175,6 +180,8 @@ int main(void)
         App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
 
     Io_WheelSpeedSensors_Init(&htim16, &htim17);
+
+    adc2 = Io_SharedAdc_Create(&hadc2, 1U);
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
@@ -335,14 +342,14 @@ static void MX_ADC2_Init(void)
     hadc2.Instance                   = ADC2;
     hadc2.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV1;
     hadc2.Init.Resolution            = ADC_RESOLUTION_12B;
-    hadc2.Init.ScanConvMode          = ADC_SCAN_DISABLE;
-    hadc2.Init.ContinuousConvMode    = DISABLE;
+    hadc2.Init.ScanConvMode          = ADC_SCAN_ENABLE;
+    hadc2.Init.ContinuousConvMode    = ENABLE;
     hadc2.Init.DiscontinuousConvMode = DISABLE;
     hadc2.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
     hadc2.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
     hadc2.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-    hadc2.Init.NbrOfConversion       = 1;
-    hadc2.Init.DMAContinuousRequests = DISABLE;
+    hadc2.Init.NbrOfConversion       = 3;
+    hadc2.Init.DMAContinuousRequests = ENABLE;
     hadc2.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
     hadc2.Init.LowPowerAutoWait      = DISABLE;
     hadc2.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;
@@ -352,12 +359,28 @@ static void MX_ADC2_Init(void)
     }
     /** Configure Regular Channel
      */
-    sConfig.Channel      = ADC_CHANNEL_1;
+    sConfig.Channel      = ADC_CHANNEL_VREFINT;
     sConfig.Rank         = ADC_REGULAR_RANK_1;
     sConfig.SingleDiff   = ADC_SINGLE_ENDED;
-    sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+    sConfig.SamplingTime = ADC_SAMPLETIME_61CYCLES_5;
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset       = 0;
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_1;
+    sConfig.Rank    = ADC_REGULAR_RANK_2;
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_3;
+    sConfig.Rank    = ADC_REGULAR_RANK_3;
     if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -567,6 +590,20 @@ static void MX_TIM17_Init(void)
     /* USER CODE BEGIN TIM17_Init 2 */
 
     /* USER CODE END TIM17_Init 2 */
+}
+
+/**
+ * Enable DMA controller clock
+ */
+static void MX_DMA_Init(void)
+{
+    /* DMA controller clock enable */
+    __HAL_RCC_DMA2_CLK_ENABLE();
+
+    /* DMA interrupt init */
+    /* DMA2_Channel1_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA2_Channel1_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA2_Channel1_IRQn);
 }
 
 /**
