@@ -95,7 +95,7 @@ float Io_SharedAdc_GetChannelVoltage(
     const struct AdcInput *const adc_input,
     size_t                       adc_rank)
 {
-    assert(adc_rank > 0 && adc_rank <= adc_input->hadc->Init.NbrOfConversion);
+    assert(adc_rank > 0 && adc_rank <= adc_input->num_active_channels);
 
     // This function performs the following:
     // (1) Calculate the microcontroller's actual VDDA value using the following
