@@ -113,7 +113,7 @@ class FsmStateMachineTest : public testing::Test
     struct RgbLedSequence *   rgb_led_sequence;
 };
 
-TEST_F(FsmStateMachineTest, check_air_open_state_is_broadcasted_over_can)
+TEST_F(FsmStateMachineTest, check_air_open_state_is_broadcasted_over_can_FSM_10)
 {
     SetInitialState(App_GetAirOpenState());
 
@@ -122,7 +122,7 @@ TEST_F(FsmStateMachineTest, check_air_open_state_is_broadcasted_over_can)
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
-TEST_F(FsmStateMachineTest, check_air_closed_state_is_broadcasted_over_can)
+TEST_F(FsmStateMachineTest, check_air_closed_state_is_broadcasted_over_can_FSM_10)
 {
     SetInitialState(App_GetAirClosedState());
 
@@ -133,7 +133,7 @@ TEST_F(FsmStateMachineTest, check_air_closed_state_is_broadcasted_over_can)
 
 TEST_F(
     FsmStateMachineTest,
-    check_if_primary_and_secondary_flow_rates_are_broadcasted_over_can_in_all_states)
+    check_if_primary_and_secondary_flow_rates_are_broadcasted_over_can_in_all_states_FSM_14)
 {
     float fake_frequency = 1.0f;
 

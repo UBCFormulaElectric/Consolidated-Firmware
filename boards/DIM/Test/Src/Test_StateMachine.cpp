@@ -179,7 +179,7 @@ class DimStateMachineTest : public testing::Test
     struct RotarySwitch *     drive_mode_switch;
 };
 
-TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
+TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can_DIM_12)
 {
     SetInitialState(App_GetDriveState());
 
@@ -190,7 +190,7 @@ TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
 
 TEST_F(
     DimStateMachineTest,
-    check_7_seg_displays_show_state_of_charge_in_drive_state)
+    check_7_seg_displays_show_state_of_charge_in_drive_state_DIM_9)
 {
     App_CanRx_BMS_STATE_OF_CHARGE_SetSignal_STATE_OF_CHARGE(
         can_rx_interface, 0.0f);
@@ -233,7 +233,7 @@ TEST_F(
 
 TEST_F(
     DimStateMachineTest,
-    check_mapped_paddle_position_is_broadcasted_over_can_in_drive_state)
+    check_mapped_paddle_position_is_broadcasted_over_can_in_drive_state_DIM_7)
 {
     get_raw_paddle_position_fake.return_val = 50;
     App_SharedStateMachine_Tick(state_machine);
@@ -244,7 +244,46 @@ TEST_F(
 
 TEST_F(
     DimStateMachineTest,
-    check_drive_mode_is_broadcasted_over_can_in_drive_state)
+    check_deadzones_for_mapped_paddle_position_in_drive_state_DIM_8)
+{
+    // <= 5% maps to 0 %
+    get_raw_paddle_position_fake.return_val = 4;
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(
+        0,
+        App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
+    get_raw_paddle_position_fake.return_val = 5;
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(
+        0,
+        App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
+    get_raw_paddle_position_fake.return_val = 6;
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_NE(
+        0,
+        App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
+
+    // >= 95% maps to 100%
+    get_raw_paddle_position_fake.return_val = 94;
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_NE(
+        100,
+        App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
+    get_raw_paddle_position_fake.return_val = 95;
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(
+        100,
+        App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
+    get_raw_paddle_position_fake.return_val = 96;
+    App_SharedStateMachine_Tick(state_machine);
+    ASSERT_EQ(
+        100,
+        App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
+}
+
+TEST_F(
+    DimStateMachineTest,
+    check_drive_mode_is_broadcasted_over_can_in_drive_state_DIM_3)
 {
     get_drive_mode_switch_position_fake.return_val = 2;
     App_SharedStateMachine_Tick(state_machine);
@@ -255,7 +294,7 @@ TEST_F(
 
 TEST_F(
     DimStateMachineTest,
-    check_start_switch_is_broadcasted_over_can_in_drive_state)
+    check_start_switch_is_broadcasted_over_can_in_drive_state_DIM_4)
 {
     start_switch_is_turned_on_fake.return_val = false;
     App_SharedStateMachine_Tick(state_machine);
@@ -272,7 +311,7 @@ TEST_F(
 
 TEST_F(
     DimStateMachineTest,
-    check_traction_control_switch_is_broadcasted_over_can_in_drive_state)
+    check_traction_control_switch_is_broadcasted_over_can_in_drive_state_DIM_4)
 {
     traction_control_switch_is_turned_on_fake.return_val = false;
     App_SharedStateMachine_Tick(state_machine);
@@ -289,7 +328,7 @@ TEST_F(
 
 TEST_F(
     DimStateMachineTest,
-    check_torque_vectoring_switch_is_broadcasted_over_can_in_drive_state)
+    check_torque_vectoring_switch_is_broadcasted_over_can_in_drive_state_DIM_4)
 {
     torque_vectoring_switch_is_turned_on_fake.return_val = false;
     App_SharedStateMachine_Tick(state_machine);
@@ -304,7 +343,7 @@ TEST_F(
         App_CanTx_GetPeriodicSignal_TORQUE_VECTORING_SWITCH(can_tx_interface));
 }
 
-TEST_F(DimStateMachineTest, imd_led_control_in_drive_state)
+TEST_F(DimStateMachineTest, imd_led_control_in_drive_state_DIM_5)
 {
     App_CanRx_BMS_IMD_SetSignal_OK_HS(
         can_rx_interface, CANMSGS_BMS_IMD_OK_HS_NO_FAULT_CHOICE);
@@ -325,7 +364,7 @@ TEST_F(DimStateMachineTest, imd_led_control_in_drive_state)
     ASSERT_EQ(2, turn_off_imd_led_fake.call_count);
 }
 
-TEST_F(DimStateMachineTest, bspd_led_control_in_drive_state)
+TEST_F(DimStateMachineTest, bspd_led_control_in_drive_state_DIM_6)
 {
     App_CanRx_FSM_ERRORS_SetSignal_BSPD_FAULT(can_rx_interface, false);
     App_SharedStateMachine_Tick(state_machine);
