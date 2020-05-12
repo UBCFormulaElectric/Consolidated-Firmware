@@ -122,7 +122,9 @@ TEST_F(FsmStateMachineTest, check_air_open_state_is_broadcasted_over_can_FSM_10)
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
-TEST_F(FsmStateMachineTest, check_air_closed_state_is_broadcasted_over_can_FSM_10)
+TEST_F(
+    FsmStateMachineTest,
+    check_air_closed_state_is_broadcasted_over_can_FSM_10)
 {
     SetInitialState(App_GetAirClosedState());
 
