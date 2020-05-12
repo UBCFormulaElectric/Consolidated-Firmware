@@ -43,7 +43,7 @@ float Io_SharedAdc_GetChannelVoltage(
 /**
  * Gets the pointer to the adc handle from the given ADC instance
  * @param adc_input The given ADC instance to acquire the adc handle from
- * @return The ADC_HandleTypedef structure for the specific ADC
+ * @return The ADC handle for the specific ADC instance
  */
 ADC_HandleTypeDef *Io_SharedAdc_GetAdcHandle(const struct AdcInput *adc_input);
 
