@@ -16,7 +16,7 @@ struct AdcInput
 static uint16_t *measured_vrefint_address;
 
 /**
- * Gets the ADC resolution for the given hadc
+ * Gets the ADC resolution for the given ADC handle
  * @param hadc The ADC handle for the ADC we are initializing
  * @return adc_max_resolution The maximum ADC resolution for the given ADC
  * handle

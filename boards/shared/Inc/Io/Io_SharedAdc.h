@@ -12,7 +12,7 @@
 struct AdcInput;
 
 /**
- * Allocate and initialize an ADC with direct memory access
+ * Allocate and initialize an ADC instance with direct memory access
  *
  * @note The user must ensure that only one of the two ADCs is converting
  * VREFINT as it is forbidden to have several ADCs converting
@@ -31,7 +31,7 @@ struct AdcInput *
     Io_SharedAdc_Create(ADC_HandleTypeDef *adc_handle, size_t vrefint_rank);
 
 /**
- * Gets the ADC voltage of the given channel from the given adc instance
+ * Gets the ADC voltage of the given channel from the given ADC instance
  * @param adc_input The given ADC instance to get the voltage from
  * @param adc_rank The rank of the ADC channel to get the voltage from
  * @return The voltage of the given ADC handle's given channel
@@ -41,7 +41,7 @@ float Io_SharedAdc_GetChannelVoltage(
     size_t                 adc_rank);
 
 /**
- * Gets the pointer to the adc handle that contains for the specific ADC
+ * Gets the pointer to the adc handle from the given ADC instance
  * @param adc_input The given ADC instance to acquire the adc handle from
  * @return The ADC_HandleTypedef structure for the specific ADC
  */
