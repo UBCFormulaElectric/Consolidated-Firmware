@@ -102,7 +102,7 @@ TEST_F(
         App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
-TEST_F(DcmStateMachineTest, check_init_state_is_broadcasted_over_can)
+TEST_F(DcmStateMachineTest, check_init_state_is_broadcasted_over_can_DCM_21)
 {
     SetInitialState(App_GetInitState());
 
@@ -111,7 +111,7 @@ TEST_F(DcmStateMachineTest, check_init_state_is_broadcasted_over_can)
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
-TEST_F(DcmStateMachineTest, check_drive_state_is_broadcasted_over_can)
+TEST_F(DcmStateMachineTest, check_drive_state_is_broadcasted_over_can_DCM_21)
 {
     SetInitialState(App_GetDriveState());
 
@@ -120,7 +120,7 @@ TEST_F(DcmStateMachineTest, check_drive_state_is_broadcasted_over_can)
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
-TEST_F(DcmStateMachineTest, check_fault_state_is_broadcasted_over_can)
+TEST_F(DcmStateMachineTest, check_fault_state_is_broadcasted_over_can_DCM_21)
 {
     SetInitialState(App_GetFaultState());
 
