@@ -1,67 +1,55 @@
 #pragma once
-
 #include <stm32f3xx_hal.h>
-#include <arm_math.h>
+#include "Io_SharedAdcConfig.h"
 
-#include "Io_BoardSpecifics.h"
-
-// clang-format off
-
-// Memory address where you can find the internal reference voltage calibration 
-// values: Raw ADC data acquired at temperature of 30 degC with VDDA = 3.3V 
-// during the manufacturing process
-#define VREFINT_CALIBRATION_ADDRESS		(uint16_t *)(0x1FFFF7BA)
-
-// Number of microcontroller pins that are configured to be ADC inputs
-#ifndef NUM_ADC_CHANNELS
-    #error "Please define the number pins configured as ADC inputs using NUM_ADC_CHANNELS!"
+#ifndef MAX_NUM_OF_ADC
+#define MAX_NUM_OF_ADC 1
+#endif
+#ifndef MAX_NUM_OF_ADC_CHANNELS
+#define MAX_NUM_OF_ADC_CHANNELS 16
 #endif
 
-/** @brief Nominal voltage for VDDA, or ADC power supply */
-#define VDDA_VOLTAGE (float32_t)(3.3f)
-
-/** @brief Number of VREFINT channel. VREFINT is the internal voltage reference 
- *         that provides a stable (bandgap) voltage output for the ADC. */
-#define NUM_VREFINT_CHANNEL 1
+struct AdcInput;
 
 /**
- * @brief  Initialize ADC in DMA mode and the correct max ADC value
- * @param  hadc ADC handle
- * @param  vrefint_regular_rank The Regular Rank of VREFINT channel configured
- *         in STM32CubeMX (Starts at 1)
+ * Allocate and initialize an ADC with direct memory access
+ *
+ * @note The user must ensure that only one of the two ADCs is converting
+ * VREFINT as it is forbidden to have several ADCs converting
+ * VREFINT at the same time. Create the ADC instance containing VREFINT first
+ * while initializing the ADCs
+ *
+ * @note To set up the given ADC with a DMA controller, it must be initialized
+ * with (1) Continuous Conversion Mode enabled,(2) DMA Continuous Requests
+ * enabled, (3) DMA buffer with Circular Mode selected
+ *
+ * @param adc_handle The handle for the given ADC
+ * @param vrefint_rank The rank which is used to indicate the index of VREFINT
+ * @return A pointer to the allocated and initialized ADC instance
  */
-void Io_SharedAdc_StartAdcInDmaMode(
-    ADC_HandleTypeDef *hadc,
-    uint32_t           vrefint_regular_rank);
+struct AdcInput *
+    Io_SharedAdc_Create(ADC_HandleTypeDef *adc_handle, size_t vrefint_rank);
 
 /**
- * @brief  Get the appropriate maximum ADC value based on the ADC resolution
- * @return Maximum ADC value in bits
+ * Gets the ADC voltage of the given channel from the given adc instance
+ * @param adc_input The given ADC instance to get the voltage from
+ * @param adc_rank The rank of the ADC channel to get the voltage from
+ * @return The voltage of the given ADC handle's given channel
  */
-uint32_t Io_SharedAdc_GetAdcMaxValue(void);
+float Io_SharedAdc_GetChannelVoltage(
+    const struct AdcInput *adc_input,
+    size_t                 adc_rank);
 
 /**
- * @brief  Get the array of ADC readings transferred over DMA request
- * @return Pointer to the array of ADC readings
+ * Gets the pointer to the adc handle that contains for the specific ADC
+ * @param adc_input The given ADC instance to acquire the adc handle from
+ * @return The ADC_HandleTypedef structure for the specific ADC
  */
-const uint32_t *Io_SharedAdc_GetAdcValues(void);
+ADC_HandleTypeDef *Io_SharedAdc_GetAdcHandle(const struct AdcInput *adc_input);
 
 /**
- * @brief  The VDDA power supply voltage applied to the microcontroller may be
- *         subject to variation or not precisely known. The embedded internal
- *         voltage reference (VREFINT) and its calibration data acquired by the
- *         ADC during the manufacturing process at VDDA = 3.3 V can be used to
- *         evaluate the actual VDDA voltage level.
- * @return Actual VDDA voltage
+ * Gets the number of active channels from the given ADC instance
+ * @param adc_input Handle for the given ADC instance
+ * @return The number of active channels for the given ADC instance
  */
-float32_t Io_SharedAdc_GetActualVdda(void);
-
-/**
- * @brief  Convert the ADC value to a voltage channel using the actual VDDA
- *         voltage level
- * @param  regular_rank The Regular Rank for the selected ADC channel as
- *         configured in STM32CubeMXa (Starts at 1)
- * @return The voltage at the ADC channel
- */
-float32_t Io_SharedAdc_GetAdcVoltage(uint32_t regular_rank);
-
+uint32_t Io_SharedAdc_GetNumActiveChannel(const struct AdcInput *adc_input);

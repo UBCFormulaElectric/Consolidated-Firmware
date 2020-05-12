@@ -1,169 +1,140 @@
+#include <stdint.h>
+#include <assert.h>
 #include "Io_SharedAdc.h"
 #include "App_SharedConstants.h"
-#include "main.h"
-#include "stdbool.h"
 
-/** @brief The maximum ADC value depends on the selected ADC resolution */
-static uint32_t adc_max_value;
+struct AdcInput
+{
+    ADC_HandleTypeDef *hadc;
+    size_t             vrefint_index;
+    uint32_t           num_active_channels;
+    uint16_t           adc_max_value;
+    uint16_t *         adc_readings;
+};
 
-/** @brief Array of raw ADC values */
-static uint32_t adc_values[NUM_ADC_CHANNELS] = { 0 };
-
-/** @brief Keep track of which element in adc_values[] is VREFINT (The default
- *         value is a garbage value that doesn't correspond to any Regular Rank)
- */
-static uint32_t vrefint_index = NUM_ADC_CHANNELS;
-
-/** @brief Keep track of whether the ADC has been initialized yet */
-static bool adc_initialized = false;
+// Pointer to the VREFINT measured by the ADC
+static uint16_t *measured_vrefint_address;
 
 /**
- * @brief  Configure the maximum ADC value based on ADC resolution
- * @param  hadc ADC handle
- * @return ErrorStatus
+ * Gets the ADC resolution for the given hadc
+ * @param hadc The ADC handle for the ADC we are initializing
+ * @return adc_max_resolution The maximum ADC resolution for the given ADC
+ * handle
  */
-static ErrorStatus InitializeAdcMaxValue(ADC_HandleTypeDef *hadc);
+static ErrorStatus
+    Io_GetAdcResolution(ADC_HandleTypeDef *hadc, uint16_t *adc_max_resolution);
 
-/**
- * @brief  Return the VREFINT calibration value acquired by the ADC during the
- *         manufacturing process at VDDA = 3.3V (Note that this is a 16-bit
- *         value)
- * @return VDDA calibration data
- */
-static uint16_t GetVrefintCalibrationValue(void);
-
-/**
- * @brief Check if the ADC module has been initialized using
- *        Io_SharedAdc_StartAdcInDmaMode()
- * @note  This should be called at the beginning of functions that require ADC
- *        to be initialized
- */
-static void CheckAdcInitialized(void);
-
-static ErrorStatus InitializeAdcMaxValue(ADC_HandleTypeDef *hadc)
+static ErrorStatus
+    Io_GetAdcResolution(ADC_HandleTypeDef *hadc, uint16_t *adc_max_resolution)
 {
     switch (hadc->Init.Resolution)
     {
         case ADC_RESOLUTION_6B:
-            adc_max_value = MAX_6_BITS_VALUE;
+            *adc_max_resolution = MAX_6_BITS_VALUE;
             break;
         case ADC_RESOLUTION_8B:
-            adc_max_value = MAX_8_BITS_VALUE;
+            *adc_max_resolution = MAX_8_BITS_VALUE;
             break;
         case ADC_RESOLUTION_10B:
-            adc_max_value = MAX_10_BITS_VALUE;
+            *adc_max_resolution = MAX_10_BITS_VALUE;
             break;
         case ADC_RESOLUTION_12B:
-            adc_max_value = MAX_12_BITS_VALUE;
+            *adc_max_resolution = MAX_12_BITS_VALUE;
             break;
         default:
             return ERROR;
     }
+
     return SUCCESS;
 }
 
-static uint16_t GetVrefintCalibrationValue(void)
+struct AdcInput *
+    Io_SharedAdc_Create(ADC_HandleTypeDef *hadc, size_t vrefint_index)
 {
-    return (uint16_t)(*VREFINT_CALIBRATION_ADDRESS);
+    assert(hadc != NULL);
+
+    static size_t          alloc_index = 0;
+    static struct AdcInput adc_inputs[MAX_NUM_OF_ADC];
+    static uint32_t adc_readings[MAX_NUM_OF_ADC][MAX_NUM_OF_ADC_CHANNELS];
+
+    struct AdcInput *const adc_input = &adc_inputs[alloc_index];
+
+    assert(alloc_index < MAX_NUM_OF_ADC);
+    assert(Io_GetAdcResolution(hadc, &adc_input->adc_max_value) == SUCCESS);
+
+    adc_input->hadc                = hadc;
+    adc_input->num_active_channels = hadc->Init.NbrOfConversion;
+    adc_input->adc_readings        = (uint16_t *)adc_readings[alloc_index];
+
+    HAL_ADCEx_Calibration_Start(hadc, ADC_SINGLE_ENDED);
+    HAL_ADC_Start_DMA(
+        hadc, (uint32_t *)adc_input->adc_readings,
+        adc_input->num_active_channels);
+
+    if (alloc_index == 0U)
+    {
+        // Initialize ADC instance containing VREFINT before initializing other
+        // ADCs
+        assert(vrefint_index <= adc_input->num_active_channels);
+
+        adc_inputs->vrefint_index = vrefint_index - 1;
+        // Store the pointer pointing to the measured VREFINT value
+        measured_vrefint_address =
+            &adc_input->adc_readings[adc_input->vrefint_index];
+    }
+    else
+    {
+        UNUSED(vrefint_index);
+    }
+
+    alloc_index++;
+    return adc_input;
 }
 
-static void CheckAdcInitialized(void)
+float Io_SharedAdc_GetChannelVoltage(
+    const struct AdcInput *const adc_input,
+    size_t                       adc_rank)
 {
-    if (adc_initialized != true)
-    {
-        Error_Handler();
-    }
-}
+    assert(adc_rank > 0 && adc_rank <= adc_input->hadc->Init.NbrOfConversion);
 
-void Io_SharedAdc_StartAdcInDmaMode(
-    ADC_HandleTypeDef *hadc,
-    uint32_t           vrefint_regular_rank)
-{
-    // The index of each ADC channel is always its Regular Rank minus one
-    vrefint_index = vrefint_regular_rank - 1;
-    bool status   = true;
-
-    if (HAL_ADCEx_Calibration_Start(hadc, ADC_SINGLE_ENDED) != HAL_OK)
-    {
-        status = false;
-        Error_Handler();
-    }
-
-    if (HAL_ADC_Start_DMA(hadc, &adc_values[0], NUM_ADC_CHANNELS) != HAL_OK)
-    {
-        status = false;
-        Error_Handler();
-    }
-
-    if (InitializeAdcMaxValue(hadc) != SUCCESS)
-    {
-        status = false;
-        Error_Handler();
-    }
-
-    // Only set adc_initialized to true if all initialization steps are
-    // error-free
-    if (status == true)
-    {
-        adc_initialized = true;
-    }
-}
-
-uint32_t Io_SharedAdc_GetAdcMaxValue(void)
-{
-    CheckAdcInitialized();
-
-    return (const uint32_t)adc_max_value;
-}
-
-const uint32_t *Io_SharedAdc_GetAdcValues(void)
-{
-    CheckAdcInitialized();
-
-    return (const uint32_t *)adc_values;
-}
-
-float32_t Io_SharedAdc_GetActualVdda(void)
-{
-    CheckAdcInitialized();
-
-    // The actual VDDA voltage supplying the microcontroller can be calculated
-    // using the following formula:
+    // This function performs the following:
+    // (1) Calculate the microcontroller's actual VDDA value using the following
+    // formula
     //
-    //         3.3V x VREFINT_CAL
-    // VDDA = ---------------------
-    //           VREFINT_DATA
+    //                    3.3V x VREFINT_CAL
+    //  ACTUAL_VDDA = ---------------------------
+    //                      VREFINT_MEASURED
     //
-    // Where:
-    // - VREFINT_CAL is the VREFINT calibration value
-    // - VREFINT_DATA is the actual VREFINT output value converted by the ADC
+    // VREFINT_CAL is the VREFINT calibration value (stored at 0x1FFF7BA)
+    // VREFINT_MEASURED is the actual VREFINT output value converted by an ADC
+    //
+    // (2) Calculate the voltage of the given ADC Channel
+    //
+    //                 ACTUAL_VDDA x ADCx_READINGS
+    //  V_CHANNELx = ----------------------------
+    //                       ADC_MAX_VALUE
+    //
+    // ACTUAL_VDDA is the vdda value computed in step (1)
+    // ADCx_DATA is the value of the channel measured by the ADC
+    // ADC_MAX_VALUE is the maximum ADC value
 
-    return (float32_t)(
-        3.3f * (float32_t)(GetVrefintCalibrationValue()) /
-        (float)adc_values[vrefint_index]);
+    const uint16_t *const VREFINT_CALIBRATION_ADDRESS =
+        (uint16_t *)(0x1FFFF7BA);
+    const float ACTUAL_VDDA =
+        (float)(3.3f * (uint16_t)(*VREFINT_CALIBRATION_ADDRESS) / *measured_vrefint_address);
+
+    return (
+        float)(ACTUAL_VDDA * adc_input->adc_readings[adc_rank - 1] / adc_input->adc_max_value);
 }
 
-float32_t Io_SharedAdc_GetAdcVoltage(uint32_t regular_rank)
+ADC_HandleTypeDef *
+    Io_SharedAdc_GetAdcHandle(const struct AdcInput *const adc_input)
 {
-    CheckAdcInitialized();
+    return adc_input->hadc;
+}
 
-    // The index of each ADC channel is always its Regular Rank minus one
-    uint32_t adc_values_index = regular_rank - 1;
-
-    //  The voltage at any ADC channel can be calculated using the following
-    //  generic formula:
-    //
-    //                   ACTUAL_VDDA x ADCx_DATA
-    //    V_CHANNELx = ----------------------------
-    //                          FULL_SCALE
-    //
-    // Where:
-    // - ADC_DATAx is the value measured by the ADC on channel x (right-aligned)
-    // - FULL_SCALE is the maximum digital value of the ADC output. For example
-    //   with 12-bit resolution, it will be 212 - 1 = 4095 or with 8-bit
-    //   resolution, 28 - 1 = 255.
-
-    return (float32_t)(Io_SharedAdc_GetActualVdda()) *
-           (float32_t)(Io_SharedAdc_GetAdcValues()[adc_values_index]) /
-           (float32_t)(Io_SharedAdc_GetAdcMaxValue());
+uint32_t
+    Io_SharedAdc_GetNumActiveChannel(const struct AdcInput *const adc_input)
+{
+    return adc_input->num_active_channels;
 }
