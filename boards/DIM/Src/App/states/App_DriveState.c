@@ -90,11 +90,7 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
-    struct DimWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct RgbLedSequence *rgb_led_sequence =
-        App_DimWorld_GetRgbLedSequence(world);
-
-    App_SharedRgbLedSequence_Tick(rgb_led_sequence);
+    (void)state_machine;
 }
 
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)

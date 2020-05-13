@@ -392,21 +392,4 @@ TEST_F(DimStateMachineTest, bspd_led_control_in_drive_state)
     ASSERT_EQ(2, turn_off_bspd_led_fake.call_count);
 }
 
-TEST_F(DimStateMachineTest, rgb_led_sequence_in_drive_state)
-{
-    unsigned int *call_counts[] = { &turn_on_red_led_fake.call_count,
-                                    &turn_on_green_led_fake.call_count,
-                                    &turn_on_blue_led_fake.call_count };
-
-    // Verify that we cycle through red, green, blue, red, etc. for 99 times
-    // . The number 99 can be changed to any other number that is a multiple
-    // of 3. The significance of 3 is because we have 3 colors (Red, green,
-    // and blue).
-    for (size_t i = 0; i < 99; i++)
-    {
-        App_SharedStateMachine_Tick1Hz(state_machine);
-        ASSERT_EQ(*call_counts[i % 3], i / 3 + 1);
-    }
-}
-
 } // namespace StateMachineTest
