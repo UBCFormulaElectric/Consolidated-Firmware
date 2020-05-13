@@ -1,5 +1,6 @@
 #include <math.h>
 
+#include "states/App_AllStates.h"
 #include "states/App_InitState.h"
 
 #include "App_SharedMacros.h"
@@ -13,7 +14,12 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
         can_tx_interface, CANMSGS_PDM_STATE_MACHINE_STATE_INIT_CHOICE);
 }
 
-static void InitStateRunOnTick(struct StateMachine *const state_machine)
+static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
+{
+    App_AllStatesRunOnTick1Hz(state_machine);
+}
+
+static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct PdmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct PdmCanTxInterface *can_tx = App_PdmWorld_GetCanTx(world);
@@ -39,11 +45,11 @@ static void InitStateRunOnExit(struct StateMachine *const state_machine)
 const struct State *App_GetInitState()
 {
     static struct State init_state = {
-        .name             = "INIT",
-        .run_on_entry     = InitStateRunOnEntry,
-        .run_on_tick_1kHz = InitStateRunOnTick,
-        .run_on_tick_1Hz  = NULL,
-        .run_on_exit      = InitStateRunOnExit,
+        .name              = "INIT",
+        .run_on_entry      = InitStateRunOnEntry,
+        .run_on_tick_1Hz   = InitStateRunOnTick1Hz,
+        .run_on_tick_100Hz = InitStateRunOnTick100Hz,
+        .run_on_exit       = InitStateRunOnExit,
     };
 
     return &init_state;
