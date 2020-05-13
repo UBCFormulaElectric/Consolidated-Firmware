@@ -779,15 +779,6 @@ void RunTask1Hz(void const *argument)
 
     for (;;)
     {
-        float aux1_current      = Io_Adc_GetChannel2Voltage() * 100.0f;
-        float aux2_current      = Io_Adc_GetChannel7Voltage() * 100.0f;
-        float left_inv_current  = Io_Adc_GetChannel8Voltage() * 100.0f;
-        float right_inv_current = Io_Adc_GetChannel9Voltage() * 100.0f;
-        (void)aux1_current;
-        (void)aux2_current;
-        (void)left_inv_current;
-        (void)right_inv_current;
-
         App_SharedStateMachine_Tick1kHz(state_machine);
         App_StackWaterMark_Check();
         // Watchdog check-in must be the last function called before putting the
