@@ -194,7 +194,7 @@ TEST_F(
 {
     App_CanRx_BMS_STATE_OF_CHARGE_SetSignal_STATE_OF_CHARGE(
         can_rx_interface, 0.0f);
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[0].enabled);
     ASSERT_EQ(false, set_middle_hex_digit_fake.arg0_history[0].enabled);
     ASSERT_EQ(false, set_right_hex_digit_fake.arg0_history[0].enabled);
@@ -202,7 +202,7 @@ TEST_F(
 
     App_CanRx_BMS_STATE_OF_CHARGE_SetSignal_STATE_OF_CHARGE(
         can_rx_interface, 50.0f);
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[1].enabled);
     ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_history[1].enabled);
     ASSERT_EQ(false, set_right_hex_digit_fake.arg0_history[1].enabled);
@@ -211,7 +211,7 @@ TEST_F(
 
     App_CanRx_BMS_STATE_OF_CHARGE_SetSignal_STATE_OF_CHARGE(
         can_rx_interface, 100.0f);
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[2].enabled);
     ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_history[2].enabled);
     ASSERT_EQ(true, set_right_hex_digit_fake.arg0_history[2].enabled);
@@ -225,7 +225,7 @@ TEST_F(
     check_raw_paddle_position_is_broadcasted_over_can_in_drive_state)
 {
     get_raw_paddle_position_fake.return_val = 50;
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(
         get_raw_paddle_position_fake.return_val,
         App_CanTx_GetPeriodicSignal_RAW_PADDLE_POSITION(can_tx_interface));
@@ -236,7 +236,7 @@ TEST_F(
     check_mapped_paddle_position_is_broadcasted_over_can_in_drive_state)
 {
     get_raw_paddle_position_fake.return_val = 50;
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(
         get_raw_paddle_position_fake.return_val,
         App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
@@ -247,7 +247,7 @@ TEST_F(
     check_drive_mode_is_broadcasted_over_can_in_drive_state)
 {
     get_drive_mode_switch_position_fake.return_val = 2;
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(
         CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_3_CHOICE,
         App_CanTx_GetPeriodicSignal_DRIVE_MODE(can_tx_interface));
@@ -258,13 +258,13 @@ TEST_F(
     check_start_switch_is_broadcasted_over_can_in_drive_state)
 {
     start_switch_is_turned_on_fake.return_val = false;
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(
         CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE,
         App_CanTx_GetPeriodicSignal_START_SWITCH(can_tx_interface));
 
     start_switch_is_turned_on_fake.return_val = true;
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(
         CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE,
         App_CanTx_GetPeriodicSignal_START_SWITCH(can_tx_interface));
@@ -275,13 +275,13 @@ TEST_F(
     check_traction_control_switch_is_broadcasted_over_can_in_drive_state)
 {
     traction_control_switch_is_turned_on_fake.return_val = false;
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(
         CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE,
         App_CanTx_GetPeriodicSignal_TRACTION_CONTROL_SWITCH(can_tx_interface));
 
     traction_control_switch_is_turned_on_fake.return_val = true;
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(
         CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE,
         App_CanTx_GetPeriodicSignal_TRACTION_CONTROL_SWITCH(can_tx_interface));
@@ -292,13 +292,13 @@ TEST_F(
     check_torque_vectoring_switch_is_broadcasted_over_can_in_drive_state)
 {
     torque_vectoring_switch_is_turned_on_fake.return_val = false;
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(
         CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE,
         App_CanTx_GetPeriodicSignal_TORQUE_VECTORING_SWITCH(can_tx_interface));
 
     torque_vectoring_switch_is_turned_on_fake.return_val = true;
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(
         CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE,
         App_CanTx_GetPeriodicSignal_TORQUE_VECTORING_SWITCH(can_tx_interface));
@@ -308,19 +308,19 @@ TEST_F(DimStateMachineTest, imd_led_control_in_drive_state)
 {
     App_CanRx_BMS_IMD_SetSignal_OK_HS(
         can_rx_interface, CANMSGS_BMS_IMD_OK_HS_NO_FAULT_CHOICE);
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(0, turn_on_imd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_imd_led_fake.call_count);
 
     App_CanRx_BMS_IMD_SetSignal_OK_HS(
         can_rx_interface, CANMSGS_BMS_IMD_OK_HS_FAULT_CHOICE);
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(1, turn_on_imd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_imd_led_fake.call_count);
 
     App_CanRx_BMS_IMD_SetSignal_OK_HS(
         can_rx_interface, CANMSGS_BMS_IMD_OK_HS_NO_FAULT_CHOICE);
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(1, turn_on_imd_led_fake.call_count);
     ASSERT_EQ(2, turn_off_imd_led_fake.call_count);
 }
@@ -328,17 +328,17 @@ TEST_F(DimStateMachineTest, imd_led_control_in_drive_state)
 TEST_F(DimStateMachineTest, bspd_led_control_in_drive_state)
 {
     App_CanRx_FSM_ERRORS_SetSignal_BSPD_FAULT(can_rx_interface, false);
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(0, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_bspd_led_fake.call_count);
 
     App_CanRx_FSM_ERRORS_SetSignal_BSPD_FAULT(can_rx_interface, true);
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(1, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_bspd_led_fake.call_count);
 
     App_CanRx_FSM_ERRORS_SetSignal_BSPD_FAULT(can_rx_interface, false);
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(1, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(2, turn_off_bspd_led_fake.call_count);
 }

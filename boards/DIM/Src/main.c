@@ -616,7 +616,8 @@ void RunTask100Hz(void const *argument)
     /* Infinite loop */
     for (;;)
     {
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick1kHz(state_machine);
+
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
