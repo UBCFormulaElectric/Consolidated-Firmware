@@ -158,7 +158,7 @@ TEST_F(DcmStateMachineTest, brake_light_control_in_all_states)
         App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(
             can_rx_interface, false);
         App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 0.0f);
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick1kHz(state_machine);
         ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), false);
         ASSERT_EQ(turn_on_brake_light_fake.call_count, 0);
         ASSERT_EQ(turn_off_brake_light_fake.call_count, 1);
@@ -170,7 +170,7 @@ TEST_F(DcmStateMachineTest, brake_light_control_in_all_states)
         App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(
             can_tx_interface,
             std::nextafter(0.0f, std::numeric_limits<float>::lowest()));
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick1kHz(state_machine);
         ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), true);
         ASSERT_EQ(turn_on_brake_light_fake.call_count, 1);
         ASSERT_EQ(turn_off_brake_light_fake.call_count, 1);
@@ -179,7 +179,7 @@ TEST_F(DcmStateMachineTest, brake_light_control_in_all_states)
         // Regen = Not active
         App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(can_rx_interface, true);
         App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 0.0f);
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick1kHz(state_machine);
         ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), true);
         ASSERT_EQ(turn_on_brake_light_fake.call_count, 2);
         ASSERT_EQ(turn_off_brake_light_fake.call_count, 1);
@@ -190,7 +190,7 @@ TEST_F(DcmStateMachineTest, brake_light_control_in_all_states)
         App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(
             can_tx_interface,
             std::nextafter(0.0f, std::numeric_limits<float>::lowest()));
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick1kHz(state_machine);
         ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), true);
         ASSERT_EQ(turn_on_brake_light_fake.call_count, 3);
         ASSERT_EQ(turn_off_brake_light_fake.call_count, 1);
