@@ -163,7 +163,7 @@ TEST_F(
     {
         SetInitialState(state);
         get_pwm_frequency_fake.return_val = fake_frequency;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick1kHz(state_machine);
 
         EXPECT_EQ(
             fake_frequency,
@@ -184,7 +184,7 @@ TEST_F(
     {
         SetInitialState(state);
         get_pwm_duty_cycle_fake.return_val = fake_duty_cycle;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick1kHz(state_machine);
 
         EXPECT_EQ(
             fake_duty_cycle,
@@ -207,7 +207,7 @@ TEST_F(
 
         // Test an arbitrarily chosen valid resistance
         get_pwm_duty_cycle_fake.return_val = 50.0f;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick1kHz(state_machine);
         EXPECT_EQ(
             IMD_NORMAL,
             App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
@@ -220,7 +220,7 @@ TEST_F(
 
         // Test an arbitrarily chosen invalid resistance
         get_pwm_duty_cycle_fake.return_val = 0.0f;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick1kHz(state_machine);
         EXPECT_EQ(
             IMD_NORMAL,
             App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
@@ -242,7 +242,7 @@ TEST_F(
 
         // Test an arbitrarily chosen valid resistance
         get_pwm_duty_cycle_fake.return_val = 50.0f;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick1kHz(state_machine);
         EXPECT_EQ(
             IMD_UNDERVOLTAGE_DETECTED,
             App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
@@ -255,7 +255,7 @@ TEST_F(
 
         // Test an arbitrarily chosen invalid resistance
         get_pwm_duty_cycle_fake.return_val = 0.0f;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick1kHz(state_machine);
         EXPECT_EQ(
             IMD_UNDERVOLTAGE_DETECTED,
             App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
@@ -277,7 +277,7 @@ TEST_F(
 
         // Test an arbitrarily chosen SST_GOOD
         get_pwm_duty_cycle_fake.return_val = 7.5f;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick1kHz(state_machine);
         EXPECT_EQ(
             IMD_SST, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
         EXPECT_EQ(
@@ -289,7 +289,7 @@ TEST_F(
 
         // Test an arbitrarily chosen SST_BAD
         get_pwm_duty_cycle_fake.return_val = 92.5f;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick1kHz(state_machine);
         EXPECT_EQ(
             IMD_SST, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
         EXPECT_EQ(
@@ -301,7 +301,7 @@ TEST_F(
 
         // Test an arbitrarily chosen invalid SST status
         get_pwm_duty_cycle_fake.return_val = 0.0f;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick1kHz(state_machine);
         EXPECT_EQ(
             IMD_SST, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
         EXPECT_EQ(
@@ -318,7 +318,7 @@ TEST_F(
     {
         SetInitialState(state);
         get_seconds_since_power_on_fake.return_val = 123;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick1kHz(state_machine);
         EXPECT_EQ(
             123, App_CanTx_GetPeriodicSignal_SECONDS_SINCE_POWER_ON(
                      can_tx_interface));

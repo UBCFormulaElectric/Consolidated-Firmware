@@ -61,6 +61,7 @@ FSM-7 | APPS/brake pedal plausibility check | - When the APPS senses brake actua
 FSM-8 | Steering angle reporting | - The FSM must report the steering angle in degrees over CAN at 1kHz, where 0 degrees represents straight wheels and a clockwise turn of the steering wheel corresponds to an increase in steering angle. <br/> - The FSM must send a non-critical fault when the steering angle is beyond the max turning radius of the steering wheel.
 FSM-9 | Wheel speed reporting | - The FSM must report the two front wheel speeds in km/h over CAN at 1kHz. <br/> - The FSM must send a non-critical fault when either front wheel speed is below -10km/h or above 150km/h.
 FSM-16 | Open circuit encoder alarm | - When the primary or secondary APPS encoder alarm goes high for 10ms continuously, throw a motor shutdown fault and report 0% mapped pedal percentage. <br/> - When both the primary and secondary APPS encoder alarms go low for 10ms continuously, clear the motor shutdown fault. | T.4.2.9
+FSM-17 | Brake actuation reporting | - The FSM must report the brake actuation ON/OFF status over CAN at 100Hz
 
 ### FSM AIR-Open State <a name="FSM_AIR_OPEN"></a>
 ID | Title | Description | Associated Competition Rule(s)
@@ -85,6 +86,7 @@ DCM-21 | State CAN message | The DCM must transmit the state of its state machin
 DCM-1 | Brake light control | The DCM must enable the brake light through the corresponding GPIO during brake actuation and/or regen, and must disable the brake light otherwise.
 DCM-2 | Heartbeat sending | The DCM must transmit a heartbeat over CAN at 10Hz.
 DCM-18 | Heartbeat receiving | The DCM must throw an AIR shutdown fault once it does not receive three consecutive BMS heartbeats.
+DCM-19 | Torque Request Reporting | - The DCM must report the torque request over CAN at 100Hz
 
 ### DCM Init State <a name="DCM_INIT"></a>
 ID | Title | Description | Associated Competition Rule(s)

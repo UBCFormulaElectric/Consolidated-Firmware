@@ -188,7 +188,7 @@ int main(void)
     world = App_BmsWorld_Create(
         can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence);
 
-    App_StackWaterMark_Init(can_tx);
+    Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
@@ -669,7 +669,8 @@ void RunTask1Hz(void const *argument)
 
     for (;;)
     {
-        App_StackWaterMark_Check();
+        App_SharedStateMachine_Tick1Hz(state_machine);
+        Io_StackWaterMark_Check();
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
@@ -700,7 +701,7 @@ void RunTask1kHz(void const *argument)
         Io_CanTx_EnqueuePeriodicMsgs(
             can_tx, osKernelSysTick() * portTICK_PERIOD_MS);
 
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick1kHz(state_machine);
         App_Imd_Tick(imd);
 
         // Watchdog check-in must be the last function called before putting the

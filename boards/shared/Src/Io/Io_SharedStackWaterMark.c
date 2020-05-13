@@ -13,12 +13,12 @@ extern struct World *world;
  *         specified as a percentage
  * @return True if the watermark threshold is exceeded, false otherwise
  */
-static bool App_IsStackAboveWatermarkThreshold(
+static bool Io_IsStackAboveWatermarkThreshold(
     TaskHandle_t xTask,
     uint32_t     stack_size,
     float        watermark_threshold);
 
-static bool App_IsStackAboveWatermarkThreshold(
+static bool Io_IsStackAboveWatermarkThreshold(
     TaskHandle_t xTask,
     uint32_t     stack_size,
     float        watermark_threshold)
@@ -44,9 +44,9 @@ void Io_SharedStackWaterMark_Check(
 {
     for (size_t i = 0; i < num_of_stacks; i++)
     {
-        if (App_IsStackAboveWatermarkThreshold(
+        if (Io_IsStackAboveWatermarkThreshold(
                 *(stacks[i].handle), stacks[i].stack_size,
-                stacks[i].watermark_threshold) == true)
+                stacks[i].watermark_threshold))
         {
             stacks[i].log_error(1);
         }
