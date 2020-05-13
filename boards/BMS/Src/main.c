@@ -669,6 +669,7 @@ void RunTask1Hz(void const *argument)
 
     for (;;)
     {
+        App_SharedStateMachine_Tick1Hz(state_machine);
         Io_StackWaterMark_Check();
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
