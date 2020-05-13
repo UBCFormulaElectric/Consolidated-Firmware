@@ -277,6 +277,7 @@ function(compile_googletest_executable
             ${TEST_INCLUDE_DIRS}
             ${ARM_BINARY_APP_INCLUDE_DIRS}
             ${SHARED_APP_INCLUDE_DIRS}
+            ${PROJECT_SOURCE_DIR}/shared/Test_Utils
             )
     target_compile_options(${TEST_EXECUTABLE_NAME}
         PUBLIC
