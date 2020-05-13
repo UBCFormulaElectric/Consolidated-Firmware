@@ -17,7 +17,7 @@ static struct DcmCanTxInterface *_can_tx_interface = NULL;
 /** @brief The stack watermark threshold as a percentage of the stack size */
 #define STACK_HIGH_WATERMARK_THRESHOLD 0.7f
 
-void App_StackWaterMark_Init(struct DcmCanTxInterface *can_tx_interface)
+void Io_StackWaterMark_Init(struct DcmCanTxInterface *can_tx_interface)
 {
     assert(can_tx_interface != NULL);
     _can_tx_interface = can_tx_interface;
@@ -75,7 +75,7 @@ static struct stack_watermark stack_watermarks[] = {
     },
 };
 
-void App_StackWaterMark_Check(void)
+void Io_StackWaterMark_Check(void)
 {
     Io_SharedStackWaterMark_Check(
         stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));

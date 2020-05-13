@@ -2,6 +2,8 @@
 
 #include "Io_SharedSoftwareWatchdog.h"
 
+struct PdmCanTxInterface;
+
 /**
  * Init the software watchdog
  * @param can_tx An interface for transmitting CAN messages
