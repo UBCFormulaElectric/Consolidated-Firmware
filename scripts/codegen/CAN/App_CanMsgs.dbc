@@ -195,6 +195,14 @@ SG_ Start_Switch : 0|1@1+ (1,0) [0|1] "" DCM
 SG_ Traction_Control_Switch : 1|1@1+ (1,0) [0|1] "" DCM
 SG_ Torque_Vectoring_Switch : 2|1@1+ (1,0) [0|1] "" DCM
 
+BO_ 508 DIM_ERRORS: 8 DIM
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 0|1@1+ (1,0) [0|1] "" LOGGER
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK100HZ : 1|1@1+ (1,0) [0|1] "" LOGGER
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 2|1@1+ (1,0) [0|1] "" LOGGER
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 3|1@1+ (1,0) [0|1] "" LOGGER
+SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 4|1@1+ (1,0) [0|1] "" LOGGER
+SG_ WATCHDOG_TIMEOUT : 5|1@1+ (1,0) [0|1] "" LOGGER
+
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
 BA_DEF_ SG_  "GenSigStartValue" INT 0 2147483647;
@@ -239,6 +247,7 @@ BA_ "GenMsgCycleTime" BO_ 503 10;
 BA_ "GenMsgCycleTime" BO_ 505 10;
 BA_ "GenMsgCycleTime" BO_ 506 10;
 BA_ "GenMsgCycleTime" BO_ 507 10;
+BA_ "GenMsgCycleTime" BO_ 508 1000;
 
 BA_ "GenSigStartValue" SG_ 2  tx_overflow_count 0;
 BA_ "GenSigStartValue" SG_ 2  rx_overflow_count 0;

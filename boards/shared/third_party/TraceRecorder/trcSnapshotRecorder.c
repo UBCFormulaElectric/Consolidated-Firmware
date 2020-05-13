@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Trace Recorder Library for Tracealyzer v4.3.5
+ * Trace Recorder Library for Tracealyzer v4.3.8
  * Percepio AB, www.percepio.com
  *
  * trcSnapshotRecorder.c
@@ -61,7 +61,6 @@
 #if (TRC_CFG_INCLUDE_ISR_TRACING == 1)
 static traceHandle isrstack[TRC_CFG_MAX_ISR_NESTING];
 int32_t isPendingContextSwitch = 0;
-volatile uint32_t uiTraceSystemState = 0;
 #endif /* (TRC_CFG_INCLUDE_ISR_TRACING == 1) */
 
 #if !defined TRC_CFG_INCLUDE_READY_EVENTS || TRC_CFG_INCLUDE_READY_EVENTS == 1
@@ -81,6 +80,9 @@ uint32_t uiTraceTickCount = 0;
 uint32_t trace_disable_timestamp = 0;
 
 static uint32_t last_timestamp = 0;
+
+/* Indicates if we are currently performing a context switch or just running application code */
+volatile uint32_t uiTraceSystemState = TRC_STATE_IN_STARTUP;
 
 /* Flag that shows if inside a critical section of the recorder */
 volatile int recorder_busy = 0;
