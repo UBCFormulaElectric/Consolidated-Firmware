@@ -240,7 +240,7 @@ int main(void)
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
     Io_SoftwareWatchdog_Init(can_tx);
-    App_StackWaterMark_Init(can_tx);
+    Io_StackWaterMark_Init(can_tx);
 
     struct CanMsgs_pdm_startup_t payload = { .dummy = 0 };
     App_CanTx_SendNonPeriodicMsg_PDM_STARTUP(can_tx, &payload);
@@ -686,7 +686,7 @@ void RunTask1Hz(void const *argument)
     for (;;)
     {
         App_SharedStateMachine_Tick(state_machine);
-        App_StackWaterMark_Check();
+        Io_StackWaterMark_Check();
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
