@@ -105,8 +105,6 @@ struct InRangeCheck *     can_current_in_range_check;
 struct InRangeCheck *     air_shutdown_current_in_range_check;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
-uint16_t                  adc_readings[NUM_ADC_CHANNELS];
-float                     v1, v2, v3, v4;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -193,7 +191,9 @@ int main(void)
 
     can_rx = App_CanRx_Create();
 
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_readings, NUM_ADC_CHANNELS);
+    HAL_ADC_Start_DMA(
+        &hadc1, (uint32_t *)Io_Adc_GetRawAdcReadings(),
+        hadc1.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim2);
 
     vbat_voltage_in_range_check = App_InRangeCheck_Create(
@@ -779,6 +779,15 @@ void RunTask1Hz(void const *argument)
 
     for (;;)
     {
+        float aux1_current      = Io_Adc_GetChannel2Voltage() * 100.0f;
+        float aux2_current      = Io_Adc_GetChannel7Voltage() * 100.0f;
+        float left_inv_current  = Io_Adc_GetChannel8Voltage() * 100.0f;
+        float right_inv_current = Io_Adc_GetChannel9Voltage() * 100.0f;
+        (void)aux1_current;
+        (void)aux2_current;
+        (void)left_inv_current;
+        (void)right_inv_current;
+
         App_SharedStateMachine_Tick1kHz(state_machine);
         App_StackWaterMark_Check();
         // Watchdog check-in must be the last function called before putting the
