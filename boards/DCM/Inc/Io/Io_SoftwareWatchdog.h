@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Io_SharedSoftwareWatchdog.h"
-#include "App_CanTx.h"
+
+struct DcmCanTxInterface;
 
 /**
  * Init the software watchdog
