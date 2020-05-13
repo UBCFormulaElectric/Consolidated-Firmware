@@ -106,8 +106,7 @@ struct InRangeCheck *     air_shutdown_current_in_range_check;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
 uint16_t                  adc_readings[NUM_ADC_CHANNELS];
-float vdda;
-float v1, v2, v3 ,v4;
+float                     v1, v2, v3, v4;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -194,7 +193,7 @@ int main(void)
 
     can_rx = App_CanRx_Create();
 
-    HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adc_readings, NUM_ADC_CHANNELS);
+    HAL_ADC_Start_DMA(&hadc1, (uint32_t *)adc_readings, NUM_ADC_CHANNELS);
     HAL_TIM_Base_Start(&htim2);
 
     vbat_voltage_in_range_check = App_InRangeCheck_Create(
@@ -400,7 +399,7 @@ static void MX_ADC1_Init(void)
     hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_RISING;
     hadc1.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T2_TRGO;
     hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-    hadc1.Init.NbrOfConversion       = 5;
+    hadc1.Init.NbrOfConversion       = 4;
     hadc1.Init.DMAContinuousRequests = ENABLE;
     hadc1.Init.EOCSelection          = ADC_EOC_SEQ_CONV;
     hadc1.Init.LowPowerAutoWait      = DISABLE;
@@ -418,7 +417,7 @@ static void MX_ADC1_Init(void)
     }
     /** Configure Regular Channel
      */
-    sConfig.Channel      = ADC_CHANNEL_VREFINT;
+    sConfig.Channel      = ADC_CHANNEL_2;
     sConfig.Rank         = ADC_REGULAR_RANK_1;
     sConfig.SingleDiff   = ADC_SINGLE_ENDED;
     sConfig.SamplingTime = ADC_SAMPLETIME_601CYCLES_5;
@@ -430,7 +429,7 @@ static void MX_ADC1_Init(void)
     }
     /** Configure Regular Channel
      */
-    sConfig.Channel = ADC_CHANNEL_2;
+    sConfig.Channel = ADC_CHANNEL_7;
     sConfig.Rank    = ADC_REGULAR_RANK_2;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
@@ -438,7 +437,7 @@ static void MX_ADC1_Init(void)
     }
     /** Configure Regular Channel
      */
-    sConfig.Channel = ADC_CHANNEL_7;
+    sConfig.Channel = ADC_CHANNEL_8;
     sConfig.Rank    = ADC_REGULAR_RANK_3;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
@@ -446,17 +445,8 @@ static void MX_ADC1_Init(void)
     }
     /** Configure Regular Channel
      */
-    sConfig.Channel = ADC_CHANNEL_8;
+    sConfig.Channel = ADC_CHANNEL_9;
     sConfig.Rank    = ADC_REGULAR_RANK_4;
-    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /** Configure Regular Channel
-     */
-    sConfig.Channel      = ADC_CHANNEL_9;
-    sConfig.Rank         = ADC_REGULAR_RANK_5;
-    sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
