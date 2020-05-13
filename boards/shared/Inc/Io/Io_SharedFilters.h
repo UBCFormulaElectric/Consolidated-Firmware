@@ -23,3 +23,13 @@ void Io_SharedFilters_LowPassFilter(
     uint32_t   num_of_samples,
     float32_t  sampling_time,
     float32_t  rc);
+
+/**
+  * @brief  Filters ADC readings by computing the mean of the previous ADC_FILTER_SIZE readings (oversampling filter)
+  * @param  ChannelCount Number of ADC channels used
+  * @param  FilterSize Oversampling filter size (number of readings)
+  * @param  ADC_Readings Pointer to array containing the unfiltered ADC readings
+  * @param  Filtered_ADC_Readings Pointer to array in which the filtered ADC readings will be stored
+  * @retval None
+ */
+void Filter_ADC_Readings(uint32_t ChannelCount, uint32_t FilterSize, uint16_t *ADC_Readings, float *Filtered_ADC_Readings);

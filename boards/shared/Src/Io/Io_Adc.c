@@ -11,10 +11,11 @@ enum
     NUM_ADC_CHANNELS
 };
 
-static uint16_t raw_adc_values[NUM_ADC_CHANNELS];
+static uint16_t raw_adc_values[NUM_ADC_CHANNELS * ADC_FILTER_SIZE];
+static float    filtered_adc_values[NUM_ADC_CHANNELS];
 static float    adc_voltages[NUM_ADC_CHANNELS];
 
-static float Convert_ADC_Voltage(ADC_HandleTypeDef *hadc, uint16_t ADC_Data)
+static float Convert_ADC_Voltage(ADC_HandleTypeDef *hadc, float ADC_Data)
 {
     uint32_t full_scale;
 
@@ -40,17 +41,16 @@ static float Convert_ADC_Voltage(ADC_HandleTypeDef *hadc, uint16_t ADC_Data)
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
     // If you were to over-sample this is where you can perform:
-    // Filter_ADC_Readings(ADC_CHANNEL_COUNT, ADC_FILTER_SIZE,
-    // Unfiltered_ADC_Readings, Filtered_ADC_Readings);
+    Filter_ADC_Readings(NUM_ADC_CHANNELS, ADC_FILTER_SIZE, raw_adc_values, filtered_adc_values);
 
     adc_voltages[CHANNEL_2] =
-        Convert_ADC_Voltage(hadc, raw_adc_values[CHANNEL_2]);
+        Convert_ADC_Voltage(hadc, filtered_adc_values[CHANNEL_2]);
     adc_voltages[CHANNEL_7] =
-        Convert_ADC_Voltage(hadc, raw_adc_values[CHANNEL_7]);
+        Convert_ADC_Voltage(hadc, filtered_adc_values[CHANNEL_7]);
     adc_voltages[CHANNEL_8] =
-        Convert_ADC_Voltage(hadc, raw_adc_values[CHANNEL_8]);
+        Convert_ADC_Voltage(hadc, filtered_adc_values[CHANNEL_8]);
     adc_voltages[CHANNEL_9] =
-        Convert_ADC_Voltage(hadc, raw_adc_values[CHANNEL_9]);
+        Convert_ADC_Voltage(hadc, filtered_adc_values[CHANNEL_9]);
 }
 
 uint16_t *Io_Adc_GetRawAdcReadings(void)

@@ -22,3 +22,30 @@ void Io_SharedFilters_LowPassFilter(
         output[i] = output[i] + smoothing_factor * (input[i] - output[i]);
     }
 }
+
+void Filter_ADC_Readings(uint32_t ChannelCount, uint32_t FilterSize, uint16_t *ADC_Readings, float *Filtered_ADC_Readings)
+{
+    size_t i;
+    size_t j;
+
+    // Reset filtered ADC readings array to 0
+    for(i = 0; i < ChannelCount; i++)
+    {
+        Filtered_ADC_Readings[i] = 0;
+    }
+
+    // Calculate sum of previous ADC_FILTER_SIZE readings
+    for(i = 0; i < FilterSize; i++)
+    {
+        for(j = 0; j < ChannelCount; j++)
+        {
+            Filtered_ADC_Readings[j] += ADC_Readings[(ChannelCount * i) + j];
+        }
+    }
+
+    // Calculate average of previous ADC_FILTER_SIZE readings
+    for(i = 0; i < ChannelCount; i++)
+    {
+        Filtered_ADC_Readings[i] = Filtered_ADC_Readings[i] / (float)FilterSize;
+    }
+}

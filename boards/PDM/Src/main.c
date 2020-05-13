@@ -193,7 +193,7 @@ int main(void)
 
     HAL_ADC_Start_DMA(
         &hadc1, (uint32_t *)Io_Adc_GetRawAdcReadings(),
-        hadc1.Init.NbrOfConversion);
+        hadc1.Init.NbrOfConversion * ADC_FILTER_SIZE);
     HAL_TIM_Base_Start(&htim2);
 
     vbat_voltage_in_range_check = App_InRangeCheck_Create(
