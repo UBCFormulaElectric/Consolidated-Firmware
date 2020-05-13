@@ -770,6 +770,7 @@ void RunTaskCanTx(void const *argument)
 void RunTask100Hz(void const *argument)
 {
     /* USER CODE BEGIN RunTask100Hz */
+    UNUSED(argument);
     uint32_t                 PreviousWakeTime = osKernelSysTick();
     static const TickType_t  period_ms        = 10;
     SoftwareWatchdogHandle_t watchdog =
