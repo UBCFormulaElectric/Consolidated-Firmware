@@ -252,34 +252,34 @@ TEST_F(
 {
     // <= 5% maps to 0 %
     get_raw_paddle_position_fake.return_val = 4;
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(
         0,
         App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
     get_raw_paddle_position_fake.return_val = 5;
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(
         0,
         App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
     get_raw_paddle_position_fake.return_val = 6;
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_NE(
         0,
         App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
 
     // >= 95% maps to 100%
     get_raw_paddle_position_fake.return_val = 94;
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_NE(
         100,
         App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
     get_raw_paddle_position_fake.return_val = 95;
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(
         100,
         App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
     get_raw_paddle_position_fake.return_val = 96;
-    App_SharedStateMachine_Tick(state_machine);
+    App_SharedStateMachine_Tick1kHz(state_machine);
     ASSERT_EQ(
         100,
         App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
