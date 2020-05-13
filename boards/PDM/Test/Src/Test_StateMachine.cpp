@@ -330,6 +330,7 @@ class PdmStateMachineTest : public testing::Test
     struct RgbLedSequence *   rgb_led_sequence;
 };
 
+// PDM-21
 TEST_F(PdmStateMachineTest, check_init_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInitState());
@@ -339,6 +340,7 @@ TEST_F(PdmStateMachineTest, check_init_state_is_broadcasted_over_can)
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
+// PDM-21
 TEST_F(PdmStateMachineTest, check_air_open_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetAirOpenState());
@@ -348,6 +350,7 @@ TEST_F(PdmStateMachineTest, check_air_open_state_is_broadcasted_over_can)
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
+// PDM-21
 TEST_F(PdmStateMachineTest, check_air_closed_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetAirClosedState());
@@ -357,6 +360,7 @@ TEST_F(PdmStateMachineTest, check_air_closed_state_is_broadcasted_over_can)
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
+// PDM-6
 TEST_F(PdmStateMachineTest, check_vbat_voltage_can_signals_in_all_states)
 {
     CheckVoltageCanSignalsInAllStates(
@@ -368,6 +372,7 @@ TEST_F(PdmStateMachineTest, check_vbat_voltage_can_signals_in_all_states)
         CANMSGS_PDM_ERRORS_VBAT_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// PDM-6
 TEST_F(PdmStateMachineTest, check_24v_aux_voltage_can_signals_in_all_states)
 {
     CheckVoltageCanSignalsInAllStates(
@@ -379,6 +384,7 @@ TEST_F(PdmStateMachineTest, check_24v_aux_voltage_can_signals_in_all_states)
         CANMSGS_PDM_ERRORS__24_V_AUX_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// PDM-6
 TEST_F(PdmStateMachineTest, check_24v_acc_voltage_can_signals_in_all_states)
 {
     CheckVoltageCanSignalsInAllStates(
@@ -390,6 +396,7 @@ TEST_F(PdmStateMachineTest, check_24v_acc_voltage_can_signals_in_all_states)
         CANMSGS_PDM_ERRORS__24_V_ACC_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(PdmStateMachineTest, check_aux1_current_can_signals_in_non_init_states)
 {
     CheckCurrentCanSignalsInNonInitStates(
@@ -401,6 +408,7 @@ TEST_F(PdmStateMachineTest, check_aux1_current_can_signals_in_non_init_states)
         CANMSGS_PDM_ERRORS_AUX1_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(PdmStateMachineTest, check_aux1_current_can_signals_in_init_state)
 {
     CheckCurrentCanSignalsInInitState(
@@ -410,6 +418,7 @@ TEST_F(PdmStateMachineTest, check_aux1_current_can_signals_in_init_state)
         CANMSGS_PDM_ERRORS_AUX1_CURRENT_OUT_OF_RANGE_OK_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(PdmStateMachineTest, check_aux2_current_can_signals_in_non_init_states)
 {
     CheckCurrentCanSignalsInNonInitStates(
@@ -421,6 +430,7 @@ TEST_F(PdmStateMachineTest, check_aux2_current_can_signals_in_non_init_states)
         CANMSGS_PDM_ERRORS_AUX2_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(PdmStateMachineTest, check_aux2_current_can_signals_in_init_state)
 {
     CheckCurrentCanSignalsInInitState(
@@ -430,6 +440,7 @@ TEST_F(PdmStateMachineTest, check_aux2_current_can_signals_in_init_state)
         CANMSGS_PDM_ERRORS_AUX2_CURRENT_OUT_OF_RANGE_OK_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(
     PdmStateMachineTest,
     check_left_inverter_current_can_signals_in_non_init_states)
@@ -444,6 +455,7 @@ TEST_F(
         CANMSGS_PDM_ERRORS_LEFT_INVERTER_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(
     PdmStateMachineTest,
     check_left_inverter_current_can_signals_in_init_state)
@@ -456,6 +468,7 @@ TEST_F(
         CANMSGS_PDM_ERRORS_LEFT_INVERTER_CURRENT_OUT_OF_RANGE_OK_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(
     PdmStateMachineTest,
     check_right_inverter_current_can_signals_in_non_init_states)
@@ -470,6 +483,7 @@ TEST_F(
         CANMSGS_PDM_ERRORS_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(
     PdmStateMachineTest,
     check_right_inverter_current_can_signals_in_init_state)
@@ -482,6 +496,7 @@ TEST_F(
         CANMSGS_PDM_ERRORS_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE_OK_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(
     PdmStateMachineTest,
     check_energy_meter_current_can_signals_in_non_init_states)
@@ -496,6 +511,7 @@ TEST_F(
         CANMSGS_PDM_ERRORS_ENERGY_METER_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(
     PdmStateMachineTest,
     check_energy_meter_current_can_signals_in_init_state)
@@ -508,6 +524,7 @@ TEST_F(
         CANMSGS_PDM_ERRORS_ENERGY_METER_CURRENT_OUT_OF_RANGE_OK_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(PdmStateMachineTest, check_can_current_can_signals_in_non_init_states)
 {
     CheckCurrentCanSignalsInNonInitStates(
@@ -519,6 +536,7 @@ TEST_F(PdmStateMachineTest, check_can_current_can_signals_in_non_init_states)
         CANMSGS_PDM_ERRORS_CAN_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(PdmStateMachineTest, check_can_current_can_signals_in_init_state)
 {
     CheckCurrentCanSignalsInInitState(
@@ -528,6 +546,7 @@ TEST_F(PdmStateMachineTest, check_can_current_can_signals_in_init_state)
         CANMSGS_PDM_ERRORS_CAN_CURRENT_OUT_OF_RANGE_OK_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(
     PdmStateMachineTest,
     check_air_shutdown_current_can_signals_in_non_init_states)
@@ -542,6 +561,7 @@ TEST_F(
         CANMSGS_PDM_ERRORS_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(
     PdmStateMachineTest,
     check_air_shutdown_current_can_signals_in_init_state)
