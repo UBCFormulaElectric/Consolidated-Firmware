@@ -33,10 +33,11 @@ static void AirOpenStateRunOnExit(struct StateMachine *const state_machine)
 const struct State *App_GetAirOpenState(void)
 {
     static struct State air_open_state = {
-        .name         = "AIR OPEN",
-        .run_on_entry = AirOpenStateRunOnEntry,
-        .run_on_tick  = AirOpenStateRunOnTick,
-        .run_on_exit  = AirOpenStateRunOnExit,
+        .name             = "AIR OPEN",
+        .run_on_entry     = AirOpenStateRunOnEntry,
+        .run_on_tick_1kHz = AirOpenStateRunOnTick,
+        .run_on_tick_1Hz  = NULL,
+        .run_on_exit      = AirOpenStateRunOnExit,
     };
 
     return &air_open_state;

@@ -36,7 +36,7 @@ file(GLOB GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/*.cpp")
 list(REMOVE_ITEM GOOGLETEST_TEST_SRCS "${CMAKE_CURRENT_SOURCE_DIR}/Test/Src/main.cpp")
 set(GOOGLETEST_TEST_INCLUDE_DIRS
         "${CMAKE_CURRENT_SOURCE_DIR}/Test/Inc"
-        "${CMAKE_CURRENT_SOURCE_DIR}/../shared/Test_Utils")
+        )
 
 create_arm_binary_or_tests_for_board(
     "DIM"

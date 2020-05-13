@@ -29,10 +29,11 @@ static void ChargeStateRunOnExit(struct StateMachine *const state_machine)
 const struct State *App_GetChargeState(void)
 {
     static struct State charge_state = {
-        .name         = "CHARGE",
-        .run_on_entry = ChargeStateRunOnEntry,
-        .run_on_tick  = ChargeStateRunOnTick,
-        .run_on_exit  = ChargeStateRunOnExit,
+        .name             = "CHARGE",
+        .run_on_entry     = ChargeStateRunOnEntry,
+        .run_on_tick_1kHz = ChargeStateRunOnTick,
+        .run_on_tick_1Hz  = NULL,
+        .run_on_exit      = ChargeStateRunOnExit,
     };
 
     return &charge_state;

@@ -665,8 +665,9 @@ void RunTask1Hz(void const *argument)
 
     for (;;)
     {
-        App_SharedStateMachine_Tick(state_machine);
         Io_StackWaterMark_Check();
+        App_SharedStateMachine_Tick1Hz(state_machine);
+      
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
@@ -694,6 +695,7 @@ void RunTask1kHz(void const *argument)
 
     for (;;)
     {
+        App_SharedStateMachine_Tick1kHz(state_machine);
         Io_CanTx_EnqueuePeriodicMsgs(
             can_tx, osKernelSysTick() * portTICK_PERIOD_MS);
         // Watchdog check-in must be the last function called before putting

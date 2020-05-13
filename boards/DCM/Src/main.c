@@ -36,6 +36,7 @@
 #include "Io_SoftwareWatchdog.h"
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
+#include "Io_BrakeLight.h"
 
 #include "App_DcmWorld.h"
 #include "App_SharedStateMachine.h"
@@ -84,6 +85,7 @@ struct DcmCanTxInterface *can_tx;
 struct DcmCanRxInterface *can_rx;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
+struct BrakeLight *       brake_light;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -169,8 +171,11 @@ int main(void)
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
         Io_RgbLedSequence_TurnOnGreenLed);
 
+    brake_light =
+        App_BrakeLight_Create(Io_BrakeLight_TurnOn, Io_BrakeLight_TurnOff);
+
     world = App_DcmWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence);
+        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, brake_light);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
@@ -521,6 +526,8 @@ void RunTask1Hz(void const *argument)
     for (;;)
     {
         Io_StackWaterMark_Check();
+        App_SharedStateMachine_Tick1Hz(state_machine);
+
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
@@ -552,7 +559,7 @@ void RunTask1kHz(void const *argument)
             App_DcmWorld_GetCanTx(world),
             osKernelSysTick() * portTICK_PERIOD_MS);
 
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick1kHz(state_machine);
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.

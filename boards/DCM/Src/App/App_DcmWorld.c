@@ -10,13 +10,15 @@ struct DcmWorld
     struct DcmCanRxInterface *can_rx_interface;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
+    struct BrakeLight *       brake_light;
 };
 
 struct DcmWorld *App_DcmWorld_Create(
     struct DcmCanTxInterface *const can_tx_interface,
     struct DcmCanRxInterface *const can_rx_interface,
     struct HeartbeatMonitor *const  heartbeat_monitor,
-    struct RgbLedSequence *const    rgb_led_sequence)
+    struct RgbLedSequence *const    rgb_led_sequence,
+    struct BrakeLight *const        brake_light)
 {
     struct DcmWorld *world = (struct DcmWorld *)malloc(sizeof(struct DcmWorld));
     assert(world != NULL);
@@ -25,6 +27,7 @@ struct DcmWorld *App_DcmWorld_Create(
     world->can_rx_interface  = can_rx_interface;
     world->heartbeat_monitor = heartbeat_monitor;
     world->rgb_led_sequence  = rgb_led_sequence;
+    world->brake_light       = brake_light;
 
     return world;
 }
@@ -56,4 +59,10 @@ struct RgbLedSequence *
     App_DcmWorld_GetRgbLedSequence(const struct DcmWorld *const world)
 {
     return world->rgb_led_sequence;
+}
+
+struct BrakeLight *
+    App_DcmWorld_GetBrakeLight(const struct DcmWorld *const world)
+{
+    return world->brake_light;
 }

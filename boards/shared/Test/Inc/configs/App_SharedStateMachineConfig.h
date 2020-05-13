@@ -1,3 +1,4 @@
-// Provide dummy World implementation in order to compile SharedStateMachine
-struct SharedWorld;
-#define World SharedWorld
+#pragma once
+
+#include "App_TestWorld.h"
+#define World TestWorld
