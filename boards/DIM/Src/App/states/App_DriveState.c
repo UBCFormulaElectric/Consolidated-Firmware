@@ -90,7 +90,7 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
-    (void)state_machine;
+    UNUSED(state_machine);
 }
 
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
