@@ -34,7 +34,7 @@ extern "C"
     /* Private includes
      * ----------------------------------------------------------*/
     /* USER CODE BEGIN Includes */
-
+#include "Io_SharedErrorHandlerOverride.h"
     /* USER CODE END Includes */
 
     /* Exported types
@@ -73,6 +73,9 @@ extern "C"
 #define IWDG_PRESCALER 4
 #define IWDG_RESET_FREQUENCY 5
 #define LSI_FREQUENCY 40000
+#define TIMx_FREQUENCY 72000000
+#define TIM2_PRESCALER 72
+#define ADC_FREQUENCY 1000
 #define BSPD_LED_Pin GPIO_PIN_13
 #define BSPD_LED_GPIO_Port GPIOC
 #define DIM_RED_Pin GPIO_PIN_14
