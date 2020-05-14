@@ -12,7 +12,6 @@ class CanMsgsTest : public testing::Test
     {
         return 1000 / hz;
     }
-
 };
 
 // DIM-12
