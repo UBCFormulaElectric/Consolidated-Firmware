@@ -29,7 +29,6 @@
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
-#include "Io_SharedCmsisOs.h"
 #include "Io_SharedCan.h"
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
@@ -681,7 +680,7 @@ void RunTask1Hz(void const *argument)
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        (void)Io_SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
+        osDelayUntil(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END 5 */
 }
@@ -710,7 +709,7 @@ void RunTask1kHz(void const *argument)
         // Watchdog check-in must be the last function called before putting
         // the task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        (void)Io_SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
+        osDelayUntil(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END RunTask1kHz */
 }
