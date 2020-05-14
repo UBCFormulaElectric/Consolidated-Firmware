@@ -145,7 +145,7 @@ TEST_F(
         SetInitialState(state);
         get_primary_flow_rate_fake.return_val   = fake_frequency;
         get_secondary_flow_rate_fake.return_val = fake_frequency;
-        App_SharedStateMachine_Tick1kHz(state_machine);
+        App_SharedStateMachine_Tick100Hz(state_machine);
 
         EXPECT_EQ(
             fake_frequency,

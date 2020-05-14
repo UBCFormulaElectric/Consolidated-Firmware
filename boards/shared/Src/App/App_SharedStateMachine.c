@@ -123,8 +123,8 @@ void App_SharedStateMachine_Tick1Hz(struct StateMachine *const state_machine)
         state_machine, state_machine->current_state->run_on_tick_1Hz);
 }
 
-void App_SharedStateMachine_Tick1kHz(struct StateMachine *const state_machine)
+void App_SharedStateMachine_Tick100Hz(struct StateMachine *const state_machine)
 {
     App_SharedStateMachine_RunStateTickFunctionIfNotNull(
-        state_machine, state_machine->current_state->run_on_tick_1kHz);
+        state_machine, state_machine->current_state->run_on_tick_100Hz);
 }
