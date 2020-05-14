@@ -1,3 +1,4 @@
+#include <math.h>
 #include "Test_Fsm.h"
 
 extern "C"
@@ -114,6 +115,49 @@ class FsmStateMachineTest : public testing::Test
                                                   App_GetAirClosedState() };
     }
 
+    void CheckWheelSpeedCanSignalsInAllStates(
+        float  min_wheel_speed,
+        float  max_wheel_speed,
+        float &fake_wheel_speed,
+        float (*wheel_speed_can_signal_getter)(
+            const struct FsmCanTxInterface *),
+        uint8_t (*out_of_range_can_signal_getter)(
+            const struct FsmCanTxInterface *),
+        uint8_t ok_choice,
+        uint8_t underflow_choice,
+        uint8_t overflow_choice)
+    {
+        for (const auto &state : GetAllStates())
+        {
+            SetInitialState(state);
+
+            // Normal wheel speed
+            fake_wheel_speed = (min_wheel_speed + max_wheel_speed) / 2;
+            App_SharedStateMachine_Tick1kHz(state_machine);
+            ASSERT_EQ(
+                fake_wheel_speed,
+                wheel_speed_can_signal_getter(can_tx_interface));
+            ASSERT_EQ(
+                ok_choice, out_of_range_can_signal_getter(can_tx_interface));
+
+            // Underflow wheel speed
+            fake_wheel_speed = std::nextafter(
+                min_wheel_speed, std::numeric_limits<float>::lowest());
+            App_SharedStateMachine_Tick1kHz(state_machine);
+            ASSERT_EQ(
+                underflow_choice,
+                out_of_range_can_signal_getter(can_tx_interface));
+
+            // Overflow wheel speed
+            fake_wheel_speed = std::nextafter(
+                max_wheel_speed, std::numeric_limits<float>::max());
+            App_SharedStateMachine_Tick1kHz(state_machine);
+            ASSERT_EQ(
+                overflow_choice,
+                out_of_range_can_signal_getter(can_tx_interface));
+        }
+    }
+
     struct World *            world;
     struct StateMachine *     state_machine;
     struct FsmCanTxInterface *can_tx_interface;
@@ -173,74 +217,26 @@ TEST_F(
     }
 }
 
-TEST_F(
-    FsmStateMachineTest,
-    check_if_left_wheel_speed_and_right_wheel_speeds_are_broadcasted_over_can_in_all_states)
+TEST_F(FsmStateMachineTest, check_left_wheel_speed_can_signals_in_all_states)
 {
-    float fake_wheel_speed = 1.0f;
-
-    for (const auto &state : GetAllStates())
-    {
-        SetInitialState(state);
-        get_left_wheel_speed_fake.return_val  = fake_wheel_speed;
-        get_right_wheel_speed_fake.return_val = fake_wheel_speed;
-        App_SharedStateMachine_Tick1kHz(state_machine);
-
-        EXPECT_EQ(
-            fake_wheel_speed,
-            App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED(can_tx_interface));
-        EXPECT_EQ(
-            fake_wheel_speed,
-            App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED(can_tx_interface));
-
-        // To avoid false positives, we use a different wheel speed each time
-        fake_wheel_speed++;
-    }
+    CheckWheelSpeedCanSignalsInAllStates(
+        0.1f, 150.0f, get_left_wheel_speed_fake.return_val,
+        App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED,
+        App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE,
+        CANMSGS_FSM_ERRORS_LEFT_WHEEL_SPEED_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_FSM_ERRORS_LEFT_WHEEL_SPEED_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_FSM_ERRORS_LEFT_WHEEL_SPEED_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
-TEST_F(
-    FsmStateMachineTest,
-    check_if_wheel_speed_non_critical_fault_is_broadcasted_over_can_in_all_states)
+TEST_F(FsmStateMachineTest, check_right_wheel_speed_can_signals_in_all_states)
 {
-    for (const auto &state : GetAllStates())
-    {
-        SetInitialState(state);
-        get_left_wheel_speed_fake.return_val  = 0.09f;
-        get_right_wheel_speed_fake.return_val = 0.09f;
-        App_SharedStateMachine_Tick1kHz(state_machine);
-        EXPECT_EQ(
-            VALUE_UNDERFLOW,
-            App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
-                can_tx_interface));
-        EXPECT_EQ(
-            VALUE_UNDERFLOW,
-            App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
-                can_tx_interface));
-
-        get_left_wheel_speed_fake.return_val  = 150.01f;
-        get_right_wheel_speed_fake.return_val = 150.01f;
-        App_SharedStateMachine_Tick1kHz(state_machine);
-        EXPECT_EQ(
-            VALUE_OVERFLOW,
-            App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
-                can_tx_interface));
-        EXPECT_EQ(
-            VALUE_OVERFLOW,
-            App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
-                can_tx_interface));
-
-        get_left_wheel_speed_fake.return_val  = 75.0f;
-        get_right_wheel_speed_fake.return_val = 75.0f;
-        App_SharedStateMachine_Tick1kHz(state_machine);
-        EXPECT_EQ(
-            VALUE_IN_RANGE,
-            App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
-                can_tx_interface));
-        EXPECT_EQ(
-            VALUE_IN_RANGE,
-            App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
-                can_tx_interface));
-    }
+    CheckWheelSpeedCanSignalsInAllStates(
+            0.1f, 150.0f, get_right_wheel_speed_fake.return_val,
+            App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED,
+            App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE,
+            CANMSGS_FSM_ERRORS_RIGHT_WHEEL_SPEED_OUT_OF_RANGE_OK_CHOICE,
+            CANMSGS_FSM_ERRORS_RIGHT_WHEEL_SPEED_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+            CANMSGS_FSM_ERRORS_RIGHT_WHEEL_SPEED_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
 } // namespace StateMachineTest
