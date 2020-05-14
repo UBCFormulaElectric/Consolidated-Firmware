@@ -11,20 +11,18 @@ enum
 static uint16_t raw_adc_values[NUM_ADC_CHANNLES];
 static float    adc_voltages[NUM_ADC_CHANNLES];
 
-#include <cmsis_os.h>
-#include <App_CanTx.h>
-extern struct DimCanTxInterface *can_tx;
-
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    const struct CanMsgs_dim_watchdog_timeout_t payload;
-    App_CanTx_SendNonPeriodicMsg_DIM_WATCHDOG_TIMEOUT(can_tx, &payload);
-
-    adc_voltages[CHANNEL_12] =
-        Convert_ADC_Voltage(hadc, raw_adc_values[CHANNEL_12]);
+    adc_voltages[CHANNEL_12] = Io_SharedAdc_ConvertRawAdcValueToVoltage(
+        hadc, raw_adc_values[CHANNEL_12]);
 }
 
-uint16_t *Io_Adc_GetRawAdcReadings(void)
+uint16_t *Io_Adc_GetRawAdcValues(void)
 {
     return raw_adc_values;
+}
+
+float Io_Adc_GetChannel12Voltage(void)
+{
+    return adc_voltages[CHANNEL_12];
 }

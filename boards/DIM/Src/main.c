@@ -185,7 +185,7 @@ int main(void)
     __HAL_DBGMCU_FREEZE_IWDG();
 
     HAL_ADC_Start_DMA(
-        &hadc2, (uint32_t *)Io_Adc_GetRawAdcReadings(),
+        &hadc2, (uint32_t *)Io_Adc_GetRawAdcValues(),
         hadc2.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim2);
 
