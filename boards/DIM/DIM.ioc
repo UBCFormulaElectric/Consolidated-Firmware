@@ -1,9 +1,10 @@
 #MicroXplorer Configuration settings - do not modify
 ADC2.Channel-1\#ChannelRegularConversion=ADC_CHANNEL_12
+ADC2.ContinuousConvMode=DISABLE
 ADC2.DMAContinuousRequests=ENABLE
 ADC2.EOCSelection=ADC_EOC_SINGLE_CONV
 ADC2.ExternalTrigConv=ADC_EXTERNALTRIGCONV_T2_TRGO
-ADC2.IPParameters=Rank-1\#ChannelRegularConversion,Channel-1\#ChannelRegularConversion,SamplingTime-1\#ChannelRegularConversion,OffsetNumber-1\#ChannelRegularConversion,Offset-1\#ChannelRegularConversion,NbrOfConversionFlag,DMAContinuousRequests,EOCSelection,ExternalTrigConv,SubFamily
+ADC2.IPParameters=Rank-1\#ChannelRegularConversion,Channel-1\#ChannelRegularConversion,SamplingTime-1\#ChannelRegularConversion,OffsetNumber-1\#ChannelRegularConversion,Offset-1\#ChannelRegularConversion,NbrOfConversionFlag,DMAContinuousRequests,EOCSelection,ExternalTrigConv,SubFamily,ContinuousConvMode
 ADC2.NbrOfConversionFlag=1
 ADC2.Offset-1\#ChannelRegularConversion=0
 ADC2.OffsetNumber-1\#ChannelRegularConversion=ADC_OFFSET_NONE
@@ -19,7 +20,7 @@ Dma.ADC2.0.Direction=DMA_PERIPH_TO_MEMORY
 Dma.ADC2.0.Instance=DMA2_Channel1
 Dma.ADC2.0.MemDataAlignment=DMA_MDATAALIGN_HALFWORD
 Dma.ADC2.0.MemInc=DMA_MINC_ENABLE
-Dma.ADC2.0.Mode=DMA_NORMAL
+Dma.ADC2.0.Mode=DMA_CIRCULAR
 Dma.ADC2.0.PeriphDataAlignment=DMA_PDATAALIGN_HALFWORD
 Dma.ADC2.0.PeriphInc=DMA_PINC_DISABLE
 Dma.ADC2.0.Priority=DMA_PRIORITY_LOW

@@ -48,6 +48,7 @@
 #include "Io_DriveModeSwitch.h"
 #include "Io_Leds.h"
 #include "Io_Switches.h"
+#include "Io_Adc.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -182,6 +183,11 @@ int main(void)
     MX_TIM2_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
+
+    HAL_ADC_Start_DMA(
+        &hadc2, (uint32_t *)Io_Adc_GetRawAdcReadings(),
+        hadc2.Init.NbrOfConversion);
+    HAL_TIM_Base_Start(&htim2);
 
     Io_SharedHardFaultHandler_Init();
 
