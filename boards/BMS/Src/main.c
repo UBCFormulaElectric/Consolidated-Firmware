@@ -702,7 +702,6 @@ void RunTask1kHz(void const *argument)
             can_tx, osKernelSysTick() * portTICK_PERIOD_MS);
 
         App_SharedStateMachine_Tick1kHz(state_machine);
-        App_Imd_Tick(imd);
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
