@@ -24,6 +24,8 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include <assert.h>
+
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
@@ -34,21 +36,14 @@
 #include "Io_SoftwareWatchdog.h"
 #include "Io_FlowMeters.h"
 #include "Io_HeartbeatMonitor.h"
-<<<<<<< HEAD
-<<<<<<< HEAD
 #include "Io_RgbLedSequence.h"
-#include "Io_WheelSpeedSensors.h"
-=======
-#include "Io_Wheels.h"
 #include "Io_WheelSpeedSensors.h"
 
 #include "App_FsmWorld.h"
+#include "App_InRangeCheck.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_AirOpenState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
-#include "App_SharedConstants.h"
-#include "App_SharedHeartbeatMonitor.h"
-#include "App_Wheel.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -90,8 +85,8 @@ osThreadId          TaskCanTxHandle;
 uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
 osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
-struct FlowMeter *        primary_flow_meter, *secondary_flow_meter;
-struct WheelSpeedSensor * left_wheel_speed_sensor, *right_wheel_speed_sensor;
+struct InRangeCheck *     primary_flow_meter, *secondary_flow_meter;
+struct InRangeCheck *     left_wheel_speed_sensor, *right_wheel_speed_sensor;
 struct World *            world;
 struct StateMachine *     state_machine;
 struct FsmCanTxInterface *can_tx;
@@ -143,29 +138,7 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count)
 int main(void)
 {
     /* USER CODE BEGIN 1 */
-    __HAL_DBGMCU_FREEZE_IWDG();
-    Io_SharedHardFaultHandler_Init();
 
-    can_tx = App_CanTx_Create(
-        Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
-        Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
-        Io_CanTx_EnqueueNonPeriodicMsg_FSM_AIR_SHUTDOWN);
-
-    can_rx = App_CanRx_Create();
-
-    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_HeartbeatMonitor_GetCurrentMs, 300U, BMS_HEARTBEAT_ONE_HOT,
-        Io_HeartbeatMonitor_TimeoutCallback);
-
-    world = App_FsmWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, primary_flow_meter,
-        secondary_flow_meter, left_wheel_speed_sensor,
-        right_wheel_speed_sensor);
-
-    state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
-
-    App_StackWaterMark_Init(can_tx);
-    Io_SoftwareWatchdog_Init(can_tx);
     /* USER CODE END 1 */
 
     /* MCU
@@ -199,25 +172,23 @@ int main(void)
     Io_SharedHardFaultHandler_Init();
 
     Io_FlowMeters_Init(&htim4);
-    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeters_GetPrimaryFlowRate);
+    primary_flow_meter =
+        App_InRangeCheck_Create(Io_FlowMeters_GetPrimaryFlowRate, 1.0f, 30.0f);
     secondary_flow_meter =
-        App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
+        App_InRangeCheck_Create(Io_FlowMeters_GetSecondaryFlowRate, 1.0, 30.0f);
 
     Io_WheelSpeedSensors_Init(&htim16, &htim17);
-    left_wheel_speed_sensor =
-        App_WheelSpeedSensor_Create(Io_WheelSpeedSensors_GetLeftSpeedKph);
-    right_wheel_speed_sensor =
-        App_WheelSpeedSensor_Create(Io_WheelSpeedSensors_GetRightSpeedKph);
-
-    Io_WheelSpeedSensors_Init(&htim16, &htim17);
+    left_wheel_speed_sensor = App_InRangeCheck_Create(
+        Io_WheelSpeedSensors_GetLeftSpeedKph, 0.1f, 150.0f);
+    right_wheel_speed_sensor = App_InRangeCheck_Create(
+        Io_WheelSpeedSensors_GetRightSpeedKph, 0.1f, 150.0f);
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_AIR_SHUTDOWN);
 
-    can_rx = App_CanRx_Create();
-
+    can_rx            = App_CanRx_Create();
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_HeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS,
         HEARTBEAT_MONITOR_BOARDS_TO_CHECK, Io_HeartbeatMonitor_TimeoutCallback);
@@ -228,8 +199,8 @@ int main(void)
 
     world = App_FsmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, primary_flow_meter,
-        secondary_flow_meter, left_wheel_speed_sensor,
-        right_wheel_speed_sensor);
+        secondary_flow_meter, left_wheel_speed_sensor, right_wheel_speed_sensor,
+        rgb_led_sequence);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 

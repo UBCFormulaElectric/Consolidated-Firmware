@@ -5,8 +5,7 @@
 #include "../Inc/Test_InRangeCheck.h"
 >>>>>>> move test to shared test:boards/shared/Test/Src/Test_InRangeCheck.cpp
 
-extern "C"
-{
+    extern "C" {
 #include "App_InRangeCheck.h"
 }
 

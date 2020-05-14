@@ -2,6 +2,7 @@
 
 extern "C"
 {
+#include "App_InRangeCheck.h"
 #include "App_SharedStateMachine.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "states/App_AirOpenState.h"
@@ -25,6 +26,7 @@ FAKE_VOID_FUNC(
     heartbeat_timeout_callback,
     enum HeartbeatOneHot,
     enum HeartbeatOneHot);
+
 FAKE_VALUE_FUNC(float, get_primary_flow_rate);
 FAKE_VALUE_FUNC(float, get_secondary_flow_rate);
 FAKE_VOID_FUNC(turn_on_red_led);
@@ -49,21 +51,22 @@ class FsmStateMachineTest : public testing::Test
             get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS,
             HEARTBEAT_MONITOR_BOARDS_TO_CHECK, heartbeat_timeout_callback);
 
-        primary_flow_meter = App_FlowMeter_Create(get_primary_flow_rate);
+        primary_flow_meter =
+            App_InRangeCheck_Create(get_primary_flow_rate, 1.0f, 30.0f);
 
-        secondary_flow_meter = App_FlowMeter_Create(get_secondary_flow_rate);
+        secondary_flow_meter =
+            App_InRangeCheck_Create(get_secondary_flow_rate, 1.0f, 30.0f);
         left_wheel_speed_sensor =
-            App_WheelSpeedSensor_Create(get_left_wheel_speed);
+            App_InRangeCheck_Create(get_left_wheel_speed, 0.1f, 150.0f);
         right_wheel_speed_sensor =
-            App_WheelSpeedSensor_Create(get_right_wheel_speed);
+            App_InRangeCheck_Create(get_right_wheel_speed, 0.1f, 150.0f);
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
         world = App_FsmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
-            primary_flow_meter, secondary_flow_meter, rgb_led_sequence);
             primary_flow_meter, secondary_flow_meter, left_wheel_speed_sensor,
-            right_wheel_speed_sensor);
+            right_wheel_speed_sensor, rgb_led_sequence);
 
         // Default to starting the state machine in the `AIR_OPEN` state
         state_machine =
@@ -91,40 +94,9 @@ class FsmStateMachineTest : public testing::Test
         TearDownObject(can_tx_interface, App_CanTx_Destroy);
         TearDownObject(can_rx_interface, App_CanRx_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
-        TearDownObject(primary_flow_meter, App_FlowMeter_Destroy);
-        TearDownObject(secondary_flow_meter, App_FlowMeter_Destroy);
+        TearDownObject(primary_flow_meter, App_InRangeCheck_Destroy);
+        TearDownObject(secondary_flow_meter, App_InRangeCheck_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
-
-        ASSERT_TRUE(world != NULL);
-        ASSERT_TRUE(can_tx_interface != NULL);
-        ASSERT_TRUE(can_rx_interface != NULL);
-        ASSERT_TRUE(state_machine != NULL);
-        ASSERT_TRUE(heartbeat_monitor != NULL);
-        ASSERT_TRUE(primary_flow_meter != NULL);
-        ASSERT_TRUE(secondary_flow_meter != NULL);
-        ASSERT_TRUE(left_wheel_speed_sensor != NULL);
-        ASSERT_TRUE(right_wheel_speed_sensor != NULL);
-
-        App_FsmWorld_Destroy(world);
-        App_CanTx_Destroy(can_tx_interface);
-        App_CanRx_Destroy(can_rx_interface);
-        App_SharedStateMachine_Destroy(state_machine);
-        App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
-        App_FlowMeter_Destroy(primary_flow_meter);
-        App_FlowMeter_Destroy(secondary_flow_meter);
-        App_WheelSpeedSensor_Destroy(left_wheel_speed_sensor);
-        App_WheelSpeedSensor_Destroy(right_wheel_speed_sensor);
-
-        world                    = NULL;
-        can_tx_interface         = NULL;
-        can_rx_interface         = NULL;
-        state_machine            = NULL;
-        heartbeat_monitor        = NULL;
-        primary_flow_meter       = NULL;
-        secondary_flow_meter     = NULL;
-        left_wheel_speed_sensor  = NULL;
-        right_wheel_speed_sensor = NULL;
-        rgb_led_sequence         = NULL;
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -147,11 +119,11 @@ class FsmStateMachineTest : public testing::Test
     struct FsmCanTxInterface *can_tx_interface;
     struct FsmCanRxInterface *can_rx_interface;
     struct HeartbeatMonitor * heartbeat_monitor;
-    struct FlowMeter *        primary_flow_meter;
-    struct FlowMeter *        secondary_flow_meter;
+    struct InRangeCheck *     primary_flow_meter;
+    struct InRangeCheck *     secondary_flow_meter;
     struct RgbLedSequence *   rgb_led_sequence;
-    struct WheelSpeedSensor * left_wheel_speed_sensor;
-    struct WheelSpeedSensor * right_wheel_speed_sensor;
+    struct InRangeCheck *     left_wheel_speed_sensor;
+    struct InRangeCheck *     right_wheel_speed_sensor;
 };
 
 // FSM-10
@@ -187,7 +159,7 @@ TEST_F(
 
         get_primary_flow_rate_fake.return_val   = fake_flow_rate;
         get_secondary_flow_rate_fake.return_val = fake_flow_rate;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick1kHz(state_machine);
 
         EXPECT_EQ(
             fake_flow_rate,
@@ -212,7 +184,7 @@ TEST_F(
         SetInitialState(state);
         get_left_wheel_speed_fake.return_val  = fake_wheel_speed;
         get_right_wheel_speed_fake.return_val = fake_wheel_speed;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick1kHz(state_machine);
 
         EXPECT_EQ(
             fake_wheel_speed,
@@ -226,58 +198,49 @@ TEST_F(
     }
 }
 
-} // namespace StateMachineTest
-
 TEST_F(
     FsmStateMachineTest,
     check_if_wheel_speed_non_critical_fault_is_broadcasted_over_can_in_all_states)
 {
-    // The FSM sends a wheel speed non-critical fault when one of the wheel
-    // speeds measured is greater than 150 km/h. The WHEEL_SPEED_OUT_OF_RANGE
-    // flag is set to 1 while active
-    const float wheel_speed_threshold = 150.0f;
-
     for (const auto &state : GetAllStates())
     {
         SetInitialState(state);
-        get_left_wheel_speed_fake.return_val  = 1.0f;
-        get_right_wheel_speed_fake.return_val = 1.0f;
-        App_SharedStateMachine_Tick(state_machine);
+        get_left_wheel_speed_fake.return_val  = 0.09f;
+        get_right_wheel_speed_fake.return_val = 0.09f;
+        App_SharedStateMachine_Tick1kHz(state_machine);
         EXPECT_EQ(
-            false, App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
-                       can_tx_interface));
+            VALUE_UNDERFLOW,
+            App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
+                can_tx_interface));
         EXPECT_EQ(
-            false, App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
-                       can_tx_interface));
+            VALUE_UNDERFLOW,
+            App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
+                can_tx_interface));
 
-        get_left_wheel_speed_fake.return_val  = wheel_speed_threshold;
-        get_right_wheel_speed_fake.return_val = wheel_speed_threshold;
-        App_SharedStateMachine_Tick(state_machine);
+        get_left_wheel_speed_fake.return_val  = 150.01f;
+        get_right_wheel_speed_fake.return_val = 150.01f;
+        App_SharedStateMachine_Tick1kHz(state_machine);
         EXPECT_EQ(
-            false, App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
-                       can_tx_interface));
+            VALUE_OVERFLOW,
+            App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
+                can_tx_interface));
         EXPECT_EQ(
-            false, App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
-                       can_tx_interface));
+            VALUE_OVERFLOW,
+            App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
+                can_tx_interface));
 
-        get_left_wheel_speed_fake.return_val  = wheel_speed_threshold + 0.01f;
-        get_right_wheel_speed_fake.return_val = wheel_speed_threshold + 0.01f;
-        App_SharedStateMachine_Tick(state_machine);
+        get_left_wheel_speed_fake.return_val  = 75.0f;
+        get_right_wheel_speed_fake.return_val = 75.0f;
+        App_SharedStateMachine_Tick1kHz(state_machine);
         EXPECT_EQ(
-            true, App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
-                      can_tx_interface));
+            VALUE_IN_RANGE,
+            App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
+                can_tx_interface));
         EXPECT_EQ(
-            true, App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
-                      can_tx_interface));
-
-        get_left_wheel_speed_fake.return_val  = 200.0f;
-        get_right_wheel_speed_fake.return_val = 200.0f;
-        App_SharedStateMachine_Tick(state_machine);
-        EXPECT_EQ(
-            true, App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE(
-                      can_tx_interface));
-        EXPECT_EQ(
-            true, App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
-                      can_tx_interface));
+            VALUE_IN_RANGE,
+            App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE(
+                can_tx_interface));
     }
 }
+
+} // namespace StateMachineTest

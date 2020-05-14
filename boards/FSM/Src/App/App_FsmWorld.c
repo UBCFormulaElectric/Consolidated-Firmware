@@ -20,7 +20,6 @@ struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanTxInterface *const can_tx_interface,
     struct FsmCanRxInterface *const can_rx_interface,
     struct HeartbeatMonitor *const  heartbeat_monitor,
-    struct RgbLedSequence *const    rgb_led_sequence)
     struct InRangeCheck *const      primary_flow_rate_in_range_check,
     struct InRangeCheck *const      secondary_flow_rate_in_range_check,
     struct InRangeCheck *const      left_wheel_speed_in_range_check,
@@ -77,11 +76,6 @@ struct InRangeCheck *
 {
     return world->secondary_flow_rate_in_range_check;
 }
-
-struct RgbLedSequence *
-    App_FsmWorld_GetRgbLedSequence(const struct FsmWorld *const world)
-{
-    return world->rgb_led_sequence;
 
 struct InRangeCheck *
     App_FsmWorld_GetLeftWheelSpeedCheck(const struct FsmWorld *const world)
