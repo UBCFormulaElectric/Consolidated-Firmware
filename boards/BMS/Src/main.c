@@ -30,7 +30,6 @@
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
 #include "Io_SharedCan.h"
-#include "Io_SharedCmsisOs.h"
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
@@ -82,6 +81,9 @@ osStaticThreadDef_t TaskCanRxControlBlock;
 osThreadId          TaskCanTxHandle;
 uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
 osStaticThreadDef_t TaskCanTxControlBlock;
+osThreadId          Task100HzHandle;
+uint32_t            Task100HzBuffer[TASK100HZ_STACK_SIZE];
+osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
 struct BmsWorld *         world;
 struct StateMachine *     state_machine;
@@ -104,6 +106,7 @@ void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
 void        RunTaskCanRx(void const *argument);
 void        RunTaskCanTx(void const *argument);
+void        RunTask100Hz(void const *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -237,6 +240,12 @@ int main(void)
         TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, TASKCANTX_STACK_SIZE,
         TaskCanTxBuffer, &TaskCanTxControlBlock);
     TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
+
+    /* definition and creation of Task100Hz */
+    osThreadStaticDef(
+        Task100Hz, RunTask100Hz, osPriorityBelowNormal, 0, TASK100HZ_STACK_SIZE,
+        Task100HzBuffer, &Task100HzControlBlock);
+    Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -674,7 +683,7 @@ void RunTask1Hz(void const *argument)
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        (void)Io_SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
+        osDelayUntil(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END 5 */
 }
@@ -701,13 +710,10 @@ void RunTask1kHz(void const *argument)
         Io_CanTx_EnqueuePeriodicMsgs(
             can_tx, osKernelSysTick() * portTICK_PERIOD_MS);
 
-        App_SharedStateMachine_Tick1kHz(state_machine);
-        App_Imd_Tick(imd);
-
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        (void)Io_SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
+        osDelayUntil(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END RunTask1kHz */
 }
@@ -751,6 +757,37 @@ void RunTaskCanTx(void const *argument)
         Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
     }
     /* USER CODE END RunTaskCanTx */
+}
+
+/* USER CODE BEGIN Header_RunTask100Hz */
+/**
+ * @brief Function implementing the Task100Hz thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTask100Hz */
+void RunTask100Hz(void const *argument)
+{
+    /* USER CODE BEGIN RunTask100Hz */
+    UNUSED(argument);
+    uint32_t                 PreviousWakeTime = osKernelSysTick();
+    static const TickType_t  period_ms        = 10;
+    SoftwareWatchdogHandle_t watchdog =
+        Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_100HZ", period_ms);
+
+    /* Infinite loop */
+    for (;;)
+    {
+        App_SharedStateMachine_Tick100Hz(state_machine);
+        App_Imd_Tick(imd);
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep.
+        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        osDelayUntil(&PreviousWakeTime, period_ms);
+    }
+    /* USER CODE END RunTask100Hz */
 }
 
 /**

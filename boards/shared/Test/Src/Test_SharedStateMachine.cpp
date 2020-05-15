@@ -30,20 +30,20 @@ class SharedStateMachineTest : public testing::Test
     {
         world = App_TestWorld_Create();
 
-        state_A.run_on_entry     = state_A_entry;
-        state_A.run_on_tick_1Hz  = state_A_tick_1Hz;
-        state_A.run_on_tick_1kHz = state_A_tick_1kHz;
-        state_A.run_on_exit      = state_A_exit;
+        state_A.run_on_entry      = state_A_entry;
+        state_A.run_on_tick_1Hz   = state_A_tick_1Hz;
+        state_A.run_on_tick_100Hz = state_A_tick_1kHz;
+        state_A.run_on_exit       = state_A_exit;
 
-        state_B.run_on_entry     = state_B_entry;
-        state_B.run_on_tick_1Hz  = state_B_tick_1Hz;
-        state_B.run_on_tick_1kHz = state_B_tick_1kHz;
-        state_B.run_on_exit      = state_B_exit;
+        state_B.run_on_entry      = state_B_entry;
+        state_B.run_on_tick_1Hz   = state_B_tick_1Hz;
+        state_B.run_on_tick_100Hz = state_B_tick_1kHz;
+        state_B.run_on_exit       = state_B_exit;
 
-        state_C.run_on_entry     = state_C_entry;
-        state_C.run_on_tick_1Hz  = NULL;
-        state_C.run_on_tick_1kHz = NULL;
-        state_C.run_on_exit      = state_C_exit;
+        state_C.run_on_entry      = state_C_entry;
+        state_C.run_on_tick_1Hz   = NULL;
+        state_C.run_on_tick_100Hz = NULL;
+        state_C.run_on_exit       = state_C_exit;
 
         state_machine = App_SharedStateMachine_Create(world, &state_A);
 
@@ -93,7 +93,7 @@ TEST_F(
 
     App_SharedStateMachine_Tick1Hz(state_machine);
 
-    App_SharedStateMachine_Tick1kHz(state_machine);
+    App_SharedStateMachine_Tick100Hz(state_machine);
 
     EXPECT_EQ(state_B_tick_1kHz_fake.call_count, 1);
 }
