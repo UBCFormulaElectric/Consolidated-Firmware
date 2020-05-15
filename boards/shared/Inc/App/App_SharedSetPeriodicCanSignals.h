@@ -33,4 +33,3 @@
         }                                                                      \
                                                                                \
         can_signal_setter(can_tx, value);                                      \
-    }
