@@ -2,11 +2,11 @@
 
 #include "App_CanTx.h"
 #include "App_CanRx.h"
+#include "App_InRangeCheck.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
 
 struct FsmWorld;
-struct InRangeCheck;
 
 /**
  * Allocate and initialize a world in the application layer by registering
@@ -61,7 +61,7 @@ struct HeartbeatMonitor *
  * @return The primary flow meter for the given world
  */
 struct InRangeCheck *
-    App_FsmWorld_GetPrimaryFlowRateCheck(const struct FsmWorld *world);
+    App_FsmWorld_GetPrimaryFlowRateInRangeCheck(const struct FsmWorld *world);
 
 /**
  * Get the secondary flow meter for the given world
@@ -69,7 +69,7 @@ struct InRangeCheck *
  * @return The secondary flow meter for the given world
  */
 struct InRangeCheck *
-    App_FsmWorld_GetSecondaryFlowRateCheck(const struct FsmWorld *world);
+    App_FsmWorld_GetSecondaryFlowRateInRangeCheck(const struct FsmWorld *world);
 
 /**
  * Get the left wheel speed sensor for the given world
@@ -77,7 +77,7 @@ struct InRangeCheck *
  * @return The left wheel speed sensor for the given world
  */
 struct InRangeCheck *
-    App_FsmWorld_GetLeftWheelSpeedCheck(const struct FsmWorld *world);
+    App_FsmWorld_GetLeftWheelSpeedInRangeCheck(const struct FsmWorld *world);
 
 /**
  * Get the right wheel speed sensor for the given world
@@ -85,7 +85,7 @@ struct InRangeCheck *
  * @return The right wheel speed sensor for the given world
  */
 struct InRangeCheck *
-    App_FsmWorld_GetRightWheelSpeedCheck(const struct FsmWorld *world);
+    App_FsmWorld_GetRightWheelSpeedInRangeCheck(const struct FsmWorld *world);
 
 /**
  * Get the RGB LED sequence for the given world

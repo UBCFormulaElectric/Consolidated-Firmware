@@ -65,26 +65,26 @@ struct HeartbeatMonitor *
     return world->heartbeat_monitor;
 }
 
-struct InRangeCheck *
-    App_FsmWorld_GetPrimaryFlowRateCheck(const struct FsmWorld *const world)
+struct InRangeCheck *App_FsmWorld_GetPrimaryFlowRateInRangeCheck(
+    const struct FsmWorld *const world)
 {
     return world->primary_flow_rate_in_range_check;
 }
 
-struct InRangeCheck *
-    App_FsmWorld_GetSecondaryFlowRateCheck(const struct FsmWorld *const world)
+struct InRangeCheck *App_FsmWorld_GetSecondaryFlowRateInRangeCheck(
+    const struct FsmWorld *const world)
 {
     return world->secondary_flow_rate_in_range_check;
 }
 
-struct InRangeCheck *
-    App_FsmWorld_GetLeftWheelSpeedCheck(const struct FsmWorld *const world)
+struct InRangeCheck *App_FsmWorld_GetLeftWheelSpeedInRangeCheck(
+    const struct FsmWorld *const world)
 {
     return world->left_wheel_speed_in_range_check;
 }
 
-struct InRangeCheck *
-    App_FsmWorld_GetRightWheelSpeedCheck(const struct FsmWorld *const world)
+struct InRangeCheck *App_FsmWorld_GetRightWheelSpeedInRangeCheck(
+    const struct FsmWorld *const world)
 {
     return world->right_wheel_speed_in_range_check;
 }

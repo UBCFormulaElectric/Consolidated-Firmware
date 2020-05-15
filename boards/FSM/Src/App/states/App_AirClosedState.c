@@ -20,33 +20,8 @@ static void
     AirClosedStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct FsmCanTxInterface *can_tx_interface = App_FsmWorld_GetCanTx(world);
-
-    struct InRangeCheck *primary_flow_meter =
-        App_FsmWorld_GetPrimaryFlowRateCheck(world);
-    struct InRangeCheck *secondary_flow_meter =
-        App_FsmWorld_GetSecondaryFlowRateCheck(world);
-    struct InRangeCheck *left_wheel_speed_sensor =
-        App_FsmWorld_GetLeftWheelSpeedCheck(world);
-    struct InRangeCheck *right_wheel_speed_sensor =
-        App_FsmWorld_GetRightWheelSpeedCheck(world);
-
-    App_SetPeriodicSignals_WheelSpeed(
-        can_tx_interface, primary_flow_meter,
-        App_CanTx_SetPeriodicSignal_PRIMARY_FLOW_RATE,
-        App_CanTx_SetPeriodicSignal_PRIMARY_FLOW_RATE_OUT_OF_RANGE);
-    App_SetPeriodicSignals_WheelSpeed(
-        can_tx_interface, secondary_flow_meter,
-        App_CanTx_SetPeriodicSignal_SECONDARY_FLOW_RATE,
-        App_CanTx_SetPeriodicSignal_SECONDARY_FLOW_RATE_OUT_OF_RANGE);
-    App_SetPeriodicSignals_WheelSpeed(
-        can_tx_interface, left_wheel_speed_sensor,
-        App_CanTx_SetPeriodicSignal_LEFT_WHEEL_SPEED,
-        App_CanTx_SetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE);
-    App_SetPeriodicSignals_WheelSpeed(
-        can_tx_interface, right_wheel_speed_sensor,
-        App_CanTx_SetPeriodicSignal_RIGHT_WHEEL_SPEED,
-        App_CanTx_SetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE);
+    App_SetPeriodicSignals_FlowRateInRangeChecks(world);
+    App_SetPeriodicSignals_WheelSpeedInRangeChecks(world);
 }
 
 static void AirClosedStateRunOnExit(struct StateMachine *const state_machine)

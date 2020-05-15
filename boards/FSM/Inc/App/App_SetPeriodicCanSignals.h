@@ -1,20 +1,7 @@
 #pragma once
-#include <stdbool.h>
-#include <stdint.h>
 
-struct FsmCanTxInterface;
-struct InRangeCheck;
+#include "App_FsmWorld.h"
 
-void App_SetPeriodicSignals_WheelSpeed(
-    struct FsmCanTxInterface *can_tx,
-    struct InRangeCheck *     wheel_speed_sensor,
-    void (*wheel_speed_can_signal_setter)(struct FsmCanTxInterface *, float),
-    void (
-        *out_of_range_can_signal_setter)(struct FsmCanTxInterface *, uint8_t));
-
-void App_SetPeriodicSignals_FlowRate(
-    struct FsmCanTxInterface *can_tx,
-    struct InRangeCheck *     flow_meter,
-    void (*flow_meter_can_signal_setter)(struct FsmCanTxInterface *, float),
-    void (
-        *out_of_range_can_signal_setter)(struct FsmCanTxInterface *, uint8_t));
+void App_SetPeriodicSignals_FlowRateInRangeChecks(const struct FsmWorld *world);
+void App_SetPeriodicSignals_WheelSpeedInRangeChecks(
+    const struct FsmWorld *world);
