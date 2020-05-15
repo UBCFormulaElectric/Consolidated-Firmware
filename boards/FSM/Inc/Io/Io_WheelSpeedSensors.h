@@ -43,7 +43,7 @@ float Io_WheelSpeedSensors_GetLeftSpeedKph(void);
  */
 float Io_WheelSpeedSensors_GetRightSpeedKph(void);
 
-/*Io_Whee*
+/**
  * Update the frequency for the left and right wheel speed sensors.
  * @note This function should be called in the input capture callback function.
  * @param htim The handle of the timer that triggered the input capture callback

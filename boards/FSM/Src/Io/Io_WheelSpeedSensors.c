@@ -1,6 +1,5 @@
 #include <assert.h>
 #include <math.h>
-
 #include "Io_WheelSpeedSensors.h"
 #include "Io_SharedFreqOnlyPwmInput.h"
 #include "main.h"

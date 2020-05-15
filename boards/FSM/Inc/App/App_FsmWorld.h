@@ -71,8 +71,19 @@ struct InRangeCheck *
 struct InRangeCheck *
     App_FsmWorld_GetSecondaryFlowRateCheck(const struct FsmWorld *world);
 
+/**
+ * Get the left wheel speed sensor for the given world
+ * @param world The world to get the left wheel speed sensor for
+ * @return The left wheel speed sensor for the given world
+ */
 struct InRangeCheck *
     App_FsmWorld_GetLeftWheelSpeedCheck(const struct FsmWorld *world);
+
+/**
+ * Get the right wheel speed sensor for the given world
+ * @param world The world to get the right wheel speed sensor for
+ * @return The right wheel speed sensor for the given world
+ */
 struct InRangeCheck *
     App_FsmWorld_GetRightWheelSpeedCheck(const struct FsmWorld *world);
 
