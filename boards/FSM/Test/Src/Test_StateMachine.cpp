@@ -52,22 +52,24 @@ class FsmStateMachineTest : public testing::Test
             get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS,
             HEARTBEAT_MONITOR_BOARDS_TO_CHECK, heartbeat_timeout_callback);
 
-        primary_flow_meter =
+        primary_flow_meter_in_range_check =
             App_InRangeCheck_Create(get_primary_flow_rate, 1.0f, 30.0f);
 
-        secondary_flow_meter =
+        secondary_flow_meter_in_range_check =
             App_InRangeCheck_Create(get_secondary_flow_rate, 1.0f, 30.0f);
-        left_wheel_speed_sensor =
+        left_wheel_speed_sensor_in_range_check =
             App_InRangeCheck_Create(get_left_wheel_speed, 0.1f, 150.0f);
-        right_wheel_speed_sensor =
+        right_wheel_speed_sensor_in_range_check =
             App_InRangeCheck_Create(get_right_wheel_speed, 0.1f, 150.0f);
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
         world = App_FsmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
-            primary_flow_meter, secondary_flow_meter, left_wheel_speed_sensor,
-            right_wheel_speed_sensor, rgb_led_sequence);
+            primary_flow_meter_in_range_check,
+            secondary_flow_meter_in_range_check,
+            left_wheel_speed_sensor_in_range_check,
+            right_wheel_speed_sensor_in_range_check, rgb_led_sequence);
 
         // Default to starting the state machine in the `AIR_OPEN` state
         state_machine =
@@ -95,8 +97,14 @@ class FsmStateMachineTest : public testing::Test
         TearDownObject(can_tx_interface, App_CanTx_Destroy);
         TearDownObject(can_rx_interface, App_CanRx_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
-        TearDownObject(primary_flow_meter, App_InRangeCheck_Destroy);
-        TearDownObject(secondary_flow_meter, App_InRangeCheck_Destroy);
+        TearDownObject(
+            left_wheel_speed_sensor_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            right_wheel_speed_sensor_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            primary_flow_meter_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            secondary_flow_meter_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
     }
 
@@ -161,11 +169,11 @@ class FsmStateMachineTest : public testing::Test
     struct FsmCanTxInterface *can_tx_interface;
     struct FsmCanRxInterface *can_rx_interface;
     struct HeartbeatMonitor * heartbeat_monitor;
-    struct InRangeCheck *     primary_flow_meter;
-    struct InRangeCheck *     secondary_flow_meter;
+    struct InRangeCheck *     primary_flow_meter_in_range_check;
+    struct InRangeCheck *     secondary_flow_meter_in_range_check;
+    struct InRangeCheck *     left_wheel_speed_sensor_in_range_check;
+    struct InRangeCheck *     right_wheel_speed_sensor_in_range_check;
     struct RgbLedSequence *   rgb_led_sequence;
-    struct InRangeCheck *     left_wheel_speed_sensor;
-    struct InRangeCheck *     right_wheel_speed_sensor;
 };
 
 // FSM-10
