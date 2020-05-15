@@ -177,8 +177,8 @@ int main(void)
     Io_FlowMeters_Init(&htim4);
     primary_flow_meter =
         App_InRangeCheck_Create(Io_FlowMeters_GetPrimaryFlowRate, 1.0f, 30.0f);
-    secondary_flow_meter =
-        App_InRangeCheck_Create(Io_FlowMeters_GetSecondaryFlowRate, 1.0, 30.0f);
+    secondary_flow_meter = App_InRangeCheck_Create(
+        Io_FlowMeters_GetSecondaryFlowRate, 1.0f, 30.0f);
 
     Io_WheelSpeedSensors_Init(&htim16, &htim17);
     left_wheel_speed_sensor = App_InRangeCheck_Create(
