@@ -21,7 +21,7 @@ struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanTxInterface *can_tx_interface,
     struct FsmCanRxInterface *can_rx_interface,
     struct HeartbeatMonitor * heartbeat_monitor,
-    struct InRangeCheck *     primary_flow_meter,
+    struct InRangeCheck *     primary_flow_meter_in_range_check,
     struct InRangeCheck *     secondary_flow_meter,
     struct InRangeCheck *     left_wheel_speed_sensor,
     struct InRangeCheck *     right_wheel_speed_sensor,
