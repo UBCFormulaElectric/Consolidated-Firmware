@@ -22,9 +22,9 @@ struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanRxInterface *can_rx_interface,
     struct HeartbeatMonitor * heartbeat_monitor,
     struct InRangeCheck *     primary_flow_meter_in_range_check,
-    struct InRangeCheck *     secondary_flow_meter,
-    struct InRangeCheck *     left_wheel_speed_sensor,
-    struct InRangeCheck *     right_wheel_speed_sensor,
+    struct InRangeCheck *     secondary_flow_meter_in_range_check,
+    struct InRangeCheck *     left_wheel_speed_sensor_in_range_check,
+    struct InRangeCheck *     right_wheel_speed_sensor_in_range_check,
     struct RgbLedSequence *   rgb_led_sequence);
 
 /**
@@ -56,7 +56,7 @@ struct HeartbeatMonitor *
     App_FsmWorld_GetHeartbeatMonitor(const struct FsmWorld *world);
 
 /**
- * Get the primary flow meter for the given world
+ * Get the primary flow rate in range check for the given world
  * @param world The world to get primary flow meter for
  * @return The primary flow meter for the given world
  */
@@ -64,7 +64,7 @@ struct InRangeCheck *
     App_FsmWorld_GetPrimaryFlowRateInRangeCheck(const struct FsmWorld *world);
 
 /**
- * Get the secondary flow meter for the given world
+ * Get the secondary flow rate in range check for the given world
  * @param world The world to get secondary flow meter for
  * @return The secondary flow meter for the given world
  */
@@ -72,7 +72,7 @@ struct InRangeCheck *
     App_FsmWorld_GetSecondaryFlowRateInRangeCheck(const struct FsmWorld *world);
 
 /**
- * Get the left wheel speed sensor for the given world
+ * Get the left wheel speed in range check for the given world
  * @param world The world to get the left wheel speed sensor for
  * @return The left wheel speed sensor for the given world
  */
@@ -80,7 +80,7 @@ struct InRangeCheck *
     App_FsmWorld_GetLeftWheelSpeedInRangeCheck(const struct FsmWorld *world);
 
 /**
- * Get the right wheel speed sensor for the given world
+ * Get the right wheel speed in range check for the given world
  * @param world The world to get the right wheel speed sensor for
  * @return The right wheel speed sensor for the given world
  */

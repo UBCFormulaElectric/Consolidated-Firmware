@@ -9,6 +9,8 @@ extern "C"
 #include "states/App_AirOpenState.h"
 #include "states/App_AirClosedState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
+#include "configs/App_FlowRateThresholds.h"
+#include "configs/App_WheelSpeedThresholds.h"
 }
 
 namespace StateMachineTest
@@ -52,17 +54,20 @@ class FsmStateMachineTest : public testing::Test
             get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS,
             HEARTBEAT_MONITOR_BOARDS_TO_CHECK, heartbeat_timeout_callback);
 
-        primary_flow_meter_in_range_check =
-            App_InRangeCheck_Create(get_primary_flow_rate, 1.0f, 30.0f);
+        primary_flow_meter_in_range_check = App_InRangeCheck_Create(
+            get_primary_flow_rate, PRIMARY_FLOW_METER_MIN_FLOW_RATE,
+            PRIMARY_FLOW_METER_MAX_FLOW_RATE);
 
-        secondary_flow_meter_in_range_check =
-            App_InRangeCheck_Create(get_secondary_flow_rate, 1.0f, 30.0f);
-            
-        left_wheel_speed_sensor_in_range_check =
-            App_InRangeCheck_Create(get_left_wheel_speed, 0.1f, 150.0f);
-            
-        right_wheel_speed_sensor_in_range_check =
-            App_InRangeCheck_Create(get_right_wheel_speed, 0.1f, 150.0f);
+        secondary_flow_meter_in_range_check = App_InRangeCheck_Create(
+            get_secondary_flow_rate, SECONDARY_FLOW_METER_MIN_FLOW_RATE,
+            SECONDARY_FLOW_METER_MAX_FLOW_RATE);
+
+        left_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
+            get_left_wheel_speed, LEFT_WHEEL_MIN_SPEED, LEFT_WHEEL_MAX_SPEED);
+
+        right_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
+            get_right_wheel_speed, RIGHT_WHEEL_MIN_SPEED,
+            RIGHT_WHEEL_MAX_SPEED);
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
@@ -141,24 +146,23 @@ class FsmStateMachineTest : public testing::Test
             SetInitialState(state);
 
             // Normal wheel speed
-            fake_in_range = (min_in_range + max_in_range) / 2;
+            fake_value = (min_value + max_value) / 2;
             App_SharedStateMachine_Tick100Hz(state_machine);
-            ASSERT_EQ(
-                fake_in_range, in_range_can_signal_getter(can_tx_interface));
+            ASSERT_EQ(fake_value, value_can_signal_getter(can_tx_interface));
             ASSERT_EQ(
                 ok_choice, out_of_range_can_signal_getter(can_tx_interface));
 
             // Underflow wheel speed
-            fake_in_range = std::nextafter(
-                min_in_range, std::numeric_limits<float>::lowest());
+            fake_value =
+                std::nextafter(min_value, std::numeric_limits<float>::lowest());
             App_SharedStateMachine_Tick100Hz(state_machine);
             ASSERT_EQ(
                 underflow_choice,
                 out_of_range_can_signal_getter(can_tx_interface));
 
             // Overflow wheel speed
-            fake_in_range =
-                std::nextafter(max_in_range, std::numeric_limits<float>::max());
+            fake_value =
+                std::nextafter(max_value, std::numeric_limits<float>::max());
             App_SharedStateMachine_Tick100Hz(state_machine);
             ASSERT_EQ(
                 overflow_choice,
@@ -201,7 +205,8 @@ TEST_F(FsmStateMachineTest, check_air_closed_state_is_broadcasted_over_can)
 TEST_F(FsmStateMachineTest, check_left_wheel_speed_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
-        0.1f, 150.0f, get_left_wheel_speed_fake.return_val,
+        LEFT_WHEEL_MIN_SPEED, LEFT_WHEEL_MAX_SPEED,
+        get_left_wheel_speed_fake.return_val,
         App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED,
         App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE,
         CANMSGS_FSM_ERRORS_LEFT_WHEEL_SPEED_OUT_OF_RANGE_OK_CHOICE,
@@ -212,7 +217,8 @@ TEST_F(FsmStateMachineTest, check_left_wheel_speed_can_signals_in_all_states)
 TEST_F(FsmStateMachineTest, check_right_wheel_speed_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
-        0.1f, 150.0f, get_right_wheel_speed_fake.return_val,
+        RIGHT_WHEEL_MIN_SPEED, RIGHT_WHEEL_MAX_SPEED,
+        get_right_wheel_speed_fake.return_val,
         App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED,
         App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE,
         CANMSGS_FSM_ERRORS_RIGHT_WHEEL_SPEED_OUT_OF_RANGE_OK_CHOICE,
@@ -223,7 +229,8 @@ TEST_F(FsmStateMachineTest, check_right_wheel_speed_can_signals_in_all_states)
 TEST_F(FsmStateMachineTest, check_primary_flow_rate_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
-        1.0f, 30.0f, get_primary_flow_rate_fake.return_val,
+        PRIMARY_FLOW_METER_MIN_FLOW_RATE, PRIMARY_FLOW_METER_MAX_FLOW_RATE,
+        get_primary_flow_rate_fake.return_val,
         App_CanTx_GetPeriodicSignal_PRIMARY_FLOW_RATE,
         App_CanTx_GetPeriodicSignal_PRIMARY_FLOW_RATE_OUT_OF_RANGE,
         CANMSGS_FSM_ERRORS_PRIMARY_FLOW_RATE_OUT_OF_RANGE_OK_CHOICE,
@@ -234,7 +241,8 @@ TEST_F(FsmStateMachineTest, check_primary_flow_rate_can_signals_in_all_states)
 TEST_F(FsmStateMachineTest, check_secondary_flow_rate_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
-        1.0f, 30.0f, get_secondary_flow_rate_fake.return_val,
+        SECONDARY_FLOW_METER_MIN_FLOW_RATE, SECONDARY_FLOW_METER_MAX_FLOW_RATE,
+        get_secondary_flow_rate_fake.return_val,
         App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE,
         App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE_OUT_OF_RANGE,
         CANMSGS_FSM_ERRORS_SECONDARY_FLOW_RATE_OUT_OF_RANGE_OK_CHOICE,
