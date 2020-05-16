@@ -57,8 +57,10 @@ class FsmStateMachineTest : public testing::Test
 
         secondary_flow_meter_in_range_check =
             App_InRangeCheck_Create(get_secondary_flow_rate, 1.0f, 30.0f);
+            
         left_wheel_speed_sensor_in_range_check =
             App_InRangeCheck_Create(get_left_wheel_speed, 0.1f, 150.0f);
+            
         right_wheel_speed_sensor_in_range_check =
             App_InRangeCheck_Create(get_right_wheel_speed, 0.1f, 150.0f);
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
