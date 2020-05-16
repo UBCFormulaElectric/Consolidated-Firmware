@@ -124,10 +124,10 @@ class FsmStateMachineTest : public testing::Test
     }
 
     void CheckInRangeCanSignalsInAllStates(
-        float  min_in_range,
-        float  max_in_range,
-        float &fake_in_range,
-        float (*in_range_can_signal_getter)(const struct FsmCanTxInterface *),
+        float  min_value,
+        float  max_value,
+        float &fake_value,
+        float (*value_can_signal_getter)(const struct FsmCanTxInterface *),
         uint8_t (*out_of_range_can_signal_getter)(
             const struct FsmCanTxInterface *),
         uint8_t ok_choice,
