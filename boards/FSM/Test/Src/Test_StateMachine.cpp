@@ -145,14 +145,14 @@ class FsmStateMachineTest : public testing::Test
         {
             SetInitialState(state);
 
-            // Normal wheel speed
+            // Normal range
             fake_value = (min_value + max_value) / 2;
             App_SharedStateMachine_Tick100Hz(state_machine);
             ASSERT_EQ(fake_value, value_can_signal_getter(can_tx_interface));
             ASSERT_EQ(
                 ok_choice, out_of_range_can_signal_getter(can_tx_interface));
 
-            // Underflow wheel speed
+            // Underflow range
             fake_value =
                 std::nextafter(min_value, std::numeric_limits<float>::lowest());
             App_SharedStateMachine_Tick100Hz(state_machine);
@@ -160,7 +160,7 @@ class FsmStateMachineTest : public testing::Test
                 underflow_choice,
                 out_of_range_can_signal_getter(can_tx_interface));
 
-            // Overflow wheel speed
+            // Overflow range
             fake_value =
                 std::nextafter(max_value, std::numeric_limits<float>::max());
             App_SharedStateMachine_Tick100Hz(state_machine);
