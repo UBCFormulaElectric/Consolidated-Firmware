@@ -87,8 +87,8 @@ extern "C"
 #define IMD_M_HS_GPIO_Port GPIOA
 #define TS_VSENSE_P_Pin GPIO_PIN_2
 #define TS_VSENSE_P_GPIO_Port GPIOA
-#define TS_VSENSE_N_Pin GPIO_PIN_3
-#define TS_VSENSE_N_GPIO_Port GPIOA
+#define TV_VSENSE_N_Pin GPIO_PIN_3
+#define TV_VSENSE_N_GPIO_Port GPIOA
 #define MAIN_ISENSE_1_Pin GPIO_PIN_4
 #define MAIN_ISENSE_1_GPIO_Port GPIOA
 #define ACCEL_BRAKE_OK_Pin GPIO_PIN_5

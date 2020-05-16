@@ -1,0 +1,103 @@
+#include <math.h>
+#include "Test_Bms.h"
+
+extern "C"
+{
+#include "App_CurrentSense.h"
+}
+
+class CurrentSenseTest : public testing::Test
+{
+  protected:
+    // The offset voltage is the output voltage when the output current is zero
+    static constexpr float HSNBV_D06_OFFSET_VOLTAGE = 2.5f;
+};
+
+TEST_F(CurrentSenseTest, main_current_1_calculation)
+{
+    // Negative ADC voltage
+    float adc_voltage =
+        std::nextafter(0.0f, std::numeric_limits<float>::lowest());
+    float main_current_1 = 0.0f;
+    ASSERT_EQ(
+        EXIT_CODE_OUT_OF_RANGE,
+        App_CurrentSense_ConvertToMainCurrent1(adc_voltage, &main_current_1));
+
+    // Zero current
+    adc_voltage = HSNBV_D06_OFFSET_VOLTAGE;
+    ASSERT_EQ(
+        EXIT_CODE_OK,
+        App_CurrentSense_ConvertToMainCurrent1(adc_voltage, &main_current_1));
+    ASSERT_EQ(0.0f, main_current_1);
+
+    // Maximum current for HSNBV-D06 output 1: +50A
+    adc_voltage = 4.5f;
+    ASSERT_EQ(
+        EXIT_CODE_OK,
+        App_CurrentSense_ConvertToMainCurrent1(adc_voltage, &main_current_1));
+    ASSERT_EQ(50.0f, main_current_1);
+
+    // Minimum current for HSNBV-D06 output 1: -50A
+    adc_voltage = 0.5f;
+    ASSERT_EQ(
+        EXIT_CODE_OK,
+        App_CurrentSense_ConvertToMainCurrent1(adc_voltage, &main_current_1));
+    ASSERT_EQ(-50.0f, main_current_1);
+}
+
+TEST_F(CurrentSenseTest, main_current_2_calculation)
+{
+    // Negative ADC voltage
+    float adc_voltage =
+        std::nextafter(0.0f, std::numeric_limits<float>::lowest());
+    float main_current_2 = 0.0f;
+    ASSERT_EQ(
+        EXIT_CODE_OUT_OF_RANGE,
+        App_CurrentSense_ConvertToMainCurrent2(adc_voltage, &main_current_2));
+
+    // Zero current
+    adc_voltage = HSNBV_D06_OFFSET_VOLTAGE;
+    ASSERT_EQ(
+        EXIT_CODE_OK,
+        App_CurrentSense_ConvertToMainCurrent2(adc_voltage, &main_current_2));
+    ASSERT_EQ(0.0f, main_current_2);
+
+    // Maximum current for HSNBV-D06 output 2: +300A
+    adc_voltage = 4.501f;
+    ASSERT_EQ(
+        EXIT_CODE_OK,
+        App_CurrentSense_ConvertToMainCurrent2(adc_voltage, &main_current_2));
+    ASSERT_EQ(300.0f, main_current_2);
+
+    // Minimum current for HSNBV-D06 output 2: -300A
+    adc_voltage = 0.499f;
+    ASSERT_EQ(
+        EXIT_CODE_OK,
+        App_CurrentSense_ConvertToMainCurrent2(adc_voltage, &main_current_2));
+    ASSERT_EQ(-300.0f, main_current_2);
+}
+
+TEST_F(CurrentSenseTest, air_loop_current_calculation)
+{
+    // Negative ADC voltage
+    float adc_voltage =
+        std::nextafter(0.0f, std::numeric_limits<float>::lowest());
+    float air_loop_current = 0.0f;
+    ASSERT_EQ(
+        EXIT_CODE_OUT_OF_RANGE, App_CurrentSense_ConvertToAirLoopCurrent(
+                                    adc_voltage, &air_loop_current));
+
+    // Zero current
+    adc_voltage = 0.0f;
+    ASSERT_EQ(
+        EXIT_CODE_OK, App_CurrentSense_ConvertToAirLoopCurrent(
+                          adc_voltage, &air_loop_current));
+    ASSERT_EQ(0.0f, air_loop_current);
+
+    // 1A is roughly the nominal current when the AIR shutdown loop is closed
+    adc_voltage = 1.5f;
+    ASSERT_EQ(
+        EXIT_CODE_OK, App_CurrentSense_ConvertToAirLoopCurrent(
+                          adc_voltage, &air_loop_current));
+    ASSERT_EQ(1.0f, air_loop_current);
+}
