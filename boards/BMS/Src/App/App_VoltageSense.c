@@ -47,3 +47,4 @@ ExitCode App_VoltageSense_GetTractiveSystemVoltage(
 
     return EXIT_CODE_OK;
 }
+
