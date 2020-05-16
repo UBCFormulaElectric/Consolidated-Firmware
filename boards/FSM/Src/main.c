@@ -87,7 +87,7 @@ osThreadId          Task100HzHandle;
 uint32_t            Task100HzBuffer[TASK100HZ_STACK_SIZE];
 osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
-struct InRangeCheck *     primary_flow_meter, *secondary_flow_meter;
+struct InRangeCheck *     primary_flow_meter_in_rangecheck, *secondary_flow_meter_in_range_check;
 struct InRangeCheck *     left_wheel_speed_sensor, *right_wheel_speed_sensor;
 struct World *            world;
 struct StateMachine *     state_machine;
