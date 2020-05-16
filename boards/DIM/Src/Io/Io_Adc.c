@@ -16,13 +16,14 @@
 // The following enum is used to index into raw_adc_values, which means it must
 // be ordered in ascending ranks. If we were writing an enum for the earlier
 // example, it would look like:
+//
 // enum
 // {
 //     CHANNEL_4, // Rank 1
 //     CHANNEL_7, // Rank 2
 //     CHANNEL_2, // Rank 3
 //     NUM_ADC_CHANNELS,
-// }
+// };
 enum
 {
     CHANNEL_12,
