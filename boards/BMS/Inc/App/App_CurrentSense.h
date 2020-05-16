@@ -8,7 +8,6 @@
  * @param main_current_1 This will be set to main current 1, in amps
  * @return EXIT_CODE_OUT_OF_RANGE if adc_voltage is negative
  *         EXIT_CODE_INVALID_ARGS if main_current_1 is NULL
- *
  */
 ExitCode App_CurrentSense_ConvertToMainCurrent1(
     float  adc_voltage,
