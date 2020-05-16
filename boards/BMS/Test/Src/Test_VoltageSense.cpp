@@ -25,7 +25,7 @@ TEST(VoltageSenseTest, tractive_system_voltage_calculation)
 
     // Nominal tractive system voltage (400V)
     adc_voltage =
-        400.0f * 8 *
+        400.0f * 8.0f *
         (1.024e+3f / (1.024e+3f + 499e+3f + 499e+3f + 499e+3f + 499e+3f));
     ASSERT_EQ(
         EXIT_CODE_OK, App_VoltageSense_GetTractiveSystemVoltage(
