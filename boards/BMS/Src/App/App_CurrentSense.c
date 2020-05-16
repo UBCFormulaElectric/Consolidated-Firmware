@@ -53,8 +53,6 @@ ExitCode App_CurrentSense_ConvertToMainCurrent2(
     return EXIT_CODE_OK;
 }
 
-
-
 ExitCode App_CurrentSense_ConvertToAirLoopCurrent(
     float  adc_voltage,
     float *air_loop_current)

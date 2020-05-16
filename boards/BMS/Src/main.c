@@ -646,9 +646,9 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : TV_VSENSE_N_Pin ACCEL_BRAKE_OK_Pin GPIO1_Pin
+    /*Configure GPIO pins : TS_VSENSE_N_Pin ACCEL_BRAKE_OK_Pin GPIO1_Pin
        GPIO2_Pin CHARGE_STATE_Pin */
-    GPIO_InitStruct.Pin = TV_VSENSE_N_Pin | ACCEL_BRAKE_OK_Pin | GPIO1_Pin |
+    GPIO_InitStruct.Pin = TS_VSENSE_N_Pin | ACCEL_BRAKE_OK_Pin | GPIO1_Pin |
                           GPIO2_Pin | CHARGE_STATE_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
