@@ -107,6 +107,7 @@ struct Led *              bspd_led;
 struct BinarySwitch *     start_switch;
 struct BinarySwitch *     traction_control_switch;
 struct BinarySwitch *     torque_vectoring_switch;
+struct ErrorTable* error_table;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -224,10 +225,12 @@ int main(void)
     torque_vectoring_switch =
         App_BinarySwitch_Create(Io_Switches_TorqueVectoringSwitchIsTurnedOn);
 
+    error_table = App_ErrorTable_Create();
+
     world = App_DimWorld_Create(
         can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle,
         rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, start_switch,
-        traction_control_switch, torque_vectoring_switch);
+        traction_control_switch, torque_vectoring_switch, error_table);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 

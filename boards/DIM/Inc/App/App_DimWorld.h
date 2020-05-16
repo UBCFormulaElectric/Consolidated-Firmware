@@ -9,6 +9,7 @@
 #include "App_RotarySwitch.h"
 #include "App_Led.h"
 #include "App_BinarySwitch.h"
+#include "App_ErrorTable.h"
 
 struct DimWorld;
 
@@ -33,7 +34,8 @@ struct DimWorld *App_DimWorld_Create(
     struct Led *              bspd_led,
     struct BinarySwitch *     start_switch,
     struct BinarySwitch *     traction_control_switch,
-    struct BinarySwitch *     torque_vectoring_switch);
+    struct BinarySwitch *     torque_vectoring_switch,
+    struct ErrorTable *       error_table);
 
 /**
  * Deallocate the memory used by the given world
@@ -129,3 +131,10 @@ struct Led *App_DimWorld_GetImdLed(const struct DimWorld *world);
  * @return The BSPD LED for the given world
  */
 struct Led *App_DimWorld_GetBspdLed(const struct DimWorld *world);
+
+/**
+ * Get the error table for the given world
+ * @param world The world to get error table for
+ * @return The error table for the given world
+ */
+struct ErrorTable *App_DimWorld_GetErrorTable(const struct DimWorld *world);

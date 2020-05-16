@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include "states/App_DriveState.h"
 
 #include "App_SharedMacros.h"
@@ -112,6 +114,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_DimWorld_GetTractionControlSwitch(world);
     struct BinarySwitch *torque_vectoring_switch =
         App_DimWorld_GetTorqueVectoringSwitch(world);
+    struct ErrorTable *error_table = App_DimWorld_GetErrorTable(world);
 
     uint32_t buffer;
 
@@ -148,7 +151,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_Led_TurnOff(imd_led);
     }
 
-    if (App_CanRx_FSM_ERRORS_GetSignal_BSPD_FAULT(can_rx))
+    if (App_CanRx_FSM_NON_CRITICAL_ERRORS_GetSignal_BSPD_FAULT(can_rx))
     {
         App_Led_TurnOn(bspd_led);
     }
@@ -173,6 +176,95 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH,
         CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE,
         CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
+
+    struct Error errors[NUM_ERRORS];
+    uint32_t     num_errors;
+
+    num_errors = App_ErrorTable_HasCriticalError(error_table, errors);
+
+    if (num_errors > 0)
+    {
+        for (size_t i = 0; i < num_errors; i++)
+        {
+            uint32_t digits_to_display = errors[i].error_id;
+            assert(digits_to_display < 100);
+
+            switch (errors[i].std_id)
+            {
+                case CANMSGS_BMS_CRITICAL_ERRORS_FRAME_ID:
+                {
+                    digits_to_display += 500;
+                }
+                break;
+                case CANMSGS_DCM_CRITICAL_ERRORS_FRAME_ID:
+                {
+                    digits_to_display += 100;
+                }
+                break;
+                case CANMSGS_FSM_CRITICAL_ERRORS_FRAME_ID:
+                {
+                    digits_to_display += 200;
+                }
+                break;
+                case CANMSGS_PDM_CRITICAL_ERRORS_FRAME_ID:
+                {
+                    digits_to_display += 400;
+                }
+                break;
+                case CANMSGS_DIM_CRITICAL_ERRORS_FRAME_ID:
+                {
+                    digits_to_display += 200;
+                }
+                break;
+            }
+
+            App_SevenSegDisplays_SetUnsignedBase10Value(
+                seven_seg_displays, digits_to_display);
+        }
+    }
+
+    num_errors = App_ErrorTable_HasNonCriticalError(error_table, errors);
+
+    if (num_errors > 0)
+    {
+        for (size_t i = 0; i < num_errors; i++)
+        {
+            uint32_t digits_to_display = errors[i].error_id;
+            assert(digits_to_display < 100);
+
+            switch (errors[i].std_id)
+            {
+                case CANMSGS_BMS_NON_CRITICAL_ERRORS_FRAME_ID:
+                {
+                    digits_to_display += 500;
+                }
+                break;
+                case CANMSGS_DCM_NON_CRITICAL_ERRORS_FRAME_ID:
+                {
+                    digits_to_display += 100;
+                }
+                break;
+                case CANMSGS_FSM_NON_CRITICAL_ERRORS_FRAME_ID:
+                {
+                    digits_to_display += 200;
+                }
+                break;
+                case CANMSGS_PDM_NON_CRITICAL_ERRORS_FRAME_ID:
+                {
+                    digits_to_display += 400;
+                }
+                break;
+                case CANMSGS_DIM_NON_CRITICAL_ERRORS_FRAME_ID:
+                {
+                    digits_to_display += 200;
+                }
+                break;
+            }
+
+            App_SevenSegDisplays_SetUnsignedBase10Value(
+                seven_seg_displays, digits_to_display);
+        }
+    }
 
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
 }

@@ -98,11 +98,13 @@ class DimStateMachineTest : public testing::Test
         torque_vectoring_switch =
             App_BinarySwitch_Create(torque_vectoring_switch_is_turned_on);
 
+        error_table = App_ErrorTable_Create();
+
         world = App_DimWorld_Create(
             can_tx_interface, can_rx_interface, seven_seg_displays,
             heartbeat_monitor, regen_paddle, rgb_led_sequence,
             drive_mode_switch, imd_led, bspd_led, start_switch,
-            traction_control_switch, torque_vectoring_switch);
+            traction_control_switch, torque_vectoring_switch, error_table);
 
         // Default to starting the state machine in the `Drive` state
         state_machine =
@@ -149,6 +151,7 @@ class DimStateMachineTest : public testing::Test
         TearDownObject(start_switch, App_BinarySwitch_Destroy);
         TearDownObject(traction_control_switch, App_BinarySwitch_Destroy);
         TearDownObject(torque_vectoring_switch, App_BinarySwitch_Destroy);
+        TearDownObject(error_table, App_ErrorTable_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -177,6 +180,7 @@ class DimStateMachineTest : public testing::Test
     struct BinarySwitch *     traction_control_switch;
     struct BinarySwitch *     torque_vectoring_switch;
     struct RotarySwitch *     drive_mode_switch;
+    struct ErrorTable *       error_table;
 };
 
 // DIM-12
@@ -376,20 +380,43 @@ TEST_F(DimStateMachineTest, imd_led_control_in_drive_state)
 // DIM-6
 TEST_F(DimStateMachineTest, bspd_led_control_in_drive_state)
 {
-    App_CanRx_FSM_ERRORS_SetSignal_BSPD_FAULT(can_rx_interface, false);
+    App_CanRx_FSM_NON_CRITICAL_ERRORS_SetSignal_BSPD_FAULT(
+        can_rx_interface, false);
     App_SharedStateMachine_Tick100Hz(state_machine);
     ASSERT_EQ(0, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_bspd_led_fake.call_count);
 
-    App_CanRx_FSM_ERRORS_SetSignal_BSPD_FAULT(can_rx_interface, true);
+    App_CanRx_FSM_NON_CRITICAL_ERRORS_SetSignal_BSPD_FAULT(
+        can_rx_interface, true);
     App_SharedStateMachine_Tick100Hz(state_machine);
     ASSERT_EQ(1, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_bspd_led_fake.call_count);
 
-    App_CanRx_FSM_ERRORS_SetSignal_BSPD_FAULT(can_rx_interface, false);
+    App_CanRx_FSM_NON_CRITICAL_ERRORS_SetSignal_BSPD_FAULT(
+        can_rx_interface, false);
     App_SharedStateMachine_Tick100Hz(state_machine);
     ASSERT_EQ(1, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(2, turn_off_bspd_led_fake.call_count);
+}
+
+TEST_F(DimStateMachineTest, error_on_7_segment_displays)
+{
+    App_ErrorTable_SetBmsStackWaterMarkAboveThresholdTask1Hz(error_table);
+    App_SharedStateMachine_Tick100Hz(state_machine);
+
+    struct Error errors[NUM_ERRORS];
+    uint32_t     num_errors =
+        App_ErrorTable_HasNonCriticalError(error_table, errors);
+    ASSERT_EQ(1, num_errors);
+    ASSERT_EQ(BMS_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, errors[0].error_id);
+    ASSERT_EQ(CANMSGS_BMS_NON_CRITICAL_ERRORS_FRAME_ID, errors[0].std_id);
+
+    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_val.value);
+    ASSERT_EQ(0, set_middle_hex_digit_fake.arg0_val.value);
+    ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
 }
 
 } // namespace StateMachineTest

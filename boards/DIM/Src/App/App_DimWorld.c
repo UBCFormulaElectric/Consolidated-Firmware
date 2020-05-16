@@ -18,6 +18,7 @@ struct DimWorld
     struct BinarySwitch *     start_switch;
     struct BinarySwitch *     traction_control_switch;
     struct BinarySwitch *     torque_vectoring_switch;
+    struct ErrorTable *       error_table;
 };
 
 struct DimWorld *App_DimWorld_Create(
@@ -32,7 +33,8 @@ struct DimWorld *App_DimWorld_Create(
     struct Led *const               bspd_led,
     struct BinarySwitch *const      start_switch,
     struct BinarySwitch *const      traction_control_switch,
-    struct BinarySwitch *const      torque_vectoring_switch)
+    struct BinarySwitch *const      torque_vectoring_switch,
+    struct ErrorTable *const        error_table)
 {
     struct DimWorld *world = (struct DimWorld *)malloc(sizeof(struct DimWorld));
     assert(world != NULL);
@@ -49,6 +51,7 @@ struct DimWorld *App_DimWorld_Create(
     world->start_switch            = start_switch;
     world->traction_control_switch = traction_control_switch;
     world->torque_vectoring_switch = torque_vectoring_switch;
+    world->error_table             = error_table;
 
     return world;
 }
@@ -126,4 +129,10 @@ struct BinarySwitch *
     App_DimWorld_GetTorqueVectoringSwitch(const struct DimWorld *const world)
 {
     return world->torque_vectoring_switch;
+}
+
+struct ErrorTable *
+    App_DimWorld_GetErrorTable(const struct DimWorld *const world)
+{
+    return world->error_table;
 }
