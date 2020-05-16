@@ -43,6 +43,11 @@ TEST_F(CurrentSenseTest, main_current_1_calculation)
         EXIT_CODE_OK,
         App_CurrentSense_ConvertToMainCurrent1(adc_voltage, &main_current_1));
     ASSERT_EQ(-50.0f, main_current_1);
+
+    // Null pointer
+    ASSERT_EQ(
+        EXIT_CODE_INVALID_ARGS,
+        App_CurrentSense_ConvertToMainCurrent1(adc_voltage, NULL));
 }
 
 TEST_F(CurrentSenseTest, main_current_2_calculation)
@@ -75,6 +80,11 @@ TEST_F(CurrentSenseTest, main_current_2_calculation)
         EXIT_CODE_OK,
         App_CurrentSense_ConvertToMainCurrent2(adc_voltage, &main_current_2));
     ASSERT_EQ(-300.0f, main_current_2);
+
+    // Null pointer
+    ASSERT_EQ(
+        EXIT_CODE_INVALID_ARGS,
+        App_CurrentSense_ConvertToMainCurrent2(adc_voltage, NULL));
 }
 
 TEST_F(CurrentSenseTest, air_loop_current_calculation)
@@ -100,4 +110,9 @@ TEST_F(CurrentSenseTest, air_loop_current_calculation)
         EXIT_CODE_OK, App_CurrentSense_ConvertToAirLoopCurrent(
                           adc_voltage, &air_loop_current));
     ASSERT_EQ(1.0f, air_loop_current);
+
+    // Null pointer
+    ASSERT_EQ(
+        EXIT_CODE_INVALID_ARGS,
+        App_CurrentSense_ConvertToAirLoopCurrent(adc_voltage, NULL));
 }

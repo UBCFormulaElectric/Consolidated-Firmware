@@ -16,7 +16,7 @@ TEST(VoltageSenseTest, tractive_system_voltage_calculation)
         EXIT_CODE_OUT_OF_RANGE, App_VoltageSense_GetTractiveSystemVoltage(
                                     adc_voltage, &tractive_system_voltage));
 
-    // Zero tractive system voltage
+    // Zero tractive system voltage (0V)
     adc_voltage = 0.0f;
     ASSERT_EQ(
         EXIT_CODE_OK, App_VoltageSense_GetTractiveSystemVoltage(
@@ -31,4 +31,9 @@ TEST(VoltageSenseTest, tractive_system_voltage_calculation)
         EXIT_CODE_OK, App_VoltageSense_GetTractiveSystemVoltage(
                           adc_voltage, &tractive_system_voltage));
     ASSERT_EQ(400.0f, tractive_system_voltage);
+
+    // Null pointer
+    ASSERT_EQ(
+        EXIT_CODE_INVALID_ARGS,
+        App_VoltageSense_GetTractiveSystemVoltage(adc_voltage, NULL));
 }
