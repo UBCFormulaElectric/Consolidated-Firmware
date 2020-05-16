@@ -35,7 +35,24 @@ struct Error
 struct ErrorTable* App_ErrorTable_Create(void);
 void App_ErrorTable_Destroy(struct ErrorTable* error_table);
 
+/**
+ * Check if there is any non-critical errors in the given error table, and if
+ * necessary, write the non-critical errors into the given error array
+ * @note The array must hold up to NUM_ERRORS of elements
+ * @param error_table The error table
+ * @param errors Any non-critical errors will be set in this error array
+ * @return The number of non-critical errors
+ */
 uint32_t App_ErrorTable_HasNonCriticalError(struct ErrorTable* error_table, struct Error errors[]);
+
+/**
+ * Check if there is any critical errors in the given error table, and if
+ * necessary, write the critical errors into the given error array
+ * @note The array must hold up to NUM_ERRORS of elements
+ * @param error_table The error table
+ * @param errors Any critical errors will be set in this error array
+ * @return The number of critical errors
+ */
 uint32_t App_ErrorTable_HasCriticalError(struct ErrorTable* error_table, struct Error errors[]);
 
 void App_ErrorTable_SetBmsStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
