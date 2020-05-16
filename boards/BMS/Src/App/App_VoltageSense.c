@@ -40,11 +40,10 @@ ExitCode App_VoltageSense_GetTractiveSystemVoltage(
     //                Voltage Ratio x Amplifier Gain
 
     const float voltage_ratio =
-        1024.0f / (499000.0f + 499000.0f + 499000.0f + 499000.0f + 1024.0f);
+        1.024e+3f / (499e+3f + 499e+3f + 499e+3f + 499e+3f + 1.024e+3f);
     const float amplifier_gain = 8.0f;
 
     *tractive_system_voltage = adc_voltage / (voltage_ratio * amplifier_gain);
 
     return EXIT_CODE_OK;
 }
-

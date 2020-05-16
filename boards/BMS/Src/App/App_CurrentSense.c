@@ -13,14 +13,14 @@ ExitCode App_CurrentSense_ConvertToMainCurrent1(
 
     // HSNBV-D06 Current Sensor:
     //
-    // Output 1 Range = +/- 50A, Sensitivity = 0.04V/A, Offset = 2.5V
+    // Output 1 Range = +/- 50A, Sensitivity = 40mV/A, Offset = 2.5V
     //
     //              ADC Voltage - Offset
     // Current = -------------------------
     //                  Sensitivity
 
     const float offset      = 2.5f;
-    const float sensitivity = 0.04f;
+    const float sensitivity = 40e-3f;
 
     *main_current_1 = (adc_voltage - offset) / sensitivity;
 
@@ -39,14 +39,14 @@ ExitCode App_CurrentSense_ConvertToMainCurrent2(
 
     // HSNBV-D06 Current Sensor:
     //
-    // Output 2 Range = +/- 300A, Sensitivity = 0.00667V/A, Offset = 2.5V
+    // Output 2 Range = +/- 300A, Sensitivity = 6.67mV/A, Offset = 2.5V
     //
     //              ADC Voltage - Offset
     // Current = -------------------------
     //                  Sensitivity
 
     const float offset      = 2.5f;
-    const float sensitivity = 0.00667f;
+    const float sensitivity = 6.67e-3f;
 
     *main_current_2 = (adc_voltage - offset) / sensitivity;
 
@@ -67,7 +67,7 @@ ExitCode App_CurrentSense_ConvertToAirLoopCurrent(
     // Current = -----------------------------
     //              Sense Resistance * Gain
 
-    const float sense_resistance_ohms = 0.075f;
+    const float sense_resistance_ohms = 75e-3f;
     const float gain                  = 20.0f;
 
     *air_loop_current = adc_voltage / (sense_resistance_ohms * gain);
