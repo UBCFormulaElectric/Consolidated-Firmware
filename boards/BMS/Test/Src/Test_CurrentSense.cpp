@@ -30,14 +30,14 @@ TEST_F(CurrentSenseTest, main_current_1_calculation)
         App_CurrentSense_ConvertToMainCurrent1(adc_voltage, &main_current_1));
     ASSERT_EQ(0.0f, main_current_1);
 
-    // Maximum current for HSNBV-D06 output 1: +50A
+    // Maximum current for HSNBV-D06 output 1 (+50A)
     adc_voltage = 4.5f;
     ASSERT_EQ(
         EXIT_CODE_OK,
         App_CurrentSense_ConvertToMainCurrent1(adc_voltage, &main_current_1));
     ASSERT_EQ(50.0f, main_current_1);
 
-    // Minimum current for HSNBV-D06 output 1: -50A
+    // Minimum current for HSNBV-D06 output 1 (-50A)
     adc_voltage = 0.5f;
     ASSERT_EQ(
         EXIT_CODE_OK,
@@ -67,14 +67,14 @@ TEST_F(CurrentSenseTest, main_current_2_calculation)
         App_CurrentSense_ConvertToMainCurrent2(adc_voltage, &main_current_2));
     ASSERT_EQ(0.0f, main_current_2);
 
-    // Maximum current for HSNBV-D06 output 2: +300A
+    // Maximum current for HSNBV-D06 output 2 (+300A)
     adc_voltage = 4.501f;
     ASSERT_EQ(
         EXIT_CODE_OK,
         App_CurrentSense_ConvertToMainCurrent2(adc_voltage, &main_current_2));
     ASSERT_EQ(300.0f, main_current_2);
 
-    // Minimum current for HSNBV-D06 output 2: -300A
+    // Minimum current for HSNBV-D06 output 2 (-300A)
     adc_voltage = 0.499f;
     ASSERT_EQ(
         EXIT_CODE_OK,
