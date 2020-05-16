@@ -5,7 +5,8 @@
 #include "Io_SharedCanMsg.h"
 #include "Io_ErrorTable.h"
 
-void Io_ErrorTable_UpdateRxTableWithMessage(
+// This should be used in both CAN TX and CAN RX callbacks
+void Io_ErrorTable_Update(
     struct ErrorTable *  error_table,
     const struct CanMsg *message)
 {

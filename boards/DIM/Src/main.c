@@ -48,6 +48,7 @@
 #include "Io_DriveModeSwitch.h"
 #include "Io_Leds.h"
 #include "Io_Switches.h"
+#include "Io_ErrorTable.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -648,6 +649,7 @@ void RunTaskCanRx(void const *argument)
         Io_SharedCan_DequeueCanRxMessage(&message);
         Io_CanRx_UpdateRxTableWithMessage(
             App_DimWorld_GetCanRx(world), &message);
+        Io_ErrorTable_Update(App_DimWorld_GetErrorTable(world), &message);
     }
     /* USER CODE END RunTaskCanRx */
 }
