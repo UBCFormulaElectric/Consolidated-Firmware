@@ -202,6 +202,7 @@ TEST_F(FsmStateMachineTest, check_air_closed_state_is_broadcasted_over_can)
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
+// FSM-9
 TEST_F(FsmStateMachineTest, check_left_wheel_speed_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
@@ -214,6 +215,7 @@ TEST_F(FsmStateMachineTest, check_left_wheel_speed_can_signals_in_all_states)
         CANMSGS_FSM_ERRORS_LEFT_WHEEL_SPEED_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// FSM-9
 TEST_F(FsmStateMachineTest, check_right_wheel_speed_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
@@ -226,6 +228,7 @@ TEST_F(FsmStateMachineTest, check_right_wheel_speed_can_signals_in_all_states)
         CANMSGS_FSM_ERRORS_RIGHT_WHEEL_SPEED_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// FSM-14
 TEST_F(FsmStateMachineTest, check_primary_flow_rate_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
@@ -238,6 +241,7 @@ TEST_F(FsmStateMachineTest, check_primary_flow_rate_can_signals_in_all_states)
         CANMSGS_FSM_ERRORS_PRIMARY_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// FSM-14
 TEST_F(FsmStateMachineTest, check_secondary_flow_rate_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
