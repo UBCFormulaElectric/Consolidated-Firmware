@@ -227,7 +227,7 @@ BA_ "GenMsgCycleTime" BO_ 104 1000;
 BA_ "GenMsgCycleTime" BO_ 105 1000;
 BA_ "GenMsgCycleTime" BO_ 106 1000;
 BA_ "GenMsgCycleTime" BO_ 107 10;
-BA_ "GenMsgCycleTime" BO_ 108 1000;
+BA_ "GenMsgCycleTime" BO_ 108 10;
 BA_ "GenMsgCycleTime" BO_ 200 100;
 BA_ "GenMsgCycleTime" BO_ 201 5000;
 BA_ "GenMsgCycleTime" BO_ 204 1000;

@@ -574,4 +574,29 @@ TEST_F(
         CANMSGS_PDM_ERRORS_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE_OK_CHOICE);
 }
 
+TEST_F(PdmStateMachineTest, rgb_led_sequence_in_all_states)
+{
+    unsigned int *call_counts[] = { &turn_on_red_led_fake.call_count,
+                                    &turn_on_green_led_fake.call_count,
+                                    &turn_on_blue_led_fake.call_count };
+
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        RESET_FAKE(turn_on_red_led);
+        RESET_FAKE(turn_on_green_led);
+        RESET_FAKE(turn_on_blue_led);
+
+        // Verify that we cycle through red, green, blue, red, etc for 99 times.
+        // The number 99 can be changed to any other number that is a multiple
+        // of 3. The significance of 3 is because we have 3 colors (Red, green,
+        // and blue).
+        for (size_t i = 0; i < 99; i++)
+        {
+            App_SharedStateMachine_Tick1Hz(state_machine);
+            ASSERT_EQ(*call_counts[i % 3], i / 3 + 1);
+        }
+    }
+}
 } // namespace StateMachineTest
