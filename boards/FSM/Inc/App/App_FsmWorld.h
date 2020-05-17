@@ -56,9 +56,9 @@ struct HeartbeatMonitor *
     App_FsmWorld_GetHeartbeatMonitor(const struct FsmWorld *world);
 
 /**
- * Get the primary flow rate in range check for the given world
- * @param world The world to get primary flow meter for
- * @return The primary flow meter for the given world
+ * Get the primary flow rate in-range check for the given world
+ * @param world The world to get primary flow rate in-range check for
+ * @return The primary flow rate in-range check for the given world
  */
 struct InRangeCheck *
     App_FsmWorld_GetPrimaryFlowRateInRangeCheck(const struct FsmWorld *world);
