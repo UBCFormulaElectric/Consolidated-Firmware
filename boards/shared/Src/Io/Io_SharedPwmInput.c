@@ -52,8 +52,7 @@ struct PwmInput *Io_SharedPwmInput_Create(
 {
     assert(htim != NULL);
 
-    struct PwmInput *const pwm_input =
-        (struct PwmInput *)malloc(sizeof(struct PwmInput));
+    struct PwmInput *const pwm_input = malloc(sizeof(struct PwmInput));
     assert(pwm_input != NULL);
 
     pwm_input->htim                     = htim;
