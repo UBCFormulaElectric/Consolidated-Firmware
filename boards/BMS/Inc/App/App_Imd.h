@@ -22,26 +22,24 @@ enum Imd_ConditionName
     IMD_INVALID = NUM_OF_IMD_CONDITIONS,
 };
 
-struct Imd_PwmEncoding
-{
-    bool valid_duty_cycle;
-    union
-    {
-        // 10 and 20Hz: Insulation measurement DCP
-        uint16_t insulation_measurement_dcp_kohms;
-        // 30Hz: Speed Start Measurement
-        enum SST speed_start_status;
-        // 0Hz, 40Hz, 50Hz: PWM doesn't encode any information
-    };
-};
-
 // The IMD has an PWM output that encodes information about the IMD condition:
 //   - The frequency encodes a name
 //   - The duty cycle encodes additional information (where applicable)
 struct Imd_Condition
 {
     enum Imd_ConditionName name;
-    struct Imd_PwmEncoding pwm_encoding;
+    struct
+    {
+        bool valid_duty_cycle;
+        union
+        {
+            // 10 and 20Hz: Insulation measurement DCP
+            uint16_t insulation_measurement_dcp_kohms;
+            // 30Hz: Speed Start Measurement
+            enum SST speed_start_status;
+            // 0Hz, 40Hz, 50Hz: PWM doesn't encode any information
+        };
+    } pwm_encoding;
 };
 
 /**
