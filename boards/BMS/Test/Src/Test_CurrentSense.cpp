@@ -11,6 +11,7 @@ class CurrentSenseTest : public testing::Test
   protected:
     // The offset voltage is the output voltage when the output current is zero
     static constexpr float HSNBV_D06_OFFSET_VOLTAGE = 2.5f;
+    static constexpr float voltage_ratio            = (1e3f + 2.2e3f) / 2.2e3f;
 };
 
 TEST_F(CurrentSenseTest, main_current_1_calculation)
@@ -24,21 +25,21 @@ TEST_F(CurrentSenseTest, main_current_1_calculation)
         App_CurrentSense_ConvertToMainCurrent1(adc_voltage, &main_current_1));
 
     // Zero current
-    adc_voltage = HSNBV_D06_OFFSET_VOLTAGE;
+    adc_voltage = HSNBV_D06_OFFSET_VOLTAGE / voltage_ratio;
     ASSERT_EQ(
         EXIT_CODE_OK,
         App_CurrentSense_ConvertToMainCurrent1(adc_voltage, &main_current_1));
     ASSERT_EQ(0.0f, main_current_1);
 
     // Maximum current for HSNBV-D06 output 1 (+50A)
-    adc_voltage = 4.5f;
+    adc_voltage = 3.09375f;
     ASSERT_EQ(
         EXIT_CODE_OK,
         App_CurrentSense_ConvertToMainCurrent1(adc_voltage, &main_current_1));
     ASSERT_EQ(50.0f, main_current_1);
 
     // Minimum current for HSNBV-D06 output 1 (-50A)
-    adc_voltage = 0.5f;
+    adc_voltage = 0.34375f;
     ASSERT_EQ(
         EXIT_CODE_OK,
         App_CurrentSense_ConvertToMainCurrent1(adc_voltage, &main_current_1));
@@ -61,21 +62,21 @@ TEST_F(CurrentSenseTest, main_current_2_calculation)
         App_CurrentSense_ConvertToMainCurrent2(adc_voltage, &main_current_2));
 
     // Zero current
-    adc_voltage = HSNBV_D06_OFFSET_VOLTAGE;
+    adc_voltage = HSNBV_D06_OFFSET_VOLTAGE / voltage_ratio;
     ASSERT_EQ(
         EXIT_CODE_OK,
         App_CurrentSense_ConvertToMainCurrent2(adc_voltage, &main_current_2));
     ASSERT_EQ(0.0f, main_current_2);
 
     // Maximum current for HSNBV-D06 output 2 (+300A)
-    adc_voltage = 4.501f;
+    adc_voltage = 3.0944375f;
     ASSERT_EQ(
         EXIT_CODE_OK,
         App_CurrentSense_ConvertToMainCurrent2(adc_voltage, &main_current_2));
     ASSERT_EQ(300.0f, main_current_2);
 
     // Minimum current for HSNBV-D06 output 2 (-300A)
-    adc_voltage = 0.499f;
+    adc_voltage = 0.3430625f;
     ASSERT_EQ(
         EXIT_CODE_OK,
         App_CurrentSense_ConvertToMainCurrent2(adc_voltage, &main_current_2));
