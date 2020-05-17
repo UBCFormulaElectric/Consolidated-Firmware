@@ -34,10 +34,7 @@ struct Imd
     float (*get_pwm_duty_cycle)(void);
     uint16_t (*get_seconds_since_power_on)(void);
 
-    float                  pwm_frequency;
     float                  pwm_frequency_tolerance;
-    float                  pwm_duty_cycle;
-    uint16_t               seconds_since_power_on;
     enum Imd_Condition     condition;
     struct Imd_PwmEncoding pwm_encoding;
 };
@@ -101,7 +98,7 @@ static float App_GetIdealPwmFrequency(const enum Imd_Condition condition)
 
 struct Imd *App_Imd_Create(
     float (*const get_pwm_frequency)(void),
-    const float pwm_frequency_tolerance,
+    float pwm_frequency_tolerance,
     float (*const get_pwm_duty_cycle)(void),
     uint16_t (*const get_seconds_since_power_on)(void))
 {
@@ -129,12 +126,11 @@ void App_Imd_Destroy(struct Imd *const imd)
 
 void App_Imd_Tick(struct Imd *const imd)
 {
-    // Update internal state at the start of each tick
-    imd->pwm_frequency          = imd->get_pwm_frequency();
-    imd->pwm_duty_cycle         = imd->get_pwm_duty_cycle();
-    imd->seconds_since_power_on = imd->get_seconds_since_power_on();
+    const float pwm_frequency  = imd->get_pwm_frequency();
+    const float pwm_duty_cycle = imd->get_pwm_duty_cycle();
+
     imd->condition =
-        App_EstimateCondition(imd->pwm_frequency, imd->pwm_frequency_tolerance);
+        App_EstimateCondition(pwm_frequency, imd->pwm_frequency_tolerance);
 
     // Decode the information encoded in the PWM frequency and duty cycle
     switch (imd->condition)
@@ -150,13 +146,12 @@ void App_Imd_Tick(struct Imd *const imd)
         case IMD_UNDERVOLTAGE_DETECTED:
         {
             imd->pwm_encoding.valid_duty_cycle =
-                (imd->pwm_duty_cycle >= 5.0f && imd->pwm_duty_cycle <= 95.0f)
-                    ? true
-                    : false;
+                (pwm_duty_cycle >= 5.0f && pwm_duty_cycle <= 95.0f) ? true
+                                                                    : false;
 
             if (imd->pwm_encoding.valid_duty_cycle)
             {
-                if (imd->pwm_duty_cycle == 5.0f)
+                if (pwm_duty_cycle == 5.0f)
                 {
                     // The formula for calculating the insulation resistance
                     // causes a div-by-zero if the duty cycle is 5%.
@@ -172,8 +167,7 @@ void App_Imd_Tick(struct Imd *const imd)
                     // ~7.1%. Thus, we manually saturate the value at 50MOhms to
                     // get well-defined behaviours.
                     uint16_t resistance = (uint16_t)(
-                        1080.0f / (imd->pwm_duty_cycle / 100.0f - 0.05f) -
-                        1200.0f);
+                        1080.0f / (pwm_duty_cycle / 100.0f - 0.05f) - 1200.0f);
 
                     imd->pwm_encoding.insulation_measurement_dcp_kohms =
                         min(resistance, 50000);
@@ -184,21 +178,18 @@ void App_Imd_Tick(struct Imd *const imd)
         case IMD_SST:
         {
             imd->pwm_encoding.valid_duty_cycle =
-                ((imd->pwm_duty_cycle >= 5.0f &&
-                  imd->pwm_duty_cycle <= 10.0f) ||
-                 (imd->pwm_duty_cycle >= 90.0f && imd->pwm_duty_cycle <= 95.0f))
+                ((pwm_duty_cycle >= 5.0f && pwm_duty_cycle <= 10.0f) ||
+                 (pwm_duty_cycle >= 90.0f && pwm_duty_cycle <= 95.0f))
                     ? true
                     : false;
 
             if (imd->pwm_encoding.valid_duty_cycle)
             {
-                if (imd->pwm_duty_cycle >= 5.0f && imd->pwm_duty_cycle <= 10.0f)
+                if (pwm_duty_cycle >= 5.0f && pwm_duty_cycle <= 10.0f)
                 {
                     imd->pwm_encoding.speed_start_status = SST_GOOD;
                 }
-                else if (
-                    imd->pwm_duty_cycle >= 90.0f &&
-                    imd->pwm_duty_cycle <= 95.0f)
+                else if (pwm_duty_cycle >= 90.0f && pwm_duty_cycle <= 95.0f)
                 {
                     imd->pwm_encoding.speed_start_status = SST_BAD;
                 }
@@ -209,9 +200,8 @@ void App_Imd_Tick(struct Imd *const imd)
         case IMD_EARTH_FAULT:
         {
             imd->pwm_encoding.valid_duty_cycle =
-                (imd->pwm_duty_cycle >= 47.5f && imd->pwm_duty_cycle <= 52.5f)
-                    ? true
-                    : false;
+                (pwm_duty_cycle >= 47.5f && pwm_duty_cycle <= 52.5f) ? true
+                                                                     : false;
         }
         break;
         case IMD_INVALID:
@@ -229,17 +219,17 @@ void App_Imd_Tick(struct Imd *const imd)
 
 float App_Imd_GetPwmFrequency(const struct Imd *const imd)
 {
-    return imd->pwm_frequency;
+    return imd->get_pwm_frequency();
 }
 
 float App_Imd_GetPwmDutyCycle(const struct Imd *const imd)
 {
-    return imd->pwm_duty_cycle;
+    return imd->get_pwm_duty_cycle();
 }
 
 uint16_t App_Imd_GetSecondsSincePowerOn(const struct Imd *imd)
 {
-    return imd->seconds_since_power_on;
+    return imd->get_seconds_since_power_on();
 }
 
 enum Imd_Condition App_Imd_GetCondition(const struct Imd *const imd)

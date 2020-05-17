@@ -61,7 +61,7 @@ struct Imd *App_Imd_Create(
 void App_Imd_Destroy(struct Imd *imd);
 
 /**
- * Update the given IMD
+ * Update the condition and PWM encoding for given IMD
  * @param imd The IMD to update
  */
 void App_Imd_Tick(struct Imd *imd);
@@ -88,14 +88,14 @@ float App_Imd_GetPwmDutyCycle(const struct Imd *imd);
 uint16_t App_Imd_GetSecondsSincePowerOn(const struct Imd *imd);
 
 /**
- * Get the condition for the given IMD
+ * Get the condition for the given IMD from the most recent tick
  * @param imd The IMD to get condition for
  * @return The condition for the given IMD
  */
 enum Imd_Condition App_Imd_GetCondition(const struct Imd *imd);
 
 /**
- * Get the PWM encoding for the given IMD
+ * Get the PWM encoding for the given IMD from the most recent tick
  * @param imd The IMD to get PWM encoding for
  * @return The PWM encoding for the given IMD
  */
