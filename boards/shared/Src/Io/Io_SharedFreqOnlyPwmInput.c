@@ -49,6 +49,7 @@ struct FreqOnlyPwmInput *Io_SharedFreqOnlyPwmInput_Create(
 
     struct FreqOnlyPwmInput *const pwm_input =
         (struct FreqOnlyPwmInput *)malloc(sizeof(struct FreqOnlyPwmInput));
+    assert(pwm_input != NULL);
 
     pwm_input->frequency_hz        = NAN;
     pwm_input->htim                = htim;

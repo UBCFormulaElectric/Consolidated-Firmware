@@ -54,6 +54,7 @@ struct PwmInput *Io_SharedPwmInput_Create(
 
     struct PwmInput *const pwm_input =
         (struct PwmInput *)malloc(sizeof(struct PwmInput));
+    assert(pwm_input != NULL);
 
     pwm_input->htim                     = htim;
     pwm_input->timer_frequency_hz       = timer_frequency_hz;
