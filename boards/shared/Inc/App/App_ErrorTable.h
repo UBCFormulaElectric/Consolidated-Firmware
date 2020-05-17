@@ -32,8 +32,8 @@ struct Error
     enum ErrorId error_id;
 };
 
-struct ErrorTable* App_ErrorTable_Create(void);
-void App_ErrorTable_Destroy(struct ErrorTable* error_table);
+struct ErrorTable* App_SharedErrorTable_Create(void);
+void App_SharedErrorTable_Destroy(struct ErrorTable* error_table);
 
 /**
  * Check if there is any non-critical errors in the given error table, and if
@@ -43,7 +43,7 @@ void App_ErrorTable_Destroy(struct ErrorTable* error_table);
  * @param errors Any non-critical errors will be set in this error array
  * @return The number of non-critical errors
  */
-uint32_t App_ErrorTable_HasNonCriticalError(struct ErrorTable* error_table, struct Error errors[]);
+uint32_t App_SharedErrorTable_HasNonCriticalError(struct ErrorTable* error_table, struct Error errors[]);
 
 /**
  * Check if there is any critical errors in the given error table, and if
@@ -53,35 +53,35 @@ uint32_t App_ErrorTable_HasNonCriticalError(struct ErrorTable* error_table, stru
  * @param errors Any critical errors will be set in this error array
  * @return The number of critical errors
  */
-uint32_t App_ErrorTable_HasCriticalError(struct ErrorTable* error_table, struct Error errors[]);
+uint32_t App_SharedErrorTable_HasCriticalError(struct ErrorTable* error_table, struct Error errors[]);
 
-void App_ErrorTable_SetBmsStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
-void App_ErrorTable_ClearBmsStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
+void App_SharedErrorTable_SetBmsStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
+void App_SharedErrorTable_ClearBmsStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
 
-void App_ErrorTable_SetDcmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
-void App_ErrorTable_ClearDcmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
+void App_SharedErrorTable_SetDcmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
+void App_SharedErrorTable_ClearDcmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
 
-void App_ErrorTable_SetFsmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
-void App_ErrorTable_ClearFsmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
+void App_SharedErrorTable_SetFsmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
+void App_SharedErrorTable_ClearFsmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
 
-void App_ErrorTable_SetPdmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
-void App_ErrorTable_ClearPdmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
+void App_SharedErrorTable_SetPdmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
+void App_SharedErrorTable_ClearPdmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
 
-void App_ErrorTable_SetDimStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
-void App_ErrorTable_ClearDimStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
+void App_SharedErrorTable_SetDimStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
+void App_SharedErrorTable_ClearDimStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table);
 
-void App_ErrorTable_SetBmsDummyCriticalError(struct ErrorTable* error_table);
-void App_ErrorTable_ClearBmsDummyCriticalError(struct ErrorTable* error_table);
+void App_SharedErrorTable_SetBmsDummyCriticalError(struct ErrorTable* error_table);
+void App_SharedErrorTable_ClearBmsDummyCriticalError(struct ErrorTable* error_table);
 
-void App_ErrorTable_SetDcmDummyCriticalError(struct ErrorTable* error_table);
-void App_ErrorTable_ClearDcmDummyCriticalError(struct ErrorTable* error_table);
+void App_SharedErrorTable_SetDcmDummyCriticalError(struct ErrorTable* error_table);
+void App_SharedErrorTable_ClearDcmDummyCriticalError(struct ErrorTable* error_table);
 
-void App_ErrorTable_SetFsmDummyCriticalError(struct ErrorTable* error_table);
-void App_ErrorTable_ClearFsmDummyCriticalError(struct ErrorTable* error_table);
+void App_SharedErrorTable_SetFsmDummyCriticalError(struct ErrorTable* error_table);
+void App_SharedErrorTable_ClearFsmDummyCriticalError(struct ErrorTable* error_table);
 
-void App_ErrorTable_SetPdmDummyCriticalError(struct ErrorTable* error_table);
-void App_ErrorTable_ClearPdmDummyCriticalError(struct ErrorTable* error_table);
+void App_SharedErrorTable_SetPdmDummyCriticalError(struct ErrorTable* error_table);
+void App_SharedErrorTable_ClearPdmDummyCriticalError(struct ErrorTable* error_table);
 
-void App_ErrorTable_SetDimDummyCriticalError(struct ErrorTable* error_table);
-void App_ErrorTable_ClearDimDummyCriticalError(struct ErrorTable* error_table);
+void App_SharedErrorTable_SetDimDummyCriticalError(struct ErrorTable* error_table);
+void App_SharedErrorTable_ClearDimDummyCriticalError(struct ErrorTable* error_table);
 

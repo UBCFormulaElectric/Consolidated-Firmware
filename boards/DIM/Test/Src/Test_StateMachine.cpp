@@ -98,7 +98,7 @@ class DimStateMachineTest : public testing::Test
         torque_vectoring_switch =
             App_BinarySwitch_Create(torque_vectoring_switch_is_turned_on);
 
-        error_table = App_ErrorTable_Create();
+        error_table = App_SharedErrorTable_Create();
 
         world = App_DimWorld_Create(
             can_tx_interface, can_rx_interface, seven_seg_displays,
@@ -151,7 +151,7 @@ class DimStateMachineTest : public testing::Test
         TearDownObject(start_switch, App_BinarySwitch_Destroy);
         TearDownObject(traction_control_switch, App_BinarySwitch_Destroy);
         TearDownObject(torque_vectoring_switch, App_BinarySwitch_Destroy);
-        TearDownObject(error_table, App_ErrorTable_Destroy);
+        TearDownObject(error_table, App_SharedErrorTable_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -401,12 +401,12 @@ TEST_F(DimStateMachineTest, bspd_led_control_in_drive_state)
 
 TEST_F(DimStateMachineTest, error_on_7_segment_displays)
 {
-    App_ErrorTable_SetBmsStackWaterMarkAboveThresholdTask1Hz(error_table);
+    App_SharedErrorTable_SetBmsStackWaterMarkAboveThresholdTask1Hz(error_table);
     App_SharedStateMachine_Tick100Hz(state_machine);
 
     struct Error errors[NUM_ERRORS];
     uint32_t     num_errors =
-        App_ErrorTable_HasNonCriticalError(error_table, errors);
+        App_SharedErrorTable_HasNonCriticalError(error_table, errors);
     ASSERT_EQ(1, num_errors);
     ASSERT_EQ(BMS_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, errors[0].error_id);
     ASSERT_EQ(CANMSGS_BMS_NON_CRITICAL_ERRORS_FRAME_ID, errors[0].std_id);

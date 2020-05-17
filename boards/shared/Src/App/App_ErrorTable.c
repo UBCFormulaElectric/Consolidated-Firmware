@@ -18,7 +18,7 @@ struct ErrorTable
     bool dim_dummy_critical_error;
 };
 
-struct ErrorTable* App_ErrorTable_Create(void)
+struct ErrorTable* App_SharedErrorTable_Create(void)
 {
     struct ErrorTable* error_table = malloc(sizeof(struct ErrorTable));
     assert(error_table != NULL);
@@ -26,12 +26,12 @@ struct ErrorTable* App_ErrorTable_Create(void)
     return error_table;
 }
 
-void App_ErrorTable_Destroy(struct ErrorTable* error_table)
+void App_SharedErrorTable_Destroy(struct ErrorTable* error_table)
 {
     free(error_table);
 }
 
-uint32_t App_ErrorTable_HasNonCriticalError(struct ErrorTable* error_table, struct Error errors[])
+uint32_t App_SharedErrorTable_HasNonCriticalError(struct ErrorTable* error_table, struct Error errors[])
 {
     uint32_t num_errors = 0;
 
@@ -73,7 +73,7 @@ uint32_t App_ErrorTable_HasNonCriticalError(struct ErrorTable* error_table, stru
     return num_errors;
 }
 
-uint32_t App_ErrorTable_HasCriticalError(struct ErrorTable* error_table, struct Error errors[])
+uint32_t App_SharedErrorTable_HasCriticalError(struct ErrorTable* error_table, struct Error errors[])
 {
     uint32_t num_errors = 0;
 
@@ -115,102 +115,102 @@ uint32_t App_ErrorTable_HasCriticalError(struct ErrorTable* error_table, struct 
     return num_errors;
 }
 
-void App_ErrorTable_SetBmsStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table)
+void App_SharedErrorTable_SetBmsStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table)
 {
     error_table->bms_stack_watermark_above_threshold_task1hz = true;
 }
 
-void App_ErrorTable_ClearBmsStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table)
+void App_SharedErrorTable_ClearBmsStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table)
 {
     error_table->bms_stack_watermark_above_threshold_task1hz = false;
 }
 
-void App_ErrorTable_SetDcmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table)
+void App_SharedErrorTable_SetDcmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table)
 {
     error_table->dcm_stack_watermark_above_threshold_task1hz = true;
 }
 
-void App_ErrorTable_ClearDcmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table)
+void App_SharedErrorTable_ClearDcmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table)
 {
     error_table->dcm_stack_watermark_above_threshold_task1hz = false;
 }
 
-void App_ErrorTable_SetFsmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table)
+void App_SharedErrorTable_SetFsmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table)
 {
     error_table->fsm_stack_watermark_above_threshold_task1hz = true;
 }
 
-void App_ErrorTable_ClearFsmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table)
+void App_SharedErrorTable_ClearFsmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table)
 {
     error_table->fsm_stack_watermark_above_threshold_task1hz = false;
 }
 
-void App_ErrorTable_SetPdmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table)
+void App_SharedErrorTable_SetPdmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table)
 {
     error_table->pdm_stack_watermark_above_threshold_task1hz = true;
 }
 
-void App_ErrorTable_ClearPdmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table)
+void App_SharedErrorTable_ClearPdmStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table)
 {
     error_table->pdm_stack_watermark_above_threshold_task1hz = false;
 }
 
-void App_ErrorTable_SetDimStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table)
+void App_SharedErrorTable_SetDimStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table)
 {
     error_table->dim_stack_watermark_above_threshold_task1hz = true;
 }
 
-void App_ErrorTable_ClearDimStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table)
+void App_SharedErrorTable_ClearDimStackWaterMarkAboveThresholdTask1Hz(struct ErrorTable* error_table)
 {
     error_table->dim_stack_watermark_above_threshold_task1hz = false;
 }
 
-void App_ErrorTable_SetBmsDummyCriticalError(struct ErrorTable* error_table)
+void App_SharedErrorTable_SetBmsDummyCriticalError(struct ErrorTable* error_table)
 {
     error_table->bms_dummy_critical_error = true;
 }
 
-void App_ErrorTable_ClearBmsDummyCriticalError(struct ErrorTable* error_table)
+void App_SharedErrorTable_ClearBmsDummyCriticalError(struct ErrorTable* error_table)
 {
     error_table->bms_dummy_critical_error = false;
 }
 
-void App_ErrorTable_SetDcmDummyCriticalError(struct ErrorTable* error_table)
+void App_SharedErrorTable_SetDcmDummyCriticalError(struct ErrorTable* error_table)
 {
     error_table->dcm_dummy_critical_error = true;
 }
 
-void App_ErrorTable_ClearDcmDummyCriticalError(struct ErrorTable* error_table)
+void App_SharedErrorTable_ClearDcmDummyCriticalError(struct ErrorTable* error_table)
 {
     error_table->dcm_dummy_critical_error = false;
 }
 
-void App_ErrorTable_SetFsmDummyCriticalError(struct ErrorTable* error_table)
+void App_SharedErrorTable_SetFsmDummyCriticalError(struct ErrorTable* error_table)
 {
     error_table->fsm_dummy_critical_error = true;
 }
 
-void App_ErrorTable_ClearFsmDummyCriticalError(struct ErrorTable* error_table)
+void App_SharedErrorTable_ClearFsmDummyCriticalError(struct ErrorTable* error_table)
 {
     error_table->fsm_dummy_critical_error = false;
 }
 
-void App_ErrorTable_SetPdmDummyCriticalError(struct ErrorTable* error_table)
+void App_SharedErrorTable_SetPdmDummyCriticalError(struct ErrorTable* error_table)
 {
     error_table->pdm_dummy_critical_error = true;
 }
 
-void App_ErrorTable_ClearPdmDummyCriticalError(struct ErrorTable* error_table)
+void App_SharedErrorTable_ClearPdmDummyCriticalError(struct ErrorTable* error_table)
 {
     error_table->pdm_dummy_critical_error = false;
 }
 
-void App_ErrorTable_SetDimDummyCriticalError(struct ErrorTable* error_table)
+void App_SharedErrorTable_SetDimDummyCriticalError(struct ErrorTable* error_table)
 {
     error_table->dim_dummy_critical_error = true;
 }
 
-void App_ErrorTable_ClearDimDummyCriticalError(struct ErrorTable* error_table)
+void App_SharedErrorTable_ClearDimDummyCriticalError(struct ErrorTable* error_table)
 {
     error_table->dim_dummy_critical_error = false;
 }

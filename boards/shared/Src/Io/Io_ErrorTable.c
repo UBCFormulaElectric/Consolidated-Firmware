@@ -24,10 +24,10 @@ void Io_ErrorTable_Update(
                 CANMSGS_BMS_NON_CRITICAL_ERRORS_LENGTH);
 
             if (buffer.stack_watermark_above_threshold_task1_hz != 0)
-                App_ErrorTable_SetBmsStackWaterMarkAboveThresholdTask1Hz(
+                App_SharedErrorTable_SetBmsStackWaterMarkAboveThresholdTask1Hz(
                     error_table);
             else
-                App_ErrorTable_ClearBmsStackWaterMarkAboveThresholdTask1Hz(
+                App_SharedErrorTable_ClearBmsStackWaterMarkAboveThresholdTask1Hz(
                     error_table);
         }
         break;
@@ -41,10 +41,10 @@ void Io_ErrorTable_Update(
                 CANMSGS_DCM_NON_CRITICAL_ERRORS_LENGTH);
 
             if (buffer.stack_watermark_above_threshold_task1_hz != 0)
-                App_ErrorTable_SetDcmStackWaterMarkAboveThresholdTask1Hz(
+                App_SharedErrorTable_SetDcmStackWaterMarkAboveThresholdTask1Hz(
                     error_table);
             else
-                App_ErrorTable_ClearDcmStackWaterMarkAboveThresholdTask1Hz(
+                App_SharedErrorTable_ClearDcmStackWaterMarkAboveThresholdTask1Hz(
                     error_table);
         }
         break;
@@ -58,10 +58,10 @@ void Io_ErrorTable_Update(
                 CANMSGS_FSM_NON_CRITICAL_ERRORS_LENGTH);
 
             if (buffer.stack_watermark_above_threshold_task1_hz != 0)
-                App_ErrorTable_SetFsmStackWaterMarkAboveThresholdTask1Hz(
+                App_SharedErrorTable_SetFsmStackWaterMarkAboveThresholdTask1Hz(
                     error_table);
             else
-                App_ErrorTable_ClearFsmStackWaterMarkAboveThresholdTask1Hz(
+                App_SharedErrorTable_ClearFsmStackWaterMarkAboveThresholdTask1Hz(
                     error_table);
         }
         break;
@@ -75,10 +75,10 @@ void Io_ErrorTable_Update(
                 CANMSGS_PDM_NON_CRITICAL_ERRORS_LENGTH);
 
             if (buffer.stack_watermark_above_threshold_task1_hz != 0)
-                App_ErrorTable_SetPdmStackWaterMarkAboveThresholdTask1Hz(
+                App_SharedErrorTable_SetPdmStackWaterMarkAboveThresholdTask1Hz(
                     error_table);
             else
-                App_ErrorTable_ClearPdmStackWaterMarkAboveThresholdTask1Hz(
+                App_SharedErrorTable_ClearPdmStackWaterMarkAboveThresholdTask1Hz(
                     error_table);
         }
         break;
@@ -92,10 +92,10 @@ void Io_ErrorTable_Update(
                 CANMSGS_DIM_NON_CRITICAL_ERRORS_LENGTH);
 
             if (buffer.stack_watermark_above_threshold_task1_hz != 0)
-                App_ErrorTable_SetDimStackWaterMarkAboveThresholdTask1Hz(
+                App_SharedErrorTable_SetDimStackWaterMarkAboveThresholdTask1Hz(
                     error_table);
             else
-                App_ErrorTable_ClearDimStackWaterMarkAboveThresholdTask1Hz(
+                App_SharedErrorTable_ClearDimStackWaterMarkAboveThresholdTask1Hz(
                     error_table);
         }
         break;

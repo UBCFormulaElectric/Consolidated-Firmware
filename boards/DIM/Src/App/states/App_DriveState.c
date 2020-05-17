@@ -180,7 +180,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Error errors[NUM_ERRORS];
     uint32_t     num_errors;
 
-    num_errors = App_ErrorTable_HasCriticalError(error_table, errors);
+    num_errors = App_SharedErrorTable_HasCriticalError(error_table, errors);
 
     if (num_errors > 0)
     {
@@ -223,7 +223,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         }
     }
 
-    num_errors = App_ErrorTable_HasNonCriticalError(error_table, errors);
+    num_errors = App_SharedErrorTable_HasNonCriticalError(error_table, errors);
 
     if (num_errors > 0)
     {

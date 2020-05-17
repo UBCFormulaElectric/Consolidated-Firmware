@@ -226,7 +226,7 @@ int main(void)
     torque_vectoring_switch =
         App_BinarySwitch_Create(Io_Switches_TorqueVectoringSwitchIsTurnedOn);
 
-    error_table = App_ErrorTable_Create();
+    error_table = App_SharedErrorTable_Create();
 
     world = App_DimWorld_Create(
         can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle,
