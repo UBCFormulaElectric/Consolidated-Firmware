@@ -108,7 +108,7 @@ struct Led *              bspd_led;
 struct BinarySwitch *     start_switch;
 struct BinarySwitch *     traction_control_switch;
 struct BinarySwitch *     torque_vectoring_switch;
-struct ErrorTable* error_table;
+struct ErrorTable *       error_table;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

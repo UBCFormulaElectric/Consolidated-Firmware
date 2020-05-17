@@ -300,7 +300,7 @@ void Io_SharedCan_DequeueCanRxMessage(struct CanMsg *message)
 
 // This extern is a hack for now. Need to rewrite
 // Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask so we can get rid of it.
-extern struct ErrorTable* error_table;
+extern struct ErrorTable *error_table;
 
 void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void)
 {
