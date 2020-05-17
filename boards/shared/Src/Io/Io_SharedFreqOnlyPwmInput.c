@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <stm32f3xx_hal.h>
 #include <stdbool.h>
-#include "Io_SharedFreqOnlyPwmInput.h"
+#include <stdlib.h>
 
 struct FreqOnlyPwmInput
 {
@@ -46,12 +46,10 @@ struct FreqOnlyPwmInput *Io_SharedFreqOnlyPwmInput_Create(
     HAL_TIM_ActiveChannel tim_active_channel)
 {
     assert(htim != NULL);
-    static struct FreqOnlyPwmInput pwm_inputs[MAX_NUM_OF_FREQ_ONLY_PWM_INPUTS];
-    static size_t                  alloc_index = 0;
 
-    assert(alloc_index < MAX_NUM_OF_FREQ_ONLY_PWM_INPUTS);
-
-    struct FreqOnlyPwmInput *const pwm_input = &pwm_inputs[alloc_index++];
+    struct FreqOnlyPwmInput *const pwm_input =
+        malloc(sizeof(struct FreqOnlyPwmInput));
+    assert(pwm_input != NULL);
 
     pwm_input->frequency_hz        = NAN;
     pwm_input->htim                = htim;
