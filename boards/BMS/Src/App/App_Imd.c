@@ -39,26 +39,26 @@ struct Imd
 };
 
 /**
- * Convert the given PWM frequency to an IMD condition. Note the PWM frequency
- * won't be exact so we must do some approximation.
- * @param frequency: The PWM frequency to convert to an IMD condition
+ * Convert the given PWM frequency to an IMD condition name. Note the PWM
+ * frequency won't be exact so we must do some approximation.
+ * @param frequency: The PWM frequency to convert to an IMD condition name
  * @param tolerance: The tolerance allowed in the PWM frequency
  * @return The IMD condition corresponding to the given PWM frequency
  */
 static enum Imd_ConditionName
-    App_EstimateCondition(float frequency, float tolerance);
+    App_EstimateConditionName(float frequency, float tolerance);
 
 /**
- * Get the ideal frequency for the given IMD condition
- * @param condition: The IMD condition to look up ideal frequency for
- * @return The ideal frequency for the given IMD condition
+ * Get the ideal frequency for the given IMD condition name
+ * @param condition_name: The IMD condition name to look up ideal frequency for
+ * @return The ideal frequency for the given IMD condition name
  */
-static float App_GetIdealPwmFrequency(enum Imd_ConditionName condition);
+static float App_GetIdealPwmFrequency(enum Imd_ConditionName condition_name);
 
 static enum Imd_ConditionName
-    App_EstimateCondition(const float frequency, const float tolerance)
+    App_EstimateConditionName(const float frequency, const float tolerance)
 {
-    enum Imd_ConditionName condition = IMD_INVALID;
+    enum Imd_ConditionName condition_name = IMD_INVALID;
 
     for (enum Imd_ConditionName i = 0U; i < NUM_OF_IMD_CONDITIONS; i++)
     {
@@ -72,17 +72,18 @@ static enum Imd_ConditionName
 
         if (frequency >= lower_bound && frequency <= upper_bound)
         {
-            condition = i;
+            condition_name = i;
             break;
         }
     }
 
-    return condition;
+    return condition_name;
 }
 
-static float App_GetIdealPwmFrequency(const enum Imd_ConditionName condition)
+static float
+    App_GetIdealPwmFrequency(const enum Imd_ConditionName condition_name)
 {
-    assert(condition < NUM_OF_IMD_CONDITIONS);
+    assert(condition_name < NUM_OF_IMD_CONDITIONS);
 
     // Key: IMD condition
     // Value: PWM output frequency
@@ -92,7 +93,7 @@ static float App_GetIdealPwmFrequency(const enum Imd_ConditionName condition)
         [IMD_DEVICE_ERROR] = 40.0f,          [IMD_EARTH_FAULT] = 50.0f,
     };
 
-    return imd_frequency_lookup[condition];
+    return imd_frequency_lookup[condition_name];
 }
 
 struct Imd *App_Imd_Create(
@@ -131,7 +132,7 @@ struct Imd_Condition App_Imd_GetCondition(const struct Imd *const imd)
     struct Imd_Condition condition;
 
     condition.name =
-        App_EstimateCondition(pwm_frequency, imd->pwm_frequency_tolerance);
+        App_EstimateConditionName(pwm_frequency, imd->pwm_frequency_tolerance);
 
     // Decode the information encoded in the PWM frequency and duty cycle
     switch (condition.name)

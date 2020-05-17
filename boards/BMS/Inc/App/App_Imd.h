@@ -35,8 +35,9 @@ struct Imd_PwmEncoding
     };
 };
 
-// The IMD has an PWM output - the frequency encodes a name and the duty cycle
-// encodes additional information (where applicable).
+// The IMD has an PWM output that encodes information about the IMD condition:
+//   - The frequency encodes a name
+//   - The duty cycle encodes additional information (where applicable)
 struct Imd_Condition
 {
     enum Imd_ConditionName name;

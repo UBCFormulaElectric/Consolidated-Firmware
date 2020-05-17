@@ -6,7 +6,7 @@ FAKE_VALUE_FUNC(uint16_t, get_seconds_since_power_on);
 
 void ImdTest::SetImdCondition(
     struct Imd *           imd_to_set,
-    enum Imd_ConditionName condition,
+    enum Imd_ConditionName condition_name,
     float &                fake_pwm_frequency_return_val)
 {
     const float mapping[NUM_OF_IMD_CONDITIONS] = {
@@ -15,7 +15,7 @@ void ImdTest::SetImdCondition(
         [IMD_DEVICE_ERROR] = 40.0f,          [IMD_EARTH_FAULT] = 50.0f,
     };
 
-    fake_pwm_frequency_return_val = mapping[condition];
+    fake_pwm_frequency_return_val = mapping[condition_name];
     //    ASSERT_EQ(condition, App_Imd_GetCondition(imd_to_set).name);
 }
 
@@ -198,7 +198,7 @@ TEST_F(ImdTest, check_mapping_for_frequency_to_condition)
     struct ConditionLut
     {
         float                  frequency;
-        enum Imd_ConditionName condition;
+        enum Imd_ConditionName condition_name;
     };
 
     std::vector<struct ConditionLut> lookup_table = {
@@ -241,6 +241,6 @@ TEST_F(ImdTest, check_mapping_for_frequency_to_condition)
     for (auto &entry : lookup_table)
     {
         get_pwm_frequency_fake.return_val = entry.frequency;
-        ASSERT_EQ(App_Imd_GetCondition(imd).name, entry.condition);
+        ASSERT_EQ(App_Imd_GetCondition(imd).name, entry.condition_name);
     }
 }
