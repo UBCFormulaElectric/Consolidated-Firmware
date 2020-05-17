@@ -102,8 +102,8 @@ SG_ State : 0|8@1+ (1,0) [0|255] "" DEBUG
 BO_ 306 FSM_AIR_SHUTDOWN: 0 FSM
 
 BO_ 307 FSM_FLOW_METER: 8 FSM
-SG_ Primary_Flow_Rate : 0|32@1+ (1,0) [0|100] "L/min" DEBUG 
-SG_ Secondary_Flow_Rate : 32|32@1+ (1,0) [0|100] "L/min" DEBUG
+SG_ Primary_Flow_Rate : 0|32@1+ (1,0) [0|0] "L/min" DEBUG 
+SG_ Secondary_Flow_Rate : 32|32@1+ (1,0) [0|0] "L/min" DEBUG
 
 BO_ 308 FSM_BRAKE: 1 FSM
 SG_ BRAKE_IS_ACTUATED : 0|1@1+ (1,0) [0|1] "" DCM
