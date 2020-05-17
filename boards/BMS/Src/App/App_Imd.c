@@ -130,6 +130,7 @@ struct Imd_Condition App_Imd_GetCondition(const struct Imd *const imd)
     const float pwm_duty_cycle = imd->get_pwm_duty_cycle();
 
     struct Imd_Condition condition;
+    memset(&condition, 0, sizeof(condition));
 
     condition.name =
         App_EstimateConditionName(pwm_frequency, imd->pwm_frequency_tolerance);
