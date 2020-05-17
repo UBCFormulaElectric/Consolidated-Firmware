@@ -49,13 +49,13 @@ TEST_F(
     ImdTest,
     check_insulation_resistance_for_normal_and_undervoltage_conditions)
 {
-    std::vector<enum Imd_ConditionName> conditions = {
+    std::vector<enum Imd_ConditionName> condition_names = {
         IMD_NORMAL, IMD_UNDERVOLTAGE_DETECTED
     };
 
-    for (auto &condition : conditions)
+    for (auto &condition_name : condition_names)
     {
-        SetImdCondition(imd, condition, get_pwm_frequency_fake.return_val);
+        SetImdCondition(imd, condition_name, get_pwm_frequency_fake.return_val);
 
         // From ISOMETER® IR155-3203/IR155-3204 manual:
         //     Insulation Resistance =
@@ -65,30 +65,26 @@ TEST_F(
         constexpr float MIN_VALID_DUTY_CYCLE = 5.0f;
 
         get_pwm_duty_cycle_fake.return_val = MIN_VALID_DUTY_CYCLE - 0.01f;
-        ASSERT_EQ(
-            false, App_Imd_GetCondition(imd).pwm_encoding.valid_duty_cycle);
+        struct Imd_Condition condition     = App_Imd_GetCondition(imd);
+        ASSERT_EQ(false, condition.pwm_encoding.valid_duty_cycle);
 
         get_pwm_duty_cycle_fake.return_val = MIN_VALID_DUTY_CYCLE;
+        condition                          = App_Imd_GetCondition(imd);
+        ASSERT_EQ(true, condition.pwm_encoding.valid_duty_cycle);
         ASSERT_EQ(
-            true, App_Imd_GetCondition(imd).pwm_encoding.valid_duty_cycle);
-        ASSERT_EQ(
-            50000, App_Imd_GetCondition(imd)
-                       .pwm_encoding.insulation_measurement_dcp_kohms);
+            50000, condition.pwm_encoding.insulation_measurement_dcp_kohms);
 
         get_pwm_duty_cycle_fake.return_val =
             (MIN_VALID_DUTY_CYCLE + MAX_VALID_DUTY_CYCLE) / 2.0f;
+        condition = App_Imd_GetCondition(imd);
+        ASSERT_EQ(true, condition.pwm_encoding.valid_duty_cycle);
         ASSERT_EQ(
-            true, App_Imd_GetCondition(imd).pwm_encoding.valid_duty_cycle);
-        ASSERT_EQ(
-            1200, App_Imd_GetCondition(imd)
-                      .pwm_encoding.insulation_measurement_dcp_kohms);
+            1200, condition.pwm_encoding.insulation_measurement_dcp_kohms);
 
         get_pwm_duty_cycle_fake.return_val = MAX_VALID_DUTY_CYCLE;
-        ASSERT_EQ(
-            true, App_Imd_GetCondition(imd).pwm_encoding.valid_duty_cycle);
-        ASSERT_EQ(
-            0, App_Imd_GetCondition(imd)
-                   .pwm_encoding.insulation_measurement_dcp_kohms);
+        condition                          = App_Imd_GetCondition(imd);
+        ASSERT_EQ(true, condition.pwm_encoding.valid_duty_cycle);
+        ASSERT_EQ(0, condition.pwm_encoding.insulation_measurement_dcp_kohms);
 
         get_pwm_duty_cycle_fake.return_val = MAX_VALID_DUTY_CYCLE + 0.01f;
         ASSERT_EQ(
@@ -114,14 +110,14 @@ TEST_F(ImdTest, check_good_and_bad_evaluation_for_sst_condition)
     ASSERT_EQ(false, App_Imd_GetCondition(imd).pwm_encoding.valid_duty_cycle);
 
     get_pwm_duty_cycle_fake.return_val = GOOD_MIN_DUTY_CYCLE;
-    ASSERT_EQ(true, App_Imd_GetCondition(imd).pwm_encoding.valid_duty_cycle);
-    ASSERT_EQ(
-        SST_GOOD, App_Imd_GetCondition(imd).pwm_encoding.speed_start_status);
+    struct Imd_Condition condition     = App_Imd_GetCondition(imd);
+    ASSERT_EQ(true, condition.pwm_encoding.valid_duty_cycle);
+    ASSERT_EQ(SST_GOOD, condition.pwm_encoding.speed_start_status);
 
     get_pwm_duty_cycle_fake.return_val = GOOD_MAX_DUTY_CYCLE;
-    ASSERT_EQ(true, App_Imd_GetCondition(imd).pwm_encoding.valid_duty_cycle);
-    ASSERT_EQ(
-        SST_GOOD, App_Imd_GetCondition(imd).pwm_encoding.speed_start_status);
+    condition                          = App_Imd_GetCondition(imd);
+    ASSERT_EQ(true, condition.pwm_encoding.valid_duty_cycle);
+    ASSERT_EQ(SST_GOOD, condition.pwm_encoding.speed_start_status);
 
     get_pwm_duty_cycle_fake.return_val = GOOD_MAX_DUTY_CYCLE + 0.1f;
     ASSERT_EQ(false, App_Imd_GetCondition(imd).pwm_encoding.valid_duty_cycle);
@@ -134,14 +130,14 @@ TEST_F(ImdTest, check_good_and_bad_evaluation_for_sst_condition)
     ASSERT_EQ(false, App_Imd_GetCondition(imd).pwm_encoding.valid_duty_cycle);
 
     get_pwm_duty_cycle_fake.return_val = BAD_MIN_DUTY_CYCLE;
-    ASSERT_EQ(true, App_Imd_GetCondition(imd).pwm_encoding.valid_duty_cycle);
-    ASSERT_EQ(
-        SST_BAD, App_Imd_GetCondition(imd).pwm_encoding.speed_start_status);
+    condition                          = App_Imd_GetCondition(imd);
+    ASSERT_EQ(true, condition.pwm_encoding.valid_duty_cycle);
+    ASSERT_EQ(SST_BAD, condition.pwm_encoding.speed_start_status);
 
     get_pwm_duty_cycle_fake.return_val = BAD_MAX_DUTY_CYCLE;
-    ASSERT_EQ(true, App_Imd_GetCondition(imd).pwm_encoding.valid_duty_cycle);
-    ASSERT_EQ(
-        SST_BAD, App_Imd_GetCondition(imd).pwm_encoding.speed_start_status);
+    condition                          = App_Imd_GetCondition(imd);
+    ASSERT_EQ(true, condition.pwm_encoding.valid_duty_cycle);
+    ASSERT_EQ(SST_BAD, condition.pwm_encoding.speed_start_status);
 
     get_pwm_duty_cycle_fake.return_val = BAD_MAX_DUTY_CYCLE + 0.1f;
     ASSERT_EQ(false, App_Imd_GetCondition(imd).pwm_encoding.valid_duty_cycle);
