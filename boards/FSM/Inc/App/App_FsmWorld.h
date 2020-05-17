@@ -64,9 +64,9 @@ struct InRangeCheck *
     App_FsmWorld_GetPrimaryFlowRateInRangeCheck(const struct FsmWorld *world);
 
 /**
- * Get the secondary flow rate in range check for the given world
- * @param world The world to get secondary flow meter for
- * @return The secondary flow meter for the given world
+ * Get the secondary flow rate in-range check for the given world
+ * @param world The world to get secondary flow rate in-range check for
+ * @return The secondary flow rate in-range check for the given world
  */
 struct InRangeCheck *
     App_FsmWorld_GetSecondaryFlowRateInRangeCheck(const struct FsmWorld *world);
