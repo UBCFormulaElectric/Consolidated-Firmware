@@ -2,15 +2,6 @@
 
 #include <stm32f3xx_hal.h>
 
-// Application specific configuration options.
-#include "Io_SharedPwmInputConfig.h"
-
-// Check all the required application specific macros have been defined in
-// <Io_SharedPwmInputConfig.h>.
-#ifndef MAX_NUM_OF_PWM_INPUTS
-#error Missing definition: MAX_NUM_OF_PWM_INPUTS must be defined in Io_SharedPwmInputConfig.h.
-#endif
-
 struct PwmInput;
 
 /**

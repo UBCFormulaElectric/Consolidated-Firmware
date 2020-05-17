@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdlib.h>
 #include "Io_SharedPwmInput.h"
 
 struct PwmInput
@@ -51,12 +52,8 @@ struct PwmInput *Io_SharedPwmInput_Create(
 {
     assert(htim != NULL);
 
-    static struct PwmInput pwm_inputs[MAX_NUM_OF_PWM_INPUTS];
-    static size_t          alloc_index = 0;
-
-    assert(alloc_index < MAX_NUM_OF_PWM_INPUTS);
-
-    struct PwmInput *const pwm_input = &pwm_inputs[alloc_index++];
+    struct PwmInput *const pwm_input =
+        (struct PwmInput *)malloc(sizeof(struct PwmInput));
 
     pwm_input->htim                     = htim;
     pwm_input->timer_frequency_hz       = timer_frequency_hz;
