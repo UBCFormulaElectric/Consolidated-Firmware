@@ -109,8 +109,8 @@ BO_ 308 FSM_BRAKE: 1 FSM
 SG_ BRAKE_IS_ACTUATED : 0|1@1+ (1,0) [0|1] "" DCM
 
 BO_ 309 FSM_WHEEL_SPEED_SENSOR: 8 FSM
-SG_ Left_Wheel_Speed : 0|32@1+ (1,0) [0|200] "km/h" DCM 
-SG_ Right_Wheel_Speed : 32|32@1+ (1,0) [0|200] "km/h" DCM
+SG_ Left_Wheel_Speed : 0|32@1+ (1,0) [0|150] "km/h" DCM 
+SG_ Right_Wheel_Speed : 32|32@1+ (1,0) [0|150] "km/h" DCM
 
 BO_ 400 PDM_ERRORS: 8 PDM
 SG_ MISSING_HEARTBEAT : 0|1@1+ (1,0) [0|1] "" DEBUG
