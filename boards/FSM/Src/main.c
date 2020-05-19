@@ -37,14 +37,19 @@
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
 #include "Io_WheelSpeedSensors.h"
+#include "Io_Adc.h"
 
 #include "App_FsmWorld.h"
 #include "App_InRangeCheck.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_AirOpenState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
+<<<<<<< HEAD
 #include "configs/App_FlowRateThresholds.h"
 #include "configs/App_WheelSpeedThresholds.h"
+=======
+#include "configs/App_SharedStateMachineConfig.h"
+>>>>>>> 70ac528... Add Io_Adc files
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -64,11 +69,13 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc2;
+DMA_HandleTypeDef hdma_adc2;
 
 CAN_HandleTypeDef hcan;
 
 IWDG_HandleTypeDef hiwdg;
 
+TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim16;
 TIM_HandleTypeDef htim17;
@@ -89,10 +96,15 @@ osThreadId          Task100HzHandle;
 uint32_t            Task100HzBuffer[TASK100HZ_STACK_SIZE];
 osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
+<<<<<<< HEAD
 struct InRangeCheck *primary_flow_meter_in_range_check,
     *secondary_flow_meter_in_range_check;
 struct InRangeCheck *left_wheel_speed_sensor_in_range_check,
     *right_wheel_speed_sensor_in_range_check;
+=======
+struct FlowMeter *        primary_flow_meter, *secondary_flow_meter;
+struct InRangeCheck       *steering_angle_sensor;
+>>>>>>> 70ac528... Add Io_Adc files
 struct World *            world;
 struct StateMachine *     state_machine;
 struct FsmCanTxInterface *can_tx;
@@ -104,10 +116,12 @@ struct RgbLedSequence *   rgb_led_sequence;
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_CAN_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_ADC2_Init(void);
 static void MX_TIM4_Init(void);
+static void MX_TIM3_Init(void);
 static void MX_TIM16_Init(void);
 static void MX_TIM17_Init(void);
 void        RunTask1Hz(void const *argument);
@@ -168,14 +182,22 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
+    MX_DMA_Init();
     MX_CAN_Init();
     MX_IWDG_Init();
     MX_ADC2_Init();
     MX_TIM4_Init();
+    MX_TIM3_Init();
     MX_TIM16_Init();
     MX_TIM17_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
+
+    HAL_ADC_Start_DMA(
+        &hadc2, (uint32_t *)Io_Adc_GetRawAdcValues(),
+        hadc2.Init.NbrOfConversion);
+    HAL_TIM_Base_Start(&htim3);
+
     Io_SharedHardFaultHandler_Init();
 
     Io_FlowMeters_Init(&htim4);
@@ -363,8 +385,8 @@ static void MX_ADC2_Init(void)
     hadc2.Init.ScanConvMode          = ADC_SCAN_DISABLE;
     hadc2.Init.ContinuousConvMode    = DISABLE;
     hadc2.Init.DiscontinuousConvMode = DISABLE;
-    hadc2.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-    hadc2.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
+    hadc2.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_RISING;
+    hadc2.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T3_TRGO;
     hadc2.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     hadc2.Init.NbrOfConversion       = 1;
     hadc2.Init.DMAContinuousRequests = DISABLE;
@@ -380,7 +402,7 @@ static void MX_ADC2_Init(void)
     sConfig.Channel      = ADC_CHANNEL_1;
     sConfig.Rank         = ADC_REGULAR_RANK_1;
     sConfig.SingleDiff   = ADC_SINGLE_ENDED;
-    sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+    sConfig.SamplingTime = ADC_SAMPLETIME_61CYCLES_5;
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset       = 0;
     if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
@@ -454,6 +476,49 @@ static void MX_IWDG_Init(void)
     Io_SharedSoftwareWatchdog_Init(
         Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
     /* USER CODE END IWDG_Init 2 */
+}
+
+/**
+ * @brief TIM3 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM3_Init(void)
+{
+    /* USER CODE BEGIN TIM3_Init 0 */
+
+    /* USER CODE END TIM3_Init 0 */
+
+    TIM_ClockConfigTypeDef  sClockSourceConfig = { 0 };
+    TIM_MasterConfigTypeDef sMasterConfig      = { 0 };
+
+    /* USER CODE BEGIN TIM3_Init 1 */
+
+    /* USER CODE END TIM3_Init 1 */
+    htim3.Instance         = TIM3;
+    htim3.Init.Prescaler   = TIM3_PRESCALER - 1;
+    htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim3.Init.Period = (TIMx_FREQUENCY / TIM3_PRESCALER / ADC_FREQUENCY) - 1;
+    htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+    if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM3_Init 2 */
+
+    /* USER CODE END TIM3_Init 2 */
 }
 
 /**
@@ -592,6 +657,20 @@ static void MX_TIM17_Init(void)
     /* USER CODE BEGIN TIM17_Init 2 */
 
     /* USER CODE END TIM17_Init 2 */
+}
+
+/**
+ * Enable DMA controller clock
+ */
+static void MX_DMA_Init(void)
+{
+    /* DMA controller clock enable */
+    __HAL_RCC_DMA2_CLK_ENABLE();
+
+    /* DMA interrupt init */
+    /* DMA2_Channel1_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA2_Channel1_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA2_Channel1_IRQn);
 }
 
 /**
