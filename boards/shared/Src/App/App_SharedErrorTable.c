@@ -1,16 +1,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <assert.h>
-#include "App_CanMsgs.h"
 #include "App_SharedErrorTable.h"
-
-// TODO: Having problem adding Io header, so hard coding the struct here for now
-struct CanMsg
-{
-    uint32_t std_id;
-    uint32_t dlc;
-    uint8_t  data[8];
-};
 
 struct Error
 {
@@ -31,15 +22,6 @@ struct ErrorTable
 {
     struct Error errors[NUM_ERROR_IDS];
 };
-
-static void App_ProcessFsmCriticalErrorMsg(
-    struct ErrorTable *          error_table,
-    struct CanMsgs_fsm_errors_t *data)
-{
-    // TODO: Fill this out once I'm sure about other parts of the design
-    (void)error_table;
-    (void)data;
-}
 
 struct ErrorTable *App_SharedErrorTable_Create(void)
 {
@@ -94,6 +76,14 @@ bool App_SharedErrorTable_IsErrorCritical(const struct Error *error)
     return error->is_critical;
 }
 
+void App_SharedErrorTable_SetError(
+    struct ErrorTable *error_table,
+    enum ErrorId       error_id,
+    bool               is_set)
+{
+    error_table->errors[error_id].is_set = is_set;
+}
+
 bool App_SharedErrorTable_HasError(const struct ErrorTable *error_table)
 {
     for (size_t i = 0; i < NUM_ERROR_IDS; i++)
@@ -104,6 +94,13 @@ bool App_SharedErrorTable_HasError(const struct ErrorTable *error_table)
         }
     }
     return false;
+}
+
+bool App_SharedErrorTable_IsErrorSet(
+    const struct ErrorTable *error_table,
+    enum ErrorId             error_id)
+{
+    return error_table->errors[error_id].is_set;
 }
 
 bool App_SharedErrorTable_HasCriticalError(const struct ErrorTable *error_table)
@@ -288,33 +285,5 @@ void App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
             boards[*num_boards] = error->board;
             (*num_boards)++;
         }
-    }
-}
-
-bool App_SharedErrorTable_IsErrorSet(
-    const struct ErrorTable *error_table,
-    enum ErrorId             error_id)
-{
-    return error_table->errors[error_id].is_set;
-}
-
-void App_SharedErrorTable_SetErrorsBasedOnCanMsg(
-    struct ErrorTable *error_table,
-    struct CanMsg *    can_msg)
-{
-    // TODO: Add in errors for other boards this out once I'm sure about other
-    // parts of the design
-    switch (can_msg->std_id)
-    {
-        case (CANMSGS_FSM_ERRORS_FRAME_ID):
-        {
-            struct CanMsgs_fsm_errors_t data;
-
-            App_CanMsgs_fsm_errors_unpack(
-                &data, can_msg->data, CANMSGS_FSM_ERRORS_LENGTH);
-
-            App_ProcessFsmCriticalErrorMsg(error_table, &data);
-        }
-        break;
     }
 }
