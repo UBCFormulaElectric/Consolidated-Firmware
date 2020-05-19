@@ -76,12 +76,18 @@ bool App_SharedErrorTable_IsErrorCritical(const struct Error *error)
     return error->is_critical;
 }
 
-void App_SharedErrorTable_SetError(
+ExitCode App_SharedErrorTable_SetError(
     struct ErrorTable *error_table,
     enum ErrorId       error_id,
     bool               is_set)
 {
+    if ((int)error_id >= NUM_ERROR_IDS)
+    {
+        return EXIT_CODE_OUT_OF_RANGE;
+    }
+
     error_table->errors[error_id].is_set = is_set;
+    return EXIT_CODE_OK;
 }
 
 bool App_SharedErrorTable_HasError(const struct ErrorTable *error_table)
@@ -96,11 +102,18 @@ bool App_SharedErrorTable_HasError(const struct ErrorTable *error_table)
     return false;
 }
 
-bool App_SharedErrorTable_IsErrorSet(
+ExitCode App_SharedErrorTable_IsErrorSet(
     const struct ErrorTable *error_table,
-    enum ErrorId             error_id)
+    enum ErrorId             error_id,
+    bool* is_set)
 {
-    return error_table->errors[error_id].is_set;
+    if (error_id >= NUM_ERROR_IDS)
+    {
+        return EXIT_CODE_OUT_OF_RANGE;
+    }
+
+    *is_set = error_table->errors[error_id].is_set;
+    return EXIT_CODE_OK;
 }
 
 bool App_SharedErrorTable_HasCriticalError(const struct ErrorTable *error_table)
@@ -133,7 +146,7 @@ bool App_SharedErrorTable_HasNonCriticalError(
 void App_SharedErrorTable_GetAllErrors(
     const struct ErrorTable *error_table,
     struct Error *           errors,
-    int *                    num_errors)
+    uint32_t *                    num_errors)
 {
     *num_errors = 0;
 
@@ -152,7 +165,7 @@ void App_SharedErrorTable_GetAllErrors(
 void App_SharedErrorTable_GetAllCriticalErrors(
     const struct ErrorTable *error_table,
     struct Error *           errors,
-    int *                    num_errors)
+    uint32_t *                    num_errors)
 {
     *num_errors = 0;
 
@@ -171,7 +184,7 @@ void App_SharedErrorTable_GetAllCriticalErrors(
 void App_SharedErrorTable_GetAllNonCriticalErrors(
     const struct ErrorTable *error_table,
     struct Error *           errors,
-    int *                    num_errors)
+    uint32_t *                    num_errors)
 {
     *num_errors = 0;
 
@@ -190,17 +203,17 @@ void App_SharedErrorTable_GetAllNonCriticalErrors(
 void App_SharedErrorTable_GetBoardsWithNoErrors(
     const struct ErrorTable *error_table,
     enum ErrorBoard          boards[],
-    int *                    num_boards)
+    uint32_t *                    num_boards)
 {
     enum ErrorBoard boards_with_errors[NUM_ERROR_BOARDS] = { 0 };
-    int             num_boards_with_errors               = 0;
+    uint32_t num_boards_with_errors               = 0;
 
     App_SharedErrorTable_GetBoardsWithErrors(
         error_table, boards_with_errors, &num_boards_with_errors);
 
     *num_boards = 0;
 
-    for (enum ErrorBoard board = 0; board < NUM_ERROR_BOARDS; boards++)
+    for (enum ErrorBoard board = 0; board < NUM_ERROR_BOARDS; board++)
     {
         if (!App_SharedErrorTable_IsBoardInList(
                 boards_with_errors, num_boards_with_errors, board))
@@ -214,7 +227,7 @@ void App_SharedErrorTable_GetBoardsWithNoErrors(
 void App_SharedErrorTable_GetBoardsWithErrors(
     const struct ErrorTable *error_table,
     enum ErrorBoard          boards[],
-    int *                    num_boards)
+    uint32_t *                    num_boards)
 {
     for (size_t i = 0; i < NUM_ERROR_BOARDS; i++)
     {
@@ -239,7 +252,7 @@ void App_SharedErrorTable_GetBoardsWithErrors(
 void App_SharedErrorTable_GetBoardsWithCriticalErrors(
     const struct ErrorTable *error_table,
     enum ErrorBoard          boards[],
-    int *                    num_boards)
+    uint32_t *                    num_boards)
 {
     for (size_t i = 0; i < NUM_ERROR_BOARDS; i++)
     {
@@ -265,7 +278,7 @@ void App_SharedErrorTable_GetBoardsWithCriticalErrors(
 void App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
     const struct ErrorTable *error_table,
     enum ErrorBoard          boards[],
-    int *                    num_boards)
+    uint32_t *                    num_boards)
 {
     for (size_t i = 0; i < NUM_ERROR_BOARDS; i++)
     {

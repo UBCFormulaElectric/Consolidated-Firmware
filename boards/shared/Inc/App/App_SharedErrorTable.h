@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include "App_ErrorCode.h"
 
 struct ErrorTable;
 struct Error;
@@ -69,7 +70,7 @@ bool App_SharedErrorTable_IsErrorCritical(const struct Error *error);
  * @param error_id The ID for the error to set or clear
  * @param is_set true to set the error, or false to clear the error
  */
-void App_SharedErrorTable_SetError(
+ExitCode App_SharedErrorTable_SetError(
     struct ErrorTable *error_table,
     enum ErrorId       error_id,
     bool               is_set);
@@ -80,21 +81,22 @@ void App_SharedErrorTable_SetError(
  * @param error_id The ID for the error to check
  * @return true if the error is set, else false
  */
-bool App_SharedErrorTable_IsErrorSet(
+ExitCode App_SharedErrorTable_IsErrorSet(
     const struct ErrorTable *error_table,
-    enum ErrorId             error_id);
+    enum ErrorId             error_id,
+    bool *                   is_set);
 
 /**
  * Check if any error in the given error table is set
  * @param error_table The error table to check
- * @return true if any error error in the given error table is set, else false
+ * @return true if any error in the given error table is set, else false
  */
 bool App_SharedErrorTable_HasError(const struct ErrorTable *error_table);
 
 /**
  * Check if any critical error in the given error table is set
  * @param error_table The error table to check
- * @return true if any critical error error in the given error table is set,
+ * @return true if any critical error in the given error table is set,
  *         else false
  */
 bool App_SharedErrorTable_HasCriticalError(
@@ -103,11 +105,12 @@ bool App_SharedErrorTable_HasCriticalError(
 /**
  * Check if any non-critical error in the given error table is set
  * @param error_table The error table to check
- * @return true if any non-critical error error in the given error table is set,
+ * @return true if any non-critical error in the given error table is set,
  *         else false
  */
 bool App_SharedErrorTable_HasNonCriticalError(
     const struct ErrorTable *error_table);
+
 /**
  * Get every error that is set in the given error table
  * @param error_table The error table to get errors from
@@ -118,7 +121,7 @@ bool App_SharedErrorTable_HasNonCriticalError(
 void App_SharedErrorTable_GetAllErrors(
     const struct ErrorTable *error_table,
     struct Error *           errors,
-    int *                    num_errors);
+    uint32_t *               num_errors);
 
 /**
  * Get every critical error that is set in the given error table
@@ -131,7 +134,7 @@ void App_SharedErrorTable_GetAllErrors(
 void App_SharedErrorTable_GetAllCriticalErrors(
     const struct ErrorTable *error_table,
     struct Error *           errors,
-    int *                    num_errors);
+    uint32_t *               num_errors);
 
 /**
  * Get every non-critical error that is set in the given error table
@@ -144,7 +147,7 @@ void App_SharedErrorTable_GetAllCriticalErrors(
 void App_SharedErrorTable_GetAllNonCriticalErrors(
     const struct ErrorTable *error_table,
     struct Error *           errors,
-    int *                    num_errors);
+    uint32_t *               num_errors);
 
 /**
  * Get every board that does not contain any errors in the given error table
@@ -156,7 +159,7 @@ void App_SharedErrorTable_GetAllNonCriticalErrors(
 void App_SharedErrorTable_GetBoardsWithNoErrors(
     const struct ErrorTable *error_table,
     enum ErrorBoard          boards[],
-    int *                    num_boards);
+    uint32_t *               num_boards);
 
 /**
  * Get every board that contains one or more errors in the given error table
@@ -168,7 +171,7 @@ void App_SharedErrorTable_GetBoardsWithNoErrors(
 void App_SharedErrorTable_GetBoardsWithErrors(
     const struct ErrorTable *error_table,
     enum ErrorBoard          boards[],
-    int *                    num_boards);
+    uint32_t *               num_boards);
 
 /**
  * Get every board that contains one or more critical errors in the given error
@@ -181,7 +184,7 @@ void App_SharedErrorTable_GetBoardsWithErrors(
 void App_SharedErrorTable_GetBoardsWithCriticalErrors(
     const struct ErrorTable *error_table,
     enum ErrorBoard          boards[],
-    int *                    num_boards);
+    uint32_t *               num_boards);
 
 /**
  * Get every board that contains one or more non-critical errors in the given
@@ -194,4 +197,4 @@ void App_SharedErrorTable_GetBoardsWithCriticalErrors(
 void App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
     const struct ErrorTable *error_table,
     enum ErrorBoard          boards[],
-    int *                    num_boards);
+    uint32_t *               num_boards);
