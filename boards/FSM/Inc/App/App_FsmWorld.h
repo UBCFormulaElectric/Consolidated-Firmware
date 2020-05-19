@@ -2,8 +2,8 @@
 
 #include "App_CanTx.h"
 #include "App_CanRx.h"
+#include "App_InRangeCheck.h"
 #include "App_SharedHeartbeatMonitor.h"
-#include "App_FlowMeter.h"
 #include "App_SharedRgbLedSequence.h"
 
 struct FsmWorld;
@@ -21,8 +21,10 @@ struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanTxInterface *can_tx_interface,
     struct FsmCanRxInterface *can_rx_interface,
     struct HeartbeatMonitor * heartbeat_monitor,
-    struct FlowMeter *        primary_flow_meter,
-    struct FlowMeter *        secondary_flow_meter,
+    struct InRangeCheck *     primary_flow_meter_in_range_check,
+    struct InRangeCheck *     secondary_flow_meter_in_range_check,
+    struct InRangeCheck *     left_wheel_speed_sensor_in_range_check,
+    struct InRangeCheck *     right_wheel_speed_sensor_in_range_check,
     struct RgbLedSequence *   rgb_led_sequence);
 
 /**
@@ -54,20 +56,36 @@ struct HeartbeatMonitor *
     App_FsmWorld_GetHeartbeatMonitor(const struct FsmWorld *world);
 
 /**
- * Get the primary flow meter for the given world
- * @param world The world to get primary flow meter for
- * @return The primary flow meter for the given world
+ * Get the primary flow rate in-range check for the given world
+ * @param world The world to get primary flow rate in-range check for
+ * @return The primary flow rate in-range check for the given world
  */
-struct FlowMeter *
-    App_FsmWorld_GetPrimaryFlowMeter(const struct FsmWorld *world);
+struct InRangeCheck *
+    App_FsmWorld_GetPrimaryFlowRateInRangeCheck(const struct FsmWorld *world);
 
 /**
- * Get the secondary flow meter for the given world
- * @param world The world to get secondary flow meter for
- * @return The secondary flow meter for the given world
+ * Get the secondary flow rate in-range check for the given world
+ * @param world The world to get secondary flow rate in-range check for
+ * @return The secondary flow rate in-range check for the given world
  */
-struct FlowMeter *
-    App_FsmWorld_GetSecondaryFlowMeter(const struct FsmWorld *world);
+struct InRangeCheck *
+    App_FsmWorld_GetSecondaryFlowRateInRangeCheck(const struct FsmWorld *world);
+
+/**
+ * Get the left wheel speed in-range check for the given world
+ * @param world The world to get the left wheel speed in-range check for
+ * @return The left wheel speed in-range check for the given world
+ */
+struct InRangeCheck *
+    App_FsmWorld_GetLeftWheelSpeedInRangeCheck(const struct FsmWorld *world);
+
+/**
+ * Get the right wheel speed in-range check for the given world
+ * @param world The world to get the right wheel speed in-range check for
+ * @return The right wheel speed in-range check for the given world
+ */
+struct InRangeCheck *
+    App_FsmWorld_GetRightWheelSpeedInRangeCheck(const struct FsmWorld *world);
 
 /**
  * Get the RGB LED sequence for the given world

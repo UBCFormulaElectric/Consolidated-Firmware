@@ -1,4 +1,5 @@
 #include "states/App_AirOpenState.h"
+#include "states/App_AllStates.h"
 
 #include "App_SharedMacros.h"
 #include "App_SetPeriodicCanSignals.h"
@@ -11,11 +12,16 @@ static void AirOpenStateRunOnEntry(struct StateMachine *const state_machine)
         can_tx_interface, CANMSGS_PDM_STATE_MACHINE_STATE_AIR_OPEN_CHOICE);
 }
 
-static void AirOpenStateRunOnTick(struct StateMachine *const state_machine)
+static void AirOpenStateRunOnTick1Hz(struct StateMachine *const state_machine)
+{
+    App_AllStatesRunOnTick1Hz(state_machine);
+}
+
+static void AirOpenStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct PdmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    App_SetPeriodicCanSignals_CurrentChecks(world);
-    App_SetPeriodicCanSignals_VoltageChecks(world);
+    App_SetPeriodicCanSignals_CurrentInRangeChecks(world);
+    App_SetPeriodicCanSignals_VoltageInRangeChecks(world);
 }
 
 static void AirOpenStateRunOnExit(struct StateMachine *const state_machine)
@@ -26,10 +32,11 @@ static void AirOpenStateRunOnExit(struct StateMachine *const state_machine)
 const struct State *App_GetAirOpenState(void)
 {
     static struct State air_open_state = {
-        .name         = "AIR OPEN",
-        .run_on_entry = AirOpenStateRunOnEntry,
-        .run_on_tick  = AirOpenStateRunOnTick,
-        .run_on_exit  = AirOpenStateRunOnExit,
+        .name              = "AIR OPEN",
+        .run_on_entry      = AirOpenStateRunOnEntry,
+        .run_on_tick_1Hz   = AirOpenStateRunOnTick1Hz,
+        .run_on_tick_100Hz = AirOpenStateRunOnTick100Hz,
+        .run_on_exit       = AirOpenStateRunOnExit,
     };
 
     return &air_open_state;

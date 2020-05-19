@@ -29,7 +29,6 @@
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
-#include "Io_SharedCmsisOs.h"
 #include "Io_SharedCan.h"
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
@@ -40,9 +39,12 @@
 #include "Io_WheelSpeedSensors.h"
 
 #include "App_FsmWorld.h"
+#include "App_InRangeCheck.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_AirOpenState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
+#include "configs/App_FlowRateThresholds.h"
+#include "configs/App_WheelSpeedThresholds.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -83,8 +85,14 @@ osStaticThreadDef_t TaskCanRxControlBlock;
 osThreadId          TaskCanTxHandle;
 uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
 osStaticThreadDef_t TaskCanTxControlBlock;
+osThreadId          Task100HzHandle;
+uint32_t            Task100HzBuffer[TASK100HZ_STACK_SIZE];
+osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
-struct FlowMeter *        primary_flow_meter, *secondary_flow_meter;
+struct InRangeCheck *primary_flow_meter_in_range_check,
+    *secondary_flow_meter_in_range_check;
+struct InRangeCheck *left_wheel_speed_sensor_in_range_check,
+    *right_wheel_speed_sensor_in_range_check;
 struct World *            world;
 struct StateMachine *     state_machine;
 struct FsmCanTxInterface *can_tx;
@@ -106,6 +114,7 @@ void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
 void        RunTaskCanRx(void const *argument);
 void        RunTaskCanTx(void const *argument);
+void        RunTask100Hz(void const *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -170,19 +179,27 @@ int main(void)
     Io_SharedHardFaultHandler_Init();
 
     Io_FlowMeters_Init(&htim4);
-    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeters_GetPrimaryFlowRate);
-    secondary_flow_meter =
-        App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
+    primary_flow_meter_in_range_check = App_InRangeCheck_Create(
+        Io_FlowMeters_GetPrimaryFlowRate, PRIMARY_FLOW_METER_MIN_FLOW_RATE,
+        PRIMARY_FLOW_METER_MAX_FLOW_RATE);
+    secondary_flow_meter_in_range_check = App_InRangeCheck_Create(
+        Io_FlowMeters_GetSecondaryFlowRate, SECONDARY_FLOW_METER_MIN_FLOW_RATE,
+        SECONDARY_FLOW_METER_MAX_FLOW_RATE);
 
     Io_WheelSpeedSensors_Init(&htim16, &htim17);
+    left_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
+        Io_WheelSpeedSensors_GetLeftSpeedKph, LEFT_WHEEL_MIN_SPEED,
+        LEFT_WHEEL_MAX_SPEED);
+    right_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
+        Io_WheelSpeedSensors_GetRightSpeedKph, RIGHT_WHEEL_MIN_SPEED,
+        RIGHT_WHEEL_MAX_SPEED);
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_AIR_SHUTDOWN);
 
-    can_rx = App_CanRx_Create();
-
+    can_rx            = App_CanRx_Create();
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_HeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS,
         HEARTBEAT_MONITOR_BOARDS_TO_CHECK, Io_HeartbeatMonitor_TimeoutCallback);
@@ -192,12 +209,14 @@ int main(void)
         Io_RgbLedSequence_TurnOnGreenLed);
 
     world = App_FsmWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, primary_flow_meter,
-        secondary_flow_meter, rgb_led_sequence);
+        can_tx, can_rx, heartbeat_monitor, primary_flow_meter_in_range_check,
+        secondary_flow_meter_in_range_check,
+        left_wheel_speed_sensor_in_range_check,
+        right_wheel_speed_sensor_in_range_check, rgb_led_sequence);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 
-    App_StackWaterMark_Init(can_tx);
+    Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
 
     struct CanMsgs_fsm_startup_t payload = { .dummy = 0 };
@@ -244,6 +263,12 @@ int main(void)
         TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, TASKCANTX_STACK_SIZE,
         TaskCanTxBuffer, &TaskCanTxControlBlock);
     TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
+
+    /* definition and creation of Task100Hz */
+    osThreadStaticDef(
+        Task100Hz, RunTask100Hz, osPriorityBelowNormal, 0, TASK100HZ_STACK_SIZE,
+        Task100HzBuffer, &Task100HzControlBlock);
+    Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -665,12 +690,13 @@ void RunTask1Hz(void const *argument)
 
     for (;;)
     {
-        App_SharedStateMachine_Tick(state_machine);
-        App_StackWaterMark_Check();
+        Io_StackWaterMark_Check();
+        App_SharedStateMachine_Tick1Hz(state_machine);
+
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        (void)Io_SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
+        osDelayUntil(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END 5 */
 }
@@ -699,7 +725,7 @@ void RunTask1kHz(void const *argument)
         // Watchdog check-in must be the last function called before putting
         // the task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        (void)Io_SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
+        osDelayUntil(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END RunTask1kHz */
 }
@@ -746,6 +772,36 @@ void RunTaskCanTx(void const *argument)
     /* USER CODE END RunTaskCanTx */
 }
 
+/* USER CODE BEGIN Header_RunTask100Hz */
+/**
+ * @brief Function implementing the Task100Hz thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTask100Hz */
+void RunTask100Hz(void const *argument)
+{
+    /* USER CODE BEGIN RunTask100Hz */
+    UNUSED(argument);
+    uint32_t                 PreviousWakeTime = osKernelSysTick();
+    static const TickType_t  period_ms        = 10;
+    SoftwareWatchdogHandle_t watchdog =
+        Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_100HZ", period_ms);
+
+    /* Infinite loop */
+    for (;;)
+    {
+        App_SharedStateMachine_Tick100Hz(state_machine);
+
+        // Watchdog check-in must be the last function called before putting
+        // the task to sleep.
+        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        osDelayUntil(&PreviousWakeTime, period_ms);
+    }
+    /* USER CODE END RunTask100Hz */
+}
+
 /**
  * @brief  Period elapsed callback in non blocking mode
  * @note   This function is called  when TIM6 interrupt took place, inside
@@ -761,6 +817,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     {
         Io_FlowMeters_CheckIfPrimaryIsActive();
         Io_FlowMeters_CheckIfSecondaryIsActive();
+    }
+    else if (htim->Instance == TIM16)
+    {
+        Io_WheelSpeedSensors_CheckIfLeftSensorIsActive();
+    }
+    else if (htim->Instance == TIM17)
+    {
+        Io_WheelSpeedSensors_CheckIfRightSensorIsActive();
     }
     /* USER CODE END Callback 0 */
     if (htim->Instance == TIM6)

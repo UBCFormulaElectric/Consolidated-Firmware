@@ -1,8 +1,7 @@
-#include <stm32f3xx_hal.h>
+#include <stm32f3xx.h>
 #include <string.h>
-#include <assert.h>
-#include "Io_SoftwareWatchdog.h"
 #include "App_FsmWorld.h"
+#include "Io_SoftwareWatchdog.h"
 #include "Io_SharedMacros.h"
 
 extern IWDG_HandleTypeDef        hiwdg;

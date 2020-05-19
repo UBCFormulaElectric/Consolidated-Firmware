@@ -29,7 +29,6 @@
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
-#include "Io_SharedCmsisOs.h"
 #include "Io_SharedCan.h"
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
@@ -84,21 +83,24 @@ osStaticThreadDef_t TaskCanRxControlBlock;
 osThreadId          TaskCanTxHandle;
 uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
 osStaticThreadDef_t TaskCanTxControlBlock;
+osThreadId          Task100HzHandle;
+uint32_t            Task100HzBuffer[TASK100HZ_STACK_SIZE];
+osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
 struct PdmWorld *         world;
 struct StateMachine *     state_machine;
 struct PdmCanTxInterface *can_tx;
 struct PdmCanRxInterface *can_rx;
-struct InRangeCheck *     vbat_voltage_check;
-struct InRangeCheck *     _24v_aux_voltage_check;
-struct InRangeCheck *     _24v_acc_voltage_check;
-struct InRangeCheck *     aux1_current_check;
-struct InRangeCheck *     aux2_current_check;
-struct InRangeCheck *     left_inverter_current_check;
-struct InRangeCheck *     right_inverter_current_check;
-struct InRangeCheck *     energy_meter_current_check;
-struct InRangeCheck *     can_current_check;
-struct InRangeCheck *     air_shutdown_current_check;
+struct InRangeCheck *     vbat_voltage_in_range_check;
+struct InRangeCheck *     _24v_aux_voltage_in_range_check;
+struct InRangeCheck *     _24v_acc_voltage_in_range_check;
+struct InRangeCheck *     aux1_current_in_range_check;
+struct InRangeCheck *     aux2_current_in_range_check;
+struct InRangeCheck *     left_inverter_current_in_range_check;
+struct InRangeCheck *     right_inverter_current_in_range_check;
+struct InRangeCheck *     energy_meter_current_in_range_check;
+struct InRangeCheck *     can_current_in_range_check;
+struct InRangeCheck *     air_shutdown_current_in_range_check;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
 /* USER CODE END PV */
@@ -114,6 +116,7 @@ void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
 void        RunTaskCanRx(void const *argument);
 void        RunTaskCanTx(void const *argument);
+void        RunTask100Hz(void const *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -183,39 +186,39 @@ int main(void)
 
     can_rx = App_CanRx_Create();
 
-    vbat_voltage_check = App_InRangeCheck_Create(
+    vbat_voltage_in_range_check = App_InRangeCheck_Create(
         Io_VoltageSense_GetVbatVoltage, VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE);
 
-    _24v_aux_voltage_check = App_InRangeCheck_Create(
+    _24v_aux_voltage_in_range_check = App_InRangeCheck_Create(
         Io_VoltageSense_Get24vAuxVoltage, _24V_AUX_MIN_VOLTAGE,
         _24V_AUX_MAX_VOLTAGE);
 
-    _24v_acc_voltage_check = App_InRangeCheck_Create(
+    _24v_acc_voltage_in_range_check = App_InRangeCheck_Create(
         Io_VoltageSense_Get24vAccVoltage, _24V_ACC_MIN_VOLTAGE,
         _24V_ACC_MAX_VOLTAGE);
 
-    aux1_current_check = App_InRangeCheck_Create(
+    aux1_current_in_range_check = App_InRangeCheck_Create(
         Io_CurrentSense_GetAux1Current, AUX1_MIN_CURRENT, AUX1_MAX_CURRENT);
 
-    aux2_current_check = App_InRangeCheck_Create(
+    aux2_current_in_range_check = App_InRangeCheck_Create(
         Io_CurrentSense_GetAux1Current, AUX2_MIN_CURRENT, AUX2_MAX_CURRENT);
 
-    left_inverter_current_check = App_InRangeCheck_Create(
+    left_inverter_current_in_range_check = App_InRangeCheck_Create(
         Io_CurrentSense_GetLeftInverterCurrent, LEFT_INVERTER_MIN_CURRENT,
         LEFT_INVERTER_MAX_CURRENT);
 
-    right_inverter_current_check = App_InRangeCheck_Create(
+    right_inverter_current_in_range_check = App_InRangeCheck_Create(
         Io_CurrentSense_GetRightInverterCurrent, RIGHT_INVERTER_MIN_CURRENT,
         RIGHT_INVERTER_MAX_CURRENT);
 
-    energy_meter_current_check = App_InRangeCheck_Create(
+    energy_meter_current_in_range_check = App_InRangeCheck_Create(
         Io_CurrentSense_GetEnergyMeterCurrent, ENERGY_METER_MIN_CURRENT,
         ENERGY_METER_MAX_CURRENT);
 
-    can_current_check = App_InRangeCheck_Create(
+    can_current_in_range_check = App_InRangeCheck_Create(
         Io_CurrentSense_GetCanCurrent, CAN_MIN_CURRENT, CAN_MAX_CURRENT);
 
-    air_shutdown_current_check = App_InRangeCheck_Create(
+    air_shutdown_current_in_range_check = App_InRangeCheck_Create(
         Io_CurrentSense_GetAirShutdownCurrent, AIR_SHUTDOWN_MIN_CURRENT,
         AIR_SHUTDOWN_MAX_CURRENT);
 
@@ -228,16 +231,19 @@ int main(void)
         Io_RgbLedSequence_TurnOnGreenLed);
 
     world = App_PdmWorld_Create(
-        can_tx, can_rx, vbat_voltage_check, _24v_aux_voltage_check,
-        _24v_acc_voltage_check, aux1_current_check, aux2_current_check,
-        left_inverter_current_check, right_inverter_current_check,
-        energy_meter_current_check, can_current_check,
-        air_shutdown_current_check, heartbeat_monitor, rgb_led_sequence);
+        can_tx, can_rx, vbat_voltage_in_range_check,
+        _24v_aux_voltage_in_range_check, _24v_acc_voltage_in_range_check,
+        aux1_current_in_range_check, aux2_current_in_range_check,
+        left_inverter_current_in_range_check,
+        right_inverter_current_in_range_check,
+        energy_meter_current_in_range_check, can_current_in_range_check,
+        air_shutdown_current_in_range_check, heartbeat_monitor,
+        rgb_led_sequence);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
     Io_SoftwareWatchdog_Init(can_tx);
-    App_StackWaterMark_Init(can_tx);
+    Io_StackWaterMark_Init(can_tx);
 
     struct CanMsgs_pdm_startup_t payload = { .dummy = 0 };
     App_CanTx_SendNonPeriodicMsg_PDM_STARTUP(can_tx, &payload);
@@ -283,6 +289,12 @@ int main(void)
         TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, TASKCANTX_STACK_SIZE,
         TaskCanTxBuffer, &TaskCanTxControlBlock);
     TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
+
+    /* definition and creation of Task100Hz */
+    osThreadStaticDef(
+        Task100Hz, RunTask100Hz, osPriorityBelowNormal, 0, TASK100HZ_STACK_SIZE,
+        Task100HzBuffer, &Task100HzControlBlock);
+    Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -682,12 +694,13 @@ void RunTask1Hz(void const *argument)
 
     for (;;)
     {
-        App_SharedStateMachine_Tick(state_machine);
-        App_StackWaterMark_Check();
+        Io_StackWaterMark_Check();
+        App_SharedStateMachine_Tick1Hz(state_machine);
+
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        (void)Io_SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
+        osDelayUntil(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END 5 */
 }
@@ -716,7 +729,7 @@ void RunTask1kHz(void const *argument)
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        (void)Io_SharedCmsisOs_osDelayUntilMs(&PreviousWakeTime, period_ms);
+        osDelayUntil(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END RunTask1kHz */
 }
@@ -759,6 +772,36 @@ void RunTaskCanTx(void const *argument)
         Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
     }
     /* USER CODE END RunTaskCanTx */
+}
+
+/* USER CODE BEGIN Header_RunTask100Hz */
+/**
+ * @brief Function implementing the Task100Hz thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTask100Hz */
+void RunTask100Hz(void const *argument)
+{
+    /* USER CODE BEGIN RunTask100Hz */
+    UNUSED(argument);
+    uint32_t                 PreviousWakeTime = osKernelSysTick();
+    static const TickType_t  period_ms        = 10;
+    SoftwareWatchdogHandle_t watchdog =
+        Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_100HZ", period_ms);
+
+    /* Infinite loop */
+    for (;;)
+    {
+        App_SharedStateMachine_Tick100Hz(state_machine);
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep.
+        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        osDelayUntil(&PreviousWakeTime, period_ms);
+    }
+    /* USER CODE END RunTask100Hz */
 }
 
 /**

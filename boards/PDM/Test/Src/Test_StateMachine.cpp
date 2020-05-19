@@ -62,37 +62,37 @@ class PdmStateMachineTest : public testing::Test
 
         can_rx_interface = App_CanRx_Create();
 
-        vbat_voltage_check = App_InRangeCheck_Create(
+        vbat_voltage_in_range_check = App_InRangeCheck_Create(
             GetVbatVoltage, VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE);
 
-        _24v_aux_voltage_check = App_InRangeCheck_Create(
+        _24v_aux_voltage_in_range_check = App_InRangeCheck_Create(
             Get24vAuxVoltage, _24V_AUX_MIN_VOLTAGE, _24V_AUX_MAX_VOLTAGE);
 
-        _24v_acc_voltage_check = App_InRangeCheck_Create(
+        _24v_acc_voltage_in_range_check = App_InRangeCheck_Create(
             Get24vAccVoltage, _24V_ACC_MIN_VOLTAGE, _24V_ACC_MAX_VOLTAGE);
 
-        aux1_current_check = App_InRangeCheck_Create(
+        aux1_current_in_range_check = App_InRangeCheck_Create(
             GetAux1Current, AUX1_MIN_CURRENT, AUX1_MAX_CURRENT);
 
-        aux2_current_check = App_InRangeCheck_Create(
+        aux2_current_in_range_check = App_InRangeCheck_Create(
             GetAux2Current, AUX2_MIN_CURRENT, AUX2_MAX_CURRENT);
 
-        left_inverter_current_check = App_InRangeCheck_Create(
+        left_inverter_current_in_range_check = App_InRangeCheck_Create(
             GetLeftInverterCurrent, LEFT_INVERTER_MIN_CURRENT,
             LEFT_INVERTER_MAX_CURRENT);
 
-        right_inverter_current_check = App_InRangeCheck_Create(
+        right_inverter_current_in_range_check = App_InRangeCheck_Create(
             GetRightInverterCurrent, RIGHT_INVERTER_MIN_CURRENT,
             RIGHT_INVERTER_MAX_CURRENT);
 
-        energy_meter_current_check = App_InRangeCheck_Create(
+        energy_meter_current_in_range_check = App_InRangeCheck_Create(
             GetEnergyMeterCurrent, ENERGY_METER_MIN_CURRENT,
             ENERGY_METER_MAX_CURRENT);
 
-        can_current_check = App_InRangeCheck_Create(
+        can_current_in_range_check = App_InRangeCheck_Create(
             GetCanCurrent, CAN_MIN_CURRENT, CAN_MAX_CURRENT);
 
-        air_shutdown_current_check = App_InRangeCheck_Create(
+        air_shutdown_current_in_range_check = App_InRangeCheck_Create(
             GetAirShutdownCurrent, AIR_SHUTDOWN_MIN_CURRENT,
             AIR_SHUTDOWN_MAX_CURRENT);
 
@@ -104,11 +104,13 @@ class PdmStateMachineTest : public testing::Test
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
         world = App_PdmWorld_Create(
-            can_tx_interface, can_rx_interface, vbat_voltage_check,
-            _24v_aux_voltage_check, _24v_acc_voltage_check, aux1_current_check,
-            aux2_current_check, left_inverter_current_check,
-            right_inverter_current_check, energy_meter_current_check,
-            can_current_check, air_shutdown_current_check, heartbeat_monitor,
+            can_tx_interface, can_rx_interface, vbat_voltage_in_range_check,
+            _24v_aux_voltage_in_range_check, _24v_acc_voltage_in_range_check,
+            aux1_current_in_range_check, aux2_current_in_range_check,
+            left_inverter_current_in_range_check,
+            right_inverter_current_in_range_check,
+            energy_meter_current_in_range_check, can_current_in_range_check,
+            air_shutdown_current_in_range_check, heartbeat_monitor,
             rgb_led_sequence);
 
         // Default to starting the state machine in the `init` state
@@ -142,16 +144,22 @@ class PdmStateMachineTest : public testing::Test
         TearDownObject(world, App_PdmWorld_Destroy);
         TearDownObject(can_tx_interface, App_CanTx_Destroy);
         TearDownObject(can_rx_interface, App_CanRx_Destroy);
-        TearDownObject(vbat_voltage_check, App_InRangeCheck_Destroy);
-        TearDownObject(_24v_aux_voltage_check, App_InRangeCheck_Destroy);
-        TearDownObject(_24v_acc_voltage_check, App_InRangeCheck_Destroy);
-        TearDownObject(aux1_current_check, App_InRangeCheck_Destroy);
-        TearDownObject(aux2_current_check, App_InRangeCheck_Destroy);
-        TearDownObject(left_inverter_current_check, App_InRangeCheck_Destroy);
-        TearDownObject(right_inverter_current_check, App_InRangeCheck_Destroy);
-        TearDownObject(energy_meter_current_check, App_InRangeCheck_Destroy);
-        TearDownObject(can_current_check, App_InRangeCheck_Destroy);
-        TearDownObject(air_shutdown_current_check, App_InRangeCheck_Destroy);
+        TearDownObject(vbat_voltage_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            _24v_aux_voltage_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            _24v_acc_voltage_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(aux1_current_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(aux2_current_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            left_inverter_current_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            right_inverter_current_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            energy_meter_current_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(can_current_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(
+            air_shutdown_current_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
@@ -192,7 +200,7 @@ class PdmStateMachineTest : public testing::Test
         float (*current_can_signal_getter)(const struct PdmCanTxInterface *),
         uint8_t (*out_of_range_can_signal_getter)(
             const struct PdmCanTxInterface *),
-        uint8_t in_range_choice,
+        uint8_t ok_choice,
         uint8_t underflow_choice,
         uint8_t overflow_choice)
     {
@@ -202,19 +210,16 @@ class PdmStateMachineTest : public testing::Test
 
             // Normal Value
             fake_current = (min_current + max_current) / 2;
-            App_SharedStateMachine_Tick(state_machine);
+            App_SharedStateMachine_Tick100Hz(state_machine);
             EXPECT_EQ(
                 fake_current, current_can_signal_getter(can_tx_interface));
             EXPECT_EQ(
-                in_range_choice,
-                out_of_range_can_signal_getter(can_tx_interface));
+                ok_choice, out_of_range_can_signal_getter(can_tx_interface));
 
             // Under-current
             fake_current = std::nextafter(
                 min_current, std::numeric_limits<float>::lowest());
-            App_SharedStateMachine_Tick(state_machine);
-            EXPECT_EQ(
-                fake_current, current_can_signal_getter(can_tx_interface));
+            App_SharedStateMachine_Tick100Hz(state_machine);
             EXPECT_EQ(
                 underflow_choice,
                 out_of_range_can_signal_getter(can_tx_interface));
@@ -222,9 +227,7 @@ class PdmStateMachineTest : public testing::Test
             // Over-current
             fake_current =
                 std::nextafter(max_current, std::numeric_limits<float>::max());
-            App_SharedStateMachine_Tick(state_machine);
-            EXPECT_EQ(
-                fake_current, current_can_signal_getter(can_tx_interface));
+            App_SharedStateMachine_Tick100Hz(state_machine);
             EXPECT_EQ(
                 overflow_choice,
                 out_of_range_can_signal_getter(can_tx_interface));
@@ -238,7 +241,7 @@ class PdmStateMachineTest : public testing::Test
         float (*current_can_signal_getter)(const struct PdmCanTxInterface *),
         uint8_t (*out_of_range_can_signal_getter)(
             const struct PdmCanTxInterface *),
-        uint8_t in_range_choice)
+        uint8_t ok_choice)
     {
         // In the INIT state, the load switches aren't ready yet. Therefore, the
         // current readings reported by the IO layer are assumed to be garbage.
@@ -249,26 +252,23 @@ class PdmStateMachineTest : public testing::Test
 
         // Normal Value
         fake_current = (min_current + max_current) / 2;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick100Hz(state_machine);
         EXPECT_TRUE(isnanf(current_can_signal_getter(can_tx_interface)));
-        EXPECT_EQ(
-            in_range_choice, out_of_range_can_signal_getter(can_tx_interface));
+        EXPECT_EQ(ok_choice, out_of_range_can_signal_getter(can_tx_interface));
 
         // Under-current
         fake_current =
             std::nextafter(min_current, std::numeric_limits<float>::lowest());
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick100Hz(state_machine);
         EXPECT_TRUE(isnanf(current_can_signal_getter(can_tx_interface)));
-        EXPECT_EQ(
-            in_range_choice, out_of_range_can_signal_getter(can_tx_interface));
+        EXPECT_EQ(ok_choice, out_of_range_can_signal_getter(can_tx_interface));
 
         // Over-current
         fake_current =
             std::nextafter(max_current, std::numeric_limits<float>::max());
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick100Hz(state_machine);
         EXPECT_TRUE(isnanf(current_can_signal_getter(can_tx_interface)));
-        EXPECT_EQ(
-            in_range_choice, out_of_range_can_signal_getter(can_tx_interface));
+        EXPECT_EQ(ok_choice, out_of_range_can_signal_getter(can_tx_interface));
     }
 
     void CheckVoltageCanSignalsInAllStates(
@@ -278,7 +278,7 @@ class PdmStateMachineTest : public testing::Test
         float (*voltage_can_signal_getter)(const struct PdmCanTxInterface *),
         uint8_t (*out_of_range_can_signal_getter)(
             const struct PdmCanTxInterface *),
-        uint8_t in_range_choice,
+        uint8_t ok_choice,
         uint8_t underflow_choice,
         uint8_t overflow_choice)
     {
@@ -288,19 +288,16 @@ class PdmStateMachineTest : public testing::Test
 
             // Normal Value
             fake_voltage = (min_voltage + max_voltage) / 2;
-            App_SharedStateMachine_Tick(state_machine);
+            App_SharedStateMachine_Tick100Hz(state_machine);
             EXPECT_EQ(
                 fake_voltage, voltage_can_signal_getter(can_tx_interface));
             EXPECT_EQ(
-                in_range_choice,
-                out_of_range_can_signal_getter(can_tx_interface));
+                ok_choice, out_of_range_can_signal_getter(can_tx_interface));
 
             // Under-voltage
             fake_voltage = std::nextafter(
                 min_voltage, std::numeric_limits<float>::lowest());
-            App_SharedStateMachine_Tick(state_machine);
-            EXPECT_EQ(
-                fake_voltage, voltage_can_signal_getter(can_tx_interface));
+            App_SharedStateMachine_Tick100Hz(state_machine);
             EXPECT_EQ(
                 underflow_choice,
                 out_of_range_can_signal_getter(can_tx_interface));
@@ -308,9 +305,7 @@ class PdmStateMachineTest : public testing::Test
             // Over-voltage
             fake_voltage =
                 std::nextafter(max_voltage, std::numeric_limits<float>::max());
-            App_SharedStateMachine_Tick(state_machine);
-            EXPECT_EQ(
-                fake_voltage, voltage_can_signal_getter(can_tx_interface));
+            App_SharedStateMachine_Tick100Hz(state_machine);
             EXPECT_EQ(
                 overflow_choice,
                 out_of_range_can_signal_getter(can_tx_interface));
@@ -321,20 +316,21 @@ class PdmStateMachineTest : public testing::Test
     struct StateMachine *     state_machine;
     struct PdmCanTxInterface *can_tx_interface;
     struct PdmCanRxInterface *can_rx_interface;
-    struct InRangeCheck *     vbat_voltage_check;
-    struct InRangeCheck *     _24v_aux_voltage_check;
-    struct InRangeCheck *     _24v_acc_voltage_check;
-    struct InRangeCheck *     aux1_current_check;
-    struct InRangeCheck *     aux2_current_check;
-    struct InRangeCheck *     left_inverter_current_check;
-    struct InRangeCheck *     right_inverter_current_check;
-    struct InRangeCheck *     energy_meter_current_check;
-    struct InRangeCheck *     can_current_check;
-    struct InRangeCheck *     air_shutdown_current_check;
+    struct InRangeCheck *     vbat_voltage_in_range_check;
+    struct InRangeCheck *     _24v_aux_voltage_in_range_check;
+    struct InRangeCheck *     _24v_acc_voltage_in_range_check;
+    struct InRangeCheck *     aux1_current_in_range_check;
+    struct InRangeCheck *     aux2_current_in_range_check;
+    struct InRangeCheck *     left_inverter_current_in_range_check;
+    struct InRangeCheck *     right_inverter_current_in_range_check;
+    struct InRangeCheck *     energy_meter_current_in_range_check;
+    struct InRangeCheck *     can_current_in_range_check;
+    struct InRangeCheck *     air_shutdown_current_in_range_check;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
 };
 
+// PDM-21
 TEST_F(PdmStateMachineTest, check_init_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInitState());
@@ -344,6 +340,7 @@ TEST_F(PdmStateMachineTest, check_init_state_is_broadcasted_over_can)
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
+// PDM-21
 TEST_F(PdmStateMachineTest, check_air_open_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetAirOpenState());
@@ -353,6 +350,7 @@ TEST_F(PdmStateMachineTest, check_air_open_state_is_broadcasted_over_can)
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
+// PDM-21
 TEST_F(PdmStateMachineTest, check_air_closed_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetAirClosedState());
@@ -362,79 +360,87 @@ TEST_F(PdmStateMachineTest, check_air_closed_state_is_broadcasted_over_can)
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
+// PDM-6
 TEST_F(PdmStateMachineTest, check_vbat_voltage_can_signals_in_all_states)
 {
     CheckVoltageCanSignalsInAllStates(
         VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE, GetVbatVoltage_fake.return_val,
         App_CanTx_GetPeriodicSignal_VBAT,
         App_CanTx_GetPeriodicSignal_VBAT_VOLTAGE_OUT_OF_RANGE,
-        CANMSGS_PDM_ERRORS_VBAT_VOLTAGE_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS_VBAT_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_PDM_ERRORS_VBAT_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_PDM_ERRORS_VBAT_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// PDM-6
 TEST_F(PdmStateMachineTest, check_24v_aux_voltage_can_signals_in_all_states)
 {
     CheckVoltageCanSignalsInAllStates(
         _24V_AUX_MIN_VOLTAGE, _24V_AUX_MAX_VOLTAGE,
         Get24vAuxVoltage_fake.return_val, App_CanTx_GetPeriodicSignal__24_V_AUX,
         App_CanTx_GetPeriodicSignal__24_V_AUX_VOLTAGE_OUT_OF_RANGE,
-        CANMSGS_PDM_ERRORS__24_V_AUX_VOLTAGE_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS__24_V_AUX_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_PDM_ERRORS__24_V_AUX_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_PDM_ERRORS__24_V_AUX_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// PDM-6
 TEST_F(PdmStateMachineTest, check_24v_acc_voltage_can_signals_in_all_states)
 {
     CheckVoltageCanSignalsInAllStates(
         _24V_ACC_MIN_VOLTAGE, _24V_ACC_MAX_VOLTAGE,
         Get24vAccVoltage_fake.return_val, App_CanTx_GetPeriodicSignal__24_V_ACC,
         App_CanTx_GetPeriodicSignal__24_V_ACC_VOLTAGE_OUT_OF_RANGE,
-        CANMSGS_PDM_ERRORS__24_V_ACC_VOLTAGE_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS__24_V_ACC_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_PDM_ERRORS__24_V_ACC_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_PDM_ERRORS__24_V_ACC_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(PdmStateMachineTest, check_aux1_current_can_signals_in_non_init_states)
 {
     CheckCurrentCanSignalsInNonInitStates(
         AUX1_MIN_CURRENT, AUX1_MAX_CURRENT, GetAux1Current_fake.return_val,
         App_CanTx_GetPeriodicSignal_AUXILIARY1_CURRENT,
         App_CanTx_GetPeriodicSignal_AUX1_CURRENT_OUT_OF_RANGE,
-        CANMSGS_PDM_ERRORS_AUX1_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS_AUX1_CURRENT_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_PDM_ERRORS_AUX1_CURRENT_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_PDM_ERRORS_AUX1_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(PdmStateMachineTest, check_aux1_current_can_signals_in_init_state)
 {
     CheckCurrentCanSignalsInInitState(
         AUX1_MIN_CURRENT, AUX1_MAX_CURRENT, GetAux1Current_fake.return_val,
         App_CanTx_GetPeriodicSignal_AUXILIARY1_CURRENT,
         App_CanTx_GetPeriodicSignal_AUX1_CURRENT_OUT_OF_RANGE,
-        CANMSGS_PDM_ERRORS_AUX1_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE);
+        CANMSGS_PDM_ERRORS_AUX1_CURRENT_OUT_OF_RANGE_OK_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(PdmStateMachineTest, check_aux2_current_can_signals_in_non_init_states)
 {
     CheckCurrentCanSignalsInNonInitStates(
         AUX2_MIN_CURRENT, AUX2_MAX_CURRENT, GetAux2Current_fake.return_val,
         App_CanTx_GetPeriodicSignal_AUXILIARY2_CURRENT,
         App_CanTx_GetPeriodicSignal_AUX2_CURRENT_OUT_OF_RANGE,
-        CANMSGS_PDM_ERRORS_AUX2_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS_AUX2_CURRENT_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_PDM_ERRORS_AUX2_CURRENT_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_PDM_ERRORS_AUX2_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(PdmStateMachineTest, check_aux2_current_can_signals_in_init_state)
 {
     CheckCurrentCanSignalsInInitState(
         AUX2_MIN_CURRENT, AUX2_MAX_CURRENT, GetAux2Current_fake.return_val,
         App_CanTx_GetPeriodicSignal_AUXILIARY2_CURRENT,
         App_CanTx_GetPeriodicSignal_AUX2_CURRENT_OUT_OF_RANGE,
-        CANMSGS_PDM_ERRORS_AUX2_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE);
+        CANMSGS_PDM_ERRORS_AUX2_CURRENT_OUT_OF_RANGE_OK_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(
     PdmStateMachineTest,
     check_left_inverter_current_can_signals_in_non_init_states)
@@ -444,11 +450,12 @@ TEST_F(
         GetLeftInverterCurrent_fake.return_val,
         App_CanTx_GetPeriodicSignal_LEFT_INVERTER_CURRENT,
         App_CanTx_GetPeriodicSignal_LEFT_INVERTER_CURRENT_OUT_OF_RANGE,
-        CANMSGS_PDM_ERRORS_LEFT_INVERTER_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS_LEFT_INVERTER_CURRENT_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_PDM_ERRORS_LEFT_INVERTER_CURRENT_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_PDM_ERRORS_LEFT_INVERTER_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(
     PdmStateMachineTest,
     check_left_inverter_current_can_signals_in_init_state)
@@ -458,9 +465,10 @@ TEST_F(
         GetLeftInverterCurrent_fake.return_val,
         App_CanTx_GetPeriodicSignal_LEFT_INVERTER_CURRENT,
         App_CanTx_GetPeriodicSignal_LEFT_INVERTER_CURRENT_OUT_OF_RANGE,
-        CANMSGS_PDM_ERRORS_LEFT_INVERTER_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE);
+        CANMSGS_PDM_ERRORS_LEFT_INVERTER_CURRENT_OUT_OF_RANGE_OK_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(
     PdmStateMachineTest,
     check_right_inverter_current_can_signals_in_non_init_states)
@@ -470,11 +478,12 @@ TEST_F(
         GetRightInverterCurrent_fake.return_val,
         App_CanTx_GetPeriodicSignal_RIGHT_INVERTER_CURRENT,
         App_CanTx_GetPeriodicSignal_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE,
-        CANMSGS_PDM_ERRORS_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_PDM_ERRORS_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_PDM_ERRORS_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(
     PdmStateMachineTest,
     check_right_inverter_current_can_signals_in_init_state)
@@ -484,9 +493,10 @@ TEST_F(
         GetRightInverterCurrent_fake.return_val,
         App_CanTx_GetPeriodicSignal_RIGHT_INVERTER_CURRENT,
         App_CanTx_GetPeriodicSignal_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE,
-        CANMSGS_PDM_ERRORS_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE);
+        CANMSGS_PDM_ERRORS_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE_OK_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(
     PdmStateMachineTest,
     check_energy_meter_current_can_signals_in_non_init_states)
@@ -496,11 +506,12 @@ TEST_F(
         GetEnergyMeterCurrent_fake.return_val,
         App_CanTx_GetPeriodicSignal_ENERGY_METER_CURRENT,
         App_CanTx_GetPeriodicSignal_ENERGY_METER_CURRENT_OUT_OF_RANGE,
-        CANMSGS_PDM_ERRORS_ENERGY_METER_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS_ENERGY_METER_CURRENT_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_PDM_ERRORS_ENERGY_METER_CURRENT_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_PDM_ERRORS_ENERGY_METER_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(
     PdmStateMachineTest,
     check_energy_meter_current_can_signals_in_init_state)
@@ -510,29 +521,32 @@ TEST_F(
         GetEnergyMeterCurrent_fake.return_val,
         App_CanTx_GetPeriodicSignal_ENERGY_METER_CURRENT,
         App_CanTx_GetPeriodicSignal_ENERGY_METER_CURRENT_OUT_OF_RANGE,
-        CANMSGS_PDM_ERRORS_ENERGY_METER_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE);
+        CANMSGS_PDM_ERRORS_ENERGY_METER_CURRENT_OUT_OF_RANGE_OK_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(PdmStateMachineTest, check_can_current_can_signals_in_non_init_states)
 {
     CheckCurrentCanSignalsInNonInitStates(
         CAN_MIN_CURRENT, CAN_MAX_CURRENT, GetCanCurrent_fake.return_val,
         App_CanTx_GetPeriodicSignal_CAN_CURRENT,
         App_CanTx_GetPeriodicSignal_CAN_CURRENT_OUT_OF_RANGE,
-        CANMSGS_PDM_ERRORS_CAN_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS_CAN_CURRENT_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_PDM_ERRORS_CAN_CURRENT_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_PDM_ERRORS_CAN_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(PdmStateMachineTest, check_can_current_can_signals_in_init_state)
 {
     CheckCurrentCanSignalsInInitState(
         CAN_MIN_CURRENT, CAN_MAX_CURRENT, GetCanCurrent_fake.return_val,
         App_CanTx_GetPeriodicSignal_CAN_CURRENT,
         App_CanTx_GetPeriodicSignal_CAN_CURRENT_OUT_OF_RANGE,
-        CANMSGS_PDM_ERRORS_CAN_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE);
+        CANMSGS_PDM_ERRORS_CAN_CURRENT_OUT_OF_RANGE_OK_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(
     PdmStateMachineTest,
     check_air_shutdown_current_can_signals_in_non_init_states)
@@ -542,11 +556,12 @@ TEST_F(
         GetAirShutdownCurrent_fake.return_val,
         App_CanTx_GetPeriodicSignal_AIR_SHUTDOWN_CURRENT,
         App_CanTx_GetPeriodicSignal_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE,
-        CANMSGS_PDM_ERRORS_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE,
+        CANMSGS_PDM_ERRORS_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_PDM_ERRORS_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_PDM_ERRORS_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// PDM-11, PDM-13
 TEST_F(
     PdmStateMachineTest,
     check_air_shutdown_current_can_signals_in_init_state)
@@ -556,7 +571,32 @@ TEST_F(
         GetAirShutdownCurrent_fake.return_val,
         App_CanTx_GetPeriodicSignal_AIR_SHUTDOWN_CURRENT,
         App_CanTx_GetPeriodicSignal_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE,
-        CANMSGS_PDM_ERRORS_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE_IN_RANGE_CHOICE);
+        CANMSGS_PDM_ERRORS_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE_OK_CHOICE);
 }
 
+TEST_F(PdmStateMachineTest, rgb_led_sequence_in_all_states)
+{
+    unsigned int *call_counts[] = { &turn_on_red_led_fake.call_count,
+                                    &turn_on_green_led_fake.call_count,
+                                    &turn_on_blue_led_fake.call_count };
+
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        RESET_FAKE(turn_on_red_led);
+        RESET_FAKE(turn_on_green_led);
+        RESET_FAKE(turn_on_blue_led);
+
+        // Verify that we cycle through red, green, blue, red, etc for 99 times.
+        // The number 99 can be changed to any other number that is a multiple
+        // of 3. The significance of 3 is because we have 3 colors (Red, green,
+        // and blue).
+        for (size_t i = 0; i < 99; i++)
+        {
+            App_SharedStateMachine_Tick1Hz(state_machine);
+            ASSERT_EQ(*call_counts[i % 3], i / 3 + 1);
+        }
+    }
+}
 } // namespace StateMachineTest

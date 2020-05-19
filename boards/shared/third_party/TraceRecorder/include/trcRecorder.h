@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Trace Recorder Library for Tracealyzer v4.3.5
+ * Trace Recorder Library for Tracealyzer v4.3.8
  * Percepio AB, www.percepio.com
  *
  * trcRecorder.h
@@ -1478,7 +1478,7 @@ if (!(eval)) \
 #endif
 
  /******************************************************************************
- * TRC_STREAM_PORT_ON_TRACE_BEGIN
+ * TRC_STREAM_PORT_ON_TRACE_END
  *
  * Defining any actions needed in the stream port when the tracing stops.
  * Empty by default.
@@ -1583,16 +1583,29 @@ if (!(eval)) \
 		} \
 	}
 	
-    /* Only used during vTraceEnable */
+	/* Only used during vTraceEnable */
 	#define TRC_STREAM_PORT_COMMIT_EVENT_BLOCKING(_ptrData, _size) \
 	{ \
-		int counter = 0; \
-		int32_t dummy = 0; \
-		(void)dummy; \
-	  	while (TRC_STREAM_PORT_WRITE_DATA(_ptrData, _size, &dummy) != 0) \
-			counter++; \
+		char* ptrWrite = (char*)_ptrData; \
+		uint32_t writeSize = _size; \
+		uint32_t attemptCounter = 0; \
+		int32_t bytesWritten; \
+		int32_t status; \
+		do \
+		{ \
+			bytesWritten = 0; \
+			status = TRC_STREAM_PORT_WRITE_DATA(ptrWrite, writeSize, &bytesWritten); \
+			if (status != 0) \
+			{ \
+				prvTraceError(PSF_ERROR_STREAM_PORT_WRITE); \
+				break; \
+			} \
+			ptrWrite += bytesWritten; \
+			writeSize -= bytesWritten; \
+			attemptCounter++; \
+		} while (writeSize > 0); \
 		\
-		if (counter > 0) \
+		if (attemptCounter > 1) \
 		{ \
 			prvTraceWarning(PSF_WARNING_STREAM_PORT_INITIAL_BLOCKING); \
 		} \
@@ -1753,15 +1766,16 @@ void prvTraceWarning(int errCode);
 #define PSF_ERROR_DWT_NOT_SUPPORTED 3
 #define PSF_ERROR_DWT_CYCCNT_NOT_SUPPORTED 4
 #define PSF_ERROR_TZCTRLTASK_NOT_CREATED 5
+#define PSF_ERROR_STREAM_PORT_WRITE 6
 
-#define PSF_WARNING_SYMBOL_TABLE_SLOTS 6
-#define PSF_WARNING_SYMBOL_MAX_LENGTH 7
-#define PSF_WARNING_OBJECT_DATA_SLOTS 8
-#define PSF_WARNING_STRING_TOO_LONG 9
-#define PSF_WARNING_STREAM_PORT_READ 10
-#define PSF_WARNING_STREAM_PORT_WRITE 11
-#define PSF_WARNING_STREAM_PORT_INITIAL_BLOCKING 12
-#define PSF_WARNING_STACKMON_NO_SLOTS 13
+#define PSF_WARNING_SYMBOL_TABLE_SLOTS 7
+#define PSF_WARNING_SYMBOL_MAX_LENGTH 8
+#define PSF_WARNING_OBJECT_DATA_SLOTS 9
+#define PSF_WARNING_STRING_TOO_LONG 10
+#define PSF_WARNING_STREAM_PORT_READ 11
+#define PSF_WARNING_STREAM_PORT_WRITE 12
+#define PSF_WARNING_STREAM_PORT_INITIAL_BLOCKING 13
+#define PSF_WARNING_STACKMON_NO_SLOTS 14
 
 /******************************************************************************/
 /*** INTERNAL STREAMING FUNCTIONS *********************************************/

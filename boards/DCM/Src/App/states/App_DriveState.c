@@ -1,3 +1,4 @@
+#include "states/App_AllStates.h"
 #include "states/App_DriveState.h"
 
 #include "App_SharedMacros.h"
@@ -10,9 +11,14 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
         can_tx_interface, CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE);
 }
 
-static void DriveStateRunOnTick(struct StateMachine *const state_machine)
+static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
-    UNUSED(state_machine);
+    App_AllStatesRunOnTick1Hz(state_machine);
+}
+
+static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
+{
+    App_AllStatesRunOnTick100Hz(state_machine);
 }
 
 static void DriveStateRunOnExit(struct StateMachine *const state_machine)
@@ -23,10 +29,11 @@ static void DriveStateRunOnExit(struct StateMachine *const state_machine)
 const struct State *App_GetDriveState(void)
 {
     static struct State drive_state = {
-        .name         = "DRIVE",
-        .run_on_entry = DriveStateRunOnEntry,
-        .run_on_tick  = DriveStateRunOnTick,
-        .run_on_exit  = DriveStateRunOnExit,
+        .name              = "DRIVE",
+        .run_on_entry      = DriveStateRunOnEntry,
+        .run_on_tick_1Hz   = DriveStateRunOnTick1Hz,
+        .run_on_tick_100Hz = DriveStateRunOnTick100Hz,
+        .run_on_exit       = DriveStateRunOnExit,
     };
 
     return &drive_state;

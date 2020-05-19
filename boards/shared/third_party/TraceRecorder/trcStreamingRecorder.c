@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Trace Recorder Library for Tracealyzer v4.3.5
+ * Trace Recorder Library for Tracealyzer v4.3.8
  * Percepio AB, www.percepio.com
  *
  * trcStreamingRecorder.c
@@ -80,6 +80,23 @@ typedef struct{
   uint32_t param3;
 } EventWithParam_3;
 
+typedef struct{
+	BaseEvent base;
+	uint32_t param1;
+	uint32_t param2;
+	uint32_t param3;
+	uint32_t param4;
+} EventWithParam_4;
+
+typedef struct{
+	BaseEvent base;
+	uint32_t param1;
+	uint32_t param2;
+	uint32_t param3;
+	uint32_t param4;
+	uint32_t param5;
+} EventWithParam_5;
+
 /* Used in event functions with variable number of parameters. */
 typedef struct
 {
@@ -110,6 +127,10 @@ typedef struct{
 
 /* The total size of the Object Data Table */
 #define OBJECT_DATA_TABLE_BUFFER_SIZE ((TRC_CFG_OBJECT_DATA_SLOTS) * OBJECT_DATA_SLOT_SIZE)
+
+#if (TRC_CFG_PAGED_EVENT_BUFFER_PAGE_COUNT > 128)
+#error "TRC_CFG_PAGED_EVENT_BUFFER_PAGE_COUNT cannot be larger than 128"
+#endif /* (TRC_CFG_PAGED_EVENT_BUFFER_PAGE_COUNT > 128) */
 
 /* The Symbol Table type - just a byte array */
 typedef struct{
@@ -282,6 +303,9 @@ void prvTraceStoreSimpleStringEventHelper(uint16_t eventID,
 
 /* Stores the header information on Start */
 static void prvTraceStoreHeader(void);
+
+/* Stores the Start Event */
+static void prvTraceStoreStartEvent(void);
 
 /* Stores the symbol table on Start */
 static void prvTraceStoreSymbolTable(void);
@@ -593,17 +617,17 @@ traceHandle xTraceSetISRProperties(const char* name, uint8_t priority)
 {
 	traceHandle isrHandle;
 	uint16_t eventID = PSF_EVENT_DEFINE_ISR;
-	
-	/* Save object data in object data table */
-	prvTraceSaveObjectData((const void*)name, priority);
 
 	/* Always save in symbol table, in case the recording has not yet started */
 	isrHandle = prvTraceSaveSymbol(name);
 
+	/* Save object data in object data table */
+	prvTraceSaveObjectData((void*)isrHandle, priority);
+
 	PSF_ASSERT_RET(eventID < 4096, PSF_ERROR_EVENT_CODE_TOO_LARGE, isrHandle);
-	
+
 	prvTraceStoreStringEvent(2, eventID, name, isrHandle, priority);
-	
+
 	return isrHandle;
 }
 
@@ -790,29 +814,16 @@ void vTraceSetFilterGroup(uint16_t filterGroup)
 /* Internal function for starting/stopping the recorder. */
 static void prvSetRecorderEnabled(uint32_t isEnabled)
 {
-  	void* currentTask;
-	
 	TRACE_ALLOC_CRITICAL_SECTION();
 	
 	if (RecorderEnabled == isEnabled)
 	{
 		return;
 	}
-	
-	if (uiTraceSystemState == TRC_STATE_IN_STARTUP)
-	{
-		currentTask = (void*)HANDLE_NO_TASK;
-	}
-	else
-	{
-		currentTask = TRACE_GET_CURRENT_TASK();
-	}
 
 	TRACE_ENTER_CRITICAL_SECTION();
 
-    RecorderEnabled = isEnabled;
-
-	if (RecorderEnabled)
+	if (isEnabled)
 	{
 		TRC_STREAM_PORT_ON_TRACE_BEGIN();
 
@@ -826,18 +837,101 @@ static void prvSetRecorderEnabled(uint32_t isEnabled)
 		prvTraceStoreSymbolTable();
     	prvTraceStoreObjectDataTable();
     	prvTraceStoreExtensionInfo();
-        prvTraceStoreEvent3(	PSF_EVENT_TRACE_START,
-							(uint32_t)TRACE_GET_OS_TICKS(),
-							(uint32_t)currentTask,
-							SessionCounter++);
+        prvTraceStoreStartEvent();
         prvTraceStoreTSConfig();
 	}
     else
     {
 		TRC_STREAM_PORT_ON_TRACE_END();
     }
+	
+	RecorderEnabled = isEnabled;		
 
 	TRACE_EXIT_CRITICAL_SECTION();
+}
+
+static void prvTraceStoreStartEvent()
+{
+	void* currentTask;
+	
+	TRACE_ALLOC_CRITICAL_SECTION();
+	
+	TRACE_ENTER_CRITICAL_SECTION();
+	
+	if (uiTraceSystemState == TRC_STATE_IN_STARTUP)
+	{
+		currentTask = (void*)HANDLE_NO_TASK;
+	}
+	else
+	{
+		currentTask = TRACE_GET_CURRENT_TASK();
+	}
+	
+	eventCounter++;
+	
+	{
+		TRC_STREAM_PORT_ALLOCATE_EVENT_BLOCKING(EventWithParam_3, pxEvent, sizeof(EventWithParam_3));
+		if (pxEvent != NULL)
+		{
+			pxEvent->base.EventID = PSF_EVENT_TRACE_START | PARAM_COUNT(3);
+			pxEvent->base.EventCount = (uint16_t)eventCounter;
+			pxEvent->base.TS = prvGetTimestamp32();
+			pxEvent->param1 = (uint32_t)TRACE_GET_OS_TICKS();
+			pxEvent->param2 = (uint32_t)currentTask;
+			pxEvent->param3 = SessionCounter++;
+			TRC_STREAM_PORT_COMMIT_EVENT_BLOCKING(pxEvent, sizeof(EventWithParam_3));
+		}
+	}
+	
+	TRACE_EXIT_CRITICAL_SECTION();
+}
+
+/* Store the Timestamp Config event */
+static void prvTraceStoreTSConfig(void)
+{
+	/* If not overridden using vTraceSetFrequency, use default value */
+	if (timestampFrequency == 0)
+	{
+		timestampFrequency = TRC_HWTC_FREQ_HZ;
+	}
+
+	eventCounter++;
+	
+
+	{
+#if (TRC_HWTC_TYPE == TRC_CUSTOM_TIMER_INCR || TRC_HWTC_TYPE == TRC_CUSTOM_TIMER_DECR)
+
+		TRC_STREAM_PORT_ALLOCATE_EVENT_BLOCKING(EventWithParam_5, event, sizeof(EventWithParam_5));
+		if (event != NULL)
+		{
+			event->base.EventID = PSF_EVENT_TS_CONFIG | (uint16_t)PARAM_COUNT(5);
+			event->base.EventCount = (uint16_t)eventCounter;
+			event->base.TS = prvGetTimestamp32();
+			
+			event->param1 = (uint32_t)timestampFrequency;
+			event->param2 = (uint32_t)(TRACE_TICK_RATE_HZ);
+			event->param3 = (uint32_t)(TRC_HWTC_TYPE);
+			event->param4 = (uint32_t)(TRC_CFG_ISR_TAILCHAINING_THRESHOLD);
+			event->param5 = (uint32_t)(TRC_HWTC_PERIOD);
+			TRC_STREAM_PORT_COMMIT_EVENT_BLOCKING(event, (uint32_t)sizeof(EventWithParam_5));
+		}
+#else
+		TRC_STREAM_PORT_ALLOCATE_EVENT_BLOCKING(EventWithParam_4, event, sizeof(EventWithParam_4));
+		if (event != NULL)
+		{
+			event->base.EventID = PSF_EVENT_TS_CONFIG | (uint16_t)PARAM_COUNT(4);
+			event->base.EventCount = (uint16_t)eventCounter;
+			event->base.TS = prvGetTimestamp32();
+						
+			event->param1 = (uint32_t)timestampFrequency;
+			event->param2 = (uint32_t)(TRACE_TICK_RATE_HZ);
+			event->param3 = (uint32_t)(TRC_HWTC_TYPE);
+			event->param4 = (uint32_t)(TRC_CFG_ISR_TAILCHAINING_THRESHOLD);
+			TRC_STREAM_PORT_COMMIT_EVENT_BLOCKING(event, (uint32_t)sizeof(EventWithParam_4));
+		}			
+#endif
+
+	}
 }
 
 /* Stores the symbol table on Start */
@@ -849,7 +943,6 @@ static void prvTraceStoreSymbolTable(void)
 
 	TRACE_ENTER_CRITICAL_SECTION();
 	
-	if (RecorderEnabled)
 	{
 		for (i = 0; i < (sizeof(SymbolTable) / sizeof(uint32_t)); i += (SYMBOL_TABLE_SLOT_SIZE / sizeof(uint32_t)))
 		{
@@ -859,7 +952,7 @@ static void prvTraceStoreSymbolTable(void)
             {
             	data[j] = symbolTable.SymbolTableBuffer.pSymbolTableBufferUINT32[i+j];
             }
-
+			
 			TRC_STREAM_PORT_COMMIT_EVENT_BLOCKING(data, SYMBOL_TABLE_SLOT_SIZE);						
 		}
 	}
@@ -875,7 +968,6 @@ static void prvTraceStoreObjectDataTable(void)
 
 	TRACE_ENTER_CRITICAL_SECTION();
 
-	if (RecorderEnabled)
 	{
 		for (i = 0; i < (sizeof(ObjectDataTable) / sizeof(uint32_t)); i += (OBJECT_DATA_SLOT_SIZE / sizeof(uint32_t)))
         {
@@ -899,7 +991,6 @@ static void prvTraceStoreHeader(void)
 
 	TRACE_ENTER_CRITICAL_SECTION();
 
-	if (RecorderEnabled)
 	{
 	  	TRC_STREAM_PORT_ALLOCATE_EVENT_BLOCKING(PSFHeaderInfo, header, sizeof(PSFHeaderInfo));
 		header->psf = PSFEndianessIdentifier;
@@ -925,7 +1016,6 @@ static void prvTraceStoreExtensionInfo(void)
 
 	TRACE_ENTER_CRITICAL_SECTION();
 
-	if (RecorderEnabled)
 	{
 		TRC_STREAM_PORT_ALLOCATE_EVENT_BLOCKING(PSFExtensionInfoType, extinfo, sizeof(PSFExtensionInfoType));
 		memcpy(extinfo, &PSFExtensionInfo, sizeof(PSFExtensionInfoType));
@@ -997,8 +1087,9 @@ static const char* prvTraceGetError(int errCode)
 		return "TRC_STREAM_PORT_WRITE_DATA returned error (!= 0).";
 
 	case PSF_WARNING_STACKMON_NO_SLOTS:
+		/* TRC_CFG_STACK_MONITOR_MAX_TASKS is too small to monitor all tasks. */
 
-		return "TRC_STACKMON_MAX_TASKS too small!";
+		return "TRC_CFG_STACK_MONITOR_MAX_TASKS too small!";
 
 	case PSF_WARNING_STREAM_PORT_INITIAL_BLOCKING:
 		/* Blocking occurred during vTraceEnable. This happens if the trace buffer is
@@ -1040,6 +1131,10 @@ static const char* prvTraceGetError(int errCode)
 		or insufficient heap size? */
 		return "Could not create TzCtrl (see prvTraceGetError)";
 
+	case PSF_ERROR_STREAM_PORT_WRITE:
+		/* TRC_STREAM_PORT_WRITE_DATA is expected to return 0 when completed successfully.
+		This means there is an error in the communication with host/Tracealyzer. */
+		return "TRC_STREAM_PORT_WRITE_DATA returned error (!= 0).";
 	}
 
 	return NULL;
@@ -1730,36 +1825,6 @@ static uint32_t prvGetTimestamp32(void)
 	uint32_t ticks = TRACE_GET_OS_TICKS();
 	return ((TRC_HWTC_COUNT) & 0x00FFFFFFU) + ((ticks & 0x000000FFU) << 24);
 #endif
-}
-
-/* Store the Timestamp Config event */
-static void prvTraceStoreTSConfig(void)
-{
-	/* If not overridden using vTraceSetFrequency, use default value */
-	if (timestampFrequency == 0)
-	{
-		timestampFrequency = TRC_HWTC_FREQ_HZ;
-	}
-	
-	#if (TRC_HWTC_TYPE == TRC_CUSTOM_TIMER_INCR || TRC_HWTC_TYPE == TRC_CUSTOM_TIMER_DECR)
-	
-		prvTraceStoreEvent(5, 
-							PSF_EVENT_TS_CONFIG,
-							(uint32_t)timestampFrequency,	                    
-							(uint32_t)(TRACE_TICK_RATE_HZ),
-							(uint32_t)(TRC_HWTC_TYPE),
-							(uint32_t)(TRC_CFG_ISR_TAILCHAINING_THRESHOLD),
-							(uint32_t)(TRC_HWTC_PERIOD));
-	
-	#else
-	
-	prvTraceStoreEvent(4, 
-						PSF_EVENT_TS_CONFIG,
-						(uint32_t)timestampFrequency,	                    
-						(uint32_t)(TRACE_TICK_RATE_HZ),
-						(uint32_t)(TRC_HWTC_TYPE),
-						(uint32_t)(TRC_CFG_ISR_TAILCHAINING_THRESHOLD));	
-	#endif
 }
 
 /* Retrieve a buffer page to write to. */

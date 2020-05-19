@@ -1,9 +1,4 @@
 #pragma once
-#include "Io_SharedFreqOnlyPwmInputConfig.h"
-
-#ifndef MAX_NUM_OF_FREQ_ONLY_PWM_INPUTS
-#define MAX_NUM_OF_FREQ_ONLY_PWM_INPUTS 1
-#endif
 
 struct FreqOnlyPwmInput;
 

@@ -15,7 +15,8 @@ struct State
     char name[MAX_STATE_NAME_LENGTH];
 
     void (*run_on_entry)(struct StateMachine *state_machine);
-    void (*run_on_tick)(struct StateMachine *state_machine);
+    void (*run_on_tick_1Hz)(struct StateMachine *state_machine);
+    void (*run_on_tick_100Hz)(struct StateMachine *state_machine);
     void (*run_on_exit)(struct StateMachine *state_machine);
 };
 
@@ -65,7 +66,13 @@ struct World *
     App_SharedStateMachine_GetWorld(const struct StateMachine *state_machine);
 
 /**
- * Tick the given state machine
+ * Tick the 1hz function of the given state machine
  * @param state_machine The state machine to tick
  */
-void App_SharedStateMachine_Tick(struct StateMachine *state_machine);
+void App_SharedStateMachine_Tick1Hz(struct StateMachine *state_machine);
+
+/**
+ * Tick the 100Hz function of the given state machine
+ * @param state_machine The state machine to tick
+ */
+void App_SharedStateMachine_Tick100Hz(struct StateMachine *state_machine);

@@ -113,6 +113,7 @@ class BmsStateMachineTest : public testing::Test
     struct RgbLedSequence *   rgb_led_sequence;
 };
 
+// BMS-31
 TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInitState());
@@ -122,6 +123,7 @@ TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
+// BMS-31
 TEST_F(BmsStateMachineTest, check_drive_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetDriveState());
@@ -131,6 +133,7 @@ TEST_F(BmsStateMachineTest, check_drive_state_is_broadcasted_over_can)
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
+// BMS-31
 TEST_F(BmsStateMachineTest, check_fault_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetFaultState());
@@ -140,6 +143,7 @@ TEST_F(BmsStateMachineTest, check_fault_state_is_broadcasted_over_can)
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
+// BMS-31
 TEST_F(BmsStateMachineTest, check_charge_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetChargeState());
@@ -159,7 +163,7 @@ TEST_F(
     {
         SetInitialState(state);
         get_pwm_frequency_fake.return_val = fake_frequency;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick100Hz(state_machine);
 
         EXPECT_EQ(
             fake_frequency,
@@ -180,7 +184,7 @@ TEST_F(
     {
         SetInitialState(state);
         get_pwm_duty_cycle_fake.return_val = fake_duty_cycle;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick100Hz(state_machine);
 
         EXPECT_EQ(
             fake_duty_cycle,
@@ -203,7 +207,7 @@ TEST_F(
 
         // Test an arbitrarily chosen valid resistance
         get_pwm_duty_cycle_fake.return_val = 50.0f;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick100Hz(state_machine);
         EXPECT_EQ(
             IMD_NORMAL,
             App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
@@ -216,7 +220,7 @@ TEST_F(
 
         // Test an arbitrarily chosen invalid resistance
         get_pwm_duty_cycle_fake.return_val = 0.0f;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick100Hz(state_machine);
         EXPECT_EQ(
             IMD_NORMAL,
             App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
@@ -238,7 +242,7 @@ TEST_F(
 
         // Test an arbitrarily chosen valid resistance
         get_pwm_duty_cycle_fake.return_val = 50.0f;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick100Hz(state_machine);
         EXPECT_EQ(
             IMD_UNDERVOLTAGE_DETECTED,
             App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
@@ -251,7 +255,7 @@ TEST_F(
 
         // Test an arbitrarily chosen invalid resistance
         get_pwm_duty_cycle_fake.return_val = 0.0f;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick100Hz(state_machine);
         EXPECT_EQ(
             IMD_UNDERVOLTAGE_DETECTED,
             App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
@@ -273,7 +277,7 @@ TEST_F(
 
         // Test an arbitrarily chosen SST_GOOD
         get_pwm_duty_cycle_fake.return_val = 7.5f;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick100Hz(state_machine);
         EXPECT_EQ(
             IMD_SST, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
         EXPECT_EQ(
@@ -285,7 +289,7 @@ TEST_F(
 
         // Test an arbitrarily chosen SST_BAD
         get_pwm_duty_cycle_fake.return_val = 92.5f;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick100Hz(state_machine);
         EXPECT_EQ(
             IMD_SST, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
         EXPECT_EQ(
@@ -297,7 +301,7 @@ TEST_F(
 
         // Test an arbitrarily chosen invalid SST status
         get_pwm_duty_cycle_fake.return_val = 0.0f;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick100Hz(state_machine);
         EXPECT_EQ(
             IMD_SST, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
         EXPECT_EQ(
@@ -314,10 +318,36 @@ TEST_F(
     {
         SetInitialState(state);
         get_seconds_since_power_on_fake.return_val = 123;
-        App_SharedStateMachine_Tick(state_machine);
+        App_SharedStateMachine_Tick100Hz(state_machine);
         EXPECT_EQ(
             123, App_CanTx_GetPeriodicSignal_SECONDS_SINCE_POWER_ON(
                      can_tx_interface));
+    }
+}
+
+TEST_F(BmsStateMachineTest, rgb_led_sequence_in_all_states)
+{
+    unsigned int *call_counts[] = { &turn_on_red_led_fake.call_count,
+                                    &turn_on_green_led_fake.call_count,
+                                    &turn_on_blue_led_fake.call_count };
+
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        RESET_FAKE(turn_on_red_led);
+        RESET_FAKE(turn_on_green_led);
+        RESET_FAKE(turn_on_blue_led);
+
+        // Verify that we cycle through red, green, blue, red etc. for 99 times.
+        // The number 99 can be changed to any other number that is a multiple
+        // of 3. The significance of 3 is because we have 3 colors (Red, green,
+        // and blue).
+        for (size_t i = 0; i < 99; i++)
+        {
+            App_SharedStateMachine_Tick1Hz(state_machine);
+            ASSERT_EQ(*call_counts[i % 3], i / 3 + 1);
+        }
     }
 }
 

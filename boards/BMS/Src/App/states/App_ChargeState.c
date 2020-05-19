@@ -1,3 +1,4 @@
+#include "states/App_AllStates.h"
 #include "states/App_ChargeState.h"
 
 #include "App_SetPeriodicCanSignals.h"
@@ -11,13 +12,17 @@ static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
         can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_CHARGE_CHOICE);
 }
 
-static void ChargeStateRunOnTick(struct StateMachine *const state_machine)
+static void ChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
+{
+    App_AllStatesRunOnTick1Hz(state_machine);
+}
+
+static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct BmsCanTxInterface *can_tx = App_BmsWorld_GetCanTx(world);
     struct Imd *              imd    = App_BmsWorld_GetImd(world);
 
-    App_Imd_Tick(imd);
     App_SetPeriodicCanSignals_Imd(can_tx, imd);
 }
 
@@ -29,10 +34,11 @@ static void ChargeStateRunOnExit(struct StateMachine *const state_machine)
 const struct State *App_GetChargeState(void)
 {
     static struct State charge_state = {
-        .name         = "CHARGE",
-        .run_on_entry = ChargeStateRunOnEntry,
-        .run_on_tick  = ChargeStateRunOnTick,
-        .run_on_exit  = ChargeStateRunOnExit,
+        .name              = "CHARGE",
+        .run_on_entry      = ChargeStateRunOnEntry,
+        .run_on_tick_1Hz   = ChargeStateRunOnTick1Hz,
+        .run_on_tick_100Hz = ChargeStateRunOnTick100Hz,
+        .run_on_exit       = ChargeStateRunOnExit,
     };
 
     return &charge_state;

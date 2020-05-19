@@ -24,6 +24,25 @@ Tracealyzer supports FreeRTOS v7.3 and newer, including Amazon FreeRTOS.
 
 -------------------------------------------------------------------------------
 
+Changes, v4.3.7 -> v4.3.8
+- Modified how FreeRTOS versions are configured in the trace library.
+- traceQUEUE_SET_SEND() was added.
+- Now informs users of FreeRTOS v10.3.X that the trace point traceQUEUE_SEND in
+  prvNotifyQueueSetContainer() should be changed to traceQUEUE_SET_SEND.
+
+-------------------------------------------------------------------------------
+
+Changes, v4.3.5 -> v4.3.7
+- Fixed issue where ISR naming would not always work.
+- Fixed "errno" issue with certain compilers when using lwip streaming port.
+- Recorder now makes sure all streaming trace header info is successfully sent 
+  before moving on.
+- Recorder warns if TRC_CFG_PAGED_EVENT_BUFFER_PAGE_COUNT > 128 since code
+  isn't designed for that.
+- Made sure uiTraceSystemState is always declared in snapshot recorder.
+
+-------------------------------------------------------------------------------
+
 Changes, v4.3.1 -> v4.3.5
 - A previously removed define is no longer used when configSUPPORT_STATIC_ALLOCATION is 1
 

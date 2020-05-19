@@ -1,5 +1,5 @@
 /*******************************************************************************
- * Trace Recorder Library for Tracealyzer v4.3.5
+ * Trace Recorder Library for Tracealyzer v4.3.8
  * Percepio AB, www.percepio.com
  *
  * Terms of Use
@@ -56,21 +56,28 @@ extern "C" {
 
 /*** FreeRTOS version codes **************************************************/
 #define FREERTOS_VERSION_NOT_SET				0
-#define TRC_FREERTOS_VERSION_7_3				1 /* v7.3 is earliest supported.*/
-#define TRC_FREERTOS_VERSION_7_4				2
-#define TRC_FREERTOS_VERSION_7_5_OR_7_6			3
-#define TRC_FREERTOS_VERSION_8_X				4 /* Any v8.x.x*/
-#define TRC_FREERTOS_VERSION_9_0_0				5 
-#define TRC_FREERTOS_VERSION_9_0_1				6 
+#define TRC_FREERTOS_VERSION_7_3_X				1 /* v7.3 is earliest supported.*/
+#define TRC_FREERTOS_VERSION_7_4_X				2
+#define TRC_FREERTOS_VERSION_7_5_X				3
+#define TRC_FREERTOS_VERSION_7_6_X				TRC_FREERTOS_VERSION_7_5_X
+#define TRC_FREERTOS_VERSION_8_X_X				4
+#define TRC_FREERTOS_VERSION_9_0_0				5
+#define TRC_FREERTOS_VERSION_9_0_1				6
 #define TRC_FREERTOS_VERSION_9_0_2				7
-#define TRC_FREERTOS_VERSION_10_0_0				8 /* If using FreeRTOS v10.0.0 or later version */
+#define TRC_FREERTOS_VERSION_10_0_0				8
+#define TRC_FREERTOS_VERSION_10_0_1				TRC_FREERTOS_VERSION_10_0_0
+#define TRC_FREERTOS_VERSION_10_1_0				TRC_FREERTOS_VERSION_10_0_0
+#define TRC_FREERTOS_VERSION_10_1_1				TRC_FREERTOS_VERSION_10_0_0
+#define TRC_FREERTOS_VERSION_10_2_0				TRC_FREERTOS_VERSION_10_0_0
+#define TRC_FREERTOS_VERSION_10_2_1				TRC_FREERTOS_VERSION_10_0_0
+#define TRC_FREERTOS_VERSION_10_3_0				9
+#define TRC_FREERTOS_VERSION_10_3_1				TRC_FREERTOS_VERSION_10_3_0
 
-#define TRC_FREERTOS_VERSION_9_X				42 /* Not allowed anymore */
-
-#if (TRC_CFG_FREERTOS_VERSION == TRC_FREERTOS_VERSION_9_X)
-/* This setting for TRC_CFG_FREERTOS_VERSION is no longer allowed as v9.0.1 needs special handling. */ 
-#error "Please specify your exact FreeRTOS version in trcConfig.h, from the options listed above."
-#endif
+/* Legacy FreeRTOS version codes for backwards compatibility with old trace configurations */
+#define TRC_FREERTOS_VERSION_7_3				TRC_FREERTOS_VERSION_7_3_X
+#define TRC_FREERTOS_VERSION_7_4				TRC_FREERTOS_VERSION_7_4_X
+#define TRC_FREERTOS_VERSION_7_5_OR_7_6			TRC_FREERTOS_VERSION_7_5_X
+#define TRC_FREERTOS_VERSION_8_X				TRC_FREERTOS_VERSION_8_X_X
 
 #if (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_10_0_0)
 #define prvGetStreamBufferType(x) ((( StreamBuffer_t * )x )->ucFlags & sbFLAGS_IS_MESSAGE_BUFFER)
@@ -80,7 +87,7 @@ extern "C" {
 
 /* Added mainly for our internal testing. This makes it easier to create test applications that 
    runs on multiple FreeRTOS versions. */
-#if (TRC_CFG_FREERTOS_VERSION < TRC_FREERTOS_VERSION_8_X)
+#if (TRC_CFG_FREERTOS_VERSION < TRC_FREERTOS_VERSION_8_X_X)
 	/* FreeRTOS v7.x */	
 	#define STRING_CAST(x) ( (signed char*) x )
 	#define TickType portTickType
@@ -247,7 +254,7 @@ unsigned char prvTraceIsSchedulerSuspended(void);
 	#define TRACE_EXIT_CRITICAL_SECTION() {__set_PRIMASK(__irq_status);}
 #endif
 
-#if (TRC_CFG_HARDWARE_PORT == TRC_HARDWARE_PORT_ARM_CORTEX_A9)
+#if (TRC_CFG_HARDWARE_PORT == TRC_HARDWARE_PORT_ARM_CORTEX_A9) || (TRC_CFG_HARDWARE_PORT == TRC_HARDWARE_PORT_XILINX_ZyncUltraScaleR5)
 
 	/**************************************************************************
 	 * Disables "FreeRTOS-enabled" interrupts only , i.e. with priorities up to
@@ -255,21 +262,29 @@ unsigned char prvTraceIsSchedulerSuspended(void);
 	 * greater priority.
 	 *************************************************************************/
 
-	extern int cortex_a9_enter_critical(void);
-	extern void cortex_a9_exit_critical(int irq_already_masked_at_enter);
+	extern int cortex_a9_r5_enter_critical(void);
+	extern void cortex_a9_r5_exit_critical(int irq_already_masked_at_enter);
 
 	#define TRACE_ALLOC_CRITICAL_SECTION() uint32_t __irq_mask_status;
 
-	#define TRACE_ENTER_CRITICAL_SECTION() { __irq_mask_status = cortex_a9_enter_critical(); }
+	#define TRACE_ENTER_CRITICAL_SECTION() { __irq_mask_status = cortex_a9_r5_enter_critical(); }
 
-	#define TRACE_EXIT_CRITICAL_SECTION() { cortex_a9_exit_critical(__irq_mask_status); }
+	#define TRACE_EXIT_CRITICAL_SECTION() { cortex_a9_r5_exit_critical(__irq_mask_status); }
 
 #endif
 
-#if ( (TRC_CFG_HARDWARE_PORT == TRC_HARDWARE_PORT_Renesas_RX600) || (TRC_CFG_HARDWARE_PORT == TRC_HARDWARE_PORT_MICROCHIP_PIC24_PIC32) || (TRC_CFG_HARDWARE_PORT == TRC_HARDWARE_PORT_Altera_NiosII))
+#if ( (TRC_CFG_HARDWARE_PORT == TRC_HARDWARE_PORT_Renesas_RX600) || (TRC_CFG_HARDWARE_PORT == TRC_HARDWARE_PORT_MICROCHIP_PIC24_PIC32))
 	#define TRACE_ALLOC_CRITICAL_SECTION() int __irq_status;
 	#define TRACE_ENTER_CRITICAL_SECTION() {__irq_status = portSET_INTERRUPT_MASK_FROM_ISR();}
 	#define TRACE_EXIT_CRITICAL_SECTION() {portCLEAR_INTERRUPT_MASK_FROM_ISR(__irq_status);}
+#endif
+
+#if (TRC_CFG_HARDWARE_PORT == TRC_HARDWARE_PORT_Altera_NiosII)
+	#include "system.h"
+	#include "sys/alt_irq.h"
+	#define TRACE_ALLOC_CRITICAL_SECTION() alt_irq_context __irq_status;
+	#define TRACE_ENTER_CRITICAL_SECTION(){__irq_status = alt_irq_disable_all();}
+	#define TRACE_EXIT_CRITICAL_SECTION() {alt_irq_enable_all(__irq_status);}
 #endif
 
 #if (TRC_CFG_HARDWARE_PORT == TRC_HARDWARE_PORT_Win32)
@@ -280,7 +295,7 @@ unsigned char prvTraceIsSchedulerSuspended(void);
 #endif
 
 #if (TRC_CFG_HARDWARE_PORT == TRC_HARDWARE_PORT_POWERPC_Z4)
-#if (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X)
+#if (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X)
     /* FreeRTOS v8.0 or later */    
 	#define TRACE_ALLOC_CRITICAL_SECTION() UBaseType_t __irq_status;
     #define TRACE_ENTER_CRITICAL_SECTION() {__irq_status = portSET_INTERRUPT_MASK_FROM_ISR();}
@@ -396,13 +411,36 @@ void prvTraceSetStreamBufferNumberHigh16(void* handle, uint16_t value);
 #define TRACE_SET_STREAMBUFFER_FILTER(pxObject, group) prvTraceSetStreamBufferNumberHigh16((void*)pxObject, group)
 
 /* We can only support filtering if FreeRTOS is at least v8.0 */
-#if (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X)
+#if (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X)
 #define TRACE_GET_OBJECT_FILTER(CLASS, pxObject) TRACE_GET_##CLASS##_FILTER(pxObject)
 #define TRACE_SET_OBJECT_FILTER(CLASS, pxObject, group) TRACE_SET_##CLASS##_FILTER(pxObject, group)
-#else /* (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_7_4) */
+#else /* (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X) */
 #define TRACE_GET_OBJECT_FILTER(CLASS, pxObject) 0xFFFF
 #define TRACE_SET_OBJECT_FILTER(CLASS, pxObject, group) 
-#endif /* (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_7_4) */
+#endif /* (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X) */
+
+/* Helpers needed to correctly expand names */
+#define TZ__CAT2(a,b) a ## b
+#define TZ__CAT(a,b) TZ__CAT2(a, b)
+
+/**************************************************************************/
+/* Makes sure xQueueGiveFromISR also has a xCopyPosition parameter        */
+/**************************************************************************/
+
+/* Expands name if this header is included... uxQueueType must be a macro that only exists in queue.c or whatever, and it must expand to nothing or to something that's valid in identifiers */
+#define xQueueGiveFromISR(a,b) TZ__CAT(xQueueGiveFromISR__, uxQueueType) (a,b)
+
+/* If in queue.c, the "uxQueueType" macro expands to "pcHead". queueSEND_TO_BACK is the value we need to send in */
+#define xQueueGiveFromISR__pcHead(__a, __b) MyWrapper_xQueueGiveFromISR(__a, __b, const BaseType_t xCopyPosition); \
+BaseType_t xQueueGiveFromISR(__a, __b) { return MyWrapper_xQueueGiveFromISR(xQueue, pxHigherPriorityTaskWoken, queueSEND_TO_BACK); } \
+BaseType_t MyWrapper_xQueueGiveFromISR(__a, __b, const BaseType_t xCopyPosition)
+
+/* If not in queue.c, "uxQueueType" isn't expanded */
+#define xQueueGiveFromISR__uxQueueType(__a, __b) xQueueGiveFromISR(__a,__b)
+
+/**************************************************************************/
+/* End of xQueueGiveFromISR fix                                           */
+/**************************************************************************/
 
 /******************************************************************************/
 /*** Definitions for Snapshot mode ********************************************/
@@ -888,24 +926,34 @@ extern traceObjectClass TraceQueueClassTable[5];
 /* Called on each OS tick. Will call uiPortGetTimestamp to make sure it is called at least once every OS tick. */
 #undef traceTASK_INCREMENT_TICK
 
-#if (TRC_CFG_FREERTOS_VERSION <= TRC_FREERTOS_VERSION_7_4)
+#if (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_10_3_0)
 
 #define traceTASK_INCREMENT_TICK( xTickCount ) \
-	if (uxSchedulerSuspended == ( unsigned portBASE_TYPE ) pdTRUE || uxMissedTicks == 0) { trcKERNEL_HOOKS_INCREMENT_TICK(); } \
+	if (uxSchedulerSuspended == ( unsigned portBASE_TYPE ) pdTRUE || xPendedTicks == 0) { trcKERNEL_HOOKS_INCREMENT_TICK(); } \
 	if (uxSchedulerSuspended == ( unsigned portBASE_TYPE ) pdFALSE) { trcKERNEL_HOOKS_NEW_TIME(DIV_NEW_TIME, xTickCount + 1); }
-
-#else
+	
+#elif (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_7_5_X)
 
 #define traceTASK_INCREMENT_TICK( xTickCount ) \
 	if (uxSchedulerSuspended == ( unsigned portBASE_TYPE ) pdTRUE || uxPendedTicks == 0) { trcKERNEL_HOOKS_INCREMENT_TICK(); } \
 	if (uxSchedulerSuspended == ( unsigned portBASE_TYPE ) pdFALSE) { trcKERNEL_HOOKS_NEW_TIME(DIV_NEW_TIME, xTickCount + 1); }
 
+#else
+
+#define traceTASK_INCREMENT_TICK( xTickCount ) \
+	if (uxSchedulerSuspended == ( unsigned portBASE_TYPE ) pdTRUE || uxMissedTicks == 0) { trcKERNEL_HOOKS_INCREMENT_TICK(); } \
+	if (uxSchedulerSuspended == ( unsigned portBASE_TYPE ) pdFALSE) { trcKERNEL_HOOKS_NEW_TIME(DIV_NEW_TIME, xTickCount + 1); }
+
 #endif
+
+extern volatile uint32_t uiTraceSystemState;
 
 /* Called on each task-switch */
 #undef traceTASK_SWITCHED_IN
 #define traceTASK_SWITCHED_IN() \
-	trcKERNEL_HOOKS_TASK_SWITCH(TRACE_GET_CURRENT_TASK());
+	uiTraceSystemState = TRC_STATE_IN_TASKSWITCH; \
+	trcKERNEL_HOOKS_TASK_SWITCH(TRACE_GET_CURRENT_TASK()); \
+	uiTraceSystemState = TRC_STATE_IN_APPLICATION;
 
 /* Called on vTaskCreate */
 #undef traceTASK_CREATE
@@ -1025,6 +1073,12 @@ extern traceObjectClass TraceQueueClassTable[5];
 	trcKERNEL_HOOKS_KERNEL_SERVICE(xCopyPosition == queueSEND_TO_BACK ? (TRACE_GET_OBJECT_EVENT_CODE(SEND, TRCSUCCESS, QUEUE, pxQueue)) : TRACE_QUEUE_SEND_TO_FRONT_TRCSUCCESS, QUEUE, pxQueue); \
 	trcKERNEL_HOOKS_SET_OBJECT_STATE(QUEUE, pxQueue, TRACE_GET_OBJECT_TRACE_CLASS(QUEUE, pxQueue) == TRACE_CLASS_MUTEX ? (uint8_t)0 : (uint8_t)(pxQueue->uxMessagesWaiting + 1));
 
+/* Called when a message is sent to a queue set */
+#undef traceQUEUE_SET_SEND
+#define traceQUEUE_SET_SEND( pxQueue ) \
+	trcKERNEL_HOOKS_KERNEL_SERVICE(TRACE_GET_OBJECT_EVENT_CODE(SEND, TRCSUCCESS, QUEUE, pxQueue), QUEUE, pxQueue); \
+	trcKERNEL_HOOKS_SET_OBJECT_STATE(QUEUE, pxQueue, (uint8_t)(pxQueue->uxMessagesWaiting + 1));
+
 /* Called when a message failed to be sent to a queue (timeout) */
 #undef traceQUEUE_SEND_FAILED
 #define traceQUEUE_SEND_FAILED( pxQueue ) \
@@ -1095,29 +1149,6 @@ extern traceObjectClass TraceQueueClassTable[5];
 		trcKERNEL_HOOKS_SET_TASK_INSTANCE_FINISHED(); \
 	}
 
-
-/**************************************************************************/
-/* Makes sure xQueueGiveFromISR also has a xCopyPosition parameter        */
-/**************************************************************************/
-/* Helpers needed to correctly expand names */
-#define TZ__CAT2(a,b) a ## b
-#define TZ__CAT(a,b) TZ__CAT2(a, b)
-
-/* Expands name if this header is included... uxQueueType must be a macro that only exists in queue.c or whatever, and it must expand to nothing or to something that's valid in identifiers */
-#define xQueueGiveFromISR(a,b) TZ__CAT(xQueueGiveFromISR__, uxQueueType) (a,b)
-
-/* If in queue.c, the "uxQueueType" macro expands to "pcHead". queueSEND_TO_BACK is the value we need to send in */
-#define xQueueGiveFromISR__pcHead(__a, __b) MyWrapper(__a, __b, const BaseType_t xCopyPosition); \
-BaseType_t xQueueGiveFromISR(__a, __b) { return MyWrapper(xQueue, pxHigherPriorityTaskWoken, queueSEND_TO_BACK); } \
-BaseType_t MyWrapper(__a, __b, const BaseType_t xCopyPosition)
-
-/* If not in queue.c, "uxQueueType" isn't expanded */
-#define xQueueGiveFromISR__uxQueueType(__a, __b) xQueueGiveFromISR(__a,__b)
-
-/**************************************************************************/
-/* End of xQueueGiveFromISR fix                                           */
-/**************************************************************************/
-
 /* Called when a message is sent from interrupt context, e.g., using xQueueSendFromISR */
 #undef traceQUEUE_SEND_FROM_ISR
 #define traceQUEUE_SEND_FROM_ISR( pxQueue ) \
@@ -1169,7 +1200,7 @@ BaseType_t MyWrapper(__a, __b, const BaseType_t xCopyPosition)
 	trcKERNEL_HOOKS_TASK_RESUME_FROM_ISR(TASK_RESUME_FROM_ISR, pxTaskToResume);
 
 
-#if (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X)
+#if (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X)
 
 #if (TRC_CFG_INCLUDE_MEMMANG_EVENTS == 1)
 
@@ -1255,7 +1286,7 @@ extern void vTraceStoreMemMangEvent(uint32_t ecode, uint32_t address, int32_t si
 
 #endif /* (TRC_CFG_INCLUDE_PEND_FUNC_CALL_EVENTS == 1) */
 
-#endif /* (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X) */
+#endif /* (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X) */
 
 #if (TRC_CFG_INCLUDE_EVENT_GROUP_EVENTS == 1)
 
@@ -1715,15 +1746,25 @@ uint32_t prvIsNewTCB(void* pNewTCB);
 
 /* Called on each OS tick. Will call uiPortGetTimestamp to make sure it is called at least once every OS tick. */
 #undef traceTASK_INCREMENT_TICK
-#if TRC_CFG_FREERTOS_VERSION <= TRC_FREERTOS_VERSION_7_4
+#if TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_10_3_0
+
 #define traceTASK_INCREMENT_TICK( xTickCount ) \
-	if (uxSchedulerSuspended == ( unsigned portBASE_TYPE ) pdTRUE || uxMissedTicks == 0) { extern uint32_t uiTraceTickCount; uiTraceTickCount++; } \
+	if (uxSchedulerSuspended == ( unsigned portBASE_TYPE ) pdTRUE || xPendedTicks == 0) { extern uint32_t uiTraceTickCount; uiTraceTickCount++; } \
 	OS_TICK_EVENT(uxSchedulerSuspended, xTickCount)
-#else
+
+#elif TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_7_5_X
+
 #define traceTASK_INCREMENT_TICK( xTickCount ) \
 	if (uxSchedulerSuspended == ( unsigned portBASE_TYPE ) pdTRUE || uxPendedTicks == 0) { extern uint32_t uiTraceTickCount; uiTraceTickCount++; } \
 	OS_TICK_EVENT(uxSchedulerSuspended, xTickCount)
-#endif /* TRC_CFG_FREERTOS_VERSION <= TRC_FREERTOS_VERSION_7_4 */
+
+#else
+
+#define traceTASK_INCREMENT_TICK( xTickCount ) \
+	if (uxSchedulerSuspended == ( unsigned portBASE_TYPE ) pdTRUE || uxMissedTicks == 0) { extern uint32_t uiTraceTickCount; uiTraceTickCount++; } \
+	OS_TICK_EVENT(uxSchedulerSuspended, xTickCount)
+
+#endif
 
 extern volatile uint32_t uiTraceSystemState;
 
@@ -1924,19 +1965,19 @@ extern volatile uint32_t uiTraceSystemState;
 
 /* Called in xQueueCreateCountingSemaphore, if the queue creation fails */
 #undef traceCREATE_COUNTING_SEMAPHORE
-#if (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X)
+#if (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X)
 #define traceCREATE_COUNTING_SEMAPHORE() \
 	TRACE_SET_OBJECT_FILTER(QUEUE, xHandle, CurrentFilterGroup); \
 	if (TRACE_GET_OBJECT_FILTER(TASK, TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
 		if (TRACE_GET_OBJECT_FILTER(QUEUE, xHandle) & CurrentFilterMask) \
 			prvTraceStoreEvent2(PSF_EVENT_SEMAPHORE_COUNTING_CREATE, (uint32_t)xHandle, uxMaxCount)
-#elif (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_7_5_OR_7_6)
+#elif (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_7_5_X)
 #define traceCREATE_COUNTING_SEMAPHORE() \
 	TRACE_SET_OBJECT_FILTER(QUEUE, xHandle, CurrentFilterGroup); \
 	if (TRACE_GET_OBJECT_FILTER(TASK, TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
 		if (TRACE_GET_OBJECT_FILTER(QUEUE, xHandle) & CurrentFilterMask) \
 			prvTraceStoreEvent2(PSF_EVENT_SEMAPHORE_COUNTING_CREATE, (uint32_t)xHandle, uxInitialCount);
-#elif (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_7_4)
+#elif (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_7_4_X)
 #define traceCREATE_COUNTING_SEMAPHORE() \
 	TRACE_SET_OBJECT_FILTER(QUEUE, xHandle, CurrentFilterGroup); \
 	if (TRACE_GET_OBJECT_FILTER(TASK, TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
@@ -1948,18 +1989,18 @@ extern volatile uint32_t uiTraceSystemState;
 	if (TRACE_GET_OBJECT_FILTER(TASK, TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
 		if (TRACE_GET_OBJECT_FILTER(QUEUE, pxHandle) & CurrentFilterMask) \
 			prvTraceStoreEvent2(PSF_EVENT_SEMAPHORE_COUNTING_CREATE, (uint32_t)pxHandle, uxCountValue);
-#endif /* TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X */
+#endif /* TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X */
 
 #undef traceCREATE_COUNTING_SEMAPHORE_FAILED
-#if (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X)
+#if (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X)
 #define traceCREATE_COUNTING_SEMAPHORE_FAILED() \
 	if (TRACE_GET_OBJECT_FILTER(TASK, TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
 		prvTraceStoreEvent2(PSF_EVENT_SEMAPHORE_COUNTING_CREATE_FAILED, 0, uxMaxCount);
-#elif (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_7_5_OR_7_6)
+#elif (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_7_5_X)
 #define traceCREATE_COUNTING_SEMAPHORE_FAILED() \
 	if (TRACE_GET_OBJECT_FILTER(TASK, TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
 		prvTraceStoreEvent2(PSF_EVENT_SEMAPHORE_COUNTING_CREATE_FAILED, 0, uxInitialCount);
-#elif (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_7_4)
+#elif (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_7_4_X)
 #define traceCREATE_COUNTING_SEMAPHORE_FAILED() \
 	if (TRACE_GET_OBJECT_FILTER(TASK, TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
 		prvTraceStoreEvent2(PSF_EVENT_SEMAPHORE_COUNTING_CREATE_FAILED, 0, uxCountValue);
@@ -1967,7 +2008,7 @@ extern volatile uint32_t uiTraceSystemState;
 #define traceCREATE_COUNTING_SEMAPHORE_FAILED() \
 	if (TRACE_GET_OBJECT_FILTER(TASK, TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
 		prvTraceStoreEvent2(PSF_EVENT_SEMAPHORE_COUNTING_CREATE_FAILED, 0, uxCountValue);
-#endif /* TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X */
+#endif /* TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X */
 
 
 /* This macro is not necessary as of FreeRTOS v9.0.0 */
@@ -2018,6 +2059,12 @@ extern volatile uint32_t uiTraceSystemState;
 					prvTraceStoreEvent1(PSF_EVENT_MUTEX_GIVE, (uint32_t)pxQueue); \
 					break; \
 			}
+			
+#undef traceQUEUE_SET_SEND
+#define traceQUEUE_SET_SEND( pxQueue ) \
+	if (TRACE_GET_OBJECT_FILTER(TASK, TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
+		if (TRACE_GET_OBJECT_FILTER(QUEUE, pxQueue) & CurrentFilterMask) \
+			prvTraceStoreEvent2(PSF_EVENT_QUEUE_SEND, (uint32_t)pxQueue, pxQueue->uxMessagesWaiting + 1);
 
 /* Called when a message failed to be sent to a queue (timeout) */
 #undef traceQUEUE_SEND_FAILED
@@ -2058,28 +2105,6 @@ extern volatile uint32_t uiTraceSystemState;
 					prvTraceStoreEvent1(PSF_EVENT_MUTEX_GIVE_BLOCK, (uint32_t)pxQueue); \
 					break; \
 			}
-
-/**************************************************************************/
-/* Makes sure xQueueGiveFromISR also has a xCopyPosition parameter        */
-/**************************************************************************/
-/* Helpers needed to correctly expand names */
-#define TZ__CAT2(a,b) a ## b
-#define TZ__CAT(a,b) TZ__CAT2(a, b)
-
-/* Expands name if this header is included... uxQueueType must be a macro that only exists in queue.c or whatever, and it must expand to nothing or to something that's valid in identifiers */
-#define xQueueGiveFromISR(a,b) TZ__CAT(xQueueGiveFromISR__, uxQueueType) (a,b)
-
-/* If in queue.c, the "uxQueueType" macro expands to "pcHead". queueSEND_TO_BACK is the value we need to send in */
-#define xQueueGiveFromISR__pcHead(__a, __b) MyWrapper(__a, __b, const BaseType_t xCopyPosition); \
-BaseType_t xQueueGiveFromISR(__a, __b) { return MyWrapper(xQueue, pxHigherPriorityTaskWoken, queueSEND_TO_BACK); } \
-BaseType_t MyWrapper(__a, __b, const BaseType_t xCopyPosition)
-
-/* If not in queue.c, "uxQueueType" isn't expanded */
-#define xQueueGiveFromISR__uxQueueType(__a, __b) xQueueGiveFromISR(__a,__b)
-
-/**************************************************************************/
-/* End of xQueueGiveFromISR fix                                           */
-/**************************************************************************/
 
 /* Called when a message is sent from interrupt context, e.g., using xQueueSendFromISR */
 #undef traceQUEUE_SEND_FROM_ISR
@@ -2355,7 +2380,7 @@ extern uint32_t trcHeapCounter;
 	if (TRACE_GET_OBJECT_FILTER(TASK, TRACE_GET_CURRENT_TASK()) & CurrentFilterMask) \
 		prvTraceStoreEvent0(PSF_EVENT_TIMER_CREATE_FAILED);
 
-#if (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X)
+#if (TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X)
 #define traceTIMER_COMMAND_SEND_8_0_CASES(tmr) \
 				case tmrCOMMAND_RESET: \
 					prvTraceStoreEvent2((xReturn == pdPASS) ? PSF_EVENT_TIMER_RESET : PSF_EVENT_TIMER_RESET_FAILED, (uint32_t)tmr, xOptionalValue); \
@@ -2372,9 +2397,9 @@ extern uint32_t trcHeapCounter;
 				case tmrCOMMAND_CHANGE_PERIOD_FROM_ISR: \
 					prvTraceStoreEvent2((xReturn == pdPASS) ? PSF_EVENT_TIMER_CHANGEPERIOD_FROMISR : PSF_EVENT_TIMER_CHANGEPERIOD_FROMISR_FAILED, (uint32_t)tmr, xOptionalValue); \
 					break;
-#else /* TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X */
+#else /* TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X */
 #define traceTIMER_COMMAND_SEND_8_0_CASES(tmr) 
-#endif /* TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X */
+#endif /* TRC_CFG_FREERTOS_VERSION >= TRC_FREERTOS_VERSION_8_X_X */
 
 /* Note that xCommandID can never be tmrCOMMAND_EXECUTE_CALLBACK (-1) since the trace macro is not called in that case */
 #undef traceTIMER_COMMAND_SEND
