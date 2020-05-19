@@ -9,15 +9,20 @@ struct LatchStatus
 
 struct LatchStatus *App_LatchStatus_Create(bool (*is_enabled)(void))
 {
-    struct LatchStatus *latch = malloc(sizeof(struct LatchStatus));
-    assert(latch != NULL);
+    struct LatchStatus *latch_status = malloc(sizeof(struct LatchStatus));
+    assert(latch_status != NULL);
 
-    latch->is_enabled = is_enabled;
+    latch_status->is_enabled = is_enabled;
 
-    return latch;
+    return latch_status;
 }
 
-bool App_LatchStatus_IsEnabled(const struct LatchStatus *latch)
+void App_LatchStatus_Destroy(struct LatchStatus *latch_status)
 {
-    return latch->is_enabled();
+    free(latch_status);
+}
+
+bool App_LatchStatus_IsEnabled(const struct LatchStatus *latch_status)
+{
+    return latch_status->is_enabled();
 }
