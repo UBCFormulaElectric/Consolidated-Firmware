@@ -39,9 +39,12 @@
 #include "Io_WheelSpeedSensors.h"
 
 #include "App_FsmWorld.h"
+#include "App_InRangeCheck.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_AirOpenState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
+#include "configs/App_FlowRateThresholds.h"
+#include "configs/App_WheelSpeedThresholds.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -86,7 +89,10 @@ osThreadId          Task100HzHandle;
 uint32_t            Task100HzBuffer[TASK100HZ_STACK_SIZE];
 osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
-struct FlowMeter *        primary_flow_meter, *secondary_flow_meter;
+struct InRangeCheck *primary_flow_meter_in_range_check,
+    *secondary_flow_meter_in_range_check;
+struct InRangeCheck *left_wheel_speed_sensor_in_range_check,
+    *right_wheel_speed_sensor_in_range_check;
 struct World *            world;
 struct StateMachine *     state_machine;
 struct FsmCanTxInterface *can_tx;
@@ -173,19 +179,27 @@ int main(void)
     Io_SharedHardFaultHandler_Init();
 
     Io_FlowMeters_Init(&htim4);
-    primary_flow_meter = App_FlowMeter_Create(Io_FlowMeters_GetPrimaryFlowRate);
-    secondary_flow_meter =
-        App_FlowMeter_Create(Io_FlowMeters_GetSecondaryFlowRate);
+    primary_flow_meter_in_range_check = App_InRangeCheck_Create(
+        Io_FlowMeters_GetPrimaryFlowRate, PRIMARY_FLOW_METER_MIN_FLOW_RATE,
+        PRIMARY_FLOW_METER_MAX_FLOW_RATE);
+    secondary_flow_meter_in_range_check = App_InRangeCheck_Create(
+        Io_FlowMeters_GetSecondaryFlowRate, SECONDARY_FLOW_METER_MIN_FLOW_RATE,
+        SECONDARY_FLOW_METER_MAX_FLOW_RATE);
 
     Io_WheelSpeedSensors_Init(&htim16, &htim17);
+    left_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
+        Io_WheelSpeedSensors_GetLeftSpeedKph, LEFT_WHEEL_MIN_SPEED,
+        LEFT_WHEEL_MAX_SPEED);
+    right_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
+        Io_WheelSpeedSensors_GetRightSpeedKph, RIGHT_WHEEL_MIN_SPEED,
+        RIGHT_WHEEL_MAX_SPEED);
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_AIR_SHUTDOWN);
 
-    can_rx = App_CanRx_Create();
-
+    can_rx            = App_CanRx_Create();
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_HeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS,
         HEARTBEAT_MONITOR_BOARDS_TO_CHECK, Io_HeartbeatMonitor_TimeoutCallback);
@@ -195,8 +209,10 @@ int main(void)
         Io_RgbLedSequence_TurnOnGreenLed);
 
     world = App_FsmWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, primary_flow_meter,
-        secondary_flow_meter, rgb_led_sequence);
+        can_tx, can_rx, heartbeat_monitor, primary_flow_meter_in_range_check,
+        secondary_flow_meter_in_range_check,
+        left_wheel_speed_sensor_in_range_check,
+        right_wheel_speed_sensor_in_range_check, rgb_led_sequence);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 
@@ -801,6 +817,14 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     {
         Io_FlowMeters_CheckIfPrimaryIsActive();
         Io_FlowMeters_CheckIfSecondaryIsActive();
+    }
+    else if (htim->Instance == TIM16)
+    {
+        Io_WheelSpeedSensors_CheckIfLeftSensorIsActive();
+    }
+    else if (htim->Instance == TIM17)
+    {
+        Io_WheelSpeedSensors_CheckIfRightSensorIsActive();
     }
     /* USER CODE END Callback 0 */
     if (htim->Instance == TIM6)

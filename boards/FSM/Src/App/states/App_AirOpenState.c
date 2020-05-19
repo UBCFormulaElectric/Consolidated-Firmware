@@ -19,16 +19,8 @@ static void AirOpenStateRunOnTick1Hz(struct StateMachine *const state_machine)
 static void AirOpenStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct FsmCanTxInterface *can_tx_interface = App_FsmWorld_GetCanTx(world);
-    struct FlowMeter *        primary_flow_meter =
-        App_FsmWorld_GetPrimaryFlowMeter(world);
-    struct FlowMeter *secondary_flow_meter =
-        App_FsmWorld_GetSecondaryFlowMeter(world);
-
-    App_CanTx_SetPeriodicSignal_PRIMARY_FLOW_RATE(
-        can_tx_interface, App_FlowMeter_GetFlowRate(primary_flow_meter));
-    App_CanTx_SetPeriodicSignal_SECONDARY_FLOW_RATE(
-        can_tx_interface, App_FlowMeter_GetFlowRate(secondary_flow_meter));
+    App_SetPeriodicSignals_FlowRateInRangeChecks(world);
+    App_SetPeriodicSignals_WheelSpeedInRangeChecks(world);
 }
 
 static void AirOpenStateRunOnExit(struct StateMachine *const state_machine)
