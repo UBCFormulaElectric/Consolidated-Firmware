@@ -10,7 +10,8 @@
 
 static ExitStatusCallback exit_status_callback;
 
-static struct ExitStatus *App_GetThreadLocalExitStatus(void)
+// TODO: change this back to static
+struct ExitStatus *App_GetThreadLocalExitStatus(void)
 {
 #ifdef __arm__
     // Use this exit status before the scheduler starts
@@ -42,8 +43,8 @@ ExitCode App_SharedExitStatus_Update(
     const char *message)
 {
     // We are not interested in handling non-errors
-    if (EXIT_CODE_OK(code))
-        return code;
+//    if (EXIT_CODE_OK(code))
+//        return code;
 
     struct ExitStatus *exit_status = App_GetThreadLocalExitStatus();
     assert(exit_status != NULL);
@@ -55,7 +56,7 @@ ExitCode App_SharedExitStatus_Update(
 
     if (exit_status_callback != NULL)
     {
-        exit_status_callback(*exit_status);
+        exit_status_callback(exit_status);
     }
 
     return code;

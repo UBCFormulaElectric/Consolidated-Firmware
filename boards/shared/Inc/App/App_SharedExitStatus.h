@@ -1,7 +1,9 @@
 #pragma once
 
+struct ExitStatus *App_GetThreadLocalExitStatus(void);
+
 /**
- *
+ * TODO:
  */
 
 #include "App_SharedMacros.h"
@@ -22,7 +24,7 @@ struct ExitStatus
     const char *message;
 };
 
-typedef void (*ExitStatusCallback)(struct ExitStatus status);
+typedef void (*ExitStatusCallback)(struct ExitStatus *status);
 
 // clang-format off
 #define EXIT_CODE(code)                  \

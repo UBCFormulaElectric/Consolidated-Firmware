@@ -144,6 +144,14 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
     App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
 }
+
+static void App_ExitStatusCallback(struct ExitStatus *status)
+{
+    (void)status;
+    printf(
+        "CODE:%d:%s:%s: %s\n", status->code, status->source, status->caller,
+        status->message);
+}
 /* USER CODE END 0 */
 
 /**
@@ -307,6 +315,7 @@ int main(void)
 #if (configUSE_TRACE_FACILITY == 1)
     vTraceEnable(TRC_INIT);
 #endif
+
     /* USER CODE END RTOS_THREADS */
 
     /* Start scheduler */
@@ -797,6 +806,8 @@ void RunTask1Hz(void const *argument)
     SoftwareWatchdogHandle_t watchdog =
         Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1HZ", period_ms);
+    static struct ExitStatus exit_status;
+    vTaskSetThreadLocalStoragePointer(NULL, 0, &exit_status);
 
     /* Infinite loop */
     for (;;)

@@ -5,7 +5,7 @@ extern "C"
 #include "App_SharedExitStatus.h"
 }
 
-FAKE_VOID_FUNC(callback, struct ExitStatus);
+FAKE_VOID_FUNC(callback, struct ExitStatus *);
 
 class SharedExitStatusTest : public testing::Test
 {
