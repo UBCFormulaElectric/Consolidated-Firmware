@@ -5,6 +5,7 @@
 #include "App_Imd.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
+#include "App_Charger.h"
 
 struct BmsWorld;
 
@@ -22,7 +23,8 @@ struct BmsWorld *App_BmsWorld_Create(
     struct BmsCanRxInterface *can_rx_interface,
     struct Imd *              imd,
     struct HeartbeatMonitor * heartbeat_monitor,
-    struct RgbLedSequence *   rgb_led_sequence);
+    struct RgbLedSequence *   rgb_led_sequence,
+    struct Charger *          charger);
 
 /**
  * Deallocate the memory used by the given world
@@ -66,3 +68,10 @@ struct HeartbeatMonitor *
  */
 struct RgbLedSequence *
     App_BmsWorld_GetRgbLedSequence(const struct BmsWorld *world);
+
+/**
+ * Get the charger for the given world
+ * @param world The world to get charger for
+ * @return The charger for the given world
+ */
+struct Charger *App_BmsWorld_GetCharger(const struct BmsWorld *world);
