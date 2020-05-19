@@ -780,7 +780,6 @@ void RunTask100Hz(void const *argument)
     for (;;)
     {
         App_SharedStateMachine_Tick100Hz(state_machine);
-        App_Imd_Tick(imd);
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.

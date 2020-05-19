@@ -23,7 +23,6 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct BmsCanTxInterface *can_tx = App_BmsWorld_GetCanTx(world);
     struct Imd *              imd    = App_BmsWorld_GetImd(world);
 
-    App_Imd_Tick(imd);
     App_SetPeriodicCanSignals_Imd(can_tx, imd);
 }
 

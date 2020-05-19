@@ -12,38 +12,38 @@ void App_SetPeriodicCanSignals_Imd(
     App_CanTx_SetPeriodicSignal_DUTY_CYCLE(
         can_tx, App_Imd_GetPwmDutyCycle(imd));
 
-    const enum Imd_Condition condition = App_Imd_GetCondition(imd);
-    App_CanTx_SetPeriodicSignal_CONDITION(can_tx, condition);
-
-    const struct Imd_PwmEncoding pwm_encoding = App_Imd_GetPwmEncoding(imd);
+    const struct Imd_Condition condition = App_Imd_GetCondition(imd);
+    App_CanTx_SetPeriodicSignal_CONDITION(can_tx, (uint8_t)condition.name);
 
     App_CanTx_SetPeriodicSignal_VALID_DUTY_CYCLE(
-        can_tx, pwm_encoding.valid_duty_cycle);
+        can_tx, condition.pwm_encoding.valid_duty_cycle);
 
-    switch (condition)
+    switch (condition.name)
     {
         case IMD_NORMAL:
         {
-            if (pwm_encoding.valid_duty_cycle == true)
+            if (condition.pwm_encoding.valid_duty_cycle == true)
             {
                 App_CanTx_SetPeriodicSignal_INSULATION_MEASUREMENT_DCP_10_HZ(
-                    can_tx, pwm_encoding.insulation_measurement_dcp_kohms);
+                    can_tx,
+                    condition.pwm_encoding.insulation_measurement_dcp_kohms);
             }
         }
         break;
         case IMD_UNDERVOLTAGE_DETECTED:
         {
-            if (pwm_encoding.valid_duty_cycle == true)
+            if (condition.pwm_encoding.valid_duty_cycle == true)
             {
                 App_CanTx_SetPeriodicSignal_INSULATION_MEASUREMENT_DCP_20_HZ(
-                    can_tx, pwm_encoding.insulation_measurement_dcp_kohms);
+                    can_tx,
+                    condition.pwm_encoding.insulation_measurement_dcp_kohms);
             }
         }
         break;
         case IMD_SST:
         {
             App_CanTx_SetPeriodicSignal_SPEED_START_STATUS_30_HZ(
-                can_tx, pwm_encoding.speed_start_status);
+                can_tx, condition.pwm_encoding.speed_start_status);
         }
         break;
         case IMD_SHORT_CIRCUIT:
