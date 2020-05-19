@@ -16,7 +16,7 @@ void ImdTest::SetImdCondition(
     };
 
     fake_pwm_frequency_return_val = mapping[condition_name];
-    //    ASSERT_EQ(condition, App_Imd_GetCondition(imd_to_set).name);
+    ASSERT_EQ(condition_name, App_Imd_GetCondition(imd_to_set).name);
 }
 
 void ImdTest::SetPwmFrequencyTolerance(struct Imd *imd_to_set, float tolerance)
