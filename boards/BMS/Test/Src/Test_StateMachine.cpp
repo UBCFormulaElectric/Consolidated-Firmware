@@ -31,6 +31,9 @@ FAKE_VOID_FUNC(
 FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
+FAKE_VALUE_FUNC(bool, is_bms_ok_enabled);
+FAKE_VALUE_FUNC(bool, is_imd_ok_enabled);
+FAKE_VALUE_FUNC(bool, is_bspd_ok_enabled);
 
 class BmsStateMachineTest : public testing::Test
 {
@@ -54,9 +57,15 @@ class BmsStateMachineTest : public testing::Test
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
+        bms_ok = App_LatchStatus_Create(is_bms_ok_enabled);
+
+        imd_ok = App_LatchStatus_Create(is_imd_ok_enabled);
+
+        bspd_ok = App_LatchStatus_Create(is_bspd_ok_enabled);
+
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
-            rgb_led_sequence);
+            rgb_led_sequence, bms_ok, imd_ok, bspd_ok);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -111,6 +120,9 @@ class BmsStateMachineTest : public testing::Test
     struct Imd *              imd;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
+    struct LatchStatus *      bms_ok;
+    struct LatchStatus *      imd_ok;
+    struct LatchStatus *      bspd_ok;
 };
 
 // BMS-31
@@ -348,6 +360,44 @@ TEST_F(BmsStateMachineTest, rgb_led_sequence_in_all_states)
             App_SharedStateMachine_Tick1Hz(state_machine);
             ASSERT_EQ(*call_counts[i % 3], i / 3 + 1);
         }
+    }
+}
+
+// BMS-37
+TEST_F(
+    BmsStateMachineTest,
+    check_latch_statuses_are_broadcasted_over_can_in_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        // Enable BMS_OK
+        ASSERT_EQ(false, App_CanTx_GetPeriodicSignal_BMS_OK(can_tx_interface));
+        is_bms_ok_enabled_fake.return_val = true;
+        App_SharedStateMachine_Tick100Hz(state_machine);
+        ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_BMS_OK(can_tx_interface));
+
+        // Enable IMD_OK
+        ASSERT_EQ(false, App_CanTx_GetPeriodicSignal_IMD_OK(can_tx_interface));
+        is_imd_ok_enabled_fake.return_val = true;
+        App_SharedStateMachine_Tick100Hz(state_machine);
+        ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_IMD_OK(can_tx_interface));
+
+        // Enable BSPD_OK
+        ASSERT_EQ(false, App_CanTx_GetPeriodicSignal_BSPD_OK(can_tx_interface));
+        is_bspd_ok_enabled_fake.return_val = true;
+        App_SharedStateMachine_Tick100Hz(state_machine);
+        ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_IMD_OK(can_tx_interface));
+
+        // RESET BMS_OK, IMD_OK, and BSPD_OK
+        is_bms_ok_enabled_fake.return_val  = false;
+        is_imd_ok_enabled_fake.return_val  = false;
+        is_bspd_ok_enabled_fake.return_val = false;
+        App_SharedStateMachine_Tick100Hz(state_machine);
+        ASSERT_EQ(false, App_CanTx_GetPeriodicSignal_BMS_OK(can_tx_interface));
+        ASSERT_EQ(false, App_CanTx_GetPeriodicSignal_IMD_OK(can_tx_interface));
+        ASSERT_EQ(false, App_CanTx_GetPeriodicSignal_BSPD_OK(can_tx_interface));
     }
 }
 

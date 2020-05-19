@@ -8,3 +8,39 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 
     App_SharedRgbLedSequence_Tick(rgb_led_sequence);
 }
+
+void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
+{
+    struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct BmsCanTxInterface *can_tx  = App_BmsWorld_GetCanTx(world);
+    struct LatchStatus *      bms_ok  = App_BmsWorld_GetBmsOk(world);
+    struct LatchStatus *      imd_ok  = App_BmsWorld_GetImdOk(world);
+    struct LatchStatus *      bspd_ok = App_BmsWorld_GetBspdOk(world);
+
+    if (App_LatchStatus_IsEnabled(bms_ok))
+    {
+        App_CanTx_SetPeriodicSignal_BMS_OK(can_tx, true);
+    }
+    else
+    {
+        App_CanTx_SetPeriodicSignal_BMS_OK(can_tx, false);
+    }
+
+    if (App_LatchStatus_IsEnabled(imd_ok))
+    {
+        App_CanTx_SetPeriodicSignal_IMD_OK(can_tx, true);
+    }
+    else
+    {
+        App_CanTx_SetPeriodicSignal_IMD_OK(can_tx, false);
+    }
+
+    if (App_LatchStatus_IsEnabled(bspd_ok))
+    {
+        App_CanTx_SetPeriodicSignal_BSPD_OK(can_tx, true);
+    }
+    else
+    {
+        App_CanTx_SetPeriodicSignal_BSPD_OK(can_tx, false);
+    }
+}

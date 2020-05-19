@@ -36,6 +36,7 @@
 #include "Io_Imd.h"
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
+#include "Io_Latches.h"
 
 #include "App_BmsWorld.h"
 #include "App_SharedStateMachine.h"
@@ -92,6 +93,9 @@ struct BmsCanRxInterface *can_rx;
 struct Imd *              imd;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
+struct LatchStatus *      bms_ok;
+struct LatchStatus *      imd_ok;
+struct LatchStatus *      bspd_ok;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -188,8 +192,15 @@ int main(void)
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
         Io_RgbLedSequence_TurnOnGreenLed);
 
+    bms_ok = App_LatchStatus_Create(Io_Latches_IsBmsOkEnabled);
+
+    imd_ok = App_LatchStatus_Create(Io_Latches_IsImdOkEnabled);
+
+    bspd_ok = App_LatchStatus_Create(Io_Latches_IsBspdOkEnabled);
+
     world = App_BmsWorld_Create(
-        can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence);
+        can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, bms_ok,
+        imd_ok, bspd_ok);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
