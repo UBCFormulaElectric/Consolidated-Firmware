@@ -37,6 +37,7 @@
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
 #include "Io_WheelSpeedSensors.h"
+#include "Io_SteeringAngleSensor.h"
 #include "Io_Adc.h"
 
 #include "App_FsmWorld.h"
@@ -44,12 +45,10 @@
 #include "App_SharedStateMachine.h"
 #include "states/App_AirOpenState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
-<<<<<<< HEAD
 #include "configs/App_FlowRateThresholds.h"
 #include "configs/App_WheelSpeedThresholds.h"
-=======
+#include "configs/App_SteeringAngleThresholds.h"
 #include "configs/App_SharedStateMachineConfig.h"
->>>>>>> 70ac528... Add Io_Adc files
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -96,15 +95,11 @@ osThreadId          Task100HzHandle;
 uint32_t            Task100HzBuffer[TASK100HZ_STACK_SIZE];
 osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
-<<<<<<< HEAD
 struct InRangeCheck *primary_flow_meter_in_range_check,
     *secondary_flow_meter_in_range_check;
 struct InRangeCheck *left_wheel_speed_sensor_in_range_check,
     *right_wheel_speed_sensor_in_range_check;
-=======
-struct FlowMeter *        primary_flow_meter, *secondary_flow_meter;
-struct InRangeCheck       *steering_angle_sensor;
->>>>>>> 70ac528... Add Io_Adc files
+struct InRangeCheck *     steering_angle_sensor;
 struct World *            world;
 struct StateMachine *     state_machine;
 struct FsmCanTxInterface *can_tx;
@@ -215,6 +210,10 @@ int main(void)
     right_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
         Io_WheelSpeedSensors_GetRightSpeedKph, RIGHT_WHEEL_MIN_SPEED,
         RIGHT_WHEEL_MAX_SPEED);
+
+    steering_angle_sensor = App_InRangeCheck_Create(
+        Io_SteeringAngleSensor_GetAngle, MIN_STEERING_ANGLE,
+        MAX_STEERING_ANGLE);
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,

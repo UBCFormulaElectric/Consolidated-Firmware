@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdint.h>
+
 /**
  * Get the buffer for DMA controller to write raw ADC values into
  * @return Pointer to the buffer

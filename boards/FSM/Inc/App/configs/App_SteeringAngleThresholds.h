@@ -1,4 +1,5 @@
 #pragma once
 
+#define STEERING_ANGLE_VOLTAGE_OFFSET 1.9f
 #define MIN_STEERING_ANGLE -100.0f
 #define MAX_STEERING_ANGLE 100.0f
