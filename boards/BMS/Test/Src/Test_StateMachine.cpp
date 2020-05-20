@@ -120,9 +120,9 @@ class BmsStateMachineTest : public testing::Test
     struct Imd *              imd;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
-    struct LatchStatus *      bms_ok;
-    struct LatchStatus *      imd_ok;
-    struct LatchStatus *      bspd_ok;
+    struct OkStatus *         bms_ok;
+    struct OkStatus *         imd_ok;
+    struct OkStatus *         bspd_ok;
 };
 
 // BMS-31

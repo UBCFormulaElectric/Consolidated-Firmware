@@ -13,9 +13,9 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct BmsCanTxInterface *can_tx  = App_BmsWorld_GetCanTx(world);
-    struct LatchStatus *      bms_ok  = App_BmsWorld_GetBmsOk(world);
-    struct LatchStatus *      imd_ok  = App_BmsWorld_GetImdOk(world);
-    struct LatchStatus *      bspd_ok = App_BmsWorld_GetBspdOk(world);
+    struct OkStatus *         bms_ok  = App_BmsWorld_GetBmsOk(world);
+    struct OkStatus *         imd_ok  = App_BmsWorld_GetImdOk(world);
+    struct OkStatus *         bspd_ok = App_BmsWorld_GetBspdOk(world);
 
     if (App_LatchStatus_IsEnabled(bms_ok))
     {

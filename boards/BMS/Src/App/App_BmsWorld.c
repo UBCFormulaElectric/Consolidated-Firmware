@@ -10,9 +10,9 @@ struct BmsWorld
     struct Imd *              imd;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
-    struct LatchStatus *      bms_ok;
-    struct LatchStatus *      imd_ok;
-    struct LatchStatus *      bspd_ok;
+    struct OkStatus *         bms_ok;
+    struct OkStatus *         imd_ok;
+    struct OkStatus *         bspd_ok;
 };
 
 struct BmsWorld *App_BmsWorld_Create(
@@ -21,9 +21,9 @@ struct BmsWorld *App_BmsWorld_Create(
     struct Imd *const               imd,
     struct HeartbeatMonitor *const  heartbeat_monitor,
     struct RgbLedSequence *const    rgb_led_sequence,
-    struct LatchStatus *const       bms_ok,
-    struct LatchStatus *const       imd_ok,
-    struct LatchStatus *const       bspd_ok)
+    struct OkStatus *const          bms_ok,
+    struct OkStatus *const          imd_ok,
+    struct OkStatus *const          bspd_ok)
 {
     struct BmsWorld *world = (struct BmsWorld *)malloc(sizeof(struct BmsWorld));
     assert(world != NULL);
@@ -74,17 +74,17 @@ struct RgbLedSequence *
     return world->rgb_led_sequence;
 }
 
-struct LatchStatus *App_BmsWorld_GetBmsOk(const struct BmsWorld *const world)
+struct OkStatus *App_BmsWorld_GetBmsOk(const struct BmsWorld *const world)
 {
     return world->bms_ok;
 }
 
-struct LatchStatus *App_BmsWorld_GetImdOk(const struct BmsWorld *const world)
+struct OkStatus *App_BmsWorld_GetImdOk(const struct BmsWorld *const world)
 {
     return world->imd_ok;
 }
 
-struct LatchStatus *App_BmsWorld_GetBspdOk(const struct BmsWorld *const world)
+struct OkStatus *App_BmsWorld_GetBspdOk(const struct BmsWorld *const world)
 {
     return world->bspd_ok;
 }

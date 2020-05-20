@@ -5,7 +5,7 @@
 #include "App_Imd.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
-#include "App_LatchStatus.h"
+#include "App_OkStatus.h"
 
 struct BmsWorld;
 
@@ -24,9 +24,9 @@ struct BmsWorld *App_BmsWorld_Create(
     struct Imd *              imd,
     struct HeartbeatMonitor * heartbeat_monitor,
     struct RgbLedSequence *   rgb_led_sequence,
-    struct LatchStatus *      bms_ok,
-    struct LatchStatus *      imd_ok,
-    struct LatchStatus *      bspd_ok);
+    struct OkStatus *         bms_ok,
+    struct OkStatus *         imd_ok,
+    struct OkStatus *         bspd_ok);
 
 /**
  * Deallocate the memory used by the given world
@@ -75,18 +75,18 @@ struct RgbLedSequence *
  * @param world The world to get BMS OK for
  * @return The BMS OK for the given world
  */
-struct LatchStatus *App_BmsWorld_GetBmsOk(const struct BmsWorld *world);
+struct OkStatus *App_BmsWorld_GetBmsOk(const struct BmsWorld *world);
 
 /**
  * Get the IMD OK for the given world
  * @param world The world to get IMD OK for
  * @return The IMD OK for the given world
  */
-struct LatchStatus *App_BmsWorld_GetImdOk(const struct BmsWorld *world);
+struct OkStatus *App_BmsWorld_GetImdOk(const struct BmsWorld *world);
 
 /**
  * Get the BSPD OK for the given world
  * @param world The world to get BSPD OK for
  * @return The BSPD OK for the given world
  */
-struct LatchStatus *App_BmsWorld_GetBspdOk(const struct BmsWorld *world);
+struct OkStatus *App_BmsWorld_GetBspdOk(const struct BmsWorld *world);
