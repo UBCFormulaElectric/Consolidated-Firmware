@@ -7,22 +7,22 @@ struct OkStatus
     bool (*is_enabled)(void);
 };
 
-struct OkStatus *App_LatchStatus_Create(bool (*is_enabled)(void))
+struct OkStatus *App_OkStatus_Create(bool (*is_enabled)(void))
 {
-    struct OkStatus *latch_status = malloc(sizeof(struct OkStatus));
-    assert(latch_status != NULL);
+    struct OkStatus *ok_status = malloc(sizeof(struct OkStatus));
+    assert(ok_status != NULL);
 
-    latch_status->is_enabled = is_enabled;
+    ok_status->is_enabled = is_enabled;
 
-    return latch_status;
+    return ok_status;
 }
 
-void App_LatchStatus_Destroy(struct OkStatus *latch_status)
+void App_OkStatus_Destroy(struct OkStatus *ok_status)
 {
-    free(latch_status);
+    free(ok_status);
 }
 
-bool App_LatchStatus_IsEnabled(const struct OkStatus *latch_status)
+bool App_OkStatus_IsEnabled(const struct OkStatus *ok_status)
 {
-    return latch_status->is_enabled();
+    return ok_status->is_enabled();
 }

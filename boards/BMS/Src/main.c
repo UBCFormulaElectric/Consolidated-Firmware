@@ -192,11 +192,11 @@ int main(void)
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
         Io_RgbLedSequence_TurnOnGreenLed);
 
-    bms_ok = App_LatchStatus_Create(Io_Latches_IsBmsOkEnabled);
+    bms_ok = App_OkStatus_Create(Io_Latches_IsBmsOkEnabled);
 
-    imd_ok = App_LatchStatus_Create(Io_Latches_IsImdOkEnabled);
+    imd_ok = App_OkStatus_Create(Io_Latches_IsImdOkEnabled);
 
-    bspd_ok = App_LatchStatus_Create(Io_Latches_IsBspdOkEnabled);
+    bspd_ok = App_OkStatus_Create(Io_Latches_IsBspdOkEnabled);
 
     world = App_BmsWorld_Create(
         can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, bms_ok,

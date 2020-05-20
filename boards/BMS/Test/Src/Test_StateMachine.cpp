@@ -57,11 +57,11 @@ class BmsStateMachineTest : public testing::Test
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
-        bms_ok = App_LatchStatus_Create(is_bms_ok_enabled);
+        bms_ok = App_OkStatus_Create(is_bms_ok_enabled);
 
-        imd_ok = App_LatchStatus_Create(is_imd_ok_enabled);
+        imd_ok = App_OkStatus_Create(is_imd_ok_enabled);
 
-        bspd_ok = App_LatchStatus_Create(is_bspd_ok_enabled);
+        bspd_ok = App_OkStatus_Create(is_bspd_ok_enabled);
 
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
@@ -366,7 +366,7 @@ TEST_F(BmsStateMachineTest, rgb_led_sequence_in_all_states)
 // BMS-37
 TEST_F(
     BmsStateMachineTest,
-    check_latch_statuses_are_broadcasted_over_can_in_all_states)
+    check_ok_statuses_are_broadcasted_over_can_in_all_states)
 {
     for (auto &state : GetAllStates())
     {

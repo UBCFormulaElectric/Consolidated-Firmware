@@ -17,7 +17,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct OkStatus *         imd_ok  = App_BmsWorld_GetImdOk(world);
     struct OkStatus *         bspd_ok = App_BmsWorld_GetBspdOk(world);
 
-    if (App_LatchStatus_IsEnabled(bms_ok))
+    if (App_OkStatus_IsEnabled(bms_ok))
     {
         App_CanTx_SetPeriodicSignal_BMS_OK(can_tx, true);
     }
@@ -26,7 +26,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanTx_SetPeriodicSignal_BMS_OK(can_tx, false);
     }
 
-    if (App_LatchStatus_IsEnabled(imd_ok))
+    if (App_OkStatus_IsEnabled(imd_ok))
     {
         App_CanTx_SetPeriodicSignal_IMD_OK(can_tx, true);
     }
@@ -35,7 +35,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanTx_SetPeriodicSignal_IMD_OK(can_tx, false);
     }
 
-    if (App_LatchStatus_IsEnabled(bspd_ok))
+    if (App_OkStatus_IsEnabled(bspd_ok))
     {
         App_CanTx_SetPeriodicSignal_BSPD_OK(can_tx, true);
     }
