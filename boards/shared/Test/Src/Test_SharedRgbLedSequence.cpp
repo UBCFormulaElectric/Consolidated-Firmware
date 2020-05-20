@@ -24,9 +24,7 @@ class RgbLedSequenceTest : public testing::Test
 
     void TearDown() override
     {
-        ASSERT_TRUE(rgb_led_sequence != NULL);
-        App_SharedRgbLedSequence_Destroy(rgb_led_sequence);
-        rgb_led_sequence = NULL;
+        TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
     }
 
     struct RgbLedSequence *rgb_led_sequence;
