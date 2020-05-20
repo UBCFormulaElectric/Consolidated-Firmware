@@ -23,42 +23,107 @@ struct ErrorTable
     struct Error errors[NUM_ERROR_IDS];
 };
 
-struct ErrorTable *App_SharedErrorTable_Create(void)
+static void App_ResetBoardList(struct ErrorBoardList *board_list)
+{
+    for (size_t i = 0; i < NUM_ERROR_BOARDS; i++)
+    {
+        board_list->boards[i] = NUM_ERROR_BOARDS;
+    }
+
+    board_list->num_boards = 0;
+}
+
+struct ErrorTable *App_SharedErrorTable_CreateErrorTable(void)
 {
     struct ErrorTable *error_table = malloc(sizeof(struct ErrorTable));
     assert(error_table != NULL);
 
-    error_table->errors[BMS_FOO].board       = BMS;
-    error_table->errors[BMS_FOO].id          = BMS_FOO;
-    error_table->errors[BMS_FOO].is_critical = false;
-    error_table->errors[BMS_FOO].is_set      = false;
+    error_table->errors[BMS_NON_CRIT].board       = BMS;
+    error_table->errors[BMS_NON_CRIT].id          = BMS_NON_CRIT;
+    error_table->errors[BMS_NON_CRIT].is_critical = false;
+    error_table->errors[BMS_NON_CRIT].is_set      = false;
 
-    error_table->errors[DCM_BAR].board       = DCM;
-    error_table->errors[DCM_BAR].id          = DCM_BAR;
-    error_table->errors[DCM_BAR].is_critical = false;
-    error_table->errors[DCM_BAR].is_set      = false;
+    error_table->errors[DCM_NON_CRIT].board       = DCM;
+    error_table->errors[DCM_NON_CRIT].id          = DCM_NON_CRIT;
+    error_table->errors[DCM_NON_CRIT].is_critical = false;
+    error_table->errors[DCM_NON_CRIT].is_set      = false;
 
-    error_table->errors[FSM_BAZ].board       = FSM;
-    error_table->errors[FSM_BAZ].id          = FSM_BAZ;
-    error_table->errors[FSM_BAZ].is_critical = false;
-    error_table->errors[FSM_BAZ].is_set      = false;
+    error_table->errors[DIM_NON_CRIT].board       = DIM;
+    error_table->errors[DIM_NON_CRIT].id          = DIM_NON_CRIT;
+    error_table->errors[DIM_NON_CRIT].is_critical = false;
+    error_table->errors[DIM_NON_CRIT].is_set      = false;
+
+    error_table->errors[FSM_NON_CRIT].board       = FSM;
+    error_table->errors[FSM_NON_CRIT].id          = FSM_NON_CRIT;
+    error_table->errors[FSM_NON_CRIT].is_critical = false;
+    error_table->errors[FSM_NON_CRIT].is_set      = false;
+
+    error_table->errors[PDM_NON_CRIT].board       = PDM;
+    error_table->errors[PDM_NON_CRIT].id          = PDM_NON_CRIT;
+    error_table->errors[PDM_NON_CRIT].is_critical = false;
+    error_table->errors[PDM_NON_CRIT].is_set      = false;
+
+    error_table->errors[BMS_CRIT].board       = BMS;
+    error_table->errors[BMS_CRIT].id          = BMS_CRIT;
+    error_table->errors[BMS_CRIT].is_critical = true;
+    error_table->errors[BMS_CRIT].is_set      = false;
+
+    error_table->errors[DCM_CRIT].board       = DCM;
+    error_table->errors[DCM_CRIT].id          = DCM_CRIT;
+    error_table->errors[DCM_CRIT].is_critical = true;
+    error_table->errors[DCM_CRIT].is_set      = false;
+
+    error_table->errors[DIM_CRIT].board       = DIM;
+    error_table->errors[DIM_CRIT].id          = DIM_CRIT;
+    error_table->errors[DIM_CRIT].is_critical = true;
+    error_table->errors[DIM_CRIT].is_set      = false;
+
+    error_table->errors[FSM_CRIT].board       = FSM;
+    error_table->errors[FSM_CRIT].id          = FSM_CRIT;
+    error_table->errors[FSM_CRIT].is_critical = true;
+    error_table->errors[FSM_CRIT].is_set      = false;
+
+    error_table->errors[PDM_CRIT].board       = PDM;
+    error_table->errors[PDM_CRIT].id          = PDM_CRIT;
+    error_table->errors[PDM_CRIT].is_critical = true;
+    error_table->errors[PDM_CRIT].is_set      = false;
 
     return error_table;
 }
 
-void App_SharedErrorTable_Destroy(struct ErrorTable *error_table)
+void App_SharedErrorTable_DestroyErrorTable(struct ErrorTable *error_table)
 {
     free(error_table);
 }
 
-bool App_SharedErrorTable_IsBoardInList(
-    enum ErrorBoard boards[],
-    int             num_boards,
-    enum ErrorBoard board)
+struct ErrorList *App_SharedErrorTable_CreateErrorList(void)
 {
-    for (int i = 0; i < num_boards; i++)
+    struct ErrorList *error_list = malloc(sizeof(struct ErrorList));
+    assert(error_list != NULL);
+
+    for (size_t i = 0; i < NUM_ERROR_IDS; i++)
     {
-        if (boards[i] == board)
+        error_list->errors[i] = NULL;
+    }
+
+    error_list->num_errors = 0;
+
+    return error_list;
+}
+
+void App_SharedErrorTable_DestroyErrorList(struct ErrorList *error_list)
+{
+    free(error_list);
+}
+
+
+bool App_SharedErrorTable_IsErrorInList(
+    enum ErrorId      error_id,
+    struct ErrorList *error_list)
+{
+    for (uint32_t i = 0; i < error_list->num_errors; i++)
+    {
+        if (error_list->errors[i]->id == error_id)
         {
             return true;
         }
@@ -66,14 +131,18 @@ bool App_SharedErrorTable_IsBoardInList(
     return false;
 }
 
-enum ErrorBoard App_SharedErrorTable_GetBoardForError(const struct Error *error)
+bool App_SharedErrorTable_IsBoardInList(
+    enum ErrorBoard        board,
+    struct ErrorBoardList *board_list)
 {
-    return error->board;
-}
-
-bool App_SharedErrorTable_IsErrorCritical(const struct Error *error)
-{
-    return error->is_critical;
+    for (uint32_t i = 0; i < board_list->num_boards; i++)
+    {
+        if (board_list->boards[i] == board)
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 ExitCode App_SharedErrorTable_SetError(
@@ -105,7 +174,7 @@ bool App_SharedErrorTable_HasError(const struct ErrorTable *error_table)
 ExitCode App_SharedErrorTable_IsErrorSet(
     const struct ErrorTable *error_table,
     enum ErrorId             error_id,
-    bool* is_set)
+    bool *                   is_set)
 {
     if (error_id >= NUM_ERROR_IDS)
     {
@@ -144,159 +213,146 @@ bool App_SharedErrorTable_HasNonCriticalError(
 }
 
 void App_SharedErrorTable_GetAllErrors(
-    const struct ErrorTable *error_table,
-    struct Error *           errors,
-    uint32_t *                    num_errors)
+    struct ErrorTable *error_table,
+    struct ErrorList * error_list)
 {
-    *num_errors = 0;
+    error_list->num_errors = 0;
 
     for (size_t i = 0; i < NUM_ERROR_IDS; i++)
     {
-        const struct Error *error = &error_table->errors[i];
+        struct Error *error = &error_table->errors[i];
 
         if (error->is_set)
         {
-            errors[*num_errors] = *error;
-            (*num_errors)++;
+            error_list->errors[error_list->num_errors] = error;
+            error_list->num_errors++;
         }
     }
 }
 
 void App_SharedErrorTable_GetAllCriticalErrors(
-    const struct ErrorTable *error_table,
-    struct Error *           errors,
-    uint32_t *                    num_errors)
+    struct ErrorTable *error_table,
+    struct ErrorList * error_list)
 {
-    *num_errors = 0;
+    error_list->num_errors = 0;
 
     for (size_t i = 0; i < NUM_ERROR_IDS; i++)
     {
-        const struct Error *error = &error_table->errors[i];
+        struct Error *error = &error_table->errors[i];
 
         if (error->is_set && error->is_critical)
         {
-            errors[*num_errors] = *error;
-            (*num_errors)++;
+            error_list->errors[error_list->num_errors] = error;
+            error_list->num_errors++;
         }
     }
 }
 
 void App_SharedErrorTable_GetAllNonCriticalErrors(
-    const struct ErrorTable *error_table,
-    struct Error *           errors,
-    uint32_t *                    num_errors)
+    struct ErrorTable *error_table,
+    struct ErrorList * error_list)
 {
-    *num_errors = 0;
+    error_list->num_errors = 0;
 
     for (size_t i = 0; i < NUM_ERROR_IDS; i++)
     {
-        const struct Error *error = &error_table->errors[i];
+        struct Error *error = &error_table->errors[i];
 
         if (error->is_set && !error->is_critical)
         {
-            errors[*num_errors] = *error;
-            (*num_errors)++;
+            error_list->errors[error_list->num_errors] = error;
+            error_list->num_errors++;
         }
     }
 }
 
 void App_SharedErrorTable_GetBoardsWithNoErrors(
     const struct ErrorTable *error_table,
-    enum ErrorBoard          boards[],
-    uint32_t *                    num_boards)
+    struct ErrorBoardList *  board_list)
 {
-    enum ErrorBoard boards_with_errors[NUM_ERROR_BOARDS] = { 0 };
-    uint32_t num_boards_with_errors               = 0;
+    struct ErrorBoardList boards_with_errors;
 
-    App_SharedErrorTable_GetBoardsWithErrors(
-        error_table, boards_with_errors, &num_boards_with_errors);
+    App_SharedErrorTable_GetBoardsWithErrors(error_table, &boards_with_errors);
 
-    *num_boards = 0;
+    board_list->num_boards = 0;
 
     for (enum ErrorBoard board = 0; board < NUM_ERROR_BOARDS; board++)
     {
-        if (!App_SharedErrorTable_IsBoardInList(
-                boards_with_errors, num_boards_with_errors, board))
+        if (!App_SharedErrorTable_IsBoardInList(board, &boards_with_errors))
         {
-            boards[*num_boards] = board;
-            (*num_boards)++;
+            board_list->boards[board_list->num_boards] = board;
+            board_list->num_boards++;
         }
     }
 }
 
 void App_SharedErrorTable_GetBoardsWithErrors(
     const struct ErrorTable *error_table,
-    enum ErrorBoard          boards[],
-    uint32_t *                    num_boards)
+    struct ErrorBoardList *  board_list)
 {
-    for (size_t i = 0; i < NUM_ERROR_BOARDS; i++)
-    {
-        boards[i] = NUM_ERROR_BOARDS;
-    }
-
-    *num_boards = 0;
+    App_ResetBoardList(board_list);
 
     for (size_t i = 0; i < NUM_ERROR_IDS; i++)
     {
         const struct Error *error = &error_table->errors[i];
 
-        if (error->is_set && App_SharedErrorTable_IsBoardInList(
-                                 boards, NUM_ERROR_BOARDS, error->board))
+        if (error->is_set &&
+            !App_SharedErrorTable_IsBoardInList(error->board, board_list))
         {
-            boards[*num_boards] = error->board;
-            (*num_boards)++;
+            board_list->boards[board_list->num_boards] = error->board;
+            board_list->num_boards++;
         }
     }
 }
 
 void App_SharedErrorTable_GetBoardsWithCriticalErrors(
     const struct ErrorTable *error_table,
-    enum ErrorBoard          boards[],
-    uint32_t *                    num_boards)
+    struct ErrorBoardList *  board_list)
 {
-    for (size_t i = 0; i < NUM_ERROR_BOARDS; i++)
-    {
-        boards[i] = NUM_ERROR_BOARDS;
-    }
-
-    *num_boards = 0;
+    App_ResetBoardList(board_list);
 
     for (size_t i = 0; i < NUM_ERROR_IDS; i++)
     {
         const struct Error *error = &error_table->errors[i];
 
         if (error->is_set && error->is_critical &&
-            App_SharedErrorTable_IsBoardInList(
-                boards, NUM_ERROR_BOARDS, error->board))
+            !App_SharedErrorTable_IsBoardInList(error->board, board_list))
         {
-            boards[*num_boards] = error->board;
-            (*num_boards)++;
+            board_list->boards[board_list->num_boards] = error->board;
+            board_list->num_boards++;
         }
     }
 }
 
 void App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
     const struct ErrorTable *error_table,
-    enum ErrorBoard          boards[],
-    uint32_t *                    num_boards)
+    struct ErrorBoardList *  board_list)
 {
-    for (size_t i = 0; i < NUM_ERROR_BOARDS; i++)
-    {
-        boards[i] = NUM_ERROR_BOARDS;
-    }
-
-    *num_boards = 0;
+    App_ResetBoardList(board_list);
 
     for (size_t i = 0; i < NUM_ERROR_IDS; i++)
     {
         const struct Error *error = &error_table->errors[i];
 
         if (error->is_set && !error->is_critical &&
-            App_SharedErrorTable_IsBoardInList(
-                boards, NUM_ERROR_BOARDS, error->board))
+            !App_SharedErrorTable_IsBoardInList(error->board, board_list))
         {
-            boards[*num_boards] = error->board;
-            (*num_boards)++;
+            board_list->boards[board_list->num_boards] = error->board;
+            board_list->num_boards++;
         }
     }
+}
+enum ErrorBoard App_SharedError_GetBoard(const struct Error *error)
+{
+    return error->board;
+}
+
+bool App_SharedError_IsCritical(const struct Error *error)
+{
+    return error->is_critical;
+}
+
+uint32_t App_SharedError_GetId(const struct Error* error)
+{
+    return error->id;
 }
