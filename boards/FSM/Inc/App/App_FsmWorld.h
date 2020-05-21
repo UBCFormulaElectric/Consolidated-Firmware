@@ -88,6 +88,11 @@ struct InRangeCheck *
 struct InRangeCheck *
     App_FsmWorld_GetRightWheelSpeedInRangeCheck(const struct FsmWorld *world);
 
+/**
+ * Get the steering angle in-range check for the given world
+ * @param world The world to get the steering angle in-range check for
+ * @return The steering angle in-range check for the given world
+ */
 struct InRangeCheck *
     App_FsmWorld_GetSteeringAngleInRangeCheck(const struct FsmWorld *world);
 

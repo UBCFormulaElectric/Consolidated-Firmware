@@ -11,7 +11,7 @@ extern "C"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_FlowRateThresholds.h"
 #include "configs/App_WheelSpeedThresholds.h"
-#include "configs/App_SteeringAngleThresholds.h"
+#include "configs/App_SteeringAngleConstants.h"
 }
 
 namespace StateMachineTest
@@ -120,7 +120,8 @@ class FsmStateMachineTest : public testing::Test
             primary_flow_meter_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(
             secondary_flow_meter_in_range_check, App_InRangeCheck_Destroy);
-        // TearDownObject(steering)
+        TearDownObject(
+            steering_angle_sensor_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
     }
 

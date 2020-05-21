@@ -47,7 +47,7 @@
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_FlowRateThresholds.h"
 #include "configs/App_WheelSpeedThresholds.h"
-#include "configs/App_SteeringAngleThresholds.h"
+#include "configs/App_SteeringAngleConstants.h"
 #include "configs/App_SharedStateMachineConfig.h"
 /* USER CODE END Includes */
 
@@ -99,7 +99,7 @@ struct InRangeCheck *primary_flow_meter_in_range_check,
     *secondary_flow_meter_in_range_check;
 struct InRangeCheck *left_wheel_speed_sensor_in_range_check,
     *right_wheel_speed_sensor_in_range_check;
-struct InRangeCheck *     steering_angle_sensor;
+struct InRangeCheck *     steering_angle_sensor_in_range_check;
 struct World *            world;
 struct StateMachine *     state_machine;
 struct FsmCanTxInterface *can_tx;
@@ -211,8 +211,8 @@ int main(void)
         Io_WheelSpeedSensors_GetRightSpeedKph, RIGHT_WHEEL_MIN_SPEED,
         RIGHT_WHEEL_MAX_SPEED);
 
-    steering_angle_sensor = App_InRangeCheck_Create(
-        Io_SteeringAngleSensor_GetAngle, MIN_STEERING_ANGLE,
+    steering_angle_sensor_in_range_check = App_InRangeCheck_Create(
+        Io_SteeringAngleSensor_GetAngleDeg, MIN_STEERING_ANGLE,
         MAX_STEERING_ANGLE);
 
     can_tx = App_CanTx_Create(
@@ -233,8 +233,8 @@ int main(void)
         can_tx, can_rx, heartbeat_monitor, primary_flow_meter_in_range_check,
         secondary_flow_meter_in_range_check,
         left_wheel_speed_sensor_in_range_check,
-        right_wheel_speed_sensor_in_range_check, steering_angle_sensor,
-        rgb_led_sequence);
+        right_wheel_speed_sensor_in_range_check,
+        steering_angle_sensor_in_range_check, rgb_led_sequence);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 
@@ -399,7 +399,7 @@ static void MX_ADC2_Init(void)
     }
     /** Configure Regular Channel
      */
-    sConfig.Channel      = ADC_CHANNEL_VREFINT;
+    sConfig.Channel      = ADC_CHANNEL_1;
     sConfig.Rank         = ADC_REGULAR_RANK_1;
     sConfig.SingleDiff   = ADC_SINGLE_ENDED;
     sConfig.SamplingTime = ADC_SAMPLETIME_61CYCLES_5;

@@ -58,7 +58,7 @@ FSM-4 | Mapped pedal percentage | - The FSM must map the primary APPS position l
 FSM-5 | APPS open/short circuit | If there is an open/short circuit in either encoder the FSM must report 0% mapped pedal percentage. | T.4.2.2, T.4.2.9
 FSM-6 | APPS disagreement | - When the primary and secondary APPS positions disagree by more then 10%, and the disagreement persists for more than 100ms, the FSM must throw a motor shutdown fault and report 0% mapped pedal percentage. <br/> - The FSM must clear the motor shutdown fault after the APPS positions agree within 10%, and the agreement persists for more than 1s. | T.4.2.3, T.4.2.4, T.4.2.5
 FSM-7 | APPS/brake pedal plausibility check | - When the APPS senses brake actuation and more than 25% mapped pedal percentage simultaneously, the FSM must throw a motor shutdown fault and report 0% mapped pedal percentage. <br/> - The FSM must clear the motor shutdown fault after the APPS senses less than 5% mapped pedal percentage, regardless of the brake state. | EV.3.4.1, EV.3.4.2
-FSM-8 | Steering angle reporting | - The FSM must report the steering angle in degrees over CAN at 100Hz or faster, where 0 degrees represents straight wheels and a clockwise turn of the steering wheel corresponds to an increase in steering angle. <br/> - The FSM must send a non-critical fault when the steering angle is beyond the max turning radius of the steering wheel.
+FSM-8 | Steering angle reporting | - The FSM must report the steering angle in degrees over CAN at 100Hz or faster, where 0 degrees represents straight wheels and a clockwise turn of the steering wheel corresponds to an increase in steering angle. <br/> - The FSM must send a non-critical fault when the steering angle is beyond the maximum and minimum turning radius of the steering wheel.
 FSM-9 | Wheel speed reporting | - The FSM must report the two front wheel speeds in km/h over CAN at 100Hz or faster. <br/> - The FSM must send a non-critical fault when either front wheel speed is above 150km/h.
 FSM-16 | Open circuit encoder alarm | - When the primary or secondary APPS encoder alarm goes high for 10ms continuously, throw a motor shutdown fault and report 0% mapped pedal percentage. <br/> - When both the primary and secondary APPS encoder alarms go low for 10ms continuously, clear the motor shutdown fault. | T.4.2.9
 FSM-18 | Brake actuation reporting | - The FSM must report the brake actuation ON/OFF status over CAN at 100Hz or faster
@@ -79,6 +79,7 @@ FSM-15 | Exiting the AIR-Closed state | The FSM must enter the AIR-Open state wh
 ## DCM <a name="DCM"></a>
 
 ### DCM Stateless <a name="DCM_STATELESS"></a>
+ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 DCM-0 | Startup CAN message | The DCM must transmit a startup message over CAN on boot.
 DCM-21 | State CAN message | The DCM must transmit the state of its state machine at 100Hz or faster.
@@ -165,8 +166,7 @@ BMS-2 | Heartbeat receiving | - The BMS must throw an AIR shutdown fault and ent
 BMS-3 | isoSPI communication failure | - Upon isoSPI communication that results in a packet error code (PEC) mismatch, the BMS must retry communication. <br/> - After three consecutive unsuccessful isoSPI communication attempts, the BMS must throw an AIR shutdown fault and enter the fault state.
 BMS-4 | Cell voltages acquisition and logging | - The BMS must acquire all cell voltages over isoSPI at 100Hz. <br/> - The BMS must log the highest cell, lowest cell, average cell, pack, and segment voltages at 100Hz or faster.
 BMS-5 | Cell temperatures acquisition and logging | - The BMS must acquire all cell temperatures over isoSPI at 1Hz. <br/> - The BMS must log the highest, lowest and average temperatures at 1Hz or faster.
-BMS-6 | General voltage and temperature limits | The BMS m
-ID | Title | Description | Associated Competition Rule(s)ust throw an AIR shutdown fault and enter the fault state outside of these bounds: <br/> 3.0 < any cell voltage < 4.2V. <br/> -20.0C < any cell temperature < 60.0C. | EV.5.1.3, EV.5.1.10
+BMS-6 | General voltage and temperature limits | The BMS must throw an AIR shutdown fault and enter the fault state outside of these bounds: <br/> 3.0 < any cell voltage < 4.2V. <br/> -20.0C < any cell temperature < 60.0C. | EV.5.1.3, EV.5.1.10
 BMS-7 | Charge temperature limits | The BMS must throw an AIR shutdown fault and enter the fault state if charging is attempted outside of these bounds: <br/>  0.0C < any cell temperature < 45.0C. | EV.5.1.3, EV.5.1.10
 BMS-9 | Charger detection and logging | - The BMS must check the charger connection status at 1Hz by the state of the CHARGE_STATE_3V3 digital input. <br/> - The BMS must log the charger connection status over CAN at 1Hz or faster.
 BMS-10 | Charger enable/disable | The BMS must enable the charger by setting the BMS PON pin high and disable the charger by setting the BMS PON pin low.
