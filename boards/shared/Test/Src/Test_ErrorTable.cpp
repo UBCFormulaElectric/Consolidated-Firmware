@@ -10,16 +10,11 @@ extern "C"
 class SharedErrorTableTest : public testing::Test
 {
   protected:
-    void SetUp() override
-    {
-        error_table = App_SharedErrorTable_Create();
-        error_list  = App_SharedError_CreateErrorList();
-    }
+    void SetUp() override { error_table = App_SharedErrorTable_Create(); }
 
     void TearDown() override
     {
         TearDownObject(error_table, App_SharedErrorTable_Destroy);
-        TearDownObject(error_list, App_SharedError_DestroyErrorList);
     }
 
     void ResetWithOneCriticalErrorForOneBoard(void)
@@ -118,7 +113,7 @@ class SharedErrorTableTest : public testing::Test
     const enum ErrorId DEFAULT_PDM_NON_CRITICAL_ERROR = PDM_NON_CRIT;
 
     struct ErrorTable *error_table;
-    struct ErrorList * error_list;
+    struct ErrorList   error_list;
 };
 
 TEST_F(SharedErrorTableTest, is_board_in_list)
@@ -166,11 +161,11 @@ TEST_F(SharedErrorTableTest, get_board_for_error)
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_CRITICAL_ERROR, true));
-    App_SharedErrorTable_GetAllErrors(error_table, error_list);
-    ASSERT_EQ(1, error_list->num_errors);
+    App_SharedErrorTable_GetAllErrors(error_table, &error_list);
+    ASSERT_EQ(1, error_list.num_errors);
     ASSERT_EQ(
         DEFAULT_CRITICAL_ERROR_BOARD,
-        App_SharedError_GetBoard(error_list->errors[0]));
+        App_SharedError_GetBoard(error_list.errors[0]));
 }
 
 TEST_F(SharedErrorTableTest, is_error_critical)
@@ -178,9 +173,9 @@ TEST_F(SharedErrorTableTest, is_error_critical)
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_CRITICAL_ERROR, true));
-    App_SharedErrorTable_GetAllErrors(error_table, error_list);
-    ASSERT_EQ(1, error_list->num_errors);
-    ASSERT_TRUE(App_SharedError_GetIsCritical(error_list->errors[0]));
+    App_SharedErrorTable_GetAllErrors(error_table, &error_list);
+    ASSERT_EQ(1, error_list.num_errors);
+    ASSERT_TRUE(App_SharedError_GetIsCritical(error_list.errors[0]));
 }
 
 TEST_F(SharedErrorTableTest, set_error)
@@ -296,114 +291,114 @@ TEST_F(SharedErrorTableTest, has_non_critical_error)
 TEST_F(SharedErrorTableTest, get_all_errors)
 {
     // No error
-    App_SharedErrorTable_GetAllErrors(error_table, error_list);
-    ASSERT_EQ(0, error_list->num_errors);
+    App_SharedErrorTable_GetAllErrors(error_table, &error_list);
+    ASSERT_EQ(0, error_list.num_errors);
 
     // One critical error
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_CRITICAL_ERROR, true));
-    App_SharedErrorTable_GetAllErrors(error_table, error_list);
-    ASSERT_EQ(1, error_list->num_errors);
+    App_SharedErrorTable_GetAllErrors(error_table, &error_list);
+    ASSERT_EQ(1, error_list.num_errors);
 
     // Setting the same critical error should not modify the error list
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_CRITICAL_ERROR, true));
-    App_SharedErrorTable_GetAllErrors(error_table, error_list);
-    ASSERT_EQ(1, error_list->num_errors);
+    App_SharedErrorTable_GetAllErrors(error_table, &error_list);
+    ASSERT_EQ(1, error_list.num_errors);
 
     // One critical error + one non-critical_error
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_NON_CRITICAL_ERROR, true));
-    App_SharedErrorTable_GetAllErrors(error_table, error_list);
-    ASSERT_EQ(2, error_list->num_errors);
+    App_SharedErrorTable_GetAllErrors(error_table, &error_list);
+    ASSERT_EQ(2, error_list.num_errors);
 
     // Every error
     for (size_t id = 0; id < NUM_ERROR_IDS; id++)
     {
         App_SharedErrorTable_SetError(error_table, (enum ErrorId)id, true);
     }
-    App_SharedErrorTable_GetAllErrors(error_table, error_list);
-    ASSERT_EQ(NUM_ERROR_IDS, error_list->num_errors);
+    App_SharedErrorTable_GetAllErrors(error_table, &error_list);
+    ASSERT_EQ(NUM_ERROR_IDS, error_list.num_errors);
     for (size_t id = 0; id < NUM_ERROR_IDS; id++)
     {
         ASSERT_TRUE(
-            App_SharedError_IsErrorInList(error_list, (enum ErrorId)id));
+            App_SharedError_IsErrorInList(&error_list, (enum ErrorId)id));
     }
 }
 
 TEST_F(SharedErrorTableTest, get_all_critical_errors)
 {
     // No error
-    App_SharedErrorTable_GetAllCriticalErrors(error_table, error_list);
-    ASSERT_EQ(0, error_list->num_errors);
+    App_SharedErrorTable_GetAllCriticalErrors(error_table, &error_list);
+    ASSERT_EQ(0, error_list.num_errors);
 
     // One critical error
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_CRITICAL_ERROR, true));
-    App_SharedErrorTable_GetAllCriticalErrors(error_table, error_list);
-    ASSERT_EQ(1, error_list->num_errors);
+    App_SharedErrorTable_GetAllCriticalErrors(error_table, &error_list);
+    ASSERT_EQ(1, error_list.num_errors);
 
     // Setting the same critical error should not modify the error list
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_CRITICAL_ERROR, true));
-    App_SharedErrorTable_GetAllCriticalErrors(error_table, error_list);
-    ASSERT_EQ(1, error_list->num_errors);
+    App_SharedErrorTable_GetAllCriticalErrors(error_table, &error_list);
+    ASSERT_EQ(1, error_list.num_errors);
 
     // One critical error + one non-critical_error
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_NON_CRITICAL_ERROR, true));
-    App_SharedErrorTable_GetAllCriticalErrors(error_table, error_list);
-    ASSERT_EQ(1, error_list->num_errors);
+    App_SharedErrorTable_GetAllCriticalErrors(error_table, &error_list);
+    ASSERT_EQ(1, error_list.num_errors);
 
     // One critical error per board + one non-critical error
     ResetWithOneCriticalErrorForEveryBoard();
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_NON_CRITICAL_ERROR, true));
-    App_SharedErrorTable_GetAllCriticalErrors(error_table, error_list);
-    ASSERT_EQ(NUM_ERROR_BOARDS, error_list->num_errors);
+    App_SharedErrorTable_GetAllCriticalErrors(error_table, &error_list);
+    ASSERT_EQ(NUM_ERROR_BOARDS, error_list.num_errors);
 }
 
 TEST_F(SharedErrorTableTest, get_all_non_critical_errors)
 {
     // No error
-    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, error_list);
-    ASSERT_EQ(0, error_list->num_errors);
+    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
+    ASSERT_EQ(0, error_list.num_errors);
 
     // One non-critical error
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_NON_CRITICAL_ERROR, true));
-    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, error_list);
-    ASSERT_EQ(1, error_list->num_errors);
+    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
+    ASSERT_EQ(1, error_list.num_errors);
 
     // Setting the same non-critical error should not modify the error list
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_NON_CRITICAL_ERROR, true));
-    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, error_list);
-    ASSERT_EQ(1, error_list->num_errors);
+    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
+    ASSERT_EQ(1, error_list.num_errors);
 
     // One non-critical error + one critical_error
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_CRITICAL_ERROR, true));
-    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, error_list);
-    ASSERT_EQ(1, error_list->num_errors);
+    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
+    ASSERT_EQ(1, error_list.num_errors);
 
     // One non-critical error per board + one critical error
     ResetWithOneNonCriticalErrorForEveryBoard();
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_CRITICAL_ERROR, true));
-    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, error_list);
-    ASSERT_EQ(NUM_ERROR_BOARDS, error_list->num_errors);
+    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
+    ASSERT_EQ(NUM_ERROR_BOARDS, error_list.num_errors);
 }
 
 TEST_F(SharedErrorTableTest, get_boards_with_no_errors)

@@ -75,26 +75,6 @@ bool App_SharedError_GetIsSet(const struct Error *error)
     return error->is_set;
 }
 
-struct ErrorList *App_SharedError_CreateErrorList(void)
-{
-    struct ErrorList *error_list = malloc(sizeof(struct ErrorList));
-    assert(error_list != NULL);
-
-    for (size_t i = 0; i < NUM_ERROR_IDS; i++)
-    {
-        error_list->errors[i] = NULL;
-    }
-
-    error_list->num_errors = 0;
-
-    return error_list;
-}
-
-void App_SharedError_DestroyErrorList(struct ErrorList *error_list)
-{
-    free(error_list);
-}
-
 bool App_SharedError_IsErrorInList(
     struct ErrorList *error_list,
     enum ErrorId      error_id)

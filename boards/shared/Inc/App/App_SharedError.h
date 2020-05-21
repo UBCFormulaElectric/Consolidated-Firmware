@@ -122,18 +122,6 @@ uint32_t App_SharedError_GetId(const struct Error *error);
 bool App_SharedError_GetIsSet(const struct Error *error);
 
 /**
- * Initialize and allocate an error list
- * @return The created error list, whose ownership is given to the caller
- */
-struct ErrorList *App_SharedError_CreateErrorList(void);
-
-/**
- * Deallocate the memory used by the given error list
- * @param error_list The error list to deallocate
- */
-void App_SharedError_DestroyErrorList(struct ErrorList *error_list);
-
-/**
  * Check if the given error exists in the given error list
  * @param error_list The error list to check
  * @param error_id The ID for the error to check
