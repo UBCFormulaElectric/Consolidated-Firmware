@@ -81,8 +81,6 @@ void App_SharedErrorTable_Destroy(struct ErrorTable *error_table)
     free(error_table);
 }
 
-
-
 ExitCode App_SharedErrorTable_SetError(
     struct ErrorTable *error_table,
     enum ErrorId       error_id,
