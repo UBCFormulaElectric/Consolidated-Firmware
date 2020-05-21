@@ -55,3 +55,20 @@ void App_SetPeriodicSignals_WheelSpeedInRangeChecks(
         CANMSGS_FSM_NON_CRITICAL_ERRORS_RIGHT_WHEEL_SPEED_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_RIGHT_WHEEL_SPEED_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
+
+void App_SetPeriodicSignals_SteeringAngleInRangeCheck(
+    const struct FsmWorld *world)
+{
+    struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
+
+    struct InRangeCheck *steering_angle_in_range_check =
+        App_FsmWorld_GetSteeringAngleInRangeCheck(world);
+
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx, steering_angle_in_range_check,
+        App_CanTx_SetPeriodicSignal_STEERING_ANGLE,
+        App_CanTx_SetPeriodicSignal_STEERING_ANGLE_OUT_OF_RANGE,
+        CANMSGS_FSM_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_FSM_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_FSM_ERRORS_PRIMARY_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+}

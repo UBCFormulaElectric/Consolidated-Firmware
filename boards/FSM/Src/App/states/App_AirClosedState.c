@@ -22,6 +22,7 @@ static void
     struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     App_SetPeriodicSignals_FlowRateInRangeChecks(world);
     App_SetPeriodicSignals_WheelSpeedInRangeChecks(world);
+    App_SetPeriodicSignals_SteeringAngleInRangeCheck(world);
 }
 
 static void AirClosedStateRunOnExit(struct StateMachine *const state_machine)

@@ -25,6 +25,7 @@ struct FsmWorld *App_FsmWorld_Create(
     struct InRangeCheck *     secondary_flow_meter_in_range_check,
     struct InRangeCheck *     left_wheel_speed_sensor_in_range_check,
     struct InRangeCheck *     right_wheel_speed_sensor_in_range_check,
+    struct InRangeCheck *     steering_angle_sensor_in_range_check,
     struct RgbLedSequence *   rgb_led_sequence);
 
 /**
@@ -86,6 +87,9 @@ struct InRangeCheck *
  */
 struct InRangeCheck *
     App_FsmWorld_GetRightWheelSpeedInRangeCheck(const struct FsmWorld *world);
+
+struct InRangeCheck *
+    App_FsmWorld_GetSteeringAngleInRangeCheck(const struct FsmWorld *world);
 
 /**
  * Get the RGB LED sequence for the given world

@@ -233,7 +233,8 @@ int main(void)
         can_tx, can_rx, heartbeat_monitor, primary_flow_meter_in_range_check,
         secondary_flow_meter_in_range_check,
         left_wheel_speed_sensor_in_range_check,
-        right_wheel_speed_sensor_in_range_check, rgb_led_sequence);
+        right_wheel_speed_sensor_in_range_check, steering_angle_sensor,
+        rgb_led_sequence);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 
@@ -388,7 +389,7 @@ static void MX_ADC2_Init(void)
     hadc2.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T3_TRGO;
     hadc2.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     hadc2.Init.NbrOfConversion       = 1;
-    hadc2.Init.DMAContinuousRequests = DISABLE;
+    hadc2.Init.DMAContinuousRequests = ENABLE;
     hadc2.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
     hadc2.Init.LowPowerAutoWait      = DISABLE;
     hadc2.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;
@@ -398,7 +399,7 @@ static void MX_ADC2_Init(void)
     }
     /** Configure Regular Channel
      */
-    sConfig.Channel      = ADC_CHANNEL_1;
+    sConfig.Channel      = ADC_CHANNEL_VREFINT;
     sConfig.Rank         = ADC_REGULAR_RANK_1;
     sConfig.SingleDiff   = ADC_SINGLE_ENDED;
     sConfig.SamplingTime = ADC_SAMPLETIME_61CYCLES_5;

@@ -13,6 +13,7 @@ struct FsmWorld
     struct InRangeCheck *     secondary_flow_rate_in_range_check;
     struct InRangeCheck *     left_wheel_speed_in_range_check;
     struct InRangeCheck *     right_wheel_speed_in_range_check;
+    struct InRangeCheck *     steering_angle_sensor_in_range_check;
     struct RgbLedSequence *   rgb_led_sequence;
 };
 
@@ -24,6 +25,7 @@ struct FsmWorld *App_FsmWorld_Create(
     struct InRangeCheck *const      secondary_flow_rate_in_range_check,
     struct InRangeCheck *const      left_wheel_speed_in_range_check,
     struct InRangeCheck *const      right_wheel_speed_in_range_check,
+    struct InRangeCheck *const      steering_angle_sensor_in_range_check,
     struct RgbLedSequence *const    rgb_led_sequence)
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
@@ -37,7 +39,9 @@ struct FsmWorld *App_FsmWorld_Create(
         secondary_flow_rate_in_range_check;
     world->left_wheel_speed_in_range_check  = left_wheel_speed_in_range_check;
     world->right_wheel_speed_in_range_check = right_wheel_speed_in_range_check;
-    world->rgb_led_sequence                 = rgb_led_sequence;
+    world->steering_angle_sensor_in_range_check =
+        steering_angle_sensor_in_range_check;
+    world->rgb_led_sequence = rgb_led_sequence;
 
     return world;
 }
@@ -87,6 +91,12 @@ struct InRangeCheck *App_FsmWorld_GetRightWheelSpeedInRangeCheck(
     const struct FsmWorld *const world)
 {
     return world->right_wheel_speed_in_range_check;
+}
+
+struct InRangeCheck *App_FsmWorld_GetSteeringAngleInRangeCheck(
+    const struct FsmWorld *const world)
+{
+    return world->steering_angle_sensor_in_range_check;
 }
 
 struct RgbLedSequence *
