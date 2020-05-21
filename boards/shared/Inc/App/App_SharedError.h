@@ -22,7 +22,7 @@ struct ErrorBoardList
     // Number of valid entries in "boards"
     uint32_t num_boards;
 
-    // Storage large enough to store every board
+    // Only the first num_boards elements are valid
     enum ErrorBoard boards[NUM_ERROR_BOARDS];
 };
 
@@ -46,10 +46,7 @@ struct ErrorList
     // Number of valid entries in "errors"
     uint32_t num_errors;
 
-    // Storage large enough to store pointers to every error. Note that the
-    // error pointers are borrowed from the error table that is being read. In
-    // other words, these error pointers are alive only as long as the error
-    // table that is being read.
+    // Only the first num_errors elements are valid
     struct Error *errors[NUM_ERROR_IDS];
 };
 
