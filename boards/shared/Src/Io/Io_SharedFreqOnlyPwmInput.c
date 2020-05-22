@@ -142,7 +142,7 @@ void Io_SharedFreqOnlyPwmInput_CheckIfPwmIsActive(
     struct FreqOnlyPwmInput *const pwm_input)
 {
     // If the timer overflows twice without a rising edge, the PWM signal is
-    // likely inactive (DC signal) and its frequency can't be computed
+    // likely inactive (i.e. DC signal) and its frequency can't be computed
     if (++pwm_input->tim_overflow_count == 2U)
     {
         Io_SetFrequency(pwm_input, 0.0f);
