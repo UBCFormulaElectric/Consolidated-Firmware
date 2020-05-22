@@ -1,8 +1,8 @@
 #include <math.h>
 #include <assert.h>
-#include <stm32f3xx_hal.h>
 #include <stdbool.h>
 #include <stdlib.h>
+#include "Io_SharedFreqOnlyPwmInput.h"
 
 struct FreqOnlyPwmInput
 {
@@ -33,7 +33,7 @@ static void Io_SetFrequency(
     struct FreqOnlyPwmInput *const pwm_input,
     const float                    frequency_hz)
 {
-    assert(frequency_hz >= 0.0f || isnanf(frequency_hz));
+    assert(frequency_hz >= 0.0f);
 
     pwm_input->frequency_hz = frequency_hz;
 }
@@ -51,7 +51,7 @@ struct FreqOnlyPwmInput *Io_SharedFreqOnlyPwmInput_Create(
         malloc(sizeof(struct FreqOnlyPwmInput));
     assert(pwm_input != NULL);
 
-    pwm_input->frequency_hz        = NAN;
+    pwm_input->frequency_hz        = 0.0f;
     pwm_input->htim                = htim;
     pwm_input->tim_frequency_hz    = tim_frequency_hz;
     pwm_input->tim_channel         = tim_channel;
@@ -133,7 +133,7 @@ void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *const pwm_input)
             // measured is too low), or either when a tick arrives before the
             // counter can upcount (i.e. The PWM frequency being measured is
             // too high)
-            Io_SetFrequency(pwm_input, NAN);
+            Io_SetFrequency(pwm_input, 0.0f);
         }
     }
 }
@@ -142,9 +142,9 @@ void Io_SharedFreqOnlyPwmInput_CheckIfPwmIsActive(
     struct FreqOnlyPwmInput *const pwm_input)
 {
     // If the timer overflows twice without a rising edge, the PWM signal is
-    // likely inactive and its frequency can't be computed
+    // likely inactive (DC signal) and its frequency can't be computed
     if (++pwm_input->tim_overflow_count == 2U)
     {
-        Io_SetFrequency(pwm_input, NAN);
+        Io_SetFrequency(pwm_input, 0.0f);
     }
 }
