@@ -6,8 +6,8 @@
     App_SharedErrorTable_SetError(table, id, is_set)
 
 static void Io_ProcessBmsNonCriticalErrorMsg(
-    struct ErrorTable *          error_table,
-    struct CanMsgs_bms_errors_t *data)
+    struct ErrorTable *                       error_table,
+    struct CanMsgs_bms_non_critical_errors_t *data)
 {
     SET_ERROR(
         error_table, BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
@@ -26,8 +26,8 @@ static void Io_ProcessBmsNonCriticalErrorMsg(
 }
 
 static void Io_ProcessDcmNonCriticalErrorMsg(
-    struct ErrorTable *          error_table,
-    struct CanMsgs_dcm_errors_t *data)
+    struct ErrorTable *                       error_table,
+    struct CanMsgs_dcm_non_critical_errors_t *data)
 {
     SET_ERROR(
         error_table, DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
@@ -46,8 +46,8 @@ static void Io_ProcessDcmNonCriticalErrorMsg(
 }
 
 static void Io_ProcessDimNonCriticalErrorMsg(
-    struct ErrorTable *          error_table,
-    struct CanMsgs_dim_errors_t *data)
+    struct ErrorTable *                       error_table,
+    struct CanMsgs_dim_non_critical_errors_t *data)
 {
     SET_ERROR(
         error_table, DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
@@ -66,8 +66,8 @@ static void Io_ProcessDimNonCriticalErrorMsg(
 }
 
 static void Io_ProcessFsmNonCriticalErrorMsg(
-    struct ErrorTable *          error_table,
-    struct CanMsgs_fsm_errors_t *data)
+    struct ErrorTable *                       error_table,
+    struct CanMsgs_fsm_non_critical_errors_t *data)
 {
     SET_ERROR(
         error_table, FSM_NON_CRITICAL_PAPPS_OUT_OF_RANGE,
@@ -106,8 +106,8 @@ static void Io_ProcessFsmNonCriticalErrorMsg(
 }
 
 static void Io_ProcessPdmNonCriticalErrorMsg(
-    struct ErrorTable *          error_table,
-    struct CanMsgs_pdm_errors_t *data)
+    struct ErrorTable *                       error_table,
+    struct CanMsgs_pdm_non_critical_errors_t *data)
 {
     SET_ERROR(
         error_table, PDM_NON_CRITICAL_MISSING_HEARTBEAT,
@@ -211,43 +211,43 @@ void Io_SharedErrorTable_SetErrorsFromCanMsg(
     // design
     switch (can_msg->std_id)
     {
-        case (CANMSGS_BMS_ERRORS_FRAME_ID):
+        case (CANMSGS_BMS_NON_CRITICAL_ERRORS_FRAME_ID):
         {
-            struct CanMsgs_bms_errors_t data;
-            App_CanMsgs_bms_errors_unpack(
-                &data, can_msg->data, CANMSGS_BMS_ERRORS_LENGTH);
+            struct CanMsgs_bms_non_critical_errors_t data;
+            App_CanMsgs_bms_non_critical_errors_unpack(
+                &data, can_msg->data, CANMSGS_BMS_NON_CRITICAL_ERRORS_LENGTH);
             Io_ProcessBmsNonCriticalErrorMsg(error_table, &data);
         }
         break;
-        case (CANMSGS_DCM_ERRORS_FRAME_ID):
+        case (CANMSGS_DCM_NON_CRITICAL_ERRORS_FRAME_ID):
         {
-            struct CanMsgs_dcm_errors_t data;
-            App_CanMsgs_dcm_errors_unpack(
-                &data, can_msg->data, CANMSGS_DCM_ERRORS_LENGTH);
+            struct CanMsgs_dcm_non_critical_errors_t data;
+            App_CanMsgs_dcm_non_critical_errors_unpack(
+                &data, can_msg->data, CANMSGS_DCM_NON_CRITICAL_ERRORS_LENGTH);
             Io_ProcessDcmNonCriticalErrorMsg(error_table, &data);
         }
         break;
-        case (CANMSGS_DIM_ERRORS_FRAME_ID):
+        case (CANMSGS_DIM_NON_CRITICAL_ERRORS_FRAME_ID):
         {
-            struct CanMsgs_dim_errors_t data;
-            App_CanMsgs_dim_errors_unpack(
-                &data, can_msg->data, CANMSGS_DIM_ERRORS_LENGTH);
+            struct CanMsgs_dim_non_critical_errors_t data;
+            App_CanMsgs_dim_non_critical_errors_unpack(
+                &data, can_msg->data, CANMSGS_DIM_NON_CRITICAL_ERRORS_LENGTH);
             Io_ProcessDimNonCriticalErrorMsg(error_table, &data);
         }
         break;
-        case (CANMSGS_FSM_ERRORS_FRAME_ID):
+        case (CANMSGS_FSM_NON_CRITICAL_ERRORS_FRAME_ID):
         {
-            struct CanMsgs_fsm_errors_t data;
-            App_CanMsgs_fsm_errors_unpack(
-                &data, can_msg->data, CANMSGS_FSM_ERRORS_LENGTH);
+            struct CanMsgs_fsm_non_critical_errors_t data;
+            App_CanMsgs_fsm_non_critical_errors_unpack(
+                &data, can_msg->data, CANMSGS_FSM_NON_CRITICAL_ERRORS_LENGTH);
             Io_ProcessFsmNonCriticalErrorMsg(error_table, &data);
         }
         break;
-        case (CANMSGS_PDM_ERRORS_FRAME_ID):
+        case (CANMSGS_PDM_NON_CRITICAL_ERRORS_FRAME_ID):
         {
-            struct CanMsgs_pdm_errors_t data;
-            App_CanMsgs_pdm_errors_unpack(
-                &data, can_msg->data, CANMSGS_PDM_ERRORS_LENGTH);
+            struct CanMsgs_pdm_non_critical_errors_t data;
+            App_CanMsgs_pdm_non_critical_errors_unpack(
+                &data, can_msg->data, CANMSGS_PDM_NON_CRITICAL_ERRORS_LENGTH);
             Io_ProcessPdmNonCriticalErrorMsg(error_table, &data);
         }
         break;
