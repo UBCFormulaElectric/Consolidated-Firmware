@@ -195,6 +195,7 @@ TEST_F(
     }
 }
 
+// BMS-36
 TEST_F(
     BmsStateMachineTest,
     check_imd_insulation_resistance_10hz_is_broadcasted_over_can_in_all_states)
@@ -230,6 +231,7 @@ TEST_F(
     }
 }
 
+// BMS-36
 TEST_F(
     BmsStateMachineTest,
     check_imd_insulation_resistance_20hz_is_broadcasted_over_can_in_all_states)
@@ -265,6 +267,7 @@ TEST_F(
     }
 }
 
+// BMS-36
 TEST_F(
     BmsStateMachineTest,
     check_imd_speed_start_status_30hz_is_broadcasted_over_can_in_all_states)
@@ -310,6 +313,7 @@ TEST_F(
     }
 }
 
+// BMS-36
 TEST_F(
     BmsStateMachineTest,
     check_imd_seconds_since_power_on_is_broadcasted_over_can_in_all_states)
