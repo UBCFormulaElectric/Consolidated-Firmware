@@ -118,23 +118,13 @@ class SharedErrorTableTest : public testing::Test
     const enum ErrorId DEFAULT_PDM_NON_CRITICAL_ERROR =
         PDM_NON_CRITICAL_WATCHDOG_TIMEOUT;
 
-    struct ErrorTable *error_table;
-    struct ErrorList   error_list;
+    struct ErrorTable *   error_table;
+    struct ErrorList      error_list;
+    struct ErrorBoardList board_list;
 };
 
-TEST_F(SharedErrorTableTest, is_board_in_list)
+TEST_F(SharedErrorTableTest, board_does_not_exist_in_list)
 {
-    struct ErrorBoardList board_list;
-
-    // The board exists in the list
-    board_list.boards[0]  = BMS;
-    board_list.boards[1]  = DCM;
-    board_list.boards[2]  = DIM;
-    board_list.boards[3]  = FSM;
-    board_list.boards[4]  = PDM;
-    board_list.num_boards = 5;
-    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, BMS));
-
     // The board does not exist in the list
     board_list.boards[0]  = BMS;
     board_list.boards[1]  = BMS;
@@ -143,7 +133,22 @@ TEST_F(SharedErrorTableTest, is_board_in_list)
     board_list.boards[4]  = BMS;
     board_list.num_boards = 5;
     ASSERT_FALSE(App_SharedError_IsBoardInList(&board_list, DCM));
+}
 
+TEST_F(SharedErrorTableTest, board_exists_in_list)
+{
+    // The board exists in the list
+    board_list.boards[0]  = BMS;
+    board_list.boards[1]  = DCM;
+    board_list.boards[2]  = DIM;
+    board_list.boards[3]  = FSM;
+    board_list.boards[4]  = PDM;
+    board_list.num_boards = 5;
+    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, BMS));
+}
+
+TEST_F(SharedErrorTableTest, board_exists_more_than_once_in_list)
+{
     // The board we are looking for has multiple entries in the list
     board_list.boards[0] = BMS;
     board_list.boards[1] = BMS;
@@ -151,7 +156,10 @@ TEST_F(SharedErrorTableTest, is_board_in_list)
     board_list.boards[3] = FSM;
     board_list.boards[4] = PDM;
     ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, BMS));
+}
 
+TEST_F(SharedErrorTableTest, board_in_list_is_out_of_bound)
+{
     // The board exists in the list but is out-of-bound
     board_list.boards[0]  = BMS;
     board_list.boards[1]  = DCM;
@@ -186,7 +194,6 @@ TEST_F(SharedErrorTableTest, is_error_critical)
 
 TEST_F(SharedErrorTableTest, set_error)
 {
-    // Set error
     bool is_set = false;
     ASSERT_EQ(
         EXIT_CODE_OK,
@@ -197,9 +204,11 @@ TEST_F(SharedErrorTableTest, set_error)
         App_SharedErrorTable_IsErrorSet(
             error_table, BMS_NON_CRITICAL_WATCHDOG_TIMEOUT, &is_set));
     ASSERT_TRUE(is_set);
+}
 
-    // Clear error
-    is_set = true;
+TEST_F(SharedErrorTableTest, clear_error)
+{
+    bool is_set = true;
     ASSERT_EQ(
         EXIT_CODE_OK,
         App_SharedErrorTable_SetError(
@@ -209,8 +218,10 @@ TEST_F(SharedErrorTableTest, set_error)
         App_SharedErrorTable_IsErrorSet(
             error_table, BMS_NON_CRITICAL_WATCHDOG_TIMEOUT, &is_set));
     ASSERT_FALSE(is_set);
+}
 
-    // Out-of-range ID
+TEST_F(SharedErrorTableTest, set_error_using_out_of_range_id)
+{
     ASSERT_EQ(
         EXIT_CODE_OUT_OF_RANGE,
         App_SharedErrorTable_SetError(error_table, NUM_ERROR_IDS, true));
