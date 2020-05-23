@@ -11,7 +11,7 @@ extern "C"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_FlowRateThresholds.h"
 #include "configs/App_WheelSpeedThresholds.h"
-#include "configs/App_SteeringAngleConstants.h"
+#include "configs/App_SteeringAngleThresholds.h"
 }
 
 namespace StateMachineTest

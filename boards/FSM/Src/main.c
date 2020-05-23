@@ -47,7 +47,7 @@
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_FlowRateThresholds.h"
 #include "configs/App_WheelSpeedThresholds.h"
-#include "configs/App_SteeringAngleConstants.h"
+#include "configs/App_SteeringAngleThresholds.h"
 #include "configs/App_SharedStateMachineConfig.h"
 /* USER CODE END Includes */
 
@@ -212,7 +212,7 @@ int main(void)
         RIGHT_WHEEL_MAX_SPEED);
 
     steering_angle_sensor_in_range_check = App_InRangeCheck_Create(
-        Io_SteeringAngleSensor_GetAngleDeg, MIN_STEERING_ANGLE,
+        Io_SteeringAngleSensor_GetAngleDegree, MIN_STEERING_ANGLE,
         MAX_STEERING_ANGLE);
 
     can_tx = App_CanTx_Create(

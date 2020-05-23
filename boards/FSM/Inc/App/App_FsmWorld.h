@@ -21,11 +21,11 @@ struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanTxInterface *can_tx_interface,
     struct FsmCanRxInterface *can_rx_interface,
     struct HeartbeatMonitor * heartbeat_monitor,
-    struct InRangeCheck *     primary_flow_meter_in_range_check,
-    struct InRangeCheck *     secondary_flow_meter_in_range_check,
-    struct InRangeCheck *     left_wheel_speed_sensor_in_range_check,
-    struct InRangeCheck *     right_wheel_speed_sensor_in_range_check,
-    struct InRangeCheck *     steering_angle_sensor_in_range_check,
+    struct InRangeCheck *     primary_flow_rate_in_range_check,
+    struct InRangeCheck *     secondary_flow_rate_in_range_check,
+    struct InRangeCheck *     left_wheel_speed_in_range_check,
+    struct InRangeCheck *     right_wheel_speed_in_range_check,
+    struct InRangeCheck *     steering_angle_in_range_check,
     struct RgbLedSequence *   rgb_led_sequence);
 
 /**
