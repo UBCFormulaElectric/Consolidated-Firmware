@@ -95,10 +95,10 @@ class SharedErrorTableTest : public testing::Test
 
     // The error choices here are arbitrary. We just need to pick something for
     // the helper functions.
-    const enum ErrorId    DEFAULT_CRITICAL_ERROR           = BMS_CRIT;
-    const enum ErrorId    DEFAULT_NON_CRITICAL_ERROR       = BMS_NON_CRIT;
-    const enum Board DEFAULT_CRITICAL_ERROR_BOARD     = BMS;
-    const enum Board DEFAULT_NON_CRITICAL_ERROR_BOARD = BMS;
+    const enum ErrorId DEFAULT_CRITICAL_ERROR           = BMS_CRIT;
+    const enum ErrorId DEFAULT_NON_CRITICAL_ERROR       = BMS_NON_CRIT;
+    const enum Board   DEFAULT_CRITICAL_ERROR_BOARD     = BMS;
+    const enum Board   DEFAULT_NON_CRITICAL_ERROR_BOARD = BMS;
 
     const enum ErrorId DEFAULT_BMS_CRITICAL_ERROR = BMS_CRIT;
     const enum ErrorId DEFAULT_DCM_CRITICAL_ERROR = DCM_CRIT;
@@ -230,62 +230,62 @@ TEST_F(SharedErrorTableTest, is_error_set)
 TEST_F(SharedErrorTableTest, has_error)
 {
     // Set a critical error
-    ASSERT_FALSE(App_SharedErrorTable_HasError(error_table));
+    ASSERT_FALSE(App_SharedErrorTable_HasAnyErrorSet(error_table));
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_CRITICAL_ERROR, true));
-    ASSERT_TRUE(App_SharedErrorTable_HasError(error_table));
+    ASSERT_TRUE(App_SharedErrorTable_HasAnyErrorSet(error_table));
 
     // Clear a critical error
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_CRITICAL_ERROR, false));
-    ASSERT_FALSE(App_SharedErrorTable_HasError(error_table));
+    ASSERT_FALSE(App_SharedErrorTable_HasAnyErrorSet(error_table));
 
     // Set a non-critical error
-    ASSERT_FALSE(App_SharedErrorTable_HasError(error_table));
+    ASSERT_FALSE(App_SharedErrorTable_HasAnyErrorSet(error_table));
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_NON_CRITICAL_ERROR, true));
-    ASSERT_TRUE(App_SharedErrorTable_HasError(error_table));
+    ASSERT_TRUE(App_SharedErrorTable_HasAnyErrorSet(error_table));
 
     // Clear a non-critical error
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_NON_CRITICAL_ERROR, false));
-    ASSERT_FALSE(App_SharedErrorTable_HasError(error_table));
+    ASSERT_FALSE(App_SharedErrorTable_HasAnyErrorSet(error_table));
 }
 
 TEST_F(SharedErrorTableTest, has_critical_error)
 {
     // Set a critical error
-    ASSERT_FALSE(App_SharedErrorTable_HasError(error_table));
+    ASSERT_FALSE(App_SharedErrorTable_HasAnyErrorSet(error_table));
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_CRITICAL_ERROR, true));
-    ASSERT_TRUE(App_SharedErrorTable_HasCriticalError(error_table));
+    ASSERT_TRUE(App_SharedErrorTable_HasAnyCriticalErrorSet(error_table));
 
     // Clear a critical error
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_CRITICAL_ERROR, false));
-    ASSERT_FALSE(App_SharedErrorTable_HasCriticalError(error_table));
+    ASSERT_FALSE(App_SharedErrorTable_HasAnyCriticalErrorSet(error_table));
 }
 
 TEST_F(SharedErrorTableTest, has_non_critical_error)
 {
     // Set a non-critical error
-    ASSERT_FALSE(App_SharedErrorTable_HasNonCriticalError(error_table));
+    ASSERT_FALSE(App_SharedErrorTable_HasAnyNonCriticalErrorSet(error_table));
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_NON_CRITICAL_ERROR, true));
-    ASSERT_TRUE(App_SharedErrorTable_HasNonCriticalError(error_table));
+    ASSERT_TRUE(App_SharedErrorTable_HasAnyNonCriticalErrorSet(error_table));
 
     // Clear a non-critical error
     ASSERT_EQ(
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_NON_CRITICAL_ERROR, false));
-    ASSERT_FALSE(App_SharedErrorTable_HasNonCriticalError(error_table));
+    ASSERT_FALSE(App_SharedErrorTable_HasAnyNonCriticalErrorSet(error_table));
 }
 
 TEST_F(SharedErrorTableTest, get_all_errors)

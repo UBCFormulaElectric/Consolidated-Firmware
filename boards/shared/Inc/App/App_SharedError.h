@@ -127,4 +127,4 @@ bool App_SharedError_IsErrorInList(
  */
 bool App_SharedError_IsBoardInList(
     struct ErrorBoardList *board_list,
-    enum Board        board);
+    enum Board             board);

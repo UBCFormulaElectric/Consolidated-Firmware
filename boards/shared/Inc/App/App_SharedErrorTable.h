@@ -46,7 +46,7 @@ ExitCode App_SharedErrorTable_IsErrorSet(
  * @param error_table The error table to check
  * @return true if any error in the given error table is set, else false
  */
-bool App_SharedErrorTable_HasError(const struct ErrorTable *error_table);
+bool App_SharedErrorTable_HasAnyErrorSet(const struct ErrorTable *error_table);
 
 /**
  * Check if any critical error in the given error table is set
@@ -54,7 +54,7 @@ bool App_SharedErrorTable_HasError(const struct ErrorTable *error_table);
  * @return true if any critical error in the given error table is set,
  *         else false
  */
-bool App_SharedErrorTable_HasCriticalError(
+bool App_SharedErrorTable_HasAnyCriticalErrorSet(
     const struct ErrorTable *error_table);
 
 /**
@@ -63,7 +63,7 @@ bool App_SharedErrorTable_HasCriticalError(
  * @return true if any non-critical error in the given error table is set,
  *         else false
  */
-bool App_SharedErrorTable_HasNonCriticalError(
+bool App_SharedErrorTable_HasAnyNonCriticalErrorSet(
     const struct ErrorTable *error_table);
 
 /**

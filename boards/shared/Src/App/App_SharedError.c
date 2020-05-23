@@ -91,7 +91,7 @@ bool App_SharedError_IsErrorInList(
 
 bool App_SharedError_IsBoardInList(
     struct ErrorBoardList *board_list,
-    enum Board        board)
+    enum Board             board)
 {
     for (uint32_t i = 0; i < board_list->num_boards; i++)
     {

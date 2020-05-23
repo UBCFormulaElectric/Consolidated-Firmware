@@ -86,18 +86,6 @@ ExitCode App_SharedErrorTable_SetError(
     return EXIT_CODE_OK;
 }
 
-bool App_SharedErrorTable_HasError(const struct ErrorTable *error_table)
-{
-    for (size_t i = 0; i < NUM_ERROR_IDS; i++)
-    {
-        if (App_SharedError_GetIsSet(error_table->errors[i]))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 ExitCode App_SharedErrorTable_IsErrorSet(
     const struct ErrorTable *error_table,
     enum ErrorId             error_id,
@@ -112,7 +100,20 @@ ExitCode App_SharedErrorTable_IsErrorSet(
     return EXIT_CODE_OK;
 }
 
-bool App_SharedErrorTable_HasCriticalError(const struct ErrorTable *error_table)
+bool App_SharedErrorTable_HasAnyErrorSet(const struct ErrorTable *error_table)
+{
+    for (size_t i = 0; i < NUM_ERROR_IDS; i++)
+    {
+        if (App_SharedError_GetIsSet(error_table->errors[i]))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool App_SharedErrorTable_HasAnyCriticalErrorSet(
+    const struct ErrorTable *error_table)
 {
     for (size_t i = 0; i < NUM_ERROR_IDS; i++)
     {
@@ -126,7 +127,7 @@ bool App_SharedErrorTable_HasCriticalError(const struct ErrorTable *error_table)
     return false;
 }
 
-bool App_SharedErrorTable_HasNonCriticalError(
+bool App_SharedErrorTable_HasAnyNonCriticalErrorSet(
     const struct ErrorTable *error_table)
 {
     for (size_t i = 0; i < NUM_ERROR_IDS; i++)
