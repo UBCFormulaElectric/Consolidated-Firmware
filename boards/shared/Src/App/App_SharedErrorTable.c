@@ -8,6 +8,11 @@ struct ErrorTable
     struct Error *errors[NUM_ERROR_IDS];
 };
 
+#define INIT_ERROR(id, board, is_critical)                    \
+    App_SharedError_SetBoard(error_table->errors[id], board); \
+    App_SharedError_SetId(error_table->errors[id], id);       \
+    App_SharedError_SetIsCritical(error_table->errors[id], is_critical)
+
 struct ErrorTable *App_SharedErrorTable_Create(void)
 {
     struct ErrorTable *error_table = malloc(sizeof(struct ErrorTable));
@@ -18,45 +23,61 @@ struct ErrorTable *App_SharedErrorTable_Create(void)
         error_table->errors[i] = App_SharedError_Create();
     }
 
-    App_SharedError_SetBoard(error_table->errors[BMS_NON_CRIT], BMS);
-    App_SharedError_SetId(error_table->errors[BMS_NON_CRIT], BMS_NON_CRIT);
-    App_SharedError_SetIsCritical(error_table->errors[BMS_NON_CRIT], false);
+    // clang-format off
+    INIT_ERROR(BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, BMS, false);
+    INIT_ERROR(BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ, BMS, false);
+    INIT_ERROR(BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX, BMS, false);
+    INIT_ERROR(BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX, BMS, false);
+    INIT_ERROR(BMS_NON_CRITICAL_WATCHDOG_TIMEOUT, BMS, false);
 
-    App_SharedError_SetBoard(error_table->errors[DCM_NON_CRIT], DCM);
-    App_SharedError_SetId(error_table->errors[DCM_NON_CRIT], DCM_NON_CRIT);
-    App_SharedError_SetIsCritical(error_table->errors[DCM_NON_CRIT], false);
+    INIT_ERROR(DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, DCM, false);
+    INIT_ERROR(DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ, DCM, false);
+    INIT_ERROR(DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX, DCM, false);
+    INIT_ERROR(DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX, DCM, false);
+    INIT_ERROR(DCM_NON_CRITICAL_WATCHDOG_TIMEOUT, DCM, false);
 
-    App_SharedError_SetBoard(error_table->errors[DIM_NON_CRIT], DIM);
-    App_SharedError_SetId(error_table->errors[DIM_NON_CRIT], DIM_NON_CRIT);
-    App_SharedError_SetIsCritical(error_table->errors[DIM_NON_CRIT], false);
+    INIT_ERROR(DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, DIM, false);
+    INIT_ERROR(DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ, DIM, false);
+    INIT_ERROR(DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX, DIM, false);
+    INIT_ERROR(DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX, DIM, false);
+    INIT_ERROR(DIM_NON_CRITICAL_WATCHDOG_TIMEOUT, DIM, false);
 
-    App_SharedError_SetBoard(error_table->errors[FSM_NON_CRIT], FSM);
-    App_SharedError_SetId(error_table->errors[FSM_NON_CRIT], FSM_NON_CRIT);
-    App_SharedError_SetIsCritical(error_table->errors[FSM_NON_CRIT], false);
+    INIT_ERROR(FSM_NON_CRITICAL_PAPPS_OUT_OF_RANGE, FSM, false);
+    INIT_ERROR(FSM_NON_CRITICAL_SAPPS_OUT_OF_RANGE, FSM, false);
+    INIT_ERROR(FSM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, FSM, false);
+    INIT_ERROR(FSM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ, FSM, false);
+    INIT_ERROR(FSM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX, FSM, false);
+    INIT_ERROR(FSM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX, FSM, false);
+    INIT_ERROR(FSM_NON_CRITICAL_WATCHDOG_TIMEOUT, FSM, false);
+    INIT_ERROR(FSM_NON_CRITICAL_BSPD_FAULT, FSM, false);
 
-    App_SharedError_SetBoard(error_table->errors[PDM_NON_CRIT], PDM);
-    App_SharedError_SetId(error_table->errors[PDM_NON_CRIT], PDM_NON_CRIT);
-    App_SharedError_SetIsCritical(error_table->errors[PDM_NON_CRIT], false);
+    INIT_ERROR(PDM_NON_CRITICAL_MISSING_HEARTBEAT, PDM, false);
+    INIT_ERROR(PDM_NON_CRITICAL_BOOST_PGOOD_FAULT, PDM, false);
+    INIT_ERROR(PDM_NON_CRITICAL_CELL_BALANCE_OVERVOLTAGE_FAULT, PDM, false);
+    INIT_ERROR(PDM_NON_CRITICAL_CHARGER_FAULT, PDM, false);
+    INIT_ERROR(PDM_NON_CRITICAL_EFUSE_FAULT, PDM, false);
+    INIT_ERROR(PDM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, PDM, false);
+    INIT_ERROR(PDM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ, PDM, false);
+    INIT_ERROR(PDM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX, PDM, false);
+    INIT_ERROR(PDM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX, PDM, false);
+    INIT_ERROR(PDM_NON_CRITICAL_WATCHDOG_TIMEOUT, PDM, false);
+    INIT_ERROR(PDM_NON_CRITICAL_VBAT_VOLTAGE_OUT_OF_RANGE, PDM, false);
+    INIT_ERROR(PDM_NON_CRITICAL__24V_AUX_VOLTAGE_OUT_OF_RANGE, PDM, false);
+    INIT_ERROR(PDM_NON_CRITICAL__24V_ACC_VOLTAGE_OUT_OF_RANGE, PDM, false);
+    INIT_ERROR(PDM_NON_CRITICAL_AUX1_CURRENT_OUT_OF_RANGE, PDM, false);
+    INIT_ERROR(PDM_NON_CRITICAL_AUX2_CURRENT_OUT_OF_RANGE, PDM, false);
+    INIT_ERROR(PDM_NON_CRITICAL_LEFT_INVERTER_CURRENT_OUT_OF_RANGE, PDM, false);
+    INIT_ERROR(PDM_NON_CRITICAL_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE, PDM, false);
+    INIT_ERROR(PDM_NON_CRITICAL_ENERGY_METER_CURRENT_OUT_OF_RANGE, PDM, false);
+    INIT_ERROR(PDM_NON_CRITICAL_CAN_CURRENT_OUT_OF_RANGE, PDM, false);
+    INIT_ERROR(PDM_NON_CRITICAL_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE, PDM, false);
 
-    App_SharedError_SetBoard(error_table->errors[BMS_CRIT], BMS);
-    App_SharedError_SetId(error_table->errors[BMS_CRIT], BMS_CRIT);
-    App_SharedError_SetIsCritical(error_table->errors[BMS_CRIT], true);
-
-    App_SharedError_SetBoard(error_table->errors[DCM_CRIT], DCM);
-    App_SharedError_SetId(error_table->errors[DCM_CRIT], DCM_CRIT);
-    App_SharedError_SetIsCritical(error_table->errors[DCM_CRIT], true);
-
-    App_SharedError_SetBoard(error_table->errors[DIM_CRIT], DIM);
-    App_SharedError_SetId(error_table->errors[DIM_CRIT], DIM_CRIT);
-    App_SharedError_SetIsCritical(error_table->errors[DIM_CRIT], true);
-
-    App_SharedError_SetBoard(error_table->errors[FSM_CRIT], FSM);
-    App_SharedError_SetId(error_table->errors[FSM_CRIT], FSM_CRIT);
-    App_SharedError_SetIsCritical(error_table->errors[FSM_CRIT], true);
-
-    App_SharedError_SetBoard(error_table->errors[PDM_CRIT], PDM);
-    App_SharedError_SetId(error_table->errors[PDM_CRIT], PDM_CRIT);
-    App_SharedError_SetIsCritical(error_table->errors[PDM_CRIT], true);
+    INIT_ERROR(BMS_CRITICAL_DUMMY, BMS, true);
+    INIT_ERROR(DCM_CRITICAL_DUMMY, DCM, true);
+    INIT_ERROR(DIM_CRITICAL_DUMMY, DIM, true);
+    INIT_ERROR(FSM_CRITICAL_DUMMY, FSM, true);
+    INIT_ERROR(PDM_CRITICAL_DUMMY, PDM, true);
+    // clang-format on
 
     return error_table;
 }

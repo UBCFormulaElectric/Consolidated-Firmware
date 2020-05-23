@@ -95,22 +95,28 @@ class SharedErrorTableTest : public testing::Test
 
     // The error choices here are arbitrary. We just need to pick something for
     // the helper functions.
-    const enum ErrorId DEFAULT_CRITICAL_ERROR           = BMS_CRIT;
-    const enum ErrorId DEFAULT_NON_CRITICAL_ERROR       = BMS_NON_CRIT;
-    const enum Board   DEFAULT_CRITICAL_ERROR_BOARD     = BMS;
-    const enum Board   DEFAULT_NON_CRITICAL_ERROR_BOARD = BMS;
+    const enum ErrorId DEFAULT_CRITICAL_ERROR = BMS_CRITICAL_DUMMY;
+    const enum ErrorId DEFAULT_NON_CRITICAL_ERROR =
+        BMS_NON_CRITICAL_WATCHDOG_TIMEOUT;
+    const enum Board DEFAULT_CRITICAL_ERROR_BOARD     = BMS;
+    const enum Board DEFAULT_NON_CRITICAL_ERROR_BOARD = BMS;
 
-    const enum ErrorId DEFAULT_BMS_CRITICAL_ERROR = BMS_CRIT;
-    const enum ErrorId DEFAULT_DCM_CRITICAL_ERROR = DCM_CRIT;
-    const enum ErrorId DEFAULT_DIM_CRITICAL_ERROR = DIM_CRIT;
-    const enum ErrorId DEFAULT_FSM_CRITICAL_ERROR = FSM_CRIT;
-    const enum ErrorId DEFAULT_PDM_CRITICAL_ERROR = PDM_CRIT;
+    const enum ErrorId DEFAULT_BMS_CRITICAL_ERROR = BMS_CRITICAL_DUMMY;
+    const enum ErrorId DEFAULT_DCM_CRITICAL_ERROR = DCM_CRITICAL_DUMMY;
+    const enum ErrorId DEFAULT_DIM_CRITICAL_ERROR = DIM_CRITICAL_DUMMY;
+    const enum ErrorId DEFAULT_FSM_CRITICAL_ERROR = FSM_CRITICAL_DUMMY;
+    const enum ErrorId DEFAULT_PDM_CRITICAL_ERROR = PDM_CRITICAL_DUMMY;
 
-    const enum ErrorId DEFAULT_BMS_NON_CRITICAL_ERROR = BMS_NON_CRIT;
-    const enum ErrorId DEFAULT_DCM_NON_CRITICAL_ERROR = DCM_NON_CRIT;
-    const enum ErrorId DEFAULT_DIM_NON_CRITICAL_ERROR = DIM_NON_CRIT;
-    const enum ErrorId DEFAULT_FSM_NON_CRITICAL_ERROR = FSM_NON_CRIT;
-    const enum ErrorId DEFAULT_PDM_NON_CRITICAL_ERROR = PDM_NON_CRIT;
+    const enum ErrorId DEFAULT_BMS_NON_CRITICAL_ERROR =
+        BMS_NON_CRITICAL_WATCHDOG_TIMEOUT;
+    const enum ErrorId DEFAULT_DCM_NON_CRITICAL_ERROR =
+        DCM_NON_CRITICAL_WATCHDOG_TIMEOUT;
+    const enum ErrorId DEFAULT_DIM_NON_CRITICAL_ERROR =
+        DIM_NON_CRITICAL_WATCHDOG_TIMEOUT;
+    const enum ErrorId DEFAULT_FSM_NON_CRITICAL_ERROR =
+        FSM_NON_CRITICAL_WATCHDOG_TIMEOUT;
+    const enum ErrorId DEFAULT_PDM_NON_CRITICAL_ERROR =
+        PDM_NON_CRITICAL_WATCHDOG_TIMEOUT;
 
     struct ErrorTable *error_table;
     struct ErrorList   error_list;
@@ -184,20 +190,24 @@ TEST_F(SharedErrorTableTest, set_error)
     bool is_set = false;
     ASSERT_EQ(
         EXIT_CODE_OK,
-        App_SharedErrorTable_SetError(error_table, BMS_NON_CRIT, true));
+        App_SharedErrorTable_SetError(
+            error_table, BMS_NON_CRITICAL_WATCHDOG_TIMEOUT, true));
     ASSERT_EQ(
         EXIT_CODE_OK,
-        App_SharedErrorTable_IsErrorSet(error_table, BMS_NON_CRIT, &is_set));
+        App_SharedErrorTable_IsErrorSet(
+            error_table, BMS_NON_CRITICAL_WATCHDOG_TIMEOUT, &is_set));
     ASSERT_TRUE(is_set);
 
     // Clear error
     is_set = true;
     ASSERT_EQ(
         EXIT_CODE_OK,
-        App_SharedErrorTable_SetError(error_table, BMS_NON_CRIT, false));
+        App_SharedErrorTable_SetError(
+            error_table, BMS_NON_CRITICAL_WATCHDOG_TIMEOUT, false));
     ASSERT_EQ(
         EXIT_CODE_OK,
-        App_SharedErrorTable_IsErrorSet(error_table, BMS_NON_CRIT, &is_set));
+        App_SharedErrorTable_IsErrorSet(
+            error_table, BMS_NON_CRITICAL_WATCHDOG_TIMEOUT, &is_set));
     ASSERT_FALSE(is_set);
 
     // Out-of-range ID
@@ -215,10 +225,12 @@ TEST_F(SharedErrorTableTest, is_error_set)
     bool is_set = false;
     ASSERT_EQ(
         EXIT_CODE_OK,
-        App_SharedErrorTable_SetError(error_table, BMS_NON_CRIT, true));
+        App_SharedErrorTable_SetError(
+            error_table, BMS_NON_CRITICAL_WATCHDOG_TIMEOUT, true));
     ASSERT_EQ(
         EXIT_CODE_OK,
-        App_SharedErrorTable_IsErrorSet(error_table, BMS_NON_CRIT, &is_set));
+        App_SharedErrorTable_IsErrorSet(
+            error_table, BMS_NON_CRITICAL_WATCHDOG_TIMEOUT, &is_set));
     ASSERT_TRUE(is_set);
 
     // Out-of-range ID
