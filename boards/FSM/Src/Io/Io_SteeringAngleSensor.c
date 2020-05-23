@@ -2,7 +2,7 @@
 #include "configs/App_SteeringAngleConstants.h"
 #include "Io_SteeringAngleSensor.h"
 
-float Io_SteeringAngleSensor_GetAngleDeg(void)
+float Io_SteeringAngleSensor_GetAngleDegree(void)
 {
     // Subtract the measured voltage by the steering angle sensor voltage
     // offset. Multiply the result with VOLTAGE_TO_DEGREES to calculate the
