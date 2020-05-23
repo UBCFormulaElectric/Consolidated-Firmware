@@ -2,20 +2,11 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "App_BoardEnum.h"
 
 struct Error;
 struct ErrorList;
 struct ErrorBoardList;
-
-enum ErrorBoard
-{
-    BMS,
-    DCM,
-    DIM,
-    FSM,
-    PDM,
-    NUM_ERROR_BOARDS,
-};
 
 struct ErrorBoardList
 {
@@ -23,7 +14,7 @@ struct ErrorBoardList
     uint32_t num_boards;
 
     // Only the first num_boards elements are valid
-    enum ErrorBoard boards[NUM_ERROR_BOARDS];
+    enum Board boards[NUM_BOARDS];
 };
 
 enum ErrorId
@@ -67,7 +58,7 @@ void App_SharedError_Destroy(struct Error *error);
  * @param error The error to set
  * @param board The board to set
  */
-void App_SharedError_SetBoard(struct Error *error, enum ErrorBoard board);
+void App_SharedError_SetBoard(struct Error *error, enum Board board);
 
 /**
  * Set the given error as non-critical or critical
@@ -96,7 +87,7 @@ void App_SharedError_SetIsSet(struct Error *error, bool is_set);
  * @param error The error to check
  * @return The board that the given error belongs to
  */
-enum ErrorBoard App_SharedError_GetBoard(const struct Error *error);
+enum Board App_SharedError_GetBoard(const struct Error *error);
 
 /**
  * Check if the given error is critical
@@ -136,4 +127,4 @@ bool App_SharedError_IsErrorInList(
  */
 bool App_SharedError_IsBoardInList(
     struct ErrorBoardList *board_list,
-    enum ErrorBoard        board);
+    enum Board        board);

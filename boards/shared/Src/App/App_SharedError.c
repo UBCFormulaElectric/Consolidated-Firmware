@@ -5,7 +5,7 @@
 struct Error
 {
     // The board this error is from
-    enum ErrorBoard board;
+    enum Board board;
 
     // The id of this error
     enum ErrorId id;
@@ -22,7 +22,7 @@ struct Error *App_SharedError_Create(void)
     struct Error *error = malloc(sizeof(error));
     assert(error != NULL);
 
-    error->board       = NUM_ERROR_BOARDS;
+    error->board       = NUM_BOARDS;
     error->id          = NUM_ERROR_IDS;
     error->is_critical = false;
     error->is_set      = false;
@@ -35,7 +35,7 @@ void App_SharedError_Destroy(struct Error *error)
     free(error);
 }
 
-void App_SharedError_SetBoard(struct Error *error, enum ErrorBoard board)
+void App_SharedError_SetBoard(struct Error *error, enum Board board)
 {
     error->board = board;
 }
@@ -55,7 +55,7 @@ void App_SharedError_SetIsSet(struct Error *error, bool is_set)
     error->is_set = is_set;
 }
 
-enum ErrorBoard App_SharedError_GetBoard(const struct Error *error)
+enum Board App_SharedError_GetBoard(const struct Error *error)
 {
     return error->board;
 }
@@ -91,7 +91,7 @@ bool App_SharedError_IsErrorInList(
 
 bool App_SharedError_IsBoardInList(
     struct ErrorBoardList *board_list,
-    enum ErrorBoard        board)
+    enum Board        board)
 {
     for (uint32_t i = 0; i < board_list->num_boards; i++)
     {

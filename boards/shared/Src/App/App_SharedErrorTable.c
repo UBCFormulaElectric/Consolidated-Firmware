@@ -8,16 +8,6 @@ struct ErrorTable
     struct Error *errors[NUM_ERROR_IDS];
 };
 
-static void App_ResetBoardList(struct ErrorBoardList *board_list)
-{
-    for (size_t i = 0; i < NUM_ERROR_BOARDS; i++)
-    {
-        board_list->boards[i] = NUM_ERROR_BOARDS;
-    }
-
-    board_list->num_boards = 0;
-}
-
 struct ErrorTable *App_SharedErrorTable_Create(void)
 {
     struct ErrorTable *error_table = malloc(sizeof(struct ErrorTable));
@@ -217,7 +207,7 @@ void App_SharedErrorTable_GetBoardsWithNoErrors(
 
     board_list->num_boards = 0;
 
-    for (enum ErrorBoard board = 0; board < NUM_ERROR_BOARDS; board++)
+    for (enum Board board = 0; board < NUM_BOARDS; board++)
     {
         if (!App_SharedError_IsBoardInList(&boards_with_errors, board))
         {
@@ -231,7 +221,7 @@ void App_SharedErrorTable_GetBoardsWithErrors(
     const struct ErrorTable *error_table,
     struct ErrorBoardList *  board_list)
 {
-    App_ResetBoardList(board_list);
+    board_list->num_boards = 0;
 
     for (size_t i = 0; i < NUM_ERROR_IDS; i++)
     {
@@ -252,7 +242,7 @@ void App_SharedErrorTable_GetBoardsWithCriticalErrors(
     const struct ErrorTable *error_table,
     struct ErrorBoardList *  board_list)
 {
-    App_ResetBoardList(board_list);
+    board_list->num_boards = 0;
 
     for (size_t i = 0; i < NUM_ERROR_IDS; i++)
     {
@@ -274,7 +264,7 @@ void App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
     const struct ErrorTable *error_table,
     struct ErrorBoardList *  board_list)
 {
-    App_ResetBoardList(board_list);
+    board_list->num_boards = 0;
 
     for (size_t i = 0; i < NUM_ERROR_IDS; i++)
     {

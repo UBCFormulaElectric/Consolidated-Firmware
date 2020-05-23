@@ -86,9 +86,9 @@ class SharedErrorTableTest : public testing::Test
                 error_table, DEFAULT_PDM_NON_CRITICAL_ERROR, true));
     }
 
-    std::vector<enum ErrorBoard> GetAllBoards(void)
+    std::vector<enum Board> GetAllBoards(void)
     {
-        return std::vector<enum ErrorBoard>{
+        return std::vector<enum Board>{
             BMS, DCM, DIM, FSM, PDM,
         };
     }
@@ -97,8 +97,8 @@ class SharedErrorTableTest : public testing::Test
     // the helper functions.
     const enum ErrorId    DEFAULT_CRITICAL_ERROR           = BMS_CRIT;
     const enum ErrorId    DEFAULT_NON_CRITICAL_ERROR       = BMS_NON_CRIT;
-    const enum ErrorBoard DEFAULT_CRITICAL_ERROR_BOARD     = BMS;
-    const enum ErrorBoard DEFAULT_NON_CRITICAL_ERROR_BOARD = BMS;
+    const enum Board DEFAULT_CRITICAL_ERROR_BOARD     = BMS;
+    const enum Board DEFAULT_NON_CRITICAL_ERROR_BOARD = BMS;
 
     const enum ErrorId DEFAULT_BMS_CRITICAL_ERROR = BMS_CRIT;
     const enum ErrorId DEFAULT_DCM_CRITICAL_ERROR = DCM_CRIT;
@@ -362,7 +362,7 @@ TEST_F(SharedErrorTableTest, get_all_critical_errors)
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_NON_CRITICAL_ERROR, true));
     App_SharedErrorTable_GetAllCriticalErrors(error_table, &error_list);
-    ASSERT_EQ(NUM_ERROR_BOARDS, error_list.num_errors);
+    ASSERT_EQ(NUM_BOARDS, error_list.num_errors);
 }
 
 TEST_F(SharedErrorTableTest, get_all_non_critical_errors)
@@ -398,7 +398,7 @@ TEST_F(SharedErrorTableTest, get_all_non_critical_errors)
         EXIT_CODE_OK, App_SharedErrorTable_SetError(
                           error_table, DEFAULT_CRITICAL_ERROR, true));
     App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
-    ASSERT_EQ(NUM_ERROR_BOARDS, error_list.num_errors);
+    ASSERT_EQ(NUM_BOARDS, error_list.num_errors);
 }
 
 TEST_F(SharedErrorTableTest, get_boards_with_no_errors)
@@ -407,14 +407,14 @@ TEST_F(SharedErrorTableTest, get_boards_with_no_errors)
 
     // No board has any error
     App_SharedErrorTable_GetBoardsWithNoErrors(error_table, &board_list);
-    ASSERT_EQ(NUM_ERROR_BOARDS, board_list.num_boards);
+    ASSERT_EQ(NUM_BOARDS, board_list.num_boards);
     for (auto board : GetAllBoards())
         ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, board));
 
     // One board has one critical error
     ResetWithOneCriticalErrorForOneBoard();
     App_SharedErrorTable_GetBoardsWithNoErrors(error_table, &board_list);
-    ASSERT_EQ(NUM_ERROR_BOARDS - 1, board_list.num_boards);
+    ASSERT_EQ(NUM_BOARDS - 1, board_list.num_boards);
     for (auto board : GetAllBoards())
     {
         if (board != DEFAULT_CRITICAL_ERROR_BOARD)
@@ -431,7 +431,7 @@ TEST_F(SharedErrorTableTest, get_boards_with_no_errors)
     // One board has one non-critical error
     ResetWithOneNonCriticalErrorForOneBoard();
     App_SharedErrorTable_GetBoardsWithNoErrors(error_table, &board_list);
-    ASSERT_EQ(NUM_ERROR_BOARDS - 1, board_list.num_boards);
+    ASSERT_EQ(NUM_BOARDS - 1, board_list.num_boards);
     for (auto board : GetAllBoards())
     {
         if (board != DEFAULT_NON_CRITICAL_ERROR_BOARD)
@@ -464,7 +464,7 @@ TEST_F(SharedErrorTableTest, get_boards_with_errors)
     // Every board has one critical error
     ResetWithOneCriticalErrorForEveryBoard();
     App_SharedErrorTable_GetBoardsWithErrors(error_table, &board_list);
-    ASSERT_EQ(NUM_ERROR_BOARDS, board_list.num_boards);
+    ASSERT_EQ(NUM_BOARDS, board_list.num_boards);
     for (auto board : GetAllBoards())
         ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, board));
 
@@ -478,7 +478,7 @@ TEST_F(SharedErrorTableTest, get_boards_with_errors)
     // Every board has one non-critical error
     ResetWithOneNonCriticalErrorForEveryBoard();
     App_SharedErrorTable_GetBoardsWithErrors(error_table, &board_list);
-    ASSERT_EQ(NUM_ERROR_BOARDS, board_list.num_boards);
+    ASSERT_EQ(NUM_BOARDS, board_list.num_boards);
     for (auto board : GetAllBoards())
     {
         ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, board));
@@ -503,7 +503,7 @@ TEST_F(SharedErrorTableTest, get_boards_with_critical_errors)
     // Every board has one critical error
     ResetWithOneCriticalErrorForEveryBoard();
     App_SharedErrorTable_GetBoardsWithCriticalErrors(error_table, &board_list);
-    ASSERT_EQ(NUM_ERROR_BOARDS, board_list.num_boards);
+    ASSERT_EQ(NUM_BOARDS, board_list.num_boards);
     for (auto board : GetAllBoards())
     {
         ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, board));
@@ -531,7 +531,7 @@ TEST_F(SharedErrorTableTest, get_boards_with_non_critical_errors)
     ResetWithOneNonCriticalErrorForEveryBoard();
     App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
         error_table, &board_list);
-    ASSERT_EQ(NUM_ERROR_BOARDS, board_list.num_boards);
+    ASSERT_EQ(NUM_BOARDS, board_list.num_boards);
     for (auto board : GetAllBoards())
     {
         ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, board));
