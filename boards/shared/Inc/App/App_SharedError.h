@@ -5,8 +5,6 @@
 #include "App_BoardEnum.h"
 
 struct Error;
-struct ErrorList;
-struct ErrorBoardList;
 
 struct ErrorBoardList
 {
