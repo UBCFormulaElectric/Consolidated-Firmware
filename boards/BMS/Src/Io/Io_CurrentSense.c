@@ -1,5 +1,5 @@
 #include <stddef.h>
-#include "App_CurrentSense.h"
+#include "Io_CurrentSense.h"
 
 ExitCode App_CurrentSense_ConvertToMainCurrent1(
     float  adc_voltage,

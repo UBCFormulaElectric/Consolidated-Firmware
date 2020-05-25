@@ -3,7 +3,7 @@
 
 extern "C"
 {
-#include "App_CurrentSense.h"
+#include "Io_CurrentSense.h"
 }
 
 class CurrentSenseTest : public testing::Test

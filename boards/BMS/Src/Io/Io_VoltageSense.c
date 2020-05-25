@@ -1,5 +1,5 @@
 #include <stddef.h>
-#include "App_VoltageSense.h"
+#include "Io_VoltageSense.h"
 
 ExitCode App_VoltageSense_GetTractiveSystemVoltage(
     float  adc_voltage,
