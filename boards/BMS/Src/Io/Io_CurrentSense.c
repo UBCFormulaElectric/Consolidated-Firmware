@@ -1,14 +1,14 @@
 #include <stddef.h>
 #include "Io_CurrentSense.h"
 
-ExitCode Io_CurrentSense_ConvertToMainCurrent1(
+ExitCode Io_CurrentSense_ConvertToLowResolutionMainCurrent(
     float  adc_voltage,
-    float *main_current_1)
+    float *low_res_main_current)
 {
     if (adc_voltage < 0.0f)
         return EXIT_CODE_OUT_OF_RANGE;
 
-    if (main_current_1 == NULL)
+    if (low_res_main_current == NULL)
         return EXIT_CODE_INVALID_ARGS;
 
     // HSNBV-D06 Output 1 (+/- 50A):
@@ -36,19 +36,19 @@ ExitCode Io_CurrentSense_ConvertToMainCurrent1(
     const float sensitivity        = 40e-3f;
     const float hsnbv_d06_output_1 = adc_voltage * (1e3f + 2.2e3f) / 2.2e3f;
 
-    *main_current_1 = (hsnbv_d06_output_1 - offset) / sensitivity;
+    *low_res_main_current = (hsnbv_d06_output_1 - offset) / sensitivity;
 
     return EXIT_CODE_OK;
 }
 
-ExitCode Io_CurrentSense_ConvertToMainCurrent2(
+ExitCode Io_CurrentSense_ConvertToHighResolutionMainCurrent(
     float  adc_voltage,
-    float *main_current_2)
+    float *high_res_main_current)
 {
     if (adc_voltage < 0.0f)
         return EXIT_CODE_OUT_OF_RANGE;
 
-    if (main_current_2 == NULL)
+    if (high_res_main_current == NULL)
         return EXIT_CODE_INVALID_ARGS;
 
     // HSNBV-D06 Output 2 (+/- 300A):
@@ -76,7 +76,7 @@ ExitCode Io_CurrentSense_ConvertToMainCurrent2(
     const float sensitivity        = 6.67e-3f;
     const float hsnbv_d06_output_2 = adc_voltage * (1e3f + 2.2e3f) / 2.2e3f;
 
-    *main_current_2 = (hsnbv_d06_output_2 - offset) / sensitivity;
+    *high_res_main_current = (hsnbv_d06_output_2 - offset) / sensitivity;
 
     return EXIT_CODE_OK;
 }
