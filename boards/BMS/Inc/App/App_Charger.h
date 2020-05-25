@@ -4,10 +4,18 @@
 
 struct Charger;
 
+// This library is modelled after the BRUSA NLG513 charger. It has the concept
+// of a master switch (Pin 3: PON). In short, if the BRUSA NLG513 s powered on
+// but the master switch is disabled, it can never start the charging sequence.
+// For the charging sequence to start, the BRUSA NLG513 must be powered on and
+// its master switch enabled.
+//
+// Read more: BMS-9, BMS-10, BMS-34, and BRUSA NLG513 datasheet
+
 /**
  * Allocate and initialize a charger
- * @param enable_charger A function that can be called to turn on the charger
- * @param disable_charger A function that can be called to turn off the charger
+ * @param enable_charger A function that can be called to enable the charger
+ * @param disable_charger A function that can be called to disable the charger
  * @param is_charger_connected A function that returns whether the charger is
  *                             is connected
  * @return The created charger, whose ownership is given to the caller
