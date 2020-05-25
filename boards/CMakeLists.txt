@@ -108,26 +108,27 @@ endfunction()
 
 # Create the Arm binary executable that can be flashed to a board
 #   BOARD_NAME - The name of the board. This will be used to name the executable
-#   ARM_BINARY_APP_AND_IO_SRCS - Source files for the APP and IO layer of the Arm binary
-#   ARM_BINARY_APP_AND_IO_INCLUDE_DIRS - Include directories for the APP and IO layer of the Arm binary
+#   ARM_BINARY_SRCS - Source files for the Arm binary
+#   ARM_BINARY_INCLUDE_DIRS - Include directories for the Arm binary
+#   ARM_BINARY_THIRD_PARTY_SRCS - Third-party source files for the Arm binary
+#                                 that should have warnings suppressed
+#   ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS - Third-party include directories for
+#                                         the Arm binary that should have
+#                                         warnings suppressed
 #   ARM_LINKER_SCRIPT - The Arm linker script for the board
 #   STM32_DEVICE_TYPE - The device name required for <stm32f3xx.h> to work
-#   ARM_BINARY_IO_THIRD_PARTY_SRCS - Third-party IO source files that should
-#                                    have warnings suppressed
-#   ARM_BINARY_IO_THIRD_PARTY_INCLUDE_DIRS - Third-party IO include directories
-#                                            that should have warnings suppressed
 function(create_arm_binary
             BOARD_NAME
-            ARM_BINARY_APP_AND_IO_SRCS
-            ARM_BINARY_APP_AND_IO_INCLUDE_DIRS
+            ARM_BINARY_SRCS
+            ARM_BINARY_INCLUDE_DIRS
+            ARM_BINARY_THIRD_PARTY_SRCS
+            ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS
             ARM_LINKER_SCRIPT
             STM32_DEVICE_TYPE
-            ARM_BINARY_IO_THIRD_PARTY_SRCS
-            ARM_BINARY_IO_THIRD_PARTY_INCLUDE_DIRS
             )
     add_executable(${BOARD_NAME}.elf
-        ${ARM_BINARY_APP_AND_IO_SRCS}
-        ${ARM_BINARY_IO_THIRD_PARTY_SRCS}
+        ${ARM_BINARY_SRCS}
+        ${ARM_BINARY_THIRD_PARTY_SRCS}
         ${SHARED_APP_SRCS}
         ${SHARED_IO_SRCS}
         ${SHARED_IO_THIRD_PARTY_SRCS}
@@ -137,7 +138,7 @@ function(create_arm_binary
     add_dependencies(all_arm_binaries ${BOARD_NAME}.elf)
     target_include_directories(${BOARD_NAME}.elf
         PRIVATE
-            ${ARM_BINARY_APP_AND_IO_INCLUDE_DIRS}
+            ${ARM_BINARY_INCLUDE_DIRS}
             ${SHARED_APP_INCLUDE_DIRS}
             ${SHARED_IO_INCLUDE_DIRS}
         )
@@ -145,13 +146,13 @@ function(create_arm_binary
     # to be modified by marking them as system includes
     target_include_directories(${BOARD_NAME}.elf SYSTEM
         PRIVATE
-            ${ARM_BINARY_IO_THIRD_PARTY_INCLUDE_DIRS}
+            ${ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS}
             ${SHARED_IO_THIRD_PARTY_INCLUDE_DIRS}
         )
     # Suppress source file warnings for third-party IO code that are not meant to
     # be modified
     set_source_files_properties(
-            ${ARM_BINARY_IO_THIRD_PARTY_SRCS}
+            ${ARM_BINARY_THIRD_PARTY_SRCS}
             ${SHARED_IO_THIRD_PARTY_SRCS}
         PROPERTIES COMPILE_FLAGS "-w")
 
@@ -321,29 +322,30 @@ endfunction()
 # this is being compiled for.
 #   BOARD_NAME - The name of the board, will be used to name the binary or tests
 #   IOC_FILE - The IOC file for the board
-#   ARM_BINARY_APP_SRCS - Source files for the APP layer of the Arm binary
-#   ARM_BINARY_APP_INCLUDE_DIRS - Include directories for the APP layer of Arm binary
-#   ARM_BINARY_IO_SRCS - Source files for the IO layer of the Arm binary
-#   ARM_BINARY_IO_INCLUDE_DIRS - Include directories for the IO layer of the Arm binary
+#   ARM_BINARY_X86_COMPATIBLE_SRCS - Source files for the Arm binary that can be
+#                                    compiled on x86
+#   ARM_BINARY_X86_INCOMPATIBLE_SRCS - Source files for the Arm binary that
+#                                      can't be compiled on x86
+#   ARM_BINARY_INCLUDE_DIRS - The include directories for the Arm binary
+#   ARM_BINARY_THIRD_PARTY_SRCS - Third-party source files for the Arm binary
+#                                 that should have warnings suppressed
+#   ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS - Third-party include directories for
+#                                         the Arm binary that should have
+#                                         warnings suppressed
 #   ARM_LINKER_SCRIPT - The Arm linker script for the board
 #   STM32_DEVICE_TYPE - The device name required for <stm32f3xx.h> to work
-#   ARM_BINARY_IO_THIRD_PARTY_SRCS - Third-party IO source files that should
-#                                    have warnings suppressed
-#   ARM_BINARY_IO_THIRD_PARTY_INCLUDE_DIRS - Third-party IO include directories
-#                                            that should have warnings suppressed
-#   GOOGLETEST_TEST_SRCS - The source files for the test programs
+#   GOOGLETEST_TEST_SRCS - Source files for the test programs
 #   GOOGLETEST_TEST_INCLUDE_DIRS - Include directories for the test programs
 function(create_arm_binary_or_tests_for_board
             BOARD_NAME
-            IOC_FILE 
-            ARM_BINARY_APP_SRCS
-            ARM_BINARY_APP_INCLUDE_DIRS
-            ARM_BINARY_IO_SRCS
-            ARM_BINARY_IO_INCLUDE_DIRS
+            IOC_FILE
+            ARM_BINARY_X86_COMPATIBLE_SRCS
+            ARM_BINARY_X86_INCOMPATIBLE_SRCS
+            ARM_BINARY_INCLUDE_DIRS
+            ARM_BINARY_THIRD_PARTY_SRCS
+            ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS
             ARM_LINKER_SCRIPT
             STM32_DEVICE_TYPE
-            ARM_BINARY_IO_THIRD_PARTY_SRCS
-            ARM_BINARY_IO_THIRD_PARTY_INCLUDE_DIRS
             GOOGLETEST_TEST_SRCS
             GOOGLETEST_TEST_INCLUDE_DIRS
             )
@@ -405,13 +407,13 @@ function(create_arm_binary_or_tests_for_board
     set(AUTOGENERATED_CAN_IO_INCLUDE_DIRS
             "${BOARD_SPECIFIC_AUTOGENERATED_IO_INCLUDE_DIR}")
 
-    list(APPEND ARM_BINARY_APP_SRCS
+    list(APPEND ARM_BINARY_X86_COMPATIBLE_SRCS
             "${AUTOGENERATED_CAN_APP_SRCS}")
-    list(APPEND ARM_BINARY_APP_INCLUDE_DIRS
+    list(APPEND ARM_BINARY_INCLUDE_DIRS
             "${AUTOGENERATED_CAN_APP_INCLUDE_DIRS}")
-    list(APPEND ARM_BINARY_IO_SRCS
+    list(APPEND ARM_BINARY_X86_INCOMPATIBLE_SRCS
             "${AUTOGENERATED_CAN_IO_SRCS}")
-    list(APPEND ARM_BINARY_IO_INCLUDE_DIRS
+    list(APPEND ARM_BINARY_INCLUDE_DIRS
             "${AUTOGENERATED_CAN_IO_INCLUDE_DIRS}")
 
     can_code_generation(
@@ -437,32 +439,30 @@ function(create_arm_binary_or_tests_for_board
                 "${BOARD_NAME}"
                 "${GOOGLETEST_TEST_SRCS}"
                 "${GOOGLETEST_TEST_INCLUDE_DIRS}"
-                "${ARM_BINARY_APP_SRCS}"
-                "${ARM_BINARY_APP_INCLUDE_DIRS}"
+                "${ARM_BINARY_X86_COMPATIBLE_SRCS}"
+                "${ARM_BINARY_INCLUDE_DIRS}"
         )
     elseif("${PLATFORM}" STREQUAL "arm")
         cube_mx_code_generation(
             "${BOARD_NAME}"
             "${IOC_FILE}"
             )
-        list(APPEND ARM_BINARY_APP_AND_IO_SRCS
-                ${ARM_BINARY_APP_SRCS}
-                ${ARM_BINARY_IO_SRCS}
+        list(APPEND ARM_BINARY_SRCS
+                ${ARM_BINARY_X86_COMPATIBLE_SRCS}
+                ${ARM_BINARY_X86_INCOMPATIBLE_SRCS}
                 )
-        list(APPEND ARM_BINARY_APP_AND_IO_INCLUDE_DIRS
-                ${ARM_BINARY_APP_INCLUDE_DIRS}
-                ${ARM_BINARY_IO_INCLUDE_DIRS}
+        list(APPEND ARM_BINARY_INCLUDE_DIRS
                 ${BOARD_SPECIFIC_AUTOGENERATED_APP_INCLUDE_DIR}
                 ${BOARD_SPECIFIC_AUTOGENERATED_IO_INCLUDE_DIR}
                 )
         create_arm_binary(
             "${BOARD_NAME}"
-            "${ARM_BINARY_APP_AND_IO_SRCS}"
-            "${ARM_BINARY_APP_AND_IO_INCLUDE_DIRS}"
+            "${ARM_BINARY_SRCS}"
+            "${ARM_BINARY_INCLUDE_DIRS}"
+            "${ARM_BINARY_THIRD_PARTY_SRCS}"
+            "${ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS}"
             "${ARM_LINKER_SCRIPT}"
             "${STM32_DEVICE_TYPE}"
-            "${ARM_BINARY_IO_THIRD_PARTY_SRCS}"
-            "${ARM_BINARY_IO_THIRD_PARTY_INCLUDE_DIRS}"
             )
     endif()
 endfunction()
