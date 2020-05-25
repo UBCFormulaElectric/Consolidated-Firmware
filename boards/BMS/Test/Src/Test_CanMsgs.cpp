@@ -23,6 +23,12 @@ TEST(CanMsgsTest, state_of_charge_message_frequency)
     ASSERT_GE(HZ_TO_MS(100), CANMSGS_BMS_STATE_OF_CHARGE_CYCLE_TIME_MS);
 }
 
+// BMS-9
+TEST(CanMsgsTest, charger_message_frequency)
+{
+    ASSERT_GE(HZ_TO_MS(1), CANMSGS_BMS_CHARGER_CYCLE_TIME_MS);
+}
+
 // BMS-37
 TEST(CanMsgsTest, ok_status_message_frequency)
 {

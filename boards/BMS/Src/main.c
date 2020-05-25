@@ -36,6 +36,7 @@
 #include "Io_Imd.h"
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
+#include "Io_Charger.h"
 #include "Io_Latches.h"
 
 #include "App_BmsWorld.h"
@@ -93,6 +94,7 @@ struct BmsCanRxInterface *can_rx;
 struct Imd *              imd;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
+struct Charger *          charger;
 struct OkStatus *         bms_ok;
 struct OkStatus *         imd_ok;
 struct OkStatus *         bspd_ok;
@@ -192,6 +194,9 @@ int main(void)
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
         Io_RgbLedSequence_TurnOnGreenLed);
 
+    charger = App_Charger_Create(
+        Io_Charger_Enable, Io_Charger_Disable, Io_Charger_IsConnected);
+
     bms_ok = App_OkStatus_Create(Io_Latches_IsBmsOkEnabled);
 
     imd_ok = App_OkStatus_Create(Io_Latches_IsImdOkEnabled);
@@ -199,8 +204,8 @@ int main(void)
     bspd_ok = App_OkStatus_Create(Io_Latches_IsBspdOkEnabled);
 
     world = App_BmsWorld_Create(
-        can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, bms_ok,
-        imd_ok, bspd_ok);
+        can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger,
+        bms_ok, imd_ok, bspd_ok);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);

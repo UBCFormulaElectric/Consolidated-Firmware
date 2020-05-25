@@ -5,6 +5,7 @@
 #include "App_Imd.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
+#include "App_Charger.h"
 #include "App_OkStatus.h"
 
 struct BmsWorld;
@@ -24,6 +25,7 @@ struct BmsWorld *App_BmsWorld_Create(
     struct Imd *              imd,
     struct HeartbeatMonitor * heartbeat_monitor,
     struct RgbLedSequence *   rgb_led_sequence,
+    struct Charger *          charger,
     struct OkStatus *         bms_ok,
     struct OkStatus *         imd_ok,
     struct OkStatus *         bspd_ok);
@@ -70,6 +72,14 @@ struct HeartbeatMonitor *
  */
 struct RgbLedSequence *
     App_BmsWorld_GetRgbLedSequence(const struct BmsWorld *world);
+
+/**
+ * Get the charger for the given world
+ * @param world The world to get charger for
+ * @return The charger for the given world
+ */
+struct Charger *App_BmsWorld_GetCharger(const struct BmsWorld *world);
+
 /**
  * Get the BMS OK for the given world
  * @param world The world to get BMS OK for

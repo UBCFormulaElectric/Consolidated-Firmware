@@ -10,6 +10,7 @@ struct BmsWorld
     struct Imd *              imd;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
+    struct Charger *          charger;
     struct OkStatus *         bms_ok;
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
@@ -21,6 +22,7 @@ struct BmsWorld *App_BmsWorld_Create(
     struct Imd *const               imd,
     struct HeartbeatMonitor *const  heartbeat_monitor,
     struct RgbLedSequence *const    rgb_led_sequence,
+    struct Charger *const           charger,
     struct OkStatus *const          bms_ok,
     struct OkStatus *const          imd_ok,
     struct OkStatus *const          bspd_ok)
@@ -33,6 +35,7 @@ struct BmsWorld *App_BmsWorld_Create(
     world->imd               = imd;
     world->heartbeat_monitor = heartbeat_monitor;
     world->rgb_led_sequence  = rgb_led_sequence;
+    world->charger           = charger;
     world->bms_ok            = bms_ok;
     world->imd_ok            = imd_ok;
     world->bspd_ok           = bspd_ok;
@@ -72,6 +75,11 @@ struct RgbLedSequence *
     App_BmsWorld_GetRgbLedSequence(const struct BmsWorld *const world)
 {
     return world->rgb_led_sequence;
+}
+
+struct Charger *App_BmsWorld_GetCharger(const struct BmsWorld *const world)
+{
+    return world->charger;
 }
 
 struct OkStatus *App_BmsWorld_GetBmsOk(const struct BmsWorld *const world)

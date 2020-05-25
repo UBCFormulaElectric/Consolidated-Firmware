@@ -152,7 +152,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_Led_TurnOff(imd_led);
     }
 
-    if (App_CanRx_FSM_ERRORS_GetSignal_BSPD_FAULT(can_rx))
+    if (App_CanRx_FSM_NON_CRITICAL_ERRORS_GetSignal_BSPD_FAULT(can_rx))
     {
         App_Led_TurnOn(bspd_led);
     }
