@@ -21,6 +21,7 @@ static void AirOpenStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     App_SetPeriodicSignals_FlowRateInRangeChecks(world);
     App_SetPeriodicSignals_WheelSpeedInRangeChecks(world);
+    App_SetPeriodicSignals_SteeringAngleInRangeCheck(world);
 }
 
 static void AirOpenStateRunOnExit(struct StateMachine *const state_machine)
