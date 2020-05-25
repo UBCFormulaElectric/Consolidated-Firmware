@@ -37,7 +37,7 @@
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
 #include "Io_Charger.h"
-#include "Io_Latches.h"
+#include "Io_OkStatuses.h"
 
 #include "App_BmsWorld.h"
 #include "App_SharedStateMachine.h"
@@ -197,11 +197,17 @@ int main(void)
     charger = App_Charger_Create(
         Io_Charger_Enable, Io_Charger_Disable, Io_Charger_IsConnected);
 
-    bms_ok = App_OkStatus_Create(Io_Latches_IsBmsOkEnabled);
+    bms_ok = App_OkStatus_Create(
+        Io_OkStatuses_EnableBmsOk, Io_OkStatuses_DisableBmsOk,
+        Io_OkStatuses_IsBmsOkEnabled);
 
-    imd_ok = App_OkStatus_Create(Io_Latches_IsImdOkEnabled);
+    imd_ok = App_OkStatus_Create(
+        Io_OkStatuses_EnableImdOk, Io_OkStatuses_DisableImdOk,
+        Io_OkStatuses_IsImdOkEnabled);
 
-    bspd_ok = App_OkStatus_Create(Io_Latches_IsBspdOkEnabled);
+    bspd_ok = App_OkStatus_Create(
+        Io_OkStatuses_EnableBspdOk, Io_OkStatuses_DisableBspdOk,
+        Io_OkStatuses_IsBspdOkEnabled);
 
     world = App_BmsWorld_Create(
         can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger,

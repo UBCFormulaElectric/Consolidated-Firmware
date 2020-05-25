@@ -82,17 +82,18 @@ struct Charger *App_BmsWorld_GetCharger(const struct BmsWorld *const world)
     return world->charger;
 }
 
-struct OkStatus *App_BmsWorld_GetBmsOk(const struct BmsWorld *const world)
+struct OkStatus *App_BmsWorld_GetBmsOkStatus(const struct BmsWorld *const world)
 {
     return world->bms_ok;
 }
 
-struct OkStatus *App_BmsWorld_GetImdOk(const struct BmsWorld *const world)
+struct OkStatus *App_BmsWorld_GetImdOkStatus(const struct BmsWorld *const world)
 {
     return world->imd_ok;
 }
 
-struct OkStatus *App_BmsWorld_GetBspdOk(const struct BmsWorld *const world)
+struct OkStatus *
+    App_BmsWorld_GetBspdOkStatus(const struct BmsWorld *const world)
 {
     return world->bspd_ok;
 }

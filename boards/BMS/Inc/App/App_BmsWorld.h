@@ -81,22 +81,22 @@ struct RgbLedSequence *
 struct Charger *App_BmsWorld_GetCharger(const struct BmsWorld *world);
 
 /**
- * Get the BMS OK for the given world
- * @param world The world to get BMS OK for
- * @return The BMS OK for the given world
+ * Get the BMS OK status for the given world
+ * @param world The world to get BMS OK status for
+ * @return The BMS OK status for the given world
  */
-struct OkStatus *App_BmsWorld_GetBmsOk(const struct BmsWorld *world);
+struct OkStatus *App_BmsWorld_GetBmsOkStatus(const struct BmsWorld *world);
 
 /**
- * Get the IMD OK for the given world
- * @param world The world to get IMD OK for
- * @return The IMD OK for the given world
+ * Get the IMD OK status for the given world
+ * @param world The world to get IMD OK status for
+ * @return The IMD OK status for the given world
  */
-struct OkStatus *App_BmsWorld_GetImdOk(const struct BmsWorld *world);
+struct OkStatus *App_BmsWorld_GetImdOkStatus(const struct BmsWorld *world);
 
 /**
- * Get the BSPD OK for the given world
- * @param world The world to get BSPD OK for
- * @return The BSPD OK for the given world
+ * Get the BSPD OK status for the given world
+ * @param world The world to get BSPD OK status for
+ * @return The BSPD OK status for the given world
  */
-struct OkStatus *App_BmsWorld_GetBspdOk(const struct BmsWorld *world);
+struct OkStatus *App_BmsWorld_GetBspdOkStatus(const struct BmsWorld *world);

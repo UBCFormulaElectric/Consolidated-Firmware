@@ -32,5 +32,5 @@ TEST(CanMsgsTest, charger_message_frequency)
 // BMS-37
 TEST(CanMsgsTest, ok_status_message_frequency)
 {
-    ASSERT_GE(HZ_TO_MS(100), CANMSGS_BMS_LATCH_STATUSES_CYCLE_TIME_MS);
+    ASSERT_GE(HZ_TO_MS(100), CANMSGS_BMS_OK_STATUSES_CYCLE_TIME_MS);
 }
