@@ -1,9 +1,6 @@
 #pragma once
-#include "Io_SharedFreqOnlyPwmInputConfig.h"
 
-#ifndef MAX_NUM_OF_FREQ_ONLY_PWM_INPUTS
-#define MAX_NUM_OF_FREQ_ONLY_PWM_INPUTS 1
-#endif
+#include <stm32f3xx_hal.h>
 
 struct FreqOnlyPwmInput;
 
@@ -52,14 +49,13 @@ HAL_TIM_ActiveChannel Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(
 
 /**
  * Update the frequency for the given PWM input
- *
  * @param pwm_input: The PWM input to update for
  */
 void Io_SharedFreqOnlyPwmInput_Tick(struct FreqOnlyPwmInput *pwm_input);
 
 /**
- * Check if the given PWM signal is active. If it is inactive (i.e. It has been
- * unplugged or unpowered), set the frequency to NaN.
+ * Check if the given PWM signal is active. If the sensor detects a DC signal
+ * set the frequency to 0Hz.
  * @note This function should be called in the timer overflow interrupt
  *       for the PWM signal
  * @param pwm_input: The PWM input to check for

@@ -31,6 +31,9 @@ FAKE_VOID_FUNC(
 FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
+FAKE_VOID_FUNC(enable_charger);
+FAKE_VOID_FUNC(disable_charger);
+FAKE_VALUE_FUNC(bool, is_charger_connected);
 
 class BmsStateMachineTest : public testing::Test
 {
@@ -54,9 +57,12 @@ class BmsStateMachineTest : public testing::Test
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
+        charger = App_Charger_Create(
+            enable_charger, disable_charger, is_charger_connected);
+
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
-            rgb_led_sequence);
+            rgb_led_sequence, charger);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -83,6 +89,7 @@ class BmsStateMachineTest : public testing::Test
         TearDownObject(imd, App_Imd_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
+        TearDownObject(charger, App_Charger_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -111,6 +118,7 @@ class BmsStateMachineTest : public testing::Test
     struct Imd *              imd;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
+    struct Charger *          charger;
 };
 
 // BMS-31
@@ -195,6 +203,7 @@ TEST_F(
     }
 }
 
+// BMS-36
 TEST_F(
     BmsStateMachineTest,
     check_imd_insulation_resistance_10hz_is_broadcasted_over_can_in_all_states)
@@ -230,6 +239,7 @@ TEST_F(
     }
 }
 
+// BMS-36
 TEST_F(
     BmsStateMachineTest,
     check_imd_insulation_resistance_20hz_is_broadcasted_over_can_in_all_states)
@@ -265,6 +275,7 @@ TEST_F(
     }
 }
 
+// BMS-36
 TEST_F(
     BmsStateMachineTest,
     check_imd_speed_start_status_30hz_is_broadcasted_over_can_in_all_states)
@@ -310,6 +321,7 @@ TEST_F(
     }
 }
 
+// BMS-36
 TEST_F(
     BmsStateMachineTest,
     check_imd_seconds_since_power_on_is_broadcasted_over_can_in_all_states)
@@ -348,6 +360,25 @@ TEST_F(BmsStateMachineTest, rgb_led_sequence_in_all_states)
             App_SharedStateMachine_Tick1Hz(state_machine);
             ASSERT_EQ(*call_counts[i % 3], i / 3 + 1);
         }
+    }
+}
+
+// BMS-9
+TEST_F(BmsStateMachineTest, charger_connection_status_in_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        is_charger_connected_fake.return_val = true;
+        App_SharedStateMachine_Tick1Hz(state_machine);
+        ASSERT_EQ(
+            true, App_CanTx_GetPeriodicSignal_IS_CONNECTED(can_tx_interface));
+
+        is_charger_connected_fake.return_val = false;
+        App_SharedStateMachine_Tick1Hz(state_machine);
+        ASSERT_EQ(
+            false, App_CanTx_GetPeriodicSignal_IS_CONNECTED(can_tx_interface));
     }
 }
 

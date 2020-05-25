@@ -21,7 +21,10 @@ class BrakeLightTest : public testing::Test
 
         FFF_RESET_HISTORY();
     }
-    void TearDown() override { App_BrakeLight_Destroy(brake_light); }
+    void TearDown() override
+    {
+        TearDownObject(brake_light, App_BrakeLight_Destroy);
+    }
 
     struct BrakeLight *brake_light;
 };
