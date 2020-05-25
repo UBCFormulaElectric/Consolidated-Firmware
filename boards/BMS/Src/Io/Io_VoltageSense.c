@@ -1,7 +1,7 @@
 #include <stddef.h>
 #include "Io_VoltageSense.h"
 
-ExitCode App_VoltageSense_GetTractiveSystemVoltage(
+ExitCode Io_VoltageSense_GetTractiveSystemVoltage(
     float  adc_voltage,
     float *tractive_system_voltage)
 {

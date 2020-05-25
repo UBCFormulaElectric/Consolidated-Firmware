@@ -1,7 +1,7 @@
 #include <stddef.h>
 #include "Io_CurrentSense.h"
 
-ExitCode App_CurrentSense_ConvertToMainCurrent1(
+ExitCode Io_CurrentSense_ConvertToMainCurrent1(
     float  adc_voltage,
     float *main_current_1)
 {
@@ -41,7 +41,7 @@ ExitCode App_CurrentSense_ConvertToMainCurrent1(
     return EXIT_CODE_OK;
 }
 
-ExitCode App_CurrentSense_ConvertToMainCurrent2(
+ExitCode Io_CurrentSense_ConvertToMainCurrent2(
     float  adc_voltage,
     float *main_current_2)
 {
@@ -81,7 +81,7 @@ ExitCode App_CurrentSense_ConvertToMainCurrent2(
     return EXIT_CODE_OK;
 }
 
-ExitCode App_CurrentSense_ConvertToAirLoopCurrent(
+ExitCode Io_CurrentSense_ConvertToAirLoopCurrent(
     float  adc_voltage,
     float *air_loop_current)
 {
