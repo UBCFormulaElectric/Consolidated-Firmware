@@ -36,6 +36,7 @@
 #include "Io_Imd.h"
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
+#include "Io_Charger.h"
 
 #include "App_BmsWorld.h"
 #include "App_SharedStateMachine.h"
@@ -92,6 +93,7 @@ struct BmsCanRxInterface *can_rx;
 struct Imd *              imd;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
+struct Charger *          charger;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -188,8 +190,11 @@ int main(void)
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
         Io_RgbLedSequence_TurnOnGreenLed);
 
+    charger = App_Charger_Create(
+        Io_Charger_Enable, Io_Charger_Disable, Io_Charger_IsConnected);
+
     world = App_BmsWorld_Create(
-        can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence);
+        can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);

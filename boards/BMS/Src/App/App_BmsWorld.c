@@ -10,6 +10,7 @@ struct BmsWorld
     struct Imd *              imd;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
+    struct Charger *          charger;
 };
 
 struct BmsWorld *App_BmsWorld_Create(
@@ -17,7 +18,8 @@ struct BmsWorld *App_BmsWorld_Create(
     struct BmsCanRxInterface *const can_rx_interface,
     struct Imd *const               imd,
     struct HeartbeatMonitor *const  heartbeat_monitor,
-    struct RgbLedSequence *const    rgb_led_sequence)
+    struct RgbLedSequence *const    rgb_led_sequence,
+    struct Charger *const           charger)
 {
     struct BmsWorld *world = (struct BmsWorld *)malloc(sizeof(struct BmsWorld));
     assert(world != NULL);
@@ -27,6 +29,7 @@ struct BmsWorld *App_BmsWorld_Create(
     world->imd               = imd;
     world->heartbeat_monitor = heartbeat_monitor;
     world->rgb_led_sequence  = rgb_led_sequence;
+    world->charger           = charger;
 
     return world;
 }
@@ -63,4 +66,9 @@ struct RgbLedSequence *
     App_BmsWorld_GetRgbLedSequence(const struct BmsWorld *const world)
 {
     return world->rgb_led_sequence;
+}
+
+struct Charger *App_BmsWorld_GetCharger(const struct BmsWorld *const world)
+{
+    return world->charger;
 }
