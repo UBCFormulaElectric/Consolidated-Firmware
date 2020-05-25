@@ -294,7 +294,7 @@ SIG_VALTYPE_ 307 Primary_Flow_Rate: 1;
 SIG_VALTYPE_ 307 Secondary_Flow_Rate: 1;
 SIG_VALTYPE_ 309 Left_Wheel_Speed: 1;
 SIG_VALTYPE_ 309 Right_Wheel_Speed: 1;
-SIG_VALTYPE_ 310 Steering_Angle: 1;
+SIG_VALTYPE_ 311 Steering_Angle: 1;
 SIG_VALTYPE_ 406 Auxiliary1_Current : 1;
 SIG_VALTYPE_ 406 Auxiliary2_Current : 1;
 SIG_VALTYPE_ 407 Energy_Meter_Current : 1;
