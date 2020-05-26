@@ -320,6 +320,27 @@ endfunction()
 
 # Creates the Arm binary or tests for a board, depending on what CPU architecture
 # this is being compiled for.
+#
+# @note The App and Io source files must be sorted in two platform-specific 
+#       lists:
+#
+#         1. ARM_BINARY_X86_COMPATIBLE_SRCS - These can be compiled on x86
+#         2. ARM_BINARY_X86_INCOMPATIBLE_SRCS - These can't be compiled on x86
+#
+#       Every App file can be compiled on x86. However, the same is not true
+#       for Io files. Some Io files rely on STM headers (e.g. stm32f3xx.h) and
+#       thus can't be compiled on x86. The rest of the Io files, however, can
+#       be compiled on x86.
+#
+#       These relationships can be summarized as follows:
+#
+#       ARM_BINARY_X86_COMPATIBLE_SRCS = App source files + x86-compatible Io files
+#       ARM_BINARY_X86_INCOMPATIBLE_SRCS = Io sources files - x86-compatible Io files
+#
+#       On the other hand, the App and Io include directories are always
+#       x86-compatible because they are paths and not actual files. We just have
+#       to place App and Io include directories in ARM_BINARY_INCLUDE_DIRS.
+#
 #   BOARD_NAME - The name of the board, will be used to name the binary or tests
 #   IOC_FILE - The IOC file for the board
 #   ARM_BINARY_X86_COMPATIBLE_SRCS - Source files for the Arm binary that can be
