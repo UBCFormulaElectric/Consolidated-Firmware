@@ -37,6 +37,7 @@ addons:
     - libbz2-1.0:i386
     - libncurses5:i386
     - libz1:i386
+    - valgrind
 
 before_script:
   - ./scripts/travis_ci/print_bin_versions.sh

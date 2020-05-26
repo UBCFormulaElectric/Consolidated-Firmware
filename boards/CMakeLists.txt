@@ -470,6 +470,7 @@ endfunction()
 if ("${PLATFORM}" STREQUAL "x86")
     download_and_unpack_google_test(${CMAKE_SOURCE_DIR}/CMakeLists.txt.in)
     enable_testing()
+    include (CTest)
 endif()
 
 add_subdirectory(shared __shared__)
