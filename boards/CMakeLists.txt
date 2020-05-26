@@ -469,7 +469,7 @@ endfunction()
 
 if ("${PLATFORM}" STREQUAL "x86")
     download_and_unpack_google_test(${CMAKE_SOURCE_DIR}/CMakeLists.txt.in)
-    set(MEMORYCHECK_COMMAND_OPTIONS "--error-exitcode=1")
+    set(MEMORYCHECK_COMMAND_OPTIONS "--error-exitcode=1 --leak-check=full")
     include (CTest)
     enable_testing()
 endif()
