@@ -155,6 +155,7 @@ TEST_F(SharedErrorTableTest, board_exists_more_than_once_in_list)
     board_list.boards[2] = DIM;
     board_list.boards[3] = FSM;
     board_list.boards[4] = PDM;
+    board_list.num_boards = 5;
     ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, BMS));
 }
 
