@@ -469,8 +469,9 @@ endfunction()
 
 if ("${PLATFORM}" STREQUAL "x86")
     download_and_unpack_google_test(${CMAKE_SOURCE_DIR}/CMakeLists.txt.in)
-    enable_testing()
+    set(MEMORYCHECK_COMMAND_OPTIONS "--error-exitcode=1")
     include (CTest)
+    enable_testing()
 endif()
 
 add_subdirectory(shared __shared__)
