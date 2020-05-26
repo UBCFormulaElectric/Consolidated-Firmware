@@ -15,7 +15,7 @@ class ImdTest : public testing::Test
         enum Imd_ConditionName condition_name,
         float &                fake_pwm_frequency_return_val);
     static void
-        SetPwmFrequencyTolerance(struct Imd *&imd_to_set, float tolerance);
+        SetPwmFrequencyTolerance(struct Imd *imd_to_set, float tolerance);
 
   protected:
     void SetUp() override;
