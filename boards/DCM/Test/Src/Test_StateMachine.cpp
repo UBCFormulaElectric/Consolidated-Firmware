@@ -251,8 +251,6 @@ TEST_F(DcmStateMachineTest, zero_torque_request_in_fault_state)
 
     // Start with a non-zero torque request to prevent false positive
     App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 1.0f);
-    ASSERT_EQ(
-        1.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 
     // Now tick the state machine and check torque request gets zeroed
     App_SharedStateMachine_Tick100Hz(state_machine);
