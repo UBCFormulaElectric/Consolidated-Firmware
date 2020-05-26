@@ -9,4 +9,4 @@ typedef enum
     NUM_EXIT_CODES,
 } ExitCode;
 
-#define EXIT_CODE_OK(code) (EXIT_CODE_OK == (code))
+#define EXIT_OK(code) (EXIT_CODE_OK == (code))
