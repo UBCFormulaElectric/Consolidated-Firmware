@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
-#include "App_ErrorCode.h"
+#include "App_SharedExitCode.h"
 
 /**
  * Disable BMS_OK
