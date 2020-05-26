@@ -51,6 +51,11 @@ SG_ DUMMY_CRITICAL_ERROR : 0|1@1+ (1,0) [0|1] "" DEBUG
 BO_ 110 BMS_CHARGER: 1 BMS
 SG_ Is_Connected : 0|1@1+ (1,0) [0|1] "" DEBUG
 
+BO_ 111 BMS_OK_STATUSES: 1 BMS
+SG_ BMS_OK : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ IMD_OK : 1|1@1+ (1,0) [0|1] "" DEBUG
+SG_ BSPD_OK : 2|1@1+ (1,0) [0|1] "" DEBUG
+
 BO_ 200 DCM_HEARTBEAT: 1 DCM
 SG_ DUMMY_VARIABLE : 0|1@1+ (1,0) [0|1] "" BMS
 
@@ -252,6 +257,7 @@ BA_ "GenMsgCycleTime" BO_ 107 10;
 BA_ "GenMsgCycleTime" BO_ 108 10;
 BA_ "GenMsgCycleTime" BO_ 109 1000;
 BA_ "GenMsgCycleTime" BO_ 110 1000;
+BA_ "GenMsgCycleTime" BO_ 111 10;
 BA_ "GenMsgCycleTime" BO_ 200 100;
 BA_ "GenMsgCycleTime" BO_ 201 5000;
 BA_ "GenMsgCycleTime" BO_ 204 1000;

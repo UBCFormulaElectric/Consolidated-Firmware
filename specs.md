@@ -172,7 +172,7 @@ BMS-9 | Charger detection and logging | - The BMS must check the charger connect
 BMS-10 | Charger enable/disable | The BMS must enable the charger by setting the BMS PON pin high and disable the charger by setting the BMS PON pin low.
 BMS-11 | Contactor weld/stuck open detection | The BMS must check that the contactors are in the desired open or closed state at 1kHz, and if not the BMS must throw an AIR shutdown fault and enter the fault state.
 BMS-36 | IMD data transmission | The BMS must transmit the high/low status of the IMD's OK_HS output, the information encoded in the IMD's PWM output, and the seconds elapsed since the IMD was powered on.
-BMS-37 | Latch state transmission | The BMS must transmit the states of the BMS, IMD and BSPD latches at 100Hz or faster.
+BMS-37 | OK status transmission | The BMS must transmit the on/off status of BMS_OK, IMD_OK and BSPD_OK at 100Hz or faster.
 BMS-38 | AIR state transmission | The BMS must transmit the state of the AIRs over CAN at 100Hz or faster.
 
 ### BMS Init State <a name="BMS_INIT"></a>
