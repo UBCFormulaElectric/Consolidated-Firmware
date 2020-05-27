@@ -229,7 +229,7 @@ DIM-1 | Heartbeat receiving | The DIM must set the 7-segments all on to display 
 
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-DIM-11 | Default state | The DIM state machine must begin in the Drive state by default.
+DIM-11 | Default state | The DIM state machine must begin in the drive state by default.
 DIM-2 | Board status LEDs | The DIM must indicate the current status of the BMS, DCM, DIM, FSM and PDM using RGB LEDs, where GREEN = no fault, BLUE = non-critical fault and RED = critical fault. | EV.6.1.11
 DIM-3 | Drive mode switch | The DIM must transmit the drive mode position of the rotary switch over CAN at 100Hz or faster.
 DIM-4 | Start, traction control, torque vectoring switches | For each of the switches, the DIM must: <br/> - Transmit the on/off switch status of over CAN at 100Hz or faster. <br/> - Set the corresponding green status LEDs when the switch is on.
