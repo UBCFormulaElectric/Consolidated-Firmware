@@ -67,14 +67,13 @@ FSM-18 | Brake actuation reporting | - The FSM must report the brake actuation O
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 FSM-17 | Entering the AIR-Open state | The FSM state machine must begin in the AIR-Open state by default.
-FSM-12 | Exiting the AIR-Open state | The FSM must enter the AIR-Closed state when the BMS closes the contactors.
+FSM-12 | Exiting the AIR-Open state | The FSM must enter the AIR-Closed state when the BMS closes the AIR+ and AIR-.
 
 ### FSM AIR-Closed State <a name="FSM_AIR_CLOSED"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 FSM-14 | Coolant flow measurements | - The FSM must measure the coolant flow and apply a heavy low pass filter on the signal (TODO: manually find LPF constant and leave it here). <br/> - If the coolant flow is below the minimum threshold for 1s continuously, the FSM must send a motor shutdown fault. <br/> - If the coolant flow returns above the minimum threshold for 1s continuously, the FSM must clear the motor shutdown fault. <br/> - The FSM must transmit the coolant flow over CAN at 1Hz or faster.
-FSM-13 | Entering the AIR-Closed state | The FSM must enter the AIR-Closed state when the BMS closes the contactors.
-FSM-15 | Exiting the AIR-Closed state | The FSM must enter the AIR-Open state when the BMS opens the contactors.
+FSM-15 | Exiting the AIR-Closed state | The FSM must enter the AIR-Open state when the BMS open either the AIR+ or AIR-.
 
 ## DCM <a name="DCM"></a>
 
@@ -145,14 +144,13 @@ ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 PDM-16 | Selective e-fuse enabling | The PDM must only enable the following e-fuse outputs in the AIR-Open state: AUX 1, AUX 2, Energy Meter, CAN, AIR SHDN
 PDM-15 | Entering the AIR-Open state | The PDM must enter the AIR-Open state after the init state is complete.
-PDM-17 | Exiting the AIR-Open state | The PDM must enter the AIR-Closed state when the BMS closes the contactors.
+PDM-17 | Exiting the AIR-Open state | The PDM must enter the AIR-Closed state when the BMS closes the AIR+ and AIR-.
 
 ### PDM AIR-Closed State <a name="PDM_AIR_CLOSED"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 PDM-19 | Selective e-fuse enabling | The PDM must enable all e-fuse outputs in the AIR-Closed state, except for the inverters, which depend on the following:. <br/> <br/> If the start switch is off AND the car is travelling slower than 10km/h, both inverters must be disabled. Otherwise, both inverters must be enabled, to protect against BEMF.
-PDM-18 | Entering the AIR-Closed state | The PDM must enter the AIR-Closed state when the BMS closes the contactors.
-PDM-20 | Exiting the AIR-Closed state | The PDM must enter the AIR-Open state when the BMS opens the contactors.
+PDM-20 | Exiting the AIR-Closed state | The PDM must enter the AIR-Open state when the BMS opens the AIR+ or AIR-.
 
 ## BMS <a name="BMS"></a>
 
@@ -170,7 +168,7 @@ BMS-6 | General voltage and temperature limits | The BMS must throw an AIR shutd
 BMS-7 | Charge temperature limits | The BMS must throw an AIR shutdown fault and enter the fault state if charging is attempted outside of these bounds: <br/>  0.0C < any cell temperature < 45.0C. | EV.5.1.3, EV.5.1.10
 BMS-9 | Charger detection and logging | - The BMS must check the charger connection status at 1Hz by the state of the CHARGE_STATE_3V3 digital input. <br/> - The BMS must log the charger connection status over CAN at 1Hz or faster.
 BMS-10 | Charger enable/disable | The BMS must enable the charger by setting the BMS PON pin high and disable the charger by setting the BMS PON pin low.
-BMS-11 | Contactor weld/stuck open detection | The BMS must check that the contactors are in the desired open or closed state at 1kHz, and if not the BMS must throw an AIR shutdown fault and enter the fault state.
+BMS-11 | AIRs weld/stuck open detection | The BMS must check that the AIR+ and AIR- are in the desired open or closed state at 1kHz, and if not the BMS must throw an AIR shutdown fault and enter the fault state.
 BMS-36 | IMD data transmission | The BMS must transmit the high/low status of the IMD's OK_HS output, the information encoded in the IMD's PWM output, and the seconds elapsed since the IMD was powered on.
 BMS-37 | OK status transmission | The BMS must transmit the on/off status of BMS_OK, IMD_OK and BSPD_OK at 100Hz or faster.
 BMS-38 | AIR state transmission | The BMS must transmit the state of the AIRs over CAN at 100Hz or faster.
@@ -178,7 +176,7 @@ BMS-38 | AIR state transmission | The BMS must transmit the state of the AIRs ov
 ### BMS Init State <a name="BMS_INIT"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-BMS-12 | Precharge | - The BMS must wait for 5 seconds after boot, then wait for the closing of the AIR- contactor, to execute the precharge sequence. <br/> - The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin. <br/> - Upon a successful precharge, the BMS must close the AIR+ contactor. <br/> <br/> Upon a precharge failure, the BMS must throw an AIR shutdown fault. A precharge failure occurs when: <br/> - The TS (tractive system) bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. ([TODO: calculate constants](https://github.com/UBCFormulaElectric/Consolidated-Firmware/issues/515))| EV.6.9.1
+BMS-12 | Precharge | - The BMS must wait for 5 seconds after boot, then wait for the closing of the AIR-, to execute the precharge sequence. <br/> - The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin. <br/> - Upon a successful precharge, the BMS must close the AIR+. <br/> <br/> Upon a precharge failure, the BMS must throw an AIR shutdown fault. A precharge failure occurs when: <br/> - The TS (tractive system) bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. ([TODO: calculate constants](https://github.com/UBCFormulaElectric/Consolidated-Firmware/issues/515))| EV.6.9.1
 BMS-35 | SoC retrieval | The BMS must retrieve SoC from three different EEPROM regions, and use a voting algorithm to identify which data is correct, in case of data corruption.
 BMS-13 | Entering the init state | The BMS state machine must begin in the init state by default.
 BMS-15 | Exiting the init state and entering the charge state | Upon a successful precharge, the BMS must enter the charge state if the charger is connected.
@@ -194,7 +192,7 @@ BMS-18 | Cell balancing | - The BMS must balance the cells until they are all be
 BMS-19 | Power limits calculation and sending (charge state) | - The BMS must calculate charge power limits based on cell temperatures and SoC to avoid exceeding a cell's defined limits. <br/> - The BMS must send the charge power limits to the charger over CAN at 100Hz or faster.
 BMS-20 | Charger disconnection | Upon sensing charger disconnection, the BMS must throw an AIR shutdown fault and enter the fault state.
 BMS-21 | Entering the charge state | The BMS must only enter the charge state after the init state is complete.
-BMS-23 | Exiting the charge state and entering the init state | Once charging is complete, the BMS must disable the charger, disable cell balancing, open the contactors and enter the init state.
+BMS-23 | Exiting the charge state and entering the init state | Once charging is complete, the BMS must disable the charger, disable cell balancing, open the AIR+ and AIR-, and enter the init state.
 BMS-24 | Exiting the charge state and entering the fault state | The BMS must disable cell balancing and charging.
 
 ### BMS Drive State <a name="BMS_DRIVE"></a>
@@ -204,14 +202,14 @@ ID | Title | Description | Associated Competition Rule(s)
 BMS-32 | SoC calculation and storage | - The BMS must transmit SoC over CAN at 100Hz or faster. <br/> - The BMS must perform coulomb counting and calculate SoC at 100Hz. <br/> The BMS must store SoC in EEPROM at 1Hz in three different memory locations. <br/> - SoC must be bounded between 0% and 100%.
 BMS-26 | Power limits calculation and sending (drive state) | - The BMS must calculate charge and discharge power limits based on cell temperatures and SoC to avoid exceeding a cell's defined limits. <br/> - The BMS must send the charge and discharge power limits over CAN at 100Hz or faster.
 BMS-25 | Entering the drive state | The BMS must only enter the drive state from the init state after precharge or from the motor shutdown fault state after faults are cleared.
-BMS-27 | Exiting the drive state and entering the init state | Upon the opening of the contactors outside of an AIR shutdown fault, the BMS must exit the drive state and enter the init state.
+BMS-27 | Exiting the drive state and entering the init state | Upon the opening of the AIR+ or AIR- outside of an AIR shutdown fault, the BMS must exit the drive state and enter the init state.
 BMS-20 | Exiting the drive state and entering the fault state | When an AIR shutdown is requested over CAN, the BMS must transition from the drive state to the fault state.
 
 ### BMS Fault State <a name="BMS_FAULT"></a>
 
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-BMS-29 | Entering the fault state | The BMS must open both contactors.
+BMS-29 | Entering the fault state | The BMS must open the AIR+ and AIR-.
 BMS-30 | Exiting the fault state and entering the init state | Once all AIR shutdown faults are cleared, the BMS must exit the fault state and enter the init state.
 
 ## DIM <a name="DIM"></a>
