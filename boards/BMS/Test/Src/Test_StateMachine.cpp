@@ -475,4 +475,21 @@ TEST_F(BmsStateMachineTest, check_bspd_ok_is_broadcasted_over_can_in_all_states)
     }
 }
 
+// BMS-20
+TEST_F(BmsStateMachineTest, charger_disconnects_in_charge_state)
+{
+    SetInitialState(App_GetChargeState());
+
+    is_charger_connected_fake.return_val = false;
+
+    App_SharedStateMachine_Tick100Hz(state_machine);
+
+    ASSERT_EQ(
+        true, App_CanTx_GetPeriodicSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(
+                  can_tx_interface));
+    ASSERT_EQ(
+        App_GetFaultState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
 } // namespace StateMachineTest
