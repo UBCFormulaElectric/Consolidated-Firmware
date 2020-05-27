@@ -608,10 +608,10 @@ TEST_F(
     SetInitialState(App_GetAirOpenState());
 
     App_CanRx_BMS_AIRS_SetSignal_AIR_POSITIVE(
-        can_rx_interface, CANMSGS_BMS_AIRS_AIR_POSITIVE_CLOSED_CHOICE);
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
 
     App_CanRx_BMS_AIRS_SetSignal_AIR_NEGATIVE(
-        can_rx_interface, CANMSGS_BMS_AIRS_AIR_NEGATIVE_CLOSED_CHOICE);
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
 
     App_SharedStateMachine_Tick100Hz(state_machine);
 
@@ -628,7 +628,7 @@ TEST_F(
     SetInitialState(App_GetAirOpenState());
 
     App_CanRx_BMS_AIRS_SetSignal_AIR_POSITIVE(
-        can_rx_interface, CANMSGS_BMS_AIRS_AIR_POSITIVE_CLOSED_CHOICE);
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
     App_SharedStateMachine_Tick100Hz(state_machine);
 
     ASSERT_EQ(
@@ -644,7 +644,7 @@ TEST_F(
     SetInitialState(App_GetAirOpenState());
 
     App_CanRx_BMS_AIRS_SetSignal_AIR_NEGATIVE(
-        can_rx_interface, CANMSGS_BMS_AIRS_AIR_NEGATIVE_CLOSED_CHOICE);
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
     App_SharedStateMachine_Tick100Hz(state_machine);
 
     ASSERT_EQ(
@@ -658,7 +658,7 @@ TEST_F(PdmStateMachineTest, exit_air_closed_state_when_air_positive_is_opened)
     SetInitialState(App_GetAirClosedState());
 
     App_CanRx_BMS_AIRS_SetSignal_AIR_POSITIVE(
-        can_rx_interface, CANMSGS_BMS_AIRS_AIR_POSITIVE_OPEN_CHOICE);
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE);
 
     App_SharedStateMachine_Tick100Hz(state_machine);
 
@@ -673,7 +673,7 @@ TEST_F(PdmStateMachineTest, exit_air_closed_state_when_air_negative_is_opened)
     SetInitialState(App_GetAirClosedState());
 
     App_CanRx_BMS_AIRS_SetSignal_AIR_NEGATIVE(
-        can_rx_interface, CANMSGS_BMS_AIRS_AIR_NEGATIVE_OPEN_CHOICE);
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_OPEN_CHOICE);
 
     App_SharedStateMachine_Tick100Hz(state_machine);
 

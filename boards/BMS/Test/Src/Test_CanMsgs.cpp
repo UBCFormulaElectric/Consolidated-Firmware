@@ -38,5 +38,5 @@ TEST(CanMsgsTest, ok_status_message_frequency)
 // BMS-38
 TEST(CanMsgsTest, airs_message_frequency)
 {
-    ASSERT_GE(HZ_TO_MS(100), CANMSGS_BMS_AIRS_CYCLE_TIME_MS);
+    ASSERT_GE(HZ_TO_MS(100), CANMSGS_BMS_AIR_STATES_CYCLE_TIME_MS);
 }

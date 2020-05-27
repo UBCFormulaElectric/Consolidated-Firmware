@@ -28,9 +28,9 @@ static void
     App_SetPeriodicSignals_SteeringAngleInRangeCheck(world);
 
     if (App_CanRx_BMS_AIRS_GetSignal_AIR_POSITIVE(can_rx) ==
-            CANMSGS_BMS_AIRS_AIR_POSITIVE_OPEN_CHOICE ||
+            CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE ||
         App_CanRx_BMS_AIRS_GetSignal_AIR_NEGATIVE(can_rx) ==
-            CANMSGS_BMS_AIRS_AIR_NEGATIVE_OPEN_CHOICE)
+            CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_OPEN_CHOICE)
     {
         App_SharedStateMachine_SetNextState(
             state_machine, App_GetAirOpenState());
