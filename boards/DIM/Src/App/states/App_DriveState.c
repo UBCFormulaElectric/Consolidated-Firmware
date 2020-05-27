@@ -2,7 +2,7 @@
 
 #include "App_SharedMacros.h"
 #include "App_SevenSegDisplays.h"
-#include "App_ErrorCode.h"
+#include "App_SharedExitCode.h"
 
 static void App_SetPeriodicCanSignals_DriveMode(
     struct DimCanTxInterface *can_tx,
@@ -119,14 +119,12 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     uint32_t buffer;
 
-    if (EXIT_CODE_OK(
-            App_RegenPaddle_GetRawPaddlePosition(regen_paddle, &buffer)))
+    if (EXIT_OK(App_RegenPaddle_GetRawPaddlePosition(regen_paddle, &buffer)))
     {
         App_CanTx_SetPeriodicSignal_RAW_PADDLE_POSITION(can_tx, buffer);
     }
 
-    if (EXIT_CODE_OK(
-            App_RegenPaddle_GetMappedPaddlePosition(regen_paddle, &buffer)))
+    if (EXIT_OK(App_RegenPaddle_GetMappedPaddlePosition(regen_paddle, &buffer)))
     {
         App_CanTx_SetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx, buffer);
     }
@@ -136,8 +134,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         (uint32_t)App_CanRx_BMS_STATE_OF_CHARGE_GetSignal_STATE_OF_CHARGE(
             can_rx));
 
-    if (EXIT_CODE_OK(
-            App_RotarySwitch_GetSwitchPosition(drive_mode_switch, &buffer)))
+    if (EXIT_OK(App_RotarySwitch_GetSwitchPosition(drive_mode_switch, &buffer)))
     {
         App_SetPeriodicCanSignals_DriveMode(can_tx, buffer);
     }

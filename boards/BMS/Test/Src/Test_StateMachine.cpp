@@ -34,6 +34,15 @@ FAKE_VOID_FUNC(turn_on_blue_led);
 FAKE_VOID_FUNC(enable_charger);
 FAKE_VOID_FUNC(disable_charger);
 FAKE_VALUE_FUNC(bool, is_charger_connected);
+FAKE_VALUE_FUNC(ExitCode, enable_bms_ok);
+FAKE_VALUE_FUNC(ExitCode, disable_bms_ok);
+FAKE_VALUE_FUNC(bool, is_bms_ok_enabled);
+FAKE_VALUE_FUNC(ExitCode, enable_imd_ok);
+FAKE_VALUE_FUNC(ExitCode, disable_imd_ok);
+FAKE_VALUE_FUNC(bool, is_imd_ok_enabled);
+FAKE_VALUE_FUNC(ExitCode, enable_bspd_ok);
+FAKE_VALUE_FUNC(ExitCode, disable_bspd_ok);
+FAKE_VALUE_FUNC(bool, is_bspd_ok_enabled);
 
 class BmsStateMachineTest : public testing::Test
 {
@@ -60,9 +69,18 @@ class BmsStateMachineTest : public testing::Test
         charger = App_Charger_Create(
             enable_charger, disable_charger, is_charger_connected);
 
+        bms_ok = App_OkStatus_Create(
+            enable_bms_ok, disable_bms_ok, is_bms_ok_enabled);
+
+        imd_ok = App_OkStatus_Create(
+            enable_imd_ok, disable_imd_ok, is_imd_ok_enabled);
+
+        bspd_ok = App_OkStatus_Create(
+            enable_bspd_ok, disable_bspd_ok, is_bspd_ok_enabled);
+
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
-            rgb_led_sequence, charger);
+            rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -78,6 +96,18 @@ class BmsStateMachineTest : public testing::Test
         RESET_FAKE(turn_on_red_led);
         RESET_FAKE(turn_on_green_led);
         RESET_FAKE(turn_on_blue_led);
+        RESET_FAKE(enable_charger);
+        RESET_FAKE(disable_charger);
+        RESET_FAKE(is_charger_connected);
+        RESET_FAKE(enable_bms_ok);
+        RESET_FAKE(disable_bms_ok);
+        RESET_FAKE(is_bms_ok_enabled);
+        RESET_FAKE(enable_imd_ok);
+        RESET_FAKE(disable_imd_ok);
+        RESET_FAKE(is_imd_ok_enabled);
+        RESET_FAKE(enable_bspd_ok);
+        RESET_FAKE(disable_bspd_ok);
+        RESET_FAKE(is_bspd_ok_enabled);
     }
 
     void TearDown() override
@@ -90,6 +120,9 @@ class BmsStateMachineTest : public testing::Test
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
         TearDownObject(charger, App_Charger_Destroy);
+        TearDownObject(bms_ok, App_OkStatus_Destroy);
+        TearDownObject(imd_ok, App_OkStatus_Destroy);
+        TearDownObject(bspd_ok, App_OkStatus_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -119,6 +152,9 @@ class BmsStateMachineTest : public testing::Test
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
     struct Charger *          charger;
+    struct OkStatus *         bms_ok;
+    struct OkStatus *         imd_ok;
+    struct OkStatus *         bspd_ok;
 };
 
 // BMS-31
@@ -379,6 +415,63 @@ TEST_F(BmsStateMachineTest, charger_connection_status_in_all_states)
         App_SharedStateMachine_Tick1Hz(state_machine);
         ASSERT_EQ(
             false, App_CanTx_GetPeriodicSignal_IS_CONNECTED(can_tx_interface));
+    }
+}
+
+// BMS-37
+TEST_F(BmsStateMachineTest, check_bms_ok_is_broadcasted_over_can_in_all_states)
+{
+    // Enable BMS_OK
+    is_bms_ok_enabled_fake.return_val = true;
+
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        // Make sure the state machine sets the CAN signal for BMS_OK
+        App_SharedStateMachine_Tick100Hz(state_machine);
+        ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_BMS_OK(can_tx_interface));
+
+        // Reset the CAN signal for BMS_OK
+        App_CanTx_SetPeriodicSignal_BMS_OK(can_tx_interface, false);
+    }
+}
+
+// BMS-37
+TEST_F(BmsStateMachineTest, check_imd_ok_is_broadcasted_over_can_in_all_states)
+{
+    // Enable IMD_OK
+    is_imd_ok_enabled_fake.return_val = true;
+
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        // Make sure the state machine sets the CAN signal for IMD_OK
+        App_SharedStateMachine_Tick100Hz(state_machine);
+        ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_IMD_OK(can_tx_interface));
+
+        // Reset the CAN signal for IMD_OK
+        App_CanTx_SetPeriodicSignal_IMD_OK(can_tx_interface, false);
+    }
+}
+
+// BMS-37
+TEST_F(BmsStateMachineTest, check_bspd_ok_is_broadcasted_over_can_in_all_states)
+{
+    // Enable BSPD_OK
+    is_bspd_ok_enabled_fake.return_val = true;
+
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        // Make sure the state machine sets the CAN signal for BSPD_OK
+        App_SharedStateMachine_Tick100Hz(state_machine);
+        ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_BSPD_OK(can_tx_interface));
+
+        // Reset the CAN signal for BSPD_OK
+        App_CanTx_SetPeriodicSignal_BSPD_OK(can_tx_interface, false);
     }
 }
 
