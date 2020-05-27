@@ -26,10 +26,10 @@ static void AirOpenStateRunOnTick100Hz(struct StateMachine *const state_machine)
     App_SetPeriodicCanSignals_CurrentInRangeChecks(world);
     App_SetPeriodicCanSignals_VoltageInRangeChecks(world);
 
-    if (App_CanRx_BMS_AIRS_GetSignal_AIR_POSITIVE(can_rx) ==
-        CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE &&
-        App_CanRx_BMS_AIRS_GetSignal_AIR_NEGATIVE(can_rx) ==
-        CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE)
+    if (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) ==
+            CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE &&
+        App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx) ==
+            CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE)
     {
         App_SharedStateMachine_SetNextState(
             state_machine, App_GetAirClosedState());
