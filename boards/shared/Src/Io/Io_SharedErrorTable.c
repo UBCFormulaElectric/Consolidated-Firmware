@@ -172,7 +172,9 @@ static void Io_ProcessBmsCriticalErrorMsg(
     struct ErrorTable *                   error_table,
     struct CanMsgs_bms_critical_errors_t *data)
 {
-    SET_ERROR(error_table, BMS_CRITICAL_DUMMY, data->dummy_critical_error == 0);
+    SET_ERROR(
+        error_table, BMS_CRITICAL_DUMMY,
+        data->charger_disconnected_in_charge_state == 0);
 }
 
 static void Io_ProcessDcmCriticalErrorMsg(
