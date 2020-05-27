@@ -469,6 +469,12 @@ endfunction()
 
 if ("${PLATFORM}" STREQUAL "x86")
     download_and_unpack_google_test(${CMAKE_SOURCE_DIR}/CMakeLists.txt.in)
+    # For ctest to return a non-zero code when Valgrind fails, we must use
+    # --error-exitcode. On the other hand, --leak-check=full ensures that any
+    # memory leak issue will cause ctest to return a non-zero code.
+    #
+    # This must be set before include(CTest) is called, or else
+    # MEMORYCHECK_COMMAND_OPTIONS won't be overwritten correctly!
     set(MEMORYCHECK_COMMAND_OPTIONS "--error-exitcode=1 --leak-check=full")
     include (CTest)
     enable_testing()
