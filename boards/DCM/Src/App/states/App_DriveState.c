@@ -1,5 +1,6 @@
 #include "states/App_AllStates.h"
 #include "states/App_DriveState.h"
+#include "states/App_InitState.h"
 
 #include "App_SharedMacros.h"
 
@@ -19,6 +20,15 @@ static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
+
+    struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct DcmCanRxInterface *can_rx = App_DcmWorld_GetCanRx(world);
+
+    if (App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx) ==
+        CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE)
+    {
+        App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
+    }
 }
 
 static void DriveStateRunOnExit(struct StateMachine *const state_machine)

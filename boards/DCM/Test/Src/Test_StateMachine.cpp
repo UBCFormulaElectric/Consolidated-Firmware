@@ -110,9 +110,6 @@ TEST_F(
     DcmStateMachineTest,
     check_init_immediately_transitions_to_run_on_first_tick)
 {
-    // We need to tick twice, once to run the `Init` state, and once more
-    // to have the state machine transition to the `Run` state.
-    App_SharedStateMachine_Tick100Hz(state_machine);
     App_SharedStateMachine_Tick100Hz(state_machine);
 
     EXPECT_EQ(
@@ -242,6 +239,23 @@ TEST_F(DcmStateMachineTest, zero_torque_request_in_init_state)
     App_SharedStateMachine_Tick100Hz(state_machine);
     ASSERT_EQ(
         0.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+}
+
+// DCM-14
+TEST_F(
+    DcmStateMachineTest,
+    start_switch_off_transitions_drive_state_to_init_state)
+{
+    SetInitialState(App_GetDriveState());
+
+    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
+        can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
+
+    App_SharedStateMachine_Tick100Hz(state_machine);
+
+    ASSERT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 } // namespace StateMachineTest
