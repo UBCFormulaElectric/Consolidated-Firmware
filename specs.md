@@ -171,7 +171,7 @@ BMS-10 | Charger enable/disable | The BMS must enable the charger by setting the
 BMS-11 | AIRs weld/stuck open detection | The BMS must check that the AIR+ and AIR- are in the desired open or closed state at 1kHz, and if not the BMS must throw an AIR shutdown fault and enter the fault state.
 BMS-36 | IMD data transmission | The BMS must transmit the high/low status of the IMD's OK_HS output, the information encoded in the IMD's PWM output, and the seconds elapsed since the IMD was powered on.
 BMS-37 | OK status transmission | The BMS must transmit the on/off status of BMS_OK, IMD_OK and BSPD_OK at 100Hz or faster.
-BMS-38 | AIR state transmission | The BMS must transmit the state of the AIRs over CAN at 100Hz or faster.
+BMS-38 | AIR states transmission | The BMS must transmit the open/closed state of the AIR+ and AIR- over CAN at 100Hz or faster.
 
 ### BMS Init State <a name="BMS_INIT"></a>
 ID | Title | Description | Associated Competition Rule(s)
