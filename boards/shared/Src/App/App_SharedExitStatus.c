@@ -43,7 +43,7 @@ ExitCode App_SharedExitStatus_Update(
     const char *message)
 {
     // We are not interested in handling non-errors
-    if (EXIT_CODE_OK(code))
+    if (EXIT_OK(code))
     {
         return code;
     }

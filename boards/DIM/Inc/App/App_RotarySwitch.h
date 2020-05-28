@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdint.h>
-#include "App_SharedExitCode.h"
+#include "App_SharedExitStatus.h"
 
 struct RotarySwitch;
 

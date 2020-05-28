@@ -13,6 +13,7 @@ typedef enum
     EXIT_CODE_OK = 0,
     EXIT_CODE_INVALID_ARGS,
     EXIT_CODE_OUT_OF_RANGE,
+    EXIT_CODE_UNIMPLEMENTED,
     NUM_EXIT_CODES,
 } ExitCode;
 
@@ -35,7 +36,7 @@ typedef void (*ExitStatusCallback)(struct ExitStatus *status);
     App_SharedExitStatus_Update(         \
         code, __BASENAME__(__FILE__) , __func__, message)
 
-#define EXIT_CODE_OK(code) (EXIT_CODE_OK == (code))
+#define EXIT_OK(code) (EXIT_CODE_OK == (code))
 // clang-format on
 
 /**

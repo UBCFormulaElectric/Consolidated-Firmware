@@ -1,7 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
-#include "App_SharedExitCode.h"
+#include "App_SharedExitStatus.h"
 
 struct OkStatus;
 

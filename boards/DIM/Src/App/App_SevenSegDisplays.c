@@ -2,7 +2,7 @@
 #include <assert.h>
 #include <math.h>
 
-#include "App_SharedExitCode.h"
+#include "App_SharedExitStatus.h"
 #include "App_SevenSegDisplays.h"
 #include "App_SevenSegDisplay.h"
 

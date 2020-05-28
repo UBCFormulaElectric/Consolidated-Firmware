@@ -185,6 +185,8 @@ standard names. */
 
 // Required for thread-safety of newlib sprintf, strtok, etc...
 #define configUSE_NEWLIB_REENTRANT 1
+// Required for per-thread exit status
+#define configNUM_THREAD_LOCAL_STORAGE_POINTERS 1
 /* USER CODE END Defines */
 
 #endif /* FREERTOS_CONFIG_H */

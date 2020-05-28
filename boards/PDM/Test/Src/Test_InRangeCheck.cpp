@@ -54,7 +54,7 @@ TEST_F(InRangeCheckTest, value_underflow)
     ASSERT_EQ(get_value_fake.return_val, value);
 
     get_value_fake.return_val = std::nextafter(
-        DEFAULT_IN_RANGE_CHECK_MIN_VALUE, std::numeric_limits<float>::min());
+        DEFAULT_IN_RANGE_CHECK_MIN_VALUE, std::numeric_limits<float>::lowest());
     ASSERT_EQ(
         VALUE_UNDERFLOW, App_InRangeCheck_GetValue(in_range_check, &value));
     ASSERT_EQ(get_value_fake.return_val, value);
