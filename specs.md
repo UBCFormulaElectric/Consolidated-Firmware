@@ -66,7 +66,7 @@ FSM-18 | Brake actuation reporting | - The FSM must report the brake actuation O
 ### FSM AIR-Open State <a name="FSM_AIR_OPEN"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-FSM-17 | Entering the AIR-Open state | The FSM state machine must begin in the AIR-Open state by default.
+FSM-17 | Default state | The FSM state machine must begin in the AIR-Open state by default.
 FSM-12 | Exiting the AIR-Open state | The FSM must enter the AIR-Closed state when the BMS closes the AIR+ and AIR-.
 
 ### FSM AIR-Closed State <a name="FSM_AIR_CLOSED"></a>
@@ -91,7 +91,7 @@ DCM-19 | Torque Request Reporting | - The DCM must report the torque request ove
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 DCM-4 | Zero torque request sending | The DCM must send zero torque requests to the inverters at 100Hz or faster.
-DCM-3 | Entering the init state | The DCM state machine must begin in the init state by default.
+DCM-3 | Default state | The DCM state machine must begin in the init state by default.
 DCM-5 | Exiting the init state and entering the drive state | The DCM must meet the following conditions before entering the drive state: <br/> - There must be no critical faults present on any ECU. <br/> - The shutdown circuit must be closed and precharge must have already occurred. <br/> <br/> The DCM must also meet the following conditions in sequential order before entering the drive state: <br/> 1. The start switch must be switched in an upwards direction. If the start switch was already in the upwards position, it must be re-switched into the upwards position. <br/> 2. The brakes must be actuated. | EV.6.11.2, EV.6.11.3
 
 ### DCM Drive State <a name="DCM_DRIVE"></a>
@@ -136,7 +136,7 @@ PDM-13 | Unrecoverable e-fuse fault behavior | The PDM must throw a motor shutdo
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 PDM-21 | E-fuse disabling | The PDM must disable all e-fuses in the init state.
-PDM-8 | Entering the init state | The PDM state machine must begin in the init state by default.
+PDM-8 | Default state | The PDM state machine must begin in the init state by default.
 PDM-10 | Exiting the init state and entering the AIR-Open state | After the PDM is finished programming the e-fuses, the PDM must enter the AIR-Open state.
 
 ### PDM AIR-Open State <a name="PDM_AIR_OPEN"></a>
@@ -178,7 +178,7 @@ ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-12 | Precharge | - The BMS must wait for 5 seconds after boot, then wait for the closing of the AIR-, to execute the precharge sequence. <br/> - The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin. <br/> - Upon a successful precharge, the BMS must close the AIR+. <br/> <br/> Upon a precharge failure, the BMS must throw an AIR shutdown fault. A precharge failure occurs when: <br/> - The TS (tractive system) bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. ([TODO: calculate constants](https://github.com/UBCFormulaElectric/Consolidated-Firmware/issues/515))| EV.6.9.1
 BMS-35 | SoC retrieval | The BMS must retrieve SoC from three different EEPROM regions, and use a voting algorithm to identify which data is correct, in case of data corruption.
-BMS-13 | Entering the init state | The BMS state machine must begin in the init state by default.
+BMS-13 | Default State | The BMS state machine must begin in the init state by default.
 BMS-15 | Exiting the init state and entering the charge state | Upon a successful precharge, the BMS must enter the charge state if the charger is connected.
 BMS-16 | Exiting the init state and entering the drive state | Upon a successful precharge, the BMS must enter the drive state if the charger is disconnected.
 
@@ -227,7 +227,7 @@ DIM-1 | Heartbeat receiving | The DIM must set the 7-segments all on to display 
 
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-DIM-11 | Entering the Drive state | The DIM state machine must begin in the Drive state by default.
+DIM-11 | Default state | The DIM state machine must begin in the drive state by default.
 DIM-2 | Board status LEDs | The DIM must indicate the current status of the BMS, DCM, DIM, FSM and PDM using RGB LEDs, where GREEN = no fault, BLUE = non-critical fault and RED = critical fault. | EV.6.1.11
 DIM-3 | Drive mode switch | The DIM must transmit the drive mode position of the rotary switch over CAN at 100Hz or faster.
 DIM-4 | Start, traction control, torque vectoring switches | For each of the switches, the DIM must: <br/> - Transmit the on/off switch status of over CAN at 100Hz or faster. <br/> - Set the corresponding green status LEDs when the switch is on.
