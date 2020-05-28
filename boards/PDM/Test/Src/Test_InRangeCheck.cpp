@@ -79,6 +79,13 @@ TEST_F(InRangeCheckTest, value_overflow)
 
 TEST_F(InRangeCheckTest, invalid_min_and_max)
 {
+#ifdef NDEBUG
+    // Using ASSERT_DEBUG_DEATH with a function that has malloc in it (i.e.
+    // App_InRangeCheck_Create) causes Valgrind to think there's memory leak in
+    // Release Mode but not Debug Mode. To get around this, we're just going to
+    // disable this test in Release Mode for the time being until we find a
+    // better workaround.
+#else
     // It doesn't make sense to perform a range check if the min_value is
     // greater than the max_value.
     const float max_value = 1.0f;
@@ -87,4 +94,5 @@ TEST_F(InRangeCheckTest, invalid_min_and_max)
 
     ASSERT_DEBUG_DEATH(
         App_InRangeCheck_Create(get_value, min_value, max_value), "");
+#endif
 }

@@ -77,6 +77,7 @@ class DcmStateMachineTest : public testing::Test
         TearDownObject(can_rx_interface, App_CanRx_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
+        TearDownObject(brake_light, App_BrakeLight_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
