@@ -43,7 +43,7 @@ if [ "$RUN_X86_TESTS" = "true" ]; then
     RELEASE_BUILD_DIR=boards/x86_build_release
     travis_run cmake -S boards -B $RELEASE_BUILD_DIR -DPLATFORM=x86 -DCMAKE_BUILD_TYPE=Release
     travis_run make --directory=$RELEASE_BUILD_DIR
-    travis_run "cd $RELEASE_BUILD_DIR && ctest --verbose && cd -"
+    travis_run "cd $RELEASE_BUILD_DIR && ctest -T memcheck --verbose && cd -"
     CTEST_RETURN_CODE=$?
 
     if [ $CTEST_RETURN_CODE -ne 0 ]; then
@@ -54,7 +54,7 @@ if [ "$RUN_X86_TESTS" = "true" ]; then
     DEBUG_BUILD_DIR=boards/x86_build_debug
     travis_run cmake -S boards -B $DEBUG_BUILD_DIR -DPLATFORM=x86 -DCMAKE_BUILD_TYPE=Debug
     travis_run make --directory=$DEBUG_BUILD_DIR
-    travis_run "cd $DEBUG_BUILD_DIR && ctest --verbose && cd -"
+    travis_run "cd $DEBUG_BUILD_DIR && ctest -T memcheck --verbose && cd -"
     CTEST_RETURN_CODE=$?
 
     if [ $CTEST_RETURN_CODE -ne 0 ]; then
