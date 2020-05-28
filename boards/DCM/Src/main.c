@@ -36,6 +36,7 @@
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
 #include "Io_BrakeLight.h"
+#include "Io_Buzzer.h"
 
 #include "App_DcmWorld.h"
 #include "App_SharedStateMachine.h"
@@ -88,6 +89,7 @@ struct DcmCanRxInterface *can_rx;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
 struct BrakeLight *       brake_light;
+struct Buzzer *           buzzer;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -177,8 +179,11 @@ int main(void)
     brake_light =
         App_BrakeLight_Create(Io_BrakeLight_TurnOn, Io_BrakeLight_TurnOff);
 
+    buzzer = App_Buzzer_Create(Io_Buzzer_TurnOn, Io_Buzzer_TurnOff);
+
     world = App_DcmWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, brake_light);
+        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, brake_light,
+        buzzer);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);

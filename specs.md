@@ -58,7 +58,7 @@ FSM-4 | Mapped pedal percentage | - The FSM must map the primary APPS position l
 FSM-5 | APPS open/short circuit | If there is an open/short circuit in either encoder the FSM must report 0% mapped pedal percentage. | T.4.2.2, T.4.2.9
 FSM-6 | APPS disagreement | - When the primary and secondary APPS positions disagree by more then 10%, and the disagreement persists for more than 100ms, the FSM must throw a motor shutdown fault and report 0% mapped pedal percentage. <br/> - The FSM must clear the motor shutdown fault after the APPS positions agree within 10%, and the agreement persists for more than 1s. | T.4.2.3, T.4.2.4, T.4.2.5
 FSM-7 | APPS/brake pedal plausibility check | - When the APPS senses brake actuation and more than 25% mapped pedal percentage simultaneously, the FSM must throw a motor shutdown fault and report 0% mapped pedal percentage. <br/> - The FSM must clear the motor shutdown fault after the APPS senses less than 5% mapped pedal percentage, regardless of the brake state. | EV.3.4.1, EV.3.4.2
-FSM-8 | Steering angle reporting | - The FSM must report the steering angle in degrees over CAN at 100Hz or faster, where 0 degrees represents straight wheels and a clockwise turn of the steering wheel corresponds to an increase in steering angle. <br/> - The FSM must send a non-critical fault when the steering angle is beyond the max turning radius of the steering wheel.
+FSM-8 | Steering angle reporting | - The FSM must report the steering angle in degrees over CAN at 100Hz or faster, where 0 degrees represents straight wheels and a clockwise turn of the steering wheel corresponds to an increase in steering angle. <br/> - The FSM must send a non-critical fault when the steering angle is beyond the maximum and minimum turning radius of the steering wheel.
 FSM-9 | Wheel speed reporting | - The FSM must report the two front wheel speeds in km/h over CAN at 100Hz or faster. <br/> - The FSM must send a non-critical fault when either front wheel speed is above 150km/h.
 FSM-16 | Open circuit encoder alarm | - When the primary or secondary APPS encoder alarm goes high for 10ms continuously, throw a motor shutdown fault and report 0% mapped pedal percentage. <br/> - When both the primary and secondary APPS encoder alarms go low for 10ms continuously, clear the motor shutdown fault. | T.4.2.9
 FSM-18 | Brake actuation reporting | - The FSM must report the brake actuation ON/OFF status over CAN at 100Hz or faster
@@ -66,15 +66,14 @@ FSM-18 | Brake actuation reporting | - The FSM must report the brake actuation O
 ### FSM AIR-Open State <a name="FSM_AIR_OPEN"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-FSM-17 | Entering the AIR-Open state | The FSM state machine must begin in the AIR-Open state by default.
-FSM-12 | Exiting the AIR-Open state | The FSM must enter the AIR-Closed state when the BMS closes the contactors.
+FSM-17 | Default state | The FSM state machine must begin in the AIR-Open state by default.
+FSM-12 | Exiting the AIR-Open state | The FSM must enter the AIR-Closed state when the BMS closes the AIR+ and AIR-.
 
 ### FSM AIR-Closed State <a name="FSM_AIR_CLOSED"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 FSM-14 | Coolant flow measurements | - The FSM must measure the coolant flow and apply a heavy low pass filter on the signal (TODO: manually find LPF constant and leave it here). <br/> - If the coolant flow is below the minimum threshold for 1s continuously, the FSM must send a motor shutdown fault. <br/> - If the coolant flow returns above the minimum threshold for 1s continuously, the FSM must clear the motor shutdown fault. <br/> - The FSM must transmit the coolant flow over CAN at 1Hz or faster.
-FSM-13 | Entering the AIR-Closed state | The FSM must enter the AIR-Closed state when the BMS closes the contactors.
-FSM-15 | Exiting the AIR-Closed state | The FSM must enter the AIR-Open state when the BMS opens the contactors.
+FSM-15 | Exiting the AIR-Closed state | The FSM must enter the AIR-Open state when the BMS open either the AIR+ or AIR-.
 
 ## DCM <a name="DCM"></a>
 
@@ -92,7 +91,7 @@ DCM-19 | Torque Request Reporting | - The DCM must report the torque request ove
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 DCM-4 | Zero torque request sending | The DCM must send zero torque requests to the inverters at 100Hz or faster.
-DCM-3 | Entering the init state | The DCM state machine must begin in the init state by default.
+DCM-3 | Default state | The DCM state machine must begin in the init state by default.
 DCM-5 | Exiting the init state and entering the drive state | The DCM must meet the following conditions before entering the drive state: <br/> - There must be no critical faults present on any ECU. <br/> - The shutdown circuit must be closed and precharge must have already occurred. <br/> <br/> The DCM must also meet the following conditions in sequential order before entering the drive state: <br/> 1. The start switch must be switched in an upwards direction. If the start switch was already in the upwards position, it must be re-switched into the upwards position. <br/> 2. The brakes must be actuated. | EV.6.11.2, EV.6.11.3
 
 ### DCM Drive State <a name="DCM_DRIVE"></a>
@@ -137,7 +136,7 @@ PDM-13 | Unrecoverable e-fuse fault behavior | The PDM must throw a motor shutdo
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 PDM-21 | E-fuse disabling | The PDM must disable all e-fuses in the init state.
-PDM-8 | Entering the init state | The PDM state machine must begin in the init state by default.
+PDM-8 | Default state | The PDM state machine must begin in the init state by default.
 PDM-10 | Exiting the init state and entering the AIR-Open state | After the PDM is finished programming the e-fuses, the PDM must enter the AIR-Open state.
 
 ### PDM AIR-Open State <a name="PDM_AIR_OPEN"></a>
@@ -145,14 +144,13 @@ ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 PDM-16 | Selective e-fuse enabling | The PDM must only enable the following e-fuse outputs in the AIR-Open state: AUX 1, AUX 2, Energy Meter, CAN, AIR SHDN
 PDM-15 | Entering the AIR-Open state | The PDM must enter the AIR-Open state after the init state is complete.
-PDM-17 | Exiting the AIR-Open state | The PDM must enter the AIR-Closed state when the BMS closes the contactors.
+PDM-17 | Exiting the AIR-Open state | The PDM must enter the AIR-Closed state when the BMS closes the AIR+ and AIR-.
 
 ### PDM AIR-Closed State <a name="PDM_AIR_CLOSED"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 PDM-19 | Selective e-fuse enabling | The PDM must enable all e-fuse outputs in the AIR-Closed state, except for the inverters, which depend on the following:. <br/> <br/> If the start switch is off AND the car is travelling slower than 10km/h, both inverters must be disabled. Otherwise, both inverters must be enabled, to protect against BEMF.
-PDM-18 | Entering the AIR-Closed state | The PDM must enter the AIR-Closed state when the BMS closes the contactors.
-PDM-20 | Exiting the AIR-Closed state | The PDM must enter the AIR-Open state when the BMS opens the contactors.
+PDM-20 | Exiting the AIR-Closed state | The PDM must enter the AIR-Open state when the BMS opens the AIR+ or AIR-.
 
 ## BMS <a name="BMS"></a>
 
@@ -170,17 +168,17 @@ BMS-6 | General voltage and temperature limits | The BMS must throw an AIR shutd
 BMS-7 | Charge temperature limits | The BMS must throw an AIR shutdown fault and enter the fault state if charging is attempted outside of these bounds: <br/>  0.0C < any cell temperature < 45.0C. | EV.5.1.3, EV.5.1.10
 BMS-9 | Charger detection and logging | - The BMS must check the charger connection status at 1Hz by the state of the CHARGE_STATE_3V3 digital input. <br/> - The BMS must log the charger connection status over CAN at 1Hz or faster.
 BMS-10 | Charger enable/disable | The BMS must enable the charger by setting the BMS PON pin high and disable the charger by setting the BMS PON pin low.
-BMS-11 | Contactor weld/stuck open detection | The BMS must check that the contactors are in the desired open or closed state at 1kHz, and if not the BMS must throw an AIR shutdown fault and enter the fault state.
-BMS-36 | IMD data transmission | - 10s after boot, the IMD resistance should settle to its initial value, and the BMS must transmit the IMD resistance, read from the IMD PWM pins, over CAN at 1Hz or faster. <br/> - 2s after boot, IMD status should settle to its initial value, and the BMS must transmit the IMD status over CAN at 1Hz or faster.
-BMS-37 | Latch state transmission | The BMS must transmit the states of the BMS, IMD and BSPD latches at 100Hz or faster.
-BMS-38 | AIR state transmission | The BMS must transmit the state of the AIRs over CAN at 100Hz or faster.
+BMS-11 | AIRs weld/stuck open detection | The BMS must check that the AIR+ and AIR- are in the desired open or closed state at 1kHz, and if not the BMS must throw an AIR shutdown fault and enter the fault state.
+BMS-36 | IMD data transmission | The BMS must transmit the high/low status of the IMD's OK_HS output, the information encoded in the IMD's PWM output, and the seconds elapsed since the IMD was powered on.
+BMS-37 | OK status transmission | The BMS must transmit the on/off status of BMS_OK, IMD_OK and BSPD_OK at 100Hz or faster.
+BMS-38 | AIR states transmission | The BMS must transmit the open/closed states of the AIR+ and AIR- over CAN at 100Hz or faster.
 
 ### BMS Init State <a name="BMS_INIT"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-BMS-12 | Precharge | - The BMS must wait for 5 seconds after boot, then wait for the closing of the AIR- contactor, to execute the precharge sequence. <br/> - The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin. <br/> - Upon a successful precharge, the BMS must close the AIR+ contactor. <br/> <br/> Upon a precharge failure, the BMS must throw an AIR shutdown fault. A precharge failure occurs when: <br/> - The TS (tractive system) bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. ([TODO: calculate constants](https://github.com/UBCFormulaElectric/Consolidated-Firmware/issues/515))| EV.6.9.1
+BMS-12 | Precharge | - The BMS must wait for 5 seconds after boot, then wait for the closing of the AIR-, to execute the precharge sequence. <br/> - The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin. <br/> - Upon a successful precharge, the BMS must close the AIR+. <br/> <br/> Upon a precharge failure, the BMS must throw an AIR shutdown fault. A precharge failure occurs when: <br/> - The TS (tractive system) bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. ([TODO: calculate constants](https://github.com/UBCFormulaElectric/Consolidated-Firmware/issues/515))| EV.6.9.1
 BMS-35 | SoC retrieval | The BMS must retrieve SoC from three different EEPROM regions, and use a voting algorithm to identify which data is correct, in case of data corruption.
-BMS-13 | Entering the init state | The BMS state machine must begin in the init state by default.
+BMS-13 | Default State | The BMS state machine must begin in the init state by default.
 BMS-15 | Exiting the init state and entering the charge state | Upon a successful precharge, the BMS must enter the charge state if the charger is connected.
 BMS-16 | Exiting the init state and entering the drive state | Upon a successful precharge, the BMS must enter the drive state if the charger is disconnected.
 
@@ -194,7 +192,7 @@ BMS-18 | Cell balancing | - The BMS must balance the cells until they are all be
 BMS-19 | Power limits calculation and sending (charge state) | - The BMS must calculate charge power limits based on cell temperatures and SoC to avoid exceeding a cell's defined limits. <br/> - The BMS must send the charge power limits to the charger over CAN at 100Hz or faster.
 BMS-20 | Charger disconnection | Upon sensing charger disconnection, the BMS must throw an AIR shutdown fault and enter the fault state.
 BMS-21 | Entering the charge state | The BMS must only enter the charge state after the init state is complete.
-BMS-23 | Exiting the charge state and entering the init state | Once charging is complete, the BMS must disable the charger, disable cell balancing, open the contactors and enter the init state.
+BMS-23 | Exiting the charge state and entering the init state | Once charging is complete, the BMS must disable the charger, disable cell balancing, open the AIR+ and AIR-, and enter the init state.
 BMS-24 | Exiting the charge state and entering the fault state | The BMS must disable cell balancing and charging.
 
 ### BMS Drive State <a name="BMS_DRIVE"></a>
@@ -204,14 +202,14 @@ ID | Title | Description | Associated Competition Rule(s)
 BMS-32 | SoC calculation and storage | - The BMS must transmit SoC over CAN at 100Hz or faster. <br/> - The BMS must perform coulomb counting and calculate SoC at 100Hz. <br/> The BMS must store SoC in EEPROM at 1Hz in three different memory locations. <br/> - SoC must be bounded between 0% and 100%.
 BMS-26 | Power limits calculation and sending (drive state) | - The BMS must calculate charge and discharge power limits based on cell temperatures and SoC to avoid exceeding a cell's defined limits. <br/> - The BMS must send the charge and discharge power limits over CAN at 100Hz or faster.
 BMS-25 | Entering the drive state | The BMS must only enter the drive state from the init state after precharge or from the motor shutdown fault state after faults are cleared.
-BMS-27 | Exiting the drive state and entering the init state | Upon the opening of the contactors outside of an AIR shutdown fault, the BMS must exit the drive state and enter the init state.
+BMS-27 | Exiting the drive state and entering the init state | Upon the opening of the AIR+ or AIR- outside of an AIR shutdown fault, the BMS must exit the drive state and enter the init state.
 BMS-20 | Exiting the drive state and entering the fault state | When an AIR shutdown is requested over CAN, the BMS must transition from the drive state to the fault state.
 
 ### BMS Fault State <a name="BMS_FAULT"></a>
 
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-BMS-29 | Entering the fault state | The BMS must open both contactors.
+BMS-29 | Entering the fault state | The BMS must open the AIR+ and AIR-.
 BMS-30 | Exiting the fault state and entering the init state | Once all AIR shutdown faults are cleared, the BMS must exit the fault state and enter the init state.
 
 ## DIM <a name="DIM"></a>
@@ -229,7 +227,7 @@ DIM-1 | Heartbeat receiving | The DIM must set the 7-segments all on to display 
 
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-DIM-11 | Entering the Drive state | The DIM state machine must begin in the Drive state by default.
+DIM-11 | Default state | The DIM state machine must begin in the drive state by default.
 DIM-2 | Board status LEDs | The DIM must indicate the current status of the BMS, DCM, DIM, FSM and PDM using RGB LEDs, where GREEN = no fault, BLUE = non-critical fault and RED = critical fault. | EV.6.1.11
 DIM-3 | Drive mode switch | The DIM must transmit the drive mode position of the rotary switch over CAN at 100Hz or faster.
 DIM-4 | Start, traction control, torque vectoring switches | For each of the switches, the DIM must: <br/> - Transmit the on/off switch status of over CAN at 100Hz or faster. <br/> - Set the corresponding green status LEDs when the switch is on.

@@ -5,6 +5,7 @@
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_BrakeLight.h"
+#include "App_Buzzer.h"
 
 struct DcmWorld;
 
@@ -22,7 +23,8 @@ struct DcmWorld *App_DcmWorld_Create(
     struct DcmCanRxInterface *can_rx_interface,
     struct HeartbeatMonitor * heartbeat_monitor,
     struct RgbLedSequence *   rgb_led_sequence,
-    struct BrakeLight *       brake_light);
+    struct BrakeLight *       brake_light,
+    struct Buzzer *           buzzer);
 
 /**
  * Deallocate the memory used by the given world
@@ -66,3 +68,10 @@ struct RgbLedSequence *
  * @return The brake light for the given world
  */
 struct BrakeLight *App_DcmWorld_GetBrakeLight(const struct DcmWorld *world);
+
+/**
+ * Get the buzzer for the given world
+ * @param world The world to get buzzer for
+ * @return The buzzer for the given world
+ */
+struct Buzzer *App_DcmWorld_GetBuzzer(const struct DcmWorld *world);

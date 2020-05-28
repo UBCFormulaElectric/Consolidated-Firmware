@@ -28,6 +28,8 @@ FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
 FAKE_VOID_FUNC(turn_on_brake_light);
 FAKE_VOID_FUNC(turn_off_brake_light);
+FAKE_VOID_FUNC(turn_on_buzzer);
+FAKE_VOID_FUNC(turn_off_buzzer);
 
 class DcmStateMachineTest : public testing::Test
 {
@@ -50,9 +52,11 @@ class DcmStateMachineTest : public testing::Test
         brake_light =
             App_BrakeLight_Create(turn_on_brake_light, turn_off_brake_light);
 
+        buzzer = App_Buzzer_Create(turn_on_buzzer, turn_off_buzzer);
+
         world = App_DcmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
-            rgb_led_sequence, brake_light);
+            rgb_led_sequence, brake_light, buzzer);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -77,6 +81,8 @@ class DcmStateMachineTest : public testing::Test
         TearDownObject(can_rx_interface, App_CanRx_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
+        TearDownObject(brake_light, App_BrakeLight_Destroy);
+        TearDownObject(buzzer, App_Buzzer_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -104,6 +110,7 @@ class DcmStateMachineTest : public testing::Test
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
     struct BrakeLight *       brake_light;
+    struct Buzzer *           buzzer;
 };
 
 TEST_F(
@@ -237,6 +244,20 @@ TEST_F(DcmStateMachineTest, zero_torque_request_in_init_state)
     App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 1.0f);
     ASSERT_EQ(
         1.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+
+    // Now tick the state machine and check torque request gets zeroed
+    App_SharedStateMachine_Tick100Hz(state_machine);
+    ASSERT_EQ(
+        0.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+}
+
+// DCM-16
+TEST_F(DcmStateMachineTest, zero_torque_request_in_fault_state)
+{
+    SetInitialState(App_GetFaultState());
+
+    // Start with a non-zero torque request to prevent false positive
+    App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 1.0f);
 
     // Now tick the state machine and check torque request gets zeroed
     App_SharedStateMachine_Tick100Hz(state_machine);

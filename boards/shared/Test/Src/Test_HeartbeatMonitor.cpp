@@ -23,9 +23,7 @@ class SharedHeartbeatMonitorTest : public testing::Test
 
     void TearDown() override
     {
-        ASSERT_TRUE(heartbeat_monitor != NULL);
-        App_SharedHeartbeatMonitor_Destroy(heartbeat_monitor);
-        heartbeat_monitor = NULL;
+        TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
     }
 
     const enum HeartbeatOneHot DEFAULT_BOARDS_TO_CHECK = (enum HeartbeatOneHot)(

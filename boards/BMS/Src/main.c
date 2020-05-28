@@ -36,6 +36,8 @@
 #include "Io_Imd.h"
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
+#include "Io_Charger.h"
+#include "Io_OkStatuses.h"
 
 #include "App_BmsWorld.h"
 #include "App_SharedStateMachine.h"
@@ -62,12 +64,15 @@
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
+DMA_HandleTypeDef hdma_adc1;
+DMA_HandleTypeDef hdma_adc2;
 
 CAN_HandleTypeDef hcan;
 
 IWDG_HandleTypeDef hiwdg;
 
 TIM_HandleTypeDef htim2;
+TIM_HandleTypeDef htim3;
 
 osThreadId          Task1HzHandle;
 uint32_t            Task1HzBuffer[TASK1HZ_STACK_SIZE];
@@ -92,16 +97,22 @@ struct BmsCanRxInterface *can_rx;
 struct Imd *              imd;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
+struct Charger *          charger;
+struct OkStatus *         bms_ok;
+struct OkStatus *         imd_ok;
+struct OkStatus *         bspd_ok;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_CAN_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_ADC2_Init(void);
+static void MX_TIM3_Init(void);
 void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
 void        RunTaskCanRx(void const *argument);
@@ -160,11 +171,13 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
+    MX_DMA_Init();
     MX_CAN_Init();
     MX_ADC1_Init();
     MX_IWDG_Init();
     MX_TIM2_Init();
     MX_ADC2_Init();
+    MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
     Io_SharedHardFaultHandler_Init();
@@ -188,8 +201,24 @@ int main(void)
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
         Io_RgbLedSequence_TurnOnGreenLed);
 
+    charger = App_Charger_Create(
+        Io_Charger_Enable, Io_Charger_Disable, Io_Charger_IsConnected);
+
+    bms_ok = App_OkStatus_Create(
+        Io_OkStatuses_EnableBmsOk, Io_OkStatuses_DisableBmsOk,
+        Io_OkStatuses_IsBmsOkEnabled);
+
+    imd_ok = App_OkStatus_Create(
+        Io_OkStatuses_EnableImdOk, Io_OkStatuses_DisableImdOk,
+        Io_OkStatuses_IsImdOkEnabled);
+
+    bspd_ok = App_OkStatus_Create(
+        Io_OkStatuses_EnableBspdOk, Io_OkStatuses_DisableBspdOk,
+        Io_OkStatuses_IsBspdOkEnabled);
+
     world = App_BmsWorld_Create(
-        can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence);
+        can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger,
+        bms_ok, imd_ok, bspd_ok);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
@@ -343,11 +372,11 @@ static void MX_ADC1_Init(void)
     hadc1.Init.ScanConvMode          = ADC_SCAN_DISABLE;
     hadc1.Init.ContinuousConvMode    = DISABLE;
     hadc1.Init.DiscontinuousConvMode = DISABLE;
-    hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-    hadc1.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
+    hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_RISING;
+    hadc1.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T3_TRGO;
     hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     hadc1.Init.NbrOfConversion       = 1;
-    hadc1.Init.DMAContinuousRequests = DISABLE;
+    hadc1.Init.DMAContinuousRequests = ENABLE;
     hadc1.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
     hadc1.Init.LowPowerAutoWait      = DISABLE;
     hadc1.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;
@@ -364,10 +393,10 @@ static void MX_ADC1_Init(void)
     }
     /** Configure Regular Channel
      */
-    sConfig.Channel      = ADC_CHANNEL_4;
+    sConfig.Channel      = ADC_CHANNEL_3;
     sConfig.Rank         = ADC_REGULAR_RANK_1;
     sConfig.SingleDiff   = ADC_SINGLE_ENDED;
-    sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+    sConfig.SamplingTime = ADC_SAMPLETIME_61CYCLES_5;
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset       = 0;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
@@ -400,15 +429,15 @@ static void MX_ADC2_Init(void)
     hadc2.Instance                   = ADC2;
     hadc2.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV1;
     hadc2.Init.Resolution            = ADC_RESOLUTION_12B;
-    hadc2.Init.ScanConvMode          = ADC_SCAN_DISABLE;
+    hadc2.Init.ScanConvMode          = ADC_SCAN_ENABLE;
     hadc2.Init.ContinuousConvMode    = DISABLE;
     hadc2.Init.DiscontinuousConvMode = DISABLE;
-    hadc2.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-    hadc2.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
+    hadc2.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_RISING;
+    hadc2.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T3_TRGO;
     hadc2.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-    hadc2.Init.NbrOfConversion       = 1;
-    hadc2.Init.DMAContinuousRequests = DISABLE;
-    hadc2.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
+    hadc2.Init.NbrOfConversion       = 3;
+    hadc2.Init.DMAContinuousRequests = ENABLE;
+    hadc2.Init.EOCSelection          = ADC_EOC_SEQ_CONV;
     hadc2.Init.LowPowerAutoWait      = DISABLE;
     hadc2.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;
     if (HAL_ADC_Init(&hadc2) != HAL_OK)
@@ -417,12 +446,28 @@ static void MX_ADC2_Init(void)
     }
     /** Configure Regular Channel
      */
-    sConfig.Channel      = ADC_CHANNEL_3;
+    sConfig.Channel      = ADC_CHANNEL_1;
     sConfig.Rank         = ADC_REGULAR_RANK_1;
-    sConfig.SingleDiff   = ADC_DIFFERENTIAL_ENDED;
-    sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
+    sConfig.SingleDiff   = ADC_SINGLE_ENDED;
+    sConfig.SamplingTime = ADC_SAMPLETIME_61CYCLES_5;
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset       = 0;
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_3;
+    sConfig.Rank    = ADC_REGULAR_RANK_2;
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_4;
+    sConfig.Rank    = ADC_REGULAR_RANK_3;
     if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -562,6 +607,68 @@ static void MX_TIM2_Init(void)
 }
 
 /**
+ * @brief TIM3 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM3_Init(void)
+{
+    /* USER CODE BEGIN TIM3_Init 0 */
+
+    /* USER CODE END TIM3_Init 0 */
+
+    TIM_ClockConfigTypeDef  sClockSourceConfig = { 0 };
+    TIM_MasterConfigTypeDef sMasterConfig      = { 0 };
+
+    /* USER CODE BEGIN TIM3_Init 1 */
+
+    /* USER CODE END TIM3_Init 1 */
+    htim3.Instance         = TIM3;
+    htim3.Init.Prescaler   = TIM3_PRESCALER - 1;
+    htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
+    htim3.Init.Period =
+        (TIMx_FREQUENCY / TIM3_PRESCALER) / ADC1_ADC2_FREQUENCY - 1;
+    htim3.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_Base_Init(&htim3) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+    if (HAL_TIM_ConfigClockSource(&htim3, &sClockSourceConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM3_Init 2 */
+
+    /* USER CODE END TIM3_Init 2 */
+}
+
+/**
+ * Enable DMA controller clock
+ */
+static void MX_DMA_Init(void)
+{
+    /* DMA controller clock enable */
+    __HAL_RCC_DMA2_CLK_ENABLE();
+    __HAL_RCC_DMA1_CLK_ENABLE();
+
+    /* DMA interrupt init */
+    /* DMA1_Channel1_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Channel1_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Channel1_IRQn);
+    /* DMA2_Channel1_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA2_Channel1_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA2_Channel1_IRQn);
+}
+
+/**
  * @brief GPIO Initialization Function
  * @param None
  * @retval None
@@ -608,10 +715,10 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : ACCEL_BRAKE_OK_Pin GPIO1_Pin GPIO2_Pin
-     * CHARGE_STATE_Pin */
-    GPIO_InitStruct.Pin =
-        ACCEL_BRAKE_OK_Pin | GPIO1_Pin | GPIO2_Pin | CHARGE_STATE_Pin;
+    /*Configure GPIO pins : TS_VSENSE_N_Pin ACCEL_BRAKE_OK_Pin GPIO1_Pin
+       GPIO2_Pin CHARGE_STATE_Pin */
+    GPIO_InitStruct.Pin = TS_VSENSE_N_Pin | ACCEL_BRAKE_OK_Pin | GPIO1_Pin |
+                          GPIO2_Pin | CHARGE_STATE_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);

@@ -1,5 +1,6 @@
 #include "states/App_AllStates.h"
 #include "states/App_AirClosedState.h"
+#include "states/App_AirOpenState.h"
 #include "App_SetPeriodicCanSignals.h"
 #include "App_SharedMacros.h"
 
@@ -20,8 +21,20 @@ static void
     AirClosedStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct FsmCanRxInterface *can_rx = App_FsmWorld_GetCanRx(world);
+
     App_SetPeriodicSignals_FlowRateInRangeChecks(world);
     App_SetPeriodicSignals_WheelSpeedInRangeChecks(world);
+    App_SetPeriodicSignals_SteeringAngleInRangeCheck(world);
+
+    if (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) ==
+            CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE ||
+        App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx) ==
+            CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_OPEN_CHOICE)
+    {
+        App_SharedStateMachine_SetNextState(
+            state_machine, App_GetAirOpenState());
+    }
 }
 
 static void AirClosedStateRunOnExit(struct StateMachine *const state_machine)

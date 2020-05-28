@@ -43,8 +43,10 @@ ExitCode App_SharedExitStatus_Update(
     const char *message)
 {
     // We are not interested in handling non-errors
-//    if (EXIT_CODE_OK(code))
-//        return code;
+    if (EXIT_CODE_OK(code))
+    {
+        return code;
+    }
 
     struct ExitStatus *exit_status = App_GetThreadLocalExitStatus();
     assert(exit_status != NULL);

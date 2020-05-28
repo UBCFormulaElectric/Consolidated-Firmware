@@ -376,17 +376,20 @@ TEST_F(DimStateMachineTest, imd_led_control_in_drive_state)
 // DIM-6
 TEST_F(DimStateMachineTest, bspd_led_control_in_drive_state)
 {
-    App_CanRx_FSM_ERRORS_SetSignal_BSPD_FAULT(can_rx_interface, false);
+    App_CanRx_FSM_NON_CRITICAL_ERRORS_SetSignal_BSPD_FAULT(
+        can_rx_interface, false);
     App_SharedStateMachine_Tick100Hz(state_machine);
     ASSERT_EQ(0, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_bspd_led_fake.call_count);
 
-    App_CanRx_FSM_ERRORS_SetSignal_BSPD_FAULT(can_rx_interface, true);
+    App_CanRx_FSM_NON_CRITICAL_ERRORS_SetSignal_BSPD_FAULT(
+        can_rx_interface, true);
     App_SharedStateMachine_Tick100Hz(state_machine);
     ASSERT_EQ(1, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_bspd_led_fake.call_count);
 
-    App_CanRx_FSM_ERRORS_SetSignal_BSPD_FAULT(can_rx_interface, false);
+    App_CanRx_FSM_NON_CRITICAL_ERRORS_SetSignal_BSPD_FAULT(
+        can_rx_interface, false);
     App_SharedStateMachine_Tick100Hz(state_machine);
     ASSERT_EQ(1, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(2, turn_off_bspd_led_fake.call_count);

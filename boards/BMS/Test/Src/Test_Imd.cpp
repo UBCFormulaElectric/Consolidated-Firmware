@@ -19,7 +19,7 @@ void ImdTest::SetImdCondition(
     ASSERT_EQ(condition_name, App_Imd_GetCondition(imd_to_set).name);
 }
 
-void ImdTest::SetPwmFrequencyTolerance(struct Imd *imd_to_set, float tolerance)
+void ImdTest::SetPwmFrequencyTolerance(struct Imd *&imd_to_set, float tolerance)
 {
     TearDownObject(imd_to_set, App_Imd_Destroy);
     imd_to_set = App_Imd_Create(

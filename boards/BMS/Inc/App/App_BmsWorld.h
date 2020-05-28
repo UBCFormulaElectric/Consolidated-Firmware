@@ -5,6 +5,8 @@
 #include "App_Imd.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
+#include "App_Charger.h"
+#include "App_OkStatus.h"
 
 struct BmsWorld;
 
@@ -22,7 +24,11 @@ struct BmsWorld *App_BmsWorld_Create(
     struct BmsCanRxInterface *can_rx_interface,
     struct Imd *              imd,
     struct HeartbeatMonitor * heartbeat_monitor,
-    struct RgbLedSequence *   rgb_led_sequence);
+    struct RgbLedSequence *   rgb_led_sequence,
+    struct Charger *          charger,
+    struct OkStatus *         bms_ok,
+    struct OkStatus *         imd_ok,
+    struct OkStatus *         bspd_ok);
 
 /**
  * Deallocate the memory used by the given world
@@ -66,3 +72,31 @@ struct HeartbeatMonitor *
  */
 struct RgbLedSequence *
     App_BmsWorld_GetRgbLedSequence(const struct BmsWorld *world);
+
+/**
+ * Get the charger for the given world
+ * @param world The world to get charger for
+ * @return The charger for the given world
+ */
+struct Charger *App_BmsWorld_GetCharger(const struct BmsWorld *world);
+
+/**
+ * Get the BMS OK status for the given world
+ * @param world The world to get BMS OK status for
+ * @return The BMS OK status for the given world
+ */
+struct OkStatus *App_BmsWorld_GetBmsOkStatus(const struct BmsWorld *world);
+
+/**
+ * Get the IMD OK status for the given world
+ * @param world The world to get IMD OK status for
+ * @return The IMD OK status for the given world
+ */
+struct OkStatus *App_BmsWorld_GetImdOkStatus(const struct BmsWorld *world);
+
+/**
+ * Get the BSPD OK status for the given world
+ * @param world The world to get BSPD OK status for
+ * @return The BSPD OK status for the given world
+ */
+struct OkStatus *App_BmsWorld_GetBspdOkStatus(const struct BmsWorld *world);
