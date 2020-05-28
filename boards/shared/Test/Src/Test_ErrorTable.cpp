@@ -95,13 +95,15 @@ class SharedErrorTableTest : public testing::Test
 
     // The error choices here are arbitrary. We just need to pick something for
     // the helper functions.
-    const enum ErrorId DEFAULT_CRITICAL_ERROR = BMS_CRITICAL_DUMMY;
+    const enum ErrorId DEFAULT_CRITICAL_ERROR =
+        BMS_CRITICAL_CHARGER_DISCONNECTED_IN_CHARGE_STATE;
     const enum ErrorId DEFAULT_NON_CRITICAL_ERROR =
         BMS_NON_CRITICAL_WATCHDOG_TIMEOUT;
     const enum Board DEFAULT_CRITICAL_ERROR_BOARD     = BMS;
     const enum Board DEFAULT_NON_CRITICAL_ERROR_BOARD = BMS;
 
-    const enum ErrorId DEFAULT_BMS_CRITICAL_ERROR = BMS_CRITICAL_DUMMY;
+    const enum ErrorId DEFAULT_BMS_CRITICAL_ERROR =
+        BMS_CRITICAL_CHARGER_DISCONNECTED_IN_CHARGE_STATE;
     const enum ErrorId DEFAULT_DCM_CRITICAL_ERROR = DCM_CRITICAL_DUMMY;
     const enum ErrorId DEFAULT_DIM_CRITICAL_ERROR = DIM_CRITICAL_DUMMY;
     const enum ErrorId DEFAULT_FSM_CRITICAL_ERROR = FSM_CRITICAL_DUMMY;

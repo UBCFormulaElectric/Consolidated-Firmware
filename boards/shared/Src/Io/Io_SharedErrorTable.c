@@ -173,7 +173,7 @@ static void Io_ProcessBmsCriticalErrorMsg(
     struct CanMsgs_bms_critical_errors_t *data)
 {
     SET_ERROR(
-        error_table, BMS_CRITICAL_DUMMY,
+        error_table, BMS_CRITICAL_CHARGER_DISCONNECTED_IN_CHARGE_STATE,
         data->charger_disconnected_in_charge_state == 0);
 }
 
