@@ -244,4 +244,18 @@ TEST_F(DcmStateMachineTest, zero_torque_request_in_init_state)
         0.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 }
 
+// DCM-16
+TEST_F(DcmStateMachineTest, zero_torque_request_in_fault_state)
+{
+    SetInitialState(App_GetFaultState());
+
+    // Start with a non-zero torque request to prevent false positive
+    App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 1.0f);
+
+    // Now tick the state machine and check torque request gets zeroed
+    App_SharedStateMachine_Tick100Hz(state_machine);
+    ASSERT_EQ(
+        0.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+}
+
 } // namespace StateMachineTest
