@@ -104,7 +104,7 @@ DCM-19 | Torque request calculation | - The DCM may only request torque less tha
 DCM-9 | Drive direction | The DCM must configure the inverters through CAN to only drive forwards, and never in reverse. | EV.1.2.7
 DCM-13 | Torque request sending | The DCM must do the following in the drive state at 100Hz: <br/> 1. Acquire each motor's RPM from the inverters over CAN. <br/> 2. Calculate a torque request as per DCM-19. <br/> 3. Decrease the torque request if necessary to meet both DCM-6 and the maximum power limits specified by the BMS. <br/> 4. Send the resultant torque request to both inverters over CAN.
 DCM-12 | Entering the drive state from the init state | The DCM must do the following upon entering the drive state: <br/> - Make the ready to drive sound for 2 seconds after entering the drive state. | EV.7.12.1, EV.7.12.2
-DCM-14 | Exiting the drive state and entering the init state | When the start switch is switched into a downwards position, the DCM must transition from the drive state to the init state.
+DCM-14 | Exiting the drive state and entering the init state | When the start switch is in the downwards position, the DCM must transition from the drive state to the init state.
 DCM-20 | Exiting the drive state and entering the fault state | When a motor shutdown is requested over CAN, the DCM must transition from the drive state to the fault state.
 
 ### DCM Fault State <a name="DCM_FAULT"></a>
