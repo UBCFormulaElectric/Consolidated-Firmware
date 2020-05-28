@@ -4,17 +4,17 @@
 
 struct Buzzer
 {
-    void (*on)(void);
-    void (*off)(void);
+    void (*turn_on)(void);
+    void (*turn_off)(void);
 };
 
-struct Buzzer *App_Buzzer_Create(void (*on)(void), void (*off)(void))
+struct Buzzer *App_Buzzer_Create(void (*turn_on)(void), void (*turn_off)(void))
 {
     struct Buzzer *buzzer = malloc(sizeof(struct Buzzer));
     assert(buzzer != NULL);
 
-    buzzer->on  = on;
-    buzzer->off = off;
+    buzzer->turn_on  = turn_on;
+    buzzer->turn_off = turn_off;
 
     return buzzer;
 }
@@ -24,12 +24,12 @@ void App_Buzzer_Destroy(struct Buzzer *buzzer)
     free(buzzer);
 }
 
-void App_Buzzer_On(const struct Buzzer *buzzer)
+void App_Buzzer_TurnOn(const struct Buzzer *buzzer)
 {
-    buzzer->on();
+    buzzer->turn_on();
 }
 
-void App_Buzzer_Off(const struct Buzzer *buzzer)
+void App_Buzzer_TurnOff(const struct Buzzer *buzzer)
 {
-    buzzer->off();
+    buzzer->turn_off();
 }

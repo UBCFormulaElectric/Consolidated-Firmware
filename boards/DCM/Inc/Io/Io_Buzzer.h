@@ -3,9 +3,9 @@
 /**
  * Turn on the buzzer
  */
-void Io_Buzzer_On(void);
+void Io_Buzzer_TurnOn(void);
 
 /**
  * Turn off the buzzer
  */
-void Io_Buzzer_Off(void);
+void Io_Buzzer_TurnOff(void);
