@@ -54,10 +54,6 @@ if __name__ == "__main__":
         '--dbc',
         help='Path to the DBC file')
     args = parser.parse_args()
-    if args.board not in supported_boards:
-        print('Error: Invalid board name. Valid options: '
-              + ' '.join(supported_boards))
-        sys.exit(1)
 
     # Configure logging level
     logging.basicConfig(level=logging.DEBUG)
