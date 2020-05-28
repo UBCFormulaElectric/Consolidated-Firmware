@@ -19,6 +19,11 @@ static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
 static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
+
+    struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct DcmCanTxInterface *can_tx_interface = App_DcmWorld_GetCanTx(world);
+
+    App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 0.0f);
 }
 
 static void FaultStateRunOnExit(struct StateMachine *const state_machine)
