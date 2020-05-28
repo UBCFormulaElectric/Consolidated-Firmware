@@ -19,7 +19,7 @@ struct Error
 
 struct Error *App_SharedError_Create(void)
 {
-    struct Error *error = malloc(sizeof(error));
+    struct Error *error = malloc(sizeof(struct Error));
     assert(error != NULL);
 
     error->board       = NUM_BOARDS;
