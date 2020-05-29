@@ -13,3 +13,9 @@ uint16_t *Io_Adc_GetRawAdcValues(void);
  * @return The voltage measured at ADC channel 1, in volts
  */
 float Io_Adc_GetChannel1Voltage(void);
+
+/**
+ * Get the voltage measured at ADC channel 3
+ * @return The voltage measured at ADC channel 3, in volts
+ */
+float Io_Adc_GetChannel3Voltage(void);
