@@ -32,9 +32,7 @@
  *
  *       In this scenario, the difference between soc_1 and soc_2 is the same as
  *       the difference between soc_2 and soc_3, but we prioritize soc_1 / soc_2
- *       ovr soc_2 / soc_3. Thus, the average value to calculate,
- *
- *       (soc_1 + soc_2) / 2 = 25
+ *       over soc_2 / soc_3. Thus, result is set to  (soc_1 + soc_2) / 2 = 25.
  * @return EXIT_CODE_INVALID_ARGS if max_difference, soc_1, soc_2, or soc_3 is
  *                                not between 0 and 100 inclusive
  */
