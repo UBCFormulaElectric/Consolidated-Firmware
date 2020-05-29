@@ -58,25 +58,25 @@ class FsmStateMachineTest : public testing::Test
             get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS,
             HEARTBEAT_MONITOR_BOARDS_TO_CHECK, heartbeat_timeout_callback);
 
-        primary_flow_meter_in_range_check = App_InRangeCheck_Create(
+        primary_flow_rate_in_range_check = App_InRangeCheck_Create(
             get_primary_flow_rate, PRIMARY_FLOW_METER_MIN_FLOW_RATE,
             PRIMARY_FLOW_METER_MAX_FLOW_RATE);
 
-        secondary_flow_meter_in_range_check = App_InRangeCheck_Create(
+        secondary_flow_rate_in_range_check = App_InRangeCheck_Create(
             get_secondary_flow_rate, SECONDARY_FLOW_METER_MIN_FLOW_RATE,
             SECONDARY_FLOW_METER_MAX_FLOW_RATE);
 
-        left_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
+        left_wheel_speed_in_range_check = App_InRangeCheck_Create(
             get_left_wheel_speed, LEFT_WHEEL_MIN_SPEED, LEFT_WHEEL_MAX_SPEED);
 
-        right_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
+        right_wheel_speed_in_range_check = App_InRangeCheck_Create(
             get_right_wheel_speed, RIGHT_WHEEL_MIN_SPEED,
             RIGHT_WHEEL_MAX_SPEED);
 
-        steering_angle_sensor_in_range_check = App_InRangeCheck_Create(
+        steering_angle_in_range_check = App_InRangeCheck_Create(
             get_steering_angle, MIN_STEERING_ANGLE, MAX_STEERING_ANGLE);
 
-        brake_pressure_sensor_in_range_check = App_InRangeCheck_Create(
+        brake_pressure_in_range_check = App_InRangeCheck_Create(
             get_brake_pressure, MIN_BRAKE_PRESSURE, MAX_BRAKE_PRESSURE);
 
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
@@ -84,12 +84,10 @@ class FsmStateMachineTest : public testing::Test
 
         world = App_FsmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
-            primary_flow_meter_in_range_check,
-            secondary_flow_meter_in_range_check,
-            left_wheel_speed_sensor_in_range_check,
-            right_wheel_speed_sensor_in_range_check,
-            steering_angle_sensor_in_range_check,
-            brake_pressure_sensor_in_range_check, rgb_led_sequence);
+            primary_flow_rate_in_range_check,
+            secondary_flow_rate_in_range_check, left_wheel_speed_in_range_check,
+            right_wheel_speed_in_range_check, steering_angle_in_range_check,
+            brake_pressure_in_range_check, rgb_led_sequence);
 
         // Default to starting the state machine in the `AIR_OPEN` state
         state_machine =
@@ -120,17 +118,15 @@ class FsmStateMachineTest : public testing::Test
         TearDownObject(can_rx_interface, App_CanRx_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
         TearDownObject(
-            left_wheel_speed_sensor_in_range_check, App_InRangeCheck_Destroy);
+            left_wheel_speed_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(
-            right_wheel_speed_sensor_in_range_check, App_InRangeCheck_Destroy);
+            right_wheel_speed_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(
-            primary_flow_meter_in_range_check, App_InRangeCheck_Destroy);
+            primary_flow_rate_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(
-            secondary_flow_meter_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(
-            steering_angle_sensor_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(
-            brake_pressure_sensor_in_range_check, App_InRangeCheck_Destroy);
+            secondary_flow_rate_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(steering_angle_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(brake_pressure_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
     }
 
@@ -194,12 +190,12 @@ class FsmStateMachineTest : public testing::Test
     struct FsmCanTxInterface *can_tx_interface;
     struct FsmCanRxInterface *can_rx_interface;
     struct HeartbeatMonitor * heartbeat_monitor;
-    struct InRangeCheck *     primary_flow_meter_in_range_check;
-    struct InRangeCheck *     secondary_flow_meter_in_range_check;
-    struct InRangeCheck *     left_wheel_speed_sensor_in_range_check;
-    struct InRangeCheck *     right_wheel_speed_sensor_in_range_check;
-    struct InRangeCheck *     steering_angle_sensor_in_range_check;
-    struct InRangeCheck *     brake_pressure_sensor_in_range_check;
+    struct InRangeCheck *     primary_flow_rate_in_range_check;
+    struct InRangeCheck *     secondary_flow_rate_in_range_check;
+    struct InRangeCheck *     left_wheel_speed_in_range_check;
+    struct InRangeCheck *     right_wheel_speed_in_range_check;
+    struct InRangeCheck *     steering_angle_in_range_check;
+    struct InRangeCheck *     brake_pressure_in_range_check;
     struct RgbLedSequence *   rgb_led_sequence;
 };
 
