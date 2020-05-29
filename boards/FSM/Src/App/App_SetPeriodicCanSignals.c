@@ -72,3 +72,20 @@ void App_SetPeriodicSignals_SteeringAngleInRangeCheck(
         CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
+
+void App_SetPeriodicSignals_BrakePressureInRangeCheck(
+    const struct FsmWorld *world)
+{
+    struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
+
+    struct InRangeCheck *brake_pressure_in_range_check =
+        App_FsmWorld_GetBrakePressureInRangeCheck(world);
+
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx, brake_pressure_in_range_check,
+        App_CanTx_SetPeriodicSignal_BRAKE_PRESSURE,
+        App_CanTx_SetPeriodicSignal_BRAKE_PRESSURE_OUT_OF_RANGE,
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+}

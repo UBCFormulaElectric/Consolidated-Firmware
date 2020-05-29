@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include "Io_Adc.h"
 
 float Io_BrakePressureSensor_GetPressurePsi(void)

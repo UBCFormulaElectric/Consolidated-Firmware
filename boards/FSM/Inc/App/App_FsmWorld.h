@@ -26,6 +26,7 @@ struct FsmWorld *App_FsmWorld_Create(
     struct InRangeCheck *     left_wheel_speed_in_range_check,
     struct InRangeCheck *     right_wheel_speed_in_range_check,
     struct InRangeCheck *     steering_angle_in_range_check,
+    struct InRangeCheck *     brake_pressure_in_range_check,
     struct RgbLedSequence *   rgb_led_sequence);
 
 /**
@@ -95,6 +96,14 @@ struct InRangeCheck *
  */
 struct InRangeCheck *
     App_FsmWorld_GetSteeringAngleInRangeCheck(const struct FsmWorld *world);
+
+/**
+ * Get the steering angle in-range check for the given world
+ * @param world The world to get the steering angle in-range check for
+ * @return The steering angle in-range check for the given world
+ */
+struct InRangeCheck *
+    App_FsmWorld_GetBrakePressureInRangeCheck(const struct FsmWorld *world);
 
 /**
  * Get the RGB LED sequence for the given world
