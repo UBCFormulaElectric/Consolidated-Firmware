@@ -1,12 +1,18 @@
-#include <stdbool.h>
 #include "Io_Adc.h"
 
 float Io_BrakePressureSensor_GetPressurePsi(void)
 {
-    // Brake pressure = (ADC Voltage - Voltage Offset) * psi per volt
-    const float BRAKE_PRESSURE_VOLTAGE_OFFSET = 0.33f;
-    const float PSI_PER_VOLT                  = 2500.0f / 3.3f;
+    // The sensor operates from 0.5V to 4.5V. The voltage divider decreases the
+    // voltage by a factor of (2/3). Thus the minimum voltage seen by the analog
+    // input pin is 0.33V while the maximum voltage seen is 3V
+    const float MIN_INPUT_VOLTAGE = 0.33f;
+    const float MAX_INPUT_VOLTAGE = 3.0f;
 
-    return PSI_PER_VOLT *
-           (Io_Adc_GetChannel3Voltage() - BRAKE_PRESSURE_VOLTAGE_OFFSET);
+    // Psi Per Volt = (Max Pressure - Min Pressure) / (Max Input Voltage - Min
+    // Input Voltage)
+    const float PSI_PER_VOLT =
+        2500.0f / (MAX_INPUT_VOLTAGE - MIN_INPUT_VOLTAGE);
+
+    // Brake pressure = (ADC Voltage - Min Input Voltage) * Psi Per Volt
+    return PSI_PER_VOLT * (Io_Adc_GetChannel3Voltage() - MIN_INPUT_VOLTAGE);
 }
