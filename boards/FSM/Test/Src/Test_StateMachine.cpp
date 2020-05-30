@@ -77,7 +77,7 @@ class FsmStateMachineTest : public testing::Test
             get_steering_angle, MIN_STEERING_ANGLE, MAX_STEERING_ANGLE);
 
         brake_pressure_in_range_check = App_InRangeCheck_Create(
-            get_brake_pressure, MIN_BRAKE_PRESSURE, MAX_BRAKE_PRESSURE);
+            get_brake_pressure, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
 
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
@@ -287,7 +287,7 @@ TEST_F(FsmStateMachineTest, check_steering_angle_can_signals_in_all_states)
 TEST_F(FsmStateMachineTest, check_brake_pressure_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
-        MIN_BRAKE_PRESSURE, MAX_BRAKE_PRESSURE,
+        MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI,
         get_brake_pressure_fake.return_val,
         App_CanTx_GetPeriodicSignal_BRAKE_PRESSURE,
         App_CanTx_GetPeriodicSignal_BRAKE_PRESSURE_OUT_OF_RANGE,
