@@ -200,23 +200,25 @@ int main(void)
 
     Io_FlowMeters_Init(&htim4);
     primary_flow_meter_in_range_check = App_InRangeCheck_Create(
-        Io_FlowMeters_GetPrimaryFlowRate, PRIMARY_FLOW_METER_MIN_FLOW_RATE,
-        PRIMARY_FLOW_METER_MAX_FLOW_RATE);
+        Io_FlowMeters_GetPrimaryFlowRate,
+        PRIMARY_FLOW_METER_MIN_FLOW_RATE_L_PER_MIN,
+        PRIMARY_FLOW_METER_MAX_FLOW_RATE_L_PER_MIN);
     secondary_flow_meter_in_range_check = App_InRangeCheck_Create(
-        Io_FlowMeters_GetSecondaryFlowRate, SECONDARY_FLOW_METER_MIN_FLOW_RATE,
-        SECONDARY_FLOW_METER_MAX_FLOW_RATE);
+        Io_FlowMeters_GetSecondaryFlowRate,
+        SECONDARY_FLOW_METER_MIN_FLOW_RATE_L_PER_MIN,
+        SECONDARY_FLOW_METER_MAX_FLOW_RATE_L_PER_MIN);
 
     Io_WheelSpeedSensors_Init(&htim16, &htim17);
     left_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
-        Io_WheelSpeedSensors_GetLeftSpeedKph, LEFT_WHEEL_MIN_SPEED,
-        LEFT_WHEEL_MAX_SPEED);
+        Io_WheelSpeedSensors_GetLeftSpeedKph, LEFT_WHEEL_MIN_SPEED_KPH,
+        LEFT_WHEEL_MAX_SPEED_KPH);
     right_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
-        Io_WheelSpeedSensors_GetRightSpeedKph, RIGHT_WHEEL_MIN_SPEED,
-        RIGHT_WHEEL_MAX_SPEED);
+        Io_WheelSpeedSensors_GetRightSpeedKph, RIGHT_WHEEL_MIN_SPEED_KPH,
+        RIGHT_WHEEL_MAX_SPEED_KPH);
 
     steering_angle_sensor_in_range_check = App_InRangeCheck_Create(
-        Io_SteeringAngleSensor_GetAngleDegree, MIN_STEERING_ANGLE,
-        MAX_STEERING_ANGLE);
+        Io_SteeringAngleSensor_GetAngleDegree, MIN_STEERING_ANGLE_DEG,
+        MAX_STEERING_ANGLE_DEG);
 
     brake_pressure_sensor_in_range_check = App_InRangeCheck_Create(
         Io_BrakePressureSensor_GetPressurePsi, MIN_BRAKE_PRESSURE_PSI,
