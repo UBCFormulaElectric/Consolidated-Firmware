@@ -38,7 +38,7 @@
 #include "Io_RgbLedSequence.h"
 #include "Io_WheelSpeedSensors.h"
 #include "Io_SteeringAngleSensor.h"
-#include "Io_BrakePressureSensor.h"
+#include "Io_MSP3002K5P3N1.h"
 #include "Io_Adc.h"
 
 #include "App_FsmWorld.h"
