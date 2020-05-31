@@ -59,21 +59,20 @@ class FsmStateMachineTest : public testing::Test
             HEARTBEAT_MONITOR_BOARDS_TO_CHECK, heartbeat_timeout_callback);
 
         primary_flow_rate_in_range_check = App_InRangeCheck_Create(
-            get_primary_flow_rate, PRIMARY_FLOW_METER_MIN_FLOW_RATE_L_PER_MIN,
-            PRIMARY_FLOW_METER_MAX_FLOW_RATE_L_PER_MIN);
+            get_primary_flow_rate, MIN_PRIMARY_FLOW_RATE_L_PER_MIN,
+            MAX_PRIMARY_FLOW_RATE_L_PER_MIN);
 
         secondary_flow_rate_in_range_check = App_InRangeCheck_Create(
-            get_secondary_flow_rate,
-            SECONDARY_FLOW_METER_MIN_FLOW_RATE_L_PER_MIN,
-            SECONDARY_FLOW_METER_MAX_FLOW_RATE_L_PER_MIN);
+            get_secondary_flow_rate, MIN_SECONDARY_FLOW_RATE_L_PER_MIN,
+            MAX_SECONDARY_FLOW_RATE_L_PER_MIN);
 
         left_wheel_speed_in_range_check = App_InRangeCheck_Create(
-            get_left_wheel_speed, LEFT_WHEEL_MIN_SPEED_KPH,
-            LEFT_WHEEL_MAX_SPEED_KPH);
+            get_left_wheel_speed, MIN_LEFT_WHEEL_SPEED_KPH,
+            MAX_LEFT_WHEEL_SPEED_KPH);
 
         right_wheel_speed_in_range_check = App_InRangeCheck_Create(
-            get_right_wheel_speed, RIGHT_WHEEL_MIN_SPEED_KPH,
-            RIGHT_WHEEL_MAX_SPEED_KPH);
+            get_right_wheel_speed, MIN_RIGHT_WHEEL_SPEED_KPH,
+            MAX_RIGHT_WHEEL_SPEED_KPH);
 
         steering_angle_in_range_check = App_InRangeCheck_Create(
             get_steering_angle, MIN_STEERING_ANGLE_DEG, MAX_STEERING_ANGLE_DEG);
@@ -225,7 +224,7 @@ TEST_F(FsmStateMachineTest, check_air_closed_state_is_broadcasted_over_can)
 TEST_F(FsmStateMachineTest, check_left_wheel_speed_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
-        LEFT_WHEEL_MIN_SPEED_KPH, LEFT_WHEEL_MAX_SPEED_KPH,
+        MIN_LEFT_WHEEL_SPEED_KPH, MAX_LEFT_WHEEL_SPEED_KPH,
         get_left_wheel_speed_fake.return_val,
         App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED,
         App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE,
@@ -238,7 +237,7 @@ TEST_F(FsmStateMachineTest, check_left_wheel_speed_can_signals_in_all_states)
 TEST_F(FsmStateMachineTest, check_right_wheel_speed_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
-        RIGHT_WHEEL_MIN_SPEED_KPH, RIGHT_WHEEL_MAX_SPEED_KPH,
+        MIN_RIGHT_WHEEL_SPEED_KPH, MAX_RIGHT_WHEEL_SPEED_KPH,
         get_right_wheel_speed_fake.return_val,
         App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED,
         App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE,
@@ -251,8 +250,7 @@ TEST_F(FsmStateMachineTest, check_right_wheel_speed_can_signals_in_all_states)
 TEST_F(FsmStateMachineTest, check_primary_flow_rate_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
-        PRIMARY_FLOW_METER_MIN_FLOW_RATE_L_PER_MIN,
-        PRIMARY_FLOW_METER_MAX_FLOW_RATE_L_PER_MIN,
+        MIN_PRIMARY_FLOW_RATE_L_PER_MIN, MAX_PRIMARY_FLOW_RATE_L_PER_MIN,
         get_primary_flow_rate_fake.return_val,
         App_CanTx_GetPeriodicSignal_PRIMARY_FLOW_RATE,
         App_CanTx_GetPeriodicSignal_PRIMARY_FLOW_RATE_OUT_OF_RANGE,
@@ -265,8 +263,7 @@ TEST_F(FsmStateMachineTest, check_primary_flow_rate_can_signals_in_all_states)
 TEST_F(FsmStateMachineTest, check_secondary_flow_rate_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
-        SECONDARY_FLOW_METER_MIN_FLOW_RATE_L_PER_MIN,
-        SECONDARY_FLOW_METER_MAX_FLOW_RATE_L_PER_MIN,
+        MIN_SECONDARY_FLOW_RATE_L_PER_MIN, MAX_SECONDARY_FLOW_RATE_L_PER_MIN,
         get_secondary_flow_rate_fake.return_val,
         App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE,
         App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE_OUT_OF_RANGE,

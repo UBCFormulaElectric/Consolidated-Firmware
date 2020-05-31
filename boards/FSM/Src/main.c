@@ -49,7 +49,7 @@
 #include "configs/App_FlowRateThresholds.h"
 #include "configs/App_WheelSpeedThresholds.h"
 #include "configs/App_SteeringAngleThresholds.h"
-#include "configs/App_BrakePressureSensorThresholds.h"
+#include "configs/App_BrakePressureThresholds.h"
 #include "configs/App_SharedStateMachineConfig.h"
 /* USER CODE END Includes */
 
@@ -200,21 +200,19 @@ int main(void)
 
     Io_FlowMeters_Init(&htim4);
     primary_flow_meter_in_range_check = App_InRangeCheck_Create(
-        Io_FlowMeters_GetPrimaryFlowRate,
-        PRIMARY_FLOW_METER_MIN_FLOW_RATE_L_PER_MIN,
-        PRIMARY_FLOW_METER_MAX_FLOW_RATE_L_PER_MIN);
+        Io_FlowMeters_GetPrimaryFlowRate, MIN_PRIMARY_FLOW_RATE_L_PER_MIN,
+        MAX_PRIMARY_FLOW_RATE_L_PER_MIN);
     secondary_flow_meter_in_range_check = App_InRangeCheck_Create(
-        Io_FlowMeters_GetSecondaryFlowRate,
-        SECONDARY_FLOW_METER_MIN_FLOW_RATE_L_PER_MIN,
-        SECONDARY_FLOW_METER_MAX_FLOW_RATE_L_PER_MIN);
+        Io_FlowMeters_GetSecondaryFlowRate, MIN_SECONDARY_FLOW_RATE_L_PER_MIN,
+        MAX_SECONDARY_FLOW_RATE_L_PER_MIN);
 
     Io_WheelSpeedSensors_Init(&htim16, &htim17);
     left_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
-        Io_WheelSpeedSensors_GetLeftSpeedKph, LEFT_WHEEL_MIN_SPEED_KPH,
-        LEFT_WHEEL_MAX_SPEED_KPH);
+        Io_WheelSpeedSensors_GetLeftSpeedKph, MIN_LEFT_WHEEL_SPEED_KPH,
+        MAX_LEFT_WHEEL_SPEED_KPH);
     right_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
-        Io_WheelSpeedSensors_GetRightSpeedKph, RIGHT_WHEEL_MIN_SPEED_KPH,
-        RIGHT_WHEEL_MAX_SPEED_KPH);
+        Io_WheelSpeedSensors_GetRightSpeedKph, MIN_RIGHT_WHEEL_SPEED_KPH,
+        MAX_RIGHT_WHEEL_SPEED_KPH);
 
     steering_angle_sensor_in_range_check = App_InRangeCheck_Create(
         Io_SteeringAngleSensor_GetAngleDegree, MIN_STEERING_ANGLE_DEG,
