@@ -221,7 +221,7 @@ int main(void)
         MAX_STEERING_ANGLE_DEG);
 
     brake_pressure_sensor_in_range_check = App_InRangeCheck_Create(
-        Io_BrakePressureSensor_GetPressurePsi, MIN_BRAKE_PRESSURE_PSI,
+        Io_MSP3002K5P3N1_GetPressurePsi, MIN_BRAKE_PRESSURE_PSI,
         MAX_BRAKE_PRESSURE_PSI);
 
     can_tx = App_CanTx_Create(

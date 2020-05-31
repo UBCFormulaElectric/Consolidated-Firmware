@@ -1,6 +1,6 @@
 #include "Io_Adc.h"
 
-float Io_BrakePressureSensor_GetPressurePsi(void)
+float Io_MSP3002K5P3N1_GetPressurePsi(void)
 {
     // The sensor operates from 0.5V to 4.5V. The voltage divider decreases the
     // voltage by a factor of (2/3). Thus the minimum voltage seen by the analog
