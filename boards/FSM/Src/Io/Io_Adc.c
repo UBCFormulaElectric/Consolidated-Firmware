@@ -27,6 +27,7 @@
 enum
 {
     CHANNEL_1,
+    CHANNEL_3,
     NUM_ADC_CHANNELS
 };
 
@@ -37,6 +38,8 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
     adc_voltages[CHANNEL_1] = Io_SharedAdc_ConvertRawAdcValueToVoltage(
         hadc, raw_adc_values[CHANNEL_1]);
+    adc_voltages[CHANNEL_3] = Io_SharedAdc_ConvertRawAdcValueToVoltage(
+        hadc, raw_adc_values[CHANNEL_3]);
 }
 
 uint16_t *Io_Adc_GetRawAdcValues(void)
@@ -47,4 +50,9 @@ uint16_t *Io_Adc_GetRawAdcValues(void)
 float Io_Adc_GetChannel1Voltage(void)
 {
     return adc_voltages[CHANNEL_1];
+}
+
+float Io_Adc_GetChannel3Voltage(void)
+{
+    return adc_voltages[CHANNEL_3];
 }

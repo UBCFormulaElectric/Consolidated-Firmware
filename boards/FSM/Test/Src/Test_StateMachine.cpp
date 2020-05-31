@@ -12,6 +12,7 @@ extern "C"
 #include "configs/App_FlowRateThresholds.h"
 #include "configs/App_WheelSpeedThresholds.h"
 #include "configs/App_SteeringAngleThresholds.h"
+#include "configs/App_BrakePressureThresholds.h"
 }
 
 namespace StateMachineTest
@@ -39,6 +40,7 @@ FAKE_VOID_FUNC(turn_on_blue_led);
 FAKE_VALUE_FUNC(float, get_left_wheel_speed);
 FAKE_VALUE_FUNC(float, get_right_wheel_speed);
 FAKE_VALUE_FUNC(float, get_steering_angle);
+FAKE_VALUE_FUNC(float, get_brake_pressure);
 
 class FsmStateMachineTest : public testing::Test
 {
@@ -56,34 +58,37 @@ class FsmStateMachineTest : public testing::Test
             get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS,
             HEARTBEAT_MONITOR_BOARDS_TO_CHECK, heartbeat_timeout_callback);
 
-        primary_flow_meter_in_range_check = App_InRangeCheck_Create(
-            get_primary_flow_rate, PRIMARY_FLOW_METER_MIN_FLOW_RATE,
-            PRIMARY_FLOW_METER_MAX_FLOW_RATE);
+        primary_flow_rate_in_range_check = App_InRangeCheck_Create(
+            get_primary_flow_rate, MIN_PRIMARY_FLOW_RATE_L_PER_MIN,
+            MAX_PRIMARY_FLOW_RATE_L_PER_MIN);
 
-        secondary_flow_meter_in_range_check = App_InRangeCheck_Create(
-            get_secondary_flow_rate, SECONDARY_FLOW_METER_MIN_FLOW_RATE,
-            SECONDARY_FLOW_METER_MAX_FLOW_RATE);
+        secondary_flow_rate_in_range_check = App_InRangeCheck_Create(
+            get_secondary_flow_rate, MIN_SECONDARY_FLOW_RATE_L_PER_MIN,
+            MAX_SECONDARY_FLOW_RATE_L_PER_MIN);
 
-        left_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
-            get_left_wheel_speed, LEFT_WHEEL_MIN_SPEED, LEFT_WHEEL_MAX_SPEED);
+        left_wheel_speed_in_range_check = App_InRangeCheck_Create(
+            get_left_wheel_speed, MIN_LEFT_WHEEL_SPEED_KPH,
+            MAX_LEFT_WHEEL_SPEED_KPH);
 
-        right_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
-            get_right_wheel_speed, RIGHT_WHEEL_MIN_SPEED,
-            RIGHT_WHEEL_MAX_SPEED);
+        right_wheel_speed_in_range_check = App_InRangeCheck_Create(
+            get_right_wheel_speed, MIN_RIGHT_WHEEL_SPEED_KPH,
+            MAX_RIGHT_WHEEL_SPEED_KPH);
 
-        steering_angle_sensor_in_range_check = App_InRangeCheck_Create(
-            get_steering_angle, MIN_STEERING_ANGLE, MAX_STEERING_ANGLE);
+        steering_angle_in_range_check = App_InRangeCheck_Create(
+            get_steering_angle, MIN_STEERING_ANGLE_DEG, MAX_STEERING_ANGLE_DEG);
+
+        brake_pressure_in_range_check = App_InRangeCheck_Create(
+            get_brake_pressure, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
 
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
         world = App_FsmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
-            primary_flow_meter_in_range_check,
-            secondary_flow_meter_in_range_check,
-            left_wheel_speed_sensor_in_range_check,
-            right_wheel_speed_sensor_in_range_check,
-            steering_angle_sensor_in_range_check, rgb_led_sequence);
+            primary_flow_rate_in_range_check,
+            secondary_flow_rate_in_range_check, left_wheel_speed_in_range_check,
+            right_wheel_speed_in_range_check, steering_angle_in_range_check,
+            brake_pressure_in_range_check, rgb_led_sequence);
 
         // Default to starting the state machine in the `AIR_OPEN` state
         state_machine =
@@ -103,6 +108,7 @@ class FsmStateMachineTest : public testing::Test
         RESET_FAKE(get_left_wheel_speed);
         RESET_FAKE(get_right_wheel_speed);
         RESET_FAKE(get_steering_angle);
+        RESET_FAKE(get_brake_pressure);
     }
 
     void TearDown() override
@@ -113,15 +119,15 @@ class FsmStateMachineTest : public testing::Test
         TearDownObject(can_rx_interface, App_CanRx_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
         TearDownObject(
-            left_wheel_speed_sensor_in_range_check, App_InRangeCheck_Destroy);
+            left_wheel_speed_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(
-            right_wheel_speed_sensor_in_range_check, App_InRangeCheck_Destroy);
+            right_wheel_speed_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(
-            primary_flow_meter_in_range_check, App_InRangeCheck_Destroy);
+            primary_flow_rate_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(
-            secondary_flow_meter_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(
-            steering_angle_sensor_in_range_check, App_InRangeCheck_Destroy);
+            secondary_flow_rate_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(steering_angle_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(brake_pressure_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
     }
 
@@ -185,11 +191,12 @@ class FsmStateMachineTest : public testing::Test
     struct FsmCanTxInterface *can_tx_interface;
     struct FsmCanRxInterface *can_rx_interface;
     struct HeartbeatMonitor * heartbeat_monitor;
-    struct InRangeCheck *     primary_flow_meter_in_range_check;
-    struct InRangeCheck *     secondary_flow_meter_in_range_check;
-    struct InRangeCheck *     left_wheel_speed_sensor_in_range_check;
-    struct InRangeCheck *     right_wheel_speed_sensor_in_range_check;
-    struct InRangeCheck *     steering_angle_sensor_in_range_check;
+    struct InRangeCheck *     primary_flow_rate_in_range_check;
+    struct InRangeCheck *     secondary_flow_rate_in_range_check;
+    struct InRangeCheck *     left_wheel_speed_in_range_check;
+    struct InRangeCheck *     right_wheel_speed_in_range_check;
+    struct InRangeCheck *     steering_angle_in_range_check;
+    struct InRangeCheck *     brake_pressure_in_range_check;
     struct RgbLedSequence *   rgb_led_sequence;
 };
 
@@ -217,7 +224,7 @@ TEST_F(FsmStateMachineTest, check_air_closed_state_is_broadcasted_over_can)
 TEST_F(FsmStateMachineTest, check_left_wheel_speed_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
-        LEFT_WHEEL_MIN_SPEED, LEFT_WHEEL_MAX_SPEED,
+        MIN_LEFT_WHEEL_SPEED_KPH, MAX_LEFT_WHEEL_SPEED_KPH,
         get_left_wheel_speed_fake.return_val,
         App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED,
         App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE,
@@ -230,7 +237,7 @@ TEST_F(FsmStateMachineTest, check_left_wheel_speed_can_signals_in_all_states)
 TEST_F(FsmStateMachineTest, check_right_wheel_speed_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
-        RIGHT_WHEEL_MIN_SPEED, RIGHT_WHEEL_MAX_SPEED,
+        MIN_RIGHT_WHEEL_SPEED_KPH, MAX_RIGHT_WHEEL_SPEED_KPH,
         get_right_wheel_speed_fake.return_val,
         App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED,
         App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE,
@@ -243,7 +250,7 @@ TEST_F(FsmStateMachineTest, check_right_wheel_speed_can_signals_in_all_states)
 TEST_F(FsmStateMachineTest, check_primary_flow_rate_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
-        PRIMARY_FLOW_METER_MIN_FLOW_RATE, PRIMARY_FLOW_METER_MAX_FLOW_RATE,
+        MIN_PRIMARY_FLOW_RATE_L_PER_MIN, MAX_PRIMARY_FLOW_RATE_L_PER_MIN,
         get_primary_flow_rate_fake.return_val,
         App_CanTx_GetPeriodicSignal_PRIMARY_FLOW_RATE,
         App_CanTx_GetPeriodicSignal_PRIMARY_FLOW_RATE_OUT_OF_RANGE,
@@ -256,7 +263,7 @@ TEST_F(FsmStateMachineTest, check_primary_flow_rate_can_signals_in_all_states)
 TEST_F(FsmStateMachineTest, check_secondary_flow_rate_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
-        SECONDARY_FLOW_METER_MIN_FLOW_RATE, SECONDARY_FLOW_METER_MAX_FLOW_RATE,
+        MIN_SECONDARY_FLOW_RATE_L_PER_MIN, MAX_SECONDARY_FLOW_RATE_L_PER_MIN,
         get_secondary_flow_rate_fake.return_val,
         App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE,
         App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE_OUT_OF_RANGE,
@@ -269,13 +276,25 @@ TEST_F(FsmStateMachineTest, check_secondary_flow_rate_can_signals_in_all_states)
 TEST_F(FsmStateMachineTest, check_steering_angle_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
-        MIN_STEERING_ANGLE, MAX_STEERING_ANGLE,
+        MIN_STEERING_ANGLE_DEG, MAX_STEERING_ANGLE_DEG,
         get_steering_angle_fake.return_val,
         App_CanTx_GetPeriodicSignal_STEERING_ANGLE,
         App_CanTx_GetPeriodicSignal_STEERING_ANGLE_OUT_OF_RANGE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_PRIMARY_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+}
+
+TEST_F(FsmStateMachineTest, check_brake_pressure_can_signals_in_all_states)
+{
+    CheckInRangeCanSignalsInAllStates(
+        MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI,
+        get_brake_pressure_fake.return_val,
+        App_CanTx_GetPeriodicSignal_BRAKE_PRESSURE,
+        App_CanTx_GetPeriodicSignal_BRAKE_PRESSURE_OUT_OF_RANGE,
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
 TEST_F(FsmStateMachineTest, rgb_led_sequence_in_all_states)

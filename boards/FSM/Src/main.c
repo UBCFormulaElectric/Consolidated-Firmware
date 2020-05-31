@@ -38,6 +38,7 @@
 #include "Io_RgbLedSequence.h"
 #include "Io_WheelSpeedSensors.h"
 #include "Io_SteeringAngleSensor.h"
+#include "Io_MSP3002K5P3N1.h"
 #include "Io_Adc.h"
 
 #include "App_FsmWorld.h"
@@ -48,6 +49,7 @@
 #include "configs/App_FlowRateThresholds.h"
 #include "configs/App_WheelSpeedThresholds.h"
 #include "configs/App_SteeringAngleThresholds.h"
+#include "configs/App_BrakePressureThresholds.h"
 #include "configs/App_SharedStateMachineConfig.h"
 /* USER CODE END Includes */
 
@@ -100,6 +102,7 @@ struct InRangeCheck *primary_flow_meter_in_range_check,
 struct InRangeCheck *left_wheel_speed_sensor_in_range_check,
     *right_wheel_speed_sensor_in_range_check;
 struct InRangeCheck *     steering_angle_sensor_in_range_check;
+struct InRangeCheck *     brake_pressure_sensor_in_range_check;
 struct World *            world;
 struct StateMachine *     state_machine;
 struct FsmCanTxInterface *can_tx;
@@ -197,23 +200,27 @@ int main(void)
 
     Io_FlowMeters_Init(&htim4);
     primary_flow_meter_in_range_check = App_InRangeCheck_Create(
-        Io_FlowMeters_GetPrimaryFlowRate, PRIMARY_FLOW_METER_MIN_FLOW_RATE,
-        PRIMARY_FLOW_METER_MAX_FLOW_RATE);
+        Io_FlowMeters_GetPrimaryFlowRate, MIN_PRIMARY_FLOW_RATE_L_PER_MIN,
+        MAX_PRIMARY_FLOW_RATE_L_PER_MIN);
     secondary_flow_meter_in_range_check = App_InRangeCheck_Create(
-        Io_FlowMeters_GetSecondaryFlowRate, SECONDARY_FLOW_METER_MIN_FLOW_RATE,
-        SECONDARY_FLOW_METER_MAX_FLOW_RATE);
+        Io_FlowMeters_GetSecondaryFlowRate, MIN_SECONDARY_FLOW_RATE_L_PER_MIN,
+        MAX_SECONDARY_FLOW_RATE_L_PER_MIN);
 
     Io_WheelSpeedSensors_Init(&htim16, &htim17);
     left_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
-        Io_WheelSpeedSensors_GetLeftSpeedKph, LEFT_WHEEL_MIN_SPEED,
-        LEFT_WHEEL_MAX_SPEED);
+        Io_WheelSpeedSensors_GetLeftSpeedKph, MIN_LEFT_WHEEL_SPEED_KPH,
+        MAX_LEFT_WHEEL_SPEED_KPH);
     right_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
-        Io_WheelSpeedSensors_GetRightSpeedKph, RIGHT_WHEEL_MIN_SPEED,
-        RIGHT_WHEEL_MAX_SPEED);
+        Io_WheelSpeedSensors_GetRightSpeedKph, MIN_RIGHT_WHEEL_SPEED_KPH,
+        MAX_RIGHT_WHEEL_SPEED_KPH);
 
     steering_angle_sensor_in_range_check = App_InRangeCheck_Create(
-        Io_SteeringAngleSensor_GetAngleDegree, MIN_STEERING_ANGLE,
-        MAX_STEERING_ANGLE);
+        Io_SteeringAngleSensor_GetAngleDegree, MIN_STEERING_ANGLE_DEG,
+        MAX_STEERING_ANGLE_DEG);
+
+    brake_pressure_sensor_in_range_check = App_InRangeCheck_Create(
+        Io_MSP3002K5P3N1_GetPressurePsi, MIN_BRAKE_PRESSURE_PSI,
+        MAX_BRAKE_PRESSURE_PSI);
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
@@ -234,7 +241,8 @@ int main(void)
         secondary_flow_meter_in_range_check,
         left_wheel_speed_sensor_in_range_check,
         right_wheel_speed_sensor_in_range_check,
-        steering_angle_sensor_in_range_check, rgb_led_sequence);
+        steering_angle_sensor_in_range_check,
+        brake_pressure_sensor_in_range_check, rgb_led_sequence);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 
@@ -382,13 +390,13 @@ static void MX_ADC2_Init(void)
     hadc2.Instance                   = ADC2;
     hadc2.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV1;
     hadc2.Init.Resolution            = ADC_RESOLUTION_12B;
-    hadc2.Init.ScanConvMode          = ADC_SCAN_DISABLE;
+    hadc2.Init.ScanConvMode          = ADC_SCAN_ENABLE;
     hadc2.Init.ContinuousConvMode    = DISABLE;
     hadc2.Init.DiscontinuousConvMode = DISABLE;
     hadc2.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_RISING;
     hadc2.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T3_TRGO;
     hadc2.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-    hadc2.Init.NbrOfConversion       = 1;
+    hadc2.Init.NbrOfConversion       = 2;
     hadc2.Init.DMAContinuousRequests = ENABLE;
     hadc2.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
     hadc2.Init.LowPowerAutoWait      = DISABLE;
@@ -405,6 +413,14 @@ static void MX_ADC2_Init(void)
     sConfig.SamplingTime = ADC_SAMPLETIME_61CYCLES_5;
     sConfig.OffsetNumber = ADC_OFFSET_NONE;
     sConfig.Offset       = 0;
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure Regular Channel
+     */
+    sConfig.Channel = ADC_CHANNEL_3;
+    sConfig.Rank    = ADC_REGULAR_RANK_2;
     if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
     {
         Error_Handler();
