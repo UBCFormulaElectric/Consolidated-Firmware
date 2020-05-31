@@ -12,7 +12,7 @@ extern "C"
 #include "configs/App_FlowRateThresholds.h"
 #include "configs/App_WheelSpeedThresholds.h"
 #include "configs/App_SteeringAngleThresholds.h"
-#include "configs/App_BrakePressureSensorThresholds.h"
+#include "configs/App_BrakePressureThresholds.h"
 }
 
 namespace StateMachineTest
