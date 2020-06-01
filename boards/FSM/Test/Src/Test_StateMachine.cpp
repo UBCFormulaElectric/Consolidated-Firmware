@@ -85,14 +85,16 @@ class FsmStateMachineTest : public testing::Test
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
-        brake_actuation_status = App_BinarySwitch_Create(get_brake_actuation_status);
+        brake_actuation_status =
+            App_BinarySwitch_Create(get_brake_actuation_status);
 
         world = App_FsmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
             primary_flow_rate_in_range_check,
             secondary_flow_rate_in_range_check, left_wheel_speed_in_range_check,
             right_wheel_speed_in_range_check, steering_angle_in_range_check,
-            brake_pressure_in_range_check, brake_actuation_status, rgb_led_sequence);
+            brake_pressure_in_range_check, brake_actuation_status,
+            rgb_led_sequence);
 
         // Default to starting the state machine in the `AIR_OPEN` state
         state_machine =
@@ -192,6 +194,30 @@ class FsmStateMachineTest : public testing::Test
         }
     }
 
+    void CheckBinarySwitchCanSignalsInAllStates(
+        bool &fake_value,
+        uint8_t (*can_signal_getter)(const struct FsmCanTxInterface *),
+        uint8_t on_choice,
+        uint8_t off_choice)
+    {
+        for (const auto &state : GetAllStates())
+        {
+            SetInitialState(state);
+
+            fake_value = on_choice;
+            App_SharedStateMachine_Tick100Hz(state_machine);
+            ASSERT_EQ(
+                on_choice,
+                App_CanTx_GetPeriodicSignal_BRAKE_STATUS(can_tx_interface));
+
+            fake_value = off_choice;
+            App_SharedStateMachine_Tick100Hz(state_machine);
+            ASSERT_EQ(
+                off_choice,
+                App_CanTx_GetPeriodicSignal_BRAKE_STATUS(can_tx_interface));
+        }
+    }
+
     struct World *            world;
     struct StateMachine *     state_machine;
     struct FsmCanTxInterface *can_tx_interface;
@@ -203,7 +229,7 @@ class FsmStateMachineTest : public testing::Test
     struct InRangeCheck *     right_wheel_speed_in_range_check;
     struct InRangeCheck *     steering_angle_in_range_check;
     struct InRangeCheck *     brake_pressure_in_range_check;
-    struct BinarySwitch * brake_actuation_status;
+    struct BinarySwitch *     brake_actuation_status;
     struct RgbLedSequence *   rgb_led_sequence;
 };
 
@@ -304,7 +330,16 @@ TEST_F(FsmStateMachineTest, check_brake_pressure_can_signals_in_all_states)
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
-//TEST_F(FSM)
+TEST_F(
+    FsmStateMachineTest,
+    check_brake_pressure_actuation_can_signals_in_all_states)
+{
+    CheckBinarySwitchCanSignalsInAllStates(
+        get_brake_actuation_status_fake.return_val,
+        App_CanTx_GetPeriodicSignal_BRAKE_STATUS,
+        CANMSGS_FSM_BRAKE_BRAKE_STATUS_ACTUATED_CHOICE,
+        CANMSGS_FSM_BRAKE_BRAKE_STATUS_NOT_ACTUATED_CHOICE);
+}
 
 TEST_F(FsmStateMachineTest, rgb_led_sequence_in_all_states)
 {
