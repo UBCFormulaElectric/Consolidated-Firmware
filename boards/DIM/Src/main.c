@@ -49,6 +49,7 @@
 #include "Io_Leds.h"
 #include "Io_Switches.h"
 #include "Io_Adc.h"
+#include "Io_BoardStatusLeds.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -111,6 +112,8 @@ struct Led *              bspd_led;
 struct BinarySwitch *     start_switch;
 struct BinarySwitch *     traction_control_switch;
 struct BinarySwitch *     torque_vectoring_switch;
+struct ErrorTable *       error_table;
+struct BoardStatusLeds *  board_status_leds;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -237,10 +240,23 @@ int main(void)
     torque_vectoring_switch =
         App_BinarySwitch_Create(Io_Switches_TorqueVectoringSwitchIsTurnedOn);
 
+    error_table = App_SharedErrorTable_Create();
+
+    board_status_leds = App_BoardStatusLeds_Create(
+        Io_BoardStatusLeds_TurnOnDimRed, Io_BoardStatusLeds_TurnOnDimGreen,
+        Io_BoardStatusLeds_TurnOnDimBlue, Io_BoardStatusLeds_TurnOnDcmRed,
+        Io_BoardStatusLeds_TurnOnDcmGreen, Io_BoardStatusLeds_TurnOnDcmBlue,
+        Io_BoardStatusLeds_TurnOnFsmRed, Io_BoardStatusLeds_TurnOnFsmGreen,
+        Io_BoardStatusLeds_TurnOnFsmBlue, Io_BoardStatusLeds_TurnOnBmsRed,
+        Io_BoardStatusLeds_TurnOnBmsGreen, Io_BoardStatusLeds_TurnOnBmsBlue,
+        Io_BoardStatusLeds_TurnOnPdmRed, Io_BoardStatusLeds_TurnOnPdmGreen,
+        Io_BoardStatusLeds_TurnOnPdmBlue);
+
     world = App_DimWorld_Create(
         can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle,
         rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, start_switch,
-        traction_control_switch, torque_vectoring_switch);
+        traction_control_switch, torque_vectoring_switch, error_table,
+        board_status_leds);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 

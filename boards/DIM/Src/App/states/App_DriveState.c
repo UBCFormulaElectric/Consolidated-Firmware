@@ -116,6 +116,9 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_DimWorld_GetTractionControlSwitch(world);
     struct BinarySwitch *torque_vectoring_switch =
         App_DimWorld_GetTorqueVectoringSwitch(world);
+    struct ErrorTable *     error_table = App_DimWorld_GetErrorTable(world);
+    struct BoardStatusLeds *board_status_leds =
+        App_DimWorld_GetBoardStatuLeds(world);
 
     uint32_t buffer;
 
@@ -174,6 +177,32 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH,
         CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE,
         CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
+
+    for (size_t i = 0; i < NUM_BOARDS; i++)
+    {
+        struct ErrorBoardList boards_with_critical_errors;
+        struct ErrorBoardList boards_with_non_critical_errors;
+
+        App_SharedErrorTable_GetBoardsWithCriticalErrors(
+            error_table, &boards_with_critical_errors);
+
+        App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
+            error_table, &boards_with_non_critical_errors);
+
+        if (App_SharedError_IsBoardInList(&boards_with_critical_errors, i))
+        {
+            App_BoardStatusLeds_TurnOnRed(board_status_leds, i);
+        }
+        else if (App_SharedError_IsBoardInList(
+                     &boards_with_non_critical_errors, i))
+        {
+            App_BoardStatusLeds_TurnOnBlue(board_status_leds, i);
+        }
+        else
+        {
+            App_BoardStatusLeds_TurnOnGreen(board_status_leds, i);
+        }
+    }
 
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
 }
