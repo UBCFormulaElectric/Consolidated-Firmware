@@ -225,7 +225,7 @@ int main(void)
         MAX_BRAKE_PRESSURE_PSI);
 
     brake_actuation_status =
-        App_BinarySwitch_Create(Io_MSP3002K5P3N1_BrakeIsActuated);
+        App_BinarySwitch_Create(Io_MSP3002K5P3N1_IsBrakeActuated);
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
