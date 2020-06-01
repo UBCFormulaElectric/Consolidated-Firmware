@@ -204,11 +204,11 @@ class FsmStateMachineTest : public testing::Test
         {
             SetInitialState(state);
 
-            fake_value = on_choice;
+            fake_value = true;
             App_SharedStateMachine_Tick100Hz(state_machine);
             ASSERT_EQ(on_choice, can_signal_getter(can_tx_interface));
 
-            fake_value = off_choice;
+            fake_value = false;
             App_SharedStateMachine_Tick100Hz(state_machine);
             ASSERT_EQ(off_choice, can_signal_getter(can_tx_interface));
         }
