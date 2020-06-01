@@ -82,11 +82,11 @@ class FsmStateMachineTest : public testing::Test
         brake_pressure_in_range_check = App_InRangeCheck_Create(
             get_brake_pressure, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
 
-        rgb_led_sequence = App_SharedRgbLedSequence_Create(
-            turn_on_red_led, turn_on_green_led, turn_on_blue_led);
-
         brake_actuation_status =
             App_BinarySwitch_Create(get_brake_actuation_status);
+
+        rgb_led_sequence = App_SharedRgbLedSequence_Create(
+            turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
         world = App_FsmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
