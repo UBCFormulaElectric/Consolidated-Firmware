@@ -206,15 +206,11 @@ class FsmStateMachineTest : public testing::Test
 
             fake_value = on_choice;
             App_SharedStateMachine_Tick100Hz(state_machine);
-            ASSERT_EQ(
-                on_choice,
-                App_CanTx_GetPeriodicSignal_BRAKE_STATUS(can_tx_interface));
+            ASSERT_EQ(on_choice, can_signal_getter(can_tx_interface));
 
             fake_value = off_choice;
             App_SharedStateMachine_Tick100Hz(state_machine);
-            ASSERT_EQ(
-                off_choice,
-                App_CanTx_GetPeriodicSignal_BRAKE_STATUS(can_tx_interface));
+            ASSERT_EQ(off_choice, can_signal_getter(can_tx_interface));
         }
     }
 
@@ -330,15 +326,16 @@ TEST_F(FsmStateMachineTest, check_brake_pressure_can_signals_in_all_states)
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// FSM-18
 TEST_F(
     FsmStateMachineTest,
     check_brake_pressure_actuation_can_signals_in_all_states)
 {
     CheckBinarySwitchCanSignalsInAllStates(
         get_brake_actuation_status_fake.return_val,
-        App_CanTx_GetPeriodicSignal_BRAKE_STATUS,
-        CANMSGS_FSM_BRAKE_BRAKE_STATUS_ACTUATED_CHOICE,
-        CANMSGS_FSM_BRAKE_BRAKE_STATUS_NOT_ACTUATED_CHOICE);
+        App_CanTx_GetPeriodicSignal_BRAKE_IS_ACTUATED,
+        CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_ACTIVE_CHOICE,
+        CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_INACTIVE_CHOICE);
 }
 
 TEST_F(FsmStateMachineTest, rgb_led_sequence_in_all_states)
