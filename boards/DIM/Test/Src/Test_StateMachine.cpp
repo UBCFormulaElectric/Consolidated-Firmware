@@ -494,7 +494,7 @@ TEST_F(DimStateMachineTest, dim_board_status_led_control_with_no_error)
 TEST_F(DimStateMachineTest, dim_board_status_led_control_with_multiple_errors)
 {
     // If the error table contains critical and non-critical errors
-    // simultaneously, the critical error(s) should take precedence and turn the
+    // simultaneously, the critical error should take precedence and turn the
     // DIM LED red rather than blue
     App_SharedErrorTable_SetError(error_table, DIM_CRITICAL_DUMMY, true);
     App_SharedErrorTable_SetError(
@@ -539,7 +539,7 @@ TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_no_error)
 TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_multiple_errors)
 {
     // If the error table contains critical and non-critical errors
-    // simultaneously, the critical error(s) should take precedence and turn the
+    // simultaneously, the critical error should take precedence and turn the
     // DCM LED red rather than blue
     App_SharedErrorTable_SetError(error_table, DCM_CRITICAL_DUMMY, true);
     App_SharedErrorTable_SetError(
@@ -584,7 +584,7 @@ TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_no_error)
 TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_multiple_errors)
 {
     // If the error table contains critical and non-critical errors
-    // simultaneously, the critical error(s) should take precedence and turn the
+    // simultaneously, the critical error should take precedence and turn the
     // FSM LED red rather than blue
     App_SharedErrorTable_SetError(error_table, FSM_CRITICAL_DUMMY, true);
     App_SharedErrorTable_SetError(
@@ -630,7 +630,7 @@ TEST_F(DimStateMachineTest, bms_board_status_led_control_with_no_error)
 TEST_F(DimStateMachineTest, bms_board_status_led_control_with_multiple_errors)
 {
     // If the error table contains critical and non-critical errors
-    // simultaneously, the critical error(s) should take precedence and turn the
+    // simultaneously, the critical error should take precedence and turn the
     // BMS LED red rather than blue
     App_SharedErrorTable_SetError(
         error_table, BMS_CRITICAL_CHARGER_DISCONNECTED_IN_CHARGE_STATE, true);
@@ -676,7 +676,7 @@ TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_no_error)
 TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_multiple_errors)
 {
     // If the error table contains critical and non-critical errors
-    // simultaneously, the critical error(s) should take precedence and turn the
+    // simultaneously, the critical error should take precedence and turn the
     // PDM LED red rather than blue
     App_SharedErrorTable_SetError(error_table, PDM_CRITICAL_DUMMY, true);
     App_SharedErrorTable_SetError(
