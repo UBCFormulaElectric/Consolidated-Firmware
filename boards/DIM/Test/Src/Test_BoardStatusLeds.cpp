@@ -5,11 +5,6 @@ extern "C"
 #include "App_BoardStatusLeds.h"
 }
 
-FAKE_VOID_FUNC(turn_on_imd_led);
-FAKE_VOID_FUNC(turn_off_imd_led);
-FAKE_VOID_FUNC(turn_on_bspd_led);
-FAKE_VOID_FUNC(turn_off_bspd_led);
-
 FAKE_VOID_FUNC(turn_on_dim_red);
 FAKE_VOID_FUNC(turn_on_dim_green);
 FAKE_VOID_FUNC(turn_on_dim_blue);
