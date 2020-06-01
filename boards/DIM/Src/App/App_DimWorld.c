@@ -141,7 +141,7 @@ struct ErrorTable *
 }
 
 struct BoardStatusLeds *
-    App_DimWorld_GetBoardStatuLeds(const struct DimWorld *const world)
+    App_DimWorld_GetBoardStatusLeds(const struct DimWorld *const world)
 {
     return world->board_status_leds;
 }

@@ -141,5 +141,10 @@ struct Led *App_DimWorld_GetBspdLed(const struct DimWorld *world);
  */
 struct ErrorTable *App_DimWorld_GetErrorTable(const struct DimWorld *world);
 
+/**
+ * Get the group of board status LEDs for the given world
+ * @param world The world to get group of board status LEDs for
+ * @return The group of board status LEDs for the given world
+ */
 struct BoardStatusLeds *
-    App_DimWorld_GetBoardStatuLeds(const struct DimWorld *world);
+    App_DimWorld_GetBoardStatusLeds(const struct DimWorld *world);

@@ -118,7 +118,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_DimWorld_GetTorqueVectoringSwitch(world);
     struct ErrorTable *     error_table = App_DimWorld_GetErrorTable(world);
     struct BoardStatusLeds *board_status_leds =
-        App_DimWorld_GetBoardStatuLeds(world);
+        App_DimWorld_GetBoardStatusLeds(world);
 
     uint32_t buffer;
 
