@@ -3,8 +3,10 @@
 
 extern "C"
 {
+#include "Io_SharedErrorTable.h"
 #include "App_SharedErrorTable.h"
 #include "App_SharedMacros.h"
+#include "App_CanMsgs.h"
 }
 
 class SharedErrorTableTest : public testing::Test
@@ -123,6 +125,8 @@ class SharedErrorTableTest : public testing::Test
     struct ErrorTable *   error_table;
     struct ErrorList      error_list;
     struct ErrorBoardList board_list;
+    struct CanMsg         can_msg;
+    bool                  is_set;
 };
 
 TEST_F(SharedErrorTableTest, board_does_not_exist_in_list)
@@ -752,5 +756,497 @@ TEST_F(
     for (auto board : GetAllBoards())
     {
         ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, board));
+    }
+}
+
+TEST_F(SharedErrorTableTest, process_bms_non_critical_errors)
+{
+    // A list of BMS non-critical error IDs. This must be maintained manually as
+    // errors are added to/removed from the DBC!
+    std::vector<enum ErrorId> bms_non_critical_error_ids = {
+        BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
+        BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ,
+        BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX,
+        BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX,
+        BMS_NON_CRITICAL_WATCHDOG_TIMEOUT
+    };
+
+    // Give errors non-zero value to indicate they are set. This must be
+    // maintained manually as errors are added to/removed from the DBC!
+    const struct CanMsgs_bms_non_critical_errors_t data = {
+        .stack_watermark_above_threshold_task1_hz  = 1,
+        .stack_watermark_above_threshold_task1_khz = 1,
+        .stack_watermark_above_threshold_taskcanrx = 1,
+        .stack_watermark_above_threshold_taskcantx = 1,
+        .watchdog_timeout                          = 1,
+    };
+
+    // Prepare the CAN message containing the errors (Note: DLC isn't set
+    // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
+    can_msg.std_id = CANMSGS_BMS_NON_CRITICAL_ERRORS_FRAME_ID;
+    App_CanMsgs_bms_non_critical_errors_pack(
+        can_msg.data, &data, CANMSGS_BMS_NON_CRITICAL_ERRORS_LENGTH);
+
+    // Update the error table using the given CAN message
+    Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
+
+    // Check that we can retrieve the correct board from the error table
+    App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
+        error_table, &board_list);
+    ASSERT_EQ(1, board_list.num_boards);
+    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, BMS));
+
+    // Check that we can retrieve the correct errors from the error table
+    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
+    ASSERT_EQ(bms_non_critical_error_ids.size(), error_list.num_errors);
+    for (auto &error_id : bms_non_critical_error_ids)
+    {
+        ASSERT_EQ(
+            EXIT_CODE_OK,
+            App_SharedErrorTable_IsErrorSet(error_table, error_id, &is_set));
+        ASSERT_TRUE(is_set);
+    }
+}
+
+TEST_F(SharedErrorTableTest, process_bms_critical_errors)
+{
+    // A list of BMS critical error IDs. This must be maintained manually as
+    // errors are added to/removed from the DBC!
+    std::vector<enum ErrorId> bms_critical_error_ids = {
+        BMS_CRITICAL_CHARGER_DISCONNECTED_IN_CHARGE_STATE,
+    };
+
+    // Give errors non-zero value to indicate they are set. This must be
+    // maintained manually as errors are added to/removed from the DBC!
+    const struct CanMsgs_bms_critical_errors_t data = {
+        .charger_disconnected_in_charge_state = 1,
+    };
+
+    // Prepare the CAN message containing the errors (Note: DLC isn't set
+    // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
+    can_msg.std_id = CANMSGS_BMS_CRITICAL_ERRORS_FRAME_ID;
+    App_CanMsgs_bms_critical_errors_pack(
+        can_msg.data, &data, CANMSGS_BMS_CRITICAL_ERRORS_LENGTH);
+
+    // Update the error table using the given CAN message
+    Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
+
+    // Check that we can retrieve the correct board from the error table
+    App_SharedErrorTable_GetBoardsWithCriticalErrors(error_table, &board_list);
+    ASSERT_EQ(1, board_list.num_boards);
+    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, BMS));
+
+    // Check that we can retrieve the correct errors from the error table
+    App_SharedErrorTable_GetAllCriticalErrors(error_table, &error_list);
+    ASSERT_EQ(bms_critical_error_ids.size(), error_list.num_errors);
+    for (auto &error_id : bms_critical_error_ids)
+    {
+        ASSERT_EQ(
+            EXIT_CODE_OK,
+            App_SharedErrorTable_IsErrorSet(error_table, error_id, &is_set));
+        ASSERT_TRUE(is_set);
+    }
+}
+
+TEST_F(SharedErrorTableTest, process_dcm_non_critical_errors)
+{
+    // A list of DCM non-critical error IDs. This must be maintained manually as
+    // errors are added to/removed from the DBC!
+    std::vector<enum ErrorId> dcm_non_critical_error_ids = {
+        DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
+        DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ,
+        DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX,
+        DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX,
+        DCM_NON_CRITICAL_WATCHDOG_TIMEOUT
+    };
+
+    // Give errors non-zero value to indicate they are set. This must be
+    // maintained manually as errors are added to/removed from the DBC!
+    const struct CanMsgs_dcm_non_critical_errors_t data = {
+        .stack_watermark_above_threshold_task1_hz  = 1,
+        .stack_watermark_above_threshold_task1_khz = 1,
+        .stack_watermark_above_threshold_taskcanrx = 1,
+        .stack_watermark_above_threshold_taskcantx = 1,
+        .watchdog_timeout                          = 1,
+    };
+
+    // Prepare the CAN message containing the errors (Note: DLC isn't set
+    // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
+    can_msg.std_id = CANMSGS_DCM_NON_CRITICAL_ERRORS_FRAME_ID;
+    App_CanMsgs_dcm_non_critical_errors_pack(
+        can_msg.data, &data, CANMSGS_DCM_NON_CRITICAL_ERRORS_LENGTH);
+
+    // Update the error table using the given CAN message
+    Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
+
+    // Check that we can retrieve the correct board from the error table
+    App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
+        error_table, &board_list);
+    ASSERT_EQ(1, board_list.num_boards);
+    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, DCM));
+
+    // Check that we can retrieve the correct errors from the error table
+    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
+    ASSERT_EQ(dcm_non_critical_error_ids.size(), error_list.num_errors);
+    for (auto &error_id : dcm_non_critical_error_ids)
+    {
+        ASSERT_EQ(
+            EXIT_CODE_OK,
+            App_SharedErrorTable_IsErrorSet(error_table, error_id, &is_set));
+        ASSERT_TRUE(is_set);
+    }
+}
+
+TEST_F(SharedErrorTableTest, process_dcm_critical_errors)
+{
+    // A list of DCM critical error IDs. This must be maintained manually as
+    // errors are added to/removed from the DBC!
+    std::vector<enum ErrorId> dcm_critical_error_ids = {
+        DCM_CRITICAL_DUMMY,
+    };
+
+    // Give errors non-zero value to indicate they are set. This must be
+    // maintained manually as errors are added to/removed from the DBC!
+    const struct CanMsgs_dcm_critical_errors_t data = {
+        .dummy_critical_error = 1,
+    };
+
+    // Prepare the CAN message containing the errors (Note: DLC isn't set
+    // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
+    can_msg.std_id = CANMSGS_DCM_CRITICAL_ERRORS_FRAME_ID;
+    App_CanMsgs_dcm_critical_errors_pack(
+        can_msg.data, &data, CANMSGS_DCM_CRITICAL_ERRORS_LENGTH);
+
+    // Update the error table using the given CAN message
+    Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
+
+    // Check that we can retrieve the correct board from the error table
+    App_SharedErrorTable_GetBoardsWithCriticalErrors(error_table, &board_list);
+    ASSERT_EQ(1, board_list.num_boards);
+    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, DCM));
+
+    // Check that we can retrieve the correct errors from the error table
+    App_SharedErrorTable_GetAllCriticalErrors(error_table, &error_list);
+    ASSERT_EQ(dcm_critical_error_ids.size(), error_list.num_errors);
+    for (auto &error_id : dcm_critical_error_ids)
+    {
+        ASSERT_EQ(
+            EXIT_CODE_OK,
+            App_SharedErrorTable_IsErrorSet(error_table, error_id, &is_set));
+        ASSERT_TRUE(is_set);
+    }
+}
+
+TEST_F(SharedErrorTableTest, process_dim_non_critical_errors)
+{
+    // A list of DIM non-critical error IDs. This must be maintained manually as
+    // errors are added to/removed from the DBC!
+    std::vector<enum ErrorId> dim_non_critical_error_ids = {
+        DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
+        DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ,
+        DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX,
+        DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX,
+        DIM_NON_CRITICAL_WATCHDOG_TIMEOUT,
+    };
+
+    // Give errors non-zero value to indicate they are set. This must be
+    // maintained manually as errors are added to/removed from the DBC!
+    const struct CanMsgs_dim_non_critical_errors_t data = {
+        .stack_watermark_above_threshold_task1_hz   = 1,
+        .stack_watermark_above_threshold_task100_hz = 1,
+        .stack_watermark_above_threshold_task1_khz  = 1,
+        .stack_watermark_above_threshold_taskcanrx  = 1,
+        .stack_watermark_above_threshold_taskcantx  = 1,
+        .watchdog_timeout                           = 1,
+    };
+
+    // Prepare the CAN message containing the errors (Note: DLC isn't set
+    // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
+    can_msg.std_id = CANMSGS_DIM_NON_CRITICAL_ERRORS_FRAME_ID;
+    App_CanMsgs_dim_non_critical_errors_pack(
+        can_msg.data, &data, CANMSGS_DIM_NON_CRITICAL_ERRORS_LENGTH);
+
+    // Update the error table using the given CAN message
+    Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
+
+    // Check that we can retrieve the correct board from the error table
+    App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
+        error_table, &board_list);
+    ASSERT_EQ(1, board_list.num_boards);
+    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, DIM));
+
+    // Check that we can retrieve the correct errors from the error table
+    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
+    ASSERT_EQ(dim_non_critical_error_ids.size(), error_list.num_errors);
+    for (auto &error_id : dim_non_critical_error_ids)
+    {
+        ASSERT_EQ(
+            EXIT_CODE_OK,
+            App_SharedErrorTable_IsErrorSet(error_table, error_id, &is_set));
+        ASSERT_TRUE(is_set);
+    }
+}
+
+TEST_F(SharedErrorTableTest, process_dim_critical_errors)
+{
+    // A list of DIM critical error IDs. This must be maintained manually as
+    // errors are added to/removed from the DBC!
+    std::vector<enum ErrorId> dim_critical_error_ids = {
+        DIM_CRITICAL_DUMMY,
+    };
+
+    // Give errors non-zero value to indicate they are set. This must be
+    // maintained manually as errors are added to/removed from the DBC!
+    const struct CanMsgs_dim_critical_errors_t data = {
+        .dummy_critical_error = 1,
+    };
+
+    // Prepare the CAN message containing the errors (Note: DLC isn't set
+    // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
+    can_msg.std_id = CANMSGS_DIM_CRITICAL_ERRORS_FRAME_ID;
+    App_CanMsgs_dim_critical_errors_pack(
+        can_msg.data, &data, CANMSGS_DIM_CRITICAL_ERRORS_LENGTH);
+
+    // Update the error table using the given CAN message
+    Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
+
+    // Check that we can retrieve the correct board from the error table
+    App_SharedErrorTable_GetBoardsWithCriticalErrors(error_table, &board_list);
+    ASSERT_EQ(1, board_list.num_boards);
+    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, DIM));
+
+    // Check that we can retrieve the correct errors from the error table
+    App_SharedErrorTable_GetAllCriticalErrors(error_table, &error_list);
+    ASSERT_EQ(dim_critical_error_ids.size(), error_list.num_errors);
+    for (auto &error_id : dim_critical_error_ids)
+    {
+        ASSERT_EQ(
+            EXIT_CODE_OK,
+            App_SharedErrorTable_IsErrorSet(error_table, error_id, &is_set));
+        ASSERT_TRUE(is_set);
+    }
+}
+
+TEST_F(SharedErrorTableTest, process_fsm_non_critical_errors)
+{
+    // A list of FSM non-critical error IDs. This must be maintained manually as
+    // errors are added to/removed from the DBC!
+    std::vector<enum ErrorId> fsm_non_critical_error_ids = {
+        FSM_NON_CRITICAL_PAPPS_OUT_OF_RANGE,
+        FSM_NON_CRITICAL_SAPPS_OUT_OF_RANGE,
+        FSM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
+        FSM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ,
+        FSM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX,
+        FSM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX,
+        FSM_NON_CRITICAL_WATCHDOG_TIMEOUT,
+        FSM_NON_CRITICAL_BSPD_FAULT,
+        FSM_NON_CRITICAL_LEFT_WHEEL_SPEED_OUT_OF_RANGE,
+        FSM_NON_CRITICAL_RIGHT_WHEEL_SPEED_OUT_OF_RANGE,
+        FSM_NON_CRITICAL_PRIMARY_FLOW_RATE_OUT_OF_RANGE,
+        FSM_NON_CRITICAL_SECONDARY_FLOW_RATE_OUT_OF_RANGE,
+    };
+
+    // Give errors non-zero value to indicate they are set. This must be
+    // maintained manually as errors are added to/removed from the DBC!
+    const struct CanMsgs_fsm_non_critical_errors_t data = {
+        .papps_out_of_range                        = 1,
+        .sapps_out_of_range                        = 1,
+        .stack_watermark_above_threshold_task1_hz  = 1,
+        .stack_watermark_above_threshold_task1_khz = 1,
+        .stack_watermark_above_threshold_taskcanrx = 1,
+        .stack_watermark_above_threshold_taskcantx = 1,
+        .watchdog_timeout                          = 1,
+        .bspd_fault                                = 1,
+        .left_wheel_speed_out_of_range             = 1,
+        .right_wheel_speed_out_of_range            = 1,
+        .primary_flow_rate_out_of_range            = 1,
+        .secondary_flow_rate_out_of_range          = 1,
+        .steering_angle_out_of_range               = 1,
+        .brake_pressure_out_of_range               = 1,
+    };
+
+    // Prepare the CAN message containing the errors (Note: DLC isn't set
+    // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
+    can_msg.std_id = CANMSGS_FSM_NON_CRITICAL_ERRORS_FRAME_ID;
+    App_CanMsgs_fsm_non_critical_errors_pack(
+        can_msg.data, &data, CANMSGS_FSM_NON_CRITICAL_ERRORS_LENGTH);
+
+    // Update the error table using the given CAN message
+    Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
+
+    // Check that we can retrieve the correct board from the error table
+    App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
+        error_table, &board_list);
+    ASSERT_EQ(1, board_list.num_boards);
+    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, FSM));
+
+    // Check that we can retrieve the correct errors from the error table
+    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
+    ASSERT_EQ(fsm_non_critical_error_ids.size(), error_list.num_errors);
+    for (auto &error_id : fsm_non_critical_error_ids)
+    {
+        ASSERT_EQ(
+            EXIT_CODE_OK,
+            App_SharedErrorTable_IsErrorSet(error_table, error_id, &is_set));
+        ASSERT_TRUE(is_set);
+    }
+}
+
+TEST_F(SharedErrorTableTest, process_fsm_critical_errors)
+{
+    // A list of FSM critical error IDs. This must be maintained manually as
+    // errors are added to/removed from the DBC!
+    std::vector<enum ErrorId> fsm_critical_error_ids = {
+        FSM_CRITICAL_DUMMY,
+    };
+
+    // Give errors non-zero value to indicate they are set. This must be
+    // maintained manually as errors are added to/removed from the DBC!
+    const struct CanMsgs_fsm_critical_errors_t data = {
+        .dummy_critical_error = 1,
+    };
+
+    // Prepare the CAN message containing the errors (Note: DLC isn't set
+    // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
+    can_msg.std_id = CANMSGS_FSM_CRITICAL_ERRORS_FRAME_ID;
+    App_CanMsgs_fsm_critical_errors_pack(
+        can_msg.data, &data, CANMSGS_FSM_CRITICAL_ERRORS_LENGTH);
+
+    // Update the error table using the given CAN message
+    Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
+
+    // Check that we can retrieve the correct board from the error table
+    App_SharedErrorTable_GetBoardsWithCriticalErrors(error_table, &board_list);
+    ASSERT_EQ(1, board_list.num_boards);
+    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, FSM));
+
+    // Check that we can retrieve the correct errors from the error table
+    App_SharedErrorTable_GetAllCriticalErrors(error_table, &error_list);
+    ASSERT_EQ(fsm_critical_error_ids.size(), error_list.num_errors);
+    for (auto &error_id : fsm_critical_error_ids)
+    {
+        ASSERT_EQ(
+            EXIT_CODE_OK,
+            App_SharedErrorTable_IsErrorSet(error_table, error_id, &is_set));
+        ASSERT_TRUE(is_set);
+    }
+}
+
+TEST_F(SharedErrorTableTest, process_pdm_non_critical_errors)
+{
+    // A list of PDM non-critical error IDs. This must be maintained manually as
+    // errors are added to/removed from the DBC!
+    std::vector<enum ErrorId> pdm_non_critical_error_ids = {
+        PDM_NON_CRITICAL_MISSING_HEARTBEAT,
+        PDM_NON_CRITICAL_BOOST_PGOOD_FAULT,
+        PDM_NON_CRITICAL_CELL_BALANCE_OVERVOLTAGE_FAULT,
+        PDM_NON_CRITICAL_CHARGER_FAULT,
+        PDM_NON_CRITICAL_EFUSE_FAULT,
+        PDM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
+        PDM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ,
+        PDM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX,
+        PDM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX,
+        PDM_NON_CRITICAL_WATCHDOG_TIMEOUT,
+        PDM_NON_CRITICAL_VBAT_VOLTAGE_OUT_OF_RANGE,
+        PDM_NON_CRITICAL__24V_AUX_VOLTAGE_OUT_OF_RANGE,
+        PDM_NON_CRITICAL__24V_ACC_VOLTAGE_OUT_OF_RANGE,
+        PDM_NON_CRITICAL_AUX1_CURRENT_OUT_OF_RANGE,
+        PDM_NON_CRITICAL_AUX2_CURRENT_OUT_OF_RANGE,
+        PDM_NON_CRITICAL_LEFT_INVERTER_CURRENT_OUT_OF_RANGE,
+        PDM_NON_CRITICAL_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE,
+        PDM_NON_CRITICAL_ENERGY_METER_CURRENT_OUT_OF_RANGE,
+        PDM_NON_CRITICAL_CAN_CURRENT_OUT_OF_RANGE,
+        PDM_NON_CRITICAL_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE,
+    };
+
+    // Give errors non-zero value to indicate they are set. This must be
+    // maintained manually as errors are added to/removed from the DBC!
+    const struct CanMsgs_pdm_non_critical_errors_t data = {
+        .missing_heartbeat                         = 1,
+        .boost_pgood_fault                         = 1,
+        .cell_balance_overvoltage_fault            = 1,
+        .charger_fault                             = 1,
+        .efuse_fault                               = 1,
+        .stack_watermark_above_threshold_task1_hz  = 1,
+        .stack_watermark_above_threshold_task1_khz = 1,
+        .stack_watermark_above_threshold_taskcanrx = 1,
+        .stack_watermark_above_threshold_taskcantx = 1,
+        .watchdog_timeout                          = 1,
+        .vbat_voltage_out_of_range                 = 1,
+        ._24_v_aux_voltage_out_of_range            = 1,
+        ._24_v_acc_voltage_out_of_range            = 1,
+        .aux1_current_out_of_range                 = 1,
+        .aux2_current_out_of_range                 = 1,
+        .left_inverter_current_out_of_range        = 1,
+        .right_inverter_current_out_of_range       = 1,
+        .energy_meter_current_out_of_range         = 1,
+        .can_current_out_of_range                  = 1,
+        .air_shutdown_current_out_of_range         = 1,
+    };
+
+    // Prepare the CAN message containing the errors (Note: DLC isn't set
+    // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
+    can_msg.std_id = CANMSGS_PDM_NON_CRITICAL_ERRORS_FRAME_ID;
+    App_CanMsgs_pdm_non_critical_errors_pack(
+        can_msg.data, &data, CANMSGS_PDM_NON_CRITICAL_ERRORS_LENGTH);
+
+    // Update the error table using the given CAN message
+    Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
+
+    // Check that we can retrieve the correct board from the error table
+    App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
+        error_table, &board_list);
+    ASSERT_EQ(1, board_list.num_boards);
+    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, PDM));
+
+    // Check that we can retrieve the correct errors from the error table
+    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
+    ASSERT_EQ(pdm_non_critical_error_ids.size(), error_list.num_errors);
+    for (auto &error_id : pdm_non_critical_error_ids)
+    {
+        ASSERT_EQ(
+            EXIT_CODE_OK,
+            App_SharedErrorTable_IsErrorSet(error_table, error_id, &is_set));
+        ASSERT_TRUE(is_set);
+    }
+}
+
+TEST_F(SharedErrorTableTest, process_pdm_critical_errors)
+{
+    // A list of PDM critical error IDs. This must be maintained manually as
+    // errors are added to/removed from the DBC!
+    std::vector<enum ErrorId> pdm_critical_error_ids = {
+        PDM_CRITICAL_DUMMY,
+    };
+
+    // Give errors non-zero value to indicate they are set. This must be
+    // maintained manually as errors are added to/removed from the DBC!
+    const struct CanMsgs_pdm_critical_errors_t data = {
+        .dummy_critical_error = 1,
+    };
+
+    // Prepare the CAN message containing the errors (Note: DLC isn't set
+    // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
+    can_msg.std_id = CANMSGS_PDM_CRITICAL_ERRORS_FRAME_ID;
+    App_CanMsgs_pdm_critical_errors_pack(
+        can_msg.data, &data, CANMSGS_PDM_CRITICAL_ERRORS_LENGTH);
+
+    // Update the error table using the given CAN message
+    Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
+
+    // Check that we can retrieve the correct board from the error table
+    App_SharedErrorTable_GetBoardsWithCriticalErrors(error_table, &board_list);
+    ASSERT_EQ(1, board_list.num_boards);
+    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, PDM));
+
+    // Check that we can retrieve the correct errors from the error table
+    App_SharedErrorTable_GetAllCriticalErrors(error_table, &error_list);
+    ASSERT_EQ(pdm_critical_error_ids.size(), error_list.num_errors);
+    for (auto &error_id : pdm_critical_error_ids)
+    {
+        ASSERT_EQ(
+            EXIT_CODE_OK,
+            App_SharedErrorTable_IsErrorSet(error_table, error_id, &is_set));
+        ASSERT_TRUE(is_set);
     }
 }
