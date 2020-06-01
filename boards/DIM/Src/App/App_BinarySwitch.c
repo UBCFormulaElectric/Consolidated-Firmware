@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <assert.h>
-#include "../../Inc/App/App_BinarySwitch.h"
+#include "App_BinarySwitch.h"
 
 struct BinarySwitch
 {
