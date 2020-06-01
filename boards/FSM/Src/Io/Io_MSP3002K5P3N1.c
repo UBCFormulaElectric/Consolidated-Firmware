@@ -1,19 +1,12 @@
-#include <stm32f3xx_hal.h>
+#include <stdbool.h>
 #include "Io_Adc.h"
-#include "Io_MSP3002K5P3N1.h"
 #include "main.h"
 
-enum BrakeStatus Io_MSP3002K5P3N1_GetBrakeStatus(void)
+bool Io_MSP3002K5P3N1_BrakeIsActuated(void)
 {
-    if (HAL_GPIO_ReadPin(BSPD_BRAKE_STATUS_GPIO_Port, BSPD_BRAKE_STATUS_Pin) ==
-        GPIO_PIN_SET)
-    {
-        return BRAKE_ACTIVE;
-    }
-    else
-    {
-        return BRAKE_INACTIVE;
-    }
+    return (
+        HAL_GPIO_ReadPin(BSPD_BRAKE_STATUS_GPIO_Port, BSPD_BRAKE_STATUS_Pin) ==
+        GPIO_PIN_SET);
 }
 
 float Io_MSP3002K5P3N1_GetPressurePsi(void)

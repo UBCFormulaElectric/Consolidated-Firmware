@@ -4,6 +4,7 @@
 extern "C"
 {
 #include "App_InRangeCheck.h"
+#include "App_BinarySwitch.h"
 #include "App_SharedStateMachine.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "states/App_AirOpenState.h"
@@ -41,6 +42,7 @@ FAKE_VALUE_FUNC(float, get_left_wheel_speed);
 FAKE_VALUE_FUNC(float, get_right_wheel_speed);
 FAKE_VALUE_FUNC(float, get_steering_angle);
 FAKE_VALUE_FUNC(float, get_brake_pressure);
+FAKE_VALUE_FUNC(bool, get_brake_actuation_status);
 
 class FsmStateMachineTest : public testing::Test
 {
@@ -83,12 +85,14 @@ class FsmStateMachineTest : public testing::Test
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
+        brake_actuation_status = App_BinarySwitch_Create(get_brake_actuation_status);
+
         world = App_FsmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
             primary_flow_rate_in_range_check,
             secondary_flow_rate_in_range_check, left_wheel_speed_in_range_check,
             right_wheel_speed_in_range_check, steering_angle_in_range_check,
-            brake_pressure_in_range_check, rgb_led_sequence);
+            brake_pressure_in_range_check, brake_actuation_status, rgb_led_sequence);
 
         // Default to starting the state machine in the `AIR_OPEN` state
         state_machine =
@@ -109,6 +113,7 @@ class FsmStateMachineTest : public testing::Test
         RESET_FAKE(get_right_wheel_speed);
         RESET_FAKE(get_steering_angle);
         RESET_FAKE(get_brake_pressure);
+        RESET_FAKE(get_brake_actuation_status);
     }
 
     void TearDown() override
@@ -128,6 +133,7 @@ class FsmStateMachineTest : public testing::Test
             secondary_flow_rate_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(steering_angle_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(brake_pressure_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(brake_actuation_status, App_BinarySwitch_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
     }
 
@@ -197,6 +203,7 @@ class FsmStateMachineTest : public testing::Test
     struct InRangeCheck *     right_wheel_speed_in_range_check;
     struct InRangeCheck *     steering_angle_in_range_check;
     struct InRangeCheck *     brake_pressure_in_range_check;
+    struct BinarySwitch * brake_actuation_status;
     struct RgbLedSequence *   rgb_led_sequence;
 };
 
@@ -296,6 +303,8 @@ TEST_F(FsmStateMachineTest, check_brake_pressure_can_signals_in_all_states)
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
+
+//TEST_F(FSM)
 
 TEST_F(FsmStateMachineTest, rgb_led_sequence_in_all_states)
 {
