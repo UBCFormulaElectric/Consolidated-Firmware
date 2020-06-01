@@ -771,15 +771,11 @@ TEST_F(SharedErrorTableTest, process_bms_non_critical_errors)
         BMS_NON_CRITICAL_WATCHDOG_TIMEOUT
     };
 
-    // Give errors non-zero value to indicate they are set. This must be
-    // maintained manually as errors are added to/removed from the DBC!
-    const struct CanMsgs_bms_non_critical_errors_t data = {
-        .stack_watermark_above_threshold_task1_hz  = 1,
-        .stack_watermark_above_threshold_task1_khz = 1,
-        .stack_watermark_above_threshold_taskcanrx = 1,
-        .stack_watermark_above_threshold_taskcantx = 1,
-        .watchdog_timeout                          = 1,
-    };
+    // Each struct member that has a non-zero value indicates an error that is
+    // set. For this test, we want every error to be set. Instead of setting
+    // each struct member manually, we're going to "cheat" using memset().
+    struct CanMsgs_bms_non_critical_errors_t data;
+    memset(&data, 1, sizeof(struct CanMsgs_bms_non_critical_errors_t));
 
     // Prepare the CAN message containing the errors (Note: DLC isn't set
     // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
@@ -816,11 +812,11 @@ TEST_F(SharedErrorTableTest, process_bms_critical_errors)
         BMS_CRITICAL_CHARGER_DISCONNECTED_IN_CHARGE_STATE,
     };
 
-    // Give errors non-zero value to indicate they are set. This must be
-    // maintained manually as errors are added to/removed from the DBC!
-    const struct CanMsgs_bms_critical_errors_t data = {
-        .charger_disconnected_in_charge_state = 1,
-    };
+    // Each struct member that has a non-zero value indicates an error that is
+    // set. For this test, we want every error to be set. Instead of setting
+    // each struct member manually, we're going to "cheat" using memset().
+    struct CanMsgs_bms_critical_errors_t data;
+    memset(&data, 1, sizeof(struct CanMsgs_bms_critical_errors_t));
 
     // Prepare the CAN message containing the errors (Note: DLC isn't set
     // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
@@ -860,15 +856,11 @@ TEST_F(SharedErrorTableTest, process_dcm_non_critical_errors)
         DCM_NON_CRITICAL_WATCHDOG_TIMEOUT
     };
 
-    // Give errors non-zero value to indicate they are set. This must be
-    // maintained manually as errors are added to/removed from the DBC!
-    const struct CanMsgs_dcm_non_critical_errors_t data = {
-        .stack_watermark_above_threshold_task1_hz  = 1,
-        .stack_watermark_above_threshold_task1_khz = 1,
-        .stack_watermark_above_threshold_taskcanrx = 1,
-        .stack_watermark_above_threshold_taskcantx = 1,
-        .watchdog_timeout                          = 1,
-    };
+    // Each struct member that has a non-zero value indicates an error that is
+    // set. For this test, we want every error to be set. Instead of setting
+    // each struct member manually, we're going to "cheat" using memset().
+    struct CanMsgs_dcm_non_critical_errors_t data;
+    memset(&data, 1, sizeof(struct CanMsgs_dcm_non_critical_errors_t));
 
     // Prepare the CAN message containing the errors (Note: DLC isn't set
     // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
@@ -905,11 +897,11 @@ TEST_F(SharedErrorTableTest, process_dcm_critical_errors)
         DCM_CRITICAL_DUMMY,
     };
 
-    // Give errors non-zero value to indicate they are set. This must be
-    // maintained manually as errors are added to/removed from the DBC!
-    const struct CanMsgs_dcm_critical_errors_t data = {
-        .dummy_critical_error = 1,
-    };
+    // Each struct member that has a non-zero value indicates an error that is
+    // set. For this test, we want every error to be set. Instead of setting
+    // each struct member manually, we're going to "cheat" using memset().
+    struct CanMsgs_dcm_critical_errors_t data;
+    memset(&data, 1, sizeof(struct CanMsgs_dcm_critical_errors_t));
 
     // Prepare the CAN message containing the errors (Note: DLC isn't set
     // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
@@ -949,16 +941,11 @@ TEST_F(SharedErrorTableTest, process_dim_non_critical_errors)
         DIM_NON_CRITICAL_WATCHDOG_TIMEOUT,
     };
 
-    // Give errors non-zero value to indicate they are set. This must be
-    // maintained manually as errors are added to/removed from the DBC!
-    const struct CanMsgs_dim_non_critical_errors_t data = {
-        .stack_watermark_above_threshold_task1_hz   = 1,
-        .stack_watermark_above_threshold_task100_hz = 1,
-        .stack_watermark_above_threshold_task1_khz  = 1,
-        .stack_watermark_above_threshold_taskcanrx  = 1,
-        .stack_watermark_above_threshold_taskcantx  = 1,
-        .watchdog_timeout                           = 1,
-    };
+    // Each struct member that has a non-zero value indicates an error that is
+    // set. For this test, we want every error to be set. Instead of setting
+    // each struct member manually, we're going to "cheat" using memset().
+    struct CanMsgs_dim_non_critical_errors_t data;
+    memset(&data, 1, sizeof(struct CanMsgs_dim_non_critical_errors_t));
 
     // Prepare the CAN message containing the errors (Note: DLC isn't set
     // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
@@ -995,11 +982,11 @@ TEST_F(SharedErrorTableTest, process_dim_critical_errors)
         DIM_CRITICAL_DUMMY,
     };
 
-    // Give errors non-zero value to indicate they are set. This must be
-    // maintained manually as errors are added to/removed from the DBC!
-    const struct CanMsgs_dim_critical_errors_t data = {
-        .dummy_critical_error = 1,
-    };
+    // Each struct member that has a non-zero value indicates an error that is
+    // set. For this test, we want every error to be set. Instead of setting
+    // each struct member manually, we're going to "cheat" using memset().
+    struct CanMsgs_dim_critical_errors_t data;
+    memset(&data, 1, sizeof(struct CanMsgs_dim_critical_errors_t));
 
     // Prepare the CAN message containing the errors (Note: DLC isn't set
     // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
@@ -1046,24 +1033,11 @@ TEST_F(SharedErrorTableTest, process_fsm_non_critical_errors)
         FSM_NON_CRITICAL_SECONDARY_FLOW_RATE_OUT_OF_RANGE,
     };
 
-    // Give errors non-zero value to indicate they are set. This must be
-    // maintained manually as errors are added to/removed from the DBC!
-    const struct CanMsgs_fsm_non_critical_errors_t data = {
-        .papps_out_of_range                        = 1,
-        .sapps_out_of_range                        = 1,
-        .stack_watermark_above_threshold_task1_hz  = 1,
-        .stack_watermark_above_threshold_task1_khz = 1,
-        .stack_watermark_above_threshold_taskcanrx = 1,
-        .stack_watermark_above_threshold_taskcantx = 1,
-        .watchdog_timeout                          = 1,
-        .bspd_fault                                = 1,
-        .left_wheel_speed_out_of_range             = 1,
-        .right_wheel_speed_out_of_range            = 1,
-        .primary_flow_rate_out_of_range            = 1,
-        .secondary_flow_rate_out_of_range          = 1,
-        .steering_angle_out_of_range               = 1,
-        .brake_pressure_out_of_range               = 1,
-    };
+    // Each struct member that has a non-zero value indicates an error that is
+    // set. For this test, we want every error to be set. Instead of setting
+    // each struct member manually, we're going to "cheat" using memset().
+    struct CanMsgs_fsm_non_critical_errors_t data;
+    memset(&data, 1, sizeof(struct CanMsgs_fsm_non_critical_errors_t));
 
     // Prepare the CAN message containing the errors (Note: DLC isn't set
     // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
@@ -1100,11 +1074,11 @@ TEST_F(SharedErrorTableTest, process_fsm_critical_errors)
         FSM_CRITICAL_DUMMY,
     };
 
-    // Give errors non-zero value to indicate they are set. This must be
-    // maintained manually as errors are added to/removed from the DBC!
-    const struct CanMsgs_fsm_critical_errors_t data = {
-        .dummy_critical_error = 1,
-    };
+    // Each struct member that has a non-zero value indicates an error that is
+    // set. For this test, we want every error to be set. Instead of setting
+    // each struct member manually, we're going to "cheat" using memset().
+    struct CanMsgs_fsm_critical_errors_t data;
+    memset(&data, 1, sizeof(struct CanMsgs_fsm_critical_errors_t));
 
     // Prepare the CAN message containing the errors (Note: DLC isn't set
     // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
@@ -1159,30 +1133,11 @@ TEST_F(SharedErrorTableTest, process_pdm_non_critical_errors)
         PDM_NON_CRITICAL_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE,
     };
 
-    // Give errors non-zero value to indicate they are set. This must be
-    // maintained manually as errors are added to/removed from the DBC!
-    const struct CanMsgs_pdm_non_critical_errors_t data = {
-        .missing_heartbeat                         = 1,
-        .boost_pgood_fault                         = 1,
-        .cell_balance_overvoltage_fault            = 1,
-        .charger_fault                             = 1,
-        .efuse_fault                               = 1,
-        .stack_watermark_above_threshold_task1_hz  = 1,
-        .stack_watermark_above_threshold_task1_khz = 1,
-        .stack_watermark_above_threshold_taskcanrx = 1,
-        .stack_watermark_above_threshold_taskcantx = 1,
-        .watchdog_timeout                          = 1,
-        .vbat_voltage_out_of_range                 = 1,
-        ._24_v_aux_voltage_out_of_range            = 1,
-        ._24_v_acc_voltage_out_of_range            = 1,
-        .aux1_current_out_of_range                 = 1,
-        .aux2_current_out_of_range                 = 1,
-        .left_inverter_current_out_of_range        = 1,
-        .right_inverter_current_out_of_range       = 1,
-        .energy_meter_current_out_of_range         = 1,
-        .can_current_out_of_range                  = 1,
-        .air_shutdown_current_out_of_range         = 1,
-    };
+    // Each struct member that has a non-zero value indicates an error that is
+    // set. For this test, we want every error to be set. Instead of setting
+    // each struct member manually, we're going to "cheat" using memset().
+    struct CanMsgs_pdm_non_critical_errors_t data;
+    memset(&data, 1, sizeof(struct CanMsgs_pdm_non_critical_errors_t));
 
     // Prepare the CAN message containing the errors (Note: DLC isn't set
     // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
@@ -1219,11 +1174,11 @@ TEST_F(SharedErrorTableTest, process_pdm_critical_errors)
         PDM_CRITICAL_DUMMY,
     };
 
-    // Give errors non-zero value to indicate they are set. This must be
-    // maintained manually as errors are added to/removed from the DBC!
-    const struct CanMsgs_pdm_critical_errors_t data = {
-        .dummy_critical_error = 1,
-    };
+    // Each struct member that has a non-zero value indicates an error that is
+    // set. For this test, we want every error to be set. Instead of setting
+    // each struct member manually, we're going to "cheat" using memset().
+    struct CanMsgs_pdm_critical_errors_t data;
+    memset(&data, 1, sizeof(struct CanMsgs_pdm_critical_errors_t));
 
     // Prepare the CAN message containing the errors (Note: DLC isn't set
     // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
