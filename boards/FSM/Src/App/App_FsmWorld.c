@@ -15,7 +15,7 @@ struct FsmWorld
     struct InRangeCheck *     right_wheel_speed_in_range_check;
     struct InRangeCheck *     steering_angle_in_range_check;
     struct InRangeCheck *     brake_pressure_in_range_check;
-    struct BinarySwitch *     brake_actuation_status;
+    struct Brake *            brake_actuation_status;
     struct RgbLedSequence *   rgb_led_sequence;
 };
 
@@ -29,7 +29,7 @@ struct FsmWorld *App_FsmWorld_Create(
     struct InRangeCheck *const      right_wheel_speed_in_range_check,
     struct InRangeCheck *const      steering_angle_in_range_check,
     struct InRangeCheck *const      brake_pressure_in_range_check,
-    struct BinarySwitch *const      brake_actuation_status,
+    struct Brake *const             brake_actuation_status,
     struct RgbLedSequence *const    rgb_led_sequence)
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
@@ -110,7 +110,7 @@ struct InRangeCheck *App_FsmWorld_GetBrakePressureInRangeCheck(
     return world->brake_pressure_in_range_check;
 }
 
-struct BinarySwitch *
+struct Brake *
     App_FsmWorld_GetBrakeActuationStatus(const struct FsmWorld *const world)
 {
     return world->brake_actuation_status;
