@@ -777,9 +777,9 @@ TEST_F(SharedErrorTableTest, process_bms_non_critical_errors)
     struct CanMsgs_bms_non_critical_errors_t data;
     memset(&data, 1, sizeof(struct CanMsgs_bms_non_critical_errors_t));
 
-    // Prepare the CAN message containing the errors (Note: DLC isn't set
-    // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
+    // Prepare the CAN message containing the errors
     can_msg.std_id = CANMSGS_BMS_NON_CRITICAL_ERRORS_FRAME_ID;
+    can_msg.dlc    = CANMSGS_BMS_NON_CRITICAL_ERRORS_LENGTH;
     App_CanMsgs_bms_non_critical_errors_pack(
         can_msg.data, &data, CANMSGS_BMS_NON_CRITICAL_ERRORS_LENGTH);
 
@@ -818,9 +818,9 @@ TEST_F(SharedErrorTableTest, process_bms_critical_errors)
     struct CanMsgs_bms_critical_errors_t data;
     memset(&data, 1, sizeof(struct CanMsgs_bms_critical_errors_t));
 
-    // Prepare the CAN message containing the errors (Note: DLC isn't set
-    // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
+    // Prepare the CAN message containing the errors
     can_msg.std_id = CANMSGS_BMS_CRITICAL_ERRORS_FRAME_ID;
+    can_msg.dlc    = CANMSGS_BMS_CRITICAL_ERRORS_LENGTH;
     App_CanMsgs_bms_critical_errors_pack(
         can_msg.data, &data, CANMSGS_BMS_CRITICAL_ERRORS_LENGTH);
 
@@ -862,9 +862,9 @@ TEST_F(SharedErrorTableTest, process_dcm_non_critical_errors)
     struct CanMsgs_dcm_non_critical_errors_t data;
     memset(&data, 1, sizeof(struct CanMsgs_dcm_non_critical_errors_t));
 
-    // Prepare the CAN message containing the errors (Note: DLC isn't set
-    // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
+    // Prepare the CAN message containing the errors
     can_msg.std_id = CANMSGS_DCM_NON_CRITICAL_ERRORS_FRAME_ID;
+    can_msg.dlc    = CANMSGS_DCM_NON_CRITICAL_ERRORS_LENGTH;
     App_CanMsgs_dcm_non_critical_errors_pack(
         can_msg.data, &data, CANMSGS_DCM_NON_CRITICAL_ERRORS_LENGTH);
 
@@ -903,9 +903,9 @@ TEST_F(SharedErrorTableTest, process_dcm_critical_errors)
     struct CanMsgs_dcm_critical_errors_t data;
     memset(&data, 1, sizeof(struct CanMsgs_dcm_critical_errors_t));
 
-    // Prepare the CAN message containing the errors (Note: DLC isn't set
-    // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
+    // Prepare the CAN message containing the errors
     can_msg.std_id = CANMSGS_DCM_CRITICAL_ERRORS_FRAME_ID;
+    can_msg.dlc    = CANMSGS_DCM_CRITICAL_ERRORS_LENGTH;
     App_CanMsgs_dcm_critical_errors_pack(
         can_msg.data, &data, CANMSGS_DCM_CRITICAL_ERRORS_LENGTH);
 
@@ -947,9 +947,9 @@ TEST_F(SharedErrorTableTest, process_dim_non_critical_errors)
     struct CanMsgs_dim_non_critical_errors_t data;
     memset(&data, 1, sizeof(struct CanMsgs_dim_non_critical_errors_t));
 
-    // Prepare the CAN message containing the errors (Note: DLC isn't set
-    // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
+    // Prepare the CAN message containing the errors
     can_msg.std_id = CANMSGS_DIM_NON_CRITICAL_ERRORS_FRAME_ID;
+    can_msg.dlc    = CANMSGS_DIM_NON_CRITICAL_ERRORS_LENGTH;
     App_CanMsgs_dim_non_critical_errors_pack(
         can_msg.data, &data, CANMSGS_DIM_NON_CRITICAL_ERRORS_LENGTH);
 
@@ -988,9 +988,9 @@ TEST_F(SharedErrorTableTest, process_dim_critical_errors)
     struct CanMsgs_dim_critical_errors_t data;
     memset(&data, 1, sizeof(struct CanMsgs_dim_critical_errors_t));
 
-    // Prepare the CAN message containing the errors (Note: DLC isn't set
-    // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
+    // Prepare the CAN message containing the errors
     can_msg.std_id = CANMSGS_DIM_CRITICAL_ERRORS_FRAME_ID;
+    can_msg.dlc    = CANMSGS_DIM_CRITICAL_ERRORS_LENGTH;
     App_CanMsgs_dim_critical_errors_pack(
         can_msg.data, &data, CANMSGS_DIM_CRITICAL_ERRORS_LENGTH);
 
@@ -1039,9 +1039,9 @@ TEST_F(SharedErrorTableTest, process_fsm_non_critical_errors)
     struct CanMsgs_fsm_non_critical_errors_t data;
     memset(&data, 1, sizeof(struct CanMsgs_fsm_non_critical_errors_t));
 
-    // Prepare the CAN message containing the errors (Note: DLC isn't set
-    // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
+    // Prepare the CAN message containing the errors
     can_msg.std_id = CANMSGS_FSM_NON_CRITICAL_ERRORS_FRAME_ID;
+    can_msg.dlc    = CANMSGS_FSM_NON_CRITICAL_ERRORS_LENGTH;
     App_CanMsgs_fsm_non_critical_errors_pack(
         can_msg.data, &data, CANMSGS_FSM_NON_CRITICAL_ERRORS_LENGTH);
 
@@ -1080,9 +1080,9 @@ TEST_F(SharedErrorTableTest, process_fsm_critical_errors)
     struct CanMsgs_fsm_critical_errors_t data;
     memset(&data, 1, sizeof(struct CanMsgs_fsm_critical_errors_t));
 
-    // Prepare the CAN message containing the errors (Note: DLC isn't set
-    // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
+    // Prepare the CAN message containing the errors
     can_msg.std_id = CANMSGS_FSM_CRITICAL_ERRORS_FRAME_ID;
+    can_msg.std_id = CANMSGS_FSM_CRITICAL_ERRORS_LENGTH;
     App_CanMsgs_fsm_critical_errors_pack(
         can_msg.data, &data, CANMSGS_FSM_CRITICAL_ERRORS_LENGTH);
 
@@ -1139,9 +1139,9 @@ TEST_F(SharedErrorTableTest, process_pdm_non_critical_errors)
     struct CanMsgs_pdm_non_critical_errors_t data;
     memset(&data, 1, sizeof(struct CanMsgs_pdm_non_critical_errors_t));
 
-    // Prepare the CAN message containing the errors (Note: DLC isn't set
-    // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
+    // Prepare the CAN message containing the errors
     can_msg.std_id = CANMSGS_PDM_NON_CRITICAL_ERRORS_FRAME_ID;
+    can_msg.dlc    = CANMSGS_PDM_NON_CRITICAL_ERRORS_LENGTH;
     App_CanMsgs_pdm_non_critical_errors_pack(
         can_msg.data, &data, CANMSGS_PDM_NON_CRITICAL_ERRORS_LENGTH);
 
@@ -1180,9 +1180,9 @@ TEST_F(SharedErrorTableTest, process_pdm_critical_errors)
     struct CanMsgs_pdm_critical_errors_t data;
     memset(&data, 1, sizeof(struct CanMsgs_pdm_critical_errors_t));
 
-    // Prepare the CAN message containing the errors (Note: DLC isn't set
-    // because Io_SharedErrorTable_SetErrorsFromCanMsg() doesn't use it)
+    // Prepare the CAN message containing the errors
     can_msg.std_id = CANMSGS_PDM_CRITICAL_ERRORS_FRAME_ID;
+    can_msg.dlc    = CANMSGS_PDM_CRITICAL_ERRORS_LENGTH;
     App_CanMsgs_pdm_critical_errors_pack(
         can_msg.data, &data, CANMSGS_PDM_CRITICAL_ERRORS_LENGTH);
 
