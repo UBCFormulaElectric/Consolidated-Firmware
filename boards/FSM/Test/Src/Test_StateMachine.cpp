@@ -42,7 +42,7 @@ FAKE_VALUE_FUNC(float, get_left_wheel_speed);
 FAKE_VALUE_FUNC(float, get_right_wheel_speed);
 FAKE_VALUE_FUNC(float, get_steering_angle);
 FAKE_VALUE_FUNC(float, get_brake_pressure);
-FAKE_VALUE_FUNC(bool, get_brake_actuation_status);
+FAKE_VALUE_FUNC(bool, is_brake_actuated);
 
 class FsmStateMachineTest : public testing::Test
 {
@@ -82,8 +82,7 @@ class FsmStateMachineTest : public testing::Test
         brake_pressure_in_range_check = App_InRangeCheck_Create(
             get_brake_pressure, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
 
-        brake_actuation_status =
-            App_BinarySwitch_Create(get_brake_actuation_status);
+        brake_actuation_status = App_BinarySwitch_Create(is_brake_actuated);
 
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
@@ -115,7 +114,7 @@ class FsmStateMachineTest : public testing::Test
         RESET_FAKE(get_right_wheel_speed);
         RESET_FAKE(get_steering_angle);
         RESET_FAKE(get_brake_pressure);
-        RESET_FAKE(get_brake_actuation_status);
+        RESET_FAKE(is_brake_actuated);
     }
 
     void TearDown() override
@@ -332,7 +331,7 @@ TEST_F(
     check_brake_pressure_actuation_can_signals_in_all_states)
 {
     CheckBinarySwitchCanSignalsInAllStates(
-        get_brake_actuation_status_fake.return_val,
+        is_brake_actuated_fake.return_val,
         App_CanTx_GetPeriodicSignal_BRAKE_IS_ACTUATED,
         CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_ACTIVE_CHOICE,
         CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_INACTIVE_CHOICE);
