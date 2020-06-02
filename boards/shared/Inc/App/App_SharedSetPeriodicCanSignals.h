@@ -35,7 +35,7 @@
         can_signal_setter(can_tx, value);                                      \
     }
 
-#define STATIC_DEFINE_APP_SET_CAN_SIGNALS_BINARY_SWITCH(CAN_TX_INTERFACE)    \
+#define STATIC_DEFINE_APP_SET_CAN_SIGNALS_BINARY_STATUS(CAN_TX_INTERFACE)    \
     static void App_SetPeriodicCanSignals_BinaryStatus(                      \
         struct CAN_TX_INTERFACE *  can_tx,                                   \
         const struct BinaryStatus *binary_status,                            \

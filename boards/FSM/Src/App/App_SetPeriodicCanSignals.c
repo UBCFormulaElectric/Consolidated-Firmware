@@ -2,7 +2,7 @@
 #include "App_SetPeriodicCanSignals.h"
 
 STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(FsmCanTxInterface)
-STATIC_DEFINE_APP_SET_CAN_SIGNALS_BINARY_SWITCH(FsmCanTxInterface)
+STATIC_DEFINE_APP_SET_CAN_SIGNALS_BINARY_STATUS(FsmCanTxInterface)
 
 void App_SetPeriodicSignals_FlowRateInRangeChecks(const struct FsmWorld *world)
 {
