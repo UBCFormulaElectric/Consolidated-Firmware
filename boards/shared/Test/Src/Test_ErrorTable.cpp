@@ -88,6 +88,32 @@ class SharedErrorTableTest : public testing::Test
                 error_table, DEFAULT_PDM_NON_CRITICAL_ERROR, true));
     }
 
+    void TestRoutineForSetErrorsFromCanMsg(
+        enum Board                board,
+        std::vector<enum ErrorId> error_ids,
+        void (*get_boards)(const struct ErrorTable *, struct ErrorBoardList *),
+        void (*get_errors)(struct ErrorTable *, struct ErrorList *))
+    {
+        // Update the error table using the given CAN message
+        Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
+
+        // Check that we can retrieve the correct board from the error table
+        get_boards(error_table, &board_list);
+        ASSERT_EQ(1, board_list.num_boards);
+        ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, board));
+
+        // Check that we can retrieve the correct errors from the error table
+        get_errors(error_table, &error_list);
+        ASSERT_EQ(error_ids.size(), error_list.num_errors);
+        for (auto &error_id : error_ids)
+        {
+            ASSERT_EQ(
+                EXIT_CODE_OK, App_SharedErrorTable_IsErrorSet(
+                                  error_table, error_id, &is_set));
+            ASSERT_TRUE(is_set);
+        }
+    }
+
     std::vector<enum Board> GetAllBoards(void)
     {
         return std::vector<enum Board>{
@@ -783,25 +809,10 @@ TEST_F(SharedErrorTableTest, process_bms_non_critical_errors)
     App_CanMsgs_bms_non_critical_errors_pack(
         can_msg.data, &data, CANMSGS_BMS_NON_CRITICAL_ERRORS_LENGTH);
 
-    // Update the error table using the given CAN message
-    Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
-
-    // Check that we can retrieve the correct board from the error table
-    App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
-        error_table, &board_list);
-    ASSERT_EQ(1, board_list.num_boards);
-    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, BMS));
-
-    // Check that we can retrieve the correct errors from the error table
-    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
-    ASSERT_EQ(bms_non_critical_error_ids.size(), error_list.num_errors);
-    for (auto &error_id : bms_non_critical_error_ids)
-    {
-        ASSERT_EQ(
-            EXIT_CODE_OK,
-            App_SharedErrorTable_IsErrorSet(error_table, error_id, &is_set));
-        ASSERT_TRUE(is_set);
-    }
+    TestRoutineForSetErrorsFromCanMsg(
+        BMS, bms_non_critical_error_ids,
+        App_SharedErrorTable_GetBoardsWithNonCriticalErrors,
+        App_SharedErrorTable_GetAllNonCriticalErrors);
 }
 
 TEST_F(SharedErrorTableTest, process_bms_critical_errors)
@@ -824,24 +835,10 @@ TEST_F(SharedErrorTableTest, process_bms_critical_errors)
     App_CanMsgs_bms_critical_errors_pack(
         can_msg.data, &data, CANMSGS_BMS_CRITICAL_ERRORS_LENGTH);
 
-    // Update the error table using the given CAN message
-    Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
-
-    // Check that we can retrieve the correct board from the error table
-    App_SharedErrorTable_GetBoardsWithCriticalErrors(error_table, &board_list);
-    ASSERT_EQ(1, board_list.num_boards);
-    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, BMS));
-
-    // Check that we can retrieve the correct errors from the error table
-    App_SharedErrorTable_GetAllCriticalErrors(error_table, &error_list);
-    ASSERT_EQ(bms_critical_error_ids.size(), error_list.num_errors);
-    for (auto &error_id : bms_critical_error_ids)
-    {
-        ASSERT_EQ(
-            EXIT_CODE_OK,
-            App_SharedErrorTable_IsErrorSet(error_table, error_id, &is_set));
-        ASSERT_TRUE(is_set);
-    }
+    TestRoutineForSetErrorsFromCanMsg(
+        BMS, bms_critical_error_ids,
+        App_SharedErrorTable_GetBoardsWithCriticalErrors,
+        App_SharedErrorTable_GetAllCriticalErrors);
 }
 
 TEST_F(SharedErrorTableTest, process_dcm_non_critical_errors)
@@ -868,25 +865,10 @@ TEST_F(SharedErrorTableTest, process_dcm_non_critical_errors)
     App_CanMsgs_dcm_non_critical_errors_pack(
         can_msg.data, &data, CANMSGS_DCM_NON_CRITICAL_ERRORS_LENGTH);
 
-    // Update the error table using the given CAN message
-    Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
-
-    // Check that we can retrieve the correct board from the error table
-    App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
-        error_table, &board_list);
-    ASSERT_EQ(1, board_list.num_boards);
-    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, DCM));
-
-    // Check that we can retrieve the correct errors from the error table
-    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
-    ASSERT_EQ(dcm_non_critical_error_ids.size(), error_list.num_errors);
-    for (auto &error_id : dcm_non_critical_error_ids)
-    {
-        ASSERT_EQ(
-            EXIT_CODE_OK,
-            App_SharedErrorTable_IsErrorSet(error_table, error_id, &is_set));
-        ASSERT_TRUE(is_set);
-    }
+    TestRoutineForSetErrorsFromCanMsg(
+        DCM, dcm_non_critical_error_ids,
+        App_SharedErrorTable_GetBoardsWithNonCriticalErrors,
+        App_SharedErrorTable_GetAllNonCriticalErrors);
 }
 
 TEST_F(SharedErrorTableTest, process_dcm_critical_errors)
@@ -909,24 +891,10 @@ TEST_F(SharedErrorTableTest, process_dcm_critical_errors)
     App_CanMsgs_dcm_critical_errors_pack(
         can_msg.data, &data, CANMSGS_DCM_CRITICAL_ERRORS_LENGTH);
 
-    // Update the error table using the given CAN message
-    Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
-
-    // Check that we can retrieve the correct board from the error table
-    App_SharedErrorTable_GetBoardsWithCriticalErrors(error_table, &board_list);
-    ASSERT_EQ(1, board_list.num_boards);
-    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, DCM));
-
-    // Check that we can retrieve the correct errors from the error table
-    App_SharedErrorTable_GetAllCriticalErrors(error_table, &error_list);
-    ASSERT_EQ(dcm_critical_error_ids.size(), error_list.num_errors);
-    for (auto &error_id : dcm_critical_error_ids)
-    {
-        ASSERT_EQ(
-            EXIT_CODE_OK,
-            App_SharedErrorTable_IsErrorSet(error_table, error_id, &is_set));
-        ASSERT_TRUE(is_set);
-    }
+    TestRoutineForSetErrorsFromCanMsg(
+        DCM, dcm_critical_error_ids,
+        App_SharedErrorTable_GetBoardsWithCriticalErrors,
+        App_SharedErrorTable_GetAllCriticalErrors);
 }
 
 TEST_F(SharedErrorTableTest, process_dim_non_critical_errors)
@@ -953,25 +921,10 @@ TEST_F(SharedErrorTableTest, process_dim_non_critical_errors)
     App_CanMsgs_dim_non_critical_errors_pack(
         can_msg.data, &data, CANMSGS_DIM_NON_CRITICAL_ERRORS_LENGTH);
 
-    // Update the error table using the given CAN message
-    Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
-
-    // Check that we can retrieve the correct board from the error table
-    App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
-        error_table, &board_list);
-    ASSERT_EQ(1, board_list.num_boards);
-    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, DIM));
-
-    // Check that we can retrieve the correct errors from the error table
-    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
-    ASSERT_EQ(dim_non_critical_error_ids.size(), error_list.num_errors);
-    for (auto &error_id : dim_non_critical_error_ids)
-    {
-        ASSERT_EQ(
-            EXIT_CODE_OK,
-            App_SharedErrorTable_IsErrorSet(error_table, error_id, &is_set));
-        ASSERT_TRUE(is_set);
-    }
+    TestRoutineForSetErrorsFromCanMsg(
+        DIM, dim_non_critical_error_ids,
+        App_SharedErrorTable_GetBoardsWithNonCriticalErrors,
+        App_SharedErrorTable_GetAllNonCriticalErrors);
 }
 
 TEST_F(SharedErrorTableTest, process_dim_critical_errors)
@@ -994,24 +947,10 @@ TEST_F(SharedErrorTableTest, process_dim_critical_errors)
     App_CanMsgs_dim_critical_errors_pack(
         can_msg.data, &data, CANMSGS_DIM_CRITICAL_ERRORS_LENGTH);
 
-    // Update the error table using the given CAN message
-    Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
-
-    // Check that we can retrieve the correct board from the error table
-    App_SharedErrorTable_GetBoardsWithCriticalErrors(error_table, &board_list);
-    ASSERT_EQ(1, board_list.num_boards);
-    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, DIM));
-
-    // Check that we can retrieve the correct errors from the error table
-    App_SharedErrorTable_GetAllCriticalErrors(error_table, &error_list);
-    ASSERT_EQ(dim_critical_error_ids.size(), error_list.num_errors);
-    for (auto &error_id : dim_critical_error_ids)
-    {
-        ASSERT_EQ(
-            EXIT_CODE_OK,
-            App_SharedErrorTable_IsErrorSet(error_table, error_id, &is_set));
-        ASSERT_TRUE(is_set);
-    }
+    TestRoutineForSetErrorsFromCanMsg(
+        DIM, dim_critical_error_ids,
+        App_SharedErrorTable_GetBoardsWithCriticalErrors,
+        App_SharedErrorTable_GetAllCriticalErrors);
 }
 
 TEST_F(SharedErrorTableTest, process_fsm_non_critical_errors)
@@ -1045,25 +984,10 @@ TEST_F(SharedErrorTableTest, process_fsm_non_critical_errors)
     App_CanMsgs_fsm_non_critical_errors_pack(
         can_msg.data, &data, CANMSGS_FSM_NON_CRITICAL_ERRORS_LENGTH);
 
-    // Update the error table using the given CAN message
-    Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
-
-    // Check that we can retrieve the correct board from the error table
-    App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
-        error_table, &board_list);
-    ASSERT_EQ(1, board_list.num_boards);
-    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, FSM));
-
-    // Check that we can retrieve the correct errors from the error table
-    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
-    ASSERT_EQ(fsm_non_critical_error_ids.size(), error_list.num_errors);
-    for (auto &error_id : fsm_non_critical_error_ids)
-    {
-        ASSERT_EQ(
-            EXIT_CODE_OK,
-            App_SharedErrorTable_IsErrorSet(error_table, error_id, &is_set));
-        ASSERT_TRUE(is_set);
-    }
+    TestRoutineForSetErrorsFromCanMsg(
+        FSM, fsm_non_critical_error_ids,
+        App_SharedErrorTable_GetBoardsWithNonCriticalErrors,
+        App_SharedErrorTable_GetAllNonCriticalErrors);
 }
 
 TEST_F(SharedErrorTableTest, process_fsm_critical_errors)
@@ -1086,24 +1010,10 @@ TEST_F(SharedErrorTableTest, process_fsm_critical_errors)
     App_CanMsgs_fsm_critical_errors_pack(
         can_msg.data, &data, CANMSGS_FSM_CRITICAL_ERRORS_LENGTH);
 
-    // Update the error table using the given CAN message
-    Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
-
-    // Check that we can retrieve the correct board from the error table
-    App_SharedErrorTable_GetBoardsWithCriticalErrors(error_table, &board_list);
-    ASSERT_EQ(1, board_list.num_boards);
-    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, FSM));
-
-    // Check that we can retrieve the correct errors from the error table
-    App_SharedErrorTable_GetAllCriticalErrors(error_table, &error_list);
-    ASSERT_EQ(fsm_critical_error_ids.size(), error_list.num_errors);
-    for (auto &error_id : fsm_critical_error_ids)
-    {
-        ASSERT_EQ(
-            EXIT_CODE_OK,
-            App_SharedErrorTable_IsErrorSet(error_table, error_id, &is_set));
-        ASSERT_TRUE(is_set);
-    }
+    TestRoutineForSetErrorsFromCanMsg(
+        FSM, fsm_critical_error_ids,
+        App_SharedErrorTable_GetBoardsWithCriticalErrors,
+        App_SharedErrorTable_GetAllCriticalErrors);
 }
 
 TEST_F(SharedErrorTableTest, process_pdm_non_critical_errors)
@@ -1145,25 +1055,10 @@ TEST_F(SharedErrorTableTest, process_pdm_non_critical_errors)
     App_CanMsgs_pdm_non_critical_errors_pack(
         can_msg.data, &data, CANMSGS_PDM_NON_CRITICAL_ERRORS_LENGTH);
 
-    // Update the error table using the given CAN message
-    Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
-
-    // Check that we can retrieve the correct board from the error table
-    App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
-        error_table, &board_list);
-    ASSERT_EQ(1, board_list.num_boards);
-    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, PDM));
-
-    // Check that we can retrieve the correct errors from the error table
-    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
-    ASSERT_EQ(pdm_non_critical_error_ids.size(), error_list.num_errors);
-    for (auto &error_id : pdm_non_critical_error_ids)
-    {
-        ASSERT_EQ(
-            EXIT_CODE_OK,
-            App_SharedErrorTable_IsErrorSet(error_table, error_id, &is_set));
-        ASSERT_TRUE(is_set);
-    }
+    TestRoutineForSetErrorsFromCanMsg(
+        PDM, pdm_non_critical_error_ids,
+        App_SharedErrorTable_GetBoardsWithNonCriticalErrors,
+        App_SharedErrorTable_GetAllNonCriticalErrors);
 }
 
 TEST_F(SharedErrorTableTest, process_pdm_critical_errors)
@@ -1186,22 +1081,8 @@ TEST_F(SharedErrorTableTest, process_pdm_critical_errors)
     App_CanMsgs_pdm_critical_errors_pack(
         can_msg.data, &data, CANMSGS_PDM_CRITICAL_ERRORS_LENGTH);
 
-    // Update the error table using the given CAN message
-    Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
-
-    // Check that we can retrieve the correct board from the error table
-    App_SharedErrorTable_GetBoardsWithCriticalErrors(error_table, &board_list);
-    ASSERT_EQ(1, board_list.num_boards);
-    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, PDM));
-
-    // Check that we can retrieve the correct errors from the error table
-    App_SharedErrorTable_GetAllCriticalErrors(error_table, &error_list);
-    ASSERT_EQ(pdm_critical_error_ids.size(), error_list.num_errors);
-    for (auto &error_id : pdm_critical_error_ids)
-    {
-        ASSERT_EQ(
-            EXIT_CODE_OK,
-            App_SharedErrorTable_IsErrorSet(error_table, error_id, &is_set));
-        ASSERT_TRUE(is_set);
-    }
+    TestRoutineForSetErrorsFromCanMsg(
+        PDM, pdm_critical_error_ids,
+        App_SharedErrorTable_GetBoardsWithCriticalErrors,
+        App_SharedErrorTable_GetAllCriticalErrors);
 }
