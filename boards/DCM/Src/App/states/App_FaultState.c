@@ -1,5 +1,6 @@
 #include "states/App_AllStates.h"
 #include "states/App_FaultState.h"
+#include "states/App_InitState.h"
 
 #include "App_SharedMacros.h"
 
@@ -22,8 +23,17 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct DcmCanTxInterface *can_tx_interface = App_DcmWorld_GetCanTx(world);
+    struct ErrorTable *       error_table = App_DcmWorld_GetErrorTable(world);
+    struct ErrorList          critical_errors;
 
     App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 0.0f);
+
+    App_SharedErrorTable_GetAllCriticalErrors(error_table, &critical_errors);
+
+    if (critical_errors.num_errors == 0)
+    {
+        App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
+    }
 }
 
 static void FaultStateRunOnExit(struct StateMachine *const state_machine)
