@@ -1006,7 +1006,7 @@ TEST_F(SharedErrorTableTest, process_fsm_critical_errors)
 
     // Prepare the CAN message containing the errors
     can_msg.std_id = CANMSGS_FSM_CRITICAL_ERRORS_FRAME_ID;
-    can_msg.std_id = CANMSGS_FSM_CRITICAL_ERRORS_LENGTH;
+    can_msg.dlc    = CANMSGS_FSM_CRITICAL_ERRORS_LENGTH;
     App_CanMsgs_fsm_critical_errors_pack(
         can_msg.data, &data, CANMSGS_FSM_CRITICAL_ERRORS_LENGTH);
 
