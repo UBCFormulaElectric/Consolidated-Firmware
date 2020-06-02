@@ -284,9 +284,28 @@ TEST_F(
 }
 
 // DCM-17
-TEST_F(DcmStateMachineTest, exit_fault_state_if_there_is_no_critical_error)
+TEST_F(DcmStateMachineTest, exit_fault_state_if_there_is_no_error)
 {
     SetInitialState(App_GetFaultState());
+
+    App_SharedStateMachine_Tick100Hz(state_machine);
+
+    ASSERT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
+// DCM-17
+TEST_F(
+    DcmStateMachineTest,
+    exit_fault_state_if_there_is_only_non_critical_error)
+{
+    SetInitialState(App_GetFaultState());
+
+    // Choose any non-critical fault, it doesn't have to come from DCM
+    App_SharedErrorTable_SetError(
+        error_table, DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
+        true);
 
     App_SharedStateMachine_Tick100Hz(state_machine);
 
