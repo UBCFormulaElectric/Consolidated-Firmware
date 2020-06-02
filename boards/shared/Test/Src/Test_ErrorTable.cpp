@@ -88,12 +88,28 @@ class SharedErrorTableTest : public testing::Test
                 error_table, DEFAULT_PDM_NON_CRITICAL_ERROR, true));
     }
 
+    template <typename T>
     void TestRoutineForSetErrorsFromCanMsg(
         enum Board                board,
         std::vector<enum ErrorId> error_ids,
+        uint32_t                  can_stdid,
+        uint32_t                  can_dlc,
+        int (*pack_can_msg)(uint8_t *dst_p, const T *src_p, size_t size),
         void (*get_boards)(const struct ErrorTable *, struct ErrorBoardList *),
         void (*get_errors)(struct ErrorTable *, struct ErrorList *))
     {
+        // Each struct member that has a non-zero value indicates an error that
+        // is set. For this test, we want every error to be set. Instead of
+        // setting each struct member manually, we're going to "cheat" using
+        // memset().
+        T can_data;
+        memset(&can_data, 1, sizeof(T));
+
+        // Prepare the CAN message containing the errors
+        can_msg.std_id = can_stdid;
+        can_msg.dlc    = can_dlc;
+        pack_can_msg(can_msg.data, &can_data, can_dlc);
+
         // Update the error table using the given CAN message
         Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
 
@@ -797,20 +813,11 @@ TEST_F(SharedErrorTableTest, process_bms_non_critical_errors)
         BMS_NON_CRITICAL_WATCHDOG_TIMEOUT
     };
 
-    // Each struct member that has a non-zero value indicates an error that is
-    // set. For this test, we want every error to be set. Instead of setting
-    // each struct member manually, we're going to "cheat" using memset().
-    struct CanMsgs_bms_non_critical_errors_t data;
-    memset(&data, 1, sizeof(struct CanMsgs_bms_non_critical_errors_t));
-
-    // Prepare the CAN message containing the errors
-    can_msg.std_id = CANMSGS_BMS_NON_CRITICAL_ERRORS_FRAME_ID;
-    can_msg.dlc    = CANMSGS_BMS_NON_CRITICAL_ERRORS_LENGTH;
-    App_CanMsgs_bms_non_critical_errors_pack(
-        can_msg.data, &data, CANMSGS_BMS_NON_CRITICAL_ERRORS_LENGTH);
-
     TestRoutineForSetErrorsFromCanMsg(
         BMS, bms_non_critical_error_ids,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_FRAME_ID,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_LENGTH,
+        App_CanMsgs_bms_non_critical_errors_pack,
         App_SharedErrorTable_GetBoardsWithNonCriticalErrors,
         App_SharedErrorTable_GetAllNonCriticalErrors);
 }
@@ -823,20 +830,10 @@ TEST_F(SharedErrorTableTest, process_bms_critical_errors)
         BMS_CRITICAL_CHARGER_DISCONNECTED_IN_CHARGE_STATE,
     };
 
-    // Each struct member that has a non-zero value indicates an error that is
-    // set. For this test, we want every error to be set. Instead of setting
-    // each struct member manually, we're going to "cheat" using memset().
-    struct CanMsgs_bms_critical_errors_t data;
-    memset(&data, 1, sizeof(struct CanMsgs_bms_critical_errors_t));
-
-    // Prepare the CAN message containing the errors
-    can_msg.std_id = CANMSGS_BMS_CRITICAL_ERRORS_FRAME_ID;
-    can_msg.dlc    = CANMSGS_BMS_CRITICAL_ERRORS_LENGTH;
-    App_CanMsgs_bms_critical_errors_pack(
-        can_msg.data, &data, CANMSGS_BMS_CRITICAL_ERRORS_LENGTH);
-
     TestRoutineForSetErrorsFromCanMsg(
-        BMS, bms_critical_error_ids,
+        BMS, bms_critical_error_ids, CANMSGS_BMS_CRITICAL_ERRORS_FRAME_ID,
+        CANMSGS_BMS_CRITICAL_ERRORS_LENGTH,
+        App_CanMsgs_bms_critical_errors_pack,
         App_SharedErrorTable_GetBoardsWithCriticalErrors,
         App_SharedErrorTable_GetAllCriticalErrors);
 }
@@ -853,20 +850,11 @@ TEST_F(SharedErrorTableTest, process_dcm_non_critical_errors)
         DCM_NON_CRITICAL_WATCHDOG_TIMEOUT
     };
 
-    // Each struct member that has a non-zero value indicates an error that is
-    // set. For this test, we want every error to be set. Instead of setting
-    // each struct member manually, we're going to "cheat" using memset().
-    struct CanMsgs_dcm_non_critical_errors_t data;
-    memset(&data, 1, sizeof(struct CanMsgs_dcm_non_critical_errors_t));
-
-    // Prepare the CAN message containing the errors
-    can_msg.std_id = CANMSGS_DCM_NON_CRITICAL_ERRORS_FRAME_ID;
-    can_msg.dlc    = CANMSGS_DCM_NON_CRITICAL_ERRORS_LENGTH;
-    App_CanMsgs_dcm_non_critical_errors_pack(
-        can_msg.data, &data, CANMSGS_DCM_NON_CRITICAL_ERRORS_LENGTH);
-
     TestRoutineForSetErrorsFromCanMsg(
         DCM, dcm_non_critical_error_ids,
+        CANMSGS_DCM_NON_CRITICAL_ERRORS_FRAME_ID,
+        CANMSGS_DCM_NON_CRITICAL_ERRORS_LENGTH,
+        App_CanMsgs_dcm_non_critical_errors_pack,
         App_SharedErrorTable_GetBoardsWithNonCriticalErrors,
         App_SharedErrorTable_GetAllNonCriticalErrors);
 }
@@ -879,20 +867,10 @@ TEST_F(SharedErrorTableTest, process_dcm_critical_errors)
         DCM_CRITICAL_DUMMY,
     };
 
-    // Each struct member that has a non-zero value indicates an error that is
-    // set. For this test, we want every error to be set. Instead of setting
-    // each struct member manually, we're going to "cheat" using memset().
-    struct CanMsgs_dcm_critical_errors_t data;
-    memset(&data, 1, sizeof(struct CanMsgs_dcm_critical_errors_t));
-
-    // Prepare the CAN message containing the errors
-    can_msg.std_id = CANMSGS_DCM_CRITICAL_ERRORS_FRAME_ID;
-    can_msg.dlc    = CANMSGS_DCM_CRITICAL_ERRORS_LENGTH;
-    App_CanMsgs_dcm_critical_errors_pack(
-        can_msg.data, &data, CANMSGS_DCM_CRITICAL_ERRORS_LENGTH);
-
     TestRoutineForSetErrorsFromCanMsg(
-        DCM, dcm_critical_error_ids,
+        DCM, dcm_critical_error_ids, CANMSGS_DCM_CRITICAL_ERRORS_FRAME_ID,
+        CANMSGS_DCM_CRITICAL_ERRORS_LENGTH,
+        App_CanMsgs_dcm_critical_errors_pack,
         App_SharedErrorTable_GetBoardsWithCriticalErrors,
         App_SharedErrorTable_GetAllCriticalErrors);
 }
@@ -909,20 +887,11 @@ TEST_F(SharedErrorTableTest, process_dim_non_critical_errors)
         DIM_NON_CRITICAL_WATCHDOG_TIMEOUT,
     };
 
-    // Each struct member that has a non-zero value indicates an error that is
-    // set. For this test, we want every error to be set. Instead of setting
-    // each struct member manually, we're going to "cheat" using memset().
-    struct CanMsgs_dim_non_critical_errors_t data;
-    memset(&data, 1, sizeof(struct CanMsgs_dim_non_critical_errors_t));
-
-    // Prepare the CAN message containing the errors
-    can_msg.std_id = CANMSGS_DIM_NON_CRITICAL_ERRORS_FRAME_ID;
-    can_msg.dlc    = CANMSGS_DIM_NON_CRITICAL_ERRORS_LENGTH;
-    App_CanMsgs_dim_non_critical_errors_pack(
-        can_msg.data, &data, CANMSGS_DIM_NON_CRITICAL_ERRORS_LENGTH);
-
     TestRoutineForSetErrorsFromCanMsg(
         DIM, dim_non_critical_error_ids,
+        CANMSGS_DIM_NON_CRITICAL_ERRORS_FRAME_ID,
+        CANMSGS_DIM_NON_CRITICAL_ERRORS_LENGTH,
+        App_CanMsgs_dim_non_critical_errors_pack,
         App_SharedErrorTable_GetBoardsWithNonCriticalErrors,
         App_SharedErrorTable_GetAllNonCriticalErrors);
 }
@@ -935,20 +904,10 @@ TEST_F(SharedErrorTableTest, process_dim_critical_errors)
         DIM_CRITICAL_DUMMY,
     };
 
-    // Each struct member that has a non-zero value indicates an error that is
-    // set. For this test, we want every error to be set. Instead of setting
-    // each struct member manually, we're going to "cheat" using memset().
-    struct CanMsgs_dim_critical_errors_t data;
-    memset(&data, 1, sizeof(struct CanMsgs_dim_critical_errors_t));
-
-    // Prepare the CAN message containing the errors
-    can_msg.std_id = CANMSGS_DIM_CRITICAL_ERRORS_FRAME_ID;
-    can_msg.dlc    = CANMSGS_DIM_CRITICAL_ERRORS_LENGTH;
-    App_CanMsgs_dim_critical_errors_pack(
-        can_msg.data, &data, CANMSGS_DIM_CRITICAL_ERRORS_LENGTH);
-
     TestRoutineForSetErrorsFromCanMsg(
-        DIM, dim_critical_error_ids,
+        DIM, dim_critical_error_ids, CANMSGS_DIM_CRITICAL_ERRORS_FRAME_ID,
+        CANMSGS_DIM_CRITICAL_ERRORS_LENGTH,
+        App_CanMsgs_dim_critical_errors_pack,
         App_SharedErrorTable_GetBoardsWithCriticalErrors,
         App_SharedErrorTable_GetAllCriticalErrors);
 }
@@ -972,20 +931,11 @@ TEST_F(SharedErrorTableTest, process_fsm_non_critical_errors)
         FSM_NON_CRITICAL_SECONDARY_FLOW_RATE_OUT_OF_RANGE,
     };
 
-    // Each struct member that has a non-zero value indicates an error that is
-    // set. For this test, we want every error to be set. Instead of setting
-    // each struct member manually, we're going to "cheat" using memset().
-    struct CanMsgs_fsm_non_critical_errors_t data;
-    memset(&data, 1, sizeof(struct CanMsgs_fsm_non_critical_errors_t));
-
-    // Prepare the CAN message containing the errors
-    can_msg.std_id = CANMSGS_FSM_NON_CRITICAL_ERRORS_FRAME_ID;
-    can_msg.dlc    = CANMSGS_FSM_NON_CRITICAL_ERRORS_LENGTH;
-    App_CanMsgs_fsm_non_critical_errors_pack(
-        can_msg.data, &data, CANMSGS_FSM_NON_CRITICAL_ERRORS_LENGTH);
-
     TestRoutineForSetErrorsFromCanMsg(
         FSM, fsm_non_critical_error_ids,
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_FRAME_ID,
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_LENGTH,
+        App_CanMsgs_fsm_non_critical_errors_pack,
         App_SharedErrorTable_GetBoardsWithNonCriticalErrors,
         App_SharedErrorTable_GetAllNonCriticalErrors);
 }
@@ -998,21 +948,12 @@ TEST_F(SharedErrorTableTest, process_fsm_critical_errors)
         FSM_CRITICAL_DUMMY,
     };
 
-    // Each struct member that has a non-zero value indicates an error that is
-    // set. For this test, we want every error to be set. Instead of setting
-    // each struct member manually, we're going to "cheat" using memset().
-    struct CanMsgs_fsm_critical_errors_t data;
-    memset(&data, 1, sizeof(struct CanMsgs_fsm_critical_errors_t));
-
-    // Prepare the CAN message containing the errors
-    can_msg.std_id = CANMSGS_FSM_CRITICAL_ERRORS_FRAME_ID;
-    can_msg.dlc    = CANMSGS_FSM_CRITICAL_ERRORS_LENGTH;
-    App_CanMsgs_fsm_critical_errors_pack(
-        can_msg.data, &data, CANMSGS_FSM_CRITICAL_ERRORS_LENGTH);
-
     TestRoutineForSetErrorsFromCanMsg(
-        FSM, fsm_critical_error_ids,
+        FSM, fsm_critical_error_ids, CANMSGS_FSM_CRITICAL_ERRORS_FRAME_ID,
+        CANMSGS_FSM_CRITICAL_ERRORS_LENGTH,
+        App_CanMsgs_fsm_critical_errors_pack,
         App_SharedErrorTable_GetBoardsWithCriticalErrors,
+
         App_SharedErrorTable_GetAllCriticalErrors);
 }
 
@@ -1043,20 +984,11 @@ TEST_F(SharedErrorTableTest, process_pdm_non_critical_errors)
         PDM_NON_CRITICAL_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE,
     };
 
-    // Each struct member that has a non-zero value indicates an error that is
-    // set. For this test, we want every error to be set. Instead of setting
-    // each struct member manually, we're going to "cheat" using memset().
-    struct CanMsgs_pdm_non_critical_errors_t data;
-    memset(&data, 1, sizeof(struct CanMsgs_pdm_non_critical_errors_t));
-
-    // Prepare the CAN message containing the errors
-    can_msg.std_id = CANMSGS_PDM_NON_CRITICAL_ERRORS_FRAME_ID;
-    can_msg.dlc    = CANMSGS_PDM_NON_CRITICAL_ERRORS_LENGTH;
-    App_CanMsgs_pdm_non_critical_errors_pack(
-        can_msg.data, &data, CANMSGS_PDM_NON_CRITICAL_ERRORS_LENGTH);
-
     TestRoutineForSetErrorsFromCanMsg(
         PDM, pdm_non_critical_error_ids,
+        CANMSGS_PDM_NON_CRITICAL_ERRORS_FRAME_ID,
+        CANMSGS_PDM_NON_CRITICAL_ERRORS_LENGTH,
+        App_CanMsgs_pdm_non_critical_errors_pack,
         App_SharedErrorTable_GetBoardsWithNonCriticalErrors,
         App_SharedErrorTable_GetAllNonCriticalErrors);
 }
@@ -1069,20 +1001,10 @@ TEST_F(SharedErrorTableTest, process_pdm_critical_errors)
         PDM_CRITICAL_DUMMY,
     };
 
-    // Each struct member that has a non-zero value indicates an error that is
-    // set. For this test, we want every error to be set. Instead of setting
-    // each struct member manually, we're going to "cheat" using memset().
-    struct CanMsgs_pdm_critical_errors_t data;
-    memset(&data, 1, sizeof(struct CanMsgs_pdm_critical_errors_t));
-
-    // Prepare the CAN message containing the errors
-    can_msg.std_id = CANMSGS_PDM_CRITICAL_ERRORS_FRAME_ID;
-    can_msg.dlc    = CANMSGS_PDM_CRITICAL_ERRORS_LENGTH;
-    App_CanMsgs_pdm_critical_errors_pack(
-        can_msg.data, &data, CANMSGS_PDM_CRITICAL_ERRORS_LENGTH);
-
     TestRoutineForSetErrorsFromCanMsg(
-        PDM, pdm_critical_error_ids,
+        PDM, pdm_critical_error_ids, CANMSGS_PDM_CRITICAL_ERRORS_FRAME_ID,
+        CANMSGS_PDM_CRITICAL_ERRORS_LENGTH,
+        App_CanMsgs_pdm_critical_errors_pack,
         App_SharedErrorTable_GetBoardsWithCriticalErrors,
         App_SharedErrorTable_GetAllCriticalErrors);
 }
