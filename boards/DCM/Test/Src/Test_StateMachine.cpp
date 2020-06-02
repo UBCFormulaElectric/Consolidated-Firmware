@@ -54,9 +54,11 @@ class DcmStateMachineTest : public testing::Test
 
         buzzer = App_Buzzer_Create(turn_on_buzzer, turn_off_buzzer);
 
+        error_table = App_SharedErrorTable_Create();
+
         world = App_DcmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
-            rgb_led_sequence, brake_light, buzzer);
+            rgb_led_sequence, brake_light, buzzer, error_table);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -83,6 +85,7 @@ class DcmStateMachineTest : public testing::Test
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
         TearDownObject(brake_light, App_BrakeLight_Destroy);
         TearDownObject(buzzer, App_Buzzer_Destroy);
+        TearDownObject(error_table, App_SharedErrorTable_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -111,6 +114,7 @@ class DcmStateMachineTest : public testing::Test
     struct RgbLedSequence *   rgb_led_sequence;
     struct BrakeLight *       brake_light;
     struct Buzzer *           buzzer;
+    struct ErrorTable *       error_table;
 };
 
 TEST_F(
@@ -276,6 +280,34 @@ TEST_F(
 
     ASSERT_EQ(
         App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
+// DCM-17
+TEST_F(DcmStateMachineTest, exit_fault_state_if_there_is_no_critical_error)
+{
+    SetInitialState(App_GetFaultState());
+
+    App_SharedStateMachine_Tick100Hz(state_machine);
+
+    ASSERT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
+// DCM-17
+TEST_F(DcmStateMachineTest, stay_in_fault_state_if_there_is_any_critical_errors)
+{
+    SetInitialState(App_GetFaultState());
+
+    // Choose any critical fault, it doesn't have to come from DCM
+    App_SharedErrorTable_SetError(
+        error_table, BMS_CRITICAL_CHARGER_DISCONNECTED_IN_CHARGE_STATE, true);
+
+    App_SharedStateMachine_Tick100Hz(state_machine);
+
+    ASSERT_EQ(
+        App_GetFaultState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
