@@ -95,8 +95,12 @@ class SharedErrorTableTest : public testing::Test
         uint32_t                  can_stdid,
         uint32_t                  can_dlc,
         int (*pack_can_msg)(uint8_t *dst_p, const T *src_p, size_t size),
-        void (*get_boards)(const struct ErrorTable *, struct ErrorBoardList *),
-        void (*get_errors)(struct ErrorTable *, struct ErrorList *))
+        void (*get_boards_from_error_table)(
+            const struct ErrorTable *,
+            struct ErrorBoardList *),
+        void (*get_errors_from_error_table)(
+            struct ErrorTable *,
+            struct ErrorList *))
     {
         // Each struct member that has a non-zero value indicates an error that
         // is set. For this test, we want every error to be set. Instead of
@@ -114,12 +118,12 @@ class SharedErrorTableTest : public testing::Test
         Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &can_msg);
 
         // Check that we can retrieve the correct board from the error table
-        get_boards(error_table, &board_list);
+        get_boards_from_error_table(error_table, &board_list);
         ASSERT_EQ(1, board_list.num_boards);
         ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, board));
 
         // Check that we can retrieve the correct errors from the error table
-        get_errors(error_table, &error_list);
+        get_errors_from_error_table(error_table, &error_list);
         ASSERT_EQ(error_ids.size(), error_list.num_errors);
         for (auto &error_id : error_ids)
         {
