@@ -18,9 +18,9 @@ struct BinaryStatus *App_BinaryStatus_Create(bool (*is_status_active)(void));
 void App_BinaryStatus_Destroy(struct BinaryStatus *binary_status);
 
 /**
- * Check if the given binary status is turned on
- * @param binary_status The binary status to check if its is active
- * @return true if the given binary status is turned on, else false
+ * Check if the given binary status is active
+ * @param binary_status The binary status to check if it is active
+ * @return True if the given binary status is turned on, else false
  */
 bool App_BinaryStatus_IsStatusActive(
     const struct BinaryStatus *const binary_status);
