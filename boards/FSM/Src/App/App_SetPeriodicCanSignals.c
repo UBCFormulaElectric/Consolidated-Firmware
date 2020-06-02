@@ -101,6 +101,6 @@ void App_SetPeriodicSignals_BrakeActuationStatus(const struct FsmWorld *world)
     App_SetPeriodicCanSignals_BinaryStatus(
         can_tx, brake_actuation_status,
         App_CanTx_SetPeriodicSignal_BRAKE_IS_ACTUATED,
-        CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_ACTIVE_CHOICE,
-        CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_INACTIVE_CHOICE);
+        CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE,
+        CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_FALSE_CHOICE);
 }

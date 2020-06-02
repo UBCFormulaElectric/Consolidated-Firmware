@@ -333,8 +333,8 @@ TEST_F(
     CheckBinaryStatusCanSignalsInAllStates(
         is_brake_actuated_fake.return_val,
         App_CanTx_GetPeriodicSignal_BRAKE_IS_ACTUATED,
-        CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_ACTIVE_CHOICE,
-        CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_INACTIVE_CHOICE);
+        CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE,
+        CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_FALSE_CHOICE);
 }
 
 TEST_F(FsmStateMachineTest, rgb_led_sequence_in_all_states)
