@@ -36,12 +36,13 @@
     }
 
 #define STATIC_DEFINE_APP_SET_CAN_SIGNALS_BINARY_SWITCH(CAN_TX_INTERFACE)    \
-    static void App_SetPeriodicCanSignals_BinarySwitch(                      \
-        struct CAN_TX_INTERFACE *can_tx, const struct Brake *brake,          \
+    static void App_SetPeriodicCanSignals_BinaryStatus(                      \
+        struct CAN_TX_INTERFACE *  can_tx,                                   \
+        const struct BinaryStatus *binary_status,                            \
         void (*const can_signal_setter)(struct CAN_TX_INTERFACE *, uint8_t), \
         uint8_t on_choice, uint8_t off_choice)                               \
     {                                                                        \
-        if (App_Brake_IsBrakeActuated(brake))                                \
+        if (App_BinaryStatus_IsStatusActive(binary_status))                  \
         {                                                                    \
             can_signal_setter(can_tx, on_choice);                            \
         }                                                                    \
