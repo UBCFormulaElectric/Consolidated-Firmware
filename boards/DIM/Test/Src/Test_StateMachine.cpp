@@ -52,25 +52,30 @@ FAKE_VOID_FUNC(turn_off_imd_led);
 FAKE_VOID_FUNC(turn_on_bspd_led);
 FAKE_VOID_FUNC(turn_off_bspd_led);
 
-FAKE_VOID_FUNC(turn_on_dim_red);
-FAKE_VOID_FUNC(turn_on_dim_green);
-FAKE_VOID_FUNC(turn_on_dim_blue);
+FAKE_VOID_FUNC(turn_bms_status_led_red);
+FAKE_VOID_FUNC(turn_bms_status_led_green);
+FAKE_VOID_FUNC(turn_bms_status_led_blue);
+FAKE_VOID_FUNC(turn_off_bms_status_led);
 
-FAKE_VOID_FUNC(turn_on_dcm_red);
-FAKE_VOID_FUNC(turn_on_dcm_green);
-FAKE_VOID_FUNC(turn_on_dcm_blue);
+FAKE_VOID_FUNC(turn_dcm_status_led_red);
+FAKE_VOID_FUNC(turn_dcm_status_led_green);
+FAKE_VOID_FUNC(turn_dcm_status_led_blue);
+FAKE_VOID_FUNC(turn_off_dcm_status_led);
 
-FAKE_VOID_FUNC(turn_on_fsm_red);
-FAKE_VOID_FUNC(turn_on_fsm_green);
-FAKE_VOID_FUNC(turn_on_fsm_blue);
+FAKE_VOID_FUNC(turn_dim_status_led_red);
+FAKE_VOID_FUNC(turn_dim_status_led_green);
+FAKE_VOID_FUNC(turn_dim_status_led_blue);
+FAKE_VOID_FUNC(turn_off_dim_status_led);
 
-FAKE_VOID_FUNC(turn_on_bms_red);
-FAKE_VOID_FUNC(turn_on_bms_green);
-FAKE_VOID_FUNC(turn_on_bms_blue);
+FAKE_VOID_FUNC(turn_fsm_status_led_red);
+FAKE_VOID_FUNC(turn_fsm_status_led_green);
+FAKE_VOID_FUNC(turn_fsm_status_led_blue);
+FAKE_VOID_FUNC(turn_off_fsm_status_led);
 
-FAKE_VOID_FUNC(turn_on_pdm_red);
-FAKE_VOID_FUNC(turn_on_pdm_green);
-FAKE_VOID_FUNC(turn_on_pdm_blue);
+FAKE_VOID_FUNC(turn_pdm_status_led_red);
+FAKE_VOID_FUNC(turn_pdm_status_led_green);
+FAKE_VOID_FUNC(turn_pdm_status_led_blue);
+FAKE_VOID_FUNC(turn_off_pdm_status_led);
 
 class DimStateMachineTest : public testing::Test
 {
@@ -120,19 +125,33 @@ class DimStateMachineTest : public testing::Test
 
         error_table = App_SharedErrorTable_Create();
 
-        board_status_leds = App_BoardStatusLeds_Create(
-            turn_on_dim_red, turn_on_dim_green, turn_on_dim_blue,
-            turn_on_dcm_red, turn_on_dcm_green, turn_on_dcm_blue,
-            turn_on_fsm_red, turn_on_fsm_green, turn_on_fsm_blue,
-            turn_on_bms_red, turn_on_bms_green, turn_on_bms_blue,
-            turn_on_pdm_red, turn_on_pdm_green, turn_on_pdm_blue);
+        bms_status_led = App_SharedRgbLed_Create(
+            turn_bms_status_led_red, turn_bms_status_led_green,
+            turn_bms_status_led_blue, turn_off_bms_status_led);
+
+        dcm_status_led = App_SharedRgbLed_Create(
+            turn_dcm_status_led_red, turn_dcm_status_led_green,
+            turn_dcm_status_led_blue, turn_off_dcm_status_led);
+
+        dim_status_led = App_SharedRgbLed_Create(
+            turn_dim_status_led_red, turn_dim_status_led_green,
+            turn_dim_status_led_blue, turn_off_dim_status_led);
+
+        fsm_status_led = App_SharedRgbLed_Create(
+            turn_fsm_status_led_red, turn_fsm_status_led_green,
+            turn_fsm_status_led_blue, turn_off_fsm_status_led);
+
+        pdm_status_led = App_SharedRgbLed_Create(
+            turn_pdm_status_led_red, turn_pdm_status_led_green,
+            turn_pdm_status_led_blue, turn_off_pdm_status_led);
 
         world = App_DimWorld_Create(
             can_tx_interface, can_rx_interface, seven_seg_displays,
             heartbeat_monitor, regen_paddle, rgb_led_sequence,
             drive_mode_switch, imd_led, bspd_led, start_switch,
             traction_control_switch, torque_vectoring_switch, error_table,
-            board_status_leds);
+            bms_status_led, dcm_status_led, dim_status_led, fsm_status_led,
+            pdm_status_led);
 
         // Default to starting the state machine in the `Drive` state
         state_machine =
@@ -158,21 +177,26 @@ class DimStateMachineTest : public testing::Test
         RESET_FAKE(start_switch_is_turned_on);
         RESET_FAKE(traction_control_switch_is_turned_on);
         RESET_FAKE(torque_vectoring_switch_is_turned_on);
-        RESET_FAKE(turn_on_dim_red);
-        RESET_FAKE(turn_on_dim_green);
-        RESET_FAKE(turn_on_dim_blue);
-        RESET_FAKE(turn_on_dcm_red);
-        RESET_FAKE(turn_on_dcm_green);
-        RESET_FAKE(turn_on_dcm_blue);
-        RESET_FAKE(turn_on_fsm_red);
-        RESET_FAKE(turn_on_fsm_green);
-        RESET_FAKE(turn_on_fsm_blue);
-        RESET_FAKE(turn_on_bms_red);
-        RESET_FAKE(turn_on_bms_green);
-        RESET_FAKE(turn_on_bms_blue);
-        RESET_FAKE(turn_on_pdm_red);
-        RESET_FAKE(turn_on_pdm_green);
-        RESET_FAKE(turn_on_pdm_blue);
+        RESET_FAKE(turn_bms_status_led_red);
+        RESET_FAKE(turn_bms_status_led_green);
+        RESET_FAKE(turn_bms_status_led_blue);
+        RESET_FAKE(turn_off_bms_status_led);
+        RESET_FAKE(turn_dcm_status_led_red);
+        RESET_FAKE(turn_dcm_status_led_green);
+        RESET_FAKE(turn_dcm_status_led_blue);
+        RESET_FAKE(turn_off_dcm_status_led);
+        RESET_FAKE(turn_dim_status_led_red);
+        RESET_FAKE(turn_dim_status_led_green);
+        RESET_FAKE(turn_dim_status_led_blue);
+        RESET_FAKE(turn_off_dim_status_led);
+        RESET_FAKE(turn_fsm_status_led_red);
+        RESET_FAKE(turn_fsm_status_led_green);
+        RESET_FAKE(turn_fsm_status_led_blue);
+        RESET_FAKE(turn_off_fsm_status_led);
+        RESET_FAKE(turn_pdm_status_led_red);
+        RESET_FAKE(turn_pdm_status_led_green);
+        RESET_FAKE(turn_pdm_status_led_blue);
+        RESET_FAKE(turn_off_pdm_status_led);
     }
 
     void TearDown() override
@@ -195,7 +219,11 @@ class DimStateMachineTest : public testing::Test
         TearDownObject(traction_control_switch, App_BinarySwitch_Destroy);
         TearDownObject(torque_vectoring_switch, App_BinarySwitch_Destroy);
         TearDownObject(error_table, App_SharedErrorTable_Destroy);
-        TearDownObject(board_status_leds, App_BoardStatusLeds_Destroy);
+        TearDownObject(bms_status_led, App_SharedRgbLed_Destroy);
+        TearDownObject(dcm_status_led, App_SharedRgbLed_Destroy);
+        TearDownObject(dim_status_led, App_SharedRgbLed_Destroy);
+        TearDownObject(fsm_status_led, App_SharedRgbLed_Destroy);
+        TearDownObject(pdm_status_led, App_SharedRgbLed_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -225,7 +253,11 @@ class DimStateMachineTest : public testing::Test
     struct BinarySwitch *     torque_vectoring_switch;
     struct RotarySwitch *     drive_mode_switch;
     struct ErrorTable *       error_table;
-    struct BoardStatusLeds *  board_status_leds;
+    struct RgbLed *           bms_status_led;
+    struct RgbLed *           dcm_status_led;
+    struct RgbLed *           dim_status_led;
+    struct RgbLed *           fsm_status_led;
+    struct RgbLed *           pdm_status_led;
 };
 
 // DIM-12
@@ -467,7 +499,7 @@ TEST_F(DimStateMachineTest, dim_board_status_led_control_with_critical_error)
     // Set any critical error and check that the DIM LED turns red
     App_SharedErrorTable_SetError(error_table, DIM_CRITICAL_DUMMY, true);
     App_SharedStateMachine_Tick100Hz(state_machine);
-    ASSERT_EQ(1, turn_on_dim_red_fake.call_count);
+    ASSERT_EQ(1, turn_dim_status_led_red_fake.call_count);
 }
 
 // DIM-2
@@ -480,7 +512,7 @@ TEST_F(
         error_table, DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
     App_SharedStateMachine_Tick100Hz(state_machine);
-    ASSERT_EQ(1, turn_on_dim_blue_fake.call_count);
+    ASSERT_EQ(1, turn_dim_status_led_blue_fake.call_count);
 }
 
 // DIM-2
@@ -488,7 +520,7 @@ TEST_F(DimStateMachineTest, dim_board_status_led_control_with_no_error)
 {
     // Don't set any error and check that the DIM LED turns green
     App_SharedStateMachine_Tick100Hz(state_machine);
-    ASSERT_EQ(1, turn_on_dim_green_fake.call_count);
+    ASSERT_EQ(1, turn_dim_status_led_green_fake.call_count);
 }
 
 TEST_F(DimStateMachineTest, dim_board_status_led_control_with_multiple_errors)
@@ -501,8 +533,8 @@ TEST_F(DimStateMachineTest, dim_board_status_led_control_with_multiple_errors)
         error_table, DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
     App_SharedStateMachine_Tick100Hz(state_machine);
-    ASSERT_EQ(1, turn_on_dim_red_fake.call_count);
-    ASSERT_EQ(0, turn_on_dim_blue_fake.call_count);
+    ASSERT_EQ(1, turn_dim_status_led_red_fake.call_count);
+    ASSERT_EQ(0, turn_dim_status_led_blue_fake.call_count);
 }
 
 // DIM-2
@@ -511,7 +543,7 @@ TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_critical_error)
     // Set any critical error and check that the DCM LED turns red
     App_SharedErrorTable_SetError(error_table, DCM_CRITICAL_DUMMY, true);
     App_SharedStateMachine_Tick100Hz(state_machine);
-    ASSERT_EQ(1, turn_on_dcm_red_fake.call_count);
+    ASSERT_EQ(1, turn_dcm_status_led_red_fake.call_count);
 }
 
 // DIM-2
@@ -524,7 +556,7 @@ TEST_F(
         error_table, DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
     App_SharedStateMachine_Tick100Hz(state_machine);
-    ASSERT_EQ(1, turn_on_dcm_blue_fake.call_count);
+    ASSERT_EQ(1, turn_dcm_status_led_blue_fake.call_count);
 }
 
 // DIM-2
@@ -532,7 +564,7 @@ TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_no_error)
 {
     // Don't set any error and check that the DCM LED turns green
     App_SharedStateMachine_Tick100Hz(state_machine);
-    ASSERT_EQ(1, turn_on_dcm_green_fake.call_count);
+    ASSERT_EQ(1, turn_dcm_status_led_green_fake.call_count);
 }
 
 // DIM-2
@@ -546,8 +578,8 @@ TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_multiple_errors)
         error_table, DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
     App_SharedStateMachine_Tick100Hz(state_machine);
-    ASSERT_EQ(1, turn_on_dcm_red_fake.call_count);
-    ASSERT_EQ(0, turn_on_dcm_blue_fake.call_count);
+    ASSERT_EQ(1, turn_dcm_status_led_red_fake.call_count);
+    ASSERT_EQ(0, turn_dcm_status_led_blue_fake.call_count);
 }
 
 // DIM-2
@@ -556,7 +588,7 @@ TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_critical_error)
     // Set any critical error and check that the FSM LED turns red
     App_SharedErrorTable_SetError(error_table, FSM_CRITICAL_DUMMY, true);
     App_SharedStateMachine_Tick100Hz(state_machine);
-    ASSERT_EQ(1, turn_on_fsm_red_fake.call_count);
+    ASSERT_EQ(1, turn_fsm_status_led_red_fake.call_count);
 }
 
 // DIM-2
@@ -569,7 +601,7 @@ TEST_F(
         error_table, FSM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
     App_SharedStateMachine_Tick100Hz(state_machine);
-    ASSERT_EQ(1, turn_on_fsm_blue_fake.call_count);
+    ASSERT_EQ(1, turn_fsm_status_led_blue_fake.call_count);
 }
 
 // DIM-2
@@ -577,7 +609,7 @@ TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_no_error)
 {
     // Don't set any error and check that the FSM LED turns green
     App_SharedStateMachine_Tick100Hz(state_machine);
-    ASSERT_EQ(1, turn_on_fsm_green_fake.call_count);
+    ASSERT_EQ(1, turn_fsm_status_led_green_fake.call_count);
 }
 
 // DIM-2
@@ -591,8 +623,8 @@ TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_multiple_errors)
         error_table, FSM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
     App_SharedStateMachine_Tick100Hz(state_machine);
-    ASSERT_EQ(1, turn_on_fsm_red_fake.call_count);
-    ASSERT_EQ(0, turn_on_fsm_blue_fake.call_count);
+    ASSERT_EQ(1, turn_fsm_status_led_red_fake.call_count);
+    ASSERT_EQ(0, turn_fsm_status_led_blue_fake.call_count);
 }
 
 // DIM-2
@@ -602,7 +634,7 @@ TEST_F(DimStateMachineTest, bms_board_status_led_control_with_critical_error)
     App_SharedErrorTable_SetError(
         error_table, BMS_CRITICAL_CHARGER_DISCONNECTED_IN_CHARGE_STATE, true);
     App_SharedStateMachine_Tick100Hz(state_machine);
-    ASSERT_EQ(1, turn_on_bms_red_fake.call_count);
+    ASSERT_EQ(1, turn_bms_status_led_red_fake.call_count);
 }
 
 // DIM-2
@@ -615,7 +647,7 @@ TEST_F(
         error_table, BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
     App_SharedStateMachine_Tick100Hz(state_machine);
-    ASSERT_EQ(1, turn_on_bms_blue_fake.call_count);
+    ASSERT_EQ(1, turn_bms_status_led_blue_fake.call_count);
 }
 
 // DIM-2
@@ -623,7 +655,7 @@ TEST_F(DimStateMachineTest, bms_board_status_led_control_with_no_error)
 {
     // Don't set any error and check that the BMS LED turns green
     App_SharedStateMachine_Tick100Hz(state_machine);
-    ASSERT_EQ(1, turn_on_bms_green_fake.call_count);
+    ASSERT_EQ(1, turn_bms_status_led_green_fake.call_count);
 }
 
 // DIM-2
@@ -638,8 +670,8 @@ TEST_F(DimStateMachineTest, bms_board_status_led_control_with_multiple_errors)
         error_table, BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
     App_SharedStateMachine_Tick100Hz(state_machine);
-    ASSERT_EQ(1, turn_on_bms_red_fake.call_count);
-    ASSERT_EQ(0, turn_on_bms_blue_fake.call_count);
+    ASSERT_EQ(1, turn_bms_status_led_red_fake.call_count);
+    ASSERT_EQ(0, turn_bms_status_led_blue_fake.call_count);
 }
 
 // DIM-2
@@ -648,7 +680,7 @@ TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_critical_error)
     // Set any critical error and check that the PDM LED turns red
     App_SharedErrorTable_SetError(error_table, PDM_CRITICAL_DUMMY, true);
     App_SharedStateMachine_Tick100Hz(state_machine);
-    ASSERT_EQ(1, turn_on_pdm_red_fake.call_count);
+    ASSERT_EQ(1, turn_pdm_status_led_red_fake.call_count);
 }
 
 // DIM-2
@@ -661,7 +693,7 @@ TEST_F(
         error_table, PDM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
     App_SharedStateMachine_Tick100Hz(state_machine);
-    ASSERT_EQ(1, turn_on_pdm_blue_fake.call_count);
+    ASSERT_EQ(1, turn_pdm_status_led_blue_fake.call_count);
 }
 
 // DIM-2
@@ -669,7 +701,7 @@ TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_no_error)
 {
     // Don't set any error and check that the PDM LED turns green
     App_SharedStateMachine_Tick100Hz(state_machine);
-    ASSERT_EQ(1, turn_on_pdm_green_fake.call_count);
+    ASSERT_EQ(1, turn_pdm_status_led_green_fake.call_count);
 }
 
 // DIM-2
@@ -683,8 +715,8 @@ TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_multiple_errors)
         error_table, PDM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
     App_SharedStateMachine_Tick100Hz(state_machine);
-    ASSERT_EQ(1, turn_on_pdm_red_fake.call_count);
-    ASSERT_EQ(0, turn_on_pdm_blue_fake.call_count);
+    ASSERT_EQ(1, turn_pdm_status_led_red_fake.call_count);
+    ASSERT_EQ(0, turn_pdm_status_led_blue_fake.call_count);
 }
 
 } // namespace StateMachineTest

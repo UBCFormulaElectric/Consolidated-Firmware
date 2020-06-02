@@ -1,108 +1,143 @@
 #include <stm32f3xx.h>
-#include "Io_BoardStatusLeds.h"
+#include "Io_RgbLeds.h"
 #include "main.h"
 
-void Io_BoardStatusLeds_TurnOnDimRed(void)
+void Io_RgbLeds_TurnDimStatusLedRed(void)
 {
     HAL_GPIO_WritePin(DIM_RED_GPIO_Port, DIM_RED_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(DIM_GREEN_GPIO_Port, DIM_GREEN_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(DIM_BLUE_GPIO_Port, DIM_BLUE_Pin, GPIO_PIN_RESET);
 }
 
-void Io_BoardStatusLeds_TurnOnDimGreen(void)
+void Io_RgbLeds_TurnDimStatusLedGreen(void)
 {
     HAL_GPIO_WritePin(DIM_RED_GPIO_Port, DIM_RED_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(DIM_GREEN_GPIO_Port, DIM_GREEN_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(DIM_BLUE_GPIO_Port, DIM_BLUE_Pin, GPIO_PIN_RESET);
 }
 
-void Io_BoardStatusLeds_TurnOnDimBlue(void)
+void Io_RgbLeds_TurnDimStatusLedBlue(void)
 {
     HAL_GPIO_WritePin(DIM_RED_GPIO_Port, DIM_RED_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(DIM_GREEN_GPIO_Port, DIM_GREEN_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(DIM_BLUE_GPIO_Port, DIM_BLUE_Pin, GPIO_PIN_SET);
 }
 
-void Io_BoardStatusLeds_TurnOnDcmRed(void)
+void Io_RgbLeds_TurnOffDimStatusLed(void)
+{
+    HAL_GPIO_WritePin(DIM_RED_GPIO_Port, DIM_RED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(DIM_GREEN_GPIO_Port, DIM_GREEN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(DIM_BLUE_GPIO_Port, DIM_BLUE_Pin, GPIO_PIN_RESET);
+}
+
+void Io_RgbLeds_TurnDcmStatusLedRed(void)
 {
     HAL_GPIO_WritePin(DCM_RED_GPIO_Port, DCM_RED_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(DCM_GREEN_GPIO_Port, DCM_GREEN_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(DCM_BLUE_GPIO_Port, DCM_BLUE_Pin, GPIO_PIN_RESET);
 }
 
-void Io_BoardStatusLeds_TurnOnDcmGreen(void)
+void Io_RgbLeds_TurnDcmStatusLedGreen(void)
 {
     HAL_GPIO_WritePin(DCM_RED_GPIO_Port, DCM_RED_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(DCM_GREEN_GPIO_Port, DCM_GREEN_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(DCM_BLUE_GPIO_Port, DCM_BLUE_Pin, GPIO_PIN_RESET);
 }
 
-void Io_BoardStatusLeds_TurnOnDcmBlue(void)
+void Io_RgbLeds_TurnDcmStatusLedBlue(void)
 {
     HAL_GPIO_WritePin(DCM_RED_GPIO_Port, DCM_RED_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(DCM_GREEN_GPIO_Port, DCM_GREEN_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(DCM_BLUE_GPIO_Port, DCM_BLUE_Pin, GPIO_PIN_SET);
 }
 
-void Io_BoardStatusLeds_TurnOnFsmRed(void)
+void Io_RgbLeds_TurnOffDcmStatusLed(void)
+{
+    HAL_GPIO_WritePin(DCM_RED_GPIO_Port, DCM_RED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(DCM_GREEN_GPIO_Port, DCM_GREEN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(DCM_BLUE_GPIO_Port, DCM_BLUE_Pin, GPIO_PIN_RESET);
+}
+
+void Io_RgbLeds_TurnFsmStatusLedRed(void)
 {
     HAL_GPIO_WritePin(FSM_RED_GPIO_Port, FSM_RED_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(FSM_GREEN_GPIO_Port, FSM_GREEN_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(FSM_BLUE_GPIO_Port, FSM_BLUE_Pin, GPIO_PIN_RESET);
 }
 
-void Io_BoardStatusLeds_TurnOnFsmGreen(void)
+void Io_RgbLeds_TurnFsmStatusLedGreen(void)
 {
     HAL_GPIO_WritePin(FSM_RED_GPIO_Port, FSM_RED_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(FSM_GREEN_GPIO_Port, FSM_GREEN_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(FSM_BLUE_GPIO_Port, FSM_BLUE_Pin, GPIO_PIN_RESET);
 }
 
-void Io_BoardStatusLeds_TurnOnFsmBlue(void)
+void Io_RgbLeds_TurnFsmStatusLedBlue(void)
 {
     HAL_GPIO_WritePin(FSM_RED_GPIO_Port, FSM_RED_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(FSM_GREEN_GPIO_Port, FSM_GREEN_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(FSM_BLUE_GPIO_Port, FSM_BLUE_Pin, GPIO_PIN_RESET);
 }
 
-void Io_BoardStatusLeds_TurnOnBmsRed(void)
+void Io_RgbLeds_TurnOffFsmStatusLed(void)
+{
+    HAL_GPIO_WritePin(FSM_RED_GPIO_Port, FSM_RED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(FSM_GREEN_GPIO_Port, FSM_GREEN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(FSM_BLUE_GPIO_Port, FSM_BLUE_Pin, GPIO_PIN_RESET);
+}
+
+void Io_RgbLeds_TurnBmsStatusLedRed(void)
 {
     HAL_GPIO_WritePin(BMS_RED_GPIO_Port, BMS_RED_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(BMS_GREEN_GPIO_Port, BMS_GREEN_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(BMS_BLUE_GPIO_Port, BMS_BLUE_Pin, GPIO_PIN_RESET);
 }
 
-void Io_BoardStatusLeds_TurnOnBmsGreen(void)
+void Io_RgbLeds_TurnBmsStatusLedGreen(void)
 {
     HAL_GPIO_WritePin(BMS_RED_GPIO_Port, BMS_RED_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(BMS_GREEN_GPIO_Port, BMS_GREEN_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(BMS_BLUE_GPIO_Port, BMS_BLUE_Pin, GPIO_PIN_RESET);
 }
 
-void Io_BoardStatusLeds_TurnOnBmsBlue(void)
+void Io_RgbLeds_TurnBmsStatusLedBlue(void)
 {
     HAL_GPIO_WritePin(BMS_RED_GPIO_Port, BMS_RED_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(BMS_GREEN_GPIO_Port, BMS_GREEN_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(BMS_BLUE_GPIO_Port, BMS_BLUE_Pin, GPIO_PIN_RESET);
 }
 
-void Io_BoardStatusLeds_TurnOnPdmRed(void)
+void Io_RgbLeds_TurnOffBmsStatusLed(void)
+{
+    HAL_GPIO_WritePin(BMS_RED_GPIO_Port, BMS_RED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(BMS_GREEN_GPIO_Port, BMS_GREEN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(BMS_BLUE_GPIO_Port, BMS_BLUE_Pin, GPIO_PIN_RESET);
+}
+
+void Io_RgbLeds_TurnPdmStatusLedRed(void)
 {
     HAL_GPIO_WritePin(PDM_RED_GPIO_Port, PDM_RED_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(PDM_GREEN_GPIO_Port, PDM_GREEN_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(PDM_BLUE_GPIO_Port, PDM_BLUE_Pin, GPIO_PIN_RESET);
 }
 
-void Io_BoardStatusLeds_TurnOnPdmGreen(void)
+void Io_RgbLeds_TurnPdmStatusLedGreen(void)
 {
     HAL_GPIO_WritePin(PDM_RED_GPIO_Port, PDM_RED_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(PDM_GREEN_GPIO_Port, PDM_GREEN_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(PDM_BLUE_GPIO_Port, PDM_BLUE_Pin, GPIO_PIN_RESET);
 }
 
-void Io_BoardStatusLeds_TurnOnPdmBlue(void)
+void Io_RgbLeds_TurnPdmStatusLedBlue(void)
 {
     HAL_GPIO_WritePin(PDM_RED_GPIO_Port, PDM_RED_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(PDM_GREEN_GPIO_Port, PDM_GREEN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(PDM_BLUE_GPIO_Port, PDM_BLUE_Pin, GPIO_PIN_RESET);
+}
+
+void Io_RgbLeds_TurnOffPdmStatusLed(void)
+{
+    HAL_GPIO_WritePin(PDM_RED_GPIO_Port, PDM_RED_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(PDM_GREEN_GPIO_Port, PDM_GREEN_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(PDM_BLUE_GPIO_Port, PDM_BLUE_Pin, GPIO_PIN_RESET);
 }
