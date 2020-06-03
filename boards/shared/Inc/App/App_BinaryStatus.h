@@ -24,4 +24,4 @@ void App_BinaryStatus_Destroy(struct BinaryStatus *binary_status);
  * @return True if the given binary status is turned on, else false
  */
 bool App_BinaryStatus_IsStatusActive(
-    const struct BinaryStatus *const binary_status);
+    const struct BinaryStatus * binary_status);
