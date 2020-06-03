@@ -3,7 +3,7 @@
 
 extern "C"
 {
-#include "App_BinaryStatus.h"
+#include "App_SharedBinaryStatus.h"
 #include "App_InRangeCheck.h"
 #include "App_SharedStateMachine.h"
 #include "App_SharedHeartbeatMonitor.h"
@@ -82,7 +82,7 @@ class FsmStateMachineTest : public testing::Test
         brake_pressure_in_range_check = App_InRangeCheck_Create(
             get_brake_pressure, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
 
-        brake_actuation_status = App_BinaryStatus_Create(is_brake_actuated);
+        brake_actuation_status = App_SharedBinaryStatus_Create(is_brake_actuated);
 
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
@@ -134,7 +134,7 @@ class FsmStateMachineTest : public testing::Test
             secondary_flow_rate_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(steering_angle_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(brake_pressure_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(brake_actuation_status, App_BinaryStatus_Destroy);
+        TearDownObject(brake_actuation_status, App_SharedBinaryStatus_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
     }
 
@@ -224,7 +224,7 @@ class FsmStateMachineTest : public testing::Test
     struct InRangeCheck *     right_wheel_speed_in_range_check;
     struct InRangeCheck *     steering_angle_in_range_check;
     struct InRangeCheck *     brake_pressure_in_range_check;
-    struct BinaryStatus *     brake_actuation_status;
+    struct SharedBinaryStatus *     brake_actuation_status;
     struct RgbLedSequence *   rgb_led_sequence;
 };
 

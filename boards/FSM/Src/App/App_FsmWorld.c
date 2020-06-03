@@ -6,31 +6,31 @@
 
 struct FsmWorld
 {
-    struct FsmCanTxInterface *can_tx_interface;
-    struct FsmCanRxInterface *can_rx_interface;
-    struct HeartbeatMonitor * heartbeat_monitor;
-    struct InRangeCheck *     primary_flow_rate_in_range_check;
-    struct InRangeCheck *     secondary_flow_rate_in_range_check;
-    struct InRangeCheck *     left_wheel_speed_in_range_check;
-    struct InRangeCheck *     right_wheel_speed_in_range_check;
-    struct InRangeCheck *     steering_angle_in_range_check;
-    struct InRangeCheck *     brake_pressure_in_range_check;
-    struct BinaryStatus *     brake_actuation_status;
-    struct RgbLedSequence *   rgb_led_sequence;
+    struct FsmCanTxInterface * can_tx_interface;
+    struct FsmCanRxInterface * can_rx_interface;
+    struct HeartbeatMonitor *  heartbeat_monitor;
+    struct InRangeCheck *      primary_flow_rate_in_range_check;
+    struct InRangeCheck *      secondary_flow_rate_in_range_check;
+    struct InRangeCheck *      left_wheel_speed_in_range_check;
+    struct InRangeCheck *      right_wheel_speed_in_range_check;
+    struct InRangeCheck *      steering_angle_in_range_check;
+    struct InRangeCheck *      brake_pressure_in_range_check;
+    struct SharedBinaryStatus *brake_actuation_status;
+    struct RgbLedSequence *    rgb_led_sequence;
 };
 
 struct FsmWorld *App_FsmWorld_Create(
-    struct FsmCanTxInterface *const can_tx_interface,
-    struct FsmCanRxInterface *const can_rx_interface,
-    struct HeartbeatMonitor *const  heartbeat_monitor,
-    struct InRangeCheck *const      primary_flow_rate_in_range_check,
-    struct InRangeCheck *const      secondary_flow_rate_in_range_check,
-    struct InRangeCheck *const      left_wheel_speed_in_range_check,
-    struct InRangeCheck *const      right_wheel_speed_in_range_check,
-    struct InRangeCheck *const      steering_angle_in_range_check,
-    struct InRangeCheck *const      brake_pressure_in_range_check,
-    struct BinaryStatus *const      brake_actuation_status,
-    struct RgbLedSequence *const    rgb_led_sequence)
+    struct FsmCanTxInterface *const  can_tx_interface,
+    struct FsmCanRxInterface *const  can_rx_interface,
+    struct HeartbeatMonitor *const   heartbeat_monitor,
+    struct InRangeCheck *const       primary_flow_rate_in_range_check,
+    struct InRangeCheck *const       secondary_flow_rate_in_range_check,
+    struct InRangeCheck *const       left_wheel_speed_in_range_check,
+    struct InRangeCheck *const       right_wheel_speed_in_range_check,
+    struct InRangeCheck *const       steering_angle_in_range_check,
+    struct InRangeCheck *const       brake_pressure_in_range_check,
+    struct SharedBinaryStatus *const brake_actuation_status,
+    struct RgbLedSequence *const     rgb_led_sequence)
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
     assert(world != NULL);
@@ -110,7 +110,7 @@ struct InRangeCheck *App_FsmWorld_GetBrakePressureInRangeCheck(
     return world->brake_pressure_in_range_check;
 }
 
-struct BinaryStatus *
+struct SharedBinaryStatus *
     App_FsmWorld_GetBrakeActuationStatus(const struct FsmWorld *const world)
 {
     return world->brake_actuation_status;

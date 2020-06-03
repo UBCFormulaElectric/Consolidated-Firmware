@@ -2,7 +2,7 @@
 
 #include <stdbool.h>
 
-struct BinaryStatus;
+struct SharedBinaryStatus;
 
 /**
  * Allocate and initialize a binary status indicator
@@ -10,18 +10,20 @@ struct BinaryStatus;
  * the binary status is active or inactive
  * @return The created binary status, whose ownership is given to the caller
  */
-struct BinaryStatus *App_BinaryStatus_Create(bool (*is_status_active)(void));
+struct SharedBinaryStatus *
+    App_SharedBinaryStatus_Create(bool (*is_status_active)(void));
 
 /**
  * Deallocate the memory used by the given binary status
- * @param binary_status The binary status to deallocate
+ * @param shared_binary_status The binary status to deallocate
  */
-void App_BinaryStatus_Destroy(struct BinaryStatus *binary_status);
+void App_SharedBinaryStatus_Destroy(
+    struct SharedBinaryStatus *shared_binary_status);
 
 /**
  * Check if the given binary status is active
- * @param binary_status The binary status to check if it is active
+ * @param shared_binary_status The binary status to check if it is active
  * @return True if the given binary status is turned on, else false
  */
-bool App_BinaryStatus_IsStatusActive(
-    const struct BinaryStatus *const binary_status);
+bool App_SharedBinaryStatus_IsStatusActive(
+    const struct SharedBinaryStatus *const shared_binary_status);

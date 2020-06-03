@@ -44,7 +44,7 @@
 #include "App_FsmWorld.h"
 #include "App_InRangeCheck.h"
 #include "App_SharedStateMachine.h"
-#include "App_BinaryStatus.h"
+#include "App_SharedBinaryStatus.h"
 #include "states/App_AirOpenState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_FlowRateThresholds.h"
@@ -104,7 +104,7 @@ struct InRangeCheck *left_wheel_speed_sensor_in_range_check,
     *right_wheel_speed_sensor_in_range_check;
 struct InRangeCheck *     steering_angle_sensor_in_range_check;
 struct InRangeCheck *     brake_pressure_sensor_in_range_check;
-struct BinaryStatus *     brake_actuation_status;
+struct SharedBinaryStatus *     brake_actuation_status;
 struct World *            world;
 struct StateMachine *     state_machine;
 struct FsmCanTxInterface *can_tx;
@@ -225,7 +225,7 @@ int main(void)
         MAX_BRAKE_PRESSURE_PSI);
 
     brake_actuation_status =
-        App_BinaryStatus_Create(Io_MSP3002K5P3N1_IsBrakeActuated);
+        App_SharedBinaryStatus_Create(Io_MSP3002K5P3N1_IsBrakeActuated);
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
