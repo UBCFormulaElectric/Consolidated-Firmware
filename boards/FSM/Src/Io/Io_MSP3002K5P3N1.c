@@ -4,9 +4,9 @@
 
 bool Io_MSP3002K5P3N1_IsBrakeActuated(void)
 {
-    return (
-        HAL_GPIO_ReadPin(BSPD_BRAKE_STATUS_GPIO_Port, BSPD_BRAKE_STATUS_Pin) ==
-        GPIO_PIN_SET);
+    return HAL_GPIO_ReadPin(
+               BSPD_BRAKE_STATUS_GPIO_Port, BSPD_BRAKE_STATUS_Pin) ==
+           GPIO_PIN_SET;
 }
 
 float Io_MSP3002K5P3N1_GetPressurePsi(void)

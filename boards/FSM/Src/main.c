@@ -102,15 +102,15 @@ struct InRangeCheck *primary_flow_meter_in_range_check,
     *secondary_flow_meter_in_range_check;
 struct InRangeCheck *left_wheel_speed_sensor_in_range_check,
     *right_wheel_speed_sensor_in_range_check;
-struct InRangeCheck *     steering_angle_sensor_in_range_check;
-struct InRangeCheck *     brake_pressure_sensor_in_range_check;
-struct SharedBinaryStatus *     brake_actuation_status;
-struct World *            world;
-struct StateMachine *     state_machine;
-struct FsmCanTxInterface *can_tx;
-struct FsmCanRxInterface *can_rx;
-struct HeartbeatMonitor * heartbeat_monitor;
-struct RgbLedSequence *   rgb_led_sequence;
+struct InRangeCheck *      steering_angle_sensor_in_range_check;
+struct InRangeCheck *      brake_pressure_sensor_in_range_check;
+struct SharedBinaryStatus *brake_actuation_status;
+struct World *             world;
+struct StateMachine *      state_machine;
+struct FsmCanTxInterface * can_tx;
+struct FsmCanRxInterface * can_rx;
+struct HeartbeatMonitor *  heartbeat_monitor;
+struct RgbLedSequence *    rgb_led_sequence;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

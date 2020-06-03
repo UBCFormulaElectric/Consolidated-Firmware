@@ -5,7 +5,7 @@
 struct SharedBinaryStatus;
 
 /**
- * Allocate and initialize a binary status indicator
+ * Allocate and initialize a binary status
  * @param is_status_active A function that returns a boolean indicating whether
  * the binary status is active or inactive
  * @return The created binary status, whose ownership is given to the caller

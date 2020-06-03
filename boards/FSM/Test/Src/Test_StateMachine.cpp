@@ -82,7 +82,8 @@ class FsmStateMachineTest : public testing::Test
         brake_pressure_in_range_check = App_InRangeCheck_Create(
             get_brake_pressure, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
 
-        brake_actuation_status = App_SharedBinaryStatus_Create(is_brake_actuated);
+        brake_actuation_status =
+            App_SharedBinaryStatus_Create(is_brake_actuated);
 
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
@@ -213,19 +214,19 @@ class FsmStateMachineTest : public testing::Test
         }
     }
 
-    struct World *            world;
-    struct StateMachine *     state_machine;
-    struct FsmCanTxInterface *can_tx_interface;
-    struct FsmCanRxInterface *can_rx_interface;
-    struct HeartbeatMonitor * heartbeat_monitor;
-    struct InRangeCheck *     primary_flow_rate_in_range_check;
-    struct InRangeCheck *     secondary_flow_rate_in_range_check;
-    struct InRangeCheck *     left_wheel_speed_in_range_check;
-    struct InRangeCheck *     right_wheel_speed_in_range_check;
-    struct InRangeCheck *     steering_angle_in_range_check;
-    struct InRangeCheck *     brake_pressure_in_range_check;
-    struct SharedBinaryStatus *     brake_actuation_status;
-    struct RgbLedSequence *   rgb_led_sequence;
+    struct World *             world;
+    struct StateMachine *      state_machine;
+    struct FsmCanTxInterface * can_tx_interface;
+    struct FsmCanRxInterface * can_rx_interface;
+    struct HeartbeatMonitor *  heartbeat_monitor;
+    struct InRangeCheck *      primary_flow_rate_in_range_check;
+    struct InRangeCheck *      secondary_flow_rate_in_range_check;
+    struct InRangeCheck *      left_wheel_speed_in_range_check;
+    struct InRangeCheck *      right_wheel_speed_in_range_check;
+    struct InRangeCheck *      steering_angle_in_range_check;
+    struct InRangeCheck *      brake_pressure_in_range_check;
+    struct SharedBinaryStatus *brake_actuation_status;
+    struct RgbLedSequence *    rgb_led_sequence;
 };
 
 // FSM-10
