@@ -247,24 +247,24 @@ int main(void)
     error_table = App_SharedErrorTable_Create();
 
     bms_status_led = App_SharedRgbLed_Create(
-        Io_RgbLeds_TurnOnBmsRed, Io_RgbLeds_TurnOnBmsGreen,
-        Io_RgbLeds_TurnOnBmsBlue, Io_RgbLeds_TurnOffBms);
+        Io_RgbLeds_TurnBmsStatusLedRed, Io_RgbLeds_TurnBmsStatusLedGreen,
+        Io_RgbLeds_TurnBmsStatusLedBlue, Io_RgbLeds_TurnOffBmsStatusLed);
 
     dcm_status_led = App_SharedRgbLed_Create(
-        Io_RgbLeds_TurnOnDcmRed, Io_RgbLeds_TurnOnDcmGreen,
-        Io_RgbLeds_TurnOnDcmBlue, Io_RgbLeds_TurnOffDcm);
+        Io_RgbLeds_TurnDcmStatusLedRed, Io_RgbLeds_TurnDcmStatusLedGreen,
+        Io_RgbLeds_TurnDcmStatusLedBlue, Io_RgbLeds_TurnOffDcmStatusLed);
 
     dim_status_led = App_SharedRgbLed_Create(
-        Io_RgbLeds_TurnOnDimRed, Io_RgbLeds_TurnOnDimGreen,
-        Io_RgbLeds_TurnOnDimBlue, Io_RgbLeds_TurnOffDim);
+        Io_RgbLeds_TurnDimStatusLedRed, Io_RgbLeds_TurnDimStatusLedGreen,
+        Io_RgbLeds_TurnDimStatusLedBlue, Io_RgbLeds_TurnOffDimStatusLed);
 
     fsm_status_led = App_SharedRgbLed_Create(
-        Io_RgbLeds_TurnOnFsmRed, Io_RgbLeds_TurnOnFsmGreen,
-        Io_RgbLeds_TurnOnFsmBlue, Io_RgbLeds_TurnOffFsm);
+        Io_RgbLeds_TurnFsmStatusLedRed, Io_RgbLeds_TurnFsmStatusLedGreen,
+        Io_RgbLeds_TurnFsmStatusLedBlue, Io_RgbLeds_TurnOffFsmStatusLed);
 
     pdm_status_led = App_SharedRgbLed_Create(
-        Io_RgbLeds_TurnOnPdmRed, Io_RgbLeds_TurnOnPdmGreen,
-        Io_RgbLeds_TurnOnPdmBlue, Io_RgbLeds_TurnOffPdm);
+        Io_RgbLeds_TurnPdmStatusLedRed, Io_RgbLeds_TurnPdmStatusLedGreen,
+        Io_RgbLeds_TurnPdmStatusLedBlue, Io_RgbLeds_TurnOffPdmStatusLed);
 
     world = App_DimWorld_Create(
         can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle,
