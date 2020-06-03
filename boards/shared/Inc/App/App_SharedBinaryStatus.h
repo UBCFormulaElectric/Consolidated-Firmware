@@ -17,8 +17,7 @@ struct SharedBinaryStatus *
  * Deallocate the memory used by the given binary status
  * @param shared_binary_status The binary status to deallocate
  */
-void App_SharedBinaryStatus_Destroy(
-    struct SharedBinaryStatus *shared_binary_status);
+void App_SharedBinaryStatus_Destroy(struct SharedBinaryStatus *binary_status);
 
 /**
  * Check if the given binary status is active
@@ -26,4 +25,4 @@ void App_SharedBinaryStatus_Destroy(
  * @return True if the given binary status is turned on, else false
  */
 bool App_SharedBinaryStatus_IsStatusActive(
-    const struct SharedBinaryStatus *const shared_binary_status);
+    const struct SharedBinaryStatus *const binary_status);
