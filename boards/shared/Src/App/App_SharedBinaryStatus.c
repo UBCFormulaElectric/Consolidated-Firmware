@@ -16,7 +16,7 @@ struct SharedBinaryStatus *
 
     binary_status->is_status_active = is_status_active;
 
-    return binary_status;
+    return binary_statu;
 }
 
 void App_SharedBinaryStatus_Destroy(struct SharedBinaryStatus *binary_status)
