@@ -273,7 +273,7 @@ TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
 // DIM-9
 TEST_F(
     DimStateMachineTest,
-    check_7_seg_displays_show_state_of_charge_in_drive_state)
+    check_7_seg_displays_show_state_of_charge_in_drive_state_if_there_is_no_error)
 {
     App_CanRx_BMS_STATE_OF_CHARGE_SetSignal_STATE_OF_CHARGE(
         can_rx_interface, 0.0f);
@@ -301,6 +301,30 @@ TEST_F(
     ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[2].value);
     ASSERT_EQ(0, set_middle_hex_digit_fake.arg0_history[2].value);
     ASSERT_EQ(1, set_right_hex_digit_fake.arg0_history[2].value);
+}
+
+// DIM-9
+TEST_F(
+    DimStateMachineTest,
+    check_7_seg_displays_show_error_id_in_drive_state_if_there_is_any_error)
+{
+    // Set error for some made-up error ID, the value 10 was chosen because
+    // it will be value as long as we have more than 10 errors which should
+    // always be true.
+    App_SharedErrorTable_SetError(
+        error_table, (enum ErrorId)(10), true);
+
+    App_SharedStateMachine_Tick100Hz(state_machine);
+
+    // When an error ID shows up on the 7-segment displays, it will have an
+    // offset of 500 added to it. This is why we are asserting for the value
+    // of 10 + 500 = 510 below.
+    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_val.value);
+    ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
+    ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
 }
 
 TEST_F(
