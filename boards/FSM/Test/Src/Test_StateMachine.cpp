@@ -214,19 +214,19 @@ class FsmStateMachineTest : public testing::Test
         }
     }
 
-    struct World *             world;
-    struct StateMachine *      state_machine;
-    struct FsmCanTxInterface * can_tx_interface;
-    struct FsmCanRxInterface * can_rx_interface;
-    struct HeartbeatMonitor *  heartbeat_monitor;
-    struct InRangeCheck *      primary_flow_rate_in_range_check;
-    struct InRangeCheck *      secondary_flow_rate_in_range_check;
-    struct InRangeCheck *      left_wheel_speed_in_range_check;
-    struct InRangeCheck *      right_wheel_speed_in_range_check;
-    struct InRangeCheck *      steering_angle_in_range_check;
-    struct InRangeCheck *      brake_pressure_in_range_check;
-    struct SharedBinaryStatus *brake_actuation_status;
-    struct RgbLedSequence *    rgb_led_sequence;
+    struct World *            world;
+    struct StateMachine *     state_machine;
+    struct FsmCanTxInterface *can_tx_interface;
+    struct FsmCanRxInterface *can_rx_interface;
+    struct HeartbeatMonitor * heartbeat_monitor;
+    struct InRangeCheck *     primary_flow_rate_in_range_check;
+    struct InRangeCheck *     secondary_flow_rate_in_range_check;
+    struct InRangeCheck *     left_wheel_speed_in_range_check;
+    struct InRangeCheck *     right_wheel_speed_in_range_check;
+    struct InRangeCheck *     steering_angle_in_range_check;
+    struct InRangeCheck *     brake_pressure_in_range_check;
+    struct BinaryStatus *     brake_actuation_status;
+    struct RgbLedSequence *   rgb_led_sequence;
 };
 
 // FSM-10

@@ -95,7 +95,7 @@ void App_SetPeriodicSignals_BrakeActuationStatus(const struct FsmWorld *world)
 {
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
 
-    struct SharedBinaryStatus *brake_actuation_status =
+    struct BinaryStatus *brake_actuation_status =
         App_FsmWorld_GetBrakeActuationStatus(world);
 
     App_SetPeriodicCanSignals_SharedBinaryStatus(

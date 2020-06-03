@@ -19,17 +19,17 @@ struct FsmWorld;
  * caller
  */
 struct FsmWorld *App_FsmWorld_Create(
-    struct FsmCanTxInterface * can_tx_interface,
-    struct FsmCanRxInterface * can_rx_interface,
-    struct HeartbeatMonitor *  heartbeat_monitor,
-    struct InRangeCheck *      primary_flow_rate_in_range_check,
-    struct InRangeCheck *      secondary_flow_rate_in_range_check,
-    struct InRangeCheck *      left_wheel_speed_in_range_check,
-    struct InRangeCheck *      right_wheel_speed_in_range_check,
-    struct InRangeCheck *      steering_angle_in_range_check,
-    struct InRangeCheck *      brake_pressure_in_range_check,
-    struct SharedBinaryStatus *brake_actuation_status,
-    struct RgbLedSequence *    rgb_led_sequence);
+    struct FsmCanTxInterface *can_tx_interface,
+    struct FsmCanRxInterface *can_rx_interface,
+    struct HeartbeatMonitor * heartbeat_monitor,
+    struct InRangeCheck *     primary_flow_rate_in_range_check,
+    struct InRangeCheck *     secondary_flow_rate_in_range_check,
+    struct InRangeCheck *     left_wheel_speed_in_range_check,
+    struct InRangeCheck *     right_wheel_speed_in_range_check,
+    struct InRangeCheck *     steering_angle_in_range_check,
+    struct InRangeCheck *     brake_pressure_in_range_check,
+    struct BinaryStatus *     brake_actuation_status,
+    struct RgbLedSequence *   rgb_led_sequence);
 
 /**
  * Deallocate the memory used by the given world
@@ -112,7 +112,7 @@ struct InRangeCheck *
  * @param world The world to get the brake actuation status for
  * @return The brake actuation status for the given world
  */
-struct SharedBinaryStatus *
+struct BinaryStatus *
     App_FsmWorld_GetBrakeActuationStatus(const struct FsmWorld *world);
 
 /**

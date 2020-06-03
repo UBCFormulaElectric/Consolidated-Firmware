@@ -38,8 +38,8 @@
 #define STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_BINARY_STATUS(            \
     CAN_TX_INTERFACE)                                                        \
     static void App_SetPeriodicCanSignals_SharedBinaryStatus(                \
-        struct CAN_TX_INTERFACE *        can_tx,                             \
-        const struct SharedBinaryStatus *binary_status,                      \
+        struct CAN_TX_INTERFACE *  can_tx,                                   \
+        const struct BinaryStatus *binary_status,                            \
         void (*const can_signal_setter)(struct CAN_TX_INTERFACE *, uint8_t), \
         uint8_t on_choice, uint8_t off_choice)                               \
     {                                                                        \
