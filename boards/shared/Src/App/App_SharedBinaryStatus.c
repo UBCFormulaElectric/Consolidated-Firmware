@@ -23,8 +23,7 @@ void App_SharedBinaryStatus_Destroy(struct BinaryStatus *binary_status)
     free(binary_status);
 }
 
-bool App_SharedBinaryStatus_IsStatusActive(
-    const struct BinaryStatus *binary_status)
+bool App_SharedBinaryStatus_IsActive(const struct BinaryStatus *binary_status)
 {
     return binary_status->is_status_active();
 }

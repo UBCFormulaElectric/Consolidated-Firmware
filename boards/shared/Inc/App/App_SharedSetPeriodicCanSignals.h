@@ -43,7 +43,7 @@
         void (*const can_signal_setter)(struct CAN_TX_INTERFACE *, uint8_t), \
         uint8_t on_choice, uint8_t off_choice)                               \
     {                                                                        \
-        if (App_SharedBinaryStatus_IsStatusActive(binary_status))            \
+        if (App_SharedBinaryStatus_IsActive(binary_status))                  \
         {                                                                    \
             can_signal_setter(can_tx, on_choice);                            \
         }                                                                    \
