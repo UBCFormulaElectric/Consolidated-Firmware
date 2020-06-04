@@ -1,5 +1,7 @@
 #pragma once
 
+struct RgbLed;
+
 /**
  * Allocate and initialize a RGB LED
  * @param turn_red Turn the RGB LED red
