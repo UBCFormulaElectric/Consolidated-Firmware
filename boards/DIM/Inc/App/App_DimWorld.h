@@ -9,6 +9,8 @@
 #include "App_RotarySwitch.h"
 #include "App_Led.h"
 #include "App_BinarySwitch.h"
+#include "App_SharedErrorTable.h"
+#include "App_SharedRgbLed.h"
 
 struct DimWorld;
 
@@ -33,7 +35,13 @@ struct DimWorld *App_DimWorld_Create(
     struct Led *              bspd_led,
     struct BinarySwitch *     start_switch,
     struct BinarySwitch *     traction_control_switch,
-    struct BinarySwitch *     torque_vectoring_switch);
+    struct BinarySwitch *     torque_vectoring_switch,
+    struct ErrorTable *       error_table,
+    struct RgbLed *           bms_status_led,
+    struct RgbLed *           dcm_status_led,
+    struct RgbLed *           dim_status_led,
+    struct RgbLed *           fsm_status_led,
+    struct RgbLed *           pdm_status_led);
 
 /**
  * Deallocate the memory used by the given world
@@ -129,3 +137,45 @@ struct Led *App_DimWorld_GetImdLed(const struct DimWorld *world);
  * @return The BSPD LED for the given world
  */
 struct Led *App_DimWorld_GetBspdLed(const struct DimWorld *world);
+
+/**
+ * Get the error table for the given world
+ * @param world The world to get error table for
+ * @return The error table for the given world
+ */
+struct ErrorTable *App_DimWorld_GetErrorTable(const struct DimWorld *world);
+
+/**
+ * Get the BMS status LED for the given world
+ * @param world The world to get BMS status LED for
+ * @return The BMS status LED for the given world
+ */
+struct RgbLed *App_DimWorld_GetBmsStatusLed(const struct DimWorld *world);
+
+/**
+ * Get the DCM status LED for the given world
+ * @param world The world to get DCM status LED for
+ * @return The DCM status LED for the given world
+ */
+struct RgbLed *App_DimWorld_GetDcmStatusLed(const struct DimWorld *world);
+
+/**
+ * Get the DIM status LED for the given world
+ * @param world The world to get DIM status LED for
+ * @return The DIM status LED for the given world
+ */
+struct RgbLed *App_DimWorld_GetDimStatusLed(const struct DimWorld *world);
+
+/**
+ * Get the FSM status LED for the given world
+ * @param world The world to get FSM status LED for
+ * @return The FSM status LED for the given world
+ */
+struct RgbLed *App_DimWorld_GetFsmStatusLed(const struct DimWorld *world);
+
+/**
+ * Get the PDM status LED for the given world
+ * @param world The world to get PDM status LED for
+ * @return The PDM status LED for the given world
+ */
+struct RgbLed *App_DimWorld_GetPdmStatusLed(const struct DimWorld *world);

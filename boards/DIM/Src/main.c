@@ -49,6 +49,7 @@
 #include "Io_Leds.h"
 #include "Io_Switches.h"
 #include "Io_Adc.h"
+#include "Io_RgbLeds.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -111,6 +112,12 @@ struct Led *              bspd_led;
 struct BinarySwitch *     start_switch;
 struct BinarySwitch *     traction_control_switch;
 struct BinarySwitch *     torque_vectoring_switch;
+struct ErrorTable *       error_table;
+struct RgbLed *           bms_status_led;
+struct RgbLed *           dcm_status_led;
+struct RgbLed *           dim_status_led;
+struct RgbLed *           fsm_status_led;
+struct RgbLed *           pdm_status_led;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -237,10 +244,34 @@ int main(void)
     torque_vectoring_switch =
         App_BinarySwitch_Create(Io_Switches_TorqueVectoringSwitchIsTurnedOn);
 
+    error_table = App_SharedErrorTable_Create();
+
+    bms_status_led = App_SharedRgbLed_Create(
+        Io_RgbLeds_TurnBmsStatusLedRed, Io_RgbLeds_TurnBmsStatusLedGreen,
+        Io_RgbLeds_TurnBmsStatusLedBlue, Io_RgbLeds_TurnOffBmsStatusLed);
+
+    dcm_status_led = App_SharedRgbLed_Create(
+        Io_RgbLeds_TurnDcmStatusLedRed, Io_RgbLeds_TurnDcmStatusLedGreen,
+        Io_RgbLeds_TurnDcmStatusLedBlue, Io_RgbLeds_TurnOffDcmStatusLed);
+
+    dim_status_led = App_SharedRgbLed_Create(
+        Io_RgbLeds_TurnDimStatusLedRed, Io_RgbLeds_TurnDimStatusLedGreen,
+        Io_RgbLeds_TurnDimStatusLedBlue, Io_RgbLeds_TurnOffDimStatusLed);
+
+    fsm_status_led = App_SharedRgbLed_Create(
+        Io_RgbLeds_TurnFsmStatusLedRed, Io_RgbLeds_TurnFsmStatusLedGreen,
+        Io_RgbLeds_TurnFsmStatusLedBlue, Io_RgbLeds_TurnOffFsmStatusLed);
+
+    pdm_status_led = App_SharedRgbLed_Create(
+        Io_RgbLeds_TurnPdmStatusLedRed, Io_RgbLeds_TurnPdmStatusLedGreen,
+        Io_RgbLeds_TurnPdmStatusLedBlue, Io_RgbLeds_TurnOffPdmStatusLed);
+
     world = App_DimWorld_Create(
         can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle,
         rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, start_switch,
-        traction_control_switch, torque_vectoring_switch);
+        traction_control_switch, torque_vectoring_switch, error_table,
+        bms_status_led, dcm_status_led, dim_status_led, fsm_status_led,
+        pdm_status_led);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 

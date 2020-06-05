@@ -18,6 +18,12 @@ struct DimWorld
     struct BinarySwitch *     start_switch;
     struct BinarySwitch *     traction_control_switch;
     struct BinarySwitch *     torque_vectoring_switch;
+    struct ErrorTable *       error_table;
+    struct RgbLed *           bms_status_led;
+    struct RgbLed *           dcm_status_led;
+    struct RgbLed *           dim_status_led;
+    struct RgbLed *           fsm_status_led;
+    struct RgbLed *           pdm_status_led;
 };
 
 struct DimWorld *App_DimWorld_Create(
@@ -32,7 +38,13 @@ struct DimWorld *App_DimWorld_Create(
     struct Led *const               bspd_led,
     struct BinarySwitch *const      start_switch,
     struct BinarySwitch *const      traction_control_switch,
-    struct BinarySwitch *const      torque_vectoring_switch)
+    struct BinarySwitch *const      torque_vectoring_switch,
+    struct ErrorTable *const        error_table,
+    struct RgbLed *const            bms_status_led,
+    struct RgbLed *const            dcm_status_led,
+    struct RgbLed *const            dim_status_led,
+    struct RgbLed *const            fsm_status_led,
+    struct RgbLed *const            pdm_status_led)
 {
     struct DimWorld *world = (struct DimWorld *)malloc(sizeof(struct DimWorld));
     assert(world != NULL);
@@ -49,6 +61,12 @@ struct DimWorld *App_DimWorld_Create(
     world->start_switch            = start_switch;
     world->traction_control_switch = traction_control_switch;
     world->torque_vectoring_switch = torque_vectoring_switch;
+    world->error_table             = error_table;
+    world->bms_status_led          = bms_status_led;
+    world->dcm_status_led          = dcm_status_led;
+    world->dim_status_led          = dim_status_led;
+    world->fsm_status_led          = fsm_status_led;
+    world->pdm_status_led          = pdm_status_led;
 
     return world;
 }
@@ -126,4 +144,35 @@ struct BinarySwitch *
     App_DimWorld_GetTorqueVectoringSwitch(const struct DimWorld *const world)
 {
     return world->torque_vectoring_switch;
+}
+
+struct ErrorTable *
+    App_DimWorld_GetErrorTable(const struct DimWorld *const world)
+{
+    return world->error_table;
+}
+
+struct RgbLed *App_DimWorld_GetBmsStatusLed(const struct DimWorld *world)
+{
+    return world->bms_status_led;
+}
+
+struct RgbLed *App_DimWorld_GetDcmStatusLed(const struct DimWorld *world)
+{
+    return world->dcm_status_led;
+}
+
+struct RgbLed *App_DimWorld_GetDimStatusLed(const struct DimWorld *world)
+{
+    return world->dim_status_led;
+}
+
+struct RgbLed *App_DimWorld_GetFsmStatusLed(const struct DimWorld *world)
+{
+    return world->fsm_status_led;
+}
+
+struct RgbLed *App_DimWorld_GetPdmStatusLed(const struct DimWorld *world)
+{
+    return world->pdm_status_led;
 }
