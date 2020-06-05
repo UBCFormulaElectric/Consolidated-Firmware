@@ -22,6 +22,6 @@ void App_SharedBinaryStatus_Destroy(struct BinaryStatus *binary_status);
 /**
  * Check if the given binary status is active
  * @param binary_status The binary status to check if it is active
- * @return True if the given binary status is turned on, else false
+ * @return True if the given binary status is active, else false
  */
 bool App_SharedBinaryStatus_IsActive(const struct BinaryStatus *binary_status);
