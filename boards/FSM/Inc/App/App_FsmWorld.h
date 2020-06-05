@@ -5,6 +5,7 @@
 #include "App_InRangeCheck.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
+#include "App_SharedBinaryStatus.h"
 
 struct FsmWorld;
 
@@ -27,6 +28,7 @@ struct FsmWorld *App_FsmWorld_Create(
     struct InRangeCheck *     right_wheel_speed_in_range_check,
     struct InRangeCheck *     steering_angle_in_range_check,
     struct InRangeCheck *     brake_pressure_in_range_check,
+    struct BinaryStatus *     brake_actuation_status,
     struct RgbLedSequence *   rgb_led_sequence);
 
 /**
@@ -104,6 +106,14 @@ struct InRangeCheck *
  */
 struct InRangeCheck *
     App_FsmWorld_GetBrakePressureInRangeCheck(const struct FsmWorld *world);
+
+/**
+ * Get the brake actuation status for the given world
+ * @param world The world to get the brake actuation status for
+ * @return The brake actuation status for the given world
+ */
+struct BinaryStatus *
+    App_FsmWorld_GetBrakeActuationStatus(const struct FsmWorld *world);
 
 /**
  * Get the RGB LED sequence for the given world
