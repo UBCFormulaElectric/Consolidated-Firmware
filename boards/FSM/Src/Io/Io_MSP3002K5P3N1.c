@@ -12,7 +12,7 @@ bool Io_MSP3002K5P3N1_IsBrakeActuated(void)
 bool Io_MSP3002K5P3N1_IsBrakeOpenOrShortCircuited(void)
 {
     return HAL_GPIO_ReadPin(BRAKE_OC_SC_OK_GPIO_Port, BRAKE_OC_SC_OK_Pin) ==
-           GPIO_PIN_SET;
+           GPIO_PIN_RESET;
 }
 
 float Io_MSP3002K5P3N1_GetPressurePsi(void)

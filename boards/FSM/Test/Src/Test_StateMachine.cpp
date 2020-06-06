@@ -200,7 +200,7 @@ class FsmStateMachineTest : public testing::Test
         }
     }
 
-    void CheckBinaryStatusCanSignalsInAllStates(
+    void CheckBinaryStatusCanSignalInAllStates(
         bool &fake_value,
         uint8_t (*can_signal_getter)(const struct FsmCanTxInterface *),
         uint8_t on_choice,
@@ -338,7 +338,7 @@ TEST_F(
     FsmStateMachineTest,
     check_brake_pressure_actuation_can_signal_in_all_states)
 {
-    CheckBinaryStatusCanSignalsInAllStates(
+    CheckBinaryStatusCanSignalInAllStates(
         is_brake_actuated_fake.return_val,
         App_CanTx_GetPeriodicSignal_BRAKE_IS_ACTUATED,
         CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE,
@@ -349,7 +349,7 @@ TEST_F(
     FsmStateMachineTest,
     check_brake_open_or_short_circuited_can_signal_in_all_states)
 {
-    CheckBinaryStatusCanSignalsInAllStates(
+    CheckBinaryStatusCanSignalInAllStates(
         is_brake_open_or_short_circuited_fake.return_val,
         App_CanTx_GetPeriodicSignal_BRAKE_IS_OC_SC,
         CANMSGS_FSM_BRAKE_OC_SC_BRAKE_IS_OC_SC_TRUE_CHOICE,
