@@ -109,6 +109,7 @@ struct FsmCanTxInterface *can_tx;
 struct FsmCanRxInterface *can_rx;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
+struct Signal *           demo_signal;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -146,6 +147,16 @@ static void CanRxQueueOverflowCallBack(size_t overflow_count)
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
     App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
+}
+
+static bool ReturnTrue(void)
+{
+    return true;
+}
+
+static void DemoCallBack(void)
+{
+    printf("Test\n");
 }
 
 /* USER CODE END 0 */
@@ -247,6 +258,10 @@ int main(void)
         steering_angle_sensor_in_range_check,
         brake_pressure_sensor_in_range_check, brake_actuation_status,
         rgb_led_sequence);
+
+    demo_signal = App_SharedSignal_Create(ReturnTrue, 0, 10, DemoCallBack);
+
+    App_FsmWorld_RegisterSignal(world, demo_signal);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 

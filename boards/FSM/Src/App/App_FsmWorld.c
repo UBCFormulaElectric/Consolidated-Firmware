@@ -4,6 +4,8 @@
 
 #include "App_FsmWorld.h"
 
+#define MAX_NUM_SIGNALS 5
+
 struct FsmWorld
 {
     struct FsmCanTxInterface *can_tx_interface;
@@ -17,6 +19,11 @@ struct FsmWorld
     struct InRangeCheck *     brake_pressure_in_range_check;
     struct BinaryStatus *     brake_actuation_status;
     struct RgbLedSequence *   rgb_led_sequence;
+    struct
+    {
+        struct Signal *signals[MAX_NUM_SIGNALS];
+        uint32_t       num_signals;
+    };
 };
 
 struct FsmWorld *App_FsmWorld_Create(
@@ -47,6 +54,12 @@ struct FsmWorld *App_FsmWorld_Create(
     world->brake_pressure_in_range_check    = brake_pressure_in_range_check;
     world->brake_actuation_status           = brake_actuation_status;
     world->rgb_led_sequence                 = rgb_led_sequence;
+
+    for (size_t i = 0; i < MAX_NUM_SIGNALS; i++)
+    {
+        world->signals[0] = NULL;
+    }
+    world->num_signals = 0;
 
     return world;
 }
@@ -120,4 +133,21 @@ struct RgbLedSequence *
     App_FsmWorld_GetRgbLedSequence(const struct FsmWorld *const world)
 {
     return world->rgb_led_sequence;
+}
+
+void App_FsmWorld_RegisterSignal(struct FsmWorld *world, struct Signal *signal)
+{
+    assert(world->num_signals < MAX_NUM_SIGNALS);
+    world->signals[world->num_signals] = signal;
+    world->num_signals++;
+}
+
+void App_FsmWorld_UpdateSignals(
+    const struct FsmWorld *world,
+    uint32_t               current_time_ms)
+{
+    for (size_t i = 0; i < world->num_signals; i++)
+    {
+        App_SharedSignal_Update(world->signals[i], current_time_ms);
+    }
 }

@@ -6,6 +6,7 @@
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_SharedBinaryStatus.h"
+#include "App_SharedSignal.h"
 
 struct FsmWorld;
 
@@ -122,3 +123,9 @@ struct BinaryStatus *
  */
 struct RgbLedSequence *
     App_FsmWorld_GetRgbLedSequence(const struct FsmWorld *world);
+
+void App_FsmWorld_RegisterSignal(struct FsmWorld *world, struct Signal *signal);
+
+void App_FsmWorld_UpdateSignals(
+    const struct FsmWorld *world,
+    uint32_t               current_time_ms);
