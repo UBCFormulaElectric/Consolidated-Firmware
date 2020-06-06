@@ -132,7 +132,7 @@ struct RgbLedSequence *
 void App_FsmWorld_RegisterSignal(struct FsmWorld *world, struct Signal *signal);
 
 /**
- * Update all the registered signals in the given world
+ * Update the registered signals in the given world
  * @note This function should be called periodically. And since the time
  *       resolution of the signal library is in milliseconds, it would make
  *       sense to call this function at 1kHz.

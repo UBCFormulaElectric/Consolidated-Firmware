@@ -145,12 +145,12 @@ class SharedSignalTest : public testing::Test
     // The duration is more-or-less arbitrarily chosen. It should be enough
     // duration to give us confidence in the test without making the test too
     // slow.
-    const uint32_t DURATION_MS = 3;
+    const uint32_t DURATION_MS = 10;
 
     // The number of multiple cycles is more-or-less arbitrarily chosen. It
     // should be enough cycles to give us confidence in the test without making
     // the test too slow.
-    const uint32_t MULTIPLE_CYCLES = 2;
+    const uint32_t MULTIPLE_CYCLES = 100;
 };
 
 TEST_F(SharedSignalTest, signal_stays_high_with_zero_start_time_for_one_cycle)

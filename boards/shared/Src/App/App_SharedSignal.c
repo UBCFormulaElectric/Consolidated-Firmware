@@ -13,8 +13,8 @@ struct Signal
     // The function to call to check if this signal is high
     bool (*is_high)(void);
 
-    // The duration that this signal must be continually high for before the
-    // callback function is called
+    // How long this signal must be continuously high for, in milliseconds,
+    // before the callback function is triggered
     uint32_t duration_high_ms;
 
     // The callback function for this signal
