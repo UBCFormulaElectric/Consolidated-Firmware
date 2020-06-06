@@ -16,6 +16,7 @@ struct FsmWorld
     struct InRangeCheck *     steering_angle_in_range_check;
     struct InRangeCheck *     brake_pressure_in_range_check;
     struct BinaryStatus *     brake_actuation_status;
+    struct BinaryStatus *     brake_oc_sc_status;
     struct RgbLedSequence *   rgb_led_sequence;
 };
 
@@ -30,6 +31,7 @@ struct FsmWorld *App_FsmWorld_Create(
     struct InRangeCheck *const      steering_angle_in_range_check,
     struct InRangeCheck *const      brake_pressure_in_range_check,
     struct BinaryStatus *const      brake_actuation_status,
+    struct BinaryStatus *const      brake_oc_sc_status,
     struct RgbLedSequence *const    rgb_led_sequence)
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
@@ -46,6 +48,7 @@ struct FsmWorld *App_FsmWorld_Create(
     world->steering_angle_in_range_check    = steering_angle_in_range_check;
     world->brake_pressure_in_range_check    = brake_pressure_in_range_check;
     world->brake_actuation_status           = brake_actuation_status;
+    world->brake_oc_sc_status               = brake_oc_sc_status;
     world->rgb_led_sequence                 = rgb_led_sequence;
 
     return world;
@@ -114,6 +117,12 @@ struct BinaryStatus *
     App_FsmWorld_GetBrakeActuationStatus(const struct FsmWorld *const world)
 {
     return world->brake_actuation_status;
+}
+
+struct BinaryStatus *App_FsmWorld_GetBrakeOpenOrShortCircuitedStatus(
+    const struct FsmWorld *const world)
+{
+    return world->brake_oc_sc_status;
 }
 
 struct RgbLedSequence *
