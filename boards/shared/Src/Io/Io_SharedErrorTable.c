@@ -178,28 +178,28 @@ static void Io_ProcessDcmCriticalErrorMsg(
     struct ErrorTable *                   error_table,
     struct CanMsgs_dcm_critical_errors_t *data)
 {
-    SET_ERROR(error_table, DCM_CRITICAL_DUMMY, data->dummy_critical_error);
+    SET_ERROR(error_table, DCM_CRITICAL_DUMMY, data->dummy);
 }
 
 static void Io_ProcessDimCriticalErrorMsg(
     struct ErrorTable *                   error_table,
     struct CanMsgs_dim_critical_errors_t *data)
 {
-    SET_ERROR(error_table, DIM_CRITICAL_DUMMY, data->dummy_critical_error);
+    SET_ERROR(error_table, DIM_CRITICAL_DUMMY, data->dummy);
 }
 
 static void Io_ProcessFsmCriticalErrorMsg(
     struct ErrorTable *                   error_table,
     struct CanMsgs_fsm_critical_errors_t *data)
 {
-    SET_ERROR(error_table, FSM_CRITICAL_DUMMY, data->dummy_critical_error);
+    SET_ERROR(error_table, FSM_CRITICAL_DUMMY, data->dummy);
 }
 
 static void Io_ProcessPdmCriticalErrorMsg(
     struct ErrorTable *                   error_table,
     struct CanMsgs_pdm_critical_errors_t *data)
 {
-    SET_ERROR(error_table, PDM_CRITICAL_DUMMY, data->dummy_critical_error);
+    SET_ERROR(error_table, PDM_CRITICAL_DUMMY, data->dummy);
 }
 
 void Io_SharedErrorTable_SetErrorsFromCanMsg(
