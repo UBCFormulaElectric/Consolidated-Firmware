@@ -8,38 +8,48 @@ from scripts.utilities.supported_boards import get_board_names
 ERRORID_ENUM_TEMPLATE = '''\
 #pragma once
 
-enum ErrorId
-{{
-    // BMS non-critical errors
+#define BMS_NON_CRITICAL_ERRORS \\
 {bms_non_critical_errors}
 
-    // DCM non-critical errors
+#define DCM_NON_CRITICAL_ERRORS \\
 {dcm_non_critical_errors}
 
-    // DIM non-critical errors
+#define DIM_NON_CRITICAL_ERRORS \\
 {dim_non_critical_errors}
 
-    // FSM non-critical errors
+#define FSM_NON_CRITICAL_ERRORS \\
 {fsm_non_critical_errors}
 
-    // PDM non-critical errors
+#define PDM_NON_CRITICAL_ERRORS \\
 {pdm_non_critical_errors}
 
-    // BMS critical errors
+#define BMS_CRITICAL_ERRORS \\
 {bms_critical_errors}
 
-    // DCM critical errors
+#define DCM_CRITICAL_ERRORS \\
 {dcm_critical_errors}
 
-    // DIM critical errors
+#define DIM_CRITICAL_ERRORS \\
 {dim_critical_errors}
 
-    // FSM critical errors
+#define FSM_CRITICAL_ERRORS \\
 {fsm_critical_errors}
 
-    // PDM critical errors
+#define PDM_CRITICAL_ERRORS \\
 {pdm_critical_errors}
 
+enum ErrorId
+{{
+    BMS_NON_CRITICAL_ERRORS
+    DCM_NON_CRITICAL_ERRORS
+    DIM_NON_CRITICAL_ERRORS
+    FSM_NON_CRITICAL_ERRORS
+    PDM_NON_CRITICAL_ERRORS
+    BMS_CRITICAL_ERRORS
+    DCM_CRITICAL_ERRORS
+    DIM_CRITICAL_ERRORS
+    FSM_CRITICAL_ERRORS
+    PDM_CRITICAL_ERRORS
     NUM_ERROR_IDS,
 }};
 '''
@@ -62,14 +72,14 @@ if __name__ == "__main__":
         try:
             can_msg = database.get_message_by_name(board + '_CRITICAL_ERRORS')
             enum_members['critical'][board] = \
-                ['    %s_CRITICAL_%s,' %(board, signal.name.upper()) for signal in can_msg.signals]
+                ['    %s_CRITICAL_%s, \\' %(board, signal.name.upper()) for signal in can_msg.signals]
         except KeyError:
             raise KeyError('Could not find critical error message for %s' % board)
 
         try:
             can_msg = database.get_message_by_name(board + '_NON_CRITICAL_ERRORS')
             enum_members['non_critical'][board] = \
-                ['    %s_NON_CRITICAL_%s,' %(board, signal.name.upper()) for signal in can_msg.signals]
+                ['    %s_NON_CRITICAL_%s, \\' %(board, signal.name.upper()) for signal in can_msg.signals]
         except KeyError:
             raise KeyError('Could not find critical error message for %s' % board)
 

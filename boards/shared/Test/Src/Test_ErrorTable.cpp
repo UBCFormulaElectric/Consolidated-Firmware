@@ -810,11 +810,7 @@ TEST_F(SharedErrorTableTest, process_bms_non_critical_errors)
     // A list of BMS non-critical error IDs. This must be maintained manually as
     // errors are added to/removed from the DBC!
     std::vector<enum ErrorId> bms_non_critical_error_ids = {
-        BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
-        BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ,
-        BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX,
-        BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX,
-        BMS_NON_CRITICAL_WATCHDOG_TIMEOUT
+        BMS_NON_CRITICAL_ERRORS
     };
 
     TestRoutineForSetErrorsFromCanMsg(
@@ -830,9 +826,7 @@ TEST_F(SharedErrorTableTest, process_bms_critical_errors)
 {
     // A list of BMS critical error IDs. This must be maintained manually as
     // errors are added to/removed from the DBC!
-    std::vector<enum ErrorId> bms_critical_error_ids = {
-        BMS_CRITICAL_CHARGER_DISCONNECTED_IN_CHARGE_STATE,
-    };
+    std::vector<enum ErrorId> bms_critical_error_ids = { BMS_CRITICAL_ERRORS };
 
     TestRoutineForSetErrorsFromCanMsg(
         BMS, bms_critical_error_ids, CANMSGS_BMS_CRITICAL_ERRORS_FRAME_ID,
@@ -847,11 +841,7 @@ TEST_F(SharedErrorTableTest, process_dcm_non_critical_errors)
     // A list of DCM non-critical error IDs. This must be maintained manually as
     // errors are added to/removed from the DBC!
     std::vector<enum ErrorId> dcm_non_critical_error_ids = {
-        DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
-        DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ,
-        DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX,
-        DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX,
-        DCM_NON_CRITICAL_WATCHDOG_TIMEOUT
+        DCM_NON_CRITICAL_ERRORS
     };
 
     TestRoutineForSetErrorsFromCanMsg(
@@ -867,9 +857,7 @@ TEST_F(SharedErrorTableTest, process_dcm_critical_errors)
 {
     // A list of DCM critical error IDs. This must be maintained manually as
     // errors are added to/removed from the DBC!
-    std::vector<enum ErrorId> dcm_critical_error_ids = {
-        DCM_CRITICAL_DUMMY,
-    };
+    std::vector<enum ErrorId> dcm_critical_error_ids = { DCM_CRITICAL_ERRORS };
 
     TestRoutineForSetErrorsFromCanMsg(
         DCM, dcm_critical_error_ids, CANMSGS_DCM_CRITICAL_ERRORS_FRAME_ID,
@@ -884,11 +872,7 @@ TEST_F(SharedErrorTableTest, process_dim_non_critical_errors)
     // A list of DIM non-critical error IDs. This must be maintained manually as
     // errors are added to/removed from the DBC!
     std::vector<enum ErrorId> dim_non_critical_error_ids = {
-        DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
-        DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ,
-        DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX,
-        DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX,
-        DIM_NON_CRITICAL_WATCHDOG_TIMEOUT,
+        DIM_NON_CRITICAL_ERRORS
     };
 
     TestRoutineForSetErrorsFromCanMsg(
@@ -904,9 +888,7 @@ TEST_F(SharedErrorTableTest, process_dim_critical_errors)
 {
     // A list of DIM critical error IDs. This must be maintained manually as
     // errors are added to/removed from the DBC!
-    std::vector<enum ErrorId> dim_critical_error_ids = {
-        DIM_CRITICAL_DUMMY,
-    };
+    std::vector<enum ErrorId> dim_critical_error_ids = { DIM_CRITICAL_ERRORS };
 
     TestRoutineForSetErrorsFromCanMsg(
         DIM, dim_critical_error_ids, CANMSGS_DIM_CRITICAL_ERRORS_FRAME_ID,
@@ -921,18 +903,7 @@ TEST_F(SharedErrorTableTest, process_fsm_non_critical_errors)
     // A list of FSM non-critical error IDs. This must be maintained manually as
     // errors are added to/removed from the DBC!
     std::vector<enum ErrorId> fsm_non_critical_error_ids = {
-        FSM_NON_CRITICAL_PAPPS_OUT_OF_RANGE,
-        FSM_NON_CRITICAL_SAPPS_OUT_OF_RANGE,
-        FSM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
-        FSM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ,
-        FSM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX,
-        FSM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX,
-        FSM_NON_CRITICAL_WATCHDOG_TIMEOUT,
-        FSM_NON_CRITICAL_BSPD_FAULT,
-        FSM_NON_CRITICAL_LEFT_WHEEL_SPEED_OUT_OF_RANGE,
-        FSM_NON_CRITICAL_RIGHT_WHEEL_SPEED_OUT_OF_RANGE,
-        FSM_NON_CRITICAL_PRIMARY_FLOW_RATE_OUT_OF_RANGE,
-        FSM_NON_CRITICAL_SECONDARY_FLOW_RATE_OUT_OF_RANGE,
+        FSM_NON_CRITICAL_ERRORS
     };
 
     TestRoutineForSetErrorsFromCanMsg(
@@ -948,9 +919,7 @@ TEST_F(SharedErrorTableTest, process_fsm_critical_errors)
 {
     // A list of FSM critical error IDs. This must be maintained manually as
     // errors are added to/removed from the DBC!
-    std::vector<enum ErrorId> fsm_critical_error_ids = {
-        FSM_CRITICAL_DUMMY,
-    };
+    std::vector<enum ErrorId> fsm_critical_error_ids = { FSM_CRITICAL_ERRORS };
 
     TestRoutineForSetErrorsFromCanMsg(
         FSM, fsm_critical_error_ids, CANMSGS_FSM_CRITICAL_ERRORS_FRAME_ID,
@@ -966,26 +935,7 @@ TEST_F(SharedErrorTableTest, process_pdm_non_critical_errors)
     // A list of PDM non-critical error IDs. This must be maintained manually as
     // errors are added to/removed from the DBC!
     std::vector<enum ErrorId> pdm_non_critical_error_ids = {
-        PDM_NON_CRITICAL_MISSING_HEARTBEAT,
-        PDM_NON_CRITICAL_BOOST_PGOOD_FAULT,
-        PDM_NON_CRITICAL_CELL_BALANCE_OVERVOLTAGE_FAULT,
-        PDM_NON_CRITICAL_CHARGER_FAULT,
-        PDM_NON_CRITICAL_EFUSE_FAULT,
-        PDM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
-        PDM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ,
-        PDM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX,
-        PDM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX,
-        PDM_NON_CRITICAL_WATCHDOG_TIMEOUT,
-        PDM_NON_CRITICAL_VBAT_VOLTAGE_OUT_OF_RANGE,
-        PDM_NON_CRITICAL__24V_AUX_VOLTAGE_OUT_OF_RANGE,
-        PDM_NON_CRITICAL__24V_ACC_VOLTAGE_OUT_OF_RANGE,
-        PDM_NON_CRITICAL_AUX1_CURRENT_OUT_OF_RANGE,
-        PDM_NON_CRITICAL_AUX2_CURRENT_OUT_OF_RANGE,
-        PDM_NON_CRITICAL_LEFT_INVERTER_CURRENT_OUT_OF_RANGE,
-        PDM_NON_CRITICAL_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE,
-        PDM_NON_CRITICAL_ENERGY_METER_CURRENT_OUT_OF_RANGE,
-        PDM_NON_CRITICAL_CAN_CURRENT_OUT_OF_RANGE,
-        PDM_NON_CRITICAL_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE,
+        PDM_NON_CRITICAL_ERRORS
     };
 
     TestRoutineForSetErrorsFromCanMsg(
@@ -1001,9 +951,7 @@ TEST_F(SharedErrorTableTest, process_pdm_critical_errors)
 {
     // A list of PDM critical error IDs. This must be maintained manually as
     // errors are added to/removed from the DBC!
-    std::vector<enum ErrorId> pdm_critical_error_ids = {
-        PDM_CRITICAL_DUMMY,
-    };
+    std::vector<enum ErrorId> pdm_critical_error_ids = { PDM_CRITICAL_ERRORS };
 
     TestRoutineForSetErrorsFromCanMsg(
         PDM, pdm_critical_error_ids, CANMSGS_PDM_CRITICAL_ERRORS_FRAME_ID,
