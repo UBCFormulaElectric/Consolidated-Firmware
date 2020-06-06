@@ -24,21 +24,22 @@ struct Signal *App_SharedSignal_Create(
     void (*callback)(void));
 
 /**
- *
+ * Deallocate the memory used by the given signal
+ * @signal The signal to deallocate
  */
 void App_SharedSignal_Destroy(struct Signal *signal);
 
 /**
- *
- * @param signal
- * @return
+ * Get the last time the given signal was low, in milliseconds
+ * @param signal The signal to get the time from
+ * @retur The last time the given signal was low, in milliseconds
  */
 uint32_t App_SharedSignal_GetLastTimeLowMs(const struct Signal *signal);
 
 /**
- *
- * @param signal
- * @return
+ * Get the last time the given signal was high, in milliseconds
+ * @param signal The signal to get the time from
+ * @retur The last time the given signal was high, in milliseconds
  */
 uint32_t App_SharedSignal_GetLastTimeHighMs(const struct Signal *signal);
 

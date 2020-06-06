@@ -21,8 +21,8 @@ struct FsmWorld
     struct RgbLedSequence *   rgb_led_sequence;
     struct
     {
-        struct Signal *signals[MAX_NUM_SIGNALS];
         uint32_t       num_signals;
+        struct Signal *signals[MAX_NUM_SIGNALS];
     };
 };
 
@@ -54,12 +54,11 @@ struct FsmWorld *App_FsmWorld_Create(
     world->brake_pressure_in_range_check    = brake_pressure_in_range_check;
     world->brake_actuation_status           = brake_actuation_status;
     world->rgb_led_sequence                 = rgb_led_sequence;
-
+    world->num_signals                      = 0;
     for (size_t i = 0; i < MAX_NUM_SIGNALS; i++)
     {
         world->signals[0] = NULL;
     }
-    world->num_signals = 0;
 
     return world;
 }
