@@ -53,6 +53,9 @@ static void Io_ProcessDimNonCriticalErrorMsg(
         error_table, DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         data->stack_watermark_above_threshold_task1_hz);
     SET_ERROR(
+        error_table, DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK100HZ,
+        data->stack_watermark_above_threshold_task1_hz);
+    SET_ERROR(
         error_table, DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ,
         data->stack_watermark_above_threshold_task1_khz);
     SET_ERROR(
@@ -101,6 +104,12 @@ static void Io_ProcessFsmNonCriticalErrorMsg(
         data->primary_flow_rate_out_of_range);
     SET_ERROR(
         error_table, FSM_NON_CRITICAL_SECONDARY_FLOW_RATE_OUT_OF_RANGE,
+        data->secondary_flow_rate_out_of_range);
+    SET_ERROR(
+        error_table, FSM_NON_CRITICAL_STEERING_ANGLE_OUT_OF_RANGE,
+        data->steering_angle_out_of_range);
+    SET_ERROR(
+        error_table, FSM_NON_CRITICAL_BRAKE_PRESSURE_OUT_OF_RANGE,
         data->secondary_flow_rate_out_of_range);
 }
 

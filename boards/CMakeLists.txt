@@ -300,7 +300,7 @@ function(compile_googletest_executable
         PUBLIC
             -Wall
             -Werror
-            -g
+            -g3
             )
     target_link_libraries(${TEST_EXECUTABLE_NAME} gtest_main)
     add_test(NAME ${TEST_EXECUTABLE_NAME}
