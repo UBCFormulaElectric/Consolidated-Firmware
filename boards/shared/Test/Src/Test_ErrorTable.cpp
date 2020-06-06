@@ -807,8 +807,6 @@ TEST_F(
 
 TEST_F(SharedErrorTableTest, process_bms_non_critical_errors)
 {
-    // A list of BMS non-critical error IDs. This must be maintained manually as
-    // errors are added to/removed from the DBC!
     std::vector<enum ErrorId> bms_non_critical_error_ids = {
         BMS_NON_CRITICAL_ERRORS
     };
@@ -824,8 +822,6 @@ TEST_F(SharedErrorTableTest, process_bms_non_critical_errors)
 
 TEST_F(SharedErrorTableTest, process_bms_critical_errors)
 {
-    // A list of BMS critical error IDs. This must be maintained manually as
-    // errors are added to/removed from the DBC!
     std::vector<enum ErrorId> bms_critical_error_ids = { BMS_CRITICAL_ERRORS };
 
     TestRoutineForSetErrorsFromCanMsg(
@@ -838,8 +834,6 @@ TEST_F(SharedErrorTableTest, process_bms_critical_errors)
 
 TEST_F(SharedErrorTableTest, process_dcm_non_critical_errors)
 {
-    // A list of DCM non-critical error IDs. This must be maintained manually as
-    // errors are added to/removed from the DBC!
     std::vector<enum ErrorId> dcm_non_critical_error_ids = {
         DCM_NON_CRITICAL_ERRORS
     };
@@ -855,8 +849,6 @@ TEST_F(SharedErrorTableTest, process_dcm_non_critical_errors)
 
 TEST_F(SharedErrorTableTest, process_dcm_critical_errors)
 {
-    // A list of DCM critical error IDs. This must be maintained manually as
-    // errors are added to/removed from the DBC!
     std::vector<enum ErrorId> dcm_critical_error_ids = { DCM_CRITICAL_ERRORS };
 
     TestRoutineForSetErrorsFromCanMsg(
@@ -869,8 +861,6 @@ TEST_F(SharedErrorTableTest, process_dcm_critical_errors)
 
 TEST_F(SharedErrorTableTest, process_dim_non_critical_errors)
 {
-    // A list of DIM non-critical error IDs. This must be maintained manually as
-    // errors are added to/removed from the DBC!
     std::vector<enum ErrorId> dim_non_critical_error_ids = {
         DIM_NON_CRITICAL_ERRORS
     };
@@ -886,8 +876,6 @@ TEST_F(SharedErrorTableTest, process_dim_non_critical_errors)
 
 TEST_F(SharedErrorTableTest, process_dim_critical_errors)
 {
-    // A list of DIM critical error IDs. This must be maintained manually as
-    // errors are added to/removed from the DBC!
     std::vector<enum ErrorId> dim_critical_error_ids = { DIM_CRITICAL_ERRORS };
 
     TestRoutineForSetErrorsFromCanMsg(
@@ -900,8 +888,6 @@ TEST_F(SharedErrorTableTest, process_dim_critical_errors)
 
 TEST_F(SharedErrorTableTest, process_fsm_non_critical_errors)
 {
-    // A list of FSM non-critical error IDs. This must be maintained manually as
-    // errors are added to/removed from the DBC!
     std::vector<enum ErrorId> fsm_non_critical_error_ids = {
         FSM_NON_CRITICAL_ERRORS
     };
@@ -917,8 +903,6 @@ TEST_F(SharedErrorTableTest, process_fsm_non_critical_errors)
 
 TEST_F(SharedErrorTableTest, process_fsm_critical_errors)
 {
-    // A list of FSM critical error IDs. This must be maintained manually as
-    // errors are added to/removed from the DBC!
     std::vector<enum ErrorId> fsm_critical_error_ids = { FSM_CRITICAL_ERRORS };
 
     TestRoutineForSetErrorsFromCanMsg(
@@ -932,8 +916,6 @@ TEST_F(SharedErrorTableTest, process_fsm_critical_errors)
 
 TEST_F(SharedErrorTableTest, process_pdm_non_critical_errors)
 {
-    // A list of PDM non-critical error IDs. This must be maintained manually as
-    // errors are added to/removed from the DBC!
     std::vector<enum ErrorId> pdm_non_critical_error_ids = {
         PDM_NON_CRITICAL_ERRORS
     };
@@ -949,8 +931,6 @@ TEST_F(SharedErrorTableTest, process_pdm_non_critical_errors)
 
 TEST_F(SharedErrorTableTest, process_pdm_critical_errors)
 {
-    // A list of PDM critical error IDs. This must be maintained manually as
-    // errors are added to/removed from the DBC!
     std::vector<enum ErrorId> pdm_critical_error_ids = { PDM_CRITICAL_ERRORS };
 
     TestRoutineForSetErrorsFromCanMsg(
