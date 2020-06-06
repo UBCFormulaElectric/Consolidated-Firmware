@@ -110,7 +110,6 @@ DCM-20 | Exiting the drive state and entering the fault state | When a motor shu
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 DCM-16 | Zero torque request sending | The DCM must send zero torque requests at 100Hz or faster.
-DCM-15 | Entering the fault state from any state | The DCM must transition to the fault state whenever an critical fault is observed.
 DCM-17 | Exiting the fault state and entering the init state | When all critical faults are cleared, re-enter the init state.
 
 ## PDM <a name="PDM"></a>

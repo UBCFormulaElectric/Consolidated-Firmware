@@ -90,6 +90,7 @@ struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
 struct BrakeLight *       brake_light;
 struct Buzzer *           buzzer;
+struct ErrorTable *       error_table;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -181,9 +182,11 @@ int main(void)
 
     buzzer = App_Buzzer_Create(Io_Buzzer_TurnOn, Io_Buzzer_TurnOff);
 
+    error_table = App_SharedErrorTable_Create();
+
     world = App_DcmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, brake_light,
-        buzzer);
+        buzzer, error_table);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);

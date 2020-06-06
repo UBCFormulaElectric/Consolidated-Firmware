@@ -3,6 +3,7 @@
 
 extern "C"
 {
+#include "App_SharedBinaryStatus.h"
 #include "App_InRangeCheck.h"
 #include "App_SharedStateMachine.h"
 #include "App_SharedHeartbeatMonitor.h"
@@ -41,6 +42,7 @@ FAKE_VALUE_FUNC(float, get_left_wheel_speed);
 FAKE_VALUE_FUNC(float, get_right_wheel_speed);
 FAKE_VALUE_FUNC(float, get_steering_angle);
 FAKE_VALUE_FUNC(float, get_brake_pressure);
+FAKE_VALUE_FUNC(bool, is_brake_actuated);
 
 class FsmStateMachineTest : public testing::Test
 {
@@ -80,6 +82,9 @@ class FsmStateMachineTest : public testing::Test
         brake_pressure_in_range_check = App_InRangeCheck_Create(
             get_brake_pressure, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
 
+        brake_actuation_status =
+            App_SharedBinaryStatus_Create(is_brake_actuated);
+
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
@@ -88,7 +93,8 @@ class FsmStateMachineTest : public testing::Test
             primary_flow_rate_in_range_check,
             secondary_flow_rate_in_range_check, left_wheel_speed_in_range_check,
             right_wheel_speed_in_range_check, steering_angle_in_range_check,
-            brake_pressure_in_range_check, rgb_led_sequence);
+            brake_pressure_in_range_check, brake_actuation_status,
+            rgb_led_sequence);
 
         // Default to starting the state machine in the `AIR_OPEN` state
         state_machine =
@@ -109,6 +115,7 @@ class FsmStateMachineTest : public testing::Test
         RESET_FAKE(get_right_wheel_speed);
         RESET_FAKE(get_steering_angle);
         RESET_FAKE(get_brake_pressure);
+        RESET_FAKE(is_brake_actuated);
     }
 
     void TearDown() override
@@ -128,6 +135,7 @@ class FsmStateMachineTest : public testing::Test
             secondary_flow_rate_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(steering_angle_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(brake_pressure_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(brake_actuation_status, App_SharedBinaryStatus_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
     }
 
@@ -186,6 +194,26 @@ class FsmStateMachineTest : public testing::Test
         }
     }
 
+    void CheckBinaryStatusCanSignalsInAllStates(
+        bool &fake_value,
+        uint8_t (*can_signal_getter)(const struct FsmCanTxInterface *),
+        uint8_t on_choice,
+        uint8_t off_choice)
+    {
+        for (const auto &state : GetAllStates())
+        {
+            SetInitialState(state);
+
+            fake_value = true;
+            App_SharedStateMachine_Tick100Hz(state_machine);
+            ASSERT_EQ(on_choice, can_signal_getter(can_tx_interface));
+
+            fake_value = false;
+            App_SharedStateMachine_Tick100Hz(state_machine);
+            ASSERT_EQ(off_choice, can_signal_getter(can_tx_interface));
+        }
+    }
+
     struct World *            world;
     struct StateMachine *     state_machine;
     struct FsmCanTxInterface *can_tx_interface;
@@ -197,6 +225,7 @@ class FsmStateMachineTest : public testing::Test
     struct InRangeCheck *     right_wheel_speed_in_range_check;
     struct InRangeCheck *     steering_angle_in_range_check;
     struct InRangeCheck *     brake_pressure_in_range_check;
+    struct BinaryStatus *     brake_actuation_status;
     struct RgbLedSequence *   rgb_led_sequence;
 };
 
@@ -295,6 +324,18 @@ TEST_F(FsmStateMachineTest, check_brake_pressure_can_signals_in_all_states)
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+}
+
+// FSM-18
+TEST_F(
+    FsmStateMachineTest,
+    check_brake_pressure_actuation_can_signals_in_all_states)
+{
+    CheckBinaryStatusCanSignalsInAllStates(
+        is_brake_actuated_fake.return_val,
+        App_CanTx_GetPeriodicSignal_BRAKE_IS_ACTUATED,
+        CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE,
+        CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_FALSE_CHOICE);
 }
 
 TEST_F(FsmStateMachineTest, rgb_led_sequence_in_all_states)

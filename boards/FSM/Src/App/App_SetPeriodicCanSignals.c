@@ -2,6 +2,7 @@
 #include "App_SetPeriodicCanSignals.h"
 
 STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(FsmCanTxInterface)
+STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_BINARY_STATUS(FsmCanTxInterface)
 
 void App_SetPeriodicSignals_FlowRateInRangeChecks(const struct FsmWorld *world)
 {
@@ -88,4 +89,18 @@ void App_SetPeriodicSignals_BrakePressureInRangeCheck(
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+}
+
+void App_SetPeriodicSignals_BrakeActuationStatus(const struct FsmWorld *world)
+{
+    struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
+
+    struct BinaryStatus *brake_actuation_status =
+        App_FsmWorld_GetBrakeActuationStatus(world);
+
+    App_SetPeriodicCanSignals_SharedBinaryStatus(
+        can_tx, brake_actuation_status,
+        App_CanTx_SetPeriodicSignal_BRAKE_IS_ACTUATED,
+        CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE,
+        CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_FALSE_CHOICE);
 }
