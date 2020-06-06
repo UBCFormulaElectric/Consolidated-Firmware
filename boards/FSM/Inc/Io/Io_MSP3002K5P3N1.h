@@ -15,7 +15,7 @@ bool Io_MSP3002K5P3N1_IsBrakeActuated(void);
  * or short circuit state. If the output voltage exceeds the short circuit
  * threshold or goes below the open circuit threshold, the brake pressure sensor
  * is open/short circuited
- * @return True if the brake is ok, false if the brake is open/short circuited
+ * @return True if the brake is open/short circuited, false if the brake is ok
  */
 bool Io_MSP3002K5P3N1_IsBrakeOpenOrShortCircuited(void);
 

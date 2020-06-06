@@ -118,7 +118,7 @@ struct BinaryStatus *
 
 /**
  * Get the brake open/short circuit status for the given world
- * @param world The world to get the open/short circuit status for
+ * @param world The world to get the brake open/short circuit status for
  * @return The open/short circuit status for the given world
  */
 struct BinaryStatus *App_FsmWorld_GetBrakeOpenOrShortCircuitedStatus(
