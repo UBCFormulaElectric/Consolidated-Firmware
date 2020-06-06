@@ -1,9 +1,7 @@
 import cantools
 import argparse
 import os
-
 from scripts.utilities.supported_boards import get_board_names
-
 
 ERRORID_ENUM_TEMPLATE = '''\
 #pragma once
