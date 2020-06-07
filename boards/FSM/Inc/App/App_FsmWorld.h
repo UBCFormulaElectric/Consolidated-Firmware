@@ -117,8 +117,8 @@ struct BinaryStatus *
     App_FsmWorld_GetBrakeActuationStatus(const struct FsmWorld *world);
 
 /**
- * Get the brake open/short circuit status for the given world
- * @param world The world to get the brake open/short circuit status for
+ * Get the brake open or short circuit status for the given world
+ * @param world The world to get the brake open or short circuit status for
  * @return The brake open/short circuit status for the given world
  */
 struct BinaryStatus *App_FsmWorld_GetBrakeSensorOpenOrShortCircuitStatus(
