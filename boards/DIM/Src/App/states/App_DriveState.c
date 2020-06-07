@@ -221,7 +221,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         // We want to display each error for one second, so we assume that the
         // error set will not change much and just associate each second to
-        // a particular error. Errors that exist for less than one second may
+        // a particular error. Errors that are set for less than one second may
         // not be displayed.
         size_t error_index =
             App_DimWorld_GetCurrentSecond(world) % all_errors.num_errors;
