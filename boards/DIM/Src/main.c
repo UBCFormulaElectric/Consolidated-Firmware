@@ -790,6 +790,8 @@ void RunTask1kHz(void const *argument)
     /* Infinite loop */
     for (;;)
     {
+        App_DimWorld_SetCurrentMillisecond(
+            world, osKernelSysTick() * portTICK_PERIOD_MS);
         Io_CanTx_EnqueuePeriodicMsgs(
             can_tx, osKernelSysTick() * portTICK_PERIOD_MS);
 

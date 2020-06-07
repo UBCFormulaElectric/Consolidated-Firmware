@@ -6,6 +6,7 @@
 
 struct DimWorld
 {
+    uint32_t                  current_ms;
     struct DimCanTxInterface *can_tx_interface;
     struct DimCanRxInterface *can_rx_interface;
     struct SevenSegDisplays * seven_seg_displays;
@@ -49,6 +50,7 @@ struct DimWorld *App_DimWorld_Create(
     struct DimWorld *world = (struct DimWorld *)malloc(sizeof(struct DimWorld));
     assert(world != NULL);
 
+    world->current_ms              = 0;
     world->can_tx_interface        = can_tx_interface;
     world->can_rx_interface        = can_rx_interface;
     world->seven_seg_displays      = seven_seg_displays;
@@ -74,6 +76,23 @@ struct DimWorld *App_DimWorld_Create(
 void App_DimWorld_Destroy(struct DimWorld *world)
 {
     free(world);
+}
+
+uint32_t App_DimWorld_GetCurrentSecond(struct DimWorld *world)
+{
+    return world->current_ms / 1000;
+}
+
+uint32_t App_DimWorld_GetCurrentMillisecond(struct DimWorld *world)
+{
+    return world->current_ms;
+}
+
+void App_DimWorld_SetCurrentMillisecond(
+    struct DimWorld *world,
+    uint32_t         current_ms)
+{
+    world->current_ms = current_ms;
 }
 
 struct DimCanTxInterface *

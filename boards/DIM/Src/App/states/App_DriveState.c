@@ -219,21 +219,24 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
     else
     {
-        for (size_t i = 0; i < all_errors.num_errors; i++)
-        {
-            struct Error *error = all_errors.errors[i];
+        // We want to display each error for one second, so we assume that the
+        // error set will not change much and just associate each second to
+        // a particular error. Errors that exist for less than one second may
+        // not be displayed.
+        size_t error_index =
+            App_DimWorld_GetCurrentSecond(world) % all_errors.num_errors;
+        struct Error *error = all_errors.errors[error_index];
 
-            // To avoid confusion between SoC and error IDs, the 7-segment
-            // displays will show the error IDs with an offset of 500. For
-            // example, if an error ID is 67, it will show up as 567 on the
-            // 7-segment displays.
-            const uint32_t error_id             = App_SharedError_GetId(error);
-            const uint32_t error_id_offset      = 500;
-            const uint32_t error_id_with_offset = error_id + error_id_offset;
+        // To avoid confusion between SoC and error IDs, the 7-segment
+        // displays will show the error IDs with an offset of 500. For
+        // example, if an error ID is 67, it will show up as 567 on the
+        // 7-segment displays.
+        const uint32_t error_id             = App_SharedError_GetId(error);
+        const uint32_t error_id_offset      = 500;
+        const uint32_t error_id_with_offset = error_id + error_id_offset;
 
-            App_SevenSegDisplays_SetUnsignedBase10Value(
-                seven_seg_displays, error_id_with_offset);
-        }
+        App_SevenSegDisplays_SetUnsignedBase10Value(
+            seven_seg_displays, error_id_with_offset);
     }
 
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);

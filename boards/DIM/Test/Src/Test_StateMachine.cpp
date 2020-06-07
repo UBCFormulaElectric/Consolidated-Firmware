@@ -309,10 +309,9 @@ TEST_F(
     check_7_seg_displays_show_error_id_in_drive_state_if_there_is_any_error)
 {
     // Set error for some made-up error ID, the value 10 was chosen because
-    // it will be value as long as we have more than 10 errors which should
+    // it will be value as valid as we have more than 10 errors, which should
     // always be true.
-    App_SharedErrorTable_SetError(
-        error_table, (enum ErrorId)(10), true);
+    App_SharedErrorTable_SetError(error_table, (enum ErrorId)(10), true);
 
     App_SharedStateMachine_Tick100Hz(state_machine);
 
@@ -325,6 +324,82 @@ TEST_F(
     ASSERT_EQ(0, set_left_hex_digit_fake.arg0_val.value);
     ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
     ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
+}
+
+// DIM-9
+TEST_F(
+    DimStateMachineTest,
+    check_7_seg_displays_cycle_through_two_error_ids_in_drive_state)
+{
+    // Set errors for some made-up error IDs, the value 10 and 11 were chosen
+    // because it will be valid as long as we have more than 11 errors, which
+    // should always be true.
+    App_SharedErrorTable_SetError(error_table, (enum ErrorId)(10), true);
+    App_SharedErrorTable_SetError(error_table, (enum ErrorId)(11), true);
+
+    for (uint32_t current_ms = 0; current_ms <= 999; current_ms++)
+    {
+        App_DimWorld_SetCurrentMillisecond(world, current_ms);
+        App_SharedStateMachine_Tick100Hz(state_machine);
+
+        // When an error ID shows up on the 7-segment displays, it will have an
+        // offset of 500 added to it. This is why we are asserting for the value
+        // of 10 + 500 = 510 below.
+        ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
+        ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
+        ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
+        ASSERT_EQ(0, set_left_hex_digit_fake.arg0_val.value);
+        ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
+        ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
+    }
+
+    for (uint32_t current_ms = 1000; current_ms <= 1999; current_ms++)
+    {
+        App_DimWorld_SetCurrentMillisecond(world, current_ms);
+        App_SharedStateMachine_Tick100Hz(state_machine);
+
+        // When an error ID shows up on the 7-segment displays, it will have an
+        // offset of 500 added to it. This is why we are asserting for the value
+        // of 11 + 500 = 511 below.
+        ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
+        ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
+        ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
+        ASSERT_EQ(1, set_left_hex_digit_fake.arg0_val.value);
+        ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
+        ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
+    }
+
+    for (uint32_t current_ms = 2000; current_ms <= 2999; current_ms++)
+    {
+        App_DimWorld_SetCurrentMillisecond(world, current_ms);
+        App_SharedStateMachine_Tick100Hz(state_machine);
+
+        // When an error ID shows up on the 7-segment displays, it will have an
+        // offset of 500 added to it. This is why we are asserting for the value
+        // of 10 + 500 = 510 below.
+        ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
+        ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
+        ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
+        ASSERT_EQ(0, set_left_hex_digit_fake.arg0_val.value);
+        ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
+        ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
+    }
+
+    for (uint32_t current_ms = 3000; current_ms <= 3999; current_ms++)
+    {
+        App_DimWorld_SetCurrentMillisecond(world, current_ms);
+        App_SharedStateMachine_Tick100Hz(state_machine);
+
+        // When an error ID shows up on the 7-segment displays, it will have an
+        // offset of 500 added to it. This is why we are asserting for the value
+        // of 11 + 500 = 511 below.
+        ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
+        ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
+        ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
+        ASSERT_EQ(1, set_left_hex_digit_fake.arg0_val.value);
+        ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
+        ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
+    }
 }
 
 TEST_F(

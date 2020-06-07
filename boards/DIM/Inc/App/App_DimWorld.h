@@ -50,6 +50,32 @@ struct DimWorld *App_DimWorld_Create(
 void App_DimWorld_Destroy(struct DimWorld *world);
 
 /**
+ * Get the current second for the given world
+ * @note The second is rounded down:
+ *          - If the current time is 999ms, this function returns 0 second.
+ *          - If the current time is 1001ms, this function returns 1 second.
+ * @param world The world to get current second for
+ * @return The current second for the given world
+ */
+uint32_t App_DimWorld_GetCurrentSecond(struct DimWorld *world);
+
+/**
+ * Get the current millisecond for the given world
+ * @param world The world to get current millisecond for
+ * @return The current millisecond for the given world
+ */
+uint32_t App_DimWorld_GetCurrentMillisecond(struct DimWorld *world);
+
+/**
+ * Set the current millisecond for the given world
+ * @param world  The world to set current millisecond for
+ * @param current_ms The current millisecond to set for the given world
+ */
+void App_DimWorld_SetCurrentMillisecond(
+    struct DimWorld *world,
+    uint32_t         current_ms);
+
+/**
  * Get the CAN TX interface for the given world
  * @param world The world to get CAN TX interface for
  * @return The CAN TX interface for the given world
