@@ -259,7 +259,11 @@ int main(void)
         brake_pressure_sensor_in_range_check, brake_actuation_status,
         rgb_led_sequence);
 
-    demo_signal = App_SharedSignal_Create(ReturnTrue, 0, 10, DemoCallBack);
+    struct SignalCallback callback = {
+        .function         = DemoCallBack,
+        .high_duration_ms = 10,
+    };
+    demo_signal = App_SharedSignal_Create(0, ReturnTrue, callback);
 
     App_FsmWorld_RegisterSignal(world, demo_signal);
 

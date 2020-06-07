@@ -13,7 +13,10 @@ class SharedSignalTest : public testing::Test
   protected:
     void SetUp() override
     {
-        signal = App_SharedSignal_Create(is_high, 0, 0, callback);
+        callback.function         = is_high;
+        callback.high_duration_ms = 0;
+
+        signal = App_SharedSignal_Create(0, is_high, callback);
 
         RESET_FAKE(is_high);
         RESET_FAKE(callback);
@@ -26,19 +29,20 @@ class SharedSignalTest : public testing::Test
 
     void SetInitialTimeAndDuration(
         uint32_t initial_time_ms,
-        uint32_t duration_high_ms)
+        uint32_t high_duration_ms)
     {
         TearDownObject(signal, App_SharedSignal_Destroy);
-        signal = App_SharedSignal_Create(
-            is_high, initial_time_ms, duration_high_ms, callback);
+        callback.function          = is_high;
+        callback..high_duration_ms = high_duration_ms;
+        signal = App_SharedSignal_Create(initial_time_ms, is_high, callback);
     }
 
     void testSignalStaysHighForSomeCycles(
         uint32_t start_ms,
-        uint32_t duration_high_ms,
+        uint32_t high_duration_ms,
         uint32_t num_cycles)
     {
-        SetInitialTimeAndDuration(start_ms, duration_high_ms);
+        SetInitialTimeAndDuration(start_ms, high_duration_ms);
 
         is_high_fake.return_val = true;
 
@@ -48,10 +52,10 @@ class SharedSignalTest : public testing::Test
         // In the first cycle, only the very last update should trigger the
         // callback function because the signal wouldn't have remained high for
         // long enough until the last update in the first cycle.
-        for (uint32_t i = 0; i < duration_high_ms; i++)
+        for (uint32_t i = 0; i < high_duration_ms; i++)
         {
             App_SharedSignal_Update(signal, ++current_ms);
-            if (i == duration_high_ms - 1)
+            if (i == high_duration_ms - 1)
             {
                 expected_callback_call_count++;
             }
@@ -64,7 +68,7 @@ class SharedSignalTest : public testing::Test
         // callback function because the signal remains high.
         for (uint32_t cycle = 1; cycle < num_cycles; cycle++)
         {
-            for (uint32_t ms = 0; ms < duration_high_ms; ms++)
+            for (uint32_t ms = 0; ms < high_duration_ms; ms++)
             {
                 App_SharedSignal_Update(signal, ++current_ms);
                 ASSERT_EQ(
@@ -78,10 +82,10 @@ class SharedSignalTest : public testing::Test
 
     void testSignalStaysLowForSomeCycles(
         uint32_t start_ms,
-        uint32_t duration_high_ms,
+        uint32_t high_duration_ms,
         uint32_t num_cycles)
     {
-        SetInitialTimeAndDuration(start_ms, duration_high_ms);
+        SetInitialTimeAndDuration(start_ms, high_duration_ms);
 
         is_high_fake.return_val = false;
 
@@ -89,7 +93,7 @@ class SharedSignalTest : public testing::Test
 
         for (uint32_t cycle = 0; cycle < num_cycles; cycle++)
         {
-            for (uint32_t ms = 0; ms < duration_high_ms; ms++)
+            for (uint32_t ms = 0; ms < high_duration_ms; ms++)
             {
                 App_SharedSignal_Update(signal, ++current_ms);
                 ASSERT_EQ(0, callback_fake.call_count);
@@ -102,17 +106,17 @@ class SharedSignalTest : public testing::Test
 
     void testSignalGetsInterruptedAtTheLastMs(
         uint32_t start_ms,
-        uint32_t duration_high_ms)
+        uint32_t high_duration_ms)
     {
-        SetInitialTimeAndDuration(start_ms, duration_high_ms);
+        SetInitialTimeAndDuration(start_ms, high_duration_ms);
 
         uint32_t current_ms = start_ms;
 
         // The callback function should not be called before a full cycle is
         // complete, even if the signal stays high.
-        for (uint32_t i = 0; i < duration_high_ms; i++)
+        for (uint32_t i = 0; i < high_duration_ms; i++)
         {
-            if (i == duration_high_ms - 1)
+            if (i == high_duration_ms - 1)
             {
                 // At the last millisecond, the signal goes low
                 is_high_fake.return_val = false;
@@ -125,7 +129,7 @@ class SharedSignalTest : public testing::Test
             App_SharedSignal_Update(signal, ++current_ms);
             ASSERT_EQ(0, callback_fake.call_count);
 
-            if (i == duration_high_ms - 1)
+            if (i == high_duration_ms - 1)
             {
                 ASSERT_EQ(
                     current_ms - 1, App_SharedSignal_GetLastTimeHighMs(signal));
@@ -143,12 +147,12 @@ class SharedSignalTest : public testing::Test
 
     void testSignalGetsInterruptedAtTheLastMsAndThenStaysHighForSomeCycles(
         uint32_t initial_ms,
-        uint32_t duration_high_ms,
+        uint32_t high_duration_ms,
         uint32_t num_cycles)
     {
-        testSignalGetsInterruptedAtTheLastMs(initial_ms, duration_high_ms);
+        testSignalGetsInterruptedAtTheLastMs(initial_ms, high_duration_ms);
 
-        uint32_t start_ms                     = initial_ms + duration_high_ms;
+        uint32_t start_ms                     = initial_ms + high_duration_ms;
         uint32_t current_ms                   = start_ms;
         uint32_t expected_callback_call_count = 0;
 
@@ -157,10 +161,10 @@ class SharedSignalTest : public testing::Test
         // In the first cycle, only the very last update should trigger the
         // callback function because the signal wouldn't have remained high for
         // long enough until the last update in the first cycle.
-        for (uint32_t i = 0; i < duration_high_ms; i++)
+        for (uint32_t i = 0; i < high_duration_ms; i++)
         {
             App_SharedSignal_Update(signal, ++current_ms);
-            if (i == duration_high_ms - 1)
+            if (i == high_duration_ms - 1)
             {
                 expected_callback_call_count++;
             }
@@ -173,7 +177,7 @@ class SharedSignalTest : public testing::Test
         // callback function because the signal remains high.
         for (uint32_t cycle = 1; cycle < num_cycles; cycle++)
         {
-            for (uint32_t i = 0; i < duration_high_ms; i++)
+            for (uint32_t i = 0; i < high_duration_ms; i++)
             {
                 App_SharedSignal_Update(signal, ++current_ms);
                 ASSERT_EQ(
@@ -187,18 +191,19 @@ class SharedSignalTest : public testing::Test
 
     void testCreateAndUpdateSignalOnTheSameMillisecond(
         uint32_t start_ms,
-        uint32_t duration_high_ms)
+        uint32_t high_duration_ms)
     {
         // Make sure Update() has well-defined behaviour if it's called on the
         // same millisecond as when the signal was created
-        SetInitialTimeAndDuration(start_ms, duration_high_ms);
+        SetInitialTimeAndDuration(start_ms, high_duration_ms);
         App_SharedSignal_Update(signal, start_ms);
         ASSERT_EQ(0, callback_fake.call_count);
         ASSERT_EQ(start_ms, App_SharedSignal_GetLastTimeHighMs(signal));
         ASSERT_EQ(start_ms, App_SharedSignal_GetLastTimeLowMs(signal));
     }
 
-    struct Signal *signal;
+    struct Signal *       signal;
+    struct SignalCallback callback;
 
     // The duration is more-or-less arbitrarily chosen. It should be enough
     // duration to give us confidence in the test without making the test too
