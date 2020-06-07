@@ -1,10 +1,15 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <list.h>
 
 #include "App_FsmWorld.h"
 
-#define MAX_NUM_SIGNALS 5
+struct SignalNode
+{
+    struct Signal *    signal;
+    struct SignalNode *next;
+};
 
 struct FsmWorld
 {
@@ -19,11 +24,7 @@ struct FsmWorld
     struct InRangeCheck *     brake_pressure_in_range_check;
     struct BinaryStatus *     brake_actuation_status;
     struct RgbLedSequence *   rgb_led_sequence;
-    struct
-    {
-        uint32_t       num_signals;
-        struct Signal *signals[MAX_NUM_SIGNALS];
-    };
+    struct SignalNode *       signals_head;
 };
 
 struct FsmWorld *App_FsmWorld_Create(
@@ -54,11 +55,7 @@ struct FsmWorld *App_FsmWorld_Create(
     world->brake_pressure_in_range_check    = brake_pressure_in_range_check;
     world->brake_actuation_status           = brake_actuation_status;
     world->rgb_led_sequence                 = rgb_led_sequence;
-    world->num_signals                      = 0;
-    for (size_t i = 0; i < MAX_NUM_SIGNALS; i++)
-    {
-        world->signals[i] = NULL;
-    }
+    world->signals_head                     = NULL;
 
     return world;
 }
@@ -136,17 +133,23 @@ struct RgbLedSequence *
 
 void App_FsmWorld_RegisterSignal(struct FsmWorld *world, struct Signal *signal)
 {
-    assert(world->num_signals < MAX_NUM_SIGNALS);
-    world->signals[world->num_signals] = signal;
-    world->num_signals++;
+    struct SignalNode *item = malloc(sizeof(struct SignalNode));
+    assert(item != NULL);
+    item->signal = signal;
+    item->next   = NULL;
+
+    SL_APPEND(world->signals_head, item);
 }
 
 void App_FsmWorld_UpdateSignals(
     const struct FsmWorld *world,
     uint32_t               current_time_ms)
 {
-    for (size_t i = 0; i < world->num_signals; i++)
+    struct SignalNode  node;
+    struct SignalNode *node_ptr = &node;
+
+    SL_FOREACH(world->signals_head, node_ptr)
     {
-        App_SharedSignal_Update(world->signals[i], current_time_ms);
+        App_SharedSignal_Update(node_ptr->signal, current_time_ms);
     }
 }
