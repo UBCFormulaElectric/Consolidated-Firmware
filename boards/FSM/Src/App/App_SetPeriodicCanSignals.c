@@ -105,7 +105,7 @@ void App_SetPeriodicSignals_BrakeActuationStatus(const struct FsmWorld *world)
         CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_FALSE_CHOICE);
 }
 
-void App_SetPeriodicSignals_BrakeOpenOrShortCircuitedStatus(
+void App_SetPeriodicSignals_BrakeSensorOpenOrShortCircuitStatus(
     const struct FsmWorld *world)
 {
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
