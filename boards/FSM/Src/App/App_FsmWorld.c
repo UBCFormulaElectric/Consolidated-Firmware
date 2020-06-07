@@ -57,7 +57,7 @@ struct FsmWorld *App_FsmWorld_Create(
     world->num_signals                      = 0;
     for (size_t i = 0; i < MAX_NUM_SIGNALS; i++)
     {
-        world->signals[0] = NULL;
+        world->signals[i] = NULL;
     }
 
     return world;
