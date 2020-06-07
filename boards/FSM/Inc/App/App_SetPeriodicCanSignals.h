@@ -10,5 +10,5 @@ void App_SetPeriodicSignals_SteeringAngleInRangeCheck(
 void App_SetPeriodicSignals_BrakePressureInRangeCheck(
     const struct FsmWorld *world);
 void App_SetPeriodicSignals_BrakeActuationStatus(const struct FsmWorld *world);
-void App_SetPeriodicSignals_BrakeOpenOrShortCircuitedStatus(
+void App_SetPeriodicSignals_BrakeSensorOpenOrShortCircuitStatus(
     const struct FsmWorld *world);
