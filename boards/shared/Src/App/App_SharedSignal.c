@@ -13,19 +13,14 @@ struct Signal
     // The function to call to check if this signal is high
     bool (*is_high)(void);
 
-    // How long this signal must be continuously high for, in milliseconds,
-    // before the callback function is triggered
-    uint32_t duration_high_ms;
-
-    // The callback function for this signal
-    void (*callback)(void);
+    // When and how to trigger the callback function for this signal
+    struct SignalCallback callback;
 };
 
 struct Signal *App_SharedSignal_Create(
-    bool (*is_high)(void),
     uint32_t initial_time_ms,
-    uint32_t duration_high_ms,
-    void (*callback)(void))
+    bool (*is_high)(void),
+    struct SignalCallback callback)
 {
     struct Signal *signal = malloc(sizeof(struct Signal));
     assert(signal != NULL);
@@ -33,7 +28,6 @@ struct Signal *App_SharedSignal_Create(
     signal->last_time_low_ms  = initial_time_ms;
     signal->last_time_high_ms = initial_time_ms;
     signal->is_high           = is_high;
-    signal->duration_high_ms  = duration_high_ms;
     signal->callback          = callback;
 
     return signal;
@@ -68,8 +62,8 @@ void App_SharedSignal_Update(struct Signal *signal, uint32_t current_time_ms)
     const uint32_t time_since_last_low =
         current_time_ms - signal->last_time_low_ms;
 
-    if (time_since_last_low >= signal->duration_high_ms)
+    if (time_since_last_low >= signal->callback.high_duration_ms)
     {
-        signal->callback();
+        signal->callback.function();
     }
 }
