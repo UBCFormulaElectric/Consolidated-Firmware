@@ -6,20 +6,19 @@ extern "C"
 }
 
 FAKE_VALUE_FUNC(bool, is_high);
-FAKE_VOID_FUNC(callback);
+FAKE_VOID_FUNC(callback_function);
 
 class SharedSignalTest : public testing::Test
 {
   protected:
     void SetUp() override
     {
-        callback.function         = is_high;
+        callback.function         = callback_function;
         callback.high_duration_ms = 0;
-
         signal = App_SharedSignal_Create(0, is_high, callback);
 
         RESET_FAKE(is_high);
-        RESET_FAKE(callback);
+        RESET_FAKE(callback_function);
     }
 
     void TearDown() override
@@ -32,8 +31,8 @@ class SharedSignalTest : public testing::Test
         uint32_t high_duration_ms)
     {
         TearDownObject(signal, App_SharedSignal_Destroy);
-        callback.function          = is_high;
-        callback..high_duration_ms = high_duration_ms;
+        callback.function         = callback_function;
+        callback.high_duration_ms = high_duration_ms;
         signal = App_SharedSignal_Create(initial_time_ms, is_high, callback);
     }
 
@@ -59,7 +58,9 @@ class SharedSignalTest : public testing::Test
             {
                 expected_callback_call_count++;
             }
-            ASSERT_EQ(expected_callback_call_count, callback_fake.call_count);
+            ASSERT_EQ(
+                expected_callback_call_count,
+                callback_function_fake.call_count);
             ASSERT_EQ(current_ms, App_SharedSignal_GetLastTimeHighMs(signal));
             ASSERT_EQ(start_ms, App_SharedSignal_GetLastTimeLowMs(signal));
         }
@@ -72,7 +73,8 @@ class SharedSignalTest : public testing::Test
             {
                 App_SharedSignal_Update(signal, ++current_ms);
                 ASSERT_EQ(
-                    ++expected_callback_call_count, callback_fake.call_count);
+                    ++expected_callback_call_count,
+                    callback_function_fake.call_count);
                 ASSERT_EQ(
                     current_ms, App_SharedSignal_GetLastTimeHighMs(signal));
                 ASSERT_EQ(start_ms, App_SharedSignal_GetLastTimeLowMs(signal));
@@ -96,7 +98,7 @@ class SharedSignalTest : public testing::Test
             for (uint32_t ms = 0; ms < high_duration_ms; ms++)
             {
                 App_SharedSignal_Update(signal, ++current_ms);
-                ASSERT_EQ(0, callback_fake.call_count);
+                ASSERT_EQ(0, callback_function_fake.call_count);
                 ASSERT_EQ(start_ms, App_SharedSignal_GetLastTimeHighMs(signal));
                 ASSERT_EQ(
                     current_ms, App_SharedSignal_GetLastTimeLowMs(signal));
@@ -127,7 +129,7 @@ class SharedSignalTest : public testing::Test
             }
 
             App_SharedSignal_Update(signal, ++current_ms);
-            ASSERT_EQ(0, callback_fake.call_count);
+            ASSERT_EQ(0, callback_function_fake.call_count);
 
             if (i == high_duration_ms - 1)
             {
@@ -168,7 +170,9 @@ class SharedSignalTest : public testing::Test
             {
                 expected_callback_call_count++;
             }
-            ASSERT_EQ(expected_callback_call_count, callback_fake.call_count);
+            ASSERT_EQ(
+                expected_callback_call_count,
+                callback_function_fake.call_count);
             ASSERT_EQ(current_ms, App_SharedSignal_GetLastTimeHighMs(signal));
             ASSERT_EQ(start_ms, App_SharedSignal_GetLastTimeLowMs(signal));
         }
@@ -181,7 +185,8 @@ class SharedSignalTest : public testing::Test
             {
                 App_SharedSignal_Update(signal, ++current_ms);
                 ASSERT_EQ(
-                    ++expected_callback_call_count, callback_fake.call_count);
+                    ++expected_callback_call_count,
+                    callback_function_fake.call_count);
                 ASSERT_EQ(
                     current_ms, App_SharedSignal_GetLastTimeHighMs(signal));
                 ASSERT_EQ(start_ms, App_SharedSignal_GetLastTimeLowMs(signal));
@@ -197,7 +202,7 @@ class SharedSignalTest : public testing::Test
         // same millisecond as when the signal was created
         SetInitialTimeAndDuration(start_ms, high_duration_ms);
         App_SharedSignal_Update(signal, start_ms);
-        ASSERT_EQ(0, callback_fake.call_count);
+        ASSERT_EQ(0, callback_function_fake.call_count);
         ASSERT_EQ(start_ms, App_SharedSignal_GetLastTimeHighMs(signal));
         ASSERT_EQ(start_ms, App_SharedSignal_GetLastTimeLowMs(signal));
     }
