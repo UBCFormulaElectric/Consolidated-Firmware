@@ -30,16 +30,18 @@ struct Signal *App_SharedSignal_Create(
 void App_SharedSignal_Destroy(struct Signal *signal);
 
 /**
- * Get the last time the given signal was low, in milliseconds
+ * Get the last time the given signal was observed to be low, in milliseconds
  * @param signal The signal to get the time from
- * @retur The last time the given signal was low, in milliseconds
+ * @return The last time the given signal was observed to be low, in
+ *         milliseconds
  */
 uint32_t App_SharedSignal_GetLastTimeLowMs(const struct Signal *signal);
 
 /**
- * Get the last time the given signal was high, in milliseconds
+ * Get the last time the given signal was observed to be high, in milliseconds
  * @param signal The signal to get the time from
- * @retur The last time the given signal was high, in milliseconds
+ * @return The last time the given signal was observed to be high, in
+ *         milliseconds
  */
 uint32_t App_SharedSignal_GetLastTimeHighMs(const struct Signal *signal);
 
@@ -47,6 +49,8 @@ uint32_t App_SharedSignal_GetLastTimeHighMs(const struct Signal *signal);
  * Update the internal state of the given signal. If the signal has been
  * continuously high for a period equal to or greater than the configured
  * duration (See: `duration_high_ms`), the callback function will be triggered.
+ * @note This has the side-effect of calling the is_high() method of the given
+ *       signal
  * @param signal The signal to update
  * @param current_time_ms The current time, in milliseconds
  */

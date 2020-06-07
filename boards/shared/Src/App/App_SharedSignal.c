@@ -4,10 +4,10 @@
 
 struct Signal
 {
-    // The last time this signal was low, in milliseconds
+    // The last time this signal was observed to be low, in milliseconds
     uint32_t last_time_low_ms;
 
-    // The last time this signal was high, in milliseconds
+    // The last time this signal was observed to be high, in milliseconds
     uint32_t last_time_high_ms;
 
     // The function to call to check if this signal is high
