@@ -60,7 +60,8 @@ def runClangFormat():
         "TraceRecorder",
         "auto_generated",
         "profiler-cortex-m4",
-        "cmake-build-x86"
+        "cmake-build-x86",
+        "list.h"
     ]
 
     # Print the current working directory since the paths are relative
