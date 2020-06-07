@@ -77,6 +77,8 @@ CAN_HandleTypeDef hcan;
 
 IWDG_HandleTypeDef hiwdg;
 
+TIM_HandleTypeDef htim1;
+TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim4;
 TIM_HandleTypeDef htim16;
@@ -123,6 +125,8 @@ static void MX_CAN_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_ADC2_Init(void);
 static void MX_TIM4_Init(void);
+static void MX_TIM1_Init(void);
+static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM16_Init(void);
 static void MX_TIM17_Init(void);
@@ -189,6 +193,8 @@ int main(void)
     MX_IWDG_Init();
     MX_ADC2_Init();
     MX_TIM4_Init();
+    MX_TIM1_Init();
+    MX_TIM2_Init();
     MX_TIM3_Init();
     MX_TIM16_Init();
     MX_TIM17_Init();
@@ -376,8 +382,10 @@ void SystemClock_Config(void)
     {
         Error_Handler();
     }
-    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC12;
-    PeriphClkInit.Adc12ClockSelection  = RCC_ADC12PLLCLK_DIV1;
+    PeriphClkInit.PeriphClockSelection =
+        RCC_PERIPHCLK_TIM1 | RCC_PERIPHCLK_ADC12;
+    PeriphClkInit.Adc12ClockSelection = RCC_ADC12PLLCLK_DIV1;
+    PeriphClkInit.Tim1ClockSelection  = RCC_TIM1CLK_HCLK;
     if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
     {
         Error_Handler();
@@ -507,6 +515,102 @@ static void MX_IWDG_Init(void)
     Io_SharedSoftwareWatchdog_Init(
         Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
     /* USER CODE END IWDG_Init 2 */
+}
+
+/**
+ * @brief TIM1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM1_Init(void)
+{
+    /* USER CODE BEGIN TIM1_Init 0 */
+
+    /* USER CODE END TIM1_Init 0 */
+
+    TIM_Encoder_InitTypeDef sConfig       = { 0 };
+    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
+
+    /* USER CODE BEGIN TIM1_Init 1 */
+
+    /* USER CODE END TIM1_Init 1 */
+    htim1.Instance               = TIM1;
+    htim1.Init.Prescaler         = 0;
+    htim1.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim1.Init.Period            = TIM1_AUTO_RELOAD_REG;
+    htim1.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim1.Init.RepetitionCounter = 0;
+    htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    sConfig.EncoderMode          = TIM_ENCODERMODE_TI12;
+    sConfig.IC1Polarity          = TIM_ICPOLARITY_RISING;
+    sConfig.IC1Selection         = TIM_ICSELECTION_DIRECTTI;
+    sConfig.IC1Prescaler         = TIM_ICPSC_DIV1;
+    sConfig.IC1Filter            = 0;
+    sConfig.IC2Polarity          = TIM_ICPOLARITY_RISING;
+    sConfig.IC2Selection         = TIM_ICSELECTION_DIRECTTI;
+    sConfig.IC2Prescaler         = TIM_ICPSC_DIV1;
+    sConfig.IC2Filter            = 0;
+    if (HAL_TIM_Encoder_Init(&htim1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger  = TIM_TRGO_RESET;
+    sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
+    sMasterConfig.MasterSlaveMode      = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM1_Init 2 */
+
+    /* USER CODE END TIM1_Init 2 */
+}
+
+/**
+ * @brief TIM2 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM2_Init(void)
+{
+    /* USER CODE BEGIN TIM2_Init 0 */
+
+    /* USER CODE END TIM2_Init 0 */
+
+    TIM_Encoder_InitTypeDef sConfig       = { 0 };
+    TIM_MasterConfigTypeDef sMasterConfig = { 0 };
+
+    /* USER CODE BEGIN TIM2_Init 1 */
+
+    /* USER CODE END TIM2_Init 1 */
+    htim2.Instance               = TIM2;
+    htim2.Init.Prescaler         = 0;
+    htim2.Init.CounterMode       = TIM_COUNTERMODE_DOWN;
+    htim2.Init.Period            = TIM2_AUTO_RELOAD_REG;
+    htim2.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    sConfig.EncoderMode          = TIM_ENCODERMODE_TI12;
+    sConfig.IC1Polarity          = TIM_ICPOLARITY_RISING;
+    sConfig.IC1Selection         = TIM_ICSELECTION_DIRECTTI;
+    sConfig.IC1Prescaler         = TIM_ICPSC_DIV1;
+    sConfig.IC1Filter            = 0;
+    sConfig.IC2Polarity          = TIM_ICPOLARITY_RISING;
+    sConfig.IC2Selection         = TIM_ICSELECTION_DIRECTTI;
+    sConfig.IC2Prescaler         = TIM_ICPSC_DIV1;
+    sConfig.IC2Filter            = 0;
+    if (HAL_TIM_Encoder_Init(&htim2, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM2_Init 2 */
+
+    /* USER CODE END TIM2_Init 2 */
 }
 
 /**
@@ -731,13 +835,10 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : SECONDARY_APPS_A_Pin SECONDARY_APPS_B_Pin
-       SECONDARY_APPS_Z_Pin SECONDARY_APPS_ALARM_Pin PRIMARY_APPS_A_Pin
-       PRIMARY_APPS_B_Pin PRIMARY_APPS_Z_Pin */
-    GPIO_InitStruct.Pin = SECONDARY_APPS_A_Pin | SECONDARY_APPS_B_Pin |
-                          SECONDARY_APPS_Z_Pin | SECONDARY_APPS_ALARM_Pin |
-                          PRIMARY_APPS_A_Pin | PRIMARY_APPS_B_Pin |
-                          PRIMARY_APPS_Z_Pin;
+    /*Configure GPIO pins : SECONDARY_APPS_Z_Pin SECONDARY_APPS_ALARM_Pin
+     * PRIMARY_APPS_Z_Pin */
+    GPIO_InitStruct.Pin =
+        SECONDARY_APPS_Z_Pin | SECONDARY_APPS_ALARM_Pin | PRIMARY_APPS_Z_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
