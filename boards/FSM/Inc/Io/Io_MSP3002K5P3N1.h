@@ -17,7 +17,7 @@ bool Io_MSP3002K5P3N1_IsBrakeActuated(void);
  * circuited
  * @return True if the brake is open/short circuited, false if the brake is ok
  */
-bool Io_MSP3002K5P3N1_IsBrakeOpenOrShortCircuited(void);
+bool Io_MSP3002K5P3N1_IsOpenOrShortCircuit(void);
 
 /**
  * Get the pressure in psi from the MSP-300-2K5-P-3-N-1 brake pressure sensor
