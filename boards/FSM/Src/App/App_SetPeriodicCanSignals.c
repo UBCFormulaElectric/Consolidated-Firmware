@@ -110,11 +110,12 @@ void App_SetPeriodicSignals_BrakeSensorOpenOrShortCircuitStatus(
 {
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
 
-    struct BinaryStatus *brake_oc_sc_status =
-        App_FsmWorld_GetBrakeOpenOrShortCircuitedStatus(world);
+    struct BinaryStatus *brake_sensor_open_or_short_circuit_status =
+        App_FsmWorld_GetBrakeSensorOpenOrShortCircuitStatus(world);
 
     App_SetPeriodicCanSignals_SharedBinaryStatus(
-        can_tx, brake_oc_sc_status, App_CanTx_SetPeriodicSignal_BRAKE_IS_OC_SC,
-        CANMSGS_FSM_BRAKE_OC_SC_BRAKE_IS_OC_SC_TRUE_CHOICE,
-        CANMSGS_FSM_BRAKE_OC_SC_BRAKE_IS_OC_SC_FALSE_CHOICE);
+        can_tx, brake_sensor_open_or_short_circuit_status,
+        App_CanTx_SetPeriodicSignal_BRAKE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT,
+        CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_BRAKE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_TRUE_CHOICE,
+        CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_BRAKE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_FALSE_CHOICE);
 }

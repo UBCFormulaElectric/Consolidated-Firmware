@@ -102,7 +102,7 @@ struct InRangeCheck *left_wheel_speed_sensor_in_range_check,
 struct InRangeCheck *     steering_angle_sensor_in_range_check;
 struct InRangeCheck *     brake_pressure_sensor_in_range_check;
 struct BinaryStatus *     brake_actuation_status;
-struct BinaryStatus *     brake_sc_oc_status;
+struct BinaryStatus *     brake_sensor_open_or_short_circuit_status;
 struct World *            world;
 struct StateMachine *     state_machine;
 struct FsmCanTxInterface *can_tx;
@@ -225,8 +225,8 @@ int main(void)
     brake_actuation_status =
         App_SharedBinaryStatus_Create(Io_MSP3002K5P3N1_IsBrakeActuated);
 
-    brake_sc_oc_status = App_SharedBinaryStatus_Create(
-        Io_MSP3002K5P3N1_IsBrakeOpenOrShortCircuited);
+    brake_sensor_open_or_short_circuit_status =
+        App_SharedBinaryStatus_Create(Io_MSP3002K5P3N1_IsOpenOrShortCircuit);
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
@@ -249,7 +249,7 @@ int main(void)
         right_wheel_speed_sensor_in_range_check,
         steering_angle_sensor_in_range_check,
         brake_pressure_sensor_in_range_check, brake_actuation_status,
-        brake_sc_oc_status, rgb_led_sequence);
+        brake_sensor_open_or_short_circuit_status, rgb_led_sequence);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 

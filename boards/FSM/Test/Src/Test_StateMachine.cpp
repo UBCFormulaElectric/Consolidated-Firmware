@@ -86,7 +86,7 @@ class FsmStateMachineTest : public testing::Test
         brake_actuation_status =
             App_SharedBinaryStatus_Create(is_brake_actuated);
 
-        brake_oc_sc_status =
+        brake_sensor_open_or_short_circuit_status =
             App_SharedBinaryStatus_Create(is_brake_open_or_short_circuited);
 
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
@@ -98,7 +98,7 @@ class FsmStateMachineTest : public testing::Test
             secondary_flow_rate_in_range_check, left_wheel_speed_in_range_check,
             right_wheel_speed_in_range_check, steering_angle_in_range_check,
             brake_pressure_in_range_check, brake_actuation_status,
-            brake_oc_sc_status, rgb_led_sequence);
+            brake_sensor_open_or_short_circuit_status, rgb_led_sequence);
 
         // Default to starting the state machine in the `AIR_OPEN` state
         state_machine =
@@ -141,7 +141,9 @@ class FsmStateMachineTest : public testing::Test
         TearDownObject(steering_angle_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(brake_pressure_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(brake_actuation_status, App_SharedBinaryStatus_Destroy);
-        TearDownObject(brake_oc_sc_status, App_SharedBinaryStatus_Destroy);
+        TearDownObject(
+            brake_sensor_open_or_short_circuit_status,
+            App_SharedBinaryStatus_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
     }
 
@@ -232,7 +234,7 @@ class FsmStateMachineTest : public testing::Test
     struct InRangeCheck *     steering_angle_in_range_check;
     struct InRangeCheck *     brake_pressure_in_range_check;
     struct BinaryStatus *     brake_actuation_status;
-    struct BinaryStatus *     brake_oc_sc_status;
+    struct BinaryStatus *     brake_sensor_open_or_short_circuit_status;
     struct RgbLedSequence *   rgb_led_sequence;
 };
 
@@ -351,9 +353,9 @@ TEST_F(
 {
     CheckBinaryStatusCanSignalInAllStates(
         is_brake_open_or_short_circuited_fake.return_val,
-        App_CanTx_GetPeriodicSignal_BRAKE_IS_OC_SC,
-        CANMSGS_FSM_BRAKE_OC_SC_BRAKE_IS_OC_SC_TRUE_CHOICE,
-        CANMSGS_FSM_BRAKE_OC_SC_BRAKE_IS_OC_SC_FALSE_CHOICE);
+        App_CanTx_GetPeriodicSignal_BRAKE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT,
+        CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_BRAKE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_TRUE_CHOICE,
+        CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_BRAKE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_FALSE_CHOICE);
 }
 
 TEST_F(FsmStateMachineTest, rgb_led_sequence_in_all_states)

@@ -29,7 +29,7 @@ struct FsmWorld *App_FsmWorld_Create(
     struct InRangeCheck *     steering_angle_in_range_check,
     struct InRangeCheck *     brake_pressure_in_range_check,
     struct BinaryStatus *     brake_actuation_status,
-    struct BinaryStatus *     brake_oc_sc_status,
+    struct BinaryStatus *     brake_sensor_open_or_short_circuit_status,
     struct RgbLedSequence *   rgb_led_sequence);
 
 /**
@@ -121,7 +121,7 @@ struct BinaryStatus *
  * @param world The world to get the brake open/short circuit status for
  * @return The brake open/short circuit status for the given world
  */
-struct BinaryStatus *App_FsmWorld_GetBrakeOpenOrShortCircuitedStatus(
+struct BinaryStatus *App_FsmWorld_GetBrakeSensorOpenOrShortCircuitStatus(
     const struct FsmWorld *world);
 
 /**
