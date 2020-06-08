@@ -222,8 +222,8 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         // We want to display each error for one second, so we assume that the
         // error set will not change much and just associate each second to
-        // a particular error. Errors that are set for less than one second may
-        // not be displayed.
+        // a particular error. Errors that are set for less than N seconds,
+        // where N is the number of errors set, may not be displayed.
         size_t error_index = App_SharedClock_GetCurrentTimeInSeconds(clock) %
                              all_errors.num_errors;
         struct Error *error = all_errors.errors[error_index];
@@ -233,8 +233,8 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         // example, if an error ID is 67, it will show up as 567 on the
         // 7-segment displays.
         const uint32_t error_id             = App_SharedError_GetId(error);
-        const uint32_t error_id_offset      = 500;
-        const uint32_t error_id_with_offset = error_id + error_id_offset;
+        const uint32_t ERROR_ID_OFFSET      = 500;
+        const uint32_t error_id_with_offset = error_id + ERROR_ID_OFFSET;
 
         App_SevenSegDisplays_SetUnsignedBase10Value(
             seven_seg_displays, error_id_with_offset);
