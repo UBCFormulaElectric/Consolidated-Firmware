@@ -6,7 +6,6 @@
 
 struct DimWorld
 {
-    uint32_t                  current_ms;
     struct DimCanTxInterface *can_tx_interface;
     struct DimCanRxInterface *can_rx_interface;
     struct SevenSegDisplays * seven_seg_displays;
@@ -25,6 +24,7 @@ struct DimWorld
     struct RgbLed *           dim_status_led;
     struct RgbLed *           fsm_status_led;
     struct RgbLed *           pdm_status_led;
+    struct Clock *            time;
 };
 
 struct DimWorld *App_DimWorld_Create(
@@ -45,12 +45,12 @@ struct DimWorld *App_DimWorld_Create(
     struct RgbLed *const            dcm_status_led,
     struct RgbLed *const            dim_status_led,
     struct RgbLed *const            fsm_status_led,
-    struct RgbLed *const            pdm_status_led)
+    struct RgbLed *const            pdm_status_led,
+    struct Clock *const             time)
 {
     struct DimWorld *world = (struct DimWorld *)malloc(sizeof(struct DimWorld));
     assert(world != NULL);
 
-    world->current_ms              = 0;
     world->can_tx_interface        = can_tx_interface;
     world->can_rx_interface        = can_rx_interface;
     world->seven_seg_displays      = seven_seg_displays;
@@ -69,6 +69,7 @@ struct DimWorld *App_DimWorld_Create(
     world->dim_status_led          = dim_status_led;
     world->fsm_status_led          = fsm_status_led;
     world->pdm_status_led          = pdm_status_led;
+    world->time                    = time;
 
     return world;
 }
@@ -76,23 +77,6 @@ struct DimWorld *App_DimWorld_Create(
 void App_DimWorld_Destroy(struct DimWorld *world)
 {
     free(world);
-}
-
-uint32_t App_DimWorld_GetCurrentSecond(struct DimWorld *world)
-{
-    return world->current_ms / 1000;
-}
-
-uint32_t App_DimWorld_GetCurrentMillisecond(struct DimWorld *world)
-{
-    return world->current_ms;
-}
-
-void App_DimWorld_SetCurrentMillisecond(
-    struct DimWorld *world,
-    uint32_t         current_ms)
-{
-    world->current_ms = current_ms;
 }
 
 struct DimCanTxInterface *
@@ -194,4 +178,9 @@ struct RgbLed *App_DimWorld_GetFsmStatusLed(const struct DimWorld *world)
 struct RgbLed *App_DimWorld_GetPdmStatusLed(const struct DimWorld *world)
 {
     return world->pdm_status_led;
+}
+
+struct Clock *App_DimWorld_GetTime(const struct DimWorld *world)
+{
+    return world->time;
 }

@@ -145,13 +145,15 @@ class DimStateMachineTest : public testing::Test
             turn_pdm_status_led_red, turn_pdm_status_led_green,
             turn_pdm_status_led_blue, turn_off_pdm_status_led);
 
+        clock = App_SharedClock_Create();
+
         world = App_DimWorld_Create(
             can_tx_interface, can_rx_interface, seven_seg_displays,
             heartbeat_monitor, regen_paddle, rgb_led_sequence,
             drive_mode_switch, imd_led, bspd_led, start_switch,
             traction_control_switch, torque_vectoring_switch, error_table,
             bms_status_led, dcm_status_led, dim_status_led, fsm_status_led,
-            pdm_status_led);
+            pdm_status_led, clock);
 
         // Default to starting the state machine in the `Drive` state
         state_machine =
@@ -258,6 +260,7 @@ class DimStateMachineTest : public testing::Test
     struct RgbLed *           dim_status_led;
     struct RgbLed *           fsm_status_led;
     struct RgbLed *           pdm_status_led;
+    struct Clock *            clock;
 };
 
 // DIM-12
@@ -339,7 +342,7 @@ TEST_F(
 
     for (uint32_t current_ms = 0; current_ms <= 999; current_ms++)
     {
-        App_DimWorld_SetCurrentMillisecond(world, current_ms);
+        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_ms);
         App_SharedStateMachine_Tick100Hz(state_machine);
 
         // When an error ID shows up on the 7-segment displays, it will have an
@@ -355,7 +358,7 @@ TEST_F(
 
     for (uint32_t current_ms = 1000; current_ms <= 1999; current_ms++)
     {
-        App_DimWorld_SetCurrentMillisecond(world, current_ms);
+        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_ms);
         App_SharedStateMachine_Tick100Hz(state_machine);
 
         // When an error ID shows up on the 7-segment displays, it will have an
@@ -371,7 +374,7 @@ TEST_F(
 
     for (uint32_t current_ms = 2000; current_ms <= 2999; current_ms++)
     {
-        App_DimWorld_SetCurrentMillisecond(world, current_ms);
+        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_ms);
         App_SharedStateMachine_Tick100Hz(state_machine);
 
         // When an error ID shows up on the 7-segment displays, it will have an
@@ -387,7 +390,7 @@ TEST_F(
 
     for (uint32_t current_ms = 3000; current_ms <= 3999; current_ms++)
     {
-        App_DimWorld_SetCurrentMillisecond(world, current_ms);
+        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_ms);
         App_SharedStateMachine_Tick100Hz(state_machine);
 
         // When an error ID shows up on the 7-segment displays, it will have an

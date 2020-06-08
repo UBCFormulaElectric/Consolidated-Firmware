@@ -11,6 +11,7 @@
 #include "App_BinarySwitch.h"
 #include "App_SharedErrorTable.h"
 #include "App_SharedRgbLed.h"
+#include "App_SharedClock.h"
 
 struct DimWorld;
 
@@ -41,39 +42,14 @@ struct DimWorld *App_DimWorld_Create(
     struct RgbLed *           dcm_status_led,
     struct RgbLed *           dim_status_led,
     struct RgbLed *           fsm_status_led,
-    struct RgbLed *           pdm_status_led);
+    struct RgbLed *           pdm_status_led,
+    struct Clock *            time);
 
 /**
  * Deallocate the memory used by the given world
  * @param world The world to deallocate
  */
 void App_DimWorld_Destroy(struct DimWorld *world);
-
-/**
- * Get the current second for the given world
- * @note The second is rounded down:
- *          - If the current time is 999ms, this function returns 0 second.
- *          - If the current time is 1001ms, this function returns 1 second.
- * @param world The world to get current second for
- * @return The current second for the given world
- */
-uint32_t App_DimWorld_GetCurrentSecond(struct DimWorld *world);
-
-/**
- * Get the current millisecond for the given world
- * @param world The world to get current millisecond for
- * @return The current millisecond for the given world
- */
-uint32_t App_DimWorld_GetCurrentMillisecond(struct DimWorld *world);
-
-/**
- * Set the current millisecond for the given world
- * @param world  The world to set current millisecond for
- * @param current_ms The current millisecond to set for the given world
- */
-void App_DimWorld_SetCurrentMillisecond(
-    struct DimWorld *world,
-    uint32_t         current_ms);
 
 /**
  * Get the CAN TX interface for the given world
@@ -205,3 +181,10 @@ struct RgbLed *App_DimWorld_GetFsmStatusLed(const struct DimWorld *world);
  * @return The PDM status LED for the given world
  */
 struct RgbLed *App_DimWorld_GetPdmStatusLed(const struct DimWorld *world);
+
+/**
+ * Get the time for the given world
+ * @param world The world to get time for
+ * @return The time for the given world
+ */
+struct Clock *App_DimWorld_GetTime(const struct DimWorld *world);
