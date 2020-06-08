@@ -117,7 +117,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct BinarySwitch *torque_vectoring_switch =
         App_DimWorld_GetTorqueVectoringSwitch(world);
     struct ErrorTable *error_table = App_DimWorld_GetErrorTable(world);
-    struct Clock *     time        = App_DimWorld_GetTime(world);
+    struct Clock *     clock       = App_DimWorld_GetClock(world);
 
     uint32_t buffer;
 
@@ -224,7 +224,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         // error set will not change much and just associate each second to
         // a particular error. Errors that are set for less than one second may
         // not be displayed.
-        size_t error_index = App_SharedClock_GetCurrentTimeInSeconds(time) %
+        size_t error_index = App_SharedClock_GetCurrentTimeInSeconds(clock) %
                              all_errors.num_errors;
         struct Error *error = all_errors.errors[error_index];
 

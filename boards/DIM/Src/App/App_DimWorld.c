@@ -24,7 +24,7 @@ struct DimWorld
     struct RgbLed *           dim_status_led;
     struct RgbLed *           fsm_status_led;
     struct RgbLed *           pdm_status_led;
-    struct Clock *            time;
+    struct Clock *            clock;
 };
 
 struct DimWorld *App_DimWorld_Create(
@@ -46,7 +46,7 @@ struct DimWorld *App_DimWorld_Create(
     struct RgbLed *const            dim_status_led,
     struct RgbLed *const            fsm_status_led,
     struct RgbLed *const            pdm_status_led,
-    struct Clock *const             time)
+    struct Clock *const             clock)
 {
     struct DimWorld *world = (struct DimWorld *)malloc(sizeof(struct DimWorld));
     assert(world != NULL);
@@ -69,7 +69,7 @@ struct DimWorld *App_DimWorld_Create(
     world->dim_status_led          = dim_status_led;
     world->fsm_status_led          = fsm_status_led;
     world->pdm_status_led          = pdm_status_led;
-    world->time                    = time;
+    world->clock                   = clock;
 
     return world;
 }
@@ -180,7 +180,7 @@ struct RgbLed *App_DimWorld_GetPdmStatusLed(const struct DimWorld *world)
     return world->pdm_status_led;
 }
 
-struct Clock *App_DimWorld_GetTime(const struct DimWorld *world)
+struct Clock *App_DimWorld_GetClock(const struct DimWorld *world)
 {
-    return world->time;
+    return world->clock;
 }
