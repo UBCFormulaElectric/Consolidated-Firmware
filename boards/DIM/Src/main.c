@@ -118,7 +118,7 @@ struct RgbLed *           dcm_status_led;
 struct RgbLed *           dim_status_led;
 struct RgbLed *           fsm_status_led;
 struct RgbLed *           pdm_status_led;
-struct Clock *            time;
+struct Clock *            clock;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -267,14 +267,14 @@ int main(void)
         Io_RgbLeds_TurnPdmStatusLedRed, Io_RgbLeds_TurnPdmStatusLedGreen,
         Io_RgbLeds_TurnPdmStatusLedBlue, Io_RgbLeds_TurnOffPdmStatusLed);
 
-    time = App_SharedClock_Create();
+    clock = App_SharedClock_Create();
 
     world = App_DimWorld_Create(
         can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle,
         rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, start_switch,
         traction_control_switch, torque_vectoring_switch, error_table,
         bms_status_led, dcm_status_led, dim_status_led, fsm_status_led,
-        pdm_status_led, NULL);
+        pdm_status_led, clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 
@@ -794,7 +794,7 @@ void RunTask1kHz(void const *argument)
     for (;;)
     {
         App_SharedClock_SetCurrentTimeInMilliseconds(
-            time, osKernelSysTick() * portTICK_PERIOD_MS);
+            clock, osKernelSysTick() * portTICK_PERIOD_MS);
         Io_CanTx_EnqueuePeriodicMsgs(
             can_tx, osKernelSysTick() * portTICK_PERIOD_MS);
 
