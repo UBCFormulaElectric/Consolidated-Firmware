@@ -11,6 +11,7 @@
 #include "App_BinarySwitch.h"
 #include "App_SharedErrorTable.h"
 #include "App_SharedRgbLed.h"
+#include "App_SharedClock.h"
 
 struct DimWorld;
 
@@ -41,7 +42,8 @@ struct DimWorld *App_DimWorld_Create(
     struct RgbLed *           dcm_status_led,
     struct RgbLed *           dim_status_led,
     struct RgbLed *           fsm_status_led,
-    struct RgbLed *           pdm_status_led);
+    struct RgbLed *           pdm_status_led,
+    struct Clock *            clock);
 
 /**
  * Deallocate the memory used by the given world
@@ -179,3 +181,10 @@ struct RgbLed *App_DimWorld_GetFsmStatusLed(const struct DimWorld *world);
  * @return The PDM status LED for the given world
  */
 struct RgbLed *App_DimWorld_GetPdmStatusLed(const struct DimWorld *world);
+
+/**
+ * Get the clock for the given world
+ * @param world The world to get clock for
+ * @return The clock for the given world
+ */
+struct Clock *App_DimWorld_GetClock(const struct DimWorld *world);

@@ -117,6 +117,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct BinarySwitch *torque_vectoring_switch =
         App_DimWorld_GetTorqueVectoringSwitch(world);
     struct ErrorTable *error_table = App_DimWorld_GetErrorTable(world);
+    struct Clock *     clock       = App_DimWorld_GetClock(world);
 
     uint32_t buffer;
 
@@ -129,11 +130,6 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         App_CanTx_SetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx, buffer);
     }
-
-    App_SevenSegDisplays_SetUnsignedBase10Value(
-        seven_seg_displays,
-        (uint32_t)App_CanRx_BMS_STATE_OF_CHARGE_GetSignal_STATE_OF_CHARGE(
-            can_rx));
 
     if (EXIT_OK(App_RotarySwitch_GetSwitchPosition(drive_mode_switch, &buffer)))
     {
@@ -210,6 +206,38 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         {
             App_SharedRgbLed_TurnGreen(board_status_led);
         }
+    }
+
+    struct ErrorList all_errors;
+    App_SharedErrorTable_GetAllErrors(error_table, &all_errors);
+
+    if (all_errors.num_errors == 0)
+    {
+        App_SevenSegDisplays_SetUnsignedBase10Value(
+            seven_seg_displays,
+            (uint32_t)App_CanRx_BMS_STATE_OF_CHARGE_GetSignal_STATE_OF_CHARGE(
+                can_rx));
+    }
+    else
+    {
+        // We want to display each error for one second, so we assume that the
+        // error set will not change much and just associate each second to
+        // a particular error. Errors that are set for less than N seconds,
+        // where N is the number of errors set, may not be displayed.
+        size_t error_index = App_SharedClock_GetCurrentTimeInSeconds(clock) %
+                             all_errors.num_errors;
+        struct Error *error = all_errors.errors[error_index];
+
+        // To avoid confusion between SoC and error IDs, the 7-segment
+        // displays will show the error IDs with an offset of 500. For
+        // example, if an error ID is 67, it will show up as 567 on the
+        // 7-segment displays.
+        const uint32_t error_id             = App_SharedError_GetId(error);
+        const uint32_t ERROR_ID_OFFSET      = 500;
+        const uint32_t error_id_with_offset = error_id + ERROR_ID_OFFSET;
+
+        App_SevenSegDisplays_SetUnsignedBase10Value(
+            seven_seg_displays, error_id_with_offset);
     }
 
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
