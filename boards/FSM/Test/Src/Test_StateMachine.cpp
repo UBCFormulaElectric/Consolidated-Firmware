@@ -151,6 +151,9 @@ class FsmStateMachineTest : public BaseStateMachineTest
         TearDownObject(brake_pressure_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(brake_actuation_status, App_SharedBinaryStatus_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
+        TearDownObject(clock, App_SharedClock_Destroy);
+        TearDownObject(papps, App_AcceleratorPedal_Destroy);
+        TearDownObject(sapps, App_AcceleratorPedal_Destroy)
     }
 
     void SetInitialState(const struct State *const initial_state)
