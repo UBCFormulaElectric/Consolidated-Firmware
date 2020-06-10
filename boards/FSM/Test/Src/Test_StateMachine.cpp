@@ -477,7 +477,9 @@ TEST_F(FsmStateMachineTest, exit_air_closed_state_when_air_negative_is_opened)
 }
 
 // FSM-16
-TEST_F(FsmStateMachineTest, papps_alarm_error)
+TEST_F(
+    FsmStateMachineTest,
+    papps_alarm_error_sets_mapped_pedal_percentage_to_zero)
 {
     is_papps_encoder_alarm_active_fake.return_val = true;
 
@@ -497,7 +499,9 @@ TEST_F(FsmStateMachineTest, papps_alarm_error)
 }
 
 // FSM-16
-TEST_F(FsmStateMachineTest, sapps_alarm_error)
+TEST_F(
+    FsmStateMachineTest,
+    sapps_alarm_error_sets_mapped_pedal_percentage_to_zero)
 {
     is_sapps_encoder_alarm_active_fake.return_val = true;
 

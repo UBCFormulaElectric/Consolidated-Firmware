@@ -8,7 +8,7 @@ struct AcceleratorPedal;
  * Allocate and initialize an accelerator pedal
  * @param is_encoder_alarm_active A function that can be called to check whether
  *                                the encoder alarm is active (Modeled after
- *                                MAX-3097E)
+ *                                MAX3097E)
  * @return The created accelerator pedal, whose ownership is given to the caller
  */
 struct AcceleratorPedal *
