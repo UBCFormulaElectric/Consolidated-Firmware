@@ -226,6 +226,7 @@ class DimStateMachineTest : public testing::Test
         TearDownObject(dim_status_led, App_SharedRgbLed_Destroy);
         TearDownObject(fsm_status_led, App_SharedRgbLed_Destroy);
         TearDownObject(pdm_status_led, App_SharedRgbLed_Destroy);
+        TearDownObject(clock, App_SharedClock_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
