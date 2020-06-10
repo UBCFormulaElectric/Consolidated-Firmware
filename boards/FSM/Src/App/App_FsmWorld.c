@@ -25,6 +25,9 @@ struct FsmWorld
     struct BinaryStatus *     brake_actuation_status;
     struct RgbLedSequence *   rgb_led_sequence;
     struct SignalNode *       signals_head;
+    struct Clock *            clock;
+    struct AcceleratorPedal * papps;
+    struct AcceleratorPedal * sapps;
 };
 
 struct FsmWorld *App_FsmWorld_Create(
@@ -38,7 +41,10 @@ struct FsmWorld *App_FsmWorld_Create(
     struct InRangeCheck *const      steering_angle_in_range_check,
     struct InRangeCheck *const      brake_pressure_in_range_check,
     struct BinaryStatus *const      brake_actuation_status,
-    struct RgbLedSequence *const    rgb_led_sequence)
+    struct RgbLedSequence *const    rgb_led_sequence,
+    struct Clock *const             clock,
+    struct AcceleratorPedal *const  papps,
+    struct AcceleratorPedal *const  sapps)
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
     assert(world != NULL);
@@ -56,6 +62,9 @@ struct FsmWorld *App_FsmWorld_Create(
     world->brake_actuation_status           = brake_actuation_status;
     world->rgb_led_sequence                 = rgb_led_sequence;
     world->signals_head                     = NULL;
+    world->clock                            = clock;
+    world->papps                            = papps;
+    world->sapps                            = sapps;
 
     return world;
 }
@@ -152,4 +161,21 @@ void App_FsmWorld_UpdateSignals(
     {
         App_SharedSignal_Update(node_ptr->signal, current_time_ms);
     }
+}
+
+struct Clock *App_FsmWorld_GetClock(const struct FsmWorld *const world)
+{
+    return world->clock;
+}
+
+struct AcceleratorPedal *
+    App_FsmWorld_GetPapps(const struct FsmWorld *const world)
+{
+    return world->papps;
+}
+
+struct AcceleratorPedal *
+    App_FsmWorld_GetSapps(const struct FsmWorld *const world)
+{
+    return world->sapps;
 }

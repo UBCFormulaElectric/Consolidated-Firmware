@@ -6,7 +6,7 @@ extern "C"
 }
 
 FAKE_VALUE_FUNC(bool, is_high);
-FAKE_VOID_FUNC(callback_function);
+FAKE_VOID_FUNC(callback_function, void *);
 
 class SharedSignalTest : public testing::Test
 {

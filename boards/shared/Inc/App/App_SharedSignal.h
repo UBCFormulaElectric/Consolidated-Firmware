@@ -12,7 +12,10 @@ struct SignalCallback
     uint32_t high_duration_ms;
 
     // The callback function
-    void (*function)(void);
+    void (*function)(void *);
+
+    // The context to pass into the callback function. Set as NULL if unused.
+    void *context;
 };
 
 /**

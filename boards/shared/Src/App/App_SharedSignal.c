@@ -64,6 +64,6 @@ void App_SharedSignal_Update(struct Signal *signal, uint32_t current_time_ms)
 
     if (time_since_last_low >= signal->callback.high_duration_ms)
     {
-        signal->callback.function();
+        signal->callback.function(signal->callback.context);
     }
 }

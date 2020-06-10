@@ -1,5 +1,6 @@
 #include <math.h>
 #include "Test_Fsm.h"
+#include "Test_BaseStateMachineTest.h"
 
 extern "C"
 {
@@ -7,6 +8,7 @@ extern "C"
 #include "App_InRangeCheck.h"
 #include "App_SharedStateMachine.h"
 #include "App_SharedHeartbeatMonitor.h"
+#include "App_Signals.h"
 #include "states/App_AirOpenState.h"
 #include "states/App_AirClosedState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
@@ -43,12 +45,16 @@ FAKE_VALUE_FUNC(float, get_right_wheel_speed);
 FAKE_VALUE_FUNC(float, get_steering_angle);
 FAKE_VALUE_FUNC(float, get_brake_pressure);
 FAKE_VALUE_FUNC(bool, is_brake_actuated);
+FAKE_VALUE_FUNC(bool, is_papps_encoder_alarm_active);
+FAKE_VALUE_FUNC(bool, is_sapps_encoder_alarm_active);
 
-class FsmStateMachineTest : public testing::Test
+class FsmStateMachineTest : public BaseStateMachineTest
 {
   protected:
     void SetUp() override
     {
+        BaseStateMachineTest::SetUp();
+
         can_tx_interface = App_CanTx_Create(
             send_non_periodic_msg_FSM_STARTUP,
             send_non_periodic_msg_FSM_WATCHDOG_TIMEOUT,
@@ -88,13 +94,21 @@ class FsmStateMachineTest : public testing::Test
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
+        clock = App_SharedClock_Create();
+
+        papps = App_AcceleratorPedal_Create(is_papps_encoder_alarm_active);
+
+        sapps = App_AcceleratorPedal_Create(is_sapps_encoder_alarm_active);
+
         world = App_FsmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
             primary_flow_rate_in_range_check,
             secondary_flow_rate_in_range_check, left_wheel_speed_in_range_check,
             right_wheel_speed_in_range_check, steering_angle_in_range_check,
             brake_pressure_in_range_check, brake_actuation_status,
-            rgb_led_sequence);
+            rgb_led_sequence, clock, papps, sapps);
+
+        App_Signals_Init(world);
 
         // Default to starting the state machine in the `AIR_OPEN` state
         state_machine =
@@ -214,6 +228,23 @@ class FsmStateMachineTest : public testing::Test
         }
     }
 
+    void UpdateClock(
+        struct StateMachine *state_machine,
+        uint32_t             current_time_ms) override
+    {
+        struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+        struct Clock *   clock = App_FsmWorld_GetClock(world);
+        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
+    }
+
+    void UpdateSignals(
+        struct StateMachine *state_machine,
+        uint32_t             current_time_ms) override
+    {
+        struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+        App_FsmWorld_UpdateSignals(world, current_time_ms);
+    }
+
     struct World *            world;
     struct StateMachine *     state_machine;
     struct FsmCanTxInterface *can_tx_interface;
@@ -227,6 +258,9 @@ class FsmStateMachineTest : public testing::Test
     struct InRangeCheck *     brake_pressure_in_range_check;
     struct BinaryStatus *     brake_actuation_status;
     struct RgbLedSequence *   rgb_led_sequence;
+    struct Clock *            clock;
+    struct AcceleratorPedal * papps;
+    struct AcceleratorPedal * sapps;
 };
 
 // FSM-10
@@ -440,6 +474,46 @@ TEST_F(FsmStateMachineTest, exit_air_closed_state_when_air_negative_is_opened)
     ASSERT_EQ(
         App_GetAirOpenState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
+// FSM-16
+TEST_F(FsmStateMachineTest, papps_alarm_error)
+{
+    is_papps_encoder_alarm_active_fake.return_val = true;
+
+    // Start with a non-zero pedal position to prevent false positive
+    App_CanTx_SetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(
+        can_tx_interface, 50.0f);
+
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+        50, App_CanTx_GetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(
+                can_tx_interface));
+
+    LetTimePass(state_machine, 1);
+    ASSERT_EQ(
+        0, App_CanTx_GetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(
+               can_tx_interface));
+}
+
+// FSM-16
+TEST_F(FsmStateMachineTest, sapps_alarm_error)
+{
+    is_sapps_encoder_alarm_active_fake.return_val = true;
+
+    // Start with a non-zero pedal position to prevent false positive
+    App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(
+        can_tx_interface, 50.0f);
+
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+        50, App_CanTx_GetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(
+                can_tx_interface));
+
+    LetTimePass(state_machine, 1);
+    ASSERT_EQ(
+        0, App_CanTx_GetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(
+               can_tx_interface));
 }
 
 } // namespace StateMachineTest
