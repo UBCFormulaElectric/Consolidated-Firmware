@@ -153,7 +153,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
         TearDownObject(papps, App_AcceleratorPedal_Destroy);
-        TearDownObject(sapps, App_AcceleratorPedal_Destroy)
+        TearDownObject(sapps, App_AcceleratorPedal_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)

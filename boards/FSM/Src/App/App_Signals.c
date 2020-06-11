@@ -19,7 +19,7 @@ static void PappsAlarmCallback(void *context)
 
 static bool IsSappsAlarmActive(void)
 {
-    return App_AcceleratorPedal_IsEncoderAlarmActive(_papps);
+    return App_AcceleratorPedal_IsEncoderAlarmActive(_sapps);
 }
 
 static void SappsAlarmCallback(void *context)
@@ -35,18 +35,21 @@ void App_Signals_Init(struct FsmWorld *world)
     _papps = App_FsmWorld_GetPapps(world);
     _sapps = App_FsmWorld_GetSapps(world);
 
-    struct SignalCallback callback;
-    struct Signal *       signal;
+    struct SignalCallback papps_callback = {
+        .function         = PappsAlarmCallback,
+        .high_duration_ms = 10,
+        .context          = world,
+    };
+    struct Signal *papps_signal =
+        App_SharedSignal_Create(0, IsPappsAlarmActive, papps_callback);
+    App_FsmWorld_RegisterSignal(world, papps_signal);
 
-    callback.function         = PappsAlarmCallback;
-    callback.high_duration_ms = 10;
-    callback.context          = world;
-    signal = App_SharedSignal_Create(0, IsPappsAlarmActive, callback);
-    App_FsmWorld_RegisterSignal(world, signal);
-
-    callback.function         = SappsAlarmCallback;
-    callback.high_duration_ms = 10;
-    callback.context          = world;
-    signal = App_SharedSignal_Create(0, IsSappsAlarmActive, callback);
-    App_FsmWorld_RegisterSignal(world, signal);
+    struct SignalCallback sapps_callback = {
+        .function         = SappsAlarmCallback,
+        .high_duration_ms = 10,
+        .context          = world,
+    };
+    struct Signal *sapps_signal =
+        App_SharedSignal_Create(0, IsSappsAlarmActive, sapps_callback);
+    App_FsmWorld_RegisterSignal(world, sapps_signal);
 }
