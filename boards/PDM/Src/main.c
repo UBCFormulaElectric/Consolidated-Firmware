@@ -37,6 +37,9 @@
 #include "Io_CurrentSense.h"
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
+#include "Io_BQ29209.h"
+#include "Io_LT3650.h"
+#include "Io_LTC3786.h"
 
 #include "App_PdmWorld.h"
 #include "App_SharedConstants.h"
@@ -87,22 +90,23 @@ osThreadId          Task100HzHandle;
 uint32_t            Task100HzBuffer[TASK100HZ_STACK_SIZE];
 osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
-struct PdmWorld *         world;
-struct StateMachine *     state_machine;
-struct PdmCanTxInterface *can_tx;
-struct PdmCanRxInterface *can_rx;
-struct InRangeCheck *     vbat_voltage_in_range_check;
-struct InRangeCheck *     _24v_aux_voltage_in_range_check;
-struct InRangeCheck *     _24v_acc_voltage_in_range_check;
-struct InRangeCheck *     aux1_current_in_range_check;
-struct InRangeCheck *     aux2_current_in_range_check;
-struct InRangeCheck *     left_inverter_current_in_range_check;
-struct InRangeCheck *     right_inverter_current_in_range_check;
-struct InRangeCheck *     energy_meter_current_in_range_check;
-struct InRangeCheck *     can_current_in_range_check;
-struct InRangeCheck *     air_shutdown_current_in_range_check;
-struct HeartbeatMonitor * heartbeat_monitor;
-struct RgbLedSequence *   rgb_led_sequence;
+struct PdmWorld *           world;
+struct StateMachine *       state_machine;
+struct PdmCanTxInterface *  can_tx;
+struct PdmCanRxInterface *  can_rx;
+struct InRangeCheck *       vbat_voltage_in_range_check;
+struct InRangeCheck *       _24v_aux_voltage_in_range_check;
+struct InRangeCheck *       _24v_acc_voltage_in_range_check;
+struct InRangeCheck *       aux1_current_in_range_check;
+struct InRangeCheck *       aux2_current_in_range_check;
+struct InRangeCheck *       left_inverter_current_in_range_check;
+struct InRangeCheck *       right_inverter_current_in_range_check;
+struct InRangeCheck *       energy_meter_current_in_range_check;
+struct InRangeCheck *       can_current_in_range_check;
+struct InRangeCheck *       air_shutdown_current_in_range_check;
+struct HeartbeatMonitor *   heartbeat_monitor;
+struct RgbLedSequence *     rgb_led_sequence;
+struct LowVoltageBatteries *low_voltage_batteries;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -230,6 +234,9 @@ int main(void)
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
         Io_RgbLedSequence_TurnOnGreenLed);
 
+    low_voltage_batteries = App_LowVoltageBatteries_Create(
+        Io_BQ29209_IsOverVoltage, Io_LT3650_HasFault, Io_LTC3786_HasFault);
+
     world = App_PdmWorld_Create(
         can_tx, can_rx, vbat_voltage_in_range_check,
         _24v_aux_voltage_in_range_check, _24v_acc_voltage_in_range_check,
@@ -238,7 +245,7 @@ int main(void)
         right_inverter_current_in_range_check,
         energy_meter_current_in_range_check, can_current_in_range_check,
         air_shutdown_current_in_range_check, heartbeat_monitor,
-        rgb_led_sequence);
+        rgb_led_sequence, low_voltage_batteries);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 

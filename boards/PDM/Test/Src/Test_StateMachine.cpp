@@ -49,6 +49,10 @@ FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
 
+FAKE_VALUE_FUNC(bool, is_low_voltage_batteries_overvoltage);
+FAKE_VALUE_FUNC(bool, do_low_voltage_batteries_have_charge_fault);
+FAKE_VALUE_FUNC(bool, do_low_voltage_batteries_have_boost_fault);
+
 class PdmStateMachineTest : public testing::Test
 {
   protected:
@@ -103,6 +107,11 @@ class PdmStateMachineTest : public testing::Test
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
+        low_voltage_batteries = App_LowVoltageBatteries_Create(
+            is_low_voltage_batteries_overvoltage,
+            do_low_voltage_batteries_have_charge_fault,
+            do_low_voltage_batteries_have_boost_fault);
+
         world = App_PdmWorld_Create(
             can_tx_interface, can_rx_interface, vbat_voltage_in_range_check,
             _24v_aux_voltage_in_range_check, _24v_acc_voltage_in_range_check,
@@ -111,7 +120,7 @@ class PdmStateMachineTest : public testing::Test
             right_inverter_current_in_range_check,
             energy_meter_current_in_range_check, can_current_in_range_check,
             air_shutdown_current_in_range_check, heartbeat_monitor,
-            rgb_led_sequence);
+            rgb_led_sequence, low_voltage_batteries);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -137,6 +146,9 @@ class PdmStateMachineTest : public testing::Test
         RESET_FAKE(turn_on_red_led);
         RESET_FAKE(turn_on_green_led);
         RESET_FAKE(turn_on_blue_led);
+        RESET_FAKE(is_low_voltage_batteries_overvoltage);
+        RESET_FAKE(do_low_voltage_batteries_have_charge_fault);
+        RESET_FAKE(do_low_voltage_batteries_have_boost_fault);
     }
 
     void TearDown() override
@@ -312,22 +324,23 @@ class PdmStateMachineTest : public testing::Test
         }
     }
 
-    struct World *            world;
-    struct StateMachine *     state_machine;
-    struct PdmCanTxInterface *can_tx_interface;
-    struct PdmCanRxInterface *can_rx_interface;
-    struct InRangeCheck *     vbat_voltage_in_range_check;
-    struct InRangeCheck *     _24v_aux_voltage_in_range_check;
-    struct InRangeCheck *     _24v_acc_voltage_in_range_check;
-    struct InRangeCheck *     aux1_current_in_range_check;
-    struct InRangeCheck *     aux2_current_in_range_check;
-    struct InRangeCheck *     left_inverter_current_in_range_check;
-    struct InRangeCheck *     right_inverter_current_in_range_check;
-    struct InRangeCheck *     energy_meter_current_in_range_check;
-    struct InRangeCheck *     can_current_in_range_check;
-    struct InRangeCheck *     air_shutdown_current_in_range_check;
-    struct HeartbeatMonitor * heartbeat_monitor;
-    struct RgbLedSequence *   rgb_led_sequence;
+    struct World *              world;
+    struct StateMachine *       state_machine;
+    struct PdmCanTxInterface *  can_tx_interface;
+    struct PdmCanRxInterface *  can_rx_interface;
+    struct InRangeCheck *       vbat_voltage_in_range_check;
+    struct InRangeCheck *       _24v_aux_voltage_in_range_check;
+    struct InRangeCheck *       _24v_acc_voltage_in_range_check;
+    struct InRangeCheck *       aux1_current_in_range_check;
+    struct InRangeCheck *       aux2_current_in_range_check;
+    struct InRangeCheck *       left_inverter_current_in_range_check;
+    struct InRangeCheck *       right_inverter_current_in_range_check;
+    struct InRangeCheck *       energy_meter_current_in_range_check;
+    struct InRangeCheck *       can_current_in_range_check;
+    struct InRangeCheck *       air_shutdown_current_in_range_check;
+    struct HeartbeatMonitor *   heartbeat_monitor;
+    struct RgbLedSequence *     rgb_led_sequence;
+    struct LowVoltageBatteries *low_voltage_batteries;
 };
 
 // PDM-21
