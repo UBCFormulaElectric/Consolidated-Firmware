@@ -692,13 +692,13 @@ TEST_F(PdmStateMachineTest, exit_air_closed_state_when_air_negative_is_opened)
 }
 
 // PDM-4
-TEST_F(PdmStateMachineTest, handle_18650s_overvoltage_in_all_states)
+TEST_F(PdmStateMachineTest, set_18650s_overvoltage_in_all_states)
 {
     for (auto &state : GetAllStates())
     {
         SetInitialState(state);
 
-        // Reset the fault to prevent false positive
+        // Clear the fault to prevent false positive
         App_CanTx_SetPeriodicSignal__18650S_OVERVOLTAGE(
             can_tx_interface, false);
 
@@ -711,13 +711,31 @@ TEST_F(PdmStateMachineTest, handle_18650s_overvoltage_in_all_states)
 }
 
 // PDM-4
-TEST_F(PdmStateMachineTest, handle_18650s_charge_fault_in_all_states)
+TEST_F(PdmStateMachineTest, clear_18650s_overvoltage_in_all_states)
 {
     for (auto &state : GetAllStates())
     {
         SetInitialState(state);
 
-        // Reset the fault to prevent false positive
+        // Set the fault to prevent false positive
+        App_CanTx_SetPeriodicSignal__18650S_OVERVOLTAGE(can_tx_interface, true);
+
+        is_low_voltage_batteries_overvoltage_fake.return_val = false;
+        App_SharedStateMachine_Tick100Hz(state_machine);
+
+        ASSERT_FALSE(
+            App_CanTx_GetPeriodicSignal__18650S_OVERVOLTAGE(can_tx_interface));
+    }
+}
+
+// PDM-4
+TEST_F(PdmStateMachineTest, set_18650s_charge_fault_in_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        // Clear the fault to prevent false positive
         App_CanTx_SetPeriodicSignal__18650S_CHARGE_FAULT(
             can_tx_interface, false);
 
@@ -729,14 +747,33 @@ TEST_F(PdmStateMachineTest, handle_18650s_charge_fault_in_all_states)
     }
 }
 
-// PDM-5
-TEST_F(PdmStateMachineTest, handle_18650s_boost_controller_fault_in_all_states)
+// PDM-4
+TEST_F(PdmStateMachineTest, clear_18650s_charge_fault_in_all_states)
 {
     for (auto &state : GetAllStates())
     {
         SetInitialState(state);
 
-        // Reset the fault to prevent false positive
+        // Set the fault to prevent false positive
+        App_CanTx_SetPeriodicSignal__18650S_CHARGE_FAULT(
+            can_tx_interface, true);
+
+        do_low_voltage_batteries_have_charge_fault_fake.return_val = false;
+        App_SharedStateMachine_Tick100Hz(state_machine);
+
+        ASSERT_FALSE(
+            App_CanTx_GetPeriodicSignal__18650S_CHARGE_FAULT(can_tx_interface));
+    }
+}
+
+// PDM-5
+TEST_F(PdmStateMachineTest, set_18650s_boost_controller_fault_in_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        // Clear the fault to prevent false positive
         App_CanTx_SetPeriodicSignal__18650S_BOOST_CONTROLLER_FAULT(
             can_tx_interface, false);
 
@@ -749,4 +786,23 @@ TEST_F(PdmStateMachineTest, handle_18650s_boost_controller_fault_in_all_states)
     }
 }
 
+// PDM-5
+TEST_F(PdmStateMachineTest, clear_18650s_boost_controller_fault_in_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        // Set the fault to prevent false positive
+        App_CanTx_SetPeriodicSignal__18650S_BOOST_CONTROLLER_FAULT(
+            can_tx_interface, true);
+
+        do_low_voltage_batteries_have_boost_controller_fault_fake.return_val =
+            false;
+        App_SharedStateMachine_Tick100Hz(state_machine);
+
+        ASSERT_FALSE(App_CanTx_GetPeriodicSignal__18650S_BOOST_CONTROLLER_FAULT(
+            can_tx_interface));
+    }
+}
 } // namespace StateMachineTest
