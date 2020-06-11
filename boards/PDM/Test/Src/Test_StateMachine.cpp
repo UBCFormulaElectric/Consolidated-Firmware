@@ -175,6 +175,7 @@ class PdmStateMachineTest : public testing::Test
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
+        TearDownObject(low_voltage_batteries, App_LowVoltageBatteries_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
