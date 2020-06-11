@@ -27,5 +27,5 @@ void App_AcceleratorPedal_Destroy(struct AcceleratorPedal *accelerator_pedal)
 bool App_AcceleratorPedal_IsEncoderAlarmActive(
     const struct AcceleratorPedal *accelerator_pedal)
 {
-    return accelerator_pedal->is_encoder_alarm_active;
+    return accelerator_pedal->is_encoder_alarm_active();
 }

@@ -130,6 +130,8 @@ class FsmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(get_steering_angle);
         RESET_FAKE(get_brake_pressure);
         RESET_FAKE(is_brake_actuated);
+        RESET_FAKE(is_papps_encoder_alarm_active);
+        RESET_FAKE(is_sapps_encoder_alarm_active);
     }
 
     void TearDown() override
