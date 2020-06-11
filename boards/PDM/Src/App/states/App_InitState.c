@@ -21,6 +21,8 @@ static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
+    App_AllStatesRunOnTick100Hz(state_machine);
+
     struct PdmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct PdmCanTxInterface *can_tx = App_PdmWorld_GetCanTx(world);
 
