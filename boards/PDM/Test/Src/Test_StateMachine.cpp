@@ -699,14 +699,14 @@ TEST_F(PdmStateMachineTest, set_18650s_overvoltage_in_all_states)
         SetInitialState(state);
 
         // Clear the fault to prevent false positive
-        App_CanTx_SetPeriodicSignal__18650S_OVERVOLTAGE(
+        App_CanTx_SetPeriodicSignal_CELL_BALANCE_OVERVOLTAGE_FAULT(
             can_tx_interface, false);
 
         is_low_voltage_batteries_overvoltage_fake.return_val = true;
         App_SharedStateMachine_Tick100Hz(state_machine);
 
-        ASSERT_TRUE(
-            App_CanTx_GetPeriodicSignal__18650S_OVERVOLTAGE(can_tx_interface));
+        ASSERT_TRUE(App_CanTx_GetPeriodicSignal_CELL_BALANCE_OVERVOLTAGE_FAULT(
+            can_tx_interface));
     }
 }
 
@@ -718,13 +718,14 @@ TEST_F(PdmStateMachineTest, clear_18650s_overvoltage_in_all_states)
         SetInitialState(state);
 
         // Set the fault to prevent false positive
-        App_CanTx_SetPeriodicSignal__18650S_OVERVOLTAGE(can_tx_interface, true);
+        App_CanTx_SetPeriodicSignal_CELL_BALANCE_OVERVOLTAGE_FAULT(
+            can_tx_interface, true);
 
         is_low_voltage_batteries_overvoltage_fake.return_val = false;
         App_SharedStateMachine_Tick100Hz(state_machine);
 
-        ASSERT_FALSE(
-            App_CanTx_GetPeriodicSignal__18650S_OVERVOLTAGE(can_tx_interface));
+        ASSERT_FALSE(App_CanTx_GetPeriodicSignal_CELL_BALANCE_OVERVOLTAGE_FAULT(
+            can_tx_interface));
     }
 }
 
@@ -736,14 +737,13 @@ TEST_F(PdmStateMachineTest, set_18650s_charge_fault_in_all_states)
         SetInitialState(state);
 
         // Clear the fault to prevent false positive
-        App_CanTx_SetPeriodicSignal__18650S_CHARGE_FAULT(
-            can_tx_interface, false);
+        App_CanTx_SetPeriodicSignal_CHARGER_FAULT(can_tx_interface, false);
 
         do_low_voltage_batteries_have_charge_fault_fake.return_val = true;
         App_SharedStateMachine_Tick100Hz(state_machine);
 
         ASSERT_TRUE(
-            App_CanTx_GetPeriodicSignal__18650S_CHARGE_FAULT(can_tx_interface));
+            App_CanTx_GetPeriodicSignal_CHARGER_FAULT(can_tx_interface));
     }
 }
 
@@ -755,14 +755,13 @@ TEST_F(PdmStateMachineTest, clear_18650s_charge_fault_in_all_states)
         SetInitialState(state);
 
         // Set the fault to prevent false positive
-        App_CanTx_SetPeriodicSignal__18650S_CHARGE_FAULT(
-            can_tx_interface, true);
+        App_CanTx_SetPeriodicSignal_CHARGER_FAULT(can_tx_interface, true);
 
         do_low_voltage_batteries_have_charge_fault_fake.return_val = false;
         App_SharedStateMachine_Tick100Hz(state_machine);
 
         ASSERT_FALSE(
-            App_CanTx_GetPeriodicSignal__18650S_CHARGE_FAULT(can_tx_interface));
+            App_CanTx_GetPeriodicSignal_CHARGER_FAULT(can_tx_interface));
     }
 }
 
@@ -774,15 +773,14 @@ TEST_F(PdmStateMachineTest, set_18650s_boost_controller_fault_in_all_states)
         SetInitialState(state);
 
         // Clear the fault to prevent false positive
-        App_CanTx_SetPeriodicSignal__18650S_BOOST_CONTROLLER_FAULT(
-            can_tx_interface, false);
+        App_CanTx_SetPeriodicSignal_BOOST_PGOOD_FAULT(can_tx_interface, false);
 
         do_low_voltage_batteries_have_boost_controller_fault_fake.return_val =
             true;
         App_SharedStateMachine_Tick100Hz(state_machine);
 
-        ASSERT_TRUE(App_CanTx_GetPeriodicSignal__18650S_BOOST_CONTROLLER_FAULT(
-            can_tx_interface));
+        ASSERT_TRUE(
+            App_CanTx_GetPeriodicSignal_BOOST_PGOOD_FAULT(can_tx_interface));
     }
 }
 
@@ -794,15 +792,14 @@ TEST_F(PdmStateMachineTest, clear_18650s_boost_controller_fault_in_all_states)
         SetInitialState(state);
 
         // Set the fault to prevent false positive
-        App_CanTx_SetPeriodicSignal__18650S_BOOST_CONTROLLER_FAULT(
-            can_tx_interface, true);
+        App_CanTx_SetPeriodicSignal_BOOST_PGOOD_FAULT(can_tx_interface, true);
 
         do_low_voltage_batteries_have_boost_controller_fault_fake.return_val =
             false;
         App_SharedStateMachine_Tick100Hz(state_machine);
 
-        ASSERT_FALSE(App_CanTx_GetPeriodicSignal__18650S_BOOST_CONTROLLER_FAULT(
-            can_tx_interface));
+        ASSERT_FALSE(
+            App_CanTx_GetPeriodicSignal_BOOST_PGOOD_FAULT(can_tx_interface));
     }
 }
 } // namespace StateMachineTest
