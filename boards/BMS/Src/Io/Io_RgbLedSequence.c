@@ -3,21 +3,24 @@
 
 void Io_RgbLedSequence_TurnOnRedLed(void)
 {
-    HAL_GPIO_WritePin(STATUS_R_GPIO_Port, STATUS_R_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(STATUS_G_GPIO_Port, STATUS_G_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(STATUS_B_GPIO_Port, STATUS_B_Pin, GPIO_PIN_SET);
+    // TODO: DIM-2019 uses the same net for RGB LED and DIM LED, which means
+    // only one of them can be used a time. We will prioritize DIM LED for now
+    // and this function shall be left blank until the next DIM revision uses
+    // different bet for RGB LED and DIM LED.
 }
 
 void Io_RgbLedSequence_TurnOnGreenLed(void)
 {
-    HAL_GPIO_WritePin(STATUS_R_GPIO_Port, STATUS_R_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(STATUS_G_GPIO_Port, STATUS_G_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(STATUS_B_GPIO_Port, STATUS_B_Pin, GPIO_PIN_SET);
+    // TODO: DIM-2019 uses the same net for RGB LED and DIM LED, which means
+    // only one of them can be used a time. We will prioritize DIM LED for now
+    // and this function shall be left blank until the next DIM revision uses
+    // different bet for RGB LED and DIM LED.
 }
 
 void Io_RgbLedSequence_TurnOnBlueLed(void)
 {
-    HAL_GPIO_WritePin(STATUS_R_GPIO_Port, STATUS_R_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(STATUS_G_GPIO_Port, STATUS_G_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(STATUS_B_GPIO_Port, STATUS_B_Pin, GPIO_PIN_RESET);
+    // TODO: DIM-2019 uses the same net for RGB LED and DIM LED, which means
+    // only one of them can be used a time. We will prioritize DIM LED for now
+    // and this function shall be left blank until the next DIM revision uses
+    // different bet for RGB LED and DIM LED.
 }
