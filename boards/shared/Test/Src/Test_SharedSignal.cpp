@@ -5,8 +5,8 @@ extern "C"
 #include "App_SharedSignal.h"
 }
 
-FAKE_VALUE_FUNC(bool, is_high);
-FAKE_VOID_FUNC(callback_function, void *);
+FAKE_VALUE_FUNC(bool, is_high, struct World *);
+FAKE_VOID_FUNC(callback_function, struct World *);
 
 class SharedSignalTest : public testing::Test
 {
@@ -15,7 +15,7 @@ class SharedSignalTest : public testing::Test
     {
         callback.function         = callback_function;
         callback.high_duration_ms = 0;
-        signal = App_SharedSignal_Create(0, is_high, callback);
+        signal = App_SharedSignal_Create(0, is_high, world, callback);
 
         RESET_FAKE(is_high);
         RESET_FAKE(callback_function);
@@ -34,7 +34,8 @@ class SharedSignalTest : public testing::Test
 
         callback.function         = callback_function;
         callback.high_duration_ms = high_duration_ms;
-        signal = App_SharedSignal_Create(initial_time_ms, is_high, callback);
+        signal =
+            App_SharedSignal_Create(initial_time_ms, is_high, world, callback);
     }
 
     void testSignalStaysHighForSomeCycles(
@@ -211,6 +212,7 @@ class SharedSignalTest : public testing::Test
 
     struct Signal *       signal;
     struct SignalCallback callback;
+    struct TestWorld *    world;
 
     // The duration is more-or-less arbitrarily chosen. It should be enough
     // duration to give us confidence in the test without making the test too

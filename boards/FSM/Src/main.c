@@ -113,7 +113,9 @@ struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
 struct Clock *            clock;
 struct AcceleratorPedal * papps;
+struct Signal *           papps_signal;
 struct AcceleratorPedal * sapps;
+struct Signal *           sapps_signal;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -262,19 +264,19 @@ int main(void)
         rgb_led_sequence, clock, papps, sapps);
 
     struct SignalCallback papps_callback = {
-        .function         = App_AcceleratorPedalSignals_PappsAlarmCallback,
         .high_duration_ms = 10,
+        .function         = App_AcceleratorPedalSignals_PappsAlarmCallback,
     };
-    struct Signal *papps_signal = App_SharedSignal_Create(
+    papps_signal = App_SharedSignal_Create(
         0, App_AcceleratorPedalSignals_IsPappsAlarmActive, world,
         papps_callback);
     App_FsmWorld_RegisterSignal(world, papps_signal);
 
     struct SignalCallback sapps_callback = {
-        .function         = App_AcceleratorPedalSignals_SappsAlarmCallback,
         .high_duration_ms = 10,
+        .function         = App_AcceleratorPedalSignals_SappsAlarmCallback,
     };
-    struct Signal *sapps_signal = App_SharedSignal_Create(
+    sapps_signal = App_SharedSignal_Create(
         0, App_AcceleratorPedalSignals_IsSappsAlarmActive, world,
         sapps_callback);
     App_FsmWorld_RegisterSignal(world, sapps_signal);

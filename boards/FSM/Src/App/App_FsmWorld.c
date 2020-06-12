@@ -71,6 +71,19 @@ struct FsmWorld *App_FsmWorld_Create(
 
 void App_FsmWorld_Destroy(struct FsmWorld *world)
 {
+    struct SignalNode *node, *tmp;
+
+    SL_FOREACH_SAFE(world->signals_head, node, tmp)
+    {
+        if (world->signals_head == NULL)
+        {
+            break;
+        }
+
+        SL_DELETE(world->signals_head, node);
+        free(node);
+    }
+
     free(world);
 }
 
