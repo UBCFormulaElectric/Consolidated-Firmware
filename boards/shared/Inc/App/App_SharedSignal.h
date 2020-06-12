@@ -2,6 +2,11 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include "configs/App_SharedSignalConfig.h"
+
+#ifndef World
+#error "Please define the 'World' type"
+#endif
 
 struct Signal;
 
@@ -14,8 +19,8 @@ struct SignalCallback
     // The callback function
     void (*function)(void *);
 
-    // The context to pass into the callback function. Set as NULL if unused.
-    void *context;
+    // The world to pass into the callback function
+    struct World *context;
 };
 
 /**
