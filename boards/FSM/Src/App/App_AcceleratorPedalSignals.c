@@ -4,6 +4,7 @@
 bool App_AcceleratorPedalSignals_IsPappsAlarmActive(struct FsmWorld *world)
 {
     struct AcceleratorPedal *papps = App_FsmWorld_GetPapps(world);
+
     return App_AcceleratorPedal_IsEncoderAlarmActive(papps);
 }
 
@@ -17,6 +18,7 @@ void App_AcceleratorPedalSignals_PappsAlarmCallback(struct FsmWorld *world)
 bool App_AcceleratorPedalSignals_IsSappsAlarmActive(struct FsmWorld *world)
 {
     struct AcceleratorPedal *sapps = App_FsmWorld_GetSapps(world);
+
     return App_AcceleratorPedal_IsEncoderAlarmActive(sapps);
 }
 
