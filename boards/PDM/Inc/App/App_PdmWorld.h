@@ -5,7 +5,7 @@
 #include "App_InRangeCheck.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
-#include "App_LowVoltageBatteries.h"
+#include "App_LowVoltageBattery.h"
 
 struct PdmWorld;
 
@@ -19,21 +19,21 @@ struct PdmWorld;
  *         caller
  */
 struct PdmWorld *App_PdmWorld_Create(
-    struct PdmCanTxInterface *  can_tx_interface,
-    struct PdmCanRxInterface *  can_rx_interface,
-    struct InRangeCheck *       vbat_voltage_in_range_check,
-    struct InRangeCheck *       _24v_aux_voltage_in_range_check,
-    struct InRangeCheck *       _24v_acc_voltage_in_range_check,
-    struct InRangeCheck *       aux1_current_in_range_check,
-    struct InRangeCheck *       aux2_current_in_range_check,
-    struct InRangeCheck *       left_inverter_current_in_range_check,
-    struct InRangeCheck *       right_inverter_current_in_range_check,
-    struct InRangeCheck *       energy_meter_current_in_range_check,
-    struct InRangeCheck *       can_current_in_range_check,
-    struct InRangeCheck *       air_shutdown_current_in_range_check,
-    struct HeartbeatMonitor *   heartbeat_monitor,
-    struct RgbLedSequence *     rgb_led_sequence,
-    struct LowVoltageBatteries *low_voltage_batteries);
+    struct PdmCanTxInterface *can_tx_interface,
+    struct PdmCanRxInterface *can_rx_interface,
+    struct InRangeCheck *     vbat_voltage_in_range_check,
+    struct InRangeCheck *     _24v_aux_voltage_in_range_check,
+    struct InRangeCheck *     _24v_acc_voltage_in_range_check,
+    struct InRangeCheck *     aux1_current_in_range_check,
+    struct InRangeCheck *     aux2_current_in_range_check,
+    struct InRangeCheck *     left_inverter_current_in_range_check,
+    struct InRangeCheck *     right_inverter_current_in_range_check,
+    struct InRangeCheck *     energy_meter_current_in_range_check,
+    struct InRangeCheck *     can_current_in_range_check,
+    struct InRangeCheck *     air_shutdown_current_in_range_check,
+    struct HeartbeatMonitor * heartbeat_monitor,
+    struct RgbLedSequence *   rgb_led_sequence,
+    struct LowVoltageBattery *low_voltage_battery);
 
 /**
  * Deallocate the memory used by the given world
@@ -153,5 +153,5 @@ struct RgbLedSequence *
  * @param world The world to get low voltage batteries for
  * @return The low voltage batteries for the given world
  */
-struct LowVoltageBatteries *
-    App_PdmWorld_GetLowVoltageBatteries(const struct PdmWorld *world);
+struct LowVoltageBattery *
+    App_PdmWorld_GetLowVoltageBattery(const struct PdmWorld *world);

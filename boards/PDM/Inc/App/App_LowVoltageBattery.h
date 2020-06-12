@@ -21,17 +21,17 @@
  * @return The created low voltage batteries, whose ownership is given to the
  *         caller
  */
-struct LowVoltageBatteries *App_LowVoltageBatteries_Create(
+struct LowVoltageBattery *App_LowVoltageBattery_Create(
     bool (*is_overvoltage)(void),
     bool (*has_charge_fault)(void),
     bool (*has_boost_fault)(void));
 
 /**
  * Deallocate the memory used by the given low voltage batteries
- * @param low_voltage_batteries The low voltage batteries to deallocate
+ * @param low_voltage_battery The low voltage batteries to deallocate
  */
-void App_LowVoltageBatteries_Destroy(
-    struct LowVoltageBatteries *low_voltage_batteries);
+void App_LowVoltageBattery_Destroy(
+    struct LowVoltageBattery *low_voltage_battery);
 
 /**
  * Check if the cell balancing IC for the given low voltage batteries senses an
@@ -39,16 +39,16 @@ void App_LowVoltageBatteries_Destroy(
  * @return true if the cell balancing IC for the given low voltage batteries
  *         sense an overvoltage, else false
  */
-bool App_LowVoltageBatteries_IsOvervoltage(
-    const struct LowVoltageBatteries *low_voltage_batteries);
+bool App_LowVoltageBattery_IsOvervoltage(
+    const struct LowVoltageBattery *low_voltage_battery);
 
 /**
  * Check if the charging IC for the given low voltage batteries has a fault
  * @return true if the charging IC for the given low voltage batteries has a
  *         fault, else false
  */
-bool App_LowVoltageBatteries_HasChargeFault(
-    const struct LowVoltageBatteries *low_voltage_batteries);
+bool App_LowVoltageBattery_HasChargeFault(
+    const struct LowVoltageBattery *low_voltage_battery);
 
 /**
  * Check if the boost controller IC for the given low voltage batteries has a
@@ -56,5 +56,5 @@ bool App_LowVoltageBatteries_HasChargeFault(
  * @return true if the boost controller IC for the given low voltage batteries
  *         has a fault, else false
  */
-bool App_LowVoltageBatteries_HasBoostControllerFault(
-    const struct LowVoltageBatteries *low_voltage_batteries);
+bool App_LowVoltageBattery_HasBoostControllerFault(
+    const struct LowVoltageBattery *low_voltage_battery);

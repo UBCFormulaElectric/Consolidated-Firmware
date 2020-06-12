@@ -90,23 +90,23 @@ osThreadId          Task100HzHandle;
 uint32_t            Task100HzBuffer[TASK100HZ_STACK_SIZE];
 osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
-struct PdmWorld *           world;
-struct StateMachine *       state_machine;
-struct PdmCanTxInterface *  can_tx;
-struct PdmCanRxInterface *  can_rx;
-struct InRangeCheck *       vbat_voltage_in_range_check;
-struct InRangeCheck *       _24v_aux_voltage_in_range_check;
-struct InRangeCheck *       _24v_acc_voltage_in_range_check;
-struct InRangeCheck *       aux1_current_in_range_check;
-struct InRangeCheck *       aux2_current_in_range_check;
-struct InRangeCheck *       left_inverter_current_in_range_check;
-struct InRangeCheck *       right_inverter_current_in_range_check;
-struct InRangeCheck *       energy_meter_current_in_range_check;
-struct InRangeCheck *       can_current_in_range_check;
-struct InRangeCheck *       air_shutdown_current_in_range_check;
-struct HeartbeatMonitor *   heartbeat_monitor;
-struct RgbLedSequence *     rgb_led_sequence;
-struct LowVoltageBatteries *low_voltage_batteries;
+struct PdmWorld *         world;
+struct StateMachine *     state_machine;
+struct PdmCanTxInterface *can_tx;
+struct PdmCanRxInterface *can_rx;
+struct InRangeCheck *     vbat_voltage_in_range_check;
+struct InRangeCheck *     _24v_aux_voltage_in_range_check;
+struct InRangeCheck *     _24v_acc_voltage_in_range_check;
+struct InRangeCheck *     aux1_current_in_range_check;
+struct InRangeCheck *     aux2_current_in_range_check;
+struct InRangeCheck *     left_inverter_current_in_range_check;
+struct InRangeCheck *     right_inverter_current_in_range_check;
+struct InRangeCheck *     energy_meter_current_in_range_check;
+struct InRangeCheck *     can_current_in_range_check;
+struct InRangeCheck *     air_shutdown_current_in_range_check;
+struct HeartbeatMonitor * heartbeat_monitor;
+struct RgbLedSequence *   rgb_led_sequence;
+struct LowVoltageBattery *low_voltage_battery;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -234,7 +234,7 @@ int main(void)
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
         Io_RgbLedSequence_TurnOnGreenLed);
 
-    low_voltage_batteries = App_LowVoltageBatteries_Create(
+    low_voltage_battery = App_LowVoltageBattery_Create(
         Io_BQ29209_IsOverVoltage, Io_LT3650_HasFault, Io_LTC3786_HasFault);
 
     world = App_PdmWorld_Create(
@@ -245,7 +245,7 @@ int main(void)
         right_inverter_current_in_range_check,
         energy_meter_current_in_range_check, can_current_in_range_check,
         air_shutdown_current_in_range_check, heartbeat_monitor,
-        rgb_led_sequence, low_voltage_batteries);
+        rgb_led_sequence, low_voltage_battery);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 

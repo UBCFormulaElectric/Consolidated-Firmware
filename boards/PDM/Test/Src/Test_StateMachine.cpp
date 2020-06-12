@@ -49,9 +49,9 @@ FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
 
-FAKE_VALUE_FUNC(bool, is_low_voltage_batteries_overvoltage);
-FAKE_VALUE_FUNC(bool, do_low_voltage_batteries_have_charge_fault);
-FAKE_VALUE_FUNC(bool, do_low_voltage_batteries_have_boost_controller_fault);
+FAKE_VALUE_FUNC(bool, is_low_voltage_battery_overvoltage);
+FAKE_VALUE_FUNC(bool, do_low_voltage_battery_have_charge_fault);
+FAKE_VALUE_FUNC(bool, do_low_voltage_battery_have_boost_controller_fault);
 
 class PdmStateMachineTest : public testing::Test
 {
@@ -107,10 +107,10 @@ class PdmStateMachineTest : public testing::Test
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
-        low_voltage_batteries = App_LowVoltageBatteries_Create(
-            is_low_voltage_batteries_overvoltage,
-            do_low_voltage_batteries_have_charge_fault,
-            do_low_voltage_batteries_have_boost_controller_fault);
+        low_voltage_battery = App_LowVoltageBattery_Create(
+            is_low_voltage_battery_overvoltage,
+            do_low_voltage_battery_have_charge_fault,
+            do_low_voltage_battery_have_boost_controller_fault);
 
         world = App_PdmWorld_Create(
             can_tx_interface, can_rx_interface, vbat_voltage_in_range_check,
@@ -120,7 +120,7 @@ class PdmStateMachineTest : public testing::Test
             right_inverter_current_in_range_check,
             energy_meter_current_in_range_check, can_current_in_range_check,
             air_shutdown_current_in_range_check, heartbeat_monitor,
-            rgb_led_sequence, low_voltage_batteries);
+            rgb_led_sequence, low_voltage_battery);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -146,9 +146,9 @@ class PdmStateMachineTest : public testing::Test
         RESET_FAKE(turn_on_red_led);
         RESET_FAKE(turn_on_green_led);
         RESET_FAKE(turn_on_blue_led);
-        RESET_FAKE(is_low_voltage_batteries_overvoltage);
-        RESET_FAKE(do_low_voltage_batteries_have_charge_fault);
-        RESET_FAKE(do_low_voltage_batteries_have_boost_controller_fault);
+        RESET_FAKE(is_low_voltage_battery_overvoltage);
+        RESET_FAKE(do_low_voltage_battery_have_charge_fault);
+        RESET_FAKE(do_low_voltage_battery_have_boost_controller_fault);
     }
 
     void TearDown() override
@@ -175,7 +175,7 @@ class PdmStateMachineTest : public testing::Test
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
-        TearDownObject(low_voltage_batteries, App_LowVoltageBatteries_Destroy);
+        TearDownObject(low_voltage_battery, App_LowVoltageBattery_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -325,23 +325,23 @@ class PdmStateMachineTest : public testing::Test
         }
     }
 
-    struct World *              world;
-    struct StateMachine *       state_machine;
-    struct PdmCanTxInterface *  can_tx_interface;
-    struct PdmCanRxInterface *  can_rx_interface;
-    struct InRangeCheck *       vbat_voltage_in_range_check;
-    struct InRangeCheck *       _24v_aux_voltage_in_range_check;
-    struct InRangeCheck *       _24v_acc_voltage_in_range_check;
-    struct InRangeCheck *       aux1_current_in_range_check;
-    struct InRangeCheck *       aux2_current_in_range_check;
-    struct InRangeCheck *       left_inverter_current_in_range_check;
-    struct InRangeCheck *       right_inverter_current_in_range_check;
-    struct InRangeCheck *       energy_meter_current_in_range_check;
-    struct InRangeCheck *       can_current_in_range_check;
-    struct InRangeCheck *       air_shutdown_current_in_range_check;
-    struct HeartbeatMonitor *   heartbeat_monitor;
-    struct RgbLedSequence *     rgb_led_sequence;
-    struct LowVoltageBatteries *low_voltage_batteries;
+    struct World *            world;
+    struct StateMachine *     state_machine;
+    struct PdmCanTxInterface *can_tx_interface;
+    struct PdmCanRxInterface *can_rx_interface;
+    struct InRangeCheck *     vbat_voltage_in_range_check;
+    struct InRangeCheck *     _24v_aux_voltage_in_range_check;
+    struct InRangeCheck *     _24v_acc_voltage_in_range_check;
+    struct InRangeCheck *     aux1_current_in_range_check;
+    struct InRangeCheck *     aux2_current_in_range_check;
+    struct InRangeCheck *     left_inverter_current_in_range_check;
+    struct InRangeCheck *     right_inverter_current_in_range_check;
+    struct InRangeCheck *     energy_meter_current_in_range_check;
+    struct InRangeCheck *     can_current_in_range_check;
+    struct InRangeCheck *     air_shutdown_current_in_range_check;
+    struct HeartbeatMonitor * heartbeat_monitor;
+    struct RgbLedSequence *   rgb_led_sequence;
+    struct LowVoltageBattery *low_voltage_battery;
 };
 
 // PDM-21
@@ -703,7 +703,7 @@ TEST_F(PdmStateMachineTest, set_18650s_overvoltage_in_all_states)
         App_CanTx_SetPeriodicSignal_CELL_BALANCE_OVERVOLTAGE_FAULT(
             can_tx_interface, false);
 
-        is_low_voltage_batteries_overvoltage_fake.return_val = true;
+        is_low_voltage_battery_overvoltage_fake.return_val = true;
         App_SharedStateMachine_Tick100Hz(state_machine);
 
         ASSERT_TRUE(App_CanTx_GetPeriodicSignal_CELL_BALANCE_OVERVOLTAGE_FAULT(
@@ -722,7 +722,7 @@ TEST_F(PdmStateMachineTest, clear_18650s_overvoltage_in_all_states)
         App_CanTx_SetPeriodicSignal_CELL_BALANCE_OVERVOLTAGE_FAULT(
             can_tx_interface, true);
 
-        is_low_voltage_batteries_overvoltage_fake.return_val = false;
+        is_low_voltage_battery_overvoltage_fake.return_val = false;
         App_SharedStateMachine_Tick100Hz(state_machine);
 
         ASSERT_FALSE(App_CanTx_GetPeriodicSignal_CELL_BALANCE_OVERVOLTAGE_FAULT(
@@ -740,7 +740,7 @@ TEST_F(PdmStateMachineTest, set_18650s_charge_fault_in_all_states)
         // Clear the fault to prevent false positive
         App_CanTx_SetPeriodicSignal_CHARGER_FAULT(can_tx_interface, false);
 
-        do_low_voltage_batteries_have_charge_fault_fake.return_val = true;
+        do_low_voltage_battery_have_charge_fault_fake.return_val = true;
         App_SharedStateMachine_Tick100Hz(state_machine);
 
         ASSERT_TRUE(
@@ -758,7 +758,7 @@ TEST_F(PdmStateMachineTest, clear_18650s_charge_fault_in_all_states)
         // Set the fault to prevent false positive
         App_CanTx_SetPeriodicSignal_CHARGER_FAULT(can_tx_interface, true);
 
-        do_low_voltage_batteries_have_charge_fault_fake.return_val = false;
+        do_low_voltage_battery_have_charge_fault_fake.return_val = false;
         App_SharedStateMachine_Tick100Hz(state_machine);
 
         ASSERT_FALSE(
@@ -776,7 +776,7 @@ TEST_F(PdmStateMachineTest, set_18650s_boost_controller_fault_in_all_states)
         // Clear the fault to prevent false positive
         App_CanTx_SetPeriodicSignal_BOOST_PGOOD_FAULT(can_tx_interface, false);
 
-        do_low_voltage_batteries_have_boost_controller_fault_fake.return_val =
+        do_low_voltage_battery_have_boost_controller_fault_fake.return_val =
             true;
         App_SharedStateMachine_Tick100Hz(state_machine);
 
@@ -795,7 +795,7 @@ TEST_F(PdmStateMachineTest, clear_18650s_boost_controller_fault_in_all_states)
         // Set the fault to prevent false positive
         App_CanTx_SetPeriodicSignal_BOOST_PGOOD_FAULT(can_tx_interface, true);
 
-        do_low_voltage_batteries_have_boost_controller_fault_fake.return_val =
+        do_low_voltage_battery_have_boost_controller_fault_fake.return_val =
             false;
         App_SharedStateMachine_Tick100Hz(state_machine);
 

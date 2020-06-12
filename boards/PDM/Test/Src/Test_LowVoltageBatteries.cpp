@@ -2,19 +2,19 @@
 
 extern "C"
 {
-#include "App_LowVoltageBatteries.h"
+#include "App_LowVoltageBattery.h"
 }
 
 FAKE_VALUE_FUNC(bool, is_overvoltage);
 FAKE_VALUE_FUNC(bool, has_charge_fault);
 FAKE_VALUE_FUNC(bool, has_boost_fault);
 
-class LowVoltageBatteriesTest : public testing::Test
+class LowVoltageBatteryTest : public testing::Test
 {
   protected:
     void SetUp() override
     {
-        low_voltage_batteries = App_LowVoltageBatteries_Create(
+        low_voltage_battery = App_LowVoltageBattery_Create(
             is_overvoltage, has_charge_fault, has_boost_fault);
         RESET_FAKE(is_overvoltage);
         RESET_FAKE(has_charge_fault);
@@ -23,46 +23,46 @@ class LowVoltageBatteriesTest : public testing::Test
 
     void TearDown() override
     {
-        TearDownObject(low_voltage_batteries, App_LowVoltageBatteries_Destroy);
+        TearDownObject(low_voltage_battery, App_LowVoltageBattery_Destroy);
     }
 
-    struct LowVoltageBatteries *low_voltage_batteries;
+    struct LowVoltageBattery *low_voltage_battery;
 };
 
-TEST_F(LowVoltageBatteriesTest, is_overvoltage)
+TEST_F(LowVoltageBatteryTest, is_overvoltage)
 {
     is_overvoltage_fake.return_val = true;
-    ASSERT_TRUE(App_LowVoltageBatteries_IsOvervoltage(low_voltage_batteries));
+    ASSERT_TRUE(App_LowVoltageBattery_IsOvervoltage(low_voltage_battery));
 }
 
-TEST_F(LowVoltageBatteriesTest, is_not_overvoltage)
+TEST_F(LowVoltageBatteryTest, is_not_overvoltage)
 {
     is_overvoltage_fake.return_val = false;
-    ASSERT_FALSE(App_LowVoltageBatteries_IsOvervoltage(low_voltage_batteries));
+    ASSERT_FALSE(App_LowVoltageBattery_IsOvervoltage(low_voltage_battery));
 }
 
-TEST_F(LowVoltageBatteriesTest, has_charge_fault)
+TEST_F(LowVoltageBatteryTest, has_charge_fault)
 {
     has_charge_fault_fake.return_val = true;
-    ASSERT_TRUE(App_LowVoltageBatteries_HasChargeFault(low_voltage_batteries));
+    ASSERT_TRUE(App_LowVoltageBattery_HasChargeFault(low_voltage_battery));
 }
 
-TEST_F(LowVoltageBatteriesTest, does_not_have_charge_fault)
+TEST_F(LowVoltageBatteryTest, does_not_have_charge_fault)
 {
     has_charge_fault_fake.return_val = false;
-    ASSERT_FALSE(App_LowVoltageBatteries_HasChargeFault(low_voltage_batteries));
+    ASSERT_FALSE(App_LowVoltageBattery_HasChargeFault(low_voltage_battery));
 }
 
-TEST_F(LowVoltageBatteriesTest, has_boost_fault)
+TEST_F(LowVoltageBatteryTest, has_boost_fault)
 {
     has_boost_fault_fake.return_val = true;
     ASSERT_TRUE(
-        App_LowVoltageBatteries_HasBoostControllerFault(low_voltage_batteries));
+        App_LowVoltageBattery_HasBoostControllerFault(low_voltage_battery));
 }
 
-TEST_F(LowVoltageBatteriesTest, does_not_have_boost_fault)
+TEST_F(LowVoltageBatteryTest, does_not_have_boost_fault)
 {
     has_boost_fault_fake.return_val = false;
     ASSERT_FALSE(
-        App_LowVoltageBatteries_HasBoostControllerFault(low_voltage_batteries));
+        App_LowVoltageBattery_HasBoostControllerFault(low_voltage_battery));
 }
