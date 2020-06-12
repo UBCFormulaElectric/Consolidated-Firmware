@@ -37,6 +37,9 @@
 #include "Io_CurrentSense.h"
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
+#include "Io_BQ29209.h"
+#include "Io_LT3650.h"
+#include "Io_LTC3786.h"
 
 #include "App_PdmWorld.h"
 #include "App_SharedConstants.h"
@@ -103,6 +106,7 @@ struct InRangeCheck *     can_current_in_range_check;
 struct InRangeCheck *     air_shutdown_current_in_range_check;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
+struct LowVoltageBattery *low_voltage_battery;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -230,6 +234,9 @@ int main(void)
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
         Io_RgbLedSequence_TurnOnGreenLed);
 
+    low_voltage_battery = App_LowVoltageBattery_Create(
+        Io_BQ29209_IsOverVoltage, Io_LT3650_HasFault, Io_LTC3786_HasFault);
+
     world = App_PdmWorld_Create(
         can_tx, can_rx, vbat_voltage_in_range_check,
         _24v_aux_voltage_in_range_check, _24v_acc_voltage_in_range_check,
@@ -238,7 +245,7 @@ int main(void)
         right_inverter_current_in_range_check,
         energy_meter_current_in_range_check, can_current_in_range_check,
         air_shutdown_current_in_range_check, heartbeat_monitor,
-        rgb_led_sequence);
+        rgb_led_sequence, low_voltage_battery);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 

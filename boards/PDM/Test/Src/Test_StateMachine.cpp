@@ -49,6 +49,10 @@ FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
 
+FAKE_VALUE_FUNC(bool, is_low_voltage_battery_overvoltage);
+FAKE_VALUE_FUNC(bool, do_low_voltage_battery_have_charge_fault);
+FAKE_VALUE_FUNC(bool, do_low_voltage_battery_have_boost_controller_fault);
+
 class PdmStateMachineTest : public testing::Test
 {
   protected:
@@ -103,6 +107,11 @@ class PdmStateMachineTest : public testing::Test
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
+        low_voltage_battery = App_LowVoltageBattery_Create(
+            is_low_voltage_battery_overvoltage,
+            do_low_voltage_battery_have_charge_fault,
+            do_low_voltage_battery_have_boost_controller_fault);
+
         world = App_PdmWorld_Create(
             can_tx_interface, can_rx_interface, vbat_voltage_in_range_check,
             _24v_aux_voltage_in_range_check, _24v_acc_voltage_in_range_check,
@@ -111,7 +120,7 @@ class PdmStateMachineTest : public testing::Test
             right_inverter_current_in_range_check,
             energy_meter_current_in_range_check, can_current_in_range_check,
             air_shutdown_current_in_range_check, heartbeat_monitor,
-            rgb_led_sequence);
+            rgb_led_sequence, low_voltage_battery);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -137,6 +146,9 @@ class PdmStateMachineTest : public testing::Test
         RESET_FAKE(turn_on_red_led);
         RESET_FAKE(turn_on_green_led);
         RESET_FAKE(turn_on_blue_led);
+        RESET_FAKE(is_low_voltage_battery_overvoltage);
+        RESET_FAKE(do_low_voltage_battery_have_charge_fault);
+        RESET_FAKE(do_low_voltage_battery_have_boost_controller_fault);
     }
 
     void TearDown() override
@@ -163,6 +175,7 @@ class PdmStateMachineTest : public testing::Test
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
+        TearDownObject(low_voltage_battery, App_LowVoltageBattery_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -328,6 +341,7 @@ class PdmStateMachineTest : public testing::Test
     struct InRangeCheck *     air_shutdown_current_in_range_check;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
+    struct LowVoltageBattery *low_voltage_battery;
 };
 
 // PDM-21
@@ -678,4 +692,115 @@ TEST_F(PdmStateMachineTest, exit_air_closed_state_when_air_negative_is_opened)
         App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
+// PDM-4
+TEST_F(PdmStateMachineTest, set_18650s_overvoltage_in_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        // Clear the fault to prevent false positive
+        App_CanTx_SetPeriodicSignal_CELL_BALANCE_OVERVOLTAGE_FAULT(
+            can_tx_interface, false);
+
+        is_low_voltage_battery_overvoltage_fake.return_val = true;
+        App_SharedStateMachine_Tick100Hz(state_machine);
+
+        ASSERT_TRUE(App_CanTx_GetPeriodicSignal_CELL_BALANCE_OVERVOLTAGE_FAULT(
+            can_tx_interface));
+    }
+}
+
+// PDM-4
+TEST_F(PdmStateMachineTest, clear_18650s_overvoltage_in_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        // Set the fault to prevent false positive
+        App_CanTx_SetPeriodicSignal_CELL_BALANCE_OVERVOLTAGE_FAULT(
+            can_tx_interface, true);
+
+        is_low_voltage_battery_overvoltage_fake.return_val = false;
+        App_SharedStateMachine_Tick100Hz(state_machine);
+
+        ASSERT_FALSE(App_CanTx_GetPeriodicSignal_CELL_BALANCE_OVERVOLTAGE_FAULT(
+            can_tx_interface));
+    }
+}
+
+// PDM-4
+TEST_F(PdmStateMachineTest, set_18650s_charge_fault_in_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        // Clear the fault to prevent false positive
+        App_CanTx_SetPeriodicSignal_CHARGER_FAULT(can_tx_interface, false);
+
+        do_low_voltage_battery_have_charge_fault_fake.return_val = true;
+        App_SharedStateMachine_Tick100Hz(state_machine);
+
+        ASSERT_TRUE(
+            App_CanTx_GetPeriodicSignal_CHARGER_FAULT(can_tx_interface));
+    }
+}
+
+// PDM-4
+TEST_F(PdmStateMachineTest, clear_18650s_charge_fault_in_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        // Set the fault to prevent false positive
+        App_CanTx_SetPeriodicSignal_CHARGER_FAULT(can_tx_interface, true);
+
+        do_low_voltage_battery_have_charge_fault_fake.return_val = false;
+        App_SharedStateMachine_Tick100Hz(state_machine);
+
+        ASSERT_FALSE(
+            App_CanTx_GetPeriodicSignal_CHARGER_FAULT(can_tx_interface));
+    }
+}
+
+// PDM-5
+TEST_F(PdmStateMachineTest, set_18650s_boost_controller_fault_in_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        // Clear the fault to prevent false positive
+        App_CanTx_SetPeriodicSignal_BOOST_PGOOD_FAULT(can_tx_interface, false);
+
+        do_low_voltage_battery_have_boost_controller_fault_fake.return_val =
+            true;
+        App_SharedStateMachine_Tick100Hz(state_machine);
+
+        ASSERT_TRUE(
+            App_CanTx_GetPeriodicSignal_BOOST_PGOOD_FAULT(can_tx_interface));
+    }
+}
+
+// PDM-5
+TEST_F(PdmStateMachineTest, clear_18650s_boost_controller_fault_in_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        // Set the fault to prevent false positive
+        App_CanTx_SetPeriodicSignal_BOOST_PGOOD_FAULT(can_tx_interface, true);
+
+        do_low_voltage_battery_have_boost_controller_fault_fake.return_val =
+            false;
+        App_SharedStateMachine_Tick100Hz(state_machine);
+
+        ASSERT_FALSE(
+            App_CanTx_GetPeriodicSignal_BOOST_PGOOD_FAULT(can_tx_interface));
+    }
+}
 } // namespace StateMachineTest

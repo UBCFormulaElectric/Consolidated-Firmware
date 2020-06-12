@@ -20,6 +20,8 @@ static void AirOpenStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void AirOpenStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
+    App_AllStatesRunOnTick100Hz(state_machine);
+
     struct PdmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct PdmCanRxInterface *can_rx = App_PdmWorld_GetCanRx(world);
 

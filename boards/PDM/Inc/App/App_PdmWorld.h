@@ -5,6 +5,7 @@
 #include "App_InRangeCheck.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
+#include "App_LowVoltageBattery.h"
 
 struct PdmWorld;
 
@@ -31,7 +32,8 @@ struct PdmWorld *App_PdmWorld_Create(
     struct InRangeCheck *     can_current_in_range_check,
     struct InRangeCheck *     air_shutdown_current_in_range_check,
     struct HeartbeatMonitor * heartbeat_monitor,
-    struct RgbLedSequence *   rgb_led_sequence);
+    struct RgbLedSequence *   rgb_led_sequence,
+    struct LowVoltageBattery *low_voltage_battery);
 
 /**
  * Deallocate the memory used by the given world
@@ -145,3 +147,11 @@ struct HeartbeatMonitor *
  */
 struct RgbLedSequence *
     App_PdmWorld_GetRgbLedSequence(const struct PdmWorld *world);
+
+/**
+ * Get the low voltage battery for the given world
+ * @param world The world to get low voltage battery for
+ * @return The low voltage battery for the given world
+ */
+struct LowVoltageBattery *
+    App_PdmWorld_GetLowVoltageBattery(const struct PdmWorld *world);
