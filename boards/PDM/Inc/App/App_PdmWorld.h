@@ -149,9 +149,9 @@ struct RgbLedSequence *
     App_PdmWorld_GetRgbLedSequence(const struct PdmWorld *world);
 
 /**
- * Get the low voltage batteries for the given world
- * @param world The world to get low voltage batteries for
- * @return The low voltage batteries for the given world
+ * Get the low voltage battery for the given world
+ * @param world The world to get low voltage battery for
+ * @return The low voltage battery for the given world
  */
 struct LowVoltageBattery *
     App_PdmWorld_GetLowVoltageBattery(const struct PdmWorld *world);
