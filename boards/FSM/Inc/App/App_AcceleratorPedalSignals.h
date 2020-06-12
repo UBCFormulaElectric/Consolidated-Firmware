@@ -1,7 +1,8 @@
 #pragma once
 
 #include <stdbool.h>
-#include "App_FsmWorld.h"
+
+struct FsmWorld;
 
 /**
  * Check if the encoder alarm for the primary APPS in the given world is active
