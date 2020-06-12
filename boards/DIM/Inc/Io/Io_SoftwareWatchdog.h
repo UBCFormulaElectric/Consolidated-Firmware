@@ -2,7 +2,7 @@
 
 #include "Io_SharedSoftwareWatchdog.h"
 
-struct DcmCanTxInterface;
+struct DimCanTxInterface;
 
 /**
  * Init the software watchdog
