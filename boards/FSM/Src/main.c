@@ -43,8 +43,8 @@
 #include "Io_AcceleratorPedals.h"
 
 #include "App_FsmWorld.h"
-#include "App_Signals.h"
 #include "App_SharedStateMachine.h"
+#include "App_AcceleratorPedalSignals.h"
 #include "states/App_AirOpenState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_FlowRateThresholds.h"
@@ -261,7 +261,23 @@ int main(void)
         brake_pressure_sensor_in_range_check, brake_actuation_status,
         rgb_led_sequence, clock, papps, sapps);
 
-    App_Signals_Init(world);
+    struct SignalCallback papps_callback = {
+        .function         = App_AcceleratorPedalSignals_PappsAlarmCallback,
+        .high_duration_ms = 10,
+    };
+    struct Signal *papps_signal = App_SharedSignal_Create(
+        0, App_AcceleratorPedalSignals_IsPappsAlarmActive, world,
+        papps_callback);
+    App_FsmWorld_RegisterSignal(world, papps_signal);
+
+    struct SignalCallback sapps_callback = {
+        .function         = App_AcceleratorPedalSignals_SappsAlarmCallback,
+        .high_duration_ms = 10,
+    };
+    struct Signal *sapps_signal = App_SharedSignal_Create(
+        0, App_AcceleratorPedalSignals_IsSappsAlarmActive, world,
+        sapps_callback);
+    App_FsmWorld_RegisterSignal(world, sapps_signal);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 

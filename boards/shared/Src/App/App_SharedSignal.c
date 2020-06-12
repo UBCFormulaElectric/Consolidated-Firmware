@@ -11,7 +11,10 @@ struct Signal
     uint32_t last_time_high_ms;
 
     // The function to call to check if this signal is high
-    bool (*is_high)(void);
+    bool (*is_high)(struct World *);
+
+    // The world associated with this signal
+    struct World *world;
 
     // When and how to trigger the callback function for this signal
     struct SignalCallback callback;
@@ -19,7 +22,8 @@ struct Signal
 
 struct Signal *App_SharedSignal_Create(
     uint32_t initial_time_ms,
-    bool (*is_high)(void),
+    bool (*is_high)(struct World *),
+    struct World *        world,
     struct SignalCallback callback)
 {
     struct Signal *signal = malloc(sizeof(struct Signal));
@@ -28,6 +32,7 @@ struct Signal *App_SharedSignal_Create(
     signal->last_time_low_ms  = initial_time_ms;
     signal->last_time_high_ms = initial_time_ms;
     signal->is_high           = is_high;
+    signal->world             = world;
     signal->callback          = callback;
 
     return signal;
@@ -50,7 +55,7 @@ uint32_t App_SharedSignal_GetLastTimeHighMs(const struct Signal *signal)
 
 void App_SharedSignal_Update(struct Signal *signal, uint32_t current_time_ms)
 {
-    if (signal->is_high())
+    if (signal->is_high(signal->world))
     {
         signal->last_time_high_ms = current_time_ms;
     }
@@ -64,6 +69,6 @@ void App_SharedSignal_Update(struct Signal *signal, uint32_t current_time_ms)
 
     if (time_since_last_low >= signal->callback.high_duration_ms)
     {
-        signal->callback.function(signal->callback.world);
+        signal->callback.function(signal->world);
     }
 }

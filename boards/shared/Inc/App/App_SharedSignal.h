@@ -18,9 +18,6 @@ struct SignalCallback
 
     // The callback function
     void (*function)(struct World *);
-
-    // The world to pass into the callback function
-    struct World *world;
 };
 
 /**
@@ -33,7 +30,8 @@ struct SignalCallback
  */
 struct Signal *App_SharedSignal_Create(
     uint32_t initial_time_ms,
-    bool (*is_high)(void),
+    bool (*is_high)(struct World *),
+    struct World *        world,
     struct SignalCallback callback);
 
 /**
