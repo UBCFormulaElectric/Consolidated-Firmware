@@ -17,10 +17,10 @@ struct SignalCallback
     uint32_t high_duration_ms;
 
     // The callback function
-    void (*function)(void *);
+    void (*function)(struct World *);
 
     // The world to pass into the callback function
-    struct World *context;
+    struct World *world;
 };
 
 /**

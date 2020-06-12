@@ -9,9 +9,8 @@ static bool IsPappsAlarmActive(void)
     return App_AcceleratorPedal_IsEncoderAlarmActive(_papps);
 }
 
-static void PappsAlarmCallback(void *context)
+static void PappsAlarmCallback(struct FsmWorld *world)
 {
-    struct FsmWorld *         world  = (struct FsmWorld *)context;
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
 
     App_CanTx_SetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
@@ -22,9 +21,8 @@ static bool IsSappsAlarmActive(void)
     return App_AcceleratorPedal_IsEncoderAlarmActive(_sapps);
 }
 
-static void SappsAlarmCallback(void *context)
+static void SappsAlarmCallback(struct FsmWorld *world)
 {
-    struct FsmWorld *         world  = (struct FsmWorld *)context;
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
 
     App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
@@ -38,7 +36,7 @@ void App_Signals_Init(struct FsmWorld *world)
     struct SignalCallback papps_callback = {
         .function         = PappsAlarmCallback,
         .high_duration_ms = 10,
-        .context          = world,
+        .world            = world,
     };
     struct Signal *papps_signal =
         App_SharedSignal_Create(0, IsPappsAlarmActive, papps_callback);
@@ -47,7 +45,7 @@ void App_Signals_Init(struct FsmWorld *world)
     struct SignalCallback sapps_callback = {
         .function         = SappsAlarmCallback,
         .high_duration_ms = 10,
-        .context          = world,
+        .world            = world,
     };
     struct Signal *sapps_signal =
         App_SharedSignal_Create(0, IsSappsAlarmActive, sapps_callback);
