@@ -22,26 +22,32 @@ There are two types of faults:
 
 ## Table Of Contents
 - [FSM (Front Sensor Module)](#FSM)
+    - [FSM Stateless](#FSM_STATELESS)
+    - [FSM All States](#FSM_ALL_STATES)
     - [FSM AIR-Open State](#FSM_AIR_OPEN)
     - [FSM AIR-Closed State](#FSM_AIR_CLOSED)
 - [DCM (Drive Control Module)](#DCM)
     - [DCM Stateless](#DCM_STATELESS)
+    - [DCM All States](#DCM_ALL_STATES)
     - [DCM Init State](#DCM_INIT)
     - [DCM Drive State](#DCM_DRIVE)
     - [DCM Fault State](#DCM_FAULT)
 - [PDM (Power Distribution Module)](#PDM)
     - [PDM Stateless](#PDM_STATELESS)
+    - [PDM All States](#PDM_ALL_STATES)
     - [PDM Init](#PDM_INIT)
     - [PDM AIR-Open State](#PDM_AIR_OPEN)
     - [PDM AIR-Closed State](#PDM_AIR_CLOSED)
 - [BMS (Battery Management System)](#BMS)
     - [BMS Stateless](#BMS_STATELESS)
+    - [BMS All States](#BMS_ALL_STATES)
     - [BMS Init](#BMS_INIT)
     - [BMS Charge State](#BMS_CHARGE)
     - [BMS Drive State](#BMS_DRIVE)
     - [BMS Fault State](#BMS_FAULT)
 - [DIM (Dashoard Interface Module)](#DIM)
     - [DIM Stateless](#DIM_STATELESS)
+    - [DIM All States](#DIM_ALL_STATES)
     - [DIM Drive State](#DIM_DRIVE)
 
 ## FSM <a name="FSM"></a>
@@ -50,6 +56,10 @@ There are two types of faults:
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 FSM-0 | Startup CAN message | The FSM must transmit a startup message over CAN on boot.
+
+### FSM All States <a name="FSM_ALL_STATES"></a>
+ID | Title | Description | Associated Competition Rule(s)
+--- | --- | --- | ---
 FSM-10 | State CAN message | The FSM must transmit the state of its state machine at 100Hz or faster.
 FSM-1 | Heartbeat sending | The FSM must transmit a heartbeat over CAN at 10Hz or faster.
 FSM-2 | Heartbeat receiving | The FSM must throw an AIR shutdown fault once it does not receive three consecutive BMS heartbeats.
@@ -81,6 +91,10 @@ FSM-15 | Exiting the AIR-Closed state | The FSM must enter the AIR-Open state wh
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 DCM-0 | Startup CAN message | The DCM must transmit a startup message over CAN on boot.
+
+### DCM All States <a name="DCM_ALL_STATES"></a>
+ID | Title | Description | Associated Competition Rule(s)
+--- | --- | --- | ---
 DCM-21 | State CAN message | The DCM must transmit the state of its state machine at 100Hz or faster.
 DCM-1 | Brake light control | The DCM must enable the brake light through the corresponding GPIO during brake actuation and/or regen, and must disable the brake light otherwise.
 DCM-2 | Heartbeat sending | The DCM must transmit a heartbeat over CAN at 10Hz or faster.
@@ -118,6 +132,10 @@ DCM-17 | Exiting the fault state and entering the init state | When all critical
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 PDM-0 | Startup CAN message | The PDM must transmit a startup message over CAN on boot.
+
+### PDM All States <a name="PDM_ALL_STATES"></a>
+ID | Title | Description | Associated Competition Rule(s)
+--- | --- | --- | ---
 PDM-21 | State CAN message | The PDM must transmit the state of its state machine at 100Hz or faster.
 PDM-1 | Heartbeat sending | The PDM must transmit a heartbeat over CAN at 10Hz or faster.
 PDM-2 | Heartbeat receiving | The PDM must throw an AIR shutdown fault once it does not receive three consecutive BMS heartbeats.
@@ -157,6 +175,10 @@ PDM-20 | Exiting the AIR-Closed state | The PDM must enter the AIR-Open state wh
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-0 | Startup CAN message | The BMS must transmit a startup message over CAN on boot.
+
+### BMS All States <a name="BMS_ALL_STATES"></a>
+ID | Title | Description | Associated Competition Rule(s)
+--- | --- | --- | ---
 BMS-31 | State CAN message | The BMS must transmit the state of its state machine at 100Hz or faster.
 BMS-1 | Heartbeat sending | The BMS must transmit a heartbeat over CAN at 10Hz or faster.
 BMS-2 | Heartbeat receiving | - The BMS must throw an AIR shutdown fault and enter the fault state once it does not receive three consecutive FSM or DCM heartbeats. <br/> - The BMS must throw a non-critical fault once it does not receive three consecutive PDM heartbeats.
@@ -182,7 +204,6 @@ BMS-15 | Exiting the init state and entering the charge state | Upon a successfu
 BMS-16 | Exiting the init state and entering the drive state | Upon a successful precharge, the BMS must enter the drive state if the charger is disconnected.
 
 ### BMS Charge State <a name="BMS_CHARGE"></a>
-
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-34 | SoC calculation and storage | - The BMS must transmit SoC over CAN at 100Hz or faster. <br/> - The BMS must perform coulomb counting and calculate SoC at 100Hz. <br/> The BMS must store the same SoC value in three different EEPROM memory sections at 1Hz. <br/> - SoC must be bounded between 0% and 100%. <br/> - After charging is complete, the BMS must reset and store SoC as 100%.
@@ -195,7 +216,6 @@ BMS-23 | Exiting the charge state and entering the init state | Once charging is
 BMS-24 | Exiting the charge state and entering the fault state | The BMS must disable cell balancing and charging.
 
 ### BMS Drive State <a name="BMS_DRIVE"></a>
-
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-32 | SoC calculation and storage | - The BMS must transmit SoC over CAN at 100Hz or faster. <br/> - The BMS must perform coulomb counting and calculate SoC at 100Hz. <br/> The BMS must store SoC in EEPROM at 1Hz in three different memory locations. <br/> - SoC must be bounded between 0% and 100%.
@@ -205,7 +225,6 @@ BMS-27 | Exiting the drive state and entering the init state | Upon the opening 
 BMS-20 | Exiting the drive state and entering the fault state | When an AIR shutdown is requested over CAN, the BMS must transition from the drive state to the fault state.
 
 ### BMS Fault State <a name="BMS_FAULT"></a>
-
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-29 | Entering the fault state | The BMS must open the AIR+ and AIR-.
@@ -214,16 +233,18 @@ BMS-30 | Exiting the fault state and entering the init state | Once all AIR shut
 ## DIM <a name="DIM"></a>
 
 ### DIM Stateless <a name="DIM_STATELESS"></a>
-
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 DIM-0 | Startup CAN message | The DIM must transmit a startup message over CAN on boot.
+
+### DIM All States <a name="DIM_ALL_STATES"></a>
+ID | Title | Description | Associated Competition Rule(s)
+--- | --- | --- | ---
 DIM-12 | State CAN message | The DCM must transmit the state of its state machine at 100Hz or faster.
 DIM-10 | Heartbeat sending | The DIM must transmit a heartbeat over CAN at 10Hz or faster.
 DIM-1 | Heartbeat receiving | The DIM must set the 7-segments all on to display '888' once it does not receive three consecutive BMS heartbeats.
 
 ### DIM Drive State <a name="DIM_DRIVE"></a>
-
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 DIM-11 | Default state | The DIM state machine must begin in the drive state by default.
