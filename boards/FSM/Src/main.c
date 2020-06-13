@@ -40,6 +40,7 @@
 #include "Io_SteeringAngleSensor.h"
 #include "Io_MSP3002K5P3N1.h"
 #include "Io_Adc.h"
+#include "Io_Brake.h"
 
 #include "App_FsmWorld.h"
 #include "App_SharedStateMachine.h"
@@ -103,6 +104,7 @@ struct InRangeCheck *     steering_angle_sensor_in_range_check;
 struct InRangeCheck *     brake_pressure_sensor_in_range_check;
 struct BinaryStatus *     brake_actuation_status;
 struct BinaryStatus *     brake_sensor_open_or_short_circuit_status;
+struct Brake *            brake;
 struct World *            world;
 struct StateMachine *     state_machine;
 struct FsmCanTxInterface *can_tx;
@@ -228,6 +230,11 @@ int main(void)
     brake_sensor_open_or_short_circuit_status =
         App_SharedBinaryStatus_Create(Io_MSP3002K5P3N1_IsOpenOrShortCircuit);
 
+    brake = App_Brake_Create(
+        MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI,
+        Io_MSP3002K5P3N1_GetPressurePsi, Io_MSP3002K5P3N1_IsOpenOrShortCircuit,
+        Io_Brake_IsActuated);
+
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
@@ -249,7 +256,7 @@ int main(void)
         right_wheel_speed_sensor_in_range_check,
         steering_angle_sensor_in_range_check,
         brake_pressure_sensor_in_range_check, brake_actuation_status,
-        brake_sensor_open_or_short_circuit_status, rgb_led_sequence);
+        brake_sensor_open_or_short_circuit_status, brake, rgb_led_sequence);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 
