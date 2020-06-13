@@ -13,7 +13,7 @@ struct Brake
     float max_brake_pressure_psi;
 
     float (*get_pressure_psi)(void);
-    bool (*is_open_or_short_circuit)(void);
+    bool (*pressure_sensor_has_open_or_short_circuit)(void);
     bool (*is_brake_actuated)(void);
 };
 
@@ -21,7 +21,7 @@ struct Brake *App_Brake_Create(
     float min_brake_pressure_psi,
     float max_brake_pressure_psi,
     float (*get_pressure_psi)(void),
-    bool (*is_open_or_short_circuit)(void),
+    bool (*pressure_sensor_has_open_or_short_circuit)(void),
     bool (*is_brake_actuated)(void))
 {
     struct Brake *brake = malloc(sizeof(struct Brake));
@@ -30,16 +30,18 @@ struct Brake *App_Brake_Create(
     brake->brake_pressure_in_range_check = App_InRangeCheck_Create(
         get_pressure_psi, min_brake_pressure_psi, max_brake_pressure_psi);
     brake->is_brake_open_or_short_circuit_binary_status =
-        App_SharedBinaryStatus_Create(is_open_or_short_circuit);
+        App_SharedBinaryStatus_Create(
+            pressure_sensor_has_open_or_short_circuit);
     brake->is_brake_actuated_binary_status =
         App_SharedBinaryStatus_Create(is_brake_actuated);
 
     brake->min_brake_pressure_psi = min_brake_pressure_psi;
     brake->max_brake_pressure_psi = max_brake_pressure_psi;
 
-    brake->get_pressure_psi         = get_pressure_psi;
-    brake->is_open_or_short_circuit = is_open_or_short_circuit;
-    brake->is_brake_actuated        = is_brake_actuated;
+    brake->get_pressure_psi = get_pressure_psi;
+    brake->pressure_sensor_has_open_or_short_circuit =
+        pressure_sensor_has_open_or_short_circuit;
+    brake->is_brake_actuated = is_brake_actuated;
 
     return brake;
 }

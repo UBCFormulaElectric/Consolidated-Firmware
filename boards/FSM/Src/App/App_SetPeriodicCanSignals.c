@@ -119,3 +119,12 @@ void App_SetPeriodicSignals_BrakeSensorOpenOrShortCircuitStatus(
         CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_BRAKE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_TRUE_CHOICE,
         CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_BRAKE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_FALSE_CHOICE);
 }
+
+void App_SetPeriodicSignals_BrakeSignals(const struct FsmWorld *world)
+{
+    struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
+
+    struct Brake * brake_pressure_in_range_check = App_FsmWorld_GetBrake(world);
+
+
+}

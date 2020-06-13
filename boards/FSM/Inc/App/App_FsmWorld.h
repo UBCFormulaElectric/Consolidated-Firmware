@@ -6,6 +6,7 @@
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_SharedBinaryStatus.h"
+#include "configs/App_Brake.h"
 
 struct FsmWorld;
 
@@ -30,6 +31,7 @@ struct FsmWorld *App_FsmWorld_Create(
     struct InRangeCheck *     brake_pressure_in_range_check,
     struct BinaryStatus *     brake_actuation_status,
     struct BinaryStatus *     brake_sensor_open_or_short_circuit_status,
+    struct Brake *            brake,
     struct RgbLedSequence *   rgb_led_sequence);
 
 /**
@@ -123,6 +125,8 @@ struct BinaryStatus *
  */
 struct BinaryStatus *App_FsmWorld_GetBrakeSensorOpenOrShortCircuitStatus(
     const struct FsmWorld *world);
+
+struct Brake *App_FsmWorld_GetBrake(const struct FsmWorld *world);
 
 /**
  * Get the RGB LED sequence for the given world
