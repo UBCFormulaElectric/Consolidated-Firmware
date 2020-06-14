@@ -6,6 +6,9 @@
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_SharedBinaryStatus.h"
+#include "App_SharedSignal.h"
+#include "App_SharedClock.h"
+#include "App_AcceleratorPedal.h"
 
 struct FsmWorld;
 
@@ -29,7 +32,14 @@ struct FsmWorld *App_FsmWorld_Create(
     struct InRangeCheck *     steering_angle_in_range_check,
     struct InRangeCheck *     brake_pressure_in_range_check,
     struct BinaryStatus *     brake_actuation_status,
-    struct RgbLedSequence *   rgb_led_sequence);
+    struct RgbLedSequence *   rgb_led_sequence,
+    struct Clock *            clock,
+    struct AcceleratorPedal * papps,
+    bool (*is_papps_alaram_active)(struct FsmWorld *),
+    void (*papps_alarm_callback)(struct FsmWorld *),
+    struct AcceleratorPedal *sapps,
+    bool (*is_sapps_alaram_active)(struct FsmWorld *),
+    void (*sapps_alarm_callback)(struct FsmWorld *));
 
 /**
  * Deallocate the memory used by the given world
@@ -122,3 +132,36 @@ struct BinaryStatus *
  */
 struct RgbLedSequence *
     App_FsmWorld_GetRgbLedSequence(const struct FsmWorld *world);
+
+/**
+ * Update the registered signals in the given world
+ * @note This function should be called periodically. And since the time
+ *       resolution of the signal library is in milliseconds, it would make
+ *       sense to call this function at 1kHz.
+ * @param world The world to update registered signals for
+ * @param current_time_ms The current time, in milliseconds
+ */
+void App_FsmWorld_UpdateSignals(
+    const struct FsmWorld *world,
+    uint32_t               current_time_ms);
+
+/**
+ * Get the clock for the given world
+ * @param world The world to get clock for
+ * @return The clock for the given world
+ */
+struct Clock *App_FsmWorld_GetClock(const struct FsmWorld *world);
+
+/**
+ * Get the primary APPS for the given world
+ * @param world The world to get primary APPS for
+ * @return The primary APPS for the given world
+ */
+struct AcceleratorPedal *App_FsmWorld_GetPapps(const struct FsmWorld *world);
+
+/**
+ * Get the secondary APPS for the given world
+ * @param world The world to get secondary APPS for
+ * @return The secondary APPS for the given world
+ */
+struct AcceleratorPedal *App_FsmWorld_GetSapps(const struct FsmWorld *world);

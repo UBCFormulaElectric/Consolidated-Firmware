@@ -40,9 +40,11 @@
 #include "Io_SteeringAngleSensor.h"
 #include "Io_MSP3002K5P3N1.h"
 #include "Io_Adc.h"
+#include "Io_AcceleratorPedals.h"
 
 #include "App_FsmWorld.h"
 #include "App_SharedStateMachine.h"
+#include "App_AcceleratorPedalSignals.h"
 #include "states/App_AirOpenState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_FlowRateThresholds.h"
@@ -108,6 +110,9 @@ struct FsmCanTxInterface *can_tx;
 struct FsmCanRxInterface *can_rx;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
+struct Clock *            clock;
+struct AcceleratorPedal * papps;
+struct AcceleratorPedal * sapps;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -238,6 +243,14 @@ int main(void)
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
         Io_RgbLedSequence_TurnOnGreenLed);
 
+    clock = App_SharedClock_Create();
+
+    papps = App_AcceleratorPedal_Create(
+        Io_AcceleratorPedals_IsPappsEncoderAlarmActive);
+
+    sapps = App_AcceleratorPedal_Create(
+        Io_AcceleratorPedals_IsSappsEncoderAlarmActive);
+
     world = App_FsmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, primary_flow_meter_in_range_check,
         secondary_flow_meter_in_range_check,
@@ -245,7 +258,11 @@ int main(void)
         right_wheel_speed_sensor_in_range_check,
         steering_angle_sensor_in_range_check,
         brake_pressure_sensor_in_range_check, brake_actuation_status,
-        rgb_led_sequence);
+        rgb_led_sequence, clock, papps,
+        App_AcceleratorPedalSignals_IsPappsAlarmActive,
+        App_AcceleratorPedalSignals_PappsAlarmCallback, sapps,
+        App_AcceleratorPedalSignals_IsSappsAlarmActive,
+        App_AcceleratorPedalSignals_SappsAlarmCallback);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 
@@ -818,8 +835,12 @@ void RunTask1kHz(void const *argument)
 
     for (;;)
     {
-        Io_CanTx_EnqueuePeriodicMsgs(
-            can_tx, osKernelSysTick() * portTICK_PERIOD_MS);
+        const uint32_t current_time_ms = osKernelSysTick() * portTICK_PERIOD_MS;
+
+        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
+        App_FsmWorld_UpdateSignals(world, current_time_ms);
+        Io_CanTx_EnqueuePeriodicMsgs(can_tx, current_time_ms);
+
         // Watchdog check-in must be the last function called before putting
         // the task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
