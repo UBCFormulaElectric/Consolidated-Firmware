@@ -193,8 +193,7 @@ void App_FsmWorld_UpdateSignals(
     const struct FsmWorld *world,
     uint32_t               current_time_ms)
 {
-    struct SignalNode  node;
-    struct SignalNode *node_ptr = &node;
+    struct SignalNode *node_ptr;
 
     SL_FOREACH(world->signals_head, node_ptr)
     {
