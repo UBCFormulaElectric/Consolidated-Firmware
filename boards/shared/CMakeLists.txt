@@ -32,6 +32,9 @@ list(APPEND SHARED_GOOGLETEST_TEST_INCLUDE_DIRS ${THIRD_PARTY_DIR}/fff)
 file(GLOB_RECURSE NEWLIB_FREERTOS_PATCH_SRCS ${THIRD_PARTY_DIR}/newlib_freertos_patch/*.c)
 list(APPEND SHARED_ARM_BINARY_X86_INCOMPATIBLE_THIRD_PARTY_SRCS ${NEWLIB_FREERTOS_PATCH_SRCS})
 
+# Import include directory for list.h
+set(LIST_H_INCLUDE_DIR ${THIRD_PARTY_DIR}/list.h/src)
+
 set(X86_COMPATIBLE_IO_SRCS
         "${CMAKE_CURRENT_SOURCE_DIR}/Src/Io/Io_SharedErrorTable.c")
 set(SHARED_ARM_BINARY_X86_COMPATIBLE_SRCS
@@ -44,7 +47,8 @@ set(SHARED_ARM_BINARY_X86_INCOMPATIBLE_SRCS ${X86_INCOMPATIBLE_IO_SRCS})
 
 set(SHARED_ARM_BINARY_INCLUDE_DIRS
         ${SHARED_APP_INCLUDE_DIRS}
-        ${SHARED_IO_INCLUDE_DIRS})
+        ${SHARED_IO_INCLUDE_DIRS}
+        ${LIST_H_INCLUDE_DIR})
 
 # Expose the following variables to the parent scope (i.e. The scope of any
 # other CMakeLists.txt that uses add_subdirectory() on this CMakeLists.txt).
