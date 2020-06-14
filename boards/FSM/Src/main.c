@@ -44,6 +44,7 @@
 
 #include "App_FsmWorld.h"
 #include "App_SharedStateMachine.h"
+#include "App_Brake.h"
 #include "states/App_AirOpenState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_FlowRateThresholds.h"

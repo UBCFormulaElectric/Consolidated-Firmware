@@ -6,7 +6,7 @@
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_SharedBinaryStatus.h"
-#include "configs/App_Brake.h"
+#include "App_Brake.h"
 
 struct FsmWorld;
 

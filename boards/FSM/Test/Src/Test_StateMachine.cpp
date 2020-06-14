@@ -329,7 +329,7 @@ TEST_F(FsmStateMachineTest, check_steering_angle_can_signals_in_all_states)
         CANMSGS_FSM_NON_CRITICAL_ERRORS_PRIMARY_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
-//TEST_F(FsmStateMachineTest, check_brake_pressure_can_signals_in_all_states)
+// TEST_F(FsmStateMachineTest, check_brake_pressure_can_signals_in_all_states)
 //{
 //    CheckInRangeCanSignalsInAllStates(
 //        MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI,
@@ -342,7 +342,7 @@ TEST_F(FsmStateMachineTest, check_steering_angle_can_signals_in_all_states)
 //}
 //
 //// FSM-18
-//TEST_F(
+// TEST_F(
 //    FsmStateMachineTest,
 //    check_brake_pressure_actuation_can_signal_in_all_states)
 //{
@@ -353,7 +353,7 @@ TEST_F(FsmStateMachineTest, check_steering_angle_can_signals_in_all_states)
 //        CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_FALSE_CHOICE);
 //}
 //
-//TEST_F(
+// TEST_F(
 //    FsmStateMachineTest,
 //    check_brake_open_or_short_circuited_can_signal_in_all_states)
 //{
