@@ -35,8 +35,7 @@ struct FsmWorld
  * @param world The world to register a signal for
  * @param signal The signal to register to the given world
  */
-static void
-    App_FsmWorld_RegisterSignal(struct FsmWorld *world, struct Signal *signal)
+static void App_RegisterSignal(struct FsmWorld *world, struct Signal *signal)
 {
     struct SignalNode *item = malloc(sizeof(struct SignalNode));
     assert(item != NULL);
@@ -92,7 +91,7 @@ struct FsmWorld *App_FsmWorld_Create(
     };
     struct Signal *papps_signal = App_SharedSignal_Create(
         0, is_papps_alaram_active, world, papps_callback);
-    App_FsmWorld_RegisterSignal(world, papps_signal);
+    App_RegisterSignal(world, papps_signal);
 
     struct SignalCallback sapps_callback = {
         .high_duration_ms = 10,
@@ -100,7 +99,7 @@ struct FsmWorld *App_FsmWorld_Create(
     };
     struct Signal *sapps_signal = App_SharedSignal_Create(
         0, is_sapps_alaram_active, world, sapps_callback);
-    App_FsmWorld_RegisterSignal(world, sapps_signal);
+    App_RegisterSignal(world, sapps_signal);
 
     return world;
 }
