@@ -1,6 +1,5 @@
-#include "App_FsmWorld.h"
 #include "App_AcceleratorPedalSignals.h"
-#include "App_AcceleratorPedal.h"
+#include "App_FsmWorld.h"
 
 bool App_AcceleratorPedalSignals_IsPappsAlarmActive(struct FsmWorld *world)
 {
