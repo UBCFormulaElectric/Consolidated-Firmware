@@ -59,11 +59,11 @@ struct FsmWorld *App_FsmWorld_Create(
     struct RgbLedSequence *const    rgb_led_sequence,
     struct Clock *const             clock,
     struct AcceleratorPedal *const  papps,
-    bool (*is_papps_alaram_active)(struct FsmWorld *),
-    void (*papps_alarm_callback)(struct FsmWorld *),
+    bool (*const is_papps_alaram_active)(struct FsmWorld *),
+    void (*const papps_alarm_callback)(struct FsmWorld *),
     struct AcceleratorPedal *const sapps,
-    bool (*is_sapps_alaram_active)(struct FsmWorld *),
-    void (*sapps_alarm_callback)(struct FsmWorld *))
+    bool (*const is_sapps_alaram_active)(struct FsmWorld *),
+    void (*const sapps_alarm_callback)(struct FsmWorld *))
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
     assert(world != NULL);
