@@ -103,9 +103,6 @@ struct InRangeCheck *primary_flow_meter_in_range_check,
 struct InRangeCheck *left_wheel_speed_sensor_in_range_check,
     *right_wheel_speed_sensor_in_range_check;
 struct InRangeCheck *     steering_angle_sensor_in_range_check;
-struct InRangeCheck *     brake_pressure_sensor_in_range_check;
-struct BinaryStatus *     brake_actuation_status;
-struct BinaryStatus *     brake_sensor_open_or_short_circuit_status;
 struct Brake *            brake;
 struct World *            world;
 struct StateMachine *     state_machine;
@@ -224,16 +221,6 @@ int main(void)
     steering_angle_sensor_in_range_check = App_InRangeCheck_Create(
         Io_SteeringAngleSensor_GetAngleDegree, MIN_STEERING_ANGLE_DEG,
         MAX_STEERING_ANGLE_DEG);
-
-    brake_pressure_sensor_in_range_check = App_InRangeCheck_Create(
-        Io_MSP3002K5P3N1_GetPressurePsi, MIN_BRAKE_PRESSURE_PSI,
-        MAX_BRAKE_PRESSURE_PSI);
-
-    brake_actuation_status =
-        App_SharedBinaryStatus_Create(Io_MSP3002K5P3N1_IsBrakeActuated);
-
-    brake_sensor_open_or_short_circuit_status =
-        App_SharedBinaryStatus_Create(Io_MSP3002K5P3N1_IsOpenOrShortCircuit);
 
     brake = App_Brake_Create(
         Io_MSP3002K5P3N1_GetPressurePsi, Io_MSP3002K5P3N1_IsOpenOrShortCircuit,

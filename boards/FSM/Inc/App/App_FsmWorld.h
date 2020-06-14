@@ -109,6 +109,11 @@ struct InRangeCheck *
 struct InRangeCheck *
     App_FsmWorld_GetSteeringAngleInRangeCheck(const struct FsmWorld *world);
 
+/**
+ * Get the brake for the given world
+ * @param world The world to get the brake for
+ * @return The brake for the given world
+ */
 struct Brake *App_FsmWorld_GetBrake(const struct FsmWorld *world);
 
 /**

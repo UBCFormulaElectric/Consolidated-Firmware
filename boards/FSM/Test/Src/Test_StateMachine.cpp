@@ -45,7 +45,7 @@ FAKE_VALUE_FUNC(float, get_right_wheel_speed);
 FAKE_VALUE_FUNC(float, get_steering_angle);
 FAKE_VALUE_FUNC(float, get_brake_pressure);
 FAKE_VALUE_FUNC(bool, is_brake_actuated);
-FAKE_VALUE_FUNC(bool, is_brake_open_or_short_circuited);
+FAKE_VALUE_FUNC(bool, is_pressure_sensor_open_or_short_circuit);
 FAKE_VALUE_FUNC(bool, is_papps_encoder_alarm_active);
 FAKE_VALUE_FUNC(bool, is_sapps_encoder_alarm_active);
 
@@ -87,7 +87,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
             get_steering_angle, MIN_STEERING_ANGLE_DEG, MAX_STEERING_ANGLE_DEG);
 
         brake = App_Brake_Create(
-            get_brake_pressure, is_brake_open_or_short_circuited,
+            get_brake_pressure, is_pressure_sensor_open_or_short_circuit,
             is_brake_actuated, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
 
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
@@ -130,7 +130,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(get_steering_angle);
         RESET_FAKE(get_brake_pressure);
         RESET_FAKE(is_brake_actuated);
-        RESET_FAKE(is_brake_open_or_short_circuited);
+        RESET_FAKE(is_pressure_sensor_open_or_short_circuit);
         RESET_FAKE(is_papps_encoder_alarm_active);
         RESET_FAKE(is_sapps_encoder_alarm_active);
     }
@@ -352,6 +352,7 @@ TEST_F(FsmStateMachineTest, check_steering_angle_can_signals_in_all_states)
         CANMSGS_FSM_NON_CRITICAL_ERRORS_PRIMARY_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+// FSM-18
 TEST_F(FsmStateMachineTest, check_brake_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
@@ -370,10 +371,10 @@ TEST_F(FsmStateMachineTest, check_brake_can_signals_in_all_states)
         CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_FALSE_CHOICE);
 
     CheckBinaryStatusCanSignalInAllStates(
-        is_brake_open_or_short_circuited_fake.return_val,
-        App_CanTx_GetPeriodicSignal_BRAKE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT,
-        CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_BRAKE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_TRUE_CHOICE,
-        CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_BRAKE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_FALSE_CHOICE);
+        is_pressure_sensor_open_or_short_circuit_fake.return_val,
+        App_CanTx_GetPeriodicSignal_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT,
+        CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_TRUE_CHOICE,
+        CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_FALSE_CHOICE);
 }
 
 TEST_F(FsmStateMachineTest, rgb_led_sequence_in_all_states)
