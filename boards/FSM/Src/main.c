@@ -254,9 +254,7 @@ int main(void)
         secondary_flow_meter_in_range_check,
         left_wheel_speed_sensor_in_range_check,
         right_wheel_speed_sensor_in_range_check,
-        steering_angle_sensor_in_range_check,
-        brake_pressure_sensor_in_range_check, brake_actuation_status,
-        brake_sensor_open_or_short_circuit_status, brake, rgb_led_sequence);
+        steering_angle_sensor_in_range_check, brake, rgb_led_sequence);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 

@@ -28,9 +28,6 @@ struct FsmWorld *App_FsmWorld_Create(
     struct InRangeCheck *     left_wheel_speed_in_range_check,
     struct InRangeCheck *     right_wheel_speed_in_range_check,
     struct InRangeCheck *     steering_angle_in_range_check,
-    struct InRangeCheck *     brake_pressure_in_range_check,
-    struct BinaryStatus *     brake_actuation_status,
-    struct BinaryStatus *     brake_sensor_open_or_short_circuit_status,
     struct Brake *            brake,
     struct RgbLedSequence *   rgb_led_sequence);
 
@@ -101,30 +98,6 @@ struct InRangeCheck *
  */
 struct InRangeCheck *
     App_FsmWorld_GetSteeringAngleInRangeCheck(const struct FsmWorld *world);
-
-/**
- * Get the brake pressure in-range check for the given world
- * @param world The world to get the brake pressure in-range check for
- * @return The brake pressure in-range check for the given world
- */
-struct InRangeCheck *
-    App_FsmWorld_GetBrakePressureInRangeCheck(const struct FsmWorld *world);
-
-/**
- * Get the brake actuation status for the given world
- * @param world The world to get the brake actuation status for
- * @return The brake actuation status for the given world
- */
-struct BinaryStatus *
-    App_FsmWorld_GetBrakeActuationStatus(const struct FsmWorld *world);
-
-/**
- * Get the brake open or short circuit status for the given world
- * @param world The world to get the brake open or short circuit status for
- * @return The brake open or short circuit status for the given world
- */
-struct BinaryStatus *App_FsmWorld_GetBrakeSensorOpenOrShortCircuitStatus(
-    const struct FsmWorld *world);
 
 struct Brake *App_FsmWorld_GetBrake(const struct FsmWorld *world);
 
