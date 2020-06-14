@@ -13,6 +13,7 @@ struct DcmWorld
     struct BrakeLight *       brake_light;
     struct Buzzer *           buzzer;
     struct ErrorTable *       error_table;
+    struct Clock *            clock;
 };
 
 struct DcmWorld *App_DcmWorld_Create(
@@ -22,7 +23,8 @@ struct DcmWorld *App_DcmWorld_Create(
     struct RgbLedSequence *const    rgb_led_sequence,
     struct BrakeLight *const        brake_light,
     struct Buzzer *const            buzzer,
-    struct ErrorTable *const        error_table)
+    struct ErrorTable *const        error_table,
+    struct Clock *const             clock)
 {
     struct DcmWorld *world = (struct DcmWorld *)malloc(sizeof(struct DcmWorld));
     assert(world != NULL);
@@ -34,6 +36,7 @@ struct DcmWorld *App_DcmWorld_Create(
     world->brake_light       = brake_light;
     world->buzzer            = buzzer;
     world->error_table       = error_table;
+    world->clock             = clock;
 
     return world;
 }
@@ -82,4 +85,9 @@ struct ErrorTable *
     App_DcmWorld_GetErrorTable(const struct DcmWorld *const world)
 {
     return world->error_table;
+}
+
+struct Clock *App_DcmWorld_GetClock(const struct DcmWorld *const world)
+{
+    return world->clock;
 }

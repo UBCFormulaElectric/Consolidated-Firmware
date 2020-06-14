@@ -4,6 +4,7 @@
 extern "C"
 {
 #include "App_SharedStateMachine.h"
+#include "App_SharedMacros.h"
 #include "states/App_InitState.h"
 #include "states/App_DriveState.h"
 #include "states/App_FaultState.h"
@@ -80,7 +81,7 @@ class BmsStateMachineTest : public testing::Test
 
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
-            rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok);
+            rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, clock);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -155,6 +156,7 @@ class BmsStateMachineTest : public testing::Test
     struct OkStatus *         bms_ok;
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
+    struct Clock *            clock;
 };
 
 // BMS-31

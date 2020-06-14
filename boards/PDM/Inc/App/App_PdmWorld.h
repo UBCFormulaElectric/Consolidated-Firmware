@@ -6,6 +6,7 @@
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_LowVoltageBattery.h"
+#include "App_SharedClock.h"
 
 struct PdmWorld;
 
@@ -33,7 +34,8 @@ struct PdmWorld *App_PdmWorld_Create(
     struct InRangeCheck *     air_shutdown_current_in_range_check,
     struct HeartbeatMonitor * heartbeat_monitor,
     struct RgbLedSequence *   rgb_led_sequence,
-    struct LowVoltageBattery *low_voltage_battery);
+    struct LowVoltageBattery *low_voltage_battery,
+    struct Clock *            clock);
 
 /**
  * Deallocate the memory used by the given world
@@ -155,3 +157,10 @@ struct RgbLedSequence *
  */
 struct LowVoltageBattery *
     App_PdmWorld_GetLowVoltageBattery(const struct PdmWorld *world);
+
+/**
+ * Get the clock for the given world
+ * @param world The world to get clock for
+ * @return The clock for the given world
+ */
+struct Clock *App_PdmWorld_GetClock(const struct PdmWorld *world);

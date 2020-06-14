@@ -101,6 +101,7 @@ struct Charger *          charger;
 struct OkStatus *         bms_ok;
 struct OkStatus *         imd_ok;
 struct OkStatus *         bspd_ok;
+struct Clock *            clock;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -216,9 +217,11 @@ int main(void)
         Io_OkStatuses_EnableBspdOk, Io_OkStatuses_DisableBspdOk,
         Io_OkStatuses_IsBspdOkEnabled);
 
+    clock = App_SharedClock_Create();
+
     world = App_BmsWorld_Create(
         can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger,
-        bms_ok, imd_ok, bspd_ok);
+        bms_ok, imd_ok, bspd_ok, clock);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
@@ -814,8 +817,10 @@ void RunTask1kHz(void const *argument)
 
     for (;;)
     {
-        Io_CanTx_EnqueuePeriodicMsgs(
-            can_tx, osKernelSysTick() * portTICK_PERIOD_MS);
+        const uint32_t current_time_ms = osKernelSysTick() * portTICK_PERIOD_MS;
+
+        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
+        Io_CanTx_EnqueuePeriodicMsgs(can_tx, current_time_ms);
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.

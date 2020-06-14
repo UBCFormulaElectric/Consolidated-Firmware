@@ -7,6 +7,7 @@
 #include "App_SharedRgbLedSequence.h"
 #include "App_Charger.h"
 #include "App_OkStatus.h"
+#include "App_SharedClock.h"
 
 struct BmsWorld;
 
@@ -28,7 +29,8 @@ struct BmsWorld *App_BmsWorld_Create(
     struct Charger *          charger,
     struct OkStatus *         bms_ok,
     struct OkStatus *         imd_ok,
-    struct OkStatus *         bspd_ok);
+    struct OkStatus *         bspd_ok,
+    struct Clock *            clock);
 
 /**
  * Deallocate the memory used by the given world
@@ -100,3 +102,10 @@ struct OkStatus *App_BmsWorld_GetImdOkStatus(const struct BmsWorld *world);
  * @return The BSPD OK status for the given world
  */
 struct OkStatus *App_BmsWorld_GetBspdOkStatus(const struct BmsWorld *world);
+
+/**
+ * Get the clock for the given world
+ * @param world The world to get clock for
+ * @return The clock for the given world
+ */
+struct Clock *App_BmsWorld_GetClock(const struct BmsWorld *world);
