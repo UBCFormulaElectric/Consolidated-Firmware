@@ -77,7 +77,7 @@ Pipfile.lock
 CMakeCache.txt
 cmake_install.cmake
 CMakeFiles/
-compile_commands.json
+compile_commands*.json
 Makefile
 auto_generated/
 __lib__/
