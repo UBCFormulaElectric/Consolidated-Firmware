@@ -90,6 +90,7 @@ class DcmStateMachineTest : public BaseStateMachineTest
         TearDownObject(brake_light, App_BrakeLight_Destroy);
         TearDownObject(buzzer, App_Buzzer_Destroy);
         TearDownObject(error_table, App_SharedErrorTable_Destroy);
+        TearDownObject(clock, App_SharedClock_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)

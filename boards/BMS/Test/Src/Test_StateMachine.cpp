@@ -79,6 +79,8 @@ class BmsStateMachineTest : public testing::Test
         bspd_ok = App_OkStatus_Create(
             enable_bspd_ok, disable_bspd_ok, is_bspd_ok_enabled);
 
+        clock = App_SharedClock_Create();
+
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
             rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, clock);
@@ -124,6 +126,7 @@ class BmsStateMachineTest : public testing::Test
         TearDownObject(bms_ok, App_OkStatus_Destroy);
         TearDownObject(imd_ok, App_OkStatus_Destroy);
         TearDownObject(bspd_ok, App_OkStatus_Destroy);
+        TearDownObject(clock, App_SharedClock_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -143,6 +146,24 @@ class BmsStateMachineTest : public testing::Test
             App_GetChargeState(),
             App_GetFaultState(),
         };
+    }
+
+    void UpdateClock(
+        struct StateMachine *state_machine,
+        uint32_t             current_time_ms) override
+    {
+        struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+        struct Clock *   clock = App_BmsWorld_GetClock(world);
+        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
+    }
+
+    void UpdateSignals(
+        struct StateMachine *state_machine,
+        uint32_t             current_time_ms) override
+    {
+        // BMS doesn't use any signals currently
+        UNUSED(state_machine);
+        UNUSED(current_time_ms);
     }
 
     struct World *            world;

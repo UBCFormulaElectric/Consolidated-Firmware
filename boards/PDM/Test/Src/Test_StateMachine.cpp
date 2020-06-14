@@ -180,6 +180,7 @@ class PdmStateMachineTest : public BaseStateMachineTest
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
         TearDownObject(low_voltage_battery, App_LowVoltageBattery_Destroy);
+        TearDownObject(clock, App_SharedClock_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
