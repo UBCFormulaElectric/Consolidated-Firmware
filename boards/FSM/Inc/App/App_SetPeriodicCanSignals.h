@@ -12,3 +12,4 @@ void App_SetPeriodicSignals_BrakePressureInRangeCheck(
 void App_SetPeriodicSignals_BrakeActuationStatus(const struct FsmWorld *world);
 void App_SetPeriodicSignals_BrakeSensorOpenOrShortCircuitStatus(
     const struct FsmWorld *world);
+void App_SetPeriodicSignals_Brake(const struct FsmWorld *world);

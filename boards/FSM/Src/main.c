@@ -231,9 +231,8 @@ int main(void)
         App_SharedBinaryStatus_Create(Io_MSP3002K5P3N1_IsOpenOrShortCircuit);
 
     brake = App_Brake_Create(
-        MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI,
         Io_MSP3002K5P3N1_GetPressurePsi, Io_MSP3002K5P3N1_IsOpenOrShortCircuit,
-        Io_Brake_IsActuated);
+        Io_Brake_IsActuated, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,

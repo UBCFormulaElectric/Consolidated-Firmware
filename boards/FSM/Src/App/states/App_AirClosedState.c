@@ -26,9 +26,10 @@ static void
     App_SetPeriodicSignals_FlowRateInRangeChecks(world);
     App_SetPeriodicSignals_WheelSpeedInRangeChecks(world);
     App_SetPeriodicSignals_SteeringAngleInRangeCheck(world);
-    App_SetPeriodicSignals_BrakePressureInRangeCheck(world);
-    App_SetPeriodicSignals_BrakeActuationStatus(world);
-    App_SetPeriodicSignals_BrakeSensorOpenOrShortCircuitStatus(world);
+    //App_SetPeriodicSignals_BrakePressureInRangeCheck(world);
+    //App_SetPeriodicSignals_BrakeActuationStatus(world);
+    //App_SetPeriodicSignals_BrakeSensorOpenOrShortCircuitStatus(world);
+    App_SetPeriodicSignals_Brake(world);
 
     if (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) ==
             CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE ||

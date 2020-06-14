@@ -120,11 +120,33 @@ void App_SetPeriodicSignals_BrakeSensorOpenOrShortCircuitStatus(
         CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_BRAKE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_FALSE_CHOICE);
 }
 
-void App_SetPeriodicSignals_BrakeSignals(const struct FsmWorld *world)
+void App_SetPeriodicSignals_Brake(const struct FsmWorld *world)
 {
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
 
-    struct Brake * brake_pressure_in_range_check = App_FsmWorld_GetBrake(world);
+    struct Brake *brake_pressure_in_range_check = App_FsmWorld_GetBrake(world);
 
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx,
+        App_Brake_GetBrakePressureInRangeCheck(brake_pressure_in_range_check),
+        App_CanTx_SetPeriodicSignal_BRAKE_PRESSURE,
+        App_CanTx_SetPeriodicSignal_BRAKE_PRESSURE_OUT_OF_RANGE,
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
+    App_SetPeriodicCanSignals_SharedBinaryStatus(
+        can_tx,
+        App_Brake_GetIsBrakeActuatedBinaryStatus(brake_pressure_in_range_check),
+        App_CanTx_SetPeriodicSignal_BRAKE_IS_ACTUATED,
+        CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE,
+        CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_FALSE_CHOICE);
+
+    App_SetPeriodicCanSignals_SharedBinaryStatus(
+        can_tx,
+        App_Brake_GetIsPressureSensorOpenOrShortCircuitBinaryStatus(
+            brake_pressure_in_range_check),
+        App_CanTx_SetPeriodicSignal_BRAKE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT,
+        CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_BRAKE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_TRUE_CHOICE,
+        CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_BRAKE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_FALSE_CHOICE);
 }
