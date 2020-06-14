@@ -30,6 +30,22 @@ struct FsmWorld
     struct AcceleratorPedal * sapps;
 };
 
+/**
+ * Register a signal to the given world
+ * @param world The world to register a signal for
+ * @param signal The signal to register to the given world
+ */
+static void
+    App_FsmWorld_RegisterSignal(struct FsmWorld *world, struct Signal *signal)
+{
+    struct SignalNode *item = malloc(sizeof(struct SignalNode));
+    assert(item != NULL);
+    item->signal = signal;
+    item->next   = NULL;
+
+    SL_APPEND(world->signals_head, item);
+}
+
 struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanTxInterface *const can_tx_interface,
     struct FsmCanRxInterface *const can_rx_interface,
@@ -44,7 +60,11 @@ struct FsmWorld *App_FsmWorld_Create(
     struct RgbLedSequence *const    rgb_led_sequence,
     struct Clock *const             clock,
     struct AcceleratorPedal *const  papps,
-    struct AcceleratorPedal *const  sapps)
+    bool (*is_papps_alaram_active)(struct FsmWorld *),
+    void (*papps_alarm_callback)(struct FsmWorld *),
+    struct AcceleratorPedal *const sapps,
+    bool (*is_sapps_alaram_active)(struct FsmWorld *),
+    void (*sapps_alarm_callback)(struct FsmWorld *))
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
     assert(world != NULL);
@@ -66,6 +86,22 @@ struct FsmWorld *App_FsmWorld_Create(
     world->papps                            = papps;
     world->sapps                            = sapps;
 
+    struct SignalCallback papps_callback = {
+        .high_duration_ms = 10,
+        .function         = papps_alarm_callback,
+    };
+    struct Signal *papps_signal = App_SharedSignal_Create(
+        0, is_papps_alaram_active, world, papps_callback);
+    App_FsmWorld_RegisterSignal(world, papps_signal);
+
+    struct SignalCallback sapps_callback = {
+        .high_duration_ms = 10,
+        .function         = sapps_alarm_callback,
+    };
+    struct Signal *sapps_signal = App_SharedSignal_Create(
+        0, is_sapps_alaram_active, world, sapps_callback);
+    App_FsmWorld_RegisterSignal(world, sapps_signal);
+
     return world;
 }
 
@@ -80,6 +116,7 @@ void App_FsmWorld_Destroy(struct FsmWorld *world)
             break;
         }
 
+        free(node->signal);
         SL_DELETE(world->signals_head, node);
         free(node);
     }
@@ -151,16 +188,6 @@ struct RgbLedSequence *
     App_FsmWorld_GetRgbLedSequence(const struct FsmWorld *const world)
 {
     return world->rgb_led_sequence;
-}
-
-void App_FsmWorld_RegisterSignal(struct FsmWorld *world, struct Signal *signal)
-{
-    struct SignalNode *item = malloc(sizeof(struct SignalNode));
-    assert(item != NULL);
-    item->signal = signal;
-    item->next   = NULL;
-
-    SL_APPEND(world->signals_head, item);
 }
 
 void App_FsmWorld_UpdateSignals(

@@ -35,7 +35,11 @@ struct FsmWorld *App_FsmWorld_Create(
     struct RgbLedSequence *   rgb_led_sequence,
     struct Clock *            clock,
     struct AcceleratorPedal * papps,
-    struct AcceleratorPedal * sapps);
+    bool (*is_papps_alaram_active)(struct FsmWorld *),
+    void (*papps_alarm_callback)(struct FsmWorld *),
+    struct AcceleratorPedal *sapps,
+    bool (*is_sapps_alaram_active)(struct FsmWorld *),
+    void (*sapps_alarm_callback)(struct FsmWorld *));
 
 /**
  * Deallocate the memory used by the given world
@@ -128,13 +132,6 @@ struct BinaryStatus *
  */
 struct RgbLedSequence *
     App_FsmWorld_GetRgbLedSequence(const struct FsmWorld *world);
-
-/**
- * Register a signal to the given world
- * @param world The world to register a signal for
- * @param signal The signal to register to the given world
- */
-void App_FsmWorld_RegisterSignal(struct FsmWorld *world, struct Signal *signal);
 
 /**
  * Update the registered signals in the given world

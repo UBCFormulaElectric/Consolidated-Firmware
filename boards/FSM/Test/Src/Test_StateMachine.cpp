@@ -106,25 +106,11 @@ class FsmStateMachineTest : public BaseStateMachineTest
             secondary_flow_rate_in_range_check, left_wheel_speed_in_range_check,
             right_wheel_speed_in_range_check, steering_angle_in_range_check,
             brake_pressure_in_range_check, brake_actuation_status,
-            rgb_led_sequence, clock, papps, sapps);
-
-        struct SignalCallback papps_callback = {
-            .high_duration_ms = 10,
-            .function         = App_AcceleratorPedalSignals_PappsAlarmCallback,
-        };
-        papps_signal = App_SharedSignal_Create(
-            0, App_AcceleratorPedalSignals_IsPappsAlarmActive, world,
-            papps_callback);
-        App_FsmWorld_RegisterSignal(world, papps_signal);
-
-        struct SignalCallback sapps_callback = {
-            .high_duration_ms = 10,
-            .function         = App_AcceleratorPedalSignals_SappsAlarmCallback,
-        };
-        sapps_signal = App_SharedSignal_Create(
-            0, App_AcceleratorPedalSignals_IsSappsAlarmActive, world,
-            sapps_callback);
-        App_FsmWorld_RegisterSignal(world, sapps_signal);
+            rgb_led_sequence, clock, papps,
+            App_AcceleratorPedalSignals_IsPappsAlarmActive,
+            App_AcceleratorPedalSignals_PappsAlarmCallback, sapps,
+            App_AcceleratorPedalSignals_IsSappsAlarmActive,
+            App_AcceleratorPedalSignals_SappsAlarmCallback);
 
         // Default to starting the state machine in the `AIR_OPEN` state
         state_machine =
@@ -171,9 +157,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
         TearDownObject(papps, App_AcceleratorPedal_Destroy);
-        TearDownObject(papps_signal, App_SharedSignal_Destroy);
         TearDownObject(sapps, App_AcceleratorPedal_Destroy);
-        TearDownObject(sapps_signal, App_SharedSignal_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -283,9 +267,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
     struct RgbLedSequence *   rgb_led_sequence;
     struct Clock *            clock;
     struct AcceleratorPedal * papps;
-    struct Signal *           papps_signal;
     struct AcceleratorPedal * sapps;
-    struct Signal *           sapps_signal;
 };
 
 // FSM-10
