@@ -1,5 +1,6 @@
 #include "Test_Bms.h"
 #include "Test_Imd.h"
+#include "Test_BaseStateMachineTest.h"
 
 extern "C"
 {
@@ -45,7 +46,7 @@ FAKE_VALUE_FUNC(ExitCode, enable_bspd_ok);
 FAKE_VALUE_FUNC(ExitCode, disable_bspd_ok);
 FAKE_VALUE_FUNC(bool, is_bspd_ok_enabled);
 
-class BmsStateMachineTest : public testing::Test
+class BmsStateMachineTest : public BaseStateMachineTest
 {
   protected:
     void SetUp() override
