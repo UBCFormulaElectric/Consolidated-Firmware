@@ -24,7 +24,7 @@ void App_AcceleratorPedalSignals_PappsAlarmCallback(struct FsmWorld *world);
  * active
  * @param world The world containing the secondary APPS to check for
  * @return true if the encoder alarm for the secondary APPS in the given world
- * is active, else false
+ *         is active, else false
  */
 bool App_AcceleratorPedalSignals_IsSappsAlarmActive(struct FsmWorld *world);
 
