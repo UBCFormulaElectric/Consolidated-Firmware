@@ -2,6 +2,9 @@ set(CMAKE_SYSTEM_NAME Generic)
 set(CMAKE_SYSTEM_VERSION 1)
 cmake_minimum_required(VERSION 3.11)
 
+# Export JSON compilation database for third-party programs (e.g. clangd)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 # Target-platform specific settings
 if("${PLATFORM}" STREQUAL "x86")
     # We assume this cmake is running on a x86 platform, so the 
