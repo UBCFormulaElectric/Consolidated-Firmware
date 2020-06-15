@@ -10,7 +10,11 @@ extern "C"
 class BaseStateMachineTest : public testing::Test
 {
   protected:
-    void SetUp(void) override { current_time_ms = 0; }
+    void SetUp(void) override
+    {
+        current_time_ms          = 0;
+        first_state_machine_tick = true;
+    }
 
     virtual void UpdateClock(
         struct StateMachine *state_machine,
@@ -22,6 +26,8 @@ class BaseStateMachineTest : public testing::Test
 
     void LetTimePass(struct StateMachine *state_machine, uint32_t time_ms)
     {
+        first_state_machine_tick = false;
+
         for (uint32_t ms = 0; ms < time_ms; ms++)
         {
             UpdateClock(state_machine, current_time_ms);
@@ -41,4 +47,5 @@ class BaseStateMachineTest : public testing::Test
         }
     }
     uint32_t current_time_ms;
+    bool     first_state_machine_tick;
 };
