@@ -438,7 +438,7 @@ TEST_F(BmsStateMachineTest, charger_connection_status_in_all_states)
             true, App_CanTx_GetPeriodicSignal_IS_CONNECTED(can_tx_interface));
 
         is_charger_connected_fake.return_val = false;
-        App_SharedStateMachine_Tick1Hz(state_machine);
+        LetTimePass(state_machine, 1000);
         ASSERT_EQ(
             false, App_CanTx_GetPeriodicSignal_IS_CONNECTED(can_tx_interface));
     }

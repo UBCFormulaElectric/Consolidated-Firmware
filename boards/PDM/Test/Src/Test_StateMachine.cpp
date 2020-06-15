@@ -60,6 +60,8 @@ class PdmStateMachineTest : public BaseStateMachineTest
   protected:
     void SetUp() override
     {
+        BaseStateMachineTest::SetUp();
+
         can_tx_interface = App_CanTx_Create(
             send_non_periodic_msg_PDM_STARTUP,
             send_non_periodic_msg_PDM_AIR_SHUTDOWN,
@@ -228,7 +230,7 @@ class PdmStateMachineTest : public BaseStateMachineTest
 
             // Normal Value
             fake_current = (min_current + max_current) / 2;
-            App_SharedStateMachine_Tick100Hz(state_machine);
+            LetTimePass(state_machine, first_state_machine_tick ? 1 : 10);
             EXPECT_EQ(
                 fake_current, current_can_signal_getter(can_tx_interface));
             EXPECT_EQ(
@@ -237,7 +239,7 @@ class PdmStateMachineTest : public BaseStateMachineTest
             // Under-current
             fake_current = std::nextafter(
                 min_current, std::numeric_limits<float>::lowest());
-            App_SharedStateMachine_Tick100Hz(state_machine);
+            LetTimePass(state_machine, 10);
             EXPECT_EQ(
                 underflow_choice,
                 out_of_range_can_signal_getter(can_tx_interface));
@@ -245,7 +247,7 @@ class PdmStateMachineTest : public BaseStateMachineTest
             // Over-current
             fake_current =
                 std::nextafter(max_current, std::numeric_limits<float>::max());
-            App_SharedStateMachine_Tick100Hz(state_machine);
+            LetTimePass(state_machine, 10);
             EXPECT_EQ(
                 overflow_choice,
                 out_of_range_can_signal_getter(can_tx_interface));
@@ -270,21 +272,21 @@ class PdmStateMachineTest : public BaseStateMachineTest
 
         // Normal Value
         fake_current = (min_current + max_current) / 2;
-        App_SharedStateMachine_Tick100Hz(state_machine);
+        LetTimePass(state_machine, 1);
         EXPECT_TRUE(isnanf(current_can_signal_getter(can_tx_interface)));
         EXPECT_EQ(ok_choice, out_of_range_can_signal_getter(can_tx_interface));
 
         // Under-current
         fake_current =
             std::nextafter(min_current, std::numeric_limits<float>::lowest());
-        App_SharedStateMachine_Tick100Hz(state_machine);
+        LetTimePass(state_machine, 10);
         EXPECT_TRUE(isnanf(current_can_signal_getter(can_tx_interface)));
         EXPECT_EQ(ok_choice, out_of_range_can_signal_getter(can_tx_interface));
 
         // Over-current
         fake_current =
             std::nextafter(max_current, std::numeric_limits<float>::max());
-        App_SharedStateMachine_Tick100Hz(state_machine);
+        LetTimePass(state_machine, 10);
         EXPECT_TRUE(isnanf(current_can_signal_getter(can_tx_interface)));
         EXPECT_EQ(ok_choice, out_of_range_can_signal_getter(can_tx_interface));
     }
@@ -306,7 +308,7 @@ class PdmStateMachineTest : public BaseStateMachineTest
 
             // Normal Value
             fake_voltage = (min_voltage + max_voltage) / 2;
-            App_SharedStateMachine_Tick100Hz(state_machine);
+            LetTimePass(state_machine, first_state_machine_tick ? 1 : 10);
             EXPECT_EQ(
                 fake_voltage, voltage_can_signal_getter(can_tx_interface));
             EXPECT_EQ(
@@ -315,7 +317,7 @@ class PdmStateMachineTest : public BaseStateMachineTest
             // Under-voltage
             fake_voltage = std::nextafter(
                 min_voltage, std::numeric_limits<float>::lowest());
-            App_SharedStateMachine_Tick100Hz(state_machine);
+            LetTimePass(state_machine, 10);
             EXPECT_EQ(
                 underflow_choice,
                 out_of_range_can_signal_getter(can_tx_interface));
@@ -323,7 +325,7 @@ class PdmStateMachineTest : public BaseStateMachineTest
             // Over-voltage
             fake_voltage =
                 std::nextafter(max_voltage, std::numeric_limits<float>::max());
-            App_SharedStateMachine_Tick100Hz(state_machine);
+            LetTimePass(state_machine, 10);
             EXPECT_EQ(
                 overflow_choice,
                 out_of_range_can_signal_getter(can_tx_interface));
@@ -632,7 +634,7 @@ TEST_F(PdmStateMachineTest, rgb_led_sequence_in_all_states)
         // and blue).
         for (size_t i = 0; i < 99; i++)
         {
-            App_SharedStateMachine_Tick1Hz(state_machine);
+            LetTimePass(state_machine, first_state_machine_tick ? 1 : 1000);
             ASSERT_EQ(*call_counts[i % 3], i / 3 + 1);
         }
     }
@@ -649,7 +651,7 @@ TEST_F(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 1);
 
     ASSERT_EQ(
         App_GetAirClosedState(),
@@ -665,7 +667,7 @@ TEST_F(
 
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 1);
 
     ASSERT_EQ(
         App_GetAirOpenState(),
@@ -681,7 +683,7 @@ TEST_F(
 
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 1);
 
     ASSERT_EQ(
         App_GetAirOpenState(),
@@ -695,7 +697,7 @@ TEST_F(PdmStateMachineTest, exit_air_closed_state_when_air_positive_is_opened)
 
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 1);
 
     ASSERT_EQ(
         App_GetAirOpenState(),
@@ -709,7 +711,7 @@ TEST_F(PdmStateMachineTest, exit_air_closed_state_when_air_negative_is_opened)
 
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_OPEN_CHOICE);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 1);
 
     ASSERT_EQ(
         App_GetAirOpenState(),
@@ -728,7 +730,7 @@ TEST_F(PdmStateMachineTest, set_18650s_overvoltage_in_all_states)
             can_tx_interface, false);
 
         is_low_voltage_battery_overvoltage_fake.return_val = true;
-        App_SharedStateMachine_Tick100Hz(state_machine);
+        LetTimePass(state_machine, first_state_machine_tick ? 1 : 10);
 
         ASSERT_TRUE(App_CanTx_GetPeriodicSignal_CELL_BALANCE_OVERVOLTAGE_FAULT(
             can_tx_interface));
@@ -747,7 +749,7 @@ TEST_F(PdmStateMachineTest, clear_18650s_overvoltage_in_all_states)
             can_tx_interface, true);
 
         is_low_voltage_battery_overvoltage_fake.return_val = false;
-        App_SharedStateMachine_Tick100Hz(state_machine);
+        LetTimePass(state_machine, first_state_machine_tick ? 1 : 10);
 
         ASSERT_FALSE(App_CanTx_GetPeriodicSignal_CELL_BALANCE_OVERVOLTAGE_FAULT(
             can_tx_interface));
@@ -765,7 +767,7 @@ TEST_F(PdmStateMachineTest, set_18650s_charge_fault_in_all_states)
         App_CanTx_SetPeriodicSignal_CHARGER_FAULT(can_tx_interface, false);
 
         do_low_voltage_battery_have_charge_fault_fake.return_val = true;
-        App_SharedStateMachine_Tick100Hz(state_machine);
+        LetTimePass(state_machine, first_state_machine_tick ? 1 : 10);
 
         ASSERT_TRUE(
             App_CanTx_GetPeriodicSignal_CHARGER_FAULT(can_tx_interface));
@@ -783,7 +785,7 @@ TEST_F(PdmStateMachineTest, clear_18650s_charge_fault_in_all_states)
         App_CanTx_SetPeriodicSignal_CHARGER_FAULT(can_tx_interface, true);
 
         do_low_voltage_battery_have_charge_fault_fake.return_val = false;
-        App_SharedStateMachine_Tick100Hz(state_machine);
+        LetTimePass(state_machine, first_state_machine_tick ? 1 : 10);
 
         ASSERT_FALSE(
             App_CanTx_GetPeriodicSignal_CHARGER_FAULT(can_tx_interface));
@@ -802,7 +804,7 @@ TEST_F(PdmStateMachineTest, set_18650s_boost_controller_fault_in_all_states)
 
         do_low_voltage_battery_have_boost_controller_fault_fake.return_val =
             true;
-        App_SharedStateMachine_Tick100Hz(state_machine);
+        LetTimePass(state_machine, first_state_machine_tick ? 1 : 10);
 
         ASSERT_TRUE(
             App_CanTx_GetPeriodicSignal_BOOST_PGOOD_FAULT(can_tx_interface));
@@ -821,7 +823,7 @@ TEST_F(PdmStateMachineTest, clear_18650s_boost_controller_fault_in_all_states)
 
         do_low_voltage_battery_have_boost_controller_fault_fake.return_val =
             false;
-        App_SharedStateMachine_Tick100Hz(state_machine);
+        LetTimePass(state_machine, first_state_machine_tick ? 1 : 10);
 
         ASSERT_FALSE(
             App_CanTx_GetPeriodicSignal_BOOST_PGOOD_FAULT(can_tx_interface));

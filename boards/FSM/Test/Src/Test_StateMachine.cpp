@@ -399,7 +399,7 @@ TEST_F(FsmStateMachineTest, rgb_led_sequence_in_all_states)
         // and blue).
         for (size_t i = 0; i < 99; i++)
         {
-            App_SharedStateMachine_Tick1Hz(state_machine);
+            LetTimePass(state_machine, first_state_machine_tick ? 1 : 1000);
             ASSERT_EQ(*call_counts[i % 3], i / 3 + 1);
         }
     }
