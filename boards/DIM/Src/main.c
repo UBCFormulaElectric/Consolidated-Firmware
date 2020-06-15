@@ -793,10 +793,10 @@ void RunTask1kHz(void const *argument)
     /* Infinite loop */
     for (;;)
     {
-        App_SharedClock_SetCurrentTimeInMilliseconds(
-            clock, osKernelSysTick() * portTICK_PERIOD_MS);
-        Io_CanTx_EnqueuePeriodicMsgs(
-            can_tx, osKernelSysTick() * portTICK_PERIOD_MS);
+        const uint32_t current_time_ms = osKernelSysTick() * portTICK_PERIOD_MS;
+
+        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
+        Io_CanTx_EnqueuePeriodicMsgs(can_tx, current_time_ms);
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.

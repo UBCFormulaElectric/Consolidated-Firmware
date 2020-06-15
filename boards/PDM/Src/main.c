@@ -107,6 +107,7 @@ struct InRangeCheck *     air_shutdown_current_in_range_check;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
 struct LowVoltageBattery *low_voltage_battery;
+struct Clock *            clock;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -237,6 +238,8 @@ int main(void)
     low_voltage_battery = App_LowVoltageBattery_Create(
         Io_BQ29209_IsOverVoltage, Io_LT3650_HasFault, Io_LTC3786_HasFault);
 
+    clock = App_SharedClock_Create();
+
     world = App_PdmWorld_Create(
         can_tx, can_rx, vbat_voltage_in_range_check,
         _24v_aux_voltage_in_range_check, _24v_acc_voltage_in_range_check,
@@ -245,7 +248,7 @@ int main(void)
         right_inverter_current_in_range_check,
         energy_meter_current_in_range_check, can_current_in_range_check,
         air_shutdown_current_in_range_check, heartbeat_monitor,
-        rgb_led_sequence, low_voltage_battery);
+        rgb_led_sequence, low_voltage_battery, clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
@@ -731,8 +734,11 @@ void RunTask1kHz(void const *argument)
 
     for (;;)
     {
-        Io_CanTx_EnqueuePeriodicMsgs(
-            can_tx, osKernelSysTick() * portTICK_PERIOD_MS);
+        const uint32_t current_time_ms = osKernelSysTick() * portTICK_PERIOD_MS;
+
+        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
+        Io_CanTx_EnqueuePeriodicMsgs(can_tx, current_time_ms);
+
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);

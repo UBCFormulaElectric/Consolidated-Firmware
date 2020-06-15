@@ -1,10 +1,12 @@
 #include <math.h>
 #include "Test_Pdm.h"
+#include "Test_BaseStateMachineTest.h"
 
 extern "C"
 {
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedStateMachine.h"
+#include "App_SharedMacros.h"
 #include "states/App_InitState.h"
 #include "states/App_AirOpenState.h"
 #include "states/App_AirClosedState.h"
@@ -53,7 +55,7 @@ FAKE_VALUE_FUNC(bool, is_low_voltage_battery_overvoltage);
 FAKE_VALUE_FUNC(bool, do_low_voltage_battery_have_charge_fault);
 FAKE_VALUE_FUNC(bool, do_low_voltage_battery_have_boost_controller_fault);
 
-class PdmStateMachineTest : public testing::Test
+class PdmStateMachineTest : public BaseStateMachineTest
 {
   protected:
     void SetUp() override
@@ -112,6 +114,8 @@ class PdmStateMachineTest : public testing::Test
             do_low_voltage_battery_have_charge_fault,
             do_low_voltage_battery_have_boost_controller_fault);
 
+        clock = App_SharedClock_Create();
+
         world = App_PdmWorld_Create(
             can_tx_interface, can_rx_interface, vbat_voltage_in_range_check,
             _24v_aux_voltage_in_range_check, _24v_acc_voltage_in_range_check,
@@ -120,7 +124,7 @@ class PdmStateMachineTest : public testing::Test
             right_inverter_current_in_range_check,
             energy_meter_current_in_range_check, can_current_in_range_check,
             air_shutdown_current_in_range_check, heartbeat_monitor,
-            rgb_led_sequence, low_voltage_battery);
+            rgb_led_sequence, low_voltage_battery, clock);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -176,6 +180,7 @@ class PdmStateMachineTest : public testing::Test
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
         TearDownObject(low_voltage_battery, App_LowVoltageBattery_Destroy);
+        TearDownObject(clock, App_SharedClock_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -325,6 +330,24 @@ class PdmStateMachineTest : public testing::Test
         }
     }
 
+    void UpdateClock(
+        struct StateMachine *state_machine,
+        uint32_t             current_time_ms) override
+    {
+        struct PdmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+        struct Clock *   clock = App_PdmWorld_GetClock(world);
+        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
+    }
+
+    void UpdateSignals(
+        struct StateMachine *state_machine,
+        uint32_t             current_time_ms) override
+    {
+        // PDM doesn't use any signals currently
+        UNUSED(state_machine);
+        UNUSED(current_time_ms);
+    }
+
     struct World *            world;
     struct StateMachine *     state_machine;
     struct PdmCanTxInterface *can_tx_interface;
@@ -342,6 +365,7 @@ class PdmStateMachineTest : public testing::Test
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
     struct LowVoltageBattery *low_voltage_battery;
+    struct Clock *            clock;
 };
 
 // PDM-21

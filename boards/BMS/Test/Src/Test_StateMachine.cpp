@@ -1,9 +1,11 @@
 #include "Test_Bms.h"
 #include "Test_Imd.h"
+#include "Test_BaseStateMachineTest.h"
 
 extern "C"
 {
 #include "App_SharedStateMachine.h"
+#include "App_SharedMacros.h"
 #include "states/App_InitState.h"
 #include "states/App_DriveState.h"
 #include "states/App_FaultState.h"
@@ -44,7 +46,7 @@ FAKE_VALUE_FUNC(ExitCode, enable_bspd_ok);
 FAKE_VALUE_FUNC(ExitCode, disable_bspd_ok);
 FAKE_VALUE_FUNC(bool, is_bspd_ok_enabled);
 
-class BmsStateMachineTest : public testing::Test
+class BmsStateMachineTest : public BaseStateMachineTest
 {
   protected:
     void SetUp() override
@@ -78,9 +80,11 @@ class BmsStateMachineTest : public testing::Test
         bspd_ok = App_OkStatus_Create(
             enable_bspd_ok, disable_bspd_ok, is_bspd_ok_enabled);
 
+        clock = App_SharedClock_Create();
+
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
-            rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok);
+            rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, clock);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -123,6 +127,7 @@ class BmsStateMachineTest : public testing::Test
         TearDownObject(bms_ok, App_OkStatus_Destroy);
         TearDownObject(imd_ok, App_OkStatus_Destroy);
         TearDownObject(bspd_ok, App_OkStatus_Destroy);
+        TearDownObject(clock, App_SharedClock_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -144,6 +149,24 @@ class BmsStateMachineTest : public testing::Test
         };
     }
 
+    void UpdateClock(
+        struct StateMachine *state_machine,
+        uint32_t             current_time_ms) override
+    {
+        struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+        struct Clock *   clock = App_BmsWorld_GetClock(world);
+        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
+    }
+
+    void UpdateSignals(
+        struct StateMachine *state_machine,
+        uint32_t             current_time_ms) override
+    {
+        // BMS doesn't use any signals currently
+        UNUSED(state_machine);
+        UNUSED(current_time_ms);
+    }
+
     struct World *            world;
     struct StateMachine *     state_machine;
     struct BmsCanTxInterface *can_tx_interface;
@@ -155,6 +178,7 @@ class BmsStateMachineTest : public testing::Test
     struct OkStatus *         bms_ok;
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
+    struct Clock *            clock;
 };
 
 // BMS-31

@@ -21,6 +21,7 @@ struct PdmWorld
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
     struct LowVoltageBattery *low_voltage_battery;
+    struct Clock *            clock;
 };
 
 struct PdmWorld *App_PdmWorld_Create(
@@ -38,7 +39,8 @@ struct PdmWorld *App_PdmWorld_Create(
     struct InRangeCheck *const      air_shutdown_current_in_range_check,
     struct HeartbeatMonitor *const  heartbeat_monitor,
     struct RgbLedSequence *const    rgb_led_sequence,
-    struct LowVoltageBattery *const low_voltage_battery)
+    struct LowVoltageBattery *const low_voltage_battery,
+    struct Clock *const             clock)
 {
     struct PdmWorld *world = (struct PdmWorld *)malloc(sizeof(struct PdmWorld));
     assert(world != NULL);
@@ -62,6 +64,7 @@ struct PdmWorld *App_PdmWorld_Create(
     world->heartbeat_monitor   = heartbeat_monitor;
     world->rgb_led_sequence    = rgb_led_sequence;
     world->low_voltage_battery = low_voltage_battery;
+    world->clock               = clock;
 
     return world;
 }
@@ -159,4 +162,9 @@ struct LowVoltageBattery *
     App_PdmWorld_GetLowVoltageBattery(const struct PdmWorld *const world)
 {
     return world->low_voltage_battery;
+}
+
+struct Clock *App_PdmWorld_GetClock(const struct PdmWorld *const world)
+{
+    return world->clock;
 }

@@ -1,4 +1,5 @@
 #include "Test_Dim.h"
+#include "Test_BaseStateMachineTest.h"
 
 extern "C"
 {
@@ -9,6 +10,7 @@ extern "C"
 #include "App_SharedRgbLedSequence.h"
 #include "App_Led.h"
 #include "App_CanMsgs.h"
+#include "App_SharedMacros.h"
 #include "states/App_DriveState.h"
 #include "configs/App_RotarySwitchConfig.h"
 #include "configs/App_RegenPaddleConfig.h"
@@ -77,7 +79,7 @@ FAKE_VOID_FUNC(turn_pdm_status_led_green);
 FAKE_VOID_FUNC(turn_pdm_status_led_blue);
 FAKE_VOID_FUNC(turn_off_pdm_status_led);
 
-class DimStateMachineTest : public testing::Test
+class DimStateMachineTest : public BaseStateMachineTest
 {
   protected:
     void SetUp() override
@@ -236,6 +238,24 @@ class DimStateMachineTest : public testing::Test
         ASSERT_EQ(
             initial_state,
             App_SharedStateMachine_GetCurrentState(state_machine));
+    }
+
+    void UpdateClock(
+        struct StateMachine *state_machine,
+        uint32_t             current_time_ms) override
+    {
+        struct DimWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+        struct Clock *   clock = App_DimWorld_GetClock(world);
+        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
+    }
+
+    void UpdateSignals(
+        struct StateMachine *state_machine,
+        uint32_t             current_time_ms) override
+    {
+        // DIM doesn't use any signals currently
+        UNUSED(state_machine);
+        UNUSED(current_time_ms);
     }
 
     struct World *            world;

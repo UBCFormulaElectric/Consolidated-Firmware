@@ -1,9 +1,11 @@
 #include <math.h>
 #include "Test_Dcm.h"
+#include "Test_BaseStateMachineTest.h"
 
 extern "C"
 {
 #include "App_SharedStateMachine.h"
+#include "App_SharedMacros.h"
 #include "states/App_InitState.h"
 #include "states/App_DriveState.h"
 #include "states/App_FaultState.h"
@@ -31,7 +33,7 @@ FAKE_VOID_FUNC(turn_off_brake_light);
 FAKE_VOID_FUNC(turn_on_buzzer);
 FAKE_VOID_FUNC(turn_off_buzzer);
 
-class DcmStateMachineTest : public testing::Test
+class DcmStateMachineTest : public BaseStateMachineTest
 {
   protected:
     void SetUp() override
@@ -56,9 +58,11 @@ class DcmStateMachineTest : public testing::Test
 
         error_table = App_SharedErrorTable_Create();
 
+        clock = App_SharedClock_Create();
+
         world = App_DcmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
-            rgb_led_sequence, brake_light, buzzer, error_table);
+            rgb_led_sequence, brake_light, buzzer, error_table, clock);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -86,6 +90,7 @@ class DcmStateMachineTest : public testing::Test
         TearDownObject(brake_light, App_BrakeLight_Destroy);
         TearDownObject(buzzer, App_Buzzer_Destroy);
         TearDownObject(error_table, App_SharedErrorTable_Destroy);
+        TearDownObject(clock, App_SharedClock_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -106,6 +111,24 @@ class DcmStateMachineTest : public testing::Test
         };
     }
 
+    void UpdateClock(
+        struct StateMachine *state_machine,
+        uint32_t             current_time_ms) override
+    {
+        struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+        struct Clock *   clock = App_DcmWorld_GetClock(world);
+        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
+    }
+
+    void UpdateSignals(
+        struct StateMachine *state_machine,
+        uint32_t             current_time_ms) override
+    {
+        // DCM doesn't use any signals currently
+        UNUSED(state_machine);
+        UNUSED(current_time_ms);
+    }
+
     struct World *            world;
     struct StateMachine *     state_machine;
     struct DcmCanTxInterface *can_tx_interface;
@@ -115,6 +138,7 @@ class DcmStateMachineTest : public testing::Test
     struct BrakeLight *       brake_light;
     struct Buzzer *           buzzer;
     struct ErrorTable *       error_table;
+    struct Clock *            clock;
 };
 
 TEST_F(

@@ -91,6 +91,7 @@ struct RgbLedSequence *   rgb_led_sequence;
 struct BrakeLight *       brake_light;
 struct Buzzer *           buzzer;
 struct ErrorTable *       error_table;
+struct Clock *            clock;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -184,9 +185,11 @@ int main(void)
 
     error_table = App_SharedErrorTable_Create();
 
+    clock = App_SharedClock_Create();
+
     world = App_DcmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, brake_light,
-        buzzer, error_table);
+        buzzer, error_table, clock);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
@@ -572,9 +575,10 @@ void RunTask1kHz(void const *argument)
 
     for (;;)
     {
-        Io_CanTx_EnqueuePeriodicMsgs(
-            App_DcmWorld_GetCanTx(world),
-            osKernelSysTick() * portTICK_PERIOD_MS);
+        const uint32_t current_time_ms = osKernelSysTick() * portTICK_PERIOD_MS;
+
+        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
+        Io_CanTx_EnqueuePeriodicMsgs(can_tx, current_time_ms);
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
