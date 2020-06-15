@@ -155,6 +155,9 @@ SG_ Sapps_Mapped_Pedal_Percentage : 0|32@1+ (1,0) [0|100] "%" DEBUG
 BO_ 315 FSM_MOTOR_SHUTDOWN_ERRORS: 8 FSM
 SG_ DUMMY_MOTOR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DEBUG
 
+BO_ 316 FSM_PEDAL_POSITION: 4 FSM
+SG_ Mapped_Pedal_Percentage: 0|32@1+ (1,0) [0|100] "%" DEBUG
+
 BO_ 400 PDM_NON_CRITICAL_ERRORS: 8 PDM
 SG_ MISSING_HEARTBEAT : 0|1@1+ (1,0) [0|1] "" DEBUG
 SG_ BOOST_PGOOD_FAULT : 1|1@1+ (1,0) [0|1] "" DEBUG
@@ -303,6 +306,7 @@ BA_ "GenMsgCycleTime" BO_ 311 10;
 BA_ "GenMsgCycleTime" BO_ 313 10;
 BA_ "GenMsgCycleTime" BO_ 314 10;
 BA_ "GenMsgCycleTime" BO_ 315 1000;
+BA_ "GenMsgCycleTime" BO_ 316 100;
 BA_ "GenMsgCycleTime" BO_ 400 1000;
 BA_ "GenMsgCycleTime" BO_ 401 100;
 BA_ "GenMsgCycleTime" BO_ 402 5000;
@@ -340,6 +344,7 @@ SIG_VALTYPE_ 309 Right_Wheel_Speed: 1;
 SIG_VALTYPE_ 311 Steering_Angle: 1;
 SIG_VALTYPE_ 313 Papps_Mapped_Pedal_Percentage : 1;
 SIG_VALTYPE_ 314 Sapps_Mapped_Pedal_Percentage : 1;
+SIG_VALTYPE_ 316 Mapped_Pedal_Percentage : 1;
 SIG_VALTYPE_ 406 Auxiliary1_Current : 1;
 SIG_VALTYPE_ 406 Auxiliary2_Current : 1;
 SIG_VALTYPE_ 407 Energy_Meter_Current : 1;

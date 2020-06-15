@@ -52,9 +52,6 @@ class BaseStateMachineTest : public testing::Test
     {
         for (uint32_t ms = 0; ms < time_ms; ms++)
         {
-            UpdateClock(state_machine, current_time_ms);
-            UpdateSignals(state_machine, current_time_ms);
-
             if (current_time_ms % 1000 == 0)
             {
                 App_SharedStateMachine_Tick1Hz(state_machine);
@@ -64,6 +61,9 @@ class BaseStateMachineTest : public testing::Test
             {
                 App_SharedStateMachine_Tick100Hz(state_machine);
             }
+
+            UpdateClock(state_machine, current_time_ms);
+            UpdateSignals(state_machine, current_time_ms);
 
             current_time_ms++;
         }

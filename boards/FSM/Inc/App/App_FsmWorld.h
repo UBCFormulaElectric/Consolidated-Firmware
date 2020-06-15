@@ -13,6 +13,9 @@
 
 struct FsmWorld;
 
+// TODO: add these fxn pointers to the javadoc
+// bool (*has_apps_disagreement)(struct FsmWorld *),
+// void (*has_apps_disagreement_callback)(struct FsmWorld *),
 /**
  * Allocate and initialize a world in the application layer by registering
  * interfaces to it
@@ -34,7 +37,10 @@ struct FsmWorld *App_FsmWorld_Create(
     struct Brake *            brake,
     struct RgbLedSequence *   rgb_led_sequence,
     struct Clock *            clock,
-    struct AcceleratorPedal * papps,
+
+    bool (*has_apps_disagreement)(struct FsmWorld *),
+    void (*has_apps_disagreement_callback)(struct FsmWorld *),
+    struct AcceleratorPedal *papps,
     bool (*is_papps_alaram_active)(struct FsmWorld *),
     void (*papps_alarm_callback)(struct FsmWorld *),
     struct AcceleratorPedal *sapps,

@@ -42,6 +42,7 @@
 #include "Io_Adc.h"
 #include "Io_AcceleratorPedals.h"
 #include "Io_Brake.h"
+#include "Io_Scancon2RMHF.h"
 
 #include "App_FsmWorld.h"
 #include "App_SharedStateMachine.h"
@@ -52,6 +53,7 @@
 #include "configs/App_WheelSpeedThresholds.h"
 #include "configs/App_SteeringAngleThresholds.h"
 #include "configs/App_BrakePressureThresholds.h"
+#include "configs/App_AcceleratorPedalThresholds.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -249,10 +251,16 @@ int main(void)
     clock = App_SharedClock_Create();
 
     papps = App_AcceleratorPedal_Create(
-        Io_AcceleratorPedals_IsPappsEncoderAlarmActive);
+        Io_AcceleratorPedals_IsPappsEncoderAlarmActive,
+        Io_Scancon2RMHF_ResetPrimaryEncoderCounter,
+        Io_Scancon2RMHF_GetPrimaryEncoderCounter, PAPPS_RESOLUTION,
+        PAPPS_MAX_PRESSED_VALUE);
 
     sapps = App_AcceleratorPedal_Create(
-        Io_AcceleratorPedals_IsSappsEncoderAlarmActive);
+        Io_AcceleratorPedals_IsSappsEncoderAlarmActive,
+        Io_Scancon2RMHF_ResetSecondaryEncoderCounter,
+        Io_Scancon2RMHF_GetSecondaryEncoderCounter, SAPPS_RESOLUTION,
+        SAPPS_MAX_PRESSED_VALUE);
 
     world = App_FsmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, primary_flow_meter_in_range_check,
@@ -260,7 +268,10 @@ int main(void)
         left_wheel_speed_sensor_in_range_check,
         right_wheel_speed_sensor_in_range_check,
         steering_angle_sensor_in_range_check, brake, rgb_led_sequence, clock,
-        papps, App_AcceleratorPedalSignals_IsPappsAlarmActive,
+
+        App_AcceleratorPedalSignals_HasDisagreement,
+        App_AcceleratorPedalSignals_HasDisagreementCallback, papps,
+        App_AcceleratorPedalSignals_IsPappsAlarmActive,
         App_AcceleratorPedalSignals_PappsAlarmCallback, sapps,
         App_AcceleratorPedalSignals_IsSappsAlarmActive,
         App_AcceleratorPedalSignals_SappsAlarmCallback);

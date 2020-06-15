@@ -56,11 +56,14 @@ struct FsmWorld *App_FsmWorld_Create(
     struct Brake *const             brake,
     struct RgbLedSequence *const    rgb_led_sequence,
     struct Clock *const             clock,
-    struct AcceleratorPedal *const  papps,
-    bool (*const is_papps_alaram_active)(struct FsmWorld *),
+
+    bool (*const has_apps_disagreement)(struct FsmWorld *),
+    void (*const has_apps_disagreement_callback)(struct FsmWorld *),
+    struct AcceleratorPedal *const papps,
+    bool (*const is_papps_alarm_active)(struct FsmWorld *),
     void (*const papps_alarm_callback)(struct FsmWorld *),
     struct AcceleratorPedal *const sapps,
-    bool (*const is_sapps_alaram_active)(struct FsmWorld *),
+    bool (*const is_sapps_alarm_active)(struct FsmWorld *),
     void (*const sapps_alarm_callback)(struct FsmWorld *))
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
@@ -82,21 +85,29 @@ struct FsmWorld *App_FsmWorld_Create(
     world->papps                            = papps;
     world->sapps                            = sapps;
 
-    struct SignalCallback papps_callback = {
+    struct SignalCallback papps_alarm_signal_callback = {
         .high_duration_ms = 10,
         .function         = papps_alarm_callback,
     };
-    struct Signal *papps_signal = App_SharedSignal_Create(
-        0, is_papps_alaram_active, world, papps_callback);
-    App_RegisterSignal(world, papps_signal);
+    struct Signal *papps_alarm_signal = App_SharedSignal_Create(
+        0, is_papps_alarm_active, world, papps_alarm_signal_callback);
+    App_RegisterSignal(world, papps_alarm_signal);
 
-    struct SignalCallback sapps_callback = {
+    struct SignalCallback sapps_alarm_signal_callback = {
         .high_duration_ms = 10,
         .function         = sapps_alarm_callback,
     };
-    struct Signal *sapps_signal = App_SharedSignal_Create(
-        0, is_sapps_alaram_active, world, sapps_callback);
-    App_RegisterSignal(world, sapps_signal);
+    struct Signal *sapps_alarm_signal = App_SharedSignal_Create(
+        0, is_sapps_alarm_active, world, sapps_alarm_signal_callback);
+    App_RegisterSignal(world, sapps_alarm_signal);
+
+    struct SignalCallback apps_has_disagreement_signal_callback = {
+        .high_duration_ms = 100,
+        .function         = has_apps_disagreement_callback,
+    };
+    struct Signal *apps_has_disagreement_signal = App_SharedSignal_Create(
+        0, has_apps_disagreement, world, apps_has_disagreement_signal_callback);
+    App_RegisterSignal(world, apps_has_disagreement_signal);
 
     return world;
 }
@@ -107,14 +118,14 @@ void App_FsmWorld_Destroy(struct FsmWorld *world)
 
     SL_FOREACH_SAFE(world->signals_head, node, tmp)
     {
+        SL_DELETE(world->signals_head, node);
+        free(node->signal);
+        free(node);
+
         if (world->signals_head == NULL)
         {
             break;
         }
-
-        free(node->signal);
-        SL_DELETE(world->signals_head, node);
-        free(node);
     }
 
     free(world);

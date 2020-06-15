@@ -8,3 +8,4 @@ void App_SetPeriodicSignals_WheelSpeedInRangeChecks(
 void App_SetPeriodicSignals_SteeringAngleInRangeCheck(
     const struct FsmWorld *world);
 void App_SetPeriodicSignals_Brake(const struct FsmWorld *world);
+void App_SetPeriodicSignal_AcceleratorPedal(const struct FsmWorld *world);
