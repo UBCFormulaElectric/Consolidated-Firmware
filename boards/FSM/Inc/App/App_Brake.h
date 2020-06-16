@@ -48,7 +48,7 @@ bool App_Brake_IsBrakeActuated(const struct Brake *brake);
  * Check if the brake pressure sensor is in an open or short circuit state
  * @param brake The brake to check if the corresponding pressure sensor is
  * in an open or short circuit state
- * @return True if the brake pressure sensor is in an open or short circuit state, false if it
- * is not
+ * @return True if the brake pressure sensor is in an open or short circuit
+ * state, false if it is not
  */
 bool App_Brake_IsPressureSensorOpenOrShortCircuit(const struct Brake *brake);
