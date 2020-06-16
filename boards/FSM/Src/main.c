@@ -41,6 +41,7 @@
 #include "Io_MSP3002K5P3N1.h"
 #include "Io_Adc.h"
 #include "Io_AcceleratorPedals.h"
+#include "Io_Brake.h"
 
 #include "App_FsmWorld.h"
 #include "App_SharedStateMachine.h"
@@ -102,8 +103,7 @@ struct InRangeCheck *primary_flow_meter_in_range_check,
 struct InRangeCheck *left_wheel_speed_sensor_in_range_check,
     *right_wheel_speed_sensor_in_range_check;
 struct InRangeCheck *     steering_angle_sensor_in_range_check;
-struct InRangeCheck *     brake_pressure_sensor_in_range_check;
-struct BinaryStatus *     brake_actuation_status;
+struct Brake *            brake;
 struct World *            world;
 struct StateMachine *     state_machine;
 struct FsmCanTxInterface *can_tx;
@@ -222,12 +222,9 @@ int main(void)
         Io_SteeringAngleSensor_GetAngleDegree, MIN_STEERING_ANGLE_DEG,
         MAX_STEERING_ANGLE_DEG);
 
-    brake_pressure_sensor_in_range_check = App_InRangeCheck_Create(
-        Io_MSP3002K5P3N1_GetPressurePsi, MIN_BRAKE_PRESSURE_PSI,
-        MAX_BRAKE_PRESSURE_PSI);
-
-    brake_actuation_status =
-        App_SharedBinaryStatus_Create(Io_MSP3002K5P3N1_IsBrakeActuated);
+    brake = App_Brake_Create(
+        Io_MSP3002K5P3N1_GetPressurePsi, Io_MSP3002K5P3N1_IsOpenOrShortCircuit,
+        Io_Brake_IsActuated, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
@@ -256,10 +253,8 @@ int main(void)
         secondary_flow_meter_in_range_check,
         left_wheel_speed_sensor_in_range_check,
         right_wheel_speed_sensor_in_range_check,
-        steering_angle_sensor_in_range_check,
-        brake_pressure_sensor_in_range_check, brake_actuation_status,
-        rgb_led_sequence, clock, papps,
-        App_AcceleratorPedalSignals_IsPappsAlarmActive,
+        steering_angle_sensor_in_range_check, brake, rgb_led_sequence, clock,
+        papps, App_AcceleratorPedalSignals_IsPappsAlarmActive,
         App_AcceleratorPedalSignals_PappsAlarmCallback, sapps,
         App_AcceleratorPedalSignals_IsSappsAlarmActive,
         App_AcceleratorPedalSignals_SappsAlarmCallback);

@@ -45,6 +45,7 @@ FAKE_VALUE_FUNC(float, get_right_wheel_speed);
 FAKE_VALUE_FUNC(float, get_steering_angle);
 FAKE_VALUE_FUNC(float, get_brake_pressure);
 FAKE_VALUE_FUNC(bool, is_brake_actuated);
+FAKE_VALUE_FUNC(bool, is_pressure_sensor_open_or_short_circuit);
 FAKE_VALUE_FUNC(bool, is_papps_encoder_alarm_active);
 FAKE_VALUE_FUNC(bool, is_sapps_encoder_alarm_active);
 
@@ -85,11 +86,9 @@ class FsmStateMachineTest : public BaseStateMachineTest
         steering_angle_in_range_check = App_InRangeCheck_Create(
             get_steering_angle, MIN_STEERING_ANGLE_DEG, MAX_STEERING_ANGLE_DEG);
 
-        brake_pressure_in_range_check = App_InRangeCheck_Create(
-            get_brake_pressure, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
-
-        brake_actuation_status =
-            App_SharedBinaryStatus_Create(is_brake_actuated);
+        brake = App_Brake_Create(
+            get_brake_pressure, is_pressure_sensor_open_or_short_circuit,
+            is_brake_actuated, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
 
         rgb_led_sequence = App_SharedRgbLedSequence_Create(
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
@@ -105,8 +104,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
             primary_flow_rate_in_range_check,
             secondary_flow_rate_in_range_check, left_wheel_speed_in_range_check,
             right_wheel_speed_in_range_check, steering_angle_in_range_check,
-            brake_pressure_in_range_check, brake_actuation_status,
-            rgb_led_sequence, clock, papps,
+            brake, rgb_led_sequence, clock, papps,
             App_AcceleratorPedalSignals_IsPappsAlarmActive,
             App_AcceleratorPedalSignals_PappsAlarmCallback, sapps,
             App_AcceleratorPedalSignals_IsSappsAlarmActive,
@@ -132,6 +130,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(get_steering_angle);
         RESET_FAKE(get_brake_pressure);
         RESET_FAKE(is_brake_actuated);
+        RESET_FAKE(is_pressure_sensor_open_or_short_circuit);
         RESET_FAKE(is_papps_encoder_alarm_active);
         RESET_FAKE(is_sapps_encoder_alarm_active);
     }
@@ -152,8 +151,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
         TearDownObject(
             secondary_flow_rate_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(steering_angle_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(brake_pressure_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(brake_actuation_status, App_SharedBinaryStatus_Destroy);
+        TearDownObject(brake, App_Brake_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
         TearDownObject(papps, App_AcceleratorPedal_Destroy);
@@ -215,7 +213,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
         }
     }
 
-    void CheckBinaryStatusCanSignalsInAllStates(
+    void CheckBinaryStatusCanSignalInAllStates(
         bool &fake_value,
         uint8_t (*can_signal_getter)(const struct FsmCanTxInterface *),
         uint8_t on_choice,
@@ -262,8 +260,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
     struct InRangeCheck *     left_wheel_speed_in_range_check;
     struct InRangeCheck *     right_wheel_speed_in_range_check;
     struct InRangeCheck *     steering_angle_in_range_check;
-    struct InRangeCheck *     brake_pressure_in_range_check;
-    struct BinaryStatus *     brake_actuation_status;
+    struct Brake *            brake;
     struct RgbLedSequence *   rgb_led_sequence;
     struct Clock *            clock;
     struct AcceleratorPedal * papps;
@@ -355,7 +352,8 @@ TEST_F(FsmStateMachineTest, check_steering_angle_can_signals_in_all_states)
         CANMSGS_FSM_NON_CRITICAL_ERRORS_PRIMARY_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
-TEST_F(FsmStateMachineTest, check_brake_pressure_can_signals_in_all_states)
+// FSM-18
+TEST_F(FsmStateMachineTest, check_brake_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
         MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI,
@@ -365,18 +363,18 @@ TEST_F(FsmStateMachineTest, check_brake_pressure_can_signals_in_all_states)
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_OVERFLOW_CHOICE);
-}
 
-// FSM-18
-TEST_F(
-    FsmStateMachineTest,
-    check_brake_pressure_actuation_can_signals_in_all_states)
-{
-    CheckBinaryStatusCanSignalsInAllStates(
+    CheckBinaryStatusCanSignalInAllStates(
         is_brake_actuated_fake.return_val,
         App_CanTx_GetPeriodicSignal_BRAKE_IS_ACTUATED,
         CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE,
         CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_FALSE_CHOICE);
+
+    CheckBinaryStatusCanSignalInAllStates(
+        is_pressure_sensor_open_or_short_circuit_fake.return_val,
+        App_CanTx_GetPeriodicSignal_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT,
+        CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_TRUE_CHOICE,
+        CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_FALSE_CHOICE);
 }
 
 TEST_F(FsmStateMachineTest, rgb_led_sequence_in_all_states)
