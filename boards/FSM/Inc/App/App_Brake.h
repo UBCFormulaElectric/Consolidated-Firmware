@@ -42,7 +42,7 @@ struct InRangeCheck *
  * @param brake The brake to check if it is actuated
  * @return True if the brake is actuated, false if it is not
  */
-bool App_Brake_GetIsBrakeActuated(const struct Brake *brake);
+bool App_Brake_IsBrakeActuated(const struct Brake *brake);
 
 /**
  * Check if the brake pressure sensor is in an open or short circuit state
@@ -51,4 +51,4 @@ bool App_Brake_GetIsBrakeActuated(const struct Brake *brake);
  * @return True if the brake is in an open or short circuit state, false if it
  * is not
  */
-bool App_Brake_GetIsPressureSensorOpenOrShortCircuit(const struct Brake *brake);
+bool App_Brake_IsPressureSensorOpenOrShortCircuit(const struct Brake *brake);

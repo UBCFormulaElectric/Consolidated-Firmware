@@ -87,7 +87,7 @@ void App_SetPeriodicSignals_Brake(const struct FsmWorld *world)
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
-    if (App_Brake_GetIsBrakeActuated(brake))
+    if (App_Brake_IsBrakeActuated(brake))
     {
         App_CanTx_SetPeriodicSignal_BRAKE_IS_ACTUATED(
             can_tx, CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE);
@@ -98,7 +98,7 @@ void App_SetPeriodicSignals_Brake(const struct FsmWorld *world)
             can_tx, CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_FALSE_CHOICE);
     }
 
-    if (App_Brake_GetIsPressureSensorOpenOrShortCircuit(brake))
+    if (App_Brake_IsPressureSensorOpenOrShortCircuit(brake))
     {
         App_CanTx_SetPeriodicSignal_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT(
             can_tx,

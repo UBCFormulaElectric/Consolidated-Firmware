@@ -49,13 +49,12 @@ struct InRangeCheck *
     return brake->pressure_in_range_check;
 }
 
-bool App_Brake_GetIsBrakeActuated(const struct Brake *const brake)
+bool App_Brake_IsBrakeActuated(const struct Brake *brake)
 {
     return brake->is_brake_actuated();
 }
 
-bool App_Brake_GetIsPressureSensorOpenOrShortCircuit(
-    const struct Brake *const brake)
+bool App_Brake_IsPressureSensorOpenOrShortCircuit(const struct Brake *brake)
 {
     return brake->is_pressure_sensor_open_or_short_circuit();
 }
