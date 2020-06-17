@@ -1,5 +1,7 @@
 #include "Io_Efuse.h"
 
+#pragma GCC diagnostic ignored "-Wconversion"
+
 #define EFUSE_ADDR_MASK 0xFU
 #define EFUSE_ADDR_SHIFT 0x0AU
 #define EFUSE_SI_DATA_MASK 0x1FFU
@@ -14,6 +16,11 @@ static SPI_HandleTypeDef *efuse_spi_handle;
 void Io_Efuse_Init(SPI_HandleTypeDef *const hspi)
 {
     efuse_spi_handle = hspi;
+}
+
+void Io_Efuse_UpdateAux1Aux2Status(void)
+{
+    
 }
 
 void Io_Efuse_ConfigureEfuse(struct Efuse *e_fuse)
@@ -74,7 +81,7 @@ void Io_Efuse_WriteReg(
     struct Efuse *e_fuse)
 {
     HAL_StatusTypeDef status;
-    uint16_t          command        = 0x0000U;
+    uint16_t          command = 0x0000U;
 
     // Place the register address into bits 10->13
     command =
@@ -96,9 +103,8 @@ void Io_Efuse_WriteReg(
     // Compute and set/clear parity value
     Io_Efuse_SetParityBit(&command);
 
-        status = Io_Efuse_WriteToEfuse(
-            &command, e_fuse->chip_select.GPIO_Port,
-            e_fuse->chip_select.GPIO_Pin);
+    status = Io_Efuse_WriteToEfuse(
+        &command, e_fuse->chip_select.GPIO_Port, e_fuse->chip_select.GPIO_Pin);
     UNUSED(status);
 }
 
@@ -141,7 +147,7 @@ uint16_t Io_Efuse_ReadReg(uint8_t register_address, struct Efuse *e_fuse)
     return rx_data[0];
 }
 
-void SetParityBit(uint16_t *spi_command)
+static void SetParityBit(uint16_t *spi_command)
 {
     uint16_t spi_data = *spi_command;
     uint8_t  parity_bit;
@@ -161,7 +167,7 @@ void SetParityBit(uint16_t *spi_command)
     }
 }
 
-HAL_StatusTypeDef Io_Efuse_WriteToEfuse(
+static HAL_StatusTypeDef Io_Efuse_WriteToEfuse(
     uint16_t *    TxData,
     GPIO_TypeDef *GPIO_Port,
     uint16_t      GPIO_Pin)
@@ -169,13 +175,14 @@ HAL_StatusTypeDef Io_Efuse_WriteToEfuse(
     HAL_StatusTypeDef status;
 
     HAL_GPIO_WritePin(GPIO_Port, GPIO_Pin, GPIO_PIN_RESET);
-    status = HAL_SPI_Transmit(efuse_spi_handle, (uint8_t *)TxData, 1U, 100U);
+    status = HAL_SPI_TransmitReceive(
+        efuse_spi_handle, (uint8_t *)TxData, (uint8_t *)TxData, 1U, 100U);
     HAL_GPIO_WritePin(GPIO_Port, GPIO_Pin, GPIO_PIN_SET);
 
     return status;
 }
 
-HAL_StatusTypeDef Io_Efuse_ReadFromEfuse(
+static HAL_StatusTypeDef Io_Efuse_ReadFromEfuse(
     uint16_t *    tx_data,
     uint16_t *    rx_data,
     GPIO_TypeDef *chip_select_port,
@@ -186,14 +193,15 @@ HAL_StatusTypeDef Io_Efuse_ReadFromEfuse(
     // Send command to read from status register
     // Data is returned on the following SPI transfer
     HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_RESET);
-    transmit_status =
-        HAL_SPI_Transmit(efuse_spi_handle, (uint8_t *)tx_data, 1U, 100U);
+    transmit_status = HAL_SPI_TransmitReceive(
+        efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)rx_data, 1U, 100U);
     HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_SET);
 
-    // Receive data from E-fuse
+    // Receive data from E-fuse by sending dummy data
+    *tx_data = 0xFFFF;
     HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_RESET);
-    receive_status =
-        HAL_SPI_Receive(efuse_spi_handle, (uint8_t *)rx_data, 1U, 100U);
+    receive_status = HAL_SPI_TransmitReceive(
+        efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)rx_data, 1U, 100U);
     HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_SET);
 
     UNUSED(transmit_status);

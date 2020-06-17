@@ -696,7 +696,7 @@ uint16_t Io_Efuse_ReadReg(uint8_t register_address, struct Efuse *e_fuse);
  * https://en.wikipedia.org/wiki/Parity_bit#Parity
  * @param spi_command Original SPI command without the parity bit
  */
-void Io_Efuse_SetParityBit(uint16_t *spi_command);
+static void Io_Efuse_SetParityBit(uint16_t *spi_command);
 
 /**
  * Write SPI data to Efuse in blocking mode
@@ -705,7 +705,7 @@ void Io_Efuse_SetParityBit(uint16_t *spi_command);
  * @param chip_select_pin Efuse's chip-select GPIO pin
  * @return Status of the SPI transfer
  */
-HAL_StatusTypeDef Io_Efuse_WriteToEfuse(
+static HAL_StatusTypeDef Io_Efuse_WriteToEfuse(
     uint16_t *    tx_data,
     GPIO_TypeDef *chip_select_port,
     uint16_t      chip_select_pin);
@@ -718,7 +718,7 @@ HAL_StatusTypeDef Io_Efuse_WriteToEfuse(
  * @param chip_select_pin Efuse's chip-select GPIO pin
  * @return Status of the SPI transfer
  */
-HAL_StatusTypeDef Io_Efuse_ReadFromEfuse(
+static HAL_StatusTypeDef Io_Efuse_ReadFromEfuse(
     uint16_t *    tx_data,
     uint16_t *    rx_data,
     GPIO_TypeDef *chip_select_port,
