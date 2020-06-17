@@ -81,10 +81,14 @@ bool App_SharedError_IsCritical(const struct Error *error)
 {
     enum ErrorType error_type = App_SharedError_GetErrorType(error);
 
-    return (error_type == AIR_SHUTDOWN_ERROR ||
-            error_type == MOTOR_SHUTDOWN_ERROR)
-               ? true
-               : false;
+    if (error_type == AIR_SHUTDOWN_ERROR || error_type == MOTOR_SHUTDOWN_ERROR)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 bool App_SharedError_IsNonCritical(const struct Error *error)
