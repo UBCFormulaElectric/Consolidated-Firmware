@@ -58,6 +58,24 @@ bool App_SharedErrorTable_HasAnyCriticalErrorSet(
     const struct ErrorTable *error_table);
 
 /**
+ * Check if any AIR shutdown error in the given error table is set
+ * @param error_table The error table to check
+ * @return true if any AIR shutdown error in the given error table is set,
+ *         else false
+ */
+bool App_SharedErrorTable_HasAnyAirShutdownErrorSet(
+    const struct ErrorTable *error_table);
+
+/**
+ * Check if any motor shutdown error in the given error table is set
+ * @param error_table The error table to check
+ * @return true if any motor shutdown error in the given error table is set,
+ *         else false
+ */
+bool App_SharedErrorTable_HasAnyMotorShutdownErrorSet(
+    const struct ErrorTable *error_table);
+
+/**
  * Check if any non-critical error in the given error table is set
  * @param error_table The error table to check
  * @return true if any non-critical error in the given error table is set,

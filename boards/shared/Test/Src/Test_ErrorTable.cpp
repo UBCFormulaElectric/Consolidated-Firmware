@@ -145,6 +145,10 @@ class SharedErrorTableTest : public testing::Test
     // the helper functions.
     const enum ErrorId DEFAULT_CRITICAL_ERROR =
         BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE;
+    const enum ErrorId DEFAULT_AIR_SHUTDOWN_ERROR =
+        BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE;
+    const enum ErrorId DEFAULT_MOTOR_SHUTDOWN_ERROR =
+        BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN;
     const enum ErrorId DEFAULT_NON_CRITICAL_ERROR =
         BMS_NON_CRITICAL_WATCHDOG_TIMEOUT;
     const enum Board DEFAULT_CRITICAL_ERROR_BOARD     = BMS;
@@ -152,10 +156,14 @@ class SharedErrorTableTest : public testing::Test
 
     const enum ErrorId DEFAULT_BMS_CRITICAL_ERROR =
         BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE;
-    const enum ErrorId DEFAULT_DCM_CRITICAL_ERROR = DCM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN;
-    const enum ErrorId DEFAULT_DIM_CRITICAL_ERROR = DIM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN;
-    const enum ErrorId DEFAULT_FSM_CRITICAL_ERROR = FSM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN;
-    const enum ErrorId DEFAULT_PDM_CRITICAL_ERROR = PDM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN;
+    const enum ErrorId DEFAULT_DCM_CRITICAL_ERROR =
+        DCM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN;
+    const enum ErrorId DEFAULT_DIM_CRITICAL_ERROR =
+        DIM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN;
+    const enum ErrorId DEFAULT_FSM_CRITICAL_ERROR =
+        FSM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN;
+    const enum ErrorId DEFAULT_PDM_CRITICAL_ERROR =
+        PDM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN;
 
     const enum ErrorId DEFAULT_BMS_NON_CRITICAL_ERROR =
         BMS_NON_CRITICAL_WATCHDOG_TIMEOUT;
@@ -252,7 +260,7 @@ TEST_F(SharedErrorTableTest, is_error_critical)
 
     // Make sure there is only one error and it's a critical one
     ASSERT_EQ(1, error_list.num_errors);
-    ASSERT_TRUE(App_SharedError_GetIsCritical(error_list.errors[0]));
+    ASSERT_TRUE(App_SharedError_IsCritical(error_list.errors[0]));
 }
 
 TEST_F(SharedErrorTableTest, set_error)
@@ -321,6 +329,38 @@ TEST_F(SharedErrorTableTest, has_any_error_set_using_critical_error)
     ASSERT_FALSE(App_SharedErrorTable_HasAnyErrorSet(error_table));
 }
 
+TEST_F(SharedErrorTableTest, has_any_error_set_using_air_shutdown_error)
+{
+    // Set a AIR shutdown error
+    ASSERT_FALSE(App_SharedErrorTable_HasAnyErrorSet(error_table));
+    ASSERT_EQ(
+        EXIT_CODE_OK, App_SharedErrorTable_SetError(
+                          error_table, DEFAULT_AIR_SHUTDOWN_ERROR, true));
+    ASSERT_TRUE(App_SharedErrorTable_HasAnyErrorSet(error_table));
+
+    // Clear the AIR shutdown error that was just set
+    ASSERT_EQ(
+        EXIT_CODE_OK, App_SharedErrorTable_SetError(
+                          error_table, DEFAULT_AIR_SHUTDOWN_ERROR, false));
+    ASSERT_FALSE(App_SharedErrorTable_HasAnyErrorSet(error_table));
+}
+
+TEST_F(SharedErrorTableTest, has_any_error_set_using_motor_shutdown_error)
+{
+    // Set a motor shutdown error
+    ASSERT_FALSE(App_SharedErrorTable_HasAnyErrorSet(error_table));
+    ASSERT_EQ(
+        EXIT_CODE_OK, App_SharedErrorTable_SetError(
+                          error_table, DEFAULT_MOTOR_SHUTDOWN_ERROR, true));
+    ASSERT_TRUE(App_SharedErrorTable_HasAnyErrorSet(error_table));
+
+    // Clear the motor shutdown error that was just set
+    ASSERT_EQ(
+        EXIT_CODE_OK, App_SharedErrorTable_SetError(
+                          error_table, DEFAULT_MOTOR_SHUTDOWN_ERROR, false));
+    ASSERT_FALSE(App_SharedErrorTable_HasAnyErrorSet(error_table));
+}
+
 TEST_F(SharedErrorTableTest, has_any_error_set_using_non_critical_error)
 {
     // Set a non-critical error
@@ -353,6 +393,37 @@ TEST_F(SharedErrorTableTest, has_any_critical_error_set)
     ASSERT_FALSE(App_SharedErrorTable_HasAnyCriticalErrorSet(error_table));
 }
 
+TEST_F(SharedErrorTableTest, has_any_air_shutdown_error_set)
+{
+    // Set a AIR shutdown error
+    ASSERT_FALSE(App_SharedErrorTable_HasAnyErrorSet(error_table));
+    ASSERT_EQ(
+        EXIT_CODE_OK, App_SharedErrorTable_SetError(
+                          error_table, DEFAULT_AIR_SHUTDOWN_ERROR, true));
+    ASSERT_TRUE(App_SharedErrorTable_HasAnyAirShutdownErrorSet(error_table));
+
+    // Clear the AIR shutdown error that was just set
+    ASSERT_EQ(
+        EXIT_CODE_OK, App_SharedErrorTable_SetError(
+                          error_table, DEFAULT_AIR_SHUTDOWN_ERROR, false));
+    ASSERT_FALSE(App_SharedErrorTable_HasAnyAirShutdownErrorSet(error_table));
+}
+
+TEST_F(SharedErrorTableTest, has_any_motor_shutdown_error_set)
+{
+    // Set a motor shutdown error
+    ASSERT_FALSE(App_SharedErrorTable_HasAnyErrorSet(error_table));
+    ASSERT_EQ(
+        EXIT_CODE_OK, App_SharedErrorTable_SetError(
+                          error_table, DEFAULT_MOTOR_SHUTDOWN_ERROR, true));
+    ASSERT_TRUE(App_SharedErrorTable_HasAnyMotorShutdownErrorSet(error_table));
+
+    // Clear the motor shutdown error that was just set
+    ASSERT_EQ(
+        EXIT_CODE_OK, App_SharedErrorTable_SetError(
+                          error_table, DEFAULT_MOTOR_SHUTDOWN_ERROR, false));
+    ASSERT_FALSE(App_SharedErrorTable_HasAnyMotorShutdownErrorSet(error_table));
+}
 TEST_F(SharedErrorTableTest, has_any_non_critical_error_set)
 {
     // Set a non-critical error
@@ -401,6 +472,58 @@ TEST_F(SharedErrorTableTest, get_all_errors_using_one_critical_error)
     ASSERT_EQ(1, error_list.num_errors);
     ASSERT_TRUE(
         App_SharedError_IsErrorInList(&error_list, DEFAULT_CRITICAL_ERROR));
+}
+
+TEST_F(SharedErrorTableTest, get_all_errors_using_one_air_shutdown_error)
+{
+    // Set a AIR shutdown error
+    ASSERT_EQ(
+        EXIT_CODE_OK, App_SharedErrorTable_SetError(
+                          error_table, DEFAULT_AIR_SHUTDOWN_ERROR, true));
+
+    // Make sure the AIR shutdown error that was just set can be retrieved
+    App_SharedErrorTable_GetAllErrors(error_table, &error_list);
+    ASSERT_EQ(1, error_list.num_errors);
+    ASSERT_TRUE(
+        App_SharedError_IsErrorInList(&error_list, DEFAULT_AIR_SHUTDOWN_ERROR));
+
+    // Setting the same AIR shutdown error should not modify the error list
+    ASSERT_EQ(
+        EXIT_CODE_OK, App_SharedErrorTable_SetError(
+                          error_table, DEFAULT_AIR_SHUTDOWN_ERROR, true));
+
+    // Again, make sure the AIR shutdown error that was just set can be
+    // retrieved
+    App_SharedErrorTable_GetAllErrors(error_table, &error_list);
+    ASSERT_EQ(1, error_list.num_errors);
+    ASSERT_TRUE(
+        App_SharedError_IsErrorInList(&error_list, DEFAULT_AIR_SHUTDOWN_ERROR));
+}
+
+TEST_F(SharedErrorTableTest, get_all_errors_using_one_motor_shutdown_error)
+{
+    // Set a motor shutdown error
+    ASSERT_EQ(
+        EXIT_CODE_OK, App_SharedErrorTable_SetError(
+                          error_table, DEFAULT_MOTOR_SHUTDOWN_ERROR, true));
+
+    // Make sure the motor shutdown error that was just set can be retrieved
+    App_SharedErrorTable_GetAllErrors(error_table, &error_list);
+    ASSERT_EQ(1, error_list.num_errors);
+    ASSERT_TRUE(App_SharedError_IsErrorInList(
+        &error_list, DEFAULT_MOTOR_SHUTDOWN_ERROR));
+
+    // Setting the same motor shutdown error should not modify the error list
+    ASSERT_EQ(
+        EXIT_CODE_OK, App_SharedErrorTable_SetError(
+                          error_table, DEFAULT_MOTOR_SHUTDOWN_ERROR, true));
+
+    // Again, make sure the motor shutdown error that was just set can be
+    // retrieved
+    App_SharedErrorTable_GetAllErrors(error_table, &error_list);
+    ASSERT_EQ(1, error_list.num_errors);
+    ASSERT_TRUE(App_SharedError_IsErrorInList(
+        &error_list, DEFAULT_MOTOR_SHUTDOWN_ERROR));
 }
 
 TEST_F(
@@ -822,10 +945,13 @@ TEST_F(SharedErrorTableTest, process_bms_non_critical_errors)
 
 TEST_F(SharedErrorTableTest, process_bms_air_shutdown_errors)
 {
-    std::vector<enum ErrorId> bms_air_shutdown_error_ids = { BMS_AIR_SHUTDOWN_ERRORS };
+    std::vector<enum ErrorId> bms_air_shutdown_error_ids = {
+        BMS_AIR_SHUTDOWN_ERRORS
+    };
 
     TestRoutineForSetErrorsFromCanMsg(
-        BMS, bms_air_shutdown_error_ids, CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_FRAME_ID,
+        BMS, bms_air_shutdown_error_ids,
+        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_FRAME_ID,
         CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_LENGTH,
         App_CanMsgs_bms_air_shutdown_errors_pack,
         App_SharedErrorTable_GetBoardsWithCriticalErrors,
@@ -849,10 +975,13 @@ TEST_F(SharedErrorTableTest, process_dcm_non_critical_errors)
 
 TEST_F(SharedErrorTableTest, process_dcm_air_shutdown_errors)
 {
-    std::vector<enum ErrorId> dcm_air_shutdown_error_ids = { DCM_AIR_SHUTDOWN_ERRORS };
+    std::vector<enum ErrorId> dcm_air_shutdown_error_ids = {
+        DCM_AIR_SHUTDOWN_ERRORS
+    };
 
     TestRoutineForSetErrorsFromCanMsg(
-        DCM, dcm_air_shutdown_error_ids, CANMSGS_DCM_AIR_SHUTDOWN_ERRORS_FRAME_ID,
+        DCM, dcm_air_shutdown_error_ids,
+        CANMSGS_DCM_AIR_SHUTDOWN_ERRORS_FRAME_ID,
         CANMSGS_DCM_AIR_SHUTDOWN_ERRORS_LENGTH,
         App_CanMsgs_dcm_air_shutdown_errors_pack,
         App_SharedErrorTable_GetBoardsWithCriticalErrors,
@@ -876,10 +1005,13 @@ TEST_F(SharedErrorTableTest, process_dim_non_critical_errors)
 
 TEST_F(SharedErrorTableTest, process_dim_air_shutdown_errors)
 {
-    std::vector<enum ErrorId> dim_air_shutdown_error_ids = { DIM_AIR_SHUTDOWN_ERRORS };
+    std::vector<enum ErrorId> dim_air_shutdown_error_ids = {
+        DIM_AIR_SHUTDOWN_ERRORS
+    };
 
     TestRoutineForSetErrorsFromCanMsg(
-        DIM, dim_air_shutdown_error_ids, CANMSGS_DIM_AIR_SHUTDOWN_ERRORS_FRAME_ID,
+        DIM, dim_air_shutdown_error_ids,
+        CANMSGS_DIM_AIR_SHUTDOWN_ERRORS_FRAME_ID,
         CANMSGS_DIM_AIR_SHUTDOWN_ERRORS_LENGTH,
         App_CanMsgs_dim_air_shutdown_errors_pack,
         App_SharedErrorTable_GetBoardsWithCriticalErrors,
@@ -903,10 +1035,13 @@ TEST_F(SharedErrorTableTest, process_fsm_non_critical_errors)
 
 TEST_F(SharedErrorTableTest, process_fsm_air_shutdown_errors)
 {
-    std::vector<enum ErrorId> fsm_air_shutdown_error_ids = { FSM_AIR_SHUTDOWN_ERRORS };
+    std::vector<enum ErrorId> fsm_air_shutdown_error_ids = {
+        FSM_AIR_SHUTDOWN_ERRORS
+    };
 
     TestRoutineForSetErrorsFromCanMsg(
-        FSM, fsm_air_shutdown_error_ids, CANMSGS_FSM_AIR_SHUTDOWN_ERRORS_FRAME_ID,
+        FSM, fsm_air_shutdown_error_ids,
+        CANMSGS_FSM_AIR_SHUTDOWN_ERRORS_FRAME_ID,
         CANMSGS_FSM_AIR_SHUTDOWN_ERRORS_LENGTH,
         App_CanMsgs_fsm_air_shutdown_errors_pack,
         App_SharedErrorTable_GetBoardsWithCriticalErrors,
@@ -931,10 +1066,13 @@ TEST_F(SharedErrorTableTest, process_pdm_non_critical_errors)
 
 TEST_F(SharedErrorTableTest, process_pdm_air_shutdown_errors)
 {
-    std::vector<enum ErrorId> pdm_air_shutdown_error_ids = { PDM_AIR_SHUTDOWN_ERRORS };
+    std::vector<enum ErrorId> pdm_air_shutdown_error_ids = {
+        PDM_AIR_SHUTDOWN_ERRORS
+    };
 
     TestRoutineForSetErrorsFromCanMsg(
-        PDM, pdm_air_shutdown_error_ids, CANMSGS_PDM_AIR_SHUTDOWN_ERRORS_FRAME_ID,
+        PDM, pdm_air_shutdown_error_ids,
+        CANMSGS_PDM_AIR_SHUTDOWN_ERRORS_FRAME_ID,
         CANMSGS_PDM_AIR_SHUTDOWN_ERRORS_LENGTH,
         App_CanMsgs_pdm_air_shutdown_errors_pack,
         App_SharedErrorTable_GetBoardsWithCriticalErrors,

@@ -10,8 +10,8 @@ struct Error
     // The id of this error
     enum ErrorId id;
 
-    // Whether or not this is a critical error
-    bool is_critical;
+    // The type of this error
+    enum ErrorType error_type;
 
     // If this error is enabled or not
     bool is_set;
@@ -22,10 +22,10 @@ struct Error *App_SharedError_Create(void)
     struct Error *error = malloc(sizeof(struct Error));
     assert(error != NULL);
 
-    error->board       = NUM_BOARDS;
-    error->id          = NUM_ERROR_IDS;
-    error->is_critical = false;
-    error->is_set      = false;
+    error->board      = NUM_BOARDS;
+    error->id         = NUM_ERROR_IDS;
+    error->error_type = NUM_ERROR_TYPES;
+    error->is_set     = false;
 
     return error;
 }
@@ -40,9 +40,11 @@ void App_SharedError_SetBoard(struct Error *error, enum Board board)
     error->board = board;
 }
 
-void App_SharedError_SetIsCritical(struct Error *error, bool is_critical)
+void App_SharedError_SetErrorType(
+    struct Error * error,
+    enum ErrorType error_type)
 {
-    error->is_critical = is_critical;
+    error->error_type = error_type;
 }
 
 void App_SharedError_SetId(struct Error *error, uint32_t id)
@@ -60,9 +62,9 @@ enum Board App_SharedError_GetBoard(const struct Error *error)
     return error->board;
 }
 
-bool App_SharedError_GetIsCritical(const struct Error *error)
+enum ErrorType App_SharedError_GetErrorType(const struct Error *error)
 {
-    return error->is_critical;
+    return error->error_type;
 }
 
 uint32_t App_SharedError_GetId(const struct Error *error)
@@ -73,6 +75,23 @@ uint32_t App_SharedError_GetId(const struct Error *error)
 bool App_SharedError_GetIsSet(const struct Error *error)
 {
     return error->is_set;
+}
+
+bool App_SharedError_IsCritical(const struct Error *error)
+{
+    enum ErrorType error_type = App_SharedError_GetErrorType(error);
+
+    return (error_type == AIR_SHUTDOWN_ERROR ||
+            error_type == MOTOR_SHUTDOWN_ERROR)
+               ? true
+               : false;
+}
+
+bool App_SharedError_IsNonCritical(const struct Error *error)
+{
+    enum ErrorType error_type = App_SharedError_GetErrorType(error);
+
+    return (error_type == NON_CRITICAL_ERROR) ? true : false;
 }
 
 bool App_SharedError_IsErrorInList(

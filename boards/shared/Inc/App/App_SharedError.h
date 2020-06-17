@@ -7,6 +7,14 @@
 
 struct Error;
 
+enum ErrorType
+{
+    NON_CRITICAL_ERROR,
+    AIR_SHUTDOWN_ERROR,
+    MOTOR_SHUTDOWN_ERROR,
+    NUM_ERROR_TYPES,
+};
+
 struct ErrorBoardList
 {
     // Number of valid entries in "boards"
@@ -45,12 +53,13 @@ void App_SharedError_Destroy(struct Error *error);
 void App_SharedError_SetBoard(struct Error *error, enum Board board);
 
 /**
- * Set the given error as non-critical or critical
+ * Set the type for the given error
  * @param error The error to set
- * @param is_critical true to set the error as critical, or false to set the
- *                    error as non-critical
+ * @param error_type The error type
  */
-void App_SharedError_SetIsCritical(struct Error *error, bool is_critical);
+void App_SharedError_SetErrorType(
+    struct Error * error,
+    enum ErrorType error_type);
 
 /**
  * Set the ID for the given error
@@ -74,11 +83,11 @@ void App_SharedError_SetIsSet(struct Error *error, bool is_set);
 enum Board App_SharedError_GetBoard(const struct Error *error);
 
 /**
- * Check if the given error is critical
- * @param error The error to check
- * @return true if the given error is critical, else false
+ * Get the type for the given error
+ * @param error The error to get the type for
+ * @return The error type
  */
-bool App_SharedError_GetIsCritical(const struct Error *error);
+enum ErrorType App_SharedError_GetErrorType(const struct Error *error);
 
 /**
  * Get the ID of the given error
@@ -92,6 +101,20 @@ uint32_t App_SharedError_GetId(const struct Error *error);
  * @return true if the error is set, else false
  */
 bool App_SharedError_GetIsSet(const struct Error *error);
+
+/**
+ * Check if the given error is critical
+ * @param error The error to check
+ * @return true if the given error is critical, else false
+ */
+bool App_SharedError_IsCritical(const struct Error *error);
+
+/**
+ * Check if the given error is non-critical
+ * @param error The error to check
+ * @return true if the given error is non-critical, else false
+ */
+bool App_SharedError_IsNonCritical(const struct Error *error);
 
 /**
  * Check if the given error exists in the given error list
