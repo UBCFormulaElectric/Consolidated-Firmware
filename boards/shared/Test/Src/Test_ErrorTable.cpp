@@ -958,6 +958,20 @@ TEST_F(SharedErrorTableTest, process_bms_air_shutdown_errors)
         App_SharedErrorTable_GetAllCriticalErrors);
 }
 
+TEST_F(SharedErrorTableTest, process_bms_motor_shutdown_errors)
+{
+    std::vector<enum ErrorId> bms_motor_shutdown_error_ids = {
+        BMS_MOTOR_SHUTDOWN_ERRORS
+    };
+
+    TestRoutineForSetErrorsFromCanMsg(
+        BMS, bms_motor_shutdown_error_ids,
+        CANMSGS_BMS_MOTOR_SHUTDOWN_ERRORS_FRAME_ID,
+        CANMSGS_BMS_MOTOR_SHUTDOWN_ERRORS_LENGTH,
+        App_CanMsgs_bms_motor_shutdown_errors_pack,
+        App_SharedErrorTable_GetBoardsWithCriticalErrors,
+        App_SharedErrorTable_GetAllCriticalErrors);
+}
 TEST_F(SharedErrorTableTest, process_dcm_non_critical_errors)
 {
     std::vector<enum ErrorId> dcm_non_critical_error_ids = {
@@ -988,6 +1002,21 @@ TEST_F(SharedErrorTableTest, process_dcm_air_shutdown_errors)
         App_SharedErrorTable_GetAllCriticalErrors);
 }
 
+TEST_F(SharedErrorTableTest, process_dcm_motor_shutdown_errors)
+{
+    std::vector<enum ErrorId> dcm_motor_shutdown_error_ids = {
+        DCM_MOTOR_SHUTDOWN_ERRORS
+    };
+
+    TestRoutineForSetErrorsFromCanMsg(
+        DCM, dcm_motor_shutdown_error_ids,
+        CANMSGS_DCM_MOTOR_SHUTDOWN_ERRORS_FRAME_ID,
+        CANMSGS_DCM_MOTOR_SHUTDOWN_ERRORS_LENGTH,
+        App_CanMsgs_dcm_motor_shutdown_errors_pack,
+        App_SharedErrorTable_GetBoardsWithCriticalErrors,
+        App_SharedErrorTable_GetAllCriticalErrors);
+}
+
 TEST_F(SharedErrorTableTest, process_dim_non_critical_errors)
 {
     std::vector<enum ErrorId> dim_non_critical_error_ids = {
@@ -1014,6 +1043,21 @@ TEST_F(SharedErrorTableTest, process_dim_air_shutdown_errors)
         CANMSGS_DIM_AIR_SHUTDOWN_ERRORS_FRAME_ID,
         CANMSGS_DIM_AIR_SHUTDOWN_ERRORS_LENGTH,
         App_CanMsgs_dim_air_shutdown_errors_pack,
+        App_SharedErrorTable_GetBoardsWithCriticalErrors,
+        App_SharedErrorTable_GetAllCriticalErrors);
+}
+
+TEST_F(SharedErrorTableTest, process_dim_motor_shutdown_errors)
+{
+    std::vector<enum ErrorId> dim_motor_shutdown_error_ids = {
+        DIM_MOTOR_SHUTDOWN_ERRORS
+    };
+
+    TestRoutineForSetErrorsFromCanMsg(
+        DIM, dim_motor_shutdown_error_ids,
+        CANMSGS_DIM_MOTOR_SHUTDOWN_ERRORS_FRAME_ID,
+        CANMSGS_DIM_MOTOR_SHUTDOWN_ERRORS_LENGTH,
+        App_CanMsgs_dim_motor_shutdown_errors_pack,
         App_SharedErrorTable_GetBoardsWithCriticalErrors,
         App_SharedErrorTable_GetAllCriticalErrors);
 }
@@ -1049,6 +1093,21 @@ TEST_F(SharedErrorTableTest, process_fsm_air_shutdown_errors)
         App_SharedErrorTable_GetAllCriticalErrors);
 }
 
+TEST_F(SharedErrorTableTest, process_fsm_motor_shutdown_errors)
+{
+    std::vector<enum ErrorId> fsm_motor_shutdown_error_ids = {
+        FSM_MOTOR_SHUTDOWN_ERRORS
+    };
+
+    TestRoutineForSetErrorsFromCanMsg(
+        FSM, fsm_motor_shutdown_error_ids,
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FRAME_ID,
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_LENGTH,
+        App_CanMsgs_fsm_motor_shutdown_errors_pack,
+        App_SharedErrorTable_GetBoardsWithCriticalErrors,
+        App_SharedErrorTable_GetAllCriticalErrors);
+}
+
 TEST_F(SharedErrorTableTest, process_pdm_non_critical_errors)
 {
     std::vector<enum ErrorId> pdm_non_critical_error_ids = {
@@ -1075,6 +1134,21 @@ TEST_F(SharedErrorTableTest, process_pdm_air_shutdown_errors)
         CANMSGS_PDM_AIR_SHUTDOWN_ERRORS_FRAME_ID,
         CANMSGS_PDM_AIR_SHUTDOWN_ERRORS_LENGTH,
         App_CanMsgs_pdm_air_shutdown_errors_pack,
+        App_SharedErrorTable_GetBoardsWithCriticalErrors,
+        App_SharedErrorTable_GetAllCriticalErrors);
+}
+
+TEST_F(SharedErrorTableTest, process_pdm_motor_shutdown_errors)
+{
+    std::vector<enum ErrorId> pdm_motor_shutdown_error_ids = {
+        PDM_MOTOR_SHUTDOWN_ERRORS
+    };
+
+    TestRoutineForSetErrorsFromCanMsg(
+        PDM, pdm_motor_shutdown_error_ids,
+        CANMSGS_PDM_MOTOR_SHUTDOWN_ERRORS_FRAME_ID,
+        CANMSGS_PDM_MOTOR_SHUTDOWN_ERRORS_LENGTH,
+        App_CanMsgs_pdm_motor_shutdown_errors_pack,
         App_SharedErrorTable_GetBoardsWithCriticalErrors,
         App_SharedErrorTable_GetAllCriticalErrors);
 }
