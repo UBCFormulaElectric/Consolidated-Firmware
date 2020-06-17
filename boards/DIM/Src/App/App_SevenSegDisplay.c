@@ -14,7 +14,7 @@ struct SevenSegDisplay *App_SevenSegDisplay_Create(
     struct SevenSegDisplay *seven_seg_display =
         malloc(sizeof(struct SevenSegDisplay));
 
-    assert(seven_seg_displays != NULL);
+    assert(seven_seg_display != NULL);
 
     seven_seg_display->set_hex_digit = set_hex_digit;
 
