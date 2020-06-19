@@ -185,8 +185,6 @@ int main(void)
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_PDM_STARTUP,
-        Io_CanTx_EnqueueNonPeriodicMsg_PDM_AIR_SHUTDOWN,
-        Io_CanTx_EnqueueNonPeriodicMsg_PDM_MOTOR_SHUTDOWN,
         Io_CanTx_EnqueueNonPeriodicMsg_PDM_WATCHDOG_TIMEOUT);
 
     can_rx = App_CanRx_Create();

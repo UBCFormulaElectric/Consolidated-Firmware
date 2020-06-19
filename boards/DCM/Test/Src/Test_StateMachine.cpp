@@ -345,7 +345,8 @@ TEST_F(DcmStateMachineTest, stay_in_fault_state_if_there_is_any_critical_errors)
 
     // Choose any critical fault, it doesn't have to come from DCM
     App_SharedErrorTable_SetError(
-        error_table, BMS_CRITICAL_CHARGER_DISCONNECTED_IN_CHARGE_STATE, true);
+        error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE,
+        true);
 
     App_SharedStateMachine_Tick100Hz(state_machine);
 

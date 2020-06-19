@@ -45,7 +45,7 @@ SG_ State : 0|8@1+ (1,0) [0|255] "" DEBUG
 BO_ 108 BMS_STATE_OF_CHARGE: 4 BMS
 SG_ State_Of_Charge : 0|32@1- (1,0) [0|1E2] "%" DIM
 
-BO_ 109 BMS_CRITICAL_ERRORS: 8 BMS
+BO_ 109 BMS_AIR_SHUTDOWN_ERRORS: 8 BMS
 SG_ CHARGER_DISCONNECTED_IN_CHARGE_STATE : 0|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 110 BMS_CHARGER: 1 BMS
@@ -59,6 +59,9 @@ SG_ BSPD_OK : 2|1@1+ (1,0) [0|1] "" DEBUG
 BO_ 112 BMS_AIR_STATES: 1 BMS
 SG_ AIR_POSITIVE : 0|1@1+ (1,0) [0|1] "" FSM,PDM
 SG_ AIR_NEGATIVE : 1|1@1+ (1,0) [0|1] "" FSM,PDM
+
+BO_ 113 BMS_MOTOR_SHUTDOWN_ERRORS: 8 BMS
+SG_ DUMMY_MOTOR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 200 DCM_HEARTBEAT: 1 DCM
 SG_ DUMMY_VARIABLE : 0|1@1+ (1,0) [0|1] "" BMS
@@ -85,8 +88,11 @@ SG_ State : 0|8@1+ (1,0) [0|255] "" DEBUG
 BO_ 206 DCM_TORQUE_REQUEST : 4 DCM
 SG_ Torque_Request : 0|32@1+ (1,0) [-3.4E038|3.4E038] "" LOGGER
 
-BO_ 207 DCM_CRITICAL_ERRORS: 8 DCM
-SG_ DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
+BO_ 207 DCM_AIR_SHUTDOWN_ERRORS: 8 DCM
+SG_ DUMMY_AIR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 208 DCM_MOTOR_SHUTDOWN_ERRORS: 8 DCM
+SG_ DUMMY_MOTOR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 300 FSM_NON_CRITICAL_ERRORS: 8 FSM
 SG_ papps_out_of_range : 0|1@1+ (1,0) [0|1] "" DEBUG
@@ -134,8 +140,8 @@ BO_ 309 FSM_WHEEL_SPEED_SENSOR: 8 FSM
 SG_ Left_Wheel_Speed : 0|32@1+ (1,0) [0|150] "km/h" DCM 
 SG_ Right_Wheel_Speed : 32|32@1+ (1,0) [0|150] "km/h" DCM
 
-BO_ 310 FSM_CRITICAL_ERRORS: 8 FSM
-SG_ DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
+BO_ 310 FSM_AIR_SHUTDOWN_ERRORS: 8 FSM
+SG_ DUMMY_AIR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 311 FSM_STEERING_ANGLE_SENSOR: 4 FSM
 SG_ Steering_Angle : 0|32@1+ (1,0) [-110|110] "deg" DCM
@@ -145,6 +151,9 @@ SG_ Papps_Mapped_Pedal_Percentage : 0|32@1+ (1,0) [0|100] "%" DEBUG
 
 BO_ 314 FSM_SECONDARY_APPS: 4 FSM
 SG_ Sapps_Mapped_Pedal_Percentage : 0|32@1+ (1,0) [0|100] "%" DEBUG 
+
+BO_ 315 FSM_MOTOR_SHUTDOWN_ERRORS: 8 FSM
+SG_ DUMMY_MOTOR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 400 PDM_NON_CRITICAL_ERRORS: 8 PDM
 SG_ MISSING_HEARTBEAT : 0|1@1+ (1,0) [0|1] "" DEBUG
@@ -177,9 +186,11 @@ SG_ rx_overflow_count : 32|32@1+ (1,0) [0|4294967295] "" DEBUG
 
 BO_ 403 PDM_STARTUP: 0 PDM
 
-BO_ 404 PDM_AIR_SHUTDOWN: 0 PDM
+BO_ 404 PDM_AIR_SHUTDOWN_ERRORS: 8 PDM
+SG_ DUMMY_AIR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DEBUG
 
-BO_ 405 PDM_MOTOR_SHUTDOWN: 0 PDM
+BO_ 405 PDM_MOTOR_SHUTDOWN_ERRORS: 8 PDM
+SG_ DUMMY_MOTOR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 406 PDM_AUX1_AUX2_CURRENT: 8 PDM
 SG_ Auxiliary1_Current : 0|32@1- (1,0) [0|1E2] "A" DEBUG
@@ -209,9 +220,6 @@ SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" DEBUG
 
 BO_ 413 PDM_STATE_MACHINE : 1 PDM
 SG_ State : 0|8@1+ (1,0) [0|255] "" DEBUG
-
-BO_ 414 PDM_CRITICAL_ERRORS: 8 PDM
-SG_ DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 500 DIM_HEARTBEAT: 1 DIM
 SG_ DUMMY_VARIABLE : 0|1@1+ (1,0) [0|1] "" FSM,DCM,PDM,BMS
@@ -248,8 +256,11 @@ SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 3|1@1+ (1,0) [0|1] "" LOGGER
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 4|1@1+ (1,0) [0|1] "" LOGGER
 SG_ WATCHDOG_TIMEOUT : 5|1@1+ (1,0) [0|1] "" LOGGER
 
-BO_ 509 DIM_CRITICAL_ERRORS: 8 DIM
-SG_ DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
+BO_ 509 DIM_AIR_SHUTDOWN_ERRORS: 8 DIM
+SG_ DUMMY_AIR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 510 DIM_MOTOR_SHUTDOWN_ERRORS: 8 DIM
+SG_ DUMMY_MOTOR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DEBUG
 
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
@@ -272,12 +283,14 @@ BA_ "GenMsgCycleTime" BO_ 109 1000;
 BA_ "GenMsgCycleTime" BO_ 110 1000;
 BA_ "GenMsgCycleTime" BO_ 111 10;
 BA_ "GenMsgCycleTime" BO_ 112 10;
+BA_ "GenMsgCycleTime" BO_ 113 1000;
 BA_ "GenMsgCycleTime" BO_ 200 100;
 BA_ "GenMsgCycleTime" BO_ 201 5000;
 BA_ "GenMsgCycleTime" BO_ 204 1000;
 BA_ "GenMsgCycleTime" BO_ 205 10;
 BA_ "GenMsgCycleTime" BO_ 206 10;
 BA_ "GenMsgCycleTime" BO_ 207 1000;
+BA_ "GenMsgCycleTime" BO_ 208 1000;
 BA_ "GenMsgCycleTime" BO_ 300 1000;
 BA_ "GenMsgCycleTime" BO_ 301 100;
 BA_ "GenMsgCycleTime" BO_ 302 5000;
@@ -289,9 +302,12 @@ BA_ "GenMsgCycleTime" BO_ 310 1000;
 BA_ "GenMsgCycleTime" BO_ 311 10;
 BA_ "GenMsgCycleTime" BO_ 313 10;
 BA_ "GenMsgCycleTime" BO_ 314 10;
+BA_ "GenMsgCycleTime" BO_ 315 1000;
 BA_ "GenMsgCycleTime" BO_ 400 1000;
 BA_ "GenMsgCycleTime" BO_ 401 100;
 BA_ "GenMsgCycleTime" BO_ 402 5000;
+BA_ "GenMsgCycleTime" BO_ 404 1000;
+BA_ "GenMsgCycleTime" BO_ 405 1000;
 BA_ "GenMsgCycleTime" BO_ 406 1000;
 BA_ "GenMsgCycleTime" BO_ 407 1000;
 BA_ "GenMsgCycleTime" BO_ 408 1000;
@@ -299,7 +315,6 @@ BA_ "GenMsgCycleTime" BO_ 409 1000;
 BA_ "GenMsgCycleTime" BO_ 410 1000;
 BA_ "GenMsgCycleTime" BO_ 411 1000;
 BA_ "GenMsgCycleTime" BO_ 413 10;
-BA_ "GenMsgCycleTime" BO_ 414 1000;
 BA_ "GenMsgCycleTime" BO_ 500 100;
 BA_ "GenMsgCycleTime" BO_ 501 5000;
 BA_ "GenMsgCycleTime" BO_ 503 10;
@@ -308,6 +323,7 @@ BA_ "GenMsgCycleTime" BO_ 506 10;
 BA_ "GenMsgCycleTime" BO_ 507 10;
 BA_ "GenMsgCycleTime" BO_ 508 1000;
 BA_ "GenMsgCycleTime" BO_ 509 1000;
+BA_ "GenMsgCycleTime" BO_ 510 1000;
 
 BA_ "GenSigStartValue" SG_ 2  tx_overflow_count 0;
 BA_ "GenSigStartValue" SG_ 2  rx_overflow_count 0;
