@@ -12,9 +12,8 @@ class BaseStateMachineTest : public testing::Test
   protected:
     void SetUp(void) override
     {
-        // On the very millisecond, every on-tick function will be executed
-        // because how we decide which function to call is to simply use the
-        // modulo operator:
+        // At t = 0ms, every on-tick function will be executed because of how we
+        // decide which on-tick function(s) to run at each tick:
         //
         // if ( current_time_ms % task_period) {
         //     App_SharedStateMachine_TickXXXHz(state_machine);
@@ -30,7 +29,7 @@ class BaseStateMachineTest : public testing::Test
         // LetTimePass(10);
         // LetTimePass(10);
         //
-        // This is slightly confusing and ideally we would want to write:
+        // This is slightly confusing and ideally we would write:
         //
         // LetTimePass(10);
         // LetTimePass(10);
