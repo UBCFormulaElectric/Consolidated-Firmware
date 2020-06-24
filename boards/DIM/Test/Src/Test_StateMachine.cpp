@@ -84,6 +84,8 @@ class DimStateMachineTest : public BaseStateMachineTest
   protected:
     void SetUp() override
     {
+        BaseStateMachineTest::SetUp();
+
         can_tx_interface = App_CanTx_Create(
             send_non_periodic_msg_DIM_STARTUP,
             send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT);
@@ -301,7 +303,7 @@ TEST_F(
 {
     App_CanRx_BMS_STATE_OF_CHARGE_SetSignal_STATE_OF_CHARGE(
         can_rx_interface, 0.0f);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[0].enabled);
     ASSERT_EQ(false, set_middle_hex_digit_fake.arg0_history[0].enabled);
     ASSERT_EQ(false, set_right_hex_digit_fake.arg0_history[0].enabled);
@@ -309,7 +311,7 @@ TEST_F(
 
     App_CanRx_BMS_STATE_OF_CHARGE_SetSignal_STATE_OF_CHARGE(
         can_rx_interface, 50.0f);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[1].enabled);
     ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_history[1].enabled);
     ASSERT_EQ(false, set_right_hex_digit_fake.arg0_history[1].enabled);
@@ -318,7 +320,7 @@ TEST_F(
 
     App_CanRx_BMS_STATE_OF_CHARGE_SetSignal_STATE_OF_CHARGE(
         can_rx_interface, 100.0f);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[2].enabled);
     ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_history[2].enabled);
     ASSERT_EQ(true, set_right_hex_digit_fake.arg0_history[2].enabled);
@@ -337,7 +339,7 @@ TEST_F(
     // always be true.
     App_SharedErrorTable_SetError(error_table, (enum ErrorId)(10), true);
 
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
 
     // When an error ID shows up on the 7-segment displays, it will have an
     // offset of 500 added to it. This is why we are asserting for the value
@@ -361,69 +363,40 @@ TEST_F(
     App_SharedErrorTable_SetError(error_table, (enum ErrorId)(10), true);
     App_SharedErrorTable_SetError(error_table, (enum ErrorId)(11), true);
 
-    for (uint32_t current_ms = 0; current_ms <= 999; current_ms++)
-    {
-        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_ms);
-        App_SharedStateMachine_Tick100Hz(state_machine);
+    // When an error ID shows up on the 7-segment displays, it will have an
+    // offset of 500 added to it. This is why we are asserting for the value
+    // of 10 + 500 = 510 below. The same applies for the rest of this test case.
+    LetTimePass(state_machine, 999);
+    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_val.value);
+    ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
+    ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
 
-        // When an error ID shows up on the 7-segment displays, it will have an
-        // offset of 500 added to it. This is why we are asserting for the value
-        // of 10 + 500 = 510 below.
-        ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
-        ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
-        ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
-        ASSERT_EQ(0, set_left_hex_digit_fake.arg0_val.value);
-        ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
-        ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
-    }
+    LetTimePass(state_machine, 1000);
+    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(1, set_left_hex_digit_fake.arg0_val.value);
+    ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
+    ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
 
-    for (uint32_t current_ms = 1000; current_ms <= 1999; current_ms++)
-    {
-        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_ms);
-        App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 1000);
+    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(0, set_left_hex_digit_fake.arg0_val.value);
+    ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
+    ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
 
-        // When an error ID shows up on the 7-segment displays, it will have an
-        // offset of 500 added to it. This is why we are asserting for the value
-        // of 11 + 500 = 511 below.
-        ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
-        ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
-        ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
-        ASSERT_EQ(1, set_left_hex_digit_fake.arg0_val.value);
-        ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
-        ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
-    }
-
-    for (uint32_t current_ms = 2000; current_ms <= 2999; current_ms++)
-    {
-        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_ms);
-        App_SharedStateMachine_Tick100Hz(state_machine);
-
-        // When an error ID shows up on the 7-segment displays, it will have an
-        // offset of 500 added to it. This is why we are asserting for the value
-        // of 10 + 500 = 510 below.
-        ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
-        ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
-        ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
-        ASSERT_EQ(0, set_left_hex_digit_fake.arg0_val.value);
-        ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
-        ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
-    }
-
-    for (uint32_t current_ms = 3000; current_ms <= 3999; current_ms++)
-    {
-        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_ms);
-        App_SharedStateMachine_Tick100Hz(state_machine);
-
-        // When an error ID shows up on the 7-segment displays, it will have an
-        // offset of 500 added to it. This is why we are asserting for the value
-        // of 11 + 500 = 511 below.
-        ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
-        ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
-        ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
-        ASSERT_EQ(1, set_left_hex_digit_fake.arg0_val.value);
-        ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
-        ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
-    }
+    LetTimePass(state_machine, 1000);
+    ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
+    ASSERT_EQ(1, set_left_hex_digit_fake.arg0_val.value);
+    ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
+    ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
 }
 
 TEST_F(
@@ -431,7 +404,7 @@ TEST_F(
     check_raw_paddle_position_is_broadcasted_over_can_in_drive_state)
 {
     get_raw_paddle_position_fake.return_val = 50;
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(
         get_raw_paddle_position_fake.return_val,
         App_CanTx_GetPeriodicSignal_RAW_PADDLE_POSITION(can_tx_interface));
@@ -443,7 +416,7 @@ TEST_F(
     check_mapped_paddle_position_is_broadcasted_over_can_in_drive_state)
 {
     get_raw_paddle_position_fake.return_val = 50;
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(
         get_raw_paddle_position_fake.return_val,
         App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
@@ -456,34 +429,34 @@ TEST_F(
 {
     // <= 5% maps to 0 %
     get_raw_paddle_position_fake.return_val = 4;
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(
         0,
         App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
     get_raw_paddle_position_fake.return_val = 5;
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(
         0,
         App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
     get_raw_paddle_position_fake.return_val = 6;
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_NE(
         0,
         App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
 
     // >= 95% maps to 100%
     get_raw_paddle_position_fake.return_val = 94;
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_NE(
         100,
         App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
     get_raw_paddle_position_fake.return_val = 95;
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(
         100,
         App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
     get_raw_paddle_position_fake.return_val = 96;
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(
         100,
         App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
@@ -495,7 +468,7 @@ TEST_F(
     check_drive_mode_is_broadcasted_over_can_in_drive_state)
 {
     get_drive_mode_switch_position_fake.return_val = 2;
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(
         CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_3_CHOICE,
         App_CanTx_GetPeriodicSignal_DRIVE_MODE(can_tx_interface));
@@ -507,13 +480,13 @@ TEST_F(
     check_start_switch_is_broadcasted_over_can_in_drive_state)
 {
     start_switch_is_turned_on_fake.return_val = false;
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(
         CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE,
         App_CanTx_GetPeriodicSignal_START_SWITCH(can_tx_interface));
 
     start_switch_is_turned_on_fake.return_val = true;
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(
         CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE,
         App_CanTx_GetPeriodicSignal_START_SWITCH(can_tx_interface));
@@ -525,13 +498,13 @@ TEST_F(
     check_traction_control_switch_is_broadcasted_over_can_in_drive_state)
 {
     traction_control_switch_is_turned_on_fake.return_val = false;
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(
         CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE,
         App_CanTx_GetPeriodicSignal_TRACTION_CONTROL_SWITCH(can_tx_interface));
 
     traction_control_switch_is_turned_on_fake.return_val = true;
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(
         CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE,
         App_CanTx_GetPeriodicSignal_TRACTION_CONTROL_SWITCH(can_tx_interface));
@@ -543,13 +516,13 @@ TEST_F(
     check_torque_vectoring_switch_is_broadcasted_over_can_in_drive_state)
 {
     torque_vectoring_switch_is_turned_on_fake.return_val = false;
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(
         CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE,
         App_CanTx_GetPeriodicSignal_TORQUE_VECTORING_SWITCH(can_tx_interface));
 
     torque_vectoring_switch_is_turned_on_fake.return_val = true;
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(
         CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE,
         App_CanTx_GetPeriodicSignal_TORQUE_VECTORING_SWITCH(can_tx_interface));
@@ -560,19 +533,19 @@ TEST_F(DimStateMachineTest, imd_led_control_in_drive_state)
 {
     App_CanRx_BMS_IMD_SetSignal_OK_HS(
         can_rx_interface, CANMSGS_BMS_IMD_OK_HS_NO_FAULT_CHOICE);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(0, turn_on_imd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_imd_led_fake.call_count);
 
     App_CanRx_BMS_IMD_SetSignal_OK_HS(
         can_rx_interface, CANMSGS_BMS_IMD_OK_HS_FAULT_CHOICE);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_on_imd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_imd_led_fake.call_count);
 
     App_CanRx_BMS_IMD_SetSignal_OK_HS(
         can_rx_interface, CANMSGS_BMS_IMD_OK_HS_NO_FAULT_CHOICE);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_on_imd_led_fake.call_count);
     ASSERT_EQ(2, turn_off_imd_led_fake.call_count);
 }
@@ -582,19 +555,19 @@ TEST_F(DimStateMachineTest, bspd_led_control_in_drive_state)
 {
     App_CanRx_FSM_NON_CRITICAL_ERRORS_SetSignal_BSPD_FAULT(
         can_rx_interface, false);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(0, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_bspd_led_fake.call_count);
 
     App_CanRx_FSM_NON_CRITICAL_ERRORS_SetSignal_BSPD_FAULT(
         can_rx_interface, true);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_bspd_led_fake.call_count);
 
     App_CanRx_FSM_NON_CRITICAL_ERRORS_SetSignal_BSPD_FAULT(
         can_rx_interface, false);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(2, turn_off_bspd_led_fake.call_count);
 }
@@ -611,7 +584,7 @@ TEST_F(DimStateMachineTest, rgb_led_sequence_in_drive_state)
     // and blue).
     for (size_t i = 0; i < 99; i++)
     {
-        App_SharedStateMachine_Tick1Hz(state_machine);
+        LetTimePass(state_machine, 1000);
         ASSERT_EQ(*call_counts[i % 3], i / 3 + 1);
     }
 }
@@ -622,7 +595,7 @@ TEST_F(DimStateMachineTest, dim_board_status_led_control_with_critical_error)
     // Set any critical error and check that the DIM LED turns red
     App_SharedErrorTable_SetError(
         error_table, DIM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, true);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_dim_status_led_red_fake.call_count);
 }
 
@@ -635,7 +608,7 @@ TEST_F(
     App_SharedErrorTable_SetError(
         error_table, DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_dim_status_led_blue_fake.call_count);
 }
 
@@ -643,7 +616,7 @@ TEST_F(
 TEST_F(DimStateMachineTest, dim_board_status_led_control_with_no_error)
 {
     // Don't set any error and check that the DIM LED turns green
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_dim_status_led_green_fake.call_count);
 }
 
@@ -657,7 +630,7 @@ TEST_F(DimStateMachineTest, dim_board_status_led_control_with_multiple_errors)
     App_SharedErrorTable_SetError(
         error_table, DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_dim_status_led_red_fake.call_count);
     ASSERT_EQ(0, turn_dim_status_led_blue_fake.call_count);
 }
@@ -668,7 +641,7 @@ TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_critical_error)
     // Set any critical error and check that the DCM LED turns red
     App_SharedErrorTable_SetError(
         error_table, DCM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, true);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_dcm_status_led_red_fake.call_count);
 }
 
@@ -681,7 +654,7 @@ TEST_F(
     App_SharedErrorTable_SetError(
         error_table, DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_dcm_status_led_blue_fake.call_count);
 }
 
@@ -689,7 +662,7 @@ TEST_F(
 TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_no_error)
 {
     // Don't set any error and check that the DCM LED turns green
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_dcm_status_led_green_fake.call_count);
 }
 
@@ -704,7 +677,7 @@ TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_multiple_errors)
     App_SharedErrorTable_SetError(
         error_table, DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_dcm_status_led_red_fake.call_count);
     ASSERT_EQ(0, turn_dcm_status_led_blue_fake.call_count);
 }
@@ -715,7 +688,7 @@ TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_critical_error)
     // Set any critical error and check that the FSM LED turns red
     App_SharedErrorTable_SetError(
         error_table, FSM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, true);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_fsm_status_led_red_fake.call_count);
 }
 
@@ -728,7 +701,7 @@ TEST_F(
     App_SharedErrorTable_SetError(
         error_table, FSM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_fsm_status_led_blue_fake.call_count);
 }
 
@@ -736,7 +709,7 @@ TEST_F(
 TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_no_error)
 {
     // Don't set any error and check that the FSM LED turns green
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_fsm_status_led_green_fake.call_count);
 }
 
@@ -751,7 +724,7 @@ TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_multiple_errors)
     App_SharedErrorTable_SetError(
         error_table, FSM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_fsm_status_led_red_fake.call_count);
     ASSERT_EQ(0, turn_fsm_status_led_blue_fake.call_count);
 }
@@ -763,7 +736,7 @@ TEST_F(DimStateMachineTest, bms_board_status_led_control_with_critical_error)
     App_SharedErrorTable_SetError(
         error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE,
         true);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_bms_status_led_red_fake.call_count);
 }
 
@@ -776,7 +749,7 @@ TEST_F(
     App_SharedErrorTable_SetError(
         error_table, BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_bms_status_led_blue_fake.call_count);
 }
 
@@ -784,7 +757,7 @@ TEST_F(
 TEST_F(DimStateMachineTest, bms_board_status_led_control_with_no_error)
 {
     // Don't set any error and check that the BMS LED turns green
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_bms_status_led_green_fake.call_count);
 }
 
@@ -800,7 +773,7 @@ TEST_F(DimStateMachineTest, bms_board_status_led_control_with_multiple_errors)
     App_SharedErrorTable_SetError(
         error_table, BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_bms_status_led_red_fake.call_count);
     ASSERT_EQ(0, turn_bms_status_led_blue_fake.call_count);
 }
@@ -811,7 +784,7 @@ TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_critical_error)
     // Set any critical error and check that the PDM LED turns red
     App_SharedErrorTable_SetError(
         error_table, PDM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, true);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_pdm_status_led_red_fake.call_count);
 }
 
@@ -824,7 +797,7 @@ TEST_F(
     App_SharedErrorTable_SetError(
         error_table, PDM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_pdm_status_led_blue_fake.call_count);
 }
 
@@ -832,7 +805,7 @@ TEST_F(
 TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_no_error)
 {
     // Don't set any error and check that the PDM LED turns green
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_pdm_status_led_green_fake.call_count);
 }
 
@@ -847,7 +820,7 @@ TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_multiple_errors)
     App_SharedErrorTable_SetError(
         error_table, PDM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
-    App_SharedStateMachine_Tick100Hz(state_machine);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_pdm_status_led_red_fake.call_count);
     ASSERT_EQ(0, turn_pdm_status_led_blue_fake.call_count);
 }
