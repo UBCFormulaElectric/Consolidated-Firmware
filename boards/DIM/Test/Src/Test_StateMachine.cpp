@@ -366,7 +366,7 @@ TEST_F(
     // When an error ID shows up on the 7-segment displays, it will have an
     // offset of 500 added to it. This is why we are asserting for the value
     // of 10 + 500 = 510 below. The same applies for the rest of this test case.
-    LetTimePass(state_machine, 1000);
+    LetTimePass(state_machine, 999);
     ASSERT_EQ(true, set_left_hex_digit_fake.arg0_val.enabled);
     ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_val.enabled);
     ASSERT_EQ(true, set_right_hex_digit_fake.arg0_val.enabled);
