@@ -174,41 +174,94 @@ static void Io_ProcessPdmNonCriticalErrorMsg(
         data->air_shutdown_current_out_of_range);
 }
 
-static void Io_ProcessBmsCriticalErrorMsg(
-    struct ErrorTable *                   error_table,
-    struct CanMsgs_bms_critical_errors_t *data)
+static void Io_ProcessBmsAirShutdownErrorMsg(
+    struct ErrorTable *                       error_table,
+    struct CanMsgs_bms_air_shutdown_errors_t *data)
 {
     SET_ERROR(
-        error_table, BMS_CRITICAL_CHARGER_DISCONNECTED_IN_CHARGE_STATE,
+        error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE,
         data->charger_disconnected_in_charge_state);
 }
 
-static void Io_ProcessDcmCriticalErrorMsg(
-    struct ErrorTable *                   error_table,
-    struct CanMsgs_dcm_critical_errors_t *data)
+static void Io_ProcessDcmAirShutdownErrorMsg(
+    struct ErrorTable *                       error_table,
+    struct CanMsgs_dcm_air_shutdown_errors_t *data)
 {
-    SET_ERROR(error_table, DCM_CRITICAL_DUMMY, data->dummy);
+    SET_ERROR(
+        error_table, DCM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN,
+        data->dummy_air_shutdown);
 }
 
-static void Io_ProcessDimCriticalErrorMsg(
-    struct ErrorTable *                   error_table,
-    struct CanMsgs_dim_critical_errors_t *data)
+static void Io_ProcessDimAirShutdownErrorMsg(
+    struct ErrorTable *                       error_table,
+    struct CanMsgs_dim_air_shutdown_errors_t *data)
 {
-    SET_ERROR(error_table, DIM_CRITICAL_DUMMY, data->dummy);
+    SET_ERROR(
+        error_table, DIM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN,
+        data->dummy_air_shutdown);
 }
 
-static void Io_ProcessFsmCriticalErrorMsg(
-    struct ErrorTable *                   error_table,
-    struct CanMsgs_fsm_critical_errors_t *data)
+static void Io_ProcessFsmAirShutdownErrorMsg(
+    struct ErrorTable *                       error_table,
+    struct CanMsgs_fsm_air_shutdown_errors_t *data)
 {
-    SET_ERROR(error_table, FSM_CRITICAL_DUMMY, data->dummy);
+    SET_ERROR(
+        error_table, FSM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN,
+        data->dummy_air_shutdown);
 }
 
-static void Io_ProcessPdmCriticalErrorMsg(
-    struct ErrorTable *                   error_table,
-    struct CanMsgs_pdm_critical_errors_t *data)
+static void Io_ProcessPdmAirShutdownErrorMsg(
+    struct ErrorTable *                       error_table,
+    struct CanMsgs_pdm_air_shutdown_errors_t *data)
 {
-    SET_ERROR(error_table, PDM_CRITICAL_DUMMY, data->dummy);
+    SET_ERROR(
+        error_table, PDM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN,
+        data->dummy_air_shutdown);
+}
+
+static void Io_ProcessBmsMotorShutdownErrorMsg(
+    struct ErrorTable *                         error_table,
+    struct CanMsgs_bms_motor_shutdown_errors_t *data)
+{
+    SET_ERROR(
+        error_table, BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN,
+        data->dummy_motor_shutdown);
+}
+
+static void Io_ProcessDcmMotorShutdownErrorMsg(
+    struct ErrorTable *                         error_table,
+    struct CanMsgs_dcm_motor_shutdown_errors_t *data)
+{
+    SET_ERROR(
+        error_table, DCM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN,
+        data->dummy_motor_shutdown);
+}
+
+static void Io_ProcessDimMotorShutdownErrorMsg(
+    struct ErrorTable *                         error_table,
+    struct CanMsgs_dim_motor_shutdown_errors_t *data)
+{
+    SET_ERROR(
+        error_table, DIM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN,
+        data->dummy_motor_shutdown);
+}
+
+static void Io_ProcessFsmMotorShutdownErrorMsg(
+    struct ErrorTable *                         error_table,
+    struct CanMsgs_fsm_motor_shutdown_errors_t *data)
+{
+    SET_ERROR(
+        error_table, FSM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN,
+        data->dummy_motor_shutdown);
+}
+
+static void Io_ProcessPdmMotorShutdownErrorMsg(
+    struct ErrorTable *                         error_table,
+    struct CanMsgs_pdm_motor_shutdown_errors_t *data)
+{
+    SET_ERROR(
+        error_table, PDM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN,
+        data->dummy_motor_shutdown);
 }
 
 void Io_SharedErrorTable_SetErrorsFromCanMsg(
@@ -259,44 +312,84 @@ void Io_SharedErrorTable_SetErrorsFromCanMsg(
             Io_ProcessPdmNonCriticalErrorMsg(error_table, &data);
         }
         break;
-        case (CANMSGS_BMS_CRITICAL_ERRORS_FRAME_ID):
+        case (CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_FRAME_ID):
         {
-            struct CanMsgs_bms_critical_errors_t data;
-            App_CanMsgs_bms_critical_errors_unpack(
-                &data, can_msg->data, CANMSGS_BMS_CRITICAL_ERRORS_LENGTH);
-            Io_ProcessBmsCriticalErrorMsg(error_table, &data);
+            struct CanMsgs_bms_air_shutdown_errors_t data;
+            App_CanMsgs_bms_air_shutdown_errors_unpack(
+                &data, can_msg->data, CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_LENGTH);
+            Io_ProcessBmsAirShutdownErrorMsg(error_table, &data);
         }
         break;
-        case (CANMSGS_DCM_CRITICAL_ERRORS_FRAME_ID):
+        case (CANMSGS_DCM_AIR_SHUTDOWN_ERRORS_FRAME_ID):
         {
-            struct CanMsgs_dcm_critical_errors_t data;
-            App_CanMsgs_dcm_critical_errors_unpack(
-                &data, can_msg->data, CANMSGS_DCM_CRITICAL_ERRORS_LENGTH);
-            Io_ProcessDcmCriticalErrorMsg(error_table, &data);
+            struct CanMsgs_dcm_air_shutdown_errors_t data;
+            App_CanMsgs_dcm_air_shutdown_errors_unpack(
+                &data, can_msg->data, CANMSGS_DCM_AIR_SHUTDOWN_ERRORS_LENGTH);
+            Io_ProcessDcmAirShutdownErrorMsg(error_table, &data);
         }
         break;
-        case (CANMSGS_DIM_CRITICAL_ERRORS_FRAME_ID):
+        case (CANMSGS_DIM_AIR_SHUTDOWN_ERRORS_FRAME_ID):
         {
-            struct CanMsgs_dim_critical_errors_t data;
-            App_CanMsgs_dim_critical_errors_unpack(
-                &data, can_msg->data, CANMSGS_DIM_CRITICAL_ERRORS_LENGTH);
-            Io_ProcessDimCriticalErrorMsg(error_table, &data);
+            struct CanMsgs_dim_air_shutdown_errors_t data;
+            App_CanMsgs_dim_air_shutdown_errors_unpack(
+                &data, can_msg->data, CANMSGS_DIM_AIR_SHUTDOWN_ERRORS_LENGTH);
+            Io_ProcessDimAirShutdownErrorMsg(error_table, &data);
         }
         break;
-        case (CANMSGS_FSM_CRITICAL_ERRORS_FRAME_ID):
+        case (CANMSGS_FSM_AIR_SHUTDOWN_ERRORS_FRAME_ID):
         {
-            struct CanMsgs_fsm_critical_errors_t data;
-            App_CanMsgs_fsm_critical_errors_unpack(
-                &data, can_msg->data, CANMSGS_FSM_CRITICAL_ERRORS_LENGTH);
-            Io_ProcessFsmCriticalErrorMsg(error_table, &data);
+            struct CanMsgs_fsm_air_shutdown_errors_t data;
+            App_CanMsgs_fsm_air_shutdown_errors_unpack(
+                &data, can_msg->data, CANMSGS_FSM_AIR_SHUTDOWN_ERRORS_LENGTH);
+            Io_ProcessFsmAirShutdownErrorMsg(error_table, &data);
         }
         break;
-        case (CANMSGS_PDM_CRITICAL_ERRORS_FRAME_ID):
+        case (CANMSGS_PDM_AIR_SHUTDOWN_ERRORS_FRAME_ID):
         {
-            struct CanMsgs_pdm_critical_errors_t data;
-            App_CanMsgs_pdm_critical_errors_unpack(
-                &data, can_msg->data, CANMSGS_PDM_CRITICAL_ERRORS_LENGTH);
-            Io_ProcessPdmCriticalErrorMsg(error_table, &data);
+            struct CanMsgs_pdm_air_shutdown_errors_t data;
+            App_CanMsgs_pdm_air_shutdown_errors_unpack(
+                &data, can_msg->data, CANMSGS_PDM_AIR_SHUTDOWN_ERRORS_LENGTH);
+            Io_ProcessPdmAirShutdownErrorMsg(error_table, &data);
+        }
+        break;
+        case (CANMSGS_BMS_MOTOR_SHUTDOWN_ERRORS_FRAME_ID):
+        {
+            struct CanMsgs_bms_motor_shutdown_errors_t data;
+            App_CanMsgs_bms_motor_shutdown_errors_unpack(
+                &data, can_msg->data, CANMSGS_BMS_MOTOR_SHUTDOWN_ERRORS_LENGTH);
+            Io_ProcessBmsMotorShutdownErrorMsg(error_table, &data);
+        }
+        break;
+        case (CANMSGS_DCM_MOTOR_SHUTDOWN_ERRORS_FRAME_ID):
+        {
+            struct CanMsgs_dcm_motor_shutdown_errors_t data;
+            App_CanMsgs_dcm_motor_shutdown_errors_unpack(
+                &data, can_msg->data, CANMSGS_DCM_MOTOR_SHUTDOWN_ERRORS_LENGTH);
+            Io_ProcessDcmMotorShutdownErrorMsg(error_table, &data);
+        }
+        break;
+        case (CANMSGS_DIM_MOTOR_SHUTDOWN_ERRORS_FRAME_ID):
+        {
+            struct CanMsgs_dim_motor_shutdown_errors_t data;
+            App_CanMsgs_dim_motor_shutdown_errors_unpack(
+                &data, can_msg->data, CANMSGS_DIM_MOTOR_SHUTDOWN_ERRORS_LENGTH);
+            Io_ProcessDimMotorShutdownErrorMsg(error_table, &data);
+        }
+        break;
+        case (CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FRAME_ID):
+        {
+            struct CanMsgs_fsm_motor_shutdown_errors_t data;
+            App_CanMsgs_fsm_motor_shutdown_errors_unpack(
+                &data, can_msg->data, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_LENGTH);
+            Io_ProcessFsmMotorShutdownErrorMsg(error_table, &data);
+        }
+        break;
+        case (CANMSGS_PDM_MOTOR_SHUTDOWN_ERRORS_FRAME_ID):
+        {
+            struct CanMsgs_pdm_motor_shutdown_errors_t data;
+            App_CanMsgs_pdm_motor_shutdown_errors_unpack(
+                &data, can_msg->data, CANMSGS_PDM_MOTOR_SHUTDOWN_ERRORS_LENGTH);
+            Io_ProcessPdmMotorShutdownErrorMsg(error_table, &data);
         }
         break;
     }

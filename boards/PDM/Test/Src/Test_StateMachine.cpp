@@ -64,8 +64,6 @@ class PdmStateMachineTest : public BaseStateMachineTest
 
         can_tx_interface = App_CanTx_Create(
             send_non_periodic_msg_PDM_STARTUP,
-            send_non_periodic_msg_PDM_AIR_SHUTDOWN,
-            send_non_periodic_msg_PDM_MOTOR_SHUTDOWN,
             send_non_periodic_msg_PDM_WATCHDOG_TIMEOUT);
 
         can_rx_interface = App_CanRx_Create();

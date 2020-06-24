@@ -21,8 +21,7 @@ struct FsmWorld
     struct InRangeCheck *     left_wheel_speed_in_range_check;
     struct InRangeCheck *     right_wheel_speed_in_range_check;
     struct InRangeCheck *     steering_angle_in_range_check;
-    struct InRangeCheck *     brake_pressure_in_range_check;
-    struct BinaryStatus *     brake_actuation_status;
+    struct Brake *            brake;
     struct RgbLedSequence *   rgb_led_sequence;
     struct SignalNode *       signals_head;
     struct Clock *            clock;
@@ -54,8 +53,7 @@ struct FsmWorld *App_FsmWorld_Create(
     struct InRangeCheck *const      left_wheel_speed_in_range_check,
     struct InRangeCheck *const      right_wheel_speed_in_range_check,
     struct InRangeCheck *const      steering_angle_in_range_check,
-    struct InRangeCheck *const      brake_pressure_in_range_check,
-    struct BinaryStatus *const      brake_actuation_status,
+    struct Brake *const             brake,
     struct RgbLedSequence *const    rgb_led_sequence,
     struct Clock *const             clock,
     struct AcceleratorPedal *const  papps,
@@ -77,8 +75,7 @@ struct FsmWorld *App_FsmWorld_Create(
     world->left_wheel_speed_in_range_check  = left_wheel_speed_in_range_check;
     world->right_wheel_speed_in_range_check = right_wheel_speed_in_range_check;
     world->steering_angle_in_range_check    = steering_angle_in_range_check;
-    world->brake_pressure_in_range_check    = brake_pressure_in_range_check;
-    world->brake_actuation_status           = brake_actuation_status;
+    world->brake                            = brake;
     world->rgb_led_sequence                 = rgb_led_sequence;
     world->signals_head                     = NULL;
     world->clock                            = clock;
@@ -171,16 +168,9 @@ struct InRangeCheck *App_FsmWorld_GetSteeringAngleInRangeCheck(
     return world->steering_angle_in_range_check;
 }
 
-struct InRangeCheck *App_FsmWorld_GetBrakePressureInRangeCheck(
-    const struct FsmWorld *const world)
+struct Brake *App_FsmWorld_GetBrake(const struct FsmWorld *const world)
 {
-    return world->brake_pressure_in_range_check;
-}
-
-struct BinaryStatus *
-    App_FsmWorld_GetBrakeActuationStatus(const struct FsmWorld *const world)
-{
-    return world->brake_actuation_status;
+    return world->brake;
 }
 
 struct RgbLedSequence *

@@ -11,14 +11,14 @@ struct SevenSegDisplay
 struct SevenSegDisplay *App_SevenSegDisplay_Create(
     void (*const set_hex_digit)(struct SevenSegHexDigit))
 {
-    struct SevenSegDisplay *seven_seg_displays =
+    struct SevenSegDisplay *seven_seg_display =
         malloc(sizeof(struct SevenSegDisplay));
 
-    assert(seven_seg_displays != NULL);
+    assert(seven_seg_display != NULL);
 
-    seven_seg_displays->set_hex_digit = set_hex_digit;
+    seven_seg_display->set_hex_digit = set_hex_digit;
 
-    return seven_seg_displays;
+    return seven_seg_display;
 }
 
 void App_SevenSegDisplay_Destroy(

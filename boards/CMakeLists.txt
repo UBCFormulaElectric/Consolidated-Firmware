@@ -193,7 +193,7 @@ function(create_arm_binary
     target_link_options(${BOARD_NAME}.elf
         PUBLIC
             ${FPU_FLAGS}
-            -Wl,-Map=${PROJECT_BINARY_DIR}/${BOARD_NAME}.map
+            -Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${BOARD_NAME}.map
             -Wl,-gc-sections,--print-memory-usage
             -Wl,-T ${ARM_LINKER_SCRIPT}
             --specs=nano.specs
