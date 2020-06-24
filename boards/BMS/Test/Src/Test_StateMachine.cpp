@@ -233,7 +233,7 @@ TEST_F(
     {
         SetInitialState(state);
         get_pwm_frequency_fake.return_val = fake_frequency;
-        LetTimePass(state_machine, first_state_machine_tick ? 1 : 10);
+        LetTimePass(state_machine, 10);
 
         EXPECT_EQ(
             fake_frequency,
@@ -254,7 +254,7 @@ TEST_F(
     {
         SetInitialState(state);
         get_pwm_duty_cycle_fake.return_val = fake_duty_cycle;
-        LetTimePass(state_machine, first_state_machine_tick ? 1 : 10);
+        LetTimePass(state_machine, 10);
 
         EXPECT_EQ(
             fake_duty_cycle,
@@ -278,7 +278,7 @@ TEST_F(
 
         // Test an arbitrarily chosen valid resistance
         get_pwm_duty_cycle_fake.return_val = 50.0f;
-        LetTimePass(state_machine, first_state_machine_tick ? 1 : 10);
+        LetTimePass(state_machine, 10);
         EXPECT_EQ(
             IMD_NORMAL,
             App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
@@ -314,7 +314,7 @@ TEST_F(
 
         // Test an arbitrarily chosen valid resistance
         get_pwm_duty_cycle_fake.return_val = 50.0f;
-        LetTimePass(state_machine, first_state_machine_tick ? 1 : 10);
+        LetTimePass(state_machine, 10);
         EXPECT_EQ(
             IMD_UNDERVOLTAGE_DETECTED,
             App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
@@ -350,7 +350,7 @@ TEST_F(
 
         // Test an arbitrarily chosen SST_GOOD
         get_pwm_duty_cycle_fake.return_val = 7.5f;
-        LetTimePass(state_machine, first_state_machine_tick ? 1 : 10);
+        LetTimePass(state_machine, 10);
         EXPECT_EQ(
             IMD_SST, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
         EXPECT_EQ(
@@ -392,7 +392,7 @@ TEST_F(
     {
         SetInitialState(state);
         get_seconds_since_power_on_fake.return_val = 123;
-        LetTimePass(state_machine, first_state_machine_tick ? 1 : 10);
+        LetTimePass(state_machine, 10);
         EXPECT_EQ(
             123, App_CanTx_GetPeriodicSignal_SECONDS_SINCE_POWER_ON(
                      can_tx_interface));
@@ -419,7 +419,7 @@ TEST_F(BmsStateMachineTest, rgb_led_sequence_in_all_states)
         // and blue).
         for (size_t i = 0; i < 99; i++)
         {
-            LetTimePass(state_machine, first_state_machine_tick ? 1 : 1000);
+            LetTimePass(state_machine, 1000);
             ASSERT_EQ(*call_counts[i % 3], i / 3 + 1);
         }
     }
@@ -433,7 +433,7 @@ TEST_F(BmsStateMachineTest, charger_connection_status_in_all_states)
         SetInitialState(state);
 
         is_charger_connected_fake.return_val = true;
-        LetTimePass(state_machine, first_state_machine_tick ? 1 : 1000);
+        LetTimePass(state_machine, 1000);
         ASSERT_EQ(
             true, App_CanTx_GetPeriodicSignal_IS_CONNECTED(can_tx_interface));
 
@@ -455,7 +455,7 @@ TEST_F(BmsStateMachineTest, check_bms_ok_is_broadcasted_over_can_in_all_states)
         SetInitialState(state);
 
         // Make sure the state machine sets the CAN signal for BMS_OK
-        LetTimePass(state_machine, first_state_machine_tick ? 1 : 10);
+        LetTimePass(state_machine, 10);
         ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_BMS_OK(can_tx_interface));
 
         // Reset the CAN signal for BMS_OK
@@ -474,7 +474,7 @@ TEST_F(BmsStateMachineTest, check_imd_ok_is_broadcasted_over_can_in_all_states)
         SetInitialState(state);
 
         // Make sure the state machine sets the CAN signal for IMD_OK
-        LetTimePass(state_machine, first_state_machine_tick ? 1 : 10);
+        LetTimePass(state_machine, 10);
         ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_IMD_OK(can_tx_interface));
 
         // Reset the CAN signal for IMD_OK
@@ -493,7 +493,7 @@ TEST_F(BmsStateMachineTest, check_bspd_ok_is_broadcasted_over_can_in_all_states)
         SetInitialState(state);
 
         // Make sure the state machine sets the CAN signal for BSPD_OK
-        LetTimePass(state_machine, first_state_machine_tick ? 1 : 10);
+        LetTimePass(state_machine, 10);
         ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_BSPD_OK(can_tx_interface));
 
         // Reset the CAN signal for BSPD_OK
@@ -508,7 +508,7 @@ TEST_F(BmsStateMachineTest, charger_disconnects_in_charge_state)
 
     is_charger_connected_fake.return_val = false;
 
-    LetTimePass(state_machine, 1);
+    LetTimePass(state_machine, 10);
 
     ASSERT_EQ(
         true, App_CanTx_GetPeriodicSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(

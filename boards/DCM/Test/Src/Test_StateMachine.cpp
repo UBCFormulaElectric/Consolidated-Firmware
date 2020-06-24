@@ -147,7 +147,7 @@ TEST_F(
     DcmStateMachineTest,
     check_init_immediately_transitions_to_run_on_first_tick)
 {
-    LetTimePass(state_machine, 1);
+    LetTimePass(state_machine, 10);
 
     EXPECT_EQ(
         App_GetDriveState(),
@@ -195,7 +195,7 @@ TEST_F(DcmStateMachineTest, brake_light_control_in_all_states)
         App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(
             can_rx_interface, false);
         App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 0.0f);
-        LetTimePass(state_machine, first_state_machine_tick ? 1 : 10);
+        LetTimePass(state_machine, 10);
         ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), false);
         ASSERT_EQ(turn_on_brake_light_fake.call_count, 0);
         ASSERT_EQ(turn_off_brake_light_fake.call_count, 1);
@@ -258,7 +258,7 @@ TEST_F(DcmStateMachineTest, rgb_led_sequence_in_all_states)
         // and blue).
         for (size_t i = 0; i < 99; i++)
         {
-            LetTimePass(state_machine, first_state_machine_tick ? 1 : 1000);
+            LetTimePass(state_machine, 1000);
             ASSERT_EQ(*call_counts[i % 3], i / 3 + 1);
         }
     }
@@ -273,7 +273,7 @@ TEST_F(DcmStateMachineTest, zero_torque_request_in_init_state)
         1.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 
     // Now tick the state machine and check torque request gets zeroed
-    LetTimePass(state_machine, 1);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(
         0.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 }
@@ -287,7 +287,7 @@ TEST_F(DcmStateMachineTest, zero_torque_request_in_fault_state)
     App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 1.0f);
 
     // Now tick the state machine and check torque request gets zeroed
-    LetTimePass(state_machine, 1);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(
         0.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 }
@@ -302,7 +302,7 @@ TEST_F(
     App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
         can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
 
-    LetTimePass(state_machine, 1);
+    LetTimePass(state_machine, 10);
 
     ASSERT_EQ(
         App_GetInitState(),
@@ -314,7 +314,7 @@ TEST_F(DcmStateMachineTest, exit_fault_state_if_there_is_no_error)
 {
     SetInitialState(App_GetFaultState());
 
-    LetTimePass(state_machine, 1);
+    LetTimePass(state_machine, 10);
 
     ASSERT_EQ(
         App_GetInitState(),
@@ -333,7 +333,7 @@ TEST_F(
         error_table, DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         true);
 
-    LetTimePass(state_machine, 1);
+    LetTimePass(state_machine, 10);
 
     ASSERT_EQ(
         App_GetInitState(),
@@ -349,7 +349,7 @@ TEST_F(DcmStateMachineTest, stay_in_fault_state_if_there_is_any_critical_errors)
     App_SharedErrorTable_SetError(
         error_table, BMS_CRITICAL_CHARGER_DISCONNECTED_IN_CHARGE_STATE, true);
 
-    LetTimePass(state_machine, 1);
+    LetTimePass(state_machine, 10);
 
     ASSERT_EQ(
         App_GetFaultState(),

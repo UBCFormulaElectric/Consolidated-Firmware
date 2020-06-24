@@ -192,7 +192,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
 
             // Normal range
             fake_value = (min_value + max_value) / 2;
-            LetTimePass(state_machine, first_state_machine_tick ? 1 : 10);
+            LetTimePass(state_machine, 10);
             ASSERT_EQ(fake_value, value_can_signal_getter(can_tx_interface));
             ASSERT_EQ(
                 ok_choice, out_of_range_can_signal_getter(can_tx_interface));
@@ -226,7 +226,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
             SetInitialState(state);
 
             fake_value = true;
-            LetTimePass(state_machine, first_state_machine_tick ? 1 : 10);
+            LetTimePass(state_machine, 10);
             ASSERT_EQ(on_choice, can_signal_getter(can_tx_interface));
 
             fake_value = false;
@@ -399,7 +399,7 @@ TEST_F(FsmStateMachineTest, rgb_led_sequence_in_all_states)
         // and blue).
         for (size_t i = 0; i < 99; i++)
         {
-            LetTimePass(state_machine, first_state_machine_tick ? 1 : 1000);
+            LetTimePass(state_machine, 1000);
             ASSERT_EQ(*call_counts[i % 3], i / 3 + 1);
         }
     }
@@ -416,7 +416,7 @@ TEST_F(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
-    LetTimePass(state_machine, 1);
+    LetTimePass(state_machine, 10);
 
     ASSERT_EQ(
         App_GetAirClosedState(),
@@ -432,7 +432,7 @@ TEST_F(
 
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
-    LetTimePass(state_machine, 1);
+    LetTimePass(state_machine, 10);
 
     ASSERT_EQ(
         App_GetAirOpenState(),
@@ -448,7 +448,7 @@ TEST_F(
 
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
-    LetTimePass(state_machine, 1);
+    LetTimePass(state_machine, 10);
 
     ASSERT_EQ(
         App_GetAirOpenState(),
@@ -462,7 +462,7 @@ TEST_F(FsmStateMachineTest, exit_air_closed_state_when_air_positive_is_opened)
 
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE);
-    LetTimePass(state_machine, 1);
+    LetTimePass(state_machine, 10);
 
     ASSERT_EQ(
         App_GetAirOpenState(),
@@ -476,7 +476,7 @@ TEST_F(FsmStateMachineTest, exit_air_closed_state_when_air_negative_is_opened)
 
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_OPEN_CHOICE);
-    LetTimePass(state_machine, 1);
+    LetTimePass(state_machine, 10);
 
     ASSERT_EQ(
         App_GetAirOpenState(),
@@ -494,7 +494,7 @@ TEST_F(
     App_CanTx_SetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(
         can_tx_interface, 50.0f);
 
-    LetTimePass(state_machine, 10);
+    LetTimePass(state_machine, 9);
     ASSERT_EQ(
         50, App_CanTx_GetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(
                 can_tx_interface));
@@ -516,7 +516,7 @@ TEST_F(
     App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(
         can_tx_interface, 50.0f);
 
-    LetTimePass(state_machine, 10);
+    LetTimePass(state_machine, 9);
     ASSERT_EQ(
         50, App_CanTx_GetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(
                 can_tx_interface));
