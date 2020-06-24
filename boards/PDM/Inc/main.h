@@ -152,8 +152,6 @@ extern "C"
 #define CHRG_GPIO_Port GPIOD
 #define CHRG_FAULT_Pin GPIO_PIN_4
 #define CHRG_FAULT_GPIO_Port GPIOB
-#define OV_FAULT_MCU_Pin GPIO_PIN_5
-#define OV_FAULT_MCU_GPIO_Port GPIOB
 #define GPIOB_4_Pin GPIO_PIN_6
 #define GPIOB_4_GPIO_Port GPIOB
 #define GPIOB_3_Pin GPIO_PIN_7

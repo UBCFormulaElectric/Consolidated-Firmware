@@ -10,7 +10,6 @@ struct LowVoltageBattery
 };
 
 struct LowVoltageBattery *App_LowVoltageBattery_Create(
-    bool (*is_overvoltage)(void),
     bool (*has_charge_fault)(void),
     bool (*has_boost_fault)(void))
 {
@@ -18,7 +17,6 @@ struct LowVoltageBattery *App_LowVoltageBattery_Create(
         malloc(sizeof(struct LowVoltageBattery));
     assert(low_voltage_battery != NULL);
 
-    low_voltage_battery->is_overvoltage   = is_overvoltage;
     low_voltage_battery->has_charge_fault = has_charge_fault;
     low_voltage_battery->has_boost_fault  = has_boost_fault;
 

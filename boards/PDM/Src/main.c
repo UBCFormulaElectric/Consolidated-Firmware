@@ -37,7 +37,6 @@
 #include "Io_CurrentSense.h"
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
-#include "Io_BQ29209.h"
 #include "Io_LT3650.h"
 #include "Io_LTC3786.h"
 
@@ -233,8 +232,8 @@ int main(void)
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
         Io_RgbLedSequence_TurnOnGreenLed);
 
-    low_voltage_battery = App_LowVoltageBattery_Create(
-        Io_BQ29209_IsOverVoltage, Io_LT3650_HasFault, Io_LTC3786_HasFault);
+    low_voltage_battery =
+        App_LowVoltageBattery_Create(Io_LT3650_HasFault, Io_LTC3786_HasFault);
 
     clock = App_SharedClock_Create();
 
@@ -626,12 +625,12 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     /*Configure GPIO pins : CUR_SYNC_AIR_SHDN_LV_PWR_Pin FSB_AIR_SHDN_LV_PWR_Pin
-       FSOB_AIR_SHDN_LV_PWR_Pin CHRG_FAULT_Pin OV_FAULT_MCU_Pin GPIOB_4_Pin
-       GPIOB_3_Pin GPIOB_2_Pin GPIOB_1_Pin */
+       FSOB_AIR_SHDN_LV_PWR_Pin CHRG_FAULT_Pin GPIOB_4_Pin GPIOB_3_Pin
+       GPIOB_2_Pin GPIOB_1_Pin */
     GPIO_InitStruct.Pin = CUR_SYNC_AIR_SHDN_LV_PWR_Pin |
                           FSB_AIR_SHDN_LV_PWR_Pin | FSOB_AIR_SHDN_LV_PWR_Pin |
-                          CHRG_FAULT_Pin | OV_FAULT_MCU_Pin | GPIOB_4_Pin |
-                          GPIOB_3_Pin | GPIOB_2_Pin | GPIOB_1_Pin;
+                          CHRG_FAULT_Pin | GPIOB_4_Pin | GPIOB_3_Pin |
+                          GPIOB_2_Pin | GPIOB_1_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -672,6 +671,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(CHRG_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : PB5 */
+    GPIO_InitStruct.Pin  = GPIO_PIN_5;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
 
 /* USER CODE BEGIN 4 */
