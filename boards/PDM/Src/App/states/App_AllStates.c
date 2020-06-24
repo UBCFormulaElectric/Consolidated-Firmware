@@ -16,17 +16,6 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct LowVoltageBattery *low_voltage_battery =
         App_PdmWorld_GetLowVoltageBattery(world);
 
-    if (App_LowVoltageBattery_IsOvervoltage(low_voltage_battery))
-    {
-        App_CanTx_SetPeriodicSignal_CELL_BALANCE_OVERVOLTAGE_FAULT(
-            can_tx, true);
-    }
-    else
-    {
-        App_CanTx_SetPeriodicSignal_CELL_BALANCE_OVERVOLTAGE_FAULT(
-            can_tx, false);
-    }
-
     if (App_LowVoltageBattery_HasChargeFault(low_voltage_battery))
     {
         App_CanTx_SetPeriodicSignal_CHARGER_FAULT(can_tx, true);
