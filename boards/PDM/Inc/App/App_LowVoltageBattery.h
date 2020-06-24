@@ -29,15 +29,6 @@ void App_LowVoltageBattery_Destroy(
     struct LowVoltageBattery *low_voltage_battery);
 
 /**
- * Check if the cell balancing IC for the given low voltage battery senses an
- * overvoltage
- * @return true if the cell balancing IC for the given low voltage battery
- *         sense an overvoltage, else false
- */
-bool App_LowVoltageBattery_IsOvervoltage(
-    const struct LowVoltageBattery *low_voltage_battery);
-
-/**
  * Check if the charging IC for the given low voltage battery has a fault
  * @return true if the charging IC for the given low voltage battery has a
  *         fault, else false
