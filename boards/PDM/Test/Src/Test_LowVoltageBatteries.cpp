@@ -13,8 +13,8 @@ class LowVoltageBatteryTest : public testing::Test
   protected:
     void SetUp() override
     {
-        low_voltage_battery = App_LowVoltageBattery_Create(
-            has_charge_fault, has_boost_fault);
+        low_voltage_battery =
+            App_LowVoltageBattery_Create(has_charge_fault, has_boost_fault);
         RESET_FAKE(has_charge_fault);
         RESET_FAKE(has_boost_fault);
     }
