@@ -253,14 +253,12 @@ int main(void)
     papps = App_AcceleratorPedal_Create(
         Io_AcceleratorPedals_IsPappsEncoderAlarmActive,
         Io_Scancon2RMHF_ResetPrimaryEncoderCounter,
-        Io_Scancon2RMHF_GetPrimaryEncoderCounter, PAPPS_RESOLUTION,
-        PAPPS_MAX_PRESSED_VALUE);
+        Io_Scancon2RMHF_GetPrimaryEncoderCounter, PAPPS_MAX_PRESSED_VALUE);
 
     sapps = App_AcceleratorPedal_Create(
         Io_AcceleratorPedals_IsSappsEncoderAlarmActive,
         Io_Scancon2RMHF_ResetSecondaryEncoderCounter,
-        Io_Scancon2RMHF_GetSecondaryEncoderCounter, SAPPS_RESOLUTION,
-        SAPPS_MAX_PRESSED_VALUE);
+        Io_Scancon2RMHF_GetSecondaryEncoderCounter, SAPPS_MAX_PRESSED_VALUE);
 
     world = App_FsmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, primary_flow_meter_in_range_check,
@@ -269,8 +267,10 @@ int main(void)
         right_wheel_speed_sensor_in_range_check,
         steering_angle_sensor_in_range_check, brake, rgb_led_sequence, clock,
 
-        App_AcceleratorPedalSignals_HasDisagreement,
-        App_AcceleratorPedalSignals_HasDisagreementCallback, papps,
+        App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure,
+        App_AcceleratorPedalSignals_AppsAndBrakePlausibilityFailureCallback,
+        App_AcceleratorPedalSignals_HasAppsDisagreement,
+        App_AcceleratorPedalSignals_AppsDisagreementCallback, papps,
         App_AcceleratorPedalSignals_IsPappsAlarmActive,
         App_AcceleratorPedalSignals_PappsAlarmCallback, sapps,
         App_AcceleratorPedalSignals_IsSappsAlarmActive,

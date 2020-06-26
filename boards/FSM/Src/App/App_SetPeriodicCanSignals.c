@@ -112,7 +112,7 @@ void App_SetPeriodicSignals_Brake(const struct FsmWorld *world)
     }
 }
 
-void App_SetPeriodicSignal_AcceleratorPedal(const struct FsmWorld *world)
+void App_SetPeriodicSignals_AcceleratorPedal(const struct FsmWorld *world)
 {
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
 
@@ -137,4 +137,22 @@ void App_SetPeriodicSignal_AcceleratorPedal(const struct FsmWorld *world)
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(
             can_tx, papps_pedal_percentage);
     }
+}
+
+void App_SetPeriodicSignals_MotorShutdownFaults(const struct FsmWorld *world)
+{
+    struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
+
+    App_CanTx_SetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(
+        can_tx,
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE);
+    App_CanTx_SetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(
+        can_tx,
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE);
+    App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(
+        can_tx,
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE);
+    App_CanTx_SetPeriodicSignal_PEDAL_IS_PRESSED_AND_BRAKE_IS_ACTUATED(
+        can_tx,
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PEDAL_IS_PRESSED_AND_BRAKE_IS_ACTUATED_FALSE_CHOICE);
 }
