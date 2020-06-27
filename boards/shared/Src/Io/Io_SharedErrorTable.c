@@ -123,9 +123,6 @@ static void Io_ProcessPdmNonCriticalErrorMsg(
     SET_ERROR(
         error_table, PDM_NON_CRITICAL_BOOST_PGOOD_FAULT,
         data->boost_pgood_fault);
-    SET_ERROR(
-        error_table, PDM_NON_CRITICAL_CELL_BALANCE_OVERVOLTAGE_FAULT,
-        data->cell_balance_overvoltage_fault);
     SET_ERROR(error_table, PDM_NON_CRITICAL_CHARGER_FAULT, data->charger_fault);
     SET_ERROR(error_table, PDM_NON_CRITICAL_EFUSE_FAULT, data->efuse_fault);
     SET_ERROR(

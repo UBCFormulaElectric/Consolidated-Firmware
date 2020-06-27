@@ -5,7 +5,6 @@ extern "C"
 #include "App_LowVoltageBattery.h"
 }
 
-FAKE_VALUE_FUNC(bool, is_overvoltage);
 FAKE_VALUE_FUNC(bool, has_charge_fault);
 FAKE_VALUE_FUNC(bool, has_boost_fault);
 
@@ -14,9 +13,8 @@ class LowVoltageBatteryTest : public testing::Test
   protected:
     void SetUp() override
     {
-        low_voltage_battery = App_LowVoltageBattery_Create(
-            is_overvoltage, has_charge_fault, has_boost_fault);
-        RESET_FAKE(is_overvoltage);
+        low_voltage_battery =
+            App_LowVoltageBattery_Create(has_charge_fault, has_boost_fault);
         RESET_FAKE(has_charge_fault);
         RESET_FAKE(has_boost_fault);
     }
@@ -28,18 +26,6 @@ class LowVoltageBatteryTest : public testing::Test
 
     struct LowVoltageBattery *low_voltage_battery;
 };
-
-TEST_F(LowVoltageBatteryTest, is_overvoltage)
-{
-    is_overvoltage_fake.return_val = true;
-    ASSERT_TRUE(App_LowVoltageBattery_IsOvervoltage(low_voltage_battery));
-}
-
-TEST_F(LowVoltageBatteryTest, is_not_overvoltage)
-{
-    is_overvoltage_fake.return_val = false;
-    ASSERT_FALSE(App_LowVoltageBattery_IsOvervoltage(low_voltage_battery));
-}
 
 TEST_F(LowVoltageBatteryTest, has_charge_fault)
 {
