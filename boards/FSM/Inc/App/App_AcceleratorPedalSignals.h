@@ -52,8 +52,8 @@ void App_AcceleratorPedalSignals_AppsDisagreementCallback(
     struct FsmWorld *world);
 
 /**
- * Check if the APPS or Brake plausibility check has failed
- * @note The APPS or brake plausibility check is considered to have failed when
+ * Check if the APPS and Brake plausibility check failed
+ * @note The APPS and brake plausibility check is considered to have failed when
  * the mapped pedal percentage is greater than 25% while the brake is
  * simultaneously actuated
  * @param world The world containing the brake and the primary APPS
@@ -62,9 +62,9 @@ bool App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure(
     struct FsmWorld *world);
 
 /**
- * The callback function for the signal associated with the APPS or Brake
+ * The callback function for the signal associated with the APPS and Brake
  * plausibility check failure for the primary APPS and brake in the given world
- * @param world The world containing the brake and the primary APPS
+ * @param world The world containing the primary APPS and the brake
  */
 void App_AcceleratorPedalSignals_AppsAndBrakePlausibilityFailureCallback(
     struct FsmWorld *world);
