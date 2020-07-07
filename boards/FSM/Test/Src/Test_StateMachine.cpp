@@ -264,8 +264,8 @@ class FsmStateMachineTest : public BaseStateMachineTest
     }
 
     void CheckIfMotorShutdownFlagSetWhenAppsHasDisagreement(
-        uint32_t &fake_encoder_count_for_larger_pedal_percentage,
-        uint32_t &fake_encoder_count_for_smaller_pedal_percentage,
+        uint32_t &fake_encoder_count_for_the_larger_pedal_percentage,
+        uint32_t &fake_encoder_count_for_the_smaller_pedal_percentage,
         uint8_t (*apps_has_disagreement_can_signal_getter)(
             const struct FsmCanTxInterface *),
         uint32_t max_pressed_value_for_larger_pedal_percentage,
@@ -277,14 +277,14 @@ class FsmStateMachineTest : public BaseStateMachineTest
         {
             // Remove pedal disagreement to avoid false positives on the next
             // cycle
-            fake_encoder_count_for_larger_pedal_percentage  = 0;
-            fake_encoder_count_for_smaller_pedal_percentage = 0;
+            fake_encoder_count_for_the_larger_pedal_percentage  = 0;
+            fake_encoder_count_for_the_smaller_pedal_percentage = 0;
             LetTimePass(state_machine, 10);
 
             // Increment the value of the greater encoder value by 1 to ensure
             // at least a 10% mapped pedal percentage difference between the
             // APPS
-            fake_encoder_count_for_larger_pedal_percentage =
+            fake_encoder_count_for_the_larger_pedal_percentage =
                 GetEncoderCounterFromMappedPedalPercentage(
                     i, max_pressed_value_for_larger_pedal_percentage) +
                 1;
@@ -292,7 +292,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
             // Decrement the value of the greater encoder value by 1 to ensure
             // at least a 10% mapped pedal percentage difference between the
             // APPS
-            fake_encoder_count_for_smaller_pedal_percentage =
+            fake_encoder_count_for_the_smaller_pedal_percentage =
                 GetEncoderCounterFromMappedPedalPercentage(
                     i - 10, max_pressed_value_for_smaller_pedal_percentage) -
                 1;
