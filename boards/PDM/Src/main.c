@@ -37,7 +37,6 @@
 #include "Io_CurrentSense.h"
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
-#include "Io_BQ29209.h"
 #include "Io_LT3650.h"
 #include "Io_LTC3786.h"
 
@@ -233,8 +232,8 @@ int main(void)
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
         Io_RgbLedSequence_TurnOnGreenLed);
 
-    low_voltage_battery = App_LowVoltageBattery_Create(
-        Io_BQ29209_IsOverVoltage, Io_LT3650_HasFault, Io_LTC3786_HasFault);
+    low_voltage_battery =
+        App_LowVoltageBattery_Create(Io_LT3650_HasFault, Io_LTC3786_HasFault);
 
     clock = App_SharedClock_Create();
 
@@ -421,7 +420,7 @@ static void MX_ADC1_Init(void)
     }
     /** Configure Regular Channel
      */
-    sConfig.Channel      = ADC_CHANNEL_2;
+    sConfig.Channel      = ADC_CHANNEL_1;
     sConfig.Rank         = ADC_REGULAR_RANK_1;
     sConfig.SingleDiff   = ADC_SINGLE_ENDED;
     sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
@@ -556,127 +555,128 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
-        GPIOA,
-        PIN_DI_R_Pin | PIN_DI_L_Pin | PIN_AIR_SHDN_Pin | PIN_GLV_Pin |
-            PIN_EM_Pin,
-        GPIO_PIN_RESET);
+        GPIOC, STATUS_R_Pin | STATUS_G_Pin | STATUS_B_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
-        GPIOC, CSB_DI_L_DI_R_Pin | CSB_GLV_AIR_SHDN_Pin | CSB_AUX1_AUX2_Pin,
+        GPIOA,
+        PIN_AUX1_Pin | CSB_AUX1_AUX2_Pin | PIN_DI_FL_Pin | CSB_DI_FL_DI_FR_Pin,
+        GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(PIN_AUX2_GPIO_Port, PIN_AUX2_Pin, GPIO_PIN_RESET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(
+        GPIOC, PIN_AIR_SHDN_Pin | PIN_LV_PWR_Pin | CSB_DI_BL_DI_BR_Pin,
         GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOB, PIN_AUX2_Pin | PIN_AUX1_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(
+        GPIOB, CSB_AIR_SHDN_LV_PWR_Pin | PIN_DI_BL_Pin | PIN_DI_BR_Pin,
+        GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(PIN_COOLING_GPIO_Port, PIN_COOLING_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(PIN_DI_FR_GPIO_Port, PIN_DI_FR_Pin, GPIO_PIN_SET);
 
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(CSB_EM_PUMP_GPIO_Port, CSB_EM_PUMP_Pin, GPIO_PIN_SET);
-
-    /*Configure GPIO pins : PC13 PC14 PC15 PC0 */
-    GPIO_InitStruct.Pin  = GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15 | GPIO_PIN_0;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    /*Configure GPIO pins : STATUS_R_Pin STATUS_G_Pin STATUS_B_Pin */
+    GPIO_InitStruct.Pin   = STATUS_R_Pin | STATUS_G_Pin | STATUS_B_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : CUR_SYNC_DI_L_DI_R_Pin CUR_SYNC_GLV_AIR_SHDN_Pin
-     * CUR_SYNC_EM_PUMP_Pin */
-    GPIO_InitStruct.Pin = CUR_SYNC_DI_L_DI_R_Pin | CUR_SYNC_GLV_AIR_SHDN_Pin |
-                          CUR_SYNC_EM_PUMP_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : PIN_DI_R_Pin PIN_DI_L_Pin PIN_AIR_SHDN_Pin
-       PIN_GLV_Pin PIN_EM_Pin */
-    GPIO_InitStruct.Pin = PIN_DI_R_Pin | PIN_DI_L_Pin | PIN_AIR_SHDN_Pin |
-                          PIN_GLV_Pin | PIN_EM_Pin;
+    /*Configure GPIO pins : PIN_AUX1_Pin PIN_DI_FL_Pin */
+    GPIO_InitStruct.Pin   = PIN_AUX1_Pin | PIN_DI_FL_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
     GPIO_InitStruct.Pull  = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : PF4 */
-    GPIO_InitStruct.Pin  = GPIO_PIN_4;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOF, &GPIO_InitStruct);
+    /*Configure GPIO pin : PIN_AUX2_Pin */
+    GPIO_InitStruct.Pin   = PIN_AUX2_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(PIN_AUX2_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PA7 PA15 */
-    GPIO_InitStruct.Pin  = GPIO_PIN_7 | GPIO_PIN_15;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    /*Configure GPIO pins : CUR_SYNC_AUX1_AUX2_Pin FSB_AUX1_AUX2_Pin
+     * FSOB_AUX1_AUX2_Pin CUR_SYNC_DI_FL_DI_FR_Pin */
+    GPIO_InitStruct.Pin = CUR_SYNC_AUX1_AUX2_Pin | FSB_AUX1_AUX2_Pin |
+                          FSOB_AUX1_AUX2_Pin | CUR_SYNC_DI_FL_DI_FR_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : CSB_DI_L_DI_R_Pin CSB_GLV_AIR_SHDN_Pin
-     * CSB_AUX1_AUX2_Pin */
+    /*Configure GPIO pins : CSB_AUX1_AUX2_Pin CSB_DI_FL_DI_FR_Pin */
+    GPIO_InitStruct.Pin   = CSB_AUX1_AUX2_Pin | CSB_DI_FL_DI_FR_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : PIN_AIR_SHDN_Pin PIN_LV_PWR_Pin CSB_DI_BL_DI_BR_Pin
+     */
     GPIO_InitStruct.Pin =
-        CSB_DI_L_DI_R_Pin | CSB_GLV_AIR_SHDN_Pin | CSB_AUX1_AUX2_Pin;
+        PIN_AIR_SHDN_Pin | PIN_LV_PWR_Pin | CSB_DI_BL_DI_BR_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_PULLUP;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PB0 PB1 PB11 PB4
-                             PB5 PB6 PB7 */
-    GPIO_InitStruct.Pin = GPIO_PIN_0 | GPIO_PIN_1 | GPIO_PIN_11 | GPIO_PIN_4 |
-                          GPIO_PIN_5 | GPIO_PIN_6 | GPIO_PIN_7;
+    /*Configure GPIO pins : CUR_SYNC_AIR_SHDN_LV_PWR_Pin FSB_AIR_SHDN_LV_PWR_Pin
+       FSOB_AIR_SHDN_LV_PWR_Pin CHRG_FAULT_Pin GPIOB_4_Pin GPIOB_3_Pin
+       GPIOB_2_Pin GPIOB_1_Pin */
+    GPIO_InitStruct.Pin = CUR_SYNC_AIR_SHDN_LV_PWR_Pin |
+                          FSB_AIR_SHDN_LV_PWR_Pin | FSOB_AIR_SHDN_LV_PWR_Pin |
+                          CHRG_FAULT_Pin | GPIOB_4_Pin | GPIOB_3_Pin |
+                          GPIOB_2_Pin | GPIOB_1_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : CSB_AIR_SHDN_LV_PWR_Pin PIN_DI_BL_Pin */
+    GPIO_InitStruct.Pin   = CSB_AIR_SHDN_LV_PWR_Pin | PIN_DI_BL_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : PIN_DI_BR_Pin */
+    GPIO_InitStruct.Pin   = PIN_DI_BR_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
+    GPIO_InitStruct.Pull  = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(PIN_DI_BR_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : CUR_SYNC_DI_BL_DI_BR_Pin FSB_DI_BL_DI_BR_Pin
+       FSOB_DI_BL_DI_BR_Pin FSB_DI_FL_DI_FR_Pin FSOB_DI_FL_DI_FR_Pin PGOOD_Pin
+     */
+    GPIO_InitStruct.Pin = CUR_SYNC_DI_BL_DI_BR_Pin | FSB_DI_BL_DI_BR_Pin |
+                          FSOB_DI_BL_DI_BR_Pin | FSB_DI_FL_DI_FR_Pin |
+                          FSOB_DI_FL_DI_FR_Pin | PGOOD_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : PIN_DI_FR_Pin */
+    GPIO_InitStruct.Pin   = PIN_DI_FR_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_PULLUP;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(PIN_DI_FR_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : CHRG_Pin */
+    GPIO_InitStruct.Pin  = CHRG_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(CHRG_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : PB5 */
+    GPIO_InitStruct.Pin  = GPIO_PIN_5;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : PIN_AUX2_Pin PIN_AUX1_Pin */
-    GPIO_InitStruct.Pin   = PIN_AUX2_Pin | PIN_AUX1_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
-    GPIO_InitStruct.Pull  = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : OBSOLETE_IS_AUX1_AUX2_Pin UNUSED_GPIOD_1_Pin */
-    GPIO_InitStruct.Pin  = OBSOLETE_IS_AUX1_AUX2_Pin | UNUSED_GPIOD_1_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : CUR_SYNC_AUX1_AUX2_Pin CHRG_LED_Pin PGOOD_Pin */
-    GPIO_InitStruct.Pin  = CUR_SYNC_AUX1_AUX2_Pin | CHRG_LED_Pin | PGOOD_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : OBSOLETE_IS_EM_PUMP_Pin OBSOLETE_CHRG_FAULT_Pin */
-    GPIO_InitStruct.Pin  = OBSOLETE_IS_EM_PUMP_Pin | OBSOLETE_CHRG_FAULT_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : PIN_COOLING_Pin */
-    GPIO_InitStruct.Pin   = PIN_COOLING_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
-    GPIO_InitStruct.Pull  = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(PIN_COOLING_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : CSB_EM_PUMP_Pin */
-    GPIO_InitStruct.Pin   = CSB_EM_PUMP_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(CSB_EM_PUMP_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : OV_FAULT_MCU_Pin */
-    GPIO_InitStruct.Pin  = OV_FAULT_MCU_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(OV_FAULT_MCU_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : CHRG_FAULT_Pin */
-    GPIO_InitStruct.Pin  = CHRG_FAULT_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(CHRG_FAULT_GPIO_Port, &GPIO_InitStruct);
 }
 
 /* USER CODE BEGIN 4 */

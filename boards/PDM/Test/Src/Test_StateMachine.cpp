@@ -51,7 +51,6 @@ FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
 
-FAKE_VALUE_FUNC(bool, is_low_voltage_battery_overvoltage);
 FAKE_VALUE_FUNC(bool, do_low_voltage_battery_have_charge_fault);
 FAKE_VALUE_FUNC(bool, do_low_voltage_battery_have_boost_controller_fault);
 
@@ -110,7 +109,6 @@ class PdmStateMachineTest : public BaseStateMachineTest
             turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
         low_voltage_battery = App_LowVoltageBattery_Create(
-            is_low_voltage_battery_overvoltage,
             do_low_voltage_battery_have_charge_fault,
             do_low_voltage_battery_have_boost_controller_fault);
 
@@ -150,7 +148,6 @@ class PdmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(turn_on_red_led);
         RESET_FAKE(turn_on_green_led);
         RESET_FAKE(turn_on_blue_led);
-        RESET_FAKE(is_low_voltage_battery_overvoltage);
         RESET_FAKE(do_low_voltage_battery_have_charge_fault);
         RESET_FAKE(do_low_voltage_battery_have_boost_controller_fault);
     }
@@ -714,44 +711,6 @@ TEST_F(PdmStateMachineTest, exit_air_closed_state_when_air_negative_is_opened)
     ASSERT_EQ(
         App_GetAirOpenState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
-}
-
-// PDM-4
-TEST_F(PdmStateMachineTest, set_18650s_overvoltage_in_all_states)
-{
-    for (auto &state : GetAllStates())
-    {
-        SetInitialState(state);
-
-        // Clear the fault to prevent false positive
-        App_CanTx_SetPeriodicSignal_CELL_BALANCE_OVERVOLTAGE_FAULT(
-            can_tx_interface, false);
-
-        is_low_voltage_battery_overvoltage_fake.return_val = true;
-        LetTimePass(state_machine, 10);
-
-        ASSERT_TRUE(App_CanTx_GetPeriodicSignal_CELL_BALANCE_OVERVOLTAGE_FAULT(
-            can_tx_interface));
-    }
-}
-
-// PDM-4
-TEST_F(PdmStateMachineTest, clear_18650s_overvoltage_in_all_states)
-{
-    for (auto &state : GetAllStates())
-    {
-        SetInitialState(state);
-
-        // Set the fault to prevent false positive
-        App_CanTx_SetPeriodicSignal_CELL_BALANCE_OVERVOLTAGE_FAULT(
-            can_tx_interface, true);
-
-        is_low_voltage_battery_overvoltage_fake.return_val = false;
-        LetTimePass(state_machine, 10);
-
-        ASSERT_FALSE(App_CanTx_GetPeriodicSignal_CELL_BALANCE_OVERVOLTAGE_FAULT(
-            can_tx_interface));
-    }
 }
 
 // PDM-4

@@ -99,21 +99,25 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         __HAL_RCC_GPIOC_CLK_ENABLE();
         __HAL_RCC_GPIOA_CLK_ENABLE();
         /**ADC1 GPIO Configuration
+        PC0     ------> ADC1_IN6
         PC1     ------> ADC1_IN7
         PC2     ------> ADC1_IN8
         PC3     ------> ADC1_IN9
+        PA0     ------> ADC1_IN1
         PA1     ------> ADC1_IN2
+        PA2     ------> ADC1_IN3
         */
-        GPIO_InitStruct.Pin =
-            VBAT_SENSE_Pin | _24V_AUX_SENSE_Pin | _24V_ACC_SENSE_Pin;
+        GPIO_InitStruct.Pin = IS_AUX1_AUX2_Pin | IS_AIR_SHDN_LV_PWR_Pin |
+                              IS_DI_BL_DI_BR_Pin | IS_DI_FL_DI_FR_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin  = IS_DI_L_DI_R_Pin;
+        GPIO_InitStruct.Pin =
+            VBAT_SENSE_Pin | _24V_ACC_SENSE_Pin | _24V_BOOST_OUT_SENSE_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
-        HAL_GPIO_Init(IS_DI_L_DI_R_GPIO_Port, &GPIO_InitStruct);
+        HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
         /* USER CODE BEGIN ADC1_MspInit 1 */
 
@@ -138,15 +142,21 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         __HAL_RCC_ADC12_CLK_DISABLE();
 
         /**ADC1 GPIO Configuration
+        PC0     ------> ADC1_IN6
         PC1     ------> ADC1_IN7
         PC2     ------> ADC1_IN8
         PC3     ------> ADC1_IN9
+        PA0     ------> ADC1_IN1
         PA1     ------> ADC1_IN2
+        PA2     ------> ADC1_IN3
         */
         HAL_GPIO_DeInit(
-            GPIOC, VBAT_SENSE_Pin | _24V_AUX_SENSE_Pin | _24V_ACC_SENSE_Pin);
+            GPIOC, IS_AUX1_AUX2_Pin | IS_AIR_SHDN_LV_PWR_Pin |
+                       IS_DI_BL_DI_BR_Pin | IS_DI_FL_DI_FR_Pin);
 
-        HAL_GPIO_DeInit(IS_DI_L_DI_R_GPIO_Port, IS_DI_L_DI_R_Pin);
+        HAL_GPIO_DeInit(
+            GPIOA,
+            VBAT_SENSE_Pin | _24V_ACC_SENSE_Pin | _24V_BOOST_OUT_SENSE_Pin);
 
         /* USER CODE BEGIN ADC1_MspDeInit 1 */
 
