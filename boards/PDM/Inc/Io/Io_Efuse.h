@@ -610,23 +610,12 @@ typedef enum
 
 struct Efuse
 {
-    bool         watch_dog_state;
-    StatusType_e status;
-    struct ChannelFaults
-    {
-        FaultType_e channel_0_faults;
-        FaultType_e channel_1_faults;
-    } faults;
-    struct EfuseChipSelect
-    {
-        GPIO_TypeDef *GPIO_Port;
-        uint16_t      GPIO_Pin;
-    } chip_select;
-    struct EfuseCurrentSenseSync
-    {
-        GPIO_TypeDef *GPIO_Port;
-        uint16_t      GPIO_Pin;
-    } current_sense_sync;
+    StatusType_e (*get_status)(struct Efuse);
+    FaultType_e (*get_channel0_faults)(struct Efuse);
+    FaultType_e (*get_channel1_faults)(struct Efuse);
+    float (*get_channel0_current)(struct Efuse);
+    float (*get_channel1_current)(struct Efuse);
+    bool watch_dog_state;
 };
 
 /**
@@ -635,12 +624,25 @@ struct Efuse
  */
 void Io_Efuse_Init(SPI_HandleTypeDef *const hspi);
 
+StatusType_e Io_Efuse_GetAux1_Aux2Status(struct Efuse *e_fuse);
+float        Io_Efuse_GetAux1Current(struct Efuse *e_fuse);
+float        Io_Efuse_GetAux2Current(struct Efuse *e_fuse);
+void         Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
+            uint8_t       selection,
+            struct Efuse *e_fuse);
+void Io_EfuseAux1Aux2WriteReg(
+    uint8_t       register_address,
+    uint16_t      register_value,
+    struct Efuse *e_fuse);
+uint16_t
+    Io_EfuseAux1Aux2ReadReg(uint8_t register_address, struct Efuse *e_fuse);
+
 /**
  * Configures the Efuse's registers using the values defined in:
  * REGISTERNAME_CONFIG
  * @param e_fuse Pointer to Efuse structure being configured
  */
-void Io_Efuse_ConfigureEfuse(struct Efuse *e_fuse);
+void Io_Efuse_ConfigureEfuse(void);
 
 /**
  * Sets current/temperature monitoring option of CSNS pin
@@ -680,6 +682,8 @@ void Io_Efuse_UpdateFaults(struct Efuse *e_fuse);
 void Io_Efuse_WriteReg(
     uint8_t       register_address,
     uint16_t      register_value,
+    GPIO_TypeDef *ChipSelect_GPIO_Port,
+    uint16_t      ChipSelect_GPIO_Pin,
     struct Efuse *e_fuse);
 
 /**
@@ -688,7 +692,11 @@ void Io_Efuse_WriteReg(
  * @param e_fuse Pointer to Efuse structure being read from
  * @return Contents of the addressed register
  */
-uint16_t Io_Efuse_ReadReg(uint8_t register_address, struct Efuse *e_fuse);
+uint16_t Io_Efuse_ReadReg(
+    uint8_t       register_address,
+    GPIO_TypeDef *ChipSelect_GPIO_Port,
+    uint16_t      ChipSelect_GPIO_Pin,
+    struct Efuse *e_fuse);
 
 /**
  * Calculates the parity of the SPI command to be sent to the Efuse and
