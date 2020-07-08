@@ -18,66 +18,115 @@ void Io_Efuse_Init(SPI_HandleTypeDef *const hspi)
     efuse_spi_handle = hspi;
 }
 
-void Io_Efuse_UpdateAux1Aux2Status(void)
+StatusType_e Io_Efuse_GetAux1_Aux2Status(struct Efuse *e_fuse)
 {
-    
+    uint16_t status = StatusType_NoFault;
+
+    status = Io_EfuseAux1Aux2ReadReg(SO_STATR_ADDR, e_fuse);
+
+    return (StatusType_e)status;
 }
 
-void Io_Efuse_ConfigureEfuse(struct Efuse *e_fuse)
+FaultType_e Io_Efuse_GetAux1Faults(struct Efuse *e_fuse)
 {
-    // Global config register
-    Io_Efuse_WriteReg(SI_GCR_ADDR, GCR_CONFIG, e_fuse);
+    uint16_t faults = FaultType_NoFault;
 
-    // Channel 0 config registers
-    Io_Efuse_WriteReg(SI_RETRY_0_ADDR, RETRY_0_CONFIG, e_fuse);
-    Io_Efuse_WriteReg(SI_CONFR_0_ADDR, CONFR_0_CONFIG, e_fuse);
-    Io_Efuse_WriteReg(SI_OCR_0_ADDR, OCR_0_CONFIG, e_fuse);
+    faults = Io_EfuseAux1Aux2ReadReg(SO_FAULTR_0_ADDR, e_fuse);
 
-    // Channel 1 config registers
-    Io_Efuse_WriteReg(SI_RETRY_1_ADDR, RETRY_1_CONFIG, e_fuse);
-    Io_Efuse_WriteReg(SI_CONFR_1_ADDR, CONFR_1_CONFIG, e_fuse);
-    Io_Efuse_WriteReg(SI_OCR_1_ADDR, OCR_1_CONFIG, e_fuse);
+    return (FaultType_e)faults;
 }
 
-void Io_Efuse_ConfigureChannelMonitoring(
+FaultType_e Io_Efuse_GetAux2Faults(struct Efuse *e_fuse)
+{
+    uint16_t faults = FaultType_NoFault;
+
+    faults = Io_EfuseAux1Aux2ReadReg(SO_FAULTR_1_ADDR, e_fuse);
+
+    return (FaultType_e)faults;
+}
+
+float Io_Efuse_GetAux1Current(struct Efuse *e_fuse)
+{
+    Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
+        AUX1_CURRENT_SENSE_CHANNEL, e_fuse);
+
+    if (HAL_GPIO_ReadPin(
+            CUR_SYNC_AUX1_AUX2_GPIO_Port, CUR_SYNC_AUX1_AUX2_Pin) ==
+        GPIO_PIN_RESET)
+    {
+        // read current
+    }
+
+    return 0.0f;
+}
+
+float Io_Efuse_GetAux2Current(struct Efuse *e_fuse)
+{
+    Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
+        AUX2_CURRENT_SENSE_CHANNEL, e_fuse);
+
+    if (HAL_GPIO_ReadPin(
+            CUR_SYNC_AUX1_AUX2_GPIO_Port, CUR_SYNC_AUX1_AUX2_Pin) ==
+        GPIO_PIN_RESET)
+    {
+        // read current
+    }
+
+    return 0.0f;
+}
+
+void Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
     uint8_t       selection,
     struct Efuse *e_fuse)
 {
     uint16_t reg_val = 0x0000;
 
     // Read original content of GCR Register
-    reg_val = Io_Efuse_ReadReg(SI_GCR_ADDR, e_fuse);
+    reg_val = Io_EfuseAux1Aux2ReadReg(SI_GCR_ADDR, e_fuse);
 
     CLEAR_BIT(reg_val, (CSNS1_EN_MASK | CSNS0_EN_MASK));
     SET_BIT(reg_val, (selection & (CSNS1_EN_MASK | CSNS0_EN_MASK)));
 
-    Io_Efuse_WriteReg(SI_GCR_ADDR, reg_val, e_fuse);
+    Io_EfuseAux1Aux2WriteReg(SI_GCR_ADDR, reg_val, e_fuse);
 }
 
-void Io_Efuse_UpdateStatus(struct Efuse *e_fuse)
+void Io_EfuseAux1Aux2WriteReg(
+    uint8_t       register_address,
+    uint16_t      register_value,
+    struct Efuse *e_fuse)
 {
-    uint16_t status = StatusType_NoFault;
-
-    status = Io_Efuse_ReadReg(SO_STATR_ADDR, e_fuse);
-
-    e_fuse->status = (StatusType_e)status;
+    Io_Efuse_WriteReg(
+        register_address, register_value, CSB_AUX1_AUX2_GPIO_Port,
+        CSB_AUX1_AUX2_Pin, e_fuse);
 }
 
-void Io_Efuse_UpdateFaults(struct Efuse *e_fuse)
+uint16_t Io_EfuseAux1Aux2ReadReg(uint8_t register_address, struct Efuse *e_fuse)
 {
-    uint16_t channel_0_faults = FaultType_NoFault;
-    uint16_t channel_1_faults = FaultType_NoFault;
+    return Io_Efuse_ReadReg(
+        register_address, CSB_AUX1_AUX2_GPIO_Port, CSB_AUX1_AUX2_Pin, e_fuse);
+}
 
-    channel_0_faults = Io_Efuse_ReadReg(SO_FAULTR_0_ADDR, e_fuse);
-    channel_1_faults = Io_Efuse_ReadReg(SO_FAULTR_1_ADDR, e_fuse);
+void Io_Efuse_ConfigureEfuse(void)
+{
+    // Global config register
+    // Io_Efuse_WriteReg(SI_GCR_ADDR, GCR_CONFIG, e_fuse);
 
-    e_fuse->faults.channel_0_faults = (FaultType_e)channel_0_faults;
-    e_fuse->faults.channel_1_faults = (FaultType_e)channel_1_faults;
+    // Channel 0 config registers
+    // Io_Efuse_WriteReg(SI_RETRY_0_ADDR, RETRY_0_CONFIG, e_fuse);
+    // Io_Efuse_WriteReg(SI_CONFR_0_ADDR, CONFR_0_CONFIG, e_fuse);
+    // Io_Efuse_WriteReg(SI_OCR_0_ADDR, OCR_0_CONFIG, e_fuse);
+
+    // Channel 1 config registers
+    // Io_Efuse_WriteReg(SI_RETRY_1_ADDR, RETRY_1_CONFIG, e_fuse);
+    // Io_Efuse_WriteReg(SI_CONFR_1_ADDR, CONFR_1_CONFIG, e_fuse);
+    // Io_Efuse_WriteReg(SI_OCR_1_ADDR, OCR_1_CONFIG, e_fuse);
 }
 
 void Io_Efuse_WriteReg(
     uint8_t       register_address,
     uint16_t      register_value,
+    GPIO_TypeDef *ChipSelect_GPIO_Port,
+    uint16_t      ChipSelect_GPIO_Pin,
     struct Efuse *e_fuse)
 {
     HAL_StatusTypeDef status;
@@ -104,11 +153,15 @@ void Io_Efuse_WriteReg(
     Io_Efuse_SetParityBit(&command);
 
     status = Io_Efuse_WriteToEfuse(
-        &command, e_fuse->chip_select.GPIO_Port, e_fuse->chip_select.GPIO_Pin);
+        &command, ChipSelect_GPIO_Port, ChipSelect_GPIO_Pin);
     UNUSED(status);
 }
 
-uint16_t Io_Efuse_ReadReg(uint8_t register_address, struct Efuse *e_fuse)
+uint16_t Io_Efuse_ReadReg(
+    uint8_t       register_address,
+    GPIO_TypeDef *ChipSelect_GPIO_Port,
+    uint16_t      ChipSelect_GPIO_Pin,
+    struct Efuse *e_fuse)
 {
     HAL_StatusTypeDef status;
     uint16_t          command   = 0x0000U;
@@ -139,15 +192,14 @@ uint16_t Io_Efuse_ReadReg(uint8_t register_address, struct Efuse *e_fuse)
 
     tx_data[0] = command;
     status     = Io_Efuse_ReadFromEfuse(
-        tx_data, rx_data, e_fuse->chip_select.GPIO_Port,
-        e_fuse->chip_select.GPIO_Pin);
+        tx_data, rx_data, ChipSelect_GPIO_Port, ChipSelect_GPIO_Pin);
     UNUSED(status);
     // Only return register contents and clear bits 9->15
     CLEAR_BIT(rx_data[0], ~EFUSE_SO_DATA_MASK);
     return rx_data[0];
 }
 
-static void SetParityBit(uint16_t *spi_command)
+static void Io_Efuse_SetParityBit(uint16_t *spi_command)
 {
     uint16_t spi_data = *spi_command;
     uint8_t  parity_bit;
