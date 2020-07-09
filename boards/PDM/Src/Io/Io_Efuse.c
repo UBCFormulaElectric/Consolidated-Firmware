@@ -54,7 +54,7 @@ float Io_Efuse_GetAux1Current(struct Efuse *e_fuse)
             CUR_SYNC_AUX1_AUX2_GPIO_Port, CUR_SYNC_AUX1_AUX2_Pin) ==
         GPIO_PIN_RESET)
     {
-        // read current
+        return Io_CurrentSense_GetAux1Current();
     }
 
     return 0.0f;
@@ -69,7 +69,7 @@ float Io_Efuse_GetAux2Current(struct Efuse *e_fuse)
             CUR_SYNC_AUX1_AUX2_GPIO_Port, CUR_SYNC_AUX1_AUX2_Pin) ==
         GPIO_PIN_RESET)
     {
-        // read current
+        return Io_CurrentSense_GetAux2Current();
     }
 
     return 0.0f;

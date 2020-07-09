@@ -10,10 +10,7 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include "main.h"
-
-// Current Sense Ratios
-#define HIGH_CURRENT_SENSE_RATIO (1.0f / 1500.0f)
-#define LOW_CURRENT_SENSE_RATIO (1.0f / 500.0f)
+#include "Io_CurrentSense.h"
 
 // Current Sense Channels
 #define AUX1_CURRENT_SENSE_CHANNEL CSNS_FUNCTION_CURRENT_CH0
