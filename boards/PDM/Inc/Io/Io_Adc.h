@@ -3,16 +3,10 @@
 #include <stdint.h>
 
 /**
- * Get the buffer for DMA controller to write raw normal ADC values into
+ * Get the buffer for DMA controller to write raw ADC values into
  * @return Pointer to the buffer
  */
-uint16_t *Io_Adc_GetRawNormalAdcValues(void);
-
-/**
- * Get the buffer for DMA controller to write raw injected ADC values into
- * @return Pointer to the buffer
- */
-uint16_t *Io_Adc_GetRawInjectedAdcValues(void);
+uint16_t *Io_Adc_GetRawAdcValues(void);
 
 /**
  * Get the voltage measured at ADC channel 1

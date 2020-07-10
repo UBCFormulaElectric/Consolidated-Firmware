@@ -605,15 +605,7 @@ typedef enum
     DiagnosticType_CONF1            = (1 << 8)  //!< Channel 1 Config DC Motor
 } DiagnosticType_e;
 
-struct Efuse
-{
-    StatusType_e (*get_status)(struct Efuse);
-    FaultType_e (*get_channel0_faults)(struct Efuse);
-    FaultType_e (*get_channel1_faults)(struct Efuse);
-    float (*get_channel0_current)(struct Efuse);
-    float (*get_channel1_current)(struct Efuse);
-    bool watch_dog_state;
-};
+struct Efuse;
 
 /**
  * Initializes the SPI handle for the Efuses
@@ -622,17 +614,28 @@ struct Efuse
 void Io_Efuse_Init(SPI_HandleTypeDef *const hspi);
 
 StatusType_e Io_Efuse_GetAux1_Aux2Status(struct Efuse *e_fuse);
-float        Io_Efuse_GetAux1Current(struct Efuse *e_fuse);
-float        Io_Efuse_GetAux2Current(struct Efuse *e_fuse);
-void         Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
-            uint8_t       selection,
-            struct Efuse *e_fuse);
-void Io_EfuseAux1Aux2WriteReg(
+
+FaultType_e Io_Efuse_GetAux1Faults(struct Efuse *e_fuse);
+
+FaultType_e Io_Efuse_GetAux2Faults(struct Efuse *e_fuse);
+
+bool Io_Efuse_GetAux1Current(struct Efuse *e_fuse, float *aux1_current);
+
+bool Io_Efuse_GetAux2Current(struct Efuse *e_fuse, float *aux2_current);
+
+void Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
+    uint8_t       selection,
+    struct Efuse *e_fuse);
+
+void Io_Efuse_Aux1Aux2ConfigureEfuse(struct Efuse *e_fuse);
+
+void Io_Efuse_Aux1Aux2WriteReg(
     uint8_t       register_address,
     uint16_t      register_value,
     struct Efuse *e_fuse);
+
 uint16_t
-    Io_EfuseAux1Aux2ReadReg(uint8_t register_address, struct Efuse *e_fuse);
+    Io_Efuse_Aux1Aux2ReadReg(uint8_t register_address, struct Efuse *e_fuse);
 
 /**
  * Configures the Efuse's registers using the values defined in:
