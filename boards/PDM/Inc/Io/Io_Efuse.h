@@ -124,7 +124,7 @@ static void Io_Efuse_Aux1Aux2ExitFailSafeMode(struct Efuse *efuse);
  * @param register_value Value being written to the Serial Input register
  * @param e_fuse Pointer to Aux1/Aux2 Efuse structure being written to
  */
-static ExitCode Io_Efuse_Aux1Aux2WriteReg(
+static ExitCode Io_Efuse_Aux1Aux2WriteRegister(
     uint8_t       register_address,
     uint16_t      register_value,
     struct Efuse *e_fuse);
@@ -136,7 +136,7 @@ static ExitCode Io_Efuse_Aux1Aux2WriteReg(
  * @param e_fuse Pointer to Aux1/Aux2 Efuse structure being read from
  * @return Contents of the addressed register
  */
-static ExitCode Io_Efuse_Aux1Aux2ReadReg(
+static ExitCode Io_Efuse_Aux1Aux2ReadRegister(
     uint8_t       register_address,
     uint16_t *    register_value,
     struct Efuse *e_fuse);
@@ -149,7 +149,7 @@ static ExitCode Io_Efuse_Aux1Aux2ReadReg(
  * @return EXIT_CODE_OK if the write was successful
  *         EXIT_CODE_TIMEOUT if the SPI write timed-out
  */
-static ExitCode Io_Efuse_WriteReg(
+static ExitCode Io_Efuse_WriteRegister(
     uint8_t       register_address,
     uint16_t      register_value,
     GPIO_TypeDef *ChipSelect_GPIO_Port,
@@ -164,7 +164,7 @@ static ExitCode Io_Efuse_WriteReg(
  * @return EXIT_CODE_OK if the read was successful
  *         EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
-static ExitCode Io_Efuse_ReadReg(
+static ExitCode Io_Efuse_ReadRegister(
     uint8_t       register_address,
     uint16_t *    register_value,
     GPIO_TypeDef *ChipSelect_GPIO_Port,

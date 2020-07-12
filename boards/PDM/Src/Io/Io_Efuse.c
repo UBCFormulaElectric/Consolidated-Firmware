@@ -490,17 +490,17 @@ void Io_Efuse_Init(SPI_HandleTypeDef *const hspi)
 
 enum Efuse_Status Io_Efuse_GetAux1_Aux2Status(struct Efuse *e_fuse)
 {
-    return Io_Efuse_Aux1Aux2ReadReg(SO_STATR_ADDR, e_fuse);
+    return Io_Efuse_Aux1Aux2ReadRegister(SO_STATR_ADDR, e_fuse);
 }
 
 enum Efuse_Fault Io_Efuse_GetAux1Faults(struct Efuse *e_fuse)
 {
-    return Io_Efuse_Aux1Aux2ReadReg(SO_FAULTR_0_ADDR, e_fuse);
+    return Io_Efuse_Aux1Aux2ReadRegister(SO_FAULTR_0_ADDR, e_fuse);
 }
 
 enum Efuse_Fault Io_Efuse_GetAux2Faults(struct Efuse *e_fuse)
 {
-    return Io_Efuse_Aux1Aux2ReadReg(SO_FAULTR_1_ADDR, e_fuse);
+    return Io_Efuse_Aux1Aux2ReadRegister(SO_FAULTR_1_ADDR, e_fuse);
 }
 
 bool Io_Efuse_GetAux1Current(struct Efuse *e_fuse, float *aux1_current)
@@ -542,12 +542,12 @@ static void Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
     uint16_t reg_val = 0x0000;
 
     // Read original content of GCR Register
-    reg_val = Io_Efuse_Aux1Aux2ReadReg(SI_GCR_ADDR, e_fuse);
+    reg_val = Io_Efuse_Aux1Aux2ReadRegister(SI_GCR_ADDR, e_fuse);
 
     CLEAR_BIT(reg_val, (CSNS1_EN_MASK | CSNS0_EN_MASK));
     SET_BIT(reg_val, (selection & (CSNS1_EN_MASK | CSNS0_EN_MASK)));
 
-    Io_Efuse_Aux1Aux2WriteReg(SI_GCR_ADDR, reg_val, e_fuse);
+    Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, reg_val, e_fuse);
 }
 
 void Io_Efuse_Aux1Aux2ConfigureEfuse(struct Efuse *e_fuse)
@@ -555,18 +555,18 @@ void Io_Efuse_Aux1Aux2ConfigureEfuse(struct Efuse *e_fuse)
     Io_Efuse_Aux1Aux2ExitFailSafeMode(e_fuse);
 
     // Global config register
-    Io_Efuse_Aux1Aux2WriteReg(SI_GCR_ADDR, GCR_CONFIG, e_fuse);
+    Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, GCR_CONFIG, e_fuse);
 
     // Channel 0 config registers
-    Io_Efuse_Aux1Aux2WriteReg(SI_RETRY_0_ADDR, RETRY_CONFIG, e_fuse);
-    Io_Efuse_Aux1Aux2WriteReg(SI_CONFR_0_ADDR, CONFR_CONFIG, e_fuse);
-    Io_Efuse_Aux1Aux2WriteReg(
+    Io_Efuse_Aux1Aux2WriteRegister(SI_RETRY_0_ADDR, RETRY_CONFIG, e_fuse);
+    Io_Efuse_Aux1Aux2WriteRegister(SI_CONFR_0_ADDR, CONFR_CONFIG, e_fuse);
+    Io_Efuse_Aux1Aux2WriteRegister(
         SI_OCR_0_ADDR, OCR_LOW_CURRENT_SENSE_CONFIG, e_fuse);
 
     // Channel 1 config registers
-    Io_Efuse_Aux1Aux2WriteReg(SI_RETRY_1_ADDR, RETRY_CONFIG, e_fuse);
-    Io_Efuse_Aux1Aux2WriteReg(SI_CONFR_1_ADDR, CONFR_CONFIG, e_fuse);
-    Io_Efuse_Aux1Aux2WriteReg(
+    Io_Efuse_Aux1Aux2WriteRegister(SI_RETRY_1_ADDR, RETRY_CONFIG, e_fuse);
+    Io_Efuse_Aux1Aux2WriteRegister(SI_CONFR_1_ADDR, CONFR_CONFIG, e_fuse);
+    Io_Efuse_Aux1Aux2WriteRegister(
         SI_OCR_1_ADDR, OCR_LOW_CURRENT_SENSE_CONFIG, e_fuse);
 }
 
@@ -576,32 +576,32 @@ static void Io_Efuse_Aux1Aux2ExitFailSafeMode(struct Efuse *e_fuse)
     // 1_1_00000_00000_0000
     e_fuse->wdin_bit_to_set = true;
 
-    Io_Efuse_Aux1Aux2WriteReg(SI_STATR_0_ADDR, 0x0000, e_fuse);
+    Io_Efuse_Aux1Aux2WriteRegister(SI_STATR_0_ADDR, 0x0000, e_fuse);
     // Disable watchdog
-    Io_Efuse_Aux1Aux2WriteReg(SI_GCR_ADDR, GCR_CONFIG, e_fuse);
+    Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, GCR_CONFIG, e_fuse);
 }
 
-static ExitCode Io_Efuse_Aux1Aux2WriteReg(
+static ExitCode Io_Efuse_Aux1Aux2WriteRegister(
     uint8_t       register_address,
     uint16_t      register_value,
     struct Efuse *e_fuse)
 {
-    return Io_Efuse_WriteReg(
+    return Io_Efuse_WriteRegister(
         register_address, register_value, CSB_AUX1_AUX2_GPIO_Port,
         CSB_AUX1_AUX2_Pin, e_fuse);
 }
 
-static ExitCode Io_Efuse_Aux1Aux2ReadReg(
+static ExitCode Io_Efuse_Aux1Aux2ReadRegister(
     uint8_t       register_address,
     uint16_t *    register_value,
     struct Efuse *e_fuse)
 {
-    return Io_Efuse_ReadReg(
+    return Io_Efuse_ReadRegister(
         register_address, register_value, CSB_AUX1_AUX2_GPIO_Port,
         CSB_AUX1_AUX2_Pin, e_fuse);
 }
 
-static ExitCode Io_Efuse_WriteReg(
+static ExitCode Io_Efuse_WriteRegister(
     uint8_t       register_address,
     uint16_t      register_value,
     GPIO_TypeDef *ChipSelect_GPIO_Port,
@@ -638,7 +638,7 @@ static ExitCode Io_Efuse_WriteReg(
     return exit_code;
 }
 
-static ExitCode Io_Efuse_ReadReg(
+static ExitCode Io_Efuse_ReadRegister(
     uint8_t       register_address,
     uint16_t *    register_value,
     GPIO_TypeDef *ChipSelect_GPIO_Port,
