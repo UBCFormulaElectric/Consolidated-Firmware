@@ -8,6 +8,7 @@ typedef enum
     EXIT_CODE_TIMEOUT,
     EXIT_CODE_ERROR,
     EXIT_CODE_UNIMPLEMENTED,
+    EXIT_CODE_TIMEOUT,
     NUM_EXIT_CODES,
 } ExitCode;
 
