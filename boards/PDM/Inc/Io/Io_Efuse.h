@@ -132,7 +132,7 @@ bool Io_Efuse_GetAux2Current(struct Efuse *e_fuse, float *aux2_current);
  *                  CSNS_FUNCTION_DISABLED - Current sensing disabled
  *                  AUX1_CURRENT_SENSE_CHANNEL - Current sensing for Aux 1
  *                  AUX2_CURRENT_SENSE_CHANNEL - Current sensing for Aux 2
- *                  CSNS_FUNCTION_TEMPERATURE - Ffuse temperature sensing
+ *                  CSNS_FUNCTION_TEMPERATURE - Efuse temperature sensing
  *                  CSNS_FUNCTION_CURRENT_SUM - Current sensing for summed
  * channels (for Parallel mode)
  * @param e_fuse Pointer to Aux1/Aux2 Efuse structure being configured
