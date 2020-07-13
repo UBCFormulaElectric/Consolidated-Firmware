@@ -3,15 +3,15 @@
 
 void Io_RgbLedSequence_TurnOnRedLed(void)
 {
-    // TODO: Fill this in once the new PDM hardware with RGB LED is made
+    HAL_GPIO_WritePin(STATUS_R_GPIO_Port, STATUS_R_Pin, GPIO_PIN_RESET);
 }
 
 void Io_RgbLedSequence_TurnOnGreenLed(void)
 {
-    // TODO: Fill this in once the new PDM hardware with RGB LED is made
+    HAL_GPIO_WritePin(STATUS_G_GPIO_Port, STATUS_G_Pin, GPIO_PIN_RESET);
 }
 
 void Io_RgbLedSequence_TurnOnBlueLed(void)
 {
-    // TODO: Fill this in once the new PDM hardware with RGB LED is made
+    HAL_GPIO_WritePin(STATUS_G_GPIO_Port, STATUS_G_Pin, GPIO_PIN_RESET);
 }

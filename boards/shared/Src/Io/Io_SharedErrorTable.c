@@ -143,11 +143,11 @@ static void Io_ProcessPdmNonCriticalErrorMsg(
         error_table, PDM_NON_CRITICAL_VBAT_VOLTAGE_OUT_OF_RANGE,
         data->vbat_voltage_out_of_range);
     SET_ERROR(
-        error_table, PDM_NON_CRITICAL__24V_AUX_VOLTAGE_OUT_OF_RANGE,
-        data->_24_v_aux_voltage_out_of_range);
-    SET_ERROR(
         error_table, PDM_NON_CRITICAL__24V_ACC_VOLTAGE_OUT_OF_RANGE,
         data->_24_v_acc_voltage_out_of_range);
+    SET_ERROR(
+        error_table, PDM_NON_CRITICAL__24V_BOOST_OUT_VOLTAGE_OUT_OF_RANGE,
+        data->_24_v_boost_out_voltage_out_of_range);
     SET_ERROR(
         error_table, PDM_NON_CRITICAL_AUX1_CURRENT_OUT_OF_RANGE,
         data->aux1_current_out_of_range);
@@ -155,20 +155,23 @@ static void Io_ProcessPdmNonCriticalErrorMsg(
         error_table, PDM_NON_CRITICAL_AUX2_CURRENT_OUT_OF_RANGE,
         data->aux2_current_out_of_range);
     SET_ERROR(
-        error_table, PDM_NON_CRITICAL_LEFT_INVERTER_CURRENT_OUT_OF_RANGE,
-        data->left_inverter_current_out_of_range);
-    SET_ERROR(
-        error_table, PDM_NON_CRITICAL_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE,
-        data->right_inverter_current_out_of_range);
-    SET_ERROR(
-        error_table, PDM_NON_CRITICAL_ENERGY_METER_CURRENT_OUT_OF_RANGE,
-        data->energy_meter_current_out_of_range);
+        error_table, PDM_NON_CRITICAL_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE,
+        data->air_shutdown_current_out_of_range);
     SET_ERROR(
         error_table, PDM_NON_CRITICAL_CAN_CURRENT_OUT_OF_RANGE,
         data->can_current_out_of_range);
     SET_ERROR(
-        error_table, PDM_NON_CRITICAL_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE,
-        data->air_shutdown_current_out_of_range);
+        error_table, PDM_NON_CRITICAL_BACK_LEFT_INVERTER_CURRENT_OUT_OF_RANGE,
+        data->back_left_inverter_current_out_of_range);
+    SET_ERROR(
+        error_table, PDM_NON_CRITICAL_BACK_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE,
+        data->back_right_inverter_current_out_of_range);
+    SET_ERROR(
+        error_table, PDM_NON_CRITICAL_FRONT_LEFT_INVERTER_CURRENT_OUT_OF_RANGE,
+        data->front_left_inverter_current_out_of_range);
+    SET_ERROR(
+        error_table, PDM_NON_CRITICAL_FRONT_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE,
+        data->front_right_inverter_current_out_of_range);
 }
 
 static void Io_ProcessBmsAirShutdownErrorMsg(

@@ -12,17 +12,7 @@ float Io_CurrentSense_GetAux2Current(void)
     return 0.5f;
 }
 
-float Io_CurrentSense_GetLeftInverterCurrent(void)
-{
-    return 0.5f;
-}
-
-float Io_CurrentSense_GetRightInverterCurrent(void)
-{
-    return 0.5f;
-}
-
-float Io_CurrentSense_GetEnergyMeterCurrent(void)
+float Io_CurrentSense_GetAirShutdownCurrent(void)
 {
     return 0.5f;
 }
@@ -32,7 +22,22 @@ float Io_CurrentSense_GetCanCurrent(void)
     return 0.5f;
 }
 
-float Io_CurrentSense_GetAirShutdownCurrent(void)
+float Io_CurrentSense_GetBackLeftInverterCurrent(void)
+{
+    return 0.5f;
+}
+
+float Io_CurrentSense_GetBackRightInverterCurrent(void)
+{
+    return 0.5f;
+}
+
+float Io_CurrentSense_GetFrontLeftInverterCurrent(void)
+{
+    return 0.5f;
+}
+
+float Io_CurrentSense_GetFrontRightInverterCurrent(void)
 {
     return 0.5f;
 }

@@ -32,11 +32,12 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     // will assume that there is no current to be read in this state.
     App_CanTx_SetPeriodicSignal_AUXILIARY1_CURRENT(can_tx, NAN);
     App_CanTx_SetPeriodicSignal_AUXILIARY2_CURRENT(can_tx, NAN);
-    App_CanTx_SetPeriodicSignal_LEFT_INVERTER_CURRENT(can_tx, NAN);
-    App_CanTx_SetPeriodicSignal_RIGHT_INVERTER_CURRENT(can_tx, NAN);
-    App_CanTx_SetPeriodicSignal_ENERGY_METER_CURRENT(can_tx, NAN);
-    App_CanTx_SetPeriodicSignal_CAN_CURRENT(can_tx, NAN);
     App_CanTx_SetPeriodicSignal_AIR_SHUTDOWN_CURRENT(can_tx, NAN);
+    App_CanTx_SetPeriodicSignal_CAN_CURRENT(can_tx, NAN);
+    App_CanTx_SetPeriodicSignal_BACK_LEFT_INVERTER_CURRENT(can_tx, NAN);
+    App_CanTx_SetPeriodicSignal_BACK_RIGHT_INVERTER_CURRENT(can_tx, NAN);
+    App_CanTx_SetPeriodicSignal_FRONT_LEFT_INVERTER_CURRENT(can_tx, NAN);
+    App_CanTx_SetPeriodicSignal_FRONT_RIGHT_INVERTER_CURRENT(can_tx, NAN);
 }
 
 static void InitStateRunOnExit(struct StateMachine *const state_machine)

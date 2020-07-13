@@ -9,15 +9,16 @@ struct PdmWorld
     struct PdmCanTxInterface *can_tx_interface;
     struct PdmCanRxInterface *can_rx_interface;
     struct InRangeCheck *     vbat_voltage_in_range_check;
-    struct InRangeCheck *     _24v_aux_voltage_in_range_check;
     struct InRangeCheck *     _24v_acc_voltage_in_range_check;
+    struct InRangeCheck *     _24v_boost_out_voltage_in_range_check;
     struct InRangeCheck *     aux1_current_in_range_check;
     struct InRangeCheck *     aux2_current_in_range_check;
-    struct InRangeCheck *     left_inverter_current_in_range_check;
-    struct InRangeCheck *     right_inverter_current_in_range_check;
-    struct InRangeCheck *     energy_meter_current_in_range_check;
-    struct InRangeCheck *     can_current_in_range_check;
     struct InRangeCheck *     air_shutdown_current_in_range_check;
+    struct InRangeCheck *     can_current_in_range_check;
+    struct InRangeCheck *     back_left_inverter_current_in_range_check;
+    struct InRangeCheck *     back_right_inverter_current_in_range_check;
+    struct InRangeCheck *     front_left_inverter_current_in_range_check;
+    struct InRangeCheck *     front_right_inverter_current_in_range_check;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
     struct LowVoltageBattery *low_voltage_battery;
@@ -25,22 +26,23 @@ struct PdmWorld
 };
 
 struct PdmWorld *App_PdmWorld_Create(
-    struct PdmCanTxInterface *const can_tx_interface,
-    struct PdmCanRxInterface *const can_rx_interface,
-    struct InRangeCheck *const      vbat_voltage_in_range_check,
-    struct InRangeCheck *const      _24v_aux_voltage_in_range_check,
-    struct InRangeCheck *const      _24v_acc_voltage_in_range_check,
-    struct InRangeCheck *const      aux1_current_in_range_check,
-    struct InRangeCheck *const      aux2_current_in_range_check,
-    struct InRangeCheck *const      left_inverter_current_in_range_check,
-    struct InRangeCheck *const      right_inverter_current_in_range_check,
-    struct InRangeCheck *const      energy_meter_current_in_range_check,
-    struct InRangeCheck *const      can_current_in_range_check,
-    struct InRangeCheck *const      air_shutdown_current_in_range_check,
-    struct HeartbeatMonitor *const  heartbeat_monitor,
-    struct RgbLedSequence *const    rgb_led_sequence,
-    struct LowVoltageBattery *const low_voltage_battery,
-    struct Clock *const             clock)
+    struct PdmCanTxInterface *can_tx_interface,
+    struct PdmCanRxInterface *can_rx_interface,
+    struct InRangeCheck *     vbat_voltage_in_range_check,
+    struct InRangeCheck *     _24v_acc_voltage_in_range_check,
+    struct InRangeCheck *     _24v_boost_out_voltage_in_range_check,
+    struct InRangeCheck *     aux1_current_in_range_check,
+    struct InRangeCheck *     aux2_current_in_range_check,
+    struct InRangeCheck *     air_shutdown_current_in_range_check,
+    struct InRangeCheck *     can_current_in_range_check,
+    struct InRangeCheck *     back_left_inverter_current_in_range_check,
+    struct InRangeCheck *     back_right_inverter_current_in_range_check,
+    struct InRangeCheck *     front_left_inverter_current_in_range_check,
+    struct InRangeCheck *     front_right_inverter_current_in_range_check,
+    struct HeartbeatMonitor * heartbeat_monitor,
+    struct RgbLedSequence *   rgb_led_sequence,
+    struct LowVoltageBattery *low_voltage_battery,
+    struct Clock *            clock)
 {
     struct PdmWorld *world = (struct PdmWorld *)malloc(sizeof(struct PdmWorld));
     assert(world != NULL);
@@ -48,19 +50,22 @@ struct PdmWorld *App_PdmWorld_Create(
     world->can_tx_interface                = can_tx_interface;
     world->can_rx_interface                = can_rx_interface;
     world->vbat_voltage_in_range_check     = vbat_voltage_in_range_check;
-    world->_24v_aux_voltage_in_range_check = _24v_aux_voltage_in_range_check;
     world->_24v_acc_voltage_in_range_check = _24v_acc_voltage_in_range_check;
-    world->aux1_current_in_range_check     = aux1_current_in_range_check;
-    world->aux2_current_in_range_check     = aux2_current_in_range_check;
-    world->left_inverter_current_in_range_check =
-        left_inverter_current_in_range_check;
-    world->right_inverter_current_in_range_check =
-        right_inverter_current_in_range_check;
-    world->energy_meter_current_in_range_check =
-        energy_meter_current_in_range_check;
-    world->can_current_in_range_check = can_current_in_range_check;
+    world->_24v_boost_out_voltage_in_range_check =
+        _24v_boost_out_voltage_in_range_check;
+    world->aux1_current_in_range_check = aux1_current_in_range_check;
+    world->aux2_current_in_range_check = aux2_current_in_range_check;
     world->air_shutdown_current_in_range_check =
         air_shutdown_current_in_range_check;
+    world->can_current_in_range_check = can_current_in_range_check;
+    world->back_left_inverter_current_in_range_check =
+        back_left_inverter_current_in_range_check;
+    world->back_right_inverter_current_in_range_check =
+        back_right_inverter_current_in_range_check;
+    world->front_left_inverter_current_in_range_check =
+        front_left_inverter_current_in_range_check;
+    world->front_right_inverter_current_in_range_check =
+        front_right_inverter_current_in_range_check;
     world->heartbeat_monitor   = heartbeat_monitor;
     world->rgb_led_sequence    = rgb_led_sequence;
     world->low_voltage_battery = low_voltage_battery;
@@ -92,16 +97,16 @@ struct InRangeCheck *
     return world->vbat_voltage_in_range_check;
 }
 
-struct InRangeCheck *App_PdmWorld_Get24vAuxVoltageInRangeCheck(
-    const struct PdmWorld *const world)
-{
-    return world->_24v_aux_voltage_in_range_check;
-}
-
 struct InRangeCheck *App_PdmWorld_Get24vAccVoltageInRangeCheck(
     const struct PdmWorld *const world)
 {
     return world->_24v_acc_voltage_in_range_check;
+}
+
+struct InRangeCheck *App_PdmWorld_Get24vBoostOutVoltageInRangeCheck(
+    const struct PdmWorld *const world)
+{
+    return world->_24v_boost_out_voltage_in_range_check;
 }
 
 struct InRangeCheck *
@@ -116,22 +121,10 @@ struct InRangeCheck *
     return world->aux2_current_in_range_check;
 }
 
-struct InRangeCheck *App_PdmWorld_GetLeftInverterCurrentInRangeCheck(
+struct InRangeCheck *App_PdmWorld_GetAirShutdownCurrentInRangeCheck(
     const struct PdmWorld *const world)
 {
-    return world->left_inverter_current_in_range_check;
-}
-
-struct InRangeCheck *App_PdmWorld_GetRightInverterCurrentInRangeCheck(
-    const struct PdmWorld *const world)
-{
-    return world->right_inverter_current_in_range_check;
-}
-
-struct InRangeCheck *App_PdmWorld_GetEnergyMeterCurrentInRangeCheck(
-    const struct PdmWorld *const world)
-{
-    return world->energy_meter_current_in_range_check;
+    return world->air_shutdown_current_in_range_check;
 }
 
 struct InRangeCheck *
@@ -140,10 +133,28 @@ struct InRangeCheck *
     return world->can_current_in_range_check;
 }
 
-struct InRangeCheck *App_PdmWorld_GetAirShutdownCurrentInRangeCheck(
+struct InRangeCheck *App_PdmWorld_GetBackLeftInverterCurrentInRangeCheck(
     const struct PdmWorld *const world)
 {
-    return world->air_shutdown_current_in_range_check;
+    return world->back_left_inverter_current_in_range_check;
+}
+
+struct InRangeCheck *App_PdmWorld_GetBackRightInverterCurrentInRangeCheck(
+    const struct PdmWorld *const world)
+{
+    return world->back_right_inverter_current_in_range_check;
+}
+
+struct InRangeCheck *App_PdmWorld_GetFrontLeftInverterCurrentInRangeCheck(
+    const struct PdmWorld *const world)
+{
+    return world->front_left_inverter_current_in_range_check;
+}
+
+struct InRangeCheck *App_PdmWorld_GetFrontRightInverterCurrentInRangeCheck(
+    const struct PdmWorld *const world)
+{
+    return world->front_right_inverter_current_in_range_check;
 }
 
 struct HeartbeatMonitor *
