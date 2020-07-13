@@ -49,26 +49,65 @@ enum Efuse_Fault
 void Io_Efuse_Init(SPI_HandleTypeDef *const hspi);
 
 /**
- * Get the value of the Aux 1 and Aux 2 Efuse's Status Register over SPI
- * @param e_fuse Pointer to the Aux1/Aux2 Efuse structure being checked
- * @return Contents of the status register
+ * Enable/disable the Aux 1 channel output
+ * @param enable True to enable the channel, false to disable it
  */
-enum Efuse_Status Io_Efuse_GetAux1_Aux2Status(struct Efuse *e_fuse);
+void Io_Efuse_Aux1Enable(bool enable);
+
+/**
+ * Enable/disable the Aux 2 channel output
+ * @param enable True to enable the channel, false to disable it
+ */
+void Io_Efuse_Aux2Enable(bool enable);
+
+/**
+ * Get the value of the Aux 1 and Aux 2 Efuse's Status Register over SPI
+ * @param fault Pointer to the Aux1/Aux2's status
+ * @param e_fuse Pointer to the Aux1/Aux2 Efuse structure being checked
+ * @return EXIT_CODE_OK if the read was successful
+ *         EXIT_CODE_TIMEOUT if the SPI read timed-out
+ */
+ExitCode Io_Efuse_GetAux1_Aux2Status(
+    enum Efuse_Status *status,
+    struct Efuse *     e_fuse);
 
 /**
  * Get the value of the Aux 1 Fault Register over SPI
  * @note Reading from the fault register reset's non-latchable faults
+ * @param fault Pointer to the Aux 1 fault status
  * @param e_fuse Pointer to the Aux1/Aux2 Efuse structure being checked
- * @return Contents of the Aux 1 fault register
+ * @return EXIT_CODE_OK if the read was successful
+ *         EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
-enum Efuse_Fault Io_Efuse_GetAux1Faults(struct Efuse *e_fuse);
+ExitCode Io_Efuse_GetAux1Faults(enum Efuse_Fault *fault, struct Efuse *e_fuse);
 
 /**
  * Get the value of the Aux 2 Fault Register over SPI
+ * @note Reading from the fault register reset's non-latchable faults
+ * @param fault Pointer to the Aux 2 fault status
  * @param e_fuse Pointer to the Aux1/Aux2 Efuse structure being checked
- * @return Contents of the Aux 2 fault register
+ * @return EXIT_CODE_OK if the read was successful
+ *         EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
-enum Efuse_Fault Io_Efuse_GetAux2Faults(struct Efuse *e_fuse);
+ExitCode Io_Efuse_GetAux2Faults(enum Efuse_Fault *fault, struct Efuse *e_fuse);
+
+/**
+ * Check if the Aux1/Aux2 efuse is in fault mode
+ * @return true if efuse is in fault mode, else false
+ */
+bool Io_Efuse_Aux1_Aux2IsInFaultMode(void);
+
+/**
+ * Check if the Aux1/Aux2 efuse is in fail-safe mode
+ * @return true if efuse is in fail-safe mode, else false
+ */
+bool Io_Efuse_Aux1_Aux2IsInFailSafeMode(void);
+
+/**
+ * De-latches the Aux1/Aux2 efuse's latch-able faults
+ * @note Non-latchable faults are reset by reading from the fault registers
+ */
+void Io_Efuse_Aux1Aux2DelatchFaults(void);
 
 /**
  * Get the current readings for the Aux 1 channel
@@ -97,8 +136,10 @@ bool Io_Efuse_GetAux2Current(struct Efuse *e_fuse, float *aux2_current);
  *                  CSNS_FUNCTION_CURRENT_SUM - Current sensing for summed
  * channels (for Parallel mode)
  * @param e_fuse Pointer to Aux1/Aux2 Efuse structure being configured
+ * @return EXIT_CODE_OK if the channel configuration was successful
+ *         EXIT_CODE_TIMEOUT if one of the SPI writes timed-out
  */
-static void Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
+static ExitCode Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
     uint8_t       selection,
     struct Efuse *e_fuse);
 
@@ -109,20 +150,27 @@ static void Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
  *                  -CONFR_CONFIG
  *                  -OCR_LOW_CURRENT_SENSE_CONFIG
  * @param e_fuse Pointer to Aux1/Aux2 Efuse structure being configured
+ * @return EXIT_CODE_OK if the configuration was successful
+ *         EXIT_CODE_TIMEOUT if one of the SPI writes timed-out
  */
-void Io_Efuse_Aux1Aux2ConfigureEfuse(struct Efuse *e_fuse);
+ExitCode Io_Efuse_Aux1Aux2ConfigureEfuse(struct Efuse *e_fuse);
 
 /**
  * Exits fail-safe mode and disables the watchdog timer
  * @param e_fuse Pointer to Aux1/Aux2 Efuse structure being configured
+ * @return EXIT_CODE_OK if the efuse exited fail-safe mode
+ *         EXIT_CODE_TIMEOUT if the one of the SPI writes timed-out
+ *         EXIT_CODE_UNIMPLEMENTED if the efuse failed to exit fail-safe mode
  */
-static void Io_Efuse_Aux1Aux2ExitFailSafeMode(struct Efuse *efuse);
+static ExitCode Io_Efuse_Aux1Aux2ExitFailSafeMode(struct Efuse *efuse);
 
 /**
  * Write data to a specific Serial Input register on the Aux1/Aux2 Efuse
  * @param register_address Serial Input register being written to
  * @param register_value Value being written to the Serial Input register
  * @param e_fuse Pointer to Aux1/Aux2 Efuse structure being written to
+ * @return EXIT_CODE_OK if the write was successful
+ *         EXIT_CODE_TIMEOUT if the SPI write timed-out
  */
 static ExitCode Io_Efuse_Aux1Aux2WriteRegister(
     uint8_t       register_address,
@@ -134,7 +182,8 @@ static ExitCode Io_Efuse_Aux1Aux2WriteRegister(
  * @param register_address Serial Output register being read from
  * @param register_value register contents of Serial Output register
  * @param e_fuse Pointer to Aux1/Aux2 Efuse structure being read from
- * @return Contents of the addressed register
+ * @return EXIT_CODE_OK if the read was successful
+ *         EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
 static ExitCode Io_Efuse_Aux1Aux2ReadRegister(
     uint8_t       register_address,

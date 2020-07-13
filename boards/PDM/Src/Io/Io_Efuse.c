@@ -467,10 +467,17 @@
 
 struct Efuse
 {
-    void (*configure_efuse)(struct Efuse *e_fuse);
-    enum Efuse_Status (*get_status)(struct Efuse *e_fuse);
-    enum Efuse_Fault (*get_channel0_faults)(struct Efuse *e_fuse);
-    enum Efuse_Fault (*get_channel1_faults)(struct Efuse *e_fuse);
+    ExitCode (*configure_efuse)(struct Efuse *e_fuse);
+    void (*enable_channel0)(bool enable);
+    void (*enable_channel1)(bool enable);
+    ExitCode (*get_status)(enum Efuse_Status *status, struct Efuse *e_fuse);
+    ExitCode (
+        *get_channel0_faults)(enum Efuse_Fault *fault, struct Efuse *e_fuse);
+    ExitCode (
+        *get_channel1_faults)(enum Efuse_Fault *fault, struct Efuse *e_fuse);
+    bool (*is_in_fault_mode)(void);
+    bool (*is_in_failsafe_mode)(void);
+    void (*delatch_faults)(void);
     bool (*get_channel0_current)(struct Efuse *e_fuse, float *channel0_current);
     bool (*get_channel1_current)(struct Efuse *e_fuse, float *channel1_current);
 
@@ -488,25 +495,78 @@ void Io_Efuse_Init(SPI_HandleTypeDef *const hspi)
     efuse_spi_handle = hspi;
 }
 
-enum Efuse_Status Io_Efuse_GetAux1_Aux2Status(struct Efuse *e_fuse)
+void Io_Efuse_Aux1Enable(bool enable)
 {
-    return Io_Efuse_Aux1Aux2ReadRegister(SO_STATR_ADDR, e_fuse);
+    if (enable)
+    {
+        HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_SET);
+    }
+    else
+    {
+        HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_RESET);
+    }
 }
 
-enum Efuse_Fault Io_Efuse_GetAux1Faults(struct Efuse *e_fuse)
+void Io_Efuse_Aux2Enable(bool enable)
 {
-    return Io_Efuse_Aux1Aux2ReadRegister(SO_FAULTR_0_ADDR, e_fuse);
+    if (enable)
+    {
+        HAL_GPIO_WritePin(PIN_AUX2_GPIO_Port, PIN_AUX2_Pin, GPIO_PIN_SET);
+    }
+    else
+    {
+        HAL_GPIO_WritePin(PIN_AUX2_GPIO_Port, PIN_AUX2_Pin, GPIO_PIN_RESET);
+    }
 }
 
-enum Efuse_Fault Io_Efuse_GetAux2Faults(struct Efuse *e_fuse)
+ExitCode
+    Io_Efuse_GetAux1_Aux2Status(enum Efuse_Status *status, struct Efuse *e_fuse)
 {
-    return Io_Efuse_Aux1Aux2ReadRegister(SO_FAULTR_1_ADDR, e_fuse);
+    return Io_Efuse_Aux1Aux2ReadRegister(
+        SO_STATR_ADDR, (uint16_t *)status, e_fuse);
+}
+
+ExitCode Io_Efuse_GetAux1Faults(enum Efuse_Fault *fault, struct Efuse *e_fuse)
+{
+    return Io_Efuse_Aux1Aux2ReadRegister(
+        SO_FAULTR_0_ADDR, (uint16_t *)fault, e_fuse);
+}
+
+ExitCode Io_Efuse_GetAux2Faults(enum Efuse_Fault *fault, struct Efuse *e_fuse)
+{
+    return Io_Efuse_Aux1Aux2ReadRegister(
+        SO_FAULTR_1_ADDR, (uint16_t *)fault, e_fuse);
+}
+
+bool Io_Efuse_Aux1_Aux2IsInFaultMode(void)
+{
+    return HAL_GPIO_ReadPin(FSB_AUX1_AUX2_GPIO_Port, FSB_AUX1_AUX2_Pin);
+}
+
+bool Io_Efuse_Aux1_Aux2IsInFailSafeMode(void)
+{
+    return HAL_GPIO_ReadPin(FSOB_AUX1_AUX2_GPIO_Port, FSOB_AUX1_AUX2_Pin);
+}
+
+void Io_Efuse_Aux1Aux2DelatchFaults(void)
+{
+    // Delatche the latchable-faults by alternating the inputs high-low-high
+    HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_SET);
+
+    HAL_GPIO_WritePin(PIN_AUX2_GPIO_Port, PIN_AUX2_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(PIN_AUX2_GPIO_Port, PIN_AUX2_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(PIN_AUX2_GPIO_Port, PIN_AUX2_Pin, GPIO_PIN_SET);
 }
 
 bool Io_Efuse_GetAux1Current(struct Efuse *e_fuse, float *aux1_current)
 {
-    Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
-        AUX1_CURRENT_SENSE_CHANNEL, e_fuse);
+    if (Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
+            AUX1_CURRENT_SENSE_CHANNEL, e_fuse) != EXIT_CODE_OK)
+    {
+        return false;
+    }
 
     if (HAL_GPIO_ReadPin(
             CUR_SYNC_AUX1_AUX2_GPIO_Port, CUR_SYNC_AUX1_AUX2_Pin) ==
@@ -521,8 +581,11 @@ bool Io_Efuse_GetAux1Current(struct Efuse *e_fuse, float *aux1_current)
 
 bool Io_Efuse_GetAux2Current(struct Efuse *e_fuse, float *aux2_current)
 {
-    Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
-        AUX2_CURRENT_SENSE_CHANNEL, e_fuse);
+    if (Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
+            AUX2_CURRENT_SENSE_CHANNEL, e_fuse) != EXIT_CODE_OK)
+    {
+        return false;
+    }
 
     if (HAL_GPIO_ReadPin(
             CUR_SYNC_AUX1_AUX2_GPIO_Port, CUR_SYNC_AUX1_AUX2_Pin) ==
@@ -535,50 +598,116 @@ bool Io_Efuse_GetAux2Current(struct Efuse *e_fuse, float *aux2_current)
     return false;
 }
 
-static void Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
+static ExitCode Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
     uint8_t       selection,
     struct Efuse *e_fuse)
 {
-    uint16_t reg_val = 0x0000;
+    uint16_t reg_val[] = { 0x0000 };
 
     // Read original content of GCR Register
-    reg_val = Io_Efuse_Aux1Aux2ReadRegister(SI_GCR_ADDR, e_fuse);
+    if (Io_Efuse_Aux1Aux2ReadRegister(SI_GCR_ADDR, reg_val, e_fuse) !=
+        EXIT_CODE_OK)
+    {
+        return EXIT_CODE_TIMEOUT;
+    }
 
-    CLEAR_BIT(reg_val, (CSNS1_EN_MASK | CSNS0_EN_MASK));
-    SET_BIT(reg_val, (selection & (CSNS1_EN_MASK | CSNS0_EN_MASK)));
+    CLEAR_BIT(reg_val[0], (CSNS1_EN_MASK | CSNS0_EN_MASK));
+    SET_BIT(reg_val[0], (selection & (CSNS1_EN_MASK | CSNS0_EN_MASK)));
 
-    Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, reg_val, e_fuse);
+    if (Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, reg_val[0], e_fuse) !=
+        EXIT_CODE_OK)
+    {
+        return EXIT_CODE_TIMEOUT;
+    }
+
+    return EXIT_CODE_OK;
 }
 
-void Io_Efuse_Aux1Aux2ConfigureEfuse(struct Efuse *e_fuse)
+ExitCode Io_Efuse_Aux1Aux2ConfigureEfuse(struct Efuse *e_fuse)
 {
-    Io_Efuse_Aux1Aux2ExitFailSafeMode(e_fuse);
+    ExitCode exit_code;
+
+    exit_code = Io_Efuse_Aux1Aux2ExitFailSafeMode(e_fuse);
+    if (exit_code != EXIT_CODE_OK)
+    {
+        return exit_code;
+    }
 
     // Global config register
-    Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, GCR_CONFIG, e_fuse);
+    exit_code = Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, GCR_CONFIG, e_fuse);
+    if (exit_code != EXIT_CODE_OK)
+    {
+        return exit_code;
+    }
 
     // Channel 0 config registers
-    Io_Efuse_Aux1Aux2WriteRegister(SI_RETRY_0_ADDR, RETRY_CONFIG, e_fuse);
-    Io_Efuse_Aux1Aux2WriteRegister(SI_CONFR_0_ADDR, CONFR_CONFIG, e_fuse);
-    Io_Efuse_Aux1Aux2WriteRegister(
+    exit_code =
+        Io_Efuse_Aux1Aux2WriteRegister(SI_RETRY_0_ADDR, RETRY_CONFIG, e_fuse);
+    if (exit_code != EXIT_CODE_OK)
+    {
+        return exit_code;
+    }
+    exit_code =
+        Io_Efuse_Aux1Aux2WriteRegister(SI_CONFR_0_ADDR, CONFR_CONFIG, e_fuse);
+    if (exit_code != EXIT_CODE_OK)
+    {
+        return exit_code;
+    }
+    exit_code = Io_Efuse_Aux1Aux2WriteRegister(
         SI_OCR_0_ADDR, OCR_LOW_CURRENT_SENSE_CONFIG, e_fuse);
+    if (exit_code != EXIT_CODE_OK)
+    {
+        return exit_code;
+    }
 
     // Channel 1 config registers
-    Io_Efuse_Aux1Aux2WriteRegister(SI_RETRY_1_ADDR, RETRY_CONFIG, e_fuse);
-    Io_Efuse_Aux1Aux2WriteRegister(SI_CONFR_1_ADDR, CONFR_CONFIG, e_fuse);
-    Io_Efuse_Aux1Aux2WriteRegister(
+    exit_code =
+        Io_Efuse_Aux1Aux2WriteRegister(SI_RETRY_1_ADDR, RETRY_CONFIG, e_fuse);
+    if (exit_code != EXIT_CODE_OK)
+    {
+        return exit_code;
+    }
+    exit_code =
+        Io_Efuse_Aux1Aux2WriteRegister(SI_CONFR_1_ADDR, CONFR_CONFIG, e_fuse);
+    if (exit_code != EXIT_CODE_OK)
+    {
+        return exit_code;
+    }
+    exit_code = Io_Efuse_Aux1Aux2WriteRegister(
         SI_OCR_1_ADDR, OCR_LOW_CURRENT_SENSE_CONFIG, e_fuse);
+    if (exit_code != EXIT_CODE_OK)
+    {
+        return exit_code;
+    }
+
+    return EXIT_CODE_OK;
 }
 
-static void Io_Efuse_Aux1Aux2ExitFailSafeMode(struct Efuse *e_fuse)
+static ExitCode Io_Efuse_Aux1Aux2ExitFailSafeMode(struct Efuse *e_fuse)
 {
     // Set WDIN bit for next write
     // 1_1_00000_00000_0000
     e_fuse->wdin_bit_to_set = true;
 
-    Io_Efuse_Aux1Aux2WriteRegister(SI_STATR_0_ADDR, 0x0000, e_fuse);
+    if (Io_Efuse_Aux1Aux2WriteRegister(SI_STATR_0_ADDR, 0x0000, e_fuse) !=
+        EXIT_CODE_OK)
+    {
+        return EXIT_CODE_TIMEOUT;
+    }
     // Disable watchdog
-    Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, GCR_CONFIG, e_fuse);
+    if (Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, GCR_CONFIG, e_fuse))
+    {
+        return EXIT_CODE_TIMEOUT;
+    }
+
+    // Check if the the efuse is still in fail-safe mode
+    if (HAL_GPIO_ReadPin(FSOB_AUX1_AUX2_GPIO_Port, FSOB_AUX1_AUX2_Pin) ==
+        GPIO_PIN_RESET)
+    {
+        return EXIT_CODE_UNIMPLEMENTED;
+    }
+
+    return EXIT_CODE_OK;
 }
 
 static ExitCode Io_Efuse_Aux1Aux2WriteRegister(
