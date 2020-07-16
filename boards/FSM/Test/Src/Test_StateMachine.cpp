@@ -726,8 +726,8 @@ TEST_F(
         fake_encoder_value_threshold - 1;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PEDAL_IS_PRESSED_AND_BRAKE_IS_ACTUATED_FALSE_CHOICE,
-        App_CanTx_GetPeriodicSignal_PEDAL_IS_PRESSED_AND_BRAKE_IS_ACTUATED(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
             can_tx_interface));
 
     // Check CAN signals when the mapped pedal percentage is greater than 25%
@@ -735,8 +735,8 @@ TEST_F(
         fake_encoder_value_threshold + 1;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PEDAL_IS_PRESSED_AND_BRAKE_IS_ACTUATED_FALSE_CHOICE,
-        App_CanTx_GetPeriodicSignal_PEDAL_IS_PRESSED_AND_BRAKE_IS_ACTUATED(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
             can_tx_interface));
 }
 
@@ -755,8 +755,8 @@ TEST_F(
         fake_encoder_value_threshold - 1;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PEDAL_IS_PRESSED_AND_BRAKE_IS_ACTUATED_FALSE_CHOICE,
-        App_CanTx_GetPeriodicSignal_PEDAL_IS_PRESSED_AND_BRAKE_IS_ACTUATED(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
             can_tx_interface));
 
     // Check CAN signals when the mapped pedal percentage is greater than 25%
@@ -764,14 +764,14 @@ TEST_F(
         fake_encoder_value_threshold + 1;
     LetTimePass(state_machine, 9);
     ASSERT_EQ(
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PEDAL_IS_PRESSED_AND_BRAKE_IS_ACTUATED_FALSE_CHOICE,
-        App_CanTx_GetPeriodicSignal_PEDAL_IS_PRESSED_AND_BRAKE_IS_ACTUATED(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
             can_tx_interface));
 
     LetTimePass(state_machine, 1);
     ASSERT_EQ(
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PEDAL_IS_PRESSED_AND_BRAKE_IS_ACTUATED_TRUE_CHOICE,
-        App_CanTx_GetPeriodicSignal_PEDAL_IS_PRESSED_AND_BRAKE_IS_ACTUATED(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
             can_tx_interface));
 }
 

@@ -153,11 +153,10 @@ BO_ 314 FSM_SECONDARY_APPS: 4 FSM
 SG_ Sapps_Mapped_Pedal_Percentage : 0|32@1+ (1,0) [0|100] "%" DEBUG 
 
 BO_ 315 FSM_MOTOR_SHUTDOWN_ERRORS: 8 FSM
-SG_ DUMMY_MOTOR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DEBUG
-SG_ APPS_Has_Disagreement : 1|1@1+ (1,0) [0|1] "" DEBUG
-SG_ Pedal_Is_Pressed_And_Brake_Is_Actuated : 2|1@1+ (1,0) [0|1] "" DEBUG
-SG_ PAPPS_Alarm_Is_Active : 3|1@1+ (1,0) [0|1] "" DEBUG
-SG_ SAPPS_Alarm_Is_Active : 4|1@1+ (1,0) [0|1] "" DEBUG
+SG_ APPS_Has_Disagreement : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ PAPPS_Alarm_Is_Active : 1|1@1+ (1,0) [0|1] "" DEBUG
+SG_ SAPPS_Alarm_Is_Active : 2|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Plausibility_Check_Has_Failed : 3|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 316 FSM_PEDAL_POSITION: 4 FSM
 SG_ Mapped_Pedal_Percentage: 0|32@1+ (1,0) [0|100] "%" DEBUG
@@ -377,7 +376,7 @@ VAL_ 308 Pressure_Sensor_Is_Open_Or_Short_Circuit 0 "FALSE" 1 "TRUE";
 VAL_ 315 APPS_Has_Disagreement 0 "FALSE" 1 "TRUE";
 VAL_ 315 PAPPS_Alarm_Is_Active 0 "FALSE" 1 "TRUE";
 VAL_ 315 SAPPS_Alarm_Is_Active 0 "FALSE" 1 "TRUE";
-VAL_ 315 Pedal_Is_Pressed_And_Brake_Is_Actuated 0 "FALSE" 1 "TRUE";
+VAL_ 315 Plausibility_Check_Has_Failed 0 "FALSE" 1 "TRUE";
 VAL_ 400 VBAT_VOLTAGE_OUT_OF_RANGE 0 "OK" 1 "UNDERFLOW" 2 "OVERFLOW";
 VAL_ 400 _24V_AUX_VOLTAGE_OUT_OF_RANGE 0 "OK" 1 "UNDERFLOW" 2 "OVERFLOW";
 VAL_ 400 _24V_ACC_VOLTAGE_OUT_OF_RANGE 0 "OK" 1 "UNDERFLOW" 2 "OVERFLOW";

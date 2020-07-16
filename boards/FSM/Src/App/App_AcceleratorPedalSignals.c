@@ -71,7 +71,7 @@ void App_AcceleratorPedalSignals_AppsAndBrakePlausibilityFailureCallback(
     struct FsmWorld *world)
 {
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
-    App_CanTx_SetPeriodicSignal_PEDAL_IS_PRESSED_AND_BRAKE_IS_ACTUATED(
+    App_CanTx_SetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
         can_tx,
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PEDAL_IS_PRESSED_AND_BRAKE_IS_ACTUATED_TRUE_CHOICE);
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_TRUE_CHOICE);
 }
