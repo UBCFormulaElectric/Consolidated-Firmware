@@ -14,32 +14,32 @@
 
 struct Efuse;
 
-//! Enumeration for the status types
+// Enumeration for the status types
 enum Efuse_Status
 {
-    StatusType_NoFault = (0 << 0), //!< No fault
-    StatusType_OUT0    = (1 << 0), //!< Channel 0 Output state (ON/OFF)
-    StatusType_OUT1    = (1 << 1), //!< Channel 0 Output state (ON/OFF)
-    StatusType_FAULT0  = (1 << 2), //!< Fault on Channel 0
-    StatusType_FAULT1  = (1 << 3), //!< Fault on Channel 1
-    StatusType_R_FULL0 = (1 << 4), //!< Channel 0 Auto-retry Counter Full
-    StatusType_R_FULL1 = (1 << 5), //!< Channel 1 Auto-retry Counter Full
-    StatusType_POR     = (1 << 6), //!< Power-on Reset Has Occurred
-    StatusType_UV      = (1 << 7), //!< Under Voltage Fault
-    StatusType_OV      = (1 << 8)  //!< Over Voltage Fault
+    StatusType_NoFault = (0 << 0), // No fault
+    StatusType_OUT0    = (1 << 0), // Channel 0 Output state (ON/OFF)
+    StatusType_OUT1    = (1 << 1), // Channel 0 Output state (ON/OFF)
+    StatusType_FAULT0  = (1 << 2), // Fault on Channel 0
+    StatusType_FAULT1  = (1 << 3), // Fault on Channel 1
+    StatusType_R_FULL0 = (1 << 4), // Channel 0 Auto-retry Counter Full
+    StatusType_R_FULL1 = (1 << 5), // Channel 1 Auto-retry Counter Full
+    StatusType_POR     = (1 << 6), // Power-on Reset Has Occurred
+    StatusType_UV      = (1 << 7), // Under Voltage Fault
+    StatusType_OV      = (1 << 8)  // Over Voltage Fault
 };
 
-//! Enumeration for the fault types
+// Enumeration for the fault types
 enum Efuse_Fault
 {
-    FaultType_NoFault = (0 << 0), //!< No fault
-    FaultType_OC      = (1 << 0), //!< Over Current fault
-    FaultType_SC      = (1 << 1), //!< Severe Short Circuit fault
-    FaultType_OT      = (1 << 2), //!< Over Temperature fault
-    FaultType_OS      = (1 << 3), //!< Output Shorted to Vpwr fault
-    FaultType_OLOFF   = (1 << 4), //!< Open Load in OFF State fault
-    FaultType_OLON    = (1 << 5), //!< Open Load in ON State fault
-    FaultType_OTW     = (1 << 8)  //!< Over Temperature Warning fault
+    FaultType_NoFault = (0 << 0), // No fault
+    FaultType_OC      = (1 << 0), // Over Current fault
+    FaultType_SC      = (1 << 1), // Severe Short Circuit fault
+    FaultType_OT      = (1 << 2), // Over Temperature fault
+    FaultType_OS      = (1 << 3), // Output Shorted to Vpwr fault
+    FaultType_OLOFF   = (1 << 4), // Open Load in OFF State fault
+    FaultType_OLON    = (1 << 5), // Open Load in ON State fault
+    FaultType_OTW     = (1 << 8)  // Over Temperature Warning fault
 };
 
 /**

@@ -10,7 +10,7 @@ float Io_CurrentSense_GetAux1Current(void)
 
     const float LOW_CURRENT_SENSE_GAIN_RATIO = 500.0f;
 
-    return (LOW_CURRENT_SENSE_GAIN_RATIO * Io_Adc_GetChannel6Voltage());
+    return (Io_Adc_GetChannel6Voltage() * LOW_CURRENT_SENSE_GAIN_RATIO);
 }
 
 float Io_CurrentSense_GetAux2Current(void)

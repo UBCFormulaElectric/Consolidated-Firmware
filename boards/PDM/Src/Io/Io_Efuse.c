@@ -3,6 +3,10 @@
 
 #pragma GCC diagnostic ignored "-Wconversion"
 
+#define exit_ok_or_return(code) \
+    if (code)                   \
+    return (code)
+
 // Register data masks
 #define EFUSE_ADDR_MASK 0xFU
 #define EFUSE_ADDR_SHIFT 0x0AU
@@ -25,7 +29,7 @@
 #define DRIVE_INVERTER_FRONT_RIGHT_CURRENT_SENSE_CHANNEL \
     CSNS_FUNCTION_CURRENT_CH1
 
-//! Serial input register addresses
+// Serial input register addresses
 
 // STATR_s input address
 #define SI_STATR_0_ADDR 0x00U
@@ -157,7 +161,7 @@
 #define SI_CALR_1_ADDR 0x0FU
 #define CALR_MASK 0x15BU
 
-//! Serial output register addresses
+// Serial output register addresses
 
 // STATR output address
 #define SO_STATR_ADDR 0x00U
@@ -435,7 +439,7 @@
 #define PWM_CHANNEL_1_ENABLE (0x01 << PWM_EN_1_SHIFT)
 #define PWM_CHANNEL_1_DISABLE (0x00 << PWM_EN_1_SHIFT)
 
-//! Configuration values used for initializing the registers
+// Configuration values used for initializing the registers
 
 // Global Configuration
 #define GCR_CONFIG                                                           \
@@ -605,80 +609,41 @@ static ExitCode Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
     uint16_t reg_val[] = { 0x0000 };
 
     // Read original content of GCR Register
-    if (Io_Efuse_Aux1Aux2ReadRegister(SI_GCR_ADDR, reg_val, e_fuse) !=
-        EXIT_CODE_OK)
-    {
-        return EXIT_CODE_TIMEOUT;
-    }
+    exit_ok_or_return(
+        Io_Efuse_Aux1Aux2ReadRegister(SI_GCR_ADDR, reg_val, e_fuse));
 
     CLEAR_BIT(reg_val[0], (CSNS1_EN_MASK | CSNS0_EN_MASK));
     SET_BIT(reg_val[0], (selection & (CSNS1_EN_MASK | CSNS0_EN_MASK)));
 
-    if (Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, reg_val[0], e_fuse) !=
-        EXIT_CODE_OK)
-    {
-        return EXIT_CODE_TIMEOUT;
-    }
+    exit_ok_or_return(
+        Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, reg_val[0], e_fuse));
 
     return EXIT_CODE_OK;
 }
 
 ExitCode Io_Efuse_Aux1Aux2ConfigureEfuse(struct Efuse *e_fuse)
 {
-    ExitCode exit_code;
-
-    exit_code = Io_Efuse_Aux1Aux2ExitFailSafeMode(e_fuse);
-    if (exit_code != EXIT_CODE_OK)
-    {
-        return exit_code;
-    }
+    exit_ok_or_return(Io_Efuse_Aux1Aux2ExitFailSafeMode(e_fuse));
 
     // Global config register
-    exit_code = Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, GCR_CONFIG, e_fuse);
-    if (exit_code != EXIT_CODE_OK)
-    {
-        return exit_code;
-    }
+    exit_ok_or_return(
+        Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, GCR_CONFIG, e_fuse));
 
     // Channel 0 config registers
-    exit_code =
-        Io_Efuse_Aux1Aux2WriteRegister(SI_RETRY_0_ADDR, RETRY_CONFIG, e_fuse);
-    if (exit_code != EXIT_CODE_OK)
-    {
-        return exit_code;
-    }
-    exit_code =
-        Io_Efuse_Aux1Aux2WriteRegister(SI_CONFR_0_ADDR, CONFR_CONFIG, e_fuse);
-    if (exit_code != EXIT_CODE_OK)
-    {
-        return exit_code;
-    }
-    exit_code = Io_Efuse_Aux1Aux2WriteRegister(
-        SI_OCR_0_ADDR, OCR_LOW_CURRENT_SENSE_CONFIG, e_fuse);
-    if (exit_code != EXIT_CODE_OK)
-    {
-        return exit_code;
-    }
+    exit_ok_or_return(
+        Io_Efuse_Aux1Aux2WriteRegister(SI_RETRY_0_ADDR, RETRY_CONFIG, e_fuse));
+    exit_ok_or_return(
+        Io_Efuse_Aux1Aux2WriteRegister(SI_CONFR_0_ADDR, CONFR_CONFIG, e_fuse));
+    exit_ok_or_return(Io_Efuse_Aux1Aux2WriteRegister(
+        SI_OCR_0_ADDR, OCR_LOW_CURRENT_SENSE_CONFIG, e_fuse));
 
     // Channel 1 config registers
-    exit_code =
-        Io_Efuse_Aux1Aux2WriteRegister(SI_RETRY_1_ADDR, RETRY_CONFIG, e_fuse);
-    if (exit_code != EXIT_CODE_OK)
-    {
-        return exit_code;
-    }
-    exit_code =
-        Io_Efuse_Aux1Aux2WriteRegister(SI_CONFR_1_ADDR, CONFR_CONFIG, e_fuse);
-    if (exit_code != EXIT_CODE_OK)
-    {
-        return exit_code;
-    }
-    exit_code = Io_Efuse_Aux1Aux2WriteRegister(
-        SI_OCR_1_ADDR, OCR_LOW_CURRENT_SENSE_CONFIG, e_fuse);
-    if (exit_code != EXIT_CODE_OK)
-    {
-        return exit_code;
-    }
+    exit_ok_or_return(
+        Io_Efuse_Aux1Aux2WriteRegister(SI_RETRY_1_ADDR, RETRY_CONFIG, e_fuse));
+    exit_ok_or_return(
+        Io_Efuse_Aux1Aux2WriteRegister(SI_CONFR_1_ADDR, CONFR_CONFIG, e_fuse));
+    exit_ok_or_return(Io_Efuse_Aux1Aux2WriteRegister(
+        SI_OCR_1_ADDR, OCR_LOW_CURRENT_SENSE_CONFIG, e_fuse));
 
     return EXIT_CODE_OK;
 }
@@ -689,16 +654,11 @@ static ExitCode Io_Efuse_Aux1Aux2ExitFailSafeMode(struct Efuse *e_fuse)
     // 1_1_00000_00000_0000
     e_fuse->wdin_bit_to_set = true;
 
-    if (Io_Efuse_Aux1Aux2WriteRegister(SI_STATR_0_ADDR, 0x0000, e_fuse) !=
-        EXIT_CODE_OK)
-    {
-        return EXIT_CODE_TIMEOUT;
-    }
+    exit_ok_or_return(
+        Io_Efuse_Aux1Aux2WriteRegister(SI_STATR_0_ADDR, 0x0000, e_fuse));
     // Disable watchdog
-    if (Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, GCR_CONFIG, e_fuse))
-    {
-        return EXIT_CODE_TIMEOUT;
-    }
+    exit_ok_or_return(
+        Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, GCR_CONFIG, e_fuse));
 
     // Check if the the efuse is still in fail-safe mode
     if (HAL_GPIO_ReadPin(FSOB_AUX1_AUX2_GPIO_Port, FSOB_AUX1_AUX2_Pin) ==
