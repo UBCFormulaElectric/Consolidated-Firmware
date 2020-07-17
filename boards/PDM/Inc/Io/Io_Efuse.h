@@ -43,7 +43,7 @@ enum Efuse_Fault
 };
 
 /**
- * Initializes the SPI handle for the Efuses
+ * Initialize the SPI handle for the Efuses
  * @param hspi Handle to the SPI peripheral used for the Efuses
  */
 void Io_Efuse_Init(SPI_HandleTypeDef *const hspi);
