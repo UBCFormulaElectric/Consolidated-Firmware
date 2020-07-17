@@ -101,7 +101,7 @@ bool Io_Efuse_Aux1Aux2IsInFaultMode(void);
  * Check if the Aux1/Aux2 efuse is in fail-safe mode
  * @return true if efuse is in fail-safe mode, else false
  */
-bool Io_Efuse_Aux1_Aux2IsInFailSafeMode(void);
+bool Io_Efuse_Aux1Aux2IsInFailSafeMode(void);
 
 /**
  * De-latches the Aux1/Aux2 efuse's latch-able faults
