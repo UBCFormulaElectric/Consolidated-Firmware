@@ -2,13 +2,11 @@
 #include "Io_Adc.h"
 #include "main.h"
 
-
 float Io_CurrentSense_GetAux1Current(void)
 {
     // Aux1 Current = ADC Voltage * Current Gain Ratio
 
     const float LOW_CURRENT_SENSE_GAIN_RATIO = 500.0f;
-
     return (Io_Adc_GetChannel6Voltage() * LOW_CURRENT_SENSE_GAIN_RATIO);
 }
 

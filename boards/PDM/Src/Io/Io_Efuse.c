@@ -469,28 +469,6 @@
      LOW_CURRENT_THRESHOLD_SELECT_IOCL3 |                         \
      HIGH_CURRENT_THRESHOLD_SELECT_IOCH2 | CURRENT_SENSE_RATIO_HIGH)
 
-struct Efuse
-{
-    ExitCode (*configure_efuse)(struct Efuse *e_fuse);
-    void (*enable_channel0)(bool enable);
-    void (*enable_channel1)(bool enable);
-    ExitCode (*get_status)(enum Efuse_Status *status, struct Efuse *e_fuse);
-    ExitCode (
-        *get_channel0_faults)(enum Efuse_Fault *fault, struct Efuse *e_fuse);
-    ExitCode (
-        *get_channel1_faults)(enum Efuse_Fault *fault, struct Efuse *e_fuse);
-    bool (*is_in_fault_mode)(void);
-    bool (*is_in_failsafe_mode)(void);
-    void (*delatch_faults)(void);
-    bool (*get_channel0_current)(struct Efuse *e_fuse, float *channel0_current);
-    bool (*get_channel1_current)(struct Efuse *e_fuse, float *channel1_current);
-
-    // The current state of the watchdog-in bit (bit 15). If the watchdog is
-    // enabled its state must be alternated at least once within the watchdog
-    // timeout period.
-    bool wdin_bit_to_set;
-};
-
 // The SPI handle for the SPI device the E-Fuses are connected to
 static SPI_HandleTypeDef *efuse_spi_handle;
 
@@ -499,28 +477,24 @@ void Io_Efuse_Init(SPI_HandleTypeDef *const hspi)
     efuse_spi_handle = hspi;
 }
 
-void Io_Efuse_Aux1Enable(bool enable)
+void Io_Efuse_Aux1Enable(void)
 {
-    if (enable)
-    {
-        HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_SET);
-    }
-    else
-    {
-        HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_RESET);
-    }
+    HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_SET);
 }
 
-void Io_Efuse_Aux2Enable(bool enable)
+void Io_Efuse_Aux1Disable(void)
 {
-    if (enable)
-    {
-        HAL_GPIO_WritePin(PIN_AUX2_GPIO_Port, PIN_AUX2_Pin, GPIO_PIN_SET);
-    }
-    else
-    {
-        HAL_GPIO_WritePin(PIN_AUX2_GPIO_Port, PIN_AUX2_Pin, GPIO_PIN_RESET);
-    }
+    HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_RESET);
+}
+
+void Io_Efuse_Aux2Enable(void)
+{
+    HAL_GPIO_WritePin(PIN_AUX2_GPIO_Port, PIN_AUX2_Pin, GPIO_PIN_SET);
+}
+
+void Io_Efuse_Aux2Disable(void)
+{
+    HAL_GPIO_WritePin(PIN_AUX2_GPIO_Port, PIN_AUX2_Pin, GPIO_PIN_RESET);
 }
 
 ExitCode
