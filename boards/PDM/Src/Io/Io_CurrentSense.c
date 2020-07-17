@@ -2,7 +2,6 @@
 #include "Io_Adc.h"
 #include "main.h"
 
-// TODO: Fix hard-coded values once the ADC is configured to read load-switches
 
 float Io_CurrentSense_GetAux1Current(void)
 {
