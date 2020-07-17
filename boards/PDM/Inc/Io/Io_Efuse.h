@@ -46,7 +46,7 @@ enum Efuse_Fault
  * Initialize the SPI handle for the Efuses
  * @param hspi Handle to the SPI peripheral used for the Efuses
  */
-void Io_Efuse_Init(SPI_HandleTypeDef *const hspi);
+void Io_Efuse_Init(SPI_HandleTypeDef * hspi);
 
 /**
  * Enable/disable the Aux 1 channel output
