@@ -13,7 +13,7 @@
 #define EFUSE_SI_DATA_MASK 0x1FFU
 #define EFUSE_SO_DATA_MASK 0xFF // Ignore Normal-Mode status bit (bit 9)
 
-#define WATCH_DOG_BIT (1U << 15U)
+#define WATCHDOG_BIT (1U << 15U)
 #define PARITY_BIT (1U << 14U)
 
 // Current sense channels
