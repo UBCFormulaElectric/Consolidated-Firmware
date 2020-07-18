@@ -3,7 +3,7 @@
 
 #pragma GCC diagnostic ignored "-Wconversion"
 
-#define exit_ok_or_return(code) \
+#define EXIT_OK_OR_RETURN(code) \
     if (code)                   \
     return (code)
 
@@ -469,6 +469,125 @@
      LOW_CURRENT_THRESHOLD_SELECT_IOCL3 |                         \
      HIGH_CURRENT_THRESHOLD_SELECT_IOCH2 | CURRENT_SENSE_RATIO_HIGH)
 
+/**
+ * Sets current/temperature monitoring option of CSNS pin
+ * @param selection The desired monitoring function which can be selected by
+ * specifying the following values:
+ *                  CSNS_FUNCTION_DISABLED - Current sensing disabled
+ *                  AUX1_CURRENT_SENSE_CHANNEL - Current sensing for Aux 1
+ *                  AUX2_CURRENT_SENSE_CHANNEL - Current sensing for Aux 2
+ *                  CSNS_FUNCTION_TEMPERATURE - Efuse temperature sensing
+ *                  CSNS_FUNCTION_CURRENT_SUM - Current sensing for summed
+ * channels (for Parallel mode)
+ * @param e_fuse Pointer to Aux1/Aux2 Efuse structure being configured
+ * @return EXIT_CODE_OK if the channel configuration was successful
+ *         EXIT_CODE_TIMEOUT if one of the SPI writes timed-out
+ */
+static ExitCode Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
+    uint8_t       selection,
+    struct Efuse *e_fuse);
+
+/**
+ * Exits fail-safe mode and disables the watchdog timer
+ * @param e_fuse Pointer to Aux1/Aux2 Efuse structure being configured
+ * @return EXIT_CODE_OK if the efuse exited fail-safe mode
+ *         EXIT_CODE_TIMEOUT if the one of the SPI writes timed-out
+ *         EXIT_CODE_UNIMPLEMENTED if the efuse failed to exit fail-safe mode
+ */
+static ExitCode Io_Efuse_Aux1Aux2ExitFailSafeMode(struct Efuse *efuse);
+
+/**
+ * Write data to a specific Serial Input register on the Aux1/Aux2 Efuse
+ * @param register_address Serial Input register being written to
+ * @param register_value Value being written to the Serial Input register
+ * @param e_fuse Pointer to Aux1/Aux2 Efuse structure being written to
+ * @return EXIT_CODE_OK if the write was successful
+ *         EXIT_CODE_TIMEOUT if the SPI write timed-out
+ */
+static ExitCode Io_Efuse_Aux1Aux2WriteRegister(
+    uint8_t       register_address,
+    uint16_t      register_value,
+    struct Efuse *e_fuse);
+
+/**
+ * Read data from a specific Serial Output register on the Aux1/Aux2 Efuse
+ * @param register_address Serial Output register being read from
+ * @param register_value register contents of Serial Output register
+ * @param e_fuse Pointer to Aux1/Aux2 Efuse structure being read from
+ * @return EXIT_CODE_OK if the read was successful
+ *         EXIT_CODE_TIMEOUT if the SPI read timed-out
+ */
+static ExitCode Io_Efuse_Aux1Aux2ReadRegister(
+    uint8_t       register_address,
+    uint16_t *    register_value,
+    struct Efuse *e_fuse);
+
+/**
+ * Write data to a specific Serial Input register on the Efuse
+ * @param register_address Serial Input register being written to
+ * @param register_value Value being written to the Serial Input register
+ * @param e_fuse Pointer to Efuse structure being written to
+ * @return EXIT_CODE_OK if the write was successful
+ *         EXIT_CODE_TIMEOUT if the SPI write timed-out
+ */
+static ExitCode Io_Efuse_WriteRegister(
+    uint8_t       register_address,
+    uint16_t      register_value,
+    GPIO_TypeDef *ChipSelect_GPIO_Port,
+    uint16_t      ChipSelect_GPIO_Pin,
+    struct Efuse *e_fuse);
+
+/**
+ * Read data from a specific Serial Output register on the Efuse
+ * @param register_address Serial Output register being read from
+ * @param register_value register contents
+ * @param e_fuse Pointer to Efuse structure being read from
+ * @return EXIT_CODE_OK if the read was successful
+ *         EXIT_CODE_TIMEOUT if the SPI read timed-out
+ */
+static ExitCode Io_Efuse_ReadRegister(
+    uint8_t       register_address,
+    uint16_t *    register_value,
+    GPIO_TypeDef *ChipSelect_GPIO_Port,
+    uint16_t      ChipSelect_GPIO_Pin,
+    struct Efuse *e_fuse);
+
+/**
+ * Calculates the parity of the SPI command to be sent to the Efuse and
+ * sets/clears the parity bit. Using the XOR sum of bits method taken from:
+ * https://en.wikipedia.org/wiki/Parity_bit#Parity
+ * @param spi_command Original SPI command without the parity bit
+ */
+static void Io_Efuse_SetParityBit(uint16_t *spi_command);
+
+/**
+ * Write SPI data to Efuse in blocking mode
+ * @param tx_data Pointer to data being sent to the Efuse
+ * @param chip_select_port Handle to Efuse's chip-select GPIO port
+ * @param chip_select_pin Efuse's chip-select GPIO pin
+ * @return EXIT_CODE_OK if the write was successful
+ *         EXIT_CODE_TIMEOUT if the SPI write timed-out
+ */
+static ExitCode Io_Efuse_WriteToEfuse(
+    uint16_t *    tx_data,
+    GPIO_TypeDef *chip_select_port,
+    uint16_t      chip_select_pin);
+
+/**
+ * Read SPI data from Efuse in blocking mode
+ * @param tx_data Pointer to data being sent to the Efuse
+ * @param rx_data Pointer to data being received from the Efuse
+ * @param chip_select_port Handle to Efuse's chip-select GPIO port
+ * @param chip_select_pin Efuse's chip-select GPIO pin
+ * @return EXIT_CODE_OK if the read was successful
+ *         EXIT_CODE_TIMEOUT if the SPI read timed-out
+ */
+static ExitCode Io_Efuse_ReadFromEfuse(
+    uint16_t *    tx_data,
+    uint16_t *    rx_data,
+    GPIO_TypeDef *chip_select_port,
+    uint16_t      chip_select_pin);
+
 // The SPI handle for the SPI device the E-Fuses are connected to
 static SPI_HandleTypeDef *efuse_spi_handle;
 
@@ -583,13 +702,13 @@ static ExitCode Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
     uint16_t reg_val[] = { 0x0000 };
 
     // Read original content of GCR Register
-    exit_ok_or_return(
+    EXIT_OK_OR_RETURN(
         Io_Efuse_Aux1Aux2ReadRegister(SI_GCR_ADDR, reg_val, e_fuse));
 
     CLEAR_BIT(reg_val[0], (CSNS1_EN_MASK | CSNS0_EN_MASK));
     SET_BIT(reg_val[0], (selection & (CSNS1_EN_MASK | CSNS0_EN_MASK)));
 
-    exit_ok_or_return(
+    EXIT_OK_OR_RETURN(
         Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, reg_val[0], e_fuse));
 
     return EXIT_CODE_OK;
@@ -597,26 +716,26 @@ static ExitCode Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
 
 ExitCode Io_Efuse_Aux1Aux2ConfigureEfuse(struct Efuse *e_fuse)
 {
-    exit_ok_or_return(Io_Efuse_Aux1Aux2ExitFailSafeMode(e_fuse));
+    EXIT_OK_OR_RETURN(Io_Efuse_Aux1Aux2ExitFailSafeMode(e_fuse));
 
     // Global config register
-    exit_ok_or_return(
+    EXIT_OK_OR_RETURN(
         Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, GCR_CONFIG, e_fuse));
 
     // Channel 0 config registers
-    exit_ok_or_return(
+    EXIT_OK_OR_RETURN(
         Io_Efuse_Aux1Aux2WriteRegister(SI_RETRY_0_ADDR, RETRY_CONFIG, e_fuse));
-    exit_ok_or_return(
+    EXIT_OK_OR_RETURN(
         Io_Efuse_Aux1Aux2WriteRegister(SI_CONFR_0_ADDR, CONFR_CONFIG, e_fuse));
-    exit_ok_or_return(Io_Efuse_Aux1Aux2WriteRegister(
+    EXIT_OK_OR_RETURN(Io_Efuse_Aux1Aux2WriteRegister(
         SI_OCR_0_ADDR, OCR_LOW_CURRENT_SENSE_CONFIG, e_fuse));
 
     // Channel 1 config registers
-    exit_ok_or_return(
+    EXIT_OK_OR_RETURN(
         Io_Efuse_Aux1Aux2WriteRegister(SI_RETRY_1_ADDR, RETRY_CONFIG, e_fuse));
-    exit_ok_or_return(
+    EXIT_OK_OR_RETURN(
         Io_Efuse_Aux1Aux2WriteRegister(SI_CONFR_1_ADDR, CONFR_CONFIG, e_fuse));
-    exit_ok_or_return(Io_Efuse_Aux1Aux2WriteRegister(
+    EXIT_OK_OR_RETURN(Io_Efuse_Aux1Aux2WriteRegister(
         SI_OCR_1_ADDR, OCR_LOW_CURRENT_SENSE_CONFIG, e_fuse));
 
     return EXIT_CODE_OK;
@@ -628,10 +747,10 @@ static ExitCode Io_Efuse_Aux1Aux2ExitFailSafeMode(struct Efuse *e_fuse)
     // 1_1_00000_00000_0000
     e_fuse->wdin_bit_to_set = true;
 
-    exit_ok_or_return(
+    EXIT_OK_OR_RETURN(
         Io_Efuse_Aux1Aux2WriteRegister(SI_STATR_0_ADDR, 0x0000, e_fuse));
     // Disable watchdog
-    exit_ok_or_return(
+    EXIT_OK_OR_RETURN(
         Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, GCR_CONFIG, e_fuse));
 
     // Check if the the efuse is still in fail-safe mode
@@ -683,11 +802,11 @@ static ExitCode Io_Efuse_WriteRegister(
     // is disabled)
     if (e_fuse->wdin_bit_to_set)
     {
-        SET_BIT(command, WATCH_DOG_BIT);
+        SET_BIT(command, WATCHDOG_BIT);
     }
     else
     {
-        CLEAR_BIT(command, WATCH_DOG_BIT);
+        CLEAR_BIT(command, WATCHDOG_BIT);
     }
     // Invert watchdog bit state for next write
     e_fuse->wdin_bit_to_set = !e_fuse->wdin_bit_to_set;
@@ -723,11 +842,11 @@ static ExitCode Io_Efuse_ReadRegister(
     // is disabled)
     if (e_fuse->wdin_bit_to_set)
     {
-        command |= WATCH_DOG_BIT;
+        SET_BIT(command, WATCHDOG_BIT);
     }
     else
     {
-        command &= ~(WATCH_DOG_BIT);
+        CLEAR_BIT(command, WATCHDOG_BIT);
     }
     // Invert watchdog bit state for next write
     e_fuse->wdin_bit_to_set = !e_fuse->wdin_bit_to_set;
