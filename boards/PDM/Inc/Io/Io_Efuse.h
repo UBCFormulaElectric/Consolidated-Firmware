@@ -74,7 +74,7 @@ ExitCode Io_Efuse_GetAux2Faults(enum Efuse_Fault *fault, struct Efuse *e_fuse);
  * Check if the Aux1/Aux2 efuse is in fault mode
  * @return true if efuse is in fault mode, else false
  */
-bool Io_Efuse_Aux1Aux2IsInFaultMode(void);
+bool Io_Efuse_IsAux1OrAux2InFaultMode(void);
 
 /**
  * Check if the Aux1/Aux2 efuse is in fail-safe mode
