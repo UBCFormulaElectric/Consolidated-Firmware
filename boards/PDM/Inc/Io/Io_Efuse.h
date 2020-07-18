@@ -83,7 +83,7 @@ bool Io_Efuse_IsAux1OrAux2InFaultMode(void);
 bool Io_Efuse_Aux1Aux2IsInFailSafeMode(void);
 
 /**
- * De-latches the Aux1/Aux2 efuse's latch-able faults
+ * Delatch the Aux1/Aux2 efuse's latchable faults
  * @note Non-latchable faults are reset by reading from the fault registers
  */
 void Io_Efuse_Aux1Aux2DelatchFaults(void);
