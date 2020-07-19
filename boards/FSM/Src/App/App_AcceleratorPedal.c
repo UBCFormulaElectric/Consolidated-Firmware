@@ -82,8 +82,8 @@ float App_AcceleratorPedal_GetPedalPercentage(
         return 100.0f;
     }
 
-    // Pedal % = 100% * (encoder value - low end deadzone threshold) / (high end
-    // deadzone threshold - low end deadzone threshold)
+    // Pedal % = 100% * (encoder value - low end deadzone threshold) /
+    // (high end deadzone threshold - low end deadzone threshold)
     return 100.0f *
            ((float)encoder_counter_value - low_end_deadzone_threshold) /
            (high_end_deadzone_threshold - low_end_deadzone_threshold);
