@@ -263,7 +263,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
              percent_deflection));
     }
 
-    void CheckIfMotorShutdownFlagSetWhenAppsHasDisagreement(
+    void CheckIfAppsDisagreementFaultIsSetWhenAppsHasDisagreement(
         uint32_t &larger_pedal_percentage_fake_encoder_counter,
         uint32_t &smaller_pedal_percentage_fake_encoder_counter,
         uint8_t (*apps_has_disagreement_can_signal_getter)(
@@ -273,7 +273,8 @@ class FsmStateMachineTest : public BaseStateMachineTest
         uint8_t  true_choice,
         uint8_t  false_choice)
     {
-        for (size_t i = 10; i < 100; i++)
+        for (size_t mapped_pedal_percentage = 10; mapped_pedal_percentage < 100;
+             mapped_pedal_percentage++)
         {
             // Remove pedal disagreement to avoid false positives on the next
             // cycle
@@ -286,7 +287,8 @@ class FsmStateMachineTest : public BaseStateMachineTest
             // APPS
             larger_pedal_percentage_fake_encoder_counter =
                 GetEncoderCounterFromMappedPedalPercentage(
-                    i, larger_pedal_percentage_max_pressed_value) +
+                    mapped_pedal_percentage,
+                    larger_pedal_percentage_max_pressed_value) +
                 1;
 
             // Decrement the value of the greater encoder value by 1 to ensure
@@ -294,7 +296,8 @@ class FsmStateMachineTest : public BaseStateMachineTest
             // APPS
             smaller_pedal_percentage_fake_encoder_counter =
                 GetEncoderCounterFromMappedPedalPercentage(
-                    i - 10, smaller_pedal_percentage_max_pressed_value) -
+                    mapped_pedal_percentage - 10,
+                    smaller_pedal_percentage_max_pressed_value) -
                 1;
             LetTimePass(state_machine, 99);
             ASSERT_EQ(
@@ -688,7 +691,7 @@ TEST_F(
     FsmStateMachineTest,
     papps_greater_than_apps_by_ten_percent_sets_motor_shutdown_flag)
 {
-    CheckIfMotorShutdownFlagSetWhenAppsHasDisagreement(
+    CheckIfAppsDisagreementFaultIsSetWhenAppsHasDisagreement(
         get_papps_encoder_counter_fake.return_val,
         get_sapps_encoder_counter_fake.return_val,
         App_CanTx_GetPeriodicSignal_APPS_HAS_DISAGREEMENT,
@@ -702,7 +705,7 @@ TEST_F(
     FsmStateMachineTest,
     sapps_greater_than_apps_by_ten_percent_sets_motor_shutdown_flag)
 {
-    CheckIfMotorShutdownFlagSetWhenAppsHasDisagreement(
+    CheckIfAppsDisagreementFaultIsSetWhenAppsHasDisagreement(
         get_sapps_encoder_counter_fake.return_val,
         get_papps_encoder_counter_fake.return_val,
         App_CanTx_GetPeriodicSignal_APPS_HAS_DISAGREEMENT,
