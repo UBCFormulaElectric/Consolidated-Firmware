@@ -9,7 +9,7 @@ struct AcceleratorPedal;
  * @param is_encoder_alarm_active A function that can be called to check whether
  * the encoder alarm is active (Modeled after MAX3097E)
  * @param reset_encoder_count A function that can be called to reset the counter
- * value of the encoder corresponding to the given accelerator pedal
+ * value of the encoder corresponding to the given accelerator pedal to 0
  * @param get_encoder_counter_value A function that can be called to get the
  * counter value of the encoder corresponding to the given accelerator pedal
  * @param encoder_max_pressed_value The maximum encoder counter value
@@ -38,7 +38,7 @@ bool App_AcceleratorPedal_IsEncoderAlarmActive(
     const struct AcceleratorPedal *accelerator_pedal);
 
 /**
- * Get the pedal percentage for the given accelerator pedal
+ * Get the pedal percentage for the given accelerator pedal, a value in [0, 100]
  * @param accelerator_pedal The accelerator pedal to get the pedal percentage
  * from
  * @return The pedal percentage of the given accelerator pedal

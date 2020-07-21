@@ -116,17 +116,22 @@ void App_SetPeriodicSignals_AcceleratorPedal(const struct FsmWorld *world)
 {
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
 
-    struct Brake *           brake = App_FsmWorld_GetBrake(world);
-    struct AcceleratorPedal *papps = App_FsmWorld_GetPapps(world);
-    struct AcceleratorPedal *sapps = App_FsmWorld_GetSapps(world);
+    struct Brake *            brake = App_FsmWorld_GetBrake(world);
+    struct AcceleratorPedals *papps_and_sapps =
+        App_FsmWorld_GetPappsAndSapps(world);
+    // struct AcceleratorPedal *papps = App_FsmWorld_GetPapps(world);
+    // struct AcceleratorPedal *sapps = App_FsmWorld_GetSapps(world);
 
+    // const float papps_pedal_percentage =
+    // App_AcceleratorPedal_GetPedalPercentage(papps);
     const float papps_pedal_percentage =
-        App_AcceleratorPedal_GetPedalPercentage(papps);
+        App_AcceleratorPedals_GetPrimaryPedalPercentage(papps_and_sapps);
 
     App_CanTx_SetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(
         can_tx, papps_pedal_percentage);
     App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(
-        can_tx, App_AcceleratorPedal_GetPedalPercentage(sapps));
+        can_tx,
+        App_AcceleratorPedals_GetSecondaryPedalPercentage(papps_and_sapps));
 
     if (App_Brake_IsBrakeActuated(brake))
     {

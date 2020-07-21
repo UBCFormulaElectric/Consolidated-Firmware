@@ -4,9 +4,10 @@
 
 bool App_AcceleratorPedalSignals_IsPappsAlarmActive(struct FsmWorld *world)
 {
-    struct AcceleratorPedal *papps = App_FsmWorld_GetPapps(world);
+    struct AcceleratorPedals *papps_and_sapps =
+        App_FsmWorld_GetPappsAndSapps(world);
 
-    return App_AcceleratorPedal_IsEncoderAlarmActive(papps);
+    return App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(papps_and_sapps);
 }
 
 void App_AcceleratorPedalSignals_PappsAlarmCallback(struct FsmWorld *world)
@@ -21,9 +22,10 @@ void App_AcceleratorPedalSignals_PappsAlarmCallback(struct FsmWorld *world)
 
 bool App_AcceleratorPedalSignals_IsSappsAlarmActive(struct FsmWorld *world)
 {
-    struct AcceleratorPedal *sapps = App_FsmWorld_GetSapps(world);
+    struct AcceleratorPedals *papps_and_sapps =
+        App_FsmWorld_GetPappsAndSapps(world);
 
-    return App_AcceleratorPedal_IsEncoderAlarmActive(sapps);
+    return App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(papps_and_sapps);
 }
 
 void App_AcceleratorPedalSignals_SappsAlarmCallback(struct FsmWorld *world)
@@ -38,12 +40,14 @@ void App_AcceleratorPedalSignals_SappsAlarmCallback(struct FsmWorld *world)
 
 bool App_AcceleratorPedalSignals_HasAppsDisagreement(struct FsmWorld *world)
 {
-    struct AcceleratorPedal *papps = App_FsmWorld_GetPapps(world);
-    struct AcceleratorPedal *sapps = App_FsmWorld_GetSapps(world);
+    struct AcceleratorPedals *papps_and_sapps =
+        App_FsmWorld_GetPappsAndSapps(world);
 
     return fabsf(
-               App_AcceleratorPedal_GetPedalPercentage(papps) -
-               App_AcceleratorPedal_GetPedalPercentage(sapps)) > 10.0f;
+               App_AcceleratorPedals_GetPrimaryPedalPercentage(
+                   papps_and_sapps) -
+               App_AcceleratorPedals_GetSecondaryPedalPercentage(
+                   papps_and_sapps)) > 10.0f;
 }
 
 void App_AcceleratorPedalSignals_AppsDisagreementCallback(
@@ -60,11 +64,13 @@ void App_AcceleratorPedalSignals_AppsDisagreementCallback(
 bool App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure(
     struct FsmWorld *world)
 {
-    struct AcceleratorPedal *papps = App_FsmWorld_GetPapps(world);
-    struct Brake *           brake = App_FsmWorld_GetBrake(world);
+    struct AcceleratorPedals *papps_and_sapps =
+        App_FsmWorld_GetPappsAndSapps(world);
+    struct Brake *brake = App_FsmWorld_GetBrake(world);
 
     return App_Brake_IsBrakeActuated(brake) &&
-           App_AcceleratorPedal_GetPedalPercentage(papps) > 25.0f;
+           App_AcceleratorPedals_GetPrimaryPedalPercentage(papps_and_sapps) >
+               25.0f;
 }
 
 void App_AcceleratorPedalSignals_AppsAndBrakePlausibilityFailureCallback(

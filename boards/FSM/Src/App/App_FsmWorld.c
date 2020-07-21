@@ -27,6 +27,7 @@ struct FsmWorld
     struct Clock *            clock;
     struct AcceleratorPedal * papps;
     struct AcceleratorPedal * sapps;
+    struct AcceleratorPedals *papps_and_sapps;
 };
 
 /**
@@ -56,18 +57,18 @@ struct FsmWorld *App_FsmWorld_Create(
     struct Brake *const             brake,
     struct RgbLedSequence *const    rgb_led_sequence,
     struct Clock *const             clock,
+    struct AcceleratorPedals *const papps_and_sapps,
 
     bool (*const has_apps_and_brake_plausibility_failure)(struct FsmWorld *),
     void (*const apps_and_brake_plausibility_failure_callback)(
         struct FsmWorld *),
     bool (*const has_apps_disagreement)(struct FsmWorld *),
     void (*const apps_disagreement_callback)(struct FsmWorld *),
-    struct AcceleratorPedal *const papps,
     bool (*const is_papps_alarm_active)(struct FsmWorld *),
     void (*const papps_alarm_callback)(struct FsmWorld *),
-    struct AcceleratorPedal *const sapps,
     bool (*const is_sapps_alarm_active)(struct FsmWorld *),
     void (*const sapps_alarm_callback)(struct FsmWorld *))
+
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
     assert(world != NULL);
@@ -85,8 +86,7 @@ struct FsmWorld *App_FsmWorld_Create(
     world->rgb_led_sequence                 = rgb_led_sequence;
     world->signals_head                     = NULL;
     world->clock                            = clock;
-    world->papps                            = papps;
-    world->sapps                            = sapps;
+    world->papps_and_sapps                  = papps_and_sapps;
 
     struct SignalCallback papps_callback = {
         .high_duration_ms = 10,
@@ -230,4 +230,10 @@ struct AcceleratorPedal *
     App_FsmWorld_GetSapps(const struct FsmWorld *const world)
 {
     return world->sapps;
+}
+
+struct AcceleratorPedals *
+    App_FsmWorld_GetPappsAndSapps(const struct FsmWorld *const world)
+{
+    return world->papps_and_sapps;
 }

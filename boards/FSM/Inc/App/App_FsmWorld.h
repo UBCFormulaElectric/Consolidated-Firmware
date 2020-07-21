@@ -9,7 +9,7 @@
 #include "App_Brake.h"
 #include "App_SharedSignal.h"
 #include "App_SharedClock.h"
-#include "App_AcceleratorPedal.h"
+#include "App_AcceleratorPedals.h"
 
 struct FsmWorld;
 
@@ -34,15 +34,14 @@ struct FsmWorld *App_FsmWorld_Create(
     struct Brake *            brake,
     struct RgbLedSequence *   rgb_led_sequence,
     struct Clock *            clock,
+    struct AcceleratorPedals *papps_and_sapps,
 
     bool (*has_apps_and_brake_plausibility_failure)(struct FsmWorld *),
     void (*apps_and_brake_plausibility_failure_callback)(struct FsmWorld *),
     bool (*has_apps_disagreement)(struct FsmWorld *),
     void (*apps_disagreement_callback)(struct FsmWorld *),
-    struct AcceleratorPedal *papps,
     bool (*is_papps_alarm_active)(struct FsmWorld *),
     void (*papps_alarm_callback)(struct FsmWorld *),
-    struct AcceleratorPedal *sapps,
     bool (*is_sapps_alarm_active)(struct FsmWorld *),
     void (*sapps_alarm_callback)(struct FsmWorld *));
 
@@ -149,15 +148,9 @@ void App_FsmWorld_UpdateSignals(
 struct Clock *App_FsmWorld_GetClock(const struct FsmWorld *world);
 
 /**
- * Get the primary APPS for the given world
- * @param world The world to get primary APPS for
- * @return The primary APPS for the given world
- */
-struct AcceleratorPedal *App_FsmWorld_GetPapps(const struct FsmWorld *world);
-
-/**
- * Get the secondary APPS for the given world
- * @param world The world to get secondary APPS for
+ * Get the pair of primary and secondary APPS for the given world
+ * @param world The world to get the pair of primary and secondary APPS for
  * @return The secondary APPS for the given world
  */
-struct AcceleratorPedal *App_FsmWorld_GetSapps(const struct FsmWorld *world);
+struct AcceleratorPedals *
+    App_FsmWorld_GetPappsAndSapps(const struct FsmWorld *world);

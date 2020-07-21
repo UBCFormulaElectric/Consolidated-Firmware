@@ -42,7 +42,8 @@
 #include "Io_Adc.h"
 #include "Io_AcceleratorPedals.h"
 #include "Io_Brake.h"
-#include "Io_Scancon2RMHF.h"
+#include "Io_PrimaryScancon2RMHF.h"
+#include "Io_SecondaryScancon2RMHF.h"
 
 #include "App_FsmWorld.h"
 #include "App_SharedStateMachine.h"
@@ -117,6 +118,7 @@ struct RgbLedSequence *   rgb_led_sequence;
 struct Clock *            clock;
 struct AcceleratorPedal * papps;
 struct AcceleratorPedal * sapps;
+struct AcceleratorPedals *papps_and_sapps;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -250,15 +252,17 @@ int main(void)
 
     clock = App_SharedClock_Create();
 
-    papps = App_AcceleratorPedal_Create(
-        Io_AcceleratorPedals_IsPappsEncoderAlarmActive,
-        Io_Scancon2RMHF_ResetPrimaryEncoderCounter,
-        Io_Scancon2RMHF_GetPrimaryEncoderCounter, PAPPS_MAX_PRESSED_VALUE);
+    Io_PrimaryScancon2RMHF_Init(&htim1);
+    Io_SecondaryScancon2RMHF_Init(&htim2);
 
-    sapps = App_AcceleratorPedal_Create(
+    papps_and_sapps = App_AcceleratorPedals_Create(
+        Io_AcceleratorPedals_IsPappsEncoderAlarmActive,
         Io_AcceleratorPedals_IsSappsEncoderAlarmActive,
-        Io_Scancon2RMHF_ResetSecondaryEncoderCounter,
-        Io_Scancon2RMHF_GetSecondaryEncoderCounter, SAPPS_MAX_PRESSED_VALUE);
+        Io_PrimaryScancon2RMHF_GetEncoderCounter,
+        Io_SecondaryScancon2RMHF_GetEncoderCounter,
+        Io_PrimaryScancon2RMHF_ResetEncoderCounter,
+        Io_SecondaryScancon2RMHF_ResetEncoderCounter, PAPPS_MAX_PRESSED_VALUE,
+        SAPPS_MAX_PRESSED_VALUE);
 
     world = App_FsmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, primary_flow_meter_in_range_check,
@@ -266,13 +270,14 @@ int main(void)
         left_wheel_speed_sensor_in_range_check,
         right_wheel_speed_sensor_in_range_check,
         steering_angle_sensor_in_range_check, brake, rgb_led_sequence, clock,
+        papps_and_sapps,
 
         App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure,
         App_AcceleratorPedalSignals_AppsAndBrakePlausibilityFailureCallback,
         App_AcceleratorPedalSignals_HasAppsDisagreement,
-        App_AcceleratorPedalSignals_AppsDisagreementCallback, papps,
+        App_AcceleratorPedalSignals_AppsDisagreementCallback,
         App_AcceleratorPedalSignals_IsPappsAlarmActive,
-        App_AcceleratorPedalSignals_PappsAlarmCallback, sapps,
+        App_AcceleratorPedalSignals_PappsAlarmCallback,
         App_AcceleratorPedalSignals_IsSappsAlarmActive,
         App_AcceleratorPedalSignals_SappsAlarmCallback);
 

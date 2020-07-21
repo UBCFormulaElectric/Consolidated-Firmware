@@ -100,27 +100,25 @@ class FsmStateMachineTest : public BaseStateMachineTest
 
         clock = App_SharedClock_Create();
 
-        papps = App_AcceleratorPedal_Create(
-            is_papps_encoder_alarm_active, reset_papps_encoder_counter,
-            get_papps_encoder_counter, PAPPS_MAX_PRESSED_VALUE);
-
-        sapps = App_AcceleratorPedal_Create(
-            is_sapps_encoder_alarm_active, reset_sapps_encoder_counter,
-            get_sapps_encoder_counter, SAPPS_MAX_PRESSED_VALUE);
+        papps_and_sapps = App_AcceleratorPedals_Create(
+            is_papps_encoder_alarm_active, is_sapps_encoder_alarm_active,
+            get_papps_encoder_counter, get_sapps_encoder_counter,
+            reset_papps_encoder_counter, reset_sapps_encoder_counter,
+            PAPPS_MAX_PRESSED_VALUE, SAPPS_MAX_PRESSED_VALUE);
 
         world = App_FsmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
             primary_flow_rate_in_range_check,
             secondary_flow_rate_in_range_check, left_wheel_speed_in_range_check,
             right_wheel_speed_in_range_check, steering_angle_in_range_check,
-            brake, rgb_led_sequence, clock,
+            brake, rgb_led_sequence, clock, papps_and_sapps,
 
             App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure,
             App_AcceleratorPedalSignals_AppsAndBrakePlausibilityFailureCallback,
             App_AcceleratorPedalSignals_HasAppsDisagreement,
-            App_AcceleratorPedalSignals_AppsDisagreementCallback, papps,
+            App_AcceleratorPedalSignals_AppsDisagreementCallback,
             App_AcceleratorPedalSignals_IsPappsAlarmActive,
-            App_AcceleratorPedalSignals_PappsAlarmCallback, sapps,
+            App_AcceleratorPedalSignals_PappsAlarmCallback,
             App_AcceleratorPedalSignals_IsSappsAlarmActive,
             App_AcceleratorPedalSignals_SappsAlarmCallback);
 
@@ -172,8 +170,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
         TearDownObject(brake, App_Brake_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
-        TearDownObject(papps, App_AcceleratorPedal_Destroy);
-        TearDownObject(sapps, App_AcceleratorPedal_Destroy);
+        TearDownObject(papps_and_sapps, App_AcceleratorPedals_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -343,6 +340,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
     struct Clock *            clock;
     struct AcceleratorPedal * papps;
     struct AcceleratorPedal * sapps;
+    struct AcceleratorPedals *papps_and_sapps;
 };
 
 // FSM-10
@@ -603,7 +601,7 @@ TEST_F(
 // FSM-16
 TEST_F(
     FsmStateMachineTest,
-    papps_alarm_error_sets_mapped_pedal_percentage_to_zero_and_sets_motor_shutdown_flag)
+    papps_alarm_error_sets_mapped_pedal_percentage_to_zero_and_sets_motor_shutdown_can_tx_signal)
 {
     // Start with a non-zero pedal positions to prevent false positive
     get_papps_encoder_counter_fake.return_val = PAPPS_MAX_PRESSED_VALUE / 2.0;
@@ -630,7 +628,7 @@ TEST_F(
 // FSM-5, FSM-16
 TEST_F(
     FsmStateMachineTest,
-    sapps_alarm_error_sets_mapped_pedal_percentage_to_zero_and_sets_motor_shutdown_flag)
+    sapps_alarm_error_sets_mapped_pedal_percentage_to_zero_and_sets_motor_shutdown_can_tx_signal)
 {
     // Start with a non-zero pedal position to avoid false positives
     get_papps_encoder_counter_fake.return_val = PAPPS_MAX_PRESSED_VALUE / 2.0;
@@ -689,7 +687,7 @@ TEST_F(
 // FSM-6
 TEST_F(
     FsmStateMachineTest,
-    papps_greater_than_apps_by_ten_percent_sets_motor_shutdown_flag)
+    papps_greater_than_apps_by_ten_percent_sets_motor_shutdown_can_tx_signal)
 {
     CheckIfAppsDisagreementFaultIsSetWhenAppsHasDisagreement(
         get_papps_encoder_counter_fake.return_val,
@@ -703,7 +701,7 @@ TEST_F(
 // FSM-6
 TEST_F(
     FsmStateMachineTest,
-    sapps_greater_than_apps_by_ten_percent_sets_motor_shutdown_flag)
+    sapps_greater_than_apps_by_ten_percent_sets_motor_shutdown_can_tx_signal)
 {
     CheckIfAppsDisagreementFaultIsSetWhenAppsHasDisagreement(
         get_sapps_encoder_counter_fake.return_val,
@@ -717,7 +715,7 @@ TEST_F(
 // FSM-7
 TEST_F(
     FsmStateMachineTest,
-    apps_is_pressed_and_brake_is_not_actuated_does_not_set_motor_shutdown_flag)
+    apps_is_pressed_and_brake_is_not_actuated_does_not_set_motor_shutdown_can_tx_signal)
 {
     const float fake_encoder_value_threshold =
         GetEncoderCounterFromMappedPedalPercentage(
@@ -746,7 +744,7 @@ TEST_F(
 // FSM-7
 TEST_F(
     FsmStateMachineTest,
-    apps_is_pressed_and_brake_is_actuated_sets_motor_shutdown_flag)
+    apps_is_pressed_and_brake_is_actuated_sets_motor_shutdown_can_tx_signal)
 {
     const float fake_encoder_value_threshold =
         GetEncoderCounterFromMappedPedalPercentage(

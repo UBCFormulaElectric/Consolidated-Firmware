@@ -54,7 +54,7 @@ float App_AcceleratorPedal_GetPedalPercentage(
     const float low_end_deadzone_threshold =
         (float)encoder_max_pressed_value * percent_deflection;
 
-    // TODO: Determine the high end deadzone threshold
+    // TODO: Determine the high end deadzone threshold #666
     // Currently setting the high end deadzone threshold to be 3% less than
     // the maximum encoder value when the pedal is completely pressed
     const float high_end_deadzone_threshold =
