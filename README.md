@@ -25,7 +25,7 @@ Follow these steps to compile and debug code in **CLion**:
 
 #### 1. Install Dependencies:
 ##### Ubuntu 18.04
-You need to install `git lfs` following the instructions here: https://git-lfs.github.com/. Don't forget to run `git lfs install` aftewwards.
+You need to install `git lfs` following the instructions here: https://git-lfs.github.com/. Don't forget to run `git lfs install` afterwards.
 
 Then, `cd` to the root directory of the repo and run the following commands:
 ```
