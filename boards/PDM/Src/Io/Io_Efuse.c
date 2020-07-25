@@ -5,8 +5,8 @@
 #pragma GCC diagnostic ignored "-Wconversion"
 
 #define EXIT_OK_OR_RETURN(code) \
-    if (code)                   \
-    return (code)
+    if (CODE)                   \
+    return (CODE)
 
 // Register data masks
 #define EFUSE_ADDR_MASK 0xFU
