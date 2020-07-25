@@ -824,7 +824,6 @@ static ExitCode Io_Efuse_ReadRegister(
 {
     ExitCode exit_code;
     uint16_t command   = 0x0000U;
-    uint16_t tx_data[] = { 0x0000U };
 
     // Place the Status Register address into bits 10->13
     command =
@@ -849,7 +848,6 @@ static ExitCode Io_Efuse_ReadRegister(
     // Compute and set/clear parity bit
     Io_Efuse_SetParityBit(&command);
 
-    tx_data[0] = command;
     exit_code  = Io_Efuse_ReadFromEfuse(
         &command, register_value, chip_select_port, chip_select_pin);
     // Only return register contents and clear bits 9->15
