@@ -860,7 +860,6 @@ static void Io_Efuse_SetParityBit(uint16_t *spi_command)
 {
     uint16_t spi_data = *spi_command;
     bool  parity_bit;
-    // Calculate parity for bits in spi command
     for (parity_bit = 0; spi_data > 0; spi_data >>= 1)
     {
         parity_bit ^= (spi_data & 1);
