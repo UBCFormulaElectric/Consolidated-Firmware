@@ -533,8 +533,8 @@ static ExitCode Io_Efuse_Aux1Aux2ReadRegister(
 static ExitCode Io_Efuse_WriteRegister(
     uint8_t         register_address,
     uint16_t        register_value,
-    GPIO_TypeDef *  ChipSelect_GPIO_Port,
-    uint16_t        ChipSelect_GPIO_Pin,
+    GPIO_TypeDef *  chip_select_port,
+    uint16_t        chip_select_pin,
     struct EfuseIo *e_fuse);
 
 /**
