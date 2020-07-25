@@ -651,7 +651,7 @@ bool Io_Efuse_Aux1_Aux2IsInFailSafeMode(void)
 
 void Io_Efuse_Aux1Aux2DelatchFaults(void)
 {
-    // Delatche the latchable-faults by alternating the inputs high-low-high
+    // Delatch the latchable faults by alternating the inputs high-low-high
     HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_SET);
