@@ -865,7 +865,7 @@ static void Io_Efuse_SetParityBit(uint16_t *spi_command)
         parity_bit ^= (spi_data & 1);
     }
 
-    if (parity_bit == 1)
+    if (parity_bit)
     {
         SET_BIT(*spi_command, PARITY_BIT);
     }
