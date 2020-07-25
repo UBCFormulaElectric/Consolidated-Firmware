@@ -3,38 +3,35 @@
 #include "App_SharedExitCode.h"
 #include <stdbool.h>
 
+// clang-format off
 // Enumeration for the status types
 enum Efuse_Status
 {
-    StatusType_NoFault       = (0 << 0), // No fault
-    StatusType_Out0Enabled   = (1 << 0), // Channel 0 output is on
-    StatusType_Out1Enabled   = (1 << 1), // Channel 0 output is on
-    StatusType_Channel0Fault = (1 << 2), // Fault on channel 0
-    StatusType_Channel1Fault = (1 << 3), // Fault on channel 1
-    StatusType_Channel0RetryFull =
-        (1 << 4), // Channel 0 auto-retry counter full
-    StatusType_Channel1RetryFull =
-        (1 << 5),                       // Channel 1 auto-retry counter full
-    StatusType_PowerOnReset = (1 << 6), // Power-on reset has occurred
-    StatusType_UnderVoltage = (1 << 7), // Under voltage fault
-    StatusType_OverVoltage  = (1 << 8)  // Over voltage fault
+    StatusType_NoFault           = (0 << 0), // No fault
+    StatusType_Out0Enabled       = (1 << 0), // Channel 0 output is on
+    StatusType_Out1Enabled       = (1 << 1), // Channel 0 output is on
+    StatusType_Channel0Fault     = (1 << 2), // Fault on channel 0
+    StatusType_Channel1Fault     = (1 << 3), // Fault on channel 1
+    StatusType_Channel0RetryFull = (1 << 4), // Channel 0 auto-retry counter full
+    StatusType_Channel1RetryFull = (1 << 5), // Channel 1 auto-retry counter full
+    StatusType_PowerOnReset      = (1 << 6), // Power-on reset has occurred
+    StatusType_UnderVoltage      = (1 << 7), // Under voltage fault
+    StatusType_OverVoltage       = (1 << 8)  // Over voltage fault
 };
 
 // Enumeration for the fault types
 enum Efuse_Fault
 {
-    FaultType_NoFault         = (0 << 0), // No fault
-    FaultType_OverCurrent     = (1 << 0), // Over current fault
-    FaultType_ShortCircuit    = (1 << 1), // Severe short circuit fault
-    FaultType_OverTemperature = (1 << 2), // Over temperature fault
-    FaultType_OutputShorted   = (1 << 3), // Output shorted to Vpwr fault
-    FaultType_OpenLoadOffState =
-        (1 << 4), // Open load detected in off state fault
-    FaultType_OpenLoadOnState =
-        (1 << 5), // Open load detected in on state fault
-    FaultType_OvertemperatureWarning =
-        (1 << 8) // Over temperature warning fault
+    FaultType_NoFault                = (0 << 0), // No fault
+    FaultType_OverCurrent            = (1 << 0), // Over current fault
+    FaultType_ShortCircuit           = (1 << 1), // Severe short circuit fault
+    FaultType_OverTemperature        = (1 << 2), // Over temperature fault
+    FaultType_OutputShorted          = (1 << 3), // Output shorted to Vpwr fault
+    FaultType_OpenLoadOffState       = (1 << 4), // Open load detected in off state fault
+    FaultType_OpenLoadOnState        = (1 << 5), // Open load detected in on state fault
+    FaultType_OvertemperatureWarning = (1 << 8) // Over temperature warning fault
 };
+// clang-format on
 
 struct Efuse
 {
@@ -53,9 +50,4 @@ struct Efuse
     void (*delatch_faults)(void);
     bool (*get_channel0_current)(struct Efuse *e_fuse, float *channel0_current);
     bool (*get_channel1_current)(struct Efuse *e_fuse, float *channel1_current);
-
-    // The current state of the watchdog-in bit (bit 15). If the watchdog is
-    // enabled its state must be alternated at least once within the watchdog
-    // timeout period.
-    bool wdin_bit_to_set;
 };

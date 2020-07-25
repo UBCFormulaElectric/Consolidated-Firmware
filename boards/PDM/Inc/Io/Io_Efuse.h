@@ -46,9 +46,7 @@ void Io_Efuse_Aux2Enable(void);
  * @return EXIT_CODE_OK if the read was successful
  *         EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
-ExitCode Io_Efuse_GetAux1_Aux2Status(
-    enum Efuse_Status *status,
-    struct Efuse *     e_fuse);
+ExitCode Io_Efuse_GetAux1_Aux2Status(enum Efuse_Status *status);
 
 /**
  * Get the value of the Aux 1 Fault Register over SPI
@@ -58,7 +56,7 @@ ExitCode Io_Efuse_GetAux1_Aux2Status(
  * @return EXIT_CODE_OK if the read was successful
  *         EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
-ExitCode Io_Efuse_GetAux1Faults(enum Efuse_Fault *fault, struct Efuse *e_fuse);
+ExitCode Io_Efuse_GetAux1Faults(enum Efuse_Fault *fault);
 
 /**
  * Get the value of the Aux 2 Fault Register over SPI
@@ -68,7 +66,7 @@ ExitCode Io_Efuse_GetAux1Faults(enum Efuse_Fault *fault, struct Efuse *e_fuse);
  * @return EXIT_CODE_OK if the read was successful
  *         EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
-ExitCode Io_Efuse_GetAux2Faults(enum Efuse_Fault *fault, struct Efuse *e_fuse);
+ExitCode Io_Efuse_GetAux2Faults(enum Efuse_Fault *fault);
 
 /**
  * Check if the Aux1/Aux2 efuse is in fault mode
@@ -94,7 +92,7 @@ void Io_Efuse_DelatchAux1AndAux2Faults(void);
  * @param aux1_current Pointer to the Aux 1 current
  * @return true if the current was measured, else false
  */
-bool Io_Efuse_GetAux1Current(struct Efuse *e_fuse, float *aux1_current);
+bool Io_Efuse_GetAux1Current(float *aux1_current);
 
 /**
  * Get the current readings for the Aux 2 channel
@@ -102,7 +100,7 @@ bool Io_Efuse_GetAux1Current(struct Efuse *e_fuse, float *aux1_current);
  * @param aux1_current Pointer to the Aux 2 current
  * @return true if the current was measured, else false
  */
-bool Io_Efuse_GetAux2Current(struct Efuse *e_fuse, float *aux2_current);
+bool Io_Efuse_GetAux2Current(float *aux2_current);
 
 /**
  * Configures the Aux1/Aux2 Efuse's registers using the values defined in:
@@ -114,4 +112,4 @@ bool Io_Efuse_GetAux2Current(struct Efuse *e_fuse, float *aux2_current);
  * @return EXIT_CODE_OK if the configuration was successful
  *         EXIT_CODE_TIMEOUT if one of the SPI writes timed-out
  */
-ExitCode Io_Efuse_Aux1Aux2ConfigureEfuse(struct Efuse *e_fuse);
+ExitCode Io_Efuse_Aux1Aux2ConfigureEfuse(void);
