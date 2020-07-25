@@ -4,7 +4,7 @@
 
 #pragma GCC diagnostic ignored "-Wconversion"
 
-#define EXIT_OK_OR_RETURN(code) \
+#define EXIT_OK_OR_RETURN(CODE) \
     if (CODE)                   \
     return (CODE)
 
@@ -558,7 +558,7 @@ static ExitCode Io_Efuse_ReadRegister(
  * https://en.wikipedia.org/wiki/Parity_bit#Parity
  * @param spi_command Original SPI command without the parity bit set/cleared
  */
-static void Io_Efuse_SetParityBit(uint16_t *spi_command);
+static void Io_Efuse_CalculateParityBit(uint16_t *spi_command);
 
 /**
  * Write SPI data to Efuse in blocking mode
@@ -807,7 +807,7 @@ static ExitCode Io_Efuse_WriteRegister(
     e_fuse->wdin_bit_to_set = !e_fuse->wdin_bit_to_set;
 
     // Compute and set/clear parity value
-    Io_Efuse_SetParityBit(&command);
+    Io_Efuse_CalculateParityBit(&command);
 
     exit_code =
         Io_Efuse_WriteToEfuse(&command, chip_select_port, chip_select_pin);
@@ -823,7 +823,7 @@ static ExitCode Io_Efuse_ReadRegister(
     struct EfuseIo *e_fuse)
 {
     ExitCode exit_code;
-    uint16_t command   = 0x0000U;
+    uint16_t command = 0x0000U;
 
     // Place the Status Register address into bits 10->13
     command =
@@ -846,9 +846,9 @@ static ExitCode Io_Efuse_ReadRegister(
     e_fuse->wdin_bit_to_set = !e_fuse->wdin_bit_to_set;
 
     // Compute and set/clear parity bit
-    Io_Efuse_SetParityBit(&command);
+    Io_Efuse_CalculateParityBit(&command);
 
-    exit_code  = Io_Efuse_ReadFromEfuse(
+    exit_code = Io_Efuse_ReadFromEfuse(
         &command, register_value, chip_select_port, chip_select_pin);
     // Only return register contents and clear bits 9->15
     CLEAR_BIT(*register_value, ~EFUSE_SO_DATA_MASK);
@@ -856,15 +856,18 @@ static ExitCode Io_Efuse_ReadRegister(
     return exit_code;
 }
 
-static void Io_Efuse_SetParityBit(uint16_t *spi_command)
+static void Io_Efuse_CalculateParityBit(uint16_t *spi_command)
 {
     uint16_t spi_data = *spi_command;
-    bool  parity_bit;
+    bool     parity_bit;
+
     for (parity_bit = 0; spi_data > 0; spi_data >>= 1)
     {
         parity_bit ^= (spi_data & 1);
     }
 
+    // Set the parity bit if it should be set, else
+    // clear the bit
     if (parity_bit)
     {
         SET_BIT(*spi_command, PARITY_BIT);
