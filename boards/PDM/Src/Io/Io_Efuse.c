@@ -704,12 +704,12 @@ static ExitCode Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(uint8_t selection)
     uint16_t reg_val = 0x0000;
 
     // Read original content of GCR Register
-    EXIT_OK_OR_RETURN(Io_Efuse_Aux1Aux2ReadRegister(SI_GCR_ADDR, reg_val));
+    EXIT_OK_OR_RETURN(Io_Efuse_Aux1Aux2ReadRegister(SI_GCR_ADDR, &reg_val));
 
-    CLEAR_BIT(reg_val[0], (CSNS1_EN_MASK | CSNS0_EN_MASK));
-    SET_BIT(reg_val[0], (selection & (CSNS1_EN_MASK | CSNS0_EN_MASK)));
+    CLEAR_BIT(reg_val, (CSNS1_EN_MASK | CSNS0_EN_MASK));
+    SET_BIT(reg_val, (selection & (CSNS1_EN_MASK | CSNS0_EN_MASK)));
 
-    EXIT_OK_OR_RETURN(Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, reg_val[0]));
+    EXIT_OK_OR_RETURN(Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, reg_val));
 
     return EXIT_CODE_OK;
 }
