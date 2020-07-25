@@ -22,14 +22,14 @@ enum Efuse_Status
 // Enumeration for the fault types
 enum Efuse_Fault
 {
-    FaultType_NoFault                = (0 << 0), // No fault
-    FaultType_OverCurrent            = (1 << 0), // Over current fault
-    FaultType_ShortCircuit           = (1 << 1), // Severe short circuit fault
-    FaultType_OverTemperature        = (1 << 2), // Over temperature fault
-    FaultType_OutputShorted          = (1 << 3), // Output shorted to Vpwr fault
-    FaultType_OpenLoadOffState       = (1 << 4), // Open load detected in off state fault
-    FaultType_OpenLoadOnState        = (1 << 5), // Open load detected in on state fault
-    FaultType_OvertemperatureWarning = (1 << 8) // Over temperature warning fault
+    FaultType_NoFault          = (0 << 0), // No fault
+    FaultType_OverCurrent      = (1 << 0), // Over current fault
+    FaultType_ShortCircuit     = (1 << 1), // Severe short circuit fault
+    FaultType_OverTemp         = (1 << 2), // Over temperature fault
+    FaultType_OutputShorted    = (1 << 3), // Output shorted to Vpwr fault
+    FaultType_OpenLoadOffState = (1 << 4), // Open load detected in off state fault
+    FaultType_OpenLoadOnState  = (1 << 5), // Open load detected in on state fault
+    FaultType_OverTempWarning  = (1 << 8)  // Over temperature warning fault
 };
 // clang-format on
 

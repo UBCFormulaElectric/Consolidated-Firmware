@@ -533,7 +533,7 @@ static ExitCode Io_Efuse_Aux1Aux2ReadRegister(
 static ExitCode Io_Efuse_WriteRegister(
     uint8_t         register_address,
     uint16_t        register_value,
-    GPIO_TypeDef   *chip_select_port,
+    GPIO_TypeDef *  chip_select_port,
     uint16_t        chip_select_pin,
     struct EfuseIo *e_fuse);
 
@@ -548,7 +548,7 @@ static ExitCode Io_Efuse_WriteRegister(
 static ExitCode Io_Efuse_ReadRegister(
     uint8_t         register_address,
     uint16_t *      register_value,
-    GPIO_TypeDef   *chip_select_port,
+    GPIO_TypeDef *  chip_select_port,
     uint16_t        chip_select_pin,
     struct EfuseIo *e_fuse);
 
@@ -781,7 +781,7 @@ static ExitCode Io_Efuse_Aux1Aux2ReadRegister(
 static ExitCode Io_Efuse_WriteRegister(
     uint8_t         register_address,
     uint16_t        register_value,
-    GPIO_TypeDef   *chip_select_port,
+    GPIO_TypeDef *  chip_select_port,
     uint16_t        chip_select_pin,
     struct EfuseIo *e_fuse)
 {
@@ -809,8 +809,8 @@ static ExitCode Io_Efuse_WriteRegister(
     // Compute and set/clear parity value
     Io_Efuse_SetParityBit(&command);
 
-    exit_code = Io_Efuse_WriteToEfuse(
-        &command, chip_select_port, chip_select_pin);
+    exit_code =
+        Io_Efuse_WriteToEfuse(&command, chip_select_port, chip_select_pin);
 
     return exit_code;
 }
@@ -818,7 +818,7 @@ static ExitCode Io_Efuse_WriteRegister(
 static ExitCode Io_Efuse_ReadRegister(
     uint8_t         register_address,
     uint16_t *      register_value,
-    GPIO_TypeDef   *chip_select_port,
+    GPIO_TypeDef *  chip_select_port,
     uint16_t        chip_select_pin,
     struct EfuseIo *e_fuse)
 {

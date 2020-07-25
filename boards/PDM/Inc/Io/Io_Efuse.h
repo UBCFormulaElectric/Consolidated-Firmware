@@ -42,8 +42,8 @@ void Io_Efuse_Aux2Enable(void);
 /**
  * Get the value of the Aux 1 and Aux 2 Efuse's Status Register over SPI
  * @param status Pointer to the Aux1 and Aux2 channel's status
- * @return EXIT_CODE_OK if the read was successful
- *         EXIT_CODE_TIMEOUT if the SPI read timed-out
+ * @return EXIT_CODE_OK if the read was successful,
+ *         else EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
 ExitCode Io_Efuse_GetAux1_Aux2Status(enum Efuse_Status *status);
 
@@ -51,8 +51,8 @@ ExitCode Io_Efuse_GetAux1_Aux2Status(enum Efuse_Status *status);
  * Get the value of the Aux 1 Fault Register over SPI
  * @note Reading from the fault register reset's non-latchable faults
  * @param fault Pointer to the Aux 1 fault status
- * @return EXIT_CODE_OK if the read was successful
- *         EXIT_CODE_TIMEOUT if the SPI read timed-out
+ * @return EXIT_CODE_OK if the read was successful,
+ *         else EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
 ExitCode Io_Efuse_GetAux1Faults(enum Efuse_Fault *fault);
 
@@ -60,22 +60,22 @@ ExitCode Io_Efuse_GetAux1Faults(enum Efuse_Fault *fault);
  * Get the value of the Aux 2 Fault Register over SPI
  * @note Reading from the fault register reset's non-latchable faults
  * @param fault Pointer to the Aux 2 fault status
- * @return EXIT_CODE_OK if the read was successful
- *         EXIT_CODE_TIMEOUT if the SPI read timed-out
+ * @return EXIT_CODE_OK if the read was successful,
+ *         else EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
 ExitCode Io_Efuse_GetAux2Faults(enum Efuse_Fault *fault);
 
 /**
  * Check if the Aux1 or Aux2 channel enters fault mode
- * @return true if the Aux 1 or Aux 2 channel enters fault mode, else if both
- * channels do not enter fault mode
+ * @return true if the Aux 1 or Aux 2 channel enters fault mode, else false if
+ * both channels do not enter fault mode
  */
 bool Io_Efuse_IsAux1OrAux2InFaultMode(void);
 
 /**
  * Check if the Aux1 or Aux2 channel enters fail-safe mode
- * @return true if the Aux 1 or Aux 2 channel enters fail-safe mode, else if
- * both channels do not enter fail-safe mode
+ * @return true if the Aux 1 or Aux 2 channel enters fail-safe mode, else false
+ * if both channels do not enter fail-safe mode
  */
 bool Io_Efuse_Aux1Aux2IsInFailSafeMode(void);
 
