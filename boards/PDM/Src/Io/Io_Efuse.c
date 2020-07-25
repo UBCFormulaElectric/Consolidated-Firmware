@@ -863,7 +863,7 @@ static void Io_Efuse_CalculateParityBit(uint16_t *spi_command)
 
     for (parity_bit = 0; spi_data > 0; spi_data >>= 1)
     {
-        parity_bit ^= (spi_data & 1);
+        parity_bit ^= READ_BIT(spi_data, 1U);
     }
 
     // Set the parity bit if it should be set, else
