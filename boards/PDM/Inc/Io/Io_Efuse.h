@@ -105,7 +105,7 @@ bool Io_Efuse_GetAux2Current(float *aux2_current);
  *                  -RETRY_CONFIG
  *                  -CONFR_CONFIG
  *                  -OCR_LOW_CURRENT_SENSE_CONFIG
- * @return EXIT_CODE_OK if the configuration was successful
- *         EXIT_CODE_TIMEOUT if one of the SPI writes timed-out
+ * @return EXIT_CODE_OK if the configuration was successful,
+ *         else EXIT_CODE_TIMEOUT if one of the SPI writes timed-out
  */
 ExitCode Io_Efuse_Aux1Aux2ConfigureEfuse(void);
