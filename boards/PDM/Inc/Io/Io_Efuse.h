@@ -42,7 +42,6 @@ void Io_Efuse_Aux2Enable(void);
 /**
  * Get the value of the Aux 1 and Aux 2 Efuse's Status Register over SPI
  * @param fault Pointer to the Aux1/Aux2's status
- * @param e_fuse Pointer to the Aux1/Aux2 Efuse structure being checked
  * @return EXIT_CODE_OK if the read was successful
  *         EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
@@ -52,7 +51,6 @@ ExitCode Io_Efuse_GetAux1_Aux2Status(enum Efuse_Status *status);
  * Get the value of the Aux 1 Fault Register over SPI
  * @note Reading from the fault register reset's non-latchable faults
  * @param fault Pointer to the Aux 1 fault status
- * @param e_fuse Pointer to the Aux1/Aux2 Efuse structure being checked
  * @return EXIT_CODE_OK if the read was successful
  *         EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
@@ -62,7 +60,6 @@ ExitCode Io_Efuse_GetAux1Faults(enum Efuse_Fault *fault);
  * Get the value of the Aux 2 Fault Register over SPI
  * @note Reading from the fault register reset's non-latchable faults
  * @param fault Pointer to the Aux 2 fault status
- * @param e_fuse Pointer to the Aux1/Aux2 Efuse structure being checked
  * @return EXIT_CODE_OK if the read was successful
  *         EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
@@ -88,7 +85,6 @@ void Io_Efuse_DelatchAux1AndAux2Faults(void);
 
 /**
  * Get the current readings for the Aux 1 channel
- * @param e_fuse Pointer to the Aux1/Aux2 Efuse structure being checked
  * @param aux1_current Pointer to the Aux 1 current
  * @return true if the current was measured, else false
  */
@@ -96,7 +92,6 @@ bool Io_Efuse_GetAux1Current(float *aux1_current);
 
 /**
  * Get the current readings for the Aux 2 channel
- * @param e_fuse Pointer to the Aux1/Aux2 Efuse structure being checked
  * @param aux1_current Pointer to the Aux 2 current
  * @return true if the current was measured, else false
  */
@@ -108,7 +103,6 @@ bool Io_Efuse_GetAux2Current(float *aux2_current);
  *                  -RETRY_CONFIG
  *                  -CONFR_CONFIG
  *                  -OCR_LOW_CURRENT_SENSE_CONFIG
- * @param e_fuse Pointer to Aux1/Aux2 Efuse structure being configured
  * @return EXIT_CODE_OK if the configuration was successful
  *         EXIT_CODE_TIMEOUT if one of the SPI writes timed-out
  */

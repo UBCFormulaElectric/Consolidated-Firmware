@@ -479,7 +479,7 @@ struct EfuseIo
 };
 
 /**
- * Sets current/temperature monitoring option of CSNS pin
+ * Set the current/temperature monitoring option of CSNS pin
  * @param selection The desired monitoring function which can be selected by
  * specifying the following values:
  *                  CSNS_FUNCTION_DISABLED - Current sensing disabled
@@ -488,15 +488,13 @@ struct EfuseIo
  *                  CSNS_FUNCTION_TEMPERATURE - Efuse temperature sensing
  *                  CSNS_FUNCTION_CURRENT_SUM - Current sensing for summed
  * channels (for Parallel mode)
- * @param e_fuse Pointer to Aux1/Aux2 Efuse structure being configured
  * @return EXIT_CODE_OK if the channel configuration was successful
  *         EXIT_CODE_TIMEOUT if one of the SPI writes timed-out
  */
 static ExitCode Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(uint8_t selection);
 
 /**
- * Exits fail-safe mode and disables the watchdog timer
- * @param e_fuse Pointer to Aux1/Aux2 Efuse structure being configured
+ * Exit fail-safe mode and disable the watchdog timer
  * @return EXIT_CODE_OK if the efuse exited fail-safe mode
  *         EXIT_CODE_TIMEOUT if the one of the SPI writes timed-out
  *         EXIT_CODE_UNIMPLEMENTED if the efuse failed to exit fail-safe mode
@@ -507,7 +505,6 @@ static ExitCode Io_Efuse_Aux1Aux2ExitFailSafeMode(void);
  * Write data to a specific Serial Input register on the Aux1/Aux2 Efuse
  * @param register_address Serial Input register being written to
  * @param register_value Value being written to the Serial Input register
- * @param e_fuse Pointer to Aux1/Aux2 Efuse structure being written to
  * @return EXIT_CODE_OK if the write was successful
  *         EXIT_CODE_TIMEOUT if the SPI write timed-out
  */
@@ -519,7 +516,6 @@ static ExitCode Io_Efuse_Aux1Aux2WriteRegister(
  * Read data from a specific Serial Output register on the Aux1/Aux2 Efuse
  * @param register_address Serial Output register being read from
  * @param register_value register contents of Serial Output register
- * @param e_fuse Pointer to Aux1/Aux2 Efuse structure being read from
  * @return EXIT_CODE_OK if the read was successful
  *         EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
@@ -531,7 +527,6 @@ static ExitCode Io_Efuse_Aux1Aux2ReadRegister(
  * Write data to a specific Serial Input register on the Efuse
  * @param register_address Serial Input register being written to
  * @param register_value Value being written to the Serial Input register
- * @param e_fuse Pointer to Efuse structure being written to
  * @return EXIT_CODE_OK if the write was successful
  *         EXIT_CODE_TIMEOUT if the SPI write timed-out
  */
@@ -558,10 +553,10 @@ static ExitCode Io_Efuse_ReadRegister(
     struct EfuseIo *e_fuse);
 
 /**
- * Calculates the parity of the SPI command to be sent to the Efuse and
- * sets/clears the parity bit. Using the XOR sum of bits method taken from:
+ * Calculate the parity of the SPI command to be sent to the Efuse and
+ * set/clear the parity bit. Using the XOR sum of bits method taken from:
  * https://en.wikipedia.org/wiki/Parity_bit#Parity
- * @param spi_command Original SPI command without the parity bit
+ * @param spi_command Original SPI command without the parity bit set/cleared
  */
 static void Io_Efuse_SetParityBit(uint16_t *spi_command);
 
@@ -594,7 +589,7 @@ static ExitCode Io_Efuse_ReadFromEfuse(
     uint16_t      chip_select_pin);
 
 // The structure for each efuse which contains the watchdog-in bit's current
-// state
+// value
 static struct EfuseIo aux1_aux2_efuse;
 
 // The SPI handle for the SPI device the E-Fuses are connected to
