@@ -644,7 +644,7 @@ bool Io_Efuse_IsAux1Aux2InFaultMode(void)
     return HAL_GPIO_ReadPin(FSB_AUX1_AUX2_GPIO_Port, FSB_AUX1_AUX2_Pin);
 }
 
-bool Io_Efuse_Aux1_Aux2IsInFailSafeMode(void)
+bool Io_Efuse_IsAux1Aux2InFailSafeMode(void)
 {
     return HAL_GPIO_ReadPin(FSOB_AUX1_AUX2_GPIO_Port, FSOB_AUX1_AUX2_Pin);
 }
