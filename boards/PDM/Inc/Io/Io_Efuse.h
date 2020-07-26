@@ -45,7 +45,7 @@ void Io_Efuse_Aux2Enable(void);
  * @return EXIT_CODE_OK if the read was successful,
  *         else EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
-ExitCode Io_Efuse_GetAux1_Aux2Status(enum Efuse_Status *status);
+ExitCode Io_Efuse_GetAux1Aux2Status(enum Efuse_Status *status);
 
 /**
  * Get the value of the Aux 1 Fault Register over SPI
