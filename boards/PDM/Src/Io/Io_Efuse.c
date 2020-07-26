@@ -624,7 +624,7 @@ void Io_Efuse_Aux2Disable(void)
     HAL_GPIO_WritePin(PIN_AUX2_GPIO_Port, PIN_AUX2_Pin, GPIO_PIN_RESET);
 }
 
-ExitCode Io_Efuse_GetAux1_Aux2Status(enum Efuse_Status *status)
+ExitCode Io_Efuse_GetAux1Aux2Status(enum Efuse_Status *status)
 {
     return Io_Efuse_Aux1Aux2ReadRegister(SO_STATR_ADDR, (uint16_t *)status);
 }
