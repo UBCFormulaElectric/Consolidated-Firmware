@@ -639,7 +639,7 @@ ExitCode Io_Efuse_GetAux2Faults(enum Efuse_Fault *fault)
     return Io_Efuse_Aux1Aux2ReadRegister(SO_FAULTR_1_ADDR, (uint16_t *)fault);
 }
 
-bool Io_Efuse_Aux1_Aux2IsInFaultMode(void)
+bool Io_Efuse_IsAux1Aux2InFaultMode(void)
 {
     return HAL_GPIO_ReadPin(FSB_AUX1_AUX2_GPIO_Port, FSB_AUX1_AUX2_Pin);
 }
