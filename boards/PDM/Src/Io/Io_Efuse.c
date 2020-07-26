@@ -649,7 +649,7 @@ bool Io_Efuse_IsAux1Aux2InFailSafeMode(void)
     return HAL_GPIO_ReadPin(FSOB_AUX1_AUX2_GPIO_Port, FSOB_AUX1_AUX2_Pin);
 }
 
-void Io_Efuse_Aux1Aux2DelatchFaults(void)
+void Io_Efuse_DelatchAux1Aux2Faults(void)
 {
     // Delatch the latchable faults by alternating the inputs high-low-high
     HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_SET);
