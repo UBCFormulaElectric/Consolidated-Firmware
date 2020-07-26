@@ -87,17 +87,15 @@ void Io_Efuse_DelatchAux1AndAux2Faults(void);
 
 /**
  * Get the current readings for the Aux 1 channel
- * @param aux1_current Pointer to the Aux 1 current
- * @return true if the current was measured, else false
+ * @return The Aux1 current if the current was measured, else NAN
  */
-bool Io_Efuse_GetAux1Current(float *aux1_current);
+float Io_Efuse_GetAux1Current(void);
 
 /**
  * Get the current readings for the Aux 2 channel
- * @param aux1_current Pointer to the Aux 2 current
- * @return true if the current was measured, else false
+ * @return The Aux2 current if the current was measured, else NAN
  */
-bool Io_Efuse_GetAux2Current(float *aux2_current);
+float Io_Efuse_GetAux2Current(void);
 
 /**
  * Configure the Aux1/Aux2 Efuse's registers using the values defined in:

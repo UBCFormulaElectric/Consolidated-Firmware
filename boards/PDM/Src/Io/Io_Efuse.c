@@ -1,12 +1,9 @@
 #include <assert.h>
+#include <math.h>
 #include "Io_Efuse.h"
 #include "Io_CurrentSense.h"
 
 #pragma GCC diagnostic ignored "-Wconversion"
-
-#define EXIT_OK_OR_RETURN(CODE) \
-    if (CODE)                   \
-    return (CODE)
 
 // Register data masks
 #define EFUSE_ADDR_MASK 0xFU
@@ -470,8 +467,11 @@
      LOW_CURRENT_THRESHOLD_SELECT_IOCL3 |                         \
      HIGH_CURRENT_THRESHOLD_SELECT_IOCH2 | CURRENT_SENSE_RATIO_HIGH)
 
-struct EfuseIo
+struct Efuse_Context
 {
+    // The SPI handle for the SPI device the E-Fuse is connected to
+    SPI_HandleTypeDef *efuse_spi_handle;
+
     // The current state of the watchdog-in bit (bit 15). If the watchdog is
     // enabled its state must be alternated at least once within the watchdog
     // timeout period.
@@ -531,11 +531,11 @@ static ExitCode Io_Efuse_Aux1Aux2ReadRegister(
  *         EXIT_CODE_TIMEOUT if the SPI write timed-out
  */
 static ExitCode Io_Efuse_WriteRegister(
-    uint8_t         register_address,
-    uint16_t        register_value,
-    GPIO_TypeDef *  chip_select_port,
-    uint16_t        chip_select_pin,
-    struct EfuseIo *e_fuse);
+    uint8_t               register_address,
+    uint16_t              register_value,
+    GPIO_TypeDef *        chip_select_port,
+    uint16_t              chip_select_pin,
+    struct Efuse_Context *e_fuse);
 
 /**
  * Read data from a specific Serial Output register on the Efuse
@@ -546,11 +546,11 @@ static ExitCode Io_Efuse_WriteRegister(
  *         EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
 static ExitCode Io_Efuse_ReadRegister(
-    uint8_t         register_address,
-    uint16_t *      register_value,
-    GPIO_TypeDef *  chip_select_port,
-    uint16_t        chip_select_pin,
-    struct EfuseIo *e_fuse);
+    uint8_t               register_address,
+    uint16_t *            register_value,
+    GPIO_TypeDef *        chip_select_port,
+    uint16_t              chip_select_pin,
+    struct Efuse_Context *e_fuse);
 
 /**
  * Calculate the parity of the SPI command to be sent to the Efuse and
@@ -563,45 +563,45 @@ static void Io_Efuse_CalculateParityBit(uint16_t *spi_command);
 /**
  * Write SPI data to Efuse in blocking mode
  * @param tx_data Pointer to data being sent to the Efuse
+ * @param efuse_spi_handle Handle to the Efuse's SPI peripheral
  * @param chip_select_port Handle to Efuse's chip-select GPIO port
  * @param chip_select_pin Efuse's chip-select GPIO pin
  * @return EXIT_CODE_OK if the write was successful
  *         EXIT_CODE_TIMEOUT if the SPI write timed-out
  */
 static ExitCode Io_Efuse_WriteToEfuse(
-    uint16_t *    tx_data,
-    GPIO_TypeDef *chip_select_port,
-    uint16_t      chip_select_pin);
+    uint16_t *         tx_data,
+    SPI_HandleTypeDef *efuse_spi_handle,
+    GPIO_TypeDef *     chip_select_port,
+    uint16_t           chip_select_pin);
 
 /**
  * Read SPI data from Efuse in blocking mode
  * @param tx_data Pointer to data being sent to the Efuse
  * @param rx_data Pointer to data being received from the Efuse
+ * @param efuse_spi_handle Handle to the Efuse's SPI peripheral
  * @param chip_select_port Handle to Efuse's chip-select GPIO port
  * @param chip_select_pin Efuse's chip-select GPIO pin
  * @return EXIT_CODE_OK if the read was successful
  *         EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
 static ExitCode Io_Efuse_ReadFromEfuse(
-    uint16_t *    tx_data,
-    uint16_t *    rx_data,
-    GPIO_TypeDef *chip_select_port,
-    uint16_t      chip_select_pin);
+    uint16_t *         tx_data,
+    uint16_t *         rx_data,
+    SPI_HandleTypeDef *efuse_spi_handle,
+    GPIO_TypeDef *     chip_select_port,
+    uint16_t           chip_select_pin);
 
 // The structure for each efuse which contains the watchdog-in bit's current
 // value
-static struct EfuseIo aux1_aux2_efuse;
-
-// The SPI handle for the SPI device the E-Fuses are connected to
-static SPI_HandleTypeDef *efuse_spi_handle;
+static struct Efuse_Context aux1_aux2_efuse;
 
 void Io_Efuse_Init(SPI_HandleTypeDef *const hspi)
 {
     assert(hspi != NULL);
 
-    efuse_spi_handle = hspi;
-
-    aux1_aux2_efuse.wdin_bit_to_set = true;
+    aux1_aux2_efuse.efuse_spi_handle = hspi;
+    aux1_aux2_efuse.wdin_bit_to_set  = true;
 }
 
 void Io_Efuse_EnableAux1(void)
@@ -609,17 +609,17 @@ void Io_Efuse_EnableAux1(void)
     HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_SET);
 }
 
-void Io_Efuse_Aux1Disable(void)
+void Io_Efuse_DisableAux1(void)
 {
     HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_RESET);
 }
 
-void Io_Efuse_Aux2Enable(void)
+void Io_Efuse_EnableAux2(void)
 {
     HAL_GPIO_WritePin(PIN_AUX2_GPIO_Port, PIN_AUX2_Pin, GPIO_PIN_SET);
 }
 
-void Io_Efuse_Aux2Disable(void)
+void Io_Efuse_DisableAux2(void)
 {
     HAL_GPIO_WritePin(PIN_AUX2_GPIO_Port, PIN_AUX2_Pin, GPIO_PIN_RESET);
 }
@@ -661,42 +661,40 @@ void Io_Efuse_DelatchAux1Aux2Faults(void)
     HAL_GPIO_WritePin(PIN_AUX2_GPIO_Port, PIN_AUX2_Pin, GPIO_PIN_SET);
 }
 
-bool Io_Efuse_GetAux1Current(float *aux1_current)
+float Io_Efuse_GetAux1Current(void)
 {
     if (Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
             AUX1_CURRENT_SENSE_CHANNEL) != EXIT_CODE_OK)
     {
-        return false;
+        return NAN;
     }
 
     if (HAL_GPIO_ReadPin(
             CUR_SYNC_AUX1_AUX2_GPIO_Port, CUR_SYNC_AUX1_AUX2_Pin) ==
         GPIO_PIN_RESET)
     {
-        *aux1_current = Io_CurrentSense_GetAux1Current();
-        return true;
+        return Io_CurrentSense_GetAux1Current();
     }
 
-    return false;
+    return NAN;
 }
 
-bool Io_Efuse_GetAux2Current(float *aux2_current)
+float Io_Efuse_GetAux2Current(void)
 {
     if (Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(
             AUX2_CURRENT_SENSE_CHANNEL) != EXIT_CODE_OK)
     {
-        return false;
+        return NAN;
     }
 
     if (HAL_GPIO_ReadPin(
             CUR_SYNC_AUX1_AUX2_GPIO_Port, CUR_SYNC_AUX1_AUX2_Pin) ==
         GPIO_PIN_RESET)
     {
-        *aux2_current = Io_CurrentSense_GetAux2Current();
-        return true;
+        return Io_CurrentSense_GetAux2Current();
     }
 
-    return false;
+    return NAN;
 }
 
 static ExitCode Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(uint8_t selection)
@@ -779,13 +777,12 @@ static ExitCode Io_Efuse_Aux1Aux2ReadRegister(
 }
 
 static ExitCode Io_Efuse_WriteRegister(
-    uint8_t         register_address,
-    uint16_t        register_value,
-    GPIO_TypeDef *  chip_select_port,
-    uint16_t        chip_select_pin,
-    struct EfuseIo *e_fuse)
+    uint8_t               register_address,
+    uint16_t              register_value,
+    GPIO_TypeDef *        chip_select_port,
+    uint16_t              chip_select_pin,
+    struct Efuse_Context *e_fuse)
 {
-    ExitCode exit_code;
     uint16_t command = 0x0000U;
 
     // Place the register address into bits 10->13
@@ -809,21 +806,19 @@ static ExitCode Io_Efuse_WriteRegister(
     // Compute and set/clear parity value
     Io_Efuse_CalculateParityBit(&command);
 
-    exit_code =
-        Io_Efuse_WriteToEfuse(&command, chip_select_port, chip_select_pin);
-
-    return exit_code;
+    return Io_Efuse_WriteToEfuse(
+        &command, e_fuse->efuse_spi_handle, chip_select_port, chip_select_pin);
 }
 
 static ExitCode Io_Efuse_ReadRegister(
-    uint8_t         register_address,
-    uint16_t *      register_value,
-    GPIO_TypeDef *  chip_select_port,
-    uint16_t        chip_select_pin,
-    struct EfuseIo *e_fuse)
+    uint8_t               register_address,
+    uint16_t *            register_value,
+    GPIO_TypeDef *        chip_select_port,
+    uint16_t              chip_select_pin,
+    struct Efuse_Context *e_fuse)
 {
-    ExitCode exit_code;
-    uint16_t command = 0x0000U;
+    ExitCode exit_code = EXIT_CODE_OK;
+    uint16_t command   = 0x0000U;
 
     // Place the Status Register address into bits 10->13
     command =
@@ -849,7 +844,8 @@ static ExitCode Io_Efuse_ReadRegister(
     Io_Efuse_CalculateParityBit(&command);
 
     exit_code = Io_Efuse_ReadFromEfuse(
-        &command, register_value, chip_select_port, chip_select_pin);
+        &command, register_value, e_fuse->efuse_spi_handle, chip_select_port,
+        chip_select_pin);
     // Only return register contents and clear bits 9->15
     CLEAR_BIT(*register_value, ~EFUSE_SO_DATA_MASK);
 
@@ -879,11 +875,12 @@ static void Io_Efuse_CalculateParityBit(uint16_t *spi_command)
 }
 
 static ExitCode Io_Efuse_WriteToEfuse(
-    uint16_t *    tx_data,
-    GPIO_TypeDef *chip_select_port,
-    uint16_t      chip_select_pin)
+    uint16_t *         tx_data,
+    SPI_HandleTypeDef *efuse_spi_handle,
+    GPIO_TypeDef *     chip_select_port,
+    uint16_t           chip_select_pin)
 {
-    HAL_StatusTypeDef status;
+    HAL_StatusTypeDef status = HAL_OK;
 
     HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_RESET);
     status = HAL_SPI_TransmitReceive(
@@ -899,12 +896,13 @@ static ExitCode Io_Efuse_WriteToEfuse(
 }
 
 static ExitCode Io_Efuse_ReadFromEfuse(
-    uint16_t *    tx_data,
-    uint16_t *    rx_data,
-    GPIO_TypeDef *chip_select_port,
-    uint16_t      chip_select_pin)
+    uint16_t *         tx_data,
+    uint16_t *         rx_data,
+    SPI_HandleTypeDef *efuse_spi_handle,
+    GPIO_TypeDef *     chip_select_port,
+    uint16_t           chip_select_pin)
 {
-    HAL_StatusTypeDef status;
+    HAL_StatusTypeDef status = HAL_OK;
 
     // Send command to read from status register
     // Data is returned on the following SPI transfer
