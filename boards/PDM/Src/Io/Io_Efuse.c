@@ -604,7 +604,7 @@ void Io_Efuse_Init(SPI_HandleTypeDef *const hspi)
     aux1_aux2_efuse.wdin_bit_to_set = true;
 }
 
-void Io_Efuse_Aux1Enable(void)
+void Io_Efuse_EnableAux1(void)
 {
     HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_SET);
 }
