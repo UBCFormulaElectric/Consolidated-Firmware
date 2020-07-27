@@ -930,7 +930,7 @@ static ExitCode Io_Efuse_ReadFromEfuse(
 
     // Receive data from the register address specified in tx_data by sending dummy data
     *tx_data = 0xFFFF;
-
+// The data read from the register specified in tx_data is stored in rx_data after the SPI transfer
     HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_RESET);
     status = HAL_SPI_TransmitReceive(
         efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)rx_data, 1U, 100U);
