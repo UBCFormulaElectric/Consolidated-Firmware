@@ -7,16 +7,16 @@
 // Enumeration for the status types
 enum Efuse_Status
 {
-    StatusType_NoFault           = (0 << 0), // No fault
-    StatusType_Out0Enabled       = (1 << 0), // Channel 0 output is on
-    StatusType_Out1Enabled       = (1 << 1), // Channel 0 output is on
-    StatusType_Channel0Fault     = (1 << 2), // Fault on channel 0
-    StatusType_Channel1Fault     = (1 << 3), // Fault on channel 1
-    StatusType_Channel0RetryFull = (1 << 4), // Channel 0 auto-retry counter full
-    StatusType_Channel1RetryFull = (1 << 5), // Channel 1 auto-retry counter full
-    StatusType_PowerOnReset      = (1 << 6), // Power-on reset has occurred
-    StatusType_UnderVoltage      = (1 << 7), // Under voltage fault
-    StatusType_OverVoltage       = (1 << 8)  // Over voltage fault
+    EFUSE_NO_FAULT           = (0 << 0), // No fault
+    EFUSE_OUT0_ENABLED       = (1 << 0), // Channel 0 output is on
+    EFUSE_OUT1_ENABLED       = (1 << 1), // Channel 0 output is on
+    EFUSE_CHANNEL0_FAULT     = (1 << 2), // Fault on channel 0
+    EFUSE_CHANNEL1_FAULT     = (1 << 3), // Fault on channel 1
+    EFUSE_CHANNEL0_RETRY_FULL = (1 << 4), // Channel 0 auto-retry counter full
+    EFUSE_CHANNEL0_RETRY_FULL = (1 << 5), // Channel 1 auto-retry counter full
+    EFUSE_POWER_ON_RESET      = (1 << 6), // Power-on reset has occurred
+    EFUSE_UNDERVOLTAGE      = (1 << 7), // Under voltage fault
+    EFUSE_OVERVOLTAGE       = (1 << 8)  // Over voltage fault
 };
 
 // Enumeration for the fault types
