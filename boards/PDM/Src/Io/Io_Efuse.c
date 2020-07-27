@@ -747,7 +747,8 @@ static ExitCode Io_Efuse_Aux1Aux2ExitFailSafeMode(void)
 
     RETURN_CODE_IF_EXIT_NOT_OK(
         Io_Efuse_Aux1Aux2WriteRegister(SI_STATR_0_ADDR, 0x0000));
-    // Disable watchdog
+        
+    // Disable the watchdog timer
     RETURN_CODE_IF_EXIT_NOT_OK(
         Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, GCR_CONFIG));
 
