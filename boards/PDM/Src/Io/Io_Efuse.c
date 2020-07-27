@@ -917,8 +917,7 @@ static ExitCode Io_Efuse_ReadFromEfuse(
 {
     HAL_StatusTypeDef status = HAL_OK;
 
-    // Send command to read from status register
-    // Data is returned on the following SPI transfer
+    // Send the command stored in tx_data to the status register, to read the data from the register address specified in tx_data
     HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_RESET);
     status = HAL_SPI_TransmitReceive(
         efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)rx_data, 1U, 100U);
@@ -929,7 +928,7 @@ static ExitCode Io_Efuse_ReadFromEfuse(
         return EXIT_CODE_TIMEOUT;
     }
 
-    // Receive data from E-fuse by sending dummy data
+    // Receive data from the register address specified in tx_data by sending dummy data
     *tx_data = 0xFFFF;
 
     HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_RESET);
