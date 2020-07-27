@@ -478,6 +478,8 @@ struct Efuse_Context
     bool wdin_bit_to_set;
 };
 
+static struct Efuse_Context aux1_aux2_efuse;
+
 /**
  * Set the current/temperature monitoring option of CSNS pin
  * @param selection The desired monitoring function which can be selected by
@@ -592,7 +594,224 @@ static ExitCode Io_Efuse_ReadFromEfuse(
     GPIO_TypeDef *     chip_select_port,
     uint16_t           chip_select_pin);
 
-static struct Efuse_Context aux1_aux2_efuse;
+static ExitCode Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(uint8_t selection)
+{
+    uint16_t register_value = 0x0000;
+
+    // Read original content of GCR Register
+    RETURN_CODE_IF_EXIT_NOT_OK(
+            Io_Efuse_Aux1Aux2ReadRegister(SI_GCR_ADDR, &register_value));
+
+    CLEAR_BIT(register_value, (CSNS1_EN_MASK | CSNS0_EN_MASK));
+    SET_BIT(register_value, (selection & (CSNS1_EN_MASK | CSNS0_EN_MASK)));
+
+    RETURN_CODE_IF_EXIT_NOT_OK(
+            Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, register_value));
+
+    return EXIT_CODE_OK;
+}
+
+static ExitCode Io_Efuse_Aux1Aux2ExitFailSafeMode(void)
+{
+    // Set WDIN bit for next write
+    // 1_1_00000_00000_0000
+    aux1_aux2_efuse.wdin_bit_to_set = true;
+
+    RETURN_CODE_IF_EXIT_NOT_OK(
+            Io_Efuse_Aux1Aux2WriteRegister(SI_STATR_0_ADDR, 0x0000));
+
+    // Disable the watchdog timer
+    RETURN_CODE_IF_EXIT_NOT_OK(
+            Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, GCR_CONFIG));
+
+    // Check if the the efuse is still in fail-safe mode
+    if (HAL_GPIO_ReadPin(FSOB_AUX1_AUX2_GPIO_Port, FSOB_AUX1_AUX2_Pin) ==
+        GPIO_PIN_RESET)
+    {
+        return EXIT_CODE_UNIMPLEMENTED;
+    }
+
+    return EXIT_CODE_OK;
+}
+
+static ExitCode Io_Efuse_Aux1Aux2WriteRegister(
+        uint8_t  register_address,
+        uint16_t register_value)
+{
+    return Io_Efuse_WriteRegister(
+            register_address, register_value, CSB_AUX1_AUX2_GPIO_Port,
+            CSB_AUX1_AUX2_Pin, &aux1_aux2_efuse);
+}
+
+static ExitCode Io_Efuse_Aux1Aux2ReadRegister(
+        uint8_t   register_address,
+        uint16_t *register_value)
+{
+    return Io_Efuse_ReadRegister(
+            register_address, register_value, CSB_AUX1_AUX2_GPIO_Port,
+            CSB_AUX1_AUX2_Pin, &aux1_aux2_efuse);
+}
+
+static ExitCode Io_Efuse_WriteRegister(
+        uint8_t               register_address,
+        uint16_t              register_value,
+        GPIO_TypeDef *        chip_select_port,
+        uint16_t              chip_select_pin,
+        struct Efuse_Context *e_fuse)
+{
+    uint16_t serial_input_data = 0x0000U;
+
+    // Place the register address into bits 10->13
+    serial_input_data = (uint16_t)(
+            serial_input_data |
+            ((register_address & EFUSE_ADDR_MASK) << EFUSE_ADDR_SHIFT));
+
+    // Place register value to be written into bits 0->8
+    serial_input_data =
+            (uint16_t)(serial_input_data | (register_value & EFUSE_SI_DATA_MASK));
+
+    // Invert watchdog bit state (Note: It is safe to do so even if the watchdog
+    // is disabled)
+    if (e_fuse->wdin_bit_to_set)
+    {
+        SET_BIT(serial_input_data, WATCHDOG_BIT);
+    }
+    else
+    {
+        CLEAR_BIT(serial_input_data, WATCHDOG_BIT);
+    }
+
+    // Invert watchdog bit state for next write
+    e_fuse->wdin_bit_to_set = !e_fuse->wdin_bit_to_set;
+
+    Io_Efuse_CalculateParityBit(&serial_input_data);
+
+    return Io_Efuse_WriteToEfuse(
+            &serial_input_data, e_fuse->efuse_spi_handle, chip_select_port,
+            chip_select_pin);
+}
+
+static ExitCode Io_Efuse_ReadRegister(
+        uint8_t               register_address,
+        uint16_t *            register_value,
+        GPIO_TypeDef *        chip_select_port,
+        uint16_t              chip_select_pin,
+        struct Efuse_Context *e_fuse)
+{
+    uint16_t serial_input_data = 0x0000U;
+
+    // Place the Status Register address into bits 10->13
+    serial_input_data =
+            (uint16_t)((SI_STATR_0_ADDR & EFUSE_ADDR_MASK) << EFUSE_ADDR_SHIFT);
+
+    // Shift bit 3 of the address (SOA3: the channel number) to the 13th bit
+    serial_input_data = (uint16_t)(
+            serial_input_data |
+            ((register_address & SOA3_MASK) << EFUSE_ADDR_SHIFT) |
+            (register_address & (SOA2_MASK | SOA1_MASK | SOA0_MASK)));
+
+    // Invert watchdog bit state (Note: It is safe to do so even if the watchdog
+    // is disabled)
+    if (e_fuse->wdin_bit_to_set)
+    {
+        SET_BIT(serial_input_data, WATCHDOG_BIT);
+    }
+    else
+    {
+        CLEAR_BIT(serial_input_data, WATCHDOG_BIT);
+    }
+
+    // Invert watchdog bit state for next write
+    e_fuse->wdin_bit_to_set = !e_fuse->wdin_bit_to_set;
+
+    Io_Efuse_CalculateParityBit(&serial_input_data);
+
+    ExitCode exit_code = Io_Efuse_ReadFromEfuse(
+            &serial_input_data, register_value, e_fuse->efuse_spi_handle,
+            chip_select_port, chip_select_pin);
+
+    // Only return register contents and clear bits 9->15
+    *register_value = READ_BIT(*register_value, EFUSE_SO_DATA_MASK);
+
+    return exit_code;
+}
+
+static void Io_Efuse_CalculateParityBit(uint16_t *serial_data_input)
+{
+    uint16_t _serial_data_input = *serial_data_input;
+    bool     parity_bit;
+
+    for (parity_bit = 0; _serial_data_input > 0; _serial_data_input >>= 1)
+    {
+        parity_bit ^= READ_BIT(_serial_data_input, 1U);
+    }
+
+    if (parity_bit)
+    {
+        SET_BIT(*serial_data_input, PARITY_BIT);
+    }
+    else
+    {
+        CLEAR_BIT(*serial_data_input, PARITY_BIT);
+    }
+}
+
+static ExitCode Io_Efuse_WriteToEfuse(
+        uint16_t *         tx_data,
+        SPI_HandleTypeDef *efuse_spi_handle,
+        GPIO_TypeDef *     chip_select_port,
+        uint16_t           chip_select_pin)
+{
+    HAL_StatusTypeDef status = HAL_OK;
+
+    HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_RESET);
+    status = HAL_SPI_TransmitReceive(
+            efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)tx_data, 1U, 100U);
+    HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_SET);
+
+    if (status != HAL_OK)
+    {
+        return EXIT_CODE_TIMEOUT;
+    }
+
+    return EXIT_CODE_OK;
+}
+
+static ExitCode Io_Efuse_ReadFromEfuse(
+        uint16_t *         tx_data,
+        uint16_t *         rx_data,
+        SPI_HandleTypeDef *efuse_spi_handle,
+        GPIO_TypeDef *     chip_select_port,
+        uint16_t           chip_select_pin)
+{
+    HAL_StatusTypeDef status = HAL_OK;
+
+    // Send the command stored in tx_data to the status register, to read the data from the register address specified in tx_data
+    HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_RESET);
+    status = HAL_SPI_TransmitReceive(
+            efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)rx_data, 1U, 100U);
+    HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_SET);
+
+    if (status != HAL_OK)
+    {
+        return EXIT_CODE_TIMEOUT;
+    }
+
+    // Receive data from the register address specified in tx_data by sending dummy data
+    *tx_data = 0xFFFF;
+// The data read from the register specified in tx_data is stored in rx_data after the SPI transfer
+    HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_RESET);
+    status = HAL_SPI_TransmitReceive(
+            efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)rx_data, 1U, 100U);
+    HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_SET);
+
+    if (status != HAL_OK)
+    {
+        return EXIT_CODE_TIMEOUT;
+    }
+
+    return EXIT_CODE_OK;
+}
 
 void Io_Efuse_Init(SPI_HandleTypeDef *const hspi)
 {
@@ -695,32 +914,15 @@ float Io_Efuse_GetAux2Current(void)
     return NAN;
 }
 
-static ExitCode Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(uint8_t selection)
-{
-    uint16_t register_value = 0x0000;
-
-    // Read original content of GCR Register
-    RETURN_CODE_IF_EXIT_NOT_OK(
-        Io_Efuse_Aux1Aux2ReadRegister(SI_GCR_ADDR, &register_value));
-
-    CLEAR_BIT(register_value, (CSNS1_EN_MASK | CSNS0_EN_MASK));
-    SET_BIT(register_value, (selection & (CSNS1_EN_MASK | CSNS0_EN_MASK)));
-
-    RETURN_CODE_IF_EXIT_NOT_OK(
-        Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, register_value));
-
-    return EXIT_CODE_OK;
-}
-
 ExitCode Io_Efuse_ConfigureAux1Aux2Efuse(void)
 {
     RETURN_CODE_IF_EXIT_NOT_OK(Io_Efuse_Aux1Aux2ExitFailSafeMode());
 
-    // Global config register
+    // Configure the global configuration register
     RETURN_CODE_IF_EXIT_NOT_OK(
         Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, GCR_CONFIG));
 
-    // Channel 0 config registers
+    // Configure the channel 0 configuration registers
     RETURN_CODE_IF_EXIT_NOT_OK(
         Io_Efuse_Aux1Aux2WriteRegister(SI_RETRY_0_ADDR, RETRY_CONFIG));
     RETURN_CODE_IF_EXIT_NOT_OK(
@@ -728,216 +930,13 @@ ExitCode Io_Efuse_ConfigureAux1Aux2Efuse(void)
     RETURN_CODE_IF_EXIT_NOT_OK(Io_Efuse_Aux1Aux2WriteRegister(
         SI_OCR_0_ADDR, OCR_LOW_CURRENT_SENSE_CONFIG));
 
-    // Channel 1 config registers
+    // Configure the channel  configuration registers
     RETURN_CODE_IF_EXIT_NOT_OK(
         Io_Efuse_Aux1Aux2WriteRegister(SI_RETRY_1_ADDR, RETRY_CONFIG));
     RETURN_CODE_IF_EXIT_NOT_OK(
         Io_Efuse_Aux1Aux2WriteRegister(SI_CONFR_1_ADDR, CONFR_CONFIG));
     RETURN_CODE_IF_EXIT_NOT_OK(Io_Efuse_Aux1Aux2WriteRegister(
         SI_OCR_1_ADDR, OCR_LOW_CURRENT_SENSE_CONFIG));
-
-    return EXIT_CODE_OK;
-}
-
-static ExitCode Io_Efuse_Aux1Aux2ExitFailSafeMode(void)
-{
-    // Set WDIN bit for next write
-    // 1_1_00000_00000_0000
-    aux1_aux2_efuse.wdin_bit_to_set = true;
-
-    RETURN_CODE_IF_EXIT_NOT_OK(
-        Io_Efuse_Aux1Aux2WriteRegister(SI_STATR_0_ADDR, 0x0000));
-
-    // Disable the watchdog timer
-    RETURN_CODE_IF_EXIT_NOT_OK(
-        Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, GCR_CONFIG));
-
-    // Check if the the efuse is still in fail-safe mode
-    if (HAL_GPIO_ReadPin(FSOB_AUX1_AUX2_GPIO_Port, FSOB_AUX1_AUX2_Pin) ==
-        GPIO_PIN_RESET)
-    {
-        return EXIT_CODE_UNIMPLEMENTED;
-    }
-
-    return EXIT_CODE_OK;
-}
-
-static ExitCode Io_Efuse_Aux1Aux2WriteRegister(
-    uint8_t  register_address,
-    uint16_t register_value)
-{
-    return Io_Efuse_WriteRegister(
-        register_address, register_value, CSB_AUX1_AUX2_GPIO_Port,
-        CSB_AUX1_AUX2_Pin, &aux1_aux2_efuse);
-}
-
-static ExitCode Io_Efuse_Aux1Aux2ReadRegister(
-    uint8_t   register_address,
-    uint16_t *register_value)
-{
-    return Io_Efuse_ReadRegister(
-        register_address, register_value, CSB_AUX1_AUX2_GPIO_Port,
-        CSB_AUX1_AUX2_Pin, &aux1_aux2_efuse);
-}
-
-static ExitCode Io_Efuse_WriteRegister(
-    uint8_t               register_address,
-    uint16_t              register_value,
-    GPIO_TypeDef *        chip_select_port,
-    uint16_t              chip_select_pin,
-    struct Efuse_Context *e_fuse)
-{
-    uint16_t serial_input_data = 0x0000U;
-
-    // Place the register address into bits 10->13
-    serial_input_data = (uint16_t)(
-        serial_input_data |
-        ((register_address & EFUSE_ADDR_MASK) << EFUSE_ADDR_SHIFT));
-
-    // Place register value to be written into bits 0->8
-    serial_input_data =
-        (uint16_t)(serial_input_data | (register_value & EFUSE_SI_DATA_MASK));
-
-    // Invert watchdog bit state (Note: It is safe to do so even if the watchdog
-    // is disabled)
-    if (e_fuse->wdin_bit_to_set)
-    {
-        SET_BIT(serial_input_data, WATCHDOG_BIT);
-    }
-    else
-    {
-        CLEAR_BIT(serial_input_data, WATCHDOG_BIT);
-    }
-
-    // Invert watchdog bit state for next write
-    e_fuse->wdin_bit_to_set = !e_fuse->wdin_bit_to_set;
-
-    Io_Efuse_CalculateParityBit(&serial_input_data);
-
-    return Io_Efuse_WriteToEfuse(
-        &serial_input_data, e_fuse->efuse_spi_handle, chip_select_port,
-        chip_select_pin);
-}
-
-static ExitCode Io_Efuse_ReadRegister(
-    uint8_t               register_address,
-    uint16_t *            register_value,
-    GPIO_TypeDef *        chip_select_port,
-    uint16_t              chip_select_pin,
-    struct Efuse_Context *e_fuse)
-{
-    ExitCode exit_code         = EXIT_CODE_OK;
-    uint16_t serial_input_data = 0x0000U;
-
-    // Place the Status Register address into bits 10->13
-    serial_input_data =
-        (uint16_t)((SI_STATR_0_ADDR & EFUSE_ADDR_MASK) << EFUSE_ADDR_SHIFT);
-
-    // Shift bit 3 of the address (SOA3: the channel number) to the 13th bit
-    serial_input_data = (uint16_t)(
-        serial_input_data |
-        ((register_address & SOA3_MASK) << EFUSE_ADDR_SHIFT) |
-        (register_address & (SOA2_MASK | SOA1_MASK | SOA0_MASK)));
-
-    // Invert watchdog bit state (Note: It is safe to do so even if the watchdog
-    // is disabled)
-    if (e_fuse->wdin_bit_to_set)
-    {
-        SET_BIT(serial_input_data, WATCHDOG_BIT);
-    }
-    else
-    {
-        CLEAR_BIT(serial_input_data, WATCHDOG_BIT);
-    }
-
-    // Invert watchdog bit state for next write
-    e_fuse->wdin_bit_to_set = !e_fuse->wdin_bit_to_set;
-
-    Io_Efuse_CalculateParityBit(&serial_input_data);
-
-    ExitCode exit_code = Io_Efuse_ReadFromEfuse(
-        &serial_input_data, register_value, e_fuse->efuse_spi_handle,
-        chip_select_port, chip_select_pin);
-
-    // Only return register contents and clear bits 9->15
-    *register_value = READ_BIT(*register_value, EFUSE_SO_DATA_MASK);
-
-    return exit_code;
-}
-
-static void Io_Efuse_CalculateParityBit(uint16_t *serial_data_input)
-{
-    uint16_t _serial_data_input = *serial_data_input;
-    bool     parity_bit;
-
-    for (parity_bit = 0; _serial_data_input > 0; _serial_data_input >>= 1)
-    {
-        parity_bit ^= READ_BIT(_serial_data_input, 1U);
-    }
-
-    if (parity_bit)
-    {
-        SET_BIT(*serial_data_input, PARITY_BIT);
-    }
-    else
-    {
-        CLEAR_BIT(*serial_data_input, PARITY_BIT);
-    }
-}
-
-static ExitCode Io_Efuse_WriteToEfuse(
-    uint16_t *         tx_data,
-    SPI_HandleTypeDef *efuse_spi_handle,
-    GPIO_TypeDef *     chip_select_port,
-    uint16_t           chip_select_pin)
-{
-    HAL_StatusTypeDef status = HAL_OK;
-
-    HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_RESET);
-    status = HAL_SPI_TransmitReceive(
-        efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)tx_data, 1U, 100U);
-    HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_SET);
-
-    if (status != HAL_OK)
-    {
-        return EXIT_CODE_TIMEOUT;
-    }
-
-    return EXIT_CODE_OK;
-}
-
-static ExitCode Io_Efuse_ReadFromEfuse(
-    uint16_t *         tx_data,
-    uint16_t *         rx_data,
-    SPI_HandleTypeDef *efuse_spi_handle,
-    GPIO_TypeDef *     chip_select_port,
-    uint16_t           chip_select_pin)
-{
-    HAL_StatusTypeDef status = HAL_OK;
-
-    // Send the command stored in tx_data to the status register, to read the data from the register address specified in tx_data
-    HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_RESET);
-    status = HAL_SPI_TransmitReceive(
-        efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)rx_data, 1U, 100U);
-    HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_SET);
-
-    if (status != HAL_OK)
-    {
-        return EXIT_CODE_TIMEOUT;
-    }
-
-    // Receive data from the register address specified in tx_data by sending dummy data
-    *tx_data = 0xFFFF;
-// The data read from the register specified in tx_data is stored in rx_data after the SPI transfer
-    HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_RESET);
-    status = HAL_SPI_TransmitReceive(
-        efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)rx_data, 1U, 100U);
-    HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_SET);
-
-    if (status != HAL_OK)
-    {
-        return EXIT_CODE_TIMEOUT;
-    }
 
     return EXIT_CODE_OK;
 }
