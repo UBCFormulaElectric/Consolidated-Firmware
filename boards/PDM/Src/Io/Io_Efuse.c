@@ -592,8 +592,6 @@ static ExitCode Io_Efuse_ReadFromEfuse(
     GPIO_TypeDef *     chip_select_port,
     uint16_t           chip_select_pin);
 
-// The structure for each efuse which contains the watchdog-in bit's current
-// value
 static struct Efuse_Context aux1_aux2_efuse;
 
 void Io_Efuse_Init(SPI_HandleTypeDef *const hspi)
