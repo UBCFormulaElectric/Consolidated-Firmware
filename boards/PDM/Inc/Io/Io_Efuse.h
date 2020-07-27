@@ -106,4 +106,4 @@ float Io_Efuse_GetAux2Current(void);
  * @return EXIT_CODE_OK if the configuration was successful,
  *         else EXIT_CODE_TIMEOUT if one of the SPI writes timed-out
  */
-ExitCode Io_Efuse_ConfigureAux12AuxEfuse(void);
+ExitCode Io_Efuse_ConfigureAux1Aux2Efuse(void);
