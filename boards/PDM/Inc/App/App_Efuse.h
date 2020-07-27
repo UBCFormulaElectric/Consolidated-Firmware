@@ -1,7 +1,7 @@
 #pragma once
 
-#include "App_SharedExitCode.h"
 #include <stdbool.h>
+#include "App_SharedExitCode.h"
 
 // clang-format off
 // Enumeration for the status types
