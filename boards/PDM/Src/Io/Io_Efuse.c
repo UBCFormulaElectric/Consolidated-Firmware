@@ -558,7 +558,7 @@ static ExitCode Io_Efuse_ReadRegister(
  * https://en.wikipedia.org/wiki/Parity_bit#Parity
  * @param spi_command Original SPI command without the parity bit set/cleared
  */
-static void Io_Efuse_CalculateParityBit(uint16_t *spi_command);
+static void Io_Efuse_CalculateParityBit(uint16_t *serial_data_input);
 
 /**
  * Write SPI data to Efuse in blocking mode
