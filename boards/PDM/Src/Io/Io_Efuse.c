@@ -877,8 +877,6 @@ static void Io_Efuse_CalculateParityBit(uint16_t *serial_data_input)
         parity_bit ^= READ_BIT(_serial_data_input, 1U);
     }
 
-    // Set the parity bit if it should be set, else
-    // clear the bit
     if (parity_bit)
     {
         SET_BIT(*serial_data_input, PARITY_BIT);
