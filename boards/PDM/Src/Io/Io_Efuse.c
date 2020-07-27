@@ -855,7 +855,7 @@ static ExitCode Io_Efuse_ReadRegister(
 
     Io_Efuse_CalculateParityBit(&serial_input_data);
 
-    exit_code = Io_Efuse_ReadFromEfuse(
+    ExitCode exit_code = Io_Efuse_ReadFromEfuse(
         &serial_input_data, register_value, e_fuse->efuse_spi_handle,
         chip_select_port, chip_select_pin);
 
