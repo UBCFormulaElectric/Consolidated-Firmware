@@ -859,7 +859,7 @@ static ExitCode Io_Efuse_ReadRegister(
     return exit_code;
 }
 
-static void Io_Efuse_CalculateParityBit(uint16_t *spi_command)
+static void Io_Efuse_CalculateParityBit(uint16_t *serial_data_input)
 {
     uint16_t _serial_data_input = *serial_data_input;
     bool     parity_bit;
