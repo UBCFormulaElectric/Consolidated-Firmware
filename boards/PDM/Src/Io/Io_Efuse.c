@@ -699,7 +699,7 @@ float Io_Efuse_GetAux2Current(void)
 
 static ExitCode Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(uint8_t selection)
 {
-    uint16_t reg_val = 0x0000;
+    uint16_t register_value = 0x0000;
 
     // Read original content of GCR Register
     RETURN_CODE_IF_EXIT_NOT_OK(Io_Efuse_Aux1Aux2ReadRegister(SI_GCR_ADDR, &reg_val));
