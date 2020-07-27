@@ -712,7 +712,7 @@ static ExitCode Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(uint8_t selection)
     return EXIT_CODE_OK;
 }
 
-ExitCode Io_Efuse_Aux1Aux2ConfigureEfuse(void)
+ExitCode Io_Efuse_ConfigureAux1Aux2Efuse(void)
 {
     RETURN_CODE_IF_EXIT_NOT_OK(Io_Efuse_Aux1Aux2ExitFailSafeMode());
 
