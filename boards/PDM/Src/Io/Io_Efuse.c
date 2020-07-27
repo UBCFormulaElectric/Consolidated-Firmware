@@ -783,7 +783,7 @@ static ExitCode Io_Efuse_WriteRegister(
     uint16_t              chip_select_pin,
     struct Efuse_Context *e_fuse)
 {
-    uint16_t command = 0x0000U;
+    uint16_t serial_input_data = 0x0000U;
 
     // Place the register address into bits 10->13
     command = (uint16_t)(
