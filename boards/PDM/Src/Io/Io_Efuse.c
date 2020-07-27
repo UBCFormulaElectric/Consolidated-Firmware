@@ -829,6 +829,7 @@ static ExitCode Io_Efuse_ReadRegister(
     command = (uint16_t)(
         command | ((register_address & SOA3_MASK) << EFUSE_ADDR_SHIFT) |
         (register_address & (SOA2_MASK | SOA1_MASK | SOA0_MASK)));
+        
     // Invert watchdog bit state (Note: It is safe to do so even if the watchdog
     // is disabled)
     if (e_fuse->wdin_bit_to_set)
