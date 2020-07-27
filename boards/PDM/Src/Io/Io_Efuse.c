@@ -702,12 +702,14 @@ static ExitCode Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(uint8_t selection)
     uint16_t register_value = 0x0000;
 
     // Read original content of GCR Register
-    RETURN_CODE_IF_EXIT_NOT_OK(Io_Efuse_Aux1Aux2ReadRegister(SI_GCR_ADDR, &reg_val));
+    RETURN_CODE_IF_EXIT_NOT_OK(
+        Io_Efuse_Aux1Aux2ReadRegister(SI_GCR_ADDR, &register_value));
 
-    CLEAR_BIT(reg_val, (CSNS1_EN_MASK | CSNS0_EN_MASK));
-    SET_BIT(reg_val, (selection & (CSNS1_EN_MASK | CSNS0_EN_MASK)));
+    CLEAR_BIT(register_value, (CSNS1_EN_MASK | CSNS0_EN_MASK));
+    SET_BIT(register_value, (selection & (CSNS1_EN_MASK | CSNS0_EN_MASK)));
 
-    RETURN_CODE_IF_EXIT_NOT_OK(Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, reg_val));
+    RETURN_CODE_IF_EXIT_NOT_OK(
+        Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, register_value));
 
     return EXIT_CODE_OK;
 }
@@ -747,7 +749,7 @@ static ExitCode Io_Efuse_Aux1Aux2ExitFailSafeMode(void)
 
     RETURN_CODE_IF_EXIT_NOT_OK(
         Io_Efuse_Aux1Aux2WriteRegister(SI_STATR_0_ADDR, 0x0000));
-        
+
     // Disable the watchdog timer
     RETURN_CODE_IF_EXIT_NOT_OK(
         Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, GCR_CONFIG));
