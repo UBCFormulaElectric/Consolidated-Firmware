@@ -840,6 +840,7 @@ static ExitCode Io_Efuse_ReadRegister(
     {
         CLEAR_BIT(command, WATCHDOG_BIT);
     }
+    
     // Invert watchdog bit state for next write
     e_fuse->wdin_bit_to_set = !e_fuse->wdin_bit_to_set;
 
