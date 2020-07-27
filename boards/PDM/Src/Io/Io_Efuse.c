@@ -849,6 +849,7 @@ static ExitCode Io_Efuse_ReadRegister(
     exit_code = Io_Efuse_ReadFromEfuse(
         &command, register_value, e_fuse->efuse_spi_handle, chip_select_port,
         chip_select_pin);
+        
     // Only return register contents and clear bits 9->15
     CLEAR_BIT(*register_value, ~EFUSE_SO_DATA_MASK);
 
