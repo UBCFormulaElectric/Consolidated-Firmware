@@ -791,6 +791,7 @@ static ExitCode Io_Efuse_WriteRegister(
         
     // Place register value to be written into bits 0->8
     command = (uint16_t)(command | (register_value & EFUSE_SI_DATA_MASK));
+    
     // Invert watchdog bit state (Note: It is safe to do so even if the watchdog
     // is disabled)
     if (e_fuse->wdin_bit_to_set)
