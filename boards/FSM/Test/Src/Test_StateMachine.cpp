@@ -338,8 +338,6 @@ class FsmStateMachineTest : public BaseStateMachineTest
     struct Brake *            brake;
     struct RgbLedSequence *   rgb_led_sequence;
     struct Clock *            clock;
-    struct AcceleratorPedal * papps;
-    struct AcceleratorPedal * sapps;
     struct AcceleratorPedals *papps_and_sapps;
 };
 

@@ -12,13 +12,13 @@ struct AcceleratorPedals
     void (*reset_primary_encoder_counter)(void);
     void (*reset_secondary_encoder_counter)(void);
 
-    uint32_t primary_encoder_max_pressed_value;
-    uint32_t secondary_encoder_max_pressed_value;
+    uint32_t primary_encoder_fully_pressed_value;
+    uint32_t secondary_encoder_fully_pressed_value;
 };
 
 /**
  * Get the pedal percentage, a value in [0, 100]
- * @param encoder_max_pressed_value The value of the encoder counter when the
+ * @param encoder_fully_pressed_value The value of the encoder counter when the
  * given accelerator pedal is fully pressed
  * @param encoder_counter_value The current counter value of the encoder for the
  * given accelerator pedal
@@ -27,26 +27,26 @@ struct AcceleratorPedals
  * @return The pedal percentage of the given accelerator pedal
  */
 static float App_GetPedalPercentage(
-    uint32_t encoder_max_pressed_value,
+    uint32_t encoder_fully_pressed_value,
     uint32_t encoder_counter_value,
     void (*reset_encoder_counter)(void));
 
 static float App_GetPedalPercentage(
-    uint32_t encoder_max_pressed_value,
+    uint32_t encoder_fully_pressed_value,
     uint32_t encoder_counter_value,
     void (*reset_encoder_counter)(void))
 {
     const float percent_deflection = 0.03f;
     const float low_end_deadzone_threshold =
-        (float)encoder_max_pressed_value * percent_deflection;
+        (float)encoder_fully_pressed_value * percent_deflection;
 
     // TODO: Determine the high end deadzone threshold #666
     // Currently setting the high end deadzone threshold to be 3% less than
     // the maximum encoder value when the pedal is completely pressed
     const float high_end_deadzone_threshold =
-        (float)encoder_max_pressed_value * (1.0f - percent_deflection);
+        (float)encoder_fully_pressed_value * (1.0f - percent_deflection);
 
-    if (encoder_counter_value > encoder_max_pressed_value)
+    if (encoder_counter_value > encoder_fully_pressed_value)
     {
         // If the accelerator pedal underflows, reset the corresponding
         // encoder's counter register and set the pedal percentage to 0.0%
@@ -60,7 +60,7 @@ static float App_GetPedalPercentage(
         return 0.0f;
     }
     else if (
-        encoder_counter_value <= encoder_max_pressed_value &&
+        encoder_counter_value <= encoder_fully_pressed_value &&
         encoder_counter_value >= high_end_deadzone_threshold)
     {
         // Set the mapped pedal percentage to 100% when the pedal is within the
@@ -82,8 +82,8 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
     uint32_t (*get_secondary_encoder_counter_value)(void),
     void (*reset_primary_encoder_counter)(void),
     void (*reset_secondary_encoder_counter)(void),
-    uint32_t primary_encoder_max_pressed_value,
-    uint32_t secondary_encoder_max_pressed_value)
+    uint32_t primary_encoder_fully_pressed_value,
+    uint32_t secondary_encoder_fully_pressed_value)
 {
     struct AcceleratorPedals *accelerator_pedals =
         malloc(sizeof(struct AcceleratorPedals));
@@ -102,10 +102,10 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
     accelerator_pedals->reset_secondary_encoder_counter =
         reset_secondary_encoder_counter;
 
-    accelerator_pedals->primary_encoder_max_pressed_value =
-        primary_encoder_max_pressed_value;
-    accelerator_pedals->secondary_encoder_max_pressed_value =
-        secondary_encoder_max_pressed_value;
+    accelerator_pedals->primary_encoder_fully_pressed_value =
+        primary_encoder_fully_pressed_value;
+    accelerator_pedals->secondary_encoder_fully_pressed_value =
+        secondary_encoder_fully_pressed_value;
 
     return accelerator_pedals;
 }
@@ -131,7 +131,7 @@ float App_AcceleratorPedals_GetPrimaryPedalPercentage(
     const struct AcceleratorPedals *const accelerator_pedals)
 {
     return App_GetPedalPercentage(
-        accelerator_pedals->primary_encoder_max_pressed_value,
+        accelerator_pedals->primary_encoder_fully_pressed_value,
         accelerator_pedals->get_primary_encoder_counter_value(),
         accelerator_pedals->reset_primary_encoder_counter);
 }
@@ -140,7 +140,7 @@ float App_AcceleratorPedals_GetSecondaryPedalPercentage(
     const struct AcceleratorPedals *const accelerator_pedals)
 {
     return App_GetPedalPercentage(
-        accelerator_pedals->secondary_encoder_max_pressed_value,
+        accelerator_pedals->secondary_encoder_fully_pressed_value,
         accelerator_pedals->get_secondary_encoder_counter_value(),
         accelerator_pedals->reset_secondary_encoder_counter);
 }

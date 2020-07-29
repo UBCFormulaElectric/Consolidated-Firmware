@@ -119,11 +119,7 @@ void App_SetPeriodicSignals_AcceleratorPedal(const struct FsmWorld *world)
     struct Brake *            brake = App_FsmWorld_GetBrake(world);
     struct AcceleratorPedals *papps_and_sapps =
         App_FsmWorld_GetPappsAndSapps(world);
-    // struct AcceleratorPedal *papps = App_FsmWorld_GetPapps(world);
-    // struct AcceleratorPedal *sapps = App_FsmWorld_GetSapps(world);
 
-    // const float papps_pedal_percentage =
-    // App_AcceleratorPedal_GetPedalPercentage(papps);
     const float papps_pedal_percentage =
         App_AcceleratorPedals_GetPrimaryPedalPercentage(papps_and_sapps);
 

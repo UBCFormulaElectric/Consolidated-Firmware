@@ -220,18 +220,6 @@ struct Clock *App_FsmWorld_GetClock(const struct FsmWorld *const world)
     return world->clock;
 }
 
-struct AcceleratorPedal *
-    App_FsmWorld_GetPapps(const struct FsmWorld *const world)
-{
-    return world->papps;
-}
-
-struct AcceleratorPedal *
-    App_FsmWorld_GetSapps(const struct FsmWorld *const world)
-{
-    return world->sapps;
-}
-
 struct AcceleratorPedals *
     App_FsmWorld_GetPappsAndSapps(const struct FsmWorld *const world)
 {

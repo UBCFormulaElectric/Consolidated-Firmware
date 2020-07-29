@@ -15,15 +15,15 @@ struct AcceleratorPedals;
  * @param get_secondary_encoder_counter_value A function that can be called to
  * get the counter value of the secondary encoder
  * @param reset_primary_encoder_counter A function that can be called to reset
- * the counter value of the primary encoder
+ * the counter value of the primary encoder to 0
  * @param reset_secondary_encoder_counter A function that can be called to reset
- * the counter value of the secondary encoder
- * @param primary_encoder_max_pressed_value The value of the primary encoder
+ * the counter value of the secondary encoder to 0
+ * @param primary_encoder_fully_pressed_value The value of the primary encoder
  * counter calibrated to the pedal box corresponding to when the pedal is fully
  * pressed
- * @param secondary_encoder_max_pressed_value The value of the secondary encoder
- * counter calibrated to the pedal box corresponding to when the pedal is fully
- * pressed
+ * @param secondary_encoder_fully_pressed_value The value of the secondary
+ * encoder counter calibrated to the pedal box corresponding to when the pedal
+ * is fully pressed
  * @return The created pair of accelerator pedals, whose ownership is given to
  * the caller
  */
@@ -34,8 +34,8 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
     uint32_t (*get_secondary_encoder_counter_value)(void),
     void (*reset_primary_encoder_counter)(void),
     void (*reset_secondary_encoder_counter)(void),
-    uint32_t primary_encoder_max_pressed_value,
-    uint32_t secondary_encoder_max_pressed_value);
+    uint32_t primary_encoder_fully_pressed_value,
+    uint32_t secondary_encoder_fully_pressed_value);
 
 /**
  * Deallocate the memory used by the given pair of accelerator pedals
@@ -65,7 +65,7 @@ bool App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(
     const struct AcceleratorPedals *accelerator_pedals);
 
 /**
- * Get the pedal percentage for the primary accelerator pedal, a value in [0,
+ * Get the pedal percentage of the primary accelerator pedal, a value in [0,
  * 100]
  * @param accelerator_pedals The pair of accelerator pedals containing the
  * primary pedal to get the pedal percentage from
@@ -75,7 +75,7 @@ float App_AcceleratorPedals_GetPrimaryPedalPercentage(
     const struct AcceleratorPedals *accelerator_pedals);
 
 /**
- * Get the pedal percentage for the secondary accelerator pedal, a value in [0,
+ * Get the pedal percentage of the secondary accelerator pedal, a value in [0,
  * 100]
  * @param accelerator_pedals The pair of accelerator pedals containing the
  * secondary accelerator pedal to get the pedal percentage from
