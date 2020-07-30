@@ -283,7 +283,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
 
             // Increment the value of the greater encoder value by 1 to ensure
             // at least a 10% mapped pedal percentage difference between the
-            // APPS
+            // APPS is maintained
             fake_larger_pedal_percentage_encoder_counter =
                 GetEncoderCounterFromPedalPercentage(
                     pedal_percentage,
