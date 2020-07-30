@@ -116,8 +116,6 @@ struct FsmCanRxInterface *can_rx;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
 struct Clock *            clock;
-struct AcceleratorPedal * papps;
-struct AcceleratorPedal * sapps;
 struct AcceleratorPedals *papps_and_sapps;
 /* USER CODE END PV */
 
@@ -261,8 +259,8 @@ int main(void)
         Io_PrimaryScancon2RMHF_GetEncoderCounter,
         Io_SecondaryScancon2RMHF_GetEncoderCounter,
         Io_PrimaryScancon2RMHF_ResetEncoderCounter,
-        Io_SecondaryScancon2RMHF_ResetEncoderCounter, PAPPS_MAX_PRESSED_VALUE,
-        SAPPS_MAX_PRESSED_VALUE);
+        Io_SecondaryScancon2RMHF_ResetEncoderCounter,
+        PAPPS_ENCODER_FULLY_PRESSED_VALUE, SAPPS_ENCODER_FULLY_PRESSED_VALUE);
 
     world = App_FsmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, primary_flow_meter_in_range_check,
