@@ -249,21 +249,22 @@ class FsmStateMachineTest : public BaseStateMachineTest
         }
     }
 
-    uint32_t GetEncoderCounterFromMappedPedalPercentage(
+    uint32_t GetEncoderCounterFromPedalPercentage(
         float    pedal_percentage,
-        uint32_t apps_max_pressed_value)
+        uint32_t encoder_fully_pressed_value)
     {
-        // Get the encoder counter value given the mapped pedal percentage
+        // Calculate the encoder counter value from the given mapped pedal
+        // percentage
         const float percent_deflection = 0.03;
         return round(
-            apps_max_pressed_value *
+            encoder_fully_pressed_value *
             ((1 - 2 * percent_deflection) * pedal_percentage / 100 +
              percent_deflection));
     }
 
     void CheckIfAppsDisagreementFaultIsSetWhenAppsHasDisagreement(
-        uint32_t &larger_pedal_percentage_fake_encoder_counter,
-        uint32_t &smaller_pedal_percentage_fake_encoder_counter,
+        uint32_t &fake_larger_pedal_percentage_encoder_counter,
+        uint32_t &fake_smaller_pedal_percentage_encoder_counter,
         uint8_t (*apps_has_disagreement_can_signal_getter)(
             const struct FsmCanTxInterface *),
         uint32_t larger_pedal_percentage_max_pressed_value,
@@ -271,30 +272,30 @@ class FsmStateMachineTest : public BaseStateMachineTest
         uint8_t  true_choice,
         uint8_t  false_choice)
     {
-        for (size_t mapped_pedal_percentage = 10; mapped_pedal_percentage < 100;
-             mapped_pedal_percentage++)
+        for (size_t pedal_percentage = 10; pedal_percentage < 100;
+             pedal_percentage++)
         {
             // Remove pedal disagreement to avoid false positives on the next
             // cycle
-            larger_pedal_percentage_fake_encoder_counter  = 0;
-            smaller_pedal_percentage_fake_encoder_counter = 0;
+            fake_larger_pedal_percentage_encoder_counter  = 0;
+            fake_smaller_pedal_percentage_encoder_counter = 0;
             LetTimePass(state_machine, 10);
 
             // Increment the value of the greater encoder value by 1 to ensure
             // at least a 10% mapped pedal percentage difference between the
             // APPS
-            larger_pedal_percentage_fake_encoder_counter =
-                GetEncoderCounterFromMappedPedalPercentage(
-                    mapped_pedal_percentage,
+            fake_larger_pedal_percentage_encoder_counter =
+                GetEncoderCounterFromPedalPercentage(
+                    pedal_percentage,
                     larger_pedal_percentage_max_pressed_value) +
                 1;
 
             // Decrement the value of the greater encoder value by 1 to ensure
             // at least a 10% mapped pedal percentage difference between the
             // APPS
-            smaller_pedal_percentage_fake_encoder_counter =
-                GetEncoderCounterFromMappedPedalPercentage(
-                    mapped_pedal_percentage - 10,
+            fake_smaller_pedal_percentage_encoder_counter =
+                GetEncoderCounterFromPedalPercentage(
+                    pedal_percentage - 10,
                     smaller_pedal_percentage_max_pressed_value) -
                 1;
             LetTimePass(state_machine, 99);
@@ -720,7 +721,7 @@ TEST_F(
     apps_is_pressed_and_brake_is_not_actuated_does_not_set_motor_shutdown_can_tx_signal)
 {
     const float fake_encoder_value_threshold =
-        GetEncoderCounterFromMappedPedalPercentage(
+        GetEncoderCounterFromPedalPercentage(
             25.0, PAPPS_ENCODER_FULLY_PRESSED_VALUE);
     is_brake_actuated_fake.return_val = false;
 
@@ -749,7 +750,7 @@ TEST_F(
     apps_is_pressed_and_brake_is_actuated_sets_motor_shutdown_can_tx_signal)
 {
     const float fake_encoder_value_threshold =
-        GetEncoderCounterFromMappedPedalPercentage(
+        GetEncoderCounterFromPedalPercentage(
             25.0, PAPPS_ENCODER_FULLY_PRESSED_VALUE);
     is_brake_actuated_fake.return_val = true;
 
