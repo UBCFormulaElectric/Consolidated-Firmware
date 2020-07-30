@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "Io_SecondaryScancon2RMHF.h"
 
-// TODO: Test the following functions with the secondary Scancon 2RMHF encoders
+// TODO: Test the following functions with the secondary Scancon 2RMHF encoder
 // #667
 
 static TIM_HandleTypeDef *secondary_encoder_htim;
