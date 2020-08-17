@@ -26,6 +26,8 @@ static void AirOpenStateRunOnTick100Hz(struct StateMachine *const state_machine)
     App_SetPeriodicSignals_WheelSpeedInRangeChecks(world);
     App_SetPeriodicSignals_SteeringAngleInRangeCheck(world);
     App_SetPeriodicSignals_Brake(world);
+    App_SetPeriodicSignals_AcceleratorPedal(world);
+    App_SetPeriodicSignals_MotorShutdownFaults(world);
 
     if (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) ==
             CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE &&

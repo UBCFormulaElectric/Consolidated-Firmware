@@ -61,6 +61,7 @@
 /* External variables --------------------------------------------------------*/
 extern DMA_HandleTypeDef hdma_adc2;
 extern CAN_HandleTypeDef hcan;
+extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim3;
 extern TIM_HandleTypeDef htim4;
 extern TIM_HandleTypeDef htim16;
@@ -217,6 +218,7 @@ void TIM1_UP_TIM16_IRQHandler(void)
     /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 0 */
 
     /* USER CODE END TIM1_UP_TIM16_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim1);
     HAL_TIM_IRQHandler(&htim16);
     /* USER CODE BEGIN TIM1_UP_TIM16_IRQn 1 */
 
@@ -231,6 +233,7 @@ void TIM1_TRG_COM_TIM17_IRQHandler(void)
     /* USER CODE BEGIN TIM1_TRG_COM_TIM17_IRQn 0 */
 
     /* USER CODE END TIM1_TRG_COM_TIM17_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim1);
     HAL_TIM_IRQHandler(&htim17);
     /* USER CODE BEGIN TIM1_TRG_COM_TIM17_IRQn 1 */
 

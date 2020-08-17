@@ -248,8 +248,17 @@ static void Io_ProcessFsmMotorShutdownErrorMsg(
     struct CanMsgs_fsm_motor_shutdown_errors_t *data)
 {
     SET_ERROR(
-        error_table, FSM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN,
-        data->dummy_motor_shutdown);
+        error_table, FSM_MOTOR_SHUTDOWN_APPS_HAS_DISAGREEMENT,
+        data->apps_has_disagreement);
+    SET_ERROR(
+        error_table, FSM_MOTOR_SHUTDOWN_PAPPS_ALARM_IS_ACTIVE,
+        data->papps_alarm_is_active);
+    SET_ERROR(
+        error_table, FSM_MOTOR_SHUTDOWN_SAPPS_ALARM_IS_ACTIVE,
+        data->sapps_alarm_is_active);
+    SET_ERROR(
+        error_table, FSM_MOTOR_SHUTDOWN_PLAUSIBILITY_CHECK_HAS_FAILED,
+        data->plausibility_check_has_failed);
 }
 
 static void Io_ProcessPdmMotorShutdownErrorMsg(

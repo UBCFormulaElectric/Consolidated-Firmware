@@ -27,6 +27,7 @@ struct FsmWorld
     struct Clock *            clock;
     struct AcceleratorPedal * papps;
     struct AcceleratorPedal * sapps;
+    struct AcceleratorPedals *papps_and_sapps;
 };
 
 /**
@@ -56,12 +57,18 @@ struct FsmWorld *App_FsmWorld_Create(
     struct Brake *const             brake,
     struct RgbLedSequence *const    rgb_led_sequence,
     struct Clock *const             clock,
-    struct AcceleratorPedal *const  papps,
-    bool (*const is_papps_alaram_active)(struct FsmWorld *),
+    struct AcceleratorPedals *const papps_and_sapps,
+
+    bool (*const has_apps_and_brake_plausibility_failure)(struct FsmWorld *),
+    void (*const apps_and_brake_plausibility_failure_callback)(
+        struct FsmWorld *),
+    bool (*const has_apps_disagreement)(struct FsmWorld *),
+    void (*const apps_disagreement_callback)(struct FsmWorld *),
+    bool (*const is_papps_alarm_active)(struct FsmWorld *),
     void (*const papps_alarm_callback)(struct FsmWorld *),
-    struct AcceleratorPedal *const sapps,
-    bool (*const is_sapps_alaram_active)(struct FsmWorld *),
+    bool (*const is_sapps_alarm_active)(struct FsmWorld *),
     void (*const sapps_alarm_callback)(struct FsmWorld *))
+
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
     assert(world != NULL);
@@ -79,24 +86,41 @@ struct FsmWorld *App_FsmWorld_Create(
     world->rgb_led_sequence                 = rgb_led_sequence;
     world->signals_head                     = NULL;
     world->clock                            = clock;
-    world->papps                            = papps;
-    world->sapps                            = sapps;
+    world->papps_and_sapps                  = papps_and_sapps;
 
     struct SignalCallback papps_callback = {
         .high_duration_ms = 10,
         .function         = papps_alarm_callback,
     };
-    struct Signal *papps_signal = App_SharedSignal_Create(
-        0, is_papps_alaram_active, world, papps_callback);
-    App_RegisterSignal(world, papps_signal);
+    struct Signal *papps_alarm_signal = App_SharedSignal_Create(
+        0, is_papps_alarm_active, world, papps_callback);
+    App_RegisterSignal(world, papps_alarm_signal);
 
     struct SignalCallback sapps_callback = {
         .high_duration_ms = 10,
         .function         = sapps_alarm_callback,
     };
-    struct Signal *sapps_signal = App_SharedSignal_Create(
-        0, is_sapps_alaram_active, world, sapps_callback);
-    App_RegisterSignal(world, sapps_signal);
+    struct Signal *sapps_alarm_signal = App_SharedSignal_Create(
+        0, is_sapps_alarm_active, world, sapps_callback);
+    App_RegisterSignal(world, sapps_alarm_signal);
+
+    struct SignalCallback apps_callback = {
+        .high_duration_ms = 100,
+        .function         = apps_disagreement_callback,
+    };
+    struct Signal *apps_disagreement_signal =
+        App_SharedSignal_Create(0, has_apps_disagreement, world, apps_callback);
+    App_RegisterSignal(world, apps_disagreement_signal);
+
+    struct SignalCallback apps_and_brake_callback = {
+        .high_duration_ms = 10,
+        .function         = apps_and_brake_plausibility_failure_callback,
+    };
+    struct Signal *apps_and_brake_plausibility_check_signal =
+        App_SharedSignal_Create(
+            0, has_apps_and_brake_plausibility_failure, world,
+            apps_and_brake_callback);
+    App_RegisterSignal(world, apps_and_brake_plausibility_check_signal);
 
     return world;
 }
@@ -107,14 +131,14 @@ void App_FsmWorld_Destroy(struct FsmWorld *world)
 
     SL_FOREACH_SAFE(world->signals_head, node, tmp)
     {
+        SL_DELETE(world->signals_head, node);
+        free(node->signal);
+        free(node);
+
         if (world->signals_head == NULL)
         {
             break;
         }
-
-        free(node->signal);
-        SL_DELETE(world->signals_head, node);
-        free(node);
     }
 
     free(world);
@@ -179,6 +203,12 @@ struct RgbLedSequence *
     return world->rgb_led_sequence;
 }
 
+struct AcceleratorPedals *
+    App_FsmWorld_GetPappsAndSapps(const struct FsmWorld *const world)
+{
+    return world->papps_and_sapps;
+}
+
 void App_FsmWorld_UpdateSignals(
     const struct FsmWorld *world,
     uint32_t               current_time_ms)
@@ -194,16 +224,4 @@ void App_FsmWorld_UpdateSignals(
 struct Clock *App_FsmWorld_GetClock(const struct FsmWorld *const world)
 {
     return world->clock;
-}
-
-struct AcceleratorPedal *
-    App_FsmWorld_GetPapps(const struct FsmWorld *const world)
-{
-    return world->papps;
-}
-
-struct AcceleratorPedal *
-    App_FsmWorld_GetSapps(const struct FsmWorld *const world)
-{
-    return world->sapps;
 }
