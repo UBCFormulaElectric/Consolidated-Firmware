@@ -150,7 +150,7 @@ struct Clock *App_FsmWorld_GetClock(const struct FsmWorld *world);
 /**
  * Get the pair of primary and secondary APPS for the given world
  * @param world The world to get the pair of primary and secondary APPS for
- * @return The secondary APPS for the given world
+ * @return The primary and secondary APPS for the given world
  */
 struct AcceleratorPedals *
     App_FsmWorld_GetPappsAndSapps(const struct FsmWorld *world);
