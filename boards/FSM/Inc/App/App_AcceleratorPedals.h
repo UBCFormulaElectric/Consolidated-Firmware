@@ -67,8 +67,8 @@ bool App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(
 /**
  * Get the pedal percentage of the primary accelerator pedal, a value in [0,
  * 100]
- * @param accelerator_pedals The pair of accelerator pedals containing the
- * primary pedal to get the pedal percentage from
+ * @param accelerator_pedals The pair of accelerator pedals to get the primary
+ * pedal percentage from
  * @return The pedal percentage of the primary accelerator pedal
  */
 float App_AcceleratorPedals_GetPrimaryPedalPercentage(
@@ -77,8 +77,8 @@ float App_AcceleratorPedals_GetPrimaryPedalPercentage(
 /**
  * Get the pedal percentage of the secondary accelerator pedal, a value in [0,
  * 100]
- * @param accelerator_pedals The pair of accelerator pedals containing the
- * secondary accelerator pedal to get the pedal percentage from
+ * @param accelerator_pedals The pair of accelerator pedals to get the secondary
+ * pedal percentage from
  * @return The pedal percentage of the secondary accelerator pedal
  */
 float App_AcceleratorPedals_GetSecondaryPedalPercentage(

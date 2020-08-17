@@ -203,6 +203,12 @@ struct RgbLedSequence *
     return world->rgb_led_sequence;
 }
 
+struct AcceleratorPedals *
+    App_FsmWorld_GetPappsAndSapps(const struct FsmWorld *const world)
+{
+    return world->papps_and_sapps;
+}
+
 void App_FsmWorld_UpdateSignals(
     const struct FsmWorld *world,
     uint32_t               current_time_ms)
@@ -218,10 +224,4 @@ void App_FsmWorld_UpdateSignals(
 struct Clock *App_FsmWorld_GetClock(const struct FsmWorld *const world)
 {
     return world->clock;
-}
-
-struct AcceleratorPedals *
-    App_FsmWorld_GetPappsAndSapps(const struct FsmWorld *const world)
-{
-    return world->papps_and_sapps;
 }

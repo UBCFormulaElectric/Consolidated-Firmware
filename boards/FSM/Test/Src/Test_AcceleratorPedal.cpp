@@ -20,9 +20,8 @@ class AcceleratorPedalTest : public testing::Test
         // Initialize the following accelerator pedal pair with the
         // primary_encoder_fully_pressed_value and
         // secondary_encoder_fully_pressed_value both set to 0. This is because
-        // we are testing a generic pair of accelerator pedals and the specific
-        // value of both encoders' fully pressed values are not required for the
-        // following tests
+        // the specific value of both encoders' fully pressed values are not
+        // required for the following tests
         accelerator_pedal_pair = App_AcceleratorPedals_Create(
             is_primary_encoder_alarm_active, is_secondary_encoder_alarm_active,
             get_primary_encoder_counter, get_secondary_encoder_counter,
