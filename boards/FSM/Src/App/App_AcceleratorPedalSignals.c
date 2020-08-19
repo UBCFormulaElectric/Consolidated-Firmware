@@ -10,18 +10,6 @@ bool App_AcceleratorPedalSignals_IsPappsAlarmActive(struct FsmWorld *world)
     return App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(papps_and_sapps);
 }
 
-bool App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive(
-    struct FsmWorld *world)
-{
-    struct AcceleratorPedals *papps_and_sapps =
-        App_FsmWorld_GetPappsAndSapps(world);
-
-    return !App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(
-               papps_and_sapps) &&
-           !App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(
-               papps_and_sapps);
-}
-
 void App_AcceleratorPedalSignals_PappsAlarmCallback(struct FsmWorld *world)
 {
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
@@ -40,15 +28,6 @@ bool App_AcceleratorPedalSignals_IsSappsAlarmActive(struct FsmWorld *world)
     return App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(papps_and_sapps);
 }
 
-bool App_AcceleratorPedalSignals_IsSappsAlarmInactive(struct FsmWorld *world)
-{
-    struct AcceleratorPedals *papps_and_sapps =
-        App_FsmWorld_GetPappsAndSapps(world);
-
-    return !App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(
-        papps_and_sapps);
-}
-
 void App_AcceleratorPedalSignals_SappsAlarmCallback(struct FsmWorld *world)
 {
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
@@ -57,6 +36,18 @@ void App_AcceleratorPedalSignals_SappsAlarmCallback(struct FsmWorld *world)
     App_CanTx_SetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(
         can_tx,
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE);
+}
+
+bool App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive(
+    struct FsmWorld *world)
+{
+    struct AcceleratorPedals *papps_and_sapps =
+        App_FsmWorld_GetPappsAndSapps(world);
+
+    return !App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(
+               papps_and_sapps) &&
+           !App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(
+               papps_and_sapps);
 }
 
 bool App_AcceleratorPedalSignals_HasAppsDisagreement(struct FsmWorld *world)

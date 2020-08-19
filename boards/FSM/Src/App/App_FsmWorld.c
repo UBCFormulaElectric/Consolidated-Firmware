@@ -90,9 +90,9 @@ struct FsmWorld *App_FsmWorld_Create(
     world->papps_and_sapps                  = papps_and_sapps;
 
     struct SignalCallback papps_callback = {
-        .entry_condition_high_duration_ms = 10,
-        .exit_condition_high_duration_ms  = 10,
-        .function                         = papps_alarm_callback,
+        .entry_high_ms = 10,
+        .exit_high_ms  = 10,
+        .function      = papps_alarm_callback,
     };
     struct Signal *papps_alarm_signal = App_SharedSignal_Create(
         0, is_papps_alarm_active, is_papps_and_sapps_alarm_inactive, world,
@@ -100,9 +100,9 @@ struct FsmWorld *App_FsmWorld_Create(
     App_RegisterSignal(world, papps_alarm_signal);
 
     struct SignalCallback sapps_callback = {
-        .entry_condition_high_duration_ms = 10,
-        .exit_condition_high_duration_ms  = 10,
-        .function                         = sapps_alarm_callback,
+        .entry_high_ms = 10,
+        .exit_high_ms  = 10,
+        .function      = sapps_alarm_callback,
     };
     struct Signal *sapps_alarm_signal = App_SharedSignal_Create(
         0, is_sapps_alarm_active, is_papps_and_sapps_alarm_inactive, world,
@@ -110,18 +110,18 @@ struct FsmWorld *App_FsmWorld_Create(
     App_RegisterSignal(world, sapps_alarm_signal);
 
     struct SignalCallback apps_callback = {
-        .entry_condition_high_duration_ms = 100,
-        .exit_condition_high_duration_ms  = 10,
-        .function                         = apps_disagreement_callback,
+        .entry_high_ms = 100,
+        .exit_high_ms  = 1000,
+        .function      = apps_disagreement_callback,
     };
     struct Signal *apps_disagreement_signal = App_SharedSignal_Create(
         0, has_apps_disagreement, has_apps_agreement, world, apps_callback);
     App_RegisterSignal(world, apps_disagreement_signal);
 
     struct SignalCallback apps_and_brake_callback = {
-        .entry_condition_high_duration_ms = 10,
-        .exit_condition_high_duration_ms  = 10,
-        .function = apps_and_brake_plausibility_failure_callback,
+        .entry_high_ms = 1,
+        .exit_high_ms  = 1,
+        .function      = apps_and_brake_plausibility_failure_callback,
     };
     struct Signal *apps_and_brake_plausibility_check_signal =
         App_SharedSignal_Create(
