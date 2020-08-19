@@ -25,8 +25,6 @@ struct FsmWorld
     struct RgbLedSequence *   rgb_led_sequence;
     struct SignalNode *       signals_head;
     struct Clock *            clock;
-    struct AcceleratorPedal * papps;
-    struct AcceleratorPedal * sapps;
     struct AcceleratorPedals *papps_and_sapps;
 };
 
@@ -60,14 +58,17 @@ struct FsmWorld *App_FsmWorld_Create(
     struct AcceleratorPedals *const papps_and_sapps,
 
     bool (*const has_apps_and_brake_plausibility_failure)(struct FsmWorld *),
+    bool (*const is_apps_and_brake_plausibility_ok)(struct FsmWorld *),
     void (*const apps_and_brake_plausibility_failure_callback)(
         struct FsmWorld *),
     bool (*const has_apps_disagreement)(struct FsmWorld *),
+    bool (*const has_apps_agreement)(struct FsmWorld *),
     void (*const apps_disagreement_callback)(struct FsmWorld *),
     bool (*const is_papps_alarm_active)(struct FsmWorld *),
     void (*const papps_alarm_callback)(struct FsmWorld *),
     bool (*const is_sapps_alarm_active)(struct FsmWorld *),
-    void (*const sapps_alarm_callback)(struct FsmWorld *))
+    void (*const sapps_alarm_callback)(struct FsmWorld *),
+    bool (*const is_papps_and_sapps_alarm_inactive)(struct FsmWorld *))
 
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
@@ -89,37 +90,43 @@ struct FsmWorld *App_FsmWorld_Create(
     world->papps_and_sapps                  = papps_and_sapps;
 
     struct SignalCallback papps_callback = {
-        .high_duration_ms = 10,
-        .function         = papps_alarm_callback,
+        .entry_condition_high_duration_ms = 10,
+        .exit_condition_high_duration_ms  = 10,
+        .function                         = papps_alarm_callback,
     };
     struct Signal *papps_alarm_signal = App_SharedSignal_Create(
-        0, is_papps_alarm_active, world, papps_callback);
+        0, is_papps_alarm_active, is_papps_and_sapps_alarm_inactive, world,
+        papps_callback);
     App_RegisterSignal(world, papps_alarm_signal);
 
     struct SignalCallback sapps_callback = {
-        .high_duration_ms = 10,
-        .function         = sapps_alarm_callback,
+        .entry_condition_high_duration_ms = 10,
+        .exit_condition_high_duration_ms  = 10,
+        .function                         = sapps_alarm_callback,
     };
     struct Signal *sapps_alarm_signal = App_SharedSignal_Create(
-        0, is_sapps_alarm_active, world, sapps_callback);
+        0, is_sapps_alarm_active, is_papps_and_sapps_alarm_inactive, world,
+        sapps_callback);
     App_RegisterSignal(world, sapps_alarm_signal);
 
     struct SignalCallback apps_callback = {
-        .high_duration_ms = 100,
-        .function         = apps_disagreement_callback,
+        .entry_condition_high_duration_ms = 100,
+        .exit_condition_high_duration_ms  = 10,
+        .function                         = apps_disagreement_callback,
     };
-    struct Signal *apps_disagreement_signal =
-        App_SharedSignal_Create(0, has_apps_disagreement, world, apps_callback);
+    struct Signal *apps_disagreement_signal = App_SharedSignal_Create(
+        0, has_apps_disagreement, has_apps_agreement, world, apps_callback);
     App_RegisterSignal(world, apps_disagreement_signal);
 
     struct SignalCallback apps_and_brake_callback = {
-        .high_duration_ms = 10,
-        .function         = apps_and_brake_plausibility_failure_callback,
+        .entry_condition_high_duration_ms = 10,
+        .exit_condition_high_duration_ms  = 10,
+        .function = apps_and_brake_plausibility_failure_callback,
     };
     struct Signal *apps_and_brake_plausibility_check_signal =
         App_SharedSignal_Create(
-            0, has_apps_and_brake_plausibility_failure, world,
-            apps_and_brake_callback);
+            0, has_apps_and_brake_plausibility_failure,
+            is_apps_and_brake_plausibility_ok, world, apps_and_brake_callback);
     App_RegisterSignal(world, apps_and_brake_plausibility_check_signal);
 
     return world;

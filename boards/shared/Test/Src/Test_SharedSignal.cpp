@@ -13,8 +13,8 @@ class SharedSignalTest : public testing::Test
   protected:
     void SetUp() override
     {
-        callback.function         = callback_function;
-        callback.high_duration_ms = 0;
+        callback.function                         = callback_function;
+        callback.entry_condition_high_duration_ms = 0;
         signal = App_SharedSignal_Create(0, is_high, world, callback);
 
         RESET_FAKE(is_high);
@@ -32,8 +32,8 @@ class SharedSignalTest : public testing::Test
     {
         TearDownObject(signal, App_SharedSignal_Destroy);
 
-        callback.function         = callback_function;
-        callback.high_duration_ms = high_duration_ms;
+        callback.function                         = callback_function;
+        callback.entry_condition_high_duration_ms = high_duration_ms;
         signal =
             App_SharedSignal_Create(initial_time_ms, is_high, world, callback);
     }

@@ -12,9 +12,13 @@ struct Signal;
 
 struct SignalCallback
 {
-    // How long the signal must be continuously high for, in milliseconds,
-    // before the callback function is triggered
-    uint32_t high_duration_ms;
+    // How long the exit condition signal must be continuously high for, in
+    // milliseconds, before the callback function is triggered
+    uint32_t entry_condition_high_duration_ms;
+
+    // How long the exit condition signal must be continuously high for, in
+    // milliseconds, before the callback function is triggered
+    uint32_t exit_condition_high_duration_ms;
 
     // The callback function
     void (*function)(struct World *);
@@ -24,13 +28,17 @@ struct SignalCallback
  * Allocate and initialize a signal
  * @param initial_time_ms The initial time, in milliseconds, used to initialize
  *                        the internal state of the signal
- * @param is_high A function that can be called to check if the signal is high
+ * @param is_entry_condition_high A function that can be called to check if the
+ * entry condition signal is high
+ * @param is_exit_condition_high A function that can be called to check if the
+ * exit condition signal is high
  * @param callback The signal callback for the signal
  * @return The created signal, whose ownership is given to the caller
  */
 struct Signal *App_SharedSignal_Create(
     uint32_t initial_time_ms,
-    bool (*is_high)(struct World *),
+    bool (*is_entry_condition_high)(struct World *),
+    bool (*is_exit_condition_high)(struct World *),
     struct World *        world,
     struct SignalCallback callback);
 

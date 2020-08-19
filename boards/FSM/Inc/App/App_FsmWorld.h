@@ -37,13 +37,16 @@ struct FsmWorld *App_FsmWorld_Create(
     struct AcceleratorPedals *papps_and_sapps,
 
     bool (*has_apps_and_brake_plausibility_failure)(struct FsmWorld *),
+    bool (*is_apps_and_brake_plausibility_ok)(struct FsmWorld *),
     void (*apps_and_brake_plausibility_failure_callback)(struct FsmWorld *),
     bool (*has_apps_disagreement)(struct FsmWorld *),
+    bool (*has_apps_agreement)(struct FsmWorld *),
     void (*apps_disagreement_callback)(struct FsmWorld *),
     bool (*is_papps_alarm_active)(struct FsmWorld *),
     void (*papps_alarm_callback)(struct FsmWorld *),
     bool (*is_sapps_alarm_active)(struct FsmWorld *),
-    void (*sapps_alarm_callback)(struct FsmWorld *));
+    void (*sapps_alarm_callback)(struct FsmWorld *),
+    bool (*is_papps_and_sapps_alarm_inactive)(struct FsmWorld *));
 
 /**
  * Deallocate the memory used by the given world
