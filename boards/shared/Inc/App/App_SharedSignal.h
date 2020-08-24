@@ -12,12 +12,12 @@ struct Signal;
 
 struct SignalCallback
 {
-    // How long the entry signal must be continuously high for, in
+    // How long the signal's entry condition must be continuously high for, in
     // milliseconds, before the callback function is triggered
     uint32_t entry_high_ms;
 
-    // How long the exit signal must be continuously high for, in
-    // milliseconds, before the callback function is triggered
+    // How long the signal's exit condition signal must be continuously high
+    // for, in milliseconds, before the callback function is disabled
     uint32_t exit_high_ms;
 
     // The callback function
@@ -28,10 +28,13 @@ struct SignalCallback
  * Allocate and initialize a signal
  * @param initial_time_ms The initial time, in milliseconds, used to initialize
  *                        the internal state of the signal
+ * @note If is_entry_high remains high for entry_high_ms the given callback
+ * function will be triggered. The callback function will only stop triggering
+ * if is_exit_high remains high for exit_high_ms.
  * @param is_entry_high A function that can be called to check if the
- * entry signal is high
+ * entry condition for the signal is high
  * @param is_exit_high A function that can be called to check if the
- * exit signal is high
+ * exit condition for the signal is high
  * @param callback The signal callback for the signal
  * @return The created signal, whose ownership is given to the caller
  */

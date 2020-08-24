@@ -4,18 +4,23 @@
 
 struct Signal
 {
+    // A flag used to indicate if the callback function is active
     bool is_callback_active;
 
-    // The last time the entry signal was observed to be low, in milliseconds
+    // The last time the entry condition for the signal was observed to be low,
+    // in milliseconds
     uint32_t entry_last_time_low_ms;
 
-    // The last time the entry signal was observed to be high, in milliseconds
+    // The last time the entry condition for the signal was observed to be high,
+    // in milliseconds
     uint32_t entry_last_time_high_ms;
 
-    // The last time the exit signal was observed to be low, in milliseconds
+    // The last time the exit condition signal was observed to be low, in
+    // milliseconds
     uint32_t exit_last_time_low_ms;
 
-    // The last time the exit signal was observed to be high, in milliseconds
+    // The last time the exit condition signal was observed to be high, in
+    // milliseconds
     uint32_t exit_last_time_high_ms;
 
     // The function to call to check if this signal entry condition is high
