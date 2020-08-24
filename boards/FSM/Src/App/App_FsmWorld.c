@@ -4,6 +4,7 @@
 #include <linkedlist.h>
 
 #include "App_FsmWorld.h"
+#include "configs/App_SignalCallbackDurations.h"
 
 struct SignalNode
 {
@@ -90,8 +91,8 @@ struct FsmWorld *App_FsmWorld_Create(
     world->papps_and_sapps                  = papps_and_sapps;
 
     struct SignalCallback papps_callback = {
-        .entry_high_ms = 10,
-        .exit_high_ms  = 10,
+        .entry_high_ms = PAPPS_ENTRY_HIGH_MS,
+        .exit_high_ms  = PAPPS_EXIT_HIGH_MS,
         .function      = papps_alarm_callback,
     };
     struct Signal *papps_alarm_signal = App_SharedSignal_Create(
@@ -100,8 +101,8 @@ struct FsmWorld *App_FsmWorld_Create(
     App_RegisterSignal(world, papps_alarm_signal);
 
     struct SignalCallback sapps_callback = {
-        .entry_high_ms = 10,
-        .exit_high_ms  = 10,
+        .entry_high_ms = SAPPS_ENTRY_HIGH_MS,
+        .exit_high_ms  = SAPPS_EXIT_HIGH_MS,
         .function      = sapps_alarm_callback,
     };
     struct Signal *sapps_alarm_signal = App_SharedSignal_Create(
@@ -110,8 +111,8 @@ struct FsmWorld *App_FsmWorld_Create(
     App_RegisterSignal(world, sapps_alarm_signal);
 
     struct SignalCallback apps_callback = {
-        .entry_high_ms = 100,
-        .exit_high_ms  = 1000,
+        .entry_high_ms = APPS_ENTRY_HIGH_MS,
+        .exit_high_ms  = APPS_EXIT_HIGH_MS,
         .function      = apps_disagreement_callback,
     };
     struct Signal *apps_disagreement_signal = App_SharedSignal_Create(
@@ -119,8 +120,8 @@ struct FsmWorld *App_FsmWorld_Create(
     App_RegisterSignal(world, apps_disagreement_signal);
 
     struct SignalCallback apps_and_brake_callback = {
-        .entry_high_ms = 1,
-        .exit_high_ms  = 1,
+        .entry_high_ms = APPS_AND_BRAKE_ENTRY_HIGH_MS,
+        .exit_high_ms  = APPS_AND_BRAKE_EXIT_HIGH_MS,
         .function      = apps_and_brake_plausibility_failure_callback,
     };
     struct Signal *apps_and_brake_plausibility_check_signal =
