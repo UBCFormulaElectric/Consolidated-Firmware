@@ -56,9 +56,6 @@ bool App_AcceleratorPedalSignals_HasAppsDisagreement(struct FsmWorld *world);
 /**
  * Check if the mapped pedal percentage for the primary and secondary APPS in
  * the given world are in agreement
- * @note The pedal is said to be in agreement if the mapped pedal percentage
- * disagreement is less than 5%
- *
  * @param world The world containing the primary and secondary APPS to check for
  * @return true if the primary and secondary APPS are in agreement, else false
  */

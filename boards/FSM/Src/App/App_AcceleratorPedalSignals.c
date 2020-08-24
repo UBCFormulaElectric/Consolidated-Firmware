@@ -64,14 +64,7 @@ bool App_AcceleratorPedalSignals_HasAppsDisagreement(struct FsmWorld *world)
 
 bool App_AcceleratorPedalSignals_HasAppsAgreement(struct FsmWorld *world)
 {
-    struct AcceleratorPedals *papps_and_sapps =
-        App_FsmWorld_GetPappsAndSapps(world);
-
-    return fabsf(
-               App_AcceleratorPedals_GetPrimaryPedalPercentage(
-                   papps_and_sapps) -
-               App_AcceleratorPedals_GetSecondaryPedalPercentage(
-                   papps_and_sapps)) <= 10.0f;
+    return !App_AcceleratorPedalSignals_HasAppsDisagreement(world);
 }
 
 void App_AcceleratorPedalSignals_AppsDisagreementCallback(
