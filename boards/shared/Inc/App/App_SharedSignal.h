@@ -14,11 +14,11 @@ struct SignalCallback
 {
     // How long the signal's entry condition must be continuously high for, in
     // milliseconds, before the callback function is triggered
-    uint32_t entry_high_ms;
+    uint32_t entry_high_duration_ms;
 
     // How long the signal's exit condition signal must be continuously high
     // for, in milliseconds, before the callback function is disabled
-    uint32_t exit_high_ms;
+    uint32_t exit_high_duration_ms;
 
     // The callback function
     void (*function)(struct World *);
@@ -88,16 +88,19 @@ uint32_t App_SharedSignal_GetExitLastTimeLowMs(const struct Signal *signal);
 uint32_t App_SharedSignal_GetExitLastTimeHighMs(const struct Signal *signal);
 
 /**
- * Check if the callback function is for the given signal active
- * @param signal The signal to check if the callback function is active
- * @return true if the callback function is active, false if it is not
+ * Check if the callback function for the given signal is triggered
+ * @param signal The signal to check if the callback function is triggered
+ * @return true if the callback function is triggered, false if it is not
  */
-bool App_SharedSignal_IsCallbackActive(const struct Signal *signal);
+bool App_SharedSignal_IsCallbackTriggered(const struct Signal *const signal);
 
 /**
- * Update the internal state of the given signal. If the signal has been
+ * Update the internal state of the given signal. If the entry signal has been
  * continuously high for a period equal to or greater than the configured
- * duration (See: `high_duration_ms`), the callback function will be triggered.
+ * duration (See: `entry_high_duration_ms) the callback function will be
+ * triggered. The exit signal has to remain continuously high for a period equal
+ * to or greater than the configured duration (See: `exit_signal_duration_ms) to
+ * stop the callback function from triggering the exit signal.
  * @note This calls the is_entry_high() and is_exit_high() methods of the given
  * signal
  * @param signal The signal to update

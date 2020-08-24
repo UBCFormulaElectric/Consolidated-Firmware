@@ -4,8 +4,8 @@
 
 struct Signal
 {
-    // A flag used to indicate if the callback function is active
-    bool is_callback_active;
+    // A flag used to indicate if the callback function is triggered
+    bool is_callback_triggered;
 
     // The last time the entry condition for the signal was observed to be low,
     // in milliseconds
@@ -46,7 +46,7 @@ struct Signal *App_SharedSignal_Create(
     struct Signal *signal = malloc(sizeof(struct Signal));
     assert(signal != NULL);
 
-    signal->is_callback_active      = false;
+    signal->is_callback_triggered   = false;
     signal->entry_last_time_low_ms  = initial_time_ms;
     signal->entry_last_time_high_ms = initial_time_ms;
     signal->exit_last_time_low_ms   = initial_time_ms;
@@ -84,9 +84,9 @@ uint32_t App_SharedSignal_GetExitLastTimeHighMs(const struct Signal *signal)
     return signal->exit_last_time_high_ms;
 }
 
-bool App_SharedSignal_IsCallbackActive(const struct Signal *const signal)
+bool App_SharedSignal_IsCallbackTriggered(const struct Signal *const signal)
 {
-    return signal->is_callback_active;
+    return signal->is_callback_triggered;
 }
 
 void App_SharedSignal_Update(struct Signal *signal, uint32_t current_time_ms)
@@ -109,15 +109,16 @@ void App_SharedSignal_Update(struct Signal *signal, uint32_t current_time_ms)
         signal->exit_last_time_low_ms = current_time_ms;
     }
 
-    if (!signal->is_callback_active)
+    if (!signal->is_callback_triggered)
     {
         const uint32_t entry_time_since_last_low =
             current_time_ms - signal->entry_last_time_low_ms;
 
-        if (entry_time_since_last_low >= signal->callback.entry_high_ms)
+        if (entry_time_since_last_low >=
+            signal->callback.entry_high_duration_ms)
         {
             signal->callback.function(signal->world);
-            signal->is_callback_active = true;
+            signal->is_callback_triggered = true;
         }
     }
     else
@@ -125,9 +126,9 @@ void App_SharedSignal_Update(struct Signal *signal, uint32_t current_time_ms)
         const uint32_t exit_time_since_last_low =
             current_time_ms - signal->exit_last_time_low_ms;
 
-        if (exit_time_since_last_low >= signal->callback.exit_high_ms)
+        if (exit_time_since_last_low >= signal->callback.exit_high_duration_ms)
         {
-            signal->is_callback_active = false;
+            signal->is_callback_triggered = false;
         }
         else
         {
