@@ -69,6 +69,11 @@ C:\Program FIles (x86)\...\path\to\STM32CubeMX
 
 These paths should include wherever the `cmake`, `make`, `arm-none-eabi-gcc`, and STM32CubeMX binaries have been installed.
 
+Create a new enviroment variable under your user variables named `PYTHONPATH`. Set the value of the variable to path for the root directory of your fork:
+```
+C:\path\to\Consolidated-Firmware-Username
+```
+
 ### Python Package Dependencies
 We use python both for CI (see below), and to generate C code from the `.dbc` defining messages passed over CAN. Python dependencies are managed via [pipenv](https://pipenv.readthedocs.io/en/latest/). To install all required dependencies in a [python virtual environment](https://realpython.com/python-virtual-environments-a-primer/), navigate to the root of this repository and run `pipenv install`.
 
