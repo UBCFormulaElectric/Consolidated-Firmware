@@ -17,7 +17,7 @@ struct SignalCallback
     uint32_t entry_high_duration_ms;
 
     // How long the signal's exit condition signal must be continuously high
-    // for, in milliseconds, before the callback function is disabled
+    // for, in milliseconds, before the callback function is no longer triggered
     uint32_t exit_high_duration_ms;
 
     // The callback function
@@ -100,7 +100,7 @@ bool App_SharedSignal_IsCallbackTriggered(const struct Signal *const signal);
  * duration (See: `entry_high_duration_ms) the callback function will be
  * triggered. The exit signal has to remain continuously high for a period equal
  * to or greater than the configured duration (See: `exit_signal_duration_ms) to
- * stop the callback function from triggering the exit signal.
+ * trigger the exit callback function.
  * @note This calls the is_entry_high() and is_exit_high() methods of the given
  * signal
  * @param signal The signal to update
