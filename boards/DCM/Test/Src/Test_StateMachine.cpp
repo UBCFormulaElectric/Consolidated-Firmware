@@ -10,6 +10,7 @@ extern "C"
 #include "states/App_DriveState.h"
 #include "states/App_FaultState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
+#include "configs/App_WaitSignalDuration.h"
 }
 
 namespace StateMachineTest
@@ -356,6 +357,46 @@ TEST_F(DcmStateMachineTest, stay_in_fault_state_if_there_is_any_critical_errors)
     ASSERT_EQ(
         App_GetFaultState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
+// DCM-12
+TEST_F(
+    DcmStateMachineTest,
+    check_if_buzzer_stays_on_for_two_seconds_only_after_entering_drive_state)
+{
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        if (CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE ==
+            App_CanTx_GetPeriodicSignal_STATE(can_tx_interface))
+        {
+            // Turn the DIM start switch on to prevent state transitions in the
+            // drive state.
+            EXPECT_TRUE(App_BuzzerSignals_IsOn(world));
+            App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
+                can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
+
+            LetTimePass(state_machine, BUZZER_ON_DURATION_MS - 1);
+            EXPECT_TRUE(App_BuzzerSignals_IsOn(world));
+
+            // Check that the buzzer has been turned off after waiting for
+            // BUZZER_ON_DURATION_MS.
+            LetTimePass(state_machine, 1);
+            EXPECT_FALSE(App_BuzzerSignals_IsOn(world));
+
+            // Check that the buzzer stays off for the next 1000 ms. It should
+            // be enough time to give us confidence in the test without making
+            // the test too slow.
+            LetTimePass(state_machine, 1000);
+            EXPECT_FALSE(App_BuzzerSignals_IsOn(world));
+        }
+        else
+        {
+            // Check that the buzzer is not turned on in other states.
+            EXPECT_FALSE(App_BuzzerSignals_IsOn(world));
+        }
+    }
 }
 
 } // namespace StateMachineTest

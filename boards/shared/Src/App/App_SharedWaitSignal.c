@@ -48,7 +48,7 @@ void App_SharedWaitSignal_Update(
     {
         if (wait_signal->start_wait)
         {
-            wait_signal->last_ms    = current_ms;
+            wait_signal->last_ms    = current_ms - 1;
             wait_signal->is_waiting = true;
         }
     }
