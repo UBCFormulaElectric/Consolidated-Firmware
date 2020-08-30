@@ -580,6 +580,7 @@ void RunTask1kHz(void const *argument)
         const uint32_t current_time_ms = osKernelSysTick() * portTICK_PERIOD_MS;
 
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
+        App_DcmWorld_UpdateWaitSignal(world, current_time_ms);
         Io_CanTx_EnqueuePeriodicMsgs(can_tx, current_time_ms);
 
         // Watchdog check-in must be the last function called before putting the

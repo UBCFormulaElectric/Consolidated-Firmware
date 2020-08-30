@@ -93,6 +93,15 @@ struct Buzzer *App_DcmWorld_GetBuzzer(const struct DcmWorld *world);
 struct ErrorTable *App_DcmWorld_GetErrorTable(const struct DcmWorld *world);
 
 /**
+ *
+ * @param world
+ * @param current_ms
+ */
+void App_DcmWorld_UpdateWaitSignal(
+    const struct DcmWorld *world,
+    uint32_t               current_ms);
+
+/**
  * Get the clock for the given world
  * @param world The world to get clock for
  * @return The clock for the given world

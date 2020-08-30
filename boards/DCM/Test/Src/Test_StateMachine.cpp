@@ -64,7 +64,9 @@ class DcmStateMachineTest : public BaseStateMachineTest
 
         world = App_DcmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
-            rgb_led_sequence, brake_light, buzzer, error_table, clock);
+            rgb_led_sequence, brake_light, buzzer, error_table, clock,
+
+            App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -126,9 +128,8 @@ class DcmStateMachineTest : public BaseStateMachineTest
         struct StateMachine *state_machine,
         uint32_t             current_time_ms) override
     {
-        // DCM doesn't use any signals currently
-        UNUSED(state_machine);
-        UNUSED(current_time_ms);
+        struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+        App_DcmWorld_UpdateWaitSignal(world, current_time_ms);
     }
 
     struct World *            world;

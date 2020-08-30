@@ -6,7 +6,6 @@ struct WaitSignal
 {
     bool     is_waiting;
     uint32_t last_ms;
-    uint32_t wait_duration_ms;
 
     // If this function is high the timer starts ticking
     bool (*start_wait)(struct World *);
@@ -63,8 +62,7 @@ void App_SharedWaitSignal_Update(
             wait_signal->wait_signal_callback.wait_complete_callback(
                 wait_signal->world);
 
-            // Disable the is_waiting flag to indicate that the signal is no
-            // longer waiting
+            // Indicate that the signal is no longer waiting
             wait_signal->is_waiting = false;
         }
     }
