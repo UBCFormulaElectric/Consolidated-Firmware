@@ -6,8 +6,10 @@
 #include "App_SharedRgbLedSequence.h"
 #include "App_BrakeLight.h"
 #include "App_Buzzer.h"
+#include "App_BuzzerSignals.h"
 #include "App_SharedErrorTable.h"
 #include "App_SharedClock.h"
+#include "App_SharedWaitSignal.h"
 
 struct DcmWorld;
 
@@ -28,7 +30,10 @@ struct DcmWorld *App_DcmWorld_Create(
     struct BrakeLight *       brake_light,
     struct Buzzer *           buzzer,
     struct ErrorTable *       error_table,
-    struct Clock *            clock);
+    struct Clock *            clock,
+
+    bool (*is_buzzer_on)(struct DcmWorld *),
+    void (*buzzer_callback)(struct DcmWorld *));
 
 /**
  * Deallocate the memory used by the given world
