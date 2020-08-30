@@ -43,12 +43,13 @@ struct DcmWorld *App_DcmWorld_Create(
     world->error_table       = error_table;
     world->clock             = clock;
 
-    struct WaitSignalCallback buzzer_callback = { .wait_complete_callback =
+    struct WaitSignalCallback buzzer_callback = { .function =
                                                       buzzer_complete_callback,
                                                   .wait_duration_ms =
                                                       BUZZER_ON_DURATION_MS };
     world->buzzer_wait_signal =
         App_SharedWaitSignal_Create(0U, is_buzzer_on, world, buzzer_callback);
+
     return world;
 }
 
