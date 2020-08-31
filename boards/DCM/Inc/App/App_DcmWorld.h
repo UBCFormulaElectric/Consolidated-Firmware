@@ -93,9 +93,12 @@ struct Buzzer *App_DcmWorld_GetBuzzer(const struct DcmWorld *world);
 struct ErrorTable *App_DcmWorld_GetErrorTable(const struct DcmWorld *world);
 
 /**
- *
- * @param world
- * @param current_ms
+ * Update the registered wait signals in the given world
+ * @note This function should be called periodically. And since the time
+ *       resolution of the wait signal library is in milliseconds, it would make
+ *       sense to call this function at 1kHz.
+ * @param world The world to update the registered wait signals
+ * @param current_ms The current time in milliseconds
  */
 void App_DcmWorld_UpdateWaitSignal(
     const struct DcmWorld *world,

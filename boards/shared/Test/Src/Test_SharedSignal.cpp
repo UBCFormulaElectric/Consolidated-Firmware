@@ -5,6 +5,9 @@ extern "C"
 #include "App_SharedSignal.h"
 }
 
+FAKE_VALUE_FUNC(bool, is_high, struct World *);
+FAKE_VOID_FUNC(callback_function, struct World *);
+
 class SharedSignalTest : public testing::Test
 {
   protected:

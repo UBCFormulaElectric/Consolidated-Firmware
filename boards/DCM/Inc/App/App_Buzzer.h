@@ -33,7 +33,7 @@ void App_Buzzer_TurnOff(struct Buzzer *buzzer);
 
 /**
  * Check if the given buzzer is turned on
- * @param buzzer The buzzer to check for the on and off status
+ * @param buzzer The buzzer to check the on and off status
  * @return true if the buzzer is on, false if it is not
  */
 bool App_Buzzer_IsOn(struct Buzzer *buzzer);

@@ -371,8 +371,8 @@ TEST_F(
         if (CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE ==
             App_CanTx_GetPeriodicSignal_STATE(can_tx_interface))
         {
-            // Turn the DIM start switch on to prevent state transitions in the
-            // drive state.
+            // Turn the DIM start switch on to prevent state transitions in
+            // the drive state.
             EXPECT_TRUE(App_BuzzerSignals_IsOn(world));
             App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
                 can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
@@ -385,10 +385,10 @@ TEST_F(
             LetTimePass(state_machine, 1);
             EXPECT_FALSE(App_BuzzerSignals_IsOn(world));
 
-            // Check that the buzzer stays off for the next 1000 ms. It should
+            // Check that the buzzer stays off for the next 100ms. It should
             // be enough time to give us confidence in the test without making
             // the test too slow.
-            LetTimePass(state_machine, 1000);
+            LetTimePass(state_machine, 100);
             EXPECT_FALSE(App_BuzzerSignals_IsOn(world));
         }
         else

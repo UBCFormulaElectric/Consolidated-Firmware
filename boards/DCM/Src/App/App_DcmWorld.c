@@ -55,6 +55,7 @@ struct DcmWorld *App_DcmWorld_Create(
 
 void App_DcmWorld_Destroy(struct DcmWorld *world)
 {
+    free(world->buzzer_wait_signal);
     free(world);
 }
 

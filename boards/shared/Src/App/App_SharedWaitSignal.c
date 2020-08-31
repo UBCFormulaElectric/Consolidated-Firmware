@@ -4,10 +4,13 @@
 
 struct WaitSignal
 {
-    bool     is_waiting;
+    // The flag to indicate if the wait signal is currently waiting
+    bool is_waiting;
+
+    // The last time this wait signal was observed to be high, in milliseconds
     uint32_t last_time_high_ms;
 
-    // If this function is high the timer starts ticking
+    // The function to call to check if this wait signal is high
     bool (*is_high)(struct World *);
 
     // The world associated with this wait signal
@@ -40,13 +43,25 @@ void App_SharedWaitSignal_Destroy(struct WaitSignal *wait_signal)
     free(wait_signal);
 }
 
+uint32_t App_SharedWaitSignal_GetLastTimeHighMs(struct WaitSignal *wait_signal)
+{
+    return wait_signal->last_time_high_ms;
+}
+
+bool App_SharedWaitSignal_IsWaiting(struct WaitSignal *wait_signal)
+{
+    return wait_signal->is_waiting;
+}
+
 void App_SharedWaitSignal_Update(
     struct WaitSignal *wait_signal,
     uint32_t           current_ms)
 {
     if (!wait_signal->is_waiting)
     {
-        if (wait_signal->is_high)
+        // If the wait signal is high while a wait is not in progress, start
+        // waiting
+        if (wait_signal->is_high(wait_signal->world))
         {
             wait_signal->last_time_high_ms = current_ms;
             wait_signal->is_waiting        = true;
@@ -58,9 +73,9 @@ void App_SharedWaitSignal_Update(
 
         if (wait_duration_ms >= wait_signal->callback.wait_duration_ms - 1U)
         {
+            // Trigger the callback function once after the wait signal has
+            // waited for the specified wait duration
             wait_signal->callback.function(wait_signal->world);
-
-            // Indicate that the signal is no longer waiting
             wait_signal->is_waiting = false;
         }
     }
