@@ -224,15 +224,15 @@ class SharedSignalTest : public testing::Test
     {
         uint32_t current_ms = entry_high_duration_ms + entry_start_ms;
 
-        // Set is_entry_high for a single cycle to trigger the callback
-        // function.
+        // Set is_entry_condition_high for a single cycle to trigger the
+        // callback function.
         testSignalStaysHighForSomeCycles(
             entry_start_ms, entry_high_duration_ms, exit_high_duration_ms, 1);
 
         is_entry_high_fake.return_val = false;
 
-        // Delay for a few ms after is_entry_high is low before configuring the
-        // state of is_exit_high.
+        // Delay for a few ms after is_entry_condition_high is low before
+        // configuring the state of is_exit_condition_high.
         for (uint32_t ms = 0; ms < delay_ms_before_exit_signal; ms++)
         {
             App_SharedSignal_Update(signal, ++current_ms);
@@ -246,7 +246,7 @@ class SharedSignalTest : public testing::Test
         is_exit_high_fake.return_val = false;
 
         // We can expect the callback function to trigger continuously for the
-        // remaining cycles as is_exit_high is always false.
+        // remaining cycles as is_exit_condition_high is always false.
         for (uint32_t cycle = 0; cycle < num_cycles; cycle++)
         {
             for (uint32_t ms = 0; ms < exit_high_duration_ms; ms++)
@@ -271,14 +271,14 @@ class SharedSignalTest : public testing::Test
     {
         uint32_t current_ms = entry_start_ms + entry_high_duration_ms;
 
-        // Set is_entry_high for a single cycle to trigger the callback
-        // function.
+        // Set is_entry_condition_high for a single cycle to trigger the
+        // callback function.
         testSignalStaysHighForSomeCycles(
             entry_start_ms, entry_high_duration_ms, exit_high_duration_ms, 1);
         is_entry_high_fake.return_val = false;
 
-        // Delay for a few ms after is_entry_high is low before configuring the
-        // state of is_exit_high.
+        // Delay for a few ms after is_entry_condition_high is low before
+        // configuring the state of is_exit_condition_high.
         for (uint32_t ms = 0; ms < delay_ms_before_exit_signal; ms++)
         {
             App_SharedSignal_Update(signal, ++current_ms);
@@ -292,8 +292,8 @@ class SharedSignalTest : public testing::Test
         is_exit_high_fake.return_val = true;
         uint32_t exit_start_ms       = current_ms;
 
-        // For the first cycle after is_exit_high is true, the callback function
-        // is expected to be triggered at the last ms.
+        // For the first cycle after is_exit_condition_high is true, the
+        // callback function is expected to be triggered at the last ms.
         for (uint32_t ms = 0; ms < exit_high_duration_ms; ms++)
         {
             if (ms <= exit_high_duration_ms - 1)
@@ -313,7 +313,7 @@ class SharedSignalTest : public testing::Test
         }
 
         // The callback function should not be triggered for the remaining
-        // cycles as is_exit_high remains high for the given
+        // cycles as is_exit_condition_high remains high for the given
         // exit_condition_high_duration_ms.
         for (uint32_t cycle = 0; cycle < num_cycles; cycle++)
         {
@@ -338,16 +338,16 @@ class SharedSignalTest : public testing::Test
         uint32_t delay_ms_before_exit_signal,
         uint32_t num_cycles)
     {
-        // Set is_entry_high for a single cycle to trigger the callback
-        // function.
+        // Set is_entry_condition_high for a single cycle to trigger the
+        // callback function.
         testSignalStaysHighForSomeCycles(
             entry_start_ms, entry_high_duration_ms, exit_high_duration_ms, 1);
 
         uint32_t current_ms           = entry_start_ms + entry_high_duration_ms;
         is_entry_high_fake.return_val = false;
 
-        // Delay for a few ms after is_entry_high is low before configuring the
-        // state of is_exit_high.
+        // Delay for a few ms after is_entry_condition_high is low before
+        // configuring the state of is_exit_condition_high.
         for (uint32_t ms = 0; ms < delay_ms_before_exit_signal; ms++)
         {
             App_SharedSignal_Update(signal, ++current_ms);
@@ -392,8 +392,8 @@ class SharedSignalTest : public testing::Test
                     App_SharedSignal_GetExitLastTimeLowMs(signal));
             }
 
-            // The callback function is triggered continuously as is_exit_high
-            // was interrupted on the last ms.
+            // The callback function is triggered continuously as
+            // is_exit_condition_high was interrupted on the last ms.
             ASSERT_TRUE(App_SharedSignal_IsCallbackTriggered(signal));
         }
 
@@ -401,8 +401,8 @@ class SharedSignalTest : public testing::Test
         exit_start_ms                = exit_start_ms + exit_high_duration_ms;
 
         // We can expect the callback function not to be triggered for the
-        // remaining cycles as as is_exit_high is no longer interrupted on the
-        // last ms.
+        // remaining cycles as as is_exit_condition_high is no longer
+        // interrupted on the last ms.
         for (uint32_t cycle = 0; cycle < num_cycles; cycle++)
         {
             for (uint32_t ms = 0; ms < exit_high_duration_ms; ms++)
