@@ -15,18 +15,18 @@ struct Signal
     // in milliseconds
     uint32_t entry_last_time_high_ms;
 
-    // The last time the exit condition signal was observed to be low, in
-    // milliseconds
+    // The last time the exit condition for the signal was observed to be low,
+    // in milliseconds
     uint32_t exit_last_time_low_ms;
 
-    // The last time the exit condition signal was observed to be high, in
-    // milliseconds
+    // The last time the exit condition for the signal was observed to be high,
+    // in milliseconds
     uint32_t exit_last_time_high_ms;
 
-    // The function to call to check if this signal entry condition is high
+    // The function to call to check if this signal's entry condition is high
     bool (*is_entry_high)(struct World *);
 
-    // The function to call to check if the signal exit condition is high
+    // The function to call to check if the signal's exit condition is high
     bool (*is_exit_high)(struct World *);
 
     // The world associated with this signal
@@ -38,8 +38,8 @@ struct Signal
 
 struct Signal *App_SharedSignal_Create(
     uint32_t initial_time_ms,
-    bool (*is_entry_high)(struct World *),
-    bool (*is_exit_high)(struct World *),
+    bool (*is_entry_condition_high)(struct World *),
+    bool (*is_exit_condition_high)(struct World *),
     struct World *        world,
     struct SignalCallback callback)
 {
@@ -51,8 +51,8 @@ struct Signal *App_SharedSignal_Create(
     signal->entry_last_time_high_ms = initial_time_ms;
     signal->exit_last_time_low_ms   = initial_time_ms;
     signal->exit_last_time_high_ms  = initial_time_ms;
-    signal->is_entry_high           = is_entry_high;
-    signal->is_exit_high            = is_exit_high;
+    signal->is_entry_high           = is_entry_condition_high;
+    signal->is_exit_high            = is_exit_condition_high;
     signal->world                   = world;
     signal->callback                = callback;
 
@@ -111,11 +111,11 @@ void App_SharedSignal_Update(struct Signal *signal, uint32_t current_time_ms)
 
     if (!signal->is_callback_triggered)
     {
-        const uint32_t time_since_is_entry_last_low =
+        const uint32_t time_entry_condition_high_ms =
             current_time_ms - signal->entry_last_time_low_ms;
 
-        if (time_since_is_entry_last_low >=
-            signal->callback.entry_high_duration_ms)
+        if (time_entry_condition_high_ms >=
+            signal->callback.entry_condition_high_duration_ms)
         {
             signal->callback.function(signal->world);
             signal->is_callback_triggered = true;
@@ -123,11 +123,11 @@ void App_SharedSignal_Update(struct Signal *signal, uint32_t current_time_ms)
     }
     else
     {
-        const uint32_t time_since_is_exit_last_low =
+        const uint32_t time_exit_condition_high_ms =
             current_time_ms - signal->exit_last_time_low_ms;
 
-        if (time_since_is_exit_last_low >=
-            signal->callback.exit_high_duration_ms)
+        if (time_exit_condition_high_ms >=
+            signal->callback.exit_condition_high_duration_ms)
         {
             signal->is_callback_triggered = false;
         }

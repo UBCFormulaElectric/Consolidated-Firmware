@@ -14,10 +14,10 @@ class SharedSignalTest : public testing::Test
   protected:
     void SetUp() override
     {
-        callback.function               = callback_function;
-        callback.entry_high_duration_ms = 0;
-        callback.exit_high_duration_ms  = 0;
-        signal                          = App_SharedSignal_Create(
+        callback.function                         = callback_function;
+        callback.entry_condition_high_duration_ms = 0;
+        callback.exit_condition_high_duration_ms  = 0;
+        signal                                    = App_SharedSignal_Create(
             0, is_entry_high, is_exit_high, world, callback);
 
         RESET_FAKE(is_entry_high);
@@ -37,10 +37,10 @@ class SharedSignalTest : public testing::Test
     {
         TearDownObject(signal, App_SharedSignal_Destroy);
 
-        callback.function               = callback_function;
-        callback.entry_high_duration_ms = entry_high_duration_ms;
-        callback.exit_high_duration_ms  = exit_high_duration_ms;
-        signal                          = App_SharedSignal_Create(
+        callback.function                         = callback_function;
+        callback.entry_condition_high_duration_ms = entry_high_duration_ms;
+        callback.exit_condition_high_duration_ms  = exit_high_duration_ms;
+        signal                                    = App_SharedSignal_Create(
             initial_time_ms, is_entry_high, is_exit_high, world, callback);
     }
 
@@ -314,7 +314,7 @@ class SharedSignalTest : public testing::Test
 
         // The callback function should not be triggered for the remaining
         // cycles as is_exit_high remains high for the given
-        // exit_high_duration_ms.
+        // exit_condition_high_duration_ms.
         for (uint32_t cycle = 0; cycle < num_cycles; cycle++)
         {
             for (uint32_t ms = 0; ms < exit_high_duration_ms; ms++)
@@ -360,7 +360,8 @@ class SharedSignalTest : public testing::Test
 
         uint32_t exit_start_ms = current_ms;
 
-        // Interrupt exit_high_duration_ms on the last ms for the first cycle.
+        // Interrupt exit_condition_high_duration_ms on the last ms for the
+        // first cycle.
         for (uint32_t ms = 0; ms < exit_high_duration_ms; ms++)
         {
             if (ms == exit_high_duration_ms - 1)
