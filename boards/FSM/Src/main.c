@@ -271,13 +271,16 @@ int main(void)
         papps_and_sapps,
 
         App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure,
+        App_AcceleratorPedalSignals_IsAppsAndBrakePlausibilityOk,
         App_AcceleratorPedalSignals_AppsAndBrakePlausibilityFailureCallback,
         App_AcceleratorPedalSignals_HasAppsDisagreement,
+        App_AcceleratorPedalSignals_HasAppsAgreement,
         App_AcceleratorPedalSignals_AppsDisagreementCallback,
         App_AcceleratorPedalSignals_IsPappsAlarmActive,
         App_AcceleratorPedalSignals_PappsAlarmCallback,
         App_AcceleratorPedalSignals_IsSappsAlarmActive,
-        App_AcceleratorPedalSignals_SappsAlarmCallback);
+        App_AcceleratorPedalSignals_SappsAlarmCallback,
+        App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 

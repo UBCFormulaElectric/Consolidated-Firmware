@@ -17,6 +17,7 @@ extern "C"
 #include "configs/App_SteeringAngleThresholds.h"
 #include "configs/App_BrakePressureThresholds.h"
 #include "configs/App_AcceleratorPedalThresholds.h"
+#include "configs/App_SignalCallbackDurations.h"
 }
 
 namespace StateMachineTest
@@ -115,13 +116,16 @@ class FsmStateMachineTest : public BaseStateMachineTest
             brake, rgb_led_sequence, clock, papps_and_sapps,
 
             App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure,
+            App_AcceleratorPedalSignals_IsAppsAndBrakePlausibilityOk,
             App_AcceleratorPedalSignals_AppsAndBrakePlausibilityFailureCallback,
             App_AcceleratorPedalSignals_HasAppsDisagreement,
+            App_AcceleratorPedalSignals_HasAppsAgreement,
             App_AcceleratorPedalSignals_AppsDisagreementCallback,
             App_AcceleratorPedalSignals_IsPappsAlarmActive,
             App_AcceleratorPedalSignals_PappsAlarmCallback,
             App_AcceleratorPedalSignals_IsSappsAlarmActive,
-            App_AcceleratorPedalSignals_SappsAlarmCallback);
+            App_AcceleratorPedalSignals_SappsAlarmCallback,
+            App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive);
 
         // Default to starting the state machine in the `AIR_OPEN` state
         state_machine =
@@ -263,50 +267,91 @@ class FsmStateMachineTest : public BaseStateMachineTest
     }
 
     void CheckIfAppsDisagreementFaultIsSetWhenAppsHasDisagreement(
-        uint32_t &fake_larger_pedal_percentage_encoder_counter,
-        uint32_t &fake_smaller_pedal_percentage_encoder_counter,
-        uint8_t (*apps_has_disagreement_can_signal_getter)(
-            const struct FsmCanTxInterface *),
-        uint32_t larger_pedal_percentage_max_pressed_value,
-        uint32_t smaller_pedal_percentage_max_pressed_value,
-        uint8_t  true_choice,
-        uint8_t  false_choice)
+        uint32_t &fake_larger_pedal_percentage_encoder_value,
+        uint32_t &fake_smaller_pedal_percentage_encoder_value,
+        uint32_t  larger_pedal_percentage_max_pressed_value,
+        uint32_t  smaller_pedal_percentage_max_pressed_value,
+        uint32_t  entry_high_ms,
+        uint32_t  exit_high_ms,
+        uint8_t   true_choice,
+        uint8_t   false_choice)
     {
-        for (size_t pedal_percentage = 10; pedal_percentage < 100;
+        for (size_t pedal_percentage = 10; pedal_percentage <= 100;
              pedal_percentage++)
         {
             // Remove pedal disagreement to avoid false positives on the next
-            // cycle
-            fake_larger_pedal_percentage_encoder_counter  = 0;
-            fake_smaller_pedal_percentage_encoder_counter = 0;
-            LetTimePass(state_machine, 10);
+            // cycle.
+            fake_larger_pedal_percentage_encoder_value  = 0;
+            fake_smaller_pedal_percentage_encoder_value = 0;
+            LetTimePass(state_machine, exit_high_ms);
 
             // Increment the value of the greater encoder value by 1 to ensure
             // at least a 10% mapped pedal percentage difference between the
             // APPS is maintained
-            fake_larger_pedal_percentage_encoder_counter =
+            fake_larger_pedal_percentage_encoder_value =
                 GetEncoderCounterFromPedalPercentage(
                     pedal_percentage,
                     larger_pedal_percentage_max_pressed_value) +
                 1;
 
-            // Decrement the value of the greater encoder value by 1 to ensure
-            // at least a 10% mapped pedal percentage difference between the
-            // APPS is maintained
-            fake_smaller_pedal_percentage_encoder_counter =
+            fake_smaller_pedal_percentage_encoder_value =
                 GetEncoderCounterFromPedalPercentage(
                     pedal_percentage - 10,
-                    smaller_pedal_percentage_max_pressed_value) -
-                1;
-            LetTimePass(state_machine, 99);
+                    smaller_pedal_percentage_max_pressed_value);
+            LetTimePass(state_machine, entry_high_ms - 1);
             ASSERT_EQ(
-                false_choice,
-                apps_has_disagreement_can_signal_getter(can_tx_interface));
+                false_choice, App_CanTx_GetPeriodicSignal_APPS_HAS_DISAGREEMENT(
+                                  can_tx_interface));
 
             LetTimePass(state_machine, 1);
             ASSERT_EQ(
-                true_choice,
-                apps_has_disagreement_can_signal_getter(can_tx_interface));
+                true_choice, App_CanTx_GetPeriodicSignal_APPS_HAS_DISAGREEMENT(
+                                 can_tx_interface));
+        }
+    }
+
+    void CheckIfAppsDisagreementFaultIsClearedWhenAppsHasAgreement(
+        uint32_t &fake_larger_pedal_percentage_encoder_value,
+        uint32_t &fake_smaller_pedal_percentage_encoder_value,
+        uint32_t  larger_pedal_percentage_max_pressed_value,
+        uint32_t  smaller_pedal_percentage_max_pressed_value,
+        uint32_t  entry_high_ms,
+        uint32_t  exit_high_ms,
+        uint8_t   true_choice,
+        uint8_t   false_choice)
+    {
+        for (size_t pedal_percentage = 5; pedal_percentage <= 100;
+             pedal_percentage++)
+        {
+            // Ensure that the motor shutdown fault is initially set by
+            // configuring an APPS disagreement greater than 10%
+            fake_larger_pedal_percentage_encoder_value =
+                larger_pedal_percentage_max_pressed_value / 2.0;
+            fake_smaller_pedal_percentage_encoder_value = 0;
+            LetTimePass(state_machine, entry_high_ms);
+            ASSERT_EQ(
+                true_choice, App_CanTx_GetPeriodicSignal_APPS_HAS_DISAGREEMENT(
+                                 can_tx_interface));
+
+            // Stop the callback function from being triggered by setting the
+            // difference between the mapped pedal percentages under 5%
+            fake_larger_pedal_percentage_encoder_value =
+                GetEncoderCounterFromPedalPercentage(
+                    pedal_percentage,
+                    larger_pedal_percentage_max_pressed_value);
+            fake_smaller_pedal_percentage_encoder_value =
+                GetEncoderCounterFromPedalPercentage(
+                    pedal_percentage - 5,
+                    smaller_pedal_percentage_max_pressed_value);
+            LetTimePass(state_machine, exit_high_ms - 1);
+            ASSERT_EQ(
+                true_choice, App_CanTx_GetPeriodicSignal_APPS_HAS_DISAGREEMENT(
+                                 can_tx_interface));
+
+            LetTimePass(state_machine, 1);
+            ASSERT_EQ(
+                false_choice, App_CanTx_GetPeriodicSignal_APPS_HAS_DISAGREEMENT(
+                                  can_tx_interface));
         }
     }
 
@@ -568,9 +613,16 @@ TEST_F(
     {
         SetInitialState(state);
 
+        // For the following tests we will select a secondary APPS encoder
+        // value such that the difference between the primary and secondary APPS
+        // is within 10%. This prevents the APPS has disagreement callback from
+        // being triggered
+
         // Normal range
-        float fake_value = PAPPS_ENCODER_FULLY_PRESSED_VALUE / 2.0;
-        get_papps_encoder_counter_fake.return_val = fake_value;
+        get_papps_encoder_counter_fake.return_val =
+            PAPPS_ENCODER_FULLY_PRESSED_VALUE / 2.0;
+        get_sapps_encoder_counter_fake.return_val =
+            SAPPS_ENCODER_FULLY_PRESSED_VALUE / 2.0;
         LetTimePass(state_machine, 10);
         ASSERT_EQ(
             50, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(
@@ -579,8 +631,10 @@ TEST_F(
         // Underflow range
         // Decrement fake_value by 1 to ensure that the encoder counter value is
         // within the lower deadzone
-        fake_value = PAPPS_ENCODER_FULLY_PRESSED_VALUE * percent_deflection - 1;
-        get_papps_encoder_counter_fake.return_val = fake_value;
+        get_papps_encoder_counter_fake.return_val =
+            PAPPS_ENCODER_FULLY_PRESSED_VALUE * percent_deflection - 1;
+        get_sapps_encoder_counter_fake.return_val =
+            SAPPS_ENCODER_FULLY_PRESSED_VALUE * percent_deflection - 1;
         LetTimePass(state_machine, 10);
         ASSERT_EQ(
             0, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(
@@ -589,13 +643,49 @@ TEST_F(
         // Overflow range
         // Increment fake_value by 1 to ensure that the encoder counter value is
         // within the upper deadzone
-        fake_value =
+        get_papps_encoder_counter_fake.return_val =
             PAPPS_ENCODER_FULLY_PRESSED_VALUE * (1 - percent_deflection) + 1;
-        get_papps_encoder_counter_fake.return_val = fake_value;
+        get_sapps_encoder_counter_fake.return_val =
+            SAPPS_ENCODER_FULLY_PRESSED_VALUE * (1 - percent_deflection) + 1;
         LetTimePass(state_machine, 10);
         ASSERT_EQ(
             100, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(
                      can_tx_interface));
+    }
+}
+
+// FSM-3
+TEST_F(
+    FsmStateMachineTest,
+    brake_is_actuated_sets_mapped_pedal_percentage_to_zero_in_all_states)
+{
+    for (const auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        RESET_FAKE(is_brake_actuated);
+
+        // Start with a non-zero pedal position to avoid false positives. In
+        // addition, the chosen primary brake pedal percentage will not trigger
+        // the APPS and brake plausibility callback function
+        get_papps_encoder_counter_fake.return_val =
+            GetEncoderCounterFromPedalPercentage(
+                5, PAPPS_ENCODER_FULLY_PRESSED_VALUE);
+        LetTimePass(state_machine, 10);
+        ASSERT_EQ(
+            5, round(App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(
+                   can_tx_interface)));
+
+        is_brake_actuated_fake.return_val = true;
+
+        LetTimePass(state_machine, 9);
+        ASSERT_EQ(
+            5, round(App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(
+                   can_tx_interface)));
+        LetTimePass(state_machine, 1);
+        ASSERT_EQ(
+            0, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(
+                   can_tx_interface));
     }
 }
 
@@ -604,9 +694,16 @@ TEST_F(
     FsmStateMachineTest,
     papps_alarm_error_sets_mapped_pedal_percentage_to_zero_and_sets_motor_shutdown_can_tx_signal)
 {
+    // For the following test we will select a secondary APPS encoder
+    // value such that the difference between the primary and secondary APPS
+    // is within 10%. This prevents the APPS has disagreement callback from
+    // being triggered
+
     // Start with a non-zero pedal positions to prevent false positive
     get_papps_encoder_counter_fake.return_val =
         PAPPS_ENCODER_FULLY_PRESSED_VALUE / 2.0;
+    get_sapps_encoder_counter_fake.return_val =
+        SAPPS_ENCODER_FULLY_PRESSED_VALUE / 2.0;
     LetTimePass(state_machine, 10);
 
     is_papps_encoder_alarm_active_fake.return_val = true;
@@ -632,13 +729,20 @@ TEST_F(
     FsmStateMachineTest,
     sapps_alarm_error_sets_mapped_pedal_percentage_to_zero_and_sets_motor_shutdown_can_tx_signal)
 {
+    // For the following test we will select a secondary APPS encoder
+    // value such that the difference between the primary and secondary APPS
+    // is within 10%. This prevents the APPS has disagreement callback from
+    // being triggered
+
     // Start with a non-zero pedal position to avoid false positives
     get_papps_encoder_counter_fake.return_val =
         PAPPS_ENCODER_FULLY_PRESSED_VALUE / 2.0;
+    get_sapps_encoder_counter_fake.return_val =
+        SAPPS_ENCODER_FULLY_PRESSED_VALUE / 2.0;
     LetTimePass(state_machine, 10);
 
     is_sapps_encoder_alarm_active_fake.return_val = true;
-    LetTimePass(state_machine, 9);
+    LetTimePass(state_machine, SAPPS_ENTRY_HIGH_MS - 1);
     ASSERT_EQ(
         50,
         App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface));
@@ -655,36 +759,100 @@ TEST_F(
         App_CanTx_GetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(can_tx_interface));
 }
 
-// FSM-3
+// FSM-16
 TEST_F(
     FsmStateMachineTest,
-    brake_is_actuated_sets_mapped_pedal_percentage_to_zero_in_all_states)
+    check_inactive_papps_and_sapps_alarm_clears_papps_motor_shutdown_can_tx_signal)
 {
-    for (const auto &state : GetAllStates())
-    {
-        SetInitialState(state);
+    // For the following test we will select a secondary APPS encoder
+    // value such that the difference between the primary and secondary APPS
+    // is within 10%. This prevents the APPS has disagreement callback from
+    // being triggered
+    get_papps_encoder_counter_fake.return_val =
+        PAPPS_ENCODER_FULLY_PRESSED_VALUE / 2.0;
+    get_sapps_encoder_counter_fake.return_val =
+        SAPPS_ENCODER_FULLY_PRESSED_VALUE / 2.0;
+    is_papps_encoder_alarm_active_fake.return_val = true;
+    LetTimePass(state_machine, PAPPS_ENTRY_HIGH_MS);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(can_tx_interface));
 
-        RESET_FAKE(is_brake_actuated);
+    is_papps_encoder_alarm_active_fake.return_val = false;
+    is_sapps_encoder_alarm_active_fake.return_val = true;
+    LetTimePass(state_machine, PAPPS_EXIT_HIGH_MS);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(can_tx_interface));
 
-        // Start with a non-zero pedal position to avoid false positives
-        get_papps_encoder_counter_fake.return_val =
-            PAPPS_ENCODER_FULLY_PRESSED_VALUE / 2.0;
-        LetTimePass(state_machine, 10);
-        ASSERT_EQ(
-            50, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(
-                    can_tx_interface));
+    // Check the the motor shutdown fault is cleared when both primary and
+    // secondary APPS alarms are inactive. In addition, check that mapped pedal
+    //    // percentage is reset to 50% when the callback is no longer
+    //    triggered.
+    is_sapps_encoder_alarm_active_fake.return_val = false;
+    LetTimePass(state_machine, PAPPS_EXIT_HIGH_MS - 1);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(can_tx_interface));
+    ASSERT_EQ(
+        0,
+        App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface));
 
-        is_brake_actuated_fake.return_val = true;
+    LetTimePass(state_machine, 1);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(can_tx_interface));
+    ASSERT_EQ(
+        50,
+        App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface));
+}
 
-        LetTimePass(state_machine, 9);
-        ASSERT_EQ(
-            50, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(
-                    can_tx_interface));
-        LetTimePass(state_machine, 1);
-        ASSERT_EQ(
-            0, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(
-                   can_tx_interface));
-    }
+// FSM_16
+TEST_F(
+    FsmStateMachineTest,
+    check_inactive_papps_and_sapps_alarm_clears_sapps_motor_shutdown_can_tx_signal)
+{
+    // For the following test we will select a secondary APPS encoder
+    // value such that the difference between the primary and secondary APPS
+    // is within 10%. This prevents the APPS has disagreement callback from
+    // being triggered
+    get_papps_encoder_counter_fake.return_val =
+        PAPPS_ENCODER_FULLY_PRESSED_VALUE / 2.0;
+    get_sapps_encoder_counter_fake.return_val =
+        SAPPS_ENCODER_FULLY_PRESSED_VALUE / 2.0;
+    is_papps_encoder_alarm_active_fake.return_val = true;
+    is_sapps_encoder_alarm_active_fake.return_val = true;
+    LetTimePass(state_machine, SAPPS_ENTRY_HIGH_MS);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(can_tx_interface));
+
+    is_papps_encoder_alarm_active_fake.return_val = true;
+    is_sapps_encoder_alarm_active_fake.return_val = false;
+    LetTimePass(state_machine, SAPPS_EXIT_HIGH_MS);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(can_tx_interface));
+
+    // Check the the motor shutdown fault is cleared when both primary and
+    // secondary APPS alarms are inactive. In addition, check that mapped pedal
+    // percentage is reset to 50% when the callback is no longer triggered.
+    is_papps_encoder_alarm_active_fake.return_val = false;
+    LetTimePass(state_machine, SAPPS_EXIT_HIGH_MS - 1);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(can_tx_interface));
+    ASSERT_EQ(
+        0,
+        App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface));
+
+    LetTimePass(state_machine, 1);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(can_tx_interface));
+    ASSERT_EQ(
+        50,
+        App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface));
 }
 
 // FSM-6
@@ -695,8 +863,8 @@ TEST_F(
     CheckIfAppsDisagreementFaultIsSetWhenAppsHasDisagreement(
         get_papps_encoder_counter_fake.return_val,
         get_sapps_encoder_counter_fake.return_val,
-        App_CanTx_GetPeriodicSignal_APPS_HAS_DISAGREEMENT,
         PAPPS_ENCODER_FULLY_PRESSED_VALUE, SAPPS_ENCODER_FULLY_PRESSED_VALUE,
+        APPS_ENTRY_HIGH_MS, APPS_EXIT_HIGH_MS,
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_TRUE_CHOICE,
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE);
 }
@@ -704,13 +872,41 @@ TEST_F(
 // FSM-6
 TEST_F(
     FsmStateMachineTest,
-    sapps_greater_than_apps_by_ten_percent_sets_motor_shutdown_can_tx_signal)
+    papps_greater_than_apps_by_five_percent_or_less_clears_motor_shutdown_can_tx_signal)
+{
+    CheckIfAppsDisagreementFaultIsClearedWhenAppsHasAgreement(
+        get_papps_encoder_counter_fake.return_val,
+        get_sapps_encoder_counter_fake.return_val,
+        PAPPS_ENCODER_FULLY_PRESSED_VALUE, SAPPS_ENCODER_FULLY_PRESSED_VALUE,
+        APPS_ENTRY_HIGH_MS, APPS_EXIT_HIGH_MS,
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_TRUE_CHOICE,
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE);
+}
+
+// FSM-6
+TEST_F(
+    FsmStateMachineTest,
+    sapps_greater_than_sapps_by_ten_percent_sets_motor_shutdown_can_tx_signal)
 {
     CheckIfAppsDisagreementFaultIsSetWhenAppsHasDisagreement(
         get_sapps_encoder_counter_fake.return_val,
         get_papps_encoder_counter_fake.return_val,
-        App_CanTx_GetPeriodicSignal_APPS_HAS_DISAGREEMENT,
         SAPPS_ENCODER_FULLY_PRESSED_VALUE, PAPPS_ENCODER_FULLY_PRESSED_VALUE,
+        APPS_ENTRY_HIGH_MS, APPS_EXIT_HIGH_MS,
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_TRUE_CHOICE,
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE);
+}
+
+// FSM-6
+TEST_F(
+    FsmStateMachineTest,
+    sapps_greater_than_papps_by_five_percent_or_less_clears_motor_shutdown_can_tx_signal)
+{
+    CheckIfAppsDisagreementFaultIsClearedWhenAppsHasAgreement(
+        get_sapps_encoder_counter_fake.return_val,
+        get_papps_encoder_counter_fake.return_val,
+        SAPPS_ENCODER_FULLY_PRESSED_VALUE, PAPPS_ENCODER_FULLY_PRESSED_VALUE,
+        APPS_ENTRY_HIGH_MS, APPS_EXIT_HIGH_MS,
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_TRUE_CHOICE,
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE);
 }
@@ -718,16 +914,19 @@ TEST_F(
 // FSM-7
 TEST_F(
     FsmStateMachineTest,
-    apps_is_pressed_and_brake_is_not_actuated_does_not_set_motor_shutdown_can_tx_signal)
+    apps_is_greater_than_25_percent_and_brake_is_not_actuated_does_not_set_motor_shutdown_can_tx_signal)
 {
     const float fake_encoder_value_threshold =
         GetEncoderCounterFromPedalPercentage(
-            25.0, PAPPS_ENCODER_FULLY_PRESSED_VALUE);
+            25, PAPPS_ENCODER_FULLY_PRESSED_VALUE);
     is_brake_actuated_fake.return_val = false;
 
     // Check CAN signals when the mapped pedal percentage is less than 25%
     get_papps_encoder_counter_fake.return_val =
         fake_encoder_value_threshold - 1;
+    get_sapps_encoder_counter_fake.return_val =
+        GetEncoderCounterFromPedalPercentage(
+            25, SAPPS_ENCODER_FULLY_PRESSED_VALUE);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_FALSE_CHOICE,
@@ -747,16 +946,19 @@ TEST_F(
 // FSM-7
 TEST_F(
     FsmStateMachineTest,
-    apps_is_pressed_and_brake_is_actuated_sets_motor_shutdown_can_tx_signal)
+    apps_is_greater_than_25_percent_and_brake_is_actuated_sets_motor_shutdown_can_tx_signal)
 {
     const float fake_encoder_value_threshold =
         GetEncoderCounterFromPedalPercentage(
-            25.0, PAPPS_ENCODER_FULLY_PRESSED_VALUE);
+            25, PAPPS_ENCODER_FULLY_PRESSED_VALUE);
     is_brake_actuated_fake.return_val = true;
 
     // Check CAN signals when the mapped pedal percentage is less than 25%
     get_papps_encoder_counter_fake.return_val =
         fake_encoder_value_threshold - 1;
+    get_sapps_encoder_counter_fake.return_val =
+        GetEncoderCounterFromPedalPercentage(
+            25, SAPPS_ENCODER_FULLY_PRESSED_VALUE);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_FALSE_CHOICE,
@@ -766,17 +968,136 @@ TEST_F(
     // Check CAN signals when the mapped pedal percentage is greater than 25%
     get_papps_encoder_counter_fake.return_val =
         fake_encoder_value_threshold + 1;
-    LetTimePass(state_machine, 9);
-    ASSERT_EQ(
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_FALSE_CHOICE,
-        App_CanTx_GetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
-            can_tx_interface));
-
     LetTimePass(state_machine, 1);
     ASSERT_EQ(
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_TRUE_CHOICE,
         App_CanTx_GetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
             can_tx_interface));
+
+    is_brake_actuated_fake.return_val = false;
+    LetTimePass(state_machine, 100);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
+            can_tx_interface));
+}
+
+// FSM-7
+TEST_F(
+    FsmStateMachineTest,
+    apps_is_less_than_5_percent_and_brake_is_actuated_clears_motor_shutdown_can_tx_signal)
+{
+    const float fake_encoder_value_threshold =
+        GetEncoderCounterFromPedalPercentage(
+            25, PAPPS_ENCODER_FULLY_PRESSED_VALUE);
+    is_brake_actuated_fake.return_val = true;
+
+    // Check that the callback has not been triggered when the mapped pedal
+    // percentage is less than 25%
+    get_papps_encoder_counter_fake.return_val =
+        fake_encoder_value_threshold - 1;
+    get_sapps_encoder_counter_fake.return_val =
+        GetEncoderCounterFromPedalPercentage(
+            25, SAPPS_ENCODER_FULLY_PRESSED_VALUE);
+    LetTimePass(state_machine, 1);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
+            can_tx_interface));
+
+    // Check that the callback has been triggered when the mapped pedal
+    // percentage is greater than 25%
+    get_papps_encoder_counter_fake.return_val =
+        fake_encoder_value_threshold + 1;
+    LetTimePass(state_machine, APPS_AND_BRAKE_ENTRY_HIGH_MS);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
+            can_tx_interface));
+
+    // Check if the callback function is still active regardless of the brake
+    // state
+    is_brake_actuated_fake.return_val = true;
+    LetTimePass(state_machine, 100);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
+            can_tx_interface));
+
+    // Set the mapped pedal percentage to a value less than 5% to stop
+    // triggering the callback function
+    get_papps_encoder_counter_fake.return_val =
+        GetEncoderCounterFromPedalPercentage(
+            5, PAPPS_ENCODER_FULLY_PRESSED_VALUE) -
+        1;
+    get_sapps_encoder_counter_fake.return_val = 0;
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
+            can_tx_interface));
+}
+
+// FSM-7
+TEST_F(
+    FsmStateMachineTest,
+    apps_is_less_than_5_percent_and_brake_is_not_actuated_clears_motor_shutdown_can_tx_signal)
+{
+    const float fake_encoder_value_threshold =
+        GetEncoderCounterFromPedalPercentage(
+            25, PAPPS_ENCODER_FULLY_PRESSED_VALUE);
+    is_brake_actuated_fake.return_val = true;
+
+    // Check that the callback has not been triggered when the mapped pedal
+    // percentage is less than 25%. We also select a secondary APPS encoder
+    // value such the difference between the primary and secondary APPS is
+    // within 10% to avoid triggering the APPS has disagreement callback
+    get_papps_encoder_counter_fake.return_val =
+        fake_encoder_value_threshold - 1;
+    get_sapps_encoder_counter_fake.return_val =
+        GetEncoderCounterFromPedalPercentage(
+            25, SAPPS_ENCODER_FULLY_PRESSED_VALUE);
+    LetTimePass(state_machine, 1);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
+            can_tx_interface));
+
+    // Check that the callback has been triggered when the mapped pedal
+    // percentage is greater than 25%
+    get_papps_encoder_counter_fake.return_val =
+        fake_encoder_value_threshold + 1;
+    LetTimePass(state_machine, APPS_AND_BRAKE_ENTRY_HIGH_MS);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
+            can_tx_interface));
+
+    // Check if the callback function is still active regardless of brake state
+    is_brake_actuated_fake.return_val = false;
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+        0,
+        App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface));
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
+            can_tx_interface));
+
+    // Set the mapped pedal percentage to a value less than 5% to stop
+    // triggering the callback function
+    get_papps_encoder_counter_fake.return_val =
+        GetEncoderCounterFromPedalPercentage(
+            5, PAPPS_ENCODER_FULLY_PRESSED_VALUE);
+    get_sapps_encoder_counter_fake.return_val = 0;
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
+            can_tx_interface));
+    ASSERT_EQ(
+        5, round(App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(
+               can_tx_interface)));
 }
 
 } // namespace StateMachineTest
