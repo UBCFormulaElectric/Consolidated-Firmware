@@ -52,7 +52,7 @@ void App_SharedSignal_Destroy(struct Signal *signal);
 
 /**
  * Get the last time the given signal was observed to be low during entry, in
- * milliseconds
+ * milliseconds (See: `is_entry_condition_high`)
  * @param signal The signal to get the time during entry from
  * @return The last time the given signal was observed to be low during entry,
  * in milliseconds
@@ -61,7 +61,7 @@ uint32_t App_SharedSignal_GetEntryLastTimeLowMs(const struct Signal *signal);
 
 /**
  * Get the last time the given signal was observed to be high during entry, in
- * milliseconds
+ * milliseconds (See: `is_entry_condition_high`)
  * @param signal The signal to get the time during entry from
  * @return The last time the given signal was observed to be high during entry,
  * in milliseconds
@@ -70,7 +70,7 @@ uint32_t App_SharedSignal_GetEntryLastTimeHighMs(const struct Signal *signal);
 
 /**
  * Get the last time the given signal was observed to be low during exit, in
- * milliseconds
+ * milliseconds (See: `is_exit_condition_high`)
  * @param signal The signal to get the time during exit from
  * @return The last time the given signal was observed to be low during exit, in
  * milliseconds
@@ -79,7 +79,7 @@ uint32_t App_SharedSignal_GetExitLastTimeLowMs(const struct Signal *signal);
 
 /**
  * Get the last time the given signal was observed to be high during exit, in
- * milliseconds
+ * milliseconds (See: `is_exit_condition_high`)
  * @param signal The signal to get the time during exit from
  * @return The last time the given signal was observed to be high during exit,
  * in milliseconds
