@@ -23,6 +23,7 @@ A consolidated repository for gathering all firmware under one roof.
 ### Environment Dependencies
 Follow these steps to compile and debug code in **CLion**:
 
+(**Note**: Before you can build the project you should setup your own [fork](#conventions) of the repo)
 #### 1. Install Dependencies:
 ##### Ubuntu 18.04
 You need to install `git lfs` following the instructions here: https://git-lfs.github.com/. Don't forget to run `git lfs install` afterwards.
@@ -46,6 +47,12 @@ sudo apt-get install openocd
 
 ##### Ubuntu 18.04 and Windows
   * J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
+    ##### Submodules:
+    In the root of the directory run the following command:
+    ```
+    git submodule update --init --recursive
+    ```
+    to fetch all of the submodules.
 
 #### 2. Modify your `PATH` Environment Variable:
 ##### Ubuntu 18.04
