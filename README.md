@@ -23,6 +23,7 @@ A consolidated repository for gathering all firmware under one roof.
 ### Environment Dependencies
 Follow these steps to compile and debug code in **CLion**:
 
+(**Note**: Before you can build the project you should setup your own [fork](#conventions) of the repo)
 #### 1. Install Dependencies:
 ##### Ubuntu 18.04
 You need to install `git lfs` following the instructions here: https://git-lfs.github.com/. Don't forget to run `git lfs install` afterwards.
@@ -46,6 +47,12 @@ sudo apt-get install openocd
 
 ##### Ubuntu 18.04 and Windows
   * J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
+    ##### Submodules:
+    In the root of the directory run the following command:
+    ```
+    git submodule update --init --recursive
+    ```
+    to fetch all of the submodules.
 
 #### 2. Modify your `PATH` Environment Variable:
 ##### Ubuntu 18.04
@@ -68,6 +75,11 @@ C:\Program FIles (x86)\...\path\to\STM32CubeMX
 ```
 
 These paths should include wherever the `cmake`, `make`, `arm-none-eabi-gcc`, and STM32CubeMX binaries have been installed.
+
+Create a new enviroment variable under your user variables named `PYTHONPATH`. Set the value of the variable to path for the root directory of your fork:
+```
+C:\path\to\Consolidated-Firmware-Username
+```
 
 ### Python Package Dependencies
 We use python both for CI (see below), and to generate C code from the `.dbc` defining messages passed over CAN. Python dependencies are managed via [pipenv](https://pipenv.readthedocs.io/en/latest/). To install all required dependencies in a [python virtual environment](https://realpython.com/python-virtual-environments-a-primer/), navigate to the root of this repository and run `pipenv install`.
