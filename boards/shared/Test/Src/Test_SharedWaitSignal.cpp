@@ -5,7 +5,6 @@ extern "C"
 #include "App_SharedWaitSignal.h"
 }
 
-// TODO: Refactor fake function names after 668 is merged
 FAKE_VALUE_FUNC(bool, is_wait_high, struct World *);
 FAKE_VOID_FUNC(wait_callback_function, struct World *);
 

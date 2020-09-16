@@ -23,7 +23,7 @@ struct WaitSignal
 struct WaitSignal *App_SharedWaitSignal_Create(
     uint32_t initial_time_ms,
     bool (*is_high)(struct World *),
-    struct World *            world,
+    struct World *            const world,
     struct WaitSignalCallback callback)
 {
     struct WaitSignal *wait_signal = malloc(sizeof(struct WaitSignal));
@@ -43,19 +43,20 @@ void App_SharedWaitSignal_Destroy(struct WaitSignal *wait_signal)
     free(wait_signal);
 }
 
-uint32_t App_SharedWaitSignal_GetLastTimeHighMs(struct WaitSignal *wait_signal)
+uint32_t App_SharedWaitSignal_GetLastTimeHighMs(
+    const struct WaitSignal *const wait_signal)
 {
     return wait_signal->last_time_high_ms;
 }
 
-bool App_SharedWaitSignal_IsWaiting(struct WaitSignal *wait_signal)
+bool App_SharedWaitSignal_IsWaiting(const struct WaitSignal *const wait_signal)
 {
     return wait_signal->is_waiting;
 }
 
 void App_SharedWaitSignal_Update(
-    struct WaitSignal *wait_signal,
-    uint32_t           current_ms)
+    struct WaitSignal *const wait_signal,
+    uint32_t                 current_ms)
 {
     if (!wait_signal->is_waiting)
     {
