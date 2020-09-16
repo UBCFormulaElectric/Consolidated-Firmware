@@ -31,7 +31,7 @@ struct DcmWorld *App_DcmWorld_Create(
     bool (*is_buzzer_on)(struct DcmWorld *),
     void (*buzzer_complete_callback)(struct DcmWorld *))
 {
-    struct DcmWorld *world = (struct DcmWorld *)malloc(sizeof(struct DcmWorld));
+    struct DcmWorld *world = malloc(sizeof(struct DcmWorld));
     assert(world != NULL);
 
     world->can_tx_interface  = can_tx_interface;

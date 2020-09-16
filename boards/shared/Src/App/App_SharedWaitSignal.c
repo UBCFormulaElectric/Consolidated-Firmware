@@ -23,7 +23,7 @@ struct WaitSignal
 struct WaitSignal *App_SharedWaitSignal_Create(
     uint32_t initial_time_ms,
     bool (*is_high)(struct World *),
-    struct World *            const world,
+    struct World *const       world,
     struct WaitSignalCallback callback)
 {
     struct WaitSignal *wait_signal = malloc(sizeof(struct WaitSignal));
