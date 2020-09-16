@@ -1,471 +1,10 @@
 #include <assert.h>
 #include <math.h>
 #include "Io_Efuse.h"
+#include "configs/Io_EfuseConfig.h"
 #include "Io_CurrentSense.h"
 
 #pragma GCC diagnostic ignored "-Wconversion"
-
-// Register data masks
-#define EFUSE_ADDR_MASK 0xFU
-#define EFUSE_ADDR_SHIFT 0x0AU
-#define EFUSE_SI_DATA_MASK 0x1FFU
-#define EFUSE_SO_DATA_MASK 0xFF // Ignore Normal-Mode status bit (bit 9)
-
-#define WATCHDOG_BIT (1U << 15U)
-#define PARITY_BIT (1U << 14U)
-
-// Current sense channels
-#define AUX1_CURRENT_SENSE_CHANNEL CSNS_FUNCTION_CURRENT_CH0
-#define AUX2_CURRENT_SENSE_CHANNEL CSNS_FUNCTION_CURRENT_CH1
-#define AIR_SHUTDOWN_CURRENT_SENSE_CHANNEL CSNS_FUNCTION_CURRENT_CH0
-#define LV_POWER_CURRENT_SENSE_CHANNEL CSNS_FUNCTION_CURRENT_CH1
-#define DRIVE_INVERTER_BACK_LEFT_CURRENT_SENSE_CHANNEL CSNS_FUNCTION_CURRENT_CH0
-#define DRIVE_INVERTER_BACK_RIGHT_CURRENT_SENSE_CHANNEL \
-    CSNS_FUNCTION_CURRENT_CH1
-#define DRIVE_INVERTER_FRONT_LEFT_CURRENT_SENSE_CHANNEL \
-    CSNS_FUNCTION_CURRENT_CH0
-#define DRIVE_INVERTER_FRONT_RIGHT_CURRENT_SENSE_CHANNEL \
-    CSNS_FUNCTION_CURRENT_CH1
-
-// Serial input register addresses
-
-// STATR_s input address
-#define SI_STATR_0_ADDR 0x00U
-#define SI_STATR_1_ADDR 0x08U
-
-#define SOA0_MASK 0x01U
-#define SOA1_MASK 0x02U
-#define SOA2_MASK 0x04U
-#define SOA3_MASK 0x08U
-
-#define SOA0_SHIFT 0x00U
-#define SOA1_SHIFT 0x01U
-#define SOA2_SHIFT 0x02U
-#define SOA3_SHIFT 0x0DU
-
-// PWMR_s input address
-#define SI_PWMR_0_ADDR 0x01U
-#define SI_PWMR_1_ADDR 0x09U
-
-#define PWM0_S_MASK 0x01U
-#define PWM1_S_MASK 0x02U
-#define PWM2_S_MASK 0x04U
-#define PWM3_S_MASK 0x08U
-#define PWM4_S_MASK 0x10U
-#define PWM5_S_MASK 0x20U
-#define PWM6_S_MASK 0x40U
-#define PWM7_S_MASK 0x80U
-#define ON_S_MASK 0x100U
-
-#define PWM0_S_SHIFT 0x00U
-#define PWM1_S_SHIFT 0x01U
-#define PWM2_S_SHIFT 0x02U
-#define PWM3_S_SHIFT 0x03U
-#define PWM4_S_SHIFT 0x04U
-#define PWM5_S_SHIFT 0x05U
-#define PWM6_S_SHIFT 0x06U
-#define PWM7_S_SHIFT 0x07U
-#define ON_S_SHIFT 0x08U
-
-// CONFR_s input address
-#define SI_CONFR_0_ADDR 0x02U
-#define SI_CONFR_1_ADDR 0x0AU
-
-#define DELAY0_S_MASK 0x01U
-#define DELAY1_S_MASK 0x02U
-#define DELAY2_S_MASK 0x04U
-#define SR0_S_MASK 0x08U
-#define SR1_S_MASK 0x10U
-#define DIR_DIS_S_MASK 0x20U
-#define OLOFF_DIS_S_MASK 0x40U
-#define OLON_DIS_S_MASK 0x80U
-#define OS_DIS_S_MASK 0x100U
-
-#define DELAY0_S_SHIFT 0x00U
-#define DELAY1_S_SHIFT 0x01U
-#define DELAY2_S_SHIFT 0x02U
-#define SR0_S_SHIFT 0x03U
-#define SR1_S_SHIFT 0x04U
-#define DIR_DIS_S_SHIFT 0x05U
-#define OLOFF_DIS_S_SHIFT 0x06U
-#define OLON_DIS_S_SHIFT 0x07U
-#define OS_DIS_S_SHIFT 0x08U
-
-// OCR_s input address
-#define SI_OCR_0_ADDR 0x04U
-#define SI_OCR_1_ADDR 0x0CU
-
-#define OCL_S_MASK 0x01U
-#define OCM_S_MASK 0x02U
-#define OCH_S_MASK 0x04U
-#define T_OCM_S_MASK 0x08U
-#define T_OCH_S_MASK 0x10U
-#define CSNS_RATIO_S_MASK 0x20U
-#define CLOCK_INT_S_MASK 0x40U
-#define PR_S_MASK 0x80U
-#define HOCR_S_MASK 0x100U
-
-#define OCL_S_SHIFT 0x00U
-#define OCM_S_SHIFT 0x01U
-#define OCH_S_SHIFT 0x02U
-#define T_OCM_S_SHIFT 0x03U
-#define T_OCH_S_SHIFT 0x04U
-#define CSNS_RATIO_S_SHIFT 0x05U
-#define CLOCK_INT_S_SHIFT 0x06U
-#define PR_S_SHIFT 0x07U
-#define HOCR_S_SHIFT 0x08U
-
-// RETRY_s input address
-#define SI_RETRY_0_ADDR 0x05U
-#define SI_RETRY_1_ADDR 0x0DU
-
-#define RETRY_S_MASK 0x01U
-#define RETRY_UNLIMITED_S_MASK 0x02U
-#define AUTO_PERIOD_0_S_MASK 0x04U
-#define AUTO_PERIOD_1_S_MASK 0x08U
-#define OFP_S_MASK 0x100U
-
-#define RETRY_S_SHIFT 0x00U
-#define RETRY_UNLIMITED_S_SHIFT 0x01U
-#define AUTO_PERIOD_0_S_SHIFT 0x02U
-#define AUTO_PERIOD_1_S_SHIFT 0x03U
-#define OFP_S_SHIFT 0x08U
-
-// GCR_s input address
-#define SI_GCR_ADDR 0x06U
-
-#define OV_DIS_MASK 0x01U
-#define CSNS0_EN_MASK 0x02U
-#define CSNS1_EN_MASK 0x04U
-#define VDD_FAIL_EN_MASK 0x08U
-#define WD_DIS_MASK 0x10U
-#define T_H_EN_MASK 0x20U
-#define PARALLEL_MASK 0x40U
-#define PWM_EN_0_MASK 0x80U
-#define PWM_EN_1_MASK 0x100U
-
-#define OV_DIS_SHIFT 0x00U
-#define CSNS0_EN_SHIFT 0x01U
-#define CSNS1_EN_SHIFT 0x02U
-#define VDD_FAIL_EN_SHIFT 0x03U
-#define WD_DIS_SHIFT 0x04U
-#define T_H_EN_SHIFT 0x05U
-#define PARALLEL_SHIFT 0x06U
-#define PWM_EN_0_SHIFT 0x07U
-#define PWM_EN_1_SHIFT 0x08U
-
-// CALR_s input address
-#define SI_CALR_0_ADDR 0x07U
-#define SI_CALR_1_ADDR 0x0FU
-#define CALR_MASK 0x15BU
-
-// Serial output register addresses
-
-// STATR output address
-#define SO_STATR_ADDR 0x00U
-
-#define SO_OUT0_MASK 0x01U
-#define SO_OUT1_MASK 0x02U
-#define SO_FAULT0_MASK 0x04U
-#define SO_FAULT1_MASK 0x08U
-#define SO_R_FULL0_MASK 0x10U
-#define SO_R_FULL1_MASK 0x20U
-#define SO_POR_MASK 0x40U
-#define SO_UV_MASK 0x80U
-#define SO_OV_MASK 0x100U
-
-#define SO_OUT0_SHIFT 0x00U
-#define SO_OUT1_SHIFT 0x01U
-#define SO_FAULT0_SHIFT 0x02U
-#define SO_FAULT1_SHIFT 0x03U
-#define SO_R_FULL0_SHIFT 0x04U
-#define SO_R_FULL1_SHIFT 0x05U
-#define SO_POR_SHIFT 0x06U
-#define SO_UV_SHIFT 0x07U
-#define SO_OV_SHIFT 0x08U
-
-// FAULTR_r output address
-#define SO_FAULTR_0_ADDR 0x01U
-#define SO_FAULTR_1_ADDR 0x09U
-
-#define SO_OC_S_MASK 0x01U
-#define SO_SC_S_MASK 0x02U
-#define SO_OT_S_MASK 0x04U
-#define SO_OS_S_MASK 0x08U
-#define SO_OLOFF_MASK 0x10U
-#define SO_OLON_MASK 0x20U
-#define SO_OTW_MASK 0x100U
-
-#define SO_OC_S_SHIFT 0x01U
-#define SO_SC_S_SHIFT 0x02U
-#define SO_OT_S_SHIFT 0x03U
-#define SO_OS_S_SHIFT 0x04U
-#define SO_OLOFF_SHIFT 0x05U
-#define SO_OLON_SHIFT 0x06U
-#define SO_OTW_SHIFT 0x08U
-
-// PWMR_s output address
-#define SO_PWMR_0_ADDR 0x02U
-#define SO_PWMR_1_ADDR 0x0AU
-
-#define SO_PWM_S_MASK 0xFFU
-#define SO_ON_S_MASK 0x100U
-
-#define SO_PWM_S_SHIFT 0x00U
-#define SO_ON_S_SHIFT 0x08U
-
-// CONFR_s output address
-#define SO_CONFR_0_ADDR 0x03U
-#define SO_CONFR_1_ADDR 0x0BU
-
-#define SO_DELAY_S_MASK 0x07U
-#define SO_SR_S_MASK 0x18U
-#define SO_DIR_DIS_S_MASK 0x20U
-#define SO_OLOFF_DIS_S_MASK 0x40U
-#define SO_OLON_DIS_S_MASK 0x80U
-#define SO_OS_DIS_S_MASK 0x100U
-
-#define SO_DELAY_S_SHIFT 0x00U
-#define SO_SR_S_SHIFT 0x03U
-#define SO_DIR_DIS_S_SHIFT 0x05U
-#define SO_OLOFF_DIS_S_SHIFT 0x06U
-#define SO_OLON_DIS_S_SHIFT 0x07U
-#define SO_OS_DIS_S_SHIFT 0x08U
-
-// OCR_s output address
-#define SO_OCR_0_ADDR 0x04U
-#define SO_OCR_1_ADDR 0x0CU
-
-#define SO_OCL_S_MASK 0x01U
-#define SO_OCM_S_MASK 0x02U
-#define SO_OCH_S_MASK 0x04U
-#define SO_T_COM_S_MASK 0x08U
-#define SO_T_OCH_S_MASK 0x10U
-#define SO_CSNS_RATIO_S_MASK 0x20U
-#define SO_CLOCK_INT_S_MASK 0x40U
-#define SO_PR_S_MASK 0x80U
-#define SO_HOCR_S_MASK 0x100U
-
-#define SO_OCL_S_SHIFT 0x00U
-#define SO_OCM_S_SHIFT 0x01U
-#define SO_OCH_S_SHIFT 0x02U
-#define SO_T_COM_S_SHIFT 0x03U
-#define SO_T_COH_S_SHIFT 0x04U
-#define SO_CSNS_RATIO_S_SHIFT 0x05U
-#define SO_CLOCK_INT_S_SHIFT 0x06U
-#define SO_PR_S_SHIFT 0x07U
-#define SO_HOCR_S_SHIFT 0x08U
-
-// RETRYR_S output address
-#define SO_RETRYR_0_ADDR 0x05U
-#define SO_RETRYR_1_ADDR 0x0DU
-
-#define SO_RETRY_S_MASK 0x01U
-#define SO_RETRY_UNLIMITED_S_MASK 0x02U
-#define SO_AUTO_PERIOD_S_MASK 0x0CU
-#define SO_R_MASK 0xF0U
-#define SO_OFP_MASK 0x100U
-
-#define SO_RETRY_S_SHIFT 0x00U
-#define SO_RETRY_UNLIMITED_S_SHIFT 0x01U
-#define SO_AUTO_PERIOD_S_SHIFT 0x02U
-#define SO_R_SHIFT 0x04U
-#define SO_OFP_SHIFT 0x08U
-
-// GCR output address
-#define SO_GCR_ADDR 0x06U
-
-#define SO_OV_DIS_MASK 0x01U
-#define SO_CSNS_EN_MASK 0x06U
-#define SO_VDD_FAIL_EN_MASK 0x08U
-#define SO_WD_DIS_MASK 0x10U
-#define SO_T_H_EN_MASK 0x20U
-#define SO_PARALLEL_MASK 0x40U
-#define SO_PWM_EN_0_MASK 0x80U
-#define SO_PWM_EN_1_MASK 0x100U
-
-#define SO_OV_DIS_SHIFT 0x00U
-#define SO_CSNS_EN_SHIFT 0x01U
-#define SO_VDD_FAIL_EN_SHIFT 0x03U
-#define SO_WD_DIS_SHIFT 0x04U
-#define SO_T_H_EN_SHIFT 0x05U
-#define SO_PARALLEL_SHIFT 0x06U
-#define SO_PWM_EN_0_SHIFT 0x07U
-#define SO_PWM_EN_1_SHIFT 0x08U
-
-// DIAGR output address
-#define SO_DIAGR_ADDR 0x07U
-
-#define SO_CAL_FAIL0_MASK 0x01U
-#define SO_CAL_FAIL1_MASK 0x02U
-#define SO_CLOCK_FAIL_MASK 0x04U
-#define SO_IN0_MASK 0x08U
-#define SO_IN1_MASK 0x10U
-#define SO_ID0_MASK 0x20U
-#define SO_ID1_MASK 0x40U
-#define SO_CONF0_MASK 0x80U
-#define SO_CONF1_MASK 0x100U
-
-#define SO_CAL_FAIL0_SHIFT 0x00U
-#define SO_CAL_FAIL1_SHIFT 0x01U
-#define SO_CLOCK_FAIL_SHIFT 0x02U
-#define SO_IN0_SHIFT 0x03U
-#define SO_IN1_SHIFT 0x04U
-#define SO_ID0_SHIFT 0x05U
-#define SO_ID1_SHIFT 0x06U
-#define SO_CONF0_SHIFT 0x07U
-#define SO_CONF1_SHIFT 0x08U
-
-// Feature definitions in CONFR_s register
-#define SWITCH_ON_DELAY_NO_DELAY 0x00U
-#define SWITCH_ON_DELAY_32_PWM_CLOCKS 0x01U
-#define SWITCH_ON_DELAY_64_PWM_CLOCKS 0x02U
-#define SWITCH_ON_DELAY_96_PWM_CLOCKS 0x03U
-#define SWITCH_ON_DELAY_128_PWM_CLOCKS 0x04U
-#define SWITCH_ON_DELAY_160_PWM_CLOCKS 0x05U
-#define SWITCH_ON_DELAY_192_PWM_CLOCKS 0x06U
-#define SWITCH_ON_DELAY_224_PWM_CLOCKS 0x07U
-
-#define SLEW_RATE_LOW (0x01 << SR0_S_SHIFT)
-#define SLEW_RATE_MEDIUM (0x00 << SR0_S_SHIFT)
-#define SLEW_RATE_HIGH (0x03 << SR0_S_SHIFT)
-#define SLEW_RATE_HIGH_MAX (0x02 << SR0_S_SHIFT)
-
-#define DIRECT_CONTROL_ENABLE (0x00 << DIR_DIS_S_SHIFT)
-#define DIRECT_CONTROL_DISABLE (0x01 << DIR_DIS_S_SHIFT)
-
-#define OPEN_LOAD_DETECTION_OFF_ENABLE (0x00 << OLOFF_DIS_S_SHIFT)
-#define OPEN_LOAD_DETECTION_OFF_DISABLE (0x01 << OLOFF_DIS_S_SHIFT)
-
-#define OPEN_LOAD_DETECTION_ON_ENABLE (0x00 << OLON_DIS_S_SHIFT)
-#define OPEN_LOAD_DETECTION_ON_DISABLE (0x01 << OLON_DIS_S_SHIFT)
-
-#define SHORT_CIRCUIT_DETECTION_ENABLE (0x00 << OS_DIS_S_SHIFT)
-#define SHORT_CIRCUIT_DETECTION_DISABLE (0x01 << OS_DIS_S_SHIFT)
-
-// Feature definitions in OCR_s register
-#define LOW_CURRENT_THRESHOLD_SELECT_IOCL1 \
-    ((0x00 << HOCR_S_SHIFT) | (0x01 << OCL_S_SHIFT))
-#define LOW_CURRENT_THRESHOLD_SELECT_IOCL2 \
-    ((0x01 << HOCR_S_SHIFT) | (0x00 << OCL_S_SHIFT))
-#define LOW_CURRENT_THRESHOLD_SELECT_IOCL3 \
-    ((0x01 << HOCR_S_SHIFT) | (0x01 << OCL_S_SHIFT))
-
-#define MEDIUM_CURRENT_THRESHOLD_SELECT_IOCM1 (0x00 << OCM_S_SHIFT)
-#define MEDIUM_CURRENT_THRESHOLD_SELECT_IOCM2 (0x01 << OCM_S_SHIFT)
-
-#define HIGH_CURRENT_THRESHOLD_SELECT_IOCH1 (0x00 << OCH_S_SHIFT)
-#define HIGH_CURRENT_THRESHOLD_SELECT_IOCH2 (0x01 << OCH_S_SHIFT)
-// bulb
-#define THRESHOLD_ACTIVATION_TIMES_T_OCH1_T_OCM1_L \
-    ((0x00 << T_OCH_S_SHIFT) | (0x00 << T_OCM_S_SHIFT))
-#define THRESHOLD_ACTIVATION_TIMES_T_OCH1_T_OCM2_L \
-    ((0x00 << T_OCH_S_SHIFT) | (0x01 << T_OCM_S_SHIFT))
-#define THRESHOLD_ACTIVATION_TIMES_T_OCH2_T_OCM1_L \
-    ((0x01 << T_OCH_S_SHIFT) | (0x00 << T_OCM_S_SHIFT))
-#define THRESHOLD_ACTIVATION_TIMES_T_OCH2_T_OCM2_L \
-    ((0x01 << T_OCH_S_SHIFT) | (0x01 << T_OCM_S_SHIFT))
-// dc motor
-#define THRESHOLD_ACTIVATION_TIMES_T_OCM1_M \
-    ((0x00 << T_OCH_S_SHIFT) | (0x00 << T_OCM_s_SHIFT))
-#define THRESHOLD_ACTIVATION_TIMES_T_OCM2_M \
-    ((0x00 << T_OCH_S_SHIFT) | (0x01 << T_OCM_S_SHIFT))
-#define THRESHOLD_ACTIVATION_TIMES_T_OCH1 \
-    ((0x01 << T_OCH_S_SHIFT) | (0x00 << T_OCM_S_SHIFT))
-#define THRESHOLD_ACTIVATION_TIMES_T_OCH2 \
-    ((0x01 << T_OCH_S_SHIFT) | (0x01 << T_OCM_S_SHIFT))
-
-#define CURRENT_SENSE_RATIO_LOW (0x01 << CSNS_RATIO_S_SHIFT)
-#define CURRENT_SENSE_RATIO_HIGH (0x00 << CSNS_RATIO_S_SHIFT)
-
-#define PWM_CLOCK_SOURCE_INTERNAL (0x01 << CLOCK_INT_S_SHIFT)
-#define PWM_CLOCK_SOURCE_EXTERNAL (0x00 << CLOCK_INT_S_SHIFT)
-
-#define PWM_EXTERNAL_CLOCK_DIVIDER_256 (0x00 << PR_S_SHIFT)
-#define PWM_EXTERNAL_CLOCK_DIVIDER_512 (0x01 << PR_S_SHIFT)
-
-// Feature definitions in RETRY_s register
-#define AUTO_RETRY_PERIOD_T_AUTO_00 \
-    ((0x00 << AUTO_PERIOD_1_S_SHIFT) | (0x00 << AUTO_PERIOD_0_S_SHIFT))
-#define AUTO_RETRY_PERIOD_tAUTO_01 \
-    ((0x00 << AUTO_PERIOD_1_S_SHIFT) | (0x01 << AUTO_PERIOD_0_S_SHIFT))
-#define AUTO_RETRY_PERIOD_T_AUTO_10 \
-    ((0x01 << AUTO_PERIOD_1_S_SHIFT) | (0x00 << AUTO_PERIOD_0_S_SHIFT))
-#define AUTO_RETRY_PERIOD_T_AUTO_11 \
-    ((0x01 << AUTO_PERIOD_1_S_SHIFT) | (0x01 << AUTO_PERIOD_0_S_SHIFT))
-
-#define AUTO_RETRY_NUMBER_16 (0x00 << RETRY_UNLIMITED_S_SHIFT)
-#define AUTO_RETRY_NUMBER_INFINITE (0x01 << RETRY_UNLIMITED_S_SHIFT)
-#define AUTO_RETRY_BULB_ENABLED (0x00 << RETRY_S_SHIFT)
-#define AUTO_RETRY_BULB_DISABLED (0x01 << RETRY_S_SHIFT)
-#define AUTO_RETRY_DC_MOTOR_ENABLED (0x01 << RETRY_S_SHIFT)
-#define AUTO_RETRY_DC_MOTOR_DISABLED (0x00 << RETRY_S_SHIFT)
-
-#define RANDOM_CURRENT_OFFSET_ADD (0x01 << OFP_S_SHIFT)
-#define RANDOM_CURRENT_OFFSET_SUBTRACT (0x00 << OFP_S_SHIFT)
-
-// Feature definitions in GCR register
-#define OVERVOLTAGE_PROTECTION_ENABLE (0x00 << OV_DIS_SHIFT)
-#define OVERVOLTAGE_PROTECTION_DISABLE (0x01 << OV_DIS_SHIFT)
-
-#define CSNS_FUNCTION_DISABLED \
-    ((0x00 << CSNS1_EN_SHIFT) | (0x00 << CSNS0_EN_SHIFT))
-#define CSNS_FUNCTION_CURRENT_CH0 \
-    ((0x00 << CSNS1_EN_SHIFT) | (0x01 << CSNS0_EN_SHIFT))
-#define CSNS_FUNCTION_CURRENT_CH1 \
-    ((0x01 << CSNS1_EN_SHIFT) | (0x00 << CSNS0_EN_SHIFT))
-#define CSNS_FUNCTION_TEMPERATURE \
-    ((0x01 << CSNS1_EN_SHIFT) | (0x01 << CSNS0_EN_SHIFT))
-#define CSNS_FUNCTION_CURRENT_SUM \
-    ((0x00 << CSNS1_EN_SHIFT) | (0x01 << CSNS0_EN_SHIFT))
-
-#define VDD_FAILURE_DETECTION_ENABLE (0x01 << VDD_FAIL_EN_SHIFT)
-#define VDD_FAILURE_DETECTION_DISABLE (0x00 << VDD_FAIL_EN_SHIFT)
-
-#define WATCHDOG_DISABLE (0x01 << WD_DIS_SHIFT)
-#define WATCHDOG_ENABLE (0x00 << WD_DIS_SHIFT)
-
-#define TRACK_AND_HOLD_CURRENT_ENABLE (0x01 << T_H_EN_SHIFT)
-#define TRACK_AND_HOLD_CURRENT_DISABLE (0x00 << T_H_EN_SHIFT)
-
-#define PARALLEL_MODE_ENABLE (0x01 << PARALLEL_SHIFT)
-#define PARALLEL_MODE_DISABLE (0x00 << PARALLEL_SHIFT)
-
-#define PWM_CHANNEL_0_ENABLE (0x01 << PWM_EN_0_SHIFT)
-#define PWM_CHANNEL_0_DISABLE (0x00 << PWM_EN_0_SHIFT)
-
-#define PWM_CHANNEL_1_ENABLE (0x01 << PWM_EN_1_SHIFT)
-#define PWM_CHANNEL_1_DISABLE (0x00 << PWM_EN_1_SHIFT)
-
-// Configuration values used for initializing the registers
-
-// Global Configuration
-#define GCR_CONFIG                                                           \
-    (PWM_CHANNEL_0_DISABLE | PWM_CHANNEL_1_DISABLE | PARALLEL_MODE_DISABLE | \
-     TRACK_AND_HOLD_CURRENT_DISABLE | WATCHDOG_DISABLE |                     \
-     VDD_FAILURE_DETECTION_ENABLE | CSNS_FUNCTION_DISABLED |                 \
-     OVERVOLTAGE_PROTECTION_ENABLE)
-
-// Channel  Configurations
-#define RETRY_CONFIG                                               \
-    (RANDOM_CURRENT_OFFSET_SUBTRACT | AUTO_RETRY_NUMBER_INFINITE | \
-     AUTO_RETRY_PERIOD_T_AUTO_10 | AUTO_RETRY_DC_MOTOR_DISABLED)
-#define CONFR_CONFIG                                                  \
-    (SHORT_CIRCUIT_DETECTION_ENABLE | OPEN_LOAD_DETECTION_ON_ENABLE | \
-     OPEN_LOAD_DETECTION_OFF_ENABLE | DIRECT_CONTROL_ENABLE |         \
-     SWITCH_ON_DELAY_NO_DELAY | SLEW_RATE_MEDIUM)
-#define OCR_LOW_CURRENT_SENSE_CONFIG                              \
-    (PWM_EXTERNAL_CLOCK_DIVIDER_256 | PWM_CLOCK_SOURCE_EXTERNAL | \
-     THRESHOLD_ACTIVATION_TIMES_T_OCH1_T_OCM1_L |                 \
-     MEDIUM_CURRENT_THRESHOLD_SELECT_IOCM2 |                      \
-     LOW_CURRENT_THRESHOLD_SELECT_IOCL2 |                         \
-     HIGH_CURRENT_THRESHOLD_SELECT_IOCH2 | CURRENT_SENSE_RATIO_LOW)
-#define OCR_HIGH_CURRENT_SENSE_CONFIG                             \
-    (PWM_EXTERNAL_CLOCK_DIVIDER_256 | PWM_CLOCK_SOURCE_EXTERNAL | \
-     THRESHOLD_ACTIVATION_TIMES_T_OCH1_T_OCM1_L |                 \
-     MEDIUM_CURRENT_THRESHOLD_SELECT_IOCM2 |                      \
-     LOW_CURRENT_THRESHOLD_SELECT_IOCL3 |                         \
-     HIGH_CURRENT_THRESHOLD_SELECT_IOCH2 | CURRENT_SENSE_RATIO_HIGH)
 
 struct Efuse_Context
 {
@@ -600,13 +139,13 @@ static ExitCode Io_Efuse_Aux1Aux2ConfigureChannelMonitoring(uint8_t selection)
 
     // Read original content of GCR Register
     RETURN_CODE_IF_EXIT_NOT_OK(
-            Io_Efuse_Aux1Aux2ReadRegister(SI_GCR_ADDR, &register_value));
+        Io_Efuse_Aux1Aux2ReadRegister(SI_GCR_ADDR, &register_value));
 
     CLEAR_BIT(register_value, (CSNS1_EN_MASK | CSNS0_EN_MASK));
     SET_BIT(register_value, (selection & (CSNS1_EN_MASK | CSNS0_EN_MASK)));
 
     RETURN_CODE_IF_EXIT_NOT_OK(
-            Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, register_value));
+        Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, register_value));
 
     return EXIT_CODE_OK;
 }
@@ -618,11 +157,11 @@ static ExitCode Io_Efuse_Aux1Aux2ExitFailSafeMode(void)
     aux1_aux2_efuse.wdin_bit_to_set = true;
 
     RETURN_CODE_IF_EXIT_NOT_OK(
-            Io_Efuse_Aux1Aux2WriteRegister(SI_STATR_0_ADDR, 0x0000));
+        Io_Efuse_Aux1Aux2WriteRegister(SI_STATR_0_ADDR, 0x0000));
 
     // Disable the watchdog timer
     RETURN_CODE_IF_EXIT_NOT_OK(
-            Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, GCR_CONFIG));
+        Io_Efuse_Aux1Aux2WriteRegister(SI_GCR_ADDR, GCR_CONFIG));
 
     // Check if the the efuse is still in fail-safe mode
     if (HAL_GPIO_ReadPin(FSOB_AUX1_AUX2_GPIO_Port, FSOB_AUX1_AUX2_Pin) ==
@@ -635,40 +174,40 @@ static ExitCode Io_Efuse_Aux1Aux2ExitFailSafeMode(void)
 }
 
 static ExitCode Io_Efuse_Aux1Aux2WriteRegister(
-        uint8_t  register_address,
-        uint16_t register_value)
+    uint8_t  register_address,
+    uint16_t register_value)
 {
     return Io_Efuse_WriteRegister(
-            register_address, register_value, CSB_AUX1_AUX2_GPIO_Port,
-            CSB_AUX1_AUX2_Pin, &aux1_aux2_efuse);
+        register_address, register_value, CSB_AUX1_AUX2_GPIO_Port,
+        CSB_AUX1_AUX2_Pin, &aux1_aux2_efuse);
 }
 
 static ExitCode Io_Efuse_Aux1Aux2ReadRegister(
-        uint8_t   register_address,
-        uint16_t *register_value)
+    uint8_t   register_address,
+    uint16_t *register_value)
 {
     return Io_Efuse_ReadRegister(
-            register_address, register_value, CSB_AUX1_AUX2_GPIO_Port,
-            CSB_AUX1_AUX2_Pin, &aux1_aux2_efuse);
+        register_address, register_value, CSB_AUX1_AUX2_GPIO_Port,
+        CSB_AUX1_AUX2_Pin, &aux1_aux2_efuse);
 }
 
 static ExitCode Io_Efuse_WriteRegister(
-        uint8_t               register_address,
-        uint16_t              register_value,
-        GPIO_TypeDef *        chip_select_port,
-        uint16_t              chip_select_pin,
-        struct Efuse_Context *e_fuse)
+    uint8_t               register_address,
+    uint16_t              register_value,
+    GPIO_TypeDef *        chip_select_port,
+    uint16_t              chip_select_pin,
+    struct Efuse_Context *e_fuse)
 {
     uint16_t serial_input_data = 0x0000U;
 
     // Place the register address into bits 10->13
     serial_input_data = (uint16_t)(
-            serial_input_data |
-            ((register_address & EFUSE_ADDR_MASK) << EFUSE_ADDR_SHIFT));
+        serial_input_data |
+        ((register_address & EFUSE_ADDR_MASK) << EFUSE_ADDR_SHIFT));
 
     // Place register value to be written into bits 0->8
     serial_input_data =
-            (uint16_t)(serial_input_data | (register_value & EFUSE_SI_DATA_MASK));
+        (uint16_t)(serial_input_data | (register_value & EFUSE_SI_DATA_MASK));
 
     // Invert watchdog bit state (Note: It is safe to do so even if the watchdog
     // is disabled)
@@ -687,28 +226,28 @@ static ExitCode Io_Efuse_WriteRegister(
     Io_Efuse_CalculateParityBit(&serial_input_data);
 
     return Io_Efuse_WriteToEfuse(
-            &serial_input_data, e_fuse->efuse_spi_handle, chip_select_port,
-            chip_select_pin);
+        &serial_input_data, e_fuse->efuse_spi_handle, chip_select_port,
+        chip_select_pin);
 }
 
 static ExitCode Io_Efuse_ReadRegister(
-        uint8_t               register_address,
-        uint16_t *            register_value,
-        GPIO_TypeDef *        chip_select_port,
-        uint16_t              chip_select_pin,
-        struct Efuse_Context *e_fuse)
+    uint8_t               register_address,
+    uint16_t *            register_value,
+    GPIO_TypeDef *        chip_select_port,
+    uint16_t              chip_select_pin,
+    struct Efuse_Context *e_fuse)
 {
     uint16_t serial_input_data = 0x0000U;
 
     // Place the Status Register address into bits 10->13
     serial_input_data =
-            (uint16_t)((SI_STATR_0_ADDR & EFUSE_ADDR_MASK) << EFUSE_ADDR_SHIFT);
+        (uint16_t)((SI_STATR_0_ADDR & EFUSE_ADDR_MASK) << EFUSE_ADDR_SHIFT);
 
     // Shift bit 3 of the address (SOA3: the channel number) to the 13th bit
     serial_input_data = (uint16_t)(
-            serial_input_data |
-            ((register_address & SOA3_MASK) << EFUSE_ADDR_SHIFT) |
-            (register_address & (SOA2_MASK | SOA1_MASK | SOA0_MASK)));
+        serial_input_data |
+        ((register_address & SOA3_MASK) << EFUSE_ADDR_SHIFT) |
+        (register_address & (SOA2_MASK | SOA1_MASK | SOA0_MASK)));
 
     // Invert watchdog bit state (Note: It is safe to do so even if the watchdog
     // is disabled)
@@ -727,8 +266,8 @@ static ExitCode Io_Efuse_ReadRegister(
     Io_Efuse_CalculateParityBit(&serial_input_data);
 
     ExitCode exit_code = Io_Efuse_ReadFromEfuse(
-            &serial_input_data, register_value, e_fuse->efuse_spi_handle,
-            chip_select_port, chip_select_pin);
+        &serial_input_data, register_value, e_fuse->efuse_spi_handle,
+        chip_select_port, chip_select_pin);
 
     // Only return register contents and clear bits 9->15
     *register_value = READ_BIT(*register_value, EFUSE_SO_DATA_MASK);
@@ -757,16 +296,16 @@ static void Io_Efuse_CalculateParityBit(uint16_t *serial_data_input)
 }
 
 static ExitCode Io_Efuse_WriteToEfuse(
-        uint16_t *         tx_data,
-        SPI_HandleTypeDef *efuse_spi_handle,
-        GPIO_TypeDef *     chip_select_port,
-        uint16_t           chip_select_pin)
+    uint16_t *         tx_data,
+    SPI_HandleTypeDef *efuse_spi_handle,
+    GPIO_TypeDef *     chip_select_port,
+    uint16_t           chip_select_pin)
 {
     HAL_StatusTypeDef status = HAL_OK;
 
     HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_RESET);
     status = HAL_SPI_TransmitReceive(
-            efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)tx_data, 1U, 100U);
+        efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)tx_data, 1U, 100U);
     HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_SET);
 
     if (status != HAL_OK)
@@ -778,18 +317,19 @@ static ExitCode Io_Efuse_WriteToEfuse(
 }
 
 static ExitCode Io_Efuse_ReadFromEfuse(
-        uint16_t *         tx_data,
-        uint16_t *         rx_data,
-        SPI_HandleTypeDef *efuse_spi_handle,
-        GPIO_TypeDef *     chip_select_port,
-        uint16_t           chip_select_pin)
+    uint16_t *         tx_data,
+    uint16_t *         rx_data,
+    SPI_HandleTypeDef *efuse_spi_handle,
+    GPIO_TypeDef *     chip_select_port,
+    uint16_t           chip_select_pin)
 {
     HAL_StatusTypeDef status = HAL_OK;
 
-    // Send the command stored in tx_data to the status register, to read the data from the register address specified in tx_data
+    // Send the command stored in tx_data to the status register, to read the
+    // data from the register address specified in tx_data
     HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_RESET);
     status = HAL_SPI_TransmitReceive(
-            efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)rx_data, 1U, 100U);
+        efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)rx_data, 1U, 100U);
     HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_SET);
 
     if (status != HAL_OK)
@@ -797,12 +337,14 @@ static ExitCode Io_Efuse_ReadFromEfuse(
         return EXIT_CODE_TIMEOUT;
     }
 
-    // Receive data from the register address specified in tx_data by sending dummy data
+    // Receive data from the register address specified in tx_data by sending
+    // dummy data
     *tx_data = 0xFFFF;
-// The data read from the register specified in tx_data is stored in rx_data after the SPI transfer
+    // The data read from the register specified in tx_data is stored in rx_data
+    // after the SPI transfer
     HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_RESET);
     status = HAL_SPI_TransmitReceive(
-            efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)rx_data, 1U, 100U);
+        efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)rx_data, 1U, 100U);
     HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_SET);
 
     if (status != HAL_OK)
