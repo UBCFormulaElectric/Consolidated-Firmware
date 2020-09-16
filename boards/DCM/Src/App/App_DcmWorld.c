@@ -3,6 +3,7 @@
 #include <assert.h>
 
 #include "App_DcmWorld.h"
+#include "configs/App_WaitSignalDuration.h"
 
 struct DcmWorld
 {
@@ -13,6 +14,7 @@ struct DcmWorld
     struct BrakeLight *       brake_light;
     struct Buzzer *           buzzer;
     struct ErrorTable *       error_table;
+    struct WaitSignal *       buzzer_wait_signal;
     struct Clock *            clock;
 };
 
@@ -24,9 +26,12 @@ struct DcmWorld *App_DcmWorld_Create(
     struct BrakeLight *const        brake_light,
     struct Buzzer *const            buzzer,
     struct ErrorTable *const        error_table,
-    struct Clock *const             clock)
+    struct Clock *const             clock,
+
+    bool (*is_buzzer_on)(struct DcmWorld *),
+    void (*buzzer_complete_callback)(struct DcmWorld *))
 {
-    struct DcmWorld *world = (struct DcmWorld *)malloc(sizeof(struct DcmWorld));
+    struct DcmWorld *world = malloc(sizeof(struct DcmWorld));
     assert(world != NULL);
 
     world->can_tx_interface  = can_tx_interface;
@@ -38,11 +43,19 @@ struct DcmWorld *App_DcmWorld_Create(
     world->error_table       = error_table;
     world->clock             = clock;
 
+    struct WaitSignalCallback buzzer_callback = { .function =
+                                                      buzzer_complete_callback,
+                                                  .wait_duration_ms =
+                                                      BUZZER_ON_DURATION_MS };
+    world->buzzer_wait_signal =
+        App_SharedWaitSignal_Create(0U, is_buzzer_on, world, buzzer_callback);
+
     return world;
 }
 
 void App_DcmWorld_Destroy(struct DcmWorld *world)
 {
+    free(world->buzzer_wait_signal);
     free(world);
 }
 
@@ -85,6 +98,13 @@ struct ErrorTable *
     App_DcmWorld_GetErrorTable(const struct DcmWorld *const world)
 {
     return world->error_table;
+}
+
+void App_DcmWorld_UpdateWaitSignal(
+    const struct DcmWorld *const world,
+    uint32_t                     current_ms)
+{
+    App_SharedWaitSignal_Update(world->buzzer_wait_signal, current_ms);
 }
 
 struct Clock *App_DcmWorld_GetClock(const struct DcmWorld *const world)

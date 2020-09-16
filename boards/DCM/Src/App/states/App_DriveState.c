@@ -8,6 +8,10 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct DcmCanTxInterface *can_tx_interface = App_DcmWorld_GetCanTx(world);
+
+    struct Buzzer *buzzer = App_DcmWorld_GetBuzzer(world);
+    App_Buzzer_TurnOn(buzzer);
+
     App_CanTx_SetPeriodicSignal_STATE(
         can_tx_interface, CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE);
 }

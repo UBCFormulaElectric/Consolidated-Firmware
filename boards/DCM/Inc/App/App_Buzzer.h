@@ -1,5 +1,7 @@
 #pragma once
 
+#include <stdbool.h>
+
 struct Buzzer;
 
 /**
@@ -21,10 +23,17 @@ void App_Buzzer_Destroy(struct Buzzer *buzzer);
  * Turn on the given buzzer
  * @param buzzer The buzzer to turn on
  */
-void App_Buzzer_TurnOn(const struct Buzzer *buzzer);
+void App_Buzzer_TurnOn(struct Buzzer *buzzer);
 
 /**
  * Turn off the given buzzer
  * @param buzzer The buzzer to turn off
  */
-void App_Buzzer_TurnOff(const struct Buzzer *buzzer);
+void App_Buzzer_TurnOff(struct Buzzer *buzzer);
+
+/**
+ * Check if the given buzzer is turned on
+ * @param buzzer The buzzer to check the on and off status
+ * @return true if the buzzer is on, false if it is not
+ */
+bool App_Buzzer_IsOn(struct Buzzer *buzzer);

@@ -6,8 +6,10 @@
 #include "App_SharedRgbLedSequence.h"
 #include "App_BrakeLight.h"
 #include "App_Buzzer.h"
+#include "App_BuzzerSignals.h"
 #include "App_SharedErrorTable.h"
 #include "App_SharedClock.h"
+#include "App_SharedWaitSignal.h"
 
 struct DcmWorld;
 
@@ -28,7 +30,10 @@ struct DcmWorld *App_DcmWorld_Create(
     struct BrakeLight *       brake_light,
     struct Buzzer *           buzzer,
     struct ErrorTable *       error_table,
-    struct Clock *            clock);
+    struct Clock *            clock,
+
+    bool (*is_buzzer_on)(struct DcmWorld *),
+    void (*buzzer_callback)(struct DcmWorld *));
 
 /**
  * Deallocate the memory used by the given world
@@ -86,6 +91,18 @@ struct Buzzer *App_DcmWorld_GetBuzzer(const struct DcmWorld *world);
  * @return The error table for the given world
  */
 struct ErrorTable *App_DcmWorld_GetErrorTable(const struct DcmWorld *world);
+
+/**
+ * Update the registered wait signals in the given world
+ * @note This function should be called periodically. And since the time
+ *       resolution of the wait signal library is in milliseconds, it would make
+ *       sense to call this function at 1kHz.
+ * @param world The world to update the registered wait signals
+ * @param current_ms The current time in milliseconds
+ */
+void App_DcmWorld_UpdateWaitSignal(
+    const struct DcmWorld *world,
+    uint32_t               current_ms);
 
 /**
  * Get the clock for the given world

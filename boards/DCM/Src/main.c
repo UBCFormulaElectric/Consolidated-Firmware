@@ -189,7 +189,9 @@ int main(void)
 
     world = App_DcmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, brake_light,
-        buzzer, error_table, clock);
+        buzzer, error_table, clock,
+
+        App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
@@ -578,6 +580,7 @@ void RunTask1kHz(void const *argument)
         const uint32_t current_time_ms = osKernelSysTick() * portTICK_PERIOD_MS;
 
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
+        App_DcmWorld_UpdateWaitSignal(world, current_time_ms);
         Io_CanTx_EnqueuePeriodicMsgs(can_tx, current_time_ms);
 
         // Watchdog check-in must be the last function called before putting the
