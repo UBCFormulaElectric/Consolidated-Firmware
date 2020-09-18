@@ -5,8 +5,6 @@
 
 #pragma GCC diagnostic ignored "-Wconversion"
 
-struct Efuse_Context aux1_aux2_efuse;
-
 struct Efuse_Context
 {
     // The SPI handle for the SPI device the E-Fuse is connected to
@@ -17,6 +15,8 @@ struct Efuse_Context
     // timeout period.
     bool wdin_bit_to_set;
 };
+
+struct Efuse_Context aux1_aux2_efuse;
 
 /**
  * Calculate the parity of the SPI command to be sent to the Efuse and
