@@ -58,6 +58,28 @@ ExitCode Io_Efuse_GetAux1Faults(enum Efuse_Fault *fault);
 ExitCode Io_Efuse_GetAux2Faults(enum Efuse_Fault *fault);
 
 /**
+ * Check if the Efuse's Aux1 or Aux2 channel enters fault mode
+ * @param e_fuse Pointer to the Aux1/Aux2 Efuse structure
+ * @return true if the Efuse's Aux1 or Aux2 channel enters fault mode, else
+ * false if both channels do not enter fault mode
+ */
+bool Io_Efuse_IsAux1Aux2InFaultMode(void);
+
+/**
+ * Check if the Aux1/Aux2 Efuse enters fail-safe mode
+ * @param e_fuse Pointer to the Aux1/Aux2 Efuse structure
+ * @return true if the Efuse enters fail-safe mode, else false
+ * if the Efuse does not enter fail-safe mode
+ */
+bool Io_Efuse_IsAux1Aux2InFailSafeMode(void);
+
+/**
+ * Delatch the Aux1/Aux2 Efuse's latchable faults
+ * @param e_fuse Pointer to the Aux1/Aux2 Efuse structure
+ */
+void Io_Efuse_DelatchAux1Aux2Faults(void);
+
+/**
  * Get the current readings for the Aux 1 channel
  * @return The Aux1 current if the current was measured, else NAN
  */

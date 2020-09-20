@@ -52,6 +52,21 @@ ExitCode Io_Efuse_GetAux2Faults(enum Efuse_Fault *fault)
         SO_FAULTR_1_ADDR, (uint16_t *)fault, aux1_aux2_efuse);
 }
 
+bool Io_Efuse_IsAux1Aux2InFaultMode(void)
+{
+    return Io_Efuse_IsEfuseInFaultMode(aux1_aux2_efuse);
+}
+
+bool Io_Efuse_IsAux1Aux2InFailSafeMode(void)
+{
+    return Io_Efuse_IsEfuseInFailSafeMode(aux1_aux2_efuse);
+}
+
+void Io_Efuse_DelatchAux1Aux2Faults(void)
+{
+    Io_Efuse_DelatchFaults(aux1_aux2_efuse);
+}
+
 float Io_Efuse_GetAux1Current(void)
 {
     if (Io_Efuse_ConfigureChannelMonitoring(
