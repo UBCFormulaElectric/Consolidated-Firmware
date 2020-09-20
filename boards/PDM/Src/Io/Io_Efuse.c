@@ -16,6 +16,24 @@ struct Efuse_Context
     // The Efuse's chip-select GPIO pin
     uint16_t chip_select_pin;
 
+    // The handle to Efuse's fail-safe output(FSOB) GPIO port
+    GPIO_TypeDef *fsob_port;
+    // The Efuse's fail-safe output(FSOB) GPIO pin
+    uint16_t fsob_pin;
+    // The handle to Efuse's fault status(FSB) GPIO port
+    GPIO_TypeDef *fsb_port;
+    // The Efuse's fault status(FSB) GPIO pin
+    uint16_t fsb_pin;
+
+    // The handle to Efuse's channel 0 GPIO port
+    GPIO_TypeDef *channel0_port;
+    // The Efuse's channel 0 GPIO pin
+    uint16_t channel0_pin;
+    // The handle to Efuse's channel 1 GPIO port
+    GPIO_TypeDef *channel1_port;
+    // The Efuse's channel 1 GPIO pin
+    uint16_t channel1_pin;
+
     // The current state of the watchdog-in bit (bit 15). If the watchdog is
     // enabled its state must be alternated at least once within the watchdog
     // timeout period.
@@ -102,6 +120,34 @@ ExitCode Io_Efuse_ExitFailSafeMode(struct Efuse_Context *e_fuse)
     }
 
     return EXIT_CODE_OK;
+}
+
+bool Io_Efuse_IsEfuseInFaultMode(struct Efuse_Context *e_fuse)
+{
+    return HAL_GPIO_ReadPin(e_fuse->fsb_port, e_fuse->fsb_pin);
+}
+
+bool Io_Efuse_IsEfuseInFailSafeMode(struct Efuse_Context *e_fuse)
+{
+    return HAL_GPIO_ReadPin(e_fuse->fsob_port, e_fuse->fsob_pin);
+}
+
+void Io_Efuse_DelatchFaults(struct Efuse_Context *e_fuse)
+{
+    // Delatch the latchable faults by alternating the inputs high-low-high
+    HAL_GPIO_WritePin(
+        e_fuse->channel0_port, e_fuse->channel0_pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(
+        e_fuse->channel0_port, e_fuse->channel0_pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(
+        e_fuse->channel0_port, e_fuse->channel0_pin, GPIO_PIN_SET);
+
+    HAL_GPIO_WritePin(
+        e_fuse->channel1_port, e_fuse->channel1_pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(
+        e_fuse->channel1_port, e_fuse->channel1_pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(
+        e_fuse->channel1_port, e_fuse->channel1_pin, GPIO_PIN_SET);
 }
 
 ExitCode Io_Efuse_WriteRegister(
@@ -267,7 +313,15 @@ static ExitCode Io_Efuse_ReadFromEfuse(
 struct Efuse_Context *Io_Efuse_Create(
     SPI_HandleTypeDef *const hspi,
     GPIO_TypeDef *           chip_select_port,
-    uint16_t                 chip_select_pin)
+    uint16_t                 chip_select_pin,
+    GPIO_TypeDef *           fsob_port,
+    uint16_t                 fsob_pin,
+    GPIO_TypeDef *           fsb_port,
+    uint16_t                 fsb_pin,
+    GPIO_TypeDef *           channel0_port,
+    uint16_t                 channel0_pin,
+    GPIO_TypeDef *           channel1_port,
+    uint16_t                 channel1_pin)
 {
     assert(hspi != NULL);
 
@@ -277,6 +331,14 @@ struct Efuse_Context *Io_Efuse_Create(
     efuse_context->efuse_spi_handle = hspi;
     efuse_context->chip_select_port = chip_select_port;
     efuse_context->chip_select_pin  = chip_select_pin;
+    efuse_context->fsob_port        = fsob_port;
+    efuse_context->fsob_pin         = fsob_pin;
+    efuse_context->fsb_port         = fsb_port;
+    efuse_context->fsb_pin          = fsb_pin;
+    efuse_context->channel0_port    = channel0_port;
+    efuse_context->channel0_pin     = channel0_pin;
+    efuse_context->channel1_port    = channel1_port;
+    efuse_context->channel1_pin     = channel1_pin;
     efuse_context->wdin_bit_to_set  = true;
 
     return efuse_context;

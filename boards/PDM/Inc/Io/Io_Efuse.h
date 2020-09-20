@@ -22,7 +22,15 @@ struct Efuse_Context;
 struct Efuse_Context *Io_Efuse_Create(
     SPI_HandleTypeDef *const hspi,
     GPIO_TypeDef *           chip_select_port,
-    uint16_t                 chip_select_pin);
+    uint16_t                 chip_select_pin,
+    GPIO_TypeDef *           fsob_port,
+    uint16_t                 fsob_pin,
+    GPIO_TypeDef *           fsb_port,
+    uint16_t                 fsb_pin,
+    GPIO_TypeDef *           channel0_port,
+    uint16_t                 channel0_pin,
+    GPIO_TypeDef *           channel1_port,
+    uint16_t                 channel1_pin);
 
 /**
  * Initialize the SPI handle for the Efuses

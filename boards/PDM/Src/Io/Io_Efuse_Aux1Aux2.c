@@ -44,28 +44,6 @@ ExitCode Io_Efuse_GetAux2Faults(enum Efuse_Fault *fault)
         SO_FAULTR_1_ADDR, (uint16_t *)fault, aux1_aux2_efuse);
 }
 
-bool Io_Efuse_IsAux1Aux2InFaultMode(void)
-{
-    return HAL_GPIO_ReadPin(FSB_AUX1_AUX2_GPIO_Port, FSB_AUX1_AUX2_Pin);
-}
-
-bool Io_Efuse_IsAux1Aux2InFailSafeMode(void)
-{
-    return HAL_GPIO_ReadPin(FSOB_AUX1_AUX2_GPIO_Port, FSOB_AUX1_AUX2_Pin);
-}
-
-void Io_Efuse_DelatchAux1Aux2Faults(void)
-{
-    // Delatch the latchable faults by alternating the inputs high-low-high
-    HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_SET);
-
-    HAL_GPIO_WritePin(PIN_AUX2_GPIO_Port, PIN_AUX2_Pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(PIN_AUX2_GPIO_Port, PIN_AUX2_Pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(PIN_AUX2_GPIO_Port, PIN_AUX2_Pin, GPIO_PIN_SET);
-}
-
 float Io_Efuse_GetAux1Current(void)
 {
     if (Io_Efuse_ConfigureChannelMonitoring(
@@ -133,6 +111,9 @@ void Io_Efuse_Init_Aux1Aux2(SPI_HandleTypeDef *const hspi)
 {
     assert(hspi != NULL);
 
-    aux1_aux2_efuse =
-        Io_Efuse_Create(hspi, CSB_AUX1_AUX2_GPIO_Port, CSB_AUX1_AUX2_Pin);
+    aux1_aux2_efuse = Io_Efuse_Create(
+        hspi, CSB_AUX1_AUX2_GPIO_Port, CSB_AUX1_AUX2_Pin,
+        FSOB_AUX1_AUX2_GPIO_Port, FSOB_AUX1_AUX2_Pin, FSB_AUX1_AUX2_GPIO_Port,
+        FSB_AUX1_AUX2_Pin, PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, PIN_AUX2_GPIO_Port,
+        PIN_AUX2_Pin);
 }
