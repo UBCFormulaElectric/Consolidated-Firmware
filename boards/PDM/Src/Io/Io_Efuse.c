@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <math.h>
+#include <stdlib.h>
 #include "Io_Efuse.h"
 #include "configs/Io_EfuseConfig.h"
 
@@ -10,13 +11,16 @@ struct Efuse_Context
     // The SPI handle for the SPI device the E-Fuse is connected to
     SPI_HandleTypeDef *efuse_spi_handle;
 
+    // The handle to Efuse's chip-select GPIO port
+    GPIO_TypeDef *chip_select_port;
+    // The Efuse's chip-select GPIO pin
+    uint16_t chip_select_pin;
+
     // The current state of the watchdog-in bit (bit 15). If the watchdog is
     // enabled its state must be alternated at least once within the watchdog
     // timeout period.
     bool wdin_bit_to_set;
 };
-
-struct Efuse_Context aux1_aux2_efuse;
 
 /**
  * Calculate the parity of the SPI command to be sent to the Efuse and
@@ -58,11 +62,51 @@ static ExitCode Io_Efuse_ReadFromEfuse(
     GPIO_TypeDef *     chip_select_port,
     uint16_t           chip_select_pin);
 
+ExitCode Io_Efuse_ConfigureChannelMonitoring(
+    uint8_t               selection,
+    struct Efuse_Context *e_fuse)
+{
+    uint16_t register_value = 0x0000;
+
+    // Read original content of GCR Register
+    RETURN_CODE_IF_EXIT_NOT_OK(
+        Io_Efuse_ReadRegister(SI_GCR_ADDR, &register_value, e_fuse));
+
+    CLEAR_BIT(register_value, (CSNS1_EN_MASK | CSNS0_EN_MASK));
+    SET_BIT(register_value, (selection & (CSNS1_EN_MASK | CSNS0_EN_MASK)));
+
+    RETURN_CODE_IF_EXIT_NOT_OK(
+        Io_Efuse_WriteRegister(SI_GCR_ADDR, register_value, e_fuse));
+
+    return EXIT_CODE_OK;
+}
+
+ExitCode Io_Efuse_ExitFailSafeMode(struct Efuse_Context *e_fuse)
+{
+    // Set WDIN bit for next write
+    // 1_1_00000_00000_0000
+    e_fuse->wdin_bit_to_set = true;
+
+    RETURN_CODE_IF_EXIT_NOT_OK(
+        Io_Efuse_WriteRegister(SI_STATR_0_ADDR, 0x0000, e_fuse));
+
+    // Disable the watchdog timer
+    RETURN_CODE_IF_EXIT_NOT_OK(
+        Io_Efuse_WriteRegister(SI_GCR_ADDR, GCR_CONFIG, e_fuse));
+
+    // Check if the the efuse is still in fail-safe mode
+    if (HAL_GPIO_ReadPin(FSOB_AUX1_AUX2_GPIO_Port, FSOB_AUX1_AUX2_Pin) ==
+        GPIO_PIN_RESET)
+    {
+        return EXIT_CODE_UNIMPLEMENTED;
+    }
+
+    return EXIT_CODE_OK;
+}
+
 ExitCode Io_Efuse_WriteRegister(
     uint8_t               register_address,
     uint16_t              register_value,
-    GPIO_TypeDef *        chip_select_port,
-    uint16_t              chip_select_pin,
     struct Efuse_Context *e_fuse)
 {
     uint16_t serial_input_data = 0x0000U;
@@ -93,15 +137,13 @@ ExitCode Io_Efuse_WriteRegister(
     Io_Efuse_CalculateParityBit(&serial_input_data);
 
     return Io_Efuse_WriteToEfuse(
-        &serial_input_data, e_fuse->efuse_spi_handle, chip_select_port,
-        chip_select_pin);
+        &serial_input_data, e_fuse->efuse_spi_handle, e_fuse->chip_select_port,
+        e_fuse->chip_select_pin);
 }
 
 ExitCode Io_Efuse_ReadRegister(
     uint8_t               register_address,
     uint16_t *            register_value,
-    GPIO_TypeDef *        chip_select_port,
-    uint16_t              chip_select_pin,
     struct Efuse_Context *e_fuse)
 {
     uint16_t serial_input_data = 0x0000U;
@@ -134,7 +176,7 @@ ExitCode Io_Efuse_ReadRegister(
 
     ExitCode exit_code = Io_Efuse_ReadFromEfuse(
         &serial_input_data, register_value, e_fuse->efuse_spi_handle,
-        chip_select_port, chip_select_pin);
+        e_fuse->chip_select_port, e_fuse->chip_select_pin);
 
     // Only return register contents and clear bits 9->15
     *register_value = READ_BIT(*register_value, EFUSE_SO_DATA_MASK);
@@ -222,10 +264,20 @@ static ExitCode Io_Efuse_ReadFromEfuse(
     return EXIT_CODE_OK;
 }
 
-void Io_Efuse_Init(SPI_HandleTypeDef *const hspi)
+struct Efuse_Context *Io_Efuse_Create(
+    SPI_HandleTypeDef *const hspi,
+    GPIO_TypeDef *           chip_select_port,
+    uint16_t                 chip_select_pin)
 {
     assert(hspi != NULL);
 
-    aux1_aux2_efuse.efuse_spi_handle = hspi;
-    aux1_aux2_efuse.wdin_bit_to_set  = true;
+    struct Efuse_Context *efuse_context = malloc(sizeof(struct Efuse_Context));
+    assert(efuse_context != NULL);
+
+    efuse_context->efuse_spi_handle = hspi;
+    efuse_context->chip_select_port = chip_select_port;
+    efuse_context->chip_select_pin  = chip_select_pin;
+    efuse_context->wdin_bit_to_set  = true;
+
+    return efuse_context;
 }
