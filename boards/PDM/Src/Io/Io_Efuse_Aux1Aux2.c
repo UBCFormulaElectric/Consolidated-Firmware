@@ -1,10 +1,18 @@
 #include "Io_Efuse_Aux1Aux2.h"
 #include "configs/Io_EfuseConfig.h"
-#include "Io_Efuse.h"
-
-#pragma GCC diagnostic ignored "-Wconversion"
 
 static struct Efuse_Context *aux1_aux2_efuse;
+
+void Io_Efuse_Init_Aux1Aux2(SPI_HandleTypeDef *const hspi)
+{
+    assert(hspi != NULL);
+
+    aux1_aux2_efuse = Io_Efuse_Create(
+        hspi, CSB_AUX1_AUX2_GPIO_Port, CSB_AUX1_AUX2_Pin,
+        FSOB_AUX1_AUX2_GPIO_Port, FSOB_AUX1_AUX2_Pin, FSB_AUX1_AUX2_GPIO_Port,
+        FSB_AUX1_AUX2_Pin, PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, PIN_AUX2_GPIO_Port,
+        PIN_AUX2_Pin);
+}
 
 void Io_Efuse_EnableAux1(void)
 {
@@ -105,15 +113,4 @@ ExitCode Io_Efuse_ConfigureAux1Aux2Efuse(void)
         SI_OCR_1_ADDR, OCR_LOW_CURRENT_SENSE_CONFIG, aux1_aux2_efuse));
 
     return EXIT_CODE_OK;
-}
-
-void Io_Efuse_Init_Aux1Aux2(SPI_HandleTypeDef *const hspi)
-{
-    assert(hspi != NULL);
-
-    aux1_aux2_efuse = Io_Efuse_Create(
-        hspi, CSB_AUX1_AUX2_GPIO_Port, CSB_AUX1_AUX2_Pin,
-        FSOB_AUX1_AUX2_GPIO_Port, FSOB_AUX1_AUX2_Pin, FSB_AUX1_AUX2_GPIO_Port,
-        FSB_AUX1_AUX2_Pin, PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, PIN_AUX2_GPIO_Port,
-        PIN_AUX2_Pin);
 }

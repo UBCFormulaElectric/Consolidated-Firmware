@@ -6,6 +6,12 @@
 #include "Io_CurrentSense.h"
 
 /**
+ * Initialize the Aux1/Aux2 Efuse
+ * @param hspi Handle to the SPI peripheral used for the Efuse
+ */
+void Io_Efuse_Init_Aux1Aux2(SPI_HandleTypeDef *const hspi);
+
+/**
  * Enable the Aux 1 channel output
  */
 void Io_Efuse_Aux1Enable(void);
@@ -50,26 +56,6 @@ ExitCode Io_Efuse_GetAux1Faults(enum Efuse_Fault *fault);
  *         else EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
 ExitCode Io_Efuse_GetAux2Faults(enum Efuse_Fault *fault);
-
-/**
- * Check if the Aux 1 or Aux 2 channel enters fault mode
- * @return true if the Aux 1 or Aux 2 channel enters fault mode, else false if
- * both channels do not enter fault mode
- */
-bool Io_Efuse_IsAux1Aux2InFaultMode(void);
-
-/**
- * Check if the Aux1/Aux2 efuse enters fail-safe mode
- * @return true if the Aux1/Aux2 efuse enters fail-safe mode, else false
- * if the efuse does not enter fail-safe mode
- */
-bool Io_Efuse_IsAux1Aux2InFailSafeMode(void);
-
-/**
- * Delatch the Aux1/Aux2 efuse's latchable faults
- * @note Non-latchable faults are reset by reading from the fault registers
- */
-void Io_Efuse_DelatchAux1AndAux2Faults(void);
 
 /**
  * Get the current readings for the Aux 1 channel

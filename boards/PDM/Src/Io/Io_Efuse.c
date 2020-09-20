@@ -80,6 +80,45 @@ static ExitCode Io_Efuse_ReadFromEfuse(
     GPIO_TypeDef *     chip_select_port,
     uint16_t           chip_select_pin);
 
+struct Efuse_Context *Io_Efuse_Create(
+    SPI_HandleTypeDef *const hspi,
+    GPIO_TypeDef *           chip_select_port,
+    uint16_t                 chip_select_pin,
+    GPIO_TypeDef *           fsob_port,
+    uint16_t                 fsob_pin,
+    GPIO_TypeDef *           fsb_port,
+    uint16_t                 fsb_pin,
+    GPIO_TypeDef *           channel0_port,
+    uint16_t                 channel0_pin,
+    GPIO_TypeDef *           channel1_port,
+    uint16_t                 channel1_pin)
+{
+    assert(hspi != NULL);
+
+    struct Efuse_Context *efuse_context = malloc(sizeof(struct Efuse_Context));
+    assert(efuse_context != NULL);
+
+    efuse_context->efuse_spi_handle = hspi;
+    efuse_context->chip_select_port = chip_select_port;
+    efuse_context->chip_select_pin  = chip_select_pin;
+    efuse_context->fsob_port        = fsob_port;
+    efuse_context->fsob_pin         = fsob_pin;
+    efuse_context->fsb_port         = fsb_port;
+    efuse_context->fsb_pin          = fsb_pin;
+    efuse_context->channel0_port    = channel0_port;
+    efuse_context->channel0_pin     = channel0_pin;
+    efuse_context->channel1_port    = channel1_port;
+    efuse_context->channel1_pin     = channel1_pin;
+    efuse_context->wdin_bit_to_set  = true;
+
+    return efuse_context;
+}
+
+void Io_Efuse_Destroy(struct Efuse_Context *e_fuse)
+{
+    free(e_fuse);
+}
+
 ExitCode Io_Efuse_ConfigureChannelMonitoring(
     uint8_t               selection,
     struct Efuse_Context *e_fuse)
@@ -308,38 +347,4 @@ static ExitCode Io_Efuse_ReadFromEfuse(
     }
 
     return EXIT_CODE_OK;
-}
-
-struct Efuse_Context *Io_Efuse_Create(
-    SPI_HandleTypeDef *const hspi,
-    GPIO_TypeDef *           chip_select_port,
-    uint16_t                 chip_select_pin,
-    GPIO_TypeDef *           fsob_port,
-    uint16_t                 fsob_pin,
-    GPIO_TypeDef *           fsb_port,
-    uint16_t                 fsb_pin,
-    GPIO_TypeDef *           channel0_port,
-    uint16_t                 channel0_pin,
-    GPIO_TypeDef *           channel1_port,
-    uint16_t                 channel1_pin)
-{
-    assert(hspi != NULL);
-
-    struct Efuse_Context *efuse_context = malloc(sizeof(struct Efuse_Context));
-    assert(efuse_context != NULL);
-
-    efuse_context->efuse_spi_handle = hspi;
-    efuse_context->chip_select_port = chip_select_port;
-    efuse_context->chip_select_pin  = chip_select_pin;
-    efuse_context->fsob_port        = fsob_port;
-    efuse_context->fsob_pin         = fsob_pin;
-    efuse_context->fsb_port         = fsb_port;
-    efuse_context->fsb_pin          = fsb_pin;
-    efuse_context->channel0_port    = channel0_port;
-    efuse_context->channel0_pin     = channel0_pin;
-    efuse_context->channel1_port    = channel1_port;
-    efuse_context->channel1_pin     = channel1_pin;
-    efuse_context->wdin_bit_to_set  = true;
-
-    return efuse_context;
 }
