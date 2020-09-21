@@ -9,7 +9,7 @@
  * Initialize the Aux1/Aux2 Efuse
  * @param hspi Handle to the SPI peripheral used for the Efuse
  */
-void Io_Efuse_Init_Aux1Aux2(SPI_HandleTypeDef *const hspi);
+void Io_Efuse_Init_Aux1Aux2(SPI_HandleTypeDef * hspi);
 
 /**
  * Enable the Aux 1 channel output
