@@ -138,7 +138,7 @@ ExitCode Io_Efuse_ConfigureChannelMonitoring(
     return EXIT_CODE_OK;
 }
 
-ExitCode Io_Efuse_ExitFailSafeMode(struct Efuse_Context *e_fuse)
+ExitCode Io_Efuse_ExitFailSafeMode(struct Efuse_Context * const e_fuse)
 {
     // Set WDIN bit for next write
     // 1_1_00000_00000_0000
