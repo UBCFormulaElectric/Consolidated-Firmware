@@ -12,7 +12,7 @@ struct Efuse_Context
     SPI_HandleTypeDef *efuse_spi_handle;
 
     // The handle to Efuse's chip-select GPIO port
-    GPIO_TypeDef *chip_select_port;
+    GPIO_TypeDef *nss_port;
     // The Efuse's chip-select GPIO pin
     uint16_t chip_select_pin;
 
