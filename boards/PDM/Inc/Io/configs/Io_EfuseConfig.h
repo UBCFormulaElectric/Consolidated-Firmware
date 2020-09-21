@@ -441,7 +441,7 @@
      VDD_FAILURE_DETECTION_ENABLE | CSNS_FUNCTION_DISABLED |                 \
      OVERVOLTAGE_PROTECTION_ENABLE)
 
-// Channel  Configurations
+// Channel Configurations
 #define RETRY_CONFIG                                               \
     (RANDOM_CURRENT_OFFSET_SUBTRACT | AUTO_RETRY_NUMBER_INFINITE | \
      AUTO_RETRY_PERIOD_T_AUTO_10 | AUTO_RETRY_DC_MOTOR_DISABLED)
