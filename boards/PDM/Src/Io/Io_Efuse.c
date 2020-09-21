@@ -166,7 +166,7 @@ bool Io_Efuse_IsEfuseInFaultMode(struct Efuse_Context *e_fuse)
     return HAL_GPIO_ReadPin(e_fuse->fsb_port, e_fuse->fsb_pin);
 }
 
-bool Io_Efuse_IsEfuseInFailSafeMode(struct Efuse_Context *e_fuse)
+bool Io_Efuse_IsEfuseInFailSafeMode(const struct Efuse_Context *const e_fuse)
 {
     return HAL_GPIO_ReadPin(e_fuse->fsob_port, e_fuse->fsob_pin);
 }
