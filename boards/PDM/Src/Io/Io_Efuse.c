@@ -192,7 +192,7 @@ void Io_Efuse_DelatchFaults(struct Efuse_Context *e_fuse)
 ExitCode Io_Efuse_WriteRegister(
     uint8_t               register_address,
     uint16_t              register_value,
-    struct Efuse_Context *e_fuse)
+    struct Efuse_Context *const e_fuse)
 {
     uint16_t serial_input_data = 0x0000U;
 
