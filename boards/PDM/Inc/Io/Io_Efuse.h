@@ -11,7 +11,6 @@
 #include <stdbool.h>
 #include "main.h"
 #include "App_SharedExitCode.h"
-#include "App_Efuse.h"
 
 struct Efuse_Context;
 
