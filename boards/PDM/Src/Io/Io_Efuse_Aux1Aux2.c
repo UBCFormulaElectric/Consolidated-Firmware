@@ -119,7 +119,7 @@ ExitCode Io_Efuse_ConfigureAux1Aux2Efuse(void)
     RETURN_CODE_IF_EXIT_NOT_OK(Io_Efuse_WriteRegister(
         SI_OCR_0_ADDR, OCR_LOW_CURRENT_SENSE_CONFIG, aux1_aux2_efuse));
 
-    // Configure the channel  configuration registers
+    // Configure the channel 1's configuration registers
     RETURN_CODE_IF_EXIT_NOT_OK(
         Io_Efuse_WriteRegister(SI_RETRY_1_ADDR, RETRY_CONFIG, aux1_aux2_efuse));
     RETURN_CODE_IF_EXIT_NOT_OK(
