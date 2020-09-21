@@ -14,7 +14,7 @@ struct Efuse_Context
     // The handle to Efuse's chip-select GPIO port
     GPIO_TypeDef *nss_port;
     // The Efuse's chip-select GPIO pin
-    uint16_t chip_select_pin;
+    uint16_t nss_pin;
 
     // The handle to Efuse's fail-safe output(FSOB) GPIO port
     GPIO_TypeDef *fsob_port;
