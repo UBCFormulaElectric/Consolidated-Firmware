@@ -171,7 +171,7 @@ bool Io_Efuse_IsEfuseInFailSafeMode(struct Efuse_Context *e_fuse)
     return HAL_GPIO_ReadPin(e_fuse->fsob_port, e_fuse->fsob_pin);
 }
 
-void Io_Efuse_DelatchFaults(struct Efuse_Context *e_fuse)
+void Io_Efuse_DelatchFaults(const struct Efuse_Context * const e_fuse)
 {
     // Delatch the latchable faults by alternating the inputs high-low-high
     HAL_GPIO_WritePin(
