@@ -9,7 +9,7 @@
 struct Efuse_Context
 {
     // The SPI handle for the SPI device the E-Fuse is connected to
-    SPI_HandleTypeDef *efuse_spi_handle;
+    SPI_HandleTypeDef *hspi;
 
     // The handle to Efuse's chip-select GPIO port
     GPIO_TypeDef *nss_port;
