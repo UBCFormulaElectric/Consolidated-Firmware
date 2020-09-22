@@ -1,4 +1,4 @@
-#include "Io_Efuse_Aux1Aux2.h"
+#include "Io_Aux1Aux2Efuse.h"
 #include "configs/Io_EfuseConfig.h"
 
 static struct Efuse_Context *aux1_aux2_efuse;
@@ -16,22 +16,22 @@ void Io_Efuse_Init_Aux1Aux2(SPI_HandleTypeDef *const hspi)
 
 void Io_Efuse_EnableAux1(void)
 {
-    HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_SET);
+    Io_Efuse_Channel0Enable(aux1_aux2_efuse);
 }
 
 void Io_Efuse_DisableAux1(void)
 {
-    HAL_GPIO_WritePin(PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, GPIO_PIN_RESET);
+    Io_Efuse_Channel0Disable(aux1_aux2_efuse);
 }
 
 void Io_Efuse_EnableAux2(void)
 {
-    HAL_GPIO_WritePin(PIN_AUX2_GPIO_Port, PIN_AUX2_Pin, GPIO_PIN_SET);
+    Io_Efuse_Channel1Enable(aux1_aux2_efuse);
 }
 
 void Io_Efuse_DisableAux2(void)
 {
-    HAL_GPIO_WritePin(PIN_AUX2_GPIO_Port, PIN_AUX2_Pin, GPIO_PIN_RESET);
+    Io_Efuse_Channel1Disable(aux1_aux2_efuse);
 }
 
 ExitCode Io_Efuse_GetAux1Aux2Status(enum Efuse_Status *status)

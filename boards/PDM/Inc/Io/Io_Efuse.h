@@ -30,23 +30,43 @@ struct Efuse_Context;
  * @return The created Efuse, whose ownership is given to the caller
  */
 struct Efuse_Context *Io_Efuse_Create(
-    SPI_HandleTypeDef * hspi,
-    GPIO_TypeDef *           chip_select_port,
-    uint16_t                 chip_select_pin,
-    GPIO_TypeDef *           fsob_port,
-    uint16_t                 fsob_pin,
-    GPIO_TypeDef *           fsb_port,
-    uint16_t                 fsb_pin,
-    GPIO_TypeDef *           channel0_port,
-    uint16_t                 channel0_pin,
-    GPIO_TypeDef *           channel1_port,
-    uint16_t                 channel1_pin);
+    SPI_HandleTypeDef *hspi,
+    GPIO_TypeDef *     chip_select_port,
+    uint16_t           chip_select_pin,
+    GPIO_TypeDef *     fsob_port,
+    uint16_t           fsob_pin,
+    GPIO_TypeDef *     fsb_port,
+    uint16_t           fsb_pin,
+    GPIO_TypeDef *     channel0_port,
+    uint16_t           channel0_pin,
+    GPIO_TypeDef *     channel1_port,
+    uint16_t           channel1_pin);
 
 /**
  * Deallocate the memory used by the given Efuse
  * @param e_fuse The Efuse to deallocate
  */
 void Io_Efuse_Destroy(struct Efuse_Context *e_fuse);
+
+/**
+ * Enable the channel 0 output
+ */
+void Io_Efuse_Channel0Enable(const struct Efuse_Context *const e_fuse);
+
+/**
+ * Disable the channel 0 output
+ */
+void Io_Efuse_Channel0Disable(const struct Efuse_Context *const e_fuse);
+
+/**
+ * Enable the channel 1 output
+ */
+void Io_Efuse_Channel1Enable(const struct Efuse_Context *const e_fuse);
+
+/**
+ * Disable the channel 1 output
+ */
+void Io_Efuse_Channel1Disable(const struct Efuse_Context *const e_fuse);
 
 /**
  * Set the current/temperature monitoring option of CSNS pin
@@ -63,8 +83,8 @@ void Io_Efuse_Destroy(struct Efuse_Context *e_fuse);
  *         EXIT_CODE_TIMEOUT if one of the SPI writes timed-out
  */
 ExitCode Io_Efuse_ConfigureChannelMonitoring(
-    uint8_t               selection,
-    struct Efuse_Context *e_fuse);
+    uint8_t                     selection,
+    struct Efuse_Context *const e_fuse);
 
 /**
  * Exit fail-safe mode and disable the watchdog timer
@@ -73,7 +93,7 @@ ExitCode Io_Efuse_ConfigureChannelMonitoring(
  *         EXIT_CODE_TIMEOUT if the one of the SPI writes timed-out
  *         EXIT_CODE_UNIMPLEMENTED if the efuse failed to exit fail-safe mode
  */
-ExitCode Io_Efuse_ExitFailSafeMode(struct Efuse_Context *e_fuse);
+ExitCode Io_Efuse_ExitFailSafeMode(struct Efuse_Context *const e_fuse);
 
 /**
  * Check if the efuse's channel 0 or channel 1 enters fault mode
@@ -81,7 +101,7 @@ ExitCode Io_Efuse_ExitFailSafeMode(struct Efuse_Context *e_fuse);
  * @return true if the fuse's channel 0 or channel 1 enters fault mode, else
  * false if both channels do not enter fault mode
  */
-bool Io_Efuse_IsEfuseInFaultMode(struct Efuse_Context *e_fuse);
+bool Io_Efuse_IsEfuseInFaultMode(const struct Efuse_Context *const e_fuse);
 
 /**
  * Check if the efuse enters fail-safe mode
@@ -89,14 +109,14 @@ bool Io_Efuse_IsEfuseInFaultMode(struct Efuse_Context *e_fuse);
  * @return true if the efuse enters fail-safe mode, else false
  * if the efuse does not enter fail-safe mode
  */
-bool Io_Efuse_IsEfuseInFailSafeMode(struct Efuse_Context *e_fuse);
+bool Io_Efuse_IsEfuseInFailSafeMode(const struct Efuse_Context *const e_fuse);
 
 /**
  * Delatch the efuse's latchable faults
  * @param e_fuse Pointer to the Efuse structure for the Efuse being checked
  * @note Non-latchable faults are reset by reading from the fault registers
  */
-void Io_Efuse_DelatchFaults(struct Efuse_Context *e_fuse);
+void Io_Efuse_DelatchFaults(const struct Efuse_Context *const e_fuse);
 
 /**
  * Write data to a specific Serial Input register on the Efuse
@@ -107,9 +127,9 @@ void Io_Efuse_DelatchFaults(struct Efuse_Context *e_fuse);
  *         EXIT_CODE_TIMEOUT if the SPI write timed-out
  */
 ExitCode Io_Efuse_WriteRegister(
-    uint8_t               register_address,
-    uint16_t              register_value,
-    struct Efuse_Context *e_fuse);
+    uint8_t                     register_address,
+    uint16_t                    register_value,
+    struct Efuse_Context *const e_fuse);
 
 /**
  * Read data from a specific Serial Output register on the Efuse
@@ -120,6 +140,6 @@ ExitCode Io_Efuse_WriteRegister(
  *         EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
 ExitCode Io_Efuse_ReadRegister(
-    uint8_t               register_address,
-    uint16_t *            register_value,
-    struct Efuse_Context *e_fuse);
+    uint8_t                     register_address,
+    uint16_t *                  register_value,
+    struct Efuse_Context *const e_fuse);

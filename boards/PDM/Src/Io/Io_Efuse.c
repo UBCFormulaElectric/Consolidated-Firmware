@@ -98,18 +98,18 @@ struct Efuse_Context *Io_Efuse_Create(
     struct Efuse_Context *efuse_context = malloc(sizeof(struct Efuse_Context));
     assert(efuse_context != NULL);
 
-    efuse_context->efuse_spi_handle = hspi;
-    efuse_context->chip_select_port = chip_select_port;
-    efuse_context->chip_select_pin  = chip_select_pin;
-    efuse_context->fsob_port        = fsob_port;
-    efuse_context->fsob_pin         = fsob_pin;
-    efuse_context->fsb_port         = fsb_port;
-    efuse_context->fsb_pin          = fsb_pin;
-    efuse_context->channel0_port    = channel0_port;
-    efuse_context->channel0_pin     = channel0_pin;
-    efuse_context->channel1_port    = channel1_port;
-    efuse_context->channel1_pin     = channel1_pin;
-    efuse_context->wdin_bit_to_set  = true;
+    efuse_context->hspi            = hspi;
+    efuse_context->nss_port        = chip_select_port;
+    efuse_context->nss_pin         = chip_select_pin;
+    efuse_context->fsob_port       = fsob_port;
+    efuse_context->fsob_pin        = fsob_pin;
+    efuse_context->fsb_port        = fsb_port;
+    efuse_context->fsb_pin         = fsb_pin;
+    efuse_context->channel0_port   = channel0_port;
+    efuse_context->channel0_pin    = channel0_pin;
+    efuse_context->channel1_port   = channel1_port;
+    efuse_context->channel1_pin    = channel1_pin;
+    efuse_context->wdin_bit_to_set = true;
 
     return efuse_context;
 }
@@ -119,9 +119,33 @@ void Io_Efuse_Destroy(struct Efuse_Context *e_fuse)
     free(e_fuse);
 }
 
+void Io_Efuse_Channel0Enable(const struct Efuse_Context *const e_fuse)
+{
+    HAL_GPIO_WritePin(
+        e_fuse->channel0_port, e_fuse->channel0_pin, GPIO_PIN_SET);
+}
+
+void Io_Efuse_Channel0Disable(const struct Efuse_Context *const e_fuse)
+{
+    HAL_GPIO_WritePin(
+        e_fuse->channel0_port, e_fuse->channel0_pin, GPIO_PIN_RESET);
+}
+
+void Io_Efuse_Channel1Enable(const struct Efuse_Context *const e_fuse)
+{
+    HAL_GPIO_WritePin(
+        e_fuse->channel1_port, e_fuse->channel1_pin, GPIO_PIN_SET);
+}
+
+void Io_Efuse_Channel1Disable(const struct Efuse_Context *const e_fuse)
+{
+    HAL_GPIO_WritePin(
+        e_fuse->channel1_port, e_fuse->channel1_pin, GPIO_PIN_RESET);
+}
+
 ExitCode Io_Efuse_ConfigureChannelMonitoring(
-    uint8_t               selection,
-    struct Efuse_Context *e_fuse)
+    uint8_t                     selection,
+    struct Efuse_Context *const e_fuse)
 {
     uint16_t register_value = 0x0000;
 
@@ -138,7 +162,7 @@ ExitCode Io_Efuse_ConfigureChannelMonitoring(
     return EXIT_CODE_OK;
 }
 
-ExitCode Io_Efuse_ExitFailSafeMode(struct Efuse_Context * const e_fuse)
+ExitCode Io_Efuse_ExitFailSafeMode(struct Efuse_Context *const e_fuse)
 {
     // Set WDIN bit for next write
     // 1_1_00000_00000_0000
@@ -171,7 +195,7 @@ bool Io_Efuse_IsEfuseInFailSafeMode(const struct Efuse_Context *const e_fuse)
     return HAL_GPIO_ReadPin(e_fuse->fsob_port, e_fuse->fsob_pin);
 }
 
-void Io_Efuse_DelatchFaults(const struct Efuse_Context * const e_fuse)
+void Io_Efuse_DelatchFaults(const struct Efuse_Context *const e_fuse)
 {
     // Delatch the latchable faults by alternating the inputs high-low-high
     HAL_GPIO_WritePin(
@@ -190,8 +214,8 @@ void Io_Efuse_DelatchFaults(const struct Efuse_Context * const e_fuse)
 }
 
 ExitCode Io_Efuse_WriteRegister(
-    uint8_t               register_address,
-    uint16_t              register_value,
+    uint8_t                     register_address,
+    uint16_t                    register_value,
     struct Efuse_Context *const e_fuse)
 {
     uint16_t serial_input_data = 0x0000U;
@@ -222,14 +246,13 @@ ExitCode Io_Efuse_WriteRegister(
     Io_Efuse_CalculateParityBit(&serial_input_data);
 
     return Io_Efuse_WriteToEfuse(
-        &serial_input_data, e_fuse->efuse_spi_handle, e_fuse->chip_select_port,
-        e_fuse->chip_select_pin);
+        &serial_input_data, e_fuse->hspi, e_fuse->nss_port, e_fuse->nss_pin);
 }
 
 ExitCode Io_Efuse_ReadRegister(
-    uint8_t               register_address,
-    uint16_t *            register_value,
-    struct Efuse_Context *e_fuse)
+    uint8_t                     register_address,
+    uint16_t *                  register_value,
+    struct Efuse_Context *const e_fuse)
 {
     uint16_t serial_input_data = 0x0000U;
 
@@ -260,8 +283,8 @@ ExitCode Io_Efuse_ReadRegister(
     Io_Efuse_CalculateParityBit(&serial_input_data);
 
     ExitCode exit_code = Io_Efuse_ReadFromEfuse(
-        &serial_input_data, register_value, e_fuse->efuse_spi_handle,
-        e_fuse->chip_select_port, e_fuse->chip_select_pin);
+        &serial_input_data, register_value, e_fuse->hspi, e_fuse->nss_port,
+        e_fuse->nss_pin);
 
     // Only return register contents and clear bits 9->15
     *register_value = READ_BIT(*register_value, EFUSE_SO_DATA_MASK);

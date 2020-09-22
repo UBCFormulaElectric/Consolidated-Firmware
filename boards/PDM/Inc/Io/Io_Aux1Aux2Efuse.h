@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include <math.h>
+#include "App_Efuse.h"
 #include "Io_Efuse.h"
 #include "Io_CurrentSense.h"
 
@@ -9,7 +10,7 @@
  * Initialize the Aux1/Aux2 Efuse
  * @param hspi Handle to the SPI peripheral used for the Efuse
  */
-void Io_Efuse_Init_Aux1Aux2(SPI_HandleTypeDef * hspi);
+void Io_Aux1Aux2Efuse_Init_(SPI_HandleTypeDef *hspi);
 
 /**
  * Enable the Aux 1 channel output
@@ -22,14 +23,14 @@ void Io_Efuse_Aux1Enable(void);
 void Io_Efuse_Aux1Disable(void);
 
 /**
- * Disable the Aux 2 channel output
- */
-void Io_Efuse_Aux1Disable(void);
-
-/**
  * Enable the Aux 2 channel output
  */
 void Io_Efuse_Aux2Enable(void);
+
+/**
+ * Disable the Aux 2 channel output
+ */
+void Io_Efuse_Aux1Disable(void);
 
 /**
  * Get the value of the Aux 1 and Aux 2 Efuse's Status Register over SPI
