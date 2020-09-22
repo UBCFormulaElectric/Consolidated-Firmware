@@ -30,7 +30,7 @@ struct Efuse_Context;
  * @return The created Efuse, whose ownership is given to the caller
  */
 struct Efuse_Context *Io_Efuse_Create(
-    SPI_HandleTypeDef *const hspi,
+    SPI_HandleTypeDef * hspi,
     GPIO_TypeDef *           chip_select_port,
     uint16_t                 chip_select_pin,
     GPIO_TypeDef *           fsob_port,
