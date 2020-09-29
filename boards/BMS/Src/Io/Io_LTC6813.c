@@ -323,6 +323,9 @@ ExitCode Io_LTC6813_ReadAllCellRegisterGroups(void)
         0
     };
 
+    // Reset the value of the PEC15 error counter at the start of each cycle.
+    ltc_6813.pec15_error_counter = 0U;
+
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_EnterReadyState())
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_StartADCConversion())
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_PollAdcConversion())
@@ -353,9 +356,6 @@ ExitCode Io_LTC6813_ReadAllCellRegisterGroups(void)
                 current_ic, current_register_group, rx_cell_voltages);
         }
     }
-
-    // Reset the value of the PEC15 error counter for the next cycle.
-    ltc_6813.pec15_error_counter = 0U;
 
     // Return EXIT_CODE_ERROR if PEC15 mismatches occur, else return
     // EXIT_CODE_OK.
