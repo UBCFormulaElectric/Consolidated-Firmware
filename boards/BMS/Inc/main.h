@@ -110,6 +110,8 @@ extern "C"
 #define BMS_OK_GPIO_Port GPIOB
 #define MCU_LATCH_RESET_Pin GPIO_PIN_11
 #define MCU_LATCH_RESET_GPIO_Port GPIOB
+#define SPI2_NSS_Pin GPIO_PIN_12
+#define SPI2_NSS_GPIO_Port GPIOB
 #define STATUS_R_Pin GPIO_PIN_8
 #define STATUS_R_GPIO_Port GPIOA
 #define STATUS_G_Pin GPIO_PIN_9

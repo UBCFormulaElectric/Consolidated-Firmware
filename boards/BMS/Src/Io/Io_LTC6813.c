@@ -115,8 +115,8 @@ static struct LTC6813 ltc_6813;
 static uint16_t Io_CalculatePec15(uint8_t *data, uint32_t size);
 
 /**
- * Transition all LTC6813 chips on the daisy chain from the IDLE state to the READY
- * state.
+ * Transition all LTC6813 chips on the daisy chain from the IDLE state to the
+ * READY state.
  * @return EXIT_CODE_OK if the SCK and NSS pin can be toggled without timing out
  * or errors. Else, EXIT_CODE_UNIMPLEMENTED.
  */
@@ -130,10 +130,10 @@ static ExitCode Io_LTC6813_EnterReadyState(void);
 static ExitCode Io_LTC6813_StartADCConversion(void);
 
 /**
- * Check if all LTC6813 chips in the daisy chain have all completed converting analogue
- * cell voltages to digital voltages.
- * @return EXIT_CODE_OK if all LTC6813 chips on the daisy chain have completed ADC
- * conversions. EXIT_CODE_TIMEOUT if ADC conversions could not be completed
+ * Check if all LTC6813 chips in the daisy chain have all completed converting
+ * analogue cell voltages to digital voltages.
+ * @return EXIT_CODE_OK if all LTC6813 chips on the daisy chain have completed
+ * ADC conversions. EXIT_CODE_TIMEOUT if ADC conversions could not be completed
  * before timing out. EXIT_CODE_UNIMPLEMENTED if the command sent and received
  * to check the status of ADC conversions was not transmitted or received
  * successfully.
@@ -203,6 +203,9 @@ static ExitCode Io_LTC6813_PollAdcConversion(void)
 
     uint32_t adc_conversion_timeout_counter = 0U;
 
+    // If the data read back from the chip after a PLADC command is not equal to
+    // 0xFF, all chips on the daisy chain have finished converting cell
+    // voltages.
     while (rx_data == 0xFF)
     {
         if (Io_SharedSpi_TransmitAndReceive(
@@ -233,6 +236,8 @@ static void Io_LTC6813_ParseCellsAndPerformPec15Check(
     for (size_t current_cell = 0U;
          current_cell < NUM_OF_CELLS_PER_LTC6813_REGISTER_GROUP; current_cell++)
     {
+        assert(
+            cell_voltage_index < NUM_OF_CELL_VOLTAGE_RX_BYTES * NUM_OF_LTC6813);
         uint32_t cell_voltage =
             (uint32_t)(rx_cell_voltages[cell_voltage_index]) |
             (uint32_t)((rx_cell_voltages[cell_voltage_index + 1] << 8));
@@ -249,6 +254,7 @@ static void Io_LTC6813_ParseCellsAndPerformPec15Check(
         cell_voltage_index += 2U;
     }
 
+    assert(cell_voltage_index < NUM_OF_CELL_VOLTAGE_RX_BYTES * NUM_OF_LTC6813);
     uint32_t received_pec15 =
         (uint32_t)(rx_cell_voltages[cell_voltage_index] << 8) |
         (uint32_t)(rx_cell_voltages[cell_voltage_index + 1]);
