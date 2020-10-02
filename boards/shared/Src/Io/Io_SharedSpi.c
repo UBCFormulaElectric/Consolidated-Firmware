@@ -21,7 +21,7 @@ struct SharedSpi *Io_SharedSpi_Create(
     SPI_HandleTypeDef *spi_handle,
     GPIO_TypeDef *     nss_port,
     uint16_t           nss_pin,
-    uint32_t           delay_ms)
+    uint32_t           timeout_ms)
 {
     assert(spi_handle != NULL);
 
@@ -31,7 +31,7 @@ struct SharedSpi *Io_SharedSpi_Create(
     spi->spi_handle = spi_handle;
     spi->nss_pin    = nss_pin;
     spi->nss_port   = nss_port;
-    spi->delay_ms   = delay_ms;
+    spi->delay_ms   = timeout_ms;
 
     return spi;
 }
