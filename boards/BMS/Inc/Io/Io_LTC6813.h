@@ -5,13 +5,13 @@
 
 /**
  * Initialize the LTC6813 daisy chain.
- * @param hspi The SPI handle for the LTC6813 daisy chain.
+ * @param spi_handle The SPI handle for the LTC6813 daisy chain.
  * @param nss_port A pointer to the GPIO port corresponding to the LTC6813 daisy
  * chain.
  * @param nss_pin The GPIO pin corresponding to the LTC6813 daisy chain.
  */
 void Io_LTC6813_Init(
-    SPI_HandleTypeDef *hspi,
+    SPI_HandleTypeDef *spi_handle,
     GPIO_TypeDef *     nss_port,
     uint16_t           nss_pin);
 

@@ -8,7 +8,7 @@
 
 enum CellVoltageRegisterGroups
 {
-    CELL_VOLTAGE_REGISTER_GROUP_A = 0,
+    CELL_VOLTAGE_REGISTER_GROUP_A,
     CELL_VOLTAGE_REGISTER_GROUP_B,
     CELL_VOLTAGE_REGISTER_GROUP_C,
     CELL_VOLTAGE_REGISTER_GROUP_D,
@@ -89,6 +89,8 @@ static const struct LookupTables lookup_tables = {
 #define ADCV (0x260 + (ADCOPT << 7) + (DCP << 4) + CELL_CH_ALL)
 #define PLADC 0x1407
 
+#define NUM_ADC_CONVERSION_CYCLES 10U
+
 struct LTC6813
 {
     // A pointer to the SPI interface
@@ -134,16 +136,17 @@ static ExitCode Io_LTC6813_StartADCConversion(void);
  * analogue cell voltages to digital voltages.
  * @return EXIT_CODE_OK if all LTC6813 chips on the daisy chain have completed
  * ADC conversions. EXIT_CODE_TIMEOUT if ADC conversions could not be completed
- * before timing out. EXIT_CODE_UNIMPLEMENTED if the command sent and received
- * to check the status of ADC conversions was not transmitted or received
- * successfully.
+ * before timing out. EXIT_CODE_UNIMPLEMENTED if the command sent and
+ * received to check the status of ADC conversions was not transmitted or
+ * received successfully.
  */
 static ExitCode Io_LTC6813_PollAdcConversion(void);
 
 static void Io_LTC6813_ParseCellsAndPerformPec15Check(
-    size_t   current_ic,
-    size_t   current_register_group,
-    uint8_t *rx_cell_voltages);
+    size_t current_ic,
+    size_t current_register_group,
+    uint8_t
+        rx_cell_voltages[static NUM_OF_CELL_VOLTAGE_RX_BYTES * NUM_OF_LTC6813]);
 
 static uint16_t Io_CalculatePec15(uint8_t *data, uint32_t size)
 {
@@ -191,8 +194,6 @@ static ExitCode Io_LTC6813_StartADCConversion(void)
 static ExitCode Io_LTC6813_PollAdcConversion(void)
 {
     uint8_t tx_cmd[NUM_OF_CMD_BYTES];
-    uint8_t rx_data = 0xFF;
-
     tx_cmd[0] = (uint8_t)PLADC;
     tx_cmd[1] = (uint8_t)(PLADC >> 8);
 
@@ -202,11 +203,12 @@ static ExitCode Io_LTC6813_PollAdcConversion(void)
     tx_cmd[3] = (uint8_t)tx_cmd_pec15;
 
     uint32_t adc_conversion_timeout_counter = 0U;
+    uint8_t  rx_data;
 
     // If the data read back from the chip after a PLADC command is not equal to
     // 0xFF, all chips on the daisy chain have finished converting cell
     // voltages.
-    while (rx_data == 0xFF)
+    do
     {
         if (Io_SharedSpi_TransmitAndReceive(
                 ltc_6813.spi, tx_cmd, NUM_OF_CMD_BYTES, &rx_data, 1U) != HAL_OK)
@@ -217,20 +219,22 @@ static ExitCode Io_LTC6813_PollAdcConversion(void)
         ++adc_conversion_timeout_counter;
 
         // Timeout counter threshold of 10 was chosen arbitrarily.
-        if (adc_conversion_timeout_counter >= 10U)
+        if (adc_conversion_timeout_counter >= NUM_ADC_CONVERSION_CYCLES)
         {
             return EXIT_CODE_TIMEOUT;
         }
-    }
+    } while (rx_data == 0xFF);
 
     return EXIT_CODE_OK;
 }
 
 static void Io_LTC6813_ParseCellsAndPerformPec15Check(
-    size_t   current_ic,
-    size_t   current_register_group,
-    uint8_t *rx_cell_voltages)
+    size_t  current_ic,
+    size_t  current_register_group,
+    uint8_t rx_cell_voltages[NUM_OF_CELL_VOLTAGE_RX_BYTES * NUM_OF_LTC6813])
 {
+    // uint8_t  rx_cell_voltages[NUM_OF_CELL_VOLTAGE_RX_BYTES * NUM_OF_LTC6813]
+    // = {
     size_t cell_voltage_index = current_ic * NUM_OF_CELL_VOLTAGE_RX_BYTES;
 
     for (size_t current_cell = 0U;
@@ -269,13 +273,13 @@ static void Io_LTC6813_ParseCellsAndPerformPec15Check(
 }
 
 void Io_LTC6813_Init(
-    SPI_HandleTypeDef *hspi,
+    SPI_HandleTypeDef *spi_handle,
     GPIO_TypeDef *     nss_port,
     uint16_t           nss_pin)
 {
-    assert(hspi != NULL);
+    assert(spi_handle != NULL);
 
-    ltc_6813.spi                 = Io_SharedSpi_Create(hspi, nss_port, nss_pin);
+    ltc_6813.spi = Io_SharedSpi_Create(spi_handle, nss_port, nss_pin);
     ltc_6813.pec15_error_counter = 0U;
     memset(
         ltc_6813.cell_voltages, 0U,
