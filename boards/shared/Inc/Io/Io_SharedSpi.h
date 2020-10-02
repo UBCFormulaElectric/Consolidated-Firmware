@@ -8,11 +8,15 @@ struct SharedSpi;
 /**
  * Allocate and initialize a SPI interface.
  * @param spi_handle The handle of the given SPI interface.
- * @param nss_port Pointer to the GPIO port of the given SPI interface.
- * @param nss_pin The GPIO pin of the given SPI interface.
+ * @param nss_port Pointer to the NSS GPIO port of the given SPI interface.
+ * @param nss_pin The NSS GPIO pin of the given SPI interface.
  * @param delay_ms The delay in milliseconds during a SPI transaction which a
  * blocking SPI transaction should wait until an error is returned.
- * @return Pointer to the allocated and initialized SPI interface
+ *
+ * @note NSS indicates an active low slave select for the device connected to
+ * the SPI interface.
+ *
+ * @return A pointer to the allocated and initialized SPI interface.
  */
 struct SharedSpi *Io_SharedSpi_Create(
     SPI_HandleTypeDef *spi_handle,

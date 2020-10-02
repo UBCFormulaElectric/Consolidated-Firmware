@@ -89,6 +89,8 @@ static const struct LookupTables lookup_tables = {
 #define ADCV (0x260 + (ADCOPT << 7) + (DCP << 4) + CELL_CH_ALL)
 #define PLADC 0x1407
 
+// Timeout counter threshold of 10 was chosen arbitrarily.
+// TODO: Determine the appropriate number of ADC conversion timeout cycles #674
 #define NUM_ADC_CONVERSION_CYCLES 10U
 
 struct LTC6813
@@ -150,25 +152,34 @@ static void Io_LTC6813_ParseCellsAndPerformPec15Check(
 
 static uint16_t Io_CalculatePec15(uint8_t *data, uint32_t size)
 {
-    size_t   pec15_index;
-    uint16_t pec15 = 16U;
+    size_t pec15_lut_index;
+
+    // Initialize the value of the PEC15 remainder to 16.
+    uint16_t pec15_remainder = 16U;
 
     for (size_t i = 0U; i < size; i++)
     {
-        pec15_index = ((pec15 >> 7) ^ data[i]) & 0xFF;
-        pec15       = (uint16_t)((pec15 << 8) ^ lookup_tables.crc[pec15_index]);
+        pec15_lut_index = ((pec15_remainder >> 7) ^ data[i]) & 0xFF;
+        pec15_remainder = (uint16_t)(
+            (pec15_remainder << 8) ^ lookup_tables.crc[pec15_lut_index]);
     }
 
-    // Set the LSB of the computed PEC15 to 0
-    return (uint16_t)(pec15 << 1);
+    // Set the LSB of the PEC15 remainder to 0.
+    return (uint16_t)(pec15_remainder << 1);
 }
 
 static ExitCode Io_LTC6813_EnterReadyState(void)
 {
     uint8_t rx_data;
+
+    // Generate isoSPI traffic to wake up the daisy chain by sending a command
+    // to read a single byte NUM_OF_LTC6813 times.
     for (size_t i = 0U; i < NUM_OF_LTC6813; i++)
     {
-        Io_SharedSpi_Receive(ltc_6813.spi, &rx_data, 1U);
+        if (Io_SharedSpi_Receive(ltc_6813.spi, &rx_data, 1U) != HAL_OK)
+        {
+            return EXIT_CODE_UNIMPLEMENTED;
+        }
     }
 
     return EXIT_CODE_OK;
@@ -218,7 +229,6 @@ static ExitCode Io_LTC6813_PollAdcConversion(void)
 
         ++adc_conversion_timeout_counter;
 
-        // Timeout counter threshold of 10 was chosen arbitrarily.
         if (adc_conversion_timeout_counter >= NUM_ADC_CONVERSION_CYCLES)
         {
             return EXIT_CODE_TIMEOUT;
@@ -233,8 +243,6 @@ static void Io_LTC6813_ParseCellsAndPerformPec15Check(
     size_t  current_register_group,
     uint8_t rx_cell_voltages[NUM_OF_CELL_VOLTAGE_RX_BYTES * NUM_OF_LTC6813])
 {
-    // uint8_t  rx_cell_voltages[NUM_OF_CELL_VOLTAGE_RX_BYTES * NUM_OF_LTC6813]
-    // = {
     size_t cell_voltage_index = current_ic * NUM_OF_CELL_VOLTAGE_RX_BYTES;
 
     for (size_t current_cell = 0U;
@@ -252,8 +260,8 @@ static void Io_LTC6813_ParseCellsAndPerformPec15Check(
                                    NUM_OF_CELLS_PER_LTC6813_REGISTER_GROUP] =
             (uint16_t)cell_voltage;
 
-        // Each cell voltage is represented as a pair of bytes. Therefore
-        // increment the cell voltage index by 2 to retrieve the next cell
+        // Each cell voltage is represented as a pair of bytes. Therefore,
+        // the cell voltage index is incremented by 2 to retrieve the next cell
         // voltage.
         cell_voltage_index += 2U;
     }
@@ -262,12 +270,14 @@ static void Io_LTC6813_ParseCellsAndPerformPec15Check(
     uint32_t received_pec15 =
         (uint32_t)(rx_cell_voltages[cell_voltage_index] << 8) |
         (uint32_t)(rx_cell_voltages[cell_voltage_index + 1]);
+
+    // Calculate the PEC15 using the first 6 bytes of data received from the
+    // chip.
     uint32_t calculated_pec15 = Io_CalculatePec15(
         &rx_cell_voltages[current_ic * NUM_OF_CELL_VOLTAGE_RX_BYTES], 6U);
 
     if (received_pec15 != calculated_pec15)
     {
-        // Increment the number of PEC15 errors.
         ltc_6813.pec15_error_counter++;
     }
 }
@@ -279,7 +289,8 @@ void Io_LTC6813_Init(
 {
     assert(spi_handle != NULL);
 
-    ltc_6813.spi = Io_SharedSpi_Create(spi_handle, nss_port, nss_pin);
+    ltc_6813.spi = Io_SharedSpi_Create(
+        spi_handle, nss_port, nss_pin, LTC6813_SPI_DELAY_MS);
     ltc_6813.pec15_error_counter = 0U;
     memset(
         ltc_6813.cell_voltages, 0U,
@@ -287,7 +298,7 @@ void Io_LTC6813_Init(
             sizeof(ltc_6813.cell_voltages[0][0]));
 }
 
-void Io_LTC6813_Configure(void)
+ExitCode Io_LTC6813_Configure(void)
 {
     uint8_t tx_cmd[NUM_OF_CMD_BYTES];
     tx_cmd[0] = (uint8_t)(WRCFGA >> 8);
@@ -315,14 +326,24 @@ void Io_LTC6813_Configure(void)
 
     Io_SharedSpi_SetNssLow(ltc_6813.spi);
 
-    // Transmit the command to write to Configuration Register A.
-    Io_SharedSpi_TransmitWithoutNssToggle(
-        ltc_6813.spi, tx_cmd, NUM_OF_CMD_BYTES);
+    // Write to Configuration Register A.
+    if (Io_SharedSpi_TransmitWithoutNssToggle(
+            ltc_6813.spi, tx_cmd, NUM_OF_CMD_BYTES) != HAL_OK)
+    {
+        Io_SharedSpi_SetNssHigh(ltc_6813.spi);
+        return EXIT_CODE_UNIMPLEMENTED;
+    }
 
     // Transmit the payload data to all devices connected to the daisy chain.
-    Io_SharedSpi_MultipleTransmitWithoutNssToggle(
-        ltc_6813.spi, tx_payload, 8U, NUM_OF_LTC6813);
+    if (Io_SharedSpi_MultipleTransmitWithoutNssToggle(
+            ltc_6813.spi, tx_payload, 8U, NUM_OF_LTC6813) != HAL_OK)
+    {
+        Io_SharedSpi_SetNssHigh(ltc_6813.spi);
+        return EXIT_CODE_UNIMPLEMENTED;
+    }
+
     Io_SharedSpi_SetNssHigh(ltc_6813.spi);
+    return EXIT_CODE_OK;
 }
 
 ExitCode Io_LTC6813_ReadAllCellRegisterGroups(void)
@@ -356,9 +377,12 @@ ExitCode Io_LTC6813_ReadAllCellRegisterGroups(void)
         tx_cmd[2] = (uint8_t)(tx_cmd_pec15 >> 8);
         tx_cmd[3] = (uint8_t)(tx_cmd_pec15);
 
-        Io_SharedSpi_TransmitAndReceive(
-            ltc_6813.spi, tx_cmd, NUM_OF_CMD_BYTES, rx_cell_voltages,
-            NUM_OF_CELL_VOLTAGE_RX_BYTES * NUM_OF_LTC6813);
+        if (Io_SharedSpi_TransmitAndReceive(
+                ltc_6813.spi, tx_cmd, NUM_OF_CMD_BYTES, rx_cell_voltages,
+                NUM_OF_CELL_VOLTAGE_RX_BYTES * NUM_OF_LTC6813) != HAL_OK)
+        {
+            return EXIT_CODE_UNIMPLEMENTED;
+        }
 
         for (size_t current_ic = 0U; current_ic < NUM_OF_LTC6813; current_ic++)
         {
