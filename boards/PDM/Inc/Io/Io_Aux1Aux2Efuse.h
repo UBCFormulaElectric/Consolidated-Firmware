@@ -34,7 +34,7 @@ void Io_Aux1Aux2Efuse_Aux1Disable(void);
 
 /**
  * Get the value of the Aux1Aux2 efuse's Status Register
- * @param status Pointer to the Aux1 and Aux2 channel's status
+ * @param channel_status Pointer to the Aux1 and Aux2 channel's status
  * @return EXIT_CODE_OK if the read was successful,
  *         else EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
