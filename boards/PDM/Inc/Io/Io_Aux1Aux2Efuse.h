@@ -43,7 +43,7 @@ ExitCode Io_Aux1Aux2Efuse_GetStatus(enum Efuse_Status *status);
 /**
  * Get the value of the Aux 1 Fault Register over SPI
  * @note Reading from the fault register reset's non-latchable faults
- * @param fault Pointer to the Aux 1 fault status
+ * @param fault_status Pointer to the Aux 1 fault status
  * @return EXIT_CODE_OK if the read was successful,
  *         else EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
