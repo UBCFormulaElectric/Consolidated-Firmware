@@ -59,7 +59,7 @@ ExitCode Io_Aux1Aux2Efuse_GetAux1Faults(enum Efuse_Fault *fault);
 ExitCode Io_Aux1Aux2Efuse_GetAux2Faults(enum Efuse_Fault *fault);
 
 /**
- * Check if the Efuse's Aux1 or Aux2 channel enters fault mode
+ * Check if the Efuse's Aux1 or Aux2 channel on the Aux1Aux2 efuse enters fault mode
  * @return true if the Efuse's Aux1 or Aux2 channel enters fault mode, else
  * false if both channels do not enter fault mode
  */
