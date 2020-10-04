@@ -165,8 +165,7 @@ ExitCode Io_Efuse_ExitFailSafeMode(struct Efuse_Context *const e_fuse)
         Io_Efuse_WriteRegister(SI_GCR_ADDR, GCR_CONFIG, e_fuse));
 
     // Check if the the efuse is still in fail-safe mode
-    if (HAL_GPIO_ReadPin(FSOB_AUX1_AUX2_GPIO_Port, FSOB_AUX1_AUX2_Pin) ==
-        GPIO_PIN_RESET)
+    if (Io_Efuse_IsEfuseInFailSafeMode(e_fuse))
     {
         return EXIT_CODE_UNIMPLEMENTED;
     }
