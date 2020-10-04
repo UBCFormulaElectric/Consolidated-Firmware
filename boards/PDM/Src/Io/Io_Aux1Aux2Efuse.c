@@ -3,7 +3,7 @@
 
 static struct Efuse_Context *aux1_aux2_efuse;
 
-void Io_Aux1Aux2_Init_Efuse(SPI_HandleTypeDef *const hspi)
+void Io_Aux1Aux2Efuse_Init(SPI_HandleTypeDef *const hspi)
 {
     assert(hspi != NULL);
 
@@ -14,60 +14,60 @@ void Io_Aux1Aux2_Init_Efuse(SPI_HandleTypeDef *const hspi)
         PIN_AUX2_Pin);
 }
 
-void Io_Aux1Aux2_EnableAux1(void)
+void Io_Aux1Aux2Efuse_EnableAux1(void)
 {
     Io_Efuse_Channel0Enable(aux1_aux2_efuse);
 }
 
-void Io_Aux1Aux2_DisableAux1(void)
+void Io_Aux1Aux2Efuse_DisableAux1(void)
 {
     Io_Efuse_Channel0Disable(aux1_aux2_efuse);
 }
 
-void Io_Aux1Aux2_EnableAux2(void)
+void Io_Aux1Aux2Efuse_EnableAux2(void)
 {
     Io_Efuse_Channel1Enable(aux1_aux2_efuse);
 }
 
-void Io_Aux1Aux2_DisableAux2(void)
+void Io_Aux1Aux2Efuse_DisableAux2(void)
 {
     Io_Efuse_Channel1Disable(aux1_aux2_efuse);
 }
 
-ExitCode Io_Aux1Aux2_GetStatus(enum Efuse_Status *status)
+ExitCode Io_Aux1Aux2Efuse_GetStatus(enum Efuse_Status *status)
 {
     return Io_Efuse_ReadRegister(
         SO_STATR_ADDR, (uint16_t *)status, aux1_aux2_efuse);
 }
 
-ExitCode Io_Aux1Aux2_GetAux1Faults(enum Efuse_Fault *fault)
+ExitCode Io_Aux1Aux2Efuse_GetAux1Faults(enum Efuse_Fault *fault)
 {
     return Io_Efuse_ReadRegister(
         SO_FAULTR_0_ADDR, (uint16_t *)fault, aux1_aux2_efuse);
 }
 
-ExitCode Io_Aux1Aux2_GetAux2Faults(enum Efuse_Fault *fault)
+ExitCode Io_Aux1Aux2Efuse_GetAux2Faults(enum Efuse_Fault *fault)
 {
     return Io_Efuse_ReadRegister(
         SO_FAULTR_1_ADDR, (uint16_t *)fault, aux1_aux2_efuse);
 }
 
-bool Io_Aux1Aux2_IsInFaultMode(void)
+bool Io_Aux1Aux2Efuse_IsInFaultMode(void)
 {
     return Io_Efuse_IsEfuseInFaultMode(aux1_aux2_efuse);
 }
 
-bool Io_Aux1Aux2_IsInFailSafeMode(void)
+bool Io_Aux1Aux2Efuse_IsInFailSafeMode(void)
 {
     return Io_Efuse_IsEfuseInFailSafeMode(aux1_aux2_efuse);
 }
 
-void Io_Aux1Aux2_DelatchFaults(void)
+void Io_Aux1Aux2Efuse_DelatchFaults(void)
 {
     Io_Efuse_DelatchFaults(aux1_aux2_efuse);
 }
 
-float Io_Aux1Aux2_GetAux1Current(void)
+float Io_Aux1Aux2Efuse_GetAux1Current(void)
 {
     if (Io_Efuse_ConfigureChannelMonitoring(
             AUX1_CURRENT_SENSE_CHANNEL, aux1_aux2_efuse) != EXIT_CODE_OK)
@@ -85,7 +85,7 @@ float Io_Aux1Aux2_GetAux1Current(void)
     return NAN;
 }
 
-float Io_Aux1Aux2_GetAux2Current(void)
+float Io_Aux1Aux2Efuse_GetAux2Current(void)
 {
     if (Io_Efuse_ConfigureChannelMonitoring(
             AUX2_CURRENT_SENSE_CHANNEL, aux1_aux2_efuse) != EXIT_CODE_OK)
@@ -103,7 +103,7 @@ float Io_Aux1Aux2_GetAux2Current(void)
     return NAN;
 }
 
-ExitCode Io_Aux1Aux2_ConfigureEfuse(void)
+ExitCode Io_Aux1Aux2Efuse_ConfigureEfuse(void)
 {
     RETURN_CODE_IF_EXIT_NOT_OK(Io_Efuse_ExitFailSafeMode(aux1_aux2_efuse));
 
