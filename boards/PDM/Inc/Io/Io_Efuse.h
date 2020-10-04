@@ -64,7 +64,7 @@ void Io_Efuse_Channel0Disable(const struct Efuse_Context *const e_fuse);
 void Io_Efuse_Channel1Enable(const struct Efuse_Context *const e_fuse);
 
 /**
- * Disable the channel 1 output
+ * Disable the given efuse's channel 1 output.
  */
 void Io_Efuse_Channel1Disable(const struct Efuse_Context *const e_fuse);
 
