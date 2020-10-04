@@ -7,7 +7,7 @@
 #include "Io_CurrentSense.h"
 
 /**
- * Initialize the Aux1/Aux2 Efuse
+ * Initialize the Aux1Aux2 efuse
  * @param hspi Handle to the SPI peripheral used for the Efuse
  */
 void Io_Aux1Aux2Efuse_Init(SPI_HandleTypeDef *hspi);
