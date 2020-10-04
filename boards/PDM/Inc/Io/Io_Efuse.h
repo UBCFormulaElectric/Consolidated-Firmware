@@ -49,7 +49,7 @@ struct Efuse_Context *Io_Efuse_Create(
 void Io_Efuse_Destroy(struct Efuse_Context *e_fuse);
 
 /**
- * Enable the channel 0 output
+ * Enable the given efuse's channel 0 output.
  */
 void Io_Efuse_Channel0Enable(const struct Efuse_Context *const e_fuse);
 
