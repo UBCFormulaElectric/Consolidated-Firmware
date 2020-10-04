@@ -74,7 +74,7 @@ bool Io_Aux1Aux2Efuse_IsInFaultMode(void);
 bool Io_Aux1Aux2Efuse_IsInFailSafeMode(void);
 
 /**
- * Delatch the Aux1/Aux2 Efuse's latchable faults
+ * Delatch the Aux1Aux2 Efuse's latchable faults
  * @param e_fuse Pointer to the Aux1/Aux2 Efuse structure
  */
 void Io_Aux1Aux2Efuse_DelatchFaults(void);
