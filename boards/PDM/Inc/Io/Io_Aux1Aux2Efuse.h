@@ -23,7 +23,7 @@ void Io_Aux1Aux2Efuse_Aux1Enable(void);
 void Io_Aux1Aux2Efuse_Aux1Disable(void);
 
 /**
- * Enable the Aux 2 channel output
+ * Enable the Aux2 channel output on the AuxAux2 efuse
  */
 void Io_Aux1Aux2Efuse_Aux2Enable(void);
 
