@@ -69,7 +69,7 @@ void Io_Efuse_Channel1Enable(const struct Efuse_Context *const e_fuse);
 void Io_Efuse_Channel1Disable(const struct Efuse_Context *const e_fuse);
 
 /**
- * Set the current/temperature monitoring option of CSNS pin
+ * Set the current or temperature monitoring option of the CSNS pin.
  * @param selection The desired monitoring function which can be selected by
  * specifying the following values:
  *                  CSNS_FUNCTION_DISABLED - Current sensing disabled
