@@ -86,7 +86,7 @@ void Io_Aux1Aux2Efuse_DelatchFaults(void);
 float Io_Aux1Aux2Efuse_GetAux1Current(void);
 
 /**
- * Get the current readings for the Aux 2 channel
+ * Get the current readings for the Aux2 channel
  * @return The Aux2 current if the current was measured, else NAN
  */
 float Io_Aux1Aux2Efuse_GetAux2Current(void);
