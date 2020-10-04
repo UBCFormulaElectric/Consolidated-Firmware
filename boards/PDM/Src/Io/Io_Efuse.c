@@ -8,30 +8,19 @@
 
 struct Efuse_Context
 {
-    // The SPI handle for the SPI device the E-Fuse is connected to
     SPI_HandleTypeDef *hspi;
 
-    // The handle to Efuse's chip-select GPIO port
     GPIO_TypeDef *nss_port;
-    // The Efuse's chip-select GPIO pin
     uint16_t nss_pin;
 
-    // The handle to Efuse's fail-safe output(FSOB) GPIO port
     GPIO_TypeDef *fsob_port;
-    // The Efuse's fail-safe output(FSOB) GPIO pin
     uint16_t fsob_pin;
-    // The handle to Efuse's fault status(FSB) GPIO port
     GPIO_TypeDef *fsb_port;
-    // The Efuse's fault status(FSB) GPIO pin
     uint16_t fsb_pin;
 
-    // The handle to Efuse's channel 0 GPIO port
     GPIO_TypeDef *channel0_port;
-    // The Efuse's channel 0 GPIO pin
     uint16_t channel0_pin;
-    // The handle to Efuse's channel 1 GPIO port
     GPIO_TypeDef *channel1_port;
-    // The Efuse's channel 1 GPIO pin
     uint16_t channel1_pin;
 
     // The current state of the watchdog-in bit (bit 15). If the watchdog is
