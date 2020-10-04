@@ -92,7 +92,7 @@ float Io_Aux1Aux2Efuse_GetAux1Current(void);
 float Io_Aux1Aux2Efuse_GetAux2Current(void);
 
 /**
- * Configure the Aux1/Aux2 Efuse's registers using the values defined in:
+ * Configure the Aux1Aux2 efuse's registers using the values defined in:
  *                  -GCR_CONFIG
  *                  -RETRY_CONFIG
  *                  -CONFR_CONFIG
