@@ -325,7 +325,6 @@ static ExitCode Io_Efuse_ReadFromEfuse(
     GPIO_TypeDef *     chip_select_port,
     uint16_t           chip_select_pin)
 {
-    HAL_StatusTypeDef status = HAL_OK;
 
     // Send the command stored in tx_data to the status register, to read the
     // data from the register address specified in tx_data
