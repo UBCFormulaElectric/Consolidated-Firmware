@@ -185,7 +185,7 @@ bool Io_Efuse_IsEfuseInFailSafeMode(const struct Efuse_Context *const e_fuse)
 
 void Io_Efuse_DelatchFaults(const struct Efuse_Context *const e_fuse)
 {
-    // Delatch the latchable faults by alternating the inputs high-low-high
+    // Delatch the latchable faults by alternating channel 0's and channel 1's input pins high->low->high.
     HAL_GPIO_WritePin(
         e_fuse->channel0_port, e_fuse->channel0_pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(
