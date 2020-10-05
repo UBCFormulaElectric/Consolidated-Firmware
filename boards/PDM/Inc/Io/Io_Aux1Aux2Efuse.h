@@ -18,7 +18,7 @@ void Io_Aux1Aux2Efuse_Init(SPI_HandleTypeDef *hspi);
 void Io_Aux1Aux2Efuse_Aux1Enable(void);
 
 /**
- * Disable the Aux 1 channel output
+ * Disable the Aux1 channel output for the Aux1Aux2 efuse.
  */
 void Io_Aux1Aux2Efuse_Aux1Disable(void);
 
