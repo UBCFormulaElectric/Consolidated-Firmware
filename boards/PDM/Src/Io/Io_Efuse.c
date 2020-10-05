@@ -329,7 +329,7 @@ static ExitCode Io_Efuse_ReadFromEfuse(
     // Send the command stored in tx_data to the status register, to read the
     // data from the register address specified in tx_data
     HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_RESET);
-    status = HAL_SPI_TransmitReceive(
+    HAL_StatusTypeDef status = HAL_SPI_TransmitReceive(
         efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)rx_data, 1U, 100U);
     HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_SET);
 
