@@ -242,7 +242,7 @@ ExitCode Io_Efuse_ReadRegister(
 {
 
     // Place the Status Register address into bits 10->13
-    serial_input_data =
+    uint16_t serial_input_data =
         (uint16_t)((SI_STATR_0_ADDR & EFUSE_ADDR_MASK) << EFUSE_ADDR_SHIFT);
 
     // Shift bit 3 of the address (SOA3: the channel number) to the 13th bit
