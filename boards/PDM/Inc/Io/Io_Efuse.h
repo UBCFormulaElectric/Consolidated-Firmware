@@ -104,7 +104,7 @@ ExitCode Io_Efuse_ExitFailSafeMode(struct Efuse_Context *const e_fuse);
 bool Io_Efuse_IsEfuseInFaultMode(const struct Efuse_Context *const e_fuse);
 
 /**
- * Check if the efuse enters fail-safe mode
+ * Check if the the given efuse entered the fail-safe mode.
  * @param e_fuse Pointer to the Efuse structure for the Efuse being checked
  * @return true if the efuse enters fail-safe mode, else false
  * if the efuse does not enter fail-safe mode
