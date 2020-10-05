@@ -240,7 +240,6 @@ ExitCode Io_Efuse_ReadRegister(
     uint16_t *                  register_value,
     struct Efuse_Context *const e_fuse)
 {
-    uint16_t serial_input_data = 0x0000U;
 
     // Place the Status Register address into bits 10->13
     serial_input_data =
