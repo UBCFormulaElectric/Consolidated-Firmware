@@ -14,7 +14,7 @@ struct SharedSpi
     SPI_HandleTypeDef *spi_handle;
     GPIO_TypeDef *     nss_port;
     uint16_t           nss_pin;
-    uint32_t           timeout_ms;
+    uint32_t           delay_ms;
 };
 
 struct SharedSpi *Io_SharedSpi_Create(
@@ -31,7 +31,7 @@ struct SharedSpi *Io_SharedSpi_Create(
     spi->spi_handle = spi_handle;
     spi->nss_pin    = nss_pin;
     spi->nss_port   = nss_port;
-    spi->timeout_ms = delay_ms;
+    spi->delay_ms   = delay_ms;
 
     return spi;
 }
@@ -48,18 +48,20 @@ void Io_SharedSpi_SetNssHigh(const struct SharedSpi *const spi)
 
 HAL_StatusTypeDef Io_SharedSpi_TransmitAndReceive(
     const struct SharedSpi *const spi,
-    uint8_t *                     tx_data,
-    uint16_t                      tx_size,
-    uint8_t *                     rx_data,
-    uint16_t                      rx_size)
+    uint8_t *                     tx_buffer,
+    uint16_t                      tx_buffer_size,
+    uint8_t *                     rx_buffer,
+    uint16_t                      rx_buffer_size)
 
 {
     Io_SharedSpi_SetNssLow(spi);
     EXIT_IF_STATUS_NOT_OK(
-        HAL_SPI_Transmit(spi->spi_handle, tx_data, tx_size, spi->timeout_ms),
+        HAL_SPI_Transmit(
+            spi->spi_handle, tx_buffer, tx_buffer_size, spi->delay_ms),
         spi->nss_port, spi->nss_pin)
     EXIT_IF_STATUS_NOT_OK(
-        HAL_SPI_Receive(spi->spi_handle, rx_data, rx_size, spi->timeout_ms),
+        HAL_SPI_Receive(
+            spi->spi_handle, rx_buffer, rx_buffer_size, spi->delay_ms),
         spi->nss_port, spi->nss_pin)
     Io_SharedSpi_SetNssHigh(spi);
 
@@ -68,12 +70,12 @@ HAL_StatusTypeDef Io_SharedSpi_TransmitAndReceive(
 
 HAL_StatusTypeDef Io_SharedSpi_Transmit(
     const struct SharedSpi *const spi,
-    uint8_t *                     tx_data,
-    uint16_t                      tx_size)
+    uint8_t *                     tx_buffer,
+    uint16_t                      tx_buffer_size)
 {
     Io_SharedSpi_SetNssLow(spi);
-    HAL_StatusTypeDef status =
-        HAL_SPI_Transmit(spi->spi_handle, tx_data, tx_size, spi->timeout_ms);
+    HAL_StatusTypeDef status = HAL_SPI_Transmit(
+        spi->spi_handle, tx_buffer, tx_buffer_size, spi->delay_ms);
     Io_SharedSpi_SetNssHigh(spi);
 
     return status;
@@ -81,12 +83,12 @@ HAL_StatusTypeDef Io_SharedSpi_Transmit(
 
 HAL_StatusTypeDef Io_SharedSpi_Receive(
     const struct SharedSpi *const spi,
-    uint8_t *                     rx_data,
-    uint16_t                      rx_size)
+    uint8_t *                     rx_buffer,
+    uint16_t                      rx_buffer_size)
 {
     Io_SharedSpi_SetNssLow(spi);
-    HAL_StatusTypeDef status =
-        HAL_SPI_Receive(spi->spi_handle, rx_data, rx_size, spi->timeout_ms);
+    HAL_StatusTypeDef status = HAL_SPI_Receive(
+        spi->spi_handle, rx_buffer, rx_buffer_size, spi->delay_ms);
     Io_SharedSpi_SetNssHigh(spi);
 
     return status;
@@ -94,15 +96,15 @@ HAL_StatusTypeDef Io_SharedSpi_Receive(
 
 HAL_StatusTypeDef Io_SharedSpi_MultipleTransmitWithoutNssToggle(
     const struct SharedSpi *const spi,
-    uint8_t *                     tx_data,
-    uint16_t                      tx_size,
+    uint8_t *                     tx_buffer,
+    uint16_t                      tx_buffer_size,
     size_t                        num_tx_data_copies)
 {
     HAL_StatusTypeDef status;
     for (size_t i = 0U; i < num_tx_data_copies; i++)
     {
         status = HAL_SPI_Transmit(
-            spi->spi_handle, tx_data, tx_size, spi->timeout_ms);
+            spi->spi_handle, tx_buffer, tx_buffer_size, spi->delay_ms);
         if (status != HAL_OK)
         {
             return status;
@@ -115,7 +117,8 @@ HAL_StatusTypeDef Io_SharedSpi_MultipleTransmitWithoutNssToggle(
 HAL_StatusTypeDef Io_SharedSpi_TransmitWithoutNssToggle(
     const struct SharedSpi *const spi,
     uint8_t *                     tx_data,
-    uint16_t                      tx_size)
+    uint16_t                      tx_buffer_size)
 {
-    return HAL_SPI_Transmit(spi->spi_handle, tx_data, tx_size, spi->timeout_ms);
+    return HAL_SPI_Transmit(
+        spi->spi_handle, tx_data, tx_buffer_size, spi->delay_ms);
 }

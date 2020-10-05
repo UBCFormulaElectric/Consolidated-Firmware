@@ -11,7 +11,7 @@ struct SharedSpi;
  * @param nss_port Pointer to the GPIO port of the given SPI interface.
  * @param nss_pin The GPIO pin of the given SPI interface.
  * @param delay_ms The delay in milliseconds during a SPI transaction which a
- * blocking process should wait until an error is returned.
+ * blocking SPI transaction should wait until an error is returned.
  * @return Pointer to the allocated and initialized SPI interface
  */
 struct SharedSpi *Io_SharedSpi_Create(
@@ -36,80 +36,75 @@ void Io_SharedSpi_SetNssHigh(const struct SharedSpi *spi);
  * Transmit data to and receive data from the device connected to the given SPI
  * interface.
  * @param spi The given SPI interface.
- * @param tx_data The data transmitted to the device connected to the SPI
- * interface.
- * @param tx_size The size of the data transmitted to the device connected to
+ * @param tx_buffer A pointer to the data buffer containing the data transmitted
+ * to the device connected to the SPI interface.
+ * @param tx_buffer_size The size of the tx_data buffer.
+ * @param rx_buffer A pointer to the data buffer that stores the data received
+ * from the device connected to the SPI interface.
+ * @param rx_buffer_size The number data received from the device connected to
  * the SPI interface.
- * @param rx_data The data received from the device connected to the SPI
- * interface.
- * @param rx_size The size of the data received from the device connected to the
- * SPI interface.
  * @return The HAL status of the data transmission and reception.
  */
 HAL_StatusTypeDef Io_SharedSpi_TransmitAndReceive(
     const struct SharedSpi *spi,
-    uint8_t *               tx_data,
-    uint16_t                tx_size,
-    uint8_t *               rx_data,
-    uint16_t                rx_size);
+    uint8_t *               tx_buffer,
+    uint16_t                tx_buffer_size,
+    uint8_t *               rx_buffer,
+    uint16_t                rx_buffer_size);
 
 /**
  * Transmit data to the device connected to the given SPI interface.
  * @param spi The given SPI interface.
- * @param tx_data The data transmitted to the device connected to the SPI
- * interface.
- * @param tx_size The size of the data transmitted to the device connected to
- * the SPI interface.
+ * @param tx_buffer A pointer to the data buffer containing the data transmitted
+ * to the device connected to the SPI interface.
+ * @param tx_buffer_size The size of the tx_data buffer.
  * @return The HAL status of the data transmission.
  */
 HAL_StatusTypeDef Io_SharedSpi_Transmit(
     const struct SharedSpi *spi,
-    uint8_t *               tx_data,
-    uint16_t                tx_size);
+    uint8_t *               tx_buffer,
+    uint16_t                tx_buffer_size);
 
 /**
  * Receive data from the device connected to the given SPI interface.
  * @param spi The given SPI interface.
- * @param rx_data The data received from the device connected to the SPI
- * interface.
- * @param rx_size The size of the data received from the device connected to the
- * SPI interface.
+ * @param rx_buffer A pointer to the data buffer that stores the data received
+ * from the device connected to the SPI interface.
+ * @param rx_buffer_size The size of the rx_data buffer.
  * @return The HAL status of the data reception from the SPI interface.
  */
 HAL_StatusTypeDef Io_SharedSpi_Receive(
     const struct SharedSpi *spi,
-    uint8_t *               rx_data,
-    uint16_t                rx_size);
+    uint8_t *               rx_buffer,
+    uint16_t                rx_buffer_size);
 
 /**
  * Transmit multiple copies of the a data packet to the device connected to the
  * given SPI interface without toggling the NSS pin.
  * @param spi The given SPI interface.
- * @param tx_data The data transmitted to the device connected to the SPI
- * interface.
- * @param tx_size The size of the data transmitted to the device connected to
- * the SPI interface.
+ * @param tx_buffer A pointer to the data buffer containing the data transmitted
+ * to the device connected to the SPI interface.
+ * @param tx_buffer_size The size of the tx_data buffer.
  * @param num_tx_data_copies The number of copies of tx_data transmitted to the
  * device connected to the SPI interface.
  * @return The HAL status of the data transmission to the SPI interface.
  */
 HAL_StatusTypeDef Io_SharedSpi_MultipleTransmitWithoutNssToggle(
     const struct SharedSpi *spi,
-    uint8_t *               tx_data,
-    uint16_t                tx_size,
+    uint8_t *               tx_buffer,
+    uint16_t                tx_buffer_size,
     size_t                  num_tx_data_copies);
 
 /**
  * Transmit data to the device connected to the given SPI interface without
  * toggling the NSS pin.
  * @param spi The given SPI interface.
- * @param tx_data The data transmitted to the device connected to the SPI
- * interface.
- * @param tx_size The size of the data transmitted to the device connected to
- * the SPI interface.
+ * @param tx_data A pointer to the data buffer containing the data transmitted
+ * to the device connected to the SPI interface.
+ * @param tx_buffer_size The size of the tx_data buffer.
  * @return The HAL status of the data transmission.
  */
 HAL_StatusTypeDef Io_SharedSpi_TransmitWithoutNssToggle(
     const struct SharedSpi *spi,
-    uint8_t *               tx_data,
-    uint16_t                tx_size);
+    uint8_t *               tx_buffer,
+    uint16_t                tx_buffer_size);
