@@ -299,7 +299,7 @@ static void Io_Efuse_CalculateParityBit(uint16_t *serial_data_input)
 
 static ExitCode Io_Efuse_WriteToEfuse(
     uint16_t *         tx_data,
-    SPI_HandleTypeDef *efuse_spi_handle,
+    SPI_HandleTypeDef *spi_handle,
     GPIO_TypeDef *     chip_select_port,
     uint16_t           chip_select_pin)
 {
