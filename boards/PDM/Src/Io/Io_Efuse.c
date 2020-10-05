@@ -69,7 +69,7 @@ static ExitCode Io_Efuse_ReadFromEfuse(
     uint16_t           chip_select_pin);
 
 struct Efuse_Context *Io_Efuse_Create(
-    SPI_HandleTypeDef *const hspi,
+    SPI_HandleTypeDef *const spi_handle,
     GPIO_TypeDef *           chip_select_port,
     uint16_t                 chip_select_pin,
     GPIO_TypeDef *           fsob_port,
