@@ -74,7 +74,7 @@ HAL_StatusTypeDef Io_SharedSpi_Transmit(
  * interface.
  * @param rx_size The size of the data received from the device connected to the
  * SPI interface.
- * @return The HAL status of the data reception.
+ * @return The HAL status of the data reception from the SPI interface.
  */
 HAL_StatusTypeDef Io_SharedSpi_Receive(
     const struct SharedSpi *spi,
@@ -91,7 +91,7 @@ HAL_StatusTypeDef Io_SharedSpi_Receive(
  * the SPI interface.
  * @param num_tx_data_copies The number of copies of tx_data transmitted to the
  * device connected to the SPI interface.
- * @return The HAL status of the data transmission.
+ * @return The HAL status of the data transmission to the SPI interface.
  */
 HAL_StatusTypeDef Io_SharedSpi_MultipleTransmitWithoutNssToggle(
     const struct SharedSpi *spi,
