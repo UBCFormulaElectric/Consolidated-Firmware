@@ -8,7 +8,7 @@
 enum Efuse_Status
 {
     EFUSE_NO_FAULTS           = (0 << 0), // No faults on either channel
-    EFUSE_OUT0_ENABLED        = (1 << 0), // Channel 0 output is on
+    EFUSE_OUT0_ENABLED        = (1 << 0), // Channel 0 output is enabled
     EFUSE_OUT1_ENABLED        = (1 << 1), // Channel 1 output is on
     EFUSE_CHANNEL0_FAULT      = (1 << 2), // Fault on channel 0
     EFUSE_CHANNEL1_FAULT      = (1 << 3), // Fault on channel 1
