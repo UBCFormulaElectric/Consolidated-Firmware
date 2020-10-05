@@ -87,7 +87,7 @@ ExitCode Io_Efuse_ConfigureChannelMonitoring(
     struct Efuse_Context *const e_fuse);
 
 /**
- * Exit fail-safe mode and disable the watchdog timer
+ * Exit fail-safe mode and disable the watchdog timer for the given efuse.
  * @param e_fuse Pointer to the Efuse structure for the Efuse being configured
  * @return EXIT_CODE_OK if the efuse exited fail-safe mode
  *         EXIT_CODE_TIMEOUT if the one of the SPI writes timed-out
