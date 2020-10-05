@@ -264,7 +264,6 @@ ExitCode Io_Efuse_ReadRegister(
 
     // Invert watchdog bit state for next write
     e_fuse->wdin_bit_to_set = !e_fuse->wdin_bit_to_set;
-
     Io_Efuse_CalculateParityBit(&serial_input_data);
 
     ExitCode exit_code = Io_Efuse_ReadFromEfuse(
