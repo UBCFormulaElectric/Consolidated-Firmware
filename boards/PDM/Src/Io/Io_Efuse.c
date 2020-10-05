@@ -9,18 +9,18 @@
 struct Efuse_Context
 {
     SPI_HandleTypeDef *hspi;
-    GPIO_TypeDef *nss_port;
-    uint16_t nss_pin;
+    GPIO_TypeDef *     nss_port;
+    uint16_t           nss_pin;
 
     GPIO_TypeDef *fsob_port;
-    uint16_t fsob_pin;
+    uint16_t      fsob_pin;
     GPIO_TypeDef *fsb_port;
-    uint16_t fsb_pin;
+    uint16_t      fsb_pin;
 
     GPIO_TypeDef *channel0_port;
-    uint16_t channel0_pin;
+    uint16_t      channel0_pin;
     GPIO_TypeDef *channel1_port;
-    uint16_t channel1_pin;
+    uint16_t      channel1_pin;
 
     // The current state of the watchdog-in bit (bit 15). If the watchdog is
     // enabled its state must be alternated at least once within the watchdog
@@ -70,8 +70,8 @@ static ExitCode Io_Efuse_ReadFromEfuse(
 
 struct Efuse_Context *Io_Efuse_Create(
     SPI_HandleTypeDef *const spi_handle,
-    GPIO_TypeDef *           chip_select_port,
-    uint16_t                 chip_select_pin,
+    GPIO_TypeDef *           nss_port,
+    uint16_t                 nss_pin,
     GPIO_TypeDef *           fsob_port,
     uint16_t                 fsob_pin,
     GPIO_TypeDef *           fsb_port,
@@ -81,14 +81,14 @@ struct Efuse_Context *Io_Efuse_Create(
     GPIO_TypeDef *           channel1_port,
     uint16_t                 channel1_pin)
 {
-    assert(hspi != NULL);
+    assert(spi_handle != NULL);
 
     struct Efuse_Context *efuse_context = malloc(sizeof(struct Efuse_Context));
     assert(efuse_context != NULL);
 
-    efuse_context->hspi            = hspi;
-    efuse_context->nss_port        = chip_select_port;
-    efuse_context->nss_pin         = chip_select_pin;
+    efuse_context->hspi            = spi_handle;
+    efuse_context->nss_port        = nss_port;
+    efuse_context->nss_pin         = nss_pin;
     efuse_context->fsob_port       = fsob_port;
     efuse_context->fsob_pin        = fsob_pin;
     efuse_context->fsb_port        = fsb_port;
@@ -107,25 +107,25 @@ void Io_Efuse_Destroy(struct Efuse_Context *e_fuse)
     free(e_fuse);
 }
 
-void Io_Efuse_Channel0Enable(const struct Efuse_Context *const e_fuse)
+void Io_Efuse_EnableChannel0(const struct Efuse_Context *const e_fuse)
 {
     HAL_GPIO_WritePin(
         e_fuse->channel0_port, e_fuse->channel0_pin, GPIO_PIN_SET);
 }
 
-void Io_Efuse_Channel0Disable(const struct Efuse_Context *const e_fuse)
+void Io_Efuse_DisableChannel0(const struct Efuse_Context *const e_fuse)
 {
     HAL_GPIO_WritePin(
         e_fuse->channel0_port, e_fuse->channel0_pin, GPIO_PIN_RESET);
 }
 
-void Io_Efuse_Channel1Enable(const struct Efuse_Context *const e_fuse)
+void Io_Efuse_EnableChannel1(const struct Efuse_Context *const e_fuse)
 {
     HAL_GPIO_WritePin(
         e_fuse->channel1_port, e_fuse->channel1_pin, GPIO_PIN_SET);
 }
 
-void Io_Efuse_Channel1Disable(const struct Efuse_Context *const e_fuse)
+void Io_Efuse_DisableChannel1(const struct Efuse_Context *const e_fuse)
 {
     HAL_GPIO_WritePin(
         e_fuse->channel1_port, e_fuse->channel1_pin, GPIO_PIN_RESET);
@@ -184,7 +184,8 @@ bool Io_Efuse_IsEfuseInFailSafeMode(const struct Efuse_Context *const e_fuse)
 
 void Io_Efuse_DelatchFaults(const struct Efuse_Context *const e_fuse)
 {
-    // Delatch the latchable faults by alternating channel 0's and channel 1's input pins high->low->high.
+    // Delatch the latchable faults by alternating channel 0's and channel 1's
+    // input pins high->low->high.
     HAL_GPIO_WritePin(
         e_fuse->channel0_port, e_fuse->channel0_pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(
@@ -297,7 +298,7 @@ static void Io_Efuse_CalculateParityBit(uint16_t *serial_data_input)
 
 static ExitCode Io_Efuse_WriteToEfuse(
     uint16_t *         tx_data,
-    SPI_HandleTypeDef *spi_handle,
+    SPI_HandleTypeDef *efuse_spi_handle,
     GPIO_TypeDef *     chip_select_port,
     uint16_t           chip_select_pin)
 {
@@ -323,7 +324,6 @@ static ExitCode Io_Efuse_ReadFromEfuse(
     GPIO_TypeDef *     chip_select_port,
     uint16_t           chip_select_pin)
 {
-
     // Send the command stored in tx_data to the status register, to read the
     // data from the register address specified in tx_data
     HAL_GPIO_WritePin(chip_select_port, chip_select_pin, GPIO_PIN_RESET);

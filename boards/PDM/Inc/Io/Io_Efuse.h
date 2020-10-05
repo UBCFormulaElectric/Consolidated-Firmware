@@ -30,9 +30,9 @@ struct Efuse_Context;
  * @return The created Efuse, whose ownership is given to the caller
  */
 struct Efuse_Context *Io_Efuse_Create(
-    SPI_HandleTypeDef *hspi,
-    GPIO_TypeDef *     chip_select_port,
-    uint16_t           chip_select_pin,
+    SPI_HandleTypeDef *spi_handle,
+    GPIO_TypeDef *     nss_port,
+    uint16_t           nss_pin,
     GPIO_TypeDef *     fsob_port,
     uint16_t           fsob_pin,
     GPIO_TypeDef *     fsb_port,
@@ -51,22 +51,22 @@ void Io_Efuse_Destroy(struct Efuse_Context *e_fuse);
 /**
  * Enable the given efuse's channel 0 output.
  */
-void Io_Efuse_Channel0Enable(const struct Efuse_Context *const e_fuse);
+void Io_Efuse_EnableChannel0(const struct Efuse_Context *const e_fuse);
 
 /**
  * Disable the given efuse's channel 0 output.
  */
-void Io_Efuse_Channel0Disable(const struct Efuse_Context *const e_fuse);
+void Io_Efuse_DisableChannel0(const struct Efuse_Context *const e_fuse);
 
 /**
  * Enable the given efuse's channel 1 output.
  */
-void Io_Efuse_Channel1Enable(const struct Efuse_Context *const e_fuse);
+void Io_Efuse_EnableChannel1(const struct Efuse_Context *const e_fuse);
 
 /**
  * Disable the given efuse's channel 1 output.
  */
-void Io_Efuse_Channel1Disable(const struct Efuse_Context *const e_fuse);
+void Io_Efuse_DisableChannel1(const struct Efuse_Context *const e_fuse);
 
 /**
  * Set the current or temperature monitoring option of the CSNS pin.

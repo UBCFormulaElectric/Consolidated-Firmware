@@ -23,12 +23,12 @@ void Io_Aux1Aux2Efuse_Aux1Enable(void);
 void Io_Aux1Aux2Efuse_Aux1Disable(void);
 
 /**
- * Enable the Aux2 channel output on the AuxAux2 efuse
+ * Enable the Aux2 channel output for the AuxAux2 efuse
  */
 void Io_Aux1Aux2Efuse_Aux2Enable(void);
 
 /**
- * Disable the Aux 2 channel output
+ * Disable the Aux 2 channel output for the AuxAux2 efuse
  */
 void Io_Aux1Aux2Efuse_Aux1Disable(void);
 
@@ -59,7 +59,8 @@ ExitCode Io_Aux1Aux2Efuse_GetAux1Faults(enum Efuse_Fault *fault);
 ExitCode Io_Aux1Aux2Efuse_GetAux2Faults(enum Efuse_Fault *fault);
 
 /**
- * Check if the Efuse's Aux1 or Aux2 channel on the Aux1Aux2 efuse enters fault mode
+ * Check if the Efuse's Aux1 or Aux2 channel on the Aux1Aux2 efuse enters fault
+ * mode
  * @return true if the Efuse's Aux1 or Aux2 channel enters fault mode, else
  * false if both channels do not enter fault mode
  */

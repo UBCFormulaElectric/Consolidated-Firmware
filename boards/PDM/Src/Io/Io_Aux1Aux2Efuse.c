@@ -16,22 +16,22 @@ void Io_Aux1Aux2Efuse_Init(SPI_HandleTypeDef *const hspi)
 
 void Io_Aux1Aux2Efuse_EnableAux1(void)
 {
-    Io_Efuse_Channel0Enable(aux1_aux2_efuse);
+    Io_Efuse_EnableChannel0(aux1_aux2_efuse);
 }
 
 void Io_Aux1Aux2Efuse_DisableAux1(void)
 {
-    Io_Efuse_Channel0Disable(aux1_aux2_efuse);
+    Io_Efuse_DisableChannel0(aux1_aux2_efuse);
 }
 
 void Io_Aux1Aux2Efuse_EnableAux2(void)
 {
-    Io_Efuse_Channel1Enable(aux1_aux2_efuse);
+    Io_Efuse_EnableChannel1(aux1_aux2_efuse);
 }
 
 void Io_Aux1Aux2Efuse_DisableAux2(void)
 {
-    Io_Efuse_Channel1Disable(aux1_aux2_efuse);
+    Io_Efuse_DisableChannel1(aux1_aux2_efuse);
 }
 
 ExitCode Io_Aux1Aux2Efuse_GetStatus(enum Efuse_Status *status)
@@ -72,6 +72,7 @@ float Io_Aux1Aux2Efuse_GetAux1Current(void)
     if (Io_Efuse_ConfigureChannelMonitoring(
             AUX1_CURRENT_SENSE_CHANNEL, aux1_aux2_efuse) != EXIT_CODE_OK)
     {
+        // Return NAN if selecting the current sense channel fails
         return NAN;
     }
 
@@ -90,6 +91,7 @@ float Io_Aux1Aux2Efuse_GetAux2Current(void)
     if (Io_Efuse_ConfigureChannelMonitoring(
             AUX2_CURRENT_SENSE_CHANNEL, aux1_aux2_efuse) != EXIT_CODE_OK)
     {
+        // Return NAN if selecting the current sense channel fails
         return NAN;
     }
 
