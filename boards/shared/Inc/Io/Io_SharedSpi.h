@@ -10,8 +10,8 @@ struct SharedSpi;
  * @param spi_handle The handle of the given SPI interface.
  * @param nss_port Pointer to the GPIO port of the given SPI interface.
  * @param nss_pin The GPIO pin of the given SPI interface.
- * @param delay_ms The delay in milliseconds during which a blocking process
- * should wait until an error is returned.
+ * @param delay_ms The delay in milliseconds during a SPI transaction which a
+ * blocking process should wait until an error is returned.
  * @return Pointer to the allocated and initialized SPI interface
  */
 struct SharedSpi *Io_SharedSpi_Create(
@@ -40,7 +40,7 @@ void Io_SharedSpi_SetNssHigh(const struct SharedSpi *spi);
  * interface.
  * @param tx_size The size of the data transmitted to the device connected to
  * the SPI interface.
- * @param rx_data The data received from the device connected ot the SPI
+ * @param rx_data The data received from the device connected to the SPI
  * interface.
  * @param rx_size The size of the data received from the device connected to the
  * SPI interface.
