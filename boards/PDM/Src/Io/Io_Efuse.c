@@ -192,7 +192,6 @@ void Io_Efuse_DelatchFaults(const struct Efuse_Context *const e_fuse)
         e_fuse->channel0_port, e_fuse->channel0_pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(
         e_fuse->channel0_port, e_fuse->channel0_pin, GPIO_PIN_SET);
-
     HAL_GPIO_WritePin(
         e_fuse->channel1_port, e_fuse->channel1_pin, GPIO_PIN_SET);
     HAL_GPIO_WritePin(
