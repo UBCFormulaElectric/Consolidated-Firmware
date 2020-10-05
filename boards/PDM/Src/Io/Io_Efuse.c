@@ -9,7 +9,6 @@
 struct Efuse_Context
 {
     SPI_HandleTypeDef *hspi;
-
     GPIO_TypeDef *nss_port;
     uint16_t nss_pin;
 
