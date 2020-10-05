@@ -112,7 +112,7 @@ bool Io_Efuse_IsEfuseInFaultMode(const struct Efuse_Context *const e_fuse);
 bool Io_Efuse_IsEfuseInFailSafeMode(const struct Efuse_Context *const e_fuse);
 
 /**
- * Delatch the efuse's latchable faults
+ * Delatch the given efuse's latchable faults.
  * @param e_fuse Pointer to the Efuse structure for the Efuse being checked
  * @note Non-latchable faults are reset by reading from the fault registers
  */
