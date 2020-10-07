@@ -180,10 +180,6 @@ struct Efuse_Context *Io_Efuse_Create(
     return efuse_context;
 }
 
-void Io_Efuse_Destroy(struct Efuse_Context *efuse)
-{
-    free(efuse);
-}
 
 void Io_Efuse_EnableChannel0(const struct Efuse_Context *const efuse)
 {
