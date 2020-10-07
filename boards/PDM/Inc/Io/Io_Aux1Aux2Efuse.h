@@ -68,7 +68,7 @@ bool Io_Aux1Aux2Efuse_IsInFaultMode(void);
 
 /**
  * Check if the Aux1/Aux2 Efuse enters fail-safe mode
- * @param e_fuse Pointer to the Aux1/Aux2 Efuse structure
+ * @param e_fuse Pointer to the Aux1Aux2 Efuse structure
  * @return true if the Efuse enters fail-safe mode, else false
  * if the Efuse does not enter fail-safe mode
  */
@@ -76,18 +76,18 @@ bool Io_Aux1Aux2Efuse_IsInFailSafeMode(void);
 
 /**
  * Delatch the Aux1Aux2 Efuse's latchable faults
- * @param e_fuse Pointer to the Aux1/Aux2 Efuse structure
+ * @param e_fuse Pointer to the Aux1Aux2 Efuse structure
  */
 void Io_Aux1Aux2Efuse_DelatchFaults(void);
 
 /**
- * Get the current readings for the Aux 1 channel
+ * Get the current readings for the Aux1 channel in Amps [A]
  * @return The Aux1 current if the current was measured, else NAN
  */
 float Io_Aux1Aux2Efuse_GetAux1Current(void);
 
 /**
- * Get the current readings for the Aux2 channel
+ * Get the current readings for the Aux2 channel in Amps [A]
  * @return The Aux2 current if the current was measured, else NAN
  */
 float Io_Aux1Aux2Efuse_GetAux2Current(void);

@@ -46,34 +46,34 @@ struct Efuse_Context *Io_Efuse_Create(
  * Deallocate the memory used by the given Efuse
  * @param e_fuse The Efuse to deallocate
  */
-void Io_Efuse_Destroy(struct Efuse_Context *e_fuse);
+void Io_Efuse_Destroy(struct Efuse_Context *efuse);
 
 /**
  * Enable the given efuse's channel 0 output.
  */
-void Io_Efuse_EnableChannel0(const struct Efuse_Context *const e_fuse);
+void Io_Efuse_EnableChannel0(const struct Efuse_Context *const efuse);
 
 /**
  * Disable the given efuse's channel 0 output.
  */
-void Io_Efuse_DisableChannel0(const struct Efuse_Context *const e_fuse);
+void Io_Efuse_DisableChannel0(const struct Efuse_Context *const efuse);
 
 /**
  * Enable the given efuse's channel 1 output.
  */
-void Io_Efuse_EnableChannel1(const struct Efuse_Context *const e_fuse);
+void Io_Efuse_EnableChannel1(const struct Efuse_Context *const efuse);
 
 /**
  * Disable the given efuse's channel 1 output.
  */
-void Io_Efuse_DisableChannel1(const struct Efuse_Context *const e_fuse);
+void Io_Efuse_DisableChannel1(const struct Efuse_Context *const efuse);
 
 /**
- * Set the current or temperature monitoring option of the CSNS pin.
- * @param selection The desired monitoring function which can be selected by
- * specifying the following values:
- *                  CSNS_FUNCTION_DISABLED - Current sensing disabled
- *                  CSNS_FUNCTION_CURRENT_CH0 - Current sensing for Channel 0
+ * Set the current or temperature monitoring option of the CSNS pin for the
+ * given efuse.
+ * @param monitoring_function The desired monitoring function which can be
+ * selected by specifying the following values: CSNS_FUNCTION_DISABLED - Current
+ * sensing disabled CSNS_FUNCTION_CURRENT_CH0 - Current sensing for Channel 0
  *                  CSNS_FUNCTION_CURRENT_CH1 - Current sensing for Channel 1
  *                  CSNS_FUNCTION_TEMPERATURE - Efuse temperature sensing
  *                  CSNS_FUNCTION_CURRENT_SUM - Current sensing for summed
@@ -83,8 +83,8 @@ void Io_Efuse_DisableChannel1(const struct Efuse_Context *const e_fuse);
  *         EXIT_CODE_TIMEOUT if one of the SPI writes timed-out
  */
 ExitCode Io_Efuse_ConfigureChannelMonitoring(
-    uint8_t                     selection,
-    struct Efuse_Context *const e_fuse);
+    uint8_t                     monitoring_function,
+    struct Efuse_Context *const efuse);
 
 /**
  * Exit fail-safe mode and disable the watchdog timer for the given efuse.
@@ -93,15 +93,15 @@ ExitCode Io_Efuse_ConfigureChannelMonitoring(
  *         EXIT_CODE_TIMEOUT if the one of the SPI writes timed-out
  *         EXIT_CODE_UNIMPLEMENTED if the efuse failed to exit fail-safe mode
  */
-ExitCode Io_Efuse_ExitFailSafeMode(struct Efuse_Context *const e_fuse);
+ExitCode Io_Efuse_ExitFailSafeMode(struct Efuse_Context *const efuse);
 
 /**
- * Check if the efuse's channel 0 or channel 1 enters fault mode
+ * Check if the given efuse's channel 0 or channel 1 enters fault mode
  * @param e_fuse Pointer to the Efuse structure for the Efuse being checked
  * @return true if the fuse's channel 0 or channel 1 enters fault mode, else
  * false if both channels do not enter fault mode
  */
-bool Io_Efuse_IsEfuseInFaultMode(const struct Efuse_Context *const e_fuse);
+bool Io_Efuse_IsEfuseInFaultMode(const struct Efuse_Context *const efuse);
 
 /**
  * Check if the the given efuse entered the fail-safe mode.
@@ -109,17 +109,17 @@ bool Io_Efuse_IsEfuseInFaultMode(const struct Efuse_Context *const e_fuse);
  * @return true if the efuse enters fail-safe mode, else false
  * if the efuse does not enter fail-safe mode
  */
-bool Io_Efuse_IsEfuseInFailSafeMode(const struct Efuse_Context *const e_fuse);
+bool Io_Efuse_IsEfuseInFailSafeMode(const struct Efuse_Context *const efuse);
 
 /**
  * Delatch the given efuse's latchable faults.
  * @param e_fuse Pointer to the Efuse structure for the Efuse being checked
  * @note Non-latchable faults are reset by reading from the fault registers
  */
-void Io_Efuse_DelatchFaults(const struct Efuse_Context *const e_fuse);
+void Io_Efuse_DelatchFaults(const struct Efuse_Context *const efuse);
 
 /**
- * Write data to a specific Serial Input register on the Efuse
+ * Write data to a specific Serial Input register on the given Efuse
  * @param register_address Serial Input register being written to
  * @param register_value Value being written to the Serial Input register
  * @param e_fuse Pointer to Efuse structure being written to
@@ -129,10 +129,10 @@ void Io_Efuse_DelatchFaults(const struct Efuse_Context *const e_fuse);
 ExitCode Io_Efuse_WriteRegister(
     uint8_t                     register_address,
     uint16_t                    register_value,
-    struct Efuse_Context *const e_fuse);
+    struct Efuse_Context *const efuse);
 
 /**
- * Read data from a specific Serial Output register on the Efuse
+ * Read data from a specific Serial Output register on the given Efuse
  * @param register_address Serial Output register being read from
  * @param register_value register contents
  * @param e_fuse Pointer to Efuse structure being read from
@@ -142,4 +142,4 @@ ExitCode Io_Efuse_WriteRegister(
 ExitCode Io_Efuse_ReadRegister(
     uint8_t                     register_address,
     uint16_t *                  register_value,
-    struct Efuse_Context *const e_fuse);
+    struct Efuse_Context *const efuse);

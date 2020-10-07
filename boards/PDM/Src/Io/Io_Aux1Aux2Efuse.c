@@ -83,6 +83,8 @@ float Io_Aux1Aux2Efuse_GetAux1Current(void)
         return Io_CurrentSense_GetAux1Current();
     }
 
+    // Return NAN if the current sense output signal is not within the specified
+    // accuracy range
     return NAN;
 }
 
@@ -102,6 +104,8 @@ float Io_Aux1Aux2Efuse_GetAux2Current(void)
         return Io_CurrentSense_GetAux2Current();
     }
 
+    // Return NAN if the current sense output signal is not within the specified
+    // accuracy range
     return NAN;
 }
 
