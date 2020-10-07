@@ -132,7 +132,7 @@ ExitCode Io_Efuse_WriteRegister(
     struct Efuse_Context *const efuse);
 
 /**
- * Read data from a specific Serial Output register on the given Efuse
+ * Read data from a specific Serial Output register for the given efuse.
  * @param register_address Serial Output register being read from
  * @param register_value register contents
  * @param e_fuse Pointer to Efuse structure being read from
