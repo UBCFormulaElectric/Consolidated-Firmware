@@ -109,14 +109,14 @@ static struct LTC6813 ltc_6813;
 
 /**
  * Calculate the 15-bit packet error code (PEC15) for the given data buffer.
- * @param data A pointer to the buffer containing data used to calculate the
- * PEC15 code.
+ * @param data_buffer A pointer to the buffer containing data used to calculate
+ * the PEC15 code.
  * @param size The number of data elements used to calculate the PEC15 code
- * (Note: this number can be a positive integer less than or equal to the size
+ * (Note: The size can be a positive integer less than or equal to the size
  * of the data buffer).
  * @return The calculated PEC15 code
  */
-static uint16_t Io_CalculatePec15(uint8_t *data, uint32_t size);
+static uint16_t Io_CalculatePec15(uint8_t *data_buffer, uint32_t size);
 
 /**
  * Transition all LTC6813 chips on the daisy chain from the IDLE state to the
@@ -129,18 +129,18 @@ static ExitCode Io_LTC6813_EnterReadyState(void);
 /**
  * Start ADC conversions for all LTC6813 chips on the daisy chain.
  * @return EXIT_CODE_OK if the command used to toggle the ADC can be sent to the
- * device without timing out or errors. Else, EXIT_CODE_UNIMPLEMENTED.
+ * LTC6813 daisy chain without errors or timing out. Else,
+ * EXIT_CODE_UNIMPLEMENTED.
  */
 static ExitCode Io_LTC6813_StartADCConversion(void);
 
 /**
- * Check if all LTC6813 chips in the daisy chain have all completed converting
- * analogue cell voltages to digital voltages.
+ * Check if all LTC6813 chips in the daisy chain have all completed ADC
+ * conversions.
  * @return EXIT_CODE_OK if all LTC6813 chips on the daisy chain have completed
- * ADC conversions. EXIT_CODE_TIMEOUT if ADC conversions could not be completed
- * before timing out. EXIT_CODE_UNIMPLEMENTED if the command sent and
- * received to check the status of ADC conversions was not transmitted or
- * received successfully.
+ * ADC conversions. EXIT_CODE_TIMEOUT if ADC conversions were unfinished
+ * before timing out. EXIT_CODE_UNIMPLEMENTED if the commands sent to the
+ * LTC6813 daisy chain were not successfully transmitted or received.
  */
 static ExitCode Io_LTC6813_PollAdcConversion(void);
 
@@ -150,7 +150,7 @@ static void Io_LTC6813_ParseCellsAndPerformPec15Check(
     uint8_t
         rx_cell_voltages[static NUM_OF_CELL_VOLTAGE_RX_BYTES * NUM_OF_LTC6813]);
 
-static uint16_t Io_CalculatePec15(uint8_t *data, uint32_t size)
+static uint16_t Io_CalculatePec15(uint8_t *data_buffer, uint32_t size)
 {
     size_t pec15_lut_index;
 
@@ -159,7 +159,7 @@ static uint16_t Io_CalculatePec15(uint8_t *data, uint32_t size)
 
     for (size_t i = 0U; i < size; i++)
     {
-        pec15_lut_index = ((pec15_remainder >> 7) ^ data[i]) & 0xFF;
+        pec15_lut_index = ((pec15_remainder >> 7) ^ data_buffer[i]) & 0xFF;
         pec15_remainder = (uint16_t)(
             (pec15_remainder << 8) ^ lookup_tables.crc[pec15_lut_index]);
     }
