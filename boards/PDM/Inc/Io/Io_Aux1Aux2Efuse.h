@@ -41,7 +41,7 @@ void Io_Aux1Aux2Efuse_Aux1Disable(void);
 ExitCode Io_Aux1Aux2Efuse_GetStatus(enum Efuse_Status *status);
 
 /**
- * Get the value of the Aux 1 Fault Register over SPI
+ * Get the value of the Aux1 fault register for the Aux1Aux2 efuse.
  * @note Reading from the fault register reset's non-latchable faults
  * @param fault_status Pointer to the Aux 1 fault status
  * @return EXIT_CODE_OK if the read was successful,
