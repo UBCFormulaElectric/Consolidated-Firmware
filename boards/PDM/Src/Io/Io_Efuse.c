@@ -231,7 +231,7 @@ ExitCode Io_Efuse_ConfigureChannelMonitoring(
 ExitCode Io_Efuse_ExitFailSafeMode(struct Efuse_Context *const efuse)
 {
     // Set the WDIN bit (15th bit) to exit out of fail-safe mode. The parity bit
-    // (14th bit) will automatically be set by the Io_Efuse_WriteRegister()
+    // (14th bit) will automatically be set in Io_Efuse_WriteRegister.
     efuse->wdin_bit_to_set = true;
 
     RETURN_CODE_IF_EXIT_NOT_OK(
