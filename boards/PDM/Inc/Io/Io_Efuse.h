@@ -1,5 +1,5 @@
 /**
- * @brief Driver for interfacing with the 22XS4200 E-Fuse via SPI
+ * @brief Driver for interfacing with the 22XS4200 efuse via SPI
  * @Settings Efuse max SPI transfer rate: 8MHz
  *           SPI Clock Polarity: 0 (SCK low-level idle state)
  *           SPI Clock Phase: 2nd edge (slave samples MOSI on SCK falling edge)
@@ -15,19 +15,19 @@
 struct Efuse_Context;
 
 /**
- * Allocate and initialize an Efuse
- * @param hspi Handle to the SPI peripheral used for the Efuse
- * @param chip_select_port Handle to Efuse's chip-select GPIO port
- * @param chip_select_port Handle to Efuse's chip-select GPIO pin
- * @param fsob_port Handle to Efuse's fail-safe output GPIO port
- * @param fsob_pin Handle to Efuse's fail-safe output GPIO pin
- * @param fsb_port Handle to Efuse's fault status GPIO port
- * @param fsb_pin Handle to Efuse's fault status GPIO pin
- * @param channel0_port Handle to Efuse's channel 0 GPIO port
- * @param channel0_pin Handle to Efuse's channel 0 GPIO pin
- * @param channel1_port Handle to Efuse's channel 1 GPIO port
- * @param channel1_pin Handle to Efuse's channel 1 GPIO pin
- * @return The created Efuse, whose ownership is given to the caller
+ * Allocate and initialize an efuse
+ * @param hspi Handle to the SPI peripheral used for the efuse
+ * @param chip_select_port Handle to efuse's chip-select GPIO port
+ * @param chip_select_port Handle to efuse's chip-select GPIO pin
+ * @param fsob_port Handle to efuse's fail-safe output GPIO port
+ * @param fsob_pin Handle to efuse's fail-safe output GPIO pin
+ * @param fsb_port Handle to efuse's fault status GPIO port
+ * @param fsb_pin Handle to efuse's fault status GPIO pin
+ * @param channel0_port Handle to efuse's channel 0 GPIO port
+ * @param channel0_pin Handle to efuse's channel 0 GPIO pin
+ * @param channel1_port Handle to efuse's channel 1 GPIO port
+ * @param channel1_pin Handle to efuse's channel 1 GPIO pin
+ * @return The created efuse, whose ownership is given to the caller
  */
 struct Efuse_Context *Io_Efuse_Create(
     SPI_HandleTypeDef *spi_handle,
@@ -43,8 +43,8 @@ struct Efuse_Context *Io_Efuse_Create(
     uint16_t           channel1_pin);
 
 /**
- * Deallocate the memory used by the given Efuse
- * @param e_fuse The Efuse to deallocate
+ * Deallocate the memory used by the given efuse
+ * @param e_fuse The efuse to deallocate
  */
 void Io_Efuse_Destroy(struct Efuse_Context *efuse);
 
@@ -78,7 +78,7 @@ void Io_Efuse_DisableChannel1(const struct Efuse_Context *const efuse);
  *                  CSNS_FUNCTION_TEMPERATURE - Efuse temperature sensing
  *                  CSNS_FUNCTION_CURRENT_SUM - Current sensing for summed
  * channels (for Parallel mode)
- * @param e_fuse Pointer to the Efuse structure for the Efuse being configured
+ * @param e_fuse Pointer to the efuse structure for the efuse being configured
  * @return EXIT_CODE_OK if the channel configuration was successful
  *         EXIT_CODE_TIMEOUT if one of the SPI writes timed-out
  */
@@ -88,7 +88,7 @@ ExitCode Io_Efuse_ConfigureChannelMonitoring(
 
 /**
  * Exit fail-safe mode and disable the watchdog timer for the given efuse.
- * @param e_fuse Pointer to the Efuse structure for the Efuse being configured
+ * @param e_fuse Pointer to the efuse structure for the efuse being configured
  * @return EXIT_CODE_OK if the efuse exited fail-safe mode
  *         EXIT_CODE_TIMEOUT if the one of the SPI writes timed-out
  *         EXIT_CODE_UNIMPLEMENTED if the efuse failed to exit fail-safe mode
@@ -97,7 +97,7 @@ ExitCode Io_Efuse_ExitFailSafeMode(struct Efuse_Context *const efuse);
 
 /**
  * Check if the given efuse's channel 0 or channel 1 enters fault mode
- * @param e_fuse Pointer to the Efuse structure for the Efuse being checked
+ * @param e_fuse Pointer to the efuse structure for the efuse being checked
  * @return true if the fuse's channel 0 or channel 1 enters fault mode, else
  * false if both channels do not enter fault mode
  */
@@ -105,7 +105,7 @@ bool Io_Efuse_IsEfuseInFaultMode(const struct Efuse_Context *const efuse);
 
 /**
  * Check if the the given efuse entered the fail-safe mode.
- * @param e_fuse Pointer to the Efuse structure for the Efuse being checked
+ * @param e_fuse Pointer to the efuse structure for the efuse being checked
  * @return true if the efuse enters fail-safe mode, else false
  * if the efuse does not enter fail-safe mode
  */
@@ -113,16 +113,16 @@ bool Io_Efuse_IsEfuseInFailSafeMode(const struct Efuse_Context *const efuse);
 
 /**
  * Delatch the given efuse's latchable faults.
- * @param e_fuse Pointer to the Efuse structure for the Efuse being checked
+ * @param e_fuse Pointer to the efuse structure for the efuse being checked
  * @note Non-latchable faults are reset by reading from the fault registers
  */
 void Io_Efuse_DelatchFaults(const struct Efuse_Context *const efuse);
 
 /**
- * Write data to a specific Serial Input register on the given Efuse
+ * Write data to a specific Serial Input register on the given efuse
  * @param register_address Serial Input register being written to
  * @param register_value Value being written to the Serial Input register
- * @param e_fuse Pointer to Efuse structure being written to
+ * @param e_fuse Pointer to efuse structure being written to
  * @return EXIT_CODE_OK if the write was successful
  *         EXIT_CODE_TIMEOUT if the SPI write timed-out
  */
@@ -135,7 +135,7 @@ ExitCode Io_Efuse_WriteRegister(
  * Read data from a specific Serial Output register for the given efuse.
  * @param register_address Serial Output register being read from
  * @param register_value register contents
- * @param e_fuse Pointer to Efuse structure being read from
+ * @param e_fuse Pointer to efuse structure being read from
  * @return EXIT_CODE_OK if the read was successful
  *         EXIT_CODE_TIMEOUT if the SPI read timed-out
  */

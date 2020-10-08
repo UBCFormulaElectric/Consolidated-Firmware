@@ -3,12 +3,12 @@
 
 static struct Efuse_Context *aux1_aux2_efuse;
 
-void Io_Aux1Aux2Efuse_Init(SPI_HandleTypeDef *const hspi)
+void Io_Aux1Aux2Efuse_Init(SPI_HandleTypeDef *const spi_handle)
 {
-    assert(hspi != NULL);
+    assert(spi_handle != NULL);
 
     aux1_aux2_efuse = Io_Efuse_Create(
-        hspi, CSB_AUX1_AUX2_GPIO_Port, CSB_AUX1_AUX2_Pin,
+            spi_handle, CSB_AUX1_AUX2_GPIO_Port, CSB_AUX1_AUX2_Pin,
         FSOB_AUX1_AUX2_GPIO_Port, FSOB_AUX1_AUX2_Pin, FSB_AUX1_AUX2_GPIO_Port,
         FSB_AUX1_AUX2_Pin, PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, PIN_AUX2_GPIO_Port,
         PIN_AUX2_Pin);
@@ -34,22 +34,22 @@ void Io_Aux1Aux2Efuse_DisableAux2(void)
     Io_Efuse_DisableChannel1(aux1_aux2_efuse);
 }
 
-ExitCode Io_Aux1Aux2Efuse_GetStatus(enum Efuse_Status *status)
+ExitCode Io_Aux1Aux2Efuse_GetStatus(enum Efuse_Status *channel_status)
 {
     return Io_Efuse_ReadRegister(
-        SO_STATR_ADDR, (uint16_t *)status, aux1_aux2_efuse);
+        SO_STATR_ADDR, (uint16_t *)channel_status, aux1_aux2_efuse);
 }
 
-ExitCode Io_Aux1Aux2Efuse_GetAux1Faults(enum Efuse_Fault *fault)
+ExitCode Io_Aux1Aux2Efuse_GetAux1Faults(enum Efuse_Fault *fault_status)
 {
     return Io_Efuse_ReadRegister(
-        SO_FAULTR_0_ADDR, (uint16_t *)fault, aux1_aux2_efuse);
+        SO_FAULTR_0_ADDR, (uint16_t *)fault_status, aux1_aux2_efuse);
 }
 
-ExitCode Io_Aux1Aux2Efuse_GetAux2Faults(enum Efuse_Fault *fault)
+ExitCode Io_Aux1Aux2Efuse_GetAux2Faults(enum Efuse_Fault *fault_status)
 {
     return Io_Efuse_ReadRegister(
-        SO_FAULTR_1_ADDR, (uint16_t *)fault, aux1_aux2_efuse);
+        SO_FAULTR_1_ADDR, (uint16_t *)fault_status, aux1_aux2_efuse);
 }
 
 bool Io_Aux1Aux2Efuse_IsInFaultMode(void)
