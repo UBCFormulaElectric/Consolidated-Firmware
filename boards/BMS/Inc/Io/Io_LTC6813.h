@@ -17,14 +17,15 @@ void Io_LTC6813_Init(
 /**
  * Configure all chips on the LTC6813 daisy chain.
  * @return EXIT_CODE_OK if all chips on the daisy chain are configured
- * successfully. Else, return EXIT_CODE_UNIMPLEMENTED.
+ * successfully. Else, return EXIT_CODE_TIMEOUT if the data cannot be
+ * transmitted to the chips on the LTC6813 daisy chain.
  */
 ExitCode Io_LTC6813_Configure(void);
 
 /**
  * Read all cell register groups for each chip on the LTC6813 daisy chain.
  * @return If data cannot be transmitted to or received from the chips on the
- * LTC6813 daisy chain, return EXIT_CODE_UNIMPLEMENTED. Else if PEC15 mismatches
+ * LTC6813 daisy chain, return EXIT_CODE_TIMEOUT. Else if PEC15 mismatches
  * are detected, return EXIT_CODE_ERROR. Else, return EXIT_CODE_OK.
  */
 ExitCode Io_LTC6813_ReadAllCellRegisterGroups(void);

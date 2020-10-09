@@ -178,7 +178,7 @@ static ExitCode Io_LTC6813_EnterReadyState(void)
     {
         if (Io_SharedSpi_Receive(ltc_6813.spi, &rx_data, 1U) != HAL_OK)
         {
-            return EXIT_CODE_UNIMPLEMENTED;
+            return EXIT_CODE_TIMEOUT;
         }
     }
 
@@ -199,7 +199,7 @@ static ExitCode Io_LTC6813_StartADCConversion(void)
     return (Io_SharedSpi_Transmit(ltc_6813.spi, tx_cmd, NUM_OF_CMD_BYTES) ==
             HAL_OK)
                ? EXIT_CODE_OK
-               : EXIT_CODE_UNIMPLEMENTED;
+               : EXIT_CODE_TIMEOUT;
 }
 
 static ExitCode Io_LTC6813_PollAdcConversion(void)
@@ -224,7 +224,7 @@ static ExitCode Io_LTC6813_PollAdcConversion(void)
         if (Io_SharedSpi_TransmitAndReceive(
                 ltc_6813.spi, tx_cmd, NUM_OF_CMD_BYTES, &rx_data, 1U) != HAL_OK)
         {
-            return EXIT_CODE_UNIMPLEMENTED;
+            return EXIT_CODE_TIMEOUT;
         }
 
         ++adc_conversion_timeout_counter;
@@ -241,7 +241,7 @@ static ExitCode Io_LTC6813_PollAdcConversion(void)
 static void Io_LTC6813_ParseCellsAndPerformPec15Check(
     size_t  current_ic,
     size_t  current_register_group,
-    uint8_t rx_cell_voltages[NUM_OF_CELL_VOLTAGE_RX_BYTES * NUM_OF_LTC6813])
+    uint8_t rx_cell_voltages[])
 {
     size_t cell_voltage_index = current_ic * NUM_OF_CELL_VOLTAGE_RX_BYTES;
 
@@ -331,7 +331,7 @@ ExitCode Io_LTC6813_Configure(void)
             ltc_6813.spi, tx_cmd, NUM_OF_CMD_BYTES) != HAL_OK)
     {
         Io_SharedSpi_SetNssHigh(ltc_6813.spi);
-        return EXIT_CODE_UNIMPLEMENTED;
+        return EXIT_CODE_TIMEOUT;
     }
 
     // Transmit the payload data to all devices connected to the daisy chain.
@@ -339,7 +339,7 @@ ExitCode Io_LTC6813_Configure(void)
             ltc_6813.spi, tx_payload, 8U, NUM_OF_LTC6813) != HAL_OK)
     {
         Io_SharedSpi_SetNssHigh(ltc_6813.spi);
-        return EXIT_CODE_UNIMPLEMENTED;
+        return EXIT_CODE_TIMEOUT;
     }
 
     Io_SharedSpi_SetNssHigh(ltc_6813.spi);
@@ -381,7 +381,7 @@ ExitCode Io_LTC6813_ReadAllCellRegisterGroups(void)
                 ltc_6813.spi, tx_cmd, NUM_OF_CMD_BYTES, rx_cell_voltages,
                 NUM_OF_CELL_VOLTAGE_RX_BYTES * NUM_OF_LTC6813) != HAL_OK)
         {
-            return EXIT_CODE_UNIMPLEMENTED;
+            return EXIT_CODE_TIMEOUT;
         }
 
         for (size_t current_ic = 0U; current_ic < NUM_OF_LTC6813; current_ic++)
