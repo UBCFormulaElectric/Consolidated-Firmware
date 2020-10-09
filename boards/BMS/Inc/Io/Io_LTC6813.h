@@ -38,6 +38,8 @@ ExitCode Io_LTC6813_ReadAllCellRegisterGroups(void);
  * number of LTC6813 chips connected on the daisy chain), and its second
  * subscript value as NUM_OF_CELLS_PER_LTC6813 (the number of cell voltages that
  * can be monitored per LTC6813 chip).
+ * Each cell voltage read back from the LTC6813 daisy chain is a 16-bit unsigned
+ * integer where the LSB represents 100µV.
  *
  * @return A pointer to the 2D array containing converted chip cell
  * voltages.
