@@ -32,14 +32,12 @@ ExitCode App_RotarySwitch_GetSwitchPosition(
 {
     uint32_t position = rotary_switch->get_switch_position();
 
-    ExitCode exit_code = EXIT_CODE_OK;
+    *returned_position = position;
 
     if (position >= rotary_switch->num_switch_positions)
     {
-        exit_code = EXIT_CODE_OUT_OF_RANGE;
+        return EXIT_CODE(EXIT_CODE_OUT_OF_RANGE);
     }
 
-    *returned_position = position;
-
-    return exit_code;
+    return EXIT_CODE(EXIT_CODE_OK);
 }

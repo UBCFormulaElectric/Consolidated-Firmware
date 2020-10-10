@@ -2,7 +2,7 @@
 
 #include "App_SharedMacros.h"
 #include "App_SevenSegDisplays.h"
-#include "App_SharedExitCode.h"
+#include "App_SharedExitStatus.h"
 
 static void App_SetPeriodicCanSignals_DriveMode(
     struct DimCanTxInterface *can_tx,

@@ -2,7 +2,7 @@
 
 #include <stdint.h>
 #include <stdbool.h>
-#include "App_SharedExitCode.h"
+#include "App_SharedExitStatus.h"
 #include "App_SharedError.h"
 
 struct ErrorTable;

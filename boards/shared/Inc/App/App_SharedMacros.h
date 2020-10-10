@@ -15,3 +15,6 @@
 #ifndef UNUSED
 #define UNUSED(x) (void)(x)
 #endif // UNUSED
+
+#define _STRINGIFY(x) #x
+#define STRINGIFY(x) _STRINGIFY(x)
