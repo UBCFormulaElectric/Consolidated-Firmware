@@ -218,7 +218,7 @@ BMS-30 | Exiting the fault state and entering the init state | Once all AIR shut
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 DIM-0 | Startup CAN message | The DIM must transmit a startup message over CAN on boot.
-DIM-12 | State CAN message | The DCM must transmit the state of its state machine at 100Hz or faster.
+DIM-12 | State CAN message | The DIM must transmit the state of its state machine at 100Hz or faster.
 DIM-10 | Heartbeat sending | The DIM must transmit a heartbeat over CAN at 10Hz or faster.
 DIM-1 | Heartbeat receiving | The DIM must set the 7-segments all on to display '888' once it does not receive three consecutive BMS heartbeats.
 
