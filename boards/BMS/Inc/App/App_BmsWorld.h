@@ -7,6 +7,7 @@
 #include "App_SharedRgbLedSequence.h"
 #include "App_Charger.h"
 #include "App_OkStatus.h"
+#include "App_CellMonitor.h"
 #include "App_SharedClock.h"
 
 struct BmsWorld;
@@ -30,6 +31,7 @@ struct BmsWorld *App_BmsWorld_Create(
     struct OkStatus *         bms_ok,
     struct OkStatus *         imd_ok,
     struct OkStatus *         bspd_ok,
+    struct CellMonitor *      cell_monitor,
     struct Clock *            clock);
 
 /**
@@ -102,6 +104,13 @@ struct OkStatus *App_BmsWorld_GetImdOkStatus(const struct BmsWorld *world);
  * @return The BSPD OK status for the given world
  */
 struct OkStatus *App_BmsWorld_GetBspdOkStatus(const struct BmsWorld *world);
+
+/**
+ * Get the cell monitor for the given world
+ * @param world The world to get the cell monitor for
+ * @return The cell monitor for the given world
+ */
+struct CellMonitor *App_BmsWorld_GetCellMonitor(const struct BmsWorld *world);
 
 /**
  * Get the clock for the given world

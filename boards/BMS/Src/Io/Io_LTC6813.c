@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 #include "Io_LTC6813.h"
 #include "Io_SharedSpi.h"
 #include "configs/Io_LTC6813Configs.h"
@@ -102,7 +101,7 @@ struct LTC6813
     uint8_t pec15_error_counter;
 
     // An array containing cell voltages for each LTC6813 IC.
-    uint16_t cell_voltages[NUM_OF_LTC6813][NUM_OF_CELLS_PER_LTC6813];
+    uint16_t cell_voltages[NUM_OF_LTC6813][NUM_OF_CELLS_READ_PER_LTC6813];
 };
 
 static struct LTC6813 ltc_6813;
@@ -260,6 +259,16 @@ static void Io_LTC6813_ParseCellsAndPerformPec15Check(
                                    NUM_OF_CELLS_PER_LTC6813_REGISTER_GROUP] =
             (uint16_t)cell_voltage;
 
+        if (current_register_group == CELL_VOLTAGE_REGISTER_GROUP_F)
+        {
+            // Since only 16 of the 18 channels are being read from the LTC6813,
+            // the last two cell voltages read back can be ignored.
+            // Increment the cell voltage index by 6 to get the PEC15 command
+            // received from the LTC6813 daisy chain.
+            cell_voltage_index += 6U;
+            break;
+        }
+
         // Each cell voltage is represented as a pair of bytes. Therefore,
         // the cell voltage index is incremented by 2 to retrieve the next cell
         // voltage.
@@ -294,7 +303,7 @@ void Io_LTC6813_Init(
     ltc_6813.pec15_error_counter = 0U;
     memset(
         ltc_6813.cell_voltages, 0U,
-        NUM_OF_LTC6813 * NUM_OF_CELLS_PER_LTC6813 *
+        NUM_OF_LTC6813 * NUM_OF_CELLS_READ_PER_LTC6813 *
             sizeof(ltc_6813.cell_voltages[0][0]));
 }
 
@@ -398,5 +407,5 @@ ExitCode Io_LTC6813_ReadAllCellRegisterGroups(void)
 
 uint16_t *Io_LTC6813_GetCellVoltages(void)
 {
-    return &ltc_6813.cell_voltages[0][0];
+    return &(ltc_6813.cell_voltages[0][0]);
 }

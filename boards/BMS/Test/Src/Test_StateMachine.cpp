@@ -12,6 +12,7 @@ extern "C"
 #include "states/App_ChargeState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_ImdConfig.h"
+#include "configs/App_CellConfigs.h"
 }
 
 namespace StateMachineTest
@@ -45,6 +46,18 @@ FAKE_VALUE_FUNC(bool, is_imd_ok_enabled);
 FAKE_VALUE_FUNC(ExitCode, enable_bspd_ok);
 FAKE_VALUE_FUNC(ExitCode, disable_bspd_ok);
 FAKE_VALUE_FUNC(bool, is_bspd_ok_enabled);
+FAKE_VALUE_FUNC(ExitCode, configure_daisy_chain);
+FAKE_VALUE_FUNC(ExitCode, read_cell_voltages);
+FAKE_VALUE_FUNC(float, get_min_cell_voltage);
+FAKE_VALUE_FUNC(float, get_max_cell_voltage);
+FAKE_VALUE_FUNC(float, get_average_cell_voltage);
+FAKE_VALUE_FUNC(float, get_pack_voltage);
+FAKE_VALUE_FUNC(float, get_segment_0_voltage);
+FAKE_VALUE_FUNC(float, get_segment_1_voltage);
+FAKE_VALUE_FUNC(float, get_segment_2_voltage);
+FAKE_VALUE_FUNC(float, get_segment_3_voltage);
+FAKE_VALUE_FUNC(float, get_segment_4_voltage);
+FAKE_VALUE_FUNC(float, get_segment_5_voltage);
 
 class BmsStateMachineTest : public BaseStateMachineTest
 {
@@ -82,11 +95,20 @@ class BmsStateMachineTest : public BaseStateMachineTest
         bspd_ok = App_OkStatus_Create(
             enable_bspd_ok, disable_bspd_ok, is_bspd_ok_enabled);
 
+        cell_monitor = App_CellMonitor_Create(
+            configure_daisy_chain, read_cell_voltages, get_min_cell_voltage,
+            get_max_cell_voltage, get_average_cell_voltage, get_pack_voltage,
+            get_segment_0_voltage, get_segment_1_voltage, get_segment_2_voltage,
+            get_segment_3_voltage, get_segment_4_voltage, get_segment_5_voltage,
+            MIN_CELL_VOLTAGE, MAX_CELL_VOLTAGE, MIN_SEGMENT_VOLTAGE,
+            MAX_SEGMENT_VOLTAGE, MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE);
+
         clock = App_SharedClock_Create();
 
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
-            rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, clock);
+            rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, cell_monitor,
+            clock);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -114,6 +136,18 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(enable_bspd_ok);
         RESET_FAKE(disable_bspd_ok);
         RESET_FAKE(is_bspd_ok_enabled);
+        RESET_FAKE(configure_daisy_chain);
+        RESET_FAKE(read_cell_voltages);
+        RESET_FAKE(get_min_cell_voltage);
+        RESET_FAKE(get_max_cell_voltage);
+        RESET_FAKE(get_average_cell_voltage);
+        RESET_FAKE(get_pack_voltage);
+        RESET_FAKE(get_segment_0_voltage);
+        RESET_FAKE(get_segment_1_voltage);
+        RESET_FAKE(get_segment_2_voltage);
+        RESET_FAKE(get_segment_3_voltage);
+        RESET_FAKE(get_segment_4_voltage);
+        RESET_FAKE(get_segment_5_voltage);
     }
 
     void TearDown() override
@@ -129,6 +163,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         TearDownObject(bms_ok, App_OkStatus_Destroy);
         TearDownObject(imd_ok, App_OkStatus_Destroy);
         TearDownObject(bspd_ok, App_OkStatus_Destroy);
+        TearDownObject(cell_monitor, App_CellMonitor_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
     }
 
@@ -180,6 +215,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
     struct OkStatus *         bms_ok;
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
+    struct CellMonitor *      cell_monitor;
     struct Clock *            clock;
 };
 
