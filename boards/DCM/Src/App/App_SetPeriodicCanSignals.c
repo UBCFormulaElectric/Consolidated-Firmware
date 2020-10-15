@@ -1,0 +1,47 @@
+#include "App_SetPeriodicCanSignals.h"
+#include "App_DcmWorld.h"
+#include "App_CanRx.h"
+#include "App_CanTx.h"
+
+// Regen allowed when braking or (speed > 5kmh and AIRs closed)
+static bool RegenAllowed(struct DcmCanRxInterface *can_rx)
+{
+    float threshold_speed = 5.0f; // 5kmh
+    bool  air_closed =
+        (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) ==
+         CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE) &&
+        (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx) ==
+         CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
+    return App_CanRx_FSM_BRAKE_GetSignal_BRAKE_IS_ACTUATED(can_rx) ||
+           ((App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_LEFT_WHEEL_SPEED(
+                 can_rx) > threshold_speed) &&
+            (App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_RIGHT_WHEEL_SPEED(
+                 can_rx) > threshold_speed) &&
+            air_closed);
+}
+
+// TODO: Implement PID controller to maintain DC bus power at 80kW
+void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
+{
+    float MAX_SAFE_TORQUE_REQUEST =
+        21.0f; // 21Nm is max torque each motor can handle
+
+    struct DcmCanRxInterface *can_rx = App_DcmWorld_GetCanRx(world);
+    struct DcmCanTxInterface *can_tx = App_DcmWorld_GetCanTx(world);
+
+    float pedal_percentage =
+        App_CanRx_FSM_PEDAL_POSITION_GetSignal_MAPPED_PEDAL_PERCENTAGE(can_rx);
+
+    float regen_paddle_percentage =
+        (float)App_CanRx_DIM_REGEN_PADDLE_GetSignal_MAPPED_PADDLE_POSITION(
+            can_rx);
+    float torque_request;
+
+    if (regen_paddle_percentage > 0 && RegenAllowed(can_rx))
+        torque_request =
+            -0.01f * regen_paddle_percentage * MAX_SAFE_TORQUE_REQUEST;
+    else
+        torque_request = 0.01f * pedal_percentage * MAX_SAFE_TORQUE_REQUEST;
+
+    App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx, torque_request);
+}

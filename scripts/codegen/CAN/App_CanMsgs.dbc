@@ -57,8 +57,8 @@ SG_ IMD_OK : 1|1@1+ (1,0) [0|1] "" DEBUG
 SG_ BSPD_OK : 2|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 112 BMS_AIR_STATES: 1 BMS
-SG_ AIR_POSITIVE : 0|1@1+ (1,0) [0|1] "" FSM,PDM
-SG_ AIR_NEGATIVE : 1|1@1+ (1,0) [0|1] "" FSM,PDM
+SG_ AIR_POSITIVE : 0|1@1+ (1,0) [0|1] "" FSM,DCM,PDM
+SG_ AIR_NEGATIVE : 1|1@1+ (1,0) [0|1] "" FSM,DCM,PDM
 
 BO_ 113 BMS_MOTOR_SHUTDOWN_ERRORS: 8 BMS
 SG_ DUMMY_MOTOR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DEBUG
@@ -159,7 +159,7 @@ SG_ SAPPS_Alarm_Is_Active : 2|1@1+ (1,0) [0|1] "" DEBUG
 SG_ Plausibility_Check_Has_Failed : 3|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 316 FSM_PEDAL_POSITION: 4 FSM
-SG_ Mapped_Pedal_Percentage: 0|32@1+ (1,0) [0|100] "%" DEBUG
+SG_ Mapped_Pedal_Percentage: 0|32@1+ (1,0) [0|100] "%" DCM
 
 BO_ 400 PDM_NON_CRITICAL_ERRORS: 8 PDM
 SG_ MISSING_HEARTBEAT : 0|1@1+ (1,0) [0|1] "" DEBUG
@@ -243,7 +243,7 @@ SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" DEBUG
 
 BO_ 505 DIM_REGEN_PADDLE: 8 DIM
 SG_ Raw_Paddle_Position : 0|32@1+ (1,0) [0|100] "%" DEBUG
-SG_ Mapped_Paddle_Position : 32|32@1+ (1,0) [0|100] "%" DEBUG
+SG_ Mapped_Paddle_Position : 32|32@1+ (1,0) [0|100] "%" DCM
 
 BO_ 506 DIM_DRIVE_MODE_SWITCH: 1 DIM
 SG_ Drive_Mode : 0|3@1+ (1,0) [0|5] "" DCM
