@@ -20,7 +20,7 @@ enum CellVoltageRegisterGroups
 struct LookupTables
 {
     // Commands used to read cell voltage register groups in
-    // Io_LTC6813_ReadCellRegisterGroups. The command is split into two bytes
+    // Io_LTC6813_ReadAllCellRegisterGroups. The command is split into two bytes
     // and transmitted to the IC.
     uint16_t cell_voltage_register_group_commands
         [NUM_OF_CELL_VOLTAGE_REGISTER_GROUPS];
