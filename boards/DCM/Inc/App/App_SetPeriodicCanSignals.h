@@ -7,3 +7,9 @@ struct DcmWorld;
  * @param world DcmWorld needed for canRx and canTx interface
  */
 void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world);
+
+/**
+ * Broadcast imu data
+ * @param world
+ */
+void App_SetPeriodicCanSignals_Imu(const struct DcmWorld *world);

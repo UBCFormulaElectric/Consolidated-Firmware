@@ -16,6 +16,7 @@ struct DcmWorld
     struct ErrorTable *       error_table;
     struct WaitSignal *       buzzer_wait_signal;
     struct Clock *            clock;
+    struct Imu *              imu;
 };
 
 struct DcmWorld *App_DcmWorld_Create(
@@ -27,6 +28,7 @@ struct DcmWorld *App_DcmWorld_Create(
     struct Buzzer *const            buzzer,
     struct ErrorTable *const        error_table,
     struct Clock *const             clock,
+    struct Imu *const               imu,
 
     bool (*is_buzzer_on)(struct DcmWorld *),
     void (*buzzer_complete_callback)(struct DcmWorld *))
@@ -42,6 +44,7 @@ struct DcmWorld *App_DcmWorld_Create(
     world->buzzer            = buzzer;
     world->error_table       = error_table;
     world->clock             = clock;
+    world->imu               = imu;
 
     struct WaitSignalCallback buzzer_callback = { .function =
                                                       buzzer_complete_callback,
@@ -110,4 +113,9 @@ void App_DcmWorld_UpdateWaitSignal(
 struct Clock *App_DcmWorld_GetClock(const struct DcmWorld *const world)
 {
     return world->clock;
+}
+
+struct Imu *App_DcmWorld_GetImu(const struct DcmWorld *const world)
+{
+    return world->imu;
 }

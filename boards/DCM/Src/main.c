@@ -37,6 +37,7 @@
 #include "Io_RgbLedSequence.h"
 #include "Io_BrakeLight.h"
 #include "Io_Buzzer.h"
+#include "Io_Imu_LSM6DS33.h"
 
 #include "App_DcmWorld.h"
 #include "App_SharedStateMachine.h"
@@ -92,6 +93,7 @@ struct BrakeLight *       brake_light;
 struct Buzzer *           buzzer;
 struct ErrorTable *       error_table;
 struct Clock *            clock;
+struct Imu *              imu;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -187,11 +189,13 @@ int main(void)
 
     clock = App_SharedClock_Create();
 
+    imu = App_Imu_Create(
+        Io_Imu_LSM6DS33_UpdateImuData, Io_Imu_LSM6DS33_GetImuData);
+
     world = App_DcmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, brake_light,
-        buzzer, error_table, clock,
-
-        App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
+        buzzer, error_table, clock, imu, App_BuzzerSignals_IsOn,
+        App_BuzzerSignals_Callback);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
