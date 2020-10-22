@@ -1,7 +1,5 @@
 #include <stdlib.h>
 #include <assert.h>
-#include <stdint.h>
-#include "App_CellVoltages.h"
 #include "App_CellMonitor.h"
 
 struct CellMonitor

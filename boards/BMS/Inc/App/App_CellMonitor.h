@@ -7,39 +7,6 @@ struct CellMonitor;
 
 /**
  * Allocate and initialize a cell monitor.
- * @param configure_daisy_chain A function that can be called to configure the
- * daisy chain of cell measuring chips.
- * @param read_cell_voltages A function that can be called to read cell voltages
- * from the daisy chain of cell measuring chips.
- *
- * @param get_min_cell_voltage A function that can be called to get the minimum
- * cell voltage.
- * @param get_max_cell_voltage A function that can be called to get the max cell
- * voltage.
- * @param get_average_cell_voltage A function that can be called to get the
- * average cell voltage.
- * @param get_pack_voltage A function that can be called to get the pack
- * voltage.
- *
- * @param get_segment_0_voltage A function that can be called to get the 0th
- * segment voltage.
- * @param get_segment_1_voltage A function that can be called to get the 1st
- * segment voltage.
- * @param get_segment_2_voltage A function that can be called to get the 2nd
- * segment voltage.
- * @param get_segment_3_voltage A function that can be called to get the 3rd
- * segment voltage.
- * @param get_segment_4_voltage A function that can be called to get the 4th
- * segment voltage.
- * @param get_segment_5_voltage A function that can be called to get the 5th
- * segment voltage.
- *
- * @param min_cell_voltage The minimum allowed cell voltage, exclusive.
- * @param max_cell_voltage The maximum allowed cell voltage, exclusive.
- * @param min_segment_voltage The minimum allowed segment voltage, exclusive.
- * @param max_segment_voltage The maximum allowed segment voltage, exclusive.
- * @param min_pack_voltage The minimum allowed pack voltage, exclusive.
- * @param max_pack_voltage The maximum allowed pack voltage, exclusive.
  * @return A pointer to the created cell monitor, whose ownership is given to
  * the caller.
  */

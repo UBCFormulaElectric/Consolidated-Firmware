@@ -37,8 +37,7 @@ void App_CellVoltages_Init(
     // monitoring daisy chain.
     cell_voltages.measured_cells           = get_cell_voltages();
     cell_voltages.num_of_cells_per_segment = num_of_cells_per_segment;
-    cell_voltages.total_num_of_cells =
-        num_of_cells_per_segment * NUM_OF_SEGMENTS;
+    cell_voltages.total_num_of_cells = num_of_cells_per_segment * NUM_SEGMENTS;
 }
 
 float App_CellVoltages_GetMinCellVoltage(void)

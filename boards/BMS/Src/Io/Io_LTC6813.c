@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdbool.h>
 #include "Io_LTC6813.h"
 #include "Io_SharedSpi.h"
 #include "configs/Io_LTC6813Configs.h"
@@ -296,7 +295,7 @@ void Io_LTC6813_Init(
     assert(spi_handle != NULL);
 
     ltc_6813.spi = Io_SharedSpi_Create(
-        spi_handle, nss_port, nss_pin, LTC6813_SPI_DELAY_MS);
+        spi_handle, nss_port, nss_pin, SPI_TIMEOUT_MS_LTC6813);
     ltc_6813.pec15_error_counter = 0U;
     memset(
         ltc_6813.cell_voltages, 0U,

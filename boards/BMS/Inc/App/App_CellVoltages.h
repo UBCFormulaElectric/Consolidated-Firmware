@@ -4,7 +4,7 @@ enum Segments
 {
     SEGMENT_0,
     SEGMENT_1,
-    NUM_OF_SEGMENTS
+    NUM_SEGMENTS
 };
 
 /**
