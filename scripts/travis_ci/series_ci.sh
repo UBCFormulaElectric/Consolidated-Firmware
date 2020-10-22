@@ -37,4 +37,4 @@ curl \
   --header "Authorization: Token 27d62d1f-71c6-4075-95b5-f7aec56d0204" \
   --header "Content-Type: application/json" \
   --data "{\"values\":[{\"value\":\"$ram\",\"line\":\"RAM\"},{\"value\":\"$flash\",\"line\":\"FLASH\"}],\"sha\":\"$SHA\"}" \
-  -k https://seriesci.com/api/UBCFormulaElectric/Consolidated-Firmware/$SERIES_NAME/many
+  https://seriesci.com/api/UBCFormulaElectric/Consolidated-Firmware/$SERIES_NAME/many
