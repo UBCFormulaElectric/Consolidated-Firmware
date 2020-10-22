@@ -10,8 +10,9 @@ struct SharedSpi;
  * @param spi_handle The handle of the given SPI interface.
  * @param nss_port Pointer to the NSS GPIO port of the given SPI interface.
  * @param nss_pin The NSS GPIO pin of the given SPI interface.
- * @param delay_ms The delay in milliseconds during a SPI transaction which a
- * blocking SPI transaction should wait until an error is returned.
+ * @param timeout_ms The timeout duration in milliseconds during a SPI
+ * transaction which a blocking SPI transaction should wait until an error is
+ * returned.
  *
  * @note NSS indicates an active low slave select for the device connected to
  * the SPI interface.
@@ -22,7 +23,7 @@ struct SharedSpi *Io_SharedSpi_Create(
     SPI_HandleTypeDef *spi_handle,
     GPIO_TypeDef *     nss_port,
     uint16_t           nss_pin,
-    uint32_t           delay_ms);
+    uint32_t           timeout_ms);
 
 /**
  * Set the NSS pin low for the given SPI interface.

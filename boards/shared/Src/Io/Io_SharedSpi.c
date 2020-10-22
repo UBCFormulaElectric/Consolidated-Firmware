@@ -14,14 +14,14 @@ struct SharedSpi
     SPI_HandleTypeDef *spi_handle;
     GPIO_TypeDef *     nss_port;
     uint16_t           nss_pin;
-    uint32_t           delay_ms;
+    uint32_t           timeout_ms;
 };
 
 struct SharedSpi *Io_SharedSpi_Create(
     SPI_HandleTypeDef *spi_handle,
     GPIO_TypeDef *     nss_port,
     uint16_t           nss_pin,
-    uint32_t           delay_ms)
+    uint32_t           timeout_ms)
 {
     assert(spi_handle != NULL);
 
@@ -31,7 +31,7 @@ struct SharedSpi *Io_SharedSpi_Create(
     spi->spi_handle = spi_handle;
     spi->nss_pin    = nss_pin;
     spi->nss_port   = nss_port;
-    spi->delay_ms   = delay_ms;
+    spi->timeout_ms = timeout_ms;
 
     return spi;
 }
@@ -57,11 +57,11 @@ HAL_StatusTypeDef Io_SharedSpi_TransmitAndReceive(
     Io_SharedSpi_SetNssLow(spi);
     EXIT_IF_STATUS_NOT_OK(
         HAL_SPI_Transmit(
-            spi->spi_handle, tx_buffer, tx_buffer_size, spi->delay_ms),
+            spi->spi_handle, tx_buffer, tx_buffer_size, spi->timeout_ms),
         spi->nss_port, spi->nss_pin)
     EXIT_IF_STATUS_NOT_OK(
         HAL_SPI_Receive(
-            spi->spi_handle, rx_buffer, rx_buffer_size, spi->delay_ms),
+            spi->spi_handle, rx_buffer, rx_buffer_size, spi->timeout_ms),
         spi->nss_port, spi->nss_pin)
     Io_SharedSpi_SetNssHigh(spi);
 
@@ -75,7 +75,7 @@ HAL_StatusTypeDef Io_SharedSpi_Transmit(
 {
     Io_SharedSpi_SetNssLow(spi);
     HAL_StatusTypeDef status = HAL_SPI_Transmit(
-        spi->spi_handle, tx_buffer, tx_buffer_size, spi->delay_ms);
+        spi->spi_handle, tx_buffer, tx_buffer_size, spi->timeout_ms);
     Io_SharedSpi_SetNssHigh(spi);
 
     return status;
@@ -88,7 +88,7 @@ HAL_StatusTypeDef Io_SharedSpi_Receive(
 {
     Io_SharedSpi_SetNssLow(spi);
     HAL_StatusTypeDef status = HAL_SPI_Receive(
-        spi->spi_handle, rx_buffer, rx_buffer_size, spi->delay_ms);
+        spi->spi_handle, rx_buffer, rx_buffer_size, spi->timeout_ms);
     Io_SharedSpi_SetNssHigh(spi);
 
     return status;
@@ -104,7 +104,7 @@ HAL_StatusTypeDef Io_SharedSpi_MultipleTransmitWithoutNssToggle(
     for (size_t i = 0U; i < num_tx_data_copies; i++)
     {
         status = HAL_SPI_Transmit(
-            spi->spi_handle, tx_buffer, tx_buffer_size, spi->delay_ms);
+            spi->spi_handle, tx_buffer, tx_buffer_size, spi->timeout_ms);
         if (status != HAL_OK)
         {
             return status;
@@ -120,5 +120,5 @@ HAL_StatusTypeDef Io_SharedSpi_TransmitWithoutNssToggle(
     uint16_t                      tx_buffer_size)
 {
     return HAL_SPI_Transmit(
-        spi->spi_handle, tx_data, tx_buffer_size, spi->delay_ms);
+        spi->spi_handle, tx_data, tx_buffer_size, spi->timeout_ms);
 }
