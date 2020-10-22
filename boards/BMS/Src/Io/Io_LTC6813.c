@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdbool.h>
 #include "Io_LTC6813.h"
 #include "Io_SharedSpi.h"
 #include "configs/Io_LTC6813Configs.h"
@@ -18,7 +19,9 @@ enum CellVoltageRegisterGroups
 
 struct LookupTables
 {
-    // Commands used to read cell voltage register groups.
+    // Commands used to read cell voltage register groups in
+    // Io_LTC6813_ReadAllCellRegisterGroups. The command is split into two bytes
+    // and transmitted to the IC.
     uint16_t cell_voltage_register_group_commands
         [NUM_OF_CELL_VOLTAGE_REGISTER_GROUPS];
 
@@ -76,21 +79,19 @@ static const struct LookupTables lookup_tables = {
 #define NUM_OF_PEC15_BYTES_PER_CMD 2U
 #define NUM_OF_CELL_VOLTAGE_RX_BYTES 8U
 
-#define ADCOPT 2U
-#define DCP 0U
-#define CELL_CH_ALL 0U
+#define ADCOPT 0U
 #define REFON 1U
 #define DTEN 0U
-#define CELL_UNDERVOLTAGE_THRESHOLD 0x4E1
-#define CELL_OVERVOLTAGE_THRESHOLD 0x8CA
+#define VUV 0x4E1
+#define VOV 0x8CA
 
-#define WRCFGA 0x01
-#define ADCV (0x260 + (ADCOPT << 7) + (DCP << 4) + CELL_CH_ALL)
-#define PLADC 0x1407
+#define MD 2U
+#define DCP 0U
+#define CH 0U
 
-// Timeout counter threshold of 10 was chosen arbitrarily.
-// TODO: Determine the appropriate number of ADC conversion timeout cycles #674
-#define NUM_ADC_CONVERSION_CYCLES 10U
+// ADC timeout threshold of 10 was chosen arbitrarily.
+// TODO: Determine the ADC conversion timeout threshold #674
+#define ADC_TIMEOUT_THRESHOLD 10U
 
 struct LTC6813
 {
@@ -186,6 +187,9 @@ static ExitCode Io_LTC6813_EnterReadyState(void)
 
 static ExitCode Io_LTC6813_StartADCConversion(void)
 {
+    // The command used to start an ADC conversion.
+    uint32_t ADCV = (0x260 + (MD << 7) + (DCP << 4) + CH);
+
     uint8_t tx_cmd[NUM_OF_CMD_BYTES];
     tx_cmd[0] = (uint8_t)(ADCV >> 8);
     tx_cmd[1] = (uint8_t)ADCV;
@@ -203,6 +207,9 @@ static ExitCode Io_LTC6813_StartADCConversion(void)
 
 static ExitCode Io_LTC6813_PollAdcConversion(void)
 {
+    // The command used to determine the status of ADC conversions.
+    uint32_t PLADC = 0x1407;
+
     uint8_t tx_cmd[NUM_OF_CMD_BYTES];
     tx_cmd[0] = (uint8_t)PLADC;
     tx_cmd[1] = (uint8_t)(PLADC >> 8);
@@ -228,7 +235,7 @@ static ExitCode Io_LTC6813_PollAdcConversion(void)
 
         ++adc_conversion_timeout_counter;
 
-        if (adc_conversion_timeout_counter >= NUM_ADC_CONVERSION_CYCLES)
+        if (adc_conversion_timeout_counter >= ADC_TIMEOUT_THRESHOLD)
         {
             return EXIT_CODE_TIMEOUT;
         }
@@ -258,16 +265,6 @@ static void Io_LTC6813_ParseCellsAndPerformPec15Check(
                                current_register_group *
                                    NUM_OF_CELLS_PER_LTC6813_REGISTER_GROUP] =
             (uint16_t)cell_voltage;
-
-        if (current_register_group == CELL_VOLTAGE_REGISTER_GROUP_F)
-        {
-            // Since only 16 of the 18 channels are being read from the LTC6813,
-            // the last two cell voltages read back can be ignored.
-            // Increment the cell voltage index by 6 to get the PEC15 command
-            // received from the LTC6813 daisy chain.
-            cell_voltage_index += 6U;
-            break;
-        }
 
         // Each cell voltage is represented as a pair of bytes. Therefore,
         // the cell voltage index is incremented by 2 to retrieve the next cell
@@ -309,6 +306,9 @@ void Io_LTC6813_Init(
 
 ExitCode Io_LTC6813_Configure(void)
 {
+    // The command used to write to configuration register A.
+    uint32_t WRCFGA = 0x01;
+
     uint8_t tx_cmd[NUM_OF_CMD_BYTES];
     tx_cmd[0] = (uint8_t)(WRCFGA >> 8);
     tx_cmd[1] = (uint8_t)WRCFGA;
@@ -318,10 +318,8 @@ ExitCode Io_LTC6813_Configure(void)
     tx_cmd[3] = (uint8_t)tx_cmd_pec15;
 
     const uint32_t DEFAULT_CONFIG_REG[4] = {
-        (REFON << 2) + (DTEN << 1) + ADCOPT, (CELL_UNDERVOLTAGE_THRESHOLD),
-        (uint8_t)((CELL_OVERVOLTAGE_THRESHOLD & 0xF) << 4) +
-            (CELL_UNDERVOLTAGE_THRESHOLD >> 8),
-        (CELL_OVERVOLTAGE_THRESHOLD >> 4)
+        (REFON << 2) + (DTEN << 1) + ADCOPT, VUV,
+        ((VOV & 0xF) << 4) + (VUV >> 8), (VOV >> 4)
     };
 
     // The payload data is 8 bytes wide. The first 6 bytes is used to configure
@@ -407,5 +405,5 @@ ExitCode Io_LTC6813_ReadAllCellRegisterGroups(void)
 
 uint16_t *Io_LTC6813_GetCellVoltages(void)
 {
-    return &(ltc_6813.cell_voltages[0][0]);
+    return &ltc_6813.cell_voltages[0][0];
 }
