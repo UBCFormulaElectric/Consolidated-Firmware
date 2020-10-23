@@ -49,11 +49,17 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
 void App_SetPeriodicCanSignals_Imu(const struct DcmWorld *world)
 {
     struct DcmCanTxInterface *can_tx = App_DcmWorld_GetCanTx(world);
-    struct Imu *              imu    = App_DcmWorld_GetImu(world);
+    struct Imu *imu = App_DcmWorld_GetImu(world);
 
-    bool  data_valid = App_Imu_UpdateData(imu);
+    bool data_valid = App_Imu_UpdateData(imu);
+    if (!data_valid)
+        return;
+
     float accel_x    = App_Imu_GetAccelerationX(imu);
-    // TODO: Remove cast. Why does it not accept a float?
-    App_CanTx_SetPeriodicSignal_DATA_VALID(can_tx, data_valid);
-    App_CanTx_SetPeriodicSignal_ACCELERATION_X(can_tx, (uint8_t)accel_x);
+    float accel_y    = App_Imu_GetAccelerationY(imu);
+    float accel_z    = App_Imu_GetAccelerationZ(imu);
+
+    App_CanTx_SetPeriodicSignal_ACCELERATION_X(can_tx, accel_x);
+    App_CanTx_SetPeriodicSignal_ACCELERATION_Y(can_tx, accel_y);
+    App_CanTx_SetPeriodicSignal_ACCELERATION_Z(can_tx, accel_z);
 }
