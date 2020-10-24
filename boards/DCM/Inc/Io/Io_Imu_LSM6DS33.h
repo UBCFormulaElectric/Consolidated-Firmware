@@ -1,5 +1,4 @@
-#ifndef IO_IMU_LSM6DS33
-#define IO_IMU_LSM6DS33
+#pragma once
 
 /**
  * Driver for interfacing with the IMU LSM6DS33 via I2c
