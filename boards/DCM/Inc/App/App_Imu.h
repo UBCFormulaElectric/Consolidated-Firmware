@@ -4,31 +4,24 @@
 
 struct Imu;
 
-struct ImuData
-{
-    // Acceleration in m/s^2
-    float accel_x;
-    float accel_y;
-    float accel_z;
-
-    // The time (in ms) that this data was received
-    uint32_t received_time_ms;
-};
-
 /** Creates Imu struct used for reading data from sensor
- * @param update_data - pointer to function which updates data and returns true if update successful
- * @param get_imu_data - pointer to function which returns Imu data in ImuData struct
+ * @param update_data - pointer to function which updates data and returns true
+ * if update successful
+ * @param get_imu_data - pointer to function which returns Imu data in ImuData
+ * struct
  * @return Imu data in ImuData struct
  */
 struct Imu *App_Imu_Create(
     bool (*update_data)(void),
-    struct ImuData *(*get_imu_data)(void));
+    float (*get_acceleration_x)(void),
+    float (*get_acceleration_y)(void),
+    float (*get_acceleration_z)(void));
 
 /** Update stored Imu values
  * @param imu - pointer to Imu struct
  * @return true if update successful & data is valid, false otherwise
  */
-bool  App_Imu_UpdateData(const struct Imu *imu);
+bool App_Imu_UpdateData(const struct Imu *imu);
 
 /** Get most recent x acceleration reading from Imu
  * @param imu

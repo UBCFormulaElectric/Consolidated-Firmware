@@ -1,12 +1,5 @@
-#include "Io_Imu_LSM6DS33.h"
+#include "Io_LSM6DS33.h"
 #include "App_Imu.h"
-
-// The I2C handle for the I2C device the IMU is connected to
-static I2C_HandleTypeDef *imu_i2c_handle = NULL;
-
-static struct ImuData most_recently_received_data = { 0 };
-static bool           most_recently_received_data_valid;
-static bool           initialized = false;
 
 // The I2c slave device addresses to use when reading/writing to/from the IMU
 // See table 11 in section 6.1.1 of the LSM6DS33 data sheet for details
@@ -29,6 +22,28 @@ static bool           initialized = false;
 #define IMU_READ_ADDR 0xd7
 #define IMU_WRITE_ADDR 0xd6
 
+struct ImuData
+{
+    // Acceleration in m/s^2
+    float accel_x;
+    float accel_y;
+    float accel_z;
+
+    // The time (in ms) that this data was received
+    uint32_t received_time_ms;
+};
+
+struct LSM6DS33
+{
+    I2C_HandleTypeDef *imu_i2c_handle;
+};
+
+static struct LSM6DS33 lsm_6ds33;
+
+static struct ImuData most_recently_received_data = { 0 };
+static bool           most_recently_received_data_valid;
+static bool           initialized = false;
+
 /**
  * Send the given data to the IMU
  * @param register_address The register address to write data to
@@ -37,14 +52,14 @@ static bool           initialized = false;
  * @return The status indicated by the HAL library for the I2c required
  * operations
  */
-HAL_StatusTypeDef Io_Imu_LSM6DS33_writeToImu(
+HAL_StatusTypeDef Io_LSM6DS33_WriteToImu(
     uint16_t register_address,
     uint8_t *data,
     uint16_t data_size)
 {
     return HAL_I2C_Mem_Write(
-        imu_i2c_handle, IMU_WRITE_ADDR, register_address, I2C_MEMADD_SIZE_8BIT,
-        data, data_size, 1000);
+        lsm_6ds33.imu_i2c_handle, IMU_WRITE_ADDR, register_address,
+        I2C_MEMADD_SIZE_8BIT, data, data_size, 1000);
 }
 
 /**
@@ -52,7 +67,7 @@ HAL_StatusTypeDef Io_Imu_LSM6DS33_writeToImu(
  * @param accel_from_imu
  * @return
  */
-float Io_Imu_LSM6DS33_convertIMUAccelerationToMetersPerSecondSquared(
+static float Io_LSM6DS33_ConvertIMUAccelerationToMetersPerSecondSquared(
     int16_t accel_from_imu)
 {
     const float max_abs_g_force           = 2.0f;
@@ -69,32 +84,32 @@ float Io_Imu_LSM6DS33_convertIMUAccelerationToMetersPerSecondSquared(
  * @return The status indicated by the HAL library for the I2c required
  * operations
  */
-HAL_StatusTypeDef Io_Imu_LSM6DS33_readFromImu(
+HAL_StatusTypeDef Io_LSM6DS33_ReadFromImu(
     uint16_t read_start_address,
     uint8_t *data,
     uint16_t data_size)
 {
     return HAL_I2C_Mem_Read(
-        imu_i2c_handle, IMU_READ_ADDR, read_start_address, I2C_MEMADD_SIZE_8BIT,
-        data, data_size, 100);
+        lsm_6ds33.imu_i2c_handle, IMU_READ_ADDR, read_start_address,
+        I2C_MEMADD_SIZE_8BIT, data, data_size, 100);
 }
 
-HAL_StatusTypeDef Io_Imu_LSM6DS33_configureImu(I2C_HandleTypeDef *i2c_handle)
+HAL_StatusTypeDef Io_LSM6DS33_ConfigureImu(I2C_HandleTypeDef *i2c_handle)
 {
-    imu_i2c_handle = i2c_handle;
-
+    lsm_6ds33.imu_i2c_handle = i2c_handle;
     HAL_StatusTypeDef status = HAL_OK;
 
     //===== Initialize the IMU chip =======
 
     // Wait until the device is ready to communicate
-    status = HAL_I2C_IsDeviceReady(imu_i2c_handle, IMU_READ_ADDR, 3, 1000);
+    status =
+        HAL_I2C_IsDeviceReady(lsm_6ds33.imu_i2c_handle, IMU_READ_ADDR, 3, 1000);
 
     // Enable Accelerometer X,Y,Z axis
     if (status == HAL_OK)
     {
         uint8_t data = 0x38; // 0b00_111_000
-        status       = Io_Imu_LSM6DS33_writeToImu(CTRL9_XL, &data, 1);
+        status       = Io_LSM6DS33_WriteToImu(CTRL9_XL, &data, 1);
     }
 
     // Set Accelerometer to read at 416hz, max acceleration to +/-2g,
@@ -102,14 +117,14 @@ HAL_StatusTypeDef Io_Imu_LSM6DS33_configureImu(I2C_HandleTypeDef *i2c_handle)
     if (status == HAL_OK)
     {
         uint8_t data = 0x60; // 0b0110_00_00
-        status       = Io_Imu_LSM6DS33_writeToImu(CTRL1_XL, &data, 1);
+        status       = Io_LSM6DS33_WriteToImu(CTRL1_XL, &data, 1);
     }
 
     // Enable Gyroscope X,Y,Z axis
     if (status == HAL_OK)
     {
         uint8_t data = 0x38; // 0b00_111_0_0_0
-        status       = Io_Imu_LSM6DS33_writeToImu(CTRL10_C, &data, 1);
+        status       = Io_LSM6DS33_WriteToImu(CTRL10_C, &data, 1);
     }
 
     // Set Gyroscope to read at 416hz, with max expected rotation of 250dps
@@ -117,7 +132,7 @@ HAL_StatusTypeDef Io_Imu_LSM6DS33_configureImu(I2C_HandleTypeDef *i2c_handle)
     if (status == HAL_OK)
     {
         uint8_t data = 0x60; // 0b0110_00_0_0
-        status       = Io_Imu_LSM6DS33_writeToImu(CTRL2_G, &data, 1);
+        status       = Io_LSM6DS33_WriteToImu(CTRL2_G, &data, 1);
     }
 
     // Set IMU to trigger an interrupt on INT2 whenever there is new
@@ -125,7 +140,7 @@ HAL_StatusTypeDef Io_Imu_LSM6DS33_configureImu(I2C_HandleTypeDef *i2c_handle)
     if (status == HAL_OK)
     {
         uint8_t data = 0x3; // 0b00000011
-        status       = Io_Imu_LSM6DS33_writeToImu(INT2_CTRL, &data, 1);
+        status       = Io_LSM6DS33_WriteToImu(INT2_CTRL, &data, 1);
     }
 
     initialized = (status == HAL_OK);
@@ -133,18 +148,18 @@ HAL_StatusTypeDef Io_Imu_LSM6DS33_configureImu(I2C_HandleTypeDef *i2c_handle)
     return status;
 }
 
-bool Io_Imu_LSM6DS33_UpdateImuData()
+bool Io_LSM6DS33_UpdateImuData()
 {
     uint8_t           data[12];
     HAL_StatusTypeDef status = HAL_ERROR;
 
     if (initialized)
     {
-        status = Io_Imu_LSM6DS33_readFromImu(DATA_OUT_STRT, data, 12);
+        status = Io_LSM6DS33_ReadFromImu(DATA_OUT_STRT, data, 12);
     }
 
     uint8_t status_reg_val = 0;
-    Io_Imu_LSM6DS33_readFromImu(STATUS_REG, &status_reg_val, 1);
+    Io_LSM6DS33_ReadFromImu(STATUS_REG, &status_reg_val, 1);
 
     uint32_t current_time_in_ms = HAL_GetTick();
 
@@ -164,13 +179,13 @@ bool Io_Imu_LSM6DS33_UpdateImuData()
         int16_t raw_accel_z = (int16_t)((data[11] << 8) + data[10]);
 
         most_recently_received_data.accel_x =
-            Io_Imu_LSM6DS33_convertIMUAccelerationToMetersPerSecondSquared(
+            Io_LSM6DS33_ConvertIMUAccelerationToMetersPerSecondSquared(
                 raw_accel_x);
         most_recently_received_data.accel_y =
-            Io_Imu_LSM6DS33_convertIMUAccelerationToMetersPerSecondSquared(
+            Io_LSM6DS33_ConvertIMUAccelerationToMetersPerSecondSquared(
                 raw_accel_y);
         most_recently_received_data.accel_z =
-            Io_Imu_LSM6DS33_convertIMUAccelerationToMetersPerSecondSquared(
+            Io_LSM6DS33_ConvertIMUAccelerationToMetersPerSecondSquared(
                 raw_accel_z);
 
         most_recently_received_data_valid = true;
@@ -183,7 +198,17 @@ bool Io_Imu_LSM6DS33_UpdateImuData()
     return ((status == HAL_OK) && most_recently_received_data_valid);
 }
 
-struct ImuData *Io_Imu_LSM6DS33_GetImuData()
+float Io_LSM6DS33_GetAccelerationX()
 {
-    return &most_recently_received_data;
+    return most_recently_received_data.accel_x;
+}
+
+float Io_LSM6DS33_GetAccelerationY()
+{
+    return most_recently_received_data.accel_y;
+}
+
+float Io_LSM6DS33_GetAccelerationZ()
+{
+    return most_recently_received_data.accel_z;
 }

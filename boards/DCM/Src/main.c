@@ -37,7 +37,7 @@
 #include "Io_RgbLedSequence.h"
 #include "Io_BrakeLight.h"
 #include "Io_Buzzer.h"
-#include "Io_Imu_LSM6DS33.h"
+#include "Io_LSM6DS33.h"
 
 #include "App_DcmWorld.h"
 #include "App_SharedStateMachine.h"
@@ -190,7 +190,8 @@ int main(void)
     clock = App_SharedClock_Create();
 
     imu = App_Imu_Create(
-        Io_Imu_LSM6DS33_UpdateImuData, Io_Imu_LSM6DS33_GetImuData);
+        Io_LSM6DS33_UpdateImuData, Io_LSM6DS33_GetAccelerationX,
+        Io_LSM6DS33_GetAccelerationY, Io_LSM6DS33_GetAccelerationZ);
 
     world = App_DcmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, brake_light,

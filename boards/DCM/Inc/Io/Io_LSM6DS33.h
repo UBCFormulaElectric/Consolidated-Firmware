@@ -20,19 +20,29 @@ struct ImuData;
  * @param      i2c_handle The handle for the I2C device the IMU is connected to
  * @return     None
  */
-HAL_StatusTypeDef Io_Imu_LSM6DS33_configureImu(I2C_HandleTypeDef *i2c_handle);
+HAL_StatusTypeDef Io_LSM6DS33_ConfigureImu(I2C_HandleTypeDef *i2c_handle);
 
 /**
  * Read data from the IMU and update internal variables
  *
  * @return      true if we read data successfully, false otherwise
  */
-bool Io_Imu_LSM6DS33_UpdateImuData(void);
+bool Io_LSM6DS33_UpdateImuData(void);
 
 /**
- * Get data received from imu in ImuData struct
- * @return ImuData struct *data
+ * Get x acceleration from imu
+ * @return x acceleration in m/s^2
  */
-struct ImuData *Io_Imu_LSM6DS33_GetImuData(void);
+float Io_LSM6DS33_GetAccelerationX(void);
 
-#endif // IO_IMU_LSM6DS33
+/**
+ * Get y acceleration from imu
+ * @return y acceleration in m/s^2
+ */
+float Io_LSM6DS33_GetAccelerationY(void);
+
+/**
+ * Get z acceleration from imu
+ * @return z acceleration in m/s^2
+ */
+float Io_LSM6DS33_GetAccelerationZ(void);
