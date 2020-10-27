@@ -7,7 +7,9 @@ struct Imu;
 /** Creates Imu struct used for reading data from sensor
  * @param update_data - pointer to function which updates data and returns true
  * if update successful
- * @param get_imu_data - pointer to function which returns Imu data in ImuData
+ * @param get_acceleration_x - pointer to function which returns x acceleration in m/s^2
+ * @param get_acceleration_y - pointer to function which returns y acceleration in m/s^2
+ * @param get_acceleration_z - pointer to function which returns z acceleration in m/s^2
  * struct
  * @return Imu data in ImuData struct
  */
