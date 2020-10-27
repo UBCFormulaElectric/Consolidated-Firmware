@@ -3,6 +3,17 @@
 #include <stm32f3xx_hal.h>
 #include "App_SharedExitCode.h"
 
+enum CellVoltageRegisterGroups
+{
+    CELL_VOLTAGE_REGISTER_GROUP_A,
+    CELL_VOLTAGE_REGISTER_GROUP_B,
+    CELL_VOLTAGE_REGISTER_GROUP_C,
+    CELL_VOLTAGE_REGISTER_GROUP_D,
+    CELL_VOLTAGE_REGISTER_GROUP_E,
+    CELL_VOLTAGE_REGISTER_GROUP_F,
+    NUM_OF_CELL_VOLTAGE_REGISTER_GROUPS
+};
+
 /**
  * Initialize all chips on the LTC6813 daisy chain.
  * @param spi_handle The given SPI handle for the LTC6813 daisy chain.
@@ -15,33 +26,55 @@ void Io_LTC6813_Init(
     uint16_t           nss_pin);
 
 /**
- * Configure all chips on the LTC6813 daisy chain.
+ * Calculate the 15-bit packet error code (PEC15) for the given data buffer.
+ * @param data_buffer A pointer to the buffer containing data used to calculate
+ * the PEC15 code.
+ * @param size The number of data elements used to calculate the PEC15 code
+ * @note The size can be a positive integer less than or equal to the size
+ * of the data buffer.
+ * @return The calculated PEC15 code
+ */
+uint16_t Io_LTC6813_CalculatePec15(uint8_t *data_buffer, uint32_t size);
+
+/**
+ * Transition all LTC6813 chips on the daisy chain from the IDLE state to the
+ * READY state.
+ * @return EXIT_CODE_OK if the SCK and NSS pin can be toggled successfully.
+ * Else, EXIT_CODE_ERROR.
+ */
+ExitCode Io_LTC6813_EnterReadyState(void);
+
+/**
+ * Start cell voltage conversions for all LTC6813 chips on the daisy chain.
+ * @return EXIT_CODE_OK if the command to start cell voltage conversions is sent
+ * successfully. Else, EXIT_CODE_ERROR.
+ */
+ExitCode Io_LTC6813_StartCellVoltageConversions(void);
+
+/**
+ * Start internal device conversions for all LTC6813 chips on the daisy chain.
+ * @return EXIT_CODE_OK if the command to start internal device conversions is
+ * sent successfully. Else, EXIT_CODE_ERROR.
+ */
+ExitCode Io_LTC6813_StartInternalDeviceConversions(void);
+
+/**
+ * Wait for the completion of all ADC conversions on the LTC6813 in the daisy
+ * chain.
+ * @return EXIT_CODE_OK if all ADC conversions on the LTC6813 chips on the daisy
+ * chain have completed successfully. Else, EXIT_CODE_TIMEOUT.
+ */
+ExitCode Io_LTC6813_PollConversions(void);
+
+/**
+ * Configure register A for all chips on the LTC6813 daisy chain.
  * @return EXIT_CODE_OK if all chips on the daisy chain are configured
- * successfully. Else, return EXIT_CODE_TIMEOUT if the data cannot be
- * transmitted to the chips on the LTC6813 daisy chain.
+ * successfully. Else, EXIT_CODE_ERROR.
  */
-ExitCode Io_LTC6813_Configure(void);
+ExitCode Io_LTC6813_ConfigureRegisterA(void);
 
 /**
- * Read all cell register groups for each chip on the LTC6813 daisy chain.
- * @return If data cannot be transmitted to or received from the chips on the
- * LTC6813 daisy chain, return EXIT_CODE_TIMEOUT. Else if PEC15 mismatches
- * are detected, return EXIT_CODE_ERROR. Else, return EXIT_CODE_OK.
+ * Get the SPI interface configured for the LTC6813 daisy chain.
+ * @return The SPI interface configured for the LTC6813 daisy chain.
  */
-ExitCode Io_LTC6813_ReadAllCellRegisterGroups(void);
-
-/**
- * Get the pointer to the 2D array containing converted cell voltages for
- * each chip on the daisy chain.
- *
- * @note The 2D array has its first subscript value as NUM_OF_LTC6813 (the total
- * number of LTC6813 chips connected on the daisy chain), and its second
- * subscript value as NUM_OF_CELLS_PER_LTC6813 (the number of cell voltages that
- * can be monitored per LTC6813 chip).
- * Each cell voltage read back from the LTC6813 daisy chain is a 16-bit unsigned
- * integer where the LSB represents 100µV.
- *
- * @return A pointer to the 2D array containing converted chip cell
- * voltages.
- */
-uint16_t *Io_LTC6813_GetCellVoltages(void);
+struct SharedSpi *Io_LTC6813_GetSpiInterface(void);
