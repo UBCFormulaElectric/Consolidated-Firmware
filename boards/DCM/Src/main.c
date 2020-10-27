@@ -190,7 +190,7 @@ int main(void)
     clock = App_SharedClock_Create();
 
     imu = App_Imu_Create(
-        Io_LSM6DS33_UpdateImuData, Io_LSM6DS33_GetAccelerationX,
+        Io_LSM6DS33_UpdateSensorData, Io_LSM6DS33_GetAccelerationX,
         Io_LSM6DS33_GetAccelerationY, Io_LSM6DS33_GetAccelerationZ);
 
     world = App_DcmWorld_Create(

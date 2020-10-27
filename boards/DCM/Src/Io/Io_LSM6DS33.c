@@ -1,3 +1,4 @@
+#include <App_SharedExitCode.h>
 #include "Io_LSM6DS33.h"
 #include "App_Imu.h"
 
@@ -28,21 +29,15 @@ struct ImuData
     float accel_x;
     float accel_y;
     float accel_z;
-
-    // The time (in ms) that this data was received
-    uint32_t received_time_ms;
 };
 
 struct LSM6DS33
 {
     I2C_HandleTypeDef *imu_i2c_handle;
+    struct ImuData     most_recently_received_data;
 };
 
-static struct LSM6DS33 lsm_6ds33;
-
-static struct ImuData most_recently_received_data = { 0 };
-static bool           most_recently_received_data_valid;
-static bool           initialized = false;
+static struct LSM6DS33 lsm_6ds33 = { .most_recently_received_data = { 0 } };
 
 /**
  * Send the given data to the IMU
@@ -143,30 +138,27 @@ HAL_StatusTypeDef Io_LSM6DS33_ConfigureImu(I2C_HandleTypeDef *i2c_handle)
         status       = Io_LSM6DS33_WriteToImu(INT2_CTRL, &data, 1);
     }
 
-    initialized = (status == HAL_OK);
-
     return status;
 }
 
-bool Io_LSM6DS33_UpdateImuData()
+static bool DataInRange(float data, float min, float max)
+{
+    return (min <= data) && (data <= max);
+}
+
+ExitCode Io_LSM6DS33_UpdateSensorData()
 {
     uint8_t           data[12];
-    HAL_StatusTypeDef status = HAL_ERROR;
+    HAL_StatusTypeDef status    = HAL_ERROR;
+    ExitCode          exit_code = EXIT_CODE_OK;
 
-    if (initialized)
-    {
-        status = Io_LSM6DS33_ReadFromImu(DATA_OUT_STRT, data, 12);
-    }
+    status = Io_LSM6DS33_ReadFromImu(DATA_OUT_STRT, data, 12);
 
     uint8_t status_reg_val = 0;
     Io_LSM6DS33_ReadFromImu(STATUS_REG, &status_reg_val, 1);
 
-    uint32_t current_time_in_ms = HAL_GetTick();
-
     if (status == HAL_OK && status_reg_val != 0)
     {
-        most_recently_received_data.received_time_ms = current_time_in_ms;
-
         // This is how you can read data from the gyroscope. Note that these
         // are raw values, please refer to the spec sheet (section 9.12) for
         // information on how to convert it to meaningful information
@@ -178,37 +170,45 @@ bool Io_LSM6DS33_UpdateImuData()
         int16_t raw_accel_y = (int16_t)((data[9] << 8) + data[8]);
         int16_t raw_accel_z = (int16_t)((data[11] << 8) + data[10]);
 
-        most_recently_received_data.accel_x =
+        lsm_6ds33.most_recently_received_data.accel_x =
             Io_LSM6DS33_ConvertIMUAccelerationToMetersPerSecondSquared(
                 raw_accel_x);
-        most_recently_received_data.accel_y =
+        lsm_6ds33.most_recently_received_data.accel_y =
             Io_LSM6DS33_ConvertIMUAccelerationToMetersPerSecondSquared(
                 raw_accel_y);
-        most_recently_received_data.accel_z =
+        lsm_6ds33.most_recently_received_data.accel_z =
             Io_LSM6DS33_ConvertIMUAccelerationToMetersPerSecondSquared(
                 raw_accel_z);
 
-        most_recently_received_data_valid = true;
+        if (!DataInRange(
+                lsm_6ds33.most_recently_received_data.accel_x, -30.0f, 30.0f) ||
+            !DataInRange(
+                lsm_6ds33.most_recently_received_data.accel_y, -30.0f, 30.0f) ||
+            !DataInRange(
+                lsm_6ds33.most_recently_received_data.accel_z, -30.0f, 30.0f))
+        {
+            exit_code = EXIT_CODE_OUT_OF_RANGE;
+        }
     }
     else
     {
-        most_recently_received_data_valid = false;
+        exit_code = EXIT_CODE_INVALID_ARGS;
     }
 
-    return ((status == HAL_OK) && most_recently_received_data_valid);
+    return exit_code;
 }
 
 float Io_LSM6DS33_GetAccelerationX()
 {
-    return most_recently_received_data.accel_x;
+    return lsm_6ds33.most_recently_received_data.accel_x;
 }
 
 float Io_LSM6DS33_GetAccelerationY()
 {
-    return most_recently_received_data.accel_y;
+    return lsm_6ds33.most_recently_received_data.accel_y;
 }
 
 float Io_LSM6DS33_GetAccelerationZ()
 {
-    return most_recently_received_data.accel_z;
+    return lsm_6ds33.most_recently_received_data.accel_z;
 }

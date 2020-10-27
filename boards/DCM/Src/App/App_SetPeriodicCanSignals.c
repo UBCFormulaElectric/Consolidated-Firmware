@@ -21,6 +21,7 @@ static bool RegenAllowed(struct DcmCanRxInterface *can_rx)
 }
 
 // TODO: Implement PID controller to maintain DC bus power at 80kW
+// #680
 void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
 {
     float MAX_SAFE_TORQUE_REQUEST =
@@ -38,10 +39,14 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
     float torque_request;
 
     if (regen_paddle_percentage > 0 && RegenAllowed(can_rx))
+    {
         torque_request =
             -0.01f * regen_paddle_percentage * MAX_SAFE_TORQUE_REQUEST;
+    }
     else
+    {
         torque_request = 0.01f * pedal_percentage * MAX_SAFE_TORQUE_REQUEST;
+    }
 
     App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx, torque_request);
 }
@@ -49,17 +54,16 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
 void App_SetPeriodicCanSignals_Imu(const struct DcmWorld *world)
 {
     struct DcmCanTxInterface *can_tx = App_DcmWorld_GetCanTx(world);
-    struct Imu *imu = App_DcmWorld_GetImu(world);
+    struct Imu *              imu    = App_DcmWorld_GetImu(world);
 
-    bool data_valid = App_Imu_UpdateData(imu);
-    if (!data_valid)
+    ExitCode data_valid = App_Imu_UpdateSensorData(imu);
+    if (data_valid != EXIT_CODE_OK)
         return;
 
-    float accel_x    = App_Imu_GetAccelerationX(imu);
-    float accel_y    = App_Imu_GetAccelerationY(imu);
-    float accel_z    = App_Imu_GetAccelerationZ(imu);
-
-    App_CanTx_SetPeriodicSignal_ACCELERATION_X(can_tx, accel_x);
-    App_CanTx_SetPeriodicSignal_ACCELERATION_Y(can_tx, accel_y);
-    App_CanTx_SetPeriodicSignal_ACCELERATION_Z(can_tx, accel_z);
+    App_CanTx_SetPeriodicSignal_ACCELERATION_X(
+        can_tx, App_Imu_GetAccelerationX(imu));
+    App_CanTx_SetPeriodicSignal_ACCELERATION_Y(
+        can_tx, App_Imu_GetAccelerationY(imu));
+    App_CanTx_SetPeriodicSignal_ACCELERATION_Z(
+        can_tx, App_Imu_GetAccelerationZ(imu));
 }
