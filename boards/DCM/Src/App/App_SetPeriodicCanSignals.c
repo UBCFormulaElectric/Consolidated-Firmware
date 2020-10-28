@@ -3,23 +3,6 @@
 #include "App_CanRx.h"
 #include "App_CanTx.h"
 
-// Regen allowed when braking or (speed > 5kmh and AIRs closed)
-static bool RegenAllowed(struct DcmCanRxInterface *can_rx)
-{
-    float threshold_speed = 5.0f; // 5kmh
-    bool  air_closed =
-        (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) ==
-         CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE) &&
-        (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx) ==
-         CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
-    return App_CanRx_FSM_BRAKE_GetSignal_BRAKE_IS_ACTUATED(can_rx) ||
-           ((App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_LEFT_WHEEL_SPEED(
-                 can_rx) > threshold_speed) &&
-            (App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_RIGHT_WHEEL_SPEED(
-                 can_rx) > threshold_speed) &&
-            air_closed);
-}
-
 // TODO: Implement PID controller to maintain DC bus power at 80kW
 // #680
 void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
@@ -38,7 +21,21 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
             can_rx);
     float torque_request;
 
-    if (regen_paddle_percentage > 0 && RegenAllowed(can_rx))
+    // Regen allowed when braking or (speed > 5kmh and AIRs closed)
+    float threshold_speed = 5.0f; // 5kmh
+    bool  air_closed =
+        (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) ==
+         CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE) &&
+        (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx) ==
+         CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
+    bool going_fast_enough =
+        (App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_LEFT_WHEEL_SPEED(can_rx) >
+         threshold_speed) &&
+        (App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_RIGHT_WHEEL_SPEED(can_rx) >
+         threshold_speed);
+    bool regen_allowed = going_fast_enough && air_closed;
+
+    if (regen_paddle_percentage > 0 && regen_allowed)
     {
         torque_request =
             -0.01f * regen_paddle_percentage * MAX_SAFE_TORQUE_REQUEST;
