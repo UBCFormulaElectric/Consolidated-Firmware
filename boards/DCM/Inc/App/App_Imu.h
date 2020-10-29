@@ -26,7 +26,7 @@ struct Imu *App_Imu_Create(
 
 /**
  * Update acceleration and angular rate values for the given Imu.
- * @param imu pointer to Imu struct
+ * @param imu The Imu to update the acceleration and angular rate values for.
  * @return ExitCode which is EXIT_CODE_OK if successful, EXIT_CODE_OUT_OF_RANGE
  * if data is not within specified range, EXIT_CODE_INVALID_ARGS if data not
  * read successfully
@@ -34,8 +34,8 @@ struct Imu *App_Imu_Create(
 ExitCode App_Imu_UpdateSensorData(const struct Imu *const imu);
 
 /**
- * Get most recent x acceleration reading from Imu
- * @param imu pointer to Imu struct
+ * Get acceleration (m/s^2) measured on the x-axis from the given Imu.
+ * @param imu The Imu to get the x-axis acceleration from.
  * @return The acceleration (m/s^2) measured on the x-axis.
  */
 float App_Imu_GetAccelerationX(const struct Imu *const imu);
