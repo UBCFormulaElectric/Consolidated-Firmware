@@ -38,18 +38,18 @@ ExitCode App_Imu_UpdateSensorData(const struct Imu *const imu);
  * @param imu The Imu to get the x-axis acceleration from.
  * @return The acceleration (m/s^2) measured on the x-axis.
  */
-float App_Imu_GetAccelerationX(const struct Imu *const imu);
+float App_Imu_GetAccelerationX(const struct Imu * imu);
 
 /**
  * Get most recent y acceleration reading from Imu
  * @param imu pointer to Imu struct
  * @return The acceleration (m/s^2) measured on the y-axis.
  */
-float App_Imu_GetAccelerationY(const struct Imu *const imu);
+float App_Imu_GetAccelerationY(const struct Imu * imu);
 
 /**
  * Get most recent z acceleration reading from Imu
  * @param imu pointer to Imu struct
  * @return The acceleration (m/s^2) measured on the z-axis.
  */
-float App_Imu_GetAccelerationZ(const struct Imu *const imu);
+float App_Imu_GetAccelerationZ(const struct Imu * imu);
