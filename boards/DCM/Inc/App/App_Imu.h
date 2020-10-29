@@ -16,7 +16,7 @@ struct Imu;
  * acceleration (m/s^2) on the y-axis.
  * @param get_acceleration_z A function that can be called to get the
  * acceleration (m/s^2) on the z-axis.
- * @return Imu struct with functions above
+ * @return The created IMU whose ownership is given to the caller.
  */
 struct Imu *App_Imu_Create(
     ExitCode (*update_sensor_data)(void),
