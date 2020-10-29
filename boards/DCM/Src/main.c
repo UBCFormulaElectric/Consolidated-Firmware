@@ -194,8 +194,7 @@ int main(void)
         Io_LSM6DS33_GetAccelerationY, Io_LSM6DS33_GetAccelerationZ);
 
     world = App_DcmWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, brake_light,
-        buzzer, error_table, clock, imu, App_BuzzerSignals_IsOn,
+        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, brake_light, buzzer, imu, error_table, clock, App_BuzzerSignals_IsOn,
         App_BuzzerSignals_Callback);
 
     Io_StackWaterMark_Init(can_tx);

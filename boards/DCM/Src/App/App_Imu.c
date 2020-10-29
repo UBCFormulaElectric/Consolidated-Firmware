@@ -47,3 +47,8 @@ struct Imu *App_Imu_Create(
 
     return imu;
 }
+
+void App_Imu_Destroy(struct Imu *imu)
+{
+    free(imu);
+}
