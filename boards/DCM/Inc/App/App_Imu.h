@@ -25,7 +25,7 @@ struct Imu *App_Imu_Create(
     float (*get_acceleration_z)(void));
 
 /**
- * Update stored Imu values
+ * Update acceleration and angular rate values for the given Imu.
  * @param imu pointer to Imu struct
  * @return ExitCode which is EXIT_CODE_OK if successful, EXIT_CODE_OUT_OF_RANGE
  * if data is not within specified range, EXIT_CODE_INVALID_ARGS if data not
