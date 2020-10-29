@@ -23,21 +23,16 @@
 #define IMU_READ_ADDR 0xd7
 #define IMU_WRITE_ADDR 0xd6
 
-struct ImuData
+struct LSM6DS33
 {
+    I2C_HandleTypeDef *imu_i2c_handle;
     // Acceleration in m/s^2
     float accel_x;
     float accel_y;
     float accel_z;
 };
 
-struct LSM6DS33
-{
-    I2C_HandleTypeDef *imu_i2c_handle;
-    struct ImuData     most_recently_received_data;
-};
-
-static struct LSM6DS33 lsm_6ds33 = { .most_recently_received_data = { 0 } };
+static struct LSM6DS33 lsm_6ds33;
 
 /**
  * Send the given data to the IMU
@@ -170,22 +165,19 @@ ExitCode Io_LSM6DS33_UpdateSensorData()
         int16_t raw_accel_y = (int16_t)((data[9] << 8) + data[8]);
         int16_t raw_accel_z = (int16_t)((data[11] << 8) + data[10]);
 
-        lsm_6ds33.most_recently_received_data.accel_x =
+        lsm_6ds33.accel_x =
             Io_LSM6DS33_ConvertIMUAccelerationToMetersPerSecondSquared(
                 raw_accel_x);
-        lsm_6ds33.most_recently_received_data.accel_y =
+        lsm_6ds33.accel_y =
             Io_LSM6DS33_ConvertIMUAccelerationToMetersPerSecondSquared(
                 raw_accel_y);
-        lsm_6ds33.most_recently_received_data.accel_z =
+        lsm_6ds33.accel_z =
             Io_LSM6DS33_ConvertIMUAccelerationToMetersPerSecondSquared(
                 raw_accel_z);
 
-        if (!DataInRange(
-                lsm_6ds33.most_recently_received_data.accel_x, -30.0f, 30.0f) ||
-            !DataInRange(
-                lsm_6ds33.most_recently_received_data.accel_y, -30.0f, 30.0f) ||
-            !DataInRange(
-                lsm_6ds33.most_recently_received_data.accel_z, -30.0f, 30.0f))
+        if (!DataInRange(lsm_6ds33.accel_x, -30.0f, 30.0f) ||
+            !DataInRange(lsm_6ds33.accel_y, -30.0f, 30.0f) ||
+            !DataInRange(lsm_6ds33.accel_z, -30.0f, 30.0f))
         {
             exit_code = EXIT_CODE_OUT_OF_RANGE;
         }
@@ -200,15 +192,15 @@ ExitCode Io_LSM6DS33_UpdateSensorData()
 
 float Io_LSM6DS33_GetAccelerationX()
 {
-    return lsm_6ds33.most_recently_received_data.accel_x;
+    return lsm_6ds33.accel_x;
 }
 
 float Io_LSM6DS33_GetAccelerationY()
 {
-    return lsm_6ds33.most_recently_received_data.accel_y;
+    return lsm_6ds33.accel_y;
 }
 
 float Io_LSM6DS33_GetAccelerationZ()
 {
-    return lsm_6ds33.most_recently_received_data.accel_z;
+    return lsm_6ds33.accel_z;
 }

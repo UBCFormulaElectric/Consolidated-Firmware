@@ -12,8 +12,6 @@
 #include <stdbool.h>
 #include <App_SharedExitCode.h>
 
-struct ImuData;
-
 /**
  * Configures the LSM6DS33 IMU Gyro/Accelerometer chip
  * @param i2c_handle The handle for the I2C device the IMU is connected to
