@@ -6,7 +6,7 @@
 struct Imu;
 
 /**
- * Creates Imu struct used for reading data from sensor
+ * Allocate and initialize an IMU.
  * @param update_sensor_data function which updates data and returns
  * EXIT_CODE_OK if successful, EXIT_CODE_OUT_OF_RANGE if data is not within
  * specified range, EXIT_CODE_INVALID_ARGS if data not read successfully
