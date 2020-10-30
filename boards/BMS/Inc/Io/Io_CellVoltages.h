@@ -19,8 +19,7 @@ ExitCode Io_CellVoltages_ReadCellVoltages(void);
  * @note The first subscript value of the 2D array is the number of cell
  * monitoring devices on the daisy chain. The second subscript value is the
  * number of cell voltages that are monitored per cell monitoring chip.
- * @note Divide the cell voltages by 1e4 to convert to V.
- *
+ * @note Divide the cell voltages by 10000 to convert to V.
  * @return A pointer to the 2D array containing converted converted cell
  * voltages (100µV).
  */

@@ -5,9 +5,9 @@
 #include "configs/App_CellConfigs.h"
 #include "configs/Io_LTC6813Configs.h"
 
-static uint16_t internal_die_temperatures[NUM_OF_CELL_MONITOR_ICS];
+static float internal_die_temperatures[NUM_OF_CELL_MONITOR_ICS];
 
-uint16_t *Io_Temperatures_GetDieTemperatures(void)
+float *Io_Temperatures_GetDieTemperatures(void)
 {
     return internal_die_temperatures;
 }
@@ -50,7 +50,11 @@ ExitCode Io_Temperatures_ReadDieTemperatures(void)
             (uint32_t)(rx_internal_die_temp[2 + NUM_OF_RX_BYTES * current_ic]) |
             (uint32_t)(
                 (rx_internal_die_temp[3 + NUM_OF_RX_BYTES * current_ic] << 8));
-        internal_die_temperatures[current_ic] = (uint16_t)internal_die_temp;
+
+        // Calculate the internal die temperature using the following equation:
+        // DIE_TEMP = MEASURED_V * (1°C * 100µV / 7.6mV) - 276°C
+        internal_die_temperatures[current_ic] =
+            (float)internal_die_temp * 100e-6f / 7.6e-3f - 276.0f;
 
         // The received PEC15 bytes are stored in the 6th and 7th index.
         uint32_t received_pec15 =
