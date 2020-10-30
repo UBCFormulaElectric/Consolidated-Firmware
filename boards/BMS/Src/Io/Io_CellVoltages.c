@@ -6,6 +6,17 @@
 
 #define NUM_OF_CELLS_PER_LTC6813_REGISTER_GROUP 3U
 
+enum CellVoltageRegisterGroup
+{
+    CELL_VOLTAGE_REGISTER_GROUP_A,
+    CELL_VOLTAGE_REGISTER_GROUP_B,
+    CELL_VOLTAGE_REGISTER_GROUP_C,
+    CELL_VOLTAGE_REGISTER_GROUP_D,
+    CELL_VOLTAGE_REGISTER_GROUP_E,
+    CELL_VOLTAGE_REGISTER_GROUP_F,
+    NUM_OF_CELL_VOLTAGE_REGISTER_GROUPS
+};
+
 static const uint16_t cell_voltage_register_group_commands
     [NUM_OF_CELL_VOLTAGE_REGISTER_GROUPS] = {
         0x0400, // RDCVA
@@ -31,14 +42,14 @@ static uint16_t cell_voltages[NUM_OF_CELL_MONITOR_ICS]
  * EXIT_CODE_ERROR.
  */
 static ExitCode Io_LTC6813_ParseCellsAndPerformPec15Check(
-    size_t  current_ic,
-    size_t  current_register_group,
-    uint8_t rx_cell_voltages[]);
+    size_t                        current_ic,
+    enum CellVoltageRegisterGroup current_register_group,
+    uint8_t                       rx_cell_voltages[]);
 
 static ExitCode Io_LTC6813_ParseCellsAndPerformPec15Check(
-    size_t  current_ic,
-    size_t  current_register_group,
-    uint8_t rx_cell_voltages[])
+    size_t                        current_ic,
+    enum CellVoltageRegisterGroup current_register_group,
+    uint8_t                       rx_cell_voltages[])
 {
     size_t cell_voltage_index = current_ic * NUM_OF_RX_BYTES;
 
@@ -101,7 +112,7 @@ ExitCode Io_CellVoltages_ReadCellVoltages(void)
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_StartCellVoltageConversions())
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_PollConversions())
 
-    for (enum CellVoltageRegisterGroups current_register_group = 0U;
+    for (enum CellVoltageRegisterGroup current_register_group = 0U;
          current_register_group < NUM_OF_CELL_VOLTAGE_REGISTER_GROUPS;
          current_register_group++)
     {

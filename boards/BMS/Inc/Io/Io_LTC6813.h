@@ -3,17 +3,6 @@
 #include <stm32f3xx_hal.h>
 #include "App_SharedExitCode.h"
 
-enum CellVoltageRegisterGroups
-{
-    CELL_VOLTAGE_REGISTER_GROUP_A,
-    CELL_VOLTAGE_REGISTER_GROUP_B,
-    CELL_VOLTAGE_REGISTER_GROUP_C,
-    CELL_VOLTAGE_REGISTER_GROUP_D,
-    CELL_VOLTAGE_REGISTER_GROUP_E,
-    CELL_VOLTAGE_REGISTER_GROUP_F,
-    NUM_OF_CELL_VOLTAGE_REGISTER_GROUPS
-};
-
 /**
  * Initialize all chips on the LTC6813 daisy chain.
  * @param spi_handle The given SPI handle for the LTC6813 daisy chain.
