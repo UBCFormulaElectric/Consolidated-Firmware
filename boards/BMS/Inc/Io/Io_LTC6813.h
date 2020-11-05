@@ -21,7 +21,7 @@ void Io_LTC6813_Init(
  * @param size The number of data elements used to calculate the PEC15 code
  * @note The size can be a positive integer less than or equal to the size
  * of the data buffer.
- * @return The calculated PEC15 code
+ * @return The calculated PEC15 code for the given data buffer.
  */
 uint16_t Io_LTC6813_CalculatePec15(uint8_t *data_buffer, uint32_t size);
 
@@ -48,15 +48,15 @@ ExitCode Io_LTC6813_StartCellVoltageConversions(void);
 ExitCode Io_LTC6813_StartInternalDeviceConversions(void);
 
 /**
- * Wait for the completion of all ADC conversions on the LTC6813 in the daisy
- * chain.
- * @return EXIT_CODE_OK if all ADC conversions on the LTC6813 chips on the daisy
- * chain have completed successfully. Else, EXIT_CODE_TIMEOUT.
+ * Wait for the completion of all ADC conversions for the LTC6813 chips on the
+ * daisy chain.
+ * @return EXIT_CODE_OK if all ADC conversions have completed successfully.
+ * Else, EXIT_CODE_TIMEOUT.
  */
 ExitCode Io_LTC6813_PollConversions(void);
 
 /**
- * Configure register A for all chips on the LTC6813 daisy chain.
+ * Configure register A for all LTC6813 chips on the LTC6813 daisy chain.
  * @return EXIT_CODE_OK if all chips on the daisy chain are configured
  * successfully. Else, EXIT_CODE_ERROR.
  */
