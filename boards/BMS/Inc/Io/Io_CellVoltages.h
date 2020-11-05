@@ -16,10 +16,9 @@ ExitCode Io_CellVoltages_ReadCellVoltages(void);
  * monitoring chips.
  * @note Call Io_CellVoltages_ReadCellVoltages to get the most recent cell
  * voltages from the cell monitoring chips before calling this function.
- * @note The first subscript value of the 2D array is the number of cell
- * monitoring devices on the daisy chain. The second subscript value is the
- * number of cell voltages that are monitored per cell monitoring chip.
- * @note Divide the cell voltages by 10000 to convert to V.
+ * @note The row of the 2D array is equal to the number of cell monitoring
+ * devices on the daisy chain. The column of the 2D array is equal to the number
+ * of cell voltages that are monitored per cell monitoring chip.
  * @return A pointer to the 2D array containing converted converted cell
  * voltages (100µV).
  */

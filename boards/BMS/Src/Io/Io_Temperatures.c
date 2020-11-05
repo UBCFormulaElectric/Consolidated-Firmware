@@ -7,12 +7,12 @@
 
 static float internal_die_temperatures[NUM_OF_CELL_MONITOR_ICS];
 
-float *Io_Temperatures_GetDieTemperatures(void)
+float *Io_Temperatures_GetDieTemperaturesDegC(void)
 {
     return internal_die_temperatures;
 }
 
-ExitCode Io_Temperatures_ReadDieTemperatures(void)
+ExitCode Io_Temperatures_ReadDieTemperaturesDegC(void)
 {
     // The command used to read data from status register A.
     uint32_t RDSTATA = 0x0010;
