@@ -99,7 +99,7 @@ ExitCode Io_LTC6813_EnterReadyState(void)
 
 ExitCode Io_LTC6813_StartCellVoltageConversions(void)
 {
-    // The command used to start an ADC conversion.
+    // The command used to start ADC conversions for battery cell voltages.
     uint32_t ADCV = (0x260 + (MD << 7) + (DCP << 4) + CH);
 
     uint8_t tx_cmd[NUM_OF_CMD_BYTES];
@@ -119,6 +119,7 @@ ExitCode Io_LTC6813_StartCellVoltageConversions(void)
 
 ExitCode Io_LTC6813_StartInternalDeviceConversions(void)
 {
+    // The command used to start internal device conversions.
     uint32_t ADSTAT = (0x468 + (MD << 7) + CHST);
 
     uint8_t tx_cmd[NUM_OF_CMD_BYTES];
