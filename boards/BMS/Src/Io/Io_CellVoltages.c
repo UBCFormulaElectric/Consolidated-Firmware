@@ -69,16 +69,15 @@ static ExitCode Io_LTC6813_ParseCellsAndPerformPec15Check(
         if (current_register_group == CELL_VOLTAGE_REGISTER_GROUP_F)
         {
             // Since 16 cells are monitored for each accumulator segment, ignore
-            // the last four bytes read back from the LTC6813 chip when reading
-            // from CELL_VOLTAGE_REGISTER_F. The cell voltage index is
-            // incremented by 6 to retrieve the PEC15 bytes for the register
-            // group.
+            // the last two cell voltages read back from
+            // CELL_VOLTAGE_REGISTER_F. The cell voltage index is incremented by
+            // 6 to retrieve the PEC15 bytes for the register group.
             cell_voltage_index += 6U;
             break;
         }
         else
         {
-            // Each cell voltage is represented as a pair of bytes. Therefore,
+            // Each cell voltage is represented by 2 bytes. Therefore,
             // the cell voltage index is incremented by 2 to retrieve the next
             // cell voltage.
             cell_voltage_index += 2U;
@@ -112,7 +111,8 @@ ExitCode Io_CellVoltages_ReadCellVoltages(void)
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_StartCellVoltageConversions())
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_PollConversions())
 
-    for (enum CellVoltageRegisterGroup current_register_group = 0U;
+    for (enum CellVoltageRegisterGroup current_register_group =
+             CELL_VOLTAGE_REGISTER_GROUP_A;
          current_register_group < NUM_OF_CELL_VOLTAGE_REGISTER_GROUPS;
          current_register_group++)
     {
