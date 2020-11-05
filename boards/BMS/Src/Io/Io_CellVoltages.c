@@ -135,7 +135,7 @@ ExitCode Io_CellVoltages_ReadCellVoltages(void)
             return EXIT_CODE_ERROR;
         }
 
-        for (enum CellMonitorICs current_ic = 0U;
+        for (enum CellMonitorICs current_ic = CELL_MONITOR_IC_0;
              current_ic < NUM_OF_CELL_MONITOR_ICS; current_ic++)
         {
             if (Io_LTC6813_ParseCellsAndPerformPec15Check(
