@@ -25,7 +25,7 @@ HAL_StatusTypeDef Io_LSM6DS33_ConfigureImu(I2C_HandleTypeDef *i2c_handle);
  * if data is not within specified range, EXIT_CODE_INVALID_ARGS if data not
  * read successfully
  */
-ExitCode Io_LSM6DS33_UpdateSensorData(void);
+ExitCode Io_LSM6DS33_ExtiCallback(void);
 
 /**
  * Get x acceleration from imu

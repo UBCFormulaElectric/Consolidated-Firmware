@@ -141,7 +141,7 @@ static bool DataInRange(float data, float min, float max)
     return (min <= data) && (data <= max);
 }
 
-ExitCode Io_LSM6DS33_UpdateSensorData()
+ExitCode Io_LSM6DS33_ExtiCallback()
 {
     uint8_t           data[12];
     HAL_StatusTypeDef status    = HAL_ERROR;

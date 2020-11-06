@@ -191,7 +191,7 @@ int main(void)
     clock = App_SharedClock_Create();
 
     imu = App_Imu_Create(
-        Io_LSM6DS33_UpdateSensorData, Io_LSM6DS33_GetAccelerationX,
+        Io_LSM6DS33_ExtiCallback, Io_LSM6DS33_GetAccelerationX,
         Io_LSM6DS33_GetAccelerationY, Io_LSM6DS33_GetAccelerationZ,
         MIN_ACCELERATION_MS2, MAX_ACCELERATION_MS2);
 
