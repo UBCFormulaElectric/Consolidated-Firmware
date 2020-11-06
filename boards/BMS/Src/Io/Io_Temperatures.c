@@ -46,13 +46,17 @@ ExitCode Io_Temperatures_ReadDieTemperaturesDegC(void)
 
         // The upper byte of the internal die temperature is stored in the
         // 3rd byte, while the lower byte is stored in the 2nd byte.
-        uint32_t internal_die_temp =
+        const uint32_t internal_die_temp =
             (uint32_t)(rx_internal_die_temp[2 + NUM_OF_RX_BYTES * current_ic]) |
             (uint32_t)(
                 (rx_internal_die_temp[3 + NUM_OF_RX_BYTES * current_ic] << 8));
 
         // Calculate the internal die temperature using the following equation:
-        // DIE_TEMP = MEASURED_100UV * (1°C * 100µV / 7.6mV) - 276°C
+        //
+        //                                           (1°C * 100µV)
+        // DIE_TEMP_DEG_C  = MEASURED_VOLTAGE_µV * ----------------- - 276°C
+        //                                              7.6 mV
+
         internal_die_temperatures[current_ic] =
             (float)internal_die_temp * 100e-6f / 7.6e-3f - 276.0f;
 

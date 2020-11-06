@@ -41,22 +41,22 @@ static uint16_t cell_voltages[NUM_OF_CELL_MONITOR_ICS]
  * @return EXIT_CODE_OK if the PEC15 check was successful. Else,
  * EXIT_CODE_ERROR.
  */
-static ExitCode Io_LTC6813_ParseCellsAndPerformPec15Check(
+static ExitCode Io_CellVoltages_ParseCellsAndPerformPec15Check(
     size_t                        current_ic,
     enum CellVoltageRegisterGroup current_register_group,
-    uint8_t                       rx_cell_voltages[]);
+    uint8_t *                     rx_cell_voltages);
 
-static ExitCode Io_LTC6813_ParseCellsAndPerformPec15Check(
+static ExitCode Io_CellVoltages_ParseCellsAndPerformPec15Check(
     size_t                        current_ic,
     enum CellVoltageRegisterGroup current_register_group,
-    uint8_t                       rx_cell_voltages[])
+    uint8_t *                     rx_cell_voltages)
 {
     size_t cell_voltage_index = current_ic * NUM_OF_RX_BYTES;
 
     for (size_t current_cell = 0U;
          current_cell < NUM_OF_CELLS_PER_LTC6813_REGISTER_GROUP; current_cell++)
     {
-        uint32_t cell_voltage =
+        const uint32_t cell_voltage =
             (uint32_t)(rx_cell_voltages[cell_voltage_index]) |
             (uint32_t)((rx_cell_voltages[cell_voltage_index + 1] << 8));
 
@@ -139,7 +139,7 @@ ExitCode Io_CellVoltages_ReadCellVoltages(void)
         for (enum CellMonitorICs current_ic = CELL_MONITOR_IC_0;
              current_ic < NUM_OF_CELL_MONITOR_ICS; current_ic++)
         {
-            if (Io_LTC6813_ParseCellsAndPerformPec15Check(
+            if (Io_CellVoltages_ParseCellsAndPerformPec15Check(
                     current_ic, current_register_group, rx_cell_voltages) !=
                 EXIT_CODE_OK)
             {

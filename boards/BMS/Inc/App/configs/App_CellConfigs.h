@@ -1,7 +1,5 @@
 #pragma once
 
-#include "assert.h"
-
 enum CellMonitorICs
 {
     CELL_MONITOR_IC_0,
@@ -10,3 +8,4 @@ enum CellMonitorICs
 };
 
 #define NUM_OF_CELLS_READ_PER_IC 16U
+#define NUM_OF_CELL_TEMPERATURES_READ_PER_IC 8U
