@@ -46,9 +46,9 @@ static ExitCode Io_Thermistors_ParseAuxMeasurementsAndPerformPec15Check(
     enum AuxiliaryRegisterGroup current_register_group,
     uint8_t *                   rx_aux_measurement)
 {
-    size_t      aux_measurement_index = current_ic * NUM_OF_RX_BYTES;
-    const float bias_resistor_ohms    = 10000.0f;
-    const float reference_voltage     = 3.0f;
+    size_t aux_measurement_index = current_ic * NUM_OF_RX_BYTES;
+    // const float bias_resistor_ohms    = 10000.0f;
+    // const float reference_voltage     = 3.0f;
 
     for (size_t current_cell = 0U;
          current_cell < NUM_OF_AUX_MEASUREMENTS_PER_REGISTER_GROUP;
@@ -72,15 +72,15 @@ static ExitCode Io_Thermistors_ParseAuxMeasurementsAndPerformPec15Check(
 
         // The measured aux voltage is divided by 10000 in the following
         // calculation since it is read back in 100µV.
-        const float thermistor_resistance =
-            (float)measured_aux_voltage * bias_resistor_ohms /
-            (reference_voltage - (float)measured_aux_voltage / 10000.0f);
+        // const float thermistor_resistance =
+        //    (float)measured_aux_voltage * bias_resistor_ohms /
+        //    (reference_voltage - (float)measured_aux_voltage / 10000.0f);
 
         thermistor_resistances[current_ic]
                               [current_cell +
                                current_register_group *
                                    NUM_OF_AUX_MEASUREMENTS_PER_REGISTER_GROUP] =
-                                  (float)thermistor_resistance;
+                                  (float)measured_aux_voltage;
 
         if (current_register_group == AUX_REGISTER_GROUP_D &&
             aux_measurement_index == 2U)
