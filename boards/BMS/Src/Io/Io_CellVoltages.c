@@ -86,13 +86,13 @@ static ExitCode Io_CellVoltages_ParseCellsAndPerformPec15Check(
         }
     }
 
-    uint32_t received_pec15 =
+    const uint32_t received_pec15 =
         (uint32_t)(rx_cell_voltages[cell_voltage_index] << 8) |
         (uint32_t)(rx_cell_voltages[cell_voltage_index + 1]);
 
     // Calculate the PEC15 using the first 6 bytes of data received from the
     // chip.
-    uint32_t calculated_pec15 = Io_LTC6813_CalculatePec15(
+    const uint32_t calculated_pec15 = Io_LTC6813_CalculatePec15(
         &rx_cell_voltages[current_chip * NUM_OF_RX_BYTES], 6U);
 
     if (received_pec15 != calculated_pec15)

@@ -19,7 +19,7 @@ ExitCode Io_CellVoltages_ReadCellVoltages(void);
  * @note The row of the 2D array is equal to the number of cell monitoring
  * devices on the daisy chain. The column of the 2D array is equal to the number
  * of cell voltages that are monitored per cell monitoring chip.
- * @return A pointer to the 2D array containing converted converted cell
+ * @return A pointer to the 2D array containing converted cell
  * voltages (100µV).
  */
 uint16_t *Io_CellVoltages_GetCellVoltages(void);

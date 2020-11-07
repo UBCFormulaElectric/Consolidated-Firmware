@@ -7,15 +7,15 @@
 
 static float internal_die_temperatures[NUM_OF_CELL_MONITOR_ICS];
 
-float *Io_DieTemperatures_GetDieTemperaturesDegC(void)
+float *Io_DieTemperatures_GetTemperaturesDegC(void)
 {
     return internal_die_temperatures;
 }
 
-ExitCode Io_DieTemperatures_ReadDieTemperaturesDegC(void)
+ExitCode Io_DieTemperatures_ReadTemperaturesDegC(void)
 {
     // The command used to read data from status register A.
-    uint32_t RDSTATA = 0x0010;
+    const uint32_t RDSTATA = 0x0010;
 
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_EnterReadyState())
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_StartInternalDeviceConversions())
@@ -61,14 +61,14 @@ ExitCode Io_DieTemperatures_ReadDieTemperaturesDegC(void)
             (float)internal_die_temp * 100e-6f / 7.6e-3f - 276.0f;
 
         // The received PEC15 bytes are stored in the 6th and 7th byte.
-        uint32_t received_pec15 =
+        const uint32_t received_pec15 =
             (uint32_t)(
                 rx_internal_die_temp[6 + NUM_OF_RX_BYTES * current_ic] << 8) |
             (uint32_t)(rx_internal_die_temp[7 + NUM_OF_RX_BYTES * current_ic]);
 
         // Calculate the PEC15 using the first 6 bytes of data received from the
         // chip.
-        uint32_t calculated_pec15 = Io_LTC6813_CalculatePec15(
+        const uint32_t calculated_pec15 = Io_LTC6813_CalculatePec15(
             &rx_internal_die_temp[current_ic * NUM_OF_RX_BYTES], 6U);
         if (received_pec15 != calculated_pec15)
         {

@@ -1,39 +1,16 @@
 #include "Io_CellTemperatures.h"
-#include "Io_LTC6813.h"
 #include "Io_SharedSpi.h"
+#include "Io_Thermistors.h"
 #include "configs/App_CellConfigs.h"
-#include "configs/Io_LTC6813Configs.h"
 
 #define NUM_OF_THERMISTORS_PER_IC NUM_OF_CELL_TEMPERATURES_READ_PER_IC
-#define NUM_OF_GPIOS_PER_IC NUM_OF_THERMISTORS_PER_IC
 #define NUM_OF_AUX_MEASUREMENTS_PER_REGISTER_GROUP 3U
+#define SIZE_OF_TEMPERATURE_LUT 201
 
-#define THERMISTOR_LUT_SIZE 201
-
-enum AuxiliaryRegisterGroup
-{
-    AUX_REGISTER_GROUP_A,
-    AUX_REGISTER_GROUP_B,
-    AUX_REGISTER_GROUP_C,
-    AUX_REGISTER_GROUP_D,
-    NUM_OF_AUX_REGISTER_GROUPS
-};
-
-// The set of commands used to read values stored inside auxiliary register
-// groups. The analog voltages measured by the GPIOs will be stored inside the
-// auxiliary register groups.
-static const uint16_t
-    aux_register_group_commands[NUM_OF_AUX_REGISTER_GROUPS] = {
-        0x000C, // RDAUXA
-        0x000E, // RDAUXB
-        0x000D, // RDAUXC
-        0x000F, // RDAUXD
-    };
-
-// 0-100°C lookup table with 0.5°C resolution for a Vishay NTCALUG03A103G
-// thermistor. The 0th index represents 0 degC. Incrementing the index
-// represents a 0.5 degC increase in temperature.
-static const float thermistor_lut[THERMISTOR_LUT_SIZE] = {
+// A 0-100°C temperature reverse lookup table with 0.5°C resolution for a Vishay
+// NTCALUG03A103G thermistor. The 0th index represents 0°C. Incrementing the
+// index represents a 0.5°C increase in temperature.
+static const float temperature_lut[SIZE_OF_TEMPERATURE_LUT] = {
     32624.2f, 31804.3f, 31007.3f, 30232.8f, 29479.9f, 28747.9f, 28036.3f,
     27344.5f, 26671.8f, 26017.6f, 25381.4f, 24762.6f, 24160.7f, 23575.3f,
     23005.7f, 22451.6f, 21912.4f, 21387.8f, 20877.3f, 20380.5f, 19896.9f,
@@ -59,163 +36,18 @@ static const float thermistor_lut[THERMISTOR_LUT_SIZE] = {
     1381.1f,  1358.5f,  1336.4f,  1314.6f,  1293.3f,  1272.4f,  1251.8f
 };
 
-struct CellTemperaturesContext
-{
-    float reference_voltage;
-
-    uint16_t raw_gpio_voltages[NUM_OF_CELL_MONITOR_ICS][NUM_OF_GPIOS_PER_IC];
-    float cell_temperatures[NUM_OF_CELL_MONITOR_ICS][NUM_OF_THERMISTORS_PER_IC];
-};
-
-static struct CellTemperaturesContext cell_temperatures_context = {
-    .raw_gpio_voltages = { { 0 } },
-    .cell_temperatures = { { 0 } },
-    .reference_voltage = 0U
-};
-
-/**
- * Calculate cell temperatures using the parsed GPIO voltages measured from
- * the cell monitoring chip, and perform PEC15 check.
- * @param current_chip The current cell monitoring chip to parse GPIO voltages
- * for.
- * @param current_register_group The current register group on the given chip to
- * parse GPIO voltages for.
- * @param rx_raw_gpio_voltage The buffer containing the GPIO voltages read from
- * the cell monitoring chip.
- * @return EXIT_CODE_OK if the PEC15 check was successful. Else,
- * EXIT_CODE_ERROR.
- */
-static ExitCode Io_Thermistors_ParseGPIOVoltagesAndPerformPec15Check(
-    size_t                      current_chip,
-    enum AuxiliaryRegisterGroup current_register_group,
-    uint8_t *                   rx_raw_gpio_voltages);
-
-static ExitCode Io_Thermistors_ParseGPIOVoltagesAndPerformPec15Check(
-    size_t                      current_chip,
-    enum AuxiliaryRegisterGroup current_register_group,
-    uint8_t *                   rx_raw_gpio_voltages)
-{
-    size_t raw_gpio_voltages_index = current_chip * NUM_OF_RX_BYTES;
-
-    for (size_t current_cell = 0U;
-         current_cell < NUM_OF_AUX_MEASUREMENTS_PER_REGISTER_GROUP;
-         current_cell++)
-    {
-        const uint32_t raw_gpio_voltage =
-            (uint32_t)(rx_raw_gpio_voltages[raw_gpio_voltages_index]) |
-            (uint32_t)(
-                (rx_raw_gpio_voltages[raw_gpio_voltages_index + 1] << 8));
-
-        if (current_register_group != AUX_REGISTER_GROUP_B ||
-            raw_gpio_voltages_index != 4U)
-        {
-            cell_temperatures_context.raw_gpio_voltages
-                [current_chip]
-                [current_cell +
-                 current_register_group *
-                     NUM_OF_AUX_MEASUREMENTS_PER_REGISTER_GROUP] =
-                (uint16_t)raw_gpio_voltage;
-
-            if (current_register_group == AUX_REGISTER_GROUP_D &&
-                raw_gpio_voltages_index == 2U)
-            {
-                // Since 8 thermistors temperatures are monitored for each
-                // accumulator segment and there are 3 auxiliary measurements
-                // per auxiliary register group, ignore the last thermistor
-                // reading read back from AUX_REGISTER_GROUP_D. Increment the
-                // cell_voltage_index by 4 to retrieve the PEC15 bytes for the
-                // current register group.
-                raw_gpio_voltages_index += 4U;
-                break;
-            }
-        }
-        else
-        {
-            cell_temperatures_context.reference_voltage =
-                (float)raw_gpio_voltage / 10000.0f;
-        }
-
-        // Each aux measurement is represented by 2 bytes. Therefore,
-        // the cell voltage index is incremented by 2 to retrieve the next
-        // cell voltage.
-        raw_gpio_voltages_index += 2U;
-    }
-
-    uint32_t received_pec15 =
-        (uint32_t)(rx_raw_gpio_voltages[raw_gpio_voltages_index] << 8) |
-        (uint32_t)(rx_raw_gpio_voltages[raw_gpio_voltages_index + 1]);
-
-    // Calculate the PEC15 using the first 6 bytes of data received from the
-    // chip.
-    uint32_t calculated_pec15 = Io_LTC6813_CalculatePec15(
-        &rx_raw_gpio_voltages[current_chip * NUM_OF_RX_BYTES], 6U);
-
-    if (received_pec15 != calculated_pec15)
-    {
-        return EXIT_CODE_ERROR;
-    }
-
-    return EXIT_CODE_OK;
-}
+static float cell_temperatures[NUM_OF_CELL_MONITOR_ICS]
+                              [NUM_OF_THERMISTORS_PER_IC] = { { 0 } };
 
 ExitCode Io_CellTemperatures_ReadTemperaturesDegC(void)
 {
-    uint16_t aux_register_group_cmd;
-    uint8_t  tx_cmd[NUM_OF_CMD_BYTES];
-    uint8_t
-        rx_thermistor_resistances[NUM_OF_RX_BYTES * NUM_OF_CELL_MONITOR_ICS] = {
-            0
-        };
+    RETURN_IF_EXIT_NOT_OK(Io_Thermistors_ReadRawVoltages())
+    const uint16_t *raw_gpio_voltages = Io_Thermistors_GetRawVoltages();
 
-    RETURN_IF_EXIT_NOT_OK(Io_LTC6813_EnterReadyState())
-    RETURN_IF_EXIT_NOT_OK(Io_LTC6813_StartAuxiliaryMeasurements())
-    RETURN_IF_EXIT_NOT_OK(Io_LTC6813_PollConversions())
-
-    for (enum AuxiliaryRegisterGroup current_register_group =
-             AUX_REGISTER_GROUP_A;
-         current_register_group < NUM_OF_AUX_REGISTER_GROUPS;
-         current_register_group++)
-    {
-        aux_register_group_cmd =
-            aux_register_group_commands[current_register_group];
-
-        tx_cmd[0] = (uint8_t)aux_register_group_cmd;
-        tx_cmd[1] = (uint8_t)(aux_register_group_cmd >> 8);
-
-        uint16_t tx_cmd_pec15 =
-            Io_LTC6813_CalculatePec15(tx_cmd, NUM_OF_PEC15_BYTES_PER_CMD);
-        tx_cmd[2] = (uint8_t)(tx_cmd_pec15 >> 8);
-        tx_cmd[3] = (uint8_t)(tx_cmd_pec15);
-
-        if (Io_SharedSpi_TransmitAndReceive(
-                Io_LTC6813_GetSpiInterface(), tx_cmd, NUM_OF_CMD_BYTES,
-                rx_thermistor_resistances,
-                NUM_OF_RX_BYTES * NUM_OF_CELL_MONITOR_ICS) != HAL_OK)
-        {
-            return EXIT_CODE_ERROR;
-        }
-
-        for (enum CellMonitorICs current_ic = CELL_MONITOR_IC_0;
-             current_ic < NUM_OF_CELL_MONITOR_ICS; current_ic++)
-        {
-            if (Io_Thermistors_ParseGPIOVoltagesAndPerformPec15Check(
-                    current_ic, current_register_group,
-                    rx_thermistor_resistances) != EXIT_CODE_OK)
-            {
-                return EXIT_CODE_ERROR;
-            }
-        }
-    }
-
-    return EXIT_CODE_OK;
-}
-
-ExitCode Io_CellTemperatures_ConvertRawGPIOVoltagesToTemperatures(void)
-{
     for (enum CellMonitorICs current_ic = CELL_MONITOR_IC_0;
          current_ic < NUM_OF_CELL_MONITOR_ICS; current_ic++)
     {
-        for (size_t cell_temp_index;
+        for (size_t cell_temp_index = 0U;
              cell_temp_index < NUM_OF_CELL_TEMPERATURES_READ_PER_IC;
              cell_temp_index++)
         {
@@ -234,21 +66,24 @@ ExitCode Io_CellTemperatures_ConvertRawGPIOVoltagesToTemperatures(void)
             // below since it is read back in 100µV.
 
             const float bias_resistor_ohms = 10000.0f;
+            const float reference_voltage  = 3.0f;
             const float gpio_voltage =
-                (float)cell_temperatures_context
-                    .raw_gpio_voltages[current_ic][cell_temp_index] /
+                (float)raw_gpio_voltages
+                    [current_ic * NUM_OF_AUX_MEASUREMENTS_PER_REGISTER_GROUP +
+                     cell_temp_index] /
                 10000.0f;
             const float thermistor_resistance =
                 (gpio_voltage * bias_resistor_ohms) /
-                (cell_temperatures_context.reference_voltage - gpio_voltage);
+                (reference_voltage - gpio_voltage);
 
             // Check that the thermistor resistance calculated is within
             // [1251.8, 32624.2] ohms.
-            if (thermistor_resistance > thermistor_lut[0])
+            if (thermistor_resistance > temperature_lut[0])
             {
                 return EXIT_CODE_OUT_OF_RANGE;
             }
-            if (thermistor_resistance < thermistor_lut[THERMISTOR_LUT_SIZE - 1])
+            if (thermistor_resistance <
+                temperature_lut[SIZE_OF_TEMPERATURE_LUT - 1])
             {
                 return EXIT_CODE_OUT_OF_RANGE;
             }
@@ -257,17 +92,21 @@ ExitCode Io_CellTemperatures_ConvertRawGPIOVoltagesToTemperatures(void)
             // resistance.
             size_t thermistor_lut_index;
             for (thermistor_lut_index = 0U;
-                 thermistor_resistance < thermistor_lut[thermistor_lut_index];
+                 thermistor_resistance < temperature_lut[thermistor_lut_index];
                  thermistor_lut_index++)
                 ;
 
-            // Divide the index of the thermistor lookup table by 2 as each
-            // index corresponds to a 0.5 degC resolution.
-            cell_temperatures_context
-                .cell_temperatures[current_ic][cell_temp_index] =
+            // Divide the index of the thermistor lookup table by 2 as the
+            // temperature lookup table's key has a resolution of 0.5°C.
+            cell_temperatures[current_ic][cell_temp_index] =
                 (float)thermistor_lut_index / 2.0f;
         }
     }
 
     return EXIT_CODE_OK;
+}
+
+float *Io_CellTemperatures_GetTemperaturesDegC(void)
+{
+    return &cell_temperatures[0][0];
 }
