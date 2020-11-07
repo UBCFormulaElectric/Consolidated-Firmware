@@ -136,9 +136,9 @@ ExitCode Io_LTC6813_StartInternalDeviceConversions(void)
                : EXIT_CODE_ERROR;
 }
 
-ExitCode Io_LTC6813_StartAuxiliaryGPIOMeasurements(void)
+ExitCode Io_LTC6813_StartAuxiliaryMeasurements(void)
 {
-    // The command used to start auxiliary GPIO measurements.
+    // The command used to start auxiliary (GPIO) measurements.
     const uint32_t ADAX = 0x460 + (MD << 7) + CHST;
 
     uint8_t tx_cmd[NUM_OF_CMD_BYTES];

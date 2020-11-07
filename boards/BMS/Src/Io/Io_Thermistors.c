@@ -17,7 +17,8 @@ enum AuxiliaryRegisterGroup
 };
 
 // The set of commands used to read values stored inside auxiliary register
-// groups.
+// groups. The analog voltages measured by the GPIOs will be stored inside the
+// auxiliary register groups.
 static const uint16_t
     aux_register_group_commands[NUM_OF_AUX_REGISTER_GROUPS] = {
         0x000C, // RDAUXA
@@ -30,23 +31,28 @@ static float thermistor_resistances[NUM_OF_CELL_MONITOR_ICS]
                                    [NUM_OF_THERMISTORS_PER_IC];
 
 /**
- *
- * @param current_ic
- * @param current_register_group
- * @param rx_aux_measurement
- * @return
+ * Calculate thermistor resistance using the parsed GPIO voltages measured from
+ * the cell monitoring chip, and perform PEC15 check.
+ * @param current_chip The current cell monitoring chip to parse GPIO voltages
+ * for.
+ * @param current_register_group The current register group on the given chip to
+ * parse GPIO voltages for.
+ * @param rx_gpio_voltage The buffer containing the GPIO voltages read from the
+ * cell monitoring chip.
+ * @return EXIT_CODE_OK if the PEC15 check was successful. Else,
+ * EXIT_CODE_ERROR.
  */
-static ExitCode Io_Thermistors_ParseAuxMeasurementsAndPerformPec15Check(
-    size_t                      current_ic,
+static ExitCode Io_Thermistors_ParseGPIOVoltagesAndPerformPec15Check(
+    size_t                      current_chip,
     enum AuxiliaryRegisterGroup current_register_group,
-    uint8_t *                   rx_aux_measurement);
+    uint8_t *                   rx_gpio_voltage);
 
-static ExitCode Io_Thermistors_ParseAuxMeasurementsAndPerformPec15Check(
-    size_t                      current_ic,
+static ExitCode Io_Thermistors_ParseGPIOVoltagesAndPerformPec15Check(
+    size_t                      current_chip,
     enum AuxiliaryRegisterGroup current_register_group,
-    uint8_t *                   rx_aux_measurement)
+    uint8_t *                   rx_gpio_voltage)
 {
-    size_t aux_measurement_index = current_ic * NUM_OF_RX_BYTES;
+    size_t aux_measurement_index = current_chip * NUM_OF_RX_BYTES;
     // const float bias_resistor_ohms    = 10000.0f;
     // const float reference_voltage     = 3.0f;
 
@@ -54,33 +60,33 @@ static ExitCode Io_Thermistors_ParseAuxMeasurementsAndPerformPec15Check(
          current_cell < NUM_OF_AUX_MEASUREMENTS_PER_REGISTER_GROUP;
          current_cell++)
     {
-        // The thermistor resistance (Ohms) can be calculated by the following
-        // equation:
+        const uint32_t gpio_voltage =
+            (uint32_t)(rx_gpio_voltage[aux_measurement_index]) |
+            (uint32_t)((rx_gpio_voltage[aux_measurement_index + 1] << 8));
+
+        // Calculate the thermistor resistance by measuring the voltage across
+        // the thermistor. The thermistor resistance (Ohms) can be calculated by
+        // the following equation:
         //
-        //                      MEASURED_V * BIAS_RESISTOR_OHMS
-        // THERMISTOR_OHMS = -------------------------------------
-        //                        (REFERENCE_V - MEASURED_V)
+        //                                MEASURED_V * BIAS_RESISTOR_OHMS
+        // THERMISTOR_RESISTNACE_OHMS = -------------------------------------
+        //                                  (REFERENCE_V - MEASURED_V)
         //
         // BIAS_RESISTOR_OHMS = 10kΩ
-        //
         // REFERENCE_V = 3.0V
         //
+        // The measured aux voltage is divided by 10000 in the calculation below
+        // since it is read back in 100µV.
 
-        const uint32_t measured_aux_voltage =
-            (uint32_t)(rx_aux_measurement[aux_measurement_index]) |
-            (uint32_t)((rx_aux_measurement[aux_measurement_index + 1] << 8));
-
-        // The measured aux voltage is divided by 10000 in the following
-        // calculation since it is read back in 100µV.
         // const float thermistor_resistance =
-        //    (float)measured_aux_voltage * bias_resistor_ohms /
-        //    (reference_voltage - (float)measured_aux_voltage / 10000.0f);
+        //    (float)gpio_voltage * bias_resistor_ohms /
+        //    (reference_voltage - (float)gpio_voltage / 10000.0f);
 
-        thermistor_resistances[current_ic]
+        thermistor_resistances[current_chip]
                               [current_cell +
                                current_register_group *
                                    NUM_OF_AUX_MEASUREMENTS_PER_REGISTER_GROUP] =
-                                  (float)measured_aux_voltage;
+                                  (float)gpio_voltage;
 
         if (current_register_group == AUX_REGISTER_GROUP_D &&
             aux_measurement_index == 2U)
@@ -103,13 +109,13 @@ static ExitCode Io_Thermistors_ParseAuxMeasurementsAndPerformPec15Check(
     }
 
     uint32_t received_pec15 =
-        (uint32_t)(rx_aux_measurement[aux_measurement_index] << 8) |
-        (uint32_t)(rx_aux_measurement[aux_measurement_index + 1]);
+        (uint32_t)(rx_gpio_voltage[aux_measurement_index] << 8) |
+        (uint32_t)(rx_gpio_voltage[aux_measurement_index + 1]);
 
     // Calculate the PEC15 using the first 6 bytes of data received from the
     // chip.
     uint32_t calculated_pec15 = Io_LTC6813_CalculatePec15(
-        &rx_aux_measurement[current_ic * NUM_OF_RX_BYTES], 6U);
+        &rx_gpio_voltage[current_chip * NUM_OF_RX_BYTES], 6U);
 
     if (received_pec15 != calculated_pec15)
     {
@@ -129,7 +135,7 @@ ExitCode Io_Thermistors_ReadThermistorResistancesOhms(void)
         };
 
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_EnterReadyState())
-    RETURN_IF_EXIT_NOT_OK(Io_LTC6813_StartAuxiliaryGPIOMeasurements())
+    RETURN_IF_EXIT_NOT_OK(Io_LTC6813_StartAuxiliaryMeasurements())
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_PollConversions())
 
     for (enum AuxiliaryRegisterGroup current_register_group =
@@ -159,7 +165,7 @@ ExitCode Io_Thermistors_ReadThermistorResistancesOhms(void)
         for (enum CellMonitorICs current_ic = CELL_MONITOR_IC_0;
              current_ic < NUM_OF_CELL_MONITOR_ICS; current_ic++)
         {
-            if (Io_Thermistors_ParseAuxMeasurementsAndPerformPec15Check(
+            if (Io_Thermistors_ParseGPIOVoltagesAndPerformPec15Check(
                     current_ic, current_register_group,
                     rx_thermistor_resistances) != EXIT_CODE_OK)
             {
