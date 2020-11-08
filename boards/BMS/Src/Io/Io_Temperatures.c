@@ -7,15 +7,10 @@
 
 static float internal_die_temperatures[NUM_OF_CELL_MONITOR_ICS];
 
-float *Io_Temperatures_GetDieTemperaturesDegC(void)
-{
-    return internal_die_temperatures;
-}
-
 ExitCode Io_Temperatures_ReadDieTemperaturesDegC(void)
 {
     // The command used to read data from status register A.
-    uint32_t RDSTATA = 0x0010;
+    const uint32_t RDSTATA = 0x0010;
 
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_EnterReadyState())
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_StartInternalDeviceConversions())
@@ -46,7 +41,7 @@ ExitCode Io_Temperatures_ReadDieTemperaturesDegC(void)
 
         // The upper byte of the internal die temperature is stored in the
         // 3rd byte, while the lower byte is stored in the 2nd byte.
-        uint32_t internal_die_temp =
+        const uint32_t internal_die_temp =
             (uint32_t)(rx_internal_die_temp[2 + NUM_OF_RX_BYTES * current_ic]) |
             (uint32_t)(
                 (rx_internal_die_temp[3 + NUM_OF_RX_BYTES * current_ic] << 8));
@@ -57,14 +52,14 @@ ExitCode Io_Temperatures_ReadDieTemperaturesDegC(void)
             (float)internal_die_temp * 100e-6f / 7.6e-3f - 276.0f;
 
         // The received PEC15 bytes are stored in the 6th and 7th byte.
-        uint32_t received_pec15 =
+        const uint32_t received_pec15 =
             (uint32_t)(
                 rx_internal_die_temp[6 + NUM_OF_RX_BYTES * current_ic] << 8) |
             (uint32_t)(rx_internal_die_temp[7 + NUM_OF_RX_BYTES * current_ic]);
 
         // Calculate the PEC15 using the first 6 bytes of data received from the
         // chip.
-        uint32_t calculated_pec15 = Io_LTC6813_CalculatePec15(
+        const uint32_t calculated_pec15 = Io_LTC6813_CalculatePec15(
             &rx_internal_die_temp[current_ic * NUM_OF_RX_BYTES], 6U);
         if (received_pec15 != calculated_pec15)
         {
@@ -73,4 +68,9 @@ ExitCode Io_Temperatures_ReadDieTemperaturesDegC(void)
     }
 
     return EXIT_CODE_OK;
+}
+
+float *Io_Temperatures_GetDieTemperaturesDegC(void)
+{
+    return internal_die_temperatures;
 }

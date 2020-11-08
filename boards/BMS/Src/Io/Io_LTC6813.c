@@ -100,7 +100,7 @@ ExitCode Io_LTC6813_EnterReadyState(void)
 ExitCode Io_LTC6813_StartCellVoltageConversions(void)
 {
     // The command used to start ADC conversions for battery cell voltages.
-    uint32_t ADCV = (0x260 + (MD << 7) + (DCP << 4) + CH);
+    const uint32_t ADCV = (0x260 + (MD << 7) + (DCP << 4) + CH);
 
     uint8_t tx_cmd[NUM_OF_CMD_BYTES];
     tx_cmd[0] = (uint8_t)(ADCV >> 8);
@@ -120,7 +120,7 @@ ExitCode Io_LTC6813_StartCellVoltageConversions(void)
 ExitCode Io_LTC6813_StartInternalDeviceConversions(void)
 {
     // The command used to start internal device conversions.
-    uint32_t ADSTAT = (0x468 + (MD << 7) + CHST);
+    const uint32_t ADSTAT = (0x468 + (MD << 7) + CHST);
 
     uint8_t tx_cmd[NUM_OF_CMD_BYTES];
     tx_cmd[0] = (uint8_t)(ADSTAT >> 8);
@@ -139,7 +139,7 @@ ExitCode Io_LTC6813_StartInternalDeviceConversions(void)
 ExitCode Io_LTC6813_PollConversions(void)
 {
     // The command used to determine the status of ADC conversions.
-    uint32_t PLADC = 0x1407;
+    const uint32_t PLADC = 0x1407;
 
     uint8_t tx_cmd[NUM_OF_CMD_BYTES];
     tx_cmd[0] = (uint8_t)PLADC;
@@ -179,7 +179,7 @@ ExitCode Io_LTC6813_PollConversions(void)
 ExitCode Io_LTC6813_ConfigureRegisterA(void)
 {
     // The command used to write to configuration register A.
-    uint32_t WRCFGA = 0x01;
+    const uint32_t WRCFGA = 0x01;
 
     uint8_t tx_cmd[NUM_OF_CMD_BYTES];
     tx_cmd[0] = (uint8_t)(WRCFGA >> 8);

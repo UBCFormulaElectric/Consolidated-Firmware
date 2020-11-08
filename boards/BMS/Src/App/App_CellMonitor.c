@@ -86,7 +86,7 @@ void App_CellMonitor_Destroy(struct CellMonitor *cell_monitor)
     free(cell_monitor);
 }
 
-ExitCode App_CellMonitor_Configure(const struct CellMonitor *cell_monitor)
+ExitCode App_CellMonitor_Configure(const struct CellMonitor *const cell_monitor)
 {
     return cell_monitor->configure_daisy_chain();
 }
@@ -98,25 +98,25 @@ ExitCode App_CellMonitor_ReadCellVoltages(
 }
 
 struct InRangeCheck *App_CellMonitor_GetPackVoltageInRangeCheck(
-    const struct CellMonitor *cell_monitor)
+    const struct CellMonitor *const cell_monitor)
 {
     return cell_monitor->pack_voltage_in_range_check;
 }
 
 struct InRangeCheck *App_CellMonitor_GetMinCellVoltageInRangeCheck(
-    const struct CellMonitor *cell_monitor)
+    const struct CellMonitor *const cell_monitor)
 {
     return cell_monitor->min_cell_voltage_in_range_check;
 }
 
 struct InRangeCheck *App_CellMonitor_GetMaxCellVoltageInRangeCheck(
-    const struct CellMonitor *cell_monitor)
+    const struct CellMonitor *const cell_monitor)
 {
     return cell_monitor->max_cell_voltage_in_range_check;
 }
 
 struct InRangeCheck *App_CellMonitor_GetAverageCellVoltageInRangeCheck(
-    const struct CellMonitor *cell_monitor)
+    const struct CellMonitor *const cell_monitor)
 {
     return cell_monitor->average_cell_voltage_in_range_check;
 }
@@ -128,31 +128,31 @@ struct InRangeCheck *App_CellMonitor_GetSegment0VoltageInRangeCheck(
 }
 
 struct InRangeCheck *App_CellMonitor_GetSegment1VoltageInRangeCheck(
-    const struct CellMonitor *cell_monitor)
+    const struct CellMonitor *const cell_monitor)
 {
     return cell_monitor->segment_1_voltage_in_range_check;
 }
 
 struct InRangeCheck *App_CellMonitor_GetSegment2VoltageInRangeCheck(
-    const struct CellMonitor *cell_monitor)
+    const struct CellMonitor *const cell_monitor)
 {
     return cell_monitor->segment_2_voltage_in_range_check;
 }
 
 struct InRangeCheck *App_CellMonitor_GetSegment3VoltageInRangeCheck(
-    const struct CellMonitor *cell_monitor)
+    const struct CellMonitor *const cell_monitor)
 {
     return cell_monitor->segment_3_voltage_in_range_check;
 }
 
 struct InRangeCheck *App_CellMonitor_GetSegment4VoltageInRangeCheck(
-    const struct CellMonitor *cell_monitor)
+    const struct CellMonitor *const cell_monitor)
 {
     return cell_monitor->segment_4_voltage_in_range_check;
 }
 
 struct InRangeCheck *App_CellMonitor_GetSegment5VoltageInRangeCheck(
-    const struct CellMonitor *cell_monitor)
+    const struct CellMonitor *const cell_monitor)
 {
     return cell_monitor->segment_5_voltage_in_range_check;
 }

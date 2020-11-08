@@ -39,6 +39,7 @@
 #include "Io_Charger.h"
 #include "Io_OkStatuses.h"
 #include "Io_LTC6813.h"
+#include "Io_CellVoltages.h"
 
 #include "App_BmsWorld.h"
 #include "App_CellVoltages.h"
@@ -47,6 +48,7 @@
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_ImdConfig.h"
 #include "configs/App_CellConfigs.h"
+#include "configs/App_CellMonitorThresholds.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -226,9 +228,10 @@ int main(void)
         Io_OkStatuses_IsBspdOkEnabled);
 
     Io_LTC6813_Init(&hspi2, SPI2_NSS_GPIO_Port, SPI2_NSS_Pin);
-    App_CellVoltages_Init(Io_LTC6813_GetCellVoltages, NUM_OF_CELLS_PER_SEGMENT);
+    App_CellVoltages_Init(
+        Io_CellVoltages_GetRawCellVoltages, NUM_OF_CELLS_READ_PER_IC);
     cell_monitor = App_CellMonitor_Create(
-        Io_LTC6813_Configure, Io_LTC6813_ReadAllCellRegisterGroups,
+        Io_LTC6813_ConfigureRegisterA, Io_CellVoltages_ReadRawCellVoltages,
         App_CellVoltages_GetMinCellVoltage, App_CellVoltages_GetMaxCellVoltage,
         App_CellVoltages_GetAverageCellVoltage, App_CellVoltages_GetPackVoltage,
         App_CellVoltages_GetSegment0Voltage,

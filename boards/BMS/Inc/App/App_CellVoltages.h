@@ -1,11 +1,6 @@
 #pragma once
 
-enum Segments
-{
-    SEGMENT_0,
-    SEGMENT_1,
-    NUM_SEGMENTS
-};
+#include <stdint.h>
 
 /**
  * Initialize a set of functions used to calculate voltages.
@@ -19,61 +14,61 @@ void App_CellVoltages_Init(
     uint32_t num_of_cells_per_segment);
 
 /**
- * Get the average voltage for the 0th segment, measured in V.
- * @return Get the average voltage for the 0th segment, measured in V.
+ * Get the average voltage for the 0th segment.
+ * @return Get the average voltage for the 0th segment measured in V.
  */
 float App_CellVoltages_GetSegment0Voltage(void);
 
 /**
- * Get the average voltage for the 1st segment, measured in V.
+ * Get the average voltage for the 1st segment.
  * @return Get the average voltage for the 1st segment, measured in V.
  */
 float App_CellVoltages_GetSegment1Voltage(void);
 
 /**
- * Get the average voltage for the 2nd segment, measured in V.
- * @return Get the average voltage for the 2nd segment, measured in V.
+ * Get the average voltage for the 2nd segment.
+ * @return Get the average voltage for the 2nd segment measured in V.
  */
 float App_CellVoltages_GetSegment2Voltage(void);
 
 /**
- * Get the average voltage for the 3rd segment, measured in V.
- * @return The average voltage of the 3rd segment, measured in V.
+ * Get the average voltage for the 3rd segment.
+ * @return The average voltage of the 3rd segment measured in V.
  */
 float App_CellVoltages_GetSegment3Voltage(void);
 
 /**
- * Get the average voltage for the 4th segment, measured in V.
- * @return The average voltage of the 4th segment, measured in V.
+ * Get the average voltage for the 4th segment.
+ * @return The average voltage of the 4th segment measured in V.
  */
 float App_CellVoltages_GetSegment4Voltage(void);
 
 /**
- * Get the average voltage for the 5th segment, measured in V.
- * @return The average voltage of the 5th segment, measured in V.
+ * Get the average voltage for the 5th segment.
+ * @return The average voltage of the 5th segment measured in V.
  */
 float App_CellVoltages_GetSegment5Voltage(void);
 
 /**
- * Get the pack voltage, measured in V.
- * @return The pack voltage, measured in V.
+ * Get the pack voltage.
+ * @return The pack voltage measured in V.
  */
 float App_CellVoltages_GetPackVoltage(void);
 
 /**
- * Get the average cell voltage, measured in V.
- * @return The average cell voltage, measured in V.
+ * Get the average cell voltage.
+ * @return The average cell voltage measured in V.
  */
 float App_CellVoltages_GetAverageCellVoltage(void);
 
 /**
- * Get the minimum cell voltage, measured in V.
- * @return The minimum cell voltage, measured in V.
+ * Get the minimum cell voltage.
+ * @return The minimum cell voltage measured in V.
  */
 float App_CellVoltages_GetMinCellVoltage(void);
 
 /**
- * Get the maximum cell voltage, measured in V.
- * @return The maximum cell voltage, measured in V.
+ * Get the maximum cell voltage.
+ * @return The maximum cell voltage measured in V.
  */
 float App_CellVoltages_GetMaxCellVoltage(void);

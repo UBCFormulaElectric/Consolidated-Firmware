@@ -13,6 +13,7 @@ extern "C"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_ImdConfig.h"
 #include "configs/App_CellConfigs.h"
+#include "configs/App_CellMonitorThresholds.h"
 }
 
 namespace StateMachineTest
