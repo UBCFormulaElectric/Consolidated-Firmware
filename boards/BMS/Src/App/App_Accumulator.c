@@ -4,7 +4,7 @@
 
 struct Accumulator
 {
-    ExitCode (*configure_daisy_chain)(void);
+    ExitCode (*configure_cell_monitors)(void);
     ExitCode (*read_cell_voltages)(void);
 
     struct InRangeCheck *pack_voltage_in_range_check;
@@ -19,8 +19,8 @@ struct Accumulator
     struct InRangeCheck *segment_5_voltage_in_range_check;
 };
 
-struct Accumulator *App_CellMonitor_Create(
-    ExitCode (*configure_daisy_chain)(void),
+struct Accumulator *App_Accumulator_Create(
+    ExitCode (*configure_cell_monitors)(void),
     ExitCode (*read_cell_voltages)(void),
     float (*get_min_cell_voltage)(void),
     float (*get_max_cell_voltage)(void),
@@ -43,8 +43,8 @@ struct Accumulator *App_CellMonitor_Create(
     struct Accumulator *accumulator = malloc(sizeof(struct Accumulator));
     assert(accumulator != NULL);
 
-    accumulator->configure_daisy_chain = configure_daisy_chain;
-    accumulator->read_cell_voltages    = read_cell_voltages;
+    accumulator->configure_cell_monitors = configure_cell_monitors;
+    accumulator->read_cell_voltages      = read_cell_voltages;
 
     accumulator->min_cell_voltage_in_range_check = App_InRangeCheck_Create(
         get_min_cell_voltage, min_cell_voltage, max_cell_voltage);
@@ -86,72 +86,74 @@ void App_Accumulator_Destroy(struct Accumulator *accumulator)
     free(accumulator);
 }
 
-ExitCode App_Accumulator_Configure(const struct Accumulator *accumulator)
+ExitCode App_Accumulator_ConfigureCellMonitors(
+    const struct Accumulator *const accumulator)
 {
-    return accumulator->configure_daisy_chain();
+    return accumulator->configure_cell_monitors();
 }
 
-ExitCode App_Accumulator_ReadCellVoltages(const struct Accumulator *accumulator)
+ExitCode App_Accumulator_ReadCellVoltages(
+    const struct Accumulator *const accumulator)
 {
     return accumulator->read_cell_voltages();
 }
 
 struct InRangeCheck *App_Accumulator_GetPackVoltageInRangeCheck(
-    const struct Accumulator *accumulator)
+    const struct Accumulator *const accumulator)
 {
     return accumulator->pack_voltage_in_range_check;
 }
 
 struct InRangeCheck *App_Accumulator_GetMinCellVoltageInRangeCheck(
-    const struct Accumulator *accumulator)
+    const struct Accumulator *const accumulator)
 {
     return accumulator->min_cell_voltage_in_range_check;
 }
 
 struct InRangeCheck *App_Accumulator_GetMaxCellVoltageInRangeCheck(
-    const struct Accumulator *accumulator)
+    const struct Accumulator *const accumulator)
 {
     return accumulator->max_cell_voltage_in_range_check;
 }
 
 struct InRangeCheck *App_Accumulator_GetAverageCellVoltageInRangeCheck(
-    const struct Accumulator *accumulator)
+    const struct Accumulator *const accumulator)
 {
     return accumulator->average_cell_voltage_in_range_check;
 }
 
 struct InRangeCheck *App_Accumulator_GetSegment0VoltageInRangeCheck(
-    const struct Accumulator *accumulator)
+    const struct Accumulator *const accumulator)
 {
     return accumulator->segment_0_voltage_in_range_check;
 }
 
 struct InRangeCheck *App_Accumulator_GetSegment1VoltageInRangeCheck(
-    const struct Accumulator *accumulator)
+    const struct Accumulator *const accumulator)
 {
     return accumulator->segment_1_voltage_in_range_check;
 }
 
 struct InRangeCheck *App_Accumulator_GetSegment2VoltageInRangeCheck(
-    const struct Accumulator *accumulator)
+    const struct Accumulator *const accumulator)
 {
     return accumulator->segment_2_voltage_in_range_check;
 }
 
 struct InRangeCheck *App_Accumulator_GetSegment3VoltageInRangeCheck(
-    const struct Accumulator *accumulator)
+    const struct Accumulator *const accumulator)
 {
     return accumulator->segment_3_voltage_in_range_check;
 }
 
 struct InRangeCheck *App_Accumulator_GetSegment4VoltageInRangeCheck(
-    const struct Accumulator *accumulator)
+    const struct Accumulator *const accumulator)
 {
     return accumulator->segment_4_voltage_in_range_check;
 }
 
 struct InRangeCheck *App_Accumulator_GetSegment5VoltageInRangeCheck(
-    const struct Accumulator *accumulator)
+    const struct Accumulator *const accumulator)
 {
     return accumulator->segment_5_voltage_in_range_check;
 }

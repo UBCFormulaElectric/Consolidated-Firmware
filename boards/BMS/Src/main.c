@@ -228,24 +228,26 @@ int main(void)
         Io_OkStatuses_IsBspdOkEnabled);
 
     Io_LTC6813_Init(&hspi2, SPI2_NSS_GPIO_Port, SPI2_NSS_Pin);
-    App_CellVoltages_Init(
+    App_AccumulatorVoltages_Init(
         Io_CellVoltages_GetRawCellVoltages, NUM_OF_CELLS_READ_PER_IC);
-    cell_monitor = App_CellMonitor_Create(
+    cell_monitor = App_Accumulator_Create(
         Io_LTC6813_ConfigureRegisterA, Io_CellVoltages_ReadRawCellVoltages,
-        App_CellVoltages_GetMinCellVoltage, App_CellVoltages_GetMaxCellVoltage,
-        App_CellVoltages_GetAverageCellVoltage, App_CellVoltages_GetPackVoltage,
-        App_CellVoltages_GetSegment0Voltage,
-        App_CellVoltages_GetSegment1Voltage,
-        App_CellVoltages_GetSegment2Voltage,
-        App_CellVoltages_GetSegment3Voltage,
-        App_CellVoltages_GetSegment4Voltage,
-        App_CellVoltages_GetSegment5Voltage, MIN_CELL_VOLTAGE, MAX_CELL_VOLTAGE,
-        MIN_SEGMENT_VOLTAGE, MAX_SEGMENT_VOLTAGE, MIN_PACK_VOLTAGE,
-        MAX_PACK_VOLTAGE);
+        App_AccumulatorVoltages_GetMinCellVoltage,
+        App_AccumulatorVoltages_GetMaxCellVoltage,
+        App_AccumulatorVoltages_GetAverageCellVoltage,
+        App_AccumulatorVoltages_GetPackVoltage,
+        App_AccumulatorVoltages_GetSegment0Voltage,
+        App_AccumulatorVoltages_GetSegment1Voltage,
+        App_AccumulatorVoltages_GetSegment2Voltage,
+        App_AccumulatorVoltages_GetSegment3Voltage,
+        App_AccumulatorVoltages_GetSegment4Voltage,
+        App_AccumulatorVoltages_GetSegment5Voltage, MIN_CELL_VOLTAGE,
+        MAX_CELL_VOLTAGE, MIN_SEGMENT_VOLTAGE, MAX_SEGMENT_VOLTAGE,
+        MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE);
 
     // Generate isoSpi traffic to wake up the daisy chain of cell voltage
     // measuring chips.
-    App_Accumulator_Configure(cell_monitor);
+    App_Accumulator_ConfigureCellMonitors(cell_monitor);
 
     clock = App_SharedClock_Create();
 

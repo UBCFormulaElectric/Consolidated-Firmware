@@ -105,7 +105,7 @@ struct OkStatus *
 }
 
 struct Accumulator *
-    App_BmsWorld_GetCellMonitor(const struct BmsWorld *const world)
+    App_BmsWorld_GetAccumulator(const struct BmsWorld *const world)
 {
     return world->accumulator;
 }

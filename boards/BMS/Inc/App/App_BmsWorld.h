@@ -110,7 +110,8 @@ struct OkStatus *App_BmsWorld_GetBspdOkStatus(const struct BmsWorld *world);
  * @param world The world to get the accumulator for
  * @return The accumulator for the given world
  */
-struct Accumulator *App_BmsWorld_GetCellMonitor(const struct BmsWorld *world);
+struct Accumulator *
+    App_BmsWorld_GetAccumulator(const struct BmsWorld *const world);
 
 /**
  * Get the clock for the given world

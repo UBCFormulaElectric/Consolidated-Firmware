@@ -3,74 +3,74 @@
 #include <stdint.h>
 
 /**
- * Initialize a set of functions used to calculate voltages.
+ * Initialize a set of functions used to calculate voltages for the accumulator.
  * @param get_cell_voltages A pointer to a 2D array containing raw cell voltages
- * measured by a daisy chain of cell monitoring chips.
- * @param num_of_cells_per_segment The number of cell voltage measurements per
+ * measured from all cell monitors.
+ * @param num_of_cells_per_segment The number of cell voltages measured per
  * segment.
  * @note The raw cell voltages are represented in 100µV. The raw voltages are
- * divided by 10000 to compute the voltage in V.
+ * divided by 10000 to compute voltages in V.
  */
-void App_CellVoltages_Init(
+void App_AccumulatorVoltages_Init(
     uint16_t *(*get_raw_cell_voltages)(void),
     uint32_t num_of_cells_per_segment);
 
 /**
- * Get the average voltage for the 0th segment.
- * @return Get the average voltage for the 0th segment in V.
+ * Get the average voltage for the 0th accumulator segment.
+ * @return Get the average voltage for the 0th accumulator segment in V.
  */
-float App_CellVoltages_GetSegment0Voltage(void);
+float App_AccumulatorVoltages_GetSegment0Voltage(void);
 
 /**
- * Get the average voltage for the 1st segment.
- * @return Get the average voltage for the 1st segment in V.
+ * Get the average voltage for the 1st accumulator segment.
+ * @return Get the average voltage for the 1st accumulator segment in V.
  */
-float App_CellVoltages_GetSegment1Voltage(void);
+float App_AccumulatorVoltages_GetSegment1Voltage(void);
 
 /**
- * Get the average voltage for the 2nd segment.
- * @return Get the average voltage for the 2nd segment in V.
+ * Get the average voltage for the 2nd accumulator segment.
+ * @return Get the average voltage for the 2nd accumulator segment in V.
  */
-float App_CellVoltages_GetSegment2Voltage(void);
+float App_AccumulatorVoltages_GetSegment2Voltage(void);
 
 /**
- * Get the average voltage for the 3rd segment.
- * @return The average voltage of the 3rd segment in V.
+ * Get the average voltage for the 3rd accumulator segment.
+ * @return The average voltage of the 3rd accumulator segment in V.
  */
-float App_CellVoltages_GetSegment3Voltage(void);
+float App_AccumulatorVoltages_GetSegment3Voltage(void);
 
 /**
- * Get the average voltage for the 4th segment.
- * @return The average voltage of the 4th segment in V.
+ * Get the average voltage for the 4th accumulator segment.
+ * @return The average voltage of the 4th accumulator segment in V.
  */
-float App_CellVoltages_GetSegment4Voltage(void);
+float App_AccumulatorVoltages_GetSegment4Voltage(void);
 
 /**
- * Get the average voltage for the 5th segment.
- * @return The average voltage of the 5th segment in V.
+ * Get the average voltage for the 5th accumulator segment.
+ * @return The average voltage of the 5th accumulator segment in V.
  */
-float App_CellVoltages_GetSegment5Voltage(void);
+float App_AccumulatorVoltages_GetSegment5Voltage(void);
 
 /**
- * Get the pack voltage.
- * @return The pack voltage in V.
+ * Get the pack voltage for the accumulator.
+ * @return The pack voltage for the accumulator in V.
  */
-float App_CellVoltages_GetPackVoltage(void);
+float App_AccumulatorVoltages_GetPackVoltage(void);
 
 /**
- * Get the average cell voltage.
- * @return The average cell voltage in V.
+ * Get the average cell voltage for the accumulator.
+ * @return The average accumulator cell voltage in V.
  */
-float App_CellVoltages_GetAverageCellVoltage(void);
+float App_AccumulatorVoltages_GetAverageCellVoltage(void);
 
 /**
- * Get the minimum cell voltage.
- * @return The minimum cell voltage in V.
+ * Get the minimum cell voltage for the accumulator.
+ * @return The minimum accumulator cell voltage in V.
  */
-float App_CellVoltages_GetMinCellVoltage(void);
+float App_AccumulatorVoltages_GetMinCellVoltage(void);
 
 /**
- * Get the maximum cell voltage.
- * @return The maximum cell voltage in V.
+ * Get the maximum cell voltage for the accumulator.
+ * @return The maximum accumulator cell voltage in V.
  */
-float App_CellVoltages_GetMaxCellVoltage(void);
+float App_AccumulatorVoltages_GetMaxCellVoltage(void);

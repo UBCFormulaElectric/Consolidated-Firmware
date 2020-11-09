@@ -96,7 +96,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         bspd_ok = App_OkStatus_Create(
             enable_bspd_ok, disable_bspd_ok, is_bspd_ok_enabled);
 
-        cell_monitor = App_CellMonitor_Create(
+        cell_monitor = App_Accumulator_Create(
             configure_daisy_chain, read_cell_voltages, get_min_cell_voltage,
             get_max_cell_voltage, get_average_cell_voltage, get_pack_voltage,
             get_segment_0_voltage, get_segment_1_voltage, get_segment_2_voltage,

@@ -9,6 +9,12 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct BmsCanTxInterface *can_tx_interface = App_BmsWorld_GetCanTx(world);
+    struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
+
+    // Generate isoSpi traffic to wake up the daisy chain of cell voltage
+    // measuring chips.
+    App_Accumulator_ConfigureCellMonitors(accumulator);
+
     App_CanTx_SetPeriodicSignal_STATE(
         can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE);
 }
@@ -23,12 +29,12 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     App_AllStatesRunOnTick100Hz(state_machine);
 
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct BmsCanTxInterface *can_tx       = App_BmsWorld_GetCanTx(world);
-    struct Imd *              imd          = App_BmsWorld_GetImd(world);
-    struct Accumulator *      cell_monitor = App_BmsWorld_GetCellMonitor(world);
+    struct BmsCanTxInterface *can_tx      = App_BmsWorld_GetCanTx(world);
+    struct Imd *              imd         = App_BmsWorld_GetImd(world);
+    struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
 
     App_SetPeriodicCanSignals_Imd(can_tx, imd);
-    App_Accumulator_Configure(cell_monitor);
+    App_Accumulator_ConfigureCellMonitors(accumulator);
 
     App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
 }
