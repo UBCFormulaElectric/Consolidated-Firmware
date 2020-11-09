@@ -42,13 +42,13 @@
 #include "Io_CellVoltages.h"
 
 #include "App_BmsWorld.h"
-#include "App_CellVoltages.h"
+#include "App_AccumulatorVoltages.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_ImdConfig.h"
-#include "configs/App_CellConfigs.h"
-#include "configs/App_CellMonitorThresholds.h"
+#include "configs/App_AccumulatorConfigs.h"
+#include "configs/App_AccumulatorThresholds.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -108,7 +108,7 @@ struct Charger *          charger;
 struct OkStatus *         bms_ok;
 struct OkStatus *         imd_ok;
 struct OkStatus *         bspd_ok;
-struct CellMonitor *      cell_monitor;
+struct Accumulator *      cell_monitor;
 struct Clock *            clock;
 /* USER CODE END PV */
 
@@ -245,7 +245,7 @@ int main(void)
 
     // Generate isoSpi traffic to wake up the daisy chain of cell voltage
     // measuring chips.
-    App_CellMonitor_Configure(cell_monitor);
+    App_Accumulator_Configure(cell_monitor);
 
     clock = App_SharedClock_Create();
 

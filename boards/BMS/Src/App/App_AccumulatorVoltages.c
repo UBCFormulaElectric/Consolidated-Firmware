@@ -1,11 +1,12 @@
 #include <stddef.h>
-#include "App_CellVoltages.h"
+#include "App_AccumulatorVoltages.h"
+#include "configs/App_AccumulatorConfigs.h"
 
-#include "configs/App_CellConfigs.h"
+#define V_PER_100UV 1E-4f
 
 struct CellVoltages
 {
-    uint16_t *measured_cells;
+    uint16_t *raw_cell_voltages;
     size_t    total_num_of_cells;
     size_t    num_of_cells_per_segment;
 };
@@ -32,12 +33,12 @@ static uint32_t App_SumOfArrayElements(uint16_t *array, size_t length)
 }
 
 void App_CellVoltages_Init(
-    uint16_t *(*get_cell_voltages)(void),
+    uint16_t *(*get_raw_cell_voltages)(void),
     uint32_t num_of_cells_per_segment)
 {
     // Get the pointer to the 2D array of cell voltages read back from the cell
     // monitoring daisy chain.
-    cell_voltages.measured_cells           = get_cell_voltages();
+    cell_voltages.raw_cell_voltages        = get_raw_cell_voltages();
     cell_voltages.num_of_cells_per_segment = num_of_cells_per_segment;
     cell_voltages.total_num_of_cells =
         num_of_cells_per_segment * NUM_OF_CELL_MONITOR_ICS;
@@ -45,42 +46,44 @@ void App_CellVoltages_Init(
 
 float App_CellVoltages_GetMinCellVoltage(void)
 {
-    uint16_t min_cell_voltage = cell_voltages.measured_cells[0];
+    uint16_t min_cell_voltage = cell_voltages.raw_cell_voltages[0];
     for (size_t current_cell = 1U;
          current_cell < cell_voltages.total_num_of_cells; current_cell++)
     {
         uint16_t current_cell_voltage =
-            cell_voltages.measured_cells[current_cell];
+            cell_voltages.raw_cell_voltages[current_cell];
         if (min_cell_voltage > current_cell_voltage)
         {
             min_cell_voltage = current_cell_voltage;
         }
     }
 
-    return min_cell_voltage / 10000.0f;
+    return min_cell_voltage * V_PER_100UV;
 }
 
 float App_CellVoltages_GetMaxCellVoltage(void)
 {
-    float max_cell_voltage = cell_voltages.measured_cells[0];
+    float max_cell_voltage = cell_voltages.raw_cell_voltages[0];
     for (size_t current_cell = 1U;
          current_cell < cell_voltages.total_num_of_cells; current_cell++)
     {
-        float current_cell_voltage = cell_voltages.measured_cells[current_cell];
+        float current_cell_voltage =
+            cell_voltages.raw_cell_voltages[current_cell];
         if (max_cell_voltage < current_cell_voltage)
         {
             max_cell_voltage = current_cell_voltage;
         }
     }
 
-    return (float)max_cell_voltage / 10000.0f;
+    return (float)max_cell_voltage * V_PER_100UV;
 }
 
 float App_CellVoltages_GetPackVoltage(void)
 {
     return (float)App_SumOfArrayElements(
-               cell_voltages.measured_cells, cell_voltages.total_num_of_cells) /
-           10000.0f;
+               cell_voltages.raw_cell_voltages,
+               cell_voltages.total_num_of_cells) *
+           V_PER_100UV;
 }
 
 float App_CellVoltages_GetAverageCellVoltage(void)
@@ -92,21 +95,21 @@ float App_CellVoltages_GetAverageCellVoltage(void)
 float App_CellVoltages_GetSegment0Voltage(void)
 {
     return (float)App_SumOfArrayElements(
-               &cell_voltages.measured_cells
+               &cell_voltages.raw_cell_voltages
                     [CELL_MONITOR_IC_0 *
                      cell_voltages.num_of_cells_per_segment],
-               cell_voltages.num_of_cells_per_segment) /
-           10000.0f;
+               cell_voltages.num_of_cells_per_segment) *
+           V_PER_100UV;
 }
 
 float App_CellVoltages_GetSegment1Voltage(void)
 {
     return (float)App_SumOfArrayElements(
-               &cell_voltages.measured_cells
+               &cell_voltages.raw_cell_voltages
                     [CELL_MONITOR_IC_1 *
                      cell_voltages.num_of_cells_per_segment],
-               cell_voltages.num_of_cells_per_segment) /
-           10000.0f;
+               cell_voltages.num_of_cells_per_segment) *
+           V_PER_100UV;
 }
 
 float App_CellVoltages_GetSegment2Voltage(void)

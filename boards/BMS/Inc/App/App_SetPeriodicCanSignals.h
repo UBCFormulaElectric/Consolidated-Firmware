@@ -8,4 +8,4 @@ void App_SetPeriodicCanSignals_Imd(
 
 void App_SetPeriodicSignals_CellMonitorInRangeChecks(
     struct BmsCanTxInterface *can_tx,
-    const struct CellMonitor *cell_monitor);
+    const struct Accumulator *cell_monitor);

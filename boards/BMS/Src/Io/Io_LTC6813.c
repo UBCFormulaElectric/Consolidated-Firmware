@@ -3,7 +3,7 @@
 #include <string.h>
 #include "Io_LTC6813.h"
 #include "Io_SharedSpi.h"
-#include "configs/App_CellConfigs.h"
+#include "configs/App_AccumulatorConfigs.h"
 #include "configs/Io_LTC6813Configs.h"
 
 #define ADCOPT 0U

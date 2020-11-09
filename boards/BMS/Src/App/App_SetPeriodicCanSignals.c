@@ -61,22 +61,22 @@ void App_SetPeriodicCanSignals_Imd(
 
 void App_SetPeriodicSignals_CellMonitorInRangeChecks(
     struct BmsCanTxInterface *const can_tx,
-    const struct CellMonitor *const cell_monitor)
+    const struct Accumulator *const cell_monitor)
 {
-    App_CellMonitor_ReadCellVoltages(cell_monitor);
+    App_Accumulator_ReadCellVoltages(cell_monitor);
 
     struct InRangeCheck *min_cell_voltage_in_range_check =
-        App_CellMonitor_GetMinCellVoltageInRangeCheck(cell_monitor);
+        App_Accumulator_GetMinCellVoltageInRangeCheck(cell_monitor);
     struct InRangeCheck *max_cell_voltage_in_range_check =
-        App_CellMonitor_GetMaxCellVoltageInRangeCheck(cell_monitor);
+        App_Accumulator_GetMaxCellVoltageInRangeCheck(cell_monitor);
     struct InRangeCheck *average_cell_voltage_in_range_check =
-        App_CellMonitor_GetAverageCellVoltageInRangeCheck(cell_monitor);
+        App_Accumulator_GetAverageCellVoltageInRangeCheck(cell_monitor);
     struct InRangeCheck *pack_voltage_in_range_check =
-        App_CellMonitor_GetPackVoltageInRangeCheck(cell_monitor);
+        App_Accumulator_GetPackVoltageInRangeCheck(cell_monitor);
     struct InRangeCheck *segment_0_voltage_in_range_check =
-        App_CellMonitor_GetSegment0VoltageInRangeCheck(cell_monitor);
+        App_Accumulator_GetSegment0VoltageInRangeCheck(cell_monitor);
     struct InRangeCheck *segment_1_voltage_in_range_check =
-        App_CellMonitor_GetSegment1VoltageInRangeCheck(cell_monitor);
+        App_Accumulator_GetSegment1VoltageInRangeCheck(cell_monitor);
 
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, min_cell_voltage_in_range_check,

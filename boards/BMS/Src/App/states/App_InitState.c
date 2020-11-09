@@ -25,10 +25,10 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct BmsCanTxInterface *can_tx       = App_BmsWorld_GetCanTx(world);
     struct Imd *              imd          = App_BmsWorld_GetImd(world);
-    struct CellMonitor *      cell_monitor = App_BmsWorld_GetCellMonitor(world);
+    struct Accumulator *      cell_monitor = App_BmsWorld_GetCellMonitor(world);
 
     App_SetPeriodicCanSignals_Imd(can_tx, imd);
-    App_CellMonitor_Configure(cell_monitor);
+    App_Accumulator_Configure(cell_monitor);
 
     App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
 }

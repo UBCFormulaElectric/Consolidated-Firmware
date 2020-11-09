@@ -1,7 +1,7 @@
 #include "Io_CellVoltages.h"
 #include "Io_SharedSpi.h"
 #include "Io_LTC6813.h"
-#include "configs/App_CellConfigs.h"
+#include "configs/App_AccumulatorConfigs.h"
 #include "configs/Io_LTC6813Configs.h"
 
 #define NUM_OF_CELLS_PER_LTC6813_REGISTER_GROUP 3U

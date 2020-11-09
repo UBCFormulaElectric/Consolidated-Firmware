@@ -12,8 +12,8 @@ extern "C"
 #include "states/App_ChargeState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_ImdConfig.h"
-#include "configs/App_CellConfigs.h"
-#include "configs/App_CellMonitorThresholds.h"
+#include "configs/App_AccumulatorConfigs.h"
+#include "configs/App_AccumulatorThresholds.h"
 }
 
 namespace StateMachineTest
@@ -164,7 +164,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         TearDownObject(bms_ok, App_OkStatus_Destroy);
         TearDownObject(imd_ok, App_OkStatus_Destroy);
         TearDownObject(bspd_ok, App_OkStatus_Destroy);
-        TearDownObject(cell_monitor, App_CellMonitor_Destroy);
+        TearDownObject(cell_monitor, App_Accumulator_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
     }
 
@@ -216,7 +216,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
     struct OkStatus *         bms_ok;
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
-    struct CellMonitor *      cell_monitor;
+    struct Accumulator *      cell_monitor;
     struct Clock *            clock;
 };
 
