@@ -229,7 +229,7 @@ int main(void)
 
     Io_LTC6813_Init(&hspi2, SPI2_NSS_GPIO_Port, SPI2_NSS_Pin);
     App_AccumulatorVoltages_Init(
-        Io_CellVoltages_GetRawCellVoltages, NUM_OF_CELLS_READ_PER_IC);
+        Io_CellVoltages_GetRawCellVoltages, NUM_OF_CELLS_READ_PER_CHIPS);
     cell_monitor = App_Accumulator_Create(
         Io_LTC6813_ConfigureRegisterA, Io_CellVoltages_ReadRawCellVoltages,
         App_AccumulatorVoltages_GetMinCellVoltage,
@@ -244,10 +244,6 @@ int main(void)
         App_AccumulatorVoltages_GetSegment5Voltage, MIN_CELL_VOLTAGE,
         MAX_CELL_VOLTAGE, MIN_SEGMENT_VOLTAGE, MAX_SEGMENT_VOLTAGE,
         MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE);
-
-    // Generate isoSpi traffic to wake up the daisy chain of cell voltage
-    // measuring chips.
-    App_Accumulator_ConfigureCellMonitors(cell_monitor);
 
     clock = App_SharedClock_Create();
 

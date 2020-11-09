@@ -1,10 +1,10 @@
 #pragma once
 
-enum CellMonitorICs
+enum CellMonitorChip
 {
-    CELL_MONITOR_IC_0,
-    CELL_MONITOR_IC_1,
-    NUM_OF_CELL_MONITOR_ICS
+    CELL_MONITOR_CHIP_0,
+    CELL_MONITOR_CHIP_1,
+    NUM_OF_CELL_MONITOR_CHIPS
 };
 
-#define NUM_OF_CELLS_READ_PER_IC 16U
+#define NUM_OF_CELLS_READ_PER_CHIPS 16U

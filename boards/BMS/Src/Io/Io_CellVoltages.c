@@ -27,31 +27,32 @@ static const uint16_t cell_voltage_register_group_commands
         0x0B00  // RDCVF
     };
 
-static uint16_t cell_voltages[NUM_OF_CELL_MONITOR_ICS]
-                             [NUM_OF_CELLS_READ_PER_IC];
+static uint16_t cell_voltages[NUM_OF_CELL_MONITOR_CHIPS]
+                             [NUM_OF_CELLS_READ_PER_CHIPS];
 
 /**
- * Parse raw cell voltages received from the cell monitoring IC and perform
+ * Parse raw cell voltages received from the cell monitoring chip and perform
  * PEC15 checks.
- * @param current_ic The current cell monitoring IC to parse cell voltages for.
- * @param current_register_group The current register group on the given IC to
+ * @param current_chip The current cell monitoring chip to parse cell voltages
+ * for.
+ * @param current_register_group The current register group on the given chip to
  * parse cell voltages for.
  * @param rx_cell_voltages The buffer containing the cell voltages read from the
- * cell monitoring IC.
+ * cell monitoring chip.
  * @return EXIT_CODE_OK if the PEC15 check was successful. Else,
  * EXIT_CODE_ERROR.
  */
 static ExitCode Io_CellVoltages_ParseRawVoltagesAndDoPec15Check(
-    size_t                        current_ic,
+    size_t                        current_chip,
     enum CellVoltageRegisterGroup current_register_group,
     uint8_t                       rx_cell_voltages[]);
 
 static ExitCode Io_CellVoltages_ParseRawVoltagesAndDoPec15Check(
-    size_t                        current_ic,
+    size_t                        current_chip,
     enum CellVoltageRegisterGroup current_register_group,
     uint8_t                       rx_cell_voltages[])
 {
-    size_t cell_voltage_index = current_ic * NUM_OF_RX_BYTES;
+    size_t cell_voltage_index = current_chip * NUM_OF_RX_BYTES;
 
     for (size_t current_cell = 0U;
          current_cell < NUM_OF_CELLS_PER_LTC6813_REGISTER_GROUP; current_cell++)
@@ -60,7 +61,7 @@ static ExitCode Io_CellVoltages_ParseRawVoltagesAndDoPec15Check(
             (uint32_t)(rx_cell_voltages[cell_voltage_index]) |
             (uint32_t)((rx_cell_voltages[cell_voltage_index + 1] << 8));
 
-        cell_voltages[current_ic]
+        cell_voltages[current_chip]
                      [current_cell +
                       current_register_group *
                           NUM_OF_CELLS_PER_LTC6813_REGISTER_GROUP] =
@@ -92,7 +93,7 @@ static ExitCode Io_CellVoltages_ParseRawVoltagesAndDoPec15Check(
     // Calculate the PEC15 using the first 6 bytes of data received from the
     // chip.
     const uint32_t calculated_pec15 = Io_LTC6813_CalculatePec15(
-        &rx_cell_voltages[current_ic * NUM_OF_RX_BYTES], 6U);
+        &rx_cell_voltages[current_chip * NUM_OF_RX_BYTES], 6U);
 
     if (received_pec15 != calculated_pec15)
     {
@@ -106,7 +107,9 @@ ExitCode Io_CellVoltages_ReadRawCellVoltages(void)
 {
     uint16_t cell_register_group_cmd;
     uint8_t  tx_cmd[NUM_OF_CMD_BYTES];
-    uint8_t rx_cell_voltages[NUM_OF_RX_BYTES * NUM_OF_CELL_MONITOR_ICS] = { 0 };
+    uint8_t  rx_cell_voltages[NUM_OF_RX_BYTES * NUM_OF_CELL_MONITOR_CHIPS] = {
+        0
+    };
 
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_EnterReadyState())
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_StartCellVoltageConversions())
@@ -131,16 +134,16 @@ ExitCode Io_CellVoltages_ReadRawCellVoltages(void)
         if (Io_SharedSpi_TransmitAndReceive(
                 Io_LTC6813_GetSpiInterface(), tx_cmd, NUM_OF_CMD_BYTES,
                 rx_cell_voltages,
-                NUM_OF_RX_BYTES * NUM_OF_CELL_MONITOR_ICS) != HAL_OK)
+                NUM_OF_RX_BYTES * NUM_OF_CELL_MONITOR_CHIPS) != HAL_OK)
         {
             return EXIT_CODE_ERROR;
         }
 
-        for (enum CellMonitorICs current_ic = CELL_MONITOR_IC_0;
-             current_ic < NUM_OF_CELL_MONITOR_ICS; current_ic++)
+        for (enum CellMonitorChip current_chip = CELL_MONITOR_CHIP_0;
+             current_chip < NUM_OF_CELL_MONITOR_CHIPS; current_chip++)
         {
             if (Io_CellVoltages_ParseRawVoltagesAndDoPec15Check(
-                    current_ic, current_register_group, rx_cell_voltages) !=
+                    current_chip, current_register_group, rx_cell_voltages) !=
                 EXIT_CODE_OK)
             {
                 return EXIT_CODE_ERROR;

@@ -43,7 +43,7 @@ void App_AccumulatorVoltages_Init(
     cell_voltages.raw_cell_voltages        = get_raw_cell_voltages();
     cell_voltages.num_of_cells_per_segment = num_of_cells_per_segment;
     cell_voltages.total_num_of_cells =
-        num_of_cells_per_segment * NUM_OF_CELL_MONITOR_ICS;
+        num_of_cells_per_segment * NUM_OF_CELL_MONITOR_CHIPS;
 }
 
 float App_AccumulatorVoltages_GetMinCellVoltage(void)
@@ -77,7 +77,7 @@ float App_AccumulatorVoltages_GetMaxCellVoltage(void)
         }
     }
 
-    return (float)max_cell_voltage * V_PER_100UV;
+    return max_cell_voltage * V_PER_100UV;
 }
 
 float App_AccumulatorVoltages_GetPackVoltage(void)
@@ -98,7 +98,7 @@ float App_AccumulatorVoltages_GetSegment0Voltage(void)
 {
     return (float)App_SumOfArrayElements(
                &cell_voltages.raw_cell_voltages
-                    [CELL_MONITOR_IC_0 *
+                    [CELL_MONITOR_CHIP_0 *
                      cell_voltages.num_of_cells_per_segment],
                cell_voltages.num_of_cells_per_segment) *
            V_PER_100UV;
@@ -108,7 +108,7 @@ float App_AccumulatorVoltages_GetSegment1Voltage(void)
 {
     return (float)App_SumOfArrayElements(
                &cell_voltages.raw_cell_voltages
-                    [CELL_MONITOR_IC_1 *
+                    [CELL_MONITOR_CHIP_1 *
                      cell_voltages.num_of_cells_per_segment],
                cell_voltages.num_of_cells_per_segment) *
            V_PER_100UV;
