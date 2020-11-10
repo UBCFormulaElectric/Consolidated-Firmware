@@ -47,7 +47,6 @@
 #include "states/App_InitState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_ImdConfig.h"
-#include "configs/App_AccumulatorConfigs.h"
 #include "configs/App_AccumulatorThresholds.h"
 /* USER CODE END Includes */
 
@@ -228,8 +227,7 @@ int main(void)
         Io_OkStatuses_IsBspdOkEnabled);
 
     Io_LTC6813_Init(&hspi2, SPI2_NSS_GPIO_Port, SPI2_NSS_Pin);
-    App_AccumulatorVoltages_Init(
-        Io_CellVoltages_GetRawCellVoltages, NUM_OF_CELLS_READ_PER_CHIPS);
+    App_AccumulatorVoltages_Init(Io_CellVoltages_GetRawCellVoltages);
     cell_monitor = App_Accumulator_Create(
         Io_LTC6813_ConfigureRegisterA, Io_CellVoltages_ReadRawCellVoltages,
         App_AccumulatorVoltages_GetMinCellVoltage,

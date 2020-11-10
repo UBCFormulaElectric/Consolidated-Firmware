@@ -6,14 +6,10 @@
  * Initialize a set of functions used to calculate voltages for the accumulator.
  * @param get_cell_voltages A pointer to a 2D array containing raw cell voltages
  * measured from all cell monitors.
- * @param num_of_cells_per_segment The number of cell voltages measured per
- * segment.
  * @note The raw cell voltages are represented in 100µV. The raw voltages are
  * divided by 10000 to compute voltages in V.
  */
-void App_AccumulatorVoltages_Init(
-    uint16_t *(*get_raw_cell_voltages)(void),
-    uint32_t num_of_cells_per_segment);
+void App_AccumulatorVoltages_Init(uint16_t *(*get_raw_cell_voltages)(size_t *));
 
 /**
  * Get the average voltage for the 0th accumulator segment.

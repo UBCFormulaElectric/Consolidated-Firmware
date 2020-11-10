@@ -6,5 +6,3 @@ enum CellMonitorChip
     CELL_MONITOR_CHIP_1,
     NUM_OF_CELL_MONITOR_CHIPS
 };
-
-#define NUM_OF_CELLS_READ_PER_CHIPS 16U

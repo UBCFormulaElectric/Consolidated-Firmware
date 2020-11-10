@@ -4,6 +4,7 @@
 #include "configs/App_AccumulatorConfigs.h"
 #include "configs/Io_LTC6813Configs.h"
 
+#define NUM_OF_CELLS_READ_PER_CHIPS 16U
 #define NUM_OF_CELLS_PER_LTC6813_REGISTER_GROUP 3U
 
 enum CellVoltageRegisterGroup
@@ -154,7 +155,9 @@ ExitCode Io_CellVoltages_ReadRawCellVoltages(void)
     return EXIT_CODE_OK;
 }
 
-uint16_t *Io_CellVoltages_GetRawCellVoltages(void)
+uint16_t *Io_CellVoltages_GetRawCellVoltages(size_t *column_length)
 {
+    *column_length = NUM_OF_CELLS_READ_PER_CHIPS;
+
     return &cell_voltages[0][0];
 }

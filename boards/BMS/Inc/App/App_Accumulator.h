@@ -7,9 +7,10 @@ struct Accumulator;
 
 /**
  * Allocate and initialize an accumulator.
- * @param configure_cell_monitors A function to configure all cell monitors.
+ * @param configure_cell_monitors A function to configure all cell monitors for
+ * the given accumulator.
  * @param read_cell_voltages A function to read cell voltages from all cell
- * monitors.
+ * monitors for the given accumulator.
  *
  * @param get_min_cell_voltage A function that returns the absolute minimum cell
  * voltage of the accumulator.
@@ -39,6 +40,7 @@ struct Accumulator;
  * accumulator.
  * @param min_pack_voltage The minimum pack voltage for the given accumulator.
  * @param max_pack_voltage The maximum pack voltage for the given accumulator.
+ *
  * @return A pointer to the created accumulator, whose ownership is given to
  * the caller.
  */

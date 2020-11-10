@@ -21,9 +21,9 @@ static struct AccumulatorVoltages cell_voltages;
  * @param length The length of the given array.
  * @return The sum of elements for the given array.
  */
-static uint32_t App_SumOfArrayElements(uint16_t *array, size_t length);
+static uint32_t App_SumOfArrayElements(uint16_t array[], size_t length);
 
-static uint32_t App_SumOfArrayElements(uint16_t *array, size_t length)
+static uint32_t App_SumOfArrayElements(uint16_t array[], size_t length)
 {
     uint32_t array_sum = 0U;
     for (size_t i = 0U; i < length; i++)
@@ -34,16 +34,17 @@ static uint32_t App_SumOfArrayElements(uint16_t *array, size_t length)
     return array_sum;
 }
 
-void App_AccumulatorVoltages_Init(
-    uint16_t *(*get_raw_cell_voltages)(void),
-    uint32_t num_of_cells_per_segment)
+void App_AccumulatorVoltages_Init(uint16_t *(*get_raw_cell_voltages)(size_t *))
 {
+    size_t raw_cell_voltages_column_length;
+
     // Get the pointer to the 2D array of cell voltages read back from the cell
     // monitoring daisy chain.
-    cell_voltages.raw_cell_voltages        = get_raw_cell_voltages();
-    cell_voltages.num_of_cells_per_segment = num_of_cells_per_segment;
+    cell_voltages.raw_cell_voltages =
+        get_raw_cell_voltages(&raw_cell_voltages_column_length);
+    cell_voltages.num_of_cells_per_segment = raw_cell_voltages_column_length;
     cell_voltages.total_num_of_cells =
-        num_of_cells_per_segment * NUM_OF_CELL_MONITOR_CHIPS;
+        raw_cell_voltages_column_length * NUM_OF_CELL_MONITOR_CHIPS;
 }
 
 float App_AccumulatorVoltages_GetMinCellVoltage(void)
