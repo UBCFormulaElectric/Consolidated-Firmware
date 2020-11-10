@@ -89,6 +89,42 @@ ExitCode
     App_Accumulator_ReadCellVoltages(const struct Accumulator *accumulator);
 
 /**
+ * Get the accumulator's minimum cell voltage in-range check.
+ * @param accumulator The given accumulator to get the minimum cell voltage
+ * in-range check.
+ * @return The minimum cell voltage in-range check for the given accumulator.
+ */
+struct InRangeCheck *App_Accumulator_GetMinCellVoltageInRangeCheck(
+    const struct Accumulator *accumulator);
+
+/**
+ * Get the accumulator's maximum cell voltage in-range check.
+ * @param accumulator The given accumulator to get the maximum cell voltage
+ * in-range check.
+ * @return The maximum cell voltage in-range check for the given accumulator.
+ */
+struct InRangeCheck *App_Accumulator_GetMaxCellVoltageInRangeCheck(
+    const struct Accumulator *accumulator);
+
+/**
+ * Get the accumulator's average cell voltage in-range check.
+ * @param accumulator The given accumulator to get the average cell voltage
+ * in-range check.
+ * @return The average cell voltage in-range check for the given accumulator.
+ */
+struct InRangeCheck *App_Accumulator_GetAverageCellVoltageInRangeCheck(
+    const struct Accumulator *accumulator);
+
+/**
+ * Get the accumulator's pack voltage in-range check.
+ * @param accumulator The given accumulator to get the pack voltage in-range
+ * check.
+ * @return The pack voltage in-range check for the given accumulator.
+ */
+struct InRangeCheck *App_Accumulator_GetPackVoltageInRangeCheck(
+    const struct Accumulator *accumulator);
+
+/**
  * Get the accumulator's 0th segment voltage in-range check.
  * @param accumulator The given accumulator to get the 0th segment voltage
  * in-range check.
@@ -140,40 +176,4 @@ struct InRangeCheck *App_Accumulator_GetSegment4VoltageInRangeCheck(
  * @return The 5th segment voltage in-range check for the given accumulator.
  */
 struct InRangeCheck *App_Accumulator_GetSegment5VoltageInRangeCheck(
-    const struct Accumulator *accumulator);
-
-/**
- * Get the accumulator's pack voltage in-range check.
- * @param accumulator The given accumulator to get the pack voltage in-range
- * check.
- * @return The pack voltage in-range check for the given accumulator.
- */
-struct InRangeCheck *App_Accumulator_GetPackVoltageInRangeCheck(
-    const struct Accumulator *accumulator);
-
-/**
- * Get the accumulator's minimum cell voltage in-range check.
- * @param accumulator The given accumulator to get the minimum cell voltage
- * in-range check.
- * @return The minimum cell voltage in-range check for the given accumulator.
- */
-struct InRangeCheck *App_Accumulator_GetMinCellVoltageInRangeCheck(
-    const struct Accumulator *accumulator);
-
-/**
- * Get the accumulator's maximum cell voltage in-range check.
- * @param accumulator The given accumulator to get the maximum cell voltage
- * in-range check.
- * @return The maximum cell voltage in-range check for the given accumulator.
- */
-struct InRangeCheck *App_Accumulator_GetMaxCellVoltageInRangeCheck(
-    const struct Accumulator *accumulator);
-
-/**
- * Get the accumulator's average cell voltage in-range check.
- * @param accumulator The given accumulator to get the average cell voltage
- * in-range check.
- * @return The average cell voltage in-range check for the given accumulator.
- */
-struct InRangeCheck *App_Accumulator_GetAverageCellVoltageInRangeCheck(
     const struct Accumulator *accumulator);
