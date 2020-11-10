@@ -1,9 +1,9 @@
 #include "Io_CellTemperatures.h"
 #include "Io_SharedSpi.h"
 #include "Io_Thermistors.h"
-#include "configs/App_CellConfigs.h"
+#include "configs/App_AccumulatorConfigs.h"
 
-#define NUM_OF_THERMISTORS_PER_IC NUM_OF_CELL_TEMPERATURES_READ_PER_IC
+#define NUM_OF_THERMISTORS_PER_IC 8U
 #define NUM_OF_AUX_MEASUREMENTS_PER_REGISTER_GROUP 3U
 #define SIZE_OF_TEMPERATURE_LUT 201
 
@@ -36,7 +36,7 @@ static const float temperature_lut[SIZE_OF_TEMPERATURE_LUT] = {
     1381.1f,  1358.5f,  1336.4f,  1314.6f,  1293.3f,  1272.4f,  1251.8f
 };
 
-static float cell_temperatures[NUM_OF_CELL_MONITOR_ICS]
+static float cell_temperatures[NUM_OF_CELL_MONITOR_CHIPS]
                               [NUM_OF_THERMISTORS_PER_IC] = { { 0 } };
 
 ExitCode Io_CellTemperatures_ReadTemperaturesDegC(void)
@@ -44,12 +44,11 @@ ExitCode Io_CellTemperatures_ReadTemperaturesDegC(void)
     RETURN_IF_EXIT_NOT_OK(Io_Thermistors_ReadRawVoltages())
     const uint16_t *raw_gpio_voltages = Io_Thermistors_GetRawVoltages();
 
-    for (enum CellMonitorICs current_ic = CELL_MONITOR_IC_0;
-         current_ic < NUM_OF_CELL_MONITOR_ICS; current_ic++)
+    for (enum CellMonitorChip current_ic = CELL_MONITOR_CHIP_0;
+         current_ic < NUM_OF_CELL_MONITOR_CHIPS; current_ic++)
     {
         for (size_t cell_temp_index = 0U;
-             cell_temp_index < NUM_OF_CELL_TEMPERATURES_READ_PER_IC;
-             cell_temp_index++)
+             cell_temp_index < NUM_OF_THERMISTORS_PER_IC; cell_temp_index++)
         {
             // Calculate the thermistor resistance by measuring the voltage
             // across the thermistor. The thermistor resistance (Ohms) can be

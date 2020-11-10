@@ -1,0 +1,8 @@
+#pragma once
+
+#define MIN_CELL_VOLTAGE 3.0f
+#define MAX_CELL_VOLTAGE 4.2f
+#define MIN_SEGMENT_VOLTAGE 48.0f
+#define MAX_SEGMENT_VOLTAGE 67.2f
+#define MIN_PACK_VOLTAGE 288.0f
+#define MAX_PACK_VOLTAGE 403.2f

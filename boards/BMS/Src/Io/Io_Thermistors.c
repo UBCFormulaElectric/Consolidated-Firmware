@@ -1,10 +1,10 @@
 #include "Io_SharedSpi.h"
 #include "Io_LTC6813.h"
 #include "Io_Thermistors.h"
-#include "configs/App_CellConfigs.h"
+#include "configs/App_AccumulatorConfigs.h"
 #include "configs/Io_LTC6813Configs.h"
 
-#define NUM_OF_THERMISTORS_PER_IC NUM_OF_CELL_TEMPERATURES_READ_PER_IC
+#define NUM_OF_THERMISTORS_PER_IC 8U
 #define NUM_OF_AUX_MEASUREMENTS_PER_REGISTER_GROUP 3U
 
 enum AuxiliaryRegisterGroup
@@ -25,7 +25,7 @@ static const uint16_t
         0x000F, // RDAUXD
     };
 
-static uint16_t raw_thermistor_voltages[NUM_OF_CELL_MONITOR_ICS]
+static uint16_t raw_thermistor_voltages[NUM_OF_CELL_MONITOR_CHIPS]
                                        [NUM_OF_THERMISTORS_PER_IC];
 
 /**
@@ -117,10 +117,8 @@ ExitCode Io_Thermistors_ReadRawVoltages(void)
 {
     uint16_t aux_register_group_cmd;
     uint8_t  tx_cmd[NUM_OF_CMD_BYTES];
-    uint8_t
-        rx_thermistor_resistances[NUM_OF_RX_BYTES * NUM_OF_CELL_MONITOR_ICS] = {
-            0
-        };
+    uint8_t  rx_thermistor_resistances
+        [NUM_OF_RX_BYTES * NUM_OF_CELL_MONITOR_CHIPS] = { 0 };
 
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_EnterReadyState())
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_StartAuxiliaryMeasurements())
@@ -145,16 +143,16 @@ ExitCode Io_Thermistors_ReadRawVoltages(void)
         if (Io_SharedSpi_TransmitAndReceive(
                 Io_LTC6813_GetSpiInterface(), tx_cmd, NUM_OF_CMD_BYTES,
                 rx_thermistor_resistances,
-                NUM_OF_RX_BYTES * NUM_OF_CELL_MONITOR_ICS) != HAL_OK)
+                NUM_OF_RX_BYTES * NUM_OF_CELL_MONITOR_CHIPS) != HAL_OK)
         {
             return EXIT_CODE_ERROR;
         }
 
-        for (enum CellMonitorICs current_ic = CELL_MONITOR_IC_0;
-             current_ic < NUM_OF_CELL_MONITOR_ICS; current_ic++)
+        for (enum CellMonitorChip current_chip = CELL_MONITOR_CHIP_0;
+             current_chip < NUM_OF_CELL_MONITOR_CHIPS; current_chip++)
         {
             if (Io_Thermistors_ParseThermistorVoltagesAndPerformPec15Check(
-                    current_ic, current_register_group,
+                    current_chip, current_register_group,
                     rx_thermistor_resistances) != EXIT_CODE_OK)
             {
                 return EXIT_CODE_ERROR;
