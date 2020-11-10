@@ -3,7 +3,7 @@
 #include <string.h>
 #include "Io_LTC6813.h"
 #include "Io_SharedSpi.h"
-#include "configs/App_CellConfigs.h"
+#include "configs/App_AccumulatorConfigs.h"
 #include "configs/Io_LTC6813Configs.h"
 
 #define ADCOPT 0U
@@ -86,7 +86,7 @@ ExitCode Io_LTC6813_EnterReadyState(void)
 
     // Generate isoSPI traffic to wake up the daisy chain by sending a command
     // to read a single byte NUM_OF_LTC6813 times.
-    for (size_t i = 0U; i < NUM_OF_CELL_MONITOR_ICS; i++)
+    for (size_t i = 0U; i < NUM_OF_CELL_MONITOR_CHIPS; i++)
     {
         if (Io_SharedSpi_Receive(spi_interface, &rx_data, 1U) != HAL_OK)
         {
@@ -100,7 +100,7 @@ ExitCode Io_LTC6813_EnterReadyState(void)
 ExitCode Io_LTC6813_StartCellVoltageConversions(void)
 {
     // The command used to start ADC conversions for battery cell voltages.
-    uint32_t ADCV = (0x260 + (MD << 7) + (DCP << 4) + CH);
+    const uint32_t ADCV = (0x260 + (MD << 7) + (DCP << 4) + CH);
 
     uint8_t tx_cmd[NUM_OF_CMD_BYTES];
     tx_cmd[0] = (uint8_t)(ADCV >> 8);
@@ -120,7 +120,7 @@ ExitCode Io_LTC6813_StartCellVoltageConversions(void)
 ExitCode Io_LTC6813_StartInternalDeviceConversions(void)
 {
     // The command used to start internal device conversions.
-    uint32_t ADSTAT = (0x468 + (MD << 7) + CHST);
+    const uint32_t ADSTAT = (0x468 + (MD << 7) + CHST);
 
     uint8_t tx_cmd[NUM_OF_CMD_BYTES];
     tx_cmd[0] = (uint8_t)(ADSTAT >> 8);
@@ -139,7 +139,7 @@ ExitCode Io_LTC6813_StartInternalDeviceConversions(void)
 ExitCode Io_LTC6813_PollConversions(void)
 {
     // The command used to determine the status of ADC conversions.
-    uint32_t PLADC = 0x1407;
+    const uint32_t PLADC = 0x1407;
 
     uint8_t tx_cmd[NUM_OF_CMD_BYTES];
     tx_cmd[0] = (uint8_t)PLADC;
@@ -179,7 +179,7 @@ ExitCode Io_LTC6813_PollConversions(void)
 ExitCode Io_LTC6813_ConfigureRegisterA(void)
 {
     // The command used to write to configuration register A.
-    uint32_t WRCFGA = 0x01;
+    const uint32_t WRCFGA = 0x01;
 
     uint8_t tx_cmd[NUM_OF_CMD_BYTES];
     tx_cmd[0] = (uint8_t)(WRCFGA >> 8);
@@ -215,7 +215,7 @@ ExitCode Io_LTC6813_ConfigureRegisterA(void)
 
     // Transmit the payload data to all devices connected to the daisy chain.
     if (Io_SharedSpi_MultipleTransmitWithoutNssToggle(
-            spi_interface, tx_payload, 8U, NUM_OF_CELL_MONITOR_ICS) != HAL_OK)
+            spi_interface, tx_payload, 8U, NUM_OF_CELL_MONITOR_CHIPS) != HAL_OK)
     {
         Io_SharedSpi_SetNssHigh(spi_interface);
         return EXIT_CODE_ERROR;
