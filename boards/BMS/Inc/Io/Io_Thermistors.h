@@ -2,6 +2,8 @@
 
 #include "App_SharedExitCode.h"
 
+#define NUM_OF_THERMISTORS_PER_IC 8U
+
 /**
  * Read the raw voltages across all thermistors connected to the cell monitoring
  * chips.

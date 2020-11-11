@@ -3,7 +3,6 @@
 #include "Io_Thermistors.h"
 #include "configs/App_AccumulatorConfigs.h"
 
-#define NUM_OF_THERMISTORS_PER_IC 8U
 #define NUM_OF_AUX_MEASUREMENTS_PER_REGISTER_GROUP 3U
 #define SIZE_OF_TEMPERATURE_LUT 201
 
@@ -105,7 +104,9 @@ ExitCode Io_CellTemperatures_ReadTemperaturesDegC(void)
     return EXIT_CODE_OK;
 }
 
-float *Io_CellTemperatures_GetTemperaturesDegC(void)
+float *Io_CellTemperatures_GetTemperaturesDegC(size_t *column_length)
 {
+    *column_length = NUM_OF_THERMISTORS_PER_IC;
+
     return &cell_temperatures[0][0];
 }
