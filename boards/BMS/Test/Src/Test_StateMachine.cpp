@@ -60,6 +60,16 @@ FAKE_VALUE_FUNC(float, get_segment_3_voltage);
 FAKE_VALUE_FUNC(float, get_segment_4_voltage);
 FAKE_VALUE_FUNC(float, get_segment_5_voltage);
 
+FAKE_VALUE_FUNC(ExitCode, read_die_temperatures);
+FAKE_VALUE_FUNC(float, get_segment_0_die_temp_degc);
+FAKE_VALUE_FUNC(float, get_segment_1_die_temp_degc);
+FAKE_VALUE_FUNC(float, get_segment_2_die_temp_degc);
+FAKE_VALUE_FUNC(float, get_segment_3_die_temp_degc);
+FAKE_VALUE_FUNC(float, get_segment_4_die_temp_degc);
+FAKE_VALUE_FUNC(float, get_segment_5_die_temp_degc);
+FAKE_VALUE_FUNC(float, get_min_die_temp_degc);
+FAKE_VALUE_FUNC(float, get_max_die_temp_degc);
+
 class BmsStateMachineTest : public BaseStateMachineTest
 {
   protected:
@@ -96,7 +106,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         bspd_ok = App_OkStatus_Create(
             enable_bspd_ok, disable_bspd_ok, is_bspd_ok_enabled);
 
-        cell_monitor = App_Accumulator_Create(
+        accumulator = App_Accumulator_Create(
             configure_daisy_chain, read_cell_voltages, get_min_cell_voltage,
             get_max_cell_voltage, get_average_cell_voltage, get_pack_voltage,
             get_segment_0_voltage, get_segment_1_voltage, get_segment_2_voltage,
@@ -104,12 +114,20 @@ class BmsStateMachineTest : public BaseStateMachineTest
             MIN_CELL_VOLTAGE, MAX_CELL_VOLTAGE, MIN_SEGMENT_VOLTAGE,
             MAX_SEGMENT_VOLTAGE, MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE);
 
+        cell_monitors = App_CellMonitors_Create(
+            read_die_temperatures, get_segment_0_die_temp_degc,
+            get_segment_1_die_temp_degc, get_segment_2_die_temp_degc,
+            get_segment_3_die_temp_degc, get_segment_4_die_temp_degc,
+            get_segment_5_die_temp_degc, get_min_die_temp_degc,
+            get_max_die_temp_degc, MIN_INTERNAL_DIE_TEMPERATURE,
+            MAX_INTERNAL_DIE_TEMPERATURE);
+
         clock = App_SharedClock_Create();
 
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
-            rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, cell_monitor,
-            clock);
+            rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator,
+            cell_monitors, clock);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -164,7 +182,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
         TearDownObject(bms_ok, App_OkStatus_Destroy);
         TearDownObject(imd_ok, App_OkStatus_Destroy);
         TearDownObject(bspd_ok, App_OkStatus_Destroy);
-        TearDownObject(cell_monitor, App_Accumulator_Destroy);
+        TearDownObject(accumulator, App_Accumulator_Destroy);
+        TearDownObject(cell_monitors, App_CellMonitors_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
     }
 
@@ -216,7 +235,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
     struct OkStatus *         bms_ok;
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
-    struct Accumulator *      cell_monitor;
+    struct Accumulator *      accumulator;
+    struct CellMonitors *     cell_monitors;
     struct Clock *            clock;
 };
 
