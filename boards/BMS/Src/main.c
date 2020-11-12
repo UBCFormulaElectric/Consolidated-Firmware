@@ -50,6 +50,7 @@
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_ImdConfig.h"
 #include "configs/App_AccumulatorThresholds.h"
+#include "configs/App_CellMonitorsThresholds.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -255,9 +256,10 @@ int main(void)
         App_CellMonitorsTemperatures_GetDieTemp3DegC,
         App_CellMonitorsTemperatures_GetDieTemp4DegC,
         App_CellMonitorsTemperatures_GetDieTemp5DegC,
-        App_CellMonitorsTemperatures_GetMinDieTempDegC,
         App_CellMonitorsTemperatures_GetMaxDieTempDegC,
-        MIN_INTERNAL_DIE_TEMPERATURE, MAX_INTERNAL_DIE_TEMPERATURE);
+        MIN_INTERNAL_DIE_TEMP_DEGC, MAX_INTERNAL_DIE_TEMP_DEGC,
+        REENABLE_CHARGER_DIE_TEMP_DEGC, REENABLE_CELL_BALANCING_DIE_TEMP_DEGC,
+        DISABLE_CELL_BALANCING_DIE_TEMP_DEGC, DISABLE_CHARGER_DIE_TEMP_DEGC);
 
     clock = App_SharedClock_Create();
 

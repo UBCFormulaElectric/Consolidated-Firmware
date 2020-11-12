@@ -14,6 +14,7 @@ extern "C"
 #include "configs/App_ImdConfig.h"
 #include "configs/App_AccumulatorConfigs.h"
 #include "configs/App_AccumulatorThresholds.h"
+#include "configs/App_CellMonitorsThresholds.h"
 }
 
 namespace StateMachineTest
@@ -119,8 +120,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
             get_segment_1_die_temp_degc, get_segment_2_die_temp_degc,
             get_segment_3_die_temp_degc, get_segment_4_die_temp_degc,
             get_segment_5_die_temp_degc, get_min_die_temp_degc,
-            get_max_die_temp_degc, MIN_INTERNAL_DIE_TEMPERATURE,
-            MAX_INTERNAL_DIE_TEMPERATURE);
+            get_max_die_temp_degc, MIN_INTERNAL_DIE_TEMP_DEGC,
+            DISABLE_CELL_BALANCING_INTERNAL_DIE_TEMPERATURE_DEGC);
 
         clock = App_SharedClock_Create();
 

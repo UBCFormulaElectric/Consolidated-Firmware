@@ -4,6 +4,15 @@
 
 struct CellMonitors;
 
+enum CellMonitorsThresholds
+{
+    CELL_MONITORS_DISABLE_CHARGER_AND_CELL_BALANCING,
+    CELL_MONITORS_DISABLE_CELL_BALANCING,
+    CELL_MONITORS_REENABLE_CHARGER,
+    CELL_MONITORS_REENABLE_CELL_BALANCING_AND_CHARGER,
+    CELL_MONITORS_OK
+};
+
 /**
  * Allocate and initialize a group of cell monitors.
  * @param read_die_temperatures A function that can be called to read internal
@@ -22,8 +31,6 @@ struct CellMonitors;
  * the 5th cell monitor.
  * @param get_min_die_temp A function that returns the minimum die temperature.
  * @param get_max_die_temp A function that returns the maximum die temperature.
- * @param min_die_temp_threshold The minimum die temperature threshold for the
- * given cell monitor.
  * @param max_die_temp_threshold The maximum die temperature threshold for the
  * given cell monitor.
  * @return A pointer to the created cell monitor whose ownership is given to the
@@ -37,10 +44,13 @@ struct CellMonitors *App_CellMonitors_Create(
     float (*get_monitor_3_die_temp)(void),
     float (*get_monitor_4_die_temp)(void),
     float (*get_monitor_5_die_temp)(void),
-    float (*get_min_die_temp)(void),
     float (*get_max_die_temp)(void),
     float min_die_temp_threshold,
-    float max_die_temp_threshold);
+    float max_die_temp_threshold,
+    float reenable_charger_threshold,
+    float reenable_cell_balancing_and_charger_threshold,
+    float disable_cell_balancing_die_temp_threshold,
+    float disable_charger_die_temp_threshold);
 
 /**
  * Deallocate the given cell monitor.
@@ -128,4 +138,4 @@ struct InRangeCheck *App_CellMonitors_GetMinDieTempInRangeCheck(
  * @return The max die temperature in-range check.
  */
 struct InRangeCheck *App_CellMonitors_GetMaxDieTempInRangeCheck(
-    const struct CellMonitors *const cell_monitors);
+    const struct CellMonitors *cell_monitors);

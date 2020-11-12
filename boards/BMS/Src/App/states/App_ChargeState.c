@@ -16,6 +16,15 @@ static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
 static void ChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick1Hz(state_machine);
+
+    struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct BmsCanTxInterface *can_tx   = App_BmsWorld_GetCanTx(world);
+    struct Charger *          charger  = App_BmsWorld_GetCharger(world);
+    struct CellMonitors *cell_monitors = App_BmsWorld_GetCellMonitors(world);
+
+    UNUSED(can_tx);
+    UNUSED(charger);
+    UNUSED(cell_monitors);
 }
 
 static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)

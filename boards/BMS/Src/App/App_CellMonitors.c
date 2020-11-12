@@ -6,6 +6,11 @@
 struct CellMonitors
 {
     ExitCode (*read_die_temperatures)(void);
+    float reenable_charger_threshold;
+    float reenable_cell_balancing_and_charger_threshold;
+    float disable_charger_threshold;
+    float disable_cell_balancing_threshold;
+    float (*get_max_die_temp)(void);
 
     struct InRangeCheck *monitor_0_die_temp_in_range_check;
     struct InRangeCheck *monitor_1_die_temp_in_range_check;
@@ -13,8 +18,6 @@ struct CellMonitors
     struct InRangeCheck *monitor_3_die_temp_in_range_check;
     struct InRangeCheck *monitor_4_die_temp_in_range_check;
     struct InRangeCheck *monitor_5_die_temp_in_range_check;
-    struct InRangeCheck *min_die_temperature_in_range_check;
-    struct InRangeCheck *max_die_temperature_in_range_check;
 };
 
 struct CellMonitors *App_CellMonitors_Create(
@@ -25,15 +28,24 @@ struct CellMonitors *App_CellMonitors_Create(
     float (*get_monitor_3_die_temp)(void),
     float (*get_monitor_4_die_temp)(void),
     float (*get_monitor_5_die_temp)(void),
-    float (*get_min_die_temp)(void),
     float (*get_max_die_temp)(void),
     float min_die_temp_threshold,
-    float max_die_temp_threshold)
+    float max_die_temp_threshold,
+    float reenable_charger_threshold,
+    float reenable_cell_balancing_and_charger_threshold,
+    float disable_cell_balancing_threshold,
+    float disable_charger_threshold)
 {
     struct CellMonitors *cell_monitors = malloc(sizeof(struct CellMonitors));
     assert(cell_monitors != NULL);
 
-    cell_monitors->read_die_temperatures = read_die_temperatures;
+    cell_monitors->read_die_temperatures      = read_die_temperatures;
+    cell_monitors->reenable_charger_threshold = reenable_charger_threshold;
+    cell_monitors->reenable_cell_balancing_and_charger_threshold =
+        reenable_cell_balancing_and_charger_threshold;
+    cell_monitors->disable_charger_threshold = disable_cell_balancing_threshold;
+    cell_monitors->disable_charger_threshold = disable_charger_threshold;
+    cell_monitors->get_max_die_temp          = get_max_die_temp;
 
     cell_monitors->monitor_0_die_temp_in_range_check = App_InRangeCheck_Create(
         get_monitor_0_die_temp, min_die_temp_threshold, max_die_temp_threshold);
@@ -48,11 +60,6 @@ struct CellMonitors *App_CellMonitors_Create(
     cell_monitors->monitor_5_die_temp_in_range_check = App_InRangeCheck_Create(
         get_monitor_5_die_temp, min_die_temp_threshold, max_die_temp_threshold);
 
-    cell_monitors->min_die_temperature_in_range_check = App_InRangeCheck_Create(
-        get_min_die_temp, min_die_temp_threshold, max_die_temp_threshold);
-    cell_monitors->max_die_temperature_in_range_check = App_InRangeCheck_Create(
-        get_max_die_temp, min_die_temp_threshold, max_die_temp_threshold);
-
     return cell_monitors;
 }
 
@@ -64,61 +71,76 @@ void App_CellMonitors_Destroy(struct CellMonitors *cell_monitors)
     free(cell_monitors->monitor_3_die_temp_in_range_check);
     free(cell_monitors->monitor_4_die_temp_in_range_check);
     free(cell_monitors->monitor_5_die_temp_in_range_check);
-    free(cell_monitors->min_die_temperature_in_range_check);
-    free(cell_monitors->max_die_temperature_in_range_check);
     free(cell_monitors);
 }
 
 ExitCode App_CellMonitors_ReadDieTemperatures(
-    const struct CellMonitors *cell_monitors)
+    const struct CellMonitors *const cell_monitors)
 {
     return cell_monitors->read_die_temperatures();
 }
 
 struct InRangeCheck *App_CellMonitors_GetMonitor0DieTempInRangeCheck(
-    const struct CellMonitors *cell_monitors)
+    const struct CellMonitors *const cell_monitors)
 {
     return cell_monitors->monitor_0_die_temp_in_range_check;
 }
 
 struct InRangeCheck *App_CellMonitors_GetMonitor1DieTempInRangeCheck(
-    const struct CellMonitors *cell_monitors)
+    const struct CellMonitors *const cell_monitors)
 {
     return cell_monitors->monitor_1_die_temp_in_range_check;
 }
 
 struct InRangeCheck *App_CellMonitors_GetMonitor2DieTempInRangeCheck(
-    const struct CellMonitors *cell_monitors)
+    const struct CellMonitors *const cell_monitors)
 {
     return cell_monitors->monitor_2_die_temp_in_range_check;
 }
 
 struct InRangeCheck *App_CellMonitors_GetMonitor3DieTempInRangeCheck(
-    const struct CellMonitors *cell_monitors)
+    const struct CellMonitors *const cell_monitors)
 {
     return cell_monitors->monitor_3_die_temp_in_range_check;
 }
 
 struct InRangeCheck *App_CellMonitors_GetMonitor4DieTempInRangeCheck(
-    const struct CellMonitors *cell_monitors)
+    const struct CellMonitors *const cell_monitors)
 {
     return cell_monitors->monitor_4_die_temp_in_range_check;
 }
 
 struct InRangeCheck *App_CellMonitors_GetMonitorDieTemp5InRangeCheck(
-    const struct CellMonitors *cell_monitors)
+    const struct CellMonitors *const cell_monitors)
 {
     return cell_monitors->monitor_5_die_temp_in_range_check;
 }
 
-struct InRangeCheck *App_CellMonitors_GetMinDieTempInRangeCheck(
-    const struct CellMonitors *const cell_monitors)
+enum CellMonitorsThresholds App_CellMonitors_GetMaxDieTempDegC(
+    struct CellMonitors *cell_monitors,
+    float *              max_die_temp)
 {
-    return cell_monitors->min_die_temperature_in_range_check;
-}
+    enum CellMonitorsThresholds exit_code = CELL_MONITORS_OK;
+    *max_die_temp                         = cell_monitors->get_max_die_temp();
 
-struct InRangeCheck *App_CellMonitors_GetMaxDieTempInRangeCheck(
-    const struct CellMonitors *const cell_monitors)
-{
-    return cell_monitors->max_die_temperature_in_range_check;
+    if (*max_die_temp > cell_monitors->disable_charger_threshold)
+    {
+        exit_code = CELL_MONITORS_DISABLE_CHARGER_AND_CELL_BALANCING;
+    }
+    else if (*max_die_temp > cell_monitors->disable_cell_balancing_threshold)
+    {
+        exit_code = CELL_MONITORS_DISABLE_CELL_BALANCING;
+    }
+    else if (*max_die_temp < cell_monitors->reenable_charger_threshold)
+    {
+        exit_code = CELL_MONITORS_REENABLE_CHARGER;
+    }
+    else if (
+        *max_die_temp <
+        cell_monitors->reenable_cell_balancing_and_charger_threshold)
+    {
+        exit_code = CELL_MONITORS_REENABLE_CELL_BALANCING_AND_CHARGER;
+    }
+
+    return exit_code;
 }
