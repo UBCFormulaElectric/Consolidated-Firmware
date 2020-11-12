@@ -38,22 +38,6 @@ float App_CellMonitorsTemperatures_GetDieTemp5DegC(void)
     return 0.0f;
 }
 
-float App_CellMonitorsTemperatures_GetMinDieTempDegC(void)
-{
-    float min_cell_voltage = internal_die_temperatures[0];
-    for (enum CellMonitorChip current_chip = CELL_MONITOR_CHIP_1;
-         current_chip < NUM_OF_CELL_MONITOR_CHIPS; current_chip++)
-    {
-        float current_cell_voltage = internal_die_temperatures[current_chip];
-        if (min_cell_voltage > current_cell_voltage)
-        {
-            min_cell_voltage = current_cell_voltage;
-        }
-    }
-
-    return min_cell_voltage;
-}
-
 float App_CellMonitorsTemperatures_GetMaxDieTempDegC(void)
 {
     float max_cell_voltage = internal_die_temperatures[0];

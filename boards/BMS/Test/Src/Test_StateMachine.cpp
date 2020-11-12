@@ -119,9 +119,12 @@ class BmsStateMachineTest : public BaseStateMachineTest
             read_die_temperatures, get_segment_0_die_temp_degc,
             get_segment_1_die_temp_degc, get_segment_2_die_temp_degc,
             get_segment_3_die_temp_degc, get_segment_4_die_temp_degc,
-            get_segment_5_die_temp_degc, get_min_die_temp_degc,
-            get_max_die_temp_degc, MIN_INTERNAL_DIE_TEMP_DEGC,
-            DISABLE_CELL_BALANCING_INTERNAL_DIE_TEMPERATURE_DEGC);
+            get_segment_5_die_temp_degc, get_max_die_temp_degc,
+            MIN_INTERNAL_DIE_TEMP_DEGC, MAX_INTERNAL_DIE_TEMP_DEGC,
+            DIE_TEMP_DEGC_TO_REENABLE_CHARGER,
+            DIE_TEMP_DEGC_TO_REENABLE_CELL_BALANCING,
+            DIE_TEMP_DEGC_TO_DISABLE_CELL_BALANCING,
+            DIE_TEMP_DEGC_TO_DISABLE_CHARGER);
 
         clock = App_SharedClock_Create();
 

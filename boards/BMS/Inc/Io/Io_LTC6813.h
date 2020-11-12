@@ -48,14 +48,6 @@ ExitCode Io_LTC6813_StartCellVoltageConversions(void);
 ExitCode Io_LTC6813_StartInternalDeviceConversions(void);
 
 /**
- * Start auxiliary (GPIO) measurements for all LTC6813 devices on the daisy
- * chain.
- * @return EXIT_CODE_OK if the command to start auxiliary GPIO measurements is
- * sent successfully. Else, EXIT_CODE_ERROR.
- */
-ExitCode Io_LTC6813_StartAuxiliaryMeasurements(void);
-
-/**
  * Wait for the completion of all ADC conversions for the LTC6813 chips on the
  * daisy chain.
  * @return EXIT_CODE_OK if all ADC conversions have completed successfully.

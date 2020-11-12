@@ -23,6 +23,51 @@ static void Io_ProcessBmsNonCriticalErrorMsg(
         data->stack_watermark_above_threshold_taskcantx);
     SET_ERROR(
         error_table, BMS_NON_CRITICAL_WATCHDOG_TIMEOUT, data->watchdog_timeout);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_SEGMENT_0_VOLTAGE_OUT_OF_RANGE,
+        data->segment_0_voltage_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_SEGMENT_1_VOLTAGE_OUT_OF_RANGE,
+        data->segment_1_voltage_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_SEGMENT_2_VOLTAGE_OUT_OF_RANGE,
+        data->segment_2_voltage_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_SEGMENT_3_VOLTAGE_OUT_OF_RANGE,
+        data->segment_3_voltage_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_SEGMENT_4_VOLTAGE_OUT_OF_RANGE,
+        data->segment_4_voltage_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_SEGMENT_5_VOLTAGE_OUT_OF_RANGE,
+        data->segment_5_voltage_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_PACK_VOLTAGE_OUT_OF_RANGE,
+        data->pack_voltage_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_AVERAGE_CELL_VOLTAGE_OUT_OF_RANGE,
+        data->average_cell_voltage_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_CELL_MONITOR_0_DIE_TEMP_OUT_OF_RANGE,
+        data->cell_monitor_0_die_temp_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_CELL_MONITOR_1_DIE_TEMP_OUT_OF_RANGE,
+        data->cell_monitor_1_die_temp_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_CELL_MONITOR_2_DIE_TEMP_OUT_OF_RANGE,
+        data->cell_monitor_2_die_temp_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_CELL_MONITOR_3_DIE_TEMP_OUT_OF_RANGE,
+        data->cell_monitor_3_die_temp_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_CELL_MONITOR_4_DIE_TEMP_OUT_OF_RANGE,
+        data->cell_monitor_4_die_temp_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE,
+        data->cell_monitor_5_die_temp_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_ITMP_CHARGER_HAS_OVERFLOW,
+        data->itmp_charger_has_overflow);
 }
 
 static void Io_ProcessDcmNonCriticalErrorMsg(

@@ -55,12 +55,6 @@ float App_CellMonitorsTemperatures_GetDieTemp4DegC(void);
 float App_CellMonitorsTemperatures_GetDieTemp5DegC(void);
 
 /**
- * Get the minimum internal die temperature.
- * @return The minimum internal die temperature (°C).
- */
-float App_CellMonitorsTemperatures_GetMinDieTempDegC(void);
-
-/**
  * Get the maximum internal die temperature.
  * @return The maximum internal die temperature (°C).
  */

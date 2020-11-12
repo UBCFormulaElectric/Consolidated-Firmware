@@ -1,6 +1,7 @@
 #include "states/App_AllStates.h"
 #include "states/App_InitState.h"
 #include "states/App_DriveState.h"
+#include "states/App_ChargeState.h"
 
 #include "App_SetPeriodicCanSignals.h"
 #include "App_SharedMacros.h"

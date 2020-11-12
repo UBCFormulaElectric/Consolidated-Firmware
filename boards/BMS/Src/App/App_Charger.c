@@ -7,6 +7,7 @@ struct Charger
     void (*enable)(void);
     void (*disable)(void);
     bool (*is_connected)(void);
+    bool is_charger_enabled;
 };
 
 struct Charger *App_Charger_Create(
@@ -17,9 +18,10 @@ struct Charger *App_Charger_Create(
     struct Charger *charger = malloc(sizeof(struct Charger));
     assert(charger != NULL);
 
-    charger->enable       = enable_charger;
-    charger->disable      = disable_charger;
-    charger->is_connected = is_charger_connected;
+    charger->enable             = enable_charger;
+    charger->disable            = disable_charger;
+    charger->is_connected       = is_charger_connected;
+    charger->is_charger_enabled = false;
 
     return charger;
 }
@@ -31,15 +33,22 @@ void App_Charger_Destroy(struct Charger *charger)
 
 void App_Charger_Enable(struct Charger *charger)
 {
+    charger->is_charger_enabled = true;
     charger->enable();
 }
 
 void App_Charger_Disable(struct Charger *charger)
 {
+    charger->is_charger_enabled = false;
     charger->disable();
 }
 
 bool App_Charger_IsConnected(struct Charger *charger)
 {
     return charger->is_connected();
+}
+
+bool App_Charger_IsChargerEnabled(const struct Charger *const charger)
+{
+    return charger->is_charger_enabled;
 }
