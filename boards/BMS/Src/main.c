@@ -40,17 +40,14 @@
 #include "Io_OkStatuses.h"
 #include "Io_LTC6813.h"
 #include "Io_CellVoltages.h"
-#include "Io_DieTemperatures.h"
 
 #include "App_BmsWorld.h"
 #include "App_AccumulatorVoltages.h"
-#include "App_CellMonitorsTemperatures.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_ImdConfig.h"
 #include "configs/App_AccumulatorThresholds.h"
-#include "configs/App_CellMonitorsThresholds.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -110,8 +107,7 @@ struct Charger *          charger;
 struct OkStatus *         bms_ok;
 struct OkStatus *         imd_ok;
 struct OkStatus *         bspd_ok;
-struct Accumulator *      accumulator;
-struct CellMonitors *     cell_monitors;
+struct Accumulator *      cell_monitor;
 struct Clock *            clock;
 /* USER CODE END PV */
 
@@ -232,7 +228,7 @@ int main(void)
 
     Io_LTC6813_Init(&hspi2, SPI2_NSS_GPIO_Port, SPI2_NSS_Pin);
     App_AccumulatorVoltages_Init(Io_CellVoltages_GetRawCellVoltages);
-    accumulator = App_Accumulator_Create(
+    cell_monitor = App_Accumulator_Create(
         Io_LTC6813_ConfigureRegisterA, Io_CellVoltages_ReadRawCellVoltages,
         App_AccumulatorVoltages_GetMinCellVoltage,
         App_AccumulatorVoltages_GetMaxCellVoltage,
@@ -247,25 +243,11 @@ int main(void)
         MAX_CELL_VOLTAGE, MIN_SEGMENT_VOLTAGE, MAX_SEGMENT_VOLTAGE,
         MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE);
 
-    App_CellMonitorTemperatures_Init(Io_DieTemperatures_GetTemperaturesDegC);
-    cell_monitors = App_CellMonitors_Create(
-        Io_DieTemperatures_ReadTemperaturesDegC,
-        App_CellMonitorsTemperatures_GetDieTemp0DegC,
-        App_CellMonitorsTemperatures_GetDieTemp1DegC,
-        App_CellMonitorsTemperatures_GetDieTemp2DegC,
-        App_CellMonitorsTemperatures_GetDieTemp3DegC,
-        App_CellMonitorsTemperatures_GetDieTemp4DegC,
-        App_CellMonitorsTemperatures_GetDieTemp5DegC,
-        App_CellMonitorsTemperatures_GetMaxDieTempDegC,
-        MIN_INTERNAL_DIE_TEMP_DEGC, MAX_INTERNAL_DIE_TEMP_DEGC,
-        REENABLE_CHARGER_DIE_TEMP_DEGC, REENABLE_CELL_BALANCING_DIE_TEMP_DEGC,
-        DISABLE_CELL_BALANCING_DIE_TEMP_DEGC, DISABLE_CHARGER_DIE_TEMP_DEGC);
-
     clock = App_SharedClock_Create();
 
     world = App_BmsWorld_Create(
         can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger,
-        bms_ok, imd_ok, bspd_ok, accumulator, cell_monitors, clock);
+        bms_ok, imd_ok, bspd_ok, cell_monitor, clock);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);

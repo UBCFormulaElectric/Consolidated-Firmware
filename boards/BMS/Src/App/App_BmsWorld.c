@@ -15,7 +15,6 @@ struct BmsWorld
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
     struct Accumulator *      accumulator;
-    struct CellMonitors *     cell_monitors;
     struct Clock *            clock;
 };
 
@@ -30,7 +29,6 @@ struct BmsWorld *App_BmsWorld_Create(
     struct OkStatus *const          imd_ok,
     struct OkStatus *const          bspd_ok,
     struct Accumulator *const       accumulator,
-    struct CellMonitors *const      cell_monitors,
     struct Clock *const             clock)
 {
     struct BmsWorld *world = (struct BmsWorld *)malloc(sizeof(struct BmsWorld));
@@ -46,7 +44,6 @@ struct BmsWorld *App_BmsWorld_Create(
     world->imd_ok            = imd_ok;
     world->bspd_ok           = bspd_ok;
     world->accumulator       = accumulator;
-    world->cell_monitors     = cell_monitors;
     world->clock             = clock;
 
     return world;
@@ -111,12 +108,6 @@ struct Accumulator *
     App_BmsWorld_GetAccumulator(const struct BmsWorld *const world)
 {
     return world->accumulator;
-}
-
-struct CellMonitors *
-    App_BmsWorld_GetCellMonitors(const struct BmsWorld *const world)
-{
-    return world->cell_monitors;
 }
 
 struct Clock *App_BmsWorld_GetClock(const struct BmsWorld *const world)

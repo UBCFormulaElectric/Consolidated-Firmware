@@ -7,7 +7,7 @@
  * @return EXIT_CODE_OK if internal die temperatures were acquired successfully
  * from all cell monitoring chips. Else, EXIT_CODE_ERROR.
  */
-ExitCode Io_DieTemperatures_ReadTemperaturesDegC(void);
+ExitCode Io_Temperatures_ReadDieTemperaturesDegC(void);
 
 /**
  * Get the pointer to the array containing internal die temperatures read
@@ -19,4 +19,4 @@ ExitCode Io_DieTemperatures_ReadTemperaturesDegC(void);
  * @return A pointer to the array containing the internal die temperatures (°C)
  * for each cell monitoring chip.
  */
-float *Io_DieTemperatures_GetTemperaturesDegC(void);
+float *Io_Temperatures_GetDieTemperaturesDegC(void);

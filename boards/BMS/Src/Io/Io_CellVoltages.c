@@ -46,12 +46,12 @@ static uint16_t cell_voltages[NUM_OF_CELL_MONITOR_CHIPS]
 static ExitCode Io_CellVoltages_ParseRawVoltagesAndDoPec15Check(
     size_t                        current_chip,
     enum CellVoltageRegisterGroup current_register_group,
-    uint8_t *                     rx_cell_voltages);
+    uint8_t                       rx_cell_voltages[]);
 
 static ExitCode Io_CellVoltages_ParseRawVoltagesAndDoPec15Check(
     size_t                        current_chip,
     enum CellVoltageRegisterGroup current_register_group,
-    uint8_t *                     rx_cell_voltages)
+    uint8_t                       rx_cell_voltages[])
 {
     size_t cell_voltage_index = current_chip * NUM_OF_RX_BYTES;
 

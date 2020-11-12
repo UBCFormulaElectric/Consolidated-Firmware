@@ -1,20 +1,13 @@
 #include <stdint.h>
-#include "Io_SharedSpi.h"
 #include "Io_LTC6813.h"
-#include "Io_DieTemperatures.h"
+#include "Io_Temperatures.h"
+#include "Io_SharedSpi.h"
 #include "configs/App_AccumulatorConfigs.h"
 #include "configs/Io_LTC6813Configs.h"
 
 static float internal_die_temperatures[NUM_OF_CELL_MONITOR_CHIPS];
 
-float *Io_DieTemperatures_GetTemperaturesDegC(void)
-{
-    return internal_die_temperatures;
-}
-
-static float internal_die_temperatures[NUM_OF_CELL_MONITOR_CHIPS];
-
-ExitCode Io_DieTemperatures_ReadTemperaturesDegC(void)
+ExitCode Io_Temperatures_ReadDieTemperaturesDegC(void)
 {
     // The command used to read data from status register A.
     const uint32_t RDSTATA = 0x0010;
@@ -56,11 +49,7 @@ ExitCode Io_DieTemperatures_ReadTemperaturesDegC(void)
                 rx_internal_die_temp[3 + NUM_OF_RX_BYTES * current_chip] << 8));
 
         // Calculate the internal die temperature using the following equation:
-        //
-        //                                           (1°C * 100µV)
-        // DIE_TEMP_DEG_C  = MEASURED_VOLTAGE_µV * ----------------- - 276°C
-        //                                              7.6 mV
-
+        // DIE_TEMP = MEASURED_100UV * (1°C * 100µV / 7.6mV) - 276°C
         internal_die_temperatures[current_chip] =
             (float)internal_die_temp * 100e-6f / 7.6e-3f - 276.0f;
 
