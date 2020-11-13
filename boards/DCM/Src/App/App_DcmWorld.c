@@ -41,9 +41,9 @@ struct DcmWorld *App_DcmWorld_Create(
     world->rgb_led_sequence  = rgb_led_sequence;
     world->brake_light       = brake_light;
     world->buzzer            = buzzer;
+    world->imu               = imu;
     world->error_table       = error_table;
     world->clock             = clock;
-    world->imu               = imu;
 
     struct WaitSignalCallback buzzer_callback = { .function =
                                                       buzzer_complete_callback,

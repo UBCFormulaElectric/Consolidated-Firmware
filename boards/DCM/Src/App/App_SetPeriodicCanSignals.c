@@ -1,8 +1,7 @@
 #include "App_SharedSetPeriodicCanSignals.h"
 #include "App_SetPeriodicCanSignals.h"
+#include "App_InRangeCheck.h"
 
-//This generates an error and doesn't build: ISO C forbids forward references to 'enum' types [-Werror=pedantic]
-// Why?
 STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(DcmCanTxInterface)
 
 // TODO: Implement PID controller to maintain DC bus power at 80kW
@@ -52,14 +51,10 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
 
 void App_SetPeriodicCanSignals_Imu(const struct DcmWorld *world)
 {
-    struct DcmCanTxInterface *can_tx = App_DcmWorld_GetCanTx(world);
-    struct Imu *              imu    = App_DcmWorld_GetImu(world);
-
-    ExitCode data_valid = App_Imu_UpdateSensorData(imu);
-
-    if (data_valid != EXIT_CODE_OK)
+    struct Imu * imu = App_DcmWorld_GetImu(world);
+    if (App_Imu_UpdateSensorData(imu) != EXIT_CODE_OK)
         return;
-
+    struct DcmCanTxInterface *can_tx = App_DcmWorld_GetCanTx(world);
 
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, App_Imu_GetAccelerationXInRangeCheck(imu),
