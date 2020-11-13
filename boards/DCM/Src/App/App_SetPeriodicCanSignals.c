@@ -52,10 +52,14 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
 void App_SetPeriodicCanSignals_Imu(const struct DcmWorld *world)
 {
     struct Imu * imu = App_DcmWorld_GetImu(world);
-    if (App_Imu_UpdateSensorData(imu) != EXIT_CODE_OK)
-        return;
     struct DcmCanTxInterface *can_tx = App_DcmWorld_GetCanTx(world);
 
+    if (App_Imu_UpdateSensorData(imu) != EXIT_CODE_OK) {
+        App_CanTx_SetPeriodicSignal_INVALID_IMU_ARGS(can_tx, CANMSGS_DCM_NON_CRITICAL_ERRORS_INVALID_IMU_ARGS_INVALID_CHOICE);
+        return;
+    }
+
+    App_CanTx_SetPeriodicSignal_INVALID_IMU_ARGS(can_tx, CANMSGS_DCM_NON_CRITICAL_ERRORS_INVALID_IMU_ARGS_VALID_CHOICE);
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, App_Imu_GetAccelerationXInRangeCheck(imu),
         App_CanTx_SetPeriodicSignal_ACCELERATION_X,

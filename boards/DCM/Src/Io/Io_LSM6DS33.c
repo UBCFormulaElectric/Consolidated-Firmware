@@ -136,11 +136,6 @@ HAL_StatusTypeDef Io_LSM6DS33_ConfigureImu(I2C_HandleTypeDef *i2c_handle)
     return status;
 }
 
-static bool DataInRange(float data, float min, float max)
-{
-    return (min <= data) && (data <= max);
-}
-
 ExitCode Io_LSM6DS33_ExtiCallback()
 {
     uint8_t           data[12];
@@ -174,13 +169,6 @@ ExitCode Io_LSM6DS33_ExtiCallback()
         lsm_6ds33.accel_z =
             Io_LSM6DS33_ConvertIMUAccelerationToMetersPerSecondSquared(
                 raw_accel_z);
-
-        if (!DataInRange(lsm_6ds33.accel_x, -30.0f, 30.0f) ||
-            !DataInRange(lsm_6ds33.accel_y, -30.0f, 30.0f) ||
-            !DataInRange(lsm_6ds33.accel_z, -30.0f, 30.0f))
-        {
-            exit_code = EXIT_CODE_OUT_OF_RANGE;
-        }
     }
     else
     {

@@ -21,8 +21,7 @@ HAL_StatusTypeDef Io_LSM6DS33_ConfigureImu(I2C_HandleTypeDef *i2c_handle);
 
 /**
  * Read data from the IMU and update internal variables
- * @return ExitCode which is EXIT_CODE_OK if successful, EXIT_CODE_OUT_OF_RANGE
- * if data is not within specified range, EXIT_CODE_INVALID_ARGS if data not
+ * @return ExitCode which is EXIT_CODE_OK if successful, EXIT_CODE_INVALID_ARGS if data not
  * read successfully
  */
 ExitCode Io_LSM6DS33_ExtiCallback(void);
