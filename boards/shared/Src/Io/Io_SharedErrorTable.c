@@ -178,6 +178,12 @@ static void Io_ProcessBmsAirShutdownErrorMsg(
     SET_ERROR(
         error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE,
         data->charger_disconnected_in_charge_state);
+    SET_ERROR(
+        error_table, BMS_AIR_SHUTDOWN_MIN_CELL_VOLTAGE_OUT_OF_RANGE,
+        data->min_cell_voltage_out_of_range);
+    SET_ERROR(
+        error_table, BMS_AIR_SHUTDOWN_MAX_CELL_VOLTAGE_OUT_OF_RANGE,
+        data->max_cell_voltage_out_of_range);
 }
 
 static void Io_ProcessDcmAirShutdownErrorMsg(

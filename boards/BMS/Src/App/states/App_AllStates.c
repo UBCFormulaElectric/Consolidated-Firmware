@@ -1,4 +1,6 @@
 #include "states/App_AllStates.h"
+#include "states/App_FaultState.h"
+#include "App_SetPeriodicCanSignals.h"
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
@@ -17,10 +19,11 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct BmsCanTxInterface *can_tx  = App_BmsWorld_GetCanTx(world);
-    struct OkStatus *         bms_ok  = App_BmsWorld_GetBmsOkStatus(world);
-    struct OkStatus *         imd_ok  = App_BmsWorld_GetImdOkStatus(world);
-    struct OkStatus *         bspd_ok = App_BmsWorld_GetBspdOkStatus(world);
+    struct BmsCanTxInterface *can_tx      = App_BmsWorld_GetCanTx(world);
+    struct OkStatus *         bms_ok      = App_BmsWorld_GetBmsOkStatus(world);
+    struct OkStatus *         imd_ok      = App_BmsWorld_GetImdOkStatus(world);
+    struct OkStatus *         bspd_ok     = App_BmsWorld_GetBspdOkStatus(world);
+    struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
 
     if (App_OkStatus_IsEnabled(bms_ok))
     {
@@ -47,5 +50,14 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     else
     {
         App_CanTx_SetPeriodicSignal_BSPD_OK(can_tx, false);
+    }
+
+    App_SetPeriodicSignals_AccumulatorInRangeChecks(can_tx, accumulator);
+    if (App_CanTx_GetPeriodicSignal_MAX_CELL_VOLTAGE_OUT_OF_RANGE(can_tx) !=
+            CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE ||
+        App_CanTx_GetPeriodicSignal_MIN_CELL_VOLTAGE_OUT_OF_RANGE(can_tx) !=
+            CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE)
+    {
+        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
 }

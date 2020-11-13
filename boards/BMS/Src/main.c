@@ -38,12 +38,16 @@
 #include "Io_RgbLedSequence.h"
 #include "Io_Charger.h"
 #include "Io_OkStatuses.h"
+#include "Io_LTC6813.h"
+#include "Io_CellVoltages.h"
 
 #include "App_BmsWorld.h"
+#include "App_AccumulatorVoltages.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_ImdConfig.h"
+#include "configs/App_AccumulatorThresholds.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -70,6 +74,8 @@ DMA_HandleTypeDef hdma_adc2;
 CAN_HandleTypeDef hcan;
 
 IWDG_HandleTypeDef hiwdg;
+
+SPI_HandleTypeDef hspi2;
 
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
@@ -101,6 +107,7 @@ struct Charger *          charger;
 struct OkStatus *         bms_ok;
 struct OkStatus *         imd_ok;
 struct OkStatus *         bspd_ok;
+struct Accumulator *      cell_monitor;
 struct Clock *            clock;
 /* USER CODE END PV */
 
@@ -113,6 +120,7 @@ static void MX_ADC1_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_ADC2_Init(void);
+static void MX_SPI2_Init(void);
 static void MX_TIM3_Init(void);
 void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
@@ -178,6 +186,7 @@ int main(void)
     MX_IWDG_Init();
     MX_TIM2_Init();
     MX_ADC2_Init();
+    MX_SPI2_Init();
     MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
@@ -217,11 +226,28 @@ int main(void)
         Io_OkStatuses_EnableBspdOk, Io_OkStatuses_DisableBspdOk,
         Io_OkStatuses_IsBspdOkEnabled);
 
+    Io_LTC6813_Init(&hspi2, SPI2_NSS_GPIO_Port, SPI2_NSS_Pin);
+    App_AccumulatorVoltages_Init(Io_CellVoltages_GetRawCellVoltages);
+    cell_monitor = App_Accumulator_Create(
+        Io_LTC6813_ConfigureRegisterA, Io_CellVoltages_ReadRawCellVoltages,
+        App_AccumulatorVoltages_GetMinCellVoltage,
+        App_AccumulatorVoltages_GetMaxCellVoltage,
+        App_AccumulatorVoltages_GetAverageCellVoltage,
+        App_AccumulatorVoltages_GetPackVoltage,
+        App_AccumulatorVoltages_GetSegment0Voltage,
+        App_AccumulatorVoltages_GetSegment1Voltage,
+        App_AccumulatorVoltages_GetSegment2Voltage,
+        App_AccumulatorVoltages_GetSegment3Voltage,
+        App_AccumulatorVoltages_GetSegment4Voltage,
+        App_AccumulatorVoltages_GetSegment5Voltage, MIN_CELL_VOLTAGE,
+        MAX_CELL_VOLTAGE, MIN_SEGMENT_VOLTAGE, MAX_SEGMENT_VOLTAGE,
+        MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE);
+
     clock = App_SharedClock_Create();
 
     world = App_BmsWorld_Create(
         can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger,
-        bms_ok, imd_ok, bspd_ok, clock);
+        bms_ok, imd_ok, bspd_ok, cell_monitor, clock);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
@@ -545,6 +571,44 @@ static void MX_IWDG_Init(void)
 }
 
 /**
+ * @brief SPI2 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_SPI2_Init(void)
+{
+    /* USER CODE BEGIN SPI2_Init 0 */
+
+    /* USER CODE END SPI2_Init 0 */
+
+    /* USER CODE BEGIN SPI2_Init 1 */
+
+    /* USER CODE END SPI2_Init 1 */
+    /* SPI2 parameter configuration*/
+    hspi2.Instance               = SPI2;
+    hspi2.Init.Mode              = SPI_MODE_MASTER;
+    hspi2.Init.Direction         = SPI_DIRECTION_2LINES;
+    hspi2.Init.DataSize          = SPI_DATASIZE_8BIT;
+    hspi2.Init.CLKPolarity       = SPI_POLARITY_HIGH;
+    hspi2.Init.CLKPhase          = SPI_PHASE_2EDGE;
+    hspi2.Init.NSS               = SPI_NSS_SOFT;
+    hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
+    hspi2.Init.FirstBit          = SPI_FIRSTBIT_MSB;
+    hspi2.Init.TIMode            = SPI_TIMODE_DISABLE;
+    hspi2.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
+    hspi2.Init.CRCPolynomial     = 7;
+    hspi2.Init.CRCLength         = SPI_CRC_LENGTH_DATASIZE;
+    hspi2.Init.NSSPMode          = SPI_NSS_PULSE_DISABLE;
+    if (HAL_SPI_Init(&hspi2) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN SPI2_Init 2 */
+
+    /* USER CODE END SPI2_Init 2 */
+}
+
+/**
  * @brief TIM2 Initialization Function
  * @param None
  * @retval None
@@ -696,6 +760,9 @@ static void MX_GPIO_Init(void)
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(SPI2_NSS_GPIO_Port, SPI2_NSS_Pin, GPIO_PIN_SET);
+
+    /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
         GPIOA, STATUS_R_Pin | STATUS_G_Pin | STATUS_B_Pin, GPIO_PIN_SET);
 
@@ -741,13 +808,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PB12 PB13 PB14 PB15 */
-    GPIO_InitStruct.Pin = GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_15;
-    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
-    GPIO_InitStruct.Pull      = GPIO_NOPULL;
-    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_HIGH;
-    GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    /*Configure GPIO pin : SPI2_NSS_Pin */
+    GPIO_InitStruct.Pin   = SPI2_NSS_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
+    HAL_GPIO_Init(SPI2_NSS_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : STATUS_R_Pin STATUS_G_Pin STATUS_B_Pin */
     GPIO_InitStruct.Pin   = STATUS_R_Pin | STATUS_G_Pin | STATUS_B_Pin;
