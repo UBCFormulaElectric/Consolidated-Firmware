@@ -8,11 +8,12 @@ STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(DcmCanTxInterface)
 // #680
 void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
 {
-    float MAX_SAFE_TORQUE_REQUEST =
-        21.0f; // 21Nm is max torque each motor can handle
 
     struct DcmCanRxInterface *can_rx = App_DcmWorld_GetCanRx(world);
     struct DcmCanTxInterface *can_tx = App_DcmWorld_GetCanTx(world);
+
+    float MAX_SAFE_TORQUE_REQUEST =
+            21.0f; // 21Nm is max torque each motor can handle
 
     float pedal_percentage =
         App_CanRx_FSM_PEDAL_POSITION_GetSignal_MAPPED_PEDAL_PERCENTAGE(can_rx);
