@@ -80,7 +80,7 @@ struct InRangeCheck *
  * Get InRangeCheck corresponding to acceleration on the y-axis for the given
  * Imu
  * @param imu The Imu to get the InRangeCheck from.
- * @return InRangeCheck corresponding to acceleration on the y-axis for the
+ * @return The InRangeCheck corresponding to acceleration on the y-axis for the
  * given Imu
  */
 struct InRangeCheck *
