@@ -35,6 +35,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
     }
 
+
     App_SetPeriodicCanSignals_Imu(world);
     App_SetPeriodicCanSignals_TorqueRequests(world);
 }
