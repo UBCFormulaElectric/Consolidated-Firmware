@@ -8,15 +8,11 @@ STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(DcmCanTxInterface)
 // #680
 void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
 {
-
     struct DcmCanRxInterface *can_rx = App_DcmWorld_GetCanRx(world);
     struct DcmCanTxInterface *can_tx = App_DcmWorld_GetCanTx(world);
 
-    float MAX_SAFE_TORQUE_REQUEST =
-            21.0f; // 21Nm is max torque each motor can handle
-
-    float pedal_percentage =
-        App_CanRx_FSM_PEDAL_POSITION_GetSignal_MAPPED_PEDAL_PERCENTAGE(can_rx);
+    float MAX_SAFE_TORQUE_REQUEST_NM =
+        21.0f; // 21Nm is max torque each motor can handle
 
     float regen_paddle_percentage =
         (float)App_CanRx_DIM_REGEN_PADDLE_GetSignal_MAPPED_PADDLE_POSITION(
@@ -40,11 +36,15 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
     if (regen_paddle_percentage > 0 && regen_allowed)
     {
         torque_request =
-            -0.01f * regen_paddle_percentage * MAX_SAFE_TORQUE_REQUEST;
+            -0.01f * regen_paddle_percentage * MAX_SAFE_TORQUE_REQUEST_NM;
     }
     else
     {
-        torque_request = 0.01f * pedal_percentage * MAX_SAFE_TORQUE_REQUEST;
+        torque_request =
+            0.01f *
+            App_CanRx_FSM_PEDAL_POSITION_GetSignal_MAPPED_PEDAL_PERCENTAGE(
+                can_rx) *
+            MAX_SAFE_TORQUE_REQUEST_NM;
     }
 
     App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx, torque_request);
@@ -52,15 +52,19 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
 
 void App_SetPeriodicCanSignals_Imu(const struct DcmWorld *world)
 {
-    struct Imu * imu = App_DcmWorld_GetImu(world);
+    struct Imu *              imu    = App_DcmWorld_GetImu(world);
     struct DcmCanTxInterface *can_tx = App_DcmWorld_GetCanTx(world);
 
-    if (App_Imu_UpdateSensorData(imu) != EXIT_CODE_OK) {
-        App_CanTx_SetPeriodicSignal_INVALID_IMU_ARGS(can_tx, CANMSGS_DCM_NON_CRITICAL_ERRORS_INVALID_IMU_ARGS_INVALID_CHOICE);
+    if (App_Imu_UpdateSensorData(imu) != EXIT_CODE_OK)
+    {
+        App_CanTx_SetPeriodicSignal_INVALID_IMU_ARGS(
+            can_tx,
+            CANMSGS_DCM_NON_CRITICAL_ERRORS_INVALID_IMU_ARGS_INVALID_CHOICE);
         return;
     }
 
-    App_CanTx_SetPeriodicSignal_INVALID_IMU_ARGS(can_tx, CANMSGS_DCM_NON_CRITICAL_ERRORS_INVALID_IMU_ARGS_VALID_CHOICE);
+    App_CanTx_SetPeriodicSignal_INVALID_IMU_ARGS(
+        can_tx, CANMSGS_DCM_NON_CRITICAL_ERRORS_INVALID_IMU_ARGS_VALID_CHOICE);
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, App_Imu_GetAccelerationXInRangeCheck(imu),
         App_CanTx_SetPeriodicSignal_ACCELERATION_X,
