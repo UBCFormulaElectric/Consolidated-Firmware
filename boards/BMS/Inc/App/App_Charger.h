@@ -55,4 +55,4 @@ bool App_Charger_IsConnected(struct Charger *charger);
  * @param charger The charger to check
  * @return true if the charger is enabled, else false
  */
-bool App_Charger_IsChargerEnabled(const struct Charger *charger);
+bool App_Charger_IsEnabled(const struct Charger *charger);

@@ -7,7 +7,7 @@ struct CellMonitors;
 enum ITMPInRangeCheck
 {
     // If the internal die temperature (ITMP) for cell balancing is out of range
-    // it is also out fo range for the charger. Similarly, if ITMP is in-range
+    // it is also out of range for the charger. Similarly, if ITMP is in-range
     // for cell balancing, it is also in range for the charger.
     ITMP_OVERFLOW,
     ITMP_CELL_BALANCING_OVERFLOW,

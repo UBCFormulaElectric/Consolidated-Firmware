@@ -32,10 +32,9 @@ static void ChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_MAX_CELL_MONITOR_DIE_TEMPERATURE(
         can_tx, maximum_die_temperature);
 
-    if (App_Charger_IsChargerEnabled(charger))
+    if (App_Charger_IsEnabled(charger))
     {
-        if (cell_monitor_itmp_in_range_check == ITMP_CELL_BALANCING_OVERFLOW ||
-            cell_monitor_itmp_in_range_check == ITMP_IN_RANGE)
+        if (cell_monitor_itmp_in_range_check == ITMP_OVERFLOW)
         {
             App_Charger_Disable(charger);
             App_CanTx_SetPeriodicSignal_ITMP_CHARGER_HAS_OVERFLOW(
@@ -45,8 +44,7 @@ static void ChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
     }
     else
     {
-        if (cell_monitor_itmp_in_range_check == ITMP_IN_RANGE ||
-            cell_monitor_itmp_in_range_check == ITMP_CHARGER_IN_RANGE)
+        if (cell_monitor_itmp_in_range_check == ITMP_CHARGER_IN_RANGE)
         {
             App_Charger_Enable(charger);
             App_CanTx_SetPeriodicSignal_ITMP_CHARGER_HAS_OVERFLOW(
