@@ -9,3 +9,8 @@
 // ADC timeout threshold of 10 was chosen arbitrarily.
 // TODO: Determine the ADC conversion timeout threshold #674
 #define ADC_TIMEOUT_CYCLES_THRESHOLD 10U
+
+#define MD 1U
+#define DCP 0U
+#define CH 0U
+#define CHST 0U
