@@ -5,8 +5,8 @@
 
 struct CellMonitors
 {
-    ExitCode (*read_die_temperatures_degc)(void);
-    float (*get_max_die_temp_degc)(void);
+    ExitCode (*read_die_temperatures)(void);
+    float (*get_max_die_temp)(void);
     float die_temp_re_enable_charger_degc;
     float die_temp_re_enable_cell_balancing_degc;
     float die_temp_disable_charger_degc;
@@ -29,44 +29,46 @@ struct CellMonitors *App_CellMonitors_Create(
     float (*get_monitor_4_die_temp)(void),
     float (*get_monitor_5_die_temp)(void),
     float (*get_max_die_temp)(void),
-    float min_die_temp,
-    float max_die_temp,
-    float die_temp_re_enable_charger,
-    float die_temp_re_enable_cell_balancing,
-    float die_temp_disable_cell_balancing,
-    float die_temp_disable_charger)
+    float min_die_temp_degc,
+    float max_die_temp_degc,
+    float die_temp_re_enable_charger_degc,
+    float die_temp_re_enable_cell_balancing_degc,
+    float die_temp_disable_cell_balancing_degc,
+    float die_temp_disable_charger_degc)
 {
     struct CellMonitors *cell_monitors = malloc(sizeof(struct CellMonitors));
     assert(cell_monitors != NULL);
 
-    cell_monitors->read_die_temperatures_degc = read_die_temperatures;
-    cell_monitors->get_max_die_temp_degc      = get_max_die_temp;
+    cell_monitors->read_die_temperatures = read_die_temperatures;
+    cell_monitors->get_max_die_temp      = get_max_die_temp;
 
-    cell_monitors->die_temp_re_enable_charger_degc = die_temp_re_enable_charger;
+    cell_monitors->die_temp_re_enable_charger_degc =
+        die_temp_re_enable_charger_degc;
     cell_monitors->die_temp_re_enable_cell_balancing_degc =
-        die_temp_re_enable_cell_balancing;
+        die_temp_re_enable_cell_balancing_degc;
     cell_monitors->die_temp_disable_cell_balancing_degc =
-        die_temp_disable_cell_balancing;
-    cell_monitors->die_temp_disable_charger_degc = die_temp_disable_charger;
+        die_temp_disable_cell_balancing_degc;
+    cell_monitors->die_temp_disable_charger_degc =
+        die_temp_disable_charger_degc;
 
     cell_monitors->cell_monitor_0_die_temp_in_range_check =
         App_InRangeCheck_Create(
-            get_monitor_0_die_temp, min_die_temp, max_die_temp);
+            get_monitor_0_die_temp, min_die_temp_degc, max_die_temp_degc);
     cell_monitors->cell_monitor_1_die_temp_in_range_check =
         App_InRangeCheck_Create(
-            get_monitor_1_die_temp, min_die_temp, max_die_temp);
+            get_monitor_1_die_temp, min_die_temp_degc, max_die_temp_degc);
     cell_monitors->cell_monitor_2_die_temp_in_range_check =
         App_InRangeCheck_Create(
-            get_monitor_2_die_temp, min_die_temp, max_die_temp);
+            get_monitor_2_die_temp, min_die_temp_degc, max_die_temp_degc);
     cell_monitors->cell_monitor_3_die_temp_in_range_check =
         App_InRangeCheck_Create(
-            get_monitor_3_die_temp, min_die_temp, max_die_temp);
+            get_monitor_3_die_temp, min_die_temp_degc, max_die_temp_degc);
     cell_monitors->cell_monitor_4_die_temp_in_range_check =
         App_InRangeCheck_Create(
-            get_monitor_4_die_temp, min_die_temp, max_die_temp);
+            get_monitor_4_die_temp, min_die_temp_degc, max_die_temp_degc);
     cell_monitors->cell_monitor_5_die_temp_in_range_check =
         App_InRangeCheck_Create(
-            get_monitor_5_die_temp, min_die_temp, max_die_temp);
+            get_monitor_5_die_temp, min_die_temp_degc, max_die_temp_degc);
 
     return cell_monitors;
 }
@@ -85,7 +87,7 @@ void App_CellMonitors_Destroy(struct CellMonitors *cell_monitors)
 ExitCode App_CellMonitors_ReadDieTemperatures(
     const struct CellMonitors *const cell_monitors)
 {
-    return cell_monitors->read_die_temperatures_degc();
+    return cell_monitors->read_die_temperatures();
 }
 
 struct InRangeCheck *App_CellMonitors_GetCellMonitor0DieTempInRangeCheck(
@@ -129,7 +131,7 @@ enum ITMPInRangeCheck App_CellMonitors_GetMaxDieTempDegC(
     float *const                     max_die_temp)
 {
     enum ITMPInRangeCheck exit_code;
-    *max_die_temp = cell_monitors->get_max_die_temp_degc();
+    *max_die_temp = cell_monitors->get_max_die_temp();
 
     if (*max_die_temp<
              cell_monitors->die_temp_disable_charger_degc && * max_die_temp>

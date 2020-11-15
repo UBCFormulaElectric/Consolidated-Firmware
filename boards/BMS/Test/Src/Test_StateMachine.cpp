@@ -62,13 +62,13 @@ FAKE_VALUE_FUNC(float, get_segment_3_voltage);
 FAKE_VALUE_FUNC(float, get_segment_4_voltage);
 FAKE_VALUE_FUNC(float, get_segment_5_voltage);
 FAKE_VALUE_FUNC(ExitCode, read_die_temperatures);
-FAKE_VALUE_FUNC(float, get_segment_0_die_temp_degc);
-FAKE_VALUE_FUNC(float, get_segment_1_die_temp_degc);
-FAKE_VALUE_FUNC(float, get_segment_2_die_temp_degc);
-FAKE_VALUE_FUNC(float, get_segment_3_die_temp_degc);
-FAKE_VALUE_FUNC(float, get_segment_4_die_temp_degc);
-FAKE_VALUE_FUNC(float, get_segment_5_die_temp_degc);
-FAKE_VALUE_FUNC(float, get_max_die_temp_degc);
+FAKE_VALUE_FUNC(float, get_segment_0_die_temp);
+FAKE_VALUE_FUNC(float, get_segment_1_die_temp);
+FAKE_VALUE_FUNC(float, get_segment_2_die_temp);
+FAKE_VALUE_FUNC(float, get_segment_3_die_temp);
+FAKE_VALUE_FUNC(float, get_segment_4_die_temp);
+FAKE_VALUE_FUNC(float, get_segment_5_die_temp);
+FAKE_VALUE_FUNC(float, get_max_die_temp);
 
 class BmsStateMachineTest : public BaseStateMachineTest
 {
@@ -115,10 +115,10 @@ class BmsStateMachineTest : public BaseStateMachineTest
             MAX_SEGMENT_VOLTAGE, MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE);
 
         cell_monitors = App_CellMonitors_Create(
-            read_die_temperatures, get_segment_0_die_temp_degc,
-            get_segment_1_die_temp_degc, get_segment_2_die_temp_degc,
-            get_segment_3_die_temp_degc, get_segment_4_die_temp_degc,
-            get_segment_5_die_temp_degc, get_max_die_temp_degc,
+            read_die_temperatures, get_segment_0_die_temp,
+            get_segment_1_die_temp, get_segment_2_die_temp,
+            get_segment_3_die_temp, get_segment_4_die_temp,
+            get_segment_5_die_temp, get_max_die_temp,
             MIN_INTERNAL_DIE_TEMP_DEGC, MAX_INTERNAL_DIE_TEMP_DEGC,
             DIE_TEMP_DEGC_TO_REENABLE_CHARGER,
             DIE_TEMP_DEGC_TO_REENABLE_CELL_BALANCING,
@@ -168,13 +168,13 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(get_segment_3_voltage);
         RESET_FAKE(get_segment_4_voltage);
         RESET_FAKE(get_segment_5_voltage);
-        RESET_FAKE(get_segment_0_die_temp_degc);
-        RESET_FAKE(get_segment_1_die_temp_degc);
-        RESET_FAKE(get_segment_2_die_temp_degc);
-        RESET_FAKE(get_segment_3_die_temp_degc);
-        RESET_FAKE(get_segment_4_die_temp_degc);
-        RESET_FAKE(get_segment_5_die_temp_degc);
-        RESET_FAKE(get_max_die_temp_degc);
+        RESET_FAKE(get_segment_0_die_temp);
+        RESET_FAKE(get_segment_1_die_temp);
+        RESET_FAKE(get_segment_2_die_temp);
+        RESET_FAKE(get_segment_3_die_temp);
+        RESET_FAKE(get_segment_4_die_temp);
+        RESET_FAKE(get_segment_5_die_temp);
+        RESET_FAKE(get_max_die_temp);
 
         // A voltage between [3.0, 4.2] was chosen to prevent other tests from
         // entering the fault state
@@ -217,6 +217,46 @@ class BmsStateMachineTest : public BaseStateMachineTest
             App_GetChargeState(),
             App_GetFaultState(),
         };
+    }
+
+    void CheckInRangeCanSignalsInAllStates(
+        float  min_value,
+        float  max_value,
+        float &fake_value,
+        float (*value_can_signal_getter)(const struct BmsCanTxInterface *),
+        uint8_t (*out_of_range_can_signal_getter)(
+            const struct BmsCanTxInterface *),
+        uint8_t ok_choice,
+        uint8_t underflow_choice,
+        uint8_t overflow_choice)
+    {
+        for (const auto &state : GetAllStates())
+        {
+            SetInitialState(state);
+
+            // Normal range
+            fake_value = (min_value + max_value) / 2;
+            LetTimePass(state_machine, 1000);
+            ASSERT_EQ(fake_value, value_can_signal_getter(can_tx_interface));
+            ASSERT_EQ(
+                ok_choice, out_of_range_can_signal_getter(can_tx_interface));
+
+            // Underflow range
+            fake_value =
+                std::nextafter(min_value, std::numeric_limits<float>::lowest());
+            LetTimePass(state_machine, 1000);
+            ASSERT_EQ(
+                underflow_choice,
+                out_of_range_can_signal_getter(can_tx_interface));
+
+            // Overflow range
+            fake_value =
+                std::nextafter(max_value, std::numeric_limits<float>::max());
+            LetTimePass(state_machine, 1000);
+            ASSERT_EQ(
+                overflow_choice,
+                out_of_range_can_signal_getter(can_tx_interface));
+        }
     }
 
     void UpdateClock(
@@ -588,6 +628,7 @@ TEST_F(BmsStateMachineTest, charger_disconnects_in_charge_state)
         App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
+// BMS-17
 TEST_F(
     BmsStateMachineTest,
     charger_non_critical_fault_set_when_itmp_exceeds_charger_threshold)
@@ -598,8 +639,8 @@ TEST_F(
     App_Charger_Enable(charger);
 
     // Die temperature underflow value
-    const float fake_die_temp = 120.0f;
-    get_max_die_temp_degc_fake.return_val =
+    const float fake_die_temp = 120.0;
+    get_max_die_temp_fake.return_val =
         std::nextafter(fake_die_temp, std::numeric_limits<float>::lowest());
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(
@@ -609,7 +650,7 @@ TEST_F(
     ASSERT_EQ(true, App_Charger_IsEnabled(charger));
 
     // Die temperature overflow value
-    get_max_die_temp_degc_fake.return_val =
+    get_max_die_temp_fake.return_val =
         std::nextafter(fake_die_temp, std::numeric_limits<float>::max());
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(
@@ -619,6 +660,7 @@ TEST_F(
     ASSERT_EQ(false, App_Charger_IsEnabled(charger));
 }
 
+// BMS-17
 TEST_F(BmsStateMachineTest, charger_re_enabled_when_itmp_is_in_range)
 {
     SetInitialState(App_GetChargeState());
@@ -627,15 +669,15 @@ TEST_F(BmsStateMachineTest, charger_re_enabled_when_itmp_is_in_range)
     App_Charger_Enable(charger);
 
     // Die temperature overflow
-    float fake_die_temp = 120.0f;
-    get_max_die_temp_degc_fake.return_val =
+    float fake_die_temp = 120.0;
+    get_max_die_temp_fake.return_val =
         std::nextafter(fake_die_temp, std::numeric_limits<float>::max());
     LetTimePass(state_machine, 1000);
 
     // Die temperature overflow (slightly greater than the threshold to
     // re-enable the charger)
-    fake_die_temp = 115.0f;
-    get_max_die_temp_degc_fake.return_val =
+    fake_die_temp = 115.0;
+    get_max_die_temp_fake.return_val =
         std::nextafter(fake_die_temp, std::numeric_limits<float>::max());
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(false, App_Charger_IsEnabled(charger));
@@ -645,7 +687,7 @@ TEST_F(BmsStateMachineTest, charger_re_enabled_when_itmp_is_in_range)
             can_tx_interface));
 
     // Die temperature underflow value
-    get_max_die_temp_degc_fake.return_val =
+    get_max_die_temp_fake.return_val =
         std::nextafter(fake_die_temp, std::numeric_limits<float>::lowest());
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(true, App_Charger_IsEnabled(charger));
@@ -653,5 +695,67 @@ TEST_F(BmsStateMachineTest, charger_re_enabled_when_itmp_is_in_range)
         CANMSGS_BMS_NON_CRITICAL_ERRORS_ITMP_CHARGER_HAS_OVERFLOW_FALSE_CHOICE,
         App_CanTx_GetPeriodicSignal_ITMP_CHARGER_HAS_OVERFLOW(
             can_tx_interface));
+}
+
+TEST_F(BmsStateMachineTest, check_cell_monitors_can_signals_in_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        CheckInRangeCanSignalsInAllStates(
+            MIN_INTERNAL_DIE_TEMP_DEGC, MAX_INTERNAL_DIE_TEMP_DEGC,
+            get_segment_0_die_temp_fake.return_val,
+            App_CanTx_GetPeriodicSignal_CELL_MONITOR_0_DIE_TEMPERATURE,
+            App_CanTx_GetPeriodicSignal_CELL_MONITOR_0_DIE_TEMP_OUT_OF_RANGE,
+            CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_0_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+            CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_0_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+            CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_0_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
+
+        CheckInRangeCanSignalsInAllStates(
+            MIN_INTERNAL_DIE_TEMP_DEGC, MAX_INTERNAL_DIE_TEMP_DEGC,
+            get_segment_1_die_temp_fake.return_val,
+            App_CanTx_GetPeriodicSignal_CELL_MONITOR_1_DIE_TEMPERATURE,
+            App_CanTx_GetPeriodicSignal_CELL_MONITOR_1_DIE_TEMP_OUT_OF_RANGE,
+            CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_1_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+            CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_1_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+            CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_1_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
+
+        CheckInRangeCanSignalsInAllStates(
+            MIN_INTERNAL_DIE_TEMP_DEGC, MAX_INTERNAL_DIE_TEMP_DEGC,
+            get_segment_2_die_temp_fake.return_val,
+            App_CanTx_GetPeriodicSignal_CELL_MONITOR_2_DIE_TEMPERATURE,
+            App_CanTx_GetPeriodicSignal_CELL_MONITOR_2_DIE_TEMP_OUT_OF_RANGE,
+            CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_2_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+            CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_2_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+            CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_2_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
+
+        CheckInRangeCanSignalsInAllStates(
+            MIN_INTERNAL_DIE_TEMP_DEGC, MAX_INTERNAL_DIE_TEMP_DEGC,
+            get_segment_3_die_temp_fake.return_val,
+            App_CanTx_GetPeriodicSignal_CELL_MONITOR_3_DIE_TEMPERATURE,
+            App_CanTx_GetPeriodicSignal_CELL_MONITOR_3_DIE_TEMP_OUT_OF_RANGE,
+            CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_3_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+            CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_3_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+            CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_3_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
+
+        CheckInRangeCanSignalsInAllStates(
+            MIN_INTERNAL_DIE_TEMP_DEGC, MAX_INTERNAL_DIE_TEMP_DEGC,
+            get_segment_4_die_temp_fake.return_val,
+            App_CanTx_GetPeriodicSignal_CELL_MONITOR_4_DIE_TEMPERATURE,
+            App_CanTx_GetPeriodicSignal_CELL_MONITOR_4_DIE_TEMP_OUT_OF_RANGE,
+            CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_4_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+            CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_4_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+            CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_4_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
+
+        CheckInRangeCanSignalsInAllStates(
+            MIN_INTERNAL_DIE_TEMP_DEGC, MAX_INTERNAL_DIE_TEMP_DEGC,
+            get_segment_5_die_temp_fake.return_val,
+            App_CanTx_GetPeriodicSignal_CELL_MONITOR_5_DIE_TEMPERATURE,
+            App_CanTx_GetPeriodicSignal_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE,
+            CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+            CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+            CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
+    }
 }
 } // namespace StateMachineTest

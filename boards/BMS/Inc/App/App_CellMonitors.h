@@ -41,17 +41,17 @@ enum ITMPInRangeCheck
  * temperature (°C) for the 5th cell monitor.
  * @param get_max_die_temp A function that returns the current maximum internal
  * die temperature (°C) out of all the cell monitors.
- * @param min_die_temp The minimum die temperature (°C) threshold for the
+ * @param min_die_temp_degc The minimum die temperature (°C) threshold for the
  * given cell monitor.
- * @param max_die_temp The maximum die temperature (°C) threshold for the
+ * @param max_die_temp_degc The maximum die temperature (°C) threshold for the
  * given cell monitor.
- * @param die_temp_re_enable_charger The die temperature (°C) to re-enable the
- * charger.
- * @param die_temp_re_enable_cell_balancing The die temperature (°C) to
+ * @param die_temp_re_enable_charger_degc The die temperature (°C) to re-enable
+ * the charger.
+ * @param die_temp_re_enable_cell_balancing_degc The die temperature (°C) to
  * re-enable cell balancing.
- * @param die_temp_disable_cell_balancing The die temperature (°C) to disable
- * cell balancing.
- * @param die_temp_disable_charger The die temperature (°C) to disable the
+ * @param die_temp_disable_cell_balancing_degc The die temperature (°C) to
+ * disable cell balancing.
+ * @param die_temp_disable_charger_degc The die temperature (°C) to disable the
  * charger.
  * @return A pointer to the created cell monitor whose ownership is given to the
  * caller.
@@ -65,12 +65,12 @@ struct CellMonitors *App_CellMonitors_Create(
     float (*get_monitor_4_die_temp)(void),
     float (*get_monitor_5_die_temp)(void),
     float (*get_max_die_temp)(void),
-    float min_die_temp,
-    float max_die_temp,
-    float die_temp_re_enable_charger,
-    float die_temp_re_enable_cell_balancing,
-    float die_temp_disable_cell_balancing,
-    float die_temp_disable_charger);
+    float min_die_temp_degc,
+    float max_die_temp_degc,
+    float die_temp_re_enable_charger_degc,
+    float die_temp_re_enable_cell_balancing_degc,
+    float die_temp_disable_cell_balancing_degc,
+    float die_temp_disable_charger_degc);
 
 /**
  * Deallocate the given group of cell monitors.

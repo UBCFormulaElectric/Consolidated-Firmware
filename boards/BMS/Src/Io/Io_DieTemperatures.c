@@ -110,7 +110,7 @@ float Io_DieTemperatures_GetSegment5DieTemp(void)
 float Io_DieTemperatures_GetMaxDieTemp(void)
 {
     float max_die_temperature = internal_die_temperatures[0];
-    for (size_t current_chip = 0U; current_chip < NUM_OF_CELL_MONITOR_CHIPS;
+    for (size_t current_chip = 1U; current_chip < NUM_OF_CELL_MONITOR_CHIPS;
          current_chip++)
     {
         float current_die_temperature = internal_die_temperatures[current_chip];

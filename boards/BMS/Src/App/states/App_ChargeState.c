@@ -22,35 +22,33 @@ static void ChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
     struct CellMonitors *cell_monitors = App_BmsWorld_GetCellMonitors(world);
     struct Charger *     charger       = App_BmsWorld_GetCharger(world);
 
-    App_CellMonitors_ReadDieTemperatures(cell_monitors);
-    App_SetPeriodicSignals_CellMonitorsInRangeChecks(can_tx, cell_monitors);
-
-    float                 maximum_die_temperature;
+    float                 max_die_temperature;
     enum ITMPInRangeCheck cell_monitor_itmp_in_range_check =
-        App_CellMonitors_GetMaxDieTempDegC(
-            cell_monitors, &maximum_die_temperature);
+        App_CellMonitors_GetMaxDieTempDegC(cell_monitors, &max_die_temperature);
     App_CanTx_SetPeriodicSignal_MAX_CELL_MONITOR_DIE_TEMPERATURE(
-        can_tx, maximum_die_temperature);
+        can_tx, max_die_temperature);
 
-    if (App_Charger_IsEnabled(charger))
+    if (cell_monitor_itmp_in_range_check == ITMP_OVERFLOW)
     {
-        if (cell_monitor_itmp_in_range_check == ITMP_OVERFLOW)
+        if (App_Charger_IsEnabled(charger))
         {
             App_Charger_Disable(charger);
-            App_CanTx_SetPeriodicSignal_ITMP_CHARGER_HAS_OVERFLOW(
-                can_tx,
-                CANMSGS_BMS_NON_CRITICAL_ERRORS_ITMP_CHARGER_HAS_OVERFLOW_TRUE_CHOICE);
         }
+
+        App_CanTx_SetPeriodicSignal_ITMP_CHARGER_HAS_OVERFLOW(
+            can_tx,
+            CANMSGS_BMS_NON_CRITICAL_ERRORS_ITMP_CHARGER_HAS_OVERFLOW_TRUE_CHOICE);
     }
-    else
+    else if (cell_monitor_itmp_in_range_check == ITMP_CHARGER_IN_RANGE)
     {
-        if (cell_monitor_itmp_in_range_check == ITMP_CHARGER_IN_RANGE)
+        if (!App_Charger_IsEnabled(charger))
         {
             App_Charger_Enable(charger);
-            App_CanTx_SetPeriodicSignal_ITMP_CHARGER_HAS_OVERFLOW(
-                can_tx,
-                CANMSGS_BMS_NON_CRITICAL_ERRORS_ITMP_CHARGER_HAS_OVERFLOW_FALSE_CHOICE);
         }
+
+        App_CanTx_SetPeriodicSignal_ITMP_CHARGER_HAS_OVERFLOW(
+            can_tx,
+            CANMSGS_BMS_NON_CRITICAL_ERRORS_ITMP_CHARGER_HAS_OVERFLOW_FALSE_CHOICE);
     }
 }
 
