@@ -160,8 +160,6 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(is_bspd_ok_enabled);
         RESET_FAKE(configure_daisy_chain);
         RESET_FAKE(read_cell_voltages);
-        RESET_FAKE(get_min_cell_voltage);
-        RESET_FAKE(get_max_cell_voltage);
         RESET_FAKE(get_average_cell_voltage);
         RESET_FAKE(get_pack_voltage);
         RESET_FAKE(get_segment_0_voltage);
@@ -177,6 +175,11 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(get_segment_4_die_temp_degc);
         RESET_FAKE(get_segment_5_die_temp_degc);
         RESET_FAKE(get_max_die_temp_degc);
+
+        // A voltage between [3.0, 4.2] was chosen to prevent other tests from
+        // entering the fault state
+        get_min_cell_voltage_fake.return_val = 4.0f;
+        get_max_cell_voltage_fake.return_val = 4.0f;
     }
 
     void TearDown() override
@@ -594,10 +597,10 @@ TEST_F(
     is_charger_connected_fake.return_val = true;
     App_Charger_Enable(charger);
 
-    const float fake_die_temp_threshold_degc = 120.0f;
-    get_max_die_temp_degc_fake.return_val    = std::nextafter(
-        fake_die_temp_threshold_degc, std::numeric_limits<float>::lowest());
-
+    // Die temperature underflow value
+    const float fake_die_temp = 120.0f;
+    get_max_die_temp_degc_fake.return_val =
+        std::nextafter(fake_die_temp, std::numeric_limits<float>::lowest());
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(
         CANMSGS_BMS_NON_CRITICAL_ERRORS_ITMP_CHARGER_HAS_OVERFLOW_FALSE_CHOICE,
@@ -605,9 +608,9 @@ TEST_F(
             can_tx_interface));
     ASSERT_EQ(true, App_Charger_IsEnabled(charger));
 
-    get_max_die_temp_degc_fake.return_val = std::nextafter(
-        fake_die_temp_threshold_degc, std::numeric_limits<float>::max());
-
+    // Die temperature overflow value
+    get_max_die_temp_degc_fake.return_val =
+        std::nextafter(fake_die_temp, std::numeric_limits<float>::max());
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(
         CANMSGS_BMS_NON_CRITICAL_ERRORS_ITMP_CHARGER_HAS_OVERFLOW_TRUE_CHOICE,
@@ -623,10 +626,17 @@ TEST_F(BmsStateMachineTest, charger_re_enabled_when_itmp_is_in_range)
     is_charger_connected_fake.return_val = true;
     App_Charger_Enable(charger);
 
-    float fake_die_temp_threshold_degc    = 120.0f;
-    get_max_die_temp_degc_fake.return_val = std::nextafter(
-        fake_die_temp_threshold_degc, std::numeric_limits<float>::max());
+    // Die temperature overflow
+    float fake_die_temp = 120.0f;
+    get_max_die_temp_degc_fake.return_val =
+        std::nextafter(fake_die_temp, std::numeric_limits<float>::max());
+    LetTimePass(state_machine, 1000);
 
+    // Die temperature overflow (slightly greater than the threshold to
+    // re-enable the charger)
+    fake_die_temp = 115.0f;
+    get_max_die_temp_degc_fake.return_val =
+        std::nextafter(fake_die_temp, std::numeric_limits<float>::max());
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(false, App_Charger_IsEnabled(charger));
     ASSERT_EQ(
@@ -634,20 +644,9 @@ TEST_F(BmsStateMachineTest, charger_re_enabled_when_itmp_is_in_range)
         App_CanTx_GetPeriodicSignal_ITMP_CHARGER_HAS_OVERFLOW(
             can_tx_interface));
 
-    fake_die_temp_threshold_degc          = 115.0f;
-    get_max_die_temp_degc_fake.return_val = std::nextafter(
-        fake_die_temp_threshold_degc, std::numeric_limits<float>::max());
-
-    LetTimePass(state_machine, 1000);
-    ASSERT_EQ(false, App_Charger_IsEnabled(charger));
-    ASSERT_EQ(
-        CANMSGS_BMS_NON_CRITICAL_ERRORS_ITMP_CHARGER_HAS_OVERFLOW_TRUE_CHOICE,
-        App_CanTx_GetPeriodicSignal_ITMP_CHARGER_HAS_OVERFLOW(
-            can_tx_interface));
-
-    get_max_die_temp_degc_fake.return_val = std::nextafter(
-        fake_die_temp_threshold_degc, std::numeric_limits<float>::lowest());
-
+    // Die temperature underflow value
+    get_max_die_temp_degc_fake.return_val =
+        std::nextafter(fake_die_temp, std::numeric_limits<float>::lowest());
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(true, App_Charger_IsEnabled(charger));
     ASSERT_EQ(
