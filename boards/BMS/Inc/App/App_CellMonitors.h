@@ -149,10 +149,10 @@ struct InRangeCheck *App_CellMonitors_GetCellMonitor5DieTempInRangeCheck(
     const struct CellMonitors *cell_monitors);
 
 /**
- * Get the maximum die temperature from the group of cell monitors.
+ * Get the current maximum die temperature from the group of cell monitors.
  * @param cell_monitors The given group of cell monitors to get the maximum die
  * temperature from.
- * @param max_die_temp The maximum internal die temperature (°C).
+ * @param max_die_temp The current maximum internal die temperature (°C).
  * @return An enum value indicating whether the internal die temperature exceeds
  * any thresholds.
  */
