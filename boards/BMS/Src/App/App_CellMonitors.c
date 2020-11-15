@@ -22,53 +22,51 @@ struct CellMonitors
 
 struct CellMonitors *App_CellMonitors_Create(
     ExitCode (*read_die_temperatures)(void),
-    float (*get_monitor_0_die_temp_degc)(void),
-    float (*get_monitor_1_die_temp_degc)(void),
-    float (*get_monitor_2_die_temp_degc)(void),
-    float (*get_monitor_3_die_temp_degc)(void),
-    float (*get_monitor_4_die_temp_degc)(void),
-    float (*get_monitor_5_die_temp_degc)(void),
-    float (*get_max_die_temp_degc)(void),
-    float min_die_temp_degc,
-    float max_die_temp_degc,
-    float die_temp_re_enable_charger_degc,
-    float die_temp_re_enable_cell_balancing_degc,
-    float die_temp_disable_cell_balancing_degc,
-    float die_temp_disable_charger_degc)
+    float (*get_monitor_0_die_temp)(void),
+    float (*get_monitor_1_die_temp)(void),
+    float (*get_monitor_2_die_temp)(void),
+    float (*get_monitor_3_die_temp)(void),
+    float (*get_monitor_4_die_temp)(void),
+    float (*get_monitor_5_die_temp)(void),
+    float (*get_max_die_temp)(void),
+    float min_die_temp,
+    float max_die_temp,
+    float die_temp_re_enable_charger,
+    float die_temp_re_enable_cell_balancing,
+    float die_temp_disable_cell_balancing,
+    float die_temp_disable_charger)
 {
     struct CellMonitors *cell_monitors = malloc(sizeof(struct CellMonitors));
     assert(cell_monitors != NULL);
 
     cell_monitors->read_die_temperatures_degc = read_die_temperatures;
-    cell_monitors->get_max_die_temp_degc      = get_max_die_temp_degc;
+    cell_monitors->get_max_die_temp_degc      = get_max_die_temp;
 
-    cell_monitors->die_temp_re_enable_charger_degc =
-        die_temp_re_enable_charger_degc;
+    cell_monitors->die_temp_re_enable_charger_degc = die_temp_re_enable_charger;
     cell_monitors->die_temp_re_enable_cell_balancing_degc =
-        die_temp_re_enable_cell_balancing_degc;
+        die_temp_re_enable_cell_balancing;
     cell_monitors->die_temp_disable_cell_balancing_degc =
-        die_temp_disable_cell_balancing_degc;
-    cell_monitors->die_temp_disable_charger_degc =
-        die_temp_disable_charger_degc;
+        die_temp_disable_cell_balancing;
+    cell_monitors->die_temp_disable_charger_degc = die_temp_disable_charger;
 
     cell_monitors->cell_monitor_0_die_temp_in_range_check =
         App_InRangeCheck_Create(
-            get_monitor_0_die_temp_degc, min_die_temp_degc, max_die_temp_degc);
+            get_monitor_0_die_temp, min_die_temp, max_die_temp);
     cell_monitors->cell_monitor_1_die_temp_in_range_check =
         App_InRangeCheck_Create(
-            get_monitor_1_die_temp_degc, min_die_temp_degc, max_die_temp_degc);
+            get_monitor_1_die_temp, min_die_temp, max_die_temp);
     cell_monitors->cell_monitor_2_die_temp_in_range_check =
         App_InRangeCheck_Create(
-            get_monitor_2_die_temp_degc, min_die_temp_degc, max_die_temp_degc);
+            get_monitor_2_die_temp, min_die_temp, max_die_temp);
     cell_monitors->cell_monitor_3_die_temp_in_range_check =
         App_InRangeCheck_Create(
-            get_monitor_3_die_temp_degc, min_die_temp_degc, max_die_temp_degc);
+            get_monitor_3_die_temp, min_die_temp, max_die_temp);
     cell_monitors->cell_monitor_4_die_temp_in_range_check =
         App_InRangeCheck_Create(
-            get_monitor_4_die_temp_degc, min_die_temp_degc, max_die_temp_degc);
+            get_monitor_4_die_temp, min_die_temp, max_die_temp);
     cell_monitors->cell_monitor_5_die_temp_in_range_check =
         App_InRangeCheck_Create(
-            get_monitor_5_die_temp_degc, min_die_temp_degc, max_die_temp_degc);
+            get_monitor_5_die_temp, min_die_temp, max_die_temp);
 
     return cell_monitors;
 }

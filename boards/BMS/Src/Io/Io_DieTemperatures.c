@@ -7,13 +7,6 @@
 
 static float internal_die_temperatures[NUM_OF_CELL_MONITOR_CHIPS];
 
-float *Io_DieTemperatures_GetTemperaturesDegC(void)
-{
-    return internal_die_temperatures;
-}
-
-static float internal_die_temperatures[NUM_OF_CELL_MONITOR_CHIPS];
-
 ExitCode Io_DieTemperatures_ReadTemperaturesDegC(void)
 {
     // The command used to read data from status register A.
@@ -36,8 +29,8 @@ ExitCode Io_DieTemperatures_ReadTemperaturesDegC(void)
     tx_cmd[2] = (uint8_t)(tx_cmd_pec15 >> 8);
     tx_cmd[3] = (uint8_t)(tx_cmd_pec15);
 
-    for (enum CellMonitorChip current_chip = CELL_MONITOR_CHIP_0;
-         current_chip < NUM_OF_CELL_MONITOR_CHIPS; current_chip++)
+    for (size_t current_chip = 0U; current_chip < NUM_OF_CELL_MONITOR_CHIPS;
+         current_chip++)
     {
         if (Io_SharedSpi_TransmitAndReceive(
                 Io_LTC6813_GetSpiInterface(), tx_cmd, NUM_OF_CMD_BYTES,
@@ -84,7 +77,48 @@ ExitCode Io_DieTemperatures_ReadTemperaturesDegC(void)
     return EXIT_CODE_OK;
 }
 
-float *Io_Temperatures_GetDieTemperaturesDegC(void)
+float Io_DieTemperatures_GetSegment0DieTemp(void)
 {
-    return internal_die_temperatures;
+    return internal_die_temperatures[0];
+}
+
+float Io_DieTemperatures_GetSegment1DieTemp(void)
+{
+    return internal_die_temperatures[1];
+}
+
+float Io_DieTemperatures_GetSegment2DieTemp(void)
+{
+    return 0.0f;
+}
+
+float Io_DieTemperatures_GetSegment3DieTemp(void)
+{
+    return 0.0f;
+}
+
+float Io_DieTemperatures_GetSegment4DieTemp(void)
+{
+    return 0.0f;
+}
+
+float Io_DieTemperatures_GetSegment5DieTemp(void)
+{
+    return 0.0f;
+}
+
+float Io_DieTemperatures_GetMaxDieTemp(void)
+{
+    float max_die_temperature = internal_die_temperatures[0];
+    for (size_t current_chip = 0U; current_chip < NUM_OF_CELL_MONITOR_CHIPS;
+         current_chip++)
+    {
+        float current_die_temperature = internal_die_temperatures[current_chip];
+        if (max_die_temperature < current_die_temperature)
+        {
+            max_die_temperature = current_die_temperature;
+        }
+    }
+
+    return max_die_temperature;
 }

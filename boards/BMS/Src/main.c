@@ -44,7 +44,6 @@
 
 #include "App_BmsWorld.h"
 #include "App_AccumulatorVoltages.h"
-#include "App_CellMonitorsTemperatures.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
@@ -247,16 +246,14 @@ int main(void)
         MAX_CELL_VOLTAGE, MIN_SEGMENT_VOLTAGE, MAX_SEGMENT_VOLTAGE,
         MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE);
 
-    App_CellMonitorTemperatures_Init(Io_DieTemperatures_GetTemperaturesDegC);
     cell_monitors = App_CellMonitors_Create(
         Io_DieTemperatures_ReadTemperaturesDegC,
-        App_CellMonitorsTemperatures_GetDieTemp0DegC,
-        App_CellMonitorsTemperatures_GetDieTemp1DegC,
-        App_CellMonitorsTemperatures_GetDieTemp2DegC,
-        App_CellMonitorsTemperatures_GetDieTemp3DegC,
-        App_CellMonitorsTemperatures_GetDieTemp4DegC,
-        App_CellMonitorsTemperatures_GetDieTemp5DegC,
-        App_CellMonitorsTemperatures_GetMaxDieTempDegC,
+        Io_DieTemperatures_GetSegment0DieTemp,
+        Io_DieTemperatures_GetSegment1DieTemp,
+        Io_DieTemperatures_GetSegment2DieTemp,
+        Io_DieTemperatures_GetSegment3DieTemp,
+        Io_DieTemperatures_GetSegment4DieTemp,
+        Io_DieTemperatures_GetSegment5DieTemp, Io_DieTemperatures_GetMaxDieTemp,
         MIN_INTERNAL_DIE_TEMP_DEGC, MAX_INTERNAL_DIE_TEMP_DEGC,
         DIE_TEMP_DEGC_TO_REENABLE_CHARGER,
         DIE_TEMP_DEGC_TO_REENABLE_CELL_BALANCING,

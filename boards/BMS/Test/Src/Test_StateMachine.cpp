@@ -595,8 +595,8 @@ TEST_F(
     App_Charger_Enable(charger);
 
     const float fake_die_temp_threshold_degc = 120.0f;
-    get_max_die_temp_degc_fake.return_val   = std::nextafter(
-            fake_die_temp_threshold_degc, std::numeric_limits<float>::lowest());
+    get_max_die_temp_degc_fake.return_val    = std::nextafter(
+        fake_die_temp_threshold_degc, std::numeric_limits<float>::lowest());
 
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(
@@ -606,7 +606,7 @@ TEST_F(
     ASSERT_EQ(true, App_Charger_IsEnabled(charger));
 
     get_max_die_temp_degc_fake.return_val = std::nextafter(
-            fake_die_temp_threshold_degc, std::numeric_limits<float>::max());
+        fake_die_temp_threshold_degc, std::numeric_limits<float>::max());
 
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(
@@ -616,15 +616,14 @@ TEST_F(
     ASSERT_EQ(false, App_Charger_IsEnabled(charger));
 }
 
-TEST_F(
-    BmsStateMachineTest,charger_re_enabled_when_itmp_is_in_range)
+TEST_F(BmsStateMachineTest, charger_re_enabled_when_itmp_is_in_range)
 {
     SetInitialState(App_GetChargeState());
 
     is_charger_connected_fake.return_val = true;
     App_Charger_Enable(charger);
 
-    float fake_die_temp_threshold_degc = 120.0f;
+    float fake_die_temp_threshold_degc    = 120.0f;
     get_max_die_temp_degc_fake.return_val = std::nextafter(
         fake_die_temp_threshold_degc, std::numeric_limits<float>::max());
 
@@ -635,9 +634,9 @@ TEST_F(
         App_CanTx_GetPeriodicSignal_ITMP_CHARGER_HAS_OVERFLOW(
             can_tx_interface));
 
-    fake_die_temp_threshold_degc = 115.0f;
+    fake_die_temp_threshold_degc          = 115.0f;
     get_max_die_temp_degc_fake.return_val = std::nextafter(
-        fake_die_temp_threshold_degc , std::numeric_limits<float>::max());
+        fake_die_temp_threshold_degc, std::numeric_limits<float>::max());
 
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(false, App_Charger_IsEnabled(charger));
@@ -647,7 +646,7 @@ TEST_F(
             can_tx_interface));
 
     get_max_die_temp_degc_fake.return_val = std::nextafter(
-        fake_die_temp_threshold_degc , std::numeric_limits<float>::lowest());
+        fake_die_temp_threshold_degc, std::numeric_limits<float>::lowest());
 
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(true, App_Charger_IsEnabled(charger));
