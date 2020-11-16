@@ -1,4 +1,3 @@
-#include "main.h"
 
 /**
  * HAL callback, called when MCU detects interrupt
