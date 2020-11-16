@@ -14,11 +14,6 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
     const float MAX_SAFE_TORQUE_REQUEST_NM =
         21.0f; // 21Nm is max torque each motor can handle
 
-    float regen_paddle_percentage =
-        (float)App_CanRx_DIM_REGEN_PADDLE_GetSignal_MAPPED_PADDLE_POSITION(
-            can_rx);
-    float torque_request;
-
     // Regen allowed when braking or (speed > 5kmh and AIRs closed)
     float regen_allowed_threshold_kph = 5.0f;
     bool  is_every_air_closed =
@@ -28,10 +23,15 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
          CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
     bool is_vehicle_above_regen_allowed_threshold =
         (App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_LEFT_WHEEL_SPEED(can_rx) >
-         threshold_speed) &&
+         regen_allowed_threshold_kph) &&
         (App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_RIGHT_WHEEL_SPEED(can_rx) >
-         threshold_speed);
-    bool regen_allowed = going_fast_enough && air_closed;
+         regen_allowed_threshold_kph);
+    bool regen_allowed = going_fast_enough && is_every_air_closed;
+
+    float regen_paddle_percentage =
+        (float)App_CanRx_DIM_REGEN_PADDLE_GetSignal_MAPPED_PADDLE_POSITION(
+            can_rx);
+    float torque_request;
 
     if (regen_paddle_percentage > 0 && regen_allowed)
     {
