@@ -26,7 +26,7 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
          CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE) &&
         (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx) ==
          CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
-    bool going_fast_enough =
+    bool is_vehicle_above_regen_allowed_threshold =
         (App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_LEFT_WHEEL_SPEED(can_rx) >
          threshold_speed) &&
         (App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_RIGHT_WHEEL_SPEED(can_rx) >
