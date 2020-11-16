@@ -21,7 +21,7 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
 
     // Regen allowed when braking or (speed > 5kmh and AIRs closed)
     float regen_allowed_threshold_kph = 5.0f;
-    bool  air_closed =
+    bool  is_every_air_closed =
         (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) ==
          CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE) &&
         (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx) ==
