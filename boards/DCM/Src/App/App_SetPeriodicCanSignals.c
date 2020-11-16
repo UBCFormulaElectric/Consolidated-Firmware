@@ -26,14 +26,14 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
          regen_allowed_threshold_kph) &&
         (App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_RIGHT_WHEEL_SPEED(can_rx) >
          regen_allowed_threshold_kph);
-    bool regen_allowed = going_fast_enough && is_every_air_closed;
+    bool is_regen_allowed = is_vehicle_above_regen_allowed_threshold && is_every_air_closed;
 
     float regen_paddle_percentage =
         (float)App_CanRx_DIM_REGEN_PADDLE_GetSignal_MAPPED_PADDLE_POSITION(
             can_rx);
     float torque_request;
 
-    if (regen_paddle_percentage > 0 && regen_allowed)
+    if (regen_paddle_percentage > 0 && is_regen_allowed)
     {
         torque_request =
             -0.01f * regen_paddle_percentage * MAX_SAFE_TORQUE_REQUEST_NM;
