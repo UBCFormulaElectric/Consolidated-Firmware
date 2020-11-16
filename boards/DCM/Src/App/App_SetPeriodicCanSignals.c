@@ -11,7 +11,7 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
     struct DcmCanRxInterface *can_rx = App_DcmWorld_GetCanRx(world);
     struct DcmCanTxInterface *can_tx = App_DcmWorld_GetCanTx(world);
 
-    float MAX_SAFE_TORQUE_REQUEST_NM =
+    const float MAX_SAFE_TORQUE_REQUEST_NM =
         21.0f; // 21Nm is max torque each motor can handle
 
     float regen_paddle_percentage =
