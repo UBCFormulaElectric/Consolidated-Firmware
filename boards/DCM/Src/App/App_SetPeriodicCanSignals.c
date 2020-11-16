@@ -33,7 +33,7 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
             can_rx);
     float torque_request;
 
-    if (regen_paddle_percentage > 0 && is_regen_allowed)
+    if (regen_paddle_percentage > 0.0f && is_regen_allowed)
     {
         torque_request =
             -0.01f * regen_paddle_percentage * MAX_SAFE_TORQUE_REQUEST_NM;
