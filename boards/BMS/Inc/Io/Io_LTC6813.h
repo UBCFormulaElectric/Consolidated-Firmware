@@ -34,11 +34,11 @@ uint16_t Io_LTC6813_CalculatePec15(uint8_t *data_buffer, uint32_t size);
 ExitCode Io_LTC6813_EnterReadyState(void);
 
 /**
- * Send a command to all LTC6813 chips on the daisy chain.
+ * Send a command to all LTC6813 chips on the daisy chain
  * @param tx_cmd The given command that is transmitted to the LTC6813 chips on
- * the daisy chain.
+ * the daisy chain
  * @return EXIT_CODE_OK if the command was transmitted successfully. Else,
- * EXIT_CODE_ERROR.
+ * EXIT_CODE_ERROR
  */
 ExitCode Io_LTC6813_SendCommand(uint32_t tx_cmd);
 
