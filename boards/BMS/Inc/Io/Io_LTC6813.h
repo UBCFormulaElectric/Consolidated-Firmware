@@ -27,9 +27,9 @@ uint16_t Io_LTC6813_CalculatePec15(uint8_t *data_buffer, uint32_t size);
 
 /**
  * Transition all LTC6813 chips on the daisy chain from the IDLE state to the
- * READY state.
+ * READY state
  * @return EXIT_CODE_OK if the SCK and NSS pin can be toggled successfully.
- * Else, EXIT_CODE_ERROR.
+ * Else, EXIT_CODE_ERROR
  */
 ExitCode Io_LTC6813_EnterReadyState(void);
 
