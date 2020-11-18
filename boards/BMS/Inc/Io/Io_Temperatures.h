@@ -17,6 +17,6 @@ ExitCode Io_Temperatures_ReadDieTemperaturesDegC(void);
  * @note Call Io_Temperatures_ReadDieTemperatures to acquire the most recent
  * die temperatures from the cell monitoring chips before calling this function.
  * @return A pointer to the array containing the internal die temperatures (°C)
- * for each cell monitoring chip.
+ * for each cell monitoring chip
  */
 float *Io_Temperatures_GetDieTemperaturesDegC(void);
