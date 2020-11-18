@@ -69,9 +69,9 @@ static uint32_t cell_temperatures[NUM_OF_CELL_MONITOR_CHIPS]
  * EXIT_CODE_ERROR
  */
 static ExitCode Io_CellTemperatures_ParseThermistorVoltagesAndPerformPec15Check(
-    size_t                      current_chip,
-    enum AuxiliaryRegisterGroup current_register_group,
-    uint8_t *                   rx_raw_thermistor_voltages);
+    size_t   current_chip,
+    size_t   current_register_group,
+    uint8_t *rx_raw_thermistor_voltages);
 
 /**
  * Read raw thermistor voltages from the cell monitoring chips
@@ -81,9 +81,9 @@ static ExitCode Io_CellTemperatures_ParseThermistorVoltagesAndPerformPec15Check(
 static ExitCode Io_CellTemperatures_ReadRawThermistorVoltages(void);
 
 static ExitCode Io_CellTemperatures_ParseThermistorVoltagesAndPerformPec15Check(
-    size_t                      current_chip,
-    enum AuxiliaryRegisterGroup current_register_group,
-    uint8_t *                   rx_raw_thermistor_voltages)
+    size_t   current_chip,
+    size_t   current_register_group,
+    uint8_t *rx_raw_thermistor_voltages)
 {
     size_t raw_thermistor_voltages_index = current_chip * NUM_OF_RX_BYTES;
 
