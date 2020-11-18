@@ -9,11 +9,11 @@ static float internal_die_temperatures[NUM_OF_CELL_MONITOR_CHIPS];
 
 ExitCode Io_DieTemperatures_ReadTemperaturesDegC(void)
 {
-    // The command used to read data from status register A.
-    const uint32_t RDSTATA = 0x0010;
+    // The command used to start internal device conversions.
+    const uint32_t ADSTAT = (0x468 + (MD << 7) + CHST);
 
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_EnterReadyState())
-    RETURN_IF_EXIT_NOT_OK(Io_LTC6813_StartInternalDeviceConversions())
+    RETURN_IF_EXIT_NOT_OK(Io_LTC6813_SendCommand(ADSTAT))
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_PollConversions())
 
     uint8_t
@@ -21,6 +21,9 @@ ExitCode Io_DieTemperatures_ReadTemperaturesDegC(void)
             0
         };
     uint8_t tx_cmd[NUM_OF_CMD_BYTES];
+
+    // The command used to read data from status register A.
+    const uint32_t RDSTATA = 0x0010;
 
     tx_cmd[0] = (uint8_t)(RDSTATA >> 8);
     tx_cmd[1] = (uint8_t)(RDSTATA);
