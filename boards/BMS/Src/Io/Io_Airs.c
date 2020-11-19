@@ -13,13 +13,13 @@
 // |                1 |                1 | AIR- ON, AIR+ ON   |
 // +------------------+------------------+--------------------+
 
+bool Io_Airs_IsAirNegativeOn(void)
+{
+    return HAL_GPIO_ReadPin(AIR_POWER_STATUS_GPIO_Port, AIR_POWER_STATUS_Pin);
+}
+
 bool Io_Airs_IsAirPositiveOn(void)
 {
     return HAL_GPIO_ReadPin(AIR_TOTAL_ISENSE_GPIO_Port, AIR_TOTAL_ISENSE_Pin) &&
            HAL_GPIO_ReadPin(AIR_POWER_STATUS_GPIO_Port, AIR_POWER_STATUS_Pin);
-}
-
-bool Io_Airs_IsAirNegativeOn(void)
-{
-    return HAL_GPIO_ReadPin(AIR_POWER_STATUS_GPIO_Port, AIR_POWER_STATUS_Pin);
 }
