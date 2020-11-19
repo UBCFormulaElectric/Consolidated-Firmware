@@ -102,17 +102,16 @@ static ExitCode Io_CellTemperatures_ParseThermistorVoltagesAndPerformPec15Check(
             current_register_group * NUM_OF_THERMISTORS_PER_REGISTER_GROUP;
         if (current_register_group == AUX_REGISTER_GROUP_C)
         {
-            // Subtract the index tracking the current column after aux register
-            // group C to ignore the reference voltage read back from aux
-            // register group B.
+            // Subtract curr_column to ignore the reference voltage read back
+            // from aux register group B.
             curr_column--;
         }
         raw_thermistor_voltages[current_chip][curr_column] =
             (uint16_t)raw_thermistor_voltage;
 
         // Each aux measurement is represented by 2 bytes. Therefore,
-        // the cell voltage index is incremented by 2 to retrieve the next
-        // cell voltage.
+        // the raw thermistor voltage index is incremented by 2 to retrieve the
+        // next thermistor voltage.
         raw_thermistor_voltages_index += 2U;
     }
 
@@ -127,12 +126,8 @@ static ExitCode Io_CellTemperatures_ParseThermistorVoltagesAndPerformPec15Check(
     const uint32_t calculated_pec15 = Io_LTC6813_CalculatePec15(
         &rx_raw_thermistor_voltages[current_chip * NUM_OF_RX_BYTES], 6U);
 
-    if (received_pec15 != calculated_pec15)
-    {
-        return EXIT_CODE_ERROR;
-    }
-
-    return EXIT_CODE_OK;
+    return (received_pec15 == calculated_pec15) ? EXIT_CODE_OK
+                                                : EXIT_CODE_ERROR;
 }
 
 static ExitCode Io_CellTemperatures_ReadRawThermistorVoltages(void)
@@ -248,7 +243,7 @@ ExitCode Io_CellTemperatures_ReadTemperatures(void)
             //
 
             cell_temperatures[current_ic][cell_temp_index] =
-                thermistor_lut_index * 10U / 2U;
+                thermistor_lut_index * 5U;
         }
     }
 
