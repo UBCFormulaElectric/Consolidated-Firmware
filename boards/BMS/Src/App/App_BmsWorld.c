@@ -15,6 +15,8 @@ struct BmsWorld
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
     struct Accumulator *      accumulator;
+    struct BinaryStatus *     air_negative;
+    struct BinaryStatus *     air_positive;
     struct Clock *            clock;
 };
 
@@ -29,6 +31,8 @@ struct BmsWorld *App_BmsWorld_Create(
     struct OkStatus *const          imd_ok,
     struct OkStatus *const          bspd_ok,
     struct Accumulator *const       accumulator,
+    struct BinaryStatus *const      air_negative,
+    struct BinaryStatus *const      air_positive,
     struct Clock *const             clock)
 {
     struct BmsWorld *world = (struct BmsWorld *)malloc(sizeof(struct BmsWorld));
@@ -44,6 +48,8 @@ struct BmsWorld *App_BmsWorld_Create(
     world->imd_ok            = imd_ok;
     world->bspd_ok           = bspd_ok;
     world->accumulator       = accumulator;
+    world->air_negative      = air_negative;
+    world->air_positive      = air_positive;
     world->clock             = clock;
 
     return world;
@@ -108,6 +114,18 @@ struct Accumulator *
     App_BmsWorld_GetAccumulator(const struct BmsWorld *const world)
 {
     return world->accumulator;
+}
+
+struct BinaryStatus *
+    App_BmsWorld_GetAirNegative(const struct BmsWorld *const world)
+{
+    return world->air_negative;
+}
+
+struct BinaryStatus *
+    App_BmsWorld_GetAirPositive(const struct BmsWorld *const world)
+{
+    return world->air_positive;
 }
 
 struct Clock *App_BmsWorld_GetClock(const struct BmsWorld *const world)
