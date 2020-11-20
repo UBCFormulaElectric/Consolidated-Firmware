@@ -186,14 +186,15 @@ int main(void)
 
     buzzer = App_Buzzer_Create(Io_Buzzer_TurnOn, Io_Buzzer_TurnOff);
 
+    imu = App_Imu_Create(
+            Io_LSM6DS33_ExtiCallback, Io_LSM6DS33_GetAccelerationX,
+            Io_LSM6DS33_GetAccelerationY, Io_LSM6DS33_GetAccelerationZ,
+            MIN_ACCELERATION_MS2, MAX_ACCELERATION_MS2);
+
     error_table = App_SharedErrorTable_Create();
 
     clock = App_SharedClock_Create();
 
-    imu = App_Imu_Create(
-        Io_LSM6DS33_ExtiCallback, Io_LSM6DS33_GetAccelerationX,
-        Io_LSM6DS33_GetAccelerationY, Io_LSM6DS33_GetAccelerationZ,
-        MIN_ACCELERATION_MS2, MAX_ACCELERATION_MS2);
 
     world = App_DcmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, brake_light,
