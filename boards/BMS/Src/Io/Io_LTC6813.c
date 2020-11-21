@@ -109,25 +109,6 @@ ExitCode Io_LTC6813_SendCommand(uint32_t tx_cmd)
                : EXIT_CODE_ERROR;
 }
 
-ExitCode Io_LTC6813_StartAuxiliaryMeasurements(void)
-{
-    // The command used to start auxiliary (GPIO) measurements.
-    const uint32_t ADAX = 0x460 + (MD << 7) + CHST;
-
-    uint8_t tx_cmd[NUM_OF_CMD_BYTES];
-    tx_cmd[0] = (uint8_t)(ADAX >> 8);
-    tx_cmd[1] = (uint8_t)(ADAX);
-    uint16_t tx_cmd_pec15 =
-        Io_LTC6813_CalculatePec15(tx_cmd, NUM_OF_PEC15_BYTES_PER_CMD);
-    tx_cmd[2] = (uint8_t)(tx_cmd_pec15 >> 8);
-    tx_cmd[3] = (uint8_t)tx_cmd_pec15;
-
-    return (Io_SharedSpi_Transmit(spi_interface, tx_cmd, NUM_OF_CMD_BYTES) ==
-            HAL_OK)
-               ? EXIT_CODE_OK
-               : EXIT_CODE_ERROR;
-}
-
 ExitCode Io_LTC6813_PollConversions(void)
 {
     // The command used to determine the status of ADC conversions.
