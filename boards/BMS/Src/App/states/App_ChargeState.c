@@ -18,11 +18,12 @@ static void ChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
     App_AllStatesRunOnTick1Hz(state_machine);
 
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct BmsCanTxInterface *can_tx   = App_BmsWorld_GetCanTx(world);
-    struct CellMonitors *cell_monitors = App_BmsWorld_GetCellMonitors(world);
-    struct Charger *     charger       = App_BmsWorld_GetCharger(world);
+    struct BmsCanTxInterface * can_tx = App_BmsWorld_GetCanTx(world);
+    const struct CellMonitors *cell_monitors =
+        App_BmsWorld_GetCellMonitors(world);
+    struct Charger *charger = App_BmsWorld_GetCharger(world);
 
-    App_CellMonitors_ReadDieTemperatures(cell_monitors);
+    App_CellMonitors_ReadDieTemps(cell_monitors);
     App_SetPeriodicSignals_CellMonitorsInRangeChecks(can_tx, cell_monitors);
 
     float                 max_die_temperature;

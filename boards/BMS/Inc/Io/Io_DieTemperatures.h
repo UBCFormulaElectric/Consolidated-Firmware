@@ -3,11 +3,11 @@
 #include "App_SharedExitCode.h"
 
 /**
- * Read internal die temperatures (°C) for all cell monitoring chips
- * @return EXIT_CODE_OK if internal die temperatures were acquired successfully
- * from all cell monitoring chips. Else, EXIT_CODE_ERROR
+ * Read internal die temperatures for all cell monitoring chips
+ * @return EXIT_CODE_OK if internal die temperatures (°C) were acquired
+ * successfully from all cell monitoring chips. Else, EXIT_CODE_ERROR
  */
-ExitCode Io_DieTemperatures_ReadTemperaturesDegC(void);
+ExitCode Io_DieTemperatures_ReadTemp(void);
 
 /**
  * Get the internal die temperature of the cell monitoring chip for the 0th

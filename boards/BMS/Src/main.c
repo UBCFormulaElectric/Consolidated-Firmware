@@ -250,8 +250,7 @@ int main(void)
         MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE);
 
     cell_monitors = App_CellMonitors_Create(
-        Io_DieTemperatures_ReadTemperaturesDegC,
-        Io_DieTemperatures_GetSegment0DieTemp,
+        Io_DieTemperatures_ReadTemp, Io_DieTemperatures_GetSegment0DieTemp,
         Io_DieTemperatures_GetSegment1DieTemp,
         Io_DieTemperatures_GetSegment2DieTemp,
         Io_DieTemperatures_GetSegment3DieTemp,
@@ -330,9 +329,9 @@ int main(void)
     Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
-/* add threads, ... */
-// According to Percpio documentation, vTraceEnable() should be the last
-// function call before the scheduler starts.
+    /* add threads, ... */
+    // According to Percpio documentation, vTraceEnable() should be the last
+    // function call before the scheduler starts.
 #if (configUSE_TRACE_FACILITY == 1)
     vTraceEnable(TRC_INIT);
 #endif

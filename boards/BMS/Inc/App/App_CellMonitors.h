@@ -6,26 +6,26 @@ struct CellMonitors;
 
 enum ITMPInRangeCheck
 {
-    // An indicator for when ITMP is above the threshold to disable the charger
-    // and the threshold to disable cell balancing
+    // An exit code for when ITMP is above the threshold to disable the charger
+    // as well as the threshold to disable cell balancing
     ITMP_OVERFLOW,
 
-    // An indicator for when ITMP is above the threshold to disable cell
+    // An exit code for when ITMP is above the threshold to disable cell
     // balancing and below the threshold to disable the charger
     ITMP_CELL_BALANCING_OVERFLOW,
 
-    // An indicator for when ITMP is below the threshold to re-enable the
+    // An exit code for when ITMP is below the threshold to re-enable the
     // charger
     ITMP_CHARGER_IN_RANGE,
 
-    // An indicator for when ITMP is below the threshold to re-enable the
-    // charger and the threshold to re-enable cell balancing
+    // An exit code for when ITMP is below the threshold to re-enable the
+    // charger as well as the threshold to re-enable cell balancing
     ITMP_IN_RANGE
 };
 
 /**
  * Allocate and initialize a group of cell monitors
- * @param read_die_temperatures A function that can be called to read internal
+ * @param read_die_temps A function that can be called to read internal
  * die temperatures (°C) from all cell monitors
  * @param get_monitor_0_die_temp A function that returns the internal die
  * temperature (°C) for the 0th cell monitor
@@ -57,7 +57,7 @@ enum ITMPInRangeCheck
  * caller
  */
 struct CellMonitors *App_CellMonitors_Create(
-    ExitCode (*read_die_temperatures)(void),
+    ExitCode (*read_die_temps)(void),
     float (*get_monitor_0_die_temp)(void),
     float (*get_monitor_1_die_temp)(void),
     float (*get_monitor_2_die_temp)(void),
@@ -85,8 +85,8 @@ void App_CellMonitors_Destroy(struct CellMonitors *cell_monitors);
  * @return EXIT_CODE_OK if the internal die temperatures (°C) can be read
  * successfully. Else, EXIT_CODE_ERROR
  */
-ExitCode App_CellMonitors_ReadDieTemperatures(
-    const struct CellMonitors *cell_monitors);
+ExitCode
+    App_CellMonitors_ReadDieTemps(const struct CellMonitors *cell_monitors);
 
 /**
  * Get the cell monitor 0 die temp in-range check from the group of cell

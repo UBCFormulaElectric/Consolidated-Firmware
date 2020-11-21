@@ -637,6 +637,46 @@ TEST_F(BmsStateMachineTest, charger_disconnects_in_charge_state)
         App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
+// BMS-38
+TEST_F(BmsStateMachineTest, check_airs_can_signals_for_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        is_air_negative_on_fake.return_val = false;
+        is_air_positive_on_fake.return_val = false;
+        LetTimePass(state_machine, 10);
+        ASSERT_EQ(
+            false, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
+        ASSERT_EQ(
+            false, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
+
+        is_air_negative_on_fake.return_val = false;
+        is_air_positive_on_fake.return_val = true;
+        LetTimePass(state_machine, 10);
+        ASSERT_EQ(
+            false, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
+        ASSERT_EQ(
+            true, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
+
+        is_air_negative_on_fake.return_val = true;
+        is_air_positive_on_fake.return_val = false;
+        LetTimePass(state_machine, 10);
+        ASSERT_EQ(
+            true, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
+        ASSERT_EQ(
+            false, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
+
+        is_air_negative_on_fake.return_val = true;
+        is_air_positive_on_fake.return_val = true;
+        LetTimePass(state_machine, 10);
+        ASSERT_EQ(
+            true, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
+        ASSERT_EQ(
+            true, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
+    }
+}
 // BMS-17
 TEST_F(
     BmsStateMachineTest,
@@ -704,47 +744,7 @@ TEST_F(BmsStateMachineTest, charger_is_re_enabled_when_itmp_is_in_range)
             can_tx_interface));
 }
 
-// BMS-38
-TEST_F(BmsStateMachineTest, check_airs_can_signals_for_all_states)
-{
-    for (auto &state : GetAllStates())
-    {
-        SetInitialState(state);
-
-        is_air_negative_on_fake.return_val = false;
-        is_air_positive_on_fake.return_val = false;
-        LetTimePass(state_machine, 10);
-        ASSERT_EQ(
-            false, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
-        ASSERT_EQ(
-            false, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
-
-        is_air_negative_on_fake.return_val = false;
-        is_air_positive_on_fake.return_val = true;
-        LetTimePass(state_machine, 10);
-        ASSERT_EQ(
-            false, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
-        ASSERT_EQ(
-            true, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
-
-        is_air_negative_on_fake.return_val = true;
-        is_air_positive_on_fake.return_val = false;
-        LetTimePass(state_machine, 10);
-        ASSERT_EQ(
-            true, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
-        ASSERT_EQ(
-            false, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
-
-        is_air_negative_on_fake.return_val = true;
-        is_air_positive_on_fake.return_val = true;
-        LetTimePass(state_machine, 10);
-        ASSERT_EQ(
-            true, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
-        ASSERT_EQ(
-            true, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
-    }
-}
-
+// BMS-17
 TEST_F(BmsStateMachineTest, check_cell_monitors_can_signals_in_all_states)
 {
     const State *charge_state = App_GetChargeState();
@@ -799,7 +799,6 @@ TEST_F(BmsStateMachineTest, check_cell_monitors_can_signals_in_all_states)
         get_segment_5_die_temp_fake.return_val,
         App_CanTx_GetPeriodicSignal_CELL_MONITOR_5_DIE_TEMPERATURE,
         App_CanTx_GetPeriodicSignal_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE,
-
         CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
