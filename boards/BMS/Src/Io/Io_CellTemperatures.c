@@ -130,8 +130,8 @@ static ExitCode Io_CellTemperatures_ReadRawThermistorVoltages(void)
 {
     uint16_t aux_register_group_cmd;
     uint8_t  tx_cmd[NUM_OF_CMD_BYTES];
-    uint8_t  rx_thermistor_resistances
-        [NUM_OF_RX_BYTES * NUM_OF_CELL_MONITOR_CHIPS] = { 0 };
+    uint8_t
+        rx_thermistor_resistances[NUM_OF_RX_BYTES * NUM_OF_CELL_MONITOR_CHIPS];
 
     // The command used to start auxiliary (GPIO) measurements.
     const uint16_t ADAX = 0x460 + (MD << 7) + CHG;
