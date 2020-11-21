@@ -41,6 +41,7 @@
 #include "Io_LTC6813.h"
 #include "Io_CellVoltages.h"
 #include "Io_DieTemperatures.h"
+#include "Io_Airs.h"
 
 #include "App_BmsWorld.h"
 #include "App_AccumulatorVoltages.h"
@@ -111,6 +112,8 @@ struct OkStatus *         imd_ok;
 struct OkStatus *         bspd_ok;
 struct Accumulator *      accumulator;
 struct CellMonitors *     cell_monitors;
+struct BinaryStatus *     air_negative;
+struct BinaryStatus *     air_positive;
 struct Clock *            clock;
 /* USER CODE END PV */
 
@@ -260,11 +263,15 @@ int main(void)
         DIE_TEMP_DEGC_TO_DISABLE_CELL_BALANCING,
         DIE_TEMP_DEGC_TO_DISABLE_CHARGER);
 
+    air_negative = App_SharedBinaryStatus_Create(Io_Airs_IsAirNegativeOn);
+    air_positive = App_SharedBinaryStatus_Create(Io_Airs_IsAirPositiveOn);
+
     clock = App_SharedClock_Create();
 
     world = App_BmsWorld_Create(
         can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger,
-        bms_ok, imd_ok, bspd_ok, accumulator, cell_monitors, clock);
+        bms_ok, imd_ok, bspd_ok, accumulator, cell_monitors, air_negative,
+        air_positive, clock);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
@@ -323,9 +330,9 @@ int main(void)
     Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
-    /* add threads, ... */
-    // According to Percpio documentation, vTraceEnable() should be the last
-    // function call before the scheduler starts.
+/* add threads, ... */
+// According to Percpio documentation, vTraceEnable() should be the last
+// function call before the scheduler starts.
 #if (configUSE_TRACE_FACILITY == 1)
     vTraceEnable(TRC_INIT);
 #endif

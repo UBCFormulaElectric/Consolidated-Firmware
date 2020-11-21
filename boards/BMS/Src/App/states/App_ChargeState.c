@@ -22,6 +22,9 @@ static void ChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
     struct CellMonitors *cell_monitors = App_BmsWorld_GetCellMonitors(world);
     struct Charger *     charger       = App_BmsWorld_GetCharger(world);
 
+    App_CellMonitors_ReadDieTemperatures(cell_monitors);
+    App_SetPeriodicSignals_CellMonitorsInRangeChecks(can_tx, cell_monitors);
+
     float                 max_die_temperature;
     enum ITMPInRangeCheck cell_monitor_itmp_in_range_check =
         App_CellMonitors_GetMaxDieTempDegC(cell_monitors, &max_die_temperature);

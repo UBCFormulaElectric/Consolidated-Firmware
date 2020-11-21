@@ -8,11 +8,7 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     struct BmsCanTxInterface *can_tx = App_BmsWorld_GetCanTx(world);
     struct RgbLedSequence *   rgb_led_sequence =
         App_BmsWorld_GetRgbLedSequence(world);
-    struct Charger *     charger       = App_BmsWorld_GetCharger(world);
-    struct CellMonitors *cell_monitors = App_BmsWorld_GetCellMonitors(world);
-
-    App_CellMonitors_ReadDieTemperatures(cell_monitors);
-    App_SetPeriodicSignals_CellMonitorsInRangeChecks(can_tx, cell_monitors);
+    struct Charger *charger = App_BmsWorld_GetCharger(world);
 
     App_SharedRgbLedSequence_Tick(rgb_led_sequence);
 
@@ -28,6 +24,13 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct OkStatus *         imd_ok      = App_BmsWorld_GetImdOkStatus(world);
     struct OkStatus *         bspd_ok     = App_BmsWorld_GetBspdOkStatus(world);
     struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
+    struct BinaryStatus *     air_negative = App_BmsWorld_GetAirNegative(world);
+    struct BinaryStatus *     air_positive = App_BmsWorld_GetAirPositive(world);
+
+    App_CanTx_SetPeriodicSignal_AIR_NEGATIVE(
+        can_tx, App_SharedBinaryStatus_IsActive(air_negative));
+    App_CanTx_SetPeriodicSignal_AIR_POSITIVE(
+        can_tx, App_SharedBinaryStatus_IsActive(air_positive));
 
     if (App_OkStatus_IsEnabled(bms_ok))
     {
