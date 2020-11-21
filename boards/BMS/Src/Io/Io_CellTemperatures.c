@@ -90,12 +90,10 @@ static ExitCode Io_CellTemperatures_ParseThermistorVoltagesAndPerformPec15Check(
     for (size_t current_cell = 0U;
          current_cell < NUM_OF_THERMISTORS_PER_REGISTER_GROUP; current_cell++)
     {
-        const uint32_t raw_thermistor_voltage =
-            (uint32_t)(
-                rx_raw_thermistor_voltages[raw_thermistor_voltages_index]) |
-            (uint32_t)(
-                (rx_raw_thermistor_voltages[raw_thermistor_voltages_index + 1]
-                 << 8));
+        const uint16_t raw_thermistor_voltage = (uint16_t)(
+            (rx_raw_thermistor_voltages[raw_thermistor_voltages_index]) |
+            ((rx_raw_thermistor_voltages[raw_thermistor_voltages_index + 1]
+              << 8)));
 
         size_t curr_column =
             current_cell +
@@ -115,15 +113,13 @@ static ExitCode Io_CellTemperatures_ParseThermistorVoltagesAndPerformPec15Check(
         raw_thermistor_voltages_index += 2U;
     }
 
-    const uint32_t received_pec15 =
-        (uint32_t)(
-            rx_raw_thermistor_voltages[raw_thermistor_voltages_index] << 8) |
-        (uint32_t)(
-            rx_raw_thermistor_voltages[raw_thermistor_voltages_index + 1]);
+    const uint16_t received_pec15 = (uint16_t)(
+        (rx_raw_thermistor_voltages[raw_thermistor_voltages_index] << 8) |
+        (rx_raw_thermistor_voltages[raw_thermistor_voltages_index + 1]));
 
     // Calculate the PEC15 using the first 6 bytes of data received from the
     // chip.
-    const uint32_t calculated_pec15 = Io_LTC6813_CalculatePec15(
+    const uint16_t calculated_pec15 = Io_LTC6813_CalculatePec15(
         &rx_raw_thermistor_voltages[current_chip * NUM_OF_RX_BYTES], 6U);
 
     return (received_pec15 == calculated_pec15) ? EXIT_CODE_OK
@@ -214,12 +210,9 @@ ExitCode Io_CellTemperatures_ReadTemperatures(void)
 
             // Check that the thermistor resistance calculated is within
             // [1251.8, 32624.2] ohms.
-            if (thermistor_resistance > temperature_lut[0])
-            {
-                return EXIT_CODE_OUT_OF_RANGE;
-            }
-            if (thermistor_resistance <
-                temperature_lut[SIZE_OF_TEMPERATURE_LUT - 1])
+            if ((thermistor_resistance > temperature_lut[0]) ||
+                (thermistor_resistance <
+                 temperature_lut[SIZE_OF_TEMPERATURE_LUT - 1]))
             {
                 return EXIT_CODE_OUT_OF_RANGE;
             }
