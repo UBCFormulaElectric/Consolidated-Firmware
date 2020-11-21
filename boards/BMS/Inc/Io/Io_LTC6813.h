@@ -27,25 +27,20 @@ uint16_t Io_LTC6813_CalculatePec15(uint8_t *data_buffer, uint32_t size);
 
 /**
  * Transition all LTC6813 chips on the daisy chain from the IDLE state to the
- * READY state.
+ * READY state
  * @return EXIT_CODE_OK if the SCK and NSS pin can be toggled successfully.
- * Else, EXIT_CODE_ERROR.
+ * Else, EXIT_CODE_ERROR
  */
 ExitCode Io_LTC6813_EnterReadyState(void);
 
 /**
- * Start cell voltage conversions for all LTC6813 chips on the daisy chain.
- * @return EXIT_CODE_OK if the command to start cell voltage conversions is sent
- * successfully. Else, EXIT_CODE_ERROR.
+ * Send a command to all LTC6813 chips on the daisy chain
+ * @param tx_cmd The given command that is transmitted to the LTC6813 chips on
+ * the daisy chain
+ * @return EXIT_CODE_OK if the command was transmitted successfully. Else,
+ * EXIT_CODE_ERROR
  */
-ExitCode Io_LTC6813_StartCellVoltageConversions(void);
-
-/**
- * Start internal device conversions for all LTC6813 chips on the daisy chain.
- * @return EXIT_CODE_OK if the command to start internal device conversions is
- * sent successfully. Else, EXIT_CODE_ERROR.
- */
-ExitCode Io_LTC6813_StartInternalDeviceConversions(void);
+ExitCode Io_LTC6813_SendCommand(uint32_t tx_cmd);
 
 /**
  * Start auxiliary (GPIO) measurements for all LTC6813 chips on the daisy

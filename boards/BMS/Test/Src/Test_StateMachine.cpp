@@ -59,6 +59,8 @@ FAKE_VALUE_FUNC(float, get_segment_2_voltage);
 FAKE_VALUE_FUNC(float, get_segment_3_voltage);
 FAKE_VALUE_FUNC(float, get_segment_4_voltage);
 FAKE_VALUE_FUNC(float, get_segment_5_voltage);
+FAKE_VALUE_FUNC(bool, is_air_negative_on);
+FAKE_VALUE_FUNC(bool, is_air_positive_on);
 
 class BmsStateMachineTest : public BaseStateMachineTest
 {
@@ -104,12 +106,15 @@ class BmsStateMachineTest : public BaseStateMachineTest
             MIN_CELL_VOLTAGE, MAX_CELL_VOLTAGE, MIN_SEGMENT_VOLTAGE,
             MAX_SEGMENT_VOLTAGE, MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE);
 
+        air_negative = App_SharedBinaryStatus_Create(is_air_negative_on);
+        air_positive = App_SharedBinaryStatus_Create(is_air_positive_on);
+
         clock = App_SharedClock_Create();
 
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
             rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, cell_monitor,
-            clock);
+            air_negative, air_positive, clock);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -149,6 +154,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(get_segment_3_voltage);
         RESET_FAKE(get_segment_4_voltage);
         RESET_FAKE(get_segment_5_voltage);
+        RESET_FAKE(is_air_negative_on);
+        RESET_FAKE(is_air_positive_on);
     }
 
     void TearDown() override
@@ -165,6 +172,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
         TearDownObject(imd_ok, App_OkStatus_Destroy);
         TearDownObject(bspd_ok, App_OkStatus_Destroy);
         TearDownObject(cell_monitor, App_Accumulator_Destroy);
+        TearDownObject(air_negative, App_SharedBinaryStatus_Destroy);
+        TearDownObject(air_positive, App_SharedBinaryStatus_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
     }
 
@@ -217,6 +226,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
     struct Accumulator *      cell_monitor;
+    struct BinaryStatus *     air_negative;
+    struct BinaryStatus *     air_positive;
     struct Clock *            clock;
 };
 
@@ -553,6 +564,47 @@ TEST_F(BmsStateMachineTest, charger_disconnects_in_charge_state)
     ASSERT_EQ(
         App_GetFaultState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
+// BMS-38
+TEST_F(BmsStateMachineTest, check_airs_can_signals_for_all_states)
+{
+    for (auto &state : GetAllStates())
+    {
+        SetInitialState(state);
+
+        is_air_negative_on_fake.return_val = false;
+        is_air_positive_on_fake.return_val = false;
+        LetTimePass(state_machine, 10);
+        ASSERT_EQ(
+            false, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
+        ASSERT_EQ(
+            false, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
+
+        is_air_negative_on_fake.return_val = false;
+        is_air_positive_on_fake.return_val = true;
+        LetTimePass(state_machine, 10);
+        ASSERT_EQ(
+            false, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
+        ASSERT_EQ(
+            true, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
+
+        is_air_negative_on_fake.return_val = true;
+        is_air_positive_on_fake.return_val = false;
+        LetTimePass(state_machine, 10);
+        ASSERT_EQ(
+            true, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
+        ASSERT_EQ(
+            false, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
+
+        is_air_negative_on_fake.return_val = true;
+        is_air_positive_on_fake.return_val = true;
+        LetTimePass(state_machine, 10);
+        ASSERT_EQ(
+            true, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
+        ASSERT_EQ(
+            true, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
+    }
 }
 
 } // namespace StateMachineTest
