@@ -69,8 +69,11 @@ struct FsmWorld *App_FsmWorld_Create(
     void (*const papps_alarm_callback)(struct FsmWorld *),
     bool (*const is_sapps_alarm_active)(struct FsmWorld *),
     void (*const sapps_alarm_callback)(struct FsmWorld *),
-    bool (*const is_papps_and_sapps_alarm_inactive)(struct FsmWorld *))
+    bool (*const is_papps_and_sapps_alarm_inactive)(struct FsmWorld *),
 
+    bool (*is_primary_flow_rate_below_threshold)(struct FsmWorld *),
+    bool (*is_primary_flow_rate_in_range)(struct FsmWorld *),
+    void (*primary_flow_rate_below_threshold_callback)(struct FsmWorld *))
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
     assert(world != NULL);
@@ -129,6 +132,16 @@ struct FsmWorld *App_FsmWorld_Create(
             0, has_apps_and_brake_plausibility_failure,
             is_apps_and_brake_plausibility_ok, world, apps_and_brake_callback);
     App_RegisterSignal(world, apps_and_brake_plausibility_check_signal);
+
+    struct SignalCallback primary_flow_rate_callback = {
+        .entry_condition_high_duration_ms = FLOW_METER_ENTRY_HIGH_MS,
+        .exit_condition_high_duration_ms  = FLOW_METER_EXIT_HIGH_MS,
+        .function = primary_flow_rate_below_threshold_callback,
+    };
+    struct Signal *primary_flow_rate_signal = App_SharedSignal_Create(
+        0, is_primary_flow_rate_below_threshold, is_primary_flow_rate_in_range,
+        world, primary_flow_rate_callback);
+    App_RegisterSignal(world, primary_flow_rate_signal);
 
     return world;
 }
