@@ -13,4 +13,5 @@
 #define MD 1U
 #define DCP 0U
 #define CH 0U
+#define CHG 0U
 #define CHST 0U

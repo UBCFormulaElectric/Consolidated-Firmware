@@ -134,7 +134,7 @@ static ExitCode Io_CellTemperatures_ReadRawThermistorVoltages(void)
         [NUM_OF_RX_BYTES * NUM_OF_CELL_MONITOR_CHIPS] = { 0 };
 
     // The command used to start auxiliary (GPIO) measurements.
-    const uint16_t ADAX = 0x460 + (MD << 7) + CHST;
+    const uint16_t ADAX = 0x460 + (MD << 7) + CHG;
 
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_EnterReadyState())
     RETURN_IF_EXIT_NOT_OK(Io_LTC6813_SendCommand(ADAX))
