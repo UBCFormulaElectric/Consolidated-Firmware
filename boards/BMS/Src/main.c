@@ -109,7 +109,7 @@ struct Charger *          charger;
 struct OkStatus *         bms_ok;
 struct OkStatus *         imd_ok;
 struct OkStatus *         bspd_ok;
-struct Accumulator *      cell_monitor;
+struct Accumulator *      accumulator;
 struct BinaryStatus *     air_negative;
 struct BinaryStatus *     air_positive;
 struct Clock *            clock;
@@ -231,20 +231,14 @@ int main(void)
         Io_OkStatuses_IsBspdOkEnabled);
 
     Io_LTC6813_Init(&hspi2, SPI2_NSS_GPIO_Port, SPI2_NSS_Pin);
-    App_AccumulatorVoltages_Init(Io_CellVoltages_GetRawCellVoltages);
-    cell_monitor = App_Accumulator_Create(
+    accumulator = App_Accumulator_Create(
         Io_LTC6813_ConfigureRegisterA, Io_CellVoltages_ReadRawCellVoltages,
-        Io_CellTemperatures_ReadTemperatures,
-        App_AccumulatorVoltages_GetMinCellVoltage,
-        App_AccumulatorVoltages_GetMaxCellVoltage,
-        App_AccumulatorVoltages_GetAverageCellVoltage,
-        App_AccumulatorVoltages_GetPackVoltage,
-        App_AccumulatorVoltages_GetSegment0Voltage,
-        App_AccumulatorVoltages_GetSegment1Voltage,
-        App_AccumulatorVoltages_GetSegment2Voltage,
-        App_AccumulatorVoltages_GetSegment3Voltage,
-        App_AccumulatorVoltages_GetSegment4Voltage,
-        App_AccumulatorVoltages_GetSegment5Voltage,
+        Io_CellTemperatures_ReadTemperatures, Io_CellVoltages_GetMinCellVoltage,
+        Io_CellVoltages_GetMaxCellVoltage,
+        Io_CellVoltages_GetAverageCellVoltage, Io_CellVoltages_GetPackVoltage,
+        Io_CellVoltages_GetSegment0Voltage, Io_CellVoltages_GetSegment1Voltage,
+        Io_CellVoltages_GetSegment2Voltage, Io_CellVoltages_GetSegment3Voltage,
+        Io_CellVoltages_GetSegment4Voltage, Io_CellVoltages_GetSegment5Voltage,
         Io_CellTemperatures_GetMinCellTemperature,
         Io_CellTemperatures_GetMaxCellTemperature,
         Io_CellTemperatures_GetAverageCellTemperature, MIN_CELL_VOLTAGE,
@@ -259,7 +253,7 @@ int main(void)
 
     world = App_BmsWorld_Create(
         can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger,
-        bms_ok, imd_ok, bspd_ok, cell_monitor, air_negative, air_positive,
+        bms_ok, imd_ok, bspd_ok, accumulator, air_negative, air_positive,
         clock);
 
     Io_StackWaterMark_Init(can_tx);

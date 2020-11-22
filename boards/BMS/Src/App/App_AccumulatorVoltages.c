@@ -2,9 +2,7 @@
 #include "App_AccumulatorVoltages.h"
 #include "configs/App_AccumulatorConfigs.h"
 
-// This conversion factor is used to convert raw voltages (100µV) to voltages
-// (V).
-#define V_PER_100UV 1E-4f
+#define V_PER_100UV 1
 
 struct AccumulatorVoltages
 {
@@ -14,25 +12,6 @@ struct AccumulatorVoltages
 };
 
 static struct AccumulatorVoltages cell_voltages;
-
-/**
- * A function used to compute the sum of array elements.
- * @param array A pointer to the given array.
- * @param length The length of the given array.
- * @return The sum of elements for the given array.
- */
-static uint32_t App_SumOfArrayElements(uint16_t array[], size_t length);
-
-static uint32_t App_SumOfArrayElements(uint16_t array[], size_t length)
-{
-    uint32_t array_sum = 0U;
-    for (size_t i = 0U; i < length; i++)
-    {
-        array_sum += array[i];
-    }
-
-    return array_sum;
-}
 
 void App_AccumulatorVoltages_Init(uint16_t *(*get_raw_cell_voltages)(size_t *))
 {
@@ -83,10 +62,11 @@ float App_AccumulatorVoltages_GetMaxCellVoltage(void)
 
 float App_AccumulatorVoltages_GetPackVoltage(void)
 {
-    return (float)App_SumOfArrayElements(
-               cell_voltages.raw_cell_voltages,
-               cell_voltages.total_num_of_cells) *
-           V_PER_100UV;
+    return 0.0f;
+    // return (float)App_SumOfArrayElements(
+    //           cell_voltages.raw_cell_voltages,
+    //           cell_voltages.total_num_of_cells) *
+    //       V_PER_100UV;
 }
 
 float App_AccumulatorVoltages_GetAverageCellVoltage(void)
@@ -97,22 +77,24 @@ float App_AccumulatorVoltages_GetAverageCellVoltage(void)
 
 float App_AccumulatorVoltages_GetSegment0Voltage(void)
 {
-    return (float)App_SumOfArrayElements(
-               &cell_voltages.raw_cell_voltages
-                    [CELL_MONITOR_CHIP_0 *
-                     cell_voltages.num_of_cells_per_segment],
-               cell_voltages.num_of_cells_per_segment) *
-           V_PER_100UV;
+    return 0.0f;
+    // return (float)App_SumOfArrayElements(
+    //           &cell_voltages.raw_cell_voltages
+    //                [CELL_MONITOR_CHIP_0 *
+    //                 cell_voltages.num_of_cells_per_segment],
+    //           cell_voltages.num_of_cells_per_segment) *
+    //       V_PER_100UV;
 }
 
 float App_AccumulatorVoltages_GetSegment1Voltage(void)
 {
-    return (float)App_SumOfArrayElements(
-               &cell_voltages.raw_cell_voltages
-                    [CELL_MONITOR_CHIP_1 *
-                     cell_voltages.num_of_cells_per_segment],
-               cell_voltages.num_of_cells_per_segment) *
-           V_PER_100UV;
+    return 0.0f;
+    // return (float)App_SumOfArrayElements(
+    //           &cell_voltages.raw_cell_voltages
+    //                [CELL_MONITOR_CHIP_1 *
+    //                 cell_voltages.num_of_cells_per_segment],
+    //           cell_voltages.num_of_cells_per_segment) *
+    //       V_PER_100UV;
 }
 
 float App_AccumulatorVoltages_GetSegment2Voltage(void)

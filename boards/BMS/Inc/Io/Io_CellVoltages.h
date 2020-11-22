@@ -11,13 +11,22 @@
  */
 ExitCode Io_CellVoltages_ReadRawCellVoltages(void);
 
-/**
- * Get the pointer to the 2D array containing raw cell voltages read from the
- * cell monitoring chips.
- * @param column_length The column length for the 2D array.
- * @note Call Io_CellVoltages_ReadCellVoltages to get the most recent raw cell
- * voltages from the cell monitoring chips before calling this function.
- * @return A pointer to the 2D array containing raw cell
- * voltages (100µV).
- */
-uint16_t *Io_CellVoltages_GetRawCellVoltages(size_t *column_length);
+float Io_CellVoltages_GetMinCellVoltage(void);
+
+float Io_CellVoltages_GetMaxCellVoltage(void);
+
+float Io_CellVoltages_GetAverageCellVoltage(void);
+
+float Io_CellVoltages_GetPackVoltage(void);
+
+float Io_CellVoltages_GetSegment0Voltage(void);
+
+float Io_CellVoltages_GetSegment1Voltage(void);
+
+float Io_CellVoltages_GetSegment2Voltage(void);
+
+float Io_CellVoltages_GetSegment3Voltage(void);
+
+float Io_CellVoltages_GetSegment4Voltage(void);
+
+float Io_CellVoltages_GetSegment5Voltage(void);
