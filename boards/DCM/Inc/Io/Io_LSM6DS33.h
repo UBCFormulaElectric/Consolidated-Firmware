@@ -13,13 +13,6 @@
 #include <App_SharedExitCode.h>
 
 /**
- * Configures the LSM6DS33 IMU Gyro/Accelerometer chip
- * @param i2c_handle The handle for the I2C device the IMU is connected to
- * @return None
- */
-HAL_StatusTypeDef Io_LSM6DS33_ConfigureImu(I2C_HandleTypeDef *i2c_handle);
-
-/**
  * Read data from the IMU and update internal variables
  * @return ExitCode which is EXIT_CODE_OK if successful, EXIT_CODE_INVALID_ARGS
  * if data not read successfully
