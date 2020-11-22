@@ -11,6 +11,7 @@ extern "C"
 #include "states/App_FaultState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_WaitSignalDuration.h"
+#include "configs/App_AccelerationThresholds.h"
 }
 
 namespace StateMachineTest
@@ -33,6 +34,10 @@ FAKE_VOID_FUNC(turn_on_brake_light);
 FAKE_VOID_FUNC(turn_off_brake_light);
 FAKE_VOID_FUNC(turn_on_buzzer);
 FAKE_VOID_FUNC(turn_off_buzzer);
+FAKE_VALUE_FUNC(ExitCode, update_sensor_data);
+FAKE_VALUE_FUNC(float, get_acceleration_x);
+FAKE_VALUE_FUNC(float, get_acceleration_y);
+FAKE_VALUE_FUNC(float, get_acceleration_z);
 
 class DcmStateMachineTest : public BaseStateMachineTest
 {
@@ -59,14 +64,17 @@ class DcmStateMachineTest : public BaseStateMachineTest
 
         buzzer = App_Buzzer_Create(turn_on_buzzer, turn_off_buzzer);
 
+        imu = App_Imu_Create(
+            update_sensor_data, get_acceleration_x, get_acceleration_y,
+            get_acceleration_z, MIN_ACCELERATION_MS2, MAX_ACCELERATION_MS2);
+
         error_table = App_SharedErrorTable_Create();
 
         clock = App_SharedClock_Create();
 
         world = App_DcmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
-            rgb_led_sequence, brake_light, buzzer, error_table, clock,
-
+            rgb_led_sequence, brake_light, buzzer, imu, error_table, clock,
             App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
 
         // Default to starting the state machine in the `init` state
@@ -94,6 +102,7 @@ class DcmStateMachineTest : public BaseStateMachineTest
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
         TearDownObject(brake_light, App_BrakeLight_Destroy);
         TearDownObject(buzzer, App_Buzzer_Destroy);
+        TearDownObject(imu, App_Imu_Destroy);
         TearDownObject(error_table, App_SharedErrorTable_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
     }
@@ -141,6 +150,7 @@ class DcmStateMachineTest : public BaseStateMachineTest
     struct RgbLedSequence *   rgb_led_sequence;
     struct BrakeLight *       brake_light;
     struct Buzzer *           buzzer;
+    struct Imu *              imu;
     struct ErrorTable *       error_table;
     struct Clock *            clock;
 };
@@ -397,6 +407,149 @@ TEST_F(
             EXPECT_FALSE(App_BuzzerSignals_IsOn(world));
         }
     }
+}
+
+// DCM-8
+TEST_F(
+    DcmStateMachineTest,
+    regen_allowed_only_when_going_faster_than_5kph_and_airs_closed)
+{
+    SetInitialState(App_GetDriveState());
+
+    // Turn the DIM start switch on to prevent state transitions in
+    // the drive state.
+    EXPECT_TRUE(App_BuzzerSignals_IsOn(world));
+    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
+        can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
+    ASSERT_EQ(
+        App_GetDriveState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+
+    // Press down accelerator pedal and regen paddle
+    App_CanRx_FSM_PEDAL_POSITION_SetSignal_MAPPED_PEDAL_PERCENTAGE(
+        can_rx_interface, 60.0f);
+    App_CanRx_DIM_REGEN_PADDLE_SetSignal_MAPPED_PADDLE_POSITION(
+        can_rx_interface, 50.0f);
+
+    // Close AIRs and assert regen is still off
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
+    LetTimePass(state_machine, 10);
+    EXPECT_TRUE(
+        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface) >= 0);
+
+    // Check regen doesn't turn on when only one wheel is going faster than 5kph
+    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_LEFT_WHEEL_SPEED(
+        can_rx_interface, 5.0f);
+    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
+        can_rx_interface, 5.1f);
+    LetTimePass(state_machine, 10);
+    EXPECT_TRUE(
+        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface) >= 0);
+
+    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_LEFT_WHEEL_SPEED(
+        can_rx_interface, 5.1f);
+    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
+        can_rx_interface, 5.0f);
+    LetTimePass(state_machine, 10);
+    EXPECT_TRUE(
+        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface) >= 0);
+
+    // Check regen doesn't turn on when both wheels are going faster than 5kph
+    // but one of the AIRs is open
+    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_LEFT_WHEEL_SPEED(
+        can_rx_interface, 5.1f);
+    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
+        can_rx_interface, 5.1f);
+
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_OPEN_CHOICE);
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
+    LetTimePass(state_machine, 10);
+    EXPECT_TRUE(
+        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface) >= 0);
+
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE);
+    LetTimePass(state_machine, 10);
+    EXPECT_TRUE(
+        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface) >= 0);
+
+    // Check regen turns on when both wheels are going faster than 5kph and AIRS
+    // are closed
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
+    LetTimePass(state_machine, 10);
+    EXPECT_TRUE(
+        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface) < 0);
+}
+
+// DCM-19
+TEST_F(DcmStateMachineTest, torque_requests_faster_than_100Hz)
+{
+    float torque_request_with_regen_allowed;
+    float torque_request_without_regen_allowed;
+
+    SetInitialState(App_GetDriveState());
+
+    // Turn the DIM start switch on to prevent state transitions in
+    // the drive state.
+    EXPECT_TRUE(App_BuzzerSignals_IsOn(world));
+    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
+        can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
+    ASSERT_EQ(
+        App_GetDriveState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+
+    // Check that no torque requests are sent when the accelerator pedal is not
+    // pressed
+    // ("The DCM may only request torque less than or equal to what the driver
+    // requested")
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+        0.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+
+    // Check that positive torque requests are sent when the accelerator pedal
+    // is pressed
+    App_CanRx_FSM_PEDAL_POSITION_SetSignal_MAPPED_PEDAL_PERCENTAGE(
+        can_rx_interface, 23.2f);
+    LetTimePass(state_machine, 10);
+    torque_request_without_regen_allowed =
+        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface);
+    EXPECT_TRUE(torque_request_without_regen_allowed > 0.0f);
+
+    // Turn on regen and check that torque requests are still positive & being
+    // sent Enable regen by setting wheel speeds above 5kph and closing both
+    // AIRs
+    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_LEFT_WHEEL_SPEED(
+        can_rx_interface, 6.0f);
+    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
+        can_rx_interface, 6.0f);
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
+    // Check that torque request left unchanged
+    LetTimePass(state_machine, 10);
+    torque_request_with_regen_allowed =
+        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface);
+    ASSERT_EQ(
+        torque_request_without_regen_allowed,
+        torque_request_with_regen_allowed);
+
+    // Push regen paddle and check that negative torque request is sent
+    App_CanRx_DIM_REGEN_PADDLE_SetSignal_MAPPED_PADDLE_POSITION(
+        can_rx_interface, 30.0f);
+    LetTimePass(state_machine, 10);
+    ASSERT_TRUE(
+        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface) < 0);
 }
 
 } // namespace StateMachineTest
