@@ -1174,7 +1174,7 @@ TEST_F(
     LetTimePass(state_machine, 999);
     ASSERT_EQ(
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SECONDARY_FLOW_RATE_HAS_UNDERFLOW_FALSE_CHOICE,
-        App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE_HAS_UNDERFLOW ￼Status(
+        App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE_HAS_UNDERFLOW(
             can_tx_interface));
 
     LetTimePass(state_machine, 1);
