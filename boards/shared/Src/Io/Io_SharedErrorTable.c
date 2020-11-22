@@ -265,6 +265,12 @@ static void Io_ProcessFsmMotorShutdownErrorMsg(
     SET_ERROR(
         error_table, FSM_MOTOR_SHUTDOWN_PLAUSIBILITY_CHECK_HAS_FAILED,
         data->plausibility_check_has_failed);
+    SET_ERROR(
+        error_table, FSM_MOTOR_SHUTDOWN_PRIMARY_FLOW_RATE_HAS_UNDERFLOW,
+        data->primary_flow_rate_has_underflow);
+    SET_ERROR(
+        error_table, FSM_MOTOR_SHUTDOWN_SECONDARY_FLOW_RATE_HAS_UNDERFLOW,
+        data->secondary_flow_rate_has_underflow);
 }
 
 static void Io_ProcessPdmMotorShutdownErrorMsg(

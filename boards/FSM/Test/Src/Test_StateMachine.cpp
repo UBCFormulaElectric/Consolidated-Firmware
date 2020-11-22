@@ -9,6 +9,7 @@ extern "C"
 #include "App_SharedStateMachine.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_AcceleratorPedalSignals.h"
+#include "App_FlowMeterSignals.h"
 #include "states/App_AirOpenState.h"
 #include "states/App_AirClosedState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
@@ -125,7 +126,14 @@ class FsmStateMachineTest : public BaseStateMachineTest
             App_AcceleratorPedalSignals_PappsAlarmCallback,
             App_AcceleratorPedalSignals_IsSappsAlarmActive,
             App_AcceleratorPedalSignals_SappsAlarmCallback,
-            App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive);
+            App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive,
+
+            App_FlowMetersSignals_IsPrimaryFlowRateBelowThreshold,
+            App_FlowMetersSignals_IsPrimaryFlowRateInRange,
+            App_FlowMetersSignals_PrimaryFlowRateCallback,
+            App_FlowMetersSignals_IsSecondaryFlowRateBelowThreshold,
+            App_FlowMetersSignals_IsSecondaryFlowRateInRange,
+            App_FlowMetersSignals_SecondaryFlowRateCallback);
 
         // Default to starting the state machine in the `AIR_OPEN` state
         state_machine =
@@ -1098,6 +1106,114 @@ TEST_F(
     ASSERT_EQ(
         5, round(App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(
                can_tx_interface)));
+}
+
+TEST_F(
+    FsmStateMachineTest,
+    primary_flow_rate_underflow_sets_motor_shutdown_can_tx_signal)
+{
+    // Flow rate lower threshold (L/min)
+    const float flow_rate_threshold = 1.0f;
+
+    get_primary_flow_rate_fake.return_val = std::nextafter(
+        flow_rate_threshold, std::numeric_limits<float>::lowest());
+    LetTimePass(state_machine, 999);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PRIMARY_FLOW_RATE_HAS_UNDERFLOW_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PRIMARY_FLOW_RATE_HAS_UNDERFLOW(
+            can_tx_interface));
+
+    LetTimePass(state_machine, 1);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PRIMARY_FLOW_RATE_HAS_UNDERFLOW_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PRIMARY_FLOW_RATE_HAS_UNDERFLOW(
+            can_tx_interface));
+
+    LetTimePass(state_machine, 1000);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PRIMARY_FLOW_RATE_HAS_UNDERFLOW_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PRIMARY_FLOW_RATE_HAS_UNDERFLOW(
+            can_tx_interface));
+}
+
+TEST_F(
+    FsmStateMachineTest,
+    primary_flow_rate_in_range_clears_motor_shutdown_can_tx_signal)
+{
+    // Flow rate lower threshold (L/min)
+    const float flow_rate_threshold = 1.0f;
+
+    get_primary_flow_rate_fake.return_val = std::nextafter(
+        flow_rate_threshold, std::numeric_limits<float>::lowest());
+    LetTimePass(state_machine, 1000);
+
+    get_primary_flow_rate_fake.return_val =
+        std::nextafter(flow_rate_threshold, std::numeric_limits<float>::max());
+    LetTimePass(state_machine, 1000);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PRIMARY_FLOW_RATE_HAS_UNDERFLOW_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PRIMARY_FLOW_RATE_HAS_UNDERFLOW(
+            can_tx_interface));
+
+    LetTimePass(state_machine, 1000);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PRIMARY_FLOW_RATE_HAS_UNDERFLOW_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PRIMARY_FLOW_RATE_HAS_UNDERFLOW(
+            can_tx_interface));
+}
+
+TEST_F(
+    FsmStateMachineTest,
+    secondary_flow_rate_underflow_sets_motor_shutdown_can_tx_signal)
+{
+    // Flow rate lower threshold (L/min)
+    const float flow_rate_threshold = 1.0f;
+
+    get_secondary_flow_rate_fake.return_val = std::nextafter(
+        flow_rate_threshold, std::numeric_limits<float>::lowest());
+    LetTimePass(state_machine, 999);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SECONDARY_FLOW_RATE_HAS_UNDERFLOW_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE_HAS_UNDERFLOW ￼Status(
+            can_tx_interface));
+
+    LetTimePass(state_machine, 1);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SECONDARY_FLOW_RATE_HAS_UNDERFLOW_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE_HAS_UNDERFLOW(
+            can_tx_interface));
+
+    LetTimePass(state_machine, 1000);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SECONDARY_FLOW_RATE_HAS_UNDERFLOW_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE_HAS_UNDERFLOW(
+            can_tx_interface));
+}
+
+TEST_F(
+    FsmStateMachineTest,
+    secondary_flow_rate_in_range_clears_motor_shutdown_can_tx_signal)
+{
+    // Flow rate lower threshold (L/min)
+    const float flow_rate_threshold = 1.0f;
+
+    get_secondary_flow_rate_fake.return_val = std::nextafter(
+        flow_rate_threshold, std::numeric_limits<float>::lowest());
+    LetTimePass(state_machine, 1000);
+
+    get_secondary_flow_rate_fake.return_val =
+        std::nextafter(flow_rate_threshold, std::numeric_limits<float>::max());
+    LetTimePass(state_machine, 1000);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SECONDARY_FLOW_RATE_HAS_UNDERFLOW_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE_HAS_UNDERFLOW(
+            can_tx_interface));
+
+    LetTimePass(state_machine, 1000);
+    ASSERT_EQ(
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SECONDARY_FLOW_RATE_HAS_UNDERFLOW_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE_HAS_UNDERFLOW(
+            can_tx_interface));
 }
 
 } // namespace StateMachineTest
