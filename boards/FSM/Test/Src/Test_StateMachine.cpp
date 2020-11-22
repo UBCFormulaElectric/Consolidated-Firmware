@@ -130,10 +130,10 @@ class FsmStateMachineTest : public BaseStateMachineTest
 
             App_FlowMetersSignals_IsPrimaryFlowRateBelowThreshold,
             App_FlowMetersSignals_IsPrimaryFlowRateInRange,
-            App_FlowMetersSignals_PrimaryFlowRateCallback,
+            App_FlowMetersSignals_PrimaryFlowRateBelowThresholdCallback,
             App_FlowMetersSignals_IsSecondaryFlowRateBelowThreshold,
             App_FlowMetersSignals_IsSecondaryFlowRateInRange,
-            App_FlowMetersSignals_SecondaryFlowRateCallback);
+            App_FlowMetersSignals_SecondaryFlowRateBelowThresholdCallback);
 
         // Default to starting the state machine in the `AIR_OPEN` state
         state_machine =

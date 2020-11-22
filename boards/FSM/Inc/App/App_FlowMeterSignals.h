@@ -30,7 +30,7 @@ bool App_FlowMetersSignals_IsSecondaryFlowRateBelowThreshold(
 /**
  * Check if the secondary flow rate is in range
  * @param world The world to get the secondary flow rate in-range check
- * @return true if the secondary flow rate (L/min) is in range
+ * @return true if the secondary flow rate (L/min) is in range, else false
  */
 bool App_FlowMetersSignals_IsSecondaryFlowRateInRange(struct FsmWorld *world);
 
@@ -38,10 +38,12 @@ bool App_FlowMetersSignals_IsSecondaryFlowRateInRange(struct FsmWorld *world);
  * The callback function for the primary flow rate signal in the given world
  * @param world The world to get the CAN tx interface from
  */
-void App_FlowMetersSignals_PrimaryFlowRateCallback(struct FsmWorld *world);
+void App_FlowMetersSignals_PrimaryFlowRateBelowThresholdCallback(
+    struct FsmWorld *const world);
 
 /**
  * The callback function for the secondary flow rate signal in the given world
  * @param world The world to get the CAN tx interface from
  */
-void App_FlowMetersSignals_SecondaryFlowRateCallback(struct FsmWorld *world);
+void App_FlowMetersSignals_SecondaryFlowRateBelowThresholdCallback(
+    struct FsmWorld *const world);

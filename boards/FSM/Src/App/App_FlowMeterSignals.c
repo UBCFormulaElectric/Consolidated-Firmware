@@ -48,7 +48,8 @@ bool App_FlowMetersSignals_IsSecondaryFlowRateInRange(
            VALUE_IN_RANGE;
 }
 
-void App_FlowMetersSignals_PrimaryFlowRateCallback(struct FsmWorld *world)
+void App_FlowMetersSignals_PrimaryFlowRateBelowThresholdCallback(
+    struct FsmWorld *const world)
 {
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
 
@@ -57,7 +58,8 @@ void App_FlowMetersSignals_PrimaryFlowRateCallback(struct FsmWorld *world)
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PRIMARY_FLOW_RATE_HAS_UNDERFLOW_TRUE_CHOICE);
 }
 
-void App_FlowMetersSignals_SecondaryFlowRateCallback(struct FsmWorld *world)
+void App_FlowMetersSignals_SecondaryFlowRateBelowThresholdCallback(
+    struct FsmWorld *const world)
 {
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
 

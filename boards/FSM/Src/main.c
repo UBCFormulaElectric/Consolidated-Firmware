@@ -285,10 +285,10 @@ int main(void)
 
         App_FlowMetersSignals_IsPrimaryFlowRateBelowThreshold,
         App_FlowMetersSignals_IsPrimaryFlowRateInRange,
-        App_FlowMetersSignals_PrimaryFlowRateCallback,
+        App_FlowMetersSignals_PrimaryFlowRateBelowThresholdCallback,
         App_FlowMetersSignals_IsSecondaryFlowRateBelowThreshold,
         App_FlowMetersSignals_IsSecondaryFlowRateInRange,
-        App_FlowMetersSignals_SecondaryFlowRateCallback);
+        App_FlowMetersSignals_SecondaryFlowRateBelowThresholdCallback);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 
