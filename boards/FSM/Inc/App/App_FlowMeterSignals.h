@@ -36,12 +36,12 @@ bool App_FlowMetersSignals_IsSecondaryFlowRateInRange(struct FsmWorld *world);
 
 /**
  * The callback function for the primary flow rate signal in the given world
- * @param world The world to get the CAN interface from
+ * @param world The world to get the CAN tx interface from
  */
 void App_FlowMetersSignals_PrimaryFlowRateCallback(struct FsmWorld *world);
 
 /**
  * The callback function for the secondary flow rate signal in the given world
- * @param world The world to get the CAN interface from
+ * @param world The world to get the CAN tx interface from
  */
 void App_FlowMetersSignals_SecondaryFlowRateCallback(struct FsmWorld *world);
