@@ -44,7 +44,6 @@
 #include "Io_Airs.h"
 
 #include "App_BmsWorld.h"
-#include "App_AccumulatorVoltages.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
