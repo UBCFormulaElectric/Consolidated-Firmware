@@ -8,9 +8,12 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     struct BmsCanTxInterface *can_tx = App_BmsWorld_GetCanTx(world);
     struct RgbLedSequence *   rgb_led_sequence =
         App_BmsWorld_GetRgbLedSequence(world);
-    struct Charger *charger = App_BmsWorld_GetCharger(world);
+    struct Charger *    charger     = App_BmsWorld_GetCharger(world);
+    struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
 
     App_SharedRgbLedSequence_Tick(rgb_led_sequence);
+
+    App_SetPeriodicSignals_AccumulatorTempInRangeChecks(can_tx, accumulator);
 
     bool charger_is_connected = App_Charger_IsConnected(charger);
     App_CanTx_SetPeriodicSignal_IS_CONNECTED(can_tx, charger_is_connected);
@@ -59,7 +62,8 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanTx_SetPeriodicSignal_BSPD_OK(can_tx, false);
     }
 
-    App_SetPeriodicSignals_AccumulatorInRangeChecks(can_tx, accumulator);
+    App_SetPeriodicSignals_AccumulatorVoltagesInRangeChecks(
+        can_tx, accumulator);
     if (App_CanTx_GetPeriodicSignal_MAX_CELL_VOLTAGE_OUT_OF_RANGE(can_tx) !=
             CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE ||
         App_CanTx_GetPeriodicSignal_MIN_CELL_VOLTAGE_OUT_OF_RANGE(can_tx) !=

@@ -53,8 +53,8 @@ static const float temperature_lut[SIZE_OF_TEMPERATURE_LUT] = {
 
 static uint16_t raw_thermistor_voltages[NUM_OF_CELL_MONITOR_CHIPS]
                                        [NUM_OF_THERMISTORS_PER_IC];
-static uint32_t cell_temperatures[NUM_OF_CELL_MONITOR_CHIPS]
-                                 [NUM_OF_THERMISTORS_PER_IC];
+static float cell_temperatures[NUM_OF_CELL_MONITOR_CHIPS]
+                              [NUM_OF_THERMISTORS_PER_IC];
 
 /**
  * Parse the raw thermistor voltages measured from the cell monitoring chip and
@@ -230,32 +230,30 @@ ExitCode Io_CellTemperatures_ReadTemperatures(void)
 
             // Divide the index of the thermistor lookup table by 2 as the
             // temperature lookup table's key has a resolution of 0.5°C.
-            // Multiply the result by 10 as we are storing the temperature as
-            // 0.1°C.
             //
-            //                            THERMISTOR LUT INDEX * 10
-            // CELL_TEMPERATURES_DEGC = ----------------------------
-            //                                        2
+            //                           THERMISTOR LUT INDEX
+            // CELL_TEMPERATURES_DEGC = ----------------------
+            //                                     2
             //
 
             cell_temperatures[current_ic][cell_temp_index] =
-                thermistor_lut_index * 5U;
+                (float)thermistor_lut_index / 2.0f;
         }
     }
 
     return EXIT_CODE_OK;
 }
 
-uint32_t Io_CellTemperatures_GetMaxCellTemperature(void)
+float Io_CellTemperatures_GetMaxCellTemperature(void)
 {
-    uint32_t max_cell_temp = cell_temperatures[0][0];
+    float max_cell_temp = cell_temperatures[0][0];
     for (size_t current_chip = 0U; current_chip < NUM_OF_CELL_MONITOR_CHIPS;
          current_chip++)
     {
         for (size_t current_cell = 0U; current_cell < NUM_OF_THERMISTORS_PER_IC;
              current_cell++)
         {
-            uint32_t current_cell_temp =
+            float current_cell_temp =
                 cell_temperatures[current_chip][current_cell];
             if (max_cell_temp < current_cell_temp)
             {
@@ -267,16 +265,16 @@ uint32_t Io_CellTemperatures_GetMaxCellTemperature(void)
     return max_cell_temp;
 }
 
-uint32_t Io_CellTemperatures_GetMinCellTemperature(void)
+float Io_CellTemperatures_GetMinCellTemperature(void)
 {
-    uint32_t min_cell_temp = cell_temperatures[0][0];
+    float min_cell_temp = cell_temperatures[0][0];
     for (size_t current_chip = 0U; current_chip < NUM_OF_CELL_MONITOR_CHIPS;
          current_chip++)
     {
         for (size_t current_cell = 0U; current_cell < NUM_OF_THERMISTORS_PER_IC;
              current_cell++)
         {
-            uint32_t current_cell_temp =
+            float current_cell_temp =
                 cell_temperatures[current_chip][current_cell];
             if (min_cell_temp > current_cell_temp)
             {
@@ -290,7 +288,7 @@ uint32_t Io_CellTemperatures_GetMinCellTemperature(void)
 
 float Io_CellTemperatures_GetAverageCellTemperature(void)
 {
-    uint32_t sum_of_cell_temp = 0U;
+    float sum_of_cell_temp = 0U;
     for (size_t current_chip = 0U; current_chip < NUM_OF_CELL_MONITOR_CHIPS;
          current_chip++)
     {
@@ -301,6 +299,6 @@ float Io_CellTemperatures_GetAverageCellTemperature(void)
         }
     }
 
-    return (float)sum_of_cell_temp /
+    return sum_of_cell_temp /
            (float)(NUM_OF_THERMISTORS_PER_IC * NUM_OF_CELL_MONITOR_CHIPS);
 }

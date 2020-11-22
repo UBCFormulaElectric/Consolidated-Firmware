@@ -1,3 +1,4 @@
+#include <math.h>
 #include "Test_Bms.h"
 #include "Test_Imd.h"
 #include "Test_BaseStateMachineTest.h"
@@ -59,6 +60,10 @@ FAKE_VALUE_FUNC(float, get_segment_2_voltage);
 FAKE_VALUE_FUNC(float, get_segment_3_voltage);
 FAKE_VALUE_FUNC(float, get_segment_4_voltage);
 FAKE_VALUE_FUNC(float, get_segment_5_voltage);
+FAKE_VALUE_FUNC(ExitCode, read_cell_temperatures);
+FAKE_VALUE_FUNC(float, get_min_cell_temperature);
+FAKE_VALUE_FUNC(float, get_max_cell_temperature);
+FAKE_VALUE_FUNC(float, get_average_cell_temperature);
 FAKE_VALUE_FUNC(bool, is_air_negative_on);
 FAKE_VALUE_FUNC(bool, is_air_positive_on);
 
@@ -98,13 +103,16 @@ class BmsStateMachineTest : public BaseStateMachineTest
         bspd_ok = App_OkStatus_Create(
             enable_bspd_ok, disable_bspd_ok, is_bspd_ok_enabled);
 
-        cell_monitor = App_Accumulator_Create(
-            configure_daisy_chain, read_cell_voltages, get_min_cell_voltage,
-            get_max_cell_voltage, get_average_cell_voltage, get_pack_voltage,
-            get_segment_0_voltage, get_segment_1_voltage, get_segment_2_voltage,
-            get_segment_3_voltage, get_segment_4_voltage, get_segment_5_voltage,
-            MIN_CELL_VOLTAGE, MAX_CELL_VOLTAGE, MIN_SEGMENT_VOLTAGE,
-            MAX_SEGMENT_VOLTAGE, MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE);
+        accumulator = App_Accumulator_Create(
+            configure_daisy_chain, read_cell_voltages, read_cell_temperatures,
+            get_min_cell_voltage, get_max_cell_voltage,
+            get_average_cell_voltage, get_pack_voltage, get_segment_0_voltage,
+            get_segment_1_voltage, get_segment_2_voltage, get_segment_3_voltage,
+            get_segment_4_voltage, get_segment_5_voltage,
+            get_min_cell_temperature, get_max_cell_temperature,
+            get_average_cell_temperature, MIN_CELL_VOLTAGE, MAX_CELL_VOLTAGE,
+            MIN_SEGMENT_VOLTAGE, MAX_SEGMENT_VOLTAGE, MIN_PACK_VOLTAGE,
+            MAX_PACK_VOLTAGE, MIN_CELL_TEMPERATURE, MAX_CELL_TEMPERATURE);
 
         air_negative = App_SharedBinaryStatus_Create(is_air_negative_on);
         air_positive = App_SharedBinaryStatus_Create(is_air_positive_on);
@@ -113,7 +121,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
 
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
-            rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, cell_monitor,
+            rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator,
             air_negative, air_positive, clock);
 
         // Default to starting the state machine in the `init` state
@@ -154,6 +162,10 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(get_segment_3_voltage);
         RESET_FAKE(get_segment_4_voltage);
         RESET_FAKE(get_segment_5_voltage);
+        RESET_FAKE(read_cell_temperatures);
+        RESET_FAKE(get_min_cell_temperature);
+        RESET_FAKE(get_max_cell_temperature);
+        RESET_FAKE(get_average_cell_temperature);
         RESET_FAKE(is_air_negative_on);
         RESET_FAKE(is_air_positive_on);
     }
@@ -171,7 +183,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         TearDownObject(bms_ok, App_OkStatus_Destroy);
         TearDownObject(imd_ok, App_OkStatus_Destroy);
         TearDownObject(bspd_ok, App_OkStatus_Destroy);
-        TearDownObject(cell_monitor, App_Accumulator_Destroy);
+        TearDownObject(accumulator, App_Accumulator_Destroy);
         TearDownObject(air_negative, App_SharedBinaryStatus_Destroy);
         TearDownObject(air_positive, App_SharedBinaryStatus_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
@@ -194,6 +206,47 @@ class BmsStateMachineTest : public BaseStateMachineTest
             App_GetChargeState(),
             App_GetFaultState(),
         };
+    }
+
+    void CheckInRangeCanSignalsInAllStates(
+        float  min_value,
+        float  max_value,
+        float &fake_value,
+        float (*value_can_signal_getter)(const struct BmsCanTxInterface *),
+        uint8_t (*out_of_range_can_signal_getter)(
+            const struct BmsCanTxInterface *),
+        uint8_t  ok_choice,
+        uint8_t  underflow_choice,
+        uint8_t  overflow_choice,
+        uint32_t task_period_ms)
+    {
+        for (const auto &state : GetAllStates())
+        {
+            SetInitialState(state);
+
+            // Normal range
+            fake_value = (min_value + max_value) / 2;
+            LetTimePass(state_machine, task_period_ms);
+            ASSERT_EQ(fake_value, value_can_signal_getter(can_tx_interface));
+            ASSERT_EQ(
+                ok_choice, out_of_range_can_signal_getter(can_tx_interface));
+
+            // Underflow range
+            fake_value =
+                std::nextafter(min_value, std::numeric_limits<float>::lowest());
+            LetTimePass(state_machine, task_period_ms);
+            ASSERT_EQ(
+                underflow_choice,
+                out_of_range_can_signal_getter(can_tx_interface));
+
+            // Overflow range
+            fake_value =
+                std::nextafter(max_value, std::numeric_limits<float>::max());
+            LetTimePass(state_machine, task_period_ms);
+            ASSERT_EQ(
+                overflow_choice,
+                out_of_range_can_signal_getter(can_tx_interface));
+        }
     }
 
     void UpdateClock(
@@ -225,10 +278,13 @@ class BmsStateMachineTest : public BaseStateMachineTest
     struct OkStatus *         bms_ok;
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
-    struct Accumulator *      cell_monitor;
+    struct Accumulator *      accumulator;
     struct BinaryStatus *     air_negative;
     struct BinaryStatus *     air_positive;
     struct Clock *            clock;
+
+    const uint32_t TASK_1HZ_DURATION_MS   = 1000;
+    const uint32_t TASK_100HZ_DURATION_MS = 10;
 };
 
 // BMS-31
@@ -605,6 +661,151 @@ TEST_F(BmsStateMachineTest, check_airs_can_signals_for_all_states)
         ASSERT_EQ(
             true, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
     }
+}
+
+TEST_F(
+    BmsStateMachineTest,
+    check_accumulator_cell_voltages_can_signals_in_all_states)
+{
+    CheckInRangeCanSignalsInAllStates(
+        MIN_CELL_VOLTAGE, MAX_CELL_VOLTAGE,
+        get_min_cell_voltage_fake.return_val,
+        App_CanTx_GetPeriodicSignal_MIN_CELL_VOLTAGE,
+        App_CanTx_GetPeriodicSignal_MIN_CELL_VOLTAGE_OUT_OF_RANGE,
+        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE,
+        TASK_100HZ_DURATION_MS);
+
+    CheckInRangeCanSignalsInAllStates(
+        MIN_CELL_VOLTAGE, MAX_CELL_VOLTAGE,
+        get_max_cell_voltage_fake.return_val,
+        App_CanTx_GetPeriodicSignal_MAX_CELL_VOLTAGE,
+        App_CanTx_GetPeriodicSignal_MAX_CELL_VOLTAGE_OUT_OF_RANGE,
+        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE,
+        TASK_100HZ_DURATION_MS);
+
+    CheckInRangeCanSignalsInAllStates(
+        MIN_CELL_VOLTAGE, MAX_CELL_VOLTAGE,
+        get_average_cell_voltage_fake.return_val,
+        App_CanTx_GetPeriodicSignal_AVERAGE_CELL_VOLTAGE,
+        App_CanTx_GetPeriodicSignal_AVERAGE_CELL_VOLTAGE_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_AVERAGE_CELL_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_AVERAGE_CELL_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_AVERAGE_CELL_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE,
+        TASK_100HZ_DURATION_MS);
+}
+
+TEST_F(
+    BmsStateMachineTest,
+    check_accumulator_segment_voltages_can_signals_in_all_states)
+{
+    CheckInRangeCanSignalsInAllStates(
+        MIN_SEGMENT_VOLTAGE, MAX_SEGMENT_VOLTAGE,
+        get_segment_0_voltage_fake.return_val,
+        App_CanTx_GetPeriodicSignal_SEGMENT_0_VOLTAGE,
+        App_CanTx_GetPeriodicSignal_SEGMENT_0_VOLTAGE_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_0_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_0_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_0_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE,
+        TASK_100HZ_DURATION_MS);
+
+    CheckInRangeCanSignalsInAllStates(
+        MIN_SEGMENT_VOLTAGE, MAX_SEGMENT_VOLTAGE,
+        get_segment_1_voltage_fake.return_val,
+        App_CanTx_GetPeriodicSignal_SEGMENT_1_VOLTAGE,
+        App_CanTx_GetPeriodicSignal_SEGMENT_1_VOLTAGE_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_1_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_1_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_1_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE,
+        TASK_100HZ_DURATION_MS);
+
+    CheckInRangeCanSignalsInAllStates(
+        MIN_SEGMENT_VOLTAGE, MAX_SEGMENT_VOLTAGE,
+        get_segment_2_voltage_fake.return_val,
+        App_CanTx_GetPeriodicSignal_SEGMENT_2_VOLTAGE,
+        App_CanTx_GetPeriodicSignal_SEGMENT_2_VOLTAGE_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_2_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_2_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_2_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE,
+        TASK_100HZ_DURATION_MS);
+
+    CheckInRangeCanSignalsInAllStates(
+        MIN_SEGMENT_VOLTAGE, MAX_SEGMENT_VOLTAGE,
+        get_segment_3_voltage_fake.return_val,
+        App_CanTx_GetPeriodicSignal_SEGMENT_3_VOLTAGE,
+        App_CanTx_GetPeriodicSignal_SEGMENT_3_VOLTAGE_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_3_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_3_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_3_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE,
+        TASK_100HZ_DURATION_MS);
+
+    CheckInRangeCanSignalsInAllStates(
+        MIN_SEGMENT_VOLTAGE, MAX_SEGMENT_VOLTAGE,
+        get_segment_4_voltage_fake.return_val,
+        App_CanTx_GetPeriodicSignal_SEGMENT_4_VOLTAGE,
+        App_CanTx_GetPeriodicSignal_SEGMENT_4_VOLTAGE_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_4_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_4_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_4_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE,
+        TASK_100HZ_DURATION_MS);
+
+    CheckInRangeCanSignalsInAllStates(
+        MIN_SEGMENT_VOLTAGE, MAX_SEGMENT_VOLTAGE,
+        get_segment_5_voltage_fake.return_val,
+        App_CanTx_GetPeriodicSignal_SEGMENT_5_VOLTAGE,
+        App_CanTx_GetPeriodicSignal_SEGMENT_5_VOLTAGE_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_5_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_5_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_5_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE,
+        TASK_100HZ_DURATION_MS);
+
+    CheckInRangeCanSignalsInAllStates(
+        MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE, get_pack_voltage_fake.return_val,
+        App_CanTx_GetPeriodicSignal_PACK_VOLTAGE,
+        App_CanTx_GetPeriodicSignal_PACK_VOLTAGE_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_PACK_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_PACK_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_PACK_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE,
+        TASK_100HZ_DURATION_MS);
+}
+
+// BMS-5
+TEST_F(
+    BmsStateMachineTest,
+    check_accumulator_temperature_can_signals_in_all_states)
+{
+    CheckInRangeCanSignalsInAllStates(
+        MIN_CELL_TEMPERATURE, MAX_CELL_TEMPERATURE,
+        get_min_cell_temperature_fake.return_val,
+        App_CanTx_GetPeriodicSignal_MIN_CELL_TEMP,
+        App_CanTx_GetPeriodicSignal_MIN_CELL_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_MIN_CELL_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_MIN_CELL_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_MIN_CELL_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE,
+        TASK_1HZ_DURATION_MS);
+
+    CheckInRangeCanSignalsInAllStates(
+        MIN_CELL_TEMPERATURE, MAX_CELL_TEMPERATURE,
+        get_max_cell_temperature_fake.return_val,
+        App_CanTx_GetPeriodicSignal_MAX_CELL_TEMP,
+        App_CanTx_GetPeriodicSignal_MAX_CELL_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_MAX_CELL_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_MAX_CELL_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_MAX_CELL_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE,
+        TASK_1HZ_DURATION_MS);
+
+    CheckInRangeCanSignalsInAllStates(
+        MIN_CELL_TEMPERATURE, MAX_CELL_TEMPERATURE,
+        get_average_cell_temperature_fake.return_val,
+        App_CanTx_GetPeriodicSignal_AVERAGE_CELL_TEMP,
+        App_CanTx_GetPeriodicSignal_AVERAGE_CELL_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_AVERAGE_CELL_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_AVERAGE_CELL_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_AVERAGE_CELL_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE,
+        TASK_1HZ_DURATION_MS);
 }
 
 } // namespace StateMachineTest

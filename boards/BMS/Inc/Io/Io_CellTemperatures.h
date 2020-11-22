@@ -14,14 +14,14 @@ ExitCode Io_CellTemperatures_ReadTemperatures(void);
  * temperatures
  * @return The current minimum cell temperature (0.1°C)
  */
-uint32_t Io_CellTemperatures_GetMinCellTemperature(void);
+float Io_CellTemperatures_GetMinCellTemperature(void);
 
 /**
  * Get the current maximum accumulator cell temperature out of all cell
  * temperatures
  * @return The current maximum cell temperature (0.1°C)
  */
-uint32_t Io_CellTemperatures_GetMaxCellTemperature(void);
+float Io_CellTemperatures_GetMaxCellTemperature(void);
 
 /**
  * Get the average accumulator cell temperature

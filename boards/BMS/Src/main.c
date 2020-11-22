@@ -40,6 +40,7 @@
 #include "Io_OkStatuses.h"
 #include "Io_LTC6813.h"
 #include "Io_CellVoltages.h"
+#include "Io_CellTemperatures.h"
 #include "Io_Airs.h"
 
 #include "App_BmsWorld.h"
@@ -233,6 +234,7 @@ int main(void)
     App_AccumulatorVoltages_Init(Io_CellVoltages_GetRawCellVoltages);
     cell_monitor = App_Accumulator_Create(
         Io_LTC6813_ConfigureRegisterA, Io_CellVoltages_ReadRawCellVoltages,
+        Io_CellTemperatures_ReadTemperatures,
         App_AccumulatorVoltages_GetMinCellVoltage,
         App_AccumulatorVoltages_GetMaxCellVoltage,
         App_AccumulatorVoltages_GetAverageCellVoltage,
@@ -242,9 +244,13 @@ int main(void)
         App_AccumulatorVoltages_GetSegment2Voltage,
         App_AccumulatorVoltages_GetSegment3Voltage,
         App_AccumulatorVoltages_GetSegment4Voltage,
-        App_AccumulatorVoltages_GetSegment5Voltage, MIN_CELL_VOLTAGE,
+        App_AccumulatorVoltages_GetSegment5Voltage,
+        Io_CellTemperatures_GetMinCellTemperature,
+        Io_CellTemperatures_GetMaxCellTemperature,
+        Io_CellTemperatures_GetAverageCellTemperature, MIN_CELL_VOLTAGE,
         MAX_CELL_VOLTAGE, MIN_SEGMENT_VOLTAGE, MAX_SEGMENT_VOLTAGE,
-        MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE);
+        MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE, MIN_CELL_TEMPERATURE,
+        MAX_CELL_TEMPERATURE);
 
     air_negative = App_SharedBinaryStatus_Create(Io_Airs_IsAirNegativeOn);
     air_positive = App_SharedBinaryStatus_Create(Io_Airs_IsAirPositiveOn);
