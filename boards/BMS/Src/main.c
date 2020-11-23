@@ -248,8 +248,8 @@ int main(void)
         Io_AccumulatorTemperatures_GetMaxCellTemperature,
         Io_AccumulatorTemperatures_GetAverageCellTemperature, MIN_CELL_VOLTAGE,
         MAX_CELL_VOLTAGE, MIN_SEGMENT_VOLTAGE, MAX_SEGMENT_VOLTAGE,
-        MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE, MIN_CELL_TEMPERATURE,
-        MAX_CELL_TEMPERATURE);
+        MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE, DEFAULT_MIN_CELL_TEMPERATURE,
+        DEFAULT_MAX_CELL_TEMPERATURE, CHARGE_STATE_MAX_CELL_TEMPERATURE);
 
     air_negative = App_SharedBinaryStatus_Create(Io_Airs_IsAirNegativeOn);
     air_positive = App_SharedBinaryStatus_Create(Io_Airs_IsAirPositiveOn);

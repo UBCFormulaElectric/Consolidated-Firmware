@@ -57,3 +57,10 @@ enum InRangeCheck_Status App_InRangeCheck_GetValue(
 
     return status;
 }
+
+void App_InRangeCheck_SetMaxValue(
+    struct InRangeCheck *const in_range_check,
+    float                      max_value)
+{
+    in_range_check->max_value = max_value;
+}

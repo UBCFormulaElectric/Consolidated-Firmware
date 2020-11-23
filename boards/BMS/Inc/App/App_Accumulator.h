@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stdint.h>
 #include "App_InRangeCheck.h"
 #include "App_SharedExitCode.h"
 
@@ -50,10 +49,10 @@ struct Accumulator;
  * accumulator
  * @param min_pack_voltage The minimum pack voltage for the given accumulator
  * @param max_pack_voltage The maximum pack voltage for the given accumulator
- * @param min_cell_temperature_degc The minimum cell temperature for the given
- * accumulator
- * @param max_cell_temperature_degc The maximum cell temperature for the given
- * accumulator
+ * @param default_min_cell_temperature_degc The minimum cell temperature for the
+ * given accumulator
+ * @param default_max_cell_temperature_degc The maximum cell temperature for the
+ * given accumulator
  *
  * @return A pointer to the created accumulator, whose ownership is given to
  * the caller
@@ -81,8 +80,9 @@ struct Accumulator *App_Accumulator_Create(
     float max_segment_voltage,
     float min_pack_voltage,
     float max_pack_voltage,
-    float min_cell_temperature_degc,
-    float max_cell_temperature_degc);
+    float default_min_cell_temperature_degc,
+    float default_max_cell_temperature_degc,
+    float charge_state_max_cell_temperature_degc);
 
 /**
  * Deallocate the memory used by the given accumulator
@@ -231,4 +231,22 @@ struct InRangeCheck *App_Accumulator_GetMaxCellTemperatureInRangeCheck(
  * @return The average cell temperature in-range check for the given accumulator
  */
 struct InRangeCheck *App_Accumulator_GetAverageCellTemperatureInRangeCheck(
+    const struct Accumulator *accumulator);
+
+/**
+ * Set the max value for all cell temperature in-range checks to the max value
+ * for the charge state
+ * @param accumulator The accumulator to get the cell temperature in-range
+ * checks
+ */
+void App_Accumulator_SetChargeStateCellTemperatureInRangeCheckMaxValue(
+    const struct Accumulator *accumulator);
+
+/**
+ * Set the max value for all cell temperatures in-range checks to its default
+ * max value (the max value for all states except the charge state)
+ * @param accumulator The accumulator to get the cell temperature in-range
+ * checks
+ */
+void App_Accumulator_SetDefaultCellTemperatureInRangeCheckMaxValue(
     const struct Accumulator *accumulator);
