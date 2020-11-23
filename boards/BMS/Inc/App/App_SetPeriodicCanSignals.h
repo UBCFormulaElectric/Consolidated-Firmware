@@ -10,6 +10,6 @@ void App_SetPeriodicSignals_AccumulatorVoltagesInRangeChecks(
     struct BmsCanTxInterface *can_tx,
     const struct Accumulator *accumulator);
 
-void App_SetPeriodicSignals_AccumulatorTempInRangeChecks(
+void App_SetPeriodicSignals_AccumulatorTemperaturesInRangeChecks(
     struct BmsCanTxInterface *can_tx,
     const struct Accumulator *accumulator);

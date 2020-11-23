@@ -13,7 +13,8 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 
     App_SharedRgbLedSequence_Tick(rgb_led_sequence);
 
-    App_SetPeriodicSignals_AccumulatorTempInRangeChecks(can_tx, accumulator);
+    App_SetPeriodicSignals_AccumulatorTemperaturesInRangeChecks(
+        can_tx, accumulator);
 
     bool charger_is_connected = App_Charger_IsConnected(charger);
     App_CanTx_SetPeriodicSignal_IS_CONNECTED(can_tx, charger_is_connected);

@@ -65,30 +65,8 @@ void App_SetPeriodicSignals_AccumulatorVoltagesInRangeChecks(
 {
     App_Accumulator_ReadCellVoltages(accumulator);
 
-    struct InRangeCheck *min_cell_voltage_in_range_check =
-        App_Accumulator_GetMinCellVoltageInRangeCheck(accumulator);
-    struct InRangeCheck *max_cell_voltage_in_range_check =
-        App_Accumulator_GetMaxCellVoltageInRangeCheck(accumulator);
-    struct InRangeCheck *average_cell_voltage_in_range_check =
-        App_Accumulator_GetAverageCellVoltageInRangeCheck(accumulator);
-    struct InRangeCheck *pack_voltage_in_range_check =
-        App_Accumulator_GetPackVoltageInRangeCheck(accumulator);
-
-    struct InRangeCheck *segment_0_voltage_in_range_check =
-        App_Accumulator_GetSegment0VoltageInRangeCheck(accumulator);
-    struct InRangeCheck *segment_1_voltage_in_range_check =
-        App_Accumulator_GetSegment1VoltageInRangeCheck(accumulator);
-    struct InRangeCheck *segment_2_voltage_in_range_check =
-        App_Accumulator_GetSegment2VoltageInRangeCheck(accumulator);
-    struct InRangeCheck *segment_3_voltage_in_range_check =
-        App_Accumulator_GetSegment3VoltageInRangeCheck(accumulator);
-    struct InRangeCheck *segment_4_voltage_in_range_check =
-        App_Accumulator_GetSegment4VoltageInRangeCheck(accumulator);
-    struct InRangeCheck *segment_5_voltage_in_range_check =
-        App_Accumulator_GetSegment5VoltageInRangeCheck(accumulator);
-
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, min_cell_voltage_in_range_check,
+        can_tx, App_Accumulator_GetMinCellVoltageInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE,
         App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE_OUT_OF_RANGE,
         CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
@@ -96,7 +74,7 @@ void App_SetPeriodicSignals_AccumulatorVoltagesInRangeChecks(
         CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, max_cell_voltage_in_range_check,
+        can_tx, App_Accumulator_GetMaxCellVoltageInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE,
         App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE_OUT_OF_RANGE,
         CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
@@ -104,7 +82,7 @@ void App_SetPeriodicSignals_AccumulatorVoltagesInRangeChecks(
         CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, average_cell_voltage_in_range_check,
+        can_tx, App_Accumulator_GetAverageCellVoltageInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_AVERAGE_CELL_VOLTAGE,
         App_CanTx_SetPeriodicSignal_AVERAGE_CELL_VOLTAGE_OUT_OF_RANGE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_AVERAGE_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
@@ -112,7 +90,7 @@ void App_SetPeriodicSignals_AccumulatorVoltagesInRangeChecks(
         CANMSGS_BMS_NON_CRITICAL_ERRORS_AVERAGE_CELL_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, pack_voltage_in_range_check,
+        can_tx, App_Accumulator_GetPackVoltageInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_PACK_VOLTAGE,
         App_CanTx_SetPeriodicSignal_PACK_VOLTAGE_OUT_OF_RANGE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_PACK_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
@@ -120,7 +98,7 @@ void App_SetPeriodicSignals_AccumulatorVoltagesInRangeChecks(
         CANMSGS_BMS_NON_CRITICAL_ERRORS_PACK_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, segment_0_voltage_in_range_check,
+        can_tx, App_Accumulator_GetSegment0VoltageInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_SEGMENT_0_VOLTAGE,
         App_CanTx_SetPeriodicSignal_SEGMENT_0_VOLTAGE_OUT_OF_RANGE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_0_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
@@ -128,7 +106,7 @@ void App_SetPeriodicSignals_AccumulatorVoltagesInRangeChecks(
         CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_0_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, segment_1_voltage_in_range_check,
+        can_tx, App_Accumulator_GetSegment1VoltageInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_SEGMENT_1_VOLTAGE,
         App_CanTx_SetPeriodicSignal_SEGMENT_1_VOLTAGE_OUT_OF_RANGE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_1_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
@@ -136,7 +114,7 @@ void App_SetPeriodicSignals_AccumulatorVoltagesInRangeChecks(
         CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_1_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, segment_2_voltage_in_range_check,
+        can_tx, App_Accumulator_GetSegment2VoltageInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_SEGMENT_2_VOLTAGE,
         App_CanTx_SetPeriodicSignal_SEGMENT_2_VOLTAGE_OUT_OF_RANGE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_2_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
@@ -144,7 +122,7 @@ void App_SetPeriodicSignals_AccumulatorVoltagesInRangeChecks(
         CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_2_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, segment_3_voltage_in_range_check,
+        can_tx, App_Accumulator_GetSegment3VoltageInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_SEGMENT_3_VOLTAGE,
         App_CanTx_SetPeriodicSignal_SEGMENT_3_VOLTAGE_OUT_OF_RANGE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_3_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
@@ -152,7 +130,7 @@ void App_SetPeriodicSignals_AccumulatorVoltagesInRangeChecks(
         CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_3_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, segment_4_voltage_in_range_check,
+        can_tx, App_Accumulator_GetSegment4VoltageInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_SEGMENT_4_VOLTAGE,
         App_CanTx_SetPeriodicSignal_SEGMENT_4_VOLTAGE_OUT_OF_RANGE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_4_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
@@ -160,7 +138,7 @@ void App_SetPeriodicSignals_AccumulatorVoltagesInRangeChecks(
         CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_4_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, segment_5_voltage_in_range_check,
+        can_tx, App_Accumulator_GetSegment5VoltageInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_SEGMENT_5_VOLTAGE,
         App_CanTx_SetPeriodicSignal_SEGMENT_5_VOLTAGE_OUT_OF_RANGE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_5_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
@@ -168,21 +146,14 @@ void App_SetPeriodicSignals_AccumulatorVoltagesInRangeChecks(
         CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_5_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
-void App_SetPeriodicSignals_AccumulatorTempInRangeChecks(
-    struct BmsCanTxInterface *const can_tx,
-    const struct Accumulator *const accumulator)
+void App_SetPeriodicSignals_AccumulatorTemperaturesInRangeChecks(
+    struct BmsCanTxInterface *can_tx,
+    const struct Accumulator *accumulator)
 {
     App_Accumulator_ReadCellTemperatures(accumulator);
 
-    struct InRangeCheck *min_cell_temp_in_range_check =
-        App_Accumulator_GetMinCellTempInRangeCheck(accumulator);
-    struct InRangeCheck *max_cell_temp_in_range_check =
-        App_Accumulator_GetMaxCellTempInRangeCheck(accumulator);
-    struct InRangeCheck *average_cell_temp_in_range_check =
-        App_Accumulator_GetAverageCellTempInRangeCheck(accumulator);
-
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, min_cell_temp_in_range_check,
+        can_tx, App_Accumulator_GetMinCellTemperatureInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_MIN_CELL_TEMP,
         App_CanTx_SetPeriodicSignal_MIN_CELL_TEMP_OUT_OF_RANGE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_MIN_CELL_TEMP_OUT_OF_RANGE_OK_CHOICE,
@@ -190,7 +161,7 @@ void App_SetPeriodicSignals_AccumulatorTempInRangeChecks(
         CANMSGS_BMS_NON_CRITICAL_ERRORS_MIN_CELL_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, max_cell_temp_in_range_check,
+        can_tx, App_Accumulator_GetMaxCellTemperatureInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_MAX_CELL_TEMP,
         App_CanTx_SetPeriodicSignal_MAX_CELL_TEMP_OUT_OF_RANGE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_MAX_CELL_TEMP_OUT_OF_RANGE_OK_CHOICE,
@@ -198,7 +169,8 @@ void App_SetPeriodicSignals_AccumulatorTempInRangeChecks(
         CANMSGS_BMS_NON_CRITICAL_ERRORS_MAX_CELL_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, average_cell_temp_in_range_check,
+        can_tx,
+        App_Accumulator_GetAverageCellTemperatureInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_AVERAGE_CELL_TEMP,
         App_CanTx_SetPeriodicSignal_AVERAGE_CELL_TEMP_OUT_OF_RANGE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_AVERAGE_CELL_TEMP_OUT_OF_RANGE_OK_CHOICE,

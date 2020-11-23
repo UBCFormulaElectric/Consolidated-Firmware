@@ -39,8 +39,8 @@
 #include "Io_Charger.h"
 #include "Io_OkStatuses.h"
 #include "Io_LTC6813.h"
-#include "Io_CellVoltages.h"
-#include "Io_CellTemperatures.h"
+#include "Io_AccumulatorVoltages.h"
+#include "Io_AccumulatorTemperatures.h"
 #include "Io_Airs.h"
 
 #include "App_BmsWorld.h"
@@ -231,16 +231,22 @@ int main(void)
 
     Io_LTC6813_Init(&hspi2, SPI2_NSS_GPIO_Port, SPI2_NSS_Pin);
     accumulator = App_Accumulator_Create(
-        Io_LTC6813_ConfigureRegisterA, Io_CellVoltages_ReadRawCellVoltages,
-        Io_CellTemperatures_ReadTemperatures, Io_CellVoltages_GetMinCellVoltage,
-        Io_CellVoltages_GetMaxCellVoltage,
-        Io_CellVoltages_GetAverageCellVoltage, Io_CellVoltages_GetPackVoltage,
-        Io_CellVoltages_GetSegment0Voltage, Io_CellVoltages_GetSegment1Voltage,
-        Io_CellVoltages_GetSegment2Voltage, Io_CellVoltages_GetSegment3Voltage,
-        Io_CellVoltages_GetSegment4Voltage, Io_CellVoltages_GetSegment5Voltage,
-        Io_CellTemperatures_GetMinCellTemperature,
-        Io_CellTemperatures_GetMaxCellTemperature,
-        Io_CellTemperatures_GetAverageCellTemperature, MIN_CELL_VOLTAGE,
+        Io_LTC6813_ConfigureRegisterA,
+        Io_AccumulatorVoltages_ReadRawCellVoltages,
+        Io_AccumulatorTemperatures_ReadTemperatures,
+        Io_AccumulatorVoltages_GetMinCellVoltage,
+        Io_AccumulatorVoltages_GetMaxCellVoltage,
+        Io_AccumulatorVoltages_GetAverageCellVoltage,
+        Io_AccumulatorVoltages_GetPackVoltage,
+        Io_AccumulatorVoltages_GetSegment0Voltage,
+        Io_AccumulatorVoltages_GetSegment1Voltage,
+        Io_AccumulatorVoltages_GetSegment2Voltage,
+        Io_AccumulatorVoltages_GetSegment3Voltage,
+        Io_AccumulatorVoltages_GetSegment4Voltage,
+        Io_AccumulatorVoltages_GetSegment5Voltage,
+        Io_AccumulatorTemperatures_GetMinCellTemperature,
+        Io_AccumulatorTemperatures_GetMaxCellTemperature,
+        Io_AccumulatorTemperatures_GetAverageCellTemperature, MIN_CELL_VOLTAGE,
         MAX_CELL_VOLTAGE, MIN_SEGMENT_VOLTAGE, MAX_SEGMENT_VOLTAGE,
         MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE, MIN_CELL_TEMPERATURE,
         MAX_CELL_TEMPERATURE);

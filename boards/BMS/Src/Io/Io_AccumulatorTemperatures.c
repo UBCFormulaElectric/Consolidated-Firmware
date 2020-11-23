@@ -1,10 +1,10 @@
 #include "Io_SharedSpi.h"
 #include "Io_LTC6813.h"
-#include "Io_CellTemperatures.h"
+#include "Io_AccumulatorTemperatures.h"
 #include "configs/App_AccumulatorConfigs.h"
 #include "configs/Io_LTC6813Configs.h"
 
-#define NUM_OF_THERMISTORS_PER_IC 8U
+#define NUM_OF_THERMISTORS_PER_CHIP 8U
 #define NUM_OF_THERMISTORS_PER_REGISTER_GROUP 3U
 #define SIZE_OF_TEMPERATURE_LUT 201
 
@@ -52,9 +52,9 @@ static const float temperature_lut[SIZE_OF_TEMPERATURE_LUT] = {
 };
 
 static uint16_t raw_thermistor_voltages[NUM_OF_CELL_MONITOR_CHIPS]
-                                       [NUM_OF_THERMISTORS_PER_IC];
+                                       [NUM_OF_THERMISTORS_PER_CHIP];
 static float cell_temperatures[NUM_OF_CELL_MONITOR_CHIPS]
-                              [NUM_OF_THERMISTORS_PER_IC];
+                              [NUM_OF_THERMISTORS_PER_CHIP];
 
 /**
  * Parse the raw thermistor voltages measured from the cell monitoring chip and
@@ -178,7 +178,7 @@ static ExitCode Io_CellTemperatures_ReadRawThermistorVoltages(void)
     return EXIT_CODE_OK;
 }
 
-ExitCode Io_CellTemperatures_ReadTemperatures(void)
+ExitCode Io_AccumulatorTemperatures_ReadTemperatures(void)
 {
     RETURN_IF_EXIT_NOT_OK(Io_CellTemperatures_ReadRawThermistorVoltages())
 
@@ -186,7 +186,7 @@ ExitCode Io_CellTemperatures_ReadTemperatures(void)
          current_ic++)
     {
         for (size_t cell_temp_index = 0U;
-             cell_temp_index < NUM_OF_THERMISTORS_PER_IC; cell_temp_index++)
+             cell_temp_index < NUM_OF_THERMISTORS_PER_CHIP; cell_temp_index++)
         {
             // Calculate the thermistor resistance by measuring the voltage
             // across the thermistor. The thermistor resistance (Ohms) can be
@@ -205,8 +205,8 @@ ExitCode Io_CellTemperatures_ReadTemperatures(void)
             const float BIAS_RESISTOR_OHM = 10000.0f;
             const float REFERENCE_VOLTAGE = 3.0f;
             const float gpio_voltage =
-                (float)raw_thermistor_voltages[current_ic][cell_temp_index] /
-                10000.0f;
+                (float)raw_thermistor_voltages[current_ic][cell_temp_index] *
+                1e-4f;
             const float thermistor_resistance =
                 (gpio_voltage * BIAS_RESISTOR_OHM) /
                 (REFERENCE_VOLTAGE - gpio_voltage);
@@ -237,21 +237,21 @@ ExitCode Io_CellTemperatures_ReadTemperatures(void)
             //
 
             cell_temperatures[current_ic][cell_temp_index] =
-                (float)thermistor_lut_index / 2.0f;
+                (float)(thermistor_lut_index >> 1);
         }
     }
 
     return EXIT_CODE_OK;
 }
 
-float Io_CellTemperatures_GetMaxCellTemperature(void)
+float Io_AccumulatorTemperatures_GetMaxCellTemperature(void)
 {
     float max_cell_temp = cell_temperatures[0][0];
     for (size_t current_chip = 0U; current_chip < NUM_OF_CELL_MONITOR_CHIPS;
          current_chip++)
     {
-        for (size_t current_cell = 0U; current_cell < NUM_OF_THERMISTORS_PER_IC;
-             current_cell++)
+        for (size_t current_cell = 0U;
+             current_cell < NUM_OF_THERMISTORS_PER_CHIP; current_cell++)
         {
             float current_cell_temp =
                 cell_temperatures[current_chip][current_cell];
@@ -265,14 +265,14 @@ float Io_CellTemperatures_GetMaxCellTemperature(void)
     return max_cell_temp;
 }
 
-float Io_CellTemperatures_GetMinCellTemperature(void)
+float Io_AccumulatorTemperatures_GetMinCellTemperature(void)
 {
     float min_cell_temp = cell_temperatures[0][0];
     for (size_t current_chip = 0U; current_chip < NUM_OF_CELL_MONITOR_CHIPS;
          current_chip++)
     {
-        for (size_t current_cell = 0U; current_cell < NUM_OF_THERMISTORS_PER_IC;
-             current_cell++)
+        for (size_t current_cell = 0U;
+             current_cell < NUM_OF_THERMISTORS_PER_CHIP; current_cell++)
         {
             float current_cell_temp =
                 cell_temperatures[current_chip][current_cell];
@@ -286,19 +286,19 @@ float Io_CellTemperatures_GetMinCellTemperature(void)
     return min_cell_temp;
 }
 
-float Io_CellTemperatures_GetAverageCellTemperature(void)
+float Io_AccumulatorTemperatures_GetAverageCellTemperature(void)
 {
     float sum_of_cell_temp = 0U;
     for (size_t current_chip = 0U; current_chip < NUM_OF_CELL_MONITOR_CHIPS;
          current_chip++)
     {
-        for (size_t current_cell = 0U; current_cell < NUM_OF_THERMISTORS_PER_IC;
-             current_cell++)
+        for (size_t current_cell = 0U;
+             current_cell < NUM_OF_THERMISTORS_PER_CHIP; current_cell++)
         {
             sum_of_cell_temp += cell_temperatures[current_chip][current_cell];
         }
     }
 
     return sum_of_cell_temp /
-           (float)(NUM_OF_THERMISTORS_PER_IC * NUM_OF_CELL_MONITOR_CHIPS);
+           (float)(NUM_OF_THERMISTORS_PER_CHIP * NUM_OF_CELL_MONITOR_CHIPS);
 }

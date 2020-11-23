@@ -32,8 +32,8 @@ ExitCode Io_Temperatures_ReadDieTemperaturesDegC(void)
     tx_cmd[2] = (uint8_t)(tx_cmd_pec15 >> 8);
     tx_cmd[3] = (uint8_t)(tx_cmd_pec15);
 
-    for (enum CellMonitorChip current_chip = CELL_MONITOR_CHIP_0;
-         current_chip < NUM_OF_CELL_MONITOR_CHIPS; current_chip++)
+    for (size_t current_chip = 0U; current_chip < NUM_OF_CELL_MONITOR_CHIPS;
+         current_chip++)
     {
         if (Io_SharedSpi_TransmitAndReceive(
                 Io_LTC6813_GetSpiInterface(), tx_cmd, NUM_OF_CMD_BYTES,

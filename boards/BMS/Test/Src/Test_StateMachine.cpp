@@ -665,7 +665,7 @@ TEST_F(BmsStateMachineTest, check_airs_can_signals_for_all_states)
 
 TEST_F(
     BmsStateMachineTest,
-    check_accumulator_cell_voltages_can_signals_in_all_states)
+    check_accumulator_voltages_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
         MIN_CELL_VOLTAGE, MAX_CELL_VOLTAGE,
@@ -696,12 +696,16 @@ TEST_F(
         CANMSGS_BMS_NON_CRITICAL_ERRORS_AVERAGE_CELL_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_AVERAGE_CELL_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE,
         TASK_100HZ_DURATION_MS);
-}
 
-TEST_F(
-    BmsStateMachineTest,
-    check_accumulator_segment_voltages_can_signals_in_all_states)
-{
+    CheckInRangeCanSignalsInAllStates(
+        MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE, get_pack_voltage_fake.return_val,
+        App_CanTx_GetPeriodicSignal_PACK_VOLTAGE,
+        App_CanTx_GetPeriodicSignal_PACK_VOLTAGE_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_PACK_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_PACK_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_PACK_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE,
+        TASK_100HZ_DURATION_MS);
+
     CheckInRangeCanSignalsInAllStates(
         MIN_SEGMENT_VOLTAGE, MAX_SEGMENT_VOLTAGE,
         get_segment_0_voltage_fake.return_val,
@@ -760,15 +764,6 @@ TEST_F(
         CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_5_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_5_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_5_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE,
-        TASK_100HZ_DURATION_MS);
-
-    CheckInRangeCanSignalsInAllStates(
-        MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE, get_pack_voltage_fake.return_val,
-        App_CanTx_GetPeriodicSignal_PACK_VOLTAGE,
-        App_CanTx_GetPeriodicSignal_PACK_VOLTAGE_OUT_OF_RANGE,
-        CANMSGS_BMS_NON_CRITICAL_ERRORS_PACK_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
-        CANMSGS_BMS_NON_CRITICAL_ERRORS_PACK_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-        CANMSGS_BMS_NON_CRITICAL_ERRORS_PACK_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE,
         TASK_100HZ_DURATION_MS);
 }
 

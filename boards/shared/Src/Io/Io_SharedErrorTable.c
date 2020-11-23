@@ -24,14 +24,11 @@ static void Io_ProcessBmsNonCriticalErrorMsg(
     SET_ERROR(
         error_table, BMS_NON_CRITICAL_WATCHDOG_TIMEOUT, data->watchdog_timeout);
     SET_ERROR(
-        error_table, BMS_NON_CRITICAL_MIN_CELL_TEMP_OUT_OF_RANGE,
-        data->min_cell_temp_out_of_range);
+        error_table, BMS_NON_CRITICAL_AVERAGE_CELL_VOLTAGE_OUT_OF_RANGE,
+        data->average_cell_voltage_out_of_range);
     SET_ERROR(
-        error_table, BMS_NON_CRITICAL_MAX_CELL_TEMP_OUT_OF_RANGE,
-        data->max_cell_temp_out_of_range);
-    SET_ERROR(
-        error_table, BMS_NON_CRITICAL_AVERAGE_CELL_TEMP_OUT_OF_RANGE,
-        data->average_cell_temp_out_of_range);
+        error_table, BMS_NON_CRITICAL_PACK_VOLTAGE_OUT_OF_RANGE,
+        data->pack_voltage_out_of_range);
     SET_ERROR(
         error_table, BMS_NON_CRITICAL_SEGMENT_0_VOLTAGE_OUT_OF_RANGE,
         data->segment_0_voltage_out_of_range);
@@ -51,11 +48,14 @@ static void Io_ProcessBmsNonCriticalErrorMsg(
         error_table, BMS_NON_CRITICAL_SEGMENT_5_VOLTAGE_OUT_OF_RANGE,
         data->segment_5_voltage_out_of_range);
     SET_ERROR(
-        error_table, BMS_NON_CRITICAL_PACK_VOLTAGE_OUT_OF_RANGE,
-        data->pack_voltage_out_of_range);
+        error_table, BMS_NON_CRITICAL_MIN_CELL_TEMP_OUT_OF_RANGE,
+        data->min_cell_temp_out_of_range);
     SET_ERROR(
-        error_table, BMS_NON_CRITICAL_AVERAGE_CELL_VOLTAGE_OUT_OF_RANGE,
-        data->average_cell_voltage_out_of_range);
+        error_table, BMS_NON_CRITICAL_MAX_CELL_TEMP_OUT_OF_RANGE,
+        data->max_cell_temp_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_AVERAGE_CELL_TEMP_OUT_OF_RANGE,
+        data->average_cell_temp_out_of_range);
 }
 
 static void Io_ProcessDcmNonCriticalErrorMsg(
