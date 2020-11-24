@@ -54,3 +54,5 @@ enum InRangeCheck_Status App_InRangeCheck_GetValue(
 void App_InRangeCheck_SetMaxValue(
     struct InRangeCheck *in_range_check,
     float                max_value);
+
+float App_InRangeCheck_GetMaxValue(struct InRangeCheck *in_range_check);

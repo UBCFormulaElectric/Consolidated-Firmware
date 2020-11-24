@@ -15,6 +15,13 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 
     App_SetPeriodicSignals_AccumulatorTemperaturesInRangeChecks(
         can_tx, accumulator);
+    if (App_CanTx_GetPeriodicSignal_MIN_CELL_TEMP_OUT_OF_RANGE(can_tx) !=
+            CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_TEMP_OUT_OF_RANGE_OK_CHOICE ||
+        App_CanTx_GetPeriodicSignal_MAX_CELL_TEMP_OUT_OF_RANGE(can_tx) !=
+            CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_TEMP_OUT_OF_RANGE_OK_CHOICE)
+    {
+        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+    }
 
     bool charger_is_connected = App_Charger_IsConnected(charger);
     App_CanTx_SetPeriodicSignal_IS_CONNECTED(can_tx, charger_is_connected);

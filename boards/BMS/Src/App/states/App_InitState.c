@@ -12,6 +12,7 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
 
     App_Accumulator_ConfigureCellMonitors(accumulator);
+    App_Accumulator_SetDefaultCellTemperatureInRangeCheckMaxValue(accumulator);
 
     App_CanTx_SetPeriodicSignal_STATE(
         can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE);

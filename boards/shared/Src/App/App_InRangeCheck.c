@@ -64,3 +64,8 @@ void App_InRangeCheck_SetMaxValue(
 {
     in_range_check->max_value = max_value;
 }
+
+float App_InRangeCheck_GetMaxValue(struct InRangeCheck *const in_range_check)
+{
+    return in_range_check->max_value;
+}

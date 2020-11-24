@@ -9,8 +9,8 @@ static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct BmsCanTxInterface *can_tx_interface = App_BmsWorld_GetCanTx(world);
-    struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
 
+    struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
     App_Accumulator_SetChargeStateCellTemperatureInRangeCheckMaxValue(
         accumulator);
 

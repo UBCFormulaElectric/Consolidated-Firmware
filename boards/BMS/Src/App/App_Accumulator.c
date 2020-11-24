@@ -217,31 +217,33 @@ struct InRangeCheck *App_Accumulator_GetAverageCellTemperatureInRangeCheck(
 void App_Accumulator_SetChargeStateCellTemperatureInRangeCheckMaxValue(
     const struct Accumulator *const accumulator)
 {
-    const float default_max_value =
+    const float charge_state_max_value =
         accumulator->charge_state_max_cell_temperature_degc;
+
     App_InRangeCheck_SetMaxValue(
         App_Accumulator_GetMinCellTemperatureInRangeCheck(accumulator),
-        default_max_value);
+        charge_state_max_value);
     App_InRangeCheck_SetMaxValue(
         App_Accumulator_GetMaxCellTemperatureInRangeCheck(accumulator),
-        default_max_value);
+        charge_state_max_value);
     App_InRangeCheck_SetMaxValue(
         App_Accumulator_GetAverageCellTemperatureInRangeCheck(accumulator),
-        default_max_value);
+        charge_state_max_value);
 }
 
 void App_Accumulator_SetDefaultCellTemperatureInRangeCheckMaxValue(
     const struct Accumulator *const accumulator)
 {
-    const float charge_state_max_value =
+    const float default_max_value =
         accumulator->default_max_cell_temperature_degc;
+
     App_InRangeCheck_SetMaxValue(
         App_Accumulator_GetMinCellTemperatureInRangeCheck(accumulator),
-        charge_state_max_value);
+        default_max_value);
     App_InRangeCheck_SetMaxValue(
         App_Accumulator_GetMaxCellTemperatureInRangeCheck(accumulator),
-        charge_state_max_value);
+        default_max_value);
     App_InRangeCheck_SetMaxValue(
         App_Accumulator_GetAverageCellTemperatureInRangeCheck(accumulator),
-        charge_state_max_value);
+        default_max_value);
 }
