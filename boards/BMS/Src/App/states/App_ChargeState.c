@@ -8,19 +8,36 @@
 static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct BmsCanTxInterface *can_tx_interface = App_BmsWorld_GetCanTx(world);
+    struct BmsCanTxInterface *can_tx = App_BmsWorld_GetCanTx(world);
 
     struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
     App_Accumulator_SetChargeStateCellTemperatureInRangeCheckMaxValue(
         accumulator);
 
     App_CanTx_SetPeriodicSignal_STATE(
-        can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_CHARGE_CHOICE);
+        can_tx, CANMSGS_BMS_STATE_MACHINE_STATE_CHARGE_CHOICE);
 }
 
 static void ChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick1Hz(state_machine);
+
+    struct BmsWorld *const world =
+        App_SharedStateMachine_GetWorld(state_machine);
+    struct BmsCanTxInterface *const can_tx = App_BmsWorld_GetCanTx(world);
+    const struct Accumulator *accumulator  = App_BmsWorld_GetAccumulator(world);
+
+    App_SetPeriodicSignals_AccumulatorTemperaturesInRangeChecks(
+        can_tx, accumulator);
+
+    // TODO: Transition to fault state if charging is attempted as well
+    if ((App_CanTx_GetPeriodicSignal_MIN_CELL_TEMP_OUT_OF_RANGE(can_tx) !=
+         CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_TEMP_OUT_OF_RANGE_OK_CHOICE) ||
+        (App_CanTx_GetPeriodicSignal_MAX_CELL_TEMP_OUT_OF_RANGE(can_tx) !=
+         CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_TEMP_OUT_OF_RANGE_OK_CHOICE))
+    {
+        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+    }
 }
 
 static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)

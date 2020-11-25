@@ -769,10 +769,9 @@ TEST_F(
     }
 }
 
-// BMS-5
 TEST_F(
     BmsStateMachineTest,
-    check_accumulator_temperature_can_signals_in_all_states)
+    check_average_cell_temperatures_can_signal_in_all_states)
 {
     for (const auto &state : GetAllStates())
     {
@@ -789,9 +788,7 @@ TEST_F(
 }
 
 // BMS-5, BMS-6, BMS-7
-TEST_F(
-    BmsStateMachineTest,
-    check_max_cell_temperature_can_signals_in_all_states)
+TEST_F(BmsStateMachineTest, check_cell_temperatures_can_signals_in_all_states)
 {
     for (const auto &state : GetAllStates())
     {
@@ -821,106 +818,27 @@ TEST_F(
         }
         else
         {
-            const float fake_min_cell_temperature = nextafter(
-                DEFAULT_MIN_CELL_TEMPERATURE,
-                std::numeric_limits<float>::lowest());
-            const float fake_average_cell_temperature =
-                (DEFAULT_MIN_CELL_TEMPERATURE +
-                 CHARGE_STATE_MAX_CELL_TEMPERATURE) /
-                2.0;
-            const float fake_max_cell_temperature = std::nextafter(
+            CheckInRangeCanSignalsInGivenState(
+                state, DEFAULT_MIN_CELL_TEMPERATURE,
                 CHARGE_STATE_MAX_CELL_TEMPERATURE,
-                std::numeric_limits<float>::max());
-
-            SetInitialState(state);
-            get_min_cell_temperature_fake.return_val =
-                fake_min_cell_temperature;
-            get_max_cell_temperature_fake.return_val =
-                fake_min_cell_temperature;
-            LetTimePass(state_machine, TASK_1HZ_DURATION_MS);
-            ASSERT_EQ(
-                CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-                App_CanTx_GetPeriodicSignal_MIN_CELL_TEMP_OUT_OF_RANGE(
-                    can_tx_interface));
-            ASSERT_EQ(
-                CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-                App_CanTx_GetPeriodicSignal_MAX_CELL_TEMP_OUT_OF_RANGE(
-                    can_tx_interface));
-            ASSERT_EQ(
-                CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE,
-                App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
-
-            SetInitialState(state);
-            get_min_cell_temperature_fake.return_val =
-                fake_average_cell_temperature;
-            get_max_cell_temperature_fake.return_val =
-                fake_average_cell_temperature;
-            LetTimePass(state_machine, TASK_1HZ_DURATION_MS);
-            ASSERT_EQ(
+                get_min_cell_temperature_fake.return_val,
+                App_CanTx_GetPeriodicSignal_MIN_CELL_TEMP,
+                App_CanTx_GetPeriodicSignal_MIN_CELL_TEMP_OUT_OF_RANGE,
                 CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_TEMP_OUT_OF_RANGE_OK_CHOICE,
-                App_CanTx_GetPeriodicSignal_MIN_CELL_TEMP_OUT_OF_RANGE(
-                    can_tx_interface));
-            ASSERT_EQ(
-                CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_TEMP_OUT_OF_RANGE_OK_CHOICE,
-                App_CanTx_GetPeriodicSignal_MAX_CELL_TEMP_OUT_OF_RANGE(
-                    can_tx_interface));
-            ASSERT_EQ(
-                CANMSGS_BMS_STATE_MACHINE_STATE_CHARGE_CHOICE,
-                App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
-
-            SetInitialState(state);
-            get_min_cell_temperature_fake.return_val =
-                fake_min_cell_temperature;
-            get_max_cell_temperature_fake.return_val =
-                fake_average_cell_temperature;
-            LetTimePass(state_machine, TASK_1HZ_DURATION_MS);
-            ASSERT_EQ(
                 CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-                App_CanTx_GetPeriodicSignal_MIN_CELL_TEMP_OUT_OF_RANGE(
-                    can_tx_interface));
-            ASSERT_EQ(
-                CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_TEMP_OUT_OF_RANGE_OK_CHOICE,
-                App_CanTx_GetPeriodicSignal_MAX_CELL_TEMP_OUT_OF_RANGE(
-                    can_tx_interface));
-            ASSERT_EQ(
-                CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE,
-                App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
-
-            SetInitialState(state);
-            get_min_cell_temperature_fake.return_val =
-                fake_average_cell_temperature;
-            get_max_cell_temperature_fake.return_val =
-                fake_max_cell_temperature;
-            LetTimePass(state_machine, TASK_1HZ_DURATION_MS);
-            ASSERT_EQ(
-                CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_TEMP_OUT_OF_RANGE_OK_CHOICE,
-                App_CanTx_GetPeriodicSignal_MIN_CELL_TEMP_OUT_OF_RANGE(
-                    can_tx_interface));
-            ASSERT_EQ(
-                CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE,
-                App_CanTx_GetPeriodicSignal_MAX_CELL_TEMP_OUT_OF_RANGE(
-                    can_tx_interface));
-            ASSERT_EQ(
-                CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE,
-                App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
-
-            SetInitialState(state);
-            get_min_cell_temperature_fake.return_val =
-                fake_max_cell_temperature;
-            get_max_cell_temperature_fake.return_val =
-                fake_max_cell_temperature;
-            LetTimePass(state_machine, TASK_1HZ_DURATION_MS);
-            ASSERT_EQ(
                 CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE,
-                App_CanTx_GetPeriodicSignal_MIN_CELL_TEMP_OUT_OF_RANGE(
-                    can_tx_interface));
-            ASSERT_EQ(
+                TASK_1HZ_DURATION_MS);
+
+            CheckInRangeCanSignalsInGivenState(
+                state, DEFAULT_MIN_CELL_TEMPERATURE,
+                CHARGE_STATE_MAX_CELL_TEMPERATURE,
+                get_max_cell_temperature_fake.return_val,
+                App_CanTx_GetPeriodicSignal_MAX_CELL_TEMP,
+                App_CanTx_GetPeriodicSignal_MAX_CELL_TEMP_OUT_OF_RANGE,
+                CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_TEMP_OUT_OF_RANGE_OK_CHOICE,
+                CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
                 CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE,
-                App_CanTx_GetPeriodicSignal_MAX_CELL_TEMP_OUT_OF_RANGE(
-                    can_tx_interface));
-            ASSERT_EQ(
-                CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE,
-                App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+                TASK_1HZ_DURATION_MS);
         }
     }
 }

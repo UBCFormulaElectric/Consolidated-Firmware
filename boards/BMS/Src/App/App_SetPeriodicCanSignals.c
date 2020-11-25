@@ -147,8 +147,8 @@ void App_SetPeriodicSignals_AccumulatorVoltagesInRangeChecks(
 }
 
 void App_SetPeriodicSignals_AccumulatorTemperaturesInRangeChecks(
-    struct BmsCanTxInterface *can_tx,
-    const struct Accumulator *accumulator)
+    struct BmsCanTxInterface *const can_tx,
+    const struct Accumulator *const accumulator)
 {
     App_Accumulator_ReadCellTemperatures(accumulator);
 
