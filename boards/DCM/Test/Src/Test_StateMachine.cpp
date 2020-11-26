@@ -418,7 +418,6 @@ TEST_F(
 
     // Turn the DIM start switch on to prevent state transitions in
     // the drive state.
-    EXPECT_TRUE(App_BuzzerSignals_IsOn(world));
     App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
         can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
     ASSERT_EQ(
