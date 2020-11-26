@@ -420,9 +420,6 @@ TEST_F(
     // the drive state.
     App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
         can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
-    ASSERT_EQ(
-        App_GetDriveState(),
-        App_SharedStateMachine_GetCurrentState(state_machine));
 
     // Press down accelerator pedal and regen paddle
     App_CanRx_FSM_PEDAL_POSITION_SetSignal_MAPPED_PEDAL_PERCENTAGE(
