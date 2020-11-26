@@ -30,7 +30,7 @@ struct DcmWorld *App_DcmWorld_Create(
     struct RgbLedSequence *   rgb_led_sequence,
     struct BrakeLight *       brake_light,
     struct Buzzer *           buzzer,
-    struct Imu *const         imu,
+    struct Imu *         imu,
     struct ErrorTable *       error_table,
     struct Clock *            clock,
     bool (*is_buzzer_on)(struct DcmWorld *),
