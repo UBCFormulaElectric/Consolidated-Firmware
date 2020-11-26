@@ -12,6 +12,7 @@ extern "C"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_WaitSignalDuration.h"
 #include "configs/App_AccelerationThresholds.h"
+#include "configs/App_TorqueRequestThresholds.h"
 }
 
 namespace StateMachineTest
@@ -34,7 +35,7 @@ FAKE_VOID_FUNC(turn_on_brake_light);
 FAKE_VOID_FUNC(turn_off_brake_light);
 FAKE_VOID_FUNC(turn_on_buzzer);
 FAKE_VOID_FUNC(turn_off_buzzer);
-FAKE_VALUE_FUNC(ExitCode, update_sensor_data);
+FAKE_VALUE_FUNC(ExitCode, get_exit_code);
 FAKE_VALUE_FUNC(float, get_acceleration_x);
 FAKE_VALUE_FUNC(float, get_acceleration_y);
 FAKE_VALUE_FUNC(float, get_acceleration_z);
@@ -65,7 +66,7 @@ class DcmStateMachineTest : public BaseStateMachineTest
         buzzer = App_Buzzer_Create(turn_on_buzzer, turn_off_buzzer);
 
         imu = App_Imu_Create(
-            update_sensor_data, get_acceleration_x, get_acceleration_y,
+            get_exit_code, get_acceleration_x, get_acceleration_y,
             get_acceleration_z, MIN_ACCELERATION_MS2, MAX_ACCELERATION_MS2);
 
         error_table = App_SharedErrorTable_Create();
@@ -84,6 +85,10 @@ class DcmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(send_non_periodic_msg_DCM_STARTUP);
         RESET_FAKE(send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT);
         RESET_FAKE(get_current_ms);
+        RESET_FAKE(get_exit_code);
+        RESET_FAKE(get_acceleration_x);
+        RESET_FAKE(get_acceleration_y);
+        RESET_FAKE(get_acceleration_z);
         RESET_FAKE(heartbeat_timeout_callback);
         RESET_FAKE(turn_on_red_led);
         RESET_FAKE(turn_on_green_led);
@@ -140,6 +145,12 @@ class DcmStateMachineTest : public BaseStateMachineTest
     {
         struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
         App_DcmWorld_UpdateWaitSignal(world, current_time_ms);
+    }
+
+    static bool AssertFloatsEqual(float a, float b)
+    {
+        float epsilon = 0.01f;
+        return abs(a - b) < epsilon;
     }
 
     struct World *            world;
@@ -281,12 +292,12 @@ TEST_F(DcmStateMachineTest, zero_torque_request_in_init_state)
 {
     // Start with a non-zero torque request to prevent false positive
     App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 1.0f);
-    ASSERT_EQ(
+    AssertFloatsEqual(
         1.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 
     // Now tick the state machine and check torque request gets zeroed
     LetTimePass(state_machine, 10);
-    ASSERT_EQ(
+    AssertFloatsEqual(
         0.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 }
 
@@ -300,7 +311,7 @@ TEST_F(DcmStateMachineTest, zero_torque_request_in_fault_state)
 
     // Now tick the state machine and check torque request gets zeroed
     LetTimePass(state_machine, 10);
-    ASSERT_EQ(
+    AssertFloatsEqual(
         0.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 }
 
@@ -427,54 +438,79 @@ TEST_F(
     App_CanRx_DIM_REGEN_PADDLE_SetSignal_MAPPED_PADDLE_POSITION(
         can_rx_interface, 50.0f);
 
+    float expected_torque_request_value =
+        60.0f / 100.0f * MAX_SAFE_TORQUE_REQUEST_NM;
+    float expected_regen_request_value =
+        -50.0f / 100.0f * MAX_SAFE_TORQUE_REQUEST_NM;
+
     // Close AIRs and assert regen is still off
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
     LetTimePass(state_machine, 10);
-    EXPECT_TRUE(
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface) >= 0);
+
+    printf(
+        "%f\n%f", expected_torque_request_value,
+        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+    printf(
+        "Wheel speed: %f and %f",
+        App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_RIGHT_WHEEL_SPEED(
+            can_rx_interface),
+        App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_LEFT_WHEEL_SPEED(
+            can_rx_interface));
+    AssertFloatsEqual(
+        expected_torque_request_value,
+        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 
     // Check regen doesn't turn on when only one wheel is going faster than 5kph
-    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_LEFT_WHEEL_SPEED(
-        can_rx_interface, 5.0f);
-    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
-        can_rx_interface, 5.1f);
-    LetTimePass(state_machine, 10);
-    EXPECT_TRUE(
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface) >= 0);
+    float threshold_wheel_speed = 5.0f;
+    float value_over_threshold_wheel_speed =
+        std::nextafter(5.0f, std::numeric_limits<float>::max());
 
     App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_LEFT_WHEEL_SPEED(
-        can_rx_interface, 5.1f);
+        can_rx_interface, threshold_wheel_speed);
     App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
-        can_rx_interface, 5.0f);
+        can_rx_interface, value_over_threshold_wheel_speed);
+
     LetTimePass(state_machine, 10);
-    EXPECT_TRUE(
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface) >= 0);
+    AssertFloatsEqual(
+        expected_torque_request_value,
+        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+
+    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_LEFT_WHEEL_SPEED(
+        can_rx_interface, value_over_threshold_wheel_speed);
+    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
+        can_rx_interface, threshold_wheel_speed);
+    LetTimePass(state_machine, 10);
+    AssertFloatsEqual(
+        expected_torque_request_value,
+        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 
     // Check regen doesn't turn on when both wheels are going faster than 5kph
     // but one of the AIRs is open
     App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_LEFT_WHEEL_SPEED(
-        can_rx_interface, 5.1f);
+        can_rx_interface, value_over_threshold_wheel_speed);
     App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
-        can_rx_interface, 5.1f);
+        can_rx_interface, value_over_threshold_wheel_speed);
 
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_OPEN_CHOICE);
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
     LetTimePass(state_machine, 10);
-    EXPECT_TRUE(
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface) >= 0);
+    AssertFloatsEqual(
+        expected_torque_request_value,
+        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE);
     LetTimePass(state_machine, 10);
-    EXPECT_TRUE(
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface) >= 0);
+    AssertFloatsEqual(
+        expected_torque_request_value,
+        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 
     // Check regen turns on when both wheels are going faster than 5kph and AIRS
     // are closed
@@ -483,8 +519,9 @@ TEST_F(
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
     LetTimePass(state_machine, 10);
-    EXPECT_TRUE(
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface) < 0);
+    AssertFloatsEqual(
+        expected_regen_request_value,
+        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 }
 
 // DCM-19
@@ -509,7 +546,7 @@ TEST_F(DcmStateMachineTest, torque_requests_faster_than_100Hz)
     // ("The DCM may only request torque less than or equal to what the driver
     // requested")
     LetTimePass(state_machine, 10);
-    ASSERT_EQ(
+    AssertFloatsEqual(
         0.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 
     // Check that positive torque requests are sent when the accelerator pedal
@@ -536,7 +573,7 @@ TEST_F(DcmStateMachineTest, torque_requests_faster_than_100Hz)
     LetTimePass(state_machine, 10);
     torque_request_with_regen_allowed =
         App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface);
-    ASSERT_EQ(
+    AssertFloatsEqual(
         torque_request_without_regen_allowed,
         torque_request_with_regen_allowed);
 

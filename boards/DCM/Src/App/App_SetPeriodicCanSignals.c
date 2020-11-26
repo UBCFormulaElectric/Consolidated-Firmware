@@ -1,6 +1,7 @@
 #include "App_SharedSetPeriodicCanSignals.h"
 #include "App_SetPeriodicCanSignals.h"
 #include "App_InRangeCheck.h"
+#include "configs/App_TorqueRequestThresholds.h"
 
 STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(DcmCanTxInterface)
 
@@ -10,9 +11,6 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
 {
     struct DcmCanRxInterface *can_rx = App_DcmWorld_GetCanRx(world);
     struct DcmCanTxInterface *can_tx = App_DcmWorld_GetCanTx(world);
-
-    const float MAX_SAFE_TORQUE_REQUEST_NM =
-        21.0f; // 21Nm is max torque each motor can handle
 
     // Regen allowed when braking or (speed > 5kmh and AIRs closed)
     const float regen_threshold_kph = 5.0f;
