@@ -195,7 +195,6 @@ int main(void)
 
     clock = App_SharedClock_Create();
 
-
     world = App_DcmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, brake_light,
         buzzer, imu, error_table, clock, App_BuzzerSignals_IsOn,
