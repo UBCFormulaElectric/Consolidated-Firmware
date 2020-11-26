@@ -43,7 +43,7 @@ void App_Imu_Destroy(struct Imu *imu);
  * if data is not within specified range, EXIT_CODE_INVALID_ARGS if data not
  * read successfully
  */
-ExitCode App_Imu_UpdateSensorData(const struct Imu *const imu);
+ExitCode App_Imu_UpdateSensorData(const struct Imu * imu);
 
 /**
  * Get acceleration (m/s^2) measured on the x-axis from the given Imu.
