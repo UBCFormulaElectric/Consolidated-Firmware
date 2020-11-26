@@ -26,7 +26,8 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
          regen_threshold_kph) &&
         (App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_RIGHT_WHEEL_SPEED(can_rx) >
          regen_threshold_kph);
-    const bool is_regen_allowed = is_vehicle_over_regen_threshold && is_every_air_closed;
+    const bool is_regen_allowed =
+        is_vehicle_over_regen_threshold && is_every_air_closed;
 
     const float regen_paddle_percentage =
         (float)App_CanRx_DIM_REGEN_PADDLE_GetSignal_MAPPED_PADDLE_POSITION(
@@ -35,22 +36,23 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
 
     /* Calculating the torque request
      *
-    * 1) If regen. braking is on, use the regen. paddle percentage
-    * 2) If regen. braking is off, use the accelerator pedal percentage
-    *
-    * - MAX_SAFE_TORQUE_REQUEST_NM = 21 Nm, the max torque the motor can provide
-    *
-    * 1) If regen. braking is allowed and the regen paddle is actuated,
-    *    the torque request (in Nm) is negative and given by:
-    *                                  (Regen Paddle Percentage)
-    *   Torque Request    =  (-1) * -------------------------------  * MAX_SAFE_TORQUE_REQUEST_NM
-    *                                             100%
-    *
-    * 2) Otherwise, the torque request (in Nm) is positive and given by:
-    *                                 (Accelerator Pedal Percentage)
-    *   Torque Request    =         -------------------------------  * MAX_SAFE_TORQUE_REQUEST_NM
-    *                                             100%
-    */
+     * 1) If regen. braking is on, use the regen. paddle percentage
+     * 2) If regen. braking is off, use the accelerator pedal percentage
+     *
+     * - MAX_SAFE_TORQUE_REQUEST_NM = 21 Nm, the max torque the motor can
+     * provide
+     *
+     * 1) If regen. braking is allowed and the regen paddle is actuated,
+     *    the torque request (in Nm) is negative and given by:
+     *                                  (Regen Paddle Percentage)
+     *   Torque Request    =  (-1) * -------------------------------  *
+     * MAX_SAFE_TORQUE_REQUEST_NM 100%
+     *
+     * 2) Otherwise, the torque request (in Nm) is positive and given by:
+     *                                 (Accelerator Pedal Percentage)
+     *   Torque Request    =         -------------------------------  *
+     * MAX_SAFE_TORQUE_REQUEST_NM 100%
+     */
 
     if (regen_paddle_percentage > 0.0f && is_regen_allowed)
     {
@@ -74,7 +76,7 @@ void App_SetPeriodicCanSignals_Imu(const struct DcmWorld *world)
     struct Imu *              imu    = App_DcmWorld_GetImu(world);
     struct DcmCanTxInterface *can_tx = App_DcmWorld_GetCanTx(world);
 
-    if (App_Imu_UpdateSensorData(imu) != EXIT_CODE_OK)
+    if (App_Imu_GetExitCode(imu) != EXIT_CODE_OK)
     {
         App_CanTx_SetPeriodicSignal_INVALID_IMU_ARGS(
             can_tx,

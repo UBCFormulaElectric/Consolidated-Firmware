@@ -10,15 +10,16 @@ struct Imu
     struct InRangeCheck *acceleration_y_in_range_check;
     struct InRangeCheck *acceleration_z_in_range_check;
 
-    ExitCode (*update_sensor_data)(void);
+    ExitCode (*get_exit_code)(void);
+
     float (*get_acceleration_x)(void);
     float (*get_acceleration_y)(void);
     float (*get_acceleration_z)(void);
 };
 
-ExitCode App_Imu_UpdateSensorData(const struct Imu *const imu)
+ExitCode App_Imu_GetExitCode(const struct Imu *const imu)
 {
-    return imu->update_sensor_data();
+    return imu->get_exit_code();
 }
 
 float App_Imu_GetAccelerationX(const struct Imu *const imu)
@@ -55,7 +56,7 @@ struct InRangeCheck *
 }
 
 struct Imu *App_Imu_Create(
-    ExitCode (*update_sensor_data)(void),
+    ExitCode (*get_exit_code)(void),
     float (*get_acceleration_x)(void),
     float (*get_acceleration_y)(void),
     float (*get_acceleration_z)(void),
@@ -65,6 +66,8 @@ struct Imu *App_Imu_Create(
     struct Imu *imu = malloc(sizeof(struct Imu));
     assert(imu != NULL);
 
+    imu->get_exit_code = get_exit_code;
+
     imu->acceleration_x_in_range_check = App_InRangeCheck_Create(
         get_acceleration_x, min_acceleration, max_acceleration);
     imu->acceleration_y_in_range_check = App_InRangeCheck_Create(
@@ -72,7 +75,6 @@ struct Imu *App_Imu_Create(
     imu->acceleration_z_in_range_check = App_InRangeCheck_Create(
         get_acceleration_z, min_acceleration, max_acceleration);
 
-    imu->update_sensor_data = update_sensor_data;
     imu->get_acceleration_x = get_acceleration_x;
     imu->get_acceleration_y = get_acceleration_y;
     imu->get_acceleration_z = get_acceleration_z;

@@ -13,11 +13,13 @@
 #include <App_SharedExitCode.h>
 
 /**
- * Read data from the IMU and update internal variables
- * @return ExitCode which is EXIT_CODE_OK if successful, EXIT_CODE_INVALID_ARGS
- * if data not read successfully
+ * Update acceleration and angular rate values for the given Imu.
+ * Also sets the ExitCode static variable, which is
+ * EXIT_CODE_OK if successful,
+ * EXIT_CODE_OUT_OF_RANGE if data is not within specified range,
+ * EXIT_CODE_INVALID_ARGS if data was not read successfully
  */
-ExitCode Io_LSM6DS33_ExtiCallback(void);
+void Io_LSM6DS33_ExtiCallback(void);
 
 /**
  * Get x acceleration from imu
@@ -36,3 +38,9 @@ float Io_LSM6DS33_GetAccelerationY(void);
  * @return The acceleration (m/s^2) measured on the z-axis.
  */
 float Io_LSM6DS33_GetAccelerationZ(void);
+
+/**
+ * Get exit code for imu
+ * @return ExitCode corresponding to the most recent Imu reading
+ */
+ExitCode Io_LSM6DS33_GetExitCode(void);
