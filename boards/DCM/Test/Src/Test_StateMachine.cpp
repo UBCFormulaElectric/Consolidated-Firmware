@@ -450,15 +450,6 @@ TEST_F(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
     LetTimePass(state_machine, 10);
 
-    printf(
-        "%f\n%f", expected_torque_request_value,
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
-    printf(
-        "Wheel speed: %f and %f",
-        App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_RIGHT_WHEEL_SPEED(
-            can_rx_interface),
-        App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_LEFT_WHEEL_SPEED(
-            can_rx_interface));
     AssertFloatsEqual(
         expected_torque_request_value,
         App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
