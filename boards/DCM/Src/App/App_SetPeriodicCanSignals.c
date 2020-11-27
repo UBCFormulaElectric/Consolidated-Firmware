@@ -32,25 +32,27 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
             can_rx);
     float torque_request;
 
-    /* Calculating the torque request
-     *
-     * 1) If regen is on, use the regen paddle percentage
-     * 2) If regen. braking is off, use the accelerator pedal percentage
-     *
-     * - MAX_SAFE_TORQUE_REQUEST_NM = 21 Nm, the max torque the motor can
-     * provide
-     *
-     * 1) If regen. braking is allowed and the regen paddle is actuated,
-     *    the torque request (in Nm) is negative and given by:
-     *                                  (Regen Paddle Percentage)
-     *   Torque Request    =  (-1) * -------------------------------  *
-     * MAX_SAFE_TORQUE_REQUEST_NM 100%
-     *
-     * 2) Otherwise, the torque request (in Nm) is positive and given by:
-     *                                 (Accelerator Pedal Percentage)
-     *   Torque Request    =         -------------------------------  *
-     * MAX_SAFE_TORQUE_REQUEST_NM 100%
-     */
+    //     Calculating the torque request
+    //
+    //      1) If regen is on, use the regen paddle percentage
+    //      2) If regen. braking is off, use the accelerator pedal percentage
+    //
+    //      - MAX_SAFE_TORQUE_REQUEST_NM = 21 Nm, the max torque the motor can
+    //      provide
+    //
+    //      1) If regen. braking is allowed and the regen paddle is actuated,
+    //         the torque request (in Nm) is negative and given by:
+    //
+    //                                (-) Regen Paddle Percentage
+    //        Torque Request    =   -------------------------------  *
+    //        MAX_SAFE_TORQUE_REQUEST_NM
+    //                                            100%
+    //      2) Otherwise, the torque request (in Nm) is positive and given by:
+    //
+    //                                      Accelerator Pedal Percentage
+    //        Torque Request    =         -------------------------------  *
+    //        MAX_SAFE_TORQUE_REQUEST_NM
+    //                                               100%
 
     if (regen_paddle_percentage > 0.0f && is_regen_allowed)
     {
@@ -74,16 +76,6 @@ void App_SetPeriodicCanSignals_Imu(const struct DcmWorld *world)
     struct Imu *              imu    = App_DcmWorld_GetImu(world);
     struct DcmCanTxInterface *can_tx = App_DcmWorld_GetCanTx(world);
 
-    if (App_Imu_GetExitCode(imu) != EXIT_CODE_OK)
-    {
-        App_CanTx_SetPeriodicSignal_INVALID_IMU_ARGS(
-            can_tx,
-            CANMSGS_DCM_NON_CRITICAL_ERRORS_INVALID_IMU_ARGS_INVALID_CHOICE);
-        return;
-    }
-
-    App_CanTx_SetPeriodicSignal_INVALID_IMU_ARGS(
-        can_tx, CANMSGS_DCM_NON_CRITICAL_ERRORS_INVALID_IMU_ARGS_VALID_CHOICE);
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, App_Imu_GetAccelerationXInRangeCheck(imu),
         App_CanTx_SetPeriodicSignal_ACCELERATION_X,

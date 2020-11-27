@@ -23,7 +23,6 @@ struct Imu;
  * @return The created IMU whose ownership is given to the caller.
  */
 struct Imu *App_Imu_Create(
-    ExitCode (*get_exit_code)(void),
     float (*get_acceleration_x)(void),
     float (*get_acceleration_y)(void),
     float (*get_acceleration_z)(void),
@@ -35,15 +34,6 @@ struct Imu *App_Imu_Create(
  * @param imu The Imu to deallocate
  */
 void App_Imu_Destroy(struct Imu *imu);
-
-/**
- * Get the exit code corresponding to the most recent reading of data from the
- * Imu EXIT_CODE_OK if successful, EXIT_CODE_OUT_OF_RANGE if data is not within
- * specified range, EXIT_CODE_INVALID_ARGS if data was not read successfully
- * @param imu
- * @return
- */
-ExitCode App_Imu_GetExitCode(const struct Imu *imu);
 
 /**
  * Get acceleration (m/s^2) measured on the x-axis from the given Imu.

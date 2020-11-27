@@ -10,17 +10,10 @@ struct Imu
     struct InRangeCheck *acceleration_y_in_range_check;
     struct InRangeCheck *acceleration_z_in_range_check;
 
-    ExitCode (*get_exit_code)(void);
-
     float (*get_acceleration_x)(void);
     float (*get_acceleration_y)(void);
     float (*get_acceleration_z)(void);
 };
-
-ExitCode App_Imu_GetExitCode(const struct Imu *const imu)
-{
-    return imu->get_exit_code();
-}
 
 float App_Imu_GetAccelerationX(const struct Imu *const imu)
 {
@@ -56,7 +49,6 @@ struct InRangeCheck *
 }
 
 struct Imu *App_Imu_Create(
-    ExitCode (*get_exit_code)(void),
     float (*get_acceleration_x)(void),
     float (*get_acceleration_y)(void),
     float (*get_acceleration_z)(void),
@@ -65,8 +57,6 @@ struct Imu *App_Imu_Create(
 {
     struct Imu *imu = malloc(sizeof(struct Imu));
     assert(imu != NULL);
-
-    imu->get_exit_code = get_exit_code;
 
     imu->acceleration_x_in_range_check = App_InRangeCheck_Create(
         get_acceleration_x, min_acceleration, max_acceleration);

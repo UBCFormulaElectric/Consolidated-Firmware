@@ -187,9 +187,9 @@ int main(void)
     buzzer = App_Buzzer_Create(Io_Buzzer_TurnOn, Io_Buzzer_TurnOff);
 
     imu = App_Imu_Create(
-        Io_LSM6DS33_GetExitCode, Io_LSM6DS33_GetAccelerationX,
-        Io_LSM6DS33_GetAccelerationY, Io_LSM6DS33_GetAccelerationZ,
-        MIN_ACCELERATION_MS2, MAX_ACCELERATION_MS2);
+        Io_LSM6DS33_GetAccelerationX, Io_LSM6DS33_GetAccelerationY,
+        Io_LSM6DS33_GetAccelerationZ, MIN_ACCELERATION_MS2,
+        MAX_ACCELERATION_MS2);
 
     error_table = App_SharedErrorTable_Create();
 

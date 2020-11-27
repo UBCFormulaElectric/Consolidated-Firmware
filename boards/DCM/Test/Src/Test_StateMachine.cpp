@@ -35,7 +35,6 @@ FAKE_VOID_FUNC(turn_on_brake_light);
 FAKE_VOID_FUNC(turn_off_brake_light);
 FAKE_VOID_FUNC(turn_on_buzzer);
 FAKE_VOID_FUNC(turn_off_buzzer);
-FAKE_VALUE_FUNC(ExitCode, get_exit_code);
 FAKE_VALUE_FUNC(float, get_acceleration_x);
 FAKE_VALUE_FUNC(float, get_acceleration_y);
 FAKE_VALUE_FUNC(float, get_acceleration_z);
@@ -66,8 +65,8 @@ class DcmStateMachineTest : public BaseStateMachineTest
         buzzer = App_Buzzer_Create(turn_on_buzzer, turn_off_buzzer);
 
         imu = App_Imu_Create(
-            get_exit_code, get_acceleration_x, get_acceleration_y,
-            get_acceleration_z, MIN_ACCELERATION_MS2, MAX_ACCELERATION_MS2);
+            get_acceleration_x, get_acceleration_y, get_acceleration_z,
+            MIN_ACCELERATION_MS2, MAX_ACCELERATION_MS2);
 
         error_table = App_SharedErrorTable_Create();
 
@@ -85,7 +84,6 @@ class DcmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(send_non_periodic_msg_DCM_STARTUP);
         RESET_FAKE(send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT);
         RESET_FAKE(get_current_ms);
-        RESET_FAKE(get_exit_code);
         RESET_FAKE(get_acceleration_x);
         RESET_FAKE(get_acceleration_y);
         RESET_FAKE(get_acceleration_z);
