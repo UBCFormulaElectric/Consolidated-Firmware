@@ -35,12 +35,12 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
     //     Calculating the torque request
     //
     //      1) If regen is on, use the regen paddle percentage
-    //      2) If regen. braking is off, use the accelerator pedal percentage
+    //      2) If regen is off, use the accelerator pedal percentage
     //
     //      - MAX_SAFE_TORQUE_REQUEST_NM = 21 Nm, the max torque the motor can
     //      provide
     //
-    //      1) If regen. braking is allowed and the regen paddle is actuated,
+    //      1) If regen is allowed and the regen paddle is actuated,
     //         the torque request (in Nm) is negative and given by:
     //
     //                                (-) Regen Paddle Percentage
