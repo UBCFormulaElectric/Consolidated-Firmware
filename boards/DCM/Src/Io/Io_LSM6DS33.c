@@ -1,6 +1,5 @@
 #include <App_SharedExitCode.h>
 #include "Io_LSM6DS33.h"
-#include "App_Imu.h"
 
 // The I2c slave device addresses to use when reading/writing to/from the IMU
 // See table 11 in section 6.1.1 of the LSM6DS33 data sheet for details
