@@ -537,9 +537,6 @@ TEST_F(DcmStateMachineTest, torque_requests_faster_than_100Hz)
     EXPECT_TRUE(App_BuzzerSignals_IsOn(world));
     App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
         can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
-    ASSERT_EQ(
-        App_GetDriveState(),
-        App_SharedStateMachine_GetCurrentState(state_machine));
 
     // Check that no torque requests are sent when the accelerator pedal is not
     // pressed
