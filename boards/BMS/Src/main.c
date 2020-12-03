@@ -41,6 +41,7 @@
 #include "Io_LTC6813.h"
 #include "Io_CellVoltages.h"
 #include "Io_Airs.h"
+#include "Io_PreCharge.h"
 
 #include "App_BmsWorld.h"
 #include "App_AccumulatorVoltages.h"
@@ -111,6 +112,7 @@ struct OkStatus *         bspd_ok;
 struct Accumulator *      cell_monitor;
 struct BinaryStatus *     air_negative;
 struct BinaryStatus *     air_positive;
+struct PreChargeSequence *pre_charge_sequence;
 struct Clock *            clock;
 /* USER CODE END PV */
 
@@ -249,12 +251,15 @@ int main(void)
     air_negative = App_SharedBinaryStatus_Create(Io_Airs_IsAirNegativeOn);
     air_positive = App_SharedBinaryStatus_Create(Io_Airs_IsAirPositiveOn);
 
+    pre_charge_sequence =
+        App_PreChargeSequence_Create(Io_PreCharge_Enable, Io_PreCharge_Disable);
+
     clock = App_SharedClock_Create();
 
     world = App_BmsWorld_Create(
         can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger,
         bms_ok, imd_ok, bspd_ok, cell_monitor, air_negative, air_positive,
-        clock);
+        pre_charge_sequence, clock);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
