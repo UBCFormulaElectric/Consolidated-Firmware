@@ -7,9 +7,9 @@ struct PreChargeSequence;
 /**
  * Allocate and initialize a pre-charge sequence
  * @param enable_pre_charge_sequence A function that can be called to enable
- * pre-charging
+ * the pre-charge sequence
  * @param disable_pre_charge_sequence A function that can be called to disable
- * pre-charging
+ * the pre-charge sequence
  * @return The created pre-charge sequence, whose ownership is given to the
  * caller
  */
