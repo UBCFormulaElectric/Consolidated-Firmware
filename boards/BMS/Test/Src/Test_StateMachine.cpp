@@ -61,6 +61,8 @@ FAKE_VALUE_FUNC(float, get_segment_4_voltage);
 FAKE_VALUE_FUNC(float, get_segment_5_voltage);
 FAKE_VALUE_FUNC(bool, is_air_negative_on);
 FAKE_VALUE_FUNC(bool, is_air_positive_on);
+FAKE_VOID_FUNC(enable_pre_charge);
+FAKE_VOID_FUNC(disable_pre_charge);
 
 class BmsStateMachineTest : public BaseStateMachineTest
 {
@@ -109,12 +111,15 @@ class BmsStateMachineTest : public BaseStateMachineTest
         air_negative = App_SharedBinaryStatus_Create(is_air_negative_on);
         air_positive = App_SharedBinaryStatus_Create(is_air_positive_on);
 
+        pre_charge_sequence =
+            App_PreChargeSequence_Create(enable_pre_charge, disable_pre_charge);
+
         clock = App_SharedClock_Create();
 
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
             rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, cell_monitor,
-            air_negative, air_positive, clock);
+            air_negative, air_positive, pre_charge_sequence, clock);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -174,6 +179,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         TearDownObject(cell_monitor, App_Accumulator_Destroy);
         TearDownObject(air_negative, App_SharedBinaryStatus_Destroy);
         TearDownObject(air_positive, App_SharedBinaryStatus_Destroy);
+        TearDownObject(pre_charge_sequence, App_PreChargeSequence_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
     }
 
@@ -228,6 +234,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
     struct Accumulator *      cell_monitor;
     struct BinaryStatus *     air_negative;
     struct BinaryStatus *     air_positive;
+    struct PreChargeSequence *pre_charge_sequence;
     struct Clock *            clock;
 };
 
