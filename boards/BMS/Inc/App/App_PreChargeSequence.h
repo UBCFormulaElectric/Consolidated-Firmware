@@ -19,7 +19,7 @@ struct PreChargeSequence *App_PreChargeSequence_Create(
 
 /**
  * Deallocate the memory used by the pre-charge sequence
- * @param pre_charge_sequence
+ * @param pre_charge_sequence The pre-charge sequence to deallocate
  */
 void App_PreChargeSequence_Destroy(
     struct PreChargeSequence *pre_charge_sequence);
