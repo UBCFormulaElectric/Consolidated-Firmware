@@ -2,14 +2,7 @@
 
 #include "App_BmsWorld.h"
 
-#define MAX_NAME_LENGTH 16U
-
 struct BmsWorld;
-struct PreChargeState
-{
-    char name[MAX_NAME_LENGTH];
-    void (*run_on_tick)(struct BmsWorld *);
-};
 
 /**
  *
@@ -21,7 +14,7 @@ struct PreChargeState *App_PreChargeState_GetInitState(void);
  *
  * @return
  */
-struct PreChargeState *App_PreChargeState_GetAIROpenState(void);
+struct PreChargeState *App_PreChargeState_GetAirOpenState(void);
 
 /**
  *

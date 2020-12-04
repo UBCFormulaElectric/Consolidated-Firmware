@@ -46,6 +46,7 @@
 #include "App_BmsWorld.h"
 #include "App_AccumulatorVoltages.h"
 #include "App_SharedStateMachine.h"
+#include "App_PrechargeStateMachine.h"
 #include "states/App_InitState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_ImdConfig.h"
@@ -970,7 +971,7 @@ void RunTask100Hz(void const *argument)
     for (;;)
     {
         App_SharedStateMachine_Tick100Hz(state_machine);
-
+        App_PreChargeStateMachine_Tick(world);
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);

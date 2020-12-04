@@ -36,6 +36,12 @@ void App_PreChargeSequence_Destroy(
     free(pre_charge_sequence);
 }
 
+struct PreChargeStateMachine *App_PreChargeSequence_GetStateMachine(
+    const struct PreChargeSequence *const pre_charge_sequence)
+{
+    return pre_charge_sequence->state_machine;
+}
+
 void App_PreChargeSequence_Enable(
     const struct PreChargeSequence *const pre_charge_sequence)
 {
@@ -46,10 +52,4 @@ void App_PreChargeSequence_Disable(
     const struct PreChargeSequence *const pre_charge_sequence)
 {
     pre_charge_sequence->disable_pre_charge_sequence();
-}
-
-struct PreChargeStateMachine *App_PreChargeSequence_GetStateMachine(
-    const struct PreChargeSequence *const pre_charge_sequence)
-{
-    return pre_charge_sequence->state_machine;
 }

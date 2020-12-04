@@ -2,7 +2,6 @@
 
 #include "App_PrechargeState.h"
 
-struct BmsWorld;
 struct PreChargeStateMachine;
 
 /**

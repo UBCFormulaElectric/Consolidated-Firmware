@@ -1,6 +1,14 @@
 #include "App_PrechargeState.h"
 #include "App_PrechargeStateMachine.h"
 
+#define MAX_NAME_LENGTH 16U
+
+struct PreChargeState
+{
+    char name[MAX_NAME_LENGTH];
+    void (*run_on_tick)(struct BmsWorld *);
+};
+
 static void App_PreChargeState_RunOnTickInitState(struct BmsWorld *const world)
 {
     struct BmsCanTxInterface *can_tx = App_BmsWorld_GetCanTx(world);
@@ -9,7 +17,7 @@ static void App_PreChargeState_RunOnTickInitState(struct BmsWorld *const world)
 }
 
 static void
-    App_PreChargeState_RunOnTickWaitAirNegState(struct BmsWorld *const world)
+    App_PreChargeState_RunOnTickAirOpenState(struct BmsWorld *const world)
 {
     struct BmsCanTxInterface *can_tx = App_BmsWorld_GetCanTx(world);
     struct PreChargeSequence *pre_charge_sequence =
@@ -81,11 +89,11 @@ struct PreChargeState *App_PreChargeState_GetInitState(void)
     return &state;
 }
 
-struct PreChargeState *App_PreChargeState_GetAIROpenState(void)
+struct PreChargeState *App_PreChargeState_GetAirOpenState(void)
 {
     static struct PreChargeState state = {
         .name        = "AIR_OPEN",
-        .run_on_tick = App_PreChargeState_RunOnTickWaitAirNegState
+        .run_on_tick = App_PreChargeState_RunOnTickAirOpenState
     };
 
     return &state;
