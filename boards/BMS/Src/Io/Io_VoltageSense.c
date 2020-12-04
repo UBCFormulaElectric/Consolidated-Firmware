@@ -13,9 +13,9 @@ float Io_VoltageSense_GetTractiveSystemVoltage(float adc_voltage)
     //
     // TS Voltage
     //   -+-
-    //    |                                     +-----------+  +-------------+
-    //    +--<499k>--<499k>--<499k>--<499k>--+--| Amplifier |--| ADC Channel |
-    //                                       |  +-----------+  +-------------+
+    //    |                                     +----------+  +-------------+
+    //    +--<499k>--<499k>--<499k>--<499k>--+--| Amplifier|--| ADC Channel |
+    //                                       |  +----------+  +-------------+
     //                                       |
     //                                    <1.24k>
     //                                       |
