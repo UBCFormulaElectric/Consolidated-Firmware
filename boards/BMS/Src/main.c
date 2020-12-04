@@ -256,11 +256,10 @@ int main(void)
         Io_DieTemperatures_GetSegment3DieTemp,
         Io_DieTemperatures_GetSegment4DieTemp,
         Io_DieTemperatures_GetSegment5DieTemp, Io_DieTemperatures_GetMaxDieTemp,
-        MIN_INTERNAL_DIE_TEMP_DEGC, MAX_INTERNAL_DIE_TEMP_DEGC,
-        DIE_TEMP_DEGC_TO_REENABLE_CHARGER,
-        DIE_TEMP_DEGC_TO_REENABLE_CELL_BALANCING,
-        DIE_TEMP_DEGC_TO_DISABLE_CELL_BALANCING,
-        DIE_TEMP_DEGC_TO_DISABLE_CHARGER);
+        MIN_ITMP_DEGC, MAX_ITMP_DEGC, DIE_TEMP_TO_REENABLE_CHARGER_DEGC,
+        DIE_TEMP_TO_REENABLE_CELL_BALANCING_DEGC,
+        DIE_TEMP_TO_DISABLE_CELL_BALANCING_DEGC,
+        DIE_TEMP_TO_DISABLE_CHARGER_DEGC);
 
     air_negative = App_SharedBinaryStatus_Create(Io_Airs_IsAirNegativeOn);
     air_positive = App_SharedBinaryStatus_Create(Io_Airs_IsAirPositiveOn);

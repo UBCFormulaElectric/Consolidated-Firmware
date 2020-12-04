@@ -6,20 +6,22 @@ struct CellMonitors;
 
 enum ITMPInRangeCheck
 {
-    // An exit code for when ITMP is above the threshold to disable the charger
-    // as well as the threshold to disable cell balancing
+    // An exit code for when the ITMP (internal die temperature) is above the
+    // disable charger and disable cell balancing thresholds. Both cell
+    // balancing and charging are stopped when ITMP exceeds 120°C
     ITMP_OVERFLOW,
 
-    // An exit code for when ITMP is above the threshold to disable cell
-    // balancing and below the threshold to disable the charger
+    // An exit code for when the ITMP is above the disable cell balancing
+    // threshold. Cell balancing is stopped when ITMP exceeds 115°C
     ITMP_CELL_BALANCING_OVERFLOW,
 
-    // An exit code for when ITMP is below the threshold to re-enable the
-    // charger
+    // An exit code for when the ITMP is below the re-enable charger threshold.
+    // Charging is re-enabled when ITMP decreases below 115°C
     ITMP_CHARGER_IN_RANGE,
 
-    // An exit code for when ITMP is below the threshold to re-enable the
-    // charger as well as the threshold to re-enable cell balancing
+    // An exit code for when the ITMP is below the re-enable charger
+    // and the re-enable cell balancing thresholds. Both charging and cell
+    // balancing are re-enabled when ITMP decreases below 110°C
     ITMP_IN_RANGE
 };
 
@@ -45,14 +47,14 @@ enum ITMPInRangeCheck
  * given cell monitor
  * @param max_die_temp_degc The maximum die temperature (°C) threshold for the
  * given cell monitor
- * @param die_temp_re_enable_charger_degc The die temperature (°C) to re-enable
- * the charger
- * @param die_temp_re_enable_cell_balancing_degc The die temperature (°C) to
+ * @param die_temp_to_re_enable_charger_degc The die temperature (°C) to
+ * re-enable the charger
+ * @param die_temp_to_re_enable_cell_balancing_degc The die temperature (°C) to
  * re-enable cell balancing
- * @param die_temp_disable_cell_balancing_degc The die temperature (°C) to
+ * @param die_temp_to_disable_cell_balancing_degc The die temperature (°C) to
  * disable cell balancing
- * @param die_temp_disable_charger_degc The die temperature (°C) to disable the
- * charger
+ * @param die_temp_to_disable_charger_degc The die temperature (°C) to disable
+ * the charger
  * @return A pointer to the created cell monitor whose ownership is given to the
  * caller
  */
@@ -67,10 +69,10 @@ struct CellMonitors *App_CellMonitors_Create(
     float (*get_max_die_temp)(void),
     float min_die_temp_degc,
     float max_die_temp_degc,
-    float die_temp_re_enable_charger_degc,
-    float die_temp_re_enable_cell_balancing_degc,
-    float die_temp_disable_cell_balancing_degc,
-    float die_temp_disable_charger_degc);
+    float die_temp_to_re_enable_charger_degc,
+    float die_temp_to_re_enable_cell_balancing_degc,
+    float die_temp_to_disable_cell_balancing_degc,
+    float die_temp_to_disable_charger_degc);
 
 /**
  * Deallocate the given group of cell monitors

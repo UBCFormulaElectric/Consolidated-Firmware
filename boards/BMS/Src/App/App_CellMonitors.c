@@ -31,10 +31,10 @@ struct CellMonitors *App_CellMonitors_Create(
     float (*get_max_die_temp)(void),
     float min_die_temp_degc,
     float max_die_temp_degc,
-    float die_temp_re_enable_charger_degc,
-    float die_temp_re_enable_cell_balancing_degc,
-    float die_temp_disable_cell_balancing_degc,
-    float die_temp_disable_charger_degc)
+    float die_temp_to_re_enable_charger_degc,
+    float die_temp_to_re_enable_cell_balancing_degc,
+    float die_temp_to_disable_cell_balancing_degc,
+    float die_temp_to_disable_charger_degc)
 {
     struct CellMonitors *cell_monitors = malloc(sizeof(struct CellMonitors));
     assert(cell_monitors != NULL);
@@ -43,13 +43,13 @@ struct CellMonitors *App_CellMonitors_Create(
     cell_monitors->get_max_die_temp = get_max_die_temp;
 
     cell_monitors->die_temp_re_enable_charger_degc =
-        die_temp_re_enable_charger_degc;
+        die_temp_to_re_enable_charger_degc;
     cell_monitors->die_temp_re_enable_cell_balancing_degc =
-        die_temp_re_enable_cell_balancing_degc;
+        die_temp_to_re_enable_cell_balancing_degc;
     cell_monitors->die_temp_disable_cell_balancing_degc =
-        die_temp_disable_cell_balancing_degc;
+        die_temp_to_disable_cell_balancing_degc;
     cell_monitors->die_temp_disable_charger_degc =
-        die_temp_disable_charger_degc;
+        die_temp_to_disable_charger_degc;
 
     cell_monitors->cell_monitor_0_die_temp_in_range_check =
         App_InRangeCheck_Create(
@@ -137,13 +137,10 @@ enum ITMPInRangeCheck App_CellMonitors_GetMaxDieTempDegC(
              cell_monitors->die_temp_disable_charger_degc && * max_die_temp>
              cell_monitors->die_temp_disable_cell_balancing_degc)
     {
-        // Return the exit code to disable cell balancing.
         exit_code = ITMP_CELL_BALANCING_OVERFLOW;
     }
     else if (*max_die_temp > cell_monitors->die_temp_disable_charger_degc)
     {
-        // Return the exit code to disable both cell balancing as well as the
-        // charger.
         exit_code = ITMP_OVERFLOW;
     }
     else if (*max_die_temp<
@@ -151,12 +148,10 @@ enum ITMPInRangeCheck App_CellMonitors_GetMaxDieTempDegC(
                   max_die_temp> cell_monitors
                   ->die_temp_re_enable_cell_balancing_degc)
     {
-        // Return the exit code to re-enable the charger.
         exit_code = ITMP_CHARGER_IN_RANGE;
     }
     else
     {
-        // Return the exit to re-enable both the charger and cell balancing.
         exit_code = ITMP_IN_RANGE;
     }
 

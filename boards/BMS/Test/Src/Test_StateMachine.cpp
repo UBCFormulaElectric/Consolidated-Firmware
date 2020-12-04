@@ -120,12 +120,11 @@ class BmsStateMachineTest : public BaseStateMachineTest
             read_die_temperatures, get_segment_0_die_temp,
             get_segment_1_die_temp, get_segment_2_die_temp,
             get_segment_3_die_temp, get_segment_4_die_temp,
-            get_segment_5_die_temp, get_max_die_temp,
-            MIN_INTERNAL_DIE_TEMP_DEGC, MAX_INTERNAL_DIE_TEMP_DEGC,
-            DIE_TEMP_DEGC_TO_REENABLE_CHARGER,
-            DIE_TEMP_DEGC_TO_REENABLE_CELL_BALANCING,
-            DIE_TEMP_DEGC_TO_DISABLE_CELL_BALANCING,
-            DIE_TEMP_DEGC_TO_DISABLE_CHARGER);
+            get_segment_5_die_temp, get_max_die_temp, MIN_ITMP_DEGC,
+            MAX_ITMP_DEGC, DIE_TEMP_TO_REENABLE_CHARGER_DEGC,
+            DIE_TEMP_TO_REENABLE_CELL_BALANCING_DEGC,
+            DIE_TEMP_TO_DISABLE_CELL_BALANCING_DEGC,
+            DIE_TEMP_TO_DISABLE_CHARGER_DEGC);
 
         air_negative = App_SharedBinaryStatus_Create(is_air_negative_on);
         air_positive = App_SharedBinaryStatus_Create(is_air_positive_on);
@@ -750,7 +749,7 @@ TEST_F(BmsStateMachineTest, check_cell_monitors_can_signals_in_all_states)
     const State *charge_state = App_GetChargeState();
 
     CheckInRangeCanSignalsInGivenState(
-        charge_state, MIN_INTERNAL_DIE_TEMP_DEGC, MAX_INTERNAL_DIE_TEMP_DEGC,
+        charge_state, MIN_ITMP_DEGC, MAX_ITMP_DEGC,
         get_segment_0_die_temp_fake.return_val,
         App_CanTx_GetPeriodicSignal_CELL_MONITOR_0_DIE_TEMPERATURE,
         App_CanTx_GetPeriodicSignal_CELL_MONITOR_0_DIE_TEMP_OUT_OF_RANGE,
@@ -759,7 +758,7 @@ TEST_F(BmsStateMachineTest, check_cell_monitors_can_signals_in_all_states)
         CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_0_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     CheckInRangeCanSignalsInGivenState(
-        charge_state, MIN_INTERNAL_DIE_TEMP_DEGC, MAX_INTERNAL_DIE_TEMP_DEGC,
+        charge_state, MIN_ITMP_DEGC, MAX_ITMP_DEGC,
         get_segment_1_die_temp_fake.return_val,
         App_CanTx_GetPeriodicSignal_CELL_MONITOR_1_DIE_TEMPERATURE,
         App_CanTx_GetPeriodicSignal_CELL_MONITOR_1_DIE_TEMP_OUT_OF_RANGE,
@@ -768,7 +767,7 @@ TEST_F(BmsStateMachineTest, check_cell_monitors_can_signals_in_all_states)
         CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_1_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     CheckInRangeCanSignalsInGivenState(
-        charge_state, MIN_INTERNAL_DIE_TEMP_DEGC, MAX_INTERNAL_DIE_TEMP_DEGC,
+        charge_state, MIN_ITMP_DEGC, MAX_ITMP_DEGC,
         get_segment_2_die_temp_fake.return_val,
         App_CanTx_GetPeriodicSignal_CELL_MONITOR_2_DIE_TEMPERATURE,
         App_CanTx_GetPeriodicSignal_CELL_MONITOR_2_DIE_TEMP_OUT_OF_RANGE,
@@ -777,7 +776,7 @@ TEST_F(BmsStateMachineTest, check_cell_monitors_can_signals_in_all_states)
         CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_2_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     CheckInRangeCanSignalsInGivenState(
-        charge_state, MIN_INTERNAL_DIE_TEMP_DEGC, MAX_INTERNAL_DIE_TEMP_DEGC,
+        charge_state, MIN_ITMP_DEGC, MAX_ITMP_DEGC,
         get_segment_3_die_temp_fake.return_val,
         App_CanTx_GetPeriodicSignal_CELL_MONITOR_3_DIE_TEMPERATURE,
         App_CanTx_GetPeriodicSignal_CELL_MONITOR_3_DIE_TEMP_OUT_OF_RANGE,
@@ -786,7 +785,7 @@ TEST_F(BmsStateMachineTest, check_cell_monitors_can_signals_in_all_states)
         CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_3_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     CheckInRangeCanSignalsInGivenState(
-        charge_state, MIN_INTERNAL_DIE_TEMP_DEGC, MAX_INTERNAL_DIE_TEMP_DEGC,
+        charge_state, MIN_ITMP_DEGC, MAX_ITMP_DEGC,
         get_segment_4_die_temp_fake.return_val,
         App_CanTx_GetPeriodicSignal_CELL_MONITOR_4_DIE_TEMPERATURE,
         App_CanTx_GetPeriodicSignal_CELL_MONITOR_4_DIE_TEMP_OUT_OF_RANGE,
@@ -795,7 +794,7 @@ TEST_F(BmsStateMachineTest, check_cell_monitors_can_signals_in_all_states)
         CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_4_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     CheckInRangeCanSignalsInGivenState(
-        charge_state, MIN_INTERNAL_DIE_TEMP_DEGC, MAX_INTERNAL_DIE_TEMP_DEGC,
+        charge_state, MIN_ITMP_DEGC, MAX_ITMP_DEGC,
         get_segment_5_die_temp_fake.return_val,
         App_CanTx_GetPeriodicSignal_CELL_MONITOR_5_DIE_TEMPERATURE,
         App_CanTx_GetPeriodicSignal_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE,
