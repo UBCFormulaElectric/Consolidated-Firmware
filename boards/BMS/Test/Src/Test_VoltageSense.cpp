@@ -19,8 +19,11 @@ TEST(VoltageSenseTest, tractive_system_voltage_calculation)
         adc_voltage, Io_VoltageSense_GetTractiveSystemVoltage(adc_voltage));
 
     // Nominal tractive system voltage (400V)
+    constexpr float nominal_ts_voltage = 400.0f;
     adc_voltage =
-        400.0f * 8.0f *
+        nominal_ts_voltage * 8.0f *
         (1.024e+3f / (1.024e+3f + 499e+3f + 499e+3f + 499e+3f + 499e+3f));
-    ASSERT_EQ(400.0f, Io_VoltageSense_GetTractiveSystemVoltage(adc_voltage));
+    ASSERT_EQ(
+        nominal_ts_voltage,
+        Io_VoltageSense_GetTractiveSystemVoltage(adc_voltage));
 }
