@@ -37,3 +37,11 @@ void App_PreChargeSequence_Enable(
  */
 void App_PreChargeSequence_Disable(
     const struct PreChargeSequence *pre_charge_sequence);
+
+/**
+ *
+ * @param pre_charge_sequence
+ * @return
+ */
+struct PreChargeStateMachine *App_PreChargeSequence_GetStateMachine(
+    const struct PreChargeSequence *pre_charge_sequence);

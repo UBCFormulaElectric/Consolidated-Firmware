@@ -1,0 +1,3 @@
+#pragma once
+
+#define PRECHARGE_RC_TIME_CONSTANT_MS 480U
