@@ -16,7 +16,7 @@ struct PreChargeSequence
     uint32_t               rc_time_constant_ms;
     size_t                 rc_time_constant_index;
     uint32_t               prev_time_ms;
-    enum PreChargeExitCode exit_code;
+    enum PreChargingStatus pre_charging_status;
 
     struct PreChargeStateMachine *state_machine;
 };
@@ -43,7 +43,7 @@ struct PreChargeSequence *App_PreChargeSequence_Create(
     pre_charge_sequence->rc_time_constant_ms    = rc_time_constant;
     pre_charge_sequence->rc_time_constant_index = 0U;
     pre_charge_sequence->prev_time_ms           = 0U;
-    pre_charge_sequence->exit_code              = PRE_CHARGE_VOLTAGE_IN_RANGE;
+    pre_charge_sequence->pre_charging_status    = PRE_CHARGING_VOLTAGE_IN_RANGE;
 
     pre_charge_sequence->state_machine = App_PreChargeStateMachine_Create();
 
@@ -75,14 +75,20 @@ void App_PreChargeSequence_Disable(
     pre_charge_sequence->disable_pre_charge_sequence();
 }
 
-void App_PreChargeSequence_SetInitialPrevTimeMs(
+void App_PreChargeSequence_SetPrevTimeMs(
     struct PreChargeSequence *const pre_charge_sequence,
     uint32_t                        current_time_ms)
 {
     pre_charge_sequence->prev_time_ms = current_time_ms;
 }
 
-enum PreChargeExitCode App_PreChargeSequence_CheckPreChargeBusVoltage(
+enum PreChargingStatus App_PreChargeSequence_GetPreChargingStatus(
+    struct PreChargeSequence *pre_charge_sequence)
+{
+    return pre_charge_sequence->pre_charging_status;
+}
+
+enum PreChargingStatus App_PreChargeSequence_CheckPreChargeBusVoltage(
     struct PreChargeSequence *pre_charge_sequence,
     uint32_t                  current_ms)
 {
@@ -118,24 +124,27 @@ enum PreChargeExitCode App_PreChargeSequence_CheckPreChargeBusVoltage(
             {
                 if (index == NUM_OF_RC_TIME_CONSTANTS - 1U)
                 {
-                    pre_charge_sequence->exit_code = PRE_CHARGE_SUCCESS;
+                    pre_charge_sequence->pre_charging_status =
+                        PRE_CHARGING_SUCCESS;
                 }
                 else
                 {
-                    pre_charge_sequence->exit_code =
-                        PRE_CHARGE_VOLTAGE_IN_RANGE;
+                    pre_charge_sequence->pre_charging_status =
+                        PRE_CHARGING_VOLTAGE_IN_RANGE;
                 }
             }
             else if (ts_voltage > max_ts_voltage)
             {
-                pre_charge_sequence->exit_code = PRE_CHARGE_OVERVOLTAGE_ERROR;
+                pre_charge_sequence->pre_charging_status =
+                    PRE_CHARGING_OVERVOLTAGE_ERROR;
             }
             else if (ts_voltage < min_ts_voltage)
             {
-                pre_charge_sequence->exit_code = PRE_CHARGE_UNDERVOLTAGE_ERROR;
+                pre_charge_sequence->pre_charging_status =
+                    PRE_CHARGING_UNDERVOLTAGE_ERROR;
             }
         }
     }
 
-    return pre_charge_sequence->exit_code;
+    return pre_charge_sequence->pre_charging_status;
 }

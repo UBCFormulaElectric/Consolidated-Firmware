@@ -5,12 +5,12 @@
 
 struct PreChargeSequence;
 
-enum PreChargeExitCode
+enum PreChargingStatus
 {
-    PRE_CHARGE_VOLTAGE_IN_RANGE,
-    PRE_CHARGE_OVERVOLTAGE_ERROR,
-    PRE_CHARGE_UNDERVOLTAGE_ERROR,
-    PRE_CHARGE_SUCCESS
+    PRE_CHARGING_VOLTAGE_IN_RANGE,
+    PRE_CHARGING_OVERVOLTAGE_ERROR,
+    PRE_CHARGING_UNDERVOLTAGE_ERROR,
+    PRE_CHARGING_SUCCESS
 };
 
 /**
@@ -56,7 +56,7 @@ void App_PreChargeSequence_Disable(
  * @param pre_charge_sequence
  * @param current_time_ms
  */
-void App_PreChargeSequence_SetInitialPrevTimeMs(
+void App_PreChargeSequence_SetPrevTimeMs(
     struct PreChargeSequence *const pre_charge_sequence,
     uint32_t                        current_time_ms);
 
@@ -68,11 +68,14 @@ void App_PreChargeSequence_SetInitialPrevTimeMs(
 struct PreChargeStateMachine *App_PreChargeSequence_GetStateMachine(
     const struct PreChargeSequence *pre_charge_sequence);
 
+enum PreChargingStatus App_PreChargeSequence_GetPreChargingStatus(
+    struct PreChargeSequence *pre_charge_sequence);
+
 /**
  *
  * @param pre_charge_sequence
  * @param current_ms
  */
-enum PreChargeExitCode App_PreChargeSequence_CheckPreChargeBusVoltage(
+enum PreChargingStatus App_PreChargeSequence_CheckPreChargeBusVoltage(
     struct PreChargeSequence *pre_charge_sequence,
     uint32_t                  current_ms);

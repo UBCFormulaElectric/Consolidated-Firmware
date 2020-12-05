@@ -56,7 +56,11 @@ static void
     App_CanTx_SetPeriodicSignal_PRECHARGE_STATE(
         can_tx,
         CANMSGS_BMS_PRECHARGE_STATES_PRECHARGE_STATE_PRECHARGING_CHOICE);
-    App_PreChargeSequence_SetInitialPrevTimeMs(
+    App_CanTx_SetPeriodicSignal_PRECHARGING_CONDITION(
+        can_tx,
+        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_PRECHARGING_CONDITION_PRECHARGING_CHOICE);
+
+    App_PreChargeSequence_SetPrevTimeMs(
         pre_charge_sequence,
         App_SharedClock_GetCurrentTimeInMilliseconds(clock));
 }
@@ -64,41 +68,25 @@ static void
 static void
     App_PreChargeState_RunOnTickPrechargingState(struct BmsWorld *const world)
 {
-    struct BmsCanTxInterface *can_tx = App_BmsWorld_GetCanTx(world);
     struct PreChargeSequence *pre_charge_sequence =
         App_BmsWorld_GetPreChargeSequence(world);
     struct Clock *clock = App_BmsWorld_GetClock(world);
 
-    if (App_CanTx_GetPeriodicSignal_PRECHARGING_CONDITION(can_tx) ==
-        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_PRECHARGING_CONDITION_PRECHARGING_CHOICE)
+    if (App_PreChargeSequence_GetPreChargingStatus(pre_charge_sequence) ==
+        PRE_CHARGING_VOLTAGE_IN_RANGE)
     {
-        enum PreChargeExitCode pre_charge_exit_code =
+        enum PreChargingStatus pre_charge_exit_code =
             App_PreChargeSequence_CheckPreChargeBusVoltage(
                 pre_charge_sequence,
                 App_SharedClock_GetCurrentTimeInMilliseconds(clock));
 
-        if (pre_charge_exit_code != PRE_CHARGE_VOLTAGE_IN_RANGE)
+        if (pre_charge_exit_code != PRE_CHARGING_VOLTAGE_IN_RANGE)
         {
             App_PreChargeSequence_Disable(pre_charge_sequence);
         }
         else
         {
             App_PreChargeSequence_Enable(pre_charge_sequence);
-        }
-
-        if (pre_charge_exit_code == PRE_CHARGE_SUCCESS)
-        {
-            App_CanTx_SetPeriodicSignal_PRECHARGING_CONDITION(
-                can_tx,
-                CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_PRECHARGING_CONDITION_SUCCESS_CHOICE);
-        }
-        else if (
-            pre_charge_exit_code == PRE_CHARGE_OVERVOLTAGE_ERROR ||
-            pre_charge_exit_code == PRE_CHARGE_UNDERVOLTAGE_ERROR)
-        {
-            App_CanTx_SetPeriodicSignal_PRECHARGING_CONDITION(
-                can_tx,
-                CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_PRECHARGING_CONDITION_FAIL_CHOICE);
         }
     }
 }
