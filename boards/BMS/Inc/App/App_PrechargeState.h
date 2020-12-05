@@ -27,6 +27,15 @@ struct PreChargeState *App_PreChargeState_GetPrechargingState(void);
  * @param state
  * @param world
  */
+void App_PreChargeState_RunOnEntry(
+    struct PreChargeState *state,
+    struct BmsWorld *      world);
+
+/**
+ *
+ * @param state
+ * @param world
+ */
 void App_PreChargeState_RunOnTick(
     struct PreChargeState *state,
     struct BmsWorld *      world);

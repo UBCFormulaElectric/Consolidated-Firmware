@@ -1,8 +1,17 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
 
 struct PreChargeSequence;
+
+enum PreChargeExitCode
+{
+    PRE_CHARGE_VOLTAGE_IN_RANGE,
+    PRE_CHARGE_OVERVOLTAGE_ERROR,
+    PRE_CHARGE_UNDERVOLTAGE_ERROR,
+    PRE_CHARGE_SUCCESS
+};
 
 /**
  * Allocate and initialize a pre-charge sequence
@@ -15,7 +24,11 @@ struct PreChargeSequence;
  */
 struct PreChargeSequence *App_PreChargeSequence_Create(
     void (*enable_pre_charge_sequence)(void),
-    void (*disable_pre_charge_sequence)(void));
+    void (*disable_pre_charge_sequence)(void),
+    float (*get_ts_adc_voltage)(void),
+    float (*get_ts_voltage)(float),
+    float    accumulator_voltage,
+    uint32_t rc_time_constant);
 
 /**
  * Deallocate the memory used by the pre-charge sequence
@@ -41,7 +54,25 @@ void App_PreChargeSequence_Disable(
 /**
  *
  * @param pre_charge_sequence
+ * @param current_time_ms
+ */
+void App_PreChargeSequence_SetInitialPrevTimeMs(
+    struct PreChargeSequence *const pre_charge_sequence,
+    uint32_t                        current_time_ms);
+
+/**
+ *
+ * @param pre_charge_sequence
  * @return
  */
 struct PreChargeStateMachine *App_PreChargeSequence_GetStateMachine(
     const struct PreChargeSequence *pre_charge_sequence);
+
+/**
+ *
+ * @param pre_charge_sequence
+ * @param current_ms
+ */
+enum PreChargeExitCode App_PreChargeSequence_CheckPreChargeBusVoltage(
+    struct PreChargeSequence *pre_charge_sequence,
+    uint32_t                  current_ms);

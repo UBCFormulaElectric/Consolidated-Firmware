@@ -45,6 +45,7 @@ void App_PreChargeStateMachine_Tick(struct BmsWorld *const world)
     if (state_machine->current_state != state_machine->next_state)
     {
         state_machine->current_state = state_machine->next_state;
+        App_PreChargeState_RunOnEntry(state_machine->current_state, world);
     }
 
     App_PreChargeState_RunOnTick(state_machine->current_state, world);
