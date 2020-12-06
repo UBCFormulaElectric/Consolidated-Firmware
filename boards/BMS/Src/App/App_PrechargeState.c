@@ -1,5 +1,5 @@
 #include "App_PrechargeState.h"
-#include "App_PrechargeStateMachine.h"
+#include "App_PreChargeStateMachine.h"
 #include "App_SharedMacros.h"
 
 #define MAX_NAME_LENGTH 16U
@@ -28,7 +28,7 @@ static void
 {
     struct BmsCanTxInterface *can_tx = App_BmsWorld_GetCanTx(world);
     App_CanTx_SetPeriodicSignal_PRECHARGE_STATE(
-        can_tx, CANMSGS_BMS_PRECHARGE_STATES_PRECHARGE_STATE_AIR_CHOICE);
+        can_tx, CANMSGS_BMS_PRECHARGE_STATES_PRECHARGE_STATE_AIR_OPEN_CHOICE);
 }
 
 static void
@@ -56,13 +56,14 @@ static void
     App_CanTx_SetPeriodicSignal_PRECHARGE_STATE(
         can_tx,
         CANMSGS_BMS_PRECHARGE_STATES_PRECHARGE_STATE_PRECHARGING_CHOICE);
-    App_CanTx_SetPeriodicSignal_PRECHARGING_CONDITION(
-        can_tx,
-        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_PRECHARGING_CONDITION_PRECHARGING_CHOICE);
 
     App_PreChargeSequence_SetPrevTimeMs(
         pre_charge_sequence,
         App_SharedClock_GetCurrentTimeInMilliseconds(clock));
+    App_PreChargeSequence_Enable(pre_charge_sequence);
+    App_CanTx_SetPeriodicSignal_PRECHARGING_CONDITION(
+        can_tx,
+        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_PRECHARGING_CONDITION_PRECHARGING_CHOICE);
 }
 
 static void
@@ -75,18 +76,12 @@ static void
     if (App_PreChargeSequence_GetPreChargingStatus(pre_charge_sequence) ==
         PRE_CHARGING_VOLTAGE_IN_RANGE)
     {
-        enum PreChargingStatus pre_charge_exit_code =
-            App_PreChargeSequence_CheckPreChargeBusVoltage(
+        if (App_PreChargeSequence_CheckPreChargingBusVoltage(
                 pre_charge_sequence,
-                App_SharedClock_GetCurrentTimeInMilliseconds(clock));
-
-        if (pre_charge_exit_code != PRE_CHARGING_VOLTAGE_IN_RANGE)
+                App_SharedClock_GetCurrentTimeInMilliseconds(clock)) !=
+            PRE_CHARGING_VOLTAGE_IN_RANGE)
         {
             App_PreChargeSequence_Disable(pre_charge_sequence);
-        }
-        else
-        {
-            App_PreChargeSequence_Enable(pre_charge_sequence);
         }
     }
 }

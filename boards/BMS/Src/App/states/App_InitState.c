@@ -1,5 +1,7 @@
 #include "states/App_AllStates.h"
 #include "states/App_InitState.h"
+#include "states/App_ChargeState.h"
+#include "states/App_FaultState.h"
 #include "states/App_DriveState.h"
 
 #include "App_SetPeriodicCanSignals.h"
@@ -29,10 +31,24 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct BmsCanTxInterface *can_tx = App_BmsWorld_GetCanTx(world);
     struct Imd *              imd    = App_BmsWorld_GetImd(world);
+    struct PreChargeSequence *pre_charge_sequence =
+        App_BmsWorld_GetPreChargeSequence(world);
 
     App_SetPeriodicCanSignals_Imd(can_tx, imd);
 
-    App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
+    enum PreChargingStatus pre_charging_status =
+        App_PreChargeSequence_GetPreChargingStatus(pre_charge_sequence);
+    if (pre_charging_status == PRE_CHARGING_SUCCESS)
+    {
+        App_SharedStateMachine_SetNextState(
+            state_machine, App_GetChargeState());
+    }
+    else if (
+        pre_charging_status == PRE_CHARGING_OVERVOLTAGE_ERROR ||
+        pre_charging_status == PRE_CHARGING_UNDERVOLTAGE_ERROR)
+    {
+        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+    }
 }
 
 static void InitStateRunOnExit(struct StateMachine *const state_machine)

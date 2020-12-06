@@ -13,6 +13,8 @@ enum PreChargingStatus
     PRE_CHARGING_SUCCESS
 };
 
+struct PreChargeSequence;
+
 /**
  * Allocate and initialize a pre-charge sequence
  * @param enable_pre_charge_sequence A function that can be called to enable
@@ -68,14 +70,19 @@ void App_PreChargeSequence_SetPrevTimeMs(
 struct PreChargeStateMachine *App_PreChargeSequence_GetStateMachine(
     const struct PreChargeSequence *pre_charge_sequence);
 
+/**
+ *
+ * @param pre_charge_sequence
+ * @return
+ */
 enum PreChargingStatus App_PreChargeSequence_GetPreChargingStatus(
-    struct PreChargeSequence *pre_charge_sequence);
+    const struct PreChargeSequence *pre_charge_sequence);
 
 /**
  *
  * @param pre_charge_sequence
  * @param current_ms
  */
-enum PreChargingStatus App_PreChargeSequence_CheckPreChargeBusVoltage(
+enum PreChargingStatus App_PreChargeSequence_CheckPreChargingBusVoltage(
     struct PreChargeSequence *pre_charge_sequence,
     uint32_t                  current_ms);

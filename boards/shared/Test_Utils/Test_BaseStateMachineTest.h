@@ -48,6 +48,10 @@ class BaseStateMachineTest : public testing::Test
         struct StateMachine *state_machine,
         uint32_t             current_time_ms) = 0;
 
+    virtual void TickPreChargeStateMachine(
+        struct StateMachine *state_machine,
+        uint32_t             current_time_ms) = 0;
+
     void LetTimePass(struct StateMachine *state_machine, uint32_t time_ms)
     {
         for (uint32_t ms = 0; ms < time_ms; ms++)
@@ -64,6 +68,7 @@ class BaseStateMachineTest : public testing::Test
 
             UpdateClock(state_machine, current_time_ms);
             UpdateSignals(state_machine, current_time_ms);
+            TickPreChargeStateMachine(state_machine, current_time_ms);
 
             current_time_ms++;
         }

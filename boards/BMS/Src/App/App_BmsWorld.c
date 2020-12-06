@@ -2,6 +2,7 @@
 #include <assert.h>
 
 #include "App_BmsWorld.h"
+#include "configs/App_WaitSignalDuration.h"
 
 struct BmsWorld
 {
@@ -19,6 +20,7 @@ struct BmsWorld
     struct BinaryStatus *     air_positive;
     struct PreChargeSequence *pre_charge_sequence;
     struct Clock *            clock;
+    struct WaitSignal *       wait_after_init_signal;
 };
 
 struct BmsWorld *App_BmsWorld_Create(
@@ -35,7 +37,10 @@ struct BmsWorld *App_BmsWorld_Create(
     struct BinaryStatus *const      air_negative,
     struct BinaryStatus *const      air_positive,
     struct PreChargeSequence *const pre_charge_sequence,
-    struct Clock *const             clock)
+    struct Clock *const             clock,
+
+    bool (*is_in_init_state)(struct BmsWorld *),
+    void (*wait_after_init_callback)(struct BmsWorld *))
 {
     struct BmsWorld *world = (struct BmsWorld *)malloc(sizeof(struct BmsWorld));
     assert(world != NULL);
@@ -55,11 +60,19 @@ struct BmsWorld *App_BmsWorld_Create(
     world->pre_charge_sequence = pre_charge_sequence;
     world->clock               = clock;
 
+    struct WaitSignalCallback _wait_after_init_callback = {
+        .function         = wait_after_init_callback,
+        .wait_duration_ms = WAIT_AFTER_INIT_DURATION_MS
+    };
+    world->wait_after_init_signal = App_SharedWaitSignal_Create(
+        0U, is_in_init_state, world, _wait_after_init_callback);
+
     return world;
 }
 
 void App_BmsWorld_Destroy(struct BmsWorld *world)
 {
+    free(world->wait_after_init_signal);
     free(world);
 }
 
@@ -140,4 +153,11 @@ struct PreChargeSequence *
 struct Clock *App_BmsWorld_GetClock(const struct BmsWorld *const world)
 {
     return world->clock;
+}
+
+void App_BmsWorld_UpdateWaitSignal(
+    const struct BmsWorld *const world,
+    uint32_t                     current_ms)
+{
+    App_SharedWaitSignal_Update(world->wait_after_init_signal, current_ms);
 }

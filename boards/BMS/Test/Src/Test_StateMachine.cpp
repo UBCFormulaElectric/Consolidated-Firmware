@@ -1,9 +1,12 @@
+#include <math.h>
 #include "Test_Bms.h"
 #include "Test_Imd.h"
 #include "Test_BaseStateMachineTest.h"
 
 extern "C"
 {
+#include "App_PreChargeSignals.h"
+#include "App_PreChargeStateMachine.h"
 #include "App_SharedStateMachine.h"
 #include "App_SharedMacros.h"
 #include "states/App_InitState.h"
@@ -14,6 +17,8 @@ extern "C"
 #include "configs/App_ImdConfig.h"
 #include "configs/App_AccumulatorConfigs.h"
 #include "configs/App_AccumulatorThresholds.h"
+#include "configs/App_PreChargeConstants.h"
+#include "configs/App_WaitSignalDuration.h"
 }
 
 namespace StateMachineTest
@@ -63,6 +68,8 @@ FAKE_VALUE_FUNC(bool, is_air_negative_on);
 FAKE_VALUE_FUNC(bool, is_air_positive_on);
 FAKE_VOID_FUNC(enable_pre_charge);
 FAKE_VOID_FUNC(disable_pre_charge);
+FAKE_VALUE_FUNC(float, get_ts_adc_voltage);
+FAKE_VALUE_FUNC(float, get_ts_voltage, float);
 
 class BmsStateMachineTest : public BaseStateMachineTest
 {
@@ -111,15 +118,18 @@ class BmsStateMachineTest : public BaseStateMachineTest
         air_negative = App_SharedBinaryStatus_Create(is_air_negative_on);
         air_positive = App_SharedBinaryStatus_Create(is_air_positive_on);
 
-        pre_charge_sequence =
-            App_PreChargeSequence_Create(enable_pre_charge, disable_pre_charge);
+        pre_charge_sequence = App_PreChargeSequence_Create(
+            enable_pre_charge, disable_pre_charge, get_ts_adc_voltage,
+            get_ts_voltage, MAX_PACK_VOLTAGE, PRE_CHARGE_RC_MS);
 
         clock = App_SharedClock_Create();
 
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
             rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, cell_monitor,
-            air_negative, air_positive, pre_charge_sequence, clock);
+            air_negative, air_positive, pre_charge_sequence, clock,
+            App_PrechargeSignals_IsWaitingAfterInit,
+            App_PrechargeSignals_WaitingAfterInitCompleteCallback);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -137,7 +147,6 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(turn_on_blue_led);
         RESET_FAKE(enable_charger);
         RESET_FAKE(disable_charger);
-        RESET_FAKE(is_charger_connected);
         RESET_FAKE(enable_bms_ok);
         RESET_FAKE(disable_bms_ok);
         RESET_FAKE(is_bms_ok_enabled);
@@ -149,8 +158,6 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(is_bspd_ok_enabled);
         RESET_FAKE(configure_daisy_chain);
         RESET_FAKE(read_cell_voltages);
-        RESET_FAKE(get_min_cell_voltage);
-        RESET_FAKE(get_max_cell_voltage);
         RESET_FAKE(get_average_cell_voltage);
         RESET_FAKE(get_pack_voltage);
         RESET_FAKE(get_segment_0_voltage);
@@ -161,6 +168,13 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(get_segment_5_voltage);
         RESET_FAKE(is_air_negative_on);
         RESET_FAKE(is_air_positive_on);
+        RESET_FAKE(get_ts_adc_voltage);
+        RESET_FAKE(get_ts_voltage);
+
+        is_charger_connected_fake.return_val = true;
+
+        get_min_cell_voltage_fake.return_val = 4.0;
+        get_max_cell_voltage_fake.return_val = 4.0;
     }
 
     void TearDown() override
@@ -215,9 +229,16 @@ class BmsStateMachineTest : public BaseStateMachineTest
         struct StateMachine *state_machine,
         uint32_t             current_time_ms) override
     {
-        // BMS doesn't use any signals currently
-        UNUSED(state_machine);
-        UNUSED(current_time_ms);
+        struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+        App_BmsWorld_UpdateWaitSignal(world, current_time_ms);
+    }
+
+    void TickPreChargeStateMachine(
+        struct StateMachine *state_machine,
+        uint32_t             current_time_ms) override
+    {
+        struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+        App_PreChargeStateMachine_Tick(world);
     }
 
     struct World *            world;
@@ -242,6 +263,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
 TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInitState());
+    // BMS doesn't use any signals currently
 
     EXPECT_EQ(
         CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE,
@@ -612,6 +634,67 @@ TEST_F(BmsStateMachineTest, check_airs_can_signals_for_all_states)
         ASSERT_EQ(
             true, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
     }
+}
+
+TEST_F(BmsStateMachineTest, check_pre_charge_state_machine_state_transitions)
+{
+    SetInitialState(App_GetInitState());
+
+    LetTimePass(state_machine, WAIT_AFTER_INIT_DURATION_MS - 1);
+    EXPECT_EQ(
+        CANMSGS_BMS_PRECHARGE_STATES_PRECHARGE_STATE_INIT_CHOICE,
+        App_CanTx_GetPeriodicSignal_PRECHARGE_STATE(can_tx_interface));
+
+    LetTimePass(state_machine, 1);
+    EXPECT_EQ(
+        CANMSGS_BMS_PRECHARGE_STATES_PRECHARGE_STATE_AIR_OPEN_CHOICE,
+        App_CanTx_GetPeriodicSignal_PRECHARGE_STATE(can_tx_interface));
+
+    // The first tick checks that AIR- is closed. The second tick is responsible
+    // for transitioning from the air open state to the pre-charging state for
+    // the pre-charge state machine.
+    is_air_negative_on_fake.return_val = true;
+    LetTimePass(state_machine, 2);
+    EXPECT_EQ(
+        CANMSGS_BMS_PRECHARGE_STATES_PRECHARGE_STATE_PRECHARGING_CHOICE,
+        App_CanTx_GetPeriodicSignal_PRECHARGE_STATE(can_tx_interface));
+}
+
+TEST_F(BmsStateMachineTest, check_successful_pre_charge_sequence)
+{
+    SetInitialState(App_GetInitState());
+
+    LetTimePass(state_machine, WAIT_AFTER_INIT_DURATION_MS - 1);
+    is_air_negative_on_fake.return_val = true;
+    LetTimePass(state_machine, 2);
+
+    const float rc_cap_percentage[4] = { 0.60f, 0.86f, 0.95f, 0.98f };
+
+    for (size_t i = 0U; i < 3U; i++)
+    {
+        get_ts_voltage_fake.return_val =
+            rc_cap_percentage[i] * MAX_PACK_VOLTAGE;
+        LetTimePass(state_machine, PRE_CHARGE_RC_MS);
+        ASSERT_EQ(
+            PRE_CHARGING_VOLTAGE_IN_RANGE,
+            App_PreChargeSequence_GetPreChargingStatus(pre_charge_sequence));
+    }
+
+    get_ts_voltage_fake.return_val = rc_cap_percentage[3] * MAX_PACK_VOLTAGE;
+    LetTimePass(state_machine, PRE_CHARGE_RC_MS);
+    ASSERT_EQ(
+        PRE_CHARGING_SUCCESS,
+        App_PreChargeSequence_GetPreChargingStatus(pre_charge_sequence));
+
+    // Check that after a certain amount of time the pre charging status is
+    // still PRE_CHARGING_SUCCESS
+    LetTimePass(state_machine, 1000);
+    ASSERT_EQ(
+        PRE_CHARGING_SUCCESS,
+        App_PreChargeSequence_GetPreChargingStatus(pre_charge_sequence));
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_CHARGE_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
 } // namespace StateMachineTest

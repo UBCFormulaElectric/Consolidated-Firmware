@@ -1,6 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
-#include "App_PrechargeStateMachine.h"
+#include "App_PreChargeStateMachine.h"
 
 struct PreChargeStateMachine
 {

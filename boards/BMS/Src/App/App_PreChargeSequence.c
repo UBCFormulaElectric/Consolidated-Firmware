@@ -1,9 +1,9 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "App_PreChargeSequence.h"
-#include "App_PrechargeStateMachine.h"
+#include "App_PreChargeStateMachine.h"
 
-#define NUM_OF_RC_TIME_CONSTANTS 5U
+#define NUM_OF_RC_TIME_CONSTANTS 4U
 
 struct PreChargeSequence
 {
@@ -83,14 +83,14 @@ void App_PreChargeSequence_SetPrevTimeMs(
 }
 
 enum PreChargingStatus App_PreChargeSequence_GetPreChargingStatus(
-    struct PreChargeSequence *pre_charge_sequence)
+    const struct PreChargeSequence *const pre_charge_sequence)
 {
     return pre_charge_sequence->pre_charging_status;
 }
 
-enum PreChargingStatus App_PreChargeSequence_CheckPreChargeBusVoltage(
-    struct PreChargeSequence *pre_charge_sequence,
-    uint32_t                  current_ms)
+enum PreChargingStatus App_PreChargeSequence_CheckPreChargingBusVoltage(
+    struct PreChargeSequence *const pre_charge_sequence,
+    uint32_t                        current_ms)
 {
     if (pre_charge_sequence->rc_time_constant_index < NUM_OF_RC_TIME_CONSTANTS)
     {
@@ -100,17 +100,18 @@ enum PreChargingStatus App_PreChargeSequence_CheckPreChargeBusVoltage(
             pre_charge_sequence->prev_time_ms = current_ms;
             size_t index = pre_charge_sequence->rc_time_constant_index++;
 
-            // The lower bound for the voltage expected at RC, 2RC, ... , 5RC
+            // The lower bound for the voltage expected at RC, 2RC, ... , 4RC
             // expressed as a percentage of the expected voltage
             const float min_cap_voltage_pct[NUM_OF_RC_TIME_CONSTANTS] = {
-                0.5689f, 0.8414f, 0.9417f, 0.9785f, 0.9800f
+                0.5689f, 0.8414f, 0.9417f, 0.9785f
             };
 
-            // The upper bound for the voltage expected at RC, 2RC, ... , 5RC
+            // The upper bound for the voltage expected at RC, 2RC, ... , 4RC
             // expressed as a percentage of the expected voltage
             const float max_cap_voltage_pct[NUM_OF_RC_TIME_CONSTANTS] = {
-                0.6953f, 0.8879f, 0.9587f, 0.9800f, 1.0000f
+                0.6953f, 0.8879f, 0.9587f, 1.0f
             };
+
             const float accumulator_voltage =
                 pre_charge_sequence->accumulator_voltage;
             const float min_ts_voltage =

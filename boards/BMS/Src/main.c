@@ -42,15 +42,19 @@
 #include "Io_CellVoltages.h"
 #include "Io_Airs.h"
 #include "Io_PreCharge.h"
+#include "Io_VoltageSense.h"
+#include "Io_Adc.h"
 
 #include "App_BmsWorld.h"
 #include "App_AccumulatorVoltages.h"
 #include "App_SharedStateMachine.h"
-#include "App_PrechargeStateMachine.h"
+#include "App_PreChargeStateMachine.h"
+#include "App_PreChargeSignals.h"
 #include "states/App_InitState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_ImdConfig.h"
 #include "configs/App_AccumulatorThresholds.h"
+#include "configs/App_PreChargeConstants.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -252,15 +256,20 @@ int main(void)
     air_negative = App_SharedBinaryStatus_Create(Io_Airs_IsAirNegativeOn);
     air_positive = App_SharedBinaryStatus_Create(Io_Airs_IsAirPositiveOn);
 
-    pre_charge_sequence =
-        App_PreChargeSequence_Create(Io_PreCharge_Enable, Io_PreCharge_Disable);
+    pre_charge_sequence = App_PreChargeSequence_Create(
+        Io_PreCharge_Enable, Io_PreCharge_Disable,
+        Io_Adc_GetAdc1Channel3Voltage, Io_VoltageSense_GetTractiveSystemVoltage,
+        MAX_PACK_VOLTAGE, PRE_CHARGE_RC_MS);
 
     clock = App_SharedClock_Create();
 
     world = App_BmsWorld_Create(
         can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger,
         bms_ok, imd_ok, bspd_ok, cell_monitor, air_negative, air_positive,
-        pre_charge_sequence, clock);
+        pre_charge_sequence, clock,
+
+        App_PrechargeSignals_IsWaitingAfterInit,
+        App_PrechargeSignals_WaitingAfterInitCompleteCallback);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
