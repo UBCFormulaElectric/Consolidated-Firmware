@@ -212,6 +212,7 @@ NVIC.PriorityGroup=NVIC_PRIORITYGROUP_4
 NVIC.SVCall_IRQn=true\:0\:0\:false\:false\:false\:false\:false\:false
 NVIC.SysTick_IRQn=true\:15\:0\:false\:false\:false\:true\:false\:true
 NVIC.TIM2_IRQn=true\:5\:0\:false\:false\:true\:true\:true\:true
+NVIC.TIM3_IRQn=true\:5\:0\:false\:false\:true\:true\:true\:true
 NVIC.TIM6_DAC_IRQn=true\:0\:0\:false\:false\:true\:false\:false\:true
 NVIC.TimeBase=TIM6_DAC_IRQn
 NVIC.TimeBaseIP=TIM6

@@ -42,6 +42,7 @@
 #include "Io_CellVoltages.h"
 #include "Io_Airs.h"
 #include "Io_PreCharge.h"
+#include "Io_Adc.h"
 
 #include "App_BmsWorld.h"
 #include "App_AccumulatorVoltages.h"
@@ -195,6 +196,15 @@ int main(void)
     MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
+
+    HAL_ADC_Start_DMA(
+        &hadc1, (uint32_t *)Io_Adc_GetRawAdc1Values(),
+        hadc1.Init.NbrOfConversion);
+    HAL_ADC_Start_DMA(
+        &hadc2, (uint32_t *)Io_Adc_GetRawAdc2Values(),
+        hadc2.Init.NbrOfConversion);
+    HAL_TIM_Base_Start(&htim3);
+
     Io_SharedHardFaultHandler_Init();
 
     Io_Imd_Init();
