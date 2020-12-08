@@ -13,10 +13,10 @@ struct DcmWorld
     struct RgbLedSequence *   rgb_led_sequence;
     struct BrakeLight *       brake_light;
     struct Buzzer *           buzzer;
+    struct Imu *              imu;
     struct ErrorTable *       error_table;
     struct WaitSignal *       buzzer_wait_signal;
     struct Clock *            clock;
-    struct Imu *              imu;
 };
 
 struct DcmWorld *App_DcmWorld_Create(
