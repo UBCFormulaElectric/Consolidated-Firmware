@@ -145,12 +145,6 @@ class DcmStateMachineTest : public BaseStateMachineTest
         App_DcmWorld_UpdateWaitSignal(world, current_time_ms);
     }
 
-    static bool AssertFloatsEqual(float a, float b)
-    {
-        float epsilon = 0.01f;
-        return abs(a - b) < epsilon;
-    }
-
     struct World *            world;
     struct StateMachine *     state_machine;
     struct DcmCanTxInterface *can_tx_interface;
@@ -290,12 +284,12 @@ TEST_F(DcmStateMachineTest, zero_torque_request_in_init_state)
 {
     // Start with a non-zero torque request to prevent false positive
     App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 1.0f);
-    AssertFloatsEqual(
+    ASSERT_FLOAT_EQ(
         1.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 
     // Now tick the state machine and check torque request gets zeroed
     LetTimePass(state_machine, 10);
-    AssertFloatsEqual(
+    ASSERT_FLOAT_EQ(
         0.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 }
 
@@ -309,7 +303,7 @@ TEST_F(DcmStateMachineTest, zero_torque_request_in_fault_state)
 
     // Now tick the state machine and check torque request gets zeroed
     LetTimePass(state_machine, 10);
-    AssertFloatsEqual(
+    ASSERT_FLOAT_EQ(
         0.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 }
 
@@ -446,7 +440,7 @@ TEST_F(
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
     LetTimePass(state_machine, 10);
-    AssertFloatsEqual(
+    ASSERT_FLOAT_EQ(
         expected_torque_request_value,
         App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 
@@ -456,20 +450,20 @@ TEST_F(
         std::nextafter(5.0f, std::numeric_limits<float>::max());
 
     App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_LEFT_WHEEL_SPEED(
-        can_rx_interface, threshold_wheel_speed);
+        can_rx_interface, wheel_speed_threshold);
     App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
         can_rx_interface, value_over_threshold_wheel_speed);
     LetTimePass(state_machine, 10);
-    AssertFloatsEqual(
+    ASSERT_FLOAT_EQ(
         expected_torque_request_value,
         App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 
     App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_LEFT_WHEEL_SPEED(
         can_rx_interface, value_over_threshold_wheel_speed);
     App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
-        can_rx_interface, threshold_wheel_speed);
+        can_rx_interface, wheel_speed_threshold);
     LetTimePass(state_machine, 10);
-    AssertFloatsEqual(
+    ASSERT_FLOAT_EQ(
         expected_torque_request_value,
         App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 
@@ -484,7 +478,7 @@ TEST_F(
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
     LetTimePass(state_machine, 10);
-    AssertFloatsEqual(
+    ASSERT_FLOAT_EQ(
         expected_torque_request_value,
         App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 
@@ -493,7 +487,7 @@ TEST_F(
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE);
     LetTimePass(state_machine, 10);
-    AssertFloatsEqual(
+    ASSERT_FLOAT_EQ(
         expected_torque_request_value,
         App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 
@@ -504,7 +498,7 @@ TEST_F(
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
     LetTimePass(state_machine, 10);
-    AssertFloatsEqual(
+    ASSERT_FLOAT_EQ(
         expected_regen_request_value,
         App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 }
@@ -528,7 +522,7 @@ TEST_F(DcmStateMachineTest, torque_requests_faster_than_100Hz)
     // ("The DCM may only request torque less than or equal to what the driver
     // requested")
     LetTimePass(state_machine, 10);
-    AssertFloatsEqual(
+    ASSERT_FLOAT_EQ(
         0.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 
     // Check that positive torque requests are sent when the accelerator pedal
@@ -555,7 +549,7 @@ TEST_F(DcmStateMachineTest, torque_requests_faster_than_100Hz)
     LetTimePass(state_machine, 10);
     torque_request_with_regen_allowed =
         App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface);
-    AssertFloatsEqual(
+    ASSERT_FLOAT_EQ(
         torque_request_without_regen_allowed,
         torque_request_with_regen_allowed);
 
