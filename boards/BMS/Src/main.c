@@ -284,7 +284,7 @@ int main(void)
     world = App_BmsWorld_Create(
         can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger,
         bms_ok, imd_ok, bspd_ok, accumulator, cell_monitors, air_negative,
-        air_positive, clock);
+        air_positive, pre_charge_sequence, clock);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);

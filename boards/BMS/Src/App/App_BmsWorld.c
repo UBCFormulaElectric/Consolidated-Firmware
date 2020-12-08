@@ -42,20 +42,21 @@ struct BmsWorld *App_BmsWorld_Create(
     struct BmsWorld *world = (struct BmsWorld *)malloc(sizeof(struct BmsWorld));
     assert(world != NULL);
 
-    world->can_tx_interface  = can_tx_interface;
-    world->can_rx_interface  = can_rx_interface;
-    world->imd               = imd;
-    world->heartbeat_monitor = heartbeat_monitor;
-    world->rgb_led_sequence  = rgb_led_sequence;
-    world->charger           = charger;
-    world->bms_ok            = bms_ok;
-    world->imd_ok            = imd_ok;
-    world->bspd_ok           = bspd_ok;
-    world->accumulator       = accumulator;
-    world->cell_monitors     = cell_monitors;
-    world->air_negative      = air_negative;
-    world->air_positive      = air_positive;
-    world->clock             = clock;
+    world->can_tx_interface    = can_tx_interface;
+    world->can_rx_interface    = can_rx_interface;
+    world->imd                 = imd;
+    world->heartbeat_monitor   = heartbeat_monitor;
+    world->rgb_led_sequence    = rgb_led_sequence;
+    world->charger             = charger;
+    world->bms_ok              = bms_ok;
+    world->imd_ok              = imd_ok;
+    world->bspd_ok             = bspd_ok;
+    world->accumulator         = accumulator;
+    world->cell_monitors       = cell_monitors;
+    world->air_negative        = air_negative;
+    world->air_positive        = air_positive;
+    world->pre_charge_sequence = pre_charge_sequence;
+    world->clock               = clock;
 
     return world;
 }

@@ -139,7 +139,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
             rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator,
-            cell_monitors, air_negative, air_positive, pre_charge_sequence, clock);
+            cell_monitors, air_negative, air_positive, pre_charge_sequence,
+            clock);
 
         // Default to starting the state machine in the `init` state
         state_machine =
