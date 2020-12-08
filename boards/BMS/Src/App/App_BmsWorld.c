@@ -15,6 +15,7 @@ struct BmsWorld
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
     struct Accumulator *      accumulator;
+    struct CellMonitors *     cell_monitors;
     struct BinaryStatus *     air_negative;
     struct BinaryStatus *     air_positive;
     struct PreChargeSequence *pre_charge_sequence;
@@ -32,6 +33,7 @@ struct BmsWorld *App_BmsWorld_Create(
     struct OkStatus *const          imd_ok,
     struct OkStatus *const          bspd_ok,
     struct Accumulator *const       accumulator,
+    struct CellMonitors *const      cell_monitors,
     struct BinaryStatus *const      air_negative,
     struct BinaryStatus *const      air_positive,
     struct PreChargeSequence *const pre_charge_sequence,
@@ -50,6 +52,7 @@ struct BmsWorld *App_BmsWorld_Create(
     world->imd_ok              = imd_ok;
     world->bspd_ok             = bspd_ok;
     world->accumulator         = accumulator;
+    world->cell_monitors       = cell_monitors;
     world->air_negative        = air_negative;
     world->air_positive        = air_positive;
     world->pre_charge_sequence = pre_charge_sequence;
@@ -117,6 +120,12 @@ struct Accumulator *
     App_BmsWorld_GetAccumulator(const struct BmsWorld *const world)
 {
     return world->accumulator;
+}
+
+struct CellMonitors *
+    App_BmsWorld_GetCellMonitors(const struct BmsWorld *const world)
+{
+    return world->cell_monitors;
 }
 
 struct BinaryStatus *
