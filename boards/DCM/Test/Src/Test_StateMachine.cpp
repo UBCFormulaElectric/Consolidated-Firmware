@@ -559,7 +559,7 @@ TEST_F(
 }
 
 // DCM-19
-TEST_F(DcmStateMachineTest, torque_requests_faster_than_100Hz)
+TEST_F(DcmStateMachineTest, no_torque_requests_when_accelerator_pedal_is_not_pressed)
 {
     SetInitialState(App_GetDriveState());
 
