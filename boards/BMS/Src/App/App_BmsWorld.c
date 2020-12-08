@@ -18,6 +18,7 @@ struct BmsWorld
     struct CellMonitors *     cell_monitors;
     struct BinaryStatus *     air_negative;
     struct BinaryStatus *     air_positive;
+    struct PreChargeSequence *pre_charge_sequence;
     struct Clock *            clock;
 };
 
@@ -35,6 +36,7 @@ struct BmsWorld *App_BmsWorld_Create(
     struct CellMonitors *const      cell_monitors,
     struct BinaryStatus *const      air_negative,
     struct BinaryStatus *const      air_positive,
+    struct PreChargeSequence *const pre_charge_sequence,
     struct Clock *const             clock)
 {
     struct BmsWorld *world = (struct BmsWorld *)malloc(sizeof(struct BmsWorld));
@@ -135,6 +137,12 @@ struct BinaryStatus *
     App_BmsWorld_GetAirPositive(const struct BmsWorld *const world)
 {
     return world->air_positive;
+}
+
+struct PreChargeSequence *
+    App_BmsWorld_GetPreChargeSequence(const struct BmsWorld *const world)
+{
+    return world->pre_charge_sequence;
 }
 
 struct Clock *App_BmsWorld_GetClock(const struct BmsWorld *const world)

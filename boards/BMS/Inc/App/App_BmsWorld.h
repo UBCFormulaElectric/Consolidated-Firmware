@@ -11,6 +11,7 @@
 #include "App_CellMonitors.h"
 #include "App_SharedBinaryStatus.h"
 #include "App_SharedClock.h"
+#include "App_PreChargeSequence.h"
 
 struct BmsWorld;
 
@@ -37,6 +38,7 @@ struct BmsWorld *App_BmsWorld_Create(
     struct CellMonitors *     cell_monitors,
     struct BinaryStatus *     air_negative,
     struct BinaryStatus *     air_positive,
+    struct PreChargeSequence *pre_charge_sequence,
     struct Clock *            clock);
 
 /**
@@ -137,6 +139,14 @@ struct BinaryStatus *App_BmsWorld_GetAirNegative(const struct BmsWorld *world);
  * @return The air positive binary status for the given world
  */
 struct BinaryStatus *App_BmsWorld_GetAirPositive(const struct BmsWorld *world);
+
+/**
+ * Get the pre-charge sequence for the given world
+ * @param world The world to get the pre-charge sequence for
+ * @return The pre-charge sequence for the given world
+ */
+struct PreChargeSequence *
+    App_BmsWorld_GetPreChargeSequence(const struct BmsWorld *world);
 
 /**
  * Get the clock for the given world
