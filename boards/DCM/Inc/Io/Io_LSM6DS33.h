@@ -34,9 +34,3 @@ float Io_LSM6DS33_GetAccelerationY(void);
  * @return The acceleration (m/s^2) measured on the z-axis.
  */
 float Io_LSM6DS33_GetAccelerationZ(void);
-
-/**
- * Get exit code for imu
- * @return ExitCode corresponding to the most recent Imu reading
- */
-ExitCode Io_LSM6DS33_GetExitCode(void);
