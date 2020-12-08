@@ -13,6 +13,7 @@ extern "C"
 #include "configs/App_WaitSignalDuration.h"
 #include "configs/App_AccelerationThresholds.h"
 #include "configs/App_TorqueRequestThresholds.h"
+#include "configs/App_RegenThresholds.h"
 }
 
 namespace StateMachineTest
@@ -411,11 +412,8 @@ TEST_F(
         }
     }
 }
-
 // DCM-8
-TEST_F(
-    DcmStateMachineTest,
-    regen_allowed_only_when_going_faster_than_5kph_and_airs_closed)
+TEST_F(DcmStateMachineTest, regen_not_allowed_when_no_airs_closed)
 {
     SetInitialState(App_GetDriveState());
 
@@ -431,72 +429,129 @@ TEST_F(
 
     float expected_torque_request_value =
         60.0f / 100.0f * MAX_SAFE_TORQUE_REQUEST_NM;
-    float expected_regen_request_value =
-        -50.0f / 100.0f * MAX_SAFE_TORQUE_REQUEST_NM;
+    float           value_over_threshold_wheel_speed =
+            std::nextafter(REGEN_WHEEL_SPEED_THRESHOLD_KPH, std::numeric_limits<float>::max());
 
-    // Close AIRs and assert regen is still off
-    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
-        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
-    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
-        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
-    LetTimePass(state_machine, 10);
-    ASSERT_FLOAT_EQ(
-        expected_torque_request_value,
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
-
-    // Check regen doesn't turn on when only one wheel is going faster than 5kph
-    constexpr float wheel_speed_threshold = 5.0f;
-    float value_over_threshold_wheel_speed =
-        std::nextafter(5.0f, std::numeric_limits<float>::max());
-
+    // Both wheel speeds over regen threshold
     App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_LEFT_WHEEL_SPEED(
-        can_rx_interface, wheel_speed_threshold);
+            can_rx_interface, value_over_threshold_wheel_speed);
     App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
-        can_rx_interface, value_over_threshold_wheel_speed);
+            can_rx_interface, value_over_threshold_wheel_speed);
     LetTimePass(state_machine, 10);
-    ASSERT_FLOAT_EQ(
-        expected_torque_request_value,
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 
-    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_LEFT_WHEEL_SPEED(
-        can_rx_interface, value_over_threshold_wheel_speed);
-    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
-        can_rx_interface, wheel_speed_threshold);
-    LetTimePass(state_machine, 10);
-    ASSERT_FLOAT_EQ(
-        expected_torque_request_value,
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
-
-    // Check regen doesn't turn on when both wheels are going faster than 5kph
-    // but one of the AIRs is open
-    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_LEFT_WHEEL_SPEED(
-        can_rx_interface, value_over_threshold_wheel_speed);
-    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
-        can_rx_interface, value_over_threshold_wheel_speed);
+    // Both AIRs are open
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_OPEN_CHOICE);
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
-        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
-    LetTimePass(state_machine, 10);
-    ASSERT_FLOAT_EQ(
-        expected_torque_request_value,
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
-
-    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
-        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
-    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE);
+
+    ASSERT_FLOAT_EQ(
+            expected_torque_request_value,
+            App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+}
+
+TEST_F(DcmStateMachineTest, regen_not_allowed_when_one_air_closed)
+{
+    SetInitialState(App_GetDriveState());
+
+    // Turn the DIM start switch on to prevent state transitions in
+    // the drive state.
+    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
+        can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
+
+    App_CanRx_FSM_PEDAL_POSITION_SetSignal_MAPPED_PEDAL_PERCENTAGE(
+        can_rx_interface, 60.0f);
+    App_CanRx_DIM_REGEN_PADDLE_SetSignal_MAPPED_PADDLE_POSITION(
+        can_rx_interface, 50.0f);
+
+    float expected_torque_request_value =
+        60.0f / 100.0f * MAX_SAFE_TORQUE_REQUEST_NM;
+    float           value_over_threshold_wheel_speed =
+            std::nextafter(REGEN_WHEEL_SPEED_THRESHOLD_KPH, std::numeric_limits<float>::max());
+
+    // Both wheel speeds over regen threshold
+    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_LEFT_WHEEL_SPEED(
+            can_rx_interface, value_over_threshold_wheel_speed);
+    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
+            can_rx_interface, value_over_threshold_wheel_speed);
+
+    // Case where negative AIR is open
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
+            can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_OPEN_CHOICE);
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
+            can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
     LetTimePass(state_machine, 10);
     ASSERT_FLOAT_EQ(
-        expected_torque_request_value,
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+            expected_torque_request_value,
+            App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 
-    // Check regen turns on when both wheels are going faster than 5kph and AIRS
-    // are closed
+    // Case where positive AIR open
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
-        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
+            can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
-        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
+            can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE);
+    LetTimePass(state_machine, 10);
+    ASSERT_FLOAT_EQ(
+            expected_torque_request_value,
+            App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+
+}
+
+// DCM-8, DCM-19
+TEST_F(
+    DcmStateMachineTest,
+    regen_allowed_only_when_going_faster_than_5kph_and_both_airs_closed)
+{
+    SetInitialState(App_GetDriveState());
+
+    // Turn the DIM start switch on to prevent state transitions in
+    // the drive state.
+    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
+        can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
+
+    App_CanRx_FSM_PEDAL_POSITION_SetSignal_MAPPED_PEDAL_PERCENTAGE(
+        can_rx_interface, 60.0f);
+    App_CanRx_DIM_REGEN_PADDLE_SetSignal_MAPPED_PADDLE_POSITION(
+        can_rx_interface, 50.0f);
+
+    float expected_torque_request_value =
+            60.0f / 100.0f * MAX_SAFE_TORQUE_REQUEST_NM;
+    float expected_regen_request_value =
+        -50.0f / 100.0f * MAX_SAFE_TORQUE_REQUEST_NM;
+    float           value_over_threshold_wheel_speed =
+            std::nextafter(REGEN_WHEEL_SPEED_THRESHOLD_KPH, std::numeric_limits<float>::max());
+
+    // Both AIRs are closed
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
+            can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
+            can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
+
+    // Check regen doesn't turn on when left wheel speed is not over regen threshold
+    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_LEFT_WHEEL_SPEED(
+            can_rx_interface, REGEN_WHEEL_SPEED_THRESHOLD_KPH);
+    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
+            can_rx_interface, value_over_threshold_wheel_speed);
+    LetTimePass(state_machine, 10);
+    ASSERT_FLOAT_EQ(
+            expected_torque_request_value,
+            App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+
+    // Check regen doesn't turn on when right wheel speed is not over regen threshold
+    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_LEFT_WHEEL_SPEED(
+            can_rx_interface, value_over_threshold_wheel_speed);
+    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
+            can_rx_interface, REGEN_WHEEL_SPEED_THRESHOLD_KPH);
+    LetTimePass(state_machine, 10);
+    ASSERT_FLOAT_EQ(
+            expected_torque_request_value,
+            App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+
+    // Check regen turns on when both wheels speeds over regen threshold
+    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_LEFT_WHEEL_SPEED(
+            can_rx_interface, value_over_threshold_wheel_speed);
+    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
+            can_rx_interface, value_over_threshold_wheel_speed);
     LetTimePass(state_machine, 10);
     ASSERT_FLOAT_EQ(
         expected_regen_request_value,
@@ -506,9 +561,6 @@ TEST_F(
 // DCM-19
 TEST_F(DcmStateMachineTest, torque_requests_faster_than_100Hz)
 {
-    float torque_request_with_regen_allowed;
-    float torque_request_without_regen_allowed;
-
     SetInitialState(App_GetDriveState());
 
     // Turn the DIM start switch on to prevent state transitions in
@@ -524,41 +576,6 @@ TEST_F(DcmStateMachineTest, torque_requests_faster_than_100Hz)
     LetTimePass(state_machine, 10);
     ASSERT_FLOAT_EQ(
         0.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
-
-    // Check that positive torque requests are sent when the accelerator pedal
-    // is pressed
-    App_CanRx_FSM_PEDAL_POSITION_SetSignal_MAPPED_PEDAL_PERCENTAGE(
-        can_rx_interface, 23.2f);
-    LetTimePass(state_machine, 10);
-    torque_request_without_regen_allowed =
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface);
-    EXPECT_TRUE(torque_request_without_regen_allowed > 0.0f);
-
-    // Turn on regen and check that torque requests are still positive & being
-    // sent Enable regen by setting wheel speeds above 5kph and closing both
-    // AIRs
-    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_LEFT_WHEEL_SPEED(
-        can_rx_interface, 6.0f);
-    App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
-        can_rx_interface, 6.0f);
-    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
-        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
-    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
-        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
-    // Check that torque request left unchanged
-    LetTimePass(state_machine, 10);
-    torque_request_with_regen_allowed =
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface);
-    ASSERT_FLOAT_EQ(
-        torque_request_without_regen_allowed,
-        torque_request_with_regen_allowed);
-
-    // Push regen paddle and check that negative torque request is sent
-    App_CanRx_DIM_REGEN_PADDLE_SetSignal_MAPPED_PADDLE_POSITION(
-        can_rx_interface, 30.0f);
-    LetTimePass(state_machine, 10);
-    ASSERT_TRUE(
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface) < 0);
 }
 
 } // namespace StateMachineTest
