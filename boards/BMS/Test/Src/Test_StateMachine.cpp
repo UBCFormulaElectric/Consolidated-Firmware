@@ -110,7 +110,9 @@ class BmsStateMachineTest : public BaseStateMachineTest
             MIN_CELL_VOLTAGE, MAX_CELL_VOLTAGE, MIN_SEGMENT_VOLTAGE,
             MAX_SEGMENT_VOLTAGE, MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE);
 
-        airs = App_Airs_Create(is_air_positive_closed, is_air_negative_closed,close_air_positive, open_air_positive);
+        airs = App_Airs_Create(
+            is_air_positive_closed, is_air_negative_closed, close_air_positive,
+            open_air_positive);
 
         pre_charge_sequence =
             App_PreChargeSequence_Create(enable_pre_charge, disable_pre_charge);
@@ -232,7 +234,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
     struct Accumulator *      cell_monitor;
-    struct Airs * airs;
+    struct Airs *             airs;
     struct PreChargeSequence *pre_charge_sequence;
     struct Clock *            clock;
 };

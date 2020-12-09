@@ -26,11 +26,10 @@ bool Io_Airs_IsAirPositiveClosed(void)
 
 void Io_Airs_CloseAirPositive(void)
 {
-    HAL_GPIO_WritePin(PRE_CHARGE_EN_GPIO_Port, PRE_CHARGE_EN_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(AIR_EN_GPIO_Port, AIR_EN_Pin, GPIO_PIN_SET);
 }
 
 void Io_Airs_OpenAirPositive(void)
 {
-    HAL_GPIO_WritePin(
-        PRE_CHARGE_EN_GPIO_Port, PRE_CHARGE_EN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(AIR_EN_GPIO_Port, AIR_EN_Pin, GPIO_PIN_RESET);
 }

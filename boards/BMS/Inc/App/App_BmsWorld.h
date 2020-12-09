@@ -8,9 +8,9 @@
 #include "App_Charger.h"
 #include "App_OkStatus.h"
 #include "App_Accumulator.h"
-#include "App_SharedClock.h"
-#include "App_PreChargeSequence.h"
 #include "App_Airs.h"
+#include "App_PreChargeSequence.h"
+#include "App_SharedClock.h"
 
 struct BmsWorld;
 
