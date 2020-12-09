@@ -8,9 +8,9 @@
 #include "App_Charger.h"
 #include "App_OkStatus.h"
 #include "App_Accumulator.h"
-#include "App_SharedBinaryStatus.h"
 #include "App_SharedClock.h"
 #include "App_PreChargeSequence.h"
+#include "App_Airs.h"
 
 struct BmsWorld;
 
@@ -34,8 +34,7 @@ struct BmsWorld *App_BmsWorld_Create(
     struct OkStatus *         imd_ok,
     struct OkStatus *         bspd_ok,
     struct Accumulator *      accumulator,
-    struct BinaryStatus *     air_negative,
-    struct BinaryStatus *     air_positive,
+    struct Airs *             airs,
     struct PreChargeSequence *pre_charge_sequence,
     struct Clock *            clock);
 
@@ -118,19 +117,7 @@ struct OkStatus *App_BmsWorld_GetBspdOkStatus(const struct BmsWorld *world);
 struct Accumulator *
     App_BmsWorld_GetAccumulator(const struct BmsWorld *const world);
 
-/**
- * Get the air negative binary status for the given world
- * @param world The world to get the air negative binary status for
- * @return The air negative binary status for the given world
- */
-struct BinaryStatus *App_BmsWorld_GetAirNegative(const struct BmsWorld *world);
-
-/**
- * Get the air positive binary status for the given world
- * @param world The world to get the air positive binary status for
- * @return The air positive binary status for the given world
- */
-struct BinaryStatus *App_BmsWorld_GetAirPositive(const struct BmsWorld *world);
+struct Airs *App_BmsWorld_GetAirs(const struct BmsWorld *world);
 
 /**
  * Get the pre-charge sequence for the given world
