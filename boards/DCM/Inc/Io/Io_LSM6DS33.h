@@ -14,10 +14,6 @@
 
 /**
  * Update acceleration and angular rate values for the given Imu.
- * Also sets the ExitCode static variable, which is
- * EXIT_CODE_OK if successful,
- * EXIT_CODE_OUT_OF_RANGE if data is not within specified range,
- * EXIT_CODE_INVALID_ARGS if data was not read successfully
  */
 void Io_LSM6DS33_ExtiCallback(void);
 
