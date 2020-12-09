@@ -481,7 +481,6 @@ TEST_F(
         can_rx_interface, value_over_threshold_wheel_speed);
     App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
         can_rx_interface, value_over_threshold_wheel_speed);
-
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_OPEN_CHOICE);
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
