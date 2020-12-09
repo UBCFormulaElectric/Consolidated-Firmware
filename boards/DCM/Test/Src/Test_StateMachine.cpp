@@ -453,7 +453,7 @@ TEST_F(
         App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 
     // Check regen doesn't turn on when only one wheel is going faster than 5kph
-    float threshold_wheel_speed = 5.0f;
+    constexpr float wheel_speed_threshold = 5.0f;
     float value_over_threshold_wheel_speed =
         std::nextafter(5.0f, std::numeric_limits<float>::max());
 
