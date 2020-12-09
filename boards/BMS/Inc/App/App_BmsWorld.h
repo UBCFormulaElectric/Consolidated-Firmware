@@ -125,6 +125,11 @@ struct Accumulator *App_BmsWorld_GetAccumulator(const struct BmsWorld *world);
  */
 struct CellMonitors *App_BmsWorld_GetCellMonitors(const struct BmsWorld *world);
 
+/**
+ * Get the airs for the given world
+ * @param world The world to get the airs for
+ * @return The airs for the given world
+ */
 struct Airs *App_BmsWorld_GetAirs(const struct BmsWorld *world);
 
 /**

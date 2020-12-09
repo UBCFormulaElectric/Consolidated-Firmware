@@ -5,12 +5,12 @@
 struct Airs;
 
 /**
- * Allocate and initialize a pair of AIRs
- * @param is_air_positive_closed A function that checks if AIR+ is closed
- * @param is_air_negative_closed A function that checks if AIR- is closed
+ * Allocate and initialize a pair of AIRs (AIR+ and AIR-)
+ * @param is_air_positive_closed A function to check if AIR+ is closed
+ * @param is_air_negative_closed A function to check if AIR- is closed
  * @param close_air_positive A function that can be called to close AIR+
  * @param open_air_positive A function that can be called to open AIR+
- * @return The create pair of AIRs whose ownership is given to the caller
+ * @return The created pair of AIRs whose ownership is given to the caller
  */
 struct Airs *App_Airs_Create(
     bool (*is_air_positive_closed)(void),
@@ -45,7 +45,7 @@ struct BinaryStatus *App_Airs_GetAirNegative(const struct Airs *airs);
 void App_Airs_CloseAirPositive(const struct Airs *airs);
 
 /**
- * Open AIR- from the given pair of AIRs
+ * Open AIR+ from the given pair of AIRs
  * @param airs The given pair of AIRs to open AIR+ for
  */
 void App_Airs_OpenAirPositive(const struct Airs *airs);
