@@ -446,7 +446,6 @@ TEST_F(
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
     LetTimePass(state_machine, 10);
-
     AssertFloatsEqual(
         expected_torque_request_value,
         App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
