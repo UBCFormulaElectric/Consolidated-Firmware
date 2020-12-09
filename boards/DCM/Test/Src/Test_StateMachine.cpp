@@ -430,7 +430,6 @@ TEST_F(
     App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
         can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
 
-    // Press down accelerator pedal and regen paddle
     App_CanRx_FSM_PEDAL_POSITION_SetSignal_MAPPED_PEDAL_PERCENTAGE(
         can_rx_interface, 60.0f);
     App_CanRx_DIM_REGEN_PADDLE_SetSignal_MAPPED_PADDLE_POSITION(
