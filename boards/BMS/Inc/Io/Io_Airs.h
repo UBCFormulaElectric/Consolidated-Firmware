@@ -3,14 +3,14 @@
 #include <stdbool.h>
 
 /**
- * Check if the AIR- is on
- * @return true if AIR- is on. Else, false
+ * Check if the AIR- is closed
+ * @return true if AIR- is closed. Else, false
  */
 bool Io_Airs_IsAirNegativeClosed(void);
 
 /**
- * Check if AIR+ is on
- * @return true if AIR+ is on. Else, false
+ * Check if AIR+ is closed
+ * @return true if AIR+ is closed. Else, false
  */
 bool Io_Airs_IsAirPositiveClosed(void);
 
@@ -20,6 +20,6 @@ bool Io_Airs_IsAirPositiveClosed(void);
 void Io_Airs_CloseAirPositive(void);
 
 /**
- * Open AIR-
+ * Open AIR+
  */
 void Io_Airs_OpenAirPositive(void);

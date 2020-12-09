@@ -343,9 +343,9 @@ int main(void)
     Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
-/* add threads, ... */
-// According to Percpio documentation, vTraceEnable() should be the last
-// function call before the scheduler starts.
+    /* add threads, ... */
+    // According to Percpio documentation, vTraceEnable() should be the last
+    // function call before the scheduler starts.
 #if (configUSE_TRACE_FACILITY == 1)
     vTraceEnable(TRC_INIT);
 #endif

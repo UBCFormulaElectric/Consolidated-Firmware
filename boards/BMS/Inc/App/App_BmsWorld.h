@@ -32,7 +32,7 @@ struct BmsWorld *App_BmsWorld_Create(
     struct RgbLedSequence *   rgb_led_sequence,
     struct Charger *          charger,
     struct OkStatus *         bms_ok,
-    struct OkStatus *         imd_okTest,
+    struct OkStatus *         imd_ok,
     struct OkStatus *         bspd_ok,
     struct Accumulator *      accumulator,
     struct CellMonitors *     cell_monitors,

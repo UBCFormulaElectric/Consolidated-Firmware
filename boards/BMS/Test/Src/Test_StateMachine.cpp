@@ -143,65 +143,62 @@ class BmsStateMachineTest : public BaseStateMachineTest
 
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
-            rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, cell_monitor,
-            airs, pre_charge_sequence, clock);
             rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator,
-            cell_monitors, airs, pre_charge_sequence,
-            clock);
+            cell_monitors, airs, pre_charge_sequence, clock);
 
-            // Default to starting the state machine in the `init` state
-            state_machine =
-                App_SharedStateMachine_Create(world, App_GetInitState());
+        // Default to starting the state machine in the `init` state
+        state_machine =
+            App_SharedStateMachine_Create(world, App_GetInitState());
 
-            RESET_FAKE(send_non_periodic_msg_BMS_STARTUP);
-            RESET_FAKE(send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT);
-            RESET_FAKE(get_pwm_frequency);
-            RESET_FAKE(get_pwm_duty_cycle);
-            RESET_FAKE(get_seconds_since_power_on);
-            RESET_FAKE(get_current_ms);
-            RESET_FAKE(heartbeat_timeout_callback);
-            RESET_FAKE(turn_on_red_led);
-            RESET_FAKE(turn_on_green_led);
-            RESET_FAKE(turn_on_blue_led);
-            RESET_FAKE(enable_charger);
-            RESET_FAKE(disable_charger);
-            RESET_FAKE(enable_bms_ok);
-            RESET_FAKE(disable_bms_ok);
-            RESET_FAKE(is_bms_ok_enabled);
-            RESET_FAKE(enable_imd_ok);
-            RESET_FAKE(disable_imd_ok);
-            RESET_FAKE(is_imd_ok_enabled);
-            RESET_FAKE(enable_bspd_ok);
-            RESET_FAKE(disable_bspd_ok);
-            RESET_FAKE(is_bspd_ok_enabled);
-            RESET_FAKE(configure_daisy_chain);
-            RESET_FAKE(read_cell_voltages);
-            RESET_FAKE(get_average_cell_voltage);
-            RESET_FAKE(get_pack_voltage);
-            RESET_FAKE(get_segment_0_voltage);
-            RESET_FAKE(get_segment_1_voltage);
-            RESET_FAKE(get_segment_2_voltage);
-            RESET_FAKE(get_segment_3_voltage);
-            RESET_FAKE(get_segment_4_voltage);
-            RESET_FAKE(get_segment_5_voltage);
-            RESET_FAKE(get_segment_0_die_temp);
-            RESET_FAKE(get_segment_1_die_temp);
-            RESET_FAKE(get_segment_2_die_temp);
-            RESET_FAKE(get_segment_3_die_temp);
-            RESET_FAKE(get_segment_4_die_temp);
-            RESET_FAKE(get_segment_5_die_temp);
-            RESET_FAKE(get_max_die_temp);
-            RESET_FAKE(is_air_negative_closed);
-            RESET_FAKE(is_air_positive_closed);
+        RESET_FAKE(send_non_periodic_msg_BMS_STARTUP);
+        RESET_FAKE(send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT);
+        RESET_FAKE(get_pwm_frequency);
+        RESET_FAKE(get_pwm_duty_cycle);
+        RESET_FAKE(get_seconds_since_power_on);
+        RESET_FAKE(get_current_ms);
+        RESET_FAKE(heartbeat_timeout_callback);
+        RESET_FAKE(turn_on_red_led);
+        RESET_FAKE(turn_on_green_led);
+        RESET_FAKE(turn_on_blue_led);
+        RESET_FAKE(enable_charger);
+        RESET_FAKE(disable_charger);
+        RESET_FAKE(enable_bms_ok);
+        RESET_FAKE(disable_bms_ok);
+        RESET_FAKE(is_bms_ok_enabled);
+        RESET_FAKE(enable_imd_ok);
+        RESET_FAKE(disable_imd_ok);
+        RESET_FAKE(is_imd_ok_enabled);
+        RESET_FAKE(enable_bspd_ok);
+        RESET_FAKE(disable_bspd_ok);
+        RESET_FAKE(is_bspd_ok_enabled);
+        RESET_FAKE(configure_daisy_chain);
+        RESET_FAKE(read_cell_voltages);
+        RESET_FAKE(get_average_cell_voltage);
+        RESET_FAKE(get_pack_voltage);
+        RESET_FAKE(get_segment_0_voltage);
+        RESET_FAKE(get_segment_1_voltage);
+        RESET_FAKE(get_segment_2_voltage);
+        RESET_FAKE(get_segment_3_voltage);
+        RESET_FAKE(get_segment_4_voltage);
+        RESET_FAKE(get_segment_5_voltage);
+        RESET_FAKE(get_segment_0_die_temp);
+        RESET_FAKE(get_segment_1_die_temp);
+        RESET_FAKE(get_segment_2_die_temp);
+        RESET_FAKE(get_segment_3_die_temp);
+        RESET_FAKE(get_segment_4_die_temp);
+        RESET_FAKE(get_segment_5_die_temp);
+        RESET_FAKE(get_max_die_temp);
+        RESET_FAKE(is_air_negative_closed);
+        RESET_FAKE(is_air_positive_closed);
 
-            // The charger is connected to prevent other tests from entering the
-            // fault state from the charge state
-            is_charger_connected_fake.return_val = true;
+        // The charger is connected to prevent other tests from entering the
+        // fault state from the charge state
+        is_charger_connected_fake.return_val = true;
 
-            // A voltage in [3.0, 4.2] was arbitrarily chosen to prevent other
-            // tests from entering the fault state
-            get_min_cell_voltage_fake.return_val = 4.0f;
-            get_max_cell_voltage_fake.return_val = 4.0f;
+        // A voltage in [3.0, 4.2] was arbitrarily chosen to prevent other
+        // tests from entering the fault state
+        get_min_cell_voltage_fake.return_val = 4.0f;
+        get_max_cell_voltage_fake.return_val = 4.0f;
     }
 
     void TearDown() override
@@ -307,7 +304,6 @@ class BmsStateMachineTest : public BaseStateMachineTest
     struct OkStatus *         bms_ok;
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
-    struct Accumulator *      cell_monitor;
     struct Accumulator *      accumulator;
     struct CellMonitors *     cell_monitors;
     struct Airs *             airs;
