@@ -40,6 +40,7 @@
 #include "Io_OkStatuses.h"
 #include "Io_LTC6813.h"
 #include "Io_CellVoltages.h"
+#include "Io_DieTemperatures.h"
 #include "Io_Airs.h"
 #include "Io_PreCharge.h"
 #include "Io_Adc.h"
@@ -51,6 +52,7 @@
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_ImdConfig.h"
 #include "configs/App_AccumulatorThresholds.h"
+#include "configs/App_CellMonitorsThresholds.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -110,7 +112,8 @@ struct Charger *          charger;
 struct OkStatus *         bms_ok;
 struct OkStatus *         imd_ok;
 struct OkStatus *         bspd_ok;
-struct Accumulator *      cell_monitor;
+struct Accumulator *      accumulator;
+struct CellMonitors *     cell_monitors;
 struct Airs *             airs;
 struct PreChargeSequence *pre_charge_sequence;
 struct Clock *            clock;
@@ -242,7 +245,7 @@ int main(void)
 
     Io_LTC6813_Init(&hspi2, SPI2_NSS_GPIO_Port, SPI2_NSS_Pin);
     App_AccumulatorVoltages_Init(Io_CellVoltages_GetRawCellVoltages);
-    cell_monitor = App_Accumulator_Create(
+    accumulator = App_Accumulator_Create(
         Io_LTC6813_ConfigureRegisterA, Io_CellVoltages_ReadRawCellVoltages,
         App_AccumulatorVoltages_GetMinCellVoltage,
         App_AccumulatorVoltages_GetMaxCellVoltage,
@@ -257,6 +260,18 @@ int main(void)
         MAX_CELL_VOLTAGE, MIN_SEGMENT_VOLTAGE, MAX_SEGMENT_VOLTAGE,
         MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE);
 
+    cell_monitors = App_CellMonitors_Create(
+        Io_DieTemperatures_ReadTemp, Io_DieTemperatures_GetSegment0DieTemp,
+        Io_DieTemperatures_GetSegment1DieTemp,
+        Io_DieTemperatures_GetSegment2DieTemp,
+        Io_DieTemperatures_GetSegment3DieTemp,
+        Io_DieTemperatures_GetSegment4DieTemp,
+        Io_DieTemperatures_GetSegment5DieTemp, Io_DieTemperatures_GetMaxDieTemp,
+        MIN_ITMP_DEGC, MAX_ITMP_DEGC, DIE_TEMP_TO_REENABLE_CHARGER_DEGC,
+        DIE_TEMP_TO_REENABLE_CELL_BALANCING_DEGC,
+        DIE_TEMP_TO_DISABLE_CELL_BALANCING_DEGC,
+        DIE_TEMP_TO_DISABLE_CHARGER_DEGC);
+
     airs = App_Airs_Create(
         Io_Airs_IsAirPositiveClosed, Io_Airs_IsAirNegativeClosed,
         Io_Airs_CloseAirPositive, Io_Airs_OpenAirPositive);
@@ -268,8 +283,8 @@ int main(void)
 
     world = App_BmsWorld_Create(
         can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger,
-        bms_ok, imd_ok, bspd_ok, cell_monitor, airs, pre_charge_sequence,
-        clock);
+        bms_ok, imd_ok, bspd_ok, accumulator, cell_monitors, airs,
+        pre_charge_sequence, clock);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
@@ -328,9 +343,9 @@ int main(void)
     Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
-    /* add threads, ... */
-    // According to Percpio documentation, vTraceEnable() should be the last
-    // function call before the scheduler starts.
+/* add threads, ... */
+// According to Percpio documentation, vTraceEnable() should be the last
+// function call before the scheduler starts.
 #if (configUSE_TRACE_FACILITY == 1)
     vTraceEnable(TRC_INIT);
 #endif

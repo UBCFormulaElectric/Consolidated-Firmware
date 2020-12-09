@@ -8,6 +8,7 @@
 #include "App_Charger.h"
 #include "App_OkStatus.h"
 #include "App_Accumulator.h"
+#include "App_CellMonitors.h"
 #include "App_Airs.h"
 #include "App_PreChargeSequence.h"
 #include "App_SharedClock.h"
@@ -31,9 +32,10 @@ struct BmsWorld *App_BmsWorld_Create(
     struct RgbLedSequence *   rgb_led_sequence,
     struct Charger *          charger,
     struct OkStatus *         bms_ok,
-    struct OkStatus *         imd_ok,
+    struct OkStatus *         imd_okTest,
     struct OkStatus *         bspd_ok,
     struct Accumulator *      accumulator,
+    struct CellMonitors *     cell_monitors,
     struct Airs *             airs,
     struct PreChargeSequence *pre_charge_sequence,
     struct Clock *            clock);
@@ -114,8 +116,14 @@ struct OkStatus *App_BmsWorld_GetBspdOkStatus(const struct BmsWorld *world);
  * @param world The world to get the accumulator for
  * @return The accumulator for the given world
  */
-struct Accumulator *
-    App_BmsWorld_GetAccumulator(const struct BmsWorld *const world);
+struct Accumulator *App_BmsWorld_GetAccumulator(const struct BmsWorld *world);
+
+/**
+ * Get the cell monitors for the given world
+ * @param world The world to get the cell monitors for
+ * @return The cell monitors for the given world
+ */
+struct CellMonitors *App_BmsWorld_GetCellMonitors(const struct BmsWorld *world);
 
 struct Airs *App_BmsWorld_GetAirs(const struct BmsWorld *world);
 
