@@ -460,7 +460,6 @@ TEST_F(
         can_rx_interface, threshold_wheel_speed);
     App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
         can_rx_interface, value_over_threshold_wheel_speed);
-
     LetTimePass(state_machine, 10);
     AssertFloatsEqual(
         expected_torque_request_value,
