@@ -65,30 +65,8 @@ void App_SetPeriodicSignals_AccumulatorInRangeChecks(
 {
     App_Accumulator_ReadCellVoltages(accumulator);
 
-    struct InRangeCheck *min_cell_voltage_in_range_check =
-        App_Accumulator_GetMinCellVoltageInRangeCheck(accumulator);
-    struct InRangeCheck *max_cell_voltage_in_range_check =
-        App_Accumulator_GetMaxCellVoltageInRangeCheck(accumulator);
-    struct InRangeCheck *average_cell_voltage_in_range_check =
-        App_Accumulator_GetAverageCellVoltageInRangeCheck(accumulator);
-    struct InRangeCheck *pack_voltage_in_range_check =
-        App_Accumulator_GetPackVoltageInRangeCheck(accumulator);
-
-    struct InRangeCheck *segment_0_voltage_in_range_check =
-        App_Accumulator_GetSegment0VoltageInRangeCheck(accumulator);
-    struct InRangeCheck *segment_1_voltage_in_range_check =
-        App_Accumulator_GetSegment1VoltageInRangeCheck(accumulator);
-    struct InRangeCheck *segment_2_voltage_in_range_check =
-        App_Accumulator_GetSegment2VoltageInRangeCheck(accumulator);
-    struct InRangeCheck *segment_3_voltage_in_range_check =
-        App_Accumulator_GetSegment3VoltageInRangeCheck(accumulator);
-    struct InRangeCheck *segment_4_voltage_in_range_check =
-        App_Accumulator_GetSegment4VoltageInRangeCheck(accumulator);
-    struct InRangeCheck *segment_5_voltage_in_range_check =
-        App_Accumulator_GetSegment5VoltageInRangeCheck(accumulator);
-
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, min_cell_voltage_in_range_check,
+        can_tx, App_Accumulator_GetMinCellVoltageInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE,
         App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE_OUT_OF_RANGE,
         CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
@@ -96,7 +74,7 @@ void App_SetPeriodicSignals_AccumulatorInRangeChecks(
         CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, max_cell_voltage_in_range_check,
+        can_tx, App_Accumulator_GetMaxCellVoltageInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE,
         App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE_OUT_OF_RANGE,
         CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
@@ -104,66 +82,125 @@ void App_SetPeriodicSignals_AccumulatorInRangeChecks(
         CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, average_cell_voltage_in_range_check,
+        can_tx, App_Accumulator_GetAverageCellVoltageInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_AVERAGE_CELL_VOLTAGE,
         App_CanTx_SetPeriodicSignal_AVERAGE_CELL_VOLTAGE_OUT_OF_RANGE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_AVERAGE_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_AVERAGE_CELL_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_AVERAGE_CELL_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_AVERAGE_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_AVERAGE_CELL_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_AVERAGE_CELL_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, pack_voltage_in_range_check,
+        can_tx, App_Accumulator_GetPackVoltageInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_PACK_VOLTAGE,
         App_CanTx_SetPeriodicSignal_PACK_VOLTAGE_OUT_OF_RANGE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_PACK_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_PACK_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_PACK_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_PACK_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_PACK_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_PACK_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, segment_0_voltage_in_range_check,
+        can_tx, App_Accumulator_GetSegment0VoltageInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_SEGMENT_0_VOLTAGE,
         App_CanTx_SetPeriodicSignal_SEGMENT_0_VOLTAGE_OUT_OF_RANGE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_SEGMENT_0_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_SEGMENT_0_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_SEGMENT_0_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_0_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_0_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_0_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, segment_1_voltage_in_range_check,
+        can_tx, App_Accumulator_GetSegment1VoltageInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_SEGMENT_1_VOLTAGE,
         App_CanTx_SetPeriodicSignal_SEGMENT_1_VOLTAGE_OUT_OF_RANGE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_SEGMENT_1_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_SEGMENT_1_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_SEGMENT_1_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_1_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_1_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_1_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, segment_2_voltage_in_range_check,
+        can_tx, App_Accumulator_GetSegment2VoltageInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_SEGMENT_2_VOLTAGE,
         App_CanTx_SetPeriodicSignal_SEGMENT_2_VOLTAGE_OUT_OF_RANGE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_SEGMENT_2_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_SEGMENT_2_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_SEGMENT_2_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_2_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_2_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_2_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, segment_3_voltage_in_range_check,
+        can_tx, App_Accumulator_GetSegment3VoltageInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_SEGMENT_3_VOLTAGE,
         App_CanTx_SetPeriodicSignal_SEGMENT_3_VOLTAGE_OUT_OF_RANGE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_SEGMENT_3_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_SEGMENT_3_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_SEGMENT_3_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_3_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_3_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_3_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, segment_4_voltage_in_range_check,
+        can_tx, App_Accumulator_GetSegment4VoltageInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_SEGMENT_4_VOLTAGE,
         App_CanTx_SetPeriodicSignal_SEGMENT_4_VOLTAGE_OUT_OF_RANGE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_SEGMENT_4_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_SEGMENT_4_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_SEGMENT_4_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_4_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_4_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_4_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, segment_5_voltage_in_range_check,
+        can_tx, App_Accumulator_GetSegment5VoltageInRangeCheck(accumulator),
         App_CanTx_SetPeriodicSignal_SEGMENT_5_VOLTAGE,
         App_CanTx_SetPeriodicSignal_SEGMENT_5_VOLTAGE_OUT_OF_RANGE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_SEGMENT_5_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_SEGMENT_5_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-        CANMSGS_BMS_CELL_VOLTAGE_ERRORS_SEGMENT_5_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_5_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_5_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_5_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+}
+
+void App_SetPeriodicSignals_CellMonitorsInRangeChecks(
+    struct BmsCanTxInterface *const  can_tx,
+    const struct CellMonitors *const cell_monitors)
+{
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx,
+        App_CellMonitors_GetCellMonitor0DieTempInRangeCheck(cell_monitors),
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_0_DIE_TEMPERATURE,
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_0_DIE_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_0_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_0_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_0_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
+
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx,
+        App_CellMonitors_GetCellMonitor1DieTempInRangeCheck(cell_monitors),
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_1_DIE_TEMPERATURE,
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_1_DIE_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_1_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_1_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_1_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
+
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx,
+        App_CellMonitors_GetCellMonitor2DieTempInRangeCheck(cell_monitors),
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_2_DIE_TEMPERATURE,
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_2_DIE_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_2_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_2_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_2_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
+
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx,
+        App_CellMonitors_GetCellMonitor3DieTempInRangeCheck(cell_monitors),
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_3_DIE_TEMPERATURE,
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_3_DIE_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_3_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_3_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_3_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
+
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx,
+        App_CellMonitors_GetCellMonitor4DieTempInRangeCheck(cell_monitors),
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_4_DIE_TEMPERATURE,
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_4_DIE_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_4_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_4_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_4_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
+
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx,
+        App_CellMonitors_GetCellMonitor5DieTempInRangeCheck(cell_monitors),
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_5_DIE_TEMPERATURE,
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }

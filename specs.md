@@ -68,13 +68,13 @@ FSM-18 | Brake actuation reporting | - The FSM must report the brake actuation O
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 FSM-17 | Default state | The FSM state machine must begin in the AIR-Open state by default.
-FSM-12 | Exiting the AIR-Open state | The FSM must enter the AIR-Closed state when the BMS closes the AIR+ and AIR-.
+FSM-12 | Exiting the AIR-Open state | The FSM must enter the AIR-Closed state when the BMS closes the AIR+. 
 
 ### FSM AIR-Closed State <a name="FSM_AIR_CLOSED"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 FSM-14 | Coolant flow measurements | - The FSM must measure the coolant flow and apply a heavy low pass filter on the signal (TODO: manually find LPF constant and leave it here). <br/> - If the coolant flow is below the minimum threshold for 1s continuously, the FSM must send a motor shutdown fault. <br/> - If the coolant flow returns above the minimum threshold for 1s continuously, the FSM must clear the motor shutdown fault. <br/> - The FSM must transmit the coolant flow over CAN at 1Hz or faster.
-FSM-15 | Exiting the AIR-Closed state | The FSM must enter the AIR-Open state when the BMS open either the AIR+ or AIR-.
+FSM-15 | Exiting the AIR-Closed state | The FSM must enter the AIR-Open state when the BMS open either the AIR+. 
 
 ## DCM <a name="DCM"></a>
 
@@ -143,13 +143,13 @@ ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 PDM-16 | Selective e-fuse enabling | The PDM must only enable the following e-fuse outputs in the AIR-Open state: AUX 1, AUX 2, Energy Meter, CAN, AIR SHDN
 PDM-15 | Entering the AIR-Open state | The PDM must enter the AIR-Open state after the init state is complete.
-PDM-17 | Exiting the AIR-Open state | The PDM must enter the AIR-Closed state when the BMS closes the AIR+ and AIR-.
+PDM-17 | Exiting the AIR-Open state | The PDM must enter the AIR-Closed state when the BMS closes the AIR+.
 
 ### PDM AIR-Closed State <a name="PDM_AIR_CLOSED"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 PDM-19 | Selective e-fuse enabling | The PDM must enable all e-fuse outputs in the AIR-Closed state, except for the inverters, which depend on the following:. <br/> <br/> If the start switch is off AND the car is travelling slower than 10km/h, both inverters must be disabled. Otherwise, both inverters must be enabled, to protect against BEMF.
-PDM-20 | Exiting the AIR-Closed state | The PDM must enter the AIR-Open state when the BMS opens the AIR+ or AIR-.
+PDM-20 | Exiting the AIR-Closed state | The PDM must enter the AIR-Open state when the BMS opens the AIR+.
 
 ## BMS <a name="BMS"></a>
 

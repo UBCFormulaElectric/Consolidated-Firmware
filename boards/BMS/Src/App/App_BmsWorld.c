@@ -15,6 +15,10 @@ struct BmsWorld
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
     struct Accumulator *      accumulator;
+    struct CellMonitors *     cell_monitors;
+    struct BinaryStatus *     air_negative;
+    struct BinaryStatus *     air_positive;
+    struct PreChargeSequence *pre_charge_sequence;
     struct Clock *            clock;
 };
 
@@ -29,22 +33,30 @@ struct BmsWorld *App_BmsWorld_Create(
     struct OkStatus *const          imd_ok,
     struct OkStatus *const          bspd_ok,
     struct Accumulator *const       accumulator,
+    struct CellMonitors *const      cell_monitors,
+    struct BinaryStatus *const      air_negative,
+    struct BinaryStatus *const      air_positive,
+    struct PreChargeSequence *const pre_charge_sequence,
     struct Clock *const             clock)
 {
     struct BmsWorld *world = (struct BmsWorld *)malloc(sizeof(struct BmsWorld));
     assert(world != NULL);
 
-    world->can_tx_interface  = can_tx_interface;
-    world->can_rx_interface  = can_rx_interface;
-    world->imd               = imd;
-    world->heartbeat_monitor = heartbeat_monitor;
-    world->rgb_led_sequence  = rgb_led_sequence;
-    world->charger           = charger;
-    world->bms_ok            = bms_ok;
-    world->imd_ok            = imd_ok;
-    world->bspd_ok           = bspd_ok;
-    world->accumulator       = accumulator;
-    world->clock             = clock;
+    world->can_tx_interface    = can_tx_interface;
+    world->can_rx_interface    = can_rx_interface;
+    world->imd                 = imd;
+    world->heartbeat_monitor   = heartbeat_monitor;
+    world->rgb_led_sequence    = rgb_led_sequence;
+    world->charger             = charger;
+    world->bms_ok              = bms_ok;
+    world->imd_ok              = imd_ok;
+    world->bspd_ok             = bspd_ok;
+    world->accumulator         = accumulator;
+    world->cell_monitors       = cell_monitors;
+    world->air_negative        = air_negative;
+    world->air_positive        = air_positive;
+    world->pre_charge_sequence = pre_charge_sequence;
+    world->clock               = clock;
 
     return world;
 }
@@ -108,6 +120,30 @@ struct Accumulator *
     App_BmsWorld_GetAccumulator(const struct BmsWorld *const world)
 {
     return world->accumulator;
+}
+
+struct CellMonitors *
+    App_BmsWorld_GetCellMonitors(const struct BmsWorld *const world)
+{
+    return world->cell_monitors;
+}
+
+struct BinaryStatus *
+    App_BmsWorld_GetAirNegative(const struct BmsWorld *const world)
+{
+    return world->air_negative;
+}
+
+struct BinaryStatus *
+    App_BmsWorld_GetAirPositive(const struct BmsWorld *const world)
+{
+    return world->air_positive;
+}
+
+struct PreChargeSequence *
+    App_BmsWorld_GetPreChargeSequence(const struct BmsWorld *const world)
+{
+    return world->pre_charge_sequence;
 }
 
 struct Clock *App_BmsWorld_GetClock(const struct BmsWorld *const world)
