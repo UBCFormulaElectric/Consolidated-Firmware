@@ -13,11 +13,6 @@
 #include <App_SharedExitCode.h>
 
 /**
- * Update acceleration and angular rate values for the given Imu.
- */
-void Io_LSM6DS33_ExtiCallback(void);
-
-/**
  * Get x acceleration from imu
  * @return The acceleration (m/s^2) measured on the x-axis.
  */

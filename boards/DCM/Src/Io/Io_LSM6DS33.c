@@ -10,13 +10,6 @@ struct LSM6DS33
 
 static struct LSM6DS33 lsm_6ds33;
 
-void Io_LSM6DS33_ExtiCallback()
-{
-    lsm_6ds33.accel_x = 0.0f;
-    lsm_6ds33.accel_y = 0.0f;
-    lsm_6ds33.accel_z = 0.0f;
-}
-
 float Io_LSM6DS33_GetAccelerationX()
 {
     return lsm_6ds33.accel_x;
