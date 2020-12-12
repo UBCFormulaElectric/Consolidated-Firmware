@@ -428,7 +428,7 @@ TEST_F(DcmStateMachineTest, regen_not_allowed_when_no_airs_closed)
         can_rx_interface, 50.0f);
 
     float expected_torque_request_value =
-        60.0f / 100.0f * MAX_SAFE_TORQUE_REQUEST_NM;
+        60.0f / 100.0f * MAX_TORQUE_REQUEST_NM;
     float value_over_threshold_wheel_speed = std::nextafter(
         REGEN_WHEEL_SPEED_THRESHOLD_KPH, std::numeric_limits<float>::max());
 
@@ -465,7 +465,7 @@ TEST_F(DcmStateMachineTest, regen_not_allowed_when_one_air_closed)
         can_rx_interface, 50.0f);
 
     float expected_torque_request_value =
-        60.0f / 100.0f * MAX_SAFE_TORQUE_REQUEST_NM;
+        60.0f / 100.0f * MAX_TORQUE_REQUEST_NM;
     float value_over_threshold_wheel_speed = std::nextafter(
         REGEN_WHEEL_SPEED_THRESHOLD_KPH, std::numeric_limits<float>::max());
 
@@ -514,9 +514,9 @@ TEST_F(
         can_rx_interface, 50.0f);
 
     float expected_torque_request_value =
-        60.0f / 100.0f * MAX_SAFE_TORQUE_REQUEST_NM;
+        60.0f / 100.0f * MAX_TORQUE_REQUEST_NM;
     float expected_regen_request_value =
-        -50.0f / 100.0f * MAX_SAFE_TORQUE_REQUEST_NM;
+        -50.0f / 100.0f * MAX_TORQUE_REQUEST_NM;
     float value_over_threshold_wheel_speed = std::nextafter(
         REGEN_WHEEL_SPEED_THRESHOLD_KPH, std::numeric_limits<float>::max());
 
@@ -568,7 +568,6 @@ TEST_F(
 
     // Turn the DIM start switch on to prevent state transitions in
     // the drive state.
-    EXPECT_TRUE(App_BuzzerSignals_IsOn(world));
     App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
         can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
 
