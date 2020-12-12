@@ -61,6 +61,8 @@ FAKE_VALUE_FUNC(float, get_segment_2_voltage);
 FAKE_VALUE_FUNC(float, get_segment_3_voltage);
 FAKE_VALUE_FUNC(float, get_segment_4_voltage);
 FAKE_VALUE_FUNC(float, get_segment_5_voltage);
+FAKE_VALUE_FUNC(bool, is_air_negative_closed);
+FAKE_VALUE_FUNC(bool, is_air_positive_closed);
 FAKE_VALUE_FUNC(ExitCode, read_die_temperatures);
 FAKE_VALUE_FUNC(float, get_segment_0_die_temp);
 FAKE_VALUE_FUNC(float, get_segment_1_die_temp);
@@ -71,6 +73,8 @@ FAKE_VALUE_FUNC(float, get_segment_5_die_temp);
 FAKE_VALUE_FUNC(float, get_max_die_temp);
 FAKE_VALUE_FUNC(bool, is_air_negative_on);
 FAKE_VALUE_FUNC(bool, is_air_positive_on);
+FAKE_VOID_FUNC(open_air_positive);
+FAKE_VOID_FUNC(close_air_positive);
 FAKE_VOID_FUNC(enable_pre_charge);
 FAKE_VOID_FUNC(disable_pre_charge);
 
@@ -128,19 +132,19 @@ class BmsStateMachineTest : public BaseStateMachineTest
             DIE_TEMP_TO_DISABLE_CELL_BALANCING_DEGC,
             DIE_TEMP_TO_DISABLE_CHARGER_DEGC);
 
-        air_negative = App_SharedBinaryStatus_Create(is_air_negative_on);
-        air_positive = App_SharedBinaryStatus_Create(is_air_positive_on);
-
         pre_charge_sequence =
             App_PreChargeSequence_Create(enable_pre_charge, disable_pre_charge);
+
+        airs = App_Airs_Create(
+            is_air_positive_closed, is_air_negative_closed, close_air_positive,
+            open_air_positive);
 
         clock = App_SharedClock_Create();
 
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
             rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator,
-            cell_monitors, air_negative, air_positive, pre_charge_sequence,
-            clock);
+            cell_monitors, airs, pre_charge_sequence, clock);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -184,15 +188,15 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(get_segment_4_die_temp);
         RESET_FAKE(get_segment_5_die_temp);
         RESET_FAKE(get_max_die_temp);
-        RESET_FAKE(is_air_negative_on);
-        RESET_FAKE(is_air_positive_on);
+        RESET_FAKE(is_air_negative_closed);
+        RESET_FAKE(is_air_positive_closed);
 
         // The charger is connected to prevent other tests from entering the
         // fault state from the charge state
         is_charger_connected_fake.return_val = true;
 
-        // A voltage in [3.0, 4.2] was arbitrarily chosen to prevent other tests
-        // from entering the fault state
+        // A voltage in [3.0, 4.2] was arbitrarily chosen to prevent other
+        // tests from entering the fault state
         get_min_cell_voltage_fake.return_val = 4.0f;
         get_max_cell_voltage_fake.return_val = 4.0f;
     }
@@ -212,8 +216,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         TearDownObject(bspd_ok, App_OkStatus_Destroy);
         TearDownObject(accumulator, App_Accumulator_Destroy);
         TearDownObject(cell_monitors, App_CellMonitors_Destroy);
-        TearDownObject(air_negative, App_SharedBinaryStatus_Destroy);
-        TearDownObject(air_positive, App_SharedBinaryStatus_Destroy);
+        TearDownObject(airs, App_Airs_Destroy);
         TearDownObject(pre_charge_sequence, App_PreChargeSequence_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
     }
@@ -303,8 +306,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
     struct OkStatus *         bspd_ok;
     struct Accumulator *      accumulator;
     struct CellMonitors *     cell_monitors;
-    struct BinaryStatus *     air_negative;
-    struct BinaryStatus *     air_positive;
+    struct Airs *             airs;
     struct PreChargeSequence *pre_charge_sequence;
     struct Clock *            clock;
 };
@@ -651,32 +653,32 @@ TEST_F(BmsStateMachineTest, check_airs_can_signals_for_all_states)
     {
         SetInitialState(state);
 
-        is_air_negative_on_fake.return_val = false;
-        is_air_positive_on_fake.return_val = false;
+        is_air_negative_closed_fake.return_val = false;
+        is_air_positive_closed_fake.return_val = false;
         LetTimePass(state_machine, 10);
         ASSERT_EQ(
             false, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
         ASSERT_EQ(
             false, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
 
-        is_air_negative_on_fake.return_val = false;
-        is_air_positive_on_fake.return_val = true;
+        is_air_negative_closed_fake.return_val = false;
+        is_air_positive_closed_fake.return_val = true;
         LetTimePass(state_machine, 10);
         ASSERT_EQ(
             false, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
         ASSERT_EQ(
             true, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
 
-        is_air_negative_on_fake.return_val = true;
-        is_air_positive_on_fake.return_val = false;
+        is_air_negative_closed_fake.return_val = true;
+        is_air_positive_closed_fake.return_val = false;
         LetTimePass(state_machine, 10);
         ASSERT_EQ(
             true, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
         ASSERT_EQ(
             false, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
 
-        is_air_negative_on_fake.return_val = true;
-        is_air_positive_on_fake.return_val = true;
+        is_air_negative_closed_fake.return_val = true;
+        is_air_positive_closed_fake.return_val = true;
         LetTimePass(state_machine, 10);
         ASSERT_EQ(
             true, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
