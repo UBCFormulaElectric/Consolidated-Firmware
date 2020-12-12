@@ -24,8 +24,10 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct OkStatus *         imd_ok      = App_BmsWorld_GetImdOkStatus(world);
     struct OkStatus *         bspd_ok     = App_BmsWorld_GetBspdOkStatus(world);
     struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
-    struct BinaryStatus *     air_negative = App_BmsWorld_GetAirNegative(world);
-    struct BinaryStatus *     air_positive = App_BmsWorld_GetAirPositive(world);
+    struct Airs *             airs        = App_BmsWorld_GetAirs(world);
+
+    struct BinaryStatus *air_negative = App_Airs_GetAirNegative(airs);
+    struct BinaryStatus *air_positive = App_Airs_GetAirPositive(airs);
 
     App_CanTx_SetPeriodicSignal_AIR_NEGATIVE(
         can_tx, App_SharedBinaryStatus_IsActive(air_negative));

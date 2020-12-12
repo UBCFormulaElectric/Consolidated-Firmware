@@ -16,8 +16,7 @@ struct BmsWorld
     struct OkStatus *         bspd_ok;
     struct Accumulator *      accumulator;
     struct CellMonitors *     cell_monitors;
-    struct BinaryStatus *     air_negative;
-    struct BinaryStatus *     air_positive;
+    struct Airs *             airs;
     struct PreChargeSequence *pre_charge_sequence;
     struct Clock *            clock;
 };
@@ -34,8 +33,7 @@ struct BmsWorld *App_BmsWorld_Create(
     struct OkStatus *const          bspd_ok,
     struct Accumulator *const       accumulator,
     struct CellMonitors *const      cell_monitors,
-    struct BinaryStatus *const      air_negative,
-    struct BinaryStatus *const      air_positive,
+    struct Airs *const              airs,
     struct PreChargeSequence *const pre_charge_sequence,
     struct Clock *const             clock)
 {
@@ -53,8 +51,7 @@ struct BmsWorld *App_BmsWorld_Create(
     world->bspd_ok             = bspd_ok;
     world->accumulator         = accumulator;
     world->cell_monitors       = cell_monitors;
-    world->air_negative        = air_negative;
-    world->air_positive        = air_positive;
+    world->airs                = airs;
     world->pre_charge_sequence = pre_charge_sequence;
     world->clock               = clock;
 
@@ -128,16 +125,9 @@ struct CellMonitors *
     return world->cell_monitors;
 }
 
-struct BinaryStatus *
-    App_BmsWorld_GetAirNegative(const struct BmsWorld *const world)
+struct Airs *App_BmsWorld_GetAirs(const struct BmsWorld *const world)
 {
-    return world->air_negative;
-}
-
-struct BinaryStatus *
-    App_BmsWorld_GetAirPositive(const struct BmsWorld *const world)
-{
-    return world->air_positive;
+    return world->airs;
 }
 
 struct PreChargeSequence *
