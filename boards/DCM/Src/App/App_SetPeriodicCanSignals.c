@@ -38,7 +38,7 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
     //      1) If regen is on, use the regen paddle percentage
     //      2) If regen is off, use the accelerator pedal percentage
     //
-    //      - MAX_SAFE_TORQUE_REQUEST_NM = 21 Nm, the max torque the motor can
+    //      - MAX_TORQUE_REQUEST_NM = 21 Nm, the max torque the motor can
     //      provide
     //
     //      1) If regen is allowed and the regen paddle is actuated,
@@ -46,19 +46,19 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
     //
     //                                (-) Regen Paddle Percentage
     //        Torque Request    =   -------------------------------  *
-    //        MAX_SAFE_TORQUE_REQUEST_NM
+    //        MAX_TORQUE_REQUEST_NM
     //                                            100%
     //      2) Otherwise, the torque request (in Nm) is positive and given by:
     //
     //                                      Accelerator Pedal Percentage
     //        Torque Request    =         -------------------------------  *
-    //        MAX_SAFE_TORQUE_REQUEST_NM
+    //        MAX_TORQUE_REQUEST_NM
     //                                               100%
 
     if (regen_paddle_percentage > 0.0f && is_regen_allowed)
     {
         torque_request =
-            -0.01f * regen_paddle_percentage * MAX_SAFE_TORQUE_REQUEST_NM;
+            -0.01f * regen_paddle_percentage * MAX_TORQUE_REQUEST_NM;
     }
     else
     {
@@ -66,7 +66,7 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
             0.01f *
             App_CanRx_FSM_PEDAL_POSITION_GetSignal_MAPPED_PEDAL_PERCENTAGE(
                 can_rx) *
-            MAX_SAFE_TORQUE_REQUEST_NM;
+        MAX_TORQUE_REQUEST_NM;
     }
 
     App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx, torque_request);
