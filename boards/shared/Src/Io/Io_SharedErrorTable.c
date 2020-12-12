@@ -88,6 +88,15 @@ static void Io_ProcessDcmNonCriticalErrorMsg(
         data->stack_watermark_above_threshold_taskcantx);
     SET_ERROR(
         error_table, DCM_NON_CRITICAL_WATCHDOG_TIMEOUT, data->watchdog_timeout);
+    SET_ERROR(
+        error_table, DCM_NON_CRITICAL_ACCELERATION_X_OUT_OF_RANGE,
+        data->acceleration_x_out_of_range);
+    SET_ERROR(
+        error_table, DCM_NON_CRITICAL_ACCELERATION_X_OUT_OF_RANGE,
+        data->acceleration_y_out_of_range);
+    SET_ERROR(
+        error_table, DCM_NON_CRITICAL_ACCELERATION_X_OUT_OF_RANGE,
+        data->acceleration_z_out_of_range);
 }
 
 static void Io_ProcessDimNonCriticalErrorMsg(

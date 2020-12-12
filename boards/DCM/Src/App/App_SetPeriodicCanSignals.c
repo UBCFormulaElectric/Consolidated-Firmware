@@ -66,7 +66,7 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
             0.01f *
             App_CanRx_FSM_PEDAL_POSITION_GetSignal_MAPPED_PEDAL_PERCENTAGE(
                 can_rx) *
-        MAX_TORQUE_REQUEST_NM;
+            MAX_TORQUE_REQUEST_NM;
     }
 
     App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx, torque_request);
