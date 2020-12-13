@@ -39,6 +39,7 @@ There are two types of faults:
     - [BMS Stateless](#BMS_STATELESS)
     - [BMS Init](#BMS_INIT)
     - [BMS AIR Open State](#BMS_AIR_OPEN)
+    - [BMS Precharge State](#BMS_PRECHARGE)
     - [BMS Charge State](#BMS_CHARGE)
     - [BMS Drive State](#BMS_DRIVE)
     - [BMS Fault State](#BMS_FAULT)
@@ -188,7 +189,7 @@ ID | Title | Description | Associated Competition Rule(s)
 BMS-x | Entering the AIR-Open state | The BMS must only enter the AIR-Open state from the init state after waiting for 5 seconds after boot. 
 BMS-x | Exiting the AIR-Open state and entering the precharge state | The BMS must only enter the precharge state after AIR- is closed.
 
-### BMS Precharge State <a name="BMS_AIR_OPEN"></a>
+### BMS Precharge State <a name="BMS_PRECHARGE"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-x | Precharge | - The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin. <br/> - Upon a successful precharge, the BMS must close the AIR+. <br/> <br/> - Upon a precharge failure, the BMS must throw an AIR shutdown fault. A precharge failure occurs when: <br/> - The TS (tractive system) bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. ([TODO: calculate constants](https://github.com/UBCFormulaElectric/Consolidated-Firmware/issues/515))| EV.6.9.1 The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin.
