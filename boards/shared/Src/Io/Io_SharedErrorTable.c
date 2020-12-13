@@ -92,10 +92,10 @@ static void Io_ProcessDcmNonCriticalErrorMsg(
         error_table, DCM_NON_CRITICAL_ACCELERATION_X_OUT_OF_RANGE,
         data->acceleration_x_out_of_range);
     SET_ERROR(
-        error_table, DCM_NON_CRITICAL_ACCELERATION_X_OUT_OF_RANGE,
+        error_table, DCM_NON_CRITICAL_ACCELERATION_Y_OUT_OF_RANGE,
         data->acceleration_y_out_of_range);
     SET_ERROR(
-        error_table, DCM_NON_CRITICAL_ACCELERATION_X_OUT_OF_RANGE,
+        error_table, DCM_NON_CRITICAL_ACCELERATION_Z_OUT_OF_RANGE,
         data->acceleration_z_out_of_range);
 }
 
