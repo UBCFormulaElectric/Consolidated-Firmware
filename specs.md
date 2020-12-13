@@ -203,7 +203,7 @@ BMS-17 | Charging thermal safety | - The BMS must stop cell balancing once the L
 BMS-18 | Cell balancing | - The BMS must balance the cells until they are all between 4.19V and 4.2V. <br/> - The BMS must only perform cell balancing when the AIRs are closed. <br/> - The BMS must charge and cell balance simultaneously to get all cells charged and balanced as fast as possible.| EV.7.2.5
 BMS-19 | Power limits calculation and sending (charge state) | - The BMS must calculate charge power limits based on cell temperatures and SoC to avoid exceeding a cell's defined limits. <br/> - The BMS must send the charge power limits to the charger over CAN at 100Hz or faster.
 BMS-20 | Charger disconnection | Upon sensing charger disconnection, the BMS must throw an AIR shutdown fault and enter the fault state.
-BMS-21 | Entering the charge state | The BMS must only enter the charge state after the precharge state is complete.
+BMS-21 | Entering the charge state | The BMS must only enter the charge state after precharging in the precharge state is complete.
 BMS-23 | Exiting the charge state and entering the init state | Once charging is complete, the BMS must disable the charger, disable cell balancing, open the AIR+, and enter the init state.
 BMS-24 | Exiting the charge state and entering the fault state | The BMS must disable cell balancing and charging.
 
