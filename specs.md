@@ -213,7 +213,7 @@ ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-32 | SoC calculation and storage | - The BMS must transmit SoC over CAN at 100Hz or faster. <br/> - The BMS must perform coulomb counting and calculate SoC at 100Hz. <br/> The BMS must store SoC in EEPROM at 1Hz in three different memory locations. <br/> - SoC must be bounded between 0% and 100%.
 BMS-26 | Power limits calculation and sending (drive state) | - The BMS must calculate charge and discharge power limits based on cell temperatures and SoC to avoid exceeding a cell's defined limits. <br/> - The BMS must send the charge and discharge power limits over CAN at 100Hz or faster.
-BMS-25 | Entering the drive state | The BMS must only enter the drive state from the init state after precharge or from the motor shutdown fault state after faults are cleared.
+BMS-25 | Entering the drive state | The BMS must only enter the drive state from the precharge state or from the fault state after motor shutdown faults are cleared.
 BMS-27 | Exiting the drive state and entering the init state | Upon the opening of the AIR+ or AIR- outside of an AIR shutdown fault, the BMS must exit the drive state and enter the init state.
 BMS-20 | Exiting the drive state and entering the fault state | When an AIR shutdown is requested over CAN, the BMS must transition from the drive state to the fault state.
 
