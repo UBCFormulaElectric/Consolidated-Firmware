@@ -8,10 +8,11 @@ void Io_Aux1Aux2Efuse_Init(SPI_HandleTypeDef *const spi_handle)
     assert(spi_handle != NULL);
 
     aux1_aux2_efuse = Io_Efuse_Create(
+        Io_CurrentSense_GetAux1Current, Io_CurrentSense_GetAux2Current,
         spi_handle, CSB_AUX1_AUX2_GPIO_Port, CSB_AUX1_AUX2_Pin,
         FSOB_AUX1_AUX2_GPIO_Port, FSOB_AUX1_AUX2_Pin, FSB_AUX1_AUX2_GPIO_Port,
-        FSB_AUX1_AUX2_Pin, PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, PIN_AUX2_GPIO_Port,
-        PIN_AUX2_Pin);
+        FSB_AUX1_AUX2_Pin, CUR_SYNC_AUX1_AUX2_GPIO_Port, CUR_SYNC_AUX1_AUX2_Pin,
+        PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, PIN_AUX2_GPIO_Port, PIN_AUX2_Pin);
 }
 
 void Io_Aux1Aux2Efuse_EnableAux1(void)
@@ -69,44 +70,12 @@ void Io_Aux1Aux2Efuse_DelatchFaults(void)
 
 float Io_Aux1Aux2Efuse_GetAux1Current(void)
 {
-    if (Io_Efuse_ConfigureChannelMonitoring(
-            AUX1_CURRENT_SENSE_CHANNEL, aux1_aux2_efuse) != EXIT_CODE_OK)
-    {
-        // Return NAN if selecting the current sense channel fails
-        return NAN;
-    }
-
-    if (HAL_GPIO_ReadPin(
-            CUR_SYNC_AUX1_AUX2_GPIO_Port, CUR_SYNC_AUX1_AUX2_Pin) ==
-        GPIO_PIN_RESET)
-    {
-        return Io_CurrentSense_GetAux1Current();
-    }
-
-    // Return NAN if the current sense output signal is not within the specified
-    // accuracy range
-    return NAN;
+    return Io_Efuse_GetChannel0Current(aux1_aux2_efuse);
 }
 
 float Io_Aux1Aux2Efuse_GetAux2Current(void)
 {
-    if (Io_Efuse_ConfigureChannelMonitoring(
-            AUX2_CURRENT_SENSE_CHANNEL, aux1_aux2_efuse) != EXIT_CODE_OK)
-    {
-        // Return NAN if selecting the current sense channel fails
-        return NAN;
-    }
-
-    if (HAL_GPIO_ReadPin(
-            CUR_SYNC_AUX1_AUX2_GPIO_Port, CUR_SYNC_AUX1_AUX2_Pin) ==
-        GPIO_PIN_RESET)
-    {
-        return Io_CurrentSense_GetAux2Current();
-    }
-
-    // Return NAN if the current sense output signal is not within the specified
-    // accuracy range
-    return NAN;
+    return Io_Efuse_GetChannel1Current(aux1_aux2_efuse);
 }
 
 ExitCode Io_Aux1Aux2Efuse_ConfigureEfuse(void)
