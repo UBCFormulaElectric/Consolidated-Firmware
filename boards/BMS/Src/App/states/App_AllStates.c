@@ -26,15 +26,13 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct OkStatus *         bspd_ok     = App_BmsWorld_GetBspdOkStatus(world);
     struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
     struct Airs *             airs        = App_BmsWorld_GetAirs(world);
-    struct BinaryStatus *     air_negative = App_Airs_GetAirNegative(airs);
-    struct BinaryStatus *     air_positive = App_Airs_GetAirPositive(airs);
 
     App_SetPeriodicCanSignals_Imd(can_tx, imd);
 
     App_CanTx_SetPeriodicSignal_AIR_NEGATIVE(
-        can_tx, App_SharedBinaryStatus_IsActive(air_negative));
+        can_tx, App_SharedBinaryStatus_IsActive(App_Airs_GetAirNegative(airs)));
     App_CanTx_SetPeriodicSignal_AIR_POSITIVE(
-        can_tx, App_SharedBinaryStatus_IsActive(air_positive));
+        can_tx, App_SharedBinaryStatus_IsActive(App_Airs_GetAirPositive(airs)));
 
     if (App_OkStatus_IsEnabled(bms_ok))
     {
