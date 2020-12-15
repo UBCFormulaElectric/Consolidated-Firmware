@@ -8,7 +8,7 @@ void Io_Aux1Aux2Efuse_Init(SPI_HandleTypeDef *const spi_handle)
     assert(spi_handle != NULL);
 
     aux1_aux2_efuse = Io_Efuse_Create(
-            spi_handle, CSB_AUX1_AUX2_GPIO_Port, CSB_AUX1_AUX2_Pin,
+        spi_handle, CSB_AUX1_AUX2_GPIO_Port, CSB_AUX1_AUX2_Pin,
         FSOB_AUX1_AUX2_GPIO_Port, FSOB_AUX1_AUX2_Pin, FSB_AUX1_AUX2_GPIO_Port,
         FSB_AUX1_AUX2_Pin, PIN_AUX1_GPIO_Port, PIN_AUX1_Pin, PIN_AUX2_GPIO_Port,
         PIN_AUX2_Pin);

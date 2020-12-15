@@ -164,7 +164,7 @@ struct Efuse_Context *Io_Efuse_Create(
     struct Efuse_Context *efuse_context = malloc(sizeof(struct Efuse_Context));
     assert(efuse_context != NULL);
 
-    efuse_context->hspi            = spi_handle;
+    efuse_context->spi_handle      = spi_handle;
     efuse_context->nss_port        = nss_port;
     efuse_context->nss_pin         = nss_pin;
     efuse_context->fsob_port       = fsob_port;
@@ -179,7 +179,6 @@ struct Efuse_Context *Io_Efuse_Create(
 
     return efuse_context;
 }
-
 
 void Io_Efuse_EnableChannel0(const struct Efuse_Context *const efuse)
 {
@@ -300,7 +299,7 @@ ExitCode Io_Efuse_WriteRegister(
     Io_Efuse_CalculateParityBit(&tx_data);
 
     return Io_Efuse_WriteToEfuse(
-        &tx_data, efuse->hspi, efuse->nss_port, efuse->nss_pin);
+        &tx_data, efuse->spi_handle, efuse->nss_port, efuse->nss_pin);
 }
 
 ExitCode Io_Efuse_ReadRegister(
@@ -332,7 +331,8 @@ ExitCode Io_Efuse_ReadRegister(
     efuse->wdin_bit_to_set = !efuse->wdin_bit_to_set;
     Io_Efuse_CalculateParityBit(&tx_data);
     ExitCode exit_code = Io_Efuse_ReadFromEfuse(
-        &tx_data, register_value, efuse->hspi, efuse->nss_port, efuse->nss_pin);
+        &tx_data, register_value, efuse->spi_handle, efuse->nss_port,
+        efuse->nss_pin);
 
     // Only return register contents and clear bits 9->15
     *register_value = READ_BIT(*register_value, EFUSE_SO_DATA_MASK);
