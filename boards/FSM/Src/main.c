@@ -48,6 +48,7 @@
 #include "App_FsmWorld.h"
 #include "App_SharedStateMachine.h"
 #include "App_AcceleratorPedalSignals.h"
+#include "App_FlowMeterSignals.h"
 #include "states/App_AirOpenState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_FlowRateThresholds.h"
@@ -280,7 +281,14 @@ int main(void)
         App_AcceleratorPedalSignals_PappsAlarmCallback,
         App_AcceleratorPedalSignals_IsSappsAlarmActive,
         App_AcceleratorPedalSignals_SappsAlarmCallback,
-        App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive);
+        App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive,
+
+        App_FlowMetersSignals_IsPrimaryFlowRateBelowThreshold,
+        App_FlowMetersSignals_IsPrimaryFlowRateInRange,
+        App_FlowMetersSignals_PrimaryFlowRateBelowThresholdCallback,
+        App_FlowMetersSignals_IsSecondaryFlowRateBelowThreshold,
+        App_FlowMetersSignals_IsSecondaryFlowRateInRange,
+        App_FlowMetersSignals_SecondaryFlowRateBelowThresholdCallback);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 
