@@ -573,8 +573,6 @@ TEST_F(
 
     // Check that no torque requests are sent when the accelerator pedal is not
     // pressed
-    // ("The DCM may only request torque less than or equal to what the driver
-    // requested")
     LetTimePass(state_machine, 10);
     ASSERT_FLOAT_EQ(
         0.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
