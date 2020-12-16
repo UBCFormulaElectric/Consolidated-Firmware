@@ -520,7 +520,7 @@ TEST_F(
     float value_over_threshold_wheel_speed = std::nextafter(
         REGEN_WHEEL_SPEED_THRESHOLD_KPH, std::numeric_limits<float>::max());
 
-    // Both AIRs are closed
+    // Close both AIRs
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
