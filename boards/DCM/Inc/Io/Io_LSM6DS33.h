@@ -10,7 +10,7 @@
 #include <stdint.h>
 #include <stm32f3xx_hal.h>
 #include <stdbool.h>
-#include <App_SharedExitCode.h>
+#include "App_SharedExitCode.h"
 
 /**
  * Get x acceleration from imu
