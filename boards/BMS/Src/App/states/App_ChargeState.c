@@ -62,10 +62,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct BmsCanTxInterface *can_tx  = App_BmsWorld_GetCanTx(world);
-    struct Imd *              imd     = App_BmsWorld_GetImd(world);
     struct Charger *          charger = App_BmsWorld_GetCharger(world);
-
-    App_SetPeriodicCanSignals_Imd(can_tx, imd);
 
     if (!App_Charger_IsConnected(charger))
     {

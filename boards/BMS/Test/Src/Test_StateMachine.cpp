@@ -8,6 +8,8 @@ extern "C"
 #include "App_SharedStateMachine.h"
 #include "App_SharedMacros.h"
 #include "states/App_InitState.h"
+#include "states/App_AirOpenState.h"
+#include "states/App_PreChargeState.h"
 #include "states/App_DriveState.h"
 #include "states/App_FaultState.h"
 #include "states/App_ChargeState.h"
@@ -233,10 +235,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
     std::vector<const struct State *> GetAllStates(void)
     {
         return std::vector<const struct State *>{
-            App_GetInitState(),
-            App_GetDriveState(),
-            App_GetChargeState(),
-            App_GetFaultState(),
+            App_GetInitState(),  App_GetAirOpenState(), App_GetPreChargeState(),
+            App_GetDriveState(), App_GetChargeState(),  App_GetFaultState(),
         };
     }
 

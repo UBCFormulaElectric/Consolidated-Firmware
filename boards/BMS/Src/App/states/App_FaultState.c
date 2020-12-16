@@ -20,12 +20,6 @@ static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
 static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
-
-    struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct BmsCanTxInterface *can_tx = App_BmsWorld_GetCanTx(world);
-    struct Imd *              imd    = App_BmsWorld_GetImd(world);
-
-    App_SetPeriodicCanSignals_Imd(can_tx, imd);
 }
 
 static void FaultStateRunOnExit(struct StateMachine *const state_machine)
