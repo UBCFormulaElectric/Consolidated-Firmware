@@ -526,8 +526,7 @@ TEST_F(
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
 
-    // Check regen doesn't turn on when left wheel speed is not over regen
-    // threshold
+    // Check that regen doesn't turn on when the left wheel speed is below the regen threshold
     App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_LEFT_WHEEL_SPEED(
         can_rx_interface, REGEN_WHEEL_SPEED_THRESHOLD_KPH);
     App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
