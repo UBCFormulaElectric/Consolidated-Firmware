@@ -8,8 +8,6 @@ struct Imu;
 
 /**
  * Allocate and initialize an IMU.
- * @param get_exit_code A function that can be called to get an exit code
- * corresponding     to the last reading of the data from the Imu
  * @param get_acceleration_x A function that can be called to get the
  * acceleration (m/s^2) on the x-axis.
  * @param get_acceleration_y A function that can be called to get the
