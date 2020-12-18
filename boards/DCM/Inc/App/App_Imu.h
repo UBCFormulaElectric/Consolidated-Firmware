@@ -14,8 +14,10 @@ struct Imu;
  * acceleration (m/s^2) on the y-axis.
  * @param get_acceleration_z A function that can be called to get the
  * acceleration (m/s^2) on the z-axis.
- * @param min_acceleration The minimum acceleration (m/s^2) measurable by the Imu for any given axis
- * @param max_acceleration The maximum acceleration (m/s^2) measurable by the Imu for any given axis
+ * @param min_acceleration The minimum acceleration (m/s^2) measurable by the
+ * Imu for any given axis
+ * @param max_acceleration The maximum acceleration (m/s^2) measurable by the
+ * Imu for any given axis
  * @return The created IMU whose ownership is given to the caller.
  */
 struct Imu *App_Imu_Create(
