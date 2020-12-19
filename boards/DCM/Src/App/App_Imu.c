@@ -77,6 +77,5 @@ void App_Imu_Destroy(struct Imu *imu)
     free(imu->acceleration_x_in_range_check);
     free(imu->acceleration_y_in_range_check);
     free(imu->acceleration_z_in_range_check);
-
     free(imu);
 }
