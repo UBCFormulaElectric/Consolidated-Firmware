@@ -16,6 +16,10 @@ struct Efuse_Context;
 
 /**
  * Allocate and initialize an efuse.
+ * @param get_channel_0_current A function that can be called to get the
+ * measured current for channel 0
+ * @param get_channel_1_current A function that can be called to get the
+ * measured current for channel 1
  * @param hspi Handle to the SPI peripheral used for the efuse
  * @param chip_select_port Handle to efuse's chip-select GPIO port
  * @param chip_select_port Handle to efuse's chip-select GPIO pin
@@ -30,8 +34,8 @@ struct Efuse_Context;
  * @return The created efuse, whose ownership is given to the caller
  */
 struct Efuse_Context *Io_Efuse_Create(
-    float (*GetChannel0Current)(void),
-    float (*GetChannel1Current)(void),
+    float (*get_channel_0_current)(void),
+    float (*get_channel_1_current)(void),
     SPI_HandleTypeDef *spi_handle,
     GPIO_TypeDef *     nss_port,
     uint16_t           nss_pin,

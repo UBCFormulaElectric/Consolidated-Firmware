@@ -8,8 +8,8 @@
 
 struct Efuse_Context
 {
-    float (*GetChannel0Current)(void);
-    float (*GetChannel1Current)(void);
+    float (*get_channel_0_current)(void);
+    float (*get_channel_1_current)(void);
 
     SPI_HandleTypeDef *spi_handle;
     GPIO_TypeDef *     nss_port;
@@ -152,8 +152,8 @@ static ExitCode Io_Efuse_ReadFromEfuse(
 }
 
 struct Efuse_Context *Io_Efuse_Create(
-    float (*GetChannel0Current)(void),
-    float (*GetChannel1Current)(void),
+    float (*get_channel_0_current)(void),
+    float (*get_channel_1_current)(void),
     SPI_HandleTypeDef *const spi_handle,
     GPIO_TypeDef *           nss_port,
     uint16_t                 nss_pin,
@@ -173,22 +173,22 @@ struct Efuse_Context *Io_Efuse_Create(
     struct Efuse_Context *efuse_context = malloc(sizeof(struct Efuse_Context));
     assert(efuse_context != NULL);
 
-    efuse_context->GetChannel0Current = GetChannel0Current;
-    efuse_context->GetChannel1Current = GetChannel1Current;
-    efuse_context->spi_handle         = spi_handle;
-    efuse_context->nss_port           = nss_port;
-    efuse_context->nss_pin            = nss_pin;
-    efuse_context->fsob_port          = fsob_port;
-    efuse_context->fsob_pin           = fsob_pin;
-    efuse_context->fsb_port           = fsb_port;
-    efuse_context->fsb_pin            = fsb_pin;
-    efuse_context->current_sync_port  = current_sync_port;
-    efuse_context->current_sync_pin   = current_sync_pin;
-    efuse_context->channel_0_port     = channel_0_port;
-    efuse_context->channel_0_pin      = channel_0_pin;
-    efuse_context->channel_1_port     = channel_1_port;
-    efuse_context->channel_1_pin      = channel_1_pin;
-    efuse_context->wdin_bit_to_set    = true;
+    efuse_context->get_channel_0_current = get_channel_0_current;
+    efuse_context->get_channel_1_current = get_channel_1_current;
+    efuse_context->spi_handle            = spi_handle;
+    efuse_context->nss_port              = nss_port;
+    efuse_context->nss_pin               = nss_pin;
+    efuse_context->fsob_port             = fsob_port;
+    efuse_context->fsob_pin              = fsob_pin;
+    efuse_context->fsb_port              = fsb_port;
+    efuse_context->fsb_pin               = fsb_pin;
+    efuse_context->current_sync_port     = current_sync_port;
+    efuse_context->current_sync_pin      = current_sync_pin;
+    efuse_context->channel_0_port        = channel_0_port;
+    efuse_context->channel_0_pin         = channel_0_pin;
+    efuse_context->channel_1_port        = channel_1_port;
+    efuse_context->channel_1_pin         = channel_1_pin;
+    efuse_context->wdin_bit_to_set       = true;
 
     return efuse_context;
 }
@@ -303,7 +303,7 @@ float Io_Efuse_GetChannel0Current(struct Efuse_Context *const efuse)
     if (HAL_GPIO_ReadPin(efuse->current_sync_port, efuse->current_sync_pin) ==
         GPIO_PIN_RESET)
     {
-        return efuse->GetChannel0Current();
+        return efuse->get_channel_0_current();
     }
 
     // Return NAN if the current sense output signal is not within the specified
@@ -323,7 +323,7 @@ float Io_Efuse_GetChannel1Current(struct Efuse_Context *const efuse)
     if (HAL_GPIO_ReadPin(efuse->current_sync_port, efuse->current_sync_pin) ==
         GPIO_PIN_RESET)
     {
-        return efuse->GetChannel1Current();
+        return efuse->get_channel_1_current();
     }
 
     // Return NAN if the current sense output signal is not within the specified
