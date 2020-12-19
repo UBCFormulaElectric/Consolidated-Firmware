@@ -22,11 +22,23 @@ TEST_F(ClockTest, get_current_time_at_zero_second)
     ASSERT_EQ(0, App_SharedClock_GetCurrentTimeInSeconds(clock));
 }
 
+TEST_F(ClockTest, get_previous_time_at_zero_second)
+{
+    App_SharedClock_SetPreviousTimeInMilliseconds(clock, 0);
+    ASSERT_EQ(0, App_SharedClock_GetPreviousTimeInMilliseconds(clock));
+}
+
 TEST_F(ClockTest, get_current_time_at_nonzero_second)
 {
     App_SharedClock_SetCurrentTimeInMilliseconds(clock, 1234);
     ASSERT_EQ(1234, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
     ASSERT_EQ(1, App_SharedClock_GetCurrentTimeInSeconds(clock));
+}
+
+TEST_F(ClockTest, get_previous_time_at_nonzero_second)
+{
+    App_SharedClock_SetPreviousTimeInMilliseconds(clock, 1234);
+    ASSERT_EQ(1234, App_SharedClock_GetPreviousTimeInMilliseconds(clock));
 }
 
 TEST_F(ClockTest, check_current_time_truncation)
