@@ -55,3 +55,9 @@ uint32_t App_SharedClock_GetPreviousTimeInMilliseconds(
 {
     return clock->previous_time_ms;
 }
+
+uint32_t
+    App_SharedClock_GetPreviousTimeInSeconds(const struct Clock *const clock)
+{
+    return clock->previous_time_ms / 1000U;
+}

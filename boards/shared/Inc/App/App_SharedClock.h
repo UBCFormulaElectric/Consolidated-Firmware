@@ -59,3 +59,13 @@ uint32_t App_SharedClock_GetCurrentTimeInSeconds(const struct Clock *clock);
  */
 uint32_t
     App_SharedClock_GetPreviousTimeInMilliseconds(const struct Clock *clock);
+
+/**
+ * Get the previous time for the given clock, in seconds
+ * @note When the time overflows, the number of seconds won't be exact because
+ *       2^32 - 1 doesn't divide by 1000 exactly. In practice, this shouldn't be
+ *       an issue for our use-case because it takes 50 days to overflow.
+ * @param clock The clock to get the previous time for
+ * @return The previous time for the given clock, in seconds
+ */
+uint32_t App_SharedClock_GetPreviousTimeInSeconds(const struct Clock *clock);
