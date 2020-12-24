@@ -1,5 +1,15 @@
 #pragma once
 
+#ifdef SET_BIT
+#undef SET_BIT
+#define SET_BIT(REG, BIT) ((REG) = (uint16_t)((REG) | (BIT)))
+#endif
+
+#ifdef CLEAR_BIT
+#undef CLEAR_BIT
+#define CLEAR_BIT(REG, BIT) ((REG) = (uint16_t)((REG) & ~(BIT)))
+#endif
+
 // Register data masks
 #define EFUSE_ADDR_MASK 0xFU
 #define EFUSE_ADDR_SHIFT 0x0AU

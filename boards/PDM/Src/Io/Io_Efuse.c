@@ -4,8 +4,6 @@
 #include "Io_Efuse.h"
 #include "configs/Io_EfuseConfig.h"
 
-#pragma GCC diagnostic ignored "-Wconversion"
-
 struct Efuse_Context
 {
     float (*get_channel_0_current)(void);
