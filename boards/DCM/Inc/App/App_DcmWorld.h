@@ -87,6 +87,13 @@ struct BrakeLight *App_DcmWorld_GetBrakeLight(const struct DcmWorld *world);
 struct Buzzer *App_DcmWorld_GetBuzzer(const struct DcmWorld *world);
 
 /**
+ * Get the Imu for the given world
+ * @param world The world to get clock for
+ * @return The Imu for the given world
+ */
+struct Imu *App_DcmWorld_GetImu(const struct DcmWorld *world);
+
+/**
  * Get the error table for the given world
  * @param world The world to get error table for
  * @return The error table for the given world
@@ -111,10 +118,3 @@ void App_DcmWorld_UpdateWaitSignal(
  * @return The clock for the given world
  */
 struct Clock *App_DcmWorld_GetClock(const struct DcmWorld *world);
-
-/**
- * Get the Imu for the given world
- * @param world The world to get clock for
- * @return The Imu for the given world
- */
-struct Imu *App_DcmWorld_GetImu(const struct DcmWorld *world);

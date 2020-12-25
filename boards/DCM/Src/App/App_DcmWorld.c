@@ -96,6 +96,11 @@ struct Buzzer *App_DcmWorld_GetBuzzer(const struct DcmWorld *const world)
     return world->buzzer;
 }
 
+struct Imu *App_DcmWorld_GetImu(const struct DcmWorld *const world)
+{
+    return world->imu;
+}
+
 struct ErrorTable *
     App_DcmWorld_GetErrorTable(const struct DcmWorld *const world)
 {
@@ -112,9 +117,4 @@ void App_DcmWorld_UpdateWaitSignal(
 struct Clock *App_DcmWorld_GetClock(const struct DcmWorld *const world)
 {
     return world->clock;
-}
-
-struct Imu *App_DcmWorld_GetImu(const struct DcmWorld *const world)
-{
-    return world->imu;
 }
