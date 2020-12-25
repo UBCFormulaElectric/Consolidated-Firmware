@@ -83,11 +83,11 @@ static void Io_Efuse_CalculateParityBit(uint16_t *serial_data_input)
 
     if (parity_bit)
     {
-        SET_BIT(*serial_data_input, PARITY_BIT);
+        SET_BIT_UINT16(*serial_data_input, PARITY_BIT);
     }
     else
     {
-        CLEAR_BIT(*serial_data_input, PARITY_BIT);
+        CLEAR_BIT_UINT16(*serial_data_input, PARITY_BIT);
     }
 }
 
@@ -226,10 +226,10 @@ ExitCode Io_Efuse_ConfigureChannelMonitoring(
         Io_Efuse_ReadRegister(SI_GCR_ADDR, &register_value, efuse));
 
     // Clear the previous monitoring configuration
-    CLEAR_BIT(register_value, (CSNS1_EN_MASK | CSNS0_EN_MASK));
+    CLEAR_BIT_UINT16(register_value, (CSNS1_EN_MASK | CSNS0_EN_MASK));
 
     // Set the new monitoring configuration
-    SET_BIT(
+    SET_BIT_UINT16(
         register_value,
         (monitoring_function & (CSNS1_EN_MASK | CSNS0_EN_MASK)));
 
@@ -345,11 +345,11 @@ ExitCode Io_Efuse_WriteRegister(
     // is disabled)
     if (efuse->wdin_bit_to_set)
     {
-        SET_BIT(tx_data, WATCHDOG_BIT);
+        SET_BIT_UINT16(tx_data, WATCHDOG_BIT);
     }
     else
     {
-        CLEAR_BIT(tx_data, WATCHDOG_BIT);
+        CLEAR_BIT_UINT16(tx_data, WATCHDOG_BIT);
     }
 
     // Invert watchdog bit state for next write
@@ -378,11 +378,11 @@ ExitCode Io_Efuse_ReadRegister(
     // is disabled)
     if (efuse->wdin_bit_to_set)
     {
-        SET_BIT(tx_data, WATCHDOG_BIT);
+        SET_BIT_UINT16(tx_data, WATCHDOG_BIT);
     }
     else
     {
-        CLEAR_BIT(tx_data, WATCHDOG_BIT);
+        CLEAR_BIT_UINT16(tx_data, WATCHDOG_BIT);
     }
 
     // Invert watchdog bit state for next write
