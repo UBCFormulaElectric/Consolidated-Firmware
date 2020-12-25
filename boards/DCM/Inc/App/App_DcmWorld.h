@@ -113,8 +113,8 @@ void App_DcmWorld_UpdateWaitSignal(
 struct Clock *App_DcmWorld_GetClock(const struct DcmWorld *world);
 
 /**
- * Get the imu for the given world
+ * Get the Imu for the given world
  * @param world The world to get clock for
- * @return The imu for the given world
+ * @return The Imu for the given world
  */
 struct Imu *App_DcmWorld_GetImu(const struct DcmWorld *world);

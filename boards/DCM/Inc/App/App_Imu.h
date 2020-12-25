@@ -7,7 +7,7 @@
 struct Imu;
 
 /**
- * Allocate and initialize an IMU.
+ * Allocate and initialize an Imu.
  * @param get_acceleration_x A function that can be called to get the
  * acceleration (m/s^2) on the x-axis.
  * @param get_acceleration_y A function that can be called to get the
@@ -18,7 +18,7 @@ struct Imu;
  * Imu for any given axis
  * @param max_acceleration The maximum acceleration (m/s^2) measurable by the
  * Imu for any given axis
- * @return The created IMU whose ownership is given to the caller.
+ * @return The created Imu whose ownership is given to the caller.
  */
 struct Imu *App_Imu_Create(
     float (*get_acceleration_x)(void),

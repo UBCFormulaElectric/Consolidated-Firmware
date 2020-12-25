@@ -10,7 +10,7 @@ struct DcmWorld;
 void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world);
 
 /**
- * Broadcast imu data over CAN and send InRangeCheck signals.
+ * Broadcast Imu data over CAN and send InRangeCheck signals.
  * If data is invalid send a INVALID_IMU_ARGS DCM non critical errors signal.
  * @param world the DcmWorld to send the CAN signals for
  */
