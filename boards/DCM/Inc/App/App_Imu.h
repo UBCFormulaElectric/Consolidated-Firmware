@@ -34,7 +34,7 @@ struct Imu *App_Imu_Create(
 void App_Imu_Destroy(struct Imu *imu);
 
 /**
- * Get acceleration (m/s^2) measured on the x-axis from the given Imu.
+ * Get the acceleration measured on the x-axis from the given Imu
  * @param imu The given Imu to get the x-axis acceleration from.
  * @return The acceleration (m/s^2) measured on the x-axis.
  */
