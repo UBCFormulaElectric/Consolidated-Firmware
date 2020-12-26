@@ -48,7 +48,7 @@ float App_Imu_GetAccelerationX(const struct Imu *imu);
 float App_Imu_GetAccelerationY(const struct Imu *imu);
 
 /**
- * Get acceleration (m/s^2) measured on the z-axis from the given Imu.
+ * Get acceleration measured on the z-axis from the given Imu
  * @param The given Imu to get the z-axis acceleration from.
  * @return The acceleration (m/s^2) measured on the z-axis.
  */
