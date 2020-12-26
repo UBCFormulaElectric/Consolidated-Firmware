@@ -14,9 +14,9 @@ env:
     - CUBE_INSTALL_DIR=$INSTALL_DIR/STM32CubeMX
     - PYTHONPATH=$PWD
 
-#services:
+services:
   # Use xvfb to run programs requiring a GUI (e.g. STM32CubeMX code generation)
-#  - xvfb
+  - xvfb
 
 before_install:
   - ./scripts/travis_ci/pull_git_submodules.sh
@@ -28,7 +28,7 @@ install:
   # Modify $PATH directly in .travis.yml because a child process (i.e.
   # travis_install_binaries.sh) can't modify the environmental variables of its
   # parent process (i.e. .travis.yml)
-  - PATH=$INSTALL_DIR/bin:$CUBE_INSTALL_DIR:$PATH && ./scripts/travis_ci/travis_install_binaries.sh $INSTALL_DIR $CUBE_INSTALL_DIR
+  - PATH=$INSTALL_DIR/bin:$CUBE_INSTALL_DIR:$PATH && ./scripts/travis_ci/travis_install_binaries.sh $INSTALL_DIR #$CUBE_INSTALL_DIR
 
 addons:
   apt_packages:
@@ -43,7 +43,7 @@ before_script:
   - ./scripts/travis_ci/print_bin_versions.sh
 
 script:
-  - ./scripts/travis_ci/travis_script.sh $CUBE_INSTALL_DIR/STM32CubeMX
+  - ./scripts/travis_ci/travis_script.sh #$CUBE_INSTALL_DIR/STM32CubeMX
 
 matrix:
   include:
