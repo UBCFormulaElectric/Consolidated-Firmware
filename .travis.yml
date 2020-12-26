@@ -11,8 +11,8 @@ git:
 env:
   global:
     - INSTALL_DIR=/usr/local
+    - CUBE_INSTALL_DIR=$INSTALL_DIR/STM32CubeMX
     - PYTHONPATH=$PWD
-    - CUBE_INSTALL_DIR=$PYTHONPATH/STM32CubeMX
 
 services:
   # Use xvfb to run programs requiring a GUI (e.g. STM32CubeMX code generation)
