@@ -34,9 +34,9 @@ addons:
   apt_packages:
     # The GCC ARM embedded toolchain is 32-bit while the Travis CI environment
     # is 64-bit. Therefore, we require the following libraries to be installed.
-    - libbz2-1.0:i386
-    - libncurses5:i386
-    - libz1:i386
+    #- libbz2-1.0:i386
+    #- libncurses5:i386
+    #- libz1:i386
     - valgrind
 
 before_script:
