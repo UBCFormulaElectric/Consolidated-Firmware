@@ -20,7 +20,7 @@ services:
 
 before_install:
   - ./scripts/travis_ci/pull_git_submodules.sh
-  #- pip install pipenv
+  - pip install pipenv
   - git lfs pull
 
 install:
@@ -29,6 +29,7 @@ install:
   # travis_install_binaries.sh) can't modify the environmental variables of its
   # parent process (i.e. .travis.yml)
   - PATH=$INSTALL_DIR/bin:$CUBE_INSTALL_DIR:$PATH && ./scripts/travis_ci/travis_install_binaries.sh $INSTALL_DIR $CUBE_INSTALL_DIR
+  - less /etc/systemd/system/xvfb.service
 
 addons:
   apt_packages:
