@@ -14,9 +14,9 @@ env:
     - CUBE_INSTALL_DIR=$INSTALL_DIR/STM32CubeMX
     - PYTHONPATH=$PWD
 
-#services:
+services:
   # Use xvfb to run programs requiring a GUI (e.g. STM32CubeMX code generation)
-  #- xvfb
+  - xvfb
 
 before_install:
   - ./scripts/travis_ci/pull_git_submodules.sh
