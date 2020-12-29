@@ -11,7 +11,7 @@ git:
 env:
   global:
     - INSTALL_DIR=/usr/local
-    #- CUBE_INSTALL_DIR=$INSTALL_DIR/STM32CubeMX
+    - CUBE_INSTALL_DIR=$INSTALL_DIR/STM32CubeMX
     - PYTHONPATH=$PWD
 
 services:
@@ -24,7 +24,7 @@ before_install:
   - git lfs pull
 
 install:
-  - pipenv install
+  #- pipenv install
   # Modify $PATH directly in .travis.yml because a child process (i.e.
   # travis_install_binaries.sh) can't modify the environmental variables of its
   # parent process (i.e. .travis.yml)
