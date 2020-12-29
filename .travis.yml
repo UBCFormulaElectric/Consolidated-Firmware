@@ -20,8 +20,8 @@ services:
 
 before_install:
   - ./scripts/travis_ci/pull_git_submodules.sh
-  - pip install pipenv
-  #- git lfs pull
+  #- pip install pipenv
+  - git lfs pull
 
 install:
   - pipenv install
