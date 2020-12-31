@@ -30,7 +30,8 @@ if [ "$RUN_ARM_BUILD" = "true" ]; then
             # Travis CI Pull Request build
         #    SHA=${TRAVIS_PULL_REQUEST_SHA}
         #fi
-        SHA=${GITHUB_REF}
+        #SHA=${GITHUB_REF}
+        SHA=${TRAVIS_COMMIT}
         # For now, the maximum RAM and FLASH size are the same for every board.
         MAX_RAM_SIZE=40960 
         MAX_FLASH_SIZE=262144
