@@ -23,14 +23,14 @@ if [ "$RUN_ARM_BUILD" = "true" ]; then
         travis_run make --directory=$BUILD_DIR $BOARD.elf
         # Upload the text/data/bss size to SeriesCI. For pull-request builds,
         # we use ${TRAVIS_PULL_REQUEST_SHA} to get the branch commit SHA.
-        if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
+        #if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
             # Travis CI Branch build
-            SHA=${TRAVIS_COMMIT}
-        else
+        #    SHA=${TRAVIS_COMMIT}
+        #else
             # Travis CI Pull Request build
-            SHA=${TRAVIS_PULL_REQUEST_SHA}
-        fi
-        #SHA=${GITHUB_REF}
+        #    SHA=${TRAVIS_PULL_REQUEST_SHA}
+        #fi
+        SHA=${GITHUB_REF}
         #SHA=${TRAVIS_COMMIT}
         #SHA=${TRAVIS_PULL_REQUEST_SHA}
         # For now, the maximum RAM and FLASH size are the same for every board.
