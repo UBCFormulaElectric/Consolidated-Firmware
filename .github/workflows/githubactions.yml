@@ -59,6 +59,7 @@ jobs:
                                                                                                       
                         - name: Script
                           run: |     
+                                  echo ${{ github.event.push.head.sha }}
                                   source ~/.bashrc
                                                            
                                   export DISPLAY=:99.0 
