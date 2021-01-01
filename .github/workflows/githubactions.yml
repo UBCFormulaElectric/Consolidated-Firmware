@@ -61,7 +61,7 @@ jobs:
                           run: |     
                                   source ~/.bashrc
                                   
-                                  export GITHUB_PULL_REQUEST_SHA=$PR_HEAD_SHA
+                                  GITHUB_PULL_REQUEST_SHA=$PR_HEAD_SHA
                                                            
                                   export DISPLAY=:99.0 
                                                             
@@ -72,3 +72,4 @@ jobs:
                                   
                           env: 
                                 ${{matrix.env}} : "true"
+                                $GITHUB_PULL_REQUEST_SHA: $PR_HEAD_SHA
