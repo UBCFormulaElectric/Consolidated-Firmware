@@ -36,7 +36,7 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     // After entering the init state for 5 seconds, enter the AIR open state
     if (App_SharedClock_GetCurrentTimeInMilliseconds(clock) -
             App_SharedClock_GetPreviousTimeInMilliseconds(clock) >=
-        4999U)
+        5000U)
     {
         App_SharedStateMachine_SetNextState(
             state_machine, App_GetAirOpenState());
