@@ -65,8 +65,10 @@ jobs:
                                                             
                                   export PATH=${{env.INSTALL_DIR}}/bin:${{env.CUBE_INSTALL_DIR}}:$PATH && ./scripts/travis_ci/travis_install_binaries.sh ${{env.INSTALL_DIR}} ${{env.CUBE_INSTALL_DIR}} 
                                   
+                                  #export GITHUB_PR_SHA=${{github.event.pull_request.head.sha}}
+                                  
                                   ./scripts/travis_ci/print_bin_versions.sh
                                   ./scripts/travis_ci/travis_script.sh ${{env.CUBE_INSTALL_DIR}}/STM32CubeMX
                           env:                                 
                                 ${{matrix.env}} : "true"
-                                GITHUB_PR_SHA: ${{github.event.pull_request.head.sha}}
+                                GITHUB_PR_SHA: "${{github.event.pull_request.head.sha}}"
