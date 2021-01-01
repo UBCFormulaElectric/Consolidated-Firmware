@@ -28,8 +28,8 @@ jobs:
 
                 steps:               
                         - name: Hee hee
-                          if: github.event_name == 'push'
-                          run: echo heehee
+                          if: github.event_name == 'pull_request'
+                          run: echo "HEEHEE='heehee'" > ~/.bashrc
                                        
                         - name: Install Addons
                           run: |               
@@ -47,6 +47,10 @@ jobs:
                         - name: Install
                           run: |                  
                                   # Use xvfb to run programs requiring a GUI (e.g. STM32CubeMX code generation)
+                                  source ~/.bashrc
+                                  
+                                  echo $HEEHEE
+
                                   sudo apt-get install xvfb
                                   sudo apt-get install systemd              
                                   sudo cp ./scripts/environment_setup/xvfb.service /etc/systemd/system/xvfb.service
