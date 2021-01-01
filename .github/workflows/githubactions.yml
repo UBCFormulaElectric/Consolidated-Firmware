@@ -62,7 +62,7 @@ jobs:
                                                                                                       
                         - name: Script
                           run: |     
-                                  source ~/.bashr
+                                  source ~/.bashrc
                                   echo $PR_HEAD_SHA
                                   #$GITHUB_PULL_REQUEST_SHA=$PR_HEAD_SHA
                                   #echo $GITHUB_PULL_REQUEST_SHA
