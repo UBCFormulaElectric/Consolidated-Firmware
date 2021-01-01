@@ -62,8 +62,8 @@ jobs:
                                   source ~/.bashrc
                                   
                                   echo $PR_HEAD_SHA
-                                  $GITHUB_PULL_REQUEST_SHA=$PR_HEAD_SHA
-                                  echo $GITHUB_PULL_REQUEST_SHA
+                                  #$GITHUB_PULL_REQUEST_SHA=$PR_HEAD_SHA
+                                  #echo $GITHUB_PULL_REQUEST_SHA
                                                            
                                   export DISPLAY=:99.0 
                                                             
