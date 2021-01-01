@@ -29,6 +29,7 @@ jobs:
                 steps:                            
                         - name: Install Addons
                           run: |               
+                                  echo ${{github.event_name}}
                                   sudo apt-get update
                                   sudo dpkg --add-architecture i386
                                   sudo apt-get install libncurses5 libbz2-1.0 libz1 valgrind
@@ -64,6 +65,5 @@ jobs:
                                   ./scripts/travis_ci/print_bin_versions.sh
                                   ./scripts/travis_ci/travis_script.sh ${{env.CUBE_INSTALL_DIR}}/STM32CubeMX    
                                   
-                                  echo github.event_name
                           env: 
                                 ${{matrix.env}} : "true"
