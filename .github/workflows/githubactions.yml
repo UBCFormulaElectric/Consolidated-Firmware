@@ -45,8 +45,8 @@ jobs:
 
                         - name: Install
                           run: |           
-                                  source ~/.bashrc
-                                  echo $PR_HEAD_SHA
+                                  #source ~/.bashrc
+                                  #echo $PR_HEAD_SHA
        
                                   # Use xvfb to run programs requiring a GUI (e.g. STM32CubeMX code generation)                                  
                                   sudo apt-get install xvfb
@@ -64,8 +64,6 @@ jobs:
                           run: |     
                                   source ~/.bashrc
                                   echo $PR_HEAD_SHA
-                                  #$GITHUB_PULL_REQUEST_SHA=$PR_HEAD_SHA
-                                  #echo $GITHUB_PULL_REQUEST_SHA
                                                            
                                   export DISPLAY=:99.0 
                                                             
