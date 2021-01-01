@@ -15,6 +15,8 @@ else
     STM32CUBEMX_BIN_PATH=$1
 fi
 
+echo "$GITHUB_PR_SHA"
+
 if [ "$RUN_ARM_BUILD" = "true" ]; then
     BUILD_DIR=boards/arm_build
     travis_run cmake -S boards -B $BUILD_DIR -DPLATFORM=arm
@@ -30,7 +32,7 @@ if [ "$RUN_ARM_BUILD" = "true" ]; then
             # Travis CI Pull Request build
             SHA=${TRAVIS_PULL_REQUEST_SHA}
         fi
-        SHA=${GITHUB_TOKEN}
+        #SHA=${GITHUB_PR_SHA}
         #SHA=${TRAVIS_COMMIT}
         #SHA=${TRAVIS_PULL_REQUEST_SHA}
         # For now, the maximum RAM and FLASH size are the same for every board.
