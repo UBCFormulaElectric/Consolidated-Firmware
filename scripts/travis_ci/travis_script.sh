@@ -15,9 +15,8 @@ else
     STM32CUBEMX_BIN_PATH=$1
 fi
 
-echo "$GITHUB_PR_SHA"
-
 if [ "$RUN_ARM_BUILD" = "true" ]; then
+    echo "$GITHUB_PR_SHA"
     BUILD_DIR=boards/arm_build
     travis_run cmake -S boards -B $BUILD_DIR -DPLATFORM=arm
     for BOARD in $(get_valid_board_names)
