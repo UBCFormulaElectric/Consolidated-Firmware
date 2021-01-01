@@ -28,7 +28,7 @@ jobs:
 
                 steps:               
                         - name: Hee hee
-                          if: github.event_name == 'pull_request'
+                          if: github.event_name == 'push'
                           run: echo heehee
                                        
                         - name: Install Addons
