@@ -24,9 +24,11 @@ if [ "$RUN_ARM_BUILD" = "true" ]; then
         # Upload the text/data/bss size to SeriesCI. For pull-request builds,
         # we use ${TRAVIS_PULL_REQUEST_SHA} to get the branch commit SHA.
         if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
+            echo "PR FALSE"
             # Travis CI Branch build
             SHA=${TRAVIS_COMMIT}
         else
+            echo "PR TRUE"
             # Travis CI Pull Request build
             SHA=${TRAVIS_PULL_REQUEST_SHA}
         fi
