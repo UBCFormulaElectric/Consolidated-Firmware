@@ -44,7 +44,10 @@ jobs:
                                   python-version: 3.6
 
                         - name: Install
-                          run: |                  
+                          run: |           
+                                  source ~/.bashrc
+                                  echo $PR_HEAD_SHA
+       
                                   # Use xvfb to run programs requiring a GUI (e.g. STM32CubeMX code generation)                                  
                                   sudo apt-get install xvfb
                                   sudo apt-get install systemd              
@@ -61,7 +64,7 @@ jobs:
                           run: |     
                                   source ~/.bashrc
                                   
-                                  echo $PR_HEAD_SHA
+                                  #echo $PR_HEAD_SHA
                                   #$GITHUB_PULL_REQUEST_SHA=$PR_HEAD_SHA
                                   #echo $GITHUB_PULL_REQUEST_SHA
                                                            
