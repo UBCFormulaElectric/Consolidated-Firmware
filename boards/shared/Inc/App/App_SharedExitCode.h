@@ -11,8 +11,8 @@ typedef enum
     NUM_EXIT_CODES,
 } ExitCode;
 
-#define EXIT_OK(code) (EXIT_CODE_OK == (code))
+#define EXIT_OK(code) ((code) == EXIT_CODE_OK)
 
-#define RETURN_IF_EXIT_NOT_OK(code) \
-    if ((code) != EXIT_CODE_OK)     \
-        return (code);
+#define RETURN_CODE_IF_EXIT_NOT_OK(code) \
+    if ((code) != EXIT_CODE_OK)          \
+    return (code)
