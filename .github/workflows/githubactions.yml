@@ -27,9 +27,9 @@ jobs:
                         CUBE_INSTALL_DIR: $INSTALL_DIR/STM32CubeMX
 
                 steps:               
-                        - name: Set Pull Request SHA
-                          if: github.event_name == 'pull_request'
-                          run: echo "PR_HEAD_SHA=${{github.event.pull_request.head.sha}}" > ~/.bashrc
+                        #- name: Set Pull Request SHA
+                        #  if: github.event_name == 'pull_request'
+                        #  run: echo "PR_HEAD_SHA=${{github.event.pull_request.head.sha}}" > ~/.bashrc
                                        
                         - name: Install Addons
                           run: |               
@@ -45,9 +45,6 @@ jobs:
 
                         - name: Install
                           run: |           
-                                  #source ~/.bashrc
-                                  #echo $PR_HEAD_SHA
-       
                                   # Use xvfb to run programs requiring a GUI (e.g. STM32CubeMX code generation)                                  
                                   sudo apt-get install xvfb
                                   sudo apt-get install systemd              
@@ -70,7 +67,7 @@ jobs:
                                   export PATH=${{env.INSTALL_DIR}}/bin:${{env.CUBE_INSTALL_DIR}}:$PATH && ./scripts/travis_ci/travis_install_binaries.sh ${{env.INSTALL_DIR}} ${{env.CUBE_INSTALL_DIR}} 
                                   
                                   ./scripts/travis_ci/print_bin_versions.sh
-                                  ./scripts/travis_ci/travis_script.sh ${{env.CUBE_INSTALL_DIR}}/STM32CubeMX    
-                                  
+                                  ./scripts/travis_ci/travis_script.sh ${{env.CUBE_INSTALL_DIR}}/STM32CubeMX
                           env:                                 
                                 ${{matrix.env}} : "true"
+                                $GITHUB_PULL_REQUEST_SHA: ${{github.event.pull_request.head.sha}}
