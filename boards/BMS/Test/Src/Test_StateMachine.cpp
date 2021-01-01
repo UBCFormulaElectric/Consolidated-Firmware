@@ -812,7 +812,7 @@ TEST_F(BmsStateMachineTest, check_cell_monitors_can_signals_in_all_states)
         CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
-
+// BMS-12
 TEST_F(BmsStateMachineTest, check_transition_from_init_state_to_air_open_state)
 {
     SetInitialState(App_GetInitState());
