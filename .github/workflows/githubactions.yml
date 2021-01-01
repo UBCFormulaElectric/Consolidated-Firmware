@@ -29,11 +29,10 @@ jobs:
                 steps:               
                         - name: Hee hee
                           if: github.event_name == 'pull_request'
-                          run: echo "HEEHEE='heehee'" > ~/.bashrc
+                          run: echo "PR_HEAD_SHA=${{github.event.pull_request.head.sha}}" > ~/.bashrc
                                        
                         - name: Install Addons
                           run: |               
-                                  echo ${{github.event_name}}
                                   sudo apt-get update
                                   sudo dpkg --add-architecture i386
                                   sudo apt-get install libncurses5 libbz2-1.0 libz1 valgrind
@@ -49,7 +48,7 @@ jobs:
                                   # Use xvfb to run programs requiring a GUI (e.g. STM32CubeMX code generation)
                                   source ~/.bashrc
                                   
-                                  echo $HEEHEE
+                                  echo $PR_HEAD_SHA
 
                                   sudo apt-get install xvfb
                                   sudo apt-get install systemd              
