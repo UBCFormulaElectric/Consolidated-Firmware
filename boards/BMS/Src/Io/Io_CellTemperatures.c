@@ -180,7 +180,7 @@ static ExitCode Io_CellTemperatures_ReadRawThermistorVoltages(void)
 
 ExitCode Io_CellTemperatures_ReadTemperatures(void)
 {
-    RETURN_IF_EXIT_NOT_OK(Io_CellTemperatures_ReadRawThermistorVoltages())
+    RETURN_CODE_IF_EXIT_NOT_OK(Io_CellTemperatures_ReadRawThermistorVoltages());
 
     for (size_t current_ic = 0U; current_ic < NUM_OF_CELL_MONITOR_CHIPS;
          current_ic++)
