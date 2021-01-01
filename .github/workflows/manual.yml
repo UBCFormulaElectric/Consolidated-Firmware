@@ -62,6 +62,8 @@ jobs:
                                   export PATH=${{env.INSTALL_DIR}}/bin:${{env.CUBE_INSTALL_DIR}}:$PATH && ./scripts/travis_ci/travis_install_binaries.sh ${{env.INSTALL_DIR}} ${{env.CUBE_INSTALL_DIR}} 
                                   
                                   ./scripts/travis_ci/print_bin_versions.sh
-                                  ./scripts/travis_ci/travis_script.sh ${{env.CUBE_INSTALL_DIR}}/STM32CubeMX                                  
+                                  ./scripts/travis_ci/travis_script.sh ${{env.CUBE_INSTALL_DIR}}/STM32CubeMX    
+                                  
+                                  echo github.event_name
                           env: 
                                 ${{matrix.env}} : "true"
