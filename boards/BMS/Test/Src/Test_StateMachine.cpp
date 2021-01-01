@@ -828,6 +828,7 @@ TEST_F(BmsStateMachineTest, check_transition_from_init_state_to_air_open_state)
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
+// BMS-12
 TEST_F(
     BmsStateMachineTest,
     check_transition_from_air_open_state_to_precharge_state)
