@@ -28,8 +28,7 @@ if [ "$RUN_ARM_BUILD" = "true" ]; then
             SHA=${TRAVIS_COMMIT}
         else
             # Travis CI Pull Request build
-            #SHA=${TRAVIS_PULL_REQUEST_SHA}
-            SHA=${{github.event.pull_request.head.sha}}
+            SHA=${TRAVIS_PULL_REQUEST_SHA}
         fi
         #SHA=${GITHUB_SHA}
         #SHA=${TRAVIS_COMMIT}
