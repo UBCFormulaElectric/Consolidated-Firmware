@@ -221,7 +221,7 @@ ExitCode Io_Efuse_ConfigureChannelMonitoring(
 {
     uint16_t register_value;
 
-    // Read original content of GCR Register
+    // Read the original contents of the GCR Register
     RETURN_CODE_IF_EXIT_NOT_OK(
         Io_Efuse_ReadRegister(SI_GCR_ADDR, &register_value, efuse));
 
@@ -233,6 +233,7 @@ ExitCode Io_Efuse_ConfigureChannelMonitoring(
         register_value,
         (monitoring_function & (CSNS1_EN_MASK | CSNS0_EN_MASK)));
 
+    // Write back new monitoring configuration to the efuse
     RETURN_CODE_IF_EXIT_NOT_OK(
         Io_Efuse_WriteRegister(SI_GCR_ADDR, register_value, efuse));
 
