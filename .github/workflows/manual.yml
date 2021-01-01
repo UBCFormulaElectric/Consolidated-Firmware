@@ -26,7 +26,11 @@ jobs:
                         INSTALL_DIR: /usr/local
                         CUBE_INSTALL_DIR: $INSTALL_DIR/STM32CubeMX
 
-                steps:                            
+                steps:               
+                        - name: Hee hee
+                          if: github.event_name == 'pull_request'
+                          run: echo heehee
+                                       
                         - name: Install Addons
                           run: |               
                                   echo ${{github.event_name}}
