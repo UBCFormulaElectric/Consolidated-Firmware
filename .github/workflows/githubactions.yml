@@ -61,7 +61,9 @@ jobs:
                           run: |     
                                   source ~/.bashrc
                                   
-                                  GITHUB_PULL_REQUEST_SHA=$PR_HEAD_SHA
+                                  echo $PR_HEAD_SHA
+                                  $GITHUB_PULL_REQUEST_SHA=$PR_HEAD_SHA
+                                  echo $GITHUB_PULL_REQUEST_SHA
                                                            
                                   export DISPLAY=:99.0 
                                                             
@@ -70,6 +72,5 @@ jobs:
                                   ./scripts/travis_ci/print_bin_versions.sh
                                   ./scripts/travis_ci/travis_script.sh ${{env.CUBE_INSTALL_DIR}}/STM32CubeMX    
                                   
-                          env: 
+                          env:                                 
                                 ${{matrix.env}} : "true"
-                                $GITHUB_PULL_REQUEST_SHA: $PR_HEAD_SHA
