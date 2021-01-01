@@ -812,5 +812,41 @@ TEST_F(BmsStateMachineTest, check_cell_monitors_can_signals_in_all_states)
         CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
+// BMS-12
+TEST_F(BmsStateMachineTest, check_transition_from_init_state_to_air_open_state)
+{
+    SetInitialState(App_GetInitState());
+
+    LetTimePass(state_machine, 4999);
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    LetTimePass(state_machine, 1);
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_AIR_OPEN_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+}
+
+// BMS-12
+TEST_F(
+    BmsStateMachineTest,
+    check_transition_from_air_open_state_to_precharge_state)
+{
+    SetInitialState(App_GetAirOpenState());
+
+    // Check that no state transitions occur. The 500ms duration was chosen
+    // arbitrarily.
+    LetTimePass(state_machine, 500);
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_AIR_OPEN_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    is_air_negative_closed_fake.return_val = true;
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+}
 
 } // namespace StateMachineTest
