@@ -27,7 +27,7 @@ jobs:
                         CUBE_INSTALL_DIR: $INSTALL_DIR/STM32CubeMX
 
                 steps:               
-                        - name: Hee hee
+                        - name: Set Pull Request SHA
                           if: github.event_name == 'pull_request'
                           run: echo "PR_HEAD_SHA=${{github.event.pull_request.head.sha}}" > ~/.bashrc
                                        
@@ -45,11 +45,7 @@ jobs:
 
                         - name: Install
                           run: |                  
-                                  # Use xvfb to run programs requiring a GUI (e.g. STM32CubeMX code generation)
-                                  source ~/.bashrc
-                                  
-                                  echo $PR_HEAD_SHA
-
+                                  # Use xvfb to run programs requiring a GUI (e.g. STM32CubeMX code generation)                                  
                                   sudo apt-get install xvfb
                                   sudo apt-get install systemd              
                                   sudo cp ./scripts/environment_setup/xvfb.service /etc/systemd/system/xvfb.service
@@ -64,6 +60,8 @@ jobs:
                         - name: Script
                           run: |     
                                   source ~/.bashrc
+                                  
+                                  export GITHUB_PULL_REQUEST_SHA=$PR_HEAD_SHA
                                                            
                                   export DISPLAY=:99.0 
                                                             
