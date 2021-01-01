@@ -60,7 +60,6 @@ jobs:
                         - name: Script
                           run: |     
                                   source ~/.bashrc
-                                  echo $PR_HEAD_SHA
                                                            
                                   export DISPLAY=:99.0 
                                                             
