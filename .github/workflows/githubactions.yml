@@ -69,4 +69,4 @@ jobs:
                                   ./scripts/travis_ci/travis_script.sh ${{env.CUBE_INSTALL_DIR}}/STM32CubeMX
                           env:                                 
                                 ${{matrix.env}} : "true"
-                                $GITHUB_TOKEN: ${{github.event.pull_request.head.sha}}
+                                $GITHUB_PR_SHA: ${{github.event.pull_request.head.sha}}
