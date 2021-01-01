@@ -16,7 +16,7 @@ else
 fi
 
 if [ "$RUN_ARM_BUILD" = "true" ]; then
-    echo "$GITHUB_PR_SHA"
+    #echo "$GITHUB_PR_SHA"
     BUILD_DIR=boards/arm_build
     travis_run cmake -S boards -B $BUILD_DIR -DPLATFORM=arm
     for BOARD in $(get_valid_board_names)
@@ -34,6 +34,7 @@ if [ "$RUN_ARM_BUILD" = "true" ]; then
         #SHA=${GITHUB_PR_SHA}
         #SHA=${TRAVIS_COMMIT}
         #SHA=${TRAVIS_PULL_REQUEST_SHA}
+        SHA="$GITHUB_PR_SHA"
         # For now, the maximum RAM and FLASH size are the same for every board.
         MAX_RAM_SIZE=40960 
         MAX_FLASH_SIZE=262144
