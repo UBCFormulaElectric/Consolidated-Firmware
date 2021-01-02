@@ -24,17 +24,7 @@ jobs:
                         INSTALL_DIR: /usr/local
                         CUBE_INSTALL_DIR: $INSTALL_DIR/STM32CubeMX
 
-                steps:               
-                        #- name: Set SHA for Pull Request
-                        #  if: github.event_name == 'pull_request'
-                        #  run: |
-                        #          echo "GITHUB_ACTIONS_SHA_=${{ github.event.pull_request.head.sha }}" > ~/.bashrc
-                                  
-                        - name: Set SHA for Push/Merge
-                          if: github.event_name == 'push'
-                          run: |
-                                  echo "GITHUB_ACTIONS_SHA_=${GITHUB_SHA}" > ~/.bashrc
-                          
+                steps:                                      
                         - name: Install Addons
                           run: |               
                                   sudo apt-get update
@@ -50,7 +40,12 @@ jobs:
                         - name: Set SHA for PR
                           if: github.event_name == 'pull_request'
                           run: |
-                                  echo "GITHUB_ACTIONS_SHA_=${{ github.event.pull_request.head.sha }}" > ~/.bashrc
+                                  echo "export GITHUB_ACTIONS_SHA_=${{ github.event.pull_request.head.sha }}" > ~/.bashrc
+                                  
+                        - name: Set SHA for Push/Merge
+                          if: github.event_name == 'push'
+                          run: |
+                                  echo "export GITHUB_ACTIONS_SHA_=${ GITHUB_SHA }" > ~/.bashrc
                           
                         - name: Install
                           run: |           
