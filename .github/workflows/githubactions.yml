@@ -64,6 +64,8 @@ jobs:
                         - name: Script
                           run: |     
                                   source ~/.bashrc
+                                  
+                                  echo $GITHUB_ACTION_SHA
                                                            
                                   export DISPLAY=:99.0 
                                                             
