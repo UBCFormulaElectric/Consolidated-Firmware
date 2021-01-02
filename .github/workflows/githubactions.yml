@@ -33,6 +33,8 @@ jobs:
                                        
                         - name: Install Addons
                           run: |               
+                                  echo ${{ github.event.push.head.sha }}
+
                                   sudo apt-get update
                                   sudo dpkg --add-architecture i386
                                   sudo apt-get install libncurses5 libbz2-1.0 libz1 valgrind
@@ -59,7 +61,6 @@ jobs:
                                                                                                       
                         - name: Script
                           run: |     
-                                  echo ${{ github.event.push.head.sha }}
                                   source ~/.bashrc
                                                            
                                   export DISPLAY=:99.0 
