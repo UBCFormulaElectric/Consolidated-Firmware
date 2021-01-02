@@ -1,6 +1,7 @@
 #include "states/App_AllStates.h"
 #include "states/App_DriveState.h"
 #include "states/App_InitState.h"
+#include "App_SetPeriodicCanSignals.h"
 
 #include "App_SharedMacros.h"
 
@@ -33,6 +34,9 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
     }
+
+    App_SetPeriodicCanSignals_Imu(world);
+    App_SetPeriodicCanSignals_TorqueRequests(world);
 }
 
 static void DriveStateRunOnExit(struct StateMachine *const state_machine)

@@ -37,11 +37,13 @@
 #include "Io_RgbLedSequence.h"
 #include "Io_BrakeLight.h"
 #include "Io_Buzzer.h"
+#include "Io_LSM6DS33.h"
 
 #include "App_DcmWorld.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
+#include "configs/App_AccelerationThresholds.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -90,6 +92,7 @@ struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
 struct BrakeLight *       brake_light;
 struct Buzzer *           buzzer;
+struct Imu *              imu;
 struct ErrorTable *       error_table;
 struct Clock *            clock;
 /* USER CODE END PV */
@@ -183,15 +186,19 @@ int main(void)
 
     buzzer = App_Buzzer_Create(Io_Buzzer_TurnOn, Io_Buzzer_TurnOff);
 
+    imu = App_Imu_Create(
+        Io_LSM6DS33_GetAccelerationX, Io_LSM6DS33_GetAccelerationY,
+        Io_LSM6DS33_GetAccelerationZ, MIN_ACCELERATION_MS2,
+        MAX_ACCELERATION_MS2);
+
     error_table = App_SharedErrorTable_Create();
 
     clock = App_SharedClock_Create();
 
     world = App_DcmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, brake_light,
-        buzzer, error_table, clock,
-
-        App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
+        buzzer, imu, error_table, clock, App_BuzzerSignals_IsOn,
+        App_BuzzerSignals_Callback);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
