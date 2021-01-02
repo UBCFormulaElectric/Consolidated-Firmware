@@ -28,12 +28,12 @@ jobs:
                         - name: Set SHA for Pull Request
                           if: github.event_name == 'pull_request'
                           run: |
-                                  echo "export GITHUB_ACTIONS_SHA=${{github.event.pull_request.head.sha}}" > ~/.bashrc
+                                  echo "export GITHUB_ACTIONS_SHA_=${{github.event.pull_request.head.sha}}" > ~/.bashrc
                                   
                         - name: Set SHA for Push/Merge
                           if: github.event_name == 'push'
                           run: |
-                                  echo "export GITHUB_ACTIONS_SHA=${GITHUB_SHA}" > ~/.bashrc
+                                  echo "export GITHUB_ACTIONS_SHA_=${GITHUB_SHA}" > ~/.bashrc
                           
                         - name: Install Addons
                           run: |               
@@ -65,7 +65,7 @@ jobs:
                           run: |     
                                   source ~/.bashrc
                                   
-                                  echo $GITHUB_ACTION_SHA
+                                  echo $GITHUB_ACTIONS_SHA_
                                                            
                                   export DISPLAY=:99.0 
                                                             
