@@ -32,7 +32,7 @@ if [ "$RUN_ARM_BUILD" = "true" ]; then
             SHA=${TRAVIS_PULL_REQUEST_SHA}
         fi
         #SHA="$GITHUB_PR_SHA"
-        SHA=$GITHUB_PR_SHA
+        SHA=${GITHUB_SHA}
         # For now, the maximum RAM and FLASH size are the same for every board.
         MAX_RAM_SIZE=40960 
         MAX_FLASH_SIZE=262144
