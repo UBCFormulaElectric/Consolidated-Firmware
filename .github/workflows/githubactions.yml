@@ -25,10 +25,18 @@ jobs:
                         CUBE_INSTALL_DIR: $INSTALL_DIR/STM32CubeMX
 
                 steps:               
+                        - name: Set SHA for Pull Request
+                          if: github.event_name == 'pull_request'
+                          run: |
+                                  echo "GITHUB_ACTIONS_SHA=${{github.event.pull_request.head.sha}}" > ~/.bashrc
+                                  
+                        - name: Set SHA for Merge
+                          if: github.event_name == 'push'
+                          run: |
+                                  echo "GITHUB_ACTIONS_SHA=${GITHUB_SHA}" > ~/.bashrc
+                          
                         - name: Install Addons
                           run: |               
-                                  echo $GITHUB_SHA
-
                                   sudo apt-get update
                                   sudo dpkg --add-architecture i386
                                   sudo apt-get install libncurses5 libbz2-1.0 libz1 valgrind
@@ -65,4 +73,4 @@ jobs:
                                   ./scripts/travis_ci/travis_script.sh ${{env.CUBE_INSTALL_DIR}}/STM32CubeMX
                           env:                                 
                                 ${{matrix.env}} : "true"
-                                GITHUB_ACTIONS_SHA : "${{github.event.pull_request.head.sha}}"
+                                GITHUB_ACTIONS_SHA : ${{github.event.pull_request.head.sha}}
