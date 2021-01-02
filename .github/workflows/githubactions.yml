@@ -68,7 +68,7 @@ jobs:
                           env:                                 
                                 ${{matrix.env}} : "true"
                                 #GITHUB_ACTIONS_SHA : ${{github.event.pull_request.head.sha}}
-                                GITHUB_ACTIONS_SHA : ${GITHUB_SHA}
+                                GITHUB_ACTIONS_SHA : ${{ github.sha }}
                                 
                         - name: Script
                           if: github.event_name == 'push'
@@ -82,4 +82,4 @@ jobs:
                                   ./scripts/travis_ci/travis_script.sh ${{env.CUBE_INSTALL_DIR}}/STM32CubeMX
                           env:                                 
                                 ${{matrix.env}} : "true"
-                                GITHUB_ACTIONS_SHA : ${GITHUB_SHA}
+                                GITHUB_ACTIONS_SHA : ${{ github.sha }}
