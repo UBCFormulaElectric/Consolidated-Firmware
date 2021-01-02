@@ -29,7 +29,7 @@ jobs:
                 steps:               
                         - name: Install Addons
                           run: |               
-                                  echo ${{ github.event.push.head.sha }}
+                                  echo $GITHUB_SHA
 
                                   sudo apt-get update
                                   sudo dpkg --add-architecture i386
