@@ -27,10 +27,6 @@ jobs:
                         CUBE_INSTALL_DIR: $INSTALL_DIR/STM32CubeMX
 
                 steps:               
-                        #- name: Set Pull Request SHA
-                        #  if: github.event_name == 'pull_request'
-                        #  run: echo "PR_HEAD_SHA=${{github.event.pull_request.head.sha}}" > ~/.bashrc
-                                       
                         - name: Install Addons
                           run: |               
                                   echo ${{ github.event.push.head.sha }}
