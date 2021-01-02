@@ -25,15 +25,15 @@ jobs:
                         CUBE_INSTALL_DIR: $INSTALL_DIR/STM32CubeMX
 
                 steps:               
-                        - name: Set SHA for Pull Request
-                          if: github.event_name == 'pull_request'
-                          run: |
-                                  echo "export GITHUB_ACTIONS_SHA_=${{github.event.pull_request.head.sha}}" > ~/.bashrc
+                        #- name: Set SHA for Pull Request
+                        #  if: github.event_name == 'pull_request'
+                        #  run: |
+                        #          echo "GITHUB_ACTIONS_SHA_=${{ github.event.pull_request.head.sha }}" > ~/.bashrc
                                   
                         - name: Set SHA for Push/Merge
                           if: github.event_name == 'push'
                           run: |
-                                  echo "export GITHUB_ACTIONS_SHA_=${GITHUB_SHA}" > ~/.bashrc
+                                  echo "GITHUB_ACTIONS_SHA_=${GITHUB_SHA}" > ~/.bashrc
                           
                         - name: Install Addons
                           run: |               
@@ -46,7 +46,12 @@ jobs:
                           uses: actions/setup-python@v2
                           with:
                                   python-version: 3.6
-
+                        
+                        - name: Set SHA for PR
+                          if: github.event_name == 'pull_request'
+                          run: |
+                                  echo "GITHUB_ACTIONS_SHA_=${{ github.event.pull_request.head.sha }}" > ~/.bashrc
+                          
                         - name: Install
                           run: |           
                                   # Use xvfb to run programs requiring a GUI (e.g. STM32CubeMX code generation)                                  
@@ -64,7 +69,6 @@ jobs:
                         - name: Script
                           run: |     
                                   source ~/.bashrc
-                                  
                                   echo $GITHUB_ACTIONS_SHA_
                                                            
                                   export DISPLAY=:99.0 
