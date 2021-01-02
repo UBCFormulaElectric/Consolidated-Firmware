@@ -36,6 +36,8 @@ jobs:
                           uses: actions/setup-python@v2
                           with:
                                   python-version: 3.6
+                        - run: echo "export PYTHONPATH=$PYTHONPATH:$PWD" > ~/.bashrc
+
                         
                         #- name: Set SHA for PR
                         #  if: github.event_name == 'pull_request'
@@ -55,7 +57,7 @@ jobs:
                                   sudo cp ./scripts/environment_setup/xvfb.service /etc/systemd/system/xvfb.service
                                   sudo systemctl start xvfb
                                   
-                                  echo "export PYTHONPATH=$PYTHONPATH:$PWD" > ~/.bashrc
+                                  #echo "export PYTHONPATH=$PYTHONPATH:$PWD" > ~/.bashrc
                                   
                         - name: Install
                           run: |
