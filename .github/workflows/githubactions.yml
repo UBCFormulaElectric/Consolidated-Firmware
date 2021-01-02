@@ -68,4 +68,4 @@ jobs:
                           env:                                 
                                 ${{matrix.env}} : "true"
                                 #GITHUB_PR_SHA : "${{github.event.pull_request.head.sha}}"
-                                GITHUB_PR_SHA : "${GITHUB_REF}"
+                                GITHUB_PR_SHA : "${{github.ref}}"
