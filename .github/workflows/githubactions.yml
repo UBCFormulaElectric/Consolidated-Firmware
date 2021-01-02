@@ -37,25 +37,29 @@ jobs:
                           with:
                                   python-version: 3.6
                         
-                        - name: Set SHA for PR
-                          if: github.event_name == 'pull_request'
-                          run: |
-                                  echo "export GITHUB_ACTIONS_SHA_=${{ github.event.pull_request.head.sha }}" > ~/.bashrc
+                        #- name: Set SHA for PR
+                        #  if: github.event_name == 'pull_request'
+                        #  run: |
+                        #          echo "export GITHUB_ACTIONS_SHA_=${{ github.event.pull_request.head.sha }}" > ~/.bashrc
                                   
-                        - name: Set SHA for Push/Merge
-                          if: github.event_name == 'push'
-                          run: |
-                                  echo "export GITHUB_ACTIONS_SHA_=${ GITHUB_SHA }" > ~/.bashrc
+                        #- name: Set SHA for Push/Merge
+                        #  if: github.event_name == 'push'
+                        #  run: |
+                        #          echo "export GITHUB_ACTIONS_SHA_=${ GITHUB_SHA }" > ~/.bashrc
                           
-                        - name: Install
+                        - name: Install Services
                           run: |           
                                   # Use xvfb to run programs requiring a GUI (e.g. STM32CubeMX code generation)                                  
                                   sudo apt-get install xvfb
                                   sudo apt-get install systemd              
                                   sudo cp ./scripts/environment_setup/xvfb.service /etc/systemd/system/xvfb.service
                                   sudo systemctl start xvfb
+                                  
                                   echo "export PYTHONPATH=$PYTHONPATH:$PWD" > ~/.bashrc
-                                               
+                                  
+                        - name: Install
+                          run: |
+                                  source ~/.bashrc        
                                   ./scripts/travis_ci/pull_git_submodules.sh
                                   pip install pipenv
                                   git lfs pull
@@ -63,9 +67,7 @@ jobs:
                                                                                                       
                         - name: Script
                           run: |     
-                                  source ~/.bashrc
-                                  echo $GITHUB_ACTIONS_SHA_
-                                                           
+                                  source ~/.bashrc                                                           
                                   export DISPLAY=:99.0 
                                                             
                                   export PATH=${{env.INSTALL_DIR}}/bin:${{env.CUBE_INSTALL_DIR}}:$PATH && ./scripts/travis_ci/travis_install_binaries.sh ${{env.INSTALL_DIR}} ${{env.CUBE_INSTALL_DIR}} 
