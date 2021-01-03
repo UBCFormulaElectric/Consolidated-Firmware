@@ -76,7 +76,7 @@ jobs:
                           if: github.event_name == 'push'
                           run: |     
                                   #source ~/.bashrc      
-                                  echo "export PYTHONPATH=$PYTHONPATH:$PWD" > ~/.bashrc  
+                                  export PYTHONPATH=$PYTHONPATH:$PWD
                                                                                      
                                   export DISPLAY=:99.0 
                                                             
