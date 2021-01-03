@@ -36,10 +36,8 @@ jobs:
                           uses: actions/setup-python@v2
                           with:
                                   python-version: 3.6
-                                  
-                        #- run: echo "export PYTHONPATH=$PYTHONPATH:$PWD" > ~/.bashrc
-                        
-                        - name: Install Services
+                                                          
+                        - name: Install XVFB
                           run: |           
                                   # Use xvfb to run programs requiring a GUI (e.g. STM32CubeMX code generation)                                  
                                   sudo apt-get install xvfb
@@ -47,18 +45,16 @@ jobs:
                                   sudo cp ./scripts/environment_setup/xvfb.service /etc/systemd/system/xvfb.service
                                   sudo systemctl start xvfb
                                                                     
-                        - name: Install
+                        - name: Set Up Python Virtual Environment
                           run: |
-                                  #source ~/.bashrc        
                                   ./scripts/travis_ci/pull_git_submodules.sh
                                   pip install pipenv
                                   git lfs pull
                                   pipenv install     
                                                                                                       
-                        - name: Script
+                        - name: Script on Pull Request Event
                           if: github.event_name == 'pull_request'
                           run: |     
-                                  #source ~/.bashrc         
                                   #echo "export PYTHONPATH=$PYTHONPATH:$PWD" > ~/.bashrc
                                   
                                   export PYTHONPATH=$PYTHONPATH:$PWD
@@ -71,13 +67,11 @@ jobs:
                                   ./scripts/travis_ci/travis_script.sh ${{env.CUBE_INSTALL_DIR}}/STM32CubeMX
                           env:                                 
                                 ${{matrix.env}} : "true"
-                                #GITHUB_ACTIONS_SHA : ${{github.event.pull_request.head.sha}}
-                                GITHUB_ACTIONS_SHA : ${{ github.sha }}
+                                GITHUB_ACTIONS_SHA : ${{github.event.pull_request.head.sha}}
                                 
-                        - name: Script
+                        - name: Script on Push Event
                           if: github.event_name == 'push'
                           run: |     
-                                  #source ~/.bashrc      
                                   export PYTHONPATH=$PYTHONPATH:$PWD
                                                                                      
                                   export DISPLAY=:99.0 
