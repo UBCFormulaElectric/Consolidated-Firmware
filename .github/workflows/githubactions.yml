@@ -37,7 +37,7 @@ jobs:
                           with:
                                   python-version: 3.6
                                   
-                        - run: echo "export PYTHONPATH=$PYTHONPATH:$PWD" > ~/.bashrc
+                        #- run: echo "export PYTHONPATH=$PYTHONPATH:$PWD" > ~/.bashrc
                         
                         - name: Install Services
                           run: |           
@@ -58,7 +58,9 @@ jobs:
                         - name: Script
                           if: github.event_name == 'pull_request'
                           run: |     
-                                  source ~/.bashrc                                                           
+                                  #source ~/.bashrc         
+                                  echo "export PYTHONPATH=$PYTHONPATH:$PWD" > ~/.bashrc
+                                                                                    
                                   export DISPLAY=:99.0 
                                                             
                                   export PATH=${{env.INSTALL_DIR}}/bin:${{env.CUBE_INSTALL_DIR}}:$PATH && ./scripts/travis_ci/travis_install_binaries.sh ${{env.INSTALL_DIR}} ${{env.CUBE_INSTALL_DIR}} 
@@ -73,7 +75,9 @@ jobs:
                         - name: Script
                           if: github.event_name == 'push'
                           run: |     
-                                  #source ~/.bashrc                                                           
+                                  #source ~/.bashrc      
+                                  echo "export PYTHONPATH=$PYTHONPATH:$PWD" > ~/.bashrc  
+                                                                                     
                                   export DISPLAY=:99.0 
                                                             
                                   export PATH=${{env.INSTALL_DIR}}/bin:${{env.CUBE_INSTALL_DIR}}:$PATH && ./scripts/travis_ci/travis_install_binaries.sh ${{env.INSTALL_DIR}} ${{env.CUBE_INSTALL_DIR}} 
