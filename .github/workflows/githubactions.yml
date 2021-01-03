@@ -54,9 +54,7 @@ jobs:
                                                                                                       
                         - name: Script on Pull Request Event
                           if: github.event_name == 'pull_request'
-                          run: |     
-                                  #echo "export PYTHONPATH=$PYTHONPATH:$PWD" > ~/.bashrc
-                                  
+                          run: |                                    
                                   export PYTHONPATH=$PYTHONPATH:$PWD
                                   
                                   export DISPLAY=:99.0 
@@ -67,7 +65,10 @@ jobs:
                                   ./scripts/travis_ci/travis_script.sh ${{env.CUBE_INSTALL_DIR}}/STM32CubeMX
                           env:                                 
                                 ${{matrix.env}} : "true"
-                                GITHUB_ACTIONS_SHA : ${{github.event.pull_request.head.sha}}
+                                
+                                # For pull-request builds, we use ${{ github.event.pull_request.head.sha }} 
+                                # to get the branch commit SHA
+                                GITHUB_ACTIONS_SHA : ${{ github.event.pull_request.head.sha }}
                                 
                         - name: Script on Push Event
                           if: github.event_name == 'push'
