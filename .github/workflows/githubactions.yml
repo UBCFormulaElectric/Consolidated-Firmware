@@ -59,8 +59,10 @@ jobs:
                           if: github.event_name == 'pull_request'
                           run: |     
                                   #source ~/.bashrc         
-                                  echo "export PYTHONPATH=$PYTHONPATH:$PWD" > ~/.bashrc
-                                                                                    
+                                  #echo "export PYTHONPATH=$PYTHONPATH:$PWD" > ~/.bashrc
+                                  
+                                  export PYTHONPATH=$PYTHONPATH:$PWD
+                                  
                                   export DISPLAY=:99.0 
                                                             
                                   export PATH=${{env.INSTALL_DIR}}/bin:${{env.CUBE_INSTALL_DIR}}:$PATH && ./scripts/travis_ci/travis_install_binaries.sh ${{env.INSTALL_DIR}} ${{env.CUBE_INSTALL_DIR}} 
