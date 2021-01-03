@@ -83,7 +83,7 @@ void App_Accumulator_Destroy(struct Accumulator *accumulator)
     free(accumulator->min_cell_voltage_in_range_check);
     free(accumulator->average_cell_voltage_in_range_check);
     free(accumulator->pack_voltage_in_range_check);
-    //free(accumulator);
+    // free(accumulator);
 }
 
 ExitCode App_Accumulator_ConfigureCellMonitors(
