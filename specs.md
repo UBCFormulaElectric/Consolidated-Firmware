@@ -192,7 +192,7 @@ ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-x | Precharge | - The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin. Apply a heavy low pass filter on the measured TS (tractive system) bus voltage. <br/> - The minimum precharge duration is the time associated with the inverter/charger capacitors being charged to at least 90% of the accumulator voltage.
 BMS-x | Successful precharge | Upon a successful precharge, the BMS must close the AIR+. 
-BMS-x | Failed precharge | Upon a precharge failure, the BMS must wait for AIR- to open before transitioning to the init state to restart precharge. A precharge failure occurs when: <br/> - The TS bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. ([TODO: calculate constants](https://github.com/UBCFormulaElectric/Consolidated-Firmware/issues/515))| EV.6.9.1 The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin.
+BMS-x | Failed precharge | Upon a precharge failure, the BMS must enter the init state. A precharge failure occurs when: <br/> - The TS bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. ([TODO: calculate constants](https://github.com/UBCFormulaElectric/Consolidated-Firmware/issues/515))| EV.6.9.1 The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin.
 BMS-x | Exiting the precharge state and entering the charge state | Upon a successful precharge, the BMS must enter the charge state if the charger is connected.
 BMS-x | Exiting the precharge state and entering the drive state | Upon a successful precharge, the BMS must enter the drive state if the charger is disconnected.
 BMS-x | Exiting the precharge state and entering the init state | Upon a failed precharge, the BMS must enter the init state and reset the AIR shutdown latch when AIR- is opened.
@@ -225,7 +225,7 @@ BMS-20 | Exiting the drive state and entering the fault state | When an AIR shut
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-29 | Entering the fault state | The BMS must open the AIR+. 
-BMS-30 | Exiting the fault state and entering the init state | Once all AIR shutdown faults are cleared and AIR- is open, the BMS must exit the fault state and enter the init state.
+BMS-30 | Exiting the fault state and entering the init state | Once all AIR shutdown faults are cleared and AIR- is opened, the BMS must exit the fault state and enter the init state.
 
 ## DIM <a name="DIM"></a>
 
