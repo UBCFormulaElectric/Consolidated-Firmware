@@ -156,8 +156,8 @@ PDM-20 | Exiting the AIR-Closed state | The PDM must enter the AIR-Open state wh
 ## BMS <a name="BMS"></a>
 
 ### BMS Stateless <a name="BMS_STATELESS"></a>
-ID | Title | Description | Associated Competition Rule(s)
---- | --- | --- | ---
+ID | Title | Description | Associated Competition Rule(s) | Rationale
+--- | --- | --- | --- | ---
 BMS-0 | Startup CAN message | The BMS must transmit a startup message over CAN on boot.
 BMS-31 | State CAN message | The BMS must transmit the state of its state machine at 100Hz or faster.
 BMS-1 | Heartbeat sending | The BMS must transmit a heartbeat over CAN at 10Hz or faster.
@@ -171,15 +171,15 @@ BMS-9 | Charger detection and logging | - The BMS must check the charger connect
 BMS-10 | Charger enable/disable | The BMS must enable the charger by setting the BMS PON pin high and disable the charger by setting the BMS PON pin low.
 BMS-11 | AIRs weld/stuck open detection | The BMS must check that the AIR+ and AIR- are in the desired open or closed state at 100Hz, and if not the BMS must throw an AIR shutdown fault and enter the fault state.
 BMS-36 | IMD data transmission | The BMS must transmit the high/low status of the IMD's OK_HS output, the information encoded in the IMD's PWM output, and the seconds elapsed since the IMD was powered on.
-BMS-37 | OK status transmission | The BMS must transmit the on/off status of BMS_OK, IMD_OK and BSPD_OK at 100Hz or faster, and on a rising or falling transition in an interrupt.
+BMS-37 | OK status transmission | The BMS must transmit the on/off status of BMS_OK, IMD_OK and BSPD_OK at 100Hz or faster, and on a rising or falling transition in an interrupt. | | Log CAN messages on transition to avoid a missing fast transition from high to low to high.
 BMS-38 | AIR states transmission | The BMS must transmit the open/closed states of the AIR+ and AIR- over CAN at 100Hz or faster. The open/closed states of the AIR+ and AIR- is determined by the AIR_POWER_STATUS and AIR_TOTAL_ISENSE.
                                                                                                                                                                                               
 ### BMS Init State <a name="BMS_INIT"></a>
-ID | Title | Description | Associated Competition Rule(s)
---- | --- | --- | ---
+ID | Title | Description | Associated Competition Rule(s) | Rationale
+--- | --- | --- | --- | ---
 BMS-35 | SoC retrieval | The BMS must retrieve SoC from three different EEPROM regions, and use a voting algorithm to identify which data is correct, in case of data corruption. In the case of data corruption, set the SoC to 50%. 
 BMS-13 | Default State | The BMS state machine must begin in the init state by default.
-BMS-x  | Exiting the init state and entering the AIR-Open state | Upon waiting for 5 seconds after entering the init state, the BMS must enter the AIR-Open state. 
+BMS-x  | Exiting the init state and entering the AIR-Open state | Upon waiting for 5 seconds after entering the init state, the BMS must enter the AIR-Open state. | | Avoids precharging instantly after boot and after a precharge failure.
 
 ### BMS AIR-Open State <a name="BMS_AIR_OPEN"></a>
 ID | Title | Description | Associated Competition Rule(s)
