@@ -185,7 +185,7 @@ BMS-x  | Exiting the init state and entering the AIR-Open state | Upon waiting f
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-x | Entering the AIR-Open state | The BMS must only enter the AIR-Open state from the init state after successfully waiting for 5 seconds in the init state. 
-BMS-x | Exiting the AIR-Open state and entering the precharge state | The BMS must only enter the precharge state after AIR- is closed.
+BMS-x | Exiting the AIR-Open state and entering the precharge state | The BMS must only enter the precharge state after AIR- is closed through the TSMS.
 
 ### BMS Precharge State <a name="BMS_PRECHARGE"></a>
 ID | Title | Description | Associated Competition Rule(s)
