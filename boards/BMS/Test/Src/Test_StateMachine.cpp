@@ -135,7 +135,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
             DIE_TEMP_TO_DISABLE_CHARGER_DEGC);
 
         pre_charge_sequence =
-            App_PreChargeSequence_Create(enable_pre_charge, disable_pre_charge);
+            App_PreCharge_Create(enable_pre_charge, disable_pre_charge);
 
         airs = App_Airs_Create(
             is_air_positive_closed, is_air_negative_closed, close_air_positive,
@@ -219,7 +219,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         TearDownObject(accumulator, App_Accumulator_Destroy);
         TearDownObject(cell_monitors, App_CellMonitors_Destroy);
         TearDownObject(airs, App_Airs_Destroy);
-        TearDownObject(pre_charge_sequence, App_PreChargeSequence_Destroy);
+        TearDownObject(pre_charge_sequence, App_PreCharge_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
     }
 
@@ -307,7 +307,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
     struct Accumulator *      accumulator;
     struct CellMonitors *     cell_monitors;
     struct Airs *             airs;
-    struct PreChargeSequence *pre_charge_sequence;
+    struct PreCharge *        pre_charge_sequence;
     struct Clock *            clock;
 };
 

@@ -37,7 +37,7 @@ struct BmsWorld *App_BmsWorld_Create(
     struct Accumulator *      accumulator,
     struct CellMonitors *     cell_monitors,
     struct Airs *             airs,
-    struct PreChargeSequence *pre_charge_sequence,
+    struct PreCharge *        pre_charge_sequence,
     struct Clock *            clock);
 
 /**
@@ -133,12 +133,11 @@ struct CellMonitors *App_BmsWorld_GetCellMonitors(const struct BmsWorld *world);
 struct Airs *App_BmsWorld_GetAirs(const struct BmsWorld *world);
 
 /**
- * Get the pre-charge sequence for the given world
- * @param world The world to get the pre-charge sequence for
- * @return The pre-charge sequence for the given world
+ * Get the pre-charge for the given world
+ * @param world The world to get the pre-charge for
+ * @return The pre-charge for the given world
  */
-struct PreChargeSequence *
-    App_BmsWorld_GetPreChargeSequence(const struct BmsWorld *world);
+struct PreCharge *App_BmsWorld_GetPreCharge(const struct BmsWorld *world);
 
 /**
  * Get the clock for the given world

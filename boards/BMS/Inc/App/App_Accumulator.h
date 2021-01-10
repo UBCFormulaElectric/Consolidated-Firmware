@@ -177,3 +177,10 @@ struct InRangeCheck *App_Accumulator_GetSegment4VoltageInRangeCheck(
  */
 struct InRangeCheck *App_Accumulator_GetSegment5VoltageInRangeCheck(
     const struct Accumulator *accumulator);
+
+/**
+ * Get the maximum pack voltage from the given accumulator
+ * @param accumulator The given accumulator to get the maximum pack voltage from
+ * @return The maximum pack voltage in V
+ */
+float App_Accumulator_GetMaxPackVoltage(const struct Accumulator *accumulator);
