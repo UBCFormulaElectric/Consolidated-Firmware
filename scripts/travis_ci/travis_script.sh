@@ -21,19 +21,10 @@ if [ "$RUN_ARM_BUILD" = "true" ]; then
     for BOARD in $(get_valid_board_names)
     do
         travis_run make --directory=$BUILD_DIR $BOARD.elf
-        # Upload the text/data/bss size to SeriesCI. For pull-request builds,
-        # we use ${TRAVIS_PULL_REQUEST_SHA} to get the branch commit SHA.
-        if [ "$TRAVIS_PULL_REQUEST" = "false" ]; then
-            # Travis CI Branch build
-            SHA=${TRAVIS_COMMIT}
-        else
-            # Travis CI Pull Request build
-            SHA=${TRAVIS_PULL_REQUEST_SHA}
-        fi
         # For now, the maximum RAM and FLASH size are the same for every board.
         MAX_RAM_SIZE=40960 
         MAX_FLASH_SIZE=262144
-        travis_run ./scripts/travis_ci/series_ci.sh $BOARD $BUILD_DIR/$BOARD/$BOARD.elf $SHA $MAX_RAM_SIZE $MAX_FLASH_SIZE
+        travis_run ./scripts/travis_ci/series_ci.sh $BOARD $BUILD_DIR/$BOARD/$BOARD.elf $GITHUB_ACTIONS_SHA $MAX_RAM_SIZE $MAX_FLASH_SIZE
     done
 fi
 
