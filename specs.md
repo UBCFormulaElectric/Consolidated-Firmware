@@ -179,7 +179,7 @@ ID | Title | Description | Associated Competition Rule(s) | Rationale
 --- | --- | --- | --- | ---
 BMS-35 | SoC retrieval | The BMS must retrieve SoC from three different EEPROM regions, and use a voting algorithm to identify which data is correct, in case of data corruption. In the case of data corruption, set the SoC to 50%. 
 BMS-13 | Default State | The BMS state machine must begin in the init state by default.
-BMS-x  | Exiting the init state and entering the AIR-Open state | Upon waiting for 5 seconds after entering the init state, the BMS must enter the AIR-Open state. | | Avoids precharging instantly after boot and after a precharge failure.
+BMS-x  | Exiting the init state and entering the AIR-Open state | Upon waiting for 5 seconds after entering the init state, the BMS must enter the AIR-Open state. | | Avoids precharging instantly after boot or after a precharge failure.
 
 ### BMS AIR-Open State <a name="BMS_AIR_OPEN"></a>
 ID | Title | Description | Associated Competition Rule(s)
