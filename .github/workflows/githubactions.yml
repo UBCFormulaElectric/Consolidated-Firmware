@@ -10,6 +10,7 @@ jobs:
                 name: ${{matrix.Name}}                        
                 runs-on: ubuntu-18.04
                 strategy:
+                        fail-fast: false
                         matrix:
                                 include:
                                 - Name: "Build and Run x86 Tests"
