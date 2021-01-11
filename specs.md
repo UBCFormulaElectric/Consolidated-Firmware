@@ -179,23 +179,23 @@ ID | Title | Description | Associated Competition Rule(s) | Rationale
 --- | --- | --- | --- | ---
 BMS-35 | SoC retrieval | The BMS must retrieve SoC from three different EEPROM regions, and use a voting algorithm to identify which data is correct, in case of data corruption. In the case of data corruption, set the SoC to 50%. 
 BMS-13 | Default State | The BMS state machine must begin in the init state by default.
-BMS-x  | Exiting the init state and entering the AIR-Open state | Upon waiting for 5 seconds after entering the init state, the BMS must enter the AIR-Open state. | | Avoids precharging instantly after boot or after a precharge failure.
+BMS-39  | Exiting the init state and entering the AIR-Open state | Upon waiting for 5 seconds after entering the init state, the BMS must enter the AIR-Open state. | | Avoids precharging instantly after boot or after a precharge failure.
 
 ### BMS AIR-Open State <a name="BMS_AIR_OPEN"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-BMS-x | Entering the AIR-Open state | The BMS must only enter the AIR-Open state from the init state after successfully waiting for 5 seconds in the init state. 
-BMS-x | Exiting the AIR-Open state and entering the precharge state | The BMS must only enter the precharge state after AIR- is closed through the TSMS.
+BMS-40 | Entering the AIR-Open state | The BMS must only enter the AIR-Open state from the init state after successfully waiting for 5 seconds in the init state. 
+BMS-41 | Exiting the AIR-Open state and entering the precharge state | The BMS must only enter the precharge state after AIR- is closed through the TSMS.
 
 ### BMS Precharge State <a name="BMS_PRECHARGE"></a>
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
-BMS-x | Precharge | - The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin. Apply a heavy low pass filter on the measured TS (tractive system) bus voltage. <br/> - The minimum precharge duration is the time associated with the inverter/charger capacitors being charged to at least 90% of the accumulator voltage.
-BMS-x | Successful precharge | Upon a successful precharge, the BMS must close the AIR+. 
-BMS-x | Failed precharge | Upon a precharge failure, the BMS must throw a non-critical fault and enter the init state. A precharge failure occurs when: <br/> - The TS bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. ([TODO: calculate constants](https://github.com/UBCFormulaElectric/Consolidated-Firmware/issues/515))| EV.6.9.1 The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin.
-BMS-x | Exiting the precharge state and entering the charge state | Upon a successful precharge, the BMS must enter the charge state if the charger is connected.
-BMS-x | Exiting the precharge state and entering the drive state | Upon a successful precharge, the BMS must enter the drive state if the charger is disconnected.
-BMS-x | Exiting the precharge state and entering the init state | Upon a failed precharge, the BMS must enter the init state and reset the AIR shutdown latch when AIR- is opened.
+BMS-41 | Precharge | - The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin. Apply a heavy low pass filter on the measured TS (tractive system) bus voltage. <br/> - The minimum precharge duration is the time associated with the inverter/charger capacitors being charged to at least 90% of the accumulator voltage.
+BMS-42 | Successful precharge | Upon a successful precharge, the BMS must close the AIR+. 
+BMS-43 | Failed precharge | Upon a precharge failure, the BMS must throw a non-critical fault and enter the init state. A precharge failure occurs when: <br/> - The TS bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. ([TODO: calculate constants](https://github.com/UBCFormulaElectric/Consolidated-Firmware/issues/515))| EV.6.9.1 The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin.
+BMS-44 | Exiting the precharge state and entering the charge state | Upon a successful precharge, the BMS must enter the charge state if the charger is connected.
+BMS-45 | Exiting the precharge state and entering the drive state | Upon a successful precharge, the BMS must enter the drive state if the charger is disconnected.
+BMS-46 | Exiting the precharge state and entering the init state | Upon a failed precharge, the BMS must enter the init state and reset the AIR shutdown latch when AIR- is opened.
 
 ### BMS Charge State <a name="BMS_CHARGE"></a>
 
