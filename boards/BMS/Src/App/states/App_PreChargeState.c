@@ -14,8 +14,8 @@ static void PreChargeStateRunOnEntry(struct StateMachine *const state_machine)
 
     App_CanTx_SetPeriodicSignal_STATE(
         can_tx, CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE);
-    App_CanTx_SetPeriodicSignal_PRE_CHARGE_ERROR(
-        can_tx, CANMSGS_BMS_NON_CRITICAL_ERRORS_PRE_CHARGE_ERROR_OK_CHOICE);
+    App_CanTx_SetPeriodicSignal_PRE_CHARGE_FAULT(
+        can_tx, CANMSGS_BMS_NON_CRITICAL_ERRORS_PRE_CHARGE_FAULT_OK_CHOICE);
 
     App_PreCharge_Enable(pre_charge_sequence);
     App_SharedClock_SetPreviousTimeInMilliseconds(
@@ -38,23 +38,20 @@ static void
     struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
     struct Clock *            clock       = App_BmsWorld_GetClock(world);
 
-    const uint32_t current_time_ms =
-        App_SharedClock_GetCurrentTimeInMilliseconds(clock);
     const uint32_t pre_charge_duration =
-        current_time_ms - App_SharedClock_GetPreviousTimeInMilliseconds(clock);
-
+        App_SharedClock_GetCurrentTimeInMilliseconds(clock) -
+        App_SharedClock_GetPreviousTimeInMilliseconds(clock);
     const float max_pack_voltage =
         App_Accumulator_GetMaxPackVoltage(accumulator);
     const float tractive_system_voltage =
-        App_Accumulator_GetMaxPackVoltage(accumulator);
-
+        App_PreCharge_GetTractiveSystemVoltage(pre_charge);
     const struct State *next_state = App_GetPreChargeState();
 
-    if (pre_charge_duration < App_PreCharge_GetTimeoutMs(pre_charge))
+    if (pre_charge_duration <= App_PreCharge_GetTimeoutMs(pre_charge))
     {
-        if (tractive_system_voltage > (max_pack_voltage * 0.95f))
+        if (tractive_system_voltage > (max_pack_voltage * 0.93f))
         {
-            // Check that the tractive system voltage is less than 95% of the
+            // Check that the tractive system voltage is less than 93% of the
             // accumulator voltage while pre-charging the inverter and capacitor
             // to 90% of the accumulator's max voltage.
             next_state = App_GetInitState();
@@ -62,36 +59,42 @@ static void
     }
     else
     {
-        const float pre_charge_complete_threshold = max_pack_voltage * 0.98f;
+        const float pre_charge_voltage_threshold = max_pack_voltage * 0.98f;
 
-        if (current_time_ms >
-            App_PreCharge_GetMaxCompleteDurationMs(pre_charge))
-        {
-            if (tractive_system_voltage < pre_charge_complete_threshold)
-            {
-                App_CanTx_SetPeriodicSignal_PRE_CHARGE_ERROR(
-                    can_tx,
-                    CANMSGS_BMS_NON_CRITICAL_ERRORS_PRE_CHARGE_ERROR_UNDERVOLTAGE_CHOICE);
-                next_state = App_GetInitState();
-            }
-        }
-        else if (
-            current_time_ms <
+        if (pre_charge_duration >
             App_PreCharge_GetMinCompleteDurationMs(pre_charge))
         {
-            if (tractive_system_voltage > pre_charge_complete_threshold)
+            if (tractive_system_voltage >= pre_charge_voltage_threshold)
             {
-                App_CanTx_SetPeriodicSignal_PRE_CHARGE_ERROR(
+                // The pre-charge is successful if the tractive system voltage
+                // is greater or equal to the pre-charge voltage threshold
+                next_state = App_GetChargeState();
+            }
+            else if (
+                pre_charge_duration >
+                    App_PreCharge_GetMaxCompleteDurationMs(pre_charge) &&
+                tractive_system_voltage < pre_charge_voltage_threshold)
+            {
+                // Throw a pre-charge overvoltage error if the measured
+                // tractive system voltage exceeds 98% of the accumulator's
+                // voltage before the lower pre-charge completion threshold.
+                App_CanTx_SetPeriodicSignal_PRE_CHARGE_FAULT(
                     can_tx,
-                    CANMSGS_BMS_NON_CRITICAL_ERRORS_PRE_CHARGE_ERROR_OVERVOLTAGE_CHOICE);
+                    CANMSGS_BMS_NON_CRITICAL_ERRORS_PRE_CHARGE_FAULT_UNDERVOLTAGE_CHOICE);
                 next_state = App_GetInitState();
             }
         }
         else
         {
-            if (tractive_system_voltage >= pre_charge_complete_threshold)
+            if (tractive_system_voltage > pre_charge_voltage_threshold)
             {
-                next_state = App_GetChargeState();
+                // Throw a pre-charge undervoltage error if the
+                // measured tractive system voltage is below 98% of the
+                // accumulator's maximum voltage.
+                App_CanTx_SetPeriodicSignal_PRE_CHARGE_FAULT(
+                    can_tx,
+                    CANMSGS_BMS_NON_CRITICAL_ERRORS_PRE_CHARGE_FAULT_OVERVOLTAGE_CHOICE);
+                next_state = App_GetInitState();
             }
         }
     }

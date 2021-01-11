@@ -51,6 +51,12 @@ void App_PreCharge_Disable(const struct PreCharge *const pre_charge)
     pre_charge->disable();
 }
 
+float App_PreCharge_GetTractiveSystemVoltage(
+    const struct PreCharge *const pre_charge)
+{
+    return pre_charge->get_ts_voltage(pre_charge->get_raw_ts_voltage());
+}
+
 uint32_t App_PreCharge_GetTimeoutMs(const struct PreCharge *const pre_charge)
 {
     return pre_charge->min_duration_ms;
