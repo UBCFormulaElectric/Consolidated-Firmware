@@ -12,9 +12,9 @@ ExitCode Io_DieTemperatures_ReadTemp(void)
     // The command used to start internal device conversions.
     const uint16_t ADSTAT = (0x468 + (MD << 7) + CHST);
 
-    RETURN_IF_EXIT_NOT_OK(Io_LTC6813_EnterReadyState())
-    RETURN_IF_EXIT_NOT_OK(Io_LTC6813_SendCommand(ADSTAT))
-    RETURN_IF_EXIT_NOT_OK(Io_LTC6813_PollConversions())
+    RETURN_CODE_IF_EXIT_NOT_OK(Io_LTC6813_EnterReadyState());
+    RETURN_CODE_IF_EXIT_NOT_OK(Io_LTC6813_SendCommand(ADSTAT));
+    RETURN_CODE_IF_EXIT_NOT_OK(Io_LTC6813_PollConversions());
 
     uint8_t rx_internal_die_temp[NUM_OF_RX_BYTES * NUM_OF_CELL_MONITOR_CHIPS];
 
