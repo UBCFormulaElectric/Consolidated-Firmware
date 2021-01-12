@@ -34,7 +34,7 @@ struct BmsWorld *App_BmsWorld_Create(
     struct Accumulator *const       accumulator,
     struct CellMonitors *const      cell_monitors,
     struct Airs *const              airs,
-    struct PreCharge *const         pre_charge_sequence,
+    struct PreCharge *const         pre_charge,
     struct Clock *const             clock)
 {
     struct BmsWorld *world = (struct BmsWorld *)malloc(sizeof(struct BmsWorld));
@@ -52,7 +52,7 @@ struct BmsWorld *App_BmsWorld_Create(
     world->accumulator       = accumulator;
     world->cell_monitors     = cell_monitors;
     world->airs              = airs;
-    world->pre_charge        = pre_charge_sequence;
+    world->pre_charge        = pre_charge;
     world->clock             = clock;
 
     return world;

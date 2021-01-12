@@ -55,25 +55,28 @@ float App_PreCharge_GetTractiveSystemVoltage(
     const struct PreCharge *pre_charge);
 
 /**
- * Get the minimum precharge duration
+ * Get the minimum pre-charge duration
  * @param pre_charge The pre-charge sequence to get the minimum
- * precharge duration
- * @return The minimum precharge duration (ms)
+ * pre-charge duration
+ * @return The minimum pre-charge duration in ms
  */
-uint32_t App_PreCharge_GetTimeoutMs(const struct PreCharge *const pre_charge);
+uint32_t
+    App_PreCharge_GetMinDurationMs(const struct PreCharge *const pre_charge);
 
 /**
- *
- * @param pre_charge
- * @return
+ * Get the minimum duration for a completed pre-charge
+ * @param pre_charge The pre-charge sequence to get the minimum duration for a
+ * completed pre-charge
+ * @return The minimum duration for a completed pre-charge in ms
  */
 uint32_t
     App_PreCharge_GetMinCompleteDurationMs(const struct PreCharge *pre_charge);
 
 /**
- *
- * @param pre_charge
- * @return
+ * Get the maximum duration for a completed pre-charge
+ * @param pre_charge The pre-charge sequence to get the maximum duration for a
+ * completed pre-charge
+ * @return The maximum duration for a completed pre-charge in ms
  */
 uint32_t
     App_PreCharge_GetMaxCompleteDurationMs(const struct PreCharge *pre_charge);

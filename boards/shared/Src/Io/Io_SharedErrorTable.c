@@ -68,6 +68,8 @@ static void Io_ProcessBmsNonCriticalErrorMsg(
     SET_ERROR(
         error_table, BMS_NON_CRITICAL_ITMP_CHARGER_HAS_OVERFLOW,
         data->itmp_charger_has_overflow);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_PRE_CHARGE_FAULT, data->pre_charge_fault);
 }
 
 static void Io_ProcessDcmNonCriticalErrorMsg(

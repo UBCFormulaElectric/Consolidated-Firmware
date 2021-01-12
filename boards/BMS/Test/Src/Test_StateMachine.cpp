@@ -855,9 +855,8 @@ TEST_F(
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
-TEST_F(
-    BmsStateMachineTest,
-    check_for_voltage_underflow_while_precharging_capacitors_to_ninety_percent_capacity)
+// BMS-41
+TEST_F(BmsStateMachineTest, check_for_successful_minimum_duration_precharge)
 {
     // Check that state transitions do not occur when the TS voltage is below
     // 93% of the accumulator's maximum voltage while pre-charging capacitors to
@@ -874,7 +873,13 @@ TEST_F(
     ASSERT_EQ(
         CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE,
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+}
 
+// BMS-41
+TEST_F(
+    BmsStateMachineTest,
+    check_for_voltage_underflow_while_precharging_capacitors_to_90_pct_capacity)
+{
     // Check for transition to the init state in the first 10ms when the TS
     // voltage is above 93% of the accumulator's maximum voltage
     SetInitialState(App_GetPreChargeState());
@@ -902,7 +907,10 @@ TEST_F(
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
-TEST_F(BmsStateMachineTest, check_pre_charge_undervoltage_error)
+// BMS-43
+TEST_F(
+    BmsStateMachineTest,
+    check_can_signals_for_a_pre_charge_undervoltage_error)
 {
     SetInitialState(App_GetPreChargeState());
 
@@ -926,7 +934,10 @@ TEST_F(BmsStateMachineTest, check_pre_charge_undervoltage_error)
         App_CanTx_GetPeriodicSignal_PRE_CHARGE_FAULT(can_tx_interface));
 }
 
-TEST_F(BmsStateMachineTest, check_pre_charge_overvoltage_error)
+// BMS-43
+TEST_F(
+    BmsStateMachineTest,
+    check_can_signals_for_a_pre_charge_overvoltage_error)
 {
     SetInitialState(App_GetPreChargeState());
     get_ts_voltage_fake.return_val = MAX_PACK_VOLTAGE * 0.90f;
@@ -944,6 +955,52 @@ TEST_F(BmsStateMachineTest, check_pre_charge_overvoltage_error)
     ASSERT_EQ(
         CANMSGS_BMS_NON_CRITICAL_ERRORS_PRE_CHARGE_FAULT_OVERVOLTAGE_CHOICE,
         App_CanTx_GetPeriodicSignal_PRE_CHARGE_FAULT(can_tx_interface));
+}
+
+TEST_F(
+    BmsStateMachineTest,
+    check_can_signals_for_a_successful_precharge_at_min_precharge_threshold)
+{
+    SetInitialState(App_GetPreChargeState());
+    get_ts_voltage_fake.return_val = MAX_PACK_VOLTAGE * 0.90f;
+    LetTimePass(state_machine, MIN_PRE_CHARGE_COMPLETE_DURATION_MS);
+
+    get_ts_voltage_fake.return_val = MAX_PACK_VOLTAGE * 0.98f;
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_PRE_CHARGE_FAULT_OK_CHOICE,
+        App_CanTx_GetPeriodicSignal_PRE_CHARGE_FAULT(can_tx_interface));
+    ASSERT_TRUE(
+        (App_CanTx_GetPeriodicSignal_STATE(can_tx_interface) ==
+         CANMSGS_BMS_STATE_MACHINE_STATE_CHARGE_CHOICE) ||
+        (App_CanTx_GetPeriodicSignal_STATE(can_tx_interface) ==
+         CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE));
+}
+
+TEST_F(
+    BmsStateMachineTest,
+    check_can_signals_for_a_successful_precharge_at_max_precharge_threshold)
+{
+    SetInitialState(App_GetPreChargeState());
+    get_ts_voltage_fake.return_val = MAX_PACK_VOLTAGE * 0.90f;
+    LetTimePass(state_machine, MAX_PRE_CHARGE_COMPLETE_DURATION_MS - 10);
+    ASSERT_EQ(
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_PRE_CHARGE_FAULT_OK_CHOICE,
+        App_CanTx_GetPeriodicSignal_PRE_CHARGE_FAULT(can_tx_interface));
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    get_ts_voltage_fake.return_val = MAX_PACK_VOLTAGE * 0.98f;
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_PRE_CHARGE_FAULT_OK_CHOICE,
+        App_CanTx_GetPeriodicSignal_PRE_CHARGE_FAULT(can_tx_interface));
+    ASSERT_TRUE(
+        (App_CanTx_GetPeriodicSignal_STATE(can_tx_interface) ==
+         CANMSGS_BMS_STATE_MACHINE_STATE_CHARGE_CHOICE) ||
+        (App_CanTx_GetPeriodicSignal_STATE(can_tx_interface) ==
+         CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE));
 }
 
 } // namespace StateMachineTest
