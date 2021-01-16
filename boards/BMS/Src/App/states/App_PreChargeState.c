@@ -2,6 +2,7 @@
 
 #include "App_SetPeriodicCanSignals.h"
 #include "App_SharedMacros.h"
+#include "App_SharedErrorTable.h"
 
 static void PreChargeStateRunOnEntry(struct StateMachine *const state_machine)
 {
