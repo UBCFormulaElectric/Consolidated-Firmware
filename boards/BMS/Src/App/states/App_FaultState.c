@@ -8,8 +8,14 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct BmsCanTxInterface *can_tx_interface = App_BmsWorld_GetCanTx(world);
+    struct Airs *             airs             = App_BmsWorld_GetAirs(world);
+
     App_CanTx_SetPeriodicSignal_STATE(
         can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE);
+
+    App_Airs_OpenAirPositive(airs);
+    App_CanTx_SetPeriodicSignal_AIR_POSITIVE(
+        can_tx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE);
 }
 
 static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)

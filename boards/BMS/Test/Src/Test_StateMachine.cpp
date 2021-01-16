@@ -849,4 +849,16 @@ TEST_F(
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
+TEST_F(BmsStateMachineTest, check_air_positive_open_in_fault_state)
+{
+    // Close AIR+ to avoid false positives
+    App_CanTx_SetPeriodicSignal_AIR_POSITIVE(
+        can_tx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
+
+    SetInitialState(App_GetFaultState());
+    ASSERT_EQ(
+        CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE,
+        App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
+}
+
 } // namespace StateMachineTest
