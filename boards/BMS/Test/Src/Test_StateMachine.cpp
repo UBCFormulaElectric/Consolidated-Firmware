@@ -853,6 +853,7 @@ TEST_F(
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
+// BMS-29
 TEST_F(BmsStateMachineTest, check_air_positive_open_in_fault_state)
 {
     // Close AIR+ to avoid false positives
