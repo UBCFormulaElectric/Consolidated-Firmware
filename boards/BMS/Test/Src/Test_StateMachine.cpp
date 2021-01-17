@@ -885,6 +885,7 @@ TEST_F(
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
+// BMS-30
 TEST_F(
     BmsStateMachineTest,
     check_state_transition_from_fault_to_init_with_air_negative_open)
