@@ -55,7 +55,7 @@ struct BmsWorld *App_BmsWorld_Create(
     world->cell_monitors     = cell_monitors;
     world->airs              = airs;
     world->pre_charge        = pre_charge;
-    world->error_table         = error_table;
+    world->error_table       = error_table;
     world->clock             = clock;
 
     return world;

@@ -117,12 +117,8 @@ struct OkStatus *         bspd_ok;
 struct Accumulator *      accumulator;
 struct CellMonitors *     cell_monitors;
 struct Airs *             airs;
-<<<<<<< HEAD
 struct PreCharge *        pre_charge;
-=======
-struct PreChargeSequence *pre_charge_sequence;
 struct ErrorTable *       error_table;
->>>>>>> 3a4eb8e28dcd70303410033417cd0d42876af91a
 struct Clock *            clock;
 /* USER CODE END PV */
 
@@ -295,8 +291,8 @@ int main(void)
 
     world = App_BmsWorld_Create(
         can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger,
-        bms_ok, imd_ok, bspd_ok, accumulator, cell_monitors, airs, pre_charge, error_table,
-        clock);
+        bms_ok, imd_ok, bspd_ok, accumulator, cell_monitors, airs, pre_charge,
+        error_table, clock);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
