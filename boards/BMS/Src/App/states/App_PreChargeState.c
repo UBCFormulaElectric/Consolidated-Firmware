@@ -38,6 +38,7 @@ static void
     struct PreCharge *        pre_charge  = App_BmsWorld_GetPreCharge(world);
     struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
     struct Charger *          charger     = App_BmsWorld_GetCharger(world);
+    struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
     struct Clock *            clock       = App_BmsWorld_GetClock(world);
 
     const uint32_t pre_charge_duration =
@@ -62,15 +63,20 @@ static void
     else
     {
         const float pre_charge_voltage_threshold = max_pack_voltage * 0.98f;
-
         if (pre_charge_duration >
             App_PreCharge_GetMinCompleteDurationMs(pre_charge))
         {
             if (tractive_system_voltage >= pre_charge_voltage_threshold)
             {
-                next_state = (App_Charger_IsConnected(charger))
-                                 ? App_GetChargeState()
-                                 : App_GetDriveState();
+                if (App_Charger_IsConnected(charger))
+                {
+                    next_state = App_GetChargeState();
+                }
+                else if (App_SharedErrorTable_HasAnyMotorShutdownErrorSet(
+                             error_table))
+                {
+                    next_state = App_GetDriveState();
+                }
             }
             else
             {
