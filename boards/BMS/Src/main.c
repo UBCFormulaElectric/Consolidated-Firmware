@@ -117,7 +117,12 @@ struct OkStatus *         bspd_ok;
 struct Accumulator *      accumulator;
 struct CellMonitors *     cell_monitors;
 struct Airs *             airs;
+<<<<<<< HEAD
 struct PreCharge *        pre_charge;
+=======
+struct PreChargeSequence *pre_charge_sequence;
+struct ErrorTable *       error_table;
+>>>>>>> 3a4eb8e28dcd70303410033417cd0d42876af91a
 struct Clock *            clock;
 /* USER CODE END PV */
 
@@ -284,11 +289,13 @@ int main(void)
         MIN_PRE_CHARGE_DURATION_MS, MIN_PRE_CHARGE_COMPLETE_DURATION_MS,
         MAX_PRE_CHARGE_COMPLETE_DURATION_MS);
 
+    error_table = App_SharedErrorTable_Create();
+
     clock = App_SharedClock_Create();
 
     world = App_BmsWorld_Create(
         can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger,
-        bms_ok, imd_ok, bspd_ok, accumulator, cell_monitors, airs, pre_charge,
+        bms_ok, imd_ok, bspd_ok, accumulator, cell_monitors, airs, pre_charge, error_table,
         clock);
 
     Io_StackWaterMark_Init(can_tx);

@@ -18,6 +18,7 @@ struct BmsWorld
     struct CellMonitors *     cell_monitors;
     struct Airs *             airs;
     struct PreCharge *        pre_charge;
+    struct ErrorTable *       error_table;
     struct Clock *            clock;
 };
 
@@ -35,6 +36,7 @@ struct BmsWorld *App_BmsWorld_Create(
     struct CellMonitors *const      cell_monitors,
     struct Airs *const              airs,
     struct PreCharge *const         pre_charge,
+    struct ErrorTable *const        error_table,
     struct Clock *const             clock)
 {
     struct BmsWorld *world = (struct BmsWorld *)malloc(sizeof(struct BmsWorld));
@@ -53,6 +55,7 @@ struct BmsWorld *App_BmsWorld_Create(
     world->cell_monitors     = cell_monitors;
     world->airs              = airs;
     world->pre_charge        = pre_charge;
+    world->error_table         = error_table;
     world->clock             = clock;
 
     return world;
@@ -133,6 +136,12 @@ struct Airs *App_BmsWorld_GetAirs(const struct BmsWorld *const world)
 struct PreCharge *App_BmsWorld_GetPreCharge(const struct BmsWorld *world)
 {
     return world->pre_charge;
+}
+
+struct ErrorTable *
+    App_BmsWorld_GetErrorTable(const struct BmsWorld *const world)
+{
+    return world->error_table;
 }
 
 struct Clock *App_BmsWorld_GetClock(const struct BmsWorld *const world)

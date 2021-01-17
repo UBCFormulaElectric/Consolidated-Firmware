@@ -11,6 +11,7 @@
 #include "App_CellMonitors.h"
 #include "App_Airs.h"
 #include "App_PreChargeSequence.h"
+#include "App_SharedErrorTable.h"
 #include "App_SharedClock.h"
 
 struct BmsWorld;
@@ -38,6 +39,7 @@ struct BmsWorld *App_BmsWorld_Create(
     struct CellMonitors *     cell_monitors,
     struct Airs *             airs,
     struct PreCharge *        pre_charge,
+    struct ErrorTable *       error_table,
     struct Clock *            clock);
 
 /**
@@ -138,6 +140,13 @@ struct Airs *App_BmsWorld_GetAirs(const struct BmsWorld *world);
  * @return The pre-charge sequence for the given world
  */
 struct PreCharge *App_BmsWorld_GetPreCharge(const struct BmsWorld *world);
+
+/**
+ * Get the error table for the given world
+ * @param world The world to get the error table from
+ * @return The error table for the given world
+ */
+struct ErrorTable *App_BmsWorld_GetErrorTable(const struct BmsWorld *world);
 
 /**
  * Get the clock for the given world
