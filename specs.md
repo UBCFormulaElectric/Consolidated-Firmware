@@ -118,8 +118,8 @@ DCM-17 | Exiting the fault state and entering the init state | When all critical
 ## PDM <a name="PDM"></a>
 
 ### PDM Stateless <a name="PDM_STATELESS"></a>
-ID | Title | Description | Associated Competition Rule(s)
---- | --- | --- | ---
+ID | Title | Description | Associated Competition Rule(s) | Rationale
+--- | --- | --- | --- | ---
 PDM-0 | Startup CAN message | The PDM must transmit a startup message over CAN on boot.
 PDM-21 | State CAN message | The PDM must transmit the state of its state machine at 100Hz or faster.
 PDM-1 | Heartbeat sending | The PDM must transmit a heartbeat over CAN at 10Hz or faster.
@@ -129,7 +129,8 @@ PDM-5 | Boost controller fault handling | When the PGOOD GPIO is low (boost cont
 PDM-6 | Voltage sense rationality checks | The PDM must run voltage rationality checks at 1kHz on the following inputs, throwing a non-critical fault if a rationality check fails: <br/> - VBAT_SENSE: min =  6V, max = 8.5V. <br/> - 24V_AUX_SENSE: min = 22V, max = 26V. <br/> - 24V_ACC_SENSE: min = 22V, max = 26V.
 PDM-11 | Current sensing | The PDM must measure and log all e-fuse currents over CAN at 1Hz or faster.
 PDM-12 | E-fuse fail-safe mode | If an e-fuse enters fail-safe mode, the PDM must: <br/> - Throw a non-critical fault. <br/> - Control e-fuses over GPIO. <br/> <br/> If the e-fuse recovers, the PDM must return to SPI communication and clear the non-critical fault.
-PDM-22 | E-fuse fault behavior | - The PDM must continually compare e-fuse currents against their current limits. <br/> - Once the e-fuse current exceeds the current limit for an output, that output is considered to have faulted, and the PDM must set a non-critical fault. <br/> - Once an e-fuse faults, the PDM should retry by disabling the output for progressively longer times, i.e. time = (retry number * 100ms), then re-enable the output. <br/> - The PDM should retry 5 times before leaving an output permanently off, resetable by GLVMS only. This state is considered unrecoverable, and is handled by PDM-13.
+PDM-22 | E-fuse fault behavior | - The PDM must continually compare e-fuse currents against their current limits. <br/> - Once the e-fuse current exceeds the current limit for an output, that output is considered to have faulted, and the PDM must set a non-critical fault. 
+PDM-x | Power cycling during E-fuse fault | <br/> - Once an e-fuse faults, the PDM should retry by disabling the output for progressively longer times, i.e. time = (retry number * 100ms), then re-enable the output. <br/> - The PDM should retry 5 times before leaving an output permanently off, resetable by GLVMS only. This state is considered unrecoverable, and is handled by PDM-13. | | Due to the capacitance in our power distribution system, we retry disabling the output for progressively longer times to guarantee that the load input voltage is below the minimum operating voltage (17V). This allows the load to be power cycled reliably.
 PDM-7 | E-fuse current limits | The PDM's e-fuse current limits must be set to 2.5A for inverter outputs, and 1A for other outputs.
 PDM-13 | Unrecoverable e-fuse fault behavior | The PDM must throw a motor shutdown or non-critical fault (different than the non-critical fault in PDM-22) over CAN depending on the e-fuse in the fault state: <br/> - AUX 1: Non-critical. <br/> - AUX 2: Non-critical. <br/> - Drive Inverter Left: Motor ([TODO: if time permits, run on one inverter](https://github.com/UBCFormulaElectric/Consolidated-Firmware/issues/514)). <br/> - Drive Inverter Right: Motor. <br/> - Energy Meter: Motor. <br/> - CAN: Motor. <br/> - AIR SHDN: Motor.
 
