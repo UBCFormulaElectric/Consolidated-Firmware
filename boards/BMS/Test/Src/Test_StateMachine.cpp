@@ -154,11 +154,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
             rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator,
-<<<<<<< HEAD
-            cell_monitors, airs, pre_charge, clock);
-=======
-            cell_monitors, airs, pre_charge_sequence, error_table, clock);
->>>>>>> 3a4eb8e28dcd70303410033417cd0d42876af91a
+            cell_monitors, airs, pre_charge, error_table, clock);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -231,12 +227,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
         TearDownObject(accumulator, App_Accumulator_Destroy);
         TearDownObject(cell_monitors, App_CellMonitors_Destroy);
         TearDownObject(airs, App_Airs_Destroy);
-<<<<<<< HEAD
         TearDownObject(pre_charge, App_PreCharge_Destroy);
-=======
-        TearDownObject(pre_charge_sequence, App_PreChargeSequence_Destroy);
         TearDownObject(error_table, App_SharedErrorTable_Destroy);
->>>>>>> 3a4eb8e28dcd70303410033417cd0d42876af91a
         TearDownObject(clock, App_SharedClock_Destroy);
     }
 
@@ -830,6 +822,7 @@ TEST_F(BmsStateMachineTest, check_cell_monitors_can_signals_in_all_states)
         CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
+
 // BMS-12
 TEST_F(BmsStateMachineTest, check_transition_from_init_state_to_air_open_state)
 {
@@ -867,7 +860,6 @@ TEST_F(
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
-<<<<<<< HEAD
 // BMS-41
 TEST_F(BmsStateMachineTest, check_for_successful_minimum_duration_precharge)
 {
@@ -915,7 +907,11 @@ TEST_F(
     get_ts_voltage_fake.return_val = std::nextafter(
         MAX_PACK_VOLTAGE * 0.93f, std::numeric_limits<float>::max());
     LetTimePass(state_machine, 10);
-=======
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+}
+
 // BMS-29
 TEST_F(BmsStateMachineTest, check_air_positive_open_in_fault_state)
 {
@@ -945,13 +941,11 @@ TEST_F(
 
     is_air_negative_closed_fake.return_val = false;
     LetTimePass(state_machine, 1000);
->>>>>>> 3a4eb8e28dcd70303410033417cd0d42876af91a
     ASSERT_EQ(
         CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE,
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
-<<<<<<< HEAD
 // BMS-43
 TEST_F(
     BmsStateMachineTest,
@@ -985,6 +979,7 @@ TEST_F(
     check_can_signals_for_a_pre_charge_overvoltage_error)
 {
     SetInitialState(App_GetPreChargeState());
+
     get_ts_voltage_fake.return_val = MAX_PACK_VOLTAGE * 0.90f;
     LetTimePass(state_machine, MIN_PRE_CHARGE_COMPLETE_DURATION_MS - 10);
     ASSERT_EQ(
@@ -1004,9 +999,10 @@ TEST_F(
 
 TEST_F(
     BmsStateMachineTest,
-    check_can_signals_for_a_successful_precharge_at_min_precharge_threshold)
+    check_can_signals_for_a_successful_precharge_at_min_precharge_complete_duration)
 {
     SetInitialState(App_GetPreChargeState());
+
     get_ts_voltage_fake.return_val = MAX_PACK_VOLTAGE * 0.90f;
     LetTimePass(state_machine, MIN_PRE_CHARGE_COMPLETE_DURATION_MS);
 
@@ -1024,9 +1020,10 @@ TEST_F(
 
 TEST_F(
     BmsStateMachineTest,
-    check_can_signals_for_a_successful_precharge_at_max_precharge_threshold)
+    check_can_signals_for_a_successful_precharge_at_max_precharge_complete_duration)
 {
     SetInitialState(App_GetPreChargeState());
+
     get_ts_voltage_fake.return_val = MAX_PACK_VOLTAGE * 0.90f;
     LetTimePass(state_machine, MAX_PRE_CHARGE_COMPLETE_DURATION_MS - 10);
     ASSERT_EQ(
@@ -1046,7 +1043,8 @@ TEST_F(
          CANMSGS_BMS_STATE_MACHINE_STATE_CHARGE_CHOICE) ||
         (App_CanTx_GetPeriodicSignal_STATE(can_tx_interface) ==
          CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE));
-=======
+}
+
 // BMS-30
 TEST_F(
     BmsStateMachineTest,
@@ -1074,7 +1072,6 @@ TEST_F(
     ASSERT_EQ(
         CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE,
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
->>>>>>> 3a4eb8e28dcd70303410033417cd0d42876af91a
 }
 
 } // namespace StateMachineTest
