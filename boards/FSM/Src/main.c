@@ -33,7 +33,7 @@
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
-#include "Io_FlowMeters.h"
+#include "Io_YS201.h"
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
 #include "Io_WheelSpeedSensors.h"
@@ -211,12 +211,12 @@ int main(void)
 
     Io_SharedHardFaultHandler_Init();
 
-    Io_FlowMeters_Init(&htim4);
+    Io_YS201_Init(&htim4);
     primary_flow_meter_in_range_check = App_InRangeCheck_Create(
-        Io_FlowMeters_GetPrimaryFlowRate, MIN_PRIMARY_FLOW_RATE_L_PER_MIN,
+        Io_YS201_GetPrimaryFlowRate, MIN_PRIMARY_FLOW_RATE_L_PER_MIN,
         MAX_PRIMARY_FLOW_RATE_L_PER_MIN);
     secondary_flow_meter_in_range_check = App_InRangeCheck_Create(
-        Io_FlowMeters_GetSecondaryFlowRate, MIN_SECONDARY_FLOW_RATE_L_PER_MIN,
+        Io_YS201_GetSecondaryFlowRate, MIN_SECONDARY_FLOW_RATE_L_PER_MIN,
         MAX_SECONDARY_FLOW_RATE_L_PER_MIN);
 
     Io_WheelSpeedSensors_Init(&htim16, &htim17);
@@ -1055,8 +1055,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 0 */
     if (htim->Instance == TIM4)
     {
-        Io_FlowMeters_CheckIfPrimaryIsActive();
-        Io_FlowMeters_CheckIfSecondaryIsActive();
+        Io_YS201_CheckIfPrimaryIsActive();
+        Io_YS201_CheckIfSecondaryIsActive();
     }
     else if (htim->Instance == TIM16)
     {
