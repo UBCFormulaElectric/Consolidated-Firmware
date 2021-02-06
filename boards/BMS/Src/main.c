@@ -43,6 +43,7 @@
 #include "Io_DieTemperatures.h"
 #include "Io_Airs.h"
 #include "Io_PreCharge.h"
+#include "Io_VoltageSense.h"
 #include "Io_Adc.h"
 
 #include "App_BmsWorld.h"
@@ -53,6 +54,7 @@
 #include "configs/App_ImdConfig.h"
 #include "configs/App_AccumulatorThresholds.h"
 #include "configs/App_CellMonitorsThresholds.h"
+#include "configs/App_PreChargeThreshold.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -115,7 +117,7 @@ struct OkStatus *         bspd_ok;
 struct Accumulator *      accumulator;
 struct CellMonitors *     cell_monitors;
 struct Airs *             airs;
-struct PreChargeSequence *pre_charge_sequence;
+struct PreCharge *        pre_charge;
 struct ErrorTable *       error_table;
 struct Clock *            clock;
 /* USER CODE END PV */
@@ -277,8 +279,11 @@ int main(void)
         Io_Airs_IsAirPositiveClosed, Io_Airs_IsAirNegativeClosed,
         Io_Airs_CloseAirPositive, Io_Airs_OpenAirPositive);
 
-    pre_charge_sequence =
-        App_PreChargeSequence_Create(Io_PreCharge_Enable, Io_PreCharge_Disable);
+    pre_charge = App_PreCharge_Create(
+        Io_PreCharge_Enable, Io_PreCharge_Disable,
+        Io_Adc_GetAdc2Channel1Voltage, Io_VoltageSense_GetTractiveSystemVoltage,
+        MIN_PRE_CHARGE_DURATION_MS, MIN_PRE_CHARGE_COMPLETE_DURATION_MS,
+        MAX_PRE_CHARGE_COMPLETE_DURATION_MS);
 
     error_table = App_SharedErrorTable_Create();
 
@@ -286,8 +291,8 @@ int main(void)
 
     world = App_BmsWorld_Create(
         can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger,
-        bms_ok, imd_ok, bspd_ok, accumulator, cell_monitors, airs,
-        pre_charge_sequence, error_table, clock);
+        bms_ok, imd_ok, bspd_ok, accumulator, cell_monitors, airs, pre_charge,
+        error_table, clock);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);

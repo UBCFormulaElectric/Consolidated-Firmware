@@ -18,6 +18,7 @@ extern "C"
 #include "configs/App_AccumulatorConfigs.h"
 #include "configs/App_AccumulatorThresholds.h"
 #include "configs/App_CellMonitorsThresholds.h"
+#include "configs/App_PreChargeThreshold.h"
 }
 
 namespace StateMachineTest
@@ -79,6 +80,8 @@ FAKE_VOID_FUNC(open_air_positive);
 FAKE_VOID_FUNC(close_air_positive);
 FAKE_VOID_FUNC(enable_pre_charge);
 FAKE_VOID_FUNC(disable_pre_charge);
+FAKE_VALUE_FUNC(float, get_raw_ts_voltage);
+FAKE_VALUE_FUNC(float, get_ts_voltage, float);
 
 class BmsStateMachineTest : public BaseStateMachineTest
 {
@@ -134,8 +137,11 @@ class BmsStateMachineTest : public BaseStateMachineTest
             DIE_TEMP_TO_DISABLE_CELL_BALANCING_DEGC,
             DIE_TEMP_TO_DISABLE_CHARGER_DEGC);
 
-        pre_charge_sequence =
-            App_PreChargeSequence_Create(enable_pre_charge, disable_pre_charge);
+        pre_charge = App_PreCharge_Create(
+            enable_pre_charge, disable_pre_charge, get_raw_ts_voltage,
+            get_ts_voltage, MIN_PRE_CHARGE_DURATION_MS,
+            MIN_PRE_CHARGE_COMPLETE_DURATION_MS,
+            MAX_PRE_CHARGE_COMPLETE_DURATION_MS);
 
         airs = App_Airs_Create(
             is_air_positive_closed, is_air_negative_closed, close_air_positive,
@@ -148,7 +154,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
             rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator,
-            cell_monitors, airs, pre_charge_sequence, error_table, clock);
+            cell_monitors, airs, pre_charge, error_table, clock);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -221,7 +227,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         TearDownObject(accumulator, App_Accumulator_Destroy);
         TearDownObject(cell_monitors, App_CellMonitors_Destroy);
         TearDownObject(airs, App_Airs_Destroy);
-        TearDownObject(pre_charge_sequence, App_PreChargeSequence_Destroy);
+        TearDownObject(pre_charge, App_PreCharge_Destroy);
         TearDownObject(error_table, App_SharedErrorTable_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
     }
@@ -310,7 +316,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
     struct Accumulator *      accumulator;
     struct CellMonitors *     cell_monitors;
     struct Airs *             airs;
-    struct PreChargeSequence *pre_charge_sequence;
+    struct PreCharge *        pre_charge;
     struct ErrorTable *       error_table;
     struct Clock *            clock;
 };
@@ -816,6 +822,7 @@ TEST_F(BmsStateMachineTest, check_cell_monitors_can_signals_in_all_states)
         CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
+
 // BMS-12
 TEST_F(BmsStateMachineTest, check_transition_from_init_state_to_air_open_state)
 {
@@ -853,6 +860,58 @@ TEST_F(
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
+// BMS-41
+TEST_F(BmsStateMachineTest, check_for_successful_minimum_duration_precharge)
+{
+    // Check that state transitions do not occur when the TS voltage is below
+    // 93% of the accumulator's maximum voltage while pre-charging capacitors to
+    // 90% of the accumulator's max voltage
+    SetInitialState(App_GetPreChargeState());
+    get_ts_voltage_fake.return_val = std::nextafter(
+        MAX_PACK_VOLTAGE * 0.93f, std::numeric_limits<float>::lowest());
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    LetTimePass(state_machine, MIN_PRE_CHARGE_DURATION_MS - 10);
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+}
+
+// BMS-41
+TEST_F(
+    BmsStateMachineTest,
+    check_for_voltage_underflow_while_precharging_capacitors_to_90_pct_capacity)
+{
+    // Check for transition to the init state in the first 10ms when the TS
+    // voltage is above 93% of the accumulator's maximum voltage
+    SetInitialState(App_GetPreChargeState());
+    get_ts_voltage_fake.return_val = std::nextafter(
+        MAX_PACK_VOLTAGE * 0.93f, std::numeric_limits<float>::max());
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    // Check for transition to the init state in the last 10ms when the TS
+    // voltage is above 93% of the accumulator's maximum voltage
+    SetInitialState(App_GetPreChargeState());
+    get_ts_voltage_fake.return_val = MAX_PACK_VOLTAGE * 0.50f;
+    LetTimePass(state_machine, MIN_PRE_CHARGE_DURATION_MS - 10);
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    get_ts_voltage_fake.return_val = std::nextafter(
+        MAX_PACK_VOLTAGE * 0.93f, std::numeric_limits<float>::max());
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+}
+
 // BMS-29
 TEST_F(BmsStateMachineTest, check_air_positive_open_in_fault_state)
 {
@@ -885,6 +944,105 @@ TEST_F(
     ASSERT_EQ(
         CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE,
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+}
+
+// BMS-43
+TEST_F(
+    BmsStateMachineTest,
+    check_can_signals_for_a_pre_charge_undervoltage_error)
+{
+    SetInitialState(App_GetPreChargeState());
+
+    get_ts_voltage_fake.return_val = MAX_PACK_VOLTAGE * 0.90f;
+    LetTimePass(state_machine, MAX_PRE_CHARGE_COMPLETE_DURATION_MS);
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    ASSERT_EQ(
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_PRE_CHARGE_FAULT_OK_CHOICE,
+        App_CanTx_GetPeriodicSignal_PRE_CHARGE_FAULT(can_tx_interface));
+
+    get_ts_voltage_fake.return_val = std::nextafter(
+        MAX_PACK_VOLTAGE * 0.98f, std::numeric_limits<float>::lowest());
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    ASSERT_EQ(
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_PRE_CHARGE_FAULT_UNDERVOLTAGE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PRE_CHARGE_FAULT(can_tx_interface));
+}
+
+// BMS-43
+TEST_F(
+    BmsStateMachineTest,
+    check_can_signals_for_a_pre_charge_overvoltage_error)
+{
+    SetInitialState(App_GetPreChargeState());
+
+    get_ts_voltage_fake.return_val = MAX_PACK_VOLTAGE * 0.90f;
+    LetTimePass(state_machine, MIN_PRE_CHARGE_COMPLETE_DURATION_MS - 10);
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    ASSERT_EQ(
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_PRE_CHARGE_FAULT_OK_CHOICE,
+        App_CanTx_GetPeriodicSignal_PRE_CHARGE_FAULT(can_tx_interface));
+
+    get_ts_voltage_fake.return_val = std::nextafter(
+        MAX_PACK_VOLTAGE * 0.98f, std::numeric_limits<float>::max());
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_PRE_CHARGE_FAULT_OVERVOLTAGE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PRE_CHARGE_FAULT(can_tx_interface));
+}
+
+TEST_F(
+    BmsStateMachineTest,
+    check_can_signals_for_a_successful_precharge_at_min_precharge_complete_duration)
+{
+    SetInitialState(App_GetPreChargeState());
+
+    get_ts_voltage_fake.return_val = MAX_PACK_VOLTAGE * 0.90f;
+    LetTimePass(state_machine, MIN_PRE_CHARGE_COMPLETE_DURATION_MS);
+
+    get_ts_voltage_fake.return_val = MAX_PACK_VOLTAGE * 0.98f;
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_PRE_CHARGE_FAULT_OK_CHOICE,
+        App_CanTx_GetPeriodicSignal_PRE_CHARGE_FAULT(can_tx_interface));
+    ASSERT_TRUE(
+        (App_CanTx_GetPeriodicSignal_STATE(can_tx_interface) ==
+         CANMSGS_BMS_STATE_MACHINE_STATE_CHARGE_CHOICE) ||
+        (App_CanTx_GetPeriodicSignal_STATE(can_tx_interface) ==
+         CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE));
+}
+
+TEST_F(
+    BmsStateMachineTest,
+    check_can_signals_for_a_successful_precharge_at_max_precharge_complete_duration)
+{
+    SetInitialState(App_GetPreChargeState());
+
+    get_ts_voltage_fake.return_val = MAX_PACK_VOLTAGE * 0.90f;
+    LetTimePass(state_machine, MAX_PRE_CHARGE_COMPLETE_DURATION_MS - 10);
+    ASSERT_EQ(
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_PRE_CHARGE_FAULT_OK_CHOICE,
+        App_CanTx_GetPeriodicSignal_PRE_CHARGE_FAULT(can_tx_interface));
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    get_ts_voltage_fake.return_val = MAX_PACK_VOLTAGE * 0.98f;
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_PRE_CHARGE_FAULT_OK_CHOICE,
+        App_CanTx_GetPeriodicSignal_PRE_CHARGE_FAULT(can_tx_interface));
+    ASSERT_TRUE(
+        (App_CanTx_GetPeriodicSignal_STATE(can_tx_interface) ==
+         CANMSGS_BMS_STATE_MACHINE_STATE_CHARGE_CHOICE) ||
+        (App_CanTx_GetPeriodicSignal_STATE(can_tx_interface) ==
+         CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE));
 }
 
 // BMS-30

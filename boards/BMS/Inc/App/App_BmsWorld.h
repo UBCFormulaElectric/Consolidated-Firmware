@@ -38,7 +38,7 @@ struct BmsWorld *App_BmsWorld_Create(
     struct Accumulator *      accumulator,
     struct CellMonitors *     cell_monitors,
     struct Airs *             airs,
-    struct PreChargeSequence *pre_charge_sequence,
+    struct PreCharge *        pre_charge,
     struct ErrorTable *       error_table,
     struct Clock *            clock);
 
@@ -139,8 +139,7 @@ struct Airs *App_BmsWorld_GetAirs(const struct BmsWorld *world);
  * @param world The world to get the pre-charge sequence for
  * @return The pre-charge sequence for the given world
  */
-struct PreChargeSequence *
-    App_BmsWorld_GetPreChargeSequence(const struct BmsWorld *world);
+struct PreCharge *App_BmsWorld_GetPreCharge(const struct BmsWorld *world);
 
 /**
  * Get the error table for the given world

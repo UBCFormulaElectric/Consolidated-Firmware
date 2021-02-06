@@ -17,6 +17,8 @@ struct Accumulator
     struct InRangeCheck *segment_3_voltage_in_range_check;
     struct InRangeCheck *segment_4_voltage_in_range_check;
     struct InRangeCheck *segment_5_voltage_in_range_check;
+
+    float max_pack_voltage;
 };
 
 struct Accumulator *App_Accumulator_Create(
@@ -67,6 +69,8 @@ struct Accumulator *App_Accumulator_Create(
         get_segment_4_voltage, min_segment_voltage, max_segment_voltage);
     accumulator->segment_5_voltage_in_range_check = App_InRangeCheck_Create(
         get_segment_5_voltage, min_segment_voltage, max_segment_voltage);
+
+    accumulator->max_pack_voltage = max_pack_voltage;
 
     return accumulator;
 }
@@ -156,4 +160,10 @@ struct InRangeCheck *App_Accumulator_GetSegment5VoltageInRangeCheck(
     const struct Accumulator *const accumulator)
 {
     return accumulator->segment_5_voltage_in_range_check;
+}
+
+float App_Accumulator_GetMaxPackVoltage(
+    const struct Accumulator *const accumulator)
+{
+    return accumulator->max_pack_voltage;
 }
