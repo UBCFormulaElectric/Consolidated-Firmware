@@ -29,12 +29,34 @@ message("Platform: ${PLATFORM}")
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_CXX_STANDARD 17)
 
-# Globally Accessible ARM Flags
-set(FPU_FLAGS
-    -mcpu=cortex-m4 
-    -mfloat-abi=hard 
-    -mfpu=fpv4-sp-d16
-    )
+# Sets the FPU_FLAGS and FPU_DEFINES variables depending on the board
+function(set_fpu_flags_and_defines_for_device STM32_DEVICE_TYPE)
+    if ("${STM32_DEVICE_TYPE}" STREQUAL "STM32F302xC")
+        set(FPU_FLAGS
+                -mcpu=cortex-m4
+                -mfloat-abi=hard
+                -mfpu=fpv4-sp-d16
+                PARENT_SCOPE
+                )
+        set(FPU_DEFINES
+                -DARM_MATH_CM4
+                PARENT_SCOPE
+                )
+    elseif("${STM32_DEVICE_TYPE}" STREQUAL "STM32F765xx")
+        set(FPU_FLAGS
+                -mcpu=cortex-m7
+                -mfloat-abi=hard
+                -mfpu=fpv4-sp-d16
+                PARENT_SCOPE
+                )
+        set(FPU_DEFINES
+                -DARM_MATH_CM7
+                PARENT_SCOPE
+                )
+    else()
+        message(FATAL_ERROR "No FPU Flags/Defines found for Device Type ${STM32_DEVICE_TYPE}")
+    endif()
+endfunction()
 
 # Globally accessible paths
 set(REPO_ROOT_DIR ${CMAKE_SOURCE_DIR}/../)
@@ -119,7 +141,7 @@ endfunction()
 #                                         the Arm binary that should have
 #                                         warnings suppressed
 #   ARM_LINKER_SCRIPT - The Arm linker script for the board
-#   STM32_DEVICE_TYPE - The device name required for <stm32f3xx.h> to work
+#   STM32_DEVICE_TYPE - The device name representing the MCU
 function(create_arm_binary
             BOARD_NAME
             ARM_BINARY_SRCS
@@ -130,8 +152,8 @@ function(create_arm_binary
             STM32_DEVICE_TYPE
             )
     add_executable(${BOARD_NAME}.elf
-        ${ARM_BINARY_SRCS}
         ${ARM_BINARY_THIRD_PARTY_SRCS}
+        ${ARM_BINARY_SRCS}
         ${SHARED_ARM_BINARY_X86_COMPATIBLE_SRCS}
         ${SHARED_ARM_BINARY_X86_INCOMPATIBLE_SRCS}
         ${SHARED_ARM_BINARY_X86_INCOMPATIBLE_THIRD_PARTY_SRCS}
@@ -158,16 +180,18 @@ function(create_arm_binary
             ${SHARED_ARM_BINARY_X86_INCOMPATIBLE_THIRD_PARTY_SRCS}
         PROPERTIES COMPILE_FLAGS "-w")
 
+    set_fpu_flags_and_defines_for_device("${STM32_DEVICE_TYPE}")
+
     target_compile_definitions(${BOARD_NAME}.elf
         PRIVATE
             -D__weak=__attribute__\(\(weak\)\) 
             -D__packed=__attribute__\(\(__packed__\)\) 
             -DUSE_HAL_DRIVER 
             -D${STM32_DEVICE_TYPE}
-            -DARM_MATH_CM4 
-            -DARM_MATH_MATRIX_CHECK 
+            -DARM_MATH_MATRIX_CHECK
             -DARM_MATH_ROUNDING
-        )
+            ${FPU_DEFINES}
+            )
     target_compile_options(${BOARD_NAME}.elf
         PUBLIC
             ${FPU_FLAGS}
@@ -202,7 +226,7 @@ function(create_arm_binary
     set(HEX_FILE "${BOARD_NAME}.hex")
     set(BIN_FILE "${BOARD_NAME}.bin")
     set(ASM_FILE "${BOARD_NAME}.asm")
-    
+
     add_custom_command(TARGET ${BOARD_NAME}.elf POST_BUILD
     COMMAND ${CMAKE_OBJCOPY}
             -Oihex $<TARGET_FILE:${BOARD_NAME}.elf> $<TARGET_FILE_DIR:${BOARD_NAME}.elf>/${HEX_FILE}
