@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stm32f3xx.h>
+#include "Io_SharedStm32Drivers.h"
 
 /**
  * Convert the given raw ADC value measured by the given ADC handle into voltage

@@ -1,7 +1,7 @@
 #pragma once
 
-#include <stm32f3xx_hal.h>
-#include <stm32f3xx_hal_spi.h>
+#include "Io_SharedStm32Hal.h"
+#include "Io_SharedStm32HalSpi.h"
 
 struct SharedSpi;
 

@@ -61,7 +61,13 @@ extern "C" {
  * required at least for the ARM Cortex-M port, that uses the ARM CMSIS API.
  * Try that in case of build problems. Otherwise, remove the #error line below.
  *****************************************************************************/
+#ifdef STM32F302xC
 #include <stm32f3xx.h>
+#elif STM32F765xx
+#include <stm32f7xx.h>
+#else
+#error "No supported device define found."
+#endif
 
 /*******************************************************************************
  * Configuration Macro: TRC_CFG_HARDWARE_PORT

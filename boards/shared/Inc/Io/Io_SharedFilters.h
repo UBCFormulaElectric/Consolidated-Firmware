@@ -3,8 +3,8 @@
  */
 #pragma once
 
-#include <stm32f3xx_hal.h>
-#include <arm_math.h>
+#include "Io_SharedStm32Drivers.h"
+#include "arm_math.h"
 
 /**
  * @brief Apply low pass filter on a given array of values based on the
