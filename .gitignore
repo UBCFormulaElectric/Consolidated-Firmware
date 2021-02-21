@@ -84,6 +84,19 @@ __lib__/
 *.cbp
 Testing/
 
+# Generated Code
+**/App_CanMsgs.h
+**/App_CanMsgs.c
+**/App_CanRx.h
+**/App_CanRx.c
+**/App_CanTx.h
+**/App_CanTx.c
+**/Io_CanRx.h
+**/Io_CanRx.c
+**/Io_CanTx.h
+**/Io_CanTx.c
+**/App_ErrorId.h
+
 # CLion Files
 !**/.idea
 !**/.idea/runConfigurations/*.xml
