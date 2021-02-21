@@ -11,7 +11,7 @@ struct InvWorld
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
     struct Clock *            clock;
-    struct ErrorTable * error_table;
+    struct ErrorTable *       error_table;
 };
 
 struct InvWorld *App_InvWorld_Create(
@@ -19,18 +19,18 @@ struct InvWorld *App_InvWorld_Create(
     struct InvCanRxInterface *const can_rx_interface,
     struct HeartbeatMonitor *const  heartbeat_monitor,
     struct RgbLedSequence *const    rgb_led_sequence,
-    struct ErrorTable *       error_table,
+    struct ErrorTable *             error_table,
     struct Clock *const             clock)
 {
     struct InvWorld *world = (struct InvWorld *)malloc(sizeof(struct InvWorld));
     assert(world != NULL);
 
-    world->can_tx_interface        = can_tx_interface;
-    world->can_rx_interface        = can_rx_interface;
-    world->heartbeat_monitor       = heartbeat_monitor;
-    world->rgb_led_sequence        = rgb_led_sequence;
-    world->error_table = error_table;
-    world->clock                   = clock;
+    world->can_tx_interface  = can_tx_interface;
+    world->can_rx_interface  = can_rx_interface;
+    world->heartbeat_monitor = heartbeat_monitor;
+    world->rgb_led_sequence  = rgb_led_sequence;
+    world->error_table       = error_table;
+    world->clock             = clock;
 
     return world;
 }

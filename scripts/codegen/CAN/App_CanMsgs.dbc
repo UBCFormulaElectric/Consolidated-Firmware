@@ -370,6 +370,12 @@ SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 3|1@1+ (1,0) [0|1] "" LOGGER
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 4|1@1+ (1,0) [0|1] "" LOGGER
 SG_ WATCHDOG_TIMEOUT : 5|1@1+ (1,0) [0|1] "" LOGGER
 
+BO_ 606 INV_AIR_SHUTDOWN_ERRORS: 8 INV
+SG_ DUMMY_AIR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 607 INV_MOTOR_SHUTDOWN_ERRORS: 8 INV
+SG_ DUMMY_MOTOR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DEBUG
+
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
 BA_DEF_ SG_  "GenSigStartValue" INT 0 2147483647;
@@ -456,6 +462,8 @@ BA_ "GenMsgCycleTime" BO_ 600 100;
 BA_ "GenMsgCycleTime" BO_ 601 5000;
 BA_ "GenMsgCycleTime" BO_ 603 10;
 BA_ "GenMsgCycleTime" BO_ 605 1000;
+BA_ "GenMsgCycleTime" BO_ 606 1000;
+BA_ "GenMsgCycleTime" BO_ 607 1000;
 
 BA_ "GenSigStartValue" SG_ 2  tx_overflow_count 0;
 BA_ "GenSigStartValue" SG_ 2  rx_overflow_count 0;

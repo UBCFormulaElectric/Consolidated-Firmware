@@ -19,15 +19,9 @@ FAKE_VOID_FUNC(
 FAKE_VOID_FUNC(
     send_non_periodic_msg_INV_WATCHDOG_TIMEOUT,
     const struct CanMsgs_inv_watchdog_timeout_t *);
-FAKE_VOID_FUNC(
-    turn_on_red_led
-    );
-FAKE_VOID_FUNC(
-    turn_on_green_led
-);
-FAKE_VOID_FUNC(
-    turn_on_blue_led
-);
+FAKE_VOID_FUNC(turn_on_red_led);
+FAKE_VOID_FUNC(turn_on_green_led);
+FAKE_VOID_FUNC(turn_on_blue_led);
 
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
 FAKE_VOID_FUNC(
@@ -59,10 +53,8 @@ class InvStateMachineTest : public BaseStateMachineTest
         clock = App_SharedClock_Create();
 
         world = App_InvWorld_Create(
-            can_tx_interface, can_rx_interface,
-            heartbeat_monitor, rgb_led_sequence,
-            error_table,
-             clock);
+            can_tx_interface, can_rx_interface, heartbeat_monitor,
+            rgb_led_sequence, error_table, clock);
 
         // Default to starting the state machine in the `Drive` state
         state_machine =

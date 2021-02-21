@@ -3,7 +3,6 @@
 #include "App_SharedMacros.h"
 #include "App_SharedExitCode.h"
 
-
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct InvWorld *world = App_SharedStateMachine_GetWorld(state_machine);

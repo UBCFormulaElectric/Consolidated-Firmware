@@ -1,4 +1,11 @@
+#ifdef STM32F302xC
 #include <stm32f3xx.h>
+#elif STM32F765xx
+#include <stm32f7xx.h>
+#else
+#error "No supported device define found."
+#endif
+
 #include <string.h>
 #include "App_CanTx.h"
 #include "Io_SoftwareWatchdog.h"

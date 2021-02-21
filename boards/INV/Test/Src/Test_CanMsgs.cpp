@@ -22,4 +22,3 @@ TEST(CanMsgsTest, heartbeat_message_frequency)
 {
     ASSERT_EQ(HZ_TO_MS(10), CANMSGS_INV_HEARTBEAT_CYCLE_TIME_MS);
 }
-
