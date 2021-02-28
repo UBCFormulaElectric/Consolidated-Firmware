@@ -50,6 +50,30 @@ static void Io_ProcessBmsNonCriticalErrorMsg(
     SET_ERROR(
         error_table, BMS_NON_CRITICAL_AVERAGE_CELL_TEMP_OUT_OF_RANGE,
         data->average_cell_temp_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_AVERAGE_CELL_VOLTAGE_OUT_OF_RANGE,
+        data->average_cell_voltage_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_CELL_MONITOR_0_DIE_TEMP_OUT_OF_RANGE,
+        data->cell_monitor_0_die_temp_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_CELL_MONITOR_1_DIE_TEMP_OUT_OF_RANGE,
+        data->cell_monitor_1_die_temp_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_CELL_MONITOR_2_DIE_TEMP_OUT_OF_RANGE,
+        data->cell_monitor_2_die_temp_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_CELL_MONITOR_3_DIE_TEMP_OUT_OF_RANGE,
+        data->cell_monitor_3_die_temp_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_CELL_MONITOR_4_DIE_TEMP_OUT_OF_RANGE,
+        data->cell_monitor_4_die_temp_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE,
+        data->cell_monitor_5_die_temp_out_of_range);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_ITMP_CHARGER_HAS_OVERFLOW,
+        data->itmp_charger_has_overflow);
 }
 
 static void Io_ProcessDcmNonCriticalErrorMsg(
@@ -70,6 +94,15 @@ static void Io_ProcessDcmNonCriticalErrorMsg(
         data->stack_watermark_above_threshold_taskcantx);
     SET_ERROR(
         error_table, DCM_NON_CRITICAL_WATCHDOG_TIMEOUT, data->watchdog_timeout);
+    SET_ERROR(
+        error_table, DCM_NON_CRITICAL_ACCELERATION_X_OUT_OF_RANGE,
+        data->acceleration_x_out_of_range);
+    SET_ERROR(
+        error_table, DCM_NON_CRITICAL_ACCELERATION_Y_OUT_OF_RANGE,
+        data->acceleration_y_out_of_range);
+    SET_ERROR(
+        error_table, DCM_NON_CRITICAL_ACCELERATION_Z_OUT_OF_RANGE,
+        data->acceleration_z_out_of_range);
 }
 
 static void Io_ProcessDimNonCriticalErrorMsg(
@@ -298,6 +331,12 @@ static void Io_ProcessFsmMotorShutdownErrorMsg(
     SET_ERROR(
         error_table, FSM_MOTOR_SHUTDOWN_PLAUSIBILITY_CHECK_HAS_FAILED,
         data->plausibility_check_has_failed);
+    SET_ERROR(
+        error_table, FSM_MOTOR_SHUTDOWN_PRIMARY_FLOW_RATE_HAS_UNDERFLOW,
+        data->primary_flow_rate_has_underflow);
+    SET_ERROR(
+        error_table, FSM_MOTOR_SHUTDOWN_SECONDARY_FLOW_RATE_HAS_UNDERFLOW,
+        data->secondary_flow_rate_has_underflow);
 }
 
 static void Io_ProcessPdmMotorShutdownErrorMsg(

@@ -38,6 +38,8 @@ There are two types of faults:
 - [BMS (Battery Management System)](#BMS)
     - [BMS Stateless](#BMS_STATELESS)
     - [BMS Init](#BMS_INIT)
+    - [BMS AIR Open State](#BMS_AIR_OPEN)
+    - [BMS Precharge State](#BMS_PRECHARGE)
     - [BMS Charge State](#BMS_CHARGE)
     - [BMS Drive State](#BMS_DRIVE)
     - [BMS Fault State](#BMS_FAULT)
@@ -154,8 +156,8 @@ PDM-20 | Exiting the AIR-Closed state | The PDM must enter the AIR-Open state wh
 ## BMS <a name="BMS"></a>
 
 ### BMS Stateless <a name="BMS_STATELESS"></a>
-ID | Title | Description | Associated Competition Rule(s)
---- | --- | --- | ---
+ID | Title | Description | Associated Competition Rule(s) | Rationale
+--- | --- | --- | --- | ---
 BMS-0 | Startup CAN message | The BMS must transmit a startup message over CAN on boot.
 BMS-31 | State CAN message | The BMS must transmit the state of its state machine at 100Hz or faster.
 BMS-1 | Heartbeat sending | The BMS must transmit a heartbeat over CAN at 10Hz or faster.
@@ -169,17 +171,31 @@ BMS-9 | Charger detection and logging | - The BMS must check the charger connect
 BMS-10 | Charger enable/disable | The BMS must enable the charger by setting the BMS PON pin high and disable the charger by setting the BMS PON pin low.
 BMS-11 | AIRs weld/stuck open detection | The BMS must check that the AIR+ and AIR- are in the desired open or closed state at 100Hz, and if not the BMS must throw an AIR shutdown fault and enter the fault state.
 BMS-36 | IMD data transmission | The BMS must transmit the high/low status of the IMD's OK_HS output, the information encoded in the IMD's PWM output, and the seconds elapsed since the IMD was powered on.
-BMS-37 | OK status transmission | The BMS must transmit the on/off status of BMS_OK, IMD_OK and BSPD_OK at 100Hz or faster.
+BMS-37 | OK status transmission | The BMS must transmit the on/off status of BMS_OK, IMD_OK and BSPD_OK at 100Hz or faster, and on a rising or falling transition in an interrupt. | | Log CAN messages on transitions to avoid missing a fast transition from high to low to high.
 BMS-38 | AIR states transmission | The BMS must transmit the open/closed states of the AIR+ and AIR- over CAN at 100Hz or faster. The open/closed states of the AIR+ and AIR- is determined by the AIR_POWER_STATUS and AIR_TOTAL_ISENSE.
                                                                                                                                                                                               
 ### BMS Init State <a name="BMS_INIT"></a>
-ID | Title | Description | Associated Competition Rule(s)
---- | --- | --- | ---
-BMS-12 | Precharge | - The BMS must wait for 5 seconds after boot, then wait for the closing of the AIR-, to execute the precharge sequence. <br/> - The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin. <br/> - Upon a successful precharge, the BMS must close the AIR+. <br/> <br/> Upon a precharge failure, the BMS must throw an AIR shutdown fault. A precharge failure occurs when: <br/> - The TS (tractive system) bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. ([TODO: calculate constants](https://github.com/UBCFormulaElectric/Consolidated-Firmware/issues/515))| EV.6.9.1
+ID | Title | Description | Associated Competition Rule(s) | Rationale
+--- | --- | --- | --- | ---
 BMS-35 | SoC retrieval | The BMS must retrieve SoC from three different EEPROM regions, and use a voting algorithm to identify which data is correct, in case of data corruption. In the case of data corruption, set the SoC to 50%. 
 BMS-13 | Default State | The BMS state machine must begin in the init state by default.
-BMS-15 | Exiting the init state and entering the charge state | Upon a successful precharge, the BMS must enter the charge state if the charger is connected.
-BMS-16 | Exiting the init state and entering the drive state | Upon a successful precharge, the BMS must enter the drive state if the charger is disconnected.
+BMS-39  | Exiting the init state and entering the AIR-Open state | Upon waiting for 5 seconds after entering the init state, the BMS must enter the AIR-Open state. | | Avoids precharging instantly after boot or after a precharge failure.
+
+### BMS AIR-Open State <a name="BMS_AIR_OPEN"></a>
+ID | Title | Description | Associated Competition Rule(s)
+--- | --- | --- | ---
+BMS-40 | Entering the AIR-Open state | The BMS must only enter the AIR-Open state from the init state after successfully waiting for 5 seconds in the init state. 
+BMS-41 | Exiting the AIR-Open state and entering the precharge state | The BMS must only enter the precharge state after AIR- is closed through the TSMS.
+
+### BMS Precharge State <a name="BMS_PRECHARGE"></a>
+ID | Title | Description | Associated Competition Rule(s)
+--- | --- | --- | ---
+BMS-41 | Precharge | - The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin. Apply a heavy low pass filter on the measured TS (tractive system) bus voltage. <br/> - The minimum precharge duration is the time associated with the inverter/charger capacitors being charged to at least 90% of the accumulator voltage.
+BMS-42 | Successful precharge | Upon a successful precharge, the BMS must close the AIR+. 
+BMS-43 | Failed precharge | Upon a precharge failure, the BMS must throw a non-critical fault and enter the init state. A precharge failure occurs when: <br/> - The TS bus voltage does not rise within the allotted time. <br/> - The TS bus voltage rises too quickly. ([TODO: calculate constants](https://github.com/UBCFormulaElectric/Consolidated-Firmware/issues/515))| EV.6.9.1 The BMS must precharge the inverter/charger capacitors to at least 98% of the accumulator voltage for extra safety margin.
+BMS-44 | Exiting the precharge state and entering the charge state | Upon a successful precharge, the BMS must enter the charge state if the charger is connected.
+BMS-45 | Exiting the precharge state and entering the drive state | Upon a successful precharge, the BMS must enter the drive state if the charger is disconnected.
+BMS-46 | Exiting the precharge state and entering the init state | Upon a failed precharge, the BMS must enter the init state and reset the AIR shutdown latch when AIR- is opened.
 
 ### BMS Charge State <a name="BMS_CHARGE"></a>
 
@@ -190,7 +206,7 @@ BMS-17 | Charging thermal safety | - The BMS must stop cell balancing once the L
 BMS-18 | Cell balancing | - The BMS must balance the cells until they are all between 4.19V and 4.2V. <br/> - The BMS must only perform cell balancing when the AIRs are closed. <br/> - The BMS must charge and cell balance simultaneously to get all cells charged and balanced as fast as possible.| EV.7.2.5
 BMS-19 | Power limits calculation and sending (charge state) | - The BMS must calculate charge power limits based on cell temperatures and SoC to avoid exceeding a cell's defined limits. <br/> - The BMS must send the charge power limits to the charger over CAN at 100Hz or faster.
 BMS-20 | Charger disconnection | Upon sensing charger disconnection, the BMS must throw an AIR shutdown fault and enter the fault state.
-BMS-21 | Entering the charge state | The BMS must only enter the charge state after the init state is complete.
+BMS-21 | Entering the charge state | The BMS must only enter the charge state from the precharge state after precharging is complete.
 BMS-23 | Exiting the charge state and entering the init state | Once charging is complete, the BMS must disable the charger, disable cell balancing, open the AIR+, and enter the init state.
 BMS-24 | Exiting the charge state and entering the fault state | The BMS must disable cell balancing and charging.
 
@@ -200,7 +216,7 @@ ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-32 | SoC calculation and storage | - The BMS must transmit SoC over CAN at 100Hz or faster. <br/> - The BMS must perform coulomb counting and calculate SoC at 100Hz. <br/> The BMS must store SoC in EEPROM at 1Hz in three different memory locations. <br/> - SoC must be bounded between 0% and 100%.
 BMS-26 | Power limits calculation and sending (drive state) | - The BMS must calculate charge and discharge power limits based on cell temperatures and SoC to avoid exceeding a cell's defined limits. <br/> - The BMS must send the charge and discharge power limits over CAN at 100Hz or faster.
-BMS-25 | Entering the drive state | The BMS must only enter the drive state from the init state after precharge or from the motor shutdown fault state after faults are cleared.
+BMS-25 | Entering the drive state | The BMS must only enter the drive state from the precharge state or from the fault state after all motor shutdown faults are cleared.
 BMS-27 | Exiting the drive state and entering the init state | Upon the opening of the AIR+ or AIR- outside of an AIR shutdown fault, the BMS must exit the drive state and enter the init state.
 BMS-20 | Exiting the drive state and entering the fault state | When an AIR shutdown is requested over CAN, the BMS must transition from the drive state to the fault state.
 
@@ -209,7 +225,7 @@ BMS-20 | Exiting the drive state and entering the fault state | When an AIR shut
 ID | Title | Description | Associated Competition Rule(s)
 --- | --- | --- | ---
 BMS-29 | Entering the fault state | The BMS must open the AIR+. 
-BMS-30 | Exiting the fault state and entering the init state | Once all AIR shutdown faults are cleared, the BMS must exit the fault state and enter the init state.
+BMS-30 | Exiting the fault state and entering the init state | Once all AIR shutdown faults are cleared and AIR- is opened, the BMS must exit the fault state and enter the init state.
 
 ## DIM <a name="DIM"></a>
 

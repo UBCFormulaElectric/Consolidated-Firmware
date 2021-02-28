@@ -133,9 +133,9 @@ ExitCode Io_AccumulatorVoltages_ReadRawCellVoltages(void)
     // The command used to start ADC conversions for battery cell voltages.
     const uint16_t ADCV = (0x260 + (MD << 7) + (DCP << 4) + CH);
 
-    RETURN_IF_EXIT_NOT_OK(Io_LTC6813_EnterReadyState())
-    RETURN_IF_EXIT_NOT_OK(Io_LTC6813_SendCommand(ADCV))
-    RETURN_IF_EXIT_NOT_OK(Io_LTC6813_PollConversions())
+    RETURN_CODE_IF_EXIT_NOT_OK(Io_LTC6813_EnterReadyState())
+    RETURN_CODE_IF_EXIT_NOT_OK(Io_LTC6813_SendCommand(ADCV))
+    RETURN_CODE_IF_EXIT_NOT_OK(Io_LTC6813_PollConversions())
 
     for (size_t current_register_group = 0U;
          current_register_group < NUM_OF_CELL_VOLTAGE_REGISTER_GROUPS;

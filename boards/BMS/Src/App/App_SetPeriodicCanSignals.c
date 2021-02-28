@@ -146,9 +146,68 @@ void App_SetPeriodicSignals_AccumulatorVoltagesInRangeChecks(
         CANMSGS_BMS_NON_CRITICAL_ERRORS_SEGMENT_5_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
+void App_SetPeriodicSignals_CellMonitorsInRangeChecks(
+    struct BmsCanTxInterface *const  can_tx,
+    const struct CellMonitors *const cell_monitors)
+{
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx,
+        App_CellMonitors_GetCellMonitor0DieTempInRangeCheck(cell_monitors),
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_0_DIE_TEMPERATURE,
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_0_DIE_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_0_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_0_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_0_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
+
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx,
+        App_CellMonitors_GetCellMonitor1DieTempInRangeCheck(cell_monitors),
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_1_DIE_TEMPERATURE,
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_1_DIE_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_1_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_1_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_1_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
+
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx,
+        App_CellMonitors_GetCellMonitor2DieTempInRangeCheck(cell_monitors),
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_2_DIE_TEMPERATURE,
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_2_DIE_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_2_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_2_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_2_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
+
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx,
+        App_CellMonitors_GetCellMonitor3DieTempInRangeCheck(cell_monitors),
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_3_DIE_TEMPERATURE,
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_3_DIE_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_3_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_3_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_3_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
+
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx,
+        App_CellMonitors_GetCellMonitor4DieTempInRangeCheck(cell_monitors),
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_4_DIE_TEMPERATURE,
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_4_DIE_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_4_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_4_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_4_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
+
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx,
+        App_CellMonitors_GetCellMonitor5DieTempInRangeCheck(cell_monitors),
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_5_DIE_TEMPERATURE,
+        App_CanTx_SetPeriodicSignal_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
+}
+
 void App_SetPeriodicSignals_AccumulatorTemperaturesInRangeChecks(
-    struct BmsCanTxInterface *const can_tx,
-    const struct Accumulator *const accumulator)
+    struct BmsCanTxInterface *can_tx,
+    const struct Accumulator *accumulator)
 {
     App_Accumulator_ReadCellTemperatures(accumulator);
 

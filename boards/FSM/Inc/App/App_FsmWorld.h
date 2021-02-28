@@ -46,7 +46,14 @@ struct FsmWorld *App_FsmWorld_Create(
     void (*papps_alarm_callback)(struct FsmWorld *),
     bool (*is_sapps_alarm_active)(struct FsmWorld *),
     void (*sapps_alarm_callback)(struct FsmWorld *),
-    bool (*is_papps_and_sapps_alarm_inactive)(struct FsmWorld *));
+    bool (*is_papps_and_sapps_alarm_inactive)(struct FsmWorld *),
+
+    bool (*is_primary_flow_rate_below_threshold)(struct FsmWorld *),
+    bool (*is_primary_flow_rate_in_range)(struct FsmWorld *),
+    void (*primary_flow_rate_below_threshold_callback)(struct FsmWorld *),
+    bool (*is_secondary_flow_rate_below_threshold)(struct FsmWorld *),
+    bool (*is_secondary_flow_rate_in_range)(struct FsmWorld *),
+    void (*secondary_flow_rate_below_threshold_callback)(struct FsmWorld *));
 
 /**
  * Deallocate the memory used by the given world

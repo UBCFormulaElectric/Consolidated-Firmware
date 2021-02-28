@@ -8,6 +8,8 @@ extern "C"
 #include "App_SharedStateMachine.h"
 #include "App_SharedMacros.h"
 #include "states/App_InitState.h"
+#include "states/App_AirOpenState.h"
+#include "states/App_PreChargeState.h"
 #include "states/App_DriveState.h"
 #include "states/App_FaultState.h"
 #include "states/App_ChargeState.h"
@@ -15,6 +17,7 @@ extern "C"
 #include "configs/App_ImdConfig.h"
 #include "configs/App_AccumulatorConfigs.h"
 #include "configs/App_AccumulatorThresholds.h"
+#include "configs/App_CellMonitorsThresholds.h"
 }
 
 namespace StateMachineTest
@@ -64,8 +67,22 @@ FAKE_VALUE_FUNC(ExitCode, read_cell_temperatures);
 FAKE_VALUE_FUNC(float, get_min_cell_temperature);
 FAKE_VALUE_FUNC(float, get_max_cell_temperature);
 FAKE_VALUE_FUNC(float, get_average_cell_temperature);
+FAKE_VALUE_FUNC(bool, is_air_negative_closed);
+FAKE_VALUE_FUNC(bool, is_air_positive_closed);
+FAKE_VALUE_FUNC(ExitCode, read_die_temperatures);
+FAKE_VALUE_FUNC(float, get_segment_0_die_temp);
+FAKE_VALUE_FUNC(float, get_segment_1_die_temp);
+FAKE_VALUE_FUNC(float, get_segment_2_die_temp);
+FAKE_VALUE_FUNC(float, get_segment_3_die_temp);
+FAKE_VALUE_FUNC(float, get_segment_4_die_temp);
+FAKE_VALUE_FUNC(float, get_segment_5_die_temp);
+FAKE_VALUE_FUNC(float, get_max_die_temp);
 FAKE_VALUE_FUNC(bool, is_air_negative_on);
 FAKE_VALUE_FUNC(bool, is_air_positive_on);
+FAKE_VOID_FUNC(open_air_positive);
+FAKE_VOID_FUNC(close_air_positive);
+FAKE_VOID_FUNC(enable_pre_charge);
+FAKE_VOID_FUNC(disable_pre_charge);
 
 class BmsStateMachineTest : public BaseStateMachineTest
 {
@@ -115,15 +132,31 @@ class BmsStateMachineTest : public BaseStateMachineTest
             MAX_PACK_VOLTAGE, DEFAULT_MIN_CELL_TEMPERATURE,
             DEFAULT_MAX_CELL_TEMPERATURE, CHARGE_STATE_MAX_CELL_TEMPERATURE);
 
-        air_negative = App_SharedBinaryStatus_Create(is_air_negative_on);
-        air_positive = App_SharedBinaryStatus_Create(is_air_positive_on);
+        cell_monitors = App_CellMonitors_Create(
+            read_die_temperatures, get_segment_0_die_temp,
+            get_segment_1_die_temp, get_segment_2_die_temp,
+            get_segment_3_die_temp, get_segment_4_die_temp,
+            get_segment_5_die_temp, get_max_die_temp, MIN_ITMP_DEGC,
+            MAX_ITMP_DEGC, DIE_TEMP_TO_REENABLE_CHARGER_DEGC,
+            DIE_TEMP_TO_REENABLE_CELL_BALANCING_DEGC,
+            DIE_TEMP_TO_DISABLE_CELL_BALANCING_DEGC,
+            DIE_TEMP_TO_DISABLE_CHARGER_DEGC);
+
+        pre_charge_sequence =
+            App_PreChargeSequence_Create(enable_pre_charge, disable_pre_charge);
+
+        airs = App_Airs_Create(
+            is_air_positive_closed, is_air_negative_closed, close_air_positive,
+            open_air_positive);
+
+        error_table = App_SharedErrorTable_Create();
 
         clock = App_SharedClock_Create();
 
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
             rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator,
-            air_negative, air_positive, clock);
+            cell_monitors, airs, pre_charge_sequence, error_table, clock);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -166,8 +199,22 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(get_average_cell_temperature);
         RESET_FAKE(is_air_negative_on);
         RESET_FAKE(is_air_positive_on);
+        RESET_FAKE(get_segment_0_die_temp);
+        RESET_FAKE(get_segment_1_die_temp);
+        RESET_FAKE(get_segment_2_die_temp);
+        RESET_FAKE(get_segment_3_die_temp);
+        RESET_FAKE(get_segment_4_die_temp);
+        RESET_FAKE(get_segment_5_die_temp);
+        RESET_FAKE(get_max_die_temp);
+        RESET_FAKE(is_air_negative_closed);
+        RESET_FAKE(is_air_positive_closed);
 
+        // The charger is connected to prevent other tests from entering the
+        // fault state from the charge state
         is_charger_connected_fake.return_val = true;
+
+        // A voltage in [3.0, 4.2] was arbitrarily chosen to prevent other
+        // tests from entering the fault state
         get_min_cell_voltage_fake.return_val = 4.0f;
         get_max_cell_voltage_fake.return_val = 4.0f;
     }
@@ -185,9 +232,13 @@ class BmsStateMachineTest : public BaseStateMachineTest
         TearDownObject(bms_ok, App_OkStatus_Destroy);
         TearDownObject(imd_ok, App_OkStatus_Destroy);
         TearDownObject(bspd_ok, App_OkStatus_Destroy);
-        TearDownObject(accumulator, App_Accumulator_Destroy);
         TearDownObject(air_negative, App_SharedBinaryStatus_Destroy);
         TearDownObject(air_positive, App_SharedBinaryStatus_Destroy);
+        TearDownObject(accumulator, App_Accumulator_Destroy);
+        TearDownObject(cell_monitors, App_CellMonitors_Destroy);
+        TearDownObject(airs, App_Airs_Destroy);
+        TearDownObject(pre_charge_sequence, App_PreChargeSequence_Destroy);
+        TearDownObject(error_table, App_SharedErrorTable_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
     }
 
@@ -203,10 +254,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
     std::vector<const struct State *> GetAllStates(void)
     {
         return std::vector<const struct State *>{
-            App_GetInitState(),
-            App_GetDriveState(),
-            App_GetChargeState(),
-            App_GetFaultState(),
+            App_GetInitState(),  App_GetAirOpenState(), App_GetPreChargeState(),
+            App_GetDriveState(), App_GetChargeState(),  App_GetFaultState(),
         };
     }
 
@@ -276,9 +325,13 @@ class BmsStateMachineTest : public BaseStateMachineTest
     struct OkStatus *         bms_ok;
     struct OkStatus *         imd_ok;
     struct OkStatus *         bspd_ok;
-    struct Accumulator *      accumulator;
     struct BinaryStatus *     air_negative;
     struct BinaryStatus *     air_positive;
+    struct Accumulator *      accumulator;
+    struct CellMonitors *     cell_monitors;
+    struct Airs *             airs;
+    struct PreChargeSequence *pre_charge_sequence;
+    struct ErrorTable *       error_table;
     struct Clock *            clock;
 
     const uint32_t TASK_1HZ_DURATION_MS   = 1000;
@@ -627,38 +680,269 @@ TEST_F(BmsStateMachineTest, check_airs_can_signals_for_all_states)
     {
         SetInitialState(state);
 
-        is_air_negative_on_fake.return_val = false;
-        is_air_positive_on_fake.return_val = false;
+        is_air_negative_closed_fake.return_val = false;
+        is_air_positive_closed_fake.return_val = false;
         LetTimePass(state_machine, 10);
         ASSERT_EQ(
             false, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
         ASSERT_EQ(
             false, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
 
-        is_air_negative_on_fake.return_val = false;
-        is_air_positive_on_fake.return_val = true;
+        is_air_negative_closed_fake.return_val = false;
+        is_air_positive_closed_fake.return_val = true;
         LetTimePass(state_machine, 10);
         ASSERT_EQ(
             false, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
         ASSERT_EQ(
             true, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
 
-        is_air_negative_on_fake.return_val = true;
-        is_air_positive_on_fake.return_val = false;
+        is_air_negative_closed_fake.return_val = true;
+        is_air_positive_closed_fake.return_val = false;
         LetTimePass(state_machine, 10);
         ASSERT_EQ(
             true, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
         ASSERT_EQ(
             false, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
 
-        is_air_negative_on_fake.return_val = true;
-        is_air_positive_on_fake.return_val = true;
+        is_air_negative_closed_fake.return_val = true;
+        is_air_positive_closed_fake.return_val = true;
         LetTimePass(state_machine, 10);
         ASSERT_EQ(
             true, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
         ASSERT_EQ(
             true, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
     }
+}
+// BMS-17
+TEST_F(
+    BmsStateMachineTest,
+    charger_non_critical_fault_set_when_itmp_exceeds_charger_threshold)
+{
+    SetInitialState(App_GetChargeState());
+
+    App_Charger_Enable(charger);
+
+    // Die temperature underflow value
+    const float fake_die_temp = 120.0;
+    get_max_die_temp_fake.return_val =
+        std::nextafter(fake_die_temp, std::numeric_limits<float>::lowest());
+    LetTimePass(state_machine, 1000);
+    ASSERT_EQ(
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_ITMP_CHARGER_HAS_OVERFLOW_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_ITMP_CHARGER_HAS_OVERFLOW(
+            can_tx_interface));
+    ASSERT_EQ(true, App_Charger_IsEnabled(charger));
+
+    // Die temperature overflow value
+    get_max_die_temp_fake.return_val =
+        std::nextafter(fake_die_temp, std::numeric_limits<float>::max());
+    LetTimePass(state_machine, 1000);
+    ASSERT_EQ(
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_ITMP_CHARGER_HAS_OVERFLOW_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_ITMP_CHARGER_HAS_OVERFLOW(
+            can_tx_interface));
+    ASSERT_EQ(false, App_Charger_IsEnabled(charger));
+}
+
+// BMS-17
+TEST_F(BmsStateMachineTest, charger_is_re_enabled_when_itmp_is_in_range)
+{
+    SetInitialState(App_GetChargeState());
+
+    App_Charger_Enable(charger);
+
+    // Die temperature overflow
+    float fake_die_temp = 120.0;
+    get_max_die_temp_fake.return_val =
+        std::nextafter(fake_die_temp, std::numeric_limits<float>::max());
+    LetTimePass(state_machine, 1000);
+
+    // Die temperature overflow (slightly greater than the threshold to
+    // re-enable the charger)
+    fake_die_temp = 115.0;
+    get_max_die_temp_fake.return_val =
+        std::nextafter(fake_die_temp, std::numeric_limits<float>::max());
+    LetTimePass(state_machine, 1000);
+    ASSERT_EQ(false, App_Charger_IsEnabled(charger));
+    ASSERT_EQ(
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_ITMP_CHARGER_HAS_OVERFLOW_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_ITMP_CHARGER_HAS_OVERFLOW(
+            can_tx_interface));
+
+    // Die temperature underflow value
+    get_max_die_temp_fake.return_val =
+        std::nextafter(fake_die_temp, std::numeric_limits<float>::lowest());
+    LetTimePass(state_machine, 1000);
+    ASSERT_EQ(true, App_Charger_IsEnabled(charger));
+    ASSERT_EQ(
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_ITMP_CHARGER_HAS_OVERFLOW_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_ITMP_CHARGER_HAS_OVERFLOW(
+            can_tx_interface));
+}
+
+// BMS-17
+TEST_F(BmsStateMachineTest, check_cell_monitors_can_signals_in_all_states)
+{
+    const State *charge_state = App_GetChargeState();
+
+    CheckInRangeCanSignalsInGivenState(
+        charge_state, MIN_ITMP_DEGC, MAX_ITMP_DEGC,
+        get_segment_0_die_temp_fake.return_val,
+        App_CanTx_GetPeriodicSignal_CELL_MONITOR_0_DIE_TEMPERATURE,
+        App_CanTx_GetPeriodicSignal_CELL_MONITOR_0_DIE_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_0_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_0_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_0_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE,
+        TASK_1HZ_DURATION_MS);
+
+    CheckInRangeCanSignalsInGivenState(
+        charge_state, MIN_ITMP_DEGC, MAX_ITMP_DEGC,
+        get_segment_1_die_temp_fake.return_val,
+        App_CanTx_GetPeriodicSignal_CELL_MONITOR_1_DIE_TEMPERATURE,
+        App_CanTx_GetPeriodicSignal_CELL_MONITOR_1_DIE_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_1_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_1_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_1_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE,
+        TASK_1HZ_DURATION_MS);
+
+    CheckInRangeCanSignalsInGivenState(
+        charge_state, MIN_ITMP_DEGC, MAX_ITMP_DEGC,
+        get_segment_2_die_temp_fake.return_val,
+        App_CanTx_GetPeriodicSignal_CELL_MONITOR_2_DIE_TEMPERATURE,
+        App_CanTx_GetPeriodicSignal_CELL_MONITOR_2_DIE_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_2_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_2_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_2_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE,
+        TASK_1HZ_DURATION_MS);
+
+    CheckInRangeCanSignalsInGivenState(
+        charge_state, MIN_ITMP_DEGC, MAX_ITMP_DEGC,
+        get_segment_3_die_temp_fake.return_val,
+        App_CanTx_GetPeriodicSignal_CELL_MONITOR_3_DIE_TEMPERATURE,
+        App_CanTx_GetPeriodicSignal_CELL_MONITOR_3_DIE_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_3_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_3_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_3_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE,
+        TASK_1HZ_DURATION_MS);
+
+    CheckInRangeCanSignalsInGivenState(
+        charge_state, MIN_ITMP_DEGC, MAX_ITMP_DEGC,
+        get_segment_4_die_temp_fake.return_val,
+        App_CanTx_GetPeriodicSignal_CELL_MONITOR_4_DIE_TEMPERATURE,
+        App_CanTx_GetPeriodicSignal_CELL_MONITOR_4_DIE_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_4_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_4_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_4_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE,
+        TASK_1HZ_DURATION_MS);
+
+    CheckInRangeCanSignalsInGivenState(
+        charge_state, MIN_ITMP_DEGC, MAX_ITMP_DEGC,
+        get_segment_5_die_temp_fake.return_val,
+        App_CanTx_GetPeriodicSignal_CELL_MONITOR_5_DIE_TEMPERATURE,
+        App_CanTx_GetPeriodicSignal_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE,
+        TASK_1HZ_DURATION_MS);
+}
+// BMS-12
+TEST_F(BmsStateMachineTest, check_transition_from_init_state_to_air_open_state)
+{
+    SetInitialState(App_GetInitState());
+
+    LetTimePass(state_machine, 4999);
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    LetTimePass(state_machine, 1);
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_AIR_OPEN_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+}
+
+// BMS-12
+TEST_F(
+    BmsStateMachineTest,
+    check_transition_from_air_open_state_to_precharge_state)
+{
+    SetInitialState(App_GetAirOpenState());
+
+    // Check that no state transitions occur. The 500ms duration was chosen
+    // arbitrarily.
+    LetTimePass(state_machine, 500);
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_AIR_OPEN_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    is_air_negative_closed_fake.return_val = true;
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+}
+
+// BMS-29
+TEST_F(BmsStateMachineTest, check_air_positive_open_in_fault_state)
+{
+    // Close AIR+ to avoid false positives
+    App_CanTx_SetPeriodicSignal_AIR_POSITIVE(
+        can_tx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
+
+    SetInitialState(App_GetFaultState());
+    ASSERT_EQ(
+        CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE,
+        App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
+}
+
+// BMS-30
+TEST_F(
+    BmsStateMachineTest,
+    check_state_transition_from_fault_to_init_with_no_air_shdn_faults_set)
+{
+    // Assume no AIR shutdown faults have been set
+    SetInitialState(App_GetFaultState());
+
+    is_air_negative_closed_fake.return_val = true;
+    LetTimePass(state_machine, 1000);
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    is_air_negative_closed_fake.return_val = false;
+    LetTimePass(state_machine, 1000);
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+}
+
+// BMS-30
+TEST_F(
+    BmsStateMachineTest,
+    check_state_transition_from_fault_to_init_with_air_negative_open)
+{
+    SetInitialState(App_GetFaultState());
+
+    // Set an arbitrarily chosen AIR shutdown error
+    App_SharedErrorTable_SetError(
+        error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE,
+        true);
+
+    // Open AIR- for the following tests
+    is_air_negative_closed_fake.return_val = false;
+    LetTimePass(state_machine, 1000);
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    // Clear the AIR shutdown error
+    App_SharedErrorTable_SetError(
+        error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE,
+        false);
+    LetTimePass(state_machine, 1000);
+    ASSERT_EQ(
+        CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
 TEST_F(
