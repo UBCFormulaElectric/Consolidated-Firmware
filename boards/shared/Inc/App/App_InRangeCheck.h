@@ -45,3 +45,14 @@ void App_InRangeCheck_Destroy(struct InRangeCheck *in_range_check);
 enum InRangeCheck_Status App_InRangeCheck_GetValue(
     const struct InRangeCheck *const in_range_check,
     float *                          returned_value);
+
+/**
+ * Set the max value of the given in-range check
+ * @param in_range_check The in-range check to set the max value for
+ * @param max_value The maximum value in the range, inclusive
+ */
+void App_InRangeCheck_SetMaxValue(
+    struct InRangeCheck *in_range_check,
+    float                max_value);
+
+float App_InRangeCheck_GetMaxValue(struct InRangeCheck *in_range_check);

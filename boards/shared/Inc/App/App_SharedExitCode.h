@@ -15,4 +15,4 @@ typedef enum
 
 #define RETURN_CODE_IF_EXIT_NOT_OK(code) \
     if ((code) != EXIT_CODE_OK)          \
-    return (code)
+        return (code);

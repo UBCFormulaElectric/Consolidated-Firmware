@@ -59,7 +59,7 @@ void App_SetPeriodicCanSignals_Imd(
     }
 }
 
-void App_SetPeriodicSignals_AccumulatorInRangeChecks(
+void App_SetPeriodicSignals_AccumulatorVoltagesInRangeChecks(
     struct BmsCanTxInterface *const can_tx,
     const struct Accumulator *const accumulator)
 {
@@ -203,4 +203,36 @@ void App_SetPeriodicSignals_CellMonitorsInRangeChecks(
         CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_BMS_NON_CRITICAL_ERRORS_CELL_MONITOR_5_DIE_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
+}
+
+void App_SetPeriodicSignals_AccumulatorTemperaturesInRangeChecks(
+    struct BmsCanTxInterface *can_tx,
+    const struct Accumulator *accumulator)
+{
+    App_Accumulator_ReadCellTemperatures(accumulator);
+
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx, App_Accumulator_GetMinCellTemperatureInRangeCheck(accumulator),
+        App_CanTx_SetPeriodicSignal_MIN_CELL_TEMP,
+        App_CanTx_SetPeriodicSignal_MIN_CELL_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx, App_Accumulator_GetMaxCellTemperatureInRangeCheck(accumulator),
+        App_CanTx_SetPeriodicSignal_MAX_CELL_TEMP,
+        App_CanTx_SetPeriodicSignal_MAX_CELL_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx,
+        App_Accumulator_GetAverageCellTemperatureInRangeCheck(accumulator),
+        App_CanTx_SetPeriodicSignal_AVERAGE_CELL_TEMP,
+        App_CanTx_SetPeriodicSignal_AVERAGE_CELL_TEMP_OUT_OF_RANGE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_AVERAGE_CELL_TEMP_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_AVERAGE_CELL_TEMP_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_BMS_NON_CRITICAL_ERRORS_AVERAGE_CELL_TEMP_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }

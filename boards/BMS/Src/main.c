@@ -39,14 +39,14 @@
 #include "Io_Charger.h"
 #include "Io_OkStatuses.h"
 #include "Io_LTC6813.h"
-#include "Io_CellVoltages.h"
+#include "Io_AccumulatorVoltages.h"
+#include "Io_AccumulatorTemperatures.h"
 #include "Io_DieTemperatures.h"
 #include "Io_Airs.h"
 #include "Io_PreCharge.h"
 #include "Io_Adc.h"
 
 #include "App_BmsWorld.h"
-#include "App_AccumulatorVoltages.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
@@ -112,6 +112,8 @@ struct Charger *          charger;
 struct OkStatus *         bms_ok;
 struct OkStatus *         imd_ok;
 struct OkStatus *         bspd_ok;
+struct BinaryStatus *     air_negative;
+struct BinaryStatus *     air_positive;
 struct Accumulator *      accumulator;
 struct CellMonitors *     cell_monitors;
 struct Airs *             airs;
@@ -245,21 +247,26 @@ int main(void)
         Io_OkStatuses_IsBspdOkEnabled);
 
     Io_LTC6813_Init(&hspi2, SPI2_NSS_GPIO_Port, SPI2_NSS_Pin);
-    App_AccumulatorVoltages_Init(Io_CellVoltages_GetRawCellVoltages);
     accumulator = App_Accumulator_Create(
-        Io_LTC6813_ConfigureRegisterA, Io_CellVoltages_ReadRawCellVoltages,
-        App_AccumulatorVoltages_GetMinCellVoltage,
-        App_AccumulatorVoltages_GetMaxCellVoltage,
-        App_AccumulatorVoltages_GetAverageCellVoltage,
-        App_AccumulatorVoltages_GetPackVoltage,
-        App_AccumulatorVoltages_GetSegment0Voltage,
-        App_AccumulatorVoltages_GetSegment1Voltage,
-        App_AccumulatorVoltages_GetSegment2Voltage,
-        App_AccumulatorVoltages_GetSegment3Voltage,
-        App_AccumulatorVoltages_GetSegment4Voltage,
-        App_AccumulatorVoltages_GetSegment5Voltage, MIN_CELL_VOLTAGE,
+        Io_LTC6813_ConfigureRegisterA,
+        Io_AccumulatorVoltages_ReadRawCellVoltages,
+        Io_AccumulatorTemperatures_ReadTemperatures,
+        Io_AccumulatorVoltages_GetMinCellVoltage,
+        Io_AccumulatorVoltages_GetMaxCellVoltage,
+        Io_AccumulatorVoltages_GetAverageCellVoltage,
+        Io_AccumulatorVoltages_GetPackVoltage,
+        Io_AccumulatorVoltages_GetSegment0Voltage,
+        Io_AccumulatorVoltages_GetSegment1Voltage,
+        Io_AccumulatorVoltages_GetSegment2Voltage,
+        Io_AccumulatorVoltages_GetSegment3Voltage,
+        Io_AccumulatorVoltages_GetSegment4Voltage,
+        Io_AccumulatorVoltages_GetSegment5Voltage,
+        Io_AccumulatorTemperatures_GetMinCellTemperature,
+        Io_AccumulatorTemperatures_GetMaxCellTemperature,
+        Io_AccumulatorTemperatures_GetAverageCellTemperature, MIN_CELL_VOLTAGE,
         MAX_CELL_VOLTAGE, MIN_SEGMENT_VOLTAGE, MAX_SEGMENT_VOLTAGE,
-        MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE);
+        MIN_PACK_VOLTAGE, MAX_PACK_VOLTAGE, DEFAULT_MIN_CELL_TEMPERATURE,
+        DEFAULT_MAX_CELL_TEMPERATURE, CHARGE_STATE_MAX_CELL_TEMPERATURE);
 
     cell_monitors = App_CellMonitors_Create(
         Io_DieTemperatures_ReadTemp, Io_DieTemperatures_GetSegment0DieTemp,

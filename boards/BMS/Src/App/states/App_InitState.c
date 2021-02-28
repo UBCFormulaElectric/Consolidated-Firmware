@@ -16,6 +16,7 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     App_SharedClock_SetPreviousTimeInMilliseconds(
         clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
     App_Accumulator_ConfigureCellMonitors(accumulator);
+    App_Accumulator_SetDefaultCellTemperatureInRangeCheckMaxValue(accumulator);
 
     App_CanTx_SetPeriodicSignal_STATE(
         can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE);
