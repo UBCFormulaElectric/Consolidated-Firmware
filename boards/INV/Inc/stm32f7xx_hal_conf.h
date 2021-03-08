@@ -158,8 +158,11 @@ extern "C"
 #define TICK_INT_PRIORITY ((uint32_t)15U) /*!< tick interrupt priority */
 #define USE_RTOS 0U
 #define PREFETCH_ENABLE 0U
+
+// clang-format off
 #define ART_ACCLERATOR_ENABLE 0U /* To enable instruction cache and prefetch \
                                   */
+// clang-format on
 
 /* ########################## Assert Selection ############################## */
 /**
@@ -235,10 +238,12 @@ extern "C"
 #define PHY_SR \
     ((uint16_t)0x10U) /*!< PHY status register Offset                      */
 
+// clang-format off
 #define PHY_SPEED_STATUS \
     ((uint16_t)0x0002U) /*!< PHY Speed mask */
 #define PHY_DUPLEX_STATUS \
     ((uint16_t)0x0004U) /*!< PHY Duplex mask */
+// clang-format on
 
     /* ################## SPI peripheral configuration ########################## */
 
