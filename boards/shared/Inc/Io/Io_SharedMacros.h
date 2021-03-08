@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stm32f3xx_hal.h>
+#include "Io_SharedStm32Drivers.h"
 
 // clang-format off
 
@@ -10,4 +10,6 @@ if (CoreDebug->DHCSR & CoreDebug_DHCSR_C_DEBUGEN_Msk) \
 { \
     __asm__ __volatile__ ("bkpt #0"); \
 }
+
+
 
