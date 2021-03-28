@@ -58,6 +58,8 @@
 /* USER CODE END 0 */
 
 /* External variables --------------------------------------------------------*/
+extern DAC_HandleTypeDef hdac;
+extern TIM_HandleTypeDef htim1;
 
 /* USER CODE BEGIN EV */
 
@@ -152,34 +154,42 @@ void DebugMon_Handler(void)
     /* USER CODE END DebugMonitor_IRQn 1 */
 }
 
-/**
- * @brief This function handles System tick timer.
- */
-void SysTick_Handler(void)
-{
-    /* USER CODE BEGIN SysTick_IRQn 0 */
-
-    /* USER CODE END SysTick_IRQn 0 */
-    HAL_IncTick();
-#if (INCLUDE_xTaskGetSchedulerState == 1)
-    if (xTaskGetSchedulerState() != taskSCHEDULER_NOT_STARTED)
-    {
-#endif /* INCLUDE_xTaskGetSchedulerState */
-        xPortSysTickHandler();
-#if (INCLUDE_xTaskGetSchedulerState == 1)
-    }
-#endif /* INCLUDE_xTaskGetSchedulerState */
-       /* USER CODE BEGIN SysTick_IRQn 1 */
-
-    /* USER CODE END SysTick_IRQn 1 */
-}
-
 /******************************************************************************/
 /* STM32F7xx Peripheral Interrupt Handlers                                    */
 /* Add here the Interrupt Handlers for the used peripherals.                  */
 /* For the available peripheral interrupt handler names,                      */
 /* please refer to the startup file (startup_stm32f7xx.s).                    */
 /******************************************************************************/
+
+/**
+ * @brief This function handles TIM1 update interrupt and TIM10 global
+ * interrupt.
+ */
+void TIM1_UP_TIM10_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM1_UP_TIM10_IRQn 0 */
+
+    /* USER CODE END TIM1_UP_TIM10_IRQn 0 */
+    HAL_TIM_IRQHandler(&htim1);
+    /* USER CODE BEGIN TIM1_UP_TIM10_IRQn 1 */
+
+    /* USER CODE END TIM1_UP_TIM10_IRQn 1 */
+}
+
+/**
+ * @brief This function handles TIM6 global interrupt, DAC1 and DAC2 underrun
+ * error interrupts.
+ */
+void TIM6_DAC_IRQHandler(void)
+{
+    /* USER CODE BEGIN TIM6_DAC_IRQn 0 */
+
+    /* USER CODE END TIM6_DAC_IRQn 0 */
+    HAL_DAC_IRQHandler(&hdac);
+    /* USER CODE BEGIN TIM6_DAC_IRQn 1 */
+
+    /* USER CODE END TIM6_DAC_IRQn 1 */
+}
 
 /* USER CODE BEGIN 1 */
 

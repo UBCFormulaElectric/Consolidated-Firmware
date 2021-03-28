@@ -1,7 +1,10 @@
 ## Overview
 This repository contains our CAN library for STM32 F3 microcontrollers. The goal is to abstract away low-level details, provide a set of easy-to-use CAN helper functions, and enforce consistency for CAN communication across every PCB on the vehicle.
 
-The bxCAN controller has 3 hardware transmit mailboxes, which means it can only hold 3 Tx messages at any given time. If the user attemps to transmit a message while all three transmit mailboxes are occupied, we store this message in a **software** FIFO queue. Messages in this FIFO queue will be automatically de-queued and transmitted when any of the transmit mailboxes becomes available. This FIFO queue has a fixed size of 20 levels deep, which is more-or-less arbitrary but it should be sufficient in most cases. If the FIFO queue were to overflow, a CAN message will be transmitted. If we ever see this CAN message in the data logger, we can increase the FIFO queue size accordingly.
+The bxCAN controller has 3 hardware transmit mailboxes, which means it can only hold 3 Tx messages at any given time. If the user attemps to transmit a message while all three transmit
+mailboxes are occupied, we store this message in a **software** FIFO queue. Messages in this FIFO queue will be automatically de-queued and transmitted when any of the transmit mailboxes 
+becomes available. This FIFO queue has a fixed size of 20 levels deep, which is more-or-less arbitrary but it should be sufficient in most cases. If the FIFO queue were to overflow, a CAN 
+message will be transmitted. If we ever see this CAN message in the data logger, we can increase the FIFO queue size accordingly.
 
 ## CAN Filters
 The CAN receive filters activated are dependent on what is defined in each board-specific `Io_Can.c`

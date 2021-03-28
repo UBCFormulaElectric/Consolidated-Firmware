@@ -11,8 +11,6 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     UNUSED(can_tx_interface);
 
     // TODO: do stuff here. For example, you could set some CAN messages
-    // App_CanTx_SetPeriodicSignal_STATE(
-    //    can_tx_interface, CANMSGS_DIM_STATE_MACHINE_STATE_DRIVE_CHOICE);
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
