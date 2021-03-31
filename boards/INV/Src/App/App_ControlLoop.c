@@ -6,9 +6,9 @@
 #include "controls/App_CurrentController.h"
 #include "controls/App_AdaptionGain.h"
 #include "controls/App_CurrentGeneration.h"
-#include "controls/App_PIController.h"
 #include "controls/App_SpaceVectorModulation.h"
 #include "controls/App_TorqueControl.h"
+#include "states/App_AllStates.h"
 
 /*
  * This file executes the motor control system functionality
@@ -48,79 +48,76 @@ dqs_values dqs_voltages;
 
 controller_values speed_controller =
 {
-		.prev_integral_input = 0,
-		.integral_sum = 0,
-		.gain = SPEED_GAIN,
-		.time_const = SPEED_TIME_CONST,
+	.prev_integral_input = 0,
+	.integral_sum = 0,
+	.gain = SPEED_GAIN,
+	.time_const = SPEED_TIME_CONST,
 };
 
 controller_values id_controller =
 {
-		.prev_integral_input = 0,
-		.integral_sum = 0,
-		.gain = D_GAIN,
-		.time_const = D_TIME_CONST
+	.prev_integral_input = 0,
+	.integral_sum = 0,
+	.gain = D_GAIN,
+	.time_const = D_TIME_CONST
 };
 
 controller_values iq_controller =
-		{
-				iq_controller.prev_integral_input = 0;
-		iq_controller.integral_sum = 0;
-		iq_controller.gain = Q_GAIN;
-		iq_controller.time_const = Q_TIME_CONST;
-		};
+{
+	.prev_integral_input = 0,
+	.integral_sum = 0,
+	.gain = Q_GAIN,
+	.time_const = Q_TIME_CONST
+};
 
 double rotor_position = 0;
-double prev_rotor_position = 0;
+double * prev_rotor_position;
 double rotor_speed = 0;
 double bus_voltage = 0;
-double torque_ref = 0;
 bool fw_flag = 0;
-bool prev_fw_flag = 0;
+bool * prev_fw_flag;
 
+void controlLoop(const double torque_ref, const double rotor_speed_ref) {
 
+	//Get Sensor Values
+//	phase_currents.a = powerstage.getCurrent("A");
+//	phase_currents.b = powerstage.getCurrent("B");
+//	phase_currents.c = powerstage.getCurrent("C");
+//	rotor_position = motor.getPosition();
+//	bus_voltage = powerstage.getVoltage();
+	rotor_speed = (rotor_position - *prev_rotor_position) * SAMPLE_FREQUENCY;
 
-
-
-
-void ControlLoop() {
-	phase_currents.pha = powerstage.getCurrent("A");
-	phase_currents.phb = powerstage.getCurrent("B");
-	phase_currents.phc = powerstage.getCurrent("C");
-
-	rotor_position = motor.getPosition();
-	bus_voltage = powerstage.getVoltage();
-	torque_ref = can_rx.getTorqueRequest("DCM");
-	speed_ref = MAX_MOTOR_SPEED;
-	rotor_speed = (rotor_position - prev_rotor_position) * SAMPLE_FREQUENCY;
-
-	dqs_currents = clarkeParkTransform(phase_currents, rotor_position);
+	dqs_currents = clarkeParkTransform(&phase_currents, rotor_position);
 
 	//Get stator current reference
-	dqs_ref_currents.s = torqueControl(speed_ref, rotor_speed, torque_ref,
-									speed_controller, prev_fw_flag);
+	dqs_ref_currents.s = torqueControl(rotor_speed_ref, rotor_speed, torque_ref,
+									&speed_controller, prev_fw_flag);
 
 	//If used, calculate adaption gains
 	if(ADAPTION_GAIN_ENABLED)
 	{
-		id_controller = adaptionGain(id_controller, dqs_ref_currents.s);
-		iq_controller = adaptionGain(iq_controller, dqs_ref_currents.s);
+		id_controller = adaptionGain(&id_controller, dqs_ref_currents.s);
+		iq_controller = adaptionGain(&iq_controller, dqs_ref_currents.s);
 	}
 
 	//Calculate d/q current references
 	dqs_ref_currents = generateRefCurrents(
-			dqs_ref_currents, rotor_speed, bus_voltage, &fw_flag);
+			&dqs_ref_currents, rotor_speed, bus_voltage, &fw_flag);
 
-	dqs_voltages = calculateDQSVoltages(dqs_ref_currents, dqs_currents, rotor_speed, bus_voltage, &id_controller, &iq_controller);
+	//Calculate d/q PI controller outputs
+	dqs_voltages = calculateDqsVoltages(&dqs_ref_currents, &dqs_currents, rotor_speed,
+									 bus_voltage, &id_controller, &iq_controller);
 
-	phase_voltages = parkClarkeTransform(dqs_voltages, rotor_speed);
+	//Transform d/q voltages to phase voltages
+	phase_voltages = parkClarkeTransform(&dqs_voltages, rotor_speed);
 
-	phase_duration = calculatePWMEdges(phase_voltages, bus_voltage);
+	//Use Space Vector Modulation to calculate PWM durations
+	phase_duration = calculatePwmEdges(&phase_voltages, bus_voltage);
 	//TODO not implemented yet
-	//setPWMEdges(phase_duration);
+	//setPwmEdges(&phase_duration);
 
-	prev_fw_flag = fw_flag;
-	prev_rotor_position = rotor_position;
+	*prev_fw_flag = fw_flag;
+	*prev_rotor_position = rotor_position;
 
 }
 

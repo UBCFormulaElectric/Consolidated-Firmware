@@ -2,4 +2,4 @@
 
 #include "controls/App_ControlLoop.h"
 
-controller_values adaptionGain(controller_values values, double is_ref);
+controller_values adaptionGain(const controller_values * const values, const double is_ref);

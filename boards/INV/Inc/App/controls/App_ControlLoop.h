@@ -22,3 +22,5 @@ typedef struct{
 	double gain;
 	double time_const;
 }controller_values;
+
+void controlLoop(double torque_ref, double rotor_speed_ref);

@@ -2,7 +2,7 @@
 
 #include "controls/App_ControlLoop.h"
 
-double calculatePIOutputs(
+double calculatePiOutputs(
 		controller_values * pi_values,
 		double ref,
 		double actual,

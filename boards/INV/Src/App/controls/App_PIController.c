@@ -6,12 +6,12 @@
  */
 
 // calculates PI outputs for Id, Iq or speed control loops
-double calculatePIOutputs(
+double calculatePiOutputs(
 		controller_values * pi_values,
-		double ref,
-		double actual,
-		double limit,
-		double comp)
+		const double ref,
+		const double actual,
+		const double limit,
+		const double comp)
 {
     double err = ref - actual;
     double prop_term = pi_values->gain * err;

@@ -8,21 +8,17 @@
  * is lower, ensuring the inverter does not violate MAX_MOTOR_SPEED.
  */
 
-
-double torqueControl(double omega_ref, double torque_ref, controller_values speed_controller, double omega, bool prev_fw_flag)
+double torqueControl(double omega_ref, const double omega, const double torque_ref, controller_values * speed_controller, const bool * const prev_fw_flag)
 {
 	double omega_torque_output, torque_output, stator_current_output;
-	double omega_elec = omega * MOTOR_POLES / 2;
-	double omega_integral_sum = speed_controller.integral_sum;
-	double omega_prev_int_input = speed_controller.prev_integral_input;
 
 	// Make omega_ref have the same sign as torque_ref
-	omega_ref = omega_ref * ((torque_ref > 0) - (torque_ref < 0));
-	uint8_t direction_sign = ((omega > 0) - (omega < 0));
-	uint8_t torque_sign    = ((torque_ref > 0) - (torque_ref < 0));
+	omega_ref = omega_ref * (int8_t)((torque_ref > 0) - (torque_ref < 0));
+	int8_t direction_sign = (int8_t)((omega > 0) - (omega < 0));
+	int8_t torque_sign    = (int8_t)((torque_ref > 0) - (torque_ref < 0));
 
 	// calculate torque output with PI controller
-	omega_torque_output = calculatePIOutputs(&speed_controller, omega_ref, omega,
+	omega_torque_output = calculatePiOutputs(speed_controller, omega_ref, omega,
 										  MAX_MOTOR_TORQUE, 0);
 
 	// take smaller of omega_ref and torque_ref

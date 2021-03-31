@@ -8,45 +8,45 @@
 #include "controls/App_AdaptionGain.h"
 #include "configs/App_ControlSystemConfig.h"
 
-controller_values adaptionGain(controller_values values, double is_ref)
+controller_values adaptionGain(const controller_values * const values, const double is_ref)
 {
-	double Kp_a, Tn_a;
+	double kp_adaption, tn_adaption;
 	controller_values new_values;
 
 	// Lower region
 	if (fabs(is_ref) < LOWER_ADAPTION_LIMIT * MAX_STATOR_CURRENT)
 	{
-		Kp_a = values.gain * ADAPTION_GAIN_CONST;
-		Tn_a = values.time_const * ADAPTION_TIME_CONST;
+		kp_adaption = values->gain * ADAPTION_GAIN_CONST;
+		tn_adaption = values->time_const * ADAPTION_TIME_CONST;
 	}
 
 	// Adaption region
 	else if (fabs(is_ref) > LOWER_ADAPTION_LIMIT * MAX_STATOR_CURRENT &&
 	fabs(is_ref) <= UPPER_ADAPTION_LIMIT * MAX_STATOR_CURRENT)
 	{
-		Kp_a = ((values.gain - values.gain * ADAPTION_GAIN_CONST) /
+		kp_adaption = ((values->gain - values->gain * ADAPTION_GAIN_CONST) /
 				(UPPER_ADAPTION_LIMIT * MAX_STATOR_CURRENT - LOWER_ADAPTION_LIMIT * MAX_STATOR_CURRENT)) *
-			   (fabs(is_ref) - MAX_STATOR_CURRENT * LOWER_ADAPTION_LIMIT) + values.gain * ADAPTION_GAIN_CONST;
-		Tn_a = ((values.time_const - values.time_const * ADAPTION_TIME_CONST) /
+			   (fabs(is_ref) - MAX_STATOR_CURRENT * LOWER_ADAPTION_LIMIT) + values->gain * ADAPTION_GAIN_CONST;
+		tn_adaption = ((values->time_const - values->time_const * ADAPTION_TIME_CONST) /
 				(UPPER_ADAPTION_LIMIT * MAX_STATOR_CURRENT - LOWER_ADAPTION_LIMIT * MAX_STATOR_CURRENT)) *
-			   (fabs(is_ref) - MAX_STATOR_CURRENT * LOWER_ADAPTION_LIMIT) + values.time_const * ADAPTION_TIME_CONST;
+			   (fabs(is_ref) - MAX_STATOR_CURRENT * LOWER_ADAPTION_LIMIT) + values->time_const * ADAPTION_TIME_CONST;
 	}
 
 	// Upper region
 	else if (fabs(is_ref) > UPPER_ADAPTION_LIMIT * MAX_STATOR_CURRENT)
 	{
-		Kp_a = values.gain;
-		Tn_a = values.time_const;
+		kp_adaption = values->gain;
+		tn_adaption = values->time_const;
 	}
 	else
 	{
-		Kp_a = values.gain;
-		Tn_a = values.time_const;
+		kp_adaption = values->gain;
+		tn_adaption = values->time_const;
 	}
 
-	new_values = values;
-	new_values.gain = Kp_a;
-	new_values.time_const = Tn_a;
+	new_values = *values;
+	new_values.gain = kp_adaption;
+	new_values.time_const = tn_adaption;
 
 	return new_values;
 }

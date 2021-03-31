@@ -15,6 +15,9 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct InvWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct InvCanTxInterface *can_tx = App_InvWorld_GetCanTx(world);
     struct InvCanRxInterface *can_rx = App_InvWorld_GetCanRx(world);
-    UNUSED(can_rx);
+
+    *DcmTorqueRequest = App_CanRx_DCM_TORQUE_REQUEST_GetSignal_TORQUE_REQUEST(can_rx);
+
+    //UNUSED(can_rx);
     UNUSED(can_tx);
 }

@@ -40,6 +40,7 @@
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
+//#include "Io_
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -200,25 +201,25 @@ int main(void)
 
     clock = App_SharedClock_Create();
 
-    //    gate_drive = App_GateDrive_Create(Io_GateDrive_Config,
-    //        Io_GateDrive_TurnOnPha, Io_GateDrive_TurnOnPhb,
-    //        Io_GateDrive_TurnOnPhc, Io_GateDrive_ShutdownEnable,
-    //        Io_GateDrive_PhaHiFault, Io_GateDrive_PhaLoFault,
-    //        Io_GateDrive_PhbHiFault, Io_GateDrive_PhbLoFault,
-    //        Io_GateDrive_PhcHiFault, Io_GateDrive_PhcLoFault);
-    //
-    //    motor = App_Motor_Create(Io_Motor_GetTemperature,
-    //    Io_Motor_GetRotorAngle);
-    //
-    //    power_stage = App_PowerStage_Create(Io_PowerStage_GetPhaCur,
-    //    Io_PowerStage_GetPhbCur, Io_PowerStage_GetPhcCur,
-    //    Io_PowerStage_GetTemp,
-    //                                        Io_PowerStage_GetBusVoltage,
-    //                                        Io_PowerStage_OverTempAlarm,
-    //                                        Io_PowerStage_PhaOcAlarm,
-    //                                        Io_PowerStage_PhbOcAlarm,
-    //                                        Io_PowerStage_PhcOcAlarm)
-
+//    gate_drive = App_GateDrive_Create(Io_GateDrive_Config,
+//		Io_GateDrive_TurnOnPha, Io_GateDrive_TurnOnPhb,
+//		Io_GateDrive_TurnOnPhc, Io_GateDrive_ShutdownEnable,
+//		Io_GateDrive_PhaHiFault, Io_GateDrive_PhaLoFault,
+//		Io_GateDrive_PhbHiFault, Io_GateDrive_PhbLoFault,
+//		Io_GateDrive_PhcHiFault, Io_GateDrive_PhcLoFault);
+//
+//    motor = App_Motor_Create(Io_Motor_GetTemperature,
+//        Io_Motor_GetRotorAngle);
+//
+//	power_stage = App_PowerStage_Create(Io_PowerStage_GetPhaCur,
+//        Io_PowerStage_GetPhbCur, Io_PowerStage_GetPhcCur,
+//        Io_PowerStage_GetTemp,
+//		Io_PowerStage_GetBusVoltage,
+//		Io_PowerStage_OverTempAlarm,
+//		Io_PowerStage_PhaOcAlarm,
+//		Io_PowerStage_PhbOcAlarm,
+//		Io_PowerStage_PhcOcAlarm)
+//
     world = App_InvWorld_Create(
         can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, error_table,
         clock);
