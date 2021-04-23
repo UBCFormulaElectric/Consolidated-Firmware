@@ -2,7 +2,7 @@
 
 #include "App_SharedStateMachine.h"
 
-extern float * DcmTorqueRequest;
+extern float *DcmTorqueRequest;
 
 /**
  * On-tick 1Hz function for every state in the given state machine

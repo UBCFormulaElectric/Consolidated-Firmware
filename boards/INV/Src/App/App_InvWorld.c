@@ -12,6 +12,7 @@ struct InvWorld
     struct RgbLedSequence *   rgb_led_sequence;
     struct Clock *            clock;
     struct ErrorTable *       error_table;
+    struct GateDrive *        gate_drive;
 };
 
 struct InvWorld *App_InvWorld_Create(
@@ -20,7 +21,8 @@ struct InvWorld *App_InvWorld_Create(
     struct HeartbeatMonitor *const  heartbeat_monitor,
     struct RgbLedSequence *const    rgb_led_sequence,
     struct ErrorTable *             error_table,
-    struct Clock *const             clock)
+    struct Clock *const             clock,
+    struct GateDrive *const         gate_drive)
 {
     struct InvWorld *world = (struct InvWorld *)malloc(sizeof(struct InvWorld));
     assert(world != NULL);
@@ -31,6 +33,7 @@ struct InvWorld *App_InvWorld_Create(
     world->rgb_led_sequence  = rgb_led_sequence;
     world->error_table       = error_table;
     world->clock             = clock;
+    world->gate_drive        = gate_drive;
 
     return world;
 }
@@ -67,4 +70,9 @@ struct RgbLedSequence *
 struct Clock *App_InvWorld_GetClock(const struct InvWorld *world)
 {
     return world->clock;
+}
+
+struct GateDrive *App_InvWorld_GetGateDrive(const struct InvWorld *world)
+{
+    return world->gate_drive;
 }

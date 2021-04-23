@@ -231,6 +231,7 @@ int main(void)
 
     charger = App_Charger_Create(
         Io_Charger_Enable, Io_Charger_Disable, Io_Charger_IsConnected);
+    App_Charger_Enable(charger);
 
     bms_ok = App_OkStatus_Create(
         Io_OkStatuses_EnableBmsOk, Io_OkStatuses_DisableBmsOk,

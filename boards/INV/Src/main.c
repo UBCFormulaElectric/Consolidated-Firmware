@@ -40,6 +40,7 @@
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
+#include "Io_STGAP1AS.h"
 //#include "Io_
 /* USER CODE END Includes */
 
@@ -100,6 +101,9 @@ struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
 struct ErrorTable *       error_table;
 struct Clock *            clock;
+struct PowerStage *       power_stage;
+struct Motor *            motor;
+struct GateDrive *        gate_drive;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -201,28 +205,27 @@ int main(void)
 
     clock = App_SharedClock_Create();
 
-//    gate_drive = App_GateDrive_Create(Io_GateDrive_Config,
-//		Io_GateDrive_TurnOnPha, Io_GateDrive_TurnOnPhb,
-//		Io_GateDrive_TurnOnPhc, Io_GateDrive_ShutdownEnable,
-//		Io_GateDrive_PhaHiFault, Io_GateDrive_PhaLoFault,
-//		Io_GateDrive_PhbHiFault, Io_GateDrive_PhbLoFault,
-//		Io_GateDrive_PhcHiFault, Io_GateDrive_PhcLoFault);
-//
-//    motor = App_Motor_Create(Io_Motor_GetTemperature,
-//        Io_Motor_GetRotorAngle);
-//
-//	power_stage = App_PowerStage_Create(Io_PowerStage_GetPhaCur,
-//        Io_PowerStage_GetPhbCur, Io_PowerStage_GetPhcCur,
-//        Io_PowerStage_GetTemp,
-//		Io_PowerStage_GetBusVoltage,
-//		Io_PowerStage_OverTempAlarm,
-//		Io_PowerStage_PhaOcAlarm,
-//		Io_PowerStage_PhbOcAlarm,
-//		Io_PowerStage_PhcOcAlarm)
-//
-    world = App_InvWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, error_table,
-        clock);
+    Io_STGAP1AS_Init(&hspi2);
+    gate_drive = App_GateDrive_Create(
+        Io_GateDrive_Config, Io_GateDrive_TurnOnPha, Io_GateDrive_TurnOnPhb,
+        Io_GateDrive_TurnOnPhc, Io_GateDrive_ShutdownEnable,
+        Io_GateDrive_PhaHiFault, Io_GateDrive_PhaLoFault,
+        Io_GateDrive_PhbHiFault, Io_GateDrive_PhbLoFault,
+        Io_GateDrive_PhcHiFault, Io_GateDrive_PhcLoFault,
+        Io_GateDrive_WriteByte);
+
+    motor = App_Motor_Create(Io_Motor_GetTemperature, Io_Motor_GetRotorAngle);
+
+    power_stage = App_PowerStage_Create(
+        Io_PowerStage_GetPhaCur, Io_PowerStage_GetPhbCur,
+        Io_PowerStage_GetPhcCur, Io_PowerStage_GetTemp,
+        Io_PowerStage_GetBusVoltage, Io_PowerStage_OverTempAlarm,
+        Io_PowerStage_PhaOcAlarm, Io_PowerStage_PhbOcAlarm,
+        Io_PowerStage_PhcOcAlarm)
+
+        world = App_InvWorld_Create(
+            can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, error_table,
+            clock, gate_drive, motor, power_stage);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 
@@ -583,14 +586,14 @@ static void MX_SPI2_Init(void)
     hspi2.Init.DataSize          = SPI_DATASIZE_16BIT;
     hspi2.Init.CLKPolarity       = SPI_POLARITY_LOW;
     hspi2.Init.CLKPhase          = SPI_PHASE_1EDGE;
-    hspi2.Init.NSS               = SPI_NSS_HARD_OUTPUT;
+    hspi2.Init.NSS               = SPI_NSS_SOFT;
     hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
     hspi2.Init.FirstBit          = SPI_FIRSTBIT_MSB;
     hspi2.Init.TIMode            = SPI_TIMODE_DISABLE;
     hspi2.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
     hspi2.Init.CRCPolynomial     = 7;
     hspi2.Init.CRCLength         = SPI_CRC_LENGTH_DATASIZE;
-    hspi2.Init.NSSPMode          = SPI_NSS_PULSE_ENABLE;
+    hspi2.Init.NSSPMode          = SPI_NSS_PULSE_DISABLE;
     if (HAL_SPI_Init(&hspi2) != HAL_OK)
     {
         Error_Handler();
@@ -816,6 +819,9 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(
         nSHDN_GDRV_MCU_GPIO_Port, nSHDN_GDRV_MCU_Pin, GPIO_PIN_RESET);
 
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GDRV_SPI_CS_GPIO_Port, GDRV_SPI_CS_Pin, GPIO_PIN_RESET);
+
     /*Configure GPIO pins : FLASH_nWP_Pin ENDAT_DATA_SEND_Pin */
     GPIO_InitStruct.Pin   = FLASH_nWP_Pin | ENDAT_DATA_SEND_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
@@ -846,6 +852,13 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : GDRV_SPI_CS_Pin */
+    GPIO_InitStruct.Pin   = GDRV_SPI_CS_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GDRV_SPI_CS_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : nDIAG_PHA_LS_Pin nDIAG_PHA_HS_Pin nDIAG_PHB_LS_Pin
        GPIOD_1_Pin GPIOD_2_Pin */

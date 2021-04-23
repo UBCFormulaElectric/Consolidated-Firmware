@@ -7,6 +7,7 @@
 #include "App_SharedErrorTable.h"
 #include "App_SharedRgbLed.h"
 #include "App_SharedClock.h"
+#include "App_GateDrive.h"
 
 struct InvWorld;
 
@@ -76,3 +77,5 @@ struct ErrorTable *App_InvWorld_GetErrorTable(const struct InvWorld *world);
  * @return The clock for the given world
  */
 struct Clock *App_InvWorld_GetClock(const struct InvWorld *world);
+
+struct GateDrive *App_InvWorld_GetGateDrive(const struct InvWorld *world);
