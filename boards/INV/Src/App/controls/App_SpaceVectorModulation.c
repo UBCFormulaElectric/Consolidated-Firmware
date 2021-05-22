@@ -110,8 +110,8 @@ PhaseValues calculatePwmEdges(
 //}
 //	pwm_a_top = (counter * 2 > phase_duration.a * clockFrequency /
 // SWITCHING_FREQUENCY) ? 0	: 1; 	pwm_b_top = (counter * 2 > phase_duration.b
-// * clockFrequency / SWITCHING_FREQUENCY) ? 0 : 1; 	pwm_c_top = (counter * 2 >
-// phase_duration.c * clockFrequency / SWITCHING_FREQUENCY) ? 0 : 1;
+// * clockFrequency / SWITCHING_FREQUENCY) ? 0 : 1; 	pwm_c_top = (counter * 2
+// > phase_duration.c * clockFrequency / SWITCHING_FREQUENCY) ? 0 : 1;
 //
 //	pwm_a_bot = (pwm_a_top) ? 0 : 1;
 //	pwm_b_bot = (pwm_b_top) ? 0 : 1;

@@ -3,7 +3,8 @@
 #include "controls/App_ControlLoop.h"
 
 // DqsValues calculateDqsVoltages(DqsValues * dqs_ref_currents, DqsValues *
-// dqs_currents, double omega, 								double bus_voltage, ControllerValues
+// dqs_currents, double omega, 								double bus_voltage,
+// ControllerValues
 // *
 // id_controller, ControllerValues * iq_controller);
 DqsValues calculateDqsVoltages(

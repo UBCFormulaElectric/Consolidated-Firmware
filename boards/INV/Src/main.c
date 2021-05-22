@@ -41,7 +41,7 @@
 #include "Io_HeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
 #include "Io_STGAP1AS.h"
-//#include "Io_
+#include "Io_TimerPwmGen.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -185,6 +185,8 @@ int main(void)
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
 
+
+
     Io_SharedHardFaultHandler_Init();
 
     can_tx = App_CanTx_Create(
@@ -206,26 +208,26 @@ int main(void)
     clock = App_SharedClock_Create();
 
     Io_STGAP1AS_Init(&hspi2);
+    Io_TimerPwmGen_Init(&htim8);
     gate_drive = App_GateDrive_Create(
-        Io_GateDrive_Config, Io_GateDrive_TurnOnPha, Io_GateDrive_TurnOnPhb,
-        Io_GateDrive_TurnOnPhc, Io_GateDrive_ShutdownEnable,
-        Io_GateDrive_PhaHiFault, Io_GateDrive_PhaLoFault,
-        Io_GateDrive_PhbHiFault, Io_GateDrive_PhbLoFault,
-        Io_GateDrive_PhcHiFault, Io_GateDrive_PhcLoFault,
-        Io_GateDrive_WriteByte);
+            Io_STGAP1AS_WriteConfiguration, Io_STGAP1AS_ResetStatus,
+            Io_STGAP1AS_GlobalReset, Io_STGAP1AS_WriteRegister,
+            Io_STGAP1AS_ReadRegister, Io_STGAP1AS_ReadFaults,
+            Io_STGAP1AS_Command, Io_STGAP1AS_SetShutdownPin,
+            Io_STGAP1AS_GetShutdownPin);
 
-    motor = App_Motor_Create(Io_Motor_GetTemperature, Io_Motor_GetRotorAngle);
+//    motor = App_Motor_Create(Io_Motor_GetTemperature, Io_Motor_GetRotorAngle);
 
-    power_stage = App_PowerStage_Create(
-        Io_PowerStage_GetPhaCur, Io_PowerStage_GetPhbCur,
-        Io_PowerStage_GetPhcCur, Io_PowerStage_GetTemp,
-        Io_PowerStage_GetBusVoltage, Io_PowerStage_OverTempAlarm,
-        Io_PowerStage_PhaOcAlarm, Io_PowerStage_PhbOcAlarm,
-        Io_PowerStage_PhcOcAlarm)
+//    power_stage = App_PowerStage_Create(
+//        Io_PowerStage_GetPhaCur, Io_PowerStage_GetPhbCur,
+//        Io_PowerStage_GetPhcCur, Io_PowerStage_GetTemp,
+//        Io_PowerStage_GetBusVoltage, Io_PowerStage_OverTempAlarm,
+//        Io_PowerStage_PhaOcAlarm, Io_PowerStage_PhbOcAlarm,
+//        Io_PowerStage_PhcOcAlarm)
 
-        world = App_InvWorld_Create(
-            can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, error_table,
-            clock, gate_drive, motor, power_stage);
+    world = App_InvWorld_Create(
+        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, error_table,
+        clock, gate_drive, motor, power_stage);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 

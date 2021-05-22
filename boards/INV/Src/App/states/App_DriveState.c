@@ -1,5 +1,5 @@
 #include "states/App_DriveState.h"
-
+#include "main.h"
 #include "App_SharedMacros.h"
 #include "App_SharedExitCode.h"
 #include "App_GateDrive.h"
@@ -10,7 +10,7 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     struct InvCanTxInterface *can_tx_interface = App_InvWorld_GetCanTx(world);
 
     UNUSED(can_tx_interface);
-    // enable timer8 for pwm
+
     // TODO: do stuff here. For example, you could set some CAN messages
 }
 

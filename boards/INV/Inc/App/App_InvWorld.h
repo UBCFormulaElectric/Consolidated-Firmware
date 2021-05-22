@@ -21,12 +21,13 @@ struct InvWorld;
  * caller
  */
 struct InvWorld *App_InvWorld_Create(
-    struct InvCanTxInterface *can_tx_interface,
-    struct InvCanRxInterface *can_rx_interface,
-    struct HeartbeatMonitor * heartbeat_monitor,
-    struct RgbLedSequence *   rgb_led_sequence,
-    struct ErrorTable *       error_table,
-    struct Clock *            clock);
+        struct InvCanTxInterface *const can_tx_interface,
+        struct InvCanRxInterface *const can_rx_interface,
+        struct HeartbeatMonitor *const  heartbeat_monitor,
+        struct RgbLedSequence *const    rgb_led_sequence,
+        struct ErrorTable *             error_table,
+        struct Clock *const             clock,
+        struct GateDrive *const         gate_drive);
 
 /**
  * Deallocate the memory used by the given world
