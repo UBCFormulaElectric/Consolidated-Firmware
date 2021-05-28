@@ -28,6 +28,9 @@
 
 #include "App_InvWorld.h"
 #include "App_SharedStateMachine.h"
+#include "App_GateDrive.h"
+#include "App_Motor.h"
+#include "App_PowerStage.h"
 #include "states/App_DriveState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 
@@ -42,6 +45,9 @@
 #include "Io_RgbLedSequence.h"
 #include "Io_STGAP1AS.h"
 #include "Io_TimerPwmGen.h"
+#include "Io_AdcDac.h"
+#include "Io_ECI1118.h"
+#include "Io_PowerStage.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -62,6 +68,8 @@
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
 ADC_HandleTypeDef hadc2;
+DMA_HandleTypeDef hdma_adc1;
+DMA_HandleTypeDef hdma_adc2;
 
 CAN_HandleTypeDef hcan1;
 
@@ -109,6 +117,7 @@ struct GateDrive *        gate_drive;
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_ADC2_Init(void);
 static void MX_CAN1_Init(void);
@@ -172,6 +181,7 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
+    MX_DMA_Init();
     MX_ADC1_Init();
     MX_ADC2_Init();
     MX_CAN1_Init();
@@ -184,8 +194,6 @@ int main(void)
     MX_USB_OTG_FS_HCD_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
-
-
 
     Io_SharedHardFaultHandler_Init();
 
@@ -210,24 +218,35 @@ int main(void)
     Io_STGAP1AS_Init(&hspi2);
     Io_TimerPwmGen_Init(&htim8);
     gate_drive = App_GateDrive_Create(
-            Io_STGAP1AS_WriteConfiguration, Io_STGAP1AS_ResetStatus,
-            Io_STGAP1AS_GlobalReset, Io_STGAP1AS_WriteRegister,
-            Io_STGAP1AS_ReadRegister, Io_STGAP1AS_ReadFaults,
-            Io_STGAP1AS_Command, Io_STGAP1AS_SetShutdownPin,
-            Io_STGAP1AS_GetShutdownPin);
+        Io_STGAP1AS_WriteConfiguration, Io_STGAP1AS_ResetStatus,
+        Io_STGAP1AS_GlobalReset, Io_STGAP1AS_WriteRegister,
+        Io_STGAP1AS_ReadRegister, Io_STGAP1AS_ReadFaults, Io_STGAP1AS_Command,
+        Io_STGAP1AS_SetShutdownPin, Io_STGAP1AS_GetShutdownPin,
+        Io_TimerPwmGen_LoadPwm, Io_TimerPwmGen_StartPwm, Io_TimerPwmGen_StopPwm,
+        Io_TimerPwmGen_SetSwitchingFreq, Io_TimerPwmGen_SetDeadTime);
 
-//    motor = App_Motor_Create(Io_Motor_GetTemperature, Io_Motor_GetRotorAngle);
+    //    motor = App_Motor_Create(Io_ECI1118_GetTemperature,
+    //    Io_ECI1118_GetRotorAngle);
 
-//    power_stage = App_PowerStage_Create(
-//        Io_PowerStage_GetPhaCur, Io_PowerStage_GetPhbCur,
-//        Io_PowerStage_GetPhcCur, Io_PowerStage_GetTemp,
-//        Io_PowerStage_GetBusVoltage, Io_PowerStage_OverTempAlarm,
-//        Io_PowerStage_PhaOcAlarm, Io_PowerStage_PhbOcAlarm,
-//        Io_PowerStage_PhcOcAlarm)
+    Io_AdcDac_Init(&hadc1, &hadc2, &hdac);
+    power_stage = App_PowerStage_Create(
+            Io_AdcDac_AdcContModeInit,
+            Io_AdcDac_AdcPwmSyncModeInit,
+            Io_AdcDac_AdcStart,
+            Io_AdcDac_AdcStop,
+            Io_AdcDac_DacStart,
+            Io_AdcDac_DacSetCurrent,
+            Io_AdcDac_GetPhaseCurrents,
+            Io_AdcDac_GetBusVoltage,
+            Io_AdcDac_GetPowerstageTemp,
+            Io_PowerStage_GetPhaOCFault,
+            Io_PowerStage_GetPhbOCFault,
+            Io_PowerStage_GetPhcOCFault,
+            Io_PowerStage_GetPowerStageOTFault);
 
     world = App_InvWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, error_table,
-        clock, gate_drive, motor, power_stage);
+        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, error_table, clock,
+        gate_drive, motor, power_stage);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 
@@ -384,14 +403,14 @@ static void MX_ADC1_Init(void)
     hadc1.Instance                   = ADC1;
     hadc1.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
     hadc1.Init.Resolution            = ADC_RESOLUTION_12B;
-    hadc1.Init.ScanConvMode          = ADC_SCAN_DISABLE;
-    hadc1.Init.ContinuousConvMode    = DISABLE;
+    hadc1.Init.ScanConvMode          = ADC_SCAN_ENABLE;
+    hadc1.Init.ContinuousConvMode    = ENABLE;
     hadc1.Init.DiscontinuousConvMode = DISABLE;
     hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
     hadc1.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
     hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-    hadc1.Init.NbrOfConversion       = 1;
-    hadc1.Init.DMAContinuousRequests = DISABLE;
+    hadc1.Init.NbrOfConversion       = 3;
+    hadc1.Init.DMAContinuousRequests = ENABLE;
     hadc1.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
     if (HAL_ADC_Init(&hadc1) != HAL_OK)
     {
@@ -402,7 +421,25 @@ static void MX_ADC1_Init(void)
      */
     sConfig.Channel      = ADC_CHANNEL_1;
     sConfig.Rank         = ADC_REGULAR_RANK_1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+    sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure for the selected ADC regular channel its corresponding rank in
+     * the sequencer and its sample time.
+     */
+    sConfig.Channel = ADC_CHANNEL_3;
+    sConfig.Rank    = ADC_REGULAR_RANK_2;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure for the selected ADC regular channel its corresponding rank in
+     * the sequencer and its sample time.
+     */
+    sConfig.Channel = ADC_CHANNEL_15;
+    sConfig.Rank    = ADC_REGULAR_RANK_3;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -434,14 +471,14 @@ static void MX_ADC2_Init(void)
     hadc2.Instance                   = ADC2;
     hadc2.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
     hadc2.Init.Resolution            = ADC_RESOLUTION_12B;
-    hadc2.Init.ScanConvMode          = ADC_SCAN_DISABLE;
-    hadc2.Init.ContinuousConvMode    = DISABLE;
+    hadc2.Init.ScanConvMode          = ADC_SCAN_ENABLE;
+    hadc2.Init.ContinuousConvMode    = ENABLE;
     hadc2.Init.DiscontinuousConvMode = DISABLE;
     hadc2.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
     hadc2.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
     hadc2.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-    hadc2.Init.NbrOfConversion       = 1;
-    hadc2.Init.DMAContinuousRequests = DISABLE;
+    hadc2.Init.NbrOfConversion       = 4;
+    hadc2.Init.DMAContinuousRequests = ENABLE;
     hadc2.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
     if (HAL_ADC_Init(&hadc2) != HAL_OK)
     {
@@ -450,9 +487,36 @@ static void MX_ADC2_Init(void)
     /** Configure for the selected ADC regular channel its corresponding rank in
      * the sequencer and its sample time.
      */
-    sConfig.Channel      = ADC_CHANNEL_6;
+    sConfig.Channel      = ADC_CHANNEL_2;
     sConfig.Rank         = ADC_REGULAR_RANK_1;
-    sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+    sConfig.SamplingTime = ADC_SAMPLETIME_15CYCLES;
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure for the selected ADC regular channel its corresponding rank in
+     * the sequencer and its sample time.
+     */
+    sConfig.Channel = ADC_CHANNEL_0;
+    sConfig.Rank    = ADC_REGULAR_RANK_2;
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure for the selected ADC regular channel its corresponding rank in
+     * the sequencer and its sample time.
+     */
+    sConfig.Channel = ADC_CHANNEL_6;
+    sConfig.Rank    = ADC_REGULAR_RANK_3;
+    if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure for the selected ADC regular channel its corresponding rank in
+     * the sequencer and its sample time.
+     */
+    sConfig.Channel = ADC_CHANNEL_14;
+    sConfig.Rank    = ADC_REGULAR_RANK_4;
     if (HAL_ADC_ConfigChannel(&hadc2, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -701,12 +765,12 @@ static void MX_TIM8_Init(void)
 
     /* USER CODE END TIM8_Init 1 */
     htim8.Instance               = TIM8;
-    htim8.Init.Prescaler         = 0;
-    htim8.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim8.Init.Period            = 65535;
+    htim8.Init.Prescaler         = 1 - 1;
+    htim8.Init.CounterMode       = TIM_COUNTERMODE_CENTERALIGNED3;
+    htim8.Init.Period            = 10800 - 1;
     htim8.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim8.Init.RepetitionCounter = 0;
-    htim8.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    htim8.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
     if (HAL_TIM_Base_Init(&htim8) != HAL_OK)
     {
         Error_Handler();
@@ -720,8 +784,12 @@ static void MX_TIM8_Init(void)
     {
         Error_Handler();
     }
+    if (HAL_TIM_OC_Init(&htim8) != HAL_OK)
+    {
+        Error_Handler();
+    }
     sMasterConfig.MasterOutputTrigger  = TIM_TRGO_RESET;
-    sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
+    sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_OC4REF_RISING_OC6REF_RISING;
     sMasterConfig.MasterSlaveMode      = TIM_MASTERSLAVEMODE_DISABLE;
     if (HAL_TIMEx_MasterConfigSynchronization(&htim8, &sMasterConfig) != HAL_OK)
     {
@@ -746,10 +814,19 @@ static void MX_TIM8_Init(void)
     {
         Error_Handler();
     }
+    sConfigOC.OCMode = TIM_OCMODE_TIMING;
+    if (HAL_TIM_OC_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if (HAL_TIM_OC_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_6) != HAL_OK)
+    {
+        Error_Handler();
+    }
     sBreakDeadTimeConfig.OffStateRunMode  = TIM_OSSR_DISABLE;
     sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
     sBreakDeadTimeConfig.LockLevel        = TIM_LOCKLEVEL_OFF;
-    sBreakDeadTimeConfig.DeadTime         = 0;
+    sBreakDeadTimeConfig.DeadTime         = 1;
     sBreakDeadTimeConfig.BreakState       = TIM_BREAK_DISABLE;
     sBreakDeadTimeConfig.BreakPolarity    = TIM_BREAKPOLARITY_HIGH;
     sBreakDeadTimeConfig.BreakFilter      = 0;
@@ -794,6 +871,23 @@ static void MX_USB_OTG_FS_HCD_Init(void)
     /* USER CODE BEGIN USB_OTG_FS_Init 2 */
 
     /* USER CODE END USB_OTG_FS_Init 2 */
+}
+
+/**
+ * Enable DMA controller clock
+ */
+static void MX_DMA_Init(void)
+{
+    /* DMA controller clock enable */
+    __HAL_RCC_DMA2_CLK_ENABLE();
+
+    /* DMA interrupt init */
+    /* DMA2_Stream0_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
+    /* DMA2_Stream2_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
 }
 
 /**

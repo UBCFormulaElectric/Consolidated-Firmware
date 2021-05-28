@@ -9,27 +9,33 @@
 struct StgapFaults;
 
 void     Io_STGAP1AS_Init(SPI_HandleTypeDef *handle);
-ExitCode     Io_STGAP1AS_WriteConfiguration(void);
+ExitCode Io_STGAP1AS_WriteConfiguration(void);
 void     Io_STGAP1AS_ResetStatus(void);
 void     Io_STGAP1AS_GlobalReset(void);
-void Io_STGAP1AS_WriteRegister(
-    uint8_t stgap_register,
-    uint8_t data,
-    bool    use_shutdown);
+void     Io_STGAP1AS_WriteRegister(
+        uint8_t stgap_register,
+        uint8_t data,
+        bool    use_shutdown);
 void Io_STGAP1AS_ReadRegister(
-        uint8_t        stgap_register,
-        uint8_t        stgap_register_mask,
-        uint8_t *const receive_buffer);
-void Io_STGAP1AS_Command(uint8_t command);
-struct StgapFaults* Io_STGAP1AS_ReadFaults(void);
+    uint8_t        stgap_register,
+    uint8_t        stgap_register_mask,
+    uint8_t *const receive_buffer);
+void                Io_STGAP1AS_Command(uint8_t command);
+struct StgapFaults *Io_STGAP1AS_ReadFaults(void);
 uint8_t             Io_STGAP1AS_SendReceiveByte(
-                uint8_t  byte_value,
-                uint8_t  crc_xor,
-                uint8_t* const receive_array);
+                uint8_t        byte_value,
+                uint8_t        crc_xor,
+                uint8_t *const receive_array);
 uint8_t Io_STGAP1AS_CalculateCrcTx(uint8_t input, uint8_t xor_value);
 uint8_t Io_STGAP1AS_CalculateCrcRx(uint8_t input, uint8_t xor_value);
 void    Io_STGAP1AS_SetShutdownPin(bool value);
 bool    Io_STGAP1AS_GetShutdownPin(void);
+bool Io_STGAP1AS_GetPhaHiDiag(void);
+bool Io_STGAP1AS_GetPhaLoDiag(void);
+bool Io_STGAP1AS_GetPhbHiDiag(void);
+bool Io_STGAP1AS_GetPhbLoDiag(void);
+bool Io_STGAP1AS_GetPhcHiDiag(void);
+bool Io_STGAP1AS_GetPhcLoDiag(void);
 
 // STGAP Device Enumeration
 enum

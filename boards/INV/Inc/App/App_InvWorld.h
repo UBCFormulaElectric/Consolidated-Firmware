@@ -8,6 +8,8 @@
 #include "App_SharedRgbLed.h"
 #include "App_SharedClock.h"
 #include "App_GateDrive.h"
+#include "App_PowerStage.h"
+#include "App_Motor.h"
 
 struct InvWorld;
 
@@ -21,13 +23,16 @@ struct InvWorld;
  * caller
  */
 struct InvWorld *App_InvWorld_Create(
-        struct InvCanTxInterface *const can_tx_interface,
-        struct InvCanRxInterface *const can_rx_interface,
-        struct HeartbeatMonitor *const  heartbeat_monitor,
-        struct RgbLedSequence *const    rgb_led_sequence,
-        struct ErrorTable *             error_table,
-        struct Clock *const             clock,
-        struct GateDrive *const         gate_drive);
+    struct InvCanTxInterface *const can_tx_interface,
+    struct InvCanRxInterface *const can_rx_interface,
+    struct HeartbeatMonitor *const  heartbeat_monitor,
+    struct RgbLedSequence *const    rgb_led_sequence,
+    struct ErrorTable *             error_table,
+    struct Clock *const             clock,
+    struct GateDrive *const         gate_drive,
+//    struct Motor *const motor,
+    struct PowerStage *const power_stage
+);
 
 /**
  * Deallocate the memory used by the given world
@@ -80,3 +85,5 @@ struct ErrorTable *App_InvWorld_GetErrorTable(const struct InvWorld *world);
 struct Clock *App_InvWorld_GetClock(const struct InvWorld *world);
 
 struct GateDrive *App_InvWorld_GetGateDrive(const struct InvWorld *world);
+
+struct PowerStage *App_InvWorld_GetPowerStage(const struct InvWorld *world);

@@ -73,6 +73,7 @@ bool *  prev_fw_flag;
 void controlLoop(const double torque_ref, const double rotor_speed_ref)
 {
     // Get Sensor Values
+    // TODO check to see if phc current is plausible given phases a and b
     //	phase_currents.a = powerstage.getCurrent("A");
     //	phase_currents.b = powerstage.getCurrent("B");
     //	phase_currents.c = powerstage.getCurrent("C");
@@ -107,9 +108,9 @@ void controlLoop(const double torque_ref, const double rotor_speed_ref)
     phase_voltages = parkClarkeTransform(&dqs_voltages, rotor_speed);
 
     // Use Space Vector Modulation to calculate PWM durations
-    phase_duration = calculatePwmEdges(&phase_voltages, bus_voltage);
-    // TODO not implemented yet
-    // setPwmEdges(&phase_duration);
+    phase_duration = CalculatePwmEdges(&phase_voltages, bus_voltage);
+
+    SetPwmEdges(&phase_duration);
 
     *prev_fw_flag        = fw_flag;
     *prev_rotor_position = rotor_position;

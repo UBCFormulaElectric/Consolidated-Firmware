@@ -2,7 +2,7 @@
 #include "controls/App_ControlLoop.h"
 #include "configs/App_ControlSystemConfig.h"
 
-PhaseValues calculatePwmEdges(
+PhaseValues CalculatePwmEdges(
     const PhaseValues *const phase_voltages,
     const double             bus_voltage)
 {
@@ -104,35 +104,7 @@ PhaseValues calculatePwmEdges(
     return phase_duration;
 }
 
-// void setPwmEdges()//(const PhaseValues * const phase_duration)
-//{
-//	;
-//}
-//	pwm_a_top = (counter * 2 > phase_duration.a * clockFrequency /
-// SWITCHING_FREQUENCY) ? 0	: 1; 	pwm_b_top = (counter * 2 > phase_duration.b
-// * clockFrequency / SWITCHING_FREQUENCY) ? 0 : 1; 	pwm_c_top = (counter * 2
-// > phase_duration.c * clockFrequency / SWITCHING_FREQUENCY) ? 0 : 1;
-//
-//	pwm_a_bot = (pwm_a_top) ? 0 : 1;
-//	pwm_b_bot = (pwm_b_top) ? 0 : 1;
-//	pwm_c_bot = (pwm_c_top) ? 0 : 1;
-//
-//	if (currentPeriodCycle < clockFrequency / SWITCHING_FREQUENCY)
-//	{
-//		if (currentPeriodCycle < clockFrequency / (SWITCHING_FREQUENCY * 2))
-//		{
-//			counter++;
-//		}
-//		else
-//		{
-//			counter--;
-//		}
-//		currentPeriodCycle++;
-//	}
-//	else
-//	{
-//		counter            = 0;
-//		currentPeriodCycle = 0;
-//	}
-//
-//}
+void SetPwmEdges(const PhaseValues *const phase_duration)
+{
+    App_TimerPwmGen_LoadPwm(phase_duration);
+}

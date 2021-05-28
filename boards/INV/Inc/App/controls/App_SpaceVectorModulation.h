@@ -2,7 +2,7 @@
 
 #include "controls/App_ControlLoop.h"
 
-PhaseValues calculatePwmEdges(
-    const PhaseValues *const phase_voltages,
+PhaseValues CalculatePwmEdges(
+    const PhaseValues * phase_voltages,
     double                   bus_voltage);
-// void setPWMEdges(const PhaseValues * const phase_duration);
+void SetPwmEdges(const PhaseValues * phase_duration);
