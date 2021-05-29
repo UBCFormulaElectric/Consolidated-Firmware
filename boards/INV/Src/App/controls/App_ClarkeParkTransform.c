@@ -1,8 +1,10 @@
 #include "controls/App_ClarkeParkTransform.h"
 #include "configs/App_ControlSystemConfig.h"
+#include <math.h>
+//#include <arm_math.h>
 
 DqsValues
-    clarkeParkTransform(PhaseValues *const phase_currents, const double theta)
+    clarkeParkTransform(struct PhaseValues *const phase_currents, const double theta)
 {
     phase_currents->c = CALCULATE_PHC_CURRENT
                             ? (-1 * (phase_currents->a + phase_currents->b))

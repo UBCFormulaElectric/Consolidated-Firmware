@@ -212,13 +212,18 @@ function(create_arm_binary
             -Wshadow
             -Wundef
             -fstack-usage
-            -Wconversion
+#            -Wconversion
         )
+    target_link_libraries(${BOARD_NAME}.elf
+        PUBLIC
+            m
+            )
     target_link_options(${BOARD_NAME}.elf
         PUBLIC
             ${FPU_FLAGS}
             -Wl,-Map=${CMAKE_CURRENT_BINARY_DIR}/${BOARD_NAME}.map
             -Wl,-gc-sections,--print-memory-usage
+            -lm
             -Wl,-T ${ARM_LINKER_SCRIPT}
             --specs=nano.specs
         )

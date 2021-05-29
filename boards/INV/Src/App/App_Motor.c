@@ -3,3 +3,6 @@
 //
 
 #include "App_Motor.h"
+#include <stdint.h>
+
+uint32_t value_motor = 0;

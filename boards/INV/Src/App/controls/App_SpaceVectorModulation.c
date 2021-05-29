@@ -2,11 +2,11 @@
 #include "controls/App_ControlLoop.h"
 #include "configs/App_ControlSystemConfig.h"
 
-PhaseValues CalculatePwmEdges(
-    const PhaseValues *const phase_voltages,
+struct PhaseValues CalculatePwmEdges(
+    const struct PhaseValues *const phase_voltages,
     const double             bus_voltage)
 {
-    PhaseValues phase_duration;
+    struct PhaseValues phase_duration;
     double      t0, t1, t2;
     double      vs_max = MAX_MOD_INDEX * bus_voltage / sqrt(3);
 
@@ -102,9 +102,4 @@ PhaseValues CalculatePwmEdges(
             phase_duration.c = 0.5 * t0;
     }
     return phase_duration;
-}
-
-void SetPwmEdges(const PhaseValues *const phase_duration)
-{
-    App_TimerPwmGen_LoadPwm(phase_duration);
 }

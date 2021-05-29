@@ -8,6 +8,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+
 struct PowerStage
 {
     void (*adc_cont_mode_init)(void);
@@ -16,7 +17,7 @@ struct PowerStage
     void (*adc_stop)(void);
     void (*dac_start)(void);
     void (*dac_set_current)(double current);
-    void (*get_phase_currents)(PhaseValues *const phase_currents);
+    void (*get_phase_currents)(struct PhaseValues *const phase_currents);
     double (*get_bus_voltage)(void);
     double (*get_powerstage_temp)(void);
     bool (*get_pha_oc_fault)(void);
@@ -32,7 +33,7 @@ struct PowerStage *App_PowerStage_Create(
         void (*ps_adc_stop)(void),
         void (*ps_dac_start)(void),
         void (*ps_dac_set_current)(double current),
-        void (*ps_get_phase_currents)(PhaseValues *const phase_currents),
+        void (*ps_get_phase_currents)(struct PhaseValues *const phase_currents),
         double (*ps_get_bus_voltage)(void),
         double (*ps_get_powerstage_temp)(void),
         bool (*ps_get_pha_oc_fault)(void),
@@ -89,7 +90,7 @@ void App_PowerStage_SetCurrentLimits(struct PowerStage *power_stage, uint32_t cu
     power_stage->dac_set_current(current_lim);
 }
 
-void App_PowerStage_GetPhaseCurrents(struct PowerStage *power_stage, PhaseValues *phase_currents)
+void App_PowerStage_GetPhaseCurrents(struct PowerStage *power_stage, struct PhaseValues *phase_currents)
 {
     power_stage->get_phase_currents(phase_currents);
 }

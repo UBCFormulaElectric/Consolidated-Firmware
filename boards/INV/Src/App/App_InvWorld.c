@@ -6,15 +6,15 @@
 
 struct InvWorld
 {
-    struct InvCanTxInterface *can_tx_interface;
-    struct InvCanRxInterface *can_rx_interface;
-    struct HeartbeatMonitor * heartbeat_monitor;
-    struct RgbLedSequence *   rgb_led_sequence;
-    struct Clock *            clock;
-    struct ErrorTable *       error_table;
-    struct GateDrive *        gate_drive;
-    //    struct Motor *            motor;
-    struct PowerStage *       power_stage;
+struct InvCanTxInterface *can_tx_interface;
+struct InvCanRxInterface *can_rx_interface;
+struct HeartbeatMonitor * heartbeat_monitor;
+struct RgbLedSequence *   rgb_led_sequence;
+struct Clock *            clock;
+struct ErrorTable *       error_table;
+struct GateDrive *        gate_drive;
+//    struct Motor *            motor;
+struct PowerStage *       power_stage;
 };
 
 struct InvWorld *App_InvWorld_Create(
@@ -25,7 +25,7 @@ struct InvWorld *App_InvWorld_Create(
     struct ErrorTable *             error_table,
     struct Clock *const             clock,
     struct GateDrive *const         gate_drive,
-//    struct Motor *const motor,
+//    struct Motor *const           motor,
     struct PowerStage *const power_stage)
 {
     struct InvWorld *world = (struct InvWorld *)malloc(sizeof(struct InvWorld));
@@ -40,6 +40,7 @@ struct InvWorld *App_InvWorld_Create(
     world->clock             = clock;
     world->gate_drive        = gate_drive;
     world->power_stage       = power_stage;
+    //world->motor             = motor;
 
     return world;
 }
@@ -87,3 +88,8 @@ struct PowerStage *App_InvWorld_GetPowerStage(const struct InvWorld *world)
 {
     return world->power_stage;
 }
+
+//struct Motor *App_InvWorld_GetMotor(const struct InvWorld *world)
+//{
+//    return world->motor;
+//}

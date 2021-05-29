@@ -48,6 +48,8 @@
 #include "Io_AdcDac.h"
 #include "Io_ECI1118.h"
 #include "Io_PowerStage.h"
+#include "controls/App_ControlLoop.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -223,7 +225,9 @@ int main(void)
         Io_STGAP1AS_ReadRegister, Io_STGAP1AS_ReadFaults, Io_STGAP1AS_Command,
         Io_STGAP1AS_SetShutdownPin, Io_STGAP1AS_GetShutdownPin,
         Io_TimerPwmGen_LoadPwm, Io_TimerPwmGen_StartPwm, Io_TimerPwmGen_StopPwm,
-        Io_TimerPwmGen_SetSwitchingFreq, Io_TimerPwmGen_SetDeadTime);
+        Io_TimerPwmGen_SetSwitchingFreq, Io_TimerPwmGen_SetDeadTime, Io_STGAP1AS_GetPhaHiDiag,
+        Io_STGAP1AS_GetPhaLoDiag, Io_STGAP1AS_GetPhbHiDiag, Io_STGAP1AS_GetPhbLoDiag,
+        Io_STGAP1AS_GetPhcHiDiag, Io_STGAP1AS_GetPhcLoDiag);
 
     //    motor = App_Motor_Create(Io_ECI1118_GetTemperature,
     //    Io_ECI1118_GetRotorAngle);
@@ -246,7 +250,7 @@ int main(void)
 
     world = App_InvWorld_Create(
         can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, error_table, clock,
-        gate_drive, motor, power_stage);
+        gate_drive, power_stage);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 
@@ -1128,7 +1132,10 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
         HAL_IncTick();
     }
     /* USER CODE BEGIN Callback 1 */
-
+    if (htim->Instance == TIM8)
+    {
+        App_ControlLoop_Run(10000, GEN_SINE_I, world, 0.1, 100.0);
+    }
     /* USER CODE END Callback 1 */
 }
 

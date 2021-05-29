@@ -1,10 +1,10 @@
 #include "controls/App_ParkClarkeTransform.h"
 #include "controls/App_ControlLoop.h"
 
-PhaseValues
+struct PhaseValues
     parkClarkeTransform(const DqsValues *const dqs_voltages, const double theta)
 {
-    PhaseValues phase_voltages;
+    struct PhaseValues phase_voltages;
 
     double alpha = dqs_voltages->d * cos(theta) - dqs_voltages->q * sin(theta);
     double beta  = dqs_voltages->d * sin(theta) + dqs_voltages->q * cos(theta);

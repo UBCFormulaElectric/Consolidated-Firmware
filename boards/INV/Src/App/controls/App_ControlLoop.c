@@ -8,7 +8,10 @@
 #include "controls/App_CurrentGeneration.h"
 #include "controls/App_SpaceVectorModulation.h"
 #include "controls/App_TorqueControl.h"
-#include "states/App_AllStates.h"
+//#include "states/App_AllStates.h"
+#include "App_PowerStage.h"
+#include "App_Motor.h"
+
 
 /*
  * This file executes the motor control system functionality
@@ -39,12 +42,8 @@
  */
 
 // INITIALIZE VARIABLES HERE
-PhaseValues phase_voltages;
-PhaseValues phase_currents;
-PhaseValues phase_duration;
-DqsValues   dqs_ref_currents;
-DqsValues   dqs_currents;
-DqsValues   dqs_voltages;
+struct PhaseValues phase_voltages, phase_currents, phase_duration;
+DqsValues   dqs_ref_currents, dqs_currents, dqs_voltages;
 
 ControllerValues speed_controller = {
     .prev_integral_input = 0,
@@ -67,18 +66,48 @@ double  rotor_position = 0;
 double *prev_rotor_position;
 double  rotor_speed = 0;
 double  bus_voltage = 0;
+double phc_current_calc = 0;
+float torque_ref = 0;
 bool    fw_flag     = 0;
 bool *  prev_fw_flag;
 
-void controlLoop(const double torque_ref, const double rotor_speed_ref)
+void App_ControlLoop_Run(const double rotor_speed_ref, const uint8_t mode,
+                         const struct InvWorld *world, const double mod_index_request,
+                                 double fund_freq_request)
 {
-    // Get Sensor Values
-    // TODO check to see if phc current is plausible given phases a and b
-    //	phase_currents.a = powerstage.getCurrent("A");
-    //	phase_currents.b = powerstage.getCurrent("B");
-    //	phase_currents.c = powerstage.getCurrent("C");
-    //	rotor_position = motor.getPosition();
-    //	bus_voltage = powerstage.getVoltage();
+    struct GateDrive* gate_drive = App_InvWorld_GetGateDrive(world);
+    struct PowerStage* power_stage = App_InvWorld_GetPowerStage(world);
+    //struct InvMotor* motor = App_InvWorld_GetMotor(world);
+    struct InvCanRxInterface* can_rx = App_InvWorld_GetCanRx(world);
+
+    //Get Torque Request from DCM
+    App_CanRx_DCM_TORQUE_REQUEST_SetSignal_TORQUE_REQUEST(can_rx, torque_ref);
+
+    //Get Phase Currents
+    App_PowerStage_GetPhaseCurrents(power_stage, &phase_currents);
+    phc_current_calc = -1 * (phase_currents.a + phase_currents.b);
+    if(phase_currents.c - phc_current_calc > 5.0)
+    {
+        //TODO Phase C Current calculation plausibility error
+    }
+
+    //Get Rotor Position
+    if(mode == GEN_SINE_I || mode == GEN_SINE_M)
+    {
+        //TODO fake out rotor position with timer here
+        rotor_position = 180.0; //for now, rotor position = 180 degrees
+        fund_freq_request = fund_freq_request + 1;
+    }
+    else
+    {
+        //	rotor_position = motor.getPosition();
+    }
+
+
+    //Get Bus Voltage
+    bus_voltage = App_PowerStage_GetBusVoltage(power_stage);
+
+    //Calculate Rotor Speed
     rotor_speed = (rotor_position - *prev_rotor_position) * SAMPLE_FREQUENCY;
 
     dqs_currents = clarkeParkTransform(&phase_currents, rotor_position);
@@ -100,9 +129,18 @@ void controlLoop(const double torque_ref, const double rotor_speed_ref)
         &dqs_ref_currents, rotor_speed, bus_voltage, &fw_flag);
 
     // Calculate d/q PI controller outputs
-    dqs_voltages = calculateDqsVoltages(
-        &dqs_ref_currents, &dqs_currents, rotor_speed, bus_voltage,
-        &id_controller, &iq_controller);
+    if(mode == GEN_SINE_M)
+    {
+        dqs_voltages.q = mod_index_request/(0.9*bus_voltage/sqrt(3));
+        dqs_voltages.d = 0;
+        dqs_voltages.s = sqrt(dqs_voltages.q * dqs_voltages.q + dqs_voltages.d * dqs_voltages.d);
+    }
+    else
+    {
+        dqs_voltages = calculateDqsVoltages(
+                &dqs_ref_currents, &dqs_currents, rotor_speed, bus_voltage,
+                &id_controller, &iq_controller);
+    }
 
     // Transform d/q voltages to phase voltages
     phase_voltages = parkClarkeTransform(&dqs_voltages, rotor_speed);
@@ -110,7 +148,7 @@ void controlLoop(const double torque_ref, const double rotor_speed_ref)
     // Use Space Vector Modulation to calculate PWM durations
     phase_duration = CalculatePwmEdges(&phase_voltages, bus_voltage);
 
-    SetPwmEdges(&phase_duration);
+    App_GateDrive_LoadPwm(gate_drive, &phase_duration);
 
     *prev_fw_flag        = fw_flag;
     *prev_rotor_position = rotor_position;

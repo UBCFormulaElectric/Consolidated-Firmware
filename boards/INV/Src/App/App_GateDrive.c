@@ -2,8 +2,8 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
-#include "App_GateDrive.h"
 
+#include "App_GateDrive.h"
 
 struct GateDrive
 {
@@ -22,7 +22,7 @@ struct GateDrive
     void (*command)(uint8_t command);
     void (*set_shutdown_pin)(bool pin_val);
     bool (*get_shutdown_pin)(void);
-    void (*load_pwm)(const PhaseValues *phase_pwm_vals);
+    void (*load_pwm)(const struct PhaseValues *phase_pwm_vals);
     void     (*start_pwm)(void);
     void     (*stop_pwm)(void);
     void     (*set_switching_freq)(uint16_t switching_freq);
@@ -51,7 +51,7 @@ struct GateDrive *App_GateDrive_Create(
     void (*command_gd)(uint8_t command),
     void (*set_gd_shutdown_pin)(bool pin_val),
     bool (*get_gd_shutdown_pin)(void),
-    void     (*load_gd_pwm)(const PhaseValues *phase_pwm_dur),
+    void     (*load_gd_pwm)(const struct PhaseValues *phase_pwm_dur),
     void     (*gd_start_pwm)(void),
     void     (*gd_stop_pwm)(void),
     void     (*gd_set_switching_freq)(uint16_t switching_freq),
@@ -152,7 +152,7 @@ bool App_GateDrive_IsEnabled(struct GateDrive *gate_drive)
     return gate_drive->get_shutdown_pin;
 }
 
-void App_GateDrive_LoadPwm(struct GateDrive *gate_drive, PhaseValues *phase_pwm_dur)
+void App_GateDrive_LoadPwm(struct GateDrive *gate_drive, struct PhaseValues *phase_pwm_dur)
 {
     gate_drive->load_pwm(phase_pwm_dur);
 }
@@ -179,30 +179,30 @@ void App_GateDrive_SetDeadTime(struct GateDrive *gate_drive, uint16_t dead_time)
 
 bool App_GateDrive_GetPhaHiDiag(struct GateDrive *gate_drive)
 {
-    gate_drive->get_pha_hi_diag();
+    return gate_drive->get_pha_hi_diag();
 }
 
 bool App_GateDrive_GetPhaLoDiag(struct GateDrive *gate_drive)
 {
-    gate_drive->get_pha_lo_diag();
+    return gate_drive->get_pha_lo_diag();
 }
 
 bool App_GateDrive_GetPhbHiDiag(struct GateDrive *gate_drive)
 {
-    gate_drive->get_phb_hi_diag();
+    return gate_drive->get_phb_hi_diag();
 }
 
 bool App_GateDrive_GetPhbLoDiag(struct GateDrive *gate_drive)
 {
-    gate_drive->get_phb_lo_diag();
+    return gate_drive->get_phb_lo_diag();
 }
 
 bool App_GateDrive_GetPhcHiDiag(struct GateDrive *gate_drive)
 {
-    gate_drive->get_phc_hi_diag();
+    return gate_drive->get_phc_hi_diag();
 }
 
 bool App_GateDrive_GetPhcLoDiag(struct GateDrive *gate_drive)
 {
-    gate_drive->get_phc_lo_diag();
+    return gate_drive->get_phc_lo_diag();
 }

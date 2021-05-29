@@ -172,7 +172,7 @@ double Io_AdcDac_GetGpioVal(void)
     return adc_voltage;
 }
 
-void Io_AdcDac_GetPhaseCurrents(PhaseValues *const phase_currents)
+void Io_AdcDac_GetPhaseCurrents(struct PhaseValues *const phase_currents)
 {
     double pha_voltage = 3.3*(double)*(adc_data + 0)/4096.0;
     double phb_voltage = 3.3*(double)*(adc_data + 1)/4096.0;

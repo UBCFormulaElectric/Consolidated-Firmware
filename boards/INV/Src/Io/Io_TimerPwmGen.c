@@ -67,7 +67,7 @@ void Io_TimerPwmGen_StopPwm(void)
 
 // Loads timer compare register value between 0 and the timer period*max
 // modulation index
-void Io_TimerPwmGen_LoadPwm(const PhaseValues *const phase_pwm_dur)
+void Io_TimerPwmGen_LoadPwm(const struct PhaseValues *const phase_pwm_dur)
 {
     if (timer_pwm_gen_handle == NULL)
     {

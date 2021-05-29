@@ -12,6 +12,15 @@
 #include "App_Motor.h"
 
 struct InvWorld;
+struct InvCanTxInterface;
+struct InvCanRxInterface;
+struct HeartbeatMonitor;
+struct RgbLedSequence;
+struct ErrorTable;
+struct Clock;
+struct GateDrive;
+struct PowerStage;
+//struct Motor;
 
 /**
  * Allocate and initialize a world in the application layer by registering
@@ -87,3 +96,5 @@ struct Clock *App_InvWorld_GetClock(const struct InvWorld *world);
 struct GateDrive *App_InvWorld_GetGateDrive(const struct InvWorld *world);
 
 struct PowerStage *App_InvWorld_GetPowerStage(const struct InvWorld *world);
+
+//struct Motor *App_InvWorld_GetMotor(const struct InvWorld *world);
