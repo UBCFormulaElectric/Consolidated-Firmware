@@ -10,7 +10,7 @@ typedef struct DqsValues
     double s;
     double d;
     double q;
-}DqsValues;
+} DqsValues;
 
 struct PhaseValues
 {

@@ -21,6 +21,7 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
+#include "usb_host.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -85,8 +86,6 @@ SPI_HandleTypeDef hspi4;
 
 TIM_HandleTypeDef htim8;
 
-HCD_HandleTypeDef hhcd_USB_OTG_FS;
-
 osThreadId          Task100HzHandle;
 uint32_t            Task100HzTaskBuffer[TASK100HZ_STACK_SIZE];
 osStaticThreadDef_t Task100HzTaskControlBlock;
@@ -129,7 +128,6 @@ static void MX_SPI2_Init(void);
 static void MX_SPI3_Init(void);
 static void MX_SPI4_Init(void);
 static void MX_TIM8_Init(void);
-static void MX_USB_OTG_FS_HCD_Init(void);
 void        RunTask100Hz(void const *argument);
 void        RunTaskCanRx(void const *argument);
 void        RunTaskCanTx(void const *argument);
@@ -193,7 +191,6 @@ int main(void)
     MX_SPI3_Init();
     MX_SPI4_Init();
     MX_TIM8_Init();
-    MX_USB_OTG_FS_HCD_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
 
@@ -843,35 +840,6 @@ static void MX_TIM8_Init(void)
 }
 
 /**
- * @brief USB_OTG_FS Initialization Function
- * @param None
- * @retval None
- */
-static void MX_USB_OTG_FS_HCD_Init(void)
-{
-    /* USER CODE BEGIN USB_OTG_FS_Init 0 */
-
-    /* USER CODE END USB_OTG_FS_Init 0 */
-
-    /* USER CODE BEGIN USB_OTG_FS_Init 1 */
-
-    /* USER CODE END USB_OTG_FS_Init 1 */
-    hhcd_USB_OTG_FS.Instance           = USB_OTG_FS;
-    hhcd_USB_OTG_FS.Init.Host_channels = 8;
-    hhcd_USB_OTG_FS.Init.speed         = HCD_SPEED_FULL;
-    hhcd_USB_OTG_FS.Init.dma_enable    = DISABLE;
-    hhcd_USB_OTG_FS.Init.phy_itface    = HCD_PHY_EMBEDDED;
-    hhcd_USB_OTG_FS.Init.Sof_enable    = DISABLE;
-    if (HAL_HCD_Init(&hhcd_USB_OTG_FS) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN USB_OTG_FS_Init 2 */
-
-    /* USER CODE END USB_OTG_FS_Init 2 */
-}
-
-/**
  * Enable DMA controller clock
  */
 static void MX_DMA_Init(void)
@@ -982,6 +950,9 @@ static void MX_GPIO_Init(void)
 /* USER CODE END Header_RunTask100Hz */
 void RunTask100Hz(void const *argument)
 {
+    /* init code for USB_HOST */
+    MX_USB_HOST_Init();
+
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
     uint32_t                 PreviousWakeTime = osKernelSysTick();
