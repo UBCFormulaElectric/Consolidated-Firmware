@@ -29,15 +29,13 @@ static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    struct InvWorld * world = App_SharedStateMachine_GetWorld(state_machine);
-    //struct GateDrive *gate_drive = App_InvWorld_GetGateDrive(world);
+    struct InvWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    // struct GateDrive *gate_drive = App_InvWorld_GetGateDrive(world);
 
     struct HeartbeatMonitor *heartbeat_monitor =
         App_InvWorld_GetHeartbeatMonitor(world);
 
-
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
-
 
     // TODO: do some more stuff here
 }

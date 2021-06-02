@@ -225,8 +225,9 @@ int main(void)
         Io_STGAP1AS_ReadRegister, Io_STGAP1AS_ReadFaults, Io_STGAP1AS_Command,
         Io_STGAP1AS_SetShutdownPin, Io_STGAP1AS_GetShutdownPin,
         Io_TimerPwmGen_LoadPwm, Io_TimerPwmGen_StartPwm, Io_TimerPwmGen_StopPwm,
-        Io_TimerPwmGen_SetSwitchingFreq, Io_TimerPwmGen_SetDeadTime, Io_STGAP1AS_GetPhaHiDiag,
-        Io_STGAP1AS_GetPhaLoDiag, Io_STGAP1AS_GetPhbHiDiag, Io_STGAP1AS_GetPhbLoDiag,
+        Io_TimerPwmGen_SetSwitchingFreq, Io_TimerPwmGen_SetDeadTime,
+        Io_STGAP1AS_GetPhaHiDiag, Io_STGAP1AS_GetPhaLoDiag,
+        Io_STGAP1AS_GetPhbHiDiag, Io_STGAP1AS_GetPhbLoDiag,
         Io_STGAP1AS_GetPhcHiDiag, Io_STGAP1AS_GetPhcLoDiag);
 
     //    motor = App_Motor_Create(Io_ECI1118_GetTemperature,
@@ -234,19 +235,12 @@ int main(void)
 
     Io_AdcDac_Init(&hadc1, &hadc2, &hdac);
     power_stage = App_PowerStage_Create(
-            Io_AdcDac_AdcContModeInit,
-            Io_AdcDac_AdcPwmSyncModeInit,
-            Io_AdcDac_AdcStart,
-            Io_AdcDac_AdcStop,
-            Io_AdcDac_DacStart,
-            Io_AdcDac_DacSetCurrent,
-            Io_AdcDac_GetPhaseCurrents,
-            Io_AdcDac_GetBusVoltage,
-            Io_AdcDac_GetPowerstageTemp,
-            Io_PowerStage_GetPhaOCFault,
-            Io_PowerStage_GetPhbOCFault,
-            Io_PowerStage_GetPhcOCFault,
-            Io_PowerStage_GetPowerStageOTFault);
+        Io_AdcDac_AdcContModeInit, Io_AdcDac_AdcPwmSyncModeInit,
+        Io_AdcDac_AdcStart, Io_AdcDac_AdcStop, Io_AdcDac_DacStart,
+        Io_AdcDac_DacSetCurrent, Io_AdcDac_GetPhaseCurrents,
+        Io_AdcDac_GetBusVoltage, Io_AdcDac_GetPowerstageTemp,
+        Io_PowerStage_GetPhaOCFault, Io_PowerStage_GetPhbOCFault,
+        Io_PowerStage_GetPhcOCFault, Io_PowerStage_GetPowerStageOTFault);
 
     world = App_InvWorld_Create(
         can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, error_table, clock,

@@ -10,7 +10,7 @@ typedef struct DqsValues
     double s;
     double d;
     double q;
-} DqsValues;
+}DqsValues;
 
 struct PhaseValues
 {
@@ -36,4 +36,9 @@ enum Mode
 
 struct InvWorld;
 
-void App_ControlLoop_Run(double rotor_speed_ref, uint8_t mode, const struct InvWorld* world, double mod_index_request, double fund_freq_request);
+void App_ControlLoop_Run(
+    double                 rotor_speed_ref,
+    uint8_t                mode,
+    const struct InvWorld *world,
+    double                 mod_index_request,
+    double                 fund_freq_request);

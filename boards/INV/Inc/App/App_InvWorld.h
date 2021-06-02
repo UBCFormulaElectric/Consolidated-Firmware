@@ -20,7 +20,7 @@ struct ErrorTable;
 struct Clock;
 struct GateDrive;
 struct PowerStage;
-//struct Motor;
+// struct Motor;
 
 /**
  * Allocate and initialize a world in the application layer by registering
@@ -39,9 +39,8 @@ struct InvWorld *App_InvWorld_Create(
     struct ErrorTable *             error_table,
     struct Clock *const             clock,
     struct GateDrive *const         gate_drive,
-//    struct Motor *const motor,
-    struct PowerStage *const power_stage
-);
+    //    struct Motor *const motor,
+    struct PowerStage *const power_stage);
 
 /**
  * Deallocate the memory used by the given world
@@ -97,4 +96,4 @@ struct GateDrive *App_InvWorld_GetGateDrive(const struct InvWorld *world);
 
 struct PowerStage *App_InvWorld_GetPowerStage(const struct InvWorld *world);
 
-//struct Motor *App_InvWorld_GetMotor(const struct InvWorld *world);
+// struct Motor *App_InvWorld_GetMotor(const struct InvWorld *world);

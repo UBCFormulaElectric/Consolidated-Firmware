@@ -30,12 +30,12 @@ uint8_t Io_STGAP1AS_CalculateCrcTx(uint8_t input, uint8_t xor_value);
 uint8_t Io_STGAP1AS_CalculateCrcRx(uint8_t input, uint8_t xor_value);
 void    Io_STGAP1AS_SetShutdownPin(bool value);
 bool    Io_STGAP1AS_GetShutdownPin(void);
-bool Io_STGAP1AS_GetPhaHiDiag(void);
-bool Io_STGAP1AS_GetPhaLoDiag(void);
-bool Io_STGAP1AS_GetPhbHiDiag(void);
-bool Io_STGAP1AS_GetPhbLoDiag(void);
-bool Io_STGAP1AS_GetPhcHiDiag(void);
-bool Io_STGAP1AS_GetPhcLoDiag(void);
+bool    Io_STGAP1AS_GetPhaHiDiag(void);
+bool    Io_STGAP1AS_GetPhaLoDiag(void);
+bool    Io_STGAP1AS_GetPhbHiDiag(void);
+bool    Io_STGAP1AS_GetPhbLoDiag(void);
+bool    Io_STGAP1AS_GetPhcHiDiag(void);
+bool    Io_STGAP1AS_GetPhcLoDiag(void);
 
 // STGAP Device Enumeration
 enum

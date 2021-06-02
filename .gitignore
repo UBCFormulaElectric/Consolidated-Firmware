@@ -75,6 +75,7 @@ Pipfile.lock
 
 # CMake-relevant files
 CMakeCache.txt
+**/CMakeLists.txt.in
 cmake_install.cmake
 CMakeFiles/
 compile_commands*.json

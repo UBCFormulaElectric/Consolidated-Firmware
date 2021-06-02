@@ -6,7 +6,7 @@ uint32_t value;
 
 bool Io_ECI1118_GetMotorOTFault(void)
 {
-    if(HAL_GPIO_ReadPin(nMOD_OT_ALARM_GPIO_Port, nMOD_OT_ALARM_Pin))
+    if (HAL_GPIO_ReadPin(nMOD_OT_ALARM_GPIO_Port, nMOD_OT_ALARM_Pin))
     {
         return false;
     }

@@ -76,17 +76,16 @@ void Io_TimerPwmGen_LoadPwm(const struct PhaseValues *const phase_pwm_dur)
 
     uint32_t timer_period = timer_pwm_gen_handle->Init.Period;
 
-    //TODO double check that we're limiting these values to MAX_MOD_INDEX (0.9)
-    if (phase_pwm_dur->a < MAX_MOD_INDEX &&
-        phase_pwm_dur->b < MAX_MOD_INDEX &&
+    // TODO double check that we're limiting these values to MAX_MOD_INDEX (0.9)
+    if (phase_pwm_dur->a < MAX_MOD_INDEX && phase_pwm_dur->b < MAX_MOD_INDEX &&
         phase_pwm_dur->c < MAX_MOD_INDEX)
     {
         timer_pwm_gen_handle->Instance->CCR1 =
-            (uint32_t)(phase_pwm_dur->a*timer_period / 2);
+            (uint32_t)(phase_pwm_dur->a * timer_period / 2);
         timer_pwm_gen_handle->Instance->CCR2 =
-            (uint32_t)(phase_pwm_dur->b*timer_period / 2);
+            (uint32_t)(phase_pwm_dur->b * timer_period / 2);
         timer_pwm_gen_handle->Instance->CCR3 =
-            (uint32_t)(phase_pwm_dur->c*timer_period / 2);
+            (uint32_t)(phase_pwm_dur->c * timer_period / 2);
     }
     else
     {

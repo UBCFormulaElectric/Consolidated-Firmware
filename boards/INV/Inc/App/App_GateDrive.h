@@ -24,16 +24,16 @@ struct GateDrive *App_GateDrive_Create(
     void (*set_gd_shutdown_pin)(bool pin_val),
     bool (*get_gd_shutdown_pin)(void),
     void (*load_pwm)(const struct PhaseValues *phase_pwm_vals),
-    void     (*start_pwm)(void),
-    void     (*stop_pwm)(void),
-    void     (*set_switching_freq)(uint16_t switching_freq),
-    void     (*set_dead_time)(uint16_t dead_time),
-    bool     (*gd_get_pha_hi_diag)(void),
-    bool     (*gd_get_pha_lo_diag)(void),
-    bool     (*gd_get_phb_hi_diag)(void),
-    bool     (*gd_get_phb_lo_diag)(void),
-    bool     (*gd_get_phc_hi_diag)(void),
-    bool     (*gd_get_phc_lo_diag)(void));
+    void (*start_pwm)(void),
+    void (*stop_pwm)(void),
+    void (*set_switching_freq)(uint16_t switching_freq),
+    void (*set_dead_time)(uint16_t dead_time),
+    bool (*gd_get_pha_hi_diag)(void),
+    bool (*gd_get_pha_lo_diag)(void),
+    bool (*gd_get_phb_hi_diag)(void),
+    bool (*gd_get_phb_lo_diag)(void),
+    bool (*gd_get_phc_hi_diag)(void),
+    bool (*gd_get_phc_lo_diag)(void));
 
 void     App_GateDrive_Destroy(struct GateDrive *gate_drive);
 ExitCode App_GateDrive_WriteConfig(struct GateDrive *gate_drive);
@@ -54,11 +54,17 @@ void App_GateDrive_Shutdown(struct GateDrive *gate_drive);
 void App_GateDrive_Enable(struct GateDrive *gate_drive);
 bool App_GateDrive_IsShutdown(struct GateDrive *gate_drive);
 bool App_GateDrive_IsEnabled(struct GateDrive *gate_drive);
-void App_GateDrive_LoadPwm(struct GateDrive *gate_drive, struct PhaseValues *phase_pwm_dur);
+void App_GateDrive_LoadPwm(
+    struct GateDrive *  gate_drive,
+    struct PhaseValues *phase_pwm_dur);
 void App_GateDrive_StartPwm(struct GateDrive *gate_drive);
 void App_GateDrive_StopPwm(struct GateDrive *gate_drive);
-void App_GateDrive_SetSwitchingFreq(struct GateDrive *gate_drive, uint16_t switching_freq);
-void App_GateDrive_SetDeadTime(struct GateDrive *gate_drive, uint16_t dead_time);
+void App_GateDrive_SetSwitchingFreq(
+    struct GateDrive *gate_drive,
+    uint16_t          switching_freq);
+void App_GateDrive_SetDeadTime(
+    struct GateDrive *gate_drive,
+    uint16_t          dead_time);
 bool App_GateDrive_GetPhaHiDiag(struct GateDrive *gate_drive);
 bool App_GateDrive_GetPhaLoDiag(struct GateDrive *gate_drive);
 bool App_GateDrive_GetPhbHiDiag(struct GateDrive *gate_drive);

@@ -8,7 +8,6 @@
 #include <stdbool.h>
 #include <stdio.h>
 
-
 struct PowerStage
 {
     void (*adc_cont_mode_init)(void);
@@ -27,35 +26,35 @@ struct PowerStage
 };
 
 struct PowerStage *App_PowerStage_Create(
-        void (*ps_adc_cont_mode_init)(void),
-        void (*ps_adc_pwm_sync_mode_init)(void),
-        void (*ps_adc_start)(void),
-        void (*ps_adc_stop)(void),
-        void (*ps_dac_start)(void),
-        void (*ps_dac_set_current)(double current),
-        void (*ps_get_phase_currents)(struct PhaseValues *const phase_currents),
-        double (*ps_get_bus_voltage)(void),
-        double (*ps_get_powerstage_temp)(void),
-        bool (*ps_get_pha_oc_fault)(void),
-        bool (*ps_get_phb_oc_fault)(void),
-        bool (*ps_get_phc_oc_fault)(void),
-        bool (*ps_get_powerstage_ot_fault)(void))
+    void (*ps_adc_cont_mode_init)(void),
+    void (*ps_adc_pwm_sync_mode_init)(void),
+    void (*ps_adc_start)(void),
+    void (*ps_adc_stop)(void),
+    void (*ps_dac_start)(void),
+    void (*ps_dac_set_current)(double current),
+    void (*ps_get_phase_currents)(struct PhaseValues *const phase_currents),
+    double (*ps_get_bus_voltage)(void),
+    double (*ps_get_powerstage_temp)(void),
+    bool (*ps_get_pha_oc_fault)(void),
+    bool (*ps_get_phb_oc_fault)(void),
+    bool (*ps_get_phc_oc_fault)(void),
+    bool (*ps_get_powerstage_ot_fault)(void))
 {
     struct PowerStage *power_stage = malloc(sizeof(struct PowerStage));
     assert(power_stage != NULL);
 
-    power_stage->adc_cont_mode_init     = ps_adc_cont_mode_init;
-    power_stage->adc_pwm_sync_mode_init     = ps_adc_pwm_sync_mode_init;
-    power_stage->adc_start     = ps_adc_start;
-    power_stage->adc_stop   = ps_adc_stop;
-    power_stage->dac_start    = ps_dac_start;
-    power_stage->dac_set_current      = ps_dac_set_current;
-    power_stage->get_phase_currents          = ps_get_phase_currents;
-    power_stage->get_bus_voltage = ps_get_bus_voltage;
-    power_stage->get_powerstage_temp = ps_get_powerstage_temp;
-    power_stage->get_pha_oc_fault = ps_get_pha_oc_fault;
-    power_stage->get_phb_oc_fault = ps_get_phb_oc_fault;
-    power_stage->get_phc_oc_fault = ps_get_phc_oc_fault;
+    power_stage->adc_cont_mode_init      = ps_adc_cont_mode_init;
+    power_stage->adc_pwm_sync_mode_init  = ps_adc_pwm_sync_mode_init;
+    power_stage->adc_start               = ps_adc_start;
+    power_stage->adc_stop                = ps_adc_stop;
+    power_stage->dac_start               = ps_dac_start;
+    power_stage->dac_set_current         = ps_dac_set_current;
+    power_stage->get_phase_currents      = ps_get_phase_currents;
+    power_stage->get_bus_voltage         = ps_get_bus_voltage;
+    power_stage->get_powerstage_temp     = ps_get_powerstage_temp;
+    power_stage->get_pha_oc_fault        = ps_get_pha_oc_fault;
+    power_stage->get_phb_oc_fault        = ps_get_phb_oc_fault;
+    power_stage->get_phc_oc_fault        = ps_get_phc_oc_fault;
     power_stage->get_powerstage_ot_fault = ps_get_powerstage_ot_fault;
 
     return power_stage;
@@ -85,12 +84,16 @@ void App_PowerStage_StandBy(struct PowerStage *power_stage)
     power_stage->adc_start();
 }
 
-void App_PowerStage_SetCurrentLimits(struct PowerStage *power_stage, uint32_t current_lim)
+void App_PowerStage_SetCurrentLimits(
+    struct PowerStage *power_stage,
+    uint32_t           current_lim)
 {
     power_stage->dac_set_current(current_lim);
 }
 
-void App_PowerStage_GetPhaseCurrents(struct PowerStage *power_stage, struct PhaseValues *phase_currents)
+void App_PowerStage_GetPhaseCurrents(
+    struct PowerStage * power_stage,
+    struct PhaseValues *phase_currents)
 {
     power_stage->get_phase_currents(phase_currents);
 }

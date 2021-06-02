@@ -514,7 +514,7 @@ void Io_STGAP1AS_SetShutdownPin(const bool value)
 
 bool Io_STGAP1AS_GetPhaHiDiag(void)
 {
-    if(HAL_GPIO_ReadPin(nDIAG_PHA_HS_GPIO_Port, nDIAG_PHA_HS_Pin))
+    if (HAL_GPIO_ReadPin(nDIAG_PHA_HS_GPIO_Port, nDIAG_PHA_HS_Pin))
     {
         return false;
     }
@@ -526,7 +526,7 @@ bool Io_STGAP1AS_GetPhaHiDiag(void)
 
 bool Io_STGAP1AS_GetPhaLoDiag(void)
 {
-    if(HAL_GPIO_ReadPin(nDIAG_PHA_LS_GPIO_Port, nDIAG_PHA_LS_Pin))
+    if (HAL_GPIO_ReadPin(nDIAG_PHA_LS_GPIO_Port, nDIAG_PHA_LS_Pin))
     {
         return false;
     }
@@ -538,7 +538,7 @@ bool Io_STGAP1AS_GetPhaLoDiag(void)
 
 bool Io_STGAP1AS_GetPhbHiDiag(void)
 {
-    if(HAL_GPIO_ReadPin(nDIAG_PHB_HS_GPIO_Port, nDIAG_PHB_HS_Pin))
+    if (HAL_GPIO_ReadPin(nDIAG_PHB_HS_GPIO_Port, nDIAG_PHB_HS_Pin))
     {
         return false;
     }
@@ -550,7 +550,7 @@ bool Io_STGAP1AS_GetPhbHiDiag(void)
 
 bool Io_STGAP1AS_GetPhbLoDiag(void)
 {
-    if(HAL_GPIO_ReadPin(nDIAG_PHA_HS_GPIO_Port, nDIAG_PHA_HS_Pin))
+    if (HAL_GPIO_ReadPin(nDIAG_PHA_HS_GPIO_Port, nDIAG_PHA_HS_Pin))
     {
         return false;
     }
@@ -562,7 +562,7 @@ bool Io_STGAP1AS_GetPhbLoDiag(void)
 
 bool Io_STGAP1AS_GetPhcHiDiag(void)
 {
-    if(HAL_GPIO_ReadPin(nDIAG_PHC_HS_GPIO_Port, nDIAG_PHC_HS_Pin))
+    if (HAL_GPIO_ReadPin(nDIAG_PHC_HS_GPIO_Port, nDIAG_PHC_HS_Pin))
     {
         return false;
     }
@@ -574,7 +574,7 @@ bool Io_STGAP1AS_GetPhcHiDiag(void)
 
 bool Io_STGAP1AS_GetPhcLoDiag(void)
 {
-    if(HAL_GPIO_ReadPin(nDIAG_PHC_LS_GPIO_Port, nDIAG_PHC_LS_Pin))
+    if (HAL_GPIO_ReadPin(nDIAG_PHC_LS_GPIO_Port, nDIAG_PHC_LS_Pin))
     {
         return false;
     }

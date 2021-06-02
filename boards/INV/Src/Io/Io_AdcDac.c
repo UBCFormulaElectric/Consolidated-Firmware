@@ -27,9 +27,9 @@ void Io_AdcDac_Init(
 // Sample all ADCs (1 and 2) in regular scanning conversion mode
 void Io_AdcDac_AdcContModeInit(void)
 {
-    if(adc1_handle == NULL || adc2_handle == NULL)
+    if (adc1_handle == NULL || adc2_handle == NULL)
     {
-        //todo exitcode here
+        // todo exitcode here
     }
     HAL_ADC_DeInit(adc1_handle);
     HAL_ADC_DeInit(adc2_handle);
@@ -71,9 +71,9 @@ void Io_AdcDac_AdcContModeInit(void)
 
 void Io_AdcDac_AdcPwmSyncModeInit(void)
 {
-    if(adc1_handle == NULL || adc2_handle == NULL)
+    if (adc1_handle == NULL || adc2_handle == NULL)
     {
-        //todo exitcode here
+        // todo exitcode here
     }
 
     HAL_ADC_DeInit(adc1_handle);
@@ -119,14 +119,12 @@ void Io_AdcDac_AdcPwmSyncModeInit(void)
 void Io_AdcDac_AdcStart(void)
 {
     if (HAL_ADC_Start_DMA(
-            adc1_handle, adc_data,
-            adc1_handle->Init.NbrOfConversion) != HAL_OK)
+            adc1_handle, adc_data, adc1_handle->Init.NbrOfConversion) != HAL_OK)
     {
         Error_Handler();
     }
     if (HAL_ADC_Start_DMA(
-            adc2_handle,
-            adc_data + adc1_handle->Init.NbrOfConversion,
+            adc2_handle, adc_data + adc1_handle->Init.NbrOfConversion,
             adc2_handle->Init.NbrOfConversion) != HAL_OK)
     {
         Error_Handler();
@@ -135,52 +133,54 @@ void Io_AdcDac_AdcStart(void)
 
 void Io_AdcDac_AdcStop(void)
 {
-    if (HAL_ADC_Stop_DMA(adc1_handle) != HAL_OK) {
+    if (HAL_ADC_Stop_DMA(adc1_handle) != HAL_OK)
+    {
         Error_Handler();
     }
-    if (HAL_ADC_Stop_DMA(adc2_handle) != HAL_OK) {
+    if (HAL_ADC_Stop_DMA(adc2_handle) != HAL_OK)
+    {
         Error_Handler();
     }
 }
 
 double Io_AdcDac_GetPowerstageTemp(void)
 {
-    double adc_voltage = 3.3*(double)*(adc_data + 4)/4096.0;
+    double adc_voltage = 3.3 * (double)*(adc_data + 4) / 4096.0;
 
-    //TODO this has to return temperature instead of voltage
+    // TODO this has to return temperature instead of voltage
     return adc_voltage;
 }
 
 double Io_AdcDac_GetMotorTemp(void)
 {
-    double adc_voltage = 3.3*(double)*(adc_data + 5)/4096.0;
+    double adc_voltage = 3.3 * (double)*(adc_data + 5) / 4096.0;
 
-    //TODO this has to return temperature instead of voltage
+    // TODO this has to return temperature instead of voltage
     return adc_voltage;
 }
 
 double Io_AdcDac_GetBusVoltage(void)
 {
-    double adc_voltage = 3.3*(double)*(adc_data + 3)/4096.0;
-    double bus_voltage = ((8.06+499*4)/8.06)*adc_voltage;
+    double adc_voltage = 3.3 * (double)*(adc_data + 3) / 4096.0;
+    double bus_voltage = ((8.06 + 499 * 4) / 8.06) * adc_voltage;
     return bus_voltage;
 }
 
 double Io_AdcDac_GetGpioVal(void)
 {
-    double adc_voltage = 3.3*(double)*(adc_data + 6)/4096.0;
+    double adc_voltage = 3.3 * (double)*(adc_data + 6) / 4096.0;
     return adc_voltage;
 }
 
 void Io_AdcDac_GetPhaseCurrents(struct PhaseValues *const phase_currents)
 {
-    double pha_voltage = 3.3*(double)*(adc_data + 0)/4096.0;
-    double phb_voltage = 3.3*(double)*(adc_data + 1)/4096.0;
-    double phc_voltage = 3.3*(double)*(adc_data + 2)/4096.0;
+    double pha_voltage = 3.3 * (double)*(adc_data + 0) / 4096.0;
+    double phb_voltage = 3.3 * (double)*(adc_data + 1) / 4096.0;
+    double phc_voltage = 3.3 * (double)*(adc_data + 2) / 4096.0;
 
-    phase_currents->a = (pha_voltage-1.65)*100;
-    phase_currents->b = (phb_voltage-1.65)*100;
-    phase_currents->c = (phc_voltage-1.65)*100;
+    phase_currents->a = (pha_voltage - 1.65) * 100;
+    phase_currents->b = (phb_voltage - 1.65) * 100;
+    phase_currents->c = (phc_voltage - 1.65) * 100;
 }
 
 void Io_AdcDac_DacStart(void)
