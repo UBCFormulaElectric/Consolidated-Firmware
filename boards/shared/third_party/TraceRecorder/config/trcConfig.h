@@ -128,8 +128,13 @@ extern "C" {
  * TRC_FREERTOS_VERSION_10_3_0				If using FreeRTOS v10.3.0
  * TRC_FREERTOS_VERSION_10_3_1				If using FreeRTOS v10.3.1 or later
  *****************************************************************************/
+#ifdef STM32F302xC
 #define TRC_CFG_FREERTOS_VERSION TRC_FREERTOS_VERSION_9_0_0
-
+#elif STM32F765xx
+#define TRC_CFG_FREERTOS_VERSION TRC_FREERTOS_VERSION_10_0_1
+#else
+#error "No supported device define found."
+#endif
 /*******************************************************************************
  * TRC_CFG_SCHEDULING_ONLY
  *

@@ -203,7 +203,7 @@ function(create_arm_binary
             -fno-common
             -fmessage-length=0
             -Wall
-            -Werror
+#            -Werror
             -Wextra
             -pedantic
             -specs=nosys.specs

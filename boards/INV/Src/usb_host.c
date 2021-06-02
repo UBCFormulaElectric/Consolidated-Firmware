@@ -96,6 +96,8 @@ void MX_USB_HOST_Init(void)
 static void USBH_UserProcess(USBH_HandleTypeDef *phost, uint8_t id)
 {
     /* USER CODE BEGIN CALL_BACK_1 */
+    (void)phost;
+
     switch (id)
     {
         case HOST_USER_SELECT_CONFIGURATION:

@@ -5,6 +5,9 @@ file(GLOB ARM_BINARY_IO_SRCS
         "Src/Io/*.c"
         "startup/*.s"
         )
+#list(FILTER ARM_BINARY_IO_SRCS EXCLUDE REGEX ".*stm32f7xx_hal_msp.c")
+#list(FILTER ARM_BINARY_IO_SRCS EXCLUDE REGEX ".*stm32f7xx_hal_hcd.c")
+
 set(ARM_BINARY_IO_INCLUDE_DIRS
         "Inc"
         "Inc/Io"
@@ -32,6 +35,10 @@ set(STM32CUBEMX_DRIVER_INCLUDE_DIRS
         "Middlewares/Third_Party/FreeRTOS/Source/include"
         "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"
         "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F"
+        "Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc"
+        "Middlewares/ST/STM32_USB_Device_Library/Core/Inc"
+        "Middlewares/ST/STM32_USB_Host_Library/Class/CDC/Inc"
+        "Middlewares/ST/STM32_USB_Host_Library/Core/Inc"
         "Drivers/CMSIS/Device/ST/STM32F7xx/Include"
         "Drivers/CMSIS/Include"
         "Drivers/CMSIS/DSP/Include"
@@ -39,9 +46,19 @@ set(STM32CUBEMX_DRIVER_INCLUDE_DIRS
 list(APPEND ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS ${STM32CUBEMX_DRIVER_INCLUDE_DIRS})
 file(GLOB_RECURSE STM32CUBEMX_DRIVER_SRCS
         "Middlewares/*.c"
-        "Drivers/*.c"
+#        "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/*.c"
+#        "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/*.c"
+        "Drivers/STM32F7xx_HAL_Driver/*.c"
         )
+
+#list(REMOVE_ITEM STM32CUBEMX_DRIVER_SRCS
+#        "${CMAKE_CURRENT_SOURCE_DIR}/Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_timebase_rtc_alarm_template.c"
+#        )
+list(FILTER STM32CUBEMX_DRIVER_SRCS EXCLUDE REGEX ".*template.*")
+list(FILTER STM32CUBEMX_DRIVER_SRCS EXCLUDE REGEX ".*IAR.*")
+message("${STM32CUBEMX_DRIVER_SRCS}")
 list(APPEND ARM_BINARY_THIRD_PARTY_SRCS ${STM32CUBEMX_DRIVER_SRCS})
+
 
 set(IOC_FILE "${CMAKE_CURRENT_SOURCE_DIR}/INV.ioc")
 set(STM32_DEVICE_TYPE STM32F765xx)
