@@ -135,11 +135,11 @@ void Io_AdcDac_AdcStop(void)
 {
     if (HAL_ADC_Stop_DMA(adc1_handle) != HAL_OK)
     {
-        Error_Handler();
+        //        Error_Handler();
     }
     if (HAL_ADC_Stop_DMA(adc2_handle) != HAL_OK)
     {
-        Error_Handler();
+        //        Error_Handler();
     }
 }
 

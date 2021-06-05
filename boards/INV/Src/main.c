@@ -1099,7 +1099,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 1 */
     if (htim->Instance == TIM8)
     {
-        App_ControlLoop_Run(10000, GEN_SINE_I, world, 0.1, 100.0);
+        App_ControlLoop_Run(10000, GEN_SINE_M, world, 0.1, 100.0);
     }
     /* USER CODE END Callback 1 */
 }

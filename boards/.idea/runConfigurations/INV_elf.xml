@@ -1,9 +1,8 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="INV.elf" type="com.jetbrains.cidr.embedded.openocd.conf.type" factoryName="com.jetbrains.cidr.embedded.openocd.conf.factory" nameIsGenerated="true" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="FORMULA_ELECTRIC_FIRMWARE" TARGET_NAME="INV.elf" RUN_TARGET_PROJECT_NAME="FORMULA_ELECTRIC_FIRMWARE" RUN_TARGET_NAME="INV.elf">
-    <openocd gdb-port="3333" telnet-port="4444" board-config="$PROJECT_DIR$/../tools/OpenOCD/stm32f7x.cfg" reset-type="INIT" download-type="ALWAYS" />
-    <method v="2">
-      <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-    </method>
+  <configuration default="false" name="INV.elf" type="com.jetbrains.cidr.embedded.openocd.conf.type" factoryName="com.jetbrains.cidr.embedded.openocd.conf.factory" nameIsGenerated="true" REDIRECT_INPUT="false" ELEVATE="false" USE_EXTERNAL_CONSOLE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="FORMULA_ELECTRIC_FIRMWARE" TARGET_NAME="INV.elf" CONFIG_NAME="embedded" version="1" RUN_TARGET_PROJECT_NAME="FORMULA_ELECTRIC_FIRMWARE" RUN_TARGET_NAME="INV.elf">
+    <openocd version="1" gdb-port="3333" telnet-port="4444" board-config="$PROJECT_DIR$/../tools/OpenOCD/stm32f7x.cfg" reset-type="INIT" download-type="ALWAYS">
+      <debugger kind="GDB">C:\Program Files (x86)\GNU Tools Arm Embedded\9 2019-q4-major\bin\arm-none-eabi-gdb.exe</debugger>
+    </openocd>
+    <method v="2" />
   </configuration>
-
 </component>
