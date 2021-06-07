@@ -22,32 +22,35 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
-    struct InvWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    //    struct GateDrive *gate_drive = App_InvWorld_GetGateDrive(world);
-    //    struct PowerStage *power_stage = App_InvWorld_GetPowerStage(world);
-    struct RgbLedSequence *rgb_led_sequence =
-        App_InvWorld_GetRgbLedSequence(world);
+    //    struct InvWorld *world =
+    //    App_SharedStateMachine_GetWorld(state_machine); struct GateDrive
+    //    *gate_drive = App_InvWorld_GetGateDrive(world); struct PowerStage
+    //    *power_stage = App_InvWorld_GetPowerStage(world);
+    //    struct RgbLedSequence *rgb_led_sequence =
+    //        App_InvWorld_GetRgbLedSequence(world);
 
     //    App_PowerStage_Enable(power_stage); //Enable ADC
     //    App_GateDrive_StartPwm(gate_drive); // Enable PWM
     //    App_GateDrive_Enable(gate_drive); // Release Shutdown Pin
 
-    App_SharedRgbLedSequence_Tick(rgb_led_sequence);
+    //    App_SharedRgbLedSequence_Tick(rgb_led_sequence);
 
     // TODO: do stuff here. For example, you could set some CAN messages
     // App_CanTx_SetPeriodicSignal_STATE(
     //    can_tx_interface, CANMSGS_DIM_STATE_MACHINE_STATE_DRIVE_CHOICE);
+    UNUSED(state_machine);
 }
 
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct InvWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    // struct GateDrive *gate_drive = App_InvWorld_GetGateDrive(world);
+    //     struct GateDrive *gate_drive = App_InvWorld_GetGateDrive(world);
+    //
+    //    struct HeartbeatMonitor *heartbeat_monitor =
+    //        App_InvWorld_GetHeartbeatMonitor(world);
 
-    struct HeartbeatMonitor *heartbeat_monitor =
-        App_InvWorld_GetHeartbeatMonitor(world);
-
-    App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
+    //    App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
+    UNUSED(state_machine);
 
     // TODO: do some more stuff here
 }

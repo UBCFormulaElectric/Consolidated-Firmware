@@ -70,6 +70,7 @@ void App_PowerStage_Enable(struct PowerStage *power_stage)
     power_stage->adc_stop();
     power_stage->adc_pwm_sync_mode_init();
     power_stage->adc_start();
+    power_stage->dac_start();
 }
 
 void App_PowerStage_Disable(struct PowerStage *power_stage)

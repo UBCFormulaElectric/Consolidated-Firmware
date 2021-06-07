@@ -230,7 +230,8 @@ int main(void)
     //    motor = App_Motor_Create(Io_ECI1118_GetTemperature,
     //    Io_ECI1118_GetRotorAngle);
 
-    Io_AdcDac_Init(&hadc1, &hadc2, &hdac);
+    HAL_GPIO_WritePin(GPIOD_1_GPIO_Port, GPIOD_1_Pin, GPIO_PIN_SET);
+
     power_stage = App_PowerStage_Create(
         Io_AdcDac_AdcContModeInit, Io_AdcDac_AdcPwmSyncModeInit,
         Io_AdcDac_AdcStart, Io_AdcDac_AdcStop, Io_AdcDac_DacStart,
@@ -615,14 +616,15 @@ static void MX_IWDG_Init(void)
     /* USER CODE END IWDG_Init 1 */
     hiwdg.Instance       = IWDG;
     hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
-    hiwdg.Init.Window    = 4095;
-    hiwdg.Init.Reload    = 4095;
+    hiwdg.Init.Window    = IWDG_WINDOW_DISABLE_VALUE;
+    hiwdg.Init.Reload = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
     if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
     {
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
-
+    Io_SharedSoftwareWatchdog_Init(
+        Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
     /* USER CODE END IWDG_Init 2 */
 }
 
@@ -809,7 +811,7 @@ static void MX_TIM8_Init(void)
     {
         Error_Handler();
     }
-    sConfigOC.OCMode = TIM_OCMODE_TIMING;
+    sConfigOC.OCMode = TIM_OCMODE_ACTIVE;
     if (HAL_TIM_OC_ConfigChannel(&htim8, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
     {
         Error_Handler();
@@ -884,6 +886,9 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GDRV_SPI_CS_GPIO_Port, GDRV_SPI_CS_Pin, GPIO_PIN_RESET);
 
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GPIOD_1_GPIO_Port, GPIOD_1_Pin, GPIO_PIN_RESET);
+
     /*Configure GPIO pins : FLASH_nWP_Pin ENDAT_DATA_SEND_Pin */
     GPIO_InitStruct.Pin   = FLASH_nWP_Pin | ENDAT_DATA_SEND_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
@@ -923,9 +928,9 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_Init(GDRV_SPI_CS_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : nDIAG_PHA_LS_Pin nDIAG_PHA_HS_Pin nDIAG_PHB_LS_Pin
-       GPIOD_1_Pin GPIOD_2_Pin */
-    GPIO_InitStruct.Pin = nDIAG_PHA_LS_Pin | nDIAG_PHA_HS_Pin |
-                          nDIAG_PHB_LS_Pin | GPIOD_1_Pin | GPIOD_2_Pin;
+     * GPIOD_2_Pin */
+    GPIO_InitStruct.Pin =
+        nDIAG_PHA_LS_Pin | nDIAG_PHA_HS_Pin | nDIAG_PHB_LS_Pin | GPIOD_2_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
@@ -935,6 +940,13 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : GPIOD_1_Pin */
+    GPIO_InitStruct.Pin   = GPIOD_1_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOD_1_GPIO_Port, &GPIO_InitStruct);
 }
 
 /* USER CODE BEGIN 4 */

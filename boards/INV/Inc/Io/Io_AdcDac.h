@@ -1,12 +1,6 @@
 #pragma once
 
-#include "main.h"
 #include "controls/App_ControlLoop.h"
-
-void Io_AdcDac_Init(
-    ADC_HandleTypeDef *const adc1,
-    ADC_HandleTypeDef *const adc2,
-    DAC_HandleTypeDef *const dac);
 
 void Io_AdcDac_AdcContModeInit(void);
 void Io_AdcDac_AdcPwmSyncModeInit(void);
