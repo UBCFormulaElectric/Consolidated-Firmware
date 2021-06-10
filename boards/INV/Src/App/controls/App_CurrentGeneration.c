@@ -1,15 +1,15 @@
 #include "controls/App_CurrentGeneration.h"
 #include "configs/App_ControlSystemConfig.h"
 
-DqsValues generateRefCurrents(
-    const DqsValues *const dqs_ref_currents,
-    const double           omega,
-    const double           vdc_sensor_val,
-    bool *const            fw_flag)
+struct DqsValues generateRefCurrents(
+    const struct DqsValues *const dqs_ref_currents,
+    const double                  omega,
+    const double                  vdc_sensor_val,
+    bool *const                   fw_flag)
 {
-    DqsValues new_dqs_ref_currents;
-    double    id_mtpa, iq_mtpa, omega_elec_fw_thres;
-    double    omega_elec = omega * MOTOR_POLES / 2;
+    struct DqsValues new_dqs_ref_currents;
+    double           id_mtpa, iq_mtpa, omega_elec_fw_thres;
+    double           omega_elec = omega * MOTOR_POLES / 2;
     double lamda  = BACK_EMF_CONST * 2 * 9.549 / (sqrt(3) * 1000 * MOTOR_POLES);
     double vs_max = MAX_MOD_INDEX * vdc_sensor_val / sqrt(3);
     int    sign_is = (dqs_ref_currents->s > 0) - (dqs_ref_currents->s < 0);

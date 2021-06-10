@@ -11,9 +11,9 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     struct GateDrive *        gate_drive  = App_InvWorld_GetGateDrive(world);
     struct PowerStage *       power_stage = App_InvWorld_GetPowerStage(world);
 
-    App_PowerStage_Enable(power_stage); // Enable ADC
+    //    App_PowerStage_Enable(power_stage); // Enable ADC
     App_GateDrive_StartPwm(gate_drive); // Enable PWM
-    App_GateDrive_Enable(gate_drive);   // Release Shutdown Pin
+    //    App_GateDrive_Enable(gate_drive);   // Release Shutdown Pin
 
     UNUSED(can_tx_interface);
 

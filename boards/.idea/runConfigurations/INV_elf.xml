@@ -3,6 +3,8 @@
     <openocd version="1" gdb-port="3333" telnet-port="4444" board-config="$PROJECT_DIR$/../tools/OpenOCD/stm32f7x.cfg" reset-type="INIT" download-type="ALWAYS">
       <debugger kind="GDB">C:\Program Files (x86)\GNU Tools Arm Embedded\9 2019-q4-major\bin\arm-none-eabi-gdb.exe</debugger>
     </openocd>
-    <method v="2" />
+    <method v="2">
+      <option name="CLION.COMPOUND.BUILD" enabled="true" />
+    </method>
   </configuration>
 </component>

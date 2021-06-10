@@ -613,7 +613,7 @@
         </option>
         <option>
           <name>AUserIncludes</name>
-          <state>$PROJ_DIR$\..\Inc</state>
+          <state>$PROJ_DIR$\..\\Inc</state>
         </option>
         <option>
           <name>AExtraOptionsCheckV2</name>
@@ -1062,12 +1062,51 @@
   <group>
     <name>Drivers</name>
     <group>
+      <name>CMSIS</name>
+      <file>
+        <name>$PROJ_DIR$/../Src/system_stm32f7xx.c</name>
+      </file>
+    </group>
+    <group>
       <name>STM32F7xx_HAL_Driver</name>
       <file>
         <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_hcd.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_ll_usb.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_adc.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_adc_ex.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_can.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_cortex.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dac.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dac_ex.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_iwdg.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_spi.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_spi_ex.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim.c</name>
+      </file>
+      <file>
+        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim_ex.c</name>
       </file>
       <file>
         <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_rcc.c</name>
@@ -1097,9 +1136,6 @@
         <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_pwr_ex.c</name>
       </file>
       <file>
-        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_cortex.c</name>
-      </file>
-      <file>
         <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal.c</name>
       </file>
       <file>
@@ -1110,42 +1146,6 @@
       </file>
       <file>
         <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_exti.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_adc.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_adc_ex.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_can.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dac.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_dac_ex.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_iwdg.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_spi.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_spi_ex.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim.c</name>
-      </file>
-      <file>
-        <name>$PROJ_DIR$/../Drivers/STM32F7xx_HAL_Driver/Src/stm32f7xx_hal_tim_ex.c</name>
-      </file>
-    </group>
-    <group>
-      <name>CMSIS</name>
-      <file>
-        <name>$PROJ_DIR$/../Src/system_stm32f7xx.c</name>
       </file>
     </group>
   </group>

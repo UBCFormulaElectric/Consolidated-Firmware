@@ -2,16 +2,16 @@
 #include "configs/App_ControlSystemConfig.h"
 #include "controls/App_PIController.h"
 
-DqsValues calculateDqsVoltages(
-    const DqsValues *const dqs_ref_currents,
-    const DqsValues *const dqs_currents,
-    const double           omega,
-    const double           bus_voltage,
-    ControllerValues *     id_controller,
-    ControllerValues *     iq_controller)
+struct DqsValues calculateDqsVoltages(
+    const struct DqsValues *const dqs_ref_currents,
+    const struct DqsValues *const dqs_currents,
+    const double                  omega,
+    const double                  bus_voltage,
+    struct ControllerValues *     id_controller,
+    struct ControllerValues *     iq_controller)
 {
-    DqsValues dqs_voltages, dqs_comp_voltages;
-    double    vq_limit;
+    struct DqsValues dqs_voltages, dqs_comp_voltages;
+    double           vq_limit;
     double lamda  = BACK_EMF_CONST * 2 * 9.549 / (sqrt(3) * 1000 * MOTOR_POLES);
     double vs_max = .9 * bus_voltage / sqrt(3);
     double omega_elec = omega * MOTOR_POLES / 2;

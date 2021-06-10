@@ -5,12 +5,12 @@
 #include "stdbool.h"
 #include "math.h"
 
-typedef struct DqsValues
+struct DqsValues
 {
     double s;
     double d;
     double q;
-} DqsValues;
+};
 
 struct PhaseValues
 {
@@ -19,13 +19,13 @@ struct PhaseValues
     double c;
 };
 
-typedef struct ControllerValues
+struct ControllerValues
 {
     double prev_integral_input;
     double integral_sum;
     double gain;
     double time_const;
-} ControllerValues;
+};
 
 enum Mode
 {
@@ -41,4 +41,5 @@ void App_ControlLoop_Run(
     uint8_t                mode,
     const struct InvWorld *world,
     double                 mod_index_request,
-    double                 fund_freq_request);
+    double                 fund_freq_request,
+    double                 ph_cur_rms_request);

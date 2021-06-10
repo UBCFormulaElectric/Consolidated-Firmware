@@ -84,23 +84,27 @@ SPI_HandleTypeDef hspi2;
 SPI_HandleTypeDef hspi3;
 SPI_HandleTypeDef hspi4;
 
+TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim8;
 
 osThreadId          Task100HzHandle;
-uint32_t            Task100HzTaskBuffer[TASK100HZ_STACK_SIZE];
+uint32_t            Task100HzTaskBuffer[512];
 osStaticThreadDef_t Task100HzTaskControlBlock;
 osThreadId          TaskCanRxHandle;
-uint32_t            TaskCanRxBuffer[TASKCANRX_STACK_SIZE];
+uint32_t            TaskCanRxBuffer[512];
 osStaticThreadDef_t TaskCanRxControlBlock;
 osThreadId          TaskCanTxHandle;
-uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
+uint32_t            TaskCanTxBuffer[512];
 osStaticThreadDef_t TaskCanTxControlBlock;
 osThreadId          Task1kHzHandle;
-uint32_t            Task1kHzBuffer[TASK1KHZ_STACK_SIZE];
+uint32_t            Task1kHzBuffer[512];
 osStaticThreadDef_t Task1kHzControlBlock;
 osThreadId          Task1HzHandle;
-uint32_t            Task1HzBuffer[TASK1HZ_STACK_SIZE];
+uint32_t            Task1HzBuffer[512];
 osStaticThreadDef_t Task1HzControlBlock;
+osThreadId          TaskCtrlLoopHandle;
+uint32_t            TaskCtrlLoopBuffer[512];
+osStaticThreadDef_t TaskCtrlLoopControlBlock;
 /* USER CODE BEGIN PV */
 struct InvWorld *         world;
 struct StateMachine *     state_machine;
@@ -128,11 +132,13 @@ static void MX_SPI2_Init(void);
 static void MX_SPI3_Init(void);
 static void MX_SPI4_Init(void);
 static void MX_TIM8_Init(void);
+static void MX_TIM2_Init(void);
 void        RunTask100Hz(void const *argument);
 void        RunTaskCanRx(void const *argument);
 void        RunTaskCanTx(void const *argument);
 void        RunTask1kHz(void const *argument);
 void        RunTask1Hz(void const *argument);
+void        RunTaskCtrlLoop(void const *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -191,8 +197,10 @@ int main(void)
     MX_SPI3_Init();
     MX_SPI4_Init();
     MX_TIM8_Init();
+    MX_TIM2_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
+    SEGGER_RTT_Init();
 
     Io_SharedHardFaultHandler_Init();
 
@@ -230,7 +238,7 @@ int main(void)
     //    motor = App_Motor_Create(Io_ECI1118_GetTemperature,
     //    Io_ECI1118_GetRotorAngle);
 
-    HAL_GPIO_WritePin(GPIOD_1_GPIO_Port, GPIOD_1_Pin, GPIO_PIN_SET);
+    // HAL_GPIO_WritePin(GPIOD_1_GPIO_Port, GPIOD_1_Pin, GPIO_PIN_SET);
 
     power_stage = App_PowerStage_Create(
         Io_AdcDac_AdcContModeInit, Io_AdcDac_AdcPwmSyncModeInit,
@@ -272,33 +280,39 @@ int main(void)
     /* Create the thread(s) */
     /* definition and creation of Task100Hz */
     osThreadStaticDef(
-        Task100Hz, RunTask100Hz, osPriorityBelowNormal, 0, TASK100HZ_STACK_SIZE,
+        Task100Hz, RunTask100Hz, osPriorityBelowNormal, 0, 512,
         Task100HzTaskBuffer, &Task100HzTaskControlBlock);
     Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
 
     /* definition and creation of TaskCanRx */
     osThreadStaticDef(
-        TaskCanRx, RunTaskCanRx, osPriorityIdle, 0, TASKCANRX_STACK_SIZE,
-        TaskCanRxBuffer, &TaskCanRxControlBlock);
+        TaskCanRx, RunTaskCanRx, osPriorityIdle, 0, 512, TaskCanRxBuffer,
+        &TaskCanRxControlBlock);
     TaskCanRxHandle = osThreadCreate(osThread(TaskCanRx), NULL);
 
     /* definition and creation of TaskCanTx */
     osThreadStaticDef(
-        TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, TASKCANTX_STACK_SIZE,
-        TaskCanTxBuffer, &TaskCanTxControlBlock);
+        TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, 512, TaskCanTxBuffer,
+        &TaskCanTxControlBlock);
     TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
 
     /* definition and creation of Task1kHz */
     osThreadStaticDef(
-        Task1kHz, RunTask1kHz, osPriorityNormal, 0, TASK1KHZ_STACK_SIZE,
-        Task1kHzBuffer, &Task1kHzControlBlock);
+        Task1kHz, RunTask1kHz, osPriorityNormal, 0, 512, Task1kHzBuffer,
+        &Task1kHzControlBlock);
     Task1kHzHandle = osThreadCreate(osThread(Task1kHz), NULL);
 
     /* definition and creation of Task1Hz */
     osThreadStaticDef(
-        Task1Hz, RunTask1Hz, osPriorityLow, 0, TASK1HZ_STACK_SIZE,
-        Task1HzBuffer, &Task1HzControlBlock);
+        Task1Hz, RunTask1Hz, osPriorityLow, 0, 512, Task1HzBuffer,
+        &Task1HzControlBlock);
     Task1HzHandle = osThreadCreate(osThread(Task1Hz), NULL);
+
+    /* definition and creation of TaskCtrlLoop */
+    osThreadStaticDef(
+        TaskCtrlLoop, RunTaskCtrlLoop, osPriorityNormal, 0, 512,
+        TaskCtrlLoopBuffer, &TaskCtrlLoopControlBlock);
+    TaskCtrlLoopHandle = osThreadCreate(osThread(TaskCtrlLoop), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -743,6 +757,62 @@ static void MX_SPI4_Init(void)
 }
 
 /**
+ * @brief TIM2 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM2_Init(void)
+{
+    /* USER CODE BEGIN TIM2_Init 0 */
+
+    /* USER CODE END TIM2_Init 0 */
+
+    TIM_ClockConfigTypeDef  sClockSourceConfig = { 0 };
+    TIM_MasterConfigTypeDef sMasterConfig      = { 0 };
+    TIM_OC_InitTypeDef      sConfigOC          = { 0 };
+
+    /* USER CODE BEGIN TIM2_Init 1 */
+
+    /* USER CODE END TIM2_Init 1 */
+    htim2.Instance               = TIM2;
+    htim2.Init.Prescaler         = 1 - 1;
+    htim2.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim2.Init.Period            = 324000 - 1;
+    htim2.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+    if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sClockSourceConfig.ClockSource = TIM_CLOCKSOURCE_INTERNAL;
+    if (HAL_TIM_ConfigClockSource(&htim2, &sClockSourceConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    if (HAL_TIM_OC_Init(&htim2) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigOC.OCMode     = TIM_OCMODE_TIMING;
+    sConfigOC.Pulse      = 0;
+    sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+    if (HAL_TIM_OC_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM2_Init 2 */
+
+    /* USER CODE END TIM2_Init 2 */
+}
+
+/**
  * @brief TIM8 Initialization Function
  * @param None
  * @retval None
@@ -763,7 +833,7 @@ static void MX_TIM8_Init(void)
     /* USER CODE END TIM8_Init 1 */
     htim8.Instance               = TIM8;
     htim8.Init.Prescaler         = 1 - 1;
-    htim8.Init.CounterMode       = TIM_COUNTERMODE_CENTERALIGNED3;
+    htim8.Init.CounterMode       = TIM_COUNTERMODE_CENTERALIGNED1;
     htim8.Init.Period            = 10800 - 1;
     htim8.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim8.Init.RepetitionCounter = 0;
@@ -1091,6 +1161,29 @@ void RunTask1Hz(void const *argument)
     /* USER CODE END RunTask1Hz */
 }
 
+/* USER CODE BEGIN Header_RunTaskCtrlLoop */
+/**
+ * @brief Function implementing the TaskCtrlLoop thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskCtrlLoop */
+void RunTaskCtrlLoop(void const *argument)
+{
+    /* USER CODE BEGIN RunTaskCtrlLoop */
+    UNUSED(argument);
+    /* Infinite loop */
+    for (;;)
+    {
+        vTaskSuspend(NULL);
+        HAL_IWDG_Refresh(&hiwdg);
+        HAL_GPIO_WritePin(GPIOD_1_GPIO_Port, GPIOD_1_Pin, GPIO_PIN_SET);
+        App_ControlLoop_Run(10000, GEN_SINE_M, world, 0.1, 100.0, 10.0);
+        HAL_GPIO_WritePin(GPIOD_1_GPIO_Port, GPIOD_1_Pin, GPIO_PIN_RESET);
+    }
+    /* USER CODE END RunTaskCtrlLoop */
+}
+
 /**
  * @brief  Period elapsed callback in non blocking mode
  * @note   This function is called  when TIM1 interrupt took place, inside
@@ -1111,7 +1204,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 1 */
     if (htim->Instance == TIM8)
     {
-        App_ControlLoop_Run(10000, GEN_SINE_M, world, 0.1, 100.0);
+        BaseType_t checkIfYieldRequired;
+        checkIfYieldRequired = xTaskResumeFromISR(TaskCtrlLoopHandle);
+        portYIELD_FROM_ISR(checkIfYieldRequired);
     }
     /* USER CODE END Callback 1 */
 }

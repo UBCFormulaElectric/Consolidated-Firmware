@@ -42,24 +42,24 @@
 
 // INITIALIZE VARIABLES HERE
 struct PhaseValues phase_voltages, phase_currents, phase_duration;
-DqsValues          dqs_ref_currents, dqs_currents, dqs_voltages;
+struct DqsValues   dqs_ref_currents, dqs_currents, dqs_voltages;
 
-ControllerValues speed_controller = {
+struct ControllerValues speed_controller = {
     .prev_integral_input = 0,
     .integral_sum        = 0,
     .gain                = SPEED_GAIN,
     .time_const          = SPEED_TIME_CONST,
 };
 
-ControllerValues id_controller = { .prev_integral_input = 0,
-                                   .integral_sum        = 0,
-                                   .gain                = D_GAIN,
-                                   .time_const          = D_TIME_CONST };
+struct ControllerValues id_controller = { .prev_integral_input = 0,
+                                          .integral_sum        = 0,
+                                          .gain                = D_GAIN,
+                                          .time_const          = D_TIME_CONST };
 
-ControllerValues iq_controller = { .prev_integral_input = 0,
-                                   .integral_sum        = 0,
-                                   .gain                = Q_GAIN,
-                                   .time_const          = Q_TIME_CONST };
+struct ControllerValues iq_controller = { .prev_integral_input = 0,
+                                          .integral_sum        = 0,
+                                          .gain                = Q_GAIN,
+                                          .time_const          = Q_TIME_CONST };
 
 double  rotor_position = 0;
 double *prev_rotor_position;
@@ -75,8 +75,10 @@ void App_ControlLoop_Run(
     const uint8_t          mode,
     const struct InvWorld *world,
     const double           mod_index_request,
-    double                 fund_freq_request)
+    double                 fund_freq_request,
+    double                 ph_cur_rms_request)
 {
+
     struct GateDrive * gate_drive  = App_InvWorld_GetGateDrive(world);
     struct PowerStage *power_stage = App_InvWorld_GetPowerStage(world);
     // struct InvMotor* motor = App_InvWorld_GetMotor(world);
@@ -102,7 +104,7 @@ void App_ControlLoop_Run(
     }
     else
     {
-        //	rotor_position = motor.getPosition();
+        //	rotor_position = App_Motor_GetPosition(motor);
     }
 
     // Get Bus Voltage
@@ -113,12 +115,12 @@ void App_ControlLoop_Run(
 
     dqs_currents = clarkeParkTransform(&phase_currents, rotor_position);
 
-    // Get stator current reference
+    //     Get stator current reference
     dqs_ref_currents.s = torqueControl(
         rotor_speed_ref, rotor_speed, torque_ref, &speed_controller,
         prev_fw_flag);
 
-    // If used, calculate adaption gains
+    //    // If used, calculate adaption gains
     if (ADAPTION_GAIN_ENABLED)
     {
         id_controller = adaptionGain(&id_controller, dqs_ref_currents.s);
@@ -126,8 +128,20 @@ void App_ControlLoop_Run(
     }
 
     // Calculate d/q current references
-    dqs_ref_currents = generateRefCurrents(
-        &dqs_ref_currents, rotor_speed, bus_voltage, &fw_flag);
+    // If GEN_SINE_I mode is used, current request is defined by the user.
+    if (mode == GEN_SINE_I)
+    {
+        dqs_ref_currents.q = ph_cur_rms_request;
+        dqs_ref_currents.d = 0;
+        dqs_ref_currents.s = sqrt(
+            dqs_ref_currents.q * dqs_ref_currents.q +
+            dqs_ref_currents.d * dqs_ref_currents.d);
+    }
+    else
+    {
+        dqs_ref_currents = generateRefCurrents(
+            &dqs_ref_currents, rotor_speed, bus_voltage, &fw_flag);
+    }
 
     // Calculate d/q PI controller outputs
     if (mode == GEN_SINE_M)
@@ -154,4 +168,5 @@ void App_ControlLoop_Run(
 
     *prev_fw_flag        = fw_flag;
     *prev_rotor_position = rotor_position;
+    HAL_GPIO_WritePin(GPIOD_1_GPIO_Port, GPIOD_1_Pin, GPIO_PIN_RESET);
 }

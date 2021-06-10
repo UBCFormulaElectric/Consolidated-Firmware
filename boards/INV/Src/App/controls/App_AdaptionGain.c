@@ -8,11 +8,12 @@
 #include "controls/App_AdaptionGain.h"
 #include "configs/App_ControlSystemConfig.h"
 
-ControllerValues
-    adaptionGain(const ControllerValues *const values, const double is_ref)
+struct ControllerValues adaptionGain(
+    const struct ControllerValues *const values,
+    const double                         is_ref)
 {
-    double           kp_adaption, tn_adaption;
-    ControllerValues new_values;
+    double                  kp_adaption, tn_adaption;
+    struct ControllerValues new_values;
 
     // Lower region
     if (fabs(is_ref) < LOWER_ADAPTION_LIMIT * MAX_STATOR_CURRENT)

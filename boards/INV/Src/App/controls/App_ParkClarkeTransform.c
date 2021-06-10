@@ -1,8 +1,9 @@
 #include "controls/App_ParkClarkeTransform.h"
 #include "controls/App_ControlLoop.h"
 
-struct PhaseValues
-    parkClarkeTransform(const DqsValues *const dqs_voltages, const double theta)
+struct PhaseValues parkClarkeTransform(
+    const struct DqsValues *const dqs_voltages,
+    const double                  theta)
 {
     struct PhaseValues phase_voltages;
 
