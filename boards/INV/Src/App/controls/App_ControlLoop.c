@@ -78,7 +78,6 @@ void App_ControlLoop_Run(
     double                 fund_freq_request,
     double                 ph_cur_rms_request)
 {
-
     struct GateDrive * gate_drive  = App_InvWorld_GetGateDrive(world);
     struct PowerStage *power_stage = App_InvWorld_GetPowerStage(world);
     // struct InvMotor* motor = App_InvWorld_GetMotor(world);

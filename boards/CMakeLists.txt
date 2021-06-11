@@ -10,6 +10,7 @@ if("${PLATFORM}" STREQUAL "x86")
     # We assume this cmake is running on a x86 platform, so the 
     # default compiler settings should be fine
     project(FORMULA_ELECTRIC_FIRMWARE C CXX)
+    enable_language(C ASM)
 elseif("${PLATFORM}" STREQUAL "arm")
     set(CMAKE_C_COMPILER_WORKS 1)
     set(TOOLCHAIN_PREFIX arm-none-eabi-)
@@ -20,6 +21,7 @@ elseif("${PLATFORM}" STREQUAL "arm")
     set(SIZE ${TOOLCHAIN_PREFIX}size)
 
     project(FORMULA_ELECTRIC_FIRMWARE C ASM)
+    enable_language(C ASM)
 else()
     message(FATAL_ERROR
         "ERROR: Please set the PLATFORM variable to 'x86' or 'arm'.")

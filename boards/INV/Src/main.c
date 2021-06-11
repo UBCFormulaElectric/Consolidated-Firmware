@@ -310,7 +310,7 @@ int main(void)
 
     /* definition and creation of TaskCtrlLoop */
     osThreadStaticDef(
-        TaskCtrlLoop, RunTaskCtrlLoop, osPriorityNormal, 0, 512,
+        TaskCtrlLoop, RunTaskCtrlLoop, osPriorityLow, 0, 512,
         TaskCtrlLoopBuffer, &TaskCtrlLoopControlBlock);
     TaskCtrlLoopHandle = osThreadCreate(osThread(TaskCtrlLoop), NULL);
 

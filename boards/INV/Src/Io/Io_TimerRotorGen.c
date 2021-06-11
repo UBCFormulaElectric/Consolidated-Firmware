@@ -6,8 +6,8 @@ extern TIM_HandleTypeDef htim2;
 
 void Io_TimerRotorGen_SetFundFreq(const double fund_frequency)
 {
-    uint32_t clk_freq = 2 * HAL_RCC_GetPCLK1Freq();
-    uint32_t timer_period      = clk_freq / fund_frequency;
+    uint32_t clk_freq     = 2 * HAL_RCC_GetPCLK1Freq();
+    uint32_t timer_period = clk_freq / fund_frequency;
     TIM2->ARR |= timer_period;
 }
 
