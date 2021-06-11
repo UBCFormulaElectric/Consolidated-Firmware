@@ -200,7 +200,7 @@ int main(void)
     MX_TIM2_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
-    SEGGER_RTT_Init();
+    traceSTART();
 
     Io_SharedHardFaultHandler_Init();
 

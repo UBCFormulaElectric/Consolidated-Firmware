@@ -187,6 +187,8 @@ standard names. */
 
 // Required for thread-safety of newlib sprintf, strtok, etc...
 #define configUSE_NEWLIB_REENTRANT 1
+
+#include "SEGGER_SYSVIEW_FreeRTOS.h"
 /* USER CODE END Defines */
 
 #endif /* FREERTOS_CONFIG_H */
