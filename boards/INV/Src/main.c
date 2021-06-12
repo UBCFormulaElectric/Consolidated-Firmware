@@ -87,21 +87,21 @@ SPI_HandleTypeDef hspi4;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim8;
 
-osThreadId          Task100HzHandle;
-uint32_t            Task100HzTaskBuffer[512];
-osStaticThreadDef_t Task100HzTaskControlBlock;
+osThreadId          Task1HzHandle;
+uint32_t            Task1HzTaskBuffer[512];
+osStaticThreadDef_t Task1HzTaskControlBlock;
+osThreadId          Task1kHzHandle;
+uint32_t            TaskCan1kHzBuffer[512];
+osStaticThreadDef_t TaskCan1kHzControlBlock;
 osThreadId          TaskCanRxHandle;
 uint32_t            TaskCanRxBuffer[512];
 osStaticThreadDef_t TaskCanRxControlBlock;
 osThreadId          TaskCanTxHandle;
 uint32_t            TaskCanTxBuffer[512];
 osStaticThreadDef_t TaskCanTxControlBlock;
-osThreadId          Task1kHzHandle;
-uint32_t            Task1kHzBuffer[512];
-osStaticThreadDef_t Task1kHzControlBlock;
-osThreadId          Task1HzHandle;
-uint32_t            Task1HzBuffer[512];
-osStaticThreadDef_t Task1HzControlBlock;
+osThreadId          Task100HzHandle;
+uint32_t            Task100HzBuffer[512];
+osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
 struct InvWorld *         world;
 struct StateMachine *     state_machine;
@@ -130,11 +130,11 @@ static void MX_SPI3_Init(void);
 static void MX_SPI4_Init(void);
 static void MX_TIM8_Init(void);
 static void MX_TIM2_Init(void);
-void        RunTask100Hz(void const *argument);
+void        RunTask1Hz(void const *argument);
+void        RunTask1kHz(void const *argument);
 void        RunTaskCanRx(void const *argument);
 void        RunTaskCanTx(void const *argument);
-void        RunTask1kHz(void const *argument);
-void        RunTask1Hz(void const *argument);
+void        RunTask100Hz(void const *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -275,11 +275,17 @@ int main(void)
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
-    /* definition and creation of Task100Hz */
+    /* definition and creation of Task1Hz */
     osThreadStaticDef(
-        Task100Hz, RunTask100Hz, osPriorityBelowNormal, 0, 512,
-        Task100HzTaskBuffer, &Task100HzTaskControlBlock);
-    Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
+        Task1Hz, RunTask1Hz, osPriorityLow, 0, 512, Task1HzTaskBuffer,
+        &Task1HzTaskControlBlock);
+    Task1HzHandle = osThreadCreate(osThread(Task1Hz), NULL);
+
+    /* definition and creation of Task1kHz */
+    osThreadStaticDef(
+        Task1kHz, RunTask1kHz, osPriorityAboveNormal, 0, 512, TaskCan1kHzBuffer,
+        &TaskCan1kHzControlBlock);
+    Task1kHzHandle = osThreadCreate(osThread(Task1kHz), NULL);
 
     /* definition and creation of TaskCanRx */
     osThreadStaticDef(
@@ -293,17 +299,11 @@ int main(void)
         &TaskCanTxControlBlock);
     TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
 
-    /* definition and creation of Task1kHz */
+    /* definition and creation of Task100Hz */
     osThreadStaticDef(
-        Task1kHz, RunTask1kHz, osPriorityNormal, 0, 512, Task1kHzBuffer,
-        &Task1kHzControlBlock);
-    Task1kHzHandle = osThreadCreate(osThread(Task1kHz), NULL);
-
-    /* definition and creation of Task1Hz */
-    osThreadStaticDef(
-        Task1Hz, RunTask1Hz, osPriorityLow, 0, 512, Task1HzBuffer,
-        &Task1HzControlBlock);
-    Task1HzHandle = osThreadCreate(osThread(Task1Hz), NULL);
+        Task100Hz, RunTask100Hz, osPriorityIdle, 0, 512, Task100HzBuffer,
+        &Task100HzControlBlock);
+    Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -1014,31 +1014,26 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_RunTask100Hz */
+/* USER CODE BEGIN Header_RunTask1Hz */
 /**
- * @brief  Function implementing the Task100Hz thread.
+ * @brief  Function implementing the Task1Hz thread.
  * @param  argument: Not used
  * @retval None
  */
-/* USER CODE END Header_RunTask100Hz */
-void RunTask100Hz(void const *argument)
+/* USER CODE END Header_RunTask1Hz */
+void RunTask1Hz(void const *argument)
 {
-    /* init code for USB_HOST */
-    MX_USB_HOST_Init();
-
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
     uint32_t                 PreviousWakeTime = osKernelSysTick();
-    static const TickType_t  period_ms        = 10;
+    static const TickType_t  period_ms        = 1000U;
     SoftwareWatchdogHandle_t watchdog =
-        Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_100HZ", period_ms);
-
-    /* Infinite loop */
+            Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1HZ", period_ms);
     for (;;)
     {
-        App_SharedStateMachine_Tick100Hz(state_machine);
-
+        App_SharedStateMachine_Tick1Hz(state_machine);
+        Io_StackWaterMark_Check();
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
@@ -1046,48 +1041,6 @@ void RunTask100Hz(void const *argument)
     }
     /* USER CODE END 5 */
 }
-
-/* USER CODE BEGIN Header_RunTaskCanRx */
-/**
- * @brief Function implementing the TaskCanRx thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTaskCanRx */
-void RunTaskCanRx(void const *argument)
-{
-    /* USER CODE BEGIN RunTaskCanRx */
-    UNUSED(argument);
-    /* Infinite loop */
-    for (;;)
-    {
-        struct CanMsg message;
-        Io_SharedCan_DequeueCanRxMessage(&message);
-        Io_CanRx_UpdateRxTableWithMessage(
-            App_InvWorld_GetCanRx(world), &message);
-    }
-    /* USER CODE END RunTaskCanRx */
-}
-
-/* USER CODE BEGIN Header_RunTaskCanTx */
-/**
- * @brief Function implementing the TaskCanTx thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTaskCanTx */
-void RunTaskCanTx(void const *argument)
-{
-    /* USER CODE BEGIN RunTaskCanTx */
-    UNUSED(argument);
-    /* Infinite loop */
-    for (;;)
-    {
-        Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
-    }
-    /* USER CODE END RunTaskCanTx */
-}
-
 /* USER CODE BEGIN Header_RunTask1kHz */
 /**
  * @brief Function implementing the Task1kHz thread.
@@ -1102,17 +1055,13 @@ void RunTask1kHz(void const *argument)
     uint32_t                 PreviousWakeTime = osKernelSysTick();
     static const TickType_t  period_ms        = 1;
     SoftwareWatchdogHandle_t watchdog =
-        Io_SharedSoftwareWatchdog_AllocateWatchdog();
+            Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1KHZ", period_ms);
-
-    /* Infinite loop */
     for (;;)
     {
         const uint32_t current_time_ms = osKernelSysTick() * portTICK_PERIOD_MS;
-
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
         Io_CanTx_EnqueuePeriodicMsgs(can_tx, current_time_ms);
-
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
@@ -1120,36 +1069,69 @@ void RunTask1kHz(void const *argument)
     }
     /* USER CODE END RunTask1kHz */
 }
-
-/* USER CODE BEGIN Header_RunTask1Hz */
+/* USER CODE BEGIN Header_RunTaskCanRx */
 /**
- * @brief Function implementing the Task1Hz thread.
+ * @brief Function implementing the TaskCanRx thread.
  * @param argument: Not used
  * @retval None
  */
-/* USER CODE END Header_RunTask1Hz */
-void RunTask1Hz(void const *argument)
+/* USER CODE END Header_RunTaskCanRx */
+void RunTaskCanRx(void const *argument)
 {
-    /* USER CODE BEGIN RunTask1Hz */
+    /* USER CODE BEGIN RunTaskCanRx */
+    UNUSED(argument);
+    for (;;)
+    {
+        struct CanMsg message;
+        Io_SharedCan_DequeueCanRxMessage(&message);
+        Io_CanRx_UpdateRxTableWithMessage(
+                App_InvWorld_GetCanRx(world), &message);
+    }
+    /* USER CODE END RunTaskCanRx */
+}
+/* USER CODE BEGIN Header_RunTaskCanTx */
+/**
+ * @brief Function implementing the TaskCanTx thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskCanTx */
+void RunTaskCanTx(void const *argument)
+{
+    /* USER CODE BEGIN RunTaskCanTx */
+    UNUSED(argument);
+    for (;;)
+    {
+        Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
+    }
+    /* USER CODE END RunTaskCanTx */
+}
+/* USER CODE BEGIN Header_RunTask100Hz */
+/**
+ * @brief Function implementing the Task100Hz thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTask100Hz */
+void RunTask100Hz(void const *argument)
+{
+    /* USER CODE BEGIN RunTask100Hz */
     UNUSED(argument);
     uint32_t                 PreviousWakeTime = osKernelSysTick();
-    static const TickType_t  period_ms        = 1000U;
+    static const TickType_t  period_ms        = 10;
     SoftwareWatchdogHandle_t watchdog =
-        Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1HZ", period_ms);
-
+            Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_100HZ", period_ms);
     /* Infinite loop */
     for (;;)
     {
-        Io_StackWaterMark_Check();
-        App_SharedStateMachine_Tick1Hz(state_machine);
-
+        App_SharedStateMachine_Tick100Hz(state_machine);
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
         osDelayUntil(&PreviousWakeTime, period_ms);
     }
-    /* USER CODE END RunTask1Hz */
+    /* USER CODE END RunTask100Hz */
 }
 
 /**
