@@ -201,6 +201,7 @@ int main(void)
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
     traceSTART();
+    SEGGER_SYSVIEW_Conf();
 
     Io_SharedHardFaultHandler_Init();
 
