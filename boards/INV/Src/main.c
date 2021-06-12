@@ -102,9 +102,6 @@ osStaticThreadDef_t Task1kHzControlBlock;
 osThreadId          Task1HzHandle;
 uint32_t            Task1HzBuffer[512];
 osStaticThreadDef_t Task1HzControlBlock;
-osThreadId          TaskCtrlLoopHandle;
-uint32_t            TaskCtrlLoopBuffer[512];
-osStaticThreadDef_t TaskCtrlLoopControlBlock;
 /* USER CODE BEGIN PV */
 struct InvWorld *         world;
 struct StateMachine *     state_machine;
@@ -138,7 +135,6 @@ void        RunTaskCanRx(void const *argument);
 void        RunTaskCanTx(void const *argument);
 void        RunTask1kHz(void const *argument);
 void        RunTask1Hz(void const *argument);
-void        RunTaskCtrlLoop(void const *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -308,12 +304,6 @@ int main(void)
         Task1Hz, RunTask1Hz, osPriorityLow, 0, 512, Task1HzBuffer,
         &Task1HzControlBlock);
     Task1HzHandle = osThreadCreate(osThread(Task1Hz), NULL);
-
-    /* definition and creation of TaskCtrlLoop */
-    osThreadStaticDef(
-        TaskCtrlLoop, RunTaskCtrlLoop, osPriorityLow, 0, 512,
-        TaskCtrlLoopBuffer, &TaskCtrlLoopControlBlock);
-    TaskCtrlLoopHandle = osThreadCreate(osThread(TaskCtrlLoop), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -1162,32 +1152,9 @@ void RunTask1Hz(void const *argument)
     /* USER CODE END RunTask1Hz */
 }
 
-/* USER CODE BEGIN Header_RunTaskCtrlLoop */
-/**
- * @brief Function implementing the TaskCtrlLoop thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTaskCtrlLoop */
-void RunTaskCtrlLoop(void const *argument)
-{
-    /* USER CODE BEGIN RunTaskCtrlLoop */
-    UNUSED(argument);
-    /* Infinite loop */
-    for (;;)
-    {
-        vTaskSuspend(NULL);
-        HAL_IWDG_Refresh(&hiwdg);
-        HAL_GPIO_WritePin(GPIOD_1_GPIO_Port, GPIOD_1_Pin, GPIO_PIN_SET);
-        App_ControlLoop_Run(10000, GEN_SINE_M, world, 0.1, 100.0, 10.0);
-        HAL_GPIO_WritePin(GPIOD_1_GPIO_Port, GPIOD_1_Pin, GPIO_PIN_RESET);
-    }
-    /* USER CODE END RunTaskCtrlLoop */
-}
-
 /**
  * @brief  Period elapsed callback in non blocking mode
- * @note   This function is called  when TIM1 interrupt took place, inside
+ * @note   This function is called  when TIM6 interrupt took place, inside
  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
  * a global variable "uwTick" used as application time base.
  * @param  htim : TIM handle
@@ -1198,16 +1165,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 0 */
 
     /* USER CODE END Callback 0 */
-    if (htim->Instance == TIM1)
+    if (htim->Instance == TIM6)
     {
         HAL_IncTick();
     }
     /* USER CODE BEGIN Callback 1 */
     if (htim->Instance == TIM8)
     {
-        BaseType_t checkIfYieldRequired;
-        checkIfYieldRequired = xTaskResumeFromISR(TaskCtrlLoopHandle);
-        portYIELD_FROM_ISR(checkIfYieldRequired);
+        //        BaseType_t checkIfYieldRequired;
+        //        checkIfYieldRequired = xTaskResumeFromISR(TaskCtrlLoopHandle);
+        //        portYIELD_FROM_ISR(checkIfYieldRequired);
     }
     /* USER CODE END Callback 1 */
 }
