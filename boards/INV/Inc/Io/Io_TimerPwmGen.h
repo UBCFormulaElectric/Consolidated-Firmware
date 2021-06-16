@@ -3,7 +3,6 @@
 #include "main.h"
 #include "controls/App_ControlLoop.h"
 
-void Io_TimerPwmGen_Init(TIM_HandleTypeDef *const tim_handle);
 void Io_TimerPwmGen_StartPwm(void);
 void Io_TimerPwmGen_StopPwm(void);
 void Io_TimerPwmGen_LoadPwm(const struct PhaseValues *phase_pwm_dur);

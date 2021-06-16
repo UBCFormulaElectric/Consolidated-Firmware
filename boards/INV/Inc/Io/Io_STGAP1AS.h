@@ -8,7 +8,6 @@
 
 struct StgapFaults;
 
-void     Io_STGAP1AS_Init(SPI_HandleTypeDef *handle);
 ExitCode Io_STGAP1AS_WriteConfiguration(void);
 void     Io_STGAP1AS_ResetStatus(void);
 void     Io_STGAP1AS_GlobalReset(void);

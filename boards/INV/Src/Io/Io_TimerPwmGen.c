@@ -2,89 +2,72 @@
 #include "Io_TimerPwmGen.h"
 #include "configs/App_ControlSystemConfig.h"
 
-TIM_HandleTypeDef *timer_pwm_gen_handle;
-
-void Io_TimerPwmGen_Init(TIM_HandleTypeDef *const tim_handle)
-{
-    timer_pwm_gen_handle = tim_handle;
-}
+extern TIM_HandleTypeDef htim8;
 
 void Io_TimerPwmGen_StartPwm(void)
 {
-    if (timer_pwm_gen_handle == NULL)
-    {
-        // TODO Return ExitCode here
-    }
 
     // Start base counter
-    HAL_TIM_Base_Start_IT(timer_pwm_gen_handle);
-    uint32_t timer_period = timer_pwm_gen_handle->Init.Period;
+    HAL_TIM_Base_Start_IT(&htim8);
+    uint32_t timer_period = htim8.Init.Period;
 
     /* ADC is sampled before the inverter is enabled */
 
     // Set output compare registers before beginning PWM
-    timer_pwm_gen_handle->Instance->CCR1 = 0;
-    timer_pwm_gen_handle->Instance->CCR2 = 0;
-    timer_pwm_gen_handle->Instance->CCR3 = 0;
+    htim8.Instance->CCR1 = 0;
+    htim8.Instance->CCR2 = 0;
+    htim8.Instance->CCR3 = 0;
 
     // ADC is sampled 300 cycles before control loop calculations begin
-    timer_pwm_gen_handle->Instance->CCR4 = timer_period - 300;
-    timer_pwm_gen_handle->Instance->CCR6 = timer_period / 2 - 300;
+    htim8.Instance->CCR4 = timer_period - 300;
+    htim8.Instance->CCR6 = timer_period / 2 - 300;
 
     // TODO do phase designations have to change?
     // Start 3-phase half bridge output compare
-    HAL_TIM_OC_Start(timer_pwm_gen_handle, TIM_CHANNEL_1);    // Phase A High
-    HAL_TIM_OC_Start(timer_pwm_gen_handle, TIM_CHANNEL_2);    // Phase B High
-    HAL_TIM_OC_Start(timer_pwm_gen_handle, TIM_CHANNEL_3);    // Phase C High
-    HAL_TIMEx_OCN_Start(timer_pwm_gen_handle, TIM_CHANNEL_1); // Phase A Low
-    HAL_TIMEx_OCN_Start(timer_pwm_gen_handle, TIM_CHANNEL_2); // Phase B Low
-    HAL_TIMEx_OCN_Start(timer_pwm_gen_handle, TIM_CHANNEL_3); // Phase C Low
-    HAL_TIMEx_OCN_Start(timer_pwm_gen_handle, TIM_CHANNEL_4); // ADC TRGO2 Event
-    HAL_TIMEx_OCN_Start(timer_pwm_gen_handle, TIM_CHANNEL_6); // ADC TRGO2 Event
+    HAL_TIM_OC_Start(&htim8, TIM_CHANNEL_1);    // Phase A High
+    HAL_TIM_OC_Start(&htim8, TIM_CHANNEL_2);    // Phase B High
+    HAL_TIM_OC_Start(&htim8, TIM_CHANNEL_3);    // Phase C High
+    HAL_TIMEx_OCN_Start(&htim8, TIM_CHANNEL_1); // Phase A Low
+    HAL_TIMEx_OCN_Start(&htim8, TIM_CHANNEL_2); // Phase B Low
+    HAL_TIMEx_OCN_Start(&htim8, TIM_CHANNEL_3); // Phase C Low
+    HAL_TIMEx_OCN_Start(&htim8, TIM_CHANNEL_4); // ADC TRGO2 Event
+    HAL_TIMEx_OCN_Start(&htim8, TIM_CHANNEL_6); // ADC TRGO2 Event
 }
 
 void Io_TimerPwmGen_StopPwm(void)
 {
-    if (timer_pwm_gen_handle == NULL)
-    {
-        // TODO Return ExitCode here
-    }
 
     // Stop base counter
-    HAL_TIM_Base_Stop_IT(timer_pwm_gen_handle);
+    HAL_TIM_Base_Stop_IT(&htim8);
 
     // TODO do phase designations have to change?
     // Stop 3-phase half bridge output compare
-    HAL_TIM_OC_Stop(timer_pwm_gen_handle, TIM_CHANNEL_1);    // Phase A High
-    HAL_TIM_OC_Stop(timer_pwm_gen_handle, TIM_CHANNEL_2);    // Phase B High
-    HAL_TIM_OC_Stop(timer_pwm_gen_handle, TIM_CHANNEL_3);    // Phase C High
-    HAL_TIMEx_OCN_Stop(timer_pwm_gen_handle, TIM_CHANNEL_1); // Phase A Low
-    HAL_TIMEx_OCN_Stop(timer_pwm_gen_handle, TIM_CHANNEL_2); // Phase B Low
-    HAL_TIMEx_OCN_Stop(timer_pwm_gen_handle, TIM_CHANNEL_3); // Phase C Low
-    HAL_TIMEx_OCN_Stop(timer_pwm_gen_handle, TIM_CHANNEL_4); // ADC TRGO2 Event
-    HAL_TIMEx_OCN_Stop(timer_pwm_gen_handle, TIM_CHANNEL_6); // ADC TRGO2 Event
+    HAL_TIM_OC_Stop(&htim8, TIM_CHANNEL_1);    // Phase A High
+    HAL_TIM_OC_Stop(&htim8, TIM_CHANNEL_2);    // Phase B High
+    HAL_TIM_OC_Stop(&htim8, TIM_CHANNEL_3);    // Phase C High
+    HAL_TIMEx_OCN_Stop(&htim8, TIM_CHANNEL_1); // Phase A Low
+    HAL_TIMEx_OCN_Stop(&htim8, TIM_CHANNEL_2); // Phase B Low
+    HAL_TIMEx_OCN_Stop(&htim8, TIM_CHANNEL_3); // Phase C Low
+    HAL_TIMEx_OCN_Stop(&htim8, TIM_CHANNEL_4); // ADC TRGO2 Event
+    HAL_TIMEx_OCN_Stop(&htim8, TIM_CHANNEL_6); // ADC TRGO2 Event
 }
 
 // Loads timer compare register value between 0 and the timer period*max
 // modulation index
 void Io_TimerPwmGen_LoadPwm(const struct PhaseValues *const phase_pwm_dur)
 {
-    if (timer_pwm_gen_handle == NULL)
-    {
-        // TODO Return ExitCode here - null timer handle
-    }
 
-    uint32_t timer_period = timer_pwm_gen_handle->Init.Period;
+    uint32_t timer_period = htim8.Init.Period;
 
     // TODO double check that we're limiting these values to MAX_MOD_INDEX (0.9)
     if (phase_pwm_dur->a < MAX_MOD_INDEX && phase_pwm_dur->b < MAX_MOD_INDEX &&
         phase_pwm_dur->c < MAX_MOD_INDEX)
     {
-        timer_pwm_gen_handle->Instance->CCR1 =
+        htim8.Instance->CCR1 =
             (uint32_t)(phase_pwm_dur->a * timer_period / 2);
-        timer_pwm_gen_handle->Instance->CCR2 =
+        htim8.Instance->CCR2 =
             (uint32_t)(phase_pwm_dur->b * timer_period / 2);
-        timer_pwm_gen_handle->Instance->CCR3 =
+        htim8.Instance->CCR3 =
             (uint32_t)(phase_pwm_dur->c * timer_period / 2);
     }
     else
@@ -104,10 +87,8 @@ void Io_TimerPwmGen_SetSwitchingFreq(const uint16_t switching_freq)
         // need to modify min and max values
     }
 
-    uint32_t apb2_clock_freq = 2 * HAL_RCC_GetPCLK2Freq();
+    uint32_t apb2_clock_freq;
 
-    //  TODO use this section of code to find out prescalar value. in our case,
-    //  we know it's 2x
     /* Get PCLK2 frequency */
     uint32_t pclk2 = HAL_RCC_GetPCLK2Freq();
 
@@ -124,9 +105,9 @@ void Io_TimerPwmGen_SetSwitchingFreq(const uint16_t switching_freq)
     }
 
     /* Change switching frequency by modifying the tim8 period */
-    timer_pwm_gen_handle->Init.Period = (uint16_t)(
+    htim8.Init.Period = (uint32_t)(
         apb2_clock_freq /
-            (2 * switching_freq * (timer_pwm_gen_handle->Init.Prescaler + 1)) -
+            (2 * switching_freq * (htim8.Init.Prescaler + 1)) -
         1);
 }
 

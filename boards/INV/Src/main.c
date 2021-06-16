@@ -163,6 +163,12 @@ int main(void)
 
     /* USER CODE END 1 */
 
+    /* Enable I-Cache---------------------------------------------------------*/
+    SCB_EnableICache();
+
+    /* Enable D-Cache---------------------------------------------------------*/
+    SCB_EnableDCache();
+
     /* MCU
      * Configuration--------------------------------------------------------*/
 
@@ -219,8 +225,6 @@ int main(void)
 
     clock = App_SharedClock_Create();
 
-    Io_STGAP1AS_Init(&hspi2);
-    Io_TimerPwmGen_Init(&htim8);
     gate_drive = App_GateDrive_Create(
         Io_STGAP1AS_WriteConfiguration, Io_STGAP1AS_ResetStatus,
         Io_STGAP1AS_GlobalReset, Io_STGAP1AS_WriteRegister,
@@ -234,8 +238,6 @@ int main(void)
 
     //    motor = App_Motor_Create(Io_ECI1118_GetTemperature,
     //    Io_ECI1118_GetRotorAngle);
-
-    // HAL_GPIO_WritePin(GPIOD_1_GPIO_Port, GPIOD_1_Pin, GPIO_PIN_SET);
 
     power_stage = App_PowerStage_Create(
         Io_AdcDac_AdcContModeInit, Io_AdcDac_AdcPwmSyncModeInit,
@@ -824,8 +826,8 @@ static void MX_TIM8_Init(void)
     /* USER CODE END TIM8_Init 1 */
     htim8.Instance               = TIM8;
     htim8.Init.Prescaler         = 1 - 1;
-    htim8.Init.CounterMode       = TIM_COUNTERMODE_CENTERALIGNED1;
-    htim8.Init.Period            = 10800 - 1;
+    htim8.Init.CounterMode       = TIM_COUNTERMODE_CENTERALIGNED2;
+    htim8.Init.Period            = 21600 - 1;
     htim8.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim8.Init.RepetitionCounter = 0;
     htim8.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
@@ -1011,7 +1013,21 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
+void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
+{
+    if (hadc->Instance == ADC1)
+    {
+        SEGGER_SYSVIEW_RecordEnterISR();
+        HAL_IWDG_Refresh(&hiwdg);
+        // osThreadResume(TaskCtrlLoopHandle);
+        // App_ControlLoop_Run(100, GEN_SINE_M, world, 0.05, 100, 10);
+        SEGGER_SYSVIEW_RecordExitISR();
+    }
+    if (hadc->Instance == ADC2)
+    {
+        HAL_IWDG_Refresh(&hiwdg);
+    }
+}
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_RunTask1Hz */
@@ -1023,12 +1039,15 @@ static void MX_GPIO_Init(void)
 /* USER CODE END Header_RunTask1Hz */
 void RunTask1Hz(void const *argument)
 {
+    /* init code for USB_HOST */
+    //MX_USB_HOST_Init();
+
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
     uint32_t                 PreviousWakeTime = osKernelSysTick();
     static const TickType_t  period_ms        = 1000U;
     SoftwareWatchdogHandle_t watchdog =
-            Io_SharedSoftwareWatchdog_AllocateWatchdog();
+        Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1HZ", period_ms);
     for (;;)
     {
@@ -1041,6 +1060,7 @@ void RunTask1Hz(void const *argument)
     }
     /* USER CODE END 5 */
 }
+
 /* USER CODE BEGIN Header_RunTask1kHz */
 /**
  * @brief Function implementing the Task1kHz thread.
@@ -1055,7 +1075,7 @@ void RunTask1kHz(void const *argument)
     uint32_t                 PreviousWakeTime = osKernelSysTick();
     static const TickType_t  period_ms        = 1;
     SoftwareWatchdogHandle_t watchdog =
-            Io_SharedSoftwareWatchdog_AllocateWatchdog();
+        Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1KHZ", period_ms);
     for (;;)
     {
@@ -1069,6 +1089,7 @@ void RunTask1kHz(void const *argument)
     }
     /* USER CODE END RunTask1kHz */
 }
+
 /* USER CODE BEGIN Header_RunTaskCanRx */
 /**
  * @brief Function implementing the TaskCanRx thread.
@@ -1085,10 +1106,11 @@ void RunTaskCanRx(void const *argument)
         struct CanMsg message;
         Io_SharedCan_DequeueCanRxMessage(&message);
         Io_CanRx_UpdateRxTableWithMessage(
-                App_InvWorld_GetCanRx(world), &message);
+            App_InvWorld_GetCanRx(world), &message);
     }
     /* USER CODE END RunTaskCanRx */
 }
+
 /* USER CODE BEGIN Header_RunTaskCanTx */
 /**
  * @brief Function implementing the TaskCanTx thread.
@@ -1106,6 +1128,7 @@ void RunTaskCanTx(void const *argument)
     }
     /* USER CODE END RunTaskCanTx */
 }
+
 /* USER CODE BEGIN Header_RunTask100Hz */
 /**
  * @brief Function implementing the Task100Hz thread.
@@ -1120,7 +1143,7 @@ void RunTask100Hz(void const *argument)
     uint32_t                 PreviousWakeTime = osKernelSysTick();
     static const TickType_t  period_ms        = 10;
     SoftwareWatchdogHandle_t watchdog =
-            Io_SharedSoftwareWatchdog_AllocateWatchdog();
+        Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_100HZ", period_ms);
     /* Infinite loop */
     for (;;)
@@ -1154,9 +1177,11 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 1 */
     if (htim->Instance == TIM8)
     {
-        //        BaseType_t checkIfYieldRequired;
-        //        checkIfYieldRequired = xTaskResumeFromISR(TaskCtrlLoopHandle);
-        //        portYIELD_FROM_ISR(checkIfYieldRequired);
+        SEGGER_SYSVIEW_RecordEnterISR();
+        // HAL_IWDG_Refresh(&hiwdg);
+        // osThreadResume(TaskCtrlLoopHandle);
+        App_ControlLoop_Run(100, GEN_SINE_M, world, 0.5, 10);
+        SEGGER_SYSVIEW_RecordExitISR();
     }
     /* USER CODE END Callback 1 */
 }

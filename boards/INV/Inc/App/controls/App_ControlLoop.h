@@ -41,5 +41,4 @@ void App_ControlLoop_Run(
     uint8_t                mode,
     const struct InvWorld *world,
     double                 mod_index_request,
-    double                 fund_freq_request,
     double                 ph_cur_rms_request);

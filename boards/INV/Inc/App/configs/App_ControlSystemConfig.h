@@ -35,7 +35,7 @@
 #define MAX_SWITCHING_FREQUENCY \
     12000 // Maximum settable switching frequency, in Hz
 #define MIN_SWITCHING_FREQUENCY \
-    8000                       // Minimum settable switching frequency, in Hz
+    4000                       // Minimum settable switching frequency, in Hz
 #define SAMPLE_FREQUENCY 20000 // Sampling frequency of sensors for control loop
 #define D_GAIN 0.8706229594480495 * 5     // PI controller D axis gain
 #define D_TIME_CONST 0.001777777777777778 // PI controller D axis time constant

@@ -14,7 +14,7 @@
 #include "main.h"
 #include <stdint.h>
 
-SPI_HandleTypeDef *stgap_spi_handle;
+extern SPI_HandleTypeDef hspi2;
 
 static const uint8_t crc_table[UINT8_MAX + 1] = {
     0x00, 0x07, 0x0E, 0x09, 0x1C, 0x1B, 0x12, 0x15, 0x38, 0x3F, 0x36, 0x31,
@@ -105,11 +105,6 @@ uint8_t diag2cfg_register_content = (DIAG2_TWN << 7) | (DIAG2_TSD << 6) |
                                     (DIAG2_ASC << 5) | (DIAG2_DESAT << 4) |
                                     (DIAG2_OV << 3) | (DIAG2_UV << 2) |
                                     (DIAG2_VDD << 1) | (DIAG2_SPI_REG_ERR);
-
-void Io_STGAP1AS_Init(SPI_HandleTypeDef *const handle)
-{
-    stgap_spi_handle = handle;
-}
 
 ExitCode Io_STGAP1AS_WriteConfiguration(void)
 {
@@ -446,11 +441,11 @@ uint8_t Io_STGAP1AS_SendReceiveByte(
             GDRV_SPI_CS_GPIO_Port, GDRV_SPI_CS_Pin, GPIO_PIN_RESET);
         // Transmit byte1 value, receive nonsense
         HAL_SPI_TransmitReceive(
-            stgap_spi_handle, &byte_value, &receive_buffer[i], 1,
+            &hspi2, &byte_value, &receive_buffer[i], 1,
             STGAP_SPI_TIMEOUT);
         // Transmit CRC for byte1 value, receive nonsense
         HAL_SPI_TransmitReceive(
-            stgap_spi_handle, &byte_crc, &receive_buffer[i + 1], 1,
+            &hspi2, &byte_crc, &receive_buffer[i + 1], 1,
             STGAP_SPI_TIMEOUT);
         HAL_GPIO_WritePin(GDRV_SPI_CS_GPIO_Port, GDRV_SPI_CS_Pin, GPIO_PIN_SET);
     }
