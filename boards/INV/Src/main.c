@@ -829,7 +829,7 @@ static void MX_TIM8_Init(void)
     htim8.Init.CounterMode       = TIM_COUNTERMODE_CENTERALIGNED2;
     htim8.Init.Period            = 21600 - 1;
     htim8.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
-    htim8.Init.RepetitionCounter = 0;
+    htim8.Init.RepetitionCounter = 1;
     htim8.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
     if (HAL_TIM_Base_Init(&htim8) != HAL_OK)
     {
@@ -855,7 +855,7 @@ static void MX_TIM8_Init(void)
     {
         Error_Handler();
     }
-    sConfigOC.OCMode       = TIM_OCMODE_ASSYMETRIC_PWM2;
+    sConfigOC.OCMode       = TIM_OCMODE_PWM1;
     sConfigOC.Pulse        = 0;
     sConfigOC.OCPolarity   = TIM_OCPOLARITY_HIGH;
     sConfigOC.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
@@ -1018,8 +1018,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     if (hadc->Instance == ADC1)
     {
         SEGGER_SYSVIEW_RecordEnterISR();
-        HAL_IWDG_Refresh(&hiwdg);
-        // osThreadResume(TaskCtrlLoopHandle);
+        //HAL_IWDG_Refresh(&hiwdg);
         // App_ControlLoop_Run(100, GEN_SINE_M, world, 0.05, 100, 10);
         SEGGER_SYSVIEW_RecordExitISR();
     }
@@ -1178,9 +1177,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     if (htim->Instance == TIM8)
     {
         SEGGER_SYSVIEW_RecordEnterISR();
-        // HAL_IWDG_Refresh(&hiwdg);
-        // osThreadResume(TaskCtrlLoopHandle);
-        App_ControlLoop_Run(100, GEN_SINE_M, world, 0.5, 10);
+        //HAL_IWDG_Refresh(&hiwdg);
+        App_ControlLoop_Run(15, GEN_SINE_M, world, 0.5, 10);
         SEGGER_SYSVIEW_RecordExitISR();
     }
     /* USER CODE END Callback 1 */

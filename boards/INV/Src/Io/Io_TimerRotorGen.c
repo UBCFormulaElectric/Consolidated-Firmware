@@ -3,6 +3,17 @@
 #include "main.h"
 
 extern TIM_HandleTypeDef htim2;
+uint32_t prev_timer_count;
+
+void Io_TimerRotorGen_Enable(void)
+{
+    HAL_TIM_Base_Start(&htim2);
+}
+
+void Io_TimerRotorGen_Disable(void)
+{
+    HAL_TIM_Base_Stop(&htim2);
+}
 
 void Io_TimerRotorGen_SetFundFreq(const double fund_frequency)
 {
@@ -17,4 +28,6 @@ double Io_TimerRotorGen_GetPosition(void)
     uint32_t timer_val         = __HAL_TIM_GET_COUNTER(&htim2);
     double fake_rotor_position = 2 * M_PI * (double)(timer_val / timer_period);
     return fake_rotor_position;
+
+    HAL_GetTick();
 }

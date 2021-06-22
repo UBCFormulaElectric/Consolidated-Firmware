@@ -1,7 +1,6 @@
 #include "controls/App_ClarkeParkTransform.h"
 #include "configs/App_ControlSystemConfig.h"
 #include <math.h>
-//#include <arm_math.h>
 
 struct DqsValues clarkeParkTransform(
     struct PhaseValues *const phase_currents,
@@ -16,8 +15,8 @@ struct DqsValues clarkeParkTransform(
     double alpha = (phase_currents->a - 0.5 * phase_currents->b -
                     0.5 * phase_currents->c) *
                    2 / 3;
-    double beta = ((sqrt(3) / 2) * phase_currents->b -
-                   (sqrt(3) / 2) * phase_currents->c) *
+    double beta = (M_SQRT3 / 2) * phase_currents->b -
+                   (M_SQRT3 / 2) * phase_currents->c *
                   2 / 3;
 
     // Park Transform

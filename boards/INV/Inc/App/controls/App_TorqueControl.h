@@ -9,4 +9,4 @@ double torqueControl(
     double                   omega,
     double                   torque_ref,
     struct ControllerValues *speed_controller,
-    const bool *             prev_fw_flag);
+    const bool               prev_fw_flag);

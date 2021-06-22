@@ -62,13 +62,13 @@ struct ControllerValues iq_controller = { .prev_integral_input = 0,
                                           .time_const          = Q_TIME_CONST };
 
 double  rotor_position = 0;
-double *prev_rotor_position;
+double  prev_rotor_position = 0;
 double  rotor_speed      = 0;
 double  bus_voltage      = 0;
 double  phc_current_calc = 0;
 float   torque_ref       = 0;
 bool    fw_flag          = 0;
-bool *  prev_fw_flag;
+bool    prev_fw_flag;
 
 void App_ControlLoop_Run(
     const double           rotor_speed_ref,
@@ -89,6 +89,7 @@ void App_ControlLoop_Run(
             can_rx, torque_ref);
     }
 
+    HAL_GPIO_TogglePin(GPIOD_1_GPIO_Port, GPIOD_1_Pin);
     // Get Speed Ref Request
     // App_CanRx_DCM_TORQUE_REQUEST_SetSignal_TORQUE_REQUEST(can_rx,
     // rotor_speed_ref);
@@ -104,9 +105,8 @@ void App_ControlLoop_Run(
     //    // Get Rotor Position
     if (mode == GEN_SINE_I || mode == GEN_SINE_M)
     {
-        // TODO fake out rotor position with timer here
         double fund_freq_request = rotor_speed_ref * 0.15915494327;
-        rotor_position = 180.0; // for now, rotor position = 180 degrees
+        rotor_position = fmod((prev_rotor_position + (fund_freq_request/SAMPLE_FREQUENCY) * 2 * M_PI), 2 * M_PI);
     }
     else
     {
@@ -120,11 +120,12 @@ void App_ControlLoop_Run(
     if (mode == MOTOR_CONTROL)
     {
         // Calculate Rotor Speed
+        //TODO bug here when rotor goes from 360 degrees to 0 degrees
         rotor_speed =
-            (rotor_position - *prev_rotor_position) * SAMPLE_FREQUENCY;
+            (rotor_position - prev_rotor_position) * SAMPLE_FREQUENCY;
     }
 
-    dqs_currents = clarkeParkTransform(&phase_currents, rotor_position);
+    //dqs_currents = clarkeParkTransform(&phase_currents, rotor_position);
 
     // Get stator current reference
 
@@ -165,7 +166,7 @@ void App_ControlLoop_Run(
     // Calculate d/q PI controller outputs
     if (mode == GEN_SINE_M)
     {
-        dqs_voltages.q = mod_index_request * (0.9 * bus_voltage / sqrt(3));
+        dqs_voltages.q = mod_index_request * (0.9 * bus_voltage / M_SQRT3);
         dqs_voltages.d = 0;
         dqs_voltages.s = sqrt(
             dqs_voltages.q * dqs_voltages.q + dqs_voltages.d * dqs_voltages.d);
@@ -178,13 +179,13 @@ void App_ControlLoop_Run(
     }
 
     // Transform d/q voltages to phase voltages
-    phase_voltages = parkClarkeTransform(&dqs_voltages, rotor_speed);
+    phase_voltages = parkClarkeTransform(&dqs_voltages, rotor_position);
 
     // Use Space Vector Modulation to calculate PWM durations
     phase_duration = CalculatePwmEdges(&phase_voltages, bus_voltage);
 
     App_GateDrive_LoadPwm(gate_drive, &phase_duration);
 
-    *prev_fw_flag        = fw_flag;
-    *prev_rotor_position = rotor_position;
+    prev_fw_flag        = fw_flag;
+    prev_rotor_position = rotor_position;
 }

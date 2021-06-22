@@ -1,6 +1,3 @@
-//
-// Created by ggoodwinwilson on 4/3/2021.
-//
 
 #include "App_Motor.h"
 #include <stdlib.h>
@@ -10,22 +7,26 @@
 
 struct Motor
 {
-    void (*adc_cont_mode_init)(void);
-    void (*adc_pwm_sync_mode_init)(void);
-    void (*adc_start)(void);
+    void (*set_fake_fund_freq)(double fundamental_freq);
+    void (*fake_rotor_enable)(void);
+    void (*fake_rotor_disable)(void);
+    double (*get_fake_position)(void);
 };
 
 struct Motor *App_Motor_Create(
-        void (*ps_adc_cont_mode_init)(void),
-        void (*ps_adc_pwm_sync_mode_init)(void),
-        void (*ps_adc_start)(void),
+        void (*mtr_set_fake_fund_freq)(double fundamental_freq),
+        void (*mtr_fake_rotor_enable)(void),
+        void (*mtr_fake_rotor_disable)(void),
+        double (*mtr_get_fake_position)(void))
 {
     struct Motor *motor = malloc(sizeof(struct Motor));
     assert(motor != NULL);
 
-    motor->adc_cont_mode_init      = ps_adc_cont_mode_init;
-    motor->adc_pwm_sync_mode_init  = ps_adc_pwm_sync_mode_init;
-    motor->adc_start               = ps_adc_start;
+    motor->set_fake_fund_freq      = mtr_set_fake_fund_freq;
+    motor->fake_rotor_enable = mtr_fake_rotor_enable;
+    motor->fake_rotor_disable = mtr_fake_rotor_disable;
+    motor->get_fake_position  = mtr_get_fake_position;
+
 
     return motor;
 }
@@ -35,41 +36,23 @@ void App_Motor_Destroy(struct Motor *motor)
     free(motor);
 }
 
-void App_Motor_Enable(struct Motor *motor)
+void App_Motor_FakeRotorEnable(struct Motor *motor, double fundamental_freq)
 {
-    motor->adc_stop();
-    motor->adc_pwm_sync_mode_init();
-    motor->adc_start();
-    motor->dac_start();
+    motor->fake_rotor_enable();
+    motor->set_fake_fund_freq(fundamental_freq);
 }
 
-void App_Motor_Disable(struct Motor *motor)
+void App_Motor_FakeRotorDisable(struct Motor *motor)
 {
-    motor->adc_stop();
+    motor->fake_rotor_disable();
 }
 
-void App_Motor_StandBy(struct Motor *motor)
+void App_Motor_FakeRotorSetFreq(struct Motor *motor, double fundamental_freq)
 {
-    motor->adc_stop();
-    motor->adc_cont_mode_init();
-    motor->adc_start();
+    motor->set_fake_fund_freq(fundamental_freq);
 }
 
-void App_Motor_SetCurrentLimits(
-        struct Motor *motor,
-        uint32_t           current_lim)
+double App_Motor_FakeRotorGetPosition(struct Motor *motor)
 {
-    motor->dac_set_current(current_lim);
-}
-
-void App_Motor_GetPhaseCurrents(
-        struct Motor * motor,
-        struct PhaseValues *phase_currents)
-{
-    motor->get_phase_currents(phase_currents);
-}
-
-double App_Motor_GetBusVoltage(struct Motor *motor)
-{
-    return motor->get_bus_voltage();
+    motor->get_fake_position();
 }
