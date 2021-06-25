@@ -6,7 +6,6 @@ extern TIM_HandleTypeDef htim8;
 
 void Io_TimerPwmGen_StartPwm(void)
 {
-
     // Start base counter
     HAL_TIM_Base_Start_IT(&htim8);
     uint32_t timer_period = __HAL_TIM_GET_AUTORELOAD(&htim8);
@@ -36,7 +35,6 @@ void Io_TimerPwmGen_StartPwm(void)
 
 void Io_TimerPwmGen_StopPwm(void)
 {
-
     // Stop base counter
     HAL_TIM_Base_Stop_IT(&htim8);
 
@@ -56,19 +54,15 @@ void Io_TimerPwmGen_StopPwm(void)
 // modulation index
 void Io_TimerPwmGen_LoadPwm(const struct PhaseValues *const phase_pwm_dur)
 {
-
     uint32_t timer_period = __HAL_TIM_GET_AUTORELOAD(&htim8);
 
     // TODO double check that we're limiting these values to MAX_MOD_INDEX (0.9)
     if (phase_pwm_dur->a < MAX_MOD_INDEX && phase_pwm_dur->b < MAX_MOD_INDEX &&
         phase_pwm_dur->c < MAX_MOD_INDEX)
     {
-        htim8.Instance->CCR1 =
-            (uint32_t)(phase_pwm_dur->a * timer_period / 2);
-        htim8.Instance->CCR2 =
-            (uint32_t)(phase_pwm_dur->b * timer_period / 2);
-        htim8.Instance->CCR3 =
-            (uint32_t)(phase_pwm_dur->c * timer_period / 2);
+        htim8.Instance->CCR1 = (uint32_t)(phase_pwm_dur->a * timer_period / 2);
+        htim8.Instance->CCR2 = (uint32_t)(phase_pwm_dur->b * timer_period / 2);
+        htim8.Instance->CCR3 = (uint32_t)(phase_pwm_dur->c * timer_period / 2);
     }
     else
     {
@@ -106,8 +100,7 @@ void Io_TimerPwmGen_SetSwitchingFreq(const uint16_t switching_freq)
 
     /* Change switching frequency by modifying the tim8 period */
     htim8.Init.Period = (uint32_t)(
-        apb2_clock_freq /
-            (2 * switching_freq * (htim8.Init.Prescaler + 1)) -
+        apb2_clock_freq / (2 * switching_freq * (htim8.Init.Prescaler + 1)) -
         1);
     HAL_TIM_Base_DeInit(&htim8);
     HAL_TIM_Base_Init(&htim8);
@@ -126,8 +119,8 @@ void Io_TimerPwmGen_SetDeadTime(uint16_t dead_time)
         // TODO place exitcode here - deadtime bits are locked in BDTR register
     }
 
-    double t_dts;
-    double tck_int;
+    double   t_dts;
+    double   tck_int;
     uint32_t dead_time_reg; // TIM8_BDTR register is 32 bits wide
 
     // Read CKD bits of TIM8_CR1 register
@@ -137,32 +130,31 @@ void Io_TimerPwmGen_SetDeadTime(uint16_t dead_time)
     if ((RCC->CFGR & RCC_CFGR_PPRE1) == 0)
     {
         /* PCLK1 prescaler equal to 1 => TIMCLK = PCLK1 */
-        tck_int =
-                1000000000.0 / (double)HAL_RCC_GetPCLK2Freq(); // Clock period, in ns
+        tck_int = 1000000000.0 /
+                  (double)HAL_RCC_GetPCLK2Freq(); // Clock period, in ns
     }
     else
     {
         /* PCLK1 prescaler different from 1 => TIMCLK = 2 * PCLK1 */
-        tck_int =
-                1000000000.0 / (double)HAL_RCC_GetPCLK2Freq() / 2; // Clock period, in ns
+        tck_int = 1000000000.0 / (double)HAL_RCC_GetPCLK2Freq() /
+                  2; // Clock period, in ns
     }
 
-    if(ckd_bits == 0)
+    if (ckd_bits == 0)
     {
         t_dts = tck_int;
     }
-    if(ckd_bits == 0x1)
+    if (ckd_bits == 0x1)
     {
         t_dts = 2 * tck_int;
     }
-    if(ckd_bits == 0x2)
+    if (ckd_bits == 0x2)
     {
         t_dts = 4 * tck_int;
     }
 
-
     // Read DTG bits of TIM8_BDTR
-    if(dead_time < 127 * tck_int)
+    if (dead_time < 127 * tck_int)
     {
         // DTG[7:5]=0xx -> dead_time = DTG[7:0]*tdtg with tdtg = tDTS.
         dead_time_reg = (uint32_t)((double)dead_time / t_dts);
@@ -171,26 +163,30 @@ void Io_TimerPwmGen_SetDeadTime(uint16_t dead_time)
     else if (dead_time < (64 + 63) * tck_int * 2)
     {
         // DTG[7:5]=10x -> dead_time = (64+DTG[5:0])*tdtg with Tdtg = 2 * tDTS
-        dead_time_reg = (uint32_t)((double)dead_time / (2.0 * t_dts) - 64.0) | TIM_BDTR_DTG_7;
+        dead_time_reg = (uint32_t)((double)dead_time / (2.0 * t_dts) - 64.0) |
+                        TIM_BDTR_DTG_7;
         TIM8->BDTR |= dead_time_reg;
     }
     else if (dead_time < (32 + 31) * tck_int * 8)
     {
         // DTG[7:5]=110 -> dead_time = (32+DTG[4:0])*tdtg with Tdtg = 8 * tDTS
-        dead_time_reg = (uint32_t)((double)dead_time / (8.0 * t_dts) - 32.0) | TIM_BDTR_DTG_7 | TIM_BDTR_DTG_6;
+        dead_time_reg = (uint32_t)((double)dead_time / (8.0 * t_dts) - 32.0) |
+                        TIM_BDTR_DTG_7 | TIM_BDTR_DTG_6;
         TIM8->BDTR |= dead_time_reg;
     }
     else if (dead_time < (32 + 31) * tck_int * 16)
     {
         // DTG[7:5]=111 -> dead_time = (32+DTG[4:0])*tdtg with Tdtg = 16 * tDTS
-        dead_time_reg = (uint32_t)((double)dead_time / (16.0 * t_dts) - 32.0) | TIM_BDTR_DTG_7 | TIM_BDTR_DTG_6 | TIM_BDTR_DTG_5;
+        dead_time_reg = (uint32_t)((double)dead_time / (16.0 * t_dts) - 32.0) |
+                        TIM_BDTR_DTG_7 | TIM_BDTR_DTG_6 | TIM_BDTR_DTG_5;
         TIM8->BDTR |= dead_time_reg;
     }
     else
     {
-        //Set BDTR to a default value of 1000ns
+        // Set BDTR to a default value of 1000ns
         // DTG[7:5]=10x -> dead_time = (64+DTG[5:0])*tdtg with Tdtg = 2 * tDTS
-        dead_time_reg = (uint32_t)((double)1000 / (2.0 * t_dts) - 64.0) | TIM_BDTR_DTG_7;
+        dead_time_reg =
+            (uint32_t)((double)1000 / (2.0 * t_dts) - 64.0) | TIM_BDTR_DTG_7;
         TIM8->BDTR |= dead_time_reg;
         // TODO exitcode error here, BDTR register set improperly
     }

@@ -14,19 +14,18 @@ struct Motor
 };
 
 struct Motor *App_Motor_Create(
-        void (*mtr_set_fake_fund_freq)(double fundamental_freq),
-        void (*mtr_fake_rotor_enable)(void),
-        void (*mtr_fake_rotor_disable)(void),
-        double (*mtr_get_fake_position)(void))
+    void (*mtr_set_fake_fund_freq)(double fundamental_freq),
+    void (*mtr_fake_rotor_enable)(void),
+    void (*mtr_fake_rotor_disable)(void),
+    double (*mtr_get_fake_position)(void))
 {
     struct Motor *motor = malloc(sizeof(struct Motor));
     assert(motor != NULL);
 
-    motor->set_fake_fund_freq      = mtr_set_fake_fund_freq;
-    motor->fake_rotor_enable = mtr_fake_rotor_enable;
+    motor->set_fake_fund_freq = mtr_set_fake_fund_freq;
+    motor->fake_rotor_enable  = mtr_fake_rotor_enable;
     motor->fake_rotor_disable = mtr_fake_rotor_disable;
     motor->get_fake_position  = mtr_get_fake_position;
-
 
     return motor;
 }

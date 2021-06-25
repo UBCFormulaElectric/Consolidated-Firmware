@@ -3,7 +3,7 @@
 #include "main.h"
 
 extern TIM_HandleTypeDef htim2;
-uint32_t prev_timer_count;
+uint32_t                 prev_timer_count;
 
 void Io_TimerRotorGen_Enable(void)
 {

@@ -13,7 +13,7 @@ double torqueControl(
     const double             omega,
     const double             torque_ref,
     struct ControllerValues *speed_controller,
-    const bool        prev_fw_flag)
+    const bool               prev_fw_flag)
 {
     double omega_torque_output, torque_output, stator_current_output;
 

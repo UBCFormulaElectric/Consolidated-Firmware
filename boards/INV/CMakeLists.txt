@@ -35,17 +35,17 @@ set(STM32CUBEMX_DRIVER_INCLUDE_DIRS
         "Middlewares/Third_Party/FreeRTOS/Source/include"
         "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"
         "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F"
-        "Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc"
-        "Middlewares/ST/STM32_USB_Device_Library/Core/Inc"
-        "Middlewares/ST/STM32_USB_Host_Library/Class/CDC/Inc"
-        "Middlewares/ST/STM32_USB_Host_Library/Core/Inc"
+#        "Middlewares/ST/STM32_USB_Device_Library/Class/CDC/Inc"
+#        "Middlewares/ST/STM32_USB_Device_Library/Core/Inc"
+#        "Middlewares/ST/STM32_USB_Host_Library/Class/CDC/Inc"
+#        "Middlewares/ST/STM32_USB_Host_Library/Core/Inc"
         "Drivers/CMSIS/Device/ST/STM32F7xx/Include"
         "Drivers/CMSIS/Include"
         "Drivers/CMSIS/DSP/Include"
         )
 list(APPEND ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS ${STM32CUBEMX_DRIVER_INCLUDE_DIRS})
 file(GLOB_RECURSE STM32CUBEMX_DRIVER_SRCS
-        "Middlewares/*.c"
+        "Middlewares/Third_Party/*.c"
 #        "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/*.c"
 #        "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/*.c"
         "Drivers/STM32F7xx_HAL_Driver/*.c"

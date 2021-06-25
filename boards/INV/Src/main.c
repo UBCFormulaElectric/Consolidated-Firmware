@@ -21,7 +21,6 @@
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
-#include "usb_host.h"
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
@@ -84,6 +83,7 @@ SPI_HandleTypeDef hspi2;
 SPI_HandleTypeDef hspi3;
 SPI_HandleTypeDef hspi4;
 
+TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim8;
 
@@ -129,6 +129,7 @@ static void MX_SPI2_Init(void);
 static void MX_SPI3_Init(void);
 static void MX_SPI4_Init(void);
 static void MX_TIM8_Init(void);
+static void MX_TIM1_Init(void);
 static void MX_TIM2_Init(void);
 void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
@@ -199,6 +200,7 @@ int main(void)
     MX_SPI3_Init();
     MX_SPI4_Init();
     MX_TIM8_Init();
+    MX_TIM1_Init();
     MX_TIM2_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
@@ -333,9 +335,8 @@ int main(void)
  */
 void SystemClock_Config(void)
 {
-    RCC_OscInitTypeDef       RCC_OscInitStruct   = { 0 };
-    RCC_ClkInitTypeDef       RCC_ClkInitStruct   = { 0 };
-    RCC_PeriphCLKInitTypeDef PeriphClkInitStruct = { 0 };
+    RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
     /** Configure the main internal regulator output voltage
      */
@@ -373,12 +374,6 @@ void SystemClock_Config(void)
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV2;
 
     if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_7) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    PeriphClkInitStruct.PeriphClockSelection = RCC_PERIPHCLK_CLK48;
-    PeriphClkInitStruct.Clk48ClockSelection  = RCC_CLK48SOURCE_PLL;
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInitStruct) != HAL_OK)
     {
         Error_Handler();
     }
@@ -655,9 +650,9 @@ static void MX_SPI2_Init(void)
     hspi2.Init.Direction         = SPI_DIRECTION_2LINES;
     hspi2.Init.DataSize          = SPI_DATASIZE_16BIT;
     hspi2.Init.CLKPolarity       = SPI_POLARITY_LOW;
-    hspi2.Init.CLKPhase          = SPI_PHASE_1EDGE;
+    hspi2.Init.CLKPhase          = SPI_PHASE_2EDGE;
     hspi2.Init.NSS               = SPI_NSS_SOFT;
-    hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
+    hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
     hspi2.Init.FirstBit          = SPI_FIRSTBIT_MSB;
     hspi2.Init.TIMode            = SPI_TIMODE_DISABLE;
     hspi2.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
@@ -750,6 +745,73 @@ static void MX_SPI4_Init(void)
 }
 
 /**
+ * @brief TIM1 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_TIM1_Init(void)
+{
+    /* USER CODE BEGIN TIM1_Init 0 */
+
+    /* USER CODE END TIM1_Init 0 */
+
+    TIM_MasterConfigTypeDef        sMasterConfig        = { 0 };
+    TIM_OC_InitTypeDef             sConfigOC            = { 0 };
+    TIM_BreakDeadTimeConfigTypeDef sBreakDeadTimeConfig = { 0 };
+
+    /* USER CODE BEGIN TIM1_Init 1 */
+
+    /* USER CODE END TIM1_Init 1 */
+    htim1.Instance               = TIM1;
+    htim1.Init.Prescaler         = 0;
+    htim1.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim1.Init.Period            = 0;
+    htim1.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
+    htim1.Init.RepetitionCounter = 0;
+    htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+    if (HAL_TIM_OC_Init(&htim1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sMasterConfig.MasterOutputTrigger  = TIM_TRGO_RESET;
+    sMasterConfig.MasterOutputTrigger2 = TIM_TRGO2_RESET;
+    sMasterConfig.MasterSlaveMode      = TIM_MASTERSLAVEMODE_DISABLE;
+    if (HAL_TIMEx_MasterConfigSynchronization(&htim1, &sMasterConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sConfigOC.OCMode       = TIM_OCMODE_TIMING;
+    sConfigOC.Pulse        = 0;
+    sConfigOC.OCPolarity   = TIM_OCPOLARITY_HIGH;
+    sConfigOC.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
+    sConfigOC.OCFastMode   = TIM_OCFAST_DISABLE;
+    sConfigOC.OCIdleState  = TIM_OCIDLESTATE_RESET;
+    sConfigOC.OCNIdleState = TIM_OCNIDLESTATE_RESET;
+    if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    sBreakDeadTimeConfig.OffStateRunMode  = TIM_OSSR_DISABLE;
+    sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
+    sBreakDeadTimeConfig.LockLevel        = TIM_LOCKLEVEL_OFF;
+    sBreakDeadTimeConfig.DeadTime         = 0;
+    sBreakDeadTimeConfig.BreakState       = TIM_BREAK_DISABLE;
+    sBreakDeadTimeConfig.BreakPolarity    = TIM_BREAKPOLARITY_HIGH;
+    sBreakDeadTimeConfig.BreakFilter      = 0;
+    sBreakDeadTimeConfig.Break2State      = TIM_BREAK2_DISABLE;
+    sBreakDeadTimeConfig.Break2Polarity   = TIM_BREAK2POLARITY_HIGH;
+    sBreakDeadTimeConfig.Break2Filter     = 0;
+    sBreakDeadTimeConfig.AutomaticOutput  = TIM_AUTOMATICOUTPUT_DISABLE;
+    if (HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN TIM1_Init 2 */
+
+    /* USER CODE END TIM1_Init 2 */
+}
+
+/**
  * @brief TIM2 Initialization Function
  * @param None
  * @retval None
@@ -827,7 +889,7 @@ static void MX_TIM8_Init(void)
     htim8.Instance               = TIM8;
     htim8.Init.Prescaler         = 1 - 1;
     htim8.Init.CounterMode       = TIM_COUNTERMODE_CENTERALIGNED2;
-    htim8.Init.Period            = 21600 - 1;
+    htim8.Init.Period            = 10800 - 1;
     htim8.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim8.Init.RepetitionCounter = 1;
     htim8.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
@@ -947,7 +1009,10 @@ static void MX_GPIO_Init(void)
         nSHDN_GDRV_MCU_GPIO_Port, nSHDN_GDRV_MCU_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GDRV_SPI_CS_GPIO_Port, GDRV_SPI_CS_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(nSHDN_GDRV_GPIO_Port, nSHDN_GDRV_Pin, GPIO_PIN_SET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(GDRV_SPI_CS_GPIO_Port, GDRV_SPI_CS_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOD_1_GPIO_Port, GPIOD_1_Pin, GPIO_PIN_RESET);
@@ -960,20 +1025,20 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
     /*Configure GPIO pins : nDIAG_PHB_HS_Pin nDIAG_PHC_LS_Pin nDIAG_PHC_HS_Pin
-       nSHDN_GDRV_Pin PHA_LIN_IN_Pin PHA_HIN_IN_Pin PHC_HIN_IN_Pin */
+       PHA_LIN_IN_Pin PHA_HIN_IN_Pin PHC_HIN_IN_Pin */
     GPIO_InitStruct.Pin = nDIAG_PHB_HS_Pin | nDIAG_PHC_LS_Pin |
-                          nDIAG_PHC_HS_Pin | nSHDN_GDRV_Pin | PHA_LIN_IN_Pin |
-                          PHA_HIN_IN_Pin | PHC_HIN_IN_Pin;
+                          nDIAG_PHC_HS_Pin | PHA_LIN_IN_Pin | PHA_HIN_IN_Pin |
+                          PHC_HIN_IN_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : nSHDN_GDRV_MCU_Pin */
-    GPIO_InitStruct.Pin   = nSHDN_GDRV_MCU_Pin;
+    /*Configure GPIO pins : nSHDN_GDRV_MCU_Pin nSHDN_GDRV_Pin */
+    GPIO_InitStruct.Pin   = nSHDN_GDRV_MCU_Pin | nSHDN_GDRV_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(nSHDN_GDRV_MCU_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     /*Configure GPIO pins : nPHC_OC_ALARM_Pin PB4 PB5 PB6
                              nPHA_OC_ALARM_Pin nPHB_OC_ALARM_Pin */
@@ -1004,6 +1069,14 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
+    /*Configure GPIO pins : USB_DM_Pin USB_DP_Pin */
+    GPIO_InitStruct.Pin       = USB_DM_Pin | USB_DP_Pin;
+    GPIO_InitStruct.Mode      = GPIO_MODE_AF_PP;
+    GPIO_InitStruct.Pull      = GPIO_NOPULL;
+    GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
+    GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
     /*Configure GPIO pin : GPIOD_1_Pin */
     GPIO_InitStruct.Pin   = GPIOD_1_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
@@ -1018,7 +1091,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     if (hadc->Instance == ADC1)
     {
         SEGGER_SYSVIEW_RecordEnterISR();
-        //HAL_IWDG_Refresh(&hiwdg);
+        // HAL_IWDG_Refresh(&hiwdg);
         // App_ControlLoop_Run(100, GEN_SINE_M, world, 0.05, 100, 10);
         SEGGER_SYSVIEW_RecordExitISR();
     }
@@ -1038,9 +1111,6 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 /* USER CODE END Header_RunTask1Hz */
 void RunTask1Hz(void const *argument)
 {
-    /* init code for USB_HOST */
-    //MX_USB_HOST_Init();
-
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
     uint32_t                 PreviousWakeTime = osKernelSysTick();
@@ -1177,7 +1247,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     if (htim->Instance == TIM8)
     {
         SEGGER_SYSVIEW_RecordEnterISR();
-        //HAL_IWDG_Refresh(&hiwdg);
+        // HAL_IWDG_Refresh(&hiwdg);
         App_ControlLoop_Run(15, GEN_SINE_M, world, 0.5, 10);
         SEGGER_SYSVIEW_RecordExitISR();
     }

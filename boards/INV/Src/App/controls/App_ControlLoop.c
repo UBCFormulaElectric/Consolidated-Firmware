@@ -61,14 +61,14 @@ struct ControllerValues iq_controller = { .prev_integral_input = 0,
                                           .gain                = Q_GAIN,
                                           .time_const          = Q_TIME_CONST };
 
-double  rotor_position = 0;
-double  prev_rotor_position = 0;
-double  rotor_speed      = 0;
-double  bus_voltage      = 0;
-double  phc_current_calc = 0;
-float   torque_ref       = 0;
-bool    fw_flag          = 0;
-bool    prev_fw_flag;
+double rotor_position      = 0;
+double prev_rotor_position = 0;
+double rotor_speed         = 0;
+double bus_voltage         = 0;
+double phc_current_calc    = 0;
+float  torque_ref          = 0;
+bool   fw_flag             = 0;
+bool   prev_fw_flag;
 
 void App_ControlLoop_Run(
     const double           rotor_speed_ref,
@@ -106,7 +106,10 @@ void App_ControlLoop_Run(
     if (mode == GEN_SINE_I || mode == GEN_SINE_M)
     {
         double fund_freq_request = rotor_speed_ref * 0.15915494327;
-        rotor_position = fmod((prev_rotor_position + (fund_freq_request/SAMPLE_FREQUENCY) * 2 * M_PI), 2 * M_PI);
+        rotor_position           = fmod(
+            (prev_rotor_position +
+             (fund_freq_request / SAMPLE_FREQUENCY) * 2 * M_PI),
+            2 * M_PI);
     }
     else
     {
@@ -120,12 +123,11 @@ void App_ControlLoop_Run(
     if (mode == MOTOR_CONTROL)
     {
         // Calculate Rotor Speed
-        //TODO bug here when rotor goes from 360 degrees to 0 degrees
-        rotor_speed =
-            (rotor_position - prev_rotor_position) * SAMPLE_FREQUENCY;
+        // TODO bug here when rotor goes from 360 degrees to 0 degrees
+        rotor_speed = (rotor_position - prev_rotor_position) * SAMPLE_FREQUENCY;
     }
 
-    //dqs_currents = clarkeParkTransform(&phase_currents, rotor_position);
+    // dqs_currents = clarkeParkTransform(&phase_currents, rotor_position);
 
     // Get stator current reference
 

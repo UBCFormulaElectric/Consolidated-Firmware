@@ -16,8 +16,7 @@ struct DqsValues clarkeParkTransform(
                     0.5 * phase_currents->c) *
                    2 / 3;
     double beta = (M_SQRT3 / 2) * phase_currents->b -
-                   (M_SQRT3 / 2) * phase_currents->c *
-                  2 / 3;
+                  (M_SQRT3 / 2) * phase_currents->c * 2 / 3;
 
     // Park Transform
     dqs_currents.d = alpha * cos(theta) + beta * sin(theta);
