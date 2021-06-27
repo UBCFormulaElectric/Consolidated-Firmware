@@ -35,16 +35,16 @@ float torqueControl(
     if (prev_fw_flag)
     {
         torque_output =
-            (fabs(MAX_MOTOR_POWER / (omega + 0.01)) < fabs(torque_output))
-                ? torque_sign * MAX_MOTOR_POWER / (fabs(omega) + 0.01)
+            (fabsf(MAX_MOTOR_POWER / (omega + 0.01f)) < fabsf(torque_output))
+                ? (float)torque_sign * MAX_MOTOR_POWER / (fabsf(omega) + 0.01f)
                 : torque_output;
     }
     // if operating in regen region
     if (direction_sign != torque_sign)
     {
         torque_output =
-            (fabs(torque_output) > REGEN_POWER_LIMIT / (omega + 0.01))
-                ? REGEN_POWER_LIMIT * torque_sign / (omega + 0.01)
+            (fabsf(torque_output) > REGEN_POWER_LIMIT / (omega + 0.01f))
+                ? REGEN_POWER_LIMIT * torque_sign / (omega + 0.01f)
                 : torque_output;
     }
     // convert torque to stator current, and limit stator current to Ismax

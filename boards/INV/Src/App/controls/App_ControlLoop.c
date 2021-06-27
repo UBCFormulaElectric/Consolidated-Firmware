@@ -168,7 +168,8 @@ void App_ControlLoop_Run(
     // Calculate d/q PI controller outputs
     if (mode == GEN_SINE_M)
     {
-        dqs_voltages.q = mod_index_request * (0.9 * bus_voltage / M_SQRT3);
+        dqs_voltages.q =
+            mod_index_request * (0.9f * bus_voltage / (float)M_SQRT3);
         dqs_voltages.d = 0;
         dqs_voltages.s = sqrtf(
             dqs_voltages.q * dqs_voltages.q + dqs_voltages.d * dqs_voltages.d);

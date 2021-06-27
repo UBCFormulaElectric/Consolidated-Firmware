@@ -10,8 +10,9 @@ struct DqsValues generateRefCurrents(
     struct DqsValues new_dqs_ref_currents;
     float            id_mtpa, iq_mtpa, omega_elec_fw_thres;
     float            omega_elec = omega * MOTOR_POLES / 2;
-    float lamda   = BACK_EMF_CONST * 2 * 9.549 / (M_SQRT3 * 1000 * MOTOR_POLES);
-    float vs_max  = MAX_MOD_INDEX * vdc_sensor_val / M_SQRT3;
+    float            lamda =
+        BACK_EMF_CONST * 2 * 9.549f / ((float)M_SQRT3 * 1000 * MOTOR_POLES);
+    float vs_max  = MAX_MOD_INDEX * vdc_sensor_val / (float)M_SQRT3;
     int   sign_is = (dqs_ref_currents->s > 0) - (dqs_ref_currents->s < 0);
 
     // Generate MTPA Currents
@@ -23,9 +24,9 @@ struct DqsValues generateRefCurrents(
               4;
     iq_mtpa =
         (dqs_ref_currents->s * dqs_ref_currents->s - id_mtpa * id_mtpa > 0)
-            ? sign_is * sqrtf(
-                            dqs_ref_currents->s * dqs_ref_currents->s -
-                            id_mtpa * id_mtpa)
+            ? (float)sign_is * sqrtf(
+                                   dqs_ref_currents->s * dqs_ref_currents->s -
+                                   id_mtpa * id_mtpa)
             : 0;
 
     // Calculate FW Speed Threshold
@@ -36,7 +37,7 @@ struct DqsValues generateRefCurrents(
                      (Q_INDUCTANCE * iq_mtpa) * (Q_INDUCTANCE * iq_mtpa));
 
     // If in FW Region, Re-Calculate Ref Currents
-    if (fabs(omega_elec) > omega_elec_fw_thres)
+    if (fabsf(omega_elec) > omega_elec_fw_thres)
     {
         *fw_flag = 1;
         new_dqs_ref_currents.d =
@@ -54,9 +55,10 @@ struct DqsValues generateRefCurrents(
             (dqs_ref_currents->s * dqs_ref_currents->s -
                  dqs_ref_currents->d * dqs_ref_currents->d >
              0)
-                ? sign_is * sqrtf(
-                                dqs_ref_currents->s * dqs_ref_currents->s -
-                                dqs_ref_currents->d * dqs_ref_currents->d)
+                ? (float)sign_is *
+                      sqrtf(
+                          dqs_ref_currents->s * dqs_ref_currents->s -
+                          dqs_ref_currents->d * dqs_ref_currents->d)
                 : 0;
     }
     else

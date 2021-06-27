@@ -15,10 +15,10 @@ struct PowerStage
     void (*adc_start)(void);
     void (*adc_stop)(void);
     void (*dac_start)(void);
-    void (*dac_set_current)(double current);
+    void (*dac_set_current)(float current);
     void (*get_phase_currents)(struct PhaseValues *const phase_currents);
-    double (*get_bus_voltage)(void);
-    double (*get_powerstage_temp)(void);
+    float (*get_bus_voltage)(void);
+    float (*get_powerstage_temp)(void);
     bool (*get_pha_oc_fault)(void);
     bool (*get_phb_oc_fault)(void);
     bool (*get_phc_oc_fault)(void);
@@ -31,10 +31,10 @@ struct PowerStage *App_PowerStage_Create(
     void (*ps_adc_start)(void),
     void (*ps_adc_stop)(void),
     void (*ps_dac_start)(void),
-    void (*ps_dac_set_current)(double current),
+    void (*ps_dac_set_current)(float current),
     void (*ps_get_phase_currents)(struct PhaseValues *const phase_currents),
-    double (*ps_get_bus_voltage)(void),
-    double (*ps_get_powerstage_temp)(void),
+    float (*ps_get_bus_voltage)(void),
+    float (*ps_get_powerstage_temp)(void),
     bool (*ps_get_pha_oc_fault)(void),
     bool (*ps_get_phb_oc_fault)(void),
     bool (*ps_get_phc_oc_fault)(void),
@@ -99,12 +99,12 @@ void App_PowerStage_GetPhaseCurrents(
     power_stage->get_phase_currents(phase_currents);
 }
 
-double App_PowerStage_GetBusVoltage(struct PowerStage *power_stage)
+float App_PowerStage_GetBusVoltage(struct PowerStage *power_stage)
 {
     return power_stage->get_bus_voltage();
 }
 
-double App_PowerStage_GetTemperature(struct PowerStage *power_stage)
+float App_PowerStage_GetTemperature(struct PowerStage *power_stage)
 {
     return power_stage->get_powerstage_temp();
 }

@@ -13,11 +13,11 @@ struct DqsValues clarkeParkTransform(
     struct DqsValues dqs_currents;
 
     // Clarke Transform
-    float alpha = (phase_currents->a - 0.5 * phase_currents->b -
-                   0.5 * phase_currents->c) *
+    float alpha = (phase_currents->a - 0.5f * phase_currents->b -
+                   0.5f * phase_currents->c) *
                   2 / 3;
-    float beta = (M_SQRT3 / 2) * phase_currents->b -
-                 (M_SQRT3 / 2) * phase_currents->c * 2 / 3;
+    float beta = ((float)M_SQRT3 / 2) * phase_currents->b -
+                 ((float)M_SQRT3 / 2) * phase_currents->c * 2 / 3;
 
     // Park Transform
     dqs_currents.d = alpha * cosf(theta) + beta * sinf(theta);

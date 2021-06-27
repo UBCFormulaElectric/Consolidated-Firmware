@@ -12,8 +12,9 @@ struct DqsValues calculateDqsVoltages(
 {
     struct DqsValues dqs_voltages, dqs_comp_voltages;
     float            vq_limit;
-    float lamda  = BACK_EMF_CONST * 2 * 9.549 / (M_SQRT3 * 1000 * MOTOR_POLES);
-    float vs_max = .9 * bus_voltage / M_SQRT3;
+    float            lamda =
+        BACK_EMF_CONST * 2 * 9.549f / ((float)M_SQRT3 * 1000 * MOTOR_POLES);
+    float vs_max     = 0.9f * bus_voltage / (float)M_SQRT3;
     float omega_elec = omega * MOTOR_POLES / 2;
 
     // Set voltage compensation terms if D/Q decoupling is enabled

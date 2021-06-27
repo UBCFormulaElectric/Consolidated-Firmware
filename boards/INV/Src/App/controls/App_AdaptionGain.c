@@ -16,7 +16,7 @@ struct ControllerValues adaptionGain(
     struct ControllerValues new_values;
 
     // Lower region
-    if (fabs(is_ref) < LOWER_ADAPTION_LIMIT * MAX_STATOR_CURRENT)
+    if (fabsf(is_ref) < LOWER_ADAPTION_LIMIT * MAX_STATOR_CURRENT)
     {
         kp_adaption = values->gain * ADAPTION_GAIN_CONST;
         tn_adaption = values->time_const * ADAPTION_TIME_CONST;
@@ -24,25 +24,25 @@ struct ControllerValues adaptionGain(
 
     // Adaption region
     else if (
-        fabs(is_ref) > LOWER_ADAPTION_LIMIT * MAX_STATOR_CURRENT &&
-        fabs(is_ref) <= UPPER_ADAPTION_LIMIT * MAX_STATOR_CURRENT)
+        fabsf(is_ref) > LOWER_ADAPTION_LIMIT * MAX_STATOR_CURRENT &&
+        fabsf(is_ref) <= UPPER_ADAPTION_LIMIT * MAX_STATOR_CURRENT)
     {
         kp_adaption =
             ((values->gain - values->gain * ADAPTION_GAIN_CONST) /
              (UPPER_ADAPTION_LIMIT * MAX_STATOR_CURRENT -
               LOWER_ADAPTION_LIMIT * MAX_STATOR_CURRENT)) *
-                (fabs(is_ref) - MAX_STATOR_CURRENT * LOWER_ADAPTION_LIMIT) +
+                (fabsf(is_ref) - MAX_STATOR_CURRENT * LOWER_ADAPTION_LIMIT) +
             values->gain * ADAPTION_GAIN_CONST;
         tn_adaption =
             ((values->time_const - values->time_const * ADAPTION_TIME_CONST) /
              (UPPER_ADAPTION_LIMIT * MAX_STATOR_CURRENT -
               LOWER_ADAPTION_LIMIT * MAX_STATOR_CURRENT)) *
-                (fabs(is_ref) - MAX_STATOR_CURRENT * LOWER_ADAPTION_LIMIT) +
+                (fabsf(is_ref) - MAX_STATOR_CURRENT * LOWER_ADAPTION_LIMIT) +
             values->time_const * ADAPTION_TIME_CONST;
     }
 
     // Upper region
-    else if (fabs(is_ref) > UPPER_ADAPTION_LIMIT * MAX_STATOR_CURRENT)
+    else if (fabsf(is_ref) > UPPER_ADAPTION_LIMIT * MAX_STATOR_CURRENT)
     {
         kp_adaption = values->gain;
         tn_adaption = values->time_const;

@@ -6,8 +6,6 @@ extern TIM_HandleTypeDef htim8;
 
 void Io_TimerPwmGen_StartPwm(void)
 {
-    uint32_t timer_period = 2 * __HAL_TIM_GET_AUTORELOAD(&htim8);
-
     /* ADC is sampled before the inverter is enabled */
 
     // Set output compare registers before beginning PWM

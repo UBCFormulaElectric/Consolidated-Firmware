@@ -108,8 +108,7 @@ uint8_t diag2cfg_register_content = (DIAG2_TWN << 7) | (DIAG2_TSD << 6) |
 
 ExitCode Io_STGAP1AS_WriteConfiguration(void)
 {
-    uint8_t             receive_array[NUM_STGAP_DEVICES];
-    struct StgapFaults *fault_struct;
+    uint8_t receive_array[NUM_STGAP_DEVICES];
 
     // Reset status, and start configuration
     Io_STGAP1AS_SetShutdownPin(0);

@@ -15,18 +15,19 @@ void Io_TimerRotorGen_Disable(void)
     HAL_TIM_Base_Stop(&htim2);
 }
 
-void Io_TimerRotorGen_SetFundFreq(const double fund_frequency)
+void Io_TimerRotorGen_SetFundFreq(const float fund_frequency)
 {
     uint32_t clk_freq     = 2 * HAL_RCC_GetPCLK1Freq();
     uint32_t timer_period = clk_freq / fund_frequency;
     TIM2->ARR |= timer_period;
 }
 
-double Io_TimerRotorGen_GetPosition(void)
+float Io_TimerRotorGen_GetPosition(void)
 {
-    uint32_t timer_period      = __HAL_TIM_GET_AUTORELOAD(&htim2);
-    uint32_t timer_val         = __HAL_TIM_GET_COUNTER(&htim2);
-    double fake_rotor_position = 2 * M_PI * (double)(timer_val / timer_period);
+    uint32_t timer_period = __HAL_TIM_GET_AUTORELOAD(&htim2);
+    uint32_t timer_val    = __HAL_TIM_GET_COUNTER(&htim2);
+    float    fake_rotor_position =
+        2 * (float)M_PI * ((float)timer_val / (float)timer_period);
     return fake_rotor_position;
 
     HAL_GetTick();
