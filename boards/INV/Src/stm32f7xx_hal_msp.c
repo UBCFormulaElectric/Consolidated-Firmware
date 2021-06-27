@@ -104,19 +104,21 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         __HAL_RCC_GPIOA_CLK_ENABLE();
         __HAL_RCC_GPIOC_CLK_ENABLE();
         /**ADC1 GPIO Configuration
-        PA1     ------> ADC1_IN1
-        PA3     ------> ADC1_IN3
-        PC5     ------> ADC1_IN15
+        PA0/WKUP     ------> ADC1_IN0
+        PA2     ------> ADC1_IN2
+        PA6     ------> ADC1_IN6
+        PC4     ------> ADC1_IN14
         */
-        GPIO_InitStruct.Pin  = PHA_CUR_ADC_Pin | PHB_CUR_ADC_Pin;
+        GPIO_InitStruct.Pin =
+            MOD_TEMP_ADC_Pin | VBUS_SENSE_ADC_Pin | MOTOR_TEMP_ADC_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin  = PHC_CUR_ADC_Pin;
+        GPIO_InitStruct.Pin  = GPIOA_1_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
-        HAL_GPIO_Init(PHC_CUR_ADC_GPIO_Port, &GPIO_InitStruct);
+        HAL_GPIO_Init(GPIOA_1_GPIO_Port, &GPIO_InitStruct);
 
         /* ADC1 DMA Init */
         /* ADC1 Init */
@@ -127,7 +129,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         hdma_adc1.Init.MemInc              = DMA_MINC_ENABLE;
         hdma_adc1.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
         hdma_adc1.Init.MemDataAlignment    = DMA_MDATAALIGN_HALFWORD;
-        hdma_adc1.Init.Mode                = DMA_NORMAL;
+        hdma_adc1.Init.Mode                = DMA_CIRCULAR;
         hdma_adc1.Init.Priority            = DMA_PRIORITY_LOW;
         hdma_adc1.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
         if (HAL_DMA_Init(&hdma_adc1) != HAL_OK)
@@ -152,21 +154,19 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         __HAL_RCC_GPIOA_CLK_ENABLE();
         __HAL_RCC_GPIOC_CLK_ENABLE();
         /**ADC2 GPIO Configuration
-        PA0/WKUP     ------> ADC2_IN0
-        PA2     ------> ADC2_IN2
-        PA6     ------> ADC2_IN6
-        PC4     ------> ADC2_IN14
+        PA1     ------> ADC2_IN1
+        PA3     ------> ADC2_IN3
+        PC5     ------> ADC2_IN15
         */
-        GPIO_InitStruct.Pin =
-            MOD_TEMP_ADC_Pin | VBUS_SENSE_ADC_Pin | MOTOR_TEMP_ADC_Pin;
+        GPIO_InitStruct.Pin  = PHA_CUR_ADC_Pin | PHB_CUR_ADC_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin  = GPIOA_1_Pin;
+        GPIO_InitStruct.Pin  = PHC_CUR_ADC_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
-        HAL_GPIO_Init(GPIOA_1_GPIO_Port, &GPIO_InitStruct);
+        HAL_GPIO_Init(PHC_CUR_ADC_GPIO_Port, &GPIO_InitStruct);
 
         /* ADC2 DMA Init */
         /* ADC2 Init */
@@ -177,7 +177,7 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         hdma_adc2.Init.MemInc              = DMA_MINC_ENABLE;
         hdma_adc2.Init.PeriphDataAlignment = DMA_PDATAALIGN_HALFWORD;
         hdma_adc2.Init.MemDataAlignment    = DMA_MDATAALIGN_HALFWORD;
-        hdma_adc2.Init.Mode                = DMA_NORMAL;
+        hdma_adc2.Init.Mode                = DMA_CIRCULAR;
         hdma_adc2.Init.Priority            = DMA_PRIORITY_LOW;
         hdma_adc2.Init.FIFOMode            = DMA_FIFOMODE_DISABLE;
         if (HAL_DMA_Init(&hdma_adc2) != HAL_OK)
@@ -210,13 +210,15 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         __HAL_RCC_ADC1_CLK_DISABLE();
 
         /**ADC1 GPIO Configuration
-        PA1     ------> ADC1_IN1
-        PA3     ------> ADC1_IN3
-        PC5     ------> ADC1_IN15
+        PA0/WKUP     ------> ADC1_IN0
+        PA2     ------> ADC1_IN2
+        PA6     ------> ADC1_IN6
+        PC4     ------> ADC1_IN14
         */
-        HAL_GPIO_DeInit(GPIOA, PHA_CUR_ADC_Pin | PHB_CUR_ADC_Pin);
+        HAL_GPIO_DeInit(
+            GPIOA, MOD_TEMP_ADC_Pin | VBUS_SENSE_ADC_Pin | MOTOR_TEMP_ADC_Pin);
 
-        HAL_GPIO_DeInit(PHC_CUR_ADC_GPIO_Port, PHC_CUR_ADC_Pin);
+        HAL_GPIO_DeInit(GPIOA_1_GPIO_Port, GPIOA_1_Pin);
 
         /* ADC1 DMA DeInit */
         HAL_DMA_DeInit(hadc->DMA_Handle);
@@ -233,15 +235,13 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         __HAL_RCC_ADC2_CLK_DISABLE();
 
         /**ADC2 GPIO Configuration
-        PA0/WKUP     ------> ADC2_IN0
-        PA2     ------> ADC2_IN2
-        PA6     ------> ADC2_IN6
-        PC4     ------> ADC2_IN14
+        PA1     ------> ADC2_IN1
+        PA3     ------> ADC2_IN3
+        PC5     ------> ADC2_IN15
         */
-        HAL_GPIO_DeInit(
-            GPIOA, MOD_TEMP_ADC_Pin | VBUS_SENSE_ADC_Pin | MOTOR_TEMP_ADC_Pin);
+        HAL_GPIO_DeInit(GPIOA, PHA_CUR_ADC_Pin | PHB_CUR_ADC_Pin);
 
-        HAL_GPIO_DeInit(GPIOA_1_GPIO_Port, GPIOA_1_Pin);
+        HAL_GPIO_DeInit(PHC_CUR_ADC_GPIO_Port, PHC_CUR_ADC_Pin);
 
         /* ADC2 DMA DeInit */
         HAL_DMA_DeInit(hadc->DMA_Handle);

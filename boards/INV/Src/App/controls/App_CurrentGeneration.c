@@ -3,34 +3,34 @@
 
 struct DqsValues generateRefCurrents(
     const struct DqsValues *const dqs_ref_currents,
-    const double                  omega,
-    const double                  vdc_sensor_val,
+    const float                   omega,
+    const float                   vdc_sensor_val,
     bool *const                   fw_flag)
 {
     struct DqsValues new_dqs_ref_currents;
-    double           id_mtpa, iq_mtpa, omega_elec_fw_thres;
-    double           omega_elec = omega * MOTOR_POLES / 2;
-    double lamda  = BACK_EMF_CONST * 2 * 9.549 / (sqrt(3) * 1000 * MOTOR_POLES);
-    double vs_max = MAX_MOD_INDEX * vdc_sensor_val / sqrt(3);
-    int    sign_is = (dqs_ref_currents->s > 0) - (dqs_ref_currents->s < 0);
+    float            id_mtpa, iq_mtpa, omega_elec_fw_thres;
+    float            omega_elec = omega * MOTOR_POLES / 2;
+    float lamda   = BACK_EMF_CONST * 2 * 9.549 / (M_SQRT3 * 1000 * MOTOR_POLES);
+    float vs_max  = MAX_MOD_INDEX * vdc_sensor_val / M_SQRT3;
+    int   sign_is = (dqs_ref_currents->s > 0) - (dqs_ref_currents->s < 0);
 
     // Generate MTPA Currents
     id_mtpa = -(lamda / (D_INDUCTANCE - Q_INDUCTANCE) +
-                sqrt(
+                sqrtf(
                     lamda * lamda / (D_INDUCTANCE - Q_INDUCTANCE) /
                         (D_INDUCTANCE - Q_INDUCTANCE) +
                     8 * dqs_ref_currents->s * dqs_ref_currents->s)) /
               4;
     iq_mtpa =
         (dqs_ref_currents->s * dqs_ref_currents->s - id_mtpa * id_mtpa > 0)
-            ? sign_is * sqrt(
+            ? sign_is * sqrtf(
                             dqs_ref_currents->s * dqs_ref_currents->s -
                             id_mtpa * id_mtpa)
             : 0;
 
     // Calculate FW Speed Threshold
     omega_elec_fw_thres =
-        vs_max / sqrt(
+        vs_max / sqrtf(
                      (D_INDUCTANCE * id_mtpa + lamda) *
                          (D_INDUCTANCE * id_mtpa + lamda) +
                      (Q_INDUCTANCE * iq_mtpa) * (Q_INDUCTANCE * iq_mtpa));
@@ -41,7 +41,7 @@ struct DqsValues generateRefCurrents(
         *fw_flag = 1;
         new_dqs_ref_currents.d =
             (-lamda * D_INDUCTANCE +
-             sqrt(
+             sqrtf(
                  (lamda * lamda * D_INDUCTANCE * D_INDUCTANCE) -
                  (D_INDUCTANCE * D_INDUCTANCE - Q_INDUCTANCE * Q_INDUCTANCE) *
                      (lamda * lamda +
@@ -54,7 +54,7 @@ struct DqsValues generateRefCurrents(
             (dqs_ref_currents->s * dqs_ref_currents->s -
                  dqs_ref_currents->d * dqs_ref_currents->d >
              0)
-                ? sign_is * sqrt(
+                ? sign_is * sqrtf(
                                 dqs_ref_currents->s * dqs_ref_currents->s -
                                 dqs_ref_currents->d * dqs_ref_currents->d)
                 : 0;
@@ -66,7 +66,7 @@ struct DqsValues generateRefCurrents(
         new_dqs_ref_currents.q = iq_mtpa;
     }
 
-    new_dqs_ref_currents.s = sqrt(
+    new_dqs_ref_currents.s = sqrtf(
         dqs_ref_currents->d * dqs_ref_currents->d +
         dqs_ref_currents->q * dqs_ref_currents->q);
 

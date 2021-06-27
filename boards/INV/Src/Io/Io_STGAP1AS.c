@@ -108,8 +108,8 @@ uint8_t diag2cfg_register_content = (DIAG2_TWN << 7) | (DIAG2_TSD << 6) |
 
 ExitCode Io_STGAP1AS_WriteConfiguration(void)
 {
-    uint8_t receive_array[NUM_STGAP_DEVICES];
-    struct StgapFaults* fault_struct;
+    uint8_t             receive_array[NUM_STGAP_DEVICES];
+    struct StgapFaults *fault_struct;
 
     // Reset status, and start configuration
     Io_STGAP1AS_SetShutdownPin(0);
@@ -143,8 +143,7 @@ ExitCode Io_STGAP1AS_WriteConfiguration(void)
 
     // Read Configuration & Diagnostic Registers
     Io_STGAP1AS_ReadRegister(
-        stgap_registers.cfg1, stgap_register_masks.cfg1_mask,
-        receive_array);
+        stgap_registers.cfg1, stgap_register_masks.cfg1_mask, receive_array);
     for (uint8_t i = 0; i < NUM_STGAP_DEVICES; i++)
     {
         if (receive_array[i] != config1_register_content)
@@ -213,7 +212,6 @@ ExitCode Io_STGAP1AS_WriteConfiguration(void)
         }
     }
     Io_STGAP1AS_ReadFaults();
-
 
     Io_STGAP1AS_SetShutdownPin(1);
 
@@ -368,7 +366,7 @@ void Io_STGAP1AS_ReadRegister(
     Io_STGAP1AS_SendReceiveByte(
         stgap_commands.no_operation, 0xFF, receive_buffer);
 
-    //Populate receive array
+    // Populate receive array
     for (uint8_t i = 0; i < NUM_STGAP_DEVICES; i++)
     {
         *(receive_array + i) = *(receive_buffer + i) & stgap_register_mask;
@@ -441,7 +439,7 @@ uint8_t Io_STGAP1AS_SendReceiveByte(
 
     uint8_t byte_crc = Io_STGAP1AS_CalculateCrcTx(byte_value, crc_xor);
 
-    //Populate send buffer
+    // Populate send buffer
     for (uint8_t i = 0; i < NUM_STGAP_DEVICES; i++)
     {
         send_buffer[i] = byte_value << 8 | byte_crc;
@@ -452,16 +450,17 @@ uint8_t Io_STGAP1AS_SendReceiveByte(
 
     // Transmit byte value to all devices, receive previous byte response
     HAL_SPI_TransmitReceive(
-        &hspi2, (uint8_t*)send_buffer, (uint8_t*)receive_buffer, NUM_STGAP_DEVICES,
-        STGAP_SPI_TIMEOUT);
+        &hspi2, (uint8_t *)send_buffer, (uint8_t *)receive_buffer,
+        NUM_STGAP_DEVICES, STGAP_SPI_TIMEOUT);
 
-//        // Transmit CRC for byte1 value, receive nonsense CRC byte
-//        HAL_SPI_TransmitReceive(
-//            &hspi2, &byte_crc, (uint8_t *)(&receive_buffer[i + 1]), 1,
-//            STGAP_SPI_TIMEOUT);
+    //        // Transmit CRC for byte1 value, receive nonsense CRC byte
+    //        HAL_SPI_TransmitReceive(
+    //            &hspi2, &byte_crc, (uint8_t *)(&receive_buffer[i + 1]), 1,
+    //            STGAP_SPI_TIMEOUT);
 
     HAL_GPIO_WritePin(GDRV_SPI_CS_GPIO_Port, GDRV_SPI_CS_Pin, GPIO_PIN_SET);
-    for(uint32_t i=0;i<5000;i++); //delay
+    for (uint32_t i = 0; i < 5000; i++)
+        ; // delay
 
     // Verify CRC on all received bytes
     for (uint8_t i = 0; i < NUM_STGAP_DEVICES; i++)

@@ -10,9 +10,9 @@
 
 struct ControllerValues adaptionGain(
     const struct ControllerValues *const values,
-    const double                         is_ref)
+    const float                          is_ref)
 {
-    double                  kp_adaption, tn_adaption;
+    float                   kp_adaption, tn_adaption;
     struct ControllerValues new_values;
 
     // Lower region

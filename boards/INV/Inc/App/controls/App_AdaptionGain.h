@@ -4,4 +4,4 @@
 
 struct ControllerValues adaptionGain(
     const struct ControllerValues *const values,
-    const double                         is_ref);
+    const float                          is_ref);

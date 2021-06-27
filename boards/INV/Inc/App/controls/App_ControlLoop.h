@@ -7,24 +7,24 @@
 
 struct DqsValues
 {
-    double s;
-    double d;
-    double q;
+    float s;
+    float d;
+    float q;
 };
 
 struct PhaseValues
 {
-    double a;
-    double b;
-    double c;
+    float a;
+    float b;
+    float c;
 };
 
 struct ControllerValues
 {
-    double prev_integral_input;
-    double integral_sum;
-    double gain;
-    double time_const;
+    float prev_integral_input;
+    float integral_sum;
+    float gain;
+    float time_const;
 };
 
 enum Mode
@@ -37,8 +37,8 @@ enum Mode
 struct InvWorld;
 
 void App_ControlLoop_Run(
-    double                 rotor_speed_ref,
+    float                  rotor_speed_ref,
     uint8_t                mode,
     const struct InvWorld *world,
-    double                 mod_index_request,
-    double                 ph_cur_rms_request);
+    float                  mod_index_request,
+    float                  ph_cur_rms_request);

@@ -8,14 +8,14 @@
  * setpoint is lower, ensuring the inverter does not violate MAX_MOTOR_SPEED.
  */
 
-double torqueControl(
-    double                   omega_ref,
-    const double             omega,
-    const double             torque_ref,
+float torqueControl(
+    float                    omega_ref,
+    const float              omega,
+    const float              torque_ref,
     struct ControllerValues *speed_controller,
     const bool               prev_fw_flag)
 {
-    double omega_torque_output, torque_output, stator_current_output;
+    float omega_torque_output, torque_output, stator_current_output;
 
     // Make omega_ref have the same sign as torque_ref
     omega_ref = omega_ref * (int8_t)((torque_ref > 0) - (torque_ref < 0));

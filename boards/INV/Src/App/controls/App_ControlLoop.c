@@ -61,21 +61,21 @@ struct ControllerValues iq_controller = { .prev_integral_input = 0,
                                           .gain                = Q_GAIN,
                                           .time_const          = Q_TIME_CONST };
 
-double rotor_position      = 0;
-double prev_rotor_position = 0;
-double rotor_speed         = 0;
-double bus_voltage         = 0;
-double phc_current_calc    = 0;
-float  torque_ref          = 0;
-bool   fw_flag             = 0;
-bool   prev_fw_flag;
+float rotor_position      = 0;
+float prev_rotor_position = 0;
+float rotor_speed         = 0;
+float bus_voltage         = 0;
+float phc_current_calc    = 0;
+float torque_ref          = 0;
+bool  fw_flag             = 0;
+bool  prev_fw_flag;
 
 void App_ControlLoop_Run(
-    const double           rotor_speed_ref,
+    const float            rotor_speed_ref,
     const uint8_t          mode,
     const struct InvWorld *world,
-    const double           mod_index_request,
-    double                 ph_cur_rms_request)
+    const float            mod_index_request,
+    float                  ph_cur_rms_request)
 {
     struct GateDrive * gate_drive  = App_InvWorld_GetGateDrive(world);
     struct PowerStage *power_stage = App_InvWorld_GetPowerStage(world);
@@ -97,7 +97,7 @@ void App_ControlLoop_Run(
     // Get Phase Currents
     App_PowerStage_GetPhaseCurrents(power_stage, &phase_currents);
     phc_current_calc = -1 * (phase_currents.a + phase_currents.b);
-    if (phase_currents.c - phc_current_calc > 5.0)
+    if (fabs(phase_currents.c - phc_current_calc) > 5)
     {
         // TODO Phase C Current calculation plausibility error
     }
@@ -105,11 +105,11 @@ void App_ControlLoop_Run(
     //    // Get Rotor Position
     if (mode == GEN_SINE_I || mode == GEN_SINE_M)
     {
-        double fund_freq_request = rotor_speed_ref * 0.15915494327;
-        rotor_position           = fmod(
+        float fund_freq_request = rotor_speed_ref * (float)0.15915494327;
+        rotor_position          = fmodf(
             (prev_rotor_position +
-             (fund_freq_request / SAMPLE_FREQUENCY) * 2 * M_PI),
-            2 * M_PI);
+             (fund_freq_request / SAMPLE_FREQUENCY) * 2 * (float)M_PI),
+            2 * (float)M_PI);
     }
     else
     {
@@ -118,7 +118,7 @@ void App_ControlLoop_Run(
 
     // Get Bus Voltage
     // bus_voltage = App_PowerStage_GetBusVoltage(power_stage);
-    bus_voltage = 100.0;
+    bus_voltage = 100;
 
     if (mode == MOTOR_CONTROL)
     {
@@ -127,7 +127,7 @@ void App_ControlLoop_Run(
         rotor_speed = (rotor_position - prev_rotor_position) * SAMPLE_FREQUENCY;
     }
 
-    // dqs_currents = clarkeParkTransform(&phase_currents, rotor_position);
+    dqs_currents = clarkeParkTransform(&phase_currents, rotor_position);
 
     // Get stator current reference
 
@@ -154,7 +154,7 @@ void App_ControlLoop_Run(
         {
             dqs_ref_currents.q = ph_cur_rms_request;
             dqs_ref_currents.d = 0;
-            dqs_ref_currents.s = sqrt(
+            dqs_ref_currents.s = sqrtf(
                 dqs_ref_currents.q * dqs_ref_currents.q +
                 dqs_ref_currents.d * dqs_ref_currents.d);
         }
@@ -170,7 +170,7 @@ void App_ControlLoop_Run(
     {
         dqs_voltages.q = mod_index_request * (0.9 * bus_voltage / M_SQRT3);
         dqs_voltages.d = 0;
-        dqs_voltages.s = sqrt(
+        dqs_voltages.s = sqrtf(
             dqs_voltages.q * dqs_voltages.q + dqs_voltages.d * dqs_voltages.d);
     }
     else

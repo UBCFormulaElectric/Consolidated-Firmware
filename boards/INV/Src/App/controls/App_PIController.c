@@ -6,15 +6,15 @@
  */
 
 // calculates PI outputs for Id, Iq or speed control loops
-double calculatePiOutputs(
+float calculatePiOutputs(
     struct ControllerValues *pi_values,
-    const double             ref,
-    const double             actual,
-    const double             limit,
-    const double             comp)
+    const float              ref,
+    const float              actual,
+    const float              limit,
+    const float              comp)
 {
-    double err       = ref - actual;
-    double prop_term = pi_values->gain * err;
+    float err       = ref - actual;
+    float prop_term = pi_values->gain * err;
     if (!(((pi_values->integral_sum + prop_term + comp) * err > 0) &&
           ((pi_values->integral_sum + prop_term + comp > limit) ||
            (pi_values->integral_sum + prop_term + comp < -limit))))
@@ -34,7 +34,7 @@ double calculatePiOutputs(
             2;
     }
 
-    double output = prop_term + pi_values->integral_sum + comp;
+    float output = prop_term + pi_values->integral_sum + comp;
     if ((output < limit) && (output > -limit))
     {
         return output;

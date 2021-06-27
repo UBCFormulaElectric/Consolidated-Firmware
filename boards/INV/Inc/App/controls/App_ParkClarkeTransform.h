@@ -4,4 +4,4 @@
 
 struct PhaseValues parkClarkeTransform(
     const struct DqsValues *const dqs_voltages,
-    double                        theta);
+    float                         theta);

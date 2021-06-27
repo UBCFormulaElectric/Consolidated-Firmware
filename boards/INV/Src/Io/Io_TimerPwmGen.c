@@ -6,9 +6,7 @@ extern TIM_HandleTypeDef htim8;
 
 void Io_TimerPwmGen_StartPwm(void)
 {
-    // Start base counter
-    HAL_TIM_Base_Start_IT(&htim8);
-    uint32_t timer_period = __HAL_TIM_GET_AUTORELOAD(&htim8);
+    uint32_t timer_period = 2 * __HAL_TIM_GET_AUTORELOAD(&htim8);
 
     /* ADC is sampled before the inverter is enabled */
 
@@ -16,10 +14,6 @@ void Io_TimerPwmGen_StartPwm(void)
     htim8.Instance->CCR1 = 0;
     htim8.Instance->CCR2 = 0;
     htim8.Instance->CCR3 = 0;
-
-    // ADC is sampled 300 cycles before control loop calculations begin
-    htim8.Instance->CCR4 = timer_period - 300;
-    htim8.Instance->CCR6 = timer_period / 2 - 300;
 
     // TODO do phase designations have to change?
     // Start 3-phase half bridge output compare
@@ -29,8 +23,9 @@ void Io_TimerPwmGen_StartPwm(void)
     HAL_TIMEx_OCN_Start(&htim8, TIM_CHANNEL_1); // Phase A Low
     HAL_TIMEx_OCN_Start(&htim8, TIM_CHANNEL_2); // Phase B Low
     HAL_TIMEx_OCN_Start(&htim8, TIM_CHANNEL_3); // Phase C Low
-    HAL_TIMEx_OCN_Start(&htim8, TIM_CHANNEL_4); // ADC TRGO2 Event
-    HAL_TIMEx_OCN_Start(&htim8, TIM_CHANNEL_6); // ADC TRGO2 Event
+
+    // Start base counter
+    HAL_TIM_Base_Start_IT(&htim8);
 }
 
 void Io_TimerPwmGen_StopPwm(void)
@@ -46,15 +41,13 @@ void Io_TimerPwmGen_StopPwm(void)
     HAL_TIMEx_OCN_Stop(&htim8, TIM_CHANNEL_1); // Phase A Low
     HAL_TIMEx_OCN_Stop(&htim8, TIM_CHANNEL_2); // Phase B Low
     HAL_TIMEx_OCN_Stop(&htim8, TIM_CHANNEL_3); // Phase C Low
-    HAL_TIMEx_OCN_Stop(&htim8, TIM_CHANNEL_4); // ADC TRGO2 Event
-    HAL_TIMEx_OCN_Stop(&htim8, TIM_CHANNEL_6); // ADC TRGO2 Event
 }
 
 // Loads timer compare register value between 0 and the timer period*max
 // modulation index
 void Io_TimerPwmGen_LoadPwm(const struct PhaseValues *const phase_pwm_dur)
 {
-    uint32_t timer_period = __HAL_TIM_GET_AUTORELOAD(&htim8);
+    uint32_t timer_period = 2 * __HAL_TIM_GET_AUTORELOAD(&htim8);
 
     // TODO double check that we're limiting these values to MAX_MOD_INDEX (0.9)
     if (phase_pwm_dur->a < MAX_MOD_INDEX && phase_pwm_dur->b < MAX_MOD_INDEX &&
