@@ -105,12 +105,10 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         __HAL_RCC_GPIOC_CLK_ENABLE();
         /**ADC1 GPIO Configuration
         PA0/WKUP     ------> ADC1_IN0
-        PA2     ------> ADC1_IN2
         PA6     ------> ADC1_IN6
         PC4     ------> ADC1_IN14
         */
-        GPIO_InitStruct.Pin =
-            MOD_TEMP_ADC_Pin | VBUS_SENSE_ADC_Pin | MOTOR_TEMP_ADC_Pin;
+        GPIO_InitStruct.Pin  = MOD_TEMP_ADC_Pin | MOTOR_TEMP_ADC_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -155,10 +153,12 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         __HAL_RCC_GPIOC_CLK_ENABLE();
         /**ADC2 GPIO Configuration
         PA1     ------> ADC2_IN1
+        PA2     ------> ADC2_IN2
         PA3     ------> ADC2_IN3
         PC5     ------> ADC2_IN15
         */
-        GPIO_InitStruct.Pin  = PHA_CUR_ADC_Pin | PHB_CUR_ADC_Pin;
+        GPIO_InitStruct.Pin =
+            PHA_CUR_ADC_Pin | VBUS_SENSE_ADC_Pin | PHB_CUR_ADC_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -211,12 +211,10 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
 
         /**ADC1 GPIO Configuration
         PA0/WKUP     ------> ADC1_IN0
-        PA2     ------> ADC1_IN2
         PA6     ------> ADC1_IN6
         PC4     ------> ADC1_IN14
         */
-        HAL_GPIO_DeInit(
-            GPIOA, MOD_TEMP_ADC_Pin | VBUS_SENSE_ADC_Pin | MOTOR_TEMP_ADC_Pin);
+        HAL_GPIO_DeInit(GPIOA, MOD_TEMP_ADC_Pin | MOTOR_TEMP_ADC_Pin);
 
         HAL_GPIO_DeInit(GPIOA_1_GPIO_Port, GPIOA_1_Pin);
 
@@ -236,10 +234,12 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
 
         /**ADC2 GPIO Configuration
         PA1     ------> ADC2_IN1
+        PA2     ------> ADC2_IN2
         PA3     ------> ADC2_IN3
         PC5     ------> ADC2_IN15
         */
-        HAL_GPIO_DeInit(GPIOA, PHA_CUR_ADC_Pin | PHB_CUR_ADC_Pin);
+        HAL_GPIO_DeInit(
+            GPIOA, PHA_CUR_ADC_Pin | VBUS_SENSE_ADC_Pin | PHB_CUR_ADC_Pin);
 
         HAL_GPIO_DeInit(PHC_CUR_ADC_GPIO_Port, PHC_CUR_ADC_Pin);
 

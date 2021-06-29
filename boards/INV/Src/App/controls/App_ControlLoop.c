@@ -89,7 +89,6 @@ void App_ControlLoop_Run(
             can_rx, torque_ref);
     }
 
-    HAL_GPIO_TogglePin(GPIOD_1_GPIO_Port, GPIOD_1_Pin);
     // Get Speed Ref Request
     // App_CanRx_DCM_TORQUE_REQUEST_SetSignal_TORQUE_REQUEST(can_rx,
     // rotor_speed_ref);
@@ -97,7 +96,7 @@ void App_ControlLoop_Run(
     // Get Phase Currents
     App_PowerStage_GetPhaseCurrents(power_stage, &phase_currents);
     phc_current_calc = -1 * (phase_currents.a + phase_currents.b);
-    if (fabs(phase_currents.c - phc_current_calc) > 5)
+    if (fabsf(phase_currents.c - phc_current_calc) > 5)
     {
         // TODO Phase C Current calculation plausibility error
     }
@@ -117,8 +116,7 @@ void App_ControlLoop_Run(
     }
 
     // Get Bus Voltage
-    // bus_voltage = App_PowerStage_GetBusVoltage(power_stage);
-    bus_voltage = 100;
+    bus_voltage = App_PowerStage_GetBusVoltage(power_stage);
 
     if (mode == MOTOR_CONTROL)
     {

@@ -8,10 +8,15 @@ void Io_TimerPwmGen_StartPwm(void)
 {
     /* ADC is sampled before the inverter is enabled */
 
+    uint32_t timer_cycles = 2 * __HAL_TIM_GET_AUTORELOAD(&htim8);
+
     // Set output compare registers before beginning PWM
     htim8.Instance->CCR1 = 0;
     htim8.Instance->CCR2 = 0;
     htim8.Instance->CCR3 = 0;
+    htim8.Instance->CCR4 =
+        (uint32_t)((float)timer_cycles / 2 - ((float)timer_cycles / 2) * 0.05f);
+    htim8.Instance->CCR6 = (uint32_t)(((float)timer_cycles / 2) * 0.05f);
 
     // TODO do phase designations have to change?
     // Start 3-phase half bridge output compare
@@ -21,15 +26,17 @@ void Io_TimerPwmGen_StartPwm(void)
     HAL_TIMEx_OCN_Start(&htim8, TIM_CHANNEL_1); // Phase A Low
     HAL_TIMEx_OCN_Start(&htim8, TIM_CHANNEL_2); // Phase B Low
     HAL_TIMEx_OCN_Start(&htim8, TIM_CHANNEL_3); // Phase C Low
+    HAL_TIM_OC_Start(&htim8, TIM_CHANNEL_4);
+    HAL_TIM_OC_Start(&htim8, TIM_CHANNEL_6);
 
     // Start base counter
-    HAL_TIM_Base_Start_IT(&htim8);
+    HAL_TIM_Base_Start(&htim8);
 }
 
 void Io_TimerPwmGen_StopPwm(void)
 {
     // Stop base counter
-    HAL_TIM_Base_Stop_IT(&htim8);
+    HAL_TIM_Base_Stop(&htim8);
 
     // TODO do phase designations have to change?
     // Stop 3-phase half bridge output compare
@@ -39,27 +46,32 @@ void Io_TimerPwmGen_StopPwm(void)
     HAL_TIMEx_OCN_Stop(&htim8, TIM_CHANNEL_1); // Phase A Low
     HAL_TIMEx_OCN_Stop(&htim8, TIM_CHANNEL_2); // Phase B Low
     HAL_TIMEx_OCN_Stop(&htim8, TIM_CHANNEL_3); // Phase C Low
+    HAL_TIM_OC_Stop(&htim8, TIM_CHANNEL_4);
+    HAL_TIM_OC_Stop(&htim8, TIM_CHANNEL_6);
 }
 
 // Loads timer compare register value between 0 and the timer period*max
 // modulation index
 void Io_TimerPwmGen_LoadPwm(const struct PhaseValues *const phase_pwm_dur)
 {
-    uint32_t timer_period = 2 * __HAL_TIM_GET_AUTORELOAD(&htim8);
+    uint32_t timer_cycles = 2 * __HAL_TIM_GET_AUTORELOAD(&htim8);
 
     // TODO double check that we're limiting these values to MAX_MOD_INDEX (0.9)
-    if (phase_pwm_dur->a < MAX_MOD_INDEX && phase_pwm_dur->b < MAX_MOD_INDEX &&
-        phase_pwm_dur->c < MAX_MOD_INDEX)
-    {
-        htim8.Instance->CCR1 = (uint32_t)(phase_pwm_dur->a * timer_period / 2);
-        htim8.Instance->CCR2 = (uint32_t)(phase_pwm_dur->b * timer_period / 2);
-        htim8.Instance->CCR3 = (uint32_t)(phase_pwm_dur->c * timer_period / 2);
-    }
-    else
-    {
-        // TODO Return exitcode here - mod index out of bounds. May need to
-        // modify max mod index if nuissance tripping
-    }
+    //    if (phase_pwm_dur->a < MAX_MOD_INDEX && phase_pwm_dur->b <
+    //    MAX_MOD_INDEX &&
+    //        phase_pwm_dur->c < MAX_MOD_INDEX)
+    //    {
+    htim8.Instance->CCR1 = (uint32_t)(phase_pwm_dur->a * (float)timer_cycles / 2);
+    htim8.Instance->CCR2 = (uint32_t)(phase_pwm_dur->b * (float)timer_cycles / 2);
+    htim8.Instance->CCR3 = (uint32_t)(phase_pwm_dur->c * (float)timer_cycles / 2);
+
+    //    }
+    //    else
+    //    {
+    //        // TODO Return exitcode here - mod index out of bounds. May need
+    //        to
+    //        // modify max mod index if nuissance tripping
+    //    }
     // TODO return exitcode ok
 }
 
