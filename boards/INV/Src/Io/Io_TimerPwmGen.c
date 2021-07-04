@@ -61,9 +61,12 @@ void Io_TimerPwmGen_LoadPwm(const struct PhaseValues *const phase_pwm_dur)
     //    MAX_MOD_INDEX &&
     //        phase_pwm_dur->c < MAX_MOD_INDEX)
     //    {
-    htim8.Instance->CCR1 = (uint32_t)(phase_pwm_dur->a * (float)timer_cycles / 2);
-    htim8.Instance->CCR2 = (uint32_t)(phase_pwm_dur->b * (float)timer_cycles / 2);
-    htim8.Instance->CCR3 = (uint32_t)(phase_pwm_dur->c * (float)timer_cycles / 2);
+    htim8.Instance->CCR1 =
+        (uint32_t)(phase_pwm_dur->a * (float)timer_cycles / 2);
+    htim8.Instance->CCR2 =
+        (uint32_t)(phase_pwm_dur->b * (float)timer_cycles / 2);
+    htim8.Instance->CCR3 =
+        (uint32_t)(phase_pwm_dur->c * (float)timer_cycles / 2);
 
     //    }
     //    else

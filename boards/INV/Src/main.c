@@ -197,7 +197,7 @@ int main(void)
     MX_ADC2_Init();
     MX_CAN1_Init();
     MX_DAC_Init();
-    MX_IWDG_Init();
+    //MX_IWDG_Init();
     MX_SPI2_Init();
     MX_SPI3_Init();
     MX_SPI4_Init();
@@ -205,6 +205,7 @@ int main(void)
     MX_TIM1_Init();
     MX_TIM2_Init();
     /* USER CODE BEGIN 2 */
+
     __HAL_DBGMCU_FREEZE_IWDG();
     SEGGER_SYSVIEW_Conf();
 
@@ -568,32 +569,33 @@ static void MX_CAN1_Init(void)
  */
 static void MX_DAC_Init(void)
 {
+
     /* USER CODE BEGIN DAC_Init 0 */
 
     /* USER CODE END DAC_Init 0 */
 
-    DAC_ChannelConfTypeDef sConfig = { 0 };
+    DAC_ChannelConfTypeDef sConfig = {0};
 
     /* USER CODE BEGIN DAC_Init 1 */
 
     /* USER CODE END DAC_Init 1 */
     /** DAC Initialization
-     */
+    */
     hdac.Instance = DAC;
     if (HAL_DAC_Init(&hdac) != HAL_OK)
     {
         Error_Handler();
     }
     /** DAC channel OUT1 config
-     */
-    sConfig.DAC_Trigger      = DAC_TRIGGER_NONE;
+    */
+    sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
     sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
     if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_1) != HAL_OK)
     {
         Error_Handler();
     }
     /** DAC channel OUT2 config
-     */
+    */
     if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_2) != HAL_OK)
     {
         Error_Handler();
@@ -601,6 +603,7 @@ static void MX_DAC_Init(void)
     /* USER CODE BEGIN DAC_Init 2 */
 
     /* USER CODE END DAC_Init 2 */
+
 }
 
 /**

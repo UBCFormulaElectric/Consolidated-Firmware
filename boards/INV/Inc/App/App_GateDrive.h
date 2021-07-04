@@ -6,6 +6,7 @@
 
 struct GateDrive;
 struct PhaseValues;
+struct StgapFaults;
 
 struct GateDrive *App_GateDrive_Create(
     ExitCode (*write_gd_config)(void),
@@ -39,11 +40,14 @@ void     App_GateDrive_Destroy(struct GateDrive *gate_drive);
 ExitCode App_GateDrive_WriteConfig(struct GateDrive *gate_drive);
 void     App_GateDrive_ResetStatus(struct GateDrive *gate_drive);
 void     App_GateDrive_GlobalReset(struct GateDrive *gate_drive);
-void     App_GateDrive_ClearFaults(struct GateDrive *gate_drive);
-void     App_GateDrive_WriteRegister(
-        struct GateDrive *gate_drive,
-        uint8_t           register_name,
-        uint8_t           data);
+void     App_GateDrive_GetFaults(
+        struct GateDrive *  gate_drive,
+        struct StgapFaults *stgap_faults);
+void App_GateDrive_ClearFaults(struct GateDrive *gate_drive);
+void App_GateDrive_WriteRegister(
+    struct GateDrive *gate_drive,
+    uint8_t           register_name,
+    uint8_t           data);
 void App_GateDrive_ReadRegister(
     struct GateDrive *gate_drive,
     uint8_t           register_name,

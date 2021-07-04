@@ -90,8 +90,8 @@ void App_ControlLoop_Run(
     }
 
     // Get Speed Ref Request
-    // App_CanRx_DCM_TORQUE_REQUEST_SetSignal_TORQUE_REQUEST(can_rx,
-    // rotor_speed_ref);
+    //     App_CanRx_DCM_SPEED_REQUEST_SetSignal_TORQUE_REQUEST(can_rx,
+    //     rotor_speed_ref);
 
     // Get Phase Currents
     App_PowerStage_GetPhaseCurrents(power_stage, &phase_currents);

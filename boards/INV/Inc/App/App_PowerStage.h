@@ -25,7 +25,7 @@ void App_PowerStage_Disable(struct PowerStage *power_stage);
 void App_PowerStage_StandBy(struct PowerStage *power_stage);
 void App_PowerStage_SetCurrentLimits(
     struct PowerStage *power_stage,
-    uint32_t           current_lim);
+    float              current_lim);
 void App_PowerStage_GetPhaseCurrents(
     struct PowerStage * power_stage,
     struct PhaseValues *phase_currents);

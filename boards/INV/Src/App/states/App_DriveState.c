@@ -2,7 +2,9 @@
 #include "main.h"
 #include "App_SharedMacros.h"
 #include "App_SharedExitCode.h"
-#include "App_GateDrive.h"
+#include "Io_STGAP1AS.h"
+
+static struct StgapFaults *stgap_faults;
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -14,13 +16,12 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     App_GateDrive_SetSwitchingFreq(gate_drive, 10000);
     App_GateDrive_SetDeadTime(gate_drive, 1000);
     App_GateDrive_WriteConfig(gate_drive);
-    App_PowerStage_Enable(power_stage); // Enable ADC
+    App_PowerStage_Enable(power_stage); // Enable ADC & DAC
+    App_PowerStage_SetCurrentLimits(power_stage, 10);
     App_GateDrive_StartPwm(gate_drive); // Enable PWM
     App_GateDrive_Enable(gate_drive);   // Release Shutdown Pin
 
     UNUSED(can_tx_interface);
-
-    // TODO: do stuff here. For example, you could set some CAN messages
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -29,11 +30,10 @@ static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
     struct GateDrive * gate_drive  = App_InvWorld_GetGateDrive(world);
     struct PowerStage *power_stage = App_InvWorld_GetPowerStage(world);
 
-    HAL_GPIO_TogglePin(GPIOD_1_GPIO_Port, GPIOD_1_Pin);
-    // TODO: do stuff here. For example, you could set some CAN messages
     // App_CanTx_SetPeriodicSignal_STATE(
     //    can_tx_interface, CANMSGS_DIM_STATE_MACHINE_STATE_DRIVE_CHOICE);
     UNUSED(state_machine);
+    App_GateDrive_GetFaults(gate_drive, stgap_faults);
 }
 
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
@@ -52,7 +52,14 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
 static void DriveStateRunOnExit(struct StateMachine *const state_machine)
 {
-    UNUSED(state_machine);
+    struct InvWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct InvCanTxInterface *can_tx_interface = App_InvWorld_GetCanTx(world);
+    struct GateDrive *        gate_drive  = App_InvWorld_GetGateDrive(world);
+    struct PowerStage *       power_stage = App_InvWorld_GetPowerStage(world);
+
+    App_GateDrive_Shutdown(gate_drive);  // Set GDRV Shutdown Pin
+    App_GateDrive_StopPwm(gate_drive);   // Disable PWM
+    App_PowerStage_Disable(power_stage); // Disable ADC
 }
 
 const struct State *App_GetDriveState(void)

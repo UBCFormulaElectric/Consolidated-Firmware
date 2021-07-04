@@ -2,15 +2,23 @@
 
 #include "App_SharedMacros.h"
 #include "App_SharedExitCode.h"
+#include "App_GateDrive.h"
+
+struct StgapFaults *stgap_faults;
 
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct InvWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct InvCanTxInterface *can_tx_interface = App_InvWorld_GetCanTx(world);
+    struct GateDrive *        gate_drive  = App_InvWorld_GetGateDrive(world);
+    struct PowerStage *       power_stage = App_InvWorld_GetPowerStage(world);
 
     UNUSED(can_tx_interface);
-
-    // TODO: do stuff here. For example, you could set some CAN messages
+    App_PowerStage_SetCurrentLimits(power_stage, 10);
+    App_PowerStage_StandBy(
+        power_stage); // Enable continuous ADC DMA requests from all channels
+    App_GateDrive_WriteConfig(gate_drive);
+    App_GateDrive_GetFaults(gate_drive, stgap_faults);
 }
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -19,9 +27,7 @@ static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
     struct RgbLedSequence *rgb_led_sequence =
         App_InvWorld_GetRgbLedSequence(world);
 
-    App_SharedRgbLedSequence_Tick(rgb_led_sequence);
-
-    // TODO: do stuff here. For example, you could set some CAN messages
+    // App_SharedRgbLedSequence_Tick(rgb_led_sequence);
     // App_CanTx_SetPeriodicSignal_STATE(
     //    can_tx_interface, CANMSGS_DIM_STATE_MACHINE_STATE_DRIVE_CHOICE);
 }

@@ -3,7 +3,6 @@
 #include "configs/App_ControlSystemConfig.h"
 #include <stdlib.h>
 #include "main.h"
-#include "freertos.h"
 
 extern ADC_HandleTypeDef hadc1, hadc2;
 extern DAC_HandleTypeDef hdac;
@@ -156,8 +155,15 @@ void Io_AdcDac_GetPhaseCurrents(struct PhaseValues *const phase_currents)
 
 void Io_AdcDac_DacStart(void)
 {
-    HAL_DAC_Start(&hdac, DAC_CHANNEL_1);
-    HAL_DAC_Start(&hdac, DAC_CHANNEL_2);
+    if (HAL_DAC_Start(&hdac, DAC_CHANNEL_1) != HAL_OK)
+    {
+        // TODO exitcode here
+        int i = 1;
+    }
+    if (HAL_DAC_Start(&hdac, DAC_CHANNEL_2) != HAL_OK)
+    {
+        // TODO exitcode here
+    }
 
     // Initialize DAC values to 3.3V and 0V to avoid fault latching.
     HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, 0xFFF);
@@ -179,6 +185,14 @@ void Io_AdcDac_DacSetCurrent(const float current)
     uint32_t low_dac_value =
         (uint32_t)((dac_low_output_voltage * (0xFFF + 1)) / 3.3f);
 
-    HAL_DAC_SetValue(&hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, high_dac_value);
-    HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, low_dac_value);
+    if (HAL_DAC_SetValue(
+            &hdac, DAC_CHANNEL_1, DAC_ALIGN_12B_R, high_dac_value) != HAL_OK)
+    {
+        // TODO exitcode here
+    }
+    if (HAL_DAC_SetValue(
+            &hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, low_dac_value) != HAL_OK)
+    {
+        // TODO exitcode here
+    }
 }

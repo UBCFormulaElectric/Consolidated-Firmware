@@ -41,7 +41,7 @@ static const uint8_t crc_table[UINT8_MAX + 1] = {
     0xFA, 0xFD, 0xF4, 0xF3
 };
 
-struct StgapFaults stgap_faults;
+static struct StgapFaults stgap_faults_io;
 
 struct StgapRegisters stgap_registers = {
     .cfg1     = 0x0C,
@@ -394,38 +394,38 @@ struct StgapFaults *Io_STGAP1AS_ReadFaults()
 
     for (uint8_t i = 0; i < NUM_STGAP_DEVICES; i++)
     {
-        stgap_faults.twn[i] =
+        stgap_faults_io.twn[i] =
             (bool)(receive_array[0 * NUM_STGAP_DEVICES + i] >> 0 & 1);
-        stgap_faults.tsd[i] =
+        stgap_faults_io.tsd[i] =
             (bool)(receive_array[0 * NUM_STGAP_DEVICES + i] >> 1 & 1);
-        stgap_faults.uvlol[i] =
+        stgap_faults_io.uvlol[i] =
             (bool)(receive_array[0 * NUM_STGAP_DEVICES + i] >> 2 & 1);
-        stgap_faults.uvloh[i] =
+        stgap_faults_io.uvloh[i] =
             (bool)(receive_array[0 * NUM_STGAP_DEVICES + i] >> 3 & 1);
-        stgap_faults.sense[i] =
+        stgap_faults_io.sense[i] =
             (bool)(receive_array[0 * NUM_STGAP_DEVICES + i] >> 4 & 1);
-        stgap_faults.desat[i] =
+        stgap_faults_io.desat[i] =
             (bool)(receive_array[0 * NUM_STGAP_DEVICES + i] >> 5 & 1);
-        stgap_faults.ovlol[i] =
+        stgap_faults_io.ovlol[i] =
             (bool)(receive_array[0 * NUM_STGAP_DEVICES + i] >> 6 & 1);
-        stgap_faults.ovloh[i] =
+        stgap_faults_io.ovloh[i] =
             (bool)(receive_array[0 * NUM_STGAP_DEVICES + i] >> 7 & 1);
-        stgap_faults.asc[i] =
+        stgap_faults_io.asc[i] =
             (bool)(receive_array[1 * NUM_STGAP_DEVICES + i] >> 1 & 1);
-        stgap_faults.regerrr[i] =
+        stgap_faults_io.regerrr[i] =
             (bool)(receive_array[1 * NUM_STGAP_DEVICES + i] >> 2 & 1);
-        stgap_faults.uvlod[i] =
+        stgap_faults_io.uvlod[i] =
             (bool)(receive_array[2 * NUM_STGAP_DEVICES + i] >> 0 & 1);
-        stgap_faults.ovlod[i] =
+        stgap_faults_io.ovlod[i] =
             (bool)(receive_array[2 * NUM_STGAP_DEVICES + i] >> 1 & 1);
-        stgap_faults.reg_errl[i] =
+        stgap_faults_io.reg_errl[i] =
             (bool)(receive_array[2 * NUM_STGAP_DEVICES + i] >> 2 & 1);
-        stgap_faults.spi_err[i] =
+        stgap_faults_io.spi_err[i] =
             (bool)(receive_array[2 * NUM_STGAP_DEVICES + i] >> 3 & 1);
-        stgap_faults.dt_err[i] =
+        stgap_faults_io.dt_err[i] =
             (bool)(receive_array[2 * NUM_STGAP_DEVICES + i] >> 4 & 1);
     }
-    return &stgap_faults;
+    return &stgap_faults_io;
 }
 
 uint8_t Io_STGAP1AS_SendReceiveByte(
