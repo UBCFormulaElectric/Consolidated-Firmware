@@ -1,5 +1,4 @@
 #include "Io_SharedFilters.h"
-#include "arm_math.h"
 
 void Io_SharedFilters_LowPassFilter(
     float32_t *input,

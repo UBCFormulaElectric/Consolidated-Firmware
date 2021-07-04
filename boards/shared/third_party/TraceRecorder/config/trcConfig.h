@@ -61,7 +61,13 @@ extern "C" {
  * required at least for the ARM Cortex-M port, that uses the ARM CMSIS API.
  * Try that in case of build problems. Otherwise, remove the #error line below.
  *****************************************************************************/
+#ifdef STM32F302xC
 #include <stm32f3xx.h>
+#elif STM32F765xx
+#include <stm32f7xx.h>
+#else
+#error "No supported device define found."
+#endif
 
 /*******************************************************************************
  * Configuration Macro: TRC_CFG_HARDWARE_PORT
@@ -122,8 +128,13 @@ extern "C" {
  * TRC_FREERTOS_VERSION_10_3_0				If using FreeRTOS v10.3.0
  * TRC_FREERTOS_VERSION_10_3_1				If using FreeRTOS v10.3.1 or later
  *****************************************************************************/
+#ifdef STM32F302xC
 #define TRC_CFG_FREERTOS_VERSION TRC_FREERTOS_VERSION_9_0_0
-
+#elif STM32F765xx
+#define TRC_CFG_FREERTOS_VERSION TRC_FREERTOS_VERSION_10_0_1
+#else
+#error "No supported device define found."
+#endif
 /*******************************************************************************
  * TRC_CFG_SCHEDULING_ONLY
  *

@@ -59,7 +59,7 @@ if __name__ == "__main__":
     logging.basicConfig(level=logging.DEBUG)
 
     # DBC name without the file extension
-    database_name = os.path.basename(args.dbc).replace('.dbc', '')
+    database_name = os.path.basename(args.dbc).replace(".dbc", "")
 
     # Load DBC in preparation of cantools
     database = load_file(args.dbc, database_format="dbc")

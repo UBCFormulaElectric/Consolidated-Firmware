@@ -33,8 +33,8 @@ void App_Charger_Destroy(struct Charger *charger)
 
 void App_Charger_Enable(struct Charger *charger)
 {
-    charger->is_enabled = true;
     charger->enable();
+    charger->is_enabled = true;
 }
 
 void App_Charger_Disable(struct Charger *charger)
