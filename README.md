@@ -46,26 +46,35 @@ sudo apt-get install openocd
   * MinGW: https://sourceforge.net/projects/mingw-w64/ (**select 32-bit verison/i686 architecture**)
 
 ##### OS X
-First, install Homebrew.
+First, install Homebrew and CLion. Then install git-lfs, gcc-arm-none-eabi, and pipenv:
 ```
+brew tap PX4/homebrew-px4
+brew update
+brew upgrade
 brew install git-lfs
+brew install gcc-arm-none-eabi-49
+brew install pipenv
+brew install openocd
+brew install --cask clion
+brew install gcc
+```
+To verify that `arm-none-eabi-gcc` was installed, run
+`arm-none-eabi-gcc --version`
+And likewise for the other programs.
+Then, set up the repo:
+```
 git lfs install
 git clone <repo link>
 cd Consolidated-Firmware
-brew install pipenv
 pipenv install
 pipenv shell
 git lfs pull
-brew tap PX4/homebrew-px4
-brew update
-brew install gcc-arm-none-eabi-49
-arm-none-eabi-gcc --version
-python3 scripts/environment_setup/install_cube.py /usr/local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip
-brew install openocd
 ```
-Then change compiler from Clang to GNU GCC.
-`brew install gcc`
-
+Install cube:
+`
+python3 scripts/environment_setup/install_cube.py /usr/local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip
+`
+Then set up CMake in CLion to use GNU GCC compiler instead of Clang (go to *Build, Execution, Deployment --> Toolchains --> Default*, and set the C/C++ compilers to the GNU GCC ones). For me, after installing GNU GCC with Homebrew the compiler was called `gcc-11` and `g++-11`, and located in `/usr/local/Cellar/gcc/11.1.0_1/bin/gcc-11`.
 
 ##### Ubuntu 18.04 and Windows and OS X
   * J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
