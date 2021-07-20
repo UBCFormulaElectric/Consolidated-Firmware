@@ -45,7 +45,7 @@ sudo apt-get install openocd
   * STM32CubeMX: https://www.st.com/en/development-tools/stm32cubemx.html
   * MinGW: https://sourceforge.net/projects/mingw-w64/ (**select 32-bit verison/i686 architecture**)
 
-##### OS X
+##### Mac OS
 First, install Homebrew and CLion. Then install git-lfs, gcc-arm-none-eabi, and pipenv:
 ```
 brew tap PX4/homebrew-px4
@@ -76,7 +76,7 @@ Install cube:
 
 Then set up CMake in CLion to use GNU GCC compiler instead of Clang (in CLion go to *Build, Execution, Deployment --> Toolchains --> Default*, and set the C/C++ compilers to the GNU GCC ones). For me, after installing GNU GCC with Homebrew the compiler was called `gcc-11` and `g++-11`, and located in `/usr/local/Cellar/gcc/11.1.0_1/bin/gcc-11` and `/usr/local/Cellar/gcc/11.1.0_1/bin/g++-11`.
 
-##### Ubuntu 18.04 and Windows and OS X
+##### Ubuntu 18.04 and Windows and Mac OS
   * J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
     ##### Submodules:
     In the root of the directory run the following command:
@@ -86,7 +86,7 @@ Then set up CMake in CLion to use GNU GCC compiler instead of Clang (in CLion go
     to fetch all of the submodules.
 
 #### 2. Modify your `PATH` Environment Variable:
-##### Ubuntu 18.04
+##### Ubuntu 18.04 and Mac OS
 Modify the `PATH` variable by adding the following to your `.bashrc`:
 ```
 export PATH="$PATH:/path/to/arm-none-eabi-gcc"
