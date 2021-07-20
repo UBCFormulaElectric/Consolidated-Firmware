@@ -59,8 +59,8 @@ brew install --cask clion
 brew install gcc
 ```
 To verify that `arm-none-eabi-gcc` was installed, run
-`arm-none-eabi-gcc --version`
-And likewise for the other programs.
+`arm-none-eabi-gcc --version`, and likewise for the other programs installed above.
+
 Then, set up the repo:
 ```
 git lfs install
@@ -71,10 +71,10 @@ pipenv shell
 git lfs pull
 ```
 Install cube:
-`
-python3 scripts/environment_setup/install_cube.py /usr/local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip
-`
-Then set up CMake in CLion to use GNU GCC compiler instead of Clang (go to *Build, Execution, Deployment --> Toolchains --> Default*, and set the C/C++ compilers to the GNU GCC ones). For me, after installing GNU GCC with Homebrew the compiler was called `gcc-11` and `g++-11`, and located in `/usr/local/Cellar/gcc/11.1.0_1/bin/gcc-11`.
+
+`python3 scripts/environment_setup/install_cube.py /usr/local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip`
+
+Then set up CMake in CLion to use GNU GCC compiler instead of Clang (in CLion go to *Build, Execution, Deployment --> Toolchains --> Default*, and set the C/C++ compilers to the GNU GCC ones). For me, after installing GNU GCC with Homebrew the compiler was called `gcc-11` and `g++-11`, and located in `/usr/local/Cellar/gcc/11.1.0_1/bin/gcc-11` and `/usr/local/Cellar/gcc/11.1.0_1/bin/g++-11`.
 
 ##### Ubuntu 18.04 and Windows and OS X
   * J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
