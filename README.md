@@ -46,7 +46,7 @@ sudo apt-get install openocd
   * MinGW: https://sourceforge.net/projects/mingw-w64/ (**select 32-bit verison/i686 architecture**)
 
 ##### Mac OS
-First, install Homebrew and CLion. Then install git-lfs, gcc-arm-none-eabi, and pipenv:
+First, install Homebrew and CLion. Then install `git-lfs, gcc-arm-none-eabi`, and `pipenv`:
 ```
 brew tap PX4/homebrew-px4
 brew update
