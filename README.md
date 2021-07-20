@@ -45,7 +45,28 @@ sudo apt-get install openocd
   * STM32CubeMX: https://www.st.com/en/development-tools/stm32cubemx.html
   * MinGW: https://sourceforge.net/projects/mingw-w64/ (**select 32-bit verison/i686 architecture**)
 
-##### Ubuntu 18.04 and Windows
+##### OS X
+First, install Homebrew.
+`
+brew install git-lfs
+git lfs install
+git clone <repo link>
+cd Consolidated-Firmware
+brew install pipenv
+pipenv install
+pipenv shell
+git lfs pull
+brew tap PX4/homebrew-px4
+brew update
+brew install gcc-arm-none-eabi-49
+arm-none-eabi-gcc --version
+python3 scripts/environment_setup/install_cube.py /usr/local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip
+brew install openocd
+
+`
+
+
+##### Ubuntu 18.04 and Windows and OS X
   * J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
     ##### Submodules:
     In the root of the directory run the following command:
@@ -63,7 +84,7 @@ export PATH="$PATH:/path/to/STM32CubeMX"
 ...
 ```
 
-Always invoke `clion` from the command line. That way `clion` will load `.bashc` and read the modifications you made the the `PATH` variable.
+Always invoke `clion` from the command line. That way `clion` will load `.bashrc` and read the modifications you made the the `PATH` variable.
 
 ##### Windows
 Find `Environment Variables` in your start menu and then add the appropriate paths to `PATH`:
