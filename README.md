@@ -47,7 +47,7 @@ sudo apt-get install openocd
 
 ##### OS X
 First, install Homebrew.
-`
+```
 brew install git-lfs
 git lfs install
 git clone <repo link>
@@ -62,8 +62,7 @@ brew install gcc-arm-none-eabi-49
 arm-none-eabi-gcc --version
 python3 scripts/environment_setup/install_cube.py /usr/local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip
 brew install openocd
-
-`
+```
 
 
 ##### Ubuntu 18.04 and Windows and OS X
