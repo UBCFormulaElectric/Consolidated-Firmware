@@ -51,12 +51,8 @@ First, install Homebrew and CLion. Then install the following programs using Hom
 brew tap PX4/homebrew-px4
 brew update
 brew upgrade
-brew install git-lfs
-brew install gcc-arm-none-eabi-49
-brew install pipenv
-brew install openocd
+brew install git-lfs pipenv openocd gcc gcc-arm-none-eabi-49
 brew install --cask clion
-brew install gcc
 ```
 To verify that `arm-none-eabi-gcc` was installed, run
 `arm-none-eabi-gcc --version`, and likewise for the other programs installed above.
