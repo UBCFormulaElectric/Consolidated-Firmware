@@ -67,7 +67,7 @@ Install cube:
 
 `python3 scripts/environment_setup/install_cube.py /usr/local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip`
 
-##### Ubuntu 18.04 and Windows and Mac OS
+##### All Operating Systems
   * J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
     ##### Submodules:
     In the root of the directory run the following command:
@@ -161,7 +161,7 @@ We run (and require) continuous integration on every pull request before it is m
 
 1. **Build Check**: If the code compiles in CLion, it should also compile in CI.
 2. **Formatting Check**: Run the following commands (starting from the **root directory** of this project) to fix formatting (CI runs this and then checks if any code was modified):
-  * *Windows and Ubuntu 18.04:*
+  * *All Operating Systems:*
   ```
   python clang_format/fix_formatting.py
   ```
