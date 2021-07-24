@@ -48,14 +48,17 @@ sudo apt-get install openocd
 ##### Mac OS
 First, install Homebrew and CLion. Then install the following programs using Homebrew:
 ```
-brew tap PX4/homebrew-px4
 brew update
 brew upgrade
-brew install git-lfs pipenv openocd gcc gcc-arm-none-eabi-49
+brew install git-lfs pipenv openocd gcc
 brew install --cask clion
 ```
+By default, your gcc (C compiler) is set to Apple's Clang compiler. For this codebase, it is easier if we use the GNU C compiler instead. When you ran `brew install gcc`, the GNU C compiler should have been installed and added to path. When you type `gcc` in terminal and hit `TAB`, you should see something like `gcc-11`. This is GNU's C compiler (to verify, run `gcc-11 --version`). Find out where this is installed, as we will need it when setting up CLion (for me, it was installed in `/usr/local/Cellar/gcc/11.1.0_1/bin`).
+
+Now, we need to install the `arm-none-eabi-gcc` compiler toolchain for ARM processors. To avoid bugs associated with different versions, go to the [ARM website](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) and download the *9-2019-q4-major* version (link [here](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads#:~:text=gcc-arm-none-eabi-9-2019-q4-major-mac.tar.bz2)). Then, add the `bin` folder of the extracted directory to your PATH in `.bashrc`.
+
 To verify that `arm-none-eabi-gcc` was installed, run
-`arm-none-eabi-gcc --version`, and likewise for the other programs installed above.
+`arm-none-eabi-gcc --version`. It should print 2019-q4-major in the output. Likewise verify the other programs were installed correctly.
 
 Then, set up the repo:
 ```
