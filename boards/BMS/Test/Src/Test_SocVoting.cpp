@@ -119,5 +119,5 @@ TEST_F(SocVotingTest, difference_is_larger_than_max_difference)
         App_Soc_Vote(
             std::nextafter(TEST_VALUE, std::numeric_limits<float>::lowest()),
             0.0f, TEST_VALUE, 2 * TEST_VALUE, &result));
-    ASSERT_TRUE(isnanf(result));
+    ASSERT_TRUE(isnan(result));
 }

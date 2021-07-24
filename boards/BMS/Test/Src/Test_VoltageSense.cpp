@@ -11,7 +11,7 @@ TEST(VoltageSenseTest, tractive_system_voltage_calculation)
     // Negative ADC voltage
     float adc_voltage =
         std::nextafter(0.0f, std::numeric_limits<float>::lowest());
-    ASSERT_TRUE(isnanf(Io_VoltageSense_GetTractiveSystemVoltage(adc_voltage)));
+    ASSERT_TRUE(isnan(Io_VoltageSense_GetTractiveSystemVoltage(adc_voltage)));
 
     // Zero tractive system voltage (0V)
     adc_voltage = 0.0f;
