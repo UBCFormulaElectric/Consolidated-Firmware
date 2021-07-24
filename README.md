@@ -154,7 +154,7 @@ Set the debugger to be `arm-none-eabi-gdb`, ie:
 
 Debugger: `/path/to/arm-none-eabi-gcc/bin/arm-none-eabi-gdb`
 
-Note: whenever you get the error *<program name> cannot be opened because the developer cannot be verified, go to **System Preferences --> Security & Privacy --> General**, and click "Allow Anyway" next to the part saying "*<program name>* was blocked from use because it is not from an identified developer.
+Note: whenever you get the error *<program name> cannot be opened because the developer cannot be verified*, go to **System Preferences --> Security & Privacy --> General**, and click "Allow Anyway" next to the part saying "*<program name>* was blocked from use because it is not from an identified developer.
 
 ## Continuous Integration (CI)
 We run (and require) continuous integration on every pull request before it is merged. This automatically makes sure the code builds, and checks for formatting errors.
