@@ -13,12 +13,15 @@ struct PreCharge;
  * the pre-charge sequence
  * @param get_ts_voltage A function that can be called to get the tractive
  * system voltage in V. Takes in the ADC voltage as an input parameter
- *      @see github.com/UBCFormulaElectric/Consolidated-Firmware/blob/master/boards/BMS/Src/Io/Io_VoltageSense.c#L4
+ *      @see
+ * github.com/UBCFormulaElectric/Consolidated-Firmware/blob/master/boards/BMS/Src/Io/Io_VoltageSense.c#L4
  * @param min_duration_ms The time associated with the
  * inverter/charger capacitors being charged to 90% of the accumulator voltage
- * @param min_complete_duration_ms The minimum amount of time the precharge must take
- * @param max_complete_duration_ms The maximum amount of time the precharge can time. If precharge takes longer a
- * precharge fault error is broadcasted over CAN
+ * @param min_complete_duration_ms The minimum amount of time the precharge must
+ * take
+ * @param max_complete_duration_ms The maximum amount of time the precharge can
+ * time. If precharge takes longer a precharge fault error is broadcasted over
+ * CAN
  * @return The created pre-charge sequence, whose ownership is given to the
  * caller
  */
