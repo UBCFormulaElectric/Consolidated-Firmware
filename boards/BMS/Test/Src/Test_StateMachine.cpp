@@ -224,6 +224,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
         TearDownObject(pre_charge_sequence, App_PreChargeSequence_Destroy);
         TearDownObject(error_table, App_SharedErrorTable_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
+        printf("hello world");
+
     }
 
     void SetInitialState(const struct State *const initial_state)
