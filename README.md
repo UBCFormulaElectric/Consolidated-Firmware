@@ -48,17 +48,11 @@ sudo apt-get install openocd
 ##### Mac OS
 First, install Homebrew and CLion. Then install the following programs using Homebrew:
 ```
-brew update
-brew upgrade
 brew install git-lfs pipenv openocd gcc
 brew install --cask clion
 ```
-By default, your gcc (C compiler) is set to Apple's Clang compiler. For this codebase, it is easier if we use the GNU C compiler instead. When you ran `brew install gcc`, the GNU C compiler should have been installed and added to path. When you type `gcc` in terminal and hit `TAB`, you should see something like `gcc-11`. This is GNU's C compiler (to verify, run `gcc-11 --version`). Find out where this is installed, as we will need it when setting up CLion (for me, it was installed in `/usr/local/Cellar/gcc/11.1.0_1/bin`).
-
-Now, we need to install the `arm-none-eabi-gcc` compiler toolchain for ARM processors. To avoid bugs associated with different versions, go to the [ARM website](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) and download the *9-2019-q4-major* version (link [here](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads#:~:text=gcc-arm-none-eabi-9-2019-q4-major-mac.tar.bz2)). Then, add the `bin` folder of the extracted directory to your PATH in `.bashrc`.
-
-To verify that `arm-none-eabi-gcc` was installed, run
-`arm-none-eabi-gcc --version`. It should print 2019-q4-major in the output. Likewise verify the other programs were installed correctly.
+Verify the programs above were installed by running `<program name> --version`.
+Now, we need to install the `arm-none-eabi` compiler toolchain for ARM processors. To avoid bugs associated with different versions, go to the [ARM website](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) and download the *9-2019-q4-major* version (link [here](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads#:~:text=gcc-arm-none-eabi-9-2019-q4-major-mac.tar.bz2)).
 
 Then, set up the repo:
 ```
@@ -72,8 +66,6 @@ git lfs pull
 Install cube:
 
 `python3 scripts/environment_setup/install_cube.py /usr/local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip`
-
-Then set up CMake in CLion to use GNU GCC compiler instead of Clang (in CLion go to *Build, Execution, Deployment --> Toolchains --> Default*, and set the C/C++ compilers to the GNU GCC ones). For me, after installing GNU GCC with Homebrew the compiler was called `gcc-11` and `g++-11`, and located in `/usr/local/Cellar/gcc/11.1.0_1/bin/gcc-11` and `/usr/local/Cellar/gcc/11.1.0_1/bin/g++-11`.
 
 ##### Ubuntu 18.04 and Windows and Mac OS
   * J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
@@ -90,7 +82,6 @@ Modify the `PATH` variable by adding the following to your `.bashrc`:
 ```
 export PATH="$PATH:/path/to/arm-none-eabi-gcc"
 export PATH="$PATH:/path/to/STM32CubeMX"
-...
 ```
 
 Always invoke `clion` from the command line. That way `clion` will load `.bashrc` and read the modifications you made the the `PATH` variable.
@@ -150,6 +141,19 @@ Then set the GDB Server to be JLinkGDBServer, ie:
 ```
 C:\Program Files (x86)\SEGGER\JLink\JLinkGDBServer.exe
 ```
+
+##### Mac OS
+Under **File->Settings->Build, Execution, Deployment...->Toolchains**::
+Set the default C compiler to be the GNU C and C++ compilers you installed earlier. If you installed gcc using brew it should be something similar:
+
+C compiler: `/usr/local/Cellar/gcc/<some version number>/bin/gcc-11`
+C++ compiler: `/usr/local/Cellar/gcc/<some version number>/bin/g++-11`
+
+Set the debugger to be `arm-none-eabi-gdb`, ie:
+
+Debugger: `/path/to/arm-none-eabi-gcc/bin/arm-none-eabi-gdb`
+
+
 ## Continuous Integration (CI)
 We run (and require) continuous integration on every pull request before it is merged. This automatically makes sure the code builds, and checks for formatting errors.
 
