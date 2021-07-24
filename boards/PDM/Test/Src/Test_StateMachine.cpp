@@ -268,21 +268,21 @@ class PdmStateMachineTest : public BaseStateMachineTest
         // Normal Value
         fake_current = (min_current + max_current) / 2;
         LetTimePass(state_machine, 10);
-        EXPECT_TRUE(isnanf(current_can_signal_getter(can_tx_interface)));
+        EXPECT_TRUE(isnan(current_can_signal_getter(can_tx_interface)));
         EXPECT_EQ(ok_choice, out_of_range_can_signal_getter(can_tx_interface));
 
         // Under-current
         fake_current =
             std::nextafter(min_current, std::numeric_limits<float>::lowest());
         LetTimePass(state_machine, 10);
-        EXPECT_TRUE(isnanf(current_can_signal_getter(can_tx_interface)));
+        EXPECT_TRUE(isnan(current_can_signal_getter(can_tx_interface)));
         EXPECT_EQ(ok_choice, out_of_range_can_signal_getter(can_tx_interface));
 
         // Over-current
         fake_current =
             std::nextafter(max_current, std::numeric_limits<float>::max());
         LetTimePass(state_machine, 10);
-        EXPECT_TRUE(isnanf(current_can_signal_getter(can_tx_interface)));
+        EXPECT_TRUE(isnan(current_can_signal_getter(can_tx_interface)));
         EXPECT_EQ(ok_choice, out_of_range_can_signal_getter(can_tx_interface));
     }
 
