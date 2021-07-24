@@ -143,10 +143,11 @@ C:\Program Files (x86)\SEGGER\JLink\JLinkGDBServer.exe
 ```
 
 ##### Mac OS
-Under **File->Settings->Build, Execution, Deployment...->Toolchains**::
+Under **File->Settings->Build, Execution, Deployment...->Toolchains**:
 Set the default C compiler to be the GNU C and C++ compilers you installed earlier. If you installed gcc using brew it should be something similar:
 
 C compiler: `/usr/local/Cellar/gcc/<some version number>/bin/gcc-11`
+
 C++ compiler: `/usr/local/Cellar/gcc/<some version number>/bin/g++-11`
 
 Set the debugger to be `arm-none-eabi-gdb`, ie:
