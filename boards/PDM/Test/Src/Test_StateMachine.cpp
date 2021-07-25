@@ -112,6 +112,8 @@ class PdmStateMachineTest : public BaseStateMachineTest
             do_low_voltage_battery_have_charge_fault,
             do_low_voltage_battery_have_boost_controller_fault);
 
+        error_table = App_SharedErrorTable_Create();
+
         clock = App_SharedClock_Create();
 
         world = App_PdmWorld_Create(
@@ -122,7 +124,7 @@ class PdmStateMachineTest : public BaseStateMachineTest
             right_inverter_current_in_range_check,
             energy_meter_current_in_range_check, can_current_in_range_check,
             air_shutdown_current_in_range_check, heartbeat_monitor,
-            rgb_led_sequence, low_voltage_battery, clock);
+            rgb_led_sequence, low_voltage_battery, error_table, clock);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -177,6 +179,7 @@ class PdmStateMachineTest : public BaseStateMachineTest
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
         TearDownObject(low_voltage_battery, App_LowVoltageBattery_Destroy);
+        TearDownObject(error_table, App_SharedErrorTable_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
     }
 
@@ -362,6 +365,7 @@ class PdmStateMachineTest : public BaseStateMachineTest
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
     struct LowVoltageBattery *low_voltage_battery;
+    struct ErrorTable *       error_table;
     struct Clock *            clock;
 };
 

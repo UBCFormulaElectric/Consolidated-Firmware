@@ -106,6 +106,7 @@ struct InRangeCheck *     air_shutdown_current_in_range_check;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
 struct LowVoltageBattery *low_voltage_battery;
+struct ErrorTable *       error_table;
 struct Clock *            clock;
 /* USER CODE END PV */
 
@@ -235,6 +236,8 @@ int main(void)
     low_voltage_battery =
         App_LowVoltageBattery_Create(Io_LT3650_HasFault, Io_LTC3786_HasFault);
 
+    error_table = App_SharedErrorTable_Create();
+
     clock = App_SharedClock_Create();
 
     world = App_PdmWorld_Create(
@@ -245,7 +248,7 @@ int main(void)
         right_inverter_current_in_range_check,
         energy_meter_current_in_range_check, can_current_in_range_check,
         air_shutdown_current_in_range_check, heartbeat_monitor,
-        rgb_led_sequence, low_voltage_battery, clock);
+        rgb_led_sequence, low_voltage_battery, error_table, clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 

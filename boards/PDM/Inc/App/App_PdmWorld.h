@@ -5,6 +5,7 @@
 #include "App_InRangeCheck.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
+#include "App_SharedErrorTable.h"
 #include "App_LowVoltageBattery.h"
 #include "App_SharedClock.h"
 
@@ -35,6 +36,7 @@ struct PdmWorld *App_PdmWorld_Create(
     struct HeartbeatMonitor * heartbeat_monitor,
     struct RgbLedSequence *   rgb_led_sequence,
     struct LowVoltageBattery *low_voltage_battery,
+    struct ErrorTable *       error_table,
     struct Clock *            clock);
 
 /**
@@ -157,6 +159,13 @@ struct RgbLedSequence *
  */
 struct LowVoltageBattery *
     App_PdmWorld_GetLowVoltageBattery(const struct PdmWorld *world);
+
+/**
+ * Get the error table for the given world
+ * @param world The world to get the error table from
+ * @return The error table for the given world
+ */
+struct ErrorTable *App_PdmWorld_GetErrorTable(const struct PdmWorld *world);
 
 /**
  * Get the clock for the given world

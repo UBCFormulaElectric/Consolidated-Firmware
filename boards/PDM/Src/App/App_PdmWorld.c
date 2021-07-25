@@ -21,6 +21,7 @@ struct PdmWorld
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
     struct LowVoltageBattery *low_voltage_battery;
+    struct ErrorTable *       error_table;
     struct Clock *            clock;
 };
 
@@ -40,6 +41,7 @@ struct PdmWorld *App_PdmWorld_Create(
     struct HeartbeatMonitor *const  heartbeat_monitor,
     struct RgbLedSequence *const    rgb_led_sequence,
     struct LowVoltageBattery *const low_voltage_battery,
+    struct ErrorTable *const        error_table,
     struct Clock *const             clock)
 {
     struct PdmWorld *world = (struct PdmWorld *)malloc(sizeof(struct PdmWorld));
@@ -64,6 +66,7 @@ struct PdmWorld *App_PdmWorld_Create(
     world->heartbeat_monitor   = heartbeat_monitor;
     world->rgb_led_sequence    = rgb_led_sequence;
     world->low_voltage_battery = low_voltage_battery;
+    world->error_table         = error_table;
     world->clock               = clock;
 
     return world;
@@ -162,6 +165,11 @@ struct LowVoltageBattery *
     App_PdmWorld_GetLowVoltageBattery(const struct PdmWorld *const world)
 {
     return world->low_voltage_battery;
+}
+
+struct ErrorTable *App_PdmWorld_GetErrorTable(const struct PdmWorld *world)
+{
+    return world->error_table;
 }
 
 struct Clock *App_PdmWorld_GetClock(const struct PdmWorld *const world)
