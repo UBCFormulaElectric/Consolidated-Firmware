@@ -3,6 +3,7 @@
 #include "Io_CanRx.h"
 #include "Io_CanTx.h"
 #include "Io_SharedCan.h"
+#include "Io_SharedErrorTable.h"
 #include "Io_SharedFreeRTOS.h"
 
 #define CAN_TX_MSG_FIFO_ITEM_SIZE sizeof(struct CanMsg)
@@ -297,7 +298,8 @@ void Io_SharedCan_DequeueCanRxMessage(struct CanMsg *message)
         ;
 }
 
-void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void)
+void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(
+    struct ErrorTable *error_table)
 {
     xSemaphoreTake(CanTxBinarySemaphore.handle, portMAX_DELAY);
 
@@ -309,6 +311,7 @@ void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void)
         if (xQueueReceive(can_tx_msg_fifo.handle, &message, 0) == pdTRUE)
         {
             (void)Io_TransmitCanMessage(&message);
+            Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &message);
         }
     }
 }

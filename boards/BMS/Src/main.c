@@ -972,7 +972,7 @@ void RunTaskCanTx(void const *argument)
 
     for (;;)
     {
-        Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
+        Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(error_table);
     }
     /* USER CODE END RunTaskCanTx */
 }
