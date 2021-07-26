@@ -3,6 +3,7 @@
 #include <stm32f3xx_hal.h>
 
 #include "App_CanTx.h"
+#include "App_SharedErrorTable.h"
 #include "Io_SharedCanMsg.h"
 
 #define CAN_PAYLOAD_MAX_NUM_BYTES 8 // Maximum number of bytes in a CAN payload
@@ -41,4 +42,5 @@ void Io_SharedCan_DequeueCanRxMessage(struct CanMsg *message);
 /**
  * Transmit messages in the CAN TX queue over CAN bus
  */
-void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void);
+void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(
+    struct ErrorTable *error_table);

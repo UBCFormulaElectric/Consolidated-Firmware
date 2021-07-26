@@ -30,6 +30,7 @@
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
 #include "Io_SharedCan.h"
+#include "Io_SharedErrorTable.h"
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
@@ -954,6 +955,7 @@ void RunTaskCanRx(void const *argument)
         Io_SharedCan_DequeueCanRxMessage(&message);
         Io_CanRx_UpdateRxTableWithMessage(
             App_BmsWorld_GetCanRx(world), &message);
+        Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &message);
     }
     /* USER CODE END RunTaskCanRx */
 }
@@ -972,7 +974,7 @@ void RunTaskCanTx(void const *argument)
 
     for (;;)
     {
-        Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
+        Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(error_table);
     }
     /* USER CODE END RunTaskCanTx */
 }
