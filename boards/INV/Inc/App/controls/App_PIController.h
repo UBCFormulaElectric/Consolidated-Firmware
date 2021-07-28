@@ -2,9 +2,9 @@
 
 #include "controls/App_ControlLoop.h"
 
-double calculatePiOutputs(
-    ControllerValues *pi_values,
-    double            ref,
-    double            actual,
-    double            limit,
-    double            comp);
+float calculatePiOutputs(
+    struct ControllerValues *pi_values,
+    float                    ref,
+    float                    actual,
+    float                    limit,
+    float                    comp);

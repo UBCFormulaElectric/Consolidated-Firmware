@@ -42,99 +42,134 @@
 
 // INITIALIZE VARIABLES HERE
 struct PhaseValues phase_voltages, phase_currents, phase_duration;
-DqsValues          dqs_ref_currents, dqs_currents, dqs_voltages;
+struct DqsValues   dqs_ref_currents, dqs_currents, dqs_voltages;
 
-ControllerValues speed_controller = {
+struct ControllerValues speed_controller = {
     .prev_integral_input = 0,
     .integral_sum        = 0,
     .gain                = SPEED_GAIN,
     .time_const          = SPEED_TIME_CONST,
 };
 
-ControllerValues id_controller = { .prev_integral_input = 0,
-                                   .integral_sum        = 0,
-                                   .gain                = D_GAIN,
-                                   .time_const          = D_TIME_CONST };
+struct ControllerValues id_controller = { .prev_integral_input = 0,
+                                          .integral_sum        = 0,
+                                          .gain                = D_GAIN,
+                                          .time_const          = D_TIME_CONST };
 
-ControllerValues iq_controller = { .prev_integral_input = 0,
-                                   .integral_sum        = 0,
-                                   .gain                = Q_GAIN,
-                                   .time_const          = Q_TIME_CONST };
+struct ControllerValues iq_controller = { .prev_integral_input = 0,
+                                          .integral_sum        = 0,
+                                          .gain                = Q_GAIN,
+                                          .time_const          = Q_TIME_CONST };
 
-double  rotor_position = 0;
-double *prev_rotor_position;
-double  rotor_speed      = 0;
-double  bus_voltage      = 0;
-double  phc_current_calc = 0;
-float   torque_ref       = 0;
-bool    fw_flag          = 0;
-bool *  prev_fw_flag;
+float rotor_position      = 0;
+float prev_rotor_position = 0;
+float rotor_speed         = 0;
+float bus_voltage         = 0;
+float phc_current_calc    = 0;
+float torque_ref          = 0;
+bool  fw_flag             = 0;
+bool  prev_fw_flag;
 
 void App_ControlLoop_Run(
-    const double           rotor_speed_ref,
+    const float            rotor_speed_ref,
     const uint8_t          mode,
     const struct InvWorld *world,
-    const double           mod_index_request,
-    double                 fund_freq_request)
+    const float            mod_index_request,
+    float                  ph_cur_rms_request)
 {
     struct GateDrive * gate_drive  = App_InvWorld_GetGateDrive(world);
     struct PowerStage *power_stage = App_InvWorld_GetPowerStage(world);
-    // struct InvMotor* motor = App_InvWorld_GetMotor(world);
+    //     struct InvMotor* motor = App_InvWorld_GetMotor(world);
     struct InvCanRxInterface *can_rx = App_InvWorld_GetCanRx(world);
 
-    // Get Torque Request from DCM
-    App_CanRx_DCM_TORQUE_REQUEST_SetSignal_TORQUE_REQUEST(can_rx, torque_ref);
+    if (mode == MOTOR_CONTROL)
+    {
+        // Get Torque Request from DCM
+        App_CanRx_DCM_TORQUE_REQUEST_SetSignal_TORQUE_REQUEST(
+            can_rx, torque_ref);
+    }
+
+    // Get Speed Ref Request
+    //     App_CanRx_DCM_SPEED_REQUEST_SetSignal_TORQUE_REQUEST(can_rx,
+    //     rotor_speed_ref);
 
     // Get Phase Currents
     App_PowerStage_GetPhaseCurrents(power_stage, &phase_currents);
     phc_current_calc = -1 * (phase_currents.a + phase_currents.b);
-    if (phase_currents.c - phc_current_calc > 5.0)
+    if (fabsf(phase_currents.c - phc_current_calc) > 5)
     {
         // TODO Phase C Current calculation plausibility error
     }
 
-    // Get Rotor Position
+    //    // Get Rotor Position
     if (mode == GEN_SINE_I || mode == GEN_SINE_M)
     {
-        // TODO fake out rotor position with timer here
-        rotor_position    = 180.0; // for now, rotor position = 180 degrees
-        fund_freq_request = fund_freq_request + 1;
+        float fund_freq_request = rotor_speed_ref * (float)0.15915494327;
+        rotor_position          = fmodf(
+            (prev_rotor_position +
+             (fund_freq_request / SAMPLE_FREQUENCY) * 2 * (float)M_PI),
+            2 * (float)M_PI);
     }
     else
     {
-        //	rotor_position = motor.getPosition();
+        //	rotor_position = App_Motor_GetPosition(motor);
     }
 
     // Get Bus Voltage
     bus_voltage = App_PowerStage_GetBusVoltage(power_stage);
 
-    // Calculate Rotor Speed
-    rotor_speed = (rotor_position - *prev_rotor_position) * SAMPLE_FREQUENCY;
+    if (mode == MOTOR_CONTROL)
+    {
+        // Calculate Rotor Speed
+        // TODO bug here when rotor goes from 360 degrees to 0 degrees
+        rotor_speed = (rotor_position - prev_rotor_position) * SAMPLE_FREQUENCY;
+    }
 
     dqs_currents = clarkeParkTransform(&phase_currents, rotor_position);
 
     // Get stator current reference
-    dqs_ref_currents.s = torqueControl(
-        rotor_speed_ref, rotor_speed, torque_ref, &speed_controller,
-        prev_fw_flag);
 
-    // If used, calculate adaption gains
-    if (ADAPTION_GAIN_ENABLED)
+    if (mode == MOTOR_CONTROL)
     {
-        id_controller = adaptionGain(&id_controller, dqs_ref_currents.s);
-        iq_controller = adaptionGain(&iq_controller, dqs_ref_currents.s);
+        dqs_ref_currents.s = torqueControl(
+            rotor_speed_ref, rotor_speed, torque_ref, &speed_controller,
+            prev_fw_flag);
+
+        //    // If used, calculate adaption gains
+        if (ADAPTION_GAIN_ENABLED)
+        {
+            id_controller = adaptionGain(&id_controller, dqs_ref_currents.s);
+            iq_controller = adaptionGain(&iq_controller, dqs_ref_currents.s);
+        }
     }
 
-    // Calculate d/q current references
-    dqs_ref_currents = generateRefCurrents(
-        &dqs_ref_currents, rotor_speed, bus_voltage, &fw_flag);
+    if (mode == GEN_SINE_I || mode == MOTOR_CONTROL)
+    {
+        //     Calculate d/q current references
+        //     If GEN_SINE_I mode is used, current request is defined by the
+        //     user.
+        if (mode == GEN_SINE_I)
+        {
+            dqs_ref_currents.q = ph_cur_rms_request;
+            dqs_ref_currents.d = 0;
+            dqs_ref_currents.s = sqrtf(
+                dqs_ref_currents.q * dqs_ref_currents.q +
+                dqs_ref_currents.d * dqs_ref_currents.d);
+        }
+        if (mode == MOTOR_CONTROL)
+        {
+            dqs_ref_currents = generateRefCurrents(
+                &dqs_ref_currents, rotor_speed, bus_voltage, &fw_flag);
+        }
+    }
 
     // Calculate d/q PI controller outputs
     if (mode == GEN_SINE_M)
     {
-        dqs_voltages.q = mod_index_request / (0.9 * bus_voltage / sqrt(3));
+        dqs_voltages.q =
+            mod_index_request * (0.9f * bus_voltage / (float)M_SQRT3);
         dqs_voltages.d = 0;
-        dqs_voltages.s = sqrt(
+        dqs_voltages.s = sqrtf(
             dqs_voltages.q * dqs_voltages.q + dqs_voltages.d * dqs_voltages.d);
     }
     else
@@ -145,13 +180,13 @@ void App_ControlLoop_Run(
     }
 
     // Transform d/q voltages to phase voltages
-    phase_voltages = parkClarkeTransform(&dqs_voltages, rotor_speed);
+    phase_voltages = parkClarkeTransform(&dqs_voltages, rotor_position);
 
     // Use Space Vector Modulation to calculate PWM durations
     phase_duration = CalculatePwmEdges(&phase_voltages, bus_voltage);
 
     App_GateDrive_LoadPwm(gate_drive, &phase_duration);
 
-    *prev_fw_flag        = fw_flag;
-    *prev_rotor_position = rotor_position;
+    prev_fw_flag        = fw_flag;
+    prev_rotor_position = rotor_position;
 }

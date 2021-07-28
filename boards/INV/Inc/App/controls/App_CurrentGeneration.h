@@ -2,8 +2,8 @@
 
 #include "controls/App_ControlLoop.h"
 
-DqsValues generateRefCurrents(
-    const DqsValues *const dqs_ref_currents,
-    double                 omega,
-    double                 vdc_sensor_val,
-    bool *                 fw_flag);
+struct DqsValues generateRefCurrents(
+    const struct DqsValues *const dqs_ref_currents,
+    float                         omega,
+    float                         vdc_sensor_val,
+    bool *                        fw_flag);

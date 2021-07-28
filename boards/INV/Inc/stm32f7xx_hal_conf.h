@@ -71,7 +71,7 @@ extern "C"
 /* #define HAL_SMARTCARD_MODULE_ENABLED   */
 /* #define HAL_WWDG_MODULE_ENABLED   */
 /* #define HAL_PCD_MODULE_ENABLED   */
-#define HAL_HCD_MODULE_ENABLED
+/* #define HAL_HCD_MODULE_ENABLED   */
 /* #define HAL_DFSDM_MODULE_ENABLED   */
 /* #define HAL_DSI_MODULE_ENABLED   */
 /* #define HAL_JPEG_MODULE_ENABLED   */
@@ -157,10 +157,16 @@ extern "C"
 #define VDD_VALUE ((uint32_t)3300U)      /*!< Value of VDD in mv */
 #define TICK_INT_PRIORITY ((uint32_t)0U) /*!< tick interrupt priority */
 #define USE_RTOS 0U
+<<<<<<< HEAD
 #define PREFETCH_ENABLE 0U
 #define ART_ACCLERATOR_ENABLE                      \
     0U /* To enable instruction cache and prefetch \
         */
+=======
+#define PREFETCH_ENABLE 1U
+#define ART_ACCLERATOR_ENABLE 1U /* To enable instruction cache and prefetch \
+                                  */
+>>>>>>> a412465b1c4833d24d0edf9b5716bfbdfc69fa79
 
 /* ########################## Assert Selection ############################## */
 /**

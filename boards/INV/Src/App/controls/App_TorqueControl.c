@@ -8,14 +8,14 @@
  * setpoint is lower, ensuring the inverter does not violate MAX_MOTOR_SPEED.
  */
 
-double torqueControl(
-    double            omega_ref,
-    const double      omega,
-    const double      torque_ref,
-    ControllerValues *speed_controller,
-    const bool *const prev_fw_flag)
+float torqueControl(
+    float                    omega_ref,
+    const float              omega,
+    const float              torque_ref,
+    struct ControllerValues *speed_controller,
+    const bool               prev_fw_flag)
 {
-    double omega_torque_output, torque_output, stator_current_output;
+    float omega_torque_output, torque_output, stator_current_output;
 
     // Make omega_ref have the same sign as torque_ref
     omega_ref = omega_ref * (int8_t)((torque_ref > 0) - (torque_ref < 0));
@@ -35,16 +35,16 @@ double torqueControl(
     if (prev_fw_flag)
     {
         torque_output =
-            (fabs(MAX_MOTOR_POWER / (omega + 0.01)) < fabs(torque_output))
-                ? torque_sign * MAX_MOTOR_POWER / (fabs(omega) + 0.01)
+            (fabsf(MAX_MOTOR_POWER / (omega + 0.01f)) < fabsf(torque_output))
+                ? (float)torque_sign * MAX_MOTOR_POWER / (fabsf(omega) + 0.01f)
                 : torque_output;
     }
     // if operating in regen region
     if (direction_sign != torque_sign)
     {
         torque_output =
-            (fabs(torque_output) > REGEN_POWER_LIMIT / (omega + 0.01))
-                ? REGEN_POWER_LIMIT * torque_sign / (omega + 0.01)
+            (fabsf(torque_output) > REGEN_POWER_LIMIT / (omega + 0.01f))
+                ? REGEN_POWER_LIMIT * torque_sign / (omega + 0.01f)
                 : torque_output;
     }
     // convert torque to stator current, and limit stator current to Ismax

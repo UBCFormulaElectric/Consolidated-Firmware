@@ -4,11 +4,11 @@
 
 struct PhaseValues CalculatePwmEdges(
     const struct PhaseValues *const phase_voltages,
-    const double                    bus_voltage)
+    const float                     bus_voltage)
 {
     struct PhaseValues phase_duration;
-    double             t0, t1, t2;
-    double             vs_max = MAX_MOD_INDEX * bus_voltage / sqrt(3);
+    float              t0, t1, t2;
+    float              vs_max = MAX_MOD_INDEX * bus_voltage / (float)M_SQRT3;
 
     // The sector in which the voltage vector is generated for the motor
     int sectorNumber = 0;
@@ -49,57 +49,57 @@ struct PhaseValues CalculatePwmEdges(
             t1               = phase_voltages->a / vs_max;
             t2               = phase_voltages->b / vs_max;
             t0               = 1 - t1 - t2;
-            phase_duration.a = t1 + t2 + 0.5 * t0;
-            phase_duration.b = t2 + 0.5 * t0;
-            phase_duration.c = 0.5 * t0;
+            phase_duration.a = t1 + t2 + 0.5f * t0;
+            phase_duration.b = t2 + 0.5f * t0;
+            phase_duration.c = 0.5f * t0;
             break;
         case 2:
             t1               = -phase_voltages->c / vs_max;
             t2               = -phase_voltages->a / vs_max;
             t0               = 1 - t1 - t2;
-            phase_duration.a = t1 + 0.5 * t0;
-            phase_duration.b = t1 + t2 + 0.5 * t0;
-            phase_duration.c = 0.5 * t0;
+            phase_duration.a = t1 + 0.5f * t0;
+            phase_duration.b = t1 + t2 + 0.5f * t0;
+            phase_duration.c = 0.5f * t0;
             break;
         case 3:
             t1               = phase_voltages->b / vs_max;
             t2               = phase_voltages->c / vs_max;
             t0               = 1 - t1 - t2;
-            phase_duration.a = 0.5 * t0;
-            phase_duration.b = t1 + t2 + 0.5 * t0;
-            phase_duration.c = t2 + 0.5 * t0;
+            phase_duration.a = 0.5f * t0;
+            phase_duration.b = t1 + t2 + 0.5f * t0;
+            phase_duration.c = t2 + 0.5f * t0;
             break;
         case 4:
             t1               = -phase_voltages->a / vs_max;
             t2               = -phase_voltages->b / vs_max;
             t0               = 1 - t1 - t2;
-            phase_duration.a = 0.5 * t0;
-            phase_duration.b = t1 + 0.5 * t0;
-            phase_duration.c = t1 + t2 + 0.5 * t0;
+            phase_duration.a = 0.5f * t0;
+            phase_duration.b = t1 + 0.5f * t0;
+            phase_duration.c = t1 + t2 + 0.5f * t0;
             break;
         case 5:
             t1               = phase_voltages->c / vs_max;
             t2               = phase_voltages->a / vs_max;
             t0               = 1 - t1 - t2;
-            phase_duration.a = t2 + 0.5 * t0;
-            phase_duration.b = 0.5 * t0;
-            phase_duration.c = t1 + t2 + 0.5 * t0;
+            phase_duration.a = t2 + 0.5f * t0;
+            phase_duration.b = 0.5f * t0;
+            phase_duration.c = t1 + t2 + 0.5f * t0;
             break;
         case 6:
             t1               = -phase_voltages->b / vs_max;
             t2               = -phase_voltages->c / vs_max;
             t0               = 1 - t1 - t2;
-            phase_duration.a = t1 + t2 + 0.5 * t0;
-            phase_duration.b = 0.5 * t0;
-            phase_duration.c = t1 + 0.5 * t0;
+            phase_duration.a = t1 + t2 + 0.5f * t0;
+            phase_duration.b = 0.5f * t0;
+            phase_duration.c = t1 + 0.5f * t0;
             break;
         default: // Null vector
             t1               = 0;
             t2               = 0;
             t0               = 1 - t1 - t2;
-            phase_duration.a = t1 + t2 + 0.5 * t0;
-            phase_duration.b = t2 + 0.5 * t0;
-            phase_duration.c = 0.5 * t0;
+            phase_duration.a = t1 + t2 + 0.5f * t0;
+            phase_duration.b = t2 + 0.5f * t0;
+            phase_duration.c = 0.5f * t0;
     }
     return phase_duration;
 }

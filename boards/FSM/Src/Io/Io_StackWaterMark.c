@@ -73,6 +73,7 @@ static struct stack_watermark stack_watermarks[] = {
         .watermark_threshold = STACK_HIGH_WATERMARK_THRESHOLD,
         .log_error           = logWaterMarkAboveThresholdTaskCanTx,
     },
+
 };
 
 void Io_StackWaterMark_Check(void)

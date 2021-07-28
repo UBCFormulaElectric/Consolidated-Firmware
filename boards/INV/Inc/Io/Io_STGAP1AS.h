@@ -8,7 +8,6 @@
 
 struct StgapFaults;
 
-void     Io_STGAP1AS_Init(SPI_HandleTypeDef *handle);
 ExitCode Io_STGAP1AS_WriteConfiguration(void);
 void     Io_STGAP1AS_ResetStatus(void);
 void     Io_STGAP1AS_GlobalReset(void);
@@ -19,7 +18,7 @@ void     Io_STGAP1AS_WriteRegister(
 void Io_STGAP1AS_ReadRegister(
     uint8_t        stgap_register,
     uint8_t        stgap_register_mask,
-    uint8_t *const receive_buffer);
+    uint8_t *const receive_array);
 void                Io_STGAP1AS_Command(uint8_t command);
 struct StgapFaults *Io_STGAP1AS_ReadFaults(void);
 uint8_t             Io_STGAP1AS_SendReceiveByte(
@@ -40,12 +39,12 @@ bool    Io_STGAP1AS_GetPhcLoDiag(void);
 // STGAP Device Enumeration
 enum
 {
-    PHASE_A_LO,
-    PHASE_A_HI,
-    PHASE_B_LO,
-    PHASE_B_HI,
     PHASE_C_LO,
     PHASE_C_HI,
+    PHASE_B_LO,
+    PHASE_B_HI,
+    PHASE_A_LO,
+    PHASE_A_HI,
 };
 
 // Contains fault values for all STGAPs

@@ -14,7 +14,7 @@
 #include "main.h"
 #include <stdint.h>
 
-SPI_HandleTypeDef *stgap_spi_handle;
+extern SPI_HandleTypeDef hspi2;
 
 static const uint8_t crc_table[UINT8_MAX + 1] = {
     0x00, 0x07, 0x0E, 0x09, 0x1C, 0x1B, 0x12, 0x15, 0x38, 0x3F, 0x36, 0x31,
@@ -38,10 +38,10 @@ static const uint8_t crc_table[UINT8_MAX + 1] = {
     0x06, 0x01, 0x08, 0x0F, 0x1A, 0x1D, 0x14, 0x13, 0xAE, 0xA9, 0xA0, 0xA7,
     0xB2, 0xB5, 0xBC, 0xBB, 0x96, 0x91, 0x98, 0x9F, 0x8A, 0x8D, 0x84, 0x83,
     0xDE, 0xD9, 0xD0, 0xD7, 0xC2, 0xC5, 0xCC, 0xCB, 0xE6, 0xE1, 0xE8, 0xEF,
-    0xFA, 0xFD, 0xF4, 0xF3,
+    0xFA, 0xFD, 0xF4, 0xF3
 };
 
-struct StgapFaults stgap_faults;
+static struct StgapFaults stgap_faults_io;
 
 struct StgapRegisters stgap_registers = {
     .cfg1     = 0x0C,
@@ -72,8 +72,8 @@ struct StgapRegisterMasks stgap_register_masks = {
 };
 
 struct StgapCommands stgap_commands = {
-    .start_config   = 0x3A,
-    .stop_config    = 0x8C,
+    .start_config   = 0x2A,
+    .stop_config    = 0x3A,
     .no_operation   = 0x00,
     .write_register = 0x80,
     .read_register  = 0xA0,
@@ -106,14 +106,9 @@ uint8_t diag2cfg_register_content = (DIAG2_TWN << 7) | (DIAG2_TSD << 6) |
                                     (DIAG2_OV << 3) | (DIAG2_UV << 2) |
                                     (DIAG2_VDD << 1) | (DIAG2_SPI_REG_ERR);
 
-void Io_STGAP1AS_Init(SPI_HandleTypeDef *const handle)
-{
-    stgap_spi_handle = handle;
-}
-
 ExitCode Io_STGAP1AS_WriteConfiguration(void)
 {
-    uint8_t receive_buffer[NUM_STGAP_DEVICES * 7];
+    uint8_t receive_array[NUM_STGAP_DEVICES];
 
     // Reset status, and start configuration
     Io_STGAP1AS_SetShutdownPin(0);
@@ -143,80 +138,80 @@ ExitCode Io_STGAP1AS_WriteConfiguration(void)
         stgap_commands.write_register | stgap_registers.diag2cfg,
         diag2cfg_register_content, 0);
 
+    Io_STGAP1AS_Command(stgap_commands.stop_config);
+
     // Read Configuration & Diagnostic Registers
     Io_STGAP1AS_ReadRegister(
-        stgap_registers.cfg1, stgap_register_masks.cfg1_mask,
-        (uint8_t *)&receive_buffer);
+        stgap_registers.cfg1, stgap_register_masks.cfg1_mask, receive_array);
     for (uint8_t i = 0; i < NUM_STGAP_DEVICES; i++)
     {
-        if (receive_buffer[i] != stgap_registers.cfg1)
+        if (receive_array[i] != config1_register_content)
         {
             return EXIT_CODE_ERROR;
         }
     }
     Io_STGAP1AS_ReadRegister(
         stgap_registers.cfg2, stgap_register_masks.cfg2_mask,
-        (uint8_t *)(&receive_buffer) + 6);
+        (uint8_t *)&receive_array);
     for (uint8_t i = 0; i < NUM_STGAP_DEVICES; i++)
     {
-        if (receive_buffer[i + 6] != stgap_registers.cfg2)
+        if (receive_array[i] != config2_register_content)
         {
             return EXIT_CODE_ERROR;
         }
     }
     Io_STGAP1AS_ReadRegister(
         stgap_registers.cfg3, stgap_register_masks.cfg3_mask,
-        (uint8_t *)(&receive_buffer + 12));
+        (uint8_t *)receive_array);
     for (uint8_t i = 0; i < NUM_STGAP_DEVICES; i++)
     {
-        if (receive_buffer[i + 12] != stgap_registers.cfg3)
+        if (receive_array[i] != config3_register_content)
         {
             return EXIT_CODE_ERROR;
         }
     }
     Io_STGAP1AS_ReadRegister(
         stgap_registers.cfg4, stgap_register_masks.cfg4_mask,
-        (uint8_t *)(&receive_buffer) + 18);
+        (uint8_t *)&receive_array);
     for (uint8_t i = 0; i < NUM_STGAP_DEVICES; i++)
     {
-        if (receive_buffer[i + 18] != stgap_registers.cfg4)
+        if (receive_array[i] != config4_register_content)
         {
             return EXIT_CODE_ERROR;
         }
     }
     Io_STGAP1AS_ReadRegister(
         stgap_registers.cfg5, stgap_register_masks.cfg5_mask,
-        (uint8_t *)(&receive_buffer) + 24);
+        (uint8_t *)&receive_array);
     for (uint8_t i = 0; i < NUM_STGAP_DEVICES; i++)
     {
-        if (receive_buffer[i + 24] != stgap_registers.cfg5)
+        if (receive_array[i] != config5_register_content)
         {
             return EXIT_CODE_ERROR;
         }
     }
     Io_STGAP1AS_ReadRegister(
         stgap_registers.diag1cfg, stgap_register_masks.diag1cfg_mask,
-        (uint8_t *)(&receive_buffer) + 30);
+        (uint8_t *)&receive_array);
     for (uint8_t i = 0; i < NUM_STGAP_DEVICES; i++)
     {
-        if (receive_buffer[i + 30] != stgap_registers.diag1cfg)
+        if (receive_array[i] != diag1cfg_register_content)
         {
             return EXIT_CODE_ERROR;
         }
     }
     Io_STGAP1AS_ReadRegister(
         stgap_registers.diag2cfg, stgap_register_masks.diag2cfg_mask,
-        (uint8_t *)(&receive_buffer) + 36);
+        (uint8_t *)&receive_array);
     for (uint8_t i = 0; i < NUM_STGAP_DEVICES; i++)
     {
-        if (receive_buffer[i + 36] != stgap_registers.diag2cfg)
+        if (receive_array[i] != diag2cfg_register_content)
         {
             return EXIT_CODE_ERROR;
         }
     }
+    Io_STGAP1AS_ReadFaults();
 
-    // Stop configuration
-    Io_STGAP1AS_Command(stgap_commands.stop_config);
     Io_STGAP1AS_SetShutdownPin(1);
 
     return EXIT_CODE_OK;
@@ -361,15 +356,19 @@ void Io_STGAP1AS_WriteRegister(
 void Io_STGAP1AS_ReadRegister(
     const uint8_t  stgap_register,
     const uint8_t  stgap_register_mask,
-    uint8_t *const receive_buffer)
+    uint8_t *const receive_array)
 {
+    uint8_t receive_buffer[NUM_STGAP_DEVICES];
+
     Io_STGAP1AS_SendReceiveByte(
         stgap_commands.read_register | stgap_register, 0xFF, receive_buffer);
     Io_STGAP1AS_SendReceiveByte(
         stgap_commands.no_operation, 0xFF, receive_buffer);
+
+    // Populate receive array
     for (uint8_t i = 0; i < NUM_STGAP_DEVICES; i++)
     {
-        *(receive_buffer + i) = *(receive_buffer + i) & stgap_register_mask;
+        *(receive_array + i) = *(receive_buffer + i) & stgap_register_mask;
     }
 }
 
@@ -382,6 +381,7 @@ void Io_STGAP1AS_Command(const uint8_t command)
 struct StgapFaults *Io_STGAP1AS_ReadFaults()
 {
     uint8_t receive_array[3 * NUM_STGAP_DEVICES];
+
     Io_STGAP1AS_ReadRegister(
         stgap_registers.status1, stgap_register_masks.status1_mask,
         (uint8_t *)&receive_array + 0 * NUM_STGAP_DEVICES);
@@ -394,38 +394,38 @@ struct StgapFaults *Io_STGAP1AS_ReadFaults()
 
     for (uint8_t i = 0; i < NUM_STGAP_DEVICES; i++)
     {
-        stgap_faults.twn[i] =
+        stgap_faults_io.twn[i] =
             (bool)(receive_array[0 * NUM_STGAP_DEVICES + i] >> 0 & 1);
-        stgap_faults.tsd[i] =
+        stgap_faults_io.tsd[i] =
             (bool)(receive_array[0 * NUM_STGAP_DEVICES + i] >> 1 & 1);
-        stgap_faults.uvlol[i] =
+        stgap_faults_io.uvlol[i] =
             (bool)(receive_array[0 * NUM_STGAP_DEVICES + i] >> 2 & 1);
-        stgap_faults.uvloh[i] =
+        stgap_faults_io.uvloh[i] =
             (bool)(receive_array[0 * NUM_STGAP_DEVICES + i] >> 3 & 1);
-        stgap_faults.sense[i] =
+        stgap_faults_io.sense[i] =
             (bool)(receive_array[0 * NUM_STGAP_DEVICES + i] >> 4 & 1);
-        stgap_faults.desat[i] =
+        stgap_faults_io.desat[i] =
             (bool)(receive_array[0 * NUM_STGAP_DEVICES + i] >> 5 & 1);
-        stgap_faults.ovlol[i] =
+        stgap_faults_io.ovlol[i] =
             (bool)(receive_array[0 * NUM_STGAP_DEVICES + i] >> 6 & 1);
-        stgap_faults.ovloh[i] =
+        stgap_faults_io.ovloh[i] =
             (bool)(receive_array[0 * NUM_STGAP_DEVICES + i] >> 7 & 1);
-        stgap_faults.asc[i] =
+        stgap_faults_io.asc[i] =
             (bool)(receive_array[1 * NUM_STGAP_DEVICES + i] >> 1 & 1);
-        stgap_faults.regerrr[i] =
+        stgap_faults_io.regerrr[i] =
             (bool)(receive_array[1 * NUM_STGAP_DEVICES + i] >> 2 & 1);
-        stgap_faults.uvlod[i] =
+        stgap_faults_io.uvlod[i] =
             (bool)(receive_array[2 * NUM_STGAP_DEVICES + i] >> 0 & 1);
-        stgap_faults.ovlod[i] =
+        stgap_faults_io.ovlod[i] =
             (bool)(receive_array[2 * NUM_STGAP_DEVICES + i] >> 1 & 1);
-        stgap_faults.reg_errl[i] =
+        stgap_faults_io.reg_errl[i] =
             (bool)(receive_array[2 * NUM_STGAP_DEVICES + i] >> 2 & 1);
-        stgap_faults.spi_err[i] =
+        stgap_faults_io.spi_err[i] =
             (bool)(receive_array[2 * NUM_STGAP_DEVICES + i] >> 3 & 1);
-        stgap_faults.dt_err[i] =
+        stgap_faults_io.dt_err[i] =
             (bool)(receive_array[2 * NUM_STGAP_DEVICES + i] >> 4 & 1);
     }
-    return &stgap_faults;
+    return &stgap_faults_io;
 }
 
 uint8_t Io_STGAP1AS_SendReceiveByte(
@@ -433,32 +433,38 @@ uint8_t Io_STGAP1AS_SendReceiveByte(
     const uint8_t  crc_xor,
     uint8_t *const receive_array)
 {
-    uint8_t receive_buffer[NUM_STGAP_DEVICES * 2];
-    uint8_t byte_crc;
+    uint16_t receive_buffer[NUM_STGAP_DEVICES];
+    uint16_t send_buffer[NUM_STGAP_DEVICES];
 
-    byte_crc = Io_STGAP1AS_CalculateCrcTx(byte_value, crc_xor);
+    uint8_t byte_crc = Io_STGAP1AS_CalculateCrcTx(byte_value, crc_xor);
 
-    // Send byte1 and corresponding CRC value to all devices
-    for (uint8_t i = 0; i < NUM_STGAP_DEVICES * 2; i = i + 2)
+    // Populate send buffer
+    for (uint8_t i = 0; i < NUM_STGAP_DEVICES; i++)
     {
-        // Pull chip select line low
-        HAL_GPIO_WritePin(
-            GDRV_SPI_CS_GPIO_Port, GDRV_SPI_CS_Pin, GPIO_PIN_RESET);
-        // Transmit byte1 value, receive nonsense
-        HAL_SPI_TransmitReceive(
-            stgap_spi_handle, &byte_value, &receive_buffer[i], 1,
-            STGAP_SPI_TIMEOUT);
-        // Transmit CRC for byte1 value, receive nonsense
-        HAL_SPI_TransmitReceive(
-            stgap_spi_handle, &byte_crc, &receive_buffer[i + 1], 1,
-            STGAP_SPI_TIMEOUT);
-        HAL_GPIO_WritePin(GDRV_SPI_CS_GPIO_Port, GDRV_SPI_CS_Pin, GPIO_PIN_SET);
+        send_buffer[i] = byte_value << 8 | byte_crc;
     }
 
+    // Pull chip select line low
+    HAL_GPIO_WritePin(GDRV_SPI_CS_GPIO_Port, GDRV_SPI_CS_Pin, GPIO_PIN_RESET);
+
+    // Transmit byte value to all devices, receive previous byte response
+    HAL_SPI_TransmitReceive(
+        &hspi2, (uint8_t *)send_buffer, (uint8_t *)receive_buffer,
+        NUM_STGAP_DEVICES, STGAP_SPI_TIMEOUT);
+
+    //        // Transmit CRC for byte1 value, receive nonsense CRC byte
+    //        HAL_SPI_TransmitReceive(
+    //            &hspi2, &byte_crc, (uint8_t *)(&receive_buffer[i + 1]), 1,
+    //            STGAP_SPI_TIMEOUT);
+
+    HAL_GPIO_WritePin(GDRV_SPI_CS_GPIO_Port, GDRV_SPI_CS_Pin, GPIO_PIN_SET);
+    for (uint32_t i = 0; i < 5000; i++)
+        ; // delay
+
     // Verify CRC on all received bytes
-    for (uint8_t i = 0; i < (NUM_STGAP_DEVICES * 2); i = i + 2)
+    for (uint8_t i = 0; i < NUM_STGAP_DEVICES; i++)
     {
-        if (receive_buffer[i + 1] !=
+        if ((receive_buffer[i] & 0xFF) !=
             Io_STGAP1AS_CalculateCrcRx(receive_buffer[i], 0xFF))
         {
             // FAULT HANDLING HERE (if crc doesn't match)
@@ -468,22 +474,21 @@ uint8_t Io_STGAP1AS_SendReceiveByte(
     // Populate receive array
     for (uint8_t i = 0; i < NUM_STGAP_DEVICES; i++)
     {
-        *(receive_array + i) = receive_buffer[i * 2];
+        *(receive_array + i) = receive_buffer[i] >> 8;
     }
-    return byte_crc;
+    return byte_crc ^ 0xFF;
 }
 
 uint8_t Io_STGAP1AS_CalculateCrcTx(const uint8_t input, const uint8_t xor_value)
 {
-    uint8_t xor_input  = input ^ ~xor_value;
-    uint8_t crc        = crc_table[xor_input];
-    uint8_t xor_output = crc ^ 0xFF;
-    return xor_output;
+    uint8_t xor_input = input ^ xor_value;
+    uint8_t crc       = crc_table[xor_input];
+    return crc ^ 0xFF;
 }
 
 uint8_t Io_STGAP1AS_CalculateCrcRx(const uint8_t input, const uint8_t xor_value)
 {
-    uint8_t xor_input = input ^ ~xor_value;
+    uint8_t xor_input = input ^ xor_value;
     uint8_t crc       = crc_table[xor_input];
     return crc;
 }

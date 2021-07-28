@@ -1,0 +1,21 @@
+#Include directories
+SET(CONFIG_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Config)
+SET(SAMPLE_FREERTOS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/Sample/FreeRTOSV10)
+SET(SEGGER_DIR ${CMAKE_CURRENT_SOURCE_DIR}/SEGGER)
+
+set_property(SOURCE ${CMAKE_CURRENT_SOURCE_DIR}/SEGGER/SEGGER_RTT_ASM_ARMv7M.S PROPERTY LANGUAGE C)
+
+set(SEGGER_SYSVIEW_INCLUDE_DIRS
+        ${CONFIG_DIR}
+        ${SAMPLE_FREERTOS_DIR}
+        ${SEGGER_DIR}
+        )
+
+# Base directory of SystemView
+set(SEGGER_SYSVIEW_BASE_DIR ${CMAKE_CURRENT_SOURCE_DIR} )
+
+# Expose the following variables to the parent scope (i.e. The scope of any
+# other CMakeLists.txt that uses add_subdirectory() on this CMakeLists.txt).
+set(SEGGER_SYSVIEW_INCLUDE_DIRS ${SEGGER_SYSVIEW_INCLUDE_DIRS} PARENT_SCOPE)
+set(SEGGER_SYSVIEW_BASE_DIR ${SEGGER_SYSVIEW_BASE_DIR} PARENT_SCOPE)
+

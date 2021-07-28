@@ -4,4 +4,4 @@
 
 struct PhaseValues CalculatePwmEdges(
     const struct PhaseValues *phase_voltages,
-    double                    bus_voltage);
+    float                     bus_voltage);
