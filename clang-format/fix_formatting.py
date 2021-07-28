@@ -1,4 +1,5 @@
 import os
+import platform
 import sys
 
 # The path to the directory this python file is in
@@ -12,6 +13,13 @@ def _isWindows():
     """
     return os.name == 'nt'
 
+def _isMac():
+    """
+    Check if the operating system is Mac OS
+
+    :return: True if using Mac OS, false otherwise
+    """
+    return platform.system() == 'Darwin'
 def _wrapStringInQuotes(str):
     """
     Wrap strings in double quotations so paths don't get misinterpreted by bash
@@ -70,6 +78,8 @@ def runClangFormat():
     # Append the requisite .exe file ending for Windows
     if _isWindows():
         CLANG_FORMAT_BINARY += ".exe"
+    elif _isMac():
+        CLANG_FORMAT_BINARY += "-mac"
 
     # Prepare path to recursive traverse
     SOURCE_DIR = os.path.join("..", "boards")

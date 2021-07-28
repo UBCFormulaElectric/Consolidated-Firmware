@@ -45,7 +45,29 @@ sudo apt-get install openocd
   * STM32CubeMX: https://www.st.com/en/development-tools/stm32cubemx.html
   * MinGW: https://sourceforge.net/projects/mingw-w64/ (**select 32-bit verison/i686 architecture**)
 
-##### Ubuntu 18.04 and Windows
+##### Mac OS
+First, install Homebrew and CLion. Then install the following programs using Homebrew:
+```
+brew install git-lfs pipenv openocd gcc
+brew install --cask clion
+```
+Verify the programs above were installed by running `<program name> --version`.
+Now, we need to install the `arm-none-eabi` compiler toolchain for ARM processors. To avoid bugs associated with different versions, go to the [ARM website](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) and download the *9-2019-q4-major* version (link [here](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads#:~:text=gcc-arm-none-eabi-9-2019-q4-major-mac.tar.bz2)).
+
+Then, set up the repo:
+```
+git lfs install
+git clone <repo link>
+cd Consolidated-Firmware
+pipenv install
+pipenv shell
+git lfs pull
+```
+Install cube:
+
+`python3 scripts/environment_setup/install_cube.py /usr/local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip`
+
+##### All Operating Systems
   * J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
     ##### Submodules:
     In the root of the directory run the following command:
@@ -55,15 +77,14 @@ sudo apt-get install openocd
     to fetch all of the submodules.
 
 #### 2. Modify your `PATH` Environment Variable:
-##### Ubuntu 18.04
+##### Ubuntu 18.04 and Mac OS
 Modify the `PATH` variable by adding the following to your `.bashrc`:
 ```
 export PATH="$PATH:/path/to/arm-none-eabi-gcc"
 export PATH="$PATH:/path/to/STM32CubeMX"
-...
 ```
 
-Always invoke `clion` from the command line. That way `clion` will load `.bashc` and read the modifications you made the the `PATH` variable.
+Always invoke `clion` from the command line. That way `clion` will load `.bashrc` and read the modifications you made the the `PATH` variable.
 
 ##### Windows
 Find `Environment Variables` in your start menu and then add the appropriate paths to `PATH`:
@@ -120,12 +141,25 @@ Then set the GDB Server to be JLinkGDBServer, ie:
 ```
 C:\Program Files (x86)\SEGGER\JLink\JLinkGDBServer.exe
 ```
+
+##### Mac OS
+Under **File->Settings->Build, Execution, Deployment...->Toolchains**:
+Set the default C compiler to be the GNU C and C++ compilers you installed earlier. If you installed `gcc` using `brew` your C/C++ compiler paths should be something similar to the following:
+- C compiler: `/usr/local/Cellar/gcc/<some version number>/bin/gcc-11`
+- C++ compiler: `/usr/local/Cellar/gcc/<some version number>/bin/g++-11`
+
+Set the debugger to be `arm-none-eabi-gdb`, ie:
+
+Debugger: `/path/to/arm-none-eabi-gcc/bin/arm-none-eabi-gdb`
+
+Note: whenever you get an error saying *"`<program name>` cannot be opened because the developer cannot be verified"*, go to **System Preferences --> Security & Privacy --> General**, and click **Allow Anyway** next to the part saying *"`<program name>` was blocked from use because it is not from an identified developer"*.
+
 ## Continuous Integration (CI)
 We run (and require) continuous integration on every pull request before it is merged. This automatically makes sure the code builds, and checks for formatting errors.
 
 1. **Build Check**: If the code compiles in CLion, it should also compile in CI.
 2. **Formatting Check**: Run the following commands (starting from the **root directory** of this project) to fix formatting (CI runs this and then checks if any code was modified):
-  * *Windows and Ubuntu 18.04:*
+  * *All Operating Systems:*
   ```
   python clang_format/fix_formatting.py
   ```
