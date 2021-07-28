@@ -42,5 +42,4 @@ void Io_SharedCan_DequeueCanRxMessage(struct CanMsg *message);
 /**
  * Transmit messages in the CAN TX queue over CAN bus
  */
-void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(
-    struct ErrorTable *error_table);
+void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void);

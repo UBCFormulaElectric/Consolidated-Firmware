@@ -26,6 +26,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct OkStatus *         bspd_ok     = App_BmsWorld_GetBspdOkStatus(world);
     struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
     struct Airs *             airs        = App_BmsWorld_GetAirs(world);
+    struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
 
     App_SetPeriodicCanSignals_Imd(can_tx, imd);
 
@@ -62,11 +63,20 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     }
 
     App_SetPeriodicSignals_AccumulatorInRangeChecks(can_tx, accumulator);
+
     if (App_CanTx_GetPeriodicSignal_MAX_CELL_VOLTAGE_OUT_OF_RANGE(can_tx) !=
-            CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE ||
-        App_CanTx_GetPeriodicSignal_MIN_CELL_VOLTAGE_OUT_OF_RANGE(can_tx) !=
-            CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE)
+        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE)
     {
+        App_SharedErrorTable_SetError(
+            error_table, BMS_AIR_SHUTDOWN_MAX_CELL_VOLTAGE_OUT_OF_RANGE, true);
+        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+    }
+
+    if (App_CanTx_GetPeriodicSignal_MIN_CELL_VOLTAGE_OUT_OF_RANGE(can_tx) !=
+        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE)
+    {
+        App_SharedErrorTable_SetError(
+            error_table, BMS_AIR_SHUTDOWN_MIN_CELL_VOLTAGE_OUT_OF_RANGE, true);
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
 }

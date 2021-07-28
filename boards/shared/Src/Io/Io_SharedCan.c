@@ -298,8 +298,7 @@ void Io_SharedCan_DequeueCanRxMessage(struct CanMsg *message)
         ;
 }
 
-void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(
-    struct ErrorTable *error_table)
+void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void)
 {
     xSemaphoreTake(CanTxBinarySemaphore.handle, portMAX_DELAY);
 
@@ -311,7 +310,6 @@ void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(
         if (xQueueReceive(can_tx_msg_fifo.handle, &message, 0) == pdTRUE)
         {
             (void)Io_TransmitCanMessage(&message);
-            Io_SharedErrorTable_SetErrorsFromBmsCanMsg(error_table, &message);
         }
     }
 }

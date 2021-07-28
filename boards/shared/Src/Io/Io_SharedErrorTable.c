@@ -336,31 +336,6 @@ static void Io_ProcessPdmMotorShutdownErrorMsg(
         data->dummy_motor_shutdown);
 }
 
-void Io_SharedErrorTable_SetErrorsFromBmsCanMsg(
-    struct ErrorTable *error_table,
-    struct CanMsg *    can_msg)
-{
-    switch (can_msg->std_id)
-    {
-        case (CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_FRAME_ID):
-        {
-            struct CanMsgs_bms_air_shutdown_errors_t data;
-            App_CanMsgs_bms_air_shutdown_errors_unpack(
-                &data, can_msg->data, CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_LENGTH);
-            Io_ProcessBmsAirShutdownErrorMsg(error_table, &data);
-        }
-        break;
-        case (CANMSGS_BMS_MOTOR_SHUTDOWN_ERRORS_FRAME_ID):
-        {
-            struct CanMsgs_bms_motor_shutdown_errors_t data;
-            App_CanMsgs_bms_motor_shutdown_errors_unpack(
-                &data, can_msg->data, CANMSGS_BMS_MOTOR_SHUTDOWN_ERRORS_LENGTH);
-            Io_ProcessBmsMotorShutdownErrorMsg(error_table, &data);
-        }
-        break;
-    }
-}
-
 void Io_SharedErrorTable_SetErrorsFromCanMsg(
     struct ErrorTable *error_table,
     struct CanMsg *    can_msg)
