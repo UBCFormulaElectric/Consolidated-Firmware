@@ -177,3 +177,23 @@ struct InRangeCheck *App_Accumulator_GetSegment4VoltageInRangeCheck(
  */
 struct InRangeCheck *App_Accumulator_GetSegment5VoltageInRangeCheck(
     const struct Accumulator *accumulator);
+
+/** Determine whether the minimum cell voltage is outside the range specified
+ *  in the accumulator's InRangeCheck
+ * @param accumulator The given accumulator to get the minimum cell voltage and
+ * InRangeCheck from
+ * @return true if the minimum cell voltage for the given accumulator is
+ * out of range, false otherwise
+ */
+bool App_Accumulator_IsMinCellVoltageOutOfRange(
+    const struct Accumulator *accumulator);
+
+/** Determine whether the maximum cell voltage is outside the range specified
+ *  in the accumulator's InRangeCheck
+ * @param accumulator The given accumulator to get the maximum cell voltage and
+ * InRangeCheck from
+ * @return true if the maximum cell voltage for the given accumulator is
+ * out of range, false otherwise
+ */
+bool App_Accumulator_IsMaxCellVoltageOutOfRange(
+    const struct Accumulator *accumulator);

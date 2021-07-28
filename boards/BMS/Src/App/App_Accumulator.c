@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <assert.h>
+#include <stdbool.h>
 #include "App_Accumulator.h"
 
 struct Accumulator
@@ -156,4 +157,22 @@ struct InRangeCheck *App_Accumulator_GetSegment5VoltageInRangeCheck(
     const struct Accumulator *const accumulator)
 {
     return accumulator->segment_5_voltage_in_range_check;
+}
+
+bool App_Accumulator_IsMinCellVoltageOutOfRange(
+    const struct Accumulator *const accumulator)
+{
+    float min_cell_voltage;
+    return App_InRangeCheck_GetValue(
+               accumulator->min_cell_voltage_in_range_check,
+               &min_cell_voltage) != VALUE_IN_RANGE;
+}
+
+bool App_Accumulator_IsMaxCellVoltageOutOfRange(
+    const struct Accumulator *const accumulator)
+{
+    float max_cell_voltage;
+    return App_InRangeCheck_GetValue(
+               accumulator->max_cell_voltage_in_range_check,
+               &max_cell_voltage) != VALUE_IN_RANGE;
 }
