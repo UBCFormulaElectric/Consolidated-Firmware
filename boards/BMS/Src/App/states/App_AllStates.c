@@ -62,19 +62,11 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanTx_SetPeriodicSignal_BSPD_OK(can_tx, false);
     }
 
-    App_SetPeriodicSignals_AccumulatorInRangeChecks(can_tx, accumulator);
+    App_SetPeriodicSignals_AccumulatorInRangeChecks(
+        can_tx, accumulator, error_table);
 
-    if (App_Accumulator_IsMinCellVoltageOutOfRange(accumulator))
+    if (App_SharedErrorTable_HasAnyCriticalErrorSet(error_table))
     {
-        App_SharedErrorTable_SetError(
-            error_table, BMS_AIR_SHUTDOWN_MAX_CELL_VOLTAGE_OUT_OF_RANGE, true);
-        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
-    }
-
-    if (App_Accumulator_IsMaxCellVoltageOutOfRange(accumulator))
-    {
-        App_SharedErrorTable_SetError(
-            error_table, BMS_AIR_SHUTDOWN_MIN_CELL_VOLTAGE_OUT_OF_RANGE, true);
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
 }

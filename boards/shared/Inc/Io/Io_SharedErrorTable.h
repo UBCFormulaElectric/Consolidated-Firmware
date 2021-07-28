@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Io_SharedCanMsg.h"
+#include "App_SharedErrorTable.h"
 
 /**
  * Update error table based on incoming CAN message

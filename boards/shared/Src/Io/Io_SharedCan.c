@@ -3,7 +3,6 @@
 #include "Io_CanRx.h"
 #include "Io_CanTx.h"
 #include "Io_SharedCan.h"
-#include "Io_SharedErrorTable.h"
 #include "Io_SharedFreeRTOS.h"
 
 #define CAN_TX_MSG_FIFO_ITEM_SIZE sizeof(struct CanMsg)

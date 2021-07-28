@@ -3,7 +3,6 @@
 #include <stm32f3xx_hal.h>
 
 #include "App_CanTx.h"
-#include "App_SharedErrorTable.h"
 #include "Io_SharedCanMsg.h"
 
 #define CAN_PAYLOAD_MAX_NUM_BYTES 8 // Maximum number of bytes in a CAN payload
