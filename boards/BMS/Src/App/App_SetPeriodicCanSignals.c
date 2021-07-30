@@ -61,25 +61,36 @@ void App_SetPeriodicCanSignals_Imd(
 
 void App_SetPeriodicSignals_AccumulatorInRangeChecks(
     struct BmsCanTxInterface *const can_tx,
-    const struct Accumulator *const accumulator)
+    const struct Accumulator *const accumulator,
+    struct ErrorTable *const        error_table)
 {
     App_Accumulator_ReadCellVoltages(accumulator);
 
-    App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, App_Accumulator_GetMinCellVoltageInRangeCheck(accumulator),
-        App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE,
-        App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE_OUT_OF_RANGE,
-        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
-        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+    if (App_SetPeriodicCanSignals_InRangeCheck(
+            can_tx, App_Accumulator_GetMinCellVoltageInRangeCheck(accumulator),
+            App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE,
+            App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE_OUT_OF_RANGE,
+            CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+            CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+            CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MIN_CELL_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE) !=
+        VALUE_IN_RANGE)
+    {
+        App_SharedErrorTable_SetError(
+            error_table, BMS_AIR_SHUTDOWN_MIN_CELL_VOLTAGE_OUT_OF_RANGE, true);
+    }
 
-    App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, App_Accumulator_GetMaxCellVoltageInRangeCheck(accumulator),
-        App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE,
-        App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE_OUT_OF_RANGE,
-        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
-        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+    if (App_SetPeriodicCanSignals_InRangeCheck(
+            can_tx, App_Accumulator_GetMaxCellVoltageInRangeCheck(accumulator),
+            App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE,
+            App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE_OUT_OF_RANGE,
+            CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_VOLTAGE_OUT_OF_RANGE_OK_CHOICE,
+            CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_VOLTAGE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+            CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_MAX_CELL_VOLTAGE_OUT_OF_RANGE_OVERFLOW_CHOICE) !=
+        VALUE_IN_RANGE)
+    {
+        App_SharedErrorTable_SetError(
+            error_table, BMS_AIR_SHUTDOWN_MAX_CELL_VOLTAGE_OUT_OF_RANGE, true);
+    }
 
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, App_Accumulator_GetAverageCellVoltageInRangeCheck(accumulator),
