@@ -18,7 +18,7 @@
 #define TLTO_TIME 0  // 4 bits, Two-level turn-off disabled
 
 // Config Register 4 (CFG4), bits 5 to 0, 7-6 unused
-#define OVLO_EN 1    // Overvoltage lock-out enabled
+#define OVLO_EN 0    // Overvoltage lock-out enabled
 #define UVLO_LATCH 1 // Latch undervoltage faults
 #define VLON_THRES 1 // 2 bits, Turn-off GDPS rail, -3V undervoltage threshold
 #define VHON_THRES 3 // 2 bits, Turn-on GDPS rail, 14V undervoltage threshold
@@ -34,9 +34,9 @@
 #define DIAG1_TSD 1         // Thermal shutdown
 #define DIAG1_ASC 1         // Active short circuit
 #define DIAG1_DESAT 1       // Desat event
-#define DIAG1_OV 1          // GDPS Overvoltage failure, on/off levels
+#define DIAG1_OV 0          // GDPS Overvoltage failure, on/off levels
 #define DIAG1_UV 1          // GDPS Undervoltage failure, on/off levels
-#define DIAG1_VDD 1         // Vdd PSU failure
+#define DIAG1_VDD 0         // Vdd PSU failure
 #define DIAG1_SPI_REG_ERR 1 // SPI or Register error
 
 // Diagnostic 2 Register (DIAG2CFG) (disabled)

@@ -197,7 +197,7 @@ int main(void)
     MX_ADC2_Init();
     MX_CAN1_Init();
     MX_DAC_Init();
-    //MX_IWDG_Init();
+    MX_IWDG_Init();
     MX_SPI2_Init();
     MX_SPI3_Init();
     MX_SPI4_Init();
@@ -569,33 +569,32 @@ static void MX_CAN1_Init(void)
  */
 static void MX_DAC_Init(void)
 {
-
     /* USER CODE BEGIN DAC_Init 0 */
 
     /* USER CODE END DAC_Init 0 */
 
-    DAC_ChannelConfTypeDef sConfig = {0};
+    DAC_ChannelConfTypeDef sConfig = { 0 };
 
     /* USER CODE BEGIN DAC_Init 1 */
 
     /* USER CODE END DAC_Init 1 */
     /** DAC Initialization
-    */
+     */
     hdac.Instance = DAC;
     if (HAL_DAC_Init(&hdac) != HAL_OK)
     {
         Error_Handler();
     }
     /** DAC channel OUT1 config
-    */
-    sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
-    sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
+     */
+    sConfig.DAC_Trigger      = DAC_TRIGGER_NONE;
+    sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_DISABLE;
     if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_1) != HAL_OK)
     {
         Error_Handler();
     }
     /** DAC channel OUT2 config
-    */
+     */
     if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_2) != HAL_OK)
     {
         Error_Handler();
@@ -603,7 +602,6 @@ static void MX_DAC_Init(void)
     /* USER CODE BEGIN DAC_Init 2 */
 
     /* USER CODE END DAC_Init 2 */
-
 }
 
 /**
@@ -1095,7 +1093,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     if (hadc->Instance == ADC2)
     {
         SEGGER_SYSVIEW_RecordEnterISR();
-        App_ControlLoop_Run(15, MOTOR_CONTROL, world, 0.5f, 10);
+        App_ControlLoop_Run(5.0f, GEN_SINE_I, world, 0.01f, 0.0f);
         SEGGER_SYSVIEW_RecordExitISR();
     }
 }

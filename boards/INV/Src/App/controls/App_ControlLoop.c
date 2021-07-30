@@ -116,7 +116,8 @@ void App_ControlLoop_Run(
     }
 
     // Get Bus Voltage
-    bus_voltage = App_PowerStage_GetBusVoltage(power_stage);
+    //bus_voltage = App_PowerStage_GetBusVoltage(power_stage);
+    bus_voltage = 24.0f;
 
     if (mode == MOTOR_CONTROL)
     {
