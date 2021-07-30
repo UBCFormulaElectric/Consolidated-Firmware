@@ -2,7 +2,8 @@
 #include "Io_ECI1118.h"
 #include "main.h"
 
-uint32_t value;
+uint32_t                 value;
+extern SPI_HandleTypeDef hspi3;
 
 bool Io_ECI1118_GetMotorOTFault(void)
 {
@@ -18,6 +19,9 @@ bool Io_ECI1118_GetMotorOTFault(void)
 
 uint32_t Io_ECI1118_GetPosition(void)
 {
+    uint8_t send_data = GET_POSITION;
+    uint8_t receive_data;
+    HAL_SPI_TransmitReceive(&hspi3, &send_data, &receive_data, 1, 100);
     return value;
 }
 

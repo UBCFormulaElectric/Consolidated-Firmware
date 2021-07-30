@@ -17,11 +17,11 @@ uint32_t Io_ECI1118_GetTestValues(void);
 
 enum EncoderMessages
 {
-    GetPosition     = 0x0F,
-    SelectMemory    = 0x0E,
-    SendParameter   = 0x1C,
-    GetParameter    = 0x23,
-    Reset           = 0x2A,
-    SendTestCommand = 0x15,
-    GetTestValues   = 0x31,
+    GET_POSITION      = 0x07,
+    SELECT_MEMORY     = 0x0E,
+    SEND_PARAMETER    = 0x1C,
+    GET_PARAMETER     = 0x23,
+    ENCODER_RESET     = 0x2A,
+    SEND_TEST_COMMAND = 0x15,
+    GET_TEST_VALUES   = 0x31,
 };

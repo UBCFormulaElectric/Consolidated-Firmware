@@ -5,7 +5,7 @@
 #define UVLOD_EN 0  // Enables under-voltage protection on VDD
 #define SD_FLAG 0   // Shutdown pin does not reset status registers
 #define DIAG_EN 0   // The IN-/DIAG2 pin works as a PWM input
-#define DT_SET 2    // 2 bits, 0 = disabled, 1 = 250ns, 2 = 800ns, 3 = 1200ns
+#define DT_SET 3    // 2 bits, 0 = disabled, 1 = 250ns, 2 = 800ns, 3 = 1200ns
 #define IN_FILTER 1 // 2 bits, 0 = disabled, 1 = 160ns, 2 = 500ns, 3 = 70ns
 
 // Config Register 2 (CFG2), bits 7 to 0
@@ -18,7 +18,7 @@
 #define TLTO_TIME 0  // 4 bits, Two-level turn-off disabled
 
 // Config Register 4 (CFG4), bits 5 to 0, 7-6 unused
-#define OVLO_EN 1    // Overvoltage lock-out enabled
+#define OVLO_EN 0    // Overvoltage lock-out enabled
 #define UVLO_LATCH 1 // Latch undervoltage faults
 #define VLON_THRES 1 // 2 bits, Turn-off GDPS rail, -3V undervoltage threshold
 #define VHON_THRES 3 // 2 bits, Turn-on GDPS rail, 14V undervoltage threshold

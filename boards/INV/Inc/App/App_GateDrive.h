@@ -40,9 +40,7 @@ void     App_GateDrive_Destroy(struct GateDrive *gate_drive);
 ExitCode App_GateDrive_WriteConfig(struct GateDrive *gate_drive);
 void     App_GateDrive_ResetStatus(struct GateDrive *gate_drive);
 void     App_GateDrive_GlobalReset(struct GateDrive *gate_drive);
-void     App_GateDrive_GetFaults(
-        struct GateDrive *  gate_drive,
-        struct StgapFaults *stgap_faults);
+const struct StgapFaults *App_GateDrive_GetFaults(struct GateDrive *gate_drive);
 void App_GateDrive_ClearFaults(struct GateDrive *gate_drive);
 void App_GateDrive_WriteRegister(
     struct GateDrive *gate_drive,

@@ -31,6 +31,7 @@
 #include "App_GateDrive.h"
 #include "App_Motor.h"
 #include "App_PowerStage.h"
+#include "states/App_InitState.h"
 #include "states/App_DriveState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 
@@ -82,6 +83,7 @@ IWDG_HandleTypeDef hiwdg;
 SPI_HandleTypeDef hspi2;
 SPI_HandleTypeDef hspi3;
 SPI_HandleTypeDef hspi4;
+DMA_HandleTypeDef hdma_spi3_tx;
 
 TIM_HandleTypeDef htim1;
 TIM_HandleTypeDef htim2;
@@ -197,7 +199,7 @@ int main(void)
     MX_ADC2_Init();
     MX_CAN1_Init();
     MX_DAC_Init();
-    //MX_IWDG_Init();
+    MX_IWDG_Init();
     MX_SPI2_Init();
     MX_SPI3_Init();
     MX_SPI4_Init();
@@ -569,33 +571,32 @@ static void MX_CAN1_Init(void)
  */
 static void MX_DAC_Init(void)
 {
-
     /* USER CODE BEGIN DAC_Init 0 */
 
     /* USER CODE END DAC_Init 0 */
 
-    DAC_ChannelConfTypeDef sConfig = {0};
+    DAC_ChannelConfTypeDef sConfig = { 0 };
 
     /* USER CODE BEGIN DAC_Init 1 */
 
     /* USER CODE END DAC_Init 1 */
     /** DAC Initialization
-    */
+     */
     hdac.Instance = DAC;
     if (HAL_DAC_Init(&hdac) != HAL_OK)
     {
         Error_Handler();
     }
     /** DAC channel OUT1 config
-    */
-    sConfig.DAC_Trigger = DAC_TRIGGER_NONE;
+     */
+    sConfig.DAC_Trigger      = DAC_TRIGGER_NONE;
     sConfig.DAC_OutputBuffer = DAC_OUTPUTBUFFER_ENABLE;
     if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_1) != HAL_OK)
     {
         Error_Handler();
     }
     /** DAC channel OUT2 config
-    */
+     */
     if (HAL_DAC_ConfigChannel(&hdac, &sConfig, DAC_CHANNEL_2) != HAL_OK)
     {
         Error_Handler();
@@ -603,7 +604,6 @@ static void MX_DAC_Init(void)
     /* USER CODE BEGIN DAC_Init 2 */
 
     /* USER CODE END DAC_Init 2 */
-
 }
 
 /**
@@ -690,11 +690,11 @@ static void MX_SPI3_Init(void)
     hspi3.Instance               = SPI3;
     hspi3.Init.Mode              = SPI_MODE_MASTER;
     hspi3.Init.Direction         = SPI_DIRECTION_2LINES;
-    hspi3.Init.DataSize          = SPI_DATASIZE_16BIT;
+    hspi3.Init.DataSize          = SPI_DATASIZE_10BIT;
     hspi3.Init.CLKPolarity       = SPI_POLARITY_LOW;
     hspi3.Init.CLKPhase          = SPI_PHASE_1EDGE;
-    hspi3.Init.NSS               = SPI_NSS_HARD_OUTPUT;
-    hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_8;
+    hspi3.Init.NSS               = SPI_NSS_SOFT;
+    hspi3.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_16;
     hspi3.Init.FirstBit          = SPI_FIRSTBIT_MSB;
     hspi3.Init.TIMode            = SPI_TIMODE_DISABLE;
     hspi3.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
@@ -974,8 +974,12 @@ static void MX_DMA_Init(void)
 {
     /* DMA controller clock enable */
     __HAL_RCC_DMA2_CLK_ENABLE();
+    __HAL_RCC_DMA1_CLK_ENABLE();
 
     /* DMA interrupt init */
+    /* DMA1_Stream5_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA1_Stream5_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA1_Stream5_IRQn);
     /* DMA2_Stream0_IRQn interrupt configuration */
     HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 5, 0);
     HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
@@ -1014,6 +1018,10 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GDRV_SPI_CS_GPIO_Port, GDRV_SPI_CS_Pin, GPIO_PIN_SET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(
+        ENDAT_DATA_SENDA15_GPIO_Port, ENDAT_DATA_SENDA15_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOD_1_GPIO_Port, GPIOD_1_Pin, GPIO_PIN_RESET);
@@ -1077,6 +1085,13 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed     = GPIO_SPEED_FREQ_VERY_HIGH;
     GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : ENDAT_DATA_SENDA15_Pin */
+    GPIO_InitStruct.Pin   = ENDAT_DATA_SENDA15_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(ENDAT_DATA_SENDA15_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pin : GPIOD_1_Pin */
     GPIO_InitStruct.Pin   = GPIOD_1_Pin;

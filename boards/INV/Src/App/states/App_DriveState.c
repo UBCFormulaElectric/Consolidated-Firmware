@@ -4,7 +4,7 @@
 #include "App_SharedExitCode.h"
 #include "Io_STGAP1AS.h"
 
-static struct StgapFaults *stgap_faults;
+static const struct StgapFaults *stgap_faults;
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -16,6 +16,7 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     App_GateDrive_SetSwitchingFreq(gate_drive, 10000);
     App_GateDrive_SetDeadTime(gate_drive, 1000);
     App_GateDrive_WriteConfig(gate_drive);
+    stgap_faults = App_GateDrive_GetFaults(gate_drive);
     App_PowerStage_Enable(power_stage); // Enable ADC & DAC
     App_PowerStage_SetCurrentLimits(power_stage, 10);
     App_GateDrive_StartPwm(gate_drive); // Enable PWM
@@ -33,7 +34,7 @@ static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
     // App_CanTx_SetPeriodicSignal_STATE(
     //    can_tx_interface, CANMSGS_DIM_STATE_MACHINE_STATE_DRIVE_CHOICE);
     UNUSED(state_machine);
-    App_GateDrive_GetFaults(gate_drive, stgap_faults);
+    stgap_faults = App_GateDrive_GetFaults(gate_drive);
 }
 
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
