@@ -131,7 +131,7 @@ static ExitCode Io_CellTemperatures_ReadRawThermistorVoltages(void)
     uint16_t aux_register_group_cmd;
     uint8_t  tx_cmd[NUM_OF_CMD_BYTES];
     uint8_t
-        rx_thermistor_resistances[NUM_OF_RX_BYTES * NUM_OF_CELL_MONITOR_CHIPS];
+        rx_raw_thermistor_voltages[NUM_OF_RX_BYTES * NUM_OF_CELL_MONITOR_CHIPS];
 
     // The command used to start auxiliary (GPIO) measurements.
     const uint16_t ADAX = 0x460 + (MD << 7) + CHG;
@@ -157,7 +157,7 @@ static ExitCode Io_CellTemperatures_ReadRawThermistorVoltages(void)
 
         if (Io_SharedSpi_TransmitAndReceive(
                 Io_LTC6813_GetSpiInterface(), tx_cmd, NUM_OF_CMD_BYTES,
-                rx_thermistor_resistances,
+                rx_raw_thermistor_voltages,
                 NUM_OF_RX_BYTES * NUM_OF_CELL_MONITOR_CHIPS) != HAL_OK)
         {
             return EXIT_CODE_ERROR;
@@ -168,7 +168,7 @@ static ExitCode Io_CellTemperatures_ReadRawThermistorVoltages(void)
         {
             if (Io_CellTemperatures_ParseThermistorVoltagesAndPerformPec15Check(
                     current_chip, current_register_group,
-                    rx_thermistor_resistances) != EXIT_CODE_OK)
+                    rx_raw_thermistor_voltages) != EXIT_CODE_OK)
             {
                 return EXIT_CODE_ERROR;
             }
