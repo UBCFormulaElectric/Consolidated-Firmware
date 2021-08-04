@@ -158,7 +158,6 @@ void Io_AdcDac_DacStart(void)
     if (HAL_DAC_Start(&hdac, DAC_CHANNEL_1) != HAL_OK)
     {
         // TODO exitcode here
-        int i = 1;
     }
     if (HAL_DAC_Start(&hdac, DAC_CHANNEL_2) != HAL_OK)
     {

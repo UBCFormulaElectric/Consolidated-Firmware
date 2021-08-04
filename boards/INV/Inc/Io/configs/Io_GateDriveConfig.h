@@ -5,7 +5,7 @@
 #define UVLOD_EN 0  // Enables under-voltage protection on VDD
 #define SD_FLAG 0   // Shutdown pin does not reset status registers
 #define DIAG_EN 0   // The IN-/DIAG2 pin works as a PWM input
-#define DT_SET 2    // 2 bits, 0 = disabled, 1 = 250ns, 2 = 800ns, 3 = 1200ns
+#define DT_SET 3    // 2 bits, 0 = disabled, 1 = 250ns, 2 = 800ns, 3 = 1200ns
 #define IN_FILTER 1 // 2 bits, 0 = disabled, 1 = 160ns, 2 = 500ns, 3 = 70ns
 
 // Config Register 2 (CFG2), bits 7 to 0
