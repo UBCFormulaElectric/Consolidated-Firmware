@@ -284,7 +284,12 @@ function(compile_googletest_executable
         ARM_BINARY_X86_COMPATIBLE_SRCS
         ARM_BINARY_INCLUDE_DIRS
         )
-    set(TEST_EXECUTABLE_NAME "${BOARD_NAME}_test")
+    if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
+        set(TEST_EXECUTABLE_NAME "${BOARD_NAME}_test.exe")
+    else()
+        set(TEST_EXECUTABLE_NAME "${BOARD_NAME}_test")
+    endif()
+
     add_executable(${TEST_EXECUTABLE_NAME}
             ${TEST_SRCS}
             ${ARM_BINARY_X86_COMPATIBLE_SRCS}
