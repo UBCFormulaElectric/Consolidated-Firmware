@@ -1,3 +1,5 @@
+#include <Io_CellTemperatures.h>
+#include <Io_CellVoltages.h>
 #include "states/App_InitState.h"
 #include "states/App_PreChargeState.h"
 #include "states/App_ChargeState.h"
@@ -21,6 +23,9 @@ static void PreChargeStateRunOnEntry(struct StateMachine *const state_machine)
     App_PreCharge_Enable(pre_charge);
     App_SharedClock_SetPreviousTimeInMilliseconds(
         clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
+
+    Io_CellTemperatures_ReadTemperatures();
+    Io_CellVoltages_ReadRawCellVoltages();
 }
 
 static void PreChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
