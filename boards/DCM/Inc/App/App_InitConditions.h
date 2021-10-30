@@ -26,9 +26,10 @@ void App_InitConditions_SetSwitchToggled(struct InitConditions *init_conditions,
  * Check whether we are allowed to transition from the init state
  * @param init_conditions The given init state conditions to check against
  * @param start_switch The current state of the start switch
+ * @param break_actuated Whether the break is currently actuated
  * @return Whether we are allowed to transition
  */
-bool App_InitConditions_CanTransition(struct InitConditions *init_conditions, bool start_switch);
+bool App_InitConditions_CanTransition(struct InitConditions *init_conditions, bool start_switch, bool break_actuated);
 
 /**
  * Deallocate the memory used by the given init state conditions

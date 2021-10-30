@@ -26,13 +26,13 @@ void App_InitConditions_SetSwitchToggled(struct InitConditions *init_conditions,
     }
 }
 
-bool App_InitConditions_CanTransition(struct InitConditions *const init_conditions, bool start_switch) {
+bool App_InitConditions_CanTransition(struct InitConditions *const init_conditions, bool start_switch, bool break_actuated) {
     // If the switch started in the up position, it needs to be switched down first
     if (init_conditions->initial_switch_position) {
-        return init_conditions->switch_toggled && start_switch;
+        return init_conditions->switch_toggled && start_switch && break_actuated;
     }
 
-    return start_switch;
+    return start_switch && break_actuated;
 }
 
 void App_InitConditions_Destroy(struct InitConditions *init_conditions) {

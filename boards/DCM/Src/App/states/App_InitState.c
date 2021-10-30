@@ -39,10 +39,11 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     bool bms_positive_air_closed = App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx_interface) == 1;
     bool bms_negative_air_closed = App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx_interface) == 1;
     uint8_t start_switch = App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx_interface);
+    uint8_t break_actuated = App_CanRx_FSM_BRAKE_GetSignal_BRAKE_IS_ACTUATED(can_rx_interface);
 
     App_InitConditions_SetSwitchToggled(init_conditions, start_switch);
 
-    bool can_transition = App_InitConditions_CanTransition(init_conditions, start_switch);
+    bool can_transition = App_InitConditions_CanTransition(init_conditions, start_switch, break_actuated);
 
     if (!any_critical_errors && bms_positive_air_closed && bms_negative_air_closed && can_transition) {
         App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
