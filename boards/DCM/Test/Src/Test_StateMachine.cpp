@@ -69,7 +69,7 @@ class DcmStateMachineTest : public BaseStateMachineTest
             get_acceleration_x, get_acceleration_y, get_acceleration_z,
             MIN_ACCELERATION_MS2, MAX_ACCELERATION_MS2);
 
-        init_conditions = App_InitConditions_Create();
+        start_switch = App_StartSwitch_Create();
 
         error_table = App_SharedErrorTable_Create();
 
@@ -77,7 +77,7 @@ class DcmStateMachineTest : public BaseStateMachineTest
 
         world = App_DcmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor, rgb_led_sequence,
-            brake_light, buzzer, imu, init_conditions, error_table, clock,
+            brake_light, buzzer, imu, start_switch, error_table, clock,
             App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
 
         // Default to starting the state machine in the `init` state
@@ -109,7 +109,7 @@ class DcmStateMachineTest : public BaseStateMachineTest
         TearDownObject(brake_light, App_BrakeLight_Destroy);
         TearDownObject(buzzer, App_Buzzer_Destroy);
         TearDownObject(imu, App_Imu_Destroy);
-        TearDownObject(init_conditions, App_InitConditions_Destroy);
+        TearDownObject(start_switch, App_StartSwitch_Destroy);
         TearDownObject(error_table, App_SharedErrorTable_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
     }
@@ -158,7 +158,7 @@ class DcmStateMachineTest : public BaseStateMachineTest
     struct BrakeLight *       brake_light;
     struct Buzzer *           buzzer;
     struct Imu *              imu;
-    struct InitConditions *   init_conditions;
+    struct StartSwitch *      start_switch;
     struct ErrorTable *       error_table;
     struct Clock *            clock;
 };
@@ -196,7 +196,7 @@ TEST_F(
 {
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(can_rx_interface, true);
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(can_rx_interface, true);
-    App_InitConditions_SetInitialSwitchPosition(init_conditions, true);
+    App_StartSwitch_SetInitialSwitchPosition(start_switch, true);
     LetTimePass(state_machine, 10);
 
     EXPECT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
