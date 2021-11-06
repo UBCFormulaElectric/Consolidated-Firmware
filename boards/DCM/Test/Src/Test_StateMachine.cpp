@@ -76,9 +76,10 @@ class DcmStateMachineTest : public BaseStateMachineTest
         clock = App_SharedClock_Create();
 
         world = App_DcmWorld_Create(
-            can_tx_interface, can_rx_interface, heartbeat_monitor, rgb_led_sequence,
-            brake_light, buzzer, imu, start_switch, error_table, clock,
-            App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
+            can_tx_interface, can_rx_interface, heartbeat_monitor,
+            rgb_led_sequence, brake_light, buzzer, imu, start_switch,
+            error_table, clock, App_BuzzerSignals_IsOn,
+            App_BuzzerSignals_Callback);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -170,23 +171,31 @@ TEST_F(
 {
     LetTimePass(state_machine, 10);
 
-    EXPECT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
+    EXPECT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
 
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(can_rx_interface, true);
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(can_rx_interface, true);
     LetTimePass(state_machine, 10);
 
-    EXPECT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
+    EXPECT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
 
     App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(can_rx_interface, true);
     LetTimePass(state_machine, 10);
 
-    EXPECT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
+    EXPECT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
 
     App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(can_rx_interface, true);
     LetTimePass(state_machine, 10);
 
-    EXPECT_EQ(App_GetDriveState(), App_SharedStateMachine_GetCurrentState(state_machine));
+    EXPECT_EQ(
+        App_GetDriveState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 // DCM-5
@@ -199,22 +208,30 @@ TEST_F(
     App_StartSwitch_SetInitialSwitchPosition(start_switch, true);
     LetTimePass(state_machine, 10);
 
-    EXPECT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
+    EXPECT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
 
     App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(can_rx_interface, true);
     LetTimePass(state_machine, 10);
 
-    EXPECT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
+    EXPECT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
 
     App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(can_rx_interface, false);
     LetTimePass(state_machine, 10);
 
-    EXPECT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
+    EXPECT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
 
     App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(can_rx_interface, true);
     LetTimePass(state_machine, 10);
 
-    EXPECT_EQ(App_GetDriveState(), App_SharedStateMachine_GetCurrentState(state_machine));
+    EXPECT_EQ(
+        App_GetDriveState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 // DCM-21

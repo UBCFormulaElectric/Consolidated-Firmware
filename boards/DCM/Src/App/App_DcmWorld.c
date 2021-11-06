@@ -104,7 +104,8 @@ struct Imu *App_DcmWorld_GetImu(const struct DcmWorld *const world)
     return world->imu;
 }
 
-struct StartSwitch *App_DcmWorld_GetStartSwitch(const struct DcmWorld *world) {
+struct StartSwitch *App_DcmWorld_GetStartSwitch(const struct DcmWorld *world)
+{
     return world->start_switch;
 }
 
