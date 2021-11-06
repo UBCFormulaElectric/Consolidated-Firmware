@@ -19,9 +19,6 @@ extern "C"
 namespace StateMachineTest
 {
 FAKE_VOID_FUNC(
-    send_non_periodic_msg_DCM_INV1_RW_PARAM_COMMAND,
-    const struct CanMsgs_dcm_inv1_rw_param_command_t *);
-FAKE_VOID_FUNC(
     send_non_periodic_msg_DCM_STARTUP,
     const struct CanMsgs_dcm_startup_t *);
 FAKE_VOID_FUNC(
@@ -51,7 +48,6 @@ class DcmStateMachineTest : public BaseStateMachineTest
         BaseStateMachineTest::SetUp();
 
         can_tx_interface = App_CanTx_Create(
-            send_non_periodic_msg_DCM_INV1_RW_PARAM_COMMAND,
             send_non_periodic_msg_DCM_STARTUP,
             send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT);
 
