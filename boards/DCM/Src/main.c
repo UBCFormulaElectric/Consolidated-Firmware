@@ -30,6 +30,7 @@
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
 #include "Io_SharedCan.h"
+#include "Io_SharedErrorTable.h"
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
@@ -616,6 +617,7 @@ void RunTaskCanRx(void const *argument)
         struct CanMsg message;
         Io_SharedCan_DequeueCanRxMessage(&message);
         Io_CanRx_UpdateRxTableWithMessage(can_rx, &message);
+        Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &message);
     }
     /* USER CODE END RunTaskCanRx */
 }

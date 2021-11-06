@@ -29,35 +29,14 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct DcmCanRxInterface *can_rx = App_DcmWorld_GetCanRx(world);
+    struct ErrorTable *const error_table = App_DcmWorld_GetErrorTable(world);
 
     if (App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx) ==
         CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
     }
-
-    // Shut down motor if motor shutdown fault is received from other boards.
-    if (App_CanRx_BMS_MOTOR_SHUTDOWN_ERRORS_GetSignal_DUMMY_MOTOR_SHUTDOWN(can_rx) ==
-        CANMSGS_BMS_MOTOR_SHUTDOWN_ERRORS_DUMMY_MOTOR_SHUTDOWN_SHUTDOWN_CHOICE ||
-        App_CanRx_PDM_MOTOR_SHUTDOWN_ERRORS_GetSignal_DUMMY_MOTOR_SHUTDOWN(can_rx) ==
-        CANMSGS_PDM_MOTOR_SHUTDOWN_ERRORS_DUMMY_MOTOR_SHUTDOWN_SHUTDOWN_CHOICE ||
-        App_CanRx_DIM_MOTOR_SHUTDOWN_ERRORS_GetSignal_DUMMY_MOTOR_SHUTDOWN(can_rx) ==
-        CANMSGS_DIM_MOTOR_SHUTDOWN_ERRORS_DUMMY_MOTOR_SHUTDOWN_SHUTDOWN_CHOICE)
-    {
-        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
-    }
-    if (App_CanRx_FSM_MOTOR_SHUTDOWN_ERRORS_GetSignal_APPS_HAS_DISAGREEMENT (can_rx) ==
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_TRUE_CHOICE ||
-        App_CanRx_FSM_MOTOR_SHUTDOWN_ERRORS_GetSignal_PAPPS_ALARM_IS_ACTIVE (can_rx) ==
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE ||
-        App_CanRx_FSM_MOTOR_SHUTDOWN_ERRORS_GetSignal_SAPPS_ALARM_IS_ACTIVE (can_rx) ==
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE ||
-        App_CanRx_FSM_MOTOR_SHUTDOWN_ERRORS_GetSignal_PLAUSIBILITY_CHECK_HAS_FAILED (can_rx) ==
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_TRUE_CHOICE ||
-        App_CanRx_FSM_MOTOR_SHUTDOWN_ERRORS_GetSignal_PRIMARY_FLOW_RATE_HAS_UNDERFLOW (can_rx) ==
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PRIMARY_FLOW_RATE_HAS_UNDERFLOW_TRUE_CHOICE ||
-        App_CanRx_FSM_MOTOR_SHUTDOWN_ERRORS_GetSignal_SECONDARY_FLOW_RATE_HAS_UNDERFLOW (can_rx) ==
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SECONDARY_FLOW_RATE_HAS_UNDERFLOW_TRUE_CHOICE)
+    if (App_SharedErrorTable_HasAnyMotorShutdownErrorSet(error_table))
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
