@@ -43,8 +43,7 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_StartSwitch_SetSwitchToggled(start_switch, start_switch_position);
 
-    bool can_transition = App_StartSwitch_CanTransition(
-        start_switch, start_switch_position, break_actuated);
+    bool can_transition = break_actuated && App_StartSwitch_CanTransition(start_switch, start_switch_position);
 
     if (!any_critical_errors && bms_positive_air_closed && bms_negative_air_closed && can_transition) {
         App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());

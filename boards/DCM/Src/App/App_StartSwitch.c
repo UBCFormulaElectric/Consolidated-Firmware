@@ -27,14 +27,13 @@ void App_StartSwitch_SetSwitchToggled(struct StartSwitch *start_switch, bool sta
     }
 }
 
-bool App_StartSwitch_CanTransition(
-    struct StartSwitch *start_switch, bool state, bool break_actuated) {
+bool App_StartSwitch_CanTransition(struct StartSwitch *start_switch, bool state) {
     // If the switch started in the up position, it needs to be switched down first
     if (start_switch->initial_switch_position) {
-        return start_switch->switch_toggled && state && break_actuated;
+        return start_switch->switch_toggled && state;
     }
 
-    return state && break_actuated;
+    return state;
 }
 
 void App_StartSwitch_Destroy(struct StartSwitch *start_switch) {
