@@ -584,4 +584,20 @@ TEST_F(
         0.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
 }
 
+// DCM-20
+TEST_F(
+    DcmStateMachineTest,
+    transition_to_fault_state_from_drive_state_if_motor_shutdown_error_detected)
+{
+    SetInitialState(App_GetDriveState());
+
+    // Place arbitrary motor shutdown error into error table.
+    App_SharedErrorTable_SetError(
+        error_table, BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN,true);
+
+    LetTimePass(state_machine, 100);
+    ASSERT_EQ(
+            CANMSGS_DCM_STATE_MACHINE_STATE_FAULT_CHOICE,
+            App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+}
 } // namespace StateMachineTest
