@@ -589,7 +589,7 @@ TEST_F(
 
     // Place arbitrary motor shutdown error into error table.
     App_SharedErrorTable_SetError(
-        error_table, BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN,true);
+        error_table, BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, true);
 
     LetTimePass(state_machine, 100);
     ASSERT_EQ(
