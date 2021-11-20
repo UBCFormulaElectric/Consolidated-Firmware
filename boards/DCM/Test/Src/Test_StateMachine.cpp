@@ -586,6 +586,10 @@ TEST_F(
     transition_to_fault_state_from_drive_state_if_motor_shutdown_error_detected)
 {
     SetInitialState(App_GetDriveState());
+    LetTimePass(state_machine, 100);
+    ASSERT_EQ(
+            CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE,
+            App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 
     // Place arbitrary motor shutdown error into error table.
     App_SharedErrorTable_SetError(
