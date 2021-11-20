@@ -51,7 +51,7 @@ jobs:
                                   echo "./scripts/travis_ci/pull_git_submodules"
                                   ./scripts/travis_ci/pull_git_submodules.sh
                                   echo "pip install pipenv"
-                                  pip install pipenv
+                                  pip install pipenv==2021.5.29
                                   echo "git lfs pull"
                                   git lfs pull
                                   echo "pipenv install"
