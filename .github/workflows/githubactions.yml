@@ -48,9 +48,13 @@ jobs:
                                                                     
                         - name: Set Up Python Virtual Environment
                           run: |
+                                  echo "./scripts/travis_ci/pull_git_submodules"
                                   ./scripts/travis_ci/pull_git_submodules.sh
+                                  echo "pip install pipenv"
                                   pip install pipenv
+                                  echo "git lfs pull"
                                   git lfs pull
+                                  echo "pipenv install"
                                   pipenv install     
                                                                                                       
                         - name: Script on Pull Request Event
