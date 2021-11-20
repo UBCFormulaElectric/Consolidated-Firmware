@@ -1,7 +1,7 @@
 name: UBC Formula Electric CI
 on:
   push:
-    branches: [ master ]
+    branches: [ master, fix-pipenv-ci ]
   pull_request:
     branches: [ master ]
 
