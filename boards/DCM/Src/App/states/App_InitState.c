@@ -45,10 +45,11 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx_interface) ==
         CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE;
     bool bms_pre_charge_complete =
-        App_CanRx_BMS_PRE_CHARGE_STATUS_GetSignal_COMPLETE(
-            can_rx_interface) == CANMSGS_BMS_PRE_CHARGE_STATUS_COMPLETE_TRUE_CHOICE;
+        App_CanRx_BMS_PRE_CHARGE_STATUS_GetSignal_COMPLETE(can_rx_interface) ==
+        CANMSGS_BMS_PRE_CHARGE_STATUS_COMPLETE_TRUE_CHOICE;
     uint8_t start_switch_position =
-        App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx_interface) == CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE;
+        App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx_interface) ==
+        CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE;
     uint8_t break_actuated =
         App_CanRx_FSM_BRAKE_GetSignal_BRAKE_IS_ACTUATED(can_rx_interface) ==
         CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE;

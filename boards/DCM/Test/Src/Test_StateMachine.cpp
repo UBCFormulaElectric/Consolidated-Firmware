@@ -175,29 +175,34 @@ TEST_F(
         App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 
-    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
-    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
     LetTimePass(state_machine, 10);
 
     EXPECT_EQ(
         App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 
-    App_CanRx_BMS_PRE_CHARGE_STATUS_SetSignal_COMPLETE(can_rx_interface, CANMSGS_BMS_PRE_CHARGE_STATUS_COMPLETE_TRUE_CHOICE);
+    App_CanRx_BMS_PRE_CHARGE_STATUS_SetSignal_COMPLETE(
+        can_rx_interface, CANMSGS_BMS_PRE_CHARGE_STATUS_COMPLETE_TRUE_CHOICE);
     LetTimePass(state_machine, 10);
 
     EXPECT_EQ(
         App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 
-    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
+    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
+        can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
     LetTimePass(state_machine, 10);
 
     EXPECT_EQ(
         App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 
-    App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(can_rx_interface, CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE);
+    App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(
+        can_rx_interface, CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE);
     LetTimePass(state_machine, 10);
 
     EXPECT_EQ(
@@ -210,8 +215,10 @@ TEST_F(
     DcmStateMachineTest,
     check_init_waits_for_required_conditions_when_switch_starts_up)
 {
-    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
-    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
     App_StartSwitch_SetInitialPosition(start_switch, true);
     LetTimePass(state_machine, 10);
 
@@ -219,28 +226,32 @@ TEST_F(
         App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 
-    App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(can_rx_interface, CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE);
+    App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(
+        can_rx_interface, CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE);
     LetTimePass(state_machine, 10);
 
     EXPECT_EQ(
         App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 
-    App_CanRx_BMS_PRE_CHARGE_STATUS_SetSignal_COMPLETE(can_rx_interface, CANMSGS_BMS_PRE_CHARGE_STATUS_COMPLETE_TRUE_CHOICE);
+    App_CanRx_BMS_PRE_CHARGE_STATUS_SetSignal_COMPLETE(
+        can_rx_interface, CANMSGS_BMS_PRE_CHARGE_STATUS_COMPLETE_TRUE_CHOICE);
     LetTimePass(state_machine, 10);
 
     EXPECT_EQ(
         App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 
-    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
+    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
+        can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
     LetTimePass(state_machine, 10);
 
     EXPECT_EQ(
         App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 
-    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
+    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
+        can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
     LetTimePass(state_machine, 10);
 
     EXPECT_EQ(
