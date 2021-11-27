@@ -44,6 +44,9 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     bool bms_negative_air_closed =
         App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx_interface) ==
         CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE;
+    bool bms_pre_charge_complete =
+        App_CanRx_BMS_PRE_CHARGE_COMPLETE_GetSignal_DUMMY_VARIABLE(
+            can_rx_interface);
     uint8_t start_switch_position =
         App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx_interface);
     uint8_t break_actuated =
@@ -56,7 +59,8 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_StartSwitch_AbleToTransition(start_switch, start_switch_position);
 
     if (!any_critical_errors && bms_positive_air_closed &&
-        bms_negative_air_closed && able_to_transition)
+        bms_negative_air_closed && bms_pre_charge_complete &&
+        able_to_transition)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
     }
