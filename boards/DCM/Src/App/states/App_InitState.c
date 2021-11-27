@@ -16,7 +16,7 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 
     uint8_t switch_position =
         App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx_interface);
-    App_StartSwitch_SetInitialSwitchPosition(start_switch, switch_position);
+    App_StartSwitch_SetInitialPosition(start_switch, switch_position);
 }
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -45,18 +45,19 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx_interface) ==
         CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE;
     bool bms_pre_charge_complete =
-        App_CanRx_BMS_PRE_CHARGE_COMPLETE_GetSignal_DUMMY_VARIABLE(
-            can_rx_interface);
+        App_CanRx_BMS_PRE_CHARGE_STATUS_GetSignal_COMPLETE(
+            can_rx_interface) == CANMSGS_BMS_PRE_CHARGE_STATUS_COMPLETE_TRUE_CHOICE;
     uint8_t start_switch_position =
-        App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx_interface);
+        App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx_interface) == CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE;
     uint8_t break_actuated =
-        App_CanRx_FSM_BRAKE_GetSignal_BRAKE_IS_ACTUATED(can_rx_interface);
+        App_CanRx_FSM_BRAKE_GetSignal_BRAKE_IS_ACTUATED(can_rx_interface) ==
+        CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE;
 
-    App_StartSwitch_SetSwitchToggledOff(start_switch, start_switch_position);
+    App_StartSwitch_SetPosition(start_switch, start_switch_position);
 
     bool able_to_transition =
         break_actuated &&
-        App_StartSwitch_AbleToTransition(start_switch, start_switch_position);
+        App_StartSwitch_CanTransitionToDriveState(start_switch);
 
     if (!any_critical_errors && bms_positive_air_closed &&
         bms_negative_air_closed && bms_pre_charge_complete &&

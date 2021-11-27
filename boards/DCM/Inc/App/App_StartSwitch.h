@@ -21,30 +21,27 @@ struct StartSwitch *App_StartSwitch_Create();
  * @param start_switch The given start switch to set the initial switch state on
  * @param state The initial state of the start switch
  */
-void App_StartSwitch_SetInitialSwitchPosition(
+void App_StartSwitch_SetInitialPosition(
     struct StartSwitch *start_switch,
     bool                state);
 
 /**
- * Mark the start switch as having been toggled off. Used when the start switch
- * was initially in the on position.
- * @param start_switch The given start switch to set whether the switch toggled on
+ * Track the current position of the start switch and, if needed, mark it as
+ * having been toggled off
+ * @param start_switch The given start switch to set whether the switch toggled
+ * on
  * @param state The current state of the switch
  */
-void App_StartSwitch_SetSwitchToggledOff(
-    struct StartSwitch *start_switch,
-    bool                state);
+void App_StartSwitch_SetPosition(struct StartSwitch *start_switch, bool state);
 
 /**
  * Check whether we can transition from the init state to the drive state given
  * the start switch conditions
  * @param start_switch The given start switch to check against
- * @param state The current state of the switch
  * @return Whether we are allowed to transition
  */
-bool App_StartSwitch_AbleToTransition(
-    struct StartSwitch *start_switch,
-    bool                state);
+bool App_StartSwitch_CanTransitionToDriveState(
+    struct StartSwitch *start_switch);
 
 /**
  * Deallocate the memory used by the given start switch
