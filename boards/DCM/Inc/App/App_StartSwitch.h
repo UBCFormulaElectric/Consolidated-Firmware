@@ -1,5 +1,12 @@
 #pragma once
 
+/**
+ * StartSwitch is used to track the position of the start switch to determine
+ * if it needs to be toggled off before we are allowed to transition into the
+ * drive state. The switch needs to be toggled off when it starts in the on
+ * position.
+ */
+
 struct StartSwitch;
 
 /**
@@ -10,24 +17,24 @@ struct StartSwitch;
 struct StartSwitch *App_StartSwitch_Create();
 
 /**
- * Set the initial position of the start switch. This should only be called on
+ * Set the initial state of the start switch. This should only be called on
  * entry to the init state.
  * @param start_switch The given init state conditions to set the initial switch
- *                     position on
- * @param position The initial position of the start switch
+ *                     state on
+ * @param state The initial state of the start switch
  */
 void App_StartSwitch_SetInitialSwitchPosition(
     struct StartSwitch *start_switch,
-    bool                position);
+    bool                state);
 
 /**
- * Mark the start switch as having been toggled based on whether it was in the
- * down position
+ * Mark the start switch as having been toggled off. Used when the start switch
+ * was initially in the on position.
  * @param start_switch The given init state conditions to set whether the switch
  *                     toggled on
  * @param state The current state of the switch
  */
-void App_StartSwitch_SetSwitchToggled(
+void App_StartSwitch_SetSwitchToggledOff(
     struct StartSwitch *start_switch,
     bool                state);
 
@@ -38,7 +45,7 @@ void App_StartSwitch_SetSwitchToggled(
  * @param state The current state of the switch
  * @return Whether we are allowed to transition
  */
-bool App_StartSwitch_CanTransition(
+bool App_StartSwitch_AbleToTransition(
     struct StartSwitch *start_switch,
     bool                state);
 

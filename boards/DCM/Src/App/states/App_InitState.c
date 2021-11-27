@@ -39,22 +39,24 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     bool any_critical_errors =
         App_SharedErrorTable_HasAnyCriticalErrorSet(error_table);
     bool bms_positive_air_closed =
-        App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx_interface) == 1;
+        App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx_interface) ==
+        CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE;
     bool bms_negative_air_closed =
-        App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx_interface) == 1;
+        App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx_interface) ==
+        CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE;
     uint8_t start_switch_position =
         App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx_interface);
     uint8_t break_actuated =
         App_CanRx_FSM_BRAKE_GetSignal_BRAKE_IS_ACTUATED(can_rx_interface);
 
-    App_StartSwitch_SetSwitchToggled(start_switch, start_switch_position);
+    App_StartSwitch_SetSwitchToggledOff(start_switch, start_switch_position);
 
-    bool can_transition =
+    bool able_to_transition =
         break_actuated &&
-        App_StartSwitch_CanTransition(start_switch, start_switch_position);
+        App_StartSwitch_AbleToTransition(start_switch, start_switch_position);
 
     if (!any_critical_errors && bms_positive_air_closed &&
-        bms_negative_air_closed && can_transition)
+        bms_negative_air_closed && able_to_transition)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
     }
