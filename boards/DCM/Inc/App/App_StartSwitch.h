@@ -36,8 +36,8 @@ void App_StartSwitch_SetSwitchToggledOff(
     bool                state);
 
 /**
- * Check whether the switch conditions have passed to transition from the init
- * state
+ * Check whether we can transition from the init state to the drive state given
+ * the start switch conditions
  * @param start_switch The given start switch to check against
  * @param state The current state of the switch
  * @return Whether we are allowed to transition

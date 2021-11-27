@@ -1,9 +1,7 @@
 #include <assert.h>
 #include <stdbool.h>
 #include <stdlib.h>
-
-#define ON 1
-#define OFF 0
+#include "configs/App_StartSwitchConfig.h"
 
 struct StartSwitch
 {
@@ -32,7 +30,7 @@ void App_StartSwitch_SetSwitchToggledOff(
     struct StartSwitch *start_switch,
     bool                state)
 {
-    if (state == OFF)
+    if (state == OFF_STATE)
     {
         start_switch->switch_toggled_off = true;
     }
@@ -44,7 +42,7 @@ bool App_StartSwitch_AbleToTransition(
 {
     // If the switch started in the up position, it needs to be switched down
     // first
-    if (start_switch->initial_switch_position == ON)
+    if (start_switch->initial_switch_position == ON_STATE)
     {
         return start_switch->switch_toggled_off && state;
     }
