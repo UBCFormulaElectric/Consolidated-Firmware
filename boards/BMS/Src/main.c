@@ -218,8 +218,7 @@ int main(void)
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_BMS_STARTUP,
-        Io_CanTx_EnqueueNonPeriodicMsg_BMS_WATCHDOG_TIMEOUT,
-        Io_CanTx_EnqueueNonPeriodicMsg_BMS_PRE_CHARGE_COMPLETE);
+        Io_CanTx_EnqueueNonPeriodicMsg_BMS_WATCHDOG_TIMEOUT);
 
     can_rx = App_CanRx_Create();
 
