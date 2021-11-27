@@ -6,82 +6,82 @@ on:
     branches: [ master ]
 
 jobs:
-        Firmware_Tests:
-                name: ${{matrix.Name}}                        
-                runs-on: ubuntu-18.04
-                strategy:
-                        fail-fast: false
-                        matrix:
-                                include:
-                                - Name: "Build and Run x86 Tests"
-                                  env: RUN_X86_TESTS
-                                - Name: "Check Formatting"
-                                  env: RUN_FORMATTING_CHECKS
-                                - Name: "Build ARM Executables"
-                                  env: RUN_ARM_BUILD
-                                - Name: "Check STM32CubeMX Code Generation"
-                                  env: RUN_CUBE_CODEGEN_CHECKS 
-                env: 
-                        INSTALL_DIR: /usr/local
-                        CUBE_INSTALL_DIR: $INSTALL_DIR/STM32CubeMX
+  Firmware_Tests:
+    name: ${{matrix.Name}}                        
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+        - Name: "Build and Run x86 Tests"
+          env: RUN_X86_TESTS
+        - Name: "Check Formatting"
+          env: RUN_FORMATTING_CHECKS
+        - Name: "Build ARM Executables"
+          env: RUN_ARM_BUILD
+        - Name: "Check STM32CubeMX Code Generation"
+          env: RUN_CUBE_CODEGEN_CHECKS 
+    env: 
+      INSTALL_DIR: /usr/local
+      CUBE_INSTALL_DIR: $INSTALL_DIR/STM32CubeMX
 
-                steps:                                      
-                        - name: Install Addons
-                          run: |               
-                                  sudo apt-get update
-                                  sudo dpkg --add-architecture i386
-                                  sudo apt-get install libncurses5 libbz2-1.0 libz1 valgrind
-                                                                                                                                  
-                        - uses: actions/checkout@v2
-                        - name: Install Python
-                          uses: actions/setup-python@v2
-                          with:
-                                  python-version: 3.6
-                                                          
-                        - name: Install XVFB
-                          run: |           
-                                  # Use xvfb to run programs requiring a GUI (e.g. STM32CubeMX code generation)                                  
-                                  sudo apt-get install xvfb
-                                  sudo apt-get install systemd              
-                                  sudo cp ./scripts/environment_setup/xvfb.service /etc/systemd/system/xvfb.service
-                                  sudo systemctl start xvfb
-                                                                    
-                        - name: Set Up Python Virtual Environment
-                          run: |
-                                  ./scripts/travis_ci/pull_git_submodules.sh
-                                  pip install pipenv==2021.5.29
-                                  git lfs pull
-                                  pipenv install     
-                                                                                                      
-                        - name: Script on Pull Request Event
-                          if: github.event_name == 'pull_request'
-                          run: |                                    
-                                  export PYTHONPATH=$PYTHONPATH:$PWD
-                                  
-                                  export DISPLAY=:99.0 
-                                                            
-                                  export PATH=${{env.INSTALL_DIR}}/bin:${{env.CUBE_INSTALL_DIR}}:$PATH && ./scripts/travis_ci/travis_install_binaries.sh ${{env.INSTALL_DIR}} ${{env.CUBE_INSTALL_DIR}} 
-                                                                    
-                                  ./scripts/travis_ci/print_bin_versions.sh
-                                  ./scripts/travis_ci/travis_script.sh ${{env.CUBE_INSTALL_DIR}}/STM32CubeMX
-                          env:                                 
-                                ${{matrix.env}} : "true"
-                                
-                                # For pull-request builds, we use ${{ github.event.pull_request.head.sha }} 
-                                # to get the branch commit SHA
-                                GITHUB_ACTIONS_SHA : ${{ github.event.pull_request.head.sha }}
-                                
-                        - name: Script on Push Event
-                          if: github.event_name == 'push'
-                          run: |     
-                                  export PYTHONPATH=$PYTHONPATH:$PWD
-                                                                                     
-                                  export DISPLAY=:99.0 
-                                                            
-                                  export PATH=${{env.INSTALL_DIR}}/bin:${{env.CUBE_INSTALL_DIR}}:$PATH && ./scripts/travis_ci/travis_install_binaries.sh ${{env.INSTALL_DIR}} ${{env.CUBE_INSTALL_DIR}} 
-                                                                    
-                                  ./scripts/travis_ci/print_bin_versions.sh
-                                  ./scripts/travis_ci/travis_script.sh ${{env.CUBE_INSTALL_DIR}}/STM32CubeMX
-                          env:                                 
-                                ${{matrix.env}} : "true"
-                                GITHUB_ACTIONS_SHA : ${{ github.sha }}
+    steps:                                      
+      - name: Install Addons
+        run: |               
+          sudo apt-get update
+          sudo dpkg --add-architecture i386
+          sudo apt-get install libncurses5 libbz2-1.0 libz1 valgrind
+                                                                                                                
+      - uses: actions/checkout@v2
+      - name: Install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+                                        
+      - name: Install XVFB
+        run: |           
+          # Use xvfb to run programs requiring a GUI (e.g. STM32CubeMX code generation)                                  
+          sudo apt-get install xvfb
+          sudo apt-get install systemd              
+          sudo cp ./scripts/environment_setup/xvfb.service /etc/systemd/system/xvfb.service
+          sudo systemctl start xvfb
+                                                  
+      - name: Set Up Python Virtual Environment
+        run: |
+          ./scripts/travis_ci/pull_git_submodules.sh
+          pip install pipenv==2021.5.29
+          git lfs pull
+          pipenv install     
+                                                                                    
+      - name: Script on Pull Request Event
+        if: github.event_name == 'pull_request'
+        run: |                                    
+          export PYTHONPATH=$PYTHONPATH:$PWD
+          
+          export DISPLAY=:99.0 
+                                    
+          export PATH=${{env.INSTALL_DIR}}/bin:${{env.CUBE_INSTALL_DIR}}:$PATH && ./scripts/travis_ci/travis_install_binaries.sh ${{env.INSTALL_DIR}} ${{env.CUBE_INSTALL_DIR}} 
+                                            
+          ./scripts/travis_ci/print_bin_versions.sh
+          ./scripts/travis_ci/travis_script.sh ${{env.CUBE_INSTALL_DIR}}/STM32CubeMX
+        env:                                 
+          ${{matrix.env}} : "true"
+          
+          # For pull-request builds, we use ${{ github.event.pull_request.head.sha }} 
+          # to get the branch commit SHA
+          GITHUB_ACTIONS_SHA : ${{ github.event.pull_request.head.sha }}
+              
+      - name: Script on Push Event
+        if: github.event_name == 'push'
+        run: |     
+          export PYTHONPATH=$PYTHONPATH:$PWD
+                                                              
+          export DISPLAY=:99.0 
+                                    
+          export PATH=${{env.INSTALL_DIR}}/bin:${{env.CUBE_INSTALL_DIR}}:$PATH && ./scripts/travis_ci/travis_install_binaries.sh ${{env.INSTALL_DIR}} ${{env.CUBE_INSTALL_DIR}} 
+                                            
+          ./scripts/travis_ci/print_bin_versions.sh
+          ./scripts/travis_ci/travis_script.sh ${{env.CUBE_INSTALL_DIR}}/STM32CubeMX
+        env:                                 
+          ${{matrix.env}} : "true"
+          GITHUB_ACTIONS_SHA : ${{ github.sha }}
