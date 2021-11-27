@@ -10,17 +10,15 @@
 struct StartSwitch;
 
 /**
- * Allocate and initialize the init state conditions
- * @return The create init state conditions whose ownership is given to the
- *         caller.
+ * Allocate and initialize the start switch
+ * @return The create start switch whose ownership is given to the caller.
  */
 struct StartSwitch *App_StartSwitch_Create();
 
 /**
  * Set the initial state of the start switch. This should only be called on
  * entry to the init state.
- * @param start_switch The given init state conditions to set the initial switch
- *                     state on
+ * @param start_switch The given start switch to set the initial switch state on
  * @param state The initial state of the start switch
  */
 void App_StartSwitch_SetInitialSwitchPosition(
@@ -30,8 +28,7 @@ void App_StartSwitch_SetInitialSwitchPosition(
 /**
  * Mark the start switch as having been toggled off. Used when the start switch
  * was initially in the on position.
- * @param start_switch The given init state conditions to set whether the switch
- *                     toggled on
+ * @param start_switch The given start switch to set whether the switch toggled on
  * @param state The current state of the switch
  */
 void App_StartSwitch_SetSwitchToggledOff(
@@ -41,7 +38,7 @@ void App_StartSwitch_SetSwitchToggledOff(
 /**
  * Check whether the switch conditions have passed to transition from the init
  * state
- * @param start_switch The given init state conditions to check against
+ * @param start_switch The given start switch to check against
  * @param state The current state of the switch
  * @return Whether we are allowed to transition
  */
@@ -50,7 +47,7 @@ bool App_StartSwitch_AbleToTransition(
     bool                state);
 
 /**
- * Deallocate the memory used by the given init state conditions
- * @param start_switch The given init state conditions to deallocate
+ * Deallocate the memory used by the given start switch
+ * @param start_switch The given start switch to deallocate
  */
 void App_StartSwitch_Destroy(struct StartSwitch *start_switch);
