@@ -161,7 +161,7 @@ We run (and require) continuous integration on every pull request before it is m
 2. **Formatting Check**: Run the following commands (starting from the **root directory** of this project) to fix formatting (CI runs this and then checks if any code was modified):
   * *All Operating Systems:*
   ```
-  python clang_format/fix_formatting.py
+  python clang-format/fix_formatting.py
   ```
 
 #### CommentPragmas
