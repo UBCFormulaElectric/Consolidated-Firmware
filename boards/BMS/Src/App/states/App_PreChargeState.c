@@ -67,6 +67,7 @@ static const struct State *_prechargeOutOfDurationRunOnTick100Hz(struct BmsWorld
     struct PreCharge *        pre_charge  = App_BmsWorld_GetPreCharge(world);
     struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
     struct Charger *          charger     = App_BmsWorld_GetCharger(world);
+    struct Airs * airs = App_BmsWorld_GetAirs(world);
 
     const float max_pack_voltage =
             App_Accumulator_GetMaxPackVoltage(accumulator);
@@ -78,18 +79,20 @@ static const struct State *_prechargeOutOfDurationRunOnTick100Hz(struct BmsWorld
     // Check precharge failure
     if (tractive_system_voltage < pre_charge_voltage_threshold) {
         // BMS-43, BMS-46
-        // todo: reset the AIR shutdown latch when AIR- is opened.
         App_CanTx_SetPeriodicSignal_PRE_CHARGE_FAULT(
                 can_tx,
                 CANMSGS_BMS_NON_CRITICAL_ERRORS_PRE_CHARGE_FAULT_UNDERVOLTAGE_CHOICE);
         // todo: BMS-46: reset the AIR shutdown latch when AIR- is opened
+
         // todo: ask why we enter init state instead of fault state in case of precharge failure
         return App_GetInitState();
     }
 
     // Precharge successful
 
-    // todo: BMS-42: Open AIR+ after successful precharge
+    // BMS-42: Close AIR+ after successful precharge
+    App_Airs_CloseAirPositive(airs);
+
     // BMS-44: Precharge success with charger
     if (App_Charger_IsConnected(charger))
     {
