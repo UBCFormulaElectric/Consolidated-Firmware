@@ -90,3 +90,8 @@ jobs:
         env:
           ${{matrix.env}} : "true"
           GITHUB_ACTIONS_SHA : ${{ github.sha }}
+
+      - name: Figure out files to cache
+        run: |
+          ls -la
+          ls -la boards
