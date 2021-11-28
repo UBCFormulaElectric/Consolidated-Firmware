@@ -54,7 +54,6 @@
 *.ini
 
 # Python
-Pipfile.lock
 *.pyc
 
 # Other files
