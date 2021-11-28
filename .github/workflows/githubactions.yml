@@ -33,10 +33,15 @@ jobs:
           sudo apt-get install libncurses5 libbz2-1.0 libz1 valgrind
 
       - uses: actions/checkout@v2
+
+      - name: Install pipenv
+        run: pip install pipenv==2021.5.29
+
       - name: Install Python
         uses: actions/setup-python@v2
         with:
           python-version: 3.6
+          cache: pipenv
 
       - name: Install XVFB
         run: |
@@ -49,7 +54,6 @@ jobs:
       - name: Set Up Python Virtual Environment
         run: |
           ./scripts/travis_ci/pull_git_submodules.sh
-          pip install pipenv==2021.5.29
           git lfs pull
           pipenv install
 
