@@ -49,7 +49,7 @@ jobs:
                         - name: Set Up Python Virtual Environment
                           run: |
                                   ./scripts/travis_ci/pull_git_submodules.sh
-                                  pip install pipenv
+                                  pip install pipenv==2021.5.29
                                   git lfs pull
                                   pipenv install     
                                                                                                       
