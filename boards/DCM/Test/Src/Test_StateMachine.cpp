@@ -586,14 +586,85 @@ TEST_F(
     transition_to_fault_state_from_drive_state_if_motor_shutdown_error_detected)
 {
     SetInitialState(App_GetDriveState());
-    LetTimePass(state_machine, 100);
     ASSERT_EQ(
         CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE,
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 
-    // Place arbitrary motor shutdown error into error table.
+    // Check that BMS motor shutdown error causes state transition.
     App_SharedErrorTable_SetError(
         error_table, BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, true);
+
+    LetTimePass(state_machine, 100);
+    ASSERT_EQ(
+        CANMSGS_DCM_STATE_MACHINE_STATE_FAULT_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    // Clear BMS motor shutdown error and return to drive state.
+    App_SharedErrorTable_SetError(
+        error_table, BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, false);
+    SetInitialState(App_GetDriveState());
+
+    ASSERT_EQ(
+        CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    // Check that DCM motor shutdown error causes state transition.
+    App_SharedErrorTable_SetError(
+        error_table, DCM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, true);
+
+    LetTimePass(state_machine, 100);
+    ASSERT_EQ(
+        CANMSGS_DCM_STATE_MACHINE_STATE_FAULT_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    // Clear DCM motor shutdown error and return to drive state.
+    App_SharedErrorTable_SetError(
+        error_table, DCM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, false);
+    SetInitialState(App_GetDriveState());
+
+    ASSERT_EQ(
+        CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    // Check that DIM motor shutdown error causes state transition.
+    App_SharedErrorTable_SetError(
+        error_table, DIM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, true);
+
+    LetTimePass(state_machine, 100);
+    ASSERT_EQ(
+        CANMSGS_DCM_STATE_MACHINE_STATE_FAULT_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    // Clear DIM motor shutdown error and return to drive state.
+    App_SharedErrorTable_SetError(
+        error_table, DIM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, false);
+    SetInitialState(App_GetDriveState());
+
+    ASSERT_EQ(
+        CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    // Check that FSM motor shutdown error causes state transition.
+    App_SharedErrorTable_SetError(
+        error_table, FSM_MOTOR_SHUTDOWN_APPS_HAS_DISAGREEMENT, true);
+
+    LetTimePass(state_machine, 100);
+    ASSERT_EQ(
+        CANMSGS_DCM_STATE_MACHINE_STATE_FAULT_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    // Clear FSM motor shutdown error and return to drive state.
+    App_SharedErrorTable_SetError(
+        error_table, FSM_MOTOR_SHUTDOWN_APPS_HAS_DISAGREEMENT, false);
+    SetInitialState(App_GetDriveState());
+
+    ASSERT_EQ(
+        CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE,
+        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    // Check that PDM motor shutdown error causes state transition.
+    App_SharedErrorTable_SetError(
+        error_table, PDM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, true);
 
     LetTimePass(state_machine, 100);
     ASSERT_EQ(

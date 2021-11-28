@@ -29,7 +29,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct DcmCanRxInterface *can_rx      = App_DcmWorld_GetCanRx(world);
-    struct ErrorTable *const  error_table = App_DcmWorld_GetErrorTable(world);
+    struct ErrorTable *       error_table = App_DcmWorld_GetErrorTable(world);
 
     if (App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx) ==
         CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE)
