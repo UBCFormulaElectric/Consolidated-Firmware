@@ -44,6 +44,7 @@ sudo apt-get install openocd
   * ARM GNU Embedded Toolchain: https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads (Check `install_gcc_arm_none_eabi.sh` for which version to download)
   * STM32CubeMX: https://www.st.com/en/development-tools/stm32cubemx.html
   * MinGW: https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/installer/mingw-w64-install.exe/download (**select 32-bit verison/i686 architecture**)
+  * Java: https://www.java.com/download/ie_manual.jsp
 
 ##### Mac OS
 First, install Homebrew and CLion. Then install the following programs using Homebrew:
