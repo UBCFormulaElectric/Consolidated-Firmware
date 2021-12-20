@@ -2,7 +2,7 @@
 
 #define STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(             \
     CAN_TX_INTERFACE)                                                          \
-    static void App_SetPeriodicCanSignals_InRangeCheck(                        \
+    static enum InRangeCheck_Status App_SetPeriodicCanSignals_InRangeCheck(    \
         struct CAN_TX_INTERFACE *  can_tx,                                     \
         const struct InRangeCheck *in_range_check,                             \
         void (*const can_signal_setter)(struct CAN_TX_INTERFACE *, float),     \
@@ -33,6 +33,7 @@
         }                                                                      \
                                                                                \
         can_signal_setter(can_tx, value);                                      \
+        return status;                                                         \
     }
 
 #define STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_BINARY_STATUS(            \

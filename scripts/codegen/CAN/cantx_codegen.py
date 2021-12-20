@@ -136,7 +136,7 @@ class AppCanTxFileGenerator(CanFileGenerator):
                         function_prefix, signal.snake_name.upper(), self._sender.capitalize(), signal.type_name),
                         '',
                         '''\
-    if (isnanf(value))
+    if (isnan(value))
     {{
         can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name} = value;
     }}
