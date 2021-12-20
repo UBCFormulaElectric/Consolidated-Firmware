@@ -1,6 +1,7 @@
 #pragma once
 
 #include "App_SharedExitCode.h"
+#include <stdint.h>
 
 /**
  * Read cell temperatures from all thermistors connected to the accumulator

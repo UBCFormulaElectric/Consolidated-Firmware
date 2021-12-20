@@ -868,7 +868,7 @@ TEST_F(BmsStateMachineTest, check_for_successful_minimum_duration_precharge)
     // 90% of the accumulator's max voltage
     SetInitialState(App_GetPreChargeState());
     get_ts_voltage_fake.return_val = std::nextafter(
-        MAX_PACK_VOLTAGE * 0.93f, std::numeric_limits<float>::lowest());
+        MAX_PACK_VOLTAGE * 0.92f, std::numeric_limits<float>::lowest());
     LetTimePass(state_machine, 10);
     ASSERT_EQ(
         CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE,
@@ -981,7 +981,7 @@ TEST_F(
     SetInitialState(App_GetPreChargeState());
 
     get_ts_voltage_fake.return_val = MAX_PACK_VOLTAGE * 0.90f;
-    LetTimePass(state_machine, MIN_PRE_CHARGE_COMPLETE_DURATION_MS - 10);
+    LetTimePass(state_machine, MIN_PRE_CHARGE_DURATION_MS - 10);
     ASSERT_EQ(
         CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE,
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
