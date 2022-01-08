@@ -17,11 +17,12 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     App_GateDrive_SetDeadTime(gate_drive, 1000);
     App_GateDrive_WriteConfig(gate_drive);
     App_GateDrive_GlobalReset(gate_drive);
+    App_PowerStage_CorrectCurrentOffset(power_stage);
     App_PowerStage_Enable(power_stage); // Enable ADC & DAC
     App_PowerStage_SetCurrentLimits(power_stage, 10);
     App_GateDrive_StartPwm(gate_drive); // Enable PWM
     App_GateDrive_Enable(gate_drive);   // Release Shutdown Pin
-
+    App_CanRx_DCM_TORQUE_REQUEST_SetSignal_TORQUE_REQUEST()
     UNUSED(can_tx_interface);
 }
 

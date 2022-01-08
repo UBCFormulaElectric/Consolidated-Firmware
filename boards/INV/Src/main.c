@@ -49,7 +49,7 @@
 #include "Io_AdcDac.h"
 #include "Io_ECI1118.h"
 #include "Io_PowerStage.h"
-#include "controls/App_ControlLoop.h"
+#include "control/App_ControlLoop.h"
 
 /* USER CODE END Includes */
 

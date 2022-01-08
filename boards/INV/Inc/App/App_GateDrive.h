@@ -1,7 +1,7 @@
 #pragma once
 
 #include "App_SharedExitCode.h"
-#include "controls/App_ControlLoop.h"
+#include "control/App_ControlLoop.h"
 #include "Io_STGAP1AS.h"
 
 struct GateDrive;

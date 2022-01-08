@@ -1,7 +1,7 @@
 #pragma once
 
 #include "main.h"
-#include "controls/App_ControlLoop.h"
+#include "control/App_ControlLoop.h"
 
 void Io_TimerPwmGen_StartPwm(void);
 void Io_TimerPwmGen_StopPwm(void);

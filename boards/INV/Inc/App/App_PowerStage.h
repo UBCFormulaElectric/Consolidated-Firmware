@@ -1,6 +1,6 @@
 #pragma once
 
-#include "controls/App_ControlLoop.h"
+#include "control/App_ControlLoop.h"
 
 struct PowerStage;
 struct PhaseValues;
@@ -13,6 +13,7 @@ struct PowerStage *App_PowerStage_Create(
     void (*ps_dac_start)(void),
     void (*ps_dac_set_current)(float current),
     void (*ps_get_phase_currents)(struct PhaseValues *phase_currents),
+    const struct PhaseValues * (*correct_current_offset)(void),
     float (*ps_get_bus_voltage)(void),
     float (*ps_get_powerstage_temp)(void),
     bool (*ps_get_pha_oc_fault)(void),

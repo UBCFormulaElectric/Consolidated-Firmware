@@ -3,12 +3,15 @@
 #include "configs/App_ControlSystemConfig.h"
 #include <stdlib.h>
 #include "main.h"
+#include "App_SharedErrorTable.h"
 
 extern ADC_HandleTypeDef hadc1, hadc2;
 extern DAC_HandleTypeDef hdac;
 
 static uint16_t adc1_data[ADC1_NUM_CONVERSIONS];
 static uint16_t adc2_data[ADC2_NUM_CONVERSIONS];
+
+struct PhaseValues * ph_cur_adc_offset;
 
 // Sample all ADCs (1 and 2) in regular scanning conversion mode
 void Io_AdcDac_AdcContModeInit(void)
@@ -142,15 +145,31 @@ float Io_AdcDac_GetGpioVal(void)
     return adc_voltage;
 }
 
+const struct PhaseValues * Io_AdcDac_CorrectOffset(void)
+{
+    ph_cur_adc_offset->a = (float)(adc2_data[0] - 2048);
+    ph_cur_adc_offset->b = (float)(adc2_data[1] - 2048);
+    ph_cur_adc_offset->c = (float)(adc2_data[2] - 2048);
+
+    if (ph_cur_adc_offset->a > MAX_CUR_ADC_OFFSET ||
+        ph_cur_adc_offset->b > MAX_CUR_ADC_OFFSET ||
+        ph_cur_adc_offset->c > MAX_CUR_ADC_OFFSET)
+    {
+        //TODO set error table error here, measured offset is too large!
+
+    }
+    return ph_cur_adc_offset;
+}
+
 void Io_AdcDac_GetPhaseCurrents(struct PhaseValues *const phase_currents)
 {
     float pha_cur_adcvoltage = 3.3f * (float)adc2_data[0] / 4096.0f;
     float phb_cur_adcvoltage = 3.3f * (float)adc2_data[1] / 4096.0f;
     float phc_cur_adcvoltage = 3.3f * (float)adc2_data[2] / 4096.0f;
 
-    phase_currents->a = (pha_cur_adcvoltage - 1.65f) * 100;
-    phase_currents->b = (phb_cur_adcvoltage - 1.65f) * 100;
-    phase_currents->c = (phc_cur_adcvoltage - 1.65f) * 100;
+    phase_currents->a = (pha_cur_adcvoltage - 1.65f - ph_cur_adc_offset->a) * CUR_SNS_GAIN;
+    phase_currents->b = (phb_cur_adcvoltage - 1.65f - ph_cur_adc_offset->b) * CUR_SNS_GAIN;
+    phase_currents->c = (phc_cur_adcvoltage - 1.65f - ph_cur_adc_offset->c) * CUR_SNS_GAIN;
 }
 
 void Io_AdcDac_DacStart(void)

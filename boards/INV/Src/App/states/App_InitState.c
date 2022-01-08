@@ -19,6 +19,7 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
         power_stage); // Enable continuous ADC DMA requests from all channels
     App_GateDrive_WriteConfig(gate_drive);
     stgap_faults = App_GateDrive_GetFaults(gate_drive);
+    //App_CanTx_SetPeriodicSignal_INVERTER_STATE(can_tx_interface, 1);
 }
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -28,18 +29,21 @@ static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
     //        App_InvWorld_GetRgbLedSequence(world);
 
     // App_SharedRgbLedSequence_Tick(rgb_led_sequence);
-    // App_CanTx_SetPeriodicSignal_STATE(
-    //    can_tx_interface, CANMSGS_DIM_STATE_MACHINE_STATE_DRIVE_CHOICE);
+//    App_CanTx_SetPeriodicSignal_STATE(
+//    can_tx_interface, CANMSGS_DIM_STATE_MACHINE_STATE_DRIVE_CHOICE);
 }
 
 static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct InvWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-
+    struct InvCanTxInterface *can_tx_interface = App_InvWorld_GetCanTx(world);
     struct HeartbeatMonitor *heartbeat_monitor =
         App_InvWorld_GetHeartbeatMonitor(world);
 
+    App_CanTx_SetPeriodicSignal_INVERTER_STATE(can_tx_interface, 1);
+
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
+
 }
 
 static void InitStateRunOnExit(struct StateMachine *const state_machine)
@@ -59,3 +63,4 @@ const struct State *App_GetInitState(void)
 
     return &init_state;
 }
+

@@ -1,6 +1,9 @@
 #pragma once
 
-#include "controls/App_ControlLoop.h"
+#include "control/App_ControlLoop.h"
+
+#define CUR_SNS_GAIN 100.0f //Allegro phase current sensor gain, in A/V
+#define MAX_CUR_ADC_OFFSET 0.025f //25mV, the max offset error for Allegro ACS758ECB-200B-PSS-T
 
 void Io_AdcDac_AdcContModeInit(void);
 void Io_AdcDac_AdcPwmSyncModeInit(void);
@@ -9,7 +12,7 @@ void Io_AdcDac_AdcStop(void);
 
 void Io_AdcDac_DacStart(void);
 void Io_AdcDac_DacSetCurrent(float current);
-
+const struct PhaseValues * Io_AdcDac_CorrectOffset(void);
 void  Io_AdcDac_GetPhaseCurrents(struct PhaseValues *const phase_currents);
 float Io_AdcDac_GetGpioVal(void);
 float Io_AdcDac_GetBusVoltage(void);
