@@ -30,6 +30,7 @@ void App_PowerStage_SetCurrentLimits(
 void App_PowerStage_GetPhaseCurrents(
     struct PowerStage * power_stage,
     struct PhaseValues *phase_currents);
+const struct PhaseValues * App_PowerStage_CorrectCurrentOffset(struct PowerStage *power_stage);
 float App_PowerStage_GetBusVoltage(struct PowerStage *power_stage);
 float App_PowerStage_GetTemperature(struct PowerStage *power_stage);
 bool  App_PowerStage_GetPhaOCFault(struct PowerStage *power_stage);

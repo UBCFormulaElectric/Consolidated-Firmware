@@ -1,4 +1,17 @@
-file(GLOB_RECURSE ARM_BINARY_APP_SRCS "Src/App/*.*")
+
+#file(REMOVE_RECURSE ARM_BINARY_APP_SRCS "Src/App/lookup_tables/*.c")
+
+#message(STATUS "arm_binary_app_srcs: ${ARM_BINARY_APP_SRCS}")
+
+file(GLOB ARM_BINARY_APP_SRCS
+        "Src/App/*.c"
+        "Src/App/control/*.c"
+        "Src/App/states/*.c"
+        "Src/App/lookup_tables/motor_lut_interface.c"
+        "Src/App/lookup_tables/shaft_torque_lut.c"
+        "Src/App/lookup_tables/id_peak_lut.c"
+        "Src/App/lookup_tables/iq_peak_lut.c")
+
 set(ARM_BINARY_APP_INCLUDE_DIRS "Inc/App")
 file(GLOB ARM_BINARY_IO_SRCS
         "Src/*.c"

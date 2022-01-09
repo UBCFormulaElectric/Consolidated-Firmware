@@ -249,7 +249,7 @@ int main(void)
         Io_AdcDac_AdcContModeInit, Io_AdcDac_AdcPwmSyncModeInit,
         Io_AdcDac_AdcStart, Io_AdcDac_AdcStop, Io_AdcDac_DacStart,
         Io_AdcDac_DacSetCurrent, Io_AdcDac_GetPhaseCurrents,
-        Io_AdcDac_GetBusVoltage, Io_AdcDac_GetPowerstageTemp,
+        Io_AdcDac_CorrectOffset, Io_AdcDac_GetBusVoltage, Io_AdcDac_GetPowerstageTemp,
         Io_PowerStage_GetPhaOCFault, Io_PowerStage_GetPhbOCFault,
         Io_PowerStage_GetPhcOCFault, Io_PowerStage_GetPowerStageOTFault);
 

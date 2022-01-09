@@ -1,13 +1,8 @@
 #include "lookup_tables/motor_lut_interface.h"
+#include "lookup_tables/id_peak_lut.h"
+#include "lookup_tables/iq_peak_lut.h"
+#include "lookup_tables/shaft_torque_lut.h"
 #include <math.h>
-
-//iq_request = look_up_value(speed_rpm, torque, bus_voltage, motor_temperature, MOTOR_IQ_TABLE);
-//id_request = look_up_value(speed_rpm, torque, bus_voltage, motor_temperature, MOTOR_ID_TABLE);
-
-//Extern'd LUT arrays
-float shaft_torque_lut_array[LUT_NUM_VOLTAGES][LUT_NUM_TEMPS][LUT_NUM_ROWS][LUT_NUM_COLUMNS];
-float id_peak_lut_array[LUT_NUM_VOLTAGES][LUT_NUM_TEMPS][LUT_NUM_ROWS][LUT_NUM_COLUMNS];
-float iq_peak_lut_array[LUT_NUM_VOLTAGES][LUT_NUM_TEMPS][LUT_NUM_ROWS][LUT_NUM_COLUMNS];
 
 float look_up_value(const float speed_rpm, const float torque_request, const float bus_voltage, const float motor_temp, const uint8_t table_number)
 {
@@ -87,31 +82,31 @@ float look_up_value(const float speed_rpm, const float torque_request, const flo
 
 	if(temp_index == 0 && voltage_index == 2)
     {
-        val1 = intp_from_lut(voltage_index, temp_index, torque_index, speed_index, speed_inter_percentage, torque_inter_percentage);
+        val1 = intp_from_lut(voltage_index, temp_index, torque_index, speed_index, speed_inter_percentage, torque_inter_percentage, table_number);
         val2 = val1;
-        val3 = intp_from_lut(voltage_index, temp_index+1, torque_index, speed_index, speed_inter_percentage, torque_inter_percentage);
+        val3 = intp_from_lut(voltage_index, temp_index+1, torque_index, speed_index, speed_inter_percentage, torque_inter_percentage, table_number);
         val4 = val3;
     }
     else if(temp_index == 0 && voltage_index == 2)
     {
-        val1 = intp_from_lut(voltage_index, temp_index, torque_index, speed_index, speed_inter_percentage, torque_inter_percentage);
-        val2 = intp_from_lut(voltage_index+1, temp_index, torque_index, speed_index, speed_inter_percentage, torque_inter_percentage);
+        val1 = intp_from_lut(voltage_index, temp_index, torque_index, speed_index, speed_inter_percentage, torque_inter_percentage, table_number);
+        val2 = intp_from_lut(voltage_index+1, temp_index, torque_index, speed_index, speed_inter_percentage, torque_inter_percentage, table_number);
         val3 = val1;
         val4 = val2;
     }
     else if(temp_index == 2 && voltage_index == 2)
     {
-        val1 = intp_from_lut(voltage_index, temp_index, torque_index, speed_index, speed_inter_percentage, torque_inter_percentage);
+        val1 = intp_from_lut(voltage_index, temp_index, torque_index, speed_index, speed_inter_percentage, torque_inter_percentage, table_number);
         val2 = val1;
         val3 = val1;
         val4 = val1;
     }
     else
     {
-        val1 = intp_from_lut(voltage_index, temp_index, torque_index, speed_index, speed_inter_percentage, torque_inter_percentage);
-        val2 = intp_from_lut(voltage_index+1, temp_index, torque_index, speed_index, speed_inter_percentage, torque_inter_percentage);
-        val3 = intp_from_lut(voltage_index, temp_index+1, torque_index, speed_index, speed_inter_percentage, torque_inter_percentage);
-        val4 = intp_from_lut(voltage_index+1, temp_index+1, torque_index, speed_index, speed_inter_percentage, torque_inter_percentage);
+        val1 = intp_from_lut(voltage_index, temp_index, torque_index, speed_index, speed_inter_percentage, torque_inter_percentage, table_number);
+        val2 = intp_from_lut(voltage_index+1, temp_index, torque_index, speed_index, speed_inter_percentage, torque_inter_percentage, table_number);
+        val3 = intp_from_lut(voltage_index, temp_index+1, torque_index, speed_index, speed_inter_percentage, torque_inter_percentage, table_number);
+        val4 = intp_from_lut(voltage_index+1, temp_index+1, torque_index, speed_index, speed_inter_percentage, torque_inter_percentage, table_number);
     }
 
     val1val2_intp = voltage_inter_percentage * (val2-val1) + val1;
