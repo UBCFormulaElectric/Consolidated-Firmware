@@ -8,6 +8,7 @@
 #include "control/App_CurrentGeneration.h"
 #include "control/App_SpaceVectorModulation.h"
 #include "control/App_TorqueControl.h"
+#include "lookup_tables/motor_lut_interface.h"
 //#include "states/App_AllStates.h"
 #include "App_PowerStage.h"
 #include "App_Motor.h"
@@ -84,14 +85,17 @@ void App_ControlLoop_Run(
 
     if (mode == MOTOR_CONTROL)
     {
-        // Get Torque Request from DCM
+        //TODO Get torque request from state machine
         App_CanRx_DCM_TORQUE_REQUEST_SetSignal_TORQUE_REQUEST(
             can_rx, torque_ref);
     }
 
-    // Get Speed Ref Request
-    //     App_CanRx_DCM_SPEED_REQUEST_SetSignal_TORQUE_REQUEST(can_rx,
-    //     rotor_speed_ref);
+    //TODO torque and speed request and reading plausibility check goes here
+    torque_ref = 15;
+    float id_val = look_up_value(-40000.0f, -40.0f, 300.0f, 80.0f, ID_PEAK);
+    float iq_val = look_up_value(22000.0f, 30.0f, 700.0f, 80.0f, IQ_PEAK);
+
+    //TODO Get Speed Ref Request from state machine
 
     // Get Phase Currents
     App_PowerStage_GetPhaseCurrents(power_stage, &phase_currents);

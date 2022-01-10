@@ -1115,6 +1115,16 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     }
 }
 
+void
+
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+    if (htim->Instance == TIM1)
+    {
+
+    }
+}
+
 /* USER CODE END 4 */
 
 /* USER CODE BEGIN Header_RunTask1Hz */
