@@ -65,6 +65,10 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
     }
 
     App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx, torque_request);
+    /* Transmit torque command to PM100DZ inverter #1 */
+    App_CanTx_SetPeriodicSignal_TORQUE_COMMAND(can_tx,
+                                               App_CanMsgs_dcm_inv1_command_message_torque_command_encode(
+                                                       (double) torque_request));
 }
 
 void App_SetPeriodicCanSignals_Imu(const struct DcmWorld *world)
