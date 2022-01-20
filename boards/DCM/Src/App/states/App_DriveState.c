@@ -16,8 +16,9 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_STATE(
         can_tx_interface, CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE);
     /* Enable inverter upon entering drive state */
-    App_CanTx_SetPeriodicSignal_INVERTER_ENABLE(can_tx_interface,
-                                                CANMSGS_DCM_INV1_COMMAND_MESSAGE_INVERTER_ENABLE_ON_CHOICE);
+    App_CanTx_SetPeriodicSignal_INVERTER_ENABLE(
+        can_tx_interface,
+        CANMSGS_DCM_INV1_COMMAND_MESSAGE_INVERTER_ENABLE_ON_CHOICE);
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -48,8 +49,9 @@ static void DriveStateRunOnExit(struct StateMachine *const state_machine)
     struct DcmCanTxInterface *can_tx_interface = App_DcmWorld_GetCanTx(world);
 
     /* Disable inverter upon exiting drive state */
-    App_CanTx_SetPeriodicSignal_INVERTER_ENABLE(can_tx_interface,
-                                                CANMSGS_DCM_INV1_COMMAND_MESSAGE_INVERTER_ENABLE_OFF_CHOICE);
+    App_CanTx_SetPeriodicSignal_INVERTER_ENABLE(
+        can_tx_interface,
+        CANMSGS_DCM_INV1_COMMAND_MESSAGE_INVERTER_ENABLE_OFF_CHOICE);
 }
 
 const struct State *App_GetDriveState(void)
