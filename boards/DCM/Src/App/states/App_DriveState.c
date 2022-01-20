@@ -1,6 +1,7 @@
 #include "states/App_AllStates.h"
 #include "states/App_DriveState.h"
 #include "states/App_InitState.h"
+#include "states/App_FaultState.h"
 #include "App_SetPeriodicCanSignals.h"
 
 #include "App_SharedMacros.h"
@@ -37,6 +38,12 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
+    }
+    /* Enter fault state if the inverter itself is in the fault state */
+    if (App_CanRx_INV1_INTERNAL_STATES_GetSignal_D1_VSM_STATE(can_rx) ==
+        CANMSGS_INV1_INTERNAL_STATES_D1_VSM_STATE_BLINK_FAULT_CODE_STATE_CHOICE)
+    {
+        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
 
     App_SetPeriodicCanSignals_Imu(world);

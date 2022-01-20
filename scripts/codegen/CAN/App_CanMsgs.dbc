@@ -233,8 +233,8 @@ SG_ D4_Inverter_Run_Mode : 32|1@1+ (1,0) [0|1] "" DEBUG
 SG_ D5_Inverter_Command_Mode : 40|1@1+ (1,0) [0|1] "" DEBUG
 SG_ D3_Relay_1_Status : 24|1@1+ (1,0) [0|1] "" DEBUG
 SG_ D2_Inverter_State : 16|8@1+ (1,0) [0|255] "" DEBUG
-SG_ D1_VSM_State : 0|8@1+ (1,0) [0|15] "" DEBUG
-SG_ D6_Inverter_Enable_Lockout : 55|1@1+ (1,0) [0|1] "" DCM
+SG_ D1_VSM_State : 0|8@1+ (1,0) [0|15] "" DCM
+SG_ D6_Inverter_Enable_Lockout : 55|1@1+ (1,0) [0|1] "" DEBUG
 SG_ D4_Inverter_Discharge_State : 37|3@1+ (1,0) [0|7] "" DEBUG
 SG_ D3_Relay_5_Status : 28|1@1+ (1,0) [0|1] "" DEBUG
 SG_ D3_Relay_6_Status : 29|1@1+ (1,0) [0|1] "" DEBUG
@@ -247,10 +247,10 @@ SG_ D1_PWM_Frequency : 8|8@1+ (1,0) [0|255] "kHz" DEBUG
 SG_ D6_Start_Mode_Active : 54|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 171 INV1_Fault_Codes: 8 INV1
-SG_ D4_Run_Fault_Hi : 48|16@1+ (1,0) [0|65535] "" DCM
-SG_ D2_Post_Fault_Hi : 16|16@1+ (1,0) [0|65535] "" DCM
-SG_ D3_Run_Fault_Lo : 32|16@1+ (1,0) [0|65535] "" DCM
-SG_ D1_Post_Fault_Lo : 0|16@1+ (1,0) [0|65535] "" DCM
+SG_ D4_Run_Fault_Hi : 48|16@1+ (1,0) [0|65535] "" DEBUG
+SG_ D2_Post_Fault_Hi : 16|16@1+ (1,0) [0|65535] "" DEBUG
+SG_ D3_Run_Fault_Lo : 32|16@1+ (1,0) [0|65535] "" DEBUG
+SG_ D1_Post_Fault_Lo : 0|16@1+ (1,0) [0|65535] "" DEBUG
 
 BO_ 172 INV1_Torque_And_Timer_Info: 8 INV1
 SG_ D3_Power_On_Timer : 32|32@1+ (0.003,0) [0|12884800] "Sec" DEBUG
