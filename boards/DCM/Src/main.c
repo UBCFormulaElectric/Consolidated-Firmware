@@ -38,6 +38,7 @@
 #include "Io_BrakeLight.h"
 #include "Io_Buzzer.h"
 #include "Io_LSM6DS33.h"
+#include "Io_SharedErrorTable.h"
 
 #include "App_DcmWorld.h"
 #include "App_SharedStateMachine.h"
@@ -618,6 +619,7 @@ void RunTaskCanRx(void const *argument)
         struct CanMsg message;
         Io_SharedCan_DequeueCanRxMessage(&message);
         Io_CanRx_UpdateRxTableWithMessage(can_rx, &message);
+        Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &message);
     }
     /* USER CODE END RunTaskCanRx */
 }

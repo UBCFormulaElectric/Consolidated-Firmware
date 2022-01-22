@@ -21,9 +21,9 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
 
-    struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct ErrorTable *       error_table = App_DcmWorld_GetErrorTable(world);
-    struct ErrorList          critical_errors;
+    struct DcmWorld *  world = App_SharedStateMachine_GetWorld(state_machine);
+    struct ErrorTable *error_table = App_DcmWorld_GetErrorTable(world);
+    struct ErrorList   critical_errors;
 
     App_SharedErrorTable_GetAllCriticalErrors(error_table, &critical_errors);
 
