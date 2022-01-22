@@ -14,6 +14,7 @@ struct DcmWorld
     struct BrakeLight *       brake_light;
     struct Buzzer *           buzzer;
     struct Imu *              imu;
+    struct StartSwitch *      start_switch;
     struct ErrorTable *       error_table;
     struct WaitSignal *       buzzer_wait_signal;
     struct Clock *            clock;
@@ -27,6 +28,7 @@ struct DcmWorld *App_DcmWorld_Create(
     struct BrakeLight *const        brake_light,
     struct Buzzer *const            buzzer,
     struct Imu *const               imu,
+    struct StartSwitch *const       start_switch,
     struct ErrorTable *const        error_table,
     struct Clock *const             clock,
     bool (*is_buzzer_on)(struct DcmWorld *),
@@ -42,6 +44,7 @@ struct DcmWorld *App_DcmWorld_Create(
     world->brake_light       = brake_light;
     world->buzzer            = buzzer;
     world->imu               = imu;
+    world->start_switch      = start_switch;
     world->error_table       = error_table;
     world->clock             = clock;
 
@@ -99,6 +102,11 @@ struct Buzzer *App_DcmWorld_GetBuzzer(const struct DcmWorld *const world)
 struct Imu *App_DcmWorld_GetImu(const struct DcmWorld *const world)
 {
     return world->imu;
+}
+
+struct StartSwitch *App_DcmWorld_GetStartSwitch(const struct DcmWorld *world)
+{
+    return world->start_switch;
 }
 
 struct ErrorTable *

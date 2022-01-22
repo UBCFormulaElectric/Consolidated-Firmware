@@ -69,14 +69,17 @@ class DcmStateMachineTest : public BaseStateMachineTest
             get_acceleration_x, get_acceleration_y, get_acceleration_z,
             MIN_ACCELERATION_MS2, MAX_ACCELERATION_MS2);
 
+        start_switch = App_StartSwitch_Create();
+
         error_table = App_SharedErrorTable_Create();
 
         clock = App_SharedClock_Create();
 
         world = App_DcmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
-            rgb_led_sequence, brake_light, buzzer, imu, error_table, clock,
-            App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
+            rgb_led_sequence, brake_light, buzzer, imu, start_switch,
+            error_table, clock, App_BuzzerSignals_IsOn,
+            App_BuzzerSignals_Callback);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -107,6 +110,7 @@ class DcmStateMachineTest : public BaseStateMachineTest
         TearDownObject(brake_light, App_BrakeLight_Destroy);
         TearDownObject(buzzer, App_Buzzer_Destroy);
         TearDownObject(imu, App_Imu_Destroy);
+        TearDownObject(start_switch, App_StartSwitch_Destroy);
         TearDownObject(error_table, App_SharedErrorTable_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
     }
@@ -155,14 +159,99 @@ class DcmStateMachineTest : public BaseStateMachineTest
     struct BrakeLight *       brake_light;
     struct Buzzer *           buzzer;
     struct Imu *              imu;
+    struct StartSwitch *      start_switch;
     struct ErrorTable *       error_table;
     struct Clock *            clock;
 };
 
+// DCM-5
 TEST_F(
     DcmStateMachineTest,
-    check_init_immediately_transitions_to_run_on_first_tick)
+    check_init_waits_for_required_conditions_when_switch_starts_down)
 {
+    LetTimePass(state_machine, 10);
+
+    EXPECT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
+    LetTimePass(state_machine, 10);
+
+    EXPECT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+
+    App_CanRx_BMS_PRE_CHARGE_STATUS_SetSignal_COMPLETE(
+        can_rx_interface, CANMSGS_BMS_PRE_CHARGE_STATUS_COMPLETE_TRUE_CHOICE);
+    LetTimePass(state_machine, 10);
+
+    EXPECT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+
+    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
+        can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
+    LetTimePass(state_machine, 10);
+
+    EXPECT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+
+    App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(
+        can_rx_interface, CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE);
+    LetTimePass(state_machine, 10);
+
+    EXPECT_EQ(
+        App_GetDriveState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
+// DCM-5
+TEST_F(
+    DcmStateMachineTest,
+    check_init_waits_for_required_conditions_when_switch_starts_up)
+{
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
+    App_StartSwitch_SetInitialPosition(start_switch, true);
+    LetTimePass(state_machine, 10);
+
+    EXPECT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+
+    App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(
+        can_rx_interface, CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE);
+    LetTimePass(state_machine, 10);
+
+    EXPECT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+
+    App_CanRx_BMS_PRE_CHARGE_STATUS_SetSignal_COMPLETE(
+        can_rx_interface, CANMSGS_BMS_PRE_CHARGE_STATUS_COMPLETE_TRUE_CHOICE);
+    LetTimePass(state_machine, 10);
+
+    EXPECT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+
+    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
+        can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
+    LetTimePass(state_machine, 10);
+
+    EXPECT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+
+    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
+        can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
     LetTimePass(state_machine, 10);
 
     EXPECT_EQ(

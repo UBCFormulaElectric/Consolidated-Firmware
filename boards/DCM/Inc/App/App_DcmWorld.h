@@ -8,6 +8,7 @@
 #include "App_Buzzer.h"
 #include "App_BuzzerSignals.h"
 #include "App_Imu.h"
+#include "App_StartSwitch.h"
 #include "App_SharedErrorTable.h"
 #include "App_SharedClock.h"
 #include "App_SharedWaitSignal.h"
@@ -31,6 +32,7 @@ struct DcmWorld *App_DcmWorld_Create(
     struct BrakeLight *       brake_light,
     struct Buzzer *           buzzer,
     struct Imu *              imu,
+    struct StartSwitch *      start_switch,
     struct ErrorTable *       error_table,
     struct Clock *            clock,
     bool (*is_buzzer_on)(struct DcmWorld *),
@@ -92,6 +94,13 @@ struct Buzzer *App_DcmWorld_GetBuzzer(const struct DcmWorld *world);
  * @return The Imu for the given world
  */
 struct Imu *App_DcmWorld_GetImu(const struct DcmWorld *world);
+
+/**
+ * Get the init state conditions for the given world
+ * @param world The world to get initialization conditions
+ * @return the init state conditions for the given world
+ */
+struct StartSwitch *App_DcmWorld_GetStartSwitch(const struct DcmWorld *world);
 
 /**
  * Get the error table for the given world
