@@ -1,8 +1,22 @@
 #pragma once
 
+#include <stdint.h>
+#include "App_CanTx.h"
+#include "App_SharedMacros.h"
 #include "App_SharedExitCode.h"
 
+#define CAN_TX_INTERFACE JOIN(BOARD_NAME, CanTxInterface)
+
 struct InRangeCheck;
+
+struct InRangeCheckSetPeriodic
+{
+    float value;
+    float min;
+    float max;
+    void (*out_of_range_setter)(struct CAN_TX_INTERFACE *, uint8_t);
+    void (*can_signal_setter)(struct CAN_TX_INTERFACE *, float);
+};
 
 enum InRangeCheck_Status
 {
@@ -43,5 +57,22 @@ void App_InRangeCheck_Destroy(struct InRangeCheck *in_range_check);
  *         VALUE_OVERFLOW if the value is above the specified range
  */
 enum InRangeCheck_Status App_InRangeCheck_GetValue(
-    const struct InRangeCheck *const in_range_check,
-    float *                          returned_value);
+    const struct InRangeCheck *in_range_check,
+    float *                    returned_value);
+
+enum InRangeCheck_Status App_SetPeriodicCanSignals_InRangeCheck(
+    struct CAN_TX_INTERFACE *  can_tx,
+    const struct InRangeCheck *in_range_check,
+    void (*const can_signal_setter)(struct CAN_TX_INTERFACE *, float),
+    void (*const out_of_range_setter)(struct CAN_TX_INTERFACE *, uint8_t),
+    uint8_t ok_choice,
+    uint8_t underflow_choice,
+    uint8_t overflow_choice);
+
+void App_InRangeCheck_SetPeriodicCanSignal(
+    float value,
+    float min,
+    float max,
+    void (*can_tx_setter)(struct CAN_TX_INTERFACE *, uint8_t),
+    void (*value_setter)(struct CAN_TX_INTERFACE *, float),
+    struct CAN_TX_INTERFACE *can_tx);

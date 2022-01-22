@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include <stm32f3xx_hal.h>
 #include <stm32f3xx_hal_spi.h>
 
@@ -50,7 +51,7 @@ void Io_SharedSpi_SetNssHigh(const struct SharedSpi *spi_interface);
  * the SPI interface.
  * @return The HAL status of the data transmission and reception.
  */
-HAL_StatusTypeDef Io_SharedSpi_TransmitAndReceive(
+bool Io_SharedSpi_TransmitAndReceive(
     const struct SharedSpi *spi_interface,
     uint8_t *               tx_buffer,
     uint16_t                tx_buffer_size,
@@ -65,7 +66,7 @@ HAL_StatusTypeDef Io_SharedSpi_TransmitAndReceive(
  * @param tx_buffer_size The size of the tx_data buffer.
  * @return The HAL status of the data transmission to the SPI interface.
  */
-HAL_StatusTypeDef Io_SharedSpi_Transmit(
+bool Io_SharedSpi_Transmit(
     const struct SharedSpi *spi_interface,
     uint8_t *               tx_buffer,
     uint16_t                tx_buffer_size);
@@ -78,7 +79,7 @@ HAL_StatusTypeDef Io_SharedSpi_Transmit(
  * @param rx_buffer_size The size of the rx_data buffer.
  * @return The HAL status of the data reception from the SPI interface.
  */
-HAL_StatusTypeDef Io_SharedSpi_Receive(
+bool Io_SharedSpi_Receive(
     const struct SharedSpi *spi_interface,
     uint8_t *               rx_buffer,
     uint16_t                rx_buffer_size);
@@ -94,7 +95,7 @@ HAL_StatusTypeDef Io_SharedSpi_Receive(
  * device connected to the SPI interface.
  * @return The HAL status of the data transmission to the SPI interface.
  */
-HAL_StatusTypeDef Io_SharedSpi_MultipleTransmitWithoutNssToggle(
+bool Io_SharedSpi_MultipleTransmitWithoutNssToggle(
     const struct SharedSpi *spi_interface,
     uint8_t *               tx_buffer,
     uint16_t                tx_buffer_size,
@@ -109,7 +110,7 @@ HAL_StatusTypeDef Io_SharedSpi_MultipleTransmitWithoutNssToggle(
  * @param tx_buffer_size The size of the tx_data buffer.
  * @return The HAL status of the data transmission to the SPI interface.
  */
-HAL_StatusTypeDef Io_SharedSpi_TransmitWithoutNssToggle(
+bool Io_SharedSpi_TransmitWithoutNssToggle(
     const struct SharedSpi *spi_interface,
     uint8_t *               tx_buffer,
     uint16_t                tx_buffer_size);

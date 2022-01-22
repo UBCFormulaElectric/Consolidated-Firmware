@@ -15,3 +15,6 @@
 #ifndef UNUSED
 #define UNUSED(x) (void)(x)
 #endif // UNUSED
+
+#define JOIN(a, b) _JOIN(a, b)
+#define _JOIN(a, b) a##b

@@ -64,3 +64,4 @@ create_arm_binary_or_tests_for_board(
     "${GOOGLETEST_TEST_SRCS}"
     "${GOOGLETEST_TEST_INCLUDE_DIRS}"
 )
+add_definitions(-DBOARD_NAME=Dim)

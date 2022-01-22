@@ -1,19 +1,45 @@
 #include <assert.h>
 #include <stdlib.h>
-#include <string.h>
-#include "Io_LTC6813.h"
+#include <stdbool.h>
+#include "main.h"
 #include "Io_SharedSpi.h"
-#include "configs/App_AccumulatorConfigs.h"
-#include "configs/Io_LTC6813Configs.h"
+#include "Io_LTC6813.h"
+#include "configs/App_SharedConstants.h"
 
-#define ADCOPT 0U
-#define REFON 1U
-#define DTEN 0U
-#define VUV 0x4E1
-#define VOV 0x8CA
+// Time that a blocking SPI transaction should wait for until until an error is
+// returned
+#define SPI_TIMEOUT_MS (2U)
 
-static struct SharedSpi *spi_interface;
+// Command used to start ADC conversions
+#define ADCV ((0x260 + (MD << 7) + (DCP << 4) + CH))
 
+// Command used to poll ADC conversions
+#define PLADC (0x0714U)
+#define PLADC_RX_SIZE (1U)
+#define ADC_CONV_INCOMPLETE (0xFFU)
+
+// Command and parameters to write to configuration register A
+#define WRCFGA (0x0001U)
+#define VUV (0x4E1U)
+#define VOV (0x8CAU)
+#define ADCOPT (0U)
+#define REFON (0U)
+#define DTEN (0U)
+#define DEFAULT_CFGRA_CONFIG                                   \
+    {                                                          \
+        [LTC6813_REG_0] = (REFON << 2) + (DTEN << 1) + ADCOPT, \
+        [LTC6813_REG_1] = (uint8_t)VUV,                        \
+        [LTC6813_REG_2] = ((VOV & 0xF) << 4) + (VUV >> 8),     \
+        [LTC6813_REG_3] = (VOV >> 4), [LTC6813_REG_4] = 0U,    \
+        [LTC6813_REG_5]                               = 0U,    \
+        [NUM_OF_REGS_IN_GROUP + LTC6813_PEC15_BYTE_0] = 0U,    \
+        [NUM_OF_REGS_IN_GROUP + LTC6813_PEC15_BYTE_1] = 0U,    \
+    }
+
+extern struct SharedSpi *ltc6813_spi;
+struct SharedSpi *       ltc6813_spi = NULL;
+
+// CRC check LUT
 static const uint16_t crc[UINT8_MAX + 1] = {
     0x0,    0xC599, 0xCEAB, 0xB32,  0xD8CF, 0x1D56, 0x1664, 0xD3FD, 0xF407,
     0x319E, 0x3AAC, 0xFF35, 0x2CC8, 0xE951, 0xE263, 0x27FA, 0xAD97, 0x680E,
@@ -46,24 +72,22 @@ static const uint16_t crc[UINT8_MAX + 1] = {
     0x8BA7, 0x4E3E, 0x450C, 0x8095
 };
 
-void Io_LTC6813_Init(
-    SPI_HandleTypeDef *spi_handle,
-    GPIO_TypeDef *     nss_port,
-    uint16_t           nss_pin)
+void Io_LTC6813_Init(SPI_HandleTypeDef *spi_handle)
 {
     assert(spi_handle != NULL);
 
-    spi_interface = Io_SharedSpi_Create(
-        spi_handle, nss_port, nss_pin, SPI_INTERFACE_TIMEOUT_MS_LTC6813);
+    ltc6813_spi = Io_SharedSpi_Create(
+        spi_handle, SPI2_NSS_GPIO_Port, SPI2_NSS_Pin, SPI_TIMEOUT_MS);
 }
 
 uint16_t Io_LTC6813_CalculatePec15(uint8_t *data_buffer, uint32_t size)
 {
-    size_t pec15_lut_index;
-
-    // Initialize the value of the PEC15 remainder to 16.
+    // Initialize the value of the PEC15 remainder to 16
     uint16_t pec15_remainder = 16U;
+    uint16_t pec15_lut_index;
 
+    // Refer to PEC15 calculation in the 'PEC Calculation' of the LTC6813
+    // datasheet
     for (size_t i = 0U; i < size; i++)
     {
         pec15_lut_index = ((pec15_remainder >> 7) ^ data_buffer[i]) & 0xFF;
@@ -75,130 +99,82 @@ uint16_t Io_LTC6813_CalculatePec15(uint8_t *data_buffer, uint32_t size)
     return (uint16_t)(pec15_remainder << 1);
 }
 
-ExitCode Io_LTC6813_EnterReadyState(void)
+void Io_LTC6813_PackPec15(uint8_t *cfg_reg, uint8_t size)
 {
-    uint8_t rx_data;
+    const uint16_t cfg_reg_a_pec15 = Io_LTC6813_CalculatePec15(cfg_reg, size);
+    cfg_reg[size + LTC6813_PEC15_BYTE_0] = (uint8_t)(cfg_reg_a_pec15 >> 8);
+    cfg_reg[size + LTC6813_PEC15_BYTE_1] = (uint8_t)cfg_reg_a_pec15;
+}
 
-    // Generate isoSPI traffic to wake up the daisy chain by sending a command
-    // to read a single byte NUM_OF_LTC6813 times.
-    for (size_t i = 0U; i < NUM_OF_CELL_MONITOR_CHIPS; i++)
+bool Io_LTC6813_SendCommand(uint16_t cmd)
+{
+    uint8_t tx_cmd[NUM_TX_CMD_BYTES] = { 0U };
+    Io_LTC6813_PackCmd(tx_cmd, cmd);
+    Io_LTC6813_PackPec15(tx_cmd, NUM_OF_CMD_BYTES);
+
+    return Io_SharedSpi_Transmit(ltc6813_spi, tx_cmd, NUM_TX_CMD_BYTES);
+}
+
+bool Io_LTC6813_StartADCConversion(void)
+{
+    return Io_LTC6813_SendCommand(ADCV);
+}
+
+bool Io_LTC6813_PollAdcConversions(void)
+{
+    bool    status       = true;
+    uint8_t num_attempts = 0U;
+    uint8_t rx_data      = ADC_CONV_INCOMPLETE;
+
+    // Get the status of ADC conversions
+    uint8_t tx_cmd[NUM_TX_CMD_BYTES] = { 0 };
+    Io_LTC6813_PackCmd(tx_cmd, PLADC);
+    Io_LTC6813_PackPec15(tx_cmd, NUM_OF_CMD_BYTES);
+
+    // All chips on the daisy chain have finished converting cell voltages when
+    // data read back = 0xFF.
+    while (rx_data == ADC_CONV_INCOMPLETE)
     {
-        if (Io_SharedSpi_Receive(spi_interface, &rx_data, 1U) != HAL_OK)
+        const bool is_status_ok = Io_SharedSpi_TransmitAndReceive(
+            ltc6813_spi, tx_cmd, NUM_TX_CMD_BYTES, &rx_data, PLADC_RX_SIZE);
+
+        if (!is_status_ok || (num_attempts >= MAX_NUM_OF_CONV_COMPLETE_CHECKS))
         {
-            return EXIT_CODE_ERROR;
+            status = false;
+            break;
         }
+
+        num_attempts++;
     }
 
-    return EXIT_CODE_OK;
+    return status;
 }
 
-ExitCode Io_LTC6813_SendCommand(uint32_t tx_cmd)
+bool Io_LTC6813_ConfigureRegisterA(void)
 {
-    uint8_t _tx_cmd[NUM_OF_CMD_BYTES];
-    _tx_cmd[0] = (uint8_t)(tx_cmd >> 8);
-    _tx_cmd[1] = (uint8_t)(tx_cmd);
+    bool status = false;
 
-    uint16_t tx_cmd_pec15 =
-        Io_LTC6813_CalculatePec15(_tx_cmd, NUM_OF_PEC15_BYTES_PER_CMD);
-    _tx_cmd[2] = (uint8_t)(tx_cmd_pec15 >> 8);
-    _tx_cmd[3] = (uint8_t)(tx_cmd_pec15);
+    // Prepare write configuration register A command
+    uint8_t tx_cmd[NUM_TX_CMD_BYTES] = { 0U };
+    Io_LTC6813_PackCmd(tx_cmd, WRCFGA);
+    Io_LTC6813_PackPec15(tx_cmd, NUM_OF_CMD_BYTES);
 
-    return (Io_SharedSpi_Transmit(spi_interface, _tx_cmd, NUM_OF_CMD_BYTES) ==
-            HAL_OK)
-               ? EXIT_CODE_OK
-               : EXIT_CODE_ERROR;
-}
+    // Prepare data to write to configuration register A
+    uint8_t tx_cfg[NUM_REG_BYTES] = DEFAULT_CFGRA_CONFIG;
+    Io_LTC6813_PackPec15(tx_cfg, NUM_OF_REGS_IN_GROUP);
 
-ExitCode Io_LTC6813_PollConversions(void)
-{
-    // The command used to determine the status of ADC conversions.
-    const uint32_t PLADC = 0x0714;
+    // Write default configs to configuration register A to all devices
+    // connected to the daisy chain
+    Io_SharedSpi_SetNssLow(ltc6813_spi);
 
-    uint8_t tx_cmd[NUM_OF_CMD_BYTES];
-    tx_cmd[0] = (uint8_t)(PLADC >> 8);
-    tx_cmd[1] = (uint8_t)(PLADC);
-
-    uint16_t tx_cmd_pec15 =
-        Io_LTC6813_CalculatePec15(tx_cmd, NUM_OF_PEC15_BYTES_PER_CMD);
-    tx_cmd[2] = (uint8_t)(tx_cmd_pec15 >> 8);
-    tx_cmd[3] = (uint8_t)tx_cmd_pec15;
-
-    uint32_t adc_conversion_timeout_counter = 0U;
-    uint8_t  rx_data;
-
-    // If the data read back from the chip after a PLADC command is not equal to
-    // 0xFF, all chips on the daisy chain have finished converting cell
-    // voltages.
-    do
-    {
-        if (Io_SharedSpi_TransmitAndReceive(
-                spi_interface, tx_cmd, NUM_OF_CMD_BYTES, &rx_data, 1U) !=
-            HAL_OK)
-        {
-            return EXIT_CODE_TIMEOUT;
-        }
-
-        ++adc_conversion_timeout_counter;
-
-        if (adc_conversion_timeout_counter >= ADC_TIMEOUT_CYCLES_THRESHOLD)
-        {
-            return EXIT_CODE_TIMEOUT;
-        }
-    } while (rx_data == 0xFF);
-
-    return EXIT_CODE_OK;
-}
-
-ExitCode Io_LTC6813_ConfigureRegisterA(void)
-{
-    // The command used to write to configuration register A.
-    const uint32_t WRCFGA = 0x01;
-
-    uint8_t tx_cmd[NUM_OF_CMD_BYTES];
-    tx_cmd[0] = (uint8_t)(WRCFGA >> 8);
-    tx_cmd[1] = (uint8_t)(WRCFGA);
-    uint16_t tx_cmd_pec15 =
-        Io_LTC6813_CalculatePec15(tx_cmd, NUM_OF_PEC15_BYTES_PER_CMD);
-    tx_cmd[2] = (uint8_t)(tx_cmd_pec15 >> 8);
-    tx_cmd[3] = (uint8_t)tx_cmd_pec15;
-
-    const uint32_t DEFAULT_CONFIG_REG[4] = {
-        (REFON << 2) + (DTEN << 1) + ADCOPT, VUV,
-        ((VOV & 0xF) << 4) + (VUV >> 8), (VOV >> 4)
-    };
-
-    // The payload data is 8 bytes wide. The first 6 bytes is used to configure
-    // Configuration Register A, while the remaining two bytes are the PEC15 for
-    // the payload data transmitted.
-    uint8_t tx_payload[8] = { 0 };
-    memcpy(tx_payload, DEFAULT_CONFIG_REG, 4U);
-    uint16_t tx_payload_pec15 = Io_LTC6813_CalculatePec15(tx_payload, 6U);
-    tx_payload[6]             = (uint8_t)(tx_payload_pec15 >> 8);
-    tx_payload[7]             = (uint8_t)tx_payload_pec15;
-
-    Io_SharedSpi_SetNssLow(spi_interface);
-
-    // Write to Configuration Register A.
     if (Io_SharedSpi_TransmitWithoutNssToggle(
-            spi_interface, tx_cmd, NUM_OF_CMD_BYTES) != HAL_OK)
+            ltc6813_spi, tx_cmd, NUM_TX_CMD_BYTES))
     {
-        Io_SharedSpi_SetNssHigh(spi_interface);
-        return EXIT_CODE_ERROR;
+        status = Io_SharedSpi_MultipleTransmitWithoutNssToggle(
+            ltc6813_spi, tx_cfg, NUM_REG_BYTES, NUM_OF_ACC_SEGMENTS);
     }
 
-    // Transmit the payload data to all devices connected to the daisy chain.
-    if (Io_SharedSpi_MultipleTransmitWithoutNssToggle(
-            spi_interface, tx_payload, 8U, NUM_OF_CELL_MONITOR_CHIPS) != HAL_OK)
-    {
-        Io_SharedSpi_SetNssHigh(spi_interface);
-        return EXIT_CODE_ERROR;
-    }
+    Io_SharedSpi_SetNssHigh(ltc6813_spi);
 
-    Io_SharedSpi_SetNssHigh(spi_interface);
-    return EXIT_CODE_OK;
-}
-
-struct SharedSpi *Io_LTC6813_GetSpiInterface(void)
-{
-    return spi_interface;
+    return status;
 }

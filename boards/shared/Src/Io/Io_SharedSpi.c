@@ -41,7 +41,7 @@ void Io_SharedSpi_SetNssHigh(const struct SharedSpi *const spi_interface)
         spi_interface->nss_port, spi_interface->nss_pin, GPIO_PIN_SET);
 }
 
-HAL_StatusTypeDef Io_SharedSpi_TransmitAndReceive(
+bool Io_SharedSpi_TransmitAndReceive(
     const struct SharedSpi *const spi_interface,
     uint8_t *                     tx_buffer,
     uint16_t                      tx_buffer_size,
@@ -49,84 +49,82 @@ HAL_StatusTypeDef Io_SharedSpi_TransmitAndReceive(
     uint16_t                      rx_buffer_size)
 
 {
+    bool status = false;
+
     Io_SharedSpi_SetNssLow(spi_interface);
-    HAL_StatusTypeDef status = HAL_SPI_Transmit(
-        spi_interface->spi_handle, tx_buffer, tx_buffer_size,
-        spi_interface->timeout_ms);
-    if (status != HAL_OK)
+
+    if (HAL_SPI_Transmit(
+            spi_interface->spi_handle, tx_buffer, tx_buffer_size,
+            spi_interface->timeout_ms) == HAL_OK)
     {
-        Io_SharedSpi_SetNssHigh(spi_interface);
-        return status;
+        status = HAL_SPI_Receive(
+                     spi_interface->spi_handle, rx_buffer, rx_buffer_size,
+                     spi_interface->timeout_ms) == HAL_OK;
     }
 
-    status = HAL_SPI_Receive(
-        spi_interface->spi_handle, rx_buffer, rx_buffer_size,
-        spi_interface->timeout_ms);
-    if (status != HAL_OK)
-    {
-        Io_SharedSpi_SetNssHigh(spi_interface);
-        return (status);
-    }
     Io_SharedSpi_SetNssHigh(spi_interface);
 
-    return HAL_OK;
+    return status;
 }
 
-HAL_StatusTypeDef Io_SharedSpi_Transmit(
+bool Io_SharedSpi_Transmit(
     const struct SharedSpi *const spi_interface,
     uint8_t *                     tx_buffer,
     uint16_t                      tx_buffer_size)
 {
     Io_SharedSpi_SetNssLow(spi_interface);
-    HAL_StatusTypeDef status = HAL_SPI_Transmit(
-        spi_interface->spi_handle, tx_buffer, tx_buffer_size,
-        spi_interface->timeout_ms);
+    const bool status =
+        HAL_SPI_Transmit(
+            spi_interface->spi_handle, tx_buffer, tx_buffer_size,
+            spi_interface->timeout_ms) == HAL_OK;
     Io_SharedSpi_SetNssHigh(spi_interface);
 
     return status;
 }
 
-HAL_StatusTypeDef Io_SharedSpi_Receive(
+bool Io_SharedSpi_Receive(
     const struct SharedSpi *const spi_interface,
     uint8_t *                     rx_buffer,
     uint16_t                      rx_buffer_size)
 {
     Io_SharedSpi_SetNssLow(spi_interface);
-    HAL_StatusTypeDef status = HAL_SPI_Receive(
-        spi_interface->spi_handle, rx_buffer, rx_buffer_size,
-        spi_interface->timeout_ms);
+    const bool status =
+        HAL_SPI_Receive(
+            spi_interface->spi_handle, rx_buffer, rx_buffer_size,
+            spi_interface->timeout_ms) == HAL_OK;
     Io_SharedSpi_SetNssHigh(spi_interface);
 
     return status;
 }
 
-HAL_StatusTypeDef Io_SharedSpi_MultipleTransmitWithoutNssToggle(
+bool Io_SharedSpi_MultipleTransmitWithoutNssToggle(
     const struct SharedSpi *const spi_interface,
     uint8_t *                     tx_buffer,
     uint16_t                      tx_buffer_size,
     size_t                        num_tx_data_copies)
 {
-    HAL_StatusTypeDef status;
+    bool status = true;
+
     for (size_t i = 0U; i < num_tx_data_copies; i++)
     {
-        status = HAL_SPI_Transmit(
-            spi_interface->spi_handle, tx_buffer, tx_buffer_size,
-            spi_interface->timeout_ms);
-        if (status != HAL_OK)
+        if (HAL_SPI_Transmit(
+                spi_interface->spi_handle, tx_buffer, tx_buffer_size,
+                spi_interface->timeout_ms) != HAL_OK)
         {
-            return status;
+            status = false;
+            break;
         }
     }
 
     return status;
 }
 
-HAL_StatusTypeDef Io_SharedSpi_TransmitWithoutNssToggle(
+bool Io_SharedSpi_TransmitWithoutNssToggle(
     const struct SharedSpi *const spi_interface,
     uint8_t *                     tx_data,
     uint16_t                      tx_buffer_size)
 {
     return HAL_SPI_Transmit(
-        spi_interface->spi_handle, tx_data, tx_buffer_size,
-        spi_interface->timeout_ms);
+               spi_interface->spi_handle, tx_data, tx_buffer_size,
+               spi_interface->timeout_ms) == HAL_OK;
 }
