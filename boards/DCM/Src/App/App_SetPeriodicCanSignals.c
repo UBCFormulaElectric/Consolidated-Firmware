@@ -37,7 +37,7 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
     // 1) If regen is on, use the regen paddle percentage
     // 2) If regen is off, use the accelerator pedal percentage
     //
-    // Constants:  MAX_TORQUE_REQUEST_NM = 21 Nm,
+    // Constants:  MAX_TORQUE_REQUEST_NM = 132 Nm,
     //              - the max torque the motor can provide
     //
     // 1) If regen is allowed and the regen paddle is actuated,
@@ -64,11 +64,11 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
             MAX_TORQUE_REQUEST_NM;
     }
 
-    App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx, torque_request);
     /* Transmit torque command to PM100DZ inverter #1 */
-    App_CanTx_SetPeriodicSignal_TORQUE_COMMAND(
-        can_tx, App_CanMsgs_dcm_inv1_command_message_torque_command_encode(
-                    (double)torque_request));
+    App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
+        can_tx,
+        App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(
+            (double)torque_request));
 }
 
 void App_SetPeriodicCanSignals_Imu(const struct DcmWorld *world)

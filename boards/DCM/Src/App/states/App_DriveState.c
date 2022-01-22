@@ -16,10 +16,10 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 
     App_CanTx_SetPeriodicSignal_STATE(
         can_tx_interface, CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE);
-    /* Enable inverter upon entering drive state */
-    App_CanTx_SetPeriodicSignal_INVERTER_ENABLE(
+    /* Enable inverter upon entering drive state. */
+    App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVL(
         can_tx_interface,
-        CANMSGS_DCM_INV1_COMMAND_MESSAGE_INVERTER_ENABLE_ON_CHOICE);
+        CANMSGS_DCM_INVL_COMMAND_MESSAGE_INVERTER_ENABLE_INVL_ON_CHOICE);
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -39,9 +39,9 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
     }
-    /* Enter fault state if the inverter itself is in the fault state */
-    if (App_CanRx_INV1_INTERNAL_STATES_GetSignal_D1_VSM_STATE(can_rx) ==
-        CANMSGS_INV1_INTERNAL_STATES_D1_VSM_STATE_BLINK_FAULT_CODE_STATE_CHOICE)
+    /* Enter fault state if the left inverter has faulted */
+    if (App_CanRx_INVL_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVL(can_rx) ==
+        CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
@@ -55,10 +55,14 @@ static void DriveStateRunOnExit(struct StateMachine *const state_machine)
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct DcmCanTxInterface *can_tx_interface = App_DcmWorld_GetCanTx(world);
 
-    /* Disable inverter upon exiting drive state */
-    App_CanTx_SetPeriodicSignal_INVERTER_ENABLE(
+    /* Disable inverter and apply zero torque upon exiting drive state */
+    App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVL(
         can_tx_interface,
-        CANMSGS_DCM_INV1_COMMAND_MESSAGE_INVERTER_ENABLE_OFF_CHOICE);
+        CANMSGS_DCM_INVL_COMMAND_MESSAGE_INVERTER_ENABLE_INVL_OFF_CHOICE);
+    App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
+            can_tx_interface,
+            App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(
+                    0.0));
 }
 
 const struct State *App_GetDriveState(void)

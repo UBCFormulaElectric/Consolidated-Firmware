@@ -22,11 +22,8 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     App_AllStatesRunOnTick100Hz(state_machine);
 
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct DcmCanTxInterface *can_tx_interface = App_DcmWorld_GetCanTx(world);
     struct ErrorTable *       error_table = App_DcmWorld_GetErrorTable(world);
     struct ErrorList          critical_errors;
-
-    App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 0.0f);
 
     App_SharedErrorTable_GetAllCriticalErrors(error_table, &critical_errors);
 
