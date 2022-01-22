@@ -94,7 +94,6 @@ struct RgbLedSequence *   rgb_led_sequence;
 struct BrakeLight *       brake_light;
 struct Buzzer *           buzzer;
 struct Imu *              imu;
-struct StartSwitch *      start_switch;
 struct ErrorTable *       error_table;
 struct Clock *            clock;
 /* USER CODE END PV */
@@ -193,15 +192,13 @@ int main(void)
         Io_LSM6DS33_GetAccelerationZ, MIN_ACCELERATION_MS2,
         MAX_ACCELERATION_MS2);
 
-    start_switch = App_StartSwitch_Create();
-
     error_table = App_SharedErrorTable_Create();
 
     clock = App_SharedClock_Create();
 
     world = App_DcmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, brake_light,
-        buzzer, imu, start_switch, error_table, clock, App_BuzzerSignals_IsOn,
+        buzzer, imu, error_table, clock, App_BuzzerSignals_IsOn,
         App_BuzzerSignals_Callback);
 
     Io_StackWaterMark_Init(can_tx);

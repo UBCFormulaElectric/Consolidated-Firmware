@@ -28,7 +28,6 @@ struct DcmWorld *App_DcmWorld_Create(
     struct BrakeLight *const        brake_light,
     struct Buzzer *const            buzzer,
     struct Imu *const               imu,
-    struct StartSwitch *const       start_switch,
     struct ErrorTable *const        error_table,
     struct Clock *const             clock,
     bool (*is_buzzer_on)(struct DcmWorld *),
@@ -44,7 +43,6 @@ struct DcmWorld *App_DcmWorld_Create(
     world->brake_light       = brake_light;
     world->buzzer            = buzzer;
     world->imu               = imu;
-    world->start_switch      = start_switch;
     world->error_table       = error_table;
     world->clock             = clock;
 
