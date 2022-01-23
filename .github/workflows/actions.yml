@@ -106,6 +106,7 @@ jobs:
           - release
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
+      BUILD_DIR: boards/x86_build_${{ matrix.mode }}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -148,8 +149,6 @@ jobs:
           key: ccache-${{ matrix.mode }}-test
 
       - name: Build
-        env:
-          BUILD_DIR: boards/x86_build_${{ matrix.mode }}
         run: |
           sudo /usr/sbin/update-ccache-symlinks
           export PATH="/usr/lib/ccache:$PATH"
@@ -157,8 +156,6 @@ jobs:
           make --directory=$BUILD_DIR -j2
 
       - name: Run tests
-        env:
-          BUILD_DIR: boards/x86_build_${{ matrix.mode }}
         run: |
           cd $BUILD_DIR
           ctest -T memcheck --verbose
@@ -166,3 +163,86 @@ jobs:
 
       - name: Check CCache statistics
         run: ccache -s
+
+  build:
+    name: Build ARM Executables
+    runs-on: ubuntu-18.04
+    strategy:
+      fail-fast: false
+      matrix:
+        board:
+          - FSM
+          - PDM
+          - BMS
+          - DCM
+          - DIM
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
+      BUILD_DIR: boards/arm_build
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          lfs: true
+          submodules: recursive
+      
+      - name: Install pipenv
+        run: pip install pipenv==2021.5.29
+
+      - name: Install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+          cache: pipenv
+          cache-dependency-path: Pipfile.lock
+
+      - name: Install CMake
+        uses: lukka/get-cmake@latest
+
+      - name: Install dependencies
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get install ccache valgrind
+          pipenv install
+
+      - name: Setup XVFB
+        run: |
+          sudo cp ./scripts/environment_setup/xvfb.service /etc/systemd/system/xvfb.service
+          sudo systemctl start xvfb
+
+      # This should eventually be cached, but cannot be due to file permission issues
+      # https://github.com/actions/toolkit/issues/946
+      - name: Install STM32CubeMX
+        run: pipenv run python scripts/environment_setup/install_cube.py ~/.local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip
+
+      - name: Setup CCache
+        uses: actions/cache@v2
+        with:
+          path: |
+            ${{ env.CCACHE_DIR }}
+            ${{ github.workspace }}/.local/bin
+          key: ccache-${{ matrix.mode }}-${{ matrix.board }}-build
+
+      - name: Install ARM GCC
+        env:
+          # Unfortunately, the download link is a literal URL which means it does not
+          # pull the latest version automatically.
+          #
+          # To change the download link:
+          # 1. Go to https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads
+          # 2. Right-click and save the link to download the Linux 64-bit version
+          URL: https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4/RC2.1/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2?revision=6e63531f-8cb1-40b9-bbfc-8a57cdfc01b4&la=en&hash=F761343D43A0587E8AC0925B723C04DBFB848339
+          INSTALL_DIR: ${{ github.workspace }}/.local/bin
+        run: |
+          TMPFILE=$(mktemp --tmpdir gcc-arm-none-eabi.XXXXXXXX.tar.bz2)
+          wget "$URL" -O "$TMPFILE"
+          mkdir -p "$INSTALL_DIR"
+          tar -xjf "$TMPFILE" -C "$INSTALL_DIR" --strip 1
+          rm $TMPFILE
+        if: hashFiles('${{ github.workspace }}/.local/bin/arm-none-eabi-gcc') == '' # Rudimentary check if install was cached
+
+      - name: Build
+        run: |
+          sudo /usr/sbin/update-ccache-symlinks
+          export PATH="/usr/lib/ccache:$HOME/.local/bin:$PATH"
+          cmake -S boards -B $BUILD_DIR -DPLATFORM=arm
+          make --directory=$BUILD_DIR -j2 ${{ matrix.board }}.elf
