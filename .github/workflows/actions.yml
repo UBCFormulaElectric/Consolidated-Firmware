@@ -104,6 +104,8 @@ jobs:
         mode:
           - debug
           - release
+    env:
+      CCACHE_DIR: ${{ github.workspace }}/.ccache
     steps:
       - uses: actions/checkout@v2
         with:
@@ -126,7 +128,7 @@ jobs:
       - name: Install dependencies
         run: |
           sudo dpkg --add-architecture i386
-          sudo apt-get install libncurses5 libbz2-1.0 libz1 valgrind
+          sudo apt-get install ccache valgrind
           pipenv install
 
       - name: Setup XVFB
@@ -139,12 +141,20 @@ jobs:
       - name: Install STM32CubeMX
         run: pipenv run python scripts/environment_setup/install_cube.py ~/.local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip
 
+      - name: Setup CCache
+        uses: actions/cache@v2
+        with:
+          path: ${{ env.CCACHE_DIR }}
+          key: ccache-${{ matrix.mode }}-test
+
       - name: Build
         env:
           BUILD_DIR: boards/x86_build_${{ matrix.mode }}
         run: |
+          sudo /usr/sbin/update-ccache-symlinks
+          export PATH="/usr/lib/ccache:$PATH"
           cmake -S boards -B $BUILD_DIR -DPLATFORM=x86 -DCMAKE_BUILD_TYPE=Release
-          make --directory=$BUILD_DIR -j=2
+          make --directory=$BUILD_DIR -j2
 
       - name: Run tests
         env:
@@ -153,3 +163,6 @@ jobs:
           cd $BUILD_DIR
           ctest -T memcheck --verbose
           cd -
+
+      - name: Check CCache statistics
+        run: ccache -s
