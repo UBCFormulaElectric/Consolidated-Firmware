@@ -16,7 +16,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install pipenv
-        run: pip install pipenv==2021.11.5
+        run: pip install pipenv==2021.5.29
 
       - name: Install Python
         uses: actions/setup-python@v2
@@ -52,7 +52,7 @@ jobs:
           lfs: true
       
       - name: Install pipenv
-        run: pip install pipenv==2021.11.5
+        run: pip install pipenv==2021.5.29
 
       - name: Install Python
         uses: actions/setup-python@v2
