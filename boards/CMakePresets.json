@@ -25,11 +25,13 @@
   "buildPresets": [
     {
       "name": "x86-build-release",
-      "configurePreset": "x86-configure-release"
+      "configurePreset": "x86-configure-release",
+      "jobs": 2
     },
     {
       "name": "x86-build-debug",
-      "configurePreset": "x86-configure-debug"
+      "configurePreset": "x86-configure-debug",
+      "jobs": 2
     }
   ],
   "testPresets": [
@@ -38,6 +40,9 @@
       "configurePreset": "x86-configure-release",
       "output": {
         "verbosity": "verbose"
+      },
+      "execution": {
+        "jobs": 2
       }
     },
     {
@@ -45,6 +50,9 @@
       "configurePreset": "x86-configure-debug",
       "output": {
         "verbosity": "verbose"
+      },
+      "execution": {
+        "jobs": 2
       }
     }
   ]
