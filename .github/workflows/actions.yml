@@ -134,22 +134,17 @@ jobs:
           sudo cp ./scripts/environment_setup/xvfb.service /etc/systemd/system/xvfb.service
           sudo systemctl start xvfb
 
-      - name: Setup STM32CubeMx install cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.local/STM32CubeMX
-          key: tests-${{ matrix.board }}-${{ hashFiles('./tools/en.STM32CubeMX*.zip') }}
-
+      # This should eventually be cached, but cannot be due to file permission issues
+      # https://github.com/actions/toolkit/issues/946
       - name: Install STM32CubeMX
         run: pipenv run python scripts/environment_setup/install_cube.py ~/.local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip
-        if: hashFiles('~/.local/STM32CubeMX/STM32CubeMX') == '' # Rudimentary check if install was cached
 
       - name: Build
         env:
           BUILD_DIR: boards/x86_build_${{ matrix.mode }}
         run: |
           cmake -S boards -B $BUILD_DIR -DPLATFORM=x86 -DCMAKE_BUILD_TYPE=Release
-          make --directory=$BUILD_DIR
+          make --directory=$BUILD_DIR -j=2
 
       - name: Run tests
         env:
