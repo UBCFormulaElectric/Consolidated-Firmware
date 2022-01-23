@@ -531,6 +531,7 @@ if ("${PLATFORM}" STREQUAL "x86")
     #
     # This must be set before include(CTest) is called, or else
     # MEMORYCHECK_COMMAND_OPTIONS won't be overwritten correctly!
+    find_program(MEMORYCHECK_COMMAND valgrind)
     set(MEMORYCHECK_COMMAND_OPTIONS "--error-exitcode=1 --leak-check=full")
     include (CTest)
     enable_testing()
