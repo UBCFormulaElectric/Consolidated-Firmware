@@ -73,7 +73,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.local/STM32CubeMX
-          key: ${{ matrix.board }}-${{ hashFiles('./tools/en.STM32CubeMX*.zip') }}
+          key: codegen-${{ matrix.board }}-${{ hashFiles('./tools/en.STM32CubeMX*.zip') }}
 
       - name: Install STM32CubeMX
         run: pipenv run python scripts/environment_setup/install_cube.py ~/.local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip
@@ -94,3 +94,62 @@ jobs:
       
       - name: Check for differences
         run: git --no-pager diff --color --exit-code
+
+  tests:
+    name: Build and Run x86 Tests
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          lfs: true
+          submodules: recursive
+      
+      - name: Install pipenv
+        run: pip install pipenv==2021.5.29
+
+      - name: Install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+          cache: pipenv
+          cache-dependency-path: Pipfile.lock
+
+      - name: Install CMake
+        uses: lukka/get-cmake@latest
+
+      - name: Install dependencies
+        run: |
+          sudo dpkg --add-architecture i386
+          sudo apt-get install libncurses5 libbz2-1.0 libz1 valgrind
+          pipenv install
+
+      - name: Setup XVFB
+        run: |
+          sudo cp ./scripts/environment_setup/xvfb.service /etc/systemd/system/xvfb.service
+          sudo systemctl start xvfb
+
+      - name: Setup STM32CubeMx install cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.local/STM32CubeMX
+          key: tests-${{ matrix.board }}-${{ hashFiles('./tools/en.STM32CubeMX*.zip') }}
+
+      - name: Install STM32CubeMX
+        run: pipenv run python scripts/environment_setup/install_cube.py ~/.local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip
+        if: hashFiles('~/.local/STM32CubeMX/STM32CubeMX') == '' # Rudimentary check if install was cached
+
+      - name: Run release tests
+        uses: lukka/run-cmake@v10
+        with:
+          cmakeListsTxtPath: boards/CMakeLists.txt
+          configurePreset: x86-configure-release
+          buildPreset: x86-build-release
+          testPreset: x86-test-release
+
+      - name: Run debug tests
+        uses: lukka/run-cmake@v10
+        with:
+          cmakeListsTxtPath: boards/CMakeLists.txt
+          configurePreset: x86-configure-debug
+          buildPreset: x86-build-debug
+          testPreset: x86-test-debug
