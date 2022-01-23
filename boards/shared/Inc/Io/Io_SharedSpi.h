@@ -49,7 +49,8 @@ void Io_SharedSpi_SetNssHigh(const struct SharedSpi *spi_interface);
  * from the device connected to the SPI interface.
  * @param rx_buffer_size The number data received from the device connected to
  * the SPI interface.
- * @return The HAL status of the data transmission and reception.
+ * @return True if data is transmitted and received successfully. Else return
+ * false.
  */
 bool Io_SharedSpi_TransmitAndReceive(
     const struct SharedSpi *spi_interface,
@@ -64,7 +65,7 @@ bool Io_SharedSpi_TransmitAndReceive(
  * @param tx_buffer A pointer to the data buffer containing the data transmitted
  * to the device connected to the SPI interface.
  * @param tx_buffer_size The size of the tx_data buffer.
- * @return The HAL status of the data transmission to the SPI interface.
+ * @return True if data is transmitted successfully. Else, return false.
  */
 bool Io_SharedSpi_Transmit(
     const struct SharedSpi *spi_interface,
@@ -77,7 +78,7 @@ bool Io_SharedSpi_Transmit(
  * @param rx_buffer A pointer to the data buffer that stores the data received
  * from the device connected to the SPI interface.
  * @param rx_buffer_size The size of the rx_data buffer.
- * @return The HAL status of the data reception from the SPI interface.
+ * @return True if data is received successfully. Else, return false.
  */
 bool Io_SharedSpi_Receive(
     const struct SharedSpi *spi_interface,
@@ -93,7 +94,7 @@ bool Io_SharedSpi_Receive(
  * @param tx_buffer_size The size of the tx_data buffer.
  * @param num_tx_data_copies The number of copies of tx_data transmitted to the
  * device connected to the SPI interface.
- * @return The HAL status of the data transmission to the SPI interface.
+ * @return True if data is transmitted successfully. Else, return false.
  */
 bool Io_SharedSpi_MultipleTransmitWithoutNssToggle(
     const struct SharedSpi *spi_interface,
@@ -108,7 +109,7 @@ bool Io_SharedSpi_MultipleTransmitWithoutNssToggle(
  * @param tx_data A pointer to the data buffer containing the data transmitted
  * to the device connected to the SPI interface.
  * @param tx_buffer_size The size of the tx_data buffer.
- * @return The HAL status of the data transmission to the SPI interface.
+ * @return True if data is transmitted successfully. Else, return false.
  */
 bool Io_SharedSpi_TransmitWithoutNssToggle(
     const struct SharedSpi *spi_interface,

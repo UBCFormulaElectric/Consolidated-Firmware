@@ -98,7 +98,7 @@ void App_Accumulator_PeriodicCanTx100Hz(
         can_tx, accumulator->get_average_voltage());
 }
 
-void App_Accumulator_BalanceCells(struct Accumulator * accumulator)
+void App_Accumulator_BalanceCells(struct Accumulator *accumulator)
 {
     UNUSED(accumulator);
 }

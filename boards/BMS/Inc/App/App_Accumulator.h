@@ -55,5 +55,5 @@ bool App_Accumulator_StartAdcConversions(const struct Accumulator *accumulator);
 bool App_Accumulator_ReadCellVoltages(const struct Accumulator *accumulator);
 
 void App_Accumulator_PeriodicCanTx100Hz(
-        const struct Accumulator *const accumulator,
-        struct BmsCanTxInterface *can_tx);
+    const struct Accumulator *const accumulator,
+    struct BmsCanTxInterface *      can_tx);

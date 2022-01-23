@@ -9,15 +9,6 @@
 
 struct InRangeCheck;
 
-struct InRangeCheckSetPeriodic
-{
-    float value;
-    float min;
-    float max;
-    void (*out_of_range_setter)(struct CAN_TX_INTERFACE *, uint8_t);
-    void (*can_signal_setter)(struct CAN_TX_INTERFACE *, float);
-};
-
 enum InRangeCheck_Status
 {
     VALUE_IN_RANGE,

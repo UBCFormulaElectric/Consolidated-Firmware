@@ -49,10 +49,6 @@ enum InRangeCheck_Status App_InRangeCheck_GetValue(
     {
         status = VALUE_OVERFLOW;
     }
-    else
-    {
-        status = VALUE_IN_RANGE;
-    }
 
     *returned_value = value;
 
