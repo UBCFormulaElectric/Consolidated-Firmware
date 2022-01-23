@@ -13,19 +13,11 @@ if("${PLATFORM}" STREQUAL "x86")
 elseif("${PLATFORM}" STREQUAL "arm")
     set(CMAKE_C_COMPILER_WORKS 1)
     set(TOOLCHAIN_PREFIX arm-none-eabi-)
-
-    find_program(ARM_GCC ${TOOLCHAIN_PREFIX}gcc)
-    set(CMAKE_C_COMPILER ${ARM_GCC})
-    set(CMAKE_ASM_COMPILER ${ARM_GCC})
-
-    find_program(ARM_OBJCOPY ${TOOLCHAIN_PREIFX}objcopy)
-    set(CMAKE_OBJCOPY ${ARM_OBJCOPY})
-
-    find_program(ARM_OBJDUMP ${TOOLCHAIN_PREFIX}objdump)
-    set(CMAKE_OBJDUMP ${ARM_OBJDUMP})
-
-    find_program(ARM_SIZE ${TOOLCHAIN_PREFIX}size)
-    set(SIZE ${ARM_SIZE})
+    set(CMAKE_C_COMPILER ${TOOLCHAIN_PREFIX}gcc)
+    set(CMAKE_ASM_COMPILER ${TOOLCHAIN_PREFIX}gcc)
+    set(CMAKE_OBJCOPY ${TOOLCHAIN_PREFIX}objcopy)
+    set(CMAKE_OBJDUMP ${TOOLCHAIN_PREFIX}objdump)
+    set(SIZE ${TOOLCHAIN_PREFIX}size)
 
     project(FORMULA_ELECTRIC_FIRMWARE C ASM)
 else()
