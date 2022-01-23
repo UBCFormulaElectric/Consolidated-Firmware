@@ -77,8 +77,8 @@ jobs:
       - name: Generate code
         env:
           DISPLAY: :99.0
+          PYTHONPATH: ${{ github.workspace }}
         run: |
-          export PYTHONPATH=$PYTHONPATH:$PWD
           python scripts/utilities/generate_cube_code.py \
             --board ${{ matrix.board }} \
             --log4j_properties_output ~/.stm32cubemx/log4j.properties \
@@ -228,10 +228,9 @@ jobs:
       - name: Build
         env:
           DISPLAY: :99.0
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           sudo /usr/sbin/update-ccache-symlinks
           export PATH="/usr/lib/ccache:$HOME/.local/bin:$PATH"
-          export PYTHONPATH=$PYTHONPATH:$PWD
-          echo $PYTHONPATH
           cmake -S boards -B $BUILD_DIR -DPLATFORM=arm
           make --directory=$BUILD_DIR -j2 ${{ matrix.board }}.elf
