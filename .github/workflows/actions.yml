@@ -1,0 +1,35 @@
+name: UBC Formula Electric CI
+on:
+  push:
+    branches:
+      - master
+      - faster-ci
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  format:
+    name: Check Formatting
+    runs-on: ubuntu-18.04
+    steps:
+      - uses: actions/checkout@v2
+      - run: |
+          git submodule update --init --recursive
+          git lfs pull
+
+      - name: Install pipenv
+        run: pip install pipenv==2022.1.8
+
+      - name: Install Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.6
+          cache: pipenv
+          cache-dependency-path: Pipfile.lock
+      
+      - name: Format code
+        run: python clang-format/fix_formatting.py
+
+      - name: Check for differences
+        run: git --no-pager diff --color
