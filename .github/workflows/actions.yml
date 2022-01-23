@@ -19,7 +19,7 @@ jobs:
           git lfs pull
 
       - name: Install pipenv
-        run: pip install pipenv==2022.1.8
+        run: pip install pipenv==2021.11.5
 
       - name: Install Python
         uses: actions/setup-python@v2
