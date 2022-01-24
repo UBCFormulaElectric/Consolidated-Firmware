@@ -218,19 +218,11 @@ jobs:
           URL: https://developer.arm.com/-/media/Files/downloads/gnu-rm/9-2019q4/RC2.1/gcc-arm-none-eabi-9-2019-q4-major-x86_64-linux.tar.bz2?revision=6e63531f-8cb1-40b9-bbfc-8a57cdfc01b4&la=en&hash=F761343D43A0587E8AC0925B723C04DBFB848339
         run: |
           TMPFILE=$(mktemp --tmpdir gcc-arm-none-eabi.XXXXXXXX.tar.bz2)
-          wget "$URL" -O "$TMPFILE"
+          wget -q "$URL" -O "$TMPFILE"
           mkdir -p $HOME/.local
-          tar -xvjf "$TMPFILE" -C $HOME/.local --strip 1
+          tar -xjf "$TMPFILE" -C $HOME/.local --strip 1
           rm $TMPFILE
         if: hashFiles('~/.local/bin/arm-none-eabi-gcc') == '' # Rudimentary check if install was cached
-
-      - name: Debugging
-        run: |
-          ls -la ~/.local/bin/
-          which arm-none-eabi-gcc
-          which arm-none-eabi-objcopy
-          which arm-none-eabi-objdump
-          which arm-none-eabi-size
 
       - name: Build
         env:
