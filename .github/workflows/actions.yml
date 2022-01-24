@@ -200,14 +200,16 @@ jobs:
         run: pipenv run sudo python scripts/environment_setup/install_cube.py /usr/local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip
 
       - name: Setup CCache
+        id: cache
         uses: actions/cache@v2
         with:
           path: |
             ${{ env.CCACHE_DIR }}
             ${{ github.workspace }}/.local/bin
-          key: ccache-${{ matrix.mode }}-${{ matrix.board }}-build
+          key: ccache-${{ matrix.board }}-build
 
       - name: Install ARM GCC
+        if: steps.cache.outputs.cache-hit != 'true'
         env:
           # Unfortunately, the download link is a literal URL which means it does not
           # pull the latest version automatically.
@@ -222,7 +224,6 @@ jobs:
           mkdir -p $HOME/.local
           tar -xjf "$TMPFILE" -C $HOME/.local --strip 1
           rm $TMPFILE
-        if: hashFiles('~/.local/bin/arm-none-eabi-gcc') == '' # Rudimentary check if install was cached
 
       - name: Build
         env:
