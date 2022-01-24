@@ -245,7 +245,7 @@ jobs:
           # For pull-request builds, we use ${{ github.event.pull_request.head.sha }}
           # to get the branch commit SHA
           GITHUB_ACTIONS_SHA: ${{ github.event.pull_request.head.sha }}
-        run: ./scripts/travis_ci/series_ci.sh ${{ matrix.board }} $BUILD_DIR/${{ matrix.board }}/${{ matrix.board }}.elf $GITHUB_ACTIONS_SHA $MAX_RAM_SIZE $MAX_FLASH_SIZE
+        run: ./scripts/ci/series_ci.sh ${{ matrix.board }} $BUILD_DIR/${{ matrix.board }}/${{ matrix.board }}.elf $GITHUB_ACTIONS_SHA $MAX_RAM_SIZE $MAX_FLASH_SIZE
       
       - name: Upload statistics to series CI
         if: github.event_name == 'push'
@@ -253,7 +253,7 @@ jobs:
           MAX_RAM_SIZE: 40960
           MAX_FLASH_SIZE: 262144
           GITHUB_ACTIONS_SHA: ${{ github.sha }}
-        run: ./scripts/travis_ci/series_ci.sh ${{ matrix.board }} $BUILD_DIR/${{ matrix.board }}/${{ matrix.board }}.elf $GITHUB_ACTIONS_SHA $MAX_RAM_SIZE $MAX_FLASH_SIZE
+        run: ./scripts/ci/series_ci.sh ${{ matrix.board }} $BUILD_DIR/${{ matrix.board }}/${{ matrix.board }}.elf $GITHUB_ACTIONS_SHA $MAX_RAM_SIZE $MAX_FLASH_SIZE
 
       - name: Check CCache statistics
         run: ccache -s
