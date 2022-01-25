@@ -245,7 +245,7 @@ int main(void)
         Io_OkStatuses_EnableBspdOk, Io_OkStatuses_DisableBspdOk,
         Io_OkStatuses_IsBspdOkEnabled);
 
-    Io_LTC6813_Init(&hspi2);
+    Io_LTC6813_InitSpiHandle(&hspi2);
     accumulator = App_Accumulator_Create(
         Io_LTC6813_ConfigureRegisterA, Io_LTC6813_StartADCConversion,
         Io_CellVoltages_GetAllRawCellVoltages,

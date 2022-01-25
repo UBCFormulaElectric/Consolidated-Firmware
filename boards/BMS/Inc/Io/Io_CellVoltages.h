@@ -3,7 +3,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 #include "App_SharedExitCode.h"
-#include "configs/App_SharedConstants.h"
+#include "App_Accumulator.h"
 
 /**
  * Read raw cell voltages from the cell monitoring chips.

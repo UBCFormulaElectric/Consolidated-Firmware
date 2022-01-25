@@ -51,6 +51,35 @@ enum InRangeCheck_Status App_InRangeCheck_GetValue(
     const struct InRangeCheck *in_range_check,
     float *                    returned_value);
 
+/**
+ *
+ * @param can_tx
+ * @param value
+ * @param min
+ * @param max
+ * @param out_of_range_setter
+ * @param can_signal_setter
+ * @return
+ */
+enum InRangeCheck_Status App_InRangeCheck_SetPeriodicCanSignal(
+    struct CAN_TX_INTERFACE *can_tx,
+    float                    value,
+    float                    min,
+    float                    max,
+    void (*out_of_range_setter)(struct CAN_TX_INTERFACE *, uint8_t),
+    void (*can_signal_setter)(struct CAN_TX_INTERFACE *, float));
+
+/**
+ *
+ * @param can_tx
+ * @param in_range_check
+ * @param can_signal_setter
+ * @param out_of_range_setter
+ * @param ok_choice
+ * @param underflow_choice
+ * @param overflow_choice
+ * @return
+ */
 enum InRangeCheck_Status App_SetPeriodicCanSignals_InRangeCheck(
     struct CAN_TX_INTERFACE *  can_tx,
     const struct InRangeCheck *in_range_check,
@@ -59,11 +88,3 @@ enum InRangeCheck_Status App_SetPeriodicCanSignals_InRangeCheck(
     uint8_t ok_choice,
     uint8_t underflow_choice,
     uint8_t overflow_choice);
-
-void App_InRangeCheck_SetPeriodicCanSignal(
-    float value,
-    float min,
-    float max,
-    void (*can_tx_setter)(struct CAN_TX_INTERFACE *, uint8_t),
-    void (*value_setter)(struct CAN_TX_INTERFACE *, float),
-    struct CAN_TX_INTERFACE *can_tx);

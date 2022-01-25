@@ -1,7 +1,7 @@
 #include "Io_SharedSpi.h"
 #include "Io_LTC6813.h"
 #include "Io_CellTemperatures.h"
-#include "configs/App_SharedConstants.h"
+#include "App_Accumulator.h"
 
 #define NUM_OF_THERMISTORS_PER_IC 8U
 #define NUM_OF_THERMISTORS_PER_REGISTER_GROUP 3U
@@ -52,9 +52,9 @@ static const float temperature_lut[SIZE_OF_TEMPERATURE_LUT] = {
     1381.1f,  1358.5f,  1336.4f,  1314.6f,  1293.3f,  1272.4f,  1251.8f
 };
 
-static uint16_t raw_thermistor_voltages[NUM_OF_ACC_SEGMENTS]
+static uint16_t raw_thermistor_voltages[NUM_OF_ACCUMULATOR_SEGMENTS]
                                        [NUM_OF_THERMISTORS_PER_IC];
-static uint32_t cell_temperatures[NUM_OF_ACC_SEGMENTS]
+static uint32_t cell_temperatures[NUM_OF_ACCUMULATOR_SEGMENTS]
                                  [NUM_OF_THERMISTORS_PER_IC];
 
 /**
@@ -131,7 +131,8 @@ static ExitCode Io_CellTemperatures_ReadRawThermistorVoltages(void)
 {
     uint16_t aux_register_group_cmd;
     uint8_t  tx_cmd[NUM_TX_CMD_BYTES];
-    uint8_t  rx_thermistor_resistances[NUM_REG_BYTES * NUM_OF_ACC_SEGMENTS];
+    uint8_t
+        rx_thermistor_resistances[NUM_REG_BYTES * NUM_OF_ACCUMULATOR_SEGMENTS];
 
     // The command used to start auxiliary (GPIO) measurements.
     const uint16_t ADAX = 0x460 + (MD << 7) + CHG;
@@ -158,13 +159,13 @@ static ExitCode Io_CellTemperatures_ReadRawThermistorVoltages(void)
         if (Io_SharedSpi_TransmitAndReceive(
                 ltc6813_spi, tx_cmd, NUM_TX_CMD_BYTES,
                 rx_thermistor_resistances,
-                NUM_REG_BYTES * NUM_OF_ACC_SEGMENTS) != HAL_OK)
+                NUM_REG_BYTES * NUM_OF_ACCUMULATOR_SEGMENTS) != HAL_OK)
         {
             return EXIT_CODE_ERROR;
         }
 
-        for (size_t current_chip = 0U; current_chip < NUM_OF_ACC_SEGMENTS;
-             current_chip++)
+        for (size_t current_chip = 0U;
+             current_chip < NUM_OF_ACCUMULATOR_SEGMENTS; current_chip++)
         {
             if (Io_CellTemperatures_ParseThermistorVoltagesAndPerformPec15Check(
                     current_chip, current_register_group,
@@ -182,7 +183,8 @@ ExitCode Io_CellTemperatures_ReadTemperatures(void)
 {
     RETURN_CODE_IF_EXIT_NOT_OK(Io_CellTemperatures_ReadRawThermistorVoltages());
 
-    for (size_t current_ic = 0U; current_ic < NUM_OF_ACC_SEGMENTS; current_ic++)
+    for (size_t current_ic = 0U; current_ic < NUM_OF_ACCUMULATOR_SEGMENTS;
+         current_ic++)
     {
         for (size_t cell_temp_index = 0U;
              cell_temp_index < NUM_OF_THERMISTORS_PER_IC; cell_temp_index++)
@@ -248,7 +250,7 @@ ExitCode Io_CellTemperatures_ReadTemperatures(void)
 uint32_t Io_CellTemperatures_GetMaxCellTemperature(void)
 {
     uint32_t max_cell_temp = cell_temperatures[0][0];
-    for (size_t current_chip = 0U; current_chip < NUM_OF_ACC_SEGMENTS;
+    for (size_t current_chip = 0U; current_chip < NUM_OF_ACCUMULATOR_SEGMENTS;
          current_chip++)
     {
         for (size_t current_cell = 0U; current_cell < NUM_OF_THERMISTORS_PER_IC;
@@ -269,7 +271,7 @@ uint32_t Io_CellTemperatures_GetMaxCellTemperature(void)
 uint32_t Io_CellTemperatures_GetMinCellTemperature(void)
 {
     uint32_t min_cell_temp = cell_temperatures[0][0];
-    for (size_t current_chip = 0U; current_chip < NUM_OF_ACC_SEGMENTS;
+    for (size_t current_chip = 0U; current_chip < NUM_OF_ACCUMULATOR_SEGMENTS;
          current_chip++)
     {
         for (size_t current_cell = 0U; current_cell < NUM_OF_THERMISTORS_PER_IC;
@@ -290,7 +292,7 @@ uint32_t Io_CellTemperatures_GetMinCellTemperature(void)
 float Io_CellTemperatures_GetAverageCellTemperature(void)
 {
     uint32_t sum_of_cell_temp = 0U;
-    for (size_t current_chip = 0U; current_chip < NUM_OF_ACC_SEGMENTS;
+    for (size_t current_chip = 0U; current_chip < NUM_OF_ACCUMULATOR_SEGMENTS;
          current_chip++)
     {
         for (size_t current_cell = 0U; current_cell < NUM_OF_THERMISTORS_PER_IC;
@@ -301,5 +303,5 @@ float Io_CellTemperatures_GetAverageCellTemperature(void)
     }
 
     return (float)sum_of_cell_temp /
-           (float)(NUM_OF_THERMISTORS_PER_IC * NUM_OF_ACC_SEGMENTS);
+           (float)(NUM_OF_THERMISTORS_PER_IC * NUM_OF_ACCUMULATOR_SEGMENTS);
 }

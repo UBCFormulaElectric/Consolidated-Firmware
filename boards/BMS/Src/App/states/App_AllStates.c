@@ -1,10 +1,6 @@
 #include "states/App_AllStates.h"
 #include "states/App_FaultState.h"
 #include "App_SetPeriodicCanSignals.h"
-#include "App_Accumulator.h"
-
-#define MIN_VOLTAGE 3.0f
-#define MAX_VOLTAGE 4.2f
 
 static void App_AllStatesCanTxPeriodic100Hz(struct BmsWorld *world)
 {
@@ -13,9 +9,11 @@ static void App_AllStatesCanTxPeriodic100Hz(struct BmsWorld *world)
     struct OkStatus *         bms_ok      = App_BmsWorld_GetBmsOkStatus(world);
     struct OkStatus *         imd_ok      = App_BmsWorld_GetImdOkStatus(world);
     struct OkStatus *         bspd_ok     = App_BmsWorld_GetBspdOkStatus(world);
-    struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
     struct Airs *             airs        = App_BmsWorld_GetAirs(world);
+    const struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
     struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
+
+    App_Accumulator_AllStates100Hz(accumulator, can_tx, error_table);
 
     App_SetPeriodicCanSignals_Imd(can_tx, imd);
 
@@ -28,9 +26,6 @@ static void App_AllStatesCanTxPeriodic100Hz(struct BmsWorld *world)
     App_CanTx_SetPeriodicSignal_IMD_OK(can_tx, App_OkStatus_IsEnabled(imd_ok));
     App_CanTx_SetPeriodicSignal_BSPD_OK(
         can_tx, App_OkStatus_IsEnabled(bspd_ok));
-
-    App_SetPeriodicSignals_AccumulatorInRangeChecks(
-        can_tx, accumulator, error_table);
 }
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -49,66 +44,19 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct BmsCanTxInterface *can_tx      = App_BmsWorld_GetCanTx(world);
     const struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
+    struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
 
-    // struct Imd *              imd         = App_BmsWorld_GetImd(world);
-    // struct OkStatus *         bms_ok      =
-    // App_BmsWorld_GetBmsOkStatus(world); struct OkStatus *         imd_ok =
-    // App_BmsWorld_GetImdOkStatus(world); struct OkStatus *         bspd_ok =
-    // App_BmsWorld_GetBspdOkStatus(world); struct Airs *             airs =
-    // App_BmsWorld_GetAirs(world); struct ErrorTable *       error_table =
-    // App_BmsWorld_GetErrorTable(world);
-
-    // App_SetPeriodicCanSignals_Imd(can_tx, imd);
-
-    // App_CanTx_SetPeriodicSignal_AIR_NEGATIVE(
-    //    can_tx,
-    //    App_SharedBinaryStatus_IsActive(App_Airs_GetAirNegative(airs)));
-    // App_CanTx_SetPeriodicSignal_AIR_POSITIVE(
-    //    can_tx,
-    //    App_SharedBinaryStatus_IsActive(App_Airs_GetAirPositive(airs)));
-
-    // if (App_OkStatus_IsEnabled(bms_ok))
-    //{
-    //    App_CanTx_SetPeriodicSignal_BMS_OK(can_tx, true);
-    //}
-    // else
-    //{
-    //    App_CanTx_SetPeriodicSignal_BMS_OK(can_tx, false);
-    //}
-
-    // if (App_OkStatus_IsEnabled(imd_ok))
-    //{
-    //    App_CanTx_SetPeriodicSignal_IMD_OK(can_tx, true);
-    //}
-    // else
-    //{
-    //    App_CanTx_SetPeriodicSignal_IMD_OK(can_tx, false);
-    //}
-
-    // if (App_OkStatus_IsEnabled(bspd_ok))
-    //{
-    //    App_CanTx_SetPeriodicSignal_BSPD_OK(can_tx, true);
-    //}
-    // else
-    //{
-    //    App_CanTx_SetPeriodicSignal_BSPD_OK(can_tx, false);
-    //}
-
-    // App_SetPeriodicSignals_AccumulatorInRangeChecks(
-    //    can_tx, accumulator, error_table);
-
+    // Read current accumulator cell voltages
     App_Accumulator_ReadCellVoltages(accumulator);
-    App_Accumulator_StartAdcConversions(accumulator);
+
+    // Update accumulator cell voltages
+    App_Accumulator_UpdateCellVoltages(accumulator);
 
     App_AllStatesCanTxPeriodic100Hz(world);
-    App_Accumulator_PeriodicCanTx100Hz(accumulator, can_tx);
 
-#ifdef NDEBUG
     if (App_SharedErrorTable_HasAnyCriticalErrorSet(error_table))
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
-#endif
 }

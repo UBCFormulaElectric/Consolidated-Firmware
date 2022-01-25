@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include <stm32f3xx_hal.h>
 #include "App_SharedExitCode.h"
 
@@ -45,6 +46,11 @@ enum Ltc6813RegGroupFormat
 #define NUM_TX_CMD_BYTES (NUM_OF_PEC15_BYTES + NUM_OF_CMD_BYTES)
 #define NUM_REG_BYTES (NUM_OF_PEC15_BYTES + NUM_OF_REGS_IN_GROUP)
 
+/**
+ * Pack command into two bytes
+ * @param dest An array used to store the packed command
+ * @param cmd  The command to pack
+ */
 static inline void
     Io_LTC6813_PackCmd(uint8_t dest[NUM_TX_CMD_BYTES], uint16_t cmd)
 {
@@ -53,14 +59,18 @@ static inline void
 }
 
 /**
- * Initialize all chips on the LTC6813 daisy chain.
+ * Initialize the SPI handle used to communicate with the LTC6813
  * @param spi_handle The given SPI handle for the LTC6813 daisy chain.
- * @param nss_port The given GPIO port of the NSS pin.
- * @param nss_pin The given GPIO NSS pin.
  */
-void Io_LTC6813_Init(SPI_HandleTypeDef *spi_handle);
+void Io_LTC6813_InitSpiHandle(SPI_HandleTypeDef *spi_handle);
 
-void Io_LTC6813_PackPec15(uint8_t *cfg_reg, uint8_t size);
+/**
+ * Pack PEC15 command into the tx_data buffer before transmission to the LTC6813
+ * chips
+ * @param tx_data The command or register group to pack PEC15 bytes
+ * @param size The size of the command or register group to transmit
+ */
+void Io_LTC6813_PackPec15(uint8_t *tx_data, uint8_t size);
 
 /**
  * Calculate the 15-bit packet error code (PEC15) for the given data buffer.
@@ -71,32 +81,33 @@ void Io_LTC6813_PackPec15(uint8_t *cfg_reg, uint8_t size);
  * of the data buffer.
  * @return The calculated PEC15 code for the given data buffer.
  */
-uint16_t Io_LTC6813_CalculatePec15(uint8_t *data_buffer, uint32_t size);
+uint16_t Io_LTC6813_CalculatePec15(uint8_t *data_buffer, uint8_t size);
 
 /**
  * Send a command to all LTC6813 chips on the daisy chain
- * @param tx_cmd The given command that is transmitted to the LTC6813 chips on
+ * @param cmd The command that is transmitted to the LTC6813 chips on
  * the daisy chain
- * @return EXIT_CODE_OK if the command was transmitted successfully. Else,
- * EXIT_CODE_ERROR
+ * @return True if the command was transmitted successfully. Else, false
  */
 bool Io_LTC6813_SendCommand(uint16_t cmd);
 
 /**
  * Wait for the completion of all ADC conversions for the LTC6813 chips on the
  * daisy chain.
- * @return EXIT_CODE_OK if all ADC conversions have completed successfully.
- * Else, EXIT_CODE_TIMEOUT.
+ * @return True if all ADC conversions have completed successfully. Else, false.
  */
 bool Io_LTC6813_PollAdcConversions(void);
 
 /**
- * Configure register A for all LTC6813 chips on the LTC6813 daisy chain with
- * the following properties: (1) [1.8, 2.2] discharge time, (2)
- * @return EXIT_CODE_OK if all chips on the daisy chain are configured
- * successfully. Else, EXIT_CODE_ERROR.
+ * Configure register A for all LTC6813 chips on the daisy chain
+ * @return True if all chips on the daisy chain are configured successfully.
+ * Else, false.
  */
 bool Io_LTC6813_ConfigureRegisterA(void);
 
-// Used to wake up the LTC6813, whcih is required by app code
+/**
+ * Start ADC conversion for all LTC6813 chips on the daisy chain
+ * @return True if all chips on the daisy have started ADC conversions. Else
+ * false.
+ */
 bool Io_LTC6813_StartADCConversion(void);

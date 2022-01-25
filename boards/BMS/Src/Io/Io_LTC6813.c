@@ -1,10 +1,9 @@
 #include <assert.h>
-#include <stdlib.h>
 #include <stdbool.h>
 #include "main.h"
 #include "Io_SharedSpi.h"
 #include "Io_LTC6813.h"
-#include "configs/App_SharedConstants.h"
+#include "App_Accumulator.h"
 
 // Time that a blocking SPI transaction should wait for until until an error is
 // returned
@@ -72,7 +71,7 @@ static const uint16_t crc[UINT8_MAX + 1] = {
     0x8BA7, 0x4E3E, 0x450C, 0x8095
 };
 
-void Io_LTC6813_Init(SPI_HandleTypeDef *spi_handle)
+void Io_LTC6813_InitSpiHandle(SPI_HandleTypeDef *spi_handle)
 {
     assert(spi_handle != NULL);
 
@@ -80,17 +79,18 @@ void Io_LTC6813_Init(SPI_HandleTypeDef *spi_handle)
         spi_handle, SPI2_NSS_GPIO_Port, SPI2_NSS_Pin, SPI_TIMEOUT_MS);
 }
 
-uint16_t Io_LTC6813_CalculatePec15(uint8_t *data_buffer, uint32_t size)
+uint16_t Io_LTC6813_CalculatePec15(uint8_t *data_buffer, uint8_t size)
 {
     // Initialize the value of the PEC15 remainder to 16
     uint16_t pec15_remainder = 16U;
-    uint16_t pec15_lut_index;
+    uint8_t  pec15_lut_index = 0U;
 
     // Refer to PEC15 calculation in the 'PEC Calculation' of the LTC6813
     // datasheet
     for (size_t i = 0U; i < size; i++)
     {
-        pec15_lut_index = ((pec15_remainder >> 7) ^ data_buffer[i]) & 0xFF;
+        pec15_lut_index =
+            ((uint8_t)(pec15_remainder >> 7) ^ data_buffer[i]) & 0xFF;
         pec15_remainder =
             (uint16_t)((pec15_remainder << 8) ^ crc[pec15_lut_index]);
     }
@@ -99,11 +99,11 @@ uint16_t Io_LTC6813_CalculatePec15(uint8_t *data_buffer, uint32_t size)
     return (uint16_t)(pec15_remainder << 1);
 }
 
-void Io_LTC6813_PackPec15(uint8_t *cfg_reg, uint8_t size)
+void Io_LTC6813_PackPec15(uint8_t *tx_data, uint8_t size)
 {
-    const uint16_t cfg_reg_a_pec15 = Io_LTC6813_CalculatePec15(cfg_reg, size);
-    cfg_reg[size + LTC6813_PEC15_BYTE_0] = (uint8_t)(cfg_reg_a_pec15 >> 8);
-    cfg_reg[size + LTC6813_PEC15_BYTE_1] = (uint8_t)cfg_reg_a_pec15;
+    const uint16_t cfg_reg_a_pec15 = Io_LTC6813_CalculatePec15(tx_data, size);
+    tx_data[size + LTC6813_PEC15_BYTE_0] = (uint8_t)(cfg_reg_a_pec15 >> 8);
+    tx_data[size + LTC6813_PEC15_BYTE_1] = (uint8_t)cfg_reg_a_pec15;
 }
 
 bool Io_LTC6813_SendCommand(uint16_t cmd)
@@ -127,7 +127,7 @@ bool Io_LTC6813_PollAdcConversions(void)
     uint8_t rx_data      = ADC_CONV_INCOMPLETE;
 
     // Get the status of ADC conversions
-    uint8_t tx_cmd[NUM_TX_CMD_BYTES] = { 0 };
+    uint8_t tx_cmd[NUM_TX_CMD_BYTES] = { 0U };
     Io_LTC6813_PackCmd(tx_cmd, PLADC);
     Io_LTC6813_PackPec15(tx_cmd, NUM_OF_CMD_BYTES);
 
@@ -171,7 +171,7 @@ bool Io_LTC6813_ConfigureRegisterA(void)
             ltc6813_spi, tx_cmd, NUM_TX_CMD_BYTES))
     {
         status = Io_SharedSpi_MultipleTransmitWithoutNssToggle(
-            ltc6813_spi, tx_cfg, NUM_REG_BYTES, NUM_OF_ACC_SEGMENTS);
+            ltc6813_spi, tx_cfg, NUM_REG_BYTES, NUM_OF_ACCUMULATOR_SEGMENTS);
     }
 
     Io_SharedSpi_SetNssHigh(ltc6813_spi);

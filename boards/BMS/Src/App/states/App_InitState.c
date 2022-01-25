@@ -2,9 +2,6 @@
 #include "states/App_InitState.h"
 #include "states/App_AirOpenState.h"
 #include "states/App_DriveState.h"
-#include "App_SharedMacros.h"
-
-#include "App_SetPeriodicCanSignals.h"
 
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -16,13 +13,7 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     App_SharedClock_SetPreviousTimeInMilliseconds(
         clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
 
-    // Send start ADC conversion commands to wake up the LTC6813 chip and
-    // configure configuration register A
-    App_Accumulator_StartAdcConversions(accumulator);
-    App_Accumulator_ConfigureCellMonitors(accumulator);
-
-    // Start ADC conversions
-    App_Accumulator_StartAdcConversions(accumulator);
+    App_Accumulator_InitRunOnEntry(accumulator);
 
     App_CanTx_SetPeriodicSignal_STATE(
         can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE);

@@ -1,12 +1,12 @@
 #include <stdint.h>
+#include "Io_LTC6813.h"
 #include "Io_DieTemperatures.h"
 #include "Io_SharedSpi.h"
-#include "Io_LTC6813.h"
-#include "configs/App_SharedConstants.h"
+#include "App_Accumulator.h"
 
 extern struct SharedSpi *ltc6813_spi;
 
-static float internal_die_temp[NUM_OF_ACC_SEGMENTS];
+static float internal_die_temp[NUM_OF_ACCUMULATOR_SEGMENTS];
 
 ExitCode Io_DieTemperatures_ReadTemp(void)
 {
@@ -17,7 +17,7 @@ ExitCode Io_DieTemperatures_ReadTemp(void)
     RETURN_CODE_IF_EXIT_NOT_OK(Io_LTC6813_SendCommand(ADSTAT));
     RETURN_CODE_IF_EXIT_NOT_OK(Io_LTC6813_PollAdcConversions());
 
-    uint8_t rx_internal_die_temp[NUM_REG_BYTES * NUM_OF_ACC_SEGMENTS];
+    uint8_t rx_internal_die_temp[NUM_REG_BYTES * NUM_OF_ACCUMULATOR_SEGMENTS];
 
     // The command used to read data from status register A.
     const uint16_t RDSTATA = 0x0010;
@@ -29,12 +29,12 @@ ExitCode Io_DieTemperatures_ReadTemp(void)
     tx_cmd[2] = (uint8_t)(tx_cmd_pec15 >> 8);
     tx_cmd[3] = (uint8_t)(tx_cmd_pec15);
 
-    for (size_t current_chip = 0U; current_chip < NUM_OF_ACC_SEGMENTS;
+    for (size_t current_chip = 0U; current_chip < NUM_OF_ACCUMULATOR_SEGMENTS;
          current_chip++)
     {
         if (!Io_SharedSpi_TransmitAndReceive(
                 ltc6813_spi, tx_cmd, NUM_TX_CMD_BYTES, rx_internal_die_temp,
-                NUM_OF_ACC_SEGMENTS * NUM_REG_BYTES))
+                NUM_OF_ACCUMULATOR_SEGMENTS * NUM_REG_BYTES))
         {
             return EXIT_CODE_ERROR;
         }
@@ -107,7 +107,7 @@ float Io_DieTemperatures_GetSegment5DieTemp(void)
 float Io_DieTemperatures_GetMaxDieTemp(void)
 {
     float max_die_temp = internal_die_temp[0];
-    for (size_t current_chip = 1U; current_chip < NUM_OF_ACC_SEGMENTS;
+    for (size_t current_chip = 1U; current_chip < NUM_OF_ACCUMULATOR_SEGMENTS;
          current_chip++)
     {
         float current_die_temp = internal_die_temp[current_chip];
