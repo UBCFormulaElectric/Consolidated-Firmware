@@ -45,7 +45,6 @@ sudo apt-get install openocd
   * STM32CubeMX: https://www.st.com/en/development-tools/stm32cubemx.html
   * MinGW: https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/installer/mingw-w64-install.exe/download (**select 32-bit verison/i686 architecture**)
   * Java: https://www.oracle.com/ca-en/java/technologies/javase/jdk11-archive-downloads.html
-**Note: Install the lattest version of Java**
 ##### Mac OS
 First, install Homebrew and CLion. Then install the following programs using Homebrew:
 ```
