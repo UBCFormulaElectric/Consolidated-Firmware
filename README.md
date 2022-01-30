@@ -44,8 +44,8 @@ sudo apt-get install openocd
   * ARM GNU Embedded Toolchain: https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads (Check `install_gcc_arm_none_eabi.sh` for which version to download)
   * STM32CubeMX: https://www.st.com/en/development-tools/stm32cubemx.html
   * MinGW: https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/installer/mingw-w64-install.exe/download (**select 32-bit verison/i686 architecture**)
-  * Java: https://www.java.com/download/ie_manual.jsp
-
+  * Java: https://www.oracle.com/ca-en/java/technologies/javase/jdk11-archive-downloads.html
+**Note: Install the lattest version of Java**
 ##### Mac OS
 First, install Homebrew and CLion. Then install the following programs using Homebrew:
 ```
@@ -101,8 +101,8 @@ These paths should include wherever the `cmake`, `make`, `arm-none-eabi-gcc`, an
 Create a new enviroment variable under your user variables named `PYTHONPATH`. Set the value of the variable to path for the root directory of your fork:
 ```
 C:\path\to\Consolidated-Firmware-Username;
-(Add a semmicolon at the end of the directory)
 ```
+**Note: Add a semmicolon at the end of the directory**
 
 ### Python Package Dependencies
 We use python both for CI (see below), and to generate C code from the `.dbc` defining messages passed over CAN. Python dependencies are managed via [pipenv](https://pipenv.readthedocs.io/en/latest/). To install all required dependencies in a [python virtual environment](https://realpython.com/python-virtual-environments-a-primer/), navigate to the root of this repository and run `pipenv install`.
