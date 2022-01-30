@@ -101,6 +101,7 @@ These paths should include wherever the `cmake`, `make`, `arm-none-eabi-gcc`, an
 Create a new enviroment variable under your user variables named `PYTHONPATH`. Set the value of the variable to path for the root directory of your fork:
 ```
 C:\path\to\Consolidated-Firmware-Username;
+(Add a semmicolon at the end of the directory)
 ```
 
 ### Python Package Dependencies
