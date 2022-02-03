@@ -132,11 +132,8 @@ static ExitCode Io_CellTemperatures_ReadRawThermistorVoltages(void)
     uint8_t rx_therm_resistances[NUM_REG_BYTES * NUM_OF_ACCUMULATOR_SEGMENTS];
 
     // The command used to start auxiliary (GPIO) measurements.
-    const uint16_t ADAX = 0x460 + (MD << 7) + CHG;
 
-    Io_LTC6813_StartADCConversion();
-    Io_LTC6813_SendCommand(ADAX);
-    Io_LTC6813_PollAdcConversions();
+    //Io_LTC6813_EnterReadyState();
 
     for (enum AuxiliaryRegisterGroup curr_reg_group = 0U;
          curr_reg_group < NUM_OF_AUX_REGISTER_GROUPS; curr_reg_group++)

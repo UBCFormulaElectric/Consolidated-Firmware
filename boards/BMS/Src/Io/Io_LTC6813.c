@@ -7,7 +7,7 @@
 
 // Time that a blocking SPI transaction should wait for until until an error is
 // returned
-#define SPI_TIMEOUT_MS (2U)
+#define SPI_TIMEOUT_MS (10U)
 
 // Command used to start ADC conversions
 #define ADCV ((0x260 + (MD << 7) + (DCP << 4) + CH))
@@ -177,4 +177,16 @@ bool Io_LTC6813_ConfigureRegisterA(void)
     Io_SharedSpi_SetNssHigh(ltc6813_spi);
 
     return status;
+}
+
+void Io_LTC6813_EnterReadyState(void)
+{
+    uint8_t rx_data;
+
+    // Generate isoSPI traffic to wake up the daisy chain by sending a command
+    // to read a single byte NUM_OF_LTC6813 times.
+    for (size_t i = 0U; i < NUM_OF_ACCUMULATOR_SEGMENTS; i++)
+    {
+        Io_SharedSpi_Receive(ltc6813_spi, &rx_data, 1U);
+    }
 }

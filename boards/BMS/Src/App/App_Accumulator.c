@@ -67,14 +67,19 @@ bool App_Accumulator_StartCellVoltageConversion(
     return accumulator->start_voltage_conv();
 }
 
+#include "Io_LTC6813.h"
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *const accumulator)
 {
     // Send random command to wake up accumulator monitoring device
-    if (accumulator->start_voltage_conv())
-    {
-        // After the device is awake, configure monitor
-        accumulator->config_accumulator_monitors();
-    }
+    //if (accumulator->start_voltage_conv())
+    //{
+    //    // After the device is awake, configure monitor
+    //accumulator->config_accumulator_monitors();
+    //}
+    // Start voltage conversions for the accumulator monitor
+    //accumulator->start_voltage_conv();
+
+    //Io_LTC6813_EnterReadyState();
 
     // Start voltage conversions for the accumulator monitor
     accumulator->start_voltage_conv();

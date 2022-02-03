@@ -111,3 +111,5 @@ bool Io_LTC6813_ConfigureRegisterA(void);
  * false.
  */
 bool Io_LTC6813_StartADCConversion(void);
+
+void Io_LTC6813_EnterReadyState(void);
