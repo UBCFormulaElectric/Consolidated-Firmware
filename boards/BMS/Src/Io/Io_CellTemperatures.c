@@ -3,9 +3,9 @@
 #include "Io_CellTemperatures.h"
 #include "App_Accumulator.h"
 
-#define NUM_OF_THERMISTORS_PER_IC 8U
-#define NUM_OF_THERMISTORS_PER_REGISTER_GROUP 3U
-#define SIZE_OF_TEMPERATURE_LUT 201
+#define NUM_OF_THERMISTORS_PER_IC (8U)
+#define NUM_OF_THERMISTORS_PER_REGISTER_GROUP (3U)
+#define SIZE_OF_TEMPERATURE_LUT (201U)
 
 extern struct SharedSpi *ltc6813_spi;
 
@@ -52,27 +52,28 @@ static const float temperature_lut[SIZE_OF_TEMPERATURE_LUT] = {
     1381.1f,  1358.5f,  1336.4f,  1314.6f,  1293.3f,  1272.4f,  1251.8f
 };
 
-static uint16_t raw_thermistor_voltages[NUM_OF_ACCUMULATOR_SEGMENTS]
-                                       [NUM_OF_THERMISTORS_PER_IC];
+extern uint16_t raw_therm_v[NUM_OF_ACCUMULATOR_SEGMENTS][NUM_OF_THERMISTORS_PER_IC];
+uint16_t raw_therm_v[NUM_OF_ACCUMULATOR_SEGMENTS]
+                           [NUM_OF_THERMISTORS_PER_IC];
 static uint32_t cell_temperatures[NUM_OF_ACCUMULATOR_SEGMENTS]
                                  [NUM_OF_THERMISTORS_PER_IC];
 
 /**
  * Parse the raw thermistor voltages measured from the cell monitoring chip and
  * perform PEC15 check
- * @param current_chip The current cell monitoring chip to parse thermistor
+ * @param curr_chip The current cell monitoring chip to parse thermistor
  * voltages for
- * @param current_register_group The current register group on the given chip to
+ * @param curr_reg_group The current register group on the given chip to
  * parse thermistor voltages for
  * @param rx_raw_thermistor_voltage The buffer containing the raw thermistor
  * voltages read from the thermistors
  * @return EXIT_CODE_OK if the PEC15 check was successful. Else,
  * EXIT_CODE_ERROR
  */
-static ExitCode Io_CellTemperatures_ParseThermistorVoltagesAndPerformPec15Check(
-    size_t   current_chip,
-    size_t   current_register_group,
-    uint8_t *rx_raw_thermistor_voltages);
+static bool Io_CellTemperatures_ParseThermistorVoltages(
+    size_t   curr_chip,
+    size_t   curr_reg_group,
+    uint8_t *recv_raw_therm_v);
 
 /**
  * Read raw thermistor voltages from the cell monitoring chips
@@ -81,85 +82,78 @@ static ExitCode Io_CellTemperatures_ParseThermistorVoltagesAndPerformPec15Check(
  */
 static ExitCode Io_CellTemperatures_ReadRawThermistorVoltages(void);
 
-static ExitCode Io_CellTemperatures_ParseThermistorVoltagesAndPerformPec15Check(
-    size_t   current_chip,
-    size_t   current_register_group,
-    uint8_t *rx_raw_thermistor_voltages)
+static bool Io_CellTemperatures_ParseThermistorVoltages(
+    size_t   curr_chip,
+    size_t   curr_reg_group,
+    uint8_t *recv_raw_therm_v)
 {
-    size_t raw_thermistor_voltages_index = current_chip * NUM_REG_BYTES;
+    size_t raw_therm_v_index = curr_chip * NUM_REG_BYTES;
 
     for (size_t current_cell = 0U;
          current_cell < NUM_OF_THERMISTORS_PER_REGISTER_GROUP; current_cell++)
     {
-        const uint16_t raw_thermistor_voltage = (uint16_t)(
-            (rx_raw_thermistor_voltages[raw_thermistor_voltages_index]) |
-            ((rx_raw_thermistor_voltages[raw_thermistor_voltages_index + 1]
-              << 8)));
+        const uint16_t raw_therm_voltage = (uint16_t)(
+            (recv_raw_therm_v[raw_therm_v_index]) |
+            ((recv_raw_therm_v[raw_therm_v_index + 1] << 8)));
 
         size_t curr_column =
             current_cell +
-            current_register_group * NUM_OF_THERMISTORS_PER_REGISTER_GROUP;
-        if (current_register_group == AUX_REGISTER_GROUP_C)
+            curr_reg_group * NUM_OF_THERMISTORS_PER_REGISTER_GROUP;
+        if (curr_reg_group == AUX_REGISTER_GROUP_C)
         {
             // Subtract curr_column to ignore the reference voltage read back
             // from aux register group B.
             curr_column--;
         }
-        raw_thermistor_voltages[current_chip][curr_column] =
-            (uint16_t)raw_thermistor_voltage;
+        raw_therm_v[curr_chip][curr_column] = (uint16_t)raw_therm_voltage;
 
         // Each aux measurement is represented by 2 bytes. Therefore,
         // the raw thermistor voltage index is incremented by 2 to retrieve the
         // next thermistor voltage.
-        raw_thermistor_voltages_index += 2U;
+        raw_therm_v_index += 2U;
     }
 
     const uint16_t received_pec15 = (uint16_t)(
-        (rx_raw_thermistor_voltages[raw_thermistor_voltages_index] << 8) |
-        (rx_raw_thermistor_voltages[raw_thermistor_voltages_index + 1]));
+        (recv_raw_therm_v[raw_therm_v_index] << 8) |
+        (recv_raw_therm_v[raw_therm_v_index + 1]));
 
     // Calculate the PEC15 using the first 6 bytes of data received from the
     // chip.
     const uint16_t calculated_pec15 = Io_LTC6813_CalculatePec15(
-        &rx_raw_thermistor_voltages[current_chip * NUM_REG_BYTES], 6U);
+        &recv_raw_therm_v[curr_chip * NUM_REG_BYTES], NUM_OF_REGS_IN_GROUP);
 
-    return (received_pec15 == calculated_pec15) ? EXIT_CODE_OK
-                                                : EXIT_CODE_ERROR;
+    return (received_pec15 == calculated_pec15);
 }
 
 static ExitCode Io_CellTemperatures_ReadRawThermistorVoltages(void)
 {
     uint16_t aux_register_group_cmd;
     uint8_t  tx_cmd[NUM_TX_CMD_BYTES];
-    uint8_t
-        rx_thermistor_resistances[NUM_REG_BYTES * NUM_OF_ACCUMULATOR_SEGMENTS];
+    uint8_t rx_therm_resistances[NUM_REG_BYTES * NUM_OF_ACCUMULATOR_SEGMENTS];
 
     // The command used to start auxiliary (GPIO) measurements.
     const uint16_t ADAX = 0x460 + (MD << 7) + CHG;
 
-    // RETURN_CODE_IF_EXIT_NOT_OK(Io_LTC6813_EnterReadyState());
-    RETURN_CODE_IF_EXIT_NOT_OK(Io_LTC6813_SendCommand(ADAX));
-    RETURN_CODE_IF_EXIT_NOT_OK(Io_LTC6813_PollAdcConversions());
+    Io_LTC6813_StartADCConversion();
+    Io_LTC6813_SendCommand(ADAX);
+    Io_LTC6813_PollAdcConversions();
 
-    for (size_t current_register_group = 0U;
-         current_register_group < NUM_OF_AUX_REGISTER_GROUPS;
-         current_register_group++)
+    for (enum AuxiliaryRegisterGroup curr_reg_group = 0U;
+         curr_reg_group < NUM_OF_AUX_REGISTER_GROUPS; curr_reg_group++)
     {
-        aux_register_group_cmd =
-            aux_register_group_commands[current_register_group];
+        aux_register_group_cmd = aux_register_group_commands[curr_reg_group];
 
         tx_cmd[0] = (uint8_t)(aux_register_group_cmd >> 8);
         tx_cmd[1] = (uint8_t)(aux_register_group_cmd);
 
         uint16_t tx_cmd_pec15 =
-            Io_LTC6813_CalculatePec15(tx_cmd, NUM_OF_PEC15_BYTES);
+            Io_LTC6813_CalculatePec15(tx_cmd, NUM_OF_CMD_BYTES);
         tx_cmd[2] = (uint8_t)(tx_cmd_pec15 >> 8);
         tx_cmd[3] = (uint8_t)(tx_cmd_pec15);
 
-        if (Io_SharedSpi_TransmitAndReceive(
-                ltc6813_spi, tx_cmd, NUM_TX_CMD_BYTES,
-                rx_thermistor_resistances,
-                NUM_REG_BYTES * NUM_OF_ACCUMULATOR_SEGMENTS) != HAL_OK)
+        if (!Io_SharedSpi_TransmitAndReceive(
+                ltc6813_spi, tx_cmd, NUM_TX_CMD_BYTES, rx_therm_resistances,
+                NUM_REG_BYTES * NUM_OF_ACCUMULATOR_SEGMENTS))
         {
             return EXIT_CODE_ERROR;
         }
@@ -167,9 +161,8 @@ static ExitCode Io_CellTemperatures_ReadRawThermistorVoltages(void)
         for (size_t current_chip = 0U;
              current_chip < NUM_OF_ACCUMULATOR_SEGMENTS; current_chip++)
         {
-            if (Io_CellTemperatures_ParseThermistorVoltagesAndPerformPec15Check(
-                    current_chip, current_register_group,
-                    rx_thermistor_resistances) != EXIT_CODE_OK)
+            if (!Io_CellTemperatures_ParseThermistorVoltages(
+                    current_chip, curr_reg_group, rx_therm_resistances))
             {
                 return EXIT_CODE_ERROR;
             }
@@ -181,7 +174,7 @@ static ExitCode Io_CellTemperatures_ReadRawThermistorVoltages(void)
 
 ExitCode Io_CellTemperatures_ReadTemperatures(void)
 {
-    RETURN_CODE_IF_EXIT_NOT_OK(Io_CellTemperatures_ReadRawThermistorVoltages());
+    Io_CellTemperatures_ReadRawThermistorVoltages();
 
     for (size_t current_ic = 0U; current_ic < NUM_OF_ACCUMULATOR_SEGMENTS;
          current_ic++)
@@ -206,16 +199,14 @@ ExitCode Io_CellTemperatures_ReadTemperatures(void)
             const float BIAS_RESISTOR_OHM = 10000.0f;
             const float REFERENCE_VOLTAGE = 3.0f;
             const float gpio_voltage =
-                (float)raw_thermistor_voltages[current_ic][cell_temp_index] /
-                10000.0f;
-            const float thermistor_resistance =
-                (gpio_voltage * BIAS_RESISTOR_OHM) /
-                (REFERENCE_VOLTAGE - gpio_voltage);
+                (float)raw_therm_v[current_ic][cell_temp_index] / 10000.0f;
+            const float therm_resistance = (gpio_voltage * BIAS_RESISTOR_OHM) /
+                                           (REFERENCE_VOLTAGE - gpio_voltage);
 
             // Check that the thermistor resistance calculated is within
             // [1251.8, 32624.2] ohms.
-            if ((thermistor_resistance > temperature_lut[0]) ||
-                (thermistor_resistance <
+            if ((therm_resistance > temperature_lut[0]) ||
+                (therm_resistance <
                  temperature_lut[SIZE_OF_TEMPERATURE_LUT - 1]))
             {
                 return EXIT_CODE_OUT_OF_RANGE;
@@ -223,10 +214,10 @@ ExitCode Io_CellTemperatures_ReadTemperatures(void)
 
             // Find the index corresponding to the calculated thermistor
             // resistance.
-            size_t thermistor_lut_index;
-            for (thermistor_lut_index = 0U;
-                 thermistor_resistance < temperature_lut[thermistor_lut_index];
-                 thermistor_lut_index++)
+            size_t therm_lut_index;
+            for (therm_lut_index = 0U;
+                 therm_resistance < temperature_lut[therm_lut_index];
+                 therm_lut_index++)
                 ;
 
             // Divide the index of the thermistor lookup table by 2 as the
@@ -240,68 +231,71 @@ ExitCode Io_CellTemperatures_ReadTemperatures(void)
             //
 
             cell_temperatures[current_ic][cell_temp_index] =
-                thermistor_lut_index * 5U;
+                therm_lut_index * 5U;
         }
     }
 
     return EXIT_CODE_OK;
 }
 
-uint32_t Io_CellTemperatures_GetMaxCellTemperature(void)
-{
-    uint32_t max_cell_temp = cell_temperatures[0][0];
-    for (size_t current_chip = 0U; current_chip < NUM_OF_ACCUMULATOR_SEGMENTS;
-         current_chip++)
-    {
-        for (size_t current_cell = 0U; current_cell < NUM_OF_THERMISTORS_PER_IC;
-             current_cell++)
-        {
-            uint32_t current_cell_temp =
-                cell_temperatures[current_chip][current_cell];
-            if (max_cell_temp < current_cell_temp)
-            {
-                max_cell_temp = current_cell_temp;
-            }
-        }
-    }
+// uint32_t Io_CellTemperatures_GetMaxCellTemperature(void)
+//{
+//    uint32_t max_cell_temp = cell_temperatures[0][0];
+//    for (size_t current_chip = 0U; current_chip < NUM_OF_ACCUMULATOR_SEGMENTS;
+//         current_chip++)
+//    {
+//        for (size_t current_cell = 0U; current_cell <
+//        NUM_OF_THERMISTORS_PER_IC;
+//             current_cell++)
+//        {
+//            uint32_t current_cell_temp =
+//                cell_temperatures[current_chip][current_cell];
+//            if (max_cell_temp < current_cell_temp)
+//            {
+//                max_cell_temp = current_cell_temp;
+//            }
+//        }
+//    }
+//
+//    return max_cell_temp;
+//}
 
-    return max_cell_temp;
-}
-
-uint32_t Io_CellTemperatures_GetMinCellTemperature(void)
-{
-    uint32_t min_cell_temp = cell_temperatures[0][0];
-    for (size_t current_chip = 0U; current_chip < NUM_OF_ACCUMULATOR_SEGMENTS;
-         current_chip++)
-    {
-        for (size_t current_cell = 0U; current_cell < NUM_OF_THERMISTORS_PER_IC;
-             current_cell++)
-        {
-            uint32_t current_cell_temp =
-                cell_temperatures[current_chip][current_cell];
-            if (min_cell_temp > current_cell_temp)
-            {
-                min_cell_temp = current_cell_temp;
-            }
-        }
-    }
-
-    return min_cell_temp;
-}
-
-float Io_CellTemperatures_GetAverageCellTemperature(void)
-{
-    uint32_t sum_of_cell_temp = 0U;
-    for (size_t current_chip = 0U; current_chip < NUM_OF_ACCUMULATOR_SEGMENTS;
-         current_chip++)
-    {
-        for (size_t current_cell = 0U; current_cell < NUM_OF_THERMISTORS_PER_IC;
-             current_cell++)
-        {
-            sum_of_cell_temp += cell_temperatures[current_chip][current_cell];
-        }
-    }
-
-    return (float)sum_of_cell_temp /
-           (float)(NUM_OF_THERMISTORS_PER_IC * NUM_OF_ACCUMULATOR_SEGMENTS);
-}
+// uint32_t Io_CellTemperatures_GetMinCellTemperature(void)
+//{
+//    uint32_t min_cell_temp = cell_temperatures[0][0];
+//    for (size_t current_chip = 0U; current_chip < NUM_OF_ACCUMULATOR_SEGMENTS;
+//         current_chip++)
+//    {
+//        for (size_t current_cell = 0U; current_cell <
+//        NUM_OF_THERMISTORS_PER_IC;
+//             current_cell++)
+//        {
+//            uint32_t current_cell_temp =
+//                cell_temperatures[current_chip][current_cell];
+//            if (min_cell_temp > current_cell_temp)
+//            {
+//                min_cell_temp = current_cell_temp;
+//            }
+//        }
+//    }
+//
+//    return min_cell_temp;
+//}
+//
+// float Io_CellTemperatures_GetAverageCellTemperature(void)
+//{
+//    uint32_t sum_of_cell_temp = 0U;
+//    for (size_t current_chip = 0U; current_chip < NUM_OF_ACCUMULATOR_SEGMENTS;
+//         current_chip++)
+//    {
+//        for (size_t current_cell = 0U; current_cell <
+//        NUM_OF_THERMISTORS_PER_IC;
+//             current_cell++)
+//        {
+//            sum_of_cell_temp += cell_temperatures[current_chip][current_cell];
+//        }
+//    }
+//
+//    return (float)sum_of_cell_temp /
+//           (float)(NUM_OF_THERMISTORS_PER_IC * NUM_OF_ACCUMULATOR_SEGMENTS);
+//}

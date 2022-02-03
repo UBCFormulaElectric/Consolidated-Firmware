@@ -9,8 +9,8 @@
 struct Accumulator
 {
     bool (*config_accumulator_monitors)(void);
-    bool (*read_cell_voltages)(void);
     bool (*start_voltage_conv)(void);
+    bool (*read_cell_voltages)(void);
     void (*get_min_cell_location)(uint8_t *, uint8_t *);
     void (*get_max_cell_location)(uint8_t *, uint8_t *);
     float (*get_min_cell_voltage)(void);
@@ -61,7 +61,7 @@ bool App_Accumulator_ReadCellVoltages(
     return accumulator->read_cell_voltages();
 }
 
-bool App_Accumulator_UpdateCellVoltages(
+bool App_Accumulator_StartCellVoltageConversion(
     const struct Accumulator *const accumulator)
 {
     return accumulator->start_voltage_conv();
@@ -79,6 +79,9 @@ void App_Accumulator_InitRunOnEntry(const struct Accumulator *const accumulator)
     // Start voltage conversions for the accumulator monitor
     accumulator->start_voltage_conv();
 }
+
+#include "Io_CellTemperatures.h"
+extern uint16_t raw_therm_v[NUM_OF_ACCUMULATOR_SEGMENTS][8];
 
 void App_Accumulator_AllStates100Hz(
     const struct Accumulator *const accumulator,
@@ -109,9 +112,11 @@ void App_Accumulator_AllStates100Hz(
 
     // Send the segment voltages (V) over CAN
     App_CanTx_SetPeriodicSignal_SEGMENT_0_VOLTAGE(
-        can_tx, accumulator->get_segment_voltage(ACCUMULATOR_SEGMENT_0));
-    //App_CanTx_SetPeriodicSignal_SEGMENT_1_VOLTAGE(
+        can_tx, raw_therm_v[0][0]);
+    // App_CanTx_SetPeriodicSignal_SEGMENT_1_VOLTAGE(
     //    can_tx, accumulator->get_segment_voltage(ACCUMULATOR_SEGMENT_1));
+    // App_CanTx_SetPeriodicSignal_SEGMENT_2_VOLTAGE(
+    //    can_tx, accumulator->get_segment_voltage(ACCUMULATOR_SEGMENT_2));
 
     // Send the pack voltage (V) over CAN
     App_CanTx_SetPeriodicSignal_PACK_VOLTAGE(

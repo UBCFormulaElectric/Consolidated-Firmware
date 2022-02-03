@@ -15,7 +15,8 @@
 // Conversion factor used to convert raw voltages (100µV) to voltages (V)
 #define V_PER_100UV (1E-4f)
 
-#define RESET_ACC_VOLTAGE(x)                                                   \
+// A macro used to reset accumulator voltages to their defualt settings
+#define RESET_ACCUMULATOR_VOLTAGE(x)                                           \
     (struct AccumulatorVoltages)                                               \
     {                                                                          \
         .pack_v = 0U, .segment_v = { 0U },                                     \
@@ -39,9 +40,9 @@ enum CellVoltageRegGroup
 
 struct CellVoltages
 {
-    uint8_t segment;
-    uint8_t cell;
-    float   voltage;
+    uint8_t  segment;
+    uint8_t  cell;
+    uint16_t voltage;
 };
 
 struct AccumulatorVoltages
@@ -134,7 +135,7 @@ static bool Io_CellVoltages_ParseSegmentRawVoltage(
 static void Io_CellVoltages_CalculateVoltages(void)
 {
     // Reset acc_voltages
-    acc_voltages = RESET_ACC_VOLTAGE();
+    acc_voltages = RESET_ACCUMULATOR_VOLTAGE();
 
     // Loop through each segment and cell to get: min and max voltages, segment
     // voltage, pack voltage

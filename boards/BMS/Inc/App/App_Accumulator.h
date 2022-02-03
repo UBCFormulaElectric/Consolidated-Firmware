@@ -8,7 +8,6 @@
 enum AccumulatorSegments
 {
     ACCUMULATOR_SEGMENT_0 = 0U,
-    // ACCUMULATOR_SEGMENT_1,
     NUM_OF_ACCUMULATOR_SEGMENTS,
 };
 
@@ -50,7 +49,8 @@ void App_Accumulator_Destroy(struct Accumulator *accumulator);
  * @param accumulator The accumulator to start voltage conversions for.
  * @return True if voltages have been successfully converted. Else, false.
  */
-bool App_Accumulator_UpdateCellVoltages(const struct Accumulator *accumulator);
+bool App_Accumulator_StartCellVoltageConversion(
+    const struct Accumulator *const accumulator);
 
 /**
  * Read cell voltages for the given accumulator.
@@ -64,6 +64,7 @@ bool App_Accumulator_ReadCellVoltages(const struct Accumulator *accumulator);
  * Accumulator rate functions
  */
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *accumulator);
+
 void App_Accumulator_AllStates100Hz(
     const struct Accumulator *const accumulator,
     struct BmsCanTxInterface *      can_tx,

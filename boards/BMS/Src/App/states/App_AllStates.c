@@ -4,16 +4,12 @@
 
 static void App_AllStatesCanTxPeriodic100Hz(struct BmsWorld *world)
 {
-    struct BmsCanTxInterface *can_tx      = App_BmsWorld_GetCanTx(world);
-    struct Imd *              imd         = App_BmsWorld_GetImd(world);
-    struct OkStatus *         bms_ok      = App_BmsWorld_GetBmsOkStatus(world);
-    struct OkStatus *         imd_ok      = App_BmsWorld_GetImdOkStatus(world);
-    struct OkStatus *         bspd_ok     = App_BmsWorld_GetBspdOkStatus(world);
-    struct Airs *             airs        = App_BmsWorld_GetAirs(world);
-    const struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
-    struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
-
-    App_Accumulator_AllStates100Hz(accumulator, can_tx, error_table);
+    struct BmsCanTxInterface *can_tx  = App_BmsWorld_GetCanTx(world);
+    struct Imd *              imd     = App_BmsWorld_GetImd(world);
+    struct OkStatus *         bms_ok  = App_BmsWorld_GetBmsOkStatus(world);
+    struct OkStatus *         imd_ok  = App_BmsWorld_GetImdOkStatus(world);
+    struct OkStatus *         bspd_ok = App_BmsWorld_GetBspdOkStatus(world);
+    struct Airs *             airs    = App_BmsWorld_GetAirs(world);
 
     App_SetPeriodicCanSignals_Imd(can_tx, imd);
 
@@ -28,6 +24,7 @@ static void App_AllStatesCanTxPeriodic100Hz(struct BmsWorld *world)
         can_tx, App_OkStatus_IsEnabled(bspd_ok));
 }
 
+#include "Io_CellTemperatures.h"
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
@@ -46,17 +43,23 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     const struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
     struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
+    struct BmsCanTxInterface *can_tx      = App_BmsWorld_GetCanTx(world);
 
     // Read current accumulator cell voltages
     App_Accumulator_ReadCellVoltages(accumulator);
+    App_Accumulator_AllStates100Hz(accumulator, can_tx, error_table);
 
     // Update accumulator cell voltages
-    App_Accumulator_UpdateCellVoltages(accumulator);
+    App_Accumulator_StartCellVoltageConversion(accumulator);
 
     App_AllStatesCanTxPeriodic100Hz(world);
 
+    Io_CellTemperatures_ReadTemperatures();
+
+#ifdef NDEBUG
     if (App_SharedErrorTable_HasAnyCriticalErrorSet(error_table))
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
+#endif
 }
