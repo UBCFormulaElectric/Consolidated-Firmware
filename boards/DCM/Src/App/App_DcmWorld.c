@@ -14,7 +14,6 @@ struct DcmWorld
     struct BrakeLight *       brake_light;
     struct Buzzer *           buzzer;
     struct Imu *              imu;
-    struct StartSwitch *      start_switch;
     struct ErrorTable *       error_table;
     struct WaitSignal *       buzzer_wait_signal;
     struct Clock *            clock;
@@ -100,11 +99,6 @@ struct Buzzer *App_DcmWorld_GetBuzzer(const struct DcmWorld *const world)
 struct Imu *App_DcmWorld_GetImu(const struct DcmWorld *const world)
 {
     return world->imu;
-}
-
-struct StartSwitch *App_DcmWorld_GetStartSwitch(const struct DcmWorld *world)
-{
-    return world->start_switch;
 }
 
 struct ErrorTable *
