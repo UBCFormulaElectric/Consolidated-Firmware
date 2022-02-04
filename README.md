@@ -116,13 +116,17 @@ We edit, compile, and debug our code using [CLion](https://www.jetbrains.com/cli
 // First CMake profile:
 Name: embedded
 Build type: Debug
+Generator: Unix Makefiles
 CMake options: -DPLATFORM=arm
 
 // Second CMake profile:
 Name: gtest
 Build type: Debug
+Generator: Unix Makefiles
 CMake options: -DPLATFORM=x86
 ```
+
+Note: Older versions of Clion may not show the option to change Generator, in which case ignore setting the Generator.
 
 In each project, there will be two configurations to use: `<board>_SeggerGDB.elf` and `OCD <board>`. Either one can be used for flashing and debugging, but the `<board>_SeggerGDB.elf` has unlimited flash breakpoints among some other extra functionalities. Use `<board>_SeggerGDB.elf` whenever possible.
 
