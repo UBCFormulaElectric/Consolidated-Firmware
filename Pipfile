@@ -7,7 +7,7 @@ name = "pypi"
 pylint = "*"
 
 [packages]
-cantools = "~=33.1.1"
+cantools = {ref = "v33.1.1-noDoubles", git = "git://github.com/UBCFormulaElectric/cantools"}
 
 [requires]
 python_version = "3"
