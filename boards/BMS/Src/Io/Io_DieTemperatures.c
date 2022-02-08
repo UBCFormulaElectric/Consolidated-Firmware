@@ -1,77 +1,79 @@
 #include <stdint.h>
-#include "Io_LTC6813.h"
-#include "Io_DieTemperatures.h"
 #include "Io_SharedSpi.h"
+#include "Io_LTC6813.h"
 #include "App_Accumulator.h"
+
+#define DIE_TEMP_MV_TO_DEGC (1.0f / 7.6e-3f)
+#define DIE_TEMP_TO_DEGC_SCALE (V_PER_100UV * DIE_TEMP_MV_TO_DEGC)
+#define DIE_TEMP_OFFSET_DEGC (276.0f)
+
+#define RDSTATA (0x0010U)
 
 extern struct SharedSpi *ltc6813_spi;
 
-static float internal_die_temp[NUM_OF_ACCUMULATOR_SEGMENTS];
+extern float internal_die_temp[NUM_OF_ACCUMULATOR_SEGMENTS];
+float        internal_die_temp[NUM_OF_ACCUMULATOR_SEGMENTS] = { 0.0f };
 
-ExitCode Io_DieTemperatures_ReadTemp(void)
+static inline float Io_DieTemperatures_ConvertToDegC(uint16_t raw_die_temp_v)
 {
-    // The command used to start internal device conversions.
-    const uint16_t ADSTAT = (0x468 + (MD << 7) + CHST);
+    // Calculate the internal die temperature using the following
+    // equation:
+    //
+    //                                           (1°C * 100µV)
+    // DIE_TEMP_DEG_C  = MEASURED_VOLTAGE_µV * ----------------- - 276°C
+    //                                              7.6 mV
+    return (float)(raw_die_temp_v)*DIE_TEMP_TO_DEGC_SCALE -
+           DIE_TEMP_OFFSET_DEGC;
+}
 
-    // RETURN_CODE_IF_EXIT_NOT_OK(Io_LTC6813_EnterReadyState());
-    RETURN_CODE_IF_EXIT_NOT_OK(Io_LTC6813_SendCommand(ADSTAT));
-    RETURN_CODE_IF_EXIT_NOT_OK(Io_LTC6813_PollAdcConversions());
-
-    uint8_t rx_internal_die_temp[NUM_REG_BYTES * NUM_OF_ACCUMULATOR_SEGMENTS];
+bool Io_DieTemperatures_ReadTemp(void)
+{
+    bool    status                                       = true;
+    uint8_t rx_internal_die_temp[TOTAL_NUM_OF_REG_BYTES] = { 0U };
+    uint8_t tx_cmd[NUM_TX_CMD_BYTES]                     = { 0U };
 
     // The command used to read data from status register A.
-    const uint16_t RDSTATA = 0x0010;
-    uint8_t        tx_cmd[NUM_TX_CMD_BYTES];
-    tx_cmd[0] = (uint8_t)(RDSTATA >> 8);
-    tx_cmd[1] = (uint8_t)(RDSTATA);
-    uint16_t tx_cmd_pec15 =
-        Io_LTC6813_CalculatePec15(tx_cmd, NUM_OF_PEC15_BYTES);
-    tx_cmd[2] = (uint8_t)(tx_cmd_pec15 >> 8);
-    tx_cmd[3] = (uint8_t)(tx_cmd_pec15);
+    Io_LTC6813_PackCmd(tx_cmd, RDSTATA);
+    Io_LTC6813_PackPec15(tx_cmd, NUM_OF_CMD_BYTES);
 
-    for (size_t current_chip = 0U; current_chip < NUM_OF_ACCUMULATOR_SEGMENTS;
-         current_chip++)
+    for (uint8_t curr_segment = 0U; curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS;
+         curr_segment++)
     {
-        if (!Io_SharedSpi_TransmitAndReceive(
+        const uint32_t die_temp_index =
+            (uint32_t)(curr_segment * NUM_REG_GROUP_BYTES);
+
+        if (Io_SharedSpi_TransmitAndReceive(
                 ltc6813_spi, tx_cmd, NUM_TX_CMD_BYTES, rx_internal_die_temp,
-                NUM_OF_ACCUMULATOR_SEGMENTS * NUM_REG_BYTES))
+                TOTAL_NUM_OF_REG_BYTES))
         {
-            return EXIT_CODE_ERROR;
-        }
+            // Store the internal die temperature. The upper byte of the
+            // internal die temperature is stored in the 3rd byte, while the
+            // lower byte is stored in the 2nd byte.
+            const uint16_t raw_die_temp = (uint16_t)(
+                (rx_internal_die_temp[LTC6813_REG_2 + die_temp_index]) |
+                (rx_internal_die_temp[LTC6813_REG_3 + die_temp_index] << 8));
+            internal_die_temp[curr_segment] =
+                Io_DieTemperatures_ConvertToDegC(raw_die_temp);
 
-        // The upper byte of the internal die temperature is stored in the
-        // 3rd byte, while the lower byte is stored in the 2nd byte.
-        const uint16_t _internal_die_temp = (uint16_t)(
-            (rx_internal_die_temp[2 + NUM_REG_BYTES * current_chip]) |
-            (rx_internal_die_temp[3 + NUM_REG_BYTES * current_chip] << 8));
+            // The received PEC15 bytes are stored in the 6th and 7th byte.
+            const uint16_t received_pec15 = (uint16_t)(
+                (rx_internal_die_temp[6 + die_temp_index] << 8) |
+                (rx_internal_die_temp[7 + die_temp_index]));
 
-        // Calculate the internal die temperature using the following equation:
-        //
-        //                                           (1°C * 100µV)
-        // DIE_TEMP_DEG_C  = MEASURED_VOLTAGE_µV * ----------------- - 276°C
-        //                                              7.6 mV
+            // Calculate the PEC15 using the first 6 bytes of data received from
+            // the chip.
+            const uint16_t calculated_pec15 = Io_LTC6813_CalculatePec15(
+                &rx_internal_die_temp[die_temp_index], NUM_OF_REGS_IN_GROUP);
 
-        internal_die_temp[current_chip] =
-            (float)_internal_die_temp * 100e-6f / 7.6e-3f - 276.0f;
-
-        // The received PEC15 bytes are stored in the 6th and 7th byte.
-        const uint16_t received_pec15 = (uint16_t)(
-            (rx_internal_die_temp[6 + NUM_REG_BYTES * current_chip] << 8) |
-            (rx_internal_die_temp[7 + NUM_REG_BYTES * current_chip]));
-
-        // Calculate the PEC15 using the first 6 bytes of data received from the
-        // chip.
-        const uint16_t calculated_pec15 = Io_LTC6813_CalculatePec15(
-            &rx_internal_die_temp[current_chip * NUM_REG_BYTES],
-            NUM_OF_REGS_IN_GROUP);
-
-        if (received_pec15 != calculated_pec15)
-        {
-            return EXIT_CODE_ERROR;
+            if (received_pec15 != calculated_pec15)
+            {
+                status = false;
+                break;
+            }
         }
     }
 
-    return EXIT_CODE_OK;
+    return status;
 }
 
 float Io_DieTemperatures_GetSegment0DieTemp(void)
@@ -81,7 +83,8 @@ float Io_DieTemperatures_GetSegment0DieTemp(void)
 
 float Io_DieTemperatures_GetSegment1DieTemp(void)
 {
-    return internal_die_temp[1];
+    // return internal_die_temp[1];
+    return 0.0f;
 }
 
 float Io_DieTemperatures_GetSegment2DieTemp(void)
@@ -106,16 +109,5 @@ float Io_DieTemperatures_GetSegment5DieTemp(void)
 
 float Io_DieTemperatures_GetMaxDieTemp(void)
 {
-    float max_die_temp = internal_die_temp[0];
-    for (size_t current_chip = 1U; current_chip < NUM_OF_ACCUMULATOR_SEGMENTS;
-         current_chip++)
-    {
-        float current_die_temp = internal_die_temp[current_chip];
-        if (max_die_temp < current_die_temp)
-        {
-            max_die_temp = current_die_temp;
-        }
-    }
-
-    return max_die_temp;
+    return 0.0f;
 }

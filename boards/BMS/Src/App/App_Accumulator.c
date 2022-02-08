@@ -71,22 +71,21 @@ bool App_Accumulator_StartCellVoltageConversion(
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *const accumulator)
 {
     // Send random command to wake up accumulator monitoring device
-    //if (accumulator->start_voltage_conv())
+    // if (accumulator->start_voltage_conv())
     //{
     //    // After the device is awake, configure monitor
-    //accumulator->config_accumulator_monitors();
+    // accumulator->config_accumulator_monitors();
     //}
     // Start voltage conversions for the accumulator monitor
-    //accumulator->start_voltage_conv();
+    // accumulator->start_voltage_conv();
 
-    //Io_LTC6813_EnterReadyState();
+    // Io_LTC6813_EnterReadyState();
 
     // Start voltage conversions for the accumulator monitor
-    accumulator->start_voltage_conv();
+    // accumulator->start_voltage_conv();
+    // Io_LTC6813_ConfigureRegisterA();
+    UNUSED(accumulator);
 }
-
-#include "Io_CellTemperatures.h"
-extern uint16_t raw_therm_v[NUM_OF_ACCUMULATOR_SEGMENTS][8];
 
 void App_Accumulator_AllStates100Hz(
     const struct Accumulator *const accumulator,
@@ -116,8 +115,8 @@ void App_Accumulator_AllStates100Hz(
     }
 
     // Send the segment voltages (V) over CAN
-    App_CanTx_SetPeriodicSignal_SEGMENT_0_VOLTAGE(
-        can_tx, raw_therm_v[0][0]);
+    // App_CanTx_SetPeriodicSignal_SEGMENT_0_VOLTAGE(
+    //    can_tx, raw_thermistor_voltages[0][0]);
     // App_CanTx_SetPeriodicSignal_SEGMENT_1_VOLTAGE(
     //    can_tx, accumulator->get_segment_voltage(ACCUMULATOR_SEGMENT_1));
     // App_CanTx_SetPeriodicSignal_SEGMENT_2_VOLTAGE(

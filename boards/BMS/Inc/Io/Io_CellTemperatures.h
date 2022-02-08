@@ -1,13 +1,11 @@
 #pragma once
 
-#include "App_SharedExitCode.h"
-
 /**
- * Read cell temperatures from all thermistors connected to the accumulator
- * @return EXIT_CODE_OK if cell temperatures (0.1°C) were acquired successfully
- * from all thermistors connected to the accumulator. Else, EXIT_CODE_ERROR
+ * Read raw thermistor voltages from the cell monitoring chips
+ * @return EXIT_CODE_OK if raw thermistor voltages are read successfully from
+ * all cell monitoring chips. Else, EXIT_CODE_ERROR
  */
-ExitCode Io_CellTemperatures_ReadTemperatures(void);
+bool Io_CellTemperatures_GetCellTemperatureDegC(void);
 
 /**
  * Get the current minimum accumulator cell temperature out of all cell

@@ -10,10 +10,8 @@
 #define CHG (0U)
 #define CHST (0U)
 
-// TODO: Determine the ADC conversion timeout threshold #674
-// Driver will send a command to check if ADC conversions are finished on the
-// LTC6813 up to 10 times
-#define MAX_NUM_OF_CONV_COMPLETE_CHECKS (10U)
+// Conversion factor used to convert raw voltages (100µV) to voltages (V)
+#define V_PER_100UV (1E-4f)
 
 // The calculated PEC15 for the LTC6813 is 2 bytes wide
 enum Ltc6813Pec15Format
@@ -43,8 +41,20 @@ enum Ltc6813RegGroupFormat
     NUM_OF_REGS_IN_GROUP,
 };
 
+typedef enum
+{
+    CONFIG_REGISTER_A = 0,
+    CONFIG_REGISTER_B,
+    NUM_OF_CONFIG_REGISTERS,
+} ConfigurationRegisters_E;
+
 #define NUM_TX_CMD_BYTES (NUM_OF_PEC15_BYTES + NUM_OF_CMD_BYTES)
-#define NUM_REG_BYTES (NUM_OF_PEC15_BYTES + NUM_OF_REGS_IN_GROUP)
+#define NUM_REG_GROUP_BYTES (NUM_OF_PEC15_BYTES + NUM_OF_REGS_IN_GROUP)
+#define TOTAL_NUM_OF_REG_BYTES \
+    (NUM_REG_GROUP_BYTES * NUM_OF_ACCUMULATOR_SEGMENTS)
+
+// Data stored in register group is 2 bytes wide
+#define REG_GROUP_DATA_SIZE (2U)
 
 /**
  * Pack command into two bytes
@@ -104,6 +114,10 @@ bool Io_LTC6813_PollAdcConversions(void);
  * Else, false.
  */
 bool Io_LTC6813_ConfigureRegisterA(void);
+
+bool Io_LTC6813_ConfigureRegisterB(void);
+
+bool Io_LTC6813_ConfigureRegister(ConfigurationRegisters_E cfg_reg);
 
 /**
  * Start ADC conversion for all LTC6813 chips on the daisy chain

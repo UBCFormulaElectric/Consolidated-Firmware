@@ -5,7 +5,7 @@
 
 struct CellMonitors
 {
-    ExitCode (*read_die_temps)(void);
+    bool (*read_die_temps)(void);
     float (*get_max_die_temp)(void);
     float die_temp_re_enable_charger_degc;
     float die_temp_re_enable_cell_balancing_degc;
@@ -21,7 +21,7 @@ struct CellMonitors
 };
 
 struct CellMonitors *App_CellMonitors_Create(
-    ExitCode (*read_die_temps)(void),
+    bool (*read_die_temps)(void),
     float (*get_monitor_0_die_temp)(void),
     float (*get_monitor_1_die_temp)(void),
     float (*get_monitor_2_die_temp)(void),
@@ -84,7 +84,7 @@ void App_CellMonitors_Destroy(struct CellMonitors *cell_monitors)
     free(cell_monitors);
 }
 
-ExitCode App_CellMonitors_ReadDieTemps(
+bool App_CellMonitors_ReadDieTemps(
     const struct CellMonitors *const cell_monitors)
 {
     return cell_monitors->read_die_temps();

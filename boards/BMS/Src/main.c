@@ -625,7 +625,7 @@ static void MX_SPI2_Init(void)
     hspi2.Init.CLKPolarity       = SPI_POLARITY_HIGH;
     hspi2.Init.CLKPhase          = SPI_PHASE_2EDGE;
     hspi2.Init.NSS               = SPI_NSS_SOFT;
-    hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_32;
+    hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_64;
     hspi2.Init.FirstBit          = SPI_FIRSTBIT_MSB;
     hspi2.Init.TIMode            = SPI_TIMODE_DISABLE;
     hspi2.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
@@ -983,7 +983,7 @@ void RunTask100Hz(void const *argument)
     /* USER CODE BEGIN RunTask100Hz */
     UNUSED(argument);
     uint32_t                 PreviousWakeTime = osKernelSysTick();
-    static const TickType_t  period_ms        = 10;
+    static const TickType_t  period_ms        = 10U;
     SoftwareWatchdogHandle_t watchdog =
         Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_100HZ", period_ms);
@@ -1003,7 +1003,7 @@ void RunTask100Hz(void const *argument)
 
 /**
  * @brief  Period elapsed callback in non blocking mode
- * @note   This function is called  when TIM1 interrupt took place, inside
+ * @note   This function is called  when TIM6 interrupt took place, inside
  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
  * a global variable "uwTick" used as application time base.
  * @param  htim : TIM handle
@@ -1014,7 +1014,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 0 */
 
     /* USER CODE END Callback 0 */
-    if (htim->Instance == TIM1)
+    if (htim->Instance == TIM6)
     {
         HAL_IncTick();
     }

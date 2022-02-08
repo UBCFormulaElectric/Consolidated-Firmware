@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include "App_SharedExitCode.h"
 
 struct CellMonitors;
@@ -59,7 +60,7 @@ enum ITMPInRangeCheck
  * caller
  */
 struct CellMonitors *App_CellMonitors_Create(
-    ExitCode (*read_die_temps)(void),
+    bool (*read_die_temps)(void),
     float (*get_monitor_0_die_temp)(void),
     float (*get_monitor_1_die_temp)(void),
     float (*get_monitor_2_die_temp)(void),
@@ -87,8 +88,7 @@ void App_CellMonitors_Destroy(struct CellMonitors *cell_monitors);
  * @return EXIT_CODE_OK if the internal die temperatures (°C) can be read
  * successfully. Else, EXIT_CODE_ERROR
  */
-ExitCode
-    App_CellMonitors_ReadDieTemps(const struct CellMonitors *cell_monitors);
+bool App_CellMonitors_ReadDieTemps(const struct CellMonitors *cell_monitors);
 
 /**
  * Get the cell monitor 0 die temp in-range check from the group of cell

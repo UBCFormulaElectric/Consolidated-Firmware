@@ -2,7 +2,6 @@
 
 #include <stdbool.h>
 #include "App_InRangeCheck.h"
-#include "App_SharedExitCode.h"
 #include "App_SharedErrorTable.h"
 
 enum AccumulatorSegments
