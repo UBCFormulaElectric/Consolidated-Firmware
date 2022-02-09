@@ -29,15 +29,15 @@
 #define ADCOPT (1U)
 #define REFON (0U)
 #define DTEN (0U)
-#define DEFAULT_CFGRA_CONFIG                                     \
-    {                                                            \
-        [LTC6813_REG_0] = (REFON << 2) + (DTEN << 1) + ADCOPT,   \
-        [LTC6813_REG_1] = (uint8_t)VUV,                          \
-        [LTC6813_REG_2] = ((VOV & 0xF) << 4) + (VUV >> 8),       \
-        [LTC6813_REG_3] = (VOV >> 4), [LTC6813_REG_4] = 0x0000U, \
-        [LTC6813_REG_5]                               = 0x0000U, \
-        [NUM_OF_REGS_IN_GROUP + LTC6813_PEC15_BYTE_0] = 0U,      \
-        [NUM_OF_REGS_IN_GROUP + LTC6813_PEC15_BYTE_1] = 0U,      \
+#define DEFAULT_CFGRA_CONFIG                                                 \
+    {                                                                        \
+        [LTC6813_REG_0] = (0x1F << 3) + (REFON << 2) + (DTEN << 1) + ADCOPT, \
+        [LTC6813_REG_1] = (uint8_t)VUV,                                      \
+        [LTC6813_REG_2] = ((VOV & 0xF) << 4) + (VUV >> 8),                   \
+        [LTC6813_REG_3] = (VOV >> 4), [LTC6813_REG_4] = 0x0000U,             \
+        [LTC6813_REG_5]                               = 0x0000U,             \
+        [NUM_OF_REGS_IN_GROUP + LTC6813_PEC15_BYTE_0] = 0U,                  \
+        [NUM_OF_REGS_IN_GROUP + LTC6813_PEC15_BYTE_1] = 0U,                  \
     }
 
 #define DEFAULT_CFGRA_CONFIG_                                             \
@@ -56,7 +56,7 @@
 #define REG1_OFF (0x00U)
 #define DEFAULT_CFGRB_CONFIG                                              \
     {                                                                     \
-        [LTC6813_REG_0] = REG0_OFF, [LTC6813_REG_1] = REG1_OFF,           \
+        [LTC6813_REG_0] = REG0_OFF + 0x000FU, [LTC6813_REG_1] = REG1_OFF, \
         [LTC6813_REG_2] = 0U, [LTC6813_REG_3] = 0U, [LTC6813_REG_5] = 0U, \
         [NUM_OF_REGS_IN_GROUP + LTC6813_PEC15_BYTE_0] = 0U,               \
         [NUM_OF_REGS_IN_GROUP + LTC6813_PEC15_BYTE_1] = 0U,               \

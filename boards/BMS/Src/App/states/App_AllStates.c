@@ -42,36 +42,26 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
         App_BmsWorld_GetRgbLedSequence(world);
     struct Charger *charger = App_BmsWorld_GetCharger(world);
 
-    // Io_LTC6813_PollAdcConversions();
-    // Io_CellTemperatures_ReadTemperatures()WRCFGA;
-
-    // const uint16_t ADAX = 0x460 + (MD << 7) + CHG;
-    // Io_LTC6813_SendCommand(ADAX);
-    // App_CanTx_SetPeriodicSignal_SEGMENT_0_VOLTAGE(
-    //    can_tx, (float)(raw_thermistor_voltages[0][0]));
-
     App_SharedRgbLedSequence_Tick(rgb_led_sequence);
     App_CanTx_SetPeriodicSignal_IS_CONNECTED(
         can_tx, App_Charger_IsConnected(charger));
 
-    // const uint16_t ADAX = 0x460 + (MD << 7) + CHG;
-    // Io_LTC6813_SendCommand(ADAX);
-    // if(Io_LTC6813_PollAdcConversions())
-    //{
-    //    Io_CellTemperatures_ReadTemperatures();
-    //    App_CanTx_SetPeriodicSignal_SEGMENT_0_VOLTAGE(
-    //            can_tx, (float)(raw_thermistor_voltages[0][0]));
-    //}
+    // Send command to start temperature conversions
+    Io_LTC6813_PollAdcConversions();
+    Io_CellTemperatures_GetCellTemperatureDegC();
+    App_CanTx_SetPeriodicSignal_SEGMENT_0_VOLTAGE(
+            can_tx, (float)(cell_temperatures[0][7]));
 
-    // static uint16_t counter = 0U;
-    // if (counter % 100 == 0)
-    //{
-    //    Io_LTC6813_ConfigureRegisterB();
-    //    Io_LTC6813_ConfigureRegisterB();
-    //}
+    //// Send command to get die temperatures
+    //const uint16_t ADSTAT = (0x468 + (MD << 7) + CHST);
+    //Io_LTC6813_SendCommand(ADSTAT);
 
-    // counter++;
-    // Io_LTC6813_ConfigureRegisterB();
+    //Io_LTC6813_PollAdcConversions();
+    //Io_DieTemperatures_ReadTemp();
+    //App_CanTx_SetPeriodicSignal_SEGMENT_1_VOLTAGE(can_tx, internal_die_temp[0]);
+
+    const uint16_t ADAX = 0x460 + (MD << 7) + CHG;
+    Io_LTC6813_SendCommand(ADAX);
 }
 
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
@@ -79,52 +69,21 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     const struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
     struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
+
     UNUSED(accumulator);
     UNUSED(error_table);
 
     struct BmsCanTxInterface *can_tx = App_BmsWorld_GetCanTx(world);
+    UNUSED(can_tx);
 
-    static uint16_t counter = 0U;
-
-    //if (counter % 3U == 0U)
-    //{
+    //static uint16_t counter = 0U;
+    //// Start voltage conversion
+    //if(counter % 10 == 0U) {
+    //    App_Accumulator_StartCellVoltageConversion(accumulator);
     //    App_Accumulator_ReadCellVoltages(accumulator);
     //    App_Accumulator_AllStates100Hz(accumulator, can_tx, error_table);
-    //    //Io_LTC6813_ConfigureRegisterA();
-
-    //    // Send command to get die temperatures
-    //    const uint16_t ADSTAT = (0x468 + (MD << 7) + CHST);
-    //    Io_LTC6813_SendCommand(ADSTAT);
     //}
-
-    //if (counter % 3U == 1U)
-    //{
-    //    Io_LTC6813_PollAdcConversions();
-    //    Io_DieTemperatures_ReadTemp();
-    //    App_CanTx_SetPeriodicSignal_SEGMENT_1_VOLTAGE(
-    //            can_tx, internal_die_temp[0]);
-    //    // Send command to start temperature conversions
-    //    const uint16_t ADAX = 0x460 + (MD << 7) + CHG;
-    //    Io_LTC6813_SendCommand(ADAX);
-    //}
-
-    //if (counter % 3U == 2U)
-    //{
-    Io_LTC6813_EnterReadyState();
-    // Send command to start temperature conversions
-    const uint16_t ADAX = 0x460 + (MD << 7) + CHG;
-    //Io_LTC6813_ConfigureRegisterA();
-    Io_LTC6813_SendCommand(ADAX);
-    Io_LTC6813_PollAdcConversions();
-    Io_CellTemperatures_GetCellTemperatureDegC();
-        App_CanTx_SetPeriodicSignal_SEGMENT_0_VOLTAGE(
-                can_tx, (float)(cell_temperatures[0][7]));
-
-    //    // Start voltage conversion
-    //    App_Accumulator_StartCellVoltageConversion(accumulator);
-    //}
-
-    counter++;
+    //counter++;
 }
 
 #ifdef NDEBUG

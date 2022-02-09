@@ -141,8 +141,7 @@ static bool Io_CellTemperatures_ParseThermistorVoltages(
             (rx_raw_therm_v[rx_therm_v_index]) |
             ((rx_raw_therm_v[rx_therm_v_index + 1] << 8)));
         cell_temperatures[curr_segment][curr_therm_v_index] =
-            raw_thermistor_voltage;
-        // Io_CellTemp_CalculateCellTemperatureDegC(raw_thermistor_voltage);
+            Io_CellTemp_CalculateCellTemperatureDegC(raw_thermistor_voltage);
 
         // Data stored within a register group is 2 bytes wide. Increment by 2
         // bytes to retrieve the next thermistor voltage

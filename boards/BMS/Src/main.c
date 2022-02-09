@@ -983,7 +983,7 @@ void RunTask100Hz(void const *argument)
     /* USER CODE BEGIN RunTask100Hz */
     UNUSED(argument);
     uint32_t                 PreviousWakeTime = osKernelSysTick();
-    static const TickType_t  period_ms        = 10U;
+    static const TickType_t  period_ms        = 100U;
     SoftwareWatchdogHandle_t watchdog =
         Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_100HZ", period_ms);
