@@ -8,6 +8,7 @@ pylint = "*"
 
 [packages]
 cantools = "~=33.1.1"
+openpyxl = "*"
 
 [requires]
 python_version = "3"

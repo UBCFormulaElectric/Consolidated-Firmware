@@ -4,10 +4,11 @@
 
 uint32_t                 value;
 extern TIM_HandleTypeDef htim1;
-bool data_sending_flag;
-uint8_t command;
-uint32_t receive_data;
-uint8_t endat_clk_count = 1;
+bool                     data_sending_flag;
+uint8_t                  endat_command;
+uint32_t                 endat_receive_data  = 0;
+uint8_t                  endat_clk_count     = 0;
+uint8_t                  endat_received_bits = 0;
 
 bool Io_ECI1118_GetMotorOTFault(void)
 {
@@ -34,15 +35,19 @@ bool Io_ECI1118_GetMotorOTFault(void)
 
 uint32_t Io_ECI1118_StartGetPosition(void)
 {
-    data_sending_flag = 1;
-    command = GET_POSITION;
-    HAL_TIM_PWM_Start_IT(&htim1, 1);
-    return value;
+    // TODO return error if data is already sending
+    if (!data_sending_flag)
+    {
+        data_sending_flag = 1;
+        endat_command     = GET_POSITION;
+        HAL_TIM_OC_Start_IT(&htim1, 1);
+        // This function is blocking until it's done
+        while (data_sending_flag)
+            ;
+        return value;
+    }
 }
-uint32_t Io_ECI1118_ReadPosition(void)
-{
-
-}
+uint32_t Io_ECI1118_ReadPosition(void) {}
 
 void Io_ECI1118_SelectMemory(uint32_t memory)
 {
@@ -74,26 +79,58 @@ uint32_t Io_ECI1118_GetTestValues(void)
     return value;
 }
 
-void HAL_TIM_PWM_PulseFinishedCallback(TIM_HandleTypeDef *htim)
+// send on rising edge, read on falling edge
+
+// Clock cycle finished (falling edge)
+void Io_ECI1118_ClockFallingEdge(void)
 {
-    if (htim->Instance == TIM1)
     {
-        endat_clk_count++;
-
-        //transaction is complete
-        if(endat_clk_count == 60)
+        // Wait until the data rx line goes high, which indicates the start bit
+        // of the received data
+        bool data_rx_pinstatus =
+            HAL_GPIO_ReadPin(ENDAT_DATA_RX_GPIO_Port, ENDAT_DATA_RX_Pin);
+        if (endat_clk_count >= 11 && data_rx_pinstatus)
         {
-            HAL_TIM_PWM_Stop_IT(&htim1, 1);
-            endat_clk_count = 0;
+            // ex. |crc here - 5bit|position here - ?bit|fault bits here -
+            // 2bit|start bit here - 1bit| = 32bit or less total
+            endat_receive_data |= (data_rx_pinstatus << endat_received_bits);
+            endat_received_bits++;
         }
-
     }
 }
 
-void HAL_TIM_PWM_PulseFinishedHalfCpltCallback(TIM_HandleTypeDef *htim)
+// Rising edge of the clk
+void Io_ECI1118_ClockRisingEdge(void)
 {
-    if(htim->Instance == TIM1)
+    endat_clk_count++;
+    // First and last two bits, send 1s
+    if (endat_clk_count <= 2 || endat_clk_count == 9 || endat_clk_count == 10)
     {
-
+        HAL_GPIO_WritePin(
+            ENDAT_DATA_TX_GPIO_Port, ENDAT_DATA_TX_Pin, GPIO_PIN_SET);
+    }
+    // Send command to encoder
+    else if (endat_clk_count >= 3 && endat_clk_count <= 8)
+    {
+        uint8_t bit_to_send = (endat_command >> (endat_clk_count - 3)) & 1;
+        // send mode command
+        if (bit_to_send)
+        {
+            HAL_GPIO_WritePin(
+                ENDAT_DATA_TX_GPIO_Port, ENDAT_DATA_TX_Pin, GPIO_PIN_SET);
+        }
+        else
+        {
+            HAL_GPIO_WritePin(
+                ENDAT_DATA_TX_GPIO_Port, ENDAT_DATA_TX_Pin, GPIO_PIN_RESET);
+        }
+    }
+    // end message condition
+    else if (endat_clk_count >= 42)
+    {
+        HAL_TIM_OC_Stop_IT(&htim1, 1);
+        endat_clk_count     = 0;
+        endat_received_bits = 0;
+        data_sending_flag   = 0;
     }
 }

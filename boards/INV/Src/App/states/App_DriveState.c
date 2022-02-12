@@ -33,9 +33,10 @@ static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
     struct GateDrive * gate_drive  = App_InvWorld_GetGateDrive(world);
     struct PowerStage *power_stage = App_InvWorld_GetPowerStage(world);
     struct InvCanTxInterface *can_tx_interface = App_InvWorld_GetCanTx(world);
-    App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE);
+    App_CanTx_SetPeriodicSignal_STATE(
+        can_tx_interface, CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE);
     UNUSED(state_machine);
-    //App_GateDrive_GetFaults(gate_drive, stgap_faults);
+    // App_GateDrive_GetFaults(gate_drive, stgap_faults);
 }
 
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)

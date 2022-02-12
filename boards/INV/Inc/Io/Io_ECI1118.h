@@ -14,6 +14,8 @@ uint32_t Io_ECI1118_GetParameter(void);
 void     Io_ECI1118_Reset(void);
 void     Io_ECI1118_SendTestCommand(uint32_t test_command);
 uint32_t Io_ECI1118_GetTestValues(void);
+void     Io_ECI1118_ClockFallingEdge(void);
+void     Io_ECI1118_ClockRisingEdge(void);
 
 enum EncoderMessages
 {

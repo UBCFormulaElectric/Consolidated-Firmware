@@ -63,13 +63,19 @@ void Io_TimerPwmGen_LoadPwm(const struct PhaseValues *const phase_pwm_dur)
     //        phase_pwm_dur->c < MAX_MOD_INDEX)
     //    {
 
-//    htim8.Instance->CCR1 = (uint32_t)((0.5f - (float)fabsf(phase_pwm_dur->a - 0.5f)) * (float)timer_cycles);
-//    htim8.Instance->CCR2 = (uint32_t)((0.5f - (float)fabsf(phase_pwm_dur->b - 0.5f)) * (float)timer_cycles);
-//    htim8.Instance->CCR3 = (uint32_t)((0.5f - (float)fabsf(phase_pwm_dur->c - 0.5f)) * (float)timer_cycles);
+    //    htim8.Instance->CCR1 = (uint32_t)((0.5f -
+    //    (float)fabsf(phase_pwm_dur->a - 0.5f)) * (float)timer_cycles);
+    //    htim8.Instance->CCR2 = (uint32_t)((0.5f -
+    //    (float)fabsf(phase_pwm_dur->b - 0.5f)) * (float)timer_cycles);
+    //    htim8.Instance->CCR3 = (uint32_t)((0.5f -
+    //    (float)fabsf(phase_pwm_dur->c - 0.5f)) * (float)timer_cycles);
 
-    htim8.Instance->CCR1 = (uint32_t)(phase_pwm_dur->a * (float)timer_cycles / 2);
-    htim8.Instance->CCR2 = (uint32_t)(phase_pwm_dur->b * (float)timer_cycles / 2);
-    htim8.Instance->CCR3 = (uint32_t)(phase_pwm_dur->c * (float)timer_cycles / 2);
+    htim8.Instance->CCR1 =
+        (uint32_t)(phase_pwm_dur->a * (float)timer_cycles / 2);
+    htim8.Instance->CCR2 =
+        (uint32_t)(phase_pwm_dur->b * (float)timer_cycles / 2);
+    htim8.Instance->CCR3 =
+        (uint32_t)(phase_pwm_dur->c * (float)timer_cycles / 2);
 
     //    }
     //    else

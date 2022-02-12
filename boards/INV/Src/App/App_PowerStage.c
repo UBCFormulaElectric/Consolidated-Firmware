@@ -17,7 +17,7 @@ struct PowerStage
     void (*dac_start)(void);
     void (*dac_set_current)(float current);
     void (*get_phase_currents)(struct PhaseValues *const phase_currents);
-    const struct PhaseValues * (*correct_current_offset)(void);
+    const struct PhaseValues *(*correct_current_offset)(void);
     float (*get_bus_voltage)(void);
     float (*get_powerstage_temp)(void);
     bool (*get_pha_oc_fault)(void);
@@ -34,7 +34,7 @@ struct PowerStage *App_PowerStage_Create(
     void (*ps_dac_start)(void),
     void (*ps_dac_set_current)(float current),
     void (*ps_get_phase_currents)(struct PhaseValues *const phase_currents),
-    const struct PhaseValues * (*ps_correct_current_offset)(void),
+    const struct PhaseValues *(*ps_correct_current_offset)(void),
     float (*ps_get_bus_voltage)(void),
     float (*ps_get_powerstage_temp)(void),
     bool (*ps_get_pha_oc_fault)(void),
@@ -105,11 +105,11 @@ void App_PowerStage_GetPhaseCurrents(
     power_stage->get_phase_currents(phase_currents);
 }
 
-const struct PhaseValues * App_PowerStage_CorrectCurrentOffset(struct PowerStage *power_stage)
+const struct PhaseValues *
+    App_PowerStage_CorrectCurrentOffset(struct PowerStage *power_stage)
 {
     return power_stage->correct_current_offset();
 }
-
 
 float App_PowerStage_GetBusVoltage(struct PowerStage *power_stage)
 {

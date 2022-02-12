@@ -85,17 +85,17 @@ void App_ControlLoop_Run(
 
     if (mode == MOTOR_CONTROL)
     {
-        //TODO Get torque request from state machine
+        // TODO Get torque request from state machine
         App_CanRx_DCM_TORQUE_REQUEST_SetSignal_TORQUE_REQUEST(
             can_rx, torque_ref);
     }
 
-    //TODO torque and speed request and reading plausibility check goes here
-    torque_ref = 15;
+    // TODO torque and speed request and reading plausibility check goes here
+    torque_ref   = 15;
     float id_val = look_up_value(-40000.0f, -40.0f, 300.0f, 80.0f, ID_PEAK);
     float iq_val = look_up_value(22000.0f, 30.0f, 700.0f, 80.0f, IQ_PEAK);
 
-    //TODO Get Speed Ref Request from state machine
+    // TODO Get Speed Ref Request from state machine
 
     // Get Phase Currents
     App_PowerStage_GetPhaseCurrents(power_stage, &phase_currents);
@@ -120,7 +120,7 @@ void App_ControlLoop_Run(
     }
 
     // Get Bus Voltage
-    //bus_voltage = App_PowerStage_GetBusVoltage(power_stage);
+    // bus_voltage = App_PowerStage_GetBusVoltage(power_stage);
     bus_voltage = 24.0f;
 
     if (mode == MOTOR_CONTROL)
