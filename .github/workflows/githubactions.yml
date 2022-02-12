@@ -15,7 +15,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install pipenv
-        run: pip install pipenv==2021.5.29
+        run: pip install pipenv==2022.1.8
 
       - name: Install Python
         uses: actions/setup-python@v2
@@ -51,7 +51,7 @@ jobs:
           lfs: true
       
       - name: Install pipenv
-        run: pip install pipenv==2021.5.29
+        run: pip install pipenv==2022.1.8
 
       - name: Install Python
         uses: actions/setup-python@v2
@@ -102,7 +102,7 @@ jobs:
           submodules: recursive
       
       - name: Install pipenv
-        run: pip install pipenv==2021.5.29
+        run: pip install pipenv==2022.1.8
 
       - name: Install Python
         uses: actions/setup-python@v2
@@ -166,7 +166,7 @@ jobs:
           submodules: recursive
       
       - name: Install pipenv
-        run: pip install pipenv==2021.5.29
+        run: pip install pipenv==2022.1.8
 
       - name: Install Python
         uses: actions/setup-python@v2
