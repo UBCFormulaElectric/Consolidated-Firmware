@@ -124,7 +124,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ccache-test
+          key: ccache-test-${{ github.run_id }}
+          restore-keys: |
+            ccache-test-
 
       - name: Build
         run: |
@@ -196,7 +198,9 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ env.CCACHE_DIR }}
-          key: ccache-${{ matrix.board }}-build
+          key: ccache-${{ matrix.board }}-build-${{ github.run_id }}
+          restore-keys: |
+            ccache-${{ matrix.board }}-build-
 
       - name: Install ARM GCC
         env:
