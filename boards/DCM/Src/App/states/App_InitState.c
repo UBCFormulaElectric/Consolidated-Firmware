@@ -43,8 +43,26 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct DcmCanRxInterface *can_rx_interface = App_DcmWorld_GetCanRx(world);
     struct ErrorTable *       error_table = App_DcmWorld_GetErrorTable(world);
+    struct InverterSwitches * inverter_switches = App_DcmWorld_GetInverterSwitches(world);
 
-    /* Transition to fault state if the inverter itself is in the fault state */
+    bool bms_positive_air_closed =
+            App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx_interface) ==
+            CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE;
+    bool bms_negative_air_closed =
+            App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx_interface) ==
+            CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE;
+
+    // Provide LV to inverters when both AIRS are closed and DC bus voltage ~ 400 V
+    if(bms_positive_air_closed && bms_negative_air_closed && !App_InverterSwitches_IsRightOn(inverter_switches))
+    {
+        App_InverterSwitches_TurnOnRight(inverter_switches);
+    }
+    if(bms_positive_air_closed && bms_negative_air_closed && !App_InverterSwitches_IsLeftOn(inverter_switches))
+    {
+        App_InverterSwitches_TurnOnLeft(inverter_switches);
+    }
+
+    // Transition to fault state if the inverter itself is in the fault state
     if (App_CanRx_INVL_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVL(
             can_rx_interface) ==
         CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE)
@@ -60,23 +78,17 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
          *  - No critical errors are present
          *  - Both AIRs are closed a.k.a tractive system active.
          *  - Brake pedal is pressed
-         *  - Both inverters are in the ready state
+         *  - Both inverters are in its "WAIT" state
          */
         bool no_critical_errors =
             !App_SharedErrorTable_HasAnyCriticalErrorSet(error_table);
-        bool bms_positive_air_closed =
-            App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx_interface) ==
-            CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE;
-        bool bms_negative_air_closed =
-            App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx_interface) ==
-            CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE;
         bool break_actuated =
             App_CanRx_FSM_BRAKE_GetSignal_BRAKE_IS_ACTUATED(can_rx_interface) ==
             CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE;
-        bool left_inverter_ready =
+        bool left_inverter_waiting =
             App_CanRx_INVL_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVL(
                 can_rx_interface) ==
-            CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_MOTOR__RUNNING__STATE_CHOICE;
+                    CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_VSM_WAIT_STATE_CHOICE;
 
         bool current_start_switch_position =
             App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx_interface) ==
@@ -85,7 +97,7 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
             current_start_switch_position && !prev_start_switch_position;
 
         if (no_critical_errors && bms_positive_air_closed &&
-            bms_negative_air_closed && break_actuated && left_inverter_ready &&
+            bms_negative_air_closed && break_actuated && left_inverter_waiting &&
             start_switch_pulled_up)
         {
             App_SharedStateMachine_SetNextState(
