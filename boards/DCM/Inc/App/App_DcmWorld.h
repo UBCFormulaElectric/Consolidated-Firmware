@@ -11,6 +11,7 @@
 #include "App_SharedErrorTable.h"
 #include "App_SharedClock.h"
 #include "App_SharedWaitSignal.h"
+#include "App_InverterSwitches.h"
 
 struct DcmWorld;
 
@@ -33,6 +34,7 @@ struct DcmWorld *App_DcmWorld_Create(
     struct Imu *              imu,
     struct ErrorTable *       error_table,
     struct Clock *            clock,
+    struct InverterSwitches*  inverter_switches,
     bool (*is_buzzer_on)(struct DcmWorld *),
     void (*buzzer_callback)(struct DcmWorld *));
 
@@ -118,3 +120,11 @@ void App_DcmWorld_UpdateWaitSignal(
  * @return The clock for the given world
  */
 struct Clock *App_DcmWorld_GetClock(const struct DcmWorld *world);
+
+/**
+ * Get the inverter switches for the given world
+ * @param world The world to get inverter switches from
+ * @return The inverter switches for the given world
+ */
+struct InverterSwitches *App_DcmWorld_GetInverterSwitches(const struct DcmWorld *world);
+
