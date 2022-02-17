@@ -2,9 +2,9 @@
 #include "Io_ECI1118.h"
 #include "main.h"
 
-uint32_t                 value;
+float                 rotor_position_rad;
 extern TIM_HandleTypeDef htim1;
-bool                     data_sending_flag;
+bool                     data_transaction_flag;
 uint8_t                  endat_command;
 uint32_t                 endat_receive_data  = 0;
 uint8_t                  endat_clk_count     = 0;
@@ -23,6 +23,7 @@ bool Io_ECI1118_GetMotorOTFault(void)
 }
 
 /*
+ECI1118 Encoder EnDat 2.1 Protocol Overview:
 1. Clock starts high
 2. set timer to generate clock signal
 3. Falling edge of clock sets interrupt
@@ -33,51 +34,92 @@ bool Io_ECI1118_GetMotorOTFault(void)
 8. 5 bit crc
 */
 
-uint32_t Io_ECI1118_StartGetPosition(void)
+void Io_ECI1118_StartGetPosition(void)
 {
     // TODO return error if data is already sending
-    if (!data_sending_flag)
+    if (!data_transaction_flag)
     {
-        data_sending_flag = 1;
+        data_transaction_flag = 1;
+        HAL_GPIO_WritePin(ENDAT_CLK_EN_GPIO_Port, ENDAT_CLK_EN_Pin, GPIO_PIN_SET);
+        HAL_GPIO_WritePin(ENDAT_DATA_SEND_GPIO_Port, ENDAT_DATA_SEND_Pin, GPIO_PIN_SET);
+        endat_command     = GET_POSITION;
+        HAL_TIM_OC_Start_IT(&htim1, 1);
+    }
+    else
+    {
+        while (data_transaction_flag)
+            ;
+    }
+}
+float Io_ECI1118_ReadPosition(void)
+{
+    if (!data_transaction_flag)
+    {
+        rotor_position_rad =
+                (float)(endat_receive_data >> 3 & 0x3FFFF)*ROTOR_POS_CONVERSION_FACTOR; // 18 bit encoder rotor_position_rad = 0x3FFFF
+        return rotor_position_rad;
+    }
+    else
+    {
+        while (data_transaction_flag)
+            ;
+        rotor_position_rad =
+                (float)(endat_receive_data >> 3 & 0x3FFFF)*ROTOR_POS_CONVERSION_FACTOR; // 18 bit encoder rotor_position_rad = 0x3FFFF
+        return rotor_position_rad;
+    }
+}
+
+float Io_ECI1118_GetPositionBlocking(void)
+{
+    // TODO return error if data is already sending
+    if (!data_transaction_flag)
+    {
+        data_transaction_flag = 1;
         endat_command     = GET_POSITION;
         HAL_TIM_OC_Start_IT(&htim1, 1);
         // This function is blocking until it's done
-        while (data_sending_flag)
+        while (data_transaction_flag)
             ;
-        return value;
+        rotor_position_rad =
+                (float)(endat_receive_data >> 3 & 0x3FFFF)*ROTOR_POS_CONVERSION_FACTOR; // 18 bit encoder rotor_position_rad = 0x3FFFF
+        return rotor_position_rad;
+    }
+    else
+    {
+        while (data_transaction_flag)
+            ;
     }
 }
-uint32_t Io_ECI1118_ReadPosition(void) {}
 
-void Io_ECI1118_SelectMemory(uint32_t memory)
+/*void Io_ECI1118_SelectMemory(float memory)
 {
-    value = memory;
+    rotor_position_rad = memory;
 }
 
 void Io_ECI1118_SendParameter(uint32_t parameter)
 {
-    value = parameter;
+    rotor_position_rad = parameter;
 }
 
 uint32_t Io_ECI1118_GetParameter(void)
 {
-    return value;
+    return rotor_position_rad;
 }
 
 void Io_ECI1118_Reset(void)
 {
-    value = 1;
+    rotor_position_rad = 1;
 }
 
 void Io_ECI1118_SendTestCommand(uint32_t test_command)
 {
-    value = test_command;
+    rotor_position_rad = test_command;
 }
 
-uint32_t Io_ECI1118_GetTestValues(void)
+uint32_t Io_ECI1118_GetTestrotor_position_rads(void)
 {
-    return value;
-}
+    return rotor_position_rad;
+}*/
 
 // send on rising edge, read on falling edge
 
@@ -125,12 +167,17 @@ void Io_ECI1118_ClockRisingEdge(void)
                 ENDAT_DATA_TX_GPIO_Port, ENDAT_DATA_TX_Pin, GPIO_PIN_RESET);
         }
     }
-    // end message condition
-    else if (endat_clk_count >= 42)
+    else if (endat_clk_count > 8 && endat_clk_count < 42)
+    {
+        HAL_GPIO_WritePin(ENDAT_DATA_SEND_GPIO_Port, ENDAT_DATA_SEND_Pin, GPIO_PIN_RESET);
+    }
+    //End of transaction with encoder
+    else
     {
         HAL_TIM_OC_Stop_IT(&htim1, 1);
         endat_clk_count     = 0;
         endat_received_bits = 0;
-        data_sending_flag   = 0;
+        HAL_GPIO_WritePin(ENDAT_CLK_EN_GPIO_Port, ENDAT_CLK_EN_Pin, GPIO_PIN_RESET);
+        data_transaction_flag   = 0;
     }
 }

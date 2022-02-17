@@ -238,8 +238,8 @@ int main(void)
         Io_STGAP1AS_GetPhbHiDiag, Io_STGAP1AS_GetPhbLoDiag,
         Io_STGAP1AS_GetPhcHiDiag, Io_STGAP1AS_GetPhcLoDiag);
 
-    //    motor = App_Motor_Create(Io_ECI1118_GetTemperature,
-    //    Io_ECI1118_GetRotorAngle);
+//        motor = App_Motor_Create(Io_ECI1118_GetTemperature,
+//        Io_ECI1118_GetRotorAngle);
 
     power_stage = App_PowerStage_Create(
         Io_AdcDac_AdcContModeInit, Io_AdcDac_AdcPwmSyncModeInit,
@@ -986,8 +986,7 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_WritePin(GDRV_SPI_CS_GPIO_Port, GDRV_SPI_CS_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(
-        ENDAT_DATA_SENDA15_GPIO_Port, ENDAT_DATA_SENDA15_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(ENDAT_CLK_EN_GPIO_Port, ENDAT_CLK_EN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOD_1_GPIO_Port, GPIOD_1_Pin, GPIO_PIN_RESET);
@@ -1054,12 +1053,18 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Alternate = GPIO_AF10_OTG_FS;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : ENDAT_DATA_SENDA15_Pin */
-    GPIO_InitStruct.Pin   = ENDAT_DATA_SENDA15_Pin;
+    /*Configure GPIO pin : ENDAT_CLK_EN_Pin */
+    GPIO_InitStruct.Pin   = ENDAT_CLK_EN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(ENDAT_DATA_SENDA15_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(ENDAT_CLK_EN_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : CHANGE_THIS_REVC_Pin */
+    GPIO_InitStruct.Pin  = CHANGE_THIS_REVC_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(CHANGE_THIS_REVC_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pin : GPIOD_1_Pin */
     GPIO_InitStruct.Pin   = GPIOD_1_Pin;

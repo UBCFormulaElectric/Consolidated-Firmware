@@ -1,10 +1,12 @@
 
 #include "App_Motor.h"
+#include "Io_ECI1118.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <stdbool.h>
 #include <stdio.h>
 
+/*
 struct Motor
 {
     void (*set_fake_fund_freq)(float fundamental_freq);
@@ -34,24 +36,24 @@ void App_Motor_Destroy(struct Motor *motor)
 {
     free(motor);
 }
+*/
 
-void App_Motor_FakeRotorEnable(struct Motor *motor, float fundamental_freq)
+bool App_Motor_GetOTFaultStatus(void)
 {
-    motor->fake_rotor_enable();
-    motor->set_fake_fund_freq(fundamental_freq);
+    return Io_ECI1118_GetMotorOTFault();
 }
 
-void App_Motor_FakeRotorDisable(struct Motor *motor)
+float App_Motor_GetPositionBlocking(void)
 {
-    motor->fake_rotor_disable();
+    return Io_ECI1118_GetPositionBlocking();
 }
 
-void App_Motor_FakeRotorSetFreq(struct Motor *motor, float fundamental_freq)
+void App_Motor_StartGetPosition(void)
 {
-    motor->set_fake_fund_freq(fundamental_freq);
+    Io_ECI1118_StartGetPosition();
 }
 
-float App_Motor_FakeRotorGetPosition(struct Motor *motor)
+float App_Motor_GetPosition(void)
 {
-    return motor->get_fake_position();
+    return Io_ECI1118_ReadPosition();
 }

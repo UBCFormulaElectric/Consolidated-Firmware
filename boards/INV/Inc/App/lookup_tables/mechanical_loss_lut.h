@@ -2,5 +2,4 @@
 
 #include "lookup_tables/motor_lut_interface.h"
 
-extern float mechanical_loss_lut_array[][LUT_NUM_TEMPS][LUT_NUM_ROWS]
-                                      [LUT_NUM_COLUMNS];
+extern float mechanical_loss_lut_array[][LUT_NUM_TEMPS][LUT_NUM_ROWS][LUT_NUM_COLUMNS];

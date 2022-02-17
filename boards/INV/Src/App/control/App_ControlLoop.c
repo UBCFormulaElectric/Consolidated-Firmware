@@ -62,32 +62,42 @@ struct ControllerValues iq_controller = { .prev_integral_input = 0,
                                           .gain                = Q_GAIN,
                                           .time_const          = Q_TIME_CONST };
 
-float rotor_position      = 0;
-float prev_rotor_position = 0;
-float rotor_speed         = 0;
-float bus_voltage         = 0;
-float phc_current_calc    = 0;
-float torque_ref          = 0;
-bool  fw_flag             = 0;
-bool  prev_fw_flag;
+static float rotor_position      = 0;
+static float prev_rotor_position = 0;
+static float rotor_speed         = 0;
+static float bus_voltage         = 0;
+static float phc_current_calc    = 0;
+static float torque_ref          = 0;
+static bool  fw_flag             = 0;
+static bool  prev_fw_flag;
+static uint8_t mode = MODE_UNDEFINED;
+static float rotor_speed_ref = 0;
+static float mod_index_ref = 0;
+static float ph_cur_rms_ref = 0;
 
+//TODO parameters passed in here should come from the CANbus. this is just for debugging. It should be void
 void App_ControlLoop_Run(
-    const float            rotor_speed_ref,
-    const uint8_t          mode,
+    const float            rotor_speed_ref_request,
+    const uint8_t          mode_request,
     const struct InvWorld *world,
-    const float            mod_index_request,
-    float                  ph_cur_rms_request)
+    const float            mod_index_ref_request,
+    float                  ph_cur_rms_ref_request)
 {
+    rotor_speed_ref = rotor_speed_ref_request;
+    mode = mode_request;
+    mod_index_ref = mod_index_ref_request;
+    ph_cur_rms_ref = ph_cur_rms_ref_request;
+
     struct GateDrive * gate_drive  = App_InvWorld_GetGateDrive(world);
     struct PowerStage *power_stage = App_InvWorld_GetPowerStage(world);
     //     struct InvMotor* motor = App_InvWorld_GetMotor(world);
     struct InvCanRxInterface *can_rx = App_InvWorld_GetCanRx(world);
 
-    if (mode == MOTOR_CONTROL)
+    if (mode_request == MOTOR_CONTROL)
     {
-        // TODO Get torque request from state machine
-        App_CanRx_DCM_TORQUE_REQUEST_SetSignal_TORQUE_REQUEST(
-            can_rx, torque_ref);
+        App_CanRx_DCM_TORQUE_REQUEST_GetSignal_TORQUE_REQUEST(
+            can_rx);
+        rotor_position = App_Motor_GetPositionBlocking();
     }
 
     // TODO torque and speed request and reading plausibility check goes here
@@ -106,9 +116,9 @@ void App_ControlLoop_Run(
     }
 
     //    // Get Rotor Position
-    if (mode == GEN_SINE_I || mode == GEN_SINE_M)
+    if (mode_request == GEN_SINE_I || mode_request == GEN_SINE_M)
     {
-        float fund_freq_request = rotor_speed_ref * (float)0.15915494327;
+        float fund_freq_request = rotor_speed_ref_request * (float)0.15915494327;
         rotor_position          = fmodf(
             (prev_rotor_position +
              (fund_freq_request / SAMPLE_FREQUENCY) * 2 * (float)M_PI),
@@ -116,14 +126,15 @@ void App_ControlLoop_Run(
     }
     else
     {
-        //	rotor_position = App_Motor_GetPosition(motor);
+        // rotor_position = (float)App_Motor_GetPosition();
+        // rotor_position = App_Motor_Get
     }
 
     // Get Bus Voltage
     // bus_voltage = App_PowerStage_GetBusVoltage(power_stage);
     bus_voltage = 24.0f;
 
-    if (mode == MOTOR_CONTROL)
+    if (mode_request == MOTOR_CONTROL)
     {
         // Calculate Rotor Speed
         // TODO bug here when rotor goes from 360 degrees to 0 degrees
@@ -134,10 +145,10 @@ void App_ControlLoop_Run(
 
     // Get stator current reference
 
-    if (mode == MOTOR_CONTROL)
+    if (mode_request == MOTOR_CONTROL)
     {
         dqs_ref_currents.s = torqueControl(
-            rotor_speed_ref, rotor_speed, torque_ref, &speed_controller,
+            rotor_speed_ref_request, rotor_speed, torque_ref, &speed_controller,
             prev_fw_flag);
 
         //    // If used, calculate adaption gains
@@ -148,20 +159,20 @@ void App_ControlLoop_Run(
         }
     }
 
-    if (mode == GEN_SINE_I || mode == MOTOR_CONTROL)
+    if (mode_request == GEN_SINE_I || mode_request == MOTOR_CONTROL)
     {
         //     Calculate d/q current references
         //     If GEN_SINE_I mode is used, current request is defined by the
         //     user.
-        if (mode == GEN_SINE_I)
+        if (mode_request == GEN_SINE_I)
         {
-            dqs_ref_currents.q = ph_cur_rms_request;
+            dqs_ref_currents.q = ph_cur_rms_ref;
             dqs_ref_currents.d = 0;
             dqs_ref_currents.s = sqrtf(
                 dqs_ref_currents.q * dqs_ref_currents.q +
                 dqs_ref_currents.d * dqs_ref_currents.d);
         }
-        if (mode == MOTOR_CONTROL)
+        if (mode_request == MOTOR_CONTROL)
         {
             dqs_ref_currents = generateRefCurrents(
                 &dqs_ref_currents, rotor_speed, bus_voltage, &fw_flag);
@@ -169,10 +180,10 @@ void App_ControlLoop_Run(
     }
 
     // Calculate d/q PI controller outputs
-    if (mode == GEN_SINE_M)
+    if (mode_request == GEN_SINE_M)
     {
         dqs_voltages.q =
-            mod_index_request * (0.9f * bus_voltage / (float)M_SQRT3);
+            mod_index_ref * (0.9f * bus_voltage / (float)M_SQRT3);
         dqs_voltages.d = 0;
         dqs_voltages.s = sqrtf(
             dqs_voltages.q * dqs_voltages.q + dqs_voltages.d * dqs_voltages.d);
@@ -195,3 +206,24 @@ void App_ControlLoop_Run(
     prev_fw_flag        = fw_flag;
     prev_rotor_position = rotor_position;
 }
+
+void App_ControlLoop_GetIqControllerValues(struct ControllerValues* controller)
+{
+    controller = &iq_controller;
+}
+
+void App_ControlLoop_GetIdControllerValues(struct ControllerValues* controller)
+{
+    controller = &id_controller;
+}
+
+void App_ControlLoop_GetSpeedControllerValues(struct ControllerValues* controller)
+{
+    controller = &speed_controller;
+}
+
+uint8_t App_ControlLoop_GetMode(void)
+{
+    return mode;
+}
+

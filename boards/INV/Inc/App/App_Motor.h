@@ -1,5 +1,6 @@
 #pragma once
-
+#include <stdint.h>
+/*
 struct Motor;
 
 struct Motor *App_Motor_Create(
@@ -12,3 +13,7 @@ void  App_Motor_FakeRotorEnable(struct Motor *motor, float fundamental_freq);
 void  App_Motor_FakeRotorDisable(struct Motor *motor);
 void  App_Motor_FakeRotorSetFreq(struct Motor *motor, float fundamental_freq);
 float App_Motor_FakeRotorGetPosition(struct Motor *motor);
+ */
+float App_Motor_GetPositionBlocking(void);
+void  App_Motor_StartGetPosition(void);
+float App_Motor_GetPosition(void);

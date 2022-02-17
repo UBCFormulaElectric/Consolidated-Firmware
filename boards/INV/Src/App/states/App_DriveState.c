@@ -1,3 +1,4 @@
+#include "states/App_AllStates.h"
 #include "states/App_DriveState.h"
 #include "main.h"
 #include "App_SharedMacros.h"
@@ -23,24 +24,24 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     App_PowerStage_SetCurrentLimits(power_stage, 10);
     App_GateDrive_StartPwm(gate_drive); // Enable PWM
     App_GateDrive_Enable(gate_drive);   // Release Shutdown Pin
-    App_CanRx_DCM_TORQUE_REQUEST_GetSignal_TORQUE_REQUEST(can_rx_interface);
-    UNUSED(can_tx_interface);
+
+    App_CanTx_SetPeriodicSignal_STATE(
+        can_tx_interface, CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE);
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
+    App_AllStatesRunOnTick1Hz(state_machine);
     struct InvWorld *  world = App_SharedStateMachine_GetWorld(state_machine);
     struct GateDrive * gate_drive  = App_InvWorld_GetGateDrive(world);
     struct PowerStage *power_stage = App_InvWorld_GetPowerStage(world);
     struct InvCanTxInterface *can_tx_interface = App_InvWorld_GetCanTx(world);
-    App_CanTx_SetPeriodicSignal_STATE(
-        can_tx_interface, CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE);
-    UNUSED(state_machine);
     // App_GateDrive_GetFaults(gate_drive, stgap_faults);
 }
 
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
+    App_AllStatesRunOnTick100Hz(state_machine);
     struct InvWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     //     struct GateDrive *gate_drive = App_InvWorld_GetGateDrive(world);
     //
@@ -49,8 +50,6 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     HAL_GPIO_TogglePin(GPIOD_2_GPIO_Port, GPIOD_2_Pin);
     //    App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
     UNUSED(state_machine);
-
-    // TODO: do some more stuff here
 }
 
 static void DriveStateRunOnExit(struct StateMachine *const state_machine)

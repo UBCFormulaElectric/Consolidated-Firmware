@@ -32,6 +32,7 @@ enum Mode
     GEN_SINE_I,
     GEN_SINE_M,
     MOTOR_CONTROL,
+    MODE_UNDEFINED,
 };
 
 struct InvWorld;
@@ -42,3 +43,8 @@ void App_ControlLoop_Run(
     const struct InvWorld *world,
     float                  mod_index_request,
     float                  ph_cur_rms_request);
+
+void App_ControlLoop_GetIqControllerValues(struct ControllerValues* controller);
+void App_ControlLoop_GetIdControllerValues(struct ControllerValues* controller);
+void App_ControlLoop_GetSpeedControllerValues(struct ControllerValues* controller);
+uint8_t App_ControlLoop_GetMode(void);
