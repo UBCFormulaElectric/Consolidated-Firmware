@@ -1,8 +1,5 @@
-//
-// Created by ggoodwinwilson on 4/3/2021.
-//
-
 #include "App_PowerStage.h"
+#include "Io_AdcDac.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <stdbool.h>
@@ -139,4 +136,14 @@ bool App_PowerStage_GetPhcOCFault(struct PowerStage *power_stage)
 bool App_PowerStage_GetPowerStageOTFault(struct PowerStage *power_stage)
 {
     return power_stage->get_powerstage_ot_fault();
+}
+
+float App_PowerStage_GetPosCurrentLimit(void)
+{
+    return Io_AdcDac_Dac1GetCurrentLim();
+}
+
+float App_PowerStage_GetNegCurrentLimit(void)
+{
+    return Io_AdcDac_Dac2GetCurrentLim();
 }

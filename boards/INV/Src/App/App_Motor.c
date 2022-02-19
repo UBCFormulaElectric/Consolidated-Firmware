@@ -1,6 +1,8 @@
 
 #include "App_Motor.h"
 #include "Io_ECI1118.h"
+#include "Io_GPIO.h"
+#include "Io_AdcDac.h"
 #include <stdlib.h>
 #include <assert.h>
 #include <stdbool.h>
@@ -56,4 +58,14 @@ void App_Motor_StartGetPosition(void)
 float App_Motor_GetPosition(void)
 {
     return Io_ECI1118_ReadPosition();
+}
+
+bool App_Motor_GetOTAlarm(void)
+{
+    return Io_GPIO_GetMotorOTAlarm();
+}
+
+float App_Motor_GetTemperature(void)
+{
+    return Io_AdcDac_GetMotorTemp();
 }

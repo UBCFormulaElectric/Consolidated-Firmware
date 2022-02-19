@@ -152,6 +152,7 @@ static void CanRxQueueOverflowCallBack(size_t overflow_count)
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
     App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
+
 }
 /* USER CODE END 0 */
 
@@ -210,8 +211,9 @@ int main(void)
     Io_SharedHardFaultHandler_Init();
 
     can_tx = App_CanTx_Create(
-        Io_CanTx_EnqueueNonPeriodicMsg_INV_STARTUP,
-        Io_CanTx_EnqueueNonPeriodicMsg_INV_WATCHDOG_TIMEOUT);
+        Io_CanTx_EnqueueNonPeriodicMsg_INV_WATCHDOG_TIMEOUT,
+        Io_CanTx_EnqueueNonPeriodicMsg_INV_AIR_SHUTDOWN_ERRORS,
+        Io_CanTx_EnqueueNonPeriodicMsg_INV_MOTOR_SHUTDOWN_ERRORS);
 
     can_rx = App_CanRx_Create();
 
@@ -259,8 +261,6 @@ int main(void)
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
 
-    struct CanMsgs_inv_startup_t payload = { .dummy = 0 };
-    App_CanTx_SendNonPeriodicMsg_INV_STARTUP(can_tx, &payload);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */

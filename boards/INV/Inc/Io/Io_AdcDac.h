@@ -12,10 +12,14 @@ void Io_AdcDac_AdcStart(void);
 void Io_AdcDac_AdcStop(void);
 
 void                      Io_AdcDac_DacStart(void);
-void                      Io_AdcDac_DacSetCurrent(float current);
+void                      Io_AdcDac_DacSetCurrentLim(float current);
 const struct PhaseValues *Io_AdcDac_CorrectOffset(void);
 void  Io_AdcDac_GetPhaseCurrents(struct PhaseValues *const phase_currents);
 float Io_AdcDac_GetGpioVal(void);
 float Io_AdcDac_GetBusVoltage(void);
 float Io_AdcDac_GetMotorTemp(void);
 float Io_AdcDac_GetPowerstageTemp(void);
+float Io_AdcDac_Dac1GetVoltage(void);
+float Io_AdcDac_Dac2GetVoltage(void);
+float Io_AdcDac_Dac1GetCurrentLim(void);
+float Io_AdcDac_Dac2GetCurrentLim(void);

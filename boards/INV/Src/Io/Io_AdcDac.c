@@ -190,7 +190,7 @@ void Io_AdcDac_DacStart(void)
     HAL_DAC_SetValue(&hdac, DAC_CHANNEL_2, DAC_ALIGN_12B_R, 0x000);
 }
 
-void Io_AdcDac_DacSetCurrent(const float current)
+void Io_AdcDac_DacSetCurrentLim(const float current)
 {
     if (current > MAX_INVERTER_CURRENT || current < 0)
     {
@@ -216,3 +216,28 @@ void Io_AdcDac_DacSetCurrent(const float current)
         // TODO exitcode here
     }
 }
+
+float Io_AdcDac_Dac1GetVoltage(void)
+{
+    uint32_t dac_raw_value = HAL_DAC_GetValue(&hdac, DAC_CHANNEL_1);
+    return 3.3f * (float)(dac_raw_value/0xFFF);
+}
+
+float Io_AdcDac_Dac2GetVoltage(void)
+{
+    uint32_t dac_raw_value = HAL_DAC_GetValue(&hdac, DAC_CHANNEL_2);
+    return 3.3f * (float)(dac_raw_value/0xFFF);
+}
+
+float Io_AdcDac_Dac1GetCurrentLim(void)
+{
+    float dac_voltage = Io_AdcDac_Dac1GetVoltage();
+    return (dac_voltage - 1.65f) * 100.0f;
+}
+
+float Io_AdcDac_Dac2GetCurrentLim(void)
+{
+    float dac_voltage = Io_AdcDac_Dac2GetVoltage();
+    return (1.65f - dac_voltage) * -100.0f;
+}
+

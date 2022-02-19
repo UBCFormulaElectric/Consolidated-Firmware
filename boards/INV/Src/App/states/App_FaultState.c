@@ -27,6 +27,8 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_InvWorld_GetHeartbeatMonitor(world);
 
     App_AllStatesRunOnTick100Hz(state_machine);
+    App_CanTx_SetPeriodicSignal_STATE(
+            can_tx_interface, CANMSGS_INV_STATE_MACHINE_STATE_FAULT_CHOICE);
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
 }
 

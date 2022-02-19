@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <stdbool.h>
 /*
 struct Motor;
 
@@ -17,3 +18,5 @@ float App_Motor_FakeRotorGetPosition(struct Motor *motor);
 float App_Motor_GetPositionBlocking(void);
 void  App_Motor_StartGetPosition(void);
 float App_Motor_GetPosition(void);
+bool App_Motor_GetOTAlarm(void);
+float App_Motor_GetTemperature(void);

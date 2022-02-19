@@ -25,8 +25,7 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     App_GateDrive_StartPwm(gate_drive); // Enable PWM
     App_GateDrive_Enable(gate_drive);   // Release Shutdown Pin
 
-    App_CanTx_SetPeriodicSignal_STATE(
-        can_tx_interface, CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE);
+    App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE);
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -43,13 +42,17 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
     struct InvWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct InvCanTxInterface *can_tx_interface = App_InvWorld_GetCanTx(world);
+    struct HeartbeatMonitor *heartbeat_monitor =
+            App_InvWorld_GetHeartbeatMonitor(world);
     //     struct GateDrive *gate_drive = App_InvWorld_GetGateDrive(world);
     //
     //    struct HeartbeatMonitor *heartbeat_monitor =
     //        App_InvWorld_GetHeartbeatMonitor(world);
     HAL_GPIO_TogglePin(GPIOD_2_GPIO_Port, GPIOD_2_Pin);
-    //    App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
-    UNUSED(state_machine);
+    App_CanTx_SetPeriodicSignal_STATE(
+            can_tx_interface, CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE);
+    App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
 }
 
 static void DriveStateRunOnExit(struct StateMachine *const state_machine)

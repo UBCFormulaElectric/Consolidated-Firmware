@@ -38,3 +38,5 @@ bool  App_PowerStage_GetPhaOCFault(struct PowerStage *power_stage);
 bool  App_PowerStage_GetPhbOCFault(struct PowerStage *power_stage);
 bool  App_PowerStage_GetPhcOCFault(struct PowerStage *power_stage);
 bool  App_PowerStage_GetPowerStageOTFault(struct PowerStage *power_stage);
+float App_PowerStage_GetPosCurrentLimit(void);
+float App_PowerStage_GetNegCurrentLimit(void);
