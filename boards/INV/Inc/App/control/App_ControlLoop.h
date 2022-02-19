@@ -23,8 +23,15 @@ struct ControllerValues
 {
     float prev_integral_input;
     float integral_sum;
+    float output;
     float gain;
     float time_const;
+};
+
+struct MotorControlFaults
+{
+    bool torque_request_implausible;
+    bool rotor_position_implausible;
 };
 
 enum Mode
@@ -47,4 +54,9 @@ void App_ControlLoop_Run(
 void App_ControlLoop_GetIqControllerValues(struct ControllerValues* controller);
 void App_ControlLoop_GetIdControllerValues(struct ControllerValues* controller);
 void App_ControlLoop_GetSpeedControllerValues(struct ControllerValues* controller);
+void App_ControlLoop_GetFaults(struct MotorControlFaults* faults);
 uint8_t App_ControlLoop_GetMode(void);
+float App_ControlLoop_GetModIndex(void);
+float App_ControlLoop_GetRotorSpeed(void);
+float App_ControlLoop_GetPhcCurCalc(void);
+bool App_ControlLoop_GetFwFlag(void);

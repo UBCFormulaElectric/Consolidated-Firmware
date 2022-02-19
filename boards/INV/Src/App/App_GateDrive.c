@@ -115,6 +115,11 @@ const struct StgapFaults *App_GateDrive_GetFaults(struct GateDrive *gate_drive)
     return gate_drive->read_faults();
 }
 
+bool App_GateDrive_IsFaulted(void)
+{
+    return Io_STGAP1AS_IsFaulted();
+}
+
 void App_GateDrive_WriteRegister(
     struct GateDrive *gate_drive,
     uint8_t           register_name,

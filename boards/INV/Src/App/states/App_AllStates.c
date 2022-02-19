@@ -7,9 +7,18 @@
 #include "main.h"
 #include "Io_AdcDac.h"
 
-static struct ControllerValues * iq_controller;
-static struct ControllerValues * id_controller;
-static struct ControllerValues * speed_controller;
+static float rotor_speed_request;
+static uint8_t mode_request;
+static float mod_index_request;
+static float ph_cur_peak_request;
+static float fund_freq_request;
+
+static const struct PhaseValues *phase_currents;
+static const struct StgapFaults *stgap_faults;
+
+static const struct ControllerValues * iq_controller;
+static const struct ControllerValues * id_controller;
+static const struct ControllerValues * speed_controller;
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
@@ -38,6 +47,8 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_DAC_OUT1_CURRENT_LIM(can_tx_interface, App_PowerStage_GetPosCurrentLimit());
     App_CanTx_SetPeriodicSignal_DAC_OUT2_VOLTAGE(can_tx_interface, Io_AdcDac_Dac2GetVoltage());
     App_CanTx_SetPeriodicSignal_DAC_OUT2_CURRENT_LIM(can_tx_interface, App_PowerStage_GetNegCurrentLimit());
+
+    //stgap message setters here
 }
 
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
@@ -50,20 +61,34 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_ControlLoop_GetIqControllerValues(iq_controller);
     App_ControlLoop_GetIdControllerValues(id_controller);
     App_ControlLoop_GetSpeedControllerValues(speed_controller);
+    App_PowerStage_GetPhaseCurrents(power_stage, phase_currents);
 
     App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx_interface, 1);
     App_CanTx_SetPeriodicSignal_PID_IQ_INTEGRAL(can_tx_interface, iq_controller->integral_sum);
     App_CanTx_SetPeriodicSignal_PID_ID_INTEGRAL(can_tx_interface, id_controller->integral_sum);
     App_CanTx_SetPeriodicSignal_PID_SPEED_INTEGRAL(can_tx_interface, speed_controller->integral_sum);
     App_CanTx_SetPeriodicSignal_MOD_INDEX(can_tx_interface, App_ControlLoop_GetModIndex());
-    App_CanTx_SetPeriodicSignal_BUS_VOLTAGE(can_tx_interface, App_ControlLoop_GetBusVoltage());
-    App_CanTx_SetPeriodicSignal_PHA_CUR_DC(can_tx_interface, App_ControlLoop_GetPhaCurDc());
-    App_CanTx_SetPeriodicSignal_PHB_CUR_DC(can_tx_interface, App_ControlLoop_GetPhbCurDc());
-    App_CanTx_SetPeriodicSignal_PHC_CUR_DC(can_tx_interface, App_ControlLoop_GetPhcCurDc());
-    App_CanTx_SetPeriodicSignal_MOTOR_POS(can_tx_interface, App_ControlLoop_GetMotorPos());
-    App_CanTx_SetPeriodicSignal_MOTOR_POS(can_tx_interface, App_ControlLoop_GetMotorSpeed());
+    App_CanTx_SetPeriodicSignal_BUS_VOLTAGE(can_tx_interface, App_PowerStage_GetBusVoltage(power_stage));
+    App_CanTx_SetPeriodicSignal_PHA_CUR_DC(can_tx_interface, phase_currents->a);
+    App_CanTx_SetPeriodicSignal_PHB_CUR_DC(can_tx_interface, phase_currents->b);
+    App_CanTx_SetPeriodicSignal_PHC_CUR_DC(can_tx_interface, phase_currents->c);
+    App_CanTx_SetPeriodicSignal_MOTOR_POS(can_tx_interface, App_Motor_GetPosition());
+    App_CanTx_SetPeriodicSignal_MOTOR_SPEED(can_tx_interface, App_ControlLoop_GetRotorSpeed());
     App_CanTx_SetPeriodicSignal_MODE(can_tx_interface, App_ControlLoop_GetMode());
     App_CanTx_SetPeriodicSignal_GPIOA(can_tx_interface, Io_AdcDac_GetGpioVal());
+    App_CanTx_SetPeriodicSignal_PID_IQ_OUTPUT(can_tx_interface, iq_controller->output);
+    App_CanTx_SetPeriodicSignal_PID_ID_OUTPUT(can_tx_interface, id_controller->output);
+    App_CanTx_SetPeriodicSignal_PID_SPEED_OUTPUT(can_tx_interface, speed_controller->output);
+
+    rotor_speed_request = App_CanRx_INV_ROTOR_SPEED_REQ_GetSignal_ROTOR_SPEED_REQ(can_rx_interface);
+    mode_request = App_CanRx_INV_MODE_REQ_GetSignal_MODE_REQ(can_rx_interface);
+    mod_index_request = App_CanRx_INV_MOD_INDEX_REQ_GetSignal_MOD_INDEX_REQ(can_rx_interface);
+    ph_cur_peak_request = App_CanRx_INV_PH_CUR_PEAK_REQ_GetSignal_PH_CUR_PEAK_REQ(can_rx_interface);
+    fund_freq_request = App_CanRx_INV_FUND_FREQ_REQ_GetSignal_FUND_FREQ_REQ(can_rx_interface);
+
+    App_CanTx_SetPeriodicSignal_
+
+
 
 
 

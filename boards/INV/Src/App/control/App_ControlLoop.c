@@ -42,30 +42,40 @@
  */
 
 // INITIALIZE VARIABLES HERE
-struct PhaseValues phase_voltages, phase_currents, phase_duration;
-struct DqsValues   dqs_ref_currents, dqs_currents, dqs_voltages;
+static struct PhaseValues phase_voltages, phase_currents, phase_duration;
+static struct DqsValues   dqs_ref_currents, dqs_currents, dqs_voltages;
 
-struct ControllerValues speed_controller = {
+static struct ControllerValues speed_controller = {
     .prev_integral_input = 0,
     .integral_sum        = 0,
+    .output   = 0,
     .gain                = SPEED_GAIN,
     .time_const          = SPEED_TIME_CONST,
 };
 
-struct ControllerValues id_controller = { .prev_integral_input = 0,
+static struct ControllerValues id_controller = { .prev_integral_input = 0,
                                           .integral_sum        = 0,
+                                          .output               = 0,
                                           .gain                = D_GAIN,
                                           .time_const          = D_TIME_CONST };
 
-struct ControllerValues iq_controller = { .prev_integral_input = 0,
+static struct ControllerValues iq_controller = { .prev_integral_input = 0,
                                           .integral_sum        = 0,
+                                          .output               = 0,
                                           .gain                = Q_GAIN,
                                           .time_const          = Q_TIME_CONST };
+
+static struct MotorControlFaults motor_control_faults = {
+        .torque_request_implausible = 0,
+                .rotor_position_implausible = 0
+};
 
 static float rotor_position      = 0;
 static float prev_rotor_position = 0;
 static float rotor_speed         = 0;
+static float prev_rotor_speed    = 0;
 static float bus_voltage         = 0;
+static float mod_index           = 0;
 static float phc_current_calc    = 0;
 static float torque_ref          = 0;
 static bool  fw_flag             = 0;
@@ -73,7 +83,8 @@ static bool  prev_fw_flag;
 static uint8_t mode = MODE_UNDEFINED;
 static float rotor_speed_ref = 0;
 static float mod_index_ref = 0;
-static float ph_cur_rms_ref = 0;
+static float ph_cur_peak_ref = 0;
+static float fund_freq_ref = 0;
 
 //TODO parameters passed in here should come from the CANbus. this is just for debugging. It should be void
 void App_ControlLoop_Run(
@@ -83,29 +94,60 @@ void App_ControlLoop_Run(
     const float            mod_index_ref_request,
     float                  ph_cur_rms_ref_request)
 {
-    rotor_speed_ref = rotor_speed_ref_request;
-    mode = mode_request;
-    mod_index_ref = mod_index_ref_request;
-    ph_cur_rms_ref = ph_cur_rms_ref_request;
-
     struct GateDrive * gate_drive  = App_InvWorld_GetGateDrive(world);
-    struct PowerStage *power_stage = App_InvWorld_GetPowerStage(world);
-    //     struct InvMotor* motor = App_InvWorld_GetMotor(world);
+    struct PowerStage *power_stage = App_InvWorld_GetPowerStage(world);\
     struct InvCanRxInterface *can_rx = App_InvWorld_GetCanRx(world);
+
+    //Get user requests from the CAN bus
+    rotor_speed_ref = App_CanRx_INV_ROTOR_SPEED_REQ_GetSignal_ROTOR_SPEED_REQ(can_rx);
+    mode = App_CanRx_INV_MODE_REQ_GetSignal_MODE_REQ(can_rx);
+    mod_index_ref = App_CanRx_INV_MOD_INDEX_REQ_GetSignal_MOD_INDEX_REQ(can_rx);
+    ph_cur_peak_ref = App_CanRx_INV_PH_CUR_PEAK_REQ_GetSignal_PH_CUR_PEAK_REQ(can_rx);
+    fund_freq_ref = App_CanRx_INV_FUND_FREQ_REQ_GetSignal_FUND_FREQ_REQ(can_rx);
 
     if (mode_request == MOTOR_CONTROL)
     {
-        App_CanRx_DCM_TORQUE_REQUEST_GetSignal_TORQUE_REQUEST(
+        torque_ref = App_CanRx_DCM_TORQUE_REQUEST_GetSignal_TORQUE_REQUEST(
             can_rx);
+        if(fabsf(torque_ref) > MAX_MOTOR_TORQUE)
+        {
+            motor_control_faults.torque_request_implausible = 1;
+            torque_ref = 0;
+        }
         rotor_position = App_Motor_GetPositionBlocking();
+        float rotor_position_diff = rotor_position - prev_rotor_position;
+        if(fabsf(rotor_position_diff) > MAX_MOTOR_POS_CHANGE_PER_CYCLE)
+        {
+            //Rotor is moving in the positive direction, and crossing 360degrees
+            if(prev_rotor_position > rotor_position)
+            {
+                rotor_speed = (rotor_position - prev_rotor_position - 2*(float)M_PI) * SAMPLE_FREQUENCY;
+            }
+            //Rotor is moving in the negative direction, and crossing 360degrees
+            else if (rotor_position < prev_rotor_position)
+            {
+                rotor_speed = (prev_rotor_position - rotor_position - 2*(float)M_PI) * SAMPLE_FREQUENCY;
+            }
+        }
+        else if (fabsf(rotor_position_diff) > MAX_MOTOR_POS_CHANGE_PER_CYCLE && fabsf(rotor_position_diff) < 2*(float)M_PI - MAX_MOTOR_POS_CHANGE_PER_CYCLE)
+        {
+            //Rotor speed/position are implausible
+            motor_control_faults.rotor_position_implausible = 1;
+            rotor_speed = 0;
+            rotor_position = 0;
+        }
+        else
+        {
+            rotor_speed = (rotor_position - prev_rotor_position) * SAMPLE_FREQUENCY;
+        }
+
+        float id_ref = look_up_value(rotor_speed, torque_ref, bus_voltage, 80.0f, ID_PEAK);
+        float iq_ref = look_up_value(rotor_speed, torque_ref, bus_voltage, 80.0f, IQ_PEAK);
     }
-
-    // TODO torque and speed request and reading plausibility check goes here
-    torque_ref   = 15;
-    float id_val = look_up_value(-40000.0f, -40.0f, 300.0f, 80.0f, ID_PEAK);
-    float iq_val = look_up_value(22000.0f, 30.0f, 700.0f, 80.0f, IQ_PEAK);
-
-    // TODO Get Speed Ref Request from state machine
+    else
+    {
+        torque_ref = 0;
+    }
 
     // Get Phase Currents
     App_PowerStage_GetPhaseCurrents(power_stage, &phase_currents);
@@ -115,31 +157,16 @@ void App_ControlLoop_Run(
         // TODO Phase C Current calculation plausibility error
     }
 
-    //    // Get Rotor Position
+    //Fake out rotor position for sinewave generation modes
     if (mode_request == GEN_SINE_I || mode_request == GEN_SINE_M)
     {
-        float fund_freq_request = rotor_speed_ref_request * (float)0.15915494327;
         rotor_position          = fmodf(
             (prev_rotor_position +
-             (fund_freq_request / SAMPLE_FREQUENCY) * 2 * (float)M_PI),
+             (fund_freq_ref / SAMPLE_FREQUENCY) * 2 * (float)M_PI),
             2 * (float)M_PI);
     }
-    else
-    {
-        // rotor_position = (float)App_Motor_GetPosition();
-        // rotor_position = App_Motor_Get
-    }
 
-    // Get Bus Voltage
-    // bus_voltage = App_PowerStage_GetBusVoltage(power_stage);
-    bus_voltage = 24.0f;
-
-    if (mode_request == MOTOR_CONTROL)
-    {
-        // Calculate Rotor Speed
-        // TODO bug here when rotor goes from 360 degrees to 0 degrees
-        rotor_speed = (rotor_position - prev_rotor_position) * SAMPLE_FREQUENCY;
-    }
+    bus_voltage = App_PowerStage_GetBusVoltage(power_stage);
 
     dqs_currents = clarkeParkTransform(&phase_currents, rotor_position);
 
@@ -166,7 +193,7 @@ void App_ControlLoop_Run(
         //     user.
         if (mode_request == GEN_SINE_I)
         {
-            dqs_ref_currents.q = ph_cur_rms_ref;
+            dqs_ref_currents.q = ph_cur_peak_ref;
             dqs_ref_currents.d = 0;
             dqs_ref_currents.s = sqrtf(
                 dqs_ref_currents.q * dqs_ref_currents.q +
@@ -205,6 +232,7 @@ void App_ControlLoop_Run(
 
     prev_fw_flag        = fw_flag;
     prev_rotor_position = rotor_position;
+    prev_rotor_speed = rotor_speed;
 }
 
 void App_ControlLoop_GetIqControllerValues(struct ControllerValues* controller)
@@ -222,8 +250,32 @@ void App_ControlLoop_GetSpeedControllerValues(struct ControllerValues* controlle
     controller = &speed_controller;
 }
 
+void App_ControlLoop_GetFaults(struct MotorControlFaults* faults)
+{
+    faults = &motor_control_faults;
+}
+
 uint8_t App_ControlLoop_GetMode(void)
 {
     return mode;
 }
 
+float App_ControlLoop_GetModIndex(void)
+{
+    return mod_index;
+}
+
+float App_ControlLoop_GetRotorSpeed(void)
+{
+    return rotor_speed;
+}
+
+float App_ControlLoop_GetPhcCurCalc(void)
+{
+    return phc_current_calc;
+}
+
+bool App_ControlLoop_GetFwFlag(void)
+{
+    return fw_flag;
+}

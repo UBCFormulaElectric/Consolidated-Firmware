@@ -27,6 +27,7 @@
 #define MAX_MOTOR_TORQUE 22.6f // Maximum motor torque, in N*m
 #define MAX_MOTOR_POWER 30000  // Maximum motor power, in W
 #define MAX_MOTOR_SPEED 15000  // Maximum motor speed, in rpm
+#define MAX_MOTOR_POS_CHANGE_PER_CYCLE MAX_MOTOR_SPEED/9.459f/SAMPLE_FREQUENCY
 #define SPEED_SETPOINT 15000   // Speed setpoint, in rpm
 
 //-------------- Control Loop Parameters -----------------
@@ -36,7 +37,7 @@
     12000 // Maximum settable switching frequency, in Hz
 #define MIN_SWITCHING_FREQUENCY \
     4000                       // Minimum settable switching frequency, in Hz
-#define SAMPLE_FREQUENCY 10000 // Sampling frequency of sensors for control loop
+#define SAMPLE_FREQUENCY 20000 // Sampling frequency of sensors for control loop
 #define D_GAIN 0.8706229594480495f * 5     // PI controller D axis gain
 #define D_TIME_CONST 0.001777777777777778f // PI controller D axis time constant
 #define Q_GAIN 1.741245918896099f * 5      // PI controller Q axis gain
@@ -44,7 +45,7 @@
 #define SPEED_GAIN 0.4002385659999999f     // Speed PI controller gain
 #define SPEED_TIME_CONST 0.04244135400651f // Speed PI controller time constant
 #define DECOUPLING_ENABLED 1     // Enable flag for D/Q axis decoupling
-#define LUT_CONTROL_ENABLED 0    // Enable flag for Motor Control with LUT
+#define LUT_CONTROL_ENABLED 1    // Enable flag for Motor Control with LUT
 #define CALCULATE_PHC_CURRENT 1  // Enable flag for calculation of PHC current
 #define ADAPTION_GAIN_ENABLED 0  // Enable flag for Adaptive gain
 #define ADAPTION_GAIN_CONST 0.2f // Adaption constant for Q axis gain

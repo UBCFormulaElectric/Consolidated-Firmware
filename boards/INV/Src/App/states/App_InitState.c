@@ -19,7 +19,7 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     App_PowerStage_StandBy(
         power_stage); // Enable continuous ADC DMA requests from all channels
     App_GateDrive_WriteConfig(gate_drive);
-    stgap_faults = App_GateDrive_GetFaults(gate_drive);
+
 }
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -45,7 +45,7 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
 static void InitStateRunOnExit(struct StateMachine *const state_machine)
 {
-    UNUSED(state_machine);
+
 }
 
 const struct State *App_GetInitState(void)

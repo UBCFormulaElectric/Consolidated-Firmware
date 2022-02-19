@@ -3,7 +3,7 @@ import os
 
 workbook = load_workbook("CanMsgs.xlsx", data_only=True)
 worksheet = workbook.active
-number_of_rows = 324
+number_of_rows = 400
 number_of_header_rows = 2
 start_row = number_of_header_rows + 1
 
@@ -91,29 +91,30 @@ with open("App_CanMsgs.dbc", 'w') as dbc_file:
             'SIGNAL_ENUM5': str(worksheet[column_designation.get('SIGNAL_ENUM5') + str(signal)].value),
             'SIGNAL_ENUM6': str(worksheet[column_designation.get('SIGNAL_ENUM6') + str(signal)].value),
 }
+        if worksheet[column_designation.get('CAN_ID') + str(signal)].value is not None:
 
-        #If the CAN_ID is not the same as the previous signal
-        if worksheet[column_designation.get('CAN_ID') + str(signal)].value != worksheet[column_designation.get('CAN_ID') + str(signal-1)].value:
-            message_bit_total = 0
-            dbc_file.write(
-                (
-                "\nBO_ " + signal_info.get('CAN_ID') + " " + signal_info.get('MESSAGE_NAME') + " : " + signal_info.get('MESSAGE_LENGTH') + " " + signal_info.get("MESSAGE_SENDER_NODE") + "\n"
+            #If the CAN_ID is not the same as the previous signal
+            if worksheet[column_designation.get('CAN_ID') + str(signal)].value != worksheet[column_designation.get('CAN_ID') + str(signal-1)].value:
+                message_bit_total = 0
+                dbc_file.write(
+                    (
+                    "\nBO_ " + signal_info.get('CAN_ID') + " " + signal_info.get('MESSAGE_NAME') + " : " + signal_info.get('MESSAGE_LENGTH') + " " + signal_info.get("MESSAGE_SENDER_NODE") + "\n"
+                    )
+
                 )
 
+            dbc_file.write(
+                (
+                "\tSG_ " + signal_info.get('SIGNAL_NAME') + " : " + str(message_bit_total) + "|" + str(signal_info.get('SIGNAL_LENGTH')) +
+                signal_info.get('SIGNAL_ENDIANNESS') + signal_info.get('SIGNAL_SIGNED_UNSIGNED') + " (" + signal_info.get('SIGNAL_SCALE') + "," +
+                signal_info.get('SIGNAL_OFFSET') + ") [" + signal_info.get('SIGNAL_MINIMUM') + "|" + signal_info.get('SIGNAL_MAXIMUM') + "] \"" +
+                signal_info.get("SIGNAL_UNIT") + "\" " + signal_info.get("SIGNAL_REC_NODE1") + signal_info.get("SIGNAL_REC_NODE2") + signal_info.get("SIGNAL_REC_NODE3")
+                + signal_info.get("SIGNAL_REC_NODE4") + signal_info.get("SIGNAL_REC_NODE5") + signal_info.get("SIGNAL_REC_NODE6") + signal_info.get("SIGNAL_REC_NODE7")
+                + signal_info.get("SIGNAL_REC_NODE8") + "\n"
+                )
             )
 
-        dbc_file.write(
-            (
-            "\tSG_ " + signal_info.get('SIGNAL_NAME') + " : " + str(message_bit_total) + "|" + str(signal_info.get('SIGNAL_LENGTH')) +
-            signal_info.get('SIGNAL_ENDIANNESS') + signal_info.get('SIGNAL_SIGNED_UNSIGNED') + " (" + signal_info.get('SIGNAL_SCALE') + "," +
-            signal_info.get('SIGNAL_OFFSET') + ") [" + signal_info.get('SIGNAL_MINIMUM') + "|" + signal_info.get('SIGNAL_MAXIMUM') + "] \"" +
-            signal_info.get("SIGNAL_UNIT") + "\" " + signal_info.get("SIGNAL_REC_NODE1") + signal_info.get("SIGNAL_REC_NODE2") + signal_info.get("SIGNAL_REC_NODE3")
-            + signal_info.get("SIGNAL_REC_NODE4") + signal_info.get("SIGNAL_REC_NODE5") + signal_info.get("SIGNAL_REC_NODE6") + signal_info.get("SIGNAL_REC_NODE7")
-            + signal_info.get("SIGNAL_REC_NODE8") + "\n"
-            )
-        )
-
-        message_bit_total += signal_info.get('SIGNAL_LENGTH')
+            message_bit_total += signal_info.get('SIGNAL_LENGTH')
 
     dbc_file.write(
         (
@@ -167,7 +168,9 @@ with open("App_CanMsgs.dbc", 'w') as dbc_file:
             'SIGNAL_ENUM6': str(worksheet[column_designation.get('SIGNAL_ENUM6') + str(signal)].value),
         }
 
-        if worksheet[column_designation.get('CAN_ID') + str(signal)].value is not None and worksheet[column_designation.get('MESSAGE_PERIODICITY') + str(signal)].value is not None:
+        if worksheet[column_designation.get('CAN_ID') + str(signal)].value is not None and \
+            worksheet[column_designation.get('MESSAGE_PERIODICITY') + str(signal)].value is not None and \
+            worksheet[column_designation.get('CAN_ID') + str(signal)].value != worksheet[column_designation.get('CAN_ID') + str(signal-1)].value:
             dbc_file.write(
                 (
                 "BA_ \"GenMsgCycleTime\" BO_ " + signal_info.get('CAN_ID') + " " + signal_info.get('MESSAGE_PERIODICITY') + ";\n"
@@ -218,13 +221,13 @@ with open("App_CanMsgs.dbc", 'w') as dbc_file:
             'SIGNAL_ENUM5': str(worksheet[column_designation.get('SIGNAL_ENUM5') + str(signal)].value),
             'SIGNAL_ENUM6': str(worksheet[column_designation.get('SIGNAL_ENUM6') + str(signal)].value),
         }
-
-        if signal_info.get("SIGNAL_DATA_TYPE") == "float":
-            dbc_file.write(
-                (
-                "SIG_VALTYPE_ " + signal_info.get('CAN_ID') + " " + signal_info.get('SIGNAL_NAME') + " : 1;\n"
+        if worksheet[column_designation.get('CAN_ID') + str(signal)].value is not None:
+            if signal_info.get("SIGNAL_DATA_TYPE") == "float":
+                dbc_file.write(
+                    (
+                    "SIG_VALTYPE_ " + signal_info.get('CAN_ID') + " " + signal_info.get('SIGNAL_NAME') + " : 1;\n"
+                    )
                 )
-            )
 
     #Deal with enums
     for signal in range(start_row, number_of_rows):

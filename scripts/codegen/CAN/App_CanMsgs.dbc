@@ -553,11 +553,34 @@ BO_ 629 INV_PID_ID_OUTPUT : 4 INV
 BO_ 630 INV_PID_SPEED_OUTPUT : 4 INV
 	SG_ PID_SPEED_OUTPUT : 0|32@1- (1,0) [-2147483647|2147483647] "Nm" DEBUG
 
+BO_ 631 INV_FAULT_REASON : 2 INV
+	SG_ STGAP_STATUS_FAULT : 0|1@1+ (1,0) [0|1] "" DEBUG
+	SG_ STGAP_SHORT_TEST : 1|1@1+ (1,0) [0|1] "" DEBUG
+	SG_ ROTOR_NO_RESPONSE : 2|1@1+ (1,0) [0|1] "" DEBUG
+	SG_ CUR_SNS_OFFSET : 3|1@1+ (1,0) [0|1] "" DEBUG
+	SG_ OVERTEMP_ALARM : 4|1@1+ (1,0) [0|1] "" DEBUG
+	SG_ OVERCURRENT_ALARM : 5|1@1+ (1,0) [0|1] "" DEBUG
+	SG_ FAULT_STATE_REQUEST : 6|1@1+ (1,0) [0|1] "" DEBUG
+	SG_ DAC_OC_THRESHOLD : 7|1@1+ (1,0) [0|1] "" DEBUG
+	SG_ MOTOR_CONTROL_FAULT : 8|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 632 INV_MOTOR_CONTROL_FAULTS : 1 INV
+	SG_ TORQUE_REQUEST_IMPLAUSIBLE : 0|1@1+ (1,0) [0|1] "" DEBUG
+
 BO_ 700 INV_ROTOR_SPEED_REQ : 4 DEBUG
-	SG_ ROTOR_SPEED_REQ : 0|32@1- (1,0) [-2147483647|2147483647] "" DEBUG
+	SG_ ROTOR_SPEED_REQ : 0|32@1- (1,0) [-2147483647|2147483647] "" INV,DEBUG
 
 BO_ 701 INV_MODE_REQ : 1 DEBUG
-	SG_ MODE_REQ : 0|2@1+ (1,0) [0|3] "" DEBUG
+	SG_ MODE_REQ : 0|2@1+ (1,0) [0|3] "" INV,DEBUG
+
+BO_ 702 INV_MOD_INDEX_REQ : 4 DEBUG
+	SG_ MOD_INDEX_REQ : 0|32@1+ (1,0) [0|4294967295] "%" INV,DEBUG
+
+BO_ 703 INV_PH_CUR_PEAK_REQ : 4 DEBUG
+	SG_ PH_CUR_PEAK_REQ : 0|32@1+ (1,0) [0|4294967295] "A" INV,DEBUG
+
+BO_ 704 INV_FUND_FREQ_REQ : 4 DEBUG
+	SG_ FUND_FREQ_REQ : 0|32@1+ (1,0) [0|4294967295] "Hz" INV,DEBUG
 
 BA_DEF_  "BusType" STRING;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
@@ -571,62 +594,20 @@ BA_ "BusType" "CAN";
 
 BA_ "GenMsgCycleTime" BO_ 100 10;
 BA_ "GenMsgCycleTime" BO_ 104 1000;
-BA_ "GenMsgCycleTime" BO_ 104 1000;
-BA_ "GenMsgCycleTime" BO_ 104 1000;
-BA_ "GenMsgCycleTime" BO_ 104 1000;
-BA_ "GenMsgCycleTime" BO_ 104 1000;
-BA_ "GenMsgCycleTime" BO_ 104 1000;
-BA_ "GenMsgCycleTime" BO_ 104 1000;
-BA_ "GenMsgCycleTime" BO_ 104 1000;
-BA_ "GenMsgCycleTime" BO_ 104 1000;
-BA_ "GenMsgCycleTime" BO_ 104 1000;
-BA_ "GenMsgCycleTime" BO_ 104 1000;
-BA_ "GenMsgCycleTime" BO_ 104 1000;
-BA_ "GenMsgCycleTime" BO_ 104 1000;
-BA_ "GenMsgCycleTime" BO_ 104 1000;
-BA_ "GenMsgCycleTime" BO_ 104 1000;
-BA_ "GenMsgCycleTime" BO_ 104 1000;
-BA_ "GenMsgCycleTime" BO_ 104 1000;
-BA_ "GenMsgCycleTime" BO_ 104 1000;
-BA_ "GenMsgCycleTime" BO_ 104 1000;
-BA_ "GenMsgCycleTime" BO_ 104 1000;
 BA_ "GenMsgCycleTime" BO_ 105 1000;
 BA_ "GenMsgCycleTime" BO_ 200 10;
-BA_ "GenMsgCycleTime" BO_ 204 1000;
-BA_ "GenMsgCycleTime" BO_ 204 1000;
-BA_ "GenMsgCycleTime" BO_ 204 1000;
-BA_ "GenMsgCycleTime" BO_ 204 1000;
-BA_ "GenMsgCycleTime" BO_ 204 1000;
-BA_ "GenMsgCycleTime" BO_ 204 1000;
-BA_ "GenMsgCycleTime" BO_ 204 1000;
 BA_ "GenMsgCycleTime" BO_ 204 1000;
 BA_ "GenMsgCycleTime" BO_ 301 10;
 BA_ "GenMsgCycleTime" BO_ 401 10;
 BA_ "GenMsgCycleTime" BO_ 500 10;
 BA_ "GenMsgCycleTime" BO_ 503 10;
 BA_ "GenMsgCycleTime" BO_ 505 10;
-BA_ "GenMsgCycleTime" BO_ 505 10;
 BA_ "GenMsgCycleTime" BO_ 506 1000;
 BA_ "GenMsgCycleTime" BO_ 507 10;
-BA_ "GenMsgCycleTime" BO_ 507 10;
-BA_ "GenMsgCycleTime" BO_ 507 10;
-BA_ "GenMsgCycleTime" BO_ 508 1000;
-BA_ "GenMsgCycleTime" BO_ 508 1000;
-BA_ "GenMsgCycleTime" BO_ 508 1000;
-BA_ "GenMsgCycleTime" BO_ 508 1000;
-BA_ "GenMsgCycleTime" BO_ 508 1000;
 BA_ "GenMsgCycleTime" BO_ 508 1000;
 BA_ "GenMsgCycleTime" BO_ 600 10;
 BA_ "GenMsgCycleTime" BO_ 601 1000;
-BA_ "GenMsgCycleTime" BO_ 601 1000;
 BA_ "GenMsgCycleTime" BO_ 603 10;
-BA_ "GenMsgCycleTime" BO_ 603 10;
-BA_ "GenMsgCycleTime" BO_ 605 1000;
-BA_ "GenMsgCycleTime" BO_ 605 1000;
-BA_ "GenMsgCycleTime" BO_ 605 1000;
-BA_ "GenMsgCycleTime" BO_ 605 1000;
-BA_ "GenMsgCycleTime" BO_ 605 1000;
-BA_ "GenMsgCycleTime" BO_ 605 1000;
 BA_ "GenMsgCycleTime" BO_ 605 1000;
 BA_ "GenMsgCycleTime" BO_ 608 10;
 BA_ "GenMsgCycleTime" BO_ 609 10;
@@ -641,119 +622,21 @@ BA_ "GenMsgCycleTime" BO_ 617 1000;
 BA_ "GenMsgCycleTime" BO_ 618 10;
 BA_ "GenMsgCycleTime" BO_ 619 10;
 BA_ "GenMsgCycleTime" BO_ 620 1000;
-BA_ "GenMsgCycleTime" BO_ 620 1000;
-BA_ "GenMsgCycleTime" BO_ 620 1000;
-BA_ "GenMsgCycleTime" BO_ 620 1000;
-BA_ "GenMsgCycleTime" BO_ 620 1000;
-BA_ "GenMsgCycleTime" BO_ 620 1000;
-BA_ "GenMsgCycleTime" BO_ 620 1000;
-BA_ "GenMsgCycleTime" BO_ 620 1000;
-BA_ "GenMsgCycleTime" BO_ 620 1000;
-BA_ "GenMsgCycleTime" BO_ 620 1000;
-BA_ "GenMsgCycleTime" BO_ 620 1000;
-BA_ "GenMsgCycleTime" BO_ 620 1000;
-BA_ "GenMsgCycleTime" BO_ 620 1000;
 BA_ "GenMsgCycleTime" BO_ 621 10;
 BA_ "GenMsgCycleTime" BO_ 622 10;
 BA_ "GenMsgCycleTime" BO_ 623 1000;
-BA_ "GenMsgCycleTime" BO_ 623 1000;
-BA_ "GenMsgCycleTime" BO_ 624 1000;
 BA_ "GenMsgCycleTime" BO_ 624 1000;
 BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
-BA_ "GenMsgCycleTime" BO_ 625 1000;
 BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 626 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 627 1000;
 BA_ "GenMsgCycleTime" BO_ 627 1000;
 BA_ "GenMsgCycleTime" BO_ 628 10;
 BA_ "GenMsgCycleTime" BO_ 629 10;
 BA_ "GenMsgCycleTime" BO_ 630 10;
 BA_ "GenMsgCycleTime" BO_ 700 10;
 BA_ "GenMsgCycleTime" BO_ 701 10;
+BA_ "GenMsgCycleTime" BO_ 702 10;
+BA_ "GenMsgCycleTime" BO_ 703 10;
+BA_ "GenMsgCycleTime" BO_ 704 10;
 
 BA_ "GenSigStartValue" SG_ 2  tx_overflow_count 0;
 BA_ "GenSigStartValue" SG_ 2  rx_overflow_count 0;
@@ -826,6 +709,10 @@ SIG_VALTYPE_ 624 DAC_OUT2_CURRENT_LIM : 1;
 SIG_VALTYPE_ 628 PID_IQ_OUTPUT : 1;
 SIG_VALTYPE_ 629 PID_ID_OUTPUT : 1;
 SIG_VALTYPE_ 630 PID_SPEED_OUTPUT : 1;
+SIG_VALTYPE_ 700 ROTOR_SPEED_REQ : 1;
+SIG_VALTYPE_ 702 MOD_INDEX_REQ : 1;
+SIG_VALTYPE_ 703 PH_CUR_PEAK_REQ : 1;
+SIG_VALTYPE_ 704 FUND_FREQ_REQ : 1;
 
 VAL_ 104 SEGMENT_0_VOLTAGE_OUT_OF_RANGE 0 "OK" 1 "UNDERFLOW" 2 "OVERFLOW";
 VAL_ 104 SEGMENT_1_VOLTAGE_OUT_OF_RANGE 0 "OK" 1 "UNDERFLOW" 2 "OVERFLOW";
