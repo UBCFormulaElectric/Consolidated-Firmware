@@ -17,7 +17,7 @@ struct DcmWorld
     struct ErrorTable *       error_table;
     struct WaitSignal *       buzzer_wait_signal;
     struct Clock *            clock;
-    struct InverterSwitches*  inverter_switches;
+    struct InverterSwitches * inverter_switches;
 };
 
 struct DcmWorld *App_DcmWorld_Create(
@@ -30,7 +30,7 @@ struct DcmWorld *App_DcmWorld_Create(
     struct Imu *const               imu,
     struct ErrorTable *const        error_table,
     struct Clock *const             clock,
-    struct InverterSwitches* const  inverter_switches,
+    struct InverterSwitches *const  inverter_switches,
     bool (*is_buzzer_on)(struct DcmWorld *),
     void (*buzzer_complete_callback)(struct DcmWorld *))
 {
@@ -122,7 +122,8 @@ struct Clock *App_DcmWorld_GetClock(const struct DcmWorld *const world)
     return world->clock;
 }
 
-struct InverterSwitches *App_DcmWorld_GetInverterSwitches(const struct DcmWorld *world)
+struct InverterSwitches *
+    App_DcmWorld_GetInverterSwitches(const struct DcmWorld *world)
 {
     return world->inverter_switches;
 }

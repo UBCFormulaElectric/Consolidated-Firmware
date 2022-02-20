@@ -39,6 +39,10 @@ FAKE_VOID_FUNC(turn_off_buzzer);
 FAKE_VALUE_FUNC(float, get_acceleration_x);
 FAKE_VALUE_FUNC(float, get_acceleration_y);
 FAKE_VALUE_FUNC(float, get_acceleration_z);
+FAKE_VOID_FUNC(turn_on_right_inverter);
+FAKE_VOID_FUNC(turn_off_right_inverter);
+FAKE_VOID_FUNC(turn_on_left_inverter);
+FAKE_VOID_FUNC(turn_off_left_inverter);
 
 class DcmStateMachineTest : public BaseStateMachineTest
 {
@@ -73,10 +77,15 @@ class DcmStateMachineTest : public BaseStateMachineTest
 
         clock = App_SharedClock_Create();
 
+        inverter_switches = App_InverterSwitches_Create(
+            turn_on_right_inverter, turn_off_right_inverter,
+            turn_on_left_inverter, turn_off_left_inverter);
+
         world = App_DcmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
             rgb_led_sequence, brake_light, buzzer, imu, error_table, clock,
-            App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
+            inverter_switches, App_BuzzerSignals_IsOn,
+            App_BuzzerSignals_Callback);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -94,6 +103,12 @@ class DcmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(turn_on_blue_led);
         RESET_FAKE(turn_on_brake_light);
         RESET_FAKE(turn_off_brake_light);
+        RESET_FAKE(turn_on_right_inverter);
+        RESET_FAKE(turn_off_right_inverter);
+        RESET_FAKE(turn_on_left_inverter);
+        RESET_FAKE(turn_off_left_inverter);
+
+        FFF_RESET_HISTORY();
     }
 
     void TearDown() override
@@ -109,6 +124,7 @@ class DcmStateMachineTest : public BaseStateMachineTest
         TearDownObject(imu, App_Imu_Destroy);
         TearDownObject(error_table, App_SharedErrorTable_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
+        TearDownObject(inverter_switches, App_InverterSwitches_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -157,27 +173,20 @@ class DcmStateMachineTest : public BaseStateMachineTest
     struct Imu *              imu;
     struct ErrorTable *       error_table;
     struct Clock *            clock;
+    struct InverterSwitches * inverter_switches;
 };
 
 // DCM-5
 TEST_F(
     DcmStateMachineTest,
-    check_init_transitions_to_drive_if_required_conditions_met_and_start_switch_pulled_up)
+    check_init_transitions_to_drive_if_conditions_met_and_start_switch_pulled_up)
 {
     LetTimePass(state_machine, 10);
     EXPECT_EQ(
         App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 
-    /* Set arbitrary critical error in error table */
-    App_SharedErrorTable_SetError(
-        error_table, BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, true);
-    LetTimePass(state_machine, 10);
-    EXPECT_EQ(
-        App_GetInitState(),
-        App_SharedStateMachine_GetCurrentState(state_machine));
-
-    /* Pull start switch up. */
+    // Pull start switch up, expect no transition
     App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
         can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
     LetTimePass(state_machine, 10);
@@ -185,7 +194,8 @@ TEST_F(
         App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 
-    /* Close AIR+ and AIR- */
+    // Close AIR+ and AIR-, expect no transition and inverter switches to be
+    // closed
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
@@ -194,8 +204,12 @@ TEST_F(
     EXPECT_EQ(
         App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
+    ASSERT_TRUE(App_InverterSwitches_IsRightOn(inverter_switches));
+    ASSERT_TRUE(App_InverterSwitches_IsRightOn(inverter_switches));
+    ASSERT_EQ(turn_on_right_inverter_fake.call_count, 1);
+    ASSERT_EQ(turn_on_left_inverter_fake.call_count, 1);
 
-    /* Actuate brake pedal */
+    // Actuate brake pedal
     App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(
         can_rx_interface, CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE);
     LetTimePass(state_machine, 10);
@@ -203,42 +217,10 @@ TEST_F(
         App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 
-    /* Pull start switch down and back up. */
+    // Pull start switch down and back up, expect transition
     App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
         can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
     LetTimePass(state_machine, 10);
-    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
-        can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
-    LetTimePass(state_machine, 10);
-    EXPECT_EQ(
-        App_GetInitState(),
-        App_SharedStateMachine_GetCurrentState(state_machine));
-
-    /* Inverter entered running state */
-    App_CanRx_INVL_INTERNAL_STATES_SetSignal_D1_VSM_STATE_INVL(can_rx_interface,
-   CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_MOTOR__RUNNING__STATE_CHOICE);
-    LetTimePass(state_machine, 10);
-    EXPECT_EQ(
-            App_GetInitState(),
-            App_SharedStateMachine_GetCurrentState(state_machine));
-
-    /* Clear critical error from error table, all conditions met */
-    App_SharedErrorTable_SetError(
-        error_table, BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, false);
-    LetTimePass(state_machine, 10);
-    EXPECT_EQ(
-        App_GetInitState(),
-        App_SharedStateMachine_GetCurrentState(state_machine));
-
-    /* Pull start switch down */
-    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
-        can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
-    LetTimePass(state_machine, 10);
-    EXPECT_EQ(
-        App_GetInitState(),
-        App_SharedStateMachine_GetCurrentState(state_machine));
-
-    /* Pull start switch up */
     App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
         can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
     LetTimePass(state_machine, 10);
@@ -285,21 +267,27 @@ TEST_F(DcmStateMachineTest, brake_light_control_in_all_states)
 
         // Brake = Not actuated
         // Regen = Not active
+        // Expect brake light to be off
         App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(
             can_rx_interface, false);
-        App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 0.0f);
+        App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
+            can_tx_interface,
+            App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(
+                0.0f));
         LetTimePass(state_machine, 10);
         ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), false);
         ASSERT_EQ(turn_on_brake_light_fake.call_count, 0);
         ASSERT_EQ(turn_off_brake_light_fake.call_count, 1);
 
         // Brake = Not actuated
-        // Regen = Active
+        // Regen = Active (negative torque)
+        // Expect brake light to be on
         App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(
             can_rx_interface, false);
-        App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(
+        App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
             can_tx_interface,
-            std::nextafter(0.0f, std::numeric_limits<float>::lowest()));
+            App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(
+                -1.0f));
         LetTimePass(state_machine, 10);
         ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), true);
         ASSERT_EQ(turn_on_brake_light_fake.call_count, 1);
@@ -307,19 +295,24 @@ TEST_F(DcmStateMachineTest, brake_light_control_in_all_states)
 
         // Brake = Actuated
         // Regen = Not active
+        // Expect brake light to be on
         App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(can_rx_interface, true);
-        App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 0.0f);
+        App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
+            can_tx_interface,
+            App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(
+                0.0f));
         LetTimePass(state_machine, 10);
         ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), true);
         ASSERT_EQ(turn_on_brake_light_fake.call_count, 2);
         ASSERT_EQ(turn_off_brake_light_fake.call_count, 1);
 
         // Brake = Actuated
-        // Regen = Active
+        // Regen = Active (negative torque)
         App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(can_rx_interface, true);
-        App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(
+        App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
             can_tx_interface,
-            std::nextafter(0.0f, std::numeric_limits<float>::lowest()));
+            App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(
+                -1.0f));
         LetTimePass(state_machine, 10);
         ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), true);
         ASSERT_EQ(turn_on_brake_light_fake.call_count, 3);
@@ -361,14 +354,31 @@ TEST_F(DcmStateMachineTest, rgb_led_sequence_in_all_states)
 TEST_F(DcmStateMachineTest, zero_torque_request_in_init_state)
 {
     // Start with a non-zero torque request to prevent false positive
-    App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 1.0f);
+    App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
+        can_tx_interface,
+        App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(1.0f));
+    App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVR(
+            can_tx_interface,
+            App_CanMsgs_dcm_invr_command_message_torque_command_invr_encode(1.0f));
     ASSERT_FLOAT_EQ(
-        1.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+        1.0f,
+        App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
+            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
+    ASSERT_FLOAT_EQ(
+            1.0f,
+            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
 
     // Now tick the state machine and check torque request gets zeroed
     LetTimePass(state_machine, 10);
     ASSERT_FLOAT_EQ(
-        0.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+        0.0f,
+        App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
+            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
+    ASSERT_FLOAT_EQ(
+            0.0f,
+            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
 }
 
 // DCM-16
@@ -377,12 +387,28 @@ TEST_F(DcmStateMachineTest, zero_torque_request_in_fault_state)
     SetInitialState(App_GetFaultState());
 
     // Start with a non-zero torque request to prevent false positive
-    App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 1.0f);
+    App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
+        can_tx_interface,
+        App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(1.0f));
+    ASSERT_FLOAT_EQ(
+        1.0f,
+        App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
+            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
+    ASSERT_FLOAT_EQ(
+            1.0f,
+            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
 
     // Now tick the state machine and check torque request gets zeroed
     LetTimePass(state_machine, 10);
     ASSERT_FLOAT_EQ(
-        0.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+        0.0f,
+        App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
+            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
+    ASSERT_FLOAT_EQ(
+            0.0f,
+            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
 }
 
 // DCM-14
@@ -434,7 +460,7 @@ TEST_F(
 }
 
 // DCM-17
-TEST_F(DcmStateMachineTest, stay_in_fault_state_if_there_is_any_critical_errors)
+TEST_F(DcmStateMachineTest, exit_fault_state_once_critical_errors_cleared)
 {
     SetInitialState(App_GetFaultState());
 
@@ -447,6 +473,15 @@ TEST_F(DcmStateMachineTest, stay_in_fault_state_if_there_is_any_critical_errors)
 
     ASSERT_EQ(
         App_GetFaultState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+
+    // Clear error, expect transition from fault->init
+    App_SharedErrorTable_SetError(
+        error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE,
+        false);
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+        App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
@@ -504,8 +539,8 @@ TEST_F(DcmStateMachineTest, regen_not_allowed_when_no_airs_closed)
     App_CanRx_DIM_REGEN_PADDLE_SetSignal_MAPPED_PADDLE_POSITION(
         can_rx_interface, 50.0f);
 
-    float expected_torque_request_value =
-        60.0f / 100.0f * MAX_TORQUE_REQUEST_NM;
+    // Wheel speed = 0 km/h, expect pedal percentage to map to torque request
+    float expected_torque_request_value = 60.0f * 0.01f * MAX_TORQUE_REQUEST_NM;
     float value_over_threshold_wheel_speed = std::nextafter(
         REGEN_WHEEL_SPEED_THRESHOLD_KPH, std::numeric_limits<float>::max());
 
@@ -523,7 +558,12 @@ TEST_F(DcmStateMachineTest, regen_not_allowed_when_no_airs_closed)
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE);
     ASSERT_FLOAT_EQ(
         expected_torque_request_value,
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+        App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
+            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
+    ASSERT_FLOAT_EQ(
+            expected_torque_request_value,
+            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
 }
 
 TEST_F(DcmStateMachineTest, regen_not_allowed_when_one_air_closed)
@@ -540,8 +580,8 @@ TEST_F(DcmStateMachineTest, regen_not_allowed_when_one_air_closed)
     App_CanRx_DIM_REGEN_PADDLE_SetSignal_MAPPED_PADDLE_POSITION(
         can_rx_interface, 50.0f);
 
-    float expected_torque_request_value =
-        60.0f / 100.0f * MAX_TORQUE_REQUEST_NM;
+    // Wheel speed = 0 km/h, expect pedal percentage to map to torque request
+    float expected_torque_request_value = 60.0f * 0.01f * MAX_TORQUE_REQUEST_NM;
     float value_over_threshold_wheel_speed = std::nextafter(
         REGEN_WHEEL_SPEED_THRESHOLD_KPH, std::numeric_limits<float>::max());
 
@@ -560,7 +600,12 @@ TEST_F(DcmStateMachineTest, regen_not_allowed_when_one_air_closed)
     LetTimePass(state_machine, 10);
     ASSERT_FLOAT_EQ(
         expected_torque_request_value,
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+        App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
+            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
+    ASSERT_FLOAT_EQ(
+            expected_torque_request_value,
+            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
 
     // Check that regen doesn't turn when positive AIR is open and negative AIR
     // is closed
@@ -571,7 +616,12 @@ TEST_F(DcmStateMachineTest, regen_not_allowed_when_one_air_closed)
     LetTimePass(state_machine, 10);
     ASSERT_FLOAT_EQ(
         expected_torque_request_value,
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+        App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
+            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
+    ASSERT_FLOAT_EQ(
+            expected_torque_request_value,
+            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
 }
 
 // DCM-8, DCM-19
@@ -591,10 +641,8 @@ TEST_F(
     App_CanRx_DIM_REGEN_PADDLE_SetSignal_MAPPED_PADDLE_POSITION(
         can_rx_interface, 50.0f);
 
-    float expected_torque_request_value =
-        60.0f / 100.0f * MAX_TORQUE_REQUEST_NM;
-    float expected_regen_request_value =
-        -50.0f / 100.0f * MAX_TORQUE_REQUEST_NM;
+    float expected_torque_request_value = 60.0f * 0.01f * MAX_TORQUE_REQUEST_NM;
+    float expected_regen_request_value = -50.0f * 0.01f * MAX_TORQUE_REQUEST_NM;
     float value_over_threshold_wheel_speed = std::nextafter(
         REGEN_WHEEL_SPEED_THRESHOLD_KPH, std::numeric_limits<float>::max());
 
@@ -613,7 +661,12 @@ TEST_F(
     LetTimePass(state_machine, 10);
     ASSERT_FLOAT_EQ(
         expected_torque_request_value,
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+        App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
+            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
+    ASSERT_FLOAT_EQ(
+            expected_torque_request_value,
+            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
 
     // Check that regen doesn't turn on when right wheel speed is below regen
     // threshold
@@ -624,7 +677,12 @@ TEST_F(
     LetTimePass(state_machine, 10);
     ASSERT_FLOAT_EQ(
         expected_torque_request_value,
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+        App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
+            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
+    ASSERT_FLOAT_EQ(
+            expected_torque_request_value,
+            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
 
     // Check that regen turns on when both wheels speeds are over regen
     // threshold
@@ -635,7 +693,12 @@ TEST_F(
     LetTimePass(state_machine, 10);
     ASSERT_FLOAT_EQ(
         expected_regen_request_value,
-        App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+        App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
+            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
+    ASSERT_FLOAT_EQ(
+            expected_regen_request_value,
+            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
 }
 
 // DCM-19
@@ -654,7 +717,158 @@ TEST_F(
     // pressed
     LetTimePass(state_machine, 10);
     ASSERT_FLOAT_EQ(
-        0.0f, App_CanTx_GetPeriodicSignal_TORQUE_REQUEST(can_tx_interface));
+        0.0f,
+        App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
+            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
+    ASSERT_FLOAT_EQ(
+            0.0f,
+            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
 }
 
+// DCM21
+TEST_F(DcmStateMachineTest, inverter_switches_closed_when_AIRS_closed)
+{
+    // Both inverter switches are open to begin with
+    LetTimePass(state_machine, 10);
+    ASSERT_FALSE(App_InverterSwitches_IsRightOn(inverter_switches));
+    ASSERT_FALSE(App_InverterSwitches_IsLeftOn(inverter_switches));
+    ASSERT_EQ(turn_on_right_inverter_fake.call_count, 0);
+    ASSERT_EQ(turn_on_left_inverter_fake.call_count, 0);
+
+    // Close AIR-, both inverter switches should still be open
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
+    LetTimePass(state_machine, 10);
+    ASSERT_FALSE(App_InverterSwitches_IsRightOn(inverter_switches));
+    ASSERT_FALSE(App_InverterSwitches_IsLeftOn(inverter_switches));
+    ASSERT_EQ(turn_on_right_inverter_fake.call_count, 0);
+    ASSERT_EQ(turn_on_left_inverter_fake.call_count, 0);
+
+    // Close AIR+, both inverter switches should now be closed
+    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
+        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
+    LetTimePass(state_machine, 10);
+    ASSERT_TRUE(App_InverterSwitches_IsRightOn(inverter_switches));
+    ASSERT_TRUE(App_InverterSwitches_IsLeftOn(inverter_switches));
+    ASSERT_EQ(turn_on_right_inverter_fake.call_count, 1);
+    ASSERT_EQ(turn_on_left_inverter_fake.call_count, 1);
+}
+
+TEST_F(DcmStateMachineTest, init_to_fault_state_on_left_inverter_fault)
+{
+    LetTimePass(state_machine, 10);
+    EXPECT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+
+    // Introduce inverter fault, expect transition to fault state
+    App_CanRx_INVL_INTERNAL_STATES_SetSignal_D1_VSM_STATE_INVL(
+        can_rx_interface,
+        CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE);
+    LetTimePass(state_machine, 10);
+    EXPECT_EQ(
+        App_GetFaultState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
+TEST_F(DcmStateMachineTest, drive_to_fault_state_on_left_inverter_fault)
+{
+    SetInitialState(App_GetDriveState());
+    // Turn the DIM start switch on to prevent state transitions in
+    // the drive state.
+    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
+        can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
+    LetTimePass(state_machine, 10);
+    EXPECT_EQ(
+        App_GetDriveState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+
+    // Introduce inverter fault, expect transition to fault state
+    App_CanRx_INVL_INTERNAL_STATES_SetSignal_D1_VSM_STATE_INVL(
+        can_rx_interface,
+        CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE);
+    LetTimePass(state_machine, 10);
+    EXPECT_EQ(
+        App_GetFaultState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
+TEST_F(DcmStateMachineTest, init_to_fault_state_on_right_inverter_fault)
+{
+    LetTimePass(state_machine, 10);
+    EXPECT_EQ(
+            App_GetInitState(),
+            App_SharedStateMachine_GetCurrentState(state_machine));
+
+    // Introduce inverter fault, expect transition to fault state
+    App_CanRx_INVR_INTERNAL_STATES_SetSignal_D1_VSM_STATE_INVR(
+            can_rx_interface,
+            CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE);
+    LetTimePass(state_machine, 10);
+    EXPECT_EQ(
+            App_GetFaultState(),
+            App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
+TEST_F(DcmStateMachineTest, drive_to_fault_state_on_right_inverter_fault)
+{
+    SetInitialState(App_GetDriveState());
+    // Turn the DIM start switch on to prevent state transitions in
+    // the drive state.
+    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
+            can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
+    LetTimePass(state_machine, 10);
+    EXPECT_EQ(
+            App_GetDriveState(),
+            App_SharedStateMachine_GetCurrentState(state_machine));
+
+    // Introduce inverter fault, expect transition to fault state
+    App_CanRx_INVR_INTERNAL_STATES_SetSignal_D1_VSM_STATE_INVR(
+            can_rx_interface,
+            CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE);
+    LetTimePass(state_machine, 10);
+    EXPECT_EQ(
+            App_GetFaultState(),
+            App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
+// DCM-20
+TEST_F(DcmStateMachineTest, init_to_fault_state_on_motor_shutdown_error)
+{
+    LetTimePass(state_machine, 10);
+    EXPECT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+
+    // Introduce motor shutdown error, expect transition to fault state
+    App_SharedErrorTable_SetError(
+        error_table, BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, true);
+    LetTimePass(state_machine, 10);
+    EXPECT_EQ(
+        App_GetFaultState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
+// DCM-20
+TEST_F(DcmStateMachineTest, drive_to_fault_state_on_motor_shutdown_error)
+{
+    SetInitialState(App_GetDriveState());
+    // Turn the DIM start switch on to prevent state transitions in
+    // the drive state.
+    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
+        can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
+    LetTimePass(state_machine, 10);
+    EXPECT_EQ(
+        App_GetDriveState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+
+    // Introduce motor shutdown error, expect transition to fault state
+    App_SharedErrorTable_SetError(
+        error_table, BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, true);
+    LetTimePass(state_machine, 10);
+    EXPECT_EQ(
+        App_GetFaultState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+}
 } // namespace StateMachineTest

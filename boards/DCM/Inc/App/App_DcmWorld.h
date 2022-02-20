@@ -34,7 +34,7 @@ struct DcmWorld *App_DcmWorld_Create(
     struct Imu *              imu,
     struct ErrorTable *       error_table,
     struct Clock *            clock,
-    struct InverterSwitches*  inverter_switches,
+    struct InverterSwitches * inverter_switches,
     bool (*is_buzzer_on)(struct DcmWorld *),
     void (*buzzer_callback)(struct DcmWorld *));
 
@@ -126,5 +126,5 @@ struct Clock *App_DcmWorld_GetClock(const struct DcmWorld *world);
  * @param world The world to get inverter switches from
  * @return The inverter switches for the given world
  */
-struct InverterSwitches *App_DcmWorld_GetInverterSwitches(const struct DcmWorld *world);
-
+struct InverterSwitches *
+    App_DcmWorld_GetInverterSwitches(const struct DcmWorld *world);
