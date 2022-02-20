@@ -56,6 +56,8 @@
 #define UPPER_ADAPTION_LIMIT \
     0.68f                  // Upper adaption max current percentage limit
 #define MAX_MOD_INDEX 0.9f // Maximum modulation index
+#define RMS_CALC_MIN_FREQUENCY 1 //Minimum frequency RMS calculation can handle
+#define RMS_CALC_ARRAY_SIZE //Number of samples to take for RMS calculation
 
 #define PWM_CLOCK_FREQUENCY \
     216 // Frequency of clock used for PWM edge timer, in MHz

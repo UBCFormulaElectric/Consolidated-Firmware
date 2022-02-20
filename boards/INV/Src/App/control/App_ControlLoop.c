@@ -104,6 +104,8 @@ void App_ControlLoop_Run(const struct InvWorld *world)
     ph_cur_peak_ref =
         App_CanRx_INV_PH_CUR_PEAK_REQ_GetSignal_PH_CUR_PEAK_REQ(can_rx);
 
+
+
     if (mode == MOTOR_CONTROL)
     {
         torque_ref =
