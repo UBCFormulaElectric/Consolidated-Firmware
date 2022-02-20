@@ -220,13 +220,13 @@ void Io_AdcDac_DacSetCurrentLim(const float current)
 float Io_AdcDac_Dac1GetVoltage(void)
 {
     uint32_t dac_raw_value = HAL_DAC_GetValue(&hdac, DAC_CHANNEL_1);
-    return 3.3f * (float)(dac_raw_value/0xFFF);
+    return 3.3f * (float)(dac_raw_value / 0xFFF);
 }
 
 float Io_AdcDac_Dac2GetVoltage(void)
 {
     uint32_t dac_raw_value = HAL_DAC_GetValue(&hdac, DAC_CHANNEL_2);
-    return 3.3f * (float)(dac_raw_value/0xFFF);
+    return 3.3f * (float)(dac_raw_value / 0xFFF);
 }
 
 float Io_AdcDac_Dac1GetCurrentLim(void)
@@ -240,4 +240,3 @@ float Io_AdcDac_Dac2GetCurrentLim(void)
     float dac_voltage = Io_AdcDac_Dac2GetVoltage();
     return (1.65f - dac_voltage) * -100.0f;
 }
-

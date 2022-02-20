@@ -25,6 +25,7 @@ float torqueControl(
     // calculate torque output with PI controller
     omega_torque_output = calculatePiOutputs(
         speed_controller, omega_ref, omega, MAX_MOTOR_TORQUE, 0);
+    speed_controller->output = omega_torque_output;
 
     // take smaller of omega_ref and torque_ref
     torque_output = (fabs(omega_torque_output) < fabs(torque_ref))

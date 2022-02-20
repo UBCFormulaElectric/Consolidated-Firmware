@@ -110,9 +110,11 @@ void App_GateDrive_GlobalReset(struct GateDrive *gate_drive)
     gate_drive->global_reset();
 }
 
-const struct StgapFaults *App_GateDrive_GetFaults(struct GateDrive *gate_drive)
+void App_GateDrive_GetFaults(
+    struct GateDrive *  gate_drive,
+    struct StgapFaults *stgap_faults)
 {
-    return gate_drive->read_faults();
+    *stgap_faults = *(gate_drive->read_faults());
 }
 
 bool App_GateDrive_IsFaulted(void)

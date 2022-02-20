@@ -27,8 +27,9 @@
 #define MAX_MOTOR_TORQUE 22.6f // Maximum motor torque, in N*m
 #define MAX_MOTOR_POWER 30000  // Maximum motor power, in W
 #define MAX_MOTOR_SPEED 15000  // Maximum motor speed, in rpm
-#define MAX_MOTOR_POS_CHANGE_PER_CYCLE MAX_MOTOR_SPEED/9.459f/SAMPLE_FREQUENCY
-#define SPEED_SETPOINT 15000   // Speed setpoint, in rpm
+#define MAX_MOTOR_POS_CHANGE_PER_CYCLE \
+    MAX_MOTOR_SPEED / 9.459f / SAMPLE_FREQUENCY
+#define SPEED_SETPOINT 15000 // Speed setpoint, in rpm
 
 //-------------- Control Loop Parameters -----------------
 

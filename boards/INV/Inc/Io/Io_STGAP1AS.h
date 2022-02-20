@@ -21,7 +21,7 @@ void Io_STGAP1AS_ReadRegister(
     uint8_t *const receive_array);
 void                Io_STGAP1AS_Command(uint8_t command);
 struct StgapFaults *Io_STGAP1AS_ReadFaults(void);
-bool Io_STGAP1AS_IsFaulted(void);
+bool                Io_STGAP1AS_IsFaulted(void);
 uint8_t             Io_STGAP1AS_SendReceiveByte(
                 uint8_t        byte_value,
                 uint8_t        crc_xor,

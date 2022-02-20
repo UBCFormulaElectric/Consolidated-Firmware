@@ -433,22 +433,14 @@ bool Io_STGAP1AS_IsFaulted(void)
     bool error_flag = 0;
     for (uint8_t i = 0; i < NUM_STGAP_DEVICES; i++)
     {
-        if(
-        stgap_faults_io.twn[i] |
-        stgap_faults_io.tsd[i] |
-        stgap_faults_io.uvlol[i] |
-        stgap_faults_io.uvloh[i] |
-        stgap_faults_io.sense[i] |
-        stgap_faults_io.desat[i] |
-        stgap_faults_io.ovlol[i] |
-        stgap_faults_io.ovloh[i] |
-        stgap_faults_io.asc[i] |
-        stgap_faults_io.regerrr[i] |
-        stgap_faults_io.uvlod[i] |
-        stgap_faults_io.ovlod[i] |
-        stgap_faults_io.reg_errl[i] |
-        stgap_faults_io.spi_err[i] |
-        stgap_faults_io.dt_err[i])
+        if (stgap_faults_io.twn[i] | stgap_faults_io.tsd[i] |
+            stgap_faults_io.uvlol[i] | stgap_faults_io.uvloh[i] |
+            stgap_faults_io.sense[i] | stgap_faults_io.desat[i] |
+            stgap_faults_io.ovlol[i] | stgap_faults_io.ovloh[i] |
+            stgap_faults_io.asc[i] | stgap_faults_io.regerrr[i] |
+            stgap_faults_io.uvlod[i] | stgap_faults_io.ovlod[i] |
+            stgap_faults_io.reg_errl[i] | stgap_faults_io.spi_err[i] |
+            stgap_faults_io.dt_err[i])
         {
             error_flag = 1;
         }

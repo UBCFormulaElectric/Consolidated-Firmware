@@ -152,7 +152,6 @@ static void CanRxQueueOverflowCallBack(size_t overflow_count)
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
     App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
-
 }
 /* USER CODE END 0 */
 
@@ -213,7 +212,9 @@ int main(void)
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_INV_WATCHDOG_TIMEOUT,
         Io_CanTx_EnqueueNonPeriodicMsg_INV_AIR_SHUTDOWN_ERRORS,
-        Io_CanTx_EnqueueNonPeriodicMsg_INV_MOTOR_SHUTDOWN_ERRORS);
+        Io_CanTx_EnqueueNonPeriodicMsg_INV_MOTOR_SHUTDOWN_ERRORS,
+        Io_CanTx_EnqueueNonPeriodicMsg_INV_FAULT_REASON,
+        Io_CanTx_EnqueueNonPeriodicMsg_INV_MOTOR_CONTROL_FAULTS);
 
     can_rx = App_CanRx_Create();
 
@@ -240,13 +241,13 @@ int main(void)
         Io_STGAP1AS_GetPhbHiDiag, Io_STGAP1AS_GetPhbLoDiag,
         Io_STGAP1AS_GetPhcHiDiag, Io_STGAP1AS_GetPhcLoDiag);
 
-//        motor = App_Motor_Create(Io_ECI1118_GetTemperature,
-//        Io_ECI1118_GetRotorAngle);
+    //        motor = App_Motor_Create(Io_ECI1118_GetTemperature,
+    //        Io_ECI1118_GetRotorAngle);
 
     power_stage = App_PowerStage_Create(
         Io_AdcDac_AdcContModeInit, Io_AdcDac_AdcPwmSyncModeInit,
         Io_AdcDac_AdcStart, Io_AdcDac_AdcStop, Io_AdcDac_DacStart,
-        Io_AdcDac_DacSetCurrent, Io_AdcDac_GetPhaseCurrents,
+        Io_AdcDac_DacSetCurrentLim, Io_AdcDac_GetPhaseCurrents,
         Io_AdcDac_CorrectOffset, Io_AdcDac_GetBusVoltage,
         Io_AdcDac_GetPowerstageTemp, Io_PowerStage_GetPhaOCFault,
         Io_PowerStage_GetPhbOCFault, Io_PowerStage_GetPhcOCFault,
@@ -1083,7 +1084,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     if (hadc->Instance == ADC2)
     {
         SEGGER_SYSVIEW_RecordEnterISR();
-        App_ControlLoop_Run(15, MOTOR_CONTROL, world, 0.5f, 10);
+        App_ControlLoop_Run(world);
         SEGGER_SYSVIEW_RecordExitISR();
     }
 }

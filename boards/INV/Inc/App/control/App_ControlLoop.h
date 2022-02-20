@@ -32,6 +32,8 @@ struct MotorControlFaults
 {
     bool torque_request_implausible;
     bool rotor_position_implausible;
+    bool phc_current_implausible;
+    bool fund_freq_req_implausible;
 };
 
 enum Mode
@@ -44,19 +46,15 @@ enum Mode
 
 struct InvWorld;
 
-void App_ControlLoop_Run(
-    float                  rotor_speed_ref,
-    uint8_t                mode,
-    const struct InvWorld *world,
-    float                  mod_index_request,
-    float                  ph_cur_rms_request);
+void App_ControlLoop_Run(const struct InvWorld *world);
 
-void App_ControlLoop_GetIqControllerValues(struct ControllerValues* controller);
-void App_ControlLoop_GetIdControllerValues(struct ControllerValues* controller);
-void App_ControlLoop_GetSpeedControllerValues(struct ControllerValues* controller);
-void App_ControlLoop_GetFaults(struct MotorControlFaults* faults);
+void App_ControlLoop_GetIqControllerValues(struct ControllerValues *controller);
+void App_ControlLoop_GetIdControllerValues(struct ControllerValues *controller);
+void App_ControlLoop_GetSpeedControllerValues(
+    struct ControllerValues *controller);
+void    App_ControlLoop_GetFaults(struct MotorControlFaults *faults);
 uint8_t App_ControlLoop_GetMode(void);
-float App_ControlLoop_GetModIndex(void);
-float App_ControlLoop_GetRotorSpeed(void);
-float App_ControlLoop_GetPhcCurCalc(void);
-bool App_ControlLoop_GetFwFlag(void);
+float   App_ControlLoop_GetModIndex(void);
+float   App_ControlLoop_GetRotorSpeed(void);
+float   App_ControlLoop_GetPhcCurCalc(void);
+bool    App_ControlLoop_GetFwFlag(void);

@@ -23,12 +23,12 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct InvWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct InvCanTxInterface *can_tx_interface = App_InvWorld_GetCanTx(world);
-    struct HeartbeatMonitor *heartbeat_monitor =
+    struct HeartbeatMonitor * heartbeat_monitor =
         App_InvWorld_GetHeartbeatMonitor(world);
 
     App_AllStatesRunOnTick100Hz(state_machine);
     App_CanTx_SetPeriodicSignal_STATE(
-            can_tx_interface, CANMSGS_INV_STATE_MACHINE_STATE_FAULT_CHOICE);
+        can_tx_interface, CANMSGS_INV_STATE_MACHINE_STATE_FAULT_CHOICE);
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
 }
 
