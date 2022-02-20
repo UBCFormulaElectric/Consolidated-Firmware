@@ -16,9 +16,9 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 
     App_Accumulator_InitRunOnEntry(accumulator);
 
-    Io_LTC6813_ConfigureRegisterA();
-    Io_LTC6813_ConfigureRegisterA();
-    Io_LTC6813_ConfigureRegisterB();
+    // Io_LTC6813_ConfigureRegisterA();
+    // Io_LTC6813_ConfigureRegisterA();
+    // Io_LTC6813_ConfigureRegisterB();
 
     App_CanTx_SetPeriodicSignal_STATE(
         can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE);

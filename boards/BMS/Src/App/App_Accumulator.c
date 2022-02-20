@@ -92,27 +92,33 @@ void App_Accumulator_AllStates100Hz(
     struct BmsCanTxInterface *      can_tx,
     struct ErrorTable *             error_table)
 {
+    UNUSED(error_table);
+
     // Send the minimum voltage (V) over CAN. Set errors if the voltage is out
     // of range
-    if (App_InRangeCheck_SetPeriodicCanSignal(
-            can_tx, accumulator->get_min_cell_voltage(), MIN_CELL_V, MAX_CELL_V,
-            App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE_OUT_OF_RANGE,
-            App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE) != VALUE_IN_RANGE)
-    {
-        App_SharedErrorTable_SetError(
-            error_table, BMS_AIR_SHUTDOWN_MIN_CELL_VOLTAGE_OUT_OF_RANGE, true);
-    }
+    // if (App_InRangeCheck_SetPeriodicCanSignal(
+    //        can_tx, accumulator->get_min_cell_voltage(), MIN_CELL_V,
+    //        MAX_CELL_V,
+    //        App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE_OUT_OF_RANGE,
+    //        App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE) != VALUE_IN_RANGE)
+    //{
+    //    App_SharedErrorTable_SetError(
+    //        error_table, BMS_AIR_SHUTDOWN_MIN_CELL_VOLTAGE_OUT_OF_RANGE,
+    //        true);
+    //}
 
     // Send the maximum voltage (V) over CAN. Set errors if the voltage is out
     // of range
-    if (App_InRangeCheck_SetPeriodicCanSignal(
-            can_tx, accumulator->get_max_cell_voltage(), MIN_CELL_V, MAX_CELL_V,
-            App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE_OUT_OF_RANGE,
-            App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE) != VALUE_IN_RANGE)
-    {
-        App_SharedErrorTable_SetError(
-            error_table, BMS_AIR_SHUTDOWN_MAX_CELL_VOLTAGE_OUT_OF_RANGE, true);
-    }
+    // if (App_InRangeCheck_SetPeriodicCanSignal(
+    //        can_tx, accumulator->get_max_cell_voltage(), MIN_CELL_V,
+    //        MAX_CELL_V,
+    //        App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE_OUT_OF_RANGE,
+    //        App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE) != VALUE_IN_RANGE)
+    //{
+    //    App_SharedErrorTable_SetError(
+    //        error_table, BMS_AIR_SHUTDOWN_MAX_CELL_VOLTAGE_OUT_OF_RANGE,
+    //        true);
+    //}
 
     // Send the segment voltages (V) over CAN
     // App_CanTx_SetPeriodicSignal_SEGMENT_0_VOLTAGE(

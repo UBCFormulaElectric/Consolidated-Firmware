@@ -11,8 +11,7 @@
 
 extern struct SharedSpi *ltc6813_spi;
 
-extern float internal_die_temp[NUM_OF_ACCUMULATOR_SEGMENTS];
-float        internal_die_temp[NUM_OF_ACCUMULATOR_SEGMENTS] = { 0.0f };
+static float internal_die_temp[NUM_OF_ACCUMULATOR_SEGMENTS] = { 0.0f };
 
 static inline float Io_DieTemperatures_ConvertToDegC(uint16_t raw_die_temp_v)
 {
@@ -30,11 +29,10 @@ bool Io_DieTemperatures_ReadTemp(void)
 {
     bool    status                                       = true;
     uint8_t rx_internal_die_temp[TOTAL_NUM_OF_REG_BYTES] = { 0U };
-    uint8_t tx_cmd[NUM_TX_CMD_BYTES]                     = { 0U };
+    uint8_t tx_cmd[TOTAL_NUM_CMD_BYTES]                  = { 0U };
 
     // The command used to read data from status register A.
-    Io_LTC6813_PackCmd(tx_cmd, RDSTATA);
-    Io_LTC6813_PackPec15(tx_cmd, NUM_OF_CMD_BYTES);
+    Io_LTC6813_PrepareCmd(tx_cmd, RDSTATA);
 
     for (uint8_t curr_segment = 0U; curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS;
          curr_segment++)
@@ -43,27 +41,28 @@ bool Io_DieTemperatures_ReadTemp(void)
             (uint32_t)(curr_segment * NUM_REG_GROUP_BYTES);
 
         if (Io_SharedSpi_TransmitAndReceive(
-                ltc6813_spi, tx_cmd, NUM_TX_CMD_BYTES, rx_internal_die_temp,
+                ltc6813_spi, tx_cmd, TOTAL_NUM_CMD_BYTES, rx_internal_die_temp,
                 TOTAL_NUM_OF_REG_BYTES))
         {
             // Store the internal die temperature. The upper byte of the
             // internal die temperature is stored in the 3rd byte, while the
             // lower byte is stored in the 2nd byte.
             const uint16_t raw_die_temp = (uint16_t)(
-                (rx_internal_die_temp[LTC6813_REG_2 + die_temp_index]) |
-                (rx_internal_die_temp[LTC6813_REG_3 + die_temp_index] << 8));
+                (rx_internal_die_temp[REG_GROUP_2 + die_temp_index]) |
+                (rx_internal_die_temp[REG_GROUP_3 + die_temp_index] << 8));
             internal_die_temp[curr_segment] =
                 Io_DieTemperatures_ConvertToDegC(raw_die_temp);
 
+            // TODO: fix indexing
             // The received PEC15 bytes are stored in the 6th and 7th byte.
             const uint16_t received_pec15 = (uint16_t)(
-                (rx_internal_die_temp[6 + die_temp_index] << 8) |
-                (rx_internal_die_temp[7 + die_temp_index]));
+                (rx_internal_die_temp[REG_GROUP_PEC0 + die_temp_index] << 8) |
+                (rx_internal_die_temp[REG_GROUP_PEC1 + die_temp_index]));
 
             // Calculate the PEC15 using the first 6 bytes of data received from
             // the chip.
-            const uint16_t calculated_pec15 = Io_LTC6813_CalculatePec15(
-                &rx_internal_die_temp[die_temp_index], NUM_OF_REGS_IN_GROUP);
+            const uint16_t calculated_pec15 = Io_LTC6813_CalculateRegGroupPec15(
+                &rx_internal_die_temp[die_temp_index]);
 
             if (received_pec15 != calculated_pec15)
             {

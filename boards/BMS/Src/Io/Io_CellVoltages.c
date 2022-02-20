@@ -3,21 +3,19 @@
 #include "Io_CellVoltages.h"
 #include "App_Accumulator.h"
 
+// clang-format off
 #define NUM_OF_CELLS_PER_SEGMENT (16U)
 #define NUM_OF_CELLS_PER_REG_GROUP (3U)
-#define TOTAL_NUM_OF_CELLS \
-    (NUM_OF_CELLS_PER_SEGMENT * NUM_OF_ACCUMULATOR_SEGMENTS)
+#define TOTAL_NUM_OF_CELLS (NUM_OF_CELLS_PER_SEGMENT * NUM_OF_ACCUMULATOR_SEGMENTS)
 
-// A macro used to reset accumulator voltages to their defualt settings
-#define RESET_ACCUMULATOR_VOLTAGE(x)                                           \
-    (struct AccumulatorVoltages)                                               \
-    {                                                                          \
-        .pack_v = 0U, .segment_v = { 0U },                                     \
-        .min_v = { .voltage = 0xFFFFU, .cell = 0U, .segment = 0U }, .max_v = { \
-            .voltage = 0U,                                                     \
-            .cell    = 0U,                                                     \
-            .segment = 0U                                                      \
-        }                                                                      \
+// A macro used to reset accumulator voltages to their default settings
+#define RESET_ACCUMULATOR_VOLTAGE()                                 \
+    (struct AccumulatorVoltages)                                    \
+    {                                                               \
+        .pack_v = 0U,                                               \
+        .segment_v = { 0U },                                        \
+        .min_v = { .voltage = 0xFFFFU, .cell = 0U, .segment = 0U }, \
+        .max_v = { .voltage = 0U, .cell = 0U, .segment = 0U }       \
     }
 
 enum CellVoltageRegGroup
@@ -31,37 +29,34 @@ enum CellVoltageRegGroup
     NUM_OF_CELL_V_REG_GROUPS
 };
 
-struct CellVoltages
-{
-    uint8_t  segment;
-    uint8_t  cell;
-    uint16_t voltage;
-};
-
 struct AccumulatorVoltages
 {
-    uint32_t            segment_v[NUM_OF_ACCUMULATOR_SEGMENTS];
-    uint32_t            pack_v;
-    struct CellVoltages min_v;
-    struct CellVoltages max_v;
+    uint32_t segment_v[NUM_OF_ACCUMULATOR_SEGMENTS];
+    uint32_t pack_v;
+    struct CellVoltages
+    {
+        uint8_t  segment;
+        uint8_t  cell;
+        uint16_t voltage;
+    } min_v, max_v;
 };
 
 extern struct SharedSpi *ltc6813_spi;
-extern uint16_t          cell_voltages[NUM_OF_ACCUMULATOR_SEGMENTS]
-                             [NUM_OF_CELLS_PER_SEGMENT];
-uint16_t cell_voltages[NUM_OF_ACCUMULATOR_SEGMENTS]
-                      [NUM_OF_CELLS_PER_SEGMENT] = { { 0U } };
+extern uint16_t cell_voltages[NUM_OF_ACCUMULATOR_SEGMENTS][NUM_OF_CELLS_PER_SEGMENT];
+uint16_t cell_voltages[NUM_OF_ACCUMULATOR_SEGMENTS][NUM_OF_CELLS_PER_SEGMENT] = {{ 0U }};
 
-static const uint16_t cv_read_cmds[NUM_OF_CELL_V_REG_GROUPS] = {
-    0x0004, // RDCVA
-    0x0006, // RDCVB
-    0x0008, // RDCVC
-    0x000A, // RDCVD
-    0x0009, // RDCVE
-    0x000B  // RDCVF
+static const uint16_t cv_read_cmds[NUM_OF_CELL_V_REG_GROUPS] =
+{
+    [CELL_V_REG_GROUP_A] = 0x0004, // RDCVA
+    [CELL_V_REG_GROUP_B] = 0x0006, // RDCVB
+    [CELL_V_REG_GROUP_C] = 0x0008, // RDCVC
+    [CELL_V_REG_GROUP_D] = 0x000A, // RDCVD
+    [CELL_V_REG_GROUP_E] = 0x0009, // RDCVE
+    [CELL_V_REG_GROUP_F] = 0x000B  // RDCVF
 };
 
 static struct AccumulatorVoltages acc_voltages = { 0U };
+// clang-format on
 
 /**
  * Parse raw cell voltages received from the cell monitoring chip and perform
@@ -75,22 +70,24 @@ static struct AccumulatorVoltages acc_voltages = { 0U };
  * @return True if the PEC15 check was successful. Else, false.
  */
 static bool Io_CellVoltages_ParseSegmentRawVoltage(
-    enum AccumulatorSegments curr_segment,
-    enum CellVoltageRegGroup curr_reg_group,
-    uint8_t *                rx_cell_v);
+    uint8_t  curr_segment,
+    uint8_t  curr_reg_group,
+    uint8_t *rx_cell_v);
 
 static bool Io_CellVoltages_ParseSegmentRawVoltage(
-    enum AccumulatorSegments curr_segment,
-    enum CellVoltageRegGroup curr_reg_group,
-    uint8_t *                rx_cell_v)
+    uint8_t  curr_segment,
+    uint8_t  curr_reg_group,
+    uint8_t *rx_cell_v)
 {
-    uint32_t cell_v_index = (uint32_t)(curr_segment * NUM_REG_GROUP_BYTES);
+    uint8_t cell_v_index = (uint8_t)(curr_segment * NUM_REG_GROUP_BYTES);
 
     for (uint8_t curr_cell = 0U; curr_cell < NUM_OF_CELLS_PER_REG_GROUP;
          curr_cell++)
     {
-        const uint16_t cell_voltage = (uint16_t)(
-            rx_cell_v[cell_v_index] | (rx_cell_v[cell_v_index + 1] << 8));
+        const uint16_t cell_voltage =
+            BYTES_TO_WORD(rx_cell_v[cell_v_index + 1], rx_cell_v[cell_v_index]);
+        // (uint16_t)(
+        // rx_cell_v[cell_v_index] | (rx_cell_v[cell_v_index + 1] << 8));
 
         // Store cell voltages
         cell_voltages[curr_segment]
@@ -104,7 +101,7 @@ static bool Io_CellVoltages_ParseSegmentRawVoltage(
             // cell voltages read back from CELL_VOLTAGE_REGISTER_F. The cell
             // voltage index is incremented by NUM_OF_REGS_IN_GROUP to retrieve
             // the PEC15 bytes for the register group.
-            cell_v_index += NUM_OF_REGS_IN_GROUP;
+            cell_v_index = (uint8_t)(cell_v_index + NUM_OF_REGS_IN_GROUP);
             break;
         }
         else
@@ -112,16 +109,16 @@ static bool Io_CellVoltages_ParseSegmentRawVoltage(
             // Each cell voltage is represented by 2 bytes. Therefore,
             // the cell voltage index is incremented by 2 to retrieve the next
             // cell voltage.
-            cell_v_index += REG_GROUP_DATA_SIZE;
+            cell_v_index = (uint8_t)(cell_v_index + REG_GROUP_DATA_SIZE);
         }
     }
 
-    const uint16_t recv_pec15 = (uint16_t)(
-        (rx_cell_v[cell_v_index] << 8) | (rx_cell_v[cell_v_index + 1]));
-    const uint16_t calc_pec15 = Io_LTC6813_CalculatePec15(
-        &rx_cell_v[curr_segment * NUM_REG_GROUP_BYTES], NUM_OF_REGS_IN_GROUP);
-
-    // Compare calculated PEC15 with the PEC15 received
+    // const uint16_t recv_pec15 = (uint16_t)(
+    //        (rx_cell_v[cell_v_index] << 8) | (rx_cell_v[cell_v_index + 1]));
+    const uint16_t recv_pec15 =
+        BYTES_TO_WORD(rx_cell_v[cell_v_index], rx_cell_v[cell_v_index + 1]);
+    const uint16_t calc_pec15 = Io_LTC6813_CalculateRegGroupPec15(
+        &rx_cell_v[curr_segment * NUM_REG_GROUP_BYTES]);
     return recv_pec15 == calc_pec15;
 }
 
@@ -170,24 +167,23 @@ static void Io_CellVoltages_CalculateVoltages(void)
 bool Io_CellVoltages_GetAllRawCellVoltages(void)
 {
     bool    status                                   = true;
-    uint8_t tx_cmd[NUM_TX_CMD_BYTES]                 = { 0U };
+    uint8_t tx_cmd[TOTAL_NUM_CMD_BYTES]              = { 0U };
     uint8_t rx_cell_voltages[TOTAL_NUM_OF_REG_BYTES] = { 0U };
 
     if (Io_LTC6813_PollAdcConversions())
     {
-        for (enum CellVoltageRegGroup curr_reg_group = CELL_V_REG_GROUP_A;
+        for (uint8_t curr_reg_group = 0U;
              curr_reg_group < NUM_OF_CELL_V_REG_GROUPS; curr_reg_group++)
         {
-            Io_LTC6813_PackCmd(tx_cmd, cv_read_cmds[curr_reg_group]);
-            Io_LTC6813_PackPec15(tx_cmd, NUM_OF_CMD_BYTES);
+            Io_LTC6813_PrepareCmd(tx_cmd, cv_read_cmds[curr_reg_group]);
 
             // Sending command to read back voltages from a register group of a
             // cell monitoring device
             if (Io_SharedSpi_TransmitAndReceive(
-                    ltc6813_spi, tx_cmd, NUM_TX_CMD_BYTES, rx_cell_voltages,
+                    ltc6813_spi, tx_cmd, TOTAL_NUM_CMD_BYTES, rx_cell_voltages,
                     TOTAL_NUM_OF_REG_BYTES))
             {
-                for (enum AccumulatorSegments curr_segment = 0U;
+                for (uint8_t curr_segment = 0U;
                      curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS; curr_segment++)
                 {
                     if (!Io_CellVoltages_ParseSegmentRawVoltage(

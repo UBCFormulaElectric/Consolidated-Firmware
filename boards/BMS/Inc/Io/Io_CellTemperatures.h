@@ -12,17 +12,25 @@ bool Io_CellTemperatures_GetCellTemperatureDegC(void);
  * temperatures
  * @return The current minimum cell temperature (0.1°C)
  */
-uint32_t Io_CellTemperatures_GetMinCellTemperature(void);
+float Io_CellTemperatures_GetMinCellTempDegC(void);
 
 /**
  * Get the current maximum accumulator cell temperature out of all cell
  * temperatures
  * @return The current maximum cell temperature (0.1°C)
  */
-uint32_t Io_CellTemperatures_GetMaxCellTemperature(void);
+float Io_CellTemperatures_GetMaxCellTempDegC(void);
 
 /**
  * Get the average accumulator cell temperature
  * @return The average accumulator cell temperature (0.1°C)
  */
-float Io_CellTemperatures_GetAverageCellTemperature(void);
+float Io_CellTemperatures_GetAverageCellTempDegC(void);
+
+void Io_CellTemperatures_GetMinCellLocation(
+    uint8_t *segment,
+    uint8_t *thermistor);
+
+void Io_CellTemperatures_GetMaxCellLocation(
+    uint8_t *segment,
+    uint8_t *thermistor);

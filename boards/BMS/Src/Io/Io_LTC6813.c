@@ -1,3 +1,4 @@
+#include <string.h>
 #include <assert.h>
 #include <stdbool.h>
 #include "main.h"
@@ -5,13 +6,10 @@
 #include "Io_LTC6813.h"
 #include "App_Accumulator.h"
 
-// Time that a blocking SPI transaction should wait for until until an error is
-// returned
+// Time that a SPI transaction should wait for until until an error is returned
 #define SPI_TIMEOUT_MS (20U)
 
-// TODO: Determine the ADC conversion timeout threshold #674
-// Driver will send a command to check if ADC conversions are finished on the
-// LTC6813 up to 10 times
+// Max number of commands to check for completed ADC conversions
 #define MAX_NUM_OF_CONV_COMPLETE_CHECKS (10U)
 
 // Command used to start ADC conversions
@@ -22,85 +20,31 @@
 #define PLADC_RX_SIZE (1U)
 #define ADC_CONV_INCOMPLETE (0xFFU)
 
-// Command and parameters to write to configuration register A
-#define WRCFGA (0x0001U)
-#define VUV (0x4E1U)
-#define VOV (0x8CAU)
-#define ADCOPT (1U)
-#define REFON (0U)
-#define DTEN (0U)
-#define DEFAULT_CFGRA_CONFIG                                                 \
-    {                                                                        \
-        [LTC6813_REG_0] = (0x1F << 3) + (REFON << 2) + (DTEN << 1) + ADCOPT, \
-        [LTC6813_REG_1] = (uint8_t)VUV,                                      \
-        [LTC6813_REG_2] = ((VOV & 0xF) << 4) + (VUV >> 8),                   \
-        [LTC6813_REG_3] = (VOV >> 4), [LTC6813_REG_4] = 0x0000U,             \
-        [LTC6813_REG_5]                               = 0x0000U,             \
-        [NUM_OF_REGS_IN_GROUP + LTC6813_PEC15_BYTE_0] = 0U,                  \
-        [NUM_OF_REGS_IN_GROUP + LTC6813_PEC15_BYTE_1] = 0U,                  \
+#define NUM_CMD_BYTES (2U)
+
+#define DEFAULT_CFGRA_CONFIG                                                \
+    {                                                                       \
+        [REG_GROUP_0] =                                                     \
+            (uint8_t)(ENABLE_ALL_CFGRA_GPIO | REFON | DTEN | ADCOPT),       \
+        [REG_GROUP_1] = (uint8_t)VUV,                                       \
+        [REG_GROUP_2] = (uint8_t)((VOV & 0xF) << 4) + (VUV >> 8),           \
+        [REG_GROUP_3] = (uint8_t)(VOV >> 4), [REG_GROUP_4] = 0x0U,          \
+        [REG_GROUP_5] = 0x0U, [REG_GROUP_PEC0] = 0U, [REG_GROUP_PEC1] = 0U, \
     }
 
-#define DEFAULT_CFGRA_CONFIG_                                             \
-    {                                                                     \
-        [LTC6813_REG_0] = 0U, [LTC6813_REG_1] = 0U, [LTC6813_REG_2] = 0U, \
-        [LTC6813_REG_3] = 0U, [LTC6813_REG_4] = 0x0U,                     \
-        [LTC6813_REG_5]                               = 0x0000U,          \
-        [NUM_OF_REGS_IN_GROUP + LTC6813_PEC15_BYTE_0] = 0U,               \
-        [NUM_OF_REGS_IN_GROUP + LTC6813_PEC15_BYTE_1] = 0U,               \
-    }
-
-#define WRCFGB (0x0024U)
-#define REG0_ON (0xF0U)
-#define REG0_OFF (0x00U)
-#define REG1_ON (0x07U)
-#define REG1_OFF (0x00U)
 #define DEFAULT_CFGRB_CONFIG                                              \
     {                                                                     \
-        [LTC6813_REG_0] = REG0_OFF + 0x000FU, [LTC6813_REG_1] = REG1_OFF, \
-        [LTC6813_REG_2] = 0U, [LTC6813_REG_3] = 0U, [LTC6813_REG_5] = 0U, \
-        [NUM_OF_REGS_IN_GROUP + LTC6813_PEC15_BYTE_0] = 0U,               \
-        [NUM_OF_REGS_IN_GROUP + LTC6813_PEC15_BYTE_1] = 0U,               \
+        [REG_GROUP_0] = ENABLE_ALL_CFGRB_GPIO, [REG_GROUP_1] = 0U,        \
+        [REG_GROUP_2] = 0U, [REG_GROUP_3] = 0U, [REG_GROUP_4] = 0U,       \
+        [REG_GROUP_5] = 0U, [REG_GROUP_PEC0] = 0U, [REG_GROUP_PEC1] = 0U, \
     }
 
-typedef struct
-{
-    const uint16_t cmd;
-    uint8_t        config_register[NUM_REG_GROUP_BYTES];
-} ConfigurationRegisters_S;
-
-static ConfigurationRegisters_S config_register[NUM_OF_CONFIG_REGISTERS] =
-{
-    [CONFIG_REGISTER_A] =
-    {
-        .cmd = WRCFGA,
-        .config_register =
-        {
-            [LTC6813_REG_0] = (REFON << 2) + (DTEN << 1) + ADCOPT,
-            [LTC6813_REG_1] = (uint8_t)VUV,
-            [LTC6813_REG_2] = ((VOV & 0xF) << 4) + (VUV >> 8),
-            [LTC6813_REG_3] = (VOV >> 4),
-            [LTC6813_REG_4] = 0x0U,
-            [LTC6813_REG_5] = 0x0U,
-            [NUM_OF_REGS_IN_GROUP + LTC6813_PEC15_BYTE_0] = 0U,
-            [NUM_OF_REGS_IN_GROUP + LTC6813_PEC15_BYTE_1] = 0U,
-        }
-    },
-    [CONFIG_REGISTER_B] =
-    {
-        .cmd = WRCFGB,
-        .config_register =
-        {
-            [LTC6813_REG_0] = REG0_OFF,
-            [LTC6813_REG_1] = REG1_OFF,
-            [LTC6813_REG_2] = 0U,
-            [LTC6813_REG_3] = 0U,
-            [LTC6813_REG_4] = 0U,
-            [LTC6813_REG_5] = 0U,
-            [NUM_OF_REGS_IN_GROUP + LTC6813_PEC15_BYTE_0] = 0U,
-            [NUM_OF_REGS_IN_GROUP + LTC6813_PEC15_BYTE_1] = 0U,
-        }
-    }
-};
+// Macros for setting DCC bits
+#define SET_ALL_DCC_BITS (0xFFFFU)
+#define SET_MIN_CELL_DCC_BIT(index) ((uint16_t)(1U << (index)))
+#define SET_CFGRA4_DCC_BITS(dcc_bits) (0xFFU & (uint8_t)(dcc_bits))
+#define SET_CFGRA5_DCC_BITS(dcc_bits) (0x0FU & (uint8_t)((dcc_bits) >> 8U))
+#define SET_CFGRB0_DCC_BITS(dcc_bits) (0xF0U & (uint8_t)((dcc_bits) >> 8U))
 
 extern struct SharedSpi *ltc6813_spi;
 struct SharedSpi *       ltc6813_spi = NULL;
@@ -138,6 +82,113 @@ static const uint16_t crc[UINT8_MAX + 1] = {
     0x8BA7, 0x4E3E, 0x450C, 0x8095
 };
 
+static inline void Io_ConfigureRegisterA(uint8_t *tx_cmd, uint8_t *tx_cfg)
+{
+    // Pack command to write to configure register A
+    Io_LTC6813_PrepareCmd(tx_cmd, WRCFGA);
+    // Pack data to write to configuration register A
+    uint8_t cfgra[NUM_REG_GROUP_BYTES] = DEFAULT_CFGRA_CONFIG;
+    memcpy(tx_cfg, cfgra, NUM_REG_GROUP_BYTES);
+}
+
+static inline void Io_ConfigureRegisterB(
+    uint8_t tx_cmd[TOTAL_NUM_CMD_BYTES],
+    uint8_t tx_cfg[NUM_REG_GROUP_BYTES])
+{
+    // Pack command to write to configure register A
+    Io_LTC6813_PrepareCmd(tx_cmd, WRCFGB);
+    // Pack data to write to configuration register A
+    uint8_t cfgrb[NUM_REG_GROUP_BYTES] = DEFAULT_CFGRB_CONFIG;
+    memcpy(tx_cfg, cfgrb, NUM_REG_GROUP_BYTES);
+}
+
+static inline bool Io_WriteConfigurationRegister(
+    Ltc6813CfgRegs_E cfg_reg,
+    uint8_t *        tx_cmd,
+    uint8_t *        tx_cfg,
+    uint8_t          min_cell_segment,
+    uint16_t         min_cell_dcc_bits)
+{
+    bool status = true;
+
+    // Configurations for the last segment need to be sent first on the daisy
+    // chain
+    Io_SharedSpi_SetNssLow(ltc6813_spi);
+    if (Io_SharedSpi_TransmitWithoutNssToggle(
+            ltc6813_spi, tx_cmd, TOTAL_NUM_CMD_BYTES))
+    {
+        for (uint8_t curr_segment = 0U;
+             curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS; curr_segment++)
+        {
+            uint16_t dcc_bits = (curr_segment == NUM_OF_ACCUMULATOR_SEGMENTS -
+                                                     min_cell_segment - 1)
+                                    ? min_cell_dcc_bits
+                                    : SET_ALL_DCC_BITS;
+
+            if (cfg_reg == CONFIG_REG_A)
+            {
+                tx_cfg[REG_GROUP_4] = SET_CFGRA4_DCC_BITS(dcc_bits);
+                tx_cfg[REG_GROUP_5] = SET_CFGRA5_DCC_BITS(dcc_bits);
+            }
+            if (cfg_reg == CONFIG_REG_B)
+            {
+                tx_cfg[REG_GROUP_0] = SET_CFGRB0_DCC_BITS(dcc_bits);
+            }
+
+            Io_LTC6813_PackPec15(tx_cfg, NUM_OF_REGS_IN_GROUP);
+            if (!Io_SharedSpi_TransmitWithoutNssToggle(
+                    ltc6813_spi, tx_cfg, NUM_REG_GROUP_BYTES))
+            {
+                status = false;
+                break;
+            }
+
+            if (cfg_reg == CONFIG_REG_A)
+            {
+                tx_cfg[REG_GROUP_4] = 0U;
+                tx_cfg[REG_GROUP_5] = 0U;
+            }
+            else if (cfg_reg == CONFIG_REG_B)
+            {
+                tx_cfg[REG_GROUP_0] = ENABLE_ALL_CFGRB_GPIO;
+                tx_cfg[REG_GROUP_1] = 0U;
+            }
+        }
+    }
+
+    Io_SharedSpi_SetNssHigh(ltc6813_spi);
+
+    return status;
+}
+
+bool Io_LTC6813_SetConfigurationRegister(
+    Ltc6813CfgRegs_E cfg_reg,
+    uint8_t          min_cell_segment,
+    uint16_t         min_cell_loc)
+{
+    uint8_t        tx_cmd[TOTAL_NUM_CMD_BYTES] = { 0U };
+    uint8_t        tx_cfg[NUM_REG_GROUP_BYTES] = { 0U };
+    const uint16_t min_cell_dcc_bits =
+        (uint16_t)(~(SET_MIN_CELL_DCC_BIT(min_cell_loc)));
+
+    switch (cfg_reg)
+    {
+        case CONFIG_REG_A:
+            Io_ConfigureRegisterA(tx_cmd, tx_cfg);
+            break;
+
+        case CONFIG_REG_B:
+            Io_ConfigureRegisterB(tx_cmd, tx_cfg);
+            break;
+
+        default:
+            break;
+    }
+
+    return Io_WriteConfigurationRegister(
+        cfg_reg, tx_cmd, tx_cfg, min_cell_segment, min_cell_dcc_bits);
+}
+
 void Io_LTC6813_InitSpiHandle(SPI_HandleTypeDef *spi_handle)
 {
     assert(spi_handle != NULL);
@@ -146,7 +197,16 @@ void Io_LTC6813_InitSpiHandle(SPI_HandleTypeDef *spi_handle)
         spi_handle, SPI2_NSS_GPIO_Port, SPI2_NSS_Pin, SPI_TIMEOUT_MS);
 }
 
-uint16_t Io_LTC6813_CalculatePec15(uint8_t *data_buffer, uint8_t size)
+void Io_LTC6813_PrepareCmd(uint8_t tx_cmd[TOTAL_NUM_CMD_BYTES], uint16_t cmd)
+{
+    // tx_cmd[CMD_BYTE_0] = (uint8_t)(cmd >> 8);
+    // tx_cmd[CMD_BYTE_1] = (uint8_t)cmd;
+
+    Io_LTC6813_PackWordInBytes(tx_cmd, cmd);
+    Io_LTC6813_PackPec15(tx_cmd, NUM_CMD_BYTES);
+}
+
+static uint16_t Io_LTC6813_CalculatePec15(uint8_t *data_buffer, uint8_t size)
 {
     // Initialize the value of the PEC15 remainder to 16
     uint16_t pec15_remainder = 16U;
@@ -157,29 +217,32 @@ uint16_t Io_LTC6813_CalculatePec15(uint8_t *data_buffer, uint8_t size)
     for (size_t i = 0U; i < size; i++)
     {
         pec15_lut_index =
-            ((uint8_t)(pec15_remainder >> 7) ^ data_buffer[i]) & 0xFF;
+            ((uint8_t)(pec15_remainder >> 7U) ^ data_buffer[i]) & 0xFFU;
         pec15_remainder =
-            (uint16_t)((pec15_remainder << 8) ^ crc[pec15_lut_index]);
+            (uint16_t)((pec15_remainder << 8U) ^ crc[pec15_lut_index]);
     }
 
     // Set the LSB of the PEC15 remainder to 0.
     return (uint16_t)(pec15_remainder << 1);
 }
 
+uint16_t Io_LTC6813_CalculateRegGroupPec15(uint8_t *data_buffer)
+{
+    return Io_LTC6813_CalculatePec15(data_buffer, NUM_OF_REGS_IN_GROUP);
+}
+
 void Io_LTC6813_PackPec15(uint8_t *tx_data, uint8_t size)
 {
     const uint16_t cfg_reg_a_pec15 = Io_LTC6813_CalculatePec15(tx_data, size);
-    tx_data[size + LTC6813_PEC15_BYTE_0] = (uint8_t)(cfg_reg_a_pec15 >> 8);
-    tx_data[size + LTC6813_PEC15_BYTE_1] = (uint8_t)cfg_reg_a_pec15;
+    Io_LTC6813_PackWordInBytes(&tx_data[size + PEC15_BYTE_0], cfg_reg_a_pec15);
 }
 
 bool Io_LTC6813_SendCommand(uint16_t cmd)
 {
-    uint8_t tx_cmd[NUM_TX_CMD_BYTES] = { 0U };
-    Io_LTC6813_PackCmd(tx_cmd, cmd);
-    Io_LTC6813_PackPec15(tx_cmd, NUM_OF_CMD_BYTES);
+    uint8_t tx_cmd[TOTAL_NUM_CMD_BYTES] = { 0U };
+    Io_LTC6813_PrepareCmd(tx_cmd, cmd);
 
-    return Io_SharedSpi_Transmit(ltc6813_spi, tx_cmd, NUM_TX_CMD_BYTES);
+    return Io_SharedSpi_Transmit(ltc6813_spi, tx_cmd, TOTAL_NUM_CMD_BYTES);
 }
 
 bool Io_LTC6813_StartADCConversion(void)
@@ -194,16 +257,15 @@ bool Io_LTC6813_PollAdcConversions(void)
     uint8_t rx_data      = ADC_CONV_INCOMPLETE;
 
     // Get the status of ADC conversions
-    uint8_t tx_cmd[NUM_TX_CMD_BYTES] = { 0U };
-    Io_LTC6813_PackCmd(tx_cmd, PLADC);
-    Io_LTC6813_PackPec15(tx_cmd, NUM_OF_CMD_BYTES);
+    uint8_t tx_cmd[TOTAL_NUM_CMD_BYTES] = { 0U };
+    Io_LTC6813_PrepareCmd(tx_cmd, PLADC);
 
     // All chips on the daisy chain have finished converting cell voltages when
     // data read back = 0xFF.
     while (rx_data == ADC_CONV_INCOMPLETE)
     {
         const bool is_status_ok = Io_SharedSpi_TransmitAndReceive(
-            ltc6813_spi, tx_cmd, NUM_TX_CMD_BYTES, &rx_data, PLADC_RX_SIZE);
+            ltc6813_spi, tx_cmd, TOTAL_NUM_CMD_BYTES, &rx_data, PLADC_RX_SIZE);
 
         if (!is_status_ok || (num_attempts >= MAX_NUM_OF_CONV_COMPLETE_CHECKS))
         {
@@ -217,106 +279,12 @@ bool Io_LTC6813_PollAdcConversions(void)
     return status;
 }
 
-#include <string.h>
 bool Io_LTC6813_ConfigureRegisterA()
 {
-    bool status = false;
-
-    // Prepare write configuration register A command
-    uint8_t tx_cmd[NUM_TX_CMD_BYTES + NUM_REG_GROUP_BYTES] = { 0U };
-    Io_LTC6813_PackCmd(tx_cmd, WRCFGA);
-    Io_LTC6813_PackPec15(tx_cmd, NUM_OF_CMD_BYTES);
-
-    // Prepare data to write to configuration register A
-    uint8_t tx_cfg[NUM_REG_GROUP_BYTES] = DEFAULT_CFGRA_CONFIG;
-    Io_LTC6813_PackPec15(tx_cfg, NUM_OF_REGS_IN_GROUP);
-    memcpy(&tx_cmd[4], tx_cfg, NUM_REG_GROUP_BYTES);
-
-    status = Io_SharedSpi_Transmit(
-        ltc6813_spi, tx_cmd, NUM_TX_CMD_BYTES + NUM_REG_GROUP_BYTES);
-
-    // Write default configs to configuration register A to all devices
-    // connected to the daisy chain
-    // Io_SharedSpi_SetNssLow(ltc6813_spi);
-    // if (Io_SharedSpi_TransmitWithoutNssToggle(
-    //        ltc6813_spi, tx_cmd, NUM_TX_CMD_BYTES))
-    //{
-    //    status = Io_SharedSpi_TransmitWithoutNssToggle(
-    //        ltc6813_spi, tx_cfg, NUM_REG_GROUP_BYTES);
-    //}
-    // Io_SharedSpi_SetNssHigh(ltc6813_spi);
-
-    return status;
+    return true;
 }
 
 bool Io_LTC6813_ConfigureRegisterB(void)
 {
-    bool status = false;
-
-    // Prepare write configuration register A command
-    uint8_t tx_cmd[NUM_TX_CMD_BYTES] = { 0U };
-    Io_LTC6813_PackCmd(tx_cmd, WRCFGB);
-    Io_LTC6813_PackPec15(tx_cmd, NUM_OF_CMD_BYTES);
-
-    // Prepare data to write to configuration register A
-    uint8_t tx_cfg[NUM_REG_GROUP_BYTES] = DEFAULT_CFGRB_CONFIG;
-    Io_LTC6813_PackPec15(tx_cfg, NUM_OF_REGS_IN_GROUP);
-
-    // Write default configs to configuration register A to all devices
-    // connected to the daisy chain
-    Io_SharedSpi_SetNssLow(ltc6813_spi);
-
-    if (Io_SharedSpi_TransmitWithoutNssToggle(
-            ltc6813_spi, tx_cmd, NUM_TX_CMD_BYTES))
-    {
-        status = Io_SharedSpi_MultipleTransmitWithoutNssToggle(
-            ltc6813_spi, tx_cfg, NUM_REG_GROUP_BYTES,
-            NUM_OF_ACCUMULATOR_SEGMENTS);
-    }
-
-    Io_SharedSpi_SetNssHigh(ltc6813_spi);
-
-    return status;
-}
-
-bool Io_LTC6813_ConfigureRegister(ConfigurationRegisters_E cfg_reg)
-{
-    bool status = false;
-
-    // Prepare write configuration register command
-    uint8_t tx_cmd[NUM_TX_CMD_BYTES] = { 0U };
-    Io_LTC6813_PackCmd(tx_cmd, config_register[cfg_reg].cmd);
-    Io_LTC6813_PackPec15(tx_cmd, NUM_OF_CMD_BYTES);
-
-    // Prepare data to write to configuration register
-    Io_LTC6813_PackPec15(
-        config_register[cfg_reg].config_register, NUM_OF_REGS_IN_GROUP);
-
-    // Write default configs to configuration register to all devices
-    // connected to the daisy chain
-    Io_SharedSpi_SetNssLow(ltc6813_spi);
-
-    if (Io_SharedSpi_TransmitWithoutNssToggle(
-            ltc6813_spi, tx_cmd, NUM_TX_CMD_BYTES))
-    {
-        status = Io_SharedSpi_MultipleTransmitWithoutNssToggle(
-            ltc6813_spi, config_register[cfg_reg].config_register,
-            NUM_REG_GROUP_BYTES, NUM_OF_ACCUMULATOR_SEGMENTS);
-    }
-
-    Io_SharedSpi_SetNssHigh(ltc6813_spi);
-
-    return status;
-}
-
-void Io_LTC6813_EnterReadyState(void)
-{
-    uint8_t rx_data;
-
-    // Generate isoSPI traffic to wake up the daisy chain by sending a command
-    // to read a single byte NUM_OF_LTC6813 times.
-    for (size_t i = 0U; i < NUM_OF_ACCUMULATOR_SEGMENTS; i++)
-    {
-        Io_SharedSpi_Receive(ltc6813_spi, &rx_data, 1U);
-    }
+    return true;
 }
