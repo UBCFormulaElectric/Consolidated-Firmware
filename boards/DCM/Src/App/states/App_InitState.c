@@ -5,13 +5,9 @@
 
 #include "App_SharedMacros.h"
 
-// Holds previous start switch position (true = UP/ON, false = DOWN/OFF)
-static bool prev_start_switch_position;
-
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct DcmCanRxInterface *can_rx_interface = App_DcmWorld_GetCanRx(world);
     struct DcmCanTxInterface *can_tx_interface = App_DcmWorld_GetCanTx(world);
 
     App_CanTx_SetPeriodicSignal_STATE(
@@ -22,18 +18,15 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
         can_tx_interface,
         CANMSGS_DCM_INVL_COMMAND_MESSAGE_INVERTER_ENABLE_INVL_OFF_CHOICE);
     App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVR(
-            can_tx_interface,
-            CANMSGS_DCM_INVR_COMMAND_MESSAGE_INVERTER_ENABLE_INVR_OFF_CHOICE);
+        can_tx_interface,
+        CANMSGS_DCM_INVR_COMMAND_MESSAGE_INVERTER_ENABLE_INVR_OFF_CHOICE);
     App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
         can_tx_interface,
         App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(0.0f));
     App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVR(
-            can_tx_interface,
-            App_CanMsgs_dcm_invr_command_message_torque_command_invr_encode(0.0f));
+        can_tx_interface,
+        App_CanMsgs_dcm_invr_command_message_torque_command_invr_encode(0.0f));
 
-    // Get initial start switch position
-    prev_start_switch_position =
-        App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx_interface);
 }
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -51,15 +44,26 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct InverterSwitches * inverter_switches =
         App_DcmWorld_GetInverterSwitches(world);
 
+    // Holds previous start switch position (true = UP/ON, false = DOWN/OFF)
+    static bool prev_start_switch_position = true; // Initialize to true to prevent a false start
+
+#ifdef DEBUG // Enter drive state directly from init state
+    App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
+    return;
+#endif
+
     const bool both_airs_closed =
         App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx_interface) ==
             CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE &&
         App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx_interface) ==
             CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE;
 
-    const bool inverter_faulted = App_CanRx_INVL_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVL(can_rx_interface)
-            == CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE ||
-            App_CanRx_INVR_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVR(can_rx_interface) ==
+    const bool inverter_faulted =
+        App_CanRx_INVL_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVL(
+            can_rx_interface) ==
+            CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE ||
+        App_CanRx_INVR_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVR(
+            can_rx_interface) ==
             CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE;
 
     // Provide LV to inverters when both AIRS are closed and DC bus voltage ~
@@ -74,9 +78,9 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
 
     // Transition to fault state if an inverter has faulted or
-    // motor shut down error fault set
+    // a critical error has been set
     if (inverter_faulted ||
-        App_SharedErrorTable_HasAnyMotorShutdownErrorSet(error_table))
+            App_SharedErrorTable_HasAnyCriticalErrorSet(error_table))
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
