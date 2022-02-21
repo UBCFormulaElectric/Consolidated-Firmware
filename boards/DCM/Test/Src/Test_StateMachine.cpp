@@ -350,37 +350,6 @@ TEST_F(DcmStateMachineTest, rgb_led_sequence_in_all_states)
     }
 }
 
-// DCM-4
-TEST_F(DcmStateMachineTest, zero_torque_request_in_init_state)
-{
-    // Start with a non-zero torque request to prevent false positive
-    App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
-        can_tx_interface,
-        App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(1.0f));
-    App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVR(
-            can_tx_interface,
-            App_CanMsgs_dcm_invr_command_message_torque_command_invr_encode(1.0f));
-    ASSERT_FLOAT_EQ(
-        1.0f,
-        App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
-            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
-    ASSERT_FLOAT_EQ(
-            1.0f,
-            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
-                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
-
-    // Now tick the state machine and check torque request gets zeroed
-    LetTimePass(state_machine, 10);
-    ASSERT_FLOAT_EQ(
-        0.0f,
-        App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
-            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
-    ASSERT_FLOAT_EQ(
-            0.0f,
-            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
-                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
-}
-
 // DCM-16
 TEST_F(DcmStateMachineTest, zero_torque_request_in_fault_state)
 {
@@ -390,25 +359,25 @@ TEST_F(DcmStateMachineTest, zero_torque_request_in_fault_state)
     App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
         can_tx_interface,
         App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(1.0f));
-    ASSERT_FLOAT_EQ(
+    EXPECT_FLOAT_EQ(
         1.0f,
         App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
             App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
-    ASSERT_FLOAT_EQ(
-            1.0f,
-            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
-                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
+    EXPECT_FLOAT_EQ(
+        1.0f,
+        App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
 
     // Now tick the state machine and check torque request gets zeroed
     LetTimePass(state_machine, 10);
-    ASSERT_FLOAT_EQ(
+    EXPECT_FLOAT_EQ(
         0.0f,
         App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
             App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
-    ASSERT_FLOAT_EQ(
-            0.0f,
-            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
-                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
+    EXPECT_FLOAT_EQ(
+        0.0f,
+        App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
 }
 
 // DCM-14
@@ -556,14 +525,14 @@ TEST_F(DcmStateMachineTest, regen_not_allowed_when_no_airs_closed)
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_OPEN_CHOICE);
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE);
-    ASSERT_FLOAT_EQ(
+    EXPECT_FLOAT_EQ(
         expected_torque_request_value,
         App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
             App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
-    ASSERT_FLOAT_EQ(
-            expected_torque_request_value,
-            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
-                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
+    EXPECT_FLOAT_EQ(
+        expected_torque_request_value,
+        App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
 }
 
 TEST_F(DcmStateMachineTest, regen_not_allowed_when_one_air_closed)
@@ -598,14 +567,14 @@ TEST_F(DcmStateMachineTest, regen_not_allowed_when_one_air_closed)
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
     LetTimePass(state_machine, 10);
-    ASSERT_FLOAT_EQ(
+    EXPECT_FLOAT_EQ(
         expected_torque_request_value,
         App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
             App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
-    ASSERT_FLOAT_EQ(
-            expected_torque_request_value,
-            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
-                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
+    EXPECT_FLOAT_EQ(
+        expected_torque_request_value,
+        App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
 
     // Check that regen doesn't turn when positive AIR is open and negative AIR
     // is closed
@@ -614,14 +583,14 @@ TEST_F(DcmStateMachineTest, regen_not_allowed_when_one_air_closed)
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE);
     LetTimePass(state_machine, 10);
-    ASSERT_FLOAT_EQ(
+    EXPECT_FLOAT_EQ(
         expected_torque_request_value,
         App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
             App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
-    ASSERT_FLOAT_EQ(
-            expected_torque_request_value,
-            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
-                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
+    EXPECT_FLOAT_EQ(
+        expected_torque_request_value,
+        App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
 }
 
 // DCM-8, DCM-19
@@ -659,14 +628,14 @@ TEST_F(
     App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
         can_rx_interface, value_over_threshold_wheel_speed);
     LetTimePass(state_machine, 10);
-    ASSERT_FLOAT_EQ(
+    EXPECT_FLOAT_EQ(
         expected_torque_request_value,
         App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
             App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
-    ASSERT_FLOAT_EQ(
-            expected_torque_request_value,
-            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
-                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
+    EXPECT_FLOAT_EQ(
+        expected_torque_request_value,
+        App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
 
     // Check that regen doesn't turn on when right wheel speed is below regen
     // threshold
@@ -675,14 +644,14 @@ TEST_F(
     App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
         can_rx_interface, REGEN_WHEEL_SPEED_THRESHOLD_KPH);
     LetTimePass(state_machine, 10);
-    ASSERT_FLOAT_EQ(
+    EXPECT_FLOAT_EQ(
         expected_torque_request_value,
         App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
             App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
-    ASSERT_FLOAT_EQ(
-            expected_torque_request_value,
-            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
-                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
+    EXPECT_FLOAT_EQ(
+        expected_torque_request_value,
+        App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
 
     // Check that regen turns on when both wheels speeds are over regen
     // threshold
@@ -691,14 +660,14 @@ TEST_F(
     App_CanRx_FSM_WHEEL_SPEED_SENSOR_SetSignal_RIGHT_WHEEL_SPEED(
         can_rx_interface, value_over_threshold_wheel_speed);
     LetTimePass(state_machine, 10);
-    ASSERT_FLOAT_EQ(
+    EXPECT_FLOAT_EQ(
         expected_regen_request_value,
         App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
             App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
-    ASSERT_FLOAT_EQ(
-            expected_regen_request_value,
-            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
-                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
+    EXPECT_FLOAT_EQ(
+        expected_regen_request_value,
+        App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
 }
 
 // DCM-19
@@ -716,14 +685,14 @@ TEST_F(
     // Check that no torque requests are sent when the accelerator pedal is not
     // pressed
     LetTimePass(state_machine, 10);
-    ASSERT_FLOAT_EQ(
+    EXPECT_FLOAT_EQ(
         0.0f,
         App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
             App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
-    ASSERT_FLOAT_EQ(
-            0.0f,
-            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
-                    App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
+    EXPECT_FLOAT_EQ(
+        0.0f,
+        App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
 }
 
 // DCM21
@@ -798,17 +767,17 @@ TEST_F(DcmStateMachineTest, init_to_fault_state_on_right_inverter_fault)
 {
     LetTimePass(state_machine, 10);
     EXPECT_EQ(
-            App_GetInitState(),
-            App_SharedStateMachine_GetCurrentState(state_machine));
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
 
     // Introduce inverter fault, expect transition to fault state
     App_CanRx_INVR_INTERNAL_STATES_SetSignal_D1_VSM_STATE_INVR(
-            can_rx_interface,
-            CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE);
+        can_rx_interface,
+        CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE);
     LetTimePass(state_machine, 10);
     EXPECT_EQ(
-            App_GetFaultState(),
-            App_SharedStateMachine_GetCurrentState(state_machine));
+        App_GetFaultState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 TEST_F(DcmStateMachineTest, drive_to_fault_state_on_right_inverter_fault)
@@ -817,20 +786,20 @@ TEST_F(DcmStateMachineTest, drive_to_fault_state_on_right_inverter_fault)
     // Turn the DIM start switch on to prevent state transitions in
     // the drive state.
     App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
-            can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
+        can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
     LetTimePass(state_machine, 10);
     EXPECT_EQ(
-            App_GetDriveState(),
-            App_SharedStateMachine_GetCurrentState(state_machine));
+        App_GetDriveState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
 
     // Introduce inverter fault, expect transition to fault state
     App_CanRx_INVR_INTERNAL_STATES_SetSignal_D1_VSM_STATE_INVR(
-            can_rx_interface,
-            CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE);
+        can_rx_interface,
+        CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE);
     LetTimePass(state_machine, 10);
     EXPECT_EQ(
-            App_GetFaultState(),
-            App_SharedStateMachine_GetCurrentState(state_machine));
+        App_GetFaultState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 // DCM-20
