@@ -34,8 +34,9 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
     float torque_request;
 
     // Calculating the torque request
-    // 1) If regen is allowed and the regen paddle is actuated, use the regen paddle percentage
-    // 2) If regen is not allowed, use the accelerator pedal percentage
+    // 1) If regen is allowed and the regen paddle is actuated, use the regen
+    // paddle percentage 2) If regen is not allowed, use the accelerator pedal
+    // percentage
     //
     // Constants:  MAX_TORQUE_REQUEST_NM = 132 Nm,
     //              - the max torque the motor can provide
@@ -69,7 +70,7 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
         can_tx, App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(
                     torque_request));
     App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVR(
-            can_tx, App_CanMsgs_dcm_invr_command_message_torque_command_invr_encode(
+        can_tx, App_CanMsgs_dcm_invr_command_message_torque_command_invr_encode(
                     torque_request));
 }
 

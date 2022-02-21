@@ -17,7 +17,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct BrakeLight *       brake_light = App_DcmWorld_GetBrakeLight(world);
 
     // Only need single torque command since same command sent to both inverters
-    float                     torque_command =
+    float torque_command =
         App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
             App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx));
 

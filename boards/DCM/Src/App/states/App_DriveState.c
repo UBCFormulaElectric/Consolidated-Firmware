@@ -20,8 +20,9 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVL(
         can_tx_interface,
         CANMSGS_DCM_INVL_COMMAND_MESSAGE_INVERTER_ENABLE_INVL_ON_CHOICE);
-    App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVR(can_tx_interface,
-            CANMSGS_DCM_INVR_COMMAND_MESSAGE_INVERTER_ENABLE_INVR_ON_CHOICE);
+    App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVR(
+        can_tx_interface,
+        CANMSGS_DCM_INVR_COMMAND_MESSAGE_INVERTER_ENABLE_INVR_ON_CHOICE);
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -37,21 +38,23 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct DcmCanRxInterface *can_rx      = App_DcmWorld_GetCanRx(world);
     struct ErrorTable *       error_table = App_DcmWorld_GetErrorTable(world);
 
-    const bool inverter_faulted = App_CanRx_INVL_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVL(can_rx)
-                                  == CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE ||
-                                  App_CanRx_INVR_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVR(can_rx) ==
-                                  CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE;
+    const bool inverter_faulted =
+        App_CanRx_INVL_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVL(can_rx) ==
+            CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE ||
+        App_CanRx_INVR_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVR(can_rx) ==
+            CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE;
 
-    // Go back to init state if start switch turned off
+#ifndef DEBUG // Go back to init state if start switch turned off
     if (App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx) ==
         CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
     }
+#endif
     // Enter fault state if an inverter has faulted or a motor shutdown error
     // has been set
     if (inverter_faulted ||
-        App_SharedErrorTable_HasAnyMotorShutdownErrorSet(error_table))
+            App_SharedErrorTable_HasAnyCriticalErrorSet(error_table))
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
@@ -70,14 +73,14 @@ static void DriveStateRunOnExit(struct StateMachine *const state_machine)
         can_tx_interface,
         CANMSGS_DCM_INVL_COMMAND_MESSAGE_INVERTER_ENABLE_INVL_OFF_CHOICE);
     App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVR(
-            can_tx_interface,
-            CANMSGS_DCM_INVR_COMMAND_MESSAGE_INVERTER_ENABLE_INVR_OFF_CHOICE);
+        can_tx_interface,
+        CANMSGS_DCM_INVR_COMMAND_MESSAGE_INVERTER_ENABLE_INVR_OFF_CHOICE);
     App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
         can_tx_interface,
         App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(0.0f));
     App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVR(
-            can_tx_interface,
-            App_CanMsgs_dcm_invr_command_message_torque_command_invr_encode(0.0f));
+        can_tx_interface,
+        App_CanMsgs_dcm_invr_command_message_torque_command_invr_encode(0.0f));
 }
 
 const struct State *App_GetDriveState(void)
