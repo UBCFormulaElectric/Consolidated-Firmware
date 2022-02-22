@@ -12,8 +12,8 @@ static uint16_t adc1_data[ADC1_NUM_CONVERSIONS];
 static uint16_t adc2_data[ADC2_NUM_CONVERSIONS];
 
 struct PhaseValues *ph_cur_adc_offset;
-static float powerstage_temp;
-static float motor_temperature;
+static float        powerstage_temp;
+static float        motor_temperature;
 
 // Sample all ADCs (1 and 2) in regular scanning conversion mode
 void Io_AdcDac_AdcContModeInit(void)
@@ -123,15 +123,17 @@ float Io_AdcDac_GetPowerstageTemp(void)
     float adc_voltage = 3.3f * (float)adc1_data[1] / 4096.0f;
 
     float therm_resistance;
-    if(adc_voltage == 3.0f)
+    if (adc_voltage == 3.0f)
     {
-        therm_resistance = -8660.0f*adc_voltage/(adc_voltage+0.0001f-3);
+        therm_resistance = -8660.0f * adc_voltage / (adc_voltage + 0.0001f - 3);
     }
     else
     {
-        therm_resistance = -8660.0f*adc_voltage/(adc_voltage-3);
+        therm_resistance = -8660.0f * adc_voltage / (adc_voltage - 3);
     }
-    powerstage_temp = 1/(logf(therm_resistance/5000.0f)/3380.0f+1/298.15f)-273.15f;
+    powerstage_temp =
+        1 / (logf(therm_resistance / 5000.0f) / 3380.0f + 1 / 298.15f) -
+        273.15f;
     return powerstage_temp;
 }
 
@@ -144,7 +146,8 @@ float Io_AdcDac_GetMotorTemp(void)
 {
     float adc_voltage = 3.3f * (float)adc1_data[2] / 4096.0f;
 
-    motor_temperature = -28.982f*(adc_voltage*adc_voltage) + 223.62f*adc_voltage - 123.67f;
+    motor_temperature = -28.982f * (adc_voltage * adc_voltage) +
+                        223.62f * adc_voltage - 123.67f;
     return motor_temperature;
 }
 

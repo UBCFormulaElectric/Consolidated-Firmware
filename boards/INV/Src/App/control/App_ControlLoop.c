@@ -104,8 +104,6 @@ void App_ControlLoop_Run(const struct InvWorld *world)
     ph_cur_peak_ref =
         App_CanRx_INV_PH_CUR_PEAK_REQ_GetSignal_PH_CUR_PEAK_REQ(can_rx);
 
-
-
     if (mode == MOTOR_CONTROL)
     {
         torque_ref =
@@ -174,7 +172,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
             fund_freq_ref > MAX_MOTOR_SPEED / 60.0f * (MOTOR_POLES / 2.0f))
         {
             motor_control_faults.fund_freq_req_implausible = 1;
-            fund_freq_ref                                  = 100.0f; // safe default fundamental frequency
+            fund_freq_ref = 100.0f; // safe default fundamental frequency
         }
         rotor_position = fmodf(
             (prev_rotor_position +

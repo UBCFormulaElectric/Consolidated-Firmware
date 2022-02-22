@@ -265,65 +265,67 @@ with open("App_CanMsgs.dbc", 'w') as dbc_file:
             'SIGNAL_ENUM6': str(worksheet[column_designation.get('SIGNAL_ENUM6') + str(signal)].value),
         }
 
-        if worksheet[column_designation.get('SIGNAL_ENUM0') + str(signal)].value is not None:
-            dbc_file.write(
-                (
-                "\nVAL_ " + signal_info.get('CAN_ID') + " " + signal_info.get("SIGNAL_NAME") + " 0 \"" + signal_info.get('SIGNAL_ENUM0') + "\""
-                )
-            )
+        if worksheet[column_designation.get('CAN_ID') + str(signal)].value is not None:
 
-        if worksheet[column_designation.get('SIGNAL_ENUM1') + str(signal)].value is not None:
-            dbc_file.write(
-                (
-                " 1 \"" + signal_info.get('SIGNAL_ENUM1') + "\""
+            if worksheet[column_designation.get('SIGNAL_ENUM0') + str(signal)].value is not None:
+                dbc_file.write(
+                    (
+                    "\nVAL_ " + signal_info.get('CAN_ID') + " " + signal_info.get("SIGNAL_NAME") + " 0 \"" + signal_info.get('SIGNAL_ENUM0') + "\""
+                    )
                 )
-            )
 
-        if worksheet[column_designation.get('SIGNAL_ENUM2') + str(signal)].value is not None:
-            dbc_file.write(
-                (
-                " 2 \"" + signal_info.get('SIGNAL_ENUM2') + "\""
+            if worksheet[column_designation.get('SIGNAL_ENUM1') + str(signal)].value is not None:
+                dbc_file.write(
+                    (
+                    " 1 \"" + signal_info.get('SIGNAL_ENUM1') + "\""
+                    )
                 )
-            )
 
-        if worksheet[column_designation.get('SIGNAL_ENUM3') + str(signal)].value is not None:
-            dbc_file.write(
-                (
-                " 3 \"" + signal_info.get('SIGNAL_ENUM3') + "\""
+            if worksheet[column_designation.get('SIGNAL_ENUM2') + str(signal)].value is not None:
+                dbc_file.write(
+                    (
+                    " 2 \"" + signal_info.get('SIGNAL_ENUM2') + "\""
+                    )
                 )
-            )
 
-        if worksheet[column_designation.get('SIGNAL_ENUM4') + str(signal)].value is not None:
-            dbc_file.write(
-                (
-                " 4 \"" + signal_info.get('SIGNAL_ENUM4') + "\""
+            if worksheet[column_designation.get('SIGNAL_ENUM3') + str(signal)].value is not None:
+                dbc_file.write(
+                    (
+                    " 3 \"" + signal_info.get('SIGNAL_ENUM3') + "\""
+                    )
                 )
-            )
 
-        if worksheet[column_designation.get('SIGNAL_ENUM5') + str(signal)].value is not None:
-            dbc_file.write(
-                (
-                " 5 \"" + signal_info.get('SIGNAL_ENUM5') + "\""
+            if worksheet[column_designation.get('SIGNAL_ENUM4') + str(signal)].value is not None:
+                dbc_file.write(
+                    (
+                    " 4 \"" + signal_info.get('SIGNAL_ENUM4') + "\""
+                    )
                 )
-            )
 
-        if worksheet[column_designation.get('SIGNAL_ENUM6') + str(signal)].value is not None:
-            dbc_file.write(
-                (
-                " 5 \"" + signal_info.get('SIGNAL_ENUM6') + "\""
+            if worksheet[column_designation.get('SIGNAL_ENUM5') + str(signal)].value is not None:
+                dbc_file.write(
+                    (
+                    " 5 \"" + signal_info.get('SIGNAL_ENUM5') + "\""
+                    )
                 )
-            )
 
-        if (worksheet[column_designation.get('SIGNAL_ENUM0') + str(signal)].value is not None or
-           worksheet[column_designation.get('SIGNAL_ENUM1') + str(signal)].value is not None or
-           worksheet[column_designation.get('SIGNAL_ENUM2') + str(signal)].value is not None or
-           worksheet[column_designation.get('SIGNAL_ENUM3') + str(signal)].value is not None or
-           worksheet[column_designation.get('SIGNAL_ENUM4') + str(signal)].value is not None or
-           worksheet[column_designation.get('SIGNAL_ENUM5') + str(signal)].value is not None or
-           worksheet[column_designation.get('SIGNAL_ENUM6') + str(signal)].value is not None):
-            dbc_file.write(
-                ";"
-            )
+            if worksheet[column_designation.get('SIGNAL_ENUM6') + str(signal)].value is not None:
+                dbc_file.write(
+                    (
+                    " 5 \"" + signal_info.get('SIGNAL_ENUM6') + "\""
+                    )
+                )
+
+            if (worksheet[column_designation.get('SIGNAL_ENUM0') + str(signal)].value is not None or
+               worksheet[column_designation.get('SIGNAL_ENUM1') + str(signal)].value is not None or
+               worksheet[column_designation.get('SIGNAL_ENUM2') + str(signal)].value is not None or
+               worksheet[column_designation.get('SIGNAL_ENUM3') + str(signal)].value is not None or
+               worksheet[column_designation.get('SIGNAL_ENUM4') + str(signal)].value is not None or
+               worksheet[column_designation.get('SIGNAL_ENUM5') + str(signal)].value is not None or
+               worksheet[column_designation.get('SIGNAL_ENUM6') + str(signal)].value is not None):
+                dbc_file.write(
+                    ";"
+                )
     dbc_file.write(
         '\n'
     )

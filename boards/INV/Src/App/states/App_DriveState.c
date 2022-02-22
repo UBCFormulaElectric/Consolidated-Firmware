@@ -24,7 +24,7 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     App_PowerStage_Enable(power_stage); // Enable ADC & DAC
     App_PowerStage_SetCurrentLimits(power_stage, 10);
     App_GateDrive_StartPwm(gate_drive); // Enable PWM
-    App_GateDrive_Enable(gate_drive);   // Release Shutdown Pin
+    App_GateDrive_Enable(gate_drive); // Release Shutdown Pin
 
     App_CanTx_SetPeriodicSignal_STATE(
         can_tx_interface, CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE);
@@ -36,8 +36,8 @@ static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
     // struct InvWorld *  world =
     // App_SharedStateMachine_GetWorld(state_machine); struct GateDrive *
     // gate_drive  = App_InvWorld_GetGateDrive(world); struct PowerStage
-    // *power_stage = App_InvWorld_GetPowerStage(world); struct InvCanTxInterface
-    // *can_tx_interface = App_InvWorld_GetCanTx(world);
+    // *power_stage = App_InvWorld_GetPowerStage(world); struct
+    // InvCanTxInterface *can_tx_interface = App_InvWorld_GetCanTx(world);
 }
 
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)

@@ -6,7 +6,7 @@
 #include "Io_SharedFreeRTOS.h"
 
 #define CAN_TX_MSG_FIFO_ITEM_SIZE sizeof(struct CanMsg)
-#define CAN_TX_MSG_FIFO_LENGTH 20
+#define CAN_TX_MSG_FIFO_LENGTH 100
 
 #define CAN_RX_MSG_FIFO_ITEM_SIZE sizeof(struct CanMsg)
 #define CAN_RX_MSG_FIFO_LENGTH 20
@@ -301,16 +301,18 @@ void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void)
 {
     xSemaphoreTake(CanTxBinarySemaphore.handle, portMAX_DELAY);
 
-    while (HAL_CAN_GetTxMailboxesFreeLevel(sharedcan_hcan) > 0 &&
+    while (//HAL_CAN_GetTxMailboxesFreeLevel(sharedcan_hcan) > 0 &&
            uxQueueMessagesWaiting(can_tx_msg_fifo.handle) > 0)
     {
         struct CanMsg message;
-
+        while(!HAL_CAN_GetTxMailboxesFreeLevel(sharedcan_hcan));
         if (xQueueReceive(can_tx_msg_fifo.handle, &message, 0) == pdTRUE)
         {
             (void)Io_TransmitCanMessage(&message);
         }
     }
+    int i = 0;
+    i = i+1;
 }
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)

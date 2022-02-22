@@ -33,7 +33,7 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_PWRSTG_TEMP(
         can_tx_interface, App_PowerStage_GetTemperature(power_stage));
     App_CanTx_SetPeriodicSignal_MOTOR_TEMP(
-        can_tx_interface, App_Motor_GetTemperature());
+        can_tx_interface, 50.0f);
     App_CanTx_SetPeriodicSignal_PHA_HI_DIAG(
         can_tx_interface, App_GateDrive_GetPhaLoDiag(gate_drive));
     App_CanTx_SetPeriodicSignal_PHA_LO_DIAG(
@@ -53,13 +53,16 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_PHC_OC_ALARM(
         can_tx_interface, App_PowerStage_GetPhcOCFault(power_stage));
     App_CanTx_SetPeriodicSignal_PWRSTG_OT_ALARM(
-        can_tx_interface, App_PowerStage_GetPowerStageOTFault(power_stage));
+        can_tx_interface,
+        App_PowerStage_GetPowerStageOTFault(power_stage));
     App_CanTx_SetPeriodicSignal_MOTOR_OT_ALARM(
         can_tx_interface, App_Motor_GetOTAlarm());
     App_CanTx_SetPeriodicSignal_GPIOD_1(
-        can_tx_interface, HAL_GPIO_ReadPin(GPIOD_1_GPIO_Port, GPIOD_1_Pin));
+        can_tx_interface, HAL_GPIO_ReadPin(GPIOD_1_GPIO_Port,
+        GPIOD_1_Pin));
     App_CanTx_SetPeriodicSignal_GPIOD_2(
-        can_tx_interface, HAL_GPIO_ReadPin(GPIOD_2_GPIO_Port, GPIOD_2_Pin));
+        can_tx_interface, HAL_GPIO_ReadPin(GPIOD_2_GPIO_Port,
+        GPIOD_2_Pin));
     App_CanTx_SetPeriodicSignal_DAC_OUT1_VOLTAGE(
         can_tx_interface, Io_AdcDac_Dac1GetVoltage());
     App_CanTx_SetPeriodicSignal_DAC_OUT1_CURRENT_LIM(
@@ -71,7 +74,8 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 
     // Only send stgap fault messages after STGAPs are configured, i.e.
     // DRIVE/STANDBY states only
-    if (App_CanTx_GetPeriodicMsgPointer_INV_STATE_MACHINE(can_tx_interface)
+    if
+    (App_CanTx_GetPeriodicMsgPointer_INV_STATE_MACHINE(can_tx_interface)
             ->state == (CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE |
                         CANMSGS_INV_STATE_MACHINE_STATE_STANDBY_CHOICE))
     {
@@ -256,7 +260,7 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
             can_tx_interface, stgap_faults->spi_err[5]);
         App_CanTx_SetPeriodicSignal_C_HI_DEADTIME_ERR(
             can_tx_interface, stgap_faults->dt_err[5]);
-    }
+        }
 }
 
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
@@ -283,17 +287,19 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         can_tx_interface, App_ControlLoop_GetModIndex());
     App_CanTx_SetPeriodicSignal_BUS_VOLTAGE(
         can_tx_interface, App_PowerStage_GetBusVoltage(power_stage));
-    App_CanTx_SetPeriodicSignal_PHA_CUR_DC(can_tx_interface, phase_currents->a);
-    App_CanTx_SetPeriodicSignal_PHB_CUR_DC(can_tx_interface, phase_currents->b);
-    App_CanTx_SetPeriodicSignal_PHC_CUR_DC(can_tx_interface, phase_currents->c);
-    App_CanTx_SetPeriodicSignal_MOTOR_POS(
+    App_CanTx_SetPeriodicSignal_PHA_CUR_DC(can_tx_interface,
+    phase_currents->a);
+    App_CanTx_SetPeriodicSignal_PHB_CUR_DC(can_tx_interface,
+    phase_currents->b);
+    App_CanTx_SetPeriodicSignal_PHC_CUR_DC(can_tx_interface,
+    phase_currents->c); App_CanTx_SetPeriodicSignal_MOTOR_POS(
         can_tx_interface, App_Motor_GetPosition());
     App_CanTx_SetPeriodicSignal_MOTOR_SPEED(
         can_tx_interface, App_ControlLoop_GetRotorSpeed());
     App_CanTx_SetPeriodicSignal_MODE(
         can_tx_interface, App_ControlLoop_GetMode());
-    App_CanTx_SetPeriodicSignal_GPIOA(can_tx_interface, Io_AdcDac_GetGpioVal());
-    App_CanTx_SetPeriodicSignal_PID_IQ_OUTPUT(
+    App_CanTx_SetPeriodicSignal_GPIOA(can_tx_interface,
+    Io_AdcDac_GetGpioVal()); App_CanTx_SetPeriodicSignal_PID_IQ_OUTPUT(
         can_tx_interface, iq_controller->output);
     App_CanTx_SetPeriodicSignal_PID_ID_OUTPUT(
         can_tx_interface, id_controller->output);
