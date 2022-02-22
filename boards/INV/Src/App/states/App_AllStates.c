@@ -33,7 +33,7 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_PWRSTG_TEMP(
         can_tx_interface, App_PowerStage_GetTemperature(power_stage));
     App_CanTx_SetPeriodicSignal_MOTOR_TEMP(
-        can_tx_interface, 50.0f);
+        can_tx_interface, App_Motor_GetTemperature());
     App_CanTx_SetPeriodicSignal_PHA_HI_DIAG(
         can_tx_interface, App_GateDrive_GetPhaLoDiag(gate_drive));
     App_CanTx_SetPeriodicSignal_PHA_LO_DIAG(
