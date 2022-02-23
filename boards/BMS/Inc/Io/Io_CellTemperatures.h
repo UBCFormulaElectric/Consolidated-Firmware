@@ -34,3 +34,5 @@ void Io_CellTemperatures_GetMinCellLocation(
 void Io_CellTemperatures_GetMaxCellLocation(
     uint8_t *segment,
     uint8_t *thermistor);
+
+bool Io_CellVoltages_StartCellTemperatureConversion(void);

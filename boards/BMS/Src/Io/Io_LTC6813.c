@@ -12,45 +12,20 @@
 // Max number of commands to check for completed ADC conversions
 #define MAX_NUM_OF_CONV_COMPLETE_CHECKS (10U)
 
-// Command used to start ADC conversions
-#define ADCV ((0x260 + (MD << 7) + (DCP << 4) + CH))
-
 // Command used to poll ADC conversions
 #define PLADC (0x0714U)
 #define PLADC_RX_SIZE (1U)
 #define ADC_CONV_INCOMPLETE (0xFFU)
 
+// Each command is 2 bytes wide
 #define NUM_CMD_BYTES (2U)
-
-#define DEFAULT_CFGRA_CONFIG                                                \
-    {                                                                       \
-        [REG_GROUP_0] =                                                     \
-            (uint8_t)(ENABLE_ALL_CFGRA_GPIO | REFON | DTEN | ADCOPT),       \
-        [REG_GROUP_1] = (uint8_t)VUV,                                       \
-        [REG_GROUP_2] = (uint8_t)((VOV & 0xF) << 4) + (VUV >> 8),           \
-        [REG_GROUP_3] = (uint8_t)(VOV >> 4), [REG_GROUP_4] = 0x0U,          \
-        [REG_GROUP_5] = 0x0U, [REG_GROUP_PEC0] = 0U, [REG_GROUP_PEC1] = 0U, \
-    }
-
-#define DEFAULT_CFGRB_CONFIG                                              \
-    {                                                                     \
-        [REG_GROUP_0] = ENABLE_ALL_CFGRB_GPIO, [REG_GROUP_1] = 0U,        \
-        [REG_GROUP_2] = 0U, [REG_GROUP_3] = 0U, [REG_GROUP_4] = 0U,       \
-        [REG_GROUP_5] = 0U, [REG_GROUP_PEC0] = 0U, [REG_GROUP_PEC1] = 0U, \
-    }
-
-// Macros for setting DCC bits
-#define SET_ALL_DCC_BITS (0xFFFFU)
-#define SET_MIN_CELL_DCC_BIT(index) ((uint16_t)(1U << (index)))
-#define SET_CFGRA4_DCC_BITS(dcc_bits) (0xFFU & (uint8_t)(dcc_bits))
-#define SET_CFGRA5_DCC_BITS(dcc_bits) (0x0FU & (uint8_t)((dcc_bits) >> 8U))
-#define SET_CFGRB0_DCC_BITS(dcc_bits) (0xF0U & (uint8_t)((dcc_bits) >> 8U))
+#define CRC_LUT_SIZE (256U)
 
 extern struct SharedSpi *ltc6813_spi;
 struct SharedSpi *       ltc6813_spi = NULL;
 
 // CRC check LUT
-static const uint16_t crc[UINT8_MAX + 1] = {
+static const uint16_t crc[CRC_LUT_SIZE] = {
     0x0,    0xC599, 0xCEAB, 0xB32,  0xD8CF, 0x1D56, 0x1664, 0xD3FD, 0xF407,
     0x319E, 0x3AAC, 0xFF35, 0x2CC8, 0xE951, 0xE263, 0x27FA, 0xAD97, 0x680E,
     0x633C, 0xA6A5, 0x7558, 0xB0C1, 0xBBF3, 0x7E6A, 0x5990, 0x9C09, 0x973B,
@@ -82,128 +57,13 @@ static const uint16_t crc[UINT8_MAX + 1] = {
     0x8BA7, 0x4E3E, 0x450C, 0x8095
 };
 
-static inline void Io_ConfigureRegisterA(uint8_t *tx_cmd, uint8_t *tx_cfg)
-{
-    // Pack command to write to configure register A
-    Io_LTC6813_PrepareCmd(tx_cmd, WRCFGA);
-    // Pack data to write to configuration register A
-    uint8_t cfgra[NUM_REG_GROUP_BYTES] = DEFAULT_CFGRA_CONFIG;
-    memcpy(tx_cfg, cfgra, NUM_REG_GROUP_BYTES);
-}
-
-static inline void Io_ConfigureRegisterB(
-    uint8_t tx_cmd[TOTAL_NUM_CMD_BYTES],
-    uint8_t tx_cfg[NUM_REG_GROUP_BYTES])
-{
-    // Pack command to write to configure register A
-    Io_LTC6813_PrepareCmd(tx_cmd, WRCFGB);
-    // Pack data to write to configuration register A
-    uint8_t cfgrb[NUM_REG_GROUP_BYTES] = DEFAULT_CFGRB_CONFIG;
-    memcpy(tx_cfg, cfgrb, NUM_REG_GROUP_BYTES);
-}
-
-static inline bool Io_WriteConfigurationRegister(
-    Ltc6813CfgRegs_E cfg_reg,
-    uint8_t *        tx_cmd,
-    uint8_t *        tx_cfg,
-    uint8_t          min_cell_segment,
-    uint16_t         min_cell_dcc_bits)
-{
-    bool status = true;
-
-    // Configurations for the last segment need to be sent first on the daisy
-    // chain
-    Io_SharedSpi_SetNssLow(ltc6813_spi);
-    if (Io_SharedSpi_TransmitWithoutNssToggle(
-            ltc6813_spi, tx_cmd, TOTAL_NUM_CMD_BYTES))
-    {
-        for (uint8_t curr_segment = 0U;
-             curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS; curr_segment++)
-        {
-            uint16_t dcc_bits = (curr_segment == NUM_OF_ACCUMULATOR_SEGMENTS -
-                                                     min_cell_segment - 1)
-                                    ? min_cell_dcc_bits
-                                    : SET_ALL_DCC_BITS;
-
-            if (cfg_reg == CONFIG_REG_A)
-            {
-                tx_cfg[REG_GROUP_4] = SET_CFGRA4_DCC_BITS(dcc_bits);
-                tx_cfg[REG_GROUP_5] = SET_CFGRA5_DCC_BITS(dcc_bits);
-            }
-            if (cfg_reg == CONFIG_REG_B)
-            {
-                tx_cfg[REG_GROUP_0] = SET_CFGRB0_DCC_BITS(dcc_bits);
-            }
-
-            Io_LTC6813_PackPec15(tx_cfg, NUM_OF_REGS_IN_GROUP);
-            if (!Io_SharedSpi_TransmitWithoutNssToggle(
-                    ltc6813_spi, tx_cfg, NUM_REG_GROUP_BYTES))
-            {
-                status = false;
-                break;
-            }
-
-            if (cfg_reg == CONFIG_REG_A)
-            {
-                tx_cfg[REG_GROUP_4] = 0U;
-                tx_cfg[REG_GROUP_5] = 0U;
-            }
-            else if (cfg_reg == CONFIG_REG_B)
-            {
-                tx_cfg[REG_GROUP_0] = ENABLE_ALL_CFGRB_GPIO;
-                tx_cfg[REG_GROUP_1] = 0U;
-            }
-        }
-    }
-
-    Io_SharedSpi_SetNssHigh(ltc6813_spi);
-
-    return status;
-}
-
-bool Io_LTC6813_SetConfigurationRegister(
-    Ltc6813CfgRegs_E cfg_reg,
-    uint8_t          min_cell_segment,
-    uint16_t         min_cell_loc)
-{
-    uint8_t        tx_cmd[TOTAL_NUM_CMD_BYTES] = { 0U };
-    uint8_t        tx_cfg[NUM_REG_GROUP_BYTES] = { 0U };
-    const uint16_t min_cell_dcc_bits =
-        (uint16_t)(~(SET_MIN_CELL_DCC_BIT(min_cell_loc)));
-
-    switch (cfg_reg)
-    {
-        case CONFIG_REG_A:
-            Io_ConfigureRegisterA(tx_cmd, tx_cfg);
-            break;
-
-        case CONFIG_REG_B:
-            Io_ConfigureRegisterB(tx_cmd, tx_cfg);
-            break;
-
-        default:
-            break;
-    }
-
-    return Io_WriteConfigurationRegister(
-        cfg_reg, tx_cmd, tx_cfg, min_cell_segment, min_cell_dcc_bits);
-}
-
 void Io_LTC6813_InitSpiHandle(SPI_HandleTypeDef *spi_handle)
 {
     assert(spi_handle != NULL);
 
+    // Initialize the SPI interface to communicate with the LTC6813
     ltc6813_spi = Io_SharedSpi_Create(
         spi_handle, SPI2_NSS_GPIO_Port, SPI2_NSS_Pin, SPI_TIMEOUT_MS);
-}
-
-void Io_LTC6813_PrepareCmd(uint8_t tx_cmd[TOTAL_NUM_CMD_BYTES], uint16_t cmd)
-{
-    // tx_cmd[CMD_BYTE_0] = (uint8_t)(cmd >> 8);
-    // tx_cmd[CMD_BYTE_1] = (uint8_t)cmd;
-
-    Io_LTC6813_PackWordInBytes(tx_cmd, cmd);
-    Io_LTC6813_PackPec15(tx_cmd, NUM_CMD_BYTES);
 }
 
 static uint16_t Io_LTC6813_CalculatePec15(uint8_t *data_buffer, uint8_t size)
@@ -237,17 +97,18 @@ void Io_LTC6813_PackPec15(uint8_t *tx_data, uint8_t size)
     Io_LTC6813_PackWordInBytes(&tx_data[size + PEC15_BYTE_0], cfg_reg_a_pec15);
 }
 
+void Io_LTC6813_PrepareCmd(uint8_t tx_cmd[TOTAL_NUM_CMD_BYTES], uint16_t cmd)
+{
+    Io_LTC6813_PackWordInBytes(tx_cmd, cmd);
+    Io_LTC6813_PackPec15(tx_cmd, NUM_CMD_BYTES);
+}
+
 bool Io_LTC6813_SendCommand(uint16_t cmd)
 {
     uint8_t tx_cmd[TOTAL_NUM_CMD_BYTES] = { 0U };
     Io_LTC6813_PrepareCmd(tx_cmd, cmd);
 
     return Io_SharedSpi_Transmit(ltc6813_spi, tx_cmd, TOTAL_NUM_CMD_BYTES);
-}
-
-bool Io_LTC6813_StartADCConversion(void)
-{
-    return Io_LTC6813_SendCommand(ADCV);
 }
 
 bool Io_LTC6813_PollAdcConversions(void)

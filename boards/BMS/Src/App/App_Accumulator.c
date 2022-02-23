@@ -15,7 +15,7 @@ struct Accumulator
     void (*get_max_cell_location)(uint8_t *, uint8_t *);
     float (*get_min_cell_voltage)(void);
     float (*get_max_cell_voltage)(void);
-    float (*get_segment_voltage)(enum AccumulatorSegments);
+    float (*get_segment_voltage)(AccumulatorSegments_E);
     float (*get_pack_voltage)(void);
     float (*get_average_voltage)(void);
 };
@@ -28,7 +28,7 @@ struct Accumulator *App_Accumulator_Create(
     void (*get_max_cell_location)(uint8_t *, uint8_t *),
     float (*get_min_cell_voltage)(void),
     float (*get_max_cell_voltage)(void),
-    float (*get_segment_voltage)(enum AccumulatorSegments),
+    float (*get_segment_voltage)(AccumulatorSegments_E),
     float (*get_pack_voltage)(void),
     float (*get_average_voltage)(void))
 {

@@ -247,7 +247,7 @@ int main(void)
 
     Io_LTC6813_InitSpiHandle(&hspi2);
     accumulator = App_Accumulator_Create(
-        Io_LTC6813_ConfigureRegisterA, Io_LTC6813_StartADCConversion,
+        Io_LTC6813_ConfigureRegisterA, Io_CellVoltages_StartAdcConversion,
         Io_CellVoltages_GetAllRawCellVoltages,
         Io_CellVoltages_GetMinCellLocation, Io_CellVoltages_GetMaxCellLocation,
         Io_CellVoltages_GetMinCellVoltage, Io_CellVoltages_GetMaxCellVoltage,
@@ -255,16 +255,8 @@ int main(void)
         Io_CellVoltages_GetAvgCellVoltage);
 
     cell_monitors = App_CellMonitors_Create(
-        Io_DieTemperatures_ReadTemp, Io_DieTemperatures_GetSegment0DieTemp,
-        Io_DieTemperatures_GetSegment1DieTemp,
-        Io_DieTemperatures_GetSegment2DieTemp,
-        Io_DieTemperatures_GetSegment3DieTemp,
-        Io_DieTemperatures_GetSegment4DieTemp,
-        Io_DieTemperatures_GetSegment5DieTemp, Io_DieTemperatures_GetMaxDieTemp,
-        MIN_ITMP_DEGC, MAX_ITMP_DEGC, DIE_TEMP_TO_REENABLE_CHARGER_DEGC,
-        DIE_TEMP_TO_REENABLE_CELL_BALANCING_DEGC,
-        DIE_TEMP_TO_DISABLE_CELL_BALANCING_DEGC,
-        DIE_TEMP_TO_DISABLE_CHARGER_DEGC);
+        Io_DieTemperatures_ReadTemp, Io_DieTemperatures_GetSegmentDieTemp,
+        Io_DieTemperatures_GetMaxDieTemp);
 
     airs = App_Airs_Create(
         Io_Airs_IsAirPositiveClosed, Io_Airs_IsAirNegativeClosed,

@@ -11,6 +11,10 @@
 #define THERM_INDEX_TO_DEGC (5U)
 #define DECI_DEGC_TO_DEGC (0.1f)
 
+#define MD (1U)
+#define CHST (0U)
+#define ADSTAT ((0x468 + (MD << 7) + CHST))
+
 #define MAX_THERMISTOR_RESISTANCE (temperature_lut[0])
 #define MIN_THERMISTOR_RESISTANCE (temperature_lut[SIZE_OF_TEMPERATURE_LUT - 1])
 
@@ -174,43 +178,47 @@ static bool Io_CellTemperatures_ParseThermistorVoltages(
     uint8_t curr_reg_group,
     uint8_t rx_buffer[TOTAL_NUM_OF_REG_BYTES])
 {
-    // Set the start index of the current thermistor reading to store
-    // TODO: fix indexing name
-    const uint32_t start_index = (uint32_t)(curr_segment * NUM_REG_GROUP_BYTES);
-    uint32_t       rx_therm_v_index = start_index;
+    uint8_t        therm_index = (uint8_t)(curr_segment * NUM_REG_GROUP_BYTES);
+    const uint16_t recv_pec15  = BYTES_TO_WORD(
+        rx_buffer[therm_index + REG_GROUP_PEC0],
+        rx_buffer[therm_index + REG_GROUP_PEC1]);
+    const uint16_t calc_pec15 =
+        Io_LTC6813_CalculateRegGroupPec15(&rx_buffer[therm_index]);
 
-    for (uint8_t curr_thermistor = 0U;
-         curr_thermistor < NUM_OF_THERMISTORS_PER_REG_GROUP; curr_thermistor++)
+    if (recv_pec15 == calc_pec15)
     {
-        // Calculate the current thermistor voltage index
-        uint32_t curr_therm_v_index =
-            curr_thermistor + curr_reg_group * NUM_OF_THERMISTORS_PER_REG_GROUP;
-        if (curr_reg_group == AUX_REGISTER_GROUP_C)
+        for (uint8_t curr_thermistor = 0U;
+             curr_thermistor < NUM_OF_THERMISTORS_PER_REG_GROUP;
+             curr_thermistor++)
         {
-            // Subtract curr_therm_v_index to ignore the reference voltage
-            // read back from aux register group B.
-            curr_therm_v_index--;
+            // Calculate the current thermistor voltage index
+            uint32_t index = curr_thermistor +
+                             curr_reg_group * NUM_OF_THERMISTORS_PER_REG_GROUP;
+            if (curr_reg_group == AUX_REGISTER_GROUP_C)
+            {
+                // Subtract curr_therm_index to ignore the reference voltage
+                // read back from aux register group B.
+                index--;
+            }
+
+            // Calculate and store temperature from thermistor voltage
+            const uint16_t raw_thermistor_voltage = (uint16_t)(
+                (rx_buffer[therm_index]) | ((rx_buffer[therm_index + 1] << 8)));
+            cell_temperatures[curr_segment][index] =
+                Io_CellTemp_CalculateCellTemperatureDegC(
+                    raw_thermistor_voltage);
+
+            // Data stored within a register group is 2 bytes wide. Increment by
+            // 2 bytes to retrieve the next thermistor voltage
+            therm_index = (uint8_t)(therm_index + NUM_BYTES_REG_GROUP_DATA);
         }
-
-        // Calculate and store temperature from thermistor voltage
-        const uint16_t raw_thermistor_voltage = (uint16_t)(
-            (rx_buffer[rx_therm_v_index]) |
-            ((rx_buffer[rx_therm_v_index + 1] << 8)));
-        cell_temperatures[curr_segment][curr_therm_v_index] =
-            Io_CellTemp_CalculateCellTemperatureDegC(raw_thermistor_voltage);
-
-        // Data stored within a register group is 2 bytes wide. Increment by 2
-        // bytes to retrieve the next thermistor voltage
-        rx_therm_v_index += REG_GROUP_DATA_SIZE;
+    }
+    else
+    {
+        return false;
     }
 
-    // Perform PEC15 check
-    const uint16_t received_pec15 = (uint16_t)(
-        (rx_buffer[rx_therm_v_index] << 8) | (rx_buffer[rx_therm_v_index + 1]));
-
-    const uint16_t calculated_pec15 =
-        Io_LTC6813_CalculateRegGroupPec15(&rx_buffer[start_index]);
-    return received_pec15 == calculated_pec15;
+    return true;
 }
 
 bool Io_CellTemperatures_GetCellTemperatureDegC(void)
@@ -280,4 +288,9 @@ void Io_CellTemperatures_GetMaxCellLocation(
 float Io_CellTemperatures_GetAverageCellTempDegC(void)
 {
     return acc_temperatures.avg_cell_degc * DECI_DEGC_TO_DEGC;
+}
+
+bool Io_CellVoltages_StartCellTemperatureConversion(void)
+{
+    return Io_LTC6813_SendCommand(ADSTAT);
 }

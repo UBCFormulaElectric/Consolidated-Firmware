@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include "App_Accumulator.h"
 #include "App_SharedExitCode.h"
 
 struct CellMonitors;
@@ -26,54 +27,10 @@ enum ITMPInRangeCheck
     ITMP_IN_RANGE
 };
 
-/**
- * Allocate and initialize a group of cell monitors
- * @param read_die_temps A function that can be called to read internal
- * die temperatures (°C) from all cell monitors
- * @param get_monitor_0_die_temp A function that returns the internal die
- * temperature (°C) for the 0th cell monitor
- * @param get_monitor_1_die_temp A function that returns the internal die
- * temperature (°C) for the 1st cell monitor
- * @param get_monitor_2_die_temp A function that returns the internal die
- * temperature (°C) for the 2nd cell monitor
- * @param get_monitor_3_die_temp A function that returns the internal die
- * temperature (°C) for the 3rd cell monitor
- * @param get_monitor_4_die_temp A function that returns the internal die
- * temperature (°C) for the 4th cell monitor
- * @param get_monitor_5_die_temp A function that returns the internal die
- * temperature (°C) for the 5th cell monitor
- * @param get_max_die_temp A function that returns the current maximum internal
- * die temperature (°C) out of all the cell monitors
- * @param min_die_temp_degc The minimum die temperature (°C) threshold for the
- * given cell monitor
- * @param max_die_temp_degc The maximum die temperature (°C) threshold for the
- * given cell monitor
- * @param die_temp_to_re_enable_charger_degc The die temperature (°C) to
- * re-enable the charger
- * @param die_temp_to_re_enable_cell_balancing_degc The die temperature (°C) to
- * re-enable cell balancing
- * @param die_temp_to_disable_cell_balancing_degc The die temperature (°C) to
- * disable cell balancing
- * @param die_temp_to_disable_charger_degc The die temperature (°C) to disable
- * the charger
- * @return A pointer to the created cell monitor whose ownership is given to the
- * caller
- */
 struct CellMonitors *App_CellMonitors_Create(
     bool (*read_die_temps)(void),
-    float (*get_monitor_0_die_temp)(void),
-    float (*get_monitor_1_die_temp)(void),
-    float (*get_monitor_2_die_temp)(void),
-    float (*get_monitor_3_die_temp)(void),
-    float (*get_monitor_4_die_temp)(void),
-    float (*get_monitor_5_die_temp)(void),
-    float (*get_max_die_temp)(void),
-    float min_die_temp_degc,
-    float max_die_temp_degc,
-    float die_temp_to_re_enable_charger_degc,
-    float die_temp_to_re_enable_cell_balancing_degc,
-    float die_temp_to_disable_cell_balancing_degc,
-    float die_temp_to_disable_charger_degc);
+    float (*get_die_temp)(AccumulatorSegments_E),
+    float (*get_max_die_temp)(void));
 
 /**
  * Deallocate the given group of cell monitors

@@ -1,8 +1,6 @@
 #include "states/App_AllStates.h"
 #include "states/App_FaultState.h"
 #include "App_SetPeriodicCanSignals.h"
-#include "App_Accumulator.h"
-#include "Io_CellVoltages.h"
 
 // static void App_AllStatesCanTxPeriodic100Hz(struct BmsWorld *world)
 //{
@@ -30,9 +28,18 @@
 //}
 
 #include "Io_LTC6813.h"
+#include "Io_CellVoltages.h"
 #include "Io_CellTemperatures.h"
 #include "Io_DieTemperatures.h"
 #include "Io_CellBalancing.h"
+#include "App_Accumulator.h"
+
+enum yeah
+{
+    YEAH_GET_CELL_VOLTAGE = 0U,
+    YEAH_GET_CELL_TEMP,
+    YEAH_GET_DIE_TEMP,
+};
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
@@ -56,46 +63,38 @@ static inline uint8_t temp_scale_for_can(float temp)
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct BmsCanTxInterface *can_tx      = App_BmsWorld_GetCanTx(world);
     const struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
     struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
 
     UNUSED(accumulator);
     UNUSED(error_table);
 
-    struct BmsCanTxInterface *can_tx = App_BmsWorld_GetCanTx(world);
+    static enum yeah state = YEAH_GET_CELL_VOLTAGE;
 
-    static uint8_t counter = 0U;
-
-    if (counter % 3 == 0U)
+    if (state == YEAH_GET_CELL_VOLTAGE)
     {
         // Start voltage conversion
         App_Accumulator_ReadCellVoltages(accumulator);
         App_Accumulator_AllStates100Hz(accumulator, can_tx, error_table);
 
-        // uint8_t min_cell_segment = 0U;
-        // uint8_t min_cell_index   = 0U;
-        // Io_CellVoltages_GetMinCellLocation(&min_cell_segment,
-        //&min_cell_index);
-        // Io_LTC6813_SetConfigurationRegister(
-        //   CONFIG_REG_A, min_cell_segment, min_cell_index);
-        // Io_LTC6813_SetConfigurationRegister(
-        //   CONFIG_REG_B, min_cell_segment, min_cell_index);
-
         Io_CellBalancing_ConfigureDccBits();
 
         App_CanTx_SetPeriodicSignal_SEGMENT_0_VOLTAGE(
             can_tx, Io_CellVoltages_GetSegmentVoltage(ACCUMULATOR_SEGMENT_0));
-        App_CanTx_SetPeriodicSignal_SEGMENT_1_VOLTAGE(
-            can_tx, Io_CellVoltages_GetSegmentVoltage(ACCUMULATOR_SEGMENT_1));
+        // App_CanTx_SetPeriodicSignal_SEGMENT_1_VOLTAGE(
+        //    can_tx, Io_CellVoltages_GetSegmentVoltage(ACCUMULATOR_SEGMENT_1));
         // App_CanTx_SetPeriodicSignal_SEGMENT_2_VOLTAGE(
         //    can_tx, Io_CellVoltages_GetSegmentVoltage(ACCUMULATOR_SEGMENT_2));
         // App_CanTx_SetPeriodicSignal_SEGMENT_3_VOLTAGE(
         //    can_tx, Io_CellVoltages_GetSegmentVoltage(ACCUMULATOR_SEGMENT_3));
 
-        const uint16_t ADSTAT = (0x468 + (MD << 7) + CHST);
-        Io_LTC6813_SendCommand(ADSTAT);
+        Io_CellVoltages_StartCellTemperatureConversion();
+
+        // Transition to next state
+        state = YEAH_GET_CELL_TEMP;
     }
-    else if (counter % 3 == 1U)
+    else if (state == YEAH_GET_CELL_TEMP)
     {
         // Send command to start temperature conversions
         Io_LTC6813_PollAdcConversions();
@@ -123,17 +122,20 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanTx_SetPeriodicSignal_MAX_CELL_TEMP_THERM(can_tx, thermistor);
 
         // Send command to get die temperatures
-        const uint16_t ADAX = 0x460 + (MD << 7) + CHG;
-        Io_LTC6813_SendCommand(ADAX);
+        Io_DieTemperatures_StartDieTempConversion();
+
+        state = YEAH_GET_DIE_TEMP;
     }
-    else if (counter % 3 == 2U)
+    else if (state == YEAH_GET_DIE_TEMP)
     {
         Io_LTC6813_PollAdcConversions();
         Io_DieTemperatures_ReadTemp();
-        App_Accumulator_StartCellVoltageConversion(accumulator);
-    }
 
-    counter++;
+        // Start cell voltage conversions
+        App_Accumulator_StartCellVoltageConversion(accumulator);
+
+        state = YEAH_GET_CELL_VOLTAGE;
+    }
 }
 
 #ifdef NDEBUG

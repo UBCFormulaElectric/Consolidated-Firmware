@@ -18,3 +18,7 @@
 
 #define JOIN(a, b) _JOIN(a, b)
 #define _JOIN(a, b) a##b
+
+// Pack byte into word
+#define BYTES_TO_WORD(h_byte, l_byte) ((uint16_t)(((h_byte) << 8) | (l_byte)))
+

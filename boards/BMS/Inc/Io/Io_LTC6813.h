@@ -2,37 +2,15 @@
 
 #include <stdbool.h>
 #include <stm32f3xx_hal.h>
-#include "App_SharedExitCode.h"
-
-#define MD (1U)
-#define DCP (0U)
-#define CH (0U)
-#define CHG (0U)
-#define CHST (0U)
-
-// Default configurations for CFGRA
-#define WRCFGA (0x0001U)
-#define VUV (0x4E1U)
-#define VOV (0x8CAU)
-#define ADCOPT (1U)
-#define REFON (0U << 2U)
-#define DTEN (0U << 1U)
-#define ENABLE_ALL_CFGRA_GPIO (0x001FU << 3U)
-
-// Default configurations for CFGRB
-#define WRCFGB (0x0024U)
-#define ENABLE_ALL_CFGRB_GPIO (0x000FU)
-
-// Data stored in register group is 2 bytes wide
-#define REG_GROUP_DATA_SIZE (2U)
-// Number of registers in a single register group
-#define NUM_OF_REGS_IN_GROUP (6U)
 
 // Conversion factor used to convert raw voltages (100µV) to voltages (V)
 #define V_PER_100UV (1E-4f)
 
-// Pack byte into word
-#define BYTES_TO_WORD(h_byte, l_byte) (uint16_t)(((h_byte) << 8) | (l_byte))
+// Data stored in register group is 2 bytes wide
+#define NUM_BYTES_REG_GROUP_DATA (2U)
+
+// Number of registers in a single register group
+#define NUM_OF_REGS_IN_GROUP (6U)
 
 // The calculated PEC15 for the LTC6813 is 2 bytes wide
 typedef enum
@@ -66,21 +44,14 @@ typedef enum
     NUM_REG_GROUP_BYTES,
 } Ltc6813RegGroupFormat_E;
 
-typedef enum
-{
-    CONFIG_REG_A = 0,
-    CONFIG_REG_B,
-    NUM_OF_CFG_REGISTERS,
-} Ltc6813CfgRegs_E;
-
 #define TOTAL_NUM_OF_REG_BYTES \
     (NUM_REG_GROUP_BYTES * NUM_OF_ACCUMULATOR_SEGMENTS)
 
 // Pack the word into bytes (big endian)
-static inline void Io_LTC6813_PackWordInBytes(uint8_t *u8, uint16_t u16)
+static inline void Io_LTC6813_PackWordInBytes(uint8_t u8[2], uint16_t u16)
 {
-    *u8       = (uint8_t)(u16 >> 8);
-    *(u8 + 1) = (uint8_t)u16;
+    u8[0] = (uint8_t)(u16 >> 8);
+    u8[1] = (uint8_t)u16;
 }
 
 /**
@@ -133,16 +104,9 @@ bool Io_LTC6813_PollAdcConversions(void);
  */
 bool Io_LTC6813_ConfigureRegisterA(void);
 
-bool Io_LTC6813_ConfigureRegister(Ltc6813CfgRegs_E cfg_reg);
-
 /**
  * Start ADC conversion for all LTC6813 chips on the daisy chain
  * @return True if all chips on the daisy have started ADC conversions. Else
  * false.
  */
 bool Io_LTC6813_StartADCConversion(void);
-
-bool Io_LTC6813_SetConfigurationRegister(
-    Ltc6813CfgRegs_E cfg_reg,
-    uint8_t          min_cell_segment,
-    uint16_t         min_cell_loc);
