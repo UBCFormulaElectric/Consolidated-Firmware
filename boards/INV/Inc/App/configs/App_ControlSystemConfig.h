@@ -2,7 +2,7 @@
 
 //-------------- Inverter Specs -----------------
 
-#define MAX_INVERTER_CURRENT 148.5f // Maximum inverter current (peak), in A
+#define MAX_INVERTER_CURRENT 10.0f//148.5f // Maximum inverter current (peak), in A
 #define MIN_BUS_VOLTAGE 269         // Minimum DC bus voltage, in V
 #define MAX_BUS_VOLTAGE 400         // Maximum DC bus voltage, in V
 #define MAX_PHASE_VOLTAGE \

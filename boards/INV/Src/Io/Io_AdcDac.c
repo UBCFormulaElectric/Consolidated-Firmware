@@ -144,7 +144,7 @@ float Io_AdcDac_ReadPowerstageTemp(void)
 
 float Io_AdcDac_GetMotorTemp(void)
 {
-    float adc_voltage = 3.3f * (float)adc1_data[2] / 4096.0f;
+    float adc_voltage = 3.3f * (float)adc1_data[1] / 4096.0f;
 
     motor_temperature = -28.982f * (adc_voltage * adc_voltage) +
                         223.62f * adc_voltage - 123.67f;
@@ -165,7 +165,7 @@ float Io_AdcDac_GetBusVoltage(void)
 
 float Io_AdcDac_GetGpioVal(void)
 {
-    float adc_voltage = 3.3f * (float)adc1_data[3] / 4096.0f;
+    float adc_voltage = 3.3f * (float)adc1_data[2] / 4096.0f;
     return adc_voltage;
 }
 
@@ -244,13 +244,13 @@ void Io_AdcDac_DacSetCurrentLim(const float current)
 float Io_AdcDac_Dac1GetVoltage(void)
 {
     uint32_t dac_raw_value = HAL_DAC_GetValue(&hdac, DAC_CHANNEL_1);
-    return 3.3f * (float)(dac_raw_value / 0xFFF);
+    return 3.3f * (float)dac_raw_value / (float)0xFFF;
 }
 
 float Io_AdcDac_Dac2GetVoltage(void)
 {
     uint32_t dac_raw_value = HAL_DAC_GetValue(&hdac, DAC_CHANNEL_2);
-    return 3.3f * (float)(dac_raw_value / 0xFFF);
+    return 3.3f * (float)dac_raw_value / (float)0xFFF;
 }
 
 float Io_AdcDac_Dac1GetCurrentLim(void)

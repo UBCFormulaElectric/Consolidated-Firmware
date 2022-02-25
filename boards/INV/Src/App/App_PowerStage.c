@@ -70,14 +70,6 @@ void App_PowerStage_Enable(struct PowerStage *power_stage)
     power_stage->adc_stop();
     power_stage->adc_pwm_sync_mode_init();
     power_stage->adc_start();
-    power_stage->dac_start();
-}
-
-void App_PowerStage_Disable(struct PowerStage *power_stage)
-{
-    power_stage->adc_stop();
-    power_stage->adc_cont_mode_init();
-    power_stage->adc_start();
 }
 
 void App_PowerStage_StandBy(struct PowerStage *power_stage)
@@ -85,13 +77,13 @@ void App_PowerStage_StandBy(struct PowerStage *power_stage)
     power_stage->adc_stop();
     power_stage->adc_cont_mode_init();
     power_stage->adc_start();
-    power_stage->dac_start();
 }
 
 void App_PowerStage_SetCurrentLimits(
     struct PowerStage *power_stage,
     float              current_lim)
 {
+    power_stage->dac_start();
     power_stage->dac_set_current(current_lim);
 }
 

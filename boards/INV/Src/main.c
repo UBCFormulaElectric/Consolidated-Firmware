@@ -257,7 +257,7 @@ int main(void)
         can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, error_table, clock,
         gate_drive, power_stage);
 
-    state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
+    state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
@@ -1095,6 +1095,58 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
     {
         Io_ECI1118_ClockRisingEdge();
     }
+}
+
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+    //TODO once board revision changes, commented pins will also be interrupt triggered. Don't have the correct pins atm.
+    //asyncronously shut down the gate drive if any fault pin interrupt is triggered
+    App_GateDrive_Shutdown(gate_drive);
+    if(GPIO_Pin == nPHA_OC_ALARM_Pin)
+    {
+        App_CanTx_SetPeriodicSignal_PHA_OC_ALARM(can_tx, 1);
+    }
+    else if(GPIO_Pin == nPHB_OC_ALARM_Pin)
+    {
+        App_CanTx_SetPeriodicSignal_PHB_OC_ALARM(can_tx, 1);
+    }
+    else if(GPIO_Pin == nPHC_OC_ALARM_Pin)
+    {
+        App_CanTx_SetPeriodicSignal_PHC_OC_ALARM(can_tx, 1);
+    }
+//    else if(GPIO_Pin == nMOD_OT_ALARM_Pin)
+//    {
+//        App_CanTx_SetPeriodicSignal_PWRSTG_OT_ALARM(can_tx, 1);
+//    }
+//    else if(GPIO_Pin == nMOTOR_OT_ALARM_Pin)
+//    {
+//        App_CanTx_SetPeriodicSignal_MOTOR_OT_ALARM(can_tx, 1);
+//    }
+    else if(GPIO_Pin == nDIAG_PHA_LS_Pin)
+    {
+        App_CanTx_SetPeriodicSignal_PHA_LO_DIAG(can_tx, 1);
+    }
+    else if(GPIO_Pin == nDIAG_PHA_HS_Pin)
+    {
+        App_CanTx_SetPeriodicSignal_PHA_HI_DIAG(can_tx, 1);
+    }
+//    else if(GPIO_Pin == nDIAG_PHB_LS_Pin)
+//    {
+//        App_CanTx_SetPeriodicSignal_PHB_LO_DIAG(can_tx, 1);
+//    }
+    else if(GPIO_Pin == nDIAG_PHB_HS_Pin)
+    {
+        App_CanTx_SetPeriodicSignal_PHB_HI_DIAG(can_tx, 1);
+    }
+    else if(GPIO_Pin == nDIAG_PHC_LS_Pin)
+    {
+        App_CanTx_SetPeriodicSignal_PHC_LO_DIAG(can_tx, 1);
+    }
+    else if(GPIO_Pin == nDIAG_PHC_HS_Pin)
+    {
+        App_CanTx_SetPeriodicSignal_PHC_HI_DIAG(can_tx, 1);
+    }
+
 }
 
 /* USER CODE END 4 */

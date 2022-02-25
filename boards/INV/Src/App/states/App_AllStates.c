@@ -19,7 +19,6 @@ static struct StgapFaults *stgap_faults;
 static struct ControllerValues *  iq_controller;
 static struct ControllerValues *  id_controller;
 static struct ControllerValues *  speed_controller;
-static struct MotorControlFaults *motor_control_faults;
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
@@ -28,8 +27,6 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     struct PowerStage *       power_stage = App_InvWorld_GetPowerStage(world);
     struct GateDrive *        gate_drive  = App_InvWorld_GetGateDrive(world);
 
-    App_CanTx_SetPeriodicSignal_CUR_SNS_OFFSET_OUT_OF_RANGE(
-        can_tx_interface, 0);
     App_CanTx_SetPeriodicSignal_PWRSTG_TEMP(
         can_tx_interface, App_PowerStage_GetTemperature(power_stage));
     App_CanTx_SetPeriodicSignal_MOTOR_TEMP(
@@ -273,7 +270,6 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_ControlLoop_GetIqControllerValues(iq_controller);
     App_ControlLoop_GetIdControllerValues(id_controller);
     App_ControlLoop_GetSpeedControllerValues(speed_controller);
-    App_ControlLoop_GetFaults(motor_control_faults);
     App_PowerStage_GetPhaseCurrents(power_stage, phase_currents);
 
     App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx_interface, 1);
@@ -298,7 +294,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         can_tx_interface, App_ControlLoop_GetRotorSpeed());
     App_CanTx_SetPeriodicSignal_MODE(
         can_tx_interface, App_ControlLoop_GetMode());
-    App_CanTx_SetPeriodicSignal_GPIOA(can_tx_interface,
+    App_CanTx_SetPeriodicSignal_GPIOA_VOLTAGE(can_tx_interface,
     Io_AdcDac_GetGpioVal()); App_CanTx_SetPeriodicSignal_PID_IQ_OUTPUT(
         can_tx_interface, iq_controller->output);
     App_CanTx_SetPeriodicSignal_PID_ID_OUTPUT(

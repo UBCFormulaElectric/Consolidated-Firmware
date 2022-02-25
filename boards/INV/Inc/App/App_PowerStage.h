@@ -22,7 +22,6 @@ struct PowerStage *App_PowerStage_Create(
     bool (*ps_get_powerstage_ot_fault)(void));
 void App_PowerStage_Destroy(struct PowerStage *power_stage);
 void App_PowerStage_Enable(struct PowerStage *power_stage);
-void App_PowerStage_Disable(struct PowerStage *power_stage);
 void App_PowerStage_StandBy(struct PowerStage *power_stage);
 void App_PowerStage_SetCurrentLimits(
     struct PowerStage *power_stage,

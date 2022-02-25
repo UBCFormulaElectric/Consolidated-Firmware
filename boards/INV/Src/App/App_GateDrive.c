@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 
+#include "App_Faults.h"
 #include "App_GateDrive.h"
 
 struct GateDrive
@@ -18,7 +19,7 @@ struct GateDrive
         uint8_t  stgap_register,
         uint8_t  stgap_register_mask,
         uint8_t *receive_buffer);
-    struct StgapFaults *(*read_faults)(void);
+    struct StgapFaults *(*get_faults)(void);
     void (*command)(uint8_t command);
     void (*set_shutdown_pin)(bool pin_val);
     bool (*get_shutdown_pin)(void);
@@ -47,7 +48,7 @@ struct GateDrive *App_GateDrive_Create(
         uint8_t  stgap_register,
         uint8_t  stgap_register_mask,
         uint8_t *receive_buffer),
-    struct StgapFaults *(*read_gd_faults)(void),
+    struct StgapFaults *(*get_gd_faults)(void),
     void (*command_gd)(uint8_t command),
     void (*set_gd_shutdown_pin)(bool pin_val),
     bool (*get_gd_shutdown_pin)(void),
@@ -71,7 +72,7 @@ struct GateDrive *App_GateDrive_Create(
     gate_drive->global_reset       = global_reset_gd;
     gate_drive->write_register     = write_gd_register;
     gate_drive->read_register      = read_gd_register;
-    gate_drive->read_faults        = read_gd_faults;
+    gate_drive->get_faults        = get_gd_faults;
     gate_drive->command            = command_gd;
     gate_drive->set_shutdown_pin   = set_gd_shutdown_pin;
     gate_drive->get_shutdown_pin   = get_gd_shutdown_pin;
@@ -114,11 +115,12 @@ void App_GateDrive_GetFaults(
     struct GateDrive *  gate_drive,
     struct StgapFaults *stgap_faults)
 {
-    *stgap_faults = *(gate_drive->read_faults());
+    *stgap_faults = *(gate_drive->get_faults());
 }
 
 bool App_GateDrive_IsFaulted(void)
 {
+    Io_STGAP1AS_GetFaults();
     return Io_STGAP1AS_IsFaulted();
 }
 
@@ -149,9 +151,17 @@ void App_GateDrive_Shutdown(struct GateDrive *gate_drive)
     gate_drive->set_shutdown_pin(0);
 }
 
-void App_GateDrive_Enable(struct GateDrive *gate_drive)
+bool App_GateDrive_Enable(struct GateDrive *gate_drive, const struct InvCanTxInterface * const can_tx)
 {
-    gate_drive->set_shutdown_pin(1);
+    if(!App_Faults_FaultedMotorShutdown(can_tx) && !Io_STGAP1AS_IsFaulted() && App_CanTx_GetPeriodicSignal_STATE(can_tx) != CANMSGS_INV_STATE_MACHINE_STATE_FAULT_CHOICE)
+    {
+        gate_drive->set_shutdown_pin(1);
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
 }
 
 bool App_GateDrive_IsShutdown(struct GateDrive *gate_drive)

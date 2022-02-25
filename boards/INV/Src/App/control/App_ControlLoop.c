@@ -88,8 +88,6 @@ static float   mod_index_ref   = 0;
 static float   ph_cur_peak_ref = 0;
 static float   fund_freq_ref   = 0;
 
-// TODO parameters passed in here should come from the CANbus. this is just for
-// debugging. It should be void
 void App_ControlLoop_Run(const struct InvWorld *world)
 {
     struct GateDrive *        gate_drive  = App_InvWorld_GetGateDrive(world);
@@ -101,6 +99,14 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         App_CanRx_INV_ROTOR_SPEED_REQ_GetSignal_ROTOR_SPEED_REQ(can_rx);
     mode          = App_CanRx_INV_MODE_REQ_GetSignal_MODE_REQ(can_rx);
     mod_index_ref = App_CanRx_INV_MOD_INDEX_REQ_GetSignal_MOD_INDEX_REQ(can_rx);
+    if(mod_index_ref > 0.9f)
+    {
+        mod_index_ref = 0.9f;
+    }
+    else if(mod_index_ref < 0)
+    {
+        mod_index_ref = 0.0f;
+    }
     ph_cur_peak_ref =
         App_CanRx_INV_PH_CUR_PEAK_REQ_GetSignal_PH_CUR_PEAK_REQ(can_rx);
 
@@ -227,7 +233,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
     // Calculate d/q PI controller outputs
     if (mode == GEN_SINE_M)
     {
-        dqs_voltages.q = mod_index_ref * (0.9f * bus_voltage / (float)M_SQRT3);
+        dqs_voltages.q = mod_index_ref * (bus_voltage / (float)M_SQRT3);
         dqs_voltages.d = 0;
         dqs_voltages.s = sqrtf(
             dqs_voltages.q * dqs_voltages.q + dqs_voltages.d * dqs_voltages.d);
@@ -241,7 +247,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
 
     id_controller.output = dqs_voltages.d;
     iq_controller.output = dqs_voltages.q;
-    mod_index            = dqs_voltages.s / (float)M_SQRT3;
+    mod_index            = dqs_voltages.s / (bus_voltage/(float)M_SQRT3);
 
     // Transform d/q voltages to phase voltages
     phase_voltages = parkClarkeTransform(&dqs_voltages, rotor_position);
@@ -270,11 +276,6 @@ void App_ControlLoop_GetSpeedControllerValues(
     struct ControllerValues *controller)
 {
     *controller = speed_controller;
-}
-
-void App_ControlLoop_GetFaults(struct MotorControlFaults *faults)
-{
-    *faults = motor_control_faults;
 }
 
 uint8_t App_ControlLoop_GetMode(void)

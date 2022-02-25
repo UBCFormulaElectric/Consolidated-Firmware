@@ -311,8 +311,6 @@ void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void)
             (void)Io_TransmitCanMessage(&message);
         }
     }
-    int i = 0;
-    i = i+1;
 }
 
 void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef *hcan)

@@ -210,7 +210,7 @@ ExitCode Io_STGAP1AS_WriteConfiguration(void)
             return EXIT_CODE_ERROR;
         }
     }
-    Io_STGAP1AS_ReadFaults();
+    Io_STGAP1AS_GetFaults();
 
     Io_STGAP1AS_SetShutdownPin(1);
 
@@ -255,7 +255,6 @@ bool Io_STGAP1AS_GonPathCheck(void)
     {
         if (receive_buffer[i] >> TSD & 1)
         {
-            // TODO failure code here
             return 0;
         }
     }
@@ -284,7 +283,6 @@ bool Io_STGAP1AS_GoffPathCheck(void)
     {
         if (receive_buffer[i] >> DESAT & 1)
         {
-            // TODO failure code here
             return 0;
         }
     }
@@ -311,12 +309,11 @@ bool Io_STGAP1AS_DesatCompCheck(void)
         stgap_registers.status1, stgap_register_masks.status1_mask,
         (uint8_t *)&receive_buffer);
 
-    // Check all device status registers for faults
+    // Check all device status registers for desat faults
     for (uint8_t i = 0; i < NUM_STGAP_DEVICES; i++)
     {
         if (receive_buffer[i] >> DESAT & 1)
         {
-            // TODO failure code here
             return 0;
         }
     }
@@ -378,7 +375,7 @@ void Io_STGAP1AS_Command(const uint8_t command)
     Io_STGAP1AS_SendReceiveByte(command, 0xFF, receive_buffer);
 }
 
-struct StgapFaults *Io_STGAP1AS_ReadFaults()
+struct StgapFaults *Io_STGAP1AS_GetFaults()
 {
     uint8_t receive_array[3 * NUM_STGAP_DEVICES];
 
