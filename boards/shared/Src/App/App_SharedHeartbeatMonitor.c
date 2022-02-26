@@ -1,12 +1,11 @@
 #include <assert.h>
 #include <stdlib.h>
-
-#include "App_SharedHeartbeatMonitor.h"
+#include "App_SetPeriodicCanSignals.h"
 
 struct HeartbeatMonitor
 {
     uint32_t (*get_current_ms)(void);
-    uint32_t             timeout_period_ms;
+    uint32_t             timeout_period_ms; // 300 ms
     uint32_t             previous_timeout_ms;
     enum HeartbeatOneHot heartbeats_checked_in;
     enum HeartbeatOneHot heartbeats_to_check;
@@ -54,7 +53,7 @@ void App_SharedHeartbeatMonitor_Tick(
         heartbeat_monitor->previous_timeout_ms +=
             heartbeat_monitor->timeout_period_ms;
 
-#ifdef NDEBUG
+
         // Check if the board received all the heartbeats it's listening for
         if (heartbeat_monitor->heartbeats_to_check !=
             heartbeat_monitor->heartbeats_checked_in)
@@ -66,7 +65,7 @@ void App_SharedHeartbeatMonitor_Tick(
                     heartbeat_monitor->heartbeats_checked_in);
             }
         }
-#endif
+
 
         // Clear the list of boards that have checked in
         heartbeat_monitor->heartbeats_checked_in = 0;
@@ -77,5 +76,8 @@ void App_SharedHeartbeatMonitor_CheckIn(
     struct HeartbeatMonitor *const heartbeat_monitor,
     enum HeartbeatOneHot           heartbeat)
 {
+    heartbeat &=
+        heartbeat_monitor
+            ->heartbeats_to_check; // only check in the boards that we need
     heartbeat_monitor->heartbeats_checked_in |= heartbeat;
 }

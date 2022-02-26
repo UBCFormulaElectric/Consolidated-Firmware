@@ -50,6 +50,7 @@
 #include "App_AccumulatorVoltages.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
+#include "states/App_FaultState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_ImdConfig.h"
 #include "configs/App_AccumulatorThresholds.h"
@@ -124,14 +125,14 @@ struct Clock *            clock;
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_DMA_Init(void);
 static void MX_CAN_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_TIM2_Init(void);
-static void MX_ADC2_Init(void);
+static void MX_DMA_Init(void);
 static void MX_SPI2_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_ADC2_Init(void);
 void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
 void        RunTaskCanRx(void const *argument);
@@ -156,6 +157,15 @@ static void CanRxQueueOverflowCallBack(size_t overflow_count)
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
     App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
+}
+
+void Io_HeartbeatMonitor_TimeoutCallback(
+    enum HeartbeatOneHot heartbeats_to_check,
+    enum HeartbeatOneHot heartbeats_checked_in)
+{
+    UNUSED(heartbeats_to_check);
+    UNUSED(heartbeats_checked_in);
+    App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
 }
 
 /* USER CODE END 0 */
@@ -190,14 +200,14 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    MX_DMA_Init();
     MX_CAN_Init();
     MX_ADC1_Init();
     MX_IWDG_Init();
     MX_TIM2_Init();
-    MX_ADC2_Init();
+    MX_DMA_Init();
     MX_SPI2_Init();
     MX_TIM3_Init();
+    MX_ADC2_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
 
