@@ -1,6 +1,7 @@
 #include "states/App_AllStates.h"
 #include "states/App_DriveState.h"
 #include "states/App_InitState.h"
+#include "states/App_FaultState.h"
 #include "App_SetPeriodicCanSignals.h"
 
 #include "App_SharedMacros.h"
@@ -27,12 +28,27 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     App_AllStatesRunOnTick100Hz(state_machine);
 
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct DcmCanRxInterface *can_rx = App_DcmWorld_GetCanRx(world);
+    struct DcmCanRxInterface *can_rx      = App_DcmWorld_GetCanRx(world);
+    struct ErrorTable *       error_table = App_DcmWorld_GetErrorTable(world);
+
+    const bool inverter_faulted =
+        App_CanRx_INVL_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVL(can_rx) ==
+            CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE ||
+        App_CanRx_INVR_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVR(can_rx) ==
+            CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE;
 
     if (App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx) ==
         CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
+    }
+
+    // Transition to fault state if an inverter has faulted or
+    // a critical error has been set
+    if (inverter_faulted ||
+        App_SharedErrorTable_HasAnyCriticalErrorSet(error_table))
+    {
+        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
 
     App_SetPeriodicCanSignals_Imu(world);
