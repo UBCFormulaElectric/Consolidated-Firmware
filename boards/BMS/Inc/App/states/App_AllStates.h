@@ -13,3 +13,4 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *state_machine);
  * @param state_machine The state machine to run on-tick function for
  */
 void App_AllStatesRunOnTick100Hz(struct StateMachine *state_machine);
+

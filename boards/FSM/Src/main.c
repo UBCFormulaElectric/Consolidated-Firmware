@@ -138,7 +138,9 @@ void        RunTask1kHz(void const *argument);
 void        RunTaskCanRx(void const *argument);
 void        RunTaskCanTx(void const *argument);
 void        RunTask100Hz(void const *argument);
-
+void Io_HeartbeatMonitor_TimeoutCallback(
+        enum HeartbeatOneHot heartbeats_to_check,
+        enum HeartbeatOneHot heartbeats_checked_in);
 /* USER CODE BEGIN PFP */
 
 static void CanRxQueueOverflowCallBack(size_t overflow_count);
@@ -159,6 +161,14 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count)
     App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
 }
 
+void Io_HeartbeatMonitor_TimeoutCallback(
+        enum HeartbeatOneHot heartbeats_to_check,
+        enum HeartbeatOneHot heartbeats_checked_in)
+{
+    UNUSED(heartbeats_to_check);
+    UNUSED(heartbeats_checked_in);
+    App_SharedStateMachine_SetNextState(state_machine, App_GetAirOpenState());
+}
 /* USER CODE END 0 */
 
 /**

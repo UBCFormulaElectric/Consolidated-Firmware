@@ -298,7 +298,7 @@ SG_ D3_Data_Response : 32|16@1- (1,0) [-32768|32767] "" DEBUG
 SG_ D1_Parameter_Address_Response : 0|16@1+ (1,0) [0|65535] "" DEBUG
 
 BO_ 100 BMS_HEARTBEAT: 1 BMS
-SG_ DUMMY_VARIABLE : 0|1@1+ (1,0) [0|1] "" FSM,DCM,PDM,DIM
+SG_ HEARTBEAT : 0|1@1+ (1,0) [0|1] "" FSM,DCM,PDM,DIM
 
 BO_ 101 BMS_CAN_FIFO_OVERFLOW: 8 BMS
 SG_ tx_overflow_count : 0|32@1+ (1,0) [0|4294967295] "" DEBUG
