@@ -12,6 +12,13 @@
 // Number of registers in a single register group
 #define NUM_OF_REGS_IN_GROUP (6U)
 
+enum ConfigurationRegister_E
+{
+    CONFIG_REG_A = 0,
+    CONFIG_REG_B,
+    NUM_OF_CFG_REGISTERS,
+};
+
 // The calculated PEC15 for the LTC6813 is 2 bytes wide
 typedef enum
 {
@@ -46,6 +53,8 @@ typedef enum
 
 #define TOTAL_NUM_OF_REG_BYTES \
     (NUM_REG_GROUP_BYTES * NUM_OF_ACCUMULATOR_SEGMENTS)
+#define TOTAL_NUM_OF_REG_WORDS \
+    ((NUM_REG_GROUP_BYTES >> 1U) * NUM_OF_ACCUMULATOR_SEGMENTS)
 
 // Pack the word into bytes (big endian)
 static inline void Io_LTC6813_PackWordInBytes(uint8_t u8[2], uint16_t u16)
@@ -54,9 +63,16 @@ static inline void Io_LTC6813_PackWordInBytes(uint8_t u8[2], uint16_t u16)
     u8[1] = (uint8_t)u16;
 }
 
+static inline void Io_LTC6813_ChangeEndianness(uint16_t *val)
+{
+    *val = (uint16_t)((*val >> 8U) | (*val << 8U));
+}
+
+void Io_LTC6813_PrepareCmdNew(uint16_t tx_cmd[2U]);
+
 /**
- * Pack PEC15 command into the tx_data buffer before transmission to the LTC6813
- * chips
+ * Pack PEC15 command into the tx_data buffer before transmission to the
+ * LTC6813 chips
  * @param tx_data The command or register group to pack PEC15 bytes
  * @param size The size of the command or register group to transmit
  */
@@ -76,7 +92,8 @@ void Io_LTC6813_PrepareCmd(uint8_t *tx_cmd, uint16_t cmd);
 void Io_LTC6813_InitSpiHandle(SPI_HandleTypeDef *spi_handle);
 
 /**
- *
+ * Calculate the PEC15 value for data to write OR data read back from a register
+ * group
  * @param data_buffer
  * @return
  */
@@ -98,15 +115,27 @@ bool Io_LTC6813_SendCommand(uint16_t cmd);
 bool Io_LTC6813_PollAdcConversions(void);
 
 /**
- * Configure register A for all LTC6813 chips on the daisy chain
- * @return True if all chips on the daisy chain are configured successfully.
- * Else, false.
+ * Set configuration register to default settings
+ * @return True if configuration registers are set successfully. Else, false
  */
-bool Io_LTC6813_ConfigureRegisterA(void);
+bool Io_LTC6813_SetCfgRegsToDefaultSettings(void);
 
 /**
- * Start ADC conversion for all LTC6813 chips on the daisy chain
- * @return True if all chips on the daisy have started ADC conversions. Else
- * false.
+ * Write to configuration register
+ * @return
  */
-bool Io_LTC6813_StartADCConversion(void);
+bool Io_LTC6813_WriteConfigurationRegisters(void);
+
+/**
+ * Enable LTC6813 cell discharge
+ * @return True if the command to enable cell discharge is sent successfully.
+ * Else, false
+ */
+bool Io_LTC813_EnableDischarge(void);
+
+/**
+ * Disable LTC6813 cell discharge
+ * @return True if the command to enable cell discharge is sent successfully.
+ * Else, false
+ */
+bool Io_LTC813_DisableDischarge(void);

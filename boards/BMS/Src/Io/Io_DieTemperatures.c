@@ -18,12 +18,10 @@
 struct DieTemperature
 {
     uint8_t  segment;
-    uint8_t  ic;
     uint16_t temp;
 };
 
-extern struct SharedSpi *ltc6813_spi;
-
+extern struct SharedSpi *    ltc6813_spi;
 static struct DieTemperature max_die_temp                          = { 0U };
 static uint16_t              die_temp[NUM_OF_ACCUMULATOR_SEGMENTS] = { 0.0f };
 
@@ -45,50 +43,83 @@ bool Io_DieTemperatures_StartDieTempConversion(void)
     return Io_LTC6813_SendCommand(ADSTAT);
 }
 
-bool Io_DieTemperatures_ReadTemp(void)
+static void Io_ResetMaxDieTemp(void)
 {
-    bool    status                              = true;
-    uint8_t rx_die_temp[TOTAL_NUM_OF_REG_BYTES] = { 0U };
-    uint8_t tx_cmd[TOTAL_NUM_CMD_BYTES]         = { 0U };
+    max_die_temp.temp    = 0U;
+    max_die_temp.segment = 0U;
+}
 
-    // The command used to read data from status register A.
+static void Io_UpdateMaxDieTemp(uint16_t curr_die_temp, uint8_t curr_segment)
+{
+    if (curr_die_temp > max_die_temp.temp)
+    {
+        max_die_temp.temp    = curr_die_temp;
+        max_die_temp.segment = curr_segment;
+    }
+}
+
+static bool
+    Io_ParseDieTempFromSingleSegment(uint8_t curr_segment, uint8_t *rx_die_temp)
+{
+    bool    status                      = false;
+    uint8_t tx_cmd[TOTAL_NUM_CMD_BYTES] = { 0U };
+
+    // Prepare command used to read from the status regsiter group A
     Io_LTC6813_PrepareCmd(tx_cmd, RDSTATA);
 
-    for (uint8_t curr_segment = 0U; curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS;
-         curr_segment++)
-    {
-        const uint32_t die_temp_index =
-            (uint32_t)(curr_segment * NUM_REG_GROUP_BYTES);
+    // Reset the max die temp before it gets updated
+    Io_ResetMaxDieTemp();
 
-        if (Io_SharedSpi_TransmitAndReceive(
-                ltc6813_spi, tx_cmd, TOTAL_NUM_CMD_BYTES, rx_die_temp,
-                TOTAL_NUM_OF_REG_BYTES))
+    const uint8_t curr_index = (uint8_t)(curr_segment * NUM_REG_GROUP_BYTES);
+
+    if (Io_SharedSpi_TransmitAndReceive(
+            ltc6813_spi, tx_cmd, TOTAL_NUM_CMD_BYTES, rx_die_temp,
+            TOTAL_NUM_OF_REG_BYTES))
+    {
+        // Check if received PEC15 is equal to calculated PEC15
+        const uint16_t recv_pec15 = BYTES_TO_WORD(
+            rx_die_temp[curr_index + REG_GROUP_PEC0],
+            rx_die_temp[curr_index + REG_GROUP_PEC1]);
+        const uint16_t calc_pec15 =
+            Io_LTC6813_CalculateRegGroupPec15(&rx_die_temp[curr_index]);
+
+        if (recv_pec15 == calc_pec15)
         {
             // Store the internal die temperature. The upper byte of the
             // internal die temperature is stored in the 3rd byte, while the
             // lower byte is stored in the 2nd byte.
-            const uint16_t raw_die_temp = (uint16_t)(
-                (rx_die_temp[REG_GROUP_2 + die_temp_index]) |
-                (rx_die_temp[REG_GROUP_3 + die_temp_index] << 8));
-            die_temp[curr_segment] = raw_die_temp;
+            die_temp[curr_segment] = BYTES_TO_WORD(
+                rx_die_temp[REG_GROUP_3 + curr_index],
+                rx_die_temp[REG_GROUP_2 + curr_index]);
 
-            // TODO: fix indexing
-            // The received PEC15 bytes are stored in the 6th and 7th byte.
-            const uint16_t received_pec15 = (uint16_t)(
-                (rx_die_temp[REG_GROUP_PEC0 + die_temp_index] << 8) |
-                (rx_die_temp[REG_GROUP_PEC1 + die_temp_index]));
+            // Update the max die temperature
+            Io_UpdateMaxDieTemp(die_temp[curr_segment], curr_segment);
 
-            // Calculate the PEC15 using the first 6 bytes of data received from
-            // the chip.
-            const uint16_t calculated_pec15 =
-                Io_LTC6813_CalculateRegGroupPec15(&rx_die_temp[die_temp_index]);
+            status = true;
+        }
+    }
 
-            if (received_pec15 != calculated_pec15)
+    return status;
+}
+
+bool Io_DieTemperatures_ReadTemp(void)
+{
+    bool status = false;
+
+    if (Io_LTC6813_PollAdcConversions())
+    {
+        uint8_t rx_die_temp[TOTAL_NUM_OF_REG_BYTES] = { 0U };
+
+        for (uint8_t curr_segment = 0U;
+             curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS; curr_segment++)
+        {
+            if (!Io_ParseDieTempFromSingleSegment(curr_segment, rx_die_temp))
             {
-                status = false;
-                break;
+                return false;
             }
         }
+
+        status = true;
     }
 
     return status;
@@ -104,8 +135,7 @@ float Io_DieTemperatures_GetMaxDieTemp(void)
     return Io_DieTemperatures_ConvertToDegC(max_die_temp.temp);
 }
 
-void Io_DieTemperatures_GetMaxDieTempLocation(uint8_t *segment, uint8_t *ic)
+void Io_DieTemperatures_GetMaxDieTempLocation(uint8_t *segment)
 {
     *segment = max_die_temp.segment;
-    *ic      = max_die_temp.ic;
 }

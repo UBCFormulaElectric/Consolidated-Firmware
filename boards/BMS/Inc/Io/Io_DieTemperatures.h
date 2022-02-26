@@ -23,4 +23,4 @@ float Io_DieTemperatures_GetSegmentDieTemp(AccumulatorSegments_E segment);
  */
 float Io_DieTemperatures_GetMaxDieTemp(void);
 
-void Io_DieTemperatures_GetMaxDieTempLocation(uint8_t *segment, uint8_t *ic);
+void Io_DieTemperatures_GetMaxDieTempLocation(uint8_t *segment);

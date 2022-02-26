@@ -31,14 +31,13 @@
 #include "Io_CellVoltages.h"
 #include "Io_CellTemperatures.h"
 #include "Io_DieTemperatures.h"
-#include "Io_CellBalancing.h"
 #include "App_Accumulator.h"
 
-enum yeah
+enum CellMonitorState
 {
-    YEAH_GET_CELL_VOLTAGE = 0U,
-    YEAH_GET_CELL_TEMP,
-    YEAH_GET_DIE_TEMP,
+    GET_CELL_VOLTAGE = 0U,
+    GET_CELL_TEMP,
+    GET_DIE_TEMP,
 };
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -70,15 +69,16 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     UNUSED(accumulator);
     UNUSED(error_table);
 
-    static enum yeah state = YEAH_GET_CELL_VOLTAGE;
+    static enum CellMonitorState action = GET_CELL_VOLTAGE;
 
-    if (state == YEAH_GET_CELL_VOLTAGE)
+    if (action == GET_CELL_VOLTAGE)
     {
         // Start voltage conversion
         App_Accumulator_ReadCellVoltages(accumulator);
-        App_Accumulator_AllStates100Hz(accumulator, can_tx, error_table);
 
-        Io_CellBalancing_ConfigureDccBits();
+        Io_LTC6813_WriteConfigurationRegisters();
+
+        App_Accumulator_AllStates100Hz(accumulator, can_tx, error_table);
 
         App_CanTx_SetPeriodicSignal_SEGMENT_0_VOLTAGE(
             can_tx, Io_CellVoltages_GetSegmentVoltage(ACCUMULATOR_SEGMENT_0));
@@ -90,11 +90,9 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         //    can_tx, Io_CellVoltages_GetSegmentVoltage(ACCUMULATOR_SEGMENT_3));
 
         Io_CellVoltages_StartCellTemperatureConversion();
-
-        // Transition to next state
-        state = YEAH_GET_CELL_TEMP;
+        action = GET_CELL_TEMP;
     }
-    else if (state == YEAH_GET_CELL_TEMP)
+    else if (action == GET_CELL_TEMP)
     {
         // Send command to start temperature conversions
         Io_LTC6813_PollAdcConversions();
@@ -123,18 +121,20 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
         // Send command to get die temperatures
         Io_DieTemperatures_StartDieTempConversion();
-
-        state = YEAH_GET_DIE_TEMP;
+        action = GET_DIE_TEMP;
     }
-    else if (state == YEAH_GET_DIE_TEMP)
+    else if (action == GET_DIE_TEMP)
     {
-        Io_LTC6813_PollAdcConversions();
         Io_DieTemperatures_ReadTemp();
 
         // Start cell voltage conversions
         App_Accumulator_StartCellVoltageConversion(accumulator);
 
-        state = YEAH_GET_CELL_VOLTAGE;
+        // TODO: broadcast max die temp
+        App_CanTx_SetPeriodicSignal_SEGMENT_5_VOLTAGE(
+            can_tx, Io_DieTemperatures_GetMaxDieTemp());
+
+        action = GET_CELL_VOLTAGE;
     }
 }
 

@@ -90,7 +90,7 @@ static struct AccumulatorTemperatures acc_temperatures = { 0U };
 static uint16_t cell_temperatures[NUM_OF_ACCUMULATOR_SEGMENTS]
                                  [NUM_OF_THERMISTORS_PER_IC] = { { 0U } };
 
-static void Io_CellTemperatures_CalculateCellTemperatures(void);
+static void Io_UpdateCellTemperatures(void);
 static uint16_t
             Io_CellTemp_CalculateCellTemperatureDegC(uint16_t raw_thermistor_voltage);
 static bool Io_CellTemperatures_ParseThermistorVoltages(
@@ -98,7 +98,12 @@ static bool Io_CellTemperatures_ParseThermistorVoltages(
     uint8_t curr_reg_group,
     uint8_t rx_buffer[TOTAL_NUM_OF_REG_BYTES]);
 
-static void Io_CellTemperatures_CalculateCellTemperatures(void)
+static inline float Io_ConvertToDegC(float cell_temp)
+{
+    return cell_temp * DECI_DEGC_TO_DEGC;
+}
+
+static void Io_UpdateCellTemperatures(void)
 {
     // Reset accumulator temperatures
     acc_temperatures       = RESET_ACCUMULATOR_TEMPERATURE();
@@ -178,6 +183,8 @@ static bool Io_CellTemperatures_ParseThermistorVoltages(
     uint8_t curr_reg_group,
     uint8_t rx_buffer[TOTAL_NUM_OF_REG_BYTES])
 {
+    bool status = false;
+
     uint8_t        therm_index = (uint8_t)(curr_segment * NUM_REG_GROUP_BYTES);
     const uint16_t recv_pec15  = BYTES_TO_WORD(
         rx_buffer[therm_index + REG_GROUP_PEC0],
@@ -194,28 +201,44 @@ static bool Io_CellTemperatures_ParseThermistorVoltages(
             // Calculate the current thermistor voltage index
             uint32_t index = curr_thermistor +
                              curr_reg_group * NUM_OF_THERMISTORS_PER_REG_GROUP;
+
             if (curr_reg_group == AUX_REGISTER_GROUP_C)
             {
-                // Subtract curr_therm_index to ignore the reference voltage
-                // read back from aux register group B.
+                // Subtract curr_therm_index to overwrite the reference voltage
+                // read back from aux register group B
                 index--;
             }
 
             // Calculate and store temperature from thermistor voltage
-            const uint16_t raw_thermistor_voltage = (uint16_t)(
-                (rx_buffer[therm_index]) | ((rx_buffer[therm_index + 1] << 8)));
             cell_temperatures[curr_segment][index] =
-                Io_CellTemp_CalculateCellTemperatureDegC(
-                    raw_thermistor_voltage);
+                Io_CellTemp_CalculateCellTemperatureDegC(BYTES_TO_WORD(
+                    rx_buffer[therm_index + 1], (rx_buffer[therm_index])));
 
             // Data stored within a register group is 2 bytes wide. Increment by
             // 2 bytes to retrieve the next thermistor voltage
             therm_index = (uint8_t)(therm_index + NUM_BYTES_REG_GROUP_DATA);
         }
+
+        status = true;
     }
-    else
+
+    return status;
+}
+
+bool Io_ParseAuxRegisterForAllSegments(
+    uint8_t curr_reg_group,
+    uint8_t rx_buffer[TOTAL_NUM_OF_REG_BYTES])
+{
+    for (uint8_t curr_segment = 0U; curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS;
+         curr_segment++)
     {
-        return false;
+        // Parse received thermistor voltages, and store data in
+        // raw_therm_voltage
+        if (!Io_CellTemperatures_ParseThermistorVoltages(
+                curr_segment, curr_reg_group, rx_buffer))
+        {
+            return false;
+        }
     }
 
     return true;
@@ -223,9 +246,13 @@ static bool Io_CellTemperatures_ParseThermistorVoltages(
 
 bool Io_CellTemperatures_GetCellTemperatureDegC(void)
 {
-    bool    status                      = true;
+    if (!Io_LTC6813_PollAdcConversions())
+    {
+        return false;
+    }
+
     uint8_t tx_cmd[TOTAL_NUM_CMD_BYTES] = { 0U };
-    uint8_t recv_therm_resistances[TOTAL_NUM_OF_REG_BYTES];
+    uint8_t rx_buffer[TOTAL_NUM_OF_REG_BYTES];
 
     // Read thermistor voltages stored in the AUX register groups
     for (uint8_t curr_reg_group = 0U;
@@ -234,34 +261,25 @@ bool Io_CellTemperatures_GetCellTemperatureDegC(void)
         Io_LTC6813_PrepareCmd(tx_cmd, aux_reg_group_cmds[curr_reg_group]);
 
         if (Io_SharedSpi_TransmitAndReceive(
-                ltc6813_spi, tx_cmd, TOTAL_NUM_CMD_BYTES,
-                recv_therm_resistances, TOTAL_NUM_OF_REG_BYTES))
+                ltc6813_spi, tx_cmd, TOTAL_NUM_CMD_BYTES, rx_buffer,
+                TOTAL_NUM_OF_REG_BYTES))
         {
-            for (uint8_t curr_segment = 0U;
-                 curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS; curr_segment++)
+            if (!Io_ParseAuxRegisterForAllSegments(curr_reg_group, rx_buffer))
             {
-                // Parse received thermistor voltages, and store data in
-                // raw_therm_voltage
-                if (!Io_CellTemperatures_ParseThermistorVoltages(
-                        curr_segment, curr_reg_group, recv_therm_resistances))
-                {
-                    status = false;
-                    break;
-                }
+                return false;
             }
-
-            // Get min, max, and average cell temperature
-            Io_CellTemperatures_CalculateCellTemperatures();
         }
     }
 
-    return status;
+    // Get min, max, and average cell temperature
+    Io_UpdateCellTemperatures();
+
+    return true;
 }
 
 float Io_CellTemperatures_GetMinCellTempDegC(void)
 {
-    // TODO: make this conv factor nice
-    return acc_temperatures.min_cell.temp_degc * DECI_DEGC_TO_DEGC;
+    return Io_ConvertToDegC((float)(acc_temperatures.min_cell.temp_degc));
 }
 
 void Io_CellTemperatures_GetMinCellLocation(
@@ -274,7 +292,7 @@ void Io_CellTemperatures_GetMinCellLocation(
 
 float Io_CellTemperatures_GetMaxCellTempDegC(void)
 {
-    return acc_temperatures.max_cell.temp_degc * DECI_DEGC_TO_DEGC;
+    return Io_ConvertToDegC((float)(acc_temperatures.max_cell.temp_degc));
 }
 
 void Io_CellTemperatures_GetMaxCellLocation(
@@ -287,7 +305,7 @@ void Io_CellTemperatures_GetMaxCellLocation(
 
 float Io_CellTemperatures_GetAverageCellTempDegC(void)
 {
-    return acc_temperatures.avg_cell_degc * DECI_DEGC_TO_DEGC;
+    return Io_ConvertToDegC(acc_temperatures.avg_cell_degc);
 }
 
 bool Io_CellVoltages_StartCellTemperatureConversion(void)

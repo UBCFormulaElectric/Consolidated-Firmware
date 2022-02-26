@@ -247,8 +247,8 @@ int main(void)
 
     Io_LTC6813_InitSpiHandle(&hspi2);
     accumulator = App_Accumulator_Create(
-        Io_LTC6813_ConfigureRegisterA, Io_CellVoltages_StartAdcConversion,
-        Io_CellVoltages_GetAllRawCellVoltages,
+        Io_LTC6813_SetCfgRegsToDefaultSettings,
+        Io_CellVoltages_StartAdcConversion, Io_CellVoltages_ReadVoltages,
         Io_CellVoltages_GetMinCellLocation, Io_CellVoltages_GetMaxCellLocation,
         Io_CellVoltages_GetMinCellVoltage, Io_CellVoltages_GetMaxCellVoltage,
         Io_CellVoltages_GetSegmentVoltage, Io_CellVoltages_GetPackVoltage,
