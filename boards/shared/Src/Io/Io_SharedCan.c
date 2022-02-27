@@ -301,11 +301,12 @@ void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void)
 {
     xSemaphoreTake(CanTxBinarySemaphore.handle, portMAX_DELAY);
 
-    while (//HAL_CAN_GetTxMailboxesFreeLevel(sharedcan_hcan) > 0 &&
-           uxQueueMessagesWaiting(can_tx_msg_fifo.handle) > 0)
+    while ( // HAL_CAN_GetTxMailboxesFreeLevel(sharedcan_hcan) > 0 &&
+        uxQueueMessagesWaiting(can_tx_msg_fifo.handle) > 0)
     {
         struct CanMsg message;
-        while(!HAL_CAN_GetTxMailboxesFreeLevel(sharedcan_hcan));
+        while (!HAL_CAN_GetTxMailboxesFreeLevel(sharedcan_hcan))
+            ;
         if (xQueueReceive(can_tx_msg_fifo.handle, &message, 0) == pdTRUE)
         {
             (void)Io_TransmitCanMessage(&message);

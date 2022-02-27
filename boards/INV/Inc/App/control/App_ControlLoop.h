@@ -28,14 +28,6 @@ struct ControllerValues
     float time_const;
 };
 
-struct MotorControlFaults
-{
-    bool torque_request_implausible;
-    bool rotor_position_implausible;
-    bool phc_current_implausible;
-    bool fund_freq_req_implausible;
-};
-
 enum Mode
 {
     GEN_SINE_I,
@@ -52,9 +44,9 @@ void App_ControlLoop_GetIqControllerValues(struct ControllerValues *controller);
 void App_ControlLoop_GetIdControllerValues(struct ControllerValues *controller);
 void App_ControlLoop_GetSpeedControllerValues(
     struct ControllerValues *controller);
-void    App_ControlLoop_GetFaults(struct MotorControlFaults *faults);
 uint8_t App_ControlLoop_GetMode(void);
 float   App_ControlLoop_GetModIndex(void);
+float App_ControlLoop_GetRotorPosition(void);
 float   App_ControlLoop_GetRotorSpeed(void);
 float   App_ControlLoop_GetPhcCurCalc(void);
 bool    App_ControlLoop_GetFwFlag(void);

@@ -139,3 +139,24 @@ float App_PowerStage_GetNegCurrentLimit(void)
 {
     return Io_AdcDac_Dac2GetCurrentLim();
 }
+
+float App_PowerStage_GetDeratedCurrent(void)
+{
+    float derated_current = 0;
+    float powerstage_temp = Io_AdcDac_GetPowerstageTemp();
+    if (powerstage_temp < 20.0f)
+    {
+        //2nd order polynomial current derating as a fucntion of case temperature
+        derated_current = -0.0041f*20.0f*20.0f+0.1053f*20.0f+83.76f;
+    }
+    else if (powerstage_temp >= 20.0f && powerstage_temp <= 150.0f)
+    {
+        derated_current = -0.0041f*powerstage_temp*powerstage_temp+0.1053f*powerstage_temp+83.76f;
+    }
+    //Powerstage case above 150C
+    else if (powerstage_temp > 150.0f)
+    {
+        derated_current = 0.0f;
+    }
+    return derated_current;
+}

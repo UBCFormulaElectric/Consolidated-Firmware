@@ -72,7 +72,7 @@ struct GateDrive *App_GateDrive_Create(
     gate_drive->global_reset       = global_reset_gd;
     gate_drive->write_register     = write_gd_register;
     gate_drive->read_register      = read_gd_register;
-    gate_drive->get_faults        = get_gd_faults;
+    gate_drive->get_faults         = get_gd_faults;
     gate_drive->command            = command_gd;
     gate_drive->set_shutdown_pin   = set_gd_shutdown_pin;
     gate_drive->get_shutdown_pin   = get_gd_shutdown_pin;
@@ -149,11 +149,16 @@ void App_GateDrive_Command(struct GateDrive *gate_drive, uint8_t command_name)
 void App_GateDrive_Shutdown(struct GateDrive *gate_drive)
 {
     gate_drive->set_shutdown_pin(0);
+    gate_drive->stop_pwm();
 }
 
-bool App_GateDrive_Enable(struct GateDrive *gate_drive, const struct InvCanTxInterface * const can_tx)
+bool App_GateDrive_Enable(
+    struct GateDrive *                    gate_drive,
+    const struct InvCanTxInterface *const can_tx)
 {
-    if(!App_Faults_FaultedMotorShutdown(can_tx) && !Io_STGAP1AS_IsFaulted() && App_CanTx_GetPeriodicSignal_STATE(can_tx) != CANMSGS_INV_STATE_MACHINE_STATE_FAULT_CHOICE)
+    if (!App_Faults_FaultedMotorShutdown(can_tx) && !Io_STGAP1AS_IsFaulted() &&
+        App_CanTx_GetPeriodicSignal_STATE(can_tx) !=
+            CANMSGS_INV_STATE_MACHINE_STATE_FAULT_CHOICE)
     {
         gate_drive->set_shutdown_pin(1);
         return 1;
@@ -231,4 +236,9 @@ bool App_GateDrive_GetPhcHiDiag(struct GateDrive *gate_drive)
 bool App_GateDrive_GetPhcLoDiag(struct GateDrive *gate_drive)
 {
     return gate_drive->get_phc_lo_diag();
+}
+
+bool App_GateDrive_RunShortTest()
+{
+
 }

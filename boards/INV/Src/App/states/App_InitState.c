@@ -49,20 +49,23 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
 
-    if(App_CanRx_INV_STATE_REQ_GetSignal_STATE_REQ(can_rx_interface) == CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE)
+    if (App_CanRx_INV_STATE_REQ_GetSignal_STATE_REQ(can_rx_interface) ==
+        CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
     }
-    else if(App_CanRx_INV_STATE_REQ_GetSignal_STATE_REQ(can_rx_interface) == CANMSGS_INV_STATE_MACHINE_STATE_STANDBY_CHOICE)
+    else if (
+        App_CanRx_INV_STATE_REQ_GetSignal_STATE_REQ(can_rx_interface) ==
+        CANMSGS_INV_STATE_MACHINE_STATE_STANDBY_CHOICE)
     {
-        App_SharedStateMachine_SetNextState(state_machine, App_GetStandbyState());
+        App_SharedStateMachine_SetNextState(
+            state_machine, App_GetStandbyState());
     }
-
 }
 
 static void InitStateRunOnExit(struct StateMachine *const state_machine)
 {
-    //check for faults here
+    // check for faults here
 }
 
 const struct State *App_GetInitState(void)

@@ -20,3 +20,4 @@ void  App_Motor_StartGetPosition(void);
 float App_Motor_GetPosition(void);
 bool  App_Motor_GetOTAlarm(void);
 float App_Motor_GetTemperature(void);
+float App_Motor_GetDeratedCurrent(void);

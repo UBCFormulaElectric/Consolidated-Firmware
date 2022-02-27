@@ -39,3 +39,4 @@ bool  App_PowerStage_GetPhcOCFault(struct PowerStage *power_stage);
 bool  App_PowerStage_GetPowerStageOTFault(struct PowerStage *power_stage);
 float App_PowerStage_GetPosCurrentLimit(void);
 float App_PowerStage_GetNegCurrentLimit(void);
+float App_PowerStage_GetDeratedCurrent(void);

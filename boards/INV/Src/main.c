@@ -211,10 +211,7 @@ int main(void)
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_INV_WATCHDOG_TIMEOUT,
-        Io_CanTx_EnqueueNonPeriodicMsg_INV_AIR_SHUTDOWN_ERRORS,
-        Io_CanTx_EnqueueNonPeriodicMsg_INV_MOTOR_SHUTDOWN_ERRORS,
-        Io_CanTx_EnqueueNonPeriodicMsg_INV_FAULT_REASON,
-        Io_CanTx_EnqueueNonPeriodicMsg_INV_MOTOR_CONTROL_FAULTS);
+        Io_CanTx_EnqueueNonPeriodicMsg_INV_AIR_SHUTDOWN_ERRORS);
 
     can_rx = App_CanRx_Create();
 
@@ -233,7 +230,7 @@ int main(void)
     gate_drive = App_GateDrive_Create(
         Io_STGAP1AS_WriteConfiguration, Io_STGAP1AS_ResetStatus,
         Io_STGAP1AS_GlobalReset, Io_STGAP1AS_WriteRegister,
-        Io_STGAP1AS_ReadRegister, Io_STGAP1AS_ReadFaults, Io_STGAP1AS_Command,
+        Io_STGAP1AS_ReadRegister, Io_STGAP1AS_GetFaults, Io_STGAP1AS_Command,
         Io_STGAP1AS_SetShutdownPin, Io_STGAP1AS_GetShutdownPin,
         Io_TimerPwmGen_LoadPwm, Io_TimerPwmGen_StartPwm, Io_TimerPwmGen_StopPwm,
         Io_TimerPwmGen_SetSwitchingFreq, Io_TimerPwmGen_SetDeadTime,
@@ -1000,11 +997,10 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
     /*Configure GPIO pins : nDIAG_PHB_HS_Pin nDIAG_PHC_LS_Pin nDIAG_PHC_HS_Pin
-       PHA_LIN_IN_Pin PHA_HIN_IN_Pin PHC_HIN_IN_Pin ENDAT_DATA_RX_Pin */
-    GPIO_InitStruct.Pin = nDIAG_PHB_HS_Pin | nDIAG_PHC_LS_Pin |
-                          nDIAG_PHC_HS_Pin | PHA_LIN_IN_Pin | PHA_HIN_IN_Pin |
-                          PHC_HIN_IN_Pin | ENDAT_DATA_RX_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+     */
+    GPIO_InitStruct.Pin =
+        nDIAG_PHB_HS_Pin | nDIAG_PHC_LS_Pin | nDIAG_PHC_HS_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
@@ -1017,13 +1013,19 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : nPHC_OC_ALARM_Pin PB4 PB5 PB6
-                             nPHA_OC_ALARM_Pin nPHB_OC_ALARM_Pin */
-    GPIO_InitStruct.Pin = nPHC_OC_ALARM_Pin | GPIO_PIN_4 | GPIO_PIN_5 |
-                          GPIO_PIN_6 | nPHA_OC_ALARM_Pin | nPHB_OC_ALARM_Pin;
+    /*Configure GPIO pins : PHA_LIN_IN_Pin PHA_HIN_IN_Pin PHC_HIN_IN_Pin
+     * ENDAT_DATA_RX_Pin */
+    GPIO_InitStruct.Pin =
+        PHA_LIN_IN_Pin | PHA_HIN_IN_Pin | PHC_HIN_IN_Pin | ENDAT_DATA_RX_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : nPHC_OC_ALARM_Pin */
+    GPIO_InitStruct.Pin  = nPHC_OC_ALARM_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(nPHC_OC_ALARM_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pin : GDRV_SPI_CS_Pin */
     GPIO_InitStruct.Pin   = GDRV_SPI_CS_Pin;
@@ -1032,19 +1034,29 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GDRV_SPI_CS_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : nDIAG_PHA_LS_Pin nDIAG_PHA_HS_Pin nDIAG_PHB_LS_Pin
-     * GPIOD_2_Pin */
-    GPIO_InitStruct.Pin =
-        nDIAG_PHA_LS_Pin | nDIAG_PHA_HS_Pin | nDIAG_PHB_LS_Pin | GPIOD_2_Pin;
+    /*Configure GPIO pins : nDIAG_PHA_LS_Pin nDIAG_PHA_HS_Pin */
+    GPIO_InitStruct.Pin  = nDIAG_PHA_LS_Pin | nDIAG_PHA_HS_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : nDIAG_PHB_LS_Pin GPIOD_2_Pin */
+    GPIO_InitStruct.Pin  = nDIAG_PHB_LS_Pin | GPIOD_2_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : nMOD_OT_ALARM_Pin nMOTOR_OT_ALARM_Pin */
-    GPIO_InitStruct.Pin  = nMOD_OT_ALARM_Pin | nMOTOR_OT_ALARM_Pin;
+    /*Configure GPIO pin : nMOD_OT_ALARM_Pin */
+    GPIO_InitStruct.Pin  = nMOD_OT_ALARM_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(nMOD_OT_ALARM_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : nMOTOR_OT_ALARM_Pin */
+    GPIO_InitStruct.Pin  = nMOTOR_OT_ALARM_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+    HAL_GPIO_Init(nMOTOR_OT_ALARM_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : USB_DM_Pin USB_DP_Pin */
     GPIO_InitStruct.Pin       = USB_DM_Pin | USB_DP_Pin;
@@ -1073,6 +1085,27 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOD_1_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : PREV_LED_OUT_Pin PREV_LED_OUTB5_Pin
+     * PREV_LED_OUTB6_Pin */
+    GPIO_InitStruct.Pin =
+        PREV_LED_OUT_Pin | PREV_LED_OUTB5_Pin | PREV_LED_OUTB6_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : nPHA_OC_ALARM_Pin nPHB_OC_ALARM_Pin */
+    GPIO_InitStruct.Pin  = nPHA_OC_ALARM_Pin | nPHB_OC_ALARM_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_PULLDOWN;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /* EXTI interrupt init*/
+    HAL_NVIC_SetPriority(EXTI9_5_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(EXTI9_5_IRQn);
+
+    HAL_NVIC_SetPriority(EXTI15_10_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(EXTI15_10_IRQn);
 }
 
 /* USER CODE BEGIN 4 */
@@ -1099,54 +1132,54 @@ void HAL_TIM_OC_DelayElapsedCallback(TIM_HandleTypeDef *htim)
 
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
-    //TODO once board revision changes, commented pins will also be interrupt triggered. Don't have the correct pins atm.
-    //asyncronously shut down the gate drive if any fault pin interrupt is triggered
+    // TODO once board revision changes, commented pins will also be interrupt
+    // triggered. Don't have the correct pins atm. asyncronously shut down the
+    // gate drive if any fault pin interrupt is triggered
     App_GateDrive_Shutdown(gate_drive);
-    if(GPIO_Pin == nPHA_OC_ALARM_Pin)
+    if (GPIO_Pin == nPHA_OC_ALARM_Pin)
     {
         App_CanTx_SetPeriodicSignal_PHA_OC_ALARM(can_tx, 1);
     }
-    else if(GPIO_Pin == nPHB_OC_ALARM_Pin)
+    else if (GPIO_Pin == nPHB_OC_ALARM_Pin)
     {
         App_CanTx_SetPeriodicSignal_PHB_OC_ALARM(can_tx, 1);
     }
-    else if(GPIO_Pin == nPHC_OC_ALARM_Pin)
+    else if (GPIO_Pin == nPHC_OC_ALARM_Pin)
     {
         App_CanTx_SetPeriodicSignal_PHC_OC_ALARM(can_tx, 1);
     }
-//    else if(GPIO_Pin == nMOD_OT_ALARM_Pin)
-//    {
-//        App_CanTx_SetPeriodicSignal_PWRSTG_OT_ALARM(can_tx, 1);
-//    }
-//    else if(GPIO_Pin == nMOTOR_OT_ALARM_Pin)
-//    {
-//        App_CanTx_SetPeriodicSignal_MOTOR_OT_ALARM(can_tx, 1);
-//    }
-    else if(GPIO_Pin == nDIAG_PHA_LS_Pin)
+    //    else if(GPIO_Pin == nMOD_OT_ALARM_Pin)
+    //    {
+    //        App_CanTx_SetPeriodicSignal_PWRSTG_OT_ALARM(can_tx, 1);
+    //    }
+    //    else if(GPIO_Pin == nMOTOR_OT_ALARM_Pin)
+    //    {
+    //        App_CanTx_SetPeriodicSignal_MOTOR_OT_ALARM(can_tx, 1);
+    //    }
+    else if (GPIO_Pin == nDIAG_PHA_LS_Pin)
     {
         App_CanTx_SetPeriodicSignal_PHA_LO_DIAG(can_tx, 1);
     }
-    else if(GPIO_Pin == nDIAG_PHA_HS_Pin)
+    else if (GPIO_Pin == nDIAG_PHA_HS_Pin)
     {
         App_CanTx_SetPeriodicSignal_PHA_HI_DIAG(can_tx, 1);
     }
-//    else if(GPIO_Pin == nDIAG_PHB_LS_Pin)
-//    {
-//        App_CanTx_SetPeriodicSignal_PHB_LO_DIAG(can_tx, 1);
-//    }
-    else if(GPIO_Pin == nDIAG_PHB_HS_Pin)
+    //    else if(GPIO_Pin == nDIAG_PHB_LS_Pin)
+    //    {
+    //        App_CanTx_SetPeriodicSignal_PHB_LO_DIAG(can_tx, 1);
+    //    }
+    else if (GPIO_Pin == nDIAG_PHB_HS_Pin)
     {
         App_CanTx_SetPeriodicSignal_PHB_HI_DIAG(can_tx, 1);
     }
-    else if(GPIO_Pin == nDIAG_PHC_LS_Pin)
+    else if (GPIO_Pin == nDIAG_PHC_LS_Pin)
     {
         App_CanTx_SetPeriodicSignal_PHC_LO_DIAG(can_tx, 1);
     }
-    else if(GPIO_Pin == nDIAG_PHC_HS_Pin)
+    else if (GPIO_Pin == nDIAG_PHC_HS_Pin)
     {
         App_CanTx_SetPeriodicSignal_PHC_HI_DIAG(can_tx, 1);
     }
-
 }
 
 /* USER CODE END 4 */

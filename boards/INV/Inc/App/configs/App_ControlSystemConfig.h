@@ -2,9 +2,10 @@
 
 //-------------- Inverter Specs -----------------
 
-#define MAX_INVERTER_CURRENT 10.0f//148.5f // Maximum inverter current (peak), in A
-#define MIN_BUS_VOLTAGE 269         // Minimum DC bus voltage, in V
-#define MAX_BUS_VOLTAGE 400         // Maximum DC bus voltage, in V
+#define MAX_INVERTER_CURRENT \
+    10.0f                   // 148.5f // Maximum inverter current (peak), in A
+#define MIN_BUS_VOLTAGE 269 // Minimum DC bus voltage, in V
+#define MAX_BUS_VOLTAGE 400 // Maximum DC bus voltage, in V
 #define MAX_PHASE_VOLTAGE \
     207.8460969082653          // Maximum inverter ac voltage (phase peak)
 #define REGEN_POWER_LIMIT 7500 // Regen power limit, in watts

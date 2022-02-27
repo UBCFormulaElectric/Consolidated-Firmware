@@ -43,6 +43,7 @@ void     App_GateDrive_GlobalReset(struct GateDrive *gate_drive);
 void     App_GateDrive_GetFaults(
         struct GateDrive *  gate_drive,
         struct StgapFaults *stgap_faults);
+bool App_GateDrive_IsFaulted(void);
 void App_GateDrive_ClearFaults(struct GateDrive *gate_drive);
 void App_GateDrive_WriteRegister(
     struct GateDrive *gate_drive,
@@ -55,7 +56,9 @@ void App_GateDrive_ReadRegister(
     uint8_t *         receive_array);
 void App_GateDrive_Command(struct GateDrive *gate_drive, uint8_t command_name);
 void App_GateDrive_Shutdown(struct GateDrive *gate_drive);
-bool App_GateDrive_Enable(struct GateDrive *gate_drive, const struct InvCanTxInterface * can_tx);
+bool App_GateDrive_Enable(
+    struct GateDrive *              gate_drive,
+    const struct InvCanTxInterface *can_tx);
 bool App_GateDrive_IsShutdown(struct GateDrive *gate_drive);
 bool App_GateDrive_IsEnabled(struct GateDrive *gate_drive);
 void App_GateDrive_LoadPwm(
