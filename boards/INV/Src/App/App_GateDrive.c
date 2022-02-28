@@ -186,7 +186,7 @@ void App_GateDrive_LoadPwm(
     gate_drive->load_pwm(phase_pwm_dur);
 }
 
-void App_GateDrive_StartPwm(struct GateDrive *gate_drive)
+void App_GateDrive_StartPwmTimer(struct GateDrive *gate_drive)
 {
     gate_drive->start_pwm();
 }
@@ -238,7 +238,4 @@ bool App_GateDrive_GetPhcLoDiag(struct GateDrive *gate_drive)
     return gate_drive->get_phc_lo_diag();
 }
 
-bool App_GateDrive_RunShortTest()
-{
-
-}
+bool App_GateDrive_RunShortTest() {}

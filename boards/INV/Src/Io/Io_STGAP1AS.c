@@ -243,10 +243,10 @@ bool Io_STGAP1AS_GonPathCheck(void)
     // Gon path check test procedure
     Io_STGAP1AS_SetShutdownPin(0);
     Io_STGAP1AS_Command(stgap_commands.start_config);
-    //TODO This line will short the bus!!!
-    //Io_STGAP1AS_WriteRegister(stgap_registers.test1, test1_content, 0);
+    // TODO This line will short the bus!!!
+    // Io_STGAP1AS_WriteRegister(stgap_registers.test1, test1_content, 0);
     Io_STGAP1AS_Command(stgap_commands.stop_config);
-    //must wait at least 30us here
+    // must wait at least 30us here
     osDelay(1);
     Io_STGAP1AS_SetShutdownPin(1);
     Io_STGAP1AS_ReadRegister(
@@ -275,7 +275,7 @@ bool Io_STGAP1AS_GoffPathCheck(void)
     Io_STGAP1AS_Command(stgap_commands.start_config);
     Io_STGAP1AS_WriteRegister(stgap_registers.test1, test1_content, 0);
     Io_STGAP1AS_Command(stgap_commands.stop_config);
-    //Must wait at least 30us here
+    // Must wait at least 30us here
     osDelay(1);
     Io_STGAP1AS_SetShutdownPin(1);
     Io_STGAP1AS_ReadRegister(
@@ -302,9 +302,9 @@ bool Io_STGAP1AS_DesatCompCheck(void)
     // Desat comparator check test procedure
     Io_STGAP1AS_SetShutdownPin(0);
     Io_STGAP1AS_Command(stgap_commands.start_config);
-//    Io_STGAP1AS_WriteRegister(stgap_registers.test1, test1_content, 0);
-//    Io_STGAP1AS_WriteRegister(
-//        stgap_registers.cfg5, config5_register_content, 0);
+    //    Io_STGAP1AS_WriteRegister(stgap_registers.test1, test1_content, 0);
+    //    Io_STGAP1AS_WriteRegister(
+    //        stgap_registers.cfg5, config5_register_content, 0);
     Io_STGAP1AS_Command(stgap_commands.stop_config);
     Io_STGAP1AS_SetShutdownPin(1);
     // TODO Wait 3 µs

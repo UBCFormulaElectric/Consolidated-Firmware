@@ -46,7 +46,7 @@ void App_ControlLoop_GetSpeedControllerValues(
     struct ControllerValues *controller);
 uint8_t App_ControlLoop_GetMode(void);
 float   App_ControlLoop_GetModIndex(void);
-float App_ControlLoop_GetRotorPosition(void);
+float   App_ControlLoop_GetRotorPosition(void);
 float   App_ControlLoop_GetRotorSpeed(void);
 float   App_ControlLoop_GetPhcCurCalc(void);
 bool    App_ControlLoop_GetFwFlag(void);

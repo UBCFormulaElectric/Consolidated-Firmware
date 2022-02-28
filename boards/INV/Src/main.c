@@ -232,7 +232,7 @@ int main(void)
         Io_STGAP1AS_GlobalReset, Io_STGAP1AS_WriteRegister,
         Io_STGAP1AS_ReadRegister, Io_STGAP1AS_GetFaults, Io_STGAP1AS_Command,
         Io_STGAP1AS_SetShutdownPin, Io_STGAP1AS_GetShutdownPin,
-        Io_TimerPwmGen_LoadPwm, Io_TimerPwmGen_StartPwm, Io_TimerPwmGen_StopPwm,
+        Io_TimerPwmGen_LoadPwm, Io_TimerPwmGen_StartPwmTimer, Io_TimerPwmGen_StopPwm,
         Io_TimerPwmGen_SetSwitchingFreq, Io_TimerPwmGen_SetDeadTime,
         Io_STGAP1AS_GetPhaHiDiag, Io_STGAP1AS_GetPhaLoDiag,
         Io_STGAP1AS_GetPhbHiDiag, Io_STGAP1AS_GetPhbLoDiag,
@@ -1001,7 +1001,7 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pin =
         nDIAG_PHB_HS_Pin | nDIAG_PHC_LS_Pin | nDIAG_PHC_HS_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     /*Configure GPIO pins : nSHDN_GDRV_MCU_Pin nSHDN_GDRV_Pin ENDAT_DATA_TX_Pin
@@ -1037,14 +1037,14 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pins : nDIAG_PHA_LS_Pin nDIAG_PHA_HS_Pin */
     GPIO_InitStruct.Pin  = nDIAG_PHA_LS_Pin | nDIAG_PHA_HS_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
     HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : nDIAG_PHB_LS_Pin GPIOD_2_Pin */
-    GPIO_InitStruct.Pin  = nDIAG_PHB_LS_Pin | GPIOD_2_Pin;
+    /*Configure GPIO pin : nDIAG_PHB_LS_Pin */
+    GPIO_InitStruct.Pin  = nDIAG_PHB_LS_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+    GPIO_InitStruct.Pull = GPIO_PULLUP;
+    HAL_GPIO_Init(nDIAG_PHB_LS_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pin : nMOD_OT_ALARM_Pin */
     GPIO_InitStruct.Pin  = nMOD_OT_ALARM_Pin;
@@ -1085,6 +1085,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOD_1_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : GPIOD_2_Pin */
+    GPIO_InitStruct.Pin  = GPIOD_2_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(GPIOD_2_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PREV_LED_OUT_Pin PREV_LED_OUTB5_Pin
      * PREV_LED_OUTB6_Pin */

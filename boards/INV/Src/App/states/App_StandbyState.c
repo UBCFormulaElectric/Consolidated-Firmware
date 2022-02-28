@@ -1,11 +1,20 @@
 #include "states/App_StandbyState.h"
 #include "states/App_AllStates.h"
+#include "states/App_FaultState.h"
+#include "App_Faults.h"
+#include "App_GateDrive.h"
 
 static void StandbyStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct InvWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct InvCanTxInterface *can_tx_interface = App_InvWorld_GetCanTx(world);
+    struct GateDrive *        gate_drive = App_InvWorld_GetGateDrive(world);
 
+    if (App_Faults_FaultedMotorShutdown(can_tx_interface))
+    {
+        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+        App_GateDrive_Shutdown(gate_drive);
+    }
     App_CanTx_SetPeriodicSignal_STATE(
         can_tx_interface, CANMSGS_INV_STATE_MACHINE_STATE_STANDBY_CHOICE);
 }

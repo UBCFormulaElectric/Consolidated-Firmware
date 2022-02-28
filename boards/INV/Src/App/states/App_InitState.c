@@ -8,6 +8,7 @@
 #include "states/App_FaultState.h"
 #include "states/App_StandbyState.h"
 #include <math.h>
+#include "App_Faults.h"
 
 static const struct StgapFaults *stgap_faults;
 
@@ -22,17 +23,24 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
         can_tx_interface, CANMSGS_INV_STATE_MACHINE_STATE_INIT_CHOICE);
     App_PowerStage_SetCurrentLimits(power_stage, MAX_INVERTER_CURRENT);
 
-    App_PowerStage_StandBy(
+    App_PowerStage_Enable(
         power_stage); // Enable continuous ADC DMA requests from all channels
     App_PowerStage_CorrectCurrentOffset(power_stage);
     App_GateDrive_WriteConfig(gate_drive);
+    App_GateDrive_StartPwmTimer(gate_drive);
+
+    if (App_Faults_FaultedMotorShutdown(can_tx_interface))
+    {
+        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+        App_GateDrive_Shutdown(gate_drive);
+    }
 }
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
+    App_AllStatesRunOnTick1Hz(state_machine);
     struct InvWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct InvCanTxInterface *can_tx_interface = App_InvWorld_GetCanTx(world);
-    App_AllStatesRunOnTick1Hz(state_machine);
 }
 
 static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
@@ -61,6 +69,7 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_SharedStateMachine_SetNextState(
             state_machine, App_GetStandbyState());
     }
+    App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
 }
 
 static void InitStateRunOnExit(struct StateMachine *const state_machine)

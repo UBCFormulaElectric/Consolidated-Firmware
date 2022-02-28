@@ -72,7 +72,7 @@ float App_Motor_GetTemperature(void)
 float App_Motor_GetDeratedCurrent(void)
 {
     float derated_current = 0;
-    float motor_temp = Io_AdcDac_GetMotorTemp();
+    float motor_temp      = Io_AdcDac_GetMotorTemp();
     if (motor_temp < 50.0f)
     {
         derated_current = 53.1f;

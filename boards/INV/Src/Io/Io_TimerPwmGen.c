@@ -5,7 +5,7 @@
 
 extern TIM_HandleTypeDef htim8;
 
-void Io_TimerPwmGen_StartPwm(void)
+void Io_TimerPwmGen_StartPwmTimer(void)
 {
     /* ADC is sampled before the inverter is enabled */
 

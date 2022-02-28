@@ -64,7 +64,7 @@ bool App_GateDrive_IsEnabled(struct GateDrive *gate_drive);
 void App_GateDrive_LoadPwm(
     struct GateDrive *  gate_drive,
     struct PhaseValues *phase_pwm_dur);
-void App_GateDrive_StartPwm(struct GateDrive *gate_drive);
+void App_GateDrive_StartPwmTimer(struct GateDrive *gate_drive);
 void App_GateDrive_StopPwm(struct GateDrive *gate_drive);
 void App_GateDrive_SetSwitchingFreq(
     struct GateDrive *gate_drive,
