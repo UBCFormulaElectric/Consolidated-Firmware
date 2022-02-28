@@ -59,6 +59,8 @@ static inline uint8_t temp_scale_for_can(float temp)
     return (uint8_t)(temp * (127U / 63.5f));
 }
 
+bool Io_NewCellVoltages_ReadVoltages(void);
+
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
@@ -77,6 +79,8 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_Accumulator_ReadCellVoltages(accumulator);
 
         Io_LTC6813_WriteConfigurationRegisters();
+
+        Io_NewCellVoltages_ReadVoltages();
 
         App_Accumulator_AllStates100Hz(accumulator, can_tx, error_table);
 

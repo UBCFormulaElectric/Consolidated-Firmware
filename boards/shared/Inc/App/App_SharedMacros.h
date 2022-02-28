@@ -24,5 +24,6 @@
 
 // Pack byte into word
 #define BYTES_TO_WORD(h_byte, l_byte) ((uint16_t)(((h_byte) << 8) | (l_byte)))
-#define CHANGE_WORD_ENDIANNESS(word) ((uint16_t)((word >> 8U) | (word << 8U)))
 
+// If system is little endian, change to big endian format. Vice-versa
+#define CHANGE_WORD_ENDIANNESS(word) ((uint16_t)(((word) >> 8U) | ((word) << 8U)))

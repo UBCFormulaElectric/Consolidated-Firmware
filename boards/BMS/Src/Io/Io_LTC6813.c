@@ -13,12 +13,11 @@
 // Max number of commands to check for completed ADC conversions
 #define MAX_NUM_ADC_COMPLETE_CHECKS (10U)
 
-// Each command sent to the LTC6813 is 2 bytes wide
-#define NUM_CMD_BYTES (2U)
-
 // Command used to start/stop cell discharge
 #define MUTE (0x0028U)
 #define UNMUTE (0x0029U)
+
+#define NUM_CMD_BYTES (2U)
 
 // Command used to write to configuration registers
 #define WRCFGA (0x0001U)
@@ -41,23 +40,23 @@
 // clang-format off
 #define DEFAULT_CFGRA_CONFIG                                                      \
     {                                                                             \
-        [REG_GROUP_0] = (uint8_t)(ENABLE_ALL_CFGRA_GPIO | REFON | DTEN | ADCOPT), \
-        [REG_GROUP_1] = (uint8_t)VUV,                                             \
-        [REG_GROUP_2] = (uint8_t)((VOV & 0xF) << 4) + (VUV >> 8),                 \
-        [REG_GROUP_3] = (uint8_t)(VOV >> 4), [REG_GROUP_4] = 0x0U,                \
-        [REG_GROUP_5] = 0x0U,                                                     \
+        [REG_GROUP_BYTE_0] = (uint8_t)(ENABLE_ALL_CFGRA_GPIO | REFON | DTEN | ADCOPT), \
+        [REG_GROUP_BYTE_1] = (uint8_t)VUV,                                             \
+        [REG_GROUP_BYTE_2] = (uint8_t)((VOV & 0xF) << 4) + (VUV >> 8),                 \
+        [REG_GROUP_BYTE_3] = (uint8_t)(VOV >> 4), [REG_GROUP_BYTE_4] = 0x0U,                \
+        [REG_GROUP_BYTE_5] = 0x0U,                                                     \
         [REG_GROUP_PEC0] = 0U,                                                    \
         [REG_GROUP_PEC1] = 0U,                                                    \
     }
 
 #define DEFAULT_CFGRB_CONFIG                   \
     {                                          \
-        [REG_GROUP_0] = ENABLE_ALL_CFGRB_GPIO, \
-        [REG_GROUP_1] = 0U,                    \
-        [REG_GROUP_2] = 0U,                    \
-        [REG_GROUP_3] = 0U,                    \
-        [REG_GROUP_4] = 0U,                    \
-        [REG_GROUP_5] = 0U,                    \
+        [REG_GROUP_BYTE_0] = ENABLE_ALL_CFGRB_GPIO, \
+        [REG_GROUP_BYTE_1] = 0U,                    \
+        [REG_GROUP_BYTE_2] = 0U,                    \
+        [REG_GROUP_BYTE_3] = 0U,                    \
+        [REG_GROUP_BYTE_4] = 0U,                    \
+        [REG_GROUP_BYTE_5] = 0U,                    \
         [REG_GROUP_PEC0] = 0U,                 \
         [REG_GROUP_PEC1] = 0U,                 \
     }
@@ -136,38 +135,35 @@ static uint16_t Io_LTC6813_CalculatePec15(uint8_t *data_buffer, uint8_t size)
 
 uint16_t Io_LTC6813_CalculateRegGroupPec15(uint8_t *data_buffer)
 {
-    return Io_LTC6813_CalculatePec15(data_buffer, NUM_OF_REGS_IN_GROUP);
+    return Io_LTC6813_CalculatePec15(data_buffer, NUM_OF_BYTES_IN_REG_GROUP);
 }
 
-void Io_LTC6813_PackPec15(uint8_t *tx_data, uint8_t size)
+void Io_LTC6813_PackPec15(uint8_t *tx_data, uint8_t num_bytes)
 {
-    const uint16_t cfg_reg_a_pec15 = Io_LTC6813_CalculatePec15(tx_data, size);
-    Io_LTC6813_PackWordInBytes(&tx_data[size + PEC15_BYTE_0], cfg_reg_a_pec15);
+    const uint16_t cfg_reg_a_pec15 =
+        Io_LTC6813_CalculatePec15(tx_data, num_bytes);
+
+    // Pack the PEC15 byte into tx_data in big endian format
+    *((uint16_t *)(tx_data + num_bytes)) =
+        CHANGE_WORD_ENDIANNESS(cfg_reg_a_pec15);
 }
 
-void Io_LTC6813_PrepareCmd(uint8_t tx_cmd[TOTAL_NUM_CMD_BYTES], uint16_t cmd)
+void Io_LTC6813_PrepareCmd(uint16_t *tx_cmd)
 {
-    Io_LTC6813_PackWordInBytes(tx_cmd, cmd);
-    Io_LTC6813_PackPec15(tx_cmd, NUM_CMD_BYTES);
-}
+    // Change the command endianness to big endian
+    *tx_cmd = CHANGE_WORD_ENDIANNESS(*tx_cmd);
 
-void Io_LTC6813_PackPec15New(uint16_t tx_data[2], uint8_t num_bytes)
-{
-    tx_data[1] = Io_LTC6813_CalculatePec15((uint8_t *)tx_data, num_bytes);
-}
-
-void Io_LTC6813_PrepareCmdNew(uint16_t tx_cmd[2U])
-{
-    Io_LTC6813_ChangeEndianness(tx_cmd);
-    Io_LTC6813_PackPec15((uint8_t *)&tx_cmd, NUM_CMD_BYTES);
+    // Compute and pack the PEC15 byte into tx_cmd
+    Io_LTC6813_PackPec15((uint8_t *)tx_cmd, NUM_CMD_BYTES);
 }
 
 bool Io_LTC6813_SendCommand(uint16_t cmd)
 {
-    uint8_t tx_cmd[TOTAL_NUM_CMD_BYTES] = { 0U };
-    Io_LTC6813_PrepareCmd(tx_cmd, cmd);
+    uint16_t tx_cmd[NUM_OF_CMD_WORDS] = { [CMD_WORD] = cmd, [CMD_PEC15] = 0U };
+    Io_LTC6813_PrepareCmd(tx_cmd);
 
-    return Io_SharedSpi_Transmit(ltc6813_spi, tx_cmd, TOTAL_NUM_CMD_BYTES);
+    return Io_SharedSpi_Transmit(
+        ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES);
 }
 
 bool Io_LTC6813_PollAdcConversions(void)
@@ -177,15 +173,18 @@ bool Io_LTC6813_PollAdcConversions(void)
     uint8_t rx_data      = ADC_CONV_INCOMPLETE;
 
     // Get the status of ADC conversions
-    uint8_t tx_cmd[TOTAL_NUM_CMD_BYTES] = { 0U };
-    Io_LTC6813_PrepareCmd(tx_cmd, PLADC);
+    uint16_t tx_cmd[NUM_OF_CMD_WORDS] = {
+        [CMD_WORD] = PLADC, [CMD_PEC15] = 0U
+    };
+    Io_LTC6813_PrepareCmd(tx_cmd);
 
     // All chips on the daisy chain have finished converting cell voltages when
     // data read back = 0xFF.
     while (rx_data == ADC_CONV_INCOMPLETE)
     {
         const bool is_status_ok = Io_SharedSpi_TransmitAndReceive(
-            ltc6813_spi, tx_cmd, TOTAL_NUM_CMD_BYTES, &rx_data, PLADC_RX_SIZE);
+            ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, &rx_data,
+            PLADC_RX_SIZE);
 
         if (!is_status_ok || (num_attempts >= MAX_NUM_ADC_COMPLETE_CHECKS))
         {
@@ -203,6 +202,7 @@ INLINE_FORCE static void Io_CellBalancing_PrepareConfigRegBytes(
     uint8_t tx_cfg[NUM_OF_ACCUMULATOR_SEGMENTS][NUM_REG_GROUP_BYTES],
     uint8_t curr_cfg_reg)
 {
+    // Default configuration registers settings
     const uint8_t default_cfg_reg[NUM_OF_CFG_REGISTERS][NUM_REG_GROUP_BYTES] = {
         [CONFIG_REG_A] = DEFAULT_CFGRA_CONFIG,
         [CONFIG_REG_B] = DEFAULT_CFGRB_CONFIG,
@@ -232,17 +232,20 @@ INLINE_FORCE static void Io_CellBalancing_PrepareConfigRegBytes(
 
         if (curr_cfg_reg == CONFIG_REG_A)
         {
-            tx_cfg[curr_segment][REG_GROUP_4] |= SET_CFGRA4_DCC_BITS(dcc_bits);
-            tx_cfg[curr_segment][REG_GROUP_5] |= SET_CFGRA5_DCC_BITS(dcc_bits);
+            tx_cfg[curr_segment][REG_GROUP_BYTE_4] |=
+                SET_CFGRA4_DCC_BITS(dcc_bits);
+            tx_cfg[curr_segment][REG_GROUP_BYTE_5] |=
+                SET_CFGRA5_DCC_BITS(dcc_bits);
         }
         else
         {
-            tx_cfg[curr_segment][REG_GROUP_0] |= SET_CFGRB0_DCC_BITS(dcc_bits);
+            tx_cfg[curr_segment][REG_GROUP_BYTE_0] |=
+                SET_CFGRB0_DCC_BITS(dcc_bits);
         }
 
         // Calculate and pack the PEC15 bytes into the content to write to the
         // configuration register
-        Io_LTC6813_PackPec15(tx_cfg[curr_segment], NUM_OF_REGS_IN_GROUP);
+        Io_LTC6813_PackPec15(tx_cfg[curr_segment], NUM_OF_BYTES_IN_REG_GROUP);
     }
 }
 
@@ -258,13 +261,15 @@ bool Io_LTC6813_WriteConfigurationRegisters(void)
     {
         // Command used to write to a configuration register
         // Command containing bytes to write to the configuration register
-        uint8_t tx_cmd[TOTAL_NUM_CMD_BYTES] = { 0U };
+        uint16_t tx_cmd[NUM_OF_CMD_WORDS] = {
+            [CMD_WORD] = cfg_reg_cmds[curr_cfg_reg], [CMD_PEC15] = 0U
+        };
         uint8_t tx_cfg[NUM_OF_ACCUMULATOR_SEGMENTS][NUM_REG_GROUP_BYTES] = {
             { 0U }
         };
 
         // Prepare command to start writing to the configuration register
-        Io_LTC6813_PrepareCmd(tx_cmd, cfg_reg_cmds[curr_cfg_reg]);
+        Io_LTC6813_PrepareCmd(tx_cmd);
 
         // Prepare bytes to write to the configuration register
         Io_CellBalancing_PrepareConfigRegBytes(tx_cfg, curr_cfg_reg);
@@ -272,7 +277,7 @@ bool Io_LTC6813_WriteConfigurationRegisters(void)
         // Write to configuration registers
         Io_SharedSpi_SetNssLow(ltc6813_spi);
         if (Io_SharedSpi_TransmitWithoutNssToggle(
-                ltc6813_spi, tx_cmd, TOTAL_NUM_CMD_BYTES))
+                ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES))
         {
             if (!Io_SharedSpi_TransmitWithoutNssToggle(
                     ltc6813_spi, &tx_cfg[0][0], TOTAL_NUM_OF_REG_BYTES))

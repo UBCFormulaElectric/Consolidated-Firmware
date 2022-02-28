@@ -50,13 +50,6 @@ struct AccumulatorTemperatures
 
 extern struct SharedSpi *ltc6813_spi;
 
-// Commands used to read data stored inside auxiliary register groups
-static const uint16_t aux_reg_group_cmds[NUM_OF_AUX_REGISTER_GROUPS] = {
-    [AUX_REGISTER_GROUP_A] = 0x000C,
-    [AUX_REGISTER_GROUP_B] = 0x000E,
-    [AUX_REGISTER_GROUP_C] = 0x000D,
-};
-
 // A 0-100°C temperature reverse lookup table with 0.5°C resolution for a Vishay
 // NTCALUG03A103G thermistor. The 0th index represents 0°C. Incrementing the
 // index represents a 0.5°C increase in temperature.
@@ -251,17 +244,27 @@ bool Io_CellTemperatures_GetCellTemperatureDegC(void)
         return false;
     }
 
-    uint8_t tx_cmd[TOTAL_NUM_CMD_BYTES] = { 0U };
     uint8_t rx_buffer[TOTAL_NUM_OF_REG_BYTES];
+
+    // Commands used to read data stored inside auxiliary register groups
+    const uint16_t aux_reg_group_cmds[NUM_OF_AUX_REGISTER_GROUPS] = {
+        [AUX_REGISTER_GROUP_A] = 0x000C,
+        [AUX_REGISTER_GROUP_B] = 0x000E,
+        [AUX_REGISTER_GROUP_C] = 0x000D,
+    };
 
     // Read thermistor voltages stored in the AUX register groups
     for (uint8_t curr_reg_group = 0U;
          curr_reg_group < NUM_OF_AUX_REGISTER_GROUPS; curr_reg_group++)
     {
-        Io_LTC6813_PrepareCmd(tx_cmd, aux_reg_group_cmds[curr_reg_group]);
+        uint16_t tx_cmd[2U] = {
+            [0] = aux_reg_group_cmds[curr_reg_group], [1] = 0U
+        };
+
+        Io_LTC6813_PrepareCmd(tx_cmd);
 
         if (Io_SharedSpi_TransmitAndReceive(
-                ltc6813_spi, tx_cmd, TOTAL_NUM_CMD_BYTES, rx_buffer,
+                ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, rx_buffer,
                 TOTAL_NUM_OF_REG_BYTES))
         {
             if (!Io_ParseAuxRegisterForAllSegments(curr_reg_group, rx_buffer))

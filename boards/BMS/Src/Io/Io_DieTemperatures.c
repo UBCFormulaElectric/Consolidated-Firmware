@@ -61,11 +61,11 @@ static void Io_UpdateMaxDieTemp(uint16_t curr_die_temp, uint8_t curr_segment)
 static bool
     Io_ParseDieTempFromSingleSegment(uint8_t curr_segment, uint8_t *rx_die_temp)
 {
-    bool    status                      = false;
-    uint8_t tx_cmd[TOTAL_NUM_CMD_BYTES] = { 0U };
+    bool     status     = false;
+    uint16_t tx_cmd[2U] = { [0] = RDSTATA, [1] = 0U };
 
     // Prepare command used to read from the status regsiter group A
-    Io_LTC6813_PrepareCmd(tx_cmd, RDSTATA);
+    Io_LTC6813_PrepareCmd(tx_cmd);
 
     // Reset the max die temp before it gets updated
     Io_ResetMaxDieTemp();
@@ -73,7 +73,7 @@ static bool
     const uint8_t curr_index = (uint8_t)(curr_segment * NUM_REG_GROUP_BYTES);
 
     if (Io_SharedSpi_TransmitAndReceive(
-            ltc6813_spi, tx_cmd, TOTAL_NUM_CMD_BYTES, rx_die_temp,
+            ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, rx_die_temp,
             TOTAL_NUM_OF_REG_BYTES))
     {
         // Check if received PEC15 is equal to calculated PEC15
@@ -89,8 +89,8 @@ static bool
             // internal die temperature is stored in the 3rd byte, while the
             // lower byte is stored in the 2nd byte.
             die_temp[curr_segment] = BYTES_TO_WORD(
-                rx_die_temp[REG_GROUP_3 + curr_index],
-                rx_die_temp[REG_GROUP_2 + curr_index]);
+                rx_die_temp[REG_GROUP_BYTE_3 + curr_index],
+                rx_die_temp[REG_GROUP_BYTE_2 + curr_index]);
 
             // Update the max die temperature
             Io_UpdateMaxDieTemp(die_temp[curr_segment], curr_segment);

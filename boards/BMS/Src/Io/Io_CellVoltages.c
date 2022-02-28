@@ -57,7 +57,7 @@ static struct Voltages   voltages = { 0U };
  * @param rx_cell_v Ptr to an array to store raw cell voltages
  * @return True if raw cell voltages can be read back uncorrupted. Else, false.
  */
-static bool Io_ParseRegGroupFromSingleSegment(
+INLINE_FORCE static bool Io_ParseRegGroupFromSingleSegment(
     uint8_t  curr_segment,
     uint8_t  curr_reg_group,
     uint8_t *rx_cell_v)
@@ -113,7 +113,7 @@ static bool Io_ParseRegGroupFromSingleSegment(
  * @return True if cell voltages read back for each segment successfully. Else,
  * false
  */
-static bool Io_ParseRegGroupDataFromAllSegments(
+INLINE_FORCE static bool Io_ParseRegGroupDataFromAllSegments(
     uint8_t  curr_reg_group,
     uint8_t *rx_cell_v)
 {
@@ -209,18 +209,21 @@ bool Io_CellVoltages_ReadVoltages(void)
 
     const uint16_t cv_read_cmds[NUM_OF_CELL_V_REG_GROUPS] =
         CELL_V_REG_GROUP_READ_CMD;
-    uint8_t tx_cmd[TOTAL_NUM_CMD_BYTES]       = { 0U };
     uint8_t rx_buffer[TOTAL_NUM_OF_REG_BYTES] = { 0U };
 
     for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_CELL_V_REG_GROUPS;
          curr_reg_group++)
     {
+        uint16_t tx_cmd[NUM_OF_CMD_WORDS] = {
+            [CMD_WORD] = cv_read_cmds[curr_reg_group], [CMD_PEC15] = 0U
+        };
+
         // Prepare the command used to read data back from a register group
-        Io_LTC6813_PrepareCmd(tx_cmd, cv_read_cmds[curr_reg_group]);
+        Io_LTC6813_PrepareCmd(tx_cmd);
 
         // Transmit the command and receive data stored in register group
         if (Io_SharedSpi_TransmitAndReceive(
-                ltc6813_spi, tx_cmd, TOTAL_NUM_CMD_BYTES, rx_buffer,
+                ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, rx_buffer,
                 TOTAL_NUM_OF_REG_BYTES))
         {
             // Get the voltage from each register group for a given segment
