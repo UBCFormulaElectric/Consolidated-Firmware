@@ -23,3 +23,13 @@ void Io_InverterSwitches_TurnOffRight()
     HAL_GPIO_WritePin(
         INVERTER_R_EN_GPIO_Port, INVERTER_R_EN_Pin, GPIO_PIN_RESET);
 }
+
+bool Io_InverterSwitches_IsRightInverterOn()
+{
+    return (bool)HAL_GPIO_ReadPin(INVERTER_R_EN_GPIO_Port, INVERTER_R_EN_Pin);
+}
+
+bool Io_InverterSwitches_IsLeftInverterOn()
+{
+    return (bool)HAL_GPIO_ReadPin(INVERTER_L_EN_GPIO_Port, INVERTER_L_EN_Pin);
+}

@@ -16,13 +16,19 @@
  * the left inverter
  * @param turn_off_left_inverter A function that can be called to disable LV to
  * the left inverter
+ * @param is_right_inverter_on A function that can be called to check if the
+ * right inverter LV switch is on
+ * @param is_left_inverter_on A function that can be called to check if the left
+ * inverter LV switch is on
  * @return The created brake light, whose ownership is given to the caller
  */
 struct InverterSwitches *App_InverterSwitches_Create(
     void (*turn_on_right_inverter)(void),
     void (*turn_off_right_inverter)(void),
     void (*turn_on_left_inverter)(void),
-    void (*turn_off_left_inverter)(void));
+    void (*turn_off_left_inverter)(void),
+    bool (*is_right_inverter_on)(void),
+    bool (*is_left_inverter_on)(void));
 
 /**
  * Deallocate the memory used by the given InverterSwitches struct

@@ -43,6 +43,8 @@ FAKE_VOID_FUNC(turn_on_right_inverter);
 FAKE_VOID_FUNC(turn_off_right_inverter);
 FAKE_VOID_FUNC(turn_on_left_inverter);
 FAKE_VOID_FUNC(turn_off_left_inverter);
+FAKE_VALUE_FUNC(bool, is_right_inverter_on);
+FAKE_VALUE_FUNC(bool, is_left_inverter_on);
 
 class DcmStateMachineTest : public BaseStateMachineTest
 {
@@ -79,7 +81,8 @@ class DcmStateMachineTest : public BaseStateMachineTest
 
         inverter_switches = App_InverterSwitches_Create(
             turn_on_right_inverter, turn_off_right_inverter,
-            turn_on_left_inverter, turn_off_left_inverter);
+            turn_on_left_inverter, turn_off_left_inverter,
+            is_right_inverter_on,  is_left_inverter_on);
 
         world = App_DcmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
@@ -107,8 +110,6 @@ class DcmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(turn_off_right_inverter);
         RESET_FAKE(turn_on_left_inverter);
         RESET_FAKE(turn_off_left_inverter);
-
-        FFF_RESET_HISTORY();
     }
 
     void TearDown() override
@@ -181,18 +182,16 @@ TEST_F(
     DcmStateMachineTest,
     check_init_transitions_to_drive_if_conditions_met_and_start_switch_pulled_up)
 {
-    LetTimePass(state_machine, 10);
-    EXPECT_EQ(
-        App_GetInitState(),
-        App_SharedStateMachine_GetCurrentState(state_machine));
-
-    // Pull start switch up, expect no transition
+    // Pull start switch down and back up, expect no transition
     App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
-        can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
+            can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
+    LetTimePass(state_machine, 10);
+    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
+            can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
     LetTimePass(state_machine, 10);
     EXPECT_EQ(
-        App_GetInitState(),
-        App_SharedStateMachine_GetCurrentState(state_machine));
+            App_GetInitState(),
+            App_SharedStateMachine_GetCurrentState(state_machine));
 
     // Close AIR+ and AIR-, expect no transition and inverter switches to be
     // closed
@@ -204,8 +203,6 @@ TEST_F(
     EXPECT_EQ(
         App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_TRUE(App_InverterSwitches_IsRightOn(inverter_switches));
-    ASSERT_TRUE(App_InverterSwitches_IsRightOn(inverter_switches));
     ASSERT_EQ(turn_on_right_inverter_fake.call_count, 1);
     ASSERT_EQ(turn_on_left_inverter_fake.call_count, 1);
 
@@ -217,7 +214,7 @@ TEST_F(
         App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 
-    // Pull start switch down and back up, expect transition
+    // Pull start switch down and back up, expect init->drive transition
     App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
         can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
     LetTimePass(state_machine, 10);
@@ -416,29 +413,47 @@ TEST_F(
 }
 
 // DCM-17
-TEST_F(DcmStateMachineTest, exit_fault_state_once_critical_errors_cleared)
+TEST_F(DcmStateMachineTest, exit_fault_state_once_critical_errors_and_inverter_faults_cleared)
 {
     SetInitialState(App_GetFaultState());
 
-    // Choose any critical fault, it doesn't have to come from DCM
+    // Set any critical error and introduce inverter faults, expect no transition
     App_SharedErrorTable_SetError(
         error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE,
         true);
-
+    App_CanRx_INVR_INTERNAL_STATES_SetSignal_D1_VSM_STATE_INVR(can_rx_interface,
+            CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE);
+    App_CanRx_INVL_INTERNAL_STATES_SetSignal_D1_VSM_STATE_INVL(can_rx_interface,
+       CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE);
     LetTimePass(state_machine, 10);
-
     ASSERT_EQ(
         App_GetFaultState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 
-    // Clear error, expect transition from fault->init
+    // Clear critical error, expect no transition
     App_SharedErrorTable_SetError(
         error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE,
         false);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(
-        App_GetInitState(),
+        App_GetFaultState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
+
+    // Clear right inverter fault, expect no transition
+    App_CanRx_INVR_INTERNAL_STATES_SetSignal_D1_VSM_STATE_INVR(can_rx_interface,
+    CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_MOTOR__RUNNING__STATE_CHOICE);
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+            App_GetFaultState(),
+            App_SharedStateMachine_GetCurrentState(state_machine));
+
+    // Clear left inverter fault, expect fault->init transition
+    App_CanRx_INVL_INTERNAL_STATES_SetSignal_D1_VSM_STATE_INVL(can_rx_interface,
+           CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_MOTOR__RUNNING__STATE_CHOICE);
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+            App_GetInitState(),
+            App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 // DCM-12
@@ -652,9 +667,6 @@ TEST_F(
 TEST_F(DcmStateMachineTest, inverter_switches_closed_when_AIRS_closed)
 {
     // Both inverter switches are open to begin with
-    LetTimePass(state_machine, 10);
-    ASSERT_FALSE(App_InverterSwitches_IsRightOn(inverter_switches));
-    ASSERT_FALSE(App_InverterSwitches_IsLeftOn(inverter_switches));
     ASSERT_EQ(turn_on_right_inverter_fake.call_count, 0);
     ASSERT_EQ(turn_on_left_inverter_fake.call_count, 0);
 
@@ -662,8 +674,6 @@ TEST_F(DcmStateMachineTest, inverter_switches_closed_when_AIRS_closed)
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
     LetTimePass(state_machine, 10);
-    ASSERT_FALSE(App_InverterSwitches_IsRightOn(inverter_switches));
-    ASSERT_FALSE(App_InverterSwitches_IsLeftOn(inverter_switches));
     ASSERT_EQ(turn_on_right_inverter_fake.call_count, 0);
     ASSERT_EQ(turn_on_left_inverter_fake.call_count, 0);
 
@@ -671,15 +681,19 @@ TEST_F(DcmStateMachineTest, inverter_switches_closed_when_AIRS_closed)
     App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
         can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
     LetTimePass(state_machine, 10);
-    ASSERT_TRUE(App_InverterSwitches_IsRightOn(inverter_switches));
-    ASSERT_TRUE(App_InverterSwitches_IsLeftOn(inverter_switches));
+    ASSERT_EQ(turn_on_right_inverter_fake.call_count, 1);
+    ASSERT_EQ(turn_on_left_inverter_fake.call_count, 1);
+
+    // Left and right inverter should be closed once
+    is_right_inverter_on_fake.return_val = true;
+    is_left_inverter_on_fake.return_val = true;
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(turn_on_right_inverter_fake.call_count, 1);
     ASSERT_EQ(turn_on_left_inverter_fake.call_count, 1);
 }
 
 TEST_F(DcmStateMachineTest, init_to_fault_state_on_left_inverter_fault)
 {
-    LetTimePass(state_machine, 10);
     EXPECT_EQ(
         App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
@@ -697,6 +711,7 @@ TEST_F(DcmStateMachineTest, init_to_fault_state_on_left_inverter_fault)
 TEST_F(DcmStateMachineTest, drive_to_fault_state_on_left_inverter_fault)
 {
     SetInitialState(App_GetDriveState());
+
     // Turn the DIM start switch on to prevent state transitions in
     // the drive state.
     App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
@@ -718,7 +733,6 @@ TEST_F(DcmStateMachineTest, drive_to_fault_state_on_left_inverter_fault)
 
 TEST_F(DcmStateMachineTest, init_to_fault_state_on_right_inverter_fault)
 {
-    LetTimePass(state_machine, 10);
     EXPECT_EQ(
         App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
@@ -736,6 +750,7 @@ TEST_F(DcmStateMachineTest, init_to_fault_state_on_right_inverter_fault)
 TEST_F(DcmStateMachineTest, drive_to_fault_state_on_right_inverter_fault)
 {
     SetInitialState(App_GetDriveState());
+
     // Turn the DIM start switch on to prevent state transitions in
     // the drive state.
     App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
@@ -758,7 +773,6 @@ TEST_F(DcmStateMachineTest, drive_to_fault_state_on_right_inverter_fault)
 // DCM-20
 TEST_F(DcmStateMachineTest, init_to_fault_state_on_motor_shutdown_error)
 {
-    LetTimePass(state_machine, 10);
     EXPECT_EQ(
         App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
@@ -776,6 +790,7 @@ TEST_F(DcmStateMachineTest, init_to_fault_state_on_motor_shutdown_error)
 TEST_F(DcmStateMachineTest, drive_to_fault_state_on_motor_shutdown_error)
 {
     SetInitialState(App_GetDriveState());
+
     // Turn the DIM start switch on to prevent state transitions in
     // the drive state.
     App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(
@@ -794,4 +809,21 @@ TEST_F(DcmStateMachineTest, drive_to_fault_state_on_motor_shutdown_error)
         App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
+TEST_F(DcmStateMachineTest, broadcast_inverter_switch_status_over_can)
+{
+    // Both inverter switches are off initially
+    ASSERT_EQ(App_CanTx_GetPeriodicSignal_RIGHT_INVERTER_SWITCH(can_tx_interface),
+              CANMSGS_DCM_INVERTER_SWITCHES_RIGHT_INVERTER_SWITCH_OFF_CHOICE);
+    ASSERT_EQ(App_CanTx_GetPeriodicSignal_LEFT_INVERTER_SWITCH(can_tx_interface),
+              CANMSGS_DCM_INVERTER_SWITCHES_LEFT_INVERTER_SWITCH_OFF_CHOICE);
+
+    // Inverter switches turned on
+    is_right_inverter_on_fake.return_val = true;
+    is_left_inverter_on_fake.return_val = true;
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(App_CanTx_GetPeriodicSignal_RIGHT_INVERTER_SWITCH(can_tx_interface),
+              CANMSGS_DCM_INVERTER_SWITCHES_RIGHT_INVERTER_SWITCH_ON_CHOICE);
+    ASSERT_EQ(App_CanTx_GetPeriodicSignal_LEFT_INVERTER_SWITCH(can_tx_interface),
+              CANMSGS_DCM_INVERTER_SWITCHES_LEFT_INVERTER_SWITCH_ON_CHOICE);
+}
 } // namespace StateMachineTest

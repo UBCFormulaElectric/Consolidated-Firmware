@@ -6,6 +6,9 @@
 
 #include "App_SharedMacros.h"
 
+static inline bool HasInverterFaulted(const struct DcmCanRxInterface *can_rx_interface);
+static inline bool IsStartSwitchOff(const struct DcmCanRxInterface *can_rx_interface);
+
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
@@ -30,29 +33,25 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct DcmCanRxInterface *can_rx      = App_DcmWorld_GetCanRx(world);
     struct ErrorTable *       error_table = App_DcmWorld_GetErrorTable(world);
+    const struct State* next_state = App_GetDriveState();
 
-    const bool inverter_faulted =
-        App_CanRx_INVL_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVL(can_rx) ==
-            CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE ||
-        App_CanRx_INVR_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVR(can_rx) ==
-            CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE;
-
-    if (App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx) ==
-        CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE)
-    {
-        App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
-    }
-
-    // Transition to fault state if an inverter has faulted or
-    // a critical error has been set
-    if (inverter_faulted ||
-        App_SharedErrorTable_HasAnyCriticalErrorSet(error_table))
-    {
-        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
-    }
+    const bool has_inverter_faulted = HasInverterFaulted(can_rx);
+    const bool is_critical_error_present = App_SharedErrorTable_HasAnyCriticalErrorSet(error_table);
+    const bool is_start_switch_off = IsStartSwitchOff(can_rx);
 
     App_SetPeriodicCanSignals_Imu(world);
     App_SetPeriodicCanSignals_TorqueRequests(world);
+
+    if (has_inverter_faulted || is_critical_error_present)
+    {
+        next_state = App_GetFaultState();
+    }
+    else if (is_start_switch_off)
+    {
+        next_state = App_GetInitState();
+    }
+
+    App_SharedStateMachine_SetNextState(state_machine, next_state);
 }
 
 static void DriveStateRunOnExit(struct StateMachine *const state_machine)
@@ -71,4 +70,20 @@ const struct State *App_GetDriveState(void)
     };
 
     return &drive_state;
+}
+
+static inline bool HasInverterFaulted(const struct DcmCanRxInterface *can_rx_interface)
+{
+    return  App_CanRx_INVL_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVL(
+            can_rx_interface) ==
+            CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE ||
+            App_CanRx_INVR_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVR(
+                    can_rx_interface) ==
+            CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE;
+}
+
+static inline bool IsStartSwitchOff(const struct DcmCanRxInterface *can_rx_interface)
+{
+    return App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx_interface) ==
+                    CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE;
 }

@@ -1,4 +1,5 @@
 #include "states/App_AllStates.h"
+#include "App_SetPeriodicCanSignals.h"
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
@@ -23,4 +24,5 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_BrakeLight_SetLightStatus(
         brake_light, is_brake_actuated, is_regen_active);
+    App_SetPeriodicCanSignals_InverterSwitches(world);
 }
