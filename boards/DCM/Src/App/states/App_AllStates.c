@@ -1,5 +1,4 @@
 #include "states/App_AllStates.h"
-#include "App_SetPeriodicCanSignals.h"
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
