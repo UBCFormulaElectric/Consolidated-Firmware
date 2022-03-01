@@ -7,9 +7,9 @@
 #include "App_SharedMacros.h"
 
 static inline bool
-    HasInverterFaulted(const struct DcmCanRxInterface *can_rx_interface);
+    App_HasInverterFaulted(const struct DcmCanRxInterface *can_rx_interface);
 static inline bool
-    IsStartSwitchOff(const struct DcmCanRxInterface *can_rx_interface);
+    App_IsStartSwitchOff(const struct DcmCanRxInterface *can_rx_interface);
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -37,19 +37,15 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct ErrorTable *       error_table = App_DcmWorld_GetErrorTable(world);
     const struct State *      next_state  = App_GetDriveState();
 
-    const bool has_inverter_faulted = HasInverterFaulted(can_rx);
-    const bool is_critical_error_present =
-        App_SharedErrorTable_HasAnyCriticalErrorSet(error_table);
-    const bool is_start_switch_off = IsStartSwitchOff(can_rx);
-
     App_SetPeriodicCanSignals_Imu(world);
     App_SetPeriodicCanSignals_TorqueRequests(world);
 
-    if (has_inverter_faulted || is_critical_error_present)
+    if (App_HasInverterFaulted(can_rx) ||
+        App_SharedErrorTable_HasAnyCriticalErrorSet(error_table))
     {
         next_state = App_GetFaultState();
     }
-    else if (is_start_switch_off)
+    else if (App_IsStartSwitchOff(can_rx))
     {
         next_state = App_GetInitState();
     }
@@ -76,7 +72,7 @@ const struct State *App_GetDriveState(void)
 }
 
 static inline bool
-    HasInverterFaulted(const struct DcmCanRxInterface *can_rx_interface)
+    App_HasInverterFaulted(const struct DcmCanRxInterface *can_rx_interface)
 {
     return App_CanRx_INVL_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVL(
                can_rx_interface) ==
@@ -87,7 +83,7 @@ static inline bool
 }
 
 static inline bool
-    IsStartSwitchOff(const struct DcmCanRxInterface *can_rx_interface)
+    App_IsStartSwitchOff(const struct DcmCanRxInterface *can_rx_interface)
 {
     return App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx_interface) ==
            CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE;

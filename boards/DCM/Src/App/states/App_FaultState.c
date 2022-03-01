@@ -5,7 +5,7 @@
 #include "App_SharedMacros.h"
 
 static inline bool
-    HasInverterFaulted(const struct DcmCanRxInterface *can_rx_interface);
+    App_AreInvertersOK(const struct DcmCanRxInterface *can_rx_interface);
 
 static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -31,11 +31,8 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 0.0f);
 
-    bool are_inverter_faults_cleared = !HasInverterFaulted(can_rx_interface);
-    const bool no_critical_errors_present =
-        !App_SharedErrorTable_HasAnyCriticalErrorSet(error_table);
-
-    if (no_critical_errors_present && are_inverter_faults_cleared)
+    if (App_AreInvertersOK(can_rx_interface) &&
+        App_SharedErrorTable_HasAnyCriticalErrorSet(error_table) == false)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
     }
@@ -60,12 +57,12 @@ const struct State *App_GetFaultState(void)
 }
 
 static inline bool
-    HasInverterFaulted(const struct DcmCanRxInterface *can_rx_interface)
+    App_AreInvertersOK(const struct DcmCanRxInterface *can_rx_interface)
 {
     return App_CanRx_INVL_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVL(
-               can_rx_interface) ==
-               CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE ||
+               can_rx_interface) !=
+               CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE &&
            App_CanRx_INVR_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVR(
-               can_rx_interface) ==
+               can_rx_interface) !=
                CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE;
 }
