@@ -99,24 +99,33 @@ void App_SetPeriodicCanSignals_Imu(const struct DcmWorld *world)
 
 void App_SetPeriodicCanSignals_InverterSwitches(const struct DcmWorld *world)
 {
-    struct InverterSwitches* inverter_switches = App_DcmWorld_GetInverterSwitches(world);
+    struct InverterSwitches *inverter_switches =
+        App_DcmWorld_GetInverterSwitches(world);
     struct DcmCanTxInterface *can_tx = App_DcmWorld_GetCanTx(world);
 
-    if(App_InverterSwitches_IsRightOn(inverter_switches))
+    if (App_InverterSwitches_IsRightOn(inverter_switches))
     {
-        App_CanTx_SetPeriodicSignal_RIGHT_INVERTER_SWITCH(can_tx, CANMSGS_DCM_INVERTER_SWITCHES_RIGHT_INVERTER_SWITCH_ON_CHOICE);
+        App_CanTx_SetPeriodicSignal_RIGHT_INVERTER_SWITCH(
+            can_tx,
+            CANMSGS_DCM_INVERTER_SWITCHES_RIGHT_INVERTER_SWITCH_ON_CHOICE);
     }
     else
     {
-        App_CanTx_SetPeriodicSignal_RIGHT_INVERTER_SWITCH(can_tx, CANMSGS_DCM_INVERTER_SWITCHES_RIGHT_INVERTER_SWITCH_OFF_CHOICE);
+        App_CanTx_SetPeriodicSignal_RIGHT_INVERTER_SWITCH(
+            can_tx,
+            CANMSGS_DCM_INVERTER_SWITCHES_RIGHT_INVERTER_SWITCH_OFF_CHOICE);
     }
 
-    if(App_InverterSwitches_IsLeftOn(inverter_switches))
+    if (App_InverterSwitches_IsLeftOn(inverter_switches))
     {
-        App_CanTx_SetPeriodicSignal_LEFT_INVERTER_SWITCH(can_tx, CANMSGS_DCM_INVERTER_SWITCHES_LEFT_INVERTER_SWITCH_ON_CHOICE);
+        App_CanTx_SetPeriodicSignal_LEFT_INVERTER_SWITCH(
+            can_tx,
+            CANMSGS_DCM_INVERTER_SWITCHES_LEFT_INVERTER_SWITCH_ON_CHOICE);
     }
     else
     {
-        App_CanTx_SetPeriodicSignal_LEFT_INVERTER_SWITCH(can_tx, CANMSGS_DCM_INVERTER_SWITCHES_LEFT_INVERTER_SWITCH_OFF_CHOICE);
+        App_CanTx_SetPeriodicSignal_LEFT_INVERTER_SWITCH(
+            can_tx,
+            CANMSGS_DCM_INVERTER_SWITCHES_LEFT_INVERTER_SWITCH_OFF_CHOICE);
     }
 }

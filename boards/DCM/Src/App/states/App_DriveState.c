@@ -6,8 +6,10 @@
 
 #include "App_SharedMacros.h"
 
-static inline bool HasInverterFaulted(const struct DcmCanRxInterface *can_rx_interface);
-static inline bool IsStartSwitchOff(const struct DcmCanRxInterface *can_rx_interface);
+static inline bool
+    HasInverterFaulted(const struct DcmCanRxInterface *can_rx_interface);
+static inline bool
+    IsStartSwitchOff(const struct DcmCanRxInterface *can_rx_interface);
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -33,10 +35,11 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct DcmCanRxInterface *can_rx      = App_DcmWorld_GetCanRx(world);
     struct ErrorTable *       error_table = App_DcmWorld_GetErrorTable(world);
-    const struct State* next_state = App_GetDriveState();
+    const struct State *      next_state  = App_GetDriveState();
 
     const bool has_inverter_faulted = HasInverterFaulted(can_rx);
-    const bool is_critical_error_present = App_SharedErrorTable_HasAnyCriticalErrorSet(error_table);
+    const bool is_critical_error_present =
+        App_SharedErrorTable_HasAnyCriticalErrorSet(error_table);
     const bool is_start_switch_off = IsStartSwitchOff(can_rx);
 
     App_SetPeriodicCanSignals_Imu(world);
@@ -72,18 +75,20 @@ const struct State *App_GetDriveState(void)
     return &drive_state;
 }
 
-static inline bool HasInverterFaulted(const struct DcmCanRxInterface *can_rx_interface)
+static inline bool
+    HasInverterFaulted(const struct DcmCanRxInterface *can_rx_interface)
 {
-    return  App_CanRx_INVL_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVL(
-            can_rx_interface) ==
-            CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE ||
-            App_CanRx_INVR_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVR(
-                    can_rx_interface) ==
-            CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE;
+    return App_CanRx_INVL_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVL(
+               can_rx_interface) ==
+               CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE ||
+           App_CanRx_INVR_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVR(
+               can_rx_interface) ==
+               CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE;
 }
 
-static inline bool IsStartSwitchOff(const struct DcmCanRxInterface *can_rx_interface)
+static inline bool
+    IsStartSwitchOff(const struct DcmCanRxInterface *can_rx_interface)
 {
     return App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx_interface) ==
-                    CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE;
+           CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE;
 }
