@@ -57,7 +57,7 @@ static struct Voltages   voltages = { 0U };
  * @param rx_cell_v Ptr to an array to store raw cell voltages
  * @return True if raw cell voltages can be read back uncorrupted. Else, false.
  */
-INLINE_FORCE static bool Io_ParseRegGroupFromSingleSegment(
+static bool Io_ParseRegGroupFromSingleSegment(
     uint8_t  curr_segment,
     uint8_t  curr_reg_group,
     uint8_t *rx_cell_v)
@@ -113,7 +113,7 @@ INLINE_FORCE static bool Io_ParseRegGroupFromSingleSegment(
  * @return True if cell voltages read back for each segment successfully. Else,
  * false
  */
-INLINE_FORCE static bool Io_ParseRegGroupDataFromAllSegments(
+static bool Io_ParseRegGroupDataFromAllSegments(
     uint8_t  curr_reg_group,
     uint8_t *rx_cell_v)
 {

@@ -2,34 +2,23 @@
 
 #include <stdbool.h>
 #include <stm32f3xx_hal.h>
-#include "App_SharedMacros.h"
 
 // Conversion factor used to convert raw voltages (100µV) to voltages (V)
 #define V_PER_100UV (1E-4f)
 
+// TODO: will not need this soon
 // Data stored in register group is 2 bytes wide
 #define NUM_BYTES_REG_GROUP_DATA (2U)
 
-#define NUM_REG_GROUP_WORDS (4U)
-#define TOTAL_NUM_OF_REG_WORDS \
-    (NUM_REG_GROUP_WORDS * NUM_OF_ACCUMULATOR_SEGMENTS)
-
-enum ConfigurationRegister_E
-{
-    CONFIG_REG_A = 0,
-    CONFIG_REG_B,
-    NUM_OF_CFG_REGISTERS,
-};
-
-typedef enum
+enum CmdFormat
 {
     CMD_WORD = 0U,
     CMD_PEC15,
     NUM_OF_CMD_WORDS,
-} Ltc6813CmdFormat_E;
+};
 #define TOTAL_NUM_CMD_BYTES (NUM_OF_CMD_WORDS << 1U)
 
-typedef enum
+enum RegGroupByteFormat
 {
     REG_GROUP_BYTE_0 = 0U,
     REG_GROUP_BYTE_1,
@@ -40,18 +29,10 @@ typedef enum
     REG_GROUP_PEC0,
     REG_GROUP_PEC1,
     NUM_REG_GROUP_BYTES,
-} Ltc6813RegGroupFormat_E;
+};
 #define NUM_OF_BYTES_IN_REG_GROUP (6U)
 #define TOTAL_NUM_OF_REG_BYTES \
     (NUM_REG_GROUP_BYTES * NUM_OF_ACCUMULATOR_SEGMENTS)
-
-static inline void Io_ChangeRxBufferSegmentEndianness(uint16_t *rx_buffer)
-{
-    for (uint8_t i = 0U; i < NUM_REG_GROUP_WORDS; i++)
-    {
-        rx_buffer[i] = CHANGE_WORD_ENDIANNESS(rx_buffer[i]);
-    }
-}
 
 /**
  * Pack PEC15 command into the tx_data buffer before transmission to the
@@ -61,6 +42,11 @@ static inline void Io_ChangeRxBufferSegmentEndianness(uint16_t *rx_buffer)
  */
 void Io_LTC6813_PackPec15(uint8_t *tx_data, uint8_t size);
 
+/**
+ * Prepare the command to be sent to the LTC6813 by packing the command and
+ * PEC15 bytes into the tx_cmd buffer
+ * @param tx_cmd The buffer to pack the command along with the PEC15 check
+ */
 void Io_LTC6813_PrepareCmd(uint16_t *tx_cmd);
 
 /**
@@ -70,10 +56,11 @@ void Io_LTC6813_PrepareCmd(uint16_t *tx_cmd);
 void Io_LTC6813_InitSpiHandle(SPI_HandleTypeDef *spi_handle);
 
 /**
- * Calculate the PEC15 value for data to write OR data read back from a register
- * group
- * @param data_buffer
- * @return
+ * Calculate the PEC15 value for data to write/read back from a register group
+ * on the LTC6813
+ * @param data_buffer The buffer containing data to write/read to calculate the
+ * PEC15 bytes from
+ * @return The PEC15 code generated from the contents of data_buffer
  */
 uint16_t Io_LTC6813_CalculateRegGroupPec15(uint8_t *data_buffer);
 

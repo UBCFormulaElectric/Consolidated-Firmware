@@ -61,6 +61,8 @@ static inline uint8_t temp_scale_for_can(float temp)
 
 bool Io_NewCellVoltages_ReadVoltages(void);
 
+extern uint16_t cell_voltages[NUM_OF_ACCUMULATOR_SEGMENTS][6][3];
+
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
@@ -76,16 +78,15 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     if (action == GET_CELL_VOLTAGE)
     {
         // Start voltage conversion
-        App_Accumulator_ReadCellVoltages(accumulator);
+        // App_Accumulator_ReadCellVoltages(accumulator);
+        Io_NewCellVoltages_ReadVoltages();
 
         Io_LTC6813_WriteConfigurationRegisters();
-
-        Io_NewCellVoltages_ReadVoltages();
 
         App_Accumulator_AllStates100Hz(accumulator, can_tx, error_table);
 
         App_CanTx_SetPeriodicSignal_SEGMENT_0_VOLTAGE(
-            can_tx, Io_CellVoltages_GetSegmentVoltage(ACCUMULATOR_SEGMENT_0));
+            can_tx, Io_NewCellVoltages_ReadVoltages());
         // App_CanTx_SetPeriodicSignal_SEGMENT_1_VOLTAGE(
         //    can_tx, Io_CellVoltages_GetSegmentVoltage(ACCUMULATOR_SEGMENT_1));
         // App_CanTx_SetPeriodicSignal_SEGMENT_2_VOLTAGE(

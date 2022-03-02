@@ -1,11 +1,11 @@
 #include <string.h>
 #include <assert.h>
-#include <stdbool.h>
 #include "main.h"
-#include "Io_SharedSpi.h"
 #include "Io_LTC6813.h"
+#include "Io_SharedSpi.h"
 #include "Io_CellVoltages.h"
 #include "App_Accumulator.h"
+#include "App_SharedMacros.h"
 
 // Time that a SPI transaction should wait for until until an error is returned
 #define SPI_TIMEOUT_MS (10U)
@@ -17,8 +17,6 @@
 #define MUTE (0x0028U)
 #define UNMUTE (0x0029U)
 
-#define NUM_CMD_BYTES (2U)
-
 // Command used to write to configuration registers
 #define WRCFGA (0x0001U)
 #define WRCFGB (0x0024U)
@@ -28,7 +26,8 @@
 #define PLADC_RX_SIZE (1U)
 #define ADC_CONV_INCOMPLETE (0xFFU)
 
-// Default configurations for CFGRA
+// clang-format off
+// Default configurations for CFGRA and CFGRB
 #define VUV (0x4E1U)
 #define VOV (0x8CAU)
 #define ADCOPT (1U)
@@ -37,28 +36,27 @@
 #define ENABLE_ALL_CFGRA_GPIO (0x001FU << 3U)
 #define ENABLE_ALL_CFGRB_GPIO (0x000FU)
 
-// clang-format off
-#define DEFAULT_CFGRA_CONFIG                                                      \
-    {                                                                             \
+#define DEFAULT_CFGRA_CONFIG                                                           \
+    {                                                                                  \
         [REG_GROUP_BYTE_0] = (uint8_t)(ENABLE_ALL_CFGRA_GPIO | REFON | DTEN | ADCOPT), \
         [REG_GROUP_BYTE_1] = (uint8_t)VUV,                                             \
         [REG_GROUP_BYTE_2] = (uint8_t)((VOV & 0xF) << 4) + (VUV >> 8),                 \
-        [REG_GROUP_BYTE_3] = (uint8_t)(VOV >> 4), [REG_GROUP_BYTE_4] = 0x0U,                \
+        [REG_GROUP_BYTE_3] = (uint8_t)(VOV >> 4), [REG_GROUP_BYTE_4] = 0x0U,           \
         [REG_GROUP_BYTE_5] = 0x0U,                                                     \
-        [REG_GROUP_PEC0] = 0U,                                                    \
-        [REG_GROUP_PEC1] = 0U,                                                    \
+        [REG_GROUP_PEC0] = 0U,                                                         \
+        [REG_GROUP_PEC1] = 0U,                                                         \
     }
 
-#define DEFAULT_CFGRB_CONFIG                   \
-    {                                          \
+#define DEFAULT_CFGRB_CONFIG                        \
+    {                                               \
         [REG_GROUP_BYTE_0] = ENABLE_ALL_CFGRB_GPIO, \
         [REG_GROUP_BYTE_1] = 0U,                    \
         [REG_GROUP_BYTE_2] = 0U,                    \
         [REG_GROUP_BYTE_3] = 0U,                    \
         [REG_GROUP_BYTE_4] = 0U,                    \
         [REG_GROUP_BYTE_5] = 0U,                    \
-        [REG_GROUP_PEC0] = 0U,                 \
-        [REG_GROUP_PEC1] = 0U,                 \
+        [REG_GROUP_PEC0] = 0U,                      \
+        [REG_GROUP_PEC1] = 0U,                      \
     }
 // clang-format on
 
@@ -70,6 +68,13 @@
 #define SET_CFGRB0_DCC_BITS(dcc_bits) (0xF0U & (uint8_t)((dcc_bits) >> 8U))
 
 #define PEC15_LUT_SIZE (256U)
+
+enum ConfigurationRegister
+{
+    CONFIG_REG_A = 0,
+    CONFIG_REG_B,
+    NUM_OF_CFG_REGISTERS,
+};
 
 extern struct SharedSpi *ltc6813_spi;
 struct SharedSpi *       ltc6813_spi = NULL;
@@ -154,7 +159,7 @@ void Io_LTC6813_PrepareCmd(uint16_t *tx_cmd)
     *tx_cmd = CHANGE_WORD_ENDIANNESS(*tx_cmd);
 
     // Compute and pack the PEC15 byte into tx_cmd
-    Io_LTC6813_PackPec15((uint8_t *)tx_cmd, NUM_CMD_BYTES);
+    Io_LTC6813_PackPec15((uint8_t *)tx_cmd, sizeof(*tx_cmd));
 }
 
 bool Io_LTC6813_SendCommand(uint16_t cmd)
@@ -168,18 +173,17 @@ bool Io_LTC6813_SendCommand(uint16_t cmd)
 
 bool Io_LTC6813_PollAdcConversions(void)
 {
-    bool    status       = true;
     uint8_t num_attempts = 0U;
     uint8_t rx_data      = ADC_CONV_INCOMPLETE;
 
-    // Get the status of ADC conversions
+    // Prepare command to get the status of ADC conversions
     uint16_t tx_cmd[NUM_OF_CMD_WORDS] = {
         [CMD_WORD] = PLADC, [CMD_PEC15] = 0U
     };
     Io_LTC6813_PrepareCmd(tx_cmd);
 
     // All chips on the daisy chain have finished converting cell voltages when
-    // data read back = 0xFF.
+    // data read back != 0xFF.
     while (rx_data == ADC_CONV_INCOMPLETE)
     {
         const bool is_status_ok = Io_SharedSpi_TransmitAndReceive(
@@ -188,17 +192,16 @@ bool Io_LTC6813_PollAdcConversions(void)
 
         if (!is_status_ok || (num_attempts >= MAX_NUM_ADC_COMPLETE_CHECKS))
         {
-            status = false;
-            break;
+            return false;
         }
 
         num_attempts++;
     }
 
-    return status;
+    return true;
 }
 
-INLINE_FORCE static void Io_CellBalancing_PrepareConfigRegBytes(
+static void Io_CellBalancing_PrepareConfigRegBytes(
     uint8_t tx_cfg[NUM_OF_ACCUMULATOR_SEGMENTS][NUM_REG_GROUP_BYTES],
     uint8_t curr_cfg_reg)
 {
@@ -208,6 +211,7 @@ INLINE_FORCE static void Io_CellBalancing_PrepareConfigRegBytes(
         [CONFIG_REG_B] = DEFAULT_CFGRB_CONFIG,
     };
 
+    // Write to the last segment on the daisy chain first
     for (uint8_t curr_segment = 0U; curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS;
          curr_segment++)
     {
@@ -216,10 +220,12 @@ INLINE_FORCE static void Io_CellBalancing_PrepareConfigRegBytes(
             &tx_cfg[curr_segment], default_cfg_reg[curr_cfg_reg],
             NUM_REG_GROUP_BYTES);
 
+        // Get the min cell location
         uint8_t min_cell_segment = 0U;
         uint8_t min_cell_index   = 0U;
         Io_CellVoltages_GetMinCellLocation(&min_cell_segment, &min_cell_index);
 
+        // If this is the lowest cell, set DCC bits for the given segment
         const uint16_t min_cell_dcc_bits =
             (uint16_t)(~(SET_MIN_CELL_DCC_BIT(min_cell_index)));
 
@@ -230,6 +236,7 @@ INLINE_FORCE static void Io_CellBalancing_PrepareConfigRegBytes(
                 ? min_cell_dcc_bits
                 : SET_ALL_DCC_BITS;
 
+        // Write to configuration registers DCC bits
         if (curr_cfg_reg == CONFIG_REG_A)
         {
             tx_cfg[curr_segment][REG_GROUP_BYTE_4] |=
@@ -243,7 +250,7 @@ INLINE_FORCE static void Io_CellBalancing_PrepareConfigRegBytes(
                 SET_CFGRB0_DCC_BITS(dcc_bits);
         }
 
-        // Calculate and pack the PEC15 bytes into the content to write to the
+        // Calculate and pack the PEC15 bytes into data to write ot the
         // configuration register
         Io_LTC6813_PackPec15(tx_cfg[curr_segment], NUM_OF_BYTES_IN_REG_GROUP);
     }
@@ -296,7 +303,7 @@ bool Io_LTC6813_SetCfgRegsToDefaultSettings(void)
 {
     bool status = false;
 
-    // Send command on the isospi line to wake up the chip
+    // Send command on the isoSpi line to wake up the chip
     Io_LTC6813_WriteConfigurationRegisters();
 
     // Send the command to mute the discharge pins
