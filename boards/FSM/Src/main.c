@@ -123,16 +123,16 @@ struct AcceleratorPedals *papps_and_sapps;
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_DMA_Init(void);
 static void MX_CAN_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_ADC2_Init(void);
-static void MX_TIM4_Init(void);
+static void MX_DMA_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM16_Init(void);
 static void MX_TIM17_Init(void);
+static void MX_TIM4_Init(void);
 void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
 void        RunTaskCanRx(void const *argument);
@@ -186,21 +186,21 @@ int main(void)
     SystemClock_Config();
 
     /* USER CODE BEGIN SysInit */
-
+    MX_DMA_Init();
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    MX_DMA_Init();
     MX_CAN_Init();
     MX_IWDG_Init();
     MX_ADC2_Init();
-    MX_TIM4_Init();
+    MX_DMA_Init();
     MX_TIM1_Init();
     MX_TIM2_Init();
     MX_TIM3_Init();
     MX_TIM16_Init();
     MX_TIM17_Init();
+    MX_TIM4_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
 
@@ -446,7 +446,7 @@ static void MX_ADC2_Init(void)
     hadc2.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     hadc2.Init.NbrOfConversion       = 2;
     hadc2.Init.DMAContinuousRequests = ENABLE;
-    hadc2.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
+    hadc2.Init.EOCSelection          = ADC_EOC_SEQ_CONV;
     hadc2.Init.LowPowerAutoWait      = DISABLE;
     hadc2.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;
     if (HAL_ADC_Init(&hadc2) != HAL_OK)
@@ -849,7 +849,7 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOA, STATUS_R_Pin | STATUS_G_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOA, STATUS_R_Pin | STATUS_G_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(STATUS_B_GPIO_Port, STATUS_B_Pin, GPIO_PIN_SET);
