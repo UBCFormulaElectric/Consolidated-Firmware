@@ -1,6 +1,7 @@
 #pragma once
 
 #include "App_SharedStateMachine.h"
+#include "configs/App_RegenThresholds.h"
 
 /**
  * On-tick 1Hz function for every state in the given state machine
@@ -107,4 +108,19 @@ static inline bool App_SharedStates_AreInvertersOK(
            App_CanRx_INVR_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVR(
                can_rx_interface) !=
                CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE;
+}
+
+/**
+ * Check if vehicle is over the regen threshold defined by vehicle wheel speed
+ * (EV.4.1.3)
+ * @param can_rx_interface The CAN Rx interface to get the CAN signals from
+ * @return true if the vehicle is over the regen threshold, false otherwise
+ */
+static inline bool App_SharedStates_IsVehicleOverRegenThresh(
+    const struct DcmCanRxInterface *can_rx_interface)
+{
+    return (App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_LEFT_WHEEL_SPEED(
+                can_rx_interface) > REGEN_WHEEL_SPEED_THRESHOLD_KPH) &&
+           (App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_RIGHT_WHEEL_SPEED(
+                can_rx_interface) > REGEN_WHEEL_SPEED_THRESHOLD_KPH);
 }
