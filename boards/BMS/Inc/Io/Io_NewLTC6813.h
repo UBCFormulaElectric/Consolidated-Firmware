@@ -40,20 +40,21 @@ enum RegGroupByteFormat
  * @param tx_data The command or register group to pack PEC15 bytes
  * @param size The size of the command or register group to transmit
  */
-void Io_LTC6813_PackPec15(uint8_t *tx_data, uint8_t size);
+void Io_NewLTC6813_PackPec15(uint8_t *tx_data, uint8_t size);
 
 /**
  * Prepare the command to be sent to the LTC6813 by packing the command and
  * PEC15 bytes into the tx_cmd buffer
  * @param tx_cmd The buffer to pack the command along with the PEC15 check
+ * @param cmd The command to pack into tx_cmd
  */
-void Io_LTC6813_PrepareCmd(uint16_t *tx_cmd);
+void Io_NewLTC6813_PrepareCmd(uint16_t *tx_cmd, uint16_t cmd);
 
 /**
  * Initialize the SPI handle used to communicate with the LTC6813
  * @param spi_handle The given SPI handle for the LTC6813 daisy chain.
  */
-void Io_LTC6813_InitSpiHandle(SPI_HandleTypeDef *spi_handle);
+void Io_NewLTC6813_InitSpiHandle(SPI_HandleTypeDef *spi_handle);
 
 /**
  * Calculate the PEC15 value for data to write/read back from a register group
@@ -62,7 +63,7 @@ void Io_LTC6813_InitSpiHandle(SPI_HandleTypeDef *spi_handle);
  * PEC15 bytes from
  * @return The PEC15 code generated from the contents of data_buffer
  */
-uint16_t Io_LTC6813_CalculateRegGroupPec15(uint8_t *data_buffer);
+uint16_t Io_NewLTC6813_CalculateRegGroupPec15(uint8_t *data_buffer);
 
 /**
  * Send a command to all LTC6813 chips on the daisy chain
@@ -70,37 +71,37 @@ uint16_t Io_LTC6813_CalculateRegGroupPec15(uint8_t *data_buffer);
  * the daisy chain
  * @return True if the command was transmitted successfully. Else, false
  */
-bool Io_LTC6813_SendCommand(uint16_t cmd);
+bool Io_NewLTC6813_SendCommand(uint16_t cmd);
 
 /**
  * Wait for the completion of all ADC conversions for the LTC6813 chips on the
  * daisy chain.
  * @return True if all ADC conversions have completed successfully. Else, false.
  */
-bool Io_LTC6813_PollAdcConversions(void);
+bool Io_NewLTC6813_PollAdcConversions(void);
 
 /**
  * Set configuration register to default settings
  * @return True if configuration registers are set successfully. Else, false
  */
-bool Io_LTC6813_SetCfgRegsToDefaultSettings(void);
+bool Io_NewLTC6813_SetCfgRegsToDefaultSettings(void);
 
 /**
  * Write to configuration register
  * @return
  */
-bool Io_LTC6813_WriteConfigurationRegisters(void);
+bool Io_NewLTC6813_WriteConfigurationRegisters(void);
 
 /**
  * Enable LTC6813 cell discharge
  * @return True if the command to enable cell discharge is sent successfully.
  * Else, false
  */
-bool Io_LTC6813_EnableDischarge(void);
+bool Io_NewLTC6813_EnableDischarge(void);
 
 /**
  * Disable LTC6813 cell discharge
  * @return True if the command to enable cell discharge is sent successfully.
  * Else, false
  */
-bool Io_LTC6813_DisableDischarge(void);
+bool Io_NewLTC6813_DisableDischarge(void);

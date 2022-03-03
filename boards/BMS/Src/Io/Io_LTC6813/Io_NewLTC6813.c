@@ -1,7 +1,7 @@
 #include <string.h>
 #include <assert.h>
 #include "main.h"
-#include "Io_LTC6813.h"
+#include "Io_NewLTC6813.h"
 #include "Io_SharedSpi.h"
 #include "Io_CellVoltages.h"
 #include "App_Accumulator.h"
@@ -76,8 +76,9 @@ enum ConfigurationRegister
     NUM_OF_CFG_REGISTERS,
 };
 
+// TODO: fix this
 extern struct SharedSpi *ltc6813_spi;
-struct SharedSpi *       ltc6813_spi = NULL;
+// struct SharedSpi *       ltc6813_spi = NULL;
 
 static const uint16_t pec15_lut[PEC15_LUT_SIZE] = {
     0x0,    0xC599, 0xCEAB, 0xB32,  0xD8CF, 0x1D56, 0x1664, 0xD3FD, 0xF407,
@@ -111,97 +112,7 @@ static const uint16_t pec15_lut[PEC15_LUT_SIZE] = {
     0x8BA7, 0x4E3E, 0x450C, 0x8095
 };
 
-void Io_LTC6813_InitSpiHandle(SPI_HandleTypeDef *spi_handle)
-{
-    assert(spi_handle != NULL);
-
-    // Initialize the SPI interface to communicate with the LTC6813
-    ltc6813_spi = Io_SharedSpi_Create(
-        spi_handle, SPI2_NSS_GPIO_Port, SPI2_NSS_Pin, SPI_TIMEOUT_MS);
-}
-
-static uint16_t Io_LTC6813_CalculatePec15(uint8_t *data_buffer, uint8_t size)
-{
-    // Initialize the value of the PEC15 remainder to 16
-    uint16_t remainder = 16U;
-    uint8_t  index     = 0U;
-
-    // Refer to PEC15 calculation in the 'PEC Calculation' of the LTC6813
-    // datasheet
-    for (size_t i = 0U; i < size; i++)
-    {
-        index     = ((uint8_t)(remainder >> 7U) ^ data_buffer[i]) & 0xFFU;
-        remainder = (uint16_t)((remainder << 8U) ^ pec15_lut[index]);
-    }
-
-    // Set the LSB of the PEC15 remainder to 0.
-    return (uint16_t)(remainder << 1);
-}
-
-uint16_t Io_LTC6813_CalculateRegGroupPec15(uint8_t *data_buffer)
-{
-    return Io_LTC6813_CalculatePec15(data_buffer, NUM_OF_BYTES_IN_REG_GROUP);
-}
-
-void Io_LTC6813_PackPec15(uint8_t *tx_data, uint8_t num_bytes)
-{
-    const uint16_t cfg_reg_a_pec15 =
-        Io_LTC6813_CalculatePec15(tx_data, num_bytes);
-
-    // Pack the PEC15 byte into tx_data in big endian format
-    *((uint16_t *)(tx_data + num_bytes)) =
-        CHANGE_WORD_ENDIANNESS(cfg_reg_a_pec15);
-}
-
-void Io_LTC6813_PrepareCmd(uint16_t *tx_cmd)
-{
-    // Change the command endianness to big endian
-    *tx_cmd = CHANGE_WORD_ENDIANNESS(*tx_cmd);
-
-    // Compute and pack the PEC15 byte into tx_cmd
-    Io_LTC6813_PackPec15((uint8_t *)tx_cmd, sizeof(*tx_cmd));
-}
-
-bool Io_LTC6813_SendCommand(uint16_t cmd)
-{
-    uint16_t tx_cmd[NUM_OF_CMD_WORDS] = { [CMD_WORD] = cmd, [CMD_PEC15] = 0U };
-    Io_LTC6813_PrepareCmd(tx_cmd);
-
-    return Io_SharedSpi_Transmit(
-        ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES);
-}
-
-bool Io_LTC6813_PollAdcConversions(void)
-{
-    uint8_t num_attempts = 0U;
-    uint8_t rx_data      = ADC_CONV_INCOMPLETE;
-
-    // Prepare command to get the status of ADC conversions
-    uint16_t tx_cmd[NUM_OF_CMD_WORDS] = {
-        [CMD_WORD] = PLADC, [CMD_PEC15] = 0U
-    };
-    Io_LTC6813_PrepareCmd(tx_cmd);
-
-    // All chips on the daisy chain have finished converting cell voltages when
-    // data read back != 0xFF.
-    while (rx_data == ADC_CONV_INCOMPLETE)
-    {
-        const bool is_status_ok = Io_SharedSpi_TransmitAndReceive(
-            ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, &rx_data,
-            PLADC_RX_SIZE);
-
-        if (!is_status_ok || (num_attempts >= MAX_NUM_ADC_COMPLETE_CHECKS))
-        {
-            return false;
-        }
-
-        num_attempts++;
-    }
-
-    return true;
-}
-
-static void Io_CellBalancing_PrepareConfigRegBytes(
+static void Io_ConfigureDccBits(
     uint8_t tx_cfg[NUM_OF_ACCUMULATOR_SEGMENTS][NUM_REG_GROUP_BYTES],
     uint8_t curr_cfg_reg)
 {
@@ -252,11 +163,100 @@ static void Io_CellBalancing_PrepareConfigRegBytes(
 
         // Calculate and pack the PEC15 bytes into data to write ot the
         // configuration register
-        Io_LTC6813_PackPec15(tx_cfg[curr_segment], NUM_OF_BYTES_IN_REG_GROUP);
+        Io_NewLTC6813_PackPec15(
+            tx_cfg[curr_segment], NUM_OF_BYTES_IN_REG_GROUP);
     }
 }
 
-bool Io_LTC6813_WriteConfigurationRegisters(void)
+void Io_NewLTC6813_InitSpiHandle(SPI_HandleTypeDef *spi_handle)
+{
+    assert(spi_handle != NULL);
+
+    // Initialize the SPI interface to communicate with the LTC6813
+    ltc6813_spi = Io_SharedSpi_Create(
+        spi_handle, SPI2_NSS_GPIO_Port, SPI2_NSS_Pin, SPI_TIMEOUT_MS);
+}
+
+static uint16_t Io_NewLTC6813_CalculatePec15(uint8_t *data_buffer, uint8_t size)
+{
+    // Initialize the value of the PEC15 remainder to 16
+    uint16_t remainder = 16U;
+    uint8_t  index     = 0U;
+
+    // Refer to PEC15 calculation in the 'PEC Calculation' of the LTC6813
+    // datasheet
+    for (size_t i = 0U; i < size; i++)
+    {
+        index     = ((uint8_t)(remainder >> 7U) ^ data_buffer[i]) & 0xFFU;
+        remainder = (uint16_t)((remainder << 8U) ^ pec15_lut[index]);
+    }
+
+    // Set the LSB of the PEC15 remainder to 0.
+    return (uint16_t)(remainder << 1);
+}
+
+uint16_t Io_NewLTC6813_CalculateRegGroupPec15(uint8_t *data_buffer)
+{
+    return Io_NewLTC6813_CalculatePec15(data_buffer, NUM_OF_BYTES_IN_REG_GROUP);
+}
+
+void Io_NewLTC6813_PackPec15(uint8_t *tx_data, uint8_t num_bytes)
+{
+    const uint16_t cfg_reg_a_pec15 =
+        Io_NewLTC6813_CalculatePec15(tx_data, num_bytes);
+
+    // Pack the PEC15 byte into tx_data in big endian format
+    *((uint16_t *)(tx_data + num_bytes)) =
+        CHANGE_WORD_ENDIANNESS(cfg_reg_a_pec15);
+}
+
+void Io_NewLTC6813_PrepareCmd(uint16_t *tx_cmd, uint16_t cmd)
+{
+    // Change the command endianness
+    *tx_cmd = CHANGE_WORD_ENDIANNESS(cmd);
+
+    // Compute and pack the PEC15 byte into tx_cmd
+    Io_NewLTC6813_PackPec15((uint8_t *)tx_cmd, sizeof(*tx_cmd));
+}
+
+bool Io_NewLTC6813_SendCommand(uint16_t cmd)
+{
+    uint16_t tx_cmd[NUM_OF_CMD_WORDS] = { 0U };
+    Io_NewLTC6813_PrepareCmd(tx_cmd, cmd);
+
+    return Io_SharedSpi_Transmit(
+        ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES);
+}
+
+bool Io_NewLTC6813_PollAdcConversions(void)
+{
+    uint8_t num_attempts = 0U;
+    uint8_t rx_data      = ADC_CONV_INCOMPLETE;
+
+    // Prepare command to get the status of ADC conversions
+    uint16_t tx_cmd[NUM_OF_CMD_WORDS] = { 0 };
+    Io_NewLTC6813_PrepareCmd(tx_cmd, PLADC);
+
+    // All chips on the daisy chain have finished converting cell voltages when
+    // data read back != 0xFF.
+    while (rx_data == ADC_CONV_INCOMPLETE)
+    {
+        const bool is_status_ok = Io_SharedSpi_TransmitAndReceive(
+            ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, &rx_data,
+            PLADC_RX_SIZE);
+
+        if (!is_status_ok || (num_attempts >= MAX_NUM_ADC_COMPLETE_CHECKS))
+        {
+            return false;
+        }
+
+        num_attempts++;
+    }
+
+    return true;
+}
+
+bool Io_NewLTC6813_WriteConfigurationRegisters(void)
 {
     const uint16_t cfg_reg_cmds[NUM_OF_CFG_REGISTERS] = {
         [CONFIG_REG_A] = WRCFGA,
@@ -268,18 +268,16 @@ bool Io_LTC6813_WriteConfigurationRegisters(void)
     {
         // Command used to write to a configuration register
         // Command containing bytes to write to the configuration register
-        uint16_t tx_cmd[NUM_OF_CMD_WORDS] = {
-            [CMD_WORD] = cfg_reg_cmds[curr_cfg_reg], [CMD_PEC15] = 0U
-        };
-        uint8_t tx_cfg[NUM_OF_ACCUMULATOR_SEGMENTS][NUM_REG_GROUP_BYTES] = {
+        uint16_t tx_cmd[NUM_OF_CMD_WORDS] = { 0U };
+        uint8_t  tx_cfg[NUM_OF_ACCUMULATOR_SEGMENTS][NUM_REG_GROUP_BYTES] = {
             { 0U }
         };
 
         // Prepare command to start writing to the configuration register
-        Io_LTC6813_PrepareCmd(tx_cmd);
+        Io_NewLTC6813_PrepareCmd(tx_cmd, cfg_reg_cmds[curr_cfg_reg]);
 
         // Prepare bytes to write to the configuration register
-        Io_CellBalancing_PrepareConfigRegBytes(tx_cfg, curr_cfg_reg);
+        Io_ConfigureDccBits(tx_cfg, curr_cfg_reg);
 
         // Write to configuration registers
         Io_SharedSpi_SetNssLow(ltc6813_spi);
@@ -299,28 +297,28 @@ bool Io_LTC6813_WriteConfigurationRegisters(void)
     return true;
 }
 
-bool Io_LTC6813_SetCfgRegsToDefaultSettings(void)
+bool Io_NewLTC6813_SetCfgRegsToDefaultSettings(void)
 {
     bool status = false;
 
     // Send command on the isoSpi line to wake up the chip
-    Io_LTC6813_WriteConfigurationRegisters();
+    Io_NewLTC6813_WriteConfigurationRegisters();
 
     // Send the command to mute the discharge pins
-    Io_LTC6813_SendCommand(MUTE);
+    Io_NewLTC6813_SendCommand(MUTE);
 
     // Write the configuration registers
-    Io_LTC6813_WriteConfigurationRegisters();
+    Io_NewLTC6813_WriteConfigurationRegisters();
 
     return status;
 }
 
-bool Io_LTC6813_EnableDischarge(void)
+bool Io_NewLTC6813_EnableDischarge(void)
 {
-    return Io_LTC6813_SendCommand(UNMUTE);
+    return Io_NewLTC6813_SendCommand(UNMUTE);
 }
 
-bool Io_LTC6813_DisableDischarge(void)
+bool Io_NewLTC6813_DisableDischarge(void)
 {
-    return Io_LTC6813_SendCommand(MUTE);
+    return Io_NewLTC6813_SendCommand(MUTE);
 }

@@ -7,6 +7,7 @@
 typedef enum
 {
     ACCUMULATOR_SEGMENT_0 = 0U,
+    ACCUMULATOR_SEGMENT_1,
     NUM_OF_ACCUMULATOR_SEGMENTS,
 } AccumulatorSegments_E;
 

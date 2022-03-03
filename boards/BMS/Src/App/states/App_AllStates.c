@@ -85,8 +85,8 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
         App_Accumulator_AllStates100Hz(accumulator, can_tx, error_table);
 
-        App_CanTx_SetPeriodicSignal_SEGMENT_0_VOLTAGE(
-            can_tx, Io_NewCellVoltages_ReadVoltages());
+        //App_CanTx_SetPeriodicSignal_SEGMENT_0_VOLTAGE(
+        //    can_tx, Io_NewCellVoltages_ReadVoltages());
         // App_CanTx_SetPeriodicSignal_SEGMENT_1_VOLTAGE(
         //    can_tx, Io_CellVoltages_GetSegmentVoltage(ACCUMULATOR_SEGMENT_1));
         // App_CanTx_SetPeriodicSignal_SEGMENT_2_VOLTAGE(
@@ -141,6 +141,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
         action = GET_CELL_VOLTAGE;
     }
+    Io_LTC6813_DisableDischarge();
 }
 
 #ifdef NDEBUG
