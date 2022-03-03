@@ -1,6 +1,6 @@
-#include "states/App_AllStates.h"
+#include "states/App_SharedStates.h"
 
-void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
+void App_SharedStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct RgbLedSequence *rgb_led_sequence =
@@ -9,7 +9,7 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     App_SharedRgbLedSequence_Tick(rgb_led_sequence);
 }
 
-void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
+void App_SharedStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct DcmCanTxInterface *can_tx      = App_DcmWorld_GetCanTx(world);

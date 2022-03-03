@@ -1,21 +1,9 @@
-#include "states/App_AllStates.h"
+#include "states/App_SharedStates.h"
 #include "states/App_InitState.h"
 #include "states/App_DriveState.h"
 #include "states/App_FaultState.h"
 
 #include "App_SharedMacros.h"
-
-static inline bool
-    App_AreBothAIRsClosed(const struct DcmCanRxInterface *can_rx_interface);
-static inline bool
-    App_HasInverterFaulted(const struct DcmCanRxInterface *can_rx_interface);
-static inline bool
-    App_IsBrakeActuated(const struct DcmCanRxInterface *can_rx_interface);
-static inline bool
-                   App_IsStartSwitchOn(const struct DcmCanRxInterface *can_rx_interface);
-static inline bool App_WasStartSwitchPulledUp(
-    bool prev_start_switch_position,
-    bool current_start_switch_position);
 
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -28,12 +16,12 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
-    App_AllStatesRunOnTick1Hz(state_machine);
+    App_SharedStatesRunOnTick1Hz(state_machine);
 }
 
 static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    App_AllStatesRunOnTick100Hz(state_machine);
+    App_SharedStatesRunOnTick100Hz(state_machine);
 
     // Holds previous start switch position (true = UP/ON, false = DOWN/OFF)
     static bool prev_start_switch_position =
@@ -47,7 +35,7 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct InverterSwitches * inverter_switches =
         App_DcmWorld_GetInverterSwitches(world);
     const bool current_start_switch_position =
-        App_IsStartSwitchOn(can_rx_interface);
+        App_SharedStates_IsStartSwitchOn(can_rx_interface);
 
     App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 0.0f);
 
@@ -58,12 +46,12 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     // Provide LV to inverters when both AIRS are closed and DC bus voltage ~
     // 400 V
-    if (App_AreBothAIRsClosed(can_rx_interface) &&
+    if (App_SharedStates_AreBothAIRsClosed(can_rx_interface) &&
         !App_InverterSwitches_IsRightOn(inverter_switches))
     {
         App_InverterSwitches_TurnOnRight(inverter_switches);
     }
-    if (App_AreBothAIRsClosed(can_rx_interface) &&
+    if (App_SharedStates_AreBothAIRsClosed(can_rx_interface) &&
         !App_InverterSwitches_IsLeftOn(inverter_switches))
     {
         App_InverterSwitches_TurnOnLeft(inverter_switches);
@@ -72,7 +60,7 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     // Transition to fault state if an inverter has faulted or
     // a critical error has been set
     if (App_SharedErrorTable_HasAnyCriticalErrorSet(error_table) ||
-        App_HasInverterFaulted(can_rx_interface))
+        App_SharedStates_HasInverterFaulted(can_rx_interface))
     {
         next_state = App_GetFaultState();
     }
@@ -83,9 +71,9 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     //  - Both AIRs are closed a.k.a tractive system active.
     //  - Brake pedal is pressed
     else if (
-        App_AreBothAIRsClosed(can_rx_interface) &&
-        App_IsBrakeActuated(can_rx_interface) &&
-        App_WasStartSwitchPulledUp(
+        App_SharedStates_AreBothAIRsClosed(can_rx_interface) &&
+        App_SharedStates_IsBrakeActuated(can_rx_interface) &&
+        App_SharedStates_WasStartSwitchPulledUp(
             prev_start_switch_position, current_start_switch_position))
     {
         next_state = App_GetDriveState();
@@ -111,45 +99,4 @@ const struct State *App_GetInitState(void)
     };
 
     return &init_state;
-}
-
-static inline bool
-    App_AreBothAIRsClosed(const struct DcmCanRxInterface *can_rx_interface)
-{
-    return App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx_interface) ==
-               CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE &&
-           App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx_interface) ==
-               CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE;
-}
-
-static inline bool
-    App_HasInverterFaulted(const struct DcmCanRxInterface *can_rx_interface)
-{
-    return App_CanRx_INVL_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVL(
-               can_rx_interface) ==
-               CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE ||
-           App_CanRx_INVR_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVR(
-               can_rx_interface) ==
-               CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE;
-}
-
-static inline bool
-    App_IsBrakeActuated(const struct DcmCanRxInterface *can_rx_interface)
-{
-    return App_CanRx_FSM_BRAKE_GetSignal_BRAKE_IS_ACTUATED(can_rx_interface) ==
-           CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE;
-}
-
-static inline bool
-    App_IsStartSwitchOn(const struct DcmCanRxInterface *can_rx_interface)
-{
-    return App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx_interface) ==
-           CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE;
-}
-
-static inline bool App_WasStartSwitchPulledUp(
-    bool prev_start_switch_position,
-    bool current_start_switch_position)
-{
-    return !prev_start_switch_position && current_start_switch_position;
 }

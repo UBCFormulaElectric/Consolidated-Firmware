@@ -1,11 +1,8 @@
-#include "states/App_AllStates.h"
+#include "states/App_SharedStates.h"
 #include "states/App_FaultState.h"
 #include "states/App_InitState.h"
 
 #include "App_SharedMacros.h"
-
-static inline bool
-    App_AreInvertersOK(const struct DcmCanRxInterface *can_rx_interface);
 
 static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -17,12 +14,12 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 
 static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
-    App_AllStatesRunOnTick1Hz(state_machine);
+    App_SharedStatesRunOnTick1Hz(state_machine);
 }
 
 static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    App_AllStatesRunOnTick100Hz(state_machine);
+    App_SharedStatesRunOnTick100Hz(state_machine);
 
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct DcmCanTxInterface *can_tx_interface = App_DcmWorld_GetCanTx(world);
@@ -31,7 +28,7 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 0.0f);
 
-    if (App_AreInvertersOK(can_rx_interface) &&
+    if (App_SharedStates_AreInvertersOK(can_rx_interface) &&
         App_SharedErrorTable_HasAnyCriticalErrorSet(error_table) == false)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
@@ -54,15 +51,4 @@ const struct State *App_GetFaultState(void)
     };
 
     return &fault_state;
-}
-
-static inline bool
-    App_AreInvertersOK(const struct DcmCanRxInterface *can_rx_interface)
-{
-    return App_CanRx_INVL_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVL(
-               can_rx_interface) !=
-               CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE &&
-           App_CanRx_INVR_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVR(
-               can_rx_interface) !=
-               CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE;
 }
