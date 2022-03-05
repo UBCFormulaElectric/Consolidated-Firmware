@@ -6,4 +6,4 @@
  * Get a pointer to the AIR Open State.
  * @return A pointer to the AIR Open State. THIS SHOULD NOT BE MODIFIED.
  */
-const struct State *App_GetAirOpenState(void);
+const struct State *App_GetDischargeState(void);

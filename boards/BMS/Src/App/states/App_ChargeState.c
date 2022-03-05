@@ -17,43 +17,44 @@ static void ChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick1Hz(state_machine);
 
-    struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct BmsCanTxInterface * can_tx = App_BmsWorld_GetCanTx(world);
-    const struct CellMonitors *cell_monitors =
-        App_BmsWorld_GetCellMonitors(world);
-    struct Charger *charger = App_BmsWorld_GetCharger(world);
+    // struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    // struct BmsCanTxInterface * can_tx = App_BmsWorld_GetCanTx(world);
+    // const struct CellMonitors *cell_monitors =
+    //    App_BmsWorld_GetCellMonitors(world);
+    // struct Charger *charger = App_BmsWorld_GetCharger(world);
 
-    App_CellMonitors_ReadDieTemps(cell_monitors);
-    App_SetPeriodicSignals_CellMonitorsInRangeChecks(can_tx, cell_monitors);
+    // App_CellMonitors_ReadDieTemps(cell_monitors);
+    // App_SetPeriodicSignals_CellMonitorsInRangeChecks(can_tx, cell_monitors);
 
-    float                 max_die_temperature;
-    enum ITMPInRangeCheck cell_monitor_itmp_in_range_check =
-        App_CellMonitors_GetMaxDieTempDegC(cell_monitors, &max_die_temperature);
-    App_CanTx_SetPeriodicSignal_MAX_CELL_MONITOR_DIE_TEMPERATURE(
-        can_tx, max_die_temperature);
+    // float                 max_die_temperature;
+    // enum ITMPInRangeCheck cell_monitor_itmp_in_range_check =
+    //    App_CellMonitors_GetMaxDieTempDegC(cell_monitors,
+    //    &max_die_temperature);
+    // App_CanTx_SetPeriodicSignal_MAX_CELL_MONITOR_DIE_TEMPERATURE(
+    //    can_tx, max_die_temperature);
 
-    if (cell_monitor_itmp_in_range_check == ITMP_OVERFLOW)
-    {
-        if (App_Charger_IsEnabled(charger))
-        {
-            App_Charger_Disable(charger);
-        }
+    // if (cell_monitor_itmp_in_range_check == ITMP_OVERFLOW)
+    //{
+    //    if (App_Charger_IsEnabled(charger))
+    //    {
+    //        App_Charger_Disable(charger);
+    //    }
 
-        App_CanTx_SetPeriodicSignal_ITMP_CHARGER_HAS_OVERFLOW(
-            can_tx,
-            CANMSGS_BMS_NON_CRITICAL_ERRORS_ITMP_CHARGER_HAS_OVERFLOW_TRUE_CHOICE);
-    }
-    else if (cell_monitor_itmp_in_range_check == ITMP_CHARGER_IN_RANGE)
-    {
-        if (!App_Charger_IsEnabled(charger))
-        {
-            App_Charger_Enable(charger);
-        }
+    //    App_CanTx_SetPeriodicSignal_ITMP_CHARGER_HAS_OVERFLOW(
+    //        can_tx,
+    //        CANMSGS_BMS_NON_CRITICAL_ERRORS_ITMP_CHARGER_HAS_OVERFLOW_TRUE_CHOICE);
+    //}
+    // else if (cell_monitor_itmp_in_range_check == ITMP_CHARGER_IN_RANGE)
+    //{
+    //    if (!App_Charger_IsEnabled(charger))
+    //    {
+    //        App_Charger_Enable(charger);
+    //    }
 
-        App_CanTx_SetPeriodicSignal_ITMP_CHARGER_HAS_OVERFLOW(
-            can_tx,
-            CANMSGS_BMS_NON_CRITICAL_ERRORS_ITMP_CHARGER_HAS_OVERFLOW_FALSE_CHOICE);
-    }
+    //    App_CanTx_SetPeriodicSignal_ITMP_CHARGER_HAS_OVERFLOW(
+    //        can_tx,
+    //        CANMSGS_BMS_NON_CRITICAL_ERRORS_ITMP_CHARGER_HAS_OVERFLOW_FALSE_CHOICE);
+    //}
 }
 
 static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)

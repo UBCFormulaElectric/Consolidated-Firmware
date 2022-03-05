@@ -25,3 +25,4 @@
 
 // Change endianness of a 16-bit number
 #define CHANGE_WORD_ENDIANNESS(word) ((uint16_t)(((word) >> 8U) | ((word) << 8U)))
+#define S_TO_MS (1000U)

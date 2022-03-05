@@ -306,9 +306,6 @@ bool Io_LTC6813_SetCfgRegsToDefaultSettings(void)
     // Send command on the isoSpi line to wake up the chip
     Io_LTC6813_WriteConfigurationRegisters();
 
-    // Send the command to mute the discharge pins
-    Io_LTC6813_SendCommand(MUTE);
-
     // Write the configuration registers
     Io_LTC6813_WriteConfigurationRegisters();
 

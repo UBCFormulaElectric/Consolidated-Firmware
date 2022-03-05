@@ -7,6 +7,15 @@ float Io_SharedAdc_ConvertRawAdcValueToVoltage(
 {
     uint32_t full_scale;
 
+    float single_diff_scaling_ratio = 6.6f;
+    // TODO: Add switch statement that grabs adc single/diff setting and change
+    // scaling factor appropriately switch (hadc-> <single/diff setting> case
+    // ADC_SINGLE:
+    // single_diff_scaling_ratio = 3.3f;
+    //
+    // case ADC_DIFF:
+    // single_diff_scaling_ratio = 6.6f;
+
     switch (hadc->Init.Resolution)
     {
         case ADC_RESOLUTION_6B:
@@ -43,5 +52,15 @@ float Io_SharedAdc_ConvertRawAdcValueToVoltage(
     //   with 12-bit resolution, it will be 2^12 -1 = 4095 or with 8-bit
     //   resolution, 2^8 - 1 = 255.
 
-    return (3.3f * raw_adc_value) / (float)full_scale;
+    if (raw_adc_value > 4095)
+    {
+        return 0.0f;
+    }
+    else
+    {
+        // TODO: change scaling ratio to be adjusted from single-ended to
+        // differential-ended
+        return (single_diff_scaling_ratio * raw_adc_value) / (float)full_scale;
+    }
+    UNUSED(full_scale);
 }
