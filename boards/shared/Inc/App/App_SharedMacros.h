@@ -15,3 +15,5 @@
 #ifndef UNUSED
 #define UNUSED(x) (void)(x)
 #endif // UNUSED
+
+#define S_TO_MS (1000U)

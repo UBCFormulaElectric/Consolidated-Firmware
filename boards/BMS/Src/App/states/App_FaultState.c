@@ -4,6 +4,7 @@
 
 #include "App_SetPeriodicCanSignals.h"
 #include "App_SharedMacros.h"
+#include "Io_Airs.h"
 
 static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -19,29 +20,39 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
     App_Airs_OpenAirPositive(airs);
     App_CanTx_SetPeriodicSignal_AIR_POSITIVE(
         can_tx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE);
+
+    //if a fault occurs open AIR+ and stop current flow
+    Io_Airs_OpenAirPositive();
 }
 
 static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
-    struct BmsWorld *const world =
-        App_SharedStateMachine_GetWorld(state_machine);
-    struct Airs *const       airs        = App_BmsWorld_GetAirs(world);
-    struct ErrorTable *const error_table = App_BmsWorld_GetErrorTable(world);
+        App_AllStatesRunOnTick1Hz(state_machine);
 
-    App_AllStatesRunOnTick1Hz(state_machine);
-
-    if (!App_SharedErrorTable_HasAnyAirShutdownErrorSet(error_table) &&
-        !App_SharedBinaryStatus_IsActive(App_Airs_GetAirNegative(airs)))
-    {
-        // Transition to the init state once all AIR shutdown faults are cleared
-        // and AIR- is opened
-        App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
-    }
 }
 
 static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
+
+    struct BmsWorld *const world =
+            App_SharedStateMachine_GetWorld(state_machine);
+    struct ErrorTable *const error_table = App_BmsWorld_GetErrorTable(world);
+
+    if(!Io_Airs_IsAirNegativeClosed()){
+        App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
+    }
+
+    /*
+    if (!App_SharedErrorTable_HasAnyAirShutdownErrorSet(error_table) &&
+        !Io_Airs_IsAirNegativeClosed())
+    {
+        // Transition to the init state once all AIR shutdown faults are cleared
+        // and AIR- is opened
+        App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
+    }
+    */
+    UNUSED(error_table);
 }
 
 static void FaultStateRunOnExit(struct StateMachine *const state_machine)

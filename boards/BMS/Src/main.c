@@ -465,10 +465,10 @@ static void MX_ADC1_Init(void)
      */
     sConfig.Channel      = ADC_CHANNEL_3;
     sConfig.Rank         = ADC_REGULAR_RANK_1;
-    sConfig.SingleDiff   = ADC_SINGLE_ENDED;
-    sConfig.SamplingTime = ADC_SAMPLETIME_61CYCLES_5;
-    sConfig.OffsetNumber = ADC_OFFSET_NONE;
-    sConfig.Offset       = 0;
+    sConfig.SingleDiff   = ADC_DIFFERENTIAL_ENDED;
+    sConfig.SamplingTime = ADC_SAMPLETIME_601CYCLES_5;
+    sConfig.OffsetNumber = ADC_OFFSET_3;
+    sConfig.Offset       = 1983;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -826,10 +826,10 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : TS_VSENSE_N_Pin ACCEL_BRAKE_OK_Pin GPIO1_Pin
-       GPIO2_Pin CHARGE_STATE_Pin */
-    GPIO_InitStruct.Pin = TS_VSENSE_N_Pin | ACCEL_BRAKE_OK_Pin | GPIO1_Pin |
-                          GPIO2_Pin | CHARGE_STATE_Pin;
+    /*Configure GPIO pins : ACCEL_BRAKE_OK_Pin GPIO1_Pin GPIO2_Pin
+     * CHARGE_STATE_Pin */
+    GPIO_InitStruct.Pin =
+        ACCEL_BRAKE_OK_Pin | GPIO1_Pin | GPIO2_Pin | CHARGE_STATE_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);

@@ -24,7 +24,6 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct OkStatus *         bms_ok      = App_BmsWorld_GetBmsOkStatus(world);
     struct OkStatus *         imd_ok      = App_BmsWorld_GetImdOkStatus(world);
     struct OkStatus *         bspd_ok     = App_BmsWorld_GetBspdOkStatus(world);
-    struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
     struct Airs *             airs        = App_BmsWorld_GetAirs(world);
     struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
 
@@ -62,8 +61,12 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanTx_SetPeriodicSignal_BSPD_OK(can_tx, false);
     }
 
+    //TODO: deal later
+#ifdef NDEBUG
+    struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
     App_SetPeriodicSignals_AccumulatorInRangeChecks(
         can_tx, accumulator, error_table);
+#endif
 
     if (App_SharedErrorTable_HasAnyCriticalErrorSet(error_table))
     {
