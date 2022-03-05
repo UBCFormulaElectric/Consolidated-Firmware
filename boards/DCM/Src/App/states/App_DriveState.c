@@ -30,11 +30,11 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct DcmCanRxInterface *can_rx      = App_DcmWorld_GetCanRx(world);
     struct ErrorTable *       error_table = App_DcmWorld_GetErrorTable(world);
-    const struct State *      next_state  = App_GetDriveState();
 
     App_SetPeriodicCanSignals_Imu(world);
     App_SetPeriodicCanSignals_TorqueRequests(world);
 
+    const struct State *next_state = App_GetDriveState();
     if (App_SharedStates_HasInverterFaulted(can_rx) ||
         App_SharedErrorTable_HasAnyCriticalErrorSet(error_table))
     {

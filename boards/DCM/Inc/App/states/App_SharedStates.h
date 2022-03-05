@@ -4,18 +4,6 @@
 #include "configs/App_RegenThresholds.h"
 
 /**
- * On-tick 1Hz function for every state in the given state machine
- * @param state_machine The state machine to run on-tick function for
- */
-void App_SharedStatesRunOnTick1Hz(struct StateMachine *state_machine);
-
-/**
- * On-tick 100Hz function for every state in the given state machine
- * @param state_machine The state machine to run on-tick function for
- */
-void App_SharedStatesRunOnTick100Hz(struct StateMachine *state_machine);
-
-/**
  * Check if both AIRs are closed
  * @param can_rx_interface The CAN Rx interface to get the CAN signals from
  * @return true if both AIRs are closed, false otherwise
@@ -71,8 +59,8 @@ static inline bool App_SharedStates_IsStartSwitchOn(
 
 /**
  * Check if the start switch was pulled up
- * @param prev_start_switch_position Start switch position from previous cycle
- * @param current_start_switch_position Start switch position on current cycle
+ * @param prev_start_switch_position Start switch position of previous tick
+ * @param current_start_switch_position Start switch position of current tick
  * @return true if the start switch was pulled up, false otherwise
  */
 static inline bool App_SharedStates_WasStartSwitchPulledUp(
@@ -124,3 +112,15 @@ static inline bool App_SharedStates_IsVehicleOverRegenThresh(
            (App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_RIGHT_WHEEL_SPEED(
                 can_rx_interface) > REGEN_WHEEL_SPEED_THRESHOLD_KPH);
 }
+
+/**
+ * On-tick 1Hz function for every state in the given state machine
+ * @param state_machine The state machine to run on-tick function for
+ */
+void App_SharedStatesRunOnTick1Hz(struct StateMachine *state_machine);
+
+/**
+ * On-tick 100Hz function for every state in the given state machine
+ * @param state_machine The state machine to run on-tick function for
+ */
+void App_SharedStatesRunOnTick100Hz(struct StateMachine *state_machine);

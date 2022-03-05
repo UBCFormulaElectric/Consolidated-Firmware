@@ -29,7 +29,7 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 0.0f);
 
     if (App_SharedStates_AreInvertersOK(can_rx_interface) &&
-        App_SharedErrorTable_HasAnyCriticalErrorSet(error_table) == false)
+        !App_SharedErrorTable_HasAnyCriticalErrorSet(error_table))
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
     }

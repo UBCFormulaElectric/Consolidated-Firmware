@@ -23,19 +23,12 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_SharedStatesRunOnTick100Hz(state_machine);
 
-    // Holds previous start switch position (true = UP/ON, false = DOWN/OFF)
-    static bool prev_start_switch_position =
-        true; // Initialize to true to prevent a false start
-
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct DcmCanTxInterface *can_tx_interface = App_DcmWorld_GetCanTx(world);
     struct DcmCanRxInterface *can_rx_interface = App_DcmWorld_GetCanRx(world);
     struct ErrorTable *       error_table = App_DcmWorld_GetErrorTable(world);
-    const struct State *      next_state  = App_GetInitState();
     struct InverterSwitches * inverter_switches =
         App_DcmWorld_GetInverterSwitches(world);
-    const bool current_start_switch_position =
-        App_SharedStates_IsStartSwitchOn(can_rx_interface);
 
     App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 0.0f);
 
@@ -57,30 +50,32 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_InverterSwitches_TurnOnLeft(inverter_switches);
     }
 
-    // Transition to fault state if an inverter has faulted or
-    // a critical error has been set
+    // Holds previous start switch position (true = UP/ON, false = DOWN/OFF)
+    static bool prev_start_switch_position =
+        true; // Initialize to true to prevent a false start
+    const bool current_start_switch_position =
+        App_SharedStates_IsStartSwitchOn(can_rx_interface);
+    const struct State *next_state = App_GetInitState();
     if (App_SharedErrorTable_HasAnyCriticalErrorSet(error_table) ||
         App_SharedStates_HasInverterFaulted(can_rx_interface))
     {
+        // Transition to fault state if an inverter has faulted or
+        // a critical error has been set
         next_state = App_GetFaultState();
     }
-    // The DCM will only enter the drive state when the following conditions
-    // are met and the start switch is pulled up (based on EV.10.4.3):
-    //
-    //  - No critical errors are present
-    //  - Both AIRs are closed a.k.a tractive system active.
-    //  - Brake pedal is pressed
     else if (
         App_SharedStates_AreBothAIRsClosed(can_rx_interface) &&
         App_SharedStates_IsBrakeActuated(can_rx_interface) &&
         App_SharedStates_WasStartSwitchPulledUp(
             prev_start_switch_position, current_start_switch_position))
     {
+        // Transition to drive state when start-up conditions are passed (see
+        // EV.10.4.3):
         next_state = App_GetDriveState();
     }
 
-    App_SharedStateMachine_SetNextState(state_machine, next_state);
     prev_start_switch_position = current_start_switch_position;
+    App_SharedStateMachine_SetNextState(state_machine, next_state);
 }
 
 static void InitStateRunOnExit(struct StateMachine *const state_machine)

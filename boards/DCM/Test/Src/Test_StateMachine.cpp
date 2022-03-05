@@ -701,15 +701,16 @@ TEST_F(DcmStateMachineTest, inverter_switches_closed_when_AIRS_closed)
 
 TEST_F(DcmStateMachineTest, init_to_fault_state_on_left_inverter_fault)
 {
-    EXPECT_EQ(
-        App_GetInitState(),
-        App_SharedStateMachine_GetCurrentState(state_machine));
-
-    // Introduce inverter fault, expect transition to fault state
+    // Introduce left inverter fault, expect init->fault transition on next
+    // 100 Hz tick
     App_CanRx_INVL_INTERNAL_STATES_SetSignal_D1_VSM_STATE_INVL(
         can_rx_interface,
         CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE);
-    LetTimePass(state_machine, 10);
+    LetTimePass(state_machine, 9);
+    EXPECT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+    LetTimePass(state_machine, 1);
     EXPECT_EQ(
         App_GetFaultState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
@@ -728,7 +729,7 @@ TEST_F(DcmStateMachineTest, drive_to_fault_state_on_left_inverter_fault)
         App_GetDriveState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 
-    // Introduce inverter fault, expect transition to fault state
+    // Introduce left inverter fault, expect transition to fault state
     App_CanRx_INVL_INTERNAL_STATES_SetSignal_D1_VSM_STATE_INVL(
         can_rx_interface,
         CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE);
@@ -740,15 +741,16 @@ TEST_F(DcmStateMachineTest, drive_to_fault_state_on_left_inverter_fault)
 
 TEST_F(DcmStateMachineTest, init_to_fault_state_on_right_inverter_fault)
 {
-    EXPECT_EQ(
-        App_GetInitState(),
-        App_SharedStateMachine_GetCurrentState(state_machine));
-
-    // Introduce inverter fault, expect transition to fault state
+    // Introduce right inverter fault, expect transition to fault state on
+    // next 100 Hz tick
     App_CanRx_INVR_INTERNAL_STATES_SetSignal_D1_VSM_STATE_INVR(
         can_rx_interface,
         CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE);
-    LetTimePass(state_machine, 10);
+    LetTimePass(state_machine, 9);
+    EXPECT_EQ(
+        App_GetInitState(),
+        App_SharedStateMachine_GetCurrentState(state_machine));
+    LetTimePass(state_machine, 1);
     EXPECT_EQ(
         App_GetFaultState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
@@ -767,7 +769,7 @@ TEST_F(DcmStateMachineTest, drive_to_fault_state_on_right_inverter_fault)
         App_GetDriveState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 
-    // Introduce inverter fault, expect transition to fault state
+    // Introduce right inverter fault, expect transition to fault state
     App_CanRx_INVR_INTERNAL_STATES_SetSignal_D1_VSM_STATE_INVR(
         can_rx_interface,
         CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE);
@@ -780,14 +782,16 @@ TEST_F(DcmStateMachineTest, drive_to_fault_state_on_right_inverter_fault)
 // DCM-20
 TEST_F(DcmStateMachineTest, init_to_fault_state_on_motor_shutdown_error)
 {
+    // Introduce motor shutdown error, expect transition to fault state on next
+    // 100 Hz tick
+    App_SharedErrorTable_SetError(
+        error_table, BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, true);
+    LetTimePass(state_machine, 9);
     EXPECT_EQ(
         App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 
-    // Introduce motor shutdown error, expect transition to fault state
-    App_SharedErrorTable_SetError(
-        error_table, BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, true);
-    LetTimePass(state_machine, 10);
+    LetTimePass(state_machine, 1);
     EXPECT_EQ(
         App_GetFaultState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
