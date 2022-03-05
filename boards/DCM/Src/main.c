@@ -38,6 +38,8 @@
 #include "Io_BrakeLight.h"
 #include "Io_Buzzer.h"
 #include "Io_LSM6DS33.h"
+#include "Io_SharedErrorTable.h"
+#include "Io_InverterSwitches.h"
 
 #include "App_DcmWorld.h"
 #include "App_SharedStateMachine.h"
@@ -95,6 +97,7 @@ struct Buzzer *           buzzer;
 struct Imu *              imu;
 struct ErrorTable *       error_table;
 struct Clock *            clock;
+struct InverterSwitches * inverter_switches;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -195,10 +198,16 @@ int main(void)
 
     clock = App_SharedClock_Create();
 
+    inverter_switches = App_InverterSwitches_Create(
+        Io_InverterSwitches_TurnOnRight, Io_InverterSwitches_TurnOffRight,
+        Io_InverterSwitches_TurnOnLeft, Io_InverterSwitches_TurnOffLeft,
+        Io_InverterSwitches_IsRightInverterOn,
+        Io_InverterSwitches_IsLeftInverterOn);
+
     world = App_DcmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, brake_light,
-        buzzer, imu, error_table, clock, App_BuzzerSignals_IsOn,
-        App_BuzzerSignals_Callback);
+        buzzer, imu, error_table, clock, inverter_switches,
+        App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
@@ -615,6 +624,7 @@ void RunTaskCanRx(void const *argument)
         struct CanMsg message;
         Io_SharedCan_DequeueCanRxMessage(&message);
         Io_CanRx_UpdateRxTableWithMessage(can_rx, &message);
+        Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &message);
     }
     /* USER CODE END RunTaskCanRx */
 }
