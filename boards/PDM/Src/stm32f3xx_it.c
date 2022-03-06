@@ -191,7 +191,7 @@ void USB_LP_CAN_RX0_IRQHandler(void)
 }
 
 /**
- * @brief This function handles CAN RX1 interrupt.
+ * @brief This function handles CAN_RX1 interrupt.
  */
 void CAN_RX1_IRQHandler(void)
 {
