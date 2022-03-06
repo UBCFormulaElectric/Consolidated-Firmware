@@ -120,8 +120,10 @@ void App_SetPeriodicSignals_AcceleratorPedal(const struct FsmWorld *world)
     struct AcceleratorPedals *papps_and_sapps =
         App_FsmWorld_GetPappsAndSapps(world);
 
-    const float papps_pedal_percentage = App_AcceleratorPedals_GetPrimaryPedalPercentage(papps_and_sapps);
-    const float sapps_pedal_percentage = App_AcceleratorPedals_GetSecondaryPedalPercentage(papps_and_sapps);
+    const float papps_pedal_percentage =
+        App_AcceleratorPedals_GetPrimaryPedalPercentage(papps_and_sapps);
+    const float sapps_pedal_percentage =
+        App_AcceleratorPedals_GetSecondaryPedalPercentage(papps_and_sapps);
 
     App_CanTx_SetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(
         can_tx, papps_pedal_percentage);
@@ -135,7 +137,7 @@ void App_SetPeriodicSignals_AcceleratorPedal(const struct FsmWorld *world)
     else
     {
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(
-            can_tx, papps_pedal_percentage);
+            can_tx, sapps_pedal_percentage); // Todo: Change back to papps
     }
 }
 

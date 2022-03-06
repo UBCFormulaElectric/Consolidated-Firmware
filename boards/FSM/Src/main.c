@@ -186,7 +186,7 @@ int main(void)
     SystemClock_Config();
 
     /* USER CODE BEGIN SysInit */
-    MX_DMA_Init();
+    MX_DMA_Init(); // May not need this line!
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
@@ -560,13 +560,13 @@ static void MX_TIM1_Init(void)
 
     /* USER CODE END TIM1_Init 1 */
     htim1.Instance               = TIM1;
-    htim1.Init.Prescaler         = 0;
+    htim1.Init.Prescaler         = 1;
     htim1.Init.CounterMode       = TIM_COUNTERMODE_UP;
     htim1.Init.Period            = TIM1_AUTO_RELOAD_REG;
     htim1.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim1.Init.RepetitionCounter = 0;
     htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    sConfig.EncoderMode          = TIM_ENCODERMODE_TI12;
+    sConfig.EncoderMode          = TIM_ENCODERMODE_TI1;
     sConfig.IC1Polarity          = TIM_ICPOLARITY_RISING;
     sConfig.IC1Selection         = TIM_ICSELECTION_DIRECTTI;
     sConfig.IC1Prescaler         = TIM_ICPSC_DIV1;
@@ -609,12 +609,12 @@ static void MX_TIM2_Init(void)
 
     /* USER CODE END TIM2_Init 1 */
     htim2.Instance               = TIM2;
-    htim2.Init.Prescaler         = 0;
-    htim2.Init.CounterMode       = TIM_COUNTERMODE_DOWN;
+    htim2.Init.Prescaler         = 1;
+    htim2.Init.CounterMode       = TIM_COUNTERMODE_UP;
     htim2.Init.Period            = TIM2_AUTO_RELOAD_REG;
     htim2.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    sConfig.EncoderMode          = TIM_ENCODERMODE_TI12;
+    sConfig.EncoderMode          = TIM_ENCODERMODE_TI1;
     sConfig.IC1Polarity          = TIM_ICPOLARITY_RISING;
     sConfig.IC1Selection         = TIM_ICSELECTION_DIRECTTI;
     sConfig.IC1Prescaler         = TIM_ICPSC_DIV1;

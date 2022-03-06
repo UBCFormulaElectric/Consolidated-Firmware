@@ -90,6 +90,7 @@ bool App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure(
                25.0f;
 }
 
+// TODO: What?
 bool App_AcceleratorPedalSignals_IsAppsAndBrakePlausibilityOk(
     struct FsmWorld *world)
 {

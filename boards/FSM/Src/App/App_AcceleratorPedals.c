@@ -40,15 +40,13 @@ static float App_GetPedalPercentage(
     const float low_end_deadzone_threshold =
         (float)encoder_fully_pressed_value * percent_deflection;
 
-    // TODO: Determine the high end deadzone threshold #666
-    // Currently setting the high end deadzone threshold to be 3% less than
-    // the maximum encoder value when the pedal is completely pressed
     const float high_end_deadzone_threshold =
         (float)encoder_fully_pressed_value * (1.0f - percent_deflection);
 
     if (encoder_counter_value > encoder_fully_pressed_value)
     {
         // If the accelerator pedal underflows, reset the corresponding
+        // encoder's counter register and set the pedal percentage to 0.0%
         // encoder's counter register and set the pedal percentage to 0.0%
         reset_encoder_counter();
         return 0.0f;
@@ -67,7 +65,6 @@ static float App_GetPedalPercentage(
         // high end deadzone
         return 100.0f;
     }
-
     // Pedal % = 100% * (encoder value - low end deadzone threshold) /
     // (high end deadzone threshold - low end deadzone threshold)
     return 100.0f *
