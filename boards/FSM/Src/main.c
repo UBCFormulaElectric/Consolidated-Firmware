@@ -186,7 +186,7 @@ int main(void)
     SystemClock_Config();
 
     /* USER CODE BEGIN SysInit */
-    MX_DMA_Init(); // May not need this line!
+    MX_DMA_Init(); // May not need!
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
@@ -261,7 +261,8 @@ int main(void)
         Io_SecondaryScancon2RMHF_GetEncoderCounter,
         Io_PrimaryScancon2RMHF_ResetEncoderCounter,
         Io_SecondaryScancon2RMHF_ResetEncoderCounter,
-        PAPPS_ENCODER_FULLY_PRESSED_VALUE, SAPPS_ENCODER_FULLY_PRESSED_VALUE);
+        PAPPS_ENCODER_FULLY_PRESSED_VALUE, SAPPS_ENCODER_FULLY_PRESSED_VALUE,
+        PAPPS_ENCODER_RESET_VALUE, SAPPS_ENCODER_RESET_VALUE);
 
     world = App_FsmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, primary_flow_meter_in_range_check,

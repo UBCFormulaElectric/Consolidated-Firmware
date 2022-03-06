@@ -35,7 +35,9 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
     void (*reset_primary_encoder_counter)(void),
     void (*reset_secondary_encoder_counter)(void),
     uint32_t primary_encoder_fully_pressed_value,
-    uint32_t secondary_encoder_fully_pressed_value);
+    uint32_t secondary_encoder_fully_pressed_value,
+    uint32_t primary_encoder_reset_value,
+    uint32_t secondary_encoder_reset_value);
 
 /**
  * Deallocate the memory used by the given pair of accelerator pedals

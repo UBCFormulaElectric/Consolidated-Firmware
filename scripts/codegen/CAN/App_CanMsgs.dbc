@@ -222,7 +222,7 @@ BO_ 310 FSM_AIR_SHUTDOWN_ERRORS: 8 FSM
 SG_ DUMMY_AIR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 311 FSM_STEERING_ANGLE_SENSOR: 4 FSM
-SG_ Steering_Angle : 0|32@1+ (1,0) [-110|110] "deg" DCM
+SG_ Steering_Angle : 0|32@1+ (1,0) [-130|130] "deg" DCM
 
 BO_ 313 FSM_PRIMARY_APPS: 4 FSM
 SG_ Papps_Mapped_Pedal_Percentage : 0|32@1+ (1,0) [0|100] "%" DEBUG 
