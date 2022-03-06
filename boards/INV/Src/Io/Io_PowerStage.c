@@ -38,7 +38,7 @@ bool Io_PowerStage_GetPhcOCFault(void)
     }
 }
 
-bool Io_PowerStage_GetPowerStageOTFault(void)
+bool Io_PowerStage_GetOTFault(void)
 {
     if (HAL_GPIO_ReadPin(nMOD_OT_ALARM_GPIO_Port, nMOD_OT_ALARM_Pin))
     {

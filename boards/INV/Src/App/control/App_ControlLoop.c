@@ -97,7 +97,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
     rotor_speed_ref =
         App_CanRx_INV_ROTOR_SPEED_REQ_GetSignal_ROTOR_SPEED_REQ(can_rx);
     mode          = App_CanRx_INV_MODE_REQ_GetSignal_MODE_REQ(can_rx);
-    mod_index_ref = App_CanRx_INV_MOD_INDEX_REQ_GetSignal_MOD_INDEX_REQ(can_rx);
+    mod_index_ref = App_CanRx_INV_MOD_INDEX_REQ_GetSignal_MOD_INDEX_REQ(can_rx)/100.0f;
 
     motor_derated_current_limit      = App_Motor_GetDeratedCurrent();
     powerstage_derated_current_limit = App_PowerStage_GetDeratedCurrent();
@@ -114,7 +114,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         App_CanTx_SetPeriodicSignal_PHB_LO_DIAG(can_tx, 1);
         mode = MODE_UNDEFINED;
     }
-    else if (App_PowerStage_GetPowerStageOTFault(power_stage))
+    else if (App_PowerStage_GetOTFault(power_stage))
     {
         App_CanTx_SetPeriodicSignal_PWRSTG_OT_ALARM(can_tx, 1);
         mode = MODE_UNDEFINED;
@@ -127,7 +127,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
 
     App_CanTx_SetPeriodicSignal_MODE(can_tx, mode);
 
-    if (mode == GEN_SINE_I || mode == GEN_SINE_M || mode == MOTOR_CONTROL)
+    if ((mode == GEN_SINE_I || mode == GEN_SINE_M || mode == MOTOR_CONTROL) && App_CanTx_GetPeriodicSignal_STATE(can_tx) == CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE)
     {
         if (mod_index_ref > 0.9f)
         {
@@ -254,19 +254,19 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         }
         if (mode == MOTOR_CONTROL)
         {
-            if (LUT_CONTROL_ENABLED)
-            {
-                dqs_ref_currents.d = look_up_value(
-                    rotor_speed, torque_ref, bus_voltage, 80.0f, ID_PEAK);
-                dqs_ref_currents.q = look_up_value(
-                    rotor_speed, torque_ref, bus_voltage, 80.0f, IQ_PEAK);
-                // fw_flag =
-            }
-            else
-            {
-                dqs_ref_currents = generateRefCurrents(
-                    &dqs_ref_currents, rotor_speed, bus_voltage, &fw_flag);
-            }
+//            if (LUT_CONTROL_ENABLED)
+//            {
+//                dqs_ref_currents.d = look_up_value(
+//                    rotor_speed, torque_ref, bus_voltage, 80.0f, ID_PEAK);
+//                dqs_ref_currents.q = look_up_value(
+//                    rotor_speed, torque_ref, bus_voltage, 80.0f, IQ_PEAK);
+//                // fw_flag =
+//            }
+//            else
+//            {
+//                dqs_ref_currents = generateRefCurrents(
+//                    &dqs_ref_currents, rotor_speed, bus_voltage, &fw_flag);
+//            }
         }
 
         // Calculate d/q PI controller outputs
@@ -287,7 +287,14 @@ void App_ControlLoop_Run(const struct InvWorld *world)
 
         id_controller.output = dqs_voltages.d;
         iq_controller.output = dqs_voltages.q;
-        mod_index            = dqs_voltages.s / (bus_voltage / (float)M_SQRT3);
+        if(bus_voltage == 0)
+        {
+            mod_index = dqs_voltages.s / ((bus_voltage + 0.000001f) / (float)M_SQRT3);
+        }
+        else
+        {
+            mod_index = dqs_voltages.s / ((bus_voltage) / (float)M_SQRT3);
+        }
 
         // Transform d/q voltages to phase voltages
         phase_voltages = parkClarkeTransform(&dqs_voltages, rotor_position);
@@ -295,6 +302,11 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         // Use Space Vector Modulation to calculate PWM durations
         phase_duration = CalculatePwmEdges(&phase_voltages, bus_voltage);
 
+        //
+        if(App_CanTx_GetPeriodicSignal_STATE(can_tx) != CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE)
+        {
+
+        }
         App_GateDrive_LoadPwm(gate_drive, &phase_duration);
 
         prev_fw_flag        = fw_flag;
@@ -303,6 +315,12 @@ void App_ControlLoop_Run(const struct InvWorld *world)
     }
     else
     {
+        //Apply safe ASC state if inverter is not in the drive state
+        phase_duration.a = 1.0f;
+        phase_duration.b = 1.0f;
+        phase_duration.c = 1.0f;
+        App_GateDrive_LoadPwm(gate_drive, &phase_duration);
+
         App_CanTx_SetPeriodicSignal_MODE(
             can_tx, CANMSGS_INV_MODE_MODE_UNDEFINED_CHOICE);
     }

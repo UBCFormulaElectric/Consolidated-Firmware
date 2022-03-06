@@ -10,8 +10,16 @@ extern DAC_HandleTypeDef hdac;
 
 static uint16_t adc1_data[ADC1_NUM_CONVERSIONS];
 static uint16_t adc2_data[ADC2_NUM_CONVERSIONS];
+static uint16_t adc_offset_cal_data[ADC2_NUM_CONVERSIONS][ADC_OFFSET_CAL_CYCLES];
+static uint32_t adc_offset_cal_sum[ADC2_NUM_CONVERSIONS] = {0,0,0,0};
 
-struct PhaseValues *ph_cur_adc_offset;
+struct PhaseValues ph_cur_adc_offset = {
+        .a = 0,
+        .b = 0,
+        .c = 0,
+};
+bool phase_cur_offset_complete = 0;
+
 static float        powerstage_temp;
 static float        motor_temperature;
 
@@ -158,7 +166,7 @@ float Io_AdcDac_ReadMotorTemp(void)
 
 float Io_AdcDac_GetBusVoltage(void)
 {
-    float adc_voltage = 3.3f * (float)adc1_data[0] / 4096.0f;
+    float adc_voltage = 3.3f * (float)adc2_data[3] / 4096.0f;
     float bus_voltage = ((8.06f + 499 * 4) / 8.06f) * adc_voltage;
     return bus_voltage;
 }
@@ -169,19 +177,51 @@ float Io_AdcDac_GetGpioVal(void)
     return adc_voltage;
 }
 
-const struct PhaseValues *Io_AdcDac_CorrectOffset(void)
+void Io_AdcDac_CorrectPhaseCurOffset(const uint32_t adc_startup_cycles)
 {
-    ph_cur_adc_offset->a = (float)(adc2_data[0] - 2048);
-    ph_cur_adc_offset->b = (float)(adc2_data[1] - 2048);
-    ph_cur_adc_offset->c = (float)(adc2_data[2] - 2048);
-
-    if (ph_cur_adc_offset->a > MAX_CUR_ADC_OFFSET ||
-        ph_cur_adc_offset->b > MAX_CUR_ADC_OFFSET ||
-        ph_cur_adc_offset->c > MAX_CUR_ADC_OFFSET)
+    if(adc_startup_cycles < ADC_OFFSET_CAL_CYCLES)
     {
-        // TODO set error table error here, measured offset is too large!
+        adc_offset_cal_data[0][adc_startup_cycles] = adc2_data[0];
+        adc_offset_cal_data[1][adc_startup_cycles] = adc2_data[1];
+        adc_offset_cal_data[2][adc_startup_cycles] = adc2_data[2];
+
+        adc_offset_cal_sum[0] += adc2_data[0];
+        adc_offset_cal_sum[1] += adc2_data[1];
+        adc_offset_cal_sum[2] += adc2_data[2];
     }
+    else
+    {
+
+        ph_cur_adc_offset.a = 3.3f*((float)adc_offset_cal_sum[0]/ADC_OFFSET_CAL_CYCLES)/4096.0f - 1.65f;
+        ph_cur_adc_offset.b = 3.3f*((float)adc_offset_cal_sum[1]/ADC_OFFSET_CAL_CYCLES)/4096.0f - 1.65f;
+        ph_cur_adc_offset.c = 3.3f*((float)adc_offset_cal_sum[2]/ADC_OFFSET_CAL_CYCLES)/4096.0f - 1.65f;
+
+        phase_cur_offset_complete = true;
+
+        if (fabsf(ph_cur_adc_offset.a) > MAX_CUR_ADC_OFFSET ||
+            fabsf(ph_cur_adc_offset.b) > MAX_CUR_ADC_OFFSET ||
+            fabsf(ph_cur_adc_offset.c) > MAX_CUR_ADC_OFFSET)
+        {
+            // TODO set error table error here, measured offset is too large!
+        }
+    }
+}
+
+struct PhaseValues Io_AdcDac_GetPhaseCurOffsets(void)
+{
     return ph_cur_adc_offset;
+}
+
+bool Io_AdcDac_PhaseCurOffsetComplete(void)
+{
+    if (phase_cur_offset_complete)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 void Io_AdcDac_GetPhaseCurrents(struct PhaseValues *const phase_currents)
@@ -191,11 +231,11 @@ void Io_AdcDac_GetPhaseCurrents(struct PhaseValues *const phase_currents)
     float phc_cur_adcvoltage = 3.3f * (float)adc2_data[2] / 4096.0f;
 
     phase_currents->a =
-        (pha_cur_adcvoltage - 1.65f - ph_cur_adc_offset->a) * CUR_SNS_GAIN;
+        (pha_cur_adcvoltage - 1.65f - ph_cur_adc_offset.a) * CUR_SNS_GAIN;
     phase_currents->b =
-        (phb_cur_adcvoltage - 1.65f - ph_cur_adc_offset->b) * CUR_SNS_GAIN;
+        (phb_cur_adcvoltage - 1.65f - ph_cur_adc_offset.b) * CUR_SNS_GAIN;
     phase_currents->c =
-        (phc_cur_adcvoltage - 1.65f - ph_cur_adc_offset->c) * CUR_SNS_GAIN;
+        (phc_cur_adcvoltage - 1.65f - ph_cur_adc_offset.c) * CUR_SNS_GAIN;
 }
 
 void Io_AdcDac_DacStart(void)

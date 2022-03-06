@@ -115,7 +115,7 @@ struct PowerStage *       power_stage;
 struct Motor *            motor;
 struct GateDrive *        gate_drive;
 
-uint32_t adc_buffer[4];
+static uint32_t adc_cal_startup_cycles = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -232,7 +232,7 @@ int main(void)
         Io_STGAP1AS_GlobalReset, Io_STGAP1AS_WriteRegister,
         Io_STGAP1AS_ReadRegister, Io_STGAP1AS_GetFaults, Io_STGAP1AS_Command,
         Io_STGAP1AS_SetShutdownPin, Io_STGAP1AS_GetShutdownPin,
-        Io_TimerPwmGen_LoadPwm, Io_TimerPwmGen_StartPwmTimer, Io_TimerPwmGen_StopPwm,
+        Io_TimerPwmGen_LoadPwm, Io_TimerPwmGen_StartPwmTimer, Io_TimerPwmGen_StopPwmTimer,
         Io_TimerPwmGen_SetSwitchingFreq, Io_TimerPwmGen_SetDeadTime,
         Io_STGAP1AS_GetPhaHiDiag, Io_STGAP1AS_GetPhaLoDiag,
         Io_STGAP1AS_GetPhbHiDiag, Io_STGAP1AS_GetPhbLoDiag,
@@ -245,10 +245,10 @@ int main(void)
         Io_AdcDac_AdcContModeInit, Io_AdcDac_AdcPwmSyncModeInit,
         Io_AdcDac_AdcStart, Io_AdcDac_AdcStop, Io_AdcDac_DacStart,
         Io_AdcDac_DacSetCurrentLim, Io_AdcDac_GetPhaseCurrents,
-        Io_AdcDac_CorrectOffset, Io_AdcDac_GetBusVoltage,
+        Io_AdcDac_GetBusVoltage,
         Io_AdcDac_GetPowerstageTemp, Io_PowerStage_GetPhaOCFault,
         Io_PowerStage_GetPhbOCFault, Io_PowerStage_GetPhcOCFault,
-        Io_PowerStage_GetPowerStageOTFault);
+        Io_PowerStage_GetOTFault);
 
     world = App_InvWorld_Create(
         can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, error_table, clock,
@@ -1122,8 +1122,16 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     }
     if (hadc->Instance == ADC2)
     {
+        if(adc_cal_startup_cycles < ADC_OFFSET_CAL_CYCLES + 1)
+        {
+            Io_AdcDac_CorrectPhaseCurOffset(adc_cal_startup_cycles);
+            adc_cal_startup_cycles += 1;
+        }
+
         SEGGER_SYSVIEW_RecordEnterISR();
+
         App_ControlLoop_Run(world);
+
         SEGGER_SYSVIEW_RecordExitISR();
     }
 }

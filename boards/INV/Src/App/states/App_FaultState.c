@@ -14,9 +14,9 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 
 static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
+    App_AllStatesRunOnTick1Hz(state_machine);
     struct InvWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct InvCanTxInterface *can_tx_interface = App_InvWorld_GetCanTx(world);
-    App_AllStatesRunOnTick1Hz(state_machine);
 }
 
 static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)

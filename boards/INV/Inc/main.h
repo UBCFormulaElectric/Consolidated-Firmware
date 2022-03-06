@@ -191,7 +191,7 @@ extern "C"
 #define nPHB_OC_ALARM_Pin GPIO_PIN_9
 #define nPHB_OC_ALARM_GPIO_Port GPIOB
     /* USER CODE BEGIN Private defines */
-
+#define ADC_OFFSET_CAL_CYCLES 1000
     /* USER CODE END Private defines */
 
 #ifdef __cplusplus

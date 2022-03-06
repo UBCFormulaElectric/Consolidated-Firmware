@@ -26,7 +26,7 @@ struct GateDrive *App_GateDrive_Create(
     bool (*get_gd_shutdown_pin)(void),
     void (*load_pwm)(const struct PhaseValues *phase_pwm_vals),
     void (*start_pwm)(void),
-    void (*stop_pwm)(void),
+    void (*stop_pwm_timer)(void),
     void (*set_switching_freq)(uint16_t switching_freq),
     void (*set_dead_time)(uint16_t dead_time),
     bool (*gd_get_pha_hi_diag)(void),
@@ -65,7 +65,7 @@ void App_GateDrive_LoadPwm(
     struct GateDrive *  gate_drive,
     struct PhaseValues *phase_pwm_dur);
 void App_GateDrive_StartPwmTimer(struct GateDrive *gate_drive);
-void App_GateDrive_StopPwm(struct GateDrive *gate_drive);
+void App_GateDrive_StopPwmTimer(struct GateDrive *gate_drive);
 void App_GateDrive_SetSwitchingFreq(
     struct GateDrive *gate_drive,
     uint16_t          switching_freq);

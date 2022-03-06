@@ -34,7 +34,7 @@ void Io_TimerPwmGen_StartPwmTimer(void)
     HAL_TIM_Base_Start(&htim8);
 }
 
-void Io_TimerPwmGen_StopPwm(void)
+void Io_TimerPwmGen_StopPwmTimer(void)
 {
     // Stop base counter
     HAL_TIM_Base_Stop(&htim8);

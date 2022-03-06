@@ -30,10 +30,10 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     {
         // Configure powerstage
         App_PowerStage_Enable(power_stage); // Set adc to PWM sync mode
-        if (fabsf(App_PowerStage_GetPosCurrentLimit() - MAX_INVERTER_CURRENT) <
-                0.5f ||
-            fabsf(App_PowerStage_GetNegCurrentLimit() + MAX_INVERTER_CURRENT) <
-                0.5f)
+        if (fabsf(App_PowerStage_GetPosCurrentLimit() - MAX_INVERTER_CURRENT) >
+                    MAX_CUR_SNS_OFFSET ||
+            fabsf(App_PowerStage_GetNegCurrentLimit() + MAX_INVERTER_CURRENT) >
+                MAX_CUR_SNS_OFFSET)
         {
             App_CanTx_SetPeriodicSignal_CUR_SNS_OFFSET(can_tx_interface, 1);
         }
@@ -52,12 +52,12 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
-    //App_AllStatesRunOnTick1Hz(state_machine);
+    App_AllStatesRunOnTick1Hz(state_machine);
 }
 
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    //App_AllStatesRunOnTick100Hz(state_machine);
+    App_AllStatesRunOnTick100Hz(state_machine);
     struct InvWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct InvCanTxInterface *can_tx_interface = App_InvWorld_GetCanTx(world);
     struct InvCanRxInterface *can_rx_interface = App_InvWorld_GetCanRx(world);
@@ -86,7 +86,7 @@ static void DriveStateRunOnExit(struct StateMachine *const state_machine)
     struct PowerStage *       power_stage = App_InvWorld_GetPowerStage(world);
 
     App_GateDrive_Shutdown(gate_drive);  // Set GDRV Shutdown Pin
-    App_GateDrive_StopPwm(gate_drive);   // Disable PWM
+    //App_GateDrive_StopPwmTimer(gate_drive);   // Disable PWM
     //App_PowerStage_StandBy(power_stage); // Set ADC to cont. mode
 }
 

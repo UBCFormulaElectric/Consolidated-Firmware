@@ -24,8 +24,8 @@ struct GateDrive
     void (*set_shutdown_pin)(bool pin_val);
     bool (*get_shutdown_pin)(void);
     void (*load_pwm)(const struct PhaseValues *phase_pwm_vals);
-    void (*start_pwm)(void);
-    void (*stop_pwm)(void);
+    void (*start_pwm_timer)(void);
+    void (*stop_pwm_timer)(void);
     void (*set_switching_freq)(uint16_t switching_freq);
     void (*set_dead_time)(uint16_t dead_time);
     bool (*get_pha_hi_diag)(void);
@@ -53,8 +53,8 @@ struct GateDrive *App_GateDrive_Create(
     void (*set_gd_shutdown_pin)(bool pin_val),
     bool (*get_gd_shutdown_pin)(void),
     void (*load_gd_pwm)(const struct PhaseValues *phase_pwm_dur),
-    void (*gd_start_pwm)(void),
-    void (*gd_stop_pwm)(void),
+    void (*gd_start_pwm_timer)(void),
+    void (*gd_stop_pwm_timer)(void),
     void (*gd_set_switching_freq)(uint16_t switching_freq),
     void (*gd_set_dead_time)(uint16_t dead_time),
     bool (*gd_get_pha_hi_diag)(void),
@@ -77,8 +77,8 @@ struct GateDrive *App_GateDrive_Create(
     gate_drive->set_shutdown_pin   = set_gd_shutdown_pin;
     gate_drive->get_shutdown_pin   = get_gd_shutdown_pin;
     gate_drive->load_pwm           = load_gd_pwm;
-    gate_drive->start_pwm          = gd_start_pwm;
-    gate_drive->stop_pwm           = gd_stop_pwm;
+    gate_drive->start_pwm_timer          = gd_start_pwm_timer;
+    gate_drive->stop_pwm_timer           = gd_stop_pwm_timer;
     gate_drive->set_switching_freq = gd_set_switching_freq;
     gate_drive->set_dead_time      = gd_set_dead_time;
     gate_drive->get_pha_hi_diag    = gd_get_pha_hi_diag;
@@ -149,7 +149,6 @@ void App_GateDrive_Command(struct GateDrive *gate_drive, uint8_t command_name)
 void App_GateDrive_Shutdown(struct GateDrive *gate_drive)
 {
     gate_drive->set_shutdown_pin(0);
-    gate_drive->stop_pwm();
 }
 
 bool App_GateDrive_Enable(
@@ -188,12 +187,12 @@ void App_GateDrive_LoadPwm(
 
 void App_GateDrive_StartPwmTimer(struct GateDrive *gate_drive)
 {
-    gate_drive->start_pwm();
+    gate_drive->start_pwm_timer();
 }
 
-void App_GateDrive_StopPwm(struct GateDrive *gate_drive)
+void App_GateDrive_StopPwmTimer(struct GateDrive *gate_drive)
 {
-    gate_drive->stop_pwm();
+    gate_drive->stop_pwm_timer();
 }
 
 void App_GateDrive_SetSwitchingFreq(
