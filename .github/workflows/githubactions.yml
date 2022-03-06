@@ -117,7 +117,8 @@ jobs:
       - name: Install dependencies
         run: |
           sudo dpkg --add-architecture i386
-          sudo apt-get install ccache valgrind
+          sudo apt-get update
+          sudo apt-get install -y ccache valgrind
           pipenv install --deploy
 
       - name: Setup CCache
@@ -181,7 +182,8 @@ jobs:
       - name: Install dependencies
         run: |
           sudo dpkg --add-architecture i386
-          sudo apt-get install ccache valgrind
+          sudo apt-get update
+          sudo apt-get install -y ccache valgrind
           pipenv install --deploy
 
       - name: Setup XVFB
