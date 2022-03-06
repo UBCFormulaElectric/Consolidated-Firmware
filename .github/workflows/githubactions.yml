@@ -15,9 +15,7 @@ jobs:
       - uses: actions/checkout@v2
 
       - name: Install pipenv
-        run: |
-          python3 -m pip install --upgrade pip
-          pip3 install pipenv==2022.1.8
+        run: pip3 install pipenv==2022.1.8
 
       - name: Install Python
         uses: actions/setup-python@v2
@@ -27,7 +25,7 @@ jobs:
           cache-dependency-path: Pipfile.lock
         
       - name: Install dependencies
-        run: pipenv install
+        run: pipenv install --deploy
       
       - name: Format code
         run: python clang-format/fix_formatting.py
@@ -63,7 +61,7 @@ jobs:
           cache-dependency-path: Pipfile.lock
 
       - name: Install dependencies
-        run: pipenv install
+        run: pipenv install --deploy
 
       - name: Setup XVFB
         run: |
@@ -120,7 +118,7 @@ jobs:
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get install ccache valgrind
-          pipenv install
+          pipenv install --deploy
 
       - name: Setup CCache
         uses: actions/cache@v2
@@ -184,7 +182,7 @@ jobs:
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get install ccache valgrind
-          pipenv install
+          pipenv install --deploy
 
       - name: Setup XVFB
         run: |
