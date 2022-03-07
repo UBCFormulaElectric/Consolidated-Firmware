@@ -13,11 +13,19 @@ static uint16_t adc2_data[ADC2_NUM_CONVERSIONS];
 static uint16_t adc_offset_cal_data[ADC2_NUM_CONVERSIONS][ADC_OFFSET_CAL_CYCLES];
 static uint32_t adc_offset_cal_sum[ADC2_NUM_CONVERSIONS] = {0,0,0,0};
 
-struct PhaseValues ph_cur_adc_offset = {
+struct PhaseValues ph_cur_adc_offset_v = {
         .a = 0,
         .b = 0,
         .c = 0,
 };
+
+struct PhaseValues ph_cur_adc_offset_amps = {
+        .a = 0,
+        .b = 0,
+        .c = 0,
+};
+
+
 bool phase_cur_offset_complete = 0;
 
 static float        powerstage_temp;
@@ -192,15 +200,15 @@ void Io_AdcDac_CorrectPhaseCurOffset(const uint32_t adc_startup_cycles)
     else
     {
 
-        ph_cur_adc_offset.a = 3.3f*((float)adc_offset_cal_sum[0]/ADC_OFFSET_CAL_CYCLES)/4096.0f - 1.65f;
-        ph_cur_adc_offset.b = 3.3f*((float)adc_offset_cal_sum[1]/ADC_OFFSET_CAL_CYCLES)/4096.0f - 1.65f;
-        ph_cur_adc_offset.c = 3.3f*((float)adc_offset_cal_sum[2]/ADC_OFFSET_CAL_CYCLES)/4096.0f - 1.65f;
+        ph_cur_adc_offset_v.a = 3.3f*((float)adc_offset_cal_sum[0]/ADC_OFFSET_CAL_CYCLES)/4096.0f - 1.65f;
+        ph_cur_adc_offset_v.b = 3.3f*((float)adc_offset_cal_sum[1]/ADC_OFFSET_CAL_CYCLES)/4096.0f - 1.65f;
+        ph_cur_adc_offset_v.c = 3.3f*((float)adc_offset_cal_sum[2]/ADC_OFFSET_CAL_CYCLES)/4096.0f - 1.65f;
 
         phase_cur_offset_complete = true;
 
-        if (fabsf(ph_cur_adc_offset.a) > MAX_CUR_ADC_OFFSET ||
-            fabsf(ph_cur_adc_offset.b) > MAX_CUR_ADC_OFFSET ||
-            fabsf(ph_cur_adc_offset.c) > MAX_CUR_ADC_OFFSET)
+        if (fabsf(ph_cur_adc_offset_v.a) > MAX_CUR_ADC_OFFSET ||
+            fabsf(ph_cur_adc_offset_v.b) > MAX_CUR_ADC_OFFSET ||
+            fabsf(ph_cur_adc_offset_v.c) > MAX_CUR_ADC_OFFSET)
         {
             // TODO set error table error here, measured offset is too large!
         }
@@ -209,7 +217,11 @@ void Io_AdcDac_CorrectPhaseCurOffset(const uint32_t adc_startup_cycles)
 
 struct PhaseValues Io_AdcDac_GetPhaseCurOffsets(void)
 {
-    return ph_cur_adc_offset;
+    ph_cur_adc_offset_amps.a = ph_cur_adc_offset_v.a * CUR_SNS_GAIN;
+    ph_cur_adc_offset_amps.b = ph_cur_adc_offset_v.b * CUR_SNS_GAIN;
+    ph_cur_adc_offset_amps.c = ph_cur_adc_offset_v.c * CUR_SNS_GAIN;
+
+    return ph_cur_adc_offset_amps;
 }
 
 bool Io_AdcDac_PhaseCurOffsetComplete(void)
@@ -231,11 +243,11 @@ void Io_AdcDac_GetPhaseCurrents(struct PhaseValues *const phase_currents)
     float phc_cur_adcvoltage = 3.3f * (float)adc2_data[2] / 4096.0f;
 
     phase_currents->a =
-        (pha_cur_adcvoltage - 1.65f - ph_cur_adc_offset.a) * CUR_SNS_GAIN;
+        (pha_cur_adcvoltage - 1.65f - ph_cur_adc_offset_v.a) * CUR_SNS_GAIN;
     phase_currents->b =
-        (phb_cur_adcvoltage - 1.65f - ph_cur_adc_offset.b) * CUR_SNS_GAIN;
+        (phb_cur_adcvoltage - 1.65f - ph_cur_adc_offset_v.b) * CUR_SNS_GAIN;
     phase_currents->c =
-        (phc_cur_adcvoltage - 1.65f - ph_cur_adc_offset.c) * CUR_SNS_GAIN;
+        (phc_cur_adcvoltage - 1.65f - ph_cur_adc_offset_v.c) * CUR_SNS_GAIN;
 }
 
 void Io_AdcDac_DacStart(void)

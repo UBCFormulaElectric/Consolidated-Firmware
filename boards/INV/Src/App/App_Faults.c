@@ -40,6 +40,7 @@ bool App_Faults_FaultedMotorShutdown(
         App_CanTx_GetPeriodicSignal_PWRSTG_OT_ALARM(can_tx_interface) ||
         App_CanTx_GetPeriodicSignal_MOTOR_OT_ALARM(can_tx_interface) ||
         App_CanTx_GetPeriodicSignal_STGAP_STATUS_FAULT(can_tx_interface) ||
+        App_CanTx_GetPeriodicSignal_MC_BUS_VOLTAGE_FAULT(can_tx_interface) ||
         App_CanTx_GetPeriodicSignal_STGAP_SHORT_TEST(can_tx_interface) ||
         App_CanTx_GetPeriodicSignal_ROTOR_NO_RESPONSE(can_tx_interface) ||
         App_CanTx_GetPeriodicSignal_ROTOR_CRC_CHECK(can_tx_interface) ||

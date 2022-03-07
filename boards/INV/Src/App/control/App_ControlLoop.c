@@ -8,7 +8,7 @@
 #include "control/App_CurrentGeneration.h"
 #include "control/App_SpaceVectorModulation.h"
 #include "control/App_TorqueControl.h"
-#include "lookup_tables/motor_lut_interface.h"
+#include "lookup_tables/App_MotorLutInterface.h"
 //#include "states/App_AllStates.h"
 #include "App_PowerStage.h"
 #include "App_Motor.h"
@@ -225,6 +225,15 @@ void App_ControlLoop_Run(const struct InvWorld *world)
 
         bus_voltage = App_PowerStage_GetBusVoltage(power_stage);
 
+        if(bus_voltage < MIN_BUS_VOLTAGE || bus_voltage > MAX_BUS_VOLTAGE)
+        {
+            App_CanTx_SetPeriodicSignal_MC_BUS_VOLTAGE_FAULT(can_tx, true);
+        }
+        else
+        {
+            App_CanTx_SetPeriodicSignal_MC_BUS_VOLTAGE_FAULT(can_tx, false);
+        }
+
         dqs_currents = clarkeParkTransform(&phase_currents, rotor_position);
 
         // Get stator current reference
@@ -254,59 +263,62 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         }
         if (mode == MOTOR_CONTROL)
         {
-//            if (LUT_CONTROL_ENABLED)
-//            {
-//                dqs_ref_currents.d = look_up_value(
-//                    rotor_speed, torque_ref, bus_voltage, 80.0f, ID_PEAK);
-//                dqs_ref_currents.q = look_up_value(
-//                    rotor_speed, torque_ref, bus_voltage, 80.0f, IQ_PEAK);
-//                // fw_flag =
-//            }
-//            else
-//            {
-//                dqs_ref_currents = generateRefCurrents(
-//                    &dqs_ref_currents, rotor_speed, bus_voltage, &fw_flag);
-//            }
+            if (LUT_CONTROL_ENABLED)
+            {
+                dqs_ref_currents.d = look_up_value(
+                    rotor_speed, torque_ref, bus_voltage, ID_PEAK);
+                dqs_ref_currents.q = look_up_value(
+                    rotor_speed, torque_ref, bus_voltage, IQ_PEAK);
+                // fw_flag =
+            }
+            else
+            {
+                dqs_ref_currents = generateRefCurrents(
+                    &dqs_ref_currents, rotor_speed, bus_voltage, &fw_flag);
+            }
         }
 
         // Calculate d/q PI controller outputs
         if (mode == GEN_SINE_M)
         {
-            dqs_voltages.q = mod_index_ref * (bus_voltage / (float)M_SQRT3);
+            //Fake the bus voltage for gen sine M
+            float fake_bus_voltage = 400.0f;
+            dqs_voltages.q = mod_index_ref * (fake_bus_voltage / (float)M_SQRT3);
             dqs_voltages.d = 0;
             dqs_voltages.s = sqrtf(
                 dqs_voltages.q * dqs_voltages.q +
                 dqs_voltages.d * dqs_voltages.d);
+
+            // Transform d/q voltages to phase voltages
+            phase_voltages = parkClarkeTransform(&dqs_voltages, rotor_position);
+
+            // Use Space Vector Modulation to calculate PWM durations
+            phase_duration = CalculatePwmEdges(&phase_voltages, fake_bus_voltage);
         }
         else
         {
             dqs_voltages = calculateDqsVoltages(
                 &dqs_ref_currents, &dqs_currents, rotor_speed, bus_voltage,
                 &id_controller, &iq_controller);
+
+            id_controller.output = dqs_voltages.d;
+            iq_controller.output = dqs_voltages.q;
+            if(bus_voltage == 0.0f)
+            {
+                mod_index = dqs_voltages.s / ( (bus_voltage + 0.000001f) / (float)M_SQRT3 );
+            }
+            else
+            {
+                mod_index = dqs_voltages.s / ( (bus_voltage) / (float)M_SQRT3 );
+            }
+
+            // Transform d/q voltages to phase voltages
+            phase_voltages = parkClarkeTransform(&dqs_voltages, rotor_position);
+
+            // Use Space Vector Modulation to calculate PWM durations
+            phase_duration = CalculatePwmEdges(&phase_voltages, bus_voltage);
         }
 
-        id_controller.output = dqs_voltages.d;
-        iq_controller.output = dqs_voltages.q;
-        if(bus_voltage == 0)
-        {
-            mod_index = dqs_voltages.s / ((bus_voltage + 0.000001f) / (float)M_SQRT3);
-        }
-        else
-        {
-            mod_index = dqs_voltages.s / ((bus_voltage) / (float)M_SQRT3);
-        }
-
-        // Transform d/q voltages to phase voltages
-        phase_voltages = parkClarkeTransform(&dqs_voltages, rotor_position);
-
-        // Use Space Vector Modulation to calculate PWM durations
-        phase_duration = CalculatePwmEdges(&phase_voltages, bus_voltage);
-
-        //
-        if(App_CanTx_GetPeriodicSignal_STATE(can_tx) != CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE)
-        {
-
-        }
         App_GateDrive_LoadPwm(gate_drive, &phase_duration);
 
         prev_fw_flag        = fw_flag;

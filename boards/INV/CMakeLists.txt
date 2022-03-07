@@ -7,7 +7,7 @@ file(GLOB ARM_BINARY_APP_SRCS
         "Src/App/*.c"
         "Src/App/control/*.c"
         "Src/App/states/*.c"
-        "Src/App/lookup_tables/motor_lut_interface.c"
+        "Src/App/lookup_tables/App_MotorLutInterface.c"
         "Src/App/lookup_tables/shaft_torque_lut.c"
         "Src/App/lookup_tables/id_peak_lut.c"
         "Src/App/lookup_tables/iq_peak_lut.c")
