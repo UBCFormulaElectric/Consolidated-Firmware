@@ -151,7 +151,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
                     can_tx, 1);
                 return;
             }
-            rotor_position            = App_Motor_GetPositionBlocking();
+            rotor_position            = 0;//App_Motor_GetPositionBlocking();
             float rotor_position_diff = rotor_position - prev_rotor_position;
             if (fabsf(rotor_position_diff) > MAX_MOTOR_POS_CHANGE_PER_CYCLE)
             {
@@ -223,7 +223,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
                 2 * (float)M_PI);
         }
 
-        bus_voltage = App_PowerStage_GetBusVoltage(power_stage);
+        bus_voltage = 400.0f;//App_PowerStage_GetBusVoltage(power_stage);
 
         if(bus_voltage < MIN_BUS_VOLTAGE || bus_voltage > MAX_BUS_VOLTAGE)
         {
@@ -269,7 +269,6 @@ void App_ControlLoop_Run(const struct InvWorld *world)
                     rotor_speed, torque_ref, bus_voltage, ID_PEAK);
                 dqs_ref_currents.q = look_up_value(
                     rotor_speed, torque_ref, bus_voltage, IQ_PEAK);
-                // fw_flag =
             }
             else
             {
@@ -303,14 +302,6 @@ void App_ControlLoop_Run(const struct InvWorld *world)
 
             id_controller.output = dqs_voltages.d;
             iq_controller.output = dqs_voltages.q;
-            if(bus_voltage == 0.0f)
-            {
-                mod_index = dqs_voltages.s / ( (bus_voltage + 0.000001f) / (float)M_SQRT3 );
-            }
-            else
-            {
-                mod_index = dqs_voltages.s / ( (bus_voltage) / (float)M_SQRT3 );
-            }
 
             // Transform d/q voltages to phase voltages
             phase_voltages = parkClarkeTransform(&dqs_voltages, rotor_position);
@@ -320,6 +311,15 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         }
 
         App_GateDrive_LoadPwm(gate_drive, &phase_duration);
+
+        if(bus_voltage == 0.0f)
+        {
+            mod_index = dqs_voltages.s / ( (bus_voltage + 0.000001f) / (float)M_SQRT3 );
+        }
+        else
+        {
+            mod_index = dqs_voltages.s / ( (bus_voltage) / (float)M_SQRT3 );
+        }
 
         prev_fw_flag        = fw_flag;
         prev_rotor_position = rotor_position;

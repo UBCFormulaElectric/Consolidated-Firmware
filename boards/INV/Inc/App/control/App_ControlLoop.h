@@ -30,10 +30,10 @@ struct ControllerValues
 
 enum Mode
 {
-    GEN_SINE_I,
-    GEN_SINE_M,
-    MOTOR_CONTROL,
     MODE_UNDEFINED,
+    GEN_SINE_M,
+    GEN_SINE_I,
+    MOTOR_CONTROL,
 };
 
 struct InvWorld;

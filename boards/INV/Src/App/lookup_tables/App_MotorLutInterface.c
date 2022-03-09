@@ -54,7 +54,14 @@ float look_up_value(
         intp1_val = get_value_from_lut(voltage_index, torque_index, speed_index, table_number);
         value_from_table = intp1_val;
     }
-    return fabsf(value_from_table);
+    if(table_number == ID_PEAK)
+    {
+        return -1*fabsf(value_from_table);
+    }
+    else
+    {
+        return fabsf(value_from_table);
+    }
 }
 
 float get_value_from_lut(uint8_t voltage_index, uint8_t torque_index, uint8_t speed_index, uint8_t table_number)
