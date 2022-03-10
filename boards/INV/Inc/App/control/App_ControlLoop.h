@@ -50,3 +50,5 @@ float   App_ControlLoop_GetRotorPosition(void);
 float   App_ControlLoop_GetRotorSpeed(void);
 float   App_ControlLoop_GetPhcCurCalc(void);
 bool    App_ControlLoop_GetFwFlag(void);
+void App_ControlLoop_GetDqsRefCurrents(struct DqsValues *dqs_values);
+

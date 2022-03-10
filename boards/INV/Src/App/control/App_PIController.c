@@ -21,14 +21,13 @@ float calculatePiOutputs(
     {
         // y(n) = y(n-1) + T/2 * (u(n) + u(n-1)) Average of current and last *
         // sampling frequency + last integral input
-        pi_values->integral_sum =
-            pi_values->integral_sum +
-            (1 / SAMPLE_FREQUENCY) *
+        pi_values->integral_sum +=
+            (1.0f / SAMPLE_FREQUENCY) *
                 ((err * pi_values->gain / pi_values->time_const) +
                  pi_values->prev_integral_input) /
                 2;
         pi_values->prev_integral_input =
-            (1 / SAMPLE_FREQUENCY) *
+            (1.0f / SAMPLE_FREQUENCY) *
             ((err * pi_values->gain / pi_values->time_const) +
              pi_values->prev_integral_input) /
             2;

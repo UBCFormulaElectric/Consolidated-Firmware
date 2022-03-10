@@ -265,6 +265,8 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         {
             if (LUT_CONTROL_ENABLED)
             {
+                rotor_speed = App_CanRx_INV_ROTOR_SPEED_REQ_GetSignal_ROTOR_SPEED_REQ(can_rx);
+                bus_voltage = App_CanRx_INV_FUND_FREQ_REQ_GetSignal_FUND_FREQ_REQ(can_rx);
                 dqs_ref_currents.d = look_up_value(
                     rotor_speed, torque_ref, bus_voltage, ID_PEAK);
                 dqs_ref_currents.q = look_up_value(
@@ -280,9 +282,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         // Calculate d/q PI controller outputs
         if (mode == GEN_SINE_M)
         {
-            //Fake the bus voltage for gen sine M
-            float fake_bus_voltage = 400.0f;
-            dqs_voltages.q = mod_index_ref * (fake_bus_voltage / (float)M_SQRT3);
+            dqs_voltages.q = mod_index_ref;
             dqs_voltages.d = 0;
             dqs_voltages.s = sqrtf(
                 dqs_voltages.q * dqs_voltages.q +
@@ -291,8 +291,11 @@ void App_ControlLoop_Run(const struct InvWorld *world)
             // Transform d/q voltages to phase voltages
             phase_voltages = parkClarkeTransform(&dqs_voltages, rotor_position);
 
-            // Use Space Vector Modulation to calculate PWM durations
-            phase_duration = CalculatePwmEdges(&phase_voltages, fake_bus_voltage);
+            // Use Space Vector Modulation to calculate PWM durations.
+            // Fake out bus voltage for Gen Sine M
+            phase_duration = CalculatePwmEdges(&phase_voltages, (float)M_SQRT3);
+
+            mod_index = dqs_voltages.s;
         }
         else
         {
@@ -308,18 +311,19 @@ void App_ControlLoop_Run(const struct InvWorld *world)
 
             // Use Space Vector Modulation to calculate PWM durations
             phase_duration = CalculatePwmEdges(&phase_voltages, bus_voltage);
+
+            //Calculate modulation index
+            if(bus_voltage == 0.0f)
+            {
+                mod_index = dqs_voltages.s / ( (bus_voltage + 0.000001f) / (float)M_SQRT3 );
+            }
+            else
+            {
+                mod_index = dqs_voltages.s / ( (bus_voltage) / (float)M_SQRT3 );
+            }
         }
 
         App_GateDrive_LoadPwm(gate_drive, &phase_duration);
-
-        if(bus_voltage == 0.0f)
-        {
-            mod_index = dqs_voltages.s / ( (bus_voltage + 0.000001f) / (float)M_SQRT3 );
-        }
-        else
-        {
-            mod_index = dqs_voltages.s / ( (bus_voltage) / (float)M_SQRT3 );
-        }
 
         prev_fw_flag        = fw_flag;
         prev_rotor_position = rotor_position;
@@ -382,4 +386,8 @@ float App_ControlLoop_GetPhcCurCalc(void)
 bool App_ControlLoop_GetFwFlag(void)
 {
     return fw_flag;
+}
+void App_ControlLoop_GetDqsRefCurrents(struct DqsValues *dqs_values)
+{
+    *dqs_values = dqs_ref_currents;
 }

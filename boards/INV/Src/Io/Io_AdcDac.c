@@ -136,7 +136,7 @@ void Io_AdcDac_AdcStop(void)
 
 float Io_AdcDac_GetPowerstageTemp(void)
 {
-    float adc_voltage = 3.3f * (float)adc1_data[1] / 4096.0f;
+    float adc_voltage = 3.3f * (float)adc1_data[0] / 4096.0f;
 
     float therm_resistance;
     if (adc_voltage == 3.0f)

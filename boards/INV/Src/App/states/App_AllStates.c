@@ -16,6 +16,7 @@ static float   ph_cur_peak_request;
 static float   fund_freq_request;
 static uint8_t state_request;
 
+static struct DqsValues dqs_ref_currents;
 static struct PhaseValues phase_currents;
 static struct PhaseValues phase_cur_offsets;
 static struct StgapFaults stgap_faults;
@@ -285,8 +286,8 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     // Check for faults at 100Hz, all states
     if (App_Faults_FaultedMotorShutdown(can_tx_interface) && App_CanTx_GetPeriodicSignal_STATE(can_tx_interface) != CANMSGS_INV_STATE_MACHINE_STATE_INIT_CHOICE && App_CanTx_GetPeriodicSignal_STATE(can_tx_interface) != CANMSGS_INV_STATE_MACHINE_STATE_FAULT_CHOICE)
     {
-        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
         App_GateDrive_Shutdown(gate_drive);
+        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
     else
     {
@@ -294,6 +295,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_ControlLoop_GetIdControllerValues(&id_controller);
         App_ControlLoop_GetSpeedControllerValues(&speed_controller);
         App_PowerStage_GetPhaseCurrents(power_stage, &phase_currents);
+        App_ControlLoop_GetDqsRefCurrents(&dqs_ref_currents);
 
         App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx_interface, 1);
         App_CanTx_SetPeriodicSignal_PID_IQ_INTEGRAL(
@@ -326,6 +328,9 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
             can_tx_interface, App_ControlLoop_GetMode());
         App_CanTx_SetPeriodicSignal_GPIOA_VOLTAGE(
             can_tx_interface, Io_AdcDac_GetGpioVal());
+        App_CanTx_SetPeriodicSignal_ID_REF(can_tx_interface, dqs_ref_currents.d);
+        App_CanTx_SetPeriodicSignal_IQ_REF(can_tx_interface, dqs_ref_currents.q);
+        App_CanTx_SetPeriodicSignal_IS_REF(can_tx_interface, dqs_ref_currents.s);
 
         rotor_speed_request =
             App_CanRx_INV_ROTOR_SPEED_REQ_GetSignal_ROTOR_SPEED_REQ(

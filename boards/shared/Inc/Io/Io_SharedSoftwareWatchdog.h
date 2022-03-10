@@ -40,6 +40,16 @@
 #error Missing definition: MAX_NUM_OF_SOFTWARE_WATCHDOG must be defined in Io_SharedSoftwareWatchdogConfig.h
 #endif
 
+enum
+{
+    TASK_1HZ,
+    TASK_10HZ,
+    TASK_100HZ,
+    TASK_1KHZ,
+    TASK_CANRX,
+    TASK_CANTX,
+};
+
 // Anonymous type by which software watchdogs are referenced.
 typedef void *SoftwareWatchdogHandle_t;
 
@@ -72,9 +82,9 @@ SoftwareWatchdogHandle_t Io_SharedSoftwareWatchdog_AllocateWatchdog(void);
  * @param period_in_ticks: Period of the task in OS ticks
  */
 void Io_SharedSoftwareWatchdog_InitWatchdog(
-    SoftwareWatchdogHandle_t sw_watchdog_handle,
-    char *                   name,
-    Tick_t                   period_in_ticks);
+        SoftwareWatchdogHandle_t sw_watchdog_handle,
+        uint8_t                   name,
+        Tick_t                   period_in_ticks);
 
 /**
  * Every periodic task monitored by a software watchdog must call this at the
@@ -99,5 +109,5 @@ void Io_SharedSoftwareWatchdog_CheckForTimeouts(void);
  * @param sw_watchdog_handle: Handle to the software watchdog
  * @return Name of the software watchdog
  */
-const char *Io_SharedSoftwareWatchdog_GetName(
-    SoftwareWatchdogHandle_t sw_watchdog_handle);
+uint8_t Io_SharedSoftwareWatchdog_GetName(
+        SoftwareWatchdogHandle_t sw_watchdog_handle);

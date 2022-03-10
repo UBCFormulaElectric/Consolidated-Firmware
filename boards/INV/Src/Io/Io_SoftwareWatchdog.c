@@ -31,9 +31,8 @@ void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
     App_CanTx_SetPeriodicSignal_WATCHDOG_TIMEOUT(_can_tx, true);
 
     struct CanMsgs_inv_watchdog_timeout_t payload;
-    memcpy(
-        &payload.task_name, Io_SharedSoftwareWatchdog_GetName(watchdog),
-        sizeof(payload.task_name));
+
+    payload.task_name = Io_SharedSoftwareWatchdog_GetName(watchdog);
 
     App_CanTx_SendNonPeriodicMsg_INV_WATCHDOG_TIMEOUT(_can_tx, &payload);
 }

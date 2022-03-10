@@ -8,7 +8,6 @@
 #define prvGetWatchdogFromHandle(handle) (SoftwareWatchdog_t *)(handle)
 
 // Hardware-agnostic software watchdog
-#define MAX_WATCHDOG_NAME_LENGTH 16
 typedef struct SoftwareWatchdog
 {
     // Is this watchdog ready to be used?
@@ -20,7 +19,7 @@ typedef struct SoftwareWatchdog
     // Has the task being monitored checked in for the current period?
     bool check_in_status;
     // Watchdog name (for debugging only).
-    char name[MAX_WATCHDOG_NAME_LENGTH];
+    uint8_t name;
 } SoftwareWatchdog_t;
 
 // Table of hardware-agnostic software watchdog
@@ -61,17 +60,16 @@ SoftwareWatchdogHandle_t Io_SharedSoftwareWatchdog_AllocateWatchdog(void)
 
 void Io_SharedSoftwareWatchdog_InitWatchdog(
     SoftwareWatchdogHandle_t sw_watchdog_handle,
-    char *                   name,
+    uint8_t                   name,
     Tick_t                   period_in_ticks)
 {
     assert(sw_watchdog_handle != NULL);
-    assert(name != NULL);
+    //assert(name != NULL);
 
     SoftwareWatchdog_t *sw_watchdog =
         prvGetWatchdogFromHandle(sw_watchdog_handle);
 
-    strncpy(sw_watchdog->name, name, MAX_WATCHDOG_NAME_LENGTH);
-
+    sw_watchdog->name   = name;
     sw_watchdog->period          = period_in_ticks;
     sw_watchdog->deadline        = period_in_ticks;
     sw_watchdog->check_in_status = false;
@@ -133,7 +131,7 @@ void Io_SharedSoftwareWatchdog_CheckForTimeouts(void)
     }
 }
 
-const char *Io_SharedSoftwareWatchdog_GetName(
+uint8_t Io_SharedSoftwareWatchdog_GetName(
     SoftwareWatchdogHandle_t sw_watchdog_handle)
 {
     SoftwareWatchdog_t *sw_watchdog =

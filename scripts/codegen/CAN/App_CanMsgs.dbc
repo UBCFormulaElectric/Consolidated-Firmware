@@ -365,8 +365,8 @@ BO_ 602 INV_STATE_MACHINE : 2 INV
 	SG_ STATE : 0|8@1+ (1,0) [0|255] "" DEBUG
 	SG_ COMMAND : 8|8@1+ (1,0) [0|255] "" DEBUG
 
-BO_ 603 INV_WATCHDOG_TIMEOUT : 8 INV
-	SG_ TASK_NAME : 0|64@1+ (1,0) [0|4294967295] "" DEBUG
+BO_ 603 INV_WATCHDOG_TIMEOUT : 1 INV
+	SG_ TASK_NAME : 0|8@1+ (1,0) [0|255] "" DEBUG
 
 BO_ 604 INV_NON_CRITICAL_ERRORS : 1 INV
 	SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 0|1@1+ (1,0) [0|1] "" LOGGER,DEBUG
@@ -632,35 +632,35 @@ BA_ "GenMsgCycleTime" BO_ 505 10;
 BA_ "GenMsgCycleTime" BO_ 506 1000;
 BA_ "GenMsgCycleTime" BO_ 507 10;
 BA_ "GenMsgCycleTime" BO_ 508 1000;
-BA_ "GenMsgCycleTime" BO_ 600 10;
+BA_ "GenMsgCycleTime" BO_ 600 100;
 BA_ "GenMsgCycleTime" BO_ 601 1000;
-BA_ "GenMsgCycleTime" BO_ 602 10;
+BA_ "GenMsgCycleTime" BO_ 602 100;
 BA_ "GenMsgCycleTime" BO_ 604 1000;
-BA_ "GenMsgCycleTime" BO_ 606 10;
-BA_ "GenMsgCycleTime" BO_ 607 10;
-BA_ "GenMsgCycleTime" BO_ 608 10;
-BA_ "GenMsgCycleTime" BO_ 609 10;
-BA_ "GenMsgCycleTime" BO_ 610 10;
-BA_ "GenMsgCycleTime" BO_ 611 10;
-BA_ "GenMsgCycleTime" BO_ 612 10;
-BA_ "GenMsgCycleTime" BO_ 613 10;
-BA_ "GenMsgCycleTime" BO_ 614 10;
-BA_ "GenMsgCycleTime" BO_ 615 10;
-BA_ "GenMsgCycleTime" BO_ 616 10;
-BA_ "GenMsgCycleTime" BO_ 617 10;
-BA_ "GenMsgCycleTime" BO_ 618 10;
-BA_ "GenMsgCycleTime" BO_ 619 10;
+BA_ "GenMsgCycleTime" BO_ 606 100;
+BA_ "GenMsgCycleTime" BO_ 607 100;
+BA_ "GenMsgCycleTime" BO_ 608 100;
+BA_ "GenMsgCycleTime" BO_ 609 100;
+BA_ "GenMsgCycleTime" BO_ 610 100;
+BA_ "GenMsgCycleTime" BO_ 611 100;
+BA_ "GenMsgCycleTime" BO_ 612 100;
+BA_ "GenMsgCycleTime" BO_ 613 100;
+BA_ "GenMsgCycleTime" BO_ 614 100;
+BA_ "GenMsgCycleTime" BO_ 615 100;
+BA_ "GenMsgCycleTime" BO_ 616 100;
+BA_ "GenMsgCycleTime" BO_ 617 100;
+BA_ "GenMsgCycleTime" BO_ 618 100;
+BA_ "GenMsgCycleTime" BO_ 619 100;
 BA_ "GenMsgCycleTime" BO_ 620 1000;
 BA_ "GenMsgCycleTime" BO_ 621 1000;
 BA_ "GenMsgCycleTime" BO_ 622 1000;
-BA_ "GenMsgCycleTime" BO_ 623 10;
-BA_ "GenMsgCycleTime" BO_ 624 10;
-BA_ "GenMsgCycleTime" BO_ 625 10;
+BA_ "GenMsgCycleTime" BO_ 623 100;
+BA_ "GenMsgCycleTime" BO_ 624 100;
+BA_ "GenMsgCycleTime" BO_ 625 100;
 BA_ "GenMsgCycleTime" BO_ 626 1000;
 BA_ "GenMsgCycleTime" BO_ 627 1000;
-BA_ "GenMsgCycleTime" BO_ 628 10;
-BA_ "GenMsgCycleTime" BO_ 629 10;
-BA_ "GenMsgCycleTime" BO_ 630 10;
+BA_ "GenMsgCycleTime" BO_ 628 100;
+BA_ "GenMsgCycleTime" BO_ 629 100;
+BA_ "GenMsgCycleTime" BO_ 630 100;
 BA_ "GenMsgCycleTime" BO_ 631 1000;
 BA_ "GenMsgCycleTime" BO_ 632 1000;
 BA_ "GenMsgCycleTime" BO_ 633 1000;
@@ -668,12 +668,12 @@ BA_ "GenMsgCycleTime" BO_ 634 1000;
 BA_ "GenMsgCycleTime" BO_ 635 1000;
 BA_ "GenMsgCycleTime" BO_ 636 1000;
 BA_ "GenMsgCycleTime" BO_ 637 1000;
-BA_ "GenMsgCycleTime" BO_ 700 10;
-BA_ "GenMsgCycleTime" BO_ 701 10;
-BA_ "GenMsgCycleTime" BO_ 702 10;
-BA_ "GenMsgCycleTime" BO_ 703 10;
-BA_ "GenMsgCycleTime" BO_ 704 10;
-BA_ "GenMsgCycleTime" BO_ 705 10;
+BA_ "GenMsgCycleTime" BO_ 700 100;
+BA_ "GenMsgCycleTime" BO_ 701 100;
+BA_ "GenMsgCycleTime" BO_ 702 100;
+BA_ "GenMsgCycleTime" BO_ 703 100;
+BA_ "GenMsgCycleTime" BO_ 704 100;
+BA_ "GenMsgCycleTime" BO_ 705 100;
 
 BA_ "GenSigStartValue" SG_ 2  tx_overflow_count 0;
 BA_ "GenSigStartValue" SG_ 2  rx_overflow_count 0;
@@ -821,7 +821,7 @@ VAL_ 507 TRACTION_CONTROL_SWITCH 0 "OFF" 1 "ON";
 VAL_ 507 TORQUE_VECTORING_SWITCH 0 "OFF" 1 "ON";
 VAL_ 602 STATE 0 "INIT" 1 "STANDBY" 2 "DRIVE" 3 "FAULT";
 VAL_ 602 COMMAND 0 "INIT" 1 "STANDBY" 2 "DRIVE" 3 "FAULT";
-VAL_ 603 TASK_NAME 0 "TASK_1HZ" 1 "TASK_10HZ" 2 "TASK_100HZ" 3 "TASK_1000HZ" 4 "TASK_CANRX" 5 "TASK_CANTX";
+VAL_ 603 TASK_NAME 0 "TASK_1HZ" 1 "TASK_10HZ" 2 "TASK_100HZ" 3 "TASK_1KHZ" 4 "TASK_CANRX" 5 "TASK_CANTX";
 VAL_ 630 MODE 0 "UNDEFINED" 1 "GEN_SINE_M" 2 "GEN_SINE_I" 3 "MOTOR_CONTROL";
 VAL_ 637 MC_ID_CONTROLLER_STABILITY 0 "STABLE" 1 "UNSTABLE";
 VAL_ 637 MC_IQ_CONTROLLER_STABILITY 0 "STABLE" 1 "UNSTABLE";

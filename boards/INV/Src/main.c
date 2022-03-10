@@ -1130,7 +1130,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 
         SEGGER_SYSVIEW_RecordEnterISR();
 
-        App_ControlLoop_Run(world);
+        //App_ControlLoop_Run(world);
 
         SEGGER_SYSVIEW_RecordExitISR();
     }
@@ -1213,7 +1213,7 @@ void RunTask1Hz(void const *argument)
     static const TickType_t  period_ms        = 1000U;
     SoftwareWatchdogHandle_t watchdog =
         Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1HZ", period_ms);
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, TASK_1HZ, period_ms);
     for (;;)
     {
         App_SharedStateMachine_Tick1Hz(state_machine);
@@ -1241,7 +1241,7 @@ void RunTask1kHz(void const *argument)
     static const TickType_t  period_ms        = 1;
     SoftwareWatchdogHandle_t watchdog =
         Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1KHZ", period_ms);
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, TASK_1KHZ, period_ms);
     for (;;)
     {
         const uint32_t current_time_ms = osKernelSysTick() * portTICK_PERIOD_MS;
@@ -1309,7 +1309,7 @@ void RunTask100Hz(void const *argument)
     static const TickType_t  period_ms        = 10;
     SoftwareWatchdogHandle_t watchdog =
         Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_100HZ", period_ms);
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, TASK_100HZ, period_ms);
     /* Infinite loop */
     for (;;)
     {

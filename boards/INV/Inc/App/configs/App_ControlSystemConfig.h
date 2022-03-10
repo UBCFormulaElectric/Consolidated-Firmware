@@ -26,7 +26,7 @@
 #define Q_INDUCTANCE 0.00024f             // q-axis inductance, in H
 //#define SHAFT_J 0.000274                	// Moment of inertia, in kg-m^2
 //#define SHAFT_TIME_CONSTANT 1000         	// Shaft time constant, in sec.
-#define MAX_MOTOR_TORQUE 22.6f // Maximum motor torque, in N*m
+#define MAX_MOTOR_TORQUE 23.0f // Maximum motor torque, in N*m
 #define MAX_MOTOR_POWER 30000  // Maximum motor power, in W
 #define MAX_MOTOR_SPEED 15000  // Maximum motor speed, in rpm
 #define MAX_MOTOR_POS_CHANGE_PER_CYCLE \
