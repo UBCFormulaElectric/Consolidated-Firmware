@@ -39,14 +39,10 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     App_SharedStatesRunOnTick100Hz(state_machine);
 
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct DcmCanTxInterface *can_tx_interface = App_DcmWorld_GetCanTx(world);
     struct DcmCanRxInterface *can_rx_interface = App_DcmWorld_GetCanRx(world);
     struct ErrorTable *       error_table = App_DcmWorld_GetErrorTable(world);
     struct InverterSwitches * inverter_switches =
         App_DcmWorld_GetInverterSwitches(world);
-
-    // Holds previous start switch position (true = UP/ON, false = DOWN/OFF)
-    static bool prev_start_switch_position = true; // Initialize to true to prevent a false start
 
 #ifdef DEBUG // Enter drive state directly from init state
     App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
