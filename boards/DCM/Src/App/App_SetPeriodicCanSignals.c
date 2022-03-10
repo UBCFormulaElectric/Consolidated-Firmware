@@ -1,8 +1,8 @@
 #include "App_SharedSetPeriodicCanSignals.h"
 #include "App_SetPeriodicCanSignals.h"
 #include "App_InRangeCheck.h"
+#include "states/App_SharedStates.h"
 #include "configs/App_TorqueRequestThresholds.h"
-#include "configs/App_RegenThresholds.h"
 
 STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(DcmCanTxInterface)
 
@@ -13,20 +13,11 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
     struct DcmCanRxInterface *can_rx = App_DcmWorld_GetCanRx(world);
     struct DcmCanTxInterface *can_tx = App_DcmWorld_GetCanTx(world);
 
-    // Regen allowed when wheel speed > REGEN_WHEEL_SPEED_THRESHOLD_KPH
-    // and AIRs closed
-    const bool is_every_air_closed =
-        (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) ==
-         CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE) &&
-        (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx) ==
-         CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
-    const bool is_vehicle_over_regen_threshold =
-        (App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_LEFT_WHEEL_SPEED(can_rx) >
-         REGEN_WHEEL_SPEED_THRESHOLD_KPH) &&
-        (App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_RIGHT_WHEEL_SPEED(can_rx) >
-         REGEN_WHEEL_SPEED_THRESHOLD_KPH);
+    // Regen allowed when wheel speed > REGEN_WHEEL_SPEED_THRESHOLD_KPH and AIRs
+    // closed
     const bool is_regen_allowed =
-        is_vehicle_over_regen_threshold && is_every_air_closed;
+        App_SharedStates_AreBothAIRsClosed(can_rx) &&
+        App_SharedStates_IsVehicleOverRegenThresh(can_rx);
 
     const float regen_paddle_percentage =
         (float)App_CanRx_DIM_REGEN_PADDLE_GetSignal_MAPPED_PADDLE_POSITION(

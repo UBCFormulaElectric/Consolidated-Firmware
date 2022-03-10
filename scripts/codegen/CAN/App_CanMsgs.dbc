@@ -470,6 +470,10 @@ SG_ ACCELERATION_Y : 0|32@1+ (1,0) [-30.00|30.00] "m/s^2" DEBUG
 BO_ 211 DCM_ACCELERATION_Z: 4 DCM
 SG_ ACCELERATION_Z : 0|32@1+ (1,0) [-30.00|30.00] "m/s^2" DEBUG
 
+BO_ 212 DCM_INVERTER_SWITCHES: 1 DCM
+SG_ Right_Inverter_Switch : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Left_Inverter_Switch : 1|1@1+ (1,0) [0|1] "" DEBUG
+
 BO_ 300 FSM_NON_CRITICAL_ERRORS: 8 FSM
 SG_ papps_out_of_range : 0|1@1+ (1,0) [0|1] "" DEBUG
 SG_ sapps_out_of_range : 1|1@1+ (1,0) [0|1] "" DEBUG
@@ -728,6 +732,8 @@ BA_ "GenMsgCycleTime" BO_ 208 1000;
 BA_ "GenMsgCycleTime" BO_ 209 10;
 BA_ "GenMsgCycleTime" BO_ 210 10;
 BA_ "GenMsgCycleTime" BO_ 211 10;
+BA_ "GenMsgCycleTime" BO_ 212 10;
+BA_ "GenMsgCycleTime" BO_ 510 100;
 BA_ "GenMsgCycleTime" BO_ 300 1000;
 BA_ "GenMsgCycleTime" BO_ 301 100;
 BA_ "GenMsgCycleTime" BO_ 302 5000;
@@ -857,6 +863,8 @@ VAL_ 204 ACCELERATION_Y_OUT_OF_RANGE 0 "OK" 1 "UNDERFLOW" 2 "OVERFLOW";
 VAL_ 204 ACCELERATION_Z_OUT_OF_RANGE 0 "OK" 1 "UNDERFLOW" 2 "OVERFLOW";
 
 VAL_ 205 State 0 "INIT" 1 "DRIVE" 2 "FAULT";
+VAL_ 212 Right_Inverter_Switch 0 "OFF" 1 "ON";
+VAL_ 212 Left_Inverter_Switch 0 "OFF" 1 "ON";
 VAL_ 300 LEFT_WHEEL_SPEED_OUT_OF_RANGE 0 "OK" 1 "UNDERFLOW" 2 "OVERFLOW";
 VAL_ 300 RIGHT_WHEEL_SPEED_OUT_OF_RANGE 0 "OK" 1 "UNDERFLOW" 2 "OVERFLOW";
 VAL_ 300 PRIMARY_FLOW_RATE_OUT_OF_RANGE 0 "OK" 1 "UNDERFLOW" 2 "OVERFLOW";
