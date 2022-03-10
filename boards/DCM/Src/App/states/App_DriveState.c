@@ -47,10 +47,12 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         next_state = App_GetFaultState();
     }
+#ifndef DEBUG
     else if (App_SharedStates_IsStartSwitchOff(can_rx))
     {
         next_state = App_GetInitState();
     }
+#endif
 
     App_SharedStateMachine_SetNextState(state_machine, next_state);
 }
