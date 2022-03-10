@@ -26,7 +26,6 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVR(
         can_tx_interface,
         App_CanMsgs_dcm_invr_command_message_torque_command_invr_encode(0.0f));
-
 }
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
