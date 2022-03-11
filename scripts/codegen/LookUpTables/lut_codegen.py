@@ -72,7 +72,7 @@ with open(base_path + "/boards/INV/Inc/App/lookup_tables/id_peak_lut.h", 'w') as
     )
     write_sheet_to_file(id_400v, hdr_file)
     write_sheet_to_file(id_500v, hdr_file)
-    write_sheet_to_file(id_500v, hdr_file, comma_termination = False)
+    write_sheet_to_file(id_600v, hdr_file, comma_termination = False)
     hdr_file.write(
         '};\n'
     )
@@ -88,7 +88,7 @@ with open(base_path + "/boards/INV/Inc/App/lookup_tables/iq_peak_lut.h", 'w') as
     )
     write_sheet_to_file(iq_400v, hdr_file)
     write_sheet_to_file(iq_500v, hdr_file)
-    write_sheet_to_file(iq_500v, hdr_file, comma_termination = False)
+    write_sheet_to_file(iq_600v, hdr_file, comma_termination = False)
     hdr_file.write(
         '};\n'
     )
