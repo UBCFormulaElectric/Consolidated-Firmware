@@ -28,7 +28,7 @@
 
 // Macros used to set DCC bits in the configuration register
 #define SET_ALL_DCC_BITS (0xFFFFU)
-#define SET_BIT_EXCEPT_MIN_CELL(index) (~((uint16_t)(1U << (index))))
+#define SET_DCC_BITS_EXCEPT_MIN_CELL(index) (~((uint16_t)(1U << (index))))
 #define SET_CFGRA4_DCC_BITS(dcc_bits) (0xFFU & (uint8_t)(dcc_bits))
 #define SET_CFGRA5_DCC_BITS(dcc_bits) (0x0FU & (uint8_t)((dcc_bits) >> 8U))
 #define SET_CFGRB0_DCC_BITS(dcc_bits) (0xF0U & (uint8_t)((dcc_bits) >> 8U))
@@ -84,7 +84,7 @@ static struct LTC6813Configurations ltc6813_configs[NUM_OF_CFG_REGS] =
             [REG_GROUP_BYTE_1] = 0U,
             [REG_GROUP_BYTE_2] = 0U,
             [REG_GROUP_BYTE_3] = 0U,
-            [REG_GROUP_BYTE_4] = 0U,
+            [REG_GROUP_BYTE_4] = 0Ui,
             [REG_GROUP_BYTE_5] = 0U,
         },
     }
@@ -158,7 +158,7 @@ static void Io_ConfigureDccBits(
     // cell, set DCC bits for the given segment
     const uint16_t dcc_bits =
         (curr_segment == (NUM_OF_ACCUMULATOR_SEGMENTS - min_cell_segment - 1))
-            ? (uint16_t)(SET_BIT_EXCEPT_MIN_CELL(min_cell_index))
+            ? (uint16_t)(SET_DCC_BITS_EXCEPT_MIN_CELL(min_cell_index))
             : SET_ALL_DCC_BITS;
 
     // Write to configuration registers DCC bits
