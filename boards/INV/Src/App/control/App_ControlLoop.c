@@ -81,6 +81,7 @@ static float   torque_ref                       = 0;
 static bool    fw_flag                          = 0;
 static bool    prev_fw_flag;
 static uint8_t mode            = MODE_UNDEFINED;
+static uint8_t prev_mode = MODE_UNDEFINED;
 static float   rotor_speed_ref = 0;
 static float   mod_index_ref   = 0;
 static float   ph_cur_peak_ref = 0;
@@ -102,8 +103,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
     motor_derated_current_limit      = App_Motor_GetDeratedCurrent();
     powerstage_derated_current_limit = App_PowerStage_GetDeratedCurrent();
 
-    if (App_Faults_FaultedMotorShutdown(can_tx) )
-    {
+    if (App_Faults_FaultedMotorShutdown(can_tx) ) {
         mode = MODE_UNDEFINED;
     }
 
@@ -139,6 +139,13 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         }
         ph_cur_peak_ref =
             App_CanRx_INV_PH_CUR_PEAK_REQ_GetSignal_PH_CUR_PEAK_REQ(can_rx);
+
+        //Reset controllers if
+        if(prev_mode != mode)
+        {
+            iq_controller.integral_sum = 0;
+            id_controller.integral_sum = 0;
+        }
 
         if (mode == MOTOR_CONTROL)
         {
@@ -267,10 +274,19 @@ void App_ControlLoop_Run(const struct InvWorld *world)
             {
                 rotor_speed = App_CanRx_INV_ROTOR_SPEED_REQ_GetSignal_ROTOR_SPEED_REQ(can_rx);
                 bus_voltage = App_CanRx_INV_FUND_FREQ_REQ_GetSignal_FUND_FREQ_REQ(can_rx);
-                dqs_ref_currents.d = look_up_value(
-                    rotor_speed, torque_ref, bus_voltage, ID_PEAK);
-                dqs_ref_currents.q = look_up_value(
-                    rotor_speed, torque_ref, bus_voltage, IQ_PEAK);
+
+                if(torque_ref == 0.0f)
+                {
+                    dqs_ref_currents.d = 0.0f;
+                    dqs_ref_currents.q = 0.0f;
+                }
+                else
+                {
+                    dqs_ref_currents.d = look_up_value(
+                            rotor_speed, torque_ref, bus_voltage, ID_PEAK);
+                    dqs_ref_currents.q = look_up_value(
+                            rotor_speed, torque_ref, bus_voltage, IQ_PEAK);
+                }
             }
             else
             {
@@ -300,7 +316,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         else
         {
             dqs_voltages = calculateDqsVoltages(
-                &dqs_ref_currents, &dqs_currents, rotor_speed, bus_voltage,
+                &dqs_ref_currents, &dqs_currents, rotor_speed/9.549f, bus_voltage,
                 &id_controller, &iq_controller);
 
             id_controller.output = dqs_voltages.d;
@@ -328,6 +344,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         prev_fw_flag        = fw_flag;
         prev_rotor_position = rotor_position;
         prev_rotor_speed    = rotor_speed;
+        prev_mode = mode;
     }
     else
     {
