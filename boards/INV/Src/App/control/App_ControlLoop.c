@@ -369,6 +369,11 @@ void App_ControlLoop_GetIdControllerValues(struct ControllerValues *controller)
     *controller = id_controller;
 }
 
+float App_ControlLoop_GetLineToNeutralVoltage(void)
+{
+    return dqs_voltages.s;
+}
+
 void App_ControlLoop_GetSpeedControllerValues(
     struct ControllerValues *controller)
 {
@@ -407,4 +412,9 @@ bool App_ControlLoop_GetFwFlag(void)
 void App_ControlLoop_GetDqsRefCurrents(struct DqsValues *dqs_values)
 {
     *dqs_values = dqs_ref_currents;
+}
+
+void App_ControlLoop_GetDqsActualCurrents(struct DqsValues *dqs_values)
+{
+    *dqs_values = dqs_currents;
 }

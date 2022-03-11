@@ -17,6 +17,7 @@ static float   fund_freq_request;
 static uint8_t state_request;
 
 static struct DqsValues dqs_ref_currents;
+static struct DqsValues dqs_actual_currents;
 static struct PhaseValues phase_currents;
 static struct PhaseValues phase_cur_offsets;
 static struct StgapFaults stgap_faults;
@@ -296,8 +297,15 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_ControlLoop_GetSpeedControllerValues(&speed_controller);
         App_PowerStage_GetPhaseCurrents(power_stage, &phase_currents);
         App_ControlLoop_GetDqsRefCurrents(&dqs_ref_currents);
+        App_ControlLoop_GetDqsActualCurrents(&dqs_actual_currents);
 
         App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx_interface, 1);
+        App_CanTx_SetPeriodicSignal_PID_IQ_PROP(
+                can_tx_interface, iq_controller.output-iq_controller.integral_sum);
+        App_CanTx_SetPeriodicSignal_PID_ID_PROP(
+                can_tx_interface, id_controller.output-id_controller.integral_sum);
+        App_CanTx_SetPeriodicSignal_PID_SPEED_PROP(
+                can_tx_interface, speed_controller.output-speed_controller.integral_sum);
         App_CanTx_SetPeriodicSignal_PID_IQ_INTEGRAL(
             can_tx_interface, iq_controller.integral_sum);
         App_CanTx_SetPeriodicSignal_PID_ID_INTEGRAL(
@@ -331,6 +339,10 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanTx_SetPeriodicSignal_ID_REF(can_tx_interface, dqs_ref_currents.d);
         App_CanTx_SetPeriodicSignal_IQ_REF(can_tx_interface, dqs_ref_currents.q);
         App_CanTx_SetPeriodicSignal_IS_REF(can_tx_interface, dqs_ref_currents.s);
+        App_CanTx_SetPeriodicSignal_ID(can_tx_interface, dqs_actual_currents.d);
+        App_CanTx_SetPeriodicSignal_IQ(can_tx_interface, dqs_actual_currents.q);
+        App_CanTx_SetPeriodicSignal_IS(can_tx_interface, dqs_actual_currents.s);
+        App_CanTx_SetPeriodicSignal_VPHASE_LN(can_tx_interface, App_ControlLoop_GetLineToNeutralVoltage());
 
         rotor_speed_request =
             App_CanRx_INV_ROTOR_SPEED_REQ_GetSignal_ROTOR_SPEED_REQ(

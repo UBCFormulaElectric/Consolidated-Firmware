@@ -32,6 +32,12 @@ float calculatePiOutputs(
              pi_values->prev_integral_input) /
             2;
     }
+    else if (pi_values->integral_sum > limit) {
+        pi_values->integral_sum = limit;
+    }
+    else if (pi_values->integral_sum < -limit){
+        pi_values->integral_sum = -limit;
+    }
 
     float output = prop_term + pi_values->integral_sum + comp;
     if ((output < limit) && (output > -limit))
