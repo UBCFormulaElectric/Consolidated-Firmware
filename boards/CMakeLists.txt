@@ -189,6 +189,8 @@ function(create_arm_binary
             -Wundef
             -fstack-usage
             -Wconversion
+            -Wno-unused-variable
+            -Wno-unused-parameter
         )
     target_link_options(${BOARD_NAME}.elf
         PUBLIC
