@@ -48,8 +48,16 @@ float Io_SharedAdc_ConvertRawAdcValueToVoltage(
     //   with 12-bit resolution, it will be 2^12 -1 = 4095 or with 8-bit
     //   resolution, 2^8 - 1 = 255.
 
-    const float v_scale =
-        is_differential ? DIFFERENTIAL_ADC_V_SCALE : SINGLE_ENDED_ADC_V_SCALE;
+    float voltage = 0.0f;
+    if (is_differential)
+    {
+        voltage = DIFFERENTIAL_ADC_V_SCALE * (int16_t)raw_adc_value /
+                  (float)full_scale;
+    }
+    else
+    {
+        voltage = SINGLE_ENDED_ADC_V_SCALE * raw_adc_value / (float)full_scale;
+    }
 
-    return (v_scale * raw_adc_value) / (float)full_scale;
+    return voltage;
 }
