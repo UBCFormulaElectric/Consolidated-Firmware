@@ -74,6 +74,7 @@ static float   motor_temp                       = 0.0f;
 static float   powerstage_temp                  = 0.0f;
 static float   motor_derated_current_limit      = 0.0f;
 static float   powerstage_derated_current_limit = 0.0f;
+static float   stator_current_limit = 0.0f;
 static float   bus_voltage                      = 0;
 static float   mod_index                        = 0;
 static float   phc_current_calc                 = 0;
@@ -100,8 +101,12 @@ void App_ControlLoop_Run(const struct InvWorld *world)
     mode          = App_CanRx_INV_MODE_REQ_GetSignal_MODE_REQ(can_rx);
     mod_index_ref = App_CanRx_INV_MOD_INDEX_REQ_GetSignal_MOD_INDEX_REQ(can_rx)/100.0f;
 
+    //Calculate derated current limits based on temperature
     motor_derated_current_limit      = App_Motor_GetDeratedCurrent();
     powerstage_derated_current_limit = App_PowerStage_GetDeratedCurrent();
+
+    //Choose the lower of the derated currents as the maximum stator current
+    stator_current_limit = App_CanRx_INV_PH_CUR_PEAK_REQ_GetSignal_PH_CUR_PEAK_REQ(can_rx); // = motor_derated_current_limit < powerstage_derated_current_limit ? motor_derated_current_limit : powerstage_derated_current_limit;
 
     if (App_Faults_FaultedMotorShutdown(can_tx) ) {
         mode = MODE_UNDEFINED;
@@ -275,6 +280,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
                 rotor_speed = App_CanRx_INV_ROTOR_SPEED_REQ_GetSignal_ROTOR_SPEED_REQ(can_rx);
                 bus_voltage = App_CanRx_INV_FUND_FREQ_REQ_GetSignal_FUND_FREQ_REQ(can_rx);
 
+                //LUT may look up some nonzero number for 0 torque, so set to zero
                 if(torque_ref == 0.0f)
                 {
                     dqs_ref_currents.d = 0.0f;
@@ -283,9 +289,9 @@ void App_ControlLoop_Run(const struct InvWorld *world)
                 else
                 {
                     dqs_ref_currents.d = look_up_value(
-                            rotor_speed, torque_ref, bus_voltage, ID_PEAK);
+                            rotor_speed, torque_ref, stator_current_limit, bus_voltage, ID_PEAK);
                     dqs_ref_currents.q = look_up_value(
-                            rotor_speed, torque_ref, bus_voltage, IQ_PEAK);
+                            rotor_speed, torque_ref, stator_current_limit, bus_voltage, IQ_PEAK);
                 }
             }
             else
@@ -417,4 +423,19 @@ void App_ControlLoop_GetDqsRefCurrents(struct DqsValues *dqs_values)
 void App_ControlLoop_GetDqsActualCurrents(struct DqsValues *dqs_values)
 {
     *dqs_values = dqs_currents;
+}
+
+float App_ControlLoop_GetPowerStageCurrentLimit(void)
+{
+    return powerstage_derated_current_limit;
+}
+
+float App_ControlLoop_GetMotorCurrentLimit(void)
+{
+    return motor_derated_current_limit;
+}
+
+float App_ControlLoop_GetCurrentLimit(void)
+{
+    return stator_current_limit;
 }

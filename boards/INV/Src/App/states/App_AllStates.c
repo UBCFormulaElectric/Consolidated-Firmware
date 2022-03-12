@@ -343,6 +343,10 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanTx_SetPeriodicSignal_IQ(can_tx_interface, dqs_actual_currents.q);
         App_CanTx_SetPeriodicSignal_IS(can_tx_interface, dqs_actual_currents.s);
         App_CanTx_SetPeriodicSignal_VPHASE_LN(can_tx_interface, App_ControlLoop_GetLineToNeutralVoltage());
+        App_CanTx_SetPeriodicSignal_MAX_MOTOR_CURRENT(can_tx_interface, App_ControlLoop_GetMotorCurrentLimit());
+        App_CanTx_SetPeriodicSignal_MAX_PWRSTG_CURRENT(can_tx_interface, App_ControlLoop_GetPowerStageCurrentLimit());
+        App_CanTx_SetPeriodicSignal_CURRENT_LIMIT(can_tx_interface, App_ControlLoop_GetCurrentLimit());
+
 
         rotor_speed_request =
             App_CanRx_INV_ROTOR_SPEED_REQ_GetSignal_ROTOR_SPEED_REQ(

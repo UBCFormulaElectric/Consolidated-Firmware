@@ -53,4 +53,6 @@ float   App_ControlLoop_GetPhcCurCalc(void);
 bool    App_ControlLoop_GetFwFlag(void);
 void App_ControlLoop_GetDqsRefCurrents(struct DqsValues *dqs_values);
 void App_ControlLoop_GetDqsActualCurrents(struct DqsValues *dqs_values);
-
+float App_ControlLoop_GetPowerStageCurrentLimit(void);
+float App_ControlLoop_GetMotorCurrentLimit(void);
+float App_ControlLoop_GetCurrentLimit(void);
