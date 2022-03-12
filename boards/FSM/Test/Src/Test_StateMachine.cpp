@@ -104,9 +104,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
         papps_and_sapps = App_AcceleratorPedals_Create(
             is_papps_encoder_alarm_active, is_sapps_encoder_alarm_active,
             get_papps_encoder_counter, get_sapps_encoder_counter,
-            reset_papps_encoder_counter, reset_sapps_encoder_counter,
-            PAPPS_ENCODER_FULLY_PRESSED_VALUE,
-            SAPPS_ENCODER_FULLY_PRESSED_VALUE);
+            reset_papps_encoder_counter, reset_sapps_encoder_counter);
 
         world = App_FsmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
