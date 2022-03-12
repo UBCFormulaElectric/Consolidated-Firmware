@@ -17,7 +17,6 @@ extern "C"
 #include "configs/App_WheelSpeedThresholds.h"
 #include "configs/App_SteeringAngleThresholds.h"
 #include "configs/App_BrakePressureThresholds.h"
-#include "configs/App_AcceleratorPedalThresholds.h"
 #include "configs/App_SignalCallbackDurations.h"
 }
 

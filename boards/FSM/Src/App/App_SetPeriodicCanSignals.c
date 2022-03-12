@@ -137,7 +137,7 @@ void App_SetPeriodicSignals_AcceleratorPedal(const struct FsmWorld *world)
     else
     {
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(
-            can_tx, sapps_pedal_percentage); // Todo: Change back to papps
+            can_tx, papps_pedal_percentage);
     }
 }
 

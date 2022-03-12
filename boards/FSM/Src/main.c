@@ -55,7 +55,6 @@
 #include "configs/App_WheelSpeedThresholds.h"
 #include "configs/App_SteeringAngleThresholds.h"
 #include "configs/App_BrakePressureThresholds.h"
-#include "configs/App_AcceleratorPedalThresholds.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -260,9 +259,7 @@ int main(void)
         Io_PrimaryScancon2RMHF_GetEncoderCounter,
         Io_SecondaryScancon2RMHF_GetEncoderCounter,
         Io_PrimaryScancon2RMHF_ResetEncoderCounter,
-        Io_SecondaryScancon2RMHF_ResetEncoderCounter,
-        PAPPS_ENCODER_FULLY_PRESSED_VALUE, SAPPS_ENCODER_FULLY_PRESSED_VALUE,
-        PAPPS_ENCODER_RESET_VALUE, SAPPS_ENCODER_RESET_VALUE);
+        Io_SecondaryScancon2RMHF_ResetEncoderCounter);
 
     world = App_FsmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, primary_flow_meter_in_range_check,
@@ -447,7 +444,7 @@ static void MX_ADC2_Init(void)
     hadc2.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
     hadc2.Init.NbrOfConversion       = 2;
     hadc2.Init.DMAContinuousRequests = ENABLE;
-    hadc2.Init.EOCSelection          = ADC_EOC_SEQ_CONV;
+    hadc2.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
     hadc2.Init.LowPowerAutoWait      = DISABLE;
     hadc2.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;
     if (HAL_ADC_Init(&hadc2) != HAL_OK)
@@ -850,7 +847,10 @@ static void MX_GPIO_Init(void)
     __HAL_RCC_GPIOB_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOA, STATUS_R_Pin | STATUS_G_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(STATUS_R_GPIO_Port, STATUS_R_Pin, GPIO_PIN_SET);
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(STATUS_G_GPIO_Port, STATUS_G_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(STATUS_B_GPIO_Port, STATUS_B_Pin, GPIO_PIN_SET);

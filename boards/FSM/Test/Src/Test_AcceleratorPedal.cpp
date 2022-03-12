@@ -25,8 +25,7 @@ class AcceleratorPedalTest : public testing::Test
         accelerator_pedal_pair = App_AcceleratorPedals_Create(
             is_primary_encoder_alarm_active, is_secondary_encoder_alarm_active,
             get_primary_encoder_counter, get_secondary_encoder_counter,
-            reset_primary_encoder_counter, reset_secondary_encoder_counter, 0U,
-            0U);
+            reset_primary_encoder_counter, reset_secondary_encoder_counter);
         RESET_FAKE(is_primary_encoder_alarm_active);
         RESET_FAKE(reset_primary_encoder_counter);
         RESET_FAKE(get_primary_encoder_counter);
