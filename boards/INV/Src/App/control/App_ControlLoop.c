@@ -288,10 +288,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
                 }
                 else
                 {
-                    dqs_ref_currents.d = look_up_value(
-                            rotor_speed, torque_ref, stator_current_limit, bus_voltage, ID_PEAK);
-                    dqs_ref_currents.q = look_up_value(
-                            rotor_speed, torque_ref, stator_current_limit, bus_voltage, IQ_PEAK);
+                    look_up_dqs_current_ref(rotor_speed, torque_ref, bus_voltage, stator_current_limit, &dqs_ref_currents);
                 }
             }
             else
