@@ -61,7 +61,9 @@ jobs:
           cache-dependency-path: Pipfile.lock
 
       - name: Install dependencies
-        run: pipenv install --deploy
+        run: |
+          pipenv install --deploy
+          pipenv run python -m pip freeze
 
       - name: Setup XVFB
         run: |
