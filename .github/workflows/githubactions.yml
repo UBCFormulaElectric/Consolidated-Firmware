@@ -20,7 +20,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.6
+          python-version: 3.7
           cache: pipenv
           cache-dependency-path: Pipfile.lock
         
@@ -56,7 +56,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.6
+          python-version: 3.7
           cache: pipenv
           cache-dependency-path: Pipfile.lock
 
@@ -107,7 +107,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.6
+          python-version: 3.7
           cache: pipenv
           cache-dependency-path: Pipfile.lock
 
@@ -120,7 +120,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ccache valgrind
           pipenv install --deploy
-          pipenv run python -m pip freeze
 
       - name: Setup CCache
         uses: actions/cache@v2
@@ -132,9 +131,6 @@ jobs:
 
       - name: Build
         run: |
-          source $(pipenv --venv)/bin/activate
-          echo $VIRTUAL_ENV
-
           sudo /usr/sbin/update-ccache-symlinks
           export PATH="/usr/lib/ccache:$PATH"
           cmake -S boards -B $BUILD_DIR -DPLATFORM=x86 -DCMAKE_BUILD_TYPE=Release
@@ -176,7 +172,7 @@ jobs:
       - name: Install Python
         uses: actions/setup-python@v2
         with:
-          python-version: 3.6
+          python-version: 3.7
           cache: pipenv
           cache-dependency-path: Pipfile.lock
 
