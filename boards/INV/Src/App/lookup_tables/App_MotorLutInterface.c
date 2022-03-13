@@ -76,30 +76,30 @@ uint8_t calculate_derated_torque_index(float derated_stator_current, uint8_t vol
     float stator_current_guess = intp_values_from_lut(voltage_index_high, voltage_index_low, voltage_inter_percentage, derated_torque_index_guess, speed_index, IS_PEAK);
 
     //Use the fact that stator current is monotonic with the torque index to find an appropriate torque index for the current limit.
-    if(stator_current_guess >= derated_stator_current)
-    {
-        while(stator_current_guess > derated_stator_current && derated_torque_index_guess > 0)
-        {
-            derated_torque_index_guess -= 1;
-            stator_current_guess = intp_values_from_lut(voltage_index_high, voltage_index_low, voltage_inter_percentage, derated_torque_index_guess, speed_index, IS_PEAK);
-        }
-    }
-    else
-    {
-        int times_ran = 0
-        float last_stator_current_guess = -1;
-        //Keep going up in stator current until it stops increasing or we surpass the limit
-        while(stator_current_guess < derated_stator_current && derated_torque_index_guess < LUT_NUM_ROWS && stator_current_guess != last_stator_current_guess)
-        {
-            times_ran += 1;
-            derated_torque_index_guess += 1;
-            last_stator_current_guess = stator_current_guess;
-            stator_current_guess = intp_values_from_lut(voltage_index_high, voltage_index_low, voltage_inter_percentage, derated_torque_index_guess, speed_index, IS_PEAK);
+//    if(stator_current_guess >= derated_stator_current)
+//    {
+//        while(stator_current_guess > derated_stator_current && derated_torque_index_guess > 0)
+//        {
+//            derated_torque_index_guess -= 1;
+//            stator_current_guess = intp_values_from_lut(voltage_index_high, voltage_index_low, voltage_inter_percentage, derated_torque_index_guess, speed_index, IS_PEAK);
+//        }
+//    }
+//    else
+//    {
+//        int times_ran = 0;
+//        float last_stator_current_guess = -1;
+//        //Keep going up in stator current until it stops increasing or we surpass the limit
+//        while(stator_current_guess < derated_stator_current && derated_torque_index_guess < LUT_NUM_ROWS && stator_current_guess != last_stator_current_guess)
+//        {
+//            times_ran += 1;
+//            derated_torque_index_guess += 1;
+//            last_stator_current_guess = stator_current_guess;
+//            //stator_current_guess = intp_values_from_lut(voltage_index_high, voltage_index_low, voltage_inter_percentage, derated_torque_index_guess, speed_index, IS_PEAK);
+//
+//        }
+//        //We're using one torque index too high since we want to be lower than the limit, so subtract one
+//        derated_torque_index_guess -= 1;
+//    }
 
-        }
-        //We're using one torque index too high since we want to be lower than the limit, so subtract one
-        derated_torque_index_guess -= 1;
-    }
-
-    return derated_torque_index_guess;
+    return 100;//derated_torque_index_guess;
 }
