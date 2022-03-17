@@ -34,7 +34,7 @@ jobs:
         run: git --no-pager diff --color --exit-code
 
   codegen:
-    name: Check STM32CubeMX Code Generation
+    name: Check CubeMX Code Gen
     runs-on: ubuntu-18.04
     strategy:
       fail-fast: false
