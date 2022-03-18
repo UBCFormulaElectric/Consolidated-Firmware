@@ -6,6 +6,21 @@
 
 STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(DcmCanTxInterface)
 
+/**
+ * Check if vehicle is over the regen threshold defined by vehicle wheel speed
+ * (EV.4.1.3)
+ * @param can_rx_interface The CAN Rx interface to get the CAN signals from
+ * @return true if the vehicle is over the regen threshold, false otherwise
+ */
+static inline bool App_SharedStates_IsVehicleOverRegenThresh(
+    const struct DcmCanRxInterface *can_rx_interface)
+{
+    return (App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_LEFT_WHEEL_SPEED(
+                can_rx_interface) > REGEN_WHEEL_SPEED_THRESHOLD_KPH) &&
+           (App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_RIGHT_WHEEL_SPEED(
+                can_rx_interface) > REGEN_WHEEL_SPEED_THRESHOLD_KPH);
+}
+
 // TODO: Implement PID controller to maintain DC bus power at 80kW
 // #680
 void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)

@@ -5,6 +5,18 @@
 
 #include "App_SharedMacros.h"
 
+/**
+ * Check if the brake pedal is actuated
+ * @param can_rx_interface The CAN Rx interface to get the CAN signals from
+ * @return true if the brake is actuated, false otherwise
+ */
+static inline bool App_SharedStates_IsBrakeActuated(
+    const struct DcmCanRxInterface *can_rx_interface)
+{
+    return App_CanRx_FSM_BRAKE_GetSignal_BRAKE_IS_ACTUATED(can_rx_interface) ==
+           CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE;
+}
+
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
@@ -51,11 +63,14 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
 
     // Holds previous start switch position (true = UP/ON, false = DOWN/OFF)
-    static bool prev_start_switch_position =
-        true; // Initialize to true to prevent a false start
-    const bool current_start_switch_position =
+    // Initialize to true to prevent a false start
+    static bool prev_start_switch_position = true;
+    const bool  current_start_switch_position =
         App_SharedStates_IsStartSwitchOn(can_rx_interface);
+    const bool was_start_switch_pulled_up =
+        !prev_start_switch_position && current_start_switch_position;
     const struct State *next_state = App_GetInitState();
+
     if (App_SharedErrorTable_HasAnyCriticalErrorSet(error_table) ||
         App_SharedStates_HasInverterFaulted(can_rx_interface))
     {
@@ -66,8 +81,7 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     else if (
         App_SharedStates_AreBothAIRsClosed(can_rx_interface) &&
         App_SharedStates_IsBrakeActuated(can_rx_interface) &&
-        App_SharedStates_WasStartSwitchPulledUp(
-            prev_start_switch_position, current_start_switch_position))
+        was_start_switch_pulled_up)
     {
         // Transition to drive state when start-up conditions are passed (see
         // EV.10.4.3):

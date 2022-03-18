@@ -40,7 +40,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         next_state = App_GetFaultState();
     }
-    else if (App_SharedStates_IsStartSwitchOff(can_rx))
+    else if (!App_SharedStates_IsStartSwitchOn(can_rx))
     {
         next_state = App_GetInitState();
     }
