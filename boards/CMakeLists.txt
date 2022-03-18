@@ -536,6 +536,14 @@ if ("${PLATFORM}" STREQUAL "x86")
     enable_testing()
 endif()
 
+# Use ccache when in CI
+if ("$ENV{CI}" STREQUAL "true")
+    find_program(CCACHE_EXECUTABLE ccache)
+    set(CMAKE_CXX_COMPILER_LAUNCHER ${CCACHE_EXECUTABLE})
+    set(CMAKE_C_COMPILER_LAUNCHER ${CCACHE_EXECUTABLE})
+    set(CMAKE_ARM_COMPILER_LAUNCHER ${CCACHE_EXECUTABLE})
+endif()
+
 add_subdirectory(shared __shared__)
 add_subdirectory(DCM)
 add_subdirectory(PDM)
