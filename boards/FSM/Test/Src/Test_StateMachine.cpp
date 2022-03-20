@@ -264,11 +264,10 @@ class FsmStateMachineTest : public BaseStateMachineTest
     {
         // Calculate the encoder counter value from the given mapped pedal
         // percentage
-        const float percent_deflection = 0.03;
         return round(
             encoder_fully_pressed_value *
-            ((1 - 2 * percent_deflection) * pedal_percentage / 100 +
-             percent_deflection));
+            ((1 - 2 * PERCENT_DEFLECTION) * pedal_percentage / 100 +
+             PERCENT_DEFLECTION));
     }
 
     void CheckIfAppsDisagreementFaultIsSetWhenAppsHasDisagreement(
@@ -281,7 +280,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
         uint8_t   true_choice,
         uint8_t   false_choice)
     {
-        for (size_t pedal_percentage = 10; pedal_percentage <= 100;
+        for (size_t pedal_percentage = 11; pedal_percentage <= 100;
              pedal_percentage++)
         {
             // Remove pedal disagreement to avoid false positives on the next
@@ -290,19 +289,18 @@ class FsmStateMachineTest : public BaseStateMachineTest
             fake_smaller_pedal_percentage_encoder_value = 0;
             LetTimePass(state_machine, exit_high_ms);
 
-            // Increment the value of the greater encoder value by 1 to ensure
-            // at least a 10% mapped pedal percentage difference between the
-            // APPS is maintained
             fake_larger_pedal_percentage_encoder_value =
                 GetEncoderCounterFromPedalPercentage(
                     pedal_percentage,
-                    larger_pedal_percentage_max_pressed_value) +
-                1;
+                    larger_pedal_percentage_max_pressed_value);
 
+            // Decrement the value of the smaller encoder by 11% to ensure
+            // that at least a difference of 10% is maintained.
             fake_smaller_pedal_percentage_encoder_value =
                 GetEncoderCounterFromPedalPercentage(
-                    pedal_percentage - 10,
+                    pedal_percentage - 11,
                     smaller_pedal_percentage_max_pressed_value);
+
             LetTimePass(state_machine, entry_high_ms - 1);
             ASSERT_EQ(
                 false_choice, App_CanTx_GetPeriodicSignal_APPS_HAS_DISAGREEMENT(
@@ -1093,15 +1091,16 @@ TEST_F(
     // triggering the callback function
     get_papps_encoder_counter_fake.return_val =
         GetEncoderCounterFromPedalPercentage(
-            5, PAPPS_ENCODER_FULLY_PRESSED_VALUE);
+            4, PAPPS_ENCODER_FULLY_PRESSED_VALUE);
     get_sapps_encoder_counter_fake.return_val = 0;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_FALSE_CHOICE,
         App_CanTx_GetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
             can_tx_interface));
+
     ASSERT_EQ(
-        5, round(App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(
+        4, round(App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(
                can_tx_interface)));
 }
 
