@@ -1,26 +1,30 @@
 #include <string.h>
 #include "Io_SharedSpi.h"
-#include "Io_NewLTC6813.h"
-#include "Io_NewCellVoltages.h"
+#include "Io_LTC6813/Io_LTC6813Shared.h"
+#include "Io_LTC6813/Io_LTC6813CellVoltages.h"
+#include "App_SharedMacros.h"
 
+// clang-format off
+#define NUM_OF_CELLS_PER_SEGMENT   (16U)
+#define TOTAL_NUM_OF_CELLS         (NUM_OF_CELLS_PER_SEGMENT * NUM_OF_ACCUMULATOR_SEGMENTS)
 #define NUM_OF_CELLS_PER_REG_GROUP (3U)
-#define NUM_OF_CELLS_PER_SEGMENT (16U)
-#define TOTAL_NUM_OF_CELLS \
-    (NUM_OF_CELLS_PER_SEGMENT * NUM_OF_ACCUMULATOR_SEGMENTS)
 
 // Command used to start ADC conversions
-#define MD (1U)
-#define DCP (0U)
-#define CH (0U)
-#define ADCV ((0x260 + (MD << 7) + (DCP << 4) + CH))
+#define MD   (1U)
+#define DCP  (0U)
+#define CH   (0U)
+#define ADCV (((0x0060U + (MD << 7) + (DCP << 4) + CH) << 8) | 0x0002U)
 
 // Commands used to read back cell voltages
-#define RDCVA (0x0004U)
-#define RDCVB (0x0006U)
-#define RDCVC (0x0008U)
-#define RDCVD (0x000AU)
-#define RDCVE (0x0009U)
-#define RDCVF (0x000BU)
+#define RDCVA (0x0400U)
+#define RDCVB (0x0600U)
+#define RDCVC (0x0800U)
+#define RDCVD (0x0A00U)
+#define RDCVE (0x0900U)
+#define RDCVF (0x0B00U)
+
+#define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * V_PER_100UV)
+// clang-format on
 
 enum CellVoltageRegGroup
 {
@@ -59,10 +63,21 @@ static uint16_t        cell_voltages[NUM_OF_ACCUMULATOR_SEGMENTS]
                              [NUM_OF_CELL_V_REG_GROUPS]
                              [NUM_OF_CELLS_PER_REG_GROUP] = { 0U };
 
-static inline float Io_ConvertToVoltage(uint32_t v_100uv)
-{
-    return (float)v_100uv * V_PER_100UV;
-}
+/**
+ * A function that can be called to update min/max cell voltages, segment
+ * voltages, and pack voltage
+ */
+static void Io_UpdateCellVoltages(void);
+
+/**
+ * Parse cell voltage from all segments to be stored in cell_voltages array
+ * @param curr_reg_group The current register group to read cell voltages from
+ * @param rx_buffer The buffer containing data read from the LTC6813 chips
+ * @return True if the data is read back successfully. Else, false
+ */
+static bool Io_ParseCellVoltageFromAllSegments(
+    uint8_t  curr_reg_group,
+    uint16_t rx_buffer[TOTAL_NUM_OF_REG_GROUP_WORDS]);
 
 static void Io_UpdateCellVoltages(void)
 {
@@ -122,7 +137,7 @@ static void Io_UpdateCellVoltages(void)
 
 static bool Io_ParseCellVoltageFromAllSegments(
     uint8_t  curr_reg_group,
-    uint16_t rx_buffer[TOTAL_NUM_OF_REG_WORDS])
+    uint16_t rx_buffer[TOTAL_NUM_OF_REG_GROUP_WORDS])
 {
     for (uint8_t curr_segment = 0U; curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS;
          curr_segment++)
@@ -133,12 +148,12 @@ static bool Io_ParseCellVoltageFromAllSegments(
             (uint8_t)(curr_segment * NUM_REG_GROUP_PACKET_WORDS);
 
         // Calculate PEC15 from the data received on rx_buffer
-        const uint16_t calc_pec15 = Io_NewLTC6813_CalculateRegGroupPec15(
+        const uint16_t calc_pec15 = Io_LTC6813Shared_CalculateRegGroupPec15(
             (uint8_t *)&rx_buffer[start_index]);
 
         // Read PEC15 from the rx_buffer
         const uint16_t recv_pec15 =
-            CHANGE_WORD_ENDIANNESS(rx_buffer[start_index + REG_GROUP_WORD_PEC]);
+            rx_buffer[start_index + REG_GROUP_WORD_PEC_INDEX];
 
         if (recv_pec15 == calc_pec15)
         {
@@ -163,20 +178,22 @@ static bool Io_ParseCellVoltageFromAllSegments(
     return true;
 }
 
-bool Io_NewCellVoltages_ReadVoltages(void)
+bool Io_LTC6813CellVoltages_ReadVoltages(void)
 {
     bool status = false;
 
-    if (Io_NewLTC6813_PollAdcConversions())
+    if (Io_LTC6813Shared_PollAdcConversions())
     {
-        uint16_t rx_buffer[TOTAL_NUM_OF_REG_WORDS] = { 0U };
+        uint16_t rx_buffer[TOTAL_NUM_OF_REG_GROUP_WORDS] = { 0U };
 
         for (uint8_t curr_reg_group = 0U;
              curr_reg_group < NUM_OF_CELL_V_REG_GROUPS; curr_reg_group++)
         {
             // Prepare the command used to read data back from a register group
-            uint16_t tx_cmd[NUM_OF_CMD_WORDS] = { 0U };
-            Io_NewLTC6813_PrepareCmd(tx_cmd, cv_read_cmds[curr_reg_group]);
+            uint16_t tx_cmd[NUM_OF_CMD_WORDS] = {
+                [CMD_WORD] = cv_read_cmds[curr_reg_group], [CMD_PEC15] = 0U
+            };
+            Io_LTC6813Shared_PackCmdPec15(tx_cmd);
 
             // Transmit the command and receive data stored in register group
             if (Io_SharedSpi_TransmitAndReceive(
@@ -203,44 +220,44 @@ bool Io_NewCellVoltages_ReadVoltages(void)
     return status;
 }
 
-bool Io_NewCellVoltages_StartAdcConversion(void)
+bool Io_LTC6813CellVoltages_StartAdcConversion(void)
 {
-    return Io_NewLTC6813_SendCommand(ADCV);
+    return Io_LTC6813Shared_SendCommand(ADCV);
 }
 
-void Io_NewCellVoltages_GetMinCellLocation(uint8_t *segment, uint8_t *cell)
+void Io_LTC6813CellVoltages_GetMinCellLocation(uint8_t *segment, uint8_t *cell)
 {
     *segment = voltages.min.segment;
     *cell    = voltages.min.cell;
 }
 
-void Io_NewCellVoltages_GetMaxCellLocation(uint8_t *segment, uint8_t *cell)
+void Io_LTC6813CellVoltages_GetMaxCellLocation(uint8_t *segment, uint8_t *cell)
 {
     *segment = voltages.max.segment;
     *cell    = voltages.max.cell;
 }
 
-float Io_NewCellVoltages_GetMinCellVoltage(void)
+float Io_LTC6813CellVoltages_GetMinCellVoltage(void)
 {
-    return Io_ConvertToVoltage(voltages.min.voltage);
+    return CONVERT_100UV_TO_VOLTAGE(voltages.min.voltage);
 }
 
-float Io_NewCellVoltages_GetMaxCellVoltage(void)
+float Io_LTC6813CellVoltages_GetMaxCellVoltage(void)
 {
-    return Io_ConvertToVoltage(voltages.max.voltage);
+    return CONVERT_100UV_TO_VOLTAGE(voltages.max.voltage);
 }
 
-float Io_NewCellVoltages_GetPackVoltage(void)
+float Io_LTC6813CellVoltages_GetPackVoltage(void)
 {
-    return Io_ConvertToVoltage(voltages.pack);
+    return CONVERT_100UV_TO_VOLTAGE(voltages.pack);
 }
 
-float Io_NewCellVoltages_GetSegmentVoltage(AccumulatorSegments_E segment)
+float Io_LTC6813CellVoltages_GetSegmentVoltage(AccumulatorSegments_E segment)
 {
-    return Io_ConvertToVoltage(voltages.segment[segment]);
+    return CONVERT_100UV_TO_VOLTAGE(voltages.segment[segment]);
 }
 
-float Io_NewCellVoltages_GetAvgCellVoltage(void)
+float Io_LTC6813CellVoltages_GetAverageCellVoltage(void)
 {
-    return Io_ConvertToVoltage(voltages.pack) / TOTAL_NUM_OF_CELLS;
+    return CONVERT_100UV_TO_VOLTAGE(voltages.pack) / TOTAL_NUM_OF_CELLS;
 }
