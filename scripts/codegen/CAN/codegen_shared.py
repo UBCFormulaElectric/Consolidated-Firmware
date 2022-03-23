@@ -146,3 +146,6 @@ class Variable:
         return self.__definition
     def get_name(self):
         return self.__name
+
+def format_float(value):
+    return str(float(value)) + 'f'

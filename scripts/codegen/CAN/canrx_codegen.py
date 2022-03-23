@@ -53,32 +53,72 @@ class AppCanRxFileGenerator(CanRxFileGenerator):
             'Destroy a CAN RX interface, freeing the memory associated with it',
             '''    free(can_rx_interface);''')
 
-        self._CanRxSignalGetters = [
-            Function('%s %s_%s_GetSignal_%s (const struct %sCanRxInterface* can_rx_interface)'
-                     % (signal.type_name, function_prefix, 
-                         msg.snake_name.upper(), signal.snake_name.upper(), 
-                         self._receiver.capitalize()),
-                     '',
-                     '''\
-    return can_rx_interface->can_rx_table.{msg_name}.{signal_name};'''.format(
-                         signal_type=signal.type_name,
-                         signal_name=signal.snake_name,
-                         msg_name=msg.snake_name))
-            for msg in self._canrx_msgs for signal in msg.signals]
+        # Generate CAN RX getter functions
+        can_rx_getters = []
+        for msg in self._canrx_msgs:
+            for signal in msg.signals:
 
-        self._CanRxSignalSetters = list(Function(
-            'void %s_%s_SetSignal_%s(struct %sCanRxInterface* can_rx_interface, %s value)' % (
-            function_prefix, msg.snake_name.upper(), 
-            signal.snake_name.upper(), self._receiver.capitalize(), signal.type_name),
-            '',
-            '''\
+                # Not fixed pt representation if scale is 1
+                if signal.decimal.scale == 1:
+                    can_rx_getters.append(
+                        Function('%s %s_%s_GetSignal_%s (const struct %sCanRxInterface* can_rx_interface)'
+                        % (signal.type_name, function_prefix, msg.snake_name.upper(), signal.snake_name.upper(),
+                           self._receiver.capitalize()), '', '''\
+    return can_rx_interface->can_rx_table.{msg_name}.{signal_name};'''.format(
+                            signal_type=signal.type_name,
+                            signal_name=signal.snake_name,
+                            msg_name=msg.snake_name)))
+                else:
+                    # Convert fixed point to a float within the getter function
+                    offset = signal.decimal.offset
+                    can_rx_getters.append(
+                        Function('%s %s_%s_GetSignal_%s (const struct %sCanRxInterface* can_rx_interface)'
+                                 % ('float', function_prefix, msg.snake_name.upper(), signal.snake_name.upper(),
+                                    self._receiver.capitalize()), '', '''\
+    return (float)(can_rx_interface->can_rx_table.{msg_name}.{signal_name} * {scale}) {offset_sign} {offset};'''.format(
+                            signal_type=signal.type_name,
+                            signal_name=signal.snake_name,
+                            offset_sign='-' if (offset < 0.0) else '+',
+                            offset=format_float(abs(offset)),
+                            scale=format_float(signal.decimal.scale),
+                            msg_name=msg.snake_name)))
+        self._CanRxSignalGetters = can_rx_getters
+
+        can_rx_setters = []
+        for msg in self._canrx_msgs:
+            for signal in msg.signals:
+                if signal.decimal.scale == 1:
+                    can_rx_setters.append(Function(
+                        'void %s_%s_SetSignal_%s(struct %sCanRxInterface* can_rx_interface, %s value)' % (
+                            function_prefix, msg.snake_name.upper(),
+                            signal.snake_name.upper(), self._receiver.capitalize(), signal.type_name),
+                        '',
+                        '''\
     if (App_CanMsgs_{msg_snakecase_name}_{signal_snakecase_name}_is_in_range(value) == true)
     {{
         can_rx_interface->can_rx_table.{msg_snakecase_name}.{signal_snakecase_name} = value;
-    }}'''.format(
-                msg_snakecase_name=msg.snake_name,
-                signal_snakecase_name=signal.snake_name)
-        ) for msg in self._canrx_msgs for signal in msg.signals)
+    }}'''.format(msg_snakecase_name=msg.snake_name,
+                signal_snakecase_name=signal.snake_name)))
+
+                else:
+                    offset = signal.decimal.offset
+                    can_rx_setters.append(Function(
+                        'void %s_%s_SetSignal_%s(struct %sCanRxInterface* can_rx_interface, float value)' % (
+                            function_prefix, msg.snake_name.upper(),
+                            signal.snake_name.upper(), self._receiver.capitalize()),
+                        '',
+                        '''\
+    const {type_name} _value = ({type_name})((value {offset_sign} {offset}) * {scale});
+    if (App_CanMsgs_{msg_snakecase_name}_{signal_snakecase_name}_is_in_range(_value) == true)
+    {{
+        can_rx_interface->can_rx_table.{msg_snakecase_name}.{signal_snakecase_name} = _value;
+    }}'''.format(msg_snakecase_name=msg.snake_name,
+                 signal_snakecase_name=signal.snake_name,
+                 offset_sign='+' if (offset < 0.0) else '-',
+                 offset=format_float(abs(offset)),
+                 scale=format_float((1.0 / float(signal.decimal.scale))),
+                 type_name=signal.type_name)))
+        self._CanRxSignalSetters = can_rx_setters
 
 class AppCanRxHeaderFileGenerator(AppCanRxFileGenerator):
     def __init__(self, database, output_path, receiver, function_prefix):
