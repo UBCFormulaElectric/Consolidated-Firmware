@@ -1,6 +1,7 @@
 #include "states/App_AllStates.h"
 #include "states/App_FaultState.h"
 #include "App_SetPeriodicCanSignals.h"
+#include "App_Accumulator.h"
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
@@ -24,10 +25,11 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct OkStatus *         bms_ok      = App_BmsWorld_GetBmsOkStatus(world);
     struct OkStatus *         imd_ok      = App_BmsWorld_GetImdOkStatus(world);
     struct OkStatus *         bspd_ok     = App_BmsWorld_GetBspdOkStatus(world);
-    struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
     struct Airs *             airs        = App_BmsWorld_GetAirs(world);
+    struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
     struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
 
+    App_Accumulator_RunOnTick100Hz(accumulator, can_tx);
     App_SetPeriodicCanSignals_Imd(can_tx, imd);
 
     App_CanTx_SetPeriodicSignal_AIR_NEGATIVE(
@@ -61,9 +63,6 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         App_CanTx_SetPeriodicSignal_BSPD_OK(can_tx, false);
     }
-
-    App_SetPeriodicSignals_AccumulatorInRangeChecks(
-        can_tx, accumulator, error_table);
 
     if (App_SharedErrorTable_HasAnyCriticalErrorSet(error_table))
     {

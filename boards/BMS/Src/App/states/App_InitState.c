@@ -10,15 +10,16 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct BmsCanTxInterface *can_tx_interface = App_BmsWorld_GetCanTx(world);
+    struct Clock *            clock            = App_BmsWorld_GetClock(world);
     struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
-    struct Clock *            clock       = App_BmsWorld_GetClock(world);
 
     App_SharedClock_SetPreviousTimeInMilliseconds(
         clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
-    App_Accumulator_ConfigureCellMonitors(accumulator);
 
     App_CanTx_SetPeriodicSignal_STATE(
         can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE);
+
+    App_Accumulator_InitRunOnEntry(accumulator);
 }
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)

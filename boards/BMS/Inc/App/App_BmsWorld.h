@@ -8,7 +8,6 @@
 #include "App_Charger.h"
 #include "App_OkStatus.h"
 #include "App_Accumulator.h"
-#include "App_CellMonitors.h"
 #include "App_Airs.h"
 #include "App_PreChargeSequence.h"
 #include "App_SharedErrorTable.h"
@@ -36,7 +35,6 @@ struct BmsWorld *App_BmsWorld_Create(
     struct OkStatus *         imd_ok,
     struct OkStatus *         bspd_ok,
     struct Accumulator *      accumulator,
-    struct CellMonitors *     cell_monitors,
     struct Airs *             airs,
     struct PreChargeSequence *pre_charge_sequence,
     struct ErrorTable *       error_table,
@@ -119,13 +117,6 @@ struct OkStatus *App_BmsWorld_GetBspdOkStatus(const struct BmsWorld *world);
  * @return The accumulator for the given world
  */
 struct Accumulator *App_BmsWorld_GetAccumulator(const struct BmsWorld *world);
-
-/**
- * Get the cell monitors for the given world
- * @param world The world to get the cell monitors for
- * @return The cell monitors for the given world
- */
-struct CellMonitors *App_BmsWorld_GetCellMonitors(const struct BmsWorld *world);
 
 /**
  * Get the AIRs for the given world
