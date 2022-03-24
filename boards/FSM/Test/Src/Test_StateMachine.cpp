@@ -282,7 +282,8 @@ class FsmStateMachineTest : public BaseStateMachineTest
     {
         const size_t starting_pedal_percentage = 11;
 
-        for (size_t pedal_percentage = starting_pedal_percentage; pedal_percentage <= (size_t)MAX_ACCELERATOR_PEDAL_PRESS;
+        for (size_t pedal_percentage = starting_pedal_percentage;
+             pedal_percentage <= (size_t)MAX_ACCELERATOR_PEDAL_PRESS;
              pedal_percentage++)
         {
             // Remove pedal disagreement to avoid false positives on the next
