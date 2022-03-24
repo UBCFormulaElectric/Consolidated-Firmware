@@ -46,23 +46,23 @@ static float App_GetPedalPercentage(
         // If the accelerator pedal underflows, reset the corresponding
         // encoder's counter register and set the pedal percentage to 0.0%
         reset_encoder_counter();
-        return ZERO_PERCENT;
+        return MIN_ACCELERATOR_PEDAL_PRESS;
     }
     else if (encoder_counter_value <= low_end_deadzone_threshold)
     {
         // Set the pedal percentage to 0.0% when the pedal is within the
         // low end deadzone
-        return ZERO_PERCENT;
+        return MIN_ACCELERATOR_PEDAL_PRESS;
     }
     else if (encoder_counter_value >= high_end_deadzone_threshold)
     {
         // Set the mapped pedal percentage to 100% when the pedal is within the
         // high end deadzone
-        return HUNDRED_PERCENT;
+        return MAX_ACCELERATOR_PEDAL_PRESS;
     }
     // Pedal % = 100% * (encoder value - low end deadzone threshold) /
     // (high end deadzone threshold - low end deadzone threshold)
-    return HUNDRED_PERCENT *
+    return MAX_ACCELERATOR_PEDAL_PRESS *
            ((float)encoder_counter_value - low_end_deadzone_threshold) /
            (high_end_deadzone_threshold - low_end_deadzone_threshold);
 }

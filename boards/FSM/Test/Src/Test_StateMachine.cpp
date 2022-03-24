@@ -280,7 +280,9 @@ class FsmStateMachineTest : public BaseStateMachineTest
         uint8_t   true_choice,
         uint8_t   false_choice)
     {
-        for (size_t pedal_percentage = 11; pedal_percentage <= 100;
+        const size_t starting_pedal_percentage = 11;
+
+        for (size_t pedal_percentage = starting_pedal_percentage; pedal_percentage <= (size_t)MAX_ACCELERATOR_PEDAL_PRESS;
              pedal_percentage++)
         {
             // Remove pedal disagreement to avoid false positives on the next
@@ -610,8 +612,6 @@ TEST_F(
     FsmStateMachineTest,
     check_mapped_pedal_percentage_can_signals_in_all_states)
 {
-    const float percent_deflection = 0.03;
-
     for (const auto &state : GetAllStates())
     {
         SetInitialState(state);
@@ -635,9 +635,9 @@ TEST_F(
         // Decrement fake_value by 1 to ensure that the encoder counter value is
         // within the lower deadzone
         get_papps_encoder_counter_fake.return_val =
-            PAPPS_ENCODER_FULLY_PRESSED_VALUE * percent_deflection - 1;
+            PAPPS_ENCODER_FULLY_PRESSED_VALUE * PERCENT_DEFLECTION - 1;
         get_sapps_encoder_counter_fake.return_val =
-            SAPPS_ENCODER_FULLY_PRESSED_VALUE * percent_deflection - 1;
+            SAPPS_ENCODER_FULLY_PRESSED_VALUE * PERCENT_DEFLECTION - 1;
         LetTimePass(state_machine, 10);
         ASSERT_EQ(
             0, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(
@@ -647,9 +647,9 @@ TEST_F(
         // Increment fake_value by 1 to ensure that the encoder counter value is
         // within the upper deadzone
         get_papps_encoder_counter_fake.return_val =
-            PAPPS_ENCODER_FULLY_PRESSED_VALUE * (1 - percent_deflection) + 1;
+            PAPPS_ENCODER_FULLY_PRESSED_VALUE * (1 - PERCENT_DEFLECTION) + 1;
         get_sapps_encoder_counter_fake.return_val =
-            SAPPS_ENCODER_FULLY_PRESSED_VALUE * (1 - percent_deflection) + 1;
+            SAPPS_ENCODER_FULLY_PRESSED_VALUE * (1 - PERCENT_DEFLECTION) + 1;
         LetTimePass(state_machine, 10);
         ASSERT_EQ(
             100, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(
