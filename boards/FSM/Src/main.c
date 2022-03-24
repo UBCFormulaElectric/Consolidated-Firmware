@@ -55,7 +55,6 @@
 #include "configs/App_WheelSpeedThresholds.h"
 #include "configs/App_SteeringAngleThresholds.h"
 #include "configs/App_BrakePressureThresholds.h"
-#include "configs/App_AcceleratorPedalThresholds.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -123,16 +122,16 @@ struct AcceleratorPedals *papps_and_sapps;
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_DMA_Init(void);
 static void MX_CAN_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_ADC2_Init(void);
-static void MX_TIM4_Init(void);
+static void MX_DMA_Init(void);
 static void MX_TIM1_Init(void);
 static void MX_TIM2_Init(void);
 static void MX_TIM3_Init(void);
 static void MX_TIM16_Init(void);
 static void MX_TIM17_Init(void);
+static void MX_TIM4_Init(void);
 void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
 void        RunTaskCanRx(void const *argument);
@@ -186,21 +185,21 @@ int main(void)
     SystemClock_Config();
 
     /* USER CODE BEGIN SysInit */
-
+    MX_DMA_Init();
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    MX_DMA_Init();
     MX_CAN_Init();
     MX_IWDG_Init();
     MX_ADC2_Init();
-    MX_TIM4_Init();
+    MX_DMA_Init();
     MX_TIM1_Init();
     MX_TIM2_Init();
     MX_TIM3_Init();
     MX_TIM16_Init();
     MX_TIM17_Init();
+    MX_TIM4_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
 
@@ -260,8 +259,7 @@ int main(void)
         Io_PrimaryScancon2RMHF_GetEncoderCounter,
         Io_SecondaryScancon2RMHF_GetEncoderCounter,
         Io_PrimaryScancon2RMHF_ResetEncoderCounter,
-        Io_SecondaryScancon2RMHF_ResetEncoderCounter,
-        PAPPS_ENCODER_FULLY_PRESSED_VALUE, SAPPS_ENCODER_FULLY_PRESSED_VALUE);
+        Io_SecondaryScancon2RMHF_ResetEncoderCounter);
 
     world = App_FsmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, primary_flow_meter_in_range_check,
@@ -560,13 +558,13 @@ static void MX_TIM1_Init(void)
 
     /* USER CODE END TIM1_Init 1 */
     htim1.Instance               = TIM1;
-    htim1.Init.Prescaler         = 0;
+    htim1.Init.Prescaler         = 1;
     htim1.Init.CounterMode       = TIM_COUNTERMODE_UP;
     htim1.Init.Period            = TIM1_AUTO_RELOAD_REG;
     htim1.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim1.Init.RepetitionCounter = 0;
     htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    sConfig.EncoderMode          = TIM_ENCODERMODE_TI12;
+    sConfig.EncoderMode          = TIM_ENCODERMODE_TI1;
     sConfig.IC1Polarity          = TIM_ICPOLARITY_RISING;
     sConfig.IC1Selection         = TIM_ICSELECTION_DIRECTTI;
     sConfig.IC1Prescaler         = TIM_ICPSC_DIV1;
@@ -609,12 +607,12 @@ static void MX_TIM2_Init(void)
 
     /* USER CODE END TIM2_Init 1 */
     htim2.Instance               = TIM2;
-    htim2.Init.Prescaler         = 0;
-    htim2.Init.CounterMode       = TIM_COUNTERMODE_DOWN;
+    htim2.Init.Prescaler         = 1;
+    htim2.Init.CounterMode       = TIM_COUNTERMODE_UP;
     htim2.Init.Period            = TIM2_AUTO_RELOAD_REG;
     htim2.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
-    sConfig.EncoderMode          = TIM_ENCODERMODE_TI12;
+    sConfig.EncoderMode          = TIM_ENCODERMODE_TI1;
     sConfig.IC1Polarity          = TIM_ICPOLARITY_RISING;
     sConfig.IC1Selection         = TIM_ICSELECTION_DIRECTTI;
     sConfig.IC1Prescaler         = TIM_ICPSC_DIV1;
@@ -860,13 +858,17 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : SECONDARY_APPS_Z_Pin SECONDARY_APPS_ALARM_Pin
-     * PRIMARY_APPS_Z_Pin */
-    GPIO_InitStruct.Pin =
-        SECONDARY_APPS_Z_Pin | SECONDARY_APPS_ALARM_Pin | PRIMARY_APPS_Z_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    /*Configure GPIO pins : PA2 PA10 */
+    GPIO_InitStruct.Pin  = GPIO_PIN_2 | GPIO_PIN_10;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : SECONDARY_APPS_ALARM_Pin */
+    GPIO_InitStruct.Pin  = SECONDARY_APPS_ALARM_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(SECONDARY_APPS_ALARM_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : STATUS_R_Pin STATUS_G_Pin */
     GPIO_InitStruct.Pin   = STATUS_R_Pin | STATUS_G_Pin;
@@ -883,16 +885,12 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_Init(STATUS_B_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : PB1 PB2 PB10 PB11
-                             PB12 PB13 PB14 PB7 */
+                             PB12 PB13 PB14 PB15
+                             PB7 */
     GPIO_InitStruct.Pin = GPIO_PIN_1 | GPIO_PIN_2 | GPIO_PIN_10 | GPIO_PIN_11 |
-                          GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 | GPIO_PIN_7;
+                          GPIO_PIN_12 | GPIO_PIN_13 | GPIO_PIN_14 |
+                          GPIO_PIN_15 | GPIO_PIN_7;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : PRIMARY_APPS_ALARM_Pin BRAKE_OC_SC_OK_Pin */
-    GPIO_InitStruct.Pin  = PRIMARY_APPS_ALARM_Pin | BRAKE_OC_SC_OK_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
@@ -901,6 +899,12 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(BSPD_BRAKE_STATUS_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : BRAKE_OC_SC_OK_Pin */
+    GPIO_InitStruct.Pin  = BRAKE_OC_SC_OK_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(BRAKE_OC_SC_OK_GPIO_Port, &GPIO_InitStruct);
 }
 
 /* USER CODE BEGIN 4 */
