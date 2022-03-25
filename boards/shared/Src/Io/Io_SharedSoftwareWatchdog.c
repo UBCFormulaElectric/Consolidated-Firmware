@@ -113,8 +113,8 @@ void Io_SharedSoftwareWatchdog_CheckForTimeouts(void)
                 sw_watchdog_table.watchdogs[i].check_in_status = false;
 
                 // Update deadline
-                sw_watchdog_table.watchdogs[i].deadline +=
-                    sw_watchdog_table.watchdogs[i].period;
+                sw_watchdog_table.watchdogs[i].deadline =
+                    osKernelSysTick() + sw_watchdog_table.watchdogs[i].period;
 
                 assert(Io_RefreshHardwareWatchdog != NULL);
                 Io_RefreshHardwareWatchdog();

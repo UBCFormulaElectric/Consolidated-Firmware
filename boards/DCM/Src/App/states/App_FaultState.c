@@ -10,6 +10,20 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
     struct DcmCanTxInterface *can_tx_interface = App_DcmWorld_GetCanTx(world);
     App_CanTx_SetPeriodicSignal_STATE(
         can_tx_interface, CANMSGS_DCM_STATE_MACHINE_STATE_FAULT_CHOICE);
+
+    // Disable inverters and apply zero torque upon entering fault state
+    App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVL(
+        can_tx_interface,
+        CANMSGS_DCM_INVL_COMMAND_MESSAGE_INVERTER_ENABLE_INVL_OFF_CHOICE);
+    App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVR(
+        can_tx_interface,
+        CANMSGS_DCM_INVR_COMMAND_MESSAGE_INVERTER_ENABLE_INVR_OFF_CHOICE);
+    App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
+        can_tx_interface,
+        App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(0.0f));
+    App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVR(
+        can_tx_interface,
+        App_CanMsgs_dcm_invr_command_message_torque_command_invr_encode(0.0f));
 }
 
 static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)

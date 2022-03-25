@@ -1,4 +1,9 @@
 #pragma once
 
-// 21Nm is max torque each motor can handle
-#define MAX_TORQUE_REQUEST_NM 21.0f;
+/**
+ * @brief Maximum torque request to get the maximum motor current per Emrax
+ * specification.
+ *
+ * @see Setting up the Controller to run with Emrax Motor Rev 1.2 PDF pg. 6
+ */
+#define MAX_TORQUE_REQUEST_NM 132.0f;
