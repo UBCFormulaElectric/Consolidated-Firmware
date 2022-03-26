@@ -82,9 +82,9 @@ SoftwareWatchdogHandle_t Io_SharedSoftwareWatchdog_AllocateWatchdog(void);
  * @param period_in_ticks: Period of the task in OS ticks
  */
 void Io_SharedSoftwareWatchdog_InitWatchdog(
-        SoftwareWatchdogHandle_t sw_watchdog_handle,
-        uint8_t                   name,
-        Tick_t                   period_in_ticks);
+    SoftwareWatchdogHandle_t sw_watchdog_handle,
+    uint8_t                  name,
+    Tick_t                   period_in_ticks);
 
 /**
  * Every periodic task monitored by a software watchdog must call this at the
@@ -110,4 +110,4 @@ void Io_SharedSoftwareWatchdog_CheckForTimeouts(void);
  * @return Name of the software watchdog
  */
 uint8_t Io_SharedSoftwareWatchdog_GetName(
-        SoftwareWatchdogHandle_t sw_watchdog_handle);
+    SoftwareWatchdogHandle_t sw_watchdog_handle);

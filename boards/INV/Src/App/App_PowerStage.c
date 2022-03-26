@@ -40,19 +40,19 @@ struct PowerStage *App_PowerStage_Create(
     struct PowerStage *power_stage = malloc(sizeof(struct PowerStage));
     assert(power_stage != NULL);
 
-    power_stage->adc_cont_mode_init      = ps_adc_cont_mode_init;
-    power_stage->adc_pwm_sync_mode_init  = ps_adc_pwm_sync_mode_init;
-    power_stage->adc_start               = ps_adc_start;
-    power_stage->adc_stop                = ps_adc_stop;
-    power_stage->dac_start               = ps_dac_start;
-    power_stage->dac_set_current         = ps_dac_set_current;
-    power_stage->get_phase_currents      = ps_get_phase_currents;
-    power_stage->get_bus_voltage         = ps_get_bus_voltage;
-    power_stage->get_powerstage_temp     = ps_get_powerstage_temp;
-    power_stage->get_pha_oc_fault        = ps_get_pha_oc_fault;
-    power_stage->get_phb_oc_fault        = ps_get_phb_oc_fault;
-    power_stage->get_phc_oc_fault        = ps_get_phc_oc_fault;
-    power_stage->get_ot_fault = ps_get_ot_fault;
+    power_stage->adc_cont_mode_init     = ps_adc_cont_mode_init;
+    power_stage->adc_pwm_sync_mode_init = ps_adc_pwm_sync_mode_init;
+    power_stage->adc_start              = ps_adc_start;
+    power_stage->adc_stop               = ps_adc_stop;
+    power_stage->dac_start              = ps_dac_start;
+    power_stage->dac_set_current        = ps_dac_set_current;
+    power_stage->get_phase_currents     = ps_get_phase_currents;
+    power_stage->get_bus_voltage        = ps_get_bus_voltage;
+    power_stage->get_powerstage_temp    = ps_get_powerstage_temp;
+    power_stage->get_pha_oc_fault       = ps_get_pha_oc_fault;
+    power_stage->get_phb_oc_fault       = ps_get_phb_oc_fault;
+    power_stage->get_phc_oc_fault       = ps_get_phc_oc_fault;
+    power_stage->get_ot_fault           = ps_get_ot_fault;
 
     return power_stage;
 }
@@ -71,9 +71,10 @@ void App_PowerStage_Enable(struct PowerStage *power_stage)
 
 void App_PowerStage_StandBy(struct PowerStage *power_stage)
 {
-    //TODO this causes the processor to reset, something is wrong in this config. Using timer adc triggering for now.
+    // TODO this causes the processor to reset, something is wrong in this
+    // config. Using timer adc triggering for now.
     power_stage->adc_stop();
-    //power_stage->adc_cont_mode_init();
+    // power_stage->adc_cont_mode_init();
     power_stage->adc_start();
 }
 
@@ -160,7 +161,7 @@ bool App_PowerStage_PhaseCurOffsetComplete(void)
     return Io_AdcDac_PhaseCurOffsetComplete();
 }
 
-void App_PowerStage_GetPhaseCurOffsets(struct PhaseValues* phase_cur_offsets)
+void App_PowerStage_GetPhaseCurOffsets(struct PhaseValues *phase_cur_offsets)
 {
     *phase_cur_offsets = Io_AdcDac_GetPhaseCurOffsets();
 }

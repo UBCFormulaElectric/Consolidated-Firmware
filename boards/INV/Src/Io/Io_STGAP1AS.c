@@ -82,27 +82,27 @@ struct StgapCommands stgap_commands = {
     .global_reset   = 0xEA,
 };
 
-uint8_t config1_register_content = (CRC_SPI << 7) | (UVLOD_EN << 6) |
+static const uint8_t config1_register_content = (CRC_SPI << 7) | (UVLOD_EN << 6) |
                                    (SD_FLAG << 5) | (DIAG_EN << 4) |
                                    (DT_SET << 2) | (IN_FILTER);
 
-uint8_t config2_register_content =
+static const uint8_t config2_register_content =
     (SENSE_THRES << 5) | (DESAT_CURR << 3) | (DESAT_THRES);
 
-uint8_t config3_register_content = (TLTO_THRES << 4) | (TLTO_TIME);
+static const uint8_t config3_register_content = (TLTO_THRES << 4) | (TLTO_TIME);
 
-uint8_t config4_register_content =
+static const uint8_t config4_register_content =
     (OVLO_EN << 5) | (UVLO_LATCH << 4) | (VLON_THRES << 2) | (VHON_THRES);
 
-uint8_t config5_register_content =
-    (TLTO_EN << 3) | (SENSE_EN << 2) | (DESAT_EN << 1) | (CLAMP_EN);
+static const uint8_t config5_register_content =
+    (TLTO_EN << 3) | (CLAMP_EN << 2) | (DESAT_EN << 1) | (SENSE_EN);
 
-uint8_t diag1cfg_register_content = (DIAG1_TWN << 7) | (DIAG1_TSD << 6) |
+static const uint8_t diag1cfg_register_content = (DIAG1_TWN << 7) | (DIAG1_TSD << 6) |
                                     (DIAG1_ASC << 5) | (DIAG1_DESAT << 4) |
                                     (DIAG1_OV << 3) | (DIAG1_UV << 2) |
                                     (DIAG1_VDD << 1) | (DIAG1_SPI_REG_ERR);
 
-uint8_t diag2cfg_register_content = (DIAG2_TWN << 7) | (DIAG2_TSD << 6) |
+static const uint8_t diag2cfg_register_content = (DIAG2_TWN << 7) | (DIAG2_TSD << 6) |
                                     (DIAG2_ASC << 5) | (DIAG2_DESAT << 4) |
                                     (DIAG2_OV << 3) | (DIAG2_UV << 2) |
                                     (DIAG2_VDD << 1) | (DIAG2_SPI_REG_ERR);

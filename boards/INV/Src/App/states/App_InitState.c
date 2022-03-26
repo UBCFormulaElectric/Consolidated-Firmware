@@ -19,13 +19,14 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     struct GateDrive *        gate_drive  = App_InvWorld_GetGateDrive(world);
     struct PowerStage *       power_stage = App_InvWorld_GetPowerStage(world);
 
+    App_GateDrive_WriteConfig(gate_drive);
+
     App_CanTx_SetPeriodicSignal_STATE(
         can_tx_interface, CANMSGS_INV_STATE_MACHINE_STATE_INIT_CHOICE);
     App_PowerStage_SetCurrentLimits(power_stage, MAX_INVERTER_CURRENT);
 
-    App_PowerStage_Enable(
-        power_stage); // Enable ADC
-    App_GateDrive_WriteConfig(gate_drive);
+    App_PowerStage_Enable(power_stage); // Enable ADC
+
     App_GateDrive_StartPwmTimer(gate_drive);
 
     if (App_Faults_FaultedMotorShutdown(can_tx_interface))
@@ -56,8 +57,10 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
 
-    //Standby state is only feasible choice
-    if(App_CanRx_INV_STATE_REQ_GetSignal_STATE_REQ(can_rx_interface) != CANMSGS_INV_STATE_MACHINE_STATE_INIT_CHOICE && App_PowerStage_PhaseCurOffsetComplete())
+    // Standby state is only feasible choice
+    if (App_CanRx_INV_STATE_REQ_GetSignal_STATE_REQ(can_rx_interface) !=
+            CANMSGS_INV_STATE_MACHINE_STATE_INIT_CHOICE &&
+        App_PowerStage_PhaseCurOffsetComplete())
     {
         App_SharedStateMachine_SetNextState(
             state_machine, App_GetStandbyState());
@@ -66,7 +69,9 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
 static void InitStateRunOnExit(struct StateMachine *const state_machine)
 {
-    //TODO check for faults that could have occured during initialization here, for example, ADC/periph faults - are adc/dac numbers plausible, for example?
+    // TODO check for faults that could have occured during initialization here,
+    // for example, ADC/periph faults - are adc/dac numbers plausible, for
+    // example?
 }
 
 const struct State *App_GetInitState(void)

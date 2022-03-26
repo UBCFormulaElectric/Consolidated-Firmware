@@ -39,5 +39,5 @@ bool  App_PowerStage_GetOTFault(struct PowerStage *power_stage);
 float App_PowerStage_GetPosCurrentLimit(void);
 float App_PowerStage_GetNegCurrentLimit(void);
 float App_PowerStage_GetDeratedCurrent(void);
-bool App_PowerStage_PhaseCurOffsetComplete(void);
-void App_PowerStage_GetPhaseCurOffsets(struct PhaseValues* phase_cur_offsets);
+bool  App_PowerStage_PhaseCurOffsetComplete(void);
+void  App_PowerStage_GetPhaseCurOffsets(struct PhaseValues *phase_cur_offsets);

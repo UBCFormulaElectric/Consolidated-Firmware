@@ -8,7 +8,7 @@ struct PhaseValues CalculatePwmEdges(
 {
     struct PhaseValues phase_duration;
     float              t0, t1, t2;
-    float              vs_max = MAX_MOD_INDEX * bus_voltage / (float)M_SQRT3;
+    float              vs_max = bus_voltage / (float)M_SQRT3;
 
     // The sector in which the voltage vector is generated for the motor
     int sectorNumber = 0;

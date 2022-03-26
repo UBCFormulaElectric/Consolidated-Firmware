@@ -77,8 +77,8 @@ struct GateDrive *App_GateDrive_Create(
     gate_drive->set_shutdown_pin   = set_gd_shutdown_pin;
     gate_drive->get_shutdown_pin   = get_gd_shutdown_pin;
     gate_drive->load_pwm           = load_gd_pwm;
-    gate_drive->start_pwm_timer          = gd_start_pwm_timer;
-    gate_drive->stop_pwm_timer           = gd_stop_pwm_timer;
+    gate_drive->start_pwm_timer    = gd_start_pwm_timer;
+    gate_drive->stop_pwm_timer     = gd_stop_pwm_timer;
     gate_drive->set_switching_freq = gd_set_switching_freq;
     gate_drive->set_dead_time      = gd_set_dead_time;
     gate_drive->get_pha_hi_diag    = gd_get_pha_hi_diag;

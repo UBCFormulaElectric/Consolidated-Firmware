@@ -23,19 +23,21 @@ float calculatePiOutputs(
         // sampling frequency + last integral input
         pi_values->integral_sum +=
             (1.0f / SAMPLE_FREQUENCY) *
-                ((err * pi_values->gain / pi_values->time_const) +
-                 pi_values->prev_integral_input) /
-                2;
+            ((err * pi_values->gain / pi_values->time_const) +
+             pi_values->prev_integral_input) /
+            2;
         pi_values->prev_integral_input =
             (1.0f / SAMPLE_FREQUENCY) *
             ((err * pi_values->gain / pi_values->time_const) +
              pi_values->prev_integral_input) /
             2;
     }
-    else if (pi_values->integral_sum > limit) {
+    else if (pi_values->integral_sum > limit)
+    {
         pi_values->integral_sum = limit;
     }
-    else if (pi_values->integral_sum < -limit){
+    else if (pi_values->integral_sum < -limit)
+    {
         pi_values->integral_sum = -limit;
     }
 

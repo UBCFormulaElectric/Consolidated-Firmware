@@ -10,26 +10,26 @@ extern DAC_HandleTypeDef hdac;
 
 static uint16_t adc1_data[ADC1_NUM_CONVERSIONS];
 static uint16_t adc2_data[ADC2_NUM_CONVERSIONS];
-static uint16_t adc_offset_cal_data[ADC2_NUM_CONVERSIONS][ADC_OFFSET_CAL_CYCLES];
-static uint32_t adc_offset_cal_sum[ADC2_NUM_CONVERSIONS] = {0,0,0,0};
+static uint16_t adc_offset_cal_data[ADC2_NUM_CONVERSIONS]
+                                   [ADC_OFFSET_CAL_CYCLES];
+static uint32_t adc_offset_cal_sum[ADC2_NUM_CONVERSIONS] = { 0, 0, 0, 0 };
 
 struct PhaseValues ph_cur_adc_offset_v = {
-        .a = 0,
-        .b = 0,
-        .c = 0,
+    .a = 0,
+    .b = 0,
+    .c = 0,
 };
 
 struct PhaseValues ph_cur_adc_offset_amps = {
-        .a = 0,
-        .b = 0,
-        .c = 0,
+    .a = 0,
+    .b = 0,
+    .c = 0,
 };
-
 
 bool phase_cur_offset_complete = 0;
 
-static float        powerstage_temp;
-static float        motor_temperature;
+static float powerstage_temp;
+static float motor_temperature;
 
 // Sample all ADCs (1 and 2) in regular scanning conversion mode
 void Io_AdcDac_AdcContModeInit(void)
@@ -187,7 +187,7 @@ float Io_AdcDac_GetGpioVal(void)
 
 void Io_AdcDac_CorrectPhaseCurOffset(const uint32_t adc_startup_cycles)
 {
-    if(adc_startup_cycles < ADC_OFFSET_CAL_CYCLES)
+    if (adc_startup_cycles < ADC_OFFSET_CAL_CYCLES)
     {
         adc_offset_cal_data[0][adc_startup_cycles] = adc2_data[0];
         adc_offset_cal_data[1][adc_startup_cycles] = adc2_data[1];
@@ -199,10 +199,18 @@ void Io_AdcDac_CorrectPhaseCurOffset(const uint32_t adc_startup_cycles)
     }
     else
     {
-
-        ph_cur_adc_offset_v.a = 3.3f*((float)adc_offset_cal_sum[0]/ADC_OFFSET_CAL_CYCLES)/4096.0f - 1.65f;
-        ph_cur_adc_offset_v.b = 3.3f*((float)adc_offset_cal_sum[1]/ADC_OFFSET_CAL_CYCLES)/4096.0f - 1.65f;
-        ph_cur_adc_offset_v.c = 3.3f*((float)adc_offset_cal_sum[2]/ADC_OFFSET_CAL_CYCLES)/4096.0f - 1.65f;
+        ph_cur_adc_offset_v.a =
+            3.3f * ((float)adc_offset_cal_sum[0] / ADC_OFFSET_CAL_CYCLES) /
+                4096.0f -
+            1.65f;
+        ph_cur_adc_offset_v.b =
+            3.3f * ((float)adc_offset_cal_sum[1] / ADC_OFFSET_CAL_CYCLES) /
+                4096.0f -
+            1.65f;
+        ph_cur_adc_offset_v.c =
+            3.3f * ((float)adc_offset_cal_sum[2] / ADC_OFFSET_CAL_CYCLES) /
+                4096.0f -
+            1.65f;
 
         phase_cur_offset_complete = true;
 

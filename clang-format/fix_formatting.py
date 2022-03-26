@@ -62,6 +62,7 @@ def runClangFormat():
         "profiler-cortex-m4",
         "cmake-build-x86",
         "list.h"
+		"INV"
     ]
 
     # Print the current working directory since the paths are relative

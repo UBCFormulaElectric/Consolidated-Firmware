@@ -60,16 +60,16 @@ SoftwareWatchdogHandle_t Io_SharedSoftwareWatchdog_AllocateWatchdog(void)
 
 void Io_SharedSoftwareWatchdog_InitWatchdog(
     SoftwareWatchdogHandle_t sw_watchdog_handle,
-    uint8_t                   name,
+    uint8_t                  name,
     Tick_t                   period_in_ticks)
 {
     assert(sw_watchdog_handle != NULL);
-    //assert(name != NULL);
+    // assert(name != NULL);
 
     SoftwareWatchdog_t *sw_watchdog =
         prvGetWatchdogFromHandle(sw_watchdog_handle);
 
-    sw_watchdog->name   = name;
+    sw_watchdog->name            = name;
     sw_watchdog->period          = period_in_ticks;
     sw_watchdog->deadline        = period_in_ticks;
     sw_watchdog->check_in_status = false;

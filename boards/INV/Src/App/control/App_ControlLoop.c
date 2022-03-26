@@ -74,7 +74,7 @@ static float   motor_temp                       = 0.0f;
 static float   powerstage_temp                  = 0.0f;
 static float   motor_derated_current_limit      = 0.0f;
 static float   powerstage_derated_current_limit = 0.0f;
-static float   stator_current_limit = 0.0f;
+static float   stator_current_limit             = 0.0f;
 static float   bus_voltage                      = 0;
 static float   mod_index                        = 0;
 static float   phc_current_calc                 = 0;
@@ -82,7 +82,7 @@ static float   torque_ref                       = 0;
 static bool    fw_flag                          = 0;
 static bool    prev_fw_flag;
 static uint8_t mode            = MODE_UNDEFINED;
-static uint8_t prev_mode = MODE_UNDEFINED;
+static uint8_t prev_mode       = MODE_UNDEFINED;
 static float   rotor_speed_ref = 0;
 static float   mod_index_ref   = 0;
 static float   ph_cur_peak_ref = 0;
@@ -95,20 +95,31 @@ void App_ControlLoop_Run(const struct InvWorld *world)
     struct InvCanRxInterface *can_rx      = App_InvWorld_GetCanRx(world);
     struct InvCanTxInterface *can_tx      = App_InvWorld_GetCanTx(world);
 
+    //Retrieve position data from previous cycle
+    rotor_position = App_Motor_GetPosition();
+
+    //Start getting position for next cycle
+    App_Motor_StartGetPosition();
+
     // Get user requests from the CAN bus
     rotor_speed_ref =
         App_CanRx_INV_ROTOR_SPEED_REQ_GetSignal_ROTOR_SPEED_REQ(can_rx);
-    mode          = App_CanRx_INV_MODE_REQ_GetSignal_MODE_REQ(can_rx);
-    mod_index_ref = App_CanRx_INV_MOD_INDEX_REQ_GetSignal_MOD_INDEX_REQ(can_rx)/100.0f;
+    mode = App_CanRx_INV_MODE_REQ_GetSignal_MODE_REQ(can_rx);
+    mod_index_ref =
+        App_CanRx_INV_MOD_INDEX_REQ_GetSignal_MOD_INDEX_REQ(can_rx) / 100.0f;
 
-    //Calculate derated current limits based on temperature
+    // Calculate derated current limits based on temperature
     motor_derated_current_limit      = App_Motor_GetDeratedCurrent();
     powerstage_derated_current_limit = App_PowerStage_GetDeratedCurrent();
 
-    //Choose the lower of the derated currents as the maximum stator current
-    stator_current_limit = App_CanRx_INV_PH_CUR_PEAK_REQ_GetSignal_PH_CUR_PEAK_REQ(can_rx); // = motor_derated_current_limit < powerstage_derated_current_limit ? motor_derated_current_limit : powerstage_derated_current_limit;
+    // Choose the lower of the derated currents as the maximum stator current
+    stator_current_limit = motor_derated_current_limit <
+                      powerstage_derated_current_limit ?
+                      motor_derated_current_limit :
+                      powerstage_derated_current_limit;
 
-    if (App_Faults_FaultedMotorShutdown(can_tx) ) {
+    if (App_Faults_FaultedMotorShutdown(can_tx))
+    {
         mode = MODE_UNDEFINED;
     }
 
@@ -132,7 +143,9 @@ void App_ControlLoop_Run(const struct InvWorld *world)
 
     App_CanTx_SetPeriodicSignal_MODE(can_tx, mode);
 
-    if ((mode == GEN_SINE_I || mode == GEN_SINE_M || mode == MOTOR_CONTROL) && App_CanTx_GetPeriodicSignal_STATE(can_tx) == CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE)
+    if ((mode == GEN_SINE_I || mode == GEN_SINE_M || mode == MOTOR_CONTROL) &&
+        App_CanTx_GetPeriodicSignal_STATE(can_tx) ==
+            CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE)
     {
         if (mod_index_ref > 0.9f)
         {
@@ -145,8 +158,8 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         ph_cur_peak_ref =
             App_CanRx_INV_PH_CUR_PEAK_REQ_GetSignal_PH_CUR_PEAK_REQ(can_rx);
 
-        //Reset controllers if
-        if(prev_mode != mode)
+        // Reset controllers if
+        if (prev_mode != mode)
         {
             iq_controller.integral_sum = 0;
             id_controller.integral_sum = 0;
@@ -163,7 +176,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
                     can_tx, 1);
                 return;
             }
-            rotor_position            = 0;//App_Motor_GetPositionBlocking();
+            rotor_position            = 0; // App_Motor_GetPositionBlocking();
             float rotor_position_diff = rotor_position - prev_rotor_position;
             if (fabsf(rotor_position_diff) > MAX_MOTOR_POS_CHANGE_PER_CYCLE)
             {
@@ -235,9 +248,9 @@ void App_ControlLoop_Run(const struct InvWorld *world)
                 2 * (float)M_PI);
         }
 
-        bus_voltage = 400.0f;//App_PowerStage_GetBusVoltage(power_stage);
+        bus_voltage = App_PowerStage_GetBusVoltage(power_stage);
 
-        if(bus_voltage < MIN_BUS_VOLTAGE || bus_voltage > MAX_BUS_VOLTAGE)
+        if (bus_voltage < MIN_BUS_VOLTAGE || bus_voltage > MAX_BUS_VOLTAGE)
         {
             App_CanTx_SetPeriodicSignal_MC_BUS_VOLTAGE_FAULT(can_tx, true);
         }
@@ -277,18 +290,24 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         {
             if (LUT_CONTROL_ENABLED)
             {
-                rotor_speed = App_CanRx_INV_ROTOR_SPEED_REQ_GetSignal_ROTOR_SPEED_REQ(can_rx);
-                bus_voltage = App_CanRx_INV_FUND_FREQ_REQ_GetSignal_FUND_FREQ_REQ(can_rx);
+                rotor_speed =
+                    App_CanRx_INV_ROTOR_SPEED_REQ_GetSignal_ROTOR_SPEED_REQ(
+                        can_rx);
+                bus_voltage =
+                    App_CanRx_INV_FUND_FREQ_REQ_GetSignal_FUND_FREQ_REQ(can_rx);
 
-                //LUT may look up some nonzero number for 0 torque, so set to zero
-                if(torque_ref == 0.0f)
+                // LUT may look up some nonzero number for 0 torque, so set to
+                // zero
+                if (torque_ref == 0.0f)
                 {
                     dqs_ref_currents.d = 0.0f;
                     dqs_ref_currents.q = 0.0f;
                 }
                 else
                 {
-                    look_up_dqs_current_ref(rotor_speed, torque_ref, bus_voltage, stator_current_limit, &dqs_ref_currents);
+                    look_up_dqs_current_ref(
+                        rotor_speed, torque_ref, bus_voltage,
+                        stator_current_limit, &dqs_ref_currents);
                 }
             }
             else
@@ -319,8 +338,8 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         else
         {
             dqs_voltages = calculateDqsVoltages(
-                &dqs_ref_currents, &dqs_currents, rotor_speed/9.549f, bus_voltage,
-                &id_controller, &iq_controller);
+                &dqs_ref_currents, &dqs_currents, rotor_speed / 9.549f,
+                bus_voltage, &id_controller, &iq_controller);
 
             id_controller.output = dqs_voltages.d;
             iq_controller.output = dqs_voltages.q;
@@ -331,14 +350,15 @@ void App_ControlLoop_Run(const struct InvWorld *world)
             // Use Space Vector Modulation to calculate PWM durations
             phase_duration = CalculatePwmEdges(&phase_voltages, bus_voltage);
 
-            //Calculate modulation index
-            if(bus_voltage == 0.0f)
+            // Calculate modulation index
+            if (bus_voltage == 0.0f)
             {
-                mod_index = dqs_voltages.s / ( (bus_voltage + 0.000001f) / (float)M_SQRT3 );
+                mod_index = dqs_voltages.s /
+                            ((bus_voltage + 0.000001f) / (float)M_SQRT3);
             }
             else
             {
-                mod_index = dqs_voltages.s / ( (bus_voltage) / (float)M_SQRT3 );
+                mod_index = dqs_voltages.s / ((bus_voltage) / (float)M_SQRT3);
             }
         }
 
@@ -347,11 +367,11 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         prev_fw_flag        = fw_flag;
         prev_rotor_position = rotor_position;
         prev_rotor_speed    = rotor_speed;
-        prev_mode = mode;
+        prev_mode           = mode;
     }
     else
     {
-        //Apply safe ASC state if inverter is not in the drive state
+        // Apply safe ASC state if inverter is not in the drive state
         phase_duration.a = 1.0f;
         phase_duration.b = 1.0f;
         phase_duration.c = 1.0f;
@@ -395,7 +415,7 @@ float App_ControlLoop_GetModIndex(void)
 
 float App_ControlLoop_GetRotorPosition(void)
 {
-    return rotor_position;
+    return rotor_position*360.0f/(2*(float)M_PI);
 }
 
 float App_ControlLoop_GetRotorSpeed(void)
