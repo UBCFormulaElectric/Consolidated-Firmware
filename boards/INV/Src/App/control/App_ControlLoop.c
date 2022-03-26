@@ -104,7 +104,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
     // Get user requests from the CAN bus
     rotor_speed_ref =
         App_CanRx_INV_ROTOR_SPEED_REQ_GetSignal_ROTOR_SPEED_REQ(can_rx);
-    mode = App_CanRx_INV_MODE_REQ_GetSignal_MODE_REQ(can_rx);
+    mode = App_CanRx_INV_STATE_REQ_GetSignal_MODE_REQ(can_rx);
     mod_index_ref =
         App_CanRx_INV_MOD_INDEX_REQ_GetSignal_MOD_INDEX_REQ(can_rx) / 100.0f;
 
@@ -145,7 +145,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
 
     if ((mode == GEN_SINE_I || mode == GEN_SINE_M || mode == MOTOR_CONTROL) &&
         App_CanTx_GetPeriodicSignal_STATE(can_tx) ==
-            CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE)
+            CANMSGS_INV_STATE_STATE_DRIVE_CHOICE)
     {
         if (mod_index_ref > 0.9f)
         {
@@ -168,7 +168,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         if (mode == MOTOR_CONTROL)
         {
             torque_ref =
-                App_CanRx_DCM_TORQUE_REQUEST_GetSignal_TORQUE_REQUEST(can_rx);
+                App_CanRx_DCM_TORQUE_REQUEST_REAR_GetSignal_RL_TORQUE_REQUEST(can_rx);
             if (fabsf(torque_ref) > MAX_MOTOR_TORQUE)
             {
                 App_GateDrive_Shutdown(gate_drive);
@@ -378,7 +378,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         App_GateDrive_LoadPwm(gate_drive, &phase_duration);
 
         App_CanTx_SetPeriodicSignal_MODE(
-            can_tx, CANMSGS_INV_MODE_MODE_UNDEFINED_CHOICE);
+            can_tx, CANMSGS_INV_STATE_MODE_UNDEFINED_CHOICE);
     }
 }
 

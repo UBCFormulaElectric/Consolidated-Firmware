@@ -155,9 +155,10 @@ bool App_GateDrive_Enable(
     struct GateDrive *                    gate_drive,
     const struct InvCanTxInterface *const can_tx)
 {
+    //TODO should this really be based on being in the fault state? what about IsFaulted?
     if (!App_Faults_FaultedMotorShutdown(can_tx) && !Io_STGAP1AS_IsFaulted() &&
         App_CanTx_GetPeriodicSignal_STATE(can_tx) !=
-            CANMSGS_INV_STATE_MACHINE_STATE_FAULT_CHOICE)
+            CANMSGS_INV_STATE_STATE_FAULT_CHOICE)
     {
         gate_drive->set_shutdown_pin(1);
         return 1;

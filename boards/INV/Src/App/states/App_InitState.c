@@ -22,7 +22,7 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     App_GateDrive_WriteConfig(gate_drive);
 
     App_CanTx_SetPeriodicSignal_STATE(
-        can_tx_interface, CANMSGS_INV_STATE_MACHINE_STATE_INIT_CHOICE);
+        can_tx_interface, CANMSGS_INV_STATE_STATE_INIT_CHOICE);
     App_PowerStage_SetCurrentLimits(power_stage, MAX_INVERTER_CURRENT);
 
     App_PowerStage_Enable(power_stage); // Enable ADC
@@ -53,13 +53,13 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_InvWorld_GetHeartbeatMonitor(world);
 
     App_CanTx_SetPeriodicSignal_STATE(
-        can_tx_interface, CANMSGS_INV_STATE_MACHINE_STATE_INIT_CHOICE);
+        can_tx_interface, CANMSGS_INV_STATE_STATE_INIT_CHOICE);
 
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
 
     // Standby state is only feasible choice
-    if (App_CanRx_INV_STATE_REQ_GetSignal_STATE_REQ(can_rx_interface) !=
-            CANMSGS_INV_STATE_MACHINE_STATE_INIT_CHOICE &&
+    if (App_CanRx_INV_STATE_REQ_GetSignal_STATE_MACHINE_REQ(can_rx_interface) !=
+            CANMSGS_INV_STATE_STATE_INIT_CHOICE &&
         App_PowerStage_PhaseCurOffsetComplete())
     {
         App_SharedStateMachine_SetNextState(

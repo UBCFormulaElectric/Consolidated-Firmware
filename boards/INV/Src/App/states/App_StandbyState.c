@@ -17,7 +17,7 @@ static void StandbyStateRunOnEntry(struct StateMachine *const state_machine)
         App_GateDrive_Shutdown(gate_drive);
     }
     App_CanTx_SetPeriodicSignal_STATE(
-        can_tx_interface, CANMSGS_INV_STATE_MACHINE_STATE_STANDBY_CHOICE);
+        can_tx_interface, CANMSGS_INV_STATE_STATE_STANDBY_CHOICE);
 }
 
 static void StandbyStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -37,12 +37,12 @@ static void StandbyStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_InvWorld_GetHeartbeatMonitor(world);
 
     App_CanTx_SetPeriodicSignal_STATE(
-        can_tx_interface, CANMSGS_INV_STATE_MACHINE_STATE_STANDBY_CHOICE);
+        can_tx_interface, CANMSGS_INV_STATE_STATE_STANDBY_CHOICE);
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
 
     // If drive state is commanded, go to the drive state
-    if (App_CanRx_INV_STATE_REQ_GetSignal_STATE_REQ(can_rx_interface) ==
-        CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE)
+    if (App_CanRx_INV_STATE_REQ_GetSignal_STATE_MACHINE_REQ(can_rx_interface) ==
+        CANMSGS_INV_STATE_STATE_DRIVE_CHOICE)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
     }

@@ -82,9 +82,9 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 
     // Only send stgap fault messages after STGAPs are configured, i.e.
     // DRIVE/STANDBY states only
-    if (App_CanTx_GetPeriodicMsgPointer_INV_STATE_MACHINE(can_tx_interface)
-            ->state == (CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE |
-                        CANMSGS_INV_STATE_MACHINE_STATE_STANDBY_CHOICE))
+    if (App_CanTx_GetPeriodicMsgPointer_INV_STATE(can_tx_interface)
+            ->state == (CANMSGS_INV_STATE_STATE_DRIVE_CHOICE |
+                        CANMSGS_INV_STATE_STATE_STANDBY_CHOICE))
     {
         if (App_GateDrive_IsFaulted())
         {
@@ -290,9 +290,9 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     // Check for faults at 100Hz, all states
     if (App_Faults_FaultedMotorShutdown(can_tx_interface) &&
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface) !=
-            CANMSGS_INV_STATE_MACHINE_STATE_INIT_CHOICE &&
+            CANMSGS_INV_STATE_STATE_INIT_CHOICE &&
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface) !=
-            CANMSGS_INV_STATE_MACHINE_STATE_FAULT_CHOICE)
+            CANMSGS_INV_STATE_STATE_FAULT_CHOICE)
     {
         App_GateDrive_Shutdown(gate_drive);
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
@@ -307,26 +307,26 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_ControlLoop_GetDqsActualCurrents(&dqs_actual_currents);
 
         App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx_interface, 1);
-        App_CanTx_SetPeriodicSignal_PID_IQ_PROP(
+        App_CanTx_SetPeriodicSignal_IQ_PROP(
             can_tx_interface,
             iq_controller.output - iq_controller.integral_sum);
-        App_CanTx_SetPeriodicSignal_PID_ID_PROP(
+        App_CanTx_SetPeriodicSignal_ID_PROP(
             can_tx_interface,
             id_controller.output - id_controller.integral_sum);
-        App_CanTx_SetPeriodicSignal_PID_SPEED_PROP(
+        App_CanTx_SetPeriodicSignal_SPEED_PROP(
             can_tx_interface,
             speed_controller.output - speed_controller.integral_sum);
-        App_CanTx_SetPeriodicSignal_PID_IQ_INTEGRAL(
+        App_CanTx_SetPeriodicSignal_IQ_INTEGRAL(
             can_tx_interface, iq_controller.integral_sum);
-        App_CanTx_SetPeriodicSignal_PID_ID_INTEGRAL(
+        App_CanTx_SetPeriodicSignal_ID_INTEGRAL(
             can_tx_interface, id_controller.integral_sum);
-        App_CanTx_SetPeriodicSignal_PID_SPEED_INTEGRAL(
+        App_CanTx_SetPeriodicSignal_SPEED_INTEGRAL(
             can_tx_interface, speed_controller.integral_sum);
-        App_CanTx_SetPeriodicSignal_PID_IQ_OUTPUT(
+        App_CanTx_SetPeriodicSignal_IQ_OUTPUT(
             can_tx_interface, iq_controller.output);
-        App_CanTx_SetPeriodicSignal_PID_ID_OUTPUT(
+        App_CanTx_SetPeriodicSignal_ID_OUTPUT(
             can_tx_interface, id_controller.output);
-        App_CanTx_SetPeriodicSignal_PID_SPEED_OUTPUT(
+        App_CanTx_SetPeriodicSignal_SPEED_OUTPUT(
             can_tx_interface, speed_controller.output);
         App_CanTx_SetPeriodicSignal_MOD_INDEX(
             can_tx_interface, App_ControlLoop_GetModIndex() * 100.0f);
@@ -344,7 +344,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
             can_tx_interface, App_ControlLoop_GetRotorSpeed());
         App_CanTx_SetPeriodicSignal_MODE(
             can_tx_interface, App_ControlLoop_GetMode());
-        App_CanTx_SetPeriodicSignal_GPIOA_VOLTAGE(
+        App_CanTx_SetPeriodicSignal_GPIOA_1_VOLTAGE(
             can_tx_interface, Io_AdcDac_GetGpioVal());
         App_CanTx_SetPeriodicSignal_ID_REF(
             can_tx_interface, dqs_ref_currents.d);
@@ -368,7 +368,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
             App_CanRx_INV_ROTOR_SPEED_REQ_GetSignal_ROTOR_SPEED_REQ(
                 can_rx_interface);
         mode_request =
-            App_CanRx_INV_MODE_REQ_GetSignal_MODE_REQ(can_rx_interface);
+            App_CanRx_INV_STATE_REQ_GetSignal_MODE_REQ(can_rx_interface);
         mod_index_request = App_CanRx_INV_MOD_INDEX_REQ_GetSignal_MOD_INDEX_REQ(
             can_rx_interface);
         ph_cur_peak_request =
@@ -377,8 +377,9 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         fund_freq_request = App_CanRx_INV_FUND_FREQ_REQ_GetSignal_FUND_FREQ_REQ(
             can_rx_interface);
         state_request =
-            App_CanRx_INV_STATE_REQ_GetSignal_STATE_REQ(can_rx_interface);
+            App_CanRx_INV_STATE_REQ_GetSignal_STATE_MACHINE_REQ(can_rx_interface);
 
-        App_CanTx_SetPeriodicSignal_COMMAND(can_tx_interface, state_request);
+        App_CanTx_SetPeriodicSignal_STATE_COMMAND(can_tx_interface, state_request);
+        App_CanTx_SetPeriodicSignal_MODE_COMMAND(can_tx_interface, mode_request);
     }
 }

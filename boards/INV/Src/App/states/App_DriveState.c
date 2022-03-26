@@ -44,7 +44,7 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
         App_GateDrive_Enable(gate_drive, can_tx_interface); // Release Shutdown Pin
 
         App_CanTx_SetPeriodicSignal_STATE(
-            can_tx_interface, CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE);
+            can_tx_interface, CANMSGS_INV_STATE_STATE_DRIVE_CHOICE);
     }
 }
 
@@ -64,11 +64,11 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_InvWorld_GetHeartbeatMonitor(world);
 
     App_CanTx_SetPeriodicSignal_STATE(
-        can_tx_interface, CANMSGS_INV_STATE_MACHINE_STATE_DRIVE_CHOICE);
+        can_tx_interface, CANMSGS_INV_STATE_STATE_DRIVE_CHOICE);
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
 
-    if (App_CanRx_INV_STATE_REQ_GetSignal_STATE_REQ(can_rx_interface) ==
-        CANMSGS_INV_STATE_MACHINE_STATE_STANDBY_CHOICE)
+    if (App_CanRx_INV_STATE_REQ_GetSignal_STATE_MACHINE_REQ(can_rx_interface) ==
+        CANMSGS_INV_STATE_STATE_STANDBY_CHOICE)
     {
         // App_PowerStage_StandBy(power_stage);
         App_SharedStateMachine_SetNextState(
