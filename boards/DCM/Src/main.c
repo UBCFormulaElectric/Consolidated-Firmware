@@ -41,6 +41,7 @@
 #include "Io_SharedErrorTable.h"
 #include "Io_InverterSwitches.h"
 
+#include "App_SharedMacros.h"
 #include "App_DcmWorld.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
@@ -593,15 +594,21 @@ void RunTask1kHz(void const *argument)
 
     for (;;)
     {
-        const uint32_t current_time_ms = osKernelSysTick() * portTICK_PERIOD_MS;
+        Io_SharedSoftwareWatchdog_CheckForTimeouts();
+        const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
 
-        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
-        App_DcmWorld_UpdateWaitSignal(world, current_time_ms);
-        Io_CanTx_EnqueuePeriodicMsgs(can_tx, current_time_ms);
+        App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
+        App_DcmWorld_UpdateWaitSignal(world, task_start_ms);
+        Io_CanTx_EnqueuePeriodicMsgs(can_tx, task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the
-        // task to sleep.
-        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        // task to sleep. Prevent check in if the elapsed period is greater or
+        // equal to the period ms
+        if ((TICK_TO_MS(osKernelSysTick()) - task_start_ms) <= period_ms)
+        {
+            Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        }
+
         osDelayUntil(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END RunTask1kHz */
