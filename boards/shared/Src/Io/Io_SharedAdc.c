@@ -48,16 +48,10 @@ float Io_SharedAdc_ConvertRawAdcValueToVoltage(
     //   with 12-bit resolution, it will be 2^12 -1 = 4095 or with 8-bit
     //   resolution, 2^8 - 1 = 255.
 
-    float voltage = 0.0f;
-    if (is_differential)
-    {
-        voltage = DIFFERENTIAL_ADC_V_SCALE * (int16_t)raw_adc_value /
-                  (float)full_scale;
-    }
-    else
-    {
-        voltage = SINGLE_ENDED_ADC_V_SCALE * raw_adc_value / (float)full_scale;
-    }
+    const float scale =
+        (is_differential) ? DIFFERENTIAL_ADC_V_SCALE : SINGLE_ENDED_ADC_V_SCALE;
 
-    return voltage;
+    // Offsets to the raw ADC value should be configured via cube for
+    // differential ADC mode
+    return scale * raw_adc_value / (float)full_scale;
 }
