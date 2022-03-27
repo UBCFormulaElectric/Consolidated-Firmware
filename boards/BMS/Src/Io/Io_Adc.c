@@ -49,7 +49,7 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     {
         adc1_voltages[ADC1_CHANNEL_3] =
             Io_SharedAdc_ConvertRawAdcValueToVoltage(
-                hadc, false, raw_adc1_values[ADC1_CHANNEL_3]);
+                hadc, true, (uint16_t)raw_adc1_values[ADC1_CHANNEL_3]);
     }
     else if (hadc->Instance == ADC2)
     {

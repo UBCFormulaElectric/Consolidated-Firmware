@@ -1,13 +1,7 @@
-#include <math.h>
 #include "Io_VoltageSense.h"
 
 float Io_VoltageSense_GetTractiveSystemVoltage(float adc_voltage)
 {
-    if (adc_voltage < 0.0f)
-    {
-        return NAN;
-    }
-
     // The tractive system voltage is divided down by several resistors, then
     // fed through an amplifier.
     //
@@ -33,12 +27,9 @@ float Io_VoltageSense_GetTractiveSystemVoltage(float adc_voltage)
     // We can rewrite the earlier equation as:
     //
     //                          ADC voltage
-    // TS_Voltage = ----------------------------------
+    // TS_Voltage = ---------------------------------- * Measurement Error %
     //                Voltage Ratio x Amplifier Gain
 
-    const float voltage_ratio =
-        1.024e+3f / (499e+3f + 499e+3f + 499e+3f + 499e+3f + 1.024e+3f);
-    const float amplifier_gain = 8.0f;
-
-    return adc_voltage / (voltage_ratio * amplifier_gain);
+    return adc_voltage * R_ERROR_COMPENSATION /
+           (TS_VOLTAGE_DIV * AMPLIFIER_GAIN);
 }
