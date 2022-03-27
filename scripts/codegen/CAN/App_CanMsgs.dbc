@@ -5,27 +5,172 @@ NS_ :
 
 BS_:
 
-BU_: DEBUG BMS DCM FSM PDM DIM INVL INVR
+BU_: DEBUG BMS DCM FSM PDM DIM INVR INVL
 
-BO_ 0 INVR_Temperature_Set_1: 8 INVR
+BO_ 0 INVL_Temperature_Set_1: 8 INVL
+SG_ D4_Gate_Driver_Board_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ D3_Module_C_INVL : 32|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ D2_Module_B_INVL : 16|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ D1_Module_A_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+
+BO_ 1 INVL_Temperature_Set_2: 8 INVL
+SG_ D4_RTD3_Temperature_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ D3_RTD2_Temperature_INVL : 32|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ D2_RTD1_Temperature_INVL : 16|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ D1_Control_Board_Temperature_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+
+BO_ 2 INVL_Temperature_Set_3: 8 INVL
+SG_ D4_Torque_Shudder_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
+SG_ D3_Motor_Temperature_INVL : 32|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ D2_RTD5_Temperature_INVL : 16|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+SG_ D1_RTD4_Temperature_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
+
+BO_ 3 INVL_Analog_Input_Voltages: 8 INVL
+SG_ D4_Analog_Input_4_INVL : 32|10@1+ (0.01,0) [0|10.23] "V" DEBUG
+SG_ D3_Analog_Input_3_INVL : 20|10@1+ (0.01,0) [0|10.23] "V" DEBUG
+SG_ D2_Analog_Input_2_INVL : 10|10@1+ (0.01,0) [0|10.23] "V" DEBUG
+SG_ D1_Analog_Input_1_INVL : 0|10@1+ (0.01,0) [0|10.23] "V" DEBUG
+SG_ D5_Analog_Input_5_INVL : 42|10@1+ (0.01,0) [0|10.23] "V" DEBUG
+SG_ D6_Analog_Input_6_INVL : 52|10@1+ (0.01,0) [0|10.23] "V" DEBUG
+
+BO_ 4 INVL_Digital_Input_Status: 8 INVL
+SG_ D5_Digital_Input_5_INVL : 32|1@1+ (1,0) [0|1] "boolean" DEBUG
+SG_ D4_Digital_Input_4_INVL : 24|1@1+ (1,0) [0|1] "boolean" DEBUG
+SG_ D3_Digital_Input_3_INVL : 16|1@1+ (1,0) [0|1] "boolean" DEBUG
+SG_ D2_Digital_Input_2_INVL : 8|1@1+ (1,0) [0|1] "boolean" DEBUG
+SG_ D1_Digital_Input_1_INVL : 0|1@1+ (1,0) [0|1] "boolean" DEBUG
+SG_ D6_Digital_Input_6_INVL : 40|1@1+ (1,0) [0|1] "boolean" DEBUG
+SG_ D7_Digital_Input_7_INVL : 48|1@1+ (1,0) [0|1] "boolean" DEBUG
+SG_ D8_Digital_Input_8_INVL : 56|1@1+ (1,0) [0|1] "boolean" DEBUG
+
+BO_ 5 INVL_Motor_Position_Info: 8 INVL
+SG_ D4_Delta_Resolver_Filtered_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "deg" DEBUG
+SG_ D3_Electrical_Output_Frequency_INVL : 32|16@1- (0.1,0) [-3276.8|3276.7] "hz" DEBUG
+SG_ D2_Motor_Speed_INVL : 16|16@1- (1,0) [-32768|32767] "rpm" DEBUG
+SG_ D1_Motor_Angle_Electrical_INVL : 0|16@1+ (0.1,0) [0|6553.5] "deg" DEBUG
+
+BO_ 6 INVL_Current_Info: 8 INVL
+SG_ D4_DC_Bus_Current_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
+SG_ D3_Phase_C_Current_INVL : 32|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
+SG_ D2_Phase_B_Current_INVL : 16|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
+SG_ D1_Phase_A_Current_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
+
+BO_ 7 INVL_Voltage_Info: 8 INVL
+SG_ D4_VBC_Vq_Voltage_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
+SG_ D3_VAB_Vd_Voltage_INVL : 32|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
+SG_ D2_Output_Voltage_INVL : 16|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
+SG_ D1_DC_Bus_Voltage_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
+
+BO_ 8 INVL_Flux_ID_IQ_Info: 8 INVL
+SG_ D4_Iq_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
+SG_ D3_Id_INVL : 32|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
+SG_ D2_Flux_Feedback_INVL : 16|16@1- (0.001,0) [-32.768|32.767] "Wb" DEBUG
+SG_ D1_Flux_Command_INVL : 0|16@1- (0.001,0) [-32.768|32.767] "Wb" DEBUG
+
+BO_ 9 INVL_Internal_Voltages: 8 INVL
+SG_ D4_Reference_Voltage_12_0_INVL : 48|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
+SG_ D3_Reference_Voltage_5_0_INVL : 32|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
+SG_ D2_Reference_Voltage_2_5_INVL : 16|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
+SG_ D1_Reference_Voltage_1_5_INVL : 0|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
+
+BO_ 10 INVL_Internal_States: 8 INVL
+SG_ D7_Direction_Command_INVL : 56|1@1+ (1,0) [0|1] "" DEBUG
+SG_ D6_Inverter_Enable_State_INVL : 48|1@1+ (1,0) [0|1] "" DEBUG
+SG_ D3_Relay_3_Status_INVL : 26|1@1+ (1,0) [0|1] "" DEBUG
+SG_ D3_Relay_4_Status_INVL : 27|1@1+ (1,0) [0|1] "" DEBUG
+SG_ D3_Relay_2_Status_INVL : 25|1@1+ (1,0) [0|1] "" DEBUG
+SG_ D4_Inverter_Run_Mode_INVL : 32|1@1+ (1,0) [0|1] "" DEBUG
+SG_ D5_Inverter_Command_Mode_INVL : 40|1@1+ (1,0) [0|1] "" DEBUG
+SG_ D3_Relay_1_Status_INVL : 24|1@1+ (1,0) [0|1] "" DEBUG
+SG_ D2_Inverter_State_INVL : 16|8@1+ (1,0) [0|255] "" DEBUG
+SG_ D1_VSM_State_INVL : 0|8@1+ (1,0) [0|15] "" DCM
+SG_ D6_Inverter_Enable_Lockout_INVL : 55|1@1+ (1,0) [0|1] "" DEBUG
+SG_ D4_Inverter_Discharge_State_INVL : 37|3@1+ (1,0) [0|7] "" DEBUG
+SG_ D3_Relay_5_Status_INVL : 28|1@1+ (1,0) [0|1] "" DEBUG
+SG_ D3_Relay_6_Status_INVL : 29|1@1+ (1,0) [0|1] "" DEBUG
+SG_ D7_BMS_Active_INVL : 57|1@1+ (1,0) [0|1] "" DEBUG
+SG_ D7_BMS_Torque_Limiting_INVL : 58|1@1+ (1,0) [0|1] "" DEBUG
+SG_ D7_Max_Speed_Limiting_INVL : 59|1@1+ (1,0) [0|1] "" DEBUG
+SG_ D7_Low_Speed_Limiting_INVL : 61|1@1+ (1,0) [0|1] "" DEBUG
+SG_ D5_Rolling_Counter_INVL : 44|4@1+ (1,0) [0|15] "" DEBUG
+SG_ D1_PWM_Frequency_INVL : 8|8@1+ (1,0) [0|255] "kHz" DEBUG
+SG_ D6_Start_Mode_Active_INVL : 54|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 11 INVL_Fault_Codes: 8 INVL
+SG_ D4_Run_Fault_Hi_INVL : 48|16@1+ (1,0) [0|65535] "" DEBUG
+SG_ D2_Post_Fault_Hi_INVL : 16|16@1+ (1,0) [0|65535] "" DEBUG
+SG_ D3_Run_Fault_Lo_INVL : 32|16@1+ (1,0) [0|65535] "" DEBUG
+SG_ D1_Post_Fault_Lo_INVL : 0|16@1+ (1,0) [0|65535] "" DEBUG
+
+BO_ 12 INVL_Torque_And_Timer_Info: 8 INVL
+SG_ D3_Power_On_Timer_INVL : 32|32@1+ (0.003,0) [0|12884800] "Sec" DEBUG
+SG_ D2_Torque_Feedback_INVL : 16|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
+SG_ D1_Commanded_Torque_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
+
+BO_ 13 INVL_Modulation_And_Flux_Info: 8 INVL
+SG_ D4_Iq_Command_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
+SG_ D3_Id_Command_INVL : 32|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
+SG_ D2_Flux_Weakening_Output_INVL : 16|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
+SG_ D1_Modulation_Index_INVL : 0|16@1- (0.0001,0) [-3.2768|3.2767] "" DEBUG
+
+BO_ 14 INVL_Firmware_Info: 8 INVL
+SG_ D1_Project_Code_EEP_Ver_INVL : 0|16@1+ (1,0) [0|65535] "" DEBUG
+SG_ D2_SW_Version_INVL : 16|16@1+ (1,0) [0|65535] "" DEBUG
+SG_ D3_DateCode_MMDD_INVL : 32|16@1+ (1,0) [0|65535] "" DEBUG
+SG_ D4_DateCode_YYYY_INVL : 48|16@1+ (1,0) [0|65535] "" DEBUG
+
+BO_ 15 INVL_Diag_Data : 8 INVL
+SG_ D1_Buffer_Record_INVL : 0|8@1+ (1,0) [0|255] "" DEBUG
+SG_ D2_Buffer_Segment_INVL : 8|8@1+ (1,0) [0|5] "" DEBUG
+SG_ D3_Diag_Data_1_INVL : 16|16@1- (1,0) [-32768|32767] "" DEBUG
+SG_ D4_Diag_Data_2_INVL : 32|16@1- (1,0) [-32768|32767] "" DEBUG
+SG_ D5_Diag_Data_3_INVL : 48|16@1- (1,0) [-32768|32767] "" DEBUG
+
+BO_ 16 INVL_Fast_Info: 8 INVL
+SG_ Fast_Torque_Command_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
+SG_ Fast_Torque_Feedback_INVL : 16|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
+SG_ Fast_Motor_Speed_INVL : 32|16@1- (1,0) [-32768|32767] "rpm" DEBUG
+SG_ Fast_DC_Bus_Voltage_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
+
+BO_ 32 DCM_INVL_Command_Message: 8 DCM
+SG_ Inverter_Enable_INVL : 40|1@1+ (1,0) [0|1] "Bit" INVL
+SG_ Direction_Command_INVL : 32|1@1+ (1,0) [0|1] "Bit" INVL
+SG_ Speed_Command_INVL : 16|16@1- (1,0) [-32768|32767] "rpm" INVL
+SG_ Torque_Command_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVL
+SG_ Inverter_Discharge_INVL : 41|1@1+ (1,0) [0|1] "Bit" INVL
+SG_ Torque_Limit_Command_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVL
+SG_ Speed_Mode_Enable_INVL : 42|1@1+ (1,0) [0|1] "Bit" INVL
+SG_ RollingCounter_INVL : 44|4@1+ (1,0) [0|15] "Bits" INVL
+
+BO_ 33 DEBUG_INVL_Read_Write_Param_Command: 8 DEBUG
+SG_ D3_Data_Command : 32|16@1- (1,0) [-32768|32767] "" INVL
+SG_ D2_Read_Write_Command : 16|1@1+ (1,0) [0|1] "" INVL
+SG_ D1_Parameter_Address_Command : 0|16@1+ (1,0) [0|65535] "" INVL
+
+BO_ 34 INVL_DEBUG_Read_Write_Param_Response: 8 INVL
+SG_ D2_Write_Success : 16|1@1+ (1,0) [0|1] "" DEBUG
+SG_ D3_Data_Response : 32|16@1- (1,0) [-32768|32767] "" DEBUG
+SG_ D1_Parameter_Address_Response : 0|16@1+ (1,0) [0|65535] "" DEBUG
+
+BO_ 50 INVR_Temperature_Set_1: 8 INVR
 SG_ D4_Gate_Driver_Board_INVR : 48|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
 SG_ D3_Module_C_INVR : 32|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
 SG_ D2_Module_B_INVR : 16|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
 SG_ D1_Module_A_INVR : 0|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
 
-BO_ 1 INVR_Temperature_Set_2: 8 INVR
+BO_ 51 INVR_Temperature_Set_2: 8 INVR
 SG_ D4_RTD3_Temperature_INVR : 48|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
 SG_ D3_RTD2_Temperature_INVR : 32|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
 SG_ D2_RTD1_Temperature_INVR : 16|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
 SG_ D1_Control_Board_Temperature_INVR : 0|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
 
-BO_ 2 INVR_Temperature_Set_3: 8 INVR
+BO_ 52 INVR_Temperature_Set_3: 8 INVR
 SG_ D4_Torque_Shudder_INVR : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
 SG_ D3_Motor_Temperature_INVR : 32|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
 SG_ D2_RTD5_Temperature_INVR : 16|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
 SG_ D1_RTD4_Temperature_INVR : 0|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
 
-BO_ 3 INVR_Analog_Input_Voltages: 8 INVR
+BO_ 53 INVR_Analog_Input_Voltages: 8 INVR
 SG_ D4_Analog_Input_4_INVR : 32|10@1+ (0.01,0) [0|10.23] "V" DEBUG
 SG_ D3_Analog_Input_3_INVR : 20|10@1+ (0.01,0) [0|10.23] "V" DEBUG
 SG_ D2_Analog_Input_2_INVR : 10|10@1+ (0.01,0) [0|10.23] "V" DEBUG
@@ -33,7 +178,7 @@ SG_ D1_Analog_Input_1_INVR : 0|10@1+ (0.01,0) [0|10.23] "V" DEBUG
 SG_ D5_Analog_Input_5_INVR : 42|10@1+ (0.01,0) [0|10.23] "V" DEBUG
 SG_ D6_Analog_Input_6_INVR : 52|10@1+ (0.01,0) [0|10.23] "V" DEBUG
 
-BO_ 4 INVR_Digital_Input_Status: 8 INVR
+BO_ 54 INVR_Digital_Input_Status: 8 INVR
 SG_ D5_Digital_Input_5_INVR : 32|1@1+ (1,0) [0|1] "boolean" DEBUG
 SG_ D4_Digital_Input_4_INVR : 24|1@1+ (1,0) [0|1] "boolean" DEBUG
 SG_ D3_Digital_Input_3_INVR : 16|1@1+ (1,0) [0|1] "boolean" DEBUG
@@ -43,37 +188,37 @@ SG_ D6_Digital_Input_6_INVR : 40|1@1+ (1,0) [0|1] "boolean" DEBUG
 SG_ D7_Digital_Input_7_INVR : 48|1@1+ (1,0) [0|1] "boolean" DEBUG
 SG_ D8_Digital_Input_8_INVR : 56|1@1+ (1,0) [0|1] "boolean" DEBUG
 
-BO_ 5 INVR_Motor_Position_Info: 8 INVR
+BO_ 55 INVR_Motor_Position_Info: 8 INVR
 SG_ D4_Delta_Resolver_Filtered_INVR : 48|16@1- (0.1,0) [-3276.8|3276.7] "deg" DEBUG
 SG_ D3_Electrical_Output_Frequency_INVR : 32|16@1- (0.1,0) [-3276.8|3276.7] "hz" DEBUG
 SG_ D2_Motor_Speed_INVR : 16|16@1- (1,0) [-32768|32767] "rpm" DEBUG
 SG_ D1_Motor_Angle_Electrical_INVR : 0|16@1+ (0.1,0) [0|6553.5] "deg" DEBUG
 
-BO_ 6 INVR_Current_Info: 8 INVR
+BO_ 56 INVR_Current_Info: 8 INVR
 SG_ D4_DC_Bus_Current_INVR : 48|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
 SG_ D3_Phase_C_Current_INVR : 32|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
 SG_ D2_Phase_B_Current_INVR : 16|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
 SG_ D1_Phase_A_Current_INVR : 0|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
 
-BO_ 7 INVR_Voltage_Info: 8 INVR
+BO_ 57 INVR_Voltage_Info: 8 INVR
 SG_ D4_VBC_Vq_Voltage_INVR : 48|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
 SG_ D3_VAB_Vd_Voltage_INVR : 32|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
 SG_ D2_Output_Voltage_INVR : 16|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
 SG_ D1_DC_Bus_Voltage_INVR : 0|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
 
-BO_ 8 INVR_Flux_ID_IQ_Info: 8 INVR
+BO_ 58 INVR_Flux_ID_IQ_Info: 8 INVR
 SG_ D4_Iq_INVR : 48|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
 SG_ D3_Id_INVR : 32|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
 SG_ D2_Flux_Feedback_INVR : 16|16@1- (0.001,0) [-32.768|32.767] "Wb" DEBUG
 SG_ D1_Flux_Command_INVR : 0|16@1- (0.001,0) [-32.768|32.767] "Wb" DEBUG
 
-BO_ 9 INVR_Internal_Voltages: 8 INVR
+BO_ 59 INVR_Internal_Voltages: 8 INVR
 SG_ D4_Reference_Voltage_12_0_INVR : 48|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
 SG_ D3_Reference_Voltage_5_0_INVR : 32|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
 SG_ D2_Reference_Voltage_2_5_INVR : 16|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
 SG_ D1_Reference_Voltage_1_5_INVR : 0|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
 
-BO_ 10 INVR_Internal_States: 8 INVR
+BO_ 60 INVR_Internal_States: 8 INVR
 SG_ D7_Direction_Command_INVR : 56|1@1+ (1,0) [0|1] "" DEBUG
 SG_ D6_Inverter_Enable_State_INVR : 48|1@1+ (1,0) [0|1] "" DEBUG
 SG_ D3_Relay_3_Status_INVR : 26|1@1+ (1,0) [0|1] "" DEBUG
@@ -96,43 +241,43 @@ SG_ D5_Rolling_Counter_INVR : 44|4@1+ (1,0) [0|15] "" DEBUG
 SG_ D1_PWM_Frequency_INVR : 8|8@1+ (1,0) [0|255] "kHz" DEBUG
 SG_ D6_Start_Mode_Active_INVR : 54|1@1+ (1,0) [0|1] "" DEBUG
 
-BO_ 11 INVR_Fault_Codes: 8 INVR
+BO_ 61 INVR_Fault_Codes: 8 INVR
 SG_ D4_Run_Fault_Hi_INVR : 48|16@1+ (1,0) [0|65535] "" DEBUG
 SG_ D2_Post_Fault_Hi_INVR : 16|16@1+ (1,0) [0|65535] "" DEBUG
 SG_ D3_Run_Fault_Lo_INVR : 32|16@1+ (1,0) [0|65535] "" DEBUG
 SG_ D1_Post_Fault_Lo_INVR : 0|16@1+ (1,0) [0|65535] "" DEBUG
 
-BO_ 12 INVR_Torque_And_Timer_Info: 8 INVR
+BO_ 62 INVR_Torque_And_Timer_Info: 8 INVR
 SG_ D3_Power_On_Timer_INVR : 32|32@1+ (0.003,0) [0|12884800] "Sec" DEBUG
 SG_ D2_Torque_Feedback_INVR : 16|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
 SG_ D1_Commanded_Torque_INVR : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
 
-BO_ 13 INVR_Modulation_And_Flux_Info: 8 INVR
+BO_ 63 INVR_Modulation_And_Flux_Info: 8 INVR
 SG_ D4_Iq_Command_INVR : 48|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
 SG_ D3_Id_Command_INVR : 32|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
 SG_ D2_Flux_Weakening_Output_INVR : 16|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
 SG_ D1_Modulation_Index_INVR : 0|16@1- (0.0001,0) [-3.2768|3.2767] "" DEBUG
 
-BO_ 14 INVR_Firmware_Info: 8 INVR
+BO_ 64 INVR_Firmware_Info: 8 INVR
 SG_ D1_Project_Code_EEP_Ver_INVR : 0|16@1+ (1,0) [0|65535] "" DEBUG
 SG_ D2_SW_Version_INVR : 16|16@1+ (1,0) [0|65535] "" DEBUG
 SG_ D3_DateCode_MMDD_INVR : 32|16@1+ (1,0) [0|65535] "" DEBUG
 SG_ D4_DateCode_YYYY_INVR : 48|16@1+ (1,0) [0|65535] "" DEBUG
 
-BO_ 15 INVR_Diag_Data : 8 INVR
+BO_ 65 INVR_Diag_Data: 8 INVR
 SG_ D1_Buffer_Record_INVR : 0|8@1+ (1,0) [0|255] "" DEBUG
 SG_ D2_Buffer_Segment_INVR : 8|8@1+ (1,0) [0|5] "" DEBUG
 SG_ D3_Diag_Data_1_INVR : 16|16@1- (1,0) [-32768|32767] "" DEBUG
 SG_ D4_Diag_Data_2_INVR : 32|16@1- (1,0) [-32768|32767] "" DEBUG
 SG_ D5_Diag_Data_3_INVR : 48|16@1- (1,0) [-32768|32767] "" DEBUG
 
-BO_ 16 INVR_Fast_Info: 8 INVR
+BO_ 66 INVR_Fast_Info: 8 INVR
 SG_ Fast_Torque_Command_INVR : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
 SG_ Fast_Torque_Feedback_INVR : 16|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
 SG_ Fast_Motor_Speed_INVR : 32|16@1- (1,0) [-32768|32767] "rpm" DEBUG
 SG_ Fast_DC_Bus_Voltage_INVR : 48|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
 
-BO_ 32 DCM_INVR_Command_Message: 8 DCM
+BO_ 82 DCM_INVR_Command_Message: 8 DCM
 SG_ Inverter_Enable_INVR : 40|1@1+ (1,0) [0|1] "Bit" INVR
 SG_ Direction_Command_INVR : 32|1@1+ (1,0) [0|1] "Bit" INVR
 SG_ Speed_Command_INVR : 16|16@1- (1,0) [-32768|32767] "rpm" INVR
@@ -142,157 +287,12 @@ SG_ Torque_Limit_Command_INVR : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVR
 SG_ Speed_Mode_Enable_INVR : 42|1@1+ (1,0) [0|1] "Bit" INVR
 SG_ RollingCounter_INVR : 44|4@1+ (1,0) [0|15] "Bits" INVR
 
-BO_ 33 DEBUG_INVR_Read_Write_Param_Command: 8 DEBUG
+BO_ 83 DEBUG_INVR_Read_Write_Param_Command: 8 DEBUG
 SG_ D3_Data_Command : 32|16@1- (1,0) [-32768|32767] "" INVR
 SG_ D2_Read_Write_Command : 16|1@1+ (1,0) [0|1] "" INVR
 SG_ D1_Parameter_Address_Command : 0|16@1+ (1,0) [0|65535] "" INVR
 
-BO_ 34 INVR_DEBUG_Read_Write_Param_Response: 8 INVR
-SG_ D2_Write_Success : 16|1@1+ (1,0) [0|1] "" DEBUG
-SG_ D3_Data_Response : 32|16@1- (1,0) [-32768|32767] "" DEBUG
-SG_ D1_Parameter_Address_Response : 0|16@1+ (1,0) [0|65535] "" DEBUG
-
-BO_ 50 INVL_Temperature_Set_1: 8 INVL
-SG_ D4_Gate_Driver_Board_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
-SG_ D3_Module_C_INVL : 32|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
-SG_ D2_Module_B_INVL : 16|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
-SG_ D1_Module_A_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
-
-BO_ 51 INVL_Temperature_Set_2: 8 INVL
-SG_ D4_RTD3_Temperature_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
-SG_ D3_RTD2_Temperature_INVL : 32|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
-SG_ D2_RTD1_Temperature_INVL : 16|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
-SG_ D1_Control_Board_Temperature_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
-
-BO_ 52 INVL_Temperature_Set_3: 8 INVL
-SG_ D4_Torque_Shudder_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
-SG_ D3_Motor_Temperature_INVL : 32|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
-SG_ D2_RTD5_Temperature_INVL : 16|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
-SG_ D1_RTD4_Temperature_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
-
-BO_ 53 INVL_Analog_Input_Voltages: 8 INVL
-SG_ D4_Analog_Input_4_INVL : 32|10@1+ (0.01,0) [0|10.23] "V" DEBUG
-SG_ D3_Analog_Input_3_INVL : 20|10@1+ (0.01,0) [0|10.23] "V" DEBUG
-SG_ D2_Analog_Input_2_INVL : 10|10@1+ (0.01,0) [0|10.23] "V" DEBUG
-SG_ D1_Analog_Input_1_INVL : 0|10@1+ (0.01,0) [0|10.23] "V" DEBUG
-SG_ D5_Analog_Input_5_INVL : 42|10@1+ (0.01,0) [0|10.23] "V" DEBUG
-SG_ D6_Analog_Input_6_INVL : 52|10@1+ (0.01,0) [0|10.23] "V" DEBUG
-
-BO_ 54 INVL_Digital_Input_Status: 8 INVL
-SG_ D5_Digital_Input_5_INVL : 32|1@1+ (1,0) [0|1] "boolean" DEBUG
-SG_ D4_Digital_Input_4_INVL : 24|1@1+ (1,0) [0|1] "boolean" DEBUG
-SG_ D3_Digital_Input_3_INVL : 16|1@1+ (1,0) [0|1] "boolean" DEBUG
-SG_ D2_Digital_Input_2_INVL : 8|1@1+ (1,0) [0|1] "boolean" DEBUG
-SG_ D1_Digital_Input_1_INVL : 0|1@1+ (1,0) [0|1] "boolean" DEBUG
-SG_ D6_Digital_Input_6_INVL : 40|1@1+ (1,0) [0|1] "boolean" DEBUG
-SG_ D7_Digital_Input_7_INVL : 48|1@1+ (1,0) [0|1] "boolean" DEBUG
-SG_ D8_Digital_Input_8_INVL : 56|1@1+ (1,0) [0|1] "boolean" DEBUG
-
-BO_ 55 INVL_Motor_Position_Info: 8 INVL
-SG_ D4_Delta_Resolver_Filtered_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "deg" DEBUG
-SG_ D3_Electrical_Output_Frequency_INVL : 32|16@1- (0.1,0) [-3276.8|3276.7] "hz" DEBUG
-SG_ D2_Motor_Speed_INVL : 16|16@1- (1,0) [-32768|32767] "rpm" DEBUG
-SG_ D1_Motor_Angle_Electrical_INVL : 0|16@1+ (0.1,0) [0|6553.5] "deg" DEBUG
-
-BO_ 56 INVL_Current_Info: 8 INVL
-SG_ D4_DC_Bus_Current_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
-SG_ D3_Phase_C_Current_INVL : 32|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
-SG_ D2_Phase_B_Current_INVL : 16|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
-SG_ D1_Phase_A_Current_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
-
-BO_ 57 INVL_Voltage_Info: 8 INVL
-SG_ D4_VBC_Vq_Voltage_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
-SG_ D3_VAB_Vd_Voltage_INVL : 32|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
-SG_ D2_Output_Voltage_INVL : 16|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
-SG_ D1_DC_Bus_Voltage_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
-
-BO_ 58 INVL_Flux_ID_IQ_Info: 8 INVL
-SG_ D4_Iq_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
-SG_ D3_Id_INVL : 32|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
-SG_ D2_Flux_Feedback_INVL : 16|16@1- (0.001,0) [-32.768|32.767] "Wb" DEBUG
-SG_ D1_Flux_Command_INVL : 0|16@1- (0.001,0) [-32.768|32.767] "Wb" DEBUG
-
-BO_ 59 INVL_Internal_Voltages: 8 INVL
-SG_ D4_Reference_Voltage_12_0_INVL : 48|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
-SG_ D3_Reference_Voltage_5_0_INVL : 32|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
-SG_ D2_Reference_Voltage_2_5_INVL : 16|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
-SG_ D1_Reference_Voltage_1_5_INVL : 0|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
-
-BO_ 60 INVL_Internal_States: 8 INVL
-SG_ D7_Direction_Command_INVL : 56|1@1+ (1,0) [0|1] "" DEBUG
-SG_ D6_Inverter_Enable_State_INVL : 48|1@1+ (1,0) [0|1] "" DEBUG
-SG_ D3_Relay_3_Status_INVL : 26|1@1+ (1,0) [0|1] ""  DEBUG
-SG_ D3_Relay_4_Status_INVL : 27|1@1+ (1,0) [0|1] ""  DEBUG
-SG_ D3_Relay_2_Status_INVL : 25|1@1+ (1,0) [0|1] ""  DEBUG
-SG_ D4_Inverter_Run_Mode_INVL : 32|1@1+ (1,0) [0|1] "" DEBUG
-SG_ D5_Inverter_Command_Mode_INVL : 40|1@1+ (1,0) [0|1] "" DEBUG
-SG_ D3_Relay_1_Status_INVL : 24|1@1+ (1,0) [0|1] "" DEBUG
-SG_ D2_Inverter_State_INVL : 16|8@1+ (1,0) [0|255] "" DEBUG
-SG_ D1_VSM_State_INVL : 0|8@1+ (1,0) [0|15] "" DCM
-SG_ D6_Inverter_Enable_Lockout_INVL : 55|1@1+ (1,0) [0|1] "" DEBUG
-SG_ D4_Inverter_Discharge_State_INVL : 37|3@1+ (1,0) [0|7] "" DEBUG
-SG_ D3_Relay_5_Status_INVL : 28|1@1+ (1,0) [0|1] "" DEBUG
-SG_ D3_Relay_6_Status_INVL : 29|1@1+ (1,0) [0|1] "" DEBUG
-SG_ D7_BMS_Active_INVL : 57|1@1+ (1,0) [0|1] "" DEBUG
-SG_ D7_BMS_Torque_Limiting_INVL : 58|1@1+ (1,0) [0|1] "" DEBUG
-SG_ D7_Max_Speed_Limiting_INVL : 59|1@1+ (1,0) [0|1] "" DEBUG
-SG_ D7_Low_Speed_Limiting_INVL : 61|1@1+ (1,0) [0|1] "" DEBUG
-SG_ D5_Rolling_Counter_INVL : 44|4@1+ (1,0) [0|15] "" DEBUG
-SG_ D1_PWM_Frequency_INVL : 8|8@1+ (1,0) [0|255] "kHz" DEBUG
-SG_ D6_Start_Mode_Active_INVL : 54|1@1+ (1,0) [0|1] "" DEBUG
-
-BO_ 61 INVL_Fault_Codes: 8 INVL
-SG_ D4_Run_Fault_Hi_INVL : 48|16@1+ (1,0) [0|65535] "" DEBUG
-SG_ D2_Post_Fault_Hi_INVL : 16|16@1+ (1,0) [0|65535] "" DEBUG
-SG_ D3_Run_Fault_Lo_INVL : 32|16@1+ (1,0) [0|65535] "" DEBUG
-SG_ D1_Post_Fault_Lo_INVL : 0|16@1+ (1,0) [0|65535] "" DEBUG
-
-BO_ 62 INVL_Torque_And_Timer_Info: 8 INVL
-SG_ D3_Power_On_Timer_INVL : 32|32@1+ (0.003,0) [0|12884800] "Sec" DEBUG
-SG_ D2_Torque_Feedback_INVL : 16|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
-SG_ D1_Commanded_Torque_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
-
-BO_ 63 INVL_Modulation_And_Flux_Info: 8 INVL
-SG_ D4_Iq_Command_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
-SG_ D3_Id_Command_INVL : 32|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
-SG_ D2_Flux_Weakening_Output_INVL : 16|16@1- (0.1,0) [-3276.8|3276.7] "A" DEBUG
-SG_ D1_Modulation_Index_INVL : 0|16@1- (0.0001,0) [-3.2768|3.2767] "" DEBUG
-
-BO_ 64 INVL_Firmware_Info: 8 INVL
-SG_ D1_Project_Code_EEP_Ver_INVL : 0|16@1+ (1,0) [0|65535] "" DEBUG
-SG_ D2_SW_Version_INVL : 16|16@1+ (1,0) [0|65535] "" DEBUG
-SG_ D3_DateCode_MMDD_INVL : 32|16@1+ (1,0) [0|65535] "" DEBUG
-SG_ D4_DateCode_YYYY_INVL : 48|16@1+ (1,0) [0|65535] "" DEBUG
-
-BO_ 65 INVL_Diag_Data: 8 INVL
-SG_ D1_Buffer_Record_INVL : 0|8@1+ (1,0) [0|255] "" DEBUG
-SG_ D2_Buffer_Segment_INVL : 8|8@1+ (1,0) [0|5] "" DEBUG
-SG_ D3_Diag_Data_1_INVL : 16|16@1- (1,0) [-32768|32767] "" DEBUG
-SG_ D4_Diag_Data_2_INVL : 32|16@1- (1,0) [-32768|32767] "" DEBUG
-SG_ D5_Diag_Data_3_INVL : 48|16@1- (1,0) [-32768|32767] "" DEBUG
-
-BO_ 66 INVL_Fast_Info: 8 INVL
-SG_ Fast_Torque_Command_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
-SG_ Fast_Torque_Feedback_INVL : 16|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
-SG_ Fast_Motor_Speed_INVL : 32|16@1- (1,0) [-32768|32767] "rpm" DEBUG
-SG_ Fast_DC_Bus_Voltage_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "V" DEBUG
-
-BO_ 82 DCM_INVL_Command_Message: 8 DCM
-SG_ Inverter_Enable_INVL : 40|1@1+ (1,0) [0|1] "Bit" INVL
-SG_ Direction_Command_INVL : 32|1@1+ (1,0) [0|1] "Bit" INVL
-SG_ Speed_Command_INVL : 16|16@1- (1,0) [-32768|32767] "rpm" INVL
-SG_ Torque_Command_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVL
-SG_ Inverter_Discharge_INVL : 41|1@1+ (1,0) [0|1] "Bit" INVL
-SG_ Torque_Limit_Command_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVL
-SG_ Speed_Mode_Enable_INVL : 42|1@1+ (1,0) [0|1] "Bit" INVL
-SG_ RollingCounter_INVL : 44|4@1+ (1,0) [0|15] "Bits" INVL
-
-BO_ 83 DEBUG_INVL_Read_Write_Param_Command: 8 DEBUG
-SG_ D3_Data_Command : 32|16@1- (1,0) [-32768|32767] "" INVL
-SG_ D2_Read_Write_Command : 16|1@1+ (1,0) [0|1] "" INVL
-SG_ D1_Parameter_Address_Command : 0|16@1+ (1,0) [0|65535] "" INVL
-
-BO_ 84 INVL_DEBUG_Read_Write_Param_Response: 8 INVL
+BO_ 84 INVR_DEBUG_Read_Write_Param_Response: 8 INVR
 SG_ D2_Write_Success : 16|1@1+ (1,0) [0|1] "" DEBUG
 SG_ D3_Data_Response : 32|16@1- (1,0) [-32768|32767] "" DEBUG
 SG_ D1_Parameter_Address_Response : 0|16@1+ (1,0) [0|65535] "" DEBUG
@@ -711,17 +711,17 @@ SIG_VALTYPE_ 410 _24V_AUX : 1;
 SIG_VALTYPE_ 410 _24V_ACC : 1;
 SIG_VALTYPE_ 411 VBAT : 1;
 
-VAL_ 10 D2_Inverter_State_INVR 0 "Power up" 1 "Stop" 2 "Open Loop" 3 "Closed Loop" 4 "Internal State" 5 "Internal State" 6 "Internal State" 7 "Internal State" 8 "Idle Run" 9 "Idle Stop" 10 "Internal State" 11 "Intern State" 12 "Internal State";
-VAL_ 10 D1_VSM_State_INVR 0 "VSM Start State" 1 "Pre-Charge Init state" 2 "pre-charge active state" 3 "pre-charge complete state" 4 "VSM wait state" 5 "VSM ready state" 6 "Motor Running State" 7 "blink fault code state" 14 "Shutdown state for Key Switch Mode 1" 15 "Reset the inverter";
-VAL_ 32 Inverter_Enable_INVR 0 "OFF" 1 "ON";
-VAL_ 32 Direction_Command_INVR 0 "CW" 1 "CCW";
-VAL_ 32 Inverter_Discharge_INVR 0 "Discharge Disable" 1 "Discharge Enable (if EEPROM parameter is set)";
+VAL_ 10 D2_Inverter_State_INVL 0 "Power up" 1 "Stop" 2 "Open Loop" 3 "Closed Loop" 4 "Internal State" 5 "Internal State" 6 "Internal State" 7 "Internal State" 8 "Idle Run" 9 "Idle Stop" 10 "Internal State" 11 "Intern State" 12 "Internal State";
+VAL_ 10 D1_VSM_State_INVL 0 "VSM Start State" 1 "Pre-Charge Init state" 2 "pre-charge active state" 3 "pre-charge complete state" 4 "VSM wait state" 5 "VSM ready state" 6 "Motor Running State" 7 "blink fault code state" 14 "Shutdown state for Key Switch Mode 1" 15 "Reset the inverter";
+VAL_ 32 Inverter_Enable_INVL 0 "OFF" 1 "ON";
+VAL_ 32 Direction_Command_INVL 0 "CW" 1 "CCW";
+VAL_ 32 Inverter_Discharge_INVL 0 "Discharge Disable" 1 "Discharge Enable (if EEPROM parameter is set)";
 
-VAL_ 60 D2_Inverter_State_INVL 0 "Power up" 1 "Stop" 2 "Open Loop" 3 "Closed Loop" 4 "Internal State" 5 "Internal State" 6 "Internal State" 7 "Internal State" 8 "Idle Run" 9 "Idle Stop" 10 "Internal State" 11 "Intern State" 12 "Internal State";
-VAL_ 60 D1_VSM_State_INVL 0 "VSM Start State" 1 "Pre-Charge Init state" 2 "pre-charge active state" 3 "pre-charge complete state" 4 "VSM wait state" 5 "VSM ready state" 6 "Motor Running State" 7 "blink fault code state" 14 "Shutdown state for Key Switch Mode 1" 15 "Reset the inverter";
-VAL_ 82 Inverter_Enable_INVL 0 "OFF" 1 "ON";
-VAL_ 82 Direction_Command_INVL 0 "CW" 1 "CCW";
-VAL_ 82 Inverter_Discharge_INVL 0 "Discharge Disable" 1 "Discharge Enable (if EEPROM parameter is set)";
+VAL_ 60 D2_Inverter_State_INVR 0 "Power up" 1 "Stop" 2 "Open Loop" 3 "Closed Loop" 4 "Internal State" 5 "Internal State" 6 "Internal State" 7 "Internal State" 8 "Idle Run" 9 "Idle Stop" 10 "Internal State" 11 "Intern State" 12 "Internal State";
+VAL_ 60 D1_VSM_State_INVR 0 "VSM Start State" 1 "Pre-Charge Init state" 2 "pre-charge active state" 3 "pre-charge complete state" 4 "VSM wait state" 5 "VSM ready state" 6 "Motor Running State" 7 "blink fault code state" 14 "Shutdown state for Key Switch Mode 1" 15 "Reset the inverter";
+VAL_ 82 Inverter_Enable_INVR 0 "OFF" 1 "ON";
+VAL_ 82 Direction_Command_INVR 0 "CW" 1 "CCW";
+VAL_ 82 Inverter_Discharge_INVR 0 "Discharge Disable" 1 "Discharge Enable (if EEPROM parameter is set)";
 
 VAL_ 105 Condition 0 "IMD_SHORT_CIRCUIT" 1 "IMD_NORMAL" 2 "IMD_UNDERVOLTAGE_DETECTED" 3 "IMD_SST" 4 "IMD_DEVICE_ERROR" 5 "IMD_EARTH_FAULT" 6 "IMD_INVALID";
 VAL_ 105 OK_HS 0 "NO FAULT" 1 "FAULT";
