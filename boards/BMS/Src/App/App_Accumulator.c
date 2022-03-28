@@ -60,6 +60,11 @@ void App_Accumulator_Destroy(struct Accumulator *accumulator)
     free(accumulator);
 }
 
+float App_Accumulator_GetPackVoltage(struct Accumulator *accumulator)
+{
+    return accumulator->get_pack_voltage();
+}
+
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *const accumulator)
 {
     // Configure the cell monitoring chips. Disable discharge at startup

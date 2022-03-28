@@ -25,3 +25,6 @@
 
 // Convert the tick rate to a time in ms
 #define TICK_TO_MS(tick) ((tick) * portTICK_PERIOD_MS)
+
+// Convert seconds to milliseconds
+#define S_TO_MS(time_s) ((uint32_t)((time_s) * 1000U))

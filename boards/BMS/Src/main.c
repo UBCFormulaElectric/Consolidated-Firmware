@@ -780,12 +780,10 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
-        GPIOB,
-        PRE_CHARGE_EN_Pin | AIR_EN_Pin | BMS_OK_Pin | MCU_LATCH_RESET_Pin,
-        GPIO_PIN_RESET);
+        GPIOB, PRE_CHARGE_EN_Pin | AIR_EN_Pin | BMS_OK_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(SPI2_NSS_GPIO_Port, SPI2_NSS_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(GPIOB, MCU_LATCH_RESET_Pin | SPI2_NSS_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(

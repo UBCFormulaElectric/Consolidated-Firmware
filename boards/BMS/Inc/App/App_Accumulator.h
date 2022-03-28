@@ -6,6 +6,7 @@
 typedef enum
 {
     ACCUMULATOR_SEGMENT_0 = 0U,
+    ACCUMULATOR_SEGMENT_1,
     NUM_OF_ACCUMULATOR_SEGMENTS,
 } AccumulatorSegments_E;
 
@@ -42,6 +43,13 @@ struct Accumulator *App_Accumulator_Create(
  * @param accumulator The accumulator to deallocate.
  */
 void App_Accumulator_Destroy(struct Accumulator *accumulator);
+
+/**
+ * Get the pack voltage in V
+ * @param accumulator The accumulator to get the pack voltage
+ * @return The accumulator pack voltage in V
+ */
+float App_Accumulator_GetPackVoltage(struct Accumulator *accumulator);
 
 // Rate functions to be called within the state machine
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *accumulator);

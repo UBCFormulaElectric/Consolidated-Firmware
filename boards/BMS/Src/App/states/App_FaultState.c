@@ -5,6 +5,8 @@
 #include "App_SetPeriodicCanSignals.h"
 #include "App_SharedMacros.h"
 
+#include "Io_Airs.h"
+
 static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct BmsWorld *const world =
@@ -12,6 +14,8 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
     struct BmsCanTxInterface *const can_tx_interface =
         App_BmsWorld_GetCanTx(world);
     struct Airs *const airs = App_BmsWorld_GetAirs(world);
+
+    Io_Airs_OpenAirPositive();
 
     App_CanTx_SetPeriodicSignal_STATE(
         can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE);
@@ -42,6 +46,11 @@ static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
 static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
+
+    if (!Io_Airs_IsAirNegativeClosed())
+    {
+        App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
+    }
 }
 
 static void FaultStateRunOnExit(struct StateMachine *const state_machine)
