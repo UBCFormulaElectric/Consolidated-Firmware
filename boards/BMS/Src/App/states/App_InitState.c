@@ -39,7 +39,8 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
 
-    float adc_v = Io_VoltageSense_GetTractiveSystemVoltage(Io_Adc_GetAdc1Channel3Voltage());
+    float adc_v = Io_VoltageSense_GetTractiveSystemVoltage(
+        Io_Adc_GetAdc1Channel3Voltage());
     bool is_air_neg_closed = Io_Airs_IsAirNegativeClosed();
     if (is_air_neg_closed && (adc_v < 5.0f))
     {

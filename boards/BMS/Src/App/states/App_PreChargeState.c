@@ -29,11 +29,11 @@ static void PreChargeStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_STATE(
         can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE);
 
-    App_SharedClock_SetPreviousTimeInMilliseconds(
-        clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
-
     // Enable precharge relay
     Io_PreCharge_Enable();
+
+    App_SharedClock_SetPreviousTimeInMilliseconds(
+        clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
 }
 
 static void PreChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -64,7 +64,7 @@ static void
     // Voltage information
     float tractive_system_voltage = Io_VoltageSense_GetTractiveSystemVoltage(
         Io_Adc_GetAdc1Channel3Voltage());
-    float accumulator_voltage = App_Accumulator_GetPackVoltage(accumulator);
+    float accumulator_voltage = 250.0f; //App_Accumulator_GetPackVoltage(accumulator);
     float threshold_voltage =
         accumulator_voltage * precharge_threshold_percentage;
 
