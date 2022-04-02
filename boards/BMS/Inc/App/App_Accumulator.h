@@ -51,6 +51,10 @@ void App_Accumulator_Destroy(struct Accumulator *accumulator);
  */
 float App_Accumulator_GetPackVoltage(struct Accumulator *accumulator);
 
+bool App_Accumulator_IsMaxVoltageInRange(struct Accumulator *accumulator);
+
+bool App_Accumulator_IsMinVoltageInRange(struct Accumulator *accumulator);
+
 // Rate functions to be called within the state machine
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *accumulator);
 void App_Accumulator_RunOnTick100Hz(

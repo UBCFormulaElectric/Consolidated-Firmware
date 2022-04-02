@@ -30,6 +30,13 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
 
     App_Accumulator_RunOnTick100Hz(accumulator, can_tx);
+
+    if (App_Accumulator_IsMaxVoltageInRange(accumulator) ||
+        App_Accumulator_IsMinVoltageInRange(accumulator))
+    {
+        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+    }
+
     App_SetPeriodicCanSignals_Imd(can_tx, imd);
 
     App_CanTx_SetPeriodicSignal_AIR_NEGATIVE(
