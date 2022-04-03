@@ -34,12 +34,12 @@ struct DqsValues calculateDqsVoltages(
         dqs_comp_voltages.q * dqs_comp_voltages.q);
 
     // calculate vd and vq PI controller output
-    dqs_voltages.d = calculatePiOutputs(
+    calculatePiOutputs(
         id_controller, dqs_ref_currents->d, dqs_currents->d, vs_max,
         dqs_comp_voltages.d);
     vq_limit = sqrtf(vs_max * vs_max - dqs_voltages.d * dqs_voltages.d);
 
-    dqs_voltages.q = calculatePiOutputs(
+    calculatePiOutputs(
         iq_controller, dqs_ref_currents->q, dqs_currents->q, vq_limit,
         dqs_comp_voltages.q);
 

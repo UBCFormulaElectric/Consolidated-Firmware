@@ -6,7 +6,7 @@
  */
 
 // calculates PI outputs for Id, Iq or speed control loops
-float calculatePiOutputs(
+void calculatePiOutputs(
     struct ControllerValues *pi_values,
     const float              ref,
     const float              actual,
@@ -44,10 +44,10 @@ float calculatePiOutputs(
     float output = prop_term + pi_values->integral_sum + comp;
     if ((output < limit) && (output > -limit))
     {
-        return output;
+        pi_values->output = output;
     }
     else
     {
-        return (output > limit) ? limit : -limit;
+        pi_values->output = (output > limit) ? limit : -limit;
     }
 }

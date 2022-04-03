@@ -18,14 +18,14 @@ float torqueControl(
     float omega_torque_output, torque_output, stator_current_output;
 
     // Make omega_ref have the same sign as torque_ref
-    omega_ref = omega_ref * (int8_t)((torque_ref > 0) - (torque_ref < 0));
+//    omega_ref = omega_ref * (int8_t)((torque_ref > 0) - (torque_ref < 0));
     int8_t direction_sign = (int8_t)((omega > 0) - (omega < 0));
     int8_t torque_sign    = (int8_t)((torque_ref > 0) - (torque_ref < 0));
-
-    // calculate torque output with PI controller
-    omega_torque_output = calculatePiOutputs(
-        speed_controller, omega_ref, omega, MAX_MOTOR_TORQUE, 0);
-    speed_controller->output = omega_torque_output;
+//
+//    // calculate torque output with PI controller
+//    calculatePiOutputs(
+//        speed_controller, omega_ref, omega, MAX_MOTOR_TORQUE, 0);
+//    speed_controller->output = omega_torque_output;
 
     // take smaller of omega_ref and torque_ref
     torque_output = (fabs(omega_torque_output) < fabs(torque_ref))

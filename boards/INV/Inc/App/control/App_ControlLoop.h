@@ -36,6 +36,12 @@ enum Mode
     MOTOR_CONTROL,
 };
 
+enum
+{
+    TORQUE_CONTROL,
+    SPEED_CONTROL,
+};
+
 struct InvWorld;
 
 void App_ControlLoop_Run(const struct InvWorld *world);

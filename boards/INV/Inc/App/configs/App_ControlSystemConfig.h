@@ -30,8 +30,6 @@
 #define MAX_MOTOR_TORQUE 23.0f // Maximum motor torque, in N*m
 #define MAX_MOTOR_POWER 30000  // Maximum motor power, in W
 #define MAX_MOTOR_SPEED 15000  // Maximum motor speed, in rpm
-#define MAX_MOTOR_POS_CHANGE_PER_CYCLE \
-    MAX_MOTOR_SPEED / 9.459f / SAMPLE_FREQUENCY
 #define SPEED_SETPOINT 15000 // Speed setpoint, in rpm
 
 //-------------- Control Loop Parameters -----------------
@@ -59,6 +57,7 @@
 #define UPPER_ADAPTION_LIMIT \
     0.68f                        // Upper adaption max current percentage limit
 #define MAX_MOD_INDEX 0.9f       // Maximum modulation index
+#define MAX_MOTOR_POS_CHANGE_PER_CYCLE (MAX_MOTOR_SPEED / 9.459f / (float)SAMPLE_FREQUENCY)
 #define RMS_CALC_MIN_FREQUENCY 1 // Minimum frequency RMS calculation can handle
 #define RMS_CALC_ARRAY_SIZE // Number of samples to take for RMS calculation
 

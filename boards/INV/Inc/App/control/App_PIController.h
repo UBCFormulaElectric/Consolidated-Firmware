@@ -2,7 +2,7 @@
 
 #include "control/App_ControlLoop.h"
 
-float calculatePiOutputs(
+void calculatePiOutputs(
     struct ControllerValues *pi_values,
     float                    ref,
     float                    actual,
