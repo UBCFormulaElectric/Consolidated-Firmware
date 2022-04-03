@@ -60,6 +60,12 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     return;
 #endif
 
+#ifdef CONFIG_EEPROM
+    App_InverterSwitches_TurnOnRight(inverter_switches);
+    App_InverterSwitches_TurnOnLeft(inverter_switches);
+    return;
+#endif
+
     // Provide LV to inverters when both AIRS are closed and DC bus voltage ~
     // 400 V
     if (App_SharedStates_AreBothAIRsClosed(can_rx_interface) &&
