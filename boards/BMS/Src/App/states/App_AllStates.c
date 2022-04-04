@@ -17,6 +17,7 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_IS_CONNECTED(can_tx, charger_is_connected);
 }
 
+#include "Io_Airs.h"
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
@@ -31,8 +32,8 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_Accumulator_RunOnTick100Hz(accumulator, can_tx);
 
-    if (App_Accumulator_IsMaxVoltageInRange(accumulator) ||
-        App_Accumulator_IsMinVoltageInRange(accumulator))
+    if (!App_Accumulator_IsMaxVoltageInRange(accumulator) ||
+        !App_Accumulator_IsMinVoltageInRange(accumulator))
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
@@ -40,9 +41,9 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_SetPeriodicCanSignals_Imd(can_tx, imd);
 
     App_CanTx_SetPeriodicSignal_AIR_NEGATIVE(
-        can_tx, App_SharedBinaryStatus_IsActive(App_Airs_GetAirNegative(airs)));
+        can_tx, App_Airs_IsAirNegativeClosed(airs));
     App_CanTx_SetPeriodicSignal_AIR_POSITIVE(
-        can_tx, App_SharedBinaryStatus_IsActive(App_Airs_GetAirPositive(airs)));
+        can_tx, App_Airs_IsAirPositiveClosed(airs));
 
     if (App_OkStatus_IsEnabled(bms_ok))
     {

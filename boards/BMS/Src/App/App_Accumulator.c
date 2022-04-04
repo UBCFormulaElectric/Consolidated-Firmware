@@ -113,7 +113,7 @@ void App_Accumulator_RunOnTick100Hz(
             accumulator->start_cell_voltage_conv();
 
             static uint32_t counter = 0U;
-            if ((counter % 1000) >= 50U)
+            if ((counter % 1000) >= 1U)
             {
                 Io_LTC6813Shared_DisableDischarge();
             }

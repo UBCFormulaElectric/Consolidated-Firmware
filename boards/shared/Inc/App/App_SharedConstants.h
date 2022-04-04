@@ -32,3 +32,5 @@ enum HexDigit
     HEX_DIGIT_F,
     NUM_HEX_DIGITS,
 };
+
+#define SINGLE_ENDED_ADC_V_SCALE (3.3f)

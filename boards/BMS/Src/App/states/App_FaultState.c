@@ -35,7 +35,7 @@ static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
     App_AllStatesRunOnTick1Hz(state_machine);
 
     if (!App_SharedErrorTable_HasAnyAirShutdownErrorSet(error_table) &&
-        !App_SharedBinaryStatus_IsActive(App_Airs_GetAirNegative(airs)))
+        !App_Airs_IsAirNegativeClosed(airs))
     {
         // Transition to the init state once all AIR shutdown faults are cleared
         // and AIR- is opened

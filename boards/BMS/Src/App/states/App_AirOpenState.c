@@ -24,7 +24,7 @@ static void AirOpenStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Airs *    airs  = App_BmsWorld_GetAirs(world);
 
     // Begin the precharge sequence if AIR- is closed
-    if (App_SharedBinaryStatus_IsActive(App_Airs_GetAirNegative(airs)))
+    if (App_Airs_IsAirNegativeClosed(airs))
     {
         App_SharedStateMachine_SetNextState(
             state_machine, App_GetPreChargeState());

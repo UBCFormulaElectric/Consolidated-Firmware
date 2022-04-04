@@ -29,4 +29,4 @@
 // Convert seconds to milliseconds
 #define S_TO_MS(time_s) ((uint32_t)((time_s) * 1000U))
 
-#define IS_IN_RANGE(min,max,val) (((val) > (min)) && ((val) < (max)))
+#define IS_IN_RANGE(min,max,val) (((val) > (min)) || ((val) < (max)))

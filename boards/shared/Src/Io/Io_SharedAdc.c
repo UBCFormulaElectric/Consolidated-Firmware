@@ -1,7 +1,6 @@
 #include "Io_SharedAdc.h"
 #include "App_SharedConstants.h"
 
-#define SINGLE_ENDED_ADC_V_SCALE (3.3f)
 #define DIFFERENTIAL_ADC_V_SCALE (6.6f)
 
 float Io_SharedAdc_ConvertRawAdcValueToVoltage(

@@ -55,11 +55,11 @@ static void
     const uint32_t lower_precharge_time =
         (uint32_t)((float)PRECHARGE_COMPLETION_MS * 0.10f);
     const uint32_t upper_precharge_time =
-        (uint32_t)((float)PRECHARGE_COMPLETION_MS * 1.50f);
+        (uint32_t)((float)PRECHARGE_COMPLETION_MS * 2.0f);
 
     // percentage threshold, which when TS reaches this threshold of ACC, AIR+
     // engages and precharge is disabled must be at least 90% EV.6.6.1
-    const float precharge_threshold_percentage = 0.90f;
+    const float precharge_threshold_percentage = 0.78f;
 
     // Voltage information
     float tractive_system_voltage = Io_VoltageSense_GetTractiveSystemVoltage(

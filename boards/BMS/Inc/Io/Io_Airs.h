@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdint.h>
 #include <stdbool.h>
 
 /**
@@ -23,3 +24,5 @@ void Io_Airs_CloseAirPositive(void);
  * Open AIR+
  */
 void Io_Airs_OpenAirPositive(void);
+
+float Io_Airs_GetAirCurrent(void);
