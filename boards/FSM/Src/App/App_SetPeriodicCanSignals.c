@@ -205,9 +205,9 @@ void App_SetPeriodicSignals_MotorShutdownFaults(const struct FsmWorld *world)
 
         if (error_count == MAX_TORQUE_PLAUSIBILITY_ERROR_COUNT)
         {
-            App_CanTx_SetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
+            App_CanTx_SetPeriodicSignal_TORQUE_PLAUSIBILITY_CHECK_FAILED(
                 can_tx,
-                CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_TRUE_CHOICE);
+                CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_TORQUE_PLAUSIBILITY_CHECK_FAILED_TRUE_CHOICE);
         }
     }
 
@@ -220,6 +220,9 @@ void App_SetPeriodicSignals_MotorShutdownFaults(const struct FsmWorld *world)
     App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(
         can_tx,
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE);
+    App_CanTx_SetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
+        can_tx,
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_FALSE_CHOICE);
     App_CanTx_SetPeriodicSignal_PRIMARY_FLOW_RATE_HAS_UNDERFLOW(
         can_tx,
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PRIMARY_FLOW_RATE_HAS_UNDERFLOW_FALSE_CHOICE);

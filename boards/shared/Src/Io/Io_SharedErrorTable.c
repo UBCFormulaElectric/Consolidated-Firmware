@@ -280,6 +280,9 @@ static void Io_ProcessFsmMotorShutdownErrorMsg(
     SET_ERROR(
         error_table, FSM_MOTOR_SHUTDOWN_SECONDARY_FLOW_RATE_HAS_UNDERFLOW,
         data->secondary_flow_rate_has_underflow);
+    SET_ERROR(
+        error_table, FSM_MOTOR_SHUTDOWN_TORQUE_PLAUSIBILITY_CHECK_FAILED,
+        data->torque_plausibility_check_failed);
 }
 
 static void Io_ProcessPdmMotorShutdownErrorMsg(

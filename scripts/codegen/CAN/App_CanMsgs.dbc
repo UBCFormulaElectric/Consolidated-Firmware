@@ -460,6 +460,7 @@ SG_ SAPPS_Alarm_Is_Active : 2|1@1+ (1,0) [0|1] "" DCM
 SG_ Plausibility_Check_Has_Failed : 3|1@1+ (1,0) [0|1] "" DCM
 SG_ Primary_Flow_Rate_Has_Underflow : 4|1@1+ (1,0) [0|1] "" DCM
 SG_ Secondary_Flow_Rate_Has_Underflow : 5|1@1+ (1,0) [0|1] "" DCM
+SG_ Torque_Plausibility_Check_Failed : 6|1@1+ (1,0) [0|1] "" DCM
 
 BO_ 316 FSM_PEDAL_POSITION: 4 FSM
 SG_ Mapped_Pedal_Percentage: 0|32@1+ (1,0) [0|100] "%" DCM
@@ -752,6 +753,7 @@ VAL_ 315 SAPPS_Alarm_Is_Active 0 "FALSE" 1 "TRUE";
 VAL_ 315 Plausibility_Check_Has_Failed 0 "FALSE" 1 "TRUE";
 VAL_ 315 Primary_Flow_Rate_Has_Underflow 0 "FALSE" 1 "TRUE";
 VAL_ 315 Secondary_Flow_Rate_Has_Underflow 0 "FALSE" 1 "TRUE";
+VAL_ 315 Torque_Plausibility_Check_Failed 0 "FALSE" 1 "TRUE";
 VAL_ 400 VBAT_VOLTAGE_OUT_OF_RANGE 0 "OK" 1 "UNDERFLOW" 2 "OVERFLOW";
 VAL_ 400 _24V_AUX_VOLTAGE_OUT_OF_RANGE 0 "OK" 1 "UNDERFLOW" 2 "OVERFLOW";
 VAL_ 400 _24V_ACC_VOLTAGE_OUT_OF_RANGE 0 "OK" 1 "UNDERFLOW" 2 "OVERFLOW";
