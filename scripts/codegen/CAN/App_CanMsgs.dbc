@@ -136,7 +136,7 @@ BO_ 32 DCM_INVL_Command_Message: 8 DCM
 SG_ Inverter_Enable_INVL : 40|1@1+ (1,0) [0|1] "Bit" INVL
 SG_ Direction_Command_INVL : 32|1@1+ (1,0) [0|1] "Bit" INVL
 SG_ Speed_Command_INVL : 16|16@1- (1,0) [-32768|32767] "rpm" INVL
-SG_ Torque_Command_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVL
+SG_ Torque_Command_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVL,FSM
 SG_ Inverter_Discharge_INVL : 41|1@1+ (1,0) [0|1] "Bit" INVL
 SG_ Torque_Limit_Command_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVL
 SG_ Speed_Mode_Enable_INVL : 42|1@1+ (1,0) [0|1] "Bit" INVL
@@ -281,7 +281,7 @@ BO_ 82 DCM_INVR_Command_Message: 8 DCM
 SG_ Inverter_Enable_INVR : 40|1@1+ (1,0) [0|1] "Bit" INVR
 SG_ Direction_Command_INVR : 32|1@1+ (1,0) [0|1] "Bit" INVR
 SG_ Speed_Command_INVR : 16|16@1- (1,0) [-32768|32767] "rpm" INVR
-SG_ Torque_Command_INVR : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVR
+SG_ Torque_Command_INVR : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVR,FSM
 SG_ Inverter_Discharge_INVR : 41|1@1+ (1,0) [0|1] "Bit" INVR
 SG_ Torque_Limit_Command_INVR : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVR
 SG_ Speed_Mode_Enable_INVR : 42|1@1+ (1,0) [0|1] "Bit" INVR
@@ -378,7 +378,7 @@ SG_ ACCELERATION_Y_OUT_OF_RANGE : 6|1@1+ (1,0) [0|1] "" DEBUG
 SG_ ACCELERATION_Z_OUT_OF_RANGE : 7|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 205 DCM_STATE_MACHINE : 1 DCM
-SG_ State : 0|8@1+ (1,0) [0|255] "" DEBUG
+SG_ State : 0|8@1+ (1,0) [0|255] "" FSM
 
 BO_ 206 DCM_TORQUE_REQUEST : 4 DCM
 SG_ Torque_Request : 0|32@1+ (1,0) [-3.4E038|3.4E038] "" LOGGER
@@ -553,7 +553,7 @@ SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" DEBUG
 
 BO_ 505 DIM_REGEN_PADDLE: 8 DIM
 SG_ Raw_Paddle_Position : 0|32@1+ (1,0) [0|100] "%" DEBUG
-SG_ Mapped_Paddle_Position : 32|32@1+ (1,0) [0|100] "%" DCM
+SG_ Mapped_Paddle_Position : 32|32@1+ (1,0) [0|100] "%" DCM,FSM
 
 BO_ 506 DIM_DRIVE_MODE_SWITCH: 1 DIM
 SG_ Drive_Mode : 0|3@1+ (1,0) [0|5] "" DCM

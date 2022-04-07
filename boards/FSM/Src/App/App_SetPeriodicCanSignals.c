@@ -1,5 +1,9 @@
 #include "App_SharedSetPeriodicCanSignals.h"
 #include "App_SetPeriodicCanSignals.h"
+#include "../../DCM/Inc/App/configs/App_RegenThresholds.h"
+#include "../../DCM/Inc/App/configs/App_TorqueRequestThresholds.h"
+
+#define MAX_TORQUE_PLAUSIBILITY_ERROR_COUNT 3
 
 STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(FsmCanTxInterface)
 
@@ -143,7 +147,69 @@ void App_SetPeriodicSignals_AcceleratorPedal(const struct FsmWorld *world)
 
 void App_SetPeriodicSignals_MotorShutdownFaults(const struct FsmWorld *world)
 {
-    struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
+    struct FsmCanTxInterface *can_tx      = App_FsmWorld_GetCanTx(world);
+    struct FsmCanRxInterface *can_rx      = App_FsmWorld_GetCanRx(world);
+    static uint8_t            error_count = 0;
+
+    // Perform torque plausibility check if DCM is in the drive state
+    if (App_CanRx_DCM_STATE_MACHINE_GetSignal_STATE(can_rx) ==
+        CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE)
+    {
+        const bool is_regen_allowed =
+            App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED(can_tx) >
+                REGEN_WHEEL_SPEED_THRESHOLD_KPH &&
+            App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED(can_tx) >
+                REGEN_WHEEL_SPEED_THRESHOLD_KPH;
+        const float regen_paddle_percentage =
+            (float)App_CanRx_DIM_REGEN_PADDLE_GetSignal_MAPPED_PADDLE_POSITION(
+                can_rx);
+        float expected_torque_request;
+
+        if (regen_paddle_percentage > 0.0f && is_regen_allowed)
+        {
+            expected_torque_request =
+                -0.01f * regen_paddle_percentage * MAX_TORQUE_REQUEST_NM;
+        }
+        else
+        {
+            expected_torque_request =
+                0.01f *
+                App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx) *
+                MAX_TORQUE_REQUEST_NM;
+        }
+
+        float upper_torque_request_bound =
+            expected_torque_request * TORQUE_REQUEST_UPPER_BOUND_FACTOR;
+        float lower_torque_request_bound =
+            expected_torque_request * TORQUE_REQUEST_LOWER_BOUND_FACTOR;
+        float dcm_torque_request_invl =
+            App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
+                App_CanRx_DCM_INVL_COMMAND_MESSAGE_GetSignal_TORQUE_COMMAND_INVL(
+                    can_rx));
+        float dcm_torque_request_invr =
+            App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+                App_CanRx_DCM_INVR_COMMAND_MESSAGE_GetSignal_TORQUE_COMMAND_INVR(
+                    can_rx));
+
+        if (dcm_torque_request_invl > upper_torque_request_bound ||
+            dcm_torque_request_invr > upper_torque_request_bound ||
+            dcm_torque_request_invl < lower_torque_request_bound ||
+            dcm_torque_request_invr < lower_torque_request_bound)
+        {
+            error_count++;
+        }
+        else
+        {
+            error_count = 0;
+        }
+
+        if (error_count == MAX_TORQUE_PLAUSIBILITY_ERROR_COUNT)
+        {
+            App_CanTx_SetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
+                can_tx,
+                CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_TRUE_CHOICE);
+        }
+    }
 
     App_CanTx_SetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(
         can_tx,
@@ -154,9 +220,6 @@ void App_SetPeriodicSignals_MotorShutdownFaults(const struct FsmWorld *world)
     App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(
         can_tx,
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE);
-    App_CanTx_SetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
-        can_tx,
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_FALSE_CHOICE);
     App_CanTx_SetPeriodicSignal_PRIMARY_FLOW_RATE_HAS_UNDERFLOW(
         can_tx,
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PRIMARY_FLOW_RATE_HAS_UNDERFLOW_FALSE_CHOICE);
