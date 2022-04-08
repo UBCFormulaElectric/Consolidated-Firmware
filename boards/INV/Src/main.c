@@ -1159,7 +1159,10 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     // TODO once board revision changes, commented pins will also be interrupt
     // triggered. Don't have the correct pins atm. asyncronously shut down the
     // gate drive if any fault pin interrupt is triggered
-    App_GateDrive_Shutdown(gate_drive);
+
+    //TODO this call to gatedrive shutdown leads to hard fault because this interrupt gets
+    //executed before gate_drive is initialized
+    //App_GateDrive_Shutdown(gate_drive);
     if (GPIO_Pin == nPHA_OC_ALARM_Pin)
     {
         App_CanTx_SetPeriodicSignal_PHA_OC_ALARM(can_tx, 1);

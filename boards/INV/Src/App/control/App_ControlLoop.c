@@ -113,6 +113,8 @@ void App_ControlLoop_Run(const struct InvWorld *world)
     mod_index_ref =
         App_CanRx_INV_MOD_INDEX_REQ_GetSignal_MOD_INDEX_REQ(can_rx) / 100.0f;
 
+    mod_index_ref = mod_index_ref > 0.9f ? 0.9f : mod_index_ref < 0 ? 0 : mod_index_ref;
+
     fund_freq_ref =
             App_CanRx_INV_FUND_FREQ_REQ_GetSignal_FUND_FREQ_REQ(can_rx);
     if (fund_freq_ref < 0 ||
@@ -143,14 +145,9 @@ void App_ControlLoop_Run(const struct InvWorld *world)
                       motor_derated_current_limit :
                       powerstage_derated_current_limit;
 
-    if (App_Faults_FaultedMotorShutdown(can_tx))
-    {
-        mode = MODE_UNDEFINED;
-    }
-
     // TODO Delete these lines and add them to EXTI section in main after board
     // revision
-    else if (App_GateDrive_GetPhbLoDiag(gate_drive))
+    if (App_GateDrive_GetPhbLoDiag(gate_drive))
     {
         App_CanTx_SetPeriodicSignal_PHB_LO_DIAG(can_tx, 1);
         mode = MODE_UNDEFINED;
@@ -189,9 +186,15 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         App_CanTx_SetPeriodicSignal_MC_BUS_VOLTAGE_FAULT(can_tx, false);
     }
 
+    // Reset current controllers if
+    if (prev_mode != mode) {
+        iq_controller.integral_sum = 0;
+        id_controller.integral_sum = 0;
+        speed_controller.integral_sum = 0;
+    }
+
     if(state == CANMSGS_INV_STATE_STATE_DRIVE_CHOICE) {
         if (mode == GEN_SINE_M) {
-            mod_index_ref = mod_index_ref > 0.9f ? 0.9f : mod_index_ref < 0 ? 0 : mod_index_ref;
 
             rotor_position = fmodf(
                     (prev_rotor_position +
@@ -215,13 +218,6 @@ void App_ControlLoop_Run(const struct InvWorld *world)
 
         } else if (mode == GEN_SINE_I) {
             ph_cur_peak_ref = App_CanRx_INV_PH_CUR_PEAK_REQ_GetSignal_PH_CUR_PEAK_REQ(can_rx);
-
-            // Reset current controllers if
-            if (prev_mode != mode) {
-                iq_controller.integral_sum = 0;
-                id_controller.integral_sum = 0;
-                speed_controller.integral_sum = 0;
-            }
 
             rotor_position = fmodf(
                     (prev_rotor_position +
@@ -259,13 +255,6 @@ void App_ControlLoop_Run(const struct InvWorld *world)
             }
 
         } else if (mode == MOTOR_CONTROL) {
-
-            // Reset current controllers if changing modes
-            if (prev_mode != mode) {
-                iq_controller.integral_sum = 0;
-                id_controller.integral_sum = 0;
-                speed_controller.integral_sum = 0;
-            }
 
             //Calculate rotor speed
             float rotor_position_diff = rotor_position - prev_rotor_position;
@@ -361,9 +350,14 @@ void App_ControlLoop_Run(const struct InvWorld *world)
             }
         }
 
-        //For all modes, load PWM signals
-        App_GateDrive_LoadPwm(gate_drive, &phase_duration);
-
+        //For all modes, load PWM signals unless fault has occured
+        if (App_Faults_FaultedMotorShutdown(can_tx))
+        {
+            mode = MODE_UNDEFINED;
+        }
+        else {
+            App_GateDrive_LoadPwm(gate_drive, &phase_duration);
+        }
         prev_fw_flag        = fw_flag;
         prev_rotor_position = rotor_position;
         prev_rotor_speed    = rotor_speed;

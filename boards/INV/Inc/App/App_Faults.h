@@ -6,4 +6,5 @@
 bool App_Faults_FaultedNonCritical(
     const struct InvCanTxInterface *can_tx_interface);
 bool App_Faults_FaultedMotorShutdown(
-    const struct InvCanTxInterface *can_tx_interface);
+    const struct InvCanTxInterface *can_tx_interface,
+    const struct InvCanRxInterface *can_rx_interface);
