@@ -16,6 +16,7 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct InvWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct InvCanTxInterface *can_tx_interface = App_InvWorld_GetCanTx(world);
+    struct InvCanRxInterface *can_rx_interface = App_InvWorld_GetCanRx(world);
     struct GateDrive *        gate_drive  = App_InvWorld_GetGateDrive(world);
     struct PowerStage *       power_stage = App_InvWorld_GetPowerStage(world);
 
@@ -29,7 +30,7 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 
     App_GateDrive_StartPwmTimer(gate_drive);
 
-    if (App_Faults_FaultedMotorShutdown(can_tx_interface))
+    if (App_Faults_FaultedMotorShutdown(can_tx_interface, can_rx_interface))
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
         App_GateDrive_Shutdown(gate_drive);

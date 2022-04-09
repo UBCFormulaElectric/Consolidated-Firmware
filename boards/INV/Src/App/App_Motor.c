@@ -61,9 +61,8 @@ float App_Motor_GetPosition(void)
 
 bool App_Motor_GetOTAlarm(void)
 {
-    // TODO change this back when using motor
-    return 0; //! HAL_GPIO_ReadPin(nMOTOR_OT_ALARM_GPIO_Port,
-              //! nMOTOR_OT_ALARM_Pin);
+    return !HAL_GPIO_ReadPin(nMOTOR_OT_ALARM_GPIO_Port,
+                             nMOTOR_OT_ALARM_Pin);
 }
 
 float App_Motor_GetTemperature(void)

@@ -351,7 +351,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         }
 
         //For all modes, load PWM signals unless fault has occured
-        if (App_Faults_FaultedMotorShutdown(can_tx))
+        if (App_Faults_FaultedMotorShutdown(can_tx, can_rx))
         {
             mode = MODE_UNDEFINED;
         }

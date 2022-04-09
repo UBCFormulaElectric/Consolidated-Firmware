@@ -58,7 +58,8 @@ void App_GateDrive_Command(struct GateDrive *gate_drive, uint8_t command_name);
 void App_GateDrive_Shutdown(struct GateDrive *gate_drive);
 bool App_GateDrive_Enable(
     struct GateDrive *              gate_drive,
-    const struct InvCanTxInterface *can_tx);
+    const struct InvCanTxInterface *can_tx,
+    const struct InvCanRxInterface *can_rx);
 bool App_GateDrive_IsShutdown(struct GateDrive *gate_drive);
 bool App_GateDrive_IsEnabled(struct GateDrive *gate_drive);
 void App_GateDrive_LoadPwm(

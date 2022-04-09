@@ -288,7 +288,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct GateDrive *        gate_drive  = App_InvWorld_GetGateDrive(world);
 
     // Check for faults at 100Hz, all states
-    if (App_Faults_FaultedMotorShutdown(can_tx_interface) &&
+    if (App_Faults_FaultedMotorShutdown(can_tx_interface, can_rx_interface) &&
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface) !=
             CANMSGS_INV_STATE_STATE_INIT_CHOICE &&
         App_CanTx_GetPeriodicSignal_STATE(can_tx_interface) !=
