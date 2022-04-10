@@ -114,7 +114,7 @@ with open("App_CanMsgs.dbc", 'w') as dbc_file:
                 )
             )
 
-            message_bit_total += signal_info.get('SIGNAL_LENGTH')
+            message_bit_total += int(signal_info.get('SIGNAL_LENGTH'))
 
     dbc_file.write(
         (
