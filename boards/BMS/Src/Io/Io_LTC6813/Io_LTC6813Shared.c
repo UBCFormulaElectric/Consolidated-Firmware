@@ -170,14 +170,18 @@ static void Io_PrepareCfgRegBytes(
     Io_LTC6813CellVoltages_GetMinCellLocation(
         &min_cell_segment, &min_cell_index);
 
-    // Write to the last segment on the daisy chain first
-    for (uint8_t curr_segment = NUM_OF_ACCUMULATOR_SEGMENTS - 1U;
-         (int8_t)curr_segment >= ACCUMULATOR_SEGMENT_0; curr_segment--)
+    // Write to the configuration registers of each segment
+    for (uint8_t curr_segment = 0;
+         (int8_t)curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS; curr_segment++)
     {
+        // Configuration registers are written to serially starting from the
+        // last segment
+        const int32_t tx_cfg_idx =
+            NUM_OF_ACCUMULATOR_SEGMENTS - (int32_t)curr_segment - 1;
+
         // Set default tx_cfg for each segment
         memcpy(
-            &tx_cfg[curr_segment],
-            ltc6813_configs[curr_cfg_reg].default_cfg_reg,
+            &tx_cfg[tx_cfg_idx], ltc6813_configs[curr_cfg_reg].default_cfg_reg,
             NUM_REG_GROUP_PAYLOAD_BYTES);
 
         // Get dcc bits to write for the current segment. If this is the lowest
@@ -190,20 +194,20 @@ static void Io_PrepareCfgRegBytes(
         // Write to configuration registers DCC bits
         if (curr_cfg_reg == CONFIG_REG_A)
         {
-            tx_cfg[curr_segment][REG_GROUP_BYTE_4] |=
+            tx_cfg[tx_cfg_idx][REG_GROUP_BYTE_4] |=
                 SET_CFGRA4_DCC_BITS(dcc_bits);
-            tx_cfg[curr_segment][REG_GROUP_BYTE_5] |=
+            tx_cfg[tx_cfg_idx][REG_GROUP_BYTE_5] |=
                 SET_CFGRA5_DCC_BITS(dcc_bits);
         }
         else
         {
-            tx_cfg[curr_segment][REG_GROUP_BYTE_0] |=
+            tx_cfg[tx_cfg_idx][REG_GROUP_BYTE_0] |=
                 SET_CFGRB0_DCC_BITS(dcc_bits);
         }
 
         // Calculate and pack the PEC15 bytes into data to write ot the
         // configuration register
-        Io_LTC6813Shared_PackRegisterGroupPec15(tx_cfg[curr_segment]);
+        Io_LTC6813Shared_PackRegisterGroupPec15(tx_cfg[tx_cfg_idx]);
     }
 }
 
