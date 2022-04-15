@@ -30,7 +30,7 @@
 #define MAX_MOTOR_TORQUE 23.0f // Maximum motor torque, in N*m
 #define MAX_MOTOR_POWER 30000  // Maximum motor power, in W
 #define MAX_MOTOR_SPEED 15000  // Maximum motor speed, in rpm
-#define SPEED_SETPOINT 15000 // Speed setpoint, in rpm
+#define SPEED_SETPOINT 15000   // Speed setpoint, in rpm
 
 //-------------- Control Loop Parameters -----------------
 
@@ -46,7 +46,7 @@
 #define Q_TIME_CONST 0.003555555555555555f // PI controller Q axis time constant
 #define SPEED_GAIN 0.4002385659999999f     // Speed PI controller gain
 #define SPEED_TIME_CONST 0.04244135400651f // Speed PI controller time constant
-#define DECOUPLING_ENABLED 1     // Enable flag for D/Q axis decoupling
+#define DECOUPLING_ENABLED 0     // Enable flag for D/Q axis decoupling
 #define LUT_CONTROL_ENABLED 1    // Enable flag for Motor Control with LUT
 #define CALCULATE_PHC_CURRENT 1  // Enable flag for calculation of PHC current
 #define ADAPTION_GAIN_ENABLED 0  // Enable flag for Adaptive gain
@@ -55,9 +55,10 @@
 #define LOWER_ADAPTION_LIMIT \
     0.19f // Lower adaption max current percentage limit
 #define UPPER_ADAPTION_LIMIT \
-    0.68f                        // Upper adaption max current percentage limit
-#define MAX_MOD_INDEX 0.9f       // Maximum modulation index
-#define MAX_MOTOR_POS_CHANGE_PER_CYCLE (MAX_MOTOR_SPEED / 9.459f / (float)SAMPLE_FREQUENCY)
+    0.68f                  // Upper adaption max current percentage limit
+#define MAX_MOD_INDEX 0.9f // Maximum modulation index
+#define MAX_MOTOR_POS_CHANGE_PER_CYCLE \
+    (MAX_MOTOR_SPEED / 9.459f / (float)SAMPLE_FREQUENCY)
 #define RMS_CALC_MIN_FREQUENCY 1 // Minimum frequency RMS calculation can handle
 #define RMS_CALC_ARRAY_SIZE // Number of samples to take for RMS calculation
 

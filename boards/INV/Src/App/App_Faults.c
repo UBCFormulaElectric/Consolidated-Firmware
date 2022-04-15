@@ -26,7 +26,8 @@ bool App_Faults_FaultedNonCritical(
 
 // Check to see if the inverter has a critical fault flag set on the CAN table
 bool App_Faults_FaultedMotorShutdown(
-    const struct InvCanTxInterface *const can_tx_interface, const struct InvCanRxInterface *const can_rx_interface)
+    const struct InvCanTxInterface *const can_tx_interface,
+    const struct InvCanRxInterface *const can_rx_interface)
 {
     if (App_CanTx_GetPeriodicSignal_PHA_HI_DIAG(can_tx_interface) ||
         App_CanTx_GetPeriodicSignal_PHA_LO_DIAG(can_tx_interface) ||
@@ -39,7 +40,8 @@ bool App_Faults_FaultedMotorShutdown(
         App_CanTx_GetPeriodicSignal_PHC_OC_ALARM(can_tx_interface) ||
         App_CanTx_GetPeriodicSignal_PWRSTG_OT_ALARM(can_tx_interface) ||
         App_CanTx_GetPeriodicSignal_STGAP_STATUS_FAULT(can_tx_interface) ||
-        App_CanTx_GetPeriodicSignal_MC_BUS_VOLTAGE_FAULT(can_tx_interface) ||
+        (App_CanTx_GetPeriodicSignal_MC_BUS_VOLTAGE_FAULT(can_tx_interface) &
+        ~App_CanRx_INV_STATE_REQ_GetSignal_NO_BUS_VOLTAGE_PRESENT(can_rx_interface)) ||
         App_CanTx_GetPeriodicSignal_STGAP_SHORT_TEST(can_tx_interface) ||
         App_CanTx_GetPeriodicSignal_CUR_SNS_OFFSET(can_tx_interface) ||
         App_CanTx_GetPeriodicSignal_DAC_OC_THRESHOLD(can_tx_interface) ||
@@ -59,11 +61,13 @@ bool App_Faults_FaultedMotorShutdown(
         App_CanTx_GetPeriodicSignal_MC_SPEED_CONTROLLER_STABILITY(
             can_tx_interface) ||
         (App_CanTx_GetPeriodicSignal_ROTOR_NO_RESPONSE(can_tx_interface) &
-                ~App_CanRx_INV_STATE_REQ_GetSignal_NO_ROTOR_PRESENT(can_rx_interface)) ||
+         ~App_CanRx_INV_STATE_REQ_GetSignal_NO_ROTOR_PRESENT(
+             can_rx_interface)) ||
         (App_CanTx_GetPeriodicSignal_ROTOR_CRC_CHECK(can_tx_interface) &
-            ~App_CanRx_INV_STATE_REQ_GetSignal_NO_ROTOR_PRESENT(can_rx_interface)) ||
+         ~App_CanRx_INV_STATE_REQ_GetSignal_NO_ROTOR_PRESENT(
+             can_rx_interface)) ||
         (App_CanTx_GetPeriodicSignal_MOTOR_OT_ALARM(can_tx_interface) &
-            ~App_CanRx_INV_STATE_REQ_GetSignal_NO_ROTOR_PRESENT(can_rx_interface)))
+         ~App_CanRx_INV_STATE_REQ_GetSignal_NO_ROTOR_PRESENT(can_rx_interface)))
 
     {
         return 1;

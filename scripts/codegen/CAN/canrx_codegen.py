@@ -75,7 +75,7 @@ class AppCanRxFileGenerator(CanRxFileGenerator):
                         Function('%s %s_%s_GetSignal_%s (const struct %sCanRxInterface* can_rx_interface)'
                                  % ('float', function_prefix, msg.snake_name.upper(), signal.snake_name.upper(),
                                     self._receiver.capitalize()), '', '''\
-    return (float)(can_rx_interface->can_rx_table.{msg_name}.{signal_name} * {scale}) {offset_sign} {offset};'''.format(
+    return (float)(can_rx_interface->can_rx_table.{msg_name}.{signal_name}) * {scale} {offset_sign} {offset};'''.format(
                             signal_type=signal.type_name,
                             signal_name=signal.snake_name,
                             offset_sign='-' if (offset < 0.0) else '+',
@@ -108,7 +108,7 @@ class AppCanRxFileGenerator(CanRxFileGenerator):
                             signal.snake_name.upper(), self._receiver.capitalize()),
                         '',
                         '''\
-    const {type_name} _value = ({type_name})((value {offset_sign} {offset}) * {scale});
+    const {type_name} _value = ({type_name})((value {offset_sign} {offset}));
     if (App_CanMsgs_{msg_snakecase_name}_{signal_snakecase_name}_is_in_range(_value) == true)
     {{
         can_rx_interface->can_rx_table.{msg_snakecase_name}.{signal_snakecase_name} = _value;

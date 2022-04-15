@@ -114,51 +114,51 @@ void Io_ECI1118_GeneratePacketBits(uint16_t command)
                 endat_send_data[i];
         }
     }
-    else if (command == encoder_commands.get_position)
+    else if (command == encoder_commands.encoder_reset)
     {
         for (size_t i = 0; i < ENDAT_DMA_SEND_SIZE; i++)
         {
-            dma_packed_encoder_commands.dma_get_position[i] =
+            dma_packed_encoder_commands.dma_encoder_reset[i] =
                 endat_send_data[i];
         }
     }
-    else if (command == encoder_commands.get_position)
+    else if (command == encoder_commands.get_parameter)
     {
         for (size_t i = 0; i < ENDAT_DMA_SEND_SIZE; i++)
         {
-            dma_packed_encoder_commands.dma_get_position[i] =
+            dma_packed_encoder_commands.dma_get_parameter[i] =
                 endat_send_data[i];
         }
     }
-    else if (command == encoder_commands.get_position)
+    else if (command == encoder_commands.get_test_values)
     {
         for (size_t i = 0; i < ENDAT_DMA_SEND_SIZE; i++)
         {
-            dma_packed_encoder_commands.dma_get_position[i] =
+            dma_packed_encoder_commands.dma_get_test_values[i] =
                 endat_send_data[i];
         }
     }
-    else if (command == encoder_commands.get_position)
+    else if (command == encoder_commands.select_memory)
     {
         for (size_t i = 0; i < ENDAT_DMA_SEND_SIZE; i++)
         {
-            dma_packed_encoder_commands.dma_get_position[i] =
+            dma_packed_encoder_commands.dma_select_memory[i] =
                 endat_send_data[i];
         }
     }
-    else if (command == encoder_commands.get_position)
+    else if (command == encoder_commands.send_parameter)
     {
         for (size_t i = 0; i < ENDAT_DMA_SEND_SIZE; i++)
         {
-            dma_packed_encoder_commands.dma_get_position[i] =
+            dma_packed_encoder_commands.dma_send_parameter[i] =
                 endat_send_data[i];
         }
     }
-    else if (command == encoder_commands.get_position)
+    else if (command == encoder_commands.send_test_command)
     {
         for (size_t i = 0; i < ENDAT_DMA_SEND_SIZE; i++)
         {
-            dma_packed_encoder_commands.dma_get_position[i] =
+            dma_packed_encoder_commands.dma_send_test_command[i] =
                 endat_send_data[i];
         }
     }
@@ -177,8 +177,9 @@ void Io_ECI1118_StartGetPosition(void)
         &hdma_tim1_ch3, (uint32_t) & (ENDAT_DATA_RX_GPIO_Port->IDR),
         (uint32_t)endat_receive_data, ENDAT_DMA_SEND_SIZE);
     HAL_DMA_Start_IT(
-        &hdma_tim1_ch2, (uint32_t) & (ENDAT_DATA_TX_GPIO_Port->BSRR),
+        &hdma_tim1_ch2,
         (uint32_t)dma_packed_encoder_commands.dma_get_position,
+        (uint32_t) & (ENDAT_DATA_TX_GPIO_Port->BSRR),
         ENDAT_DMA_SEND_SIZE);
 
     TIM1->DIER |= (1 << TIM_DIER_CC2DE_Pos) | (1 << TIM_DIER_CC3DE_Pos);
@@ -250,22 +251,22 @@ float Io_ECI1118_ReadPosition(void)
                            ENDAT_DATA_RX_Pin) >>
                               (11 - 11) |
                           (endat_receive_data[position_start_index + 12 * 2] &
-                           ENDAT_DATA_RX_Pin) >>
+                           ENDAT_DATA_RX_Pin) <<
                               (1) |
                           (endat_receive_data[position_start_index + 13 * 2] &
-                           ENDAT_DATA_RX_Pin) >>
+                           ENDAT_DATA_RX_Pin) <<
                               (2) |
                           (endat_receive_data[position_start_index + 14 * 2] &
-                           ENDAT_DATA_RX_Pin) >>
+                           ENDAT_DATA_RX_Pin) <<
                               (3) |
                           (endat_receive_data[position_start_index + 15 * 2] &
-                           ENDAT_DATA_RX_Pin) >>
+                           ENDAT_DATA_RX_Pin) <<
                               (4) |
                           (endat_receive_data[position_start_index + 16 * 2] &
-                           ENDAT_DATA_RX_Pin) >>
+                           ENDAT_DATA_RX_Pin) <<
                               (5) |
                           (endat_receive_data[position_start_index + 17 * 2] &
-                           ENDAT_DATA_RX_Pin) >>
+                           ENDAT_DATA_RX_Pin) <<
                               (6);
 
     return (float)rotor_position_bits * ROTOR_POS_CONVERSION_FACTOR;

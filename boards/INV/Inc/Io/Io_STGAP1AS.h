@@ -47,6 +47,7 @@ enum
     PHASE_B_HI,
     PHASE_A_LO,
     PHASE_A_HI,
+    NUM_STGAP_DEVICES,
 };
 
 // Contains fault values for all STGAPs

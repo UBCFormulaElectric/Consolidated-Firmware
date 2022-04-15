@@ -21,7 +21,7 @@ struct PhaseValues
 
 struct ControllerValues
 {
-    float prev_integral_input;
+    float prev_error;
     float integral_sum;
     float output;
     float gain;

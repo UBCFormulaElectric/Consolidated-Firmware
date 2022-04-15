@@ -51,7 +51,7 @@ static struct StaticQueue can_tx_msg_fifo = {
 };
 
 static uint8_t
-    can_rx_msg_fifo_storage[CAN_TX_MSG_FIFO_LENGTH * CAN_TX_MSG_FIFO_ITEM_SIZE];
+    can_rx_msg_fifo_storage[CAN_RX_MSG_FIFO_LENGTH * CAN_RX_MSG_FIFO_ITEM_SIZE];
 
 static struct StaticQueue can_rx_msg_fifo = {
     .storage = &can_rx_msg_fifo_storage[0],

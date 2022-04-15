@@ -82,9 +82,9 @@ struct StgapCommands stgap_commands = {
     .global_reset   = 0xEA,
 };
 
-static const uint8_t config1_register_content = (CRC_SPI << 7) | (UVLOD_EN << 6) |
-                                   (SD_FLAG << 5) | (DIAG_EN << 4) |
-                                   (DT_SET << 2) | (IN_FILTER);
+static const uint8_t config1_register_content =
+    (CRC_SPI << 7) | (UVLOD_EN << 6) | (SD_FLAG << 5) | (DIAG_EN << 4) |
+    (DT_SET << 2) | (IN_FILTER);
 
 static const uint8_t config2_register_content =
     (SENSE_THRES << 5) | (DESAT_CURR << 3) | (DESAT_THRES);
@@ -97,15 +97,15 @@ static const uint8_t config4_register_content =
 static const uint8_t config5_register_content =
     (TLTO_EN << 3) | (CLAMP_EN << 2) | (DESAT_EN << 1) | (SENSE_EN);
 
-static const uint8_t diag1cfg_register_content = (DIAG1_TWN << 7) | (DIAG1_TSD << 6) |
-                                    (DIAG1_ASC << 5) | (DIAG1_DESAT << 4) |
-                                    (DIAG1_OV << 3) | (DIAG1_UV << 2) |
-                                    (DIAG1_VDD << 1) | (DIAG1_SPI_REG_ERR);
+static const uint8_t diag1cfg_register_content =
+    (DIAG1_TWN << 7) | (DIAG1_TSD << 6) | (DIAG1_ASC << 5) |
+    (DIAG1_DESAT << 4) | (DIAG1_OV << 3) | (DIAG1_UV << 2) | (DIAG1_VDD << 1) |
+    (DIAG1_SPI_REG_ERR);
 
-static const uint8_t diag2cfg_register_content = (DIAG2_TWN << 7) | (DIAG2_TSD << 6) |
-                                    (DIAG2_ASC << 5) | (DIAG2_DESAT << 4) |
-                                    (DIAG2_OV << 3) | (DIAG2_UV << 2) |
-                                    (DIAG2_VDD << 1) | (DIAG2_SPI_REG_ERR);
+static const uint8_t diag2cfg_register_content =
+    (DIAG2_TWN << 7) | (DIAG2_TSD << 6) | (DIAG2_ASC << 5) |
+    (DIAG2_DESAT << 4) | (DIAG2_OV << 3) | (DIAG2_UV << 2) | (DIAG2_VDD << 1) |
+    (DIAG2_SPI_REG_ERR);
 
 ExitCode Io_STGAP1AS_WriteConfiguration(void)
 {
@@ -212,8 +212,6 @@ ExitCode Io_STGAP1AS_WriteConfiguration(void)
         }
     }
     Io_STGAP1AS_GetFaults();
-
-    Io_STGAP1AS_SetShutdownPin(1);
 
     return EXIT_CODE_OK;
 }
@@ -429,6 +427,11 @@ struct StgapFaults *Io_STGAP1AS_GetFaults()
     return &stgap_faults_io;
 }
 
+struct StgapFaults *Io_STGAP1AS_ReadFaults()
+{
+    return &stgap_faults_io;
+}
+
 bool Io_STGAP1AS_IsFaulted(void)
 {
     bool error_flag = 0;
@@ -540,72 +543,30 @@ void Io_STGAP1AS_SetShutdownPin(const bool value)
 
 bool Io_STGAP1AS_GetPhaHiDiag(void)
 {
-    if (HAL_GPIO_ReadPin(nDIAG_PHA_HS_GPIO_Port, nDIAG_PHA_HS_Pin))
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return HAL_GPIO_ReadPin(nDIAG_PHA_HS_GPIO_Port, nDIAG_PHA_HS_Pin);
 }
 
 bool Io_STGAP1AS_GetPhaLoDiag(void)
 {
-    if (HAL_GPIO_ReadPin(nDIAG_PHA_LS_GPIO_Port, nDIAG_PHA_LS_Pin))
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return HAL_GPIO_ReadPin(nDIAG_PHA_LS_GPIO_Port, nDIAG_PHA_LS_Pin);
 }
 
 bool Io_STGAP1AS_GetPhbHiDiag(void)
 {
-    if (HAL_GPIO_ReadPin(nDIAG_PHB_HS_GPIO_Port, nDIAG_PHB_HS_Pin))
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return HAL_GPIO_ReadPin(nDIAG_PHB_HS_GPIO_Port, nDIAG_PHB_HS_Pin);
 }
 
 bool Io_STGAP1AS_GetPhbLoDiag(void)
 {
-    if (HAL_GPIO_ReadPin(nDIAG_PHA_HS_GPIO_Port, nDIAG_PHA_HS_Pin))
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return HAL_GPIO_ReadPin(nDIAG_PHB_LS_GPIO_Port, nDIAG_PHB_LS_Pin);
 }
 
 bool Io_STGAP1AS_GetPhcHiDiag(void)
 {
-    if (HAL_GPIO_ReadPin(nDIAG_PHC_HS_GPIO_Port, nDIAG_PHC_HS_Pin))
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return HAL_GPIO_ReadPin(nDIAG_PHC_HS_GPIO_Port, nDIAG_PHC_HS_Pin);
 }
 
 bool Io_STGAP1AS_GetPhcLoDiag(void)
 {
-    if (HAL_GPIO_ReadPin(nDIAG_PHC_LS_GPIO_Port, nDIAG_PHC_LS_Pin))
-    {
-        return false;
-    }
-    else
-    {
-        return true;
-    }
+    return HAL_GPIO_ReadPin(nDIAG_PHC_LS_GPIO_Port, nDIAG_PHC_LS_Pin);
 }

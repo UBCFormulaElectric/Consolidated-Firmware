@@ -19,18 +19,11 @@ void calculatePiOutputs(
           ((pi_values->integral_sum + prop_term + comp > limit) ||
            (pi_values->integral_sum + prop_term + comp < -limit))))
     {
-        // y(n) = y(n-1) + T/2 * (u(n) + u(n-1)) Average of current and last *
+        // y(n) = y(n-1) + T/2 * (e(n) + e(n-1)) Average of error and last error *
         // sampling frequency + last integral input
-        pi_values->integral_sum +=
-            (1.0f / SAMPLE_FREQUENCY) *
-            ((err * pi_values->gain / pi_values->time_const) +
-             pi_values->prev_integral_input) /
-            2;
-        pi_values->prev_integral_input =
-            (1.0f / SAMPLE_FREQUENCY) *
-            ((err * pi_values->gain / pi_values->time_const) +
-             pi_values->prev_integral_input) /
-            2;
+        pi_values->integral_sum += (1.0f / SAMPLE_FREQUENCY) *
+                (pi_values->gain / pi_values->time_const) * (err + pi_values->prev_error) / 2;
+        pi_values->prev_error = (err + pi_values->prev_error) / 2;
     }
     else if (pi_values->integral_sum > limit)
     {

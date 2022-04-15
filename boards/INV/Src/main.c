@@ -269,6 +269,15 @@ int main(void)
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
 
+    App_GateDrive_WriteConfig(gate_drive);
+
+    App_PowerStage_Enable(power_stage); // Enable ADC
+
+    App_GateDrive_StartPwmTimer(gate_drive);
+
+    //Delay 500ms after initialization to avoid power sequencing faults
+    HAL_Delay(100);
+
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -737,7 +746,7 @@ static void MX_TIM1_Init(void)
     htim1.Instance               = TIM1;
     htim1.Init.Prescaler         = 1 - 1;
     htim1.Init.CounterMode       = TIM_COUNTERMODE_UP;
-    htim1.Init.Period            = 108 - 1;
+    htim1.Init.Period            = 54 - 1;
     htim1.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim1.Init.RepetitionCounter = 0;
     htim1.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
@@ -762,7 +771,7 @@ static void MX_TIM1_Init(void)
         Error_Handler();
     }
     sConfigOC.OCMode       = TIM_OCMODE_ACTIVE;
-    sConfigOC.Pulse        = 54 - 1;
+    sConfigOC.Pulse        = 27 - 1;
     sConfigOC.OCPolarity   = TIM_OCPOLARITY_HIGH;
     sConfigOC.OCNPolarity  = TIM_OCNPOLARITY_HIGH;
     sConfigOC.OCFastMode   = TIM_OCFAST_DISABLE;
@@ -772,7 +781,6 @@ static void MX_TIM1_Init(void)
     {
         Error_Handler();
     }
-    sConfigOC.Pulse = 27 - 1;
     if (HAL_TIM_OC_ConfigChannel(&htim1, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
     {
         Error_Handler();
@@ -994,11 +1002,10 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
-        GPIOC, nSHDN_GDRV_MCU_Pin | ENDAT_CLK_TX_Pin | ENDAT_DATA_TX_Pin,
+        GPIOC,
+        nSHDN_GDRV_MCU_Pin | nSHDN_GDRV_Pin | ENDAT_CLK_TX_Pin |
+            ENDAT_DATA_TX_Pin,
         GPIO_PIN_RESET);
-
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(nSHDN_GDRV_GPIO_Port, nSHDN_GDRV_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GDRV_SPI_CS_GPIO_Port, GDRV_SPI_CS_Pin, GPIO_PIN_SET);
@@ -1160,9 +1167,11 @@ void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
     // triggered. Don't have the correct pins atm. asyncronously shut down the
     // gate drive if any fault pin interrupt is triggered
 
-    //TODO this call to gatedrive shutdown leads to hard fault because this interrupt gets
-    //executed before gate_drive is initialized
-    //App_GateDrive_Shutdown(gate_drive);
+    // TODO this call to gatedrive shutdown leads to hard fault because this
+    // interrupt gets executed before gate_drive is initialized
+    // App_GateDrive_Shutdown(gate_drive);
+    Io_STGAP1AS_SetShutdownPin(0);
+
     if (GPIO_Pin == nPHA_OC_ALARM_Pin)
     {
         App_CanTx_SetPeriodicSignal_PHA_OC_ALARM(can_tx, 1);

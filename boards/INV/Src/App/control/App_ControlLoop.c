@@ -48,20 +48,20 @@ static struct PhaseValues phase_voltages, phase_currents, phase_duration;
 static struct DqsValues   dqs_ref_currents, dqs_currents, dqs_voltages;
 
 static struct ControllerValues speed_controller = {
-    .prev_integral_input = 0,
+    .prev_error = 0,
     .integral_sum        = 0,
     .output              = 0,
     .gain                = SPEED_GAIN,
     .time_const          = SPEED_TIME_CONST,
 };
 
-static struct ControllerValues id_controller = { .prev_integral_input = 0,
+static struct ControllerValues id_controller = { .prev_error = 0,
                                                  .integral_sum        = 0,
                                                  .output              = 0,
                                                  .gain                = D_GAIN,
                                                  .time_const = D_TIME_CONST };
 
-static struct ControllerValues iq_controller = { .prev_integral_input = 0,
+static struct ControllerValues iq_controller = { .prev_error = 0,
                                                  .integral_sum        = 0,
                                                  .output              = 0,
                                                  .gain                = Q_GAIN,
@@ -69,6 +69,8 @@ static struct ControllerValues iq_controller = { .prev_integral_input = 0,
 
 static float   rotor_position                   = 0;
 static float   prev_rotor_position              = 0;
+static float   gen_rotor_position               = 0;
+static float   prev_gen_rotor_position          = 0;
 static float   rotor_speed                      = 0;
 static float   prev_rotor_speed                 = 0;
 static float   motor_temp                       = 0.0f;
@@ -84,10 +86,10 @@ static bool    fw_flag                          = 0;
 static bool    prev_fw_flag;
 static uint8_t mode            = MODE_UNDEFINED;
 static uint8_t prev_mode       = MODE_UNDEFINED;
-static uint8_t mc_mode = TORQUE_CONTROL;
-static uint8_t prev_mc_mode = TORQUE_CONTROL;
-static uint8_t state = CANMSGS_INV_STATE_STATE_COMMAND_INIT_CHOICE;
-static uint8_t prev_state = CANMSGS_INV_STATE_STATE_COMMAND_INIT_CHOICE;
+static uint8_t mc_mode         = TORQUE_CONTROL;
+static uint8_t prev_mc_mode    = TORQUE_CONTROL;
+static uint8_t state           = CANMSGS_INV_STATE_STATE_COMMAND_INIT_CHOICE;
+static uint8_t prev_state      = CANMSGS_INV_STATE_STATE_COMMAND_INIT_CHOICE;
 static float   rotor_speed_ref = 0;
 static float   mod_index_ref   = 0;
 static float   ph_cur_peak_ref = 0;
@@ -100,10 +102,10 @@ void App_ControlLoop_Run(const struct InvWorld *world)
     struct InvCanRxInterface *can_rx      = App_InvWorld_GetCanRx(world);
     struct InvCanTxInterface *can_tx      = App_InvWorld_GetCanTx(world);
 
-    //Retrieve position data from previous cycle
+    // Retrieve position data from previous cycle
     rotor_position = App_Motor_GetPosition();
 
-    //Start getting position for next cycle
+    // Start getting position for next cycle
     App_Motor_StartGetPosition();
 
     // Get user requests from the CAN bus
@@ -113,26 +115,26 @@ void App_ControlLoop_Run(const struct InvWorld *world)
     mod_index_ref =
         App_CanRx_INV_MOD_INDEX_REQ_GetSignal_MOD_INDEX_REQ(can_rx) / 100.0f;
 
-    mod_index_ref = mod_index_ref > 0.9f ? 0.9f : mod_index_ref < 0 ? 0 : mod_index_ref;
+    mod_index_ref =
+        mod_index_ref > 0.9f ? 0.9f : mod_index_ref < 0 ? 0 : mod_index_ref;
 
-    fund_freq_ref =
-            App_CanRx_INV_FUND_FREQ_REQ_GetSignal_FUND_FREQ_REQ(can_rx);
+    fund_freq_ref = App_CanRx_INV_FUND_FREQ_REQ_GetSignal_FUND_FREQ_REQ(can_rx);
     if (fund_freq_ref < 0 ||
         fund_freq_ref > MAX_MOTOR_SPEED / 60.0f * (MOTOR_POLES / 2.0f))
     {
         App_GateDrive_Shutdown(gate_drive);
-        App_CanTx_SetPeriodicSignal_MC_FUND_FREQ_REQ_IMPLAUSIBLE(
-                can_tx, 1);
+        App_CanTx_SetPeriodicSignal_MC_FUND_FREQ_REQ_IMPLAUSIBLE(can_tx, 1);
     }
 
     mc_mode = App_CanRx_INV_STATE_REQ_GetSignal_TORQUE_SPEED_MODE_REQ(can_rx);
 
-    torque_ref = App_CanRx_DCM_TORQUE_REQUEST_REAR_GetSignal_RL_TORQUE_REQUEST(can_rx);
+    torque_ref =
+        App_CanRx_DCM_TORQUE_REQUEST_REAR_GetSignal_RL_TORQUE_REQUEST(can_rx);
 
-    if (fabsf(torque_ref) > MAX_MOTOR_TORQUE) {
+    if (fabsf(torque_ref) > MAX_MOTOR_TORQUE)
+    {
         App_GateDrive_Shutdown(gate_drive);
-        App_CanTx_SetPeriodicSignal_MC_TORQUE_REQUEST_IMPLAUSIBLE(
-                can_tx, 1);
+        App_CanTx_SetPeriodicSignal_MC_TORQUE_REQUEST_IMPLAUSIBLE(can_tx, 1);
     }
 
     // Calculate derated current limits based on temperature
@@ -140,10 +142,10 @@ void App_ControlLoop_Run(const struct InvWorld *world)
     powerstage_derated_current_limit = App_PowerStage_GetDeratedCurrent();
 
     // Choose the lower of the derated currents as the maximum stator current
-    stator_current_limit = motor_derated_current_limit <
-                      powerstage_derated_current_limit ?
-                      motor_derated_current_limit :
-                      powerstage_derated_current_limit;
+    stator_current_limit =
+        motor_derated_current_limit < powerstage_derated_current_limit
+            ? motor_derated_current_limit
+            : powerstage_derated_current_limit;
 
     // TODO Delete these lines and add them to EXTI section in main after board
     // revision
@@ -157,7 +159,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         App_CanTx_SetPeriodicSignal_PWRSTG_OT_ALARM(can_tx, 1);
         mode = MODE_UNDEFINED;
     }
-    else if (App_Motor_GetOTAlarm())
+    else if (App_Motor_GetOTAlarm() & ~App_CanRx_INV_STATE_REQ_GetSignal_NO_ROTOR_PRESENT(can_rx))
     {
         App_CanTx_SetPeriodicSignal_MOTOR_OT_ALARM(can_tx, 1);
         mode = MODE_UNDEFINED;
@@ -187,58 +189,59 @@ void App_ControlLoop_Run(const struct InvWorld *world)
     }
 
     // Reset current controllers if
-    if (prev_mode != mode) {
-        iq_controller.integral_sum = 0;
-        id_controller.integral_sum = 0;
+    if (prev_mode != mode)
+    {
+        iq_controller.integral_sum    = 0;
+        id_controller.integral_sum    = 0;
         speed_controller.integral_sum = 0;
     }
 
-    if(state == CANMSGS_INV_STATE_STATE_DRIVE_CHOICE) {
-        if (mode == GEN_SINE_M) {
-
-            rotor_position = fmodf(
-                    (prev_rotor_position +
-                     (fund_freq_ref / SAMPLE_FREQUENCY) * 2 * (float)M_PI),
-                    2 * (float)M_PI);
+    if (state == CANMSGS_INV_STATE_STATE_DRIVE_CHOICE)
+    {
+        if (mode == GEN_SINE_M)
+        {
+            gen_rotor_position = fmodf(
+                (prev_rotor_position +
+                 (fund_freq_ref / SAMPLE_FREQUENCY) * 2 * (float)M_PI),
+                2 * (float)M_PI);
 
             dqs_voltages.q = mod_index_ref;
             dqs_voltages.d = 0;
             dqs_voltages.s = sqrtf(
-                    dqs_voltages.q * dqs_voltages.q +
-                    dqs_voltages.d * dqs_voltages.d);
+                dqs_voltages.q * dqs_voltages.q +
+                dqs_voltages.d * dqs_voltages.d);
 
             // Transform d/q voltages to phase voltages
-            phase_voltages = parkClarkeTransform(&dqs_voltages, rotor_position);
+            phase_voltages = parkClarkeTransform(&dqs_voltages, gen_rotor_position);
 
             // Use Space Vector Modulation to calculate PWM durations.
             // Fake out bus voltage for Gen Sine M
             phase_duration = CalculatePwmEdges(&phase_voltages, (float)M_SQRT3);
 
             mod_index = dqs_voltages.s;
+        }
+        else if (mode == GEN_SINE_I)
+        {
+            ph_cur_peak_ref =
+                App_CanRx_INV_PH_CUR_PEAK_REQ_GetSignal_PH_CUR_PEAK_REQ(can_rx);
 
-        } else if (mode == GEN_SINE_I) {
-            ph_cur_peak_ref = App_CanRx_INV_PH_CUR_PEAK_REQ_GetSignal_PH_CUR_PEAK_REQ(can_rx);
-
-            rotor_position = fmodf(
-                    (prev_rotor_position +
-                     (fund_freq_ref / SAMPLE_FREQUENCY) * 2 * (float)M_PI),
-                    2 * (float)M_PI);
+            gen_rotor_position = fmodf(
+                (prev_rotor_position +
+                 (fund_freq_ref / SAMPLE_FREQUENCY) * 2 * (float)M_PI),
+                2 * (float)M_PI);
 
             dqs_ref_currents.q = ph_cur_peak_ref;
             dqs_ref_currents.d = 0;
             dqs_ref_currents.s = sqrtf(
-                    dqs_ref_currents.q * dqs_ref_currents.q +
-                    dqs_ref_currents.d * dqs_ref_currents.d);
+                dqs_ref_currents.q * dqs_ref_currents.q +
+                dqs_ref_currents.d * dqs_ref_currents.d);
 
             dqs_voltages = calculateDqsVoltages(
-                    &dqs_ref_currents, &dqs_currents, rotor_speed / 9.549f,
-                    bus_voltage, &id_controller, &iq_controller);
-
-            id_controller.output = dqs_voltages.d;
-            iq_controller.output = dqs_voltages.q;
+                &dqs_ref_currents, &dqs_currents, rotor_speed / 9.549f,
+                bus_voltage, &id_controller, &iq_controller);
 
             // Transform d/q voltages to phase voltages
-            phase_voltages = parkClarkeTransform(&dqs_voltages, rotor_position);
+            phase_voltages = parkClarkeTransform(&dqs_voltages, gen_rotor_position);
 
             // Use Space Vector Modulation to calculate PWM durations
             phase_duration = CalculatePwmEdges(&phase_voltages, bus_voltage);
@@ -253,81 +256,101 @@ void App_ControlLoop_Run(const struct InvWorld *world)
             {
                 mod_index = dqs_voltages.s / ((bus_voltage) / (float)M_SQRT3);
             }
-
-        } else if (mode == MOTOR_CONTROL) {
-
-            //Calculate rotor speed
+        }
+        else if (mode == MOTOR_CONTROL)
+        {
+            // Calculate rotor speed
             float rotor_position_diff = rotor_position - prev_rotor_position;
 
-            //Rotor position difference exceeds max diff (rolling over from 2pi to 0)
-            if (fabsf(rotor_position_diff) > MAX_MOTOR_POS_CHANGE_PER_CYCLE) {
+            // Rotor position difference exceeds max diff (rolling over from 2pi
+            // to 0)
+            if (fabsf(rotor_position_diff) > MAX_MOTOR_POS_CHANGE_PER_CYCLE)
+            {
                 // Rotor is moving in the forward direction, and crossing
                 // 360degrees
-                if (prev_rotor_position > rotor_position) {
-                    rotor_speed = (rotor_position - (2 * (float) M_PI - prev_rotor_position)) * SAMPLE_FREQUENCY;
+                if (prev_rotor_position > rotor_position)
+                {
+                    rotor_speed = (rotor_position -
+                                   (2 * (float)M_PI - prev_rotor_position)) *
+                                  SAMPLE_FREQUENCY;
                 }
-                    // Rotor is moving in the reverse direction, and crossing
-                    // 360degrees
-                else if (prev_rotor_position < rotor_position) {
-                    rotor_speed = ((rotor_position - 2 * (float) M_PI) - prev_rotor_position) * SAMPLE_FREQUENCY;
+                // Rotor is moving in the reverse direction, and crossing
+                // 360degrees
+                else if (prev_rotor_position < rotor_position)
+                {
+                    rotor_speed = ((rotor_position - 2 * (float)M_PI) -
+                                   prev_rotor_position) *
+                                  SAMPLE_FREQUENCY;
                 }
-            } else {
-                rotor_speed = (rotor_position - prev_rotor_position) * SAMPLE_FREQUENCY;
-            }
-
-            // Rotor speed/position are implausible
-            if (
-                    fabsf(rotor_position_diff) > MAX_MOTOR_POS_CHANGE_PER_CYCLE &&
-                    fabsf(rotor_position_diff) <
-                    2 * (float) M_PI - MAX_MOTOR_POS_CHANGE_PER_CYCLE) {
-                App_GateDrive_Shutdown(gate_drive);
-                App_CanTx_SetPeriodicSignal_MC_ROTOR_POSITION_IMPLAUSIBLE(
-                        can_tx, 1);
-            }
-
-            if(mc_mode == SPEED_CONTROL)
-            {
-                // calculate torque output of speed PI controller
-                calculatePiOutputs(&speed_controller, rotor_speed_ref, rotor_speed, MAX_MOTOR_TORQUE, 0);
             }
             else
             {
-                if(!LUT_CONTROL_ENABLED) {
-                    //Overwrite torque_ref from torque control if speed control is active
+                rotor_speed =
+                    (rotor_position - prev_rotor_position) * SAMPLE_FREQUENCY;
+            }
+
+            // Rotor speed/position are implausible
+            if (fabsf(rotor_position_diff) > MAX_MOTOR_POS_CHANGE_PER_CYCLE &&
+                fabsf(rotor_position_diff) <
+                    2 * (float)M_PI - MAX_MOTOR_POS_CHANGE_PER_CYCLE)
+            {
+                App_GateDrive_Shutdown(gate_drive);
+                App_CanTx_SetPeriodicSignal_MC_ROTOR_POSITION_IMPLAUSIBLE(
+                    can_tx, 1);
+            }
+
+            if (mc_mode == SPEED_CONTROL)
+            {
+                // calculate torque output of speed PI controller
+                calculatePiOutputs(
+                    &speed_controller, rotor_speed_ref, rotor_speed,
+                    MAX_MOTOR_TORQUE, 0);
+            }
+            else
+            {
+                if (!LUT_CONTROL_ENABLED)
+                {
+                    // Overwrite torque_ref from torque control if speed control
+                    // is active
                     dqs_ref_currents.s = torqueControl(
-                            rotor_speed_ref, rotor_speed, torque_ref, &speed_controller,
-                            prev_fw_flag);
+                        rotor_speed_ref, rotor_speed, torque_ref,
+                        &speed_controller, prev_fw_flag);
                 }
             }
 
-            //If used, calculate adaption gains
+            // If used, calculate adaption gains
             if (ADAPTION_GAIN_ENABLED)
             {
                 id_controller =
-                        adaptionGain(&id_controller, dqs_ref_currents.s);
+                    adaptionGain(&id_controller, dqs_ref_currents.s);
                 iq_controller =
-                        adaptionGain(&iq_controller, dqs_ref_currents.s);
+                    adaptionGain(&iq_controller, dqs_ref_currents.s);
             }
-            if (LUT_CONTROL_ENABLED) {
-                // LUT may look up some nonzero number for 0 torque, so set to zero
-                if (torque_ref == 0.0f) {
+            if (LUT_CONTROL_ENABLED)
+            {
+                // LUT may look up some nonzero number for 0 torque, so set to
+                // zero
+                if (torque_ref == 0.0f)
+                {
                     dqs_ref_currents.d = 0.0f;
                     dqs_ref_currents.q = 0.0f;
-                } else {
+                }
+                else
+                {
                     look_up_dqs_current_ref(
-                            rotor_speed, torque_ref, bus_voltage,
-                            stator_current_limit, &dqs_ref_currents);
+                        rotor_speed, torque_ref, bus_voltage,
+                        stator_current_limit, &dqs_ref_currents);
                 }
             }
             else
             {
                 dqs_ref_currents = generateRefCurrents(
-                        &dqs_ref_currents, rotor_speed, bus_voltage, &fw_flag);
+                    &dqs_ref_currents, rotor_speed, bus_voltage, &fw_flag);
             }
 
             dqs_voltages = calculateDqsVoltages(
-                    &dqs_ref_currents, &dqs_currents, rotor_speed / 9.549f,
-                    bus_voltage, &id_controller, &iq_controller);
+                &dqs_ref_currents, &dqs_currents, rotor_speed / 9.549f,
+                bus_voltage, &id_controller, &iq_controller);
 
             id_controller.output = dqs_voltages.d;
             iq_controller.output = dqs_voltages.q;
@@ -350,33 +373,35 @@ void App_ControlLoop_Run(const struct InvWorld *world)
             }
         }
 
-        //For all modes, load PWM signals unless fault has occured
+        // For all modes, load PWM signals unless fault has occured
         if (App_Faults_FaultedMotorShutdown(can_tx, can_rx))
         {
             mode = MODE_UNDEFINED;
         }
-        else {
+        else
+        {
             App_GateDrive_LoadPwm(gate_drive, &phase_duration);
         }
-        prev_fw_flag        = fw_flag;
-        prev_rotor_position = rotor_position;
-        prev_rotor_speed    = rotor_speed;
-        prev_mode           = mode;
-        prev_mc_mode        = mc_mode;
-
     }
-    //Not in the drive state
+    // Not in the drive state
     else
     {
         // Apply safe ASC state if inverter is not in the drive state
+        App_GateDrive_Shutdown(gate_drive);
         phase_duration.a = 1.0f;
         phase_duration.b = 1.0f;
         phase_duration.c = 1.0f;
         App_GateDrive_LoadPwm(gate_drive, &phase_duration);
 
         App_CanTx_SetPeriodicSignal_MODE(
-                can_tx, CANMSGS_INV_STATE_MODE_UNDEFINED_CHOICE);
+            can_tx, CANMSGS_INV_STATE_MODE_UNDEFINED_CHOICE);
     }
+    prev_fw_flag        = fw_flag;
+    prev_rotor_position = rotor_position;
+    prev_rotor_speed    = rotor_speed;
+    prev_mode           = mode;
+    prev_mc_mode        = mc_mode;
+    prev_gen_rotor_position = gen_rotor_position;
 }
 
 void App_ControlLoop_GetIqControllerValues(struct ControllerValues *controller)
@@ -412,7 +437,7 @@ float App_ControlLoop_GetModIndex(void)
 
 float App_ControlLoop_GetRotorPosition(void)
 {
-    return rotor_position*360.0f/(2*(float)M_PI);
+    return rotor_position * 360.0f / (2 * (float)M_PI);
 }
 
 float App_ControlLoop_GetRotorSpeed(void)

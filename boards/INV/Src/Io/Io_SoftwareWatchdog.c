@@ -10,6 +10,7 @@
 #include "App_CanTx.h"
 #include "Io_SoftwareWatchdog.h"
 #include "Io_SharedMacros.h"
+#include "Io_STGAP1AS.h"
 
 extern IWDG_HandleTypeDef        hiwdg;
 static struct InvCanTxInterface *_can_tx = NULL;
@@ -27,6 +28,9 @@ void Io_HardwareWatchdog_Refresh(void)
 void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
 {
     BREAK_IF_DEBUGGER_CONNECTED();
+
+    //Shutdown the gate drivers if watchdog check-in is missed
+    Io_STGAP1AS_SetShutdownPin(0);
 
     App_CanTx_SetPeriodicSignal_WATCHDOG_TIMEOUT(_can_tx, true);
 

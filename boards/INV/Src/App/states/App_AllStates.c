@@ -8,6 +8,7 @@
 #include "App_SharedMacros.h"
 #include "main.h"
 #include "Io_AdcDac.h"
+#include "Io_STGAP1AS.h"
 
 static float   rotor_speed_request;
 static uint8_t mode_request;
@@ -40,17 +41,17 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_MOTOR_TEMP(
         can_tx_interface, App_Motor_GetTemperature());
     App_CanTx_SetPeriodicSignal_PHA_HI_DIAG(
-        can_tx_interface, App_GateDrive_GetPhaLoDiag(gate_drive));
-    App_CanTx_SetPeriodicSignal_PHA_LO_DIAG(
         can_tx_interface, App_GateDrive_GetPhaHiDiag(gate_drive));
+    App_CanTx_SetPeriodicSignal_PHA_LO_DIAG(
+        can_tx_interface, App_GateDrive_GetPhaLoDiag(gate_drive));
     App_CanTx_SetPeriodicSignal_PHB_HI_DIAG(
-        can_tx_interface, App_GateDrive_GetPhbLoDiag(gate_drive));
-    App_CanTx_SetPeriodicSignal_PHB_LO_DIAG(
         can_tx_interface, App_GateDrive_GetPhbHiDiag(gate_drive));
+    App_CanTx_SetPeriodicSignal_PHB_LO_DIAG(
+        can_tx_interface, App_GateDrive_GetPhbLoDiag(gate_drive));
     App_CanTx_SetPeriodicSignal_PHC_HI_DIAG(
-        can_tx_interface, App_GateDrive_GetPhcLoDiag(gate_drive));
-    App_CanTx_SetPeriodicSignal_PHC_LO_DIAG(
         can_tx_interface, App_GateDrive_GetPhcHiDiag(gate_drive));
+    App_CanTx_SetPeriodicSignal_PHC_LO_DIAG(
+        can_tx_interface, App_GateDrive_GetPhcLoDiag(gate_drive));
     App_CanTx_SetPeriodicSignal_PHA_OC_ALARM(
         can_tx_interface, App_PowerStage_GetPhaOCFault(power_stage));
     App_CanTx_SetPeriodicSignal_PHB_OC_ALARM(
@@ -82,195 +83,195 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 
     // Only send stgap fault messages after STGAPs are configured, i.e.
     // DRIVE/STANDBY states only
-    if (App_CanTx_GetPeriodicMsgPointer_INV_STATE(can_tx_interface)
-            ->state == (CANMSGS_INV_STATE_STATE_DRIVE_CHOICE |
-                        CANMSGS_INV_STATE_STATE_STANDBY_CHOICE))
+    if (App_CanTx_GetPeriodicMsgPointer_INV_STATE(can_tx_interface)->state ==
+        (CANMSGS_INV_STATE_STATE_DRIVE_CHOICE |
+         CANMSGS_INV_STATE_STATE_STANDBY_CHOICE))
     {
         if (App_GateDrive_IsFaulted())
         {
             App_CanTx_SetPeriodicSignal_STGAP_STATUS_FAULT(can_tx_interface, 1);
 
-            App_GateDrive_GetFaults(gate_drive, &stgap_faults);
+            App_GateDrive_ReadFaults(&stgap_faults);
             App_CanTx_SetPeriodicSignal_A_LO_THERM_WARN(
-                can_tx_interface, stgap_faults.twn[0]);
+                can_tx_interface, stgap_faults.twn[PHASE_A_HI]);
             App_CanTx_SetPeriodicSignal_A_LO_THERM_SHDN(
-                can_tx_interface, stgap_faults.tsd[0]);
+                can_tx_interface, stgap_faults.tsd[PHASE_A_HI]);
             App_CanTx_SetPeriodicSignal_A_LO_UVLOL(
-                can_tx_interface, stgap_faults.uvlol[0]);
+                can_tx_interface, stgap_faults.uvlol[PHASE_A_HI]);
             App_CanTx_SetPeriodicSignal_A_LO_UVLOH(
-                can_tx_interface, stgap_faults.uvloh[0]);
+                can_tx_interface, stgap_faults.uvloh[PHASE_A_HI]);
             App_CanTx_SetPeriodicSignal_A_LO_SENSE(
-                can_tx_interface, stgap_faults.sense[0]);
+                can_tx_interface, stgap_faults.sense[PHASE_A_HI]);
             App_CanTx_SetPeriodicSignal_A_LO_DESAT(
-                can_tx_interface, stgap_faults.desat[0]);
+                can_tx_interface, stgap_faults.desat[PHASE_A_HI]);
             App_CanTx_SetPeriodicSignal_A_LO_OVLOL(
-                can_tx_interface, stgap_faults.ovlol[0]);
+                can_tx_interface, stgap_faults.ovlol[PHASE_A_HI]);
             App_CanTx_SetPeriodicSignal_A_LO_OVLOH(
-                can_tx_interface, stgap_faults.ovloh[0]);
+                can_tx_interface, stgap_faults.ovloh[PHASE_A_HI]);
             App_CanTx_SetPeriodicSignal_A_LO_ASC(
-                can_tx_interface, stgap_faults.asc[0]);
+                can_tx_interface, stgap_faults.asc[PHASE_A_HI]);
             App_CanTx_SetPeriodicSignal_A_LO_REGERR_ISO(
-                can_tx_interface, stgap_faults.regerrr[0]);
+                can_tx_interface, stgap_faults.regerrr[PHASE_A_HI]);
             App_CanTx_SetPeriodicSignal_A_LO_UVLOD(
-                can_tx_interface, stgap_faults.uvlod[0]);
+                can_tx_interface, stgap_faults.uvlod[PHASE_A_HI]);
             App_CanTx_SetPeriodicSignal_A_LO_OVLOD(
-                can_tx_interface, stgap_faults.ovlod[0]);
+                can_tx_interface, stgap_faults.ovlod[PHASE_A_HI]);
             App_CanTx_SetPeriodicSignal_A_LO_REGERR_LV(
-                can_tx_interface, stgap_faults.reg_errl[0]);
+                can_tx_interface, stgap_faults.reg_errl[PHASE_A_HI]);
             App_CanTx_SetPeriodicSignal_A_LO_SPI_ERR(
-                can_tx_interface, stgap_faults.spi_err[0]);
+                can_tx_interface, stgap_faults.spi_err[PHASE_A_HI]);
             App_CanTx_SetPeriodicSignal_A_LO_DEADTIME_ERR(
-                can_tx_interface, stgap_faults.dt_err[0]);
+                can_tx_interface, stgap_faults.dt_err[PHASE_A_HI]);
             App_CanTx_SetPeriodicSignal_A_HI_THERM_WARN(
-                can_tx_interface, stgap_faults.twn[1]);
+                can_tx_interface, stgap_faults.twn[PHASE_A_LO]);
             App_CanTx_SetPeriodicSignal_A_HI_THERM_SHDN(
-                can_tx_interface, stgap_faults.tsd[1]);
+                can_tx_interface, stgap_faults.tsd[PHASE_A_LO]);
             App_CanTx_SetPeriodicSignal_A_HI_UVLOL(
-                can_tx_interface, stgap_faults.uvlol[1]);
+                can_tx_interface, stgap_faults.uvlol[PHASE_A_LO]);
             App_CanTx_SetPeriodicSignal_A_HI_UVLOH(
-                can_tx_interface, stgap_faults.uvloh[1]);
+                can_tx_interface, stgap_faults.uvloh[PHASE_A_LO]);
             App_CanTx_SetPeriodicSignal_A_HI_SENSE(
-                can_tx_interface, stgap_faults.sense[1]);
+                can_tx_interface, stgap_faults.sense[PHASE_A_LO]);
             App_CanTx_SetPeriodicSignal_A_HI_DESAT(
-                can_tx_interface, stgap_faults.desat[1]);
+                can_tx_interface, stgap_faults.desat[PHASE_A_LO]);
             App_CanTx_SetPeriodicSignal_A_HI_OVLOL(
-                can_tx_interface, stgap_faults.ovlol[1]);
+                can_tx_interface, stgap_faults.ovlol[PHASE_A_LO]);
             App_CanTx_SetPeriodicSignal_A_HI_OVLOH(
-                can_tx_interface, stgap_faults.ovloh[1]);
+                can_tx_interface, stgap_faults.ovloh[PHASE_A_LO]);
             App_CanTx_SetPeriodicSignal_A_HI_ASC(
-                can_tx_interface, stgap_faults.asc[1]);
+                can_tx_interface, stgap_faults.asc[PHASE_A_LO]);
             App_CanTx_SetPeriodicSignal_A_HI_REGERR_ISO(
-                can_tx_interface, stgap_faults.regerrr[1]);
+                can_tx_interface, stgap_faults.regerrr[PHASE_A_LO]);
             App_CanTx_SetPeriodicSignal_A_HI_UVLOD(
-                can_tx_interface, stgap_faults.uvlod[1]);
+                can_tx_interface, stgap_faults.uvlod[PHASE_A_LO]);
             App_CanTx_SetPeriodicSignal_A_HI_OVLOD(
-                can_tx_interface, stgap_faults.ovlod[1]);
+                can_tx_interface, stgap_faults.ovlod[PHASE_A_LO]);
             App_CanTx_SetPeriodicSignal_A_HI_REGERR_LV(
-                can_tx_interface, stgap_faults.reg_errl[1]);
+                can_tx_interface, stgap_faults.reg_errl[PHASE_A_LO]);
             App_CanTx_SetPeriodicSignal_A_HI_SPI_ERR(
-                can_tx_interface, stgap_faults.spi_err[1]);
+                can_tx_interface, stgap_faults.spi_err[PHASE_A_LO]);
             App_CanTx_SetPeriodicSignal_A_HI_DEADTIME_ERR(
-                can_tx_interface, stgap_faults.dt_err[1]);
+                can_tx_interface, stgap_faults.dt_err[PHASE_A_LO]);
 
             App_CanTx_SetPeriodicSignal_B_LO_THERM_WARN(
-                can_tx_interface, stgap_faults.twn[2]);
+                can_tx_interface, stgap_faults.twn[PHASE_B_HI]);
             App_CanTx_SetPeriodicSignal_B_LO_THERM_SHDN(
-                can_tx_interface, stgap_faults.tsd[2]);
+                can_tx_interface, stgap_faults.tsd[PHASE_B_HI]);
             App_CanTx_SetPeriodicSignal_B_LO_UVLOL(
-                can_tx_interface, stgap_faults.uvlol[2]);
+                can_tx_interface, stgap_faults.uvlol[PHASE_B_HI]);
             App_CanTx_SetPeriodicSignal_B_LO_UVLOH(
-                can_tx_interface, stgap_faults.uvloh[2]);
+                can_tx_interface, stgap_faults.uvloh[PHASE_B_HI]);
             App_CanTx_SetPeriodicSignal_B_LO_SENSE(
-                can_tx_interface, stgap_faults.sense[2]);
+                can_tx_interface, stgap_faults.sense[PHASE_B_HI]);
             App_CanTx_SetPeriodicSignal_B_LO_DESAT(
-                can_tx_interface, stgap_faults.desat[2]);
+                can_tx_interface, stgap_faults.desat[PHASE_B_HI]);
             App_CanTx_SetPeriodicSignal_B_LO_OVLOL(
-                can_tx_interface, stgap_faults.ovlol[2]);
+                can_tx_interface, stgap_faults.ovlol[PHASE_B_HI]);
             App_CanTx_SetPeriodicSignal_B_LO_OVLOH(
-                can_tx_interface, stgap_faults.ovloh[2]);
+                can_tx_interface, stgap_faults.ovloh[PHASE_B_HI]);
             App_CanTx_SetPeriodicSignal_B_LO_ASC(
-                can_tx_interface, stgap_faults.asc[2]);
+                can_tx_interface, stgap_faults.asc[PHASE_B_HI]);
             App_CanTx_SetPeriodicSignal_B_LO_REGERR_ISO(
-                can_tx_interface, stgap_faults.regerrr[2]);
+                can_tx_interface, stgap_faults.regerrr[PHASE_B_HI]);
             App_CanTx_SetPeriodicSignal_B_LO_UVLOD(
-                can_tx_interface, stgap_faults.uvlod[2]);
+                can_tx_interface, stgap_faults.uvlod[PHASE_B_HI]);
             App_CanTx_SetPeriodicSignal_B_LO_OVLOD(
-                can_tx_interface, stgap_faults.ovlod[2]);
+                can_tx_interface, stgap_faults.ovlod[PHASE_B_HI]);
             App_CanTx_SetPeriodicSignal_B_LO_REGERR_LV(
-                can_tx_interface, stgap_faults.reg_errl[2]);
+                can_tx_interface, stgap_faults.reg_errl[PHASE_B_HI]);
             App_CanTx_SetPeriodicSignal_B_LO_SPI_ERR(
-                can_tx_interface, stgap_faults.spi_err[2]);
+                can_tx_interface, stgap_faults.spi_err[PHASE_B_HI]);
             App_CanTx_SetPeriodicSignal_B_LO_DEADTIME_ERR(
-                can_tx_interface, stgap_faults.dt_err[2]);
+                can_tx_interface, stgap_faults.dt_err[PHASE_B_HI]);
             App_CanTx_SetPeriodicSignal_B_HI_THERM_WARN(
-                can_tx_interface, stgap_faults.twn[3]);
+                can_tx_interface, stgap_faults.twn[PHASE_B_LO]);
             App_CanTx_SetPeriodicSignal_B_HI_THERM_SHDN(
-                can_tx_interface, stgap_faults.tsd[3]);
+                can_tx_interface, stgap_faults.tsd[PHASE_B_LO]);
             App_CanTx_SetPeriodicSignal_B_HI_UVLOL(
-                can_tx_interface, stgap_faults.uvlol[3]);
+                can_tx_interface, stgap_faults.uvlol[PHASE_B_LO]);
             App_CanTx_SetPeriodicSignal_B_HI_UVLOH(
-                can_tx_interface, stgap_faults.uvloh[3]);
+                can_tx_interface, stgap_faults.uvloh[PHASE_B_LO]);
             App_CanTx_SetPeriodicSignal_B_HI_SENSE(
-                can_tx_interface, stgap_faults.sense[3]);
+                can_tx_interface, stgap_faults.sense[PHASE_B_LO]);
             App_CanTx_SetPeriodicSignal_B_HI_DESAT(
-                can_tx_interface, stgap_faults.desat[3]);
+                can_tx_interface, stgap_faults.desat[PHASE_B_LO]);
             App_CanTx_SetPeriodicSignal_B_HI_OVLOL(
-                can_tx_interface, stgap_faults.ovlol[3]);
+                can_tx_interface, stgap_faults.ovlol[PHASE_B_LO]);
             App_CanTx_SetPeriodicSignal_B_HI_OVLOH(
-                can_tx_interface, stgap_faults.ovloh[3]);
+                can_tx_interface, stgap_faults.ovloh[PHASE_B_LO]);
             App_CanTx_SetPeriodicSignal_B_HI_ASC(
-                can_tx_interface, stgap_faults.asc[3]);
+                can_tx_interface, stgap_faults.asc[PHASE_B_LO]);
             App_CanTx_SetPeriodicSignal_B_HI_REGERR_ISO(
-                can_tx_interface, stgap_faults.regerrr[3]);
+                can_tx_interface, stgap_faults.regerrr[PHASE_B_LO]);
             App_CanTx_SetPeriodicSignal_B_HI_UVLOD(
-                can_tx_interface, stgap_faults.uvlod[3]);
+                can_tx_interface, stgap_faults.uvlod[PHASE_B_LO]);
             App_CanTx_SetPeriodicSignal_B_HI_OVLOD(
-                can_tx_interface, stgap_faults.ovlod[3]);
+                can_tx_interface, stgap_faults.ovlod[PHASE_B_LO]);
             App_CanTx_SetPeriodicSignal_B_HI_REGERR_LV(
-                can_tx_interface, stgap_faults.reg_errl[3]);
+                can_tx_interface, stgap_faults.reg_errl[PHASE_B_LO]);
             App_CanTx_SetPeriodicSignal_B_HI_SPI_ERR(
-                can_tx_interface, stgap_faults.spi_err[3]);
+                can_tx_interface, stgap_faults.spi_err[PHASE_B_LO]);
             App_CanTx_SetPeriodicSignal_B_HI_DEADTIME_ERR(
-                can_tx_interface, stgap_faults.dt_err[3]);
+                can_tx_interface, stgap_faults.dt_err[PHASE_B_LO]);
 
             App_CanTx_SetPeriodicSignal_C_LO_THERM_WARN(
-                can_tx_interface, stgap_faults.twn[4]);
+                can_tx_interface, stgap_faults.twn[PHASE_C_HI]);
             App_CanTx_SetPeriodicSignal_C_LO_THERM_SHDN(
-                can_tx_interface, stgap_faults.tsd[4]);
+                can_tx_interface, stgap_faults.tsd[PHASE_C_HI]);
             App_CanTx_SetPeriodicSignal_C_LO_UVLOL(
-                can_tx_interface, stgap_faults.uvlol[4]);
+                can_tx_interface, stgap_faults.uvlol[PHASE_C_HI]);
             App_CanTx_SetPeriodicSignal_C_LO_UVLOH(
-                can_tx_interface, stgap_faults.uvloh[4]);
+                can_tx_interface, stgap_faults.uvloh[PHASE_C_HI]);
             App_CanTx_SetPeriodicSignal_C_LO_SENSE(
-                can_tx_interface, stgap_faults.sense[4]);
+                can_tx_interface, stgap_faults.sense[PHASE_C_HI]);
             App_CanTx_SetPeriodicSignal_C_LO_DESAT(
-                can_tx_interface, stgap_faults.desat[4]);
+                can_tx_interface, stgap_faults.desat[PHASE_C_HI]);
             App_CanTx_SetPeriodicSignal_C_LO_OVLOL(
-                can_tx_interface, stgap_faults.ovlol[4]);
+                can_tx_interface, stgap_faults.ovlol[PHASE_C_HI]);
             App_CanTx_SetPeriodicSignal_C_LO_OVLOH(
-                can_tx_interface, stgap_faults.ovloh[4]);
+                can_tx_interface, stgap_faults.ovloh[PHASE_C_HI]);
             App_CanTx_SetPeriodicSignal_C_LO_ASC(
-                can_tx_interface, stgap_faults.asc[4]);
+                can_tx_interface, stgap_faults.asc[PHASE_C_HI]);
             App_CanTx_SetPeriodicSignal_C_LO_REGERR_ISO(
-                can_tx_interface, stgap_faults.regerrr[4]);
+                can_tx_interface, stgap_faults.regerrr[PHASE_C_HI]);
             App_CanTx_SetPeriodicSignal_C_LO_UVLOD(
-                can_tx_interface, stgap_faults.uvlod[4]);
+                can_tx_interface, stgap_faults.uvlod[PHASE_C_HI]);
             App_CanTx_SetPeriodicSignal_C_LO_OVLOD(
-                can_tx_interface, stgap_faults.ovlod[4]);
+                can_tx_interface, stgap_faults.ovlod[PHASE_C_HI]);
             App_CanTx_SetPeriodicSignal_C_LO_REGERR_LV(
-                can_tx_interface, stgap_faults.reg_errl[4]);
+                can_tx_interface, stgap_faults.reg_errl[PHASE_C_HI]);
             App_CanTx_SetPeriodicSignal_C_LO_SPI_ERR(
-                can_tx_interface, stgap_faults.spi_err[4]);
+                can_tx_interface, stgap_faults.spi_err[PHASE_C_HI]);
             App_CanTx_SetPeriodicSignal_C_LO_DEADTIME_ERR(
-                can_tx_interface, stgap_faults.dt_err[4]);
+                can_tx_interface, stgap_faults.dt_err[PHASE_C_HI]);
             App_CanTx_SetPeriodicSignal_C_HI_THERM_WARN(
-                can_tx_interface, stgap_faults.twn[5]);
+                can_tx_interface, stgap_faults.twn[PHASE_C_LO]);
             App_CanTx_SetPeriodicSignal_C_HI_THERM_SHDN(
-                can_tx_interface, stgap_faults.tsd[5]);
+                can_tx_interface, stgap_faults.tsd[PHASE_C_LO]);
             App_CanTx_SetPeriodicSignal_C_HI_UVLOL(
-                can_tx_interface, stgap_faults.uvlol[5]);
+                can_tx_interface, stgap_faults.uvlol[PHASE_C_LO]);
             App_CanTx_SetPeriodicSignal_C_HI_UVLOH(
-                can_tx_interface, stgap_faults.uvloh[5]);
+                can_tx_interface, stgap_faults.uvloh[PHASE_C_LO]);
             App_CanTx_SetPeriodicSignal_C_HI_SENSE(
-                can_tx_interface, stgap_faults.sense[5]);
+                can_tx_interface, stgap_faults.sense[PHASE_C_LO]);
             App_CanTx_SetPeriodicSignal_C_HI_DESAT(
-                can_tx_interface, stgap_faults.desat[5]);
+                can_tx_interface, stgap_faults.desat[PHASE_C_LO]);
             App_CanTx_SetPeriodicSignal_C_HI_OVLOL(
-                can_tx_interface, stgap_faults.ovlol[5]);
+                can_tx_interface, stgap_faults.ovlol[PHASE_C_LO]);
             App_CanTx_SetPeriodicSignal_C_HI_OVLOH(
-                can_tx_interface, stgap_faults.ovloh[5]);
+                can_tx_interface, stgap_faults.ovloh[PHASE_C_LO]);
             App_CanTx_SetPeriodicSignal_C_HI_ASC(
-                can_tx_interface, stgap_faults.asc[5]);
+                can_tx_interface, stgap_faults.asc[PHASE_C_LO]);
             App_CanTx_SetPeriodicSignal_C_HI_REGERR_ISO(
-                can_tx_interface, stgap_faults.regerrr[5]);
+                can_tx_interface, stgap_faults.regerrr[PHASE_C_LO]);
             App_CanTx_SetPeriodicSignal_C_HI_UVLOD(
-                can_tx_interface, stgap_faults.uvlod[5]);
+                can_tx_interface, stgap_faults.uvlod[PHASE_C_LO]);
             App_CanTx_SetPeriodicSignal_C_HI_REGERR_LV(
-                can_tx_interface, stgap_faults.reg_errl[5]);
+                can_tx_interface, stgap_faults.reg_errl[PHASE_C_LO]);
             App_CanTx_SetPeriodicSignal_C_HI_SPI_ERR(
-                can_tx_interface, stgap_faults.spi_err[5]);
+                can_tx_interface, stgap_faults.spi_err[PHASE_C_LO]);
             App_CanTx_SetPeriodicSignal_C_HI_DEADTIME_ERR(
-                can_tx_interface, stgap_faults.dt_err[5]);
+                can_tx_interface, stgap_faults.dt_err[PHASE_C_LO]);
         }
         else
         {
@@ -376,10 +377,12 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
                 can_rx_interface);
         fund_freq_request = App_CanRx_INV_FUND_FREQ_REQ_GetSignal_FUND_FREQ_REQ(
             can_rx_interface);
-        state_request =
-            App_CanRx_INV_STATE_REQ_GetSignal_STATE_MACHINE_REQ(can_rx_interface);
+        state_request = App_CanRx_INV_STATE_REQ_GetSignal_STATE_MACHINE_REQ(
+            can_rx_interface);
 
-        App_CanTx_SetPeriodicSignal_STATE_COMMAND(can_tx_interface, state_request);
-        App_CanTx_SetPeriodicSignal_MODE_COMMAND(can_tx_interface, mode_request);
+        App_CanTx_SetPeriodicSignal_STATE_COMMAND(
+            can_tx_interface, state_request);
+        App_CanTx_SetPeriodicSignal_MODE_COMMAND(
+            can_tx_interface, mode_request);
     }
 }

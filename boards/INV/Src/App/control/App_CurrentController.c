@@ -21,8 +21,7 @@ struct DqsValues calculateDqsVoltages(
     if (DECOUPLING_ENABLED)
     {
         dqs_comp_voltages.d = omega_elec * dqs_currents->q * Q_INDUCTANCE * -1;
-        dqs_comp_voltages.q =
-            omega_elec * (dqs_currents->d * D_INDUCTANCE + lamda);
+        dqs_comp_voltages.q = omega_elec * (dqs_currents->d * D_INDUCTANCE + lamda);
     }
     else
     {
@@ -37,11 +36,16 @@ struct DqsValues calculateDqsVoltages(
     calculatePiOutputs(
         id_controller, dqs_ref_currents->d, dqs_currents->d, vs_max,
         dqs_comp_voltages.d);
+
+    dqs_voltages.d = id_controller->output;
+
     vq_limit = sqrtf(vs_max * vs_max - dqs_voltages.d * dqs_voltages.d);
 
     calculatePiOutputs(
         iq_controller, dqs_ref_currents->q, dqs_currents->q, vq_limit,
         dqs_comp_voltages.q);
+
+    dqs_voltages.q = iq_controller->output;
 
     dqs_voltages.s = sqrtf(
         dqs_voltages.d * dqs_voltages.d + dqs_voltages.q * dqs_voltages.q);

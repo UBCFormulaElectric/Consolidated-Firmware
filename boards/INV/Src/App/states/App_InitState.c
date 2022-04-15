@@ -20,15 +20,9 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     struct GateDrive *        gate_drive  = App_InvWorld_GetGateDrive(world);
     struct PowerStage *       power_stage = App_InvWorld_GetPowerStage(world);
 
-    App_GateDrive_WriteConfig(gate_drive);
-
     App_CanTx_SetPeriodicSignal_STATE(
         can_tx_interface, CANMSGS_INV_STATE_STATE_INIT_CHOICE);
     App_PowerStage_SetCurrentLimits(power_stage, MAX_INVERTER_CURRENT);
-
-    App_PowerStage_Enable(power_stage); // Enable ADC
-
-    App_GateDrive_StartPwmTimer(gate_drive);
 
     if (App_Faults_FaultedMotorShutdown(can_tx_interface, can_rx_interface))
     {

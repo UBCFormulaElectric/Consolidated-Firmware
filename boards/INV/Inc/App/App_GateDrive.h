@@ -43,6 +43,7 @@ void     App_GateDrive_GlobalReset(struct GateDrive *gate_drive);
 void     App_GateDrive_GetFaults(
         struct GateDrive *  gate_drive,
         struct StgapFaults *stgap_faults);
+void App_GateDrive_ReadFaults(struct StgapFaults *stgap_faults);
 bool App_GateDrive_IsFaulted(void);
 void App_GateDrive_ClearFaults(struct GateDrive *gate_drive);
 void App_GateDrive_WriteRegister(

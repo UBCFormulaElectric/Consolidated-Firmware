@@ -118,6 +118,11 @@ void App_GateDrive_GetFaults(
     *stgap_faults = *(gate_drive->get_faults());
 }
 
+void App_GateDrive_ReadFaults(struct StgapFaults *stgap_faults)
+{
+    stgap_faults = Io_STGAP1AS_ReadFaults();
+}
+
 bool App_GateDrive_IsFaulted(void)
 {
     Io_STGAP1AS_GetFaults();
@@ -154,10 +159,12 @@ void App_GateDrive_Shutdown(struct GateDrive *gate_drive)
 bool App_GateDrive_Enable(
     struct GateDrive *                    gate_drive,
     const struct InvCanTxInterface *const can_tx,
-            const struct InvCanRxInterface *const can_rx)
+    const struct InvCanRxInterface *const can_rx)
 {
-    //TODO should this really be based on being in the fault state? what about IsFaulted?
-    if (!App_Faults_FaultedMotorShutdown(can_tx, can_rx) && !Io_STGAP1AS_IsFaulted() &&
+    // TODO should this really be based on being in the fault state? what about
+    // IsFaulted?
+    if (!App_Faults_FaultedMotorShutdown(can_tx, can_rx) &&
+        !Io_STGAP1AS_IsFaulted() &&
         App_CanTx_GetPeriodicSignal_STATE(can_tx) !=
             CANMSGS_INV_STATE_STATE_FAULT_CHOICE)
     {

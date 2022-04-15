@@ -49,5 +49,4 @@
 #define DIAG2_VDD 0         // Vdd PSU failure
 #define DIAG2_SPI_REG_ERR 0 // SPI or Register error
 
-#define NUM_STGAP_DEVICES 6   // Number of STGAP devices
 #define STGAP_SPI_TIMEOUT 100 // Timeout for SPI functions

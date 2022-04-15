@@ -17,8 +17,8 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     struct InvWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct InvCanTxInterface *can_tx_interface = App_InvWorld_GetCanTx(world);
     struct InvCanRxInterface *can_rx_interface = App_InvWorld_GetCanRx(world);
-    struct GateDrive * gate_drive  = App_InvWorld_GetGateDrive(world);
-    struct PowerStage *power_stage = App_InvWorld_GetPowerStage(world);
+    struct GateDrive *        gate_drive  = App_InvWorld_GetGateDrive(world);
+    struct PowerStage *       power_stage = App_InvWorld_GetPowerStage(world);
 
     if (App_Faults_FaultedMotorShutdown(can_tx_interface, can_rx_interface))
     {
@@ -28,7 +28,7 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     else
     {
         // Configure powerstage
-        //App_PowerStage_Enable(power_stage); // Set adc to PWM sync mode
+        // App_PowerStage_Enable(power_stage); // Set adc to PWM sync mode
         if (fabsf(App_PowerStage_GetPosCurrentLimit() - MAX_INVERTER_CURRENT) >
                 MAX_CUR_SNS_OFFSET ||
             fabsf(App_PowerStage_GetNegCurrentLimit() + MAX_INVERTER_CURRENT) >
@@ -40,7 +40,9 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
         App_GateDrive_SetSwitchingFreq(gate_drive, SWITCHING_FREQUENCY);
         App_GateDrive_SetDeadTime(gate_drive, DEAD_TIME);
         App_GateDrive_StartPwmTimer(gate_drive); // Enable PWM
-        App_GateDrive_Enable(gate_drive, can_tx_interface, can_rx_interface); // Release Shutdown Pin
+        App_GateDrive_Enable(
+            gate_drive, can_tx_interface,
+            can_rx_interface); // Release Shutdown Pin
 
         App_CanTx_SetPeriodicSignal_STATE(
             can_tx_interface, CANMSGS_INV_STATE_STATE_DRIVE_CHOICE);
