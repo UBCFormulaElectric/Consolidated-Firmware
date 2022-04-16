@@ -7,8 +7,8 @@ struct PhaseValues parkClarkeTransform(
 {
     struct PhaseValues phase_voltages;
 
-    float alpha = dqs_voltages->d * cosf(theta) - dqs_voltages->q * sinf(theta);
-    float beta  = dqs_voltages->d * sinf(theta) + dqs_voltages->q * cosf(theta);
+    float alpha = dqs_voltages->d * App_ControlLoop_CosLookup(theta) - dqs_voltages->q * App_ControlLoop_SinLookup(theta);
+    float beta  = dqs_voltages->d * App_ControlLoop_SinLookup(theta) + dqs_voltages->q * App_ControlLoop_CosLookup(theta);
 
     phase_voltages.a = ((float)M_SQRT3 / 2) * alpha - beta / 2;
     phase_voltages.b = beta;

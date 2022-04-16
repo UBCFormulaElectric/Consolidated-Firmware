@@ -95,6 +95,9 @@ static float   mod_index_ref   = 0;
 static float   ph_cur_peak_ref = 0;
 static float   fund_freq_ref   = 0;
 
+static float sin_lookup_table[257];
+static float cos_lookup_table[257];
+
 void App_ControlLoop_Run(const struct InvWorld *world)
 {
     struct GateDrive *        gate_drive  = App_InvWorld_GetGateDrive(world);
@@ -477,4 +480,31 @@ float App_ControlLoop_GetMotorCurrentLimit(void)
 float App_ControlLoop_GetCurrentLimit(void)
 {
     return stator_current_limit;
+}
+
+float App_ControlLoop_SinLookup(const float rad)
+{
+    uint8_t index = (uint8_t)(rad/(2*(float)M_PI))*256;
+    return sin_lookup_table[index];
+}
+
+float App_ControlLoop_CosLookup(const float rad)
+{
+    uint8_t index = (uint8_t)(rad/(2*(float)M_PI))*256;
+    return cos_lookup_table[index];
+}
+
+void App_ControlLoop_SinCosLutInit(void)
+{
+    for(size_t i = 0; i < 256; i++)
+    {
+        float rad = 2 * (float)M_PI * (float)i / 256.0f;
+        sin_lookup_table[i] = sinf(rad);
+    }
+
+    for(size_t i = 0; i < 256; i++)
+    {
+        float rad = 2 * (float)M_PI * (float)i / 256.0f;
+        cos_lookup_table[i] = cosf(rad);
+    }
 }

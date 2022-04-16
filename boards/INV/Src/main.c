@@ -216,6 +216,7 @@ int main(void)
         &hdma_tim1_ch3, HAL_DMA_XFER_CPLT_CB_ID, &HAL_DMA_IRQHandler);
 
     Io_ECI1118_Init();
+    App_ControlLoop_SinCosLutInit();
 
     Io_SharedHardFaultHandler_Init();
 

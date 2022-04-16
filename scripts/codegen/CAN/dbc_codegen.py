@@ -3,7 +3,7 @@ import os
 
 workbook = load_workbook("CanMsgs.xlsx", data_only=True)
 worksheet = workbook.active
-number_of_rows = 400
+number_of_rows = 600
 number_of_header_rows = 2
 start_row = number_of_header_rows + 1
 

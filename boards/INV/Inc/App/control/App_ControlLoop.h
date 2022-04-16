@@ -62,3 +62,6 @@ void    App_ControlLoop_GetDqsActualCurrents(struct DqsValues *dqs_values);
 float   App_ControlLoop_GetPowerStageCurrentLimit(void);
 float   App_ControlLoop_GetMotorCurrentLimit(void);
 float   App_ControlLoop_GetCurrentLimit(void);
+float App_ControlLoop_SinLookup(float rad);
+float App_ControlLoop_CosLookup(float rad);
+void App_ControlLoop_SinCosLutInit(void);

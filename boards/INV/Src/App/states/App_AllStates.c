@@ -90,188 +90,366 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
         if (App_GateDrive_IsFaulted())
         {
             App_CanTx_SetPeriodicSignal_STGAP_STATUS_FAULT(can_tx_interface, 1);
-
+            App_CanTx_GetPeriodicMsgPointer_INV_MOTOR_SHUTDOWN_ERRORS(can_tx_interface);
             App_GateDrive_ReadFaults(&stgap_faults);
-            App_CanTx_SetPeriodicSignal_A_LO_THERM_WARN(
-                can_tx_interface, stgap_faults.twn[PHASE_A_HI]);
-            App_CanTx_SetPeriodicSignal_A_LO_THERM_SHDN(
-                can_tx_interface, stgap_faults.tsd[PHASE_A_HI]);
-            App_CanTx_SetPeriodicSignal_A_LO_UVLOL(
-                can_tx_interface, stgap_faults.uvlol[PHASE_A_HI]);
-            App_CanTx_SetPeriodicSignal_A_LO_UVLOH(
-                can_tx_interface, stgap_faults.uvloh[PHASE_A_HI]);
-            App_CanTx_SetPeriodicSignal_A_LO_SENSE(
-                can_tx_interface, stgap_faults.sense[PHASE_A_HI]);
-            App_CanTx_SetPeriodicSignal_A_LO_DESAT(
-                can_tx_interface, stgap_faults.desat[PHASE_A_HI]);
-            App_CanTx_SetPeriodicSignal_A_LO_OVLOL(
-                can_tx_interface, stgap_faults.ovlol[PHASE_A_HI]);
-            App_CanTx_SetPeriodicSignal_A_LO_OVLOH(
-                can_tx_interface, stgap_faults.ovloh[PHASE_A_HI]);
-            App_CanTx_SetPeriodicSignal_A_LO_ASC(
-                can_tx_interface, stgap_faults.asc[PHASE_A_HI]);
-            App_CanTx_SetPeriodicSignal_A_LO_REGERR_ISO(
-                can_tx_interface, stgap_faults.regerrr[PHASE_A_HI]);
-            App_CanTx_SetPeriodicSignal_A_LO_UVLOD(
-                can_tx_interface, stgap_faults.uvlod[PHASE_A_HI]);
-            App_CanTx_SetPeriodicSignal_A_LO_OVLOD(
-                can_tx_interface, stgap_faults.ovlod[PHASE_A_HI]);
-            App_CanTx_SetPeriodicSignal_A_LO_REGERR_LV(
-                can_tx_interface, stgap_faults.reg_errl[PHASE_A_HI]);
-            App_CanTx_SetPeriodicSignal_A_LO_SPI_ERR(
-                can_tx_interface, stgap_faults.spi_err[PHASE_A_HI]);
-            App_CanTx_SetPeriodicSignal_A_LO_DEADTIME_ERR(
-                can_tx_interface, stgap_faults.dt_err[PHASE_A_HI]);
-            App_CanTx_SetPeriodicSignal_A_HI_THERM_WARN(
-                can_tx_interface, stgap_faults.twn[PHASE_A_LO]);
-            App_CanTx_SetPeriodicSignal_A_HI_THERM_SHDN(
-                can_tx_interface, stgap_faults.tsd[PHASE_A_LO]);
-            App_CanTx_SetPeriodicSignal_A_HI_UVLOL(
-                can_tx_interface, stgap_faults.uvlol[PHASE_A_LO]);
-            App_CanTx_SetPeriodicSignal_A_HI_UVLOH(
-                can_tx_interface, stgap_faults.uvloh[PHASE_A_LO]);
-            App_CanTx_SetPeriodicSignal_A_HI_SENSE(
-                can_tx_interface, stgap_faults.sense[PHASE_A_LO]);
-            App_CanTx_SetPeriodicSignal_A_HI_DESAT(
-                can_tx_interface, stgap_faults.desat[PHASE_A_LO]);
-            App_CanTx_SetPeriodicSignal_A_HI_OVLOL(
-                can_tx_interface, stgap_faults.ovlol[PHASE_A_LO]);
-            App_CanTx_SetPeriodicSignal_A_HI_OVLOH(
-                can_tx_interface, stgap_faults.ovloh[PHASE_A_LO]);
-            App_CanTx_SetPeriodicSignal_A_HI_ASC(
-                can_tx_interface, stgap_faults.asc[PHASE_A_LO]);
-            App_CanTx_SetPeriodicSignal_A_HI_REGERR_ISO(
-                can_tx_interface, stgap_faults.regerrr[PHASE_A_LO]);
-            App_CanTx_SetPeriodicSignal_A_HI_UVLOD(
-                can_tx_interface, stgap_faults.uvlod[PHASE_A_LO]);
-            App_CanTx_SetPeriodicSignal_A_HI_OVLOD(
-                can_tx_interface, stgap_faults.ovlod[PHASE_A_LO]);
-            App_CanTx_SetPeriodicSignal_A_HI_REGERR_LV(
-                can_tx_interface, stgap_faults.reg_errl[PHASE_A_LO]);
-            App_CanTx_SetPeriodicSignal_A_HI_SPI_ERR(
-                can_tx_interface, stgap_faults.spi_err[PHASE_A_LO]);
-            App_CanTx_SetPeriodicSignal_A_HI_DEADTIME_ERR(
-                can_tx_interface, stgap_faults.dt_err[PHASE_A_LO]);
 
-            App_CanTx_SetPeriodicSignal_B_LO_THERM_WARN(
-                can_tx_interface, stgap_faults.twn[PHASE_B_HI]);
-            App_CanTx_SetPeriodicSignal_B_LO_THERM_SHDN(
-                can_tx_interface, stgap_faults.tsd[PHASE_B_HI]);
-            App_CanTx_SetPeriodicSignal_B_LO_UVLOL(
-                can_tx_interface, stgap_faults.uvlol[PHASE_B_HI]);
-            App_CanTx_SetPeriodicSignal_B_LO_UVLOH(
-                can_tx_interface, stgap_faults.uvloh[PHASE_B_HI]);
-            App_CanTx_SetPeriodicSignal_B_LO_SENSE(
-                can_tx_interface, stgap_faults.sense[PHASE_B_HI]);
-            App_CanTx_SetPeriodicSignal_B_LO_DESAT(
-                can_tx_interface, stgap_faults.desat[PHASE_B_HI]);
-            App_CanTx_SetPeriodicSignal_B_LO_OVLOL(
-                can_tx_interface, stgap_faults.ovlol[PHASE_B_HI]);
-            App_CanTx_SetPeriodicSignal_B_LO_OVLOH(
-                can_tx_interface, stgap_faults.ovloh[PHASE_B_HI]);
-            App_CanTx_SetPeriodicSignal_B_LO_ASC(
-                can_tx_interface, stgap_faults.asc[PHASE_B_HI]);
-            App_CanTx_SetPeriodicSignal_B_LO_REGERR_ISO(
-                can_tx_interface, stgap_faults.regerrr[PHASE_B_HI]);
-            App_CanTx_SetPeriodicSignal_B_LO_UVLOD(
-                can_tx_interface, stgap_faults.uvlod[PHASE_B_HI]);
-            App_CanTx_SetPeriodicSignal_B_LO_OVLOD(
-                can_tx_interface, stgap_faults.ovlod[PHASE_B_HI]);
-            App_CanTx_SetPeriodicSignal_B_LO_REGERR_LV(
-                can_tx_interface, stgap_faults.reg_errl[PHASE_B_HI]);
-            App_CanTx_SetPeriodicSignal_B_LO_SPI_ERR(
-                can_tx_interface, stgap_faults.spi_err[PHASE_B_HI]);
-            App_CanTx_SetPeriodicSignal_B_LO_DEADTIME_ERR(
-                can_tx_interface, stgap_faults.dt_err[PHASE_B_HI]);
-            App_CanTx_SetPeriodicSignal_B_HI_THERM_WARN(
-                can_tx_interface, stgap_faults.twn[PHASE_B_LO]);
-            App_CanTx_SetPeriodicSignal_B_HI_THERM_SHDN(
-                can_tx_interface, stgap_faults.tsd[PHASE_B_LO]);
-            App_CanTx_SetPeriodicSignal_B_HI_UVLOL(
-                can_tx_interface, stgap_faults.uvlol[PHASE_B_LO]);
-            App_CanTx_SetPeriodicSignal_B_HI_UVLOH(
-                can_tx_interface, stgap_faults.uvloh[PHASE_B_LO]);
-            App_CanTx_SetPeriodicSignal_B_HI_SENSE(
-                can_tx_interface, stgap_faults.sense[PHASE_B_LO]);
-            App_CanTx_SetPeriodicSignal_B_HI_DESAT(
-                can_tx_interface, stgap_faults.desat[PHASE_B_LO]);
-            App_CanTx_SetPeriodicSignal_B_HI_OVLOL(
-                can_tx_interface, stgap_faults.ovlol[PHASE_B_LO]);
-            App_CanTx_SetPeriodicSignal_B_HI_OVLOH(
-                can_tx_interface, stgap_faults.ovloh[PHASE_B_LO]);
-            App_CanTx_SetPeriodicSignal_B_HI_ASC(
-                can_tx_interface, stgap_faults.asc[PHASE_B_LO]);
-            App_CanTx_SetPeriodicSignal_B_HI_REGERR_ISO(
-                can_tx_interface, stgap_faults.regerrr[PHASE_B_LO]);
-            App_CanTx_SetPeriodicSignal_B_HI_UVLOD(
-                can_tx_interface, stgap_faults.uvlod[PHASE_B_LO]);
-            App_CanTx_SetPeriodicSignal_B_HI_OVLOD(
-                can_tx_interface, stgap_faults.ovlod[PHASE_B_LO]);
-            App_CanTx_SetPeriodicSignal_B_HI_REGERR_LV(
-                can_tx_interface, stgap_faults.reg_errl[PHASE_B_LO]);
-            App_CanTx_SetPeriodicSignal_B_HI_SPI_ERR(
-                can_tx_interface, stgap_faults.spi_err[PHASE_B_LO]);
-            App_CanTx_SetPeriodicSignal_B_HI_DEADTIME_ERR(
-                can_tx_interface, stgap_faults.dt_err[PHASE_B_LO]);
+            if(!App_CanTx_GetPeriodicSignal_A_LO_THERM_WARN(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_LO_THERM_WARN(
+                        can_tx_interface, stgap_faults.twn[PHASE_A_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_LO_THERM_SHDN(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_LO_THERM_SHDN(
+                        can_tx_interface, stgap_faults.tsd[PHASE_A_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_LO_UVLOL(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_LO_UVLOL(
+                        can_tx_interface, stgap_faults.uvlol[PHASE_A_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_LO_UVLOH(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_LO_UVLOH(
+                        can_tx_interface, stgap_faults.uvloh[PHASE_A_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_LO_SENSE(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_LO_SENSE(
+                        can_tx_interface, stgap_faults.sense[PHASE_A_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_LO_DESAT(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_LO_DESAT(
+                        can_tx_interface, stgap_faults.desat[PHASE_A_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_LO_OVLOL(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_LO_OVLOL(
+                        can_tx_interface, stgap_faults.ovlol[PHASE_A_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_LO_OVLOH(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_LO_OVLOH(
+                        can_tx_interface, stgap_faults.ovloh[PHASE_A_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_LO_ASC(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_LO_ASC(
+                        can_tx_interface, stgap_faults.asc[PHASE_A_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_LO_REGERR_ISO(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_LO_REGERR_ISO(
+                        can_tx_interface, stgap_faults.regerrr[PHASE_A_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_LO_UVLOD(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_LO_UVLOD(
+                        can_tx_interface, stgap_faults.uvlod[PHASE_A_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_LO_OVLOD(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_LO_OVLOD(
+                        can_tx_interface, stgap_faults.ovlod[PHASE_A_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_LO_REGERR_LV(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_LO_REGERR_LV(
+                        can_tx_interface, stgap_faults.reg_errl[PHASE_A_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_LO_SPI_ERR(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_LO_SPI_ERR(
+                        can_tx_interface, stgap_faults.spi_err[PHASE_A_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_LO_DEADTIME_ERR(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_LO_DEADTIME_ERR(
+                        can_tx_interface, stgap_faults.dt_err[PHASE_A_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_HI_THERM_WARN(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_HI_THERM_WARN(
+                        can_tx_interface, stgap_faults.twn[PHASE_A_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_HI_THERM_SHDN(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_HI_THERM_SHDN(
+                        can_tx_interface, stgap_faults.tsd[PHASE_A_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_HI_UVLOL(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_HI_UVLOL(
+                        can_tx_interface, stgap_faults.uvlol[PHASE_A_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_HI_UVLOH(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_HI_UVLOH(
+                        can_tx_interface, stgap_faults.uvloh[PHASE_A_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_HI_SENSE(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_HI_SENSE(
+                        can_tx_interface, stgap_faults.sense[PHASE_A_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_HI_DESAT(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_HI_DESAT(
+                        can_tx_interface, stgap_faults.desat[PHASE_A_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_HI_OVLOL(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_HI_OVLOL(
+                        can_tx_interface, stgap_faults.ovlol[PHASE_A_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_HI_OVLOH(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_HI_OVLOH(
+                        can_tx_interface, stgap_faults.ovloh[PHASE_A_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_HI_ASC(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_HI_ASC(
+                        can_tx_interface, stgap_faults.asc[PHASE_A_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_HI_REGERR_ISO(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_HI_REGERR_ISO(
+                        can_tx_interface, stgap_faults.regerrr[PHASE_A_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_HI_UVLOD(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_HI_UVLOD(
+                        can_tx_interface, stgap_faults.uvlod[PHASE_A_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_HI_OVLOD(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_HI_OVLOD(
+                        can_tx_interface, stgap_faults.ovlod[PHASE_A_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_HI_REGERR_LV(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_HI_REGERR_LV(
+                        can_tx_interface, stgap_faults.reg_errl[PHASE_A_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_HI_SPI_ERR(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_HI_SPI_ERR(
+                        can_tx_interface, stgap_faults.spi_err[PHASE_A_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_A_HI_DEADTIME_ERR(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_A_HI_DEADTIME_ERR(
+                        can_tx_interface, stgap_faults.dt_err[PHASE_A_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_LO_THERM_WARN(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_LO_THERM_WARN(
+                        can_tx_interface, stgap_faults.twn[PHASE_B_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_LO_THERM_SHDN(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_LO_THERM_SHDN(
+                        can_tx_interface, stgap_faults.tsd[PHASE_B_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_LO_UVLOL(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_LO_UVLOL(
+                        can_tx_interface, stgap_faults.uvlol[PHASE_B_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_LO_UVLOH(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_LO_UVLOH(
+                        can_tx_interface, stgap_faults.uvloh[PHASE_B_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_LO_SENSE(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_LO_SENSE(
+                        can_tx_interface, stgap_faults.sense[PHASE_B_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_LO_DESAT(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_LO_DESAT(
+                        can_tx_interface, stgap_faults.desat[PHASE_B_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_LO_OVLOL(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_LO_OVLOL(
+                        can_tx_interface, stgap_faults.ovlol[PHASE_B_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_LO_OVLOH(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_LO_OVLOH(
+                        can_tx_interface, stgap_faults.ovloh[PHASE_B_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_LO_ASC(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_LO_ASC(
+                        can_tx_interface, stgap_faults.asc[PHASE_B_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_LO_REGERR_ISO(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_LO_REGERR_ISO(
+                        can_tx_interface, stgap_faults.regerrr[PHASE_B_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_LO_UVLOD(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_LO_UVLOD(
+                        can_tx_interface, stgap_faults.uvlod[PHASE_B_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_LO_OVLOD(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_LO_OVLOD(
+                        can_tx_interface, stgap_faults.ovlod[PHASE_B_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_LO_REGERR_LV(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_LO_REGERR_LV(
+                        can_tx_interface, stgap_faults.reg_errl[PHASE_B_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_LO_SPI_ERR(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_LO_SPI_ERR(
+                        can_tx_interface, stgap_faults.spi_err[PHASE_B_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_LO_DEADTIME_ERR(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_LO_DEADTIME_ERR(
+                        can_tx_interface, stgap_faults.dt_err[PHASE_B_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_HI_THERM_WARN(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_HI_THERM_WARN(
+                        can_tx_interface, stgap_faults.twn[PHASE_B_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_HI_THERM_SHDN(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_HI_THERM_SHDN(
+                        can_tx_interface, stgap_faults.tsd[PHASE_B_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_HI_UVLOL(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_HI_UVLOL(
+                        can_tx_interface, stgap_faults.uvlol[PHASE_B_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_HI_UVLOH(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_HI_UVLOH(
+                        can_tx_interface, stgap_faults.uvloh[PHASE_B_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_HI_SENSE(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_HI_SENSE(
+                        can_tx_interface, stgap_faults.sense[PHASE_B_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_HI_DESAT(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_HI_DESAT(
+                        can_tx_interface, stgap_faults.desat[PHASE_B_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_HI_OVLOL(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_HI_OVLOL(
+                        can_tx_interface, stgap_faults.ovlol[PHASE_B_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_HI_OVLOH(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_HI_OVLOH(
+                        can_tx_interface, stgap_faults.ovloh[PHASE_B_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_HI_ASC(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_HI_ASC(
+                        can_tx_interface, stgap_faults.asc[PHASE_B_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_HI_REGERR_ISO(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_HI_REGERR_ISO(
+                        can_tx_interface, stgap_faults.regerrr[PHASE_B_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_HI_UVLOD(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_HI_UVLOD(
+                        can_tx_interface, stgap_faults.uvlod[PHASE_B_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_HI_OVLOD(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_HI_OVLOD(
+                        can_tx_interface, stgap_faults.ovlod[PHASE_B_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_HI_REGERR_LV(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_HI_REGERR_LV(
+                        can_tx_interface, stgap_faults.reg_errl[PHASE_B_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_HI_SPI_ERR(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_HI_SPI_ERR(
+                        can_tx_interface, stgap_faults.spi_err[PHASE_B_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_B_HI_DEADTIME_ERR(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_B_HI_DEADTIME_ERR(
+                        can_tx_interface, stgap_faults.dt_err[PHASE_B_LO]);
+            }
 
-            App_CanTx_SetPeriodicSignal_C_LO_THERM_WARN(
-                can_tx_interface, stgap_faults.twn[PHASE_C_HI]);
-            App_CanTx_SetPeriodicSignal_C_LO_THERM_SHDN(
-                can_tx_interface, stgap_faults.tsd[PHASE_C_HI]);
-            App_CanTx_SetPeriodicSignal_C_LO_UVLOL(
-                can_tx_interface, stgap_faults.uvlol[PHASE_C_HI]);
-            App_CanTx_SetPeriodicSignal_C_LO_UVLOH(
-                can_tx_interface, stgap_faults.uvloh[PHASE_C_HI]);
-            App_CanTx_SetPeriodicSignal_C_LO_SENSE(
-                can_tx_interface, stgap_faults.sense[PHASE_C_HI]);
-            App_CanTx_SetPeriodicSignal_C_LO_DESAT(
-                can_tx_interface, stgap_faults.desat[PHASE_C_HI]);
-            App_CanTx_SetPeriodicSignal_C_LO_OVLOL(
-                can_tx_interface, stgap_faults.ovlol[PHASE_C_HI]);
-            App_CanTx_SetPeriodicSignal_C_LO_OVLOH(
-                can_tx_interface, stgap_faults.ovloh[PHASE_C_HI]);
-            App_CanTx_SetPeriodicSignal_C_LO_ASC(
-                can_tx_interface, stgap_faults.asc[PHASE_C_HI]);
-            App_CanTx_SetPeriodicSignal_C_LO_REGERR_ISO(
-                can_tx_interface, stgap_faults.regerrr[PHASE_C_HI]);
-            App_CanTx_SetPeriodicSignal_C_LO_UVLOD(
-                can_tx_interface, stgap_faults.uvlod[PHASE_C_HI]);
-            App_CanTx_SetPeriodicSignal_C_LO_OVLOD(
-                can_tx_interface, stgap_faults.ovlod[PHASE_C_HI]);
-            App_CanTx_SetPeriodicSignal_C_LO_REGERR_LV(
-                can_tx_interface, stgap_faults.reg_errl[PHASE_C_HI]);
-            App_CanTx_SetPeriodicSignal_C_LO_SPI_ERR(
-                can_tx_interface, stgap_faults.spi_err[PHASE_C_HI]);
-            App_CanTx_SetPeriodicSignal_C_LO_DEADTIME_ERR(
-                can_tx_interface, stgap_faults.dt_err[PHASE_C_HI]);
-            App_CanTx_SetPeriodicSignal_C_HI_THERM_WARN(
-                can_tx_interface, stgap_faults.twn[PHASE_C_LO]);
-            App_CanTx_SetPeriodicSignal_C_HI_THERM_SHDN(
-                can_tx_interface, stgap_faults.tsd[PHASE_C_LO]);
-            App_CanTx_SetPeriodicSignal_C_HI_UVLOL(
-                can_tx_interface, stgap_faults.uvlol[PHASE_C_LO]);
-            App_CanTx_SetPeriodicSignal_C_HI_UVLOH(
-                can_tx_interface, stgap_faults.uvloh[PHASE_C_LO]);
-            App_CanTx_SetPeriodicSignal_C_HI_SENSE(
-                can_tx_interface, stgap_faults.sense[PHASE_C_LO]);
-            App_CanTx_SetPeriodicSignal_C_HI_DESAT(
-                can_tx_interface, stgap_faults.desat[PHASE_C_LO]);
-            App_CanTx_SetPeriodicSignal_C_HI_OVLOL(
-                can_tx_interface, stgap_faults.ovlol[PHASE_C_LO]);
-            App_CanTx_SetPeriodicSignal_C_HI_OVLOH(
-                can_tx_interface, stgap_faults.ovloh[PHASE_C_LO]);
-            App_CanTx_SetPeriodicSignal_C_HI_ASC(
-                can_tx_interface, stgap_faults.asc[PHASE_C_LO]);
-            App_CanTx_SetPeriodicSignal_C_HI_REGERR_ISO(
-                can_tx_interface, stgap_faults.regerrr[PHASE_C_LO]);
-            App_CanTx_SetPeriodicSignal_C_HI_UVLOD(
-                can_tx_interface, stgap_faults.uvlod[PHASE_C_LO]);
-            App_CanTx_SetPeriodicSignal_C_HI_REGERR_LV(
-                can_tx_interface, stgap_faults.reg_errl[PHASE_C_LO]);
-            App_CanTx_SetPeriodicSignal_C_HI_SPI_ERR(
-                can_tx_interface, stgap_faults.spi_err[PHASE_C_LO]);
-            App_CanTx_SetPeriodicSignal_C_HI_DEADTIME_ERR(
-                can_tx_interface, stgap_faults.dt_err[PHASE_C_LO]);
+            if(!App_CanTx_GetPeriodicSignal_C_LO_THERM_WARN(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_LO_THERM_WARN(
+                        can_tx_interface, stgap_faults.twn[PHASE_C_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_LO_THERM_SHDN(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_LO_THERM_SHDN(
+                        can_tx_interface, stgap_faults.tsd[PHASE_C_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_LO_UVLOL(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_LO_UVLOL(
+                        can_tx_interface, stgap_faults.uvlol[PHASE_C_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_LO_UVLOH(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_LO_UVLOH(
+                        can_tx_interface, stgap_faults.uvloh[PHASE_C_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_LO_SENSE(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_LO_SENSE(
+                        can_tx_interface, stgap_faults.sense[PHASE_C_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_LO_DESAT(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_LO_DESAT(
+                        can_tx_interface, stgap_faults.desat[PHASE_C_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_LO_OVLOL(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_LO_OVLOL(
+                        can_tx_interface, stgap_faults.ovlol[PHASE_C_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_LO_OVLOH(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_LO_OVLOH(
+                        can_tx_interface, stgap_faults.ovloh[PHASE_C_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_LO_ASC(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_LO_ASC(
+                        can_tx_interface, stgap_faults.asc[PHASE_C_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_LO_REGERR_ISO(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_LO_REGERR_ISO(
+                        can_tx_interface, stgap_faults.regerrr[PHASE_C_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_LO_UVLOD(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_LO_UVLOD(
+                        can_tx_interface, stgap_faults.uvlod[PHASE_C_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_LO_OVLOD(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_LO_OVLOD(
+                        can_tx_interface, stgap_faults.ovlod[PHASE_C_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_LO_REGERR_LV(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_LO_REGERR_LV(
+                        can_tx_interface, stgap_faults.reg_errl[PHASE_C_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_LO_SPI_ERR(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_LO_SPI_ERR(
+                        can_tx_interface, stgap_faults.spi_err[PHASE_C_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_LO_DEADTIME_ERR(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_LO_DEADTIME_ERR(
+                        can_tx_interface, stgap_faults.dt_err[PHASE_C_HI]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_HI_THERM_WARN(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_HI_THERM_WARN(
+                        can_tx_interface, stgap_faults.twn[PHASE_C_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_HI_THERM_SHDN(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_HI_THERM_SHDN(
+                        can_tx_interface, stgap_faults.tsd[PHASE_C_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_HI_UVLOL(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_HI_UVLOL(
+                        can_tx_interface, stgap_faults.uvlol[PHASE_C_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_HI_UVLOH(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_HI_UVLOH(
+                        can_tx_interface, stgap_faults.uvloh[PHASE_C_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_HI_SENSE(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_HI_SENSE(
+                        can_tx_interface, stgap_faults.sense[PHASE_C_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_HI_DESAT(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_HI_DESAT(
+                        can_tx_interface, stgap_faults.desat[PHASE_C_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_HI_OVLOL(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_HI_OVLOL(
+                        can_tx_interface, stgap_faults.ovlol[PHASE_C_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_HI_OVLOH(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_HI_OVLOH(
+                        can_tx_interface, stgap_faults.ovloh[PHASE_C_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_HI_ASC(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_HI_ASC(
+                        can_tx_interface, stgap_faults.asc[PHASE_C_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_HI_REGERR_ISO(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_HI_REGERR_ISO(
+                        can_tx_interface, stgap_faults.regerrr[PHASE_C_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_HI_UVLOD(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_HI_UVLOD(
+                        can_tx_interface, stgap_faults.uvlod[PHASE_C_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_HI_REGERR_LV(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_HI_REGERR_LV(
+                        can_tx_interface, stgap_faults.reg_errl[PHASE_C_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_HI_SPI_ERR(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_HI_SPI_ERR(
+                        can_tx_interface, stgap_faults.spi_err[PHASE_C_LO]);
+            }
+            if(!App_CanTx_GetPeriodicSignal_C_HI_DEADTIME_ERR(can_tx_interface)) {
+                App_CanTx_SetPeriodicSignal_C_HI_DEADTIME_ERR(
+                        can_tx_interface, stgap_faults.dt_err[PHASE_C_LO]);
+            }
         }
         else
         {

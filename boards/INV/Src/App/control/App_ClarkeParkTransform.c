@@ -1,5 +1,6 @@
 #include "control/App_ClarkeParkTransform.h"
 #include "configs/App_ControlSystemConfig.h"
+#include "control/App_ControlLoop.h"
 #include <arm_math.h>
 #include <math.h>
 
@@ -20,8 +21,8 @@ struct DqsValues clarkeParkTransform(
                  ((float)M_SQRT3 / 2) * phase_currents->c * 2 / 3;
 
     // Park Transform
-    dqs_currents.d = alpha * cosf(theta) + beta * sinf(theta);
-    dqs_currents.q = -alpha * sinf(theta) + beta * cosf(theta);
+    dqs_currents.d = alpha * App_ControlLoop_CosLookup(theta) + beta * App_ControlLoop_SinLookup(theta);
+    dqs_currents.q = -alpha * App_ControlLoop_SinLookup(theta) + beta * App_ControlLoop_CosLookup(theta);
     dqs_currents.s = sqrtf(
         dqs_currents.d * dqs_currents.d + dqs_currents.q * dqs_currents.q);
 
