@@ -2,6 +2,7 @@
 #include "states/App_InitState.h"
 #include "states/App_DriveState.h"
 #include "states/App_FaultState.h"
+#include "App_SendNonPeriodicCanSignals.h"
 
 #include "App_SharedMacros.h"
 
@@ -42,6 +43,14 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
+    struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+
+    // Clear inverter fault if requested by a PCAN node
+    App_SendNonPeriodicCanSignals_ClearInverterFaults(world);
+
+    // Open or close the inverter LV switches if requested by a PCAN node
+    App_SharedStates_ConfigInverterSwitches(world);
+
     App_SharedStatesRunOnTick1Hz(state_machine);
 }
 
@@ -54,17 +63,6 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct ErrorTable *       error_table = App_DcmWorld_GetErrorTable(world);
     struct InverterSwitches * inverter_switches =
         App_DcmWorld_GetInverterSwitches(world);
-
-#ifdef DEBUG // Enter drive state directly from init state
-    App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
-    return;
-#endif
-
-#ifdef CONFIG_EEPROM
-    App_InverterSwitches_TurnOnRight(inverter_switches);
-    App_InverterSwitches_TurnOnLeft(inverter_switches);
-    return;
-#endif
 
     // Provide LV to inverters when both AIRS are closed and DC bus voltage ~
     // 400 V

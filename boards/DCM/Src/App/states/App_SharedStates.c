@@ -31,3 +31,49 @@ void App_SharedStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_LEFT_INVERTER_SWITCH(
         can_tx, App_InverterSwitches_IsLeftOn(inverter_switches));
 }
+
+void App_SharedStates_ConfigInverterSwitches(struct DcmWorld *world)
+{
+    struct DcmCanRxInterface *can_rx = App_DcmWorld_GetCanRx(world);
+    struct InverterSwitches * inv_switches =
+        App_DcmWorld_GetInverterSwitches(world);
+
+    // Close or open the inverter LV switches if requested by a PCAN node
+    if (App_CanRx_INV_LOAD_SWITCHES_CMD_GetSignal_CLOSE_LEFT_SWITCH(can_rx) ==
+        CANMSGS_INV_LOAD_SWITCHES_CMD_CLOSE_LEFT_SWITCH_YES_CHOICE)
+    {
+        App_InverterSwitches_TurnOnLeft(inv_switches);
+
+        // Close the left inverter load switch once
+        App_CanRx_INV_LOAD_SWITCHES_CMD_SetSignal_CLOSE_LEFT_SWITCH(
+            can_rx, CANMSGS_INV_LOAD_SWITCHES_CMD_CLOSE_LEFT_SWITCH_NO_CHOICE);
+    }
+
+    if (App_CanRx_INV_LOAD_SWITCHES_CMD_GetSignal_CLOSE_RIGHT_SWITCH(can_rx) ==
+        CANMSGS_INV_LOAD_SWITCHES_CMD_CLOSE_RIGHT_SWITCH_YES_CHOICE)
+    {
+        App_InverterSwitches_TurnOnRight(inv_switches);
+
+        // Close the right inverter load switch once
+        App_CanRx_INV_LOAD_SWITCHES_CMD_SetSignal_CLOSE_RIGHT_SWITCH(
+            can_rx, CANMSGS_INV_LOAD_SWITCHES_CMD_CLOSE_RIGHT_SWITCH_NO_CHOICE);
+    }
+
+    if (App_CanRx_INV_LOAD_SWITCHES_CMD_GetSignal_OPEN_LEFT_SWITCH(can_rx) ==
+        CANMSGS_INV_LOAD_SWITCHES_CMD_OPEN_LEFT_SWITCH_YES_CHOICE)
+    {
+        App_InverterSwitches_TurnOffLeft(inv_switches);
+
+        App_CanRx_INV_LOAD_SWITCHES_CMD_SetSignal_OPEN_LEFT_SWITCH(
+            can_rx, CANMSGS_INV_LOAD_SWITCHES_CMD_OPEN_LEFT_SWITCH_NO_CHOICE);
+    }
+
+    if (App_CanRx_INV_LOAD_SWITCHES_CMD_GetSignal_OPEN_RIGHT_SWITCH(can_rx) ==
+        CANMSGS_INV_LOAD_SWITCHES_CMD_OPEN_RIGHT_SWITCH_YES_CHOICE)
+    {
+        App_InverterSwitches_TurnOffRight(inv_switches);
+
+        App_CanRx_INV_LOAD_SWITCHES_CMD_SetSignal_OPEN_RIGHT_SWITCH(
+            can_rx, CANMSGS_INV_LOAD_SWITCHES_CMD_OPEN_RIGHT_SWITCH_NO_CHOICE);
+    }
+}

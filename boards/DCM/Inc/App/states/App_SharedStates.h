@@ -56,3 +56,10 @@ void App_SharedStatesRunOnTick1Hz(struct StateMachine *state_machine);
  * @param state_machine The state machine to run on-tick function for
  */
 void App_SharedStatesRunOnTick100Hz(struct StateMachine *state_machine);
+
+/**
+ * Open or close the inverter LV switches if requested by a PCAN node
+ * @param state_machine The state machine to get the CAN rx and inverter switch
+ * interfaces
+ */
+void App_SharedStates_ConfigInverterSwitches(struct DcmWorld *world);

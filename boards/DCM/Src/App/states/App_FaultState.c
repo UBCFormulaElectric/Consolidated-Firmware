@@ -1,6 +1,7 @@
 #include "states/App_SharedStates.h"
 #include "states/App_FaultState.h"
 #include "states/App_InitState.h"
+#include "App_SendNonPeriodicCanSignals.h"
 
 #include "App_SharedMacros.h"
 
@@ -28,6 +29,14 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 
 static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
+    struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+
+    // Clear inverter fault if requested by a PCAN node
+    App_SendNonPeriodicCanSignals_ClearInverterFaults(world);
+
+    // Open or close the inverter LV switches if requested by a PCAN node
+    App_SharedStates_ConfigInverterSwitches(world);
+
     App_SharedStatesRunOnTick1Hz(state_machine);
 }
 

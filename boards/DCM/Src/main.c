@@ -172,6 +172,8 @@ int main(void)
     Io_SharedHardFaultHandler_Init();
 
     can_tx = App_CanTx_Create(
+        Io_CanTx_EnqueueNonPeriodicMsg_DCM_INVL_READ_WRITE_PARAM_COMMAND,
+        Io_CanTx_EnqueueNonPeriodicMsg_DCM_INVR_READ_WRITE_PARAM_COMMAND,
         Io_CanTx_EnqueueNonPeriodicMsg_DCM_STARTUP,
         Io_CanTx_EnqueueNonPeriodicMsg_DCM_WATCHDOG_TIMEOUT);
 

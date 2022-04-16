@@ -142,15 +142,15 @@ SG_ Torque_Limit_Command_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVL
 SG_ Speed_Mode_Enable_INVL : 42|1@1+ (1,0) [0|1] "Bit" INVL
 SG_ RollingCounter_INVL : 44|4@1+ (1,0) [0|15] "Bits" INVL
 
-BO_ 33 DEBUG_INVL_Read_Write_Param_Command: 8 DEBUG
+BO_ 33 DCM_INVL_Read_Write_Param_Command: 8 DCM
 SG_ D3_Data_Command : 32|16@1- (1,0) [-32768|32767] "" INVL
 SG_ D2_Read_Write_Command : 16|1@1+ (1,0) [0|1] "" INVL
 SG_ D1_Parameter_Address_Command : 0|16@1+ (1,0) [0|65535] "" INVL
 
-BO_ 34 INVL_DEBUG_Read_Write_Param_Response: 8 INVL
-SG_ D2_Write_Success : 16|1@1+ (1,0) [0|1] "" DEBUG
-SG_ D3_Data_Response : 32|16@1- (1,0) [-32768|32767] "" DEBUG
-SG_ D1_Parameter_Address_Response : 0|16@1+ (1,0) [0|65535] "" DEBUG
+BO_ 34 INVL_DCM_Read_Write_Param_Response: 8 INVL
+SG_ D2_Write_Success : 16|1@1+ (1,0) [0|1] "" DCM
+SG_ D3_Data_Response : 32|16@1- (1,0) [-32768|32767] "" DCM
+SG_ D1_Parameter_Address_Response : 0|16@1+ (1,0) [0|65535] "" DCM
 
 BO_ 50 INVR_Temperature_Set_1: 8 INVR
 SG_ D4_Gate_Driver_Board_INVR : 48|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
@@ -287,15 +287,15 @@ SG_ Torque_Limit_Command_INVR : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVR
 SG_ Speed_Mode_Enable_INVR : 42|1@1+ (1,0) [0|1] "Bit" INVR
 SG_ RollingCounter_INVR : 44|4@1+ (1,0) [0|15] "Bits" INVR
 
-BO_ 83 DEBUG_INVR_Read_Write_Param_Command: 8 DEBUG
+BO_ 83 DCM_INVR_Read_Write_Param_Command: 8 DCM
 SG_ D3_Data_Command : 32|16@1- (1,0) [-32768|32767] "" INVR
 SG_ D2_Read_Write_Command : 16|1@1+ (1,0) [0|1] "" INVR
 SG_ D1_Parameter_Address_Command : 0|16@1+ (1,0) [0|65535] "" INVR
 
-BO_ 84 INVR_DEBUG_Read_Write_Param_Response: 8 INVR
-SG_ D2_Write_Success : 16|1@1+ (1,0) [0|1] "" DEBUG
-SG_ D3_Data_Response : 32|16@1- (1,0) [-32768|32767] "" DEBUG
-SG_ D1_Parameter_Address_Response : 0|16@1+ (1,0) [0|65535] "" DEBUG
+BO_ 84 INVR_DCM_Read_Write_Param_Response: 8 INVR
+SG_ D2_Write_Success : 16|1@1+ (1,0) [0|1] "" DCM
+SG_ D3_Data_Response : 32|16@1- (1,0) [-32768|32767] "" DCM
+SG_ D1_Parameter_Address_Response : 0|16@1+ (1,0) [0|65535] "" DCM
 
 BO_ 100 BMS_HEARTBEAT: 1 BMS
 SG_ DUMMY_VARIABLE : 0|1@1+ (1,0) [0|1] "" FSM,DCM,PDM,DIM
@@ -577,6 +577,16 @@ SG_ DUMMY_AIR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DCM
 BO_ 510 DIM_MOTOR_SHUTDOWN_ERRORS: 8 DIM
 SG_ DUMMY_MOTOR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DCM
 
+BO_ 600 CLEAR_INV_FAULT_CMD: 1 DEBUG
+SG_ Clear_Left_Fault : 0|1@1+ (1,0) [0|1] "" DCM
+SG_ Clear_Right_Fault : 1|1@1+ (1,0) [0|1] "" DCM
+
+BO_ 601 INV_LOAD_SWITCHES_CMD: 1 DEBUG
+SG_ Close_Left_Switch : 0|1@1+ (1,0) [0|1] "" DCM
+SG_ Close_Right_Switch : 1|1@1+ (1,0) [0|1] "" DCM
+SG_ Open_Left_Switch : 2|1@1+ (1,0) [0|1] "" DCM
+SG_ Open_Right_Switch : 3|1@1+ (1,0) [0|1] "" DCM
+
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
 BA_DEF_ SG_  "GenSigStartValue" INT 0 2147483647;
@@ -588,7 +598,6 @@ BA_DEF_DEF_  "GenSigStartValue" 0;
 BA_ "BusType" "CAN";
 
 BA_ "GenSigStartValue" SG_ 507 Start_Switch 1; 
-BA_ "GenSigStartValue" SG_ 82 Direction_Command_INVR 1; 
 
 BA_ "GenMsgCycleTime" BO_ 0 100;
 BA_ "GenMsgCycleTime" BO_ 1 100;
@@ -685,6 +694,9 @@ BA_ "GenMsgCycleTime" BO_ 508 1000;
 BA_ "GenMsgCycleTime" BO_ 509 1000;
 BA_ "GenMsgCycleTime" BO_ 510 1000;
 
+BA_ "GenMsgCycleTime" BO_ 600 0;
+BA_ "GenMsgCycleTime" BO_ 601 0;
+
 SIG_VALTYPE_ 106 Duty_Cycle : 1;
 SIG_VALTYPE_ 106 Frequency : 1;
 SIG_VALTYPE_ 108 State_Of_Charge : 1;
@@ -769,3 +781,9 @@ VAL_ 506 Drive_Mode 0 "DRIVE_MODE_1" 1 "DRIVE_MODE_2" 2 "DRIVE_MODE_3" 3 "DRIVE_
 VAL_ 507 Start_Switch 0 "OFF" 1 "ON";
 VAL_ 507 Traction_Control_Switch 0 "OFF" 1 "ON";
 VAL_ 507 Torque_Vectoring_Switch  0 "OFF" 1 "ON";
+VAL_ 600 Clear_Left_Fault 0 "NO" 1 "YES";
+VAL_ 600 Clear_Right_Fault 0 "NO" 1 "YES";
+VAL_ 601 Close_Left_Switch 0 "NO" 1 "YES";
+VAL_ 601 Close_Right_Switch 0 "NO" 1 "YES";
+VAL_ 601 Open_Left_Switch 0 "NO" 1 "YES";
+VAL_ 601 Open_Right_Switch 0 "NO" 1 "YES";
