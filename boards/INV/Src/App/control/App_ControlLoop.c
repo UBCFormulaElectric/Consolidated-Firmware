@@ -204,7 +204,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
         if (mode == GEN_SINE_M)
         {
             gen_rotor_position = fmodf(
-                (prev_rotor_position +
+                (prev_gen_rotor_position +
                  (fund_freq_ref / SAMPLE_FREQUENCY) * 2 * (float)M_PI),
                 2 * (float)M_PI);
 
@@ -229,7 +229,7 @@ void App_ControlLoop_Run(const struct InvWorld *world)
                 App_CanRx_INV_PH_CUR_PEAK_REQ_GetSignal_PH_CUR_PEAK_REQ(can_rx);
 
             gen_rotor_position = fmodf(
-                (prev_rotor_position +
+                (prev_gen_rotor_position +
                  (fund_freq_ref / SAMPLE_FREQUENCY) * 2 * (float)M_PI),
                 2 * (float)M_PI);
 
@@ -443,6 +443,11 @@ float App_ControlLoop_GetRotorPosition(void)
     return rotor_position * 360.0f / (2 * (float)M_PI);
 }
 
+float App_ControlLoop_GetGenRotorPosition(void)
+{
+    return gen_rotor_position * 360.0f / (2 * (float)M_PI);
+}
+
 float App_ControlLoop_GetRotorSpeed(void)
 {
     return rotor_speed;
@@ -484,13 +489,13 @@ float App_ControlLoop_GetCurrentLimit(void)
 
 float App_ControlLoop_SinLookup(const float rad)
 {
-    uint8_t index = (uint8_t)(rad/(2*(float)M_PI))*256;
+    uint8_t index = (rad/(2*(float)M_PI))*256;
     return sin_lookup_table[index];
 }
 
 float App_ControlLoop_CosLookup(const float rad)
 {
-    uint8_t index = (uint8_t)(rad/(2*(float)M_PI))*256;
+    uint8_t index = (rad/(2*(float)M_PI))*256;
     return cos_lookup_table[index];
 }
 

@@ -2,6 +2,8 @@
 
 #include "control/App_ControlLoop.h"
 
+#define SQRT_3_OVER_2 ((float)M_SQRT3 / 2.0f)
+#define _2_OVER_3 (2.0f/3.0f)
+
 struct PhaseValues parkClarkeTransform(
-    const struct DqsValues *const dqs_voltages,
-    float                         theta);
+    const struct DqsValues * dqs_voltages, float theta);

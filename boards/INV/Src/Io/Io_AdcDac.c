@@ -175,7 +175,7 @@ float Io_AdcDac_ReadMotorTemp(void)
 float Io_AdcDac_GetBusVoltage(void)
 {
     float adc_voltage = 3.3f * (float)adc2_data[3] / 4096.0f;
-    float bus_voltage = ((8.06f + 499 * 4) / 8.06f) * adc_voltage;
+    float bus_voltage = BUS_VOLTAGE_SCALING_FACTOR * adc_voltage;
     return bus_voltage;
 }
 

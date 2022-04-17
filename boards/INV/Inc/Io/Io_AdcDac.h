@@ -5,6 +5,7 @@
 #define CUR_SNS_GAIN 100.0f // Allegro phase current sensor gain, in A/V
 #define MAX_CUR_ADC_OFFSET \
     0.025f // 25mV, the max offset error for Allegro ACS758ECB-200B-PSS-T
+#define BUS_VOLTAGE_SCALING_FACTOR 0.00200805637045f
 
 void Io_AdcDac_AdcContModeInit(void);
 void Io_AdcDac_AdcPwmSyncModeInit(void);

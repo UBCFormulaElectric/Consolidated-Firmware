@@ -517,8 +517,15 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
             can_tx_interface, phase_currents.b);
         App_CanTx_SetPeriodicSignal_PHC_CUR_DC(
             can_tx_interface, phase_currents.c);
-        App_CanTx_SetPeriodicSignal_ROTOR_POSITION(
-            can_tx_interface, App_ControlLoop_GetRotorPosition());
+        if(App_CanRx_INV_STATE_REQ_GetSignal_NO_ROTOR_PRESENT(can_rx_interface)) {
+            App_CanTx_SetPeriodicSignal_ROTOR_POSITION(
+                    can_tx_interface, App_ControlLoop_GetGenRotorPosition());
+        }
+        else {
+            App_CanTx_SetPeriodicSignal_ROTOR_POSITION(
+                    can_tx_interface, App_ControlLoop_GetRotorPosition());
+        }
+
         App_CanTx_SetPeriodicSignal_ROTOR_SPEED(
             can_tx_interface, App_ControlLoop_GetRotorSpeed());
         App_CanTx_SetPeriodicSignal_MODE(

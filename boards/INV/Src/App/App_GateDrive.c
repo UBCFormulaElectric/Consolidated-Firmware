@@ -120,7 +120,7 @@ void App_GateDrive_GetFaults(
 
 void App_GateDrive_ReadFaults(struct StgapFaults *stgap_faults)
 {
-    stgap_faults = Io_STGAP1AS_ReadFaults();
+    *stgap_faults = *Io_STGAP1AS_ReadFaults();
 }
 
 bool App_GateDrive_IsFaulted(void)
