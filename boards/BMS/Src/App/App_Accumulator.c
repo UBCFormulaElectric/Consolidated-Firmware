@@ -4,30 +4,13 @@
 #include "App_SharedMacros.h"
 
 #define MIN_CELL_VOLTAGE (3.0f)
-#define MAX_CELL_VOLTAGE (4.2f)
+#define MAX_CELL_VOLTAGE (4.0f)
 
 enum AccumulatorMonitorState
 {
     GET_CELL_VOLTAGE_STATE = 0U,
     GET_CELL_TEMP_STATE,
     GET_DIE_TEMP_STATE,
-};
-
-struct Accumulator
-{
-    // Configure the cell monitoring chip
-    bool (*config_monitoring_chip)(void);
-
-    // Cell voltage monitoring functions
-    bool (*start_cell_voltage_conv)(void);
-    bool (*read_cell_voltages)(void);
-    void (*get_min_cell_loc)(uint8_t *, uint8_t *);
-    void (*get_max_cell_loc)(uint8_t *, uint8_t *);
-    float (*get_min_cell_voltage)(void);
-    float (*get_max_cell_voltage)(void);
-    float (*get_segment_voltage)(AccumulatorSegments_E);
-    float (*get_pack_voltage)(void);
-    float (*get_avg_cell_voltage)(void);
 };
 
 struct Accumulator *App_Accumulator_Create(
@@ -115,11 +98,11 @@ void App_Accumulator_RunOnTick100Hz(
             static uint32_t counter = 0U;
             if ((counter % 1000) >= 1U)
             {
-                Io_LTC6813Shared_DisableDischarge();
+                // Io_LTC6813Shared_DisableDischarge();
             }
             else
             {
-                Io_LTC6813Shared_EnableDischarge();
+                // Io_LTC6813Shared_EnableDischarge();
             }
 
             counter++;

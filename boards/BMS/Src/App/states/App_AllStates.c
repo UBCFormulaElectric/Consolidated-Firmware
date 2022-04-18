@@ -32,6 +32,9 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_Accumulator_RunOnTick100Hz(accumulator, can_tx);
 
+    const float max = accumulator->get_max_cell_voltage();
+    const float min = accumulator->get_min_cell_voltage();
+
     if (!App_Accumulator_IsMaxVoltageInRange(accumulator) ||
         !App_Accumulator_IsMinVoltageInRange(accumulator))
     {

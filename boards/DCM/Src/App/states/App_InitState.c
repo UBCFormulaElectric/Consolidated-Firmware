@@ -5,6 +5,8 @@
 
 #include "App_SharedMacros.h"
 
+#define CONFIG_EEPROM
+
 /**
  * Check if the brake pedal is actuated
  * @param can_rx_interface The CAN Rx interface to get the CAN signals from
@@ -60,57 +62,53 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     return;
 #endif
 
+#ifdef CONFIG_EEPROM
+    App_InverterSwitches_TurnOnRight(inverter_switches);
+    App_InverterSwitches_TurnOnLeft(inverter_switches);
+    return;
+#endif
+
     // Provide LV to inverters when both AIRS are closed and DC bus voltage ~
     // 400 V
-    // if (App_SharedStates_AreBothAIRsClosed(can_rx_interface) &&
-    //    !App_InverterSwitches_IsRightOn(inverter_switches))
-    //{
-    //    App_InverterSwitches_TurnOnRight(inverter_switches);
-    //}
-    // if (App_SharedStates_AreBothAIRsClosed(can_rx_interface) &&
-    //    !App_InverterSwitches_IsLeftOn(inverter_switches))
-    //{
-    //    App_InverterSwitches_TurnOnLeft(inverter_switches);
-    //}
-
-    if (App_SharedStates_AreBothAIRsClosed(can_rx_interface))
+    if (App_SharedStates_AreBothAIRsClosed(can_rx_interface) &&
+        !App_InverterSwitches_IsRightOn(inverter_switches))
     {
         App_InverterSwitches_TurnOnRight(inverter_switches);
+    }
+    if (App_SharedStates_AreBothAIRsClosed(can_rx_interface) &&
+        !App_InverterSwitches_IsLeftOn(inverter_switches))
+    {
         App_InverterSwitches_TurnOnLeft(inverter_switches);
     }
 
-    bool right_inv_sw = App_InverterSwitches_IsLeftOn(inverter_switches);
-    bool left_inv_sw  = App_InverterSwitches_IsRightOn(inverter_switches);
-    UNUSED(right_inv_sw);
-    UNUSED(left_inv_sw);
-
     // Holds previous start switch position (true = UP/ON, false = DOWN/OFF)
     // Initialize to true to prevent a false start
-    // static bool prev_start_switch_pos = true;
-    // const bool  curr_start_switch_pos =
-    //    App_SharedStates_IsStartSwitchOn(can_rx_interface);
-    // const bool was_start_switch_pulled_up =
-    //    !prev_start_switch_pos && curr_start_switch_pos;
-    // const struct State *next_state = App_GetInitState();
+    static bool prev_start_switch_pos = true;
+    const bool  curr_start_switch_pos =
+        App_SharedStates_IsStartSwitchOn(can_rx_interface);
+    const bool was_start_switch_pulled_up =
+        !prev_start_switch_pos && curr_start_switch_pos;
+    const struct State *next_state = App_GetInitState();
 
     if (App_SharedErrorTable_HasAnyCriticalErrorSet(error_table) ||
         App_SharedStates_HasInverterFaulted(can_rx_interface))
     {
         // Transition to fault state if an inverter has faulted or
         // a critical error has been set
-        // next_state = App_GetFaultState();
+        next_state = App_GetFaultState();
     }
-    else if (App_SharedStates_AreBothAIRsClosed(can_rx_interface))
-    // App_InitState_IsBrakeActuated(can_rx_interface))
-    //&& was_start_switch_pulled_up)
+    else if (
+        App_SharedStates_AreBothAIRsClosed(can_rx_interface) &&
+        App_InitState_IsBrakeActuated(can_rx_interface) &&
+        was_start_switch_pulled_up)
     {
         // Transition to drive state when start-up conditions are passed (see
         // EV.10.4.3):
-        // next_state = App_GetDriveState();
+        next_state = App_GetDriveState();
     }
 
-    // prev_start_switch_pos = curr_start_switch_pos;
-    // App_SharedStateMachine_SetNextState(state_machine, next_state);
+    prev_start_switch_pos = curr_start_switch_pos;
+    App_SharedStateMachine_SetNextState(state_machine, next_state);
 }
 
 static void InitStateRunOnExit(struct StateMachine *const state_machine)

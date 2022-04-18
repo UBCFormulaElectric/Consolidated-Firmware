@@ -59,45 +59,64 @@ static void
 
     // percentage threshold, which when TS reaches this threshold of ACC, AIR+
     // engages and precharge is disabled must be at least 90% EV.6.6.1
-    const float precharge_threshold_percentage = 0.78f;
+    const float threshold_percentage = 0.90f;
 
     // Voltage information
-    float tractive_system_voltage = Io_VoltageSense_GetTractiveSystemVoltage(
+    float ts_voltage = Io_VoltageSense_GetTractiveSystemVoltage(
         Io_Adc_GetAdc1Channel3Voltage());
     float accumulator_voltage = App_Accumulator_GetPackVoltage(accumulator);
     float threshold_voltage =
-        accumulator_voltage * precharge_threshold_percentage;
+            accumulator_voltage * threshold_percentage;
 
     // track the time since precharge started
     uint32_t elapsed_time =
         App_SharedClock_GetCurrentTimeInMilliseconds(clock) -
         App_SharedClock_GetPreviousTimeInMilliseconds(clock);
 
-    // if the voltage increases too slowly or too quickly, there may be an issue
-    if ((tractive_system_voltage < threshold_voltage &&
-         elapsed_time >= upper_precharge_time) ||
-        (tractive_system_voltage > threshold_voltage &&
-         elapsed_time <= lower_precharge_time))
+    // CHARGE MODE
+    if (Io_Charger_IsConnected())
     {
-        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
-    }
-
-    // Successful precharge if tractive system reaches threshold between the
-    // lower and upper time bounds (expected range precharge time)
-    else if (tractive_system_voltage >= threshold_voltage)
-    {
-        // close AIR+
-        App_Airs_CloseAirPositive(airs);
-
-        if (Io_Charger_IsConnected())
+        // if the charger is connected, we want to ignore precharging too
+        // quickly and enter the charge state
+        if ((ts_voltage < threshold_voltage &&
+             elapsed_time >= upper_precharge_time))
         {
-            // enter charge state if charger is connected
+            //TODO: send non-crititcal fault message
+            App_SharedStateMachine_SetNextState(
+                state_machine, App_GetFaultState());
+        }
+        else if (ts_voltage >= threshold_voltage)
+        {
+            // if precharge happens within expected range, close air+ and enter
+            // charge state
+            App_Airs_CloseAirPositive(airs);
             App_SharedStateMachine_SetNextState(
                 state_machine, App_GetChargeState());
         }
-        else
+    }
+
+    // DRIVE MODE
+    else
+    {
+        // if the charger is disconnected, we want to watch for both precharging
+        // too quickly and slowly and enter drive state
+
+        // if the voltage increases too slowly or too quickly, there may be an
+        // issue
+        if ((ts_voltage < threshold_voltage &&
+             elapsed_time >= upper_precharge_time) ||
+            (ts_voltage > threshold_voltage &&
+             elapsed_time <= lower_precharge_time))
         {
-            // if charger disconnected, enter drive state
+            App_SharedStateMachine_SetNextState(
+                state_machine, App_GetFaultState());
+            //TODO: Send non-critical fault message
+        }
+        // if precharge happens within expected range, close air+ and enter
+        // drive state
+        else if (ts_voltage >= threshold_voltage)
+        {
+            App_Airs_CloseAirPositive(airs);
             App_SharedStateMachine_SetNextState(
                 state_machine, App_GetDriveState());
         }
@@ -106,7 +125,7 @@ static void
     // if the AIR- opens again, send back to Init_State
     if (!Io_Airs_IsAirNegativeClosed())
     {
-        // TODO: throw non-critical fault msg
+        // TODO: send non-critical fault msg
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
 }

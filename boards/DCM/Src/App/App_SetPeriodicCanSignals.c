@@ -71,8 +71,6 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
             MAX_TORQUE_REQUEST_NM;
     }
 
-    torque_request = 0.0f;
-
     // Transmit torque command to both inverters
     App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
         can_tx, App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(

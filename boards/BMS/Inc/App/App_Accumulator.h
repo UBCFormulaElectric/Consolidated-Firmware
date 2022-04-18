@@ -7,11 +7,32 @@ typedef enum
 {
     ACCUMULATOR_SEGMENT_0 = 0U,
     ACCUMULATOR_SEGMENT_1,
+    ACCUMULATOR_SEGMENT_2,
+    ACCUMULATOR_SEGMENT_3,
+    ACCUMULATOR_SEGMENT_4,
+    ACCUMULATOR_SEGMENT_5,
     NUM_OF_ACCUMULATOR_SEGMENTS,
 } AccumulatorSegments_E;
 
 struct Accumulator;
 struct BmsCanTxInterface;
+
+struct Accumulator
+{
+    // Configure the cell monitoring chip
+    bool (*config_monitoring_chip)(void);
+
+    // Cell voltage monitoring functions
+    bool (*start_cell_voltage_conv)(void);
+    bool (*read_cell_voltages)(void);
+    void (*get_min_cell_loc)(uint8_t *, uint8_t *);
+    void (*get_max_cell_loc)(uint8_t *, uint8_t *);
+    float (*get_min_cell_voltage)(void);
+    float (*get_max_cell_voltage)(void);
+    float (*get_segment_voltage)(AccumulatorSegments_E);
+    float (*get_pack_voltage)(void);
+    float (*get_avg_cell_voltage)(void);
+};
 
 /**
  * Allocate and initialize an accumulator.
