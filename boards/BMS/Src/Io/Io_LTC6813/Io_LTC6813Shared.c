@@ -171,7 +171,7 @@ static void Io_PrepareCfgRegBytes(
         &min_cell_segment, &min_cell_index);
 
     // Write to the configuration registers of each segment
-    for (uint8_t curr_segment = 0;
+    for (uint8_t curr_segment = 0U;
          (int8_t)curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS; curr_segment++)
     {
         // Configuration registers are written to serially starting from the
