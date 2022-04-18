@@ -176,8 +176,8 @@ static void Io_PrepareCfgRegBytes(
     {
         // Configuration registers are written to serially starting from the
         // last segment
-        const int32_t tx_cfg_idx =
-            NUM_OF_ACCUMULATOR_SEGMENTS - (int32_t)curr_segment - 1;
+        const uint8_t tx_cfg_idx =
+            (uint8_t)(NUM_OF_ACCUMULATOR_SEGMENTS - curr_segment - 1);
 
         // Set default tx_cfg for each segment
         memcpy(
