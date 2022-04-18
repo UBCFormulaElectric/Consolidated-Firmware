@@ -1,5 +1,9 @@
 #include "states/App_SharedStates.h"
 
+// PM100DZ Inverter Definitions
+#define CLEAR_INV_FAULT_PARAM_ADDRESS (20U)
+#define WRITE_CMD (1U)
+
 void App_SharedStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
@@ -32,48 +36,61 @@ void App_SharedStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         can_tx, App_InverterSwitches_IsLeftOn(inverter_switches));
 }
 
-void App_SharedStates_ConfigInverterSwitches(struct DcmWorld *world)
+void App_SharedStates_ConfigInverterSwitches(
+    const struct DcmCanRxInterface *can_rx,
+    struct InverterSwitches *       inv_switches)
 {
-    struct DcmCanRxInterface *can_rx = App_DcmWorld_GetCanRx(world);
-    struct InverterSwitches * inv_switches =
-        App_DcmWorld_GetInverterSwitches(world);
-
-    // Close or open the inverter LV switches if requested by a PCAN node
-    if (App_CanRx_INV_LOAD_SWITCHES_CMD_GetSignal_CLOSE_LEFT_SWITCH(can_rx) ==
-        CANMSGS_INV_LOAD_SWITCHES_CMD_CLOSE_LEFT_SWITCH_YES_CHOICE)
+    if (App_CanRx_INV_LOAD_SWITCHES_CMD_GetSignal_CONFIG_LEFT_SWITCH(can_rx))
     {
         App_InverterSwitches_TurnOnLeft(inv_switches);
-
-        // Close the left inverter load switch once
-        App_CanRx_INV_LOAD_SWITCHES_CMD_SetSignal_CLOSE_LEFT_SWITCH(
-            can_rx, CANMSGS_INV_LOAD_SWITCHES_CMD_CLOSE_LEFT_SWITCH_NO_CHOICE);
     }
-
-    if (App_CanRx_INV_LOAD_SWITCHES_CMD_GetSignal_CLOSE_RIGHT_SWITCH(can_rx) ==
-        CANMSGS_INV_LOAD_SWITCHES_CMD_CLOSE_RIGHT_SWITCH_YES_CHOICE)
-    {
-        App_InverterSwitches_TurnOnRight(inv_switches);
-
-        // Close the right inverter load switch once
-        App_CanRx_INV_LOAD_SWITCHES_CMD_SetSignal_CLOSE_RIGHT_SWITCH(
-            can_rx, CANMSGS_INV_LOAD_SWITCHES_CMD_CLOSE_RIGHT_SWITCH_NO_CHOICE);
-    }
-
-    if (App_CanRx_INV_LOAD_SWITCHES_CMD_GetSignal_OPEN_LEFT_SWITCH(can_rx) ==
-        CANMSGS_INV_LOAD_SWITCHES_CMD_OPEN_LEFT_SWITCH_YES_CHOICE)
+    else
     {
         App_InverterSwitches_TurnOffLeft(inv_switches);
-
-        App_CanRx_INV_LOAD_SWITCHES_CMD_SetSignal_OPEN_LEFT_SWITCH(
-            can_rx, CANMSGS_INV_LOAD_SWITCHES_CMD_OPEN_LEFT_SWITCH_NO_CHOICE);
     }
 
-    if (App_CanRx_INV_LOAD_SWITCHES_CMD_GetSignal_OPEN_RIGHT_SWITCH(can_rx) ==
-        CANMSGS_INV_LOAD_SWITCHES_CMD_OPEN_RIGHT_SWITCH_YES_CHOICE)
+    if (App_CanRx_INV_LOAD_SWITCHES_CMD_GetSignal_CONFIG_RIGHT_SWITCH(can_rx))
+    {
+        App_InverterSwitches_TurnOnRight(inv_switches);
+    }
+    else
     {
         App_InverterSwitches_TurnOffRight(inv_switches);
+    }
+}
 
-        App_CanRx_INV_LOAD_SWITCHES_CMD_SetSignal_OPEN_RIGHT_SWITCH(
-            can_rx, CANMSGS_INV_LOAD_SWITCHES_CMD_OPEN_RIGHT_SWITCH_NO_CHOICE);
+void App_SharedStates_HandleClearInvFaultsCmd(
+    const struct DcmCanTxInterface *can_tx,
+    struct DcmCanRxInterface *      can_rx)
+{
+    if (App_CanRx_CLEAR_INV_FAULT_CMD_GetSignal_CLEAR_LEFT_FAULT(can_rx))
+    {
+        const struct CanMsgs_dcm_invl_read_write_param_command_t
+            invl_cmd_msg = { .d1_parameter_address_command =
+                                 CLEAR_INV_FAULT_PARAM_ADDRESS,
+                             .d2_read_write_command = WRITE_CMD,
+                             .d3_data_command       = 0 };
+
+        App_CanTx_SendNonPeriodicMsg_DCM_INVL_READ_WRITE_PARAM_COMMAND(
+            can_tx, &invl_cmd_msg);
+
+        // Send the clear fault command to the left inverter once
+        App_CanRx_CLEAR_INV_FAULT_CMD_SetSignal_CLEAR_LEFT_FAULT(can_rx, false);
+    }
+
+    if (App_CanRx_CLEAR_INV_FAULT_CMD_GetSignal_CLEAR_RIGHT_FAULT(can_rx))
+    {
+        const struct CanMsgs_dcm_invr_read_write_param_command_t
+            invr_cmd_msg = { .d1_parameter_address_command =
+                                 CLEAR_INV_FAULT_PARAM_ADDRESS,
+                             .d2_read_write_command = WRITE_CMD,
+                             .d3_data_command       = 0 };
+
+        App_CanTx_SendNonPeriodicMsg_DCM_INVR_READ_WRITE_PARAM_COMMAND(
+            can_tx, &invr_cmd_msg);
+
+        // Send the clear fault command to the right inverter once
+        App_CanRx_CLEAR_INV_FAULT_CMD_SetSignal_CLEAR_RIGHT_FAULT(
+            can_rx, false);
     }
 }
