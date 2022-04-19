@@ -1,9 +1,5 @@
 #include "states/App_SharedStates.h"
 
-// PM100DZ Inverter Definitions
-#define CLEAR_INV_FAULT_PARAM_ADDRESS (20U)
-#define WRITE_CMD (1U)
-
 void App_SharedStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
@@ -40,7 +36,7 @@ void App_SharedStates_ConfigInverterSwitches(
     const struct DcmCanRxInterface *can_rx,
     struct InverterSwitches *       inv_switches)
 {
-    if (App_CanRx_INV_LOAD_SWITCHES_CMD_GetSignal_CONFIG_LEFT_SWITCH(can_rx))
+    if (App_CanRx_INV_LOAD_SWITCHES_CMD_GetSignal_LEFT_SWITCH(can_rx))
     {
         App_InverterSwitches_TurnOnLeft(inv_switches);
     }
@@ -49,48 +45,12 @@ void App_SharedStates_ConfigInverterSwitches(
         App_InverterSwitches_TurnOffLeft(inv_switches);
     }
 
-    if (App_CanRx_INV_LOAD_SWITCHES_CMD_GetSignal_CONFIG_RIGHT_SWITCH(can_rx))
+    if (App_CanRx_INV_LOAD_SWITCHES_CMD_GetSignal_RIGHT_SWITCH(can_rx))
     {
         App_InverterSwitches_TurnOnRight(inv_switches);
     }
     else
     {
         App_InverterSwitches_TurnOffRight(inv_switches);
-    }
-}
-
-void App_SharedStates_HandleClearInvFaultsCmd(
-    const struct DcmCanTxInterface *can_tx,
-    struct DcmCanRxInterface *      can_rx)
-{
-    if (App_CanRx_CLEAR_INV_FAULT_CMD_GetSignal_CLEAR_LEFT_FAULT(can_rx))
-    {
-        const struct CanMsgs_dcm_invl_read_write_param_command_t
-            invl_cmd_msg = { .d1_parameter_address_command =
-                                 CLEAR_INV_FAULT_PARAM_ADDRESS,
-                             .d2_read_write_command = WRITE_CMD,
-                             .d3_data_command       = 0 };
-
-        App_CanTx_SendNonPeriodicMsg_DCM_INVL_READ_WRITE_PARAM_COMMAND(
-            can_tx, &invl_cmd_msg);
-
-        // Send the clear fault command to the left inverter once
-        App_CanRx_CLEAR_INV_FAULT_CMD_SetSignal_CLEAR_LEFT_FAULT(can_rx, false);
-    }
-
-    if (App_CanRx_CLEAR_INV_FAULT_CMD_GetSignal_CLEAR_RIGHT_FAULT(can_rx))
-    {
-        const struct CanMsgs_dcm_invr_read_write_param_command_t
-            invr_cmd_msg = { .d1_parameter_address_command =
-                                 CLEAR_INV_FAULT_PARAM_ADDRESS,
-                             .d2_read_write_command = WRITE_CMD,
-                             .d3_data_command       = 0 };
-
-        App_CanTx_SendNonPeriodicMsg_DCM_INVR_READ_WRITE_PARAM_COMMAND(
-            can_tx, &invr_cmd_msg);
-
-        // Send the clear fault command to the right inverter once
-        App_CanRx_CLEAR_INV_FAULT_CMD_SetSignal_CLEAR_RIGHT_FAULT(
-            can_rx, false);
     }
 }

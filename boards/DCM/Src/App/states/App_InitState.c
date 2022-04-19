@@ -45,10 +45,6 @@ static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct DcmCanRxInterface *can_rx = App_DcmWorld_GetCanRx(world);
 
-    // Clear inverter fault if requested by a PCAN node
-    App_SharedStates_HandleClearInvFaultsCmd(
-        App_DcmWorld_GetCanTx(world), can_rx);
-
     // Open or close the inverter LV switches if requested by a PCAN node
     App_SharedStates_ConfigInverterSwitches(
         can_rx, App_DcmWorld_GetInverterSwitches(world));

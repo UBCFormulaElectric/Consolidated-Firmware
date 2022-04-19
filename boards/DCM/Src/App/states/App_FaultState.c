@@ -4,6 +4,14 @@
 
 #include "App_SharedMacros.h"
 
+#define CLEAR_INV_FAULT_PARAM_ADDRESS (20U)
+#define WRITE_CMD (1U)
+#define CLEAR_INV_FAULT_MSG                                            \
+    {                                                                  \
+        .d1_parameter_address_command = CLEAR_INV_FAULT_PARAM_ADDRESS, \
+        .d2_read_write_command = WRITE_CMD, .d3_data_command = 0U      \
+    }
+
 static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
@@ -30,10 +38,34 @@ static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct DcmCanRxInterface *can_rx = App_DcmWorld_GetCanRx(world);
+    struct DcmCanTxInterface *can_tx = App_DcmWorld_GetCanTx(world);
 
-    // Clear inverter fault if requested by a PCAN node
-    App_SharedStates_HandleClearInvFaultsCmd(
-        App_DcmWorld_GetCanTx(world), can_rx);
+    // Clear left/right inverter fault if requested by a PCAN node
+    if (App_CanRx_CLEAR_INV_FAULT_CMD_GetSignal_CLEAR_LEFT_FAULT(can_rx))
+    {
+        // Write a 0 to the fault clear parameter to clear any active faults
+        const struct CanMsgs_dcm_invl_read_write_param_command_t invl_cmd_msg =
+            CLEAR_INV_FAULT_MSG;
+
+        // Send the clear fault command to the left inverter once
+        App_CanTx_SendNonPeriodicMsg_DCM_INVL_READ_WRITE_PARAM_COMMAND(
+            can_tx, &invl_cmd_msg);
+
+        App_CanRx_CLEAR_INV_FAULT_CMD_SetSignal_CLEAR_LEFT_FAULT(can_rx, false);
+    }
+    if (App_CanRx_CLEAR_INV_FAULT_CMD_GetSignal_CLEAR_RIGHT_FAULT(can_rx))
+    {
+        // Write a 0 to the fault clear parameter to clear any active faults
+        const struct CanMsgs_dcm_invr_read_write_param_command_t invr_cmd_msg =
+            CLEAR_INV_FAULT_MSG;
+
+        // Send the clear fault command to the right inverter once
+        App_CanTx_SendNonPeriodicMsg_DCM_INVR_READ_WRITE_PARAM_COMMAND(
+            can_tx, &invr_cmd_msg);
+
+        App_CanRx_CLEAR_INV_FAULT_CMD_SetSignal_CLEAR_RIGHT_FAULT(
+            can_rx, false);
+    }
 
     // Open or close the inverter LV switches if requested by a PCAN node
     App_SharedStates_ConfigInverterSwitches(

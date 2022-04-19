@@ -59,20 +59,9 @@ void App_SharedStatesRunOnTick100Hz(struct StateMachine *state_machine);
 
 /**
  * Open or close the inverter LV switches if requested by a PCAN node
- * @param state_machine The state machine to get the CAN rx and inverter switch
- * interfaces from
+ * @param can_rx CAN RX interface
+ * @param inv_switches Inverter switches IO interface for opening/closing
  */
 void App_SharedStates_ConfigInverterSwitches(
     const struct DcmCanRxInterface *can_rx,
     struct InverterSwitches *       inv_switches);
-
-/**
- * Send the clear fault command to an inverter if requested by a PCAN node
- * @param can_tx CAN TX interface
- * @param can_rx CAN RX interface
- * @note Should only be called when the inverter is disabled (see pg. 38 in the
- * Software UM)
- */
-void App_SharedStates_HandleClearInvFaultsCmd(
-    const struct DcmCanTxInterface *can_tx,
-    struct DcmCanRxInterface *      can_rx);

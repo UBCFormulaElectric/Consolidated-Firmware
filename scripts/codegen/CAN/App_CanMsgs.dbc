@@ -582,8 +582,8 @@ SG_ Clear_Left_Fault : 0|1@1+ (1,0) [0|1] "" DCM
 SG_ Clear_Right_Fault : 1|1@1+ (1,0) [0|1] "" DCM
 
 BO_ 601 INV_LOAD_SWITCHES_CMD: 1 DEBUG
-SG_ Config_Left_Switch : 0|1@1+ (1,0) [0|1] "" DCM
-SG_ Config_Right_Switch : 1|1@1+ (1,0) [0|1] "" DCM
+SG_ Left_Switch : 0|1@1+ (1,0) [0|1] "" DCM
+SG_ Right_Switch : 1|1@1+ (1,0) [0|1] "" DCM
 
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
@@ -596,6 +596,8 @@ BA_DEF_DEF_  "GenSigStartValue" 0;
 BA_ "BusType" "CAN";
 
 BA_ "GenSigStartValue" SG_ 507 Start_Switch 1; 
+BA_ "GenSigStartValue" SG_ 601 Left_Switch 1; 
+BA_ "GenSigStartValue" SG_ 601 Right_Switch 1; 
 
 BA_ "GenMsgCycleTime" BO_ 0 100;
 BA_ "GenMsgCycleTime" BO_ 1 100;
@@ -693,7 +695,7 @@ BA_ "GenMsgCycleTime" BO_ 509 1000;
 BA_ "GenMsgCycleTime" BO_ 510 1000;
 
 BA_ "GenMsgCycleTime" BO_ 600 0;
-BA_ "GenMsgCycleTime" BO_ 601 1000;
+BA_ "GenMsgCycleTime" BO_ 601 100;
 
 SIG_VALTYPE_ 106 Duty_Cycle : 1;
 SIG_VALTYPE_ 106 Frequency : 1;
@@ -781,5 +783,5 @@ VAL_ 507 Traction_Control_Switch 0 "OFF" 1 "ON";
 VAL_ 507 Torque_Vectoring_Switch  0 "OFF" 1 "ON";
 VAL_ 600 Clear_Left_Fault 0 "FALSE" 1 "TRUE";
 VAL_ 600 Clear_Right_Fault 0 "FALSE" 1 "TRUE";
-VAL_ 601 Config_Left_Switch 0 "OFF" 1 "ON";
-VAL_ 601 Config_Right_Switch 0 "OFF" 1 "ON";
+VAL_ 601 Left_Switch 0 "OPEN" 1 "CLOSED";
+VAL_ 601 Right_Switch 0 "OPEN" 1 "CLOSED";
