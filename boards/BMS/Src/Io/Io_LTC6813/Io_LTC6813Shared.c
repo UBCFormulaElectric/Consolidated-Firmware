@@ -171,11 +171,11 @@ static void Io_PrepareCfgRegBytes(
         &min_cell_segment, &min_cell_index);
 
     // Write to the configuration registers of each segment
-    for (uint8_t curr_segment = 0U;
-         curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS; curr_segment++)
+    for (uint8_t curr_segment = 0U; curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS;
+         curr_segment++)
     {
-        // Configuration registers are written to serially starting from the
-        // last segment
+        // Data used to configure the last segment on the daisy chain needs to
+        // be sent first
         const uint8_t tx_cfg_idx =
             (uint8_t)(NUM_OF_ACCUMULATOR_SEGMENTS - curr_segment - 1);
 
