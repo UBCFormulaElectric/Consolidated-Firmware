@@ -258,8 +258,10 @@ int main(void)
         Io_AcceleratorPedals_IsSappsEncoderAlarmActive,
         Io_PrimaryScancon2RMHF_GetEncoderCounter,
         Io_SecondaryScancon2RMHF_GetEncoderCounter,
-        Io_PrimaryScancon2RMHF_ResetEncoderCounter,
-        Io_SecondaryScancon2RMHF_ResetEncoderCounter);
+        Io_PrimaryScancon2RMHF_SetEncoderCounter,
+        Io_SecondaryScancon2RMHF_SetEncoderCounter);
+
+    App_AcceleratorPedals_ResetAcceleratorPedalToUnpressed(papps_and_sapps);
 
     world = App_FsmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, primary_flow_meter_in_range_check,
@@ -858,17 +860,17 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PA2 PA10 */
-    GPIO_InitStruct.Pin  = GPIO_PIN_2 | GPIO_PIN_10;
+    /*Configure GPIO pin : PA2 */
+    GPIO_InitStruct.Pin  = GPIO_PIN_2;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : SECONDARY_APPS_ALARM_Pin */
-    GPIO_InitStruct.Pin  = SECONDARY_APPS_ALARM_Pin;
+    /*Configure GPIO pins : SECONDARY_APPS_ALARM_Pin PRIMARY_APPS_ALARM_Pin */
+    GPIO_InitStruct.Pin  = SECONDARY_APPS_ALARM_Pin | PRIMARY_APPS_ALARM_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(SECONDARY_APPS_ALARM_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /*Configure GPIO pins : STATUS_R_Pin STATUS_G_Pin */
     GPIO_InitStruct.Pin   = STATUS_R_Pin | STATUS_G_Pin;
@@ -963,7 +965,7 @@ void RunTask1kHz(void const *argument)
         const uint32_t current_time_ms = osKernelSysTick() * portTICK_PERIOD_MS;
 
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
-        App_FsmWorld_UpdateSignals(world, current_time_ms);
+        //        App_FsmWorld_UpdateSignals(world, current_time_ms);
         Io_CanTx_EnqueuePeriodicMsgs(can_tx, current_time_ms);
 
         // Watchdog check-in must be the last function called before putting

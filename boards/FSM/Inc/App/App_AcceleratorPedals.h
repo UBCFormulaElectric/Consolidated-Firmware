@@ -2,14 +2,17 @@
 
 #include <stdbool.h>
 
-// TODO: Experimentally determine the encoder values for the primary and
-// secondary APPS when the accelerator is fully pressed #666
-#define PAPPS_ENCODER_FULLY_PRESSED_VALUE (2500U)
-#define SAPPS_ENCODER_FULLY_PRESSED_VALUE (1800U)
+// Papps counts up
+#define PAPPS_ENCODER_FULLY_PRESSED_VALUE (1000U)
+#define PAPPS_ENCODER_UNPRESSED_VALUE (1353U)
+
+// Sapps counts downwards
+#define SAPPS_ENCODER_FULLY_PRESSED_VALUE (255U)
+#define SAPPS_ENCODER_UNPRESSED_VALUE (0U)
 
 // If encoder exceeds the following values, we reset it back to zero (usually
 // due to underflowing)
-#define PAPPS_ENCODER_RESET_VALUE (3500U)
+// Note that an encoder that counts down (PAPPS) doesn't need this #
 #define SAPPS_ENCODER_RESET_VALUE (2400U)
 
 #define MAX_ACCELERATOR_PEDAL_PRESS (100.0f)
@@ -46,8 +49,8 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
     bool (*is_secondary_encoder_alarm_active)(void),
     uint32_t (*get_primary_encoder_counter_value)(void),
     uint32_t (*get_secondary_encoder_counter_value)(void),
-    void (*reset_primary_encoder_counter)(void),
-    void (*reset_secondary_encoder_counter)(void));
+    void (*reset_primary_encoder_counter)(uint32_t),
+    void (*reset_secondary_encoder_counter)(uint32_t));
 
 /**
  * Deallocate the memory used by the given pair of accelerator pedals
@@ -75,6 +78,13 @@ bool App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(
  */
 bool App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(
     const struct AcceleratorPedals *accelerator_pedals);
+
+/**
+ * Resets the encoder counter values to their default unpressed values
+ * @param accelerator_pedals The pair of accelerator pedals
+ */
+void App_AcceleratorPedals_ResetAcceleratorPedalToUnpressed(
+    const struct AcceleratorPedals *acceleratorPedals);
 
 /**
  * Get the pedal percentage of the primary accelerator pedal, a value in [0,

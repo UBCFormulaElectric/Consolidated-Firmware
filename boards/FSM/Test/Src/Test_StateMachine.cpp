@@ -50,9 +50,9 @@ FAKE_VALUE_FUNC(bool, is_brake_actuated);
 FAKE_VALUE_FUNC(bool, is_pressure_sensor_open_or_short_circuit);
 FAKE_VALUE_FUNC(bool, is_papps_encoder_alarm_active);
 FAKE_VALUE_FUNC(bool, is_sapps_encoder_alarm_active);
-FAKE_VOID_FUNC(reset_papps_encoder_counter);
+FAKE_VOID_FUNC(set_papps_encoder_counter, uint32_t);
 FAKE_VALUE_FUNC(uint32_t, get_papps_encoder_counter);
-FAKE_VOID_FUNC(reset_sapps_encoder_counter);
+FAKE_VOID_FUNC(set_sapps_encoder_counter, uint32_t);
 FAKE_VALUE_FUNC(uint32_t, get_sapps_encoder_counter);
 
 class FsmStateMachineTest : public BaseStateMachineTest
@@ -104,7 +104,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
         papps_and_sapps = App_AcceleratorPedals_Create(
             is_papps_encoder_alarm_active, is_sapps_encoder_alarm_active,
             get_papps_encoder_counter, get_sapps_encoder_counter,
-            reset_papps_encoder_counter, reset_sapps_encoder_counter);
+            set_papps_encoder_counter, set_sapps_encoder_counter);
 
         world = App_FsmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor,
@@ -155,9 +155,9 @@ class FsmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(is_pressure_sensor_open_or_short_circuit);
         RESET_FAKE(is_papps_encoder_alarm_active);
         RESET_FAKE(is_sapps_encoder_alarm_active);
-        RESET_FAKE(reset_papps_encoder_counter);
+        RESET_FAKE(set_papps_encoder_counter);
         RESET_FAKE(get_papps_encoder_counter);
-        RESET_FAKE(reset_sapps_encoder_counter);
+        RESET_FAKE(set_sapps_encoder_counter);
         RESET_FAKE(get_sapps_encoder_counter);
     }
 
