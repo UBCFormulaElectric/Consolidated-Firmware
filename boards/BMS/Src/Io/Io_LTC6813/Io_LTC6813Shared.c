@@ -172,7 +172,7 @@ static void Io_PrepareCfgRegBytes(
 
     // Write to the configuration registers of each segment
     for (uint8_t curr_segment = 0U;
-         (int8_t)curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS; curr_segment++)
+         curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS; curr_segment++)
     {
         // Configuration registers are written to serially starting from the
         // last segment
