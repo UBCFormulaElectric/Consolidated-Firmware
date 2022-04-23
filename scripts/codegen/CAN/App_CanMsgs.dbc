@@ -330,7 +330,7 @@ SG_ Duty_Cycle : 0|32@1- (1,0) [0|1E2] "%" DEBUG
 SG_ Frequency : 32|32@1- (1,0) [0|1E4] "Hz" DEBUG
 
 BO_ 107 BMS_STATE_MACHINE : 1 BMS
-SG_ State : 0|8@1+ (1,0) [0|255] "" DEBUG
+SG_ State : 0|8@1+ (1,0) [0|255] "" DCM
 
 BO_ 108 BMS_STATE_OF_CHARGE: 4 BMS
 SG_ State_Of_Charge : 0|32@1- (1,0) [0|1E2] "%" DIM
@@ -588,6 +588,7 @@ BA_DEF_DEF_  "GenSigStartValue" 0;
 BA_ "BusType" "CAN";
 
 BA_ "GenSigStartValue" SG_ 507 Start_Switch 1; 
+BA_ "GenSigStartValue" SG_ 82 Direction_Command_INVR 1; 
 
 BA_ "GenMsgCycleTime" BO_ 0 100;
 BA_ "GenMsgCycleTime" BO_ 1 100;
