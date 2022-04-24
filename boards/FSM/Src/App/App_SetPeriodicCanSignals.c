@@ -3,7 +3,7 @@
 #include "App_SharedTorqueRequest.h"
 
 // For torque plausibility checking between FSM and DCM
-#define MAX_TORQUE_PLAUSIBILITY_ERROR_COUNT (3U)
+#define MAX_TORQUE_PLAUSIBILITY_ERROR_COUNT (5U)
 #define TORQUE_REQUEST_UPPER_BOUND_OFFSET_NM (5.0f)
 
 STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(FsmCanTxInterface)
@@ -151,16 +151,22 @@ void App_SetPeriodicSignals_MotorShutdownFaults(const struct FsmWorld *world)
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
     struct FsmCanRxInterface *can_rx = App_FsmWorld_GetCanRx(world);
     static uint8_t            torque_plausibility_err_cnt  = 0U;
-    static float              prev_expected_torque_request = 0U;
 
     // Perform torque plausibility check if DCM is in the drive state
     if (App_CanRx_DCM_STATE_MACHINE_GetSignal_STATE(can_rx) ==
         CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE)
     {
-        // Compare the current DCM torque request to the calculated torque
-        // request on the previous invocation to account for delay
+        const float expected_torque_request = App_SharedTorqueRequest_CalculateTorqueRequest(
+                App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED(can_tx),
+                App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED(can_tx),
+                App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx),
+                App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx),
+                (float)
+                        App_CanRx_DIM_REGEN_PADDLE_GetSignal_MAPPED_PADDLE_POSITION(
+                                can_rx),
+                App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx));
         const float upper_torque_request_bound =
-            prev_expected_torque_request + TORQUE_REQUEST_UPPER_BOUND_OFFSET_NM;
+            expected_torque_request + TORQUE_REQUEST_UPPER_BOUND_OFFSET_NM;
         const float dcm_torque_request_invl =
             App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
                 App_CanRx_DCM_INVL_COMMAND_MESSAGE_GetSignal_TORQUE_COMMAND_INVL(
@@ -186,17 +192,6 @@ void App_SetPeriodicSignals_MotorShutdownFaults(const struct FsmWorld *world)
                 can_tx,
                 CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_TORQUE_PLAUSIBILITY_CHECK_FAILED_TRUE_CHOICE);
         }
-
-        prev_expected_torque_request =
-            App_SharedTorqueRequest_CalculateTorqueRequest(
-                App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED(can_tx),
-                App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED(can_tx),
-                App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx),
-                App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx),
-                (float)
-                    App_CanRx_DIM_REGEN_PADDLE_GetSignal_MAPPED_PADDLE_POSITION(
-                        can_rx),
-                App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx));
     }
 
     App_CanTx_SetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(
