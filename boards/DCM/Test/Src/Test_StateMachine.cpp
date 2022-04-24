@@ -12,8 +12,7 @@ extern "C"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_WaitSignalDuration.h"
 #include "configs/App_AccelerationThresholds.h"
-#include "configs/App_TorqueRequestThresholds.h"
-#include "configs/App_RegenThresholds.h"
+#include "App_SharedTorqueRequest.h"
 }
 
 namespace StateMachineTest

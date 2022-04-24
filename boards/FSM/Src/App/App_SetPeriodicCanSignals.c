@@ -1,9 +1,10 @@
 #include "App_SharedSetPeriodicCanSignals.h"
 #include "App_SetPeriodicCanSignals.h"
-#include "../../DCM/Inc/App/configs/App_RegenThresholds.h"
-#include "../../DCM/Inc/App/configs/App_TorqueRequestThresholds.h"
+#include "App_SharedTorqueRequest.h"
 
-#define MAX_TORQUE_PLAUSIBILITY_ERROR_COUNT 3
+// For torque plausibility checking between FSM and DCM
+#define MAX_TORQUE_PLAUSIBILITY_ERROR_COUNT (3U)
+#define TORQUE_REQUEST_UPPER_BOUND_OFFSET_NM (5.0f)
 
 STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(FsmCanTxInterface)
 
@@ -147,68 +148,55 @@ void App_SetPeriodicSignals_AcceleratorPedal(const struct FsmWorld *world)
 
 void App_SetPeriodicSignals_MotorShutdownFaults(const struct FsmWorld *world)
 {
-    struct FsmCanTxInterface *can_tx      = App_FsmWorld_GetCanTx(world);
-    struct FsmCanRxInterface *can_rx      = App_FsmWorld_GetCanRx(world);
-    static uint8_t            error_count = 0;
+    struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
+    struct FsmCanRxInterface *can_rx = App_FsmWorld_GetCanRx(world);
+    static uint8_t            torque_plausibility_err_cnt  = 0U;
+    static float              prev_expected_torque_request = 0U;
 
     // Perform torque plausibility check if DCM is in the drive state
     if (App_CanRx_DCM_STATE_MACHINE_GetSignal_STATE(can_rx) ==
         CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE)
     {
-        const bool is_regen_allowed =
-            App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED(can_tx) >
-                REGEN_WHEEL_SPEED_THRESHOLD_KPH &&
-            App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED(can_tx) >
-                REGEN_WHEEL_SPEED_THRESHOLD_KPH;
-        const float regen_paddle_percentage =
-            (float)App_CanRx_DIM_REGEN_PADDLE_GetSignal_MAPPED_PADDLE_POSITION(
-                can_rx);
-        float expected_torque_request;
-
-        if (regen_paddle_percentage > 0.0f && is_regen_allowed)
-        {
-            expected_torque_request =
-                -0.01f * regen_paddle_percentage * MAX_TORQUE_REQUEST_NM;
-        }
-        else
-        {
-            expected_torque_request =
-                0.01f *
-                App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx) *
-                MAX_TORQUE_REQUEST_NM;
-        }
-
-        float upper_torque_request_bound =
-            expected_torque_request * TORQUE_REQUEST_UPPER_BOUND_FACTOR;
-        float lower_torque_request_bound =
-            expected_torque_request * TORQUE_REQUEST_LOWER_BOUND_FACTOR;
-        float dcm_torque_request_invl =
+        // Compare the current DCM torque request to the calculated torque
+        // request on the previous invocation to account for delay
+        const float upper_torque_request_bound =
+            prev_expected_torque_request + TORQUE_REQUEST_UPPER_BOUND_OFFSET_NM;
+        const float dcm_torque_request_invl =
             App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
                 App_CanRx_DCM_INVL_COMMAND_MESSAGE_GetSignal_TORQUE_COMMAND_INVL(
                     can_rx));
-        float dcm_torque_request_invr =
+        const float dcm_torque_request_invr =
             App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
                 App_CanRx_DCM_INVR_COMMAND_MESSAGE_GetSignal_TORQUE_COMMAND_INVR(
                     can_rx));
 
         if (dcm_torque_request_invl > upper_torque_request_bound ||
-            dcm_torque_request_invr > upper_torque_request_bound ||
-            dcm_torque_request_invl < lower_torque_request_bound ||
-            dcm_torque_request_invr < lower_torque_request_bound)
+            dcm_torque_request_invr > upper_torque_request_bound)
         {
-            error_count++;
+            torque_plausibility_err_cnt++;
         }
         else
         {
-            error_count = 0;
+            torque_plausibility_err_cnt = 0U;
         }
 
-        if (error_count == MAX_TORQUE_PLAUSIBILITY_ERROR_COUNT)
+        if (torque_plausibility_err_cnt == MAX_TORQUE_PLAUSIBILITY_ERROR_COUNT)
         {
             App_CanTx_SetPeriodicSignal_TORQUE_PLAUSIBILITY_CHECK_FAILED(
                 can_tx,
                 CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_TORQUE_PLAUSIBILITY_CHECK_FAILED_TRUE_CHOICE);
         }
+
+        prev_expected_torque_request =
+            App_SharedTorqueRequest_CalculateTorqueRequest(
+                App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED(can_tx),
+                App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED(can_tx),
+                App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx),
+                App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx),
+                (float)
+                    App_CanRx_DIM_REGEN_PADDLE_GetSignal_MAPPED_PADDLE_POSITION(
+                        can_rx),
+                App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx));
     }
 
     App_CanTx_SetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(

@@ -1,7 +1,6 @@
 #pragma once
 
 #include "App_SharedStateMachine.h"
-#include "configs/App_RegenThresholds.h"
 
 /**
  * Check if both AIRs are closed
