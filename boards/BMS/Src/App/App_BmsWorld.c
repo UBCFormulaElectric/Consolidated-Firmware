@@ -17,6 +17,7 @@ struct BmsWorld
     struct Accumulator *      accumulator;
     struct Airs *             airs;
     struct PreChargeSequence *pre_charge_sequence;
+    struct TractiveSystem *   tractive_system;
     struct ErrorTable *       error_table;
     struct Clock *            clock;
 };
@@ -34,6 +35,7 @@ struct BmsWorld *App_BmsWorld_Create(
     struct Accumulator *const       accumulator,
     struct Airs *const              airs,
     struct PreChargeSequence *const pre_charge_sequence,
+    struct TractiveSystem *const    tractive_system,
     struct ErrorTable *const        error_table,
     struct Clock *const             clock)
 {
@@ -52,6 +54,7 @@ struct BmsWorld *App_BmsWorld_Create(
     world->accumulator         = accumulator;
     world->airs                = airs;
     world->pre_charge_sequence = pre_charge_sequence;
+    world->tractive_system     = tractive_system;
     world->error_table         = error_table;
     world->clock               = clock;
 
@@ -128,6 +131,12 @@ struct PreChargeSequence *
     App_BmsWorld_GetPreChargeSequence(const struct BmsWorld *const world)
 {
     return world->pre_charge_sequence;
+}
+
+struct TractiveSystem *
+    App_BmsWorld_GetTractiveSystem(const struct BmsWorld *const world)
+{
+    return world->tractive_system;
 }
 
 struct ErrorTable *

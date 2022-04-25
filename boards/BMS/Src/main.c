@@ -43,6 +43,7 @@
 #include "Io_LTC6813/Io_LTC6813CellVoltages.h"
 #include "Io_Airs.h"
 #include "Io_PreCharge.h"
+#include "Io_VoltageSense.h"
 #include "Io_Adc.h"
 
 #include "App_BmsWorld.h"
@@ -53,6 +54,7 @@
 #include "configs/App_ImdConfig.h"
 #include "configs/App_AccumulatorThresholds.h"
 #include "configs/App_CellMonitorsThresholds.h"
+#include "App_TractiveSystem.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -116,6 +118,7 @@ struct Accumulator *      accumulator;
 struct CellMonitors *     cell_monitors;
 struct Airs *             airs;
 struct PreChargeSequence *pre_charge_sequence;
+struct TractiveSystem *   tractive_system;
 struct ErrorTable *       error_table;
 struct Clock *            clock;
 /* USER CODE END PV */
@@ -265,6 +268,10 @@ int main(void)
     pre_charge_sequence =
         App_PreChargeSequence_Create(Io_PreCharge_Enable, Io_PreCharge_Disable);
 
+    tractive_system = App_TractiveSystem_Create(
+        Io_VoltageSense_GetTractiveSystemVoltage,
+        Io_Adc_GetAdc2Channel3Voltage);
+
     error_table = App_SharedErrorTable_Create();
 
     clock = App_SharedClock_Create();
@@ -272,7 +279,7 @@ int main(void)
     world = App_BmsWorld_Create(
         can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger,
         bms_ok, imd_ok, bspd_ok, accumulator, airs, pre_charge_sequence,
-        error_table, clock);
+        tractive_system, error_table, clock);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
@@ -780,7 +787,8 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
-        GPIOB, PRE_CHARGE_EN_Pin | AIR_EN_Pin | BMS_OK_Pin, GPIO_PIN_RESET);
+        GPIOB,
+        PRE_CHARGE_EN_Pin | AIR_EN_Pin | BMS_OK_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOB, MCU_LATCH_RESET_Pin | SPI2_NSS_Pin, GPIO_PIN_SET);

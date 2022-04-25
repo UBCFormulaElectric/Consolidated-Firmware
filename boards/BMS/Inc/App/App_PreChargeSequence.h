@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
 
 struct PreChargeSequence;
 
@@ -37,3 +38,37 @@ void App_PreChargeSequence_Enable(
  */
 void App_PreChargeSequence_Disable(
     const struct PreChargeSequence *pre_charge_sequence);
+
+/**
+ * Gets the precharge threshold as a percent decimal value
+ * @param pre_charge_sequence The pre-charge sequence to get the threshold from
+ * @return pre_charge_threshold_percent
+ */
+float App_PreChargeSequence_GetThreshold_Percent(
+    const struct PreChargeSequence *pre_charge_sequence);
+
+/**
+ * Estimates an upper time bound for the pre-charge sequence.
+ * The pre-charge sequence should not take longer than this time.
+ * @param pre_charge_sequence The pre-charge sequence to estimate for
+ * @param tractive_system_capacitance The capacitance of the connected tractive
+ * system
+ * @return pre_charge_upper_time_bound The upper time bound for the pre-charge
+ * sequence
+ */
+uint32_t App_PreChargeSequence_GetUpperTimeBound_MS(
+    const struct PreChargeSequence *const pre_charge_sequence,
+    float                           tractive_system_capacitance);
+
+/**
+ * Estimates a lower time bound for the pre-charge sequence.
+ * The pre-charge sequence should be quicker than this time.
+ * @param pre_charge_sequence The pre-charge sequence to estimate for
+ * @param tractive_system_capacitance The capacitance of the connected tractive
+ * system
+ * @return precharge_upper_time_bound The upper time bound for the pre-charge
+ * sequence
+ */
+uint32_t App_PreChargeSequence_GetLowerTimeBound_MS(
+    const struct PreChargeSequence *const pre_charge_sequence,
+    float                           tractive_system_capacitance);
