@@ -261,7 +261,7 @@ int main(void)
         Io_PrimaryScancon2RMHF_SetEncoderCounter,
         Io_SecondaryScancon2RMHF_SetEncoderCounter);
 
-    App_AcceleratorPedals_ResetAcceleratorPedalToUnpressed(papps_and_sapps);
+    App_AcceleratorPedals_ResetAcceleratorPedalsToUnpressed(papps_and_sapps);
 
     world = App_FsmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, primary_flow_meter_in_range_check,

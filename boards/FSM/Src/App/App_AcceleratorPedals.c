@@ -27,31 +27,7 @@ struct AcceleratorPedals
 static float App_GetPedalPercentage_CountUp(
     uint32_t encoder_fully_pressed_value,
     uint32_t encoder_unpressed_value,
-    uint32_t encoder_reset_value,
-    uint32_t encoder_counter_value,
-    void (*set_encoder_counter)(uint32_t));
-
-/**
- * Get the pedal percentage, a value in [0, 100], for an encoder configured to
- * count down
- * @param encoder_fully_pressed_value The value of the encoder counter when the
- * given accelerator pedal is fully pressed
- * @param encoder_counter_value The current counter value of the encoder for the
- * given accelerator pedal
- * @param set_encoder_counter A function that can be called to set the
- * counter value of the encoder for the given accelerator pedal
- * @return The pedal percentage of the given accelerator pedal
- */
-static float App_GetPedalPercentage_CountDown(
-    uint32_t encoder_fully_pressed_value,
-    uint32_t encoder_unpressed_value,
-    uint32_t encoder_counter_value,
-    void (*set_encoder_counter)(uint32_t));
-
-static float App_GetPedalPercentage_CountUp(
-    uint32_t encoder_fully_pressed_value,
-    uint32_t encoder_unpressed_value,
-    uint32_t encoder_reset_value,
+    uint32_t encoder_underflow_threshold,
     uint32_t encoder_counter_value,
     void (*set_encoder_counter)(uint32_t))
 {
@@ -65,10 +41,12 @@ static float App_GetPedalPercentage_CountUp(
             (1.0f - PERCENT_DEFLECTION) +
         (float)encoder_unpressed_value;
 
-    if (encoder_counter_value > encoder_reset_value)
+    if (encoder_counter_value > encoder_underflow_threshold)
     {
-        // If the accelerator pedal underflows, reset the corresponding
-        // encoder's counter register and set the pedal percentage to
+        // If the accelerator pedal underflows (if counter exceeds a threshold
+        // only possible to be reached via wrapping on underflow), reset the
+        // corresponding encoder's counter register and set the pedal percentage
+        // to
         set_encoder_counter(encoder_unpressed_value);
         return MIN_ACCELERATOR_PEDAL_PRESS;
     }
@@ -92,6 +70,17 @@ static float App_GetPedalPercentage_CountUp(
            (high_count_deadzone_threshold - low_count_deadzone_threshold);
 }
 
+/**
+ * Get the pedal percentage, a value in [0, 100], for an encoder configured to
+ * count down
+ * @param encoder_fully_pressed_value The value of the encoder counter when the
+ * given accelerator pedal is fully pressed
+ * @param encoder_counter_value The current counter value of the encoder for the
+ * given accelerator pedal
+ * @param set_encoder_counter A function that can be called to set the
+ * counter value of the encoder for the given accelerator pedal
+ * @return The pedal percentage of the given accelerator pedal
+ */
 static float App_GetPedalPercentage_CountDown(
     uint32_t encoder_fully_pressed_value,
     uint32_t encoder_unpressed_value,
@@ -180,7 +169,7 @@ bool App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(
     return accelerator_pedals->is_secondary_encoder_alarm_active();
 }
 
-void App_AcceleratorPedals_ResetAcceleratorPedalToUnpressed(
+void App_AcceleratorPedals_ResetAcceleratorPedalsToUnpressed(
     const struct AcceleratorPedals *const accelerator_pedals)
 {
     accelerator_pedals->set_primary_encoder_counter(

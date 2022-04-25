@@ -9,7 +9,7 @@ FAKE_VALUE_FUNC(bool, is_primary_encoder_alarm_active);
 FAKE_VOID_FUNC(set_primary_encoder_counter, uint32_t);
 FAKE_VALUE_FUNC(uint32_t, get_primary_encoder_counter);
 FAKE_VALUE_FUNC(bool, is_secondary_encoder_alarm_active);
-FAKE_VOID_FUNC(set_secondary_encoder_counter, uint32_t); //is this syntax correct?
+FAKE_VOID_FUNC(set_secondary_encoder_counter, uint32_t);
 FAKE_VALUE_FUNC(uint32_t, get_secondary_encoder_counter);
 
 class AcceleratorPedalTest : public testing::Test

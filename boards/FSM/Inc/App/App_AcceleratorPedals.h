@@ -49,8 +49,8 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
     bool (*is_secondary_encoder_alarm_active)(void),
     uint32_t (*get_primary_encoder_counter_value)(void),
     uint32_t (*get_secondary_encoder_counter_value)(void),
-    void (*reset_primary_encoder_counter)(uint32_t),
-    void (*reset_secondary_encoder_counter)(uint32_t));
+    void (*set_primary_encoder_counter)(uint32_t),
+    void (*set_secondary_encoder_counter)(uint32_t));
 
 /**
  * Deallocate the memory used by the given pair of accelerator pedals
@@ -83,8 +83,8 @@ bool App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(
  * Resets the encoder counter values to their default unpressed values
  * @param accelerator_pedals The pair of accelerator pedals
  */
-void App_AcceleratorPedals_ResetAcceleratorPedalToUnpressed(
-    const struct AcceleratorPedals *acceleratorPedals);
+void App_AcceleratorPedals_ResetAcceleratorPedalsToUnpressed(
+    const struct AcceleratorPedals *const accelerator_pedals);
 
 /**
  * Get the pedal percentage of the primary accelerator pedal, a value in [0,
