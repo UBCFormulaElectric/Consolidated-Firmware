@@ -38,6 +38,41 @@ enum HeartbeatOneHot GetHeartbeat(struct BmsCanRxInterface *can_rx_interface)
     return (enum HeartbeatOneHot)heartbeat_check;
 }
 
+enum HeartbeatOneHot GetHeartbeat(struct BmsCanRxInterface *can_rx_interface)
+{
+    enum HeartbeatOneHot heartbeat_check = 0;
+    uint8_t              dcm_heartbeat =
+        App_CanRx_DCM_HEARTBEAT_GetSignal_DUMMY_VARIABLE(can_rx_interface);
+    if (dcm_heartbeat == 1)
+    {
+        heartbeat_check |= DCM_HEARTBEAT_ONE_HOT;
+        App_CanRx_DCM_HEARTBEAT_SetSignal_DUMMY_VARIABLE(can_rx_interface, 0);
+    }
+    uint8_t fsm_heartbeat =
+        App_CanRx_FSM_HEARTBEAT_GetSignal_DUMMY_VARIABLE(can_rx_interface);
+    if (fsm_heartbeat == 1)
+    {
+        heartbeat_check |= FSM_HEARTBEAT_ONE_HOT;
+        App_CanRx_FSM_HEARTBEAT_SetSignal_DUMMY_VARIABLE(can_rx_interface, 0);
+    }
+    uint8_t dim_heartbeat =
+        App_CanRx_DIM_HEARTBEAT_GetSignal_DUMMY_VARIABLE(can_rx_interface);
+    if (dim_heartbeat == 1)
+    {
+        heartbeat_check |= DIM_HEARTBEAT_ONE_HOT;
+        App_CanRx_DIM_HEARTBEAT_SetSignal_DUMMY_VARIABLE(can_rx_interface, 0);
+    }
+    uint8_t pdm_heartbeat =
+        App_CanRx_PDM_HEARTBEAT_GetSignal_DUMMY_VARIABLE(can_rx_interface);
+    if (pdm_heartbeat == 1)
+    {
+        heartbeat_check |= PDM_HEARTBEAT_ONE_HOT;
+        App_CanRx_PDM_HEARTBEAT_SetSignal_DUMMY_VARIABLE(can_rx_interface, 0);
+    }
+
+    return (enum HeartbeatOneHot)heartbeat_check;
+}
+
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);

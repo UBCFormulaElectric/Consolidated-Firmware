@@ -66,6 +66,7 @@ bool App_SharedHeartbeatMonitor_Tick(
                 //    heartbeat_monitor->heartbeats_to_check,
                 //    heartbeat_monitor->heartbeats_checked_in);
                 heartbeat_monitor->fault_flag = 1;
+<<<<<<< HEAD
                 return true;
             }
         }
@@ -74,6 +75,15 @@ bool App_SharedHeartbeatMonitor_Tick(
             heartbeat_monitor->heartbeats_checked_in = 0;
             heartbeat_monitor->fault_flag = 0;
             }
+=======
+            }
+        }
+        else
+            heartbeat_monitor->fault_flag = 0;
+
+        // Clear the list of boards that have checked in
+        heartbeat_monitor->heartbeats_checked_in = 0;
+>>>>>>> c5a122d537c4b9014daec36d3bc2f25ab812b672
     }
     return false;
 }

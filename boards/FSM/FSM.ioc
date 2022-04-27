@@ -292,7 +292,11 @@ ProjectManager.StackSize=0x400
 ProjectManager.TargetToolchain=SW4STM32
 ProjectManager.ToolChainLocation=
 ProjectManager.UnderRoot=true
+<<<<<<< HEAD
 ProjectManager.functionlistsort=1-MX_GPIO_Init-GPIO-false-HAL-true,2-SystemClock_Config-RCC-false-HAL-false,3-MX_CAN_Init-CAN-false-HAL-true,4-MX_IWDG_Init-IWDG-false-HAL-true,5-MX_ADC2_Init-ADC2-false-HAL-true,6-MX_DMA_Init-DMA-false-HAL-true,7-MX_TIM1_Init-TIM1-false-HAL-true,8-MX_TIM2_Init-TIM2-false-HAL-true,9-MX_TIM3_Init-TIM3-false-HAL-true,10-MX_TIM16_Init-TIM16-false-HAL-true,11-MX_TIM17_Init-TIM17-false-HAL-true,12-MX_TIM4_Init-TIM4-false-HAL-true
+=======
+ProjectManager.functionlistsort=1-MX_GPIO_Init-GPIO-false-HAL-true,2-SystemClock_Config-RCC-false-HAL-false,4-MX_CAN_Init-CAN-false-HAL-true,5-MX_IWDG_Init-IWDG-false-HAL-true,6-MX_ADC2_Init-ADC2-false-HAL-true,7-MX_DMA_Init-DMA-false-HAL-true,8-MX_TIM1_Init-TIM1-false-HAL-true,9-MX_TIM2_Init-TIM2-false-HAL-true,10-MX_TIM3_Init-TIM3-false-HAL-true,11-MX_TIM16_Init-TIM16-false-HAL-true,12-MX_TIM17_Init-TIM17-false-HAL-true
+>>>>>>> c5a122d537c4b9014daec36d3bc2f25ab812b672
 RCC.ADC12outputFreq_Value=72000000
 RCC.AHBFreq_Value=72000000
 RCC.APB1CLKDivider=RCC_HCLK_DIV2

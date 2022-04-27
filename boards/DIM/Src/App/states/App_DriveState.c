@@ -220,6 +220,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanRx_BMS_HEARTBEAT_SetSignal_HEARTBEAT(can_rx, 0);
     }
 
+<<<<<<< HEAD
     App_SharedHeartbeatMonitor_CheckIn(heartbeat_monitor, heartbeat);
 
     if(App_SharedHeartbeatMonitor_Tick(heartbeat_monitor)){
@@ -257,6 +258,17 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
 
 
+=======
+
+    if (bms_heartbeat == 1)
+    {
+        heartbeat |= (enum HeartbeatOneHot)(BMS_HEARTBEAT_ONE_HOT);
+        App_CanRx_BMS_HEARTBEAT_SetSignal_HEARTBEAT(can_rx, 0);
+    }
+
+    App_SharedHeartbeatMonitor_CheckIn(heartbeat_monitor, heartbeat);
+    App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
+>>>>>>> c5a122d537c4b9014daec36d3bc2f25ab812b672
 }
 
 static void DriveStateRunOnExit(struct StateMachine *const state_machine)
