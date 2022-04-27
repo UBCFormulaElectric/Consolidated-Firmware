@@ -4,7 +4,7 @@ enum HeartbeatOneHot GetHeartbeat(struct FsmCanRxInterface *can_rx_interface)
 {
     enum HeartbeatOneHot heartbeat_check = 0;
     uint8_t              bms_heartbeat =
-            App_CanRx_BMS_HEARTBEAT_GetSignal_HEARTBEAT(can_rx_interface);
+        App_CanRx_BMS_HEARTBEAT_GetSignal_HEARTBEAT(can_rx_interface);
     if (bms_heartbeat == 1)
     {
         heartbeat_check |= BMS_HEARTBEAT_ONE_HOT;
@@ -25,9 +25,10 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct FsmCanRxInterface *can_rx      = App_FsmWorld_GetCanRx(world);
-    struct FsmCanTxInterface *can_tx      = App_FsmWorld_GetCanTx(world);
-    struct HeartbeatMonitor *heartbeat_monitor = App_FsmWorld_GetHeartbeatMonitor(world);
+    struct FsmCanRxInterface *can_rx = App_FsmWorld_GetCanRx(world);
+    struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
+    struct HeartbeatMonitor * heartbeat_monitor =
+        App_FsmWorld_GetHeartbeatMonitor(world);
 
     App_CanTx_SetPeriodicSignal_DUMMY_VARIABLE(can_tx, true);
 

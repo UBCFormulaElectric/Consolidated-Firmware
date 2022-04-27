@@ -6,7 +6,7 @@ uint32_t Io_HeartbeatMonitor_GetCurrentMs(void)
     return osKernelSysTick() * portTICK_RATE_MS;
 }
 
-//void Io_HeartbeatMonitor_TimeoutCallback(
+// void Io_HeartbeatMonitor_TimeoutCallback(
 //    enum HeartbeatOneHot heartbeats_to_check,
 //    enum HeartbeatOneHot heartbeats_checked_in)
 //{

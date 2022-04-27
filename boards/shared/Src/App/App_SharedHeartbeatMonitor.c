@@ -1,12 +1,14 @@
 #include <assert.h>
 #include <stdlib.h>
-#include "App_SetPeriodicCanSignals.h"
+
+#include "App_SharedHeartbeatMonitor.h"
 
 struct HeartbeatMonitor
 {
     uint32_t (*get_current_ms)(void);
     uint32_t             timeout_period_ms; // 300 ms
     uint32_t             previous_timeout_ms;
+    uint32_t                      fault_flag;
     enum HeartbeatOneHot heartbeats_checked_in;
     enum HeartbeatOneHot heartbeats_to_check;
     void (*timeout_callback)(enum HeartbeatOneHot, enum HeartbeatOneHot);
@@ -25,7 +27,7 @@ struct HeartbeatMonitor *App_SharedHeartbeatMonitor_Create(
         malloc(sizeof(struct HeartbeatMonitor));
 
     assert(heartbeat_monitor != NULL);
-
+    heartbeat_monitor->fault_flag = 0;
     heartbeat_monitor->get_current_ms        = get_current_ms;
     heartbeat_monitor->timeout_period_ms     = timeout_period_ms;
     heartbeat_monitor->previous_timeout_ms   = 0U;
@@ -50,9 +52,7 @@ void App_SharedHeartbeatMonitor_Tick(
     if ((current_ms - heartbeat_monitor->previous_timeout_ms) >=
         heartbeat_monitor->timeout_period_ms)
     {
-        heartbeat_monitor->previous_timeout_ms +=
-            heartbeat_monitor->timeout_period_ms;
-
+        heartbeat_monitor->previous_timeout_ms = current_ms;
 
         // Check if the board received all the heartbeats it's listening for
         if (heartbeat_monitor->heartbeats_to_check !=
@@ -60,12 +60,14 @@ void App_SharedHeartbeatMonitor_Tick(
         {
             if (heartbeat_monitor->timeout_callback != NULL)
             {
-                heartbeat_monitor->timeout_callback(
-                    heartbeat_monitor->heartbeats_to_check,
-                    heartbeat_monitor->heartbeats_checked_in);
+                //heartbeat_monitor->timeout_callback(
+                //    heartbeat_monitor->heartbeats_to_check,
+                //    heartbeat_monitor->heartbeats_checked_in);
+                heartbeat_monitor->fault_flag = 1;
             }
         }
-
+        else
+            heartbeat_monitor->fault_flag = 0;
 
         // Clear the list of boards that have checked in
         heartbeat_monitor->heartbeats_checked_in = 0;
@@ -76,8 +78,5 @@ void App_SharedHeartbeatMonitor_CheckIn(
     struct HeartbeatMonitor *const heartbeat_monitor,
     enum HeartbeatOneHot           heartbeat)
 {
-    heartbeat &=
-        heartbeat_monitor
-            ->heartbeats_to_check; // only check in the boards that we need
     heartbeat_monitor->heartbeats_checked_in |= heartbeat;
 }

@@ -3,6 +3,7 @@
 #include "App_SharedMacros.h"
 #include "App_SevenSegDisplays.h"
 #include "App_SharedExitCode.h"
+#include "stdio.h"
 
 static void App_SetPeriodicCanSignals_DriveMode(
     struct DimCanTxInterface *can_tx,
@@ -118,7 +119,9 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_DimWorld_GetTorqueVectoringSwitch(world);
     struct ErrorTable *error_table = App_DimWorld_GetErrorTable(world);
     struct Clock *     clock       = App_DimWorld_GetClock(world);
-
+    enum HeartbeatOneHot heartbeat = 0;
+    uint8_t              bms_heartbeat =
+            App_CanRx_BMS_HEARTBEAT_GetSignal_HEARTBEAT(can_rx);
     uint32_t buffer;
 
     if (EXIT_OK(App_RegenPaddle_GetRawPaddlePosition(regen_paddle, &buffer)))
@@ -240,6 +243,14 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
             seven_seg_displays, error_id_with_offset);
     }
 
+
+    if (bms_heartbeat == 1)
+    {
+        heartbeat |= (enum HeartbeatOneHot)(BMS_HEARTBEAT_ONE_HOT);
+        App_CanRx_BMS_HEARTBEAT_SetSignal_HEARTBEAT(can_rx, 0);
+    }
+
+    App_SharedHeartbeatMonitor_CheckIn(heartbeat_monitor, heartbeat);
     App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
 }
 
