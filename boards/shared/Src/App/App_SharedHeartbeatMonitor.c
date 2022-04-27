@@ -44,11 +44,13 @@ void App_SharedHeartbeatMonitor_Destroy(
     free(heartbeat_monitor);
 }
 
-void App_SharedHeartbeatMonitor_Tick(
+bool App_SharedHeartbeatMonitor_Tick(
     struct HeartbeatMonitor *const heartbeat_monitor)
 {
     const uint32_t current_ms = heartbeat_monitor->get_current_ms();
-
+    if(heartbeat_monitor->fault_flag == 1){
+        return true;
+    }
     if ((current_ms - heartbeat_monitor->previous_timeout_ms) >=
         heartbeat_monitor->timeout_period_ms)
     {
@@ -64,14 +66,16 @@ void App_SharedHeartbeatMonitor_Tick(
                 //    heartbeat_monitor->heartbeats_to_check,
                 //    heartbeat_monitor->heartbeats_checked_in);
                 heartbeat_monitor->fault_flag = 1;
+                return true;
             }
         }
-        else
+        else{
+            // Clear the list of boards that have checked in
+            heartbeat_monitor->heartbeats_checked_in = 0;
             heartbeat_monitor->fault_flag = 0;
-
-        // Clear the list of boards that have checked in
-        heartbeat_monitor->heartbeats_checked_in = 0;
+            }
     }
+    return false;
 }
 
 void App_SharedHeartbeatMonitor_CheckIn(
