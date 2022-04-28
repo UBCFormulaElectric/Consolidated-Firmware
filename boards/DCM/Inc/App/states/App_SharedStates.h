@@ -4,20 +4,6 @@
 #include "configs/App_RegenThresholds.h"
 
 /**
- * Check if both AIRs are closed
- * @param can_rx_interface The CAN Rx interface to get the CAN signals from
- * @return true if both AIRs are closed, false otherwise
- */
-static inline bool App_SharedStates_AreBothAIRsClosed(
-    const struct DcmCanRxInterface *can_rx_interface)
-{
-    return App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx_interface) ==
-               CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE &&
-           App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx_interface) ==
-               CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE;
-}
-
-/**
  * Check if an inverter has faulted
  * @param can_rx_interface The CAN Rx interface to get the CAN signals from
  * @return true if an inverter has faulted, false otherwise

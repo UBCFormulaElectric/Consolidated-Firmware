@@ -193,18 +193,13 @@ TEST_F(
         App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
 
-    // Close AIR+ and AIR-, expect no transition and inverter switches to be
-    // closed
-    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
-        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
-    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
-        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
+    // Transition BMS to drive state, expect no transition
+    App_CanRx_BMS_STATE_MACHINE_SetSignal_STATE(
+        can_rx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE);
     LetTimePass(state_machine, 10);
     EXPECT_EQ(
         App_GetInitState(),
         App_SharedStateMachine_GetCurrentState(state_machine));
-    ASSERT_EQ(turn_on_right_inverter_fake.call_count, 1);
-    ASSERT_EQ(turn_on_left_inverter_fake.call_count, 1);
 
     // Actuate brake pedal
     App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(
@@ -715,35 +710,6 @@ TEST_F(
         0.0f,
         App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
             App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
-}
-
-// DCM21
-TEST_F(DcmStateMachineTest, inverter_switches_closed_when_AIRS_closed)
-{
-    // Both inverter switches are open to begin with
-    ASSERT_EQ(turn_on_right_inverter_fake.call_count, 0);
-    ASSERT_EQ(turn_on_left_inverter_fake.call_count, 0);
-
-    // Close AIR-, both inverter switches should still be open
-    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_NEGATIVE(
-        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE);
-    LetTimePass(state_machine, 10);
-    ASSERT_EQ(turn_on_right_inverter_fake.call_count, 0);
-    ASSERT_EQ(turn_on_left_inverter_fake.call_count, 0);
-
-    // Close AIR+, both inverter switches should now be closed
-    App_CanRx_BMS_AIR_STATES_SetSignal_AIR_POSITIVE(
-        can_rx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
-    LetTimePass(state_machine, 10);
-    ASSERT_EQ(turn_on_right_inverter_fake.call_count, 1);
-    ASSERT_EQ(turn_on_left_inverter_fake.call_count, 1);
-
-    // Left and right inverter should be closed once
-    is_right_inverter_on_fake.return_val = true;
-    is_left_inverter_on_fake.return_val  = true;
-    LetTimePass(state_machine, 10);
-    ASSERT_EQ(turn_on_right_inverter_fake.call_count, 1);
-    ASSERT_EQ(turn_on_left_inverter_fake.call_count, 1);
 }
 
 TEST_F(DcmStateMachineTest, init_to_fault_state_on_left_inverter_fault)

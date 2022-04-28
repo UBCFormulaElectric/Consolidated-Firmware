@@ -7,12 +7,26 @@
 STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(DcmCanTxInterface)
 
 /**
+ * Check if both AIRs are closed
+ * @param can_rx_interface The CAN Rx interface to get the CAN signals from
+ * @return true if both AIRs are closed, false otherwise
+ */
+static inline bool
+    App_AreBothAIRsClosed(const struct DcmCanRxInterface *can_rx_interface)
+{
+    return App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx_interface) ==
+               CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE &&
+           App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx_interface) ==
+               CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE;
+}
+
+/**
  * Check if vehicle is over the regen threshold defined by vehicle wheel speed
  * (EV.4.1.3)
  * @param can_rx_interface The CAN Rx interface to get the CAN signals from
  * @return true if the vehicle is over the regen threshold, false otherwise
  */
-static inline bool App_SharedStates_IsVehicleOverRegenThresh(
+static inline bool App_IsVehicleOverRegenThresh(
     const struct DcmCanRxInterface *can_rx_interface)
 {
     return (App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_LEFT_WHEEL_SPEED(
@@ -31,8 +45,7 @@ void App_SetPeriodicCanSignals_TorqueRequests(const struct DcmWorld *world)
     // Regen allowed when wheel speed > REGEN_WHEEL_SPEED_THRESHOLD_KPH and AIRs
     // closed
     const bool is_regen_allowed =
-        App_SharedStates_AreBothAIRsClosed(can_rx) &&
-        App_SharedStates_IsVehicleOverRegenThresh(can_rx);
+        App_AreBothAIRsClosed(can_rx) && App_IsVehicleOverRegenThresh(can_rx);
 
     const float regen_paddle_percentage =
         (float)App_CanRx_DIM_REGEN_PADDLE_GetSignal_MAPPED_PADDLE_POSITION(
