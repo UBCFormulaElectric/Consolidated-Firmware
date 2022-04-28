@@ -587,8 +587,8 @@ BA_DEF_DEF_  "GenSigStartValue" 0;
 
 BA_ "BusType" "CAN";
 
-BA_ "GenSigStartValue" SG_ 507 Start_Switch 1; 
 BA_ "GenSigStartValue" SG_ 82 Direction_Command_INVR 1; 
+BA_ "GenSigStartValue" SG_ 507 Start_Switch 1; 
 
 BA_ "GenMsgCycleTime" BO_ 0 100;
 BA_ "GenMsgCycleTime" BO_ 1 100;
