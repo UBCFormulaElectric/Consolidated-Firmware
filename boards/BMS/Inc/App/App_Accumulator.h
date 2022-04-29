@@ -2,12 +2,7 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-
-typedef enum
-{
-    ACCUMULATOR_SEGMENT_0 = 0U,
-    NUM_OF_ACCUMULATOR_SEGMENTS,
-} AccumulatorSegments_E;
+#include "App_SharedConstants.h"
 
 struct Accumulator;
 
@@ -23,6 +18,9 @@ struct Accumulator;
  * @param get_segment_voltage A function to get a given segment voltage (V)
  * @param get_pack_voltage A function to get the pack voltage (V)
  * @param get_avg_cell_voltage A function to get the average cell voltage (V)
+ * @param start_cell_temp_conv A function that is called to start cell temp
+ * conversions
+ * @param read_cell_temperatures A function called to read cell temperatures
  */
 struct Accumulator *App_Accumulator_Create(
     bool (*config_monitoring_chip)(void),
@@ -34,7 +32,9 @@ struct Accumulator *App_Accumulator_Create(
     float (*get_max_cell_voltage)(void),
     float (*get_segment_voltage)(AccumulatorSegments_E),
     float (*get_pack_voltage)(void),
-    float (*get_avg_cell_voltage)(void));
+    float (*get_avg_cell_voltage)(void),
+    bool (*start_cell_temp_conv)(void),
+    bool (*read_cell_temperatures)(void));
 
 /**
  * Deallocate the memory used by the given accumulator.

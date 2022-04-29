@@ -41,6 +41,7 @@
 #include "Io_OkStatuses.h"
 #include "Io_LTC6813/Io_LTC6813Shared.h"
 #include "Io_LTC6813/Io_LTC6813CellVoltages.h"
+#include "Io_LTC6813/Io_LTC6813CellTemperatures.h"
 #include "Io_Airs.h"
 #include "Io_PreCharge.h"
 #include "Io_Adc.h"
@@ -258,7 +259,9 @@ int main(void)
         Io_LTC6813CellVoltages_GetMaxCellVoltage,
         Io_LTC6813CellVoltages_GetSegmentVoltage,
         Io_LTC6813CellVoltages_GetPackVoltage,
-        Io_LTC6813CellVoltages_GetAverageCellVoltage);
+        Io_LTC6813CellVoltages_GetAverageCellVoltage,
+        Io_LTC6813CellTemperatures_StartAdcConversion,
+        Io_LTC6813CellTemperatures_ReadTemperatures);
 
     ts = App_TractiveSystem_Create(
         Io_Adc_GetAdc1Channel3Voltage,

@@ -67,10 +67,11 @@ static struct LTC6813Configurations ltc6813_configs[NUM_OF_CFG_REGS] =
         .cfg_reg_cmds    = WRCFGA,
         .default_cfg_reg =
         {
-            [REG_GROUP_BYTE_0] = (uint8_t) (ENABLE_ALL_CFGRA_GPIO | REFON | DTEN | ADCOPT),
-            [REG_GROUP_BYTE_1] = (uint8_t) VUV,
-            [REG_GROUP_BYTE_2] = (uint8_t) ((VOV & 0xF) << 4) + (VUV >> 8),
-            [REG_GROUP_BYTE_3] = (uint8_t) (VOV >> 4), [REG_GROUP_BYTE_4] = 0x0U,
+            [REG_GROUP_BYTE_0] = (uint8_t)(ENABLE_ALL_CFGRA_GPIO | REFON | DTEN | ADCOPT),
+            [REG_GROUP_BYTE_1] = (uint8_t)VUV,
+            [REG_GROUP_BYTE_2] = (uint8_t)((VOV & 0xF) << 4) + (VUV >> 8),
+            [REG_GROUP_BYTE_3] = (uint8_t)(VOV >> 4),
+            [REG_GROUP_BYTE_4] = 0x0U,
             [REG_GROUP_BYTE_5] = 0x0U,
         },
     },
@@ -137,7 +138,7 @@ static uint16_t Io_CalculatePec15(const uint8_t *data_buffer, uint8_t size);
  * @param curr_cfg_reg The current configuration register to configure
  */
 static void Io_PrepareCfgRegBytes(
-    uint8_t tx_cfg[NUM_OF_ACCUMULATOR_SEGMENTS][NUM_REG_GROUP_PACKET_BYTES],
+    uint8_t tx_cfg[NUM_OF_ACCUMULATOR_SEGMENTS][TOTAL_NUM_REG_GROUP_BYTES],
     uint8_t curr_cfg_reg);
 
 static uint16_t Io_CalculatePec15(const uint8_t *data_buffer, uint8_t size)
@@ -159,7 +160,7 @@ static uint16_t Io_CalculatePec15(const uint8_t *data_buffer, uint8_t size)
 }
 
 static void Io_PrepareCfgRegBytes(
-    uint8_t tx_cfg[NUM_OF_ACCUMULATOR_SEGMENTS][NUM_REG_GROUP_PACKET_BYTES],
+    uint8_t tx_cfg[NUM_OF_ACCUMULATOR_SEGMENTS][TOTAL_NUM_REG_GROUP_BYTES],
     uint8_t curr_cfg_reg)
 {
     // TODO: We can adjust how we want to discharge cells. In the current
@@ -230,7 +231,7 @@ void Io_LTC6813Shared_PackCmdPec15(uint16_t *tx_cmd)
 {
     // Pack the PEC15 byte into tx_cmd in big endian format
     *(tx_cmd + CMD_PEC15) = CHANGE_WORD_ENDIANNESS(
-        Io_CalculatePec15((uint8_t *)tx_cmd, NUM_CMD_PAYLOAD_BYTES));
+        Io_CalculatePec15((uint8_t *)tx_cmd, CMD_SIZE_BYTES));
 }
 
 void Io_LTC6813Shared_PackRegisterGroupPec15(uint8_t *tx_cfg)
@@ -291,7 +292,7 @@ bool Io_LTC6813Shared_WriteConfigurationRegisters(void)
 
         // Array containing bytes to write to the configuration register
         uint8_t tx_cfg[NUM_OF_ACCUMULATOR_SEGMENTS]
-                      [NUM_REG_GROUP_PACKET_BYTES] = { 0U };
+                      [TOTAL_NUM_REG_GROUP_BYTES] = { 0U };
 
         // Prepare command to begin writing to the configuration
         // register
@@ -306,7 +307,7 @@ bool Io_LTC6813Shared_WriteConfigurationRegisters(void)
                 ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES))
         {
             if (!Io_SharedSpi_TransmitWithoutNssToggle(
-                    ltc6813_spi, (uint8_t *)tx_cfg, TOTAL_NUM_OF_REG_BYTES))
+                    ltc6813_spi, (uint8_t *)tx_cfg, NUM_REG_GROUP_RX_BYTES))
             {
                 Io_SharedSpi_SetNssHigh(ltc6813_spi);
                 return false;
