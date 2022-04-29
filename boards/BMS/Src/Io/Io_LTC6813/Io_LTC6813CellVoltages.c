@@ -180,7 +180,7 @@ static bool Io_ParseCellVoltageFromAllSegments(
 
 bool Io_LTC6813CellVoltages_ReadVoltages(void)
 {
-    bool status = false;
+    bool status = true;
 
     if (Io_LTC6813Shared_PollAdcConversions())
     {
@@ -195,22 +195,21 @@ bool Io_LTC6813CellVoltages_ReadVoltages(void)
             };
             Io_LTC6813Shared_PackCmdPec15(tx_cmd);
 
-            // Transmit the command and receive data stored in register group
-            if (Io_SharedSpi_TransmitAndReceive(
+            // Transmit the command and receive data stored in register group.
+            // If Io_ParseCellVoltagesFromAllSegments returns false, continue to
+            // update data for remaining cell register groups
+            if (!Io_SharedSpi_TransmitAndReceive(
                     ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES,
-                    (uint8_t *)rx_buffer, TOTAL_NUM_OF_REG_BYTES))
+                    (uint8_t *)rx_buffer, TOTAL_NUM_OF_REG_BYTES) ||
+                !Io_ParseCellVoltageFromAllSegments(curr_reg_group, rx_buffer))
             {
-                // Parse cell voltages from the current register group from all
-                // segments
-                if (!Io_ParseCellVoltageFromAllSegments(
-                        curr_reg_group, rx_buffer))
-                {
-                    return false;
-                }
+                status = false;
             }
         }
-
-        status = true;
+    }
+    else
+    {
+        status = false;
     }
 
     // Update min/max cell segment, index and voltages and update pack voltage

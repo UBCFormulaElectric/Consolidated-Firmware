@@ -29,7 +29,14 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
     struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
 
-    App_Accumulator_RunOnTick100Hz(accumulator, can_tx);
+    App_Accumulator_RunOnTick100Hz(accumulator);
+
+    const bool has_comms_error =
+        App_Accumulator_HasCommunicationError(accumulator);
+    App_CanTx_SetPeriodicSignal_HAS_PEC_ERROR(can_tx, has_comms_error);
+    App_SharedErrorTable_SetError(
+        error_table, BMS_AIR_SHUTDOWN_HAS_PEC_ERROR, has_comms_error);
+
     App_SetPeriodicCanSignals_Imd(can_tx, imd);
 
     App_CanTx_SetPeriodicSignal_AIR_NEGATIVE(
@@ -37,32 +44,10 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_AIR_POSITIVE(
         can_tx, App_SharedBinaryStatus_IsActive(App_Airs_GetAirPositive(airs)));
 
-    if (App_OkStatus_IsEnabled(bms_ok))
-    {
-        App_CanTx_SetPeriodicSignal_BMS_OK(can_tx, true);
-    }
-    else
-    {
-        App_CanTx_SetPeriodicSignal_BMS_OK(can_tx, false);
-    }
-
-    if (App_OkStatus_IsEnabled(imd_ok))
-    {
-        App_CanTx_SetPeriodicSignal_IMD_OK(can_tx, true);
-    }
-    else
-    {
-        App_CanTx_SetPeriodicSignal_IMD_OK(can_tx, false);
-    }
-
-    if (App_OkStatus_IsEnabled(bspd_ok))
-    {
-        App_CanTx_SetPeriodicSignal_BSPD_OK(can_tx, true);
-    }
-    else
-    {
-        App_CanTx_SetPeriodicSignal_BSPD_OK(can_tx, false);
-    }
+    App_CanTx_SetPeriodicSignal_BMS_OK(can_tx, App_OkStatus_IsEnabled(bms_ok));
+    App_CanTx_SetPeriodicSignal_IMD_OK(can_tx, App_OkStatus_IsEnabled(imd_ok));
+    App_CanTx_SetPeriodicSignal_BSPD_OK(
+        can_tx, App_OkStatus_IsEnabled(bspd_ok));
 
     if (App_SharedErrorTable_HasAnyCriticalErrorSet(error_table))
     {
