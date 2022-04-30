@@ -10,7 +10,6 @@ typedef enum
 } AccumulatorSegments_E;
 
 struct Accumulator;
-struct BmsCanTxInterface;
 
 /**
  * Allocate and initialize an accumulator.
@@ -43,8 +42,14 @@ struct Accumulator *App_Accumulator_Create(
  */
 void App_Accumulator_Destroy(struct Accumulator *accumulator);
 
+/**
+ * Check if a communication error has occurred with the cell monitoring chip
+ * @param accumulator The accumulator to monitor cell voltages and temperatures
+ * @return True if a communication error has occured. Else, false
+ */
+bool App_Accumulator_HasCommunicationError(
+    const struct Accumulator *accumulator);
+
 // Rate functions to be called within the state machine
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *accumulator);
-void App_Accumulator_RunOnTick100Hz(
-    struct Accumulator *      accumulator,
-    struct BmsCanTxInterface *can_tx);
+void App_Accumulator_RunOnTick100Hz(struct Accumulator *accumulator);

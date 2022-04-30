@@ -193,6 +193,7 @@ static void Io_ProcessBmsAirShutdownErrorMsg(
     SET_ERROR(
         error_table, BMS_AIR_SHUTDOWN_MAX_CELL_VOLTAGE_OUT_OF_RANGE,
         data->max_cell_voltage_out_of_range);
+    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_HAS_PEC_ERROR, data->has_pec_error);
 }
 
 static void Io_ProcessDcmAirShutdownErrorMsg(

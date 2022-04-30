@@ -2,6 +2,8 @@
 #include <assert.h>
 #include "App_Accumulator.h"
 
+#define MAX_NUM_COMM_TRIES (3U)
+
 enum AccumulatorMonitorState
 {
     GET_CELL_VOLTAGE_STATE = 0U,
@@ -9,6 +11,8 @@ enum AccumulatorMonitorState
 
 struct Accumulator
 {
+    uint8_t num_comm_tries;
+
     // Configure the cell monitoring chip
     bool (*config_monitoring_chip)(void);
 
@@ -42,6 +46,7 @@ struct Accumulator *App_Accumulator_Create(
     accumulator->config_monitoring_chip = config_monitoring_chip;
 
     // Cell voltage monitoring functions
+    accumulator->num_comm_tries          = 0U;
     accumulator->read_cell_voltages      = read_cell_voltages;
     accumulator->start_cell_voltage_conv = start_voltage_conv;
     accumulator->get_min_cell_voltage    = get_min_cell_voltage;
@@ -60,15 +65,19 @@ void App_Accumulator_Destroy(struct Accumulator *accumulator)
     free(accumulator);
 }
 
+bool App_Accumulator_HasCommunicationError(
+    const struct Accumulator *const accumulator)
+{
+    return accumulator->num_comm_tries >= MAX_NUM_COMM_TRIES;
+}
+
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *const accumulator)
 {
     // Configure the cell monitoring chips. Disable discharge at startup
     accumulator->config_monitoring_chip();
 }
 
-void App_Accumulator_RunOnTick100Hz(
-    struct Accumulator *      accumulator,
-    struct BmsCanTxInterface *can_tx)
+void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
 {
     static enum AccumulatorMonitorState state = GET_CELL_VOLTAGE_STATE;
 
@@ -76,11 +85,17 @@ void App_Accumulator_RunOnTick100Hz(
     {
         case GET_CELL_VOLTAGE_STATE:
 
-            // Read cell voltages
-            accumulator->read_cell_voltages();
-
-            // TODO: Add broadcast BMS CAN messages when fixed pt. CAN PR has
-            // been merged in
+            // Read cell voltages. Increment the number of comm. tries if there
+            // is a communication error
+            if (!accumulator->read_cell_voltages())
+            {
+                accumulator->num_comm_tries++;
+            }
+            else
+            {
+                // Reset the number of communication tries
+                accumulator->num_comm_tries = 0U;
+            }
 
             // Start cell temperature voltage conversions for the next cycle
             accumulator->start_cell_voltage_conv();

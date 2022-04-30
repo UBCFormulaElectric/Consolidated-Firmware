@@ -177,6 +177,10 @@ class BmsStateMachineTest : public BaseStateMachineTest
         // fault state from the charge state
         is_charger_connected_fake.return_val = true;
 
+        // Cell voltages read back are assumed to be true to prevent
+        // transitioning into the fault state
+        read_cell_voltages_fake.return_val = true;
+
         // A voltage in [3.0, 4.2] was arbitrarily chosen to prevent other
         // tests from entering the fault state
         get_min_cell_voltage_fake.return_val = 4.0f;
