@@ -32,3 +32,9 @@ enum HexDigit
     HEX_DIGIT_F,
     NUM_HEX_DIGITS,
 };
+
+typedef enum
+{
+    ACCUMULATOR_SEGMENT_0 = 0U,
+    NUM_OF_ACCUMULATOR_SEGMENTS,
+} AccumulatorSegments_E;

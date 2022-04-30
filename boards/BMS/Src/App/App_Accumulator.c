@@ -7,6 +7,7 @@
 enum AccumulatorMonitorState
 {
     GET_CELL_VOLTAGE_STATE = 0U,
+    GET_CELL_TEMP_STATE,
 };
 
 struct Accumulator
@@ -26,6 +27,10 @@ struct Accumulator
     float (*get_segment_voltage)(AccumulatorSegments_E);
     float (*get_pack_voltage)(void);
     float (*get_avg_cell_voltage)(void);
+
+    // Cell temperature monitoring functions
+    bool (*start_cell_temp_conv)(void);
+    bool (*read_cell_temperatures)(void);
 };
 
 struct Accumulator *App_Accumulator_Create(
@@ -38,7 +43,9 @@ struct Accumulator *App_Accumulator_Create(
     float (*get_max_cell_voltage)(void),
     float (*get_segment_voltage)(AccumulatorSegments_E),
     float (*get_pack_voltage)(void),
-    float (*get_avg_cell_voltage)(void))
+    float (*get_avg_cell_voltage)(void),
+    bool (*start_cell_temp_conv)(void),
+    bool (*read_cell_temperatures)(void))
 {
     struct Accumulator *accumulator = malloc(sizeof(struct Accumulator));
     assert(accumulator != NULL);
@@ -56,6 +63,10 @@ struct Accumulator *App_Accumulator_Create(
     accumulator->get_segment_voltage     = get_segment_voltage;
     accumulator->get_pack_voltage        = get_pack_voltage;
     accumulator->get_avg_cell_voltage    = get_avg_cell_voltage;
+
+    // Cell temperature monitoring functions
+    accumulator->start_cell_temp_conv   = start_cell_temp_conv;
+    accumulator->read_cell_temperatures = read_cell_temperatures;
 
     return accumulator;
 }
@@ -97,8 +108,19 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
                 accumulator->num_comm_tries = 0U;
             }
 
-            // Start cell temperature voltage conversions for the next cycle
+            // Start cell voltage conversions for the next cycle
+            accumulator->start_cell_temp_conv();
+            state = GET_CELL_TEMP_STATE;
+            break;
+
+        case GET_CELL_TEMP_STATE:
+
+            // Read cell temperatures
+            accumulator->read_cell_temperatures();
+
+            // Start cell voltage conversions for the next cycle
             accumulator->start_cell_voltage_conv();
+            state = GET_CELL_VOLTAGE_STATE;
             break;
 
         default:

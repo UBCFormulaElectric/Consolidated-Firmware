@@ -78,6 +78,8 @@ FAKE_VALUE_FUNC(float, get_pack_voltage);
 FAKE_VALUE_FUNC(float, get_avg_cell_voltage);
 FAKE_VALUE_FUNC(float, get_raw_ts_voltage);
 FAKE_VALUE_FUNC(float, get_ts_voltage, float);
+FAKE_VALUE_FUNC(bool, start_temp_conv);
+FAKE_VALUE_FUNC(bool, read_cell_temperatures);
 
 class BmsStateMachineTest : public BaseStateMachineTest
 {
@@ -119,7 +121,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
             configure_cell_monitors, start_voltage_conv, read_cell_voltages,
             get_min_cell_location, get_max_cell_location, get_min_cell_voltage,
             get_max_cell_voltage, get_segment_voltage, get_pack_voltage,
-            get_avg_cell_voltage);
+            get_avg_cell_voltage, start_temp_conv, read_cell_temperatures);
 
         precharge_relay =
             App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);

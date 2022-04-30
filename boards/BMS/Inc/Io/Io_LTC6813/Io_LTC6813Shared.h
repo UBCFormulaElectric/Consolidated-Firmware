@@ -2,27 +2,12 @@
 
 #include <stdbool.h>
 #include <stm32f3xx_hal.h>
+#include "App_SharedConstants.h"
 
 // clang-format off
+
 // Conversion factor used to convert raw voltages (100µV) to voltages (V)
-#define V_PER_100UV                  (1E-4f)
-#define NUM_REG_GROUP_PACKET_BYTES   (8U)
-#define TOTAL_NUM_OF_REG_BYTES       (NUM_REG_GROUP_PACKET_BYTES * NUM_OF_ACCUMULATOR_SEGMENTS)
-#define NUM_REG_GROUP_PACKET_WORDS   (NUM_REG_GROUP_PACKET_BYTES >> 1U)
-#define TOTAL_NUM_OF_REG_GROUP_WORDS (NUM_REG_GROUP_PACKET_WORDS * NUM_OF_ACCUMULATOR_SEGMENTS)
-#define NUM_CMD_PAYLOAD_BYTES        (2U)
-
-// Indexing for data to write/read from the register group in word format
-#define REG_GROUP_WORD_PEC_INDEX     (3U)
-// clang-format on
-
-enum CmdFormat
-{
-    CMD_WORD = 0U,
-    CMD_PEC15,
-    NUM_OF_CMD_WORDS,
-};
-#define TOTAL_NUM_CMD_BYTES (NUM_OF_CMD_WORDS << 1U)
+#define V_PER_100UV (1E-4f)
 
 // Indexes for data to write/read from the register group in byte format
 enum RegGroupByteFormat
@@ -34,6 +19,55 @@ enum RegGroupByteFormat
     REG_GROUP_BYTE_4,
     REG_GROUP_BYTE_5,
     NUM_REG_GROUP_PAYLOAD_BYTES,
+};
+
+// Number of PEC15 bytes sent/received from the LTC6813 chip
+#define PEC15_SIZE_BYTES    (2U)
+
+// Number of bytes sent/read to/from register group: 6 bytes payload + 2 bytes PEC15,
+// which can also be represented as 3 words payload + 1 word PEC15
+#define TOTAL_NUM_REG_GROUP_BYTES (NUM_REG_GROUP_PAYLOAD_BYTES + PEC15_SIZE_BYTES)
+#define TOTAL_NUM_REG_GROUP_WORDS (TOTAL_NUM_REG_GROUP_BYTES >> 1U)
+
+// Reading data back from a register group for all LTC6813's connected in a daisy chain
+#define NUM_REG_GROUP_RX_BYTES    (TOTAL_NUM_REG_GROUP_BYTES * NUM_OF_ACCUMULATOR_SEGMENTS)
+#define NUM_REG_GROUP_RX_WORDS    (TOTAL_NUM_REG_GROUP_WORDS * NUM_OF_ACCUMULATOR_SEGMENTS)
+
+// Indexing for data to write/read from the register group in word format
+#define REG_GROUP_WORD_PEC_INDEX (3U)
+
+// GPIO Selection for ADC conversion
+#define CHG (0U)
+
+// Discharge permitted
+#define DCP (0U)
+
+// Cell selection for ADC conversion
+#define CH  (0U)
+
+// ADC mode selection
+#define MD  (1U)
+
+// clang-format on
+
+// Each command sent includes: 1 cmd word + 1 PEC15 word, which is
+// equal to: 2 cmd bytes + 2 PEC15 bytes
+enum CmdFormat
+{
+    CMD_WORD = 0U,
+    CMD_PEC15,
+    NUM_OF_CMD_WORDS,
+};
+#define CMD_SIZE_BYTES (2U)
+#define TOTAL_NUM_CMD_BYTES (NUM_OF_CMD_WORDS << 1U)
+
+// Number of readings (cell voltages, temperatures) per each register group
+enum NumReadingsPerRegGroup
+{
+    REG_GROUP_READING_0 = 0U,
+    REG_GROUP_READING_1,
+    REG_GROUP_READING_2,
+    NUM_OF_READINGS_PER_REG_GROUP
 };
 
 /**
