@@ -1,39 +1,34 @@
 #pragma once
 
-#include <stdbool.h>
-
-struct PreChargeSequence;
+struct PrechargeRelay;
 
 /**
  * Allocate and initialize a pre-charge sequence
- * @param enable_pre_charge_sequence A function that can be called to enable
- * the pre-charge sequence
- * @param disable_pre_charge_sequence A function that can be called to disable
- * the pre-charge sequence
- * @return The created pre-charge sequence, whose ownership is given to the
+ * @param close_relay A function that can be called to close the precharge relay
+ * @param open_relay A function that can be called to open the precharge relay
+ * @return The created precharge relay, whose ownership is given to the
  * caller
  */
-struct PreChargeSequence *App_PreChargeSequence_Create(
-    void (*enable_pre_charge_sequence)(void),
-    void (*disable_pre_charge_sequence)(void));
+struct PrechargeRelay *App_PrechargeRelay_Create(
+    void (*close_relay)(void),
+    void (*open_relay)(void));
 
 /**
  * Deallocate the memory used by the pre-charge sequence
- * @param pre_charge_sequence The pre-charge sequence to deallocate
+ * @param precharge_relay The precharge relay to deallocate
  */
-void App_PreChargeSequence_Destroy(
-    struct PreChargeSequence *pre_charge_sequence);
+void App_PrechargeRelay_Destroy(struct PrechargeRelay *precharge_relay);
 
 /**
- * Enable the given pre-charge sequence
- * @param pre_charge_sequence The pre-charge sequence to enable
+ * Close the precharge relay
+ * @param precharge_relay The precharge relay to close
  */
-void App_PreChargeSequence_Enable(
-    const struct PreChargeSequence *pre_charge_sequence);
+void App_PrechargeRelay_Close(
+    const struct PrechargeRelay *const precharge_relay);
 
 /**
- * Disable the given pre-charge sequence
- * @param pre_charge_sequence The pre-charge sequence to disable
+ * Open the given precharge relay
+ * @param precharge_relay The precharge relay to open
  */
-void App_PreChargeSequence_Disable(
-    const struct PreChargeSequence *pre_charge_sequence);
+void App_PrechargeRelay_Open(
+    const struct PrechargeRelay *const precharge_relay);

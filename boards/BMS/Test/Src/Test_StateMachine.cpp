@@ -76,6 +76,8 @@ FAKE_VOID_FUNC(get_max_cell_location, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_segment_voltage, AccumulatorSegments_E);
 FAKE_VALUE_FUNC(float, get_pack_voltage);
 FAKE_VALUE_FUNC(float, get_avg_cell_voltage);
+FAKE_VALUE_FUNC(float, get_raw_ts_voltage);
+FAKE_VALUE_FUNC(float, get_ts_voltage, float);
 
 class BmsStateMachineTest : public BaseStateMachineTest
 {
@@ -119,8 +121,10 @@ class BmsStateMachineTest : public BaseStateMachineTest
             get_max_cell_voltage, get_segment_voltage, get_pack_voltage,
             get_avg_cell_voltage);
 
-        pre_charge_sequence =
-            App_PreChargeSequence_Create(enable_pre_charge, disable_pre_charge);
+        precharge_relay =
+            App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
+
+        ts = App_TractiveSystem_Create(get_raw_ts_voltage, get_ts_voltage);
 
         airs = App_Airs_Create(
             is_air_positive_closed, is_air_negative_closed, close_air_positive,
@@ -133,7 +137,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
             rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator,
-            airs, pre_charge_sequence, error_table, clock);
+            airs, precharge_relay, ts, error_table, clock);
 
         // Default to starting the state machine in the `init` state
         state_machine =
@@ -202,7 +206,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
         TearDownObject(bspd_ok, App_OkStatus_Destroy);
         TearDownObject(accumulator, App_Accumulator_Destroy);
         TearDownObject(airs, App_Airs_Destroy);
-        TearDownObject(pre_charge_sequence, App_PreChargeSequence_Destroy);
+        TearDownObject(precharge_relay, App_PrechargeRelay_Destroy);
+        TearDownObject(ts, App_TractiveSystem_Destroy);
         TearDownObject(error_table, App_SharedErrorTable_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
     }
@@ -290,7 +295,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
     struct OkStatus *         bspd_ok;
     struct Accumulator *      accumulator;
     struct Airs *             airs;
-    struct PreChargeSequence *pre_charge_sequence;
+    struct PrechargeRelay *   precharge_relay;
+    struct TractiveSystem *   ts;
     struct ErrorTable *       error_table;
     struct Clock *            clock;
 };

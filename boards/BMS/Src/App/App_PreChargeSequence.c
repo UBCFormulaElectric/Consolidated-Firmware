@@ -1,43 +1,38 @@
 #include <assert.h>
 #include <stdlib.h>
-#include "App_PreChargeSequence.h"
 
-struct PreChargeSequence
+struct PrechargeRelay
 {
-    void (*enable_pre_charge_sequence)(void);
-    void (*disable_pre_charge_sequence)(void);
+    void (*close_relay)(void);
+    void (*open_relay)(void);
 };
 
-struct PreChargeSequence *App_PreChargeSequence_Create(
-    void (*enable_pre_charge_sequence)(void),
-    void (*disable_pre_charge_sequence)(void))
+struct PrechargeRelay *App_PrechargeRelay_Create(
+    void (*close_relay)(void),
+    void (*open_relay)(void))
 {
-    struct PreChargeSequence *pre_charge_sequence =
-        malloc(sizeof(struct PreChargeSequence));
-    assert(pre_charge_sequence != NULL);
+    struct PrechargeRelay *pre_charge_relay =
+        malloc(sizeof(struct PrechargeRelay));
+    assert(pre_charge_relay != NULL);
 
-    pre_charge_sequence->enable_pre_charge_sequence =
-        enable_pre_charge_sequence;
-    pre_charge_sequence->disable_pre_charge_sequence =
-        disable_pre_charge_sequence;
+    pre_charge_relay->close_relay = close_relay;
+    pre_charge_relay->open_relay  = open_relay;
 
-    return pre_charge_sequence;
+    return pre_charge_relay;
 }
 
-void App_PreChargeSequence_Destroy(
-    struct PreChargeSequence *pre_charge_sequence)
+void App_PrechargeRelay_Destroy(struct PrechargeRelay *precharge_relay)
 {
-    free(pre_charge_sequence);
+    free(precharge_relay);
 }
 
-void App_PreChargeSequence_Enable(
-    const struct PreChargeSequence *const pre_charge_sequence)
+void App_PrechargeRelay_Close(
+    const struct PrechargeRelay *const precharge_relay)
 {
-    pre_charge_sequence->enable_pre_charge_sequence();
+    precharge_relay->close_relay();
 }
 
-void App_PreChargeSequence_Disable(
-    const struct PreChargeSequence *const pre_charge_sequence)
+void App_PrechargeRelay_Open(const struct PrechargeRelay *const precharge_relay)
 {
-    pre_charge_sequence->disable_pre_charge_sequence();
+    precharge_relay->open_relay();
 }
