@@ -261,7 +261,7 @@ int main(void)
         Io_LTC6813CellVoltages_GetAverageCellVoltage);
 
     ts = App_TractiveSystem_Create(
-        Io_Adc_GetAdc2Channel4Voltage,
+        Io_Adc_GetAdc1Channel3Voltage,
         Io_VoltageSense_GetTractiveSystemVoltage);
 
     airs = App_Airs_Create(
