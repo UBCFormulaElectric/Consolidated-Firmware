@@ -16,6 +16,7 @@ struct Accumulator
 
     // Configure the cell monitoring chip
     bool (*config_monitoring_chip)(void);
+    bool (*write_cfg_registers)(void);
 
     // Cell voltage monitoring functions
     bool (*start_cell_voltage_conv)(void);
@@ -33,6 +34,7 @@ struct Accumulator
 
 struct Accumulator *App_Accumulator_Create(
     bool (*config_monitoring_chip)(void),
+    bool (*write_cfg_registers)(void),
     bool (*start_voltage_conv)(void),
     bool (*read_cell_voltages)(void),
     float (*get_min_cell_voltage)(uint8_t *, uint8_t *),
@@ -47,6 +49,7 @@ struct Accumulator *App_Accumulator_Create(
     assert(accumulator != NULL);
 
     accumulator->config_monitoring_chip = config_monitoring_chip;
+    accumulator->write_cfg_registers    = write_cfg_registers;
 
     // Cell voltage monitoring functions
     accumulator->num_comm_tries          = 0U;
@@ -100,6 +103,9 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
                 // Reset the number of communication tries
                 accumulator->num_comm_tries = 0U;
             }
+
+            // Write to configuration register to configure cell discharging
+            accumulator->write_cfg_registers();
 
             // Start cell voltage conversions for the next cycle
             accumulator->start_cell_temp_conv();

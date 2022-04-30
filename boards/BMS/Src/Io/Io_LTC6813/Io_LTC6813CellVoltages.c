@@ -20,6 +20,8 @@
 #define RDCVF (0x0B00U)
 
 #define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * V_PER_100UV)
+#define CELL_VOLTAGE_DISCHARGE_WINDOW_UV  (600U)
+
 // clang-format on
 
 enum CellVoltageRegGroup
@@ -57,6 +59,7 @@ static struct Voltages voltages = { 0U };
 static uint16_t cell_voltages[NUM_OF_ACCUMULATOR_SEGMENTS][NUM_OF_CELL_V_REG_GROUPS][NUM_OF_READINGS_PER_REG_GROUP] = {
     0U
 };
+static uint16_t discharge_bits[NUM_OF_ACCUMULATOR_SEGMENTS]  = { 0U };
 
 /**
  * A function that can be called to update min/max cell voltages, segment
@@ -71,6 +74,13 @@ static void Io_UpdateCellVoltages(void);
  * @return True if the data is read back successfully. Else, false
  */
 static bool Io_ParseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS]);
+
+/**
+ * Note: call this function after Io_UpdateVoltages is called to get the most
+ * recent value for the minimum voltage A function to enable the discharge bits
+ * when their voltages are greater than 200uV from the minimum cell voltage
+ */
+static void Io_SetDischargeBits(void);
 
 static void Io_UpdateCellVoltages(void)
 {
@@ -158,6 +168,34 @@ static bool Io_ParseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t 
     return true;
 }
 
+static void Io_SetDischargeBits(void)
+{
+    for (uint8_t curr_segment = 0U; curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS;
+         curr_segment++)
+    {
+        for (uint8_t curr_reg_group = 0U;
+             curr_reg_group < NUM_OF_CELL_V_REG_GROUPS; curr_reg_group++)
+        {
+            for (uint8_t curr_cell = 0U;
+                 curr_cell < NUM_OF_READINGS_PER_REG_GROUP; curr_cell++)
+            {
+                if ((curr_reg_group != CELL_V_REG_GROUP_F) || (curr_cell == 0U))
+                {
+                    if (cell_voltages[curr_segment][curr_reg_group][curr_cell] >
+                        (voltages.min.voltage +
+                         CELL_VOLTAGE_DISCHARGE_WINDOW_UV))
+                    {
+                        discharge_bits[curr_segment] |= (uint16_t)(
+                            1U
+                            << (curr_reg_group * NUM_OF_READINGS_PER_REG_GROUP +
+                                curr_cell));
+                    }
+                }
+            }
+        }
+    }
+}
+
 bool Io_LTC6813CellVoltages_ReadVoltages(void)
 {
     bool status = true;
@@ -196,7 +234,16 @@ bool Io_LTC6813CellVoltages_ReadVoltages(void)
     // and segment voltages
     Io_UpdateCellVoltages();
 
+    // Set bits to discharge for a given segment
+    Io_SetDischargeBits();
+
     return status;
+}
+
+uint16_t
+    Io_LTC6813CellVoltages_GetCellsToDischarge(AccumulatorSegments_E segment)
+{
+    return discharge_bits[segment];
 }
 
 bool Io_LTC6813CellVoltages_StartAdcConversion(void)

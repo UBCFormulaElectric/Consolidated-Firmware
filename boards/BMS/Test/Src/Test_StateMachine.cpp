@@ -60,6 +60,7 @@ FAKE_VOID_FUNC(close_air_positive);
 FAKE_VOID_FUNC(enable_pre_charge);
 FAKE_VOID_FUNC(disable_pre_charge);
 FAKE_VALUE_FUNC(bool, configure_cell_monitors);
+FAKE_VALUE_FUNC(bool, write_cfg_registers);
 FAKE_VALUE_FUNC(bool, start_voltage_conv);
 FAKE_VALUE_FUNC(bool, read_cell_voltages);
 FAKE_VALUE_FUNC(float, get_min_cell_voltage, uint8_t *, uint8_t *);
@@ -146,6 +147,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(is_air_negative_closed);
         RESET_FAKE(is_air_positive_closed);
         RESET_FAKE(configure_cell_monitors);
+        RESET_FAKE(write_cfg_registers);
         RESET_FAKE(start_voltage_conv);
         RESET_FAKE(read_cell_voltages);
         RESET_FAKE(get_min_cell_voltage);
