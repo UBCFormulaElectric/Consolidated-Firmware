@@ -44,6 +44,7 @@
 #include "Io_Airs.h"
 #include "Io_PreCharge.h"
 #include "Io_Adc.h"
+#include "Io_VoltageSense.h"
 
 #include "App_BmsWorld.h"
 #include "App_SharedMacros.h"
@@ -115,7 +116,8 @@ struct OkStatus *         bspd_ok;
 struct Accumulator *      accumulator;
 struct CellMonitors *     cell_monitors;
 struct Airs *             airs;
-struct PreChargeSequence *pre_charge_sequence;
+struct PrechargeRelay *   precharge_relay;
+struct TractiveSystem *   ts;
 struct ErrorTable *       error_table;
 struct Clock *            clock;
 /* USER CODE END PV */
@@ -258,12 +260,16 @@ int main(void)
         Io_LTC6813CellVoltages_GetPackVoltage,
         Io_LTC6813CellVoltages_GetAverageCellVoltage);
 
+    ts = App_TractiveSystem_Create(
+        Io_Adc_GetAdc2Channel4Voltage,
+        Io_VoltageSense_GetTractiveSystemVoltage);
+
     airs = App_Airs_Create(
         Io_Airs_IsAirPositiveClosed, Io_Airs_IsAirNegativeClosed,
         Io_Airs_CloseAirPositive, Io_Airs_OpenAirPositive);
 
-    pre_charge_sequence =
-        App_PreChargeSequence_Create(Io_PreCharge_Enable, Io_PreCharge_Disable);
+    precharge_relay =
+        App_PrechargeRelay_Create(Io_PreCharge_Enable, Io_PreCharge_Disable);
 
     error_table = App_SharedErrorTable_Create();
 
@@ -271,7 +277,7 @@ int main(void)
 
     world = App_BmsWorld_Create(
         can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger,
-        bms_ok, imd_ok, bspd_ok, accumulator, airs, pre_charge_sequence,
+        bms_ok, imd_ok, bspd_ok, accumulator, airs, precharge_relay, ts,
         error_table, clock);
 
     Io_StackWaterMark_Init(can_tx);
