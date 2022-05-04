@@ -13,8 +13,10 @@ struct Accumulator;
  * @param start_voltage_conv A function that can be called to trigger voltage
  * conversions
  * @param read_cell_voltages A function that can be called to read cell voltages
- * @param get_min_cell_loc A function to get the minimum cell voltage (V)
- * @param get_max_cell_loc A function to get the maximum cell voltage (V)
+ * @param get_min_cell_voltage A function to get the minimum cell voltage (V),
+ * as well as the cell and the segment of the minimum cell voltage
+ * @param get_max_cell_voltage A function to get the maximum cell voltage (V),
+ * as well as the cell and the segment of the maximum cell voltage
  * @param get_segment_voltage A function to get a given segment voltage (V)
  * @param get_pack_voltage A function to get the pack voltage (V)
  * @param get_avg_cell_voltage A function to get the average cell voltage (V)
@@ -26,10 +28,8 @@ struct Accumulator *App_Accumulator_Create(
     bool (*config_monitoring_chip)(void),
     bool (*start_voltage_conv)(void),
     bool (*read_cell_voltages)(void),
-    void (*get_min_cell_loc)(uint8_t *, uint8_t *),
-    void (*get_max_cell_loc)(uint8_t *, uint8_t *),
-    float (*get_min_cell_voltage)(void),
-    float (*get_max_cell_voltage)(void),
+    float (*get_min_cell_voltage)(uint8_t *, uint8_t *),
+    float (*get_max_cell_voltage)(uint8_t *, uint8_t *),
     float (*get_segment_voltage)(AccumulatorSegments_E),
     float (*get_pack_voltage)(void),
     float (*get_avg_cell_voltage)(void),

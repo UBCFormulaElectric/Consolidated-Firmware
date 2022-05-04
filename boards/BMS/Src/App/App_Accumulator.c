@@ -20,10 +20,8 @@ struct Accumulator
     // Cell voltage monitoring functions
     bool (*start_cell_voltage_conv)(void);
     bool (*read_cell_voltages)(void);
-    void (*get_min_cell_loc)(uint8_t *, uint8_t *);
-    void (*get_max_cell_loc)(uint8_t *, uint8_t *);
-    float (*get_min_cell_voltage)(void);
-    float (*get_max_cell_voltage)(void);
+    float (*get_min_cell_voltage)(uint8_t *, uint8_t *);
+    float (*get_max_cell_voltage)(uint8_t *, uint8_t *);
     float (*get_segment_voltage)(AccumulatorSegments_E);
     float (*get_pack_voltage)(void);
     float (*get_avg_cell_voltage)(void);
@@ -37,10 +35,8 @@ struct Accumulator *App_Accumulator_Create(
     bool (*config_monitoring_chip)(void),
     bool (*start_voltage_conv)(void),
     bool (*read_cell_voltages)(void),
-    void (*get_min_cell_loc)(uint8_t *, uint8_t *),
-    void (*get_max_cell_loc)(uint8_t *, uint8_t *),
-    float (*get_min_cell_voltage)(void),
-    float (*get_max_cell_voltage)(void),
+    float (*get_min_cell_voltage)(uint8_t *, uint8_t *),
+    float (*get_max_cell_voltage)(uint8_t *, uint8_t *),
     float (*get_segment_voltage)(AccumulatorSegments_E),
     float (*get_pack_voltage)(void),
     float (*get_avg_cell_voltage)(void),
@@ -58,8 +54,6 @@ struct Accumulator *App_Accumulator_Create(
     accumulator->start_cell_voltage_conv = start_voltage_conv;
     accumulator->get_min_cell_voltage    = get_min_cell_voltage;
     accumulator->get_max_cell_voltage    = get_max_cell_voltage;
-    accumulator->get_min_cell_loc        = get_min_cell_loc;
-    accumulator->get_max_cell_loc        = get_max_cell_loc;
     accumulator->get_segment_voltage     = get_segment_voltage;
     accumulator->get_pack_voltage        = get_pack_voltage;
     accumulator->get_avg_cell_voltage    = get_avg_cell_voltage;

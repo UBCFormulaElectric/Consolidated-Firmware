@@ -69,10 +69,8 @@ FAKE_VOID_FUNC(disable_pre_charge);
 FAKE_VALUE_FUNC(bool, configure_cell_monitors);
 FAKE_VALUE_FUNC(bool, start_voltage_conv);
 FAKE_VALUE_FUNC(bool, read_cell_voltages);
-FAKE_VALUE_FUNC(float, get_min_cell_voltage);
-FAKE_VALUE_FUNC(float, get_max_cell_voltage);
-FAKE_VOID_FUNC(get_min_cell_location, uint8_t *, uint8_t *);
-FAKE_VOID_FUNC(get_max_cell_location, uint8_t *, uint8_t *);
+FAKE_VALUE_FUNC(float, get_min_cell_voltage, uint8_t *, uint8_t *);
+FAKE_VALUE_FUNC(float, get_max_cell_voltage, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_segment_voltage, AccumulatorSegments_E);
 FAKE_VALUE_FUNC(float, get_pack_voltage);
 FAKE_VALUE_FUNC(float, get_avg_cell_voltage);
@@ -119,9 +117,9 @@ class BmsStateMachineTest : public BaseStateMachineTest
 
         accumulator = App_Accumulator_Create(
             configure_cell_monitors, start_voltage_conv, read_cell_voltages,
-            get_min_cell_location, get_max_cell_location, get_min_cell_voltage,
-            get_max_cell_voltage, get_segment_voltage, get_pack_voltage,
-            get_avg_cell_voltage, start_temp_conv, read_cell_temperatures);
+            get_min_cell_voltage, get_max_cell_voltage, get_segment_voltage,
+            get_pack_voltage, get_avg_cell_voltage, start_temp_conv,
+            read_cell_temperatures);
 
         precharge_relay =
             App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
@@ -173,8 +171,6 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(read_cell_voltages);
         RESET_FAKE(get_min_cell_voltage);
         RESET_FAKE(get_max_cell_voltage);
-        RESET_FAKE(get_min_cell_location);
-        RESET_FAKE(get_max_cell_location);
         RESET_FAKE(get_segment_voltage);
         RESET_FAKE(get_pack_voltage);
         RESET_FAKE(get_avg_cell_voltage);
