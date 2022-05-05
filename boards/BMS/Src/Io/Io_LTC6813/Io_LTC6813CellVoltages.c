@@ -20,7 +20,7 @@
 #define RDCVF (0x0B00U)
 
 #define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * V_PER_100UV)
-#define CELL_VOLTAGE_DISCHARGE_WINDOW_UV  (400U)
+#define CELL_VOLTAGE_DISCHARGE_WINDOW_UV  (600U)
 
 // clang-format on
 
@@ -220,18 +220,18 @@ bool Io_LTC6813CellVoltages_ReadVoltages(void)
                 status = false;
             }
         }
+
+        // Update min/max cell segment, index and voltages and update pack voltage
+        // and segment voltages
+        Io_UpdateCellVoltages();
+
+        // Set bits to discharge for a given segment
+        Io_SetDischargeBits();
     }
     else
     {
         status = false;
     }
-
-    // Update min/max cell segment, index and voltages and update pack voltage
-    // and segment voltages
-    Io_UpdateCellVoltages();
-
-    // Set bits to discharge for a given segment
-    Io_SetDischargeBits();
 
     return status;
 }

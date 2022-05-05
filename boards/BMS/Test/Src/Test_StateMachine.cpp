@@ -103,8 +103,9 @@ class BmsStateMachineTest : public BaseStateMachineTest
         bspd_ok = App_OkStatus_Create(enable_bspd_ok, disable_bspd_ok, is_bspd_ok_enabled);
 
         accumulator = App_Accumulator_Create(
-            configure_cell_monitors, start_voltage_conv, read_cell_voltages, get_min_cell_voltage, get_max_cell_voltage,
-            get_segment_voltage, get_pack_voltage, get_avg_cell_voltage, start_temp_conv, read_cell_temperatures);
+            configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, get_min_cell_voltage,
+            get_max_cell_voltage, get_segment_voltage, get_pack_voltage, get_avg_cell_voltage, start_temp_conv,
+            read_cell_temperatures);
 
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
 
