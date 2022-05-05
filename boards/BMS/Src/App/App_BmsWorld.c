@@ -66,14 +66,12 @@ void App_BmsWorld_Destroy(struct BmsWorld *world)
     free(world);
 }
 
-struct BmsCanTxInterface *
-    App_BmsWorld_GetCanTx(const struct BmsWorld *const world)
+struct BmsCanTxInterface *App_BmsWorld_GetCanTx(const struct BmsWorld *const world)
 {
     return world->can_tx_interface;
 }
 
-struct BmsCanRxInterface *
-    App_BmsWorld_GetCanRx(const struct BmsWorld *const world)
+struct BmsCanRxInterface *App_BmsWorld_GetCanRx(const struct BmsWorld *const world)
 {
     return world->can_rx_interface;
 }
@@ -83,14 +81,12 @@ struct Imd *App_BmsWorld_GetImd(const struct BmsWorld *const world)
     return world->imd;
 }
 
-struct HeartbeatMonitor *
-    App_BmsWorld_GetHeartbeatMonitor(const struct BmsWorld *const world)
+struct HeartbeatMonitor *App_BmsWorld_GetHeartbeatMonitor(const struct BmsWorld *const world)
 {
     return world->heartbeat_monitor;
 }
 
-struct RgbLedSequence *
-    App_BmsWorld_GetRgbLedSequence(const struct BmsWorld *const world)
+struct RgbLedSequence *App_BmsWorld_GetRgbLedSequence(const struct BmsWorld *const world)
 {
     return world->rgb_led_sequence;
 }
@@ -110,14 +106,12 @@ struct OkStatus *App_BmsWorld_GetImdOkStatus(const struct BmsWorld *const world)
     return world->imd_ok;
 }
 
-struct OkStatus *
-    App_BmsWorld_GetBspdOkStatus(const struct BmsWorld *const world)
+struct OkStatus *App_BmsWorld_GetBspdOkStatus(const struct BmsWorld *const world)
 {
     return world->bspd_ok;
 }
 
-struct Accumulator *
-    App_BmsWorld_GetAccumulator(const struct BmsWorld *const world)
+struct Accumulator *App_BmsWorld_GetAccumulator(const struct BmsWorld *const world)
 {
     return world->accumulator;
 }
@@ -127,20 +121,17 @@ struct Airs *App_BmsWorld_GetAirs(const struct BmsWorld *const world)
     return world->airs;
 }
 
-struct PrechargeRelay *
-    App_BmsWorld_GetPrechargeRelay(const struct BmsWorld *const world)
+struct PrechargeRelay *App_BmsWorld_GetPrechargeRelay(const struct BmsWorld *const world)
 {
     return world->precharge_relay;
 }
 
-struct TractiveSystem *
-    App_BmsWorld_GetTractiveSystem(const struct BmsWorld *const world)
+struct TractiveSystem *App_BmsWorld_GetTractiveSystem(const struct BmsWorld *const world)
 {
     return world->ts;
 }
 
-struct ErrorTable *
-    App_BmsWorld_GetErrorTable(const struct BmsWorld *const world)
+struct ErrorTable *App_BmsWorld_GetErrorTable(const struct BmsWorld *const world)
 {
     return world->error_table;
 }

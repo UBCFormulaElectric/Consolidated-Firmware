@@ -36,26 +36,22 @@ extern "C"
 #include "Io_SharedErrorHandlerOverride.h"
     /* USER CODE END Includes */
 
-    /* Exported types
-     * ------------------------------------------------------------*/
+    /* Exported types ------------------------------------------------------------*/
     /* USER CODE BEGIN ET */
 
     /* USER CODE END ET */
 
-    /* Exported constants
-     * --------------------------------------------------------*/
+    /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
 
     /* USER CODE END EC */
 
-    /* Exported macro
-     * ------------------------------------------------------------*/
+    /* Exported macro ------------------------------------------------------------*/
     /* USER CODE BEGIN EM */
 
     /* USER CODE END EM */
 
-    /* Exported functions prototypes
-     * ---------------------------------------------*/
+    /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
@@ -75,8 +71,7 @@ extern "C"
 #define TIM2_FREQUENCY 72000000
 #define TIM2_AUTO_RELOAD_REG 0xFFFF
 #define TIM2_PWM_MINIMUM_FREQUENCY 1
-#define TIM2_PRESCALER \
-    (TIM2_FREQUENCY / TIM2_AUTO_RELOAD_REG / TIM2_PWM_MINIMUM_FREQUENCY)
+#define TIM2_PRESCALER (TIM2_FREQUENCY / TIM2_AUTO_RELOAD_REG / TIM2_PWM_MINIMUM_FREQUENCY)
 #define TIMx_FREQUENCY 72000000
 #define TIM3_PRESCALER 72
 #define ADC1_ADC2_FREQUENCY 1000

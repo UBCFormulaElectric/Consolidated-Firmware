@@ -8,6 +8,4 @@
  * @param error_table The error table to write to
  * @param can_msg The CAN message being received
  */
-void Io_SharedErrorTable_SetErrorsFromCanMsg(
-    struct ErrorTable *error_table,
-    struct CanMsg *    can_msg);
+void Io_SharedErrorTable_SetErrorsFromCanMsg(struct ErrorTable *error_table, struct CanMsg *can_msg);

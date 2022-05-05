@@ -34,8 +34,7 @@ void App_Brake_Destroy(struct Brake *brake);
  * @param brake The brake to get the pressure in-range check for
  * @return The pressure in-range check for the given brake
  */
-struct InRangeCheck *
-    App_Brake_GetPressureInRangeCheck(const struct Brake *brake);
+struct InRangeCheck *App_Brake_GetPressureInRangeCheck(const struct Brake *brake);
 
 /**
  * Check if the given brake is actuated

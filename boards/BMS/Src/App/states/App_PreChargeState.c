@@ -5,10 +5,9 @@
 
 static void PreChargeStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct BmsWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
     struct BmsCanTxInterface *can_tx_interface = App_BmsWorld_GetCanTx(world);
-    App_CanTx_SetPeriodicSignal_STATE(
-        can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE);
+    App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE);
 }
 
 static void PreChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -16,8 +15,7 @@ static void PreChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
     App_AllStatesRunOnTick1Hz(state_machine);
 }
 
-static void
-    PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
+static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
 }

@@ -18,8 +18,7 @@ struct SevenSegHexDigit
  * @return A pointer to the created 7-segment display, whose ownership is given
  *         to the caller
  */
-struct SevenSegDisplay *
-    App_SevenSegDisplay_Create(void (*set_hex_digit)(struct SevenSegHexDigit));
+struct SevenSegDisplay *App_SevenSegDisplay_Create(void (*set_hex_digit)(struct SevenSegHexDigit));
 
 /**
  * Deallocate the memory used by the given 7-segment display

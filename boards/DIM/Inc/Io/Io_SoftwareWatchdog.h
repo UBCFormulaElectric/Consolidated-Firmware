@@ -11,5 +11,4 @@ struct DimCanTxInterface;
 void Io_SoftwareWatchdog_Init(struct DimCanTxInterface *can_tx);
 
 void Io_HardwareWatchdog_Refresh(void);
-void Io_SoftwareWatchdog_TimeoutCallback(
-    SoftwareWatchdogHandle_t sw_watchdog_handle);
+void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t sw_watchdog_handle);

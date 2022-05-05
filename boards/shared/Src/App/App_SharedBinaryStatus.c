@@ -7,8 +7,7 @@ struct BinaryStatus
     bool (*is_status_active)(void);
 };
 
-struct BinaryStatus *
-    App_SharedBinaryStatus_Create(bool (*is_status_active)(void))
+struct BinaryStatus *App_SharedBinaryStatus_Create(bool (*is_status_active)(void))
 {
     struct BinaryStatus *binary_status = malloc(sizeof(struct BinaryStatus));
     assert(binary_status != NULL);

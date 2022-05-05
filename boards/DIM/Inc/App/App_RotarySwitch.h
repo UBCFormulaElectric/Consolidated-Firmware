@@ -12,9 +12,7 @@ struct RotarySwitch;
  * @param num_switch_positions The total number of switch positions
  * @return The created rotary switch, whose ownership is given to the caller
  */
-struct RotarySwitch *App_RotarySwitch_Create(
-    uint32_t (*get_switch_position)(void),
-    uint32_t num_switch_positions);
+struct RotarySwitch *App_RotarySwitch_Create(uint32_t (*get_switch_position)(void), uint32_t num_switch_positions);
 /**
  * Deallocate the memory used by the given rotary switch
  * @param rotary_switch The rotary switch to deallocate
@@ -29,6 +27,5 @@ void App_RotarySwitch_Destroy(struct RotarySwitch *rotary_switch);
  * @return EXIT_CODE_OUT_OF_RANGE If the switch position exceeds the total
  *                                number of switch positions
  */
-ExitCode App_RotarySwitch_GetSwitchPosition(
-    const struct RotarySwitch *rotary_switch,
-    uint32_t *                 returned_switch_position);
+ExitCode
+    App_RotarySwitch_GetSwitchPosition(const struct RotarySwitch *rotary_switch, uint32_t *returned_switch_position);

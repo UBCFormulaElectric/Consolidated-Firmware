@@ -79,44 +79,37 @@ void App_DimWorld_Destroy(struct DimWorld *world)
     free(world);
 }
 
-struct DimCanTxInterface *
-    App_DimWorld_GetCanTx(const struct DimWorld *const world)
+struct DimCanTxInterface *App_DimWorld_GetCanTx(const struct DimWorld *const world)
 {
     return world->can_tx_interface;
 }
 
-struct DimCanRxInterface *
-    App_DimWorld_GetCanRx(const struct DimWorld *const world)
+struct DimCanRxInterface *App_DimWorld_GetCanRx(const struct DimWorld *const world)
 {
     return world->can_rx_interface;
 }
 
-struct SevenSegDisplays *
-    App_DimWorld_GetSevenSegDisplays(const struct DimWorld *const world)
+struct SevenSegDisplays *App_DimWorld_GetSevenSegDisplays(const struct DimWorld *const world)
 {
     return world->seven_seg_displays;
 }
 
-struct HeartbeatMonitor *
-    App_DimWorld_GetHeartbeatMonitor(const struct DimWorld *const world)
+struct HeartbeatMonitor *App_DimWorld_GetHeartbeatMonitor(const struct DimWorld *const world)
 {
     return world->heartbeat_monitor;
 }
 
-struct RegenPaddle *
-    App_DimWorld_GetRegenPaddle(const struct DimWorld *const world)
+struct RegenPaddle *App_DimWorld_GetRegenPaddle(const struct DimWorld *const world)
 {
     return world->regen_paddle;
 }
 
-struct RgbLedSequence *
-    App_DimWorld_GetRgbLedSequence(const struct DimWorld *const world)
+struct RgbLedSequence *App_DimWorld_GetRgbLedSequence(const struct DimWorld *const world)
 {
     return world->rgb_led_sequence;
 }
 
-struct RotarySwitch *
-    App_DimWorld_GetDriveModeSwitch(const struct DimWorld *const world)
+struct RotarySwitch *App_DimWorld_GetDriveModeSwitch(const struct DimWorld *const world)
 {
     return world->drive_mode_switch;
 }
@@ -131,26 +124,22 @@ struct Led *App_DimWorld_GetBspdLed(const struct DimWorld *world)
     return world->bspd_led;
 }
 
-struct BinarySwitch *
-    App_DimWorld_GetStartSwitch(const struct DimWorld *const world)
+struct BinarySwitch *App_DimWorld_GetStartSwitch(const struct DimWorld *const world)
 {
     return world->start_switch;
 }
 
-struct BinarySwitch *
-    App_DimWorld_GetTractionControlSwitch(const struct DimWorld *const world)
+struct BinarySwitch *App_DimWorld_GetTractionControlSwitch(const struct DimWorld *const world)
 {
     return world->traction_control_switch;
 }
 
-struct BinarySwitch *
-    App_DimWorld_GetTorqueVectoringSwitch(const struct DimWorld *const world)
+struct BinarySwitch *App_DimWorld_GetTorqueVectoringSwitch(const struct DimWorld *const world)
 {
     return world->torque_vectoring_switch;
 }
 
-struct ErrorTable *
-    App_DimWorld_GetErrorTable(const struct DimWorld *const world)
+struct ErrorTable *App_DimWorld_GetErrorTable(const struct DimWorld *const world)
 {
     return world->error_table;
 }

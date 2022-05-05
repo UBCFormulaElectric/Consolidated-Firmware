@@ -14,6 +14,5 @@ void Io_Charger_Disable(void)
 
 bool Io_Charger_IsConnected(void)
 {
-    return HAL_GPIO_ReadPin(CHARGE_STATE_GPIO_Port, CHARGE_STATE_Pin) ==
-           GPIO_PIN_SET;
+    return HAL_GPIO_ReadPin(CHARGE_STATE_GPIO_Port, CHARGE_STATE_Pin) == GPIO_PIN_SET;
 }

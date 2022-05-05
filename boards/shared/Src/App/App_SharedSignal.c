@@ -111,11 +111,9 @@ void App_SharedSignal_Update(struct Signal *signal, uint32_t current_time_ms)
 
     if (!signal->is_callback_triggered)
     {
-        const uint32_t time_entry_condition_high_ms =
-            current_time_ms - signal->entry_last_time_low_ms;
+        const uint32_t time_entry_condition_high_ms = current_time_ms - signal->entry_last_time_low_ms;
 
-        if (time_entry_condition_high_ms >=
-            signal->callback.entry_condition_high_duration_ms)
+        if (time_entry_condition_high_ms >= signal->callback.entry_condition_high_duration_ms)
         {
             signal->callback.function(signal->world);
             signal->is_callback_triggered = true;
@@ -123,11 +121,9 @@ void App_SharedSignal_Update(struct Signal *signal, uint32_t current_time_ms)
     }
     else
     {
-        const uint32_t time_exit_condition_high_ms =
-            current_time_ms - signal->exit_last_time_low_ms;
+        const uint32_t time_exit_condition_high_ms = current_time_ms - signal->exit_last_time_low_ms;
 
-        if (time_exit_condition_high_ms >=
-            signal->callback.exit_condition_high_duration_ms)
+        if (time_exit_condition_high_ms >= signal->callback.exit_condition_high_duration_ms)
         {
             signal->is_callback_triggered = false;
         }

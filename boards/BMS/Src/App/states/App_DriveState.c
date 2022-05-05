@@ -6,10 +6,9 @@
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct BmsWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
     struct BmsCanTxInterface *can_tx_interface = App_BmsWorld_GetCanTx(world);
-    App_CanTx_SetPeriodicSignal_STATE(
-        can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE);
+    App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE);
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -21,7 +20,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
 
-    struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct BmsWorld *         world  = App_SharedStateMachine_GetWorld(state_machine);
     struct BmsCanTxInterface *can_tx = App_BmsWorld_GetCanTx(world);
     struct Imd *              imd    = App_BmsWorld_GetImd(world);
 

@@ -18,12 +18,8 @@ struct HeartbeatMonitor *App_SharedHeartbeatMonitor_Create(
     enum HeartbeatOneHot boards_to_check,
     void (*timeout_callback)(enum HeartbeatOneHot, enum HeartbeatOneHot));
 
-void App_SharedHeartbeatMonitor_Destroy(
-    struct HeartbeatMonitor *heartbeat_monitor);
+void App_SharedHeartbeatMonitor_Destroy(struct HeartbeatMonitor *heartbeat_monitor);
 
-void App_SharedHeartbeatMonitor_Tick(
-    struct HeartbeatMonitor *heartbeat_monitor);
+void App_SharedHeartbeatMonitor_Tick(struct HeartbeatMonitor *heartbeat_monitor);
 
-void App_SharedHeartbeatMonitor_CheckIn(
-    struct HeartbeatMonitor *heartbeat_monitor,
-    enum HeartbeatOneHot     heartbeat);
+void App_SharedHeartbeatMonitor_CheckIn(struct HeartbeatMonitor *heartbeat_monitor, enum HeartbeatOneHot heartbeat);

@@ -87,8 +87,7 @@ void App_CellMonitors_Destroy(struct CellMonitors *cell_monitors);
  * @return EXIT_CODE_OK if the internal die temperatures (°C) can be read
  * successfully. Else, EXIT_CODE_ERROR
  */
-ExitCode
-    App_CellMonitors_ReadDieTemps(const struct CellMonitors *cell_monitors);
+ExitCode App_CellMonitors_ReadDieTemps(const struct CellMonitors *cell_monitors);
 
 /**
  * Get the cell monitor 0 die temp in-range check from the group of cell
@@ -97,8 +96,7 @@ ExitCode
  * 0 die temp in-range check from
  * @return The cell monitor 0 die temp in-range check
  */
-struct InRangeCheck *App_CellMonitors_GetCellMonitor0DieTempInRangeCheck(
-    const struct CellMonitors *cell_monitors);
+struct InRangeCheck *App_CellMonitors_GetCellMonitor0DieTempInRangeCheck(const struct CellMonitors *cell_monitors);
 
 /**
  * Get the cell monitor 1 die temp in-range check from the group of cell
@@ -107,8 +105,7 @@ struct InRangeCheck *App_CellMonitors_GetCellMonitor0DieTempInRangeCheck(
  * 1 die temp in-range check from
  * @return The cell monitor 1 die temp in-range check
  */
-struct InRangeCheck *App_CellMonitors_GetCellMonitor1DieTempInRangeCheck(
-    const struct CellMonitors *cell_monitors);
+struct InRangeCheck *App_CellMonitors_GetCellMonitor1DieTempInRangeCheck(const struct CellMonitors *cell_monitors);
 
 /**
  * Get the cell monitor 2 die temp in-range check from the group of cell
@@ -117,8 +114,7 @@ struct InRangeCheck *App_CellMonitors_GetCellMonitor1DieTempInRangeCheck(
  * 2 die temp in-range check from.
  * @return The cell monitor 2 die temp in-range check
  */
-struct InRangeCheck *App_CellMonitors_GetCellMonitor2DieTempInRangeCheck(
-    const struct CellMonitors *cell_monitors);
+struct InRangeCheck *App_CellMonitors_GetCellMonitor2DieTempInRangeCheck(const struct CellMonitors *cell_monitors);
 
 /**
  * Get the cell monitor 3 die temp in-range check from the group of cell
@@ -127,8 +123,7 @@ struct InRangeCheck *App_CellMonitors_GetCellMonitor2DieTempInRangeCheck(
  * 3 die temp in-range check from
  * @return The cell monitor 3 die temp in-range check
  */
-struct InRangeCheck *App_CellMonitors_GetCellMonitor3DieTempInRangeCheck(
-    const struct CellMonitors *cell_monitors);
+struct InRangeCheck *App_CellMonitors_GetCellMonitor3DieTempInRangeCheck(const struct CellMonitors *cell_monitors);
 
 /**
  * Get the cell monitor 4 die temp in-range check from the group of cell
@@ -137,8 +132,7 @@ struct InRangeCheck *App_CellMonitors_GetCellMonitor3DieTempInRangeCheck(
  * 4 die temp in-range check from
  * @return The cell monitor 4 die temp in-range check
  */
-struct InRangeCheck *App_CellMonitors_GetCellMonitor4DieTempInRangeCheck(
-    const struct CellMonitors *cell_monitors);
+struct InRangeCheck *App_CellMonitors_GetCellMonitor4DieTempInRangeCheck(const struct CellMonitors *cell_monitors);
 
 /**
  * Get the cell monitor 5 die temp in-range check from the group of cell
@@ -147,8 +141,7 @@ struct InRangeCheck *App_CellMonitors_GetCellMonitor4DieTempInRangeCheck(
  * 5 die temp in-range check from
  * @return The cell monitor 5 die temp in-range check
  */
-struct InRangeCheck *App_CellMonitors_GetCellMonitor5DieTempInRangeCheck(
-    const struct CellMonitors *cell_monitors);
+struct InRangeCheck *App_CellMonitors_GetCellMonitor5DieTempInRangeCheck(const struct CellMonitors *cell_monitors);
 
 /**
  * Get the current maximum die temperature from the group of cell monitors.
@@ -158,6 +151,4 @@ struct InRangeCheck *App_CellMonitors_GetCellMonitor5DieTempInRangeCheck(
  * @return An enum value indicating whether the internal die temperature exceeds
  * any thresholds
  */
-enum ITMPInRangeCheck App_CellMonitors_GetMaxDieTempDegC(
-    const struct CellMonitors *cell_monitors,
-    float *                    max_die_temp);
+enum ITMPInRangeCheck App_CellMonitors_GetMaxDieTempDegC(const struct CellMonitors *cell_monitors, float *max_die_temp);

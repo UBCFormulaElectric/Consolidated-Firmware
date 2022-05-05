@@ -14,8 +14,7 @@ static_assert(
     IMD_NORMAL == CANMSGS_BMS_IMD_CONDITION_IMD_NORMAL_CHOICE,
     "The IMD normal enum must match its DBC multiplexer value");
 static_assert(
-    IMD_UNDERVOLTAGE_DETECTED ==
-        CANMSGS_BMS_IMD_CONDITION_IMD_UNDERVOLTAGE_DETECTED_CHOICE,
+    IMD_UNDERVOLTAGE_DETECTED == CANMSGS_BMS_IMD_CONDITION_IMD_UNDERVOLTAGE_DETECTED_CHOICE,
     "The IMD undervoltage detected enum must match its DBC multiplexer value");
 static_assert(
     IMD_SST == CANMSGS_BMS_IMD_CONDITION_IMD_SST_CHOICE,
@@ -45,8 +44,7 @@ struct Imd
  * @param tolerance: The tolerance allowed in the PWM frequency
  * @return The IMD condition corresponding to the given PWM frequency
  */
-static enum Imd_ConditionName
-    App_EstimateConditionName(float frequency, float tolerance);
+static enum Imd_ConditionName App_EstimateConditionName(float frequency, float tolerance);
 
 /**
  * Get the ideal frequency for the given IMD condition name
@@ -55,8 +53,7 @@ static enum Imd_ConditionName
  */
 static float App_GetIdealPwmFrequency(enum Imd_ConditionName condition_name);
 
-static enum Imd_ConditionName
-    App_EstimateConditionName(const float frequency, const float tolerance)
+static enum Imd_ConditionName App_EstimateConditionName(const float frequency, const float tolerance)
 {
     enum Imd_ConditionName condition_name = IMD_INVALID;
 
@@ -64,9 +61,7 @@ static enum Imd_ConditionName
     {
         // Use min() because subtracting from 0Hz (IMD_SHORT_CIRCUIT) causes an
         // underflow
-        const float lower_bound =
-            min(App_GetIdealPwmFrequency(i),
-                App_GetIdealPwmFrequency(i) - tolerance);
+        const float lower_bound = min(App_GetIdealPwmFrequency(i), App_GetIdealPwmFrequency(i) - tolerance);
 
         const float upper_bound = App_GetIdealPwmFrequency(i) + tolerance;
 
@@ -80,17 +75,15 @@ static enum Imd_ConditionName
     return condition_name;
 }
 
-static float
-    App_GetIdealPwmFrequency(const enum Imd_ConditionName condition_name)
+static float App_GetIdealPwmFrequency(const enum Imd_ConditionName condition_name)
 {
     assert(condition_name < NUM_OF_IMD_CONDITIONS);
 
     // Key: IMD condition
     // Value: PWM output frequency
     static const float imd_frequency_lookup[NUM_OF_IMD_CONDITIONS] = {
-        [IMD_SHORT_CIRCUIT] = 0.0f,          [IMD_NORMAL] = 10.0f,
-        [IMD_UNDERVOLTAGE_DETECTED] = 20.0f, [IMD_SST] = 30.0f,
-        [IMD_DEVICE_ERROR] = 40.0f,          [IMD_EARTH_FAULT] = 50.0f,
+        [IMD_SHORT_CIRCUIT] = 0.0f, [IMD_NORMAL] = 10.0f,       [IMD_UNDERVOLTAGE_DETECTED] = 20.0f,
+        [IMD_SST] = 30.0f,          [IMD_DEVICE_ERROR] = 40.0f, [IMD_EARTH_FAULT] = 50.0f,
     };
 
     return imd_frequency_lookup[condition_name];
@@ -132,8 +125,7 @@ struct Imd_Condition App_Imd_GetCondition(const struct Imd *const imd)
     struct Imd_Condition condition;
     memset(&condition, 0, sizeof(condition));
 
-    condition.name =
-        App_EstimateConditionName(pwm_frequency, imd->pwm_frequency_tolerance);
+    condition.name = App_EstimateConditionName(pwm_frequency, imd->pwm_frequency_tolerance);
 
     // Decode the information encoded in the PWM frequency and duty cycle
     switch (condition.name)
@@ -149,8 +141,7 @@ struct Imd_Condition App_Imd_GetCondition(const struct Imd *const imd)
         case IMD_UNDERVOLTAGE_DETECTED:
         {
             condition.pwm_encoding.valid_duty_cycle =
-                (pwm_duty_cycle >= 5.0f && pwm_duty_cycle <= 95.0f) ? true
-                                                                    : false;
+                (pwm_duty_cycle >= 5.0f && pwm_duty_cycle <= 95.0f) ? true : false;
 
             if (condition.pwm_encoding.valid_duty_cycle)
             {
@@ -160,8 +151,7 @@ struct Imd_Condition App_Imd_GetCondition(const struct Imd *const imd)
                     // causes a div-by-zero if the duty cycle is 5%.
                     // Curiously, 5% duty cycle is still defined as valid so
                     // we hard-code the resistance to be 50MOhms.
-                    condition.pwm_encoding.insulation_measurement_dcp_kohms =
-                        50000;
+                    condition.pwm_encoding.insulation_measurement_dcp_kohms = 50000;
                 }
                 else
                 {
@@ -170,22 +160,19 @@ struct Imd_Condition App_Imd_GetCondition(const struct Imd *const imd)
                     // resistance exceeds 50Ohms once the duty cycle is below
                     // ~7.1%. Thus, we manually saturate the value at 50MOhms to
                     // get well-defined behaviours.
-                    uint16_t resistance = (uint16_t)(
-                        1080.0f / (pwm_duty_cycle / 100.0f - 0.05f) - 1200.0f);
+                    uint16_t resistance = (uint16_t)(1080.0f / (pwm_duty_cycle / 100.0f - 0.05f) - 1200.0f);
 
-                    condition.pwm_encoding.insulation_measurement_dcp_kohms =
-                        min(resistance, 50000);
+                    condition.pwm_encoding.insulation_measurement_dcp_kohms = min(resistance, 50000);
                 }
             }
         }
         break;
         case IMD_SST:
         {
-            condition.pwm_encoding.valid_duty_cycle =
-                ((pwm_duty_cycle >= 5.0f && pwm_duty_cycle <= 10.0f) ||
-                 (pwm_duty_cycle >= 90.0f && pwm_duty_cycle <= 95.0f))
-                    ? true
-                    : false;
+            condition.pwm_encoding.valid_duty_cycle = ((pwm_duty_cycle >= 5.0f && pwm_duty_cycle <= 10.0f) ||
+                                                       (pwm_duty_cycle >= 90.0f && pwm_duty_cycle <= 95.0f))
+                                                          ? true
+                                                          : false;
 
             if (condition.pwm_encoding.valid_duty_cycle)
             {
@@ -204,8 +191,7 @@ struct Imd_Condition App_Imd_GetCondition(const struct Imd *const imd)
         case IMD_EARTH_FAULT:
         {
             condition.pwm_encoding.valid_duty_cycle =
-                (pwm_duty_cycle >= 47.5f && pwm_duty_cycle <= 52.5f) ? true
-                                                                     : false;
+                (pwm_duty_cycle >= 47.5f && pwm_duty_cycle <= 52.5f) ? true : false;
         }
         break;
         case IMD_INVALID:

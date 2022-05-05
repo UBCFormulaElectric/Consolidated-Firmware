@@ -74,16 +74,14 @@ struct Imd *App_BmsWorld_GetImd(const struct BmsWorld *world);
  * @param world The world to get heartbeat monitor for
  * @return The heartbeat monitor for the given world
  */
-struct HeartbeatMonitor *
-    App_BmsWorld_GetHeartbeatMonitor(const struct BmsWorld *world);
+struct HeartbeatMonitor *App_BmsWorld_GetHeartbeatMonitor(const struct BmsWorld *world);
 
 /**
  * Get the RGB LED sequence for the given world
  * @param world The world to get RGB LED sequence for
  * @return The RGB LED sequence for the given world
  */
-struct RgbLedSequence *
-    App_BmsWorld_GetRgbLedSequence(const struct BmsWorld *world);
+struct RgbLedSequence *App_BmsWorld_GetRgbLedSequence(const struct BmsWorld *world);
 
 /**
  * Get the charger for the given world
@@ -132,16 +130,14 @@ struct Airs *App_BmsWorld_GetAirs(const struct BmsWorld *world);
  * @param world The world to get the precharge relay for
  * @return The precharge relay for the given world
  */
-struct PrechargeRelay *
-    App_BmsWorld_GetPrechargeRelay(const struct BmsWorld *const world);
+struct PrechargeRelay *App_BmsWorld_GetPrechargeRelay(const struct BmsWorld *const world);
 
 /**
  * Get the tractive system for the given world
  * @param world The world to get the tractive system for
  * @return The tractive system for the given world
  */
-struct TractiveSystem *
-    App_BmsWorld_GetTractiveSystem(const struct BmsWorld *world);
+struct TractiveSystem *App_BmsWorld_GetTractiveSystem(const struct BmsWorld *world);
 
 /**
  * Get the error table for the given world

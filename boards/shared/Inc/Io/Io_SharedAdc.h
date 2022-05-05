@@ -10,7 +10,4 @@
  * @param raw_adc_value Raw ADC value
  * @return The voltage converted from the given raw ADC value
  */
-float Io_SharedAdc_ConvertRawAdcValueToVoltage(
-    ADC_HandleTypeDef *hadc,
-    bool               is_differential,
-    uint16_t           raw_adc_value);
+float Io_SharedAdc_ConvertRawAdcValueToVoltage(ADC_HandleTypeDef *hadc, bool is_differential, uint16_t raw_adc_value);

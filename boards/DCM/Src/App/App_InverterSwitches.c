@@ -21,8 +21,7 @@ struct InverterSwitches *App_InverterSwitches_Create(
     bool (*is_right_inverter_on)(void),
     bool (*is_left_inverter_on)(void))
 {
-    struct InverterSwitches *inverter_switches =
-        malloc(sizeof(struct InverterSwitches));
+    struct InverterSwitches *inverter_switches = malloc(sizeof(struct InverterSwitches));
     assert(inverter_switches != NULL);
 
     inverter_switches->turn_on_right_inverter  = turn_on_right_inverter;
@@ -40,14 +39,12 @@ void App_InverterSwitches_Destroy(struct InverterSwitches *inverter_switches)
     free(inverter_switches);
 }
 
-void App_InverterSwitches_TurnOnRight(
-    struct InverterSwitches *inverter_switches)
+void App_InverterSwitches_TurnOnRight(struct InverterSwitches *inverter_switches)
 {
     inverter_switches->turn_on_right_inverter();
 }
 
-void App_InverterSwitches_TurnOffRight(
-    struct InverterSwitches *inverter_switches)
+void App_InverterSwitches_TurnOffRight(struct InverterSwitches *inverter_switches)
 {
     inverter_switches->turn_off_right_inverter();
 }
@@ -57,8 +54,7 @@ void App_InverterSwitches_TurnOnLeft(struct InverterSwitches *inverter_switches)
     inverter_switches->turn_on_left_inverter();
 }
 
-void App_InverterSwitches_TurnOffLeft(
-    struct InverterSwitches *inverter_switches)
+void App_InverterSwitches_TurnOffLeft(struct InverterSwitches *inverter_switches)
 {
     inverter_switches->turn_off_left_inverter();
 }

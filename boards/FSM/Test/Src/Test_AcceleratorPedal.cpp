@@ -23,9 +23,8 @@ class AcceleratorPedalTest : public testing::Test
         // the specific value of both encoder's fully pressed values are not
         // required for the following tests
         accelerator_pedal_pair = App_AcceleratorPedals_Create(
-            is_primary_encoder_alarm_active, is_secondary_encoder_alarm_active,
-            get_primary_encoder_counter, get_secondary_encoder_counter,
-            reset_primary_encoder_counter, reset_secondary_encoder_counter);
+            is_primary_encoder_alarm_active, is_secondary_encoder_alarm_active, get_primary_encoder_counter,
+            get_secondary_encoder_counter, reset_primary_encoder_counter, reset_secondary_encoder_counter);
         RESET_FAKE(is_primary_encoder_alarm_active);
         RESET_FAKE(reset_primary_encoder_counter);
         RESET_FAKE(get_primary_encoder_counter);
@@ -34,10 +33,7 @@ class AcceleratorPedalTest : public testing::Test
         RESET_FAKE(get_secondary_encoder_counter);
     }
 
-    void TearDown() override
-    {
-        TearDownObject(accelerator_pedal_pair, App_AcceleratorPedals_Destroy);
-    }
+    void TearDown() override { TearDownObject(accelerator_pedal_pair, App_AcceleratorPedals_Destroy); }
 
     struct AcceleratorPedals *accelerator_pedal_pair;
 };
@@ -45,27 +41,23 @@ class AcceleratorPedalTest : public testing::Test
 TEST_F(AcceleratorPedalTest, active_primary_alarm)
 {
     is_primary_encoder_alarm_active_fake.return_val = true;
-    ASSERT_TRUE(App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(
-        accelerator_pedal_pair));
+    ASSERT_TRUE(App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(accelerator_pedal_pair));
 }
 
 TEST_F(AcceleratorPedalTest, inactive_primary_alarm)
 {
     is_primary_encoder_alarm_active_fake.return_val = false;
-    ASSERT_FALSE(App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(
-        accelerator_pedal_pair));
+    ASSERT_FALSE(App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(accelerator_pedal_pair));
 }
 
 TEST_F(AcceleratorPedalTest, active_secondary_alarm)
 {
     is_secondary_encoder_alarm_active_fake.return_val = true;
-    ASSERT_TRUE(App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(
-        accelerator_pedal_pair));
+    ASSERT_TRUE(App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(accelerator_pedal_pair));
 }
 
 TEST_F(AcceleratorPedalTest, inactive_secondary_alarm)
 {
     is_secondary_encoder_alarm_active_fake.return_val = false;
-    ASSERT_FALSE(App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(
-        accelerator_pedal_pair));
+    ASSERT_FALSE(App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(accelerator_pedal_pair));
 }

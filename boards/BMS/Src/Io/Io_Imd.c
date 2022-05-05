@@ -13,9 +13,8 @@ static TIM_HandleTypeDef *imd_htim;
 
 void Io_Imd_Init(void)
 {
-    imd_pwm_input = Io_SharedPwmInput_Create(
-        &htim2, TIM2_FREQUENCY / TIM2_PRESCALER, TIM_CHANNEL_2, TIM_CHANNEL_1);
-    imd_htim = &htim2;
+    imd_pwm_input = Io_SharedPwmInput_Create(&htim2, TIM2_FREQUENCY / TIM2_PRESCALER, TIM_CHANNEL_2, TIM_CHANNEL_1);
+    imd_htim      = &htim2;
 }
 
 float Io_Imd_GetFrequency(void)

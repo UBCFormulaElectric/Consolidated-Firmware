@@ -4,8 +4,7 @@
 
 bool Io_MSP3002K5P3N1_IsOpenOrShortCircuit(void)
 {
-    return HAL_GPIO_ReadPin(BRAKE_OC_SC_OK_GPIO_Port, BRAKE_OC_SC_OK_Pin) ==
-           GPIO_PIN_RESET;
+    return HAL_GPIO_ReadPin(BRAKE_OC_SC_OK_GPIO_Port, BRAKE_OC_SC_OK_Pin) == GPIO_PIN_RESET;
 }
 
 float Io_MSP3002K5P3N1_GetPressurePsi(void)
@@ -18,8 +17,7 @@ float Io_MSP3002K5P3N1_GetPressurePsi(void)
 
     // Psi Per Volt = (Max Pressure - Min Pressure) / (Max Input Voltage - Min
     // Input Voltage)
-    const float PSI_PER_VOLT =
-        2500.0f / (MAX_INPUT_VOLTAGE - MIN_INPUT_VOLTAGE);
+    const float PSI_PER_VOLT = 2500.0f / (MAX_INPUT_VOLTAGE - MIN_INPUT_VOLTAGE);
 
     // Brake pressure = (ADC Voltage - Min Input Voltage) * Psi Per Volt
     return PSI_PER_VOLT * (Io_Adc_GetChannel3Voltage() - MIN_INPUT_VOLTAGE);

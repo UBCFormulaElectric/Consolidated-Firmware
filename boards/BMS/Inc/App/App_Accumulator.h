@@ -47,8 +47,7 @@ void App_Accumulator_Destroy(struct Accumulator *accumulator);
  * @param accumulator The accumulator to monitor cell voltages and temperatures
  * @return True if a communication error has occured. Else, false
  */
-bool App_Accumulator_HasCommunicationError(
-    const struct Accumulator *accumulator);
+bool App_Accumulator_HasCommunicationError(const struct Accumulator *accumulator);
 
 // Rate functions to be called within the state machine
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *accumulator);

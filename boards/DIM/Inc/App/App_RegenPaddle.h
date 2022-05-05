@@ -16,10 +16,8 @@
  *                       equal to this value will map to a regen value of 100
  * @return The created regen paddle, whose ownership is given to the caller
  */
-struct RegenPaddle *App_RegenPaddle_Create(
-    uint32_t (*get_raw_paddle_position)(void),
-    uint32_t lower_deadzone,
-    uint32_t upper_deadzone);
+struct RegenPaddle *
+    App_RegenPaddle_Create(uint32_t (*get_raw_paddle_position)(void), uint32_t lower_deadzone, uint32_t upper_deadzone);
 
 /**
  * Deallocate the memory used by the given regen paddle

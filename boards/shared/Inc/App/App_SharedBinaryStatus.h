@@ -10,8 +10,7 @@ struct BinaryStatus;
  * the binary status is active or inactive
  * @return The created binary status, whose ownership is given to the caller
  */
-struct BinaryStatus *
-    App_SharedBinaryStatus_Create(bool (*is_status_active)(void));
+struct BinaryStatus *App_SharedBinaryStatus_Create(bool (*is_status_active)(void));
 
 /**
  * Deallocate the memory used by the given binary status

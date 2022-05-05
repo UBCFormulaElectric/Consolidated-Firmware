@@ -10,10 +10,8 @@ struct Charger
     bool is_enabled;
 };
 
-struct Charger *App_Charger_Create(
-    void (*enable_charger)(void),
-    void (*disable_charger)(void),
-    bool (*is_charger_connected)(void))
+struct Charger *
+    App_Charger_Create(void (*enable_charger)(void), void (*disable_charger)(void), bool (*is_charger_connected)(void))
 {
     struct Charger *charger = malloc(sizeof(struct Charger));
     assert(charger != NULL);

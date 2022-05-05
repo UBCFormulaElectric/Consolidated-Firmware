@@ -25,10 +25,7 @@ void App_SharedErrorTable_Destroy(struct ErrorTable *error_table);
  * @param error_id The ID for the error to set or clear
  * @param is_set true to set the error, or false to clear the error
  */
-ExitCode App_SharedErrorTable_SetError(
-    struct ErrorTable *error_table,
-    enum ErrorId       error_id,
-    bool               is_set);
+ExitCode App_SharedErrorTable_SetError(struct ErrorTable *error_table, enum ErrorId error_id, bool is_set);
 
 /**
  * Check if an error in the given error table is set
@@ -36,10 +33,7 @@ ExitCode App_SharedErrorTable_SetError(
  * @param error_id The ID for the error to check
  * @return true if the error is set, else false
  */
-ExitCode App_SharedErrorTable_IsErrorSet(
-    const struct ErrorTable *error_table,
-    enum ErrorId             error_id,
-    bool *                   is_set);
+ExitCode App_SharedErrorTable_IsErrorSet(const struct ErrorTable *error_table, enum ErrorId error_id, bool *is_set);
 
 /**
  * Check if any error in the given error table is set
@@ -54,8 +48,7 @@ bool App_SharedErrorTable_HasAnyErrorSet(const struct ErrorTable *error_table);
  * @return true if any critical error in the given error table is set,
  *         else false
  */
-bool App_SharedErrorTable_HasAnyCriticalErrorSet(
-    const struct ErrorTable *error_table);
+bool App_SharedErrorTable_HasAnyCriticalErrorSet(const struct ErrorTable *error_table);
 
 /**
  * Check if any AIR shutdown error in the given error table is set
@@ -63,8 +56,7 @@ bool App_SharedErrorTable_HasAnyCriticalErrorSet(
  * @return true if any AIR shutdown error in the given error table is set,
  *         else false
  */
-bool App_SharedErrorTable_HasAnyAirShutdownErrorSet(
-    const struct ErrorTable *error_table);
+bool App_SharedErrorTable_HasAnyAirShutdownErrorSet(const struct ErrorTable *error_table);
 
 /**
  * Check if any motor shutdown error in the given error table is set
@@ -72,8 +64,7 @@ bool App_SharedErrorTable_HasAnyAirShutdownErrorSet(
  * @return true if any motor shutdown error in the given error table is set,
  *         else false
  */
-bool App_SharedErrorTable_HasAnyMotorShutdownErrorSet(
-    const struct ErrorTable *error_table);
+bool App_SharedErrorTable_HasAnyMotorShutdownErrorSet(const struct ErrorTable *error_table);
 
 /**
  * Check if any non-critical error in the given error table is set
@@ -81,8 +72,7 @@ bool App_SharedErrorTable_HasAnyMotorShutdownErrorSet(
  * @return true if any non-critical error in the given error table is set,
  *         else false
  */
-bool App_SharedErrorTable_HasAnyNonCriticalErrorSet(
-    const struct ErrorTable *error_table);
+bool App_SharedErrorTable_HasAnyNonCriticalErrorSet(const struct ErrorTable *error_table);
 
 /**
  * Get every error that is set in the given error table
@@ -90,9 +80,7 @@ bool App_SharedErrorTable_HasAnyNonCriticalErrorSet(
  * @param error_list This will be set to contain every error that is set in the
  *                   given error table
  */
-void App_SharedErrorTable_GetAllErrors(
-    struct ErrorTable *error_table,
-    struct ErrorList * error_list);
+void App_SharedErrorTable_GetAllErrors(struct ErrorTable *error_table, struct ErrorList *error_list);
 
 /**
  * Get every critical error that is set in the given error table
@@ -100,9 +88,7 @@ void App_SharedErrorTable_GetAllErrors(
  * @param error_list This will be set to contain every critical error that is
  *                   set in the given error table
  */
-void App_SharedErrorTable_GetAllCriticalErrors(
-    struct ErrorTable *error_table,
-    struct ErrorList * error_list);
+void App_SharedErrorTable_GetAllCriticalErrors(struct ErrorTable *error_table, struct ErrorList *error_list);
 
 /**
  * Get every non-critical error that is set in the given error table
@@ -110,9 +96,7 @@ void App_SharedErrorTable_GetAllCriticalErrors(
  * @param error_list This will be set to contain every non-critical error that
  *                   is set in the given error table
  */
-void App_SharedErrorTable_GetAllNonCriticalErrors(
-    struct ErrorTable *error_table,
-    struct ErrorList * error_list);
+void App_SharedErrorTable_GetAllNonCriticalErrors(struct ErrorTable *error_table, struct ErrorList *error_list);
 
 /**
  * Get every board that does not contain any errors in the given error table
@@ -130,9 +114,7 @@ void App_SharedErrorTable_GetBoardsWithNoErrors(
  * @param board_list This will be set to contain every board that contains one
  *                   or more errors in the given error table
  */
-void App_SharedErrorTable_GetBoardsWithErrors(
-    const struct ErrorTable *error_table,
-    struct ErrorBoardList *  board_list);
+void App_SharedErrorTable_GetBoardsWithErrors(const struct ErrorTable *error_table, struct ErrorBoardList *board_list);
 
 /**
  * Get every board that contains one or more critical errors in the given error

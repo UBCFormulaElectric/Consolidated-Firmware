@@ -13,10 +13,7 @@ struct OkStatus;
  *                   or not
  * @return The created OK status, whose ownership is given to the caller
  */
-struct OkStatus *App_OkStatus_Create(
-    ExitCode (*enable)(void),
-    ExitCode (*disable)(void),
-    bool (*is_enabled)(void));
+struct OkStatus *App_OkStatus_Create(ExitCode (*enable)(void), ExitCode (*disable)(void), bool (*is_enabled)(void));
 
 /**
  * Deallocate the memory used by the given OK status

@@ -10,10 +10,7 @@ struct InRangeCheck
     float max_value;
 };
 
-struct InRangeCheck *App_InRangeCheck_Create(
-    float (*const get_value)(void),
-    float min_value,
-    float max_value)
+struct InRangeCheck *App_InRangeCheck_Create(float (*const get_value)(void), float min_value, float max_value)
 {
     assert(get_value != NULL);
     assert(min_value <= max_value);
@@ -33,9 +30,8 @@ void App_InRangeCheck_Destroy(struct InRangeCheck *const in_range_check)
     free(in_range_check);
 }
 
-enum InRangeCheck_Status App_InRangeCheck_GetValue(
-    const struct InRangeCheck *const in_range_check,
-    float *                          returned_value)
+enum InRangeCheck_Status
+    App_InRangeCheck_GetValue(const struct InRangeCheck *const in_range_check, float *returned_value)
 {
     const float              value  = in_range_check->get_value();
     enum InRangeCheck_Status status = VALUE_IN_RANGE;

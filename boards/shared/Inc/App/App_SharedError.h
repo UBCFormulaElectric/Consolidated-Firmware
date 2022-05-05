@@ -57,9 +57,7 @@ void App_SharedError_SetBoard(struct Error *error, enum Board board);
  * @param error The error to set
  * @param error_type The error type
  */
-void App_SharedError_SetErrorType(
-    struct Error * error,
-    enum ErrorType error_type);
+void App_SharedError_SetErrorType(struct Error *error, enum ErrorType error_type);
 
 /**
  * Set the ID for the given error
@@ -122,9 +120,7 @@ bool App_SharedError_IsNonCritical(const struct Error *error);
  * @param error_id The ID for the error to check
  * @return true if the given error exists in the given list of error
  */
-bool App_SharedError_IsErrorInList(
-    struct ErrorList *error_list,
-    enum ErrorId      error_id);
+bool App_SharedError_IsErrorInList(struct ErrorList *error_list, enum ErrorId error_id);
 
 /**
  * Check if a board exists in the given board list
@@ -132,6 +128,4 @@ bool App_SharedError_IsErrorInList(
  * @param board The board to check
  * @return true if the board exists in the given board list, else false
  */
-bool App_SharedError_IsBoardInList(
-    struct ErrorBoardList *board_list,
-    enum Board             board);
+bool App_SharedError_IsBoardInList(struct ErrorBoardList *board_list, enum Board board);

@@ -40,13 +40,9 @@ class BaseStateMachineTest : public testing::Test
         current_time_ms = 1;
     }
 
-    virtual void UpdateClock(
-        struct StateMachine *state_machine,
-        uint32_t             current_time_ms) = 0;
+    virtual void UpdateClock(struct StateMachine *state_machine, uint32_t current_time_ms) = 0;
 
-    virtual void UpdateSignals(
-        struct StateMachine *state_machine,
-        uint32_t             current_time_ms) = 0;
+    virtual void UpdateSignals(struct StateMachine *state_machine, uint32_t current_time_ms) = 0;
 
     void LetTimePass(struct StateMachine *state_machine, uint32_t time_ms)
     {

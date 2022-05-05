@@ -9,10 +9,7 @@ struct OkStatus
     bool (*is_enabled)(void);
 };
 
-struct OkStatus *App_OkStatus_Create(
-    ExitCode (*enable)(void),
-    ExitCode (*disable)(void),
-    bool (*is_enabled)(void))
+struct OkStatus *App_OkStatus_Create(ExitCode (*enable)(void), ExitCode (*disable)(void), bool (*is_enabled)(void))
 {
     struct OkStatus *ok_status = malloc(sizeof(struct OkStatus));
     assert(ok_status != NULL);
