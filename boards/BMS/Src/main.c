@@ -253,8 +253,6 @@ int main(void)
         Io_LTC6813Shared_SetCfgRegsToDefaultSettings,
         Io_LTC6813CellVoltages_StartAdcConversion,
         Io_LTC6813CellVoltages_ReadVoltages,
-        Io_LTC6813CellVoltages_GetMinCellLocation,
-        Io_LTC6813CellVoltages_GetMaxCellLocation,
         Io_LTC6813CellVoltages_GetMinCellVoltage,
         Io_LTC6813CellVoltages_GetMaxCellVoltage,
         Io_LTC6813CellVoltages_GetSegmentVoltage,

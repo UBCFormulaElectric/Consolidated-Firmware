@@ -18,30 +18,20 @@ bool Io_LTC6813CellVoltages_ReadVoltages(void);
 bool Io_LTC6813CellVoltages_StartAdcConversion(void);
 
 /**
- * Get the location of the minimum cell voltage
+ * Get the minimum cell voltage in (V)
  * @param segment The segment of the minimum cell voltage
  * @param cell The cell location of the minimum cell voltage
- */
-void Io_LTC6813CellVoltages_GetMinCellLocation(uint8_t *segment, uint8_t *cell);
-
-/**
- * Get the location of the maximum cell voltage
- * @param segment The segment of the maximum cell voltage
- * @param cell The cell location of the maximum cell voltage
- */
-void Io_LTC6813CellVoltages_GetMaxCellLocation(uint8_t *segment, uint8_t *cell);
-
-/**
- * Get the minimum cell voltage in (V)
  * @return The minimum cell voltage in (V)
  */
-float Io_LTC6813CellVoltages_GetMinCellVoltage(void);
+float Io_LTC6813CellVoltages_GetMinCellVoltage(uint8_t *segment, uint8_t *cell);
 
 /**
  * Get the maximum cell voltage in (V)
+ * @param segment The segment of the maximum cell voltage
+ * @param cell The cell location of the maximum cell voltage
  * @return The maximum cell voltage in (V)
  */
-float Io_LTC6813CellVoltages_GetMaxCellVoltage(void);
+float Io_LTC6813CellVoltages_GetMaxCellVoltage(uint8_t *segment, uint8_t *cell);
 
 /**
  * Get the segment voltage in (V)

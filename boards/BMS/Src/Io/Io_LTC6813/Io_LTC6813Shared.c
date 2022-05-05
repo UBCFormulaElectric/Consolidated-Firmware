@@ -168,7 +168,7 @@ static void Io_PrepareCfgRegBytes(
     // cell location
     uint8_t min_cell_segment = 0U;
     uint8_t min_cell_index   = 0U;
-    Io_LTC6813CellVoltages_GetMinCellLocation(
+    Io_LTC6813CellVoltages_GetMinCellVoltage(
         &min_cell_segment, &min_cell_index);
 
     // Write to the configuration registers of each segment

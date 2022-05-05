@@ -221,25 +221,17 @@ bool Io_LTC6813CellVoltages_StartAdcConversion(void)
     return Io_LTC6813Shared_SendCommand(ADCV);
 }
 
-void Io_LTC6813CellVoltages_GetMinCellLocation(uint8_t *segment, uint8_t *cell)
+float Io_LTC6813CellVoltages_GetMinCellVoltage(uint8_t *segment, uint8_t *cell)
 {
     *segment = voltages.min.segment;
     *cell    = voltages.min.cell;
-}
-
-void Io_LTC6813CellVoltages_GetMaxCellLocation(uint8_t *segment, uint8_t *cell)
-{
-    *segment = voltages.max.segment;
-    *cell    = voltages.max.cell;
-}
-
-float Io_LTC6813CellVoltages_GetMinCellVoltage(void)
-{
     return CONVERT_100UV_TO_VOLTAGE(voltages.min.voltage);
 }
 
-float Io_LTC6813CellVoltages_GetMaxCellVoltage(void)
+float Io_LTC6813CellVoltages_GetMaxCellVoltage(uint8_t *segment, uint8_t *cell)
 {
+    *segment = voltages.max.segment;
+    *cell    = voltages.max.cell;
     return CONVERT_100UV_TO_VOLTAGE(voltages.max.voltage);
 }
 
