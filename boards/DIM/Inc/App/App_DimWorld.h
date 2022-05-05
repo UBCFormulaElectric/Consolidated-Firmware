@@ -70,16 +70,14 @@ struct DimCanRxInterface *App_DimWorld_GetCanRx(const struct DimWorld *world);
  * @param world The world to get 7-segment displays for
  * @return The 7-segment displays for the given world
  */
-struct SevenSegDisplays *
-    App_DimWorld_GetSevenSegDisplays(const struct DimWorld *world);
+struct SevenSegDisplays *App_DimWorld_GetSevenSegDisplays(const struct DimWorld *world);
 
 /**
  * Get the heartbeat monitor for the given world
  * @param world The world to get heartbeat monitor for
  * @return The heartbeat monitor for the given world
  */
-struct HeartbeatMonitor *
-    App_DimWorld_GetHeartbeatMonitor(const struct DimWorld *world);
+struct HeartbeatMonitor *App_DimWorld_GetHeartbeatMonitor(const struct DimWorld *world);
 
 /**
  * Get the regen paddle for the given world
@@ -93,16 +91,14 @@ struct RegenPaddle *App_DimWorld_GetRegenPaddle(const struct DimWorld *world);
  * @param world The world to get RGB LED sequence for
  * @return The RGB LED sequence for the given world
  */
-struct RgbLedSequence *
-    App_DimWorld_GetRgbLedSequence(const struct DimWorld *world);
+struct RgbLedSequence *App_DimWorld_GetRgbLedSequence(const struct DimWorld *world);
 
 /**
  * Get the drive mode switch for the given world
  * @param world The world to get drive mode switch for
  * @return The drive mode switch for the given world
  */
-struct RotarySwitch *
-    App_DimWorld_GetDriveModeSwitch(const struct DimWorld *world);
+struct RotarySwitch *App_DimWorld_GetDriveModeSwitch(const struct DimWorld *world);
 /**
  * Get the start switch for the given world
  * @param world The world to get start switch for
@@ -115,16 +111,14 @@ struct BinarySwitch *App_DimWorld_GetStartSwitch(const struct DimWorld *world);
  * @param world The world to get traction control switch for
  * @return The traction control switch for the given world
  */
-struct BinarySwitch *
-    App_DimWorld_GetTractionControlSwitch(const struct DimWorld *world);
+struct BinarySwitch *App_DimWorld_GetTractionControlSwitch(const struct DimWorld *world);
 
 /**
  * Get the torque vectoring switch for the given world
  * @param world The world to get torque vectoring switch for
  * @return The torque vectoring switch for the given world
  */
-struct BinarySwitch *
-    App_DimWorld_GetTorqueVectoringSwitch(const struct DimWorld *world);
+struct BinarySwitch *App_DimWorld_GetTorqueVectoringSwitch(const struct DimWorld *world);
 
 /**
  * Get the IMD LED for the given world

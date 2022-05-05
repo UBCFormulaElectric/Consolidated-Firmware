@@ -100,8 +100,7 @@ static ExitCode Io_Efuse_WriteToEfuse(
     HAL_StatusTypeDef status = HAL_OK;
 
     HAL_GPIO_WritePin(nss_port, nss_pin, GPIO_PIN_RESET);
-    status = HAL_SPI_TransmitReceive(
-        efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)tx_data, 1U, 100U);
+    status = HAL_SPI_TransmitReceive(efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)tx_data, 1U, 100U);
     HAL_GPIO_WritePin(nss_port, nss_pin, GPIO_PIN_SET);
 
     if (status != HAL_OK)
@@ -122,8 +121,8 @@ static ExitCode Io_Efuse_ReadFromEfuse(
     // Send the command stored in tx_data to the status register, to read the
     // data from the register address specified in tx_data
     HAL_GPIO_WritePin(nss_port, nss_pin, GPIO_PIN_RESET);
-    HAL_StatusTypeDef status = HAL_SPI_TransmitReceive(
-        efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)rx_data, 1U, 100U);
+    HAL_StatusTypeDef status =
+        HAL_SPI_TransmitReceive(efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)rx_data, 1U, 100U);
     HAL_GPIO_WritePin(nss_port, nss_pin, GPIO_PIN_SET);
 
     if (status != HAL_OK)
@@ -137,8 +136,7 @@ static ExitCode Io_Efuse_ReadFromEfuse(
     // The data read from the register specified in tx_data is stored in rx_data
     // after the SPI transfer
     HAL_GPIO_WritePin(nss_port, nss_pin, GPIO_PIN_RESET);
-    status = HAL_SPI_TransmitReceive(
-        efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)rx_data, 1U, 100U);
+    status = HAL_SPI_TransmitReceive(efuse_spi_handle, (uint8_t *)tx_data, (uint8_t *)rx_data, 1U, 100U);
     HAL_GPIO_WritePin(nss_port, nss_pin, GPIO_PIN_SET);
 
     if (status != HAL_OK)
@@ -193,49 +191,39 @@ struct Efuse_Context *Io_Efuse_Create(
 
 void Io_Efuse_EnableChannel0(const struct Efuse_Context *const efuse)
 {
-    HAL_GPIO_WritePin(
-        efuse->channel_0_port, efuse->channel_0_pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(efuse->channel_0_port, efuse->channel_0_pin, GPIO_PIN_SET);
 }
 
 void Io_Efuse_DisableChannel0(const struct Efuse_Context *const efuse)
 {
-    HAL_GPIO_WritePin(
-        efuse->channel_0_port, efuse->channel_0_pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(efuse->channel_0_port, efuse->channel_0_pin, GPIO_PIN_RESET);
 }
 
 void Io_Efuse_EnableChannel1(const struct Efuse_Context *const efuse)
 {
-    HAL_GPIO_WritePin(
-        efuse->channel_1_port, efuse->channel_1_pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(efuse->channel_1_port, efuse->channel_1_pin, GPIO_PIN_SET);
 }
 
 void Io_Efuse_DisableChannel1(const struct Efuse_Context *const efuse)
 {
-    HAL_GPIO_WritePin(
-        efuse->channel_1_port, efuse->channel_1_pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(efuse->channel_1_port, efuse->channel_1_pin, GPIO_PIN_RESET);
 }
 
-ExitCode Io_Efuse_ConfigureChannelMonitoring(
-    uint8_t                     monitoring_function,
-    struct Efuse_Context *const efuse)
+ExitCode Io_Efuse_ConfigureChannelMonitoring(uint8_t monitoring_function, struct Efuse_Context *const efuse)
 {
     uint16_t register_value;
 
     // Read the original contents of the GCR Register
-    RETURN_CODE_IF_EXIT_NOT_OK(
-        Io_Efuse_ReadRegister(SI_GCR_ADDR, &register_value, efuse));
+    RETURN_CODE_IF_EXIT_NOT_OK(Io_Efuse_ReadRegister(SI_GCR_ADDR, &register_value, efuse));
 
     // Clear the previous monitoring configuration
     CLEAR_BIT_UINT16(register_value, (CSNS1_EN_MASK | CSNS0_EN_MASK));
 
     // Set the new monitoring configuration
-    SET_BIT_UINT16(
-        register_value,
-        (monitoring_function & (CSNS1_EN_MASK | CSNS0_EN_MASK)));
+    SET_BIT_UINT16(register_value, (monitoring_function & (CSNS1_EN_MASK | CSNS0_EN_MASK)));
 
     // Write back new monitoring configuration to the efuse
-    RETURN_CODE_IF_EXIT_NOT_OK(
-        Io_Efuse_WriteRegister(SI_GCR_ADDR, register_value, efuse));
+    RETURN_CODE_IF_EXIT_NOT_OK(Io_Efuse_WriteRegister(SI_GCR_ADDR, register_value, efuse));
 
     return EXIT_CODE_OK;
 }
@@ -246,12 +234,10 @@ ExitCode Io_Efuse_ExitFailSafeMode(struct Efuse_Context *const efuse)
     // (14th bit) will automatically be set in Io_Efuse_WriteRegister.
     efuse->wdin_bit_to_set = true;
 
-    RETURN_CODE_IF_EXIT_NOT_OK(
-        Io_Efuse_WriteRegister(SI_STATR_0_ADDR, 0x0000, efuse));
+    RETURN_CODE_IF_EXIT_NOT_OK(Io_Efuse_WriteRegister(SI_STATR_0_ADDR, 0x0000, efuse));
 
     // Disable the watchdog timer
-    RETURN_CODE_IF_EXIT_NOT_OK(
-        Io_Efuse_WriteRegister(SI_GCR_ADDR, GCR_CONFIG, efuse));
+    RETURN_CODE_IF_EXIT_NOT_OK(Io_Efuse_WriteRegister(SI_GCR_ADDR, GCR_CONFIG, efuse));
 
     // Check if the the efuse is still in fail-safe mode
     if (Io_Efuse_IsEfuseInFailSafeMode(efuse))
@@ -276,31 +262,23 @@ void Io_Efuse_DelatchFaults(const struct Efuse_Context *const efuse)
 {
     // Delatch the latchable faults by alternating channel 0's and channel 1's
     // input pins high->low->high.
-    HAL_GPIO_WritePin(
-        efuse->channel_0_port, efuse->channel_0_pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(
-        efuse->channel_0_port, efuse->channel_0_pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(
-        efuse->channel_0_port, efuse->channel_0_pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(
-        efuse->channel_1_port, efuse->channel_1_pin, GPIO_PIN_SET);
-    HAL_GPIO_WritePin(
-        efuse->channel_1_port, efuse->channel_1_pin, GPIO_PIN_RESET);
-    HAL_GPIO_WritePin(
-        efuse->channel_1_port, efuse->channel_1_pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(efuse->channel_0_port, efuse->channel_0_pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(efuse->channel_0_port, efuse->channel_0_pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(efuse->channel_0_port, efuse->channel_0_pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(efuse->channel_1_port, efuse->channel_1_pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(efuse->channel_1_port, efuse->channel_1_pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(efuse->channel_1_port, efuse->channel_1_pin, GPIO_PIN_SET);
 }
 
 float Io_Efuse_GetChannel0Current(struct Efuse_Context *const efuse)
 {
-    if (Io_Efuse_ConfigureChannelMonitoring(CSNS_FUNCTION_CURRENT_CH0, efuse) !=
-        EXIT_CODE_OK)
+    if (Io_Efuse_ConfigureChannelMonitoring(CSNS_FUNCTION_CURRENT_CH0, efuse) != EXIT_CODE_OK)
     {
         // Return NAN if selecting the current sense channel fails
         return NAN;
     }
 
-    if (HAL_GPIO_ReadPin(efuse->current_sync_port, efuse->current_sync_pin) ==
-        GPIO_PIN_RESET)
+    if (HAL_GPIO_ReadPin(efuse->current_sync_port, efuse->current_sync_pin) == GPIO_PIN_RESET)
     {
         return efuse->get_channel_0_current();
     }
@@ -312,15 +290,13 @@ float Io_Efuse_GetChannel0Current(struct Efuse_Context *const efuse)
 
 float Io_Efuse_GetChannel1Current(struct Efuse_Context *const efuse)
 {
-    if (Io_Efuse_ConfigureChannelMonitoring(CSNS_FUNCTION_CURRENT_CH1, efuse) !=
-        EXIT_CODE_OK)
+    if (Io_Efuse_ConfigureChannelMonitoring(CSNS_FUNCTION_CURRENT_CH1, efuse) != EXIT_CODE_OK)
     {
         // Return NAN if selecting the current sense channel fails
         return NAN;
     }
 
-    if (HAL_GPIO_ReadPin(efuse->current_sync_port, efuse->current_sync_pin) ==
-        GPIO_PIN_RESET)
+    if (HAL_GPIO_ReadPin(efuse->current_sync_port, efuse->current_sync_pin) == GPIO_PIN_RESET)
     {
         return efuse->get_channel_1_current();
     }
@@ -330,14 +306,10 @@ float Io_Efuse_GetChannel1Current(struct Efuse_Context *const efuse)
     return NAN;
 }
 
-ExitCode Io_Efuse_WriteRegister(
-    uint8_t                     register_address,
-    uint16_t                    register_value,
-    struct Efuse_Context *const efuse)
+ExitCode Io_Efuse_WriteRegister(uint8_t register_address, uint16_t register_value, struct Efuse_Context *const efuse)
 {
     // Place the register address into bits 10->13
-    uint16_t tx_data =
-        (uint16_t)(((register_address & EFUSE_ADDR_MASK) << EFUSE_ADDR_SHIFT));
+    uint16_t tx_data = (uint16_t)(((register_address & EFUSE_ADDR_MASK) << EFUSE_ADDR_SHIFT));
 
     // Place register value to be written into bits 0->8
     tx_data = (uint16_t)(tx_data | (register_value & EFUSE_SI_DATA_MASK));
@@ -357,18 +329,13 @@ ExitCode Io_Efuse_WriteRegister(
     efuse->wdin_bit_to_set = !efuse->wdin_bit_to_set;
     Io_Efuse_CalculateParityBit(&tx_data);
 
-    return Io_Efuse_WriteToEfuse(
-        &tx_data, efuse->spi_handle, efuse->nss_port, efuse->nss_pin);
+    return Io_Efuse_WriteToEfuse(&tx_data, efuse->spi_handle, efuse->nss_port, efuse->nss_pin);
 }
 
-ExitCode Io_Efuse_ReadRegister(
-    uint8_t                     register_address,
-    uint16_t *                  register_value,
-    struct Efuse_Context *const efuse)
+ExitCode Io_Efuse_ReadRegister(uint8_t register_address, uint16_t *register_value, struct Efuse_Context *const efuse)
 {
     // Place the Status Register address into bits 10->13
-    uint16_t tx_data =
-        (uint16_t)((SI_STATR_0_ADDR & EFUSE_ADDR_MASK) << EFUSE_ADDR_SHIFT);
+    uint16_t tx_data = (uint16_t)((SI_STATR_0_ADDR & EFUSE_ADDR_MASK) << EFUSE_ADDR_SHIFT);
 
     // Shift bit 3 of the address (SOA3: the channel number) to the 13th bit
     tx_data = (uint16_t)(
@@ -389,9 +356,8 @@ ExitCode Io_Efuse_ReadRegister(
     // Invert watchdog bit state for next write
     efuse->wdin_bit_to_set = !efuse->wdin_bit_to_set;
     Io_Efuse_CalculateParityBit(&tx_data);
-    ExitCode exit_code = Io_Efuse_ReadFromEfuse(
-        &tx_data, register_value, efuse->spi_handle, efuse->nss_port,
-        efuse->nss_pin);
+    ExitCode exit_code =
+        Io_Efuse_ReadFromEfuse(&tx_data, register_value, efuse->spi_handle, efuse->nss_port, efuse->nss_pin);
 
     // Only return register contents and clear bits 9->15
     *register_value = READ_BIT(*register_value, EFUSE_SO_DATA_MASK);

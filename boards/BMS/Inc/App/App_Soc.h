@@ -36,9 +36,4 @@
  * @return EXIT_CODE_INVALID_ARGS if max_difference, soc_1, soc_2, or soc_3 is
  *                                not between 0 and 100 inclusive
  */
-ExitCode App_Soc_Vote(
-    float  max_abs_difference,
-    float  soc_1,
-    float  soc_2,
-    float  soc_3,
-    float *result);
+ExitCode App_Soc_Vote(float max_abs_difference, float soc_1, float soc_2, float soc_3, float *result);

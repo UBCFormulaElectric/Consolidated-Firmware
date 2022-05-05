@@ -14,28 +14,22 @@ class SharedHeartbeatMonitorTest : public testing::Test
     void SetUp() override
     {
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-            get_current_ms, DEFAULT_TIMEOUT_PERIOD_MS, DEFAULT_BOARDS_TO_CHECK,
-            timeout_callback);
+            get_current_ms, DEFAULT_TIMEOUT_PERIOD_MS, DEFAULT_BOARDS_TO_CHECK, timeout_callback);
 
         RESET_FAKE(get_current_ms);
         RESET_FAKE(timeout_callback);
     }
 
-    void TearDown() override
-    {
-        TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
-    }
+    void TearDown() override { TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy); }
 
-    const enum HeartbeatOneHot DEFAULT_BOARDS_TO_CHECK = (enum HeartbeatOneHot)(
-        BMS_HEARTBEAT_ONE_HOT | PDM_HEARTBEAT_ONE_HOT | DCM_HEARTBEAT_ONE_HOT);
+    const enum HeartbeatOneHot DEFAULT_BOARDS_TO_CHECK =
+        (enum HeartbeatOneHot)(BMS_HEARTBEAT_ONE_HOT | PDM_HEARTBEAT_ONE_HOT | DCM_HEARTBEAT_ONE_HOT);
     const uint32_t DEFAULT_TIMEOUT_PERIOD_MS = 500U;
 
     struct HeartbeatMonitor *heartbeat_monitor;
 };
 
-TEST_F(
-    SharedHeartbeatMonitorTest,
-    check_timeout_callback_is_called_for_no_check_in)
+TEST_F(SharedHeartbeatMonitorTest, check_timeout_callback_is_called_for_no_check_in)
 {
     constexpr uint32_t NUM_CONSECUTIVE_TIMEOUTS = 10;
 
@@ -54,16 +48,13 @@ TEST_F(
     }
 }
 
-TEST_F(
-    SharedHeartbeatMonitorTest,
-    check_timeout_callback_is_called_for_partial_check_in)
+TEST_F(SharedHeartbeatMonitorTest, check_timeout_callback_is_called_for_partial_check_in)
 {
     constexpr uint32_t NUM_CONSECUTIVE_TIMEOUTS = 10;
 
     for (uint32_t i = 0; i < NUM_CONSECUTIVE_TIMEOUTS; i++)
     {
-        App_SharedHeartbeatMonitor_CheckIn(
-            heartbeat_monitor, BMS_HEARTBEAT_ONE_HOT);
+        App_SharedHeartbeatMonitor_CheckIn(heartbeat_monitor, BMS_HEARTBEAT_ONE_HOT);
 
         for (uint32_t j = 0; j < DEFAULT_TIMEOUT_PERIOD_MS; j++)
         {
@@ -78,16 +69,13 @@ TEST_F(
     }
 }
 
-TEST_F(
-    SharedHeartbeatMonitorTest,
-    check_timeout_callback_is_not_called_for_complete_check_in)
+TEST_F(SharedHeartbeatMonitorTest, check_timeout_callback_is_not_called_for_complete_check_in)
 {
     constexpr uint32_t NUM_CONSECUTIVE_TIMEOUTS = 10;
 
     for (uint32_t i = 0; i < NUM_CONSECUTIVE_TIMEOUTS; i++)
     {
-        App_SharedHeartbeatMonitor_CheckIn(
-            heartbeat_monitor, DEFAULT_BOARDS_TO_CHECK);
+        App_SharedHeartbeatMonitor_CheckIn(heartbeat_monitor, DEFAULT_BOARDS_TO_CHECK);
 
         for (uint32_t j = 0; j < DEFAULT_TIMEOUT_PERIOD_MS; j++)
         {
@@ -102,9 +90,7 @@ TEST_F(
     }
 }
 
-TEST_F(
-    SharedHeartbeatMonitorTest,
-    check_timing_does_not_drift_if_we_miss_hardware_timer_tick)
+TEST_F(SharedHeartbeatMonitorTest, check_timing_does_not_drift_if_we_miss_hardware_timer_tick)
 {
     constexpr uint32_t NUM_CONSECUTIVE_TIMEOUTS = 10;
 

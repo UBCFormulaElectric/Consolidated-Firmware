@@ -48,8 +48,7 @@ void App_SharedWaitSignal_Destroy(struct WaitSignal *wait_signal);
  * @return The last time the given wait signal was observed to be low, in
  *         milliseconds
  */
-uint32_t App_SharedWaitSignal_GetLastTimeHighMs(
-    const struct WaitSignal *wait_signal);
+uint32_t App_SharedWaitSignal_GetLastTimeHighMs(const struct WaitSignal *wait_signal);
 
 /**
  * Check if the wait signal is waiting
@@ -68,6 +67,4 @@ bool App_SharedWaitSignal_IsWaiting(const struct WaitSignal *wait_signal);
  * @param wait_signal The given wait signal to update
  * @param current_time_ms The current time, in milliseconds
  */
-void App_SharedWaitSignal_Update(
-    struct WaitSignal *wait_signal,
-    uint32_t           current_ms);
+void App_SharedWaitSignal_Update(struct WaitSignal *wait_signal, uint32_t current_ms);

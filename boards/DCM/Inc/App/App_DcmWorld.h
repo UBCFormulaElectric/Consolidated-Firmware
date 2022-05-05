@@ -63,16 +63,14 @@ struct DcmCanRxInterface *App_DcmWorld_GetCanRx(const struct DcmWorld *world);
  * @param world The world to get heartbeat monitor for
  * @return The heartbeat monitor for the given world
  */
-struct HeartbeatMonitor *
-    App_DcmWorld_GetHeartbeatMonitor(const struct DcmWorld *world);
+struct HeartbeatMonitor *App_DcmWorld_GetHeartbeatMonitor(const struct DcmWorld *world);
 
 /**
  * Get the RGB LED sequence for the given world
  * @param world The world to get RGB LED sequence for
  * @return The RGB LED sequence for the given world
  */
-struct RgbLedSequence *
-    App_DcmWorld_GetRgbLedSequence(const struct DcmWorld *world);
+struct RgbLedSequence *App_DcmWorld_GetRgbLedSequence(const struct DcmWorld *world);
 
 /**
  * Get the brake light for the given world
@@ -110,9 +108,7 @@ struct ErrorTable *App_DcmWorld_GetErrorTable(const struct DcmWorld *world);
  * @param world The world to update the registered wait signals
  * @param current_ms The current time in milliseconds
  */
-void App_DcmWorld_UpdateWaitSignal(
-    const struct DcmWorld *world,
-    uint32_t               current_ms);
+void App_DcmWorld_UpdateWaitSignal(const struct DcmWorld *world, uint32_t current_ms);
 
 /**
  * Get the clock for the given world
@@ -126,5 +122,4 @@ struct Clock *App_DcmWorld_GetClock(const struct DcmWorld *world);
  * @param world The world to get inverter switches from
  * @return The inverter switches for the given world
  */
-struct InverterSwitches *
-    App_DcmWorld_GetInverterSwitches(const struct DcmWorld *world);
+struct InverterSwitches *App_DcmWorld_GetInverterSwitches(const struct DcmWorld *world);

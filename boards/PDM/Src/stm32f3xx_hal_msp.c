@@ -107,14 +107,12 @@ void HAL_ADC_MspInit(ADC_HandleTypeDef *hadc)
         PA1     ------> ADC1_IN2
         PA2     ------> ADC1_IN3
         */
-        GPIO_InitStruct.Pin = IS_AUX1_AUX2_Pin | IS_AIR_SHDN_LV_PWR_Pin |
-                              IS_DI_BL_DI_BR_Pin | IS_DI_FL_DI_FR_Pin;
+        GPIO_InitStruct.Pin  = IS_AUX1_AUX2_Pin | IS_AIR_SHDN_LV_PWR_Pin | IS_DI_BL_DI_BR_Pin | IS_DI_FL_DI_FR_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-        GPIO_InitStruct.Pin =
-            VBAT_SENSE_Pin | _24V_ACC_SENSE_Pin | _24V_BOOST_OUT_SENSE_Pin;
+        GPIO_InitStruct.Pin  = VBAT_SENSE_Pin | _24V_ACC_SENSE_Pin | _24V_BOOST_OUT_SENSE_Pin;
         GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
         GPIO_InitStruct.Pull = GPIO_NOPULL;
         HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
@@ -150,13 +148,9 @@ void HAL_ADC_MspDeInit(ADC_HandleTypeDef *hadc)
         PA1     ------> ADC1_IN2
         PA2     ------> ADC1_IN3
         */
-        HAL_GPIO_DeInit(
-            GPIOC, IS_AUX1_AUX2_Pin | IS_AIR_SHDN_LV_PWR_Pin |
-                       IS_DI_BL_DI_BR_Pin | IS_DI_FL_DI_FR_Pin);
+        HAL_GPIO_DeInit(GPIOC, IS_AUX1_AUX2_Pin | IS_AIR_SHDN_LV_PWR_Pin | IS_DI_BL_DI_BR_Pin | IS_DI_FL_DI_FR_Pin);
 
-        HAL_GPIO_DeInit(
-            GPIOA,
-            VBAT_SENSE_Pin | _24V_ACC_SENSE_Pin | _24V_BOOST_OUT_SENSE_Pin);
+        HAL_GPIO_DeInit(GPIOA, VBAT_SENSE_Pin | _24V_ACC_SENSE_Pin | _24V_BOOST_OUT_SENSE_Pin);
 
         /* USER CODE BEGIN ADC1_MspDeInit 1 */
 

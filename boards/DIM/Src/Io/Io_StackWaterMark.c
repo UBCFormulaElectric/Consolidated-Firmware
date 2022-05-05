@@ -26,32 +26,27 @@ void Io_StackWaterMark_Init(struct DimCanTxInterface *can_tx_interface)
 
 static void logWaterMarkAboveThresholdTask1Hz(uint8_t error)
 {
-    App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_HZ(
-        _can_tx_interface, error);
+    App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_HZ(_can_tx_interface, error);
 }
 
 static void logWaterMarkAboveThresholdTask100Hz(uint8_t error)
 {
-    App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK100_HZ(
-        _can_tx_interface, error);
+    App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK100_HZ(_can_tx_interface, error);
 }
 
 static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
 {
-    App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_KHZ(
-        _can_tx_interface, error);
+    App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_KHZ(_can_tx_interface, error);
 }
 
 static void logWaterMarkAboveThresholdTaskCanRx(uint8_t error)
 {
-    App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX(
-        _can_tx_interface, error);
+    App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX(_can_tx_interface, error);
 }
 
 static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 {
-    App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX(
-        _can_tx_interface, error);
+    App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX(_can_tx_interface, error);
 }
 
 /** @brief Iterate through this table to check stack watermarks for each task */
@@ -90,6 +85,5 @@ static struct stack_watermark stack_watermarks[] = {
 
 void Io_StackWaterMark_Check(void)
 {
-    Io_SharedStackWaterMark_Check(
-        stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
+    Io_SharedStackWaterMark_Check(stack_watermarks, NUM_ELEMENTS_IN_ARRAY(stack_watermarks));
 }

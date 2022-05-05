@@ -6,7 +6,7 @@
 #include "Io_SharedCanMsg.h"
 
 #define CAN_PAYLOAD_MAX_NUM_BYTES 8 // Maximum number of bytes in a CAN payload
-#define CAN_ExtID_NULL 0 // Set CAN Extended ID to 0 because we are not using it
+#define CAN_ExtID_NULL 0            // Set CAN Extended ID to 0 because we are not using it
 
 /**
  * Initialize CAN interrupts before starting the CAN module. After this, the

@@ -95,9 +95,7 @@ void Io_Efuse_DisableChannel1(const struct Efuse_Context *const efuse);
  * @return EXIT_CODE_OK if the channel configuration was successful
  *         EXIT_CODE_TIMEOUT if one of the SPI writes timed-out
  */
-ExitCode Io_Efuse_ConfigureChannelMonitoring(
-    uint8_t                     monitoring_function,
-    struct Efuse_Context *const efuse);
+ExitCode Io_Efuse_ConfigureChannelMonitoring(uint8_t monitoring_function, struct Efuse_Context *const efuse);
 
 /**
  * Exit fail-safe mode and disable the watchdog timer for the given efuse.
@@ -153,10 +151,7 @@ float Io_Efuse_GetChannel1Current(struct Efuse_Context *const efuse);
  * @return EXIT_CODE_OK if the write was successful
  *         EXIT_CODE_TIMEOUT if the SPI write timed-out
  */
-ExitCode Io_Efuse_WriteRegister(
-    uint8_t                     register_address,
-    uint16_t                    register_value,
-    struct Efuse_Context *const efuse);
+ExitCode Io_Efuse_WriteRegister(uint8_t register_address, uint16_t register_value, struct Efuse_Context *const efuse);
 
 /**
  * Read data from a specific serial output register for the given efuse.
@@ -166,7 +161,4 @@ ExitCode Io_Efuse_WriteRegister(
  * @return EXIT_CODE_OK if the read was successful
  *         EXIT_CODE_TIMEOUT if the SPI read timed-out
  */
-ExitCode Io_Efuse_ReadRegister(
-    uint8_t                     register_address,
-    uint16_t *                  register_value,
-    struct Efuse_Context *const efuse);
+ExitCode Io_Efuse_ReadRegister(uint8_t register_address, uint16_t *register_value, struct Efuse_Context *const efuse);

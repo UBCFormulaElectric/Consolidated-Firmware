@@ -27,32 +27,27 @@ extern "C"
 {
 #endif
 
-    /* Private includes
-     * ----------------------------------------------------------*/
+    /* Private includes ----------------------------------------------------------*/
     /* USER CODE BEGIN Includes */
 
     /* USER CODE END Includes */
 
-    /* Exported types
-     * ------------------------------------------------------------*/
+    /* Exported types ------------------------------------------------------------*/
     /* USER CODE BEGIN ET */
 
     /* USER CODE END ET */
 
-    /* Exported constants
-     * --------------------------------------------------------*/
+    /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
 
     /* USER CODE END EC */
 
-    /* Exported macro
-     * ------------------------------------------------------------*/
+    /* Exported macro ------------------------------------------------------------*/
     /* USER CODE BEGIN EM */
 
     /* USER CODE END EM */
 
-    /* Exported functions prototypes
-     * ---------------------------------------------*/
+    /* Exported functions prototypes ---------------------------------------------*/
     void NMI_Handler(void);
     void HardFault_Handler(void);
     void MemManage_Handler(void);

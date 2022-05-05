@@ -64,6 +64,4 @@ ExitCode App_SevenSegDisplays_SetHexDigits(
  * @param value The unsigned base-10 value to display
  * @return EXIT_CODE_INVALID_ARGS if the given value is out-of-bound
  */
-ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(
-    const struct SevenSegDisplays *seven_seg_displays,
-    uint32_t                       value);
+ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(const struct SevenSegDisplays *seven_seg_displays, uint32_t value);

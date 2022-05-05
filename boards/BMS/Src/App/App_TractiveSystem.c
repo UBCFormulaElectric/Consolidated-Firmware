@@ -7,9 +7,7 @@ struct TractiveSystem
     float (*get_ts_voltage)(float);
 };
 
-struct TractiveSystem *App_TractiveSystem_Create(
-    float (*get_ts_raw_voltage)(void),
-    float (*get_ts_voltage)(float))
+struct TractiveSystem *App_TractiveSystem_Create(float (*get_ts_raw_voltage)(void), float (*get_ts_voltage)(float))
 {
     struct TractiveSystem *ts = malloc(sizeof(struct TractiveSystem));
     assert(ts != NULL);

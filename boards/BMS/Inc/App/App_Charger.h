@@ -20,10 +20,8 @@ struct Charger;
  *                             is connected
  * @return The created charger, whose ownership is given to the caller
  */
-struct Charger *App_Charger_Create(
-    void (*enable_charger)(void),
-    void (*disable_charger)(void),
-    bool (*is_charger_connected)(void));
+struct Charger *
+    App_Charger_Create(void (*enable_charger)(void), void (*disable_charger)(void), bool (*is_charger_connected)(void));
 
 /**
  * Deallocate the memory used by the given charger

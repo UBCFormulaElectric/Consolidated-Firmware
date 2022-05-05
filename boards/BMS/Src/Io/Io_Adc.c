@@ -48,20 +48,16 @@ void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
     if (hadc->Instance == ADC1)
     {
         adc1_voltages[ADC1_CHANNEL_3] =
-            Io_SharedAdc_ConvertRawAdcValueToVoltage(
-                hadc, true, (uint16_t)raw_adc1_values[ADC1_CHANNEL_3]);
+            Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, true, (uint16_t)raw_adc1_values[ADC1_CHANNEL_3]);
     }
     else if (hadc->Instance == ADC2)
     {
         adc2_voltages[ADC2_CHANNEL_1] =
-            Io_SharedAdc_ConvertRawAdcValueToVoltage(
-                hadc, false, raw_adc2_values[ADC2_CHANNEL_1]);
+            Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc2_values[ADC2_CHANNEL_1]);
         adc2_voltages[ADC2_CHANNEL_3] =
-            Io_SharedAdc_ConvertRawAdcValueToVoltage(
-                hadc, false, raw_adc2_values[ADC2_CHANNEL_3]);
+            Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc2_values[ADC2_CHANNEL_3]);
         adc2_voltages[ADC2_CHANNEL_4] =
-            Io_SharedAdc_ConvertRawAdcValueToVoltage(
-                hadc, false, raw_adc2_values[ADC2_CHANNEL_4]);
+            Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc2_values[ADC2_CHANNEL_4]);
     }
 }
 

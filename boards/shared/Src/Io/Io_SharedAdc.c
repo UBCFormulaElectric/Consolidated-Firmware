@@ -4,10 +4,7 @@
 #define SINGLE_ENDED_ADC_V_SCALE (3.3f)
 #define DIFFERENTIAL_ADC_V_SCALE (6.6f)
 
-float Io_SharedAdc_ConvertRawAdcValueToVoltage(
-    ADC_HandleTypeDef *hadc,
-    bool               is_differential,
-    uint16_t           raw_adc_value)
+float Io_SharedAdc_ConvertRawAdcValueToVoltage(ADC_HandleTypeDef *hadc, bool is_differential, uint16_t raw_adc_value)
 {
     uint16_t full_scale = MAX_12_BITS_VALUE;
 
@@ -48,8 +45,7 @@ float Io_SharedAdc_ConvertRawAdcValueToVoltage(
     //   with 12-bit resolution, it will be 2^12 -1 = 4095 or with 8-bit
     //   resolution, 2^8 - 1 = 255.
 
-    const float scale =
-        (is_differential) ? DIFFERENTIAL_ADC_V_SCALE : SINGLE_ENDED_ADC_V_SCALE;
+    const float scale = (is_differential) ? DIFFERENTIAL_ADC_V_SCALE : SINGLE_ENDED_ADC_V_SCALE;
 
     // Offsets to the raw ADC value should be configured via cube for
     // differential ADC mode

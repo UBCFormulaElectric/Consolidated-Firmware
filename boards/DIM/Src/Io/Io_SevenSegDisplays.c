@@ -65,13 +65,10 @@ void Io_SevenSegDisplays_Init(SPI_HandleTypeDef *const hspi)
     _hspi = hspi;
 
     // RCK pin is normally held low
-    HAL_GPIO_WritePin(
-        SEVENSEG_RCK_3V3_GPIO_Port, SEVENSEG_RCK_3V3_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(SEVENSEG_RCK_3V3_GPIO_Port, SEVENSEG_RCK_3V3_Pin, GPIO_PIN_RESET);
 
     // Full brightness
-    HAL_GPIO_WritePin(
-        SEVENSEG_DIMMING_3V3_GPIO_Port, SEVENSEG_DIMMING_3V3_Pin,
-        GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(SEVENSEG_DIMMING_3V3_GPIO_Port, SEVENSEG_DIMMING_3V3_Pin, GPIO_PIN_RESET);
 }
 
 void Io_SevenSegDisplays_WriteCommands(void)
@@ -97,8 +94,7 @@ void Io_SevenSegDisplays_SetLeftHexDigit(struct SevenSegHexDigit hex_digit)
     {
         assert(hex_digit.value < NUM_HEX_DIGITS);
 
-        commands[LEFT_SEVEN_SEG_DISPLAY] =
-            command_lookup_table.values[hex_digit.value];
+        commands[LEFT_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
     }
 }
 
@@ -112,8 +108,7 @@ void Io_SevenSegDisplays_SetMiddleHexDigit(struct SevenSegHexDigit hex_digit)
     {
         assert(hex_digit.value < NUM_HEX_DIGITS);
 
-        commands[MIDDLE_SEVEN_SEG_DISPLAY] =
-            command_lookup_table.values[hex_digit.value];
+        commands[MIDDLE_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
     }
 }
 
@@ -127,7 +122,6 @@ void Io_SevenSegDisplays_SetRightHexDigit(struct SevenSegHexDigit hex_digit)
     {
         assert(hex_digit.value < NUM_HEX_DIGITS);
 
-        commands[RIGHT_SEVEN_SEG_DISPLAY] =
-            command_lookup_table.values[hex_digit.value];
+        commands[RIGHT_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
     }
 }

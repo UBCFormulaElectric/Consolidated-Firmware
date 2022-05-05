@@ -35,8 +35,7 @@ static float    adc_voltages[NUM_ADC_CHANNELS];
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    adc_voltages[CHANNEL_12] = Io_SharedAdc_ConvertRawAdcValueToVoltage(
-        hadc, false, raw_adc_values[CHANNEL_12]);
+    adc_voltages[CHANNEL_12] = Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc_values[CHANNEL_12]);
 }
 
 uint16_t *Io_Adc_GetRawAdcValues(void)

@@ -37,7 +37,6 @@ float Io_VoltageSense_GetTractiveSystemVoltage(float adc_voltage)
     }
     else
     {
-        return adc_voltage * R_ERROR_COMPENSATION /
-               (TS_VOLTAGE_DIV * AMPLIFIER_GAIN);
+        return adc_voltage * R_ERROR_COMPENSATION / (TS_VOLTAGE_DIV * AMPLIFIER_GAIN);
     }
 }

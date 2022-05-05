@@ -20,8 +20,8 @@ struct Airs *App_Airs_Create(
     struct Airs *airs = malloc(sizeof(struct Airs));
     assert(airs != NULL);
 
-    airs->air_positive = App_SharedBinaryStatus_Create(is_air_positive_closed);
-    airs->air_negative = App_SharedBinaryStatus_Create(is_air_negative_closed);
+    airs->air_positive       = App_SharedBinaryStatus_Create(is_air_positive_closed);
+    airs->air_negative       = App_SharedBinaryStatus_Create(is_air_negative_closed);
     airs->close_air_positive = close_air_positive;
     airs->open_air_positive  = open_air_positive;
 

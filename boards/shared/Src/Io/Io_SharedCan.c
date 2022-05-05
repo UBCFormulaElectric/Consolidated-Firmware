@@ -30,19 +30,16 @@
 // Standard CAN ID    RTR    IDE     Extended CAN ID
 
 /** @brief Helper macro to initialize FiRx register in 16-bit mode */
-#define INIT_MASKMODE_16BIT_FiRx(std_id, rtr, ide, ext_id)                     \
-    ((((uint32_t)(std_id) << 5U) & 0xFFE0) |                                   \
-     (((uint32_t)(rtr) << 4U) & 0x0010) | (((uint32_t)(ide) << 3U) & 0x0008) | \
+#define INIT_MASKMODE_16BIT_FiRx(std_id, rtr, ide, ext_id)                                                             \
+    ((((uint32_t)(std_id) << 5U) & 0xFFE0) | (((uint32_t)(rtr) << 4U) & 0x0010) | (((uint32_t)(ide) << 3U) & 0x0008) | \
      (((uint32_t)(ext_id) << 0U) & 0x0007))
 
 // Open CAN filter that accepts any CAN message as long as it uses Standard CAN
 // ID and is a data frame.
-#define MASKMODE_16BIT_ID_OPEN \
-    INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, CAN_ExtID_NULL)
+#define MASKMODE_16BIT_ID_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, CAN_ID_STD, CAN_RTR_DATA, CAN_ExtID_NULL)
 #define MASKMODE_16BIT_MASK_OPEN INIT_MASKMODE_16BIT_FiRx(0x0, 0x1, 0x1, 0x0)
 
-static uint8_t
-    can_tx_msg_fifo_storage[CAN_TX_MSG_FIFO_LENGTH * CAN_TX_MSG_FIFO_ITEM_SIZE];
+static uint8_t can_tx_msg_fifo_storage[CAN_TX_MSG_FIFO_LENGTH * CAN_TX_MSG_FIFO_ITEM_SIZE];
 
 static struct StaticQueue can_tx_msg_fifo = {
     .storage = &can_tx_msg_fifo_storage[0],
@@ -50,8 +47,7 @@ static struct StaticQueue can_tx_msg_fifo = {
     .handle  = NULL,
 };
 
-static uint8_t
-    can_rx_msg_fifo_storage[CAN_TX_MSG_FIFO_LENGTH * CAN_TX_MSG_FIFO_ITEM_SIZE];
+static uint8_t can_rx_msg_fifo_storage[CAN_TX_MSG_FIFO_LENGTH * CAN_TX_MSG_FIFO_ITEM_SIZE];
 
 static struct StaticQueue can_rx_msg_fifo = {
     .storage = &can_rx_msg_fifo_storage[0],
@@ -154,8 +150,7 @@ static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *message)
     // it would take up 2 bytes of the CAN payload. So we disable the timestamp.
     tx_header.TransmitGlobalTime = DISABLE;
 
-    return HAL_CAN_AddTxMessage(
-        sharedcan_hcan, &tx_header, message->data, &mailbox);
+    return HAL_CAN_AddTxMessage(sharedcan_hcan, &tx_header, message->data, &mailbox);
 }
 
 static inline void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
@@ -165,8 +160,7 @@ static inline void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
     CAN_RxHeaderTypeDef header;
     struct CanMsg       message;
 
-    if (HAL_CAN_GetRxMessage(hcan, rx_fifo, &header, &message.data[0]) ==
-        HAL_OK)
+    if (HAL_CAN_GetRxMessage(hcan, rx_fifo, &header, &message.data[0]) == HAL_OK)
     {
         // Do we care about reading this incoming message at all?
         if (Io_CanRx_FilterMessageId(header.StdId) == true)
@@ -178,8 +172,7 @@ static inline void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo)
 
             // We defer reading the CAN RX message to a task by storing the
             // message on the CAN RX queue
-            if (xQueueSendToBackFromISR(
-                    can_rx_msg_fifo.handle, &message, NULL) != pdPASS)
+            if (xQueueSendToBackFromISR(can_rx_msg_fifo.handle, &message, NULL) != pdPASS)
             {
                 // If the RX FIFO is full, we discard the message and log the
                 // overflow over CAN.
@@ -215,19 +208,16 @@ void Io_SharedCan_Init(
 
     // Initialize CAN TX software queue
     can_tx_msg_fifo.handle = xQueueCreateStatic(
-        CAN_TX_MSG_FIFO_LENGTH, CAN_TX_MSG_FIFO_ITEM_SIZE,
-        can_tx_msg_fifo.storage, &can_tx_msg_fifo.state);
+        CAN_TX_MSG_FIFO_LENGTH, CAN_TX_MSG_FIFO_ITEM_SIZE, can_tx_msg_fifo.storage, &can_tx_msg_fifo.state);
     assert(can_tx_msg_fifo.handle != NULL);
 
     // Initialize binary semaphore for CAN TX task
-    CanTxBinarySemaphore.handle =
-        xSemaphoreCreateBinaryStatic(&CanTxBinarySemaphore.storage);
+    CanTxBinarySemaphore.handle = xSemaphoreCreateBinaryStatic(&CanTxBinarySemaphore.storage);
     assert(CanTxBinarySemaphore.handle);
 
     // Initialize CAN RX software queue
     can_rx_msg_fifo.handle = xQueueCreateStatic(
-        CAN_RX_MSG_FIFO_LENGTH, CAN_RX_MSG_FIFO_ITEM_SIZE,
-        can_rx_msg_fifo.storage, &can_rx_msg_fifo.state);
+        CAN_RX_MSG_FIFO_LENGTH, CAN_RX_MSG_FIFO_ITEM_SIZE, can_rx_msg_fifo.storage, &can_rx_msg_fifo.state);
     assert(can_rx_msg_fifo.handle != NULL);
 
     // Initialize CAN RX hardware filters
@@ -236,8 +226,7 @@ void Io_SharedCan_Init(
     // Configure interrupt mode for CAN peripheral
     assert(
         HAL_CAN_ActivateNotification(
-            hcan, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING |
-                      CAN_IT_RX_FIFO1_MSG_PENDING) == HAL_OK);
+            hcan, CAN_IT_TX_MAILBOX_EMPTY | CAN_IT_RX_FIFO0_MSG_PENDING | CAN_IT_RX_FIFO1_MSG_PENDING) == HAL_OK);
 
     // Enable the CAN peripheral
     assert(HAL_CAN_Start(hcan) == HAL_OK);
@@ -253,16 +242,14 @@ void Io_SharedCan_TxMessageQueueSendtoBack(const struct CanMsg *message)
 
     if (xPortIsInsideInterrupt())
     {
-        if (xQueueSendToBackFromISR(can_tx_msg_fifo.handle, message, NULL) !=
-            pdTRUE)
+        if (xQueueSendToBackFromISR(can_tx_msg_fifo.handle, message, NULL) != pdTRUE)
         {
             // If the TX FIFO is full, we discard the message and log the
             // overflow over CAN.
             cantx_overflow_count++;
             _tx_overflow_callback(cantx_overflow_count);
         }
-        else if (
-            uxQueueMessagesWaitingFromISR(CanTxBinarySemaphore.handle) == 0U)
+        else if (uxQueueMessagesWaitingFromISR(CanTxBinarySemaphore.handle) == 0U)
         {
             // Give the binary semaphore only if it's not already given, or else
             // xSemaphoreGive() would fail and clutter up Tracealyzer.
@@ -292,8 +279,7 @@ void Io_SharedCan_TxMessageQueueSendtoBack(const struct CanMsg *message)
 void Io_SharedCan_DequeueCanRxMessage(struct CanMsg *message)
 {
     // Get a message from the RX queue and process it, else block forever.
-    while (xQueueReceive(can_rx_msg_fifo.handle, message, portMAX_DELAY) !=
-           pdTRUE)
+    while (xQueueReceive(can_rx_msg_fifo.handle, message, portMAX_DELAY) != pdTRUE)
         ;
 }
 
@@ -301,8 +287,7 @@ void Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask(void)
 {
     xSemaphoreTake(CanTxBinarySemaphore.handle, portMAX_DELAY);
 
-    while (HAL_CAN_GetTxMailboxesFreeLevel(sharedcan_hcan) > 0 &&
-           uxQueueMessagesWaiting(can_tx_msg_fifo.handle) > 0)
+    while (HAL_CAN_GetTxMailboxesFreeLevel(sharedcan_hcan) > 0 && uxQueueMessagesWaiting(can_tx_msg_fifo.handle) > 0)
     {
         struct CanMsg message;
 

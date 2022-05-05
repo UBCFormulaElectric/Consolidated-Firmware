@@ -4,12 +4,10 @@
 
 void Io_BrakeLight_TurnOn(void)
 {
-    HAL_GPIO_WritePin(
-        BRAKE_LIGHT_EN_GPIO_Port, BRAKE_LIGHT_EN_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(BRAKE_LIGHT_EN_GPIO_Port, BRAKE_LIGHT_EN_Pin, GPIO_PIN_SET);
 }
 
 void Io_BrakeLight_TurnOff(void)
 {
-    HAL_GPIO_WritePin(
-        BRAKE_LIGHT_EN_GPIO_Port, BRAKE_LIGHT_EN_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(BRAKE_LIGHT_EN_GPIO_Port, BRAKE_LIGHT_EN_Pin, GPIO_PIN_RESET);
 }

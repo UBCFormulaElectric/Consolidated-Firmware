@@ -49,15 +49,14 @@ struct Voltages
 extern struct SharedSpi *ltc6813_spi;
 
 static const uint16_t cv_read_cmds[NUM_OF_CELL_V_REG_GROUPS] = {
-    [CELL_V_REG_GROUP_A] = RDCVA, [CELL_V_REG_GROUP_B] = RDCVB,
-    [CELL_V_REG_GROUP_C] = RDCVC, [CELL_V_REG_GROUP_D] = RDCVD,
-    [CELL_V_REG_GROUP_E] = RDCVE, [CELL_V_REG_GROUP_F] = RDCVF,
+    [CELL_V_REG_GROUP_A] = RDCVA, [CELL_V_REG_GROUP_B] = RDCVB, [CELL_V_REG_GROUP_C] = RDCVC,
+    [CELL_V_REG_GROUP_D] = RDCVD, [CELL_V_REG_GROUP_E] = RDCVE, [CELL_V_REG_GROUP_F] = RDCVF,
 };
 
 static struct Voltages voltages = { 0U };
-static uint16_t        cell_voltages[NUM_OF_ACCUMULATOR_SEGMENTS]
-                             [NUM_OF_CELL_V_REG_GROUPS]
-                             [NUM_OF_READINGS_PER_REG_GROUP] = { 0U };
+static uint16_t cell_voltages[NUM_OF_ACCUMULATOR_SEGMENTS][NUM_OF_CELL_V_REG_GROUPS][NUM_OF_READINGS_PER_REG_GROUP] = {
+    0U
+};
 
 /**
  * A function that can be called to update min/max cell voltages, segment
@@ -71,9 +70,7 @@ static void Io_UpdateCellVoltages(void);
  * @param rx_buffer The buffer containing data read from the LTC6813 chips
  * @return True if the data is read back successfully. Else, false
  */
-static bool Io_ParseCellVoltageFromAllSegments(
-    uint8_t  curr_reg_group,
-    uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS]);
+static bool Io_ParseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS]);
 
 static void Io_UpdateCellVoltages(void)
 {
@@ -84,19 +81,14 @@ static void Io_UpdateCellVoltages(void)
         .segment = { 0U },
     };
 
-    for (uint8_t curr_segment = 0U; curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS;
-         curr_segment++)
+    for (uint8_t curr_segment = 0U; curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS; curr_segment++)
     {
-        for (uint8_t curr_reg_group = 0U;
-             curr_reg_group < NUM_OF_CELL_V_REG_GROUPS; curr_reg_group++)
+        for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_CELL_V_REG_GROUPS; curr_reg_group++)
         {
-            for (uint8_t curr_cell = 0U;
-                 curr_cell < NUM_OF_READINGS_PER_REG_GROUP; curr_cell++)
+            for (uint8_t curr_cell = 0U; curr_cell < NUM_OF_READINGS_PER_REG_GROUP; curr_cell++)
             {
-                const uint16_t curr_cell_voltage =
-                    cell_voltages[curr_segment][curr_reg_group][curr_cell];
-                const uint8_t curr_cell_index = (uint8_t)(
-                    curr_reg_group * NUM_OF_READINGS_PER_REG_GROUP + curr_cell);
+                const uint16_t curr_cell_voltage = cell_voltages[curr_segment][curr_reg_group][curr_cell];
+                const uint8_t  curr_cell_index = (uint8_t)(curr_reg_group * NUM_OF_READINGS_PER_REG_GROUP + curr_cell);
 
                 // Get the minimum cell voltage
                 if (curr_cell_voltage < temp_voltages.min.voltage)
@@ -131,39 +123,31 @@ static void Io_UpdateCellVoltages(void)
     voltages = temp_voltages;
 }
 
-static bool Io_ParseCellVoltageFromAllSegments(
-    uint8_t  curr_reg_group,
-    uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS])
+static bool Io_ParseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS])
 {
-    for (uint8_t curr_segment = 0U; curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS;
-         curr_segment++)
+    for (uint8_t curr_segment = 0U; curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS; curr_segment++)
     {
         // Set the starting index to read cell voltages for the current segment
         // from rx_buffer
-        uint8_t start_index =
-            (uint8_t)(curr_segment * TOTAL_NUM_REG_GROUP_WORDS);
+        uint8_t start_index = (uint8_t)(curr_segment * TOTAL_NUM_REG_GROUP_WORDS);
 
         // Calculate PEC15 from the data received on rx_buffer
-        const uint16_t calc_pec15 = Io_LTC6813Shared_CalculateRegGroupPec15(
-            (uint8_t *)&rx_buffer[start_index]);
+        const uint16_t calc_pec15 = Io_LTC6813Shared_CalculateRegGroupPec15((uint8_t *)&rx_buffer[start_index]);
 
         // Read PEC15 from the rx_buffer
-        const uint16_t recv_pec15 =
-            rx_buffer[start_index + REG_GROUP_WORD_PEC_INDEX];
+        const uint16_t recv_pec15 = rx_buffer[start_index + REG_GROUP_WORD_PEC_INDEX];
 
         if (recv_pec15 == calc_pec15)
         {
             // Ignore cells 17 and 18 if reading back from group F. Only read
             // single word. Otherwise read all bytes stored in rx_buffer
             const uint8_t num_bytes_to_copy =
-                (curr_reg_group == CELL_V_REG_GROUP_F)
-                    ? sizeof(*rx_buffer)
-                    : NUM_REG_GROUP_PAYLOAD_BYTES;
+                (curr_reg_group == CELL_V_REG_GROUP_F) ? sizeof(*rx_buffer) : NUM_REG_GROUP_PAYLOAD_BYTES;
 
             // Store register group data into the cell voltage array
             memcpy(
-                (uint8_t *)&cell_voltages[curr_segment][curr_reg_group],
-                (uint8_t *)&rx_buffer[start_index], num_bytes_to_copy);
+                (uint8_t *)&cell_voltages[curr_segment][curr_reg_group], (uint8_t *)&rx_buffer[start_index],
+                num_bytes_to_copy);
         }
         else
         {
@@ -182,8 +166,7 @@ bool Io_LTC6813CellVoltages_ReadVoltages(void)
     {
         uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS] = { 0U };
 
-        for (uint8_t curr_reg_group = 0U;
-             curr_reg_group < NUM_OF_CELL_V_REG_GROUPS; curr_reg_group++)
+        for (uint8_t curr_reg_group = 0U; curr_reg_group < NUM_OF_CELL_V_REG_GROUPS; curr_reg_group++)
         {
             // Prepare the command used to read data back from a register group
             uint16_t tx_cmd[NUM_OF_CMD_WORDS] = {
@@ -196,8 +179,8 @@ bool Io_LTC6813CellVoltages_ReadVoltages(void)
             // If Io_ParseCellVoltagesFromAllSegments returns false, continue to
             // update data for remaining cell register groups
             if (!Io_SharedSpi_TransmitAndReceive(
-                    ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES,
-                    (uint8_t *)rx_buffer, NUM_REG_GROUP_RX_BYTES) ||
+                    ltc6813_spi, (uint8_t *)tx_cmd, TOTAL_NUM_CMD_BYTES, (uint8_t *)rx_buffer,
+                    NUM_REG_GROUP_RX_BYTES) ||
                 !Io_ParseCellVoltageFromAllSegments(curr_reg_group, rx_buffer))
             {
                 status = false;

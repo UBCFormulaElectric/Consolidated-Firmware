@@ -8,8 +8,7 @@
 #define AMPLIFIER_GAIN (8.0f)
 
 // Voltage divider for the TS+ voltage sensing
-#define TS_VOLTAGE_DIV \
-    (1.24e+3f / (499e+3f + 499e+3f + 499e+3f + 499e+3f + 1.24e+3f))
+#define TS_VOLTAGE_DIV (1.24e+3f / (499e+3f + 499e+3f + 499e+3f + 499e+3f + 1.24e+3f))
 
 /**
  * Convert the given ADC voltage to tractive system voltage

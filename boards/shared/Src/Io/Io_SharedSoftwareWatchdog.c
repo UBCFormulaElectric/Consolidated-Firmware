@@ -55,8 +55,7 @@ SoftwareWatchdogHandle_t Io_SharedSoftwareWatchdog_AllocateWatchdog(void)
 {
     assert(sw_watchdog_table.allocation_index < MAX_NUM_OF_SOFTWARE_WATCHDOG);
 
-    return (SoftwareWatchdogHandle_t)&sw_watchdog_table
-        .watchdogs[sw_watchdog_table.allocation_index++];
+    return (SoftwareWatchdogHandle_t)&sw_watchdog_table.watchdogs[sw_watchdog_table.allocation_index++];
 }
 
 void Io_SharedSoftwareWatchdog_InitWatchdog(
@@ -67,8 +66,7 @@ void Io_SharedSoftwareWatchdog_InitWatchdog(
     assert(sw_watchdog_handle != NULL);
     assert(name != NULL);
 
-    SoftwareWatchdog_t *sw_watchdog =
-        prvGetWatchdogFromHandle(sw_watchdog_handle);
+    SoftwareWatchdog_t *sw_watchdog = prvGetWatchdogFromHandle(sw_watchdog_handle);
 
     strncpy(sw_watchdog->name, name, MAX_WATCHDOG_NAME_LENGTH);
 
@@ -78,13 +76,11 @@ void Io_SharedSoftwareWatchdog_InitWatchdog(
     sw_watchdog->initialized     = true;
 }
 
-void Io_SharedSoftwareWatchdog_CheckInWatchdog(
-    SoftwareWatchdogHandle_t sw_watchdog_handle)
+void Io_SharedSoftwareWatchdog_CheckInWatchdog(SoftwareWatchdogHandle_t sw_watchdog_handle)
 {
     assert(sw_watchdog_handle != NULL);
 
-    SoftwareWatchdog_t *sw_watchdog =
-        prvGetWatchdogFromHandle(sw_watchdog_handle);
+    SoftwareWatchdog_t *sw_watchdog = prvGetWatchdogFromHandle(sw_watchdog_handle);
 
     assert(sw_watchdog->initialized == true);
 
@@ -113,8 +109,7 @@ void Io_SharedSoftwareWatchdog_CheckForTimeouts(void)
                 sw_watchdog_table.watchdogs[i].check_in_status = false;
 
                 // Update deadline
-                sw_watchdog_table.watchdogs[i].deadline +=
-                    sw_watchdog_table.watchdogs[i].period;
+                sw_watchdog_table.watchdogs[i].deadline += sw_watchdog_table.watchdogs[i].period;
 
                 assert(Io_RefreshHardwareWatchdog != NULL);
                 Io_RefreshHardwareWatchdog();
@@ -133,10 +128,8 @@ void Io_SharedSoftwareWatchdog_CheckForTimeouts(void)
     }
 }
 
-const char *Io_SharedSoftwareWatchdog_GetName(
-    SoftwareWatchdogHandle_t sw_watchdog_handle)
+const char *Io_SharedSoftwareWatchdog_GetName(SoftwareWatchdogHandle_t sw_watchdog_handle)
 {
-    SoftwareWatchdog_t *sw_watchdog =
-        prvGetWatchdogFromHandle(sw_watchdog_handle);
+    SoftwareWatchdog_t *sw_watchdog = prvGetWatchdogFromHandle(sw_watchdog_handle);
     return sw_watchdog->name;
 }

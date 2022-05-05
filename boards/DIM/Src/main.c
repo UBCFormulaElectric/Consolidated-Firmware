@@ -164,11 +164,9 @@ int main(void)
 
     /* USER CODE END 1 */
 
-    /* MCU
-     * Configuration--------------------------------------------------------*/
+    /* MCU Configuration--------------------------------------------------------*/
 
-    /* Reset of all peripherals, Initializes the Flash interface and the
-     * Systick. */
+    /* Reset of all peripherals, Initializes the Flash interface and the Systick. */
     HAL_Init();
 
     /* USER CODE BEGIN Init */
@@ -193,46 +191,36 @@ int main(void)
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
 
-    HAL_ADC_Start_DMA(
-        &hadc2, (uint32_t *)Io_Adc_GetRawAdcValues(),
-        hadc2.Init.NbrOfConversion);
+    HAL_ADC_Start_DMA(&hadc2, (uint32_t *)Io_Adc_GetRawAdcValues(), hadc2.Init.NbrOfConversion);
     HAL_TIM_Base_Start(&htim2);
 
     Io_SharedHardFaultHandler_Init();
 
     Io_SevenSegDisplays_Init(&hspi2);
 
-    left_seven_seg_display =
-        App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetLeftHexDigit);
-    middle_seven_seg_display =
-        App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetMiddleHexDigit);
-    right_seven_seg_display =
-        App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetRightHexDigit);
+    left_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetLeftHexDigit);
+    middle_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetMiddleHexDigit);
+    right_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetRightHexDigit);
 
     seven_seg_displays = App_SevenSegDisplays_Create(
-        left_seven_seg_display, middle_seven_seg_display,
-        right_seven_seg_display, Io_SevenSegDisplays_WriteCommands);
+        left_seven_seg_display, middle_seven_seg_display, right_seven_seg_display, Io_SevenSegDisplays_WriteCommands);
 
     can_tx = App_CanTx_Create(
-        Io_CanTx_EnqueueNonPeriodicMsg_DIM_STARTUP,
-        Io_CanTx_EnqueueNonPeriodicMsg_DIM_WATCHDOG_TIMEOUT);
+        Io_CanTx_EnqueueNonPeriodicMsg_DIM_STARTUP, Io_CanTx_EnqueueNonPeriodicMsg_DIM_WATCHDOG_TIMEOUT);
 
     can_rx = App_CanRx_Create();
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_HeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS,
-        HEARTBEAT_MONITOR_BOARDS_TO_CHECK, Io_HeartbeatMonitor_TimeoutCallback);
+        Io_HeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK,
+        Io_HeartbeatMonitor_TimeoutCallback);
 
     regen_paddle = App_RegenPaddle_Create(
-        Io_RegenPaddle_GetPaddlePosition, REGEN_PADDLE_LOWER_DEADZONE,
-        REGEN_PADDLE_UPPER_DEADZONE);
+        Io_RegenPaddle_GetPaddlePosition, REGEN_PADDLE_LOWER_DEADZONE, REGEN_PADDLE_UPPER_DEADZONE);
 
     rgb_led_sequence = App_SharedRgbLedSequence_Create(
-        Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed,
-        Io_RgbLedSequence_TurnOnGreenLed);
+        Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed, Io_RgbLedSequence_TurnOnGreenLed);
 
-    drive_mode_switch = App_RotarySwitch_Create(
-        Io_DriveModeSwitch_GetPosition, NUM_DRIVE_MODE_SWITCH_POSITIONS);
+    drive_mode_switch = App_RotarySwitch_Create(Io_DriveModeSwitch_GetPosition, NUM_DRIVE_MODE_SWITCH_POSITIONS);
 
     imd_led = App_Led_Create(Io_Leds_TurnOnImdLed, Io_Leds_TurnOffImdLed);
 
@@ -240,42 +228,38 @@ int main(void)
 
     start_switch = App_BinarySwitch_Create(Io_Switches_StartSwitchIsTurnedOn);
 
-    traction_control_switch =
-        App_BinarySwitch_Create(Io_Switches_TractionControlSwitchIsTurnedOn);
+    traction_control_switch = App_BinarySwitch_Create(Io_Switches_TractionControlSwitchIsTurnedOn);
 
-    torque_vectoring_switch =
-        App_BinarySwitch_Create(Io_Switches_TorqueVectoringSwitchIsTurnedOn);
+    torque_vectoring_switch = App_BinarySwitch_Create(Io_Switches_TorqueVectoringSwitchIsTurnedOn);
 
     error_table = App_SharedErrorTable_Create();
 
     bms_status_led = App_SharedRgbLed_Create(
-        Io_RgbLeds_TurnBmsStatusLedRed, Io_RgbLeds_TurnBmsStatusLedGreen,
-        Io_RgbLeds_TurnBmsStatusLedBlue, Io_RgbLeds_TurnOffBmsStatusLed);
+        Io_RgbLeds_TurnBmsStatusLedRed, Io_RgbLeds_TurnBmsStatusLedGreen, Io_RgbLeds_TurnBmsStatusLedBlue,
+        Io_RgbLeds_TurnOffBmsStatusLed);
 
     dcm_status_led = App_SharedRgbLed_Create(
-        Io_RgbLeds_TurnDcmStatusLedRed, Io_RgbLeds_TurnDcmStatusLedGreen,
-        Io_RgbLeds_TurnDcmStatusLedBlue, Io_RgbLeds_TurnOffDcmStatusLed);
+        Io_RgbLeds_TurnDcmStatusLedRed, Io_RgbLeds_TurnDcmStatusLedGreen, Io_RgbLeds_TurnDcmStatusLedBlue,
+        Io_RgbLeds_TurnOffDcmStatusLed);
 
     dim_status_led = App_SharedRgbLed_Create(
-        Io_RgbLeds_TurnDimStatusLedRed, Io_RgbLeds_TurnDimStatusLedGreen,
-        Io_RgbLeds_TurnDimStatusLedBlue, Io_RgbLeds_TurnOffDimStatusLed);
+        Io_RgbLeds_TurnDimStatusLedRed, Io_RgbLeds_TurnDimStatusLedGreen, Io_RgbLeds_TurnDimStatusLedBlue,
+        Io_RgbLeds_TurnOffDimStatusLed);
 
     fsm_status_led = App_SharedRgbLed_Create(
-        Io_RgbLeds_TurnFsmStatusLedRed, Io_RgbLeds_TurnFsmStatusLedGreen,
-        Io_RgbLeds_TurnFsmStatusLedBlue, Io_RgbLeds_TurnOffFsmStatusLed);
+        Io_RgbLeds_TurnFsmStatusLedRed, Io_RgbLeds_TurnFsmStatusLedGreen, Io_RgbLeds_TurnFsmStatusLedBlue,
+        Io_RgbLeds_TurnOffFsmStatusLed);
 
     pdm_status_led = App_SharedRgbLed_Create(
-        Io_RgbLeds_TurnPdmStatusLedRed, Io_RgbLeds_TurnPdmStatusLedGreen,
-        Io_RgbLeds_TurnPdmStatusLedBlue, Io_RgbLeds_TurnOffPdmStatusLed);
+        Io_RgbLeds_TurnPdmStatusLedRed, Io_RgbLeds_TurnPdmStatusLedGreen, Io_RgbLeds_TurnPdmStatusLedBlue,
+        Io_RgbLeds_TurnOffPdmStatusLed);
 
     clock = App_SharedClock_Create();
 
     world = App_DimWorld_Create(
-        can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle,
-        rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, start_switch,
-        traction_control_switch, torque_vectoring_switch, error_table,
-        bms_status_led, dcm_status_led, dim_status_led, fsm_status_led,
-        pdm_status_led, clock);
+        can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle, rgb_led_sequence, drive_mode_switch,
+        imd_led, bspd_led, start_switch, traction_control_switch, torque_vectoring_switch, error_table, bms_status_led,
+        dcm_status_led, dim_status_led, fsm_status_led, pdm_status_led, clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 
@@ -305,32 +289,27 @@ int main(void)
     /* Create the thread(s) */
     /* definition and creation of Task100Hz */
     osThreadStaticDef(
-        Task100Hz, RunTask100Hz, osPriorityBelowNormal, 0, TASK100HZ_STACK_SIZE,
-        Task100HzTaskBuffer, &Task100HzTaskControlBlock);
+        Task100Hz, RunTask100Hz, osPriorityBelowNormal, 0, TASK100HZ_STACK_SIZE, Task100HzTaskBuffer,
+        &Task100HzTaskControlBlock);
     Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
 
     /* definition and creation of TaskCanRx */
     osThreadStaticDef(
-        TaskCanRx, RunTaskCanRx, osPriorityIdle, 0, TASKCANRX_STACK_SIZE,
-        TaskCanRxBuffer, &TaskCanRxControlBlock);
+        TaskCanRx, RunTaskCanRx, osPriorityIdle, 0, TASKCANRX_STACK_SIZE, TaskCanRxBuffer, &TaskCanRxControlBlock);
     TaskCanRxHandle = osThreadCreate(osThread(TaskCanRx), NULL);
 
     /* definition and creation of TaskCanTx */
     osThreadStaticDef(
-        TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, TASKCANTX_STACK_SIZE,
-        TaskCanTxBuffer, &TaskCanTxControlBlock);
+        TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, TASKCANTX_STACK_SIZE, TaskCanTxBuffer, &TaskCanTxControlBlock);
     TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
 
     /* definition and creation of Task1kHz */
     osThreadStaticDef(
-        Task1kHz, RunTask1kHz, osPriorityNormal, 0, TASK1KHZ_STACK_SIZE,
-        Task1kHzBuffer, &Task1kHzControlBlock);
+        Task1kHz, RunTask1kHz, osPriorityNormal, 0, TASK1KHZ_STACK_SIZE, Task1kHzBuffer, &Task1kHzControlBlock);
     Task1kHzHandle = osThreadCreate(osThread(Task1kHz), NULL);
 
     /* definition and creation of Task1Hz */
-    osThreadStaticDef(
-        Task1Hz, RunTask1Hz, osPriorityLow, 0, TASK1HZ_STACK_SIZE,
-        Task1HzBuffer, &Task1HzControlBlock);
+    osThreadStaticDef(Task1Hz, RunTask1Hz, osPriorityLow, 0, TASK1HZ_STACK_SIZE, Task1HzBuffer, &Task1HzControlBlock);
     Task1HzHandle = osThreadCreate(osThread(Task1Hz), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
@@ -369,8 +348,7 @@ void SystemClock_Config(void)
 
     /** Initializes the CPU, AHB and APB busses clocks
      */
-    RCC_OscInitStruct.OscillatorType =
-        RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
+    RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
     RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
     RCC_OscInitStruct.HSIState       = RCC_HSI_ON;
@@ -384,8 +362,7 @@ void SystemClock_Config(void)
     }
     /** Initializes the CPU, AHB and APB busses clocks
      */
-    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK |
-                                  RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
+    RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
     RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
@@ -487,8 +464,7 @@ static void MX_CAN_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN CAN_Init 2 */
-    Io_SharedCan_Init(
-        &hcan, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
+    Io_SharedCan_Init(&hcan, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
     /* USER CODE END CAN_Init 2 */
 }
 
@@ -509,14 +485,13 @@ static void MX_IWDG_Init(void)
     hiwdg.Instance       = IWDG;
     hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
     hiwdg.Init.Window    = IWDG_WINDOW_DISABLE_VALUE;
-    hiwdg.Init.Reload = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
+    hiwdg.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
     if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
     {
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
-    Io_SharedSoftwareWatchdog_Init(
-        Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
+    Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
     /* USER CODE END IWDG_Init 2 */
 }
 
@@ -575,10 +550,10 @@ static void MX_TIM2_Init(void)
     /* USER CODE BEGIN TIM2_Init 1 */
 
     /* USER CODE END TIM2_Init 1 */
-    htim2.Instance         = TIM2;
-    htim2.Init.Prescaler   = TIM2_PRESCALER - 1;
-    htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-    htim2.Init.Period = (TIMx_FREQUENCY / TIM2_PRESCALER) / ADC_FREQUENCY - 1;
+    htim2.Instance               = TIM2;
+    htim2.Init.Prescaler         = TIM2_PRESCALER - 1;
+    htim2.Init.CounterMode       = TIM_COUNTERMODE_UP;
+    htim2.Init.Period            = (TIMx_FREQUENCY / TIM2_PRESCALER) / ADC_FREQUENCY - 1;
     htim2.Init.ClockDivision     = TIM_CLOCKDIVISION_DIV1;
     htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
     if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -639,8 +614,8 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
         GPIOA,
-        DCM_BLUE_Pin | PDM_RED_Pin | DCM_GREEN_Pin | PDM_BLUE_Pin |
-            FSM_GREEN_Pin | BMS_BLUE_Pin | SEVENSEG_DIMMING_3V3_Pin,
+        DCM_BLUE_Pin | PDM_RED_Pin | DCM_GREEN_Pin | PDM_BLUE_Pin | FSM_GREEN_Pin | BMS_BLUE_Pin |
+            SEVENSEG_DIMMING_3V3_Pin,
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
@@ -649,8 +624,7 @@ static void MX_GPIO_Init(void)
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
         GPIOB,
-        DCM_RED_Pin | BMS_GREEN_Pin | FSM_RED_Pin | FSM_BLUE_Pin | BMS_RED_Pin |
-            SEVENSEG_RCK_3V3_Pin | IMD_LED_Pin,
+        DCM_RED_Pin | BMS_GREEN_Pin | FSM_RED_Pin | FSM_BLUE_Pin | BMS_RED_Pin | SEVENSEG_RCK_3V3_Pin | IMD_LED_Pin,
         GPIO_PIN_RESET);
 
     /*Configure GPIO pins : BSPD_LED_Pin DIM_RED_Pin PDM_GREEN_Pin */
@@ -661,12 +635,10 @@ static void MX_GPIO_Init(void)
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
     /*Configure GPIO pins : DCM_BLUE_Pin DIM_GREEN_Pin DIM_BLUE_Pin PDM_RED_Pin
-                             DCM_GREEN_Pin PDM_BLUE_Pin FSM_GREEN_Pin
-       BMS_BLUE_Pin SEVENSEG_DIMMING_3V3_Pin */
-    GPIO_InitStruct.Pin = DCM_BLUE_Pin | DIM_GREEN_Pin | DIM_BLUE_Pin |
-                          PDM_RED_Pin | DCM_GREEN_Pin | PDM_BLUE_Pin |
-                          FSM_GREEN_Pin | BMS_BLUE_Pin |
-                          SEVENSEG_DIMMING_3V3_Pin;
+                             DCM_GREEN_Pin PDM_BLUE_Pin FSM_GREEN_Pin BMS_BLUE_Pin
+                             SEVENSEG_DIMMING_3V3_Pin */
+    GPIO_InitStruct.Pin = DCM_BLUE_Pin | DIM_GREEN_Pin | DIM_BLUE_Pin | PDM_RED_Pin | DCM_GREEN_Pin | PDM_BLUE_Pin |
+                          FSM_GREEN_Pin | BMS_BLUE_Pin | SEVENSEG_DIMMING_3V3_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -674,18 +646,16 @@ static void MX_GPIO_Init(void)
 
     /*Configure GPIO pins : DCM_RED_Pin BMS_GREEN_Pin FSM_RED_Pin FSM_BLUE_Pin
                              BMS_RED_Pin SEVENSEG_RCK_3V3_Pin IMD_LED_Pin */
-    GPIO_InitStruct.Pin = DCM_RED_Pin | BMS_GREEN_Pin | FSM_RED_Pin |
-                          FSM_BLUE_Pin | BMS_RED_Pin | SEVENSEG_RCK_3V3_Pin |
-                          IMD_LED_Pin;
+    GPIO_InitStruct.Pin =
+        DCM_RED_Pin | BMS_GREEN_Pin | FSM_RED_Pin | FSM_BLUE_Pin | BMS_RED_Pin | SEVENSEG_RCK_3V3_Pin | IMD_LED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : DRIVE_MODE5_Pin DRIVE_MODE1_Pin TRAC_CTRL_Pin
-       TORQ_VECT_Pin IGNTN_Pin */
-    GPIO_InitStruct.Pin = DRIVE_MODE5_Pin | DRIVE_MODE1_Pin | TRAC_CTRL_Pin |
-                          TORQ_VECT_Pin | IGNTN_Pin;
+    /*Configure GPIO pins : DRIVE_MODE5_Pin DRIVE_MODE1_Pin TRAC_CTRL_Pin TORQ_VECT_Pin
+                             IGNTN_Pin */
+    GPIO_InitStruct.Pin  = DRIVE_MODE5_Pin | DRIVE_MODE1_Pin | TRAC_CTRL_Pin | TORQ_VECT_Pin | IGNTN_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
@@ -714,8 +684,7 @@ void RunTask100Hz(void const *argument)
     UNUSED(argument);
     uint32_t                 PreviousWakeTime = osKernelSysTick();
     static const TickType_t  period_ms        = 10;
-    SoftwareWatchdogHandle_t watchdog =
-        Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_100HZ", period_ms);
 
     /* Infinite loop */
@@ -748,8 +717,7 @@ void RunTaskCanRx(void const *argument)
     {
         struct CanMsg message;
         Io_SharedCan_DequeueCanRxMessage(&message);
-        Io_CanRx_UpdateRxTableWithMessage(
-            App_DimWorld_GetCanRx(world), &message);
+        Io_CanRx_UpdateRxTableWithMessage(App_DimWorld_GetCanRx(world), &message);
     }
     /* USER CODE END RunTaskCanRx */
 }
@@ -787,8 +755,7 @@ void RunTask1kHz(void const *argument)
     UNUSED(argument);
     uint32_t                 PreviousWakeTime = osKernelSysTick();
     static const TickType_t  period_ms        = 1;
-    SoftwareWatchdogHandle_t watchdog =
-        Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1KHZ", period_ms);
 
     /* Infinite loop */
@@ -827,8 +794,7 @@ void RunTask1Hz(void const *argument)
     UNUSED(argument);
     uint32_t                 PreviousWakeTime = osKernelSysTick();
     static const TickType_t  period_ms        = 1000U;
-    SoftwareWatchdogHandle_t watchdog =
-        Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
     Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1HZ", period_ms);
 
     /* Infinite loop */

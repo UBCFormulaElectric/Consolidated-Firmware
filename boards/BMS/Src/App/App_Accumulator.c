@@ -70,8 +70,7 @@ void App_Accumulator_Destroy(struct Accumulator *accumulator)
     free(accumulator);
 }
 
-bool App_Accumulator_HasCommunicationError(
-    const struct Accumulator *const accumulator)
+bool App_Accumulator_HasCommunicationError(const struct Accumulator *const accumulator)
 {
     return accumulator->num_comm_tries >= MAX_NUM_COMM_TRIES;
 }

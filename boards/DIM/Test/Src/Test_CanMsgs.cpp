@@ -24,9 +24,7 @@ TEST(CanMsgsTest, drive_mode_switch_message_frequency)
 }
 
 // DIM-4
-TEST(
-    CanMsgsTest,
-    start_and_traction_control_and_torque_vectoring_switches_message_frequency)
+TEST(CanMsgsTest, start_and_traction_control_and_torque_vectoring_switches_message_frequency)
 {
     ASSERT_EQ(HZ_TO_MS(100), CANMSGS_DIM_SWITCHES_CYCLE_TIME_MS);
 }

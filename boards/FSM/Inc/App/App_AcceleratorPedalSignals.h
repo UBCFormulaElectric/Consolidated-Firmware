@@ -44,8 +44,7 @@ void App_AcceleratorPedalSignals_SappsAlarmCallback(struct FsmWorld *world);
  * @return true if the encoder alarm for the secondary APPS in the given world
  *         is active, else false
  */
-bool App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive(
-    struct FsmWorld *world);
+bool App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive(struct FsmWorld *world);
 
 /**
  * Check if the mapped pedal percentage for the primary and secondary APPS in
@@ -61,8 +60,7 @@ bool App_AcceleratorPedalSignals_HasAppsDisagreement(struct FsmWorld *world);
  * @param world The world containing the can_tx interface used to set can_tx
  * signals associated with the APPS disagreement
  */
-void App_AcceleratorPedalSignals_AppsDisagreementCallback(
-    struct FsmWorld *world);
+void App_AcceleratorPedalSignals_AppsDisagreementCallback(struct FsmWorld *world);
 /**
  * Check if the mapped pedal percentage for the primary and secondary APPS in
  * the given world are in agreement
@@ -79,8 +77,7 @@ bool App_AcceleratorPedalSignals_HasAppsAgreement(struct FsmWorld *world);
  * @param world The world containing the brake and the primary APPS
  * @return true if the APPS and Brake plausibility check has failed, else false
  */
-bool App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure(
-    struct FsmWorld *world);
+bool App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure(struct FsmWorld *world);
 
 /**
  * The callback function for the signal associated with the APPS and Brake
@@ -88,8 +85,7 @@ bool App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure(
  * @param world The world containing the can_tx interface used to set can_tx
  * signals associated with the APPS and brake plausibility failure
  */
-void App_AcceleratorPedalSignals_AppsAndBrakePlausibilityFailureCallback(
-    struct FsmWorld *world);
+void App_AcceleratorPedalSignals_AppsAndBrakePlausibilityFailureCallback(struct FsmWorld *world);
 
 /**
  * Check if the APPS and Brake plausibility check is OK
@@ -98,5 +94,4 @@ void App_AcceleratorPedalSignals_AppsAndBrakePlausibilityFailureCallback(
  * @param world The world containing the primary APPS
  * @return true if the APPS and brake plausibility check is OK, else false
  */
-bool App_AcceleratorPedalSignals_IsAppsAndBrakePlausibilityOk(
-    struct FsmWorld *world);
+bool App_AcceleratorPedalSignals_IsAppsAndBrakePlausibilityOk(struct FsmWorld *world);

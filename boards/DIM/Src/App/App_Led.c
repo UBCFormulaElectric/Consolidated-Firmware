@@ -8,8 +8,7 @@ struct Led
     void (*turn_off_led)(void);
 };
 
-struct Led *
-    App_Led_Create(void (*turn_on_led)(void), void (*turn_off_led)(void))
+struct Led *App_Led_Create(void (*turn_on_led)(void), void (*turn_off_led)(void))
 {
     assert(turn_on_led != NULL);
     assert(turn_off_led != NULL);

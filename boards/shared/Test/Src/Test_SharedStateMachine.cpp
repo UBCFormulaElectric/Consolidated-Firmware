@@ -67,9 +67,7 @@ class SharedStateMachineTest : public testing::Test
         App_SharedStateMachine_Destroy(state_machine);
         state_machine = App_SharedStateMachine_Create(world, initial_state);
         ASSERT_TRUE(state_machine != NULL);
-        ASSERT_EQ(
-            initial_state,
-            App_SharedStateMachine_GetCurrentState(state_machine));
+        ASSERT_EQ(initial_state, App_SharedStateMachine_GetCurrentState(state_machine));
     }
 
     // We provide our own implementation of the 1hz tick for state_A
@@ -83,9 +81,7 @@ class SharedStateMachineTest : public testing::Test
     struct StateMachine *state_machine;
 };
 
-TEST_F(
-    SharedStateMachineTest,
-    check_that_switching_states_in_tick_switches_states_for_all_ticks)
+TEST_F(SharedStateMachineTest, check_that_switching_states_in_tick_switches_states_for_all_ticks)
 {
     // Check that when we transition states in a tick function at one frequency,
     // that all the other frequencies also transition state
