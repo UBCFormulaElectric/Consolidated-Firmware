@@ -168,8 +168,7 @@ static void
 
         // Get dcc bits to write for the current segment. If this is the lowest
         // cell, set DCC bits for the given segment
-        const uint16_t dcc_bits =
-            Io_LTC6813CellVoltages_GetCellsToDischarge(curr_segment);
+        const uint16_t dcc_bits = Io_LTC6813CellVoltages_GetCellsToDischarge(curr_segment);
 
         // Write to configuration registers DCC bits
         if (curr_cfg_reg == CONFIG_REG_A)
