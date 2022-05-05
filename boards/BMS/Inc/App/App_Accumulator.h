@@ -10,6 +10,8 @@ struct Accumulator;
  * Allocate and initialize an accumulator.
  * @param config_monitoring_chip A function that can be called to configure
  * cell monitors
+ * @param write_cfg_registers A function that can be called to write to the
+ * configuration registers. This is done to control cell discharging
  * @param start_voltage_conv A function that can be called to trigger voltage
  * conversions
  * @param read_cell_voltages A function that can be called to read cell voltages
@@ -26,6 +28,7 @@ struct Accumulator;
  */
 struct Accumulator *App_Accumulator_Create(
     bool (*config_monitoring_chip)(void),
+    bool (*write_cfg_registers)(void),
     bool (*start_voltage_conv)(void),
     bool (*read_cell_voltages)(void),
     float (*get_min_cell_voltage)(uint8_t *, uint8_t *),

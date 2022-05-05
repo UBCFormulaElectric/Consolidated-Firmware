@@ -60,6 +60,7 @@ FAKE_VOID_FUNC(close_air_positive);
 FAKE_VOID_FUNC(enable_pre_charge);
 FAKE_VOID_FUNC(disable_pre_charge);
 FAKE_VALUE_FUNC(bool, configure_cell_monitors);
+FAKE_VALUE_FUNC(bool, write_cfg_registers);
 FAKE_VALUE_FUNC(bool, start_voltage_conv);
 FAKE_VALUE_FUNC(bool, read_cell_voltages);
 FAKE_VALUE_FUNC(float, get_min_cell_voltage, uint8_t *, uint8_t *);
@@ -102,8 +103,9 @@ class BmsStateMachineTest : public BaseStateMachineTest
         bspd_ok = App_OkStatus_Create(enable_bspd_ok, disable_bspd_ok, is_bspd_ok_enabled);
 
         accumulator = App_Accumulator_Create(
-            configure_cell_monitors, start_voltage_conv, read_cell_voltages, get_min_cell_voltage, get_max_cell_voltage,
-            get_segment_voltage, get_pack_voltage, get_avg_cell_voltage, start_temp_conv, read_cell_temperatures);
+            configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, get_min_cell_voltage,
+            get_max_cell_voltage, get_segment_voltage, get_pack_voltage, get_avg_cell_voltage, start_temp_conv,
+            read_cell_temperatures);
 
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
 
@@ -146,6 +148,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(is_air_negative_closed);
         RESET_FAKE(is_air_positive_closed);
         RESET_FAKE(configure_cell_monitors);
+        RESET_FAKE(write_cfg_registers);
         RESET_FAKE(start_voltage_conv);
         RESET_FAKE(read_cell_voltages);
         RESET_FAKE(get_min_cell_voltage);

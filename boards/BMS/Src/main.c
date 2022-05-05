@@ -231,14 +231,14 @@ int main(void)
     bspd_ok =
         App_OkStatus_Create(Io_OkStatuses_EnableBspdOk, Io_OkStatuses_DisableBspdOk, Io_OkStatuses_IsBspdOkEnabled);
 
-    // TODO: Init ACC
     Io_LTC6813Shared_InitSpiHandle(&hspi2);
     accumulator = App_Accumulator_Create(
-        Io_LTC6813Shared_SetCfgRegsToDefaultSettings, Io_LTC6813CellVoltages_StartAdcConversion,
-        Io_LTC6813CellVoltages_ReadVoltages, Io_LTC6813CellVoltages_GetMinCellVoltage,
-        Io_LTC6813CellVoltages_GetMaxCellVoltage, Io_LTC6813CellVoltages_GetSegmentVoltage,
-        Io_LTC6813CellVoltages_GetPackVoltage, Io_LTC6813CellVoltages_GetAverageCellVoltage,
-        Io_LTC6813CellTemperatures_StartAdcConversion, Io_LTC6813CellTemperatures_ReadTemperatures);
+        Io_LTC6813Shared_SetCfgRegsToDefaultSettings, Io_LTC6813Shared_WriteConfigurationRegisters,
+        Io_LTC6813CellVoltages_StartAdcConversion, Io_LTC6813CellVoltages_ReadVoltages,
+        Io_LTC6813CellVoltages_GetMinCellVoltage, Io_LTC6813CellVoltages_GetMaxCellVoltage,
+        Io_LTC6813CellVoltages_GetSegmentVoltage, Io_LTC6813CellVoltages_GetPackVoltage,
+        Io_LTC6813CellVoltages_GetAverageCellVoltage, Io_LTC6813CellTemperatures_StartAdcConversion,
+        Io_LTC6813CellTemperatures_ReadTemperatures);
 
     ts = App_TractiveSystem_Create(Io_Adc_GetAdc1Channel3Voltage, Io_VoltageSense_GetTractiveSystemVoltage);
 
@@ -307,9 +307,9 @@ int main(void)
     Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
-    /* add threads, ... */
-    // According to Percpio documentation, vTraceEnable() should be the last
-    // function call before the scheduler starts.
+/* add threads, ... */
+// According to Percpio documentation, vTraceEnable() should be the last
+// function call before the scheduler starts.
 #if (configUSE_TRACE_FACILITY == 1)
     vTraceEnable(TRC_INIT);
 #endif
