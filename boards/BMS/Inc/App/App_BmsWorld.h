@@ -9,7 +9,7 @@
 #include "App_OkStatus.h"
 #include "App_Accumulator.h"
 #include "App_Airs.h"
-#include "App_PreChargeSequence.h"
+#include "App_PreChargeRelay.h"
 #include "App_TractiveSystem.h"
 #include "App_SharedErrorTable.h"
 #include "App_SharedClock.h"
