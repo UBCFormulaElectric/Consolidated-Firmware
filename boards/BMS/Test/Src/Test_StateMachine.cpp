@@ -72,6 +72,9 @@ FAKE_VALUE_FUNC(float, get_raw_ts_voltage);
 FAKE_VALUE_FUNC(float, get_ts_voltage, float);
 FAKE_VALUE_FUNC(bool, start_temp_conv);
 FAKE_VALUE_FUNC(bool, read_cell_temperatures);
+FAKE_VALUE_FUNC(float, get_min_temp_degc, uint8_t *, uint8_t *);
+FAKE_VALUE_FUNC(float, get_max_temp_degc, uint8_t *, uint8_t *);
+FAKE_VALUE_FUNC(float, get_avg_temp_degc);
 
 class BmsStateMachineTest : public BaseStateMachineTest
 {
@@ -105,7 +108,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         accumulator = App_Accumulator_Create(
             configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, get_min_cell_voltage,
             get_max_cell_voltage, get_segment_voltage, get_pack_voltage, get_avg_cell_voltage, start_temp_conv,
-            read_cell_temperatures);
+            read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc);
 
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
 
@@ -156,6 +159,11 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(get_segment_voltage);
         RESET_FAKE(get_pack_voltage);
         RESET_FAKE(get_avg_cell_voltage);
+        RESET_FAKE(get_min_cell_voltage);
+        RESET_FAKE(get_max_cell_voltage);
+        RESET_FAKE(get_avg_cell_voltage);
+        RESET_FAKE(get_min_cell_voltage);
+        RESET_FAKE(get_max_cell_voltage);
 
         // The charger is connected to prevent other tests from entering the
         // fault state from the charge state
@@ -169,6 +177,10 @@ class BmsStateMachineTest : public BaseStateMachineTest
         // tests from entering the fault state
         get_min_cell_voltage_fake.return_val = 4.0f;
         get_max_cell_voltage_fake.return_val = 4.0f;
+
+        // A temperature in [0.0, 60.0] degC to prevent other tests from entering the fault state
+        get_min_temp_degc_fake.return_val = 20.0f;
+        get_max_temp_degc_fake.return_val = 20.0f;
     }
 
     void TearDown() override

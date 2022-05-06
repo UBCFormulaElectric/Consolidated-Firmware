@@ -2,7 +2,19 @@
 #include <assert.h>
 #include "App_Accumulator.h"
 
+// Max number of PEC15 to occur before faulting
 #define MAX_NUM_COMM_TRIES (3U)
+
+// Update the counter keeping track of the PEC15 error
+#define UPDATE_PEC15_ERROR_COUNT(is_pec_ok, num_comm_tries) \
+    if ((is_pec_ok))                                        \
+    {                                                       \
+        (num_comm_tries) = 0U;                              \
+    }                                                       \
+    else                                                    \
+    {                                                       \
+        (num_comm_tries)++;                                 \
+    }
 
 enum AccumulatorMonitorState
 {
@@ -30,6 +42,9 @@ struct Accumulator
     // Cell temperature monitoring functions
     bool (*start_cell_temp_conv)(void);
     bool (*read_cell_temperatures)(void);
+    float (*get_min_cell_temp)(uint8_t *, uint8_t *);
+    float (*get_max_cell_temp)(uint8_t *, uint8_t *);
+    float (*get_avg_cell_temp)(void);
 };
 
 struct Accumulator *App_Accumulator_Create(
@@ -43,7 +58,10 @@ struct Accumulator *App_Accumulator_Create(
     float (*get_pack_voltage)(void),
     float (*get_avg_cell_voltage)(void),
     bool (*start_cell_temp_conv)(void),
-    bool (*read_cell_temperatures)(void))
+    bool (*read_cell_temperatures)(void),
+    float (*get_min_cell_temp)(uint8_t *, uint8_t *),
+    float (*get_max_cell_temp)(uint8_t *, uint8_t *),
+    float (*get_avg_cell_temp)(void))
 {
     struct Accumulator *accumulator = malloc(sizeof(struct Accumulator));
     assert(accumulator != NULL);
@@ -64,6 +82,9 @@ struct Accumulator *App_Accumulator_Create(
     // Cell temperature monitoring functions
     accumulator->start_cell_temp_conv   = start_cell_temp_conv;
     accumulator->read_cell_temperatures = read_cell_temperatures;
+    accumulator->get_min_cell_temp      = get_min_cell_temp;
+    accumulator->get_max_cell_temp      = get_max_cell_temp;
+    accumulator->get_avg_cell_temp      = get_avg_cell_temp;
 
     return accumulator;
 }
@@ -89,9 +110,29 @@ float App_Accumulator_GetMaxVoltage(const struct Accumulator *const accumulator,
     return accumulator->get_max_cell_voltage(segment, cell);
 }
 
-float App_Accumulator_GetMinVoltage(const struct Accumulator *const accumulator, uint8_t *segment, uint8_t *cell)
-{
+float App_Accumulator_GetMinVoltage(const struct Accumulator *const accumulator, uint8_t *segment, uint8_t *cell) {
     return accumulator->get_min_cell_voltage(segment, cell);
+}
+
+float App_Accumulator_GetMinCellTempDegC(
+    const struct Accumulator *const accumulator,
+    uint8_t *                       segment,
+    uint8_t *                       thermistor)
+{
+    return accumulator->get_min_cell_temp(segment, thermistor);
+}
+
+float App_Accumulator_GetMaxCellTempDegC(
+    const struct Accumulator *const accumulator,
+    uint8_t *                       segment,
+    uint8_t *                       thermistor)
+{
+    return accumulator->get_max_cell_temp(segment, thermistor);
+}
+
+float App_Accumulator_GetAvgCellTempDegC(const struct Accumulator *const accumulator)
+{
+    return accumulator->get_avg_cell_temp();
 }
 
 void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
@@ -102,17 +143,7 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
     {
         case GET_CELL_VOLTAGE_STATE:
 
-            // Read cell voltages. Increment the number of comm. tries if there
-            // is a communication error
-            if (!accumulator->read_cell_voltages())
-            {
-                accumulator->num_comm_tries++;
-            }
-            else
-            {
-                // Reset the number of communication tries
-                accumulator->num_comm_tries = 0U;
-            }
+            UPDATE_PEC15_ERROR_COUNT(accumulator->read_cell_voltages(), accumulator->num_comm_tries)
 
             // Write to configuration register to configure cell discharging
             accumulator->write_cfg_registers();
@@ -124,8 +155,7 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
 
         case GET_CELL_TEMP_STATE:
 
-            // Read cell temperatures
-            accumulator->read_cell_temperatures();
+            UPDATE_PEC15_ERROR_COUNT(accumulator->read_cell_temperatures(), accumulator->num_comm_tries)
 
             // Start cell voltage conversions for the next cycle
             accumulator->start_cell_voltage_conv();

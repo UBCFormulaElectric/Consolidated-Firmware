@@ -5,6 +5,7 @@
 #include "App_SharedMacros.h"
 
 // clang-format off
+#define NOMINAL_CELL_VOLTAGE          (37000U)
 #define NUM_OF_CELLS_PER_SEGMENT      (16U)
 #define TOTAL_NUM_OF_CELLS            (NUM_OF_CELLS_PER_SEGMENT * NUM_OF_ACCUMULATOR_SEGMENTS)
 
@@ -135,6 +136,8 @@ static void Io_UpdateCellVoltages(void)
 
 static bool Io_ParseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS])
 {
+    bool status = true;
+
     for (uint8_t curr_segment = 0U; curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS; curr_segment++)
     {
         // Set the starting index to read cell voltages for the current segment
@@ -161,11 +164,11 @@ static bool Io_ParseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t 
         }
         else
         {
-            return false;
+            status = false;
         }
     }
 
-    return true;
+    return status;
 }
 
 static void Io_SetDischargeBits(void)

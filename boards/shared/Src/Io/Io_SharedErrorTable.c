@@ -133,6 +133,8 @@ static void
     SET_ERROR(error_table, BMS_AIR_SHUTDOWN_MIN_CELL_VOLTAGE_OUT_OF_RANGE, data->min_cell_voltage_out_of_range);
     SET_ERROR(error_table, BMS_AIR_SHUTDOWN_MAX_CELL_VOLTAGE_OUT_OF_RANGE, data->max_cell_voltage_out_of_range);
     SET_ERROR(error_table, BMS_AIR_SHUTDOWN_HAS_PEC_ERROR, data->has_pec_error);
+    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_MIN_CELL_TEMP_OUT_OF_RANGE, data->min_cell_temp_out_of_range);
+    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_MAX_CELL_TEMP_OUT_OF_RANGE, data->max_cell_temp_out_of_range);
 }
 
 static void
