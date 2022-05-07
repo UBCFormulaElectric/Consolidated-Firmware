@@ -84,6 +84,16 @@ void App_Accumulator_InitRunOnEntry(const struct Accumulator *const accumulator)
     accumulator->config_monitoring_chip();
 }
 
+float App_Accumulator_GetMaxVoltage(const struct Accumulator *const accumulator, uint8_t *segment, uint8_t *cell)
+{
+    return accumulator->get_max_cell_voltage(segment, cell);
+}
+
+float App_Accumulator_GetMinVoltage(const struct Accumulator *const accumulator, uint8_t *segment, uint8_t *cell)
+{
+    return accumulator->get_min_cell_voltage(segment, cell);
+}
+
 void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
 {
     static enum AccumulatorMonitorState state = GET_CELL_VOLTAGE_STATE;
