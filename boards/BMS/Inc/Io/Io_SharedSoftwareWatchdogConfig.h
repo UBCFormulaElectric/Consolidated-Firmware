@@ -1,3 +1,3 @@
 #pragma once
 
-#define MAX_NUM_OF_SOFTWARE_WATCHDOG 5
+#define MAX_NUM_OF_SOFTWARE_WATCHDOG (6U)

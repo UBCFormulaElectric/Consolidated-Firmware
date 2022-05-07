@@ -94,7 +94,7 @@ void Io_SharedSoftwareWatchdog_CheckForTimeouts(void)
     // If a timeout is detected, let the hardware watchdog timeout reset the
     // system. We don't reboot immediately because we need some time to log
     // information for further debugging.
-    for (int i = 0; i < MAX_NUM_OF_SOFTWARE_WATCHDOG && !timeout_detected; i++)
+    for (uint8_t i = 0U; i < MAX_NUM_OF_SOFTWARE_WATCHDOG && !timeout_detected; i++)
     {
         // Only check for timeout if the watchdog has been initialized
         if (sw_watchdog_table.watchdogs[i].initialized == false)

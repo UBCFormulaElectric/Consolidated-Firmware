@@ -11,6 +11,12 @@ static void
         error_table, BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
         data->stack_watermark_above_threshold_task1_hz);
     SET_ERROR(
+        error_table, BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK10HZ,
+        data->stack_watermark_above_threshold_task1_hz);
+    SET_ERROR(
+        error_table, BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK100HZ,
+        data->stack_watermark_above_threshold_task1_hz);
+    SET_ERROR(
         error_table, BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ,
         data->stack_watermark_above_threshold_task1_khz);
     SET_ERROR(
