@@ -10,7 +10,7 @@
 #define DEFAULT_MAX_CELL_TEMP_DEGC (60.0f)
 
 // Num of cycles for voltage and cell temperature values to settle
-#define NUM_CYCLES_TO_SETTLE (5U)
+#define NUM_CYCLES_TO_SETTLE (1U)
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
@@ -40,10 +40,12 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     static uint8_t settling_time_counter = 0U;
     App_Accumulator_RunOnTick100Hz(accumulator);
 
-    uint8_t     min_segment                = 0U;
-    uint8_t     min_loc                   = 0U;
-    uint8_t     max_segment                = 0U;
-    uint8_t     max_loc                   = 0U;
+    uint8_t min_segment = 0U;
+    uint8_t min_loc     = 0U;
+    uint8_t max_segment = 0U;
+    uint8_t max_loc     = 0U;
+
+    // Get the min and max cell voltages and check to see if the voltages are in range
     const float curr_min_cell_voltage      = App_Accumulator_GetMinVoltage(accumulator, &min_segment, &min_loc);
     const float curr_max_cell_voltage      = App_Accumulator_GetMaxVoltage(accumulator, &max_segment, &max_loc);
     const bool  is_min_cell_v_out_of_range = !IS_IN_RANGE(MIN_CELL_VOLTAGE, MAX_CELL_VOLTAGE, curr_min_cell_voltage);
@@ -64,8 +66,6 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     // Get the min and max cell temperature and check to see if the temperatures
     // are in range
     // TODO: broadcast values via CAN
-    uint8_t thermistor_min = 0U;
-    uint8_t thermistor_max = 0U;
     const float curr_min_cell_temp = App_Accumulator_GetMinCellTempDegC(accumulator, &min_segment, &min_loc);
     const float curr_max_cell_temp = App_Accumulator_GetMaxCellTempDegC(accumulator, &max_segment, &max_loc);
     const bool  is_min_cell_out_of_range =
@@ -94,7 +94,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_IMD_OK(can_tx, App_OkStatus_IsEnabled(imd_ok));
     App_CanTx_SetPeriodicSignal_BSPD_OK(can_tx, App_OkStatus_IsEnabled(bspd_ok));
 
-    if (settling_time_counter <= NUM_CYCLES_TO_SETTLE)
+    if (settling_time_counter < NUM_CYCLES_TO_SETTLE)
     {
         settling_time_counter++;
     }

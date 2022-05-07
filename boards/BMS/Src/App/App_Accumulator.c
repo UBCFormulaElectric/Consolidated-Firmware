@@ -110,7 +110,8 @@ float App_Accumulator_GetMaxVoltage(const struct Accumulator *const accumulator,
     return accumulator->get_max_cell_voltage(segment, cell);
 }
 
-float App_Accumulator_GetMinVoltage(const struct Accumulator *const accumulator, uint8_t *segment, uint8_t *cell) {
+float App_Accumulator_GetMinVoltage(const struct Accumulator *const accumulator, uint8_t *segment, uint8_t *cell)
+{
     return accumulator->get_min_cell_voltage(segment, cell);
 }
 
