@@ -25,3 +25,6 @@
 
 // Convert the tick rate to a time in ms
 #define TICK_TO_MS(tick) ((tick) * portTICK_PERIOD_MS)
+
+// True if value is in range
+#define IS_IN_RANGE(min,max,val) (((val) > (min)) && ((val) < (max)))

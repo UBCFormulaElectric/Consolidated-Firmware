@@ -52,6 +52,24 @@ void App_Accumulator_Destroy(struct Accumulator *accumulator);
  */
 bool App_Accumulator_HasCommunicationError(const struct Accumulator *accumulator);
 
+/**
+ * Get min voltage for the accumulator
+ * @param accumulator The accumulator to get the min voltage for
+ * @param segment The segment containing the min cell voltage
+ * @param cell The cell location for the min voltage
+ * @return The min voltage in V
+ */
+float App_Accumulator_GetMinVoltage(const struct Accumulator *const accumulator, uint8_t *segment, uint8_t *cell);
+
+/**
+ * Get max voltage for the accumulator
+ * @param accumulator The accumulator to get the max voltage for
+ * @param segment The segment containing the max cell voltage
+ * @param cell The cell location for the max voltage
+ * @return The max voltage in V
+ */
+float App_Accumulator_GetMaxVoltage(const struct Accumulator *const accumulator, uint8_t *segment, uint8_t *cell);
+
 // Rate functions to be called within the state machine
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *accumulator);
 void App_Accumulator_RunOnTick100Hz(struct Accumulator *accumulator);
