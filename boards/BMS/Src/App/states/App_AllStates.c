@@ -25,7 +25,7 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_IS_CONNECTED(can_tx, charger_is_connected);
 }
 
-void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
+bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct BmsWorld *         world       = App_SharedStateMachine_GetWorld(state_machine);
     struct BmsCanTxInterface *can_tx      = App_BmsWorld_GetCanTx(world);
@@ -37,7 +37,9 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
     struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
 
+    bool           status                = true;
     static uint8_t settling_time_counter = 0U;
+
     App_Accumulator_RunOnTick100Hz(accumulator);
 
     uint8_t min_segment = 0U;
@@ -50,6 +52,8 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     const float curr_max_cell_voltage      = App_Accumulator_GetMaxVoltage(accumulator, &max_segment, &max_loc);
     const bool  is_min_cell_v_out_of_range = !IS_IN_RANGE(MIN_CELL_VOLTAGE, MAX_CELL_VOLTAGE, curr_min_cell_voltage);
     const bool  is_max_cell_v_out_of_range = !IS_IN_RANGE(MIN_CELL_VOLTAGE, MAX_CELL_VOLTAGE, curr_max_cell_voltage);
+    App_SharedErrorTable_SetError(
+        error_table, BMS_AIR_SHUTDOWN_MAX_CELL_VOLTAGE_OUT_OF_RANGE, is_max_cell_v_out_of_range);
     App_SharedErrorTable_SetError(
         error_table, BMS_AIR_SHUTDOWN_MIN_CELL_VOLTAGE_OUT_OF_RANGE, is_min_cell_v_out_of_range);
     App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_HAS_PEC_ERROR, is_max_cell_v_out_of_range);
@@ -100,6 +104,9 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     }
     else if (App_SharedErrorTable_HasAnyCriticalErrorSet(error_table))
     {
+        status = false;
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
+
+    return status;
 }

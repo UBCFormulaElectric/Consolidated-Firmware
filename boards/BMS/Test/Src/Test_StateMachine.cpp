@@ -652,4 +652,17 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
     ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
+// TODO: update test when AIR open state is removed
+TEST_F(BmsStateMachineTest, check_fault_state_transition_from_all_states)
+{
+    SetInitialState(App_GetAirOpenState());
+
+    LetTimePass(state_machine, 4999);
+    ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_AIR_OPEN_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    get_max_cell_voltage_fake.return_val = 4.5;
+    LetTimePass(state_machine, 1);
+    ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+}
+
 } // namespace StateMachineTest
