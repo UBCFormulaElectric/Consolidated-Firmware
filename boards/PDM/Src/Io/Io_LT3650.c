@@ -4,6 +4,5 @@
 
 bool Io_LT3650_HasFault(void)
 {
-    return HAL_GPIO_ReadPin(CHRG_FAULT_GPIO_Port, CHRG_FAULT_Pin) ==
-           GPIO_PIN_RESET;
+    return HAL_GPIO_ReadPin(CHRG_FAULT_GPIO_Port, CHRG_FAULT_Pin) == GPIO_PIN_RESET;
 }

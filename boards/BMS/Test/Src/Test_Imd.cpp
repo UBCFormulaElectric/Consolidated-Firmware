@@ -10,9 +10,8 @@ void ImdTest::SetImdCondition(
     float &                fake_pwm_frequency_return_val)
 {
     const float mapping[NUM_OF_IMD_CONDITIONS] = {
-        [IMD_SHORT_CIRCUIT] = 0.0f,          [IMD_NORMAL] = 10.0f,
-        [IMD_UNDERVOLTAGE_DETECTED] = 20.0f, [IMD_SST] = 30.0f,
-        [IMD_DEVICE_ERROR] = 40.0f,          [IMD_EARTH_FAULT] = 50.0f,
+        [IMD_SHORT_CIRCUIT] = 0.0f, [IMD_NORMAL] = 10.0f,       [IMD_UNDERVOLTAGE_DETECTED] = 20.0f,
+        [IMD_SST] = 30.0f,          [IMD_DEVICE_ERROR] = 40.0f, [IMD_EARTH_FAULT] = 50.0f,
     };
 
     fake_pwm_frequency_return_val = mapping[condition_name];
@@ -22,18 +21,15 @@ void ImdTest::SetImdCondition(
 void ImdTest::SetPwmFrequencyTolerance(struct Imd *&imd_to_set, float tolerance)
 {
     TearDownObject(imd_to_set, App_Imd_Destroy);
-    imd_to_set = App_Imd_Create(
-        get_pwm_frequency, tolerance, get_pwm_duty_cycle,
-        get_seconds_since_power_on);
+    imd_to_set = App_Imd_Create(get_pwm_frequency, tolerance, get_pwm_duty_cycle, get_seconds_since_power_on);
 }
 
 void ImdTest::SetUp()
 {
     constexpr float DEFAULT_FREQUENCY_TOLERANCE = 2.0f;
 
-    imd = App_Imd_Create(
-        get_pwm_frequency, DEFAULT_FREQUENCY_TOLERANCE, get_pwm_duty_cycle,
-        get_seconds_since_power_on);
+    imd =
+        App_Imd_Create(get_pwm_frequency, DEFAULT_FREQUENCY_TOLERANCE, get_pwm_duty_cycle, get_seconds_since_power_on);
 
     RESET_FAKE(get_pwm_frequency);
     RESET_FAKE(get_pwm_duty_cycle);
@@ -45,13 +41,9 @@ void ImdTest::TearDown()
     TearDownObject(imd, App_Imd_Destroy);
 }
 
-TEST_F(
-    ImdTest,
-    check_insulation_resistance_for_normal_and_undervoltage_conditions)
+TEST_F(ImdTest, check_insulation_resistance_for_normal_and_undervoltage_conditions)
 {
-    std::vector<enum Imd_ConditionName> condition_names = {
-        IMD_NORMAL, IMD_UNDERVOLTAGE_DETECTED
-    };
+    std::vector<enum Imd_ConditionName> condition_names = { IMD_NORMAL, IMD_UNDERVOLTAGE_DETECTED };
 
     for (auto &condition_name : condition_names)
     {
@@ -71,15 +63,12 @@ TEST_F(
         get_pwm_duty_cycle_fake.return_val = MIN_VALID_DUTY_CYCLE;
         condition                          = App_Imd_GetCondition(imd);
         ASSERT_EQ(true, condition.pwm_encoding.valid_duty_cycle);
-        ASSERT_EQ(
-            50000, condition.pwm_encoding.insulation_measurement_dcp_kohms);
+        ASSERT_EQ(50000, condition.pwm_encoding.insulation_measurement_dcp_kohms);
 
-        get_pwm_duty_cycle_fake.return_val =
-            (MIN_VALID_DUTY_CYCLE + MAX_VALID_DUTY_CYCLE) / 2.0f;
-        condition = App_Imd_GetCondition(imd);
+        get_pwm_duty_cycle_fake.return_val = (MIN_VALID_DUTY_CYCLE + MAX_VALID_DUTY_CYCLE) / 2.0f;
+        condition                          = App_Imd_GetCondition(imd);
         ASSERT_EQ(true, condition.pwm_encoding.valid_duty_cycle);
-        ASSERT_EQ(
-            1200, condition.pwm_encoding.insulation_measurement_dcp_kohms);
+        ASSERT_EQ(1200, condition.pwm_encoding.insulation_measurement_dcp_kohms);
 
         get_pwm_duty_cycle_fake.return_val = MAX_VALID_DUTY_CYCLE;
         condition                          = App_Imd_GetCondition(imd);
@@ -87,8 +76,7 @@ TEST_F(
         ASSERT_EQ(0, condition.pwm_encoding.insulation_measurement_dcp_kohms);
 
         get_pwm_duty_cycle_fake.return_val = MAX_VALID_DUTY_CYCLE + 0.01f;
-        ASSERT_EQ(
-            false, App_Imd_GetCondition(imd).pwm_encoding.valid_duty_cycle);
+        ASSERT_EQ(false, App_Imd_GetCondition(imd).pwm_encoding.valid_duty_cycle);
     }
 }
 
@@ -122,8 +110,7 @@ TEST_F(ImdTest, check_good_and_bad_evaluation_for_sst_condition)
     get_pwm_duty_cycle_fake.return_val = GOOD_MAX_DUTY_CYCLE + 0.1f;
     ASSERT_EQ(false, App_Imd_GetCondition(imd).pwm_encoding.valid_duty_cycle);
 
-    get_pwm_duty_cycle_fake.return_val =
-        (GOOD_MIN_DUTY_CYCLE + BAD_MIN_DUTY_CYCLE) / 2.0f;
+    get_pwm_duty_cycle_fake.return_val = (GOOD_MIN_DUTY_CYCLE + BAD_MIN_DUTY_CYCLE) / 2.0f;
     ASSERT_EQ(false, App_Imd_GetCondition(imd).pwm_encoding.valid_duty_cycle);
 
     get_pwm_duty_cycle_fake.return_val = BAD_MIN_DUTY_CYCLE - 0.1f;

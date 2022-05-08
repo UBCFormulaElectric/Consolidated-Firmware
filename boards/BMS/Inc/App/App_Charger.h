@@ -18,12 +18,15 @@ struct Charger;
  * @param disable_charger A function that can be called to disable the charger
  * @param is_charger_connected A function that returns whether the charger is
  *                             is connected
+ * @param has_charger_faulted A function that returns whether the charger has a
+ * fault
  * @return The created charger, whose ownership is given to the caller
  */
 struct Charger *App_Charger_Create(
     void (*enable_charger)(void),
     void (*disable_charger)(void),
-    bool (*is_charger_connected)(void));
+    bool (*is_charger_connected)(void),
+    bool (*has_charger_faulted)(void));
 
 /**
  * Deallocate the memory used by the given charger
@@ -56,3 +59,10 @@ bool App_Charger_IsConnected(struct Charger *charger);
  * @return true if the charger is enabled, else false
  */
 bool App_Charger_IsEnabled(const struct Charger *charger);
+
+/**
+ * Check if the charger has faulted (or is idle if the charger is not enabled)
+ * @param charger The charger to check
+ * @return true if the charger has faulted/idle, else false
+ */
+bool App_Charger_HasFaulted(const struct Charger *charger);

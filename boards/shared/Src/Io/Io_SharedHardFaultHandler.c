@@ -12,7 +12,7 @@ void Io_SharedHardFaultHandler_Init(void)
 // transmit the data over CAN
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wunused-but-set-variable"
-void Io_SharedHardFaultHandler_LogInformation(uint32_t *fault_stack)
+void                   Io_SharedHardFaultHandler_LogInformation(uint32_t *fault_stack)
 {
     // Registers pushed onto the stack frame before entering hard fault handler
     volatile uint32_t stacked_r0;

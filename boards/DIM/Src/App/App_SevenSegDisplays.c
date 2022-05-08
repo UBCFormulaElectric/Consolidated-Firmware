@@ -20,24 +20,19 @@ struct SevenSegDisplays *App_SevenSegDisplays_Create(
 {
     assert(display_value_callback != NULL);
 
-    struct SevenSegDisplays *seven_seg_displays =
-        malloc(sizeof(struct SevenSegDisplays));
+    struct SevenSegDisplays *seven_seg_displays = malloc(sizeof(struct SevenSegDisplays));
 
     assert(seven_seg_displays != NULL);
 
-    seven_seg_displays->displays[LEFT_SEVEN_SEG_DISPLAY] =
-        left_seven_seg_display;
-    seven_seg_displays->displays[MIDDLE_SEVEN_SEG_DISPLAY] =
-        middle_seven_seg_display;
-    seven_seg_displays->displays[RIGHT_SEVEN_SEG_DISPLAY] =
-        right_seven_seg_display;
-    seven_seg_displays->display_value_callback = display_value_callback;
+    seven_seg_displays->displays[LEFT_SEVEN_SEG_DISPLAY]   = left_seven_seg_display;
+    seven_seg_displays->displays[MIDDLE_SEVEN_SEG_DISPLAY] = middle_seven_seg_display;
+    seven_seg_displays->displays[RIGHT_SEVEN_SEG_DISPLAY]  = right_seven_seg_display;
+    seven_seg_displays->display_value_callback             = display_value_callback;
 
     return seven_seg_displays;
 }
 
-void App_SevenSegDisplays_Destroy(
-    struct SevenSegDisplays *const seven_seg_displays)
+void App_SevenSegDisplays_Destroy(struct SevenSegDisplays *const seven_seg_displays)
 {
     free(seven_seg_displays);
 }
@@ -79,8 +74,7 @@ ExitCode App_SevenSegDisplays_SetHexDigits(
             hex_digit.enabled = false;
         }
 
-        App_SevenSegDisplay_SetHexDigit(
-            seven_seg_displays->displays[i], hex_digit);
+        App_SevenSegDisplay_SetHexDigit(seven_seg_displays->displays[i], hex_digit);
     }
 
     seven_seg_displays->display_value_callback();
@@ -88,9 +82,8 @@ ExitCode App_SevenSegDisplays_SetHexDigits(
     return EXIT_CODE_OK;
 }
 
-ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(
-    const struct SevenSegDisplays *const seven_seg_displays,
-    uint32_t                             value)
+ExitCode
+    App_SevenSegDisplays_SetUnsignedBase10Value(const struct SevenSegDisplays *const seven_seg_displays, uint32_t value)
 {
     if (value > pow(10, NUM_SEVEN_SEG_DISPLAYS) - 1)
     {
@@ -101,16 +94,14 @@ ExitCode App_SevenSegDisplays_SetUnsignedBase10Value(
 
     // Turn the base-10 value into individual digits. We treat a value of 0
     // as having 1 digit, which is why num_digits starts counting from 1.
-    for (uint8_t num_digits = 1; num_digits <= NUM_SEVEN_SEG_DISPLAYS;
-         num_digits++)
+    for (uint8_t num_digits = 1; num_digits <= NUM_SEVEN_SEG_DISPLAYS; num_digits++)
     {
         digits[num_digits - 1] = (uint8_t)(value % 10);
         value /= 10;
 
         if (value == 0)
         {
-            App_SevenSegDisplays_SetHexDigits(
-                seven_seg_displays, digits, num_digits);
+            App_SevenSegDisplays_SetHexDigits(seven_seg_displays, digits, num_digits);
             break;
         }
     }

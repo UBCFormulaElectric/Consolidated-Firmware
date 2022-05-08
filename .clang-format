@@ -84,7 +84,7 @@ BreakBeforeTernaryOperators: 'true'
 BreakBeforeBraces: Allman
 
 # self-explanatory
-ColumnLimit: '80'
+ColumnLimit: '120'
 
 # stop clang from trying to format the special
 # Cube-generated starting and ending comments

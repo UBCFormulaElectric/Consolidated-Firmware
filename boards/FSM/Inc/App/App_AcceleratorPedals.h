@@ -53,8 +53,7 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
  * Deallocate the memory used by the given pair of accelerator pedals
  * @param accelerator_pedals The pair of accelerator pedals to deallocate
  */
-void App_AcceleratorPedals_Destroy(
-    struct AcceleratorPedals *accelerator_pedals);
+void App_AcceleratorPedals_Destroy(struct AcceleratorPedals *accelerator_pedals);
 
 /**
  * Check if the encoder alarm for the primary accelerator pedal is active
@@ -63,8 +62,7 @@ void App_AcceleratorPedals_Destroy(
  * @return true if the encoder alarm for the given accelerator pedal is active,
  *         else false
  */
-bool App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(
-    const struct AcceleratorPedals *accelerator_pedals);
+bool App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(const struct AcceleratorPedals *accelerator_pedals);
 
 /**
  * Check if the encoder alarm for the secondary accelerator pedal is active
@@ -73,8 +71,7 @@ bool App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(
  * @return true if the encoder alarm for the given accelerator pedal is active,
  *         else false
  */
-bool App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(
-    const struct AcceleratorPedals *accelerator_pedals);
+bool App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(const struct AcceleratorPedals *accelerator_pedals);
 
 /**
  * Get the pedal percentage of the primary accelerator pedal, a value in [0,
@@ -83,8 +80,7 @@ bool App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(
  * pedal percentage from
  * @return The pedal percentage of the primary accelerator pedal
  */
-float App_AcceleratorPedals_GetPrimaryPedalPercentage(
-    const struct AcceleratorPedals *accelerator_pedals);
+float App_AcceleratorPedals_GetPrimaryPedalPercentage(const struct AcceleratorPedals *accelerator_pedals);
 
 /**
  * Get the pedal percentage of the secondary accelerator pedal, a value in [0,
@@ -93,5 +89,4 @@ float App_AcceleratorPedals_GetPrimaryPedalPercentage(
  * pedal percentage from
  * @return The pedal percentage of the secondary accelerator pedal
  */
-float App_AcceleratorPedals_GetSecondaryPedalPercentage(
-    const struct AcceleratorPedals *accelerator_pedals);
+float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct AcceleratorPedals *accelerator_pedals);

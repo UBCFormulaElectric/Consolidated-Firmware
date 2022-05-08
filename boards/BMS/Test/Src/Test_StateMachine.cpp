@@ -21,26 +21,21 @@ extern "C"
 
 namespace StateMachineTest
 {
-FAKE_VOID_FUNC(
-    send_non_periodic_msg_BMS_STARTUP,
-    const struct CanMsgs_bms_startup_t *);
-FAKE_VOID_FUNC(
-    send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT,
-    const struct CanMsgs_bms_watchdog_timeout_t *);
+FAKE_VOID_FUNC(send_non_periodic_msg_BMS_STARTUP, const struct CanMsgs_bms_startup_t *);
+FAKE_VOID_FUNC(send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT, const struct CanMsgs_bms_watchdog_timeout_t *);
+FAKE_VOID_FUNC(send_non_periodic_msg_BMS_CHARGING_STATUS, const struct CanMsgs_bms_charging_status_t *);
 FAKE_VALUE_FUNC(float, get_pwm_frequency);
 FAKE_VALUE_FUNC(float, get_pwm_duty_cycle);
 FAKE_VALUE_FUNC(uint16_t, get_seconds_since_power_on);
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
-FAKE_VOID_FUNC(
-    heartbeat_timeout_callback,
-    enum HeartbeatOneHot,
-    enum HeartbeatOneHot);
+FAKE_VOID_FUNC(heartbeat_timeout_callback, enum HeartbeatOneHot, enum HeartbeatOneHot);
 FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
 FAKE_VOID_FUNC(enable_charger);
 FAKE_VOID_FUNC(disable_charger);
 FAKE_VALUE_FUNC(bool, is_charger_connected);
+FAKE_VALUE_FUNC(bool, has_charger_faulted);
 FAKE_VALUE_FUNC(ExitCode, enable_bms_ok);
 FAKE_VALUE_FUNC(ExitCode, disable_bms_ok);
 FAKE_VALUE_FUNC(bool, is_bms_ok_enabled);
@@ -67,15 +62,18 @@ FAKE_VOID_FUNC(close_air_positive);
 FAKE_VOID_FUNC(enable_pre_charge);
 FAKE_VOID_FUNC(disable_pre_charge);
 FAKE_VALUE_FUNC(bool, configure_cell_monitors);
+FAKE_VALUE_FUNC(bool, write_cfg_registers);
 FAKE_VALUE_FUNC(bool, start_voltage_conv);
 FAKE_VALUE_FUNC(bool, read_cell_voltages);
-FAKE_VALUE_FUNC(float, get_min_cell_voltage);
-FAKE_VALUE_FUNC(float, get_max_cell_voltage);
-FAKE_VOID_FUNC(get_min_cell_location, uint8_t *, uint8_t *);
-FAKE_VOID_FUNC(get_max_cell_location, uint8_t *, uint8_t *);
+FAKE_VALUE_FUNC(float, get_min_cell_voltage, uint8_t *, uint8_t *);
+FAKE_VALUE_FUNC(float, get_max_cell_voltage, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_segment_voltage, AccumulatorSegments_E);
 FAKE_VALUE_FUNC(float, get_pack_voltage);
 FAKE_VALUE_FUNC(float, get_avg_cell_voltage);
+FAKE_VALUE_FUNC(float, get_raw_ts_voltage);
+FAKE_VALUE_FUNC(float, get_ts_voltage, float);
+FAKE_VALUE_FUNC(bool, start_temp_conv);
+FAKE_VALUE_FUNC(bool, read_cell_temperatures);
 
 class BmsStateMachineTest : public BaseStateMachineTest
 {
@@ -85,59 +83,49 @@ class BmsStateMachineTest : public BaseStateMachineTest
         BaseStateMachineTest::SetUp();
 
         can_tx_interface = App_CanTx_Create(
-            send_non_periodic_msg_BMS_STARTUP,
-            send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT);
+            send_non_periodic_msg_BMS_STARTUP, send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT,
+            send_non_periodic_msg_BMS_CHARGING_STATUS);
 
         can_rx_interface = App_CanRx_Create();
 
-        imd = App_Imd_Create(
-            get_pwm_frequency, IMD_FREQUENCY_TOLERANCE, get_pwm_duty_cycle,
-            get_seconds_since_power_on);
+        imd =
+            App_Imd_Create(get_pwm_frequency, IMD_FREQUENCY_TOLERANCE, get_pwm_duty_cycle, get_seconds_since_power_on);
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS,
-            HEARTBEAT_MONITOR_BOARDS_TO_CHECK, heartbeat_timeout_callback);
+            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK,
+            heartbeat_timeout_callback);
 
-        rgb_led_sequence = App_SharedRgbLedSequence_Create(
-            turn_on_red_led, turn_on_green_led, turn_on_blue_led);
+        rgb_led_sequence = App_SharedRgbLedSequence_Create(turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
-        charger = App_Charger_Create(
-            enable_charger, disable_charger, is_charger_connected);
+        charger = App_Charger_Create(enable_charger, disable_charger, is_charger_connected, has_charger_faulted);
 
-        bms_ok = App_OkStatus_Create(
-            enable_bms_ok, disable_bms_ok, is_bms_ok_enabled);
+        bms_ok = App_OkStatus_Create(enable_bms_ok, disable_bms_ok, is_bms_ok_enabled);
 
-        imd_ok = App_OkStatus_Create(
-            enable_imd_ok, disable_imd_ok, is_imd_ok_enabled);
+        imd_ok = App_OkStatus_Create(enable_imd_ok, disable_imd_ok, is_imd_ok_enabled);
 
-        bspd_ok = App_OkStatus_Create(
-            enable_bspd_ok, disable_bspd_ok, is_bspd_ok_enabled);
+        bspd_ok = App_OkStatus_Create(enable_bspd_ok, disable_bspd_ok, is_bspd_ok_enabled);
 
         accumulator = App_Accumulator_Create(
-            configure_cell_monitors, start_voltage_conv, read_cell_voltages,
-            get_min_cell_location, get_max_cell_location, get_min_cell_voltage,
-            get_max_cell_voltage, get_segment_voltage, get_pack_voltage,
-            get_avg_cell_voltage);
+            configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, get_min_cell_voltage,
+            get_max_cell_voltage, get_segment_voltage, get_pack_voltage, get_avg_cell_voltage, start_temp_conv,
+            read_cell_temperatures);
 
-        pre_charge_sequence =
-            App_PreChargeSequence_Create(enable_pre_charge, disable_pre_charge);
+        precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
 
-        airs = App_Airs_Create(
-            is_air_positive_closed, is_air_negative_closed, close_air_positive,
-            open_air_positive);
+        ts = App_TractiveSystem_Create(get_raw_ts_voltage, get_ts_voltage);
+
+        airs = App_Airs_Create(is_air_positive_closed, is_air_negative_closed, close_air_positive, open_air_positive);
 
         error_table = App_SharedErrorTable_Create();
 
         clock = App_SharedClock_Create();
 
         world = App_BmsWorld_Create(
-            can_tx_interface, can_rx_interface, imd, heartbeat_monitor,
-            rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator,
-            airs, pre_charge_sequence, error_table, clock);
+            can_tx_interface, can_rx_interface, imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok,
+            bspd_ok, accumulator, airs, precharge_relay, ts, error_table, clock);
 
         // Default to starting the state machine in the `init` state
-        state_machine =
-            App_SharedStateMachine_Create(world, App_GetInitState());
+        state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
         RESET_FAKE(send_non_periodic_msg_BMS_STARTUP);
         RESET_FAKE(send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT);
@@ -163,12 +151,11 @@ class BmsStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(is_air_negative_closed);
         RESET_FAKE(is_air_positive_closed);
         RESET_FAKE(configure_cell_monitors);
+        RESET_FAKE(write_cfg_registers);
         RESET_FAKE(start_voltage_conv);
         RESET_FAKE(read_cell_voltages);
         RESET_FAKE(get_min_cell_voltage);
         RESET_FAKE(get_max_cell_voltage);
-        RESET_FAKE(get_min_cell_location);
-        RESET_FAKE(get_max_cell_location);
         RESET_FAKE(get_segment_voltage);
         RESET_FAKE(get_pack_voltage);
         RESET_FAKE(get_avg_cell_voltage);
@@ -176,6 +163,10 @@ class BmsStateMachineTest : public BaseStateMachineTest
         // The charger is connected to prevent other tests from entering the
         // fault state from the charge state
         is_charger_connected_fake.return_val = true;
+
+        // Cell voltages read back are assumed to be true to prevent
+        // transitioning into the fault state
+        read_cell_voltages_fake.return_val = true;
 
         // A voltage in [3.0, 4.2] was arbitrarily chosen to prevent other
         // tests from entering the fault state
@@ -198,7 +189,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
         TearDownObject(bspd_ok, App_OkStatus_Destroy);
         TearDownObject(accumulator, App_Accumulator_Destroy);
         TearDownObject(airs, App_Airs_Destroy);
-        TearDownObject(pre_charge_sequence, App_PreChargeSequence_Destroy);
+        TearDownObject(precharge_relay, App_PrechargeRelay_Destroy);
+        TearDownObject(ts, App_TractiveSystem_Destroy);
         TearDownObject(error_table, App_SharedErrorTable_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
     }
@@ -207,9 +199,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
     {
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
         state_machine = App_SharedStateMachine_Create(world, initial_state);
-        ASSERT_EQ(
-            initial_state,
-            App_SharedStateMachine_GetCurrentState(state_machine));
+        ASSERT_EQ(initial_state, App_SharedStateMachine_GetCurrentState(state_machine));
     }
 
     std::vector<const struct State *> GetAllStates(void)
@@ -226,8 +216,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
         float        max_value,
         float &      fake_value,
         float (*value_can_signal_getter)(const struct BmsCanTxInterface *),
-        uint8_t (*out_of_range_can_signal_getter)(
-            const struct BmsCanTxInterface *),
+        uint8_t (*out_of_range_can_signal_getter)(const struct BmsCanTxInterface *),
         uint8_t ok_choice,
         uint8_t underflow_choice,
         uint8_t overflow_choice)
@@ -241,32 +230,24 @@ class BmsStateMachineTest : public BaseStateMachineTest
         ASSERT_EQ(ok_choice, out_of_range_can_signal_getter(can_tx_interface));
 
         // Underflow range
-        fake_value =
-            std::nextafter(min_value, std::numeric_limits<float>::lowest());
+        fake_value = std::nextafter(min_value, std::numeric_limits<float>::lowest());
         LetTimePass(state_machine, 1000);
-        ASSERT_EQ(
-            underflow_choice, out_of_range_can_signal_getter(can_tx_interface));
+        ASSERT_EQ(underflow_choice, out_of_range_can_signal_getter(can_tx_interface));
 
         // Overflow range
-        fake_value =
-            std::nextafter(max_value, std::numeric_limits<float>::max());
+        fake_value = std::nextafter(max_value, std::numeric_limits<float>::max());
         LetTimePass(state_machine, 1000);
-        ASSERT_EQ(
-            overflow_choice, out_of_range_can_signal_getter(can_tx_interface));
+        ASSERT_EQ(overflow_choice, out_of_range_can_signal_getter(can_tx_interface));
     }
 
-    void UpdateClock(
-        struct StateMachine *state_machine,
-        uint32_t             current_time_ms) override
+    void UpdateClock(struct StateMachine *state_machine, uint32_t current_time_ms) override
     {
         struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
         struct Clock *   clock = App_BmsWorld_GetClock(world);
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
     }
 
-    void UpdateSignals(
-        struct StateMachine *state_machine,
-        uint32_t             current_time_ms) override
+    void UpdateSignals(struct StateMachine *state_machine, uint32_t current_time_ms) override
     {
         // BMS doesn't use any signals currently
         UNUSED(state_machine);
@@ -286,7 +267,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
     struct OkStatus *         bspd_ok;
     struct Accumulator *      accumulator;
     struct Airs *             airs;
-    struct PreChargeSequence *pre_charge_sequence;
+    struct PrechargeRelay *   precharge_relay;
+    struct TractiveSystem *   ts;
     struct ErrorTable *       error_table;
     struct Clock *            clock;
 };
@@ -296,9 +278,7 @@ TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInitState());
 
-    EXPECT_EQ(
-        CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE,
-        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    EXPECT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
 // BMS-31
@@ -306,9 +286,7 @@ TEST_F(BmsStateMachineTest, check_drive_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetDriveState());
 
-    EXPECT_EQ(
-        CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE,
-        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    EXPECT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
 // BMS-31
@@ -316,9 +294,7 @@ TEST_F(BmsStateMachineTest, check_fault_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetFaultState());
 
-    EXPECT_EQ(
-        CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE,
-        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    EXPECT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
 // BMS-31
@@ -326,14 +302,10 @@ TEST_F(BmsStateMachineTest, check_charge_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetChargeState());
 
-    EXPECT_EQ(
-        CANMSGS_BMS_STATE_MACHINE_STATE_CHARGE_CHOICE,
-        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    EXPECT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_CHARGE_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
-TEST_F(
-    BmsStateMachineTest,
-    check_imd_frequency_is_broadcasted_over_can_in_all_states)
+TEST_F(BmsStateMachineTest, check_imd_frequency_is_broadcasted_over_can_in_all_states)
 {
     float fake_frequency = 0.0f;
 
@@ -343,18 +315,14 @@ TEST_F(
         get_pwm_frequency_fake.return_val = fake_frequency;
         LetTimePass(state_machine, 10);
 
-        EXPECT_EQ(
-            fake_frequency,
-            App_CanTx_GetPeriodicSignal_FREQUENCY(can_tx_interface));
+        EXPECT_EQ(fake_frequency, App_CanTx_GetPeriodicSignal_FREQUENCY(can_tx_interface));
 
         // To avoid false positives, we use a different duty cycle each time
         fake_frequency++;
     }
 }
 
-TEST_F(
-    BmsStateMachineTest,
-    check_imd_duty_cycle_is_broadcasted_over_can_in_all_states)
+TEST_F(BmsStateMachineTest, check_imd_duty_cycle_is_broadcasted_over_can_in_all_states)
 {
     float fake_duty_cycle = 0.0f;
 
@@ -364,9 +332,7 @@ TEST_F(
         get_pwm_duty_cycle_fake.return_val = fake_duty_cycle;
         LetTimePass(state_machine, 10);
 
-        EXPECT_EQ(
-            fake_duty_cycle,
-            App_CanTx_GetPeriodicSignal_DUTY_CYCLE(can_tx_interface));
+        EXPECT_EQ(fake_duty_cycle, App_CanTx_GetPeriodicSignal_DUTY_CYCLE(can_tx_interface));
 
         // To avoid false positives, we use a different frequency each time
         fake_duty_cycle++;
@@ -374,143 +340,96 @@ TEST_F(
 }
 
 // BMS-36
-TEST_F(
-    BmsStateMachineTest,
-    check_imd_insulation_resistance_10hz_is_broadcasted_over_can_in_all_states)
+TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_10hz_is_broadcasted_over_can_in_all_states)
 {
     for (auto &state : GetAllStates())
     {
         SetInitialState(state);
-        ImdTest::SetImdCondition(
-            imd, IMD_NORMAL, get_pwm_frequency_fake.return_val);
+        ImdTest::SetImdCondition(imd, IMD_NORMAL, get_pwm_frequency_fake.return_val);
 
         // Test an arbitrarily chosen valid resistance
         get_pwm_duty_cycle_fake.return_val = 50.0f;
         LetTimePass(state_machine, 10);
-        EXPECT_EQ(
-            IMD_NORMAL,
-            App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
-        EXPECT_EQ(
-            true,
-            App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
-        EXPECT_EQ(
-            1200, App_CanTx_GetPeriodicSignal_INSULATION_MEASUREMENT_DCP_10_HZ(
-                      can_tx_interface));
+        EXPECT_EQ(IMD_NORMAL, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
+        EXPECT_EQ(true, App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
+        EXPECT_EQ(1200, App_CanTx_GetPeriodicSignal_INSULATION_MEASUREMENT_DCP_10_HZ(can_tx_interface));
 
         // Test an arbitrarily chosen invalid resistance
         get_pwm_duty_cycle_fake.return_val = 0.0f;
         LetTimePass(state_machine, 10);
-        EXPECT_EQ(
-            IMD_NORMAL,
-            App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
-        EXPECT_EQ(
-            false,
-            App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
+        EXPECT_EQ(IMD_NORMAL, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
+        EXPECT_EQ(false, App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
     }
 }
 
 // BMS-36
-TEST_F(
-    BmsStateMachineTest,
-    check_imd_insulation_resistance_20hz_is_broadcasted_over_can_in_all_states)
+TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_20hz_is_broadcasted_over_can_in_all_states)
 {
     for (auto &state : GetAllStates())
     {
         SetInitialState(state);
-        ImdTest::SetImdCondition(
-            imd, IMD_UNDERVOLTAGE_DETECTED, get_pwm_frequency_fake.return_val);
+        ImdTest::SetImdCondition(imd, IMD_UNDERVOLTAGE_DETECTED, get_pwm_frequency_fake.return_val);
 
         // Test an arbitrarily chosen valid resistance
         get_pwm_duty_cycle_fake.return_val = 50.0f;
         LetTimePass(state_machine, 10);
-        EXPECT_EQ(
-            IMD_UNDERVOLTAGE_DETECTED,
-            App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
-        EXPECT_EQ(
-            true,
-            App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
-        EXPECT_EQ(
-            1200, App_CanTx_GetPeriodicSignal_INSULATION_MEASUREMENT_DCP_20_HZ(
-                      can_tx_interface));
+        EXPECT_EQ(IMD_UNDERVOLTAGE_DETECTED, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
+        EXPECT_EQ(true, App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
+        EXPECT_EQ(1200, App_CanTx_GetPeriodicSignal_INSULATION_MEASUREMENT_DCP_20_HZ(can_tx_interface));
 
         // Test an arbitrarily chosen invalid resistance
         get_pwm_duty_cycle_fake.return_val = 0.0f;
         LetTimePass(state_machine, 10);
-        EXPECT_EQ(
-            IMD_UNDERVOLTAGE_DETECTED,
-            App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
-        EXPECT_EQ(
-            false,
-            App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
+        EXPECT_EQ(IMD_UNDERVOLTAGE_DETECTED, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
+        EXPECT_EQ(false, App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
     }
 }
 
 // BMS-36
-TEST_F(
-    BmsStateMachineTest,
-    check_imd_speed_start_status_30hz_is_broadcasted_over_can_in_all_states)
+TEST_F(BmsStateMachineTest, check_imd_speed_start_status_30hz_is_broadcasted_over_can_in_all_states)
 {
     for (auto &state : GetAllStates())
     {
         SetInitialState(state);
-        ImdTest::SetImdCondition(
-            imd, IMD_SST, get_pwm_frequency_fake.return_val);
+        ImdTest::SetImdCondition(imd, IMD_SST, get_pwm_frequency_fake.return_val);
 
         // Test an arbitrarily chosen SST_GOOD
         get_pwm_duty_cycle_fake.return_val = 7.5f;
         LetTimePass(state_machine, 10);
-        EXPECT_EQ(
-            IMD_SST, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
-        EXPECT_EQ(
-            true,
-            App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
-        EXPECT_EQ(
-            SST_GOOD, App_CanTx_GetPeriodicSignal_SPEED_START_STATUS_30_HZ(
-                          can_tx_interface));
+        EXPECT_EQ(IMD_SST, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
+        EXPECT_EQ(true, App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
+        EXPECT_EQ(SST_GOOD, App_CanTx_GetPeriodicSignal_SPEED_START_STATUS_30_HZ(can_tx_interface));
 
         // Test an arbitrarily chosen SST_BAD
         get_pwm_duty_cycle_fake.return_val = 92.5f;
         LetTimePass(state_machine, 10);
-        EXPECT_EQ(
-            IMD_SST, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
-        EXPECT_EQ(
-            true,
-            App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
-        EXPECT_EQ(
-            SST_BAD, App_CanTx_GetPeriodicSignal_SPEED_START_STATUS_30_HZ(
-                         can_tx_interface));
+        EXPECT_EQ(IMD_SST, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
+        EXPECT_EQ(true, App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
+        EXPECT_EQ(SST_BAD, App_CanTx_GetPeriodicSignal_SPEED_START_STATUS_30_HZ(can_tx_interface));
 
         // Test an arbitrarily chosen invalid SST status
         get_pwm_duty_cycle_fake.return_val = 0.0f;
         LetTimePass(state_machine, 10);
-        EXPECT_EQ(
-            IMD_SST, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
-        EXPECT_EQ(
-            false,
-            App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
+        EXPECT_EQ(IMD_SST, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
+        EXPECT_EQ(false, App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
     }
 }
 
 // BMS-36
-TEST_F(
-    BmsStateMachineTest,
-    check_imd_seconds_since_power_on_is_broadcasted_over_can_in_all_states)
+TEST_F(BmsStateMachineTest, check_imd_seconds_since_power_on_is_broadcasted_over_can_in_all_states)
 {
     for (auto &state : GetAllStates())
     {
         SetInitialState(state);
         get_seconds_since_power_on_fake.return_val = 123;
         LetTimePass(state_machine, 10);
-        EXPECT_EQ(
-            123, App_CanTx_GetPeriodicSignal_SECONDS_SINCE_POWER_ON(
-                     can_tx_interface));
+        EXPECT_EQ(123, App_CanTx_GetPeriodicSignal_SECONDS_SINCE_POWER_ON(can_tx_interface));
     }
 }
 
 TEST_F(BmsStateMachineTest, rgb_led_sequence_in_all_states)
 {
-    unsigned int *call_counts[] = { &turn_on_red_led_fake.call_count,
-                                    &turn_on_green_led_fake.call_count,
+    unsigned int *call_counts[] = { &turn_on_red_led_fake.call_count, &turn_on_green_led_fake.call_count,
                                     &turn_on_blue_led_fake.call_count };
 
     for (auto &state : GetAllStates())
@@ -542,13 +461,11 @@ TEST_F(BmsStateMachineTest, charger_connection_status_in_all_states)
 
         is_charger_connected_fake.return_val = true;
         LetTimePass(state_machine, 1000);
-        ASSERT_EQ(
-            true, App_CanTx_GetPeriodicSignal_IS_CONNECTED(can_tx_interface));
+        ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_IS_CONNECTED(can_tx_interface));
 
         is_charger_connected_fake.return_val = false;
         LetTimePass(state_machine, 1000);
-        ASSERT_EQ(
-            false, App_CanTx_GetPeriodicSignal_IS_CONNECTED(can_tx_interface));
+        ASSERT_EQ(false, App_CanTx_GetPeriodicSignal_IS_CONNECTED(can_tx_interface));
     }
 }
 
@@ -618,12 +535,8 @@ TEST_F(BmsStateMachineTest, charger_disconnects_in_charge_state)
 
     LetTimePass(state_machine, 10);
 
-    ASSERT_EQ(
-        true, App_CanTx_GetPeriodicSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(
-                  can_tx_interface));
-    ASSERT_EQ(
-        App_GetFaultState(),
-        App_SharedStateMachine_GetCurrentState(state_machine));
+    ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(can_tx_interface));
+    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 // BMS-38
@@ -636,34 +549,26 @@ TEST_F(BmsStateMachineTest, check_airs_can_signals_for_all_states)
         is_air_negative_closed_fake.return_val = false;
         is_air_positive_closed_fake.return_val = false;
         LetTimePass(state_machine, 10);
-        ASSERT_EQ(
-            false, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
-        ASSERT_EQ(
-            false, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
+        ASSERT_EQ(false, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
+        ASSERT_EQ(false, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
 
         is_air_negative_closed_fake.return_val = false;
         is_air_positive_closed_fake.return_val = true;
         LetTimePass(state_machine, 10);
-        ASSERT_EQ(
-            false, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
-        ASSERT_EQ(
-            true, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
+        ASSERT_EQ(false, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
+        ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
 
         is_air_negative_closed_fake.return_val = true;
         is_air_positive_closed_fake.return_val = false;
         LetTimePass(state_machine, 10);
-        ASSERT_EQ(
-            true, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
-        ASSERT_EQ(
-            false, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
+        ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
+        ASSERT_EQ(false, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
 
         is_air_negative_closed_fake.return_val = true;
         is_air_positive_closed_fake.return_val = true;
         LetTimePass(state_machine, 10);
-        ASSERT_EQ(
-            true, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
-        ASSERT_EQ(
-            true, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
+        ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
+        ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
     }
 }
 
@@ -673,98 +578,70 @@ TEST_F(BmsStateMachineTest, check_transition_from_init_state_to_air_open_state)
     SetInitialState(App_GetInitState());
 
     LetTimePass(state_machine, 4999);
-    ASSERT_EQ(
-        CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE,
-        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 
     LetTimePass(state_machine, 1);
-    ASSERT_EQ(
-        CANMSGS_BMS_STATE_MACHINE_STATE_AIR_OPEN_CHOICE,
-        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_AIR_OPEN_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
 // BMS-12
-TEST_F(
-    BmsStateMachineTest,
-    check_transition_from_air_open_state_to_precharge_state)
+TEST_F(BmsStateMachineTest, check_transition_from_air_open_state_to_precharge_state)
 {
     SetInitialState(App_GetAirOpenState());
 
     // Check that no state transitions occur. The 500ms duration was chosen
     // arbitrarily.
     LetTimePass(state_machine, 500);
-    ASSERT_EQ(
-        CANMSGS_BMS_STATE_MACHINE_STATE_AIR_OPEN_CHOICE,
-        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_AIR_OPEN_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 
     is_air_negative_closed_fake.return_val = true;
     LetTimePass(state_machine, 10);
-    ASSERT_EQ(
-        CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE,
-        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
 // BMS-29
 TEST_F(BmsStateMachineTest, check_air_positive_open_in_fault_state)
 {
     // Close AIR+ to avoid false positives
-    App_CanTx_SetPeriodicSignal_AIR_POSITIVE(
-        can_tx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
+    App_CanTx_SetPeriodicSignal_AIR_POSITIVE(can_tx_interface, CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
 
     SetInitialState(App_GetFaultState());
     ASSERT_EQ(
-        CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE,
-        App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
+        CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
 }
 
 // BMS-30
-TEST_F(
-    BmsStateMachineTest,
-    check_state_transition_from_fault_to_init_with_no_air_shdn_faults_set)
+TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_air_shdn_faults_set)
 {
     // Assume no AIR shutdown faults have been set
     SetInitialState(App_GetFaultState());
 
     is_air_negative_closed_fake.return_val = true;
     LetTimePass(state_machine, 1000);
-    ASSERT_EQ(
-        CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE,
-        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 
     is_air_negative_closed_fake.return_val = false;
     LetTimePass(state_machine, 1000);
-    ASSERT_EQ(
-        CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE,
-        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
 // BMS-30
-TEST_F(
-    BmsStateMachineTest,
-    check_state_transition_from_fault_to_init_with_air_negative_open)
+TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_negative_open)
 {
     SetInitialState(App_GetFaultState());
 
     // Set an arbitrarily chosen AIR shutdown error
-    App_SharedErrorTable_SetError(
-        error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE,
-        true);
+    App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE, true);
 
     // Open AIR- for the following tests
     is_air_negative_closed_fake.return_val = false;
     LetTimePass(state_machine, 1000);
-    ASSERT_EQ(
-        CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE,
-        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 
     // Clear the AIR shutdown error
-    App_SharedErrorTable_SetError(
-        error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE,
-        false);
+    App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE, false);
     LetTimePass(state_machine, 1000);
-    ASSERT_EQ(
-        CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE,
-        App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
 } // namespace StateMachineTest

@@ -8,11 +8,9 @@ struct SevenSegDisplay
     void (*set_hex_digit)(struct SevenSegHexDigit);
 };
 
-struct SevenSegDisplay *App_SevenSegDisplay_Create(
-    void (*const set_hex_digit)(struct SevenSegHexDigit))
+struct SevenSegDisplay *App_SevenSegDisplay_Create(void (*const set_hex_digit)(struct SevenSegHexDigit))
 {
-    struct SevenSegDisplay *seven_seg_display =
-        malloc(sizeof(struct SevenSegDisplay));
+    struct SevenSegDisplay *seven_seg_display = malloc(sizeof(struct SevenSegDisplay));
 
     assert(seven_seg_display != NULL);
 
@@ -21,8 +19,7 @@ struct SevenSegDisplay *App_SevenSegDisplay_Create(
     return seven_seg_display;
 }
 
-void App_SevenSegDisplay_Destroy(
-    struct SevenSegDisplay *const seven_seg_display)
+void App_SevenSegDisplay_Destroy(struct SevenSegDisplay *const seven_seg_display)
 {
     free(seven_seg_display);
 }

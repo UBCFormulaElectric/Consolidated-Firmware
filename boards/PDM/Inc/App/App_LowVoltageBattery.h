@@ -17,24 +17,20 @@
  * @return The created low voltage battery, whose ownership is given to the
  *         caller
  */
-struct LowVoltageBattery *App_LowVoltageBattery_Create(
-    bool (*has_charge_fault)(void),
-    bool (*has_boost_fault)(void));
+struct LowVoltageBattery *App_LowVoltageBattery_Create(bool (*has_charge_fault)(void), bool (*has_boost_fault)(void));
 
 /**
  * Deallocate the memory used by the given low voltage battery
  * @param low_voltage_battery The low voltage battery to deallocate
  */
-void App_LowVoltageBattery_Destroy(
-    struct LowVoltageBattery *low_voltage_battery);
+void App_LowVoltageBattery_Destroy(struct LowVoltageBattery *low_voltage_battery);
 
 /**
  * Check if the charging IC for the given low voltage battery has a fault
  * @return true if the charging IC for the given low voltage battery has a
  *         fault, else false
  */
-bool App_LowVoltageBattery_HasChargeFault(
-    const struct LowVoltageBattery *low_voltage_battery);
+bool App_LowVoltageBattery_HasChargeFault(const struct LowVoltageBattery *low_voltage_battery);
 
 /**
  * Check if the boost controller IC for the given low voltage battery has a
@@ -42,5 +38,4 @@ bool App_LowVoltageBattery_HasChargeFault(
  * @return true if the boost controller IC for the given low voltage battery
  *         has a fault, else false
  */
-bool App_LowVoltageBattery_HasBoostControllerFault(
-    const struct LowVoltageBattery *low_voltage_battery);
+bool App_LowVoltageBattery_HasBoostControllerFault(const struct LowVoltageBattery *low_voltage_battery);

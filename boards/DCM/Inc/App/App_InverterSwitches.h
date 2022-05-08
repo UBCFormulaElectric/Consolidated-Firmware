@@ -41,32 +41,28 @@ void App_InverterSwitches_Destroy(struct InverterSwitches *inverter_switches);
  * @param inverter_switches The InverterSwitches struct to turn on the right
  * inverter
  */
-void App_InverterSwitches_TurnOnRight(
-    struct InverterSwitches *inverter_switches);
+void App_InverterSwitches_TurnOnRight(struct InverterSwitches *inverter_switches);
 
 /**
  * Turn off LV (+12 V) to the right inverter
  * @param inverter_switches The InverterSwitches struct to turn off the right
  * inverter
  */
-void App_InverterSwitches_TurnOffRight(
-    struct InverterSwitches *inverter_switches);
+void App_InverterSwitches_TurnOffRight(struct InverterSwitches *inverter_switches);
 
 /**
  * Turn on LV (+12 V) to the left inverter
  * @param inverter_switches The InverterSwitches struct to turn on the left
  * inverter
  */
-void App_InverterSwitches_TurnOnLeft(
-    struct InverterSwitches *inverter_switches);
+void App_InverterSwitches_TurnOnLeft(struct InverterSwitches *inverter_switches);
 
 /**
  * Turn off LV (+12 V) to the left inverter
  * @param inverter_switches The InverterSwitches struct to turn off the left
  * inverter
  */
-void App_InverterSwitches_TurnOffLeft(
-    struct InverterSwitches *inverter_switches);
+void App_InverterSwitches_TurnOffLeft(struct InverterSwitches *inverter_switches);
 
 /**
  * Check if the right inverter's LV switch is on

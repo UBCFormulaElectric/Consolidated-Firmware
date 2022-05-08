@@ -11,8 +11,7 @@ static const float  TIRE_DIAMETER                = 0.4572f;
 static const float  ARC_LENGTH_PER_RELUCTOR_TOOTH =
     (float)(((float)M_PI * TIRE_DIAMETER) / (float)RELUCTOR_RING_TOOTH_COUNT);
 
-static struct FreqOnlyPwmInput *left_wheel_speed_sensor,
-    *right_wheel_speed_sensor;
+static struct FreqOnlyPwmInput *left_wheel_speed_sensor, *right_wheel_speed_sensor;
 
 void Io_WheelSpeedSensors_Init(
     TIM_HandleTypeDef *htim_left_wheel_speed_sensor,
@@ -22,12 +21,12 @@ void Io_WheelSpeedSensors_Init(
     assert(htim_right_wheel_speed_sensor != NULL);
 
     left_wheel_speed_sensor = Io_SharedFreqOnlyPwmInput_Create(
-        htim_left_wheel_speed_sensor, TIMx_FREQUENCY / TIM16_PRESCALER,
-        TIM_CHANNEL_1, TIM16_AUTO_RELOAD_REG, HAL_TIM_ACTIVE_CHANNEL_1);
+        htim_left_wheel_speed_sensor, TIMx_FREQUENCY / TIM16_PRESCALER, TIM_CHANNEL_1, TIM16_AUTO_RELOAD_REG,
+        HAL_TIM_ACTIVE_CHANNEL_1);
 
     right_wheel_speed_sensor = Io_SharedFreqOnlyPwmInput_Create(
-        htim_right_wheel_speed_sensor, TIMx_FREQUENCY / TIM17_PRESCALER,
-        TIM_CHANNEL_1, TIM17_AUTO_RELOAD_REG, HAL_TIM_ACTIVE_CHANNEL_1);
+        htim_right_wheel_speed_sensor, TIMx_FREQUENCY / TIM17_PRESCALER, TIM_CHANNEL_1, TIM17_AUTO_RELOAD_REG,
+        HAL_TIM_ACTIVE_CHANNEL_1);
 }
 
 float Io_WheelSpeedSensors_GetLeftSpeedKph(void)
@@ -44,19 +43,15 @@ float Io_WheelSpeedSensors_GetRightSpeedKph(void)
 
 void Io_WheelSpeedSensors_InputCaptureCallback(TIM_HandleTypeDef *htim)
 {
-    if (htim ==
-            Io_SharedFreqOnlyPwmInput_GetTimerHandle(left_wheel_speed_sensor) &&
-        htim->Channel == Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(
-                             left_wheel_speed_sensor))
+    if (htim == Io_SharedFreqOnlyPwmInput_GetTimerHandle(left_wheel_speed_sensor) &&
+        htim->Channel == Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(left_wheel_speed_sensor))
     {
         Io_SharedFreqOnlyPwmInput_Tick(left_wheel_speed_sensor);
     }
 
     else if (
-        htim == Io_SharedFreqOnlyPwmInput_GetTimerHandle(
-                    right_wheel_speed_sensor) &&
-        htim->Channel == Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(
-                             right_wheel_speed_sensor))
+        htim == Io_SharedFreqOnlyPwmInput_GetTimerHandle(right_wheel_speed_sensor) &&
+        htim->Channel == Io_SharedFreqOnlyPwmInput_GetTimerActiveChannel(right_wheel_speed_sensor))
     {
         Io_SharedFreqOnlyPwmInput_Tick(right_wheel_speed_sensor);
     }

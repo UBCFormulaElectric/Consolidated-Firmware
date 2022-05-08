@@ -7,9 +7,7 @@
  * @param htim_left_wheel_speed Timer handle for the left wheel speed
  * @param htim_right_wheel_speed Timer handle for the right wheel speed
  */
-void Io_WheelSpeedSensors_Init(
-    TIM_HandleTypeDef *htim_left_wheel_speed,
-    TIM_HandleTypeDef *htim_right_wheel_speed);
+void Io_WheelSpeedSensors_Init(TIM_HandleTypeDef *htim_left_wheel_speed, TIM_HandleTypeDef *htim_right_wheel_speed);
 
 /**
  * Get the wheel speed in km/h from the left wheel speed sensor

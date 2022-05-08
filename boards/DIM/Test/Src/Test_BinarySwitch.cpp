@@ -10,15 +10,9 @@ FAKE_VALUE_FUNC(bool, is_turned_on);
 class BinarySwitchTest : public testing::Test
 {
   protected:
-    void SetUp() override
-    {
-        binary_switch = App_BinarySwitch_Create(is_turned_on);
-    }
+    void SetUp() override { binary_switch = App_BinarySwitch_Create(is_turned_on); }
 
-    void TearDown() override
-    {
-        TearDownObject(binary_switch, App_BinarySwitch_Destroy);
-    }
+    void                 TearDown() override { TearDownObject(binary_switch, App_BinarySwitch_Destroy); }
     struct BinarySwitch *binary_switch;
 };
 

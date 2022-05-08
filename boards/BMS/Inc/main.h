@@ -36,26 +36,22 @@ extern "C"
 #include "Io_SharedErrorHandlerOverride.h"
     /* USER CODE END Includes */
 
-    /* Exported types
-     * ------------------------------------------------------------*/
+    /* Exported types ------------------------------------------------------------*/
     /* USER CODE BEGIN ET */
 
     /* USER CODE END ET */
 
-    /* Exported constants
-     * --------------------------------------------------------*/
+    /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
 
     /* USER CODE END EC */
 
-    /* Exported macro
-     * ------------------------------------------------------------*/
+    /* Exported macro ------------------------------------------------------------*/
     /* USER CODE BEGIN EM */
 
     /* USER CODE END EM */
 
-    /* Exported functions prototypes
-     * ---------------------------------------------*/
+    /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
@@ -75,8 +71,7 @@ extern "C"
 #define TIM2_FREQUENCY 72000000
 #define TIM2_AUTO_RELOAD_REG 0xFFFF
 #define TIM2_PWM_MINIMUM_FREQUENCY 1
-#define TIM2_PRESCALER \
-    (TIM2_FREQUENCY / TIM2_AUTO_RELOAD_REG / TIM2_PWM_MINIMUM_FREQUENCY)
+#define TIM2_PRESCALER (TIM2_FREQUENCY / TIM2_AUTO_RELOAD_REG / TIM2_PWM_MINIMUM_FREQUENCY)
 #define TIMx_FREQUENCY 72000000
 #define TIM3_PRESCALER 72
 #define ADC1_ADC2_FREQUENCY 1000
@@ -119,8 +114,8 @@ extern "C"
 #define STATUS_G_GPIO_Port GPIOA
 #define STATUS_B_Pin GPIO_PIN_10
 #define STATUS_B_GPIO_Port GPIOA
-#define GPIO1_Pin GPIO_PIN_11
-#define GPIO1_GPIO_Port GPIOA
+#define BRUSA_FLT_Pin GPIO_PIN_11
+#define BRUSA_FLT_GPIO_Port GPIOA
 #define GPIO2_Pin GPIO_PIN_12
 #define GPIO2_GPIO_Port GPIOA
 #define CHARGE_STATE_Pin GPIO_PIN_15

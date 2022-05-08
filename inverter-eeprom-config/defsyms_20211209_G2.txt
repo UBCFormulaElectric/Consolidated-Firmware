@@ -1,0 +1,334 @@
+###############################################################################
+# EEPROM Parameters
+###############################################################################
+Serial_Number_EEPROM                     , 0x0113, uint, dec, 16, 6, spr, spr, spr
+Motor_Type_EEPROM                        , 0x0119, uint, dec, 16, 0, spr, spr, spr
+Veh_Flux_EEPROM_(Wb)_x_1000              , 0x0100, uint, dec, 16, 0, spr, spr, spr
+Angle_Advance_Factor_EEPROM_x_100        , 0x0149, int, dec, 16, 0, spr, spr, spr
+Gamma_Adjust_EEPROM_(Deg)_x_10           , 0x011A, int, dec, 16, 0, spr, spr, spr
+Resolver_PWM_Delay_EEPROM_(Counts)       , 0x0118, uint, dec, 16, 0, spr, spr, spr
+
+Run_Mode_EEPROM(Trq=0_Spd=1)             , 0x0116, uint, dec, 16, 1, spr, spr, spr
+Inv_Cmd_Mode_EEPROM(CAN=0_VSM=1)         , 0x011B, uint, dec, 16, 1, spr, spr, spr
+Key_Switch_Mode_EEPROM                   , 0x012B, uint, dec, 16, 1, spr, spr, spr
+Precharge_Bypassed_EEPROM_(0=N_1=Y)      , 0x0115, uint, dec, 16, 1, spr, spr, spr
+Relay_Output_State_EEPROM_(0=OFF_1=ON)   , 0x012C, uint, hex, 16, 1, spr, spr, spr
+Discharge_Enable_EEPROM                  , 0x016D, uint, dec, 16, 1, spr, spr, spr
+
+CAN_ID_Offset_EEPROM                     , 0x011D, uint, hex, 16, 8, spr, spr, spr
+CAN_Extended_Msg_ID_EEPROM(0=N_1=Y)      , 0x0131, uint, dec, 16, 8, spr, spr, spr
+CAN_J1939_Option_Active_EEPROM           , 0x0132, uint, dec, 16, 8, spr, spr, spr
+CAN_OBD2_Enable_EEPROM                   , 0x0152, uint, dec, 16, 8, spr, spr, spr
+CAN_BMS_Limit_Enable_EEPROM              , 0x017F, uint, dec, 16, 8, spr, spr, spr
+CAN_Term_Res_Present_EEPROM              , 0x011E, uint, dec, 16, 8, spr, spr, spr
+CAN_Command_Message_Active_EEPROM        , 0x011F, uint, dec, 16, 8, spr, spr, spr
+CAN_Bit_Rate_EEPROM_(kbps)               , 0x0120, uint, dec, 16, 8, spr, spr, spr
+CAN_ACTIVE_MSGS_EEPROM_(Lo_Word)         , 0x0129, uint, hex, 16, 8, spr, spr, spr
+CAN_ACTIVE_MSGS_EEPROM_(Hi_Word)         , 0x012A, uint, hex, 16, 8, spr, spr, spr
+CAN_Fast_Msg_Rate_EEPROM_(ms)            , 0x0180, uint, dec, 16, 8, spr, spr, spr
+CAN_Slow_Msg_Rate_EEPROM_(ms)            , 0x0181, uint, dec, 16, 8, spr, spr, spr
+CAN_Diag_Data_Tx_Active_EEPROM           , 0x0160, uint, dec, 16, 8, spr, spr, spr
+CAN_Inv_Enab_Switch_Active_EEPROM        , 0x0170, uint, dec, 16, 8, spr, spr, spr
+CAN_TimeOut_(/3ms)_EEPROM                , 0x016F, uint, dec, 16, 8, spr, spr, spr
+CAN_Slave_Cmd_ID_EEPROM                  , 0x0177, uint, hex, 16, 8, spr, spr, spr
+CAN_Slave_Dir_EEPROM_(0=SAME_1=FLIP)     , 0x0178, uint, dec, 16, 8, spr, spr, spr
+
+IQ_Limit_EEPROM_(Amps)_x_10              , 0x0101, uint, dec, 16, 2, spr, spr, spr
+ID_Limit_EEPROM_(Amps)_x_10              , 0x0102, uint, dec, 16, 2, spr, spr, spr
+#Ia_Offset_EEPROM                         , 0x0126, uint, dec, 16, 2, spr, spr, spr
+#Ib_Offset_EEPROM                         , 0x0127, uint, dec, 16, 2, spr, spr, spr
+#Ic_Offset_EEPROM                         , 0x0128, uint, dec, 16, 2, spr, spr, spr
+Amp_Hours_EEPROM_(AHrx10)                , 0x0148, int, dec, 16, 6, spr, spr, spr
+
+DC_Volt_Limit_EEPROM_(V)_x_10            , 0x0104, uint, dec, 16, 3, spr, spr, spr
+DC_Volt_Hyst_EEPROM_(V)_x_10             , 0x0105, uint, dec, 16, 3, spr, spr, spr
+DC_UnderVolt_Thresh_EEPROM_(V)_x_10      , 0x0117, uint, dec, 16, 3, spr, spr, spr
+
+Inv_OverTemp_Limit_EEPROM_(C)_x_10       , 0x0106, int, dec, 16, 9, spr, spr, spr
+Mtr_OverTemp_Limit_EEPROM_(C)_x_10       , 0x0121, int, dec, 16, 9, spr, spr, spr
+Zero_Torque_Temp_EEPROM_(C)_x_10         , 0x015E, int, dec, 16, 9, spr, spr, spr
+Full_Torque_Temp_EEPROM_(C)_x_10         , 0x015D, int, dec, 16, 9, spr, spr, spr
+
+Accel_Pedal_Flipped_EEPROM_(0=N_1=Y)     , 0x0114, uint, dec, 16, 10, spr, spr, spr
+Pedal_Lo_EEPROM_(V)_x_100                , 0x0107, uint, dec, 16, 10, spr, spr, spr
+Accel_Min_EEPROM_(V)_x_100               , 0x0108, uint, dec, 16, 10, spr, spr, spr
+Coast_Lo_EEPROM_(V)_x_100                , 0x0109, uint, dec, 16, 10, spr, spr, spr
+Coast_Hi_EEPROM_(V)_x_100                , 0x010A, uint, dec, 16, 10, spr, spr, spr
+Accel_Max_EEPROM_(V)_x_100               , 0x010B, uint, dec, 16, 10, spr, spr, spr
+Pedal_Hi_EEPROM_(V)_x_100                , 0x010C, uint, dec, 16, 10, spr, spr, spr
+
+Motor_Torque_Limit_EEPROM_(Nm)_x_10      , 0x0110, uint, dec, 16, 5, spr, spr, spr
+Regen_Torque_Limit_EEPROM_(Nm)_x_10      , 0x0111, uint, dec, 16, 5, spr, spr, spr
+Braking_Torque_Limit_EEPROM_(Nm)_x_10    , 0x0112, uint, dec, 16, 5, spr, spr, spr
+Kp_Torque_EEPROM_x_10000                 , 0x012D, uint, dec, 16, 5, spr, spr, spr
+Ki_Torque_EEPROM_x_10000                 , 0x012E, uint, dec, 16, 5, spr, spr, spr
+Kd_Torque_EEPROM_x_100                   , 0x012F, uint, dec, 16, 5, spr, spr, spr
+Klp_Torque_EEPROM_x_10000                , 0x0130, uint, dec, 16, 5, spr, spr, spr
+Torque_Rate_Limit_EEPROM_(Nm)_x_10       , 0x014B, uint, dec, 16, 5, spr, spr, spr
+
+Motor_Overspeed_EEPROM_(RPM)             , 0x0103, uint, dec, 16, 7, spr, spr, spr
+Max_Speed_EEPROM_(RPM)                   , 0x010F, uint, dec, 16, 7, spr, spr, spr
+Valet_Mode_Speed_EEPROM_(RPM)            , 0x0151, uint, dec, 16, 7, spr, spr, spr
+Regen_Fade_Speed_EEPROM_(RPM)            , 0x010D, uint, dec, 16, 7, spr, spr, spr
+Break_Speed_EEPROM_(RPM)                 , 0x010E, uint, dec, 16, 7, spr, spr, spr
+Kp_Speed_EEPROM_x_100                    , 0x0122, uint, dec, 16, 7, spr, spr, spr
+Ki_Speed_EEPROM_x_10000                  , 0x0123, uint, dec, 16, 7, spr, spr, spr
+Kd_Speed_EEPROM_x_100                    , 0x0124, uint, dec, 16, 7, spr, spr, spr
+Klp_Speed_EEPROM_x_10000                 , 0x0125, uint, dec, 16, 7, spr, spr, spr
+Speed_Rate_Limit_EEPROM_(RPM/sec)        , 0x014E, uint, dec, 16, 7, spr, spr, spr
+
+Shudder_Compensation_Enable_EEPROM       , 0x0134, uint, dec, 16, 12, spr, spr, spr
+Kp_Shudder_EEPROM_x_100                  , 0x0135, uint, dec, 16, 12, spr, spr, spr
+TCLAMP_Shudder_EEPROM_(Nm)_x_10          , 0x0136, uint, dec, 16, 12, spr, spr, spr
+Shudder_Filter_Freq_EEPROM_(Hz)_x_10     , 0x0137, uint, dec, 16, 12, spr, spr, spr
+Shudder_Speed_Fade_EEPROM_(RPM)          , 0x0140, uint, dec, 16, 12, spr, spr, spr
+Shudder_Speed_Lo_EEPROM_(RPM)            , 0x0138, uint, dec, 16, 12, spr, spr, spr
+Shudder_Speed_Hi_EEPROM_(RPM)            , 0x0139, uint, dec, 16, 12, spr, spr, spr
+
+Brake_Mode_EEPROM_(0=SWITCH_1=POT)       , 0x013A, uint, dec, 16, 11, spr, spr, spr
+Brake_Switch_Bypassed_EEPROM             , 0x015F, uint, dec, 16, 11, spr, spr, spr
+Brake_Lo_EEPROM_(V)_x_100                , 0x013B, uint, dec, 16, 11, spr, spr, spr
+Brake_Thresh_Lo_EEPROM_(V)_x_100         , 0x0161, uint, dec, 16, 11, spr, spr, spr
+Brake_Thresh_Hi_EEPROM_(V)_x_100         , 0x0162, uint, dec, 16, 11, spr, spr, spr
+Brake_Min_EEPROM_(V)_x_100               , 0x013C, uint, dec, 16, 11, spr, spr, spr
+Brake_Max_EEPROM_(V)_x_100               , 0x013D, uint, dec, 16, 11, spr, spr, spr
+Brake_Hi_EEPROM_(V)_x_100                , 0x013E, uint, dec, 16, 11, spr, spr, spr
+Regen_Ramp_Rate_EEPROM_(Sec)_x_1000      , 0x0133, uint, dec, 16, 11, spr, spr, spr
+Brake_Pedal_Flipped_EEPROM_(0=N_1=Y)     , 0x013F, uint, dec, 16, 11, spr, spr, spr
+
+#G2_RTD4_100_Ohm_Gain_EEPROM_x_10000      , 0x0155, int, dec, 16, 9, spr, spr, spr
+#G2_RTD4_100_Ohm_Offset_EEPROM_x_100      , 0x0156, int, dec, 16, 9, spr, spr, spr
+#G2_RTD5_100_Ohm_Gain_EEPROM_x_10000      , 0x0159, int, dec, 16, 9, spr, spr, spr
+#G2_RTD5_100_Ohm_Offset_EEPROM_x_100      , 0x015A, int, dec, 16, 9, spr, spr, spr
+
+Sin_Offset_EEPROM_(ADC_Counts)           , 0x0163, int, dec, 16, 0, spr, spr, spr
+Cos_Offset_EEPROM_(ADC_Counts)           , 0x0164, int, dec, 16, 0, spr, spr, spr
+U2C_Enable_EEPROM                        , 0x0171, uint, dec, 16, 6, spr, spr, spr
+U2C_Setpoint_EEPROM_(Vx10)               , 0x0172, uint, dec, 16, 6, spr, spr, spr
+
+LV_Indicator_Threshold_EEPROM_(Vx10)     , 0x01AB, uint, dec, 16, 6, spr, spr, spr
+LV_Indicator_Hysteresis_EEPROM_(Vx10)    , 0x01AC, uint, dec, 16, 6, spr, spr, spr
+
+User_EEPROM_1                            , 0x01AE, uint, dec, 16, 6, spr, spr, spr
+User_EEPROM_2                            , 0x01AF, uint, dec, 16, 6, spr, spr, spr
+User_EEPROM_3                            , 0x01B0, uint, dec, 16, 6, spr, spr, spr
+
+###############################################################################
+# Monitored Parameters - Resolver/Encoder
+###############################################################################
+Sin_corr_(V)_x_100                       , 0x0073, int, dec, 16, 6, spr, spr, spr
+Cos_corr(V)_x_100                        , 0x0074, int, dec, 16, 6, spr, spr, spr
+Gamma_Resolver_(DEG)_x_10                , 0x0075, int, dec, 16, 6, spr, spr, spr
+Delta_Resolver_In_Fil_(DEG)_x_10         , 0x0089, int, dec, 16, 6, spr, spr, spr
+Delta_Resolver_In_Fil_at_1000RPM         , 0x0063, int, dec, 16, 6, spr, spr, spr
+Theta_cmd_pm_(DEG)_x_10                  , 0x00B6, int, dec, 16, 6, spr, spr, spr
+Theta_cmd_Corrected_(DEG)_x_10           , 0x00B7, int, dec, 16, 6, spr, spr, spr
+
+###############################################################################
+# Monitored Parameters - Temperatures
+###############################################################################
+Motor_Temp_(C)_x_10                      , 0x00A3, int, dec, 16, 9, spr, spr, spr
+Mod_A_Temp_(C)_x_10                      , 0x0091, int, dec, 16, 9, spr, spr, spr
+Mod_B_Temp_(C)_x_10                      , 0x00A4, int, dec, 16, 9, spr, spr, spr
+Mod_C_Temp_(C)_x_10                      , 0x00A5, int, dec, 16, 9, spr, spr, spr
+PCB_Temp_(C)_x_10                        , 0x00A6, int, dec, 16, 9, spr, spr, spr
+GDB_Temp_(C)_x_10                        , 0x00A7, int, dec, 16, 9, spr, spr, spr
+RTD1_Temp_(C)_x_10                       , 0x00A8, int, dec, 16, 9, spr, spr, spr
+RTD2_Temp_(C)_x_10                       , 0x00A9, int, dec, 16, 9, spr, spr, spr
+RTD3_Temp_(C)_x_10                       , 0x00AA, int, dec, 16, 9, spr, spr, spr
+RTD4_Temp_(C)_x_10                       , 0x00AB, int, dec, 16, 9, spr, spr, spr
+RTD5_Temp_(C)_x_10                       , 0x00AC, int, dec, 16, 9, spr, spr, spr
+
+###############################################################################
+# Monitored Parameters - Torque & Speed
+###############################################################################
+Commanded_Speed_(RPM)                    , 0x0096, int, dec, 16, 7, spr, spr, spr
+Feedback_Speed_(RPM)                     , 0x0097, int, dec, 16, 7, spr, spr, spr
+Speed_Rate_Limit_(RPM/s)                 , 0x0086, int, dec, 16, 7, spr, spr, spr
+
+Commanded_Torque_(Nm)_x_10               , 0x0098, int, dec, 16, 5, spr, spr, spr
+Feedback_Torque_(Nm)_x_10                , 0x0099, int, dec, 16, 5, spr, spr, spr
+Voltage_Feedback_Speed_(RPM)             , 0x00BA, int, dec, 16, 7, spr, spr, spr
+Torque_Shudder_(Nm)_x_10                 , 0x00BC, int, dec, 16, 5, spr, spr, spr
+
+#Amp_Hours_Counter_(AHrx10)               , 0x00DE, int, dec, 16, 6, spr, spr, spr
+#Motor_Torq_Capability_(Nm)_x_10          , 0x0085, int, dec, 16, 6, spr, spr, spr
+#Regen_Torq_Capability_(Nm)_x_10          , 0x0086, int, dec, 16, 6, spr, spr, spr
+Inverter_Discharge_Command               , 0x008A, uint, dec, 16, 6, spr, spr, spr
+Inverter_Discharge_State                 , 0x0087, int, hex, 16, 6, spr, spr, spr
+Inverter_Discharge_Complete_Counter      , 0x0088, int, dec, 16, 6, spr, spr, spr
+
+###############################################################################
+# Monitored Parameters - DC Voltage & Current
+###############################################################################
+V_DC_Filtered_(Volts)_x_10               , 0x00AD, int, dec, 16, 3, spr, spr, spr
+V_MAG_Filtered_(Volts)_x_10              , 0x00AE, int, dec, 16, 3, spr, spr, spr
+SW_Over_Voltage_(Volts)_x_10             , 0x006D, int, dec, 16, 3, spr, spr, spr
+
+I_DC_Filtered_(Amps)_x_10                , 0x00AF, int, dec, 16, 2, spr, spr, spr
+I_MAG_Filtered_(Amps)_x_10               , 0x00B0, int, dec, 16, 2, spr, spr, spr
+SW_Over_Current_(Amps)_x_10              , 0x0071, int, dec, 16, 2, spr, spr, spr
+Amp_hours_(A_hr)_x_10                    , 0x009F, int, dec, 16, 2, spr, spr, spr
+Ia_ADC_Fil                               , 0x00DE, int, dec, 16, 2, spr, spr, spr
+Ib_ADC_Fil                               , 0x00DF, int, dec, 16, 2, spr, spr, spr
+Ic_ADC_Fil                               , 0x00E0, int, dec, 16, 2, spr, spr, spr
+
+Ia_corr_(Ampsx10)                        , 0x00E1, int, dec, 16, 2, spr, spr, spr
+Ib_corr_(Ampsx10)                        , 0x00E2, int, dec, 16, 2, spr, spr, spr
+Ic_corr_(Ampsx10)                        , 0x00D6, int, dec, 16, 2, spr, spr, spr
+
+Vab_Voltage_(Volts)_x_10                 , 0x00A1, int, dec, 16, 3, spr, spr, spr
+Vbc_Voltage_(Volts)_x_10                 , 0x00A2, int, dec, 16, 3, spr, spr, spr
+
+###############################################################################
+# Monitored Parameters - VSM IOs
+###############################################################################
+ID_Bits                                  , 0x00CE, uint, dec, 16, 6, spr, spr, spr
+Group_Number                             , 0x00A0, uint, dec, 16, 6, spr, spr, spr
+Inverter_Mode                            , 0x0092, uint, dec, 16, 6, spr, spr, spr
+VSM_State                                , 0x0093, uint, dec, 16, 6, spr, spr, spr
+Inverter_Enable                          , 0x0094, uint, dec, 16, 6, spr, spr, spr
+BMS_Limit_Msg_Status                     , 0x0064, uint, dec, 16, 6, spr, spr, spr
+Vehicle_Direction                        , 0x0095, int, dec, 16, 6, spr, spr, spr
+DIN1_Forward_Switch                      , 0x009B, uint, dec, 16, 6, spr, spr, spr
+DIN2_Reverse_Switch                      , 0x009C, uint, dec, 16, 6, spr, spr, spr
+DIN3_Brake_Switch                        , 0x009A, uint, dec, 16, 6, spr, spr, spr
+DIN4_Regen_Disable_Switch                , 0x00B8, uint, dec, 16, 6, spr, spr, spr
+DIN5_Ignition_Input                      , 0x00B1, uint, dec, 16, 6, spr, spr, spr
+DIN6_Start_Input                         , 0x00B2, uint, dec, 16, 6, spr, spr, spr
+Program_Enable_Input                     , 0x0065, uint, dec, 16, 6, spr, spr, spr
+RLY1_Precharge_Output_Status             , 0x00B4, uint, dec, 16, 6, spr, spr, spr
+RLY2_Main_Output_Status                  , 0x00B5, uint, dec, 16, 6, spr, spr, spr
+RLY3_OK_Output_Status                    , 0x00B3, uint, dec, 16, 6, spr, spr, spr
+RLY4_Fault_Output_Status                 , 0x00BB, uint, dec, 16, 6, spr, spr, spr
+Fault_Reset_Output_Status                , 0x00C0, uint, dec, 16, 6, spr, spr, spr
+SAT_Fault_Output_Status                  , 0x00C1, uint, dec, 16, 6, spr, spr, spr
+Over-Current_Fault_Output_Status         , 0x00C2, uint, dec, 16, 6, spr, spr, spr
+
+Encoder_Input_A_Status                   , 0x00DB, uint, dec, 16, 6, spr, spr, spr
+Encoder_Input_B_Status                   , 0x00DC, uint, dec, 16, 6, spr, spr, spr
+Encoder_Input_Z_Status                   , 0x00DD, uint, dec, 16, 6, spr, spr, spr
+VSM_Accel_Filtered_(AIN1_Vx100)          , 0x005F, uint, dec, 16, 6, spr, spr, spr
+VSM_Brake_Filtered_(Ain3_Vx100)          , 0x00BD, uint, dec, 16, 6, spr, spr, spr
+VSM_Brake_Thresh_Lo                      , 0x00BE, uint, dec, 16, 6, spr, spr, spr
+VSM_Brake_Thresh_Hi                      , 0x00BF, uint, dec, 16, 6, spr, spr, spr
+12V_Input_Voltage_(Vx100)                , 0x0062, uint, dec, 16, 6, spr, spr, spr
+
+U2C_Output_Voltage_(Vx10)                , 0x0067, int, dec, 16, 6, spr, spr, spr
+U2C_Output_Current_(Ax10)                , 0x0068, int, dec, 16, 6, spr, spr, spr
+U2C_Status                               , 0x0069, int, dec, 16, 6, spr, spr, spr
+
+CAN_Status                               , 0x00C8, uint, hex, 16, 6, spr, spr, spr
+CAN_Faults                               , 0x00C9, uint, hex, 16, 6, spr, spr, spr
+CANES_Low                                , 0x00CA, uint, hex, 16, 6, spr, spr, spr
+CANES_High                               , 0x00CB, uint, hex, 16, 6, spr, spr, spr
+CAN_Tx_Error_Counter                     , 0x00CC, uint, dec, 16, 6, spr, spr, spr
+CAN_Rx_Error_Counter                     , 0x00CD, uint, dec, 16, 6, spr, spr, spr
+
+###############################################################################
+# Monitored Parameters - EEPROM Data
+###############################################################################
+EEprom_Type                              , 0x0053, uint, ascii, 16, 6, spr, spr, spr
+EEprom_Version                           , 0x0054, uint, hex, 16, 6, spr, spr, spr
+EEprom_Data_Size                         , 0x0055, uint, dec, 16, 6, spr, spr, spr
+EEprom_State                             , 0x0056, uint, hex, 16, 6, spr, spr, spr
+
+###############################################################################
+# Monitored Parameters - Timers & Counters
+###############################################################################
+Power_on_Timer_3ms_(Hi_byte)             , 0x00C3, uint, dec, 16, 6, spr, spr, spr
+Power_on_Timer_3ms_(Lo_byte)             , 0x00C4, uint, dec, 16, 6, spr, spr, spr
+Fast_Loop_Time_(micro_Seconds)           , 0x00C5, uint, dec, 16, 6, spr, spr, spr
+Slow_Loop_Time_(uS)                      , 0x00C6, uint, dec, 16, 6, spr, spr, spr
+
+###############################################################################
+# Info Parameters - factory programmed, DO NOT attempt to modify
+###############################################################################
+#Code_Version_YYYY                       , 0x0050, uint, hex, 16, 6, spr, spr, spr
+#Code_Version_MMDD                       , 0x0051, uint, hex, 16, 6, spr, spr, spr
+#SW_Version                              , 0x0052, uint, hex, 16, 6, spr, spr, spr
+
+###############################################################################
+# Debug Parameters - not displayed on GUI
+###############################################################################
+IQ_Command                               , 0x006A, int, dec, 16, 6, spr, spr, spr
+IQ_Feedback                              , 0x006B, int, dec, 16, 6, spr, spr, spr
+IQ_Feedforward                           , 0x006C, int, dec, 16, 6, spr, spr, spr
+
+ID_Command                               , 0x006E, int, dec, 16, 6, spr, spr, spr
+ID_Feedback                              , 0x006F, int, dec, 16, 6, spr, spr, spr
+ID_Feedforward                           , 0x0070, int, dec, 16, 6, spr, spr, spr
+
+Modulation_Index                         , 0x0072, int, dec, 16, 6, spr, spr, spr
+
+VQ_Command                               , 0x0076, int, dec, 16, 6, spr, spr, spr
+VQ_Feedback                              , 0x0077, int, dec, 16, 6, spr, spr, spr
+VQ_Feedforward                           , 0x0078, int, dec, 16, 6, spr, spr, spr
+
+VD_Command                               , 0x0079, int, dec, 16, 6, spr, spr, spr
+VD_Feedback                              , 0x007A, int, dec, 16, 6, spr, spr, spr
+VD_Feedforward                           , 0x007B, int, dec, 16, 6, spr, spr, spr
+
+Omega_Rotor                              , 0x007C, int, dec, 16, 6, spr, spr, spr
+Omega                                    , 0x007D, int, dec, 16, 6, spr, spr, spr
+Omega_slip_feedforward                   , 0x007E, int, dec, 16, 6, spr, spr, spr
+PLL_frequency                            , 0x007F, int, dec, 16, 6, spr, spr, spr
+
+Flux_Q_Rotor                             , 0x0080, int, dec, 16, 6, spr, spr, spr
+Flux_D_Rotor                             , 0x0081, int, dec, 16, 6, spr, spr, spr
+Flux_Q_Stator                            , 0x0082, int, dec, 16, 6, spr, spr, spr
+Flux_D_Stator                            , 0x0083, int, dec, 16, 6, spr, spr, spr
+
+Omega_test                               , 0x0084, uint, dec, 16, 6, spr, spr, spr
+
+# ADC Data 8-11
+AIN1                                     , 0x0038, uint, dec, 16, 6, spr, spr, spr
+AIN2                                     , 0x0039, uint, dec, 16, 6, spr, spr, spr
+AIN3                                     , 0x003A, uint, dec, 16, 6, spr, spr, spr
+AIN4                                     , 0x003B, uint, dec, 16, 6, spr, spr, spr
+
+###############################################################################
+# GUI Command Parameters
+###############################################################################
+#Access_Code/Inverter_Status             , 0x0000, uint, ascii, 16, 6, spr, spr, spr
+
+Last_Run_Fault                           , 0x005D, uint, hex, 16, 6, spr, spr, spr
+Limit_Flags                              , 0x005C, uint, hex, 16, 6, spr, spr, spr
+
+Run_Command(Trq=0_Spd=1)                 , 0x0003, uint, dec, 16, 6, spr, spr, spr
+Veh_Flux_Command_(Wb)_x_1000             , 0x0004, uint, dec, 16, 6, spr, spr, spr
+Resolver_Delay_Command                   , 0x0005, uint, dec, 16, 6, spr, spr, spr
+
+Open_Loop_Command(0=OFF)                 , 0x0006, uint, hex, 16, 6, spr, spr, spr
+Omega_tst/4                              , 0x0007, q15, dec, 16, 6, spr, spr, spr
+
+IQ_Ptr_Cmd                               , 0x000A, uint, hex, 16, 6, spr, spr, spr
+IQ_Ptr_int                               , 0x0090, int, dec, 16, 6, spr, spr, spr
+IQ_Ptr_frac                              , 0x008F, q15, dec, 16, 6, spr, spr, spr
+
+INT_Ptr_Cmd                              , 0x000B, uint, hex, 16, 6, spr, spr, spr
+INT_Ptr_Value                            , 0x00C7, int, dec, 16, 6, spr, spr, spr
+
+Kp_Curr_Gain_x_10000                     , 0x000C, int, dec, 16, 6, spr, spr, spr
+Ki_Curr_Gain_x_10000                     , 0x000D, int, dec, 16, 6, spr, spr, spr
+Kp_Flux_Weakening_x_10000                , 0x000E, int, dec, 16, 6, spr, spr, spr
+Ki_Flux_Weakening_x_10000                , 0x000F, int, dec, 16, 6, spr, spr, spr
+
+Gamma_Adjust_(Deg)_x_10                  , 0x0010, int, dec, 16, 6, spr, spr, spr
+Theta_Cmd_Offset_(Deg)_x_10              , 0x0011, int, dec, 16, 6, spr, spr, spr
+Outputs_Command                          , 0x0012, int, hex, 16, 6, spr, spr, spr
+
+Ia_Offset_Command                        , 0x0019, int, dec, 16, 6, spr, spr, spr
+Ib_Offset_Command                        , 0x001A, int, dec, 16, 6, spr, spr, spr
+Ic_Offset_Command                        , 0x001B, int, dec, 16, 6, spr, spr, spr
+
+#Temporary_Command                       , 0x001C, int, dec, 16, 6, spr, spr, spr
+
+Encoder_Calibration_Command              , 0x0015, int, dec, 16, 6, spr, spr, spr
+Sin_Minimum_Value_(V)_x_100              , 0x00E3, int, dec, 16, 6, spr, spr, spr
+Sin_Maximum_Value_(V)_x_100              , 0x00E4, int, dec, 16, 6, spr, spr, spr
+Sin_Offset_(V)_x_100                     , 0x00E5, int, dec, 16, 6, spr, spr, spr
+Cos_Minimum_Value_(V)_x_100              , 0x00E6, int, dec, 16, 6, spr, spr, spr
+Cos_Maximum_Value_(V)_x_100              , 0x00E7, int, dec, 16, 6, spr, spr, spr
+Cos_Offset_(V)_x_100                     , 0x00E8, int, dec, 16, 6, spr, spr, spr
+

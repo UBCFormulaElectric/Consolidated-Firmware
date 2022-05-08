@@ -26,5 +26,4 @@ void App_SharedRgbLedSequence_Destroy(struct RgbLedSequence *rgb_led_sequence);
  * Update the given RGB LED sequence to turn on the next color
  * @param rgb_led_sequence The RGB LED sequence to update
  */
-void App_SharedRgbLedSequence_Tick(
-    struct RgbLedSequence *const rgb_led_sequence);
+void App_SharedRgbLedSequence_Tick(struct RgbLedSequence *const rgb_led_sequence);

@@ -14,18 +14,14 @@ class OkStatusTest : public testing::Test
   protected:
     void SetUp() override
     {
-        ok_status = App_OkStatus_Create(
-            enable_status_ok, disable_status_ok, is_ok_status_enabled);
+        ok_status = App_OkStatus_Create(enable_status_ok, disable_status_ok, is_ok_status_enabled);
 
         RESET_FAKE(enable_status_ok);
         RESET_FAKE(disable_status_ok);
         RESET_FAKE(is_ok_status_enabled);
     }
 
-    void TearDown() override
-    {
-        TearDownObject(ok_status, App_OkStatus_Destroy);
-    }
+    void TearDown() override { TearDownObject(ok_status, App_OkStatus_Destroy); }
 
     struct OkStatus *ok_status;
 };

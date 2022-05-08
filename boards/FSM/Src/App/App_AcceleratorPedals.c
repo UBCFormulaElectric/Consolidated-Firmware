@@ -35,11 +35,9 @@ static float App_GetPedalPercentage(
     uint32_t encoder_counter_value,
     void (*reset_encoder_counter)(void))
 {
-    const float low_end_deadzone_threshold =
-        (float)encoder_fully_pressed_value * PERCENT_DEFLECTION;
+    const float low_end_deadzone_threshold = (float)encoder_fully_pressed_value * PERCENT_DEFLECTION;
 
-    const float high_end_deadzone_threshold =
-        (float)encoder_fully_pressed_value * (1.0f - PERCENT_DEFLECTION);
+    const float high_end_deadzone_threshold = (float)encoder_fully_pressed_value * (1.0f - PERCENT_DEFLECTION);
 
     if (encoder_counter_value > encoder_reset_value)
     {
@@ -62,8 +60,7 @@ static float App_GetPedalPercentage(
     }
     // Pedal % = 100% * (encoder value - low end deadzone threshold) /
     // (high end deadzone threshold - low end deadzone threshold)
-    return MAX_ACCELERATOR_PEDAL_PRESS *
-           ((float)encoder_counter_value - low_end_deadzone_threshold) /
+    return MAX_ACCELERATOR_PEDAL_PRESS * ((float)encoder_counter_value - low_end_deadzone_threshold) /
            (high_end_deadzone_threshold - low_end_deadzone_threshold);
 }
 
@@ -75,22 +72,15 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
     void (*reset_primary_encoder_counter)(void),
     void (*reset_secondary_encoder_counter)(void))
 {
-    struct AcceleratorPedals *accelerator_pedals =
-        malloc(sizeof(struct AcceleratorPedals));
+    struct AcceleratorPedals *accelerator_pedals = malloc(sizeof(struct AcceleratorPedals));
     assert(accelerator_pedals != NULL);
 
-    accelerator_pedals->is_primary_encoder_alarm_active =
-        is_primary_encoder_alarm_active;
-    accelerator_pedals->is_secondary_encoder_alarm_active =
-        is_secondary_encoder_alarm_active;
-    accelerator_pedals->get_primary_encoder_counter_value =
-        get_primary_encoder_counter_value;
-    accelerator_pedals->get_secondary_encoder_counter_value =
-        get_secondary_encoder_counter_value;
-    accelerator_pedals->reset_primary_encoder_counter =
-        reset_primary_encoder_counter;
-    accelerator_pedals->reset_secondary_encoder_counter =
-        reset_secondary_encoder_counter;
+    accelerator_pedals->is_primary_encoder_alarm_active     = is_primary_encoder_alarm_active;
+    accelerator_pedals->is_secondary_encoder_alarm_active   = is_secondary_encoder_alarm_active;
+    accelerator_pedals->get_primary_encoder_counter_value   = get_primary_encoder_counter_value;
+    accelerator_pedals->get_secondary_encoder_counter_value = get_secondary_encoder_counter_value;
+    accelerator_pedals->reset_primary_encoder_counter       = reset_primary_encoder_counter;
+    accelerator_pedals->reset_secondary_encoder_counter     = reset_secondary_encoder_counter;
 
     return accelerator_pedals;
 }
@@ -100,32 +90,26 @@ void App_AcceleratorPedals_Destroy(struct AcceleratorPedals *accelerator_pedals)
     free(accelerator_pedals);
 }
 
-bool App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(
-    const struct AcceleratorPedals *const accelerator_pedals)
+bool App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(const struct AcceleratorPedals *const accelerator_pedals)
 {
     return accelerator_pedals->is_primary_encoder_alarm_active();
 }
 
-bool App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(
-    const struct AcceleratorPedals *const accelerator_pedals)
+bool App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(const struct AcceleratorPedals *const accelerator_pedals)
 {
     return accelerator_pedals->is_secondary_encoder_alarm_active();
 }
 
-float App_AcceleratorPedals_GetPrimaryPedalPercentage(
-    const struct AcceleratorPedals *const accelerator_pedals)
+float App_AcceleratorPedals_GetPrimaryPedalPercentage(const struct AcceleratorPedals *const accelerator_pedals)
 {
     return App_GetPedalPercentage(
         PAPPS_ENCODER_FULLY_PRESSED_VALUE, PAPPS_ENCODER_RESET_VALUE,
-        accelerator_pedals->get_primary_encoder_counter_value(),
-        accelerator_pedals->reset_primary_encoder_counter);
+        accelerator_pedals->get_primary_encoder_counter_value(), accelerator_pedals->reset_primary_encoder_counter);
 }
 
-float App_AcceleratorPedals_GetSecondaryPedalPercentage(
-    const struct AcceleratorPedals *const accelerator_pedals)
+float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct AcceleratorPedals *const accelerator_pedals)
 {
     return App_GetPedalPercentage(
         SAPPS_ENCODER_FULLY_PRESSED_VALUE, SAPPS_ENCODER_RESET_VALUE,
-        accelerator_pedals->get_secondary_encoder_counter_value(),
-        accelerator_pedals->reset_secondary_encoder_counter);
+        accelerator_pedals->get_secondary_encoder_counter_value(), accelerator_pedals->reset_secondary_encoder_counter);
 }

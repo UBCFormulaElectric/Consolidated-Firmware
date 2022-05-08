@@ -40,9 +40,7 @@ void App_SharedError_SetBoard(struct Error *error, enum Board board)
     error->board = board;
 }
 
-void App_SharedError_SetErrorType(
-    struct Error * error,
-    enum ErrorType error_type)
+void App_SharedError_SetErrorType(struct Error *error, enum ErrorType error_type)
 {
     error->error_type = error_type;
 }
@@ -98,9 +96,7 @@ bool App_SharedError_IsNonCritical(const struct Error *error)
     return (error_type == NON_CRITICAL_ERROR) ? true : false;
 }
 
-bool App_SharedError_IsErrorInList(
-    struct ErrorList *error_list,
-    enum ErrorId      error_id)
+bool App_SharedError_IsErrorInList(struct ErrorList *error_list, enum ErrorId error_id)
 {
     for (uint32_t i = 0; i < error_list->num_errors; i++)
     {
@@ -112,9 +108,7 @@ bool App_SharedError_IsErrorInList(
     return false;
 }
 
-bool App_SharedError_IsBoardInList(
-    struct ErrorBoardList *board_list,
-    enum Board             board)
+bool App_SharedError_IsBoardInList(struct ErrorBoardList *board_list, enum Board board)
 {
     for (uint32_t i = 0; i < board_list->num_boards; i++)
     {

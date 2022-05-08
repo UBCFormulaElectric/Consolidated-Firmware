@@ -17,18 +17,14 @@ class SharedSignalTest : public testing::Test
         callback.function                         = callback_function;
         callback.entry_condition_high_duration_ms = 0;
         callback.exit_condition_high_duration_ms  = 0;
-        signal                                    = App_SharedSignal_Create(
-            0, is_entry_high, is_exit_high, world, callback);
+        signal = App_SharedSignal_Create(0, is_entry_high, is_exit_high, world, callback);
 
         RESET_FAKE(is_entry_high);
         RESET_FAKE(is_exit_high);
         RESET_FAKE(callback_function);
     }
 
-    void TearDown() override
-    {
-        TearDownObject(signal, App_SharedSignal_Destroy);
-    }
+    void TearDown() override { TearDownObject(signal, App_SharedSignal_Destroy); }
 
     void SetInitialTimeAndDuration(
         uint32_t initial_time_ms,
@@ -40,8 +36,7 @@ class SharedSignalTest : public testing::Test
         callback.function                         = callback_function;
         callback.entry_condition_high_duration_ms = entry_high_duration_ms;
         callback.exit_condition_high_duration_ms  = exit_high_duration_ms;
-        signal                                    = App_SharedSignal_Create(
-            initial_time_ms, is_entry_high, is_exit_high, world, callback);
+        signal = App_SharedSignal_Create(initial_time_ms, is_entry_high, is_exit_high, world, callback);
     }
 
     void testSignalStaysHighForSomeCycles(
@@ -50,8 +45,7 @@ class SharedSignalTest : public testing::Test
         uint32_t exit_high_duration_ms,
         uint32_t num_cycles)
     {
-        SetInitialTimeAndDuration(
-            start_ms, entry_high_duration_ms, exit_high_duration_ms);
+        SetInitialTimeAndDuration(start_ms, entry_high_duration_ms, exit_high_duration_ms);
 
         is_entry_high_fake.return_val = true;
 
@@ -69,11 +63,8 @@ class SharedSignalTest : public testing::Test
             {
                 expected_callback_call_count++;
             }
-            ASSERT_EQ(
-                expected_callback_call_count,
-                callback_function_fake.call_count);
-            ASSERT_EQ(
-                current_ms, App_SharedSignal_GetEntryLastTimeHighMs(signal));
+            ASSERT_EQ(expected_callback_call_count, callback_function_fake.call_count);
+            ASSERT_EQ(current_ms, App_SharedSignal_GetEntryLastTimeHighMs(signal));
             ASSERT_EQ(start_ms, App_SharedSignal_GetEntryLastTimeLowMs(signal));
         }
 
@@ -84,22 +75,14 @@ class SharedSignalTest : public testing::Test
             for (uint32_t ms = 0; ms < entry_high_duration_ms; ms++)
             {
                 App_SharedSignal_Update(signal, ++current_ms);
-                ASSERT_EQ(
-                    ++expected_callback_call_count,
-                    callback_function_fake.call_count);
-                ASSERT_EQ(
-                    current_ms,
-                    App_SharedSignal_GetEntryLastTimeHighMs(signal));
-                ASSERT_EQ(
-                    start_ms, App_SharedSignal_GetEntryLastTimeLowMs(signal));
+                ASSERT_EQ(++expected_callback_call_count, callback_function_fake.call_count);
+                ASSERT_EQ(current_ms, App_SharedSignal_GetEntryLastTimeHighMs(signal));
+                ASSERT_EQ(start_ms, App_SharedSignal_GetEntryLastTimeLowMs(signal));
             }
         }
     }
 
-    void testSignalStaysLowForSomeCycles(
-        uint32_t start_ms,
-        uint32_t high_duration_ms,
-        uint32_t num_cycles)
+    void testSignalStaysLowForSomeCycles(uint32_t start_ms, uint32_t high_duration_ms, uint32_t num_cycles)
     {
         SetInitialTimeAndDuration(start_ms, high_duration_ms, 1);
 
@@ -113,17 +96,13 @@ class SharedSignalTest : public testing::Test
             {
                 App_SharedSignal_Update(signal, ++current_ms);
                 ASSERT_EQ(0, callback_function_fake.call_count);
-                ASSERT_EQ(
-                    start_ms, App_SharedSignal_GetEntryLastTimeHighMs(signal));
-                ASSERT_EQ(
-                    current_ms, App_SharedSignal_GetEntryLastTimeLowMs(signal));
+                ASSERT_EQ(start_ms, App_SharedSignal_GetEntryLastTimeHighMs(signal));
+                ASSERT_EQ(current_ms, App_SharedSignal_GetEntryLastTimeLowMs(signal));
             }
         }
     }
 
-    void testSignalGetsInterruptedAtTheLastMs(
-        uint32_t start_ms,
-        uint32_t high_duration_ms)
+    void testSignalGetsInterruptedAtTheLastMs(uint32_t start_ms, uint32_t high_duration_ms)
     {
         SetInitialTimeAndDuration(start_ms, high_duration_ms, 1);
 
@@ -147,19 +126,13 @@ class SharedSignalTest : public testing::Test
             // Is this the last millisecond?
             if (i == high_duration_ms - 1)
             {
-                ASSERT_EQ(
-                    current_ms - 1,
-                    App_SharedSignal_GetEntryLastTimeHighMs(signal));
-                ASSERT_EQ(
-                    current_ms, App_SharedSignal_GetEntryLastTimeLowMs(signal));
+                ASSERT_EQ(current_ms - 1, App_SharedSignal_GetEntryLastTimeHighMs(signal));
+                ASSERT_EQ(current_ms, App_SharedSignal_GetEntryLastTimeLowMs(signal));
             }
             else
             {
-                ASSERT_EQ(
-                    current_ms,
-                    App_SharedSignal_GetEntryLastTimeHighMs(signal));
-                ASSERT_EQ(
-                    start_ms, App_SharedSignal_GetEntryLastTimeLowMs(signal));
+                ASSERT_EQ(current_ms, App_SharedSignal_GetEntryLastTimeHighMs(signal));
+                ASSERT_EQ(start_ms, App_SharedSignal_GetEntryLastTimeLowMs(signal));
             }
         }
     }
@@ -188,11 +161,8 @@ class SharedSignalTest : public testing::Test
             {
                 expected_callback_call_count++;
             }
-            ASSERT_EQ(
-                expected_callback_call_count,
-                callback_function_fake.call_count);
-            ASSERT_EQ(
-                current_ms, App_SharedSignal_GetEntryLastTimeHighMs(signal));
+            ASSERT_EQ(expected_callback_call_count, callback_function_fake.call_count);
+            ASSERT_EQ(current_ms, App_SharedSignal_GetEntryLastTimeHighMs(signal));
             ASSERT_EQ(start_ms, App_SharedSignal_GetEntryLastTimeLowMs(signal));
         }
 
@@ -203,14 +173,9 @@ class SharedSignalTest : public testing::Test
             for (uint32_t i = 0; i < high_duration_ms; i++)
             {
                 App_SharedSignal_Update(signal, ++current_ms);
-                ASSERT_EQ(
-                    ++expected_callback_call_count,
-                    callback_function_fake.call_count);
-                ASSERT_EQ(
-                    current_ms,
-                    App_SharedSignal_GetEntryLastTimeHighMs(signal));
-                ASSERT_EQ(
-                    start_ms, App_SharedSignal_GetEntryLastTimeLowMs(signal));
+                ASSERT_EQ(++expected_callback_call_count, callback_function_fake.call_count);
+                ASSERT_EQ(current_ms, App_SharedSignal_GetEntryLastTimeHighMs(signal));
+                ASSERT_EQ(start_ms, App_SharedSignal_GetEntryLastTimeLowMs(signal));
             }
         }
     }
@@ -226,8 +191,7 @@ class SharedSignalTest : public testing::Test
 
         // Set is_entry_condition_high for a single cycle to trigger the
         // callback function.
-        testSignalStaysHighForSomeCycles(
-            entry_start_ms, entry_high_duration_ms, exit_high_duration_ms, 1);
+        testSignalStaysHighForSomeCycles(entry_start_ms, entry_high_duration_ms, exit_high_duration_ms, 1);
 
         is_entry_high_fake.return_val = false;
 
@@ -237,10 +201,8 @@ class SharedSignalTest : public testing::Test
         {
             App_SharedSignal_Update(signal, ++current_ms);
             ASSERT_TRUE(App_SharedSignal_IsCallbackTriggered(signal));
-            ASSERT_EQ(
-                entry_start_ms, App_SharedSignal_GetExitLastTimeHighMs(signal));
-            ASSERT_EQ(
-                current_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
+            ASSERT_EQ(entry_start_ms, App_SharedSignal_GetExitLastTimeHighMs(signal));
+            ASSERT_EQ(current_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
         }
 
         is_exit_high_fake.return_val = false;
@@ -253,11 +215,8 @@ class SharedSignalTest : public testing::Test
             {
                 App_SharedSignal_Update(signal, ++current_ms);
                 ASSERT_TRUE(App_SharedSignal_IsCallbackTriggered(signal));
-                ASSERT_EQ(
-                    entry_start_ms,
-                    App_SharedSignal_GetExitLastTimeHighMs(signal));
-                ASSERT_EQ(
-                    current_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
+                ASSERT_EQ(entry_start_ms, App_SharedSignal_GetExitLastTimeHighMs(signal));
+                ASSERT_EQ(current_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
             }
         }
     }
@@ -273,8 +232,7 @@ class SharedSignalTest : public testing::Test
 
         // Set is_entry_condition_high for a single cycle to trigger the
         // callback function.
-        testSignalStaysHighForSomeCycles(
-            entry_start_ms, entry_high_duration_ms, exit_high_duration_ms, 1);
+        testSignalStaysHighForSomeCycles(entry_start_ms, entry_high_duration_ms, exit_high_duration_ms, 1);
         is_entry_high_fake.return_val = false;
 
         // Delay for a few ms after is_entry_condition_high is low before
@@ -283,10 +241,8 @@ class SharedSignalTest : public testing::Test
         {
             App_SharedSignal_Update(signal, ++current_ms);
             ASSERT_TRUE(App_SharedSignal_IsCallbackTriggered(signal));
-            ASSERT_EQ(
-                entry_start_ms, App_SharedSignal_GetExitLastTimeHighMs(signal));
-            ASSERT_EQ(
-                current_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
+            ASSERT_EQ(entry_start_ms, App_SharedSignal_GetExitLastTimeHighMs(signal));
+            ASSERT_EQ(current_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
         }
 
         is_exit_high_fake.return_val = true;
@@ -306,10 +262,8 @@ class SharedSignalTest : public testing::Test
             }
 
             App_SharedSignal_Update(signal, ++current_ms);
-            ASSERT_EQ(
-                current_ms, App_SharedSignal_GetExitLastTimeHighMs(signal));
-            ASSERT_EQ(
-                exit_start_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
+            ASSERT_EQ(current_ms, App_SharedSignal_GetExitLastTimeHighMs(signal));
+            ASSERT_EQ(exit_start_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
         }
 
         // The callback function should not be triggered for the remaining
@@ -320,11 +274,8 @@ class SharedSignalTest : public testing::Test
             for (uint32_t ms = 0; ms < exit_high_duration_ms; ms++)
             {
                 App_SharedSignal_Update(signal, ++current_ms);
-                ASSERT_EQ(
-                    current_ms, App_SharedSignal_GetExitLastTimeHighMs(signal));
-                ASSERT_EQ(
-                    exit_start_ms,
-                    App_SharedSignal_GetExitLastTimeLowMs(signal));
+                ASSERT_EQ(current_ms, App_SharedSignal_GetExitLastTimeHighMs(signal));
+                ASSERT_EQ(exit_start_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
             }
 
             ASSERT_EQ(false, App_SharedSignal_IsCallbackTriggered(signal));
@@ -340,8 +291,7 @@ class SharedSignalTest : public testing::Test
     {
         // Set is_entry_condition_high for a single cycle to trigger the
         // callback function.
-        testSignalStaysHighForSomeCycles(
-            entry_start_ms, entry_high_duration_ms, exit_high_duration_ms, 1);
+        testSignalStaysHighForSomeCycles(entry_start_ms, entry_high_duration_ms, exit_high_duration_ms, 1);
 
         uint32_t current_ms           = entry_start_ms + entry_high_duration_ms;
         is_entry_high_fake.return_val = false;
@@ -352,10 +302,8 @@ class SharedSignalTest : public testing::Test
         {
             App_SharedSignal_Update(signal, ++current_ms);
             ASSERT_TRUE(App_SharedSignal_IsCallbackTriggered(signal));
-            ASSERT_EQ(
-                entry_start_ms, App_SharedSignal_GetExitLastTimeHighMs(signal));
-            ASSERT_EQ(
-                current_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
+            ASSERT_EQ(entry_start_ms, App_SharedSignal_GetExitLastTimeHighMs(signal));
+            ASSERT_EQ(current_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
         }
 
         uint32_t exit_start_ms = current_ms;
@@ -377,19 +325,13 @@ class SharedSignalTest : public testing::Test
 
             if (ms == exit_high_duration_ms - 1)
             {
-                ASSERT_EQ(
-                    current_ms - 1,
-                    App_SharedSignal_GetExitLastTimeHighMs(signal));
-                ASSERT_EQ(
-                    current_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
+                ASSERT_EQ(current_ms - 1, App_SharedSignal_GetExitLastTimeHighMs(signal));
+                ASSERT_EQ(current_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
             }
             else
             {
-                ASSERT_EQ(
-                    current_ms, App_SharedSignal_GetExitLastTimeHighMs(signal));
-                ASSERT_EQ(
-                    exit_start_ms,
-                    App_SharedSignal_GetExitLastTimeLowMs(signal));
+                ASSERT_EQ(current_ms, App_SharedSignal_GetExitLastTimeHighMs(signal));
+                ASSERT_EQ(exit_start_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
             }
 
             // The callback function is triggered continuously as
@@ -408,20 +350,15 @@ class SharedSignalTest : public testing::Test
             for (uint32_t ms = 0; ms < exit_high_duration_ms; ms++)
             {
                 App_SharedSignal_Update(signal, ++current_ms);
-                ASSERT_EQ(
-                    current_ms, App_SharedSignal_GetExitLastTimeHighMs(signal));
-                ASSERT_EQ(
-                    exit_start_ms,
-                    App_SharedSignal_GetExitLastTimeLowMs(signal));
+                ASSERT_EQ(current_ms, App_SharedSignal_GetExitLastTimeHighMs(signal));
+                ASSERT_EQ(exit_start_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
             }
 
             ASSERT_EQ(false, App_SharedSignal_IsCallbackTriggered(signal));
         }
     }
 
-    void testCreateAndUpdateSignalOnTheSameMillisecond(
-        uint32_t start_ms,
-        uint32_t high_duration_ms)
+    void testCreateAndUpdateSignalOnTheSameMillisecond(uint32_t start_ms, uint32_t high_duration_ms)
     {
         // Make sure Update() has well-defined behaviour if it's called on the
         // same millisecond as when the signal was created
@@ -455,45 +392,32 @@ class SharedSignalTest : public testing::Test
 
 TEST_F(SharedSignalTest, signal_stays_high_with_zero_start_time_for_one_cycle)
 {
-    testSignalStaysHighForSomeCycles(
-        0, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, 1);
+    testSignalStaysHighForSomeCycles(0, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, 1);
 }
 
-TEST_F(
-    SharedSignalTest,
-    signal_stays_high_with_zero_start_time_for_multiple_cycles)
+TEST_F(SharedSignalTest, signal_stays_high_with_zero_start_time_for_multiple_cycles)
 {
-    testSignalStaysHighForSomeCycles(
-        0, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, MULTIPLE_CYCLES);
+    testSignalStaysHighForSomeCycles(0, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, MULTIPLE_CYCLES);
 }
 
 TEST_F(SharedSignalTest, signal_stays_high_with_nonzero_start_time_for_one_cyle)
 {
-    testSignalStaysHighForSomeCycles(
-        1, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, 1);
+    testSignalStaysHighForSomeCycles(1, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, 1);
 }
 
-TEST_F(
-    SharedSignalTest,
-    signal_stays_high_with_nonzero_start_time_for_multiple_cycles)
+TEST_F(SharedSignalTest, signal_stays_high_with_nonzero_start_time_for_multiple_cycles)
 {
-    testSignalStaysHighForSomeCycles(
-        1, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, MULTIPLE_CYCLES);
+    testSignalStaysHighForSomeCycles(1, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, MULTIPLE_CYCLES);
 }
 
 TEST_F(SharedSignalTest, signal_stays_high_with_timer_overflow_for_one_cycle)
 {
-    testSignalStaysHighForSomeCycles(
-        UINT32_MAX - 1, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, 1);
+    testSignalStaysHighForSomeCycles(UINT32_MAX - 1, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, 1);
 }
 
-TEST_F(
-    SharedSignalTest,
-    signal_stays_high_for_multiple_cycles_with_timer_overflow_for_multiple_cycles)
+TEST_F(SharedSignalTest, signal_stays_high_for_multiple_cycles_with_timer_overflow_for_multiple_cycles)
 {
-    testSignalStaysHighForSomeCycles(
-        UINT32_MAX - 1, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS,
-        MULTIPLE_CYCLES);
+    testSignalStaysHighForSomeCycles(UINT32_MAX - 1, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, MULTIPLE_CYCLES);
 }
 
 TEST_F(SharedSignalTest, signal_stays_low_with_zero_start_time_for_one_cycle)
@@ -501,9 +425,7 @@ TEST_F(SharedSignalTest, signal_stays_low_with_zero_start_time_for_one_cycle)
     testSignalStaysLowForSomeCycles(0, ENTRY_DURATION_HIGH_MS, 1);
 }
 
-TEST_F(
-    SharedSignalTest,
-    signal_stays_low_with_zero_start_time_for_multiple_cycles)
+TEST_F(SharedSignalTest, signal_stays_low_with_zero_start_time_for_multiple_cycles)
 {
     testSignalStaysLowForSomeCycles(0, ENTRY_DURATION_HIGH_MS, MULTIPLE_CYCLES);
 }
@@ -513,12 +435,9 @@ TEST_F(SharedSignalTest, signal_stays_low_with_timer_overflow_for_one_cycle)
     testSignalStaysLowForSomeCycles(UINT32_MAX - 1, ENTRY_DURATION_HIGH_MS, 1);
 }
 
-TEST_F(
-    SharedSignalTest,
-    signal_stays_low_with_timer_overflow_for_multiple_cycles)
+TEST_F(SharedSignalTest, signal_stays_low_with_timer_overflow_for_multiple_cycles)
 {
-    testSignalStaysLowForSomeCycles(
-        UINT32_MAX - 1, ENTRY_DURATION_HIGH_MS, MULTIPLE_CYCLES);
+    testSignalStaysLowForSomeCycles(UINT32_MAX - 1, ENTRY_DURATION_HIGH_MS, MULTIPLE_CYCLES);
 }
 
 TEST_F(SharedSignalTest, signal_gets_interrupted_with_zero_start_time)
@@ -533,103 +452,72 @@ TEST_F(SharedSignalTest, signal_gets_interrupted_with_nonzero_start_time)
 
 TEST_F(SharedSignalTest, signal_gets_interrupted_with_timer_overflow)
 {
-    testSignalGetsInterruptedAtTheLastMs(
-        UINT32_MAX - 1, ENTRY_DURATION_HIGH_MS);
+    testSignalGetsInterruptedAtTheLastMs(UINT32_MAX - 1, ENTRY_DURATION_HIGH_MS);
 }
 
-TEST_F(
-    SharedSignalTest,
-    signal_gets_interrupted_with_zero_start_time_and_then_stays_high_for_multiple_cycles)
+TEST_F(SharedSignalTest, signal_gets_interrupted_with_zero_start_time_and_then_stays_high_for_multiple_cycles)
 {
-    testSignalGetsInterruptedAtTheLastMsAndThenStaysHighForSomeCycles(
-        0, ENTRY_DURATION_HIGH_MS, MULTIPLE_CYCLES);
+    testSignalGetsInterruptedAtTheLastMsAndThenStaysHighForSomeCycles(0, ENTRY_DURATION_HIGH_MS, MULTIPLE_CYCLES);
 }
 
-TEST_F(
-    SharedSignalTest,
-    signal_gets_interrupted_with_nonzero_start_time_and_then_stays_high_for_multiple_cycles)
+TEST_F(SharedSignalTest, signal_gets_interrupted_with_nonzero_start_time_and_then_stays_high_for_multiple_cycles)
 {
-    testSignalGetsInterruptedAtTheLastMsAndThenStaysHighForSomeCycles(
-        1, ENTRY_DURATION_HIGH_MS, MULTIPLE_CYCLES);
+    testSignalGetsInterruptedAtTheLastMsAndThenStaysHighForSomeCycles(1, ENTRY_DURATION_HIGH_MS, MULTIPLE_CYCLES);
 }
 
-TEST_F(
-    SharedSignalTest,
-    create_and_update_signal_on_the_same_millisecond_with_zero_start_time)
+TEST_F(SharedSignalTest, create_and_update_signal_on_the_same_millisecond_with_zero_start_time)
 {
     testCreateAndUpdateSignalOnTheSameMillisecond(0, ENTRY_DURATION_HIGH_MS);
 }
 
-TEST_F(
-    SharedSignalTest,
-    create_and_update_signal_on_the_same_millisecond_with_nonzero_start_time)
+TEST_F(SharedSignalTest, create_and_update_signal_on_the_same_millisecond_with_nonzero_start_time)
 {
     testCreateAndUpdateSignalOnTheSameMillisecond(1, ENTRY_DURATION_HIGH_MS);
 }
 
-TEST_F(
-    SharedSignalTest,
-    zero_ms_delay_before_exit_signal_stays_low_for_one_cycle)
+TEST_F(SharedSignalTest, zero_ms_delay_before_exit_signal_stays_low_for_one_cycle)
 {
-    testExitSignalStaysLowForSomeCycles(
-        0, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, 0, 1);
+    testExitSignalStaysLowForSomeCycles(0, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, 0, 1);
 }
 
-TEST_F(
-    SharedSignalTest,
-    non_zero_ms_delay_before_exit_signal_stays_low_for_one_cycle)
+TEST_F(SharedSignalTest, non_zero_ms_delay_before_exit_signal_stays_low_for_one_cycle)
 {
-    testExitSignalStaysLowForSomeCycles(
-        0, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, NON_ZERO_MS_DELAY, 1);
+    testExitSignalStaysLowForSomeCycles(0, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, NON_ZERO_MS_DELAY, 1);
 }
 
 TEST_F(SharedSignalTest, exit_signal_stays_low_with_overflow_for_one_cycle)
 {
     testExitSignalStaysLowForSomeCycles(
-        UINT32_MAX - ENTRY_DURATION_HIGH_MS, ENTRY_DURATION_HIGH_MS,
-        EXIT_DURATION_HIGH_MS, 0, 1);
+        UINT32_MAX - ENTRY_DURATION_HIGH_MS, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, 0, 1);
 }
 
-TEST_F(
-    SharedSignalTest,
-    exit_signal_stays_low_with_overflow_for_multiple_cycles)
+TEST_F(SharedSignalTest, exit_signal_stays_low_with_overflow_for_multiple_cycles)
 {
     testExitSignalStaysLowForSomeCycles(
-        UINT32_MAX - ENTRY_DURATION_HIGH_MS, ENTRY_DURATION_HIGH_MS,
-        EXIT_DURATION_HIGH_MS, 0, MULTIPLE_CYCLES);
+        UINT32_MAX - ENTRY_DURATION_HIGH_MS, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, 0, MULTIPLE_CYCLES);
 }
 
-TEST_F(
-    SharedSignalTest,
-    zero_ms_delay_before_exit_signal_stays_high_for_one_cycle)
+TEST_F(SharedSignalTest, zero_ms_delay_before_exit_signal_stays_high_for_one_cycle)
 {
-    testExitSignalStaysHighForSomeCycles(
-        0, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, 0, 1);
+    testExitSignalStaysHighForSomeCycles(0, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, 0, 1);
 }
 
-TEST_F(
-    SharedSignalTest,
-    non_zero_ms_delay_before_exit_signal_stays_high_for_multiple_cycles)
+TEST_F(SharedSignalTest, non_zero_ms_delay_before_exit_signal_stays_high_for_multiple_cycles)
 {
     testExitSignalStaysHighForSomeCycles(
-        0, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, NON_ZERO_MS_DELAY,
-        MULTIPLE_CYCLES);
+        0, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, NON_ZERO_MS_DELAY, MULTIPLE_CYCLES);
 }
 
 TEST_F(SharedSignalTest, exit_signal_stays_high_with_overflow_for_one_cycle)
 {
     testExitSignalStaysHighForSomeCycles(
-        UINT32_MAX - ENTRY_DURATION_HIGH_MS, ENTRY_DURATION_HIGH_MS,
-        EXIT_DURATION_HIGH_MS, 0, 1);
+        UINT32_MAX - ENTRY_DURATION_HIGH_MS, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, 0, 1);
 }
 
-TEST_F(
-    SharedSignalTest,
-    exit_signal_stays_high_with_overflow_for_multiple_cycles)
+TEST_F(SharedSignalTest, exit_signal_stays_high_with_overflow_for_multiple_cycles)
 {
     testExitSignalStaysHighForSomeCycles(
-        UINT32_MAX - ENTRY_DURATION_HIGH_MS, ENTRY_DURATION_HIGH_MS,
-        EXIT_DURATION_HIGH_MS, 0, MULTIPLE_CYCLES);
+        UINT32_MAX - ENTRY_DURATION_HIGH_MS, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, 0, MULTIPLE_CYCLES);
 }
 
 TEST_F(SharedSignalTest, zero_ms_delay_before_exit_signal_gets_interrupted)
@@ -644,28 +532,20 @@ TEST_F(SharedSignalTest, non_zero_ms_delay_before_exit_signal_gets_interrupted)
         0, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, NON_ZERO_MS_DELAY, 0);
 }
 
-TEST_F(
-    SharedSignalTest,
-    exit_signal_gets_interrupted_and_then_stays_high_for_multiple_cycles)
+TEST_F(SharedSignalTest, exit_signal_gets_interrupted_and_then_stays_high_for_multiple_cycles)
 {
     testExitSignalGetsInterruptedAtTheLastMsAndThenStaysHighForSomeCycles(
         0, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, 0, MULTIPLE_CYCLES);
 }
 
-TEST_F(
-    SharedSignalTest,
-    exit_signal_gets_interrupted_at_last_ms_with_timer_overflow)
+TEST_F(SharedSignalTest, exit_signal_gets_interrupted_at_last_ms_with_timer_overflow)
 {
     testExitSignalGetsInterruptedAtTheLastMsAndThenStaysHighForSomeCycles(
-        UINT32_MAX - ENTRY_DURATION_HIGH_MS, ENTRY_DURATION_HIGH_MS,
-        EXIT_DURATION_HIGH_MS, 0, 0);
+        UINT32_MAX - ENTRY_DURATION_HIGH_MS, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, 0, 0);
 }
 
-TEST_F(
-    SharedSignalTest,
-    exit_signal_gets_interrupted_at_last_ms_with_timer_overflow_for_multiple_cycles)
+TEST_F(SharedSignalTest, exit_signal_gets_interrupted_at_last_ms_with_timer_overflow_for_multiple_cycles)
 {
     testExitSignalGetsInterruptedAtTheLastMsAndThenStaysHighForSomeCycles(
-        UINT32_MAX - ENTRY_DURATION_HIGH_MS, ENTRY_DURATION_HIGH_MS,
-        EXIT_DURATION_HIGH_MS, 0, MULTIPLE_CYCLES);
+        UINT32_MAX - ENTRY_DURATION_HIGH_MS, ENTRY_DURATION_HIGH_MS, EXIT_DURATION_HIGH_MS, 0, MULTIPLE_CYCLES);
 }

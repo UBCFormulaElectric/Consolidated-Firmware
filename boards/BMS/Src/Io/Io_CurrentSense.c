@@ -1,9 +1,7 @@
 #include <stddef.h>
 #include "Io_CurrentSense.h"
 
-ExitCode Io_CurrentSense_ConvertToLowResolutionMainCurrent(
-    float  adc_voltage,
-    float *low_res_main_current)
+ExitCode Io_CurrentSense_ConvertToLowResolutionMainCurrent(float adc_voltage, float *low_res_main_current)
 {
     if (adc_voltage < 0.0f)
         return EXIT_CODE_OUT_OF_RANGE;
@@ -41,9 +39,7 @@ ExitCode Io_CurrentSense_ConvertToLowResolutionMainCurrent(
     return EXIT_CODE_OK;
 }
 
-ExitCode Io_CurrentSense_ConvertToHighResolutionMainCurrent(
-    float  adc_voltage,
-    float *high_res_main_current)
+ExitCode Io_CurrentSense_ConvertToHighResolutionMainCurrent(float adc_voltage, float *high_res_main_current)
 {
     if (adc_voltage < 0.0f)
         return EXIT_CODE_OUT_OF_RANGE;
@@ -81,9 +77,7 @@ ExitCode Io_CurrentSense_ConvertToHighResolutionMainCurrent(
     return EXIT_CODE_OK;
 }
 
-ExitCode Io_CurrentSense_ConvertToAirLoopCurrent(
-    float  adc_voltage,
-    float *air_loop_current)
+ExitCode Io_CurrentSense_ConvertToAirLoopCurrent(float adc_voltage, float *air_loop_current)
 {
     if (adc_voltage < 0.0f)
         return EXIT_CODE_OUT_OF_RANGE;

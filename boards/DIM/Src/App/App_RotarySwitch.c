@@ -8,9 +8,7 @@ struct RotarySwitch
     uint32_t num_switch_positions;
 };
 
-struct RotarySwitch *App_RotarySwitch_Create(
-    uint32_t (*const get_switch_position)(void),
-    uint32_t num_switch_positions)
+struct RotarySwitch *App_RotarySwitch_Create(uint32_t (*const get_switch_position)(void), uint32_t num_switch_positions)
 {
     struct RotarySwitch *rotary_switch = malloc(sizeof(struct RotarySwitch));
     assert(rotary_switch != NULL);

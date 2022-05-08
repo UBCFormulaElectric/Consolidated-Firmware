@@ -13,25 +13,19 @@ class BrakeLightTest : public testing::Test
   protected:
     void SetUp() override
     {
-        brake_light =
-            App_BrakeLight_Create(turn_on_brake_light, turn_off_brake_light);
+        brake_light = App_BrakeLight_Create(turn_on_brake_light, turn_off_brake_light);
 
         RESET_FAKE(turn_on_brake_light);
         RESET_FAKE(turn_off_brake_light);
 
         FFF_RESET_HISTORY();
     }
-    void TearDown() override
-    {
-        TearDownObject(brake_light, App_BrakeLight_Destroy);
-    }
+    void TearDown() override { TearDownObject(brake_light, App_BrakeLight_Destroy); }
 
     struct BrakeLight *brake_light;
 };
 
-TEST_F(
-    BrakeLightTest,
-    non_actuated_brake_and_inactive_regen_turns_off_brake_light)
+TEST_F(BrakeLightTest, non_actuated_brake_and_inactive_regen_turns_off_brake_light)
 {
     App_BrakeLight_SetLightStatus(brake_light, false, false);
 

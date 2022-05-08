@@ -22,8 +22,7 @@
 // callback functions and transmit them over the debugging interface
 // (e.g. Segger RTT or CAN).
 #define GET_MACRO(_0, _1, NAME, ...) NAME
-#define Error_Handler(...) \
-    GET_MACRO(_0, ##__VA_ARGS__, Error_Handler1, Error_Handler0)()
+#define Error_Handler(...) GET_MACRO(_0, ##__VA_ARGS__, Error_Handler1, Error_Handler0)()
 #define Error_Handler0() _Error_Handler(__FILE__, __LINE__)
 #define Error_Handler1(unused) _Error_Handler(char *file, int line)
 void _Error_Handler(char *, int);

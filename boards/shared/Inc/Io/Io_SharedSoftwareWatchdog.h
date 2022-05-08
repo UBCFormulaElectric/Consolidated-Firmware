@@ -81,8 +81,7 @@ void Io_SharedSoftwareWatchdog_InitWatchdog(
  * end of each period.
  * @param sw_watchdog_handle: Handle to the software watchdog
  */
-void Io_SharedSoftwareWatchdog_CheckInWatchdog(
-    SoftwareWatchdogHandle_t sw_watchdog_handle);
+void Io_SharedSoftwareWatchdog_CheckInWatchdog(SoftwareWatchdogHandle_t sw_watchdog_handle);
 
 /**
  * Check if any software watchdog has expired.
@@ -99,5 +98,4 @@ void Io_SharedSoftwareWatchdog_CheckForTimeouts(void);
  * @param sw_watchdog_handle: Handle to the software watchdog
  * @return Name of the software watchdog
  */
-const char *Io_SharedSoftwareWatchdog_GetName(
-    SoftwareWatchdogHandle_t sw_watchdog_handle);
+const char *Io_SharedSoftwareWatchdog_GetName(SoftwareWatchdogHandle_t sw_watchdog_handle);

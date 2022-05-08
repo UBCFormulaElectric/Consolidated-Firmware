@@ -13,7 +13,5 @@ bool Io_AcceleratorPedals_IsPappsEncoderAlarmActive(void)
 
 bool Io_AcceleratorPedals_IsSappsEncoderAlarmActive(void)
 {
-    return HAL_GPIO_ReadPin(
-               SECONDARY_APPS_ALARM_GPIO_Port, SECONDARY_APPS_ALARM_Pin) ==
-           GPIO_PIN_SET;
+    return HAL_GPIO_ReadPin(SECONDARY_APPS_ALARM_GPIO_Port, SECONDARY_APPS_ALARM_Pin) == GPIO_PIN_SET;
 }

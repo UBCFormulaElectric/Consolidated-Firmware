@@ -36,26 +36,22 @@ extern "C"
 #include "Io_SharedErrorHandlerOverride.h"
     /* USER CODE END Includes */
 
-    /* Exported types
-     * ------------------------------------------------------------*/
+    /* Exported types ------------------------------------------------------------*/
     /* USER CODE BEGIN ET */
 
     /* USER CODE END ET */
 
-    /* Exported constants
-     * --------------------------------------------------------*/
+    /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
 
     /* USER CODE END EC */
 
-    /* Exported macro
-     * ------------------------------------------------------------*/
+    /* Exported macro ------------------------------------------------------------*/
     /* USER CODE BEGIN EM */
 
     /* USER CODE END EM */
 
-    /* Exported functions prototypes
-     * ---------------------------------------------*/
+    /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
@@ -75,16 +71,13 @@ extern "C"
 #define TIM4_AUTO_RELOAD_REG 0xFFFF
 #define TIMx_FREQUENCY 72000000
 #define TIM4_PWM_MINIMUM_FREQUENCY 1
-#define TIM4_PRESCALER \
-    (TIMx_FREQUENCY / TIM4_AUTO_RELOAD_REG / TIM4_PWM_MINIMUM_FREQUENCY)
+#define TIM4_PRESCALER (TIMx_FREQUENCY / TIM4_AUTO_RELOAD_REG / TIM4_PWM_MINIMUM_FREQUENCY)
 #define TIM16_AUTO_RELOAD_REG 0xFFFF
 #define TIM17_AUTO_RELOAD_REG 0xFFFF
 #define TIM16_PWM_MINIMUM_FREQUENCY 1
 #define TIM17_PWM_MINIMUM_FREQUENCY 1
-#define TIM16_PRESCALER \
-    (TIMx_FREQUENCY / TIM16_AUTO_RELOAD_REG / TIM16_PWM_MINIMUM_FREQUENCY)
-#define TIM17_PRESCALER \
-    (TIMx_FREQUENCY / TIM17_AUTO_RELOAD_REG / TIM17_PWM_MINIMUM_FREQUENCY)
+#define TIM16_PRESCALER (TIMx_FREQUENCY / TIM16_AUTO_RELOAD_REG / TIM16_PWM_MINIMUM_FREQUENCY)
+#define TIM17_PRESCALER (TIMx_FREQUENCY / TIM17_AUTO_RELOAD_REG / TIM17_PWM_MINIMUM_FREQUENCY)
 #define TIM3_PRESCALER 72
 #define ADC_FREQUENCY 1000
 #define TIM1_AUTO_RELOAD_REG 10000

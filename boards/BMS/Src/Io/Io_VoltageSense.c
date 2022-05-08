@@ -1,3 +1,4 @@
+#include <math.h>
 #include "Io_VoltageSense.h"
 
 float Io_VoltageSense_GetTractiveSystemVoltage(float adc_voltage)
@@ -30,6 +31,12 @@ float Io_VoltageSense_GetTractiveSystemVoltage(float adc_voltage)
     // TS_Voltage = ---------------------------------- * Measurement Error %
     //                Voltage Ratio x Amplifier Gain
 
-    return adc_voltage * R_ERROR_COMPENSATION /
-           (TS_VOLTAGE_DIV * AMPLIFIER_GAIN);
+    if (adc_voltage < 0.0f)
+    {
+        return NAN;
+    }
+    else
+    {
+        return adc_voltage * R_ERROR_COMPENSATION / (TS_VOLTAGE_DIV * AMPLIFIER_GAIN);
+    }
 }

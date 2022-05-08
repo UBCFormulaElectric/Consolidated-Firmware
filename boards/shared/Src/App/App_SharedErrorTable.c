@@ -84,6 +84,8 @@ struct ErrorTable *App_SharedErrorTable_Create(void)
     INIT_ERROR(BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE, BMS, AIR_SHUTDOWN_ERROR);
     INIT_ERROR(BMS_AIR_SHUTDOWN_MAX_CELL_VOLTAGE_OUT_OF_RANGE, BMS, AIR_SHUTDOWN_ERROR);
     INIT_ERROR(BMS_AIR_SHUTDOWN_MIN_CELL_VOLTAGE_OUT_OF_RANGE, BMS, AIR_SHUTDOWN_ERROR);
+    INIT_ERROR(BMS_AIR_SHUTDOWN_CHARGER_FAULT_DETECTED, BMS, AIR_SHUTDOWN_ERROR);
+    INIT_ERROR(BMS_AIR_SHUTDOWN_HAS_PEC_ERROR, BMS, AIR_SHUTDOWN_ERROR);
     INIT_ERROR(DCM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, DCM, AIR_SHUTDOWN_ERROR);
     INIT_ERROR(DIM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, DIM, AIR_SHUTDOWN_ERROR);
     INIT_ERROR(FSM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, FSM, AIR_SHUTDOWN_ERROR);
@@ -117,10 +119,7 @@ void App_SharedErrorTable_Destroy(struct ErrorTable *error_table)
     free(error_table);
 }
 
-ExitCode App_SharedErrorTable_SetError(
-    struct ErrorTable *error_table,
-    enum ErrorId       error_id,
-    bool               is_set)
+ExitCode App_SharedErrorTable_SetError(struct ErrorTable *error_table, enum ErrorId error_id, bool is_set)
 {
     if ((int)error_id >= NUM_ERROR_IDS)
     {
@@ -132,10 +131,7 @@ ExitCode App_SharedErrorTable_SetError(
     return EXIT_CODE_OK;
 }
 
-ExitCode App_SharedErrorTable_IsErrorSet(
-    const struct ErrorTable *error_table,
-    enum ErrorId             error_id,
-    bool *                   is_set)
+ExitCode App_SharedErrorTable_IsErrorSet(const struct ErrorTable *error_table, enum ErrorId error_id, bool *is_set)
 {
     if (error_id >= NUM_ERROR_IDS)
     {
@@ -158,14 +154,12 @@ bool App_SharedErrorTable_HasAnyErrorSet(const struct ErrorTable *error_table)
     return false;
 }
 
-bool App_SharedErrorTable_HasAnyCriticalErrorSet(
-    const struct ErrorTable *error_table)
+bool App_SharedErrorTable_HasAnyCriticalErrorSet(const struct ErrorTable *error_table)
 {
     for (size_t i = 0; i < NUM_ERROR_IDS; i++)
     {
         const struct Error *error = error_table->errors[i];
-        if (App_SharedError_IsCritical(error) &&
-            App_SharedError_GetIsSet(error))
+        if (App_SharedError_IsCritical(error) && App_SharedError_GetIsSet(error))
         {
             return true;
         }
@@ -173,14 +167,12 @@ bool App_SharedErrorTable_HasAnyCriticalErrorSet(
     return false;
 }
 
-bool App_SharedErrorTable_HasAnyAirShutdownErrorSet(
-    const struct ErrorTable *error_table)
+bool App_SharedErrorTable_HasAnyAirShutdownErrorSet(const struct ErrorTable *error_table)
 {
     for (size_t i = 0; i < NUM_ERROR_IDS; i++)
     {
         const struct Error *error = error_table->errors[i];
-        if (App_SharedError_GetErrorType(error) == AIR_SHUTDOWN_ERROR &&
-            App_SharedError_GetIsSet(error))
+        if (App_SharedError_GetErrorType(error) == AIR_SHUTDOWN_ERROR && App_SharedError_GetIsSet(error))
         {
             return true;
         }
@@ -188,14 +180,12 @@ bool App_SharedErrorTable_HasAnyAirShutdownErrorSet(
     return false;
 }
 
-bool App_SharedErrorTable_HasAnyMotorShutdownErrorSet(
-    const struct ErrorTable *error_table)
+bool App_SharedErrorTable_HasAnyMotorShutdownErrorSet(const struct ErrorTable *error_table)
 {
     for (size_t i = 0; i < NUM_ERROR_IDS; i++)
     {
         const struct Error *error = error_table->errors[i];
-        if (App_SharedError_GetErrorType(error) == MOTOR_SHUTDOWN_ERROR &&
-            App_SharedError_GetIsSet(error))
+        if (App_SharedError_GetErrorType(error) == MOTOR_SHUTDOWN_ERROR && App_SharedError_GetIsSet(error))
         {
             return true;
         }
@@ -203,14 +193,12 @@ bool App_SharedErrorTable_HasAnyMotorShutdownErrorSet(
     return false;
 }
 
-bool App_SharedErrorTable_HasAnyNonCriticalErrorSet(
-    const struct ErrorTable *error_table)
+bool App_SharedErrorTable_HasAnyNonCriticalErrorSet(const struct ErrorTable *error_table)
 {
     for (size_t i = 0; i < NUM_ERROR_IDS; i++)
     {
         const struct Error *error = error_table->errors[i];
-        if (App_SharedError_IsNonCritical(error) &&
-            App_SharedError_GetIsSet(error))
+        if (App_SharedError_IsNonCritical(error) && App_SharedError_GetIsSet(error))
         {
             return true;
         }
@@ -218,9 +206,7 @@ bool App_SharedErrorTable_HasAnyNonCriticalErrorSet(
     return false;
 }
 
-void App_SharedErrorTable_GetAllErrors(
-    struct ErrorTable *error_table,
-    struct ErrorList * error_list)
+void App_SharedErrorTable_GetAllErrors(struct ErrorTable *error_table, struct ErrorList *error_list)
 {
     error_list->num_errors = 0;
 
@@ -236,9 +222,7 @@ void App_SharedErrorTable_GetAllErrors(
     }
 }
 
-void App_SharedErrorTable_GetAllCriticalErrors(
-    struct ErrorTable *error_table,
-    struct ErrorList * error_list)
+void App_SharedErrorTable_GetAllCriticalErrors(struct ErrorTable *error_table, struct ErrorList *error_list)
 {
     error_list->num_errors = 0;
 
@@ -246,8 +230,7 @@ void App_SharedErrorTable_GetAllCriticalErrors(
     {
         struct Error *error = error_table->errors[i];
 
-        if (App_SharedError_GetIsSet(error) &&
-            App_SharedError_IsCritical(error))
+        if (App_SharedError_GetIsSet(error) && App_SharedError_IsCritical(error))
         {
             error_list->errors[error_list->num_errors] = error;
             error_list->num_errors++;
@@ -255,9 +238,7 @@ void App_SharedErrorTable_GetAllCriticalErrors(
     }
 }
 
-void App_SharedErrorTable_GetAllNonCriticalErrors(
-    struct ErrorTable *error_table,
-    struct ErrorList * error_list)
+void App_SharedErrorTable_GetAllNonCriticalErrors(struct ErrorTable *error_table, struct ErrorList *error_list)
 {
     error_list->num_errors = 0;
 
@@ -265,8 +246,7 @@ void App_SharedErrorTable_GetAllNonCriticalErrors(
     {
         struct Error *error = error_table->errors[i];
 
-        if (App_SharedError_GetIsSet(error) &&
-            App_SharedError_IsNonCritical(error))
+        if (App_SharedError_GetIsSet(error) && App_SharedError_IsNonCritical(error))
         {
             error_list->errors[error_list->num_errors] = error;
             error_list->num_errors++;
@@ -274,9 +254,7 @@ void App_SharedErrorTable_GetAllNonCriticalErrors(
     }
 }
 
-void App_SharedErrorTable_GetBoardsWithNoErrors(
-    const struct ErrorTable *error_table,
-    struct ErrorBoardList *  board_list)
+void App_SharedErrorTable_GetBoardsWithNoErrors(const struct ErrorTable *error_table, struct ErrorBoardList *board_list)
 {
     struct ErrorBoardList boards_with_errors;
 
@@ -294,9 +272,7 @@ void App_SharedErrorTable_GetBoardsWithNoErrors(
     }
 }
 
-void App_SharedErrorTable_GetBoardsWithErrors(
-    const struct ErrorTable *error_table,
-    struct ErrorBoardList *  board_list)
+void App_SharedErrorTable_GetBoardsWithErrors(const struct ErrorTable *error_table, struct ErrorBoardList *board_list)
 {
     board_list->num_boards = 0;
 
@@ -305,11 +281,9 @@ void App_SharedErrorTable_GetBoardsWithErrors(
         const struct Error *error = error_table->errors[i];
 
         if (App_SharedError_GetIsSet(error) &&
-            !App_SharedError_IsBoardInList(
-                board_list, App_SharedError_GetBoard(error)))
+            !App_SharedError_IsBoardInList(board_list, App_SharedError_GetBoard(error)))
         {
-            board_list->boards[board_list->num_boards] =
-                App_SharedError_GetBoard(error);
+            board_list->boards[board_list->num_boards] = App_SharedError_GetBoard(error);
             board_list->num_boards++;
         }
     }
@@ -325,13 +299,10 @@ void App_SharedErrorTable_GetBoardsWithCriticalErrors(
     {
         const struct Error *error = error_table->errors[i];
 
-        if (App_SharedError_GetIsSet(error) &&
-            App_SharedError_IsCritical(error) &&
-            !App_SharedError_IsBoardInList(
-                board_list, App_SharedError_GetBoard(error)))
+        if (App_SharedError_GetIsSet(error) && App_SharedError_IsCritical(error) &&
+            !App_SharedError_IsBoardInList(board_list, App_SharedError_GetBoard(error)))
         {
-            board_list->boards[board_list->num_boards] =
-                App_SharedError_GetBoard(error);
+            board_list->boards[board_list->num_boards] = App_SharedError_GetBoard(error);
             board_list->num_boards++;
         }
     }
@@ -347,13 +318,10 @@ void App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
     {
         const struct Error *error = error_table->errors[i];
 
-        if (App_SharedError_GetIsSet(error) &&
-            App_SharedError_IsNonCritical(error) &&
-            !App_SharedError_IsBoardInList(
-                board_list, App_SharedError_GetBoard(error)))
+        if (App_SharedError_GetIsSet(error) && App_SharedError_IsNonCritical(error) &&
+            !App_SharedError_IsBoardInList(board_list, App_SharedError_GetBoard(error)))
         {
-            board_list->boards[board_list->num_boards] =
-                App_SharedError_GetBoard(error);
+            board_list->boards[board_list->num_boards] = App_SharedError_GetBoard(error);
             board_list->num_boards++;
         }
     }

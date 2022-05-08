@@ -59,21 +59,18 @@ float App_Imu_GetAccelerationZ(const struct Imu *imu);
  * @param imu The given Imu to get the acceleration-x in-range check from
  * @return The acceleration-x in-range check for the given Imu
  */
-struct InRangeCheck *
-    App_Imu_GetAccelerationXInRangeCheck(const struct Imu *imu);
+struct InRangeCheck *App_Imu_GetAccelerationXInRangeCheck(const struct Imu *imu);
 
 /**
  * Get the acceleration-y in-range check from the given Imu
  * @param imu The given Imu to get the acceleration-y in-range check from
  * @return The acceleration-y in-range check for the given Imu
  */
-struct InRangeCheck *
-    App_Imu_GetAccelerationYInRangeCheck(const struct Imu *imu);
+struct InRangeCheck *App_Imu_GetAccelerationYInRangeCheck(const struct Imu *imu);
 
 /**
  * Get the acceleration-z in-range check from the given Imu
  * @param imu The given Imu to get the acceleration-z in-range check from
  * @return The acceleration-z in-range check for the given Imu
  */
-struct InRangeCheck *
-    App_Imu_GetAccelerationZInRangeCheck(const struct Imu *imu);
+struct InRangeCheck *App_Imu_GetAccelerationZInRangeCheck(const struct Imu *imu);

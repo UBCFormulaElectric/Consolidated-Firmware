@@ -34,9 +34,8 @@ ExitCode App_RegenPaddle_GetRawPaddlePosition(
     const struct RegenPaddle *const regen_paddle,
     uint32_t *const                 returned_raw_paddle_position)
 {
-    const uint32_t raw_paddle_position =
-        regen_paddle->get_raw_paddle_position();
-    ExitCode exit_code = EXIT_CODE_OK;
+    const uint32_t raw_paddle_position = regen_paddle->get_raw_paddle_position();
+    ExitCode       exit_code           = EXIT_CODE_OK;
 
     if (raw_paddle_position > 100)
     {
@@ -54,9 +53,8 @@ ExitCode App_RegenPaddle_GetMappedPaddlePosition(
     const struct RegenPaddle *const regen_paddle,
     uint32_t *const                 returned_mapped_paddle_position)
 {
-    const uint32_t raw_paddle_position =
-        regen_paddle->get_raw_paddle_position();
-    ExitCode exit_code = EXIT_CODE_OK;
+    const uint32_t raw_paddle_position = regen_paddle->get_raw_paddle_position();
+    ExitCode       exit_code           = EXIT_CODE_OK;
 
     if (raw_paddle_position > 100)
     {
@@ -74,9 +72,8 @@ ExitCode App_RegenPaddle_GetMappedPaddlePosition(
         }
         else
         {
-            *returned_mapped_paddle_position =
-                100 * (raw_paddle_position - regen_paddle->lower_deadzone) /
-                (regen_paddle->upper_deadzone - regen_paddle->lower_deadzone);
+            *returned_mapped_paddle_position = 100 * (raw_paddle_position - regen_paddle->lower_deadzone) /
+                                               (regen_paddle->upper_deadzone - regen_paddle->lower_deadzone);
         }
     }
 

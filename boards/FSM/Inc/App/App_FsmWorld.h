@@ -80,48 +80,42 @@ struct FsmCanRxInterface *App_FsmWorld_GetCanRx(const struct FsmWorld *world);
  * @param world The world to get heartbeat monitor for
  * @return The heartbeat monitor for the given world
  */
-struct HeartbeatMonitor *
-    App_FsmWorld_GetHeartbeatMonitor(const struct FsmWorld *world);
+struct HeartbeatMonitor *App_FsmWorld_GetHeartbeatMonitor(const struct FsmWorld *world);
 
 /**
  * Get the primary flow rate in-range check for the given world
  * @param world The world to get primary flow rate in-range check for
  * @return The primary flow rate in-range check for the given world
  */
-struct InRangeCheck *
-    App_FsmWorld_GetPrimaryFlowRateInRangeCheck(const struct FsmWorld *world);
+struct InRangeCheck *App_FsmWorld_GetPrimaryFlowRateInRangeCheck(const struct FsmWorld *world);
 
 /**
  * Get the secondary flow rate in-range check for the given world
  * @param world The world to get secondary flow rate in-range check for
  * @return The secondary flow rate in-range check for the given world
  */
-struct InRangeCheck *
-    App_FsmWorld_GetSecondaryFlowRateInRangeCheck(const struct FsmWorld *world);
+struct InRangeCheck *App_FsmWorld_GetSecondaryFlowRateInRangeCheck(const struct FsmWorld *world);
 
 /**
  * Get the left wheel speed in-range check for the given world
  * @param world The world to get the left wheel speed in-range check for
  * @return The left wheel speed in-range check for the given world
  */
-struct InRangeCheck *
-    App_FsmWorld_GetLeftWheelSpeedInRangeCheck(const struct FsmWorld *world);
+struct InRangeCheck *App_FsmWorld_GetLeftWheelSpeedInRangeCheck(const struct FsmWorld *world);
 
 /**
  * Get the right wheel speed in-range check for the given world
  * @param world The world to get the right wheel speed in-range check for
  * @return The right wheel speed in-range check for the given world
  */
-struct InRangeCheck *
-    App_FsmWorld_GetRightWheelSpeedInRangeCheck(const struct FsmWorld *world);
+struct InRangeCheck *App_FsmWorld_GetRightWheelSpeedInRangeCheck(const struct FsmWorld *world);
 
 /**
  * Get the steering angle in-range check for the given world
  * @param world The world to get the steering angle in-range check for
  * @return The steering angle in-range check for the given world
  */
-struct InRangeCheck *
-    App_FsmWorld_GetSteeringAngleInRangeCheck(const struct FsmWorld *world);
+struct InRangeCheck *App_FsmWorld_GetSteeringAngleInRangeCheck(const struct FsmWorld *world);
 
 /**
  * Get the brake for the given world
@@ -135,8 +129,7 @@ struct Brake *App_FsmWorld_GetBrake(const struct FsmWorld *world);
  * @param world The world to get RGB LED sequence for
  * @return The RGB LED sequence for the given world
  */
-struct RgbLedSequence *
-    App_FsmWorld_GetRgbLedSequence(const struct FsmWorld *world);
+struct RgbLedSequence *App_FsmWorld_GetRgbLedSequence(const struct FsmWorld *world);
 
 /**
  * Update the registered signals in the given world
@@ -146,9 +139,7 @@ struct RgbLedSequence *
  * @param world The world to update registered signals for
  * @param current_time_ms The current time, in milliseconds
  */
-void App_FsmWorld_UpdateSignals(
-    const struct FsmWorld *world,
-    uint32_t               current_time_ms);
+void App_FsmWorld_UpdateSignals(const struct FsmWorld *world, uint32_t current_time_ms);
 
 /**
  * Get the clock for the given world
@@ -162,5 +153,4 @@ struct Clock *App_FsmWorld_GetClock(const struct FsmWorld *world);
  * @param world The world to get the pair of primary and secondary APPS for
  * @return The primary and secondary APPS for the given world
  */
-struct AcceleratorPedals *
-    App_FsmWorld_GetPappsAndSapps(const struct FsmWorld *world);
+struct AcceleratorPedals *App_FsmWorld_GetPappsAndSapps(const struct FsmWorld *world);

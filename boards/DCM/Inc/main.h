@@ -36,26 +36,22 @@ extern "C"
 #include "Io_SharedErrorHandlerOverride.h"
     /* USER CODE END Includes */
 
-    /* Exported types
-     * ------------------------------------------------------------*/
+    /* Exported types ------------------------------------------------------------*/
     /* USER CODE BEGIN ET */
 
     /* USER CODE END ET */
 
-    /* Exported constants
-     * --------------------------------------------------------*/
+    /* Exported constants --------------------------------------------------------*/
     /* USER CODE BEGIN EC */
 
     /* USER CODE END EC */
 
-    /* Exported macro
-     * ------------------------------------------------------------*/
+    /* Exported macro ------------------------------------------------------------*/
     /* USER CODE BEGIN EM */
 
     /* USER CODE END EM */
 
-    /* Exported functions prototypes
-     * ---------------------------------------------*/
+    /* Exported functions prototypes ---------------------------------------------*/
     void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
