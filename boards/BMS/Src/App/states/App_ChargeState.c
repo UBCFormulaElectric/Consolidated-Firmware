@@ -19,16 +19,17 @@ static void ChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    App_AllStatesRunOnTick100Hz(state_machine);
-
-    struct BmsWorld *         world   = App_SharedStateMachine_GetWorld(state_machine);
-    struct BmsCanTxInterface *can_tx  = App_BmsWorld_GetCanTx(world);
-    struct Charger *          charger = App_BmsWorld_GetCharger(world);
-
-    if (!App_Charger_IsConnected(charger))
+    if (App_AllStatesRunOnTick100Hz(state_machine))
     {
-        App_CanTx_SetPeriodicSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(can_tx, true);
-        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+        struct BmsWorld *         world   = App_SharedStateMachine_GetWorld(state_machine);
+        struct BmsCanTxInterface *can_tx  = App_BmsWorld_GetCanTx(world);
+        struct Charger *          charger = App_BmsWorld_GetCharger(world);
+
+        if (!App_Charger_IsConnected(charger))
+        {
+            App_CanTx_SetPeriodicSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(can_tx, true);
+            App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+        }
     }
 }
 
