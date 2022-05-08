@@ -1,8 +1,9 @@
 #include "states/App_DriveState.h"
-
 #include "App_SharedMacros.h"
 #include "App_SevenSegDisplays.h"
 #include "App_SharedExitCode.h"
+
+#define SSEG_HB_NOT_RECEIVED_ERR (888U)
 
 static void App_SetPeriodicCanSignals_DriveMode(struct DimCanTxInterface *can_tx, uint32_t switch_position)
 {
@@ -185,7 +186,11 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct ErrorList all_errors;
     App_SharedErrorTable_GetAllErrors(error_table, &all_errors);
 
-    if (all_errors.num_errors == 0)
+    if (!App_SharedHeartbeatMonitor_Tick(heartbeat_monitor))
+    {
+        App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
+    }
+    else if (all_errors.num_errors == 0)
     {
         App_SevenSegDisplays_SetUnsignedBase10Value(
             seven_seg_displays, (uint32_t)App_CanRx_BMS_STATE_OF_CHARGE_GetSignal_STATE_OF_CHARGE(can_rx));
