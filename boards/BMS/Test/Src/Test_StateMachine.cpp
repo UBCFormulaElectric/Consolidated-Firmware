@@ -34,6 +34,7 @@ FAKE_VOID_FUNC(turn_on_blue_led);
 FAKE_VOID_FUNC(enable_charger);
 FAKE_VOID_FUNC(disable_charger);
 FAKE_VALUE_FUNC(bool, is_charger_connected);
+FAKE_VALUE_FUNC(bool, has_charger_faulted);
 FAKE_VALUE_FUNC(ExitCode, enable_bms_ok);
 FAKE_VALUE_FUNC(ExitCode, disable_bms_ok);
 FAKE_VALUE_FUNC(bool, is_bms_ok_enabled);
@@ -75,6 +76,8 @@ FAKE_VALUE_FUNC(bool, read_cell_temperatures);
 FAKE_VALUE_FUNC(float, get_min_temp_degc, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_max_temp_degc, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_avg_temp_degc);
+FAKE_VALUE_FUNC(bool, enable_discharge);
+FAKE_VALUE_FUNC(bool, disable_discharge);
 
 class BmsStateMachineTest : public BaseStateMachineTest
 {
@@ -96,7 +99,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
 
         rgb_led_sequence = App_SharedRgbLedSequence_Create(turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
-        charger = App_Charger_Create(enable_charger, disable_charger, is_charger_connected);
+        charger = App_Charger_Create(enable_charger, disable_charger, is_charger_connected, has_charger_faulted);
 
         bms_ok = App_OkStatus_Create(enable_bms_ok, disable_bms_ok, is_bms_ok_enabled);
 
@@ -107,7 +110,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
         accumulator = App_Accumulator_Create(
             configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, get_min_cell_voltage,
             get_max_cell_voltage, get_segment_voltage, get_pack_voltage, get_avg_cell_voltage, start_temp_conv,
-            read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc);
+            read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc, enable_discharge,
+            disable_discharge);
 
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
 

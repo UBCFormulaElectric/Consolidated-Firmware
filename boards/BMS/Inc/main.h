@@ -114,8 +114,8 @@ extern "C"
 #define STATUS_G_GPIO_Port GPIOA
 #define STATUS_B_Pin GPIO_PIN_10
 #define STATUS_B_GPIO_Port GPIOA
-#define GPIO1_Pin GPIO_PIN_11
-#define GPIO1_GPIO_Port GPIOA
+#define BRUSA_FLT_Pin GPIO_PIN_11
+#define BRUSA_FLT_GPIO_Port GPIOA
 #define GPIO2_Pin GPIO_PIN_12
 #define GPIO2_GPIO_Port GPIOA
 #define CHARGE_STATE_Pin GPIO_PIN_15

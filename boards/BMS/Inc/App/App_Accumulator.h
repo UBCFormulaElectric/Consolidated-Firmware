@@ -28,6 +28,8 @@ struct Accumulator;
  * @param get_min_cell_temp
  * @param get_max_cell_temp
  * @param get_avg_cell_temp
+ * @param enable_discharge A function to enable discharge
+ * @param disable_discharge A function to disable discharge
  */
 struct Accumulator *App_Accumulator_Create(
     bool (*config_monitoring_chip)(void),
@@ -43,7 +45,9 @@ struct Accumulator *App_Accumulator_Create(
     bool (*read_cell_temperatures)(void),
     float (*get_min_cell_temp)(uint8_t *, uint8_t *),
     float (*get_max_cell_temp)(uint8_t *, uint8_t *),
-    float (*get_avg_cell_temp)(void));
+    float (*get_avg_cell_temp)(void),
+    bool (*enable_discharge)(void),
+    bool (*disable_discharge)(void));
 
 /**
  * Deallocate the memory used by the given accumulator.
@@ -106,6 +110,20 @@ float App_Accumulator_GetMaxCellTempDegC(
  * @return The average cell temp in degC
  */
 float App_Accumulator_GetAvgCellTempDegC(const struct Accumulator *const accumulator);
+
+/**
+ * Enable discharge of the cells
+ * @param accumulator The accumulator to enable discharge
+ * @return true if enable discharge command was transmitted successfully, false otherwise
+ */
+bool App_Accumulator_EnableDischarge(const struct Accumulator *const accumulator);
+
+/**
+ * Disable discharge of the cells
+ * @param accumulator The accumulator to disable discharge
+ * @return true if disable discharge command was transmitted successfully, false otherwise
+ */
+bool App_Accumulator_DisableDischarge(const struct Accumulator *const accumulator);
 
 // Rate functions to be called within the state machine
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *accumulator);
