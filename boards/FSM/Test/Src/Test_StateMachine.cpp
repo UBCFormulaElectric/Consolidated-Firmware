@@ -60,8 +60,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
         can_rx_interface = App_CanRx_Create();
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK,
-            heartbeat_timeout_callback);
+            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
         primary_flow_rate_in_range_check = App_InRangeCheck_Create(
             get_primary_flow_rate, MIN_PRIMARY_FLOW_RATE_L_PER_MIN, MAX_PRIMARY_FLOW_RATE_L_PER_MIN);

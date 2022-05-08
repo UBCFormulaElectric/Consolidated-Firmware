@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdbool.h>
 #include <stdint.h>
 
 // One-hot encoded heartbeat enum
@@ -15,11 +16,10 @@ enum HeartbeatOneHot
 struct HeartbeatMonitor *App_SharedHeartbeatMonitor_Create(
     uint32_t (*get_current_ms)(void),
     uint32_t             timeout_period_ms,
-    enum HeartbeatOneHot boards_to_check,
-    void (*timeout_callback)(enum HeartbeatOneHot, enum HeartbeatOneHot));
+    enum HeartbeatOneHot boards_to_check);
 
 void App_SharedHeartbeatMonitor_Destroy(struct HeartbeatMonitor *heartbeat_monitor);
 
-void App_SharedHeartbeatMonitor_Tick(struct HeartbeatMonitor *heartbeat_monitor);
+bool App_SharedHeartbeatMonitor_Tick(struct HeartbeatMonitor *heartbeat_monitor);
 
 void App_SharedHeartbeatMonitor_CheckIn(struct HeartbeatMonitor *heartbeat_monitor, enum HeartbeatOneHot heartbeat);

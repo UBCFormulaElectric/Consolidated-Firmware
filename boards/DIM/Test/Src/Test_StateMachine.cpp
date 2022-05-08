@@ -91,8 +91,7 @@ class DimStateMachineTest : public BaseStateMachineTest
             left_seven_seg_display, middle_seven_seg_display, right_seven_seg_display, display_value_callback);
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK,
-            heartbeat_timeout_callback);
+            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
         regen_paddle =
             App_RegenPaddle_Create(get_raw_paddle_position, REGEN_PADDLE_LOWER_DEADZONE, REGEN_PADDLE_UPPER_DEADZONE);
