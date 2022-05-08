@@ -82,8 +82,7 @@ class PdmStateMachineTest : public BaseStateMachineTest
             App_InRangeCheck_Create(GetAirShutdownCurrent, AIR_SHUTDOWN_MIN_CURRENT, AIR_SHUTDOWN_MAX_CURRENT);
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK,
-            heartbeat_timeout_callback);
+            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
         rgb_led_sequence = App_SharedRgbLedSequence_Create(turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 

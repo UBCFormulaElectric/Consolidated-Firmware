@@ -43,7 +43,7 @@
 #include "Io_SharedCan.h"
 #include "Io_SharedErrorHandlerOverride.h"
 #include "Io_SharedHardFaultHandler.h"
-#include "Io_HeartbeatMonitor.h"
+#include "Io_SharedHeartbeatMonitor.h"
 #include "Io_RegenPaddle.h"
 #include "Io_RgbLedSequence.h"
 #include "Io_DriveModeSwitch.h"
@@ -211,8 +211,7 @@ int main(void)
     can_rx = App_CanRx_Create();
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_HeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK,
-        Io_HeartbeatMonitor_TimeoutCallback);
+        Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
     regen_paddle = App_RegenPaddle_Create(
         Io_RegenPaddle_GetPaddlePosition, REGEN_PADDLE_LOWER_DEADZONE, REGEN_PADDLE_UPPER_DEADZONE);

@@ -52,8 +52,7 @@ class DcmStateMachineTest : public BaseStateMachineTest
         can_rx_interface = App_CanRx_Create();
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK,
-            heartbeat_timeout_callback);
+            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
         rgb_led_sequence = App_SharedRgbLedSequence_Create(turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 

@@ -34,7 +34,7 @@
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
 #include "Io_FlowMeters.h"
-#include "Io_HeartbeatMonitor.h"
+#include "Io_SharedHeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
 #include "Io_WheelSpeedSensors.h"
 #include "Io_SteeringAngleSensor.h"
@@ -230,8 +230,7 @@ int main(void)
 
     can_rx            = App_CanRx_Create();
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_HeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK,
-        Io_HeartbeatMonitor_TimeoutCallback);
+        Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
     rgb_led_sequence = App_SharedRgbLedSequence_Create(
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed, Io_RgbLedSequence_TurnOnGreenLed);
