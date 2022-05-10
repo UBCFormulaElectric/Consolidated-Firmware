@@ -15,6 +15,14 @@ void App_SharedStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct DcmCanRxInterface *can_rx            = App_DcmWorld_GetCanRx(world);
     struct BrakeLight *       brake_light       = App_DcmWorld_GetBrakeLight(world);
     struct InverterSwitches * inverter_switches = App_DcmWorld_GetInverterSwitches(world);
+    struct HeartbeatMonitor * hb_monitor        = App_DcmWorld_GetHeartbeatMonitor(world);
+
+    App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
+    if (App_CanRx_BMS_VITALS_GetSignal_HEARTBEAT(can_rx))
+    {
+        App_SharedHeartbeatMonitor_CheckIn(hb_monitor, BMS_HEARTBEAT_ONE_HOT);
+        App_CanRx_BMS_VITALS_SetSignal_HEARTBEAT(can_rx, false);
+    }
 
     // Only need single torque command since same command sent to both inverters
     const bool is_regen_active = App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(

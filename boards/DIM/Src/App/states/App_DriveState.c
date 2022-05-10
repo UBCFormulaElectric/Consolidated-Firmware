@@ -107,6 +107,8 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     uint32_t buffer;
 
+    App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
+
     if (EXIT_OK(App_RegenPaddle_GetRawPaddlePosition(regen_paddle, &buffer)))
     {
         App_CanTx_SetPeriodicSignal_RAW_PADDLE_POSITION(can_tx, buffer);
@@ -214,8 +216,6 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, error_id_with_offset);
     }
-
-    App_SharedHeartbeatMonitor_Tick(heartbeat_monitor);
 }
 
 static void DriveStateRunOnExit(struct StateMachine *const state_machine)
