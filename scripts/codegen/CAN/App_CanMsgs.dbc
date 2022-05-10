@@ -461,8 +461,8 @@ SG_ Brake_Pressure: 0|32@1+ (1,0) [0|2500] "psi" DEBUG
 SG_ Brake_Is_Actuated: 33|1@1+ (1,0) [0|1] "" DCM
 SG_ Pressure_Sensor_Is_Open_Or_Short_Circuit: 34|1@1+ (1,0) [0|1] "" DEBUG 
 
-BO_ 310 FSM_AIR_SHUTDOWN_ERRORS: 8 FSM
-SG_ DUMMY_AIR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DCM
+BO_ 310 FSM_AIR_SHUTDOWN_ERRORS: 1 FSM
+SG_ MISSING_HEARTBEAT : 0|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 313 FSM_PRIMARY_APPS: 4 FSM
 SG_ Papps_Mapped_Pedal_Percentage : 0|32@1+ (1,0) [0|100] "%" DEBUG 

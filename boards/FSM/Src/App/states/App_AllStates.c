@@ -22,4 +22,6 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, BMS_HEARTBEAT_ONE_HOT);
         App_CanRx_BMS_VITALS_SetSignal_HEARTBEAT(can_rx, false);
     }
+
+    App_CanTx_SetPeriodicSignal_MISSING_HEARTBEAT(can_tx, !App_SharedHeartbeatMonitor_Tick(hb_monitor));
 }
