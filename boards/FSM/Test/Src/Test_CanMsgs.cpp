@@ -14,7 +14,7 @@ TEST(CanMsgsTest, state_machine_message_frequency)
 // FSM-1
 TEST(CanMsgsTest, heartbeat_message_frequency)
 {
-    ASSERT_GE(HZ_TO_MS(10), CANMSGS_FSM_HEARTBEAT_CYCLE_TIME_MS);
+    ASSERT_GE(HZ_TO_MS(10), CANMSGS_FSM_VITALS_CYCLE_TIME_MS);
 }
 
 // FSM-17

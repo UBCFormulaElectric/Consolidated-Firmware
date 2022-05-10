@@ -4,8 +4,6 @@
 #include "states/App_FaultState.h"
 #include "App_SetPeriodicCanSignals.h"
 
-#include "App_SharedMacros.h"
-
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct DcmWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
@@ -15,6 +13,7 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     App_Buzzer_TurnOn(buzzer);
 
     App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_DCM_STATE_MACHINE_STATE_DRIVE_CHOICE);
+
     // Enable inverters upon entering drive state.
     App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVL(
         can_tx_interface, CANMSGS_DCM_INVL_COMMAND_MESSAGE_INVERTER_ENABLE_INVL_ON_CHOICE);

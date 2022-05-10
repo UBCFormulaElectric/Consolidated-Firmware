@@ -14,7 +14,7 @@ TEST(CanMsgsTest, state_machine_message_frequency)
 // DCM-2
 TEST(CanMsgsTest, heartbeat_message_frequency)
 {
-    ASSERT_GE(HZ_TO_MS(10), CANMSGS_DCM_HEARTBEAT_CYCLE_TIME_MS);
+    ASSERT_GE(HZ_TO_MS(10), CANMSGS_DCM_VITALS_CYCLE_TIME_MS);
 }
 
 // DCM-19
