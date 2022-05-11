@@ -28,16 +28,12 @@ static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    App_AllStatesRunOnTick100Hz(state_machine);
-
     struct DcmWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
     struct DcmCanTxInterface *can_tx_interface = App_DcmWorld_GetCanTx(world);
-    struct DcmCanRxInterface *can_rx_interface = App_DcmWorld_GetCanRx(world);
-    struct ErrorTable *       error_table      = App_DcmWorld_GetErrorTable(world);
 
     App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 0.0f);
 
-    if (!App_HasInverterFault(can_rx_interface) && !App_SharedErrorTable_HasAnyCriticalErrorSet(error_table))
+    if (App_AllStatesRunOnTick100Hz(state_machine))
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
     }
