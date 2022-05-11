@@ -1,8 +1,5 @@
 #include "states/App_AllStates.h"
-#include "states/App_InitState.h"
 #include "states/App_DriveState.h"
-#include "states/App_FaultState.h"
-
 #include "App_SharedMacros.h"
 
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
@@ -48,14 +45,14 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
         const bool  is_brake_actuated          = App_CanRx_FSM_BRAKE_GetSignal_BRAKE_IS_ACTUATED(can_rx_interface) ==
                                        CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE;
 
+        prev_start_switch_pos = curr_start_switch_pos;
+
         if (App_IsBmsInDriveState(can_rx_interface) && is_brake_actuated && was_start_switch_pulled_up)
         {
             // Transition to drive state when start-up conditions are passed (see
             // EV.10.4.3):
             App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
         }
-
-        prev_start_switch_pos = curr_start_switch_pos;
     }
 }
 
