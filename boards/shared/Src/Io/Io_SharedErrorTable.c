@@ -140,7 +140,7 @@ static void
 static void
     Io_ProcessDcmAirShutdownErrorMsg(struct ErrorTable *error_table, struct CanMsgs_dcm_air_shutdown_errors_t *data)
 {
-    SET_ERROR(error_table, DCM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, data->dummy_air_shutdown);
+    SET_ERROR(error_table, DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT, data->missing_heartbeat);
 }
 
 static void

@@ -549,7 +549,7 @@ TEST_F(DimStateMachineTest, dim_board_status_led_control_with_multiple_errors)
 TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_critical_error)
 {
     // Set any critical error and check that the DCM LED turns red
-    App_SharedErrorTable_SetError(error_table, DCM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, true);
+    App_SharedErrorTable_SetError(error_table, DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_dcm_status_led_red_fake.call_count);
 }
@@ -577,7 +577,7 @@ TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_multiple_errors)
     // If the error table contains critical and non-critical errors
     // simultaneously, the critical error should take precedence and turn the
     // DCM LED red rather than blue
-    App_SharedErrorTable_SetError(error_table, DCM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, true);
+    App_SharedErrorTable_SetError(error_table, DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT, true);
     App_SharedErrorTable_SetError(error_table, DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_dcm_status_led_red_fake.call_count);
