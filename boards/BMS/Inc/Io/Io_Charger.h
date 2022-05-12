@@ -19,7 +19,7 @@ void Io_Charger_Disable(void);
 bool Io_Charger_IsConnected(void);
 
 /**
- * Check if the BRUSA FLT pin has been asserted (active-low)
+ * Check if the BRUSA has a fault
  * Indicates a fault if the charger is enabled or idle if disabled
  * @return true if the BRUSA NLG513 charger has faulted/idle, else false
  */
