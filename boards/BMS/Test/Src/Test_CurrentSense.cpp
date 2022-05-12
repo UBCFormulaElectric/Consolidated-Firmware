@@ -84,7 +84,7 @@ TEST_F(CurrentSenseTest, air_loop_current_calculation)
     // 1A is roughly the nominal current when the AIR shutdown loop is closed
     adc_voltage = 1.5f;
     ASSERT_EQ(EXIT_CODE_OK, Io_CurrentSense_ConvertToAirLoopCurrent(adc_voltage, &air_loop_current));
-    ASSERT_FLOAT_EQ(1.0f, air_loop_current);
+    ASSERT_EQ(1.0f, air_loop_current);
 
     // Null pointer
     ASSERT_EQ(EXIT_CODE_INVALID_ARGS, Io_CurrentSense_ConvertToAirLoopCurrent(adc_voltage, NULL));
