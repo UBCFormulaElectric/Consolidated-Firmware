@@ -6,29 +6,6 @@
 
 struct Accumulator;
 
-/**
- * Allocate and initialize an accumulator.
- * @param config_monitoring_chip A function that can be called to configure
- * cell monitors
- * @param write_cfg_registers A function that can be called to write to the
- * configuration registers. This is done to control cell discharging
- * @param start_voltage_conv A function that can be called to trigger voltage
- * conversions
- * @param read_cell_voltages A function that can be called to read cell voltages
- * @param get_min_cell_voltage A function to get the minimum cell voltage (V),
- * as well as the cell and the segment of the minimum cell voltage
- * @param get_max_cell_voltage A function to get the maximum cell voltage (V),
- * as well as the cell and the segment of the maximum cell voltage
- * @param get_segment_voltage A function to get a given segment voltage (V)
- * @param get_pack_voltage A function to get the pack voltage (V)
- * @param get_avg_cell_voltage A function to get the average cell voltage (V)
- * @param start_cell_temp_conv A function that is called to start cell temp
- * conversions
- * @param read_cell_temperatures A function called to read cell temperatures
- * @param get_min_cell_temp
- * @param get_max_cell_temp
- * @param get_avg_cell_temp
- */
 struct Accumulator *App_Accumulator_Create(
     bool (*config_monitoring_chip)(void),
     bool (*write_cfg_registers)(void),
@@ -43,7 +20,9 @@ struct Accumulator *App_Accumulator_Create(
     bool (*read_cell_temperatures)(void),
     float (*get_min_cell_temp)(uint8_t *, uint8_t *),
     float (*get_max_cell_temp)(uint8_t *, uint8_t *),
-    float (*get_avg_cell_temp)(void));
+    float (*get_avg_cell_temp)(void),
+    bool (*enable_discharge)(void),
+    bool (*disable_discharge)(void));
 
 /**
  * Deallocate the memory used by the given accumulator.
@@ -106,6 +85,13 @@ float App_Accumulator_GetMaxCellTempDegC(
  * @return The average cell temp in degC
  */
 float App_Accumulator_GetAvgCellTempDegC(const struct Accumulator *const accumulator);
+
+/**
+ * Get the pack voltage in V
+ * @param accumulator The accumulator to get the pack voltage
+ * @return The accumulator pack voltage in V
+ */
+float App_Accumulator_GetPackVoltage(struct Accumulator *accumulator);
 
 // Rate functions to be called within the state machine
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *accumulator);

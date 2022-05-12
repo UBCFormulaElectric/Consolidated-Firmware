@@ -29,14 +29,14 @@ void App_Airs_Destroy(struct Airs *airs);
  * @param airs The given pair of AIRs to get AIR+ from
  * @return The AIR+ from the given pair of AIRs
  */
-struct BinaryStatus *App_Airs_GetAirPositive(const struct Airs *airs);
+bool App_Airs_IsAirPositiveClosed(const struct Airs *const airs);
 
 /**
  * Get AIR- from the given pair of AIRs
  * @param airs The given pair of AIRs to get AIR- from
  * @return The AIR- from the given pair of AIRs
  */
-struct BinaryStatus *App_Airs_GetAirNegative(const struct Airs *airs);
+bool App_Airs_IsAirNegativeClosed(const struct Airs *const airs);
 
 /**
  * Close AIR+ from the given pair of AIRs
