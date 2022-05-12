@@ -1,17 +1,21 @@
+#include "Io_Adc.h"
 #include "Io_Airs.h"
 #include "main.h"
 
-// Since there are no pins to determine the AIRs' statuses directly, the AIRs'
-// statuses can be determined by the LUT below:
-//
-// +------------------+------------------+------------------------+
-// | AIR POWER STATUS | AIR POWER ISENSE |      AIRs statuses     |
-// +------------------+------------------+------------------------+
-// |                0 |                0 | AIR- OPEN, AIR+ OPEN   |
-// |                0 |                1 | NOT POSSIBLE           |
-// |                1 |                0 | AIR- CLOSED, AIR+ OPEN |
-// |                1 |                1 | AIR- CLOSED, AIR+ OPEN |
-// +------------------+------------------+------------------------+
+// TODO: Remove static var and use these #defines to check if AIR positive has closed after HW issues are resolved
+static bool is_air_positive_closed = false;
+
+// Shunt resistor used to measure AIR loop current
+#define AIR_TOTAL_ISENSE_SHUNT_R_OHMS (0.075f)
+
+// Amplifier used to amplify voltage drop across the shunt resistor
+#define AIR_TOTAL_ISENSE_AMPLIFIER (20.0f)
+
+// Converts voltage measured across shunt resistor to current in A
+#define AIR_TOTAL_ISENSE_V_TO_A (1.0f / (AIR_TOTAL_ISENSE_SHUNT_R_OHMS * AIR_TOTAL_ISENSE_AMPLIFIER))
+
+// AIR positive closed threshold
+#define AIR_POSITIVE_CLOSED_THRESH_A (0.5f)
 
 bool Io_Airs_IsAirNegativeClosed(void)
 {
@@ -20,16 +24,17 @@ bool Io_Airs_IsAirNegativeClosed(void)
 
 bool Io_Airs_IsAirPositiveClosed(void)
 {
-    return HAL_GPIO_ReadPin(AIR_TOTAL_ISENSE_GPIO_Port, AIR_TOTAL_ISENSE_Pin) &&
-           HAL_GPIO_ReadPin(AIR_POWER_STATUS_GPIO_Port, AIR_POWER_STATUS_Pin);
+    return is_air_positive_closed;
 }
 
 void Io_Airs_CloseAirPositive(void)
 {
     HAL_GPIO_WritePin(AIR_EN_GPIO_Port, AIR_EN_Pin, GPIO_PIN_SET);
+    is_air_positive_closed = true;
 }
 
 void Io_Airs_OpenAirPositive(void)
 {
     HAL_GPIO_WritePin(AIR_EN_GPIO_Port, AIR_EN_Pin, GPIO_PIN_RESET);
+    is_air_positive_closed = false;
 }

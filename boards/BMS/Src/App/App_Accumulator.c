@@ -45,6 +45,9 @@ struct Accumulator
     float (*get_min_cell_temp)(uint8_t *, uint8_t *);
     float (*get_max_cell_temp)(uint8_t *, uint8_t *);
     float (*get_avg_cell_temp)(void);
+
+    bool (*enable_discharge)(void);
+    bool (*disable_discharge)(void);
 };
 
 struct Accumulator *App_Accumulator_Create(
@@ -61,7 +64,9 @@ struct Accumulator *App_Accumulator_Create(
     bool (*read_cell_temperatures)(void),
     float (*get_min_cell_temp)(uint8_t *, uint8_t *),
     float (*get_max_cell_temp)(uint8_t *, uint8_t *),
-    float (*get_avg_cell_temp)(void))
+    float (*get_avg_cell_temp)(void),
+    bool (*enable_discharge)(void),
+    bool (*disable_discharge)(void))
 {
     struct Accumulator *accumulator = malloc(sizeof(struct Accumulator));
     assert(accumulator != NULL);
@@ -86,6 +91,9 @@ struct Accumulator *App_Accumulator_Create(
     accumulator->get_max_cell_temp      = get_max_cell_temp;
     accumulator->get_avg_cell_temp      = get_avg_cell_temp;
 
+    accumulator->enable_discharge  = enable_discharge;
+    accumulator->disable_discharge = disable_discharge;
+
     return accumulator;
 }
 
@@ -97,6 +105,11 @@ void App_Accumulator_Destroy(struct Accumulator *accumulator)
 bool App_Accumulator_HasCommunicationError(const struct Accumulator *const accumulator)
 {
     return accumulator->num_comm_tries >= MAX_NUM_COMM_TRIES;
+}
+
+float App_Accumulator_GetPackVoltage(struct Accumulator *accumulator)
+{
+    return accumulator->get_pack_voltage();
 }
 
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *const accumulator)
@@ -136,6 +149,16 @@ float App_Accumulator_GetAvgCellTempDegC(const struct Accumulator *const accumul
     return accumulator->get_avg_cell_temp();
 }
 
+bool App_Accumulator_EnableDischarge(const struct Accumulator *const accumulator)
+{
+    return accumulator->enable_discharge();
+}
+
+bool App_Accumulator_DisableDischarge(const struct Accumulator *const accumulator)
+{
+    return accumulator->disable_discharge();
+}
+
 void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
 {
     static enum AccumulatorMonitorState state = GET_CELL_VOLTAGE_STATE;
@@ -147,7 +170,9 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
             UPDATE_PEC15_ERROR_COUNT(accumulator->read_cell_voltages(), accumulator->num_comm_tries)
 
             // Write to configuration register to configure cell discharging
-            accumulator->write_cfg_registers();
+            // TODO: re-enable
+            // accumulator->write_cfg_registers();
+            accumulator->disable_discharge();
 
             // Start cell voltage conversions for the next cycle
             accumulator->start_cell_temp_conv();
@@ -160,6 +185,8 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
 
             // Start cell voltage conversions for the next cycle
             accumulator->start_cell_voltage_conv();
+            accumulator->disable_discharge();
+
             state = GET_CELL_VOLTAGE_STATE;
             break;
 

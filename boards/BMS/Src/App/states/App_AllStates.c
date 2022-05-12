@@ -54,9 +54,9 @@ static void App_CheckCellVoltageRange(
     const bool  is_max_cell_v_out_of_range = !IS_IN_RANGE(MIN_CELL_VOLTAGE, MAX_CELL_VOLTAGE, curr_max_cell_voltage);
 
     App_SharedErrorTable_SetError(
-        error_table, BMS_AIR_SHUTDOWN_MAX_CELL_VOLTAGE_OUT_OF_RANGE, is_max_cell_v_out_of_range);
-    App_SharedErrorTable_SetError(
         error_table, BMS_AIR_SHUTDOWN_MIN_CELL_VOLTAGE_OUT_OF_RANGE, is_min_cell_v_out_of_range);
+    App_SharedErrorTable_SetError(
+        error_table, BMS_AIR_SHUTDOWN_MAX_CELL_VOLTAGE_OUT_OF_RANGE, is_max_cell_v_out_of_range);
 
     App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE(can_tx, curr_min_cell_voltage);
     App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE(can_tx, curr_max_cell_voltage);
@@ -86,7 +86,6 @@ static void App_CheckCellTemperatureRange(
     const bool is_max_cell_out_of_range =
         !IS_IN_RANGE(DEFAULT_MIN_CELL_TEMP_DEGC, DEFAULT_MAX_CELL_TEMP_DEGC, curr_max_cell_temp);
 
-    // Check if cell temperatures are out of bounds. If out of bounds, transition to the fault state
     App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_MIN_CELL_TEMP_OUT_OF_RANGE, is_min_cell_out_of_range);
     App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_MAX_CELL_TEMP_OUT_OF_RANGE, is_max_cell_out_of_range);
     App_CanTx_SetPeriodicSignal_MIN_CELL_TEMP_OUT_OF_RANGE(can_tx, is_min_cell_out_of_range);
@@ -135,14 +134,13 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_HAS_PEC_ERROR(can_tx, has_acc_comms_error);
     App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_HAS_PEC_ERROR, has_acc_comms_error);
 
-    App_CanTx_SetPeriodicSignal_AIR_NEGATIVE(can_tx, App_SharedBinaryStatus_IsActive(App_Airs_GetAirNegative(airs)));
-    App_CanTx_SetPeriodicSignal_AIR_POSITIVE(can_tx, App_SharedBinaryStatus_IsActive(App_Airs_GetAirPositive(airs)));
+    App_CanTx_SetPeriodicSignal_AIR_NEGATIVE(can_tx, App_Airs_IsAirNegativeClosed(airs));
+    App_CanTx_SetPeriodicSignal_AIR_POSITIVE(can_tx, App_Airs_IsAirPositiveClosed(airs));
+    App_SetPeriodicCanSignals_Imd(can_tx, imd);
 
     App_CanTx_SetPeriodicSignal_BMS_OK(can_tx, App_OkStatus_IsEnabled(bms_ok));
     App_CanTx_SetPeriodicSignal_IMD_OK(can_tx, App_OkStatus_IsEnabled(imd_ok));
     App_CanTx_SetPeriodicSignal_BSPD_OK(can_tx, App_OkStatus_IsEnabled(bspd_ok));
-
-    App_SetPeriodicCanSignals_Imd(can_tx, imd);
 
     // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
     // monitoring chips within 3 cycles
