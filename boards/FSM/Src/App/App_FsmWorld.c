@@ -17,8 +17,7 @@ struct FsmWorld
     struct FsmCanTxInterface *can_tx_interface;
     struct FsmCanRxInterface *can_rx_interface;
     struct HeartbeatMonitor * heartbeat_monitor;
-    struct InRangeCheck *     primary_flow_rate_in_range_check;
-    struct InRangeCheck *     secondary_flow_rate_in_range_check;
+    struct InRangeCheck *     flow_rate_in_range_check;
     struct InRangeCheck *     left_wheel_speed_in_range_check;
     struct InRangeCheck *     right_wheel_speed_in_range_check;
     struct InRangeCheck *     steering_angle_in_range_check;
@@ -48,8 +47,7 @@ struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanTxInterface *const can_tx_interface,
     struct FsmCanRxInterface *const can_rx_interface,
     struct HeartbeatMonitor *const  heartbeat_monitor,
-    struct InRangeCheck *const      primary_flow_rate_in_range_check,
-    struct InRangeCheck *const      secondary_flow_rate_in_range_check,
+    struct InRangeCheck *const      flow_rate_in_range_check,
     struct InRangeCheck *const      left_wheel_speed_in_range_check,
     struct InRangeCheck *const      right_wheel_speed_in_range_check,
     struct InRangeCheck *const      steering_angle_in_range_check,
@@ -70,29 +68,25 @@ struct FsmWorld *App_FsmWorld_Create(
     void (*const sapps_alarm_callback)(struct FsmWorld *),
     bool (*const is_papps_and_sapps_alarm_inactive)(struct FsmWorld *),
 
-    bool (*const is_primary_flow_rate_below_threshold)(struct FsmWorld *),
-    bool (*const is_primary_flow_rate_in_range)(struct FsmWorld *),
-    void (*const primary_flow_rate_below_threshold_callback)(struct FsmWorld *),
-    bool (*const is_secondary_flow_rate_below_threshold)(struct FsmWorld *),
-    bool (*const is_secondary_flow_rate_in_range)(struct FsmWorld *),
-    void (*const secondary_flow_rate_below_threshold_callback)(struct FsmWorld *))
+    bool (*const is_flow_rate_below_threshold)(struct FsmWorld *),
+    bool (*const is_flow_rate_in_range)(struct FsmWorld *),
+    void (*const flow_rate_below_threshold_callback)(struct FsmWorld *))
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
     assert(world != NULL);
 
-    world->can_tx_interface                   = can_tx_interface;
-    world->can_rx_interface                   = can_rx_interface;
-    world->heartbeat_monitor                  = heartbeat_monitor;
-    world->primary_flow_rate_in_range_check   = primary_flow_rate_in_range_check;
-    world->secondary_flow_rate_in_range_check = secondary_flow_rate_in_range_check;
-    world->left_wheel_speed_in_range_check    = left_wheel_speed_in_range_check;
-    world->right_wheel_speed_in_range_check   = right_wheel_speed_in_range_check;
-    world->steering_angle_in_range_check      = steering_angle_in_range_check;
-    world->brake                              = brake;
-    world->rgb_led_sequence                   = rgb_led_sequence;
-    world->signals_head                       = NULL;
-    world->clock                              = clock;
-    world->papps_and_sapps                    = papps_and_sapps;
+    world->can_tx_interface                 = can_tx_interface;
+    world->can_rx_interface                 = can_rx_interface;
+    world->heartbeat_monitor                = heartbeat_monitor;
+    world->flow_rate_in_range_check         = flow_rate_in_range_check;
+    world->left_wheel_speed_in_range_check  = left_wheel_speed_in_range_check;
+    world->right_wheel_speed_in_range_check = right_wheel_speed_in_range_check;
+    world->steering_angle_in_range_check    = steering_angle_in_range_check;
+    world->brake                            = brake;
+    world->rgb_led_sequence                 = rgb_led_sequence;
+    world->signals_head                     = NULL;
+    world->clock                            = clock;
+    world->papps_and_sapps                  = papps_and_sapps;
 
     struct SignalCallback papps_callback = {
         .entry_condition_high_duration_ms = PAPPS_ENTRY_HIGH_MS,
@@ -130,20 +124,12 @@ struct FsmWorld *App_FsmWorld_Create(
         0, has_apps_and_brake_plausibility_failure, is_apps_and_brake_plausibility_ok, world, apps_and_brake_callback);
     App_RegisterSignal(world, apps_and_brake_plausibility_check_signal);
 
-    struct SignalCallback primary_flow_rate_callback = { .entry_condition_high_duration_ms = FLOW_METER_ENTRY_HIGH_MS,
-                                                         .exit_condition_high_duration_ms  = FLOW_METER_EXIT_HIGH_MS,
-                                                         .function = primary_flow_rate_below_threshold_callback };
-    struct Signal *       primary_flow_rate_signal   = App_SharedSignal_Create(
-        0, is_primary_flow_rate_below_threshold, is_primary_flow_rate_in_range, world, primary_flow_rate_callback);
-    App_RegisterSignal(world, primary_flow_rate_signal);
-
-    struct SignalCallback secondary_flow_rate_callback = { .entry_condition_high_duration_ms = FLOW_METER_ENTRY_HIGH_MS,
-                                                           .exit_condition_high_duration_ms  = FLOW_METER_EXIT_HIGH_MS,
-                                                           .function = secondary_flow_rate_below_threshold_callback };
-    struct Signal *       secondary_flow_rate_signal   = App_SharedSignal_Create(
-        0, is_secondary_flow_rate_below_threshold, is_secondary_flow_rate_in_range, world,
-        secondary_flow_rate_callback);
-    App_RegisterSignal(world, secondary_flow_rate_signal);
+    struct SignalCallback flow_rate_callback = { .entry_condition_high_duration_ms = FLOW_METER_ENTRY_HIGH_MS,
+                                                 .exit_condition_high_duration_ms  = FLOW_METER_EXIT_HIGH_MS,
+                                                 .function = flow_rate_below_threshold_callback };
+    struct Signal *       flow_rate_signal =
+        App_SharedSignal_Create(0, is_flow_rate_below_threshold, is_flow_rate_in_range, world, flow_rate_callback);
+    App_RegisterSignal(world, flow_rate_signal);
 
     return world;
 }
@@ -182,14 +168,9 @@ struct HeartbeatMonitor *App_FsmWorld_GetHeartbeatMonitor(const struct FsmWorld 
     return world->heartbeat_monitor;
 }
 
-struct InRangeCheck *App_FsmWorld_GetPrimaryFlowRateInRangeCheck(const struct FsmWorld *const world)
+struct InRangeCheck *App_FsmWorld_GetFlowRateInRangeCheck(const struct FsmWorld *world)
 {
-    return world->primary_flow_rate_in_range_check;
-}
-
-struct InRangeCheck *App_FsmWorld_GetSecondaryFlowRateInRangeCheck(const struct FsmWorld *const world)
-{
-    return world->secondary_flow_rate_in_range_check;
+    return world->flow_rate_in_range_check;
 }
 
 struct InRangeCheck *App_FsmWorld_GetLeftWheelSpeedInRangeCheck(const struct FsmWorld *const world)
