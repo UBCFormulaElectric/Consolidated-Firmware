@@ -4,7 +4,6 @@
 
 extern "C"
 {
-#include "App_SharedBinaryStatus.h"
 #include "App_InRangeCheck.h"
 #include "App_SharedStateMachine.h"
 #include "App_SharedHeartbeatMonitor.h"

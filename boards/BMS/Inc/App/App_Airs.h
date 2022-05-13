@@ -1,6 +1,6 @@
 #pragma once
 
-#include "App_SharedBinaryStatus.h"
+#include <stdbool.h>
 
 struct Airs;
 

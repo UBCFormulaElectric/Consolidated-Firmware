@@ -5,7 +5,6 @@
 #include "App_InRangeCheck.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
-#include "App_SharedBinaryStatus.h"
 #include "App_Brake.h"
 #include "App_SharedSignal.h"
 #include "App_SharedClock.h"
