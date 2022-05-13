@@ -55,28 +55,44 @@ static float App_GetPedalPercentage_CountUp(
     const float encoder_range_deadzone = encoder_relative_range * PERCENT_DEFLECTION;
     float       lower_deadzone_thresh  = encoder_range_deadzone + (float)unpressed_value;
     float       upper_deadzone_thresh  = (encoder_relative_range - encoder_range_deadzone) + (float)unpressed_value;
-    float       pedal_pct              = 0.0f;
+    float       pedal_pct              = MIN_ACCELERATOR_PEDAL_PRESS;
 
-    if (encoder_value > underflow_threshold)
+    if (encoder_value > lower_deadzone_thresh)
     {
-        // If the accelerator pedal underflows (if counter exceeds a threshold only possible to be reached via wrapping
-        // on underflow), reset the encoder's counter register
-        set_encoder_counter(unpressed_value);
+        if (encoder_value > underflow_threshold)
+        {
+            set_encoder_counter(unpressed_value);
+        }
+        else if (encoder_value >= upper_deadzone_thresh)
+        {
+            pedal_pct = MAX_ACCELERATOR_PEDAL_PRESS;
+        }
+        else
+        {
+            pedal_pct = MAX_ACCELERATOR_PEDAL_PRESS * ((float)encoder_value - lower_deadzone_thresh) /
+                        (upper_deadzone_thresh - lower_deadzone_thresh);
+        }
     }
-    else if (encoder_value <= lower_deadzone_thresh)
-    {
-        pedal_pct = MIN_ACCELERATOR_PEDAL_PRESS;
-    }
-    else if (encoder_value >= upper_deadzone_thresh)
-    {
-        // Set the mapped pedal percentage to 100% when the pedal is within the high end deadzone
-        pedal_pct = MAX_ACCELERATOR_PEDAL_PRESS;
-    }
-    else
-    {
-        pedal_pct = MAX_ACCELERATOR_PEDAL_PRESS * ((float)encoder_value - lower_deadzone_thresh) /
-                    (upper_deadzone_thresh - lower_deadzone_thresh);
-    }
+
+    // if (encoder_value > underflow_threshold)
+    //{
+    //    // If the accelerator pedal underflows (if counter exceeds a threshold only possible to be reached via
+    //    wrapping
+    //    // on underflow), reset the encoder's counter register
+    //    set_encoder_counter(unpressed_value);
+    //}
+    // else if (encoder_value <= lower_deadzone_thresh)
+    //{
+    //    pedal_pct = MIN_ACCELERATOR_PEDAL_PRESS;
+    //}
+    // else if (encoder_value >= upper_deadzone_thresh)
+    //{
+    //    // Set the mapped pedal percentage to 100% when the pedal is within the high end deadzone
+    //    pedal_pct = MAX_ACCELERATOR_PEDAL_PRESS;
+    //}
+    // else
+    //{
+    //}
 
     return pedal_pct;
 }
@@ -93,27 +109,23 @@ static float App_GetPedalPercentage_CountDown(
     const float encoder_range_deadzone = encoder_relative_range * PERCENT_DEFLECTION;
     float       lower_deadzone_thresh  = encoder_range_deadzone + (float)fully_pressed_value;
     float       upper_deadzone_thresh  = (encoder_relative_range - encoder_range_deadzone) + (float)fully_pressed_value;
-    float       pedal_pct              = 0.0f;
+    float       pedal_pct              = MIN_ACCELERATOR_PEDAL_PRESS;
 
-    if (encoder_value > unpressed_value)
+    if (encoder_value < upper_deadzone_thresh)
     {
-        // For counting down, when the encoder unpressed value is exceeded, reset the encoder to the unpressed value and
-        // set 0% pedal press
-        set_encoder_counter(unpressed_value);
-    }
-    else if (encoder_value <= lower_deadzone_thresh)
-    {
-        // For counting down, set mapped pedal percentage to 100% when within the low end deadzone
-        pedal_pct = MAX_ACCELERATOR_PEDAL_PRESS;
-    }
-    else if (encoder_value >= upper_deadzone_thresh)
-    {
-        pedal_pct = MIN_ACCELERATOR_PEDAL_PRESS;
-    }
-    else
-    {
-        pedal_pct = MAX_ACCELERATOR_PEDAL_PRESS * (upper_deadzone_thresh - (float)encoder_value) /
-                    (upper_deadzone_thresh - lower_deadzone_thresh);
+        if (encoder_value > unpressed_value)
+        {
+            set_encoder_counter(unpressed_value);
+        }
+        else if (encoder_value <= lower_deadzone_thresh)
+        {
+            pedal_pct = MAX_ACCELERATOR_PEDAL_PRESS;
+        }
+        else
+        {
+            pedal_pct = MAX_ACCELERATOR_PEDAL_PRESS * (upper_deadzone_thresh - (float)encoder_value) /
+                        (upper_deadzone_thresh - lower_deadzone_thresh);
+        }
     }
 
     return pedal_pct;
