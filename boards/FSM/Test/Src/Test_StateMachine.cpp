@@ -60,7 +60,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
-        primary_flow_rate_in_range_check =
+        flow_rate_in_range_check =
             App_InRangeCheck_Create(get_flow_rate, MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN);
 
         left_wheel_speed_in_range_check =
@@ -85,20 +85,20 @@ class FsmStateMachineTest : public BaseStateMachineTest
             get_sapps_encoder_counter, reset_papps_encoder_counter, reset_sapps_encoder_counter);
 
         world = App_FsmWorld_Create(
-            can_tx_interface, can_rx_interface, heartbeat_monitor, primary_flow_rate_in_range_check,
-            left_wheel_speed_in_range_check, right_wheel_speed_in_range_check, steering_angle_in_range_check, brake,
-            rgb_led_sequence, clock, papps_and_sapps,
+                can_tx_interface, can_rx_interface, heartbeat_monitor, flow_rate_in_range_check,
+                left_wheel_speed_in_range_check, right_wheel_speed_in_range_check, steering_angle_in_range_check, brake,
+                rgb_led_sequence, clock, papps_and_sapps,
 
-            App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure,
-            App_AcceleratorPedalSignals_IsAppsAndBrakePlausibilityOk,
-            App_AcceleratorPedalSignals_AppsAndBrakePlausibilityFailureCallback,
-            App_AcceleratorPedalSignals_HasAppsDisagreement, App_AcceleratorPedalSignals_HasAppsAgreement,
-            App_AcceleratorPedalSignals_AppsDisagreementCallback, App_AcceleratorPedalSignals_IsPappsAlarmActive,
-            App_AcceleratorPedalSignals_PappsAlarmCallback, App_AcceleratorPedalSignals_IsSappsAlarmActive,
-            App_AcceleratorPedalSignals_SappsAlarmCallback, App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive,
+                App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure,
+                App_AcceleratorPedalSignals_IsAppsAndBrakePlausibilityOk,
+                App_AcceleratorPedalSignals_AppsAndBrakePlausibilityFailureCallback,
+                App_AcceleratorPedalSignals_HasAppsDisagreement, App_AcceleratorPedalSignals_HasAppsAgreement,
+                App_AcceleratorPedalSignals_AppsDisagreementCallback, App_AcceleratorPedalSignals_IsPappsAlarmActive,
+                App_AcceleratorPedalSignals_PappsAlarmCallback, App_AcceleratorPedalSignals_IsSappsAlarmActive,
+                App_AcceleratorPedalSignals_SappsAlarmCallback, App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive,
 
-            App_FlowMetersSignals_IsPrimaryFlowRateBelowThreshold, App_FlowMetersSignals_IsFlowRateInRange,
-            App_FlowMetersSignals_FlowRateBelowThresholdCallback);
+                App_FlowMetersSignals_IsPrimaryFlowRateBelowThreshold, App_FlowMetersSignals_IsFlowRateInRange,
+                App_FlowMetersSignals_FlowRateBelowThresholdCallback);
 
         // Default to starting the state machine in the `AIR_OPEN` state
         state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
@@ -136,7 +136,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
         TearDownObject(left_wheel_speed_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(right_wheel_speed_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(primary_flow_rate_in_range_check, App_InRangeCheck_Destroy);
+        TearDownObject(flow_rate_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(steering_angle_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(brake, App_Brake_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
@@ -304,8 +304,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
     struct FsmCanTxInterface *can_tx_interface;
     struct FsmCanRxInterface *can_rx_interface;
     struct HeartbeatMonitor * heartbeat_monitor;
-    struct InRangeCheck *     primary_flow_rate_in_range_check;
-    struct InRangeCheck *     secondary_flow_rate_in_range_check;
+    struct InRangeCheck *     flow_rate_in_range_check;
     struct InRangeCheck *     left_wheel_speed_in_range_check;
     struct InRangeCheck *     right_wheel_speed_in_range_check;
     struct InRangeCheck *     steering_angle_in_range_check;
