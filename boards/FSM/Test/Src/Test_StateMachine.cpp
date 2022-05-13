@@ -27,8 +27,7 @@ FAKE_VOID_FUNC(send_non_periodic_msg_FSM_WATCHDOG_TIMEOUT, const struct CanMsgs_
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
 FAKE_VOID_FUNC(heartbeat_timeout_callback, enum HeartbeatOneHot, enum HeartbeatOneHot);
 
-FAKE_VALUE_FUNC(float, get_primary_flow_rate);
-FAKE_VALUE_FUNC(float, get_secondary_flow_rate);
+FAKE_VALUE_FUNC(float, get_flow_rate);
 FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
@@ -62,7 +61,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
             get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
         primary_flow_rate_in_range_check =
-            App_InRangeCheck_Create(get_primary_flow_rate, MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN);
+            App_InRangeCheck_Create(get_flow_rate, MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN);
 
         left_wheel_speed_in_range_check =
             App_InRangeCheck_Create(get_left_wheel_speed, MIN_LEFT_WHEEL_SPEED_KPH, MAX_LEFT_WHEEL_SPEED_KPH);
@@ -110,8 +109,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(send_non_periodic_msg_FSM_WATCHDOG_TIMEOUT);
         RESET_FAKE(get_current_ms);
         RESET_FAKE(heartbeat_timeout_callback);
-        RESET_FAKE(get_primary_flow_rate);
-        RESET_FAKE(get_secondary_flow_rate);
+        RESET_FAKE(get_flow_rate);
         RESET_FAKE(turn_on_red_led);
         RESET_FAKE(turn_on_green_led);
         RESET_FAKE(turn_on_blue_led);
@@ -359,7 +357,7 @@ TEST_F(FsmStateMachineTest, check_right_wheel_speed_can_signals_in_all_states)
 TEST_F(FsmStateMachineTest, check_primary_flow_rate_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
-        MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN, get_primary_flow_rate_fake.return_val,
+        MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN, get_flow_rate_fake.return_val,
         App_CanTx_GetPeriodicSignal_FLOW_RATE, App_CanTx_GetPeriodicSignal_FLOW_RATE_OUT_OF_RANGE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
@@ -876,7 +874,7 @@ TEST_F(FsmStateMachineTest, primary_flow_rate_underflow_sets_motor_shutdown_can_
     // Flow rate lower threshold (L/min)
     const float flow_rate_threshold = 1.0f;
 
-    get_primary_flow_rate_fake.return_val = std::nextafter(flow_rate_threshold, std::numeric_limits<float>::lowest());
+    get_flow_rate_fake.return_val = std::nextafter(flow_rate_threshold, std::numeric_limits<float>::lowest());
     LetTimePass(state_machine, 999);
     ASSERT_EQ(
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE,
@@ -898,10 +896,10 @@ TEST_F(FsmStateMachineTest, primary_flow_rate_in_range_clears_motor_shutdown_can
     // Flow rate lower threshold (L/min)
     const float flow_rate_threshold = 1.0f;
 
-    get_primary_flow_rate_fake.return_val = std::nextafter(flow_rate_threshold, std::numeric_limits<float>::lowest());
+    get_flow_rate_fake.return_val = std::nextafter(flow_rate_threshold, std::numeric_limits<float>::lowest());
     LetTimePass(state_machine, 1000);
 
-    get_primary_flow_rate_fake.return_val = std::nextafter(flow_rate_threshold, std::numeric_limits<float>::max());
+    get_flow_rate_fake.return_val = std::nextafter(flow_rate_threshold, std::numeric_limits<float>::max());
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE,
