@@ -17,7 +17,7 @@ struct FsmWorld
     struct FsmCanTxInterface *can_tx_interface;
     struct FsmCanRxInterface *can_rx_interface;
     struct HeartbeatMonitor * heartbeat_monitor;
-    struct InRangeCheck *     primary_flow_rate_in_range_check;
+    struct InRangeCheck *     flow_rate_in_range_check;
     struct InRangeCheck *     left_wheel_speed_in_range_check;
     struct InRangeCheck *     right_wheel_speed_in_range_check;
     struct InRangeCheck *     steering_angle_in_range_check;
@@ -47,7 +47,7 @@ struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanTxInterface *const can_tx_interface,
     struct FsmCanRxInterface *const can_rx_interface,
     struct HeartbeatMonitor *const  heartbeat_monitor,
-    struct InRangeCheck *const      primary_flow_rate_in_range_check,
+    struct InRangeCheck *const      flow_rate_in_range_check,
     struct InRangeCheck *const      left_wheel_speed_in_range_check,
     struct InRangeCheck *const      right_wheel_speed_in_range_check,
     struct InRangeCheck *const      steering_angle_in_range_check,
@@ -78,7 +78,7 @@ struct FsmWorld *App_FsmWorld_Create(
     world->can_tx_interface                 = can_tx_interface;
     world->can_rx_interface                 = can_rx_interface;
     world->heartbeat_monitor                = heartbeat_monitor;
-    world->primary_flow_rate_in_range_check = primary_flow_rate_in_range_check;
+    world->flow_rate_in_range_check         = flow_rate_in_range_check;
     world->left_wheel_speed_in_range_check  = left_wheel_speed_in_range_check;
     world->right_wheel_speed_in_range_check = right_wheel_speed_in_range_check;
     world->steering_angle_in_range_check    = steering_angle_in_range_check;
@@ -170,7 +170,7 @@ struct HeartbeatMonitor *App_FsmWorld_GetHeartbeatMonitor(const struct FsmWorld 
 
 struct InRangeCheck *App_FsmWorld_GetFlowRateInRangeCheck(const struct FsmWorld *world)
 {
-    return world->primary_flow_rate_in_range_check;
+    return world->flow_rate_in_range_check;
 }
 
 struct InRangeCheck *App_FsmWorld_GetLeftWheelSpeedInRangeCheck(const struct FsmWorld *const world)
