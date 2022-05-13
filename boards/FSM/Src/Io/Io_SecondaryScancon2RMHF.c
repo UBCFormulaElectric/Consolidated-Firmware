@@ -20,7 +20,7 @@ uint32_t Io_SecondaryScancon2RMHF_GetEncoderCounter(void)
     return __HAL_TIM_GET_COUNTER(secondary_encoder_htim);
 }
 
-void Io_SecondaryScancon2RMHF_ResetEncoderCounter(void)
+void Io_SecondaryScancon2RMHF_SetEncoderCounter(uint32_t counter_value)
 {
-    __HAL_TIM_SET_COUNTER(secondary_encoder_htim, 0U);
+    __HAL_TIM_SET_COUNTER(secondary_encoder_htim, counter_value);
 }
