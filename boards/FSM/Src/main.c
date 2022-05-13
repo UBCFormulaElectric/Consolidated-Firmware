@@ -243,7 +243,10 @@ int main(void)
     papps_and_sapps = App_AcceleratorPedals_Create(
         Io_AcceleratorPedals_IsPappsEncoderAlarmActive, Io_AcceleratorPedals_IsSappsEncoderAlarmActive,
         Io_PrimaryScancon2RMHF_GetEncoderCounter, Io_SecondaryScancon2RMHF_GetEncoderCounter,
-        Io_PrimaryScancon2RMHF_ResetEncoderCounter, Io_SecondaryScancon2RMHF_ResetEncoderCounter);
+        Io_PrimaryScancon2RMHF_SetEncoderCounter, Io_SecondaryScancon2RMHF_SetEncoderCounter);
+
+    Io_PrimaryScancon2RMHF_SetEncoderCounter(PAPPS_ENCODER_UNPRESSED_VALUE);
+    Io_SecondaryScancon2RMHF_SetEncoderCounter(SAPPS_ENCODER_UNPRESSED_VALUE);
 
     world = App_FsmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, primary_flow_meter_in_range_check, secondary_flow_meter_in_range_check,
@@ -823,17 +826,17 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PA2 PA10 */
-    GPIO_InitStruct.Pin  = GPIO_PIN_2 | GPIO_PIN_10;
+    /*Configure GPIO pin : PA2 */
+    GPIO_InitStruct.Pin  = GPIO_PIN_2;
     GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : SECONDARY_APPS_ALARM_Pin */
-    GPIO_InitStruct.Pin  = SECONDARY_APPS_ALARM_Pin;
+    /*Configure GPIO pins : SECONDARY_APPS_ALARM_Pin PRIMARY_APPS_ALARM_Pin */
+    GPIO_InitStruct.Pin  = SECONDARY_APPS_ALARM_Pin | PRIMARY_APPS_ALARM_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(SECONDARY_APPS_ALARM_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     /*Configure GPIO pins : STATUS_R_Pin STATUS_G_Pin */
     GPIO_InitStruct.Pin   = STATUS_R_Pin | STATUS_G_Pin;

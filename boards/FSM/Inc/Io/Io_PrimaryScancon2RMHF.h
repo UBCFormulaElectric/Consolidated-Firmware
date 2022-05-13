@@ -18,4 +18,4 @@ uint32_t Io_PrimaryScancon2RMHF_GetEncoderCounter(void);
 /**
  * Reset the primary Scancon 2RMHF's counter value to 0
  */
-void Io_PrimaryScancon2RMHF_ResetEncoderCounter(void);
+void Io_PrimaryScancon2RMHF_SetEncoderCounter(uint32_t counter_value);
