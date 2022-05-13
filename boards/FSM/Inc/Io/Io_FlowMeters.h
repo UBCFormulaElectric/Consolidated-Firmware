@@ -11,7 +11,7 @@ void Io_FlowMeters_Init(TIM_HandleTypeDef *htim);
 /**
  * Get flow rate (L/min) from the primary flow meter
  */
-float Io_FlowMeters_GetPrimaryFlowRate(void);
+float Io_FlowMeters_GetFlowRate(void);
 
 /**
  * Get flow rate (L/min) from the secondary flow meter
@@ -33,7 +33,7 @@ void Io_FlowMeters_InputCaptureCallback(TIM_HandleTypeDef *htim);
  * @note This function should be called in the timer overflow interrupt
  *       for the PWM signal of the primary flow meter.
  */
-void Io_FlowMeters_CheckIfPrimaryIsActive(void);
+void Io_FlowMeters_CheckIfFlowMeterIsActive(void);
 
 /**
  * Check if the PWM signal of the secondary flow meter is active. If it is

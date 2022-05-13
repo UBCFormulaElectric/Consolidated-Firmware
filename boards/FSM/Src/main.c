@@ -104,7 +104,7 @@ osThreadId          Task100HzHandle;
 uint32_t            Task100HzBuffer[TASK100HZ_STACK_SIZE];
 osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
-struct InRangeCheck *     primary_flow_meter_in_range_check, *secondary_flow_meter_in_range_check;
+struct InRangeCheck *     flow_meter_in_range_check;
 struct InRangeCheck *     left_wheel_speed_sensor_in_range_check, *right_wheel_speed_sensor_in_range_check;
 struct InRangeCheck *     steering_angle_sensor_in_range_check;
 struct Brake *            brake;
@@ -206,10 +206,8 @@ int main(void)
     Io_SharedHardFaultHandler_Init();
 
     Io_FlowMeters_Init(&htim4);
-    primary_flow_meter_in_range_check = App_InRangeCheck_Create(
-        Io_FlowMeters_GetPrimaryFlowRate, MIN_PRIMARY_FLOW_RATE_L_PER_MIN, MAX_PRIMARY_FLOW_RATE_L_PER_MIN);
-    secondary_flow_meter_in_range_check = App_InRangeCheck_Create(
-        Io_FlowMeters_GetSecondaryFlowRate, MIN_SECONDARY_FLOW_RATE_L_PER_MIN, MAX_SECONDARY_FLOW_RATE_L_PER_MIN);
+    flow_meter_in_range_check =
+        App_InRangeCheck_Create(Io_FlowMeters_GetFlowRate, MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN);
 
     Io_WheelSpeedSensors_Init(&htim16, &htim17);
     left_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
@@ -246,9 +244,9 @@ int main(void)
         Io_PrimaryScancon2RMHF_ResetEncoderCounter, Io_SecondaryScancon2RMHF_ResetEncoderCounter);
 
     world = App_FsmWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, primary_flow_meter_in_range_check, secondary_flow_meter_in_range_check,
-        left_wheel_speed_sensor_in_range_check, right_wheel_speed_sensor_in_range_check,
-        steering_angle_sensor_in_range_check, brake, rgb_led_sequence, clock, papps_and_sapps,
+        can_tx, can_rx, heartbeat_monitor, flow_meter_in_range_check, left_wheel_speed_sensor_in_range_check,
+        right_wheel_speed_sensor_in_range_check, steering_angle_sensor_in_range_check, brake, rgb_led_sequence, clock,
+        papps_and_sapps,
 
         App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure,
         App_AcceleratorPedalSignals_IsAppsAndBrakePlausibilityOk,
@@ -258,10 +256,8 @@ int main(void)
         App_AcceleratorPedalSignals_PappsAlarmCallback, App_AcceleratorPedalSignals_IsSappsAlarmActive,
         App_AcceleratorPedalSignals_SappsAlarmCallback, App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive,
 
-        App_FlowMetersSignals_IsPrimaryFlowRateBelowThreshold, App_FlowMetersSignals_IsPrimaryFlowRateInRange,
-        App_FlowMetersSignals_PrimaryFlowRateBelowThresholdCallback,
-        App_FlowMetersSignals_IsSecondaryFlowRateBelowThreshold, App_FlowMetersSignals_IsSecondaryFlowRateInRange,
-        App_FlowMetersSignals_SecondaryFlowRateBelowThresholdCallback);
+        App_FlowMetersSignals_IsPrimaryFlowRateBelowThreshold, App_FlowMetersSignals_IsFlowRateInRange,
+        App_FlowMetersSignals_FlowRateBelowThresholdCallback);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 
@@ -1026,8 +1022,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 0 */
     if (htim->Instance == TIM4)
     {
-        Io_FlowMeters_CheckIfPrimaryIsActive();
-        Io_FlowMeters_CheckIfSecondaryIsActive();
+        Io_FlowMeters_CheckIfFlowMeterIsActive();
     }
     else if (htim->Instance == TIM16)
     {

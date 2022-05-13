@@ -85,10 +85,9 @@ static void
     SET_ERROR(error_table, FSM_NON_CRITICAL_BSPD_FAULT, data->bspd_fault);
     SET_ERROR(error_table, FSM_NON_CRITICAL_LEFT_WHEEL_SPEED_OUT_OF_RANGE, data->left_wheel_speed_out_of_range);
     SET_ERROR(error_table, FSM_NON_CRITICAL_RIGHT_WHEEL_SPEED_OUT_OF_RANGE, data->right_wheel_speed_out_of_range);
-    SET_ERROR(error_table, FSM_NON_CRITICAL_PRIMARY_FLOW_RATE_OUT_OF_RANGE, data->primary_flow_rate_out_of_range);
-    SET_ERROR(error_table, FSM_NON_CRITICAL_SECONDARY_FLOW_RATE_OUT_OF_RANGE, data->secondary_flow_rate_out_of_range);
+    SET_ERROR(error_table, FSM_NON_CRITICAL_FLOW_RATE_OUT_OF_RANGE, data->flow_rate_out_of_range);
     SET_ERROR(error_table, FSM_NON_CRITICAL_STEERING_ANGLE_OUT_OF_RANGE, data->steering_angle_out_of_range);
-    SET_ERROR(error_table, FSM_NON_CRITICAL_BRAKE_PRESSURE_OUT_OF_RANGE, data->secondary_flow_rate_out_of_range);
+    SET_ERROR(error_table, FSM_NON_CRITICAL_BRAKE_PRESSURE_OUT_OF_RANGE, data->brake_pressure_out_of_range);
 }
 
 static void
@@ -188,9 +187,7 @@ static void
     SET_ERROR(error_table, FSM_MOTOR_SHUTDOWN_PAPPS_ALARM_IS_ACTIVE, data->papps_alarm_is_active);
     SET_ERROR(error_table, FSM_MOTOR_SHUTDOWN_SAPPS_ALARM_IS_ACTIVE, data->sapps_alarm_is_active);
     SET_ERROR(error_table, FSM_MOTOR_SHUTDOWN_PLAUSIBILITY_CHECK_HAS_FAILED, data->plausibility_check_has_failed);
-    SET_ERROR(error_table, FSM_MOTOR_SHUTDOWN_PRIMARY_FLOW_RATE_HAS_UNDERFLOW, data->primary_flow_rate_has_underflow);
-    SET_ERROR(
-        error_table, FSM_MOTOR_SHUTDOWN_SECONDARY_FLOW_RATE_HAS_UNDERFLOW, data->secondary_flow_rate_has_underflow);
+    SET_ERROR(error_table, FSM_MOTOR_SHUTDOWN_FLOW_METER_HAS_UNDERFLOW, data->flow_meter_has_underflow);
 }
 
 static void

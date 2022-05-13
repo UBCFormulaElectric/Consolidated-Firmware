@@ -61,11 +61,8 @@ class FsmStateMachineTest : public BaseStateMachineTest
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
-        primary_flow_rate_in_range_check = App_InRangeCheck_Create(
-            get_primary_flow_rate, MIN_PRIMARY_FLOW_RATE_L_PER_MIN, MAX_PRIMARY_FLOW_RATE_L_PER_MIN);
-
-        secondary_flow_rate_in_range_check = App_InRangeCheck_Create(
-            get_secondary_flow_rate, MIN_SECONDARY_FLOW_RATE_L_PER_MIN, MAX_SECONDARY_FLOW_RATE_L_PER_MIN);
+        primary_flow_rate_in_range_check =
+            App_InRangeCheck_Create(get_primary_flow_rate, MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN);
 
         left_wheel_speed_in_range_check =
             App_InRangeCheck_Create(get_left_wheel_speed, MIN_LEFT_WHEEL_SPEED_KPH, MAX_LEFT_WHEEL_SPEED_KPH);
@@ -90,8 +87,8 @@ class FsmStateMachineTest : public BaseStateMachineTest
 
         world = App_FsmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor, primary_flow_rate_in_range_check,
-            secondary_flow_rate_in_range_check, left_wheel_speed_in_range_check, right_wheel_speed_in_range_check,
-            steering_angle_in_range_check, brake, rgb_led_sequence, clock, papps_and_sapps,
+            left_wheel_speed_in_range_check, right_wheel_speed_in_range_check, steering_angle_in_range_check, brake,
+            rgb_led_sequence, clock, papps_and_sapps,
 
             App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure,
             App_AcceleratorPedalSignals_IsAppsAndBrakePlausibilityOk,
@@ -101,10 +98,8 @@ class FsmStateMachineTest : public BaseStateMachineTest
             App_AcceleratorPedalSignals_PappsAlarmCallback, App_AcceleratorPedalSignals_IsSappsAlarmActive,
             App_AcceleratorPedalSignals_SappsAlarmCallback, App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive,
 
-            App_FlowMetersSignals_IsPrimaryFlowRateBelowThreshold, App_FlowMetersSignals_IsPrimaryFlowRateInRange,
-            App_FlowMetersSignals_PrimaryFlowRateBelowThresholdCallback,
-            App_FlowMetersSignals_IsSecondaryFlowRateBelowThreshold, App_FlowMetersSignals_IsSecondaryFlowRateInRange,
-            App_FlowMetersSignals_SecondaryFlowRateBelowThresholdCallback);
+            App_FlowMetersSignals_IsPrimaryFlowRateBelowThreshold, App_FlowMetersSignals_IsFlowRateInRange,
+            App_FlowMetersSignals_FlowRateBelowThresholdCallback);
 
         // Default to starting the state machine in the `AIR_OPEN` state
         state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
@@ -144,7 +139,6 @@ class FsmStateMachineTest : public BaseStateMachineTest
         TearDownObject(left_wheel_speed_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(right_wheel_speed_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(primary_flow_rate_in_range_check, App_InRangeCheck_Destroy);
-        TearDownObject(secondary_flow_rate_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(steering_angle_in_range_check, App_InRangeCheck_Destroy);
         TearDownObject(brake, App_Brake_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
@@ -365,22 +359,11 @@ TEST_F(FsmStateMachineTest, check_right_wheel_speed_can_signals_in_all_states)
 TEST_F(FsmStateMachineTest, check_primary_flow_rate_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
-        MIN_PRIMARY_FLOW_RATE_L_PER_MIN, MAX_PRIMARY_FLOW_RATE_L_PER_MIN, get_primary_flow_rate_fake.return_val,
-        App_CanTx_GetPeriodicSignal_PRIMARY_FLOW_RATE, App_CanTx_GetPeriodicSignal_PRIMARY_FLOW_RATE_OUT_OF_RANGE,
-        CANMSGS_FSM_NON_CRITICAL_ERRORS_PRIMARY_FLOW_RATE_OUT_OF_RANGE_OK_CHOICE,
-        CANMSGS_FSM_NON_CRITICAL_ERRORS_PRIMARY_FLOW_RATE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-        CANMSGS_FSM_NON_CRITICAL_ERRORS_PRIMARY_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
-}
-
-// FSM-14
-TEST_F(FsmStateMachineTest, check_secondary_flow_rate_can_signals_in_all_states)
-{
-    CheckInRangeCanSignalsInAllStates(
-        MIN_SECONDARY_FLOW_RATE_L_PER_MIN, MAX_SECONDARY_FLOW_RATE_L_PER_MIN, get_secondary_flow_rate_fake.return_val,
-        App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE, App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE_OUT_OF_RANGE,
-        CANMSGS_FSM_NON_CRITICAL_ERRORS_SECONDARY_FLOW_RATE_OUT_OF_RANGE_OK_CHOICE,
-        CANMSGS_FSM_NON_CRITICAL_ERRORS_SECONDARY_FLOW_RATE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-        CANMSGS_FSM_NON_CRITICAL_ERRORS_SECONDARY_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+        MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN, get_primary_flow_rate_fake.return_val,
+        App_CanTx_GetPeriodicSignal_FLOW_RATE, App_CanTx_GetPeriodicSignal_FLOW_RATE_OUT_OF_RANGE,
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
 // FSM-8
@@ -391,7 +374,7 @@ TEST_F(FsmStateMachineTest, check_steering_angle_can_signals_in_all_states)
         App_CanTx_GetPeriodicSignal_STEERING_ANGLE, App_CanTx_GetPeriodicSignal_STEERING_ANGLE_OUT_OF_RANGE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-        CANMSGS_FSM_NON_CRITICAL_ERRORS_PRIMARY_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
 // FSM-18
@@ -896,18 +879,18 @@ TEST_F(FsmStateMachineTest, primary_flow_rate_underflow_sets_motor_shutdown_can_
     get_primary_flow_rate_fake.return_val = std::nextafter(flow_rate_threshold, std::numeric_limits<float>::lowest());
     LetTimePass(state_machine, 999);
     ASSERT_EQ(
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PRIMARY_FLOW_RATE_HAS_UNDERFLOW_FALSE_CHOICE,
-        App_CanTx_GetPeriodicSignal_PRIMARY_FLOW_RATE_HAS_UNDERFLOW(can_tx_interface));
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(can_tx_interface));
 
     LetTimePass(state_machine, 1);
     ASSERT_EQ(
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PRIMARY_FLOW_RATE_HAS_UNDERFLOW_TRUE_CHOICE,
-        App_CanTx_GetPeriodicSignal_PRIMARY_FLOW_RATE_HAS_UNDERFLOW(can_tx_interface));
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(can_tx_interface));
 
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PRIMARY_FLOW_RATE_HAS_UNDERFLOW_TRUE_CHOICE,
-        App_CanTx_GetPeriodicSignal_PRIMARY_FLOW_RATE_HAS_UNDERFLOW(can_tx_interface));
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(can_tx_interface));
 }
 
 TEST_F(FsmStateMachineTest, primary_flow_rate_in_range_clears_motor_shutdown_can_tx_signal)
@@ -921,55 +904,13 @@ TEST_F(FsmStateMachineTest, primary_flow_rate_in_range_clears_motor_shutdown_can
     get_primary_flow_rate_fake.return_val = std::nextafter(flow_rate_threshold, std::numeric_limits<float>::max());
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PRIMARY_FLOW_RATE_HAS_UNDERFLOW_FALSE_CHOICE,
-        App_CanTx_GetPeriodicSignal_PRIMARY_FLOW_RATE_HAS_UNDERFLOW(can_tx_interface));
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(can_tx_interface));
 
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PRIMARY_FLOW_RATE_HAS_UNDERFLOW_FALSE_CHOICE,
-        App_CanTx_GetPeriodicSignal_PRIMARY_FLOW_RATE_HAS_UNDERFLOW(can_tx_interface));
-}
-
-TEST_F(FsmStateMachineTest, secondary_flow_rate_underflow_sets_motor_shutdown_can_tx_signal)
-{
-    // Flow rate lower threshold (L/min)
-    const float flow_rate_threshold = 1.0f;
-
-    get_secondary_flow_rate_fake.return_val = std::nextafter(flow_rate_threshold, std::numeric_limits<float>::lowest());
-    LetTimePass(state_machine, 999);
-    ASSERT_EQ(
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SECONDARY_FLOW_RATE_HAS_UNDERFLOW_FALSE_CHOICE,
-        App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE_HAS_UNDERFLOW(can_tx_interface));
-
-    LetTimePass(state_machine, 1);
-    ASSERT_EQ(
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SECONDARY_FLOW_RATE_HAS_UNDERFLOW_TRUE_CHOICE,
-        App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE_HAS_UNDERFLOW(can_tx_interface));
-
-    LetTimePass(state_machine, 1000);
-    ASSERT_EQ(
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SECONDARY_FLOW_RATE_HAS_UNDERFLOW_TRUE_CHOICE,
-        App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE_HAS_UNDERFLOW(can_tx_interface));
-}
-
-TEST_F(FsmStateMachineTest, secondary_flow_rate_in_range_clears_motor_shutdown_can_tx_signal)
-{
-    // Flow rate lower threshold (L/min)
-    const float flow_rate_threshold = 1.0f;
-
-    get_secondary_flow_rate_fake.return_val = std::nextafter(flow_rate_threshold, std::numeric_limits<float>::lowest());
-    LetTimePass(state_machine, 1000);
-
-    get_secondary_flow_rate_fake.return_val = std::nextafter(flow_rate_threshold, std::numeric_limits<float>::max());
-    LetTimePass(state_machine, 1000);
-    ASSERT_EQ(
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SECONDARY_FLOW_RATE_HAS_UNDERFLOW_FALSE_CHOICE,
-        App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE_HAS_UNDERFLOW(can_tx_interface));
-
-    LetTimePass(state_machine, 1000);
-    ASSERT_EQ(
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SECONDARY_FLOW_RATE_HAS_UNDERFLOW_FALSE_CHOICE,
-        App_CanTx_GetPeriodicSignal_SECONDARY_FLOW_RATE_HAS_UNDERFLOW(can_tx_interface));
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(can_tx_interface));
 }
 
 } // namespace StateMachineTest

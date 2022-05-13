@@ -26,7 +26,6 @@ struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanRxInterface *can_rx_interface,
     struct HeartbeatMonitor * heartbeat_monitor,
     struct InRangeCheck *     primary_flow_rate_in_range_check,
-    struct InRangeCheck *     secondary_flow_rate_in_range_check,
     struct InRangeCheck *     left_wheel_speed_in_range_check,
     struct InRangeCheck *     right_wheel_speed_in_range_check,
     struct InRangeCheck *     steering_angle_in_range_check,
@@ -47,12 +46,9 @@ struct FsmWorld *App_FsmWorld_Create(
     void (*sapps_alarm_callback)(struct FsmWorld *),
     bool (*is_papps_and_sapps_alarm_inactive)(struct FsmWorld *),
 
-    bool (*is_primary_flow_rate_below_threshold)(struct FsmWorld *),
-    bool (*is_primary_flow_rate_in_range)(struct FsmWorld *),
-    void (*primary_flow_rate_below_threshold_callback)(struct FsmWorld *),
-    bool (*is_secondary_flow_rate_below_threshold)(struct FsmWorld *),
-    bool (*is_secondary_flow_rate_in_range)(struct FsmWorld *),
-    void (*secondary_flow_rate_below_threshold_callback)(struct FsmWorld *));
+    bool (*is_flow_rate_below_threshold)(struct FsmWorld *),
+    bool (*is_flow_rate_in_range)(struct FsmWorld *),
+    void (*flow_rate_below_threshold_callback)(struct FsmWorld *));
 
 /**
  * Deallocate the memory used by the given world
@@ -86,7 +82,7 @@ struct HeartbeatMonitor *App_FsmWorld_GetHeartbeatMonitor(const struct FsmWorld 
  * @param world The world to get primary flow rate in-range check for
  * @return The primary flow rate in-range check for the given world
  */
-struct InRangeCheck *App_FsmWorld_GetPrimaryFlowRateInRangeCheck(const struct FsmWorld *world);
+struct InRangeCheck *App_FsmWorld_GetFlowRateInRangeCheck(const struct FsmWorld *world);
 
 /**
  * Get the secondary flow rate in-range check for the given world

@@ -7,22 +7,14 @@ void App_SetPeriodicSignals_FlowRateInRangeChecks(const struct FsmWorld *world)
 {
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
 
-    struct InRangeCheck *primary_flow_rate_in_range_check   = App_FsmWorld_GetPrimaryFlowRateInRangeCheck(world);
-    struct InRangeCheck *secondary_flow_rate_in_range_check = App_FsmWorld_GetSecondaryFlowRateInRangeCheck(world);
+    struct InRangeCheck *flow_rate_in_range_check = App_FsmWorld_GetFlowRateInRangeCheck(world);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, primary_flow_rate_in_range_check, App_CanTx_SetPeriodicSignal_PRIMARY_FLOW_RATE,
-        App_CanTx_SetPeriodicSignal_PRIMARY_FLOW_RATE_OUT_OF_RANGE,
-        CANMSGS_FSM_NON_CRITICAL_ERRORS_PRIMARY_FLOW_RATE_OUT_OF_RANGE_OK_CHOICE,
-        CANMSGS_FSM_NON_CRITICAL_ERRORS_PRIMARY_FLOW_RATE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-        CANMSGS_FSM_NON_CRITICAL_ERRORS_PRIMARY_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
-
-    App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, secondary_flow_rate_in_range_check, App_CanTx_SetPeriodicSignal_SECONDARY_FLOW_RATE,
-        App_CanTx_SetPeriodicSignal_SECONDARY_FLOW_RATE_OUT_OF_RANGE,
-        CANMSGS_FSM_NON_CRITICAL_ERRORS_SECONDARY_FLOW_RATE_OUT_OF_RANGE_OK_CHOICE,
-        CANMSGS_FSM_NON_CRITICAL_ERRORS_SECONDARY_FLOW_RATE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-        CANMSGS_FSM_NON_CRITICAL_ERRORS_SECONDARY_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+        can_tx, flow_rate_in_range_check, App_CanTx_SetPeriodicSignal_FLOW_RATE,
+        App_CanTx_SetPeriodicSignal_FLOW_RATE_OUT_OF_RANGE,
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
 void App_SetPeriodicSignals_WheelSpeedInRangeChecks(const struct FsmWorld *world)
@@ -130,8 +122,6 @@ void App_SetPeriodicSignals_MotorShutdownFaults(const struct FsmWorld *world)
         can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE);
     App_CanTx_SetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
         can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_FALSE_CHOICE);
-    App_CanTx_SetPeriodicSignal_PRIMARY_FLOW_RATE_HAS_UNDERFLOW(
-        can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PRIMARY_FLOW_RATE_HAS_UNDERFLOW_FALSE_CHOICE);
-    App_CanTx_SetPeriodicSignal_SECONDARY_FLOW_RATE_HAS_UNDERFLOW(
-        can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SECONDARY_FLOW_RATE_HAS_UNDERFLOW_FALSE_CHOICE);
+    App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(
+        can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE);
 }
