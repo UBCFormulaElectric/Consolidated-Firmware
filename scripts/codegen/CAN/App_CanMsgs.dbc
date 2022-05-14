@@ -601,6 +601,9 @@ SG_ DUMMY_AIR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DCM
 BO_ 510 DIM_MOTOR_SHUTDOWN_ERRORS: 8 DIM
 SG_ DUMMY_MOTOR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DCM
 
+BO_ 600 CAN_DEBUGGING_SIGNALS: 1 DEBUG
+SG_ ENABLE_CELL_BALANCING : 0|1@1+ (1,0) [0|1] "" BMS
+
 BA_DEF_  "BusType" STRING ;
 BA_DEF_ BO_  "GenMsgCycleTime" INT 0 65535;
 BA_DEF_ SG_  "GenSigStartValue" INT 0 2147483647;
@@ -678,7 +681,6 @@ BA_ "GenMsgCycleTime" BO_ 209 10;
 BA_ "GenMsgCycleTime" BO_ 210 10;
 BA_ "GenMsgCycleTime" BO_ 211 10;
 BA_ "GenMsgCycleTime" BO_ 212 10;
-BA_ "GenMsgCycleTime" BO_ 510 100;
 BA_ "GenMsgCycleTime" BO_ 300 1000;
 BA_ "GenMsgCycleTime" BO_ 301 100;
 BA_ "GenMsgCycleTime" BO_ 302 5000;
@@ -713,6 +715,7 @@ BA_ "GenMsgCycleTime" BO_ 507 10;
 BA_ "GenMsgCycleTime" BO_ 508 1000;
 BA_ "GenMsgCycleTime" BO_ 509 1000;
 BA_ "GenMsgCycleTime" BO_ 510 1000;
+BA_ "GenMsgCycleTime" BO_ 600 1000;
 
 SIG_VALTYPE_ 106 Duty_Cycle : 1;
 SIG_VALTYPE_ 106 Frequency : 1;
