@@ -120,6 +120,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
     struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
     struct HeartbeatMonitor * hb_monitor  = App_BmsWorld_GetHeartbeatMonitor(world);
+    struct TractiveSystem *   ts          = App_BmsWorld_GetTractiveSystem(world);
 
     bool           status                = true;
     static uint8_t acc_meas_settle_count = 0U;
@@ -134,6 +135,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_HAS_PEC_ERROR(can_tx, has_acc_comms_error);
     App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_HAS_PEC_ERROR, has_acc_comms_error);
 
+    App_CanTx_SetPeriodicSignal_TS_VOLTAGE(can_tx, App_TractiveSystem_GetVoltage(ts));
     App_CanTx_SetPeriodicSignal_AIR_NEGATIVE(can_tx, App_Airs_IsAirNegativeClosed(airs));
     App_CanTx_SetPeriodicSignal_AIR_POSITIVE(can_tx, App_Airs_IsAirPositiveClosed(airs));
     App_SetPeriodicCanSignals_Imd(can_tx, imd);
