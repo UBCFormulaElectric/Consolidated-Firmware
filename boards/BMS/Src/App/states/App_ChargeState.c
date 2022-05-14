@@ -12,6 +12,7 @@ static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
     struct Charger *          charger          = App_BmsWorld_GetCharger(world);
 
     App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_CHARGE_CHOICE);
+    App_CanTx_SetPeriodicSignal_IS_CHARGING_COMPLETE(can_tx_interface, false);
     App_Charger_Enable(charger);
 }
 
@@ -50,7 +51,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         App_CanTx_SetPeriodicSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(can_tx, is_charger_disconnected);
         App_CanTx_SetPeriodicSignal_CHARGER_FAULT_DETECTED(can_tx, has_charger_faulted);
-        App_CanTx_SetPeriodicSignal_CHARGING_DONE(can_tx, has_reached_max_v);
+        App_CanTx_SetPeriodicSignal_IS_CHARGING_COMPLETE(can_tx, has_reached_max_v);
         App_SharedErrorTable_SetError(
             error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE, is_charger_disconnected);
         App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_CHARGER_FAULT_DETECTED, has_charger_faulted);
