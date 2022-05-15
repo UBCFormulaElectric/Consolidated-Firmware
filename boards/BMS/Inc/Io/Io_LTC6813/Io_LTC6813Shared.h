@@ -6,9 +6,6 @@
 
 // clang-format off
 
-// Conversion factor used to convert raw voltages (100µV) to voltages (V)
-#define V_PER_100UV (1E-4f)
-
 // Indexes for data to write/read from the register group in byte format
 enum RegGroupByteFormat
 {

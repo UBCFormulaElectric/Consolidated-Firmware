@@ -86,6 +86,12 @@ float App_Accumulator_GetMaxCellTempDegC(
  */
 float App_Accumulator_GetAvgCellTempDegC(const struct Accumulator *const accumulator);
 
+void App_Accumulator_SetCellBalancingStatus(struct Accumulator *const accumulator, bool is_cell_balancing_required);
+
+void App_Accumulator_SetPackFullyChargedStatus(struct Accumulator *const accumulator, bool is_pack_fully_charged);
+
+bool App_Accumulator_GetPackFullyChargedStatus(struct Accumulator *const accumulator);
+
 /**
  * Get the pack voltage in V
  * @param accumulator The accumulator to get the pack voltage

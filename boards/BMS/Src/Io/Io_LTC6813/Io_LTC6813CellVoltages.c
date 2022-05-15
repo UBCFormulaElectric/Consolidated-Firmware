@@ -5,7 +5,6 @@
 #include "App_SharedMacros.h"
 
 // clang-format off
-#define NOMINAL_CELL_VOLTAGE          (37000U)
 #define NUM_OF_CELLS_PER_SEGMENT      (16U)
 #define TOTAL_NUM_OF_CELLS            (NUM_OF_CELLS_PER_SEGMENT * NUM_OF_ACCUMULATOR_SEGMENTS)
 
@@ -19,9 +18,6 @@
 #define RDCVD (0x0A00U)
 #define RDCVE (0x0900U)
 #define RDCVF (0x0B00U)
-
-#define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * V_PER_100UV)
-#define CELL_VOLTAGE_DISCHARGE_WINDOW_UV  (600U)
 
 // clang-format on
 

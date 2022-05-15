@@ -25,6 +25,8 @@ enum AccumulatorMonitorState
 struct Accumulator
 {
     uint8_t num_comm_tries;
+    bool    is_cell_balancing_required;
+    bool    is_pack_fully_charged;
 
     // Configure the cell monitoring chip
     bool (*config_monitoring_chip)(void);
@@ -75,14 +77,16 @@ struct Accumulator *App_Accumulator_Create(
     accumulator->write_cfg_registers    = write_cfg_registers;
 
     // Cell voltage monitoring functions
-    accumulator->num_comm_tries          = 0U;
-    accumulator->read_cell_voltages      = read_cell_voltages;
-    accumulator->start_cell_voltage_conv = start_voltage_conv;
-    accumulator->get_min_cell_voltage    = get_min_cell_voltage;
-    accumulator->get_max_cell_voltage    = get_max_cell_voltage;
-    accumulator->get_segment_voltage     = get_segment_voltage;
-    accumulator->get_pack_voltage        = get_pack_voltage;
-    accumulator->get_avg_cell_voltage    = get_avg_cell_voltage;
+    accumulator->num_comm_tries             = 0U;
+    accumulator->is_cell_balancing_required = false;
+    accumulator->is_pack_fully_charged      = false;
+    accumulator->read_cell_voltages         = read_cell_voltages;
+    accumulator->start_cell_voltage_conv    = start_voltage_conv;
+    accumulator->get_min_cell_voltage       = get_min_cell_voltage;
+    accumulator->get_max_cell_voltage       = get_max_cell_voltage;
+    accumulator->get_segment_voltage        = get_segment_voltage;
+    accumulator->get_pack_voltage           = get_pack_voltage;
+    accumulator->get_avg_cell_voltage       = get_avg_cell_voltage;
 
     // Cell temperature monitoring functions
     accumulator->start_cell_temp_conv   = start_cell_temp_conv;
@@ -149,14 +153,19 @@ float App_Accumulator_GetAvgCellTempDegC(const struct Accumulator *const accumul
     return accumulator->get_avg_cell_temp();
 }
 
-bool App_Accumulator_EnableDischarge(const struct Accumulator *const accumulator)
+void App_Accumulator_SetCellBalancingStatus(struct Accumulator *const accumulator, bool is_cell_balancing_required)
 {
-    return accumulator->enable_discharge();
+    accumulator->is_cell_balancing_required = is_cell_balancing_required;
 }
 
-bool App_Accumulator_DisableDischarge(const struct Accumulator *const accumulator)
+void App_Accumulator_SetPackFullyChargedStatus(struct Accumulator *const accumulator, bool is_pack_fully_charged)
 {
-    return accumulator->disable_discharge();
+    accumulator->is_pack_fully_charged = is_pack_fully_charged;
+}
+
+bool App_Accumulator_GetPackFullyChargedStatus(struct Accumulator *const accumulator)
+{
+    return accumulator->is_pack_fully_charged;
 }
 
 void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
@@ -169,10 +178,17 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
 
             UPDATE_PEC15_ERROR_COUNT(accumulator->read_cell_voltages(), accumulator->num_comm_tries)
 
-            // Write to configuration register to configure cell discharging
-            // TODO: re-enable
-            // accumulator->write_cfg_registers();
-            accumulator->disable_discharge();
+            if (accumulator->is_cell_balancing_required)
+            {
+                accumulator->enable_discharge();
+
+                // Write to configuration register to configure cells to discharge
+                accumulator->write_cfg_registers();
+            }
+            else
+            {
+                accumulator->disable_discharge();
+            }
 
             // Start cell voltage conversions for the next cycle
             accumulator->start_cell_temp_conv();
@@ -184,8 +200,8 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
             UPDATE_PEC15_ERROR_COUNT(accumulator->read_cell_temperatures(), accumulator->num_comm_tries)
 
             // Start cell voltage conversions for the next cycle
-            accumulator->start_cell_voltage_conv();
             accumulator->disable_discharge();
+            accumulator->start_cell_voltage_conv();
 
             state = GET_CELL_VOLTAGE_STATE;
             break;

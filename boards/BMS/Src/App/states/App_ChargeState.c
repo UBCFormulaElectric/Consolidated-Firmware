@@ -1,9 +1,13 @@
 #include "states/App_AllStates.h"
+#include "states/App_InitState.h"
+#include "states/App_ChargeState.h"
 #include "states/App_FaultState.h"
+#include "states/App_BalanceState.h"
+#include "App_SharedMacros.h"
 
 // Ignore the charger fault signal for the first 500 cycles (5 seconds)
 #define CYCLES_TO_IGNORE_CHGR_FAULT (500U)
-#define MAX_CELL_VOLTAGE_THRESHOLD (4.15f)
+#define MIN_BALANCING_CELL_VOLTAGE (3.8f)
 
 static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -31,6 +35,8 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
         struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
 
+        const struct State *next_state = App_GetChargeState();
+
         static uint16_t ignore_chgr_fault_counter = 0U;
         const bool      is_charger_disconnected   = !App_Charger_IsConnected(charger);
         bool            has_charger_faulted       = false;
@@ -44,23 +50,32 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
             has_charger_faulted = App_Charger_HasFaulted(charger);
         }
 
-        uint8_t    segment = 0U;
-        uint8_t    cell    = 0U;
-        const bool has_reached_max_v =
-            App_Accumulator_GetMaxVoltage(accumulator, &segment, &cell) > MAX_CELL_VOLTAGE_THRESHOLD;
+        uint8_t     segment          = 0U;
+        uint8_t     cell             = 0U;
+        const bool has_reached_max_v = App_Accumulator_GetMaxVoltage(accumulator, &segment, &cell) > MAX_CELL_V_TARGET;
+        App_CanTx_SetPeriodicSignal_IS_CHARGING_COMPLETE(can_tx, has_reached_max_v);
 
         App_CanTx_SetPeriodicSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(can_tx, is_charger_disconnected);
         App_CanTx_SetPeriodicSignal_CHARGER_FAULT_DETECTED(can_tx, has_charger_faulted);
-        App_CanTx_SetPeriodicSignal_IS_CHARGING_COMPLETE(can_tx, has_reached_max_v);
         App_SharedErrorTable_SetError(
             error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE, is_charger_disconnected);
         App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_CHARGER_FAULT_DETECTED, has_charger_faulted);
         App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_HAS_REACHED_MAX_V, has_reached_max_v);
 
-        if (is_charger_disconnected || has_charger_faulted || has_reached_max_v)
+        const float min_cell_v       = App_Accumulator_GetMinVoltage(accumulator, &segment, &cell);
+        const bool  is_pack_balanced = (App_Accumulator_GetMaxVoltage(accumulator, &segment, &cell) - min_cell_v) <=
+                                       CONVERT_100UV_TO_VOLTAGE(CELL_VOLTAGE_DISCHARGE_WINDOW_UV);
+
+        if (is_charger_disconnected || has_charger_faulted)
         {
-            App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+            next_state = App_GetFaultState();
         }
+        else if (has_reached_max_v || (!is_pack_balanced && (min_cell_v > MIN_BALANCING_CELL_VOLTAGE)))
+        {
+            next_state = App_GetBalanceState();
+        }
+
+        App_SharedStateMachine_SetNextState(state_machine, next_state);
     }
 }
 

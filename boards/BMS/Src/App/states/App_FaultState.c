@@ -15,26 +15,15 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 
 static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
-    struct BmsWorld *const   world       = App_SharedStateMachine_GetWorld(state_machine);
-    struct Airs *const       airs        = App_BmsWorld_GetAirs(world);
-    struct ErrorTable *const error_table = App_BmsWorld_GetErrorTable(world);
-
     App_AllStatesRunOnTick1Hz(state_machine);
-
-    if (!App_SharedErrorTable_HasAnyAirShutdownErrorSet(error_table) && !App_Airs_IsAirNegativeClosed(airs))
-    {
-        App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
-    }
 }
 
 static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    App_AllStatesRunOnTick100Hz(state_machine);
-
     struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     struct Airs *    airs  = App_BmsWorld_GetAirs(world);
 
-    if (!App_Airs_IsAirNegativeClosed(airs))
+    if (App_AllStatesRunOnTick100Hz(state_machine) && !App_Airs_IsAirNegativeClosed(airs))
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
     }

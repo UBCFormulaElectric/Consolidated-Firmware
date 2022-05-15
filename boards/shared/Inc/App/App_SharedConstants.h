@@ -43,3 +43,11 @@ typedef enum
     ACCUMULATOR_SEGMENT_5,
     NUM_OF_ACCUMULATOR_SEGMENTS,
 } AccumulatorSegments_E;
+
+// Charging target voltage in V
+#define MAX_CELL_V_TARGET (4.15f)
+
+// Conversion factor used to convert raw voltages (100µV) to voltages (V)
+#define V_PER_100UV (1E-4f)
+#define CELL_VOLTAGE_DISCHARGE_WINDOW_UV  (600U)
+
