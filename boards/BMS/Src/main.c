@@ -38,6 +38,7 @@
 #include "Io_SharedHeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
 #include "Io_Charger.h"
+#include "Io_CurrentSense.h"
 #include "Io_OkStatuses.h"
 #include "Io_LTC6813/Io_LTC6813Shared.h"
 #include "Io_LTC6813/Io_LTC6813CellVoltages.h"
@@ -241,7 +242,10 @@ int main(void)
         Io_LTC6813CellTemperatures_GetMaxTempDegC, Io_LTC6813CellTemperatures_GetAverageTempDegC,
         Io_LTC6813Shared_EnableDischarge, Io_LTC6813Shared_DisableDischarge);
 
-    ts = App_TractiveSystem_Create(Io_Adc_GetAdc1Channel3Voltage, Io_VoltageSense_GetTractiveSystemVoltage);
+    ts = App_TractiveSystem_Create(
+        Io_Adc_GetAdc1Channel3Voltage, Io_VoltageSense_GetTractiveSystemVoltage, Io_Adc_GetAdc2Channel1Voltage,
+        Io_CurrentSense_GetHighResolutionMainCurrent, Io_Adc_GetAdc2Channel3Voltage,
+        Io_CurrentSense_GetLowResolutionMainCurrent);
 
     airs = App_Airs_Create(
         Io_Airs_IsAirPositiveClosed, Io_Airs_IsAirNegativeClosed, Io_Airs_CloseAirPositive, Io_Airs_OpenAirPositive);

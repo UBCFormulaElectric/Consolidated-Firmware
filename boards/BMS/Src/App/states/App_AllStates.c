@@ -136,6 +136,8 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_HAS_PEC_ERROR, has_acc_comms_error);
 
     App_CanTx_SetPeriodicSignal_TS_VOLTAGE(can_tx, App_TractiveSystem_GetVoltage(ts));
+    App_CanTx_SetPeriodicSignal_HIGH_RES_CURRENT(can_tx, App_TractiveSystem_GetHighResCurrent(ts));
+    App_CanTx_SetPeriodicSignal_LOW_RES_CURRENT(can_tx, App_TractiveSystem_GetLowResCurrent(ts));
     App_CanTx_SetPeriodicSignal_AIR_NEGATIVE(can_tx, App_Airs_IsAirNegativeClosed(airs));
     App_CanTx_SetPeriodicSignal_AIR_POSITIVE(can_tx, App_Airs_IsAirPositiveClosed(airs));
     App_SetPeriodicCanSignals_Imd(can_tx, imd);

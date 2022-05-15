@@ -1,13 +1,30 @@
 #include <stddef.h>
+#include <math.h>
 #include "Io_CurrentSense.h"
 
-ExitCode Io_CurrentSense_ConvertToLowResolutionMainCurrent(float adc_voltage, float *low_res_main_current)
+// Offset voltage of output 1. Found to be 2.49V through testing
+#define OUTPUT_1_OFFSET (2.49f)
+// Sensitivity of output 1: 40mV/A
+#define OUTPUT_1_SENSITIVITY (40e-3f)
+// Voltage divider between sensor output and adc input.
+#define OUTPUT_1_DIV (2.2f / (1.1f + 2.2f))
+
+// Offset voltage of output 2. Found to be 2.49V through testing
+#define OUTPUT_2_OFFSET (2.49f)
+// Sensitivity of output 2: 6.67mV/A
+#define OUTPUT_2_SENSITIVITY (6.67e-3f)
+// Voltage divider between sensor output and adc input.
+#define OUTPUT_2_DIV (2.2f / (1.1f + 2.2f))
+
+// Gain of the current sense amplifier
+#define AIR_LOOP_GAIN (20.0f)
+// Value of shunt resistor
+#define AIR_LOOP_SHUNT_RES (75.0e-3f)
+
+float Io_CurrentSense_GetHighResolutionMainCurrent(float adc_voltage)
 {
     if (adc_voltage < 0.0f)
-        return EXIT_CODE_OUT_OF_RANGE;
-
-    if (low_res_main_current == NULL)
-        return EXIT_CODE_INVALID_ARGS;
+        return NAN;
 
     // HSNBV-D06 Output 1 (+/- 50A):
     //
@@ -30,22 +47,17 @@ ExitCode Io_CurrentSense_ConvertToLowResolutionMainCurrent(float adc_voltage, fl
     //
     // Sensitivity = 40mV/A
 
-    const float offset             = 2.5f;
-    const float sensitivity        = 40e-3f;
-    const float hsnbv_d06_output_1 = adc_voltage * (1e3f + 2.2e3f) / 2.2e3f;
+    const float hsnbv_d06_output_1 = adc_voltage * 1.0f / OUTPUT_1_DIV;
 
-    *low_res_main_current = (hsnbv_d06_output_1 - offset) / sensitivity;
+    float high_res_main_current = (hsnbv_d06_output_1 - OUTPUT_1_OFFSET) / OUTPUT_1_SENSITIVITY;
 
-    return EXIT_CODE_OK;
+    return high_res_main_current;
 }
 
-ExitCode Io_CurrentSense_ConvertToHighResolutionMainCurrent(float adc_voltage, float *high_res_main_current)
+float Io_CurrentSense_GetLowResolutionMainCurrent(float adc_voltage)
 {
     if (adc_voltage < 0.0f)
-        return EXIT_CODE_OUT_OF_RANGE;
-
-    if (high_res_main_current == NULL)
-        return EXIT_CODE_INVALID_ARGS;
+        return NAN;
 
     // HSNBV-D06 Output 2 (+/- 300A):
     //
@@ -68,31 +80,31 @@ ExitCode Io_CurrentSense_ConvertToHighResolutionMainCurrent(float adc_voltage, f
     //
     // Sensitivity = 6.67mV/A
 
-    const float offset             = 2.5f;
-    const float sensitivity        = 6.67e-3f;
-    const float hsnbv_d06_output_2 = adc_voltage * (1e3f + 2.2e3f) / 2.2e3f;
+    const float hsnbv_d06_output_2 = adc_voltage * 1 / OUTPUT_2_DIV;
 
-    *high_res_main_current = (hsnbv_d06_output_2 - offset) / sensitivity;
+    float low_res_main_current = (hsnbv_d06_output_2 - OUTPUT_2_OFFSET) / OUTPUT_2_SENSITIVITY;
 
-    return EXIT_CODE_OK;
+    return low_res_main_current;
 }
 
-ExitCode Io_CurrentSense_ConvertToAirLoopCurrent(float adc_voltage, float *air_loop_current)
+float Io_CurrentSense_GetAirLoopCurrent(float adc_voltage)
 {
     if (adc_voltage < 0.0f)
-        return EXIT_CODE_OUT_OF_RANGE;
+        return NAN;
 
-    if (air_loop_current == NULL)
-        return EXIT_CODE_INVALID_ARGS;
-
+    //   +-------<0.075>-------+
+    //   |                     |
+    //   |  +---------------+  |
+    //   +--| Current Sense |--+
+    //      |   Amplifier   |------
+    //      +---------------+
+    //
+    // Gain = 20V/V
     //                   ADC Voltage
     // Current = -----------------------------
     //              Sense Resistance * Gain
 
-    const float sense_resistance_ohms = 75e-3f;
-    const float gain                  = 20.0f;
+    float air_loop_current = adc_voltage / (AIR_LOOP_SHUNT_RES * AIR_LOOP_GAIN);
 
-    *air_loop_current = adc_voltage / (sense_resistance_ohms * gain);
-
-    return EXIT_CODE_OK;
+    return air_loop_current;
 }
