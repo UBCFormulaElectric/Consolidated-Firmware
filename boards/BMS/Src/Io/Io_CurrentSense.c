@@ -2,19 +2,19 @@
 #include <math.h>
 #include "Io_CurrentSense.h"
 
-// Offset voltage of output 1. Found to be 2.49V through testing
-#define OUTPUT_1_OFFSET (2.49f)
+// Offset voltage of output 1. Found to be 2.45V through testing
+#define OUTPUT_1_OFFSET (2.45f)
 // Sensitivity of output 1: 40mV/A
 #define OUTPUT_1_SENSITIVITY (40e-3f)
 // Voltage divider between sensor output and adc input.
-#define OUTPUT_1_DIV (2.2f / (1.1f + 2.2f))
+#define OUTPUT_1_DIV (2.155f / (1.1f + 2.155f))
 
-// Offset voltage of output 2. Found to be 2.49V through testing
-#define OUTPUT_2_OFFSET (2.49f)
+// Offset voltage of output 2. Found to be 2.45V through testing
+#define OUTPUT_2_OFFSET (2.45f)
 // Sensitivity of output 2: 6.67mV/A
 #define OUTPUT_2_SENSITIVITY (6.67e-3f)
 // Voltage divider between sensor output and adc input.
-#define OUTPUT_2_DIV (2.2f / (1.1f + 2.2f))
+#define OUTPUT_2_DIV (2.155f / (1.1f + 2.155f))
 
 // Gain of the current sense amplifier
 #define AIR_LOOP_GAIN (20.0f)
