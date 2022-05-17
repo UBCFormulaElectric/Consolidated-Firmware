@@ -12,6 +12,12 @@ def _format_decimal(value, is_float=False):
     else:
         return str(value)
 
+def _generate_clamp_fixed_pt(signal):
+    minimum = format_float(signal.decimal.minimum)
+    maximum = format_float(signal.decimal.maximum)
+
+    return 'value = (value < {minimum}) ? {minimum} : (value > {maximum}) ? {maximum} : value;'.format(minimum=minimum, maximum=maximum)
+
 def _generate_clamp(signal):
     """
     Generate a clamping expression for a given CAN signal value
@@ -123,15 +129,12 @@ class AppCanTxFileGenerator(CanFileGenerator):
             'Destroy a CAN TX interface, freeing the memory associated with it',
             '''    free(can_tx_interface);''')
 
-        lst = []
-
+        # Generate CAN TX setter functions
+        can_tx_setter = []
         for msg in self._periodic_cantx_msgs:
             for signal in msg.signals:
-
-                clamp = _generate_clamp(signal)
-             
                 if signal.is_float:
-                    lst.append(Function(
+                    can_tx_setter.append(Function(
                         'void %s_SetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface, %s value)' % (
                         function_prefix, signal.snake_name.upper(), self._sender.capitalize(), signal.type_name),
                         '',
@@ -147,9 +150,10 @@ class AppCanTxFileGenerator(CanFileGenerator):
         can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name} = value;
     }}'''.format(msg_snakecase_name=msg.snake_name,
                  signal_snakecase_name=signal.snake_name,
-                 clamp=clamp)))
-                else:
-                    lst.append(Function(
+                 clamp=_generate_clamp(signal))))
+
+                elif signal.decimal.scale == 1:
+                    can_tx_setter.append(Function(
                         'void %s_SetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface, %s value)' % (
                         function_prefix, signal.snake_name.upper(), self._sender.capitalize(), signal.type_name),
                         '',
@@ -159,19 +163,54 @@ class AppCanTxFileGenerator(CanFileGenerator):
     can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name} = value;'''.format(
             msg_snakecase_name=msg.snake_name,
             signal_snakecase_name=signal.snake_name,
-            clamp=clamp)))
+            clamp=_generate_clamp(signal))))
+                else:
+                    offset = signal.decimal.offset
+                    can_tx_setter.append(Function(
+                        'void %s_SetPeriodicSignal_%s(struct %sCanTxInterface* can_tx_interface, %s value)' % (
+                            function_prefix, signal.snake_name.upper(), self._sender.capitalize(), 'float'),
+                        '',
+                        '''\
+    // Clamp the given value if it is out of range
+    {clamp}
+    can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name} = ({type_name})((value {offset_sign} {offset}) * {scale});'''.format(msg_snakecase_name=msg.snake_name,
+                                    signal_snakecase_name=signal.snake_name,
+                                    offset_sign='+' if (offset < 0.0) else '-',
+                                    offset=format_float(abs(offset)),
+                                    scale=format_float((1.0 / float(signal.decimal.scale))),
+                                    type_name=signal.type_name,
+                                    clamp=_generate_clamp_fixed_pt(signal))))
+        self._PeriodicTxSignalSetters = can_tx_setter
 
-        self._PeriodicTxSignalSetters = lst
-
-        self._PeriodicTxSignalGetters = list(Function(
-            '%s %s_GetPeriodicSignal_%s(const struct %sCanTxInterface* can_tx_interface)' % (
-            signal.type_name, function_prefix, signal.snake_name.upper(), self._sender.capitalize()),
-            '',
-            '''\
+        # Generate CAN TX getter functions
+        can_tx_getter = []
+        for msg in self._periodic_cantx_msgs:
+            for signal in msg.signals:
+                if signal.decimal.scale == 1:
+                    can_tx_getter.append(Function(
+                        '%s %s_GetPeriodicSignal_%s(const struct %sCanTxInterface* can_tx_interface)' % (
+                            signal.type_name, function_prefix, signal.snake_name.upper(), self._sender.capitalize()),
+                        '',
+                        '''\
     return can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name};'''.format(
-                msg_snakecase_name=msg.snake_name,
-                signal_snakecase_name=signal.snake_name)
-        ) for msg in self._periodic_cantx_msgs for signal in msg.signals)
+                            msg_snakecase_name=msg.snake_name,
+                            signal_snakecase_name=signal.snake_name)
+                ))
+                else:
+                    offset = signal.decimal.offset
+                    can_tx_getter.append(Function(
+                        'float %s_GetPeriodicSignal_%s(const struct %sCanTxInterface* can_tx_interface)' % (
+                            function_prefix, signal.snake_name.upper(), self._sender.capitalize()),
+                        '',
+                        '''\
+    return (float)(can_tx_interface->periodic_can_tx_table.{msg_snakecase_name}.{signal_snakecase_name}) * {scale} {offset_sign} {offset};'''.format(
+                            msg_snakecase_name=msg.snake_name,
+                            signal_snakecase_name=signal.snake_name,
+                            offset_sign='-' if (offset < 0.0) else '+',
+                            offset=format_float(abs(offset)),
+                            scale=format_float(signal.decimal.scale),
+                            type_name=signal.type_name)))
+        self._PeriodicTxSignalGetters = can_tx_getter
 
         self._PeriodicTxMsgPointerGetters = list(Function(
             'const struct CanMsgs_%s_t* %s_GetPeriodicMsgPointer_%s(const struct %sCanTxInterface* can_tx_interface)' % (

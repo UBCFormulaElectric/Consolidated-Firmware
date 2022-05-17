@@ -283,7 +283,6 @@ SG_ Direction_Command_INVR : 32|1@1+ (1,0) [0|1] "Bit" INVR
 SG_ Speed_Command_INVR : 16|16@1- (1,0) [-32768|32767] "rpm" INVR
 SG_ Torque_Command_INVR : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVR
 SG_ Inverter_Discharge_INVR : 41|1@1+ (1,0) [0|1] "Bit" INVR
-SG_ Torque_Limit_Command_INVR : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVR
 SG_ Speed_Mode_Enable_INVR : 42|1@1+ (1,0) [0|1] "Bit" INVR
 SG_ RollingCounter_INVR : 44|4@1+ (1,0) [0|15] "Bits" INVR
 

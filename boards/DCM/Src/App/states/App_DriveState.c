@@ -100,10 +100,8 @@ static void DriveStateRunOnExit(struct StateMachine *const state_machine)
         can_tx_interface, CANMSGS_DCM_INVL_COMMAND_MESSAGE_INVERTER_ENABLE_INVL_OFF_CHOICE);
     App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVR(
         can_tx_interface, CANMSGS_DCM_INVR_COMMAND_MESSAGE_INVERTER_ENABLE_INVR_OFF_CHOICE);
-    App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
-        can_tx_interface, App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(0.0f));
-    App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVR(
-        can_tx_interface, App_CanMsgs_dcm_invr_command_message_torque_command_invr_encode(0.0f));
+    App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface, 0U);
+    App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface, 0U);
 }
 
 const struct State *App_GetDriveState(void)
