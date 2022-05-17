@@ -21,8 +21,8 @@ struct Accumulator *App_Accumulator_Create(
     float (*get_min_cell_temp)(uint8_t *, uint8_t *),
     float (*get_max_cell_temp)(uint8_t *, uint8_t *),
     float (*get_avg_cell_temp)(void),
-    bool (*enable_discharge)(void),
-    bool (*disable_discharge)(void));
+    bool (*enable_balancing)(void),
+    bool (*disable_balancing)(void));
 
 /**
  * Deallocate the memory used by the given accumulator.
@@ -85,6 +85,14 @@ float App_Accumulator_GetMaxCellTempDegC(
  * @return The average cell temp in degC
  */
 float App_Accumulator_GetAvgCellTempDegC(const struct Accumulator *const accumulator);
+
+void App_Accumulator_SetIsCellBalancingEnabled(struct Accumulator *const accumulator, bool is_cell_balancing_enabled);
+
+bool App_Accumulator_IsPackFullyCharged(struct Accumulator *const accumulator);
+
+bool App_Accumulator_HasCellReachedMaxVoltageTarget(struct Accumulator *const accumulator);
+
+bool App_Accumulator_IsPackBalanced(struct Accumulator *const accumulator);
 
 /**
  * Get the pack voltage in V

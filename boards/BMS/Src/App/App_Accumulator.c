@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include "App_Accumulator.h"
+#include "App_SharedMacros.h"
 
 // Max number of PEC15 to occur before faulting
 #define MAX_NUM_COMM_TRIES (3U)
@@ -25,6 +26,8 @@ enum AccumulatorMonitorState
 struct Accumulator
 {
     uint8_t num_comm_tries;
+    bool    is_cell_balancing_enabled;
+    bool    is_pack_fully_charged;
 
     // Configure the cell monitoring chip
     bool (*config_monitoring_chip)(void);
@@ -46,8 +49,8 @@ struct Accumulator
     float (*get_max_cell_temp)(uint8_t *, uint8_t *);
     float (*get_avg_cell_temp)(void);
 
-    bool (*enable_discharge)(void);
-    bool (*disable_discharge)(void);
+    bool (*enable_balancing)(void);
+    bool (*disable_balancing)(void);
 };
 
 struct Accumulator *App_Accumulator_Create(
@@ -65,17 +68,20 @@ struct Accumulator *App_Accumulator_Create(
     float (*get_min_cell_temp)(uint8_t *, uint8_t *),
     float (*get_max_cell_temp)(uint8_t *, uint8_t *),
     float (*get_avg_cell_temp)(void),
-    bool (*enable_discharge)(void),
-    bool (*disable_discharge)(void))
+    bool (*enable_balancing)(void),
+    bool (*disable_balancing)(void))
 {
     struct Accumulator *accumulator = malloc(sizeof(struct Accumulator));
     assert(accumulator != NULL);
+
+    accumulator->num_comm_tries            = 0U;
+    accumulator->is_cell_balancing_enabled = false;
+    accumulator->is_pack_fully_charged     = false;
 
     accumulator->config_monitoring_chip = config_monitoring_chip;
     accumulator->write_cfg_registers    = write_cfg_registers;
 
     // Cell voltage monitoring functions
-    accumulator->num_comm_tries          = 0U;
     accumulator->read_cell_voltages      = read_cell_voltages;
     accumulator->start_cell_voltage_conv = start_voltage_conv;
     accumulator->get_min_cell_voltage    = get_min_cell_voltage;
@@ -91,8 +97,8 @@ struct Accumulator *App_Accumulator_Create(
     accumulator->get_max_cell_temp      = get_max_cell_temp;
     accumulator->get_avg_cell_temp      = get_avg_cell_temp;
 
-    accumulator->enable_discharge  = enable_discharge;
-    accumulator->disable_discharge = disable_discharge;
+    accumulator->enable_balancing  = enable_balancing;
+    accumulator->disable_balancing = disable_balancing;
 
     return accumulator;
 }
@@ -110,12 +116,6 @@ bool App_Accumulator_HasCommunicationError(const struct Accumulator *const accum
 float App_Accumulator_GetPackVoltage(struct Accumulator *accumulator)
 {
     return accumulator->get_pack_voltage();
-}
-
-void App_Accumulator_InitRunOnEntry(const struct Accumulator *const accumulator)
-{
-    // Configure the cell monitoring chips. Disable discharge at startup
-    accumulator->config_monitoring_chip();
 }
 
 float App_Accumulator_GetMaxVoltage(const struct Accumulator *const accumulator, uint8_t *segment, uint8_t *cell)
@@ -149,14 +149,35 @@ float App_Accumulator_GetAvgCellTempDegC(const struct Accumulator *const accumul
     return accumulator->get_avg_cell_temp();
 }
 
-bool App_Accumulator_EnableDischarge(const struct Accumulator *const accumulator)
+void App_Accumulator_SetIsCellBalancingEnabled(struct Accumulator *const accumulator, bool is_cell_balancing_enabled)
 {
-    return accumulator->enable_discharge();
+    accumulator->is_cell_balancing_enabled = is_cell_balancing_enabled;
 }
 
-bool App_Accumulator_DisableDischarge(const struct Accumulator *const accumulator)
+bool App_Accumulator_HasCellReachedMaxVoltageTarget(struct Accumulator *const accumulator)
 {
-    return accumulator->disable_discharge();
+    uint8_t segment = 0U;
+    uint8_t cell    = 0U;
+    return accumulator->get_max_cell_voltage(&segment, &cell) >= MAX_CELL_V_TARGET;
+}
+
+bool App_Accumulator_IsPackBalanced(struct Accumulator *const accumulator)
+{
+    uint8_t segment = 0U;
+    uint8_t cell    = 0U;
+    return (accumulator->get_max_cell_voltage(&segment, &cell) - accumulator->get_min_cell_voltage(&segment, &cell)) <
+           CONVERT_100UV_TO_VOLTAGE(CELL_VOLTAGE_BALANCING_WINDOW_UV);
+}
+
+bool App_Accumulator_IsPackFullyCharged(struct Accumulator *const accumulator)
+{
+    return App_Accumulator_IsPackBalanced(accumulator) && App_Accumulator_HasCellReachedMaxVoltageTarget(accumulator);
+}
+
+void App_Accumulator_InitRunOnEntry(const struct Accumulator *const accumulator)
+{
+    // Configure the cell monitoring chips. Disable discharge at startup
+    accumulator->config_monitoring_chip();
 }
 
 void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
@@ -169,10 +190,17 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
 
             UPDATE_PEC15_ERROR_COUNT(accumulator->read_cell_voltages(), accumulator->num_comm_tries)
 
-            // Write to configuration register to configure cell discharging
-            // TODO: re-enable
-            // accumulator->write_cfg_registers();
-            accumulator->disable_discharge();
+            if (accumulator->is_cell_balancing_enabled)
+            {
+                accumulator->enable_balancing();
+            }
+            else
+            {
+                accumulator->disable_balancing();
+            }
+
+            // Write to configuration register to configure cells to discharge
+            accumulator->write_cfg_registers();
 
             // Start cell voltage conversions for the next cycle
             accumulator->start_cell_temp_conv();
@@ -184,8 +212,8 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
             UPDATE_PEC15_ERROR_COUNT(accumulator->read_cell_temperatures(), accumulator->num_comm_tries)
 
             // Start cell voltage conversions for the next cycle
+            accumulator->disable_balancing();
             accumulator->start_cell_voltage_conv();
-            accumulator->disable_discharge();
 
             state = GET_CELL_VOLTAGE_STATE;
             break;

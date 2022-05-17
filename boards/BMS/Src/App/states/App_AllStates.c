@@ -1,4 +1,6 @@
 #include "states/App_AllStates.h"
+#include "states/App_BalanceState.h"
+#include "states/App_ChargeState.h"
 #include "states/App_FaultState.h"
 #include "App_SetPeriodicCanSignals.h"
 #include "App_Accumulator.h"
@@ -152,6 +154,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_SendAndReceiveHeartbeat(can_tx, can_rx, hb_monitor);
 
+    // Update accumulator voltage and temperature readings
     App_Accumulator_RunOnTick100Hz(accumulator);
     App_CheckCellVoltageRange(can_tx, error_table, accumulator);
     App_CheckCellTemperatureRange(can_tx, error_table, accumulator);

@@ -18,12 +18,12 @@ bool Io_LTC6813CellVoltages_ReadVoltages(void);
 bool Io_LTC6813CellVoltages_StartAdcConversion(void);
 
 /**
- * Get a one-hot coded number indicating cells to discharge
- * @param segment The segment containing cells to discharge
- * @return A one-hot coded number indicating cells to discharge. Within the
- * hot-coded number 1 indicates discharge, while 0 indicates no discharge
+ * Get a one-hot coded number indicating cells to balance
+ * @param segment The segment containing cells to balance
+ * @return A one-hot coded number indicating cells to balance. Within the
+ * hot-coded number, 1 indicates discharge, while 0 indicates no discharging
  */
-uint16_t Io_LTC6813CellVoltages_GetCellsToDischarge(AccumulatorSegments_E segment);
+uint16_t Io_LTC6813CellVoltages_GetCellsToBalance(AccumulatorSegments_E segment);
 
 /**
  * Get the location of the minimum cell voltage

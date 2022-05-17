@@ -1,9 +1,12 @@
 #include "states/App_AllStates.h"
+#include "states/App_InitState.h"
+#include "states/App_ChargeState.h"
 #include "states/App_FaultState.h"
+#include "states/App_BalanceState.h"
+#include "App_SharedMacros.h"
 
 // Ignore the charger fault signal for the first 500 cycles (5 seconds)
 #define CYCLES_TO_IGNORE_CHGR_FAULT (500U)
-#define MAX_CELL_VOLTAGE_THRESHOLD (4.15f)
 
 static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -36,7 +39,10 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         const bool      is_charger_disconnected        = !App_Charger_IsConnected(charger);
         bool            has_charger_faulted            = false;
         bool            has_external_shutdown_occurred = !App_Airs_IsAirNegativeClosed(airs);
+        const struct State *next_state                = App_GetChargeState();
 
+        // Charger takes a couple of cycles until the fault signal is de-asserted. Ignore the charger fault for the
+        // first 5 seconds
         if (ignore_chgr_fault_counter < CYCLES_TO_IGNORE_CHGR_FAULT)
         {
             ignore_chgr_fault_counter++;
@@ -46,11 +52,10 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
             has_charger_faulted = App_Charger_HasFaulted(charger);
         }
 
-        uint8_t    segment = 0U;
+	 uint8_t    segment = 0U;
         uint8_t    cell    = 0U;
         const bool has_reached_max_v =
             App_Accumulator_GetMaxVoltage(accumulator, &segment, &cell) > MAX_CELL_VOLTAGE_THRESHOLD;
-
         App_CanTx_SetPeriodicSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(can_tx, is_charger_disconnected);
         App_CanTx_SetPeriodicSignal_CHARGER_FAULT_DETECTED(can_tx, has_charger_faulted);
         App_CanTx_SetPeriodicSignal_IS_CHARGING_COMPLETE(can_tx, has_reached_max_v);
@@ -65,8 +70,21 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         if (is_charger_disconnected || has_charger_faulted || has_reached_max_v || has_external_shutdown_occurred)
         {
-            App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+	    next_state = App_GetFaultState();
         }
+	else if (App_Accumulator_IsPackFullyCharged(accumulator))
+        {
+            // Charging is complete when the max voltage meets the max voltage target and the pack is balanced
+            App_CanTx_SetPeriodicSignal_IS_CHARGING_COMPLETE(can_tx, true);
+            next_state = App_GetInitState();
+        }
+        else if (App_Accumulator_HasCellReachedMaxVoltageTarget(accumulator))
+        {
+            // Start balancing when the pack is unbalanced, but a cell has reached the max voltage target
+            next_state = App_GetBalanceState();
+        }
+
+        App_SharedStateMachine_SetNextState(state_machine, next_state);
     }
 }
 

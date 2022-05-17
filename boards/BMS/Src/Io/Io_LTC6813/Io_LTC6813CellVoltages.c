@@ -5,7 +5,6 @@
 #include "App_SharedMacros.h"
 
 // clang-format off
-#define NOMINAL_CELL_VOLTAGE          (37000U)
 #define NUM_OF_CELLS_PER_SEGMENT      (16U)
 #define TOTAL_NUM_OF_CELLS            (NUM_OF_CELLS_PER_SEGMENT * NUM_OF_ACCUMULATOR_SEGMENTS)
 
@@ -19,9 +18,6 @@
 #define RDCVD (0x0A00U)
 #define RDCVE (0x0900U)
 #define RDCVF (0x0B00U)
-
-#define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * V_PER_100UV)
-#define CELL_VOLTAGE_DISCHARGE_WINDOW_UV  (600U)
 
 // clang-format on
 
@@ -60,7 +56,7 @@ static struct Voltages voltages = { 0U };
 static uint16_t cell_voltages[NUM_OF_ACCUMULATOR_SEGMENTS][NUM_OF_CELL_V_REG_GROUPS][NUM_OF_READINGS_PER_REG_GROUP] = {
     0U
 };
-static uint16_t discharge_bits[NUM_OF_ACCUMULATOR_SEGMENTS] = { 0U };
+static uint16_t cells_to_balance[NUM_OF_ACCUMULATOR_SEGMENTS] = { 0U };
 
 /**
  * A function that can be called to update min/max cell voltages, segment
@@ -81,7 +77,7 @@ static bool Io_ParseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t 
  * recent value for the minimum voltage A function to enable the discharge bits
  * when their voltages are greater than 200uV from the minimum cell voltage
  */
-static void Io_SetDischargeBits(void);
+static void Io_SetCellsToBalance(void);
 
 static void Io_UpdateCellVoltages(void)
 {
@@ -171,9 +167,9 @@ static bool Io_ParseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t 
     return status;
 }
 
-static void Io_SetDischargeBits(void)
+static void Io_SetCellsToBalance(void)
 {
-    memset(discharge_bits, 0U, sizeof(discharge_bits));
+    memset(cells_to_balance, 0U, sizeof(cells_to_balance));
 
     for (uint8_t curr_segment = 0U; curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS; curr_segment++)
     {
@@ -184,9 +180,9 @@ static void Io_SetDischargeBits(void)
                 if ((curr_reg_group != CELL_V_REG_GROUP_F) || (curr_cell == 0U))
                 {
                     if (cell_voltages[curr_segment][curr_reg_group][curr_cell] >
-                        (voltages.min.voltage + CELL_VOLTAGE_DISCHARGE_WINDOW_UV))
+                        (voltages.min.voltage + CELL_VOLTAGE_BALANCING_WINDOW_UV))
                     {
-                        discharge_bits[curr_segment] |=
+                        cells_to_balance[curr_segment] |=
                             (uint16_t)(1U << (curr_reg_group * NUM_OF_READINGS_PER_REG_GROUP + curr_cell));
                     }
                 }
@@ -228,8 +224,8 @@ bool Io_LTC6813CellVoltages_ReadVoltages(void)
         // and segment voltages
         Io_UpdateCellVoltages();
 
-        // Set bits to discharge for a given segment
-        Io_SetDischargeBits();
+        // Set cells to balance for a given segment
+        Io_SetCellsToBalance();
     }
     else
     {
@@ -239,9 +235,9 @@ bool Io_LTC6813CellVoltages_ReadVoltages(void)
     return status;
 }
 
-uint16_t Io_LTC6813CellVoltages_GetCellsToDischarge(AccumulatorSegments_E segment)
+uint16_t Io_LTC6813CellVoltages_GetCellsToBalance(AccumulatorSegments_E segment)
 {
-    return discharge_bits[segment];
+    return cells_to_balance[segment];
 }
 
 bool Io_LTC6813CellVoltages_StartAdcConversion(void)

@@ -1,14 +1,14 @@
 #include "states/App_AllStates.h"
-#include "states/App_DriveState.h"
 #include "states/App_FaultState.h"
 #include "App_SetPeriodicCanSignals.h"
 #include "App_SharedMacros.h"
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    struct BmsWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
-    struct BmsCanTxInterface *can_tx_interface = App_BmsWorld_GetCanTx(world);
-    App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE);
+    struct BmsWorld *         world  = App_SharedStateMachine_GetWorld(state_machine);
+    struct BmsCanTxInterface *can_tx = App_BmsWorld_GetCanTx(world);
+
+    App_CanTx_SetPeriodicSignal_STATE(can_tx, CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE);
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "App_SharedConstants.h"
+
 // clang-format off
 
 #ifdef __arm__
@@ -29,6 +31,10 @@
 // Convert seconds to milliseconds
 #define S_TO_MS(time_s) ((uint32_t)((time_s) * 1000U))
 
+// Convert seconds to hours
+#define SECONDS_TO_HOUR(s) ((s) * (1/3600.0f))
+
 #define IS_IN_RANGE(min,max,val) (((val) > (min)) && ((val) < (max)))
 
-#define SECONDS_TO_HOUR(s) ((s) * (1/3600.0f))
+#define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * V_PER_100UV)
+
