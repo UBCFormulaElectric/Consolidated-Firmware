@@ -5,16 +5,16 @@
 // Offset voltage of output 1. Found to be 2.45V through testing
 #define OUTPUT_1_OFFSET (2.45f)
 // Sensitivity of output 1: 40mV/A
-#define OUTPUT_1_SENSITIVITY (40e-3f)
-// Voltage divider between sensor output and adc input.
-#define OUTPUT_1_DIV (2.155f / (1.1f + 2.155f))
+#define OUTPUT_1_SENSITIVITY (1.0f / 40e-3f)
+// Voltage divider from adc --> current sensor output
+#define OUTPUT_1_DIV ((1.1f + 2.155f) / (2.155f))
 
 // Offset voltage of output 2. Found to be 2.45V through testing
 #define OUTPUT_2_OFFSET (2.45f)
 // Sensitivity of output 2: 6.67mV/A
-#define OUTPUT_2_SENSITIVITY (6.67e-3f)
-// Voltage divider between sensor output and adc input.
-#define OUTPUT_2_DIV (2.155f / (1.1f + 2.155f))
+#define OUTPUT_2_SENSITIVITY (1.0f / 6.67e-3f)
+// Voltage divider from adc --> current sensor output
+#define OUTPUT_2_DIV ((1.1f + 2.155f) / (2.155f))
 
 // Gain of the current sense amplifier
 #define AIR_LOOP_GAIN (20.0f)
@@ -37,9 +37,9 @@ float Io_CurrentSense_GetHighResolutionMainCurrent(float adc_voltage)
     //                                ===
     //                                GND
     //
-    //             HSNBV-D06 Output 1 Voltage - Offset Voltage
-    // Current = ------------------------------------------------
-    //                             Sensitivity
+    //                                                                 1
+    // Current = (HSNBV-D06 Output 1 Voltage - Offset Voltage) x ---------------
+    //                                                             Sensitivity
     //                                              1k + 2.2k
     // HSNBV-D06 Output 1 Voltage = ADC Voltage x --------------
     //                                                 2.2k
@@ -47,11 +47,12 @@ float Io_CurrentSense_GetHighResolutionMainCurrent(float adc_voltage)
     //
     // Sensitivity = 40mV/A
 
-    const float hsnbv_d06_output_1 = adc_voltage * 1.0f / OUTPUT_1_DIV;
+    //Output from current sensor:
+    const float hsnbv_d06_output_1 = adc_voltage * OUTPUT_1_DIV;
 
-    float high_res_main_current = (hsnbv_d06_output_1 - OUTPUT_1_OFFSET) / OUTPUT_1_SENSITIVITY;
+    //Return the current which corresponds to the output voltage
+    return (hsnbv_d06_output_1 - OUTPUT_1_OFFSET) * OUTPUT_1_SENSITIVITY;
 
-    return high_res_main_current;
 }
 
 float Io_CurrentSense_GetLowResolutionMainCurrent(float adc_voltage)
@@ -70,9 +71,9 @@ float Io_CurrentSense_GetLowResolutionMainCurrent(float adc_voltage)
     //                                ===
     //                                GND
     //
-    //             HSNBV-D06 Output 2 Voltage - Offset Voltage
-    // Current = ------------------------------------------------
-    //                             Sensitivity
+    //                                                                 1
+    // Current = (HSNBV-D06 Output 1 Voltage - Offset Voltage) x ---------------
+    //                                                             Sensitivity
     //                                              1k + 2.2k
     // HSNBV-D06 Output 2 Voltage = ADC Voltage x --------------
     //                                                 2.2k
@@ -80,11 +81,11 @@ float Io_CurrentSense_GetLowResolutionMainCurrent(float adc_voltage)
     //
     // Sensitivity = 6.67mV/A
 
-    const float hsnbv_d06_output_2 = adc_voltage * 1 / OUTPUT_2_DIV;
+    //Output from current sensor:
+    const float hsnbv_d06_output_2 = adc_voltage * OUTPUT_2_DIV;
 
-    float low_res_main_current = (hsnbv_d06_output_2 - OUTPUT_2_OFFSET) / OUTPUT_2_SENSITIVITY;
-
-    return low_res_main_current;
+    //Return the current which corresponds to the output voltage
+    return (hsnbv_d06_output_2 - OUTPUT_2_OFFSET) / OUTPUT_2_SENSITIVITY;
 }
 
 float Io_CurrentSense_GetAirLoopCurrent(float adc_voltage)
@@ -104,7 +105,7 @@ float Io_CurrentSense_GetAirLoopCurrent(float adc_voltage)
     // Current = -----------------------------
     //              Sense Resistance * Gain
 
-    float air_loop_current = adc_voltage / (AIR_LOOP_SHUNT_RES * AIR_LOOP_GAIN);
+    //return the current corresponding to the ADC voltage
+    return adc_voltage / (AIR_LOOP_SHUNT_RES * AIR_LOOP_GAIN);
 
-    return air_loop_current;
 }
