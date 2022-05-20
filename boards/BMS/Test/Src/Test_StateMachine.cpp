@@ -14,8 +14,6 @@ extern "C"
 #include "states/App_ChargeState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_ImdConfig.h"
-#include "configs/App_AccumulatorConfigs.h"
-#include "configs/App_AccumulatorThresholds.h"
 }
 
 namespace StateMachineTest
@@ -46,13 +44,6 @@ FAKE_VALUE_FUNC(bool, is_bspd_ok_enabled);
 FAKE_VALUE_FUNC(bool, is_air_negative_closed);
 FAKE_VALUE_FUNC(bool, is_air_positive_closed);
 FAKE_VALUE_FUNC(ExitCode, read_die_temperatures);
-FAKE_VALUE_FUNC(float, get_segment_0_die_temp);
-FAKE_VALUE_FUNC(float, get_segment_1_die_temp);
-FAKE_VALUE_FUNC(float, get_segment_2_die_temp);
-FAKE_VALUE_FUNC(float, get_segment_3_die_temp);
-FAKE_VALUE_FUNC(float, get_segment_4_die_temp);
-FAKE_VALUE_FUNC(float, get_segment_5_die_temp);
-FAKE_VALUE_FUNC(float, get_max_die_temp);
 FAKE_VALUE_FUNC(bool, is_air_negative_on);
 FAKE_VALUE_FUNC(bool, is_air_positive_on);
 FAKE_VOID_FUNC(open_air_positive);
