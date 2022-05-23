@@ -62,10 +62,10 @@ static void App_CheckCellVoltageRange(
     App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE(can_tx, curr_max_cell_voltage);
     App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE_OUT_OF_RANGE(can_tx, is_min_cell_v_out_of_range);
     App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE_OUT_OF_RANGE(can_tx, is_max_cell_v_out_of_range);
-    App_CanTx_SetPeriodicSignal_MIN_CELL_SEGMENT(can_tx, min_segment);
-    App_CanTx_SetPeriodicSignal_MIN_CELL_IDX(can_tx, min_loc);
-    App_CanTx_SetPeriodicSignal_MAX_CELL_SEGMENT(can_tx, max_segment);
-    App_CanTx_SetPeriodicSignal_MAX_CELL_IDX(can_tx, max_loc);
+    App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE_SEGMENT(can_tx, min_segment);
+    App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE_IDX(can_tx, min_loc);
+    App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE_SEGMENT(can_tx, max_segment);
+    App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE_IDX(can_tx, max_loc);
 }
 
 static void App_CheckCellTemperatureRange(
@@ -92,6 +92,10 @@ static void App_CheckCellTemperatureRange(
     App_CanTx_SetPeriodicSignal_MAX_CELL_TEMP_OUT_OF_RANGE(can_tx, is_max_cell_out_of_range);
     App_CanTx_SetPeriodicSignal_MIN_CELL_TEMPERATURE(can_tx, curr_min_cell_temp);
     App_CanTx_SetPeriodicSignal_MAX_CELL_TEMPERATURE(can_tx, curr_max_cell_temp);
+    App_CanTx_SetPeriodicSignal_MIN_TEMP_SEGMENT(can_tx, min_segment);
+    App_CanTx_SetPeriodicSignal_MIN_TEMP_IDX(can_tx, min_loc);
+    App_CanTx_SetPeriodicSignal_MAX_TEMP_SEGMENT(can_tx, max_segment);
+    App_CanTx_SetPeriodicSignal_MAX_TEMP_IDX(can_tx, max_loc);
 }
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
