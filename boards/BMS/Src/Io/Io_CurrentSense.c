@@ -47,12 +47,11 @@ float Io_CurrentSense_GetHighResolutionMainCurrent(float adc_voltage)
     //
     // Sensitivity = 40mV/A
 
-    //Output from current sensor:
+    // Output from current sensor:
     const float hsnbv_d06_output_1 = adc_voltage * OUTPUT_1_DIV;
 
-    //Return the current which corresponds to the output voltage
+    // Return the current which corresponds to the output voltage
     return (hsnbv_d06_output_1 - OUTPUT_1_OFFSET) * OUTPUT_1_SENSITIVITY;
-
 }
 
 float Io_CurrentSense_GetLowResolutionMainCurrent(float adc_voltage)
@@ -81,10 +80,10 @@ float Io_CurrentSense_GetLowResolutionMainCurrent(float adc_voltage)
     //
     // Sensitivity = 6.67mV/A
 
-    //Output from current sensor:
+    // Output from current sensor:
     const float hsnbv_d06_output_2 = adc_voltage * OUTPUT_2_DIV;
 
-    //Return the current which corresponds to the output voltage
+    // Return the current which corresponds to the output voltage
     return (hsnbv_d06_output_2 - OUTPUT_2_OFFSET) / OUTPUT_2_SENSITIVITY;
 }
 
@@ -105,7 +104,6 @@ float Io_CurrentSense_GetAirLoopCurrent(float adc_voltage)
     // Current = -----------------------------
     //              Sense Resistance * Gain
 
-    //return the current corresponding to the ADC voltage
+    // return the current corresponding to the ADC voltage
     return adc_voltage / (AIR_LOOP_SHUNT_RES * AIR_LOOP_GAIN);
-
 }
