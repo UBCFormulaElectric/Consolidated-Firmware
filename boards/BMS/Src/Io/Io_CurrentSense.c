@@ -17,9 +17,9 @@
 #define OUTPUT_2_DIV ((1.1f + 2.155f) / (2.155f))
 
 // Gain of the current sense amplifier
-#define AIR_LOOP_GAIN (20.0f)
+#define AIR_LOOP_GAIN (1.0f / 20.0f)
 // Value of shunt resistor
-#define AIR_LOOP_SHUNT_RES (75.0e-3f)
+#define AIR_LOOP_SHUNT_RES (1.0f / 75.0e-3f)
 
 float Io_CurrentSense_GetHighResolutionMainCurrent(float adc_voltage)
 {
@@ -84,7 +84,7 @@ float Io_CurrentSense_GetLowResolutionMainCurrent(float adc_voltage)
     const float hsnbv_d06_output_2 = adc_voltage * OUTPUT_2_DIV;
 
     // Return the current which corresponds to the output voltage
-    return (hsnbv_d06_output_2 - OUTPUT_2_OFFSET) / OUTPUT_2_SENSITIVITY;
+    return (hsnbv_d06_output_2 - OUTPUT_2_OFFSET) * OUTPUT_2_SENSITIVITY;
 }
 
 float Io_CurrentSense_GetAirLoopCurrent(float adc_voltage)
@@ -105,5 +105,5 @@ float Io_CurrentSense_GetAirLoopCurrent(float adc_voltage)
     //              Sense Resistance * Gain
 
     // return the current corresponding to the ADC voltage
-    return adc_voltage / (AIR_LOOP_SHUNT_RES * AIR_LOOP_GAIN);
+    return adc_voltage * AIR_LOOP_SHUNT_RES * AIR_LOOP_GAIN;
 }
