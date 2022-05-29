@@ -14,7 +14,7 @@ Serial_Number_EEPROM                  ,   1846
 Motor_Type_EEPROM                     ,    198  
 Veh_Flux_EEPROM_(Wb)_x_1000           ,     31  
 Angle_Advance_Factor_EEPROM_x_100     ,      0  
-Gamma_Adjust_EEPROM_(Deg)_x_10        ,      0  
+Gamma_Adjust_EEPROM_(Deg)_x_10        ,   1555  
 Resolver_PWM_Delay_EEPROM_(Counts)    ,   1100  
 Run_Mode_EEPROM(Trq=0_Spd=1)          ,      0  
 Inv_Cmd_Mode_EEPROM(CAN=0_VSM=1)      ,      0  
@@ -32,7 +32,7 @@ CAN_Command_Message_Active_EEPROM     ,      1
 CAN_Bit_Rate_EEPROM_(kbps)            ,    500  
 CAN_ACTIVE_MSGS_EEPROM_(Lo_Word)      ,  65535  
 CAN_ACTIVE_MSGS_EEPROM_(Hi_Word)      ,  65535  
-CAN_Fast_Msg_Rate_EEPROM_(ms)         ,      5  
+CAN_Fast_Msg_Rate_EEPROM_(ms)         ,     10  
 CAN_Slow_Msg_Rate_EEPROM_(ms)         ,    100  
 CAN_Diag_Data_Tx_Active_EEPROM        ,      1  
 CAN_Inv_Enab_Switch_Active_EEPROM     ,      0  

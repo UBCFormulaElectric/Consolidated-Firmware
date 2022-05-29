@@ -32,7 +32,7 @@ CAN_Command_Message_Active_EEPROM     ,      1
 CAN_Bit_Rate_EEPROM_(kbps)            ,    500  
 CAN_ACTIVE_MSGS_EEPROM_(Lo_Word)      ,  65535  
 CAN_ACTIVE_MSGS_EEPROM_(Hi_Word)      ,  65535  
-CAN_Fast_Msg_Rate_EEPROM_(ms)         ,      5  
+CAN_Fast_Msg_Rate_EEPROM_(ms)         ,     10  
 CAN_Slow_Msg_Rate_EEPROM_(ms)         ,    100  
 CAN_Diag_Data_Tx_Active_EEPROM        ,      1  
 CAN_Inv_Enab_Switch_Active_EEPROM     ,      0  
