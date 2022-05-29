@@ -30,10 +30,12 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         struct Charger *          charger     = App_BmsWorld_GetCharger(world);
         struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
         struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
+        struct Airs *             airs        = App_BmsWorld_GetAirs(world);
 
-        static uint16_t ignore_chgr_fault_counter = 0U;
-        const bool      is_charger_disconnected   = !App_Charger_IsConnected(charger);
-        bool            has_charger_faulted       = false;
+        static uint16_t ignore_chgr_fault_counter     = 0U;
+        const bool      is_charger_disconnected       = !App_Charger_IsConnected(charger);
+        bool            has_charger_faulted           = false;
+        bool            has_external_shutdown_occurred = !App_Airs_IsAirNegativeClosed(airs);
 
         if (ignore_chgr_fault_counter < CYCLES_TO_IGNORE_CHGR_FAULT)
         {
@@ -52,12 +54,15 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanTx_SetPeriodicSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(can_tx, is_charger_disconnected);
         App_CanTx_SetPeriodicSignal_CHARGER_FAULT_DETECTED(can_tx, has_charger_faulted);
         App_CanTx_SetPeriodicSignal_IS_CHARGING_COMPLETE(can_tx, has_reached_max_v);
+        App_CanTx_SetPeriodicSignal_CHARGING_EXT_SHUTDOWN_OCCURRED(can_tx, has_external_shutdown_occurred);
+
         App_SharedErrorTable_SetError(
             error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE, is_charger_disconnected);
         App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_CHARGER_FAULT_DETECTED, has_charger_faulted);
         App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_HAS_REACHED_MAX_V, has_reached_max_v);
+        App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_CHARGING_EXT_SHUTDOWN_OCCURRED, has_external_shutdown_occurred);
 
-        if (is_charger_disconnected || has_charger_faulted || has_reached_max_v)
+        if (is_charger_disconnected || has_charger_faulted || has_reached_max_v || has_external_shutdown_occurred)
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
         }
