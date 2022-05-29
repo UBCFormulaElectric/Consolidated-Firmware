@@ -6,7 +6,7 @@
 # Com Port          : com3
 
 #decimal:
-asd
+
 
 
 
@@ -14,7 +14,7 @@ Serial_Number_EEPROM                  ,   1846
 Motor_Type_EEPROM                     ,    198  
 Veh_Flux_EEPROM_(Wb)_x_1000           ,     31  
 Angle_Advance_Factor_EEPROM_x_100     ,      0  
-Gamma_Adjust_EEPROM_(Deg)_x_10        ,      0  
+Gamma_Adjust_EEPROM_(Deg)_x_10        ,   1555  
 Resolver_PWM_Delay_EEPROM_(Counts)    ,   1100  
 Run_Mode_EEPROM(Trq=0_Spd=1)          ,      0  
 Inv_Cmd_Mode_EEPROM(CAN=0_VSM=1)      ,      0  
@@ -32,15 +32,15 @@ CAN_Command_Message_Active_EEPROM     ,      1
 CAN_Bit_Rate_EEPROM_(kbps)            ,    500  
 CAN_ACTIVE_MSGS_EEPROM_(Lo_Word)      ,  65535  
 CAN_ACTIVE_MSGS_EEPROM_(Hi_Word)      ,  65535  
-CAN_Fast_Msg_Rate_EEPROM_(ms)         ,   2000  
-CAN_Slow_Msg_Rate_EEPROM_(ms)         ,   2000  
+CAN_Fast_Msg_Rate_EEPROM_(ms)         ,     10  
+CAN_Slow_Msg_Rate_EEPROM_(ms)         ,    100  
 CAN_Diag_Data_Tx_Active_EEPROM        ,      1  
 CAN_Inv_Enab_Switch_Active_EEPROM     ,      0  
 CAN_TimeOut_(/3ms)_EEPROM             ,    333  
 CAN_Slave_Cmd_ID_EEPROM               ,      0  
 CAN_Slave_Dir_EEPROM_(0=SAME_1=FLIP)  ,      0  
-IQ_Limit_EEPROM_(Amps)_x_10           ,    283  
-ID_Limit_EEPROM_(Amps)_x_10           ,    150  
+IQ_Limit_EEPROM_(Amps)_x_10           ,   2830  
+ID_Limit_EEPROM_(Amps)_x_10           ,   1500  
 Amp_Hours_EEPROM_(AHrx10)             ,      0  
 DC_Volt_Limit_EEPROM_(V)_x_10         ,   9000  
 DC_Volt_Hyst_EEPROM_(V)_x_10          ,    300  
@@ -57,7 +57,7 @@ Coast_Lo_EEPROM_(V)_x_100             ,      0
 Coast_Hi_EEPROM_(V)_x_100             ,      4  
 Accel_Max_EEPROM_(V)_x_100            ,    490  
 Pedal_Hi_EEPROM_(V)_x_100             ,    499  
-Motor_Torque_Limit_EEPROM_(Nm)_x_10   ,    500  
+Motor_Torque_Limit_EEPROM_(Nm)_x_10   ,   1320  
 Regen_Torque_Limit_EEPROM_(Nm)_x_10   ,      0  
 Braking_Torque_Limit_EEPROM_(Nm)_x_10 ,      0  
 Kp_Torque_EEPROM_x_10000              ,    100  
@@ -65,11 +65,11 @@ Ki_Torque_EEPROM_x_10000              ,      4
 Kd_Torque_EEPROM_x_100                ,      0  
 Klp_Torque_EEPROM_x_10000             ,      0  
 Torque_Rate_Limit_EEPROM_(Nm)_x_10    ,     50  
-Motor_Overspeed_EEPROM_(RPM)          ,  10000  
+Motor_Overspeed_EEPROM_(RPM)          ,   7000  
 Max_Speed_EEPROM_(RPM)                ,   3500  
 Valet_Mode_Speed_EEPROM_(RPM)         ,      0  
 Regen_Fade_Speed_EEPROM_(RPM)         ,    200  
-Break_Speed_EEPROM_(RPM)              ,  10000  
+Break_Speed_EEPROM_(RPM)              ,   3250  
 Kp_Speed_EEPROM_x_100                 ,   1600  
 Ki_Speed_EEPROM_x_10000               ,      8  
 Kd_Speed_EEPROM_x_100                 ,      0  
