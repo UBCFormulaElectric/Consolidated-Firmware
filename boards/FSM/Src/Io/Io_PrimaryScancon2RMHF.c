@@ -20,7 +20,7 @@ uint32_t Io_PrimaryScancon2RMHF_GetEncoderCounter(void)
     return __HAL_TIM_GET_COUNTER(primary_encoder_htim);
 }
 
-void Io_PrimaryScancon2RMHF_ResetEncoderCounter(void)
+void Io_PrimaryScancon2RMHF_SetEncoderCounter(uint32_t counter_value)
 {
-    __HAL_TIM_SET_COUNTER(primary_encoder_htim, 0U);
+    __HAL_TIM_SET_COUNTER(primary_encoder_htim, counter_value);
 }
