@@ -9,7 +9,7 @@ void Io_FlowMeters_Init(TIM_HandleTypeDef *htim)
     assert(htim != NULL);
 
     flow_meter = Io_SharedFreqOnlyPwmInput_Create(
-        htim, TIMx_FREQUENCY / TIM4_PRESCALER, TIM_CHANNEL_1, TIM4_AUTO_RELOAD_REG, HAL_TIM_ACTIVE_CHANNEL_1);
+        htim, TIMx_FREQUENCY / TIM4_PRESCALER, TIM_CHANNEL_2, TIM4_AUTO_RELOAD_REG, HAL_TIM_ACTIVE_CHANNEL_2);
 }
 
 float Io_FlowMeters_GetFlowRate(void)
