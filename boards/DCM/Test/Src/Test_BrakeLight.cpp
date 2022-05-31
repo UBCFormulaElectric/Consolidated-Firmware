@@ -25,33 +25,17 @@ class BrakeLightTest : public testing::Test
     struct BrakeLight *brake_light;
 };
 
-TEST_F(BrakeLightTest, non_actuated_brake_and_inactive_regen_turns_off_brake_light)
+TEST_F(BrakeLightTest, non_actuated_brake_turns_off_brake_light)
 {
-    App_BrakeLight_SetLightStatus(brake_light, false, false);
+    App_BrakeLight_SetLightStatus(brake_light, false);
 
     ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), false);
     ASSERT_EQ(turn_off_brake_light_fake.call_count, 1);
 }
 
-TEST_F(BrakeLightTest, non_actuated_brake_and_active_regen_turns_on_brake_light)
+TEST_F(BrakeLightTest, actuated_brake_turns_on_brake_light)
 {
-    App_BrakeLight_SetLightStatus(brake_light, false, true);
-
-    ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), true);
-    ASSERT_EQ(turn_on_brake_light_fake.call_count, 1);
-}
-
-TEST_F(BrakeLightTest, actuated_brake_and_inactive_regen_turns_on_brake_light)
-{
-    App_BrakeLight_SetLightStatus(brake_light, true, false);
-
-    ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), true);
-    ASSERT_EQ(turn_on_brake_light_fake.call_count, 1);
-}
-
-TEST_F(BrakeLightTest, actuated_brake_and_active_regen_turns_on_brake_light)
-{
-    App_BrakeLight_SetLightStatus(brake_light, true, true);
+    App_BrakeLight_SetLightStatus(brake_light, true);
 
     ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), true);
     ASSERT_EQ(turn_on_brake_light_fake.call_count, 1);

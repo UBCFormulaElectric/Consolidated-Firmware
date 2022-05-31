@@ -3,45 +3,18 @@
 #include "App_SetPeriodicCanSignals.h"
 
 // TODO: Have separate maximum torque requests for motoring and generating
-#define MAX_TORQUE_REQUEST_NM (50.0f)
-#define REGEN_WHEEL_SPEED_THRESHOLD_KPH 5.0f
+#define MAX_TORQUE_REQUEST_NM (90.0f)
 
 void App_SetPeriodicCanSignals_TorqueRequests(struct DcmCanTxInterface *can_tx, struct DcmCanRxInterface *can_rx)
 {
-    const float vehicle_speed_kph = (App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_LEFT_WHEEL_SPEED(can_rx) +
-                                     App_CanRx_FSM_WHEEL_SPEED_SENSOR_GetSignal_RIGHT_WHEEL_SPEED(can_rx)) /
-                                    2.0f;
-    const float regen_paddle_percentage = (float)App_CanRx_DIM_REGEN_PADDLE_GetSignal_MAPPED_PADDLE_POSITION(can_rx);
-    const bool  is_regen_allowed = vehicle_speed_kph > REGEN_WHEEL_SPEED_THRESHOLD_KPH && App_IsBmsInDriveState(can_rx);
-    float       torque_request   = 0.0f;
+    float torque_request = 0.0f;
 
-    // 1) If regen is allowed and the regen paddle is actuated, use the regen
-    // paddle percentage 2) If regen is not allowed, use the accelerator pedal
-    // percentage
-    //
-    // 1) If regen is allowed and the regen paddle is actuated,
-    //         the torque request (in Nm) is negative and given by:
-    //
-    //              (-) Regen Paddle Percentage
-    //  Torque  =  -------------------------------  * MAX_TORQUE_REQUEST_NM
-    //                         100%
-    //
-    // 2) Otherwise, the torque request (in Nm) is positive and given by:
-    //
     //              Accelerator Pedal Percentage
     //  Torque =  -------------------------------  * MAX_TORQUE_REQUEST_NM
     //                        100%
     //
-
-    if (regen_paddle_percentage > 0.0f && is_regen_allowed)
-    {
-        torque_request = -0.01f * regen_paddle_percentage * MAX_TORQUE_REQUEST_NM;
-    }
-    else
-    {
-        torque_request =
-            0.01f * App_CanRx_FSM_PEDAL_POSITION_GetSignal_MAPPED_PEDAL_PERCENTAGE(can_rx) * MAX_TORQUE_REQUEST_NM;
-    }
+    torque_request =
+        0.01f * App_CanRx_FSM_PEDAL_POSITION_GetSignal_MAPPED_PEDAL_PERCENTAGE(can_rx) * MAX_TORQUE_REQUEST_NM;
 
     // Transmit torque command to both inverters
     App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(

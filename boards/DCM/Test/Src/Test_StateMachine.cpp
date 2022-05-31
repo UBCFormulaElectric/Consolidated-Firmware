@@ -205,61 +205,6 @@ TEST_F(DcmStateMachineTest, check_fault_state_is_broadcasted_over_can)
     EXPECT_EQ(CANMSGS_DCM_STATE_MACHINE_STATE_FAULT_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
-TEST_F(DcmStateMachineTest, brake_light_control_in_all_states)
-{
-    for (const auto &state : GetAllStates())
-    {
-        SetInitialState(state);
-
-        // Brake = Not actuated
-        // Regen = Not active
-        // Expect brake light to be off
-        App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(can_rx_interface, false);
-        App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
-            can_tx_interface, App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(0.0f));
-        LetTimePass(state_machine, 10);
-        ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), false);
-        ASSERT_EQ(turn_on_brake_light_fake.call_count, 0);
-        ASSERT_EQ(turn_off_brake_light_fake.call_count, 1);
-
-        // Brake = Not actuated
-        // Regen = Active (negative torque)
-        // Expect brake light to be on
-        App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(can_rx_interface, false);
-        App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
-            can_tx_interface, App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(-1.0f));
-        LetTimePass(state_machine, 10);
-        ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), true);
-        ASSERT_EQ(turn_on_brake_light_fake.call_count, 1);
-        ASSERT_EQ(turn_off_brake_light_fake.call_count, 1);
-
-        // Brake = Actuated
-        // Regen = Not active
-        // Expect brake light to be on
-        App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(can_rx_interface, true);
-        App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
-            can_tx_interface, App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(0.0f));
-        LetTimePass(state_machine, 10);
-        ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), true);
-        ASSERT_EQ(turn_on_brake_light_fake.call_count, 2);
-        ASSERT_EQ(turn_off_brake_light_fake.call_count, 1);
-
-        // Brake = Actuated
-        // Regen = Active (negative torque)
-        App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(can_rx_interface, true);
-        App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
-            can_tx_interface, App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(-1.0f));
-        LetTimePass(state_machine, 10);
-        ASSERT_EQ(App_BrakeLight_IsTurnedOn(brake_light), true);
-        ASSERT_EQ(turn_on_brake_light_fake.call_count, 3);
-        ASSERT_EQ(turn_off_brake_light_fake.call_count, 1);
-
-        // Manually reset the call count for the fake functions
-        RESET_FAKE(turn_on_brake_light);
-        RESET_FAKE(turn_off_brake_light);
-    }
-}
-
 TEST_F(DcmStateMachineTest, rgb_led_sequence_in_all_states)
 {
     unsigned int *call_counts[] = { &turn_on_red_led_fake.call_count, &turn_on_green_led_fake.call_count,

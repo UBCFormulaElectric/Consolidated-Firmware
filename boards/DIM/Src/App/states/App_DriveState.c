@@ -95,7 +95,6 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct DimCanRxInterface *can_rx                  = App_DimWorld_GetCanRx(world);
     struct SevenSegDisplays * seven_seg_displays      = App_DimWorld_GetSevenSegDisplays(world);
     struct HeartbeatMonitor * heartbeat_monitor       = App_DimWorld_GetHeartbeatMonitor(world);
-    struct RegenPaddle *      regen_paddle            = App_DimWorld_GetRegenPaddle(world);
     struct RotarySwitch *     drive_mode_switch       = App_DimWorld_GetDriveModeSwitch(world);
     struct Led *              imd_led                 = App_DimWorld_GetImdLed(world);
     struct Led *              bspd_led                = App_DimWorld_GetBspdLed(world);
@@ -108,16 +107,6 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     uint32_t buffer;
 
     App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
-
-    if (EXIT_OK(App_RegenPaddle_GetRawPaddlePosition(regen_paddle, &buffer)))
-    {
-        App_CanTx_SetPeriodicSignal_RAW_PADDLE_POSITION(can_tx, buffer);
-    }
-
-    if (EXIT_OK(App_RegenPaddle_GetMappedPaddlePosition(regen_paddle, &buffer)))
-    {
-        App_CanTx_SetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx, buffer);
-    }
 
     if (EXIT_OK(App_RotarySwitch_GetSwitchPosition(drive_mode_switch, &buffer)))
     {

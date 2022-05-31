@@ -32,7 +32,6 @@
 #include "App_SharedStateMachine.h"
 #include "states/App_DriveState.h"
 #include "configs/App_RotarySwitchConfig.h"
-#include "configs/App_RegenPaddleConfig.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 
 #include "Io_CanTx.h"
@@ -44,7 +43,6 @@
 #include "Io_SharedErrorHandlerOverride.h"
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_SharedHeartbeatMonitor.h"
-#include "Io_RegenPaddle.h"
 #include "Io_RgbLedSequence.h"
 #include "Io_DriveModeSwitch.h"
 #include "Io_Leds.h"
@@ -105,7 +103,6 @@ struct SevenSegDisplay *  middle_seven_seg_display;
 struct SevenSegDisplay *  right_seven_seg_display;
 struct SevenSegDisplays * seven_seg_displays;
 struct HeartbeatMonitor * heartbeat_monitor;
-struct RegenPaddle *      regen_paddle;
 struct RgbLedSequence *   rgb_led_sequence;
 struct RotarySwitch *     drive_mode_switch;
 struct Led *              imd_led;
@@ -213,9 +210,6 @@ int main(void)
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
-    regen_paddle = App_RegenPaddle_Create(
-        Io_RegenPaddle_GetPaddlePosition, REGEN_PADDLE_LOWER_DEADZONE, REGEN_PADDLE_UPPER_DEADZONE);
-
     rgb_led_sequence = App_SharedRgbLedSequence_Create(
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed, Io_RgbLedSequence_TurnOnGreenLed);
 
@@ -256,9 +250,9 @@ int main(void)
     clock = App_SharedClock_Create();
 
     world = App_DimWorld_Create(
-        can_tx, can_rx, seven_seg_displays, heartbeat_monitor, regen_paddle, rgb_led_sequence, drive_mode_switch,
-        imd_led, bspd_led, start_switch, traction_control_switch, torque_vectoring_switch, error_table, bms_status_led,
-        dcm_status_led, dim_status_led, fsm_status_led, pdm_status_led, clock);
+        can_tx, can_rx, seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led,
+        start_switch, traction_control_switch, torque_vectoring_switch, error_table, bms_status_led, dcm_status_led,
+        dim_status_led, fsm_status_led, pdm_status_led, clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 
