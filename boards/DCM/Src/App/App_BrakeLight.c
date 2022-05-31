@@ -34,9 +34,9 @@ void App_BrakeLight_Destroy(struct BrakeLight *const brake_light)
     free(brake_light);
 }
 
-void App_BrakeLight_SetLightStatus(struct BrakeLight *const brake_light, bool is_brake_actuated, bool is_regen_active)
+void App_BrakeLight_SetLightStatus(struct BrakeLight *const brake_light, bool is_brake_actuated)
 {
-    if (is_brake_actuated || is_regen_active)
+    if (is_brake_actuated)
     {
         brake_light->turn_on_brake_light();
         brake_light->is_turned_on = true;

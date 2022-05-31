@@ -13,7 +13,6 @@ extern "C"
 #include "App_SharedMacros.h"
 #include "states/App_DriveState.h"
 #include "configs/App_RotarySwitchConfig.h"
-#include "configs/App_RegenPaddleConfig.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 }
 
@@ -29,8 +28,6 @@ FAKE_VOID_FUNC(display_value_callback);
 
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
 FAKE_VOID_FUNC(heartbeat_timeout_callback, enum HeartbeatOneHot, enum HeartbeatOneHot);
-
-FAKE_VALUE_FUNC(uint32_t, get_raw_paddle_position);
 
 FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
@@ -93,9 +90,6 @@ class DimStateMachineTest : public BaseStateMachineTest
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
-        regen_paddle =
-            App_RegenPaddle_Create(get_raw_paddle_position, REGEN_PADDLE_LOWER_DEADZONE, REGEN_PADDLE_UPPER_DEADZONE);
-
         rgb_led_sequence = App_SharedRgbLedSequence_Create(turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
         drive_mode_switch = App_RotarySwitch_Create(get_drive_mode_switch_position, NUM_DRIVE_MODE_SWITCH_POSITIONS);
@@ -130,7 +124,7 @@ class DimStateMachineTest : public BaseStateMachineTest
         clock = App_SharedClock_Create();
 
         world = App_DimWorld_Create(
-            can_tx_interface, can_rx_interface, seven_seg_displays, heartbeat_monitor, regen_paddle, rgb_led_sequence,
+            can_tx_interface, can_rx_interface, seven_seg_displays, heartbeat_monitor, rgb_led_sequence,
             drive_mode_switch, imd_led, bspd_led, start_switch, traction_control_switch, torque_vectoring_switch,
             error_table, bms_status_led, dcm_status_led, dim_status_led, fsm_status_led, pdm_status_led, clock);
 
@@ -190,7 +184,6 @@ class DimStateMachineTest : public BaseStateMachineTest
         TearDownObject(right_seven_seg_display, App_SevenSegDisplay_Destroy);
         TearDownObject(seven_seg_displays, App_SevenSegDisplays_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
-        TearDownObject(regen_paddle, App_RegenPaddle_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
         TearDownObject(drive_mode_switch, App_RotarySwitch_Destroy);
         TearDownObject(imd_led, App_Led_Destroy);
@@ -238,7 +231,6 @@ class DimStateMachineTest : public BaseStateMachineTest
     struct SevenSegDisplays * seven_seg_displays;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
-    struct RegenPaddle *      regen_paddle;
     struct Led *              imd_led;
     struct Led *              bspd_led;
     struct BinarySwitch *     start_switch;
@@ -354,49 +346,6 @@ TEST_F(DimStateMachineTest, check_7_seg_displays_cycle_through_two_error_ids_in_
     ASSERT_EQ(1, set_left_hex_digit_fake.arg0_val.value);
     ASSERT_EQ(1, set_middle_hex_digit_fake.arg0_val.value);
     ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
-}
-
-TEST_F(DimStateMachineTest, check_raw_paddle_position_is_broadcasted_over_can_in_drive_state)
-{
-    get_raw_paddle_position_fake.return_val = 50;
-    LetTimePass(state_machine, 10);
-    ASSERT_EQ(
-        get_raw_paddle_position_fake.return_val, App_CanTx_GetPeriodicSignal_RAW_PADDLE_POSITION(can_tx_interface));
-}
-
-// DIM-7
-TEST_F(DimStateMachineTest, check_mapped_paddle_position_is_broadcasted_over_can_in_drive_state)
-{
-    get_raw_paddle_position_fake.return_val = 50;
-    LetTimePass(state_machine, 10);
-    ASSERT_EQ(
-        get_raw_paddle_position_fake.return_val, App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
-}
-
-// DIM-8
-TEST_F(DimStateMachineTest, check_deadzones_for_mapped_paddle_position_in_drive_state)
-{
-    // <= 5% maps to 0 %
-    get_raw_paddle_position_fake.return_val = 4;
-    LetTimePass(state_machine, 10);
-    ASSERT_EQ(0, App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
-    get_raw_paddle_position_fake.return_val = 5;
-    LetTimePass(state_machine, 10);
-    ASSERT_EQ(0, App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
-    get_raw_paddle_position_fake.return_val = 6;
-    LetTimePass(state_machine, 10);
-    ASSERT_NE(0, App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
-
-    // >= 95% maps to 100%
-    get_raw_paddle_position_fake.return_val = 94;
-    LetTimePass(state_machine, 10);
-    ASSERT_NE(100, App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
-    get_raw_paddle_position_fake.return_val = 95;
-    LetTimePass(state_machine, 10);
-    ASSERT_EQ(100, App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
-    get_raw_paddle_position_fake.return_val = 96;
-    LetTimePass(state_machine, 10);
-    ASSERT_EQ(100, App_CanTx_GetPeriodicSignal_MAPPED_PADDLE_POSITION(can_tx_interface));
 }
 
 // DIM-3

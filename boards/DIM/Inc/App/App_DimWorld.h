@@ -4,7 +4,6 @@
 #include "App_CanRx.h"
 #include "App_SevenSegDisplays.h"
 #include "App_SharedHeartbeatMonitor.h"
-#include "App_RegenPaddle.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_RotarySwitch.h"
 #include "App_Led.h"
@@ -29,7 +28,6 @@ struct DimWorld *App_DimWorld_Create(
     struct DimCanRxInterface *can_rx_interface,
     struct SevenSegDisplays * seven_seg_displays,
     struct HeartbeatMonitor * heartbeat_monitor,
-    struct RegenPaddle *      regen_paddle,
     struct RgbLedSequence *   rgb_led_sequence,
     struct RotarySwitch *     drive_mode_switch,
     struct Led *              imd_led,
@@ -78,13 +76,6 @@ struct SevenSegDisplays *App_DimWorld_GetSevenSegDisplays(const struct DimWorld 
  * @return The heartbeat monitor for the given world
  */
 struct HeartbeatMonitor *App_DimWorld_GetHeartbeatMonitor(const struct DimWorld *world);
-
-/**
- * Get the regen paddle for the given world
- * @param world The world to get regen paddle for
- * @return The regen paddle for the given world
- */
-struct RegenPaddle *App_DimWorld_GetRegenPaddle(const struct DimWorld *world);
 
 /**
  * Get the RGB LED sequence for the given world

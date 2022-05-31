@@ -28,9 +28,3 @@ TEST(CanMsgsTest, start_and_traction_control_and_torque_vectoring_switches_messa
 {
     ASSERT_EQ(HZ_TO_MS(100), CANMSGS_DIM_SWITCHES_CYCLE_TIME_MS);
 }
-
-// DIM-7
-TEST(CanMsgsTest, mapped_regen_paddle_percentage_message_frequency)
-{
-    ASSERT_EQ(HZ_TO_MS(100), CANMSGS_DIM_REGEN_PADDLE_CYCLE_TIME_MS);
-}
