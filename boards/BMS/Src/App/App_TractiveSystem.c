@@ -51,3 +51,8 @@ float App_TractiveSystem_GetLowResCurrent(struct TractiveSystem *ts)
 {
     return ts->get_low_res_current(ts->get_adc_low_res_current());
 }
+
+float App_TractiveSystem_GetPower(struct TractiveSystem *ts)
+{
+    return App_TractiveSystem_GetVoltage(ts) * App_TractiveSystem_GetLowResCurrent(ts);
+}

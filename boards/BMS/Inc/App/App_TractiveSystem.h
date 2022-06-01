@@ -43,3 +43,10 @@ float App_TractiveSystem_GetHighResCurrent(struct TractiveSystem *ts);
  * @return The current in A
  */
 float App_TractiveSystem_GetLowResCurrent(struct TractiveSystem *ts);
+
+/**
+ * Get tractive system power
+ * @param ts The given tractive system
+ * @return TS power in Watts
+ */
+float App_TractiveSystem_GetPower(struct TractiveSystem *ts);
