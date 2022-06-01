@@ -36,7 +36,7 @@ static inline float App_SharedProcessing_LinearDerating(float x, float max_ratin
     }
     else if (x > roll_off_x)
     {
-        derated_power = max_rating * x * (max_rating / (roll_off_x - max_x));
+        derated_power = x * (max_rating / (roll_off_x - max_x));
     }
 
     return derated_power;
