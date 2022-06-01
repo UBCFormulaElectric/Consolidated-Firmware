@@ -88,6 +88,8 @@ static void
     SET_ERROR(error_table, FSM_NON_CRITICAL_FLOW_RATE_OUT_OF_RANGE, data->flow_rate_out_of_range);
     SET_ERROR(error_table, FSM_NON_CRITICAL_STEERING_ANGLE_OUT_OF_RANGE, data->steering_angle_out_of_range);
     SET_ERROR(error_table, FSM_NON_CRITICAL_BRAKE_PRESSURE_OUT_OF_RANGE, data->brake_pressure_out_of_range);
+    SET_ERROR(error_table, FSM_NON_CRITICAL_BRAKE_PRESSURE_OPEN_OC, data->brake_pressure_open_oc);
+    SET_ERROR(error_table, FSM_NON_CRITICAL_BRAKE_PRESSURE_OPEN_SC, data->brake_pressure_open_sc);
 }
 
 static void
