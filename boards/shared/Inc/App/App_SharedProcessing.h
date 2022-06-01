@@ -13,3 +13,31 @@ static inline void App_SharedProcessing_TrapezoidalRule(float *integral, float *
     *integral = *integral + d_x * (*f_prev + f_curr) * 0.5f;
     *f_prev   = f_curr;
 }
+
+/**
+ * Linear derating algorithm
+ * @param x Value on x axis
+ * @param max_rating Value corresponding to 100% power
+ * @param roll_off_x The value to begin derating the power
+ * @param max_x The value corresponding to 0% power
+ * @return The de-rated power rating
+ */
+static inline float App_SharedProcessing_LinearDerating(float x, float max_rating, float roll_off_x, float max_x)
+{
+    float derated_power = 0.0f;
+
+    if (x <= roll_off_x)
+    {
+        derated_power = max_rating;
+    }
+    else if (x > roll_off_x)
+    {
+        derated_power = max_rating * x * (max_rating / (roll_off_x - max_x));
+    }
+    else if (x > max_x)
+    {
+        derated_power = 0.0f;
+    }
+
+    return derated_power;
+}

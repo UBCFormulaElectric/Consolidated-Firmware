@@ -3,11 +3,15 @@
 #include "App_SetPeriodicCanSignals.h"
 #include "App_Accumulator.h"
 #include "App_SharedMacros.h"
+#include "App_SharedProcessing.h"
 
 #define MIN_CELL_VOLTAGE (3.0f)
 #define MAX_CELL_VOLTAGE (4.2f)
 #define DEFAULT_MIN_CELL_TEMP_DEGC (0.0f)
 #define DEFAULT_MAX_CELL_TEMP_DEGC (60.0f)
+
+#define CELL_ROLL_OFF_TEMP_DEGC (40.0f)
+#define CELL_FULLY_DERATED_TEMP (60.0f)
 
 // Num of cycles for voltage and cell temperature values to settle
 #define NUM_CYCLES_TO_SETTLE (3U)
@@ -98,6 +102,22 @@ static void App_CheckCellTemperatureRange(
     App_CanTx_SetPeriodicSignal_MAX_TEMP_IDX(can_tx, max_loc);
 }
 
+static void
+    App_AdvertisePackPower(struct BmsCanTxInterface *can_tx, struct Accumulator *accumulator, struct TractiveSystem *ts)
+{
+    uint8_t segment = 0;
+    UNUSED(segment);
+
+    const float max_cell_temp = App_Accumulator_GetMaxCellTempDegC(accumulator, &segment, &segment);
+    const float curr_ts_power = App_TractiveSystem_GetPower(ts);
+    const float available_power =
+        min(App_SharedProcessing_LinearDerating(
+                max_cell_temp, curr_ts_power, CELL_ROLL_OFF_TEMP_DEGC, CELL_FULLY_DERATED_TEMP),
+            MAX_POWER_LIMIT_W);
+
+    App_CanTx_SetPeriodicSignal_AVAILABLE_POWER(can_tx, available_power);
+}
+
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     struct BmsWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
@@ -144,6 +164,8 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_AIR_NEGATIVE(can_tx, App_Airs_IsAirNegativeClosed(airs));
     App_CanTx_SetPeriodicSignal_AIR_POSITIVE(can_tx, App_Airs_IsAirPositiveClosed(airs));
     App_SetPeriodicCanSignals_Imd(can_tx, imd);
+
+    App_AdvertisePackPower(can_tx, accumulator, ts);
 
     App_CanTx_SetPeriodicSignal_BMS_OK(can_tx, App_OkStatus_IsEnabled(bms_ok));
     App_CanTx_SetPeriodicSignal_IMD_OK(can_tx, App_OkStatus_IsEnabled(imd_ok));

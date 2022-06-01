@@ -10,6 +10,8 @@
 #define MAX_16_BITS_VALUE (uint32_t)(65535)
 #define MAX_32_BITS_VALUE (uint32_t)(4294967295)
 
+#define MAX_POWER_LIMIT_W (78e3f)
+
 // Generic enum for hexadecimal digits. The order of the enums is important and
 // shouldn't be changed.
 enum HexDigit

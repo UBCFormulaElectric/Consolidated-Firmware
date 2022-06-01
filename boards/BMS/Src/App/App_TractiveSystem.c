@@ -54,17 +54,18 @@ float App_TractiveSystem_GetLowResCurrent(struct TractiveSystem *ts)
     return ts->get_low_res_current(ts->get_adc_low_res_current());
 }
 
-float App_TractiveSystem_GetCurrent(struct TractiveSystem *ts)
-{
-    float low_res_current  = App_TractiveSystem_GetLowResCurrent(ts);
+float App_TractiveSystem_GetCurrent(struct TractiveSystem *ts) {
+    float low_res_current = App_TractiveSystem_GetLowResCurrent(ts);
     float high_res_current = App_TractiveSystem_GetHighResCurrent(ts);
 
-    if (low_res_current < HIGH_RES_MAX_CURRENT_READING)
-    {
+    if (low_res_current < HIGH_RES_MAX_CURRENT_READING) {
         return high_res_current;
-    }
-    else
-    {
+    } else {
         return low_res_current;
     }
+}
+
+    float App_TractiveSystem_GetPower(struct TractiveSystem *ts)
+{
+    return App_TractiveSystem_GetVoltage(ts) * App_TractiveSystem_GetLowResCurrent(ts);
 }
