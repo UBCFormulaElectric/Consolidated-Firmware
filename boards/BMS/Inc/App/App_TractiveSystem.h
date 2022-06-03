@@ -43,3 +43,10 @@ float App_TractiveSystem_GetHighResCurrent(struct TractiveSystem *ts);
  * @return The current in A
  */
 float App_TractiveSystem_GetLowResCurrent(struct TractiveSystem *ts);
+
+/**
+ * Get the TS current by choosing between the low and high resolutions
+ * @param ts The given tractive system
+ * @return The current in A
+ */
+float App_TractiveSystem_GetCurrent(struct TractiveSystem *ts);
