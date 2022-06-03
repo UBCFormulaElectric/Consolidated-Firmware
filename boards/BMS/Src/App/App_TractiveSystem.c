@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <assert.h>
 
-#define HIGH_RES_MAX_CURRENT_READING 50
+#define HIGH_RES_MAX_CURRENT_READING (50.0f)
 
 struct TractiveSystem
 {
