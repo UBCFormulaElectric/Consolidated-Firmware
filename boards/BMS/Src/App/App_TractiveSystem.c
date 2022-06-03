@@ -51,3 +51,18 @@ float App_TractiveSystem_GetLowResCurrent(struct TractiveSystem *ts)
 {
     return ts->get_low_res_current(ts->get_adc_low_res_current());
 }
+
+float App_TractiveSystem_GetCurrent(struct TractiveSystem *ts)
+{
+    float low_res_current  = App_TractiveSystem_GetLowResCurrent(ts);
+    float high_res_current = App_TractiveSystem_GetLowResCurrent(ts);
+
+    if (low_res_current < 40)
+    {
+        return high_res_current;
+    }
+    else
+    {
+        return low_res_current;
+    }
+}
