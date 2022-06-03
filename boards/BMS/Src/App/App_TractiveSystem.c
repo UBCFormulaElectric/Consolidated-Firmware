@@ -1,6 +1,8 @@
 #include <stdlib.h>
 #include <assert.h>
 
+#define HIGH_RES_MAX_CURRENT_READING 50
+
 struct TractiveSystem
 {
     float (*get_raw_ts_voltage)(void);
@@ -55,9 +57,9 @@ float App_TractiveSystem_GetLowResCurrent(struct TractiveSystem *ts)
 float App_TractiveSystem_GetCurrent(struct TractiveSystem *ts)
 {
     float low_res_current  = App_TractiveSystem_GetLowResCurrent(ts);
-    float high_res_current = App_TractiveSystem_GetLowResCurrent(ts);
+    float high_res_current = App_TractiveSystem_GetHighResCurrent(ts);
 
-    if (low_res_current < 50)
+    if (low_res_current < HIGH_RES_MAX_CURRENT_READING)
     {
         return high_res_current;
     }
