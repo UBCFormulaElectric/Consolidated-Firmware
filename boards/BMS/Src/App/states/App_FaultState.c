@@ -22,9 +22,8 @@ static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    struct BmsWorld *        world       = App_SharedStateMachine_GetWorld(state_machine);
-    struct Airs *            airs        = App_BmsWorld_GetAirs(world);
-    struct ErrorTable *const error_table = App_BmsWorld_GetErrorTable(world);
+    struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct Airs *    airs  = App_BmsWorld_GetAirs(world);
 
     if (App_AllStatesRunOnTick100Hz(state_machine) && !App_Airs_IsAirNegativeClosed(airs))
     {

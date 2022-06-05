@@ -47,13 +47,13 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
         {
             next_state = App_GetPreChargeState();
         }
-	else if (App_CanRx_CAN_DEBUGGING_SIGNALS_GetSignal_ENABLE_BALANCING_FROM_INIT(can_rx))
+        else if (App_CanRx_CAN_DEBUGGING_SIGNALS_GetSignal_ENABLE_BALANCING_FROM_INIT(can_rx))
         {
             // Balancing may be enabled directly from the init state
             next_state = App_GetBalanceState();
         }
 #endif
-        
+
         App_SharedStateMachine_SetNextState(state_machine, next_state);
     }
 }

@@ -35,11 +35,11 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
         struct Airs *             airs        = App_BmsWorld_GetAirs(world);
 
-        static uint16_t ignore_chgr_fault_counter      = 0U;
-        const bool      is_charger_disconnected        = !App_Charger_IsConnected(charger);
-        bool            has_charger_faulted            = false;
-        bool            has_external_shutdown_occurred = !App_Airs_IsAirNegativeClosed(airs);
-        const struct State *next_state                = App_GetChargeState();
+        static uint16_t     ignore_chgr_fault_counter      = 0U;
+        const bool          is_charger_disconnected        = !App_Charger_IsConnected(charger);
+        bool                has_charger_faulted            = false;
+        bool                has_external_shutdown_occurred = !App_Airs_IsAirNegativeClosed(airs);
+        const struct State *next_state                     = App_GetChargeState();
 
         // Charger takes a couple of cycles until the fault signal is de-asserted. Ignore the charger fault for the
         // first 5 seconds
@@ -52,27 +52,21 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
             has_charger_faulted = App_Charger_HasFaulted(charger);
         }
 
-	 uint8_t    segment = 0U;
-        uint8_t    cell    = 0U;
-        const bool has_reached_max_v =
-            App_Accumulator_GetMaxVoltage(accumulator, &segment, &cell) > MAX_CELL_VOLTAGE_THRESHOLD;
         App_CanTx_SetPeriodicSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(can_tx, is_charger_disconnected);
         App_CanTx_SetPeriodicSignal_CHARGER_FAULT_DETECTED(can_tx, has_charger_faulted);
-        App_CanTx_SetPeriodicSignal_IS_CHARGING_COMPLETE(can_tx, has_reached_max_v);
         App_CanTx_SetPeriodicSignal_CHARGING_EXT_SHUTDOWN_OCCURRED(can_tx, has_external_shutdown_occurred);
 
         App_SharedErrorTable_SetError(
             error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE, is_charger_disconnected);
         App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_CHARGER_FAULT_DETECTED, has_charger_faulted);
-        App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_HAS_REACHED_MAX_V, has_reached_max_v);
         App_SharedErrorTable_SetError(
             error_table, BMS_AIR_SHUTDOWN_CHARGING_EXT_SHUTDOWN_OCCURRED, has_external_shutdown_occurred);
 
-        if (is_charger_disconnected || has_charger_faulted || has_reached_max_v || has_external_shutdown_occurred)
+        if (is_charger_disconnected || has_charger_faulted || has_external_shutdown_occurred)
         {
-	    next_state = App_GetFaultState();
+            next_state = App_GetFaultState();
         }
-	else if (App_Accumulator_IsPackFullyCharged(accumulator))
+        else if (App_Accumulator_IsPackFullyCharged(accumulator))
         {
             // Charging is complete when the max voltage meets the max voltage target and the pack is balanced
             App_CanTx_SetPeriodicSignal_IS_CHARGING_COMPLETE(can_tx, true);
