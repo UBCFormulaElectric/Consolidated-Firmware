@@ -4,30 +4,30 @@
 #include "states/App_AllStates.h"
 #include "states/App_InitState.h"
 #include "App_SetPeriodicCanSignals.h"
-#include "configs/App_MotorEfficiencyLut.h"
+#include "App_SharedConstants.h"
 
-#define MAX_TORQUE_REQUEST_NM (90.0f)
 #define EFFICIENCY_ESTIMATE (0.80f)
 #define RPM_TO_RADS(rpm) ((rpm) * (float)M_PI / 30.0f)
 
 void App_SetPeriodicCanSignals_TorqueRequests(struct DcmCanTxInterface *can_tx, struct DcmCanRxInterface *can_rx)
 {
-    // Estimate the maximum torque request to draw the maximum power available from the BMS
-    // Note that the motors can not exceed a torque of MAX_TORQUE_REQUEST_NM
     const float bms_available_power = App_CanRx_BMS_AVAILABLE_POWER_GetSignal_AVAILABLE_POWER(can_rx);
     const float right_motor_speed_rpm =
         (float)abs(App_CanRx_INVR_MOTOR_POSITION_INFO_GetSignal_D2_MOTOR_SPEED_INVR(can_rx));
     const float left_motor_speed_rpm =
         (float)abs(App_CanRx_INVL_MOTOR_POSITION_INFO_GetSignal_D2_MOTOR_SPEED_INVL(can_rx));
-
     float bms_torque_limit = MAX_TORQUE_REQUEST_NM;
+    float fsm_torque_limit = App_CanRx_FSM_TORQUE_LIMITING_GetSignal_FSM_TORQUE_LIMIT(can_rx);
+
     if ((right_motor_speed_rpm + left_motor_speed_rpm) > 0.0f)
     {
+        // Estimate the maximum torque request to draw the maximum power available from the BMS
         bms_torque_limit = bms_available_power * EFFICIENCY_ESTIMATE /
                            (RPM_TO_RADS(right_motor_speed_rpm) + RPM_TO_RADS(left_motor_speed_rpm));
     }
 
-    const float max_torque_request = min(bms_torque_limit, MAX_TORQUE_REQUEST_NM);
+    // Calculate the maximum torque request based on various limits
+    const float max_torque_request = MIN3(bms_torque_limit, fsm_torque_limit, MAX_TORQUE_REQUEST_NM);
 
     // Calculate the actual torque request to transmit
     const float torque_request =

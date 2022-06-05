@@ -10,6 +10,8 @@
 #define MAX_16_BITS_VALUE (uint32_t)(65535)
 #define MAX_32_BITS_VALUE (uint32_t)(4294967295)
 
+#define MAX_TORQUE_REQUEST_NM (90.0f) // Max torque of EMRAX 188 HV CC motor
+
 // Generic enum for hexadecimal digits. The order of the enums is important and
 // shouldn't be changed.
 enum HexDigit

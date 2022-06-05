@@ -15,6 +15,8 @@
 
 #define min(x, y) (((x) < (y)) ? (x) : (y))
 
+#define MIN3(x, y, z) (min(min((x),(y)),(z)))
+
 // Extra guard because HAL defines the same macro
 #ifndef UNUSED
 #define UNUSED(x) (void)(x)
