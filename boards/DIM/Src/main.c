@@ -49,6 +49,7 @@
 #include "Io_Switches.h"
 #include "Io_Adc.h"
 #include "Io_RgbLeds.h"
+#include "Io_SharedErrorTable.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -711,6 +712,7 @@ void RunTaskCanRx(void const *argument)
         struct CanMsg message;
         Io_SharedCan_DequeueCanRxMessage(&message);
         Io_CanRx_UpdateRxTableWithMessage(App_DimWorld_GetCanRx(world), &message);
+        Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &message);
     }
     /* USER CODE END RunTaskCanRx */
 }

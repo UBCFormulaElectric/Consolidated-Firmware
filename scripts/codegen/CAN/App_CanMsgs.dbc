@@ -253,9 +253,9 @@ SG_ Is_Connected : 0|1@1+ (1,0) [0|1] "" DEBUG
 SG_ IS_CHARGING_COMPLETE : 1|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 111 BMS_OK_STATUSES: 1 BMS
-SG_ BMS_OK : 0|1@1+ (1,0) [0|1] "" DEBUG
-SG_ IMD_OK : 1|1@1+ (1,0) [0|1] "" DEBUG
-SG_ BSPD_OK : 2|1@1+ (1,0) [0|1] "" DEBUG
+SG_ BMS_OK : 0|1@1+ (1,0) [0|1] "" DIM
+SG_ IMD_OK : 1|1@1+ (1,0) [0|1] "" DIM
+SG_ BSPD_OK : 2|1@1+ (1,0) [0|1] "" DIM
 
 BO_ 112 BMS_AIR_STATES: 1 BMS
 SG_ AIR_POSITIVE : 0|1@1+ (1,0) [0|1] "" FSM,DCM,PDM

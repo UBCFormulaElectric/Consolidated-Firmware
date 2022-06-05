@@ -98,6 +98,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct RotarySwitch *     drive_mode_switch       = App_DimWorld_GetDriveModeSwitch(world);
     struct Led *              imd_led                 = App_DimWorld_GetImdLed(world);
     struct Led *              bspd_led                = App_DimWorld_GetBspdLed(world);
+    struct RgbLed *           bms_led                 = App_DimWorld_GetBmsStatusLed(world);
     struct BinarySwitch *     start_switch            = App_DimWorld_GetStartSwitch(world);
     struct BinarySwitch *     traction_control_switch = App_DimWorld_GetTractionControlSwitch(world);
     struct BinarySwitch *     torque_vectoring_switch = App_DimWorld_GetTorqueVectoringSwitch(world);
@@ -113,7 +114,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_SetPeriodicCanSignals_DriveMode(can_tx, buffer);
     }
 
-    if (App_CanRx_BMS_IMD_GetSignal_OK_HS(can_rx) == CANMSGS_BMS_IMD_OK_HS_FAULT_CHOICE)
+    if (!App_CanRx_BMS_OK_STATUSES_GetSignal_IMD_OK(can_rx))
     {
         App_Led_TurnOn(imd_led);
     }
@@ -122,13 +123,22 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_Led_TurnOff(imd_led);
     }
 
-    if (App_CanRx_FSM_NON_CRITICAL_ERRORS_GetSignal_BSPD_FAULT(can_rx))
+    if (!App_CanRx_BMS_OK_STATUSES_GetSignal_BSPD_OK(can_rx))
     {
         App_Led_TurnOn(bspd_led);
     }
     else
     {
         App_Led_TurnOff(bspd_led);
+    }
+
+    if (!App_CanRx_BMS_OK_STATUSES_GetSignal_BMS_OK(can_rx))
+    {
+        App_SharedRgbLed_TurnRed(bms_led);
+    }
+    else
+    {
+        App_SharedRgbLed_TurnOff(bms_led);
     }
 
     App_SetPeriodicCanSignals_BinarySwitch(
@@ -151,6 +161,11 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     for (size_t i = 0; i < NUM_BOARDS; i++)
     {
+        if (i == BMS)
+        {
+            continue;
+        }
+
         struct ErrorBoardList boards_with_critical_errors;
         struct ErrorBoardList boards_with_non_critical_errors;
 
