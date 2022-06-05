@@ -28,7 +28,7 @@ SG_ D1_RTD4_Temperature_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
 BO_ 5 INVL_Motor_Position_Info: 8 INVL
 SG_ D4_Delta_Resolver_Filtered_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "deg" DEBUG
 SG_ D3_Electrical_Output_Frequency_INVL : 32|16@1- (0.1,0) [-3276.8|3276.7] "hz" DEBUG
-SG_ D2_Motor_Speed_INVL : 16|16@1- (1,0) [-32768|32767] "rpm" DEBUG
+SG_ D2_Motor_Speed_INVL : 16|16@1- (1,0) [-32768|32767] "rpm" DCM
 SG_ D1_Motor_Angle_Electrical_INVL : 0|16@1+ (0.1,0) [0|6553.5] "deg" DEBUG
 
 BO_ 6 INVL_Current_Info: 8 INVL
@@ -124,7 +124,7 @@ SG_ D1_RTD4_Temperature_INVR : 0|16@1- (0.1,0) [-3276.8|3276.7] "degC" DEBUG
 BO_ 55 INVR_Motor_Position_Info: 8 INVR
 SG_ D4_Delta_Resolver_Filtered_INVR : 48|16@1- (0.1,0) [-3276.8|3276.7] "deg" DEBUG
 SG_ D3_Electrical_Output_Frequency_INVR : 32|16@1- (0.1,0) [-3276.8|3276.7] "hz" DEBUG
-SG_ D2_Motor_Speed_INVR : 16|16@1- (1,0) [-32768|32767] "rpm" DEBUG
+SG_ D2_Motor_Speed_INVR : 16|16@1- (1,0) [-32768|32767] "rpm" DCM
 SG_ D1_Motor_Angle_Electrical_INVR : 0|16@1+ (0.1,0) [0|6553.5] "deg" DEBUG
 
 BO_ 56 INVR_Current_Info: 8 INVR
