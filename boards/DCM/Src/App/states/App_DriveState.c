@@ -8,6 +8,7 @@
 #define MAX_TORQUE_REQUEST_NM (90.0f)
 #define EFFICIENCY_ESTIMATE (0.80f)
 #define RPM_TO_RADS(rpm) ((rpm) * (float)M_PI / 30.0f)
+#define IS_EQUAL_FLOAT(a, b) (fabsf((a) - (b)) < 0.005f)
 
 void App_SetPeriodicCanSignals_TorqueRequests(struct DcmCanTxInterface *can_tx, struct DcmCanRxInterface *can_rx)
 {
@@ -18,9 +19,16 @@ void App_SetPeriodicCanSignals_TorqueRequests(struct DcmCanTxInterface *can_tx, 
 
     // Estimate the maximum torque request to draw the maximum power available from the BMS
     // Note that the motors can not exceed a torque of MAX_TORQUE_REQUEST_NM
-    float bms_torque_limit = bms_available_power * EFFICIENCY_ESTIMATE /
-                             (RPM_TO_RADS(right_motor_speed_rpm) + RPM_TO_RADS(left_motor_speed_rpm));
-    max_torque_request = min(bms_torque_limit, MAX_TORQUE_REQUEST_NM);
+    if (IS_EQUAL_FLOAT(right_motor_speed_rpm + left_motor_speed_rpm, 0.0f))
+    {
+        max_torque_request = MAX_TORQUE_REQUEST_NM;
+    }
+    else
+    {
+        float bms_torque_limit = bms_available_power * EFFICIENCY_ESTIMATE /
+                                 (RPM_TO_RADS(right_motor_speed_rpm) + RPM_TO_RADS(left_motor_speed_rpm));
+        max_torque_request = min(bms_torque_limit, MAX_TORQUE_REQUEST_NM);
+    }
 
     // Calculate the actual torque request to transmit
     torque_request =
