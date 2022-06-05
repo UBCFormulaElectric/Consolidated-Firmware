@@ -17,8 +17,6 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 
 static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
-    struct BmsWorld *const world = App_SharedStateMachine_GetWorld(state_machine);
-
     App_AllStatesRunOnTick1Hz(state_machine);
 }
 
