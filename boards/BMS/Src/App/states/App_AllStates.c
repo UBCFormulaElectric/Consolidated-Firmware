@@ -1,5 +1,6 @@
 #include "states/App_AllStates.h"
 #include "states/App_FaultState.h"
+#include "states/App_ChargeState.h"
 #include "App_SetPeriodicCanSignals.h"
 #include "App_Accumulator.h"
 #include "App_SharedMacros.h"
@@ -8,7 +9,8 @@
 #define MIN_CELL_VOLTAGE (3.0f)
 #define MAX_CELL_VOLTAGE (4.2f)
 #define DEFAULT_MIN_CELL_TEMP_DEGC (0.0f)
-#define DEFAULT_MAX_CELL_TEMP_DEGC (60.0f)
+#define DEFAULT_MAX_CELL_DISCHARGE_TEMP_DEGC (60.0f)
+#define DEFAULT_MAX_CELL_CHARGE_TEMP_DEGC (45.0f)
 
 #define MAX_POWER_LIMIT_W (78e3f)
 #define CELL_ROLL_OFF_TEMP_DEGC (40.0f)
@@ -76,20 +78,29 @@ static void App_CheckCellVoltageRange(
 static void App_CheckCellTemperatureRange(
     struct BmsCanTxInterface *can_tx,
     struct ErrorTable *       error_table,
-    struct Accumulator *      accumulator)
+    struct Accumulator *      accumulator,
+    struct StateMachine *     state_machine)
 {
     // Get the min and max cell temperature and check to see if the temperatures
     // are in range
-    uint8_t     min_segment        = 0U;
-    uint8_t     min_loc            = 0U;
-    uint8_t     max_segment        = 0U;
-    uint8_t     max_loc            = 0U;
-    const float curr_min_cell_temp = App_Accumulator_GetMinCellTempDegC(accumulator, &min_segment, &min_loc);
-    const float curr_max_cell_temp = App_Accumulator_GetMaxCellTempDegC(accumulator, &max_segment, &max_loc);
-    const bool  is_min_cell_out_of_range =
-        !IS_IN_RANGE(DEFAULT_MIN_CELL_TEMP_DEGC, DEFAULT_MAX_CELL_TEMP_DEGC, curr_min_cell_temp);
+    uint8_t     min_segment             = 0U;
+    uint8_t     min_loc                 = 0U;
+    uint8_t     max_segment             = 0U;
+    uint8_t     max_loc                 = 0U;
+    const float curr_min_cell_temp      = App_Accumulator_GetMinCellTempDegC(accumulator, &min_segment, &min_loc);
+    const float curr_max_cell_temp      = App_Accumulator_GetMaxCellTempDegC(accumulator, &max_segment, &max_loc);
+    float       allowable_max_cell_temp = DEFAULT_MAX_CELL_DISCHARGE_TEMP_DEGC;
+
+    // if we are charging, max cell temp is 45C not 60C
+    if (App_SharedStateMachine_GetCurrentState(state_machine) == App_GetChargeState())
+    {
+        allowable_max_cell_temp = DEFAULT_MAX_CELL_DISCHARGE_TEMP_DEGC;
+    }
+
+    const bool is_min_cell_out_of_range =
+        !IS_IN_RANGE(DEFAULT_MIN_CELL_TEMP_DEGC, allowable_max_cell_temp, curr_min_cell_temp);
     const bool is_max_cell_out_of_range =
-        !IS_IN_RANGE(DEFAULT_MIN_CELL_TEMP_DEGC, DEFAULT_MAX_CELL_TEMP_DEGC, curr_max_cell_temp);
+        !IS_IN_RANGE(DEFAULT_MIN_CELL_TEMP_DEGC, allowable_max_cell_temp, curr_max_cell_temp);
 
     App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_MIN_CELL_TEMP_OUT_OF_RANGE, is_min_cell_out_of_range);
     App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_MAX_CELL_TEMP_OUT_OF_RANGE, is_max_cell_out_of_range);
@@ -154,7 +165,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_Accumulator_RunOnTick100Hz(accumulator);
     App_CheckCellVoltageRange(can_tx, error_table, accumulator);
-    App_CheckCellTemperatureRange(can_tx, error_table, accumulator);
+    App_CheckCellTemperatureRange(can_tx, error_table, accumulator, state_machine);
 
     const bool has_acc_comms_error = App_Accumulator_HasCommunicationError(accumulator);
     App_CanTx_SetPeriodicSignal_HAS_PEC_ERROR(can_tx, has_acc_comms_error);
