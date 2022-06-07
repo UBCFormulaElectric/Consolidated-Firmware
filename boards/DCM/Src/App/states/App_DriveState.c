@@ -26,13 +26,13 @@ void App_SetPeriodicCanSignals_TorqueRequests(struct DcmCanTxInterface *can_tx, 
                            (RPM_TO_RADS(right_motor_speed_rpm) + RPM_TO_RADS(left_motor_speed_rpm));
     }
 
-    // Calculate the maximum torque request based on various limits
-    const float max_torque_request = MIN3(bms_torque_limit, fsm_torque_limit, MAX_TORQUE_REQUEST_NM);
+    // Calculate the maximum torque request to scale pedal percentage off of
+    const float max_torque_request = min(bms_torque_limit, MAX_TORQUE_REQUEST_NM);
 
     // Calculate the actual torque request to transmit
     const float torque_request =
-        0.01f * App_CanRx_FSM_PEDAL_POSITION_GetSignal_MAPPED_PEDAL_PERCENTAGE(can_rx) * max_torque_request;
-    App_CanRx_FSM_PEDAL_POSITION_SetSignal_MAPPED_PEDAL_PERCENTAGE(can_rx, 0.0f);
+        min(0.01f * App_CanRx_FSM_PEDAL_POSITION_GetSignal_MAPPED_PEDAL_PERCENTAGE(can_rx) * max_torque_request,
+            fsm_torque_limit);
 
     // Transmit torque command to both inverters
     App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(

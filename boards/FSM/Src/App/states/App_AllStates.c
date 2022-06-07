@@ -2,6 +2,7 @@
 #include "App_SharedConstants.h"
 
 #define TORQUE_LIMIT_OFFSET_NM (5.0f)
+#define MAX_TORQUE_PLAUSIBILITY_ERR_CNT (25) // 250 ms window
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
@@ -18,10 +19,11 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    struct FsmWorld *         world      = App_SharedStateMachine_GetWorld(state_machine);
-    struct FsmCanTxInterface *can_tx     = App_FsmWorld_GetCanTx(world);
-    struct FsmCanRxInterface *can_rx     = App_FsmWorld_GetCanRx(world);
-    struct HeartbeatMonitor * hb_monitor = App_FsmWorld_GetHeartbeatMonitor(world);
+    struct FsmWorld *         world       = App_SharedStateMachine_GetWorld(state_machine);
+    struct FsmCanTxInterface *can_tx      = App_FsmWorld_GetCanTx(world);
+    struct FsmCanRxInterface *can_rx      = App_FsmWorld_GetCanRx(world);
+    struct HeartbeatMonitor * hb_monitor  = App_FsmWorld_GetHeartbeatMonitor(world);
+    static uint8_t            error_count = 0;
 
     App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
 
@@ -39,11 +41,16 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     float fsm_torque_limit = App_CanTx_GetPeriodicSignal_FSM_TORQUE_LIMIT(can_tx);
     if (left_torque_req > fsm_torque_limit || right_torque_req > fsm_torque_limit)
     {
-        App_CanTx_SetPeriodicSignal_TORQUE_PLAUSIBILITY_CHECK_FAILED(can_tx, true);
+        error_count++;
     }
     else
     {
-        App_CanTx_SetPeriodicSignal_TORQUE_PLAUSIBILITY_CHECK_FAILED(can_tx, false);
+        error_count = 0;
+    }
+
+    if (error_count == MAX_TORQUE_PLAUSIBILITY_ERR_CNT)
+    {
+        App_CanTx_SetPeriodicSignal_TORQUE_PLAUSIBILITY_CHECK_FAILED(can_tx, true);
     }
 
     // Broadcast a new FSM torque limit based on pedal percentage
