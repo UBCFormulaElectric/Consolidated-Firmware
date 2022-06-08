@@ -47,7 +47,11 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         prev_start_switch_pos = curr_start_switch_pos;
 
-        if (App_IsBmsInDriveState(can_rx_interface) && is_brake_actuated && was_start_switch_pulled_up)
+        if ((App_IsBmsInDriveState(can_rx_interface) && is_brake_actuated && was_start_switch_pulled_up)
+#ifndef NDEBUG
+            || App_CanRx_CAN_DEBUGGING_SIGNALS_GetSignal_FORCE_DCM_TO_DRIVE_FROM_INIT(can_rx_interface)
+#endif
+        )
         {
             // Transition to drive state when start-up conditions are passed (see
             // EV.10.4.3):
