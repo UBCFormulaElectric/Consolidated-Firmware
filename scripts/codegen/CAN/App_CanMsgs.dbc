@@ -87,7 +87,7 @@ BO_ 32 DCM_INVL_Command_Message: 8 DCM
 SG_ Inverter_Enable_INVL : 40|1@1+ (1,0) [0|1] "Bit" INVL
 SG_ Direction_Command_INVL : 32|1@1+ (1,0) [0|1] "Bit" INVL
 SG_ Speed_Command_INVL : 16|16@1- (1,0) [-32768|32767] "rpm" INVL
-SG_ Torque_Command_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVL
+SG_ Torque_Command_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVL,FSM
 SG_ Inverter_Discharge_INVL : 41|1@1+ (1,0) [0|1] "Bit" INVL
 SG_ Torque_Limit_Command_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVL
 SG_ Speed_Mode_Enable_INVL : 42|1@1+ (1,0) [0|1] "Bit" INVL
@@ -183,7 +183,7 @@ BO_ 82 DCM_INVR_Command_Message: 8 DCM
 SG_ Inverter_Enable_INVR : 40|1@1+ (1,0) [0|1] "Bit" INVR
 SG_ Direction_Command_INVR : 32|1@1+ (1,0) [0|1] "Bit" INVR
 SG_ Speed_Command_INVR : 16|16@1- (1,0) [-32768|32767] "rpm" INVR
-SG_ Torque_Command_INVR : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVR
+SG_ Torque_Command_INVR : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVR,FSM
 SG_ Inverter_Discharge_INVR : 41|1@1+ (1,0) [0|1] "Bit" INVR
 SG_ Torque_Limit_Command_INVR : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVR
 SG_ Speed_Mode_Enable_INVR : 42|1@1+ (1,0) [0|1] "Bit" INVR
@@ -198,6 +198,9 @@ BO_ 84 INVR_DEBUG_Read_Write_Param_Response: 8 INVR
 SG_ D2_Write_Success : 16|1@1+ (1,0) [0|1] "" DEBUG
 SG_ D3_Data_Response : 32|16@1- (1,0) [-32768|32767] "" DEBUG
 SG_ D1_Parameter_Address_Response : 0|16@1+ (1,0) [0|65535] "" DEBUG
+
+BO_ 90 FSM_Torque_Limiting : 4 FSM
+SG_ FSM_Torque_Limit : 0|32@1+ (1,0) [0.0|150.0] "Nm" DCM
 
 BO_ 100 BMS_VITALS: 1 BMS
 SG_ HEARTBEAT : 0|1@1+ (1,0) [0|1] "" FSM,DCM,PDM,DIM
@@ -397,6 +400,7 @@ SG_ PAPPS_Alarm_Is_Active : 1|1@1+ (1,0) [0|1] "" DCM
 SG_ SAPPS_Alarm_Is_Active : 2|1@1+ (1,0) [0|1] "" DCM
 SG_ Plausibility_Check_Has_Failed : 3|1@1+ (1,0) [0|1] "" DCM
 SG_ FLOW_METER_HAS_UNDERFLOW : 4|1@1+ (1,0) [0|1] "" DCM
+SG_ Torque_Plausibility_Check_Failed : 5|1@1+ (1,0) [0|1] "" DCM
 
 BO_ 316 FSM_PEDAL_POSITION: 4 FSM
 SG_ Mapped_Pedal_Percentage: 0|32@1+ (1,0) [0|100] "%" DCM
@@ -554,6 +558,8 @@ BA_ "GenMsgCycleTime" BO_ 82 10;
 BA_ "GenMsgCycleTime" BO_ 83 0;
 BA_ "GenMsgCycleTime" BO_ 84 0;
 
+BA_ "GenMsgCycleTime" BO_ 90 10;
+
 BA_ "GenMsgCycleTime" BO_ 100 100;
 BA_ "GenMsgCycleTime" BO_ 101 5000;
 BA_ "GenMsgCycleTime" BO_ 104 1000;
@@ -618,6 +624,7 @@ BA_ "GenMsgCycleTime" BO_ 509 1000;
 BA_ "GenMsgCycleTime" BO_ 510 1000;
 BA_ "GenMsgCycleTime" BO_ 600 1000;
 
+SIG_VALTYPE_ 90 FSM_Torque_Limit : 1;
 SIG_VALTYPE_ 106 Duty_Cycle : 1;
 SIG_VALTYPE_ 106 Frequency : 1;
 SIG_VALTYPE_ 108 State_Of_Charge : 1;
@@ -702,6 +709,7 @@ VAL_ 315 PAPPS_Alarm_Is_Active 0 "FALSE" 1 "TRUE";
 VAL_ 315 SAPPS_Alarm_Is_Active 0 "FALSE" 1 "TRUE";
 VAL_ 315 Plausibility_Check_Has_Failed 0 "FALSE" 1 "TRUE";
 VAL_ 315 FLOW_METER_HAS_UNDERFLOW 0 "FALSE" 1 "TRUE";
+VAL_ 315 Torque_Plausibility_Check_Failed 0 "FALSE" 1 "TRUE";
 VAL_ 400 VBAT_VOLTAGE_OUT_OF_RANGE 0 "OK" 1 "UNDERFLOW" 2 "OVERFLOW";
 VAL_ 400 _24V_AUX_VOLTAGE_OUT_OF_RANGE 0 "OK" 1 "UNDERFLOW" 2 "OVERFLOW";
 VAL_ 400 _24V_ACC_VOLTAGE_OUT_OF_RANGE 0 "OK" 1 "UNDERFLOW" 2 "OVERFLOW";
