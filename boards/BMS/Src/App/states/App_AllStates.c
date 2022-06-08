@@ -110,10 +110,9 @@ static void
     UNUSED(segment);
 
     const float max_cell_temp = App_Accumulator_GetMaxCellTempDegC(accumulator, &segment, &segment);
-    const float curr_ts_power = App_TractiveSystem_GetPower(ts);
     const float available_power =
         min(App_SharedProcessing_LinearDerating(
-                max_cell_temp, curr_ts_power, CELL_ROLL_OFF_TEMP_DEGC, CELL_FULLY_DERATED_TEMP),
+                max_cell_temp, MAX_POWER_LIMIT_W, CELL_ROLL_OFF_TEMP_DEGC, CELL_FULLY_DERATED_TEMP),
             MAX_POWER_LIMIT_W);
 
     App_CanTx_SetPeriodicSignal_AVAILABLE_POWER(can_tx, available_power);
