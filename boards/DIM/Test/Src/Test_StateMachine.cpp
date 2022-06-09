@@ -405,17 +405,17 @@ TEST_F(DimStateMachineTest, check_torque_vectoring_switch_is_broadcasted_over_ca
 // DIM-5
 TEST_F(DimStateMachineTest, imd_led_control_in_drive_state)
 {
-    App_CanRx_BMS_IMD_SetSignal_OK_HS(can_rx_interface, CANMSGS_BMS_IMD_OK_HS_NO_FAULT_CHOICE);
+    App_CanRx_BMS_OK_STATUSES_SetSignal_IMD_OK(can_rx_interface, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(0, turn_on_imd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_imd_led_fake.call_count);
 
-    App_CanRx_BMS_IMD_SetSignal_OK_HS(can_rx_interface, CANMSGS_BMS_IMD_OK_HS_FAULT_CHOICE);
+    App_CanRx_BMS_OK_STATUSES_SetSignal_IMD_OK(can_rx_interface, false);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_on_imd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_imd_led_fake.call_count);
 
-    App_CanRx_BMS_IMD_SetSignal_OK_HS(can_rx_interface, CANMSGS_BMS_IMD_OK_HS_NO_FAULT_CHOICE);
+    App_CanRx_BMS_OK_STATUSES_SetSignal_IMD_OK(can_rx_interface, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_on_imd_led_fake.call_count);
     ASSERT_EQ(2, turn_off_imd_led_fake.call_count);
@@ -424,17 +424,17 @@ TEST_F(DimStateMachineTest, imd_led_control_in_drive_state)
 // DIM-6
 TEST_F(DimStateMachineTest, bspd_led_control_in_drive_state)
 {
-    App_CanRx_FSM_NON_CRITICAL_ERRORS_SetSignal_BSPD_FAULT(can_rx_interface, false);
+    App_CanRx_BMS_OK_STATUSES_SetSignal_BSPD_OK(can_rx_interface, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(0, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_bspd_led_fake.call_count);
 
-    App_CanRx_FSM_NON_CRITICAL_ERRORS_SetSignal_BSPD_FAULT(can_rx_interface, true);
+    App_CanRx_BMS_OK_STATUSES_SetSignal_BSPD_OK(can_rx_interface, false);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_bspd_led_fake.call_count);
 
-    App_CanRx_FSM_NON_CRITICAL_ERRORS_SetSignal_BSPD_FAULT(can_rx_interface, false);
+    App_CanRx_BMS_OK_STATUSES_SetSignal_BSPD_OK(can_rx_interface, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(2, turn_off_bspd_led_fake.call_count);
@@ -579,36 +579,6 @@ TEST_F(DimStateMachineTest, bms_board_status_led_control_with_critical_error)
     App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_bms_status_led_red_fake.call_count);
-}
-
-// DIM-2
-TEST_F(DimStateMachineTest, bms_board_status_led_control_with_non_critical_error)
-{
-    // Set any non-critical error and check that the BMS LED turns blue
-    App_SharedErrorTable_SetError(error_table, BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
-    LetTimePass(state_machine, 10);
-    ASSERT_EQ(1, turn_bms_status_led_blue_fake.call_count);
-}
-
-// DIM-2
-TEST_F(DimStateMachineTest, bms_board_status_led_control_with_no_error)
-{
-    // Don't set any error and check that the BMS LED turns green
-    LetTimePass(state_machine, 10);
-    ASSERT_EQ(1, turn_bms_status_led_green_fake.call_count);
-}
-
-// DIM-2
-TEST_F(DimStateMachineTest, bms_board_status_led_control_with_multiple_errors)
-{
-    // If the error table contains critical and non-critical errors
-    // simultaneously, the critical error should take precedence and turn the
-    // BMS LED red rather than blue
-    App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE, true);
-    App_SharedErrorTable_SetError(error_table, BMS_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
-    LetTimePass(state_machine, 10);
-    ASSERT_EQ(1, turn_bms_status_led_red_fake.call_count);
-    ASSERT_EQ(0, turn_bms_status_led_blue_fake.call_count);
 }
 
 // DIM-2
