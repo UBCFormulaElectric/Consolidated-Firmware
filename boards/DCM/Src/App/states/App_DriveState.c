@@ -9,30 +9,54 @@
 #define EFFICIENCY_ESTIMATE (0.80f)
 #define RPM_TO_RADS(rpm) ((rpm) * (float)M_PI / 30.0f)
 
-void App_SetPeriodicCanSignals_TorqueRequests(struct DcmCanTxInterface *can_tx, struct DcmCanRxInterface *can_rx)
-{
-    const float bms_available_power = App_CanRx_BMS_AVAILABLE_POWER_GetSignal_AVAILABLE_POWER(can_rx);
-    const float right_motor_speed_rpm =
-        (float)abs(App_CanRx_INVR_MOTOR_POSITION_INFO_GetSignal_D2_MOTOR_SPEED_INVR(can_rx));
-    const float left_motor_speed_rpm =
-        (float)abs(App_CanRx_INVL_MOTOR_POSITION_INFO_GetSignal_D2_MOTOR_SPEED_INVL(can_rx));
-    float bms_torque_limit = MAX_TORQUE_REQUEST_NM;
-    float fsm_torque_limit = App_CanRx_FSM_TORQUE_LIMITING_GetSignal_FSM_TORQUE_LIMIT(can_rx);
+// EV.5.7.1 The power to the Motor(s) must be immediately and completely shut down when both of the following exist at
+// the same time: • The mechanical brakes are actuated • The APPS signals more than 25% pedal travel EV.5.7.2 The Motor
+// shut down must remain active until the APPS signals less than 5% pedal travel, with or without brake operation.
+#define BRAKE_PLAUSIBILITY_LATCH_SET_THRESH (25.0f)
+#define BRAKE_PLAUSIBILITY_LATCH_RESET_THRESH (5.0f)
 
-    if ((right_motor_speed_rpm + left_motor_speed_rpm) > 0.0f)
+static void
+    App_SetPeriodicCanSignals_TorqueRequests(struct DcmCanTxInterface *can_tx, struct DcmCanRxInterface *can_rx);
+
+static void App_SetPeriodicCanSignals_TorqueRequests(struct DcmCanTxInterface *can_tx, struct DcmCanRxInterface *can_rx)
+{
+    // Set the latch high when the brake is pressed. Clear the latch when the brake is not actuated and the APPS returns
+    // to a position that is lower than 5%
+    static bool brake_actuated_latch = false;
+
+    // Acquire the motor RPM from the FSM via CAN
+    const float right_motor_speed_rad_s =
+        RPM_TO_RADS((float)abs(App_CanRx_INVR_MOTOR_POSITION_INFO_GetSignal_D2_MOTOR_SPEED_INVR(can_rx)));
+    const float left_motor_speed_rad_s =
+        RPM_TO_RADS((float)abs(App_CanRx_INVL_MOTOR_POSITION_INFO_GetSignal_D2_MOTOR_SPEED_INVL(can_rx)));
+
+    // Calculate the maximum torque request to draw the maximum power available from the BMS
+    float calculated_torque_limit = MAX_TORQUE_REQUEST_NM;
+    if ((right_motor_speed_rad_s + left_motor_speed_rad_s) > 0.0f)
     {
-        // Estimate the maximum torque request to draw the maximum power available from the BMS
-        bms_torque_limit = bms_available_power * EFFICIENCY_ESTIMATE /
-                           (RPM_TO_RADS(right_motor_speed_rpm) + RPM_TO_RADS(left_motor_speed_rpm));
+        calculated_torque_limit = App_CanRx_BMS_AVAILABLE_POWER_GetSignal_AVAILABLE_POWER(can_rx) *
+                                  EFFICIENCY_ESTIMATE / (right_motor_speed_rad_s + left_motor_speed_rad_s);
     }
 
-    // Calculate the maximum torque request to scale pedal percentage off of
-    const float max_torque_request = min(bms_torque_limit, MAX_TORQUE_REQUEST_NM);
+    const float apps_pct = App_CanRx_FSM_PEDAL_POSITION_GetSignal_MAPPED_PEDAL_PERCENTAGE(can_rx);
+    if (App_CanRx_FSM_BRAKE_GetSignal_BRAKE_IS_ACTUATED(can_rx) && (apps_pct >= BRAKE_PLAUSIBILITY_LATCH_SET_THRESH))
+    {
+        // Set the brake actuated latch high only when the brake is actuated
+        brake_actuated_latch = true;
+    }
+    else if (brake_actuated_latch && (apps_pct < BRAKE_PLAUSIBILITY_LATCH_RESET_THRESH))
+    {
+        brake_actuated_latch = false;
+    }
 
-    // Calculate the actual torque request to transmit
-    const float torque_request =
-        min(0.01f * App_CanRx_FSM_PEDAL_POSITION_GetSignal_MAPPED_PEDAL_PERCENTAGE(can_rx) * max_torque_request,
-            fsm_torque_limit);
+    // Calculate the torque request to transmit to the inverter
+    float torque_request = 0.0f;
+    if (!brake_actuated_latch)
+    {
+        const float max_torque_request = min(calculated_torque_limit, MAX_TORQUE_REQUEST_NM);
+        const float fsm_torque_limit   = App_CanRx_FSM_TORQUE_LIMITING_GetSignal_FSM_TORQUE_LIMIT(can_rx);
+        torque_request                 = min(0.01f * apps_pct * max_torque_request, fsm_torque_limit);
+    }
 
     // Transmit torque command to both inverters
     App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
