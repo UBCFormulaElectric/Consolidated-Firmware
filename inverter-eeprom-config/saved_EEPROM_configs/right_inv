@@ -30,7 +30,7 @@ CAN_BMS_Limit_Enable_EEPROM           ,      0
 CAN_Term_Res_Present_EEPROM           ,      1  
 CAN_Command_Message_Active_EEPROM     ,      1  
 CAN_Bit_Rate_EEPROM_(kbps)            ,    500  
-CAN_ACTIVE_MSGS_EEPROM_(Lo_Word)      ,  65535  
+CAN_ACTIVE_MSGS_EEPROM_(Lo_Word)      ,   6181  
 CAN_ACTIVE_MSGS_EEPROM_(Hi_Word)      ,  65535  
 CAN_Fast_Msg_Rate_EEPROM_(ms)         ,     10  
 CAN_Slow_Msg_Rate_EEPROM_(ms)         ,    100  
