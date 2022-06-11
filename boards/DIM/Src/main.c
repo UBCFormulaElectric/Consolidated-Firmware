@@ -175,7 +175,6 @@ int main(void)
     SystemClock_Config();
 
     /* USER CODE BEGIN SysInit */
-
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
@@ -448,11 +447,11 @@ static void MX_CAN_Init(void)
     hcan.Init.TimeSeg1             = CAN_BS1_6TQ;
     hcan.Init.TimeSeg2             = CAN_BS2_1TQ;
     hcan.Init.TimeTriggeredMode    = DISABLE;
-    hcan.Init.AutoBusOff           = DISABLE;
+    hcan.Init.AutoBusOff           = ENABLE;
     hcan.Init.AutoWakeUp           = DISABLE;
-    hcan.Init.AutoRetransmission   = DISABLE;
-    hcan.Init.ReceiveFifoLocked    = DISABLE;
-    hcan.Init.TransmitFifoPriority = DISABLE;
+    hcan.Init.AutoRetransmission   = ENABLE;
+    hcan.Init.ReceiveFifoLocked    = ENABLE;
+    hcan.Init.TransmitFifoPriority = ENABLE;
     if (HAL_CAN_Init(&hcan) != HAL_OK)
     {
         Error_Handler();

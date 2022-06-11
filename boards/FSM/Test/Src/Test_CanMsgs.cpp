@@ -8,7 +8,7 @@ extern "C"
 // FSM-10
 TEST(CanMsgsTest, state_machine_message_frequency)
 {
-    ASSERT_GE(HZ_TO_MS(100), CANMSGS_FSM_STATE_MACHINE_CYCLE_TIME_MS);
+    ASSERT_GE(HZ_TO_MS(10), CANMSGS_FSM_STATE_MACHINE_CYCLE_TIME_MS);
 }
 
 // FSM-1

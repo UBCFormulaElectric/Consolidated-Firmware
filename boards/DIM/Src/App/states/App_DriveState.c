@@ -5,57 +5,6 @@
 
 #define SSEG_HB_NOT_RECEIVED_ERR (888U)
 
-static void App_SetPeriodicCanSignals_DriveMode(struct DimCanTxInterface *can_tx, uint32_t switch_position)
-{
-    switch (switch_position)
-    {
-        case 0:
-        {
-            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
-                can_tx, CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_1_CHOICE);
-        }
-        break;
-        case 1:
-        {
-            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
-                can_tx, CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_2_CHOICE);
-        }
-        break;
-        case 2:
-        {
-            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
-                can_tx, CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_3_CHOICE);
-        }
-        break;
-        case 3:
-        {
-            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
-                can_tx, CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_4_CHOICE);
-        }
-        break;
-        case 4:
-        {
-            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
-                can_tx, CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_5_CHOICE);
-        }
-        break;
-        case 5:
-        {
-            // The drive mode switch has 6 physical positions, but specs.md only
-            // mentions 5 drive modes so the 6th switch position is treated
-            // as invalid.
-            App_CanTx_SetPeriodicSignal_DRIVE_MODE(
-                can_tx, CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_INVALID_CHOICE);
-        }
-        break;
-        default:
-        {
-            // Should never reach here
-            break;
-        }
-    }
-}
-
 static void App_SetPeriodicCanSignals_BinarySwitch(
     struct DimCanTxInterface *can_tx,
     struct BinarySwitch *     binary_switch,
@@ -95,7 +44,6 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct DimCanRxInterface *can_rx                  = App_DimWorld_GetCanRx(world);
     struct SevenSegDisplays * seven_seg_displays      = App_DimWorld_GetSevenSegDisplays(world);
     struct HeartbeatMonitor * heartbeat_monitor       = App_DimWorld_GetHeartbeatMonitor(world);
-    struct RotarySwitch *     drive_mode_switch       = App_DimWorld_GetDriveModeSwitch(world);
     struct Led *              imd_led                 = App_DimWorld_GetImdLed(world);
     struct Led *              bspd_led                = App_DimWorld_GetBspdLed(world);
     struct RgbLed *           bms_led                 = App_DimWorld_GetBmsStatusLed(world);
@@ -105,14 +53,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct ErrorTable *       error_table             = App_DimWorld_GetErrorTable(world);
     struct Clock *            clock                   = App_DimWorld_GetClock(world);
 
-    uint32_t buffer;
-
     App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
-
-    if (EXIT_OK(App_RotarySwitch_GetSwitchPosition(drive_mode_switch, &buffer)))
-    {
-        App_SetPeriodicCanSignals_DriveMode(can_tx, buffer);
-    }
 
     if (!App_CanRx_BMS_OK_STATUSES_GetSignal_IMD_OK(can_rx))
     {

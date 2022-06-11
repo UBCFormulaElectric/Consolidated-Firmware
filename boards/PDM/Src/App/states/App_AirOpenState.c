@@ -7,9 +7,7 @@
 
 static void AirOpenStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    struct PdmWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
-    struct PdmCanTxInterface *can_tx_interface = App_PdmWorld_GetCanTx(world);
-    App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_PDM_STATE_MACHINE_STATE_AIR_OPEN_CHOICE);
+    UNUSED(state_machine);
 }
 
 static void AirOpenStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -23,9 +21,6 @@ static void AirOpenStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     struct PdmWorld *         world  = App_SharedStateMachine_GetWorld(state_machine);
     struct PdmCanRxInterface *can_rx = App_PdmWorld_GetCanRx(world);
-
-    App_SetPeriodicCanSignals_CurrentInRangeChecks(world);
-    App_SetPeriodicCanSignals_VoltageInRangeChecks(world);
 
     if (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) == CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE &&
         App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx) == CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE)
