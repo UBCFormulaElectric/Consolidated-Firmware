@@ -21,8 +21,6 @@ void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
 {
     BREAK_IF_DEBUGGER_CONNECTED();
 
-    App_CanTx_SetPeriodicSignal_WATCHDOG_TIMEOUT(_can_tx, true);
-
     struct CanMsgs_pdm_watchdog_timeout_t payload;
     memcpy(&payload.task_name, Io_SharedSoftwareWatchdog_GetName(watchdog), sizeof(payload.task_name));
 

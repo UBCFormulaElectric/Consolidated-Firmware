@@ -348,16 +348,6 @@ TEST_F(DimStateMachineTest, check_7_seg_displays_cycle_through_two_error_ids_in_
     ASSERT_EQ(5, set_right_hex_digit_fake.arg0_val.value);
 }
 
-// DIM-3
-TEST_F(DimStateMachineTest, check_drive_mode_is_broadcasted_over_can_in_drive_state)
-{
-    get_drive_mode_switch_position_fake.return_val = 2;
-    LetTimePass(state_machine, 10);
-    ASSERT_EQ(
-        CANMSGS_DIM_DRIVE_MODE_SWITCH_DRIVE_MODE_DRIVE_MODE_3_CHOICE,
-        App_CanTx_GetPeriodicSignal_DRIVE_MODE(can_tx_interface));
-}
-
 // DIM-4
 TEST_F(DimStateMachineTest, check_start_switch_is_broadcasted_over_can_in_drive_state)
 {
