@@ -238,7 +238,7 @@ int main(void)
         Io_LTC6813CellVoltages_GetAverageCellVoltage, Io_LTC6813CellTemperatures_StartAdcConversion,
         Io_LTC6813CellTemperatures_ReadTemperatures, Io_LTC6813CellTemperatures_GetMinTempDegC,
         Io_LTC6813CellTemperatures_GetMaxTempDegC, Io_LTC6813CellTemperatures_GetAverageTempDegC,
-        Io_LTC6813Shared_EnableDischarge, Io_LTC6813Shared_DisableDischarge);
+        Io_LTC6813Shared_EnableDischarge, Io_LTC6813Shared_DisableDischarge, Io_LTC6813CellVoltages_GetCellV);
 
     ts = App_TractiveSystem_Create(
         Io_Adc_GetAdc1Channel3Voltage, Io_VoltageSense_GetTractiveSystemVoltage, Io_Adc_GetAdc2Channel1Voltage,

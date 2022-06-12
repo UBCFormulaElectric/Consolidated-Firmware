@@ -1,12 +1,45 @@
 #include "states/App_AllStates.h"
-#include "states/App_InitState.h"
-#include "states/App_DriveState.h"
 #include "states/App_PreChargeState.h"
 
 #include "App_SetPeriodicCanSignals.h"
 #include "App_SharedMacros.h"
 
+// Number of cycles before the voltage measurements settle to a stable value
+#define NUM_CYCLES_FOR_V_TO_SETTLE (3U)
 #define TS_DISCHARGED_THRESHOLD_V (10.0f)
+
+static void App_BroadcastInitialEnergyInPack(struct BmsCanTxInterface *can_tx, struct Accumulator *accumulator);
+
+static void App_BroadcastInitialEnergyInPack(struct BmsCanTxInterface *can_tx, struct Accumulator *accumulator)
+{
+    static bool is_first_time = true;
+
+    if (is_first_time)
+    {
+        // Init the cell state of charge
+        for (uint8_t curr_segment = 0U; curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS; curr_segment++)
+        {
+            for (uint8_t curr_cell = 0U; curr_cell < NUM_OF_CELLS_PER_SEGMENT; curr_cell++)
+            {
+                App_Soc_InitCellEnergy(
+                    curr_segment, curr_cell,
+                    App_Accumulator_GetIndividualCellVoltage(accumulator, curr_segment, curr_cell));
+            }
+        }
+
+        // Broadcast energy remaining in the pack
+        uint8_t segment = 0U;
+        uint8_t cell    = 0U;
+        App_CanTx_SetPeriodicSignal_MIN_ENERGY_REMAINING(can_tx, App_Soc_GetMinCellEnergyInPercent(&segment, &cell));
+        App_CanTx_SetPeriodicSignal_MIN_ENERGY_CELL(can_tx, cell);
+        App_CanTx_SetPeriodicSignal_MIN_ENERGY_SEGMENT(can_tx, segment);
+        App_CanTx_SetPeriodicSignal_MAX_ENERGY_REMAINING(can_tx, App_Soc_GetMaxCellEnergyInPercent(&segment, &cell));
+        App_CanTx_SetPeriodicSignal_MAX_ENERGY_CELL(can_tx, cell);
+        App_CanTx_SetPeriodicSignal_MAX_ENERGY_SEGMENT(can_tx, segment);
+
+        is_first_time = false;
+    }
+}
 
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -25,6 +58,22 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick1Hz(state_machine);
+
+    struct BmsWorld *         world       = App_SharedStateMachine_GetWorld(state_machine);
+    struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
+    struct BmsCanTxInterface *can_tx      = App_BmsWorld_GetCanTx(world);
+
+    static uint8_t num_cycles_counter = 0U;
+
+    // Wait for NUM_CYCLES_FOR_V_TO_SETTLE before broadcasting the amount of energy remaining in the pack
+    if (num_cycles_counter < NUM_CYCLES_FOR_V_TO_SETTLE)
+    {
+        num_cycles_counter++;
+    }
+    else
+    {
+        App_BroadcastInitialEnergyInPack(can_tx, accumulator);
+    }
 }
 
 static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)

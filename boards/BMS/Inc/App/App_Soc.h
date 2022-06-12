@@ -37,3 +37,31 @@
  *                                not between 0 and 100 inclusive
  */
 ExitCode App_Soc_Vote(float max_abs_difference, float soc_1, float soc_2, float soc_3, float *result);
+
+/**
+ * Initialize the value of the cell energy for the given cell
+ * @param segment The current segment where the cell is located
+ * @param cell The current cell to initialize the energy for
+ * @param cell_v The current cell voltage used to look up the initial cell energy
+ */
+void App_Soc_InitCellEnergy(uint8_t segment, uint8_t cell, float cell_v);
+
+/**
+ * Update the energy of a given cell
+ * @param segment The current segment where the cell is located
+ * @param cell The current cell
+ * @param current The tractive system current in A
+ * @param cell_voltage The cell voltage of the given cell
+ * @param time_step_s Period for cell energy measurements
+ */
+void App_Soc_UpdateCellEnergy(uint8_t segment, uint8_t cell, float current, float cell_voltage, float time_step_s);
+
+/**
+ * Get the min cell energy in percent. The pack when unbalanced is limited by this cell energy
+ * @param segment The segment where the cell with the min cell energy is located
+ * @param cell The cell containing the min cell energy
+ * @return The cell energy in percent relative to the max cell energy
+ */
+float App_Soc_GetMinCellEnergyInPercent(uint8_t *segment, uint8_t *cell);
+
+float App_Soc_GetMaxCellEnergyInPercent(uint8_t *segment, uint8_t *cell);

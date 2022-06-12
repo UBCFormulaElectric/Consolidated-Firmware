@@ -22,7 +22,8 @@ struct Accumulator *App_Accumulator_Create(
     float (*get_max_cell_temp)(uint8_t *, uint8_t *),
     float (*get_avg_cell_temp)(void),
     bool (*enable_discharge)(void),
-    bool (*disable_discharge)(void));
+    bool (*disable_discharge)(void),
+    float (*get_individual_cell_voltage)(uint8_t, uint8_t));
 
 /**
  * Deallocate the memory used by the given accumulator.
@@ -92,6 +93,18 @@ float App_Accumulator_GetAvgCellTempDegC(const struct Accumulator *const accumul
  * @return The accumulator pack voltage in V
  */
 float App_Accumulator_GetPackVoltage(struct Accumulator *accumulator);
+
+/**
+ * Get the individual cell voltage
+ * @param accumulator The accumulator to get the individual cell voltage from
+ * @param curr_segment The current segment to get the individual cell voltage from
+ * @param curr_cell The current cell to get the cell voltage from
+ * @return The individual cell voltage in V
+ */
+float App_Accumulator_GetIndividualCellVoltage(
+    const struct Accumulator *const accumulator,
+    uint8_t                         segment,
+    uint8_t                         cell);
 
 // Rate functions to be called within the state machine
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *accumulator);

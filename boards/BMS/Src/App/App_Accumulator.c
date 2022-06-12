@@ -38,6 +38,7 @@ struct Accumulator
     float (*get_segment_voltage)(AccumulatorSegments_E);
     float (*get_pack_voltage)(void);
     float (*get_avg_cell_voltage)(void);
+    float (*get_individual_cell_voltage)(uint8_t, uint8_t);
 
     // Cell temperature monitoring functions
     bool (*start_cell_temp_conv)(void);
@@ -66,7 +67,8 @@ struct Accumulator *App_Accumulator_Create(
     float (*get_max_cell_temp)(uint8_t *, uint8_t *),
     float (*get_avg_cell_temp)(void),
     bool (*enable_discharge)(void),
-    bool (*disable_discharge)(void))
+    bool (*disable_discharge)(void),
+    float (*get_individual_cell_voltage)(uint8_t, uint8_t))
 {
     struct Accumulator *accumulator = malloc(sizeof(struct Accumulator));
     assert(accumulator != NULL);
@@ -75,14 +77,15 @@ struct Accumulator *App_Accumulator_Create(
     accumulator->write_cfg_registers    = write_cfg_registers;
 
     // Cell voltage monitoring functions
-    accumulator->num_comm_tries          = 0U;
-    accumulator->read_cell_voltages      = read_cell_voltages;
-    accumulator->start_cell_voltage_conv = start_voltage_conv;
-    accumulator->get_min_cell_voltage    = get_min_cell_voltage;
-    accumulator->get_max_cell_voltage    = get_max_cell_voltage;
-    accumulator->get_segment_voltage     = get_segment_voltage;
-    accumulator->get_pack_voltage        = get_pack_voltage;
-    accumulator->get_avg_cell_voltage    = get_avg_cell_voltage;
+    accumulator->num_comm_tries              = 0U;
+    accumulator->read_cell_voltages          = read_cell_voltages;
+    accumulator->start_cell_voltage_conv     = start_voltage_conv;
+    accumulator->get_min_cell_voltage        = get_min_cell_voltage;
+    accumulator->get_max_cell_voltage        = get_max_cell_voltage;
+    accumulator->get_segment_voltage         = get_segment_voltage;
+    accumulator->get_pack_voltage            = get_pack_voltage;
+    accumulator->get_avg_cell_voltage        = get_avg_cell_voltage;
+    accumulator->get_individual_cell_voltage = get_individual_cell_voltage;
 
     // Cell temperature monitoring functions
     accumulator->start_cell_temp_conv   = start_cell_temp_conv;
@@ -157,6 +160,14 @@ bool App_Accumulator_EnableDischarge(const struct Accumulator *const accumulator
 bool App_Accumulator_DisableDischarge(const struct Accumulator *const accumulator)
 {
     return accumulator->disable_discharge();
+}
+
+float App_Accumulator_GetIndividualCellVoltage(
+    const struct Accumulator *const accumulator,
+    uint8_t                         curr_segment,
+    uint8_t                         curr_cell)
+{
+    return accumulator->get_individual_cell_voltage(curr_segment, curr_cell);
 }
 
 void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)

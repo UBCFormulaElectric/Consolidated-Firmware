@@ -12,6 +12,10 @@
 
 #define MAX_TORQUE_REQUEST_NM (90.0f) // Max torque of EMRAX 188 HV CC motor
 
+#define TASK_100HZ_PERIOD_S (0.01f)
+
+#define NUM_OF_CELLS_PER_SEGMENT (16U)
+
 // Generic enum for hexadecimal digits. The order of the enums is important and
 // shouldn't be changed.
 enum HexDigit
@@ -45,3 +49,4 @@ typedef enum
     ACCUMULATOR_SEGMENT_5,
     NUM_OF_ACCUMULATOR_SEGMENTS,
 } AccumulatorSegments_E;
+

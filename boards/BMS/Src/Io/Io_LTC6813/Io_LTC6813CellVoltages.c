@@ -5,9 +5,7 @@
 #include "App_SharedMacros.h"
 
 // clang-format off
-#define NOMINAL_CELL_VOLTAGE          (37000U)
-#define NUM_OF_CELLS_PER_SEGMENT      (16U)
-#define TOTAL_NUM_OF_CELLS            (NUM_OF_CELLS_PER_SEGMENT * NUM_OF_ACCUMULATOR_SEGMENTS)
+#define TOTAL_NUM_OF_CELLS (NUM_OF_CELLS_PER_SEGMENT * NUM_OF_ACCUMULATOR_SEGMENTS)
 
 // Command used to start ADC conversions
 #define ADCV ((uint16_t)(((0x0060U + (MD << 7U) + (DCP << 4U) + CH) << 8U) | 0x0002U))
@@ -276,4 +274,10 @@ float Io_LTC6813CellVoltages_GetSegmentVoltage(AccumulatorSegments_E segment)
 float Io_LTC6813CellVoltages_GetAverageCellVoltage(void)
 {
     return CONVERT_100UV_TO_VOLTAGE(voltages.pack) / TOTAL_NUM_OF_CELLS;
+}
+
+float Io_LTC6813CellVoltages_GetCellV(uint8_t segment, uint8_t cell)
+{
+    return CONVERT_100UV_TO_VOLTAGE(
+        cell_voltages[segment][cell / NUM_OF_READINGS_PER_REG_GROUP][cell % NUM_OF_READINGS_PER_REG_GROUP]);
 }

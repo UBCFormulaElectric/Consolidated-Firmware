@@ -13,6 +13,7 @@
 #include "App_TractiveSystem.h"
 #include "App_SharedErrorTable.h"
 #include "App_SharedClock.h"
+#include "App_Soc.h"
 
 struct BmsWorld;
 

@@ -59,3 +59,11 @@ float Io_LTC6813CellVoltages_GetPackVoltage(void);
  * @return The average cell voltage in (V)
  */
 float Io_LTC6813CellVoltages_GetAverageCellVoltage(void);
+
+/**
+ * Get the individual cell voltage
+ * @param segment Cell segment to get the voltage from
+ * @param cell Cell voltage to read cell voltage from
+ * @return Individual cell voltage in V
+ */
+float Io_LTC6813CellVoltages_GetCellV(uint8_t segment, uint8_t cell);
