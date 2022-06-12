@@ -83,6 +83,17 @@ SG_ D3_Power_On_Timer_INVL : 32|32@1+ (0.003,0) [0|12884800] "Sec" DEBUG
 SG_ D2_Torque_Feedback_INVL : 16|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
 SG_ D1_Commanded_Torque_INVL : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
 
+BO_ 13 FSM_PEDAL_POSITION: 4 FSM
+SG_ Mapped_Pedal_Percentage: 0|32@1+ (1,0) [0|100] "%" DCM
+
+BO_ 14 FSM_BRAKE: 8 FSM
+SG_ Brake_Pressure: 0|32@1+ (1,0) [0|2500] "psi" DEBUG 
+SG_ Brake_Is_Actuated: 33|1@1+ (1,0) [0|1] "" DCM
+SG_ Pressure_Sensor_Is_Open_Or_Short_Circuit: 34|1@1+ (1,0) [0|1] "" DEBUG 
+
+BO_ 15 BMS_AVAILABLE_POWER: 4 BMS
+SG_ AVAILABLE_POWER : 0|32@1+ (1,0) [0|100000] "W" DCM
+
 BO_ 32 DCM_INVL_Command_Message: 8 DCM
 SG_ Inverter_Enable_INVL : 40|1@1+ (1,0) [0|1] "Bit" INVL
 SG_ Direction_Command_INVL : 32|1@1+ (1,0) [0|1] "Bit" INVL
@@ -199,9 +210,6 @@ SG_ D2_Write_Success : 16|1@1+ (1,0) [0|1] "" DEBUG
 SG_ D3_Data_Response : 32|16@1- (1,0) [-32768|32767] "" DEBUG
 SG_ D1_Parameter_Address_Response : 0|16@1+ (1,0) [0|65535] "" DEBUG
 
-BO_ 13 FSM_PEDAL_POSITION: 4 FSM
-SG_ Mapped_Pedal_Percentage: 0|32@1+ (1,0) [0|100] "%" DCM
-
 BO_ 90 FSM_Torque_Limiting : 4 FSM
 SG_ FSM_Torque_Limit : 0|32@1+ (1,0) [0.0|150.0] "Nm" DCM
 
@@ -296,9 +304,6 @@ SG_ TS_CURRENT : 32|32@1+ (1,0) [-300|300] "" DEBUG
 BO_ 118 BMS_PACK_VOLTAGE: 4 BMS
 SG_ PACK_VOLTAGE : 0|32@1+ (1,0) [0|600] "" DEBUG
 
-BO_ 120 BMS_AVAILABLE_POWER: 4 BMS
-SG_ AVAILABLE_POWER : 0|32@1+ (1,0) [0|100000] "W" DCM
-
 BO_ 121 DIM_SWITCHES: 1 DIM
 SG_ Start_Switch : 0|1@1+ (1,0) [0|1] "" DCM
 SG_ Traction_Control_Switch : 1|1@1+ (1,0) [0|1] "" DCM
@@ -383,11 +388,6 @@ BO_ 306 FSM_AIR_SHUTDOWN: 0 FSM
 BO_ 307 FSM_FLOW_METER: 8 FSM
 SG_ FLOW_RATE: 0|32@1+ (1,0) [0|100] "L/min" DEBUG 
 
-BO_ 14 FSM_BRAKE: 8 FSM
-SG_ Brake_Pressure: 0|32@1+ (1,0) [0|2500] "psi" DEBUG 
-SG_ Brake_Is_Actuated: 33|1@1+ (1,0) [0|1] "" DCM
-SG_ Pressure_Sensor_Is_Open_Or_Short_Circuit: 34|1@1+ (1,0) [0|1] "" DEBUG 
-
 BO_ 310 FSM_AIR_SHUTDOWN_ERRORS: 1 FSM
 SG_ MISSING_HEARTBEAT : 0|1@1+ (1,0) [0|1] "" DEBUG
 
@@ -437,7 +437,7 @@ SG_ DUMMY_AIR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DCM
 BO_ 500 DIM_VITALS: 1 DIM
 SG_ HEARTBEAT : 0|1@1+ (1,0) [0|1] "" FSM,DCM,PDM,BMS
 
-BO_ 152 DIM_CAN_FIFO_OVERFLOW: 8 DIM
+BO_ 501 DIM_CAN_FIFO_OVERFLOW: 8 DIM
 SG_ tx_overflow_count : 0|32@1+ (1,0) [0|4294967295] "" DEBUG
 SG_ rx_overflow_count : 32|32@1+ (1,0) [0|4294967295] "" DEBUG
 
@@ -510,6 +510,9 @@ BA_ "GenMsgCycleTime" BO_ 84 0;
 
 BA_ "GenMsgCycleTime" BO_ 90 10;
 
+BA_ "GenMsgCycleTime" BO_ 13 10;
+BA_ "GenMsgCycleTime" BO_ 14 10;
+BA_ "GenMsgCycleTime" BO_ 15 10;
 BA_ "GenMsgCycleTime" BO_ 100 100;
 BA_ "GenMsgCycleTime" BO_ 101 5000;
 BA_ "GenMsgCycleTime" BO_ 104 1000;
@@ -527,8 +530,7 @@ BA_ "GenMsgCycleTime" BO_ 115 100;
 BA_ "GenMsgCycleTime" BO_ 116 100;
 BA_ "GenMsgCycleTime" BO_ 117 100;
 BA_ "GenMsgCycleTime" BO_ 118 100;
-BA_ "GenMsgCycleTime" BO_ 120 100;
-BA_ "GenMsgCycleTime" BO_ 13 10;
+BA_ "GenMsgCycleTime" BO_ 121 10;
 BA_ "GenMsgCycleTime" BO_ 151 100;
 BA_ "GenMsgCycleTime" BO_ 200 100;
 BA_ "GenMsgCycleTime" BO_ 201 5000;
@@ -543,7 +545,6 @@ BA_ "GenMsgCycleTime" BO_ 301 100;
 BA_ "GenMsgCycleTime" BO_ 302 5000;
 BA_ "GenMsgCycleTime" BO_ 305 100;
 BA_ "GenMsgCycleTime" BO_ 307 1000;
-BA_ "GenMsgCycleTime" BO_ 14 10;
 BA_ "GenMsgCycleTime" BO_ 310 1000;
 BA_ "GenMsgCycleTime" BO_ 315 1000;
 BA_ "GenMsgCycleTime" BO_ 317 100;
@@ -555,14 +556,16 @@ BA_ "GenMsgCycleTime" BO_ 405 5000;
 BA_ "GenMsgCycleTime" BO_ 411 1000;
 BA_ "GenMsgCycleTime" BO_ 414 1000;
 BA_ "GenMsgCycleTime" BO_ 500 100;
-BA_ "GenMsgCycleTime" BO_ 152 10;
+BA_ "GenMsgCycleTime" BO_ 501 5000;
 BA_ "GenMsgCycleTime" BO_ 503 1000;
-BA_ "GenMsgCycleTime" BO_ 121 10;
 BA_ "GenMsgCycleTime" BO_ 508 5000;
 BA_ "GenMsgCycleTime" BO_ 509 1000;
 BA_ "GenMsgCycleTime" BO_ 510 1000;
 BA_ "GenMsgCycleTime" BO_ 600 1000;
 
+SIG_VALTYPE_ 13 Mapped_Pedal_Percentage : 1;
+SIG_VALTYPE_ 14 Brake_Pressure: 1;
+SIG_VALTYPE_ 15 AVAILABLE_POWER: 1;
 SIG_VALTYPE_ 90 FSM_Torque_Limit : 1;
 SIG_VALTYPE_ 106 Duty_Cycle : 1;
 SIG_VALTYPE_ 106 Frequency : 1;
@@ -574,13 +577,10 @@ SIG_VALTYPE_ 115 MAX_CELL_VOLTAGE: 1;
 SIG_VALTYPE_ 117 TS_VOLTAGE: 1;
 SIG_VALTYPE_ 117 TS_CURRENT: 1;
 SIG_VALTYPE_ 118 PACK_VOLTAGE: 1;
-SIG_VALTYPE_ 120 AVAILABLE_POWER: 1;
-SIG_VALTYPE_ 206 Torque_Request : 1;
-SIG_VALTYPE_ 307 FLOW_RATE : 1;
-SIG_VALTYPE_ 14 Brake_Pressure: 1;
-SIG_VALTYPE_ 13 Mapped_Pedal_Percentage : 1;
 SIG_VALTYPE_ 151 Papps_Mapped_Pedal_Percentage : 1;
 SIG_VALTYPE_ 151 Sapps_Mapped_Pedal_Percentage : 1;
+SIG_VALTYPE_ 206 Torque_Request : 1;
+SIG_VALTYPE_ 307 FLOW_RATE : 1;
 SIG_VALTYPE_ 317 Left_Wheel_Speed: 1;
 SIG_VALTYPE_ 317 Right_Wheel_Speed: 1;
 SIG_VALTYPE_ 318 Steering_Angle: 1;
@@ -631,6 +631,9 @@ VAL_ 300 BRAKE_PRESSURE_OPEN_OC 0 "FALSE" 1 "TRUE";
 VAL_ 305 State 0 "AIR_OPEN" 1 "AIR_CLOSED";
 VAL_ 14 Brake_Is_Actuated 0 "FALSE" 1 "TRUE";
 VAL_ 14 Pressure_Sensor_Is_Open_Or_Short_Circuit 0 "FALSE" 1 "TRUE";
+VAL_ 121 Start_Switch 0 "OFF" 1 "ON";
+VAL_ 121 Traction_Control_Switch 0 "OFF" 1 "ON";
+VAL_ 121 Torque_Vectoring_Switch  0 "OFF" 1 "ON";
 VAL_ 315 APPS_Has_Disagreement 0 "FALSE" 1 "TRUE";
 VAL_ 315 PAPPS_Alarm_Is_Active 0 "FALSE" 1 "TRUE";
 VAL_ 315 SAPPS_Alarm_Is_Active 0 "FALSE" 1 "TRUE";
@@ -638,7 +641,4 @@ VAL_ 315 Plausibility_Check_Has_Failed 0 "FALSE" 1 "TRUE";
 VAL_ 315 FLOW_METER_HAS_UNDERFLOW 0 "FALSE" 1 "TRUE";
 VAL_ 315 Torque_Plausibility_Check_Failed 0 "FALSE" 1 "TRUE";
 VAL_ 503 State 0 "DRIVE";
-VAL_ 121 Start_Switch 0 "OFF" 1 "ON";
-VAL_ 121 Traction_Control_Switch 0 "OFF" 1 "ON";
-VAL_ 121 Torque_Vectoring_Switch  0 "OFF" 1 "ON";
 
