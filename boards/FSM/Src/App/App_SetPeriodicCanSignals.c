@@ -79,11 +79,13 @@ void App_SetPeriodicSignals_Brake(const struct FsmWorld *world)
     {
         App_CanTx_SetPeriodicSignal_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT(
             can_tx, CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_TRUE_CHOICE);
+        App_CanTx_SetPeriodicSignal_PRESSURE_SENSOR_IS_OPEN_OR_SHORTED(can_tx, true);
     }
     else
     {
         App_CanTx_SetPeriodicSignal_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT(
             can_tx, CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_FALSE_CHOICE);
+        App_CanTx_SetPeriodicSignal_PRESSURE_SENSOR_IS_OPEN_OR_SHORTED(can_tx, false);
     }
 }
 
@@ -91,7 +93,6 @@ void App_SetPeriodicSignals_AcceleratorPedal(const struct FsmWorld *world)
 {
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
 
-    struct Brake *            brake           = App_FsmWorld_GetBrake(world);
     struct AcceleratorPedals *papps_and_sapps = App_FsmWorld_GetPappsAndSapps(world);
 
     const float papps_pedal_percentage = App_AcceleratorPedals_GetPrimaryPedalPercentage(papps_and_sapps);
@@ -100,14 +101,7 @@ void App_SetPeriodicSignals_AcceleratorPedal(const struct FsmWorld *world)
     App_CanTx_SetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, papps_pedal_percentage);
     App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, sapps_pedal_percentage);
 
-    if (App_Brake_IsBrakeActuated(brake))
-    {
-        App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
-    }
-    else
-    {
-        App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, papps_pedal_percentage);
-    }
+    App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, papps_pedal_percentage);
 }
 
 void App_SetPeriodicSignals_MotorShutdownFaults(const struct FsmWorld *world)

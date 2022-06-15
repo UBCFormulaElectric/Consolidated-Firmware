@@ -4,6 +4,11 @@
 
 #include "App_SharedMacros.h"
 
+#define CLEAR_FAULT_CMD                                                                      \
+    {                                                                                        \
+        .d1_parameter_address_command = 20, .d2_read_write_command = 1, .d3_data_command = 0 \
+    }
+
 static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct DcmWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
@@ -29,10 +34,20 @@ static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
 static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct DcmWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
-    struct DcmCanTxInterface *can_tx_interface = App_DcmWorld_GetCanTx(world);
+    struct DcmCanTxInterface *can_tx = App_DcmWorld_GetCanTx(world);
+    struct DcmCanRxInterface *can_rx = App_DcmWorld_GetCanRx(world);
 
-    App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 0.0f);
+    App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx, 0.0f);
 
+    if (App_HasInverterFault(can_rx) && App_IsBmsInDriveState(can_rx))
+    {
+        // Try clearing inverter fault
+        const struct CanMsgs_debug_invl_read_write_param_command_t clear_fault_cmd_l = CLEAR_FAULT_CMD;
+        const struct CanMsgs_debug_invr_read_write_param_command_t clear_fault_cmd_r = CLEAR_FAULT_CMD;
+
+        App_CanTx_SendNonPeriodicMsg_DEBUG_INVL_READ_WRITE_PARAM_COMMAND(can_tx, &clear_fault_cmd_l);
+        App_CanTx_SendNonPeriodicMsg_DEBUG_INVR_READ_WRITE_PARAM_COMMAND(can_tx, &clear_fault_cmd_r);
+    }
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());

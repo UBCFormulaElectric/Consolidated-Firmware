@@ -67,13 +67,17 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
+
         struct DcmWorld *         world  = App_SharedStateMachine_GetWorld(state_machine);
         struct DcmCanTxInterface *can_tx = App_DcmWorld_GetCanTx(world);
         struct DcmCanRxInterface *can_rx = App_DcmWorld_GetCanRx(world);
-
         App_SetPeriodicCanSignals_TorqueRequests(can_tx, can_rx);
 
         if (!App_IsStartSwitchOn(can_rx))
+        {
+            App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
+        }
+        if (App_CanRx_BMS_STATE_MACHINE_GetSignal_STATE(can_rx) != CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE)
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
         }

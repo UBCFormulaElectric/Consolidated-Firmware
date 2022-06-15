@@ -93,7 +93,7 @@ SG_ Torque_Limit_Command_INVL : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVL
 SG_ Speed_Mode_Enable_INVL : 42|1@1+ (1,0) [0|1] "Bit" INVL
 SG_ RollingCounter_INVL : 44|4@1+ (1,0) [0|15] "Bits" INVL
 
-BO_ 33 DEBUG_INVL_Read_Write_Param_Command: 8 DEBUG
+BO_ 33 DEBUG_INVL_Read_Write_Param_Command: 8 DCM
 SG_ D3_Data_Command : 32|16@1- (1,0) [-32768|32767] "" INVL
 SG_ D2_Read_Write_Command : 16|1@1+ (1,0) [0|1] "" INVL
 SG_ D1_Parameter_Address_Command : 0|16@1+ (1,0) [0|65535] "" INVL
@@ -189,7 +189,7 @@ SG_ Torque_Limit_Command_INVR : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" INVR
 SG_ Speed_Mode_Enable_INVR : 42|1@1+ (1,0) [0|1] "Bit" INVR
 SG_ RollingCounter_INVR : 44|4@1+ (1,0) [0|15] "Bits" INVR
 
-BO_ 83 DEBUG_INVR_Read_Write_Param_Command: 8 DEBUG
+BO_ 83 DEBUG_INVR_Read_Write_Param_Command: 8 DCM
 SG_ D3_Data_Command : 32|16@1- (1,0) [-32768|32767] "" INVR
 SG_ D2_Read_Write_Command : 16|1@1+ (1,0) [0|1] "" INVR
 SG_ D1_Parameter_Address_Command : 0|16@1+ (1,0) [0|65535] "" INVR
@@ -395,9 +395,9 @@ BO_ 315 FSM_MOTOR_SHUTDOWN_ERRORS: 1 FSM
 SG_ APPS_Has_Disagreement : 0|1@1+ (1,0) [0|1] "" DCM
 SG_ PAPPS_Alarm_Is_Active : 1|1@1+ (1,0) [0|1] "" DCM
 SG_ SAPPS_Alarm_Is_Active : 2|1@1+ (1,0) [0|1] "" DCM
-SG_ Plausibility_Check_Has_Failed : 3|1@1+ (1,0) [0|1] "" DCM
-SG_ FLOW_METER_HAS_UNDERFLOW : 4|1@1+ (1,0) [0|1] "" DCM
-SG_ Torque_Plausibility_Check_Failed : 5|1@1+ (1,0) [0|1] "" DCM
+SG_ FLOW_METER_HAS_UNDERFLOW : 3|1@1+ (1,0) [0|1] "" DCM
+SG_ Torque_Plausibility_Check_Failed : 4|1@1+ (1,0) [0|1] "" DCM
+SG_ Pressure_Sensor_Is_Open_Or_Shorted : 5|1@1+ (1,0) [0|1] "" DCM
 
 BO_ 317 FSM_WHEEL_SPEED_SENSOR: 8 FSM
 SG_ Left_Wheel_Speed : 0|32@1+ (1,0) [0|150] "km/h" DCM 

@@ -572,31 +572,6 @@ TEST_F(FsmStateMachineTest, check_mapped_pedal_percentage_can_signals_in_all_sta
     }
 }
 
-// FSM-3
-TEST_F(FsmStateMachineTest, brake_is_actuated_sets_mapped_pedal_percentage_to_zero_in_all_states)
-{
-    for (const auto &state : GetAllStates())
-    {
-        SetInitialState(state);
-
-        RESET_FAKE(is_brake_actuated);
-
-        // Start with a non-zero pedal position to avoid false positives. In
-        // addition, the chosen primary brake pedal percentage will not trigger
-        // the APPS and brake plausibility callback function
-        get_papps_encoder_counter_fake.return_val = GetPrimaryEncoderCounterFromPedalPercentage(5);
-        LetTimePass(state_machine, 10);
-        ASSERT_NEAR(5, round(App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface)), 0.5f);
-
-        is_brake_actuated_fake.return_val = true;
-
-        LetTimePass(state_machine, 9);
-        ASSERT_NEAR(5, round(App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface)), 0.5f);
-        LetTimePass(state_machine, 1);
-        ASSERT_NEAR(0, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface), 0.5f);
-    }
-}
-
 // FSM-16
 TEST_F(
     FsmStateMachineTest,
