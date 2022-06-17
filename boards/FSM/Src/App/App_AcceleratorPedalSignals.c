@@ -1,12 +1,12 @@
 #include <math.h>
 #include "App_AcceleratorPedalSignals.h"
 #include "App_FsmWorld.h"
+#include "Io_Adc.h"
 
 bool App_AcceleratorPedalSignals_IsPappsAlarmActive(struct FsmWorld *world)
 {
-    struct AcceleratorPedals *papps_and_sapps = App_FsmWorld_GetPappsAndSapps(world);
-
-    return App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(papps_and_sapps);
+    const float raw_adc = Io_Adc_GetChannel1Voltage();
+    return (raw_adc < 0.5f) || (raw_adc > 3.1f);
 }
 
 void App_AcceleratorPedalSignals_PappsAlarmCallback(struct FsmWorld *world)
@@ -14,6 +14,7 @@ void App_AcceleratorPedalSignals_PappsAlarmCallback(struct FsmWorld *world)
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
 
     App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
+    App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
     App_CanTx_SetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(
         can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE);
 }
@@ -37,8 +38,8 @@ void App_AcceleratorPedalSignals_SappsAlarmCallback(struct FsmWorld *world)
 bool App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive(struct FsmWorld *world)
 {
     struct AcceleratorPedals *papps_and_sapps = App_FsmWorld_GetPappsAndSapps(world);
-
-    return !App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(papps_and_sapps) &&
+    const float raw_adc_voltage = Io_Adc_GetChannel1Voltage();
+    return ((raw_adc_voltage > 1.00f) && (raw_adc_voltage < 2.9f)) &&
            !App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(papps_and_sapps);
 }
 

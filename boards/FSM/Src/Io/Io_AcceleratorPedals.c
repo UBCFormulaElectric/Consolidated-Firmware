@@ -14,13 +14,8 @@
 #define PAPPS_LENGTH_FULL_PRESSED_MM (152.0f)
 
 // Raw voltage seen at the pin
-#define PAPPS_FULL_PRESSED_POT_V (2.84f)
-#define PAPPS_UNPRESSED_POT_V (0.835f)
-
-// TODO: re-evalutate this expression
-// PAPPS angle expressed in rad
-#define PAPPS_ANGLE_RANGE_RADS (50.0f * (float)M_PI / 180.0f)
-#define PAPPS_ANGLE_RANGE_RADS (50.0f * (float)M_PI / 180.0f)
+#define PAPPS_FULL_PRESSED_POT_V (2.86f)
+#define PAPPS_UNPRESSED_POT_V (1.082f)
 
 // Denominator term for angle calculation using the cosine law
 #define PAPPS_COS_LAW_DENOMINATOR (2.0f * PAPPS_LEN_A * PAPPS_LEN_B)
@@ -31,7 +26,7 @@
     ((PAPPS_LENGTH_FULL_PRESSED_MM - PAPPS_LENGTH_UNPRESSED_MM) / (PAPPS_FULL_PRESSED_POT_V - PAPPS_UNPRESSED_POT_V))
 
 // PAPPS length offset in mm
-#define PAPPS_LEN_OFFSET_MM (218.57f)
+#define PAPPS_LEN_OFFSET_MM (227.6f)
 #define PAPPS_RAW_VOLTAGE_TO_LEN_MM(voltage) (voltage * PAPPS_LEN_PER_VOLTAGE + PAPPS_LEN_OFFSET_MM)
 
 bool Io_AcceleratorPedals_IsPappsEncoderAlarmActive(void)
@@ -54,7 +49,7 @@ float Io_AcceleratorPedals_GetAngle(void)
         ((float)M_PI_2 -
          (-(PAPPS_COS_LAW_COEFFICIENT - (pot_len * pot_len / PAPPS_COS_LAW_DENOMINATOR)) + (float)M_PI_2));
 
-    return pedal_travel_angle * 180 / (float)M_PI + 16.8f;
+    return pedal_travel_angle * 180 / (float)M_PI + 16.3f;
 }
 
 float Io_AcceleratorPedals_GetPapps(void)
