@@ -1,5 +1,9 @@
 #include "states/App_AllStates.h"
 #include "App_SharedConstants.h"
+#include "Io_PrimaryScancon2RMHF.h"
+#include "Io_SecondaryScancon2RMHF.h"
+#include "Io_AcceleratorPedals.h"
+#include "Io_Adc.h"
 
 #define TORQUE_LIMIT_OFFSET_NM (5.0f)
 #define MAX_TORQUE_PLAUSIBILITY_ERR_CNT (25) // 250 ms window
@@ -57,6 +61,17 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     fsm_torque_limit = 0.01f * App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx) * MAX_TORQUE_REQUEST_NM +
                        TORQUE_LIMIT_OFFSET_NM;
     App_CanTx_SetPeriodicSignal_FSM_TORQUE_LIMIT(can_tx, fsm_torque_limit);
+
+    // Debug msgs, remove after testing
+    App_CanTx_SetPeriodicSignal_SAPPS(can_tx, (uint16_t)Io_SecondaryScancon2RMHF_GetEncoderCounter());
+    App_CanTx_SetPeriodicSignal_PAPPS(can_tx, (uint16_t)Io_PrimaryScancon2RMHF_GetEncoderCounter());
+
+    App_CanTx_SetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, Io_AcceleratorPedals_GetPapps());
+    //App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, Io_AcceleratorPedals_GetPapps());
+
+    // Get accelerometer angle in rad
+    App_CanTx_SetPeriodicSignal_PAPPS_ANGLE(can_tx, Io_AcceleratorPedals_GetAngle());
+    App_CanTx_SetPeriodicSignal_PAPPS_RAW_ADC(can_tx, Io_Adc_GetChannel1Voltage());
 
     App_CanTx_SetPeriodicSignal_MISSING_HEARTBEAT(can_tx, !App_SharedHeartbeatMonitor_Tick(hb_monitor));
 }
