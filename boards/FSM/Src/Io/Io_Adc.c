@@ -26,8 +26,8 @@
 // };
 enum
 {
-    CHANNEL_1,
-    CHANNEL_3,
+    CHANNEL_1, // APPS Potentiometer
+    CHANNEL_3, // Brake Pressure
     NUM_ADC_CHANNELS
 };
 

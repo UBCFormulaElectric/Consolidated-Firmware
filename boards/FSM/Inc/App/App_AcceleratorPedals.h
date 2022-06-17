@@ -78,3 +78,9 @@ float App_AcceleratorPedals_GetPrimaryPedalPercentage(const struct AcceleratorPe
  * @return The pedal percentage of the secondary accelerator pedal
  */
 float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct AcceleratorPedals *accelerator_pedals);
+
+/**
+ * Get the tertiary pedal percentage.
+ * @return The tertiary pedal percentage
+ */
+float App_AcceleratorPedals_GetTertiaryPedalPercentage(void);

@@ -1,5 +1,6 @@
 #include "states/App_AllStates.h"
 #include "App_SharedConstants.h"
+#include "Io_Adc.h"
 
 #define TORQUE_LIMIT_OFFSET_NM (5.0f)
 #define MAX_TORQUE_PLAUSIBILITY_ERR_CNT (25) // 250 ms window
@@ -57,6 +58,10 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     fsm_torque_limit = 0.01f * App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx) * MAX_TORQUE_REQUEST_NM +
                        TORQUE_LIMIT_OFFSET_NM;
     App_CanTx_SetPeriodicSignal_FSM_TORQUE_LIMIT(can_tx, fsm_torque_limit);
+
+    // Test for potentiometer OC/SC
+    bool has_pot_opened_or_shorted = Io_Adc_GetChannel1Voltage() > 4.0f || Io_Adc_GetChannel1Voltage() < 0.1f;
+    App_CanTx_SetPeriodicSignal_TAPPS_IS_OPEN_OR_SHORTED(can_tx, has_pot_opened_or_shorted);
 
     App_CanTx_SetPeriodicSignal_MISSING_HEARTBEAT(can_tx, !App_SharedHeartbeatMonitor_Tick(hb_monitor));
 }

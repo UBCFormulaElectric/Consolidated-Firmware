@@ -96,9 +96,11 @@ void App_SetPeriodicSignals_AcceleratorPedal(const struct FsmWorld *world)
 
     const float papps_pedal_percentage = App_AcceleratorPedals_GetPrimaryPedalPercentage(papps_and_sapps);
     const float sapps_pedal_percentage = App_AcceleratorPedals_GetSecondaryPedalPercentage(papps_and_sapps);
+    const float tapps_pedal_percentage = App_AcceleratorPedals_GetTertiaryPedalPercentage();
 
     App_CanTx_SetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, papps_pedal_percentage);
     App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, sapps_pedal_percentage);
+    App_CanTx_SetPeriodicSignal_TAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, tapps_pedal_percentage);
 
     if (App_Brake_IsBrakeActuated(brake))
     {
@@ -120,8 +122,6 @@ void App_SetPeriodicSignals_MotorShutdownFaults(const struct FsmWorld *world)
         can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE);
     App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(
         can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE);
-    App_CanTx_SetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
-        can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_FALSE_CHOICE);
     App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(
         can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE);
 }

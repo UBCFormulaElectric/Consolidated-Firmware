@@ -308,6 +308,9 @@ BO_ 151 FSM_APPS: 8 FSM
 SG_ Papps_Mapped_Pedal_Percentage : 0|32@1+ (1,0) [0|100] "%" DEBUG 
 SG_ Sapps_Mapped_Pedal_Percentage : 32|32@1+ (1,0) [0|100] "%" DEBUG 
 
+BO_ 152 FSM_APPS_2: 4 FSM
+SG_ Tapps_Mapped_Pedal_Percentage : 0|32@1+ (1,0) [0|100] "%" DEBUG
+
 BO_ 200 DCM_VITALS: 1 DCM
 SG_ HEARTBEAT : 0|1@1+ (1,0) [0|1] "" BMS
 
@@ -395,7 +398,7 @@ BO_ 315 FSM_MOTOR_SHUTDOWN_ERRORS: 1 FSM
 SG_ APPS_Has_Disagreement : 0|1@1+ (1,0) [0|1] "" DCM
 SG_ PAPPS_Alarm_Is_Active : 1|1@1+ (1,0) [0|1] "" DCM
 SG_ SAPPS_Alarm_Is_Active : 2|1@1+ (1,0) [0|1] "" DCM
-SG_ Plausibility_Check_Has_Failed : 3|1@1+ (1,0) [0|1] "" DCM
+SG_ TAPPS_Is_Open_Or_Shorted : 3|1@1+ (1,0) [0|1] "" DCM
 SG_ FLOW_METER_HAS_UNDERFLOW : 4|1@1+ (1,0) [0|1] "" DCM
 SG_ Torque_Plausibility_Check_Failed : 5|1@1+ (1,0) [0|1] "" DCM
 
@@ -581,6 +584,7 @@ SIG_VALTYPE_ 14 Brake_Pressure: 1;
 SIG_VALTYPE_ 13 Mapped_Pedal_Percentage : 1;
 SIG_VALTYPE_ 151 Papps_Mapped_Pedal_Percentage : 1;
 SIG_VALTYPE_ 151 Sapps_Mapped_Pedal_Percentage : 1;
+SIG_VALTYPE_ 152 Tapps_Mapped_Pedal_Percentage : 1;
 SIG_VALTYPE_ 317 Left_Wheel_Speed: 1;
 SIG_VALTYPE_ 317 Right_Wheel_Speed: 1;
 SIG_VALTYPE_ 318 Steering_Angle: 1;

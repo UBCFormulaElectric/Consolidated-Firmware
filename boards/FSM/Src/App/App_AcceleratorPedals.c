@@ -1,7 +1,25 @@
+#include <math.h>
 #include <assert.h>
 #include <stdlib.h>
 #include <stdint.h>
 #include "App_AcceleratorPedals.h"
+#include "Io_Adc.h"
+
+// Mechanical parameters
+#define A_LEN_CM (10.0f)
+#define B_LEN_CM (5.0f)
+#define MAX_ANGLE_TRAVEL_DEG (45.0f)
+#define MAX_POT_LEN_CM (10.0f)
+#define MIN_POT_LEN_CM (5.0f)
+
+// Electrical parameters
+#define MIN_INPUT_VOLTAGE (0.33f)
+#define MAX_INPUT_VOLTAGE (3.0f)
+#define POT_LEN_PER_VOLT ((MAX_POT_LEN_CM - MIN_POT_LEN_CM) / (MAX_INPUT_VOLTAGE - MIN_INPUT_VOLTAGE))
+
+#define MAX_PEDAL_PERCENTAGE (100.0f)
+#define LOWER_DEADZONE_THRESH_DEG (2.0f) // Assume unpressed = 0 degrees
+#define UPPER_DEADZONE_THRESH_DEG (MAX_ANGLE_TRAVEL_DEG - 2.0f)
 
 struct AcceleratorPedals
 {
@@ -167,4 +185,33 @@ float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct Accelerator
     return App_GetPedalPercentage_CountUp(
         SAPPS_ENCODER_FULLY_PRESSED_VALUE, SAPPS_ENCODER_UNPRESSED_VALUE, SAPPS_ENCODER_RESET_VALUE,
         accelerator_pedals->get_secondary_encoder_counter_value(), accelerator_pedals->set_secondary_encoder_counter);
+}
+
+float App_AcceleratorPedals_GetTertiaryPedalPercentage(void)
+{
+    const float pot_len_cm = POT_LEN_PER_VOLT * (Io_Adc_GetChannel1Voltage() - MIN_INPUT_VOLTAGE);
+
+    // Angle of pedal travel based on law of cosines (3 sides known, 1 angle unknown)
+    const float theta_deg =
+        acosf((A_LEN_CM * A_LEN_CM + B_LEN_CM * B_LEN_CM - pot_len_cm * pot_len_cm) / (2 * A_LEN_CM * B_LEN_CM)) *
+        180.0f / 3.14159f;
+
+    // Calculate pedal percentage
+    float pedal_percentage;
+    if (theta_deg < LOWER_DEADZONE_THRESH_DEG)
+    {
+        pedal_percentage = 0.0f;
+    }
+    else if (theta_deg > UPPER_DEADZONE_THRESH_DEG)
+    {
+        pedal_percentage = 100.0f;
+    }
+    else
+    {
+        const float pedal_percentage_per_deg =
+            MAX_PEDAL_PERCENTAGE / (UPPER_DEADZONE_THRESH_DEG - LOWER_DEADZONE_THRESH_DEG);
+        pedal_percentage = (theta_deg - LOWER_DEADZONE_THRESH_DEG) * pedal_percentage_per_deg;
+    }
+
+    return pedal_percentage;
 }
