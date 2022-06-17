@@ -67,7 +67,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_PAPPS(can_tx, (uint16_t)Io_PrimaryScancon2RMHF_GetEncoderCounter());
 
     App_CanTx_SetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, Io_AcceleratorPedals_GetPapps());
-    //App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, Io_AcceleratorPedals_GetPapps());
+    // App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, Io_AcceleratorPedals_GetPapps());
 
     // Get accelerometer angle in rad
     App_CanTx_SetPeriodicSignal_PAPPS_ANGLE(can_tx, Io_AcceleratorPedals_GetAngle());

@@ -38,7 +38,7 @@ void App_AcceleratorPedalSignals_SappsAlarmCallback(struct FsmWorld *world)
 bool App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive(struct FsmWorld *world)
 {
     struct AcceleratorPedals *papps_and_sapps = App_FsmWorld_GetPappsAndSapps(world);
-    const float raw_adc_voltage = Io_Adc_GetChannel1Voltage();
+    const float               raw_adc_voltage = Io_Adc_GetChannel1Voltage();
     return ((raw_adc_voltage > 1.00f) && (raw_adc_voltage < 2.9f)) &&
            !App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(papps_and_sapps);
 }
@@ -49,7 +49,6 @@ bool App_AcceleratorPedalSignals_HasAppsDisagreement(struct FsmWorld *world)
     return fabsf(
                App_AcceleratorPedals_GetPrimaryPedalPercentage(papps_and_sapps) -
                App_AcceleratorPedals_GetSecondaryPedalPercentage(papps_and_sapps)) > 10.0f;
-
 }
 
 bool App_AcceleratorPedalSignals_HasAppsAgreement(struct FsmWorld *world)
@@ -83,9 +82,9 @@ bool App_AcceleratorPedalSignals_IsAppsAndBrakePlausibilityOk(struct FsmWorld *w
 
 void App_AcceleratorPedalSignals_AppsAndBrakePlausibilityFailureCallback(struct FsmWorld *world)
 {
-    struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
+    //struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
 
-    App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
-    App_CanTx_SetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
-        can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_TRUE_CHOICE);
+    //App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
+    //App_CanTx_SetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
+    //    can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_TRUE_CHOICE);
 }
