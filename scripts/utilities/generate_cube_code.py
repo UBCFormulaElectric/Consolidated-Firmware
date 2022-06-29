@@ -80,7 +80,7 @@ def generate_cubemx_code(board, ioc, codegen_dir, cubemx, log4j_properties):
         proc.wait(timeout_sec)
     except subprocess.TimeoutExpired:
         raise Exception('STM32CubeMX execution has timed out after {} seconds.'.format(str(timeout_sec)))
-    if proc.returncode is not 0:
+    if proc.returncode != 0:
         raise Exception('An error occured while executing STM32CubeMX.')
 
 if __name__ == '__main__':
