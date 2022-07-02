@@ -26,6 +26,8 @@
 /* USER CODE BEGIN Includes */
 #include <assert.h>
 
+#include "module.h"
+#include "Io_SharedMacros.h"
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
@@ -102,6 +104,7 @@ osThreadId          Task100HzHandle;
 uint32_t            Task100HzBuffer[TASK100HZ_STACK_SIZE];
 osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
+
 struct BmsWorld *         world;
 struct StateMachine *     state_machine;
 struct BmsCanTxInterface *can_tx;
@@ -846,6 +849,9 @@ void RunTask1Hz(void const *argument)
     {
         App_SharedStateMachine_Tick1Hz(state_machine);
         Io_StackWaterMark_Check();
+
+        module_1HzTick();
+
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
@@ -874,6 +880,8 @@ void RunTask1kHz(void const *argument)
     {
         Io_SharedSoftwareWatchdog_CheckForTimeouts();
         const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
+
+        module_1kHzTick();
 
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
         Io_CanTx_EnqueuePeriodicMsgs(can_tx, task_start_ms);
@@ -951,6 +959,7 @@ void RunTask100Hz(void const *argument)
     /* Infinite loop */
     for (;;)
     {
+        module_100HzTick();
         App_SharedStateMachine_Tick100Hz(state_machine);
 
         // Watchdog check-in must be the last function called before putting the
