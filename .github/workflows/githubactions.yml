@@ -94,6 +94,7 @@ jobs:
   tests:
     name: Build and Run x86 Tests
     runs-on: ubuntu-18.04
+    if: github.ref == 'refs/heads/master'
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       BUILD_DIR: boards/x86_build_release
