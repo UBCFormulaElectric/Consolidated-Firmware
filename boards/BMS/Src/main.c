@@ -38,7 +38,6 @@
 #include "Io_SharedHeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
 #include "Io_Charger.h"
-#include "Io_CurrentSense.h"
 #include "Io_OkStatuses.h"
 #include "Io_LTC6813/Io_LTC6813Shared.h"
 #include "Io_LTC6813/Io_LTC6813CellVoltages.h"
@@ -46,7 +45,6 @@
 #include "Io_Airs.h"
 #include "Io_PreCharge.h"
 #include "Io_Adc.h"
-#include "Io_VoltageSense.h"
 
 #include "App_BmsWorld.h"
 #include "App_SharedMacros.h"
