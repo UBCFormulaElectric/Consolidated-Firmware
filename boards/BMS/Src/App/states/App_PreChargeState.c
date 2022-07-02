@@ -1,3 +1,5 @@
+#include "ts.h"
+
 #include "states/App_DriveState.h"
 #include "states/App_ChargeState.h"
 #include "states/App_FaultState.h"
@@ -43,14 +45,13 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
 {
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
-        struct BmsWorld *      world       = App_SharedStateMachine_GetWorld(state_machine);
-        struct Clock *         clock       = App_BmsWorld_GetClock(world);
-        struct Airs *          airs        = App_BmsWorld_GetAirs(world);
-        struct Accumulator *   accumulator = App_BmsWorld_GetAccumulator(world);
-        struct Charger *       charger     = App_BmsWorld_GetCharger(world);
-        struct TractiveSystem *ts          = App_BmsWorld_GetTractiveSystem(world);
+        struct BmsWorld *   world       = App_SharedStateMachine_GetWorld(state_machine);
+        struct Clock *      clock       = App_BmsWorld_GetClock(world);
+        struct Airs *       airs        = App_BmsWorld_GetAirs(world);
+        struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
+        struct Charger *    charger     = App_BmsWorld_GetCharger(world);
 
-        float ts_voltage        = App_TractiveSystem_GetVoltage(ts);
+        float ts_voltage        = ts_getVoltage();
         float threshold_voltage = App_Accumulator_GetPackVoltage(accumulator) * PRECHARGE_ACC_V_THRESHOLD;
 
         uint32_t elapsed_time =

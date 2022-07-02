@@ -3,6 +3,7 @@
 #include "states/App_DriveState.h"
 #include "states/App_PreChargeState.h"
 
+#include "ts.h"
 #include "App_SetPeriodicCanSignals.h"
 #include "App_SharedMacros.h"
 
@@ -31,13 +32,12 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
-        struct BmsWorld *      world = App_SharedStateMachine_GetWorld(state_machine);
-        struct TractiveSystem *ts    = App_BmsWorld_GetTractiveSystem(world);
-        struct Airs *          airs  = App_BmsWorld_GetAirs(world);
+        struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+        struct Airs *    airs  = App_BmsWorld_GetAirs(world);
 
 #ifndef BSPD_DEMO_MODE
         // don't allow pre_charge if in BSPD_DEMO_MODE
-        if (App_Airs_IsAirNegativeClosed(airs) && (App_TractiveSystem_GetVoltage(ts) < TS_DISCHARGED_THRESHOLD_V))
+        if (App_Airs_IsAirNegativeClosed(airs) && (ts_getVoltage() < TS_DISCHARGED_THRESHOLD_V))
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
         }
