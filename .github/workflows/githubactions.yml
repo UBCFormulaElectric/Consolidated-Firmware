@@ -3,9 +3,11 @@ on:
   push:
     branches:
       - master
+      - develop/2022-2023 
   pull_request:
     branches:
       - master
+      - develop/2022-2023 
 
 jobs:
   format:
@@ -67,7 +69,6 @@ jobs:
         run: |
           sudo cp ./scripts/environment_setup/xvfb.service /etc/systemd/system/xvfb.service
           sudo systemctl start xvfb
-
       # This should eventually be cached, but cannot be due to file permission issues
       # https://github.com/actions/toolkit/issues/946
       - name: Install STM32CubeMX
@@ -92,6 +93,7 @@ jobs:
   tests:
     name: Build and Run x86 Tests
     runs-on: ubuntu-18.04
+    if: github.ref == 'refs/heads/master'
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       BUILD_DIR: boards/x86_build_release
@@ -120,7 +122,6 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ccache valgrind
           pipenv install --deploy
-
       - name: Setup CCache
         uses: actions/cache@v2
         with:
@@ -128,20 +129,17 @@ jobs:
           key: ccache-test-${{ github.run_id }}
           restore-keys: |
             ccache-test-
-
       - name: Build
         run: |
           sudo /usr/sbin/update-ccache-symlinks
           export PATH="/usr/lib/ccache:$PATH"
           cmake -S boards -B $BUILD_DIR -DPLATFORM=x86 -DCMAKE_BUILD_TYPE=Release
           make --directory=$BUILD_DIR -j2
-
       - name: Run tests
         run: |
           cd $BUILD_DIR
           ctest -T memcheck --verbose
           cd -
-
       - name: Check CCache statistics
         run: ccache -s
 
@@ -185,12 +183,10 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y ccache valgrind
           pipenv install --deploy
-
       - name: Setup XVFB
         run: |
           sudo cp ./scripts/environment_setup/xvfb.service /etc/systemd/system/xvfb.service
           sudo systemctl start xvfb
-
       # This should eventually be cached, but cannot be due to file permission issues
       # https://github.com/actions/toolkit/issues/946
       - name: Install STM32CubeMX
@@ -203,7 +199,6 @@ jobs:
           key: ccache-${{ matrix.board }}-build-${{ github.run_id }}
           restore-keys: |
             ccache-${{ matrix.board }}-build-
-
       - name: Install ARM GCC
         env:
           # Unfortunately, the download link is a literal URL which means it does not
@@ -219,7 +214,6 @@ jobs:
           mkdir -p $HOME/.local
           tar -xjf "$TMPFILE" -C $HOME/.local --strip 1
           rm $TMPFILE
-
       - name: Build
         env:
           DISPLAY: :99.0
@@ -256,3 +250,4 @@ jobs:
 
       - name: Check CCache statistics
         run: ccache -s
+
