@@ -3,9 +3,11 @@ on:
   push:
     branches:
       - master
+      - develop/2022-2023 
   pull_request:
     branches:
       - master
+      - develop/2022-2023 
 
 jobs:
   format:
