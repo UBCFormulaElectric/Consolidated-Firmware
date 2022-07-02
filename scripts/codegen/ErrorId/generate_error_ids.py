@@ -129,7 +129,7 @@ if __name__ == "__main__":
 
     # Generate output folder if it doesn't exist yet
     output_dir = os.path.dirname(args.output_path)
-    output_dir = os.getcwd() if output_dir is '' else output_dir
+    output_dir = os.getcwd() if output_dir == '' else output_dir
     if not os.path.exists(output_dir):
         os.makedirs(output_dir)
 
