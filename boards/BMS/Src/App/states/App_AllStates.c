@@ -1,3 +1,5 @@
+#include "main.h"
+
 #include "states/App_AllStates.h"
 #include "states/App_FaultState.h"
 #include "states/App_ChargeState.h"
@@ -179,9 +181,10 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_AdvertisePackPower(can_tx, accumulator, ts);
 
-    App_CanTx_SetPeriodicSignal_BMS_OK(can_tx, App_OkStatus_IsEnabled(bms_ok));
-    App_CanTx_SetPeriodicSignal_IMD_OK(can_tx, App_OkStatus_IsEnabled(imd_ok));
-    App_CanTx_SetPeriodicSignal_BSPD_OK(can_tx, App_OkStatus_IsEnabled(bspd_ok));
+    // Broadcast Ok statuses for the BMS, IMD and BSPD
+    App_CanTx_SetPeriodicSignal_BMS_OK(can_tx, HAL_GPIO_ReadPin(BMS_OK_GPIO_Port, BMS_OK_Pin) == GPIO_PIN_SET);
+    App_CanTx_SetPeriodicSignal_IMD_OK(can_tx, HAL_GPIO_ReadPin(IMD_OK_GPIO_Port, IMD_OK_Pin) == GPIO_PIN_SET);
+    App_CanTx_SetPeriodicSignal_BSPD_OK(can_tx, HAL_GPIO_ReadPin(BSPD_OK_GPIO_Port, BSPD_OK_Pin) == GPIO_PIN_SET);
 
     // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
     // monitoring chips within 3 cycles

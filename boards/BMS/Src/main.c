@@ -222,13 +222,6 @@ int main(void)
 
     charger = App_Charger_Create(Io_Charger_Enable, Io_Charger_Disable, Io_Charger_IsConnected, Io_Charger_HasFaulted);
 
-    bms_ok = App_OkStatus_Create(Io_OkStatuses_EnableBmsOk, Io_OkStatuses_DisableBmsOk, Io_OkStatuses_IsBmsOkEnabled);
-
-    imd_ok = App_OkStatus_Create(Io_OkStatuses_EnableImdOk, Io_OkStatuses_DisableImdOk, Io_OkStatuses_IsImdOkEnabled);
-
-    bspd_ok =
-        App_OkStatus_Create(Io_OkStatuses_EnableBspdOk, Io_OkStatuses_DisableBspdOk, Io_OkStatuses_IsBspdOkEnabled);
-
     Io_LTC6813Shared_InitSpiHandle(&hspi2);
     accumulator = App_Accumulator_Create(
         Io_LTC6813Shared_SetCfgRegsToDefaultSettings, Io_LTC6813Shared_WriteConfigurationRegisters,
