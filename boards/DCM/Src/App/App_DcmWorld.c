@@ -13,7 +13,6 @@ struct DcmWorld
     struct RgbLedSequence *   rgb_led_sequence;
     struct BrakeLight *       brake_light;
     struct Buzzer *           buzzer;
-    struct Imu *              imu;
     struct ErrorTable *       error_table;
     struct WaitSignal *       buzzer_wait_signal;
     struct Clock *            clock;
@@ -27,7 +26,6 @@ struct DcmWorld *App_DcmWorld_Create(
     struct RgbLedSequence *const    rgb_led_sequence,
     struct BrakeLight *const        brake_light,
     struct Buzzer *const            buzzer,
-    struct Imu *const               imu,
     struct ErrorTable *const        error_table,
     struct Clock *const             clock,
     struct InverterSwitches *const  inverter_switches,
@@ -43,7 +41,6 @@ struct DcmWorld *App_DcmWorld_Create(
     world->rgb_led_sequence  = rgb_led_sequence;
     world->brake_light       = brake_light;
     world->buzzer            = buzzer;
-    world->imu               = imu;
     world->error_table       = error_table;
     world->clock             = clock;
     world->inverter_switches = inverter_switches;
@@ -89,11 +86,6 @@ struct BrakeLight *App_DcmWorld_GetBrakeLight(const struct DcmWorld *const world
 struct Buzzer *App_DcmWorld_GetBuzzer(const struct DcmWorld *const world)
 {
     return world->buzzer;
-}
-
-struct Imu *App_DcmWorld_GetImu(const struct DcmWorld *const world)
-{
-    return world->imu;
 }
 
 struct ErrorTable *App_DcmWorld_GetErrorTable(const struct DcmWorld *const world)
