@@ -241,8 +241,6 @@ int main(void)
     airs = App_Airs_Create(
         Io_Airs_IsAirPositiveClosed, Io_Airs_IsAirNegativeClosed, Io_Airs_CloseAirPositive, Io_Airs_OpenAirPositive);
 
-    precharge_relay = App_PrechargeRelay_Create(Io_PreCharge_Enable, Io_PreCharge_Disable);
-
     error_table = App_SharedErrorTable_Create();
 
     clock = App_SharedClock_Create();
