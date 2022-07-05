@@ -1,28 +1,9 @@
 #include <stm32f3xx.h>
 #include "main.h"
 #include "states/App_DriveState.h"
-#include "App_SharedMacros.h"
 #include "App_SevenSegDisplays.h"
-#include "App_SharedExitCode.h"
 
 #define SSEG_HB_NOT_RECEIVED_ERR (888U)
-
-static void App_SetPeriodicCanSignals_BinarySwitch(
-    struct DimCanTxInterface *can_tx,
-    struct BinarySwitch *     binary_switch,
-    void (*can_signal_setter)(struct DimCanTxInterface *, uint8_t value),
-    uint8_t on_choice,
-    uint8_t off_choice)
-{
-    if (App_BinarySwitch_IsTurnedOn(binary_switch))
-    {
-        can_signal_setter(can_tx, on_choice);
-    }
-    else
-    {
-        can_signal_setter(can_tx, off_choice);
-    }
-}
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -41,17 +22,14 @@ static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    struct DimWorld *         world                   = App_SharedStateMachine_GetWorld(state_machine);
-    struct DimCanTxInterface *can_tx                  = App_DimWorld_GetCanTx(world);
-    struct DimCanRxInterface *can_rx                  = App_DimWorld_GetCanRx(world);
-    struct SevenSegDisplays * seven_seg_displays      = App_DimWorld_GetSevenSegDisplays(world);
-    struct HeartbeatMonitor * heartbeat_monitor       = App_DimWorld_GetHeartbeatMonitor(world);
-    struct RgbLed *           bms_led                 = App_DimWorld_GetBmsStatusLed(world);
-    struct BinarySwitch *     start_switch            = App_DimWorld_GetStartSwitch(world);
-    struct BinarySwitch *     traction_control_switch = App_DimWorld_GetTractionControlSwitch(world);
-    struct BinarySwitch *     torque_vectoring_switch = App_DimWorld_GetTorqueVectoringSwitch(world);
-    struct ErrorTable *       error_table             = App_DimWorld_GetErrorTable(world);
-    struct Clock *            clock                   = App_DimWorld_GetClock(world);
+    struct DimWorld *         world              = App_SharedStateMachine_GetWorld(state_machine);
+    struct DimCanTxInterface *can_tx             = App_DimWorld_GetCanTx(world);
+    struct DimCanRxInterface *can_rx             = App_DimWorld_GetCanRx(world);
+    struct SevenSegDisplays * seven_seg_displays = App_DimWorld_GetSevenSegDisplays(world);
+    struct HeartbeatMonitor * heartbeat_monitor  = App_DimWorld_GetHeartbeatMonitor(world);
+    struct RgbLed *           bms_led            = App_DimWorld_GetBmsStatusLed(world);
+    struct ErrorTable *       error_table        = App_DimWorld_GetErrorTable(world);
+    struct Clock *            clock              = App_DimWorld_GetClock(world);
 
     App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
 
@@ -70,17 +48,11 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_SharedRgbLed_TurnOff(bms_led);
     }
 
-    App_SetPeriodicCanSignals_BinarySwitch(
-        can_tx, start_switch, App_CanTx_SetPeriodicSignal_START_SWITCH, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE,
-        CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
-
-    App_SetPeriodicCanSignals_BinarySwitch(
-        can_tx, traction_control_switch, App_CanTx_SetPeriodicSignal_TRACTION_CONTROL_SWITCH,
-        CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
-
-    App_SetPeriodicCanSignals_BinarySwitch(
-        can_tx, torque_vectoring_switch, App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH,
-        CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
+    // Read start, traction control, and torque vectoring switch states
+    App_CanTx_SetPeriodicSignal_START_SWITCH(can_tx, (uint8_t)HAL_GPIO_ReadPin(IGNTN_GPIO_Port, IGNTN_Pin));
+    App_CanTx_SetPeriodicSignal_TRACTION_CONTROL_SWITCH(can_tx, (uint8_t)HAL_GPIO_ReadPin(IGNTN_GPIO_Port, IGNTN_Pin));
+    App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH(
+        can_tx, (uint8_t)HAL_GPIO_ReadPin(TORQ_VECT_GPIO_Port, TORQ_VECT_Pin));
 
     struct RgbLed *board_status_leds[NUM_BOARDS] = {
         [BMS] = App_DimWorld_GetBmsStatusLed(world), [DCM] = App_DimWorld_GetDcmStatusLed(world),

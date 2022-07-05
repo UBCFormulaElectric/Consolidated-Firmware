@@ -6,7 +6,6 @@
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_RotarySwitch.h"
-#include "App_BinarySwitch.h"
 #include "App_SharedErrorTable.h"
 #include "App_SharedRgbLed.h"
 #include "App_SharedClock.h"
@@ -29,9 +28,6 @@ struct DimWorld *App_DimWorld_Create(
     struct HeartbeatMonitor * heartbeat_monitor,
     struct RgbLedSequence *   rgb_led_sequence,
     struct RotarySwitch *     drive_mode_switch,
-    struct BinarySwitch *     start_switch,
-    struct BinarySwitch *     traction_control_switch,
-    struct BinarySwitch *     torque_vectoring_switch,
     struct ErrorTable *       error_table,
     struct RgbLed *           bms_status_led,
     struct RgbLed *           dcm_status_led,
@@ -80,34 +76,6 @@ struct HeartbeatMonitor *App_DimWorld_GetHeartbeatMonitor(const struct DimWorld 
  * @return The RGB LED sequence for the given world
  */
 struct RgbLedSequence *App_DimWorld_GetRgbLedSequence(const struct DimWorld *world);
-
-/**
- * Get the drive mode switch for the given world
- * @param world The world to get drive mode switch for
- * @return The drive mode switch for the given world
- */
-struct RotarySwitch *App_DimWorld_GetDriveModeSwitch(const struct DimWorld *world);
-
-/**
- * Get the start switch for the given world
- * @param world The world to get start switch for
- * @return The start switch for the given world
- */
-struct BinarySwitch *App_DimWorld_GetStartSwitch(const struct DimWorld *world);
-
-/**
- * Get the traction control switch for the given world
- * @param world The world to get traction control switch for
- * @return The traction control switch for the given world
- */
-struct BinarySwitch *App_DimWorld_GetTractionControlSwitch(const struct DimWorld *world);
-
-/**
- * Get the torque vectoring switch for the given world
- * @param world The world to get torque vectoring switch for
- * @return The torque vectoring switch for the given world
- */
-struct BinarySwitch *App_DimWorld_GetTorqueVectoringSwitch(const struct DimWorld *world);
 
 /**
  * Get the error table for the given world
