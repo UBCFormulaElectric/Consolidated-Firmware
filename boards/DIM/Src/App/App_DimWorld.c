@@ -31,9 +31,6 @@ struct DimWorld *App_DimWorld_Create(
     struct HeartbeatMonitor *const  heartbeat_monitor,
     struct RgbLedSequence *const    rgb_led_sequence,
     struct RotarySwitch *const      drive_mode_switch,
-    struct BinarySwitch *const      start_switch,
-    struct BinarySwitch *const      traction_control_switch,
-    struct BinarySwitch *const      torque_vectoring_switch,
     struct ErrorTable *const        error_table,
     struct RgbLed *const            bms_status_led,
     struct RgbLed *const            dcm_status_led,
@@ -45,22 +42,19 @@ struct DimWorld *App_DimWorld_Create(
     struct DimWorld *world = (struct DimWorld *)malloc(sizeof(struct DimWorld));
     assert(world != NULL);
 
-    world->can_tx_interface        = can_tx_interface;
-    world->can_rx_interface        = can_rx_interface;
-    world->seven_seg_displays      = seven_seg_displays;
-    world->heartbeat_monitor       = heartbeat_monitor;
-    world->rgb_led_sequence        = rgb_led_sequence;
-    world->drive_mode_switch       = drive_mode_switch;
-    world->start_switch            = start_switch;
-    world->traction_control_switch = traction_control_switch;
-    world->torque_vectoring_switch = torque_vectoring_switch;
-    world->error_table             = error_table;
-    world->bms_status_led          = bms_status_led;
-    world->dcm_status_led          = dcm_status_led;
-    world->dim_status_led          = dim_status_led;
-    world->fsm_status_led          = fsm_status_led;
-    world->pdm_status_led          = pdm_status_led;
-    world->clock                   = clock;
+    world->can_tx_interface   = can_tx_interface;
+    world->can_rx_interface   = can_rx_interface;
+    world->seven_seg_displays = seven_seg_displays;
+    world->heartbeat_monitor  = heartbeat_monitor;
+    world->rgb_led_sequence   = rgb_led_sequence;
+    world->drive_mode_switch  = drive_mode_switch;
+    world->error_table        = error_table;
+    world->bms_status_led     = bms_status_led;
+    world->dcm_status_led     = dcm_status_led;
+    world->dim_status_led     = dim_status_led;
+    world->fsm_status_led     = fsm_status_led;
+    world->pdm_status_led     = pdm_status_led;
+    world->clock              = clock;
 
     return world;
 }
@@ -93,26 +87,6 @@ struct HeartbeatMonitor *App_DimWorld_GetHeartbeatMonitor(const struct DimWorld 
 struct RgbLedSequence *App_DimWorld_GetRgbLedSequence(const struct DimWorld *const world)
 {
     return world->rgb_led_sequence;
-}
-
-struct RotarySwitch *App_DimWorld_GetDriveModeSwitch(const struct DimWorld *const world)
-{
-    return world->drive_mode_switch;
-}
-
-struct BinarySwitch *App_DimWorld_GetStartSwitch(const struct DimWorld *const world)
-{
-    return world->start_switch;
-}
-
-struct BinarySwitch *App_DimWorld_GetTractionControlSwitch(const struct DimWorld *const world)
-{
-    return world->traction_control_switch;
-}
-
-struct BinarySwitch *App_DimWorld_GetTorqueVectoringSwitch(const struct DimWorld *const world)
-{
-    return world->torque_vectoring_switch;
 }
 
 struct ErrorTable *App_DimWorld_GetErrorTable(const struct DimWorld *const world)
