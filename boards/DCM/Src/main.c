@@ -178,8 +178,6 @@ int main(void)
     rgb_led_sequence = App_SharedRgbLedSequence_Create(
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed, Io_RgbLedSequence_TurnOnGreenLed);
 
-    brake_light = App_BrakeLight_Create(Io_BrakeLight_TurnOn, Io_BrakeLight_TurnOff);
-
     buzzer = App_Buzzer_Create(Io_Buzzer_TurnOn, Io_Buzzer_TurnOff);
 
     error_table = App_SharedErrorTable_Create();
@@ -191,7 +189,7 @@ int main(void)
         Io_InverterSwitches_TurnOffLeft, Io_InverterSwitches_IsRightInverterOn, Io_InverterSwitches_IsLeftInverterOn);
 
     world = App_DcmWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, brake_light, buzzer, error_table, clock, inverter_switches,
+        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, buzzer, error_table, clock, inverter_switches,
         App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
 
     Io_StackWaterMark_Init(can_tx);
