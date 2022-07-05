@@ -37,7 +37,6 @@
 #include "Io_RgbLedSequence.h"
 #include "Io_Buzzer.h"
 #include "Io_SharedErrorTable.h"
-#include "Io_InverterSwitches.h"
 
 #include "App_SharedMacros.h"
 #include "App_DcmWorld.h"
@@ -183,13 +182,9 @@ int main(void)
 
     clock = App_SharedClock_Create();
 
-    inverter_switches = App_InverterSwitches_Create(
-        Io_InverterSwitches_TurnOnRight, Io_InverterSwitches_TurnOffRight, Io_InverterSwitches_TurnOnLeft,
-        Io_InverterSwitches_TurnOffLeft, Io_InverterSwitches_IsRightInverterOn, Io_InverterSwitches_IsLeftInverterOn);
-
     world = App_DcmWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, buzzer, error_table, clock, inverter_switches,
-        App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
+        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, buzzer, error_table, clock, App_BuzzerSignals_IsOn,
+        App_BuzzerSignals_Callback);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
