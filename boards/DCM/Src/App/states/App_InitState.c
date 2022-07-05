@@ -1,12 +1,13 @@
+#include <stm32f3xx.h>
+#include "main.h"
 #include "states/App_AllStates.h"
 #include "states/App_DriveState.h"
 #include "App_SharedMacros.h"
 
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    struct DcmWorld *         world             = App_SharedStateMachine_GetWorld(state_machine);
-    struct DcmCanTxInterface *can_tx_interface  = App_DcmWorld_GetCanTx(world);
-    struct InverterSwitches * inverter_switches = App_DcmWorld_GetInverterSwitches(world);
+    struct DcmWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
+    struct DcmCanTxInterface *can_tx_interface = App_DcmWorld_GetCanTx(world);
 
     App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_DCM_STATE_MACHINE_STATE_INIT_CHOICE);
 
@@ -20,9 +21,9 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVR(
         can_tx_interface, App_CanMsgs_dcm_invr_command_message_torque_command_invr_encode(0.0f));
 
-    // Turn on inverter load switches
-    App_InverterSwitches_TurnOnRight(inverter_switches);
-    App_InverterSwitches_TurnOnLeft(inverter_switches);
+    // Turn on left and right inverters
+    HAL_GPIO_WritePin(INVERTER_L_EN_GPIO_Port, INVERTER_L_EN_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(INVERTER_R_EN_GPIO_Port, INVERTER_R_EN_Pin, GPIO_PIN_SET);
 }
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
