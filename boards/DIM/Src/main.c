@@ -45,7 +45,6 @@
 #include "Io_SharedHeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
 #include "Io_DriveModeSwitch.h"
-#include "Io_Switches.h"
 #include "Io_Adc.h"
 #include "Io_RgbLeds.h"
 #include "Io_SharedErrorTable.h"
