@@ -35,7 +35,6 @@
 #include "Io_SoftwareWatchdog.h"
 #include "Io_SharedHeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
-#include "Io_BrakeLight.h"
 #include "Io_Buzzer.h"
 #include "Io_SharedErrorTable.h"
 #include "Io_InverterSwitches.h"
