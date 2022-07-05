@@ -11,7 +11,6 @@ struct DcmWorld
     struct DcmCanRxInterface *can_rx_interface;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
-    struct BrakeLight *       brake_light;
     struct Buzzer *           buzzer;
     struct ErrorTable *       error_table;
     struct WaitSignal *       buzzer_wait_signal;
@@ -24,7 +23,6 @@ struct DcmWorld *App_DcmWorld_Create(
     struct DcmCanRxInterface *const can_rx_interface,
     struct HeartbeatMonitor *const  heartbeat_monitor,
     struct RgbLedSequence *const    rgb_led_sequence,
-    struct BrakeLight *const        brake_light,
     struct Buzzer *const            buzzer,
     struct ErrorTable *const        error_table,
     struct Clock *const             clock,
@@ -39,7 +37,6 @@ struct DcmWorld *App_DcmWorld_Create(
     world->can_rx_interface  = can_rx_interface;
     world->heartbeat_monitor = heartbeat_monitor;
     world->rgb_led_sequence  = rgb_led_sequence;
-    world->brake_light       = brake_light;
     world->buzzer            = buzzer;
     world->error_table       = error_table;
     world->clock             = clock;
@@ -76,11 +73,6 @@ struct HeartbeatMonitor *App_DcmWorld_GetHeartbeatMonitor(const struct DcmWorld 
 struct RgbLedSequence *App_DcmWorld_GetRgbLedSequence(const struct DcmWorld *const world)
 {
     return world->rgb_led_sequence;
-}
-
-struct BrakeLight *App_DcmWorld_GetBrakeLight(const struct DcmWorld *const world)
-{
-    return world->brake_light;
 }
 
 struct Buzzer *App_DcmWorld_GetBuzzer(const struct DcmWorld *const world)

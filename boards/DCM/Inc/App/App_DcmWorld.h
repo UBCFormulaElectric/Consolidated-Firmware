@@ -4,7 +4,6 @@
 #include "App_CanRx.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
-#include "App_BrakeLight.h"
 #include "App_Buzzer.h"
 #include "App_BuzzerSignals.h"
 #include "App_SharedErrorTable.h"
@@ -28,7 +27,6 @@ struct DcmWorld *App_DcmWorld_Create(
     struct DcmCanRxInterface *can_rx_interface,
     struct HeartbeatMonitor * heartbeat_monitor,
     struct RgbLedSequence *   rgb_led_sequence,
-    struct BrakeLight *       brake_light,
     struct Buzzer *           buzzer,
     struct ErrorTable *       error_table,
     struct Clock *            clock,
@@ -69,13 +67,6 @@ struct HeartbeatMonitor *App_DcmWorld_GetHeartbeatMonitor(const struct DcmWorld 
  * @return The RGB LED sequence for the given world
  */
 struct RgbLedSequence *App_DcmWorld_GetRgbLedSequence(const struct DcmWorld *world);
-
-/**
- * Get the brake light for the given world
- * @param world The world to get brake light for
- * @return The brake light for the given world
- */
-struct BrakeLight *App_DcmWorld_GetBrakeLight(const struct DcmWorld *world);
 
 /**
  * Get the buzzer for the given world
