@@ -1,3 +1,5 @@
+#include <stm32f3xx.h>
+#include "main.h"
 #include "states/App_DriveState.h"
 #include "App_SharedMacros.h"
 #include "App_SevenSegDisplays.h"
@@ -44,8 +46,6 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct DimCanRxInterface *can_rx                  = App_DimWorld_GetCanRx(world);
     struct SevenSegDisplays * seven_seg_displays      = App_DimWorld_GetSevenSegDisplays(world);
     struct HeartbeatMonitor * heartbeat_monitor       = App_DimWorld_GetHeartbeatMonitor(world);
-    struct Led *              imd_led                 = App_DimWorld_GetImdLed(world);
-    struct Led *              bspd_led                = App_DimWorld_GetBspdLed(world);
     struct RgbLed *           bms_led                 = App_DimWorld_GetBmsStatusLed(world);
     struct BinarySwitch *     start_switch            = App_DimWorld_GetStartSwitch(world);
     struct BinarySwitch *     traction_control_switch = App_DimWorld_GetTractionControlSwitch(world);
@@ -55,23 +55,11 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
 
-    if (!App_CanRx_BMS_OK_STATUSES_GetSignal_IMD_OK(can_rx))
-    {
-        App_Led_TurnOn(imd_led);
-    }
-    else
-    {
-        App_Led_TurnOff(imd_led);
-    }
-
-    if (!App_CanRx_BMS_OK_STATUSES_GetSignal_BSPD_OK(can_rx))
-    {
-        App_Led_TurnOn(bspd_led);
-    }
-    else
-    {
-        App_Led_TurnOff(bspd_led);
-    }
+    // Turn on LED if ok status LEDs report false
+    HAL_GPIO_WritePin(
+        IMD_LED_GPIO_Port, IMD_LED_Pin, (GPIO_PinState)!App_CanRx_BMS_OK_STATUSES_GetSignal_IMD_OK(can_rx));
+    HAL_GPIO_WritePin(
+        BSPD_LED_GPIO_Port, BSPD_LED_Pin, (GPIO_PinState)!App_CanRx_BMS_OK_STATUSES_GetSignal_BSPD_OK(can_rx));
 
     if (!App_CanRx_BMS_OK_STATUSES_GetSignal_BMS_OK(can_rx))
     {
