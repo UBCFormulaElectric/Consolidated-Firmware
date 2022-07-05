@@ -45,7 +45,6 @@
 #include "Io_SharedHeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
 #include "Io_DriveModeSwitch.h"
-#include "Io_Leds.h"
 #include "Io_Switches.h"
 #include "Io_Adc.h"
 #include "Io_RgbLeds.h"
@@ -106,8 +105,6 @@ struct SevenSegDisplays * seven_seg_displays;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
 struct RotarySwitch *     drive_mode_switch;
-struct Led *              imd_led;
-struct Led *              bspd_led;
 struct BinarySwitch *     start_switch;
 struct BinarySwitch *     traction_control_switch;
 struct BinarySwitch *     torque_vectoring_switch;
@@ -215,10 +212,6 @@ int main(void)
 
     drive_mode_switch = App_RotarySwitch_Create(Io_DriveModeSwitch_GetPosition, NUM_DRIVE_MODE_SWITCH_POSITIONS);
 
-    imd_led = App_Led_Create(Io_Leds_TurnOnImdLed, Io_Leds_TurnOffImdLed);
-
-    bspd_led = App_Led_Create(Io_Leds_TurnOnBspdLed, Io_Leds_TurnOffBspdLed);
-
     start_switch = App_BinarySwitch_Create(Io_Switches_StartSwitchIsTurnedOn);
 
     traction_control_switch = App_BinarySwitch_Create(Io_Switches_TractionControlSwitchIsTurnedOn);
@@ -250,9 +243,9 @@ int main(void)
     clock = App_SharedClock_Create();
 
     world = App_DimWorld_Create(
-        can_tx, can_rx, seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led,
-        start_switch, traction_control_switch, torque_vectoring_switch, error_table, bms_status_led, dcm_status_led,
-        dim_status_led, fsm_status_led, pdm_status_led, clock);
+        can_tx, can_rx, seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, start_switch,
+        traction_control_switch, torque_vectoring_switch, error_table, bms_status_led, dcm_status_led, dim_status_led,
+        fsm_status_led, pdm_status_led, clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 

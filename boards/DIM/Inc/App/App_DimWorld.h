@@ -6,7 +6,6 @@
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_RotarySwitch.h"
-#include "App_Led.h"
 #include "App_BinarySwitch.h"
 #include "App_SharedErrorTable.h"
 #include "App_SharedRgbLed.h"
@@ -30,8 +29,6 @@ struct DimWorld *App_DimWorld_Create(
     struct HeartbeatMonitor * heartbeat_monitor,
     struct RgbLedSequence *   rgb_led_sequence,
     struct RotarySwitch *     drive_mode_switch,
-    struct Led *              imd_led,
-    struct Led *              bspd_led,
     struct BinarySwitch *     start_switch,
     struct BinarySwitch *     traction_control_switch,
     struct BinarySwitch *     torque_vectoring_switch,
@@ -90,6 +87,7 @@ struct RgbLedSequence *App_DimWorld_GetRgbLedSequence(const struct DimWorld *wor
  * @return The drive mode switch for the given world
  */
 struct RotarySwitch *App_DimWorld_GetDriveModeSwitch(const struct DimWorld *world);
+
 /**
  * Get the start switch for the given world
  * @param world The world to get start switch for
@@ -110,20 +108,6 @@ struct BinarySwitch *App_DimWorld_GetTractionControlSwitch(const struct DimWorld
  * @return The torque vectoring switch for the given world
  */
 struct BinarySwitch *App_DimWorld_GetTorqueVectoringSwitch(const struct DimWorld *world);
-
-/**
- * Get the IMD LED for the given world
- * @param world The world to get IMD LED for
- * @return The IMD LED for the given world
- */
-struct Led *App_DimWorld_GetImdLed(const struct DimWorld *world);
-
-/**
- * Get the BSPD LED for the given world
- * @param world The world to get BSPD LED for
- * @return The BSPD LED for the given world
- */
-struct Led *App_DimWorld_GetBspdLed(const struct DimWorld *world);
 
 /**
  * Get the error table for the given world
