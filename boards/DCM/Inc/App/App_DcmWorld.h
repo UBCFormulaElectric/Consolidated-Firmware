@@ -7,7 +7,6 @@
 #include "App_BrakeLight.h"
 #include "App_Buzzer.h"
 #include "App_BuzzerSignals.h"
-#include "App_Imu.h"
 #include "App_SharedErrorTable.h"
 #include "App_SharedClock.h"
 #include "App_SharedWaitSignal.h"
@@ -31,7 +30,6 @@ struct DcmWorld *App_DcmWorld_Create(
     struct RgbLedSequence *   rgb_led_sequence,
     struct BrakeLight *       brake_light,
     struct Buzzer *           buzzer,
-    struct Imu *              imu,
     struct ErrorTable *       error_table,
     struct Clock *            clock,
     struct InverterSwitches * inverter_switches,
@@ -85,13 +83,6 @@ struct BrakeLight *App_DcmWorld_GetBrakeLight(const struct DcmWorld *world);
  * @return The buzzer for the given world
  */
 struct Buzzer *App_DcmWorld_GetBuzzer(const struct DcmWorld *world);
-
-/**
- * Get the Imu for the given world
- * @param world The world to get clock for
- * @return The Imu for the given world
- */
-struct Imu *App_DcmWorld_GetImu(const struct DcmWorld *world);
 
 /**
  * Get the error table for the given world
