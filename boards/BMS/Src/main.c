@@ -37,14 +37,11 @@
 #include "Io_Imd.h"
 #include "Io_SharedHeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
-#include "Io_Charger.h"
 #include "Io_CurrentSense.h"
-#include "Io_OkStatuses.h"
 #include "Io_LTC6813/Io_LTC6813Shared.h"
 #include "Io_LTC6813/Io_LTC6813CellVoltages.h"
 #include "Io_LTC6813/Io_LTC6813CellTemperatures.h"
 #include "Io_Airs.h"
-#include "Io_PreCharge.h"
 #include "Io_Adc.h"
 #include "Io_VoltageSense.h"
 
@@ -218,8 +215,6 @@ int main(void)
     rgb_led_sequence = App_SharedRgbLedSequence_Create(
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed, Io_RgbLedSequence_TurnOnGreenLed);
 
-    charger = App_Charger_Create(Io_Charger_Enable, Io_Charger_Disable, Io_Charger_IsConnected, Io_Charger_HasFaulted);
-
     Io_LTC6813Shared_InitSpiHandle(&hspi2);
     accumulator = App_Accumulator_Create(
         Io_LTC6813Shared_SetCfgRegsToDefaultSettings, Io_LTC6813Shared_WriteConfigurationRegisters,
@@ -244,8 +239,7 @@ int main(void)
     clock = App_SharedClock_Create();
 
     world = App_BmsWorld_Create(
-        can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs,
-        ts, error_table, clock);
+        can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, accumulator, airs, ts, error_table, clock);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
