@@ -1,4 +1,6 @@
 #include <math.h>
+#include <stm32f3xx.h>
+#include "main.h"
 #include "App_AcceleratorPedalSignals.h"
 #include "App_FsmWorld.h"
 
@@ -68,9 +70,9 @@ void App_AcceleratorPedalSignals_AppsDisagreementCallback(struct FsmWorld *world
 bool App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure(struct FsmWorld *world)
 {
     struct AcceleratorPedals *papps_and_sapps = App_FsmWorld_GetPappsAndSapps(world);
-    struct Brake *            brake           = App_FsmWorld_GetBrake(world);
 
-    return App_Brake_IsBrakeActuated(brake) && App_AcceleratorPedals_GetPrimaryPedalPercentage(papps_and_sapps) > 25.0f;
+    return (HAL_GPIO_ReadPin(BSPD_BRAKE_STATUS_GPIO_Port, BSPD_BRAKE_STATUS_Pin) == GPIO_PIN_SET) &&
+           (App_AcceleratorPedals_GetPrimaryPedalPercentage(papps_and_sapps) > 25.0f);
 }
 
 bool App_AcceleratorPedalSignals_IsAppsAndBrakePlausibilityOk(struct FsmWorld *world)

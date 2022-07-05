@@ -1,3 +1,5 @@
+#include <stm32f3xx.h>
+#include "main.h"
 #include "App_SharedSetPeriodicCanSignals.h"
 #include "App_SetPeriodicCanSignals.h"
 
@@ -66,14 +68,8 @@ void App_SetPeriodicSignals_Brake(const struct FsmWorld *world)
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_PRESSURE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
-    if (App_Brake_IsBrakeActuated(brake))
-    {
-        App_CanTx_SetPeriodicSignal_BRAKE_IS_ACTUATED(can_tx, CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE);
-    }
-    else
-    {
-        App_CanTx_SetPeriodicSignal_BRAKE_IS_ACTUATED(can_tx, CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_FALSE_CHOICE);
-    }
+    App_CanTx_SetPeriodicSignal_BRAKE_IS_ACTUATED(
+        can_tx, HAL_GPIO_ReadPin(BSPD_BRAKE_STATUS_GPIO_Port, BSPD_BRAKE_STATUS_Pin) == GPIO_PIN_SET);
 
     if (App_Brake_IsPressureSensorOpenOrShortCircuit(brake))
     {
@@ -91,7 +87,6 @@ void App_SetPeriodicSignals_AcceleratorPedal(const struct FsmWorld *world)
 {
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
 
-    struct Brake *            brake           = App_FsmWorld_GetBrake(world);
     struct AcceleratorPedals *papps_and_sapps = App_FsmWorld_GetPappsAndSapps(world);
 
     const float papps_pedal_percentage = App_AcceleratorPedals_GetPrimaryPedalPercentage(papps_and_sapps);
@@ -100,7 +95,7 @@ void App_SetPeriodicSignals_AcceleratorPedal(const struct FsmWorld *world)
     App_CanTx_SetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, papps_pedal_percentage);
     App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, sapps_pedal_percentage);
 
-    if (App_Brake_IsBrakeActuated(brake))
+    if (HAL_GPIO_ReadPin(BSPD_BRAKE_STATUS_GPIO_Port, BSPD_BRAKE_STATUS_Pin) == GPIO_PIN_SET)
     {
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
     }

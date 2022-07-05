@@ -41,7 +41,6 @@
 #include "Io_MSP3002K5P3N1.h"
 #include "Io_Adc.h"
 #include "Io_AcceleratorPedals.h"
-#include "Io_Brake.h"
 #include "Io_PrimaryScancon2RMHF.h"
 #include "Io_SecondaryScancon2RMHF.h"
 
@@ -220,8 +219,8 @@ int main(void)
         App_InRangeCheck_Create(Io_SteeringAngleSensor_GetAngleDegree, MIN_STEERING_ANGLE_DEG, MAX_STEERING_ANGLE_DEG);
 
     brake = App_Brake_Create(
-        Io_MSP3002K5P3N1_GetPressurePsi, Io_MSP3002K5P3N1_IsOpenOrShortCircuit, Io_Brake_IsActuated,
-        MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
+        Io_MSP3002K5P3N1_GetPressurePsi, Io_MSP3002K5P3N1_IsOpenOrShortCircuit, MIN_BRAKE_PRESSURE_PSI,
+        MAX_BRAKE_PRESSURE_PSI);
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP, Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
