@@ -212,12 +212,6 @@ int main(void)
 
     drive_mode_switch = App_RotarySwitch_Create(Io_DriveModeSwitch_GetPosition, NUM_DRIVE_MODE_SWITCH_POSITIONS);
 
-    start_switch = App_BinarySwitch_Create(Io_Switches_StartSwitchIsTurnedOn);
-
-    traction_control_switch = App_BinarySwitch_Create(Io_Switches_TractionControlSwitchIsTurnedOn);
-
-    torque_vectoring_switch = App_BinarySwitch_Create(Io_Switches_TorqueVectoringSwitchIsTurnedOn);
-
     error_table = App_SharedErrorTable_Create();
 
     bms_status_led = App_SharedRgbLed_Create(
@@ -243,9 +237,8 @@ int main(void)
     clock = App_SharedClock_Create();
 
     world = App_DimWorld_Create(
-        can_tx, can_rx, seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, start_switch,
-        traction_control_switch, torque_vectoring_switch, error_table, bms_status_led, dcm_status_led, dim_status_led,
-        fsm_status_led, pdm_status_led, clock);
+        can_tx, can_rx, seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, error_table,
+        bms_status_led, dcm_status_led, dim_status_led, fsm_status_led, pdm_status_led, clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 
