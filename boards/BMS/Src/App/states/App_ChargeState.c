@@ -1,3 +1,5 @@
+#include <stm32f3xx.h>
+#include "main.h"
 #include "states/App_AllStates.h"
 #include "states/App_FaultState.h"
 
@@ -9,11 +11,12 @@ static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct BmsWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
     struct BmsCanTxInterface *can_tx_interface = App_BmsWorld_GetCanTx(world);
-    struct Charger *          charger          = App_BmsWorld_GetCharger(world);
 
     App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_CHARGE_CHOICE);
     App_CanTx_SetPeriodicSignal_IS_CHARGING_COMPLETE(can_tx_interface, false);
-    App_Charger_Enable(charger);
+
+    // Turn on the charger
+    HAL_GPIO_WritePin(BRUSA_PON_GPIO_Port, BRUSA_PON_Pin, GPIO_PIN_SET);
 }
 
 static void ChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -27,15 +30,15 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         struct BmsWorld *         world       = App_SharedStateMachine_GetWorld(state_machine);
         struct BmsCanTxInterface *can_tx      = App_BmsWorld_GetCanTx(world);
-        struct Charger *          charger     = App_BmsWorld_GetCharger(world);
         struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
         struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
         struct Airs *             airs        = App_BmsWorld_GetAirs(world);
 
-        static uint16_t ignore_chgr_fault_counter      = 0U;
-        const bool      is_charger_disconnected        = !App_Charger_IsConnected(charger);
-        bool            has_charger_faulted            = false;
-        bool            has_external_shutdown_occurred = !App_Airs_IsAirNegativeClosed(airs);
+        static uint16_t ignore_chgr_fault_counter = 0U;
+        const bool      is_charger_disconnected =
+            HAL_GPIO_ReadPin(CHARGE_STATE_GPIO_Port, CHARGE_STATE_Pin) == GPIO_PIN_RESET;
+        bool has_charger_faulted            = false;
+        bool has_external_shutdown_occurred = !App_Airs_IsAirNegativeClosed(airs);
 
         if (ignore_chgr_fault_counter < CYCLES_TO_IGNORE_CHGR_FAULT)
         {
@@ -43,7 +46,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         }
         else
         {
-            has_charger_faulted = App_Charger_HasFaulted(charger);
+            has_charger_faulted = HAL_GPIO_ReadPin(BRUSA_FLT_GPIO_Port, BRUSA_FLT_Pin) == GPIO_PIN_RESET;
         }
 
         uint8_t    segment = 0U;
@@ -72,10 +75,8 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
 static void ChargeStateRunOnExit(struct StateMachine *const state_machine)
 {
-    struct BmsWorld *world   = App_SharedStateMachine_GetWorld(state_machine);
-    struct Charger * charger = App_BmsWorld_GetCharger(world);
-
-    App_Charger_Disable(charger);
+    // Turn off the charger
+    HAL_GPIO_WritePin(BRUSA_PON_GPIO_Port, BRUSA_PON_Pin, GPIO_PIN_RESET);
 }
 
 const struct State *App_GetChargeState(void)

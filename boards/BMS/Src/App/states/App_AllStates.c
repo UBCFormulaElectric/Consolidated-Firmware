@@ -136,11 +136,10 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     struct BmsWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
     struct BmsCanTxInterface *can_tx           = App_BmsWorld_GetCanTx(world);
     struct RgbLedSequence *   rgb_led_sequence = App_BmsWorld_GetRgbLedSequence(world);
-    struct Charger *          charger          = App_BmsWorld_GetCharger(world);
 
     App_SharedRgbLedSequence_Tick(rgb_led_sequence);
 
-    bool charger_is_connected = App_Charger_IsConnected(charger);
+    bool charger_is_connected = HAL_GPIO_ReadPin(CHARGE_STATE_GPIO_Port, CHARGE_STATE_Pin) == GPIO_PIN_SET;
     App_CanTx_SetPeriodicSignal_IS_CONNECTED(can_tx, charger_is_connected);
 }
 
@@ -150,9 +149,6 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct BmsCanTxInterface *can_tx      = App_BmsWorld_GetCanTx(world);
     struct BmsCanRxInterface *can_rx      = App_BmsWorld_GetCanRx(world);
     struct Imd *              imd         = App_BmsWorld_GetImd(world);
-    struct OkStatus *         bms_ok      = App_BmsWorld_GetBmsOkStatus(world);
-    struct OkStatus *         imd_ok      = App_BmsWorld_GetImdOkStatus(world);
-    struct OkStatus *         bspd_ok     = App_BmsWorld_GetBspdOkStatus(world);
     struct Airs *             airs        = App_BmsWorld_GetAirs(world);
     struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
     struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
