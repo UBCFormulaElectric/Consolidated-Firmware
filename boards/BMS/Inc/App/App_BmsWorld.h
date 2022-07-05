@@ -5,7 +5,6 @@
 #include "App_Imd.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
-#include "App_Charger.h"
 #include "App_Accumulator.h"
 #include "App_Airs.h"
 #include "App_TractiveSystem.h"
