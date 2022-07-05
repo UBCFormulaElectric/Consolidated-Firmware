@@ -9,7 +9,6 @@
 #include "App_OkStatus.h"
 #include "App_Accumulator.h"
 #include "App_Airs.h"
-#include "App_PreChargeRelay.h"
 #include "App_TractiveSystem.h"
 #include "App_SharedErrorTable.h"
 #include "App_SharedClock.h"
@@ -37,7 +36,6 @@ struct BmsWorld *App_BmsWorld_Create(
     struct OkStatus *         bspd_ok,
     struct Accumulator *      accumulator,
     struct Airs *             airs,
-    struct PrechargeRelay *   precharge_relay,
     struct TractiveSystem *   tractive_system,
     struct ErrorTable *       error_table,
     struct Clock *            clock);
@@ -124,13 +122,6 @@ struct Accumulator *App_BmsWorld_GetAccumulator(const struct BmsWorld *world);
  * @return The AIRs for the given world
  */
 struct Airs *App_BmsWorld_GetAirs(const struct BmsWorld *world);
-
-/**
- * Get the precharge relay for the given world
- * @param world The world to get the precharge relay for
- * @return The precharge relay for the given world
- */
-struct PrechargeRelay *App_BmsWorld_GetPrechargeRelay(const struct BmsWorld *const world);
 
 /**
  * Get the tractive system for the given world

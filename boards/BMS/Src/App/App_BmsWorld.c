@@ -16,7 +16,6 @@ struct BmsWorld
     struct OkStatus *         bspd_ok;
     struct Accumulator *      accumulator;
     struct Airs *             airs;
-    struct PrechargeRelay *   precharge_relay;
     struct TractiveSystem *   ts;
     struct ErrorTable *       error_table;
     struct Clock *            clock;
@@ -34,7 +33,6 @@ struct BmsWorld *App_BmsWorld_Create(
     struct OkStatus *const          bspd_ok,
     struct Accumulator *const       accumulator,
     struct Airs *const              airs,
-    struct PrechargeRelay *const    precharge_relay,
     struct TractiveSystem *const    tractive_system,
     struct ErrorTable *const        error_table,
     struct Clock *const             clock)
@@ -53,7 +51,6 @@ struct BmsWorld *App_BmsWorld_Create(
     world->bspd_ok           = bspd_ok;
     world->accumulator       = accumulator;
     world->airs              = airs;
-    world->precharge_relay   = precharge_relay;
     world->ts                = tractive_system;
     world->error_table       = error_table;
     world->clock             = clock;
@@ -119,11 +116,6 @@ struct Accumulator *App_BmsWorld_GetAccumulator(const struct BmsWorld *const wor
 struct Airs *App_BmsWorld_GetAirs(const struct BmsWorld *const world)
 {
     return world->airs;
-}
-
-struct PrechargeRelay *App_BmsWorld_GetPrechargeRelay(const struct BmsWorld *const world)
-{
-    return world->precharge_relay;
 }
 
 struct TractiveSystem *App_BmsWorld_GetTractiveSystem(const struct BmsWorld *const world)

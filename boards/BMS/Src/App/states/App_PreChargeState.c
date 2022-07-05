@@ -1,3 +1,4 @@
+#include "main.h"
 #include "states/App_DriveState.h"
 #include "states/App_ChargeState.h"
 #include "states/App_FaultState.h"
@@ -26,12 +27,12 @@ static void PreChargeStateRunOnEntry(struct StateMachine *const state_machine)
     struct BmsWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
     struct BmsCanTxInterface *can_tx_interface = App_BmsWorld_GetCanTx(world);
     struct Clock *            clock            = App_BmsWorld_GetClock(world);
-    struct PrechargeRelay *   precharge_relay  = App_BmsWorld_GetPrechargeRelay(world);
 
     App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE);
-
     App_SharedClock_SetPreviousTimeInMilliseconds(clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
-    App_PrechargeRelay_Close(precharge_relay);
+
+    // Close the pre-charge relay
+    HAL_GPIO_WritePin(PRE_CHARGE_EN_GPIO_Port, PRE_CHARGE_EN_Pin, GPIO_PIN_SET);
 }
 
 static void PreChargeStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -79,10 +80,8 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
 
 static void PreChargeStateRunOnExit(struct StateMachine *const state_machine)
 {
-    struct BmsWorld *      world           = App_SharedStateMachine_GetWorld(state_machine);
-    struct PrechargeRelay *precharge_relay = App_BmsWorld_GetPrechargeRelay(world);
-
-    App_PrechargeRelay_Open(precharge_relay);
+    // Open the pre-charge relay
+    HAL_GPIO_WritePin(PRE_CHARGE_EN_GPIO_Port, PRE_CHARGE_EN_Pin, GPIO_PIN_RESET);
 }
 
 const struct State *App_GetPreChargeState(void)
