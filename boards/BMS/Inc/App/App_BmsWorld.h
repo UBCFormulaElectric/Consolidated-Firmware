@@ -6,7 +6,6 @@
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_Accumulator.h"
-#include "App_Airs.h"
 #include "App_TractiveSystem.h"
 #include "App_SharedErrorTable.h"
 #include "App_SharedClock.h"
@@ -29,7 +28,6 @@ struct BmsWorld *App_BmsWorld_Create(
     struct HeartbeatMonitor * heartbeat_monitor,
     struct RgbLedSequence *   rgb_led_sequence,
     struct Accumulator *      accumulator,
-    struct Airs *             airs,
     struct TractiveSystem *   tractive_system,
     struct ErrorTable *       error_table,
     struct Clock *            clock);
@@ -76,25 +74,11 @@ struct HeartbeatMonitor *App_BmsWorld_GetHeartbeatMonitor(const struct BmsWorld 
 struct RgbLedSequence *App_BmsWorld_GetRgbLedSequence(const struct BmsWorld *world);
 
 /**
- * Get the charger for the given world
- * @param world The world to get charger for
- * @return The charger for the given world
- */
-struct Charger *App_BmsWorld_GetCharger(const struct BmsWorld *world);
-
-/**
  * Get the accumulator for the given world
  * @param world The world to get the accumulator for
  * @return The accumulator for the given world
  */
 struct Accumulator *App_BmsWorld_GetAccumulator(const struct BmsWorld *world);
-
-/**
- * Get the AIRs for the given world
- * @param world The world to get the AIRs for
- * @return The AIRs for the given world
- */
-struct Airs *App_BmsWorld_GetAirs(const struct BmsWorld *world);
 
 /**
  * Get the tractive system for the given world

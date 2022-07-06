@@ -46,7 +46,6 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
     {
         struct BmsWorld *      world       = App_SharedStateMachine_GetWorld(state_machine);
         struct Clock *         clock       = App_BmsWorld_GetClock(world);
-        struct Airs *          airs        = App_BmsWorld_GetAirs(world);
         struct Accumulator *   accumulator = App_BmsWorld_GetAccumulator(world);
         struct TractiveSystem *ts          = App_BmsWorld_GetTractiveSystem(world);
 
@@ -71,7 +70,9 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
         else if (ts_voltage >= threshold_voltage)
         {
             const struct State *next_state = (is_charger_connected) ? App_GetChargeState() : App_GetDriveState();
-            App_Airs_CloseAirPositive(airs);
+
+            // Close AIR+
+            HAL_GPIO_WritePin(AIR_EN_GPIO_Port, AIR_EN_Pin, GPIO_PIN_SET);
             App_SharedStateMachine_SetNextState(state_machine, next_state);
         }
     }

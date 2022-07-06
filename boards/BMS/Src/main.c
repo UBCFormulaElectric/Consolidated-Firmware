@@ -41,7 +41,6 @@
 #include "Io_LTC6813/Io_LTC6813Shared.h"
 #include "Io_LTC6813/Io_LTC6813CellVoltages.h"
 #include "Io_LTC6813/Io_LTC6813CellTemperatures.h"
-#include "Io_Airs.h"
 #include "Io_Adc.h"
 #include "Io_VoltageSense.h"
 
@@ -106,12 +105,7 @@ struct BmsCanRxInterface *can_rx;
 struct Imd *              imd;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
-struct Charger *          charger;
-struct OkStatus *         bms_ok;
-struct OkStatus *         imd_ok;
-struct OkStatus *         bspd_ok;
 struct Accumulator *      accumulator;
-struct Airs *             airs;
 struct TractiveSystem *   ts;
 struct ErrorTable *       error_table;
 struct Clock *            clock;
@@ -231,15 +225,12 @@ int main(void)
         Io_CurrentSense_GetHighResolutionMainCurrent, Io_Adc_GetAdc2Channel3Voltage,
         Io_CurrentSense_GetLowResolutionMainCurrent);
 
-    airs = App_Airs_Create(
-        Io_Airs_IsAirPositiveClosed, Io_Airs_IsAirNegativeClosed, Io_Airs_CloseAirPositive, Io_Airs_OpenAirPositive);
-
     error_table = App_SharedErrorTable_Create();
 
     clock = App_SharedClock_Create();
 
     world = App_BmsWorld_Create(
-        can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, accumulator, airs, ts, error_table, clock);
+        can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, accumulator, ts, error_table, clock);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);

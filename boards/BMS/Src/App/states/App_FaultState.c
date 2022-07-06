@@ -7,11 +7,9 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct BmsWorld *const          world  = App_SharedStateMachine_GetWorld(state_machine);
     struct BmsCanTxInterface *const can_tx = App_BmsWorld_GetCanTx(world);
-    struct Airs *const              airs   = App_BmsWorld_GetAirs(world);
 
     App_CanTx_SetPeriodicSignal_STATE(can_tx, CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE);
-    App_Airs_OpenAirPositive(airs);
-    App_CanTx_SetPeriodicSignal_AIR_POSITIVE(can_tx, App_Airs_IsAirPositiveClosed(airs));
+    HAL_GPIO_WritePin(AIR_EN_GPIO_Port, AIR_EN_Pin, GPIO_PIN_RESET);
     HAL_GPIO_WritePin(BMS_OK_GPIO_Port, BMS_OK_Pin, GPIO_PIN_RESET);
 }
 
@@ -25,11 +23,10 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     App_AllStatesRunOnTick100Hz(state_machine);
 
     struct BmsWorld *        world       = App_SharedStateMachine_GetWorld(state_machine);
-    struct Airs *            airs        = App_BmsWorld_GetAirs(world);
     struct ErrorTable *const error_table = App_BmsWorld_GetErrorTable(world);
 
     bool is_error_table_cleared = !App_SharedErrorTable_HasAnyAirShutdownErrorSet(error_table);
-    bool is_air_negative_open   = !App_Airs_IsAirNegativeClosed(airs);
+    bool is_air_negative_open   = !(bool)HAL_GPIO_ReadPin(AIR_POWER_STATUS_GPIO_Port, AIR_POWER_STATUS_Pin);
 
     if (is_error_table_cleared && is_air_negative_open)
     {
