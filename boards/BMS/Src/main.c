@@ -41,7 +41,6 @@
 #include "Io_LTC6813/Io_LTC6813Shared.h"
 #include "Io_LTC6813/Io_LTC6813CellVoltages.h"
 #include "Io_LTC6813/Io_LTC6813CellTemperatures.h"
-#include "Io_Airs.h"
 #include "Io_Adc.h"
 #include "Io_VoltageSense.h"
 
@@ -106,12 +105,7 @@ struct BmsCanRxInterface *can_rx;
 struct Imd *              imd;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
-struct Charger *          charger;
-struct OkStatus *         bms_ok;
-struct OkStatus *         imd_ok;
-struct OkStatus *         bspd_ok;
 struct Accumulator *      accumulator;
-struct Airs *             airs;
 struct TractiveSystem *   ts;
 struct ErrorTable *       error_table;
 struct Clock *            clock;
