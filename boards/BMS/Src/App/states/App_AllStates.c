@@ -149,7 +149,6 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct BmsCanTxInterface *can_tx      = App_BmsWorld_GetCanTx(world);
     struct BmsCanRxInterface *can_rx      = App_BmsWorld_GetCanRx(world);
     struct Imd *              imd         = App_BmsWorld_GetImd(world);
-    struct Airs *             airs        = App_BmsWorld_GetAirs(world);
     struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
     struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
     struct HeartbeatMonitor * hb_monitor  = App_BmsWorld_GetHeartbeatMonitor(world);
@@ -171,8 +170,9 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_PACK_VOLTAGE(can_tx, App_Accumulator_GetPackVoltage(accumulator));
     App_CanTx_SetPeriodicSignal_TS_VOLTAGE(can_tx, App_TractiveSystem_GetVoltage(ts));
     App_CanTx_SetPeriodicSignal_TS_CURRENT(can_tx, App_TractiveSystem_GetCurrent(ts));
-    App_CanTx_SetPeriodicSignal_AIR_NEGATIVE(can_tx, App_Airs_IsAirNegativeClosed(airs));
-    App_CanTx_SetPeriodicSignal_AIR_POSITIVE(can_tx, App_Airs_IsAirPositiveClosed(airs));
+    App_CanTx_SetPeriodicSignal_AIR_NEGATIVE(
+        can_tx, (bool)HAL_GPIO_ReadPin(AIR_POWER_STATUS_GPIO_Port, AIR_POWER_STATUS_Pin));
+    App_CanTx_SetPeriodicSignal_AIR_POSITIVE(can_tx, (bool)HAL_GPIO_ReadPin(AIR_EN_GPIO_Port, AIR_EN_Pin));
     App_SetPeriodicCanSignals_Imd(can_tx, imd);
 
     App_AdvertisePackPower(can_tx, accumulator, ts);

@@ -11,7 +11,6 @@ struct BmsWorld
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
     struct Accumulator *      accumulator;
-    struct Airs *             airs;
     struct TractiveSystem *   ts;
     struct ErrorTable *       error_table;
     struct Clock *            clock;
@@ -24,7 +23,6 @@ struct BmsWorld *App_BmsWorld_Create(
     struct HeartbeatMonitor *const  heartbeat_monitor,
     struct RgbLedSequence *const    rgb_led_sequence,
     struct Accumulator *const       accumulator,
-    struct Airs *const              airs,
     struct TractiveSystem *const    tractive_system,
     struct ErrorTable *const        error_table,
     struct Clock *const             clock)
@@ -38,7 +36,6 @@ struct BmsWorld *App_BmsWorld_Create(
     world->heartbeat_monitor = heartbeat_monitor;
     world->rgb_led_sequence  = rgb_led_sequence;
     world->accumulator       = accumulator;
-    world->airs              = airs;
     world->ts                = tractive_system;
     world->error_table       = error_table;
     world->clock             = clock;
@@ -79,11 +76,6 @@ struct RgbLedSequence *App_BmsWorld_GetRgbLedSequence(const struct BmsWorld *con
 struct Accumulator *App_BmsWorld_GetAccumulator(const struct BmsWorld *const world)
 {
     return world->accumulator;
-}
-
-struct Airs *App_BmsWorld_GetAirs(const struct BmsWorld *const world)
-{
-    return world->airs;
 }
 
 struct TractiveSystem *App_BmsWorld_GetTractiveSystem(const struct BmsWorld *const world)
