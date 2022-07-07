@@ -218,9 +218,7 @@ int main(void)
     steering_angle_sensor_in_range_check =
         App_InRangeCheck_Create(Io_SteeringAngleSensor_GetAngleDegree, MIN_STEERING_ANGLE_DEG, MAX_STEERING_ANGLE_DEG);
 
-    brake = App_Brake_Create(
-        Io_MSP3002K5P3N1_GetPressurePsi, Io_MSP3002K5P3N1_IsOpenOrShortCircuit, MIN_BRAKE_PRESSURE_PSI,
-        MAX_BRAKE_PRESSURE_PSI);
+    brake = App_Brake_Create(Io_MSP3002K5P3N1_GetPressurePsi, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP, Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
