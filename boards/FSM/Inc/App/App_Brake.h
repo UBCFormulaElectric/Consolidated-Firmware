@@ -16,11 +16,7 @@ struct Brake;
  * from the brake pressure sensor
  * @return The created brake whose ownership is given to the caller
  */
-struct Brake *App_Brake_Create(
-    float (*get_pressure_psi)(void),
-    bool (*is_pressure_sensor_open_or_short_circuit)(void),
-    float min_pressure_psi,
-    float max_pressure_psi);
+struct Brake *App_Brake_Create(float (*get_pressure_psi)(void), float min_pressure_psi, float max_pressure_psi);
 
 /**
  * Deallocate the memory used by the given brake
@@ -34,15 +30,6 @@ void App_Brake_Destroy(struct Brake *brake);
  * @return The pressure in-range check for the given brake
  */
 struct InRangeCheck *App_Brake_GetPressureInRangeCheck(const struct Brake *brake);
-
-/**
- * Check if the brake pressure sensor is in an open or short circuit state
- * @param brake The brake to check if the corresponding pressure sensor is
- * in an open or short circuit state
- * @return True if the brake pressure sensor is in an open or short circuit
- * state, false if it is not
- */
-bool App_Brake_IsPressureSensorOpenOrShortCircuit(const struct Brake *brake);
 
 /**
  * Check if the pressure sensor is OC

@@ -30,9 +30,3 @@ float Io_Adc_GetAdc2Channel1Voltage(void);
  * @return The voltage measured at ADC2 channel 3, in volts
  */
 float Io_Adc_GetAdc2Channel3Voltage(void);
-
-/**
- * Get the voltage measured at ADC2 channel 4
- * @return The voltage measured at ADC2 channel 4, in volts
- */
-float Io_Adc_GetAdc2Channel4Voltage(void);
