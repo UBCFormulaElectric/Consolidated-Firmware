@@ -1,5 +1,5 @@
 # Consolidated-Firmware
-A consolidated repository for gathering all firmware under one roof. A line change. Another edit
+A consolidated repository for gathering all firmware under one roof. A line change. Another edit. Blah
 
 ## Table of Content
 - [Project Setup](#project-setup)
