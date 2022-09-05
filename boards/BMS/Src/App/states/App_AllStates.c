@@ -6,7 +6,7 @@
 #include "App_SharedMacros.h"
 #include "App_SharedProcessing.h"
 
-#define MIN_CELL_VOLTAGE (3.0f)
+#define MIN_CELL_VOLTAGE (3.3f)
 #define MAX_CELL_VOLTAGE (4.2f)
 #define DEFAULT_MIN_CELL_TEMP_DEGC (0.0f)
 #define DEFAULT_MAX_CELL_DISCHARGE_TEMP_DEGC (60.0f)

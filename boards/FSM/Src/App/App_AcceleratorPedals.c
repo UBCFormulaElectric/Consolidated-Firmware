@@ -26,6 +26,8 @@ struct AcceleratorPedals
  * counter value of the encoder for the given accelerator pedal
  * @return The pedal percentage of the given accelerator pedal
  */
+
+/*
 static float App_GetPedalPercentage_CountUp(
     uint32_t encoder_fully_pressed_value,
     uint32_t encoder_unpressed_value,
@@ -68,6 +70,7 @@ static float App_GetPedalPercentage_CountUp(
     return MAX_ACCELERATOR_PEDAL_PRESS * ((float)encoder_counter_value - low_count_deadzone_threshold) /
            (high_count_deadzone_threshold - low_count_deadzone_threshold);
 }
+ */
 
 /**
  * Get the pedal percentage, a value in [0, 100], for an encoder configured to
@@ -167,7 +170,8 @@ float App_AcceleratorPedals_GetPrimaryPedalPercentage(const struct AcceleratorPe
 
 float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct AcceleratorPedals *const accelerator_pedals)
 {
-    return App_GetPedalPercentage_CountUp(
-        SAPPS_ENCODER_FULLY_PRESSED_VALUE, SAPPS_ENCODER_UNPRESSED_VALUE, SAPPS_ENCODER_RESET_VALUE,
-        accelerator_pedals->get_secondary_encoder_counter_value(), accelerator_pedals->set_secondary_encoder_counter);
+    return Io_AcceleratorPedals_GetPapps();
+    return App_GetPedalPercentage_CountDown(
+        PAPPS_ENCODER_FULLY_PRESSED_VALUE, PAPPS_ENCODER_UNPRESSED_VALUE,
+        accelerator_pedals->get_primary_encoder_counter_value(), accelerator_pedals->set_primary_encoder_counter);
 }
