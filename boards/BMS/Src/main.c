@@ -241,7 +241,10 @@ int main(void)
         Io_LTC6813CellTemperatures_GetMaxTempDegC, Io_LTC6813CellTemperatures_GetAverageTempDegC,
         Io_LTC6813Shared_EnableDischarge, Io_LTC6813Shared_DisableDischarge);
 
-    ts = App_TractiveSystem_Create(Io_Adc_GetAdc1Channel3Voltage, Io_VoltageSense_GetTractiveSystemVoltage);
+
+    //TODO: TS_VOLTAGE_TUTORIAL: create tractive system variable. Name it "ts". Pass in the Io function you wrote as the
+    //                           get_ts_voltage parameter
+    ts = App_TractiveSystem_Create();
 
     airs = App_Airs_Create(
         Io_Airs_IsAirPositiveClosed, Io_Airs_IsAirNegativeClosed, Io_Airs_CloseAirPositive, Io_Airs_OpenAirPositive);

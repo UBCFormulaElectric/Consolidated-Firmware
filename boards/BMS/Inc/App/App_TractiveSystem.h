@@ -9,7 +9,7 @@ struct TractiveSystem;
  * @param get_ts_voltage A function that can be called to get the tractive
  * system voltage
  */
-struct TractiveSystem *App_TractiveSystem_Create(float (*get_ts_raw_voltage)(void), float (*get_ts_voltage)(float));
+struct TractiveSystem *App_TractiveSystem_Create(float (*get_ts_voltage)(float));
 
 /**
  * Deallocate the memory used by the given OK status

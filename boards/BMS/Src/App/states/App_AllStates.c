@@ -138,7 +138,8 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_HAS_PEC_ERROR(can_tx, has_acc_comms_error);
     App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_HAS_PEC_ERROR, has_acc_comms_error);
 
-    App_CanTx_SetPeriodicSignal_TS_VOLTAGE(can_tx, App_TractiveSystem_GetVoltage(ts));
+    //TODO: TS_VOLTAGE_TUTORIAL: send the voltage over CAN by passing in the 'can_tx_interface' to send the 'value' over
+    App_CanTx_SetPeriodicSignal_TS_VOLTAGE( , );
     App_CanTx_SetPeriodicSignal_AIR_NEGATIVE(can_tx, App_Airs_IsAirNegativeClosed(airs));
     App_CanTx_SetPeriodicSignal_AIR_POSITIVE(can_tx, App_Airs_IsAirPositiveClosed(airs));
     App_SetPeriodicCanSignals_Imd(can_tx, imd);
