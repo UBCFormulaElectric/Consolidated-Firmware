@@ -11,3 +11,11 @@
  * @return The voltage converted from the given raw ADC value
  */
 float Io_SharedAdc_ConvertRawAdcValueToVoltage(ADC_HandleTypeDef *hadc, bool is_differential, uint16_t raw_adc_value);
+
+// header
+
+typedef enum
+{
+    ADC1_CHANNELS,
+    ADC2_CHANNELS,
+} ADC_CHANNE;

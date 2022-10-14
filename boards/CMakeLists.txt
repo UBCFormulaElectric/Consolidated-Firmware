@@ -229,8 +229,8 @@ function(can_code_generation
             APP_CAN_RX_HEADER_OUTPUT
             IO_CAN_RX_SRC_OUTPUT
             IO_CAN_RX_HEADER_OUTPUT
-            APP_CANMSG_SRC_OUTPUT
-            APP_CANMSG_HEADER_OUTPUT
+            APP_CANUTILS_SRC_OUTPUT
+            APP_CANUTILS_HEADER_OUTPUT
             DBC_FILE
             )
     add_custom_command(
@@ -242,25 +242,44 @@ function(can_code_generation
                ${APP_CAN_RX_HEADER_OUTPUT}
                ${IO_CAN_RX_SRC_OUTPUT}
                ${IO_CAN_RX_HEADER_OUTPUT}
-               ${APP_CANMSG_SRC_OUTPUT}
-               ${APP_CANMSG_HEADER_OUTPUT}
+               ${APP_CANUTILS_SRC_OUTPUT}
+               ${APP_CANUTILS_HEADER_OUTPUT}
+               ${DBC_FILE}
+
         COMMAND pipenv run python
-                ${SCRIPTS_DIR}/codegen/CAN/generate_c_code_from_dbc.py
-                --board                    ${BOARD_NAME}
-                --app_can_tx_source_output ${APP_CAN_TX_SRC_OUTPUT}
-                --app_can_tx_header_output ${APP_CAN_TX_HEADER_OUTPUT}
-                --io_can_tx_source_output  ${IO_CAN_TX_SRC_OUTPUT}
-                --io_can_tx_header_output  ${IO_CAN_TX_HEADER_OUTPUT}
-                --app_can_rx_source_output ${APP_CAN_RX_SRC_OUTPUT}
-                --app_can_rx_header_output ${APP_CAN_RX_HEADER_OUTPUT}
-                --io_can_rx_source_output  ${IO_CAN_RX_SRC_OUTPUT}
-                --io_can_rx_header_output  ${IO_CAN_RX_HEADER_OUTPUT}
-                --cantools_source_output   ${APP_CANMSG_SRC_OUTPUT}
-                --cantools_header_output   ${APP_CANMSG_HEADER_OUTPUT}
-                --dbc                      ${DBC_FILE}
+                ${SCRIPTS_DIR}/codegen/json2can/generate_can_from_json.py
+                --can_data_dir                  ${SCRIPTS_DIR}/codegen/json2can/example_json
+                --board                         ${BOARD_NAME}
+                --app_can_tx_source_output      ${APP_CAN_TX_SRC_OUTPUT}
+                --app_can_tx_header_output      ${APP_CAN_TX_HEADER_OUTPUT}
+                --io_can_tx_source_output       ${IO_CAN_TX_SRC_OUTPUT}
+                --io_can_tx_header_output       ${IO_CAN_TX_HEADER_OUTPUT}
+                --app_can_rx_source_output      ${APP_CAN_RX_SRC_OUTPUT}
+                --app_can_rx_header_output      ${APP_CAN_RX_HEADER_OUTPUT}
+                --io_can_rx_source_output       ${IO_CAN_RX_SRC_OUTPUT}
+                --io_can_rx_header_output       ${IO_CAN_RX_HEADER_OUTPUT}
+                --app_can_utils_source_output   ${APP_CANUTILS_SRC_OUTPUT}
+                --app_can_utils_header_output   ${APP_CANUTILS_HEADER_OUTPUT}
+                --dbc_output                    ${DBC_FILE}
+
+#        COMMAND pipenv run python
+#                ${SCRIPTS_DIR}/codegen/can/generate_c_code_from_dbc.py
+#                --board                    ${BOARD_NAME}
+#                --app_can_tx_source_output ${APP_CAN_TX_SRC_OUTPUT}
+#                --app_can_tx_header_output ${APP_CAN_TX_HEADER_OUTPUT}
+#                --io_can_tx_source_output  ${IO_CAN_TX_SRC_OUTPUT}
+#                --io_can_tx_header_output  ${IO_CAN_TX_HEADER_OUTPUT}
+#                --app_can_rx_source_output ${APP_CAN_RX_SRC_OUTPUT}
+#                --app_can_rx_header_output ${APP_CAN_RX_HEADER_OUTPUT}
+#                --io_can_rx_source_output  ${IO_CAN_RX_SRC_OUTPUT}
+#                --io_can_rx_header_output  ${IO_CAN_RX_HEADER_OUTPUT}
+#                --cantools_source_output   ${APP_CANUTILS_SRC_OUTPUT}
+#                --cantools_header_output   ${APP_CANUTILS_HEADER_OUTPUT}
+#                --dbc                      ${SCRIPTS_DIR}/codegen/CAN/App_CanMsgs.dbc
+
         DEPENDS ${DBC_FILE}
         WORKING_DIRECTORY ${PIPENV_PROJECT_DIR}
-        )
+    )
 endfunction()
 
 # Generate ErrorId enum using the DBC
@@ -272,7 +291,7 @@ function(error_ids_generation
             OUTPUT ${ERROR_ID_HEADER_OUTPUT}
             COMMAND pipenv run python
                 ${SCRIPTS_DIR}/codegen/ErrorId/generate_error_ids.py
-                --dbc         ${DBC_FILE}
+                --dbc         ${SCRIPTS_DIR}/codegen/CAN/App_CanMsgs.dbc
                 --output_path ${ERROR_ID_HEADER_OUTPUT}
             DEPENDS ${DBC_FILE}
             WORKING_DIRECTORY ${PIPENV_PROJECT_DIR}
@@ -286,6 +305,7 @@ function(compile_googletest_executable
         ARM_BINARY_X86_COMPATIBLE_SRCS
         ARM_BINARY_INCLUDE_DIRS
         )
+
     if(CMAKE_HOST_SYSTEM_NAME STREQUAL "Windows")
         set(TEST_EXECUTABLE_NAME "${BOARD_NAME}_test.exe")
     else()
@@ -405,8 +425,8 @@ function(create_arm_binary_or_tests_for_board
     set(APP_CAN_RX_HEADER_FILE_NAME  "App_CanRx.h")
     set(IO_CAN_RX_SRC_FILE_NAME      "Io_CanRx.c")
     set(IO_CAN_RX_HEADER_FILE_NAME   "Io_CanRx.h")
-    set(APP_CANMSGS_SRC_FILE_NAME    "App_CanMsgs.c")
-    set(APP_CANMSGS_HEADER_FILE_NAME "App_CanMsgs.h")
+    set(APP_CANUTILS_SRC_FILE_NAME    "App_CanUtils.c")
+    set(APP_CANUTILS_HEADER_FILE_NAME "App_CanUtils.h")
 
     set(BOARD_SPECIFIC_AUTOGENERATED_APP_SRC_DIR
             "${CMAKE_CURRENT_BINARY_DIR}/Src/App")
@@ -434,11 +454,11 @@ function(create_arm_binary_or_tests_for_board
     set(IO_CAN_RX_HEADER_FILE
             "${BOARD_SPECIFIC_AUTOGENERATED_IO_INCLUDE_DIR}/${IO_CAN_RX_HEADER_FILE_NAME}")
     set(APP_CAN_MSGS_SRC_FILE
-            "${BOARD_SPECIFIC_AUTOGENERATED_APP_SRC_DIR}/${APP_CANMSGS_SRC_FILE_NAME}")
+            "${BOARD_SPECIFIC_AUTOGENERATED_APP_SRC_DIR}/${APP_CANUTILS_SRC_FILE_NAME}")
     set(APP_CAN_MSGS_INCLUDE_FILE
-            "${BOARD_SPECIFIC_AUTOGENERATED_APP_INCLUDE_DIR}/${APP_CANMSGS_HEADER_FILE_NAME}")
+            "${BOARD_SPECIFIC_AUTOGENERATED_APP_INCLUDE_DIR}/${APP_CANUTILS_HEADER_FILE_NAME}")
     set(DBC_FILE
-            "${SCRIPTS_DIR}/codegen/CAN/App_CanMsgs.dbc")
+            "${SCRIPTS_DIR}/codegen/json2can/example_generated/Dbc/car.dbc")
 
     set(AUTOGENERATED_CAN_APP_SRCS
             "${APP_CAN_TX_SRC_FILE}"

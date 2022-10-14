@@ -89,7 +89,7 @@ static HAL_StatusTypeDef Io_TransmitCanMessage(struct CanMsg *message);
  *         the configuration information for the specified CAN.
  * @param  rx_fifo The Rx FIFO that triggered the callback
  */
-static void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo);
+// static void Io_CanRxCallback(CAN_HandleTypeDef *hcan, uint32_t rx_fifo);
 
 /*
  * @brief Consolidate CAN TX complete callback into one function

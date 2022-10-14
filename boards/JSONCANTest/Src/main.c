@@ -24,7 +24,12 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "App_SharedMacros.h"
+#include "Io_SharedCan.h"
+//#include "Io_SharedSoftwareWatchdog.h"
+#include "Io_CanTx.h"
+#include "Io_CanRx.h"
+#include "App_JsoncantestWorld.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -49,11 +54,25 @@ CAN_HandleTypeDef hcan;
 
 SPI_HandleTypeDef hspi2;
 
-osThreadId          defaultTaskHandle;
-uint32_t            defaultTaskBuffer[128];
-osStaticThreadDef_t defaultTaskControlBlock;
+osThreadId          Task100HzHandle;
+uint32_t            Task100HzBuffer[128];
+osStaticThreadDef_t Task100HzControlBlock;
+osThreadId          Task1HzHandle;
+uint32_t            Task1HzBuffer[128];
+osStaticThreadDef_t Task1HzControlBlock;
+osThreadId          Task1kHzHandle;
+uint32_t            Task1kHzBuffer[128];
+osStaticThreadDef_t Task1kHzControlBlock;
+osThreadId          TaskCanRxHandle;
+uint32_t            TaskCanRxBuffer[128];
+osStaticThreadDef_t TaskCanRxControlBlock;
+osThreadId          TaskCanTxHandle;
+uint32_t            TaskCanTxBuffer[128];
+osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
-
+// struct JsoncantestCanTxInterface *can_tx;
+// struct JsoncantestCanRxInterface *can_rx;
+struct Clock *clock;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -62,14 +81,31 @@ static void MX_GPIO_Init(void);
 static void MX_CAN_Init(void);
 static void MX_ADC1_Init(void);
 static void MX_SPI2_Init(void);
-void        StartDefaultTask(void const *argument);
+void        RunTask100Hz(void const *argument);
+void        RunTask1Hz(void const *argument);
+void        RunTask1kHz(void const *argument);
+void        RunTaskCanRx(void const *argument);
+void        RunTaskCanTx(void const *argument);
 
 /* USER CODE BEGIN PFP */
+
+static void CanRxQueueOverflowCallBack(size_t overflow_count);
+static void CanTxQueueOverflowCallBack(size_t overflow_count);
 
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+
+static void CanRxQueueOverflowCallBack(size_t overflow_count)
+{
+    // Not implemented
+}
+
+static void CanTxQueueOverflowCallBack(size_t overflow_count)
+{
+    // Not implemented
+}
 
 /* USER CODE END 0 */
 
@@ -106,6 +142,9 @@ int main(void)
     MX_SPI2_Init();
     /* USER CODE BEGIN 2 */
 
+    App_CanTx_Init();
+    App_CanRx_Init();
+
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -125,10 +164,25 @@ int main(void)
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
-    /* definition and creation of defaultTask */
-    osThreadStaticDef(
-        defaultTask, StartDefaultTask, osPriorityNormal, 0, 128, defaultTaskBuffer, &defaultTaskControlBlock);
-    defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
+    /* definition and creation of Task100Hz */
+    osThreadStaticDef(Task100Hz, RunTask100Hz, osPriorityBelowNormal, 0, 128, Task100HzBuffer, &Task100HzControlBlock);
+    Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
+
+    /* definition and creation of Task1Hz */
+    osThreadStaticDef(Task1Hz, RunTask1Hz, osPriorityLow, 0, 128, Task1HzBuffer, &Task1HzControlBlock);
+    Task1HzHandle = osThreadCreate(osThread(Task1Hz), NULL);
+
+    /* definition and creation of Task1kHz */
+    osThreadStaticDef(Task1kHz, RunTask1kHz, osPriorityAboveNormal, 0, 128, Task1kHzBuffer, &Task1kHzControlBlock);
+    Task1kHzHandle = osThreadCreate(osThread(Task1kHz), NULL);
+
+    /* definition and creation of TaskCanRx */
+    osThreadStaticDef(TaskCanRx, RunTaskCanRx, osPriorityIdle, 0, 128, TaskCanRxBuffer, &TaskCanRxControlBlock);
+    TaskCanRxHandle = osThreadCreate(osThread(TaskCanRx), NULL);
+
+    /* definition and creation of TaskCanTx */
+    osThreadStaticDef(TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, 128, TaskCanTxBuffer, &TaskCanTxControlBlock);
+    TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -278,7 +332,7 @@ static void MX_CAN_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN CAN_Init 2 */
-
+    Io_SharedCan_Init(&hcan, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
     /* USER CODE END CAN_Init 2 */
 }
 
@@ -337,22 +391,146 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_StartDefaultTask */
+/* USER CODE BEGIN Header_RunTask100Hz */
 /**
- * @brief  Function implementing the defaultTask thread.
+ * @brief  Function implementing the Task100Hz thread.
  * @param  argument: Not used
  * @retval None
  */
-/* USER CODE END Header_StartDefaultTask */
-void StartDefaultTask(void const *argument)
+/* USER CODE END Header_RunTask100Hz */
+void RunTask100Hz(void const *argument)
 {
     /* USER CODE BEGIN 5 */
+    UNUSED(argument);
+    uint32_t                PreviousWakeTime = osKernelSysTick();
+    static const TickType_t period_ms        = 10;
+    //    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    //    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_100HZ", period_ms);
+
     /* Infinite loop */
     for (;;)
     {
-        osDelay(1);
+        //        App_SharedStateMachine_Tick100Hz(state_machine);
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep.
+        //        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        osDelayUntil(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END 5 */
+}
+
+/* USER CODE BEGIN Header_RunTask1Hz */
+/**
+ * @brief Function implementing the Task1Hz thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTask1Hz */
+void RunTask1Hz(void const *argument)
+{
+    /* USER CODE BEGIN RunTask1Hz */
+    UNUSED(argument);
+    uint32_t                PreviousWakeTime = osKernelSysTick();
+    static const TickType_t period_ms        = 1000U;
+    //    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    //    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1HZ", period_ms);
+
+    for (;;)
+    {
+        //        Io_StackWaterMark_Check();
+        //        App_SharedStateMachine_Tick1Hz(state_machine);
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep.
+        //        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        osDelayUntil(&PreviousWakeTime, period_ms);
+    }
+    /* USER CODE END RunTask1Hz */
+}
+
+/* USER CODE BEGIN Header_RunTask1kHz */
+/**
+ * @brief Function implementing the Task1kHz thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTask1kHz */
+void RunTask1kHz(void const *argument)
+{
+    /* USER CODE BEGIN RunTask1kHz */
+    UNUSED(argument);
+    uint32_t                PreviousWakeTime = osKernelSysTick();
+    static const TickType_t period_ms        = 10U;
+    //    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    //    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1KHZ", period_ms);
+
+    for (;;)
+    {
+        //        Io_SharedSoftwareWatchdog_CheckForTimeouts();
+        const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
+        //        App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms); //BROKEN!
+
+        App_CanTx_JSONCANTest_VITALS_HEARTBEAT_SetSignal(1);
+        App_CanTx_JSONCANTest_STATUS_CONTACTORS_CLOSED_SetSignal(1);
+        const float apps_pedal_travel = App_CanRx_FSM_APPS_Sapps_Mapped_Pedal_Percentage_GetValue();
+        Io_CanTx_Enqueue1kHzMessages(task_start_ms);
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep. Prevent check in if the elapsed period is greater or
+        // equal to the period ms
+        //        if ((TICK_TO_MS(osKernelSysTick()) - task_start_ms) <= period_ms)
+        //        {
+        //            Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        //        }
+
+        osDelayUntil(&PreviousWakeTime, period_ms);
+    }
+
+    //    /* Infinite loop */
+    //    for (;;)
+    //    {
+    //        osDelay(1);
+    //    }
+    /* USER CODE END RunTask1kHz */
+}
+
+/* USER CODE BEGIN Header_RunTaskCanRx */
+/**
+ * @brief Function implementing the TaskCanRx thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskCanRx */
+void RunTaskCanRx(void const *argument)
+{
+    /* USER CODE BEGIN RunTaskCanRx */
+    /* Infinite loop */
+    for (;;)
+    {
+        struct CanMsg message;
+        Io_SharedCan_DequeueCanRxMessage(&message);
+        Io_CanRx_UpdateRxTableWithMessage(&message);
+    }
+    /* USER CODE END RunTaskCanRx */
+}
+
+/* USER CODE BEGIN Header_RunTaskCanTx */
+/**
+ * @brief Function implementing the TaskCanTx thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskCanTx */
+void RunTaskCanTx(void const *argument)
+{
+    /* USER CODE BEGIN RunTaskCanTx */
+    /* Infinite loop */
+    for (;;)
+    {
+        Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
+    }
+    /* USER CODE END RunTaskCanTx */
 }
 
 /**

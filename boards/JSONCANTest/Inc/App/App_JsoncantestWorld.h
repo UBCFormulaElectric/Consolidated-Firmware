@@ -1,12 +1,10 @@
 #pragma once
 
-//#include "App_CanTx.h"
-//#include "App_CanRx.h"
-//#include "App_InRangeCheck.h"
-//#include "App_SharedHeartbeatMonitor.h"
-//#include "App_SharedRgbLedSequence.h"
-//#include "App_LowVoltageBattery.h"
-//#include "App_SharedClock.h"
+#include "App_CanTx.h"
+#include "App_CanRx.h"
+#include "App_InRangeCheck.h"
+#include "App_SharedHeartbeatMonitor.h"
+#include "App_SharedClock.h"
 
 struct JsoncantestWorld;
 

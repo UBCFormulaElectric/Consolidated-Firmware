@@ -24,14 +24,10 @@
 //     CHANNEL_2, // Rank 3
 //     NUM_ADC_CHANNELS,
 // };
-enum
-{
-    ADC1_CHANNEL_3,
-    NUM_ADC1_CHANNELS
-};
 
 enum
 {
+    ADC1_CHANNEL_3,
     ADC2_CHANNEL_1,
     ADC2_CHANNEL_3,
     ADC2_CHANNEL_4,
