@@ -220,6 +220,7 @@ class FsmStateMachineTest : public BaseStateMachineTest
     {
         // Calculate the encoder counter value from the given mapped pedal
         // percentage
+        /*
         if (counts_upwards)
         {
             float low_count_deadzone_threshold =
@@ -245,6 +246,8 @@ class FsmStateMachineTest : public BaseStateMachineTest
                 high_count_deadzone_threshold - pedal_percentage / MAX_ACCELERATOR_PEDAL_PRESS *
                                                     (high_count_deadzone_threshold - low_count_deadzone_threshold));
         }
+         */
+        return pedal_percentage;
     }
 
     uint32_t GetPrimaryEncoderCounterFromPedalPercentage(float pedal_percentage)
@@ -554,6 +557,7 @@ TEST_F(FsmStateMachineTest, check_mapped_pedal_percentage_can_signals_in_all_sta
         LetTimePass(state_machine, 10);
         ASSERT_NEAR(50, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface), 0.5f);
 
+        /*REMOVED when switched to linear pot
         // Underflow range
         // Decrement fake_value by +/-1 to ensure that the encoder counter value
         // is within the lower deadzone
@@ -569,6 +573,7 @@ TEST_F(FsmStateMachineTest, check_mapped_pedal_percentage_can_signals_in_all_sta
         get_sapps_encoder_counter_fake.return_val = GetSecondaryEncoderCounterFromPedalPercentage(100) - 1;
         LetTimePass(state_machine, 10);
         ASSERT_NEAR(100, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface), 0.5f);
+         */
     }
 }
 
