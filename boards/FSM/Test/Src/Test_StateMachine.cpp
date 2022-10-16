@@ -224,10 +224,12 @@ class FsmStateMachineTest : public BaseStateMachineTest
         if (counts_upwards)
         {
             float low_count_deadzone_threshold =
-                (float)((encoder_fully_pressed_value - encoder_unpressed_value) * PERCENT_DEFLECTION + encoder_unpressed_value);
+                (float)((encoder_fully_pressed_value - encoder_unpressed_value) * PERCENT_DEFLECTION +
+        encoder_unpressed_value);
 
             float high_count_deadzone_threshold =
-                (float)((encoder_fully_pressed_value - encoder_unpressed_value) * (1.0f - PERCENT_DEFLECTION) + encoder_unpressed_value);
+                (float)((encoder_fully_pressed_value - encoder_unpressed_value) * (1.0f - PERCENT_DEFLECTION) +
+        encoder_unpressed_value);
 
             return round(
                 pedal_percentage / MAX_ACCELERATOR_PEDAL_PRESS *
@@ -237,10 +239,12 @@ class FsmStateMachineTest : public BaseStateMachineTest
         else
         {
             float low_count_deadzone_threshold =
-                (float)((encoder_unpressed_value - encoder_fully_pressed_value) * PERCENT_DEFLECTION + encoder_fully_pressed_value);
+                (float)((encoder_unpressed_value - encoder_fully_pressed_value) * PERCENT_DEFLECTION +
+        encoder_fully_pressed_value);
 
             float high_count_deadzone_threshold =
-                (float)((encoder_unpressed_value - encoder_fully_pressed_value) * (1.0f - PERCENT_DEFLECTION) + encoder_fully_pressed_value);
+                (float)((encoder_unpressed_value - encoder_fully_pressed_value) * (1.0f - PERCENT_DEFLECTION) +
+        encoder_fully_pressed_value);
 
             return round(
                 high_count_deadzone_threshold - pedal_percentage / MAX_ACCELERATOR_PEDAL_PRESS *
