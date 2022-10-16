@@ -9,6 +9,7 @@
 #include "App_SharedSignal.h"
 #include "App_SharedClock.h"
 #include "App_AcceleratorPedals.h"
+#include "App_Coolant.h"
 
 struct FsmWorld;
 
@@ -25,12 +26,12 @@ struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanTxInterface *can_tx_interface,
     struct FsmCanRxInterface *can_rx_interface,
     struct HeartbeatMonitor * heartbeat_monitor,
-    struct InRangeCheck *     flow_rate_in_range_check,
     struct InRangeCheck *     left_wheel_speed_in_range_check,
     struct InRangeCheck *     right_wheel_speed_in_range_check,
     struct InRangeCheck *     steering_angle_in_range_check,
     struct AcceleratorPedals *papps_and_sapps,
     struct Brake *            brake,
+    struct Coolant *          coolant,
     struct RgbLedSequence *   rgb_led_sequence,
     struct Clock *            clock,
 

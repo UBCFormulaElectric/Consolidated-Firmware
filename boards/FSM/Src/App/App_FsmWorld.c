@@ -21,11 +21,12 @@ struct FsmWorld
     struct InRangeCheck *     left_wheel_speed_in_range_check;
     struct InRangeCheck *     right_wheel_speed_in_range_check;
     struct InRangeCheck *     steering_angle_in_range_check;
+    struct AcceleratorPedals *papps_and_sapps;
     struct Brake *            brake;
+    struct Coolant *          coolant;
     struct RgbLedSequence *   rgb_led_sequence;
     struct SignalNode *       signals_head;
     struct Clock *            clock;
-    struct AcceleratorPedals *papps_and_sapps;
 };
 
 /**
@@ -47,12 +48,12 @@ struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanTxInterface *const can_tx_interface,
     struct FsmCanRxInterface *const can_rx_interface,
     struct HeartbeatMonitor *const  heartbeat_monitor,
-    struct InRangeCheck *const      flow_rate_in_range_check,
     struct InRangeCheck *const      left_wheel_speed_in_range_check,
     struct InRangeCheck *const      right_wheel_speed_in_range_check,
     struct InRangeCheck *const      steering_angle_in_range_check,
     struct AcceleratorPedals *const papps_and_sapps,
     struct Brake *const             brake,
+    struct Coolant *const           coolant,
     struct RgbLedSequence *const    rgb_led_sequence,
     struct Clock *const             clock,
 
@@ -78,15 +79,15 @@ struct FsmWorld *App_FsmWorld_Create(
     world->can_tx_interface                 = can_tx_interface;
     world->can_rx_interface                 = can_rx_interface;
     world->heartbeat_monitor                = heartbeat_monitor;
-    world->flow_rate_in_range_check         = flow_rate_in_range_check;
     world->left_wheel_speed_in_range_check  = left_wheel_speed_in_range_check;
     world->right_wheel_speed_in_range_check = right_wheel_speed_in_range_check;
     world->steering_angle_in_range_check    = steering_angle_in_range_check;
+    world->papps_and_sapps                  = papps_and_sapps;
     world->brake                            = brake;
+    world->coolant                          = coolant;
     world->rgb_led_sequence                 = rgb_led_sequence;
     world->signals_head                     = NULL;
     world->clock                            = clock;
-    world->papps_and_sapps                  = papps_and_sapps;
 
     struct SignalCallback papps_callback = {
         .entry_condition_high_duration_ms = PAPPS_ENTRY_HIGH_MS,
@@ -188,19 +189,23 @@ struct InRangeCheck *App_FsmWorld_GetSteeringAngleInRangeCheck(const struct FsmW
     return world->steering_angle_in_range_check;
 }
 
+struct AcceleratorPedals *App_FsmWorld_GetPappsAndSapps(const struct FsmWorld *const world)
+{
+    return world->papps_and_sapps;
+}
+
 struct Brake *App_FsmWorld_GetBrake(const struct FsmWorld *const world)
 {
     return world->brake;
 }
 
+struct Coolant * App_FsmWorld_GetCoolant(const struct FsmWorld *const world){
+    return world->coolant;
+}
+
 struct RgbLedSequence *App_FsmWorld_GetRgbLedSequence(const struct FsmWorld *const world)
 {
     return world->rgb_led_sequence;
-}
-
-struct AcceleratorPedals *App_FsmWorld_GetPappsAndSapps(const struct FsmWorld *const world)
-{
-    return world->papps_and_sapps;
 }
 
 void App_FsmWorld_UpdateSignals(const struct FsmWorld *world, uint32_t current_time_ms)

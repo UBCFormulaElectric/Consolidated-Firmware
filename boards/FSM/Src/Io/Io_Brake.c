@@ -2,18 +2,15 @@
 #include "Io_Brake.h"
 #include "Io_Adc.h"
 
-bool Io_Brake_IsActuated(void)
-{
+bool Io_Brake_IsActuated(void){
     return HAL_GPIO_ReadPin(BSPD_BRAKE_STATUS_GPIO_Port, BSPD_BRAKE_STATUS_Pin) == GPIO_PIN_SET;
 }
 
-bool Io_MSP3002K5P3N1_IsOpenOrShortCircuit(void)
-{
+bool Io_MSP3002K5P3N1_IsOpenOrShortCircuit(void){
     return HAL_GPIO_ReadPin(BRAKE_OC_SC_OK_GPIO_Port, BRAKE_OC_SC_OK_Pin) == GPIO_PIN_RESET;
 }
 
-float Io_MSP3002K5P3N1_GetPressurePsi(void)
-{
+float Io_MSP3002K5P3N1_GetPressurePsi(void){
     // The sensor operates from 0.5V to 4.5V. The voltage divider decreases the
     // voltage by a factor of (2/3). Thus the minimum voltage seen by the analog
     // input pin is 0.33V while the maximum voltage seen is 3V

@@ -33,7 +33,7 @@
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
-#include "Io_FlowMeters.h"
+#include "Io_Coolant.h"
 #include "Io_SharedHeartbeatMonitor.h"
 #include "Io_RgbLedSequence.h"
 #include "Io_WheelSpeedSensors.h"
@@ -51,10 +51,10 @@
 #include "App_FlowMeterSignals.h"
 #include "states/App_AirOpenState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
-#include "configs/App_FlowRateThresholds.h"
 #include "configs/App_WheelSpeedThresholds.h"
 #include "configs/App_SteeringAngleThresholds.h"
 #include "configs/App_BrakePressureThresholds.h"
+#include "App_Coolant.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -103,7 +103,6 @@ osThreadId          Task100HzHandle;
 uint32_t            Task100HzBuffer[TASK100HZ_STACK_SIZE];
 osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
-struct InRangeCheck *     flow_meter_in_range_check;
 struct InRangeCheck *     left_wheel_speed_sensor_in_range_check, *right_wheel_speed_sensor_in_range_check;
 struct InRangeCheck *     steering_angle_sensor_in_range_check;
 struct Brake *            brake;
@@ -115,6 +114,7 @@ struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
 struct Clock *            clock;
 struct AcceleratorPedals *papps_and_sapps;
+struct Coolant *          coolant;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -206,8 +206,11 @@ int main(void)
     Io_SharedHardFaultHandler_Init();
 
     Io_FlowMeters_Init(&htim4);
-    flow_meter_in_range_check =
-        App_InRangeCheck_Create(Io_FlowMeters_GetFlowRate, MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN);
+    coolant = App_Coolant_Create(
+        Io_FlowMeters_GetFlowRate,
+        Io_GetTemperatureA, Io_GetTemperatureB,
+        Io_GetPressureA, Io_GetPressureB
+    );
 
     Io_WheelSpeedSensors_Init(&htim16, &htim17);
     left_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
@@ -249,9 +252,9 @@ int main(void)
     Io_SecondaryScancon2RMHF_SetEncoderCounter(SAPPS_ENCODER_UNPRESSED_VALUE);
 
     world = App_FsmWorld_Create(
-        can_tx,can_rx, heartbeat_monitor,flow_meter_in_range_check,
+        can_tx,can_rx, heartbeat_monitor,
         left_wheel_speed_sensor_in_range_check,right_wheel_speed_sensor_in_range_check,steering_angle_sensor_in_range_check,
-        papps_and_sapps, brake,
+        papps_and_sapps, brake, coolant,
         rgb_led_sequence, clock,
 
         App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure,
