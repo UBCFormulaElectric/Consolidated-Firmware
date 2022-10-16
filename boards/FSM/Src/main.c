@@ -38,7 +38,6 @@
 #include "Io_RgbLedSequence.h"
 #include "Io_WheelSpeedSensors.h"
 #include "Io_SteeringAngleSensor.h"
-#include "Io_MSP3002K5P3N1.h"
 #include "Io_Adc.h"
 #include "Io_AcceleratorPedals.h"
 #include "Io_Brake.h"
@@ -220,8 +219,11 @@ int main(void)
         App_InRangeCheck_Create(Io_SteeringAngleSensor_GetAngleDegree, MIN_STEERING_ANGLE_DEG, MAX_STEERING_ANGLE_DEG);
 
     brake = App_Brake_Create(
-        Io_MSP3002K5P3N1_GetPressurePsi, Io_MSP3002K5P3N1_IsOpenOrShortCircuit, Io_Brake_IsActuated,
-        MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
+            Io_MSP3002K5P3N1_GetPressurePsi, Io_RearBrake_GetPressurePsi,
+            Io_MSP3002K5P3N1_IsOpenOrShortCircuit, Io_RearBrake_IsOpenOrShortCircuit,
+            Io_BrakePedal_GetAngle,IO_BrakePedal_IsOpenOrShortCircuit,
+            Io_Brake_IsActuated,
+            MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
 
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP, Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
@@ -247,9 +249,10 @@ int main(void)
     Io_SecondaryScancon2RMHF_SetEncoderCounter(SAPPS_ENCODER_UNPRESSED_VALUE);
 
     world = App_FsmWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, flow_meter_in_range_check, left_wheel_speed_sensor_in_range_check,
-        right_wheel_speed_sensor_in_range_check, steering_angle_sensor_in_range_check, brake, rgb_led_sequence, clock,
-        papps_and_sapps,
+        can_tx,can_rx, heartbeat_monitor,flow_meter_in_range_check,
+        left_wheel_speed_sensor_in_range_check,right_wheel_speed_sensor_in_range_check,steering_angle_sensor_in_range_check,
+        papps_and_sapps, brake,
+        rgb_led_sequence, clock,
 
         App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure,
         App_AcceleratorPedalSignals_IsAppsAndBrakePlausibilityOk,

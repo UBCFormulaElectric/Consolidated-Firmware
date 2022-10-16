@@ -17,4 +17,7 @@ bool Io_AcceleratorPedals_IsSappsEncoderAlarmActive(void);
 
 float Io_AcceleratorPedals_GetPapps(void);
 
+/**
+ * @return the angle of the accelerator pedal in radians.
+ */
 float Io_AcceleratorPedals_GetAngle(void);

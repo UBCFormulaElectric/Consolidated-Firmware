@@ -51,10 +51,10 @@ struct FsmWorld *App_FsmWorld_Create(
     struct InRangeCheck *const      left_wheel_speed_in_range_check,
     struct InRangeCheck *const      right_wheel_speed_in_range_check,
     struct InRangeCheck *const      steering_angle_in_range_check,
+    struct AcceleratorPedals *const papps_and_sapps,
     struct Brake *const             brake,
     struct RgbLedSequence *const    rgb_led_sequence,
     struct Clock *const             clock,
-    struct AcceleratorPedals *const papps_and_sapps,
 
     bool (*const has_apps_and_brake_plausibility_failure)(struct FsmWorld *),
     bool (*const is_apps_and_brake_plausibility_ok)(struct FsmWorld *),

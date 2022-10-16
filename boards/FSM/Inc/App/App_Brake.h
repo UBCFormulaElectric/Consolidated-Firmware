@@ -6,7 +6,8 @@ struct Brake;
 
 /**
  * Allocate and initialize a brake
- * @param get_pressure_psi A function that returns the brake pressure in psi
+ * @param get_primary_pressure_psi A function that returns the brake pressure in psi from the primary sensor
+ * @param get_secondary_pressure_psi A function that returns the brake pressure in psi from the secondary sensor
  * @param is_pressure_sensor_open_or_short_circuit A function that checks
  * whether the pressure sensor is in an open or short circuit state
  * @param is_brake_actuated A function that checks whether the brake is actuated
@@ -17,8 +18,12 @@ struct Brake;
  * @return The created brake whose ownership is given to the caller
  */
 struct Brake *App_Brake_Create(
-    float (*get_pressure_psi)(void),
-    bool (*is_pressure_sensor_open_or_short_circuit)(void),
+    float (*get_primary_pressure_psi)(void),
+    float (*get_secondary_pressure_psi)(void),
+    bool (*is_primary_pressure_sensor_open_or_short_circuit)(void),
+    bool (*is_secondary_pressure_sensor_open_or_short_circuit)(void),
+    float (*pedal_angle)(void),
+    bool (*is_pedal_angle_sensor_open_or_short_circuit)(void),
     bool (*is_brake_actuated)(void),
     float min_pressure_psi,
     float max_pressure_psi);
@@ -65,3 +70,5 @@ bool App_Brake_IsPressureSensorOpenCircuit(const struct Brake *brake);
  * @return True if the pressure sensor is SC, otherwise false
  */
 bool App_Brake_IsPressureSensorShortCircuited(const struct Brake *brake);
+
+bool App_Brake_IsPedalSensorOpenOrShortCircuit(const struct Brake *brake);

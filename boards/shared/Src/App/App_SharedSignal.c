@@ -92,22 +92,15 @@ bool App_SharedSignal_IsCallbackTriggered(const struct Signal *const signal)
 void App_SharedSignal_Update(struct Signal *signal, uint32_t current_time_ms)
 {
     if (signal->is_entry_condition_high(signal->world))
-    {
         signal->entry_last_time_high_ms = current_time_ms;
-    }
     else
-    {
         signal->entry_last_time_low_ms = current_time_ms;
-    }
 
     if (signal->is_exit_condition_high(signal->world))
-    {
         signal->exit_last_time_high_ms = current_time_ms;
-    }
     else
-    {
         signal->exit_last_time_low_ms = current_time_ms;
-    }
+
 
     if (!signal->is_callback_triggered)
     {
@@ -123,13 +116,10 @@ void App_SharedSignal_Update(struct Signal *signal, uint32_t current_time_ms)
     {
         const uint32_t time_exit_condition_high_ms = current_time_ms - signal->exit_last_time_low_ms;
 
+        //keep running callback function for (exit_condition_high_duration_ms) time.
         if (time_exit_condition_high_ms >= signal->callback.exit_condition_high_duration_ms)
-        {
             signal->is_callback_triggered = false;
-        }
         else
-        {
             signal->callback.function(signal->world);
-        }
     }
 }
