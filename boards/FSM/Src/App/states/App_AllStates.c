@@ -1,9 +1,5 @@
 #include "states/App_AllStates.h"
 #include "App_SharedConstants.h"
-#include "Io_PrimaryScancon2RMHF.h"
-#include "Io_SecondaryScancon2RMHF.h"
-#include "Io_AcceleratorPedals.h"
-#include "Io_Adc.h"
 
 #define TORQUE_LIMIT_OFFSET_NM (5.0f)
 #define MAX_TORQUE_PLAUSIBILITY_ERR_CNT (25) // 250 ms window
@@ -23,11 +19,12 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    struct FsmWorld *         world       = App_SharedStateMachine_GetWorld(state_machine);
-    struct FsmCanTxInterface *can_tx      = App_FsmWorld_GetCanTx(world);
-    struct FsmCanRxInterface *can_rx      = App_FsmWorld_GetCanRx(world);
-    struct HeartbeatMonitor * hb_monitor  = App_FsmWorld_GetHeartbeatMonitor(world);
-    static uint8_t            error_count = 0;
+    struct FsmWorld *         world              = App_SharedStateMachine_GetWorld(state_machine);
+    struct FsmCanTxInterface *can_tx             = App_FsmWorld_GetCanTx(world);
+    struct FsmCanRxInterface *can_rx             = App_FsmWorld_GetCanRx(world);
+    struct HeartbeatMonitor * hb_monitor         = App_FsmWorld_GetHeartbeatMonitor(world);
+    struct AcceleratorPedals *accelerator_pedals = App_FsmWorld_GetPappsAndSapps(world);
+    static uint8_t            error_count        = 0;
 
     App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
 
@@ -63,15 +60,13 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_FSM_TORQUE_LIMIT(can_tx, fsm_torque_limit);
 
     // Debug msgs, remove after testing
-    App_CanTx_SetPeriodicSignal_SAPPS(can_tx, (uint16_t)Io_SecondaryScancon2RMHF_GetEncoderCounter());
-    App_CanTx_SetPeriodicSignal_PAPPS(can_tx, (uint16_t)Io_PrimaryScancon2RMHF_GetEncoderCounter());
+    App_CanTx_SetPeriodicSignal_PAPPS(
+        can_tx, (uint16_t)App_AcceleratorPedals_GetPrimaryPedalPercentage(accelerator_pedals));
+    App_CanTx_SetPeriodicSignal_SAPPS(
+        can_tx, (uint16_t)App_AcceleratorPedals_GetSecondaryPedalPercentage(accelerator_pedals));
 
-    App_CanTx_SetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, Io_AcceleratorPedals_GetPapps());
+    // App_CanTx_SetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, App());
     // App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, Io_AcceleratorPedals_GetPapps());
-
-    // Get accelerometer angle in rad
-    App_CanTx_SetPeriodicSignal_PAPPS_ANGLE(can_tx, Io_AcceleratorPedals_GetAngle());
-    App_CanTx_SetPeriodicSignal_PAPPS_RAW_ADC(can_tx, Io_Adc_GetChannel1Voltage());
 
     App_CanTx_SetPeriodicSignal_MISSING_HEARTBEAT(can_tx, !App_SharedHeartbeatMonitor_Tick(hb_monitor));
 }
