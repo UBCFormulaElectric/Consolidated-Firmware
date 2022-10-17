@@ -14,3 +14,7 @@ bool Io_AcceleratorPedals_IsPappsEncoderAlarmActive(void);
  *         false
  */
 bool Io_AcceleratorPedals_IsSappsEncoderAlarmActive(void);
+
+float Io_AcceleratorPedals_GetPapps(void);
+
+float Io_AcceleratorPedals_GetAngle(void);

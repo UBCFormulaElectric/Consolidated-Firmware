@@ -173,7 +173,6 @@ static void
     SET_ERROR(error_table, FSM_MOTOR_SHUTDOWN_APPS_HAS_DISAGREEMENT, data->apps_has_disagreement);
     SET_ERROR(error_table, FSM_MOTOR_SHUTDOWN_PAPPS_ALARM_IS_ACTIVE, data->papps_alarm_is_active);
     SET_ERROR(error_table, FSM_MOTOR_SHUTDOWN_SAPPS_ALARM_IS_ACTIVE, data->sapps_alarm_is_active);
-    SET_ERROR(error_table, FSM_MOTOR_SHUTDOWN_PLAUSIBILITY_CHECK_HAS_FAILED, data->plausibility_check_has_failed);
     SET_ERROR(error_table, FSM_MOTOR_SHUTDOWN_FLOW_METER_HAS_UNDERFLOW, data->flow_meter_has_underflow);
     SET_ERROR(error_table, FSM_MOTOR_SHUTDOWN_TORQUE_PLAUSIBILITY_CHECK_FAILED, data->torque_plausibility_check_failed);
 }

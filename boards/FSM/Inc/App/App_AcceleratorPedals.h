@@ -2,9 +2,9 @@
 
 #include <stdbool.h>
 
-#define PAPPS_ENCODER_FULLY_PRESSED_VALUE (1000U)
+#define PAPPS_ENCODER_FULLY_PRESSED_VALUE (937U)
 #define PAPPS_ENCODER_UNPRESSED_VALUE (1353U)
-#define SAPPS_ENCODER_FULLY_PRESSED_VALUE (255U)
+#define SAPPS_ENCODER_FULLY_PRESSED_VALUE (310U)
 #define SAPPS_ENCODER_UNPRESSED_VALUE (0U)
 #define SAPPS_ENCODER_RESET_VALUE (2400U)
 
@@ -37,10 +37,8 @@ struct AcceleratorPedals;
 struct AcceleratorPedals *App_AcceleratorPedals_Create(
     bool (*is_primary_encoder_alarm_active)(void),
     bool (*is_secondary_encoder_alarm_active)(void),
-    uint32_t (*get_primary_encoder_counter_value)(void),
-    uint32_t (*get_secondary_encoder_counter_value)(void),
-    void (*set_primary_encoder_counter)(uint32_t),
-    void (*set_secondary_encoder_counter)(uint32_t));
+    float (*get_primary_pedal_percent)(void),
+    float (*get_secondary_pedal_percent)(void));
 
 /**
  * Deallocate the memory used by the given pair of accelerator pedals

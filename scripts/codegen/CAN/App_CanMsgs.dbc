@@ -395,9 +395,8 @@ BO_ 315 FSM_MOTOR_SHUTDOWN_ERRORS: 1 FSM
 SG_ APPS_Has_Disagreement : 0|1@1+ (1,0) [0|1] "" DCM
 SG_ PAPPS_Alarm_Is_Active : 1|1@1+ (1,0) [0|1] "" DCM
 SG_ SAPPS_Alarm_Is_Active : 2|1@1+ (1,0) [0|1] "" DCM
-SG_ Plausibility_Check_Has_Failed : 3|1@1+ (1,0) [0|1] "" DCM
-SG_ FLOW_METER_HAS_UNDERFLOW : 4|1@1+ (1,0) [0|1] "" DCM
-SG_ Torque_Plausibility_Check_Failed : 5|1@1+ (1,0) [0|1] "" DCM
+SG_ FLOW_METER_HAS_UNDERFLOW : 3|1@1+ (1,0) [0|1] "" DCM
+SG_ Torque_Plausibility_Check_Failed : 4|1@1+ (1,0) [0|1] "" DCM
 
 BO_ 317 FSM_WHEEL_SPEED_SENSOR: 8 FSM
 SG_ Left_Wheel_Speed : 0|32@1+ (1,0) [0|150] "km/h" DCM 
@@ -405,6 +404,14 @@ SG_ Right_Wheel_Speed : 32|32@1+ (1,0) [0|150] "km/h" DCM
 
 BO_ 318 FSM_STEERING_ANGLE_SENSOR: 4 FSM
 SG_ Steering_Angle : 0|32@1+ (1,0) [-110|110] "deg" DCM
+
+BO_ 319 APPS_DBUG: 4 FSM
+SG_ SAPPS: 0|16@1+ (1,0) [0|65535] "" DEBUG
+SG_ PAPPS: 16|16@1+ (1,0) [0|65535] "" DEBUG
+
+BO_ 320 ANGLE_DBUG: 8 FSM
+SG_ PAPPS_ANGLE: 0|32@1+ (1,0) [-180|180] "deg" DEBUG
+SG_ PAPPS_RAW_ADC: 32|32@1+ (1,0) [0|180] "V" DEBUG
 
 BO_ 400 PDM_NON_CRITICAL_ERRORS: 1 PDM
 SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 0|1@1+ (1,0) [0|1] "" DEBUG
@@ -548,6 +555,8 @@ BA_ "GenMsgCycleTime" BO_ 310 1000;
 BA_ "GenMsgCycleTime" BO_ 315 1000;
 BA_ "GenMsgCycleTime" BO_ 317 100;
 BA_ "GenMsgCycleTime" BO_ 318 100;
+BA_ "GenMsgCycleTime" BO_ 319 100;
+BA_ "GenMsgCycleTime" BO_ 320 100;
 BA_ "GenMsgCycleTime" BO_ 400 1000;
 BA_ "GenMsgCycleTime" BO_ 401 1000;
 BA_ "GenMsgCycleTime" BO_ 402 5000;
@@ -584,6 +593,8 @@ SIG_VALTYPE_ 151 Sapps_Mapped_Pedal_Percentage : 1;
 SIG_VALTYPE_ 317 Left_Wheel_Speed: 1;
 SIG_VALTYPE_ 317 Right_Wheel_Speed: 1;
 SIG_VALTYPE_ 318 Steering_Angle: 1;
+SIG_VALTYPE_ 320 PAPPS_RAW_ADC : 1;
+SIG_VALTYPE_ 320 PAPPS_ANGLE : 1;
 SIG_VALTYPE_ 411 VBAT : 1;
 
 VAL_ 10 D2_Inverter_State_INVL 0 "Power up" 1 "Stop" 2 "Open Loop" 3 "Closed Loop" 4 "Internal State" 5 "Internal State" 6 "Internal State" 7 "Internal State" 8 "Idle Run" 9 "Idle Stop" 10 "Internal State" 11 "Intern State" 12 "Internal State";

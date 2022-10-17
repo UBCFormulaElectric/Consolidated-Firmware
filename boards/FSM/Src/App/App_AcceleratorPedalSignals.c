@@ -1,12 +1,13 @@
 #include <math.h>
 #include "App_AcceleratorPedalSignals.h"
+#include "App_AcceleratorPedals.h"
 #include "App_FsmWorld.h"
 
 bool App_AcceleratorPedalSignals_IsPappsAlarmActive(struct FsmWorld *world)
 {
-    struct AcceleratorPedals *papps_and_sapps = App_FsmWorld_GetPappsAndSapps(world);
-
-    return App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(papps_and_sapps);
+    // BAD CODE!!!! DO NOT RECREATE!!!!! This entire file should not be a thing
+    struct AcceleratorPedals *accelerator_pedals = App_FsmWorld_GetPappsAndSapps(world);
+    return App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(accelerator_pedals);
 }
 
 void App_AcceleratorPedalSignals_PappsAlarmCallback(struct FsmWorld *world)
@@ -14,6 +15,7 @@ void App_AcceleratorPedalSignals_PappsAlarmCallback(struct FsmWorld *world)
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
 
     App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
+    App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
     App_CanTx_SetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(
         can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE);
 }
@@ -37,7 +39,6 @@ void App_AcceleratorPedalSignals_SappsAlarmCallback(struct FsmWorld *world)
 bool App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive(struct FsmWorld *world)
 {
     struct AcceleratorPedals *papps_and_sapps = App_FsmWorld_GetPappsAndSapps(world);
-
     return !App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(papps_and_sapps) &&
            !App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(papps_and_sapps);
 }
@@ -45,7 +46,6 @@ bool App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive(struct FsmWorld *w
 bool App_AcceleratorPedalSignals_HasAppsDisagreement(struct FsmWorld *world)
 {
     struct AcceleratorPedals *papps_and_sapps = App_FsmWorld_GetPappsAndSapps(world);
-
     return fabsf(
                App_AcceleratorPedals_GetPrimaryPedalPercentage(papps_and_sapps) -
                App_AcceleratorPedals_GetSecondaryPedalPercentage(papps_and_sapps)) > 10.0f;
@@ -82,9 +82,9 @@ bool App_AcceleratorPedalSignals_IsAppsAndBrakePlausibilityOk(struct FsmWorld *w
 
 void App_AcceleratorPedalSignals_AppsAndBrakePlausibilityFailureCallback(struct FsmWorld *world)
 {
-    struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
+    // struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
 
-    App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
-    App_CanTx_SetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
-        can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_TRUE_CHOICE);
+    // App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
+    // App_CanTx_SetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
+    //    can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_TRUE_CHOICE);
 }
