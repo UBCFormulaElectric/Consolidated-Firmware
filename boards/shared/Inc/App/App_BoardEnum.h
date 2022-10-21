@@ -7,5 +7,6 @@ enum Board
     DIM,
     FSM,
     PDM,
+    GSM,
     NUM_BOARDS
 };
