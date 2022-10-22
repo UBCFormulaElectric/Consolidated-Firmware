@@ -24,8 +24,7 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C"
-{
+extern "C" {
 #endif
 
 /* Includes ------------------------------------------------------------------*/
@@ -34,25 +33,25 @@ extern "C"
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "Io_SharedErrorHandlerOverride.h"
-    /* USER CODE END Includes */
+/* USER CODE END Includes */
 
-    /* Exported types ------------------------------------------------------------*/
-    /* USER CODE BEGIN ET */
+/* Exported types ------------------------------------------------------------*/
+/* USER CODE BEGIN ET */
 
-    /* USER CODE END ET */
+/* USER CODE END ET */
 
-    /* Exported constants --------------------------------------------------------*/
-    /* USER CODE BEGIN EC */
+/* Exported constants --------------------------------------------------------*/
+/* USER CODE BEGIN EC */
 
-    /* USER CODE END EC */
+/* USER CODE END EC */
 
-    /* Exported macro ------------------------------------------------------------*/
-    /* USER CODE BEGIN EM */
+/* Exported macro ------------------------------------------------------------*/
+/* USER CODE BEGIN EM */
 
-    /* USER CODE END EM */
+/* USER CODE END EM */
 
-    /* Exported functions prototypes ---------------------------------------------*/
-    void Error_Handler(void);
+/* Exported functions prototypes ---------------------------------------------*/
+void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 
@@ -100,20 +99,18 @@ extern "C"
 #define FSB_AUX1_AUX2_GPIO_Port GPIOA
 #define FSOB_AUX1_AUX2_Pin GPIO_PIN_7
 #define FSOB_AUX1_AUX2_GPIO_Port GPIOA
-#define PIN_AIR_SHDN_Pin GPIO_PIN_4
-#define PIN_AIR_SHDN_GPIO_Port GPIOC
-#define PIN_LV_PWR_Pin GPIO_PIN_5
-#define PIN_LV_PWR_GPIO_Port GPIOC
+#define CUR_SNS_AUX1_Pin GPIO_PIN_4
+#define CUR_SNS_AUX1_GPIO_Port GPIOC
+#define CUR_SNS_LVPWR_Pin GPIO_PIN_5
+#define CUR_SNS_LVPWR_GPIO_Port GPIOC
 #define CUR_SYNC_AIR_SHDN_LV_PWR_Pin GPIO_PIN_0
 #define CUR_SYNC_AIR_SHDN_LV_PWR_GPIO_Port GPIOB
 #define CSB_AIR_SHDN_LV_PWR_Pin GPIO_PIN_1
 #define CSB_AIR_SHDN_LV_PWR_GPIO_Port GPIOB
-#define FSB_AIR_SHDN_LV_PWR_Pin GPIO_PIN_2
-#define FSB_AIR_SHDN_LV_PWR_GPIO_Port GPIOB
+#define CUR_SNS_AIR_Pin GPIO_PIN_2
+#define CUR_SNS_AIR_GPIO_Port GPIOB
 #define FSOB_AIR_SHDN_LV_PWR_Pin GPIO_PIN_10
 #define FSOB_AIR_SHDN_LV_PWR_GPIO_Port GPIOB
-#define PIN_DI_BL_Pin GPIO_PIN_11
-#define PIN_DI_BL_GPIO_Port GPIOB
 #define PIN_DI_BR_Pin GPIO_PIN_12
 #define PIN_DI_BR_GPIO_Port GPIOB
 #define SCK_Pin GPIO_PIN_13
@@ -156,9 +153,9 @@ extern "C"
 #define GPIOB_2_GPIO_Port GPIOB
 #define GPIOB_1_Pin GPIO_PIN_9
 #define GPIOB_1_GPIO_Port GPIOB
-    /* USER CODE BEGIN Private defines */
+/* USER CODE BEGIN Private defines */
 
-    /* USER CODE END Private defines */
+/* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }

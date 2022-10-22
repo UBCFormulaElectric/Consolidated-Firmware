@@ -114,7 +114,7 @@ void App_SharedStateMachine_SetNextState(struct StateMachine *const state_machin
     state_machine->next_state = next_state;
 }
 
-struct World *App_SharedStateMachine_GetWorld(const struct StateMachine *const state_machine)
+struct BmsWorld * App_SharedStateMachine_GetWorld(const struct StateMachine *const state_machine)
 {
     return state_machine->world;
 }
