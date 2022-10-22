@@ -103,8 +103,8 @@ osThreadId          Task100HzHandle;
 uint32_t            Task100HzBuffer[TASK100HZ_STACK_SIZE];
 osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
-struct InRangeCheck *     left_wheel_speed_sensor_in_range_check, *right_wheel_speed_sensor_in_range_check;
-struct InRangeCheck *     steering_angle_sensor_in_range_check;
+struct InRangeCheck *     left_wheel_speed_in_range_check, *right_wheel_speed_in_range_check;
+struct InRangeCheck *     steering_angle_in_range_check;
 struct Brake *            brake;
 struct World *            world;
 struct StateMachine *     state_machine;
@@ -205,22 +205,37 @@ int main(void)
 
     Io_SharedHardFaultHandler_Init();
 
-    Io_FlowMeters_Init(&htim4);
-    coolant = App_Coolant_Create(
-        Io_FlowMeters_GetFlowRate,
-        Io_GetTemperatureA, Io_GetTemperatureB,
-        Io_GetPressureA, Io_GetPressureB
-    );
+    //Buses
+    can_tx = App_CanTx_Create(
+            Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP, Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
+            Io_CanTx_EnqueueNonPeriodicMsg_FSM_AIR_SHUTDOWN);
+    can_rx            = App_CanRx_Create();
+    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+            Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
+    rgb_led_sequence = App_SharedRgbLedSequence_Create(
+            Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed, Io_RgbLedSequence_TurnOnGreenLed);
+    clock = App_SharedClock_Create();
 
+    //Unwrapped Ranges
     Io_WheelSpeedSensors_Init(&htim16, &htim17);
-    left_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
+    left_wheel_speed_in_range_check = App_InRangeCheck_Create(
         Io_WheelSpeedSensors_GetLeftSpeedKph, MIN_LEFT_WHEEL_SPEED_KPH, MAX_LEFT_WHEEL_SPEED_KPH);
-    right_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
+    right_wheel_speed_in_range_check = App_InRangeCheck_Create(
         Io_WheelSpeedSensors_GetRightSpeedKph, MIN_RIGHT_WHEEL_SPEED_KPH, MAX_RIGHT_WHEEL_SPEED_KPH);
-
-    steering_angle_sensor_in_range_check =
+    steering_angle_in_range_check =
         App_InRangeCheck_Create(Io_SteeringAngleSensor_GetAngleDegree, MIN_STEERING_ANGLE_DEG, MAX_STEERING_ANGLE_DEG);
 
+    //Accelerator
+    Io_PrimaryScancon2RMHF_Init(&htim1);
+    Io_SecondaryScancon2RMHF_Init(&htim2);
+    papps_and_sapps = App_AcceleratorPedals_Create(
+            Io_AcceleratorPedals_IsPappsEncoderAlarmActive, Io_AcceleratorPedals_IsSappsEncoderAlarmActive,
+            Io_PrimaryScancon2RMHF_GetEncoderCounter, Io_SecondaryScancon2RMHF_GetEncoderCounter,
+            Io_PrimaryScancon2RMHF_SetEncoderCounter, Io_SecondaryScancon2RMHF_SetEncoderCounter);
+    Io_PrimaryScancon2RMHF_SetEncoderCounter(PAPPS_ENCODER_UNPRESSED_VALUE);
+    Io_SecondaryScancon2RMHF_SetEncoderCounter(SAPPS_ENCODER_UNPRESSED_VALUE);
+
+    //Brake
     brake = App_Brake_Create(
             Io_MSP3002K5P3N1_GetPressurePsi, Io_RearBrake_GetPressurePsi,
             Io_MSP3002K5P3N1_IsOpenOrShortCircuit, Io_RearBrake_IsOpenOrShortCircuit,
@@ -228,9 +243,13 @@ int main(void)
             Io_Brake_IsActuated,
             MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
 
-    can_tx = App_CanTx_Create(
-        Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP, Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
-        Io_CanTx_EnqueueNonPeriodicMsg_FSM_AIR_SHUTDOWN);
+    //Coolants
+    Io_FlowMeters_Init(&htim4);
+    coolant = App_Coolant_Create(
+            Io_FlowMeters_GetFlowRate,
+            Io_GetTemperatureA, Io_GetTemperatureB,
+            Io_GetPressureA, Io_GetPressureB
+    );
 
     can_rx            = App_CanRx_Create();
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
@@ -252,10 +271,10 @@ int main(void)
     Io_SecondaryScancon2RMHF_SetEncoderCounter(SAPPS_ENCODER_UNPRESSED_VALUE);
 
     world = App_FsmWorld_Create(
-        can_tx,can_rx, heartbeat_monitor,
-        left_wheel_speed_sensor_in_range_check,right_wheel_speed_sensor_in_range_check,steering_angle_sensor_in_range_check,
+        can_tx,can_rx, heartbeat_monitor, clock,
+        left_wheel_speed_in_range_check, right_wheel_speed_in_range_check, steering_angle_in_range_check,
         papps_and_sapps, brake, coolant,
-        rgb_led_sequence, clock,
+        rgb_led_sequence,
 
         App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure,
         App_AcceleratorPedalSignals_IsAppsAndBrakePlausibilityOk,
@@ -266,7 +285,8 @@ int main(void)
         App_AcceleratorPedalSignals_SappsAlarmCallback, App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive,
 
         App_FlowMetersSignals_IsPrimaryFlowRateBelowThreshold, App_FlowMetersSignals_IsFlowRateInRange,
-        App_FlowMetersSignals_FlowRateBelowThresholdCallback);
+        App_FlowMetersSignals_FlowRateBelowThresholdCallback
+    );
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
 
@@ -299,24 +319,19 @@ int main(void)
     Task1HzHandle = osThreadCreate(osThread(Task1Hz), NULL);
 
     /* definition and creation of Task1kHz */
-    osThreadStaticDef(
-        Task1kHz, RunTask1kHz, osPriorityAboveNormal, 0, TASK1KHZ_STACK_SIZE, Task1kHzBuffer, &Task1kHzControlBlock);
+    osThreadStaticDef(Task1kHz, RunTask1kHz, osPriorityAboveNormal, 0, TASK1KHZ_STACK_SIZE, Task1kHzBuffer, &Task1kHzControlBlock);
     Task1kHzHandle = osThreadCreate(osThread(Task1kHz), NULL);
 
     /* definition and creation of TaskCanRx */
-    osThreadStaticDef(
-        TaskCanRx, RunTaskCanRx, osPriorityIdle, 0, TASKCANRX_STACK_SIZE, TaskCanRxBuffer, &TaskCanRxControlBlock);
+    osThreadStaticDef(TaskCanRx, RunTaskCanRx, osPriorityIdle, 0, TASKCANRX_STACK_SIZE, TaskCanRxBuffer, &TaskCanRxControlBlock);
     TaskCanRxHandle = osThreadCreate(osThread(TaskCanRx), NULL);
 
     /* definition and creation of TaskCanTx */
-    osThreadStaticDef(
-        TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, TASKCANTX_STACK_SIZE, TaskCanTxBuffer, &TaskCanTxControlBlock);
+    osThreadStaticDef(TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, TASKCANTX_STACK_SIZE, TaskCanTxBuffer, &TaskCanTxControlBlock);
     TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
 
     /* definition and creation of Task100Hz */
-    osThreadStaticDef(
-        Task100Hz, RunTask100Hz, osPriorityBelowNormal, 0, TASK100HZ_STACK_SIZE, Task100HzBuffer,
-        &Task100HzControlBlock);
+    osThreadStaticDef(Task100Hz, RunTask100Hz, osPriorityBelowNormal, 0, TASK100HZ_STACK_SIZE, Task100HzBuffer,&Task100HzControlBlock);
     Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */

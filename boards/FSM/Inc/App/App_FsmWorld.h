@@ -26,6 +26,7 @@ struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanTxInterface *can_tx_interface,
     struct FsmCanRxInterface *can_rx_interface,
     struct HeartbeatMonitor * heartbeat_monitor,
+    struct Clock *            clock,
     struct InRangeCheck *     left_wheel_speed_in_range_check,
     struct InRangeCheck *     right_wheel_speed_in_range_check,
     struct InRangeCheck *     steering_angle_in_range_check,
@@ -33,7 +34,6 @@ struct FsmWorld *App_FsmWorld_Create(
     struct Brake *            brake,
     struct Coolant *          coolant,
     struct RgbLedSequence *   rgb_led_sequence,
-    struct Clock *            clock,
 
     bool (*has_apps_and_brake_plausibility_failure)(struct FsmWorld *),
     bool (*is_apps_and_brake_plausibility_ok)(struct FsmWorld *),
