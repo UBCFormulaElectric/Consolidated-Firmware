@@ -7,10 +7,10 @@ void App_SetPeriodicSignals_FlowRateInRangeChecks(const struct FsmWorld *world)
 {
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
 
-    struct InRangeCheck *flow_rate_in_range_check = App_FsmWorld_GetFlowRateInRangeCheck(world);
+    struct Coolant *coolant = App_FsmWorld_GetCoolant(world);
 
     App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, flow_rate_in_range_check, App_CanTx_SetPeriodicSignal_FLOW_RATE,
+        can_tx, App_Coolant_GetFlowInRangeCheck(coolant), App_CanTx_SetPeriodicSignal_FLOW_RATE,
         App_CanTx_SetPeriodicSignal_FLOW_RATE_OUT_OF_RANGE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_UNDERFLOW_CHOICE,

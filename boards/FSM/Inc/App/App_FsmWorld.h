@@ -79,13 +79,6 @@ struct FsmCanRxInterface *App_FsmWorld_GetCanRx(const struct FsmWorld *world);
 struct HeartbeatMonitor *App_FsmWorld_GetHeartbeatMonitor(const struct FsmWorld *world);
 
 /**
- * Get the primary flow rate in-range check for the given world
- * @param world The world to get primary flow rate in-range check for
- * @return The primary flow rate in-range check for the given world
- */
-struct InRangeCheck *App_FsmWorld_GetFlowRateInRangeCheck(const struct FsmWorld *world);
-
-/**
  * Get the secondary flow rate in-range check for the given world
  * @param world The world to get secondary flow rate in-range check for
  * @return The secondary flow rate in-range check for the given world
@@ -119,6 +112,13 @@ struct InRangeCheck *App_FsmWorld_GetSteeringAngleInRangeCheck(const struct FsmW
  * @return The brake for the given world
  */
 struct Brake *App_FsmWorld_GetBrake(const struct FsmWorld *world);
+
+/**
+ * Get the coolant for the given world
+ * @param world The world to get the brake for
+ * @return The coolant for the given world
+ */
+struct Coolant *App_FsmWorld_GetCoolant(const struct FsmWorld *const world);
 
 /**
  * Get the RGB LED sequence for the given world

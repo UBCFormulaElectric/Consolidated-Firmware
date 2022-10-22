@@ -18,7 +18,6 @@ struct FsmWorld
     struct FsmCanRxInterface *can_rx_interface;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct Clock *            clock;
-    struct InRangeCheck *     flow_rate_in_range_check;
     struct InRangeCheck *     left_wheel_speed_in_range_check;
     struct InRangeCheck *     right_wheel_speed_in_range_check;
     struct InRangeCheck *     steering_angle_in_range_check;
@@ -171,11 +170,6 @@ struct FsmCanRxInterface *App_FsmWorld_GetCanRx(const struct FsmWorld *const wor
 struct HeartbeatMonitor *App_FsmWorld_GetHeartbeatMonitor(const struct FsmWorld *const world)
 {
     return world->heartbeat_monitor;
-}
-
-struct InRangeCheck *App_FsmWorld_GetFlowRateInRangeCheck(const struct FsmWorld *world)
-{
-    return world->flow_rate_in_range_check;
 }
 
 struct InRangeCheck *App_FsmWorld_GetLeftWheelSpeedInRangeCheck(const struct FsmWorld *const world)

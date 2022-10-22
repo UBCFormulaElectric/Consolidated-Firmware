@@ -38,6 +38,10 @@ struct Coolant * App_Coolant_Create(
     return coolant;
 }
 
+struct InRangeCheck *App_Coolant_GetFlowInRangeCheck(struct Coolant *coolant){
+    return coolant->flow_rate_in_range_check;
+}
+
 void App_Coolant_Destroy(struct Coolant *coolant){
     App_InRangeCheck_Destroy(coolant->flow_rate_in_range_check);
     free(coolant);
