@@ -49,12 +49,12 @@
 #include "App_SharedStateMachine.h"
 #include "App_AcceleratorPedalSignals.h"
 #include "App_FlowMeterSignals.h"
-#include "states/App_AirOpenState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_WheelSpeedThresholds.h"
 #include "configs/App_SteeringAngleThresholds.h"
 #include "configs/App_BrakePressureThresholds.h"
 #include "App_Coolant.h"
+#include "states/App_AllStates.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -205,6 +205,7 @@ int main(void)
 
     Io_SharedHardFaultHandler_Init();
 
+    //=============================================IMPORTANT CODE/=============================================
     //Buses
     can_tx = App_CanTx_Create(
             Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP, Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
@@ -230,8 +231,7 @@ int main(void)
     Io_SecondaryScancon2RMHF_Init(&htim2);
     papps_and_sapps = App_AcceleratorPedals_Create(
             Io_AcceleratorPedals_IsPappsEncoderAlarmActive, Io_AcceleratorPedals_IsSappsEncoderAlarmActive,
-            Io_PrimaryScancon2RMHF_GetEncoderCounter, Io_SecondaryScancon2RMHF_GetEncoderCounter,
-            Io_PrimaryScancon2RMHF_SetEncoderCounter, Io_SecondaryScancon2RMHF_SetEncoderCounter);
+            Io_AcceleratorPedals_GetPapps, Io_AcceleratorPedals_GetPapps);
     Io_PrimaryScancon2RMHF_SetEncoderCounter(PAPPS_ENCODER_UNPRESSED_VALUE);
     Io_SecondaryScancon2RMHF_SetEncoderCounter(SAPPS_ENCODER_UNPRESSED_VALUE);
 
@@ -251,25 +251,6 @@ int main(void)
             Io_GetPressureA, Io_GetPressureB
     );
 
-    can_rx            = App_CanRx_Create();
-    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
-
-    rgb_led_sequence = App_SharedRgbLedSequence_Create(
-        Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed, Io_RgbLedSequence_TurnOnGreenLed);
-
-    clock = App_SharedClock_Create();
-
-    Io_PrimaryScancon2RMHF_Init(&htim1);
-    Io_SecondaryScancon2RMHF_Init(&htim2);
-
-    papps_and_sapps = App_AcceleratorPedals_Create(
-        Io_AcceleratorPedals_IsPappsEncoderAlarmActive, Io_AcceleratorPedals_IsSappsEncoderAlarmActive,
-        Io_AcceleratorPedals_GetPapps, Io_AcceleratorPedals_GetPapps);
-
-    Io_PrimaryScancon2RMHF_SetEncoderCounter(PAPPS_ENCODER_UNPRESSED_VALUE);
-    Io_SecondaryScancon2RMHF_SetEncoderCounter(SAPPS_ENCODER_UNPRESSED_VALUE);
-
     world = App_FsmWorld_Create(
         can_tx,can_rx, heartbeat_monitor, clock,
         left_wheel_speed_in_range_check, right_wheel_speed_in_range_check, steering_angle_in_range_check,
@@ -288,7 +269,8 @@ int main(void)
         App_FlowMetersSignals_FlowRateBelowThresholdCallback
     );
 
-    state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
+    state_machine = App_SharedStateMachine_Create(world, App_GetAllStates());
+    ///=============================================IMPORTANT CODE END=============================================
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
