@@ -14,6 +14,11 @@
 #include "App_Wheels.h"
 
 struct FsmWorld;
+struct AcceleratorPedals;
+struct Brake;
+struct Coolant;
+struct Steering;
+struct Wheels;
 
 /**
  * Allocate and initialize a world in the application layer by registering

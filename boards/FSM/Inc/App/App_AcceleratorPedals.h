@@ -15,6 +15,7 @@
 #define PERCENT_DEFLECTION (0.03f)
 
 struct AcceleratorPedals;
+struct Brake;
 
 /**
  * Allocate and initialize a pair of accelerator pedals
