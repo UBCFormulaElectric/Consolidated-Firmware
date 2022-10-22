@@ -45,6 +45,7 @@ jobs:
           - BMS
           - DCM
           - DIM
+          - GSM
     steps:
       - uses: actions/checkout@v2
         with:
@@ -157,6 +158,7 @@ jobs:
           - BMS
           - DCM
           - DIM
+          - GSM
     env:
       CCACHE_DIR: ${{ github.workspace }}/.ccache
       BUILD_DIR: boards/arm_build
