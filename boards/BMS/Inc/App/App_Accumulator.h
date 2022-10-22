@@ -96,3 +96,10 @@ float App_Accumulator_GetPackVoltage(struct Accumulator *accumulator);
 // Rate functions to be called within the state machine
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *accumulator);
 void App_Accumulator_RunOnTick100Hz(struct Accumulator *accumulator);
+
+/**
+ * Check the status of Accumulator faults, sends warning over CAN bus
+ * @param accumulator The accumulator to check faults
+ * @return True if faults present, false otherwise
+ */
+bool App_Check_Accumulator_CheckFaults(struct Accumulator *accumulator);

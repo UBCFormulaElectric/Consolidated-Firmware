@@ -2,6 +2,15 @@
 #include <assert.h>
 #include "App_Accumulator.h"
 
+// Min and Max cell temperatures depending on state
+#define MAX_CELL_DISCHARGE_TEMP_DEGC (60.0f)
+#define MAX_CELL_CHARGE_TEMP_DEGC (45.0f)
+#define MIN_CELL_DISCHARGE_TEMP_DEGC (-20.0f)
+#define MIN_CELL_CHARGE_TEMP_DEGC (0.0f)
+
+#define MAX_CELL_VOLTAGE_CHARGE (4.2f)
+#define MIN_CELL_VOLTAGE_DISCHARGE (3.0)
+
 // Max number of PEC15 to occur before faulting
 #define MAX_NUM_COMM_TRIES (3U)
 
@@ -193,4 +202,63 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
         default:
             break;
     }
+}
+
+//Should statemachine pointer be const?
+bool App_Check_Accumulator_CheckFaults(
+    struct BmsCanTxInterface *can_tx,
+    const struct Accumulator *const accumulator,
+    struct StateMachine *state_machine)
+{
+    //seperate faults for over/under, could also have single fault for "out-of-range" (existing all_states error check uses this)
+    bool overtemp_fault = false;
+    bool undertemp_fault = false;
+    bool overvoltage_fault = false;
+    bool undervoltage_fault = false;
+
+    // Stores which segment/cell caused a fault, could be used in CAN message if desired. If not, a single set of "throwaway" values could be used
+    uint8_t max_temp_segment = 0U, max_temp_cell = 0U;
+    uint8_t min_temp_segment = 0U, min_temp_cell = 0U;
+    uint8_t max_volt_segment = 0U, max_volt_cell = 0U;
+    uint8_t min_volt_segment = 0U, min_volt_cell = 0U;
+
+    float allowable_max_cell_temp = MAX_CELL_DISCHARGE_TEMP_DEGC;
+    float allowable_min_cell_temp = MIN_CELL_DISCHARGE_TEMP_DEGC;
+
+    // if we are charging, max cell temp is 45C not 60C
+    if (App_SharedStateMachine_GetCurrentState(state_machine) == App_GetChargeState())
+    {
+        allowable_max_cell_temp = MAX_CELL_CHARGE_TEMP_DEGC;
+        allowable_min_cell_temp = MIN_CELL_CHARGE_TEMP_DEGC;
+
+    }
+
+    if(App_Accumulator_GetMinCellTempDegC(accumulator, &min_temp_segment, &min_temp_cell) < allowable_max_cell_temp){
+        undertemp_fault = true;
+    }
+
+    if(App_Accumulator_GetMaxCellTempDegC(accumulator, &max_temp_segment, &max_temp_cell) > allowable_min_cell_temp){
+        overtemp_fault = true;
+    }
+
+    // This could be combined with the temperature state-check, left seperate for readability for now.
+    if (App_SharedStateMachine_GetCurrentState(state_machine) == App_GetChargeState())
+    {
+        if(App_Accumulator_GetMaxVoltage(accumulator, &max_volt_segment, &max_volt_cell) > MAX_CELL_VOLTAGE_CHARGE){
+            overvoltage_fault = true;
+        }
+    }
+    else
+    {
+        if(App_Accumulator_GetMinVoltage(accumulator, &min_volt_segment, &min_volt_cell) > MIN_CELL_VOLTAGE_DISCHARGE){
+            undervoltage_fault = true;
+        }
+    }
+
+// TODO: Send CAN message depending on errors set
+// BITMASK needs clear definition
+    App_CanTx_SetPeriodicSignal_IS_OVERTEMP_FAULT(can_tx, overtemp_fault);
+    App_CanTx_SetPeriodicSignal_IS_UNDERTEMP_FAULT(can_tx, undertemp_fault);
+    App_CanTx_SetPeriodicSignal_IS_OVERVOLTAGE_FAULT(can_tx, overvoltage_fault);
+    App_CanTx_SetPeriodicSignal_IS_UNDERVOLTAGE_FAULT(can_tx, undervoltage_fault);
 }
