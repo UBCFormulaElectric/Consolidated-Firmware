@@ -21,6 +21,9 @@ ERRORID_ENUM_TEMPLATE = '''\
 #define PDM_NON_CRITICAL_ERRORS \\
 {pdm_non_critical_errors}
 
+#define GSM_NON_CRITICAL_ERRORS \\
+{gsm_non_critical_errors}
+
 #define BMS_AIR_SHUTDOWN_ERRORS \\
 {bms_air_shutdown_errors}
 
@@ -35,6 +38,9 @@ ERRORID_ENUM_TEMPLATE = '''\
 
 #define PDM_AIR_SHUTDOWN_ERRORS \\
 {pdm_air_shutdown_errors}
+
+#define GSM_AIR_SHUTDOWN_ERRORS \\
+{gsm_air_shutdown_errors}
 
 #define BMS_MOTOR_SHUTDOWN_ERRORS \\
 {bms_motor_shutdown_errors}
@@ -51,6 +57,9 @@ ERRORID_ENUM_TEMPLATE = '''\
 #define PDM_MOTOR_SHUTDOWN_ERRORS \\
 {pdm_motor_shutdown_errors}
 
+#define GSM_MOTOR_SHUTDOWN_ERRORS \\
+{gsm_motor_shutdown_errors}
+
 enum ErrorId
 {{
     BMS_NON_CRITICAL_ERRORS
@@ -58,16 +67,19 @@ enum ErrorId
     DIM_NON_CRITICAL_ERRORS
     FSM_NON_CRITICAL_ERRORS
     PDM_NON_CRITICAL_ERRORS
+    GSM_NON_CRITICAL_ERRORS
     BMS_AIR_SHUTDOWN_ERRORS
     DCM_AIR_SHUTDOWN_ERRORS
     DIM_AIR_SHUTDOWN_ERRORS
     FSM_AIR_SHUTDOWN_ERRORS
     PDM_AIR_SHUTDOWN_ERRORS
+    GSM_AIR_SHUTDOWN_ERRORS
     BMS_MOTOR_SHUTDOWN_ERRORS
     DCM_MOTOR_SHUTDOWN_ERRORS
     DIM_MOTOR_SHUTDOWN_ERRORS
     FSM_MOTOR_SHUTDOWN_ERRORS
     PDM_MOTOR_SHUTDOWN_ERRORS
+    GSM_MOTOR_SHUTDOWN_ERRORS
     NUM_ERROR_IDS,
 }};
 '''
@@ -116,16 +128,19 @@ if __name__ == "__main__":
         dim_non_critical_errors   = '\n'.join(enum_members['non_critical']['DIM']),
         fsm_non_critical_errors   = '\n'.join(enum_members['non_critical']['FSM']),
         pdm_non_critical_errors   = '\n'.join(enum_members['non_critical']['PDM']),
+        gsm_non_critical_errors   = '\n'.join(enum_members['non_critical']['GSM']),
         bms_air_shutdown_errors   = '\n'.join(enum_members['air_shutdown']['BMS']),
         dcm_air_shutdown_errors   = '\n'.join(enum_members['air_shutdown']['DCM']),
         dim_air_shutdown_errors   = '\n'.join(enum_members['air_shutdown']['DIM']),
         fsm_air_shutdown_errors   = '\n'.join(enum_members['air_shutdown']['FSM']),
         pdm_air_shutdown_errors   = '\n'.join(enum_members['air_shutdown']['PDM']),
+        gsm_air_shutdown_errors   = '\n'.join(enum_members['air_shutdown']['GSM']),
         bms_motor_shutdown_errors = '\n'.join(enum_members['motor_shutdown']['BMS']),
         dcm_motor_shutdown_errors = '\n'.join(enum_members['motor_shutdown']['DCM']),
         dim_motor_shutdown_errors = '\n'.join(enum_members['motor_shutdown']['DIM']),
         fsm_motor_shutdown_errors = '\n'.join(enum_members['motor_shutdown']['FSM']),
-        pdm_motor_shutdown_errors = '\n'.join(enum_members['motor_shutdown']['PDM']))
+        pdm_motor_shutdown_errors = '\n'.join(enum_members['motor_shutdown']['PDM']),
+        gsm_motor_shutdown_errors = '\n'.join(enum_members['motor_shutdown']['GSM']))
 
     # Generate output folder if it doesn't exist yet
     output_dir = os.path.dirname(args.output_path)

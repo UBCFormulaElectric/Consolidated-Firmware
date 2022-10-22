@@ -34,6 +34,7 @@ class SharedErrorTableTest : public testing::Test
         ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_DIM_CRITICAL_ERROR, true));
         ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_FSM_CRITICAL_ERROR, true));
         ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_PDM_CRITICAL_ERROR, true));
+        ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_GSM_CRITICAL_ERROR, true));
     }
 
     void ResetWithOneNonCriticalErrorForOneBoard(void)
@@ -54,6 +55,7 @@ class SharedErrorTableTest : public testing::Test
         ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_DIM_NON_CRITICAL_ERROR, true));
         ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_FSM_NON_CRITICAL_ERROR, true));
         ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_PDM_NON_CRITICAL_ERROR, true));
+        ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_GSM_NON_CRITICAL_ERROR, true));
     }
 
     template <typename T>
@@ -99,7 +101,7 @@ class SharedErrorTableTest : public testing::Test
     std::vector<enum Board> GetAllBoards(void)
     {
         return std::vector<enum Board>{
-            BMS, DCM, DIM, FSM, PDM,
+            BMS, DCM, DIM, FSM, PDM, GSM,
         };
     }
 
@@ -117,12 +119,14 @@ class SharedErrorTableTest : public testing::Test
     const enum ErrorId DEFAULT_DIM_CRITICAL_ERROR = DIM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN;
     const enum ErrorId DEFAULT_FSM_CRITICAL_ERROR = FSM_AIR_SHUTDOWN_MISSING_HEARTBEAT;
     const enum ErrorId DEFAULT_PDM_CRITICAL_ERROR = PDM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN;
+    const enum ErrorId DEFAULT_GSM_CRITICAL_ERROR = GSM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN;
 
     const enum ErrorId DEFAULT_BMS_NON_CRITICAL_ERROR = BMS_NON_CRITICAL_WATCHDOG_TIMEOUT;
     const enum ErrorId DEFAULT_DCM_NON_CRITICAL_ERROR = DCM_NON_CRITICAL_WATCHDOG_TIMEOUT;
     const enum ErrorId DEFAULT_DIM_NON_CRITICAL_ERROR = DIM_NON_CRITICAL_WATCHDOG_TIMEOUT;
     const enum ErrorId DEFAULT_FSM_NON_CRITICAL_ERROR = FSM_NON_CRITICAL_WATCHDOG_TIMEOUT;
     const enum ErrorId DEFAULT_PDM_NON_CRITICAL_ERROR = PDM_NON_CRITICAL_WATCHDOG_TIMEOUT;
+    const enum ErrorId DEFAULT_GSM_NON_CRITICAL_ERROR = GSM_NON_CRITICAL_WATCHDOG_TIMEOUT;
 
     struct ErrorTable *   error_table;
     struct ErrorList      error_list;

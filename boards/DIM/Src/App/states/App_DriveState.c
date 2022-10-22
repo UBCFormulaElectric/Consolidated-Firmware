@@ -5,6 +5,16 @@
 
 #define SSEG_HB_NOT_RECEIVED_ERR (888U)
 
+typedef enum
+{
+    BMS_LED,
+    DCM_LED,
+    DIM_LED,
+    FSM_LED,
+    PDM_LED,
+    NUM_BOARD_LEDS,
+} BoardLeds;
+
 static void App_SetPeriodicCanSignals_BinarySwitch(
     struct DimCanTxInterface *can_tx,
     struct BinarySwitch *     binary_switch,
@@ -94,15 +104,15 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         can_tx, torque_vectoring_switch, App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH,
         CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
 
-    struct RgbLed *board_status_leds[NUM_BOARDS] = {
-        [BMS] = App_DimWorld_GetBmsStatusLed(world), [DCM] = App_DimWorld_GetDcmStatusLed(world),
-        [DIM] = App_DimWorld_GetDimStatusLed(world), [FSM] = App_DimWorld_GetFsmStatusLed(world),
-        [PDM] = App_DimWorld_GetPdmStatusLed(world),
+    struct RgbLed *board_status_leds[5] = {
+        [BMS_LED] = App_DimWorld_GetBmsStatusLed(world), [DCM_LED] = App_DimWorld_GetDcmStatusLed(world),
+        [DIM_LED] = App_DimWorld_GetDimStatusLed(world), [FSM_LED] = App_DimWorld_GetFsmStatusLed(world),
+        [PDM_LED] = App_DimWorld_GetPdmStatusLed(world),
     };
 
-    for (size_t i = 0; i < NUM_BOARDS; i++)
+    for (size_t i = 0; i < NUM_BOARD_LEDS; i++)
     {
-        if (i == BMS)
+        if (i == BMS_LED)
         {
             continue;
         }
