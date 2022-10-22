@@ -1,6 +1,8 @@
 #pragma once
 
 #include <stdbool.h>
+#include "App_FsmWorld.h"
+#include "App_Brake.h"
 
 #define PAPPS_ENCODER_FULLY_PRESSED_VALUE (937U)
 #define PAPPS_ENCODER_UNPRESSED_VALUE (1353U)
@@ -76,3 +78,5 @@ float App_AcceleratorPedals_GetPrimaryPedalPercentage(const struct AcceleratorPe
  * @return The pedal percentage of the secondary accelerator pedal
  */
 float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct AcceleratorPedals *accelerator_pedals);
+
+void App_AcceleratorPedals_Broadcast(struct FsmCanTxInterface *can_tx, struct AcceleratorPedals * accelerator_pedals, struct Brake * brake);

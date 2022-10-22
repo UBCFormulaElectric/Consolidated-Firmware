@@ -5,6 +5,9 @@
 #include "App_InRangeCheck.h"
 #include "configs/App_FlowRateThresholds.h"
 
+#include "App_SharedSetPeriodicCanSignals.h"
+STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(FsmCanTxInterface)
+
 struct Coolant{
     float (*get_flow_rate)(void);
     struct InRangeCheck *flow_rate_in_range_check;
@@ -38,11 +41,20 @@ struct Coolant * App_Coolant_Create(
     return coolant;
 }
 
+void App_Coolant_Destroy(struct Coolant *coolant){
+    App_InRangeCheck_Destroy(coolant->flow_rate_in_range_check);
+    free(coolant);
+}
+
 struct InRangeCheck *App_Coolant_GetFlowInRangeCheck(struct Coolant *coolant){
     return coolant->flow_rate_in_range_check;
 }
 
-void App_Coolant_Destroy(struct Coolant *coolant){
-    App_InRangeCheck_Destroy(coolant->flow_rate_in_range_check);
-    free(coolant);
+void App_Coolant_Broadcast(struct FsmCanTxInterface *can_tx, struct Coolant *coolant){
+    App_SetPeriodicCanSignals_InRangeCheck(
+            can_tx, App_Coolant_GetFlowInRangeCheck(coolant), App_CanTx_SetPeriodicSignal_FLOW_RATE,
+            App_CanTx_SetPeriodicSignal_FLOW_RATE_OUT_OF_RANGE,
+            CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_OK_CHOICE,
+            CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+            CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }

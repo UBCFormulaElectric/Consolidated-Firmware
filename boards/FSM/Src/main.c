@@ -45,16 +45,19 @@
 #include "Io_SecondaryScancon2RMHF.h"
 
 #include "App_FsmWorld.h"
+#include "states/App_AllStates.h"
+
 #include "App_SharedMacros.h"
 #include "App_SharedStateMachine.h"
+
+//Sensors
 #include "App_AcceleratorPedalSignals.h"
 #include "App_FlowMeterSignals.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
-#include "configs/App_WheelSpeedThresholds.h"
-#include "configs/App_SteeringAngleThresholds.h"
-#include "configs/App_BrakePressureThresholds.h"
 #include "App_Coolant.h"
-#include "states/App_AllStates.h"
+#include "App_Steering.h"
+#include "App_Wheels.h"
+#include "configs/App_HeartbeatMonitorConfig.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -103,8 +106,6 @@ osThreadId          Task100HzHandle;
 uint32_t            Task100HzBuffer[TASK100HZ_STACK_SIZE];
 osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
-struct InRangeCheck *     left_wheel_speed_in_range_check, *right_wheel_speed_in_range_check;
-struct InRangeCheck *     steering_angle_in_range_check;
 struct Brake *            brake;
 struct World *            world;
 struct StateMachine *     state_machine;
@@ -115,6 +116,8 @@ struct RgbLedSequence *   rgb_led_sequence;
 struct Clock *            clock;
 struct AcceleratorPedals *papps_and_sapps;
 struct Coolant *          coolant;
+struct Steering *         steering;
+struct Wheels *           wheels;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -219,12 +222,8 @@ int main(void)
 
     //Unwrapped Ranges
     Io_WheelSpeedSensors_Init(&htim16, &htim17);
-    left_wheel_speed_in_range_check = App_InRangeCheck_Create(
-        Io_WheelSpeedSensors_GetLeftSpeedKph, MIN_LEFT_WHEEL_SPEED_KPH, MAX_LEFT_WHEEL_SPEED_KPH);
-    right_wheel_speed_in_range_check = App_InRangeCheck_Create(
-        Io_WheelSpeedSensors_GetRightSpeedKph, MIN_RIGHT_WHEEL_SPEED_KPH, MAX_RIGHT_WHEEL_SPEED_KPH);
-    steering_angle_in_range_check =
-        App_InRangeCheck_Create(Io_SteeringAngleSensor_GetAngleDegree, MIN_STEERING_ANGLE_DEG, MAX_STEERING_ANGLE_DEG);
+    wheels = App_Wheels_Create(Io_WheelSpeedSensors_GetLeftSpeedKph, Io_WheelSpeedSensors_GetRightSpeedKph);
+    steering = App_Steering_Create(Io_SteeringAngleSensor_GetAngleDegree);
 
     //Accelerator
     Io_PrimaryScancon2RMHF_Init(&htim1);
@@ -240,8 +239,7 @@ int main(void)
             Io_MSP3002K5P3N1_GetPressurePsi, Io_RearBrake_GetPressurePsi,
             Io_MSP3002K5P3N1_IsOpenOrShortCircuit, Io_RearBrake_IsOpenOrShortCircuit,
             Io_BrakePedal_GetAngle,IO_BrakePedal_IsOpenOrShortCircuit,
-            Io_Brake_IsActuated,
-            MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
+            Io_Brake_IsActuated);
 
     //Coolants
     Io_FlowMeters_Init(&htim4);
@@ -253,8 +251,7 @@ int main(void)
 
     world = App_FsmWorld_Create(
         can_tx,can_rx, heartbeat_monitor, clock,
-        left_wheel_speed_in_range_check, right_wheel_speed_in_range_check, steering_angle_in_range_check,
-        papps_and_sapps, brake, coolant,
+        papps_and_sapps, brake, coolant, steering, wheels,
         rgb_led_sequence,
 
         App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure,

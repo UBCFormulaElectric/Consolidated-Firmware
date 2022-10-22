@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include "App_FsmWorld.h"
 
 struct Brake;
 
@@ -24,9 +25,8 @@ struct Brake *App_Brake_Create(
     bool (*is_secondary_pressure_sensor_open_or_short_circuit)(void),
     float (*pedal_angle)(void),
     bool (*is_pedal_angle_sensor_open_or_short_circuit)(void),
-    bool (*is_brake_actuated)(void),
-    float min_pressure_psi,
-    float max_pressure_psi);
+    bool (*is_brake_actuated)(void)
+);
 
 /**
  * Deallocate the memory used by the given brake
@@ -72,3 +72,10 @@ bool App_Brake_IsPressureSensorOpenCircuit(const struct Brake *brake);
 bool App_Brake_IsPressureSensorShortCircuited(const struct Brake *brake);
 
 bool App_Brake_IsPedalSensorOpenOrShortCircuit(const struct Brake *brake);
+
+ /**
+  * CAN BUS Broadcast Function
+  * @param can_tx
+  * @param brake
+  */
+void App_Brake_Broadcast(struct FsmCanTxInterface *can_tx, const struct Brake * brake);

@@ -126,8 +126,8 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
     bool (*is_primary_encoder_alarm_active)(void),
     bool (*is_secondary_encoder_alarm_active)(void),
     float (*get_primary_pedal_percent)(void),
-    float (*get_secondary_pedal_percent)(void))
-{
+    float (*get_secondary_pedal_percent)(void)
+){
     struct AcceleratorPedals *accelerator_pedals = malloc(sizeof(struct AcceleratorPedals));
     assert(accelerator_pedals != NULL);
 
@@ -138,19 +138,15 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
 
     return accelerator_pedals;
 }
-
 void App_AcceleratorPedals_Destroy(struct AcceleratorPedals *accelerator_pedals)
 {
     free(accelerator_pedals);
 }
 
-bool App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(const struct AcceleratorPedals *const accelerator_pedals)
-{
+bool App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(const struct AcceleratorPedals *const accelerator_pedals){
     return accelerator_pedals->is_primary_encoder_alarm_active();
 }
-
-bool App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(const struct AcceleratorPedals *const accelerator_pedals)
-{
+bool App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(const struct AcceleratorPedals *const accelerator_pedals){
     return accelerator_pedals->is_secondary_encoder_alarm_active();
 }
 
@@ -161,13 +157,24 @@ float App_AcceleratorPedals_GetPrimaryPedalPercentage(const struct AcceleratorPe
     //    PAPPS_ENCODER_FULLY_PRESSED_VALUE, PAPPS_ENCODER_UNPRESSED_VALUE,
     //    accelerator_pedals->get_primary_encoder_counter_value(), accelerator_pedals->set_primary_encoder_counter);
 }
-
-float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct AcceleratorPedals *accelerator_pedals)
-{
+float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct AcceleratorPedals *accelerator_pedals){
     return accelerator_pedals->get_primary_pedal_percent();
     /*
     return App_GetPedalPercentage_CountDown(
         PAPPS_ENCODER_FULLY_PRESSED_VALUE, PAPPS_ENCODER_UNPRESSED_VALUE,
         accelerator_pedals->get_primary_encoder_counter_value(), accelerator_pedals->set_primary_encoder_counter);
         */
+}
+
+void App_AcceleratorPedals_Broadcast(struct FsmCanTxInterface *can_tx, struct AcceleratorPedals * accelerator_pedals, struct Brake * brake){
+    //SEND VALUES
+    const float papps_pedal_percentage = App_AcceleratorPedals_GetPrimaryPedalPercentage(accelerator_pedals);
+    const float sapps_pedal_percentage = App_AcceleratorPedals_GetSecondaryPedalPercentage(accelerator_pedals);
+
+    App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, sapps_pedal_percentage);
+
+    if (App_Brake_IsBrakeActuated(brake))
+        App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
+    else
+        App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, papps_pedal_percentage);
 }

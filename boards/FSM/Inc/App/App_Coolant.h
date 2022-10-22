@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include "App_FsmWorld.h"
 
 struct Coolant;
 
@@ -14,3 +15,4 @@ struct Coolant * App_Coolant_Create(
 
 struct InRangeCheck *App_Coolant_GetFlowInRangeCheck(struct Coolant *coolant);
 void App_Coolant_Destroy(struct Coolant *coolant);
+void App_Coolant_Broadcast(struct FsmCanTxInterface *can_tx, struct Coolant *coolant);

@@ -5,11 +5,13 @@
 #include "App_InRangeCheck.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
-#include "App_Brake.h"
 #include "App_SharedSignal.h"
 #include "App_SharedClock.h"
 #include "App_AcceleratorPedals.h"
+#include "App_Brake.h"
 #include "App_Coolant.h"
+#include "App_Steering.h"
+#include "App_Wheels.h"
 
 struct FsmWorld;
 
@@ -27,12 +29,12 @@ struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanRxInterface *can_rx_interface,
     struct HeartbeatMonitor * heartbeat_monitor,
     struct Clock *            clock,
-    struct InRangeCheck *     left_wheel_speed_in_range_check,
-    struct InRangeCheck *     right_wheel_speed_in_range_check,
-    struct InRangeCheck *     steering_angle_in_range_check,
     struct AcceleratorPedals *papps_and_sapps,
     struct Brake *            brake,
     struct Coolant *          coolant,
+    struct Steering*          steering,
+    struct Wheels *           wheels,
+
     struct RgbLedSequence *   rgb_led_sequence,
 
     bool (*has_apps_and_brake_plausibility_failure)(struct FsmWorld *),
@@ -49,7 +51,8 @@ struct FsmWorld *App_FsmWorld_Create(
 
     bool (*is_flow_rate_below_threshold)(struct FsmWorld *),
     bool (*is_flow_rate_in_range)(struct FsmWorld *),
-    void (*flow_rate_below_threshold_callback)(struct FsmWorld *));
+    void (*flow_rate_below_threshold_callback)(struct FsmWorld *)
+);
 
 /**
  * Deallocate the memory used by the given world
@@ -86,27 +89,6 @@ struct HeartbeatMonitor *App_FsmWorld_GetHeartbeatMonitor(const struct FsmWorld 
 struct InRangeCheck *App_FsmWorld_GetSecondaryFlowRateInRangeCheck(const struct FsmWorld *world);
 
 /**
- * Get the left wheel speed in-range check for the given world
- * @param world The world to get the left wheel speed in-range check for
- * @return The left wheel speed in-range check for the given world
- */
-struct InRangeCheck *App_FsmWorld_GetLeftWheelSpeedInRangeCheck(const struct FsmWorld *world);
-
-/**
- * Get the right wheel speed in-range check for the given world
- * @param world The world to get the right wheel speed in-range check for
- * @return The right wheel speed in-range check for the given world
- */
-struct InRangeCheck *App_FsmWorld_GetRightWheelSpeedInRangeCheck(const struct FsmWorld *world);
-
-/**
- * Get the steering angle in-range check for the given world
- * @param world The world to get the steering angle in-range check for
- * @return The steering angle in-range check for the given world
- */
-struct InRangeCheck *App_FsmWorld_GetSteeringAngleInRangeCheck(const struct FsmWorld *world);
-
-/**
  * Get the brake for the given world
  * @param world The world to get the brake for
  * @return The brake for the given world
@@ -115,10 +97,24 @@ struct Brake *App_FsmWorld_GetBrake(const struct FsmWorld *world);
 
 /**
  * Get the coolant for the given world
- * @param world The world to get the brake for
+ * @param world The world to get the coolant for
  * @return The coolant for the given world
  */
 struct Coolant *App_FsmWorld_GetCoolant(const struct FsmWorld *const world);
+
+/**
+ * Get the steering for the given world
+ * @param world The world to get the steering for
+ * @return The steering for the given world
+ */
+struct Steering * App_FsmWorld_GetSteering(const struct FsmWorld *const world);
+
+/**
+ * Get the wheel speed for the given world
+ * @param world The world to get the wheel speeds for
+ * @return The wheel speeds for the given world
+ */
+struct Wheels * App_FsmWorld_GetWheels(const struct FsmWorld *const world);
 
 /**
  * Get the RGB LED sequence for the given world
