@@ -1,8 +1,15 @@
 #include "states/App_AllStates.h"
 #include "App_SharedConstants.h"
+#include "App_SharedMacros.h"
+#include "App_SetPeriodicCanSignals.h"
 
 #define TORQUE_LIMIT_OFFSET_NM (5.0f)
 #define MAX_TORQUE_PLAUSIBILITY_ERR_CNT (25) // 250 ms window
+
+
+void App_AllStatesRunOnEntry(struct StateMachine *const state_machine){
+    return;
+}
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
@@ -19,6 +26,7 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
+    //OLD ALL STATES CODE
     struct FsmWorld *         world              = App_SharedStateMachine_GetWorld(state_machine);
     struct FsmCanTxInterface *can_tx             = App_FsmWorld_GetCanTx(world);
     struct FsmCanRxInterface *can_rx             = App_FsmWorld_GetCanRx(world);
@@ -40,17 +48,10 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     float right_torque_req = App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
         App_CanRx_DCM_INVR_COMMAND_MESSAGE_GetSignal_TORQUE_COMMAND_INVR(can_rx));
     float fsm_torque_limit = App_CanTx_GetPeriodicSignal_FSM_TORQUE_LIMIT(can_tx);
-    if (left_torque_req > fsm_torque_limit || right_torque_req > fsm_torque_limit)
-    {
-        error_count++;
-    }
-    else
-    {
-        error_count = 0;
-    }
+    if (left_torque_req > fsm_torque_limit || right_torque_req > fsm_torque_limit) error_count++;
+    else error_count = 0;
 
-    if (error_count == MAX_TORQUE_PLAUSIBILITY_ERR_CNT)
-    {
+    if (error_count == MAX_TORQUE_PLAUSIBILITY_ERR_CNT){
         App_CanTx_SetPeriodicSignal_TORQUE_PLAUSIBILITY_CHECK_FAILED(can_tx, true);
     }
 
@@ -69,4 +70,27 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     // App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, Io_AcceleratorPedals_GetPapps());
 
     App_CanTx_SetPeriodicSignal_MISSING_HEARTBEAT(can_tx, !App_SharedHeartbeatMonitor_Tick(hb_monitor));
+
+    // NEW ALL STATES CODE
+    App_SetPeriodicSignals_FlowRateInRangeChecks(world);
+    App_SetPeriodicSignals_WheelSpeedInRangeChecks(world);
+    App_SetPeriodicSignals_SteeringAngleInRangeCheck(world);
+    App_SetPeriodicSignals_Brake(world);
+    App_SetPeriodicSignals_AcceleratorPedal(world);
+    App_SetPeriodicSignals_MotorShutdownFaults(world);
+}
+
+void App_AllStatesRunOnExit(struct StateMachine *const state_machine){
+    UNUSED(state_machine);
+}
+
+const struct State * App_GetAllStates(void){
+    static struct State all_states = {
+            .name               = "ALL STATES",
+            .run_on_entry       = App_AllStatesRunOnEntry,
+            .run_on_tick_1Hz    = App_AllStatesRunOnTick1Hz,
+            .run_on_tick_100Hz  = App_AllStatesRunOnTick100Hz,
+            .run_on_exit        = App_AllStatesRunOnExit,
+    };
+    return &all_states;
 }
