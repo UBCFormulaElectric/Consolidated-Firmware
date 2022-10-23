@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include "App_FsmWorld.h"
 #include "App_Brake.h"
+#include "App_Timer.h"
 
 #define PAPPS_ENCODER_FULLY_PRESSED_VALUE (937U)
 #define PAPPS_ENCODER_UNPRESSED_VALUE (1353U)
@@ -80,4 +81,63 @@ float App_AcceleratorPedals_GetPrimaryPedalPercentage(const struct AcceleratorPe
  */
 float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct AcceleratorPedals *accelerator_pedals);
 
-void App_AcceleratorPedals_Broadcast(struct FsmCanTxInterface *can_tx, struct AcceleratorPedals * accelerator_pedals, struct Brake * brake);
+/**
+ * Get the entry timer for app agreement
+ * @param accelerator_pedals The pair of accelerator pedals to get the entry timer for app agreement from
+ * @return The entry timer of the accelerator pedal
+ */
+TimerChannel * App_AcceleratorPedals_GetAppAgreementEntryTimer(const struct AcceleratorPedals *accelerator_pedals);
+/**
+ * Get the exit timer for app agreement
+ * @param accelerator_pedals The pair of accelerator pedals to get the exit timer for app agreement from
+ * @return The entry timer of the accelerator pedal
+ */
+TimerChannel * App_AcceleratorPedals_GetAppAgreementExitTimer(const struct AcceleratorPedals *accelerator_pedals);
+/**
+ * Get the entry timer for APP and Brake Plausability
+ * @param accelerator_pedals The pair of accelerator pedals to get the entry timer for APP and Brake Plausability
+ * @return The entry timer of the accelerator pedal
+ */
+TimerChannel * App_AcceleratorPedals_GetAppBreakPlausabilityEntryTimer(const struct AcceleratorPedals *accelerator_pedals);
+/**
+ * Get the entry timer for APP and Brake Plausability
+ * @param accelerator_pedals The pair of accelerator pedals to get the exit timer for APP and Brake Plausability from
+ * @return The exit timer of the accelerator pedal
+ */
+TimerChannel * App_AcceleratorPedals_GetAppBreakPlausabilityExitTimer(const struct AcceleratorPedals *accelerator_pedals);
+/**
+ * Get the entry timer for Papp Alarm
+ * @param accelerator_pedals The pair of accelerator pedals to get the entry timer for Papp Alarm from
+ * @return The entry timer of the accelerator pedal
+ */
+TimerChannel * App_AcceleratorPedals_PappAlarmEntryTimer(const struct AcceleratorPedals *accelerator_pedals);
+/**
+ * Get the entry timer for Papp Alarm
+ * @param accelerator_pedals The pair of accelerator pedals to get the entry timer for Papp Alarm from
+ * @return The entry timer of the accelerator pedal
+ */
+TimerChannel * App_AcceleratorPedals_PappAlarmExitTimer(const struct AcceleratorPedals *accelerator_pedals);
+/**
+ * Get the entry timer for Sapp Alarm
+ * @param accelerator_pedals The pair of accelerator pedals to get the exit timer for Sapp Alarm from
+ * @return The exit timer of the accelerator pedal
+ */
+TimerChannel * App_AcceleratorPedals_SappAlarmEntryTimer(const struct AcceleratorPedals *accelerator_pedals);
+/**
+ * Get the entry timer for Sapp Alarm
+ * @param accelerator_pedals The pair of accelerator pedals to get the exit timer forSapp Alarm from
+ * @return The exit timer of the accelerator pedal
+ */
+TimerChannel * App_AcceleratorPedals_SappAlarmExitTimer(const struct AcceleratorPedals *accelerator_pedals);
+
+
+/**
+ * Primary Broadcast Function. Very important.
+ * @param can_tx The Can Bus it is broadcasting to
+ * @param accelerator_pedals Accelerator System from which to pull data
+ * @param brake Brakes System Object from which to pull data
+ */
+void App_AcceleratorPedals_Broadcast(
+    struct FsmCanTxInterface *can_tx,
+    struct AcceleratorPedals *accelerator_pedals,
+    struct Brake *            brake);

@@ -37,22 +37,10 @@ struct FsmWorld *App_FsmWorld_Create(
     struct AcceleratorPedals *papps_and_sapps,
     struct Brake *            brake,
     struct Coolant *          coolant,
-    struct Steering*          steering,
+    struct Steering *         steering,
     struct Wheels *           wheels,
 
-    struct RgbLedSequence *   rgb_led_sequence,
-
-    bool (*has_apps_and_brake_plausibility_failure)(struct FsmWorld *),
-    bool (*is_apps_and_brake_plausibility_ok)(struct FsmWorld *),
-    void (*apps_and_brake_plausibility_failure_callback)(struct FsmWorld *),
-    bool (*has_apps_disagreement)(struct FsmWorld *),
-    bool (*has_apps_agreement)(struct FsmWorld *),
-    void (*apps_disagreement_callback)(struct FsmWorld *),
-    bool (*is_papps_alarm_active)(struct FsmWorld *),
-    void (*papps_alarm_callback)(struct FsmWorld *),
-    bool (*is_sapps_alarm_active)(struct FsmWorld *),
-    void (*sapps_alarm_callback)(struct FsmWorld *),
-    bool (*is_papps_and_sapps_alarm_inactive)(struct FsmWorld *),
+    struct RgbLedSequence *rgb_led_sequence,
 
     bool (*is_flow_rate_below_threshold)(struct FsmWorld *),
     bool (*is_flow_rate_in_range)(struct FsmWorld *),
@@ -112,14 +100,14 @@ struct Coolant *App_FsmWorld_GetCoolant(const struct FsmWorld *const world);
  * @param world The world to get the steering for
  * @return The steering for the given world
  */
-struct Steering * App_FsmWorld_GetSteering(const struct FsmWorld *const world);
+struct Steering *App_FsmWorld_GetSteering(const struct FsmWorld *const world);
 
 /**
  * Get the wheel speed for the given world
  * @param world The world to get the wheel speeds for
  * @return The wheel speeds for the given world
  */
-struct Wheels * App_FsmWorld_GetWheels(const struct FsmWorld *const world);
+struct Wheels *App_FsmWorld_GetWheels(const struct FsmWorld *const world);
 
 /**
  * Get the RGB LED sequence for the given world

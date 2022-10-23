@@ -24,23 +24,7 @@ struct FsmWorld
     struct Steering *         steering;
     struct Wheels *           wheels;
     struct RgbLedSequence *   rgb_led_sequence;
-    struct SignalNode *       signals_head;
 };
-
-/**
- * Register a signal to the given world
- * @param world The world to register a signal for
- * @param signal The signal to register to the given world
- */
-static void App_RegisterSignal(struct FsmWorld *world, struct Signal *signal)
-{
-    struct SignalNode *item = malloc(sizeof(struct SignalNode));
-    assert(item != NULL);
-    item->signal = signal;
-    item->next   = NULL;
-
-    SL_APPEND(world->signals_head, item);
-}
 
 struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanTxInterface *const can_tx_interface,
@@ -54,20 +38,7 @@ struct FsmWorld *App_FsmWorld_Create(
     struct Steering *const          steering,
     struct Wheels *const            wheels,
 
-    struct RgbLedSequence *const    rgb_led_sequence,
-
-
-    bool (*const has_apps_and_brake_plausibility_failure)(struct FsmWorld *),
-    bool (*const is_apps_and_brake_plausibility_ok)(struct FsmWorld *),
-    void (*const apps_and_brake_plausibility_failure_callback)(struct FsmWorld *),
-    bool (*const has_apps_disagreement)(struct FsmWorld *),
-    bool (*const has_apps_agreement)(struct FsmWorld *),
-    void (*const apps_disagreement_callback)(struct FsmWorld *),
-    bool (*const is_papps_alarm_active)(struct FsmWorld *),
-    void (*const papps_alarm_callback)(struct FsmWorld *),
-    bool (*const is_sapps_alarm_active)(struct FsmWorld *),
-    void (*const sapps_alarm_callback)(struct FsmWorld *),
-    bool (*const is_papps_and_sapps_alarm_inactive)(struct FsmWorld *),
+    struct RgbLedSequence *const rgb_led_sequence,
 
     bool (*const is_flow_rate_below_threshold)(struct FsmWorld *),
     bool (*const is_flow_rate_in_range)(struct FsmWorld *),
@@ -76,27 +47,26 @@ struct FsmWorld *App_FsmWorld_Create(
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
     assert(world != NULL);
 
-    world->can_tx_interface                 = can_tx_interface;
-    world->can_rx_interface                 = can_rx_interface;
-    world->heartbeat_monitor                = heartbeat_monitor;
-    world->clock                            = clock;
+    world->can_tx_interface  = can_tx_interface;
+    world->can_rx_interface  = can_rx_interface;
+    world->heartbeat_monitor = heartbeat_monitor;
+    world->clock             = clock;
 
-    world->papps_and_sapps                  = papps_and_sapps;
-    world->brake                            = brake;
-    world->coolant                          = coolant;
-    world->steering                         = steering;
-    world->wheels                           = wheels;
-    world->rgb_led_sequence                 = rgb_led_sequence;
+    world->papps_and_sapps  = papps_and_sapps;
+    world->brake            = brake;
+    world->coolant          = coolant;
+    world->steering         = steering;
+    world->wheels           = wheels;
+    world->rgb_led_sequence = rgb_led_sequence;
 
-    //Signals
-    world->signals_head                     = NULL;
-
+    // Signals
     struct SignalCallback papps_callback = {
         .entry_condition_high_duration_ms = PAPPS_ENTRY_HIGH_MS,
         .exit_condition_high_duration_ms  = PAPPS_EXIT_HIGH_MS,
         .function                         = papps_alarm_callback,
     };
-    struct Signal *papps_alarm_signal = App_SharedSignal_Create(0, is_papps_alarm_active, is_papps_and_sapps_alarm_inactive, world, papps_callback);
+    struct Signal *papps_alarm_signal =
+        App_SharedSignal_Create(0, is_papps_alarm_active, is_papps_and_sapps_alarm_inactive, world, papps_callback);
     App_RegisterSignal(world, papps_alarm_signal);
 
     struct SignalCallback sapps_callback = {
@@ -104,7 +74,8 @@ struct FsmWorld *App_FsmWorld_Create(
         .exit_condition_high_duration_ms  = SAPPS_EXIT_HIGH_MS,
         .function                         = sapps_alarm_callback,
     };
-    struct Signal *sapps_alarm_signal = App_SharedSignal_Create(0, is_sapps_alarm_active, is_papps_and_sapps_alarm_inactive, world, sapps_callback);
+    struct Signal *sapps_alarm_signal =
+        App_SharedSignal_Create(0, is_sapps_alarm_active, is_papps_and_sapps_alarm_inactive, world, sapps_callback);
     App_RegisterSignal(world, sapps_alarm_signal);
 
     struct SignalCallback apps_callback = {
@@ -112,7 +83,8 @@ struct FsmWorld *App_FsmWorld_Create(
         .exit_condition_high_duration_ms  = APPS_EXIT_HIGH_MS,
         .function                         = apps_disagreement_callback,
     };
-    struct Signal *apps_disagreement_signal = App_SharedSignal_Create(0, has_apps_disagreement, has_apps_agreement, world, apps_callback);
+    struct Signal *apps_disagreement_signal =
+        App_SharedSignal_Create(0, has_apps_disagreement, has_apps_agreement, world, apps_callback);
     App_RegisterSignal(world, apps_disagreement_signal);
 
     struct SignalCallback apps_and_brake_callback = {
@@ -120,36 +92,21 @@ struct FsmWorld *App_FsmWorld_Create(
         .exit_condition_high_duration_ms  = APPS_AND_BRAKE_EXIT_HIGH_MS,
         .function                         = apps_and_brake_plausibility_failure_callback,
     };
-    struct Signal *apps_and_brake_plausibility_check_signal = App_SharedSignal_Create(0, has_apps_and_brake_plausibility_failure, is_apps_and_brake_plausibility_ok, world, apps_and_brake_callback);
+    struct Signal *apps_and_brake_plausibility_check_signal = App_SharedSignal_Create(
+        0, has_apps_and_brake_plausibility_failure, is_apps_and_brake_plausibility_ok, world, apps_and_brake_callback);
     App_RegisterSignal(world, apps_and_brake_plausibility_check_signal);
 
-    struct SignalCallback flow_rate_callback = {
-        .entry_condition_high_duration_ms = FLOW_METER_ENTRY_HIGH_MS,
-        .exit_condition_high_duration_ms  = FLOW_METER_EXIT_HIGH_MS,
-        .function                         = flow_rate_below_threshold_callback
-    };
-    struct Signal * flow_rate_signal = App_SharedSignal_Create(0, is_flow_rate_below_threshold, is_flow_rate_in_range, world, flow_rate_callback);
+    struct SignalCallback flow_rate_callback = { .entry_condition_high_duration_ms = FLOW_METER_ENTRY_HIGH_MS,
+                                                 .exit_condition_high_duration_ms  = FLOW_METER_EXIT_HIGH_MS,
+                                                 .function = flow_rate_below_threshold_callback };
+    struct Signal *       flow_rate_signal =
+        App_SharedSignal_Create(0, is_flow_rate_below_threshold, is_flow_rate_in_range, world, flow_rate_callback);
     App_RegisterSignal(world, flow_rate_signal);
 
     return world;
 }
 
-void App_FsmWorld_Destroy(struct FsmWorld *world)
-{
-    struct SignalNode *node, *tmp;
-
-    SL_FOREACH_SAFE(world->signals_head, node, tmp)
-    {
-        SL_DELETE(world->signals_head, node);
-        free(node->signal);
-        free(node);
-
-        if (world->signals_head == NULL)
-        {
-            break;
-        }
-    }
-
+void App_FsmWorld_Destroy(struct FsmWorld *world){
     free(world);
 }
 
@@ -178,28 +135,24 @@ struct Brake *App_FsmWorld_GetBrake(const struct FsmWorld *const world)
     return world->brake;
 }
 
-struct Coolant * App_FsmWorld_GetCoolant(const struct FsmWorld *const world){
+struct Coolant *App_FsmWorld_GetCoolant(const struct FsmWorld *const world)
+{
     return world->coolant;
 }
 
-struct Steering * App_FsmWorld_GetSteering(const struct FsmWorld *const world){
+struct Steering *App_FsmWorld_GetSteering(const struct FsmWorld *const world)
+{
     return world->steering;
 }
 
-struct Wheels * App_FsmWorld_GetWheels(const struct FsmWorld *const world){
+struct Wheels *App_FsmWorld_GetWheels(const struct FsmWorld *const world)
+{
     return world->wheels;
 }
 
 struct RgbLedSequence *App_FsmWorld_GetRgbLedSequence(const struct FsmWorld *const world)
 {
     return world->rgb_led_sequence;
-}
-
-void App_FsmWorld_UpdateSignals(const struct FsmWorld *world, uint32_t current_time_ms)
-{
-    struct SignalNode *node_ptr;
-
-    SL_FOREACH(world->signals_head, node_ptr) { App_SharedSignal_Update(node_ptr->signal, current_time_ms); }
 }
 
 struct Clock *App_FsmWorld_GetClock(const struct FsmWorld *const world)

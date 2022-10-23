@@ -50,8 +50,7 @@
 #include "App_SharedMacros.h"
 #include "App_SharedStateMachine.h"
 
-//Sensors
-#include "App_AcceleratorPedalSignals.h"
+// Sensors
 #include "App_FlowMeterSignals.h"
 #include "App_Coolant.h"
 #include "App_Steering.h"
@@ -209,59 +208,44 @@ int main(void)
     Io_SharedHardFaultHandler_Init();
 
     //=============================================IMPORTANT CODE/=============================================
-    //Buses
+    // Buses
     can_tx = App_CanTx_Create(
-            Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP, Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
-            Io_CanTx_EnqueueNonPeriodicMsg_FSM_AIR_SHUTDOWN);
+        Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP, Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
+        Io_CanTx_EnqueueNonPeriodicMsg_FSM_AIR_SHUTDOWN);
     can_rx            = App_CanRx_Create();
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-            Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
+        Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
     rgb_led_sequence = App_SharedRgbLedSequence_Create(
-            Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed, Io_RgbLedSequence_TurnOnGreenLed);
+        Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed, Io_RgbLedSequence_TurnOnGreenLed);
     clock = App_SharedClock_Create();
 
-    //Unwrapped Ranges
+    // Unwrapped Ranges
     Io_WheelSpeedSensors_Init(&htim16, &htim17);
-    wheels = App_Wheels_Create(Io_WheelSpeedSensors_GetLeftSpeedKph, Io_WheelSpeedSensors_GetRightSpeedKph);
+    wheels   = App_Wheels_Create(Io_WheelSpeedSensors_GetLeftSpeedKph, Io_WheelSpeedSensors_GetRightSpeedKph);
     steering = App_Steering_Create(Io_SteeringAngleSensor_GetAngleDegree);
 
-    //Accelerator
+    // Accelerator
     Io_PrimaryScancon2RMHF_Init(&htim1);
     Io_SecondaryScancon2RMHF_Init(&htim2);
     papps_and_sapps = App_AcceleratorPedals_Create(
-            Io_AcceleratorPedals_IsPappsEncoderAlarmActive, Io_AcceleratorPedals_IsSappsEncoderAlarmActive,
-            Io_AcceleratorPedals_GetPapps, Io_AcceleratorPedals_GetPapps);
+        Io_AcceleratorPedals_IsPappsEncoderAlarmActive, Io_AcceleratorPedals_IsSappsEncoderAlarmActive,
+        Io_AcceleratorPedals_GetPapps, Io_AcceleratorPedals_GetPapps);
     Io_PrimaryScancon2RMHF_SetEncoderCounter(PAPPS_ENCODER_UNPRESSED_VALUE);
     Io_SecondaryScancon2RMHF_SetEncoderCounter(SAPPS_ENCODER_UNPRESSED_VALUE);
 
-    //Brake
+    // Brake
     brake = App_Brake_Create(
-            Io_MSP3002K5P3N1_GetPressurePsi, Io_RearBrake_GetPressurePsi,
-            Io_MSP3002K5P3N1_IsOpenOrShortCircuit, Io_RearBrake_IsOpenOrShortCircuit,
-            Io_BrakePedal_GetAngle,IO_BrakePedal_IsOpenOrShortCircuit,
-            Io_Brake_IsActuated);
-
-    //Coolants
+        Io_MSP3002K5P3N1_GetPressurePsi, Io_RearBrake_GetPressurePsi, Io_MSP3002K5P3N1_IsOpenOrShortCircuit,
+        Io_RearBrake_IsOpenOrShortCircuit, Io_BrakePedal_GetAngle, IO_BrakePedal_IsOpenOrShortCircuit,
+        Io_Brake_IsActuated
+    );
+    // Coolants
     Io_FlowMeters_Init(&htim4);
     coolant = App_Coolant_Create(
-            Io_FlowMeters_GetFlowRate,
-            Io_GetTemperatureA, Io_GetTemperatureB,
-            Io_GetPressureA, Io_GetPressureB
-    );
+        Io_FlowMeters_GetFlowRate, Io_GetTemperatureA, Io_GetTemperatureB, Io_GetPressureA, Io_GetPressureB);
 
     world = App_FsmWorld_Create(
-        can_tx,can_rx, heartbeat_monitor, clock,
-        papps_and_sapps, brake, coolant, steering, wheels,
-        rgb_led_sequence,
-
-        App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure,
-        App_AcceleratorPedalSignals_IsAppsAndBrakePlausibilityOk,
-        App_AcceleratorPedalSignals_AppsAndBrakePlausibilityFailureCallback,
-        App_AcceleratorPedalSignals_HasAppsDisagreement, App_AcceleratorPedalSignals_HasAppsAgreement,
-        App_AcceleratorPedalSignals_AppsDisagreementCallback, App_AcceleratorPedalSignals_IsPappsAlarmActive,
-        App_AcceleratorPedalSignals_PappsAlarmCallback, App_AcceleratorPedalSignals_IsSappsAlarmActive,
-        App_AcceleratorPedalSignals_SappsAlarmCallback, App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive,
-
+        can_tx, can_rx, heartbeat_monitor, clock, papps_and_sapps, brake, coolant, steering, wheels, rgb_led_sequence,
         App_FlowMetersSignals_IsPrimaryFlowRateBelowThreshold, App_FlowMetersSignals_IsFlowRateInRange,
         App_FlowMetersSignals_FlowRateBelowThresholdCallback
     );
@@ -298,19 +282,24 @@ int main(void)
     Task1HzHandle = osThreadCreate(osThread(Task1Hz), NULL);
 
     /* definition and creation of Task1kHz */
-    osThreadStaticDef(Task1kHz, RunTask1kHz, osPriorityAboveNormal, 0, TASK1KHZ_STACK_SIZE, Task1kHzBuffer, &Task1kHzControlBlock);
+    osThreadStaticDef(
+        Task1kHz, RunTask1kHz, osPriorityAboveNormal, 0, TASK1KHZ_STACK_SIZE, Task1kHzBuffer, &Task1kHzControlBlock);
     Task1kHzHandle = osThreadCreate(osThread(Task1kHz), NULL);
 
     /* definition and creation of TaskCanRx */
-    osThreadStaticDef(TaskCanRx, RunTaskCanRx, osPriorityIdle, 0, TASKCANRX_STACK_SIZE, TaskCanRxBuffer, &TaskCanRxControlBlock);
+    osThreadStaticDef(
+        TaskCanRx, RunTaskCanRx, osPriorityIdle, 0, TASKCANRX_STACK_SIZE, TaskCanRxBuffer, &TaskCanRxControlBlock);
     TaskCanRxHandle = osThreadCreate(osThread(TaskCanRx), NULL);
 
     /* definition and creation of TaskCanTx */
-    osThreadStaticDef(TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, TASKCANTX_STACK_SIZE, TaskCanTxBuffer, &TaskCanTxControlBlock);
+    osThreadStaticDef(
+        TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, TASKCANTX_STACK_SIZE, TaskCanTxBuffer, &TaskCanTxControlBlock);
     TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
 
     /* definition and creation of Task100Hz */
-    osThreadStaticDef(Task100Hz, RunTask100Hz, osPriorityBelowNormal, 0, TASK100HZ_STACK_SIZE, Task100HzBuffer,&Task100HzControlBlock);
+    osThreadStaticDef(
+        Task100Hz, RunTask100Hz, osPriorityBelowNormal, 0, TASK100HZ_STACK_SIZE, Task100HzBuffer,
+        &Task100HzControlBlock);
     Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
