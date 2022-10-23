@@ -59,50 +59,6 @@ struct FsmWorld *App_FsmWorld_Create(
     world->wheels           = wheels;
     world->rgb_led_sequence = rgb_led_sequence;
 
-    // Signals
-    struct SignalCallback papps_callback = {
-        .entry_condition_high_duration_ms = PAPPS_ENTRY_HIGH_MS,
-        .exit_condition_high_duration_ms  = PAPPS_EXIT_HIGH_MS,
-        .function                         = papps_alarm_callback,
-    };
-    struct Signal *papps_alarm_signal =
-        App_SharedSignal_Create(0, is_papps_alarm_active, is_papps_and_sapps_alarm_inactive, world, papps_callback);
-    App_RegisterSignal(world, papps_alarm_signal);
-
-    struct SignalCallback sapps_callback = {
-        .entry_condition_high_duration_ms = SAPPS_ENTRY_HIGH_MS,
-        .exit_condition_high_duration_ms  = SAPPS_EXIT_HIGH_MS,
-        .function                         = sapps_alarm_callback,
-    };
-    struct Signal *sapps_alarm_signal =
-        App_SharedSignal_Create(0, is_sapps_alarm_active, is_papps_and_sapps_alarm_inactive, world, sapps_callback);
-    App_RegisterSignal(world, sapps_alarm_signal);
-
-    struct SignalCallback apps_callback = {
-        .entry_condition_high_duration_ms = APPS_ENTRY_HIGH_MS,
-        .exit_condition_high_duration_ms  = APPS_EXIT_HIGH_MS,
-        .function                         = apps_disagreement_callback,
-    };
-    struct Signal *apps_disagreement_signal =
-        App_SharedSignal_Create(0, has_apps_disagreement, has_apps_agreement, world, apps_callback);
-    App_RegisterSignal(world, apps_disagreement_signal);
-
-    struct SignalCallback apps_and_brake_callback = {
-        .entry_condition_high_duration_ms = APPS_AND_BRAKE_ENTRY_HIGH_MS,
-        .exit_condition_high_duration_ms  = APPS_AND_BRAKE_EXIT_HIGH_MS,
-        .function                         = apps_and_brake_plausibility_failure_callback,
-    };
-    struct Signal *apps_and_brake_plausibility_check_signal = App_SharedSignal_Create(
-        0, has_apps_and_brake_plausibility_failure, is_apps_and_brake_plausibility_ok, world, apps_and_brake_callback);
-    App_RegisterSignal(world, apps_and_brake_plausibility_check_signal);
-
-    struct SignalCallback flow_rate_callback = { .entry_condition_high_duration_ms = FLOW_METER_ENTRY_HIGH_MS,
-                                                 .exit_condition_high_duration_ms  = FLOW_METER_EXIT_HIGH_MS,
-                                                 .function = flow_rate_below_threshold_callback };
-    struct Signal *       flow_rate_signal =
-        App_SharedSignal_Create(0, is_flow_rate_below_threshold, is_flow_rate_in_range, world, flow_rate_callback);
-    App_RegisterSignal(world, flow_rate_signal);
-
     return world;
 }
 

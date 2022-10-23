@@ -117,16 +117,6 @@ struct Wheels *App_FsmWorld_GetWheels(const struct FsmWorld *const world);
 struct RgbLedSequence *App_FsmWorld_GetRgbLedSequence(const struct FsmWorld *world);
 
 /**
- * Update the registered signals in the given world
- * @note This function should be called periodically. And since the time
- *       resolution of the signal library is in milliseconds, it would make
- *       sense to call this function at 1kHz.
- * @param world The world to update registered signals for
- * @param current_time_ms The current time, in milliseconds
- */
-void App_FsmWorld_UpdateSignals(const struct FsmWorld *world, uint32_t current_time_ms);
-
-/**
  * Get the clock for the given world
  * @param world The world to get clock for
  * @return The clock for the given world

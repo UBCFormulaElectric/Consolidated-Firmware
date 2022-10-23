@@ -910,7 +910,6 @@ void RunTask1kHz(void const *argument)
         const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
 
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
-        App_FsmWorld_UpdateSignals(world, task_start_ms);
         Io_CanTx_EnqueuePeriodicMsgs(can_tx, task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the
