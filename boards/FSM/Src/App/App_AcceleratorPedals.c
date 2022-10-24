@@ -2,7 +2,11 @@
 #include <stdlib.h>
 #include "App_AcceleratorPedals.h"
 #include "App_AcceleratorPedalSignals.h"
+
+//config
 #include "configs/App_SignalCallbackDurations.h"
+
+#include "App_SharedSignal.h"
 
 struct AcceleratorPedals
 {
@@ -11,17 +15,10 @@ struct AcceleratorPedals
     float (*get_primary_pedal_percent)(void);
     float (*get_secondary_pedal_percent)(void);
 
-    TimerChannel *app_agreement_entry_timer;
-    TimerChannel *app_agreement_exit_timer;
-
-    TimerChannel *app_break_plausability_entry_timer;
-    TimerChannel *app_break_plausability_exit_timer;
-
-    TimerChannel *papp_alarm_entry_timer;
-    TimerChannel *papp_alarm_exit_timer;
-
-    TimerChannel *sapp_alarm_entry_timer;
-    TimerChannel *sapp_alarm_exit_timer;
+    struct Signal * app_agreement_signal;
+    struct Signal * app_break_plausability_signal;
+    struct Signal * papp_alarm_signal;
+    struct Signal * sapp_alarm_signal;
 };
 
 /**
@@ -149,17 +146,10 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
     accelerator_pedals->get_primary_pedal_percent         = get_primary_pedal_percent;
     accelerator_pedals->get_secondary_pedal_percent       = get_secondary_pedal_percent;
 
-    App_Timer_InitTimer(accelerator_pedals->app_agreement_entry_timer, APPS_ENTRY_HIGH_MS);
-    App_Timer_InitTimer(accelerator_pedals->app_agreement_exit_timer, APPS_EXIT_HIGH_MS);
-
-    App_Timer_InitTimer(accelerator_pedals->app_break_plausability_entry_timer, APPS_AND_BRAKE_ENTRY_HIGH_MS);
-    App_Timer_InitTimer(accelerator_pedals->app_break_plausability_exit_timer, APPS_AND_BRAKE_EXIT_HIGH_MS);
-
-    App_Timer_InitTimer(accelerator_pedals->papp_alarm_entry_timer, PAPPS_ENTRY_HIGH_MS);
-    App_Timer_InitTimer(accelerator_pedals->papp_alarm_exit_timer, PAPPS_EXIT_HIGH_MS);
-
-    App_Timer_InitTimer(accelerator_pedals->sapp_alarm_entry_timer, SAPPS_ENTRY_HIGH_MS);
-    App_Timer_InitTimer(accelerator_pedals->sapp_alarm_exit_timer, SAPPS_EXIT_HIGH_MS);
+    accelerator_pedals->app_agreement_signal = App_SharedSignal_Create(APPS_ENTRY_HIGH_MS, APPS_EXIT_HIGH_MS);
+    accelerator_pedals->app_break_plausability_signal = App_SharedSignal_Create(APPS_AND_BRAKE_ENTRY_HIGH_MS, APPS_AND_BRAKE_EXIT_HIGH_MS);
+    accelerator_pedals->papp_alarm_signal = App_SharedSignal_Create(PAPPS_ENTRY_HIGH_MS, PAPPS_EXIT_HIGH_MS);
+    accelerator_pedals->sapp_alarm_signal = App_SharedSignal_Create(SAPPS_ENTRY_HIGH_MS ,SAPPS_EXIT_HIGH_MS);
 
     return accelerator_pedals;
 }
@@ -193,40 +183,6 @@ float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct Accelerator
         */
 }
 
-TimerChannel *App_AcceleratorPedals_GetAppAgreementEntryTimer(const struct AcceleratorPedals *accelerator_pedals)
-{
-    return accelerator_pedals->app_agreement_entry_timer;
-}
-TimerChannel *App_AcceleratorPedals_GetAppAgreementExitTimer(const struct AcceleratorPedals *accelerator_pedals)
-{
-    return accelerator_pedals->app_agreement_exit_timer;
-}
-TimerChannel *
-    App_AcceleratorPedals_GetAppBreakPlausabilityEntryTimer(const struct AcceleratorPedals *accelerator_pedals)
-{
-    return accelerator_pedals->app_break_plausability_entry_timer;
-}
-TimerChannel *App_AcceleratorPedals_GetAppBreakPlausabilityExitTimer(const struct AcceleratorPedals *accelerator_pedals)
-{
-    return accelerator_pedals->app_break_plausability_exit_timer;
-}
-TimerChannel *App_AcceleratorPedals_PappAlarmEntryTimer(const struct AcceleratorPedals *accelerator_pedals)
-{
-    return accelerator_pedals->papp_alarm_entry_timer;
-}
-TimerChannel *App_AcceleratorPedals_SappAlarmEntryTimer(const struct AcceleratorPedals *accelerator_pedals)
-{
-    return accelerator_pedals->sapp_alarm_exit_timer;
-}
-TimerChannel *App_AcceleratorPedals_PappAlarmExitTimer(const struct AcceleratorPedals *accelerator_pedals)
-{
-    return accelerator_pedals->papp_alarm_entry_timer;
-}
-TimerChannel *App_AcceleratorPedals_SappAlarmExitTimer(const struct AcceleratorPedals *accelerator_pedals)
-{
-    return accelerator_pedals->sapp_alarm_exit_timer;
-}
-
 void App_AcceleratorPedals_Broadcast(
     struct FsmCanTxInterface *can_tx,
     struct AcceleratorPedals *accelerator_pedals,
@@ -235,20 +191,22 @@ void App_AcceleratorPedals_Broadcast(
     const float papps_pedal_percentage = App_AcceleratorPedals_GetPrimaryPedalPercentage(accelerator_pedals);
     const float sapps_pedal_percentage = App_AcceleratorPedals_GetSecondaryPedalPercentage(accelerator_pedals);
 
-    // init timers
-    TimerState app_agreement_entry_timer_state = App_Timer_RunIfCondition(
-        App_AcceleratorPedals_GetAppAgreementEntryTimer(accelerator_pedals),
-        App_AcceleratorPedalSignals_HasAppsDisagreement(accelerator_pedals));
-    TimerState app_agreement_exit_timer_state = App_Timer_RunIfCondition(
-        App_AcceleratorPedals_GetAppAgreementExitTimer(accelerator_pedals),
-        !App_AcceleratorPedalSignals_HasAppsDisagreement(accelerator_pedals));
+    //update signals
+    SignalState app_agreement_signal_state = App_SharedSignal_Update(accelerator_pedals->app_agreement_signal,
+        (accelerator_pedals->get_primary_pedal_percent() - accelerator_pedals->get_secondary_pedal_percent()) > 10.f,
+        (accelerator_pedals->get_primary_pedal_percent() - accelerator_pedals->get_secondary_pedal_percent()) <= 10.f);
+    SignalState papp_signal_state = App_SharedSignal_Update(accelerator_pedals->papp_alarm_signal,
+        accelerator_pedals->is_primary_encoder_alarm_active(),
+        !(accelerator_pedals->is_primary_encoder_alarm_active() || accelerator_pedals->is_secondary_encoder_alarm_active));
+    SignalState sapp_signal_state = App_SharedSignal_Update(accelerator_pedals->sapp_alarm_signal,
+        accelerator_pedals->is_secondary_encoder_alarm_active(),
+         !(accelerator_pedals->is_primary_encoder_alarm_active() || accelerator_pedals->is_secondary_encoder_alarm_active));
 
     // primary check if brake on, safety
     if (App_Brake_IsBrakeActuated(brake))
         // SHUTDOWN
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
-    else if (
-        app_agreement_entry_timer_state == TIMER_STATE_EXPIRED || app_agreement_exit_timer_state == TIMER_STATE_RUNNING)
+    else if (app_agreement_signal_state == SIGNAL_EXIT_HIGH)
     {
         // SHUTDOWN
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
@@ -256,14 +214,33 @@ void App_AcceleratorPedals_Broadcast(
         App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(
             can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_TRUE_CHOICE);
     }
-    else
-    {
+    else if(app_agreement_signal_state == SIGNAL_ENTRY_HIGH){
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, papps_pedal_percentage);
-        if (app_agreement_exit_timer_state == TIMER_STATE_EXPIRED)
-            App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(
-                can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE);
+        App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT( can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE);
+    }
+    else{
+        //SIGNAL FAILURE??
     }
 
-    // secondary pedal just send raw information
     App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, sapps_pedal_percentage);
+
+    if(papp_signal_state == SIGNAL_ENTRY_HIGH){
+        App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
+        App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
+        App_CanTx_SetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE);
+    }else if(papp_signal_state == SIGNAL_EXIT_HIGH){
+        App_CanTx_SetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE);
+    }
+    else{
+        //signal failure?
+    }
+    if(sapp_signal_state == SIGNAL_ENTRY_HIGH){
+        App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
+        App_CanTx_SetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE);
+    } else if(sapp_signal_state == SIGNAL_EXIT_HIGH){
+        App_CanTx_SetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE);
+    }
+    else{
+        //signal failure?
+    }
 }
