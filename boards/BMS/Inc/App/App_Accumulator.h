@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include "App_SharedConstants.h"
+#include "App_CanTx.h"
 
 struct Accumulator;
 
@@ -102,4 +103,7 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *accumulator);
  * @param accumulator The accumulator to check faults
  * @return True if faults present, false otherwise
  */
-bool App_Check_Accumulator_CheckFaults(struct Accumulator *accumulator);
+bool App_Check_Accumulator_CheckFaults(
+    struct BmsCanTxInterface * can_tx,
+    struct Accumulator *const  accumulator,
+    bool isChargeState);

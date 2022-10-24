@@ -75,10 +75,9 @@ float App_TractiveSystem_GetPower(struct TractiveSystem *ts)
     return App_TractiveSystem_GetVoltage(ts) * App_TractiveSystem_GetLowResCurrent(ts);
 }
 
-bool App_TractveSystem_CheckFaults(
-    struct BmsCanTxInterface *can_tx,
-    struct TractiveSystem *ts,
-    struct StateMachine *state_machine)
-{
-
-}
+// bool App_TractveSystem_CheckFaults(
+//    struct BmsCanTxInterface *can_tx,
+//    struct TractiveSystem *   ts,
+//    struct StateMachine *     state_machine)
+//{
+//}
