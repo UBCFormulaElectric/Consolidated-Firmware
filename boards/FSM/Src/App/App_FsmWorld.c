@@ -38,11 +38,7 @@ struct FsmWorld *App_FsmWorld_Create(
     struct Steering *const          steering,
     struct Wheels *const            wheels,
 
-    struct RgbLedSequence *const rgb_led_sequence,
-
-    bool (*const is_flow_rate_below_threshold)(struct FsmWorld *),
-    bool (*const is_flow_rate_in_range)(struct FsmWorld *),
-    void (*const flow_rate_below_threshold_callback)(struct FsmWorld *))
+    struct RgbLedSequence *const rgb_led_sequence)
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
     assert(world != NULL);

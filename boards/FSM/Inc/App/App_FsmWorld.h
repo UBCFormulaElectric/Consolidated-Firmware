@@ -40,11 +40,7 @@ struct FsmWorld *App_FsmWorld_Create(
     struct Steering *         steering,
     struct Wheels *           wheels,
 
-    struct RgbLedSequence *rgb_led_sequence,
-
-    bool (*is_flow_rate_below_threshold)(struct FsmWorld *),
-    bool (*is_flow_rate_in_range)(struct FsmWorld *),
-    void (*flow_rate_below_threshold_callback)(struct FsmWorld *));
+    struct RgbLedSequence *rgb_led_sequence);
 
 /**
  * Deallocate the memory used by the given world

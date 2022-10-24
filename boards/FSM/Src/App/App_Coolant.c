@@ -4,6 +4,7 @@
 #include "App_Coolant.h"
 #include "App_InRangeCheck.h"
 #include "configs/App_FlowRateThresholds.h"
+#include "configs/App_SignalCallbackDurations.h"
 
 #include "App_SharedSetPeriodicCanSignals.h"
 STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(FsmCanTxInterface)
@@ -15,9 +16,10 @@ struct Coolant
 
     float (*get_temperature_A)(void);
     float (*get_temperature_B)(void);
-
     float (*get_pressure_A)(void);
     float (*get_pressure_B)(void);
+
+    struct Signal* flow_in_range;
 };
 
 struct Coolant *App_Coolant_Create(
@@ -40,26 +42,42 @@ struct Coolant *App_Coolant_Create(
     // Pressure
     coolant->get_pressure_A = get_pressure_A;
     coolant->get_pressure_B = get_pressure_B;
+
+    coolant->flow_in_range = App_SharedSignal_Create(FLOW_METER_ENTRY_HIGH_MS, FLOW_METER_EXIT_HIGH_MS);
+
     return coolant;
+}
+
+void App_Coolant_Broadcast(struct FsmCanTxInterface *can_tx, struct Coolant *coolant)
+{
+    App_SetPeriodicCanSignals_InRangeCheck(
+        can_tx, coolant->flow_rate_in_range_check, App_CanTx_SetPeriodicSignal_FLOW_RATE,
+        App_CanTx_SetPeriodicSignal_FLOW_RATE_OUT_OF_RANGE,
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_OK_CHOICE,
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
+        CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+
+    float                    flow_rate;
+    enum InRangeCheck_Status flow_rate_inRangeCheck_status =
+        App_InRangeCheck_GetValue(coolant->flow_rate_in_range_check, &flow_rate);
+    SignalState flow_in_range_signal_state = App_SharedSignal_Update(
+        coolant->flow_in_range, flow_rate_inRangeCheck_status == VALUE_UNDERFLOW,
+        flow_rate_inRangeCheck_status == VALUE_IN_RANGE);
+
+    if (flow_in_range_signal_state == SIGNAL_ENTRY_HIGH)
+        App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(
+            can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_TRUE_CHOICE);
+    else if (flow_in_range_signal_state == SIGNAL_EXIT_HIGH)
+        App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(
+            can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE);
+    else
+    {
+        // signal failure
+    }
 }
 
 void App_Coolant_Destroy(struct Coolant *coolant)
 {
     App_InRangeCheck_Destroy(coolant->flow_rate_in_range_check);
     free(coolant);
-}
-
-struct InRangeCheck *App_Coolant_GetFlowInRangeCheck(struct Coolant *coolant)
-{
-    return coolant->flow_rate_in_range_check;
-}
-
-void App_Coolant_Broadcast(struct FsmCanTxInterface *can_tx, struct Coolant *coolant)
-{
-    App_SetPeriodicCanSignals_InRangeCheck(
-        can_tx, App_Coolant_GetFlowInRangeCheck(coolant), App_CanTx_SetPeriodicSignal_FLOW_RATE,
-        App_CanTx_SetPeriodicSignal_FLOW_RATE_OUT_OF_RANGE,
-        CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_OK_CHOICE,
-        CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
-        CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }

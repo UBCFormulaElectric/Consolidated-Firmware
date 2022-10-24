@@ -17,15 +17,8 @@ struct Signal;
 
 /**
  * Allocate and initialize a signal
- * @param initial_time_ms The initial time, in milliseconds, used to initialize
- *                        the internal state of the signal
- * @param is_entry_condition_high A function that can be called to check if the
- * entry condition for the signal is high
- * @param is_exit_condition_high A function that can be called to check if the
- * exit condition for the signal is high
- * @param world The world associated with the entry and exit conditions for the
- * signal
- * @param callback The signal callback for the signal
+ * @param entry_time Amount of time required for the enter condition to be true to enter it
+ * @param exit_time Amount of time required for the exit condition to be true to enter it
  * @return The created signal, whose ownership is given to the caller
  */
 struct Signal *App_SharedSignal_Create(

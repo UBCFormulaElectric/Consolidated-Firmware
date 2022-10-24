@@ -51,7 +51,6 @@
 #include "App_SharedStateMachine.h"
 
 // Sensors
-#include "App_FlowMeterSignals.h"
 #include "App_Coolant.h"
 #include "App_Steering.h"
 #include "App_Wheels.h"
@@ -243,10 +242,7 @@ int main(void)
     coolant = App_Coolant_Create(
         Io_FlowMeters_GetFlowRate, Io_GetTemperatureA, Io_GetTemperatureB, Io_GetPressureA, Io_GetPressureB);
 
-    world = App_FsmWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, clock, papps_and_sapps, brake, coolant, steering, wheels, rgb_led_sequence,
-        App_FlowMetersSignals_IsPrimaryFlowRateBelowThreshold, App_FlowMetersSignals_IsFlowRateInRange,
-        App_FlowMetersSignals_FlowRateBelowThresholdCallback);
+    world = App_FsmWorld_Create(can_tx, can_rx, heartbeat_monitor, clock, papps_and_sapps, brake, coolant, steering, wheels, rgb_led_sequence);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAllStates());
     ///=============================================IMPORTANT CODE END=============================================
