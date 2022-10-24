@@ -1,8 +1,12 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <stdbool.h>
+#include "App_TractiveSystem.h"
 
 #define HIGH_RES_MAX_CURRENT_READING (50.0f)
+
+#define MAX_TS_CHARGE_CURRENT_AMPS (70.8f)
+#define MAX_TS_DISCHARGE_CURRENT_AMPS (265.5f)
 
 struct TractiveSystem
 {
@@ -75,9 +79,23 @@ float App_TractiveSystem_GetPower(struct TractiveSystem *ts)
     return App_TractiveSystem_GetVoltage(ts) * App_TractiveSystem_GetLowResCurrent(ts);
 }
 
-// bool App_TractveSystem_CheckFaults(
-//    struct BmsCanTxInterface *can_tx,
-//    struct TractiveSystem *   ts,
-//    struct StateMachine *     state_machine)
-//{
-//}
+bool App_TractveSystem_CheckFaults(struct BmsCanTxInterface *can_tx, struct TractiveSystem *ts, bool isChargeState)
+{
+    bool  ts_overcurrent_fault     = false;
+    float max_allowable_ts_current = MAX_TS_DISCHARGE_CURRENT_AMPS;
+
+    // if we are charging, max ts current is 70.8A not 265.5A
+    if (isChargeState)
+    {
+        max_allowable_ts_current = MAX_TS_CHARGE_CURRENT_AMPS;
+    }
+
+    if (App_TractiveSystem_GetCurrent(ts) >= max_allowable_ts_current)
+    {
+        ts_overcurrent_fault = true;
+    }
+
+    App_CanTx_SetPeriodicSignal_TS_CURRENT_OUT_OF_RANGE(can_tx, ts_overcurrent_fault);
+
+    return ts_overcurrent_fault;
+}

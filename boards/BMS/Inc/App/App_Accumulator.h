@@ -100,10 +100,12 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *accumulator);
 
 /**
  * Check the status of Accumulator faults, sends warning over CAN bus
+ * @param can_tx CAN interface to send messages over
  * @param accumulator The accumulator to check faults
+ * @param isChargeState Flag to signal if currently in charge state
  * @return True if faults present, false otherwise
  */
 bool App_Check_Accumulator_CheckFaults(
-    struct BmsCanTxInterface * can_tx,
-    struct Accumulator *const  accumulator,
-    bool isChargeState);
+    struct BmsCanTxInterface *can_tx,
+    struct Accumulator *const accumulator,
+    bool                      isChargeState);
