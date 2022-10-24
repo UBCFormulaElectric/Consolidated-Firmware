@@ -9,13 +9,11 @@ struct Brake;
  * Allocate and initialize a brake
  * @param get_primary_pressure_psi A function that returns the brake pressure in psi from the primary sensor
  * @param get_secondary_pressure_psi A function that returns the brake pressure in psi from the secondary sensor
- * @param is_pressure_sensor_open_or_short_circuit A function that checks
- * whether the pressure sensor is in an open or short circuit state
+ * @param is_primary_pressure_sensor_open_or_short_circuit A function that checks whether the primary pressure sensor is in an open or short circuit state
+ * @param is_secondary_pressure_sensor_open_or_short_circuit A function that checks whether the secondary pressure sensor is in an open or short circuit state
+ * @param pedal_angle A function that returns the brake pedal angle in radians
+ * @param is_pedal_angle_sensor_open_or_short_circuit A function that checks whether the pedal angle sensor is in an open or short circuit state
  * @param is_brake_actuated A function that checks whether the brake is actuated
- * @param min_pressure_psi The minimum brake pressure in psi that can be read
- * from the brake pressure sensor
- * @param max_pressure_psi The maximum brake pressure in psi that can be read
- * from the brake pressure sensor
  * @return The created brake whose ownership is given to the caller
  */
 struct Brake *App_Brake_Create(
