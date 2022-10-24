@@ -2,7 +2,6 @@
 
 #include <stm32f3xx_hal.h>
 
-
 //==========FLOW METER==========
 /**
  * Initializes the primary and secondary flow meter
@@ -45,7 +44,6 @@ void Io_FlowMeters_CheckIfFlowMeterIsActive(void);
  *       for the PWM signal of the primary flow meter.
  */
 void Io_FlowMeters_CheckIfSecondaryIsActive(void);
-
 
 //==========TEMPERATURE SENSORS==========
 /**

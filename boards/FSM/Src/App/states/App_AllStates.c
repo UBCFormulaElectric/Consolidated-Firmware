@@ -89,16 +89,19 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE);
     App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(
         can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE);
-    // App_CanTx_SetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_FALSE_CHOICE);
+    // App_CanTx_SetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(can_tx,
+    // CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_FALSE_CHOICE);
     App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(
         can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE);
 }
 
-void App_AllStatesRunOnExit(struct StateMachine *const state_machine){
+void App_AllStatesRunOnExit(struct StateMachine *const state_machine)
+{
     UNUSED(state_machine);
 }
 
-const struct State *App_GetAllStates(void){
+const struct State *App_GetAllStates(void)
+{
     static struct State all_states = {
         .name              = "ALL STATES",
         .run_on_entry      = App_AllStatesRunOnEntry,

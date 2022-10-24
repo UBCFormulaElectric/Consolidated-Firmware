@@ -2,7 +2,6 @@
 
 #include "App_SharedStateMachine.h"
 
-
 void App_AllStatesRunOnEntry(struct StateMachine *const state_machine);
 
 /**
@@ -27,4 +26,4 @@ void App_AllStatesRunOnExit(struct StateMachine *const state_machine);
  * Get a pointer to the ALL STATE
  * @return A pointer to the ALL STATE
  */
-const struct State * App_GetAllStates(void);
+const struct State *App_GetAllStates(void);

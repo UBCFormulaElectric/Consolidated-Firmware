@@ -237,8 +237,7 @@ int main(void)
     brake = App_Brake_Create(
         Io_MSP3002K5P3N1_GetPressurePsi, Io_RearBrake_GetPressurePsi, Io_MSP3002K5P3N1_IsOpenOrShortCircuit,
         Io_RearBrake_IsOpenOrShortCircuit, Io_BrakePedal_GetAngle, IO_BrakePedal_IsOpenOrShortCircuit,
-        Io_Brake_IsActuated
-    );
+        Io_Brake_IsActuated);
     // Coolants
     Io_FlowMeters_Init(&htim4);
     coolant = App_Coolant_Create(
@@ -247,8 +246,7 @@ int main(void)
     world = App_FsmWorld_Create(
         can_tx, can_rx, heartbeat_monitor, clock, papps_and_sapps, brake, coolant, steering, wheels, rgb_led_sequence,
         App_FlowMetersSignals_IsPrimaryFlowRateBelowThreshold, App_FlowMetersSignals_IsFlowRateInRange,
-        App_FlowMetersSignals_FlowRateBelowThresholdCallback
-    );
+        App_FlowMetersSignals_FlowRateBelowThresholdCallback);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAllStates());
     ///=============================================IMPORTANT CODE END=============================================

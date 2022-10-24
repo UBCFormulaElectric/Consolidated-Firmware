@@ -3,13 +3,12 @@
 #include "App_FsmWorld.h"
 
 // Activity Checks
-//1. check if the alarms are active
-//2. check if primary and secondary are within 10% of each other
-//3. Brake + Accelerator Pedal Double Pushing
+// 1. check if the alarms are active
+// 2. check if primary and secondary are within 10% of each other
+// 3. Brake + Accelerator Pedal Double Pushing
 
-//activate entry for enough time = error
-//corrected = exit for enough time.
-
+// activate entry for enough time = error
+// corrected = exit for enough time.
 
 // papp entry/callback
 bool App_AcceleratorPedalSignals_IsPappsAlarmActive(struct FsmWorld *world)
@@ -76,9 +75,10 @@ void App_AcceleratorPedalSignals_AppsAndBrakePlausibilityFailureCallback(struct 
 
 // disagreement between primary and secondary sensors
 // Diff > 10% = High, <= 10 = Low
-//entry/exit/callback
-bool App_AcceleratorPedalSignals_HasAppsDisagreement(const struct AcceleratorPedals *papps_and_sapps){
+// entry/exit/callback
+bool App_AcceleratorPedalSignals_HasAppsDisagreement(const struct AcceleratorPedals *papps_and_sapps)
+{
     return fabsf(
-            App_AcceleratorPedals_GetPrimaryPedalPercentage(papps_and_sapps) -
-            App_AcceleratorPedals_GetSecondaryPedalPercentage(papps_and_sapps)) > 10.0f;
+               App_AcceleratorPedals_GetPrimaryPedalPercentage(papps_and_sapps) -
+               App_AcceleratorPedals_GetSecondaryPedalPercentage(papps_and_sapps)) > 10.0f;
 }

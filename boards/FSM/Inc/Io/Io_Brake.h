@@ -22,7 +22,7 @@ bool Io_MSP3002K5P3N1_IsOpenOrShortCircuit(void);
  */
 float Io_MSP3002K5P3N1_GetPressurePsi(void);
 
-//TODO Update descriptions
+// TODO Update descriptions
 /**
  * Check if the [REAR BRAKE PRESSURE SENSOR] is in an open circuit or short circuit
  * state.
@@ -36,7 +36,6 @@ bool Io_RearBrake_IsOpenOrShortCircuit(void);
  */
 float Io_RearBrake_GetPressurePsi(void);
 
-
 /**
  * Check if the [BRAKE PEDAL ANGLE SENSOR] is in an open circuit or short circuit
  * state.
@@ -46,5 +45,5 @@ float Io_RearBrake_GetPressurePsi(void);
 bool IO_BrakePedal_IsOpenOrShortCircuit(void);
 /**
  * @return the angle of the brake pedal in radians.
-*/
+ */
 float Io_BrakePedal_GetAngle(void);

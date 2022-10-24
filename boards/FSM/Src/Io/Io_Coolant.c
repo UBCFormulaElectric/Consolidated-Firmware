@@ -4,7 +4,7 @@
 
 //==========FLOW METER==========
 static struct FreqOnlyPwmInput *flow_meter;
-void Io_FlowMeters_Init(TIM_HandleTypeDef *htim)
+void                            Io_FlowMeters_Init(TIM_HandleTypeDef *htim)
 {
     assert(htim != NULL);
 
@@ -29,17 +29,21 @@ void Io_FlowMeters_CheckIfFlowMeterIsActive(void)
 }
 
 //==========TEMPERATURE SENSORS==========
-float Io_GetTemperatureA(void){
+float Io_GetTemperatureA(void)
+{
     return 1;
 }
-float Io_GetTemperatureB(void){
+float Io_GetTemperatureB(void)
+{
     return 1;
 }
 
 //==========PRESSURE SENSORS==========
-float Io_GetPressureA(void){
+float Io_GetPressureA(void)
+{
     return 1;
 }
-float Io_GetPressureB(void){
+float Io_GetPressureB(void)
+{
     return 1;
 }

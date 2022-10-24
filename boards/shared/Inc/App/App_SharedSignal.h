@@ -26,10 +26,9 @@ struct Signal;
 struct Signal *App_SharedSignal_Create(
     bool (*is_entry_condition_high)(struct World *),
     bool (*is_exit_condition_high)(struct World *),
-    struct World * world,
-    uint8_t entry_time,
-    uint8_t exit_time
-);
+    struct World *world,
+    uint8_t       entry_time,
+    uint8_t       exit_time);
 
 /**
  * Update the internal state of the given signal. If the entry condition for the
@@ -45,7 +44,7 @@ struct Signal *App_SharedSignal_Create(
  */
 void App_SharedSignal_Update(struct Signal *signal, uint32_t current_time_ms);
 
-//Getters
+// Getters
 /**
  * Check if the callback function for the given signal is triggered
  * @param signal The signal to check if the callback function is triggered

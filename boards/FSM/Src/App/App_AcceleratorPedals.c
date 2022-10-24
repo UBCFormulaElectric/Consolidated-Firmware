@@ -11,17 +11,17 @@ struct AcceleratorPedals
     float (*get_primary_pedal_percent)(void);
     float (*get_secondary_pedal_percent)(void);
 
-    TimerChannel * app_agreement_entry_timer;
-    TimerChannel * app_agreement_exit_timer;
+    TimerChannel *app_agreement_entry_timer;
+    TimerChannel *app_agreement_exit_timer;
 
-    TimerChannel * app_break_plausability_entry_timer;
-    TimerChannel * app_break_plausability_exit_timer;
+    TimerChannel *app_break_plausability_entry_timer;
+    TimerChannel *app_break_plausability_exit_timer;
 
-    TimerChannel * papp_alarm_entry_timer;
-    TimerChannel * papp_alarm_exit_timer;
+    TimerChannel *papp_alarm_entry_timer;
+    TimerChannel *papp_alarm_exit_timer;
 
-    TimerChannel * sapp_alarm_entry_timer;
-    TimerChannel * sapp_alarm_exit_timer;
+    TimerChannel *sapp_alarm_entry_timer;
+    TimerChannel *sapp_alarm_exit_timer;
 };
 
 /**
@@ -139,8 +139,8 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
     bool (*is_primary_encoder_alarm_active)(void),
     bool (*is_secondary_encoder_alarm_active)(void),
     float (*get_primary_pedal_percent)(void),
-    float (*get_secondary_pedal_percent)(void)
-){
+    float (*get_secondary_pedal_percent)(void))
+{
     struct AcceleratorPedals *accelerator_pedals = malloc(sizeof(struct AcceleratorPedals));
     assert(accelerator_pedals != NULL);
 
@@ -163,23 +163,28 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
 
     return accelerator_pedals;
 }
-void App_AcceleratorPedals_Destroy(struct AcceleratorPedals *accelerator_pedals){
+void App_AcceleratorPedals_Destroy(struct AcceleratorPedals *accelerator_pedals)
+{
     free(accelerator_pedals);
 }
 
-bool App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(const struct AcceleratorPedals *const accelerator_pedals){
+bool App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(const struct AcceleratorPedals *const accelerator_pedals)
+{
     return accelerator_pedals->is_primary_encoder_alarm_active();
 }
-bool App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(const struct AcceleratorPedals *const accelerator_pedals){
+bool App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(const struct AcceleratorPedals *const accelerator_pedals)
+{
     return accelerator_pedals->is_secondary_encoder_alarm_active();
 }
-float App_AcceleratorPedals_GetPrimaryPedalPercentage(const struct AcceleratorPedals *accelerator_pedals){
+float App_AcceleratorPedals_GetPrimaryPedalPercentage(const struct AcceleratorPedals *accelerator_pedals)
+{
     return accelerator_pedals->get_primary_pedal_percent();
     // return App_GetPedalPercentage_CountDown(
     //    PAPPS_ENCODER_FULLY_PRESSED_VALUE, PAPPS_ENCODER_UNPRESSED_VALUE,
     //    accelerator_pedals->get_primary_encoder_counter_value(), accelerator_pedals->set_primary_encoder_counter);
 }
-float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct AcceleratorPedals *accelerator_pedals){
+float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct AcceleratorPedals *accelerator_pedals)
+{
     return accelerator_pedals->get_primary_pedal_percent();
     /*
     return App_GetPedalPercentage_CountDown(
@@ -188,65 +193,77 @@ float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct Accelerator
         */
 }
 
-TimerChannel * App_AcceleratorPedals_GetAppAgreementEntryTimer(const struct AcceleratorPedals *accelerator_pedals){
+TimerChannel *App_AcceleratorPedals_GetAppAgreementEntryTimer(const struct AcceleratorPedals *accelerator_pedals)
+{
     return accelerator_pedals->app_agreement_entry_timer;
 }
-TimerChannel * App_AcceleratorPedals_GetAppAgreementExitTimer(const struct AcceleratorPedals *accelerator_pedals){
+TimerChannel *App_AcceleratorPedals_GetAppAgreementExitTimer(const struct AcceleratorPedals *accelerator_pedals)
+{
     return accelerator_pedals->app_agreement_exit_timer;
 }
-TimerChannel * App_AcceleratorPedals_GetAppBreakPlausabilityEntryTimer(const struct AcceleratorPedals *accelerator_pedals){
+TimerChannel *
+    App_AcceleratorPedals_GetAppBreakPlausabilityEntryTimer(const struct AcceleratorPedals *accelerator_pedals)
+{
     return accelerator_pedals->app_break_plausability_entry_timer;
 }
-TimerChannel * App_AcceleratorPedals_GetAppBreakPlausabilityExitTimer(const struct AcceleratorPedals *accelerator_pedals){
+TimerChannel *App_AcceleratorPedals_GetAppBreakPlausabilityExitTimer(const struct AcceleratorPedals *accelerator_pedals)
+{
     return accelerator_pedals->app_break_plausability_exit_timer;
 }
-TimerChannel * App_AcceleratorPedals_PappAlarmEntryTimer(const struct AcceleratorPedals *accelerator_pedals){
+TimerChannel *App_AcceleratorPedals_PappAlarmEntryTimer(const struct AcceleratorPedals *accelerator_pedals)
+{
     return accelerator_pedals->papp_alarm_entry_timer;
 }
-TimerChannel * App_AcceleratorPedals_SappAlarmEntryTimer(const struct AcceleratorPedals *accelerator_pedals){
+TimerChannel *App_AcceleratorPedals_SappAlarmEntryTimer(const struct AcceleratorPedals *accelerator_pedals)
+{
     return accelerator_pedals->sapp_alarm_exit_timer;
 }
-TimerChannel * App_AcceleratorPedals_PappAlarmExitTimer(const struct AcceleratorPedals *accelerator_pedals){
+TimerChannel *App_AcceleratorPedals_PappAlarmExitTimer(const struct AcceleratorPedals *accelerator_pedals)
+{
     return accelerator_pedals->papp_alarm_entry_timer;
 }
-TimerChannel * App_AcceleratorPedals_SappAlarmExitTimer(const struct AcceleratorPedals *accelerator_pedals){
+TimerChannel *App_AcceleratorPedals_SappAlarmExitTimer(const struct AcceleratorPedals *accelerator_pedals)
+{
     return accelerator_pedals->sapp_alarm_exit_timer;
 }
 
 void App_AcceleratorPedals_Broadcast(
     struct FsmCanTxInterface *can_tx,
     struct AcceleratorPedals *accelerator_pedals,
-    struct Brake *            brake
-){
+    struct Brake *            brake)
+{
     const float papps_pedal_percentage = App_AcceleratorPedals_GetPrimaryPedalPercentage(accelerator_pedals);
     const float sapps_pedal_percentage = App_AcceleratorPedals_GetSecondaryPedalPercentage(accelerator_pedals);
 
     // init timers
     TimerState app_agreement_entry_timer_state = App_Timer_RunIfCondition(
-            App_AcceleratorPedals_GetAppAgreementEntryTimer(accelerator_pedals),
-            App_AcceleratorPedalSignals_HasAppsDisagreement(accelerator_pedals)
-    );
+        App_AcceleratorPedals_GetAppAgreementEntryTimer(accelerator_pedals),
+        App_AcceleratorPedalSignals_HasAppsDisagreement(accelerator_pedals));
     TimerState app_agreement_exit_timer_state = App_Timer_RunIfCondition(
-            App_AcceleratorPedals_GetAppAgreementExitTimer(accelerator_pedals),
-            !App_AcceleratorPedalSignals_HasAppsDisagreement(accelerator_pedals)
-    );
+        App_AcceleratorPedals_GetAppAgreementExitTimer(accelerator_pedals),
+        !App_AcceleratorPedalSignals_HasAppsDisagreement(accelerator_pedals));
 
-    //primary check if brake on, safety
+    // primary check if brake on, safety
     if (App_Brake_IsBrakeActuated(brake))
         // SHUTDOWN
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
-    else if(app_agreement_entry_timer_state==TIMER_STATE_EXPIRED || app_agreement_exit_timer_state == TIMER_STATE_RUNNING){
+    else if (
+        app_agreement_entry_timer_state == TIMER_STATE_EXPIRED || app_agreement_exit_timer_state == TIMER_STATE_RUNNING)
+    {
         // SHUTDOWN
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
         // reports disagreement
-        App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_TRUE_CHOICE);
+        App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(
+            can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_TRUE_CHOICE);
     }
-    else{
+    else
+    {
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, papps_pedal_percentage);
         if (app_agreement_exit_timer_state == TIMER_STATE_EXPIRED)
-            App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE);
+            App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(
+                can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE);
     }
 
-    //secondary pedal just send raw information
+    // secondary pedal just send raw information
     App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, sapps_pedal_percentage);
 }

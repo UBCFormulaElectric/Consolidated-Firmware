@@ -62,7 +62,8 @@ struct FsmWorld *App_FsmWorld_Create(
     return world;
 }
 
-void App_FsmWorld_Destroy(struct FsmWorld *world){
+void App_FsmWorld_Destroy(struct FsmWorld *world)
+{
     free(world);
 }
 
