@@ -8,6 +8,11 @@
 #error "Please define the 'World' type"
 #endif
 
+typedef enum {
+    SIGNAL_ENTRY_HIGH, // Entry: Alert is now active.
+    SIGNAL_EXIT_HIGH,  // Exit: Alert is not active.
+} SignalState;
+
 struct Signal;
 
 /**
@@ -24,11 +29,9 @@ struct Signal;
  * @return The created signal, whose ownership is given to the caller
  */
 struct Signal *App_SharedSignal_Create(
-    bool (*is_entry_condition_high)(struct World *),
-    bool (*is_exit_condition_high)(struct World *),
-    struct World *world,
-    uint8_t       entry_time,
-    uint8_t       exit_time);
+    uint32_t       entry_time,
+    uint32_t       exit_time
+);
 
 /**
  * Update the internal state of the given signal. If the entry condition for the
@@ -42,7 +45,7 @@ struct Signal *App_SharedSignal_Create(
  * @param signal The signal to update
  * @param current_time_ms The current time, in milliseconds
  */
-void App_SharedSignal_Update(struct Signal *signal, uint32_t current_time_ms);
+SignalState App_SharedSignal_Update(struct Signal *signal, bool entry_condition_high, bool exit_condition_high);
 
 // Getters
 /**
