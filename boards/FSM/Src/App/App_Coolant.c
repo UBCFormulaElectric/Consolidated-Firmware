@@ -19,7 +19,7 @@ struct Coolant
     float (*get_pressure_A)(void);
     float (*get_pressure_B)(void);
 
-    struct Signal* flow_in_range;
+    struct Signal *flow_in_range;
 };
 
 struct Coolant *App_Coolant_Create(

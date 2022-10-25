@@ -13,7 +13,9 @@ struct FsmWorld;
  * @param world The world containing the brake and the primary APPS
  * @return true if the APPS and Brake plausibility check has failed, else false
  */
-bool App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure(struct AcceleratorPedals *papps_and_sapps, struct Brake * brake);
+bool App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure(
+    struct AcceleratorPedals *papps_and_sapps,
+    struct Brake *            brake);
 /**
  * Check if the APPS and Brake plausibility check is OK
  * @note The APPS and brake plausibility check is considered OK when the mapped

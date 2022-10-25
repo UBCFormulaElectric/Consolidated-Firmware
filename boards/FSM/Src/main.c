@@ -242,7 +242,8 @@ int main(void)
     coolant = App_Coolant_Create(
         Io_FlowMeters_GetFlowRate, Io_GetTemperatureA, Io_GetTemperatureB, Io_GetPressureA, Io_GetPressureB);
 
-    world = App_FsmWorld_Create(can_tx, can_rx, heartbeat_monitor, clock, papps_and_sapps, brake, coolant, steering, wheels, rgb_led_sequence);
+    world = App_FsmWorld_Create(
+        can_tx, can_rx, heartbeat_monitor, clock, papps_and_sapps, brake, coolant, steering, wheels, rgb_led_sequence);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAllStates());
     ///=============================================IMPORTANT CODE END=============================================

@@ -4,10 +4,14 @@
 
 // floored accelerator and brake activated (25%+ with break=high, <5% =low)
 //  entry/exit/callback
-bool App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure(struct AcceleratorPedals *papps_and_sapps, struct Brake * brake){
+bool App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure(
+    struct AcceleratorPedals *papps_and_sapps,
+    struct Brake *            brake)
+{
     return App_Brake_IsBrakeActuated(brake) && App_AcceleratorPedals_GetPrimaryPedalPercentage(papps_and_sapps) > 25.0f;
 }
-bool App_AcceleratorPedalSignals_IsAppsAndBrakePlausibilityOk(struct AcceleratorPedals *papps_and_sapps){
+bool App_AcceleratorPedalSignals_IsAppsAndBrakePlausibilityOk(struct AcceleratorPedals *papps_and_sapps)
+{
     return App_AcceleratorPedals_GetPrimaryPedalPercentage(papps_and_sapps) < 5.0f;
 }
 void App_AcceleratorPedalSignals_AppsAndBrakePlausibilityFailureCallback(struct FsmWorld *world)

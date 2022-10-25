@@ -17,14 +17,12 @@ struct Signal
     TimerChannel *exit_timer;
 };
 
-struct Signal *App_SharedSignal_Create(
-    uint32_t       entry_time,
-    uint32_t       exit_time)
+struct Signal *App_SharedSignal_Create(uint32_t entry_time, uint32_t exit_time)
 {
     struct Signal *signal = malloc(sizeof(struct Signal));
     assert(signal != NULL);
 
-    signal->is_callback_triggered   = false;
+    signal->is_callback_triggered = false;
 
     App_Timer_InitTimer(signal->entry_timer, entry_time);
     App_Timer_InitTimer(signal->exit_timer, exit_time);

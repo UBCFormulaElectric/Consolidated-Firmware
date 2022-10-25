@@ -3,7 +3,7 @@
 #include "App_AcceleratorPedals.h"
 #include "App_AcceleratorPedalSignals.h"
 
-//config
+// config
 #include "configs/App_SignalCallbackDurations.h"
 
 #include "App_SharedSignal.h"
@@ -15,10 +15,10 @@ struct AcceleratorPedals
     float (*get_primary_pedal_percent)(void);
     float (*get_secondary_pedal_percent)(void);
 
-    struct Signal * app_agreement_signal;
-    struct Signal * app_break_plausability_signal;
-    struct Signal * papp_alarm_signal;
-    struct Signal * sapp_alarm_signal;
+    struct Signal *app_agreement_signal;
+    struct Signal *app_break_plausability_signal;
+    struct Signal *papp_alarm_signal;
+    struct Signal *sapp_alarm_signal;
 };
 
 /**
@@ -147,9 +147,10 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
     accelerator_pedals->get_secondary_pedal_percent       = get_secondary_pedal_percent;
 
     accelerator_pedals->app_agreement_signal = App_SharedSignal_Create(APPS_ENTRY_HIGH_MS, APPS_EXIT_HIGH_MS);
-    accelerator_pedals->app_break_plausability_signal = App_SharedSignal_Create(APPS_AND_BRAKE_ENTRY_HIGH_MS, APPS_AND_BRAKE_EXIT_HIGH_MS);
+    accelerator_pedals->app_break_plausability_signal =
+        App_SharedSignal_Create(APPS_AND_BRAKE_ENTRY_HIGH_MS, APPS_AND_BRAKE_EXIT_HIGH_MS);
     accelerator_pedals->papp_alarm_signal = App_SharedSignal_Create(PAPPS_ENTRY_HIGH_MS, PAPPS_EXIT_HIGH_MS);
-    accelerator_pedals->sapp_alarm_signal = App_SharedSignal_Create(SAPPS_ENTRY_HIGH_MS ,SAPPS_EXIT_HIGH_MS);
+    accelerator_pedals->sapp_alarm_signal = App_SharedSignal_Create(SAPPS_ENTRY_HIGH_MS, SAPPS_EXIT_HIGH_MS);
 
     return accelerator_pedals;
 }
@@ -191,16 +192,19 @@ void App_AcceleratorPedals_Broadcast(
     const float papps_pedal_percentage = App_AcceleratorPedals_GetPrimaryPedalPercentage(accelerator_pedals);
     const float sapps_pedal_percentage = App_AcceleratorPedals_GetSecondaryPedalPercentage(accelerator_pedals);
 
-    //update signals
-    SignalState app_agreement_signal_state = App_SharedSignal_Update(accelerator_pedals->app_agreement_signal,
+    // update signals
+    SignalState app_agreement_signal_state = App_SharedSignal_Update(
+        accelerator_pedals->app_agreement_signal,
         (accelerator_pedals->get_primary_pedal_percent() - accelerator_pedals->get_secondary_pedal_percent()) > 10.f,
         (accelerator_pedals->get_primary_pedal_percent() - accelerator_pedals->get_secondary_pedal_percent()) <= 10.f);
-    SignalState papp_signal_state = App_SharedSignal_Update(accelerator_pedals->papp_alarm_signal,
-        accelerator_pedals->is_primary_encoder_alarm_active(),
-        !(accelerator_pedals->is_primary_encoder_alarm_active() || accelerator_pedals->is_secondary_encoder_alarm_active));
-    SignalState sapp_signal_state = App_SharedSignal_Update(accelerator_pedals->sapp_alarm_signal,
-        accelerator_pedals->is_secondary_encoder_alarm_active(),
-         !(accelerator_pedals->is_primary_encoder_alarm_active() || accelerator_pedals->is_secondary_encoder_alarm_active));
+    SignalState papp_signal_state = App_SharedSignal_Update(
+        accelerator_pedals->papp_alarm_signal, accelerator_pedals->is_primary_encoder_alarm_active(),
+        !(accelerator_pedals->is_primary_encoder_alarm_active() ||
+          accelerator_pedals->is_secondary_encoder_alarm_active));
+    SignalState sapp_signal_state = App_SharedSignal_Update(
+        accelerator_pedals->sapp_alarm_signal, accelerator_pedals->is_secondary_encoder_alarm_active(),
+        !(accelerator_pedals->is_primary_encoder_alarm_active() ||
+          accelerator_pedals->is_secondary_encoder_alarm_active));
 
     // primary check if brake on, safety
     if (App_Brake_IsBrakeActuated(brake))
@@ -214,33 +218,48 @@ void App_AcceleratorPedals_Broadcast(
         App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(
             can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_TRUE_CHOICE);
     }
-    else if(app_agreement_signal_state == SIGNAL_ENTRY_HIGH){
+    else if (app_agreement_signal_state == SIGNAL_ENTRY_HIGH)
+    {
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, papps_pedal_percentage);
-        App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT( can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE);
+        App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(
+            can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE);
     }
-    else{
-        //SIGNAL FAILURE??
+    else
+    {
+        // SIGNAL FAILURE??
     }
 
     App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, sapps_pedal_percentage);
 
-    if(papp_signal_state == SIGNAL_ENTRY_HIGH){
+    if (papp_signal_state == SIGNAL_ENTRY_HIGH)
+    {
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
         App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
-        App_CanTx_SetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE);
-    }else if(papp_signal_state == SIGNAL_EXIT_HIGH){
-        App_CanTx_SetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE);
+        App_CanTx_SetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(
+            can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE);
     }
-    else{
-        //signal failure?
+    else if (papp_signal_state == SIGNAL_EXIT_HIGH)
+    {
+        App_CanTx_SetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(
+            can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE);
     }
-    if(sapp_signal_state == SIGNAL_ENTRY_HIGH){
+    else
+    {
+        // signal failure?
+    }
+    if (sapp_signal_state == SIGNAL_ENTRY_HIGH)
+    {
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
-        App_CanTx_SetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE);
-    } else if(sapp_signal_state == SIGNAL_EXIT_HIGH){
-        App_CanTx_SetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE);
+        App_CanTx_SetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(
+            can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE);
     }
-    else{
-        //signal failure?
+    else if (sapp_signal_state == SIGNAL_EXIT_HIGH)
+    {
+        App_CanTx_SetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(
+            can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE);
+    }
+    else
+    {
+        // signal failure?
     }
 }

@@ -8,7 +8,8 @@
 #error "Please define the 'World' type"
 #endif
 
-typedef enum {
+typedef enum
+{
     SIGNAL_ENTRY_HIGH, // Entry: Alert is now active.
     SIGNAL_EXIT_HIGH,  // Exit: Alert is not active.
 } SignalState;
@@ -21,10 +22,7 @@ struct Signal;
  * @param exit_time Amount of time required for the exit condition to be true to enter it
  * @return The created signal, whose ownership is given to the caller
  */
-struct Signal *App_SharedSignal_Create(
-    uint32_t       entry_time,
-    uint32_t       exit_time
-);
+struct Signal *App_SharedSignal_Create(uint32_t entry_time, uint32_t exit_time);
 
 /**
  * Update the internal state of the given signal. If the entry condition for the
