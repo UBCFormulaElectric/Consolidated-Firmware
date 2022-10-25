@@ -45,7 +45,7 @@
 #include "Io_SecondaryScancon2RMHF.h"
 
 #include "App_FsmWorld.h"
-#include "states/App_AllStates.h"
+#include "states/App_DriveState.h"
 
 #include "App_SharedMacros.h"
 #include "App_SharedStateMachine.h"
@@ -239,7 +239,7 @@ int main(void)
 
     world = App_FsmWorld_Create(can_tx, can_rx, heartbeat_monitor, papps_and_sapps, brake, coolant, steering, wheels);
 
-    state_machine = App_SharedStateMachine_Create(world, App_GetAllStates());
+    state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
     ///=============================================IMPORTANT CODE END=============================================
 
     Io_StackWaterMark_Init(can_tx);

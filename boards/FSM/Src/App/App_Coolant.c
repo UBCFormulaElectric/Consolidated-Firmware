@@ -48,7 +48,7 @@ struct Coolant *App_Coolant_Create(
     return coolant;
 }
 
-void App_Coolant_Broadcast(struct FsmCanTxInterface *can_tx, struct Coolant *coolant)
+void App_Coolant_Broadcast(struct FsmCanTxInterface *can_tx, struct Coolant *coolant, bool * coolantTriggerShutdown)
 {
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, coolant->flow_rate_in_range_check, App_CanTx_SetPeriodicSignal_FLOW_RATE,
@@ -64,9 +64,11 @@ void App_Coolant_Broadcast(struct FsmCanTxInterface *can_tx, struct Coolant *coo
         coolant->flow_in_range, flow_rate_inRangeCheck_status == VALUE_UNDERFLOW,
         flow_rate_inRangeCheck_status == VALUE_IN_RANGE);
 
-    if (flow_in_range_signal_state == SIGNAL_ENTRY_HIGH)
+    if (flow_in_range_signal_state == SIGNAL_ENTRY_HIGH){
+        *coolantTriggerShutdown = true;
         App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(
             can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_TRUE_CHOICE);
+    }
     else if (flow_in_range_signal_state == SIGNAL_EXIT_HIGH)
         App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(
             can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE);
