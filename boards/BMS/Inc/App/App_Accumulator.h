@@ -105,7 +105,7 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *accumulator);
  * @param isChargeState Flag to signal if currently in charge state
  * @return True if faults present, false otherwise
  */
-bool App_Check_Accumulator_CheckFaults(
+bool App_Accumulator_CheckFaults(
     struct BmsCanTxInterface *can_tx,
     struct Accumulator *const accumulator,
     bool                      isChargeState);

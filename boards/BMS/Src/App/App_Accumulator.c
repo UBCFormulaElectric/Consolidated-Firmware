@@ -204,7 +204,7 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
     }
 }
 
-bool App_Check_Accumulator_CheckFaults(
+bool App_Accumulator_CheckFaults(
     struct BmsCanTxInterface *can_tx,
     struct Accumulator *const accumulator,
     bool                      isChargeState)
@@ -243,20 +243,14 @@ bool App_Check_Accumulator_CheckFaults(
         overtemp_fault = true;
     }
 
-    // This could be combined with the temperature state-check, left separate for readability for now.
-    if (isChargeState)
+    if (App_Accumulator_GetMaxVoltage(accumulator, &max_volt_segment, &max_volt_cell) > MAX_CELL_VOLTAGE_CHARGE)
     {
-        if (App_Accumulator_GetMaxVoltage(accumulator, &max_volt_segment, &max_volt_cell) > MAX_CELL_VOLTAGE_CHARGE)
-        {
-            overvoltage_fault = true;
-        }
+        overvoltage_fault = true;
     }
-    else
+
+    if (App_Accumulator_GetMinVoltage(accumulator, &min_volt_segment, &min_volt_cell) < MIN_CELL_VOLTAGE_DISCHARGE)
     {
-        if (App_Accumulator_GetMinVoltage(accumulator, &min_volt_segment, &min_volt_cell) < MIN_CELL_VOLTAGE_DISCHARGE)
-        {
-            undervoltage_fault = true;
-        }
+        undervoltage_fault = true;
     }
 
     App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE_OUT_OF_RANGE(can_tx, undervoltage_fault);

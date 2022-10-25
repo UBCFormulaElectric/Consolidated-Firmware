@@ -43,12 +43,13 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
 {
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
-        struct BmsWorld *      world       = App_SharedStateMachine_GetWorld(state_machine);
-        struct Clock *         clock       = App_BmsWorld_GetClock(world);
-        struct Airs *          airs        = App_BmsWorld_GetAirs(world);
-        struct Accumulator *   accumulator = App_BmsWorld_GetAccumulator(world);
-        struct Charger *       charger     = App_BmsWorld_GetCharger(world);
-        struct TractiveSystem *ts          = App_BmsWorld_GetTractiveSystem(world);
+        struct BmsWorld *         world       = App_SharedStateMachine_GetWorld(state_machine);
+        struct Clock *            clock       = App_BmsWorld_GetClock(world);
+        struct Airs *             airs        = App_BmsWorld_GetAirs(world);
+        struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
+        struct Charger *          charger     = App_BmsWorld_GetCharger(world);
+        struct TractiveSystem *   ts          = App_BmsWorld_GetTractiveSystem(world);
+        struct BmsCanTxInterface *can_tx      = App_BmsWorld_GetCanTx(world);
 
         float ts_voltage        = App_TractiveSystem_GetVoltage(ts);
         float threshold_voltage = App_Accumulator_GetPackVoltage(accumulator) * PRECHARGE_ACC_V_THRESHOLD;
@@ -62,7 +63,7 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
             (ts_voltage > threshold_voltage) && (elapsed_time <= PRECHARGE_COMPLETION_LOWER_BOUND);
         const bool is_charger_connected = App_Charger_IsConnected(charger);
         const bool has_precharge_fault =
-            (is_charger_connected) ? is_ts_rising_slowly : (is_ts_rising_slowly | is_ts_rising_quickly);
+            App_PrechargeRelay_CheckFaults(can_tx, is_charger_connected, is_ts_rising_slowly, is_ts_rising_quickly);
 
         if (has_precharge_fault)
         {

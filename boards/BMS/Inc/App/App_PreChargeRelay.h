@@ -1,5 +1,9 @@
 #pragma once
 
+#include <stdbool.h>
+#include <stdint.h>
+#include "App_CanTx.h"
+
 struct PrechargeRelay;
 
 /**
@@ -28,3 +32,9 @@ void App_PrechargeRelay_Close(const struct PrechargeRelay *const precharge_relay
  * @param precharge_relay The precharge relay to open
  */
 void App_PrechargeRelay_Open(const struct PrechargeRelay *const precharge_relay);
+
+bool App_PrechargeRelay_CheckFaults(
+    struct BmsCanTxInterface *can_tx,
+    bool                      is_charger_connected,
+    bool                      is_ts_rising_slowly,
+    bool                      is_ts_rising_quickly);

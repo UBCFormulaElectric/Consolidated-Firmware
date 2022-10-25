@@ -51,24 +51,25 @@ static void App_CheckCellVoltageRange(
     struct Accumulator *      accumulator)
 {
     // Get the min and max cell voltages and check to see if the voltages are in range
-    uint8_t     min_segment                = 0U;
-    uint8_t     min_loc                    = 0U;
-    uint8_t     max_segment                = 0U;
-    uint8_t     max_loc                    = 0U;
-    const float curr_min_cell_voltage      = App_Accumulator_GetMinVoltage(accumulator, &min_segment, &min_loc);
-    const float curr_max_cell_voltage      = App_Accumulator_GetMaxVoltage(accumulator, &max_segment, &max_loc);
-    const bool  is_min_cell_v_out_of_range = !IS_IN_RANGE(MIN_CELL_VOLTAGE, MAX_CELL_VOLTAGE, curr_min_cell_voltage);
-    const bool  is_max_cell_v_out_of_range = !IS_IN_RANGE(MIN_CELL_VOLTAGE, MAX_CELL_VOLTAGE, curr_max_cell_voltage);
+    uint8_t     min_segment           = 0U;
+    uint8_t     min_loc               = 0U;
+    uint8_t     max_segment           = 0U;
+    uint8_t     max_loc               = 0U;
+    const float curr_min_cell_voltage = App_Accumulator_GetMinVoltage(accumulator, &min_segment, &min_loc);
+    const float curr_max_cell_voltage = App_Accumulator_GetMaxVoltage(accumulator, &max_segment, &max_loc);
+    //    const bool  is_min_cell_v_out_of_range = !IS_IN_RANGE(MIN_CELL_VOLTAGE, MAX_CELL_VOLTAGE,
+    //    curr_min_cell_voltage); const bool  is_max_cell_v_out_of_range = !IS_IN_RANGE(MIN_CELL_VOLTAGE,
+    //    MAX_CELL_VOLTAGE, curr_max_cell_voltage);
 
-    App_SharedErrorTable_SetError(
-        error_table, BMS_AIR_SHUTDOWN_MIN_CELL_VOLTAGE_OUT_OF_RANGE, is_min_cell_v_out_of_range);
-    App_SharedErrorTable_SetError(
-        error_table, BMS_AIR_SHUTDOWN_MAX_CELL_VOLTAGE_OUT_OF_RANGE, is_max_cell_v_out_of_range);
+    //    App_SharedErrorTable_SetError(
+    //        error_table, BMS_AIR_SHUTDOWN_MIN_CELL_VOLTAGE_OUT_OF_RANGE, is_min_cell_v_out_of_range);
+    //    App_SharedErrorTable_SetError(
+    //        error_table, BMS_AIR_SHUTDOWN_MAX_CELL_VOLTAGE_OUT_OF_RANGE, is_max_cell_v_out_of_range);
 
     App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE(can_tx, curr_min_cell_voltage);
     App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE(can_tx, curr_max_cell_voltage);
-    App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE_OUT_OF_RANGE(can_tx, is_min_cell_v_out_of_range);
-    App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE_OUT_OF_RANGE(can_tx, is_max_cell_v_out_of_range);
+    //    App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE_OUT_OF_RANGE(can_tx, is_min_cell_v_out_of_range);
+    //    App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE_OUT_OF_RANGE(can_tx, is_max_cell_v_out_of_range);
     App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE_SEGMENT(can_tx, min_segment);
     App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE_IDX(can_tx, min_loc);
     App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE_SEGMENT(can_tx, max_segment);
@@ -83,29 +84,30 @@ static void App_CheckCellTemperatureRange(
 {
     // Get the min and max cell temperature and check to see if the temperatures
     // are in range
-    uint8_t     min_segment             = 0U;
-    uint8_t     min_loc                 = 0U;
-    uint8_t     max_segment             = 0U;
-    uint8_t     max_loc                 = 0U;
-    const float curr_min_cell_temp      = App_Accumulator_GetMinCellTempDegC(accumulator, &min_segment, &min_loc);
-    const float curr_max_cell_temp      = App_Accumulator_GetMaxCellTempDegC(accumulator, &max_segment, &max_loc);
-    float       allowable_max_cell_temp = DEFAULT_MAX_CELL_DISCHARGE_TEMP_DEGC;
+    uint8_t     min_segment        = 0U;
+    uint8_t     min_loc            = 0U;
+    uint8_t     max_segment        = 0U;
+    uint8_t     max_loc            = 0U;
+    const float curr_min_cell_temp = App_Accumulator_GetMinCellTempDegC(accumulator, &min_segment, &min_loc);
+    const float curr_max_cell_temp = App_Accumulator_GetMaxCellTempDegC(accumulator, &max_segment, &max_loc);
+    //    float       allowable_max_cell_temp = DEFAULT_MAX_CELL_DISCHARGE_TEMP_DEGC;
 
     // if we are charging, max cell temp is 45C not 60C
-    if (App_SharedStateMachine_GetCurrentState(state_machine) == App_GetChargeState())
-    {
-        allowable_max_cell_temp = DEFAULT_MAX_CELL_DISCHARGE_TEMP_DEGC;
-    }
+    //    if (App_SharedStateMachine_GetCurrentState(state_machine) == App_GetChargeState())
+    //    {
+    //        allowable_max_cell_temp = DEFAULT_MAX_CELL_DISCHARGE_TEMP_DEGC;
+    //    }
 
-    const bool is_min_cell_out_of_range =
-        !IS_IN_RANGE(DEFAULT_MIN_CELL_TEMP_DEGC, allowable_max_cell_temp, curr_min_cell_temp);
-    const bool is_max_cell_out_of_range =
-        !IS_IN_RANGE(DEFAULT_MIN_CELL_TEMP_DEGC, allowable_max_cell_temp, curr_max_cell_temp);
+    //    const bool is_min_cell_out_of_range =
+    //        !IS_IN_RANGE(DEFAULT_MIN_CELL_TEMP_DEGC, allowable_max_cell_temp, curr_min_cell_temp);
+    //    const bool is_max_cell_out_of_range =
+    //        !IS_IN_RANGE(DEFAULT_MIN_CELL_TEMP_DEGC, allowable_max_cell_temp, curr_max_cell_temp);
 
-    App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_MIN_CELL_TEMP_OUT_OF_RANGE, is_min_cell_out_of_range);
-    App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_MAX_CELL_TEMP_OUT_OF_RANGE, is_max_cell_out_of_range);
-    App_CanTx_SetPeriodicSignal_MIN_CELL_TEMP_OUT_OF_RANGE(can_tx, is_min_cell_out_of_range);
-    App_CanTx_SetPeriodicSignal_MAX_CELL_TEMP_OUT_OF_RANGE(can_tx, is_max_cell_out_of_range);
+    //    App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_MIN_CELL_TEMP_OUT_OF_RANGE,
+    //    is_min_cell_out_of_range); App_SharedErrorTable_SetError(error_table,
+    //    BMS_AIR_SHUTDOWN_MAX_CELL_TEMP_OUT_OF_RANGE, is_max_cell_out_of_range);
+    //    App_CanTx_SetPeriodicSignal_MIN_CELL_TEMP_OUT_OF_RANGE(can_tx, is_min_cell_out_of_range);
+    //    App_CanTx_SetPeriodicSignal_MAX_CELL_TEMP_OUT_OF_RANGE(can_tx, is_max_cell_out_of_range);
     App_CanTx_SetPeriodicSignal_MIN_CELL_TEMPERATURE(can_tx, curr_min_cell_temp);
     App_CanTx_SetPeriodicSignal_MAX_CELL_TEMPERATURE(can_tx, curr_max_cell_temp);
     App_CanTx_SetPeriodicSignal_MIN_TEMP_SEGMENT(can_tx, min_segment);
@@ -159,12 +161,15 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     bool           status                = true;
     static uint8_t acc_meas_settle_count = 0U;
+    bool isChargeState = (App_SharedStateMachine_GetCurrentState(state_machine) == App_GetChargeState()) ? true : false;
 
     App_SendAndReceiveHeartbeat(can_tx, can_rx, hb_monitor);
 
     App_Accumulator_RunOnTick100Hz(accumulator);
     App_CheckCellVoltageRange(can_tx, error_table, accumulator);
     App_CheckCellTemperatureRange(can_tx, error_table, accumulator, state_machine);
+    App_Accumulator_CheckFaults(can_tx, accumulator, isChargeState);
+    App_TractveSystem_CheckFaults(can_tx, ts, isChargeState);
 
     const bool has_acc_comms_error = App_Accumulator_HasCommunicationError(accumulator);
     App_CanTx_SetPeriodicSignal_HAS_PEC_ERROR(can_tx, has_acc_comms_error);
