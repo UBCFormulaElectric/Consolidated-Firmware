@@ -16,7 +16,6 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    // OLD ALL STATES CODE
     struct FsmWorld *         world              = App_SharedStateMachine_GetWorld(state_machine);
     struct FsmCanTxInterface *can_tx             = App_FsmWorld_GetCanTx(world);
     struct FsmCanRxInterface *can_rx             = App_FsmWorld_GetCanRx(world);
