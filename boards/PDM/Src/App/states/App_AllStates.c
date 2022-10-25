@@ -14,7 +14,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct PdmCanTxInterface *can_tx     = App_PdmWorld_GetCanTx(world);
     struct PdmCanRxInterface *can_rx     = App_PdmWorld_GetCanRx(world);
     struct HeartbeatMonitor * hb_monitor = App_PdmWorld_GetHeartbeatMonitor(world);
-    //struct LoadSwitches     *load_switch = App_PdmWorld_
+    struct LoadSwitch      * load_switch = App_PdmWorld_GetLoadSwitch(world);
 
     App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
 

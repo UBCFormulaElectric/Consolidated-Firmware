@@ -23,8 +23,9 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         struct PdmWorld *         world      = App_SharedStateMachine_GetWorld(state_machine);
         struct PdmCanTxInterface *can_tx     = App_PdmWorld_GetCanTx(world);
-        struct PdmCanRxInterface *can_rx     = App_BmsWorld_GetCanTx(world);
+        struct PdmCanRxInterface *can_rx     = App_PdmWorld_GetCanTx(world);
         struct HeartbeatMonitor * hb_monitor = App_PdmWorld_GetHeartbeatMonitor(world);
+        struct LoadSwitch       * load_switch= App_PdmWorld_GetLoadSwitch(world);
 
         App_SetPeriodicCanSignals_Imd(can_tx, imd);
 

@@ -6,6 +6,7 @@
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_LowVoltageBattery.h"
+#include "App_LoadSwitch.h"
 #include "App_SharedClock.h"
 
 struct PdmWorld;
@@ -35,6 +36,10 @@ struct PdmWorld *App_PdmWorld_Create(
     struct HeartbeatMonitor * heartbeat_monitor,
     struct RgbLedSequence *   rgb_led_sequence,
     struct LowVoltageBattery *low_voltage_battery,
+    struct LoadSwitch        *load_switch_AIR_LVPWR,
+    struct LoadSwitch        *load_switch_AUX1_AUX2,
+    struct LoadSwitch        *load_switch_DIFRONTLHS_DIFRONTRHS,
+    struct LoadSwitch        *load_switch_DIREARLHS_DIREARRHS,
     struct Clock *            clock);
 
 /**

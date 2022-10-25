@@ -1,8 +1,3 @@
-//
-// Created by formulae on 20/10/22.
-//
+float Io_LoadSwitch_GetCS1Voltage(void);
 
-#ifndef FORMULA_ELECTRIC_FIRMWARE_IO_LOADSWITCH_H
-#define FORMULA_ELECTRIC_FIRMWARE_IO_LOADSWITCH_H
-
-#endif //FORMULA_ELECTRIC_FIRMWARE_IO_LOADSWITCH_H
+float Io_LoadSwitch_GetCS2Voltage(void);
