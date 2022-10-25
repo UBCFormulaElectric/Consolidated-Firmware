@@ -1,7 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "App_AcceleratorPedals.h"
-#include "App_AcceleratorPedalSignals.h"
 
 // config
 #include "configs/App_SignalCallbackDurations.h"
@@ -16,9 +15,10 @@ struct AcceleratorPedals
     float (*get_secondary_pedal_percent)(void);
 
     struct Signal *app_agreement_signal;
-    struct Signal *app_break_plausability_signal;
     struct Signal *papp_alarm_signal;
     struct Signal *sapp_alarm_signal;
+
+    bool AppBreakInplausable;
 };
 
 /**
@@ -147,10 +147,10 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
     accelerator_pedals->get_secondary_pedal_percent       = get_secondary_pedal_percent;
 
     accelerator_pedals->app_agreement_signal = App_SharedSignal_Create(APPS_ENTRY_HIGH_MS, APPS_EXIT_HIGH_MS);
-    accelerator_pedals->app_break_plausability_signal =
-        App_SharedSignal_Create(APPS_AND_BRAKE_ENTRY_HIGH_MS, APPS_AND_BRAKE_EXIT_HIGH_MS);
     accelerator_pedals->papp_alarm_signal = App_SharedSignal_Create(PAPPS_ENTRY_HIGH_MS, PAPPS_EXIT_HIGH_MS);
     accelerator_pedals->sapp_alarm_signal = App_SharedSignal_Create(SAPPS_ENTRY_HIGH_MS, SAPPS_EXIT_HIGH_MS);
+
+    accelerator_pedals->AppBreakInplausable = false;
 
     return accelerator_pedals;
 }
@@ -207,9 +207,19 @@ void App_AcceleratorPedals_Broadcast(
           accelerator_pedals->is_secondary_encoder_alarm_active));
 
     // primary check if brake on, safety
-    if (App_Brake_IsBrakeActuated(brake))
+    if(accelerator_pedals->AppBreakInplausable){
+        if(accelerator_pedals->get_primary_pedal_percent() < 0.05f)
+            accelerator_pedals->AppBreakInplausable = false;
+        else{
+            App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
+            //TODO SIGNAL FOR THIS FAILURE
+        }
+    }
+    else if (App_Brake_IsBrakeActuated(brake) && accelerator_pedals->get_primary_pedal_percent() > 0.25f){
         // SHUTDOWN
+        accelerator_pedals->AppBreakInplausable = true;
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
+    }
     else if (app_agreement_signal_state == SIGNAL_EXIT_HIGH)
     {
         // SHUTDOWN
