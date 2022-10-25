@@ -45,7 +45,7 @@ sudo apt-get install openocd
   * STM32CubeMX: https://www.st.com/en/development-tools/stm32cubemx.html
   * MinGW: https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/installer/mingw-w64-install.exe/download (**select 32-bit verison/i686 architecture**)
   * Java: https://www.java.com/download/ie_manual.jsp
-
+	  * **MAKE SURE YOU HAVE JAVA 8, otherwise STM32CubeMX will not run!
 ##### Mac OS
 First, install Homebrew and CLion. Then install the following programs using Homebrew:
 ```
@@ -55,6 +55,7 @@ brew install --cask clion
 Verify the programs above were installed by running `<program name> --version`.
 Now, we need to install the `arm-none-eabi` compiler toolchain for ARM processors. To avoid bugs associated with different versions, go to the [ARM website](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) and download the *9-2019-q4-major* version (link [here](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads#:~:text=gcc-arm-none-eabi-9-2019-q4-major-mac.tar.bz2)).
 
+##### All Operating Systems
 Then, set up the repo:
 ```
 git lfs install
@@ -64,11 +65,7 @@ pipenv install
 pipenv shell
 git lfs pull
 ```
-Install cube:
-
-`python3 scripts/environment_setup/install_cube.py /usr/local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip`
-
-##### All Operating Systems
+Install cube: `python3 scripts/environment_setup/install_cube.py /usr/local/STM32CubeMX ./tools/en.STM32CubeMX_v5-3-0.zip`
   * J-Link Software and Documentation Pack: https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
     ##### Submodules:
     In the root of the directory run the following command:
@@ -103,6 +100,7 @@ Create a new enviroment variable under your user variables named `PYTHONPATH`. S
 C:\path\to\Consolidated-Firmware-Username
 ```
 
+![[windows path.png]]
 ### Python Package Dependencies
 We use python both for CI (see below), and to generate C code from the `.dbc` defining messages passed over CAN. Python dependencies are managed via [pipenv](https://pipenv.readthedocs.io/en/latest/). To install all required dependencies in a [python virtual environment](https://realpython.com/python-virtual-environments-a-primer/), navigate to the root of this repository and run `pipenv install`.
 
@@ -258,3 +256,4 @@ We follow rate-monotonic scheduling to assign priorities to periodic tasks. This
 The red marking on the ribbon cable indicates pin 1. Align the red marking with the pin 1 marker next to the J-Link mini connector.
 
 <img src="https://github.com/UBCFormulaElectric/Consolidated-Firmware/blob/master/images/jlink_connector.png" width="50%" height="50%"/>
+### Why is the \#include for can_tx and can_rx greyed out?
