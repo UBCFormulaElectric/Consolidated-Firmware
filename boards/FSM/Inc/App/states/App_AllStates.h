@@ -15,15 +15,3 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *state_machine);
  * @param state_machine The state machine to run on-tick function for
  */
 void App_AllStatesRunOnTick100Hz(struct StateMachine *state_machine);
-
-/**
- *
- * @param state_machine
- */
-void App_AllStatesRunOnExit(struct StateMachine *const state_machine);
-
-/**
- * Get a pointer to the ALL STATE
- * @return A pointer to the ALL STATE
- */
-const struct State *App_GetAllStates(void);
