@@ -33,14 +33,11 @@ struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanTxInterface *can_tx_interface,
     struct FsmCanRxInterface *can_rx_interface,
     struct HeartbeatMonitor * heartbeat_monitor,
-    struct Clock *            clock,
     struct AcceleratorPedals *papps_and_sapps,
     struct Brake *            brake,
     struct Coolant *          coolant,
     struct Steering *         steering,
-    struct Wheels *           wheels,
-
-    struct RgbLedSequence *rgb_led_sequence);
+    struct Wheels *           wheels);
 
 /**
  * Deallocate the memory used by the given world
@@ -103,20 +100,6 @@ struct Steering *App_FsmWorld_GetSteering(const struct FsmWorld *const world);
  * @return The wheel speeds for the given world
  */
 struct Wheels *App_FsmWorld_GetWheels(const struct FsmWorld *const world);
-
-/**
- * Get the RGB LED sequence for the given world
- * @param world The world to get RGB LED sequence for
- * @return The RGB LED sequence for the given world
- */
-struct RgbLedSequence *App_FsmWorld_GetRgbLedSequence(const struct FsmWorld *world);
-
-/**
- * Get the clock for the given world
- * @param world The world to get clock for
- * @return The clock for the given world
- */
-struct Clock *App_FsmWorld_GetClock(const struct FsmWorld *world);
 
 /**
  * Get the pair of primary and secondary APPS for the given world

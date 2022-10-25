@@ -14,10 +14,7 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     struct FsmWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
     struct FsmCanTxInterface *can_tx           = App_FsmWorld_GetCanTx(world);
-    struct RgbLedSequence *   rgb_led_sequence = App_FsmWorld_GetRgbLedSequence(world);
     struct Brake *            brake            = App_FsmWorld_GetBrake(world);
-
-    App_SharedRgbLedSequence_Tick(rgb_led_sequence);
 
     App_CanTx_SetPeriodicSignal_BRAKE_PRESSURE_OPEN_OC(can_tx, App_Brake_IsPressureSensorOpenCircuit(brake));
     App_CanTx_SetPeriodicSignal_BRAKE_PRESSURE_OPEN_SC(can_tx, App_Brake_IsPressureSensorShortCircuited(brake));

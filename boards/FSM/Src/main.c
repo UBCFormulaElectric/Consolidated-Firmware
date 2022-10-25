@@ -110,8 +110,6 @@ struct StateMachine *     state_machine;
 struct FsmCanTxInterface *can_tx;
 struct FsmCanRxInterface *can_rx;
 struct HeartbeatMonitor * heartbeat_monitor;
-struct RgbLedSequence *   rgb_led_sequence;
-struct Clock *            clock;
 struct AcceleratorPedals *papps_and_sapps;
 struct Coolant *          coolant;
 struct Steering *         steering;
@@ -214,9 +212,6 @@ int main(void)
     can_rx            = App_CanRx_Create();
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
-    rgb_led_sequence = App_SharedRgbLedSequence_Create(
-        Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed, Io_RgbLedSequence_TurnOnGreenLed);
-    clock = App_SharedClock_Create();
 
     // Unwrapped Ranges
     Io_WheelSpeedSensors_Init(&htim16, &htim17);
@@ -242,8 +237,7 @@ int main(void)
     coolant = App_Coolant_Create(
         Io_FlowMeters_GetFlowRate, Io_GetTemperatureA, Io_GetTemperatureB, Io_GetPressureA, Io_GetPressureB);
 
-    world = App_FsmWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, clock, papps_and_sapps, brake, coolant, steering, wheels, rgb_led_sequence);
+    world = App_FsmWorld_Create(can_tx, can_rx, heartbeat_monitor, papps_and_sapps, brake, coolant, steering, wheels);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAllStates());
     ///=============================================IMPORTANT CODE END=============================================

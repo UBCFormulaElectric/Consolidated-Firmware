@@ -17,28 +17,23 @@ struct FsmWorld
     struct FsmCanTxInterface *can_tx_interface;
     struct FsmCanRxInterface *can_rx_interface;
     struct HeartbeatMonitor * heartbeat_monitor;
-    struct Clock *            clock;
     struct AcceleratorPedals *papps_and_sapps;
     struct Brake *            brake;
     struct Coolant *          coolant;
     struct Steering *         steering;
     struct Wheels *           wheels;
-    struct RgbLedSequence *   rgb_led_sequence;
 };
 
 struct FsmWorld *App_FsmWorld_Create(
     struct FsmCanTxInterface *const can_tx_interface,
     struct FsmCanRxInterface *const can_rx_interface,
     struct HeartbeatMonitor *const  heartbeat_monitor,
-    struct Clock *const             clock,
 
     struct AcceleratorPedals *const papps_and_sapps,
     struct Brake *const             brake,
     struct Coolant *const           coolant,
     struct Steering *const          steering,
-    struct Wheels *const            wheels,
-
-    struct RgbLedSequence *const rgb_led_sequence)
+    struct Wheels *const            wheels)
 {
     struct FsmWorld *world = (struct FsmWorld *)malloc(sizeof(struct FsmWorld));
     assert(world != NULL);
@@ -46,14 +41,12 @@ struct FsmWorld *App_FsmWorld_Create(
     world->can_tx_interface  = can_tx_interface;
     world->can_rx_interface  = can_rx_interface;
     world->heartbeat_monitor = heartbeat_monitor;
-    world->clock             = clock;
 
     world->papps_and_sapps  = papps_and_sapps;
     world->brake            = brake;
     world->coolant          = coolant;
     world->steering         = steering;
     world->wheels           = wheels;
-    world->rgb_led_sequence = rgb_led_sequence;
 
     return world;
 }
@@ -101,14 +94,4 @@ struct Steering *App_FsmWorld_GetSteering(const struct FsmWorld *const world)
 struct Wheels *App_FsmWorld_GetWheels(const struct FsmWorld *const world)
 {
     return world->wheels;
-}
-
-struct RgbLedSequence *App_FsmWorld_GetRgbLedSequence(const struct FsmWorld *const world)
-{
-    return world->rgb_led_sequence;
-}
-
-struct Clock *App_FsmWorld_GetClock(const struct FsmWorld *const world)
-{
-    return world->clock;
 }
