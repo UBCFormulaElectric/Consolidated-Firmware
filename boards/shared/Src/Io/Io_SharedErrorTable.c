@@ -115,11 +115,11 @@ static void
 {
     SET_ERROR(
         error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE, data->charger_disconnected_in_charge_state);
-    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_MIN_CELL_VOLTAGE_OUT_OF_RANGE, data->min_cell_voltage_out_of_range);
-    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_MAX_CELL_VOLTAGE_OUT_OF_RANGE, data->max_cell_voltage_out_of_range);
-    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_HAS_PEC_ERROR, data->has_pec_error);
-    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_MIN_CELL_TEMP_OUT_OF_RANGE, data->min_cell_temp_out_of_range);
-    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_MAX_CELL_TEMP_OUT_OF_RANGE, data->max_cell_temp_out_of_range);
+    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_CELL_UNDERVOLTAGE_FAULT, data->cell_undervoltage_fault);
+    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_CELL_OVERVOLTAGE_FAULT, data->cell_overvoltage_fault);
+    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_HAS_PEC_FAULT, data->has_pec_fault);
+    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_CELL_UNDERTEMP_FAULT, data->cell_undertemp_fault);
+    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_CELL_OVERTEMP_FAULT, data->cell_overtemp_fault);
     SET_ERROR(error_table, BMS_AIR_SHUTDOWN_CHARGER_FAULT_DETECTED, data->charger_fault_detected);
     SET_ERROR(error_table, BMS_AIR_SHUTDOWN_HAS_REACHED_MAX_V, data->has_reached_max_v);
     SET_ERROR(error_table, BMS_AIR_SHUTDOWN_CHARGING_EXT_SHUTDOWN_OCCURRED, data->charging_ext_shutdown_occurred);

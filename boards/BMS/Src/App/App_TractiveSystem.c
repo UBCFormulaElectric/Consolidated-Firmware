@@ -95,7 +95,7 @@ bool App_TractveSystem_CheckFaults(struct BmsCanTxInterface *can_tx, struct Trac
         ts_overcurrent_fault = true;
     }
 
-    App_CanTx_SetPeriodicSignal_TS_CURRENT_OUT_OF_RANGE(can_tx, ts_overcurrent_fault);
+    App_CanTx_SetPeriodicSignal_TS_OVERCURRENT_FAULT(can_tx, ts_overcurrent_fault);
 
     return ts_overcurrent_fault;
 }

@@ -33,6 +33,14 @@ void App_PrechargeRelay_Close(const struct PrechargeRelay *const precharge_relay
  */
 void App_PrechargeRelay_Open(const struct PrechargeRelay *const precharge_relay);
 
+/**
+ * Check the status of Precharge faults
+ * @param can_tx CAN interface to send messages over
+ * @param is_charger_connected True if charger connected, false otherwise
+ * @param is_ts_rising_quickly True if tractive system voltage rising quickly, false otherwise
+ * @param is_ts_rising_slowly True if tractive system voltage rising slowly, false otherwise
+ * @return True if faults present, false otherwise
+ */
 bool App_PrechargeRelay_CheckFaults(
     struct BmsCanTxInterface *can_tx,
     bool                      is_charger_connected,

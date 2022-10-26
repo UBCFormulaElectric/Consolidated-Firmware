@@ -215,6 +215,7 @@ bool App_Accumulator_CheckFaults(
     bool undertemp_fault    = false;
     bool overvoltage_fault  = false;
     bool undervoltage_fault = false;
+    bool communication_fault = App_Accumulator_HasCommunicationError(accumulator);
 
     // Stores which segment/cell caused a fault, could be used in CAN message if desired. If not, a single set of
     // "throwaway" values could be used
@@ -253,10 +254,11 @@ bool App_Accumulator_CheckFaults(
         undervoltage_fault = true;
     }
 
-    App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE_OUT_OF_RANGE(can_tx, undervoltage_fault);
-    App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE_OUT_OF_RANGE(can_tx, overvoltage_fault);
-    App_CanTx_SetPeriodicSignal_MIN_CELL_TEMP_OUT_OF_RANGE(can_tx, undertemp_fault);
-    App_CanTx_SetPeriodicSignal_MAX_CELL_TEMP_OUT_OF_RANGE(can_tx, overtemp_fault);
+    App_CanTx_SetPeriodicSignal_CELL_UNDERVOLTAGE_FAULT(can_tx, undervoltage_fault);
+    App_CanTx_SetPeriodicSignal_CELL_OVERVOLTAGE_FAULT(can_tx, overvoltage_fault);
+    App_CanTx_SetPeriodicSignal_CELL_UNDERTEMP_FAULT(can_tx, undertemp_fault);
+    App_CanTx_SetPeriodicSignal_CELL_OVERTEMP_FAULT(can_tx, overtemp_fault);
+    App_CanTx_SetPeriodicSignal_HAS_PEC_FAULT(can_tx, communication_fault);
 
     return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault);
 }
