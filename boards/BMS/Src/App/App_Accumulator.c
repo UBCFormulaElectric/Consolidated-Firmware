@@ -211,10 +211,10 @@ bool App_Accumulator_CheckFaults(
 {
     // separate faults for over/under, could also have single fault for "out-of-range" (existing all_states error check
     // uses this)
-    bool overtemp_fault     = false;
-    bool undertemp_fault    = false;
-    bool overvoltage_fault  = false;
-    bool undervoltage_fault = false;
+    bool overtemp_fault      = false;
+    bool undertemp_fault     = false;
+    bool overvoltage_fault   = false;
+    bool undervoltage_fault  = false;
     bool communication_fault = App_Accumulator_HasCommunicationError(accumulator);
 
     // Stores which segment/cell caused a fault, could be used in CAN message if desired. If not, a single set of

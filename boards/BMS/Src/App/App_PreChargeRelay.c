@@ -54,7 +54,7 @@ bool App_PrechargeRelay_CheckFaults(
         precharge_fault_count = 0;
     }
 
-    if (precharge_fault_count == 3)
+    if (precharge_fault_count >= 3)
     {
         precharge_shutdown_fault = true;
     }
