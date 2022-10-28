@@ -77,6 +77,8 @@ struct ErrorTable *App_SharedErrorTable_Create(void)
     INIT_ERROR(BMS_AIR_SHUTDOWN_CHARGER_FAULT_DETECTED, BMS, AIR_SHUTDOWN_ERROR);
     INIT_ERROR(BMS_AIR_SHUTDOWN_HAS_REACHED_MAX_V, BMS, AIR_SHUTDOWN_ERROR);
     INIT_ERROR(BMS_AIR_SHUTDOWN_CHARGING_EXT_SHUTDOWN_OCCURRED, BMS, AIR_SHUTDOWN_ERROR);
+    INIT_ERROR(BMS_AIR_SHUTDOWN_TS_OVERCURRENT_FAULT, BMS, AIR_SHUTDOWN_ERROR);
+    INIT_ERROR(BMS_AIR_SHUTDOWN_PRECHARGE_FAULT, BMS, AIR_SHUTDOWN_ERROR);
     INIT_ERROR(DIM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, DIM, AIR_SHUTDOWN_ERROR);
     INIT_ERROR(DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT, DCM, AIR_SHUTDOWN_ERROR);
     INIT_ERROR(FSM_AIR_SHUTDOWN_MISSING_HEARTBEAT, FSM, AIR_SHUTDOWN_ERROR);
@@ -219,7 +221,6 @@ void App_SharedErrorTable_GetAllCriticalErrors(struct ErrorTable *error_table, s
     for (size_t i = 0; i < NUM_ERROR_IDS; i++)
     {
         struct Error *error = error_table->errors[i];
-
         if (App_SharedError_GetIsSet(error) && App_SharedError_IsCritical(error))
         {
             error_list->errors[error_list->num_errors] = error;

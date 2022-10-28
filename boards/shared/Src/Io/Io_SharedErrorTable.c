@@ -123,6 +123,8 @@ static void
     SET_ERROR(error_table, BMS_AIR_SHUTDOWN_CHARGER_FAULT_DETECTED, data->charger_fault_detected);
     SET_ERROR(error_table, BMS_AIR_SHUTDOWN_HAS_REACHED_MAX_V, data->has_reached_max_v);
     SET_ERROR(error_table, BMS_AIR_SHUTDOWN_CHARGING_EXT_SHUTDOWN_OCCURRED, data->charging_ext_shutdown_occurred);
+    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_TS_OVERCURRENT_FAULT, data->ts_overcurrent_fault);
+    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_PRECHARGE_FAULT, data->precharge_fault);
 }
 
 static void
