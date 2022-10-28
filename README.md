@@ -43,8 +43,13 @@ sudo apt-get install openocd
   * Python 3+ (*Python < 3 will NOT work*): https://www.python.org/downloads/
   * ARM GNU Embedded Toolchain: https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads (Check `scripts\environment_setup\install_gcc_arm_none_eabi.sh` for which version to download, currently Version: `9-2019-q4-major`)
   * STM32CubeMX: https://www.st.com/en/development-tools/stm32cubemx.html (Check `tools/en.STM32CubeMX_v*****.zip`, currently Version `5.3.0`)
+<<<<<<< HEAD
   * STM32CubeMX: https://www.st.com/en/development-tools/stm32cubemx.html (MUST be installed in '\Program Files\STMicroelectronics\STM32Cube\STM32CubeMX")
   * MinGW: https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/installer/mingw-w64-install.exe/download (**select 32-bit verison/i686 architecture**)
+=======
+  * MinGW: https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/installer/mingw-w64-install.exe/download 
+	  * _VERY IMPORTANT_: (**select 32-bit verison/i686 architecture**)
+>>>>>>> 5f6710fb (Updates for MinGW setup w/Gtest and for embedded)
   * Java: https://www.java.com/download/ie_manual.jsp
 	  * **MAKE SURE YOU HAVE JAVA 8, otherwise STM32CubeMX will not run!
 #### Mac OS
@@ -137,20 +142,23 @@ In each project, there will be two configurations to use: `<board>_SeggerGDB.elf
 
 ###### Toolchain
 Under **File->Settings->Build, Execution, Deployment...->Toolchains** (from the menu bar):
-Set the default toolchain to be MinGW and provide the file path to the 32-bit version of MinGW, ie:
-```
-C:\Program Files (x86)\mingw-w64\i686-8.1.0-posix-dwarf-rt_v6-rev0\mingw32
-```
-or
+Set the default toolchain to be MinGW
+
+Create oen MinGW Profile for building embedded code, with the following path 
 ```
 C:\MinGW\bin
 ```
 
-Next, set the debugger to be ARM GDB, ie:
+Create one MinGW profile for GTest, provide the file path to the 32-bit version of MinGW.
+```
+C:\Program Files (x86)\mingw-w64\i686-8.1.0-posix-dwarf-rt_v6-rev0\mingw32
+```
+
+For both, set the debugger to be ARM GDB, ie:
 ```
 C:\Program Files (x86)\GNU Tools Arm Embedded\<Version>\bin\arm-none-eabi-gdb.exe
 ```
-Replace the version with the version that you installed.
+Replace `<Version>` with the version that you installed.
 
 ###### Embedded Configuations
 For each project under **Run->Edit Configurations->Embedded GDB Server** (from the menu bar), select `<board_name>_SeggerGDB`:
