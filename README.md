@@ -80,7 +80,7 @@ git submodule update --init --recursive
 to fetch all of the submodules.
 
 ### Modify your `PATH` Environment Variable:
-##### Ubuntu 18.04 and Mac OS
+#### Ubuntu 18.04 and Mac OS
 Modify the `PATH` variable by adding the following to your `.bashrc`:
 ```
 export PATH="$PATH:/path/to/arm-none-eabi-gcc"
@@ -89,7 +89,7 @@ export PATH="$PATH:/path/to/STM32CubeMX"
 
 Always invoke `clion` from the command line. That way `clion` will load `.bashrc` and read the modifications you made the the `PATH` variable.
 
-##### Windows
+#### Windows
 Find `Environment Variables` in your start menu and then add the appropriate paths to `PATH`:
 ```
 C:\Program Files (x86)\GNU Tools Arm Embedded\<VERSION>\bin
