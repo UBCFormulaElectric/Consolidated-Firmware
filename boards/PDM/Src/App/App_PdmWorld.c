@@ -21,10 +21,7 @@ struct PdmWorld
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
     struct LowVoltageBattery *low_voltage_battery;
-    struct LoadSwitch        *load_switch_AIR_LVPWR;
-    struct LoadSwitch        *load_switch_AUX1_AUX2;
-    struct LoadSwitch        *load_switch_DIFRONTLHS_DIFRONTRHS;
-    struct LoadSwitch        *load_switch_DIREARLHS_DIREARRHS;
+    struct LoadSwitch        *load_switch;
     struct Clock *            clock;
 };
 
@@ -44,10 +41,7 @@ struct PdmWorld *App_PdmWorld_Create(
     struct HeartbeatMonitor *const  heartbeat_monitor,
     struct RgbLedSequence *const    rgb_led_sequence,
     struct LowVoltageBattery *const low_voltage_battery,
-    struct LoadSwitch        *const load_switch_AIR_LVPWR,
-    struct LoadSwitch        *const load_switch_AUX1_AUX2,
-    struct LoadSwitch        *const load_switch_DIFRONTLHS_DIFRONTRHS,
-    struct LoadSwitch        *const load_switch_DIREARLHS_DIREARRHS,
+    struct LoadSwitch        *const load_switch,
     struct Clock *const             clock)
 {
     struct PdmWorld *world = (struct PdmWorld *)malloc(sizeof(struct PdmWorld));
@@ -68,10 +62,7 @@ struct PdmWorld *App_PdmWorld_Create(
     world->heartbeat_monitor                     = heartbeat_monitor;
     world->rgb_led_sequence                      = rgb_led_sequence;
     world->low_voltage_battery                   = low_voltage_battery;
-    world->load_switch_AIR_LVPWR                 = load_switch_AIR_LVPWR;
-    world->load_switch_AUX1_AUX2                 = load_switch_AUX1_AUX2;
-    world->load_switch_DIFRONTLHS_DIFRONTRHS     = load_switch_DIFRONTLHS_DIFRONTRHS;
-    world->load_switch_DIREARLHS_DIREARRHS       = load_switch_DIREARLHS_DIREARRHS;
+    world->load_switch                           = load_switch;
     world->clock                                 = clock;
 
     return world;
@@ -157,24 +148,9 @@ struct LowVoltageBattery *App_PdmWorld_GetLowVoltageBattery(const struct PdmWorl
     return world->low_voltage_battery;
 }
 
-struct LoadSwitch *App_PdmWorld_GetLoadSwitchAIRLVPWR(const struct PdmWorld *const world)
+struct LoadSwitch *App_PdmWorld_GetLoadSwitch(const struct PdmWorld *const world)
 {
-    return world->load_switch_AIR_LVPWR;
-}
-
-struct LoadSwitch *App_PdmWorld_GetLoadSwitchAUX1AUX2(const struct PdmWorld *const world)
-{
-    return world->load_switch_AUX1_AUX2;
-}
-
-struct LoadSwitch *App_PdmWorld_GetLoadSwitchDIFRONTLHSDIFRONTRHS(const struct PdmWorld *const world)
-{
-    return world->load_switch_DIFRONTLHS_DIFRONTRHS
-}
-
-struct LoadSwitch *App_PdmWorld_GetLoadSwitchDIREARLHS_DIREARRHS(const struct PdmWorld *const world)
-{
-    return world->load_switch_DIREARLHS_DIREARRHS;
+    return world->load_switch;
 }
 
 struct Clock *App_PdmWorld_GetClock(const struct PdmWorld *const world)

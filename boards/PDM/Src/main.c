@@ -233,10 +233,7 @@ int main(void)
 
     low_voltage_battery = App_LowVoltageBattery_Create(Io_LT3650_HasFault, Io_LTC3786_HasFault);
 
-    load_switch_AIR_LVPWR = App_LoadSwitch_Create();
-    load_switch_AUX1_AUX2 = App_LoadSwitch_Create();
-    load_switch_DIFRONTLHS_DIFRONTRHS = App_LoadSwitch_Create();
-    load_switch_DIREARLHS_DIREARRHS = App_LoadSwitch_Create();
+    load_switches = App_LoadSwitch_Create();
 
     clock = App_SharedClock_Create();
 
@@ -244,8 +241,7 @@ int main(void)
         can_tx, can_rx, vbat_voltage_in_range_check, _24v_aux_voltage_in_range_check, _24v_acc_voltage_in_range_check,
         aux1_current_in_range_check, aux2_current_in_range_check, left_inverter_current_in_range_check,
         right_inverter_current_in_range_check, energy_meter_current_in_range_check, can_current_in_range_check,
-        air_shutdown_current_in_range_check, heartbeat_monitor, rgb_led_sequence, low_voltage_battery, load_switch_AIR_LVPWR,
-        load_switch_AUX1_AUX2, load_switch_DIFRONTLHS_DIFRONTRHS, load_switch_DIREARLHS_DIREARRHS, clock);
+        air_shutdown_current_in_range_check, heartbeat_monitor, rgb_led_sequence, low_voltage_battery, load_switch,clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 

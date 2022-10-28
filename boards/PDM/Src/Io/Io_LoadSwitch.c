@@ -2,11 +2,11 @@
 
 
 
-float Io_LoadSwitch_GetCS1Voltage(void){
+float Io_LoadSwitch_GetCS1Current(void){
     // TODO: PDM-Hardware
 }
 
-float Io_LoadSwitch_GetCS2Voltage(void){
+float Io_LoadSwitch_GetCS2Current(void){
     // TODO: PDM-Hardware
 }
 
