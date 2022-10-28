@@ -37,7 +37,6 @@ python3 scripts/environment_setup/install_cube.py /usr/local/STM32CubeMX ./tools
 sudo apt-get install openocd
 ```
 #### Windows
-> First do operating system specific tasks, then do the tasks under "All Operating Systems" 
   * GNU Make: http://gnuwin32.sourceforge.net/packages/make.htm
   * CMake: https://cmake.org/install/
   * Python 3+ (*Python < 3 will NOT work*): https://www.python.org/downloads/
@@ -61,24 +60,24 @@ brew install --cask clion
 Verify the programs above were installed by running `<program name> --version`.
 Now, we need to install the `arm-none-eabi` compiler toolchain for ARM processors. To avoid bugs associated with different versions, go to the [ARM website](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads) and download the *9-2019-q4-major* version (link [here](https://developer.arm.com/tools-and-software/open-source-software/developer-tools/gnu-toolchain/gnu-rm/downloads#:~:text=gcc-arm-none-eabi-9-2019-q4-major-mac.tar.bz2)).
 
-#### Windows + Mac OS
-Then, set up the repo:
+#### All Operating Systems
+##### J-Link Software and Documentation Pack
+https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
+
+### Repo Setup
 ```
 git lfs install
 git clone <repo link>
 cd Consolidated-Firmware
 ```
 
-##### Git LFS Submodules
+#### Git LFS Submodules
 In the root of the directory run the following command:
 ```
 git lfs pull
 git submodule update --init --recursive
 ```
 to fetch all of the submodules.
-
-##### J-Link Software and Documentation Pack
-https://www.segger.com/downloads/jlink/#J-LinkSoftwareAndDocumentationPack
 
 ### Modify your `PATH` Environment Variable:
 ##### Ubuntu 18.04 and Mac OS
