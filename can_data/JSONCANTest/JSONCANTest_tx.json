@@ -1,0 +1,66 @@
+{
+    "JSONCANTest_vitals": {
+        "msg_id": 601,
+        "cycle_time": 1000, 
+        "description": "Heartbeat signal.",
+        "signals": {
+            "heartbeat": { 
+                "min": 0,
+                "max": 1,
+                "bits": 1 
+            },
+            "timestamp": { "bits": 32 }
+        }
+    },  
+    "JSONCANTest_noncriticalErrors": {
+        "msg_id": 602,
+        "description": "Non-critical errors.",
+        "num_bytes": 8,
+        "signals": {
+            "watchdogTimeout": { "bits": 1 },
+            "boardOvertemp": { "bits": 1 },
+            "boardOvervoltage": { "bits": 1 }
+        }
+    },
+    "JSONCANTest_AIRShutdownErrors": {
+        "msg_id": 603,
+        "cycle_time": 1000, 
+        "description": "AIR shutdown.",
+        "num_bytes": 8,
+        "signals": {
+            "dummyAirShutdown": { "bits": 1 }
+        }
+    },
+    "JSONCANTest_motorShutdownErrors": {
+        "msg_id": 604,
+        "cycle_time": 1000, 
+        "description": "Motor shutdown.",
+        "num_bytes": 8,
+        "signals": {
+            "dummyMotorShutdown": { "bits": 1 }
+        }
+    },
+    "JSONCANTest_status": {
+        "msg_id": 605,
+        "cycle_time": 1000, 
+        "description": "Message for debugging.",
+        "signals": {
+            "contactorsClosed": {
+                "enum": "AirState"
+            },
+            "ts_current": {
+                "start_value": 50,
+                "min": 0,
+                "max": 80,
+                "bits": 12,
+                "unit": "A"
+            },
+            "voltage": {
+                "min": 0,
+                "max": 500,
+                "bits": 12,
+                "unit": "V"
+            }
+        }
+    }
+}

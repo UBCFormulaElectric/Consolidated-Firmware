@@ -1,0 +1,11 @@
+{
+    "default_receiver": "DEBUG",
+    "bus_speed": 500,
+    "default_endianness": "little",
+    "cycle_time_min": 20,
+    "cycle_time_max": 7757,
+    "cycle_time_default": 0,
+    "start_value_min": 0,
+    "start_value_max": 2147483647,
+    "start_value_default": 0
+}

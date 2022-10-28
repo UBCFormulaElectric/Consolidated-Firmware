@@ -1,0 +1,67 @@
+{
+    "DCM_vitals": {
+        "msg_id": 200,
+        "cycle_time": 1000, 
+        "signals": {
+            "heartbeat": { "enum": "MissingHeartbeat" }
+        }
+    },
+    "DCM_canFifoOverflow": {
+        "msg_id": 201,
+        "cycle_time": 1000, 
+        "signals": {
+            "txOverflowCount": { "bits": 32 },
+            "rxOverflowCount": { "bits": 32 }
+        }
+    }, 
+    "DCM_watchdogTimeout": {
+        "msg_id": 203, 
+        "cycle_time": 1000,
+        "signals": {
+            "taskName": { "bits": 32 }
+        }
+    }, 
+    "DCM_noncriticalErrors": {
+        "msg_id": 204, 
+        "cycle_time": 1000,
+        "signals": {
+            "stackWatermarkAboveThresholdTask1Hz": { "bits": 1 },
+            "stackWatermarkAboveThresholdTask1kHz": { "bits": 1 },
+            "stackWatermarkAboveThresholdTaskCanRx": { "bits": 1 },
+            "stackWatermarkAboveThresholdTaskCanTx": { "bits": 1 },
+            "watchdogTimeout": { "bits": 1 },
+            "accelXOutofRange": { "bits": 1 },
+            "accelYOutofRange": { "bits": 1 },
+            "accelZOutofRange": { "bits": 1 }
+        }
+    }, 
+    "DCM_stateMachine": {
+        "msg_id": 205, 
+        "cycle_time": 1000,
+        "signals": {
+            "state": { "bits": 8 }
+        }
+    },
+    "DCM_AIRShutdownErrors": {
+        "msg_id": 207, 
+        "cycle_time": 1000,
+        "signals": {
+            "missingHeartbeat": { "bits": 1 }
+        }
+    },
+    "DCM_motorShutdownErrors": {
+        "msg_id": 208, 
+        "cycle_time": 1000,
+        "signals": {
+            "missingHeartbeat": { "bits": 1 }
+        }
+    },
+    "DCM_inverterSwitches": {
+        "msg_id": 212, 
+        "cycle_time": 1000,
+        "signals": {
+            "rightInverterSwitch": { "bits": 1 },
+            "leftInverterSwitch": { "bits": 1 }
+        }
+    }
+}

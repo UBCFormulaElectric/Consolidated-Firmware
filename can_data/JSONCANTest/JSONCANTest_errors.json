@@ -1,0 +1,9 @@
+{
+    "critical_errors": [
+        "overcurrent",
+        "crash"
+    ],
+    "non_critical_errors": [
+        "small_overtemp"
+    ]
+}

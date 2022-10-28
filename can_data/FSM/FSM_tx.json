@@ -1,0 +1,173 @@
+{
+    "FSM_pedalPosition": {
+        "msg_id": 13, 
+        "cycle_time": 1000,
+        "signals": {
+            "mappedPedalPercentage": { 
+                "max": 100, 
+                "min": 0, 
+                "bits": 32,
+                "unit": "%" 
+            }
+        }
+    },
+    "FSM_torqueLimiting": {
+        "msg_id": 90, 
+        "cycle_time": 1000,
+        "signals": {
+            "FSM_torqueLimit": { 
+                "max": 150, 
+                "min": 0, 
+                "bits": 32,
+                "unit": "nM" 
+            }
+        }
+    },
+    "FSM_apps": {
+        "msg_id": 151, 
+        "cycle_time": 1000,
+        "signals": {
+            "pappsMappedPedalPercentage": { 
+                "max": 100, 
+                "min": 0, 
+                "bits": 32,
+                "unit": "%" 
+            },
+            "sappsMappedPedalPercentage": { 
+                "max": 100, 
+                "min": 0, 
+                "bits": 32,
+                "unit": "%" 
+            }
+        }
+    },
+    "FSM_noncriticalErrors": {
+        "msg_id": 300, 
+        "cycle_time": 100,
+        "signals": {
+            "pappsOutOfRange": { "bits": 1 },
+            "sappsOutOfRange": { "bits": 1 },
+            "stackWatermarkAboveThresholdTask1Hz": { "bits": 1 },
+            "stackWatermarkAboveThresholdTask1kHz": { "bits": 1 },
+            "stackWatermarkAboveThresholdTaskCanRx": { "bits": 1 },
+            "stackWatermarkAboveThresholdTaskCanTx": { "bits": 1 },
+            "watchdogFault": { "bits": 1 },
+            "bspdFault": { "bits": 1 },
+            "leftWheelSpeedOutOfRange": { "bits": 2 },
+            "rightWheelSpeedOutOfRange": { "bits": 2 },
+            "flowRateOutOfRange": { "bits": 2 },
+            "steeringAngleOutOfRange": { "bits": 2 },
+            "brakePressureOutOfRange": { "bits": 2 },
+            "brakePressureSc": { "bits": 1 },
+            "brakePressureOc": { "bits": 1 },
+            "steeringWheelBroke": { "bits": 1 }
+        }
+    }, 
+    "FSM_vitals": {
+        "msg_id": 301,
+        "cycle_time": 1000, 
+        "signals": {
+            "heartbeat": { "enum": "MissingHeartbeat" }
+        }
+    },
+    "FSM_canFifoOverflow": {
+        "msg_id": 302,
+        "cycle_time": 1000, 
+        "signals": {
+            "txOverflowCount": { 
+                "bits": 32
+            },
+            "rxOverflowCount": { "bits": 32 }
+        }
+    }, 
+    "FSM_watchdogTimeout": {
+        "msg_id": 304, 
+        "cycle_time": 1000,
+        "signals": {
+            "taskName": { "bits": 8 }
+        }
+    }, 
+    "FSM_stateMachine": {
+        "msg_id": 305, 
+        "cycle_time": 1000,
+        "signals": {
+            "state": { "bits": 8 }
+        }
+    },
+    "FSM_flowMeter": {
+        "msg_id": 307, 
+        "cycle_time": 1000,
+        "signals": {
+            "flowRate": { 
+                "max": 100,
+                "min": 0,
+                "bits": 8,
+                "unit": "L/min"
+            }
+        }
+    },
+    "FSM_brake": {
+        "msg_id": 14, 
+        "cycle_time": 1000,
+        "signals": {
+            "Brake_Pressure": { 
+                "max": 2500,
+                "min": 0,
+                "bits": 32,
+                "unit": "psi"
+            },
+            "brakeIsActuated": { "bits": 1 },
+            "pressureSensorIsOcOrSc": { "bits": 1 }
+        }
+    },
+    "FSM_AIRShutdownErrors": {
+        "msg_id": 310, 
+        "cycle_time": 1000,
+        "signals": {
+            "missingHeartbeat": { "bits": 1 }
+        }
+    },
+    "FSM_motorShutdownErrors": {
+        "msg_id": 315, 
+        "cycle_time": 1000,
+        "signals": {
+            "appsHasDisagreement": { "bits": 1 },
+            "pappsAlarmIsActive": { "bits": 1 },
+            "sappsAlarmIsActive": { "bits": 1 },
+            "flowMeterHasUnderflow": { "bits": 1 },
+            "torquePlausabilityCheckFailed": { "bits": 1 }
+        }
+    },
+    "FSM_wheelSpeedSensors": {
+        "msg_id": 317, 
+        "cycle_time": 1000,
+        "signals": {
+            "leftWheelSpeed": { 
+                "max": 150,
+                "min": 0,
+                "bits": 16,
+                "unit": "km/h",
+                "start_bit": 0
+            },
+            "rightWheelSpeed": { 
+                "max": 150,
+                "min": 0,
+                "bits": 16,
+                "unit": "km/h",
+                "start_bit": 32
+            }
+        }
+    },
+    "FSM_steeringAngleSensor": {
+        "msg_id": 318, 
+        "cycle_time": 1000,
+        "signals": {
+            "steeringAngle": { 
+                "max": 110,
+                "min": -110,
+                "bits": 32,
+                "unit": "km/h"
+            }
+        }
+    }
+}

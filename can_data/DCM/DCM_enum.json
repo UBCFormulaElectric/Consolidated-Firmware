@@ -1,0 +1,7 @@
+{
+    "ACCELERATION_OUT_OF_RANGE_FAULT": {
+        "OK": 0, 
+        "UNDERFLOW": 1,
+        "OVERFLOW": 2
+    }
+}
