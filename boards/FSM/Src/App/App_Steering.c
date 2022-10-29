@@ -31,8 +31,11 @@ struct InRangeCheck *App_Steering_GetInRange(const struct Steering *steering)
     return steering->steering_angle_in_range_check;
 }
 
-void App_Steering_Broadcast(struct FsmCanTxInterface *can_tx, const struct Steering *steering)
+void App_Steering_Broadcast(const struct FsmWorld * world)
 {
+    struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
+    struct Steering *steering = App_FsmWorld_GetSteering(world);
+
     struct InRangeCheck *steering_angle_in_range_check = App_Steering_GetInRange(steering);
 
     App_SetPeriodicCanSignals_InRangeCheck(

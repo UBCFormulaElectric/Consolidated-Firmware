@@ -48,8 +48,11 @@ struct Coolant *App_Coolant_Create(
     return coolant;
 }
 
-void App_Coolant_Broadcast(struct FsmCanTxInterface *can_tx, struct Coolant *coolant, bool *coolantTriggerShutdown)
+void App_Coolant_Broadcast(const struct FsmWorld * world, bool *coolantTriggerShutdown)
 {
+    struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
+    struct Coolant *coolant = App_FsmWorld_GetCoolant(world);
+
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, coolant->flow_rate_in_range_check, App_CanTx_SetPeriodicSignal_FLOW_RATE,
         App_CanTx_SetPeriodicSignal_FLOW_RATE_OUT_OF_RANGE,

@@ -15,7 +15,6 @@
 #define PERCENT_DEFLECTION (0.03f)
 
 struct AcceleratorPedals;
-struct Brake;
 
 /**
  * Allocate and initialize a pair of accelerator pedals
@@ -82,11 +81,6 @@ float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct Accelerator
 
 /**
  * Primary Broadcast Function. Very important.
- * @param can_tx The Can Bus it is broadcasting to
- * @param accelerator_pedals Accelerator System from which to pull data
- * @param brake Brakes System Object from which to pull data
+ * @param world World Context from which to pull sensors
  */
-void App_AcceleratorPedals_Broadcast(
-    struct FsmCanTxInterface *can_tx,
-    struct AcceleratorPedals *accelerator_pedals,
-    struct Brake *            brake);
+void App_AcceleratorPedals_Broadcast(struct FsmWorld* world);

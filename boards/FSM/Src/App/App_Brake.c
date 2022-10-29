@@ -86,8 +86,12 @@ bool App_Brake_IsPedalSensorOpenOrShortCircuit(const struct Brake *brake)
     return brake->is_pedal_angle_sensor_open_or_short_circuit();
 }
 
-void App_Brake_Broadcast(struct FsmCanTxInterface *can_tx, const struct Brake *brake)
+void App_Brake_Broadcast(const struct FsmWorld * world)
 {
+
+    struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
+    struct Brake *brake = App_FsmWorld_GetBrake(world);
+
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, App_Brake_GetPressureInRangeCheck(brake), App_CanTx_SetPeriodicSignal_BRAKE_PRESSURE,
         App_CanTx_SetPeriodicSignal_BRAKE_PRESSURE_OUT_OF_RANGE,

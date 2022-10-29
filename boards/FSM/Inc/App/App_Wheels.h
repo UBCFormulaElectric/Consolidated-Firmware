@@ -9,4 +9,4 @@ struct Wheels *App_Wheels_Create(float (*get_left_wheel_speed)(void), float (*ge
 struct InRangeCheck *App_Wheels_GetLeftWheelSpeedInRange(const struct Wheels *wheels);
 struct InRangeCheck *App_Wheels_GetRightWheelSpeedInRange(const struct Wheels *wheels);
 
-void App_Wheels_Broadcast(struct FsmCanTxInterface *can_tx, const struct Wheels *wheels);
+void App_Wheels_Broadcast(const struct FsmWorld * world);

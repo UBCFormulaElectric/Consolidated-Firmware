@@ -42,8 +42,11 @@ struct InRangeCheck *App_Wheels_GetRightWheelSpeedInRange(const struct Wheels *w
     return wheels->right_wheel_speed_in_range_check;
 }
 
-void App_Wheels_Broadcast(struct FsmCanTxInterface *can_tx, const struct Wheels *wheels)
+void App_Wheels_Broadcast(const struct FsmWorld * world)
 {
+    struct Wheels * wheels = App_FsmWorld_GetWheels(world);
+    struct FsmCanTxInterface * can_tx = App_FsmWorld_GetCanTx(world);
+
     struct InRangeCheck *left_wheel_speed_in_range_check  = App_Wheels_GetLeftWheelSpeedInRange(wheels);
     struct InRangeCheck *right_wheel_speed_in_range_check = App_Wheels_GetRightWheelSpeedInRange(wheels);
 

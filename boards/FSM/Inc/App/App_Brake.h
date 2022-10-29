@@ -75,7 +75,6 @@ bool App_Brake_IsPedalSensorOpenOrShortCircuit(const struct Brake *brake);
 
 /**
  * CAN BUS Broadcast Function
- * @param can_tx
- * @param brake
+ * @param world World Context from which to pull sensors
  */
-void App_Brake_Broadcast(struct FsmCanTxInterface *can_tx, const struct Brake *brake);
+void App_Brake_Broadcast(const struct FsmWorld * world);

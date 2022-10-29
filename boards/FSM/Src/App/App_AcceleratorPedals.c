@@ -184,11 +184,12 @@ float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct Accelerator
         */
 }
 
-void App_AcceleratorPedals_Broadcast(
-    struct FsmCanTxInterface *can_tx,
-    struct AcceleratorPedals *accelerator_pedals,
-    struct Brake *            brake)
+void App_AcceleratorPedals_Broadcast(struct FsmWorld* world)
 {
+    struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
+    struct AcceleratorPedals *accelerator_pedals = App_FsmWorld_GetPappsAndSapps(world);
+    struct Brake *            brake = App_FsmWorld_GetBrake(world);
+
     const float papps_pedal_percentage = App_AcceleratorPedals_GetPrimaryPedalPercentage(accelerator_pedals);
     const float sapps_pedal_percentage = App_AcceleratorPedals_GetSecondaryPedalPercentage(accelerator_pedals);
 
@@ -209,8 +210,10 @@ void App_AcceleratorPedals_Broadcast(
     if (accelerator_pedals->AppBreakInplausable)
     {
         if (accelerator_pedals->get_primary_pedal_percent() < 0.05f)
+        {
             accelerator_pedals->AppBreakInplausable = false;
-            //TODO signal cancel for failure
+            // TODO signal cancel for failure
+        }
         else
         {
             App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
