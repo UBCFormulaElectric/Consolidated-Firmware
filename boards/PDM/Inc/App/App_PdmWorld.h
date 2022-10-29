@@ -21,26 +21,23 @@ struct PdmWorld;
  *         caller
  */
 struct PdmWorld *App_PdmWorld_Create(
-    struct PdmCanTxInterface *can_tx_interface,
-    struct PdmCanRxInterface *can_rx_interface,
-    struct InRangeCheck *     vbat_voltage_in_range_check,
-    struct InRangeCheck *     _24v_aux_voltage_in_range_check,
-    struct InRangeCheck *     _24v_acc_voltage_in_range_check,
-    struct InRangeCheck *     aux1_current_in_range_check,
-    struct InRangeCheck *     aux2_current_in_range_check,
-    struct InRangeCheck *     left_inverter_current_in_range_check,
-    struct InRangeCheck *     right_inverter_current_in_range_check,
-    struct InRangeCheck *     energy_meter_current_in_range_check,
-    struct InRangeCheck *     can_current_in_range_check,
-    struct InRangeCheck *     air_shutdown_current_in_range_check,
-    struct HeartbeatMonitor * heartbeat_monitor,
-    struct RgbLedSequence *   rgb_led_sequence,
-    struct LowVoltageBattery *low_voltage_battery,
-    struct LoadSwitch        *load_switch_AIR_LVPWR,
-    struct LoadSwitch        *load_switch_AUX1_AUX2,
-    struct LoadSwitch        *load_switch_DIFRONTLHS_DIFRONTRHS,
-    struct LoadSwitch        *load_switch_DIREARLHS_DIREARRHS,
-    struct Clock *            clock);
+        struct PdmCanTxInterface *const can_tx_interface,
+        struct PdmCanRxInterface *const can_rx_interface,
+        struct InRangeCheck *const      vbat_voltage_in_range_check,
+        struct InRangeCheck *const      _24v_aux_voltage_in_range_check,
+        struct InRangeCheck *const      _24v_acc_voltage_in_range_check,
+        struct InRangeCheck *const      aux1_current_in_range_check,
+        struct InRangeCheck *const      aux2_current_in_range_check,
+        struct InRangeCheck *const      left_inverter_current_in_range_check,
+        struct InRangeCheck *const      right_inverter_current_in_range_check,
+        struct InRangeCheck *const      energy_meter_current_in_range_check,
+        struct InRangeCheck *const      can_current_in_range_check,
+        struct InRangeCheck *const      air_shutdown_current_in_range_check,
+        struct HeartbeatMonitor *const  heartbeat_monitor,
+        struct RgbLedSequence *const    rgb_led_sequence,
+        struct LowVoltageBattery *const low_voltage_battery,
+        struct LoadSwitch        *const load_switch,
+        struct Clock *const             clock);
 
 /**
  * Deallocate the memory used by the given world
@@ -150,6 +147,7 @@ struct RgbLedSequence *App_PdmWorld_GetRgbLedSequence(const struct PdmWorld *wor
  */
 struct LowVoltageBattery *App_PdmWorld_GetLowVoltageBattery(const struct PdmWorld *world);
 
+struct LoadSwitch *App_PdmWorld_GetLoadSwitch(const struct PdmWorld *const world);
 /**
  * Get the clock for the given world
  * @param world The world to get clock for
