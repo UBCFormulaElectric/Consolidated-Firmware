@@ -1,11 +1,16 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "App_AcceleratorPedals.h"
+#include "App_SharedSignal.h"
+
 
 // config
-#include "configs/App_SignalCallbackDurations.h"
-
-#include "App_SharedSignal.h"
+#define PAPPS_ENTRY_HIGH_MS (10U)
+#define PAPPS_EXIT_HIGH_MS (10U)
+#define SAPPS_ENTRY_HIGH_MS (10U)
+#define SAPPS_EXIT_HIGH_MS (10U)
+#define APPS_ENTRY_HIGH_MS (100U)
+#define APPS_EXIT_HIGH_MS (1000U)
 
 struct AcceleratorPedals
 {

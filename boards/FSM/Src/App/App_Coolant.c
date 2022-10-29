@@ -4,10 +4,12 @@
 #include "App_Coolant.h"
 #include "App_InRangeCheck.h"
 #include "configs/App_FlowRateThresholds.h"
-#include "configs/App_SignalCallbackDurations.h"
 
 #include "App_SharedSetPeriodicCanSignals.h"
 STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(FsmCanTxInterface)
+
+#define FLOW_METER_ENTRY_HIGH_MS (1000U)
+#define FLOW_METER_EXIT_HIGH_MS (1000U)
 
 struct Coolant
 {

@@ -1,10 +1,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <linkedlist.h>
 
 #include "App_FsmWorld.h"
-#include "configs/App_SignalCallbackDurations.h"
 
 struct SignalNode
 {
