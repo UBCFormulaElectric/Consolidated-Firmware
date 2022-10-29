@@ -8,8 +8,8 @@
 #include "App_SharedSetPeriodicCanSignals.h"
 STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(FsmCanTxInterface)
 
-#define FLOW_METER_ENTRY_HIGH_MS (1000U)
-#define FLOW_METER_EXIT_HIGH_MS (1000U)
+#define FLOW_METER_TIME_TO_FAULT (1000U)
+#define FLOW_METER_TIME_TO_CLEAR (1000U)
 
 struct Coolant
 {
@@ -45,7 +45,7 @@ struct Coolant *App_Coolant_Create(
     coolant->get_pressure_A = get_pressure_A;
     coolant->get_pressure_B = get_pressure_B;
 
-    coolant->flow_in_range = App_SharedSignal_Create(FLOW_METER_ENTRY_HIGH_MS, FLOW_METER_EXIT_HIGH_MS);
+    coolant->flow_in_range = App_SharedSignal_Create(FLOW_METER_TIME_TO_FAULT, FLOW_METER_TIME_TO_CLEAR);
 
     return coolant;
 }

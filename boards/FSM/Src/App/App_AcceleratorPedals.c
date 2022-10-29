@@ -5,12 +5,12 @@
 
 
 // config
-#define PAPPS_ENTRY_HIGH_MS (10U)
-#define PAPPS_EXIT_HIGH_MS (10U)
-#define SAPPS_ENTRY_HIGH_MS (10U)
-#define SAPPS_EXIT_HIGH_MS (10U)
-#define APPS_ENTRY_HIGH_MS (100U)
-#define APPS_EXIT_HIGH_MS (1000U)
+#define APPS_TIME_TO_FAULT (100U)
+#define APPS_TIME_TO_CLEAR (1000U)
+#define PAPPS_TIME_TO_FAULT (10U)
+#define PAPPS_TIME_TO_CLEAR (10U)
+#define SAPPS_TIME_TO_FAULT (10U)
+#define SAPPS_TIME_TO_CLEAR (10U)
 
 struct AcceleratorPedals
 {
@@ -151,9 +151,9 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
     accelerator_pedals->get_primary_pedal_percent         = get_primary_pedal_percent;
     accelerator_pedals->get_secondary_pedal_percent       = get_secondary_pedal_percent;
 
-    accelerator_pedals->app_agreement_signal = App_SharedSignal_Create(APPS_ENTRY_HIGH_MS, APPS_EXIT_HIGH_MS);
-    accelerator_pedals->papp_alarm_signal    = App_SharedSignal_Create(PAPPS_ENTRY_HIGH_MS, PAPPS_EXIT_HIGH_MS);
-    accelerator_pedals->sapp_alarm_signal    = App_SharedSignal_Create(SAPPS_ENTRY_HIGH_MS, SAPPS_EXIT_HIGH_MS);
+    accelerator_pedals->app_agreement_signal = App_SharedSignal_Create(APPS_TIME_TO_FAULT, APPS_TIME_TO_CLEAR);
+    accelerator_pedals->papp_alarm_signal    = App_SharedSignal_Create(PAPPS_TIME_TO_FAULT, PAPPS_TIME_TO_CLEAR);
+    accelerator_pedals->sapp_alarm_signal    = App_SharedSignal_Create(SAPPS_TIME_TO_FAULT, SAPPS_TIME_TO_CLEAR);
 
     accelerator_pedals->AppBreakInplausable = false;
 
