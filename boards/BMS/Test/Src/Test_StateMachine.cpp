@@ -699,6 +699,134 @@ TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_state
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
-} // namespace StateMachineTest
 
-// namespace StateMachineTest
+TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_states_ts_discharge_overcurrent)
+{
+    SetInitialState(App_GetInitState());
+
+    // Max acceptable discharge current is 88.5A*3 = 265.5A
+    get_high_res_current_fake.return_val = 90.0f;
+    get_low_res_current_fake.return_val  = 90.0f;
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+}
+TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_states_ts_charge_overcurrent)
+{
+    SetInitialState(App_GetChargeState());
+
+    // Max acceptable charge current is 23.6A * 3 = 70.8A
+    get_high_res_current_fake.return_val = 24.0f;
+    get_low_res_current_fake.return_val  = 24.0f;
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
+TEST_F(BmsStateMachineTest, check_precharge_fault)
+{
+    SetInitialState(App_GetInitState());
+
+    bool is_charger_connected_test = false;
+    bool is_ts_rising_slowly_test  = false;
+    bool is_ts_rising_quickly_test = false;
+
+    for (int i = 0; i < 2; i++)
+    {
+        App_PrechargeRelay_CheckFaults(
+            can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test);
+    }
+    ASSERT_EQ(
+        false, App_PrechargeRelay_CheckFaults(
+                   can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
+
+    is_charger_connected_test = false;
+    is_ts_rising_slowly_test  = true;
+    is_ts_rising_quickly_test = false;
+
+    for (int i = 0; i < 2; i++)
+    {
+        App_PrechargeRelay_CheckFaults(
+            can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test);
+    }
+    ASSERT_EQ(
+        true, App_PrechargeRelay_CheckFaults(
+                  can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
+
+    is_charger_connected_test = false;
+    is_ts_rising_slowly_test  = false;
+    is_ts_rising_quickly_test = true;
+
+    for (int i = 0; i < 2; i++)
+    {
+        App_PrechargeRelay_CheckFaults(
+            can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test);
+    }
+    ASSERT_EQ(
+        true, App_PrechargeRelay_CheckFaults(
+                  can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
+
+    is_charger_connected_test = false;
+    is_ts_rising_slowly_test  = true;
+    is_ts_rising_quickly_test = true;
+
+    for (int i = 0; i < 2; i++)
+    {
+        App_PrechargeRelay_CheckFaults(
+            can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test);
+    }
+    ASSERT_EQ(
+        true, App_PrechargeRelay_CheckFaults(
+                  can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
+
+    is_charger_connected_test = true;
+    is_ts_rising_slowly_test  = false;
+    is_ts_rising_quickly_test = false;
+
+    for (int i = 0; i < 2; i++)
+    {
+        App_PrechargeRelay_CheckFaults(
+            can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test);
+    }
+    ASSERT_EQ(
+        false, App_PrechargeRelay_CheckFaults(
+                   can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
+
+    is_charger_connected_test = true;
+    is_ts_rising_slowly_test  = true;
+    is_ts_rising_quickly_test = false;
+
+    for (int i = 0; i < 2; i++)
+    {
+        App_PrechargeRelay_CheckFaults(
+            can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test);
+    }
+    ASSERT_EQ(
+        true, App_PrechargeRelay_CheckFaults(
+                  can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
+
+    is_charger_connected_test = true;
+    is_ts_rising_slowly_test  = false;
+    is_ts_rising_quickly_test = true;
+
+    for (int i = 0; i < 2; i++)
+    {
+        App_PrechargeRelay_CheckFaults(
+            can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test);
+    }
+    ASSERT_EQ(
+        false, App_PrechargeRelay_CheckFaults(
+                   can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
+
+    is_charger_connected_test = true;
+    is_ts_rising_slowly_test  = true;
+    is_ts_rising_quickly_test = true;
+
+    for (int i = 0; i < 2; i++)
+    {
+        App_PrechargeRelay_CheckFaults(
+            can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test);
+    }
+    ASSERT_EQ(
+        true, App_PrechargeRelay_CheckFaults(
+                  can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
+}
+} // namespace StateMachineTest
