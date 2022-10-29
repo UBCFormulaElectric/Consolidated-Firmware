@@ -1,4 +1,5 @@
 #include "states/App_AllStates.h"
+#include "states/App_FaultState.h"
 #include "App_SharedConstants.h"
 
 #define TORQUE_LIMIT_OFFSET_NM (5.0f)
@@ -72,4 +73,18 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     //     CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_FALSE_CHOICE);
     //    App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(
     //        can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE);
+
+    // NEW ALL STATES CODE
+    bool coolantTriggerShutdown = false;
+    App_AcceleratorPedals_Broadcast(world);
+    App_Brake_Broadcast(world);
+    App_Coolant_Broadcast(world, &coolantTriggerShutdown);
+    App_Steering_Broadcast(world);
+    App_Wheels_Broadcast(world);
+
+    // go to fault state
+    if (coolantTriggerShutdown)
+    {
+        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+    }
 }
