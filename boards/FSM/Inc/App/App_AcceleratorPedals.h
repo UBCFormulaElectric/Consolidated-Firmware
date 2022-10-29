@@ -2,7 +2,6 @@
 
 #include <stdbool.h>
 #include "App_FsmWorld.h"
-#include "App_Brake.h"
 
 #define PAPPS_ENCODER_FULLY_PRESSED_VALUE (937U)
 #define PAPPS_ENCODER_UNPRESSED_VALUE (1353U)

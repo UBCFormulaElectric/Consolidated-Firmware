@@ -227,7 +227,7 @@ int main(void)
 
     // Brake
     brake = App_Brake_Create(
-        Io_MSP3002K5P3N1_GetPressurePsi, Io_RearBrake_GetPressurePsi, Io_MSP3002K5P3N1_IsOpenOrShortCircuit,
+        Io_FrontBrake_GetPressurePsi, Io_RearBrake_GetPressurePsi, Io_FrontBrake_IsOpenOrShortCircuit,
         Io_RearBrake_IsOpenOrShortCircuit, Io_BrakePedal_GetAngle, IO_BrakePedal_IsOpenOrShortCircuit,
         Io_Brake_IsActuated);
     // Coolants

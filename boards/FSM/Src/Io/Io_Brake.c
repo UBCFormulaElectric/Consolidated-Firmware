@@ -7,12 +7,12 @@ bool Io_Brake_IsActuated(void)
     return HAL_GPIO_ReadPin(BSPD_BRAKE_STATUS_GPIO_Port, BSPD_BRAKE_STATUS_Pin) == GPIO_PIN_SET;
 }
 
-bool Io_MSP3002K5P3N1_IsOpenOrShortCircuit(void)
+bool Io_FrontBrake_IsOpenOrShortCircuit(void)
 {
     return HAL_GPIO_ReadPin(BRAKE_OC_SC_OK_GPIO_Port, BRAKE_OC_SC_OK_Pin) == GPIO_PIN_RESET;
 }
 
-float Io_MSP3002K5P3N1_GetPressurePsi(void)
+float Io_FrontBrake_GetPressurePsi(void)
 {
     // The sensor operates from 0.5V to 4.5V. The voltage divider decreases the
     // voltage by a factor of (2/3). Thus the minimum voltage seen by the analog
