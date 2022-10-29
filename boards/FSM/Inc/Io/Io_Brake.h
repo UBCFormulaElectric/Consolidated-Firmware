@@ -43,7 +43,8 @@ float Io_RearBrake_GetPressurePsi(void);
  * not
  */
 bool IO_BrakePedal_IsOpenOrShortCircuit(void);
+
 /**
- * @return the angle of the brake pedal in radians.
+ * @return the percent travel of the brake pedal
  */
-float Io_BrakePedal_GetAngle(void);
+float Io_BrakePedal_GetPercentTravel(void);

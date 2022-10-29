@@ -45,7 +45,7 @@ bool IO_BrakePedal_IsOpenOrShortCircuit(void)
     return false;
 }
 // TODO Implement the IO brake pedal angle Function
-float Io_BrakePedal_GetAngle(void)
+float Io_BrakePedal_GetPercentTravel(void)
 {
     return 0;
 }
