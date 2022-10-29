@@ -19,20 +19,21 @@ STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(FsmCanTxInterface)
 struct Brake
 {
     struct InRangeCheck *pressure_in_range_check;
-    float (*get_primary_pressure_psi)(void);
-    float (*get_secondary_pressure_psi)(void);
-    bool (*is_primary_pressure_sensor_open_or_short_circuit)(void);
-    bool (*is_secondary_pressure_sensor_open_or_short_circuit)(void);
+    float (*get_front_pressure_psi)(void);
+    float (*get_rear_pressure_psi)(void);
+    bool (*is_front_pressure_sensor_open_or_short_circuit)(void);
+    bool (*is_rear_pressure_sensor_open_or_short_circuit)(void);
+
     float (*pedal_angle)(void);
     bool (*is_pedal_angle_sensor_open_or_short_circuit)(void);
     bool (*is_brake_actuated)(void);
 };
 
 struct Brake *App_Brake_Create(
-    float (*get_primary_pressure_psi)(void),
-    float (*get_secondary_pressure_psi)(void),
-    bool (*is_primary_pressure_sensor_open_or_short_circuit)(void),
-    bool (*is_secondary_sensor_open_or_short_circuit)(void),
+    float (*get_front_sensor_psi)(void),
+    float (*get_rear_sensor_psi)(void),
+    bool (*is_front_pressure_sensor_open_or_short_circuit)(void),
+    bool (*is_rear_sensor_open_or_short_circuit)(void),
     float (*pedal_angle)(void),
     bool (*is_pedal_angle_sensor_open_or_short_circuit)(void),
     bool (*is_brake_actuated)(void))
@@ -41,11 +42,11 @@ struct Brake *App_Brake_Create(
     assert(brake != NULL);
 
     brake->pressure_in_range_check =
-        App_InRangeCheck_Create(get_primary_pressure_psi, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
-    brake->get_primary_pressure_psi                           = get_primary_pressure_psi;
-    brake->get_secondary_pressure_psi                         = get_secondary_pressure_psi;
-    brake->is_primary_pressure_sensor_open_or_short_circuit   = is_primary_pressure_sensor_open_or_short_circuit;
-    brake->is_secondary_pressure_sensor_open_or_short_circuit = is_secondary_sensor_open_or_short_circuit;
+        App_InRangeCheck_Create(get_front_sensor_psi, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
+    brake->get_front_pressure_psi                             = get_front_sensor_psi;
+    brake->get_rear_pressure_psi                              = get_rear_sensor_psi;
+    brake->is_front_pressure_sensor_open_or_short_circuit     = is_front_pressure_sensor_open_or_short_circuit;
+    brake->is_rear_pressure_sensor_open_or_short_circuit      = is_rear_sensor_open_or_short_circuit;
     brake->pedal_angle                                        = pedal_angle;
     brake->is_pedal_angle_sensor_open_or_short_circuit        = is_pedal_angle_sensor_open_or_short_circuit;
     brake->is_brake_actuated                                  = is_brake_actuated;
@@ -69,16 +70,16 @@ bool App_Brake_IsBrakeActuated(const struct Brake *brake)
 bool App_Brake_IsPressureSensorOpenOrShortCircuit(const struct Brake *brake)
 {
     //TODO perhaps rethink how this is implemented
-    return brake->is_primary_pressure_sensor_open_or_short_circuit() ||
-           brake->is_secondary_pressure_sensor_open_or_short_circuit();
+    return brake->is_front_pressure_sensor_open_or_short_circuit() ||
+           brake->is_rear_pressure_sensor_open_or_short_circuit();
 }
 bool App_Brake_IsPressureSensorOpenCircuit(const struct Brake *brake)
 {
-    return brake->get_primary_pressure_psi() < BRAKE_PRESSURE_OC_THRESHOLD;
+    return brake->get_front_pressure_psi() < BRAKE_PRESSURE_OC_THRESHOLD || brake->get_rear_pressure_psi() < BRAKE_PRESSURE_OC_THRESHOLD;
 }
 bool App_Brake_IsPressureSensorShortCircuited(const struct Brake *brake)
 {
-    return brake->get_primary_pressure_psi() > BRAKE_PRESSURE_SC_THRESHOLD;
+    return brake->get_front_pressure_psi() > BRAKE_PRESSURE_SC_THRESHOLD || brake->get_rear_pressure_psi() > BRAKE_PRESSURE_SC_THRESHOLD;
 }
 //TODO Implement as signal??
 bool App_Brake_IsPedalSensorOpenOrShortCircuit(const struct Brake *brake)

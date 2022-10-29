@@ -7,11 +7,11 @@ struct Brake;
 
 /**
  * Allocate and initialize a brake
- * @param get_primary_pressure_psi A function that returns the brake pressure in psi from the primary sensor
- * @param get_secondary_pressure_psi A function that returns the brake pressure in psi from the secondary sensor
- * @param is_primary_pressure_sensor_open_or_short_circuit A function that checks whether the primary pressure sensor is
+ * @param get_front_sensor_psi A function that returns the brake pressure in psi from the primary sensor
+ * @param get_rear_sensor_psi A function that returns the brake pressure in psi from the secondary sensor
+ * @param is_front_pressure_sensor_open_or_short_circuit A function that checks whether the primary pressure sensor is
  * in an open or short circuit state
- * @param is_secondary_pressure_sensor_open_or_short_circuit A function that checks whether the secondary pressure
+ * @param is_rear_sensor_open_or_short_circuit A function that checks whether the secondary pressure
  * sensor is in an open or short circuit state
  * @param pedal_angle A function that returns the brake pedal angle in radians
  * @param is_pedal_angle_sensor_open_or_short_circuit A function that checks whether the pedal angle sensor is in an
@@ -20,10 +20,10 @@ struct Brake;
  * @return The created brake whose ownership is given to the caller
  */
 struct Brake *App_Brake_Create(
-    float (*get_primary_pressure_psi)(void),
-    float (*get_secondary_pressure_psi)(void),
-    bool (*is_primary_pressure_sensor_open_or_short_circuit)(void),
-    bool (*is_secondary_pressure_sensor_open_or_short_circuit)(void),
+    float (*get_front_sensor_psi)(void),
+    float (*get_rear_sensor_psi)(void),
+    bool (*is_front_pressure_sensor_open_or_short_circuit)(void),
+    bool (*is_rear_sensor_open_or_short_circuit)(void),
     float (*pedal_angle)(void),
     bool (*is_pedal_angle_sensor_open_or_short_circuit)(void),
     bool (*is_brake_actuated)(void));

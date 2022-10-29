@@ -231,7 +231,7 @@ int main(void)
         Io_RearBrake_IsOpenOrShortCircuit, Io_BrakePedal_GetPercentTravel, IO_BrakePedal_IsOpenOrShortCircuit,
         Io_Brake_IsActuated);
     // Coolants
-    Io_FlowMeters_Init(&htim4);
+    Io_FlowMeter_Init(&htim4);
     coolant = App_Coolant_Create(
         Io_FlowMeters_GetFlowRate, Io_GetTemperatureA, Io_GetTemperatureB, Io_GetPressureA, Io_GetPressureB);
 
