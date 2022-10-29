@@ -3,7 +3,7 @@
 #include "Io_SharedFreqOnlyPwmInput.h"
 
 static struct FreqOnlyPwmInput *flow_meter;
-void                            Io_FlowMeters_Init(TIM_HandleTypeDef *htim)
+void  Io_FlowMeter_Init(TIM_HandleTypeDef *htim)
 {
     assert(htim != NULL);
 

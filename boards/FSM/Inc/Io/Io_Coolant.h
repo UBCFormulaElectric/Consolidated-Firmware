@@ -3,10 +3,10 @@
 #include <stm32f3xx_hal.h>
 
 /**
- * Initializes the primary and secondary flow meter
+ * Initializes a given timer handle for a flow meter
  * @param htim : The timer handle for both flow meters
  */
-void Io_FlowMeters_Init(TIM_HandleTypeDef *htim);
+void Io_FlowMeter_Init(TIM_HandleTypeDef *htim);
 
 /**
  * @returns the flow rate (L/min) from the primary flow meter
