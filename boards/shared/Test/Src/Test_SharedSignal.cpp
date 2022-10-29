@@ -200,7 +200,7 @@ class SharedSignalTest : public testing::Test
         for (uint32_t ms = 0; ms < delay_ms_before_exit_signal; ms++)
         {
             App_SharedSignal_Update(signal, ++current_ms);
-            ASSERT_TRUE(App_SharedSignal_IsCallbackTriggered(signal));
+            ASSERT_TRUE(App_SharedSignal_IsSignalActivated(signal));
             ASSERT_EQ(entry_start_ms, App_SharedSignal_GetExitLastTimeHighMs(signal));
             ASSERT_EQ(current_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
         }
@@ -214,7 +214,7 @@ class SharedSignalTest : public testing::Test
             for (uint32_t ms = 0; ms < exit_high_duration_ms; ms++)
             {
                 App_SharedSignal_Update(signal, ++current_ms);
-                ASSERT_TRUE(App_SharedSignal_IsCallbackTriggered(signal));
+                ASSERT_TRUE(App_SharedSignal_IsSignalActivated(signal));
                 ASSERT_EQ(entry_start_ms, App_SharedSignal_GetExitLastTimeHighMs(signal));
                 ASSERT_EQ(current_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
             }
@@ -240,7 +240,7 @@ class SharedSignalTest : public testing::Test
         for (uint32_t ms = 0; ms < delay_ms_before_exit_signal; ms++)
         {
             App_SharedSignal_Update(signal, ++current_ms);
-            ASSERT_TRUE(App_SharedSignal_IsCallbackTriggered(signal));
+            ASSERT_TRUE(App_SharedSignal_IsSignalActivated(signal));
             ASSERT_EQ(entry_start_ms, App_SharedSignal_GetExitLastTimeHighMs(signal));
             ASSERT_EQ(current_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
         }
@@ -254,11 +254,11 @@ class SharedSignalTest : public testing::Test
         {
             if (ms <= exit_high_duration_ms - 1)
             {
-                ASSERT_TRUE(App_SharedSignal_IsCallbackTriggered(signal));
+                ASSERT_TRUE(App_SharedSignal_IsSignalActivated(signal));
             }
             else
             {
-                ASSERT_FALSE(App_SharedSignal_IsCallbackTriggered(signal));
+                ASSERT_FALSE(App_SharedSignal_IsSignalActivated(signal));
             }
 
             App_SharedSignal_Update(signal, ++current_ms);
@@ -278,7 +278,7 @@ class SharedSignalTest : public testing::Test
                 ASSERT_EQ(exit_start_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
             }
 
-            ASSERT_EQ(false, App_SharedSignal_IsCallbackTriggered(signal));
+            ASSERT_EQ(false, App_SharedSignal_IsSignalActivated(signal));
         }
     }
 
@@ -301,7 +301,7 @@ class SharedSignalTest : public testing::Test
         for (uint32_t ms = 0; ms < delay_ms_before_exit_signal; ms++)
         {
             App_SharedSignal_Update(signal, ++current_ms);
-            ASSERT_TRUE(App_SharedSignal_IsCallbackTriggered(signal));
+            ASSERT_TRUE(App_SharedSignal_IsSignalActivated(signal));
             ASSERT_EQ(entry_start_ms, App_SharedSignal_GetExitLastTimeHighMs(signal));
             ASSERT_EQ(current_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
         }
@@ -336,7 +336,7 @@ class SharedSignalTest : public testing::Test
 
             // The callback function is triggered continuously as
             // is_exit_condition_high was interrupted on the last ms.
-            ASSERT_TRUE(App_SharedSignal_IsCallbackTriggered(signal));
+            ASSERT_TRUE(App_SharedSignal_IsSignalActivated(signal));
         }
 
         is_exit_high_fake.return_val = true;
@@ -354,7 +354,7 @@ class SharedSignalTest : public testing::Test
                 ASSERT_EQ(exit_start_ms, App_SharedSignal_GetExitLastTimeLowMs(signal));
             }
 
-            ASSERT_EQ(false, App_SharedSignal_IsCallbackTriggered(signal));
+            ASSERT_EQ(false, App_SharedSignal_IsSignalActivated(signal));
         }
     }
 

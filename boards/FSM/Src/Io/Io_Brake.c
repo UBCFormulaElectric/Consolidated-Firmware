@@ -17,15 +17,15 @@ float Io_MSP3002K5P3N1_GetPressurePsi(void)
     // The sensor operates from 0.5V to 4.5V. The voltage divider decreases the
     // voltage by a factor of (2/3). Thus the minimum voltage seen by the analog
     // input pin is 0.33V while the maximum voltage seen is 3V
-    const float MIN_INPUT_VOLTAGE = 0.33f;
-    const float MAX_INPUT_VOLTAGE = 3.0f;
+    const float min_input_voltage = 0.33f;
+    const float max_input_voltage = 3.0f;
 
     // Psi Per Volt = (Max Pressure - Min Pressure) / (Max Input Voltage - Min
     // Input Voltage)
-    const float PSI_PER_VOLT = 2500.0f / (MAX_INPUT_VOLTAGE - MIN_INPUT_VOLTAGE);
+    const float psi_per_volt = 2500.0f / (max_input_voltage - min_input_voltage);
 
     // Brake pressure = (ADC Voltage - Min Input Voltage) * Psi Per Volt
-    return PSI_PER_VOLT * (Io_Adc_GetChannel3Voltage() - MIN_INPUT_VOLTAGE);
+    return psi_per_volt * (Io_Adc_GetChannel3Voltage() - min_input_voltage);
 }
 
 // TODO Implement the IO rear brake open/short circuit function
