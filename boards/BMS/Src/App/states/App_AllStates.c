@@ -158,7 +158,9 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         acc_meas_settle_count++;
     }
-    else if (acc_fault || ts_fault)
+
+    // App_SharedErrorTable_HasAnyCriticalErrorSet left in for now, to be removed entirely in future
+    else if (acc_fault || ts_fault || App_SharedErrorTable_HasAnyCriticalErrorSet(error_table))
     {
         status = false;
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
