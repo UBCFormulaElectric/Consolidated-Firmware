@@ -234,12 +234,12 @@ bool App_Accumulator_CheckFaults(
         min_allowable_cell_temp = MIN_CELL_CHARGE_TEMP_DEGC;
     }
 
-    if (App_Accumulator_GetMinCellTempDegC(accumulator, &min_temp_segment, &min_temp_cell) > max_allowable_cell_temp)
+    if (App_Accumulator_GetMinCellTempDegC(accumulator, &min_temp_segment, &min_temp_cell) < min_allowable_cell_temp)
     {
         undertemp_fault = true;
     }
 
-    if (App_Accumulator_GetMaxCellTempDegC(accumulator, &max_temp_segment, &max_temp_cell) < min_allowable_cell_temp)
+    if (App_Accumulator_GetMaxCellTempDegC(accumulator, &max_temp_segment, &max_temp_cell) > max_allowable_cell_temp)
     {
         overtemp_fault = true;
     }

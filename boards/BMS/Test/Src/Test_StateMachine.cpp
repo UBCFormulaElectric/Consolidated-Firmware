@@ -630,12 +630,12 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
 
 TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_states_undervoltage)
 {
-    SetInitialState(App_GetInitState());
+    SetInitialState(App_GetDriveState());
 
     get_min_cell_voltage_fake.return_val = 2.9f;
-    LetTimePass(StateMachine, 1000);
-    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState());
-    // ASSERT_EQ(CANMSG_BMS_AIR_SHUTDOWN_ERRORS_CELL_UNDERVOLTAGE_FAULT, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_states_overvoltage)
@@ -643,50 +643,51 @@ TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_state
     SetInitialState(App_GetInitState());
 
     get_max_cell_voltage_fake.return_val = 4.3f;
-    LetTimePass(StateMachine, 1000);
-    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState());
-    // ASSERT_EQ(CANMSG_BMS_AIR_SHUTDOWN_ERRORS_CELL_OVERVOLTAGE_FAULT, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_states_overtemp_drive_state)
 {
-    SetInitialState(App_GetDriveState());
+    SetInitialState(App_GetInitState());
 
-    //In Discharge state, acceptible temp range is (-20, 60), should be unaffected by temp of 46 C
+    // In Discharge state, acceptible temp range is (-20, 60), should be unaffected by temp of 46 C
     get_max_temp_degc_fake.return_val = 46.0f;
-    LetTimePass(StateMachine, 1000);
-    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState());
+    LetTimePass(state_machine, 10);
+    ASSERT_NE(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+
+    LetTimePass(state_machine, 1000);
 
     get_max_temp_degc_fake.return_val = 61.0f;
-    LetTimePass(StateMachine, 1000);
-    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState());
-    // ASSERT_EQ(CANMSG_BMS_AIR_SHUTDOWN_ERRORS_CELL_OVERVTEMP_FAULT, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    LetTimePass(state_machine, 10);
+
+    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_states_overtemp_charge_state)
 {
     SetInitialState(App_GetChargeState());
-    
+
     // In Charge state acceptible temp range is (0, 45)
     get_max_temp_degc_fake.return_val = 46.0f;
-    LetTimePass(StateMachine, 1000);
-    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState());
-    // ASSERT_EQ(CANMSG_BMS_AIR_SHUTDOWN_ERRORS_CELL_OVERTEMP_FAULT, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_states_undertemp_drive_state)
 {
-    SetInitialState(App_GetDriveState());
+    SetInitialState(App_GetInitState());
 
     // In Discharge state, acceptible temp range is (-20, 60), should be unaffected by temp of -1 C
     get_min_temp_degc_fake.return_val = -1.0f;
-    LetTimePass(StateMachine, 1000);
-    ASSERT_EQ(App_GetDriveState(), App_SharedStateMachine_GetCurrentState());
+    LetTimePass(state_machine, 10);
+    ASSERT_NE(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+
+    LetTimePass(state_machine, 1000);
 
     get_min_temp_degc_fake.return_val = -21.0f;
-    LetTimePass(StateMachine, 1000);
-    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState());
-    // ASSERT_EQ(CANMSG_BMS_AIR_SHUTDOWN_ERRORS_CELL_UNDERTEMP_FAULT, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_states_undertemp_charge_state)
@@ -695,78 +696,9 @@ TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_state
 
     // In Charge state acceptible temp range is (0, 45)
     get_min_temp_degc_fake.return_val = -1.0f;
-    LetTimePass(StateMachine, 1000);
-    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState());
-    // ASSERT_EQ(CANMSG_BMS_AIR_SHUTDOWN_ERRORS_CELL_UNDERTEMP_FAULT, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
-
-TEST_F(BmsStateMachineTest, check_precharge_fault){
-    SetInitialState(App_GetInitState());
-    
-    bool is_charger_connected_test = false;
-    bool is_ts_rising_slowly_test = false;
-    bool is_ts_rising_quickly_test = false;    
-    
-    for(int i=0; i<3; i++){
-        ASSERT_EQ(false, App_PrechargeRelay_CheckFaults(can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
-    }
-
-    is_charger_connected_test = false;
-    is_ts_rising_slowly_test = true;
-    is_ts_rising_quickly_test = false;
-
-    for(int i=0; i<3; i++){
-        ASSERT_EQ(true, App_PrechargeRelay_CheckFaults(can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
-    }
-
-    is_charger_connected_test = false;
-    is_ts_rising_slowly_test = false;
-    is_ts_rising_quickly_test = true;
-
-    for(int i=0; i<3; i++){
-        ASSERT_EQ(true, App_PrechargeRelay_CheckFaults(can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
-    }
-
-    is_charger_connected_test = false;
-    is_ts_rising_slowly_test = true;
-    is_ts_rising_quickly_test = true;
-
-    for(int i=0; i<3; i++){
-        ASSERT_EQ(true, App_PrechargeRelay_CheckFaults(can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
-    }
-
-    is_charger_connected_test = true;
-    is_ts_rising_slowly_test = false;
-    is_ts_rising_quickly_test = false;
-
-    for(int i=0; i<3; i++){
-        ASSERT_EQ(false, App_PrechargeRelay_CheckFaults(can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
-    }
-
-    is_charger_connected_test = true;
-    is_ts_rising_slowly_test = true;
-    is_ts_rising_quickly_test = false;
-
-    for(int i=0; i<3; i++){
-        ASSERT_EQ(true, App_PrechargeRelay_CheckFaults(can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
-    }
-
-    is_charger_connected_test = true;
-    is_ts_rising_slowly_test = false;
-    is_ts_rising_quickly_test = true;
-
-    for(int i=0; i<3; i++){
-        ASSERT_EQ(false, App_PrechargeRelay_CheckFaults(can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
-    }
-
-    is_charger_connected_test = true;
-    is_ts_rising_slowly_test = true;
-    is_ts_rising_quickly_test = true;
-
-    for(int i=0; i<3; i++){
-        ASSERT_EQ(true, App_PrechargeRelay_CheckFaults(can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
-    }
-
-}
+} // namespace StateMachineTest
 
 // namespace StateMachineTest
