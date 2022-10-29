@@ -230,13 +230,13 @@ void App_AcceleratorPedals_Broadcast(struct FsmWorld* world)
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
         //TODO SIGNAL FOR THIS FAILURE
     }
-    else if (app_agreement_signal_state == SIGNAL_EXIT_HIGH)
+    else if (app_agreement_signal_state == SIGNAL_STATE_CLEAR)
     {
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
         App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(
             can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_TRUE_CHOICE);
     }
-    else if (app_agreement_signal_state == SIGNAL_ENTRY_HIGH)
+    else if (app_agreement_signal_state == SIGNAL_STATE_ACTIVE)
     {
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, papps_pedal_percentage);
         App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(
@@ -249,14 +249,14 @@ void App_AcceleratorPedals_Broadcast(struct FsmWorld* world)
 
     App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, sapps_pedal_percentage);
 
-    if (papp_signal_state == SIGNAL_ENTRY_HIGH)
+    if (papp_signal_state == SIGNAL_STATE_ACTIVE)
     {
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
         App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
         App_CanTx_SetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(
             can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE);
     }
-    else if (papp_signal_state == SIGNAL_EXIT_HIGH)
+    else if (papp_signal_state == SIGNAL_STATE_CLEAR)
     {
         App_CanTx_SetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(
             can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE);
@@ -265,13 +265,13 @@ void App_AcceleratorPedals_Broadcast(struct FsmWorld* world)
     {
         // signal failure?
     }
-    if (sapp_signal_state == SIGNAL_ENTRY_HIGH)
+    if (sapp_signal_state == SIGNAL_STATE_ACTIVE)
     {
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
         App_CanTx_SetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(
             can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE);
     }
-    else if (sapp_signal_state == SIGNAL_EXIT_HIGH)
+    else if (sapp_signal_state == SIGNAL_STATE_CLEAR)
     {
         App_CanTx_SetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(
             can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE);

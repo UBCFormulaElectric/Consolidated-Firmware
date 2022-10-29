@@ -10,8 +10,8 @@
 
 typedef enum
 {
-    SIGNAL_ENTRY_HIGH, // Entry: Alert is now active.
-    SIGNAL_EXIT_HIGH,  // Exit: Alert is not active.
+    SIGNAL_STATE_ACTIVE, // Entry: Alert is now active.
+    SIGNAL_STATE_CLEAR,  // Exit: Alert is not active.
 } SignalState;
 
 struct Signal;
@@ -44,7 +44,7 @@ SignalState App_SharedSignal_Update(struct Signal *signal, bool entry_condition_
  * @param signal The signal to check if the callback function is triggered
  * @return true if the callback function is triggered, false if it is not
  */
-bool App_SharedSignal_IsCallbackTriggered(const struct Signal *const signal);
+bool App_SharedSignal_IsSignalActivated(const struct Signal *const signal);
 
 /**
  * Deallocate the memory used by the given signal

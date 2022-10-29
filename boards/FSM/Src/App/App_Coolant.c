@@ -69,13 +69,13 @@ void App_Coolant_Broadcast(const struct FsmWorld * world, bool *coolantTriggerSh
         coolant->flow_in_range, flow_rate_inRangeCheck_status == VALUE_UNDERFLOW,
         flow_rate_inRangeCheck_status == VALUE_IN_RANGE);
 
-    if (flow_in_range_signal_state == SIGNAL_ENTRY_HIGH)
+    if (flow_in_range_signal_state == SIGNAL_STATE_ACTIVE)
     {
         *coolantTriggerShutdown = true;
         App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(
             can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_TRUE_CHOICE);
     }
-    else if (flow_in_range_signal_state == SIGNAL_EXIT_HIGH)
+    else if (flow_in_range_signal_state == SIGNAL_STATE_CLEAR)
         App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(
             can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE);
     else
