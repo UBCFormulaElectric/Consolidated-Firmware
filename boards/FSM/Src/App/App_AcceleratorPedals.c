@@ -226,16 +226,13 @@ void App_AcceleratorPedals_Broadcast(struct FsmWorld* world)
     }
     else if (App_Brake_IsBrakeActuated(brake) && accelerator_pedals->get_primary_pedal_percent() > 0.25f)
     {
-        // SHUTDOWN
         accelerator_pedals->AppBreakInplausable = true;
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
         //TODO SIGNAL FOR THIS FAILURE
     }
     else if (app_agreement_signal_state == SIGNAL_EXIT_HIGH)
     {
-        // SHUTDOWN
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
-        // reports disagreement
         App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(
             can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_TRUE_CHOICE);
     }
