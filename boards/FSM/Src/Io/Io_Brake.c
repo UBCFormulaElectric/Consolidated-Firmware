@@ -7,12 +7,12 @@ bool Io_Brake_IsActuated(void)
     return HAL_GPIO_ReadPin(BSPD_BRAKE_STATUS_GPIO_Port, BSPD_BRAKE_STATUS_Pin) == GPIO_PIN_SET;
 }
 
-bool Io_FrontBrake_IsOpenOrShortCircuit(void)
+bool Io_Brake_IsFrontBrakeOpenOrShortCircuit(void)
 {
     return HAL_GPIO_ReadPin(BRAKE_OC_SC_OK_GPIO_Port, BRAKE_OC_SC_OK_Pin) == GPIO_PIN_RESET;
 }
 
-float Io_FrontBrake_GetPressurePsi(void)
+float Io_Brake_GetFrontBrakePressurePsi(void)
 {
     // The sensor operates from 0.5V to 4.5V. The voltage divider decreases the
     // voltage by a factor of (2/3). Thus the minimum voltage seen by the analog
@@ -29,23 +29,23 @@ float Io_FrontBrake_GetPressurePsi(void)
 }
 
 // TODO Implement the IO rear brake open/short circuit function
-bool Io_RearBrake_IsOpenOrShortCircuit(void)
+bool Io_Brake_IsRearBrakeOpenOrShortCircuit(void)
 {
     return false;
 }
 // TODO Implement the IO rear brake pressure PSI Function
-float Io_RearBrake_GetPressurePsi(void)
+float Io_Brake_GetRearBrakePressurePsi(void)
 {
     return 1.6f;
 }
 
 // TODO Implement the IO brake pedal angle open/short circuit Function
-bool IO_BrakePedal_IsOpenOrShortCircuit(void)
+bool IO_Brake_IsPedalOpenOrShortCircuit(void)
 {
     return false;
 }
 // TODO Implement the IO brake pedal angle Function
-float Io_BrakePedal_GetPercentTravel(void)
+float Io_Brake_GetPedalPercentTravel(void)
 {
     return 0;
 }

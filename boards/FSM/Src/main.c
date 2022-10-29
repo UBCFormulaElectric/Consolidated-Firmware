@@ -227,8 +227,8 @@ int main(void)
 
     // Brake
     brake = App_Brake_Create(
-        Io_FrontBrake_GetPressurePsi, Io_RearBrake_GetPressurePsi, Io_FrontBrake_IsOpenOrShortCircuit,
-        Io_RearBrake_IsOpenOrShortCircuit, Io_BrakePedal_GetPercentTravel, IO_BrakePedal_IsOpenOrShortCircuit,
+        Io_Brake_GetFrontBrakePressurePsi, Io_Brake_GetRearBrakePressurePsi, Io_Brake_IsFrontBrakeOpenOrShortCircuit,
+        Io_Brake_IsRearBrakeOpenOrShortCircuit, Io_Brake_GetPedalPercentTravel, IO_Brake_IsPedalOpenOrShortCircuit,
         Io_Brake_IsActuated);
     // Coolants
     Io_FlowMeter_Init(&htim4);
