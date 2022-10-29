@@ -42,11 +42,11 @@ struct FsmWorld *App_FsmWorld_Create(
     world->can_rx_interface  = can_rx_interface;
     world->heartbeat_monitor = heartbeat_monitor;
 
-    world->papps_and_sapps  = papps_and_sapps;
-    world->brake            = brake;
-    world->coolant          = coolant;
-    world->steering         = steering;
-    world->wheels           = wheels;
+    world->papps_and_sapps = papps_and_sapps;
+    world->brake           = brake;
+    world->coolant         = coolant;
+    world->steering        = steering;
+    world->wheels          = wheels;
 
     return world;
 }

@@ -6,9 +6,9 @@
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
-    struct FsmWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
-    struct FsmCanTxInterface *can_tx           = App_FsmWorld_GetCanTx(world);
-    struct Brake *            brake            = App_FsmWorld_GetBrake(world);
+    struct FsmWorld *         world  = App_SharedStateMachine_GetWorld(state_machine);
+    struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
+    struct Brake *            brake  = App_FsmWorld_GetBrake(world);
 
     App_CanTx_SetPeriodicSignal_BRAKE_PRESSURE_OPEN_OC(can_tx, App_Brake_IsPressureSensorOpenCircuit(brake));
     App_CanTx_SetPeriodicSignal_BRAKE_PRESSURE_OPEN_SC(can_tx, App_Brake_IsPressureSensorShortCircuited(brake));
@@ -37,8 +37,10 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     float right_torque_req = App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
         App_CanRx_DCM_INVR_COMMAND_MESSAGE_GetSignal_TORQUE_COMMAND_INVR(can_rx));
     float fsm_torque_limit = App_CanTx_GetPeriodicSignal_FSM_TORQUE_LIMIT(can_tx);
-    if (left_torque_req > fsm_torque_limit || right_torque_req > fsm_torque_limit) error_count++;
-    else error_count = 0;
+    if (left_torque_req > fsm_torque_limit || right_torque_req > fsm_torque_limit)
+        error_count++;
+    else
+        error_count = 0;
 
     if (error_count == MAX_TORQUE_PLAUSIBILITY_ERR_CNT)
         App_CanTx_SetPeriodicSignal_TORQUE_PLAUSIBILITY_CHECK_FAILED(can_tx, true);

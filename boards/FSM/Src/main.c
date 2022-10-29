@@ -25,7 +25,11 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <assert.h>
+//shared
+#include "App_SharedMacros.h"
+#include "App_SharedStateMachine.h"
 
+//IO functions exposing
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
@@ -44,13 +48,13 @@
 #include "Io_PrimaryScancon2RMHF.h"
 #include "Io_SecondaryScancon2RMHF.h"
 
+//world/state
 #include "App_FsmWorld.h"
 #include "states/App_DriveState.h"
 
-#include "App_SharedMacros.h"
-#include "App_SharedStateMachine.h"
-
 // Sensors
+#include "App_AcceleratorPedals.h"
+#include "App_Brake.h"
 #include "App_Coolant.h"
 #include "App_Steering.h"
 #include "App_Wheels.h"
@@ -204,7 +208,6 @@ int main(void)
 
     Io_SharedHardFaultHandler_Init();
 
-    //=============================================IMPORTANT CODE/=============================================
     // Buses
     can_tx = App_CanTx_Create(
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP, Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
@@ -212,11 +215,6 @@ int main(void)
     can_rx            = App_CanRx_Create();
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
-
-    // Unwrapped Ranges
-    Io_WheelSpeedSensors_Init(&htim16, &htim17);
-    wheels   = App_Wheels_Create(Io_WheelSpeedSensors_GetLeftSpeedKph, Io_WheelSpeedSensors_GetRightSpeedKph);
-    steering = App_Steering_Create(Io_SteeringAngleSensor_GetAngleDegree);
 
     // Accelerator
     Io_PrimaryScancon2RMHF_Init(&htim1);
@@ -237,10 +235,17 @@ int main(void)
     coolant = App_Coolant_Create(
         Io_FlowMeters_GetFlowRate, Io_GetTemperatureA, Io_GetTemperatureB, Io_GetPressureA, Io_GetPressureB);
 
+    //steering
+    steering = App_Steering_Create(Io_SteeringAngleSensor_GetAngleDegree);
+
+    //wheels
+    Io_WheelSpeedSensors_Init(&htim16, &htim17);
+    wheels   = App_Wheels_Create(Io_WheelSpeedSensors_GetLeftSpeedKph, Io_WheelSpeedSensors_GetRightSpeedKph);
+
+
     world = App_FsmWorld_Create(can_tx, can_rx, heartbeat_monitor, papps_and_sapps, brake, coolant, steering, wheels);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
-    ///=============================================IMPORTANT CODE END=============================================
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);
@@ -898,7 +903,7 @@ void RunTask1kHz(void const *argument)
         Io_SharedSoftwareWatchdog_CheckForTimeouts();
         const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
 
-        App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
+        //App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
         Io_CanTx_EnqueuePeriodicMsgs(can_tx, task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the

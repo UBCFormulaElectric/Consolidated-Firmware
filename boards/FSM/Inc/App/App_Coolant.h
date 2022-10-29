@@ -13,4 +13,4 @@ struct Coolant *App_Coolant_Create(
     float (*get_pressure_B)(void));
 
 void App_Coolant_Destroy(struct Coolant *coolant);
-void App_Coolant_Broadcast(struct FsmCanTxInterface *can_tx, struct Coolant *coolant, bool * coolantTriggerShutdown);
+void App_Coolant_Broadcast(struct FsmCanTxInterface *can_tx, struct Coolant *coolant, bool *coolantTriggerShutdown);

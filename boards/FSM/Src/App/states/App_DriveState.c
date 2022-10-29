@@ -1,22 +1,21 @@
-//self definition
 #include "states/App_DriveState.h"
 
-//to go to
 #include "states/App_FaultState.h"
 
-//function to run.
 #include "states/App_AllStates.h"
 #include "App_SharedMacros.h"
 
-
-void App_DriveStateRunOnEntry(struct StateMachine *const state_machine){
+void App_DriveStateRunOnEntry(struct StateMachine *const state_machine)
+{
     return;
 }
 
-void App_DriveStateRunOnTick1Hz(struct StateMachine *state_machine){
+void App_DriveStateRunOnTick1Hz(struct StateMachine *state_machine)
+{
     App_AllStatesRunOnTick1Hz(state_machine);
 }
-void App_DriveStateRunOnTick100Hz(struct StateMachine *state_machine){
+void App_DriveStateRunOnTick100Hz(struct StateMachine *state_machine)
+{
     App_AllStatesRunOnTick100Hz(state_machine);
 
     struct FsmWorld *         world              = App_SharedStateMachine_GetWorld(state_machine);
@@ -35,15 +34,17 @@ void App_DriveStateRunOnTick100Hz(struct StateMachine *state_machine){
     App_Steering_Broadcast(can_tx, steering);
     App_Wheels_Broadcast(can_tx, wheels);
 
-    //go to fault state
-    if(coolantTriggerShutdown)
+    // go to fault state
+    if (coolantTriggerShutdown)
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
 }
-void App_DriveStateRunOnExit(struct StateMachine *const state_machine){
+void App_DriveStateRunOnExit(struct StateMachine *const state_machine)
+{
     UNUSED(state_machine);
 }
 
-const struct State *App_GetDriveState(void){
+const struct State *App_GetDriveState(void)
+{
     static struct State drive_state = {
         .name              = "DRIVE STATE",
         .run_on_entry      = App_DriveStateRunOnEntry,

@@ -2,7 +2,6 @@
 
 #include <stm32f3xx_hal.h>
 
-//==========FLOW METER==========
 /**
  * Initializes the primary and secondary flow meter
  * @param htim : The timer handle for both flow meters
@@ -16,6 +15,7 @@ float Io_FlowMeters_GetFlowRate(void);
 
 /**
  * Get flow rate (L/min) from the secondary flow meter
+ * @return The flow rate (L/min) from teh secondary flow meter
  */
 float Io_FlowMeters_GetSecondaryFlowRate(void);
 
@@ -45,7 +45,6 @@ void Io_FlowMeters_CheckIfFlowMeterIsActive(void);
  */
 void Io_FlowMeters_CheckIfSecondaryIsActive(void);
 
-//==========TEMPERATURE SENSORS==========
 /**
  * @returns the temperature of the coolant at [sensor B] in Celsius
  */
@@ -55,7 +54,6 @@ float Io_GetTemperatureA(void);
  */
 float Io_GetTemperatureB(void);
 
-//==========PRESSURE SENSORS==========
 /**
  * @returns the pressure of the coolant at [sensor A] in PSI
  */

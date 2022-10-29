@@ -49,7 +49,7 @@ SignalState App_SharedSignal_Update(struct Signal *signal, bool entry_condition_
         if (exit_timer_state == TIMER_STATE_EXPIRED)
         {
             signal->is_callback_triggered = false;
-            signal->state = SIGNAL_EXIT_HIGH;
+            signal->state                 = SIGNAL_EXIT_HIGH;
         }
     }
     return signal->state;

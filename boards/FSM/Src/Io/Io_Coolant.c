@@ -2,7 +2,6 @@
 #include "main.h"
 #include "Io_SharedFreqOnlyPwmInput.h"
 
-//==========FLOW METER==========
 static struct FreqOnlyPwmInput *flow_meter;
 void                            Io_FlowMeters_Init(TIM_HandleTypeDef *htim)
 {
@@ -28,7 +27,6 @@ void Io_FlowMeters_CheckIfFlowMeterIsActive(void)
     Io_SharedFreqOnlyPwmInput_CheckIfPwmIsActive(flow_meter);
 }
 
-//==========TEMPERATURE SENSORS==========
 float Io_GetTemperatureA(void)
 {
     return 1;
@@ -38,7 +36,6 @@ float Io_GetTemperatureB(void)
     return 1;
 }
 
-//==========PRESSURE SENSORS==========
 float Io_GetPressureA(void)
 {
     return 1;

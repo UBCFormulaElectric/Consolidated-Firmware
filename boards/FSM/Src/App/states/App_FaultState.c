@@ -2,27 +2,31 @@
 #include "states/App_AllStates.h"
 #include "App_SharedMacros.h"
 
-void App_FaultStateRunOnEntry(struct StateMachine *const state_machine){
+void App_FaultStateRunOnEntry(struct StateMachine *const state_machine)
+{
     return;
 }
 
-void App_FaultStateRunOnTick1Hz(struct StateMachine *state_machine){
+void App_FaultStateRunOnTick1Hz(struct StateMachine *state_machine)
+{
     App_AllStatesRunOnTick1Hz(state_machine);
 }
-void App_FaultStateRunOnTick100Hz(struct StateMachine *state_machine){
+void App_FaultStateRunOnTick100Hz(struct StateMachine *state_machine)
+{
     App_AllStatesRunOnTick100Hz(state_machine);
 
-    struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct FsmWorld *         world  = App_SharedStateMachine_GetWorld(state_machine);
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
 
-    //FORCE ACCELERATOR TO BE 0.
     App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
 }
-void App_FaultStateRunOnExit(struct StateMachine *const state_machine){
+void App_FaultStateRunOnExit(struct StateMachine *const state_machine)
+{
     UNUSED(state_machine);
 }
 
-const struct State *App_GetFaultState(void){
+const struct State *App_GetFaultState(void)
+{
     static struct State fault_state = {
         .name              = "FAULT STATE",
         .run_on_entry      = App_FaultStateRunOnEntry,

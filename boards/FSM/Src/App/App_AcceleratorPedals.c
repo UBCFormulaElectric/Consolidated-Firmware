@@ -147,8 +147,8 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
     accelerator_pedals->get_secondary_pedal_percent       = get_secondary_pedal_percent;
 
     accelerator_pedals->app_agreement_signal = App_SharedSignal_Create(APPS_ENTRY_HIGH_MS, APPS_EXIT_HIGH_MS);
-    accelerator_pedals->papp_alarm_signal = App_SharedSignal_Create(PAPPS_ENTRY_HIGH_MS, PAPPS_EXIT_HIGH_MS);
-    accelerator_pedals->sapp_alarm_signal = App_SharedSignal_Create(SAPPS_ENTRY_HIGH_MS, SAPPS_EXIT_HIGH_MS);
+    accelerator_pedals->papp_alarm_signal    = App_SharedSignal_Create(PAPPS_ENTRY_HIGH_MS, PAPPS_EXIT_HIGH_MS);
+    accelerator_pedals->sapp_alarm_signal    = App_SharedSignal_Create(SAPPS_ENTRY_HIGH_MS, SAPPS_EXIT_HIGH_MS);
 
     accelerator_pedals->AppBreakInplausable = false;
 
@@ -206,19 +206,22 @@ void App_AcceleratorPedals_Broadcast(
         !(accelerator_pedals->is_primary_encoder_alarm_active() ||
           accelerator_pedals->is_secondary_encoder_alarm_active));
 
-    // primary check if brake on, safety
-    if(accelerator_pedals->AppBreakInplausable){
-        if(accelerator_pedals->get_primary_pedal_percent() < 0.05f)
+    if (accelerator_pedals->AppBreakInplausable)
+    {
+        if (accelerator_pedals->get_primary_pedal_percent() < 0.05f)
             accelerator_pedals->AppBreakInplausable = false;
-        else{
+            //TODO signal cancel for failure
+        else
+        {
             App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
-            //TODO SIGNAL FOR THIS FAILURE
         }
     }
-    else if (App_Brake_IsBrakeActuated(brake) && accelerator_pedals->get_primary_pedal_percent() > 0.25f){
+    else if (App_Brake_IsBrakeActuated(brake) && accelerator_pedals->get_primary_pedal_percent() > 0.25f)
+    {
         // SHUTDOWN
         accelerator_pedals->AppBreakInplausable = true;
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
+        //TODO SIGNAL FOR THIS FAILURE
     }
     else if (app_agreement_signal_state == SIGNAL_EXIT_HIGH)
     {

@@ -68,7 +68,7 @@ bool App_Brake_IsBrakeActuated(const struct Brake *brake)
 }
 bool App_Brake_IsPressureSensorOpenOrShortCircuit(const struct Brake *brake)
 {
-    // TODO perhaps rethink how this is implemented
+    //TODO perhaps rethink how this is implemented
     return brake->is_primary_pressure_sensor_open_or_short_circuit() ||
            brake->is_secondary_pressure_sensor_open_or_short_circuit();
 }
@@ -80,7 +80,7 @@ bool App_Brake_IsPressureSensorShortCircuited(const struct Brake *brake)
 {
     return brake->get_primary_pressure_psi() > BRAKE_PRESSURE_SC_THRESHOLD;
 }
-// TODO Implement as signal??
+//TODO Implement as signal??
 bool App_Brake_IsPedalSensorOpenOrShortCircuit(const struct Brake *brake)
 {
     return brake->is_pedal_angle_sensor_open_or_short_circuit();
