@@ -242,10 +242,6 @@ void App_AcceleratorPedals_Broadcast(struct FsmWorld* world)
         App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(
             can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE);
     }
-    else
-    {
-        // SIGNAL FAILURE??
-    }
 
     App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, sapps_pedal_percentage);
 
@@ -261,10 +257,6 @@ void App_AcceleratorPedals_Broadcast(struct FsmWorld* world)
         App_CanTx_SetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(
             can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE);
     }
-    else
-    {
-        // signal failure?
-    }
     if (sapp_signal_state == SIGNAL_STATE_ACTIVE)
     {
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
@@ -275,9 +267,5 @@ void App_AcceleratorPedals_Broadcast(struct FsmWorld* world)
     {
         App_CanTx_SetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(
             can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE);
-    }
-    else
-    {
-        // signal failure?
     }
 }
