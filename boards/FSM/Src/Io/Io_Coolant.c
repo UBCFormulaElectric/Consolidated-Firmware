@@ -1,8 +1,18 @@
 #include <assert.h>
+#include <math.h>
+#include <stdbool.h>
 #include "main.h"
+#include "Io_Coolant.h"
 #include "Io_SharedFreqOnlyPwmInput.h"
 
+//TODO set these values
+#define TEMPERATURE_VOLTAGE_MIN (0.0f)
+#define TEMPERATURE_VOLTAGE_MAX (1.0f)
+#define PRESSURE_VOLTAGE_MIN (0.0f)
+#define PRESSURE_VOLTAGE_MAX (1.0f)
+
 static struct FreqOnlyPwmInput *flow_meter;
+
 void  Io_FlowMeter_Init(TIM_HandleTypeDef *htim)
 {
     assert(htim != NULL);
@@ -27,20 +37,49 @@ void Io_FlowMeters_CheckIfFlowMeterIsActive(void)
     Io_SharedFreqOnlyPwmInput_CheckIfPwmIsActive(flow_meter);
 }
 
-float Io_GetTemperatureA(void)
+float Io_Coolant_GetTemperatureA(void)
 {
+    float temperature_voltage = 0.5f;
+    if(Io_Coolant_TempertureVoltageAlarm(temperature_voltage)){
+        return NAN;
+    }
+    //TODO calculate the temperature
     return 1;
 }
-float Io_GetTemperatureB(void)
+float Io_Coolant_GetTemperatureB(void)
 {
+    float temperature_voltage = 0.5f;
+    if(Io_Coolant_TempertureVoltageAlarm(temperature_voltage)){
+        return NAN;
+    }
+    //TODO calculate the temperature
     return 1;
+}
+bool Io_Coolant_TempertureVoltageAlarm(float thermometer_voltage)
+{
+    return !(TEMPERATURE_VOLTAGE_MIN <= thermometer_voltage <= TEMPERATURE_VOLTAGE_MAX);
 }
 
-float Io_GetPressureA(void)
+float Io_Coolant_GetPressureA(void)
 {
+    float pressure_voltage = 0.5f;
+    if(Io_Coolant_PressureVoltageAlarm(pressure_voltage)){
+        return NAN;
+    }
+
+    //TODO calculate the pressure
     return 1;
 }
-float Io_GetPressureB(void)
+float Io_Coolant_GetPressureB(void)
 {
+    float pressure_voltage = 0.5f;
+    if(Io_Coolant_PressureVoltageAlarm(pressure_voltage)){
+        return NAN;
+    }
+
+    //TODO calculate the pressure
     return 1;
+}
+bool Io_Coolant_PressureVoltageAlarm(float pressure_voltage){
+    return !(PRESSURE_VOLTAGE_MIN <= pressure_voltage <= PRESSURE_VOLTAGE_MAX);
 }

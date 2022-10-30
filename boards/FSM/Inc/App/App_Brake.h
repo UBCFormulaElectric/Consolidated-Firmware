@@ -22,24 +22,13 @@ struct Brake;
 struct Brake *App_Brake_Create(
     float (*get_front_sensor_psi)(void),
     float (*get_rear_sensor_psi)(void),
-    bool (*is_front_pressure_sensor_open_or_short_circuit)(void),
-    bool (*is_rear_sensor_open_or_short_circuit)(void),
     float (*pedal_angle)(void),
-    bool (*is_pedal_angle_sensor_open_or_short_circuit)(void),
     bool (*is_brake_actuated)(void));
-
 /**
  * Deallocate the memory used by the given brake
  * @param brake The brake to deallocate
  */
 void App_Brake_Destroy(struct Brake *brake);
-
-/**
- * Get the pressure in-range check for the given brake
- * @param brake The brake to get the pressure in-range check for
- * @return The pressure in-range check for the given brake
- */
-struct InRangeCheck *App_Brake_GetPressureInRangeCheck(const struct Brake *brake);
 
 /**
  * Check if the given brake is actuated
@@ -49,29 +38,26 @@ struct InRangeCheck *App_Brake_GetPressureInRangeCheck(const struct Brake *brake
 bool App_Brake_IsBrakeActuated(const struct Brake *brake);
 
 /**
+ * Get the pressure in-range check for the given brake
+ * @param brake The brake to get the pressure in-range check for
+ * @return The pressure in-range check for the given brake
+ */
+struct InRangeCheck *App_Brake_GetPressureInRangeCheck(const struct Brake *brake);
+/**
  * Check if the brake pressure sensor is in an open or short circuit state
  * @param brake The brake to check if the corresponding pressure sensor is
  * in an open or short circuit state
  * @return True if the brake pressure sensor is in an open or short circuit
  * state, false if it is not
  */
-bool App_Brake_IsPressureSensorOpenOrShortCircuit(const struct Brake *brake);
+bool App_Brake_PressureSensorAlarm(const struct Brake *brake);
 
 /**
- * Check if the pressure sensor is OC
- * @param brake The brake to check pressure sensor OC for
- * @return True if the pressure sensor is open circuit, otherwise false
+ * Checks if a given pedal sensor is open or short circuit
+ * @param brake The brake which contains the pedal sensor
+ * @return Whether or not the pedal sensor is open or short circuit
  */
-bool App_Brake_IsPressureSensorOpenCircuit(const struct Brake *brake);
-
-/**
- * Check if the pressure sensor is SC
- * @param brake The brake to check pressure sensor SC for
- * @return True if the pressure sensor is SC, otherwise false
- */
-bool App_Brake_IsPressureSensorShortCircuited(const struct Brake *brake);
-
-bool App_Brake_IsPedalSensorOpenOrShortCircuit(const struct Brake *brake);
+bool App_Brake_PedalSensorAlarm(const struct Brake *brake);
 
 /**
  * CAN BUS Broadcast Function

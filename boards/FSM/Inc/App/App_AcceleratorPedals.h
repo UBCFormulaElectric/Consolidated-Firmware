@@ -36,8 +36,6 @@ struct AcceleratorPedals;
  * @return The created pair of accelerator pedals, whose ownership is given to the caller
  */
 struct AcceleratorPedals *App_AcceleratorPedals_Create(
-    bool (*is_primary_encoder_alarm_active)(void),
-    bool (*is_secondary_encoder_alarm_active)(void),
     float (*get_primary_pedal_percent)(void),
     float (*get_secondary_pedal_percent)(void));
 
@@ -48,29 +46,11 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
 void App_AcceleratorPedals_Destroy(struct AcceleratorPedals *accelerator_pedals);
 
 /**
- * Check if the encoder alarm for the primary accelerator pedal is active
- * @param accelerator_pedals The pair of accelerator pedals containing the
- * primary accelerator pedal to check
- * @return true if the encoder alarm for the given accelerator pedal is active, else false
- */
-bool App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(const struct AcceleratorPedals *accelerator_pedals);
-
-/**
- * Check if the encoder alarm for the secondary accelerator pedal is active
- * @param accelerator_pedals The pair of accelerator pedals containing the
- * secondary accelerator pedal to check
- * @return true if the encoder alarm for the given accelerator pedal is active,
- *         else false
- */
-bool App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(const struct AcceleratorPedals *accelerator_pedals);
-
-/**
  * Get the pedal percentage of the primary accelerator pedal, a value in [0,100]
  * @param accelerator_pedals The pair of accelerator pedals to get the primary pedal percentage from
  * @return The pedal percentage of the primary accelerator pedal
  */
 float App_AcceleratorPedals_GetPrimaryPedalPercentage(const struct AcceleratorPedals *accelerator_pedals);
-
 /**
  * Get the pedal percentage of the secondary accelerator pedal, a value in [0,100]
  * @param accelerator_pedals The pair of accelerator pedals to get the secondary pedal percentage from

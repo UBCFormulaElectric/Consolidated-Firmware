@@ -2,16 +2,28 @@
 #include "Io_Brake.h"
 #include "Io_Adc.h"
 
+#include <math.h>
+
+//TODO set these values
+#define BRAKE_PEDAL_MIN_VOLTAGE (0.0f)
+#define BRAKE_PEDAL_MAX_VOLTAGE (1.0f)
+
+#include "configs/App_BrakePressureThresholds.h"
+#define BRAKE_PRESSURE_SENSOR_MAX_V (5.0f)
+#define BRAKE_PRESSURE_SC_THRESHOLD_V (4.6f)
+#define BRAKE_PRESSURE_OC_THRESHOLD_V (0.4f)
+#define BRAKE_PRESSURE_SC_THRESHOLD \
+    (MAX_BRAKE_PRESSURE_PSI * BRAKE_PRESSURE_SC_THRESHOLD_V / BRAKE_PRESSURE_SENSOR_MAX_V)
+#define BRAKE_PRESSURE_OC_THRESHOLD \
+    (MAX_BRAKE_PRESSURE_PSI * BRAKE_PRESSURE_OC_THRESHOLD_V / BRAKE_PRESSURE_SENSOR_MAX_V)
+
+//TODO should we keep this? This needs including "main.h"
 bool Io_Brake_IsActuated(void)
 {
     return HAL_GPIO_ReadPin(BSPD_BRAKE_STATUS_GPIO_Port, BSPD_BRAKE_STATUS_Pin) == GPIO_PIN_SET;
 }
 
-bool Io_Brake_IsFrontBrakeOpenOrShortCircuit(void)
-{
-    return HAL_GPIO_ReadPin(BRAKE_OC_SC_OK_GPIO_Port, BRAKE_OC_SC_OK_Pin) == GPIO_PIN_RESET;
-}
-
+//pressure
 float Io_Brake_GetFrontBrakePressurePsi(void)
 {
     // The sensor operates from 0.5V to 4.5V. The voltage divider decreases the
@@ -25,27 +37,32 @@ float Io_Brake_GetFrontBrakePressurePsi(void)
     const float psi_per_volt = 2500.0f / (max_input_voltage - min_input_voltage);
 
     // Brake pressure = (ADC Voltage - Min Input Voltage) * Psi Per Volt
-    return psi_per_volt * (Io_Adc_GetChannel3Voltage() - min_input_voltage);
+    float front_pressure_voltage = Io_Adc_GetChannel3Voltage();
+    if(Io_Brake_PressureVoltageAlarm(front_pressure_voltage)){
+        return NAN;
+    }
+    return psi_per_volt * (front_pressure_voltage - min_input_voltage);
 }
-
-// TODO Implement the IO rear brake open/short circuit function
-bool Io_Brake_IsRearBrakeOpenOrShortCircuit(void)
-{
-    return false;
-}
-// TODO Implement the IO rear brake pressure PSI Function
 float Io_Brake_GetRearBrakePressurePsi(void)
 {
-    return 1.6f;
+    float rear_pressure_voltage = 0.5f;
+    if(Io_Brake_PressureVoltageAlarm(rear_pressure_voltage)){
+        return NAN;
+    }
+    //TODO calculate and return the pedal percentage travel
+    return 0;
+}
+bool Io_Brake_PressureVoltageAlarm(float pressure_voltage){
+    return !(BRAKE_PRESSURE_OC_THRESHOLD <= pressure_voltage <= BRAKE_PRESSURE_SC_THRESHOLD);
 }
 
-// TODO Implement the IO brake pedal angle open/short circuit Function
-bool IO_Brake_IsPedalOpenOrShortCircuit(void)
-{
-    return false;
-}
-// TODO Implement the IO brake pedal angle Function
+//pedal travel
 float Io_Brake_GetPedalPercentTravel(void)
 {
+    float pedal_voltage = 0.5f;
+    if(!(BRAKE_PEDAL_MIN_VOLTAGE <= pedal_voltage <= BRAKE_PEDAL_MAX_VOLTAGE)){
+        return NAN;
+    }
+    //TODO calculate and return the pedal percentage travel
     return 0;
 }

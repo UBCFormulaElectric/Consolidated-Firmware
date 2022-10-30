@@ -55,6 +55,9 @@ void App_Coolant_Broadcast(const struct FsmWorld * world, bool *coolantTriggerSh
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
     struct Coolant *coolant = App_FsmWorld_GetCoolant(world);
 
+    //TODO error if any of the getters return NAN
+
+    //information in range check
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, coolant->flow_rate_in_range_check, App_CanTx_SetPeriodicSignal_FLOW_RATE,
         App_CanTx_SetPeriodicSignal_FLOW_RATE_OUT_OF_RANGE,
@@ -62,22 +65,23 @@ void App_Coolant_Broadcast(const struct FsmWorld * world, bool *coolantTriggerSh
         CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
+    //motor shutdown in flow rate check
     float                    flow_rate;
     enum InRangeCheck_Status flow_rate_inRangeCheck_status =
         App_InRangeCheck_GetValue(coolant->flow_rate_in_range_check, &flow_rate);
     SignalState flow_in_range_signal_state = App_SharedSignal_Update(
         coolant->flow_in_range, flow_rate_inRangeCheck_status == VALUE_UNDERFLOW,
         flow_rate_inRangeCheck_status == VALUE_IN_RANGE);
-
     if (flow_in_range_signal_state == SIGNAL_STATE_ACTIVE)
     {
         *coolantTriggerShutdown = true;
         App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(
             can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_TRUE_CHOICE);
     }
-    else if (flow_in_range_signal_state == SIGNAL_STATE_CLEAR)
+    else if (flow_in_range_signal_state == SIGNAL_STATE_CLEAR){
         App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(
             can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE);
+    }
     else
     {
         // signal failure

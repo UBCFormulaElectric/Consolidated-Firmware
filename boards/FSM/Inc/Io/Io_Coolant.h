@@ -12,13 +12,6 @@ void Io_FlowMeter_Init(TIM_HandleTypeDef *htim);
  * @returns the flow rate (L/min) from the primary flow meter
  */
 float Io_FlowMeters_GetFlowRate(void);
-
-/**
- * Get flow rate (L/min) from the secondary flow meter
- * @return The flow rate (L/min) from teh secondary flow meter
- */
-float Io_FlowMeters_GetSecondaryFlowRate(void);
-
 /**
  * Update the frequency for the primary and secondary flow meter's PWM outputs.
  * @note This function should be called in the input capture callback function.
@@ -26,7 +19,6 @@ float Io_FlowMeters_GetSecondaryFlowRate(void);
  *              callback function
  */
 void Io_FlowMeters_InputCaptureCallback(TIM_HandleTypeDef *htim);
-
 /**
  * Check if the PWM signal of the primary flow meter is active. If it is
  * inactive (i.e. It has been unplugged or unpowered), set the frequency to NaN.
@@ -37,28 +29,31 @@ void Io_FlowMeters_InputCaptureCallback(TIM_HandleTypeDef *htim);
 void Io_FlowMeters_CheckIfFlowMeterIsActive(void);
 
 /**
- * Check if the PWM signal of the secondary flow meter is active. If it is
- * inactive (i.e. It has been unplugged or unpowered), set the frequency to NaN.
- *
- * @note This function should be called in the timer overflow interrupt
- *       for the PWM signal of the primary flow meter.
+ * @returns the temperature of the coolant at [sensor B] in Celsius
  */
-void Io_FlowMeters_CheckIfSecondaryIsActive(void);
-
+float Io_Coolant_GetTemperatureA(void);
 /**
  * @returns the temperature of the coolant at [sensor B] in Celsius
  */
-float Io_GetTemperatureA(void);
+float Io_Coolant_GetTemperatureB(void);
 /**
- * @returns the temperature of the coolant at [sensor B] in Celsius
+ * Checks if the voltage of the thermometer is faulty
+ * @param thermometer_voltage The voltage of the thermometer
+ * @return Whether it is faulty
  */
-float Io_GetTemperatureB(void);
+bool Io_Coolant_TempertureVoltageAlarm(float thermometer_voltage);
 
 /**
  * @returns the pressure of the coolant at [sensor A] in PSI
  */
-float Io_GetPressureA(void);
+float Io_Coolant_GetPressureA(void);
 /**
  * @returns the pressure of the coolant at [sensor B] in PSI
  */
-float Io_GetPressureB(void);
+float Io_Coolant_GetPressureB(void);
+/**
+ * Checks whether the pressure voltage is faulty
+ * @param pressure_voltage The pressure voltage in question
+ * @return Whether or not it is faulty
+ */
+bool Io_Coolant_PressureVoltageAlarm(float pressure_voltage);

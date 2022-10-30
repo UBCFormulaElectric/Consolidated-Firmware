@@ -210,37 +210,38 @@ int main(void)
 
     // Buses
     can_tx = App_CanTx_Create(
-        Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP, Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
+        Io_CanTx_EnqueueNonPeriodicMsg_FSM_STARTUP,
+        Io_CanTx_EnqueueNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT,
         Io_CanTx_EnqueueNonPeriodicMsg_FSM_AIR_SHUTDOWN);
     can_rx            = App_CanRx_Create();
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
+        Io_SharedHeartbeatMonitor_GetCurrentMs,
+        HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS,
+        HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
     // Accelerator
     Io_PrimaryScancon2RMHF_Init(&htim1);
     Io_SecondaryScancon2RMHF_Init(&htim2);
-    papps_and_sapps = App_AcceleratorPedals_Create(
-        Io_AcceleratorPedals_IsPappsEncoderAlarmActive, Io_AcceleratorPedals_IsSappsEncoderAlarmActive,
-        Io_AcceleratorPedals_GetPapps, Io_AcceleratorPedals_GetPapps);
+    papps_and_sapps = App_AcceleratorPedals_Create(Io_AcceleratorPedals_GetPapps, Io_AcceleratorPedals_GetSapps);
     Io_PrimaryScancon2RMHF_SetEncoderCounter(PAPPS_ENCODER_UNPRESSED_VALUE);
     Io_SecondaryScancon2RMHF_SetEncoderCounter(SAPPS_ENCODER_UNPRESSED_VALUE);
 
     // Brake
     brake = App_Brake_Create(
-        Io_Brake_GetFrontBrakePressurePsi, Io_Brake_GetRearBrakePressurePsi, Io_Brake_IsFrontBrakeOpenOrShortCircuit,
-        Io_Brake_IsRearBrakeOpenOrShortCircuit, Io_Brake_GetPedalPercentTravel, IO_Brake_IsPedalOpenOrShortCircuit,
-        Io_Brake_IsActuated);
+        Io_Brake_GetFrontBrakePressurePsi, Io_Brake_GetRearBrakePressurePsi,
+        Io_Brake_GetPedalPercentTravel,Io_Brake_IsActuated);
     // Coolants
     Io_FlowMeter_Init(&htim4);
     coolant = App_Coolant_Create(
-        Io_FlowMeters_GetFlowRate, Io_GetTemperatureA, Io_GetTemperatureB, Io_GetPressureA, Io_GetPressureB);
+        Io_FlowMeters_GetFlowRate, Io_Coolant_GetTemperatureA, Io_Coolant_GetTemperatureB, Io_Coolant_GetPressureA,
+        Io_Coolant_GetPressureB);
 
     //steering
     steering = App_Steering_Create(Io_SteeringAngleSensor_GetAngleDegree);
 
     //wheels
     Io_WheelSpeedSensors_Init(&htim16, &htim17);
-    wheels   = App_Wheels_Create(Io_WheelSpeedSensors_GetLeftSpeedKph, Io_WheelSpeedSensors_GetRightSpeedKph);
+    wheels = App_Wheels_Create(Io_WheelSpeedSensors_GetLeftSpeedKph, Io_WheelSpeedSensors_GetRightSpeedKph);
 
 
     world = App_FsmWorld_Create(can_tx, can_rx, heartbeat_monitor, papps_and_sapps, brake, coolant, steering, wheels);
