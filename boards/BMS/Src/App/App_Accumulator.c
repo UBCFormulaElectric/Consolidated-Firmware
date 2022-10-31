@@ -7,7 +7,6 @@
 #define MAX_CELL_CHARGE_TEMP_DEGC (45.0f)
 #define MIN_CELL_DISCHARGE_TEMP_DEGC (-20.0f)
 #define MIN_CELL_CHARGE_TEMP_DEGC (0.0f)
-
 #define MAX_CELL_VOLTAGE_CHARGE (4.2f)
 #define MIN_CELL_VOLTAGE_DISCHARGE (3.0f)
 
@@ -209,20 +208,14 @@ bool App_Accumulator_CheckFaults(
     struct Accumulator *const accumulator,
     bool                      isChargeState)
 {
-    // separate faults for over/under, could also have single fault for "out-of-range" (existing all_states error check
-    // uses this)
     bool overtemp_fault      = false;
     bool undertemp_fault     = false;
     bool overvoltage_fault   = false;
     bool undervoltage_fault  = false;
     bool communication_fault = App_Accumulator_HasCommunicationError(accumulator);
 
-    // Stores which segment/cell caused a fault, could be used in CAN message if desired. If not, a single set of
-    // "throwaway" values could be used
-    uint8_t max_temp_segment = 0U, max_temp_cell = 0U;
-    uint8_t min_temp_segment = 0U, min_temp_cell = 0U;
-    uint8_t max_volt_segment = 0U, max_volt_cell = 0U;
-    uint8_t min_volt_segment = 0U, min_volt_cell = 0U;
+    uint8_t throwaway_segment = 0U;
+    uint8_t throwaway_loc     = 0U;
 
     float max_allowable_cell_temp = MAX_CELL_DISCHARGE_TEMP_DEGC;
     float min_allowable_cell_temp = MIN_CELL_DISCHARGE_TEMP_DEGC;
@@ -234,22 +227,22 @@ bool App_Accumulator_CheckFaults(
         min_allowable_cell_temp = MIN_CELL_CHARGE_TEMP_DEGC;
     }
 
-    if (App_Accumulator_GetMinCellTempDegC(accumulator, &min_temp_segment, &min_temp_cell) < min_allowable_cell_temp)
+    if (App_Accumulator_GetMinCellTempDegC(accumulator, &throwaway_segment, &throwaway_loc) < min_allowable_cell_temp)
     {
         undertemp_fault = true;
     }
 
-    if (App_Accumulator_GetMaxCellTempDegC(accumulator, &max_temp_segment, &max_temp_cell) > max_allowable_cell_temp)
+    if (App_Accumulator_GetMaxCellTempDegC(accumulator, &throwaway_segment, &throwaway_loc) > max_allowable_cell_temp)
     {
         overtemp_fault = true;
     }
 
-    if (App_Accumulator_GetMaxVoltage(accumulator, &max_volt_segment, &max_volt_cell) > MAX_CELL_VOLTAGE_CHARGE)
+    if (App_Accumulator_GetMaxVoltage(accumulator, &throwaway_segment, &throwaway_loc) > MAX_CELL_VOLTAGE_CHARGE)
     {
         overvoltage_fault = true;
     }
 
-    if (App_Accumulator_GetMinVoltage(accumulator, &min_volt_segment, &min_volt_cell) < MIN_CELL_VOLTAGE_DISCHARGE)
+    if (App_Accumulator_GetMinVoltage(accumulator, &throwaway_segment, &throwaway_loc) < MIN_CELL_VOLTAGE_DISCHARGE)
     {
         undervoltage_fault = true;
     }
@@ -260,5 +253,5 @@ bool App_Accumulator_CheckFaults(
     App_CanTx_SetPeriodicSignal_CELL_OVERTEMP_FAULT(can_tx, overtemp_fault);
     App_CanTx_SetPeriodicSignal_HAS_PEC_FAULT(can_tx, communication_fault);
 
-    return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault);
+    return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault);
 }

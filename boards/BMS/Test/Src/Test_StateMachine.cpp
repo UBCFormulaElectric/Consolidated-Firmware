@@ -725,108 +725,20 @@ TEST_F(BmsStateMachineTest, check_precharge_fault)
 {
     SetInitialState(App_GetInitState());
 
-    bool is_charger_connected_test = false;
-    bool is_ts_rising_slowly_test  = false;
-    bool is_ts_rising_quickly_test = false;
+    // Possible combinations of is_charger_connected, is_ts_rising_slowly and is_ts_rising_quickly
+    bool inputs[8][3] = { { false, false, false }, { false, true, false }, { false, false, true },
+                          { false, true, true },   { true, false, false }, { true, true, false },
+                          { true, false, true },   { true, true, true } };
+    // Possible outputs based on above combinations of inputs
+    bool expected_output[8] = { false, true, true, true, false, true, false, true };
 
-    for (int i = 0; i < 2; i++)
+    for (int i = 0; i < 8, i++)
     {
-        App_PrechargeRelay_CheckFaults(
-            can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test);
+        for (int j = 0; j < 2; j++)
+        {
+            App_PrechargeRelay_CheckFaults(inputs[0], inputs[1], inputs[2]);
+        }
+        ASSERT_EQ(false, App_PrechargeRelay_CheckFaults(inputs[0], inputs[1], inputs[2]););
     }
-    ASSERT_EQ(
-        false, App_PrechargeRelay_CheckFaults(
-                   can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
-
-    is_charger_connected_test = false;
-    is_ts_rising_slowly_test  = true;
-    is_ts_rising_quickly_test = false;
-
-    for (int i = 0; i < 2; i++)
-    {
-        App_PrechargeRelay_CheckFaults(
-            can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test);
-    }
-    ASSERT_EQ(
-        true, App_PrechargeRelay_CheckFaults(
-                  can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
-
-    is_charger_connected_test = false;
-    is_ts_rising_slowly_test  = false;
-    is_ts_rising_quickly_test = true;
-
-    for (int i = 0; i < 2; i++)
-    {
-        App_PrechargeRelay_CheckFaults(
-            can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test);
-    }
-    ASSERT_EQ(
-        true, App_PrechargeRelay_CheckFaults(
-                  can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
-
-    is_charger_connected_test = false;
-    is_ts_rising_slowly_test  = true;
-    is_ts_rising_quickly_test = true;
-
-    for (int i = 0; i < 2; i++)
-    {
-        App_PrechargeRelay_CheckFaults(
-            can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test);
-    }
-    ASSERT_EQ(
-        true, App_PrechargeRelay_CheckFaults(
-                  can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
-
-    is_charger_connected_test = true;
-    is_ts_rising_slowly_test  = false;
-    is_ts_rising_quickly_test = false;
-
-    for (int i = 0; i < 2; i++)
-    {
-        App_PrechargeRelay_CheckFaults(
-            can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test);
-    }
-    ASSERT_EQ(
-        false, App_PrechargeRelay_CheckFaults(
-                   can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
-
-    is_charger_connected_test = true;
-    is_ts_rising_slowly_test  = true;
-    is_ts_rising_quickly_test = false;
-
-    for (int i = 0; i < 2; i++)
-    {
-        App_PrechargeRelay_CheckFaults(
-            can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test);
-    }
-    ASSERT_EQ(
-        true, App_PrechargeRelay_CheckFaults(
-                  can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
-
-    is_charger_connected_test = true;
-    is_ts_rising_slowly_test  = false;
-    is_ts_rising_quickly_test = true;
-
-    for (int i = 0; i < 2; i++)
-    {
-        App_PrechargeRelay_CheckFaults(
-            can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test);
-    }
-    ASSERT_EQ(
-        false, App_PrechargeRelay_CheckFaults(
-                   can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
-
-    is_charger_connected_test = true;
-    is_ts_rising_slowly_test  = true;
-    is_ts_rising_quickly_test = true;
-
-    for (int i = 0; i < 2; i++)
-    {
-        App_PrechargeRelay_CheckFaults(
-            can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test);
-    }
-    ASSERT_EQ(
-        true, App_PrechargeRelay_CheckFaults(
-                  can_tx_interface, is_charger_connected_test, is_ts_rising_slowly_test, is_ts_rising_quickly_test));
 }
 } // namespace StateMachineTest
