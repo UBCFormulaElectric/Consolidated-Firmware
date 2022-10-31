@@ -734,11 +734,12 @@ TEST_F(BmsStateMachineTest, check_precharge_fault)
 
     for (int i = 0; i < 8, i++)
     {
+        // Fault only triggered is fault condition met 3 times in a row
         for (int j = 0; j < 2; j++)
         {
-            App_PrechargeRelay_CheckFaults(inputs[0], inputs[1], inputs[2]);
+            App_PrechargeRelay_CheckFaults(inputs[i][0], inputs[i][1], inputs[i][2]);
         }
-        ASSERT_EQ(false, App_PrechargeRelay_CheckFaults(inputs[0], inputs[1], inputs[2]););
+        ASSERT_EQ(expected_output[i], App_PrechargeRelay_CheckFaults(inputs[i][0], inputs[i][1], inputs[i][2]););
     }
 }
 } // namespace StateMachineTest
