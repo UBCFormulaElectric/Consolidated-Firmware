@@ -732,14 +732,16 @@ TEST_F(BmsStateMachineTest, check_precharge_fault)
     // Possible outputs based on above combinations of inputs
     bool expected_output[8] = { false, true, true, true, false, true, false, true };
 
-    for (int i = 0; i < 8, i++)
+    for (int i = 0; i < 8; i++)
     {
         // Fault only triggered is fault condition met 3 times in a row
         for (int j = 0; j < 2; j++)
         {
-            App_PrechargeRelay_CheckFaults(inputs[i][0], inputs[i][1], inputs[i][2]);
+            App_PrechargeRelay_CheckFaults(can_tx_interface, inputs[i][0], inputs[i][1], inputs[i][2]);
         }
-        ASSERT_EQ(expected_output[i], App_PrechargeRelay_CheckFaults(inputs[i][0], inputs[i][1], inputs[i][2]););
+        ASSERT_EQ(
+            expected_output[i],
+            App_PrechargeRelay_CheckFaults(can_tx_interface, inputs[i][0], inputs[i][1], inputs[i][2]));
     }
 }
 } // namespace StateMachineTest
