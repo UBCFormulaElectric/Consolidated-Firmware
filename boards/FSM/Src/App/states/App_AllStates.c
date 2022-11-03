@@ -35,9 +35,9 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     }
 
     // Check for torque plausibility
-    float left_torque_req = App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
+    float left_torque_req = (float)App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
         App_CanRx_DCM_INVL_COMMAND_MESSAGE_GetSignal_TORQUE_COMMAND_INVL(can_rx));
-    float right_torque_req = App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+    float right_torque_req = (float)App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
         App_CanRx_DCM_INVR_COMMAND_MESSAGE_GetSignal_TORQUE_COMMAND_INVR(can_rx));
     float fsm_torque_limit = App_CanTx_GetPeriodicSignal_FSM_TORQUE_LIMIT(can_tx);
     if (left_torque_req > fsm_torque_limit || right_torque_req > fsm_torque_limit)
