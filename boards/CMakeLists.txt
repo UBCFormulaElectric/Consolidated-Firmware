@@ -47,7 +47,7 @@ set(PIPENV_PROJECT_DIR ${REPO_ROOT_DIR}) # Use "pipenv run" in this directory to
 if(NOT STM32CUBEMX_BIN_PATH)
     # Default STM32CubeMX path
     if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
-        set(STM32CUBEMX_BIN_PATH "C:/Program Files/STMicroelectronics/STM32Cube/STM32CubeMX/STM32CubeMX.exe")
+        set(STM32CUBEMX_BIN_PATH "C:/Program Files (x86)/STMicroelectronics/STM32Cube/STM32CubeMX/STM32CubeMX.exe")
     else()
         set(STM32CUBEMX_BIN_PATH /usr/local/STM32CubeMX/STM32CubeMX)
     endif()
@@ -550,3 +550,4 @@ add_subdirectory(PDM)
 add_subdirectory(FSM)
 add_subdirectory(BMS)
 add_subdirectory(DIM)
+add_subdirectory(GSM)
