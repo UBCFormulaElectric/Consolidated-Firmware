@@ -4,19 +4,21 @@
 
 extern "C"
 {
+//shared
+#include "App_SharedMacros.h"
 #include "App_InRangeCheck.h"
 #include "App_SharedStateMachine.h"
 #include "App_SharedHeartbeatMonitor.h"
-#include "App_AcceleratorPedalSignals.h"
-#include "App_FlowMeterSignals.h"
-#include "states/App_AirOpenState.h"
-#include "states/App_AirClosedState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
+//timing
+#include "configs/App_AcceleratorSignalTimings.h"
 #include "configs/App_FlowRateThresholds.h"
 #include "configs/App_WheelSpeedThresholds.h"
 #include "configs/App_SteeringAngleThresholds.h"
 #include "configs/App_BrakePressureThresholds.h"
-#include "configs/App_SignalCallbackDurations.h"
+//states
+#include "states/App_DriveState.h"
+#include "states/App_FaultState.h"
 }
 
 namespace StateMachineTest

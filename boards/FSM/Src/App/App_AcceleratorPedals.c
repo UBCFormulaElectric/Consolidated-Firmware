@@ -3,15 +3,7 @@
 #include <math.h>
 #include "App_AcceleratorPedals.h"
 #include "App_SharedSignal.h"
-
-
-// config
-#define APPS_TIME_TO_FAULT (100U)
-#define APPS_TIME_TO_CLEAR (1000U)
-#define PAPPS_TIME_TO_FAULT (10U)
-#define PAPPS_TIME_TO_CLEAR (10U)
-#define SAPPS_TIME_TO_FAULT (10U)
-#define SAPPS_TIME_TO_CLEAR (10U)
+#include "configs/App_AcceleratorSignalTimings.h"
 
 struct AcceleratorPedals
 {
@@ -146,7 +138,7 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
     accelerator_pedals->get_primary_pedal_percent         = get_primary_pedal_percent;
     accelerator_pedals->get_secondary_pedal_percent       = get_secondary_pedal_percent;
 
-    accelerator_pedals->app_agreement_signal = App_SharedSignal_Create(APPS_TIME_TO_FAULT, APPS_TIME_TO_CLEAR);
+    accelerator_pedals->app_agreement_signal = App_SharedSignal_Create(AGREEMENT_TIME_TO_FAULT, AGREEMENT_TIME_TO_CLEAR);
     accelerator_pedals->papp_alarm_signal    = App_SharedSignal_Create(PAPPS_TIME_TO_FAULT, PAPPS_TIME_TO_CLEAR);
     accelerator_pedals->sapp_alarm_signal    = App_SharedSignal_Create(SAPPS_TIME_TO_FAULT, SAPPS_TIME_TO_CLEAR);
 
