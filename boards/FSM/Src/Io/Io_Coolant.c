@@ -1,6 +1,5 @@
 #include <assert.h>
 #include <math.h>
-#include <stdbool.h>
 #include "main.h"
 #include "Io_Coolant.h"
 #include "Io_SharedFreqOnlyPwmInput.h"
@@ -57,7 +56,7 @@ float Io_Coolant_GetTemperatureB(void)
 }
 bool Io_Coolant_TempertureVoltageAlarm(float thermometer_voltage)
 {
-    return !(TEMPERATURE_VOLTAGE_MIN <= thermometer_voltage <= TEMPERATURE_VOLTAGE_MAX);
+    return !(TEMPERATURE_VOLTAGE_MIN <= thermometer_voltage && thermometer_voltage <= TEMPERATURE_VOLTAGE_MAX);
 }
 
 float Io_Coolant_GetPressureA(void)
@@ -81,5 +80,5 @@ float Io_Coolant_GetPressureB(void)
     return 1;
 }
 bool Io_Coolant_PressureVoltageAlarm(float pressure_voltage){
-    return !(PRESSURE_VOLTAGE_MIN <= pressure_voltage <= PRESSURE_VOLTAGE_MAX);
+    return !(PRESSURE_VOLTAGE_MIN <= pressure_voltage && pressure_voltage <= PRESSURE_VOLTAGE_MAX);
 }

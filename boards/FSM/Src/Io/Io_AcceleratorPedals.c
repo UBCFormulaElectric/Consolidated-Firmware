@@ -66,5 +66,5 @@ float Io_AcceleratorPedals_GetSapps(void)
 
 bool Io_AcceleratorPedals_PedalVoltageAlarm(const float pedal_voltage)
 {
-    return !(MIN_PEDAL_VOLTAGE <= pedal_voltage <= MAX_PEDAL_VOLTAGE);
+    return !(MIN_PEDAL_VOLTAGE <= pedal_voltage && pedal_voltage <= MAX_PEDAL_VOLTAGE);
 }

@@ -53,14 +53,14 @@ float Io_Brake_GetRearBrakePressurePsi(void)
     return 0;
 }
 bool Io_Brake_PressureVoltageAlarm(float pressure_voltage){
-    return !(BRAKE_PRESSURE_OC_THRESHOLD <= pressure_voltage <= BRAKE_PRESSURE_SC_THRESHOLD);
+    return !(BRAKE_PRESSURE_OC_THRESHOLD <= pressure_voltage && pressure_voltage <= BRAKE_PRESSURE_SC_THRESHOLD);
 }
 
 //pedal travel
 float Io_Brake_GetPedalPercentTravel(void)
 {
     float pedal_voltage = 0.5f;
-    if(!(BRAKE_PEDAL_MIN_VOLTAGE <= pedal_voltage <= BRAKE_PEDAL_MAX_VOLTAGE)){
+    if(!(BRAKE_PEDAL_MIN_VOLTAGE <= pedal_voltage && pedal_voltage <= BRAKE_PEDAL_MAX_VOLTAGE)){
         return NAN;
     }
     //TODO calculate and return the pedal percentage travel
