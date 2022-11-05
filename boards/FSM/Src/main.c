@@ -39,7 +39,6 @@
 #include "Io_SoftwareWatchdog.h"
 #include "Io_Coolant.h"
 #include "Io_SharedHeartbeatMonitor.h"
-#include "Io_RgbLedSequence.h"
 #include "Io_WheelSpeedSensors.h"
 #include "Io_SteeringAngleSensor.h"
 #include "Io_Adc.h"
