@@ -110,21 +110,19 @@ static void
     SET_ERROR(error_table, PDM_NON_CRITICAL_WATCHDOG_TIMEOUT, data->watchdog_timeout);
 }
 
-static void
-    Io_ProcessBmsAirShutdownErrorMsg(struct ErrorTable *error_table, struct CanMsgs_bms_air_shutdown_errors_t *data)
+static void Io_ProcessBmsAirShutdownErrorMsg(struct ErrorTable *error_table, struct CanMsgs_bms_faults_t *data)
 {
-    SET_ERROR(
-        error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE, data->charger_disconnected_in_charge_state);
-    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_CELL_UNDERVOLTAGE_FAULT, data->cell_undervoltage_fault);
-    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_CELL_OVERVOLTAGE_FAULT, data->cell_overvoltage_fault);
-    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_HAS_PEC_FAULT, data->has_pec_fault);
-    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_CELL_UNDERTEMP_FAULT, data->cell_undertemp_fault);
-    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_CELL_OVERTEMP_FAULT, data->cell_overtemp_fault);
-    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_CHARGER_FAULT_DETECTED, data->charger_fault_detected);
-    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_HAS_REACHED_MAX_V, data->has_reached_max_v);
-    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_CHARGING_EXT_SHUTDOWN_OCCURRED, data->charging_ext_shutdown_occurred);
-    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_TS_OVERCURRENT_FAULT, data->ts_overcurrent_fault);
-    SET_ERROR(error_table, BMS_AIR_SHUTDOWN_PRECHARGE_FAULT, data->precharge_fault);
+    SET_ERROR(error_table, BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE, data->charger_disconnected_in_charge_state);
+    SET_ERROR(error_table, BMS_FAULTS_CELL_UNDERVOLTAGE_FAULT, data->cell_undervoltage_fault);
+    SET_ERROR(error_table, BMS_FAULTS_CELL_OVERVOLTAGE_FAULT, data->cell_overvoltage_fault);
+    SET_ERROR(error_table, BMS_FAULTS_HAS_PEC_FAULT, data->has_pec_fault);
+    SET_ERROR(error_table, BMS_FAULTS_CELL_UNDERTEMP_FAULT, data->cell_undertemp_fault);
+    SET_ERROR(error_table, BMS_FAULTS_CELL_OVERTEMP_FAULT, data->cell_overtemp_fault);
+    SET_ERROR(error_table, BMS_FAULTS_CHARGER_FAULT_DETECTED, data->charger_fault_detected);
+    SET_ERROR(error_table, BMS_FAULTS_HAS_REACHED_MAX_V, data->has_reached_max_v);
+    SET_ERROR(error_table, BMS_FAULTS_CHARGING_EXT_SHUTDOWN_OCCURRED, data->charging_ext_shutdown_occurred);
+    SET_ERROR(error_table, BMS_FAULTS_TS_OVERCURRENT_FAULT, data->ts_overcurrent_fault);
+    SET_ERROR(error_table, BMS_FAULTS_PRECHARGE_FAULT, data->precharge_fault);
 }
 
 static void
@@ -226,10 +224,10 @@ void Io_SharedErrorTable_SetErrorsFromCanMsg(struct ErrorTable *error_table, str
             Io_ProcessPdmNonCriticalErrorMsg(error_table, &data);
         }
         break;
-        case (CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_FRAME_ID):
+        case (CANMSGS_BMS_FAULTS_FRAME_ID):
         {
-            struct CanMsgs_bms_air_shutdown_errors_t data;
-            App_CanMsgs_bms_air_shutdown_errors_unpack(&data, can_msg->data, CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_LENGTH);
+            struct CanMsgs_bms_faults_t data;
+            App_CanMsgs_bms_faults_unpack(&data, can_msg->data, CANMSGS_BMS_FAULTS_LENGTH);
             Io_ProcessBmsAirShutdownErrorMsg(error_table, &data);
         }
         break;

@@ -1,6 +1,3 @@
-#include <stdlib.h>
-#include <assert.h>
-#include <stdbool.h>
 #include "App_TractiveSystem.h"
 
 #define HIGH_RES_MAX_CURRENT_READING (50.0f)

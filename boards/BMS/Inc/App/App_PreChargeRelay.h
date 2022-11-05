@@ -2,6 +2,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <assert.h>
+#include <stdlib.h>
 #include "App_CanTx.h"
 
 struct PrechargeRelay;

@@ -1,5 +1,8 @@
 #pragma once
 
+#include <stdlib.h>
+#include <assert.h>
+#include <stdbool.h>
 #include "App_CanTx.h"
 #include "App_SharedMacros.h"
 
