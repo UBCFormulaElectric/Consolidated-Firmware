@@ -2,6 +2,8 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <assert.h>
 #include "App_SharedConstants.h"
 #include "App_CanTx.h"
 

@@ -705,8 +705,8 @@ TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_state
     SetInitialState(App_GetInitState());
 
     // Max acceptable discharge current is 88.5A*3 = 265.5A
-    get_high_res_current_fake.return_val = 90.0f;
-    get_low_res_current_fake.return_val  = 90.0f;
+    get_high_res_current_fake.return_val = 266.0f;
+    get_low_res_current_fake.return_val  = 266.0f;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
@@ -715,8 +715,8 @@ TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_state
     SetInitialState(App_GetChargeState());
 
     // Max acceptable charge current is 23.6A * 3 = 70.8A
-    get_high_res_current_fake.return_val = 24.0f;
-    get_low_res_current_fake.return_val  = 24.0f;
+    get_high_res_current_fake.return_val = 71.0f;
+    get_low_res_current_fake.return_val  = 71.0f;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }

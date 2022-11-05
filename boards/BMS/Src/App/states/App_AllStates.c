@@ -128,7 +128,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     bool           status                = true;
     static uint8_t acc_meas_settle_count = 0U;
-    bool isChargeState = (App_SharedStateMachine_GetCurrentState(state_machine) == App_GetChargeState()) ? true : false;
+    bool           isChargeState = App_SharedStateMachine_GetCurrentState(state_machine) == App_GetChargeState();
 
     App_SendAndReceiveHeartbeat(can_tx, can_rx, hb_monitor);
 

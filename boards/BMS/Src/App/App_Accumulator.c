@@ -1,5 +1,3 @@
-#include <stdlib.h>
-#include <assert.h>
 #include "App_Accumulator.h"
 
 // Min and Max cell temperatures depending on state
@@ -208,12 +206,6 @@ bool App_Accumulator_CheckFaults(
     struct Accumulator *const accumulator,
     bool                      isChargeState)
 {
-    bool overtemp_fault      = false;
-    bool undertemp_fault     = false;
-    bool overvoltage_fault   = false;
-    bool undervoltage_fault  = false;
-    bool communication_fault = App_Accumulator_HasCommunicationError(accumulator);
-
     uint8_t throwaway_segment = 0U;
     uint8_t throwaway_loc     = 0U;
 
@@ -227,25 +219,15 @@ bool App_Accumulator_CheckFaults(
         min_allowable_cell_temp = MIN_CELL_CHARGE_TEMP_DEGC;
     }
 
-    if (App_Accumulator_GetMinCellTempDegC(accumulator, &throwaway_segment, &throwaway_loc) < min_allowable_cell_temp)
-    {
-        undertemp_fault = true;
-    }
-
-    if (App_Accumulator_GetMaxCellTempDegC(accumulator, &throwaway_segment, &throwaway_loc) > max_allowable_cell_temp)
-    {
-        overtemp_fault = true;
-    }
-
-    if (App_Accumulator_GetMaxVoltage(accumulator, &throwaway_segment, &throwaway_loc) > MAX_CELL_VOLTAGE_CHARGE)
-    {
-        overvoltage_fault = true;
-    }
-
-    if (App_Accumulator_GetMinVoltage(accumulator, &throwaway_segment, &throwaway_loc) < MIN_CELL_VOLTAGE_DISCHARGE)
-    {
-        undervoltage_fault = true;
-    }
+    bool overtemp_fault =
+        App_Accumulator_GetMaxCellTempDegC(accumulator, &throwaway_segment, &throwaway_loc) > max_allowable_cell_temp;
+    bool undertemp_fault =
+        App_Accumulator_GetMinCellTempDegC(accumulator, &throwaway_segment, &throwaway_loc) < min_allowable_cell_temp;
+    bool overvoltage_fault =
+        App_Accumulator_GetMaxVoltage(accumulator, &throwaway_segment, &throwaway_loc) > MAX_CELL_VOLTAGE_CHARGE;
+    bool undervoltage_fault =
+        App_Accumulator_GetMinVoltage(accumulator, &throwaway_segment, &throwaway_loc) < MIN_CELL_VOLTAGE_DISCHARGE;
+    bool communication_fault = App_Accumulator_HasCommunicationError(accumulator);
 
     App_CanTx_SetPeriodicSignal_CELL_UNDERVOLTAGE_FAULT(can_tx, undervoltage_fault);
     App_CanTx_SetPeriodicSignal_CELL_OVERVOLTAGE_FAULT(can_tx, overvoltage_fault);
