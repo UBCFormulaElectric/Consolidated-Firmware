@@ -50,7 +50,7 @@
 #include "configs/App_VoltageLimits.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "App_RailMonitoring.h"
-#include "App_CurrentMonitoring.h"
+#include "App_LoadSwitch.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/

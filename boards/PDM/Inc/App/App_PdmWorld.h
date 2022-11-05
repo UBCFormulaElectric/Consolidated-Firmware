@@ -8,7 +8,7 @@
 #include "App_LowVoltageBattery.h"
 #include "App_LoadSwitch.h"
 #include "App_RailMonitoring.h"
-#include "App_CurrentMonitoring.h"
+#include "App_LoadSwitch.h"
 #include "App_SharedClock.h"
 
 struct PdmWorld;
