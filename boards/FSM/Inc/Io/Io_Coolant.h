@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stm32f3xx_hal.h>
+#include <stdbool.h>
 
 /**
  * Initializes a given timer handle for a flow meter
