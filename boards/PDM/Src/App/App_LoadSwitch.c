@@ -46,42 +46,42 @@ void App_LoadSwitch_Destroy(struct LoadSwitch *load_switch)
     free(load_switch);
 }
 
-float App_LowVoltageBattery_GetCSAIRCurrent(struct LoadSwitch *load_switch)
+float App_LoadSwitch_Get_CS_AIR_Current(struct LoadSwitch *load_switch)
 {
     return load_switch->get_CS_AIR_current();
 }
 
-float App_LowVoltageBattery_GetCSLVPWRCurrent(struct LoadSwitch *load_switch)
+float App_LoadSwitch_Get_CS_LVPWR_Current(struct LoadSwitch *load_switch)
 {
     return load_switch->get_CS_LVPWR_current();
 }
 
-float App_LowVoltageBattery_GetCSAUX1Current(struct LoadSwitch *load_switch)
+float App_LoadSwitch_Get_CS_AUX1_Current(struct LoadSwitch *load_switch)
 {
     return load_switch->get_CS_AUX1_current();
 }
 
-float App_LowVoltageBattery_GetCSAUX2Current(struct LoadSwitch *load_switch)
+float App_LoadSwitch_Get_CS_AUX2_Current(struct LoadSwitch *load_switch)
 {
     return load_switch->get_CS_AUX2_current();
 }
 
-float App_LowVoltageBattery_GetCSFRONTLHSCurrent(struct LoadSwitch *load_switch)
+float App_LoadSwitch_Get_CS_FRONTLHS_Current(struct LoadSwitch *load_switch)
 {
     return load_switch->get_CS_FRONTLHS_current();
 }
 
-float App_LowVoltageBattery_GetCSFRONTRHSCurrent(struct LoadSwitch *load_switch)
+float App_LoadSwitch_Get_CS_FRONTRHS_Current(struct LoadSwitch *load_switch)
 {
     return load_switch->get_CS_FRONTRHS_current();
 }
 
-float App_LowVoltageBattery_GetCSREARLHSCurrent(struct LoadSwitch *load_switch)
+float App_LoadSwitch_Get_CS_REARLHS_Current(struct LoadSwitch *load_switch)
 {
     return load_switch->get_CS_REARLHS_current();
 }
 
-float App_LowVoltageBattery_GetREARRHS_Current(struct LoadSwitch *load_switch)
+float App_LoadSwitch_Get_CS_REARRHS_Current(struct LoadSwitch *load_switch)
 {
     return load_switch->get_CS_REARRHS_current();
 }

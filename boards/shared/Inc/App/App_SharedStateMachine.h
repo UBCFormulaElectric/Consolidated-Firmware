@@ -57,7 +57,7 @@ void App_SharedStateMachine_SetNextState(struct StateMachine *state_machine, con
  * @param state_machine The state machine to get the world from
  * @return The world from the given state machine
  */
-struct BmsWorld * App_SharedStateMachine_GetWorld(const struct StateMachine *state_machine);
+struct World * App_SharedStateMachine_GetWorld(const struct StateMachine *state_machine);
 
 /**
  * Tick the 1hz function of the given state machine

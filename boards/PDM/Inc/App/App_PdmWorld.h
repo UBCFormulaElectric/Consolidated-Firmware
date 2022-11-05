@@ -7,6 +7,8 @@
 #include "App_SharedRgbLedSequence.h"
 #include "App_LowVoltageBattery.h"
 #include "App_LoadSwitch.h"
+#include "App_RailMonitoring.h"
+#include "App_CurrentMonitoring.h"
 #include "App_SharedClock.h"
 
 struct PdmWorld;
@@ -37,6 +39,8 @@ struct PdmWorld *App_PdmWorld_Create(
         struct RgbLedSequence *const    rgb_led_sequence,
         struct LowVoltageBattery *const low_voltage_battery,
         struct LoadSwitch        *const load_switch,
+        struct RailMonitoring    *const rail_monitor,
+        struct CurrentMonitoring *const current_monitor,
         struct Clock *const             clock);
 
 /**
@@ -148,6 +152,10 @@ struct RgbLedSequence *App_PdmWorld_GetRgbLedSequence(const struct PdmWorld *wor
 struct LowVoltageBattery *App_PdmWorld_GetLowVoltageBattery(const struct PdmWorld *world);
 
 struct LoadSwitch *App_PdmWorld_GetLoadSwitch(const struct PdmWorld *const world);
+
+struct RailMonitoring *App_PdmWorld_GetRailMonitoring(const struct PdmWorld *const world);
+
+struct CurrentMonitoring *App_PdmWorld_GetCurrentMonitoring(const struct PdmWorld *const world);
 /**
  * Get the clock for the given world
  * @param world The world to get clock for

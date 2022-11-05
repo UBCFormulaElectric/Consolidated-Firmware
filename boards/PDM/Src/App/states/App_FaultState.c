@@ -9,11 +9,8 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct PdmWorld *const          world  = App_SharedStateMachine_GetWorld(state_machine);
     struct PdmCanTxInterface *const can_tx = App_PdmWorld_GetCanTx(world);
-
     App_CanTx_SetPeriodicSignal_STATE(can_tx, CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE);
-    //App_Airs_OpenAirPositive(airs);
-    //App_CanTx_SetPeriodicSignal_AIR_POSITIVE(can_tx, App_Airs_IsAirPositiveClosed(airs));
-    //App_OkStatus_Disable(bms_ok);
+
 }
 
 static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -25,16 +22,14 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
 
-    struct BmsWorld *        world       = App_SharedStateMachine_GetWorld(state_machine);
-    struct Airs *            airs        = App_BmsWorld_GetAirs(world);
+    struct PdmWorld *        world       = App_SharedStateMachine_GetWorld(state_machine);
     struct ErrorTable *const error_table = App_BmsWorld_GetErrorTable(world);
 
     bool is_error_table_cleared = !App_SharedErrorTable_HasAnyAirShutdownErrorSet(error_table);
-    bool is_air_negative_open   = !App_Airs_IsAirNegativeClosed(airs);
 
     if (is_error_table_cleared && is_air_negative_open)
     {
-        App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
+        App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
     }
 }
 

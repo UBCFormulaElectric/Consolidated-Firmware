@@ -26,9 +26,8 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         struct PdmCanRxInterface *can_rx     = App_PdmWorld_GetCanRx(world);
         struct HeartbeatMonitor * hb_monitor = App_PdmWorld_GetHeartbeatMonitor(world);
 
-        if (!App_Airs_IsAirNegativeClosed(airs))
+        if ()
         {
-            // if AIR- opens, go back to fault state (AIR+ will be opened there)
             App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
         }
     }

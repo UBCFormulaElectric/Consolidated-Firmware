@@ -22,6 +22,8 @@ struct PdmWorld
     struct RgbLedSequence *   rgb_led_sequence;
     struct LowVoltageBattery *low_voltage_battery;
     struct LoadSwitch        *load_switch;
+    struct RailMonitoring    *rail_monitor;
+    struct CurrentMonitoring *current_monitor;
     struct Clock *            clock;
 };
 
@@ -42,6 +44,8 @@ struct PdmWorld *App_PdmWorld_Create(
     struct RgbLedSequence *const    rgb_led_sequence,
     struct LowVoltageBattery *const low_voltage_battery,
     struct LoadSwitch        *const load_switch,
+    struct RailMonitoring    *const rail_monitor,
+    struct CurrentMonitoring *const current_monitor,
     struct Clock *const             clock)
 {
     struct PdmWorld *world = (struct PdmWorld *)malloc(sizeof(struct PdmWorld));
@@ -63,6 +67,8 @@ struct PdmWorld *App_PdmWorld_Create(
     world->rgb_led_sequence                      = rgb_led_sequence;
     world->low_voltage_battery                   = low_voltage_battery;
     world->load_switch                           = load_switch;
+    world->rail_monitor                          = rail_monitor;
+    world->current_monitor                       = current_monitor;
     world->clock                                 = clock;
 
     return world;
@@ -151,6 +157,16 @@ struct LowVoltageBattery *App_PdmWorld_GetLowVoltageBattery(const struct PdmWorl
 struct LoadSwitch *App_PdmWorld_GetLoadSwitch(const struct PdmWorld *const world)
 {
     return world->load_switch;
+}
+
+struct RailMonitoring *App_PdmWorld_GetRailMonitoring(const struct PdmWorld *const world)
+{
+    return world->rail_monitor;
+}
+
+struct CurrentMonitoring *App_PdmWorld_GetCurrentMonitoring(const struct PdmWorld *const world)
+{
+    return world->current_monitor;
 }
 
 struct Clock *App_PdmWorld_GetClock(const struct PdmWorld *const world)
