@@ -220,11 +220,11 @@ int main(void)
         HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
     // Accelerator
-    Io_PrimaryScancon2RMHF_Init(&htim1);
-    Io_SecondaryScancon2RMHF_Init(&htim2);
+    //Io_PrimaryScancon2RMHF_Init(&htim1);
+    //Io_SecondaryScancon2RMHF_Init(&htim2);
     papps_and_sapps = App_AcceleratorPedals_Create(Io_AcceleratorPedals_GetPapps, Io_AcceleratorPedals_GetSapps);
-    Io_PrimaryScancon2RMHF_SetEncoderCounter(PAPPS_ENCODER_UNPRESSED_VALUE);
-    Io_SecondaryScancon2RMHF_SetEncoderCounter(SAPPS_ENCODER_UNPRESSED_VALUE);
+    //Io_PrimaryScancon2RMHF_SetEncoderCounter(PAPPS_ENCODER_UNPRESSED_VALUE);
+    //Io_SecondaryScancon2RMHF_SetEncoderCounter(SAPPS_ENCODER_UNPRESSED_VALUE);
 
     // Brake
     brake = App_Brake_Create(
