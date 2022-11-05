@@ -15,14 +15,14 @@ struct Brake
     float (*get_front_pressure_psi)(void);
     float (*get_rear_pressure_psi)(void);
 
-    float (*get_pedal_angle)(void);
+    float (*get_pedal_travel)(void);
     bool (*is_brake_actuated)(void);
 };
 
 struct Brake *App_Brake_Create(
     float (*get_front_sensor_psi)(void),
     float (*get_rear_sensor_psi)(void),
-    float (*get_pedal_angle)(void),
+    float (*get_pedal_travel)(void),
     bool (*is_brake_actuated)(void))
 {
     struct Brake *brake = malloc(sizeof(struct Brake));
@@ -32,7 +32,7 @@ struct Brake *App_Brake_Create(
         App_InRangeCheck_Create(get_front_sensor_psi, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
     brake->get_front_pressure_psi                             = get_front_sensor_psi;
     brake->get_rear_pressure_psi                              = get_rear_sensor_psi;
-    brake->get_pedal_angle                                    = get_pedal_angle;
+    brake->get_pedal_travel                                   = get_pedal_travel;
     brake->is_brake_actuated                                  = is_brake_actuated;
 
     return brake;
@@ -43,11 +43,24 @@ void App_Brake_Destroy(struct Brake *brake)
     free(brake);
 }
 
+//act
 bool App_Brake_IsBrakeActuated(const struct Brake *brake)
 {
     return brake->is_brake_actuated();
 }
 
+//pressures
+float App_Brake_GetFrontPSI(const struct Brake *brake)
+{
+    return brake->get_front_pressure_psi();
+}
+float App_Brake_GetRearPSI(const struct Brake *brake)
+{
+    return brake->get_rear_pressure_psi();
+}
+bool App_Brake_AllPressureElectricalFault(const struct Brake *brake){
+    return brake->get_front_pressure_psi() == NAN || brake->get_rear_pressure_psi() == NAN;
+}
 struct InRangeCheck *App_Brake_GetPressureInRangeCheck(const struct Brake *const brake)
 {
     return brake->pressure_in_range_check;
@@ -57,11 +70,16 @@ bool App_Brake_PressureSensorAlarm(const struct Brake *brake)
     return brake->get_front_pressure_psi() == NAN || brake->get_rear_pressure_psi() == NAN;
 }
 
+//pedal
+float App_Brake_GetPedalTravel(const struct Brake * brake){
+    return brake->get_pedal_travel();
+}
 bool App_Brake_PedalSensorAlarm(const struct Brake *brake)
 {
-    return brake->get_pedal_angle() == NAN;
+    return brake->get_pedal_travel() == NAN;
 }
 
+//broadcast
 void App_Brake_Broadcast(const struct FsmWorld * world)
 {
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);

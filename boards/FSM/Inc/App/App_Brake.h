@@ -13,7 +13,7 @@ struct Brake;
  * in an open or short circuit state
  * @param is_rear_sensor_open_or_short_circuit A function that checks whether the secondary pressure
  * sensor is in an open or short circuit state
- * @param pedal_angle A function that returns the brake pedal angle in radians
+ * @param get_pedal_travel A function that returns the brake pedal angle in radians
  * @param is_pedal_angle_sensor_open_or_short_circuit A function that checks whether the pedal angle sensor is in an
  * open or short circuit state
  * @param is_brake_actuated A function that checks whether the brake is actuated
@@ -22,13 +22,32 @@ struct Brake;
 struct Brake *App_Brake_Create(
     float (*get_front_sensor_psi)(void),
     float (*get_rear_sensor_psi)(void),
-    float (*pedal_angle)(void),
+    float (*get_pedal_travel)(void),
     bool (*is_brake_actuated)(void));
 /**
  * Deallocate the memory used by the given brake
  * @param brake The brake to deallocate
  */
 void App_Brake_Destroy(struct Brake *brake);
+
+/**
+ * Getter for get_front_sensor_psi function
+ * @param brake
+ * @return
+ */
+float App_Brake_GetFrontPSI(const struct Brake *brake);
+/**
+ * Getter for get_rear_sensor_psi function
+ * @param brake
+ * @return
+ */
+float App_Brake_GetRearPSI(const struct Brake *brake);
+/**
+ * Returns whether there is an open or short circuit in front or rear brake pressure sensor
+ * @param brake
+ * @return
+ */
+bool App_Brake_AllPressureElectricalFault(const struct Brake *brake);
 
 /**
  * Check if the given brake is actuated
@@ -52,6 +71,12 @@ struct InRangeCheck *App_Brake_GetPressureInRangeCheck(const struct Brake *brake
  */
 bool App_Brake_PressureSensorAlarm(const struct Brake *brake);
 
+/**
+ * Gets the pedal angle of a given brake
+ * @param brake
+ * @return The pedal angle (percent)
+ */
+float App_Brake_GetPedalAngle(const struct Brake * brake);
 /**
  * Checks if a given pedal sensor is open or short circuit
  * @param brake The brake which contains the pedal sensor
