@@ -630,6 +630,9 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
 
 TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_states_undervoltage)
 {
+    // Set TS current positive to trigger discharging condition in voltage check
+    get_high_res_current_fake.return_val = 10.0f;
+    get_low_res_current_fake.return_val  = 10.0f;
     SetInitialState(App_GetDriveState());
 
     get_min_cell_voltage_fake.return_val = 2.9f;
@@ -640,6 +643,10 @@ TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_state
 
 TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_states_overvoltage)
 {
+    // Set TS current positive to trigger discharging condition in voltage check
+    get_high_res_current_fake.return_val = 10.0f;
+    get_low_res_current_fake.return_val  = 10.0f;
+
     SetInitialState(App_GetInitState());
 
     get_max_cell_voltage_fake.return_val = 4.3f;
@@ -649,6 +656,10 @@ TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_state
 
 TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_states_overtemp_drive_state)
 {
+    // Set TS current positive to trigger discharging condition in tempertature check
+    get_high_res_current_fake.return_val = 10.0f;
+    get_low_res_current_fake.return_val  = 10.0f;
+
     SetInitialState(App_GetInitState());
 
     // In Discharge state, acceptible temp range is (-20, 60), should be unaffected by temp of 46 C
@@ -666,6 +677,16 @@ TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_state
 
 TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_states_overtemp_charge_state)
 {
+    // Set charger conditions such that charger faults do not trigger
+    is_charger_connected_fake.return_val   = true;
+    is_air_negative_closed_fake.return_val = true;
+    has_charger_faulted_fake.return_val    = false;
+    get_max_cell_voltage_fake.return_val   = 3.0f;
+
+    // Set TS current negative to trigger charging condition in tempertature check
+    get_high_res_current_fake.return_val = -10.0f;
+    get_low_res_current_fake.return_val  = -10.0f;
+
     SetInitialState(App_GetChargeState());
 
     // In Charge state acceptible temp range is (0, 45)
@@ -676,6 +697,10 @@ TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_state
 
 TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_states_undertemp_drive_state)
 {
+    // Set TS current positive to trigger discharging condition in tempertature check
+    get_high_res_current_fake.return_val = 10.0f;
+    get_low_res_current_fake.return_val  = 10.0f;
+
     SetInitialState(App_GetInitState());
 
     // In Discharge state, acceptible temp range is (-20, 60), should be unaffected by temp of -1 C
@@ -692,16 +717,30 @@ TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_state
 
 TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_states_undertemp_charge_state)
 {
+    // Set charger conditions such that charger faults do not trigger
+    is_charger_connected_fake.return_val   = true;
+    is_air_negative_closed_fake.return_val = true;
+    has_charger_faulted_fake.return_val    = false;
+    get_max_cell_voltage_fake.return_val   = 3.0f;
+
+    // Set TS current negative to trigger charging condition in tempertature check
+    get_high_res_current_fake.return_val = -10.0f;
+    get_low_res_current_fake.return_val  = -10.0f;
+
     SetInitialState(App_GetChargeState());
 
-    // In Charge state acceptible temp range is (0, 45)
+    // In Charge state acceptable temp range is (0, 45)
     get_min_temp_degc_fake.return_val = -1.0f;
-    LetTimePass(state_machine, 10);
+    LetTimePass(state_machine, 1000);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_states_ts_discharge_overcurrent)
 {
+    // Set TS current positive to trigger discharging condition
+    get_high_res_current_fake.return_val = 10.0f;
+    get_low_res_current_fake.return_val  = 10.0f;
+
     SetInitialState(App_GetInitState());
 
     // Max acceptable discharge current is 88.5A*3 = 265.5A
@@ -712,9 +751,20 @@ TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_state
 }
 TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_states_ts_charge_overcurrent)
 {
+    // Set charger conditions such that charger faults do not trigger
+    is_charger_connected_fake.return_val   = true;
+    is_air_negative_closed_fake.return_val = true;
+    has_charger_faulted_fake.return_val    = false;
+    get_max_cell_voltage_fake.return_val   = 3.0f;
+
+    // Set TS current negative to trigger charging condition
+    get_high_res_current_fake.return_val = -10.0f;
+    get_low_res_current_fake.return_val  = -10.0f;
+
     SetInitialState(App_GetChargeState());
 
     // Max acceptable charge current is 23.6A * 3 = 70.8A
+    // Charge current is negative
     get_high_res_current_fake.return_val = -71.0f;
     get_low_res_current_fake.return_val  = -71.0f;
     LetTimePass(state_machine, 10);
