@@ -128,7 +128,6 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     bool           status                = true;
     static uint8_t acc_meas_settle_count = 0U;
-    bool           isChargeState = App_SharedStateMachine_GetCurrentState(state_machine) == App_GetChargeState();
 
     App_SendAndReceiveHeartbeat(can_tx, can_rx, hb_monitor);
 
@@ -136,8 +135,8 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CheckCellVoltageRange(can_tx, error_table, accumulator);
     App_CheckCellTemperatureRange(can_tx, error_table, accumulator, state_machine);
 
-    const bool acc_fault = App_Accumulator_CheckFaults(can_tx, accumulator, isChargeState);
-    const bool ts_fault  = App_TractveSystem_CheckFaults(can_tx, ts, isChargeState);
+    const bool acc_fault = App_Accumulator_CheckFaults(can_tx, accumulator, ts);
+    const bool ts_fault  = App_TractveSystem_CheckFaults(can_tx, ts);
 
     App_CanTx_SetPeriodicSignal_PACK_VOLTAGE(can_tx, App_Accumulator_GetPackVoltage(accumulator));
     App_CanTx_SetPeriodicSignal_TS_VOLTAGE(can_tx, App_TractiveSystem_GetVoltage(ts));

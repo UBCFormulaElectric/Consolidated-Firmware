@@ -6,6 +6,7 @@
 #include <assert.h>
 #include "App_SharedConstants.h"
 #include "App_CanTx.h"
+#include "App_TractiveSystem.h"
 
 struct Accumulator;
 
@@ -108,6 +109,6 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *accumulator);
  * @return True if faults present, false otherwise
  */
 bool App_Accumulator_CheckFaults(
-    struct BmsCanTxInterface *can_tx,
-    struct Accumulator *const accumulator,
-    bool                      isChargeState);
+    struct BmsCanTxInterface *   can_tx,
+    struct Accumulator *const    accumulator,
+    struct TractiveSystem *const ts);

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "App_CanTx.h"
+#include "App_SharedMacros.h"
 
 struct TractiveSystem;
 
@@ -64,7 +65,6 @@ float App_TractiveSystem_GetPower(struct TractiveSystem *ts);
  * Check the status of Tractive System faults and Warnings, sends warning over CAN bus
  * @param can_tx CAN interface to send messages over
  * @param ts The Tractive System to check faults in
- * @param isChargeState Flag to signal if currently in charge state
  * @return True if faults present, false otherwise
  */
-bool App_TractveSystem_CheckFaults(struct BmsCanTxInterface *can_tx, struct TractiveSystem *ts, bool isChargeState);
+bool App_TractveSystem_CheckFaults(struct BmsCanTxInterface *can_tx, struct TractiveSystem *ts);
