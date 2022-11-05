@@ -49,6 +49,11 @@ struct Coolant *App_Coolant_Create(
 
     return coolant;
 }
+void App_Coolant_Destroy(struct Coolant *coolant)
+{
+    App_InRangeCheck_Destroy(coolant->flow_rate_in_range_check);
+    free(coolant);
+}
 
 void App_Coolant_Broadcast(const struct FsmWorld * world, bool *coolantTriggerShutdown)
 {
@@ -86,10 +91,4 @@ void App_Coolant_Broadcast(const struct FsmWorld * world, bool *coolantTriggerSh
     {
         // signal failure
     }
-}
-
-void App_Coolant_Destroy(struct Coolant *coolant)
-{
-    App_InRangeCheck_Destroy(coolant->flow_rate_in_range_check);
-    free(coolant);
 }

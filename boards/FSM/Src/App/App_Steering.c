@@ -25,6 +25,10 @@ struct Steering *App_Steering_Create(float (*get_steering_angle)(void))
         App_InRangeCheck_Create(get_steering_angle, MIN_STEERING_ANGLE_DEG, MAX_STEERING_ANGLE_DEG);
     return steering;
 }
+void App_Steering_Destroy(struct Steering *steering){
+    App_InRangeCheck_Destroy(steering->steering_angle_in_range_check);
+    free(steering);
+}
 
 struct InRangeCheck *App_Steering_GetInRange(const struct Steering *steering)
 {

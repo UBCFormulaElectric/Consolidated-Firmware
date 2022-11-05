@@ -31,6 +31,11 @@ struct Wheels *App_Wheels_Create(float (*get_left_wheel_speed)(void), float (*ge
 
     return wheels;
 }
+void App_Wheels_Destroy(struct Wheels * wheels){
+    App_InRangeCheck_Destroy(wheels->left_wheel_speed_in_range_check);
+    App_InRangeCheck_Destroy(wheels->right_wheel_speed_in_range_check);
+    free(wheels);
+}
 
 struct InRangeCheck *App_Wheels_GetLeftWheelSpeedInRange(const struct Wheels *wheels)
 {
