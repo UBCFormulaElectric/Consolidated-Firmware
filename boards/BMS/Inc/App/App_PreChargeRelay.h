@@ -47,4 +47,5 @@ bool App_PrechargeRelay_CheckFaults(
     struct BmsCanTxInterface *can_tx,
     bool                      is_charger_connected,
     bool                      is_ts_rising_slowly,
-    bool                      is_ts_rising_quickly);
+    bool                      is_ts_rising_quickly,
+    int *                     precharge_fault_count);

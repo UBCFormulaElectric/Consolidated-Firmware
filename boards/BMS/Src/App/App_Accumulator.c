@@ -233,7 +233,7 @@ bool App_Accumulator_CheckFaults(
     App_CanTx_SetPeriodicSignal_CELL_OVERVOLTAGE_FAULT(can_tx, overvoltage_fault);
     App_CanTx_SetPeriodicSignal_CELL_UNDERTEMP_FAULT(can_tx, undertemp_fault);
     App_CanTx_SetPeriodicSignal_CELL_OVERTEMP_FAULT(can_tx, overtemp_fault);
-    App_CanTx_SetPeriodicSignal_HAS_PEC_FAULT(can_tx, communication_fault);
+    App_CanTx_SetPeriodicSignal_PEC_ERROR(can_tx, communication_fault);
 
     return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault);
 }

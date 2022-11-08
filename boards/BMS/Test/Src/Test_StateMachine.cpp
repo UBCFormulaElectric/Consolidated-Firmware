@@ -773,25 +773,27 @@ TEST_F(BmsStateMachineTest, check_state_transition_to_fault_state_from_all_state
 
 TEST_F(BmsStateMachineTest, check_precharge_fault)
 {
-    SetInitialState(App_GetInitState());
-
     // Possible combinations of is_charger_connected, is_ts_rising_slowly and is_ts_rising_quickly
     bool inputs[8][3] = { { false, false, false }, { false, true, false }, { false, false, true },
                           { false, true, true },   { true, false, false }, { true, true, false },
                           { true, false, true },   { true, true, true } };
     // Possible outputs based on above combinations of inputs
-    bool expected_output[8] = { false, true, true, true, false, true, false, true };
+    bool expected_output[8]    = { false, true, true, true, false, true, false, true };
+    int  precharge_fault_count = 0;
 
     for (int i = 0; i < 8; i++)
     {
-        // Fault only triggered is fault condition met 3 times in a row
-        for (int j = 0; j < 2; j++)
-        {
-            App_PrechargeRelay_CheckFaults(can_tx_interface, inputs[i][0], inputs[i][1], inputs[i][2]);
-        }
+        precharge_fault_count = 0;
         ASSERT_EQ(
             expected_output[i],
-            App_PrechargeRelay_CheckFaults(can_tx_interface, inputs[i][0], inputs[i][1], inputs[i][2]));
+            App_PrechargeRelay_CheckFaults(
+                can_tx_interface, inputs[i][0], inputs[i][1], inputs[i][2], &precharge_fault_count));
+
+        // Checking that precharge_fault_count is incrementing accordingly
+        if (expected_output[i])
+            ASSERT_EQ(precharge_fault_count, 1);
+        else
+            ASSERT_EQ(precharge_fault_count, 0);
     }
 }
 } // namespace StateMachineTest

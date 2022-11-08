@@ -36,27 +36,28 @@ bool App_PrechargeRelay_CheckFaults(
     struct BmsCanTxInterface *can_tx,
     bool                      is_charger_connected,
     bool                      is_ts_rising_slowly,
-    bool                      is_ts_rising_quickly)
+    bool                      is_ts_rising_quickly,
+    int *                     precharge_fault_count)
 {
-    static uint8_t precharge_fault_count    = 0;
-    bool           precharge_shutdown_fault = false;
-    bool           has_precharge_fault =
+    bool precharge_shutdown_fault = false;
+    bool has_precharge_fault =
         (is_charger_connected) ? is_ts_rising_slowly : (is_ts_rising_slowly | is_ts_rising_quickly);
 
     if (has_precharge_fault)
     {
-        precharge_fault_count++;
+        *precharge_fault_count += 1;
     }
     else
     {
-        precharge_fault_count = 0;
+        *precharge_fault_count = 0;
     }
 
-    if (precharge_fault_count >= 3)
+    if (*precharge_fault_count >= 3)
     {
         precharge_shutdown_fault = true;
     }
 
-    App_CanTx_SetPeriodicSignal_PRECHARGE_FAULT(can_tx, precharge_shutdown_fault);
-    return precharge_shutdown_fault;
+    App_CanTx_SetPeriodicSignal_PRECHARGE_ERROR(can_tx, precharge_shutdown_fault);
+
+    return has_precharge_fault;
 }
