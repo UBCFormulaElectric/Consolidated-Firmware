@@ -5,8 +5,8 @@
 #define MAX_CELL_CHARGE_TEMP_DEGC (45.0f)
 #define MIN_CELL_DISCHARGE_TEMP_DEGC (-20.0f)
 #define MIN_CELL_CHARGE_TEMP_DEGC (0.0f)
-#define MAX_CELL_VOLTAGE_CHARGE (4.2f)
-#define MIN_CELL_VOLTAGE_DISCHARGE (3.0f)
+#define MAX_CELL_VOLTAGE (4.2f)
+#define MIN_CELL_VOLTAGE (3.0f)
 
 // Max number of PEC15 to occur before faulting
 #define MAX_NUM_COMM_TRIES (3U)
@@ -213,7 +213,7 @@ bool App_Accumulator_CheckFaults(
     float min_allowable_cell_temp = MIN_CELL_DISCHARGE_TEMP_DEGC;
 
     // if we are charging, max cell temp is 45C not 60C
-    if (App_TractiveSystem_GetCurrent(ts) < 0.0f)
+    if (App_TractiveSystem_GetCurrent(ts) < -3.0f)
     {
         max_allowable_cell_temp = MAX_CELL_CHARGE_TEMP_DEGC;
         min_allowable_cell_temp = MIN_CELL_CHARGE_TEMP_DEGC;
@@ -233,7 +233,7 @@ bool App_Accumulator_CheckFaults(
     App_CanTx_SetPeriodicSignal_CELL_OVERVOLTAGE_FAULT(can_tx, overvoltage_fault);
     App_CanTx_SetPeriodicSignal_CELL_UNDERTEMP_FAULT(can_tx, undertemp_fault);
     App_CanTx_SetPeriodicSignal_CELL_OVERTEMP_FAULT(can_tx, overtemp_fault);
-    App_CanTx_SetPeriodicSignal_PEC_ERROR(can_tx, communication_fault);
+    App_CanTx_SetPeriodicSignal_MODULE_COMM_ERROR(can_tx, communication_fault);
 
     return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault);
 }
