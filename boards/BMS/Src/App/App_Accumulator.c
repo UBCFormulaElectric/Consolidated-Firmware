@@ -224,9 +224,9 @@ bool App_Accumulator_CheckFaults(
     bool undertemp_fault =
         App_Accumulator_GetMinCellTempDegC(accumulator, &throwaway_segment, &throwaway_loc) < min_allowable_cell_temp;
     bool overvoltage_fault =
-        App_Accumulator_GetMaxVoltage(accumulator, &throwaway_segment, &throwaway_loc) > MAX_CELL_VOLTAGE_CHARGE;
+        App_Accumulator_GetMaxVoltage(accumulator, &throwaway_segment, &throwaway_loc) > MAX_CELL_VOLTAGE;
     bool undervoltage_fault =
-        App_Accumulator_GetMinVoltage(accumulator, &throwaway_segment, &throwaway_loc) < MIN_CELL_VOLTAGE_DISCHARGE;
+        App_Accumulator_GetMinVoltage(accumulator, &throwaway_segment, &throwaway_loc) < MIN_CELL_VOLTAGE;
     bool communication_fault = App_Accumulator_HasCommunicationError(accumulator);
 
     App_CanTx_SetPeriodicSignal_CELL_UNDERVOLTAGE_FAULT(can_tx, undervoltage_fault);

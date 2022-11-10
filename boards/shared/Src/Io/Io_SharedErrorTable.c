@@ -115,7 +115,7 @@ static void Io_ProcessBmsAirShutdownErrorMsg(struct ErrorTable *error_table, str
     SET_ERROR(error_table, BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE, data->charger_disconnected_in_charge_state);
     SET_ERROR(error_table, BMS_FAULTS_CELL_UNDERVOLTAGE_FAULT, data->cell_undervoltage_fault);
     SET_ERROR(error_table, BMS_FAULTS_CELL_OVERVOLTAGE_FAULT, data->cell_overvoltage_fault);
-    SET_ERROR(error_table, BMS_FAULTS_PEC_ERROR, data->pec_error);
+    SET_ERROR(error_table, BMS_FAULTS_MODULE_COMM_ERROR, data->module_comm_error);
     SET_ERROR(error_table, BMS_FAULTS_CELL_UNDERTEMP_FAULT, data->cell_undertemp_fault);
     SET_ERROR(error_table, BMS_FAULTS_CELL_OVERTEMP_FAULT, data->cell_overtemp_fault);
     SET_ERROR(error_table, BMS_FAULTS_CHARGER_FAULT_DETECTED, data->charger_fault_detected);
