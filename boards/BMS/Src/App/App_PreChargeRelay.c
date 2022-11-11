@@ -1,5 +1,7 @@
 #include "App_PreChargeRelay.h"
 
+#define MAX_PRECHARGE_ATTEMPTS 3U
+
 struct PrechargeRelay
 {
     void (*close_relay)(void);
@@ -64,14 +66,7 @@ bool App_PrechargeRelay_CheckFaults(
         App_PrechargeRelay_IncFaultCounter(precharge_relay);
     }
 
-    if (App_PrechargeRelay_GetFaultCounterVal(precharge_relay) >= 3)
-    {
-        *precharge_limit_exceeded = true;
-    }
-    else
-    {
-        *precharge_limit_exceeded = false;
-    }
+    *precharge_limit_exceeded = App_PrechargeRelay_GetFaultCounterVal(precharge_relay) >= MAX_PRECHARGE_ATTEMPTS;
 
     App_CanTx_SetPeriodicSignal_PRECHARGE_ERROR(can_tx, *precharge_limit_exceeded);
 
