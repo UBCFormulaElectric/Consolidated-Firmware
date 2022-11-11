@@ -4,6 +4,7 @@ struct PrechargeRelay
 {
     void (*close_relay)(void);
     void (*open_relay)(void);
+    uint8_t precharge_fault_count;
 };
 
 struct PrechargeRelay *App_PrechargeRelay_Create(void (*close_relay)(void), void (*open_relay)(void))
@@ -11,9 +12,9 @@ struct PrechargeRelay *App_PrechargeRelay_Create(void (*close_relay)(void), void
     struct PrechargeRelay *pre_charge_relay = malloc(sizeof(struct PrechargeRelay));
     assert(pre_charge_relay != NULL);
 
-    pre_charge_relay->close_relay = close_relay;
-    pre_charge_relay->open_relay  = open_relay;
-
+    pre_charge_relay->close_relay           = close_relay;
+    pre_charge_relay->open_relay            = open_relay;
+    pre_charge_relay->precharge_fault_count = 0U;
     return pre_charge_relay;
 }
 
@@ -32,32 +33,47 @@ void App_PrechargeRelay_Open(const struct PrechargeRelay *const precharge_relay)
     precharge_relay->open_relay();
 }
 
+void App_PrechargeRelay_IncFaultCounter(struct PrechargeRelay *precharge_relay)
+{
+    precharge_relay->precharge_fault_count++;
+}
+
+uint8_t App_PrechargeRelay_GetFaultCounterVal(const struct PrechargeRelay *const precharge_relay)
+{
+    return precharge_relay->precharge_fault_count;
+}
+
+void App_PrechargeRelay_ResetFaultCounterVal(struct PrechargeRelay *const precharge_relay)
+{
+    precharge_relay->precharge_fault_count = 0U;
+}
+
 bool App_PrechargeRelay_CheckFaults(
+    struct PrechargeRelay *   precharge_relay,
     struct BmsCanTxInterface *can_tx,
     bool                      is_charger_connected,
     bool                      is_ts_rising_slowly,
     bool                      is_ts_rising_quickly,
-    int *                     precharge_fault_count)
+    bool *                    precharge_limit_exceeded)
 {
-    bool precharge_shutdown_fault = false;
-    bool has_precharge_fault =
+    const bool has_precharge_fault =
         (is_charger_connected) ? is_ts_rising_slowly : (is_ts_rising_slowly | is_ts_rising_quickly);
 
     if (has_precharge_fault)
     {
-        *precharge_fault_count += 1;
+        App_PrechargeRelay_IncFaultCounter(precharge_relay);
+    }
+
+    if (App_PrechargeRelay_GetFaultCounterVal(precharge_relay) >= 3)
+    {
+        *precharge_limit_exceeded = true;
     }
     else
     {
-        *precharge_fault_count = 0;
+        *precharge_limit_exceeded = false;
     }
 
-    if (*precharge_fault_count >= 3)
-    {
-        precharge_shutdown_fault = true;
-    }
-
-    App_CanTx_SetPeriodicSignal_PRECHARGE_ERROR(can_tx, precharge_shutdown_fault);
+    App_CanTx_SetPeriodicSignal_PRECHARGE_ERROR(can_tx, *precharge_limit_exceeded);
 
     return has_precharge_fault;
 }

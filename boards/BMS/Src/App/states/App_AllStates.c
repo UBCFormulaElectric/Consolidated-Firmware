@@ -128,7 +128,6 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     bool           status                = true;
     static uint8_t acc_meas_settle_count = 0U;
-
     App_SendAndReceiveHeartbeat(can_tx, can_rx, hb_monitor);
 
     App_Accumulator_RunOnTick100Hz(accumulator);

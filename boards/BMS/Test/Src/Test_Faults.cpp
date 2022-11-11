@@ -400,22 +400,26 @@ TEST_F(BmsFaultTest, check_precharge_fault)
                           { false, true, true },   { true, false, false }, { true, true, false },
                           { true, false, true },   { true, true, true } };
     // Possible outputs based on above combinations of inputs
-    bool expected_output[8]    = { false, true, true, true, false, true, false, true };
-    int  precharge_fault_count = 0;
+    bool expected_output[8]             = { false, true, true, true, false, true, false, true };
+    bool precharge_fault_limit_exceeded = false;
 
     for (int i = 0; i < 8; i++)
     {
-        precharge_fault_count = 0;
         ASSERT_EQ(
-            expected_output[i],
-            App_PrechargeRelay_CheckFaults(
-                can_tx_interface, inputs[i][0], inputs[i][1], inputs[i][2], &precharge_fault_count));
+            expected_output[i], App_PrechargeRelay_CheckFaults(
+                                    precharge_relay, can_tx_interface, inputs[i][0], inputs[i][1], inputs[i][2],
+                                    &precharge_fault_limit_exceeded));
 
-        // Checking that precharge_fault_count is incrementing accordingly
-        if (expected_output[i])
-            ASSERT_EQ(precharge_fault_count, 1);
-        else
-            ASSERT_EQ(precharge_fault_count, 0);
+        if (App_PrechargeRelay_GetFaultCounterVal(precharge_relay) >= 3)
+        {
+            ASSERT_EQ(precharge_fault_limit_exceeded, true);
+        }
     }
+    // Check to see if counter is non-zero before resetting
+    ASSERT_NE(App_PrechargeRelay_GetFaultCounterVal(precharge_relay), 0);
+
+    // counter should be zero after reset
+    App_PrechargeRelay_ResetFaultCounterVal(precharge_relay);
+    ASSERT_EQ(App_PrechargeRelay_GetFaultCounterVal(precharge_relay), 0);
 }
 } // namespace FaultTest
