@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <assert.h>
 #include <linkedlist.h>
-#include "/home/formulae/Documents/Consolidated-Firmware/boards/FSM/Inc/App/App_GsmAnalog.h"
+#include "App_GsmAnalog.h"
 struct GSMAnalog {
     struct GSMAnalog *GSMAnalog_create;
     float slope;
@@ -39,20 +39,4 @@ float get_output(const struct GSMAnalog *gsmAnalog)
         {
     return gsmAnalog->slope *  gsmAnalog->get_sensorAnalogVal_voltage() + gsmAnalog->y_int;
         }
-float get_sensorAnalogVal_voltage (const struct GSMAnalog *gsmAnalog){
-    return gsmAnalog->get_sensorAnalogVal_voltage();
-}
-/*
- * Create IO code to interface with the 8 channels
 
-Channels must have ability to tune to different transfer functions
-
-Possibly pass first order function as argument to IO code?
-
-Explore options in this regard
- Provide CAN Bus support for 8 generic channels.
- Include configurability in the units, name, etc so that the board can
- easily switch to reporting different sensors
-Functions:
- - function to label
- */

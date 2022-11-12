@@ -22,5 +22,3 @@ struct GSMAnalog *GSMAnalog_create (float slope,
 void App_GSMAnalog_Destroy (struct GSMAnalog *gsmAnalog);
 
 float get_output(const struct GSMAnalog *gsmAnalog);
-float get_sensorAnalogVal_voltage (const struct GSMAnalog *gsmAnalog);
-
