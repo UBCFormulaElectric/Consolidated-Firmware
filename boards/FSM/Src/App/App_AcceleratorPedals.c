@@ -174,10 +174,10 @@ void App_AcceleratorPedals_Broadcast(struct FsmWorld* world)
     const bool secondary_pedal_alarm = sapps_pedal_percentage == NAN;
     SignalState papp_signal_state = App_SharedSignal_Update(
         accelerator_pedals->papp_alarm_signal,
-        primary_pedal_alarm,!(primary_pedal_alarm || secondary_pedal_alarm));
+        primary_pedal_alarm,!primary_pedal_alarm);
     SignalState sapp_signal_state = App_SharedSignal_Update(
         accelerator_pedals->sapp_alarm_signal,
-        secondary_pedal_alarm, !(primary_pedal_alarm || secondary_pedal_alarm));
+        secondary_pedal_alarm, !secondary_pedal_alarm);
 
     if (papp_signal_state == SIGNAL_STATE_ACTIVE)
     {
