@@ -29,6 +29,7 @@ struct GSMAnalog *GSMAnalog_create (float slope,
     return gsmAnalog;
 
 }
+
 void App_GSMAnalog_Destroy (struct GSMAnalog *gsmAnalog)
 {
     free(gsmAnalog);

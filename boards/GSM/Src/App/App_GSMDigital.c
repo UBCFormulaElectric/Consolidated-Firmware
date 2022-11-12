@@ -48,7 +48,7 @@ float get_sensorDigitalVal_voltage(const struct GSMDigital *gsmDigital){
 }
 
 float get_frequency(float voltageInput){
-    return ;
+    return 4;
 }
 /*
  * implement
