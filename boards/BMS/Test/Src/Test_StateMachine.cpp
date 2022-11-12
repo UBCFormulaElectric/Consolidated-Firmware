@@ -99,13 +99,11 @@ class BmsStateMachineTest : public BaseStateMachineTest
 
         airs = App_Airs_Create(is_air_positive_closed, is_air_negative_closed, close_air_positive, open_air_positive);
 
-        error_table = App_SharedErrorTable_Create();
-
         clock = App_SharedClock_Create();
 
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok,
-            bspd_ok, accumulator, airs, precharge_relay, ts, error_table, clock);
+            bspd_ok, accumulator, airs, precharge_relay, ts, clock);
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
@@ -187,7 +185,6 @@ class BmsStateMachineTest : public BaseStateMachineTest
         TearDownObject(airs, App_Airs_Destroy);
         TearDownObject(precharge_relay, App_PrechargeRelay_Destroy);
         TearDownObject(ts, App_TractiveSystem_Destroy);
-        TearDownObject(error_table, App_SharedErrorTable_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
     }
 
@@ -598,16 +595,13 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
 {
     SetInitialState(App_GetFaultState());
 
-    // Set an arbitrarily chosen AIR shutdown error
-    App_SharedErrorTable_SetError(error_table, BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE, true);
-
-    // Open AIR- for the following tests
-    is_air_negative_closed_fake.return_val = false;
+    // Check that state machine remains in FaultState with AIR- closed
+    is_air_negative_closed_fake.return_val = true;
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 
-    // Clear the AIR shutdown error
-    App_SharedErrorTable_SetError(error_table, BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE, false);
+    // Check that state mcachine transitions to InitState with AIR- open
+    is_air_negative_closed_fake.return_val = false;
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }

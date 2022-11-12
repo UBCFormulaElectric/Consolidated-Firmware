@@ -6,9 +6,6 @@ from scripts.utilities.supported_boards import get_board_names
 ERRORID_ENUM_TEMPLATE = '''\
 #pragma once
 
-#define BMS_NON_CRITICAL_ERRORS \\
-{bms_non_critical_errors}
-
 #define DCM_NON_CRITICAL_ERRORS \\
 {dcm_non_critical_errors}
 
@@ -42,9 +39,6 @@ ERRORID_ENUM_TEMPLATE = '''\
 #define GSM_AIR_SHUTDOWN_ERRORS \\
 {gsm_air_shutdown_errors}
 
-#define BMS_MOTOR_SHUTDOWN_ERRORS \\
-{bms_motor_shutdown_errors}
-
 #define DCM_MOTOR_SHUTDOWN_ERRORS \\
 {dcm_motor_shutdown_errors}
 
@@ -62,7 +56,6 @@ ERRORID_ENUM_TEMPLATE = '''\
 
 enum ErrorId
 {{
-    BMS_NON_CRITICAL_ERRORS
     DCM_NON_CRITICAL_ERRORS
     DIM_NON_CRITICAL_ERRORS
     FSM_NON_CRITICAL_ERRORS
@@ -74,7 +67,6 @@ enum ErrorId
     FSM_AIR_SHUTDOWN_ERRORS
     PDM_AIR_SHUTDOWN_ERRORS
     GSM_AIR_SHUTDOWN_ERRORS
-    BMS_MOTOR_SHUTDOWN_ERRORS
     DCM_MOTOR_SHUTDOWN_ERRORS
     DIM_MOTOR_SHUTDOWN_ERRORS
     FSM_MOTOR_SHUTDOWN_ERRORS
@@ -107,7 +99,8 @@ if __name__ == "__main__":
             enum_members['non_critical'][board] = \
                 ['    %s_NON_CRITICAL_%s, \\' %(board, signal.name.upper()) for signal in can_msg.signals]
         except KeyError:
-            raise KeyError('Could not find non critical error message for %s' % board)
+            if board != "BMS":
+                raise KeyError('Could not find non critical error message for %s' % board)
 
         try:
             can_msg = database.get_message_by_name(board + '_FAULTS')
@@ -115,7 +108,7 @@ if __name__ == "__main__":
                 ['    %s_FAULTS_%s, \\' %(board, signal.name.upper()) for signal in can_msg.signals]
         except KeyError:
             if board == "BMS":
-                raise KeyError('Could not find AIR shutdown error message for %s' % board)
+                raise KeyError('Could not find Fault message for %s' % board)
 
         try:
             can_msg = database.get_message_by_name(board + '_AIR_SHUTDOWN_ERRORS')
@@ -130,10 +123,10 @@ if __name__ == "__main__":
             enum_members['motor_shutdown'][board] = \
                 ['    %s_MOTOR_SHUTDOWN_%s, \\' %(board, signal.name.upper()) for signal in can_msg.signals]
         except KeyError:
-            raise KeyError('Could not find motor shutdown error message for %s' % board)
+            if board != "BMS":
+                raise KeyError('Could not find motor shutdown error message for %s' % board)
 
     enum = ERRORID_ENUM_TEMPLATE.format(
-        bms_non_critical_errors   = '\n'.join(enum_members['non_critical']['BMS']),
         dcm_non_critical_errors   = '\n'.join(enum_members['non_critical']['DCM']),
         dim_non_critical_errors   = '\n'.join(enum_members['non_critical']['DIM']),
         fsm_non_critical_errors   = '\n'.join(enum_members['non_critical']['FSM']),
@@ -145,7 +138,6 @@ if __name__ == "__main__":
         fsm_air_shutdown_errors   = '\n'.join(enum_members['air_shutdown']['FSM']),
         pdm_air_shutdown_errors   = '\n'.join(enum_members['air_shutdown']['PDM']),
         gsm_air_shutdown_errors   = '\n'.join(enum_members['air_shutdown']['GSM']),
-        bms_motor_shutdown_errors = '\n'.join(enum_members['motor_shutdown']['BMS']),
         dcm_motor_shutdown_errors = '\n'.join(enum_members['motor_shutdown']['DCM']),
         dim_motor_shutdown_errors = '\n'.join(enum_members['motor_shutdown']['DIM']),
         fsm_motor_shutdown_errors = '\n'.join(enum_members['motor_shutdown']['FSM']),
