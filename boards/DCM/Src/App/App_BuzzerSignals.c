@@ -3,12 +3,10 @@
 
 bool App_BuzzerSignals_IsOn(struct DcmWorld *world)
 {
-    struct Buzzer *buzzer = App_DcmWorld_GetBuzzer(world);
-    return App_Buzzer_IsOn(buzzer);
+    return App_Buzzer_IsOn();
 }
 
 void App_BuzzerSignals_Callback(struct DcmWorld *world)
 {
-    struct Buzzer *buzzer = App_DcmWorld_GetBuzzer(world);
-    App_Buzzer_TurnOff(buzzer);
+    App_Buzzer_TurnOff();
 }

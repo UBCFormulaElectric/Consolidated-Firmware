@@ -11,7 +11,6 @@ extern "C"
 #include "states/App_FaultState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "configs/App_WaitSignalDuration.h"
-#include "configs/App_AccelerationThresholds.h"
 }
 
 namespace StateMachineTest
@@ -23,19 +22,6 @@ FAKE_VOID_FUNC(heartbeat_timeout_callback, enum HeartbeatOneHot, enum HeartbeatO
 FAKE_VOID_FUNC(turn_on_red_led);
 FAKE_VOID_FUNC(turn_on_green_led);
 FAKE_VOID_FUNC(turn_on_blue_led);
-FAKE_VOID_FUNC(turn_on_brake_light);
-FAKE_VOID_FUNC(turn_off_brake_light);
-FAKE_VOID_FUNC(turn_on_buzzer);
-FAKE_VOID_FUNC(turn_off_buzzer);
-FAKE_VALUE_FUNC(float, get_acceleration_x);
-FAKE_VALUE_FUNC(float, get_acceleration_y);
-FAKE_VALUE_FUNC(float, get_acceleration_z);
-FAKE_VOID_FUNC(turn_on_right_inverter);
-FAKE_VOID_FUNC(turn_off_right_inverter);
-FAKE_VOID_FUNC(turn_on_left_inverter);
-FAKE_VOID_FUNC(turn_off_left_inverter);
-FAKE_VALUE_FUNC(bool, is_right_inverter_on);
-FAKE_VALUE_FUNC(bool, is_left_inverter_on);
 
 class DcmStateMachineTest : public BaseStateMachineTest
 {
@@ -54,24 +40,17 @@ class DcmStateMachineTest : public BaseStateMachineTest
 
         rgb_led_sequence = App_SharedRgbLedSequence_Create(turn_on_red_led, turn_on_green_led, turn_on_blue_led);
 
-        brake_light = App_BrakeLight_Create(turn_on_brake_light, turn_off_brake_light);
-
-        buzzer = App_Buzzer_Create(turn_on_buzzer, turn_off_buzzer);
-
-        imu = App_Imu_Create(
-            get_acceleration_x, get_acceleration_y, get_acceleration_z, MIN_ACCELERATION_MS2, MAX_ACCELERATION_MS2);
-
         error_table = App_SharedErrorTable_Create();
 
         clock = App_SharedClock_Create();
 
-        inverter_switches = App_InverterSwitches_Create(
-            turn_on_right_inverter, turn_off_right_inverter, turn_on_left_inverter, turn_off_left_inverter,
-            is_right_inverter_on, is_left_inverter_on);
+        App_BrakeLight_Init();
+        App_Buzzer_Init();
+        App_Imu_Init();
 
         world = App_DcmWorld_Create(
-            can_tx_interface, can_rx_interface, heartbeat_monitor, rgb_led_sequence, brake_light, buzzer, imu,
-            error_table, clock, inverter_switches, App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
+            can_tx_interface, can_rx_interface, heartbeat_monitor, rgb_led_sequence, error_table,
+            App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
@@ -79,19 +58,10 @@ class DcmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(send_non_periodic_msg_DCM_STARTUP);
         RESET_FAKE(send_non_periodic_msg_DCM_WATCHDOG_TIMEOUT);
         RESET_FAKE(get_current_ms);
-        RESET_FAKE(get_acceleration_x);
-        RESET_FAKE(get_acceleration_y);
-        RESET_FAKE(get_acceleration_z);
         RESET_FAKE(heartbeat_timeout_callback);
         RESET_FAKE(turn_on_red_led);
         RESET_FAKE(turn_on_green_led);
         RESET_FAKE(turn_on_blue_led);
-        RESET_FAKE(turn_on_brake_light);
-        RESET_FAKE(turn_off_brake_light);
-        RESET_FAKE(turn_on_right_inverter);
-        RESET_FAKE(turn_off_right_inverter);
-        RESET_FAKE(turn_on_left_inverter);
-        RESET_FAKE(turn_off_left_inverter);
     }
 
     void TearDown() override
@@ -102,12 +72,8 @@ class DcmStateMachineTest : public BaseStateMachineTest
         TearDownObject(can_rx_interface, App_CanRx_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
-        TearDownObject(brake_light, App_BrakeLight_Destroy);
-        TearDownObject(buzzer, App_Buzzer_Destroy);
-        TearDownObject(imu, App_Imu_Destroy);
         TearDownObject(error_table, App_SharedErrorTable_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
-        TearDownObject(inverter_switches, App_InverterSwitches_Destroy);
     }
 
     void SetInitialState(const struct State *const initial_state)
@@ -126,13 +92,6 @@ class DcmStateMachineTest : public BaseStateMachineTest
         };
     }
 
-    void UpdateClock(struct StateMachine *state_machine, uint32_t current_time_ms) override
-    {
-        struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-        struct Clock *   clock = App_DcmWorld_GetClock(world);
-        App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
-    }
-
     void UpdateSignals(struct StateMachine *state_machine, uint32_t current_time_ms) override
     {
         struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
@@ -145,12 +104,8 @@ class DcmStateMachineTest : public BaseStateMachineTest
     struct DcmCanRxInterface *can_rx_interface;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
-    struct BrakeLight *       brake_light;
-    struct Buzzer *           buzzer;
-    struct Imu *              imu;
     struct ErrorTable *       error_table;
     struct Clock *            clock;
-    struct InverterSwitches * inverter_switches;
 };
 
 // DCM-5
@@ -660,8 +615,6 @@ TEST_F(DcmStateMachineTest, broadcast_inverter_switch_status_over_can)
         CANMSGS_DCM_INVERTER_SWITCHES_LEFT_INVERTER_SWITCH_OFF_CHOICE);
 
     // Inverter switches turned on
-    is_right_inverter_on_fake.return_val = true;
-    is_left_inverter_on_fake.return_val  = true;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(
         App_CanTx_GetPeriodicSignal_RIGHT_INVERTER_SWITCH(can_tx_interface),

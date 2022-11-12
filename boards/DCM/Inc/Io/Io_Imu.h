@@ -8,7 +8,6 @@
  */
 
 #include <stdint.h>
-#include <stm32f3xx_hal.h>
 #include <stdbool.h>
 #include "App_SharedExitCode.h"
 
@@ -16,16 +15,16 @@
  * Get x acceleration from Imu
  * @return The acceleration (m/s^2) measured on the x-axis.
  */
-float Io_LSM6DS33_GetAccelerationX(void);
+float Io_Imu_GetAccelerationX(void);
 
 /**
  * Get y acceleration from Imu
  * @return The acceleration (m/s^2) measured on the y-axis.
  */
-float Io_LSM6DS33_GetAccelerationY(void);
+float Io_Imu_GetAccelerationY(void);
 
 /**
  * Get z acceleration from Imu
  * @return The acceleration (m/s^2) measured on the z-axis.
  */
-float Io_LSM6DS33_GetAccelerationZ(void);
+float Io_Imu_GetAccelerationZ(void);

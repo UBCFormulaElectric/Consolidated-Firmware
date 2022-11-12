@@ -1,4 +1,5 @@
-#include "Io_LSM6DS33.h"
+#include "Io_Imu.h"
+#include <stm32f3xx_hal.h>
 
 struct LSM6DS33
 {
@@ -10,17 +11,17 @@ struct LSM6DS33
 
 static struct LSM6DS33 lsm_6ds33;
 
-float Io_LSM6DS33_GetAccelerationX()
+float Io_Imu_GetAccelerationX()
 {
     return lsm_6ds33.accel_x;
 }
 
-float Io_LSM6DS33_GetAccelerationY()
+float Io_Imu_GetAccelerationY()
 {
     return lsm_6ds33.accel_y;
 }
 
-float Io_LSM6DS33_GetAccelerationZ()
+float Io_Imu_GetAccelerationZ()
 {
     return lsm_6ds33.accel_z;
 }

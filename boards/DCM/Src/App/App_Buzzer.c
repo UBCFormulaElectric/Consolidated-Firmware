@@ -1,44 +1,28 @@
 #include <assert.h>
 #include <stdlib.h>
 #include "App_Buzzer.h"
+#include "Io_Buzzer.h"
 
-struct Buzzer
+static bool is_on;
+
+void App_Buzzer_Init()
 {
-    bool is_on;
-    void (*turn_on)(void);
-    void (*turn_off)(void);
-};
-
-struct Buzzer *App_Buzzer_Create(void (*turn_on)(void), void (*turn_off)(void))
-{
-    struct Buzzer *buzzer = malloc(sizeof(struct Buzzer));
-    assert(buzzer != NULL);
-
-    buzzer->is_on    = false;
-    buzzer->turn_on  = turn_on;
-    buzzer->turn_off = turn_off;
-
-    return buzzer;
+    is_on = false;
 }
 
-void App_Buzzer_Destroy(struct Buzzer *buzzer)
+void App_Buzzer_TurnOn()
 {
-    free(buzzer);
+    Io_Buzzer_TurnOn();
+    is_on = true;
 }
 
-void App_Buzzer_TurnOn(struct Buzzer *buzzer)
+void App_Buzzer_TurnOff()
 {
-    buzzer->is_on = true;
-    buzzer->turn_on();
+    Io_Buzzer_TurnOff();
+    is_on = false;
 }
 
-void App_Buzzer_TurnOff(struct Buzzer *buzzer)
+bool App_Buzzer_IsOn()
 {
-    buzzer->is_on = false;
-    buzzer->turn_off();
-}
-
-bool App_Buzzer_IsOn(struct Buzzer *buzzer)
-{
-    return buzzer->is_on;
+    return is_on;
 }

@@ -2,14 +2,19 @@
 
 #include "App_SharedExitCode.h"
 
-struct InRangeCheck;
+typedef struct
+{
+    float (*get_value)(void);
+    float min_value;
+    float max_value;
+} InRangeCheck;
 
-enum InRangeCheck_Status
+typedef enum
 {
     VALUE_IN_RANGE,
     VALUE_UNDERFLOW,
     VALUE_OVERFLOW,
-};
+} InRangeCheck_Status;
 
 /**
  * Allocate and initialize an in-range check to check whether a value is in
@@ -19,13 +24,13 @@ enum InRangeCheck_Status
  * @max_value Maximum value in the range, inclusive
  * @return The created in-range check, whose ownership is given to the caller
  */
-struct InRangeCheck *App_InRangeCheck_Create(float (*get_value)(void), float min_value, float max_value);
+InRangeCheck *App_InRangeCheck_Create(float (*get_value)(void), float min_value, float max_value);
 
 /**
  * Deallocate the memory used by the given in-range check
  * @param in_range_check The in-range check to deallocate
  */
-void App_InRangeCheck_Destroy(struct InRangeCheck *in_range_check);
+void App_InRangeCheck_Destroy(InRangeCheck *in_range_check);
 
 /**
  * Get the value for the given in-range check
@@ -39,5 +44,4 @@ void App_InRangeCheck_Destroy(struct InRangeCheck *in_range_check);
  *         VALUE_UNDERFLOW if the value is below the specified range
  *         VALUE_OVERFLOW if the value is above the specified range
  */
-enum InRangeCheck_Status
-    App_InRangeCheck_GetValue(const struct InRangeCheck *const in_range_check, float *returned_value);
+InRangeCheck_Status App_InRangeCheck_GetValue(const InRangeCheck *const in_range_check, float *returned_value);

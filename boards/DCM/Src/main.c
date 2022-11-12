@@ -37,7 +37,7 @@
 #include "Io_RgbLedSequence.h"
 #include "Io_BrakeLight.h"
 #include "Io_Buzzer.h"
-#include "Io_LSM6DS33.h"
+#include "Io_Imu.h"
 #include "Io_SharedErrorTable.h"
 #include "Io_InverterSwitches.h"
 
@@ -46,7 +46,6 @@
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
-#include "configs/App_AccelerationThresholds.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -93,12 +92,8 @@ struct DcmCanTxInterface *can_tx;
 struct DcmCanRxInterface *can_rx;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
-struct BrakeLight *       brake_light;
-struct Buzzer *           buzzer;
-struct Imu *              imu;
 struct ErrorTable *       error_table;
 struct Clock *            clock;
-struct InverterSwitches * inverter_switches;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -180,25 +175,15 @@ int main(void)
     rgb_led_sequence = App_SharedRgbLedSequence_Create(
         Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed, Io_RgbLedSequence_TurnOnGreenLed);
 
-    brake_light = App_BrakeLight_Create(Io_BrakeLight_TurnOn, Io_BrakeLight_TurnOff);
-
-    buzzer = App_Buzzer_Create(Io_Buzzer_TurnOn, Io_Buzzer_TurnOff);
-
-    imu = App_Imu_Create(
-        Io_LSM6DS33_GetAccelerationX, Io_LSM6DS33_GetAccelerationY, Io_LSM6DS33_GetAccelerationZ, MIN_ACCELERATION_MS2,
-        MAX_ACCELERATION_MS2);
-
     error_table = App_SharedErrorTable_Create();
 
-    clock = App_SharedClock_Create();
-
-    inverter_switches = App_InverterSwitches_Create(
-        Io_InverterSwitches_TurnOnRight, Io_InverterSwitches_TurnOffRight, Io_InverterSwitches_TurnOnLeft,
-        Io_InverterSwitches_TurnOffLeft, Io_InverterSwitches_IsRightInverterOn, Io_InverterSwitches_IsLeftInverterOn);
+    App_BrakeLight_Init();
+    App_Buzzer_Init();
+    App_Imu_Init();
 
     world = App_DcmWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, brake_light, buzzer, imu, error_table, clock,
-        inverter_switches, App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
+        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, error_table, App_BuzzerSignals_IsOn,
+        App_BuzzerSignals_Callback);
 
     Io_StackWaterMark_Init(can_tx);
     Io_SoftwareWatchdog_Init(can_tx);

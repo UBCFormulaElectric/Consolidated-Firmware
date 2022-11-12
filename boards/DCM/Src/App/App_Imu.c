@@ -1,78 +1,53 @@
 #include <assert.h>
 #include <stdlib.h>
 
-#include "App_InRangeCheck.h"
 #include "App_Imu.h"
+#include "Io_Imu.h"
 
-struct Imu
+typedef struct
 {
-    struct InRangeCheck *acceleration_x_in_range_check;
-    struct InRangeCheck *acceleration_y_in_range_check;
-    struct InRangeCheck *acceleration_z_in_range_check;
+    InRangeCheck acceleration_x_in_range_check;
+    InRangeCheck acceleration_y_in_range_check;
+    InRangeCheck acceleration_z_in_range_check;
+} ImuData;
 
-    float (*get_acceleration_x)(void);
-    float (*get_acceleration_y)(void);
-    float (*get_acceleration_z)(void);
-};
+static ImuData imu;
 
-float App_Imu_GetAccelerationX(const struct Imu *const imu)
+void App_Imu_Init()
 {
-    return imu->get_acceleration_x();
+    imu.acceleration_x_in_range_check =
+        *App_InRangeCheck_Create(App_Imu_GetAccelerationX, MIN_ACCELERATION_MS2, MAX_ACCELERATION_MS2);
+    imu.acceleration_y_in_range_check =
+        *App_InRangeCheck_Create(App_Imu_GetAccelerationY, MIN_ACCELERATION_MS2, MAX_ACCELERATION_MS2);
+    imu.acceleration_z_in_range_check =
+        *App_InRangeCheck_Create(App_Imu_GetAccelerationZ, MIN_ACCELERATION_MS2, MAX_ACCELERATION_MS2);
+}
+float App_Imu_GetAccelerationX()
+{
+    return Io_Imu_GetAccelerationX();
 }
 
-float App_Imu_GetAccelerationY(const struct Imu *const imu)
+float App_Imu_GetAccelerationY()
 {
-    return imu->get_acceleration_y();
+    return Io_Imu_GetAccelerationY();
 }
 
-float App_Imu_GetAccelerationZ(const struct Imu *const imu)
+float App_Imu_GetAccelerationZ()
 {
-    return imu->get_acceleration_z();
+    return Io_Imu_GetAccelerationZ();
 }
 
-struct InRangeCheck *App_Imu_GetAccelerationXInRangeCheck(const struct Imu *const imu)
+InRangeCheck *App_Imu_GetAccelerationXInRangeCheck()
 {
-    return imu->acceleration_x_in_range_check;
+    return &imu.acceleration_x_in_range_check;
 }
 
-struct InRangeCheck *App_Imu_GetAccelerationYInRangeCheck(const struct Imu *const imu)
+InRangeCheck *App_Imu_GetAccelerationYInRangeCheck()
 {
-    return imu->acceleration_y_in_range_check;
+    return &imu.acceleration_y_in_range_check;
 }
 
-struct InRangeCheck *App_Imu_GetAccelerationZInRangeCheck(const struct Imu *const imu)
+InRangeCheck *App_Imu_GetAccelerationZInRangeCheck()
 {
-    return imu->acceleration_z_in_range_check;
-}
-
-struct Imu *App_Imu_Create(
-    float (*get_acceleration_x)(void),
-    float (*get_acceleration_y)(void),
-    float (*get_acceleration_z)(void),
-    float min_acceleration,
-    float max_acceleration)
-{
-    struct Imu *imu = malloc(sizeof(struct Imu));
-    assert(imu != NULL);
-
-    imu->acceleration_x_in_range_check =
-        App_InRangeCheck_Create(get_acceleration_x, min_acceleration, max_acceleration);
-    imu->acceleration_y_in_range_check =
-        App_InRangeCheck_Create(get_acceleration_y, min_acceleration, max_acceleration);
-    imu->acceleration_z_in_range_check =
-        App_InRangeCheck_Create(get_acceleration_z, min_acceleration, max_acceleration);
-
-    imu->get_acceleration_x = get_acceleration_x;
-    imu->get_acceleration_y = get_acceleration_y;
-    imu->get_acceleration_z = get_acceleration_z;
-
-    return imu;
-}
-
-void App_Imu_Destroy(struct Imu *imu)
-{
-    free(imu->acceleration_x_in_range_check);
-    free(imu->acceleration_y_in_range_check);
-    free(imu->acceleration_z_in_range_check);
-    free(imu);
+    return &imu.acceleration_z_in_range_check;
 }

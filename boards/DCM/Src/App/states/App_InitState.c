@@ -4,10 +4,8 @@
 
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    struct DcmWorld *         world             = App_SharedStateMachine_GetWorld(state_machine);
-    struct DcmCanTxInterface *can_tx_interface  = App_DcmWorld_GetCanTx(world);
-    struct InverterSwitches * inverter_switches = App_DcmWorld_GetInverterSwitches(world);
-
+    struct DcmWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
+    struct DcmCanTxInterface *can_tx_interface = App_DcmWorld_GetCanTx(world);
     App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_DCM_STATE_MACHINE_STATE_INIT_CHOICE);
 
     // Disable inverters and apply zero torque upon entering init state
@@ -21,8 +19,8 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
         can_tx_interface, App_CanMsgs_dcm_invr_command_message_torque_command_invr_encode(0.0f));
 
     // Turn on inverter load switches
-    App_InverterSwitches_TurnOnRight(inverter_switches);
-    App_InverterSwitches_TurnOnLeft(inverter_switches);
+    App_InverterSwitches_TurnOnRight();
+    App_InverterSwitches_TurnOnLeft();
 }
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)

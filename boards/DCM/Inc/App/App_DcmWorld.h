@@ -29,12 +29,7 @@ struct DcmWorld *App_DcmWorld_Create(
     struct DcmCanRxInterface *can_rx_interface,
     struct HeartbeatMonitor * heartbeat_monitor,
     struct RgbLedSequence *   rgb_led_sequence,
-    struct BrakeLight *       brake_light,
-    struct Buzzer *           buzzer,
-    struct Imu *              imu,
     struct ErrorTable *       error_table,
-    struct Clock *            clock,
-    struct InverterSwitches * inverter_switches,
     bool (*is_buzzer_on)(struct DcmWorld *),
     void (*buzzer_callback)(struct DcmWorld *));
 
@@ -73,27 +68,6 @@ struct HeartbeatMonitor *App_DcmWorld_GetHeartbeatMonitor(const struct DcmWorld 
 struct RgbLedSequence *App_DcmWorld_GetRgbLedSequence(const struct DcmWorld *world);
 
 /**
- * Get the brake light for the given world
- * @param world The world to get brake light for
- * @return The brake light for the given world
- */
-struct BrakeLight *App_DcmWorld_GetBrakeLight(const struct DcmWorld *world);
-
-/**
- * Get the buzzer for the given world
- * @param world The world to get buzzer for
- * @return The buzzer for the given world
- */
-struct Buzzer *App_DcmWorld_GetBuzzer(const struct DcmWorld *world);
-
-/**
- * Get the Imu for the given world
- * @param world The world to get clock for
- * @return The Imu for the given world
- */
-struct Imu *App_DcmWorld_GetImu(const struct DcmWorld *world);
-
-/**
  * Get the error table for the given world
  * @param world The world to get error table for
  * @return The error table for the given world
@@ -109,17 +83,3 @@ struct ErrorTable *App_DcmWorld_GetErrorTable(const struct DcmWorld *world);
  * @param current_ms The current time in milliseconds
  */
 void App_DcmWorld_UpdateWaitSignal(const struct DcmWorld *world, uint32_t current_ms);
-
-/**
- * Get the clock for the given world
- * @param world The world to get clock for
- * @return The clock for the given world
- */
-struct Clock *App_DcmWorld_GetClock(const struct DcmWorld *world);
-
-/**
- * Get the inverter switches for the given world
- * @param world The world to get inverter switches from
- * @return The inverter switches for the given world
- */
-struct InverterSwitches *App_DcmWorld_GetInverterSwitches(const struct DcmWorld *world);

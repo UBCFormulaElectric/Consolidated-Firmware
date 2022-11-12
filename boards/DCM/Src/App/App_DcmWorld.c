@@ -11,13 +11,8 @@ struct DcmWorld
     struct DcmCanRxInterface *can_rx_interface;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
-    struct BrakeLight *       brake_light;
-    struct Buzzer *           buzzer;
-    struct Imu *              imu;
     struct ErrorTable *       error_table;
     struct WaitSignal *       buzzer_wait_signal;
-    struct Clock *            clock;
-    struct InverterSwitches * inverter_switches;
 };
 
 struct DcmWorld *App_DcmWorld_Create(
@@ -25,12 +20,7 @@ struct DcmWorld *App_DcmWorld_Create(
     struct DcmCanRxInterface *const can_rx_interface,
     struct HeartbeatMonitor *const  heartbeat_monitor,
     struct RgbLedSequence *const    rgb_led_sequence,
-    struct BrakeLight *const        brake_light,
-    struct Buzzer *const            buzzer,
-    struct Imu *const               imu,
     struct ErrorTable *const        error_table,
-    struct Clock *const             clock,
-    struct InverterSwitches *const  inverter_switches,
     bool (*is_buzzer_on)(struct DcmWorld *),
     void (*buzzer_complete_callback)(struct DcmWorld *))
 {
@@ -41,12 +31,7 @@ struct DcmWorld *App_DcmWorld_Create(
     world->can_rx_interface  = can_rx_interface;
     world->heartbeat_monitor = heartbeat_monitor;
     world->rgb_led_sequence  = rgb_led_sequence;
-    world->brake_light       = brake_light;
-    world->buzzer            = buzzer;
-    world->imu               = imu;
     world->error_table       = error_table;
-    world->clock             = clock;
-    world->inverter_switches = inverter_switches;
 
     struct WaitSignalCallback buzzer_callback = { .function         = buzzer_complete_callback,
                                                   .wait_duration_ms = BUZZER_ON_DURATION_MS };
@@ -81,21 +66,6 @@ struct RgbLedSequence *App_DcmWorld_GetRgbLedSequence(const struct DcmWorld *con
     return world->rgb_led_sequence;
 }
 
-struct BrakeLight *App_DcmWorld_GetBrakeLight(const struct DcmWorld *const world)
-{
-    return world->brake_light;
-}
-
-struct Buzzer *App_DcmWorld_GetBuzzer(const struct DcmWorld *const world)
-{
-    return world->buzzer;
-}
-
-struct Imu *App_DcmWorld_GetImu(const struct DcmWorld *const world)
-{
-    return world->imu;
-}
-
 struct ErrorTable *App_DcmWorld_GetErrorTable(const struct DcmWorld *const world)
 {
     return world->error_table;
@@ -104,14 +74,4 @@ struct ErrorTable *App_DcmWorld_GetErrorTable(const struct DcmWorld *const world
 void App_DcmWorld_UpdateWaitSignal(const struct DcmWorld *const world, uint32_t current_ms)
 {
     App_SharedWaitSignal_Update(world->buzzer_wait_signal, current_ms);
-}
-
-struct Clock *App_DcmWorld_GetClock(const struct DcmWorld *const world)
-{
-    return world->clock;
-}
-
-struct InverterSwitches *App_DcmWorld_GetInverterSwitches(const struct DcmWorld *world)
-{
-    return world->inverter_switches;
 }
