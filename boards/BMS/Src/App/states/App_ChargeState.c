@@ -30,10 +30,12 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
         struct Airs *       airs        = App_BmsWorld_GetAirs(world);
 
+
         static uint16_t ignore_chgr_fault_counter      = 0U;
         const bool      is_charger_disconnected        = !App_Charger_IsConnected(charger);
         bool            has_charger_faulted            = false;
         bool            has_external_shutdown_occurred = !App_Airs_IsAirNegativeClosed(airs);
+        bool            charge_over_can                = App_CanRx_BMS_CHARGER_GetSignal_IS_CHARGING_ENABLED(can_rx);
 
         if (ignore_chgr_fault_counter < CYCLES_TO_IGNORE_CHGR_FAULT)
         {
@@ -54,9 +56,12 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanTx_BMS_Charger_IsChargingComplete_Set(has_reached_max_v);
         App_CanTx_BMS_Faults_ChargingExtShutdownOccurred_Set(has_external_shutdown_occurred);
 
-        if (is_charger_disconnected || has_charger_faulted || has_reached_max_v || has_external_shutdown_occurred)
+        if (has_charger_faulted)
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+        }
+        else if(has_reached_max_v||has_external_shutdown_occurred|| !charge_over_can||is_charger_disconnected){
+            App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
         }
     }
 }
@@ -65,8 +70,10 @@ static void ChargeStateRunOnExit(struct StateMachine *const state_machine)
 {
     struct BmsWorld *world   = App_SharedStateMachine_GetWorld(state_machine);
     struct Charger * charger = App_BmsWorld_GetCharger(world);
+    struct BmsCanTxInterface *can_tx = App_BmsWorld_GetCanTx(world);
 
     App_Charger_Disable(charger);
+    App_CanTx_SetPeriodicSignal_IS_CHARGING_ENABLED(can_tx,false);
 }
 
 const struct State *App_GetChargeState(void)
