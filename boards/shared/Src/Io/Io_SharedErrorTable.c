@@ -87,7 +87,9 @@ static void
     SET_ERROR(error_table, FSM_NON_CRITICAL_RIGHT_WHEEL_SPEED_OUT_OF_RANGE, data->right_wheel_speed_out_of_range);
     SET_ERROR(error_table, FSM_NON_CRITICAL_FLOW_RATE_OUT_OF_RANGE, data->flow_rate_out_of_range);
     SET_ERROR(error_table, FSM_NON_CRITICAL_STEERING_ANGLE_OUT_OF_RANGE, data->steering_angle_out_of_range);
-    SET_ERROR(error_table, FSM_NON_CRITICAL_BRAKE_PRESSURE_OUT_OF_RANGE, data->brake_pressure_out_of_range);
+    SET_ERROR(error_table, FSM_NON_CRITICAL_BRAKE_FRONT_PRESSURE_OUT_OF_RANGE, data->brake_front_pressure_out_of_range);
+    SET_ERROR(error_table, FSM_NON_CRITICAL_BRAKE_REAR_PRESSURE_OUT_OF_RANGE, data->brake_rear_pressure_out_of_range);
+
     SET_ERROR(error_table, FSM_NON_CRITICAL_BRAKE_PRESSURE_OPEN_OCSC, data->brake_pressure_open_ocsc);
 }
 

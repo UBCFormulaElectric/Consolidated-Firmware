@@ -74,8 +74,6 @@ void App_Coolant_Broadcast(const struct FsmWorld * world)
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
     struct Coolant *coolant = App_FsmWorld_GetCoolant(world);
 
-    // TODO sensor OCSC CAN messages
-
     //information in range check
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, coolant->flow_rate_in_range_check, App_CanTx_SetPeriodicSignal_FLOW_RATE,
@@ -100,4 +98,11 @@ void App_Coolant_Broadcast(const struct FsmWorld * world)
         App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(
             can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE);
     }
+
+    App_CanTx_SetPeriodicSignal_TEMPERATURE_A(can_tx, coolant->get_temperature_A());
+    App_CanTx_SetPeriodicSignal_TEMPERATURE_B(can_tx, coolant->get_temperature_B());
+    App_CanTx_SetPeriodicSignal_PRESSURE_A(can_tx, coolant->get_pressure_A());
+    App_CanTx_SetPeriodicSignal_PRESSURE_B(can_tx, coolant->get_pressure_B());
+
+//    TODO broadcast [COOLANT] sensor short and open circuit
 }

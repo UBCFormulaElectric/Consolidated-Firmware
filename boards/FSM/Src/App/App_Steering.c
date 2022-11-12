@@ -41,6 +41,7 @@ void App_Steering_Broadcast(const struct FsmWorld * world)
 
     bool steering_sensor_ocsc = steering->steering_sensor_OCSC();
     if(steering_sensor_ocsc){
+        //TODO broadcast [Steering] sensor OCSC
         App_CanTx_SetPeriodicSignal_STEERING_ANGLE(can_tx, 0);
         return;
     }
