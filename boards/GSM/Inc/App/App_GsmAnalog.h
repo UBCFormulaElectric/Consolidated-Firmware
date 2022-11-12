@@ -16,7 +16,6 @@ struct GsmAnalog;
 struct GSMAnalog *GSMAnalog_create (float slope,
                                     float y_int,
                                     float (*get_sensorAnalogVal_voltage)(void),
-                                    float (*get_output)(void),
                                     char* units);
 
 void App_GSMAnalog_Destroy (struct GSMAnalog *gsmAnalog);

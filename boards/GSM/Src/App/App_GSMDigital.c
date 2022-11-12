@@ -2,7 +2,7 @@
 // Created by formulae on 29/10/22.
 //
 
-#include "/home/formulae/Documents/Consolidated-Firmware/boards/FSM/Inc/App/App_GSMDigital.h"
+#include "App_GSMDigital.h"
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
