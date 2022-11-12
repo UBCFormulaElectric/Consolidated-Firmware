@@ -10,8 +10,6 @@ extern "C"
 
 FAKE_VALUE_FUNC(float, get_sensorAnalogVal_voltage);
 
-
-
 class GsmAnalogTest : public testing:: Test
 {
 protected:
@@ -160,35 +158,35 @@ TEST_F(GsmAnalogTest, 5pass1V0)
 TEST_F(GsmAnalogTest, units1)
 {
     get_sensorAnalogVal_voltage_fake.return_val = 0;
-    ASSERT_EQ(get_output(gsmAnalog1), 2);
+    ASSERT_EQ(get_units(gsmAnalog1), (char*)"psi");
 }
 
 //test: gsmAnalog2, check units
 TEST_F(GsmAnalogTest, units2)
 {
     get_sensorAnalogVal_voltage_fake.return_val = 3.3;
-    ASSERT_EQ(get_output(gsmAnalog1), 2);
+    ASSERT_EQ(get_units(gsmAnalog2), (char*)"rpm");
 }
 
 //test: gsmAnalog3, check units
 TEST_F(GsmAnalogTest, units3)
 {
-    get_sensorAnalogVal_voltage_fake.return_val = 1;
-    ASSERT_EQ(get_output(gsmAnalog1), 2);
+    get_sensorAnalogVal_voltage_fake.return_val = 0;
+    ASSERT_EQ(get_units(gsmAnalog3), (char*)"km");
 }
 
 //test: gsmAnalog4, check units
 TEST_F(GsmAnalogTest, units4)
 {
     get_sensorAnalogVal_voltage_fake.return_val = 1;
-    ASSERT_EQ(get_output(gsmAnalog1), 2);
+    ASSERT_EQ(get_units(gsmAnalog4), (char*)"L/min");
 }
 
 //test: gsmAnalog5, check units
 TEST_F(GsmAnalogTest, units5)
 {
     get_sensorAnalogVal_voltage_fake.return_val = 1;
-    ASSERT_EQ(get_output(gsmAnalog1), 2);
+    ASSERT_EQ(get_units(gsmAnalog5), (char*)"Pa");
 }
 
 

@@ -21,3 +21,5 @@ struct GSMAnalog *GSMAnalog_create (float slope,
 void App_GSMAnalog_Destroy (struct GSMAnalog *gsmAnalog);
 
 float get_output(const struct GSMAnalog *gsmAnalog);
+
+char* get_units(const struct GSMAnalog *gsmAnalog);
