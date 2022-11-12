@@ -154,18 +154,10 @@ void App_AcceleratorPedals_Destroy(struct AcceleratorPedals *accelerator_pedals)
 float App_AcceleratorPedals_GetPrimaryPedalPercentage(const struct AcceleratorPedals *accelerator_pedals)
 {
     return accelerator_pedals->get_primary_pedal_percent();
-    // return App_GetPedalPercentage_CountDown(
-    //    PAPPS_ENCODER_FULLY_PRESSED_VALUE, PAPPS_ENCODER_UNPRESSED_VALUE,
-    //    accelerator_pedals->get_primary_encoder_counter_value(), accelerator_pedals->set_primary_encoder_counter);
 }
 float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct AcceleratorPedals *accelerator_pedals)
 {
     return accelerator_pedals->get_primary_pedal_percent();
-    /*
-    return App_GetPedalPercentage_CountDown(
-        PAPPS_ENCODER_FULLY_PRESSED_VALUE, PAPPS_ENCODER_UNPRESSED_VALUE,
-        accelerator_pedals->get_primary_encoder_counter_value(), accelerator_pedals->set_primary_encoder_counter);
-        */
 }
 
 //TODO figure out what to do when primary/secondary is NAN, but signal has not activated yet.
@@ -173,7 +165,6 @@ void App_AcceleratorPedals_Broadcast(struct FsmWorld* world)
 {
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
     struct AcceleratorPedals *accelerator_pedals = App_FsmWorld_GetPappsAndSapps(world);
-    struct Brake *            brake = App_FsmWorld_GetBrake(world);
 
     const float papps_pedal_percentage = App_AcceleratorPedals_GetPrimaryPedalPercentage(accelerator_pedals);
     const float sapps_pedal_percentage = App_AcceleratorPedals_GetSecondaryPedalPercentage(accelerator_pedals);
@@ -219,6 +210,8 @@ void App_AcceleratorPedals_Broadcast(struct FsmWorld* world)
         accelerator_pedals->app_agreement_signal,
         (papp_sapp_diff) > 10.f, (papp_sapp_diff) <= 10.f);
 
+    //Accelerator Brake Plausibility
+    struct Brake * brake = App_FsmWorld_GetBrake(world);
     if (accelerator_pedals->AppBreakInplausable)
     {
         if (accelerator_pedals->get_primary_pedal_percent() < 0.05f)

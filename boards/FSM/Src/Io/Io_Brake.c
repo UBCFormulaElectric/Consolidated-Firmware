@@ -17,13 +17,12 @@
 #define BRAKE_PRESSURE_OC_THRESHOLD \
     (MAX_BRAKE_PRESSURE_PSI * BRAKE_PRESSURE_OC_THRESHOLD_V / BRAKE_PRESSURE_SENSOR_MAX_V)
 
-//TODO should we keep this? This needs including "main.h"
+//TODO should we keep this/should this be reimplemented? This needs including "main.h"
 bool Io_Brake_IsActuated(void)
 {
     return HAL_GPIO_ReadPin(BSPD_BRAKE_STATUS_GPIO_Port, BSPD_BRAKE_STATUS_Pin) == GPIO_PIN_SET;
 }
 
-//pressure
 float Io_Brake_GetFrontBrakePressurePsi(void)
 {
     // The sensor operates from 0.5V to 4.5V. The voltage divider decreases the
@@ -43,6 +42,7 @@ float Io_Brake_GetFrontBrakePressurePsi(void)
     }
     return psi_per_volt * (front_pressure_voltage - min_input_voltage);
 }
+
 float Io_Brake_GetRearBrakePressurePsi(void)
 {
     float rear_pressure_voltage = 0.5f;
@@ -52,6 +52,7 @@ float Io_Brake_GetRearBrakePressurePsi(void)
     //TODO calculate and return the pedal percentage travel
     return 0;
 }
+
 bool Io_Brake_PressureVoltageAlarm(float pressure_voltage){
     return !(BRAKE_PRESSURE_OC_THRESHOLD <= pressure_voltage && pressure_voltage <= BRAKE_PRESSURE_SC_THRESHOLD);
 }

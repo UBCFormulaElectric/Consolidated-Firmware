@@ -3,19 +3,10 @@
 #include <stdbool.h>
 
 /**
- * @return Pedal press angle.
- */
-float Io_AcceleratorPedals_GetPrimaryAngle(void);
-/**
  * @return Percentage of press of accelerator pedal
  */
 float Io_AcceleratorPedals_GetPapps(void);
 
-/**
- * Gets the angle of the accelerator pedal
- * @return The reported angle of the secondary accelerator pedal travel
- */
-float Io_AcceleratorPedals_GetSecondaryAngle(void);
 /**
  * Gets the percentage of the accelerator pedal
  * @return The reported percentage travel of the secondary accelerator pedal sensor

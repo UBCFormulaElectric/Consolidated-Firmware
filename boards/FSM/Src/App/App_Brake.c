@@ -28,12 +28,15 @@ struct Brake *App_Brake_Create(
     struct Brake *brake = malloc(sizeof(struct Brake));
     assert(brake != NULL);
 
-    brake->pressure_in_range_check =
-        App_InRangeCheck_Create(get_front_sensor_psi, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
-    brake->get_front_pressure_psi                             = get_front_sensor_psi;
-    brake->get_rear_pressure_psi                              = get_rear_sensor_psi;
-    brake->get_pedal_travel                                   = get_pedal_travel;
-    brake->is_brake_actuated                                  = is_brake_actuated;
+    brake->pressure_in_range_check = App_InRangeCheck_Create(
+        get_front_sensor_psi,
+        MIN_BRAKE_PRESSURE_PSI,
+        MAX_BRAKE_PRESSURE_PSI
+    );
+    brake->get_front_pressure_psi = get_front_sensor_psi;
+    brake->get_rear_pressure_psi  = get_rear_sensor_psi;
+    brake->get_pedal_travel       = get_pedal_travel;
+    brake->is_brake_actuated      = is_brake_actuated;
 
     return brake;
 }

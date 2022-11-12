@@ -25,7 +25,7 @@
 #define MIN_PEDAL_VOLTAGE (0.5f)
 #define MAX_PEDAL_VOLTAGE (3.1f)
 
-float Io_AcceleratorPedals_GetPrimaryAngle(void)
+float Io_AcceleratorPedals_GetPapps(void)
 {
     // Length calculated via voltage
     float pedal_voltage = Io_Adc_GetChannel1Voltage();
@@ -39,27 +39,18 @@ float Io_AcceleratorPedals_GetPrimaryAngle(void)
         ((float)M_PI_2 -
          (-(PAPPS_COS_LAW_COEFFICIENT - (pot_len * pot_len / PAPPS_COS_LAW_DENOMINATOR)) + (float)M_PI_2));
 
-    return pedal_travel_angle * 180 / (float)M_PI + 16.3f;
-}
-float Io_AcceleratorPedals_GetPapps(void)
-{
-    float primary_angle = Io_AcceleratorPedals_GetPrimaryAngle();
-    if(primary_angle == NAN) return NAN;
-    return Io_AcceleratorPedals_GetPrimaryAngle() / 30.0f * 100.0f;
+    float primary_angle = pedal_travel_angle * 180 / (float)M_PI + 16.3f;
+    return primary_angle / 30.0f * 100.0f;
 }
 
-//TODO Implement the secondary pedal angle IO function
-float Io_AcceleratorPedals_GetSecondaryAngle(void)
+float Io_AcceleratorPedals_GetSapps(void)
 {
+    //TODO implement IO functionality
     float pedal_voltage = 0.5f;
     if(Io_AcceleratorPedals_PedalVoltageAlarm(pedal_voltage)){
         return NAN;
     }
-    return (float)M_PI;
-}
-float Io_AcceleratorPedals_GetSapps(void)
-{
-    float secondary_angle = Io_AcceleratorPedals_GetSecondaryAngle();
+    float secondary_angle = (float)M_PI;
     if(secondary_angle == NAN) return NAN;
     return  secondary_angle / 30.0f * 100.0f;
 }
