@@ -4,6 +4,8 @@
 #include "Io_Coolant.h"
 #include "Io_SharedFreqOnlyPwmInput.h"
 
+//source: https://www.adafruit.com/product/828#:~:text=7.5%20*%20Flow%20rate%20(L/min)
+#define FLOW_RATE_CONVERSION_FACTOR (7.5f)
 //TODO set these values
 #define TEMPERATURE_VOLTAGE_MIN (0.0f)
 #define TEMPERATURE_VOLTAGE_MAX (1.0f)
@@ -21,7 +23,7 @@ void  Io_FlowMeter_Init(TIM_HandleTypeDef *htim)
 }
 float Io_FlowMeters_GetFlowRate(void)
 {
-    return Io_SharedFreqOnlyPwmInput_GetFrequency(flow_meter) / 7.5f;
+    return Io_SharedFreqOnlyPwmInput_GetFrequency(flow_meter) / FLOW_RATE_CONVERSION_FACTOR;
 }
 void Io_FlowMeters_InputCaptureCallback(TIM_HandleTypeDef *htim)
 {
