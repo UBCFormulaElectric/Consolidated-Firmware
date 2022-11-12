@@ -4,7 +4,9 @@
 
 void App_FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    return;
+    struct FsmWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
+    struct FsmCanTxInterface *can_tx_interface = App_FsmWorld_GetCanTx(world);
+    App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_FSM_STATE_MACHINE_STATE_FAULT_CHOICE);
 }
 
 void App_FaultStateRunOnTick1Hz(struct StateMachine *state_machine)
