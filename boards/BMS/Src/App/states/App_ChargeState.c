@@ -32,6 +32,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         struct TractiveSystem * const ts      = App_BmsWorld_GetTractiveSystem(world);
 
 
+
         static uint16_t ignore_chgr_fault_counter      = 0U;
         const bool      is_charger_disconnected        = !App_Charger_IsConnected(charger);
         bool            has_charger_faulted            = false;
@@ -62,7 +63,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanTx_BMS_Faults_ChargingExtShutdownOccurred_Set(has_external_shutdown_occurred);
 
 
-        if(has_reached_max_v||has_external_shutdown_occurred|| !charge_over_can||is_charger_disconnected){
+        if(has_reached_max_v||has_external_shutdown_occurred|| !charge_over_can){
             App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
         }
     }
