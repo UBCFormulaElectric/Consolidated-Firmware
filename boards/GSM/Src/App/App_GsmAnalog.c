@@ -39,3 +39,8 @@ float get_output(const struct GSMAnalog *gsmAnalog)
     return gsmAnalog-> slope *  gsmAnalog->get_sensorAnalogVal_voltage() + gsmAnalog->y_int;
         }
 
+char* get_units(const struct GSMAnalog *gsmAnalog)
+{
+    return gsmAnalog->units;
+}
+
