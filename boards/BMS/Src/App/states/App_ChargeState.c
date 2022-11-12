@@ -1,5 +1,6 @@
 #include "states/App_AllStates.h"
 #include "states/App_FaultState.h"
+#include "states/App_InitState.h"
 
 // Ignore the charger fault signal for the first 500 cycles (5 seconds)
 #define CYCLES_TO_IGNORE_CHGR_FAULT (500U)
