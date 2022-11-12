@@ -10,6 +10,9 @@ struct AcceleratorPedals
     float (*get_primary_pedal_percent)(void);
     float (*get_secondary_pedal_percent)(void);
 
+    bool (*primary_pedal_OCSC)(void);
+    bool (*secondary_pedal_OCSC)(void);
+
     struct Signal *app_agreement_signal;
     struct Signal *papp_alarm_signal;
     struct Signal *sapp_alarm_signal;
@@ -130,13 +133,17 @@ static float App_GetPedalPercentage_CountDown(
 
 struct AcceleratorPedals *App_AcceleratorPedals_Create(
     float (*get_primary_pedal_percent)(void),
-    float (*get_secondary_pedal_percent)(void))
+    bool (*primary_pedal_OCSC)(void),
+    float (*get_secondary_pedal_percent)(void),
+    bool (*secondary_pedal_OCSC)(void))
 {
     struct AcceleratorPedals *accelerator_pedals = malloc(sizeof(struct AcceleratorPedals));
     assert(accelerator_pedals != NULL);
 
     accelerator_pedals->get_primary_pedal_percent         = get_primary_pedal_percent;
     accelerator_pedals->get_secondary_pedal_percent       = get_secondary_pedal_percent;
+    accelerator_pedals->primary_pedal_OCSC = primary_pedal_OCSC;
+    accelerator_pedals->secondary_pedal_OCSC = secondary_pedal_OCSC;
 
     accelerator_pedals->app_agreement_signal = App_SharedSignal_Create(AGREEMENT_TIME_TO_FAULT, AGREEMENT_TIME_TO_CLEAR);
     accelerator_pedals->papp_alarm_signal    = App_SharedSignal_Create(PAPPS_TIME_TO_FAULT, PAPPS_TIME_TO_CLEAR);
@@ -170,8 +177,8 @@ void App_AcceleratorPedals_Broadcast(struct FsmWorld* world)
     const float sapps_pedal_percentage = App_AcceleratorPedals_GetSecondaryPedalPercentage(accelerator_pedals);
 
     // update signals
-    const bool primary_pedal_alarm = papps_pedal_percentage == NAN;
-    const bool secondary_pedal_alarm = sapps_pedal_percentage == NAN;
+    const bool primary_pedal_alarm = accelerator_pedals->primary_pedal_OCSC();
+    const bool secondary_pedal_alarm = accelerator_pedals->secondary_pedal_OCSC();
     SignalState papp_signal_state = App_SharedSignal_Update(
         accelerator_pedals->papp_alarm_signal,
         primary_pedal_alarm,!primary_pedal_alarm);

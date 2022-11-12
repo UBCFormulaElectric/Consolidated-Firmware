@@ -1,5 +1,4 @@
 #include <assert.h>
-#include <math.h>
 #include "main.h"
 #include "Io_Coolant.h"
 #include "Io_SharedFreqOnlyPwmInput.h"
@@ -38,49 +37,58 @@ void Io_FlowMeters_CheckIfFlowMeterIsActive(void)
     Io_SharedFreqOnlyPwmInput_CheckIfPwmIsActive(flow_meter);
 }
 
+float Io_Coolant_TemperatureAVoltage(void){
+    return 0.5f;
+}
 float Io_Coolant_GetTemperatureA(void)
 {
-    float temperature_voltage = 0.5f;
-    if(Io_Coolant_TempertureVoltageAlarm(temperature_voltage)){
-        return NAN;
-    }
+    float temperature_voltage = Io_Coolant_TemperatureAVoltage();
     //TODO calculate the temperature
     return 1;
+}
+bool Io_Coolant_TemperatureSensorA_OCSC(void){
+    float temperature_voltage = Io_Coolant_TemperatureAVoltage();
+    return TEMPERATURE_VOLTAGE_MIN <= temperature_voltage && temperature_voltage <= TEMPERATURE_VOLTAGE_MAX;
+}
+
+float Io_Coolant_TemperatureBVoltage(void){
+    return 0.5f;
 }
 float Io_Coolant_GetTemperatureB(void)
 {
-    float temperature_voltage = 0.5f;
-    if(Io_Coolant_TempertureVoltageAlarm(temperature_voltage)){
-        return NAN;
-    }
+    float temperature_voltage = Io_Coolant_TemperatureBVoltage();
     //TODO calculate the temperature
     return 1;
 }
-bool Io_Coolant_TempertureVoltageAlarm(float thermometer_voltage)
-{
-    return !(TEMPERATURE_VOLTAGE_MIN <= thermometer_voltage && thermometer_voltage <= TEMPERATURE_VOLTAGE_MAX);
+bool Io_Coolant_TemperatureSensorB_OCSC(void){
+    float temperature_voltage = Io_Coolant_TemperatureBVoltage();
+    return TEMPERATURE_VOLTAGE_MIN <= temperature_voltage && temperature_voltage <= TEMPERATURE_VOLTAGE_MAX;
 }
 
+float Io_Coolant_PressureAVoltage(void){
+    return 0.5f;
+}
 float Io_Coolant_GetPressureA(void)
 {
-    float pressure_voltage = 0.5f;
-    if(Io_Coolant_PressureVoltageAlarm(pressure_voltage)){
-        return NAN;
-    }
-
+    float pressure_voltage = Io_Coolant_PressureAVoltage();
     //TODO calculate the pressure
     return 1;
+}
+bool Io_Coolant_PressureSensorA_OCSC(void){
+    float pressure_voltage = Io_Coolant_PressureAVoltage();
+    return PRESSURE_VOLTAGE_MIN <= pressure_voltage && pressure_voltage <= PRESSURE_VOLTAGE_MAX;
+}
+
+float Io_Coolant_PressureBVoltage(void){
+    return 0.5f;
 }
 float Io_Coolant_GetPressureB(void)
 {
-    float pressure_voltage = 0.5f;
-    if(Io_Coolant_PressureVoltageAlarm(pressure_voltage)){
-        return NAN;
-    }
-
+    float pressure_voltage = Io_Coolant_PressureBVoltage();
     //TODO calculate the pressure
     return 1;
 }
-bool Io_Coolant_PressureVoltageAlarm(float pressure_voltage){
-    return !(PRESSURE_VOLTAGE_MIN <= pressure_voltage && pressure_voltage <= PRESSURE_VOLTAGE_MAX);
+bool Io_Coolant_PressureSensorB_OCSC(void){
+    float pressure_voltage = Io_Coolant_PressureBVoltage();
+    return PRESSURE_VOLTAGE_MIN <= pressure_voltage && pressure_voltage <= PRESSURE_VOLTAGE_MAX;
 }

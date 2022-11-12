@@ -74,16 +74,9 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     //        can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE);
 
     // NEW ALL STATES CODE
-    bool coolantTriggerShutdown = false;
     App_AcceleratorPedals_Broadcast(world);
     App_Brake_Broadcast(world);
-    App_Coolant_Broadcast(world, &coolantTriggerShutdown);
+    App_Coolant_Broadcast(world);
     App_Steering_Broadcast(world);
     App_Wheels_Broadcast(world);
-
-    // go to fault state
-    if (coolantTriggerShutdown)
-    {
-        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
-    }
 }

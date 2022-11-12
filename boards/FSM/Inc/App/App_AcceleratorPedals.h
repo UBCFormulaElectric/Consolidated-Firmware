@@ -15,29 +15,19 @@
 
 struct AcceleratorPedals;
 
-/**
- * Allocate and initialize a pair of accelerator pedals
- * @param is_primary_encoder_alarm_active A function that can be called to check whether the primary encoder alarm is
- * active (Modeled after MAX3097E)
- * @param is_secondary_encoder_alarm_active A function that can be called to check whether the secondary encoder alarm
- * is active (Modeled after MAX3097E)
- * @param get_primary_encoder_counter_value A function that can be called to get the counter value of the primary
- * encoder
- * @param get_secondary_encoder_counter_value A function that can be called to get the counter value of the secondary
- * encoder
- * @param reset_primary_encoder_counter A function that can be called to reset the counter value of the primary encoder
- * to 0
- * @param reset_secondary_encoder_counter A function that can be called to reset the counter value of the secondary
- * encoder to 0
- * @param primary_encoder_fully_pressed_value The value of the primary encoder counter calibrated to the pedal box
- * corresponding to when the pedal is fully pressed
- * @param secondary_encoder_fully_pressed_value The value of the secondary
- * encoder counter calibrated to the pedal box corresponding to when the pedal is fully pressed
- * @return The created pair of accelerator pedals, whose ownership is given to the caller
- */
+ /**
+  * Allocate and initialize a pair of accelerator pedals
+  * @param get_primary_pedal_percent
+  * @param primary_pedal_OCSC
+  * @param get_secondary_pedal_percent
+  * @param secondary_pedal_OCSC
+  * @return The created pair of accelerator pedals, whose ownership is given to the caller
+  */
 struct AcceleratorPedals *App_AcceleratorPedals_Create(
     float (*get_primary_pedal_percent)(void),
-    float (*get_secondary_pedal_percent)(void));
+    bool (*primary_pedal_OCSC)(void),
+    float (*get_secondary_pedal_percent)(void),
+    bool (*secondary_pedal_OCSC)(void));
 
 /**
  * Deallocate the memory used by the given pair of accelerator pedals

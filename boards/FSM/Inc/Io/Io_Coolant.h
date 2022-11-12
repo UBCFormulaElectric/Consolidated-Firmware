@@ -8,7 +8,6 @@
  * @param htim : The timer handle for both flow meters
  */
 void Io_FlowMeter_Init(TIM_HandleTypeDef *htim);
-
 /**
  * @returns the flow rate (L/min) from the primary flow meter
  */
@@ -30,31 +29,53 @@ void Io_FlowMeters_InputCaptureCallback(TIM_HandleTypeDef *htim);
 void Io_FlowMeters_CheckIfFlowMeterIsActive(void);
 
 /**
+ * @return the voltage of the temperature A sensor
+ */
+float Io_Coolant_TemperatureAVoltage(void);
+/**
  * @returns the temperature of the coolant at [sensor B] in Celsius
  */
 float Io_Coolant_GetTemperatureA(void);
+/**
+ * @return whether the temperature sensor A is open or short circuit
+ */
+bool Io_Coolant_TemperatureSensorA_OCSC(void);
+
+/**
+ * @return the voltage of the temperature B sensor
+ */
+float Io_Coolant_TemperatureBVoltage(void);
 /**
  * @returns the temperature of the coolant at [sensor B] in Celsius
  */
 float Io_Coolant_GetTemperatureB(void);
 /**
- * Checks if the voltage of the thermometer is faulty
- * @param thermometer_voltage The voltage of the thermometer
- * @return Whether it is faulty
+ * @return whether the temperature sensor B is open or short circuit
  */
-bool Io_Coolant_TempertureVoltageAlarm(float thermometer_voltage);
+bool Io_Coolant_TemperatureSensorB_OCSC(void);
 
+/**
+ * @return the voltage of the pressure A sensor
+ */
+float Io_Coolant_PressureAVoltage(void);
 /**
  * @returns the pressure of the coolant at [sensor A] in PSI
  */
 float Io_Coolant_GetPressureA(void);
 /**
+ * @return whether pressure sensor A is open or short circuit
+ */
+bool Io_Coolant_PressureSensorA_OCSC(void);
+
+/**
+ * @return the voltage of the pressure B sensor
+ */
+float Io_Coolant_PressureBVoltage(void);
+/**
  * @returns the pressure of the coolant at [sensor B] in PSI
  */
 float Io_Coolant_GetPressureB(void);
 /**
- * Checks whether the pressure voltage is faulty
- * @param pressure_voltage The pressure voltage in question
- * @return Whether or not it is faulty
+ * @return whether pressure sensor B is open or short circuit
  */
-bool Io_Coolant_PressureVoltageAlarm(float pressure_voltage);
+bool Io_Coolant_PressureSensorB_OCSC(void);

@@ -17,26 +17,36 @@ struct Brake
 
     float (*get_pedal_travel)(void);
     bool (*is_brake_actuated)(void);
+
+    bool (*front_pressure_sensor_ocsc)(void);
+    bool (*rear_pressure_sensor_ocsc)(void);
+    bool (*pedal_travel_sensor_ocsc)(void);
 };
 
 struct Brake *App_Brake_Create(
-    float (*get_front_sensor_psi)(void),
-    float (*get_rear_sensor_psi)(void),
+    float (*get_front_pressure_psi)(void),
+    bool (*front_pressure_sensor_ocsc)(void),
+    float (*get_rear_pressure_psi)(void),
+    bool (*rear_pressure_sensor_ocsc)(void),
     float (*get_pedal_travel)(void),
+    bool (*pedal_travel_sensor_ocsc)(void),
     bool (*is_brake_actuated)(void))
 {
     struct Brake *brake = malloc(sizeof(struct Brake));
     assert(brake != NULL);
 
-    brake->pressure_in_range_check = App_InRangeCheck_Create(
-        get_front_sensor_psi,
+    brake->pressure_in_range_check = App_InRangeCheck_Create(get_front_pressure_psi,
         MIN_BRAKE_PRESSURE_PSI,
         MAX_BRAKE_PRESSURE_PSI
     );
-    brake->get_front_pressure_psi = get_front_sensor_psi;
-    brake->get_rear_pressure_psi  = get_rear_sensor_psi;
+    brake->get_front_pressure_psi = get_front_pressure_psi;
+    brake->get_rear_pressure_psi  = get_rear_pressure_psi;
     brake->get_pedal_travel       = get_pedal_travel;
     brake->is_brake_actuated      = is_brake_actuated;
+
+    brake->front_pressure_sensor_ocsc = front_pressure_sensor_ocsc;
+    brake->rear_pressure_sensor_ocsc = rear_pressure_sensor_ocsc;
+    brake->pedal_travel_sensor_ocsc = pedal_travel_sensor_ocsc;
 
     return brake;
 }
@@ -62,15 +72,11 @@ float App_Brake_GetRearPSI(const struct Brake *brake)
     return brake->get_rear_pressure_psi();
 }
 bool App_Brake_AllPressureElectricalFault(const struct Brake *brake){
-    return brake->get_front_pressure_psi() == NAN || brake->get_rear_pressure_psi() == NAN;
+    return brake->front_pressure_sensor_ocsc() || brake->rear_pressure_sensor_ocsc();
 }
 struct InRangeCheck *App_Brake_GetPressureInRangeCheck(const struct Brake *const brake)
 {
     return brake->pressure_in_range_check;
-}
-bool App_Brake_PressureSensorAlarm(const struct Brake *brake)
-{
-    return brake->get_front_pressure_psi() == NAN || brake->get_rear_pressure_psi() == NAN;
 }
 
 //pedal
@@ -79,7 +85,7 @@ float App_Brake_GetPedalTravel(const struct Brake * brake){
 }
 bool App_Brake_PedalSensorAlarm(const struct Brake *brake)
 {
-    return brake->get_pedal_travel() == NAN;
+    return brake->pedal_travel_sensor_ocsc;
 }
 
 //broadcast
@@ -101,7 +107,7 @@ void App_Brake_Broadcast(const struct FsmWorld * world)
     App_CanTx_SetPeriodicSignal_BRAKE_IS_ACTUATED(can_tx, CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED);
 
     uint8_t CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT =
-        App_Brake_PressureSensorAlarm(brake)
+        App_Brake_AllPressureElectricalFault(brake)
             ? CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_TRUE_CHOICE
             : CANMSGS_FSM_BRAKE_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_FALSE_CHOICE;
     App_CanTx_SetPeriodicSignal_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT(

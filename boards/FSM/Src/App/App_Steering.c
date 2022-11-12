@@ -11,15 +11,19 @@ STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(FsmCanTxInterface)
 struct Steering
 {
     float (*get_steering_angle)(void);
+    bool (*steering_sensor_OCSC)(void);
     struct InRangeCheck *steering_angle_in_range_check;
 };
 
-struct Steering *App_Steering_Create(float (*get_steering_angle)(void))
+struct Steering *App_Steering_Create(
+    float (*get_steering_angle)(void),
+    bool (*steering_sensor_OCSC)(void))
 {
     struct Steering *steering = malloc(sizeof(struct Steering));
     assert(steering != NULL);
 
     steering->get_steering_angle = get_steering_angle;
+    steering->steering_sensor_OCSC = steering_sensor_OCSC;
 
     steering->steering_angle_in_range_check =
         App_InRangeCheck_Create(get_steering_angle, MIN_STEERING_ANGLE_DEG, MAX_STEERING_ANGLE_DEG);
@@ -30,22 +34,25 @@ void App_Steering_Destroy(struct Steering *steering){
     free(steering);
 }
 
-struct InRangeCheck *App_Steering_GetInRange(const struct Steering *steering)
-{
-    return steering->steering_angle_in_range_check;
-}
-
 void App_Steering_Broadcast(const struct FsmWorld * world)
 {
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
     struct Steering *steering = App_FsmWorld_GetSteering(world);
 
-    struct InRangeCheck *steering_angle_in_range_check = App_Steering_GetInRange(steering);
+    bool steering_sensor_ocsc = steering->steering_sensor_OCSC();
+    if(steering_sensor_ocsc){
+        App_CanTx_SetPeriodicSignal_STEERING_ANGLE(can_tx, 0);
+        return;
+    }
 
+    struct InRangeCheck *steering_angle_in_range_check = steering->steering_angle_in_range_check;
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, steering_angle_in_range_check, App_CanTx_SetPeriodicSignal_STEERING_ANGLE,
         App_CanTx_SetPeriodicSignal_STEERING_ANGLE_OUT_OF_RANGE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_OVERFLOW_CHOICE);
+
+    //set value
+    App_CanTx_SetPeriodicSignal_STEERING_ANGLE(can_tx, steering->get_steering_angle());
 }
