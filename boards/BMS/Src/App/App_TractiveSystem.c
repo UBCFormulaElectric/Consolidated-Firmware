@@ -1,9 +1,5 @@
 #include "App_TractiveSystem.h"
 
-#define HIGH_RES_MAX_CURRENT_READING (50.0f)
-#define MAX_TS_CHARGE_CURRENT_AMPS (-70.8f)
-#define MAX_TS_DISCHARGE_CURRENT_AMPS (265.5f)
-
 struct TractiveSystem
 {
     float (*get_raw_ts_voltage)(void);

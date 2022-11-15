@@ -1,13 +1,5 @@
 #include "App_Accumulator.h"
 
-// Min and Max cell temperatures depending on state
-#define MAX_CELL_DISCHARGE_TEMP_DEGC (60.0f)
-#define MAX_CELL_CHARGE_TEMP_DEGC (45.0f)
-#define MIN_CELL_DISCHARGE_TEMP_DEGC (-20.0f)
-#define MIN_CELL_CHARGE_TEMP_DEGC (0.0f)
-#define MAX_CELL_VOLTAGE (4.2f)
-#define MIN_CELL_VOLTAGE (3.0f)
-
 // Max number of PEC15 to occur before faulting
 #define MAX_NUM_COMM_TRIES (3U)
 

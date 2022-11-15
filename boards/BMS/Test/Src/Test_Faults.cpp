@@ -271,8 +271,8 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overv
 
     SetInitialState(App_GetInitState());
 
-    get_max_cell_voltage_fake.return_val = 4.3f;
-    LetTimePass(state_machine, 10000);
+    get_max_cell_voltage_fake.return_val = MAX_CELL_VOLTAGE + 1.0f;
+    LetTimePass(state_machine, 1000);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
@@ -285,13 +285,13 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
     SetInitialState(App_GetInitState());
 
     // In Discharge state, acceptible temp range is (-20, 60), should be unaffected by temp of 46 C
-    get_max_temp_degc_fake.return_val = 46.0f;
+    get_max_temp_degc_fake.return_val = MAX_CELL_CHARGE_TEMP_DEGC + 1.0f;
     LetTimePass(state_machine, 10);
     ASSERT_NE(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
     LetTimePass(state_machine, 1000);
 
-    get_max_temp_degc_fake.return_val = 61.0f;
+    get_max_temp_degc_fake.return_val = MAX_CELL_DISCHARGE_TEMP_DEGC + 1.0f;
     LetTimePass(state_machine, 10);
 
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
@@ -312,7 +312,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
     SetInitialState(App_GetChargeState());
 
     // In Charge state acceptible temp range is (0, 45)
-    get_max_temp_degc_fake.return_val = 46.0f;
+    get_max_temp_degc_fake.return_val = MAX_CELL_CHARGE_TEMP_DEGC + 1.0f;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
@@ -326,13 +326,13 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
     SetInitialState(App_GetInitState());
 
     // In Discharge state, acceptible temp range is (-20, 60), should be unaffected by temp of -1 C
-    get_min_temp_degc_fake.return_val = -1.0f;
+    get_min_temp_degc_fake.return_val = MIN_CELL_CHARGE_TEMP_DEGC - 1.0f;
     LetTimePass(state_machine, 10);
     ASSERT_NE(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
     LetTimePass(state_machine, 1000);
 
-    get_min_temp_degc_fake.return_val = -21.0f;
+    get_min_temp_degc_fake.return_val = MIN_CELL_DISCHARGE_TEMP_DEGC - 1.0f;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
@@ -352,7 +352,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
     SetInitialState(App_GetChargeState());
 
     // In Charge state acceptable temp range is (0, 45)
-    get_min_temp_degc_fake.return_val = -1.0f;
+    get_min_temp_degc_fake.return_val = MIN_CELL_CHARGE_TEMP_DEGC - 1.0f;
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
@@ -366,8 +366,8 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_di
     SetInitialState(App_GetInitState());
 
     // Max acceptable discharge current is 88.5A*3 = 265.5A
-    get_high_res_current_fake.return_val = 266.0f;
-    get_low_res_current_fake.return_val  = 266.0f;
+    get_high_res_current_fake.return_val = MAX_TS_DISCHARGE_CURRENT_AMPS + 1.0f;
+    get_low_res_current_fake.return_val  = MAX_TS_DISCHARGE_CURRENT_AMPS + 1.0f;
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
@@ -387,8 +387,8 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_ch
 
     // Max acceptable charge current is 23.6A * 3 = 70.8A
     // Charge current is negative
-    get_high_res_current_fake.return_val = -71.0f;
-    get_low_res_current_fake.return_val  = -71.0f;
+    get_high_res_current_fake.return_val = MAX_TS_CHARGE_CURRENT_AMPS + (-1.0f);
+    get_low_res_current_fake.return_val  = MAX_TS_CHARGE_CURRENT_AMPS + (-1.0f);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
