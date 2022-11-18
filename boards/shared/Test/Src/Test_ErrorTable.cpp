@@ -107,14 +107,14 @@ class SharedErrorTableTest : public testing::Test
 
     // The error choices here are arbitrary. We just need to pick something for
     // the helper functions.
-    const enum ErrorId DEFAULT_CRITICAL_ERROR           = BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE;
-    const enum ErrorId DEFAULT_AIR_SHUTDOWN_ERROR       = BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE;
+    const enum ErrorId DEFAULT_CRITICAL_ERROR           = BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE;
+    const enum ErrorId DEFAULT_AIR_SHUTDOWN_ERROR       = BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE;
     const enum ErrorId DEFAULT_MOTOR_SHUTDOWN_ERROR     = BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN;
     const enum ErrorId DEFAULT_NON_CRITICAL_ERROR       = BMS_NON_CRITICAL_WATCHDOG_TIMEOUT;
     const enum Board   DEFAULT_CRITICAL_ERROR_BOARD     = BMS;
     const enum Board   DEFAULT_NON_CRITICAL_ERROR_BOARD = BMS;
 
-    const enum ErrorId DEFAULT_BMS_CRITICAL_ERROR = BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE;
+    const enum ErrorId DEFAULT_BMS_CRITICAL_ERROR = BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE;
     const enum ErrorId DEFAULT_DCM_CRITICAL_ERROR = DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT;
     const enum ErrorId DEFAULT_DIM_CRITICAL_ERROR = DIM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN;
     const enum ErrorId DEFAULT_FSM_CRITICAL_ERROR = FSM_AIR_SHUTDOWN_MISSING_HEARTBEAT;
@@ -744,13 +744,12 @@ TEST_F(SharedErrorTableTest, process_bms_non_critical_errors)
         App_SharedErrorTable_GetBoardsWithNonCriticalErrors, App_SharedErrorTable_GetAllNonCriticalErrors);
 }
 
-TEST_F(SharedErrorTableTest, process_bms_air_shutdown_errors)
+TEST_F(SharedErrorTableTest, process_bms_faults)
 {
-    std::vector<enum ErrorId> bms_air_shutdown_error_ids = { BMS_AIR_SHUTDOWN_ERRORS };
+    std::vector<enum ErrorId> bms_faults_ids = { BMS_FAULTS };
 
     TestRoutineForSetErrorsFromCanMsg(
-        BMS, bms_air_shutdown_error_ids, CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_FRAME_ID,
-        CANMSGS_BMS_AIR_SHUTDOWN_ERRORS_LENGTH, App_CanMsgs_bms_air_shutdown_errors_pack,
+        BMS, bms_faults_ids, CANMSGS_BMS_FAULTS_FRAME_ID, CANMSGS_BMS_FAULTS_LENGTH, App_CanMsgs_bms_faults_pack,
         App_SharedErrorTable_GetBoardsWithCriticalErrors, App_SharedErrorTable_GetAllCriticalErrors);
 }
 

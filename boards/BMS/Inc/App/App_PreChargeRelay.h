@@ -1,5 +1,11 @@
 #pragma once
 
+#include <stdbool.h>
+#include <stdint.h>
+#include <assert.h>
+#include <stdlib.h>
+#include "App_CanTx.h"
+
 struct PrechargeRelay;
 
 /**
@@ -28,3 +34,38 @@ void App_PrechargeRelay_Close(const struct PrechargeRelay *const precharge_relay
  * @param precharge_relay The precharge relay to open
  */
 void App_PrechargeRelay_Open(const struct PrechargeRelay *const precharge_relay);
+
+/**
+ * Increment Precharge Fault Count
+ * @param precharge_relay The precharge relay to increment counter on
+ */
+void App_PrechargeRelay_IncFaultCounter(struct PrechargeRelay *precharge_relay);
+
+/**
+ * Return Precharge Fault Count
+ * @param precharge_relay The precharge relay to return counter value of
+ */
+uint8_t App_PrechargeRelay_GetFaultCounterVal(const struct PrechargeRelay *const precharge_relay);
+
+/**
+ * Reset Precharge Fault Count
+ * @param precharge_relay The precharge relay to reset counter value of
+ */
+void App_PrechargeRelay_ResetFaultCounterVal(struct PrechargeRelay *const precharge_relay);
+
+/**
+ * Check the status of Precharge faults
+ * @param can_tx CAN interface to send messages over
+ * @param is_charger_connected True if charger connected, false otherwise
+ * @param is_ts_rising_quickly True if tractive system voltage rising quickly, false otherwise
+ * @param is_ts_rising_slowly True if tractive system voltage rising slowly, false otherwise
+ * @param precharge_limit_exceeded Acts as second return val, set to True if 3 precharge faults are detected
+ * @return True if faults present, false otherwise
+ */
+bool App_PrechargeRelay_CheckFaults(
+    struct PrechargeRelay *   precharge_relay,
+    struct BmsCanTxInterface *can_tx,
+    bool                      is_charger_connected,
+    bool                      is_ts_rising_slowly,
+    bool                      is_ts_rising_quickly,
+    bool *                    precharge_limit_exceeded);
