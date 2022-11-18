@@ -208,7 +208,6 @@ bool App_Accumulator_CheckFaults(
 {
     uint8_t throwaway_segment = 0U;
     uint8_t throwaway_loc     = 0U;
-
     float max_allowable_cell_temp = MAX_CELL_DISCHARGE_TEMP_DEGC;
     float min_allowable_cell_temp = MIN_CELL_DISCHARGE_TEMP_DEGC;
 
