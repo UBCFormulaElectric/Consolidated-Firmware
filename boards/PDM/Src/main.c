@@ -50,7 +50,7 @@
 #include "configs/App_VoltageLimits.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "App_RailMonitoring.h"
-#include "App_LoadSwitch.h"
+#include "App_Efuse.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -98,22 +98,19 @@ struct PdmWorld *         world;
 struct StateMachine *     state_machine;
 struct PdmCanTxInterface *can_tx;
 struct PdmCanRxInterface *can_rx;
-struct InRangeCheck *     vbat_voltage_in_range_check;
-struct InRangeCheck *     _24v_aux_voltage_in_range_check;
-struct InRangeCheck *     _24v_acc_voltage_in_range_check;
-struct InRangeCheck *     aux1_current_in_range_check;
-struct InRangeCheck *     aux2_current_in_range_check;
-struct InRangeCheck *     left_inverter_current_in_range_check;
-struct InRangeCheck *     right_inverter_current_in_range_check;
-struct InRangeCheck *     energy_meter_current_in_range_check;
-struct InRangeCheck *     can_current_in_range_check;
-struct InRangeCheck *     air_shutdown_current_in_range_check;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
 struct LowVoltageBattery *low_voltage_battery;
-struct LoadSwitch        *load_switch;
+struct Efuse             *efuse1;
+struct Efuse             *efuse2;
+struct Efuse             *efuse3;
+struct Efuse             *efuse4;
+bool                     *efuse1_current_range_check;
+bool                     *efuse2_current_range_check;
+bool                     *efuse3_current_range_check;
+bool                     *efuse4_current_range_check;
 struct RailMonitoring    *rail_monitor;
-struct CurrentMonitoring *current_monitor;
+bool                     *rail_range_check;
 struct Clock *            clock;
 /* USER CODE END PV */
 
@@ -196,60 +193,6 @@ int main(void)
 
     can_rx = App_CanRx_Create();
 
-    vbat_voltage_in_range_check =
-        App_InRangeCheck_Create(Io_VoltageSense_GetVbatVoltage, VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE);
-
-    _24v_aux_voltage_in_range_check =
-        App_InRangeCheck_Create(Io_VoltageSense_Get24vAuxVoltage, _24V_AUX_MIN_VOLTAGE, _24V_AUX_MAX_VOLTAGE);
-
-    _24v_acc_voltage_in_range_check =
-        App_InRangeCheck_Create(Io_VoltageSense_Get24vAccVoltage, _24V_ACC_MIN_VOLTAGE, _24V_ACC_MAX_VOLTAGE);
-
-    aux1_current_in_range_check =
-        App_InRangeCheck_Create(Io_CurrentSense_GetAux1Current, AUX1_MIN_CURRENT, AUX1_MAX_CURRENT);
-
-    aux2_current_in_range_check =
-        App_InRangeCheck_Create(Io_CurrentSense_GetAux2Current, AUX2_MIN_CURRENT, AUX2_MAX_CURRENT);
-
-    left_inverter_current_in_range_check = App_InRangeCheck_Create(
-        Io_CurrentSense_GetLeftInverterCurrent, LEFT_INVERTER_MIN_CURRENT, LEFT_INVERTER_MAX_CURRENT);
-
-    right_inverter_current_in_range_check = App_InRangeCheck_Create(
-        Io_CurrentSense_GetRightInverterCurrent, RIGHT_INVERTER_MIN_CURRENT, RIGHT_INVERTER_MAX_CURRENT);
-
-    energy_meter_current_in_range_check = App_InRangeCheck_Create(
-        Io_CurrentSense_GetEnergyMeterCurrent, ENERGY_METER_MIN_CURRENT, ENERGY_METER_MAX_CURRENT);
-
-    can_current_in_range_check =
-        App_InRangeCheck_Create(Io_CurrentSense_GetCanCurrent, CAN_MIN_CURRENT, CAN_MAX_CURRENT);
-
-    air_shutdown_current_in_range_check = App_InRangeCheck_Create(
-        Io_CurrentSense_GetAirShutdownCurrent, AIR_SHUTDOWN_MIN_CURRENT, AIR_SHUTDOWN_MAX_CURRENT);
-/*
-    air_shutdown_current_in_range_check = App_InRangeCheck_Create(
-            Io_CurrentSense_GetAirShutdownCurrent, AIR_SHUTDOWN_MIN_CURRENT, AIR_SHUTDOWN_MAX_CURRENT);
-
-    air_shutdown_current_in_range_check = App_InRangeCheck_Create(
-            Io_CurrentSense_GetAirShutdownCurrent, AIR_SHUTDOWN_MIN_CURRENT, AIR_SHUTDOWN_MAX_CURRENT);
-
-    air_shutdown_current_in_range_check = App_InRangeCheck_Create(
-            Io_CurrentSense_GetAirShutdownCurrent, AIR_SHUTDOWN_MIN_CURRENT, AIR_SHUTDOWN_MAX_CURRENT);
-
-    air_shutdown_current_in_range_check = App_InRangeCheck_Create(
-            Io_CurrentSense_GetAirShutdownCurrent, AIR_SHUTDOWN_MIN_CURRENT, AIR_SHUTDOWN_MAX_CURRENT);
-
-    air_shutdown_current_in_range_check = App_InRangeCheck_Create(
-            Io_CurrentSense_GetAirShutdownCurrent, AIR_SHUTDOWN_MIN_CURRENT, AIR_SHUTDOWN_MAX_CURRENT);
-
-    air_shutdown_current_in_range_check = App_InRangeCheck_Create(
-            Io_CurrentSense_GetAirShutdownCurrent, AIR_SHUTDOWN_MIN_CURRENT, AIR_SHUTDOWN_MAX_CURRENT);
-
-    air_shutdown_current_in_range_check = App_InRangeCheck_Create(
-            Io_CurrentSense_GetAirShutdownCurrent, AIR_SHUTDOWN_MIN_CURRENT, AIR_SHUTDOWN_MAX_CURRENT);
-
-    air_shutdown_current_in_range_check = App_InRangeCheck_Create(
-            Io_CurrentSense_GetAirShutdownCurrent, AIR_SHUTDOWN_MIN_CURRENT, AIR_SHUTDOWN_MAX_CURRENT);
-*/
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
@@ -258,20 +201,26 @@ int main(void)
 
     low_voltage_battery = App_LowVoltageBattery_Create(Io_LT3650_HasFault, Io_LTC3786_HasFault);
 
-    load_switch = App_LoadSwitch_Create();
+    efuse1 = App_Efuse_Create();
+    efuse2 = App_Efuse_Create();
+    efuse3 = App_Efuse_Create();
+    efuse4 = App_Efuse_Create();
+
+    efuse1_current_range_check = App_Efuse_AreCurrentsInRange(efuse1, );
+    efuse2_current_range_check = App_Efuse_AreCurrentsInRange(efuse2, );
+    efuse3_current_range_check = App_Efuse_AreCurrentsInRange(efuse3, );
+    efuse4_current_range_check = App_Efuse_AreCurrentsInRange(efuse4, );
+
 
     rail_monitor = App_RailMonitoring_Create(Io_VoltageSense_GetVbatVoltage, Io_VoltageSense_Get24vAccVoltage, Io_VoltageSense_Get24vAuxVoltage);
 
-    current_monitor = App_CurrentMonitoring_Create(Io_CurrentSense_GetAux1Current, Io_CurrentSense_GetAux2Current, Io_CurrentSense_GetLeftInverterCurrent, Io_CurrentSense_GetRightInverterCurrent, Io_CurrentSense_GetEnergyMeterCurrent, Io_CurrentSense_GetCanCurrent, Io_CurrentSense_GetAirShutdownCurrent);
+    rail_range_check = App_RailMonitoring_AreVoltagesInRange(rail_monitor);
 
     clock = App_SharedClock_Create();
 
     world = App_PdmWorld_Create(
-        can_tx, can_rx, vbat_voltage_in_range_check, _24v_aux_voltage_in_range_check, _24v_acc_voltage_in_range_check,
-        aux1_current_in_range_check, aux2_current_in_range_check, left_inverter_current_in_range_check,
-        right_inverter_current_in_range_check, energy_meter_current_in_range_check, can_current_in_range_check,
-        air_shutdown_current_in_range_check, heartbeat_monitor, rgb_led_sequence, low_voltage_battery, load_switch,
-        rail_monitor, current_monitor, clock);
+        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, low_voltage_battery, load_switch,
+        rail_monitor, clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 

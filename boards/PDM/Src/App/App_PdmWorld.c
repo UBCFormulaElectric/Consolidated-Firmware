@@ -6,46 +6,40 @@
 
 struct PdmWorld
 {
-    struct PdmCanTxInterface *can_tx_interface;
-    struct PdmCanRxInterface *can_rx_interface;
-    struct InRangeCheck *     vbat_voltage_in_range_check;
-    struct InRangeCheck *     _24v_aux_voltage_in_range_check;
-    struct InRangeCheck *     _24v_acc_voltage_in_range_check;
-    struct InRangeCheck *     aux1_current_in_range_check;
-    struct InRangeCheck *     aux2_current_in_range_check;
-    struct InRangeCheck *     left_inverter_current_in_range_check;
-    struct InRangeCheck *     right_inverter_current_in_range_check;
-    struct InRangeCheck *     energy_meter_current_in_range_check;
-    struct InRangeCheck *     can_current_in_range_check;
-    struct InRangeCheck *     air_shutdown_current_in_range_check;
+    struct PdmCanTxInterface *can_tx;
+    struct PdmCanRxInterface *can_rx;
     struct HeartbeatMonitor * heartbeat_monitor;
-    struct RgbLedSequence *   rgb_led_sequence;
+    struct RgbLedSequence    *rgb_led_sequence;
     struct LowVoltageBattery *low_voltage_battery;
-    struct LoadSwitch        *load_switch;
+    struct Efuse             *efuse1;
+    struct Efuse             *efuse2;
+    struct Efuse             *efuse3;
+    struct Efuse             *efuse4;
+    bool                     *efuse1_current_range_check;
+    bool                     *efuse2_current_range_check;
+    bool                     *efuse3_current_range_check;
+    bool                     *efuse4_current_range_check;
     struct RailMonitoring    *rail_monitor;
-    struct CurrentMonitoring *current_monitor;
+    bool                     *rail_range_check;
     struct Clock *            clock;
 };
 
 struct PdmWorld *App_PdmWorld_Create(
     struct PdmCanTxInterface *const can_tx_interface,
     struct PdmCanRxInterface *const can_rx_interface,
-    struct InRangeCheck *const      vbat_voltage_in_range_check,
-    struct InRangeCheck *const      _24v_aux_voltage_in_range_check,
-    struct InRangeCheck *const      _24v_acc_voltage_in_range_check,
-    struct InRangeCheck *const      aux1_current_in_range_check,
-    struct InRangeCheck *const      aux2_current_in_range_check,
-    struct InRangeCheck *const      left_inverter_current_in_range_check,
-    struct InRangeCheck *const      right_inverter_current_in_range_check,
-    struct InRangeCheck *const      energy_meter_current_in_range_check,
-    struct InRangeCheck *const      can_current_in_range_check,
-    struct InRangeCheck *const      air_shutdown_current_in_range_check,
     struct HeartbeatMonitor *const  heartbeat_monitor,
     struct RgbLedSequence *const    rgb_led_sequence,
     struct LowVoltageBattery *const low_voltage_battery,
-    struct LoadSwitch        *const load_switch,
+    struct Efuse             *const efuse1,
+    struct Efuse             *const efuse2,
+    struct Efuse             *const efuse3,
+    struct Efuse             *const efuse4,
+    bool                            efuse1_current_range_check,
+    bool                            efuse2_current_range_check,
+    bool                            efuse3_current_range_check,
+    bool                            efuse4_current_range_check,
     struct RailMonitoring    *const rail_monitor,
-    struct CurrentMonitoring *const current_monitor,
+    bool                     *rail_range_check;
     struct Clock *const             clock)
 {
     struct PdmWorld *world = (struct PdmWorld *)malloc(sizeof(struct PdmWorld));
@@ -66,9 +60,8 @@ struct PdmWorld *App_PdmWorld_Create(
     world->heartbeat_monitor                     = heartbeat_monitor;
     world->rgb_led_sequence                      = rgb_led_sequence;
     world->low_voltage_battery                   = low_voltage_battery;
-    world->load_switch                           = load_switch;
+    world->efuse                           = efuse;
     world->rail_monitor                          = rail_monitor;
-    world->current_monitor                       = current_monitor;
     world->clock                                 = clock;
 
     return world;
@@ -154,19 +147,29 @@ struct LowVoltageBattery *App_PdmWorld_GetLowVoltageBattery(const struct PdmWorl
     return world->low_voltage_battery;
 }
 
-struct LoadSwitch *App_PdmWorld_GetLoadSwitch(const struct PdmWorld *const world)
+struct Efuse *App_PdmWorld_GetEfuse1(const struct PdmWorld *const world)
 {
-    return world->load_switch;
+    return world->efuse1;
+}
+
+struct Efuse *App_PdmWorld_GetEfuse2(const struct PdmWorld *const world)
+{
+    return world->efuse2;
+}
+
+struct Efuse *App_PdmWorld_GetEfuse3(const struct PdmWorld *const world)
+{
+    return world->efuse3;
+}
+
+struct Efuse *App_PdmWorld_GetEfuse4(const struct PdmWorld *const world)
+{
+    return world->efuse4;
 }
 
 struct RailMonitoring *App_PdmWorld_GetRailMonitoring(const struct PdmWorld *const world)
 {
     return world->rail_monitor;
-}
-
-struct CurrentMonitoring *App_PdmWorld_GetCurrentMonitoring(const struct PdmWorld *const world)
-{
-    return world->current_monitor;
 }
 
 struct Clock *App_PdmWorld_GetClock(const struct PdmWorld *const world)

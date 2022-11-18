@@ -1,50 +1,37 @@
 #include "App_Efuse.h"
-#include <assert.h>
-#include <malloc.h>
+
 
 struct Efuse
 {
-    void (*enable_channel_0)(void);
-    void (*disable_channel_0)(void);
-    void (*enable_channel_1)(void);
-    void (*disable_channel_1)(void);
-    ExitCode (*get_status)(enum Efuse_Status *status);
-    ExitCode (*get_channel_0_faults)(enum Efuse_Fault *fault);
-    ExitCode (*get_channel_1_faults)(enum Efuse_Fault *fault);
-    bool (*is_in_fault_mode)(void);
-    bool (*is_in_failsafe_mode)(void);
-    void (*delatch_faults)(void);
+    //void (*enable_channel_0)(void);
+    //void (*disable_channel_0)(void);
+    //void (*enable_channel_1)(void);
+    //void (*disable_channel_1)(void);
     float (*get_channel_0_current)(void);
     float (*get_channel_1_current)(void);
+    bool (*is_pin_0_on)(void);
+    bool (*is_pin_1_on)(void);
+    bool (*is_pin_stby_on)(void);
+
 };
 
-struct Efuse *App_EfuseCreate(
-    void (*enable_channel_0)(void),
-    void (*disable_channel_0)(void),
-    void (*enable_channel_1)(void),
-    void (*disable_channel_1)(void),
-    //ExitCode (*get_status)(enum Efuse_Status *status),
-    //ExitCode (*get_channel_0_faults)(enum Efuse_Fault *fault),
-    //ExitCode (*get_channel_1_faults)(enum Efuse_Fault *fault),
-    bool (*is_in_fault_mode)(void),
-    bool (*is_in_failsafe_mode)(void),
-    void (*delatch_faults)(void),
+struct Efuse *App_Efuse_Create(
     float (*get_channel_0_current)(void),
-    float (*get_channel_1_current)(void))
+    float (*get_channel_1_current)(void),
+    bool (*is_pin_0_on)(void),
+    bool (*is_pin_1_on)(void),
+    bool (*is_pin_stby_on)(void))
 {
     struct Efuse *efuse = malloc(sizeof(struct Efuse));
     assert(efuse != NULL);
 
-    efuse->enable_channel_0 = enable_channel_0;
-    efuse->disable_channel_0 = disable_channel_0;
-    efuse->enable_channel_1 = enable_channel_1;
-    efuse->disable_channel_1 = disable_channel_1;
-
-    efuse->is_in_fault_mode = is_in_fault_mode;
-    efuse->is_in_failsafe_mode = is_in_failsafe_mode;
     efuse->get_channel_0_current = get_channel_0_current;
     efuse->get_channel_1_current = get_channel_1_current;
+    efuse->is_pin_0_on = is_pin_0_on;
+    efuse->is_pin_1_on = is_pin_1_on;
+    efuse-> is_pin_stby_on = is_pin_stby_on;
 
+    return efuse;
 }
 
 void App_EfuseDestroy(struct Efuse *efuse)
@@ -52,34 +39,19 @@ void App_EfuseDestroy(struct Efuse *efuse)
     free(efuse);
 }
 
-void App_EfuseEnableChannel0(struct Efuse *efuse)
+bool App_EfuseEnableorDisableChannel0(struct Efuse *efuse, bool (*function)(bool))
 {
-    efuse->enable_channel_0();
+    return function(efuse->is_pin_0_on());
 }
 
-void App_EfuseDisableChannel0(struct Efuse *efuse)
+bool App_EfuseEnableorDisableChannel1(struct Efuse *efuse, bool (*function)(bool))
 {
-    efuse->disable_channel_0();
+    return function(efuse->is_pin_1_on());
 }
 
-void App_Efuse_EnableChannel1(struct Efuse *efuse)
+bool App_EfuseEnableorDisableSTBYChannel(struct Efuse *efuse, bool (*function)(bool))
 {
-    efuse->enable_channel_1();
-}
-
-void App_EfuseDisableChannel1(struct Efuse *efuse)
-{
-    efuse->disable_channel_1();
-}
-
-bool App_EfuseInFaultMode(struct Efuse *efuse)
-{
-    return efuse->is_in_fault_mode();
-}
-
-bool App_EfuseInFailSafeMode(struct Efuse *efuse)
-{
-    return efuse->is_in_failsafe_mode();
+    return function(efuse->is_pin_stby_on());
 }
 
 float App_EfuseGetChannel0Current(struct Efuse *efuse)
@@ -90,4 +62,28 @@ float App_EfuseGetChannel0Current(struct Efuse *efuse)
 float App_EfuseGetChannel2Current(struct Efuse *efuse)
 {
     return efuse->get_channel_1_current();
+}
+
+int App_Efuse_InRangeCheck(float value, float min_value, float max_value)
+{
+    int status;
+    if (value < min_value)
+        status = 1;
+
+    else if (value > max_value)
+        status = 2;
+
+    else
+        status = 0;
+
+    return status;
+}
+
+
+bool *App_Efuse_AreCurrentsInRange(struct Efuse *efuse, float min_channel_0, float max_channel_0, float min_channel_1, float max_channel_1)
+{
+    if (App_Efuse_InRangeCheck(efuse->get_channel_0_current(), min_channel_0, max_channel_0) == 0 &&
+        App_Efuse_InRangeCheck(efuse->get_channel_1_current(), min_channel_1, max_channel_1) == 0)
+        return(bool *) true;
+    return (bool *) false;
 }

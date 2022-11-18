@@ -9,7 +9,7 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct PdmWorld *const          world  = App_SharedStateMachine_GetWorld(state_machine);
     struct PdmCanTxInterface *const can_tx = App_PdmWorld_GetCanTx(world);
-    App_CanTx_SetPeriodicSignal_STATE(can_tx, CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE);
+    //App_CanTx_SetPeriodicSignal_STATE(can_tx, CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE);
 
 }
 
@@ -27,7 +27,7 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     bool is_error_table_cleared = !App_SharedErrorTable_HasAnyAirShutdownErrorSet(error_table);
 
-    if (is_error_table_cleared && is_air_negative_open)
+    if (is_error_table_cleared)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
     }

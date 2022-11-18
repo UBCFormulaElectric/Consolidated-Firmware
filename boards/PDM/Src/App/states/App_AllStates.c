@@ -1,6 +1,7 @@
 #include "states/App_AllStates.h"
 #include "states/App_FaultState.h"
 
+#define NUM_CYCLES_TO_SETTLE (3U)
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
@@ -17,9 +18,14 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct PdmCanRxInterface *can_rx            = App_PdmWorld_GetCanRx(world);
     struct HeartbeatMonitor * hb_monitor        = App_PdmWorld_GetHeartbeatMonitor(world);
     struct RailMonitoring * rail_monitor        = App_PdmWorld_GetRailMonitoring(world);
-    struct LoadSwitch      * load_switch        = App_PdmWorld_GetLoadSwitch(world);
+    struct Efuse                * efuse1        = App_PdmWorld_GetEfuse1(world);
+    struct Efuse                * efuse2        = App_PdmWorld_GetEfuse2(world);
+    struct Efuse                * efuse3        = App_PdmWorld_GetEfuse3(world);
+    struct Efuse                * efuse4        = App_PdmWorld_GetEfuse4(world);
 
     bool status = true;
+    static uint8_t acc_meas_settle_count = 0U;
+
 
     // Main Rail Monitoring:
     App_CanTx_SetPeriodicSignal_VBAT(can_tx, App_RailMonitoring_Get_VBAT_Voltage(rail_monitor));
@@ -27,13 +33,13 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal__24_V_AUX(can_tx, App_RailMonitoring_Get__24V_AUX_Voltage(rail_monitor));
 
     // Load Switch Current Monitoring:
-    App_CanTx_SetPeriodicSignal_AUXILIARY1_CURRENT(can_tx, App_LoadSwitch_Get_AUX1_Current(load_switch));
-    App_CanTx_SetPeriodicSignal_AUXILIARY2_CURRENT(can_tx, App_LoadSwitch_Get_AUX2_Current(load_switch));
-    App_CanTx_SetPeriodicSignal_LEFT_INVERTER_CURRENT(can_tx, App_LoadSwitch_Get_LEFT_INVERTER_Current(load_switch));
-    App_CanTx_SetPeriodicSignal_RIGHT_INVERTER_CURRENT(can_tx, App_LoadSwitch_Get_RIGHT_INVERTER_Current(load_switch));
-    App_CanTx_SetPeriodicSignal_ENERGY_METER_CURRENT(can_tx, App_LoadSwitch_Get_ENERGY_METER_Current(load_switch));
-    App_CanTx_SetPeriodicSignal_CAN_CURRENT(can_tx, App_LoadSwitch_Get_CAN_Current(load_switch));
-    App_CanTx_SetPeriodicSignal_AIR_SHUTDOWN_CURRENT(can_tx, App_LoadSwitch_Get_AIR_SHUTDOWN_Current(load_switch));
+    App_CanTx_SetPeriodicSignal_AUXILIARY1_CURRENT(can_tx, App_Efuse_Get_AUX1_Current(load_switch));
+    App_CanTx_SetPeriodicSignal_AUXILIARY2_CURRENT(can_tx, App_Efuse_Get_AUX2_Current(load_switch));
+    App_CanTx_SetPeriodicSignal_LEFT_INVERTER_CURRENT(can_tx, App_Efuse_Get_LEFT_INVERTER_Current(load_switch));
+    App_CanTx_SetPeriodicSignal_RIGHT_INVERTER_CURRENT(can_tx, App_Efuse_Get_RIGHT_INVERTER_Current(load_switch));
+    App_CanTx_SetPeriodicSignal_ENERGY_METER_CURRENT(can_tx, App_Efuse_Get_ENERGY_METER_Current(load_switch));
+    App_CanTx_SetPeriodicSignal_CAN_CURRENT(can_tx, App_Efuse_Get_CAN_Current(load_switch));
+    App_CanTx_SetPeriodicSignal_AIR_SHUTDOWN_CURRENT(can_tx, App_Efuse_Get_AIR_SHUTDOWN_Current(load_switch));
 
     App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
 
@@ -43,7 +49,11 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanRx_BMS_VITALS_SetSignal_HEARTBEAT(can_rx, false);
     }
 
-    if ()
+    if (acc_meas_settle_count < NUM_CYCLES_TO_SETTLE)
+    {
+        acc_meas_settle_count++;
+    }
+    else if (App_SharedErrorTable_HasAnyCriticalErrorSet(error_table))
     {
         status = false;
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());

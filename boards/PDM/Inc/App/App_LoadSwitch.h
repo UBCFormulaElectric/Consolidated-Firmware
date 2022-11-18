@@ -20,3 +20,5 @@ float App_LoadSwitch_Get_ENERGY_METER_Current(struct LoadSwitch *load_switch);
 float App_LoadSwitch_Get_CAN_Current(struct LoadSwitch *load_switch);
 float App_LoadSwitch_Get_AIR_SHUTDOWN_Current(struct LoadSwitch *load_switch);
 
+int App_LoadSwitch_InRangeCheck(float value, float min_value, float max_value);
+bool App_LoadSwitch_AreCurrentsInRange(struct LoadSwitch *load_switch);
