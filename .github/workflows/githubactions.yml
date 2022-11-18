@@ -7,7 +7,7 @@ on:
       - f4-port
   pull_request:
     branches:
-      - master
+      - master  
       - development
       - f4-port
 

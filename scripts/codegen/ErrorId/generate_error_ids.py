@@ -97,6 +97,14 @@ if __name__ == "__main__":
             if board != "BMS":
                 raise KeyError('Could not find non critical error message for %s' % board)
         try:
+            can_msg = database.get_message_by_name(board + '_FAULTS')
+            enum_members['faults'][board] = \
+                ['    %s_FAULTS_%s, \\' %(board, signal.name.upper()) for signal in can_msg.signals]
+        except KeyError:
+            if board == "BMS":
+                raise KeyError('Could not find AIR shutdown error message for %s' % board)
+
+        try:
             can_msg = database.get_message_by_name(board + '_AIR_SHUTDOWN_ERRORS')
             enum_members['air_shutdown'][board] = \
                 ['    %s_AIR_SHUTDOWN_%s, \\' %(board, signal.name.upper()) for signal in can_msg.signals]
@@ -127,7 +135,7 @@ if __name__ == "__main__":
         dim_motor_shutdown_errors = '\n'.join(enum_members['motor_shutdown']['DIM']),
         fsm_motor_shutdown_errors = '\n'.join(enum_members['motor_shutdown']['FSM']),
         pdm_motor_shutdown_errors = '\n'.join(enum_members['motor_shutdown']['PDM']),
-        gsm_motor_shutdown_errors = '\n'.join(enum_members['motor_shutdown']['GSM']))
+   hea     gsm_motor_shutdown_errors = '\n'.join(enum_members['motor_shutdown']['GSM']))
 
     # Generate output folder if it doesn't exist yet
     output_dir = os.path.dirname(args.output_path)

@@ -106,7 +106,12 @@ class BmsFaultTest : public BaseStateMachineTest
         bspd_ok = App_OkStatus_Create(enable_bspd_ok, disable_bspd_ok, is_bspd_ok_enabled);
 
         accumulator = App_Accumulator_Create(
+<<<<<<< HEAD
             configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, start_temp_conv,
+=======
+            configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, get_min_cell_voltage,
+            get_max_cell_voltage, get_segment_voltage, get_pack_voltage, get_avg_cell_voltage, start_temp_conv,
+>>>>>>> 0234e65c (ELEC-43/ELEC-268 BMS Faults (#848))
             read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc, enable_discharge,
             disable_discharge);
 
