@@ -1,5 +1,15 @@
 #pragma once
 
+#include <stdlib.h>
+#include <assert.h>
+#include <stdbool.h>
+#include "App_CanTx.h"
+#include "App_SharedMacros.h"
+
+#define HIGH_RES_MAX_CURRENT_READING (50.0f)
+#define MAX_TS_CHARGE_CURRENT_AMPS (-70.8f)
+#define MAX_TS_DISCHARGE_CURRENT_AMPS (265.5f)
+
 struct TractiveSystem;
 
 /**
@@ -57,3 +67,11 @@ float App_TractiveSystem_GetCurrent(struct TractiveSystem *ts);
  * @return TS power in Watts
  */
 float App_TractiveSystem_GetPower(struct TractiveSystem *ts);
+
+/**
+ * Check the status of Tractive System faults and Warnings, sends warning over CAN bus
+ * @param can_tx CAN interface to send messages over
+ * @param ts The Tractive System to check faults in
+ * @return True if faults present, false otherwise
+ */
+bool App_TractveSystem_CheckFaults(struct BmsCanTxInterface *can_tx, struct TractiveSystem *ts);

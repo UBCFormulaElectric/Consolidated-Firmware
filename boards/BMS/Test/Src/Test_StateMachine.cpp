@@ -1,20 +1,4 @@
-#include <math.h>
-#include "Test_Bms.h"
-#include "Test_Imd.h"
-#include "Test_BaseStateMachineTest.h"
-
-extern "C"
-{
-#include "App_SharedStateMachine.h"
-#include "App_SharedMacros.h"
-#include "states/App_InitState.h"
-#include "states/App_PreChargeState.h"
-#include "states/App_DriveState.h"
-#include "states/App_FaultState.h"
-#include "states/App_ChargeState.h"
-#include "configs/App_HeartbeatMonitorConfig.h"
-#include "configs/App_ImdConfig.h"
-}
+#include "Test_StateMachine.h"
 
 namespace StateMachineTest
 {
@@ -615,7 +599,7 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
     SetInitialState(App_GetFaultState());
 
     // Set an arbitrarily chosen AIR shutdown error
-    App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE, true);
+    App_SharedErrorTable_SetError(error_table, BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE, true);
 
     // Open AIR- for the following tests
     is_air_negative_closed_fake.return_val = false;
@@ -623,9 +607,8 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
     ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 
     // Clear the AIR shutdown error
-    App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE, false);
+    App_SharedErrorTable_SetError(error_table, BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE, false);
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
-
 } // namespace StateMachineTest
