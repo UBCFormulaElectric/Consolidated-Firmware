@@ -2,7 +2,19 @@
 
 #include <stdbool.h>
 #include <stdint.h>
+#include <stdlib.h>
+#include <assert.h>
 #include "App_SharedConstants.h"
+#include "App_CanTx.h"
+#include "App_TractiveSystem.h"
+
+// Min and Max cell temperatures depending on state
+#define MAX_CELL_DISCHARGE_TEMP_DEGC (60.0f)
+#define MAX_CELL_CHARGE_TEMP_DEGC (45.0f)
+#define MIN_CELL_DISCHARGE_TEMP_DEGC (-20.0f)
+#define MIN_CELL_CHARGE_TEMP_DEGC (0.0f)
+#define MAX_CELL_VOLTAGE (4.2f)
+#define MIN_CELL_VOLTAGE (3.0f)
 
 struct Accumulator;
 
@@ -96,3 +108,15 @@ float App_Accumulator_GetPackVoltage(struct Accumulator *accumulator);
 // Rate functions to be called within the state machine
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *accumulator);
 void App_Accumulator_RunOnTick100Hz(struct Accumulator *accumulator);
+
+/**
+ * Check the status of Accumulator faults, sends warning over CAN bus
+ * @param can_tx CAN interface to send messages over
+ * @param accumulator The accumulator to check faults
+ * @param ts TractiveSystem used to check ts_current to check charge/discharge condition
+ * @return True if faults present, false otherwise
+ */
+bool App_Accumulator_CheckFaults(
+    struct BmsCanTxInterface *   can_tx,
+    struct Accumulator *const    accumulator,
+    struct TractiveSystem *const ts);
