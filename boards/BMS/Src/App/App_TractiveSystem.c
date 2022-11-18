@@ -1,7 +1,4 @@
-#include <stdlib.h>
-#include <assert.h>
-
-#define HIGH_RES_MAX_CURRENT_READING (50.0f)
+#include "App_TractiveSystem.h"
 
 struct TractiveSystem
 {
@@ -72,4 +69,16 @@ float App_TractiveSystem_GetCurrent(struct TractiveSystem *ts)
 float App_TractiveSystem_GetPower(struct TractiveSystem *ts)
 {
     return App_TractiveSystem_GetVoltage(ts) * App_TractiveSystem_GetLowResCurrent(ts);
+}
+
+bool App_TractveSystem_CheckFaults(struct BmsCanTxInterface *can_tx, struct TractiveSystem *ts)
+{
+    //    Charge current is negative, discharge current is positive
+    //    TS current should be in the range: (-70.8,265.5)
+    bool ts_current_out_of_bounds =
+        !IS_IN_RANGE(MAX_TS_CHARGE_CURRENT_AMPS, MAX_TS_DISCHARGE_CURRENT_AMPS, App_TractiveSystem_GetCurrent(ts));
+
+    App_CanTx_SetPeriodicSignal_TS_OVERCURRENT_FAULT(can_tx, ts_current_out_of_bounds);
+
+    return ts_current_out_of_bounds;
 }

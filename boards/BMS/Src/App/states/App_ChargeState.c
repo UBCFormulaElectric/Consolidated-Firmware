@@ -57,11 +57,11 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanTx_SetPeriodicSignal_CHARGING_EXT_SHUTDOWN_OCCURRED(can_tx, has_external_shutdown_occurred);
 
         App_SharedErrorTable_SetError(
-            error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE, is_charger_disconnected);
-        App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_CHARGER_FAULT_DETECTED, has_charger_faulted);
-        App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_HAS_REACHED_MAX_V, has_reached_max_v);
+            error_table, BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE, is_charger_disconnected);
+        App_SharedErrorTable_SetError(error_table, BMS_FAULTS_CHARGER_FAULT_DETECTED, has_charger_faulted);
+        App_SharedErrorTable_SetError(error_table, BMS_FAULTS_HAS_REACHED_MAX_V, has_reached_max_v);
         App_SharedErrorTable_SetError(
-            error_table, BMS_AIR_SHUTDOWN_CHARGING_EXT_SHUTDOWN_OCCURRED, has_external_shutdown_occurred);
+            error_table, BMS_FAULTS_CHARGING_EXT_SHUTDOWN_OCCURRED, has_external_shutdown_occurred);
 
         if (is_charger_disconnected || has_charger_faulted || has_reached_max_v || has_external_shutdown_occurred)
         {

@@ -566,7 +566,7 @@ TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_multiple_errors)
 TEST_F(DimStateMachineTest, bms_board_status_led_control_with_critical_error)
 {
     // Set any critical error and check that the BMS LED turns red
-    App_SharedErrorTable_SetError(error_table, BMS_AIR_SHUTDOWN_CHARGER_DISCONNECTED_IN_CHARGE_STATE, true);
+    App_SharedErrorTable_SetError(error_table, BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_bms_status_led_red_fake.call_count);
 }

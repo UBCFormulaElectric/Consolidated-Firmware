@@ -24,8 +24,8 @@ ERRORID_ENUM_TEMPLATE = '''\
 #define GSM_NON_CRITICAL_ERRORS \\
 {gsm_non_critical_errors}
 
-#define BMS_AIR_SHUTDOWN_ERRORS \\
-{bms_air_shutdown_errors}
+#define BMS_FAULTS \\
+{bms_faults}
 
 #define DCM_AIR_SHUTDOWN_ERRORS \\
 {dcm_air_shutdown_errors}
@@ -68,7 +68,7 @@ enum ErrorId
     FSM_NON_CRITICAL_ERRORS
     PDM_NON_CRITICAL_ERRORS
     GSM_NON_CRITICAL_ERRORS
-    BMS_AIR_SHUTDOWN_ERRORS
+    BMS_FAULTS
     DCM_AIR_SHUTDOWN_ERRORS
     DIM_AIR_SHUTDOWN_ERRORS
     FSM_AIR_SHUTDOWN_ERRORS
@@ -94,6 +94,7 @@ if __name__ == "__main__":
 
     enum_members = {
         'non_critical': {},
+        'faults': {},
         'air_shutdown': {},
         'motor_shutdown': {},
     }
@@ -109,11 +110,20 @@ if __name__ == "__main__":
             raise KeyError('Could not find non critical error message for %s' % board)
 
         try:
+            can_msg = database.get_message_by_name(board + '_FAULTS')
+            enum_members['faults'][board] = \
+                ['    %s_FAULTS_%s, \\' %(board, signal.name.upper()) for signal in can_msg.signals]
+        except KeyError:
+            if board == "BMS":
+                raise KeyError('Could not find AIR shutdown error message for %s' % board)
+
+        try:
             can_msg = database.get_message_by_name(board + '_AIR_SHUTDOWN_ERRORS')
             enum_members['air_shutdown'][board] = \
                 ['    %s_AIR_SHUTDOWN_%s, \\' %(board, signal.name.upper()) for signal in can_msg.signals]
         except KeyError:
-            raise KeyError('Could not find AIR shutdown error message for %s' % board)
+            if board != "BMS":
+                raise KeyError('Could not find AIR shutdown error message for %s' % board)
 
         try:
             can_msg = database.get_message_by_name(board + '_MOTOR_SHUTDOWN_ERRORS')
@@ -129,7 +139,7 @@ if __name__ == "__main__":
         fsm_non_critical_errors   = '\n'.join(enum_members['non_critical']['FSM']),
         pdm_non_critical_errors   = '\n'.join(enum_members['non_critical']['PDM']),
         gsm_non_critical_errors   = '\n'.join(enum_members['non_critical']['GSM']),
-        bms_air_shutdown_errors   = '\n'.join(enum_members['air_shutdown']['BMS']),
+        bms_faults   = '\n'.join(enum_members['faults']['BMS']),
         dcm_air_shutdown_errors   = '\n'.join(enum_members['air_shutdown']['DCM']),
         dim_air_shutdown_errors   = '\n'.join(enum_members['air_shutdown']['DIM']),
         fsm_air_shutdown_errors   = '\n'.join(enum_members['air_shutdown']['FSM']),
