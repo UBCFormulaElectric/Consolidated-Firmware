@@ -7,11 +7,11 @@
 
 typedef enum
 {
-    BMS_LED,
     DCM_LED,
     DIM_LED,
     FSM_LED,
     PDM_LED,
+    BMS_LED,
     NUM_BOARD_LEDS,
 } BoardLeds;
 
@@ -104,11 +104,11 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         can_tx, torque_vectoring_switch, App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH,
         CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
 
-    struct RgbLed *board_status_leds[5] = {
-        [BMS_LED] = App_DimWorld_GetBmsStatusLed(world), [DCM_LED] = App_DimWorld_GetDcmStatusLed(world),
-        [DIM_LED] = App_DimWorld_GetDimStatusLed(world), [FSM_LED] = App_DimWorld_GetFsmStatusLed(world),
-        [PDM_LED] = App_DimWorld_GetPdmStatusLed(world),
-    };
+    struct RgbLed *board_status_leds[5] = { [DCM_LED] = App_DimWorld_GetDcmStatusLed(world),
+                                            [DIM_LED] = App_DimWorld_GetDimStatusLed(world),
+                                            [FSM_LED] = App_DimWorld_GetFsmStatusLed(world),
+                                            [PDM_LED] = App_DimWorld_GetPdmStatusLed(world),
+                                            [BMS_LED] = App_DimWorld_GetBmsStatusLed(world) };
 
     for (size_t i = 0; i < NUM_BOARD_LEDS; i++)
     {

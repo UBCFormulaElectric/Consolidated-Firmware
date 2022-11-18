@@ -624,7 +624,7 @@ TEST_F(DcmStateMachineTest, init_to_fault_state_on_motor_shutdown_error)
 {
     // Introduce motor shutdown error, expect transition to fault state on next
     // 100 Hz tick
-    App_SharedErrorTable_SetError(error_table, BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, true);
+    App_SharedErrorTable_SetError(error_table, DCM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, true);
     LetTimePass(state_machine, 9);
     EXPECT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
@@ -644,7 +644,7 @@ TEST_F(DcmStateMachineTest, drive_to_fault_state_on_motor_shutdown_error)
     EXPECT_EQ(App_GetDriveState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
     // Introduce motor shutdown error, expect transition to fault state
-    App_SharedErrorTable_SetError(error_table, BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, true);
+    App_SharedErrorTable_SetError(error_table, DCM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, true);
     LetTimePass(state_machine, 10);
     EXPECT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
