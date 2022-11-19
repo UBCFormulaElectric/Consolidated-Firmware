@@ -29,6 +29,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         struct Charger *    charger     = App_BmsWorld_GetCharger(world);
         struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
         struct Airs *       airs        = App_BmsWorld_GetAirs(world);
+        struct TractiveSystem * const ts      = App_BmsWorld_GetTractiveSystem(world);
 
 
         static uint16_t ignore_chgr_fault_counter      = 0U;
@@ -50,6 +51,10 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         uint8_t    cell    = 0U;
         const bool has_reached_max_v =
             App_Accumulator_GetMaxVoltage(accumulator, &segment, &cell) > MAX_CELL_VOLTAGE_THRESHOLD;
+        const bool has_charging_completed()
+        if(App_TractiveSystem_GetCurrent(ts)<=)
+
+                App_TractiveSystem_GetCurrent(ts);
 
         App_CanTx_BMS_Faults_ChargerDisconnectedInChargeState_Set(is_charger_disconnected);
         App_CanTx_BMS_Faults_ChargerFault_Set(has_charger_faulted);

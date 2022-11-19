@@ -46,6 +46,7 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
             if(is_charger_connected && App_CanRx_BMS_CHARGER_GetSignal_IS_CHARGING_ENABLED(can_rx)) {
                 App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
             }
+            //If charger isn't connected, go into drive state
             else if(!is_charger_connected){
                 App_SharedStateMachine_SetNextState(state_machine,App_GetPreChargeState());
             }
