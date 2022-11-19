@@ -38,8 +38,8 @@ struct StateMachine
  * @param tick_function The tick function to run over the state machine
  */
 void App_SharedStateMachine_RunStateTickFunctionIfNotNull(
-        struct StateMachine *const state_machine,
-        void (*tick_function)(struct StateMachine *))
+    struct StateMachine *const state_machine,
+    void (*tick_function)(struct StateMachine *))
 {
     if (tick_function == NULL)
     {
@@ -127,5 +127,5 @@ void App_SharedStateMachine_Tick1Hz(struct StateMachine *const state_machine)
 void App_SharedStateMachine_Tick100Hz(struct StateMachine *const state_machine)
 {
     App_SharedStateMachine_RunStateTickFunctionIfNotNull(
-            state_machine, state_machine->current_state->run_on_tick_100Hz);
+        state_machine, state_machine->current_state->run_on_tick_100Hz);
 }

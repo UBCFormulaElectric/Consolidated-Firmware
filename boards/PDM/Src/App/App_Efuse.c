@@ -1,18 +1,16 @@
 #include "App_Efuse.h"
 
-
 struct Efuse
 {
-    //void (*enable_channel_0)(void);
-    //void (*disable_channel_0)(void);
-    //void (*enable_channel_1)(void);
-    //void (*disable_channel_1)(void);
+    // void (*enable_channel_0)(void);
+    // void (*disable_channel_0)(void);
+    // void (*enable_channel_1)(void);
+    // void (*disable_channel_1)(void);
     float (*get_channel_0_current)(void);
     float (*get_channel_1_current)(void);
     bool (*is_pin_0_on)(void);
     bool (*is_pin_1_on)(void);
     bool (*is_pin_stby_on)(void);
-
 };
 
 struct Efuse *App_Efuse_Create(
@@ -27,9 +25,9 @@ struct Efuse *App_Efuse_Create(
 
     efuse->get_channel_0_current = get_channel_0_current;
     efuse->get_channel_1_current = get_channel_1_current;
-    efuse->is_pin_0_on = is_pin_0_on;
-    efuse->is_pin_1_on = is_pin_1_on;
-    efuse-> is_pin_stby_on = is_pin_stby_on;
+    efuse->is_pin_0_on           = is_pin_0_on;
+    efuse->is_pin_1_on           = is_pin_1_on;
+    efuse->is_pin_stby_on        = is_pin_stby_on;
 
     return efuse;
 }
@@ -54,12 +52,12 @@ bool App_EfuseEnableorDisableSTBYChannel(struct Efuse *efuse, bool (*function)(b
     return function(efuse->is_pin_stby_on());
 }
 
-float App_EfuseGetChannel0Current(struct Efuse *efuse)
+float App_Efuse_GetChannel0Current(struct Efuse *efuse)
 {
     return efuse->get_channel_0_current();
 }
 
-float App_EfuseGetChannel2Current(struct Efuse *efuse)
+float App_Efuse_GetChannel1Current(struct Efuse *efuse)
 {
     return efuse->get_channel_1_current();
 }
@@ -79,11 +77,16 @@ int App_Efuse_InRangeCheck(float value, float min_value, float max_value)
     return status;
 }
 
-
-bool *App_Efuse_AreCurrentsInRange(struct Efuse *efuse, float min_channel_0, float max_channel_0, float min_channel_1, float max_channel_1)
+bool App_Efuse_Channel0_CurrentCheck(struct Efuse *efuse, float min_value, float max_value)
 {
-    if (App_Efuse_InRangeCheck(efuse->get_channel_0_current(), min_channel_0, max_channel_0) == 0 &&
-        App_Efuse_InRangeCheck(efuse->get_channel_1_current(), min_channel_1, max_channel_1) == 0)
-        return(bool *) true;
-    return (bool *) false;
+    if (App_Efuse_InRangeCheck(efuse->get_channel_0_current(), min_value, max_value) == 0)
+        return true;
+    return false;
+}
+
+bool App_Efuse_Channel1_CurrentCheck(struct Efuse *efuse, float min_value, float max_value)
+{
+    if (App_Efuse_InRangeCheck(efuse->get_channel_1_current(), min_value, max_value) == 0)
+        return true;
+    return false;
 }

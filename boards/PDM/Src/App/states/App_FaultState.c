@@ -9,8 +9,7 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct PdmWorld *const          world  = App_SharedStateMachine_GetWorld(state_machine);
     struct PdmCanTxInterface *const can_tx = App_PdmWorld_GetCanTx(world);
-    //App_CanTx_SetPeriodicSignal_STATE(can_tx, CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE);
-
+    // App_CanTx_SetPeriodicSignal_STATE(can_tx, CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE);
 }
 
 static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -41,13 +40,12 @@ static void FaultStateRunOnExit(struct StateMachine *const state_machine)
 const struct State *App_GetFaultState()
 {
     static struct State fault_state = {
-            .name              = "FAULT",
-            .run_on_entry      = FaultStateRunOnEntry,
-            .run_on_tick_1Hz   = FaultStateRunOnTick1Hz,
-            .run_on_tick_100Hz = FaultStateRunOnTick100Hz,
-            .run_on_exit       = FaultStateRunOnExit,
+        .name              = "FAULT",
+        .run_on_entry      = FaultStateRunOnEntry,
+        .run_on_tick_1Hz   = FaultStateRunOnTick1Hz,
+        .run_on_tick_100Hz = FaultStateRunOnTick100Hz,
+        .run_on_exit       = FaultStateRunOnExit,
     };
 
     return &fault_state;
 }
-

@@ -5,16 +5,14 @@
 #include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/App_PdmErrorTable.h"
 #include "App_SharedExitCode.h"
 
-
 struct PdmErrorTable
 {
     struct PdmError *errors[NUM_ERROR_IDS];
 };
 
-#define INIT_ERROR(id, error_type)                     \
-    App_PdmError_SetId(pdm_error_table->errors[id], id);       \
+#define INIT_ERROR(id, error_type)                       \
+    App_PdmError_SetId(pdm_error_table->errors[id], id); \
     App_PdmError_SetErrorType(pdm_error_table->errors[id], error_type);
-
 
 struct PdmErrorTable *App_PdmErrorTable_Create(void)
 {
@@ -25,7 +23,7 @@ struct PdmErrorTable *App_PdmErrorTable_Create(void)
     {
         pdm_error_table->errors[i] = App_PdmError_Create();
     }
-    
+
     INIT_ERROR(PDM_NON_CRITICAL_MISSING_HEARTBEAT, NON_CRITICAL_ERROR);
     INIT_ERROR(PDM_NON_CRITICAL_BOOST_PGOOD_FAULT, NON_CRITICAL_ERROR);
     INIT_ERROR(PDM_NON_CRITICAL_CHARGER_FAULT, NON_CRITICAL_ERROR);
@@ -45,10 +43,10 @@ struct PdmErrorTable *App_PdmErrorTable_Create(void)
     INIT_ERROR(PDM_NON_CRITICAL_ENERGY_METER_CURRENT_OUT_OF_RANGE, NON_CRITICAL_ERROR);
     INIT_ERROR(PDM_NON_CRITICAL_CAN_CURRENT_OUT_OF_RANGE, NON_CRITICAL_ERROR);
     INIT_ERROR(PDM_NON_CRITICAL_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE, NON_CRITICAL_ERROR);
-    
-    //INIT_ERROR(PDM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, AIR_SHUTDOWN_ERROR);
-    //INIT_ERROR(PDM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, MOTOR_SHUTDOWN_ERROR);
-    
+
+    // INIT_ERROR(PDM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, AIR_SHUTDOWN_ERROR);
+    // INIT_ERROR(PDM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, MOTOR_SHUTDOWN_ERROR);
+
     // clang-format on
 
     return pdm_error_table;
@@ -198,5 +196,3 @@ void App_PdmErrorTable_GetAllNonCriticalErrors(struct PdmErrorTable *pdm_error_t
         }
     }
 }
-
-

@@ -1,5 +1,7 @@
+#include <stdint-gcc.h>
 #include "states/App_AllStates.h"
 #include "states/App_FaultState.h"
+#include "App_CanTx.h"
 
 #define NUM_CYCLES_TO_SETTLE (3U)
 
@@ -13,33 +15,33 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 
 bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    struct PdmWorld *         world             = App_SharedStateMachine_GetWorld(state_machine);
-    struct PdmCanTxInterface *can_tx            = App_PdmWorld_GetCanTx(world);
-    struct PdmCanRxInterface *can_rx            = App_PdmWorld_GetCanRx(world);
-    struct HeartbeatMonitor * hb_monitor        = App_PdmWorld_GetHeartbeatMonitor(world);
-    struct RailMonitoring * rail_monitor        = App_PdmWorld_GetRailMonitoring(world);
-    struct Efuse                * efuse1        = App_PdmWorld_GetEfuse1(world);
-    struct Efuse                * efuse2        = App_PdmWorld_GetEfuse2(world);
-    struct Efuse                * efuse3        = App_PdmWorld_GetEfuse3(world);
-    struct Efuse                * efuse4        = App_PdmWorld_GetEfuse4(world);
+    struct PdmWorld *         world        = App_SharedStateMachine_GetWorld(state_machine);
+    struct PdmCanTxInterface *can_tx       = App_PdmWorld_GetCanTx(world);
+    struct PdmCanRxInterface *can_rx       = App_PdmWorld_GetCanRx(world);
+    struct HeartbeatMonitor * hb_monitor   = App_PdmWorld_GetHeartbeatMonitor(world);
+    struct RailMonitoring *   rail_monitor = App_PdmWorld_GetRailMonitoring(world);
+    struct Efuse *            efuse1       = App_PdmWorld_GetEfuse1(world);
+    struct Efuse *            efuse2       = App_PdmWorld_GetEfuse2(world);
+    struct Efuse *            efuse3       = App_PdmWorld_GetEfuse3(world);
+    struct Efuse *            efuse4       = App_PdmWorld_GetEfuse4(world);
 
-    bool status = true;
+    bool           status                = true;
     static uint8_t acc_meas_settle_count = 0U;
-
 
     // Main Rail Monitoring:
     App_CanTx_SetPeriodicSignal_VBAT(can_tx, App_RailMonitoring_Get_VBAT_Voltage(rail_monitor));
     App_CanTx_SetPeriodicSignal__24_V_ACC(can_tx, App_RailMonitoring_Get__24V_ACC_Voltage(rail_monitor));
-    App_CanTx_SetPeriodicSignal__24_V_AUX(can_tx, App_RailMonitoring_Get__24V_AUX_Voltage(rail_monitor));
+    App_CanTx_SetPeriodicSignal__22_V_AUX(can_tx, App_RailMonitoring_Get__22V_AUX_Voltage(rail_monitor));
 
     // Load Switch Current Monitoring:
-    App_CanTx_SetPeriodicSignal_AUXILIARY1_CURRENT(can_tx, App_Efuse_Get_AUX1_Current(load_switch));
-    App_CanTx_SetPeriodicSignal_AUXILIARY2_CURRENT(can_tx, App_Efuse_Get_AUX2_Current(load_switch));
-    App_CanTx_SetPeriodicSignal_LEFT_INVERTER_CURRENT(can_tx, App_Efuse_Get_LEFT_INVERTER_Current(load_switch));
-    App_CanTx_SetPeriodicSignal_RIGHT_INVERTER_CURRENT(can_tx, App_Efuse_Get_RIGHT_INVERTER_Current(load_switch));
-    App_CanTx_SetPeriodicSignal_ENERGY_METER_CURRENT(can_tx, App_Efuse_Get_ENERGY_METER_Current(load_switch));
-    App_CanTx_SetPeriodicSignal_CAN_CURRENT(can_tx, App_Efuse_Get_CAN_Current(load_switch));
-    App_CanTx_SetPeriodicSignal_AIR_SHUTDOWN_CURRENT(can_tx, App_Efuse_Get_AIR_SHUTDOWN_Current(load_switch));
+    App_CanTx_SetPeriodicSignal(can_tx, App_Efuse_GetChannel0Current(efuse1));
+    App_CanTx_SetPeriodicSignal(can_tx, App_Efuse_GetChannel1Current(efuse1));
+    App_CanTx_SetPeriodicSignal(can_tx, App_Efuse_GetChannel0Current(efuse2));
+    App_CanTx_SetPeriodicSignal(can_tx, App_Efuse_GetChannel1Current(efuse2));
+    App_CanTx_SetPeriodicSignal(can_tx, App_Efuse_GetChannel0Current(efuse3));
+    App_CanTx_SetPeriodicSignal(can_tx, App_Efuse_GetChannel1Current(efuse3));
+    App_CanTx_SetPeriodicSignal(can_tx, App_Efuse_GetChannel0Current(efuse4));
+    App_CanTx_SetPeriodicSignal(can_tx, App_Efuse_GetChannel1Current(efuse4));
 
     App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
 
