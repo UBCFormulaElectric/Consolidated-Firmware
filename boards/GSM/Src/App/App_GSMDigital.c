@@ -6,9 +6,8 @@
 #include <stddef.h>
 #include <stdlib.h>
 #include <assert.h>
-#include <linkedlist.h>
 #include "Io_SharedFreqOnlyPwmInput.h"
-
+#include "math.h"
 struct GSMDigital {
     struct GSMDigital *GSMDigital_create;
     float slope;
@@ -40,13 +39,17 @@ void App_GSMDigital_Destroy (struct GSMDigital *gsmDigital)
 
 float get_output(const struct GSMDigital *gsmDigital){
     float voltageInput =gsmDigital->get_sensorDigitalVal_voltage();
-    return gsmDigital->slope *  get_frequency(voltageInput) + gsmDigital->y_int;
+    float unRoundedVal= gsmDigital->slope *  get_frequency(voltageInput) + gsmDigital->y_int;
+    return ((int)(unRoundedVal* 1000 + .5) / 1000.0); //rounds value to 3 decimal places
 }
 
 float get_sensorDigitalVal_voltage(const struct GSMDigital *gsmDigital){
     return gsmDigital-> get_sensorDigitalVal_voltage();
 }
-
+char* get_units (const struct GSMDigital *gsmDigital)
+{
+    return gsmDigital-> units;
+}
 float get_frequency(float voltageInput){
     return 4;
 }

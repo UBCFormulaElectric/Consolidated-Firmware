@@ -59,49 +59,49 @@ TEST_F(GsmAnalogTest, 1pass0V)
 TEST_F(GsmAnalogTest, 1pass3V3)
 {
     get_sensorAnalogVal_voltage_fake.return_val = 3.3;
-    ASSERT_EQ(get_output(gsmAnalog1), 2);
+    ASSERT_EQ(get_output(gsmAnalog1), 9.6);
 }
 
 //test: gsmAnalog1, pass 1V, check output
 TEST_F(GsmAnalogTest, 1pass1V0)
 {
     get_sensorAnalogVal_voltage_fake.return_val = 1;
-    ASSERT_EQ(get_output(gsmAnalog1), 2);
+    ASSERT_EQ(get_output(gsmAnalog1), 5);
 }
 
 //test: gsmAnalog2, pass 0V
 TEST_F(GsmAnalogTest, 2pass0V)
 {
     get_sensorAnalogVal_voltage_fake.return_val = 0;
-    ASSERT_EQ(get_output(gsmAnalog2), 2);
+    ASSERT_EQ(get_output(gsmAnalog2), -4);
 }
 
 //test: gsmAnalog2, pass 3V3, check output
 TEST_F(GsmAnalogTest, 2pass3V3)
 {
     get_sensorAnalogVal_voltage_fake.return_val = 3.3;
-    ASSERT_EQ(get_output(gsmAnalog2), 2);
+    ASSERT_EQ(get_output(gsmAnalog2), -7.4);
 }
 
 //test: gsmAnalog2, pass 1V, check output
 TEST_F(GsmAnalogTest, 2pass1V0)
 {
     get_sensorAnalogVal_voltage_fake.return_val = 1;
-    ASSERT_EQ(get_output(gsmAnalog2), 2);
+    ASSERT_EQ(get_output(gsmAnalog2), -5);
 }
 
 //test: gsmAnalog3, pass 0V
 TEST_F(GsmAnalogTest, 3pass0V)
 {
     get_sensorAnalogVal_voltage_fake.return_val = 0;
-    ASSERT_EQ(get_output(gsmAnalog3), 2);
+    ASSERT_EQ(get_output(gsmAnalog3), -2);
 }
 
 //test: gsmAnalog3, pass 3V3, check output
 TEST_F(GsmAnalogTest, 3pass3V3)
 {
     get_sensorAnalogVal_voltage_fake.return_val = 3.3;
-    ASSERT_EQ(get_output(gsmAnalog3), 2);
+    ASSERT_EQ(get_output(gsmAnalog3), 11.2);
 }
 
 //test: gsmAnalog3, pass 1V, check output
@@ -114,41 +114,41 @@ TEST_F(GsmAnalogTest, 3pass1V0)
 TEST_F(GsmAnalogTest, 4pass0V)
 {
     get_sensorAnalogVal_voltage_fake.return_val = 0;
-    ASSERT_EQ(get_output(gsmAnalog4), 2);
+    ASSERT_EQ(get_output(gsmAnalog4), 6);
 }
 
 //test: gsmAnalog4, pass 3V3, check output
 TEST_F(GsmAnalogTest, 4pass3V3)
 {
     get_sensorAnalogVal_voltage_fake.return_val = 3.3;
-    ASSERT_EQ(get_output(gsmAnalog4), 2);
+    ASSERT_EQ(get_output(gsmAnalog4), 2.7);
 }
 
 //test: gsmAnalog4, pass 1V, check output
 TEST_F(GsmAnalogTest, 4pass1V0)
 {
     get_sensorAnalogVal_voltage_fake.return_val = 1;
-    ASSERT_EQ(get_output(gsmAnalog4), 2);
+    ASSERT_EQ(get_output(gsmAnalog4), 5);
 }
 //test: gsmAnalog5, pass 0V
 TEST_F(GsmAnalogTest, 5pass0V)
 {
     get_sensorAnalogVal_voltage_fake.return_val = 0;
-    ASSERT_EQ(get_output(gsmAnalog5), 2);
+    ASSERT_EQ(get_output(gsmAnalog5), 5.678);
 }
 
 //test: gsmAnalog5, pass 3V3, check output
 TEST_F(GsmAnalogTest, pass3V3)
 {
     get_sensorAnalogVal_voltage_fake.return_val = 3.3;
-    ASSERT_EQ(get_output(gsmAnalog5), 2);
+    ASSERT_EQ(get_output(gsmAnalog5), 9.750);
 }
 
 //test: gsmAnalog5, pass 1V, check output
 TEST_F(GsmAnalogTest, 5pass1V0)
 {
     get_sensorAnalogVal_voltage_fake.return_val = 1;
-    ASSERT_EQ(get_output(gsmAnalog5), 2);
+    ASSERT_EQ(get_output(gsmAnalog5), 6.912);
 }
 
 /*

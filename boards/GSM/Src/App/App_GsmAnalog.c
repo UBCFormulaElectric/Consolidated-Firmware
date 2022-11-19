@@ -36,7 +36,8 @@ void App_GSMAnalog_Destroy (struct GSMAnalog *gsmAnalog)
 }
 float get_output(const struct GSMAnalog *gsmAnalog)
         {
-    return gsmAnalog-> slope *  gsmAnalog->get_sensorAnalogVal_voltage() + gsmAnalog->y_int;
+        float unRoundedVal =  gsmAnalog-> slope *  gsmAnalog->get_sensorAnalogVal_voltage() + gsmAnalog->y_int;
+        return ((int)(unRoundedVal* 1000 + .5) / 1000.0); //rounds value to 3 decimal places;
         }
 
 char* get_units(const struct GSMAnalog *gsmAnalog)
