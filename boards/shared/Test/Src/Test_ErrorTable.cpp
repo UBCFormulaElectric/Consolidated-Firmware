@@ -439,11 +439,6 @@ TEST_F(SharedErrorTableTest, get_all_errors_using_every_error)
     ASSERT_EQ(NUM_ERROR_IDS, error_list.num_errors);
     for (size_t id = 0; id < NUM_ERROR_IDS; id++)
     {
-        // BMS_FAULTS are entries 39 through 49 in ErrorId, band-aid solution to make test pass
-        if (39 <= id && id <= 49)
-        {
-            continue;
-        }
         if (!App_SharedError_IsErrorInList(&error_list, (enum ErrorId)id))
         {
             printf("fail");
