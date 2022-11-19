@@ -156,6 +156,14 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         status = false;
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
+    //Checks if the charger has thrown a fault, the disabling of the charger, etc is done with ChargeStateRunOnExit
+    else if(App_Charger_IsConnected(charger)){
+        if(App_Charger_HasFaulted(charger)){
+            status = false;
+            App_CanTx_SetPeriodicSignal_IS_CHARGING_ENABLED(can_tx,false);
+            App_SharedStateMachine_SetNextState(state_machine,App_GetFaultState());
+        }
+    }
 
     return status;
 }

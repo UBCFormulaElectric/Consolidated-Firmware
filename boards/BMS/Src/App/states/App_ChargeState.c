@@ -56,11 +56,8 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanTx_BMS_Charger_IsChargingComplete_Set(has_reached_max_v);
         App_CanTx_BMS_Faults_ChargingExtShutdownOccurred_Set(has_external_shutdown_occurred);
 
-        if (has_charger_faulted)
-        {
-            App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
-        }
-        else if(has_reached_max_v||has_external_shutdown_occurred|| !charge_over_can||is_charger_disconnected){
+
+        if(has_reached_max_v||has_external_shutdown_occurred|| !charge_over_can||is_charger_disconnected){
             App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
         }
     }

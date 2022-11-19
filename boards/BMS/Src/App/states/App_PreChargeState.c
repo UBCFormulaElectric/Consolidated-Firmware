@@ -66,9 +66,7 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
         {
             const struct State *next_state =
                 (precharge_fault_limit_exceeded) ? App_GetFaultState() : App_GetInitState();
-            if(next_state == App_GetFaultState()){
-                App_CanTx_SetPeriodicSignal_IS_CHARGING_ENABLED(can_tx,false);
-            }
+            App_CanTx_SetPeriodicSignal_IS_CHARGING_ENABLED(can_tx,false);
             App_SharedStateMachine_SetNextState(state_machine, next_state);
         }
         else if (ts_voltage >= threshold_voltage)
