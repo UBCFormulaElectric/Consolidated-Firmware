@@ -208,16 +208,6 @@ int main(void)
     pdm_error_table = App_PdmErrorTable_Create(App_RailMonitoring_VBAT_VoltageCheck(rail_monitor),
                                                App_RailMonitoring__24V_ACC_VoltageCheck(rail_monitor),
                                                App_RailMonitoring__22V_AUX_VoltageCheck(rail_monitor),
-                                               App_RailMonitoring__22V_AUX_VoltageCheck(rail_monitor),
-                                               App_RailMonitoring__22V_AUX_VoltageCheck(rail_monitor),
-                                               App_RailMonitoring__22V_AUX_VoltageCheck(rail_monitor),
-                                               App_RailMonitoring__22V_AUX_VoltageCheck(rail_monitor),
-                                               App_RailMonitoring__22V_AUX_VoltageCheck(rail_monitor),
-                                               App_RailMonitoring__22V_AUX_VoltageCheck(rail_monitor),
-                                               App_RailMonitoring__22V_AUX_VoltageCheck(rail_monitor),
-                                               App_RailMonitoring__22V_AUX_VoltageCheck(rail_monitor));
-
-
                                                App_Efuse_Channel0_CurrentCheck(efuse1, EFUSE1_CHANNEL0_MIN_CURRENT, EFUSE1_CHANNEL0_MAX_CURRENT),
                                                App_Efuse_Channel1_CurrentCheck(efuse1, EFUSE1_CHANNEL1_MIN_CURRENT, EFUSE1_CHANNEL1_MAX_CURRENT),
                                                App_Efuse_Channel0_CurrentCheck(efuse2, EFUSE2_CHANNEL0_MIN_CURRENT, EFUSE2_CHANNEL0_MAX_CURRENT),
@@ -226,12 +216,11 @@ int main(void)
                                                App_Efuse_Channel1_CurrentCheck(efuse3, EFUSE3_CHANNEL1_MIN_CURRENT, EFUSE3_CHANNEL1_MAX_CURRENT),
                                                App_Efuse_Channel0_CurrentCheck(efuse4, EFUSE4_CHANNEL0_MIN_CURRENT, EFUSE4_CHANNEL0_MAX_CURRENT),
                                                App_Efuse_Channel1_CurrentCheck(efuse4, EFUSE4_CHANNEL1_MIN_CURRENT, EFUSE4_CHANNEL1_MAX_CURRENT));
-    );
 
     clock = App_SharedClock_Create();
 
     world = App_PdmWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, low_voltage_battery, load_switch, rail_monitor, clock);
+        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, low_voltage_battery, efuse1, efuse2, efuse3, efuse4, clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 

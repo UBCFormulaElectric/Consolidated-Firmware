@@ -28,6 +28,7 @@ struct PdmErrorTable *App_PdmErrorTable_Create(
         bool (*VBAT_check),
         bool (*__24V_ACC_check),
         bool (*__22V_AUX_check),
+
         bool (*efuse1_channel0_check),
         bool (*efuse1_channel1_check),
         bool (*efuse2_channel0_check),
@@ -39,7 +40,8 @@ struct PdmErrorTable *App_PdmErrorTable_Create(
 
 void App_PdmErrorTable_Destroy(struct PdmErrorTable *pdm_error_table);
 
-void App_PdmErrorTable_CheckErrors(struct PdmErrorTable *pdm_error_table, size_t id, bool status);
-void App_PdmErrorTable_FoundError(struct PdmErrorTable *pdm_error_table, size_t id);
+void App_PdmErrorTable_CheckIndividualErrors(struct PdmErrorTable *pdm_error_table, size_t id, bool status);
+void App_PdmErrorTable_CheckAllErrors(struct PdmErrorTable *pdm_error_table);
+
 bool App_PdmErrorTable_HasAnyErrors(struct PdmErrorTable *pdm_error_table);
 void App_PdmErrorTable_GetAllErrors(struct PdmErrorTable *pdm_error_table, size_t all_error_array[NUM_ERROR_IDS]);

@@ -15,12 +15,8 @@ struct PdmWorld
     struct Efuse *            efuse2;
     struct Efuse *            efuse3;
     struct Efuse *            efuse4;
-    bool *                    efuse1_current_range_check;
-    bool *                    efuse2_current_range_check;
-    bool *                    efuse3_current_range_check;
-    bool *                    efuse4_current_range_check;
     struct RailMonitoring *   rail_monitor;
-    bool *                    rail_range_check;
+    struct PdmErrorTable *    pdm_error_table;
     struct Clock *            clock;
 };
 
@@ -34,12 +30,8 @@ struct PdmWorld *App_PdmWorld_Create(
     struct Efuse *const             efuse2,
     struct Efuse *const             efuse3,
     struct Efuse *const             efuse4,
-    bool                            efuse1_current_range_check,
-    bool                            efuse2_current_range_check,
-    bool                            efuse3_current_range_check,
-    bool                            efuse4_current_range_check,
     struct RailMonitoring *const    rail_monitor,
-    bool *                          rail_range_check,
+    struct PdmErrorTable *const     pdm_error_table,
     struct Clock *const             clock)
 {
     struct PdmWorld *world = (struct PdmWorld *)malloc(sizeof(struct PdmWorld));
@@ -55,6 +47,7 @@ struct PdmWorld *App_PdmWorld_Create(
     world->efuse3              = efuse3;
     world->efuse4              = efuse4;
     world->rail_monitor        = rail_monitor;
+    world->pdm_error_table     = pdm_error_table;
     world->clock               = clock;
 
     return world;
@@ -113,6 +106,11 @@ struct Efuse *App_PdmWorld_GetEfuse4(const struct PdmWorld *const world)
 struct RailMonitoring *App_PdmWorld_GetRailMonitoring(const struct PdmWorld *const world)
 {
     return world->rail_monitor;
+}
+
+struct PdmErrorTable *App_PdmWorld_GetPDMErrorTable(const struct PdmWorld *const world)
+{
+    return world->pdm_error_table;
 }
 
 struct Clock *App_PdmWorld_GetClock(const struct PdmWorld *const world)

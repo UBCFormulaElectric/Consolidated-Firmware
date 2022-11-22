@@ -9,9 +9,6 @@ struct RailMonitoring
     float (*get_VBAT_voltage)(void);
     float (*get__24V_ACC_voltage)(void);
     float (*get__22V_AUX_voltage)(void);
-    bool(*VBAT_in_range);
-    bool(*__24V_ACC_in_range);
-    bool(*__22V_AUX_in_range);
 };
 
 struct RailMonitoring *App_RailMonitoring_Create(
@@ -78,7 +75,7 @@ bool *App_RailMonitoring__24V_ACC_VoltageCheck(struct RailMonitoring *rail_monit
     return (bool*) false;
 }
 
-bool App_RailMonitoring__22V_AUX_VoltageCheck(struct RailMonitoring *rail_monitor)
+bool *App_RailMonitoring__22V_AUX_VoltageCheck(struct RailMonitoring *rail_monitor)
 {
     if (App_RailMonitoring_InRangeCheck(rail_monitor->get__22V_AUX_voltage(), VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE) == 0)
         return (bool*) true;

@@ -1,9 +1,9 @@
 
 #include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/states/App_AllStates.h"
-#include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/states/App_InitState.h"
-#include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/states/App_FaultState.h"
 #include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/states/App_DriveState.h"
 #include "App_SharedMacros.h"
+
+#define NUM_CYCLES_TO_SETTLE 0U
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -19,17 +19,20 @@ static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    if (App_AllStatesRunOnTick100Hz(state_machine))
-    {
-        struct PdmWorld *         world      = App_SharedStateMachine_GetWorld(state_machine);
-        struct PdmCanTxInterface *can_tx     = App_PdmWorld_GetCanTx(world);
-        struct PdmCanRxInterface *can_rx     = App_PdmWorld_GetCanRx(world);
-        struct HeartbeatMonitor * hb_monitor = App_PdmWorld_GetHeartbeatMonitor(world);
+    App_AllStatesRunOnTick100Hz(state_machine);
 
-        if ()
-        {
-            App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
-        }
+    struct PdmWorld *         world        = App_SharedStateMachine_GetWorld(state_machine);
+    struct PdmErrorTable *    pdm_error_table = App_PdmWorld_GetPDMErrorTable(world);
+
+    static u_int8_t acc_meas_settle_count = 0;
+
+    if (acc_meas_settle_count < NUM_CYCLES_TO_SETTLE)
+    {
+        acc_meas_settle_count++;
+    }
+    else if (App_PdmErrorTable_HasAnyErrors(pdm_error_table))
+    {
+        App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
     }
 }
 

@@ -62,7 +62,7 @@ struct PdmErrorTable *App_PdmErrorTable_Create(
         bool (*efuse3_channel0_check),
         bool (*efuse3_channel1_check),
         bool (*efuse4_channel0_check),
-        bool (*efuse4_channel1_check));
+        bool (*efuse4_channel1_check))
 {
     struct PdmErrorTable *pdm_error_table = malloc(sizeof(struct PdmErrorTable));
     assert(pdm_error_table != NULL);
@@ -89,24 +89,6 @@ struct PdmErrorTable *App_PdmErrorTable_Create(
     pdm_error_table->efuse3_channel1_check = efuse3_channel1_check;
     pdm_error_table->efuse4_channel0_check = efuse4_channel0_check;
     pdm_error_table->efuse4_channel1_check = efuse4_channel1_check;
-
-
-    /*
-    INIT_ERROR(PDM_NON_CRITICAL_VBAT_VOLTAGE_OUT_OF_RANGE, pdm_error_table->VBAT_check);
-    INIT_ERROR(PDM_NON_CRITICAL__24V_AUX_VOLTAGE_OUT_OF_RANGE);
-    INIT_ERROR(PDM_NON_CRITICAL__24V_ACC_VOLTAGE_OUT_OF_RANGE);
-    INIT_ERROR(PDM_NON_CRITICAL_AUX1_CURRENT_OUT_OF_RANGE);
-    INIT_ERROR(PDM_NON_CRITICAL_AUX2_CURRENT_OUT_OF_RANGE);
-    INIT_ERROR(PDM_NON_CRITICAL_LEFT_INVERTER_CURRENT_OUT_OF_RANGE);
-    INIT_ERROR(PDM_NON_CRITICAL_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE);
-    INIT_ERROR(PDM_NON_CRITICAL_ENERGY_METER_CURRENT_OUT_OF_RANGE);
-    INIT_ERROR(PDM_NON_CRITICAL_CAN_CURRENT_OUT_OF_RANGE);
-    INIT_ERROR(PDM_NON_CRITICAL_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE);
-    */
-    // INIT_ERROR(PDM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, AIR_SHUTDOWN_ERROR);
-    // INIT_ERROR(PDM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, MOTOR_SHUTDOWN_ERROR);
-
-    // clang-format on
 
     return pdm_error_table;
 }
@@ -143,6 +125,7 @@ void App_PdmErrorTable_CheckAllErrors(struct PdmErrorTable *pdm_error_table)
 
 bool App_PdmErrorTable_HasAnyErrors(struct PdmErrorTable *pdm_error_table)
 {
+    App_PdmErrorTable_CheckAllErrors(pdm_error_table);
     for (size_t i = 0; i < NUM_ERROR_IDS; i++)
     {
         if (pdm_error_table->errors[i][1] == (size_t *)1)

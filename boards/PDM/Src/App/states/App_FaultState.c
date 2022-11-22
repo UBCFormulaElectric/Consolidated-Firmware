@@ -22,11 +22,9 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     App_AllStatesRunOnTick100Hz(state_machine);
 
     struct PdmWorld *        world       = App_SharedStateMachine_GetWorld(state_machine);
-    struct ErrorTable *const error_table = App_BmsWorld_GetErrorTable(world);
+    struct PdmErrorTable *   pdm_error_table = App_PdmWorld_GetPDMErrorTable(world);
 
-    bool is_error_table_cleared = !App_SharedErrorTable_HasAnyAirShutdownErrorSet(error_table);
-
-    if (is_error_table_cleared)
+    if (!App_PdmErrorTable_HasAnyErrors(pdm_error_table))
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
     }
