@@ -35,7 +35,8 @@ struct PwmInput *Io_SharedPwmInput_Create(
     //freq only
     uint32_t              tim_channel,
     uint32_t              tim_auto_reload_reg,
-    HAL_TIM_ActiveChannel tim_active_channe);
+    HAL_TIM_ActiveChannel tim_active_channe,
+    bool                  freqOnly);
 
 /**
  * Update the frequency and duty cycle for the given PWM input
