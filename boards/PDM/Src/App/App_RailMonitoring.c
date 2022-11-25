@@ -61,25 +61,25 @@ int App_RailMonitoring_InRangeCheck(float value, float min_value, float max_valu
     return status;
 }
 
-bool *App_RailMonitoring_VBAT_VoltageCheck(struct RailMonitoring *rail_monitor)
+bool App_RailMonitoring_VBAT_VoltageCheck(struct RailMonitoring *rail_monitor)
 {
     if (App_RailMonitoring_InRangeCheck(rail_monitor->get_VBAT_voltage(), VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE) == 0)
-        return (bool*) true;
-    return (bool*) false;
+        return true;
+    return false;
 }
 
-bool *App_RailMonitoring__24V_ACC_VoltageCheck(struct RailMonitoring *rail_monitor)
+bool App_RailMonitoring__24V_ACC_VoltageCheck(struct RailMonitoring *rail_monitor)
 {
     if (App_RailMonitoring_InRangeCheck(rail_monitor->get__24V_ACC_voltage(), VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE) == 0)
-        return (bool*) true;
-    return (bool*) false;
+        return true;
+    return false;
 }
 
-bool *App_RailMonitoring__22V_AUX_VoltageCheck(struct RailMonitoring *rail_monitor)
+bool App_RailMonitoring__22V_AUX_VoltageCheck(struct RailMonitoring *rail_monitor)
 {
     if (App_RailMonitoring_InRangeCheck(rail_monitor->get__22V_AUX_voltage(), VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE) == 0)
-        return (bool*) true;
-    return (bool*) false;
+        return true;
+    return false;
 }
 
 /*

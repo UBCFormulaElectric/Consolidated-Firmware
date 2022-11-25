@@ -220,7 +220,7 @@ int main(void)
     clock = App_SharedClock_Create();
 
     world = App_PdmWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, low_voltage_battery, efuse1, efuse2, efuse3, efuse4, clock);
+        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, low_voltage_battery, efuse1, efuse2, efuse3, efuse4, rail_monitor, pdm_error_table, clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 

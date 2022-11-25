@@ -52,17 +52,17 @@ struct PdmErrorTable
     App_PdmErrorTable_CheckErrors(pdm_error_table->errors, id, status);
 
 struct PdmErrorTable *App_PdmErrorTable_Create(
-        bool (*VBAT_check),
-        bool (*__24V_ACC_check),
-        bool (*__22V_AUX_check),
-        bool (*efuse1_channel0_check),
-        bool (*efuse1_channel1_check),
-        bool (*efuse2_channel0_check),
-        bool (*efuse2_channel1_check),
-        bool (*efuse3_channel0_check),
-        bool (*efuse3_channel1_check),
-        bool (*efuse4_channel0_check),
-        bool (*efuse4_channel1_check))
+        bool (VBAT_check),
+        bool (__24V_ACC_check),
+        bool (__22V_AUX_check),
+        bool (efuse1_channel0_check),
+        bool (efuse1_channel1_check),
+        bool (efuse2_channel0_check),
+        bool (efuse2_channel1_check),
+        bool (efuse3_channel0_check),
+        bool (efuse3_channel1_check),
+        bool (efuse4_channel0_check),
+        bool (efuse4_channel1_check))
 {
     struct PdmErrorTable *pdm_error_table = malloc(sizeof(struct PdmErrorTable));
     assert(pdm_error_table != NULL);
