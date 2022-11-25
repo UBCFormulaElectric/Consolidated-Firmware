@@ -123,30 +123,38 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         if (i == BMS_LED)
         {
-            uint8_t has_bms_fault = App_CanRx_BMS_FAULTS_GetSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(can_rx) +
-                                    App_CanRx_BMS_FAULTS_GetSignal_CELL_UNDERVOLTAGE_FAULT(can_rx) +
-                                    App_CanRx_BMS_FAULTS_GetSignal_MODULE_COMM_ERROR(can_rx) +
-                                    App_CanRx_BMS_FAULTS_GetSignal_CELL_OVERVOLTAGE_FAULT(can_rx) +
-                                    App_CanRx_BMS_FAULTS_GetSignal_CELL_UNDERTEMP_FAULT(can_rx) +
-                                    App_CanRx_BMS_FAULTS_GetSignal_CELL_OVERTEMP_FAULT(can_rx) +
-                                    App_CanRx_BMS_FAULTS_GetSignal_CHARGER_FAULT_DETECTED(can_rx) +
-                                    App_CanRx_BMS_FAULTS_GetSignal_HAS_REACHED_MAX_V(can_rx) +
-                                    App_CanRx_BMS_FAULTS_GetSignal_CHARGING_EXT_SHUTDOWN_OCCURRED(can_rx) +
-                                    App_CanRx_BMS_FAULTS_GetSignal_TS_OVERCURRENT_FAULT(can_rx) +
-                                    App_CanRx_BMS_FAULTS_GetSignal_PRECHARGE_ERROR(can_rx);
+            const uint8_t has_bms_fault = App_CanRx_BMS_FAULTS_GetSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(can_rx) +
+                                          App_CanRx_BMS_FAULTS_GetSignal_CELL_UNDERVOLTAGE_FAULT(can_rx) +
+                                          App_CanRx_BMS_FAULTS_GetSignal_MODULE_COMM_ERROR(can_rx) +
+                                          App_CanRx_BMS_FAULTS_GetSignal_CELL_OVERVOLTAGE_FAULT(can_rx) +
+                                          App_CanRx_BMS_FAULTS_GetSignal_CELL_UNDERTEMP_FAULT(can_rx) +
+                                          App_CanRx_BMS_FAULTS_GetSignal_CELL_OVERTEMP_FAULT(can_rx) +
+                                          App_CanRx_BMS_FAULTS_GetSignal_CHARGER_FAULT_DETECTED(can_rx) +
+                                          App_CanRx_BMS_FAULTS_GetSignal_HAS_REACHED_MAX_V(can_rx) +
+                                          App_CanRx_BMS_FAULTS_GetSignal_CHARGING_EXT_SHUTDOWN_OCCURRED(can_rx) +
+                                          App_CanRx_BMS_FAULTS_GetSignal_TS_OVERCURRENT_FAULT(can_rx) +
+                                          App_CanRx_BMS_FAULTS_GetSignal_PRECHARGE_ERROR(can_rx);
 
+            const uint8_t has_bms_warning =
+                App_CanRx_BMS_NON_CRITICAL_ERRORS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_HZ(can_rx) +
+                App_CanRx_BMS_NON_CRITICAL_ERRORS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_KHZ(can_rx) +
+                App_CanRx_BMS_NON_CRITICAL_ERRORS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX(can_rx) +
+                App_CanRx_BMS_NON_CRITICAL_ERRORS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX(can_rx) +
+                App_CanRx_BMS_NON_CRITICAL_ERRORS_GetSignal_WATCHDOG_TIMEOUT(can_rx);
             if (has_bms_fault > 0)
             {
                 App_SharedRgbLed_TurnRed(board_status_led);
             }
-            //            bool has_bms_warning =
-            //            App_CanRx_BMS_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 0|1@1+ (1,0) [0|1] "" DIM
-            //            SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 1|1@1+ (1,0) [0|1] "" DIM
-            //            SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 2|1@1+ (1,0) [0|1] "" DIM
-            //            SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 3|1@1+ (1,0) [0|1] "" DIM
-            //            SG_ WATCHDOG_TIMEOUT : 4|1@1+ (1,0) [0|1] "" DIM
-        }
 
+            else if (has_bms_warning > 0)
+            {
+                App_SharedRgbLed_TurnBlue(board_status_led);
+            }
+            else
+            {
+                App_SharedRgbLed_TurnGreen(board_status_led);
+            }
+        }
         // Going to need to change this
         else if (App_SharedError_IsBoardInList(&boards_with_critical_errors, i))
         {

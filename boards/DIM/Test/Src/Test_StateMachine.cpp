@@ -18,8 +18,24 @@ extern "C"
 
 namespace StateMachineTest
 {
+// clang-format off
 FAKE_VOID_FUNC(send_non_periodic_msg_DIM_STARTUP, const struct CanMsgs_dim_startup_t *);
 FAKE_VOID_FUNC(send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT, const struct CanMsgs_dim_watchdog_timeout_t *);
+FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE, const struct DimCanRxInterface *);
+FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_CELL_UNDERVOLTAGE_FAULT, const struct DimCanRxInterface *);
+FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_CELL_OVERVOLTAGE_FAULT, const struct DimCanRxInterface *);
+FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_MODULE_COMM_ERROR, const struct DimCanRxInterface *);
+FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_CELL_UNDERTEMP_FAULT, const struct DimCanRxInterface *);
+FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_CELL_OVERTEMP_FAULT, const struct DimCanRxInterface *);
+FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_CHARGER_FAULT_DETECTED, const struct DimCanRxInterface *);
+FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_HAS_REACHED_MAX_V, const struct DimCanRxInterface *);
+FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_CHARGING_EXT_SHUTDOWN_OCCURRED, const struct DimCanRxInterface *);
+FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_TS_OVERCURRENT_FAULT, const struct DimCanRxInterface *);
+FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_PRECHARGE_ERROR, const struct DimCanRxInterface *);
+FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_OK_STATUSES_GetSignal_BMS_OK, const struct DimCanRxInterface *);
+FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_OK_STATUSES_GetSignal_IMD_OK, const struct DimCanRxInterface *);
+FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_OK_STATUSES_GetSignal_BSPD_OK, const struct DimCanRxInterface *);
+// clang-format on
 
 FAKE_VOID_FUNC(set_right_hex_digit, struct SevenSegHexDigit);
 FAKE_VOID_FUNC(set_middle_hex_digit, struct SevenSegHexDigit);
@@ -565,10 +581,15 @@ TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_multiple_errors)
 // DIM-2
 TEST_F(DimStateMachineTest, bms_board_status_led_control_with_critical_error)
 {
+    // Set OK statuses such that the red led is not set without fault
+    App_CanRx_BMS_OK_STATUSES_SetSignal_IMD_OK(can_rx_interface, true);
+    App_CanRx_BMS_OK_STATUSES_SetSignal_BSPD_OK(can_rx_interface, true);
+    App_CanRx_BMS_OK_STATUSES_SetSignal_BMS_OK(can_rx_interface, true);
+
     // Set any critical error and check that the BMS LED turns red
-    // App_SharedErrorTable_SetError(error_table, BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE, true);
-    App_CanTx_SetPeriodicSignal_CELL_UNDERVOLTAGE_FAULT(can_tx_interface, true);
+    App_CanRx_BMS_FAULTS_SetSignal_CELL_OVERTEMP_FAULT(can_rx_interface, true);
     LetTimePass(state_machine, 10);
+
     ASSERT_EQ(1, turn_bms_status_led_red_fake.call_count);
 }
 
