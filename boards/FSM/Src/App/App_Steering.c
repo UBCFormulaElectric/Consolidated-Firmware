@@ -45,7 +45,7 @@ void App_Steering_Broadcast(const struct FsmWorld *world)
     uint8_t CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC =
         steering_sensor_ocsc ? CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC_TRUE_CHOICE
                              : CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC_FALSE_CHOICE;
-    App_CanTx_SetPeriodicSignal_STEERING_SENSOR_OCSC(CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC);
+    App_CanTx_SetPeriodicSignal_STEERING_SENSOR_OCSC(can_tx, CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC);
     if (steering_sensor_ocsc)
     {
         App_CanTx_SetPeriodicSignal_STEERING_ANGLE(can_tx, 0);
