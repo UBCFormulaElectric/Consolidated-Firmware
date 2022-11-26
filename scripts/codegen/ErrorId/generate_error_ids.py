@@ -105,6 +105,7 @@ if __name__ == "__main__":
             if board != "BMS":
                 raise KeyError('Could not find AIR shutdown error message for %s' % board)
 
+
         try:
             can_msg = database.get_message_by_name(board + '_MOTOR_SHUTDOWN_ERRORS')
             enum_members['motor_shutdown'][board] = \
