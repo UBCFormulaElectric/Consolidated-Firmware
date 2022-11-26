@@ -99,7 +99,7 @@ if __name__ == "__main__":
         'motor_shutdown': {},
     }
 
-    # Find non-critical, AIR shutdown, and motor shutdown error CAN messages for
+    # Find warning, AIR shutdown, and motor shutdown error CAN messages for
     # each board
     for board in get_board_names():
         try:

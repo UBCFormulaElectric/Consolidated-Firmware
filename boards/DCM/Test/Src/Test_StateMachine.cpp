@@ -283,7 +283,7 @@ TEST_F(DcmStateMachineTest, exit_fault_state_if_there_is_no_error)
 }
 
 // DCM-17
-TEST_F(DcmStateMachineTest, exit_fault_state_if_there_is_only_non_critical_error)
+TEST_F(DcmStateMachineTest, exit_fault_state_if_there_is_only_warning)
 {
     SetInitialState(App_GetFaultState());
 

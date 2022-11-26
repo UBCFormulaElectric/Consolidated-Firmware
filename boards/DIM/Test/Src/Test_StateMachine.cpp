@@ -456,7 +456,7 @@ TEST_F(DimStateMachineTest, dim_board_status_led_control_with_critical_error)
 }
 
 // DIM-2
-TEST_F(DimStateMachineTest, dim_board_status_led_control_with_non_critical_error)
+TEST_F(DimStateMachineTest, dim_board_status_led_control_with_warning)
 {
     // Set any non-critical error and check that the DIM LED turns blue
     App_SharedErrorTable_SetError(error_table, DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
@@ -494,7 +494,7 @@ TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_critical_error)
 }
 
 // DIM-2
-TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_non_critical_error)
+TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_warning)
 {
     // Set any non-critical error and check that the DCM LED turns blue
     App_SharedErrorTable_SetError(error_table, DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
@@ -533,7 +533,7 @@ TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_critical_error)
 }
 
 // DIM-2
-TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_non_critical_error)
+TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_warning)
 {
     // Set any non-critical error and check that the FSM LED turns blue
     App_SharedErrorTable_SetError(error_table, FSM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
@@ -581,7 +581,7 @@ TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_critical_error)
 }
 
 // DIM-2
-TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_non_critical_error)
+TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_warning)
 {
     // Set any non-critical error and check that the PDM LED turns blue
     App_SharedErrorTable_SetError(error_table, PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
