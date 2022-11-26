@@ -110,16 +110,14 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     for (size_t i = 0; i < NUM_BOARD_LEDS; i++)
     {
         struct ErrorBoardList boards_with_critical_errors;
-        struct ErrorBoardList boards_with_warnings;
+        struct ErrorBoardList boards_with_non_critical_errors;
 
         App_SharedErrorTable_GetBoardsWithCriticalErrors(error_table, &boards_with_critical_errors);
 
-        App_SharedErrorTable_GetBoardsWithNonCriticalErrors(error_table, &boards_with_warnings);
+        App_SharedErrorTable_GetBoardsWithNonCriticalErrors(error_table, &boards_with_non_critical_errors);
 
         struct RgbLed *board_status_led = board_status_leds[i];
 
-        // BMS Faults not contained in shared error table, instead faults need to be checked from CAN messages
-        // Eventually the shared error table will be phased out and all boards will be handled this way
         if (i == BMS_LED)
         {
             if (has_bms_fault(can_rx))
@@ -141,7 +139,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         {
             App_SharedRgbLed_TurnRed(board_status_led);
         }
-        else if (App_SharedError_IsBoardInList(&boards_with_warnings, i))
+        else if (App_SharedError_IsBoardInList(&boards_with_non_critical_errors, i))
         {
             App_SharedRgbLed_TurnBlue(board_status_led);
         }
@@ -219,9 +217,9 @@ bool has_bms_fault(const struct DimCanRxInterface *can_rx)
 
 bool has_bms_warning(const struct DimCanRxInterface *can_rx)
 {
-    return App_CanRx_BMS_WARNINGS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_HZ(can_rx) ||
-           App_CanRx_BMS_WARNINGS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_KHZ(can_rx) ||
-           App_CanRx_BMS_WARNINGS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX(can_rx) ||
-           App_CanRx_BMS_WARNINGS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX(can_rx) ||
-           App_CanRx_BMS_WARNINGS_GetSignal_WATCHDOG_TIMEOUT(can_rx);
+    return App_CanRx_BMS_NON_CRITICAL_ERRORS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_HZ(can_rx) ||
+           App_CanRx_BMS_NON_CRITICAL_ERRORS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_KHZ(can_rx) ||
+           App_CanRx_BMS_NON_CRITICAL_ERRORS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX(can_rx) ||
+           App_CanRx_BMS_NON_CRITICAL_ERRORS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX(can_rx) ||
+           App_CanRx_BMS_NON_CRITICAL_ERRORS_GetSignal_WATCHDOG_TIMEOUT(can_rx);
 }
