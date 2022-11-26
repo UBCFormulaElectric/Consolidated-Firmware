@@ -14,7 +14,7 @@ void App_RailCANTX(struct StateMachine *const state_machine)
     // Main Rail CAN_TX:
     App_CanTx_SetPeriodicSignal_VBAT(can_tx, App_RailMonitoring_Get_VBAT_Voltage(rail_monitor));
     App_CanTx_SetPeriodicSignal__24_V_ACC(can_tx, App_RailMonitoring_Get__24V_ACC_Voltage(rail_monitor));
-    App_CanTx_SetPeriodicSignal__22_V_AUX(can_tx, App_RailMonitoring_Get__22V_AUX_Voltage(rail_monitor));
+    App_CanTx_SetPeriodicSignal__24_V_AUX(can_tx, App_RailMonitoring_Get__24V_AUX_Voltage(rail_monitor));
 }
 
 void App_EfuseCurrentsCANTX(struct StateMachine *const state_machine)
@@ -35,6 +35,8 @@ void App_EfuseCurrentsCANTX(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal(can_tx, App_Efuse_GetChannel1Current(efuse3));
     App_CanTx_SetPeriodicSignal(can_tx, App_Efuse_GetChannel0Current(efuse4));
     App_CanTx_SetPeriodicSignal(can_tx, App_Efuse_GetChannel1Current(efuse4));
+
+    App_CanTx_setperiodicSignal__
 }
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)

@@ -11,6 +11,8 @@
 #include <stdbool.h>
 #include "main.h"
 #include "App_SharedExitCode.h"
+#include "../../Drivers/STM32F3xx_HAL_Driver/Inc/stm32f3xx_hal_spi.h"
+#include "../../Drivers/CMSIS/Device/ST/STM32F3xx/Include/stm32f302xc.h"
 
 struct Efuse_Context;
 

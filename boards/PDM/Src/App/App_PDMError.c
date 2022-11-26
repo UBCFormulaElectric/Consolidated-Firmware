@@ -4,8 +4,6 @@
 #include <assert.h>
 #include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/App_RailMonitoring.h"
 #include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/App_PDMError.h"
-//#include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/App_PDMError.h"
-
 #include "App_SharedExitCode.h"
 /*
 enum ErrorId
@@ -31,7 +29,7 @@ enum ErrorId
     PDM_NON_CRITICAL_AIR_SHUTDOWN_CURRENT_OUT_OF_RANGE,
     NUM_ERROR_IDS
 };
-*/
+
 struct PdmErrorTable
 {
     size_t *errors[NUM_ERROR_IDS][2];
@@ -52,17 +50,17 @@ struct PdmErrorTable
     App_PdmErrorTable_CheckErrors(pdm_error_table->errors, id, status);
 
 struct PdmErrorTable *App_PdmErrorTable_Create(
-        bool (VBAT_check),
-        bool (__24V_ACC_check),
-        bool (__22V_AUX_check),
-        bool (efuse1_channel0_check),
-        bool (efuse1_channel1_check),
-        bool (efuse2_channel0_check),
-        bool (efuse2_channel1_check),
-        bool (efuse3_channel0_check),
-        bool (efuse3_channel1_check),
-        bool (efuse4_channel0_check),
-        bool (efuse4_channel1_check))
+        bool (*VBAT_check),
+        bool (*__24V_ACC_check),
+        bool (*__22V_AUX_check),
+        bool (*efuse1_channel0_check),
+        bool (*efuse1_channel1_check),
+        bool (*efuse2_channel0_check),
+        bool (*efuse2_channel1_check),
+        bool (*efuse3_channel0_check),
+        bool (*efuse3_channel1_check),
+        bool (*efuse4_channel0_check),
+        bool (*efuse4_channel1_check))
 {
     struct PdmErrorTable *pdm_error_table = malloc(sizeof(struct PdmErrorTable));
     assert(pdm_error_table != NULL);
@@ -146,3 +144,4 @@ void App_PdmErrorTable_GetAllErrors(struct PdmErrorTable *pdm_error_table, size_
         }
     }
 }
+*/
