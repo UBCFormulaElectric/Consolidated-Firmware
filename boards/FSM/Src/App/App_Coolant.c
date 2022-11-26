@@ -74,6 +74,12 @@ void App_Coolant_Broadcast(const struct FsmWorld * world)
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
     struct Coolant *coolant = App_FsmWorld_GetCoolant(world);
 
+    //Value Broadcast
+    App_CanTx_SetPeriodicSignal_TEMPERATURE_A(can_tx, coolant->get_temperature_A());
+    App_CanTx_SetPeriodicSignal_TEMPERATURE_B(can_tx, coolant->get_temperature_B());
+    App_CanTx_SetPeriodicSignal_PRESSURE_A(can_tx, coolant->get_pressure_A());
+    App_CanTx_SetPeriodicSignal_PRESSURE_B(can_tx, coolant->get_pressure_B());
+
     //information in range check
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, coolant->flow_rate_in_range_check, App_CanTx_SetPeriodicSignal_FLOW_RATE,
@@ -89,20 +95,14 @@ void App_Coolant_Broadcast(const struct FsmWorld * world)
     SignalState flow_in_range_signal_state = App_SharedSignal_Update(
         coolant->flow_in_range_signal, flow_rate_inRangeCheck_status == VALUE_UNDERFLOW,
         flow_rate_inRangeCheck_status == VALUE_IN_RANGE);
-    if (flow_in_range_signal_state == SIGNAL_STATE_ACTIVE)
-    {
-        App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(
-            can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_TRUE_CHOICE);
-    }
-    else if (flow_in_range_signal_state == SIGNAL_STATE_CLEAR){
-        App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(
-            can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE);
-    }
+    uint8_t CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW = flow_in_range_signal_state == SIGNAL_STATE_ACTIVE
+        ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_TRUE_CHOICE
+        : CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE;
+    App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW);
 
-    App_CanTx_SetPeriodicSignal_TEMPERATURE_A(can_tx, coolant->get_temperature_A());
-    App_CanTx_SetPeriodicSignal_TEMPERATURE_B(can_tx, coolant->get_temperature_B());
-    App_CanTx_SetPeriodicSignal_PRESSURE_A(can_tx, coolant->get_pressure_A());
-    App_CanTx_SetPeriodicSignal_PRESSURE_B(can_tx, coolant->get_pressure_B());
-
-//    TODO broadcast [COOLANT] sensor short and open circuit
+    //Temperature Pressure OCSC
+    App_CanTx_SetPeriodicSignal_TEMPERATURE_A_OCSC(can_tx, coolant->temperatureA_OCSC() ? CANMSGS_FSM_COOLANT_FLAGS_TEMPERATURE_A_OCSC_TRUE_CHOICE : CANMSGS_FSM_COOLANT_FLAGS_TEMPERATURE_A_OCSC_FALSE_CHOICE);
+    App_CanTx_SetPeriodicSignal_TEMPERATURE_B_OCSC(can_tx, coolant->temperatureB_OCSC() ? CANMSGS_FSM_COOLANT_FLAGS_TEMPERATURE_B_OCSC_TRUE_CHOICE : CANMSGS_FSM_COOLANT_FLAGS_TEMPERATURE_B_OCSC_FALSE_CHOICE);
+    App_CanTx_SetPeriodicSignal_PRESSURE_A_OCSC(can_tx, coolant->pressureA_OCSC() ? CANMSGS_FSM_COOLANT_FLAGS_PRESSURE_A_OCSC_TRUE_CHOICE : CANMSGS_FSM_COOLANT_FLAGS_PRESSURE_A_OCSC_FALSE_CHOICE);
+    App_CanTx_SetPeriodicSignal_PRESSURE_B_OCSC(can_tx, coolant->pressureB_OCSC() ? CANMSGS_FSM_COOLANT_FLAGS_PRESSURE_B_OCSC_TRUE_CHOICE : CANMSGS_FSM_COOLANT_FLAGS_PRESSURE_B_OCSC_FALSE_CHOICE);
 }

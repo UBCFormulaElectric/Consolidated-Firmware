@@ -11,7 +11,7 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
     struct Brake *            brake  = App_FsmWorld_GetBrake(world);
 
-    App_CanTx_SetPeriodicSignal_BRAKE_PRESSURE_OPEN_OCSC(can_tx, App_Brake_AllPressureElectricalFault(brake));
+    App_CanTx_SetPeriodicSignal_BRAKE_PRESSURE_OPEN_OCSC(can_tx, App_Brake_PressureElectricalFault(brake));
 }
 
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)

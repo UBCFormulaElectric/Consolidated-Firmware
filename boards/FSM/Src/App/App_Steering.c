@@ -39,11 +39,16 @@ void App_Steering_Broadcast(const struct FsmWorld * world)
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
     struct Steering *steering = App_FsmWorld_GetSteering(world);
 
+    //set value
+    App_CanTx_SetPeriodicSignal_STEERING_ANGLE(can_tx, steering->get_steering_angle());
+
     bool steering_sensor_ocsc = steering->steering_sensor_OCSC();
+    uint8_t CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC = steering_sensor_ocsc
+        ? CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC_TRUE_CHOICE
+        : CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC_FALSE_CHOICE;
+    App_CanTx_SetPeriodicSignal_STEERING_SENSOR_OCSC(CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC);
     if(steering_sensor_ocsc){
-        //TODO broadcast [Steering] sensor OCSC
         App_CanTx_SetPeriodicSignal_STEERING_ANGLE(can_tx, 0);
-        return;
     }
 
     struct InRangeCheck *steering_angle_in_range_check = steering->steering_angle_in_range_check;
@@ -53,7 +58,4 @@ void App_Steering_Broadcast(const struct FsmWorld * world)
         CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_OVERFLOW_CHOICE);
-
-    //set value
-    App_CanTx_SetPeriodicSignal_STEERING_ANGLE(can_tx, steering->get_steering_angle());
 }

@@ -47,7 +47,7 @@ float App_Brake_GetRearPSI(const struct Brake *brake);
  * @param brake
  * @return
  */
-bool App_Brake_AllPressureElectricalFault(const struct Brake *brake);
+bool App_Brake_PressureElectricalFault(const struct Brake *brake);
 
 /**
  * Check if the given brake is actuated

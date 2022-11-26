@@ -16,8 +16,7 @@ struct AcceleratorPedals
     struct Signal *app_agreement_signal;
     struct Signal *papp_alarm_signal;
     struct Signal *sapp_alarm_signal;
-
-    bool AppBreakInplausable;
+    struct Signal *app_brake_signal;
 };
 
 /**
@@ -146,10 +145,9 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
     accelerator_pedals->secondary_pedal_OCSC = secondary_pedal_OCSC;
 
     accelerator_pedals->app_agreement_signal = App_SharedSignal_Create(AGREEMENT_TIME_TO_FAULT, AGREEMENT_TIME_TO_CLEAR);
-    accelerator_pedals->papp_alarm_signal    = App_SharedSignal_Create(PAPPS_TIME_TO_FAULT, PAPPS_TIME_TO_CLEAR);
-    accelerator_pedals->sapp_alarm_signal    = App_SharedSignal_Create(SAPPS_TIME_TO_FAULT, SAPPS_TIME_TO_CLEAR);
-
-    accelerator_pedals->AppBreakInplausable = false;
+    accelerator_pedals->papp_alarm_signal    = App_SharedSignal_Create(PAPPS_OCSC_TIME_TO_FAULT, PAPPS_OCSC_TIME_TO_CLEAR);
+    accelerator_pedals->sapp_alarm_signal    = App_SharedSignal_Create(SAPPS_OCSC_TIME_TO_FAULT, SAPPS_OCSC_TIME_TO_CLEAR);
+    accelerator_pedals->app_brake_signal     = App_SharedSignal_Create(APP_BRAKE_TIME_TO_FAULT, APP_BRAKE_TIME_TO_CLEAR);
 
     return accelerator_pedals;
 }
@@ -168,87 +166,68 @@ float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct Accelerator
 }
 
 //TODO figure out what to do when primary/secondary is NAN, but signal has not activated yet.
+//TODO review whether or not returning is best, or having a global boolean, which does the torque = 0 at the end.
 void App_AcceleratorPedals_Broadcast(struct FsmWorld* world)
 {
     struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
     struct AcceleratorPedals *accelerator_pedals = App_FsmWorld_GetPappsAndSapps(world);
 
-    const float papps_pedal_percentage = App_AcceleratorPedals_GetPrimaryPedalPercentage(accelerator_pedals);
-    const float sapps_pedal_percentage = App_AcceleratorPedals_GetSecondaryPedalPercentage(accelerator_pedals);
-
-    // update signals
+    // Open Short Circuit Tests (non-understandable data test)
     const bool primary_pedal_alarm = accelerator_pedals->primary_pedal_OCSC();
-    const bool secondary_pedal_alarm = accelerator_pedals->secondary_pedal_OCSC();
     SignalState papp_signal_state = App_SharedSignal_Update(
         accelerator_pedals->papp_alarm_signal,
         primary_pedal_alarm,!primary_pedal_alarm);
+    uint8_t CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE = papp_signal_state == SIGNAL_STATE_ACTIVE
+        ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE
+        : CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE;
+    App_CanTx_SetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE);
+    const bool secondary_pedal_alarm = accelerator_pedals->secondary_pedal_OCSC();
     SignalState sapp_signal_state = App_SharedSignal_Update(
         accelerator_pedals->sapp_alarm_signal,
         secondary_pedal_alarm, !secondary_pedal_alarm);
-
-    if (papp_signal_state == SIGNAL_STATE_ACTIVE)
+    uint8_t CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE = sapp_signal_state == SIGNAL_STATE_ACTIVE
+        ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE
+        : CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE;
+    App_CanTx_SetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE);
+    if (papp_signal_state == SIGNAL_STATE_ACTIVE || sapp_signal_state == SIGNAL_STATE_ACTIVE)
     {
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
         App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
-        App_CanTx_SetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(
-            can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE);
         return;
-    }
-    else if (papp_signal_state == SIGNAL_STATE_CLEAR)
-    {
-        App_CanTx_SetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(
-            can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE);
-    }
-    if (sapp_signal_state == SIGNAL_STATE_ACTIVE)
-    {
-        App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
-        App_CanTx_SetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(
-            can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE);
-        return;
-    }
-    else if (sapp_signal_state == SIGNAL_STATE_CLEAR)
-    {
-        App_CanTx_SetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(
-            can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE);
     }
 
+    //Primary Secondary Accelerator Agreement (Inaccurate data)
     const float papp_sapp_diff = accelerator_pedals->get_primary_pedal_percent() - accelerator_pedals->get_secondary_pedal_percent();
     SignalState app_agreement_signal_state = App_SharedSignal_Update(
         accelerator_pedals->app_agreement_signal,
         (papp_sapp_diff) > 10.f, (papp_sapp_diff) <= 10.f);
+    uint8_t CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT = app_agreement_signal_state == SIGNAL_STATE_ACTIVE
+        ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_TRUE_CHOICE
+        : CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE;
+    App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT);
+    if (app_agreement_signal_state == SIGNAL_STATE_ACTIVE)
+    {
+        App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
+        return;
+    }
 
-    //Accelerator Brake Plausibility
+    //Accelerator Brake Plausibility (bad user input safety issues)
     struct Brake * brake = App_FsmWorld_GetBrake(world);
-    if (accelerator_pedals->AppBreakInplausable)
-    {
-        if (accelerator_pedals->get_primary_pedal_percent() < 0.05f)
-        {
-            accelerator_pedals->AppBreakInplausable = false;
-            // TODO signal cancel for failure
-        }
-        else
-        {
-            App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
-        }
-    }
-    else if (App_Brake_IsBrakeActuated(brake) && accelerator_pedals->get_primary_pedal_percent() > 0.25f)
-    {
-        accelerator_pedals->AppBreakInplausable = true;
+    SignalState app_brake_disagreement = App_SharedSignal_Update(accelerator_pedals->app_brake_signal,
+       App_Brake_IsBrakeActuated(brake) && accelerator_pedals->get_primary_pedal_percent() > 0.25f,
+       accelerator_pedals->get_primary_pedal_percent() < 0.05f
+       );
+    uint8_t  CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_BRAKE_ACC_DISAGREEMENT = app_brake_disagreement == SIGNAL_STATE_ACTIVE
+        ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_BRAKE_ACC_DISAGREEMENT_TRUE_CHOICE
+        : CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_BRAKE_ACC_DISAGREEMENT_FALSE_CHOICE;
+    App_CanTx_SetPeriodicSignal_BRAKE_ACC_DISAGREEMENT(can_tx,  CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_BRAKE_ACC_DISAGREEMENT);
+    if(app_brake_disagreement == SIGNAL_STATE_ACTIVE){
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
-        //TODO SIGNAL FOR THIS FAILURE
-    }
-    else if (app_agreement_signal_state == SIGNAL_STATE_CLEAR)
-    {
-        App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
-        App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(
-            can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_TRUE_CHOICE);
-    }
-    else if (app_agreement_signal_state == SIGNAL_STATE_ACTIVE)
-    {
-        App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, papps_pedal_percentage);
-        App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(
-            can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE);
+        return;
     }
 
+    const float papps_pedal_percentage = App_AcceleratorPedals_GetPrimaryPedalPercentage(accelerator_pedals);
+    const float sapps_pedal_percentage = App_AcceleratorPedals_GetSecondaryPedalPercentage(accelerator_pedals);
+    App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, papps_pedal_percentage);
     App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, sapps_pedal_percentage);
 }
