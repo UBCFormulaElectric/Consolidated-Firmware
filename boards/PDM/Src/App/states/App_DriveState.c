@@ -12,6 +12,19 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     // App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE);
 }
 
+void App_Efuse_Channel_EnablingOrDisabling(struct StateMachine *const state_machine)
+{
+    struct PdmWorld *         world        = App_SharedStateMachine_GetWorld(state_machine);
+    struct PdmCanTxInterface *can_tx       = App_PdmWorld_GetCanTx(world);
+    struct PdmCanRxInterface *can_rx       = App_PdmWorld_GetCanRx(world);
+    struct Efuse *            efuse1       = App_PdmWorld_GetEfuse1(world);
+    struct Efuse *            efuse2       = App_PdmWorld_GetEfuse2(world);
+    struct Efuse *            efuse3       = App_PdmWorld_GetEfuse3(world);
+    struct Efuse *            efuse4       = App_PdmWorld_GetEfuse4(world);
+
+
+}
+
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick1Hz(state_machine);
@@ -22,7 +35,6 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     App_AllStatesRunOnTick100Hz(state_machine);
 
     struct PdmWorld *         world        = App_SharedStateMachine_GetWorld(state_machine);
-    struct PdmErrorTable *    pdm_error_table = App_PdmWorld_GetPDMErrorTable(world);
 
     static u_int8_t acc_meas_settle_count = 0;
 
@@ -30,7 +42,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         acc_meas_settle_count++;
     }
-    else if (App_PdmErrorTable_HasAnyErrors(pdm_error_table))
+    else if ()
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
     }

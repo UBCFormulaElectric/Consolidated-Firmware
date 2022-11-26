@@ -14,7 +14,6 @@
 #include "App_LowVoltageBattery.h"
 #include "App_Efuse.h"
 #include "App_RailMonitoring.h"
-#include "App_PDMError.h"
 #include "App_SharedClock.h"
 
 struct PdmWorld;
@@ -30,7 +29,6 @@ struct PdmWorld *App_PdmWorld_Create(
     struct Efuse *const             efuse3,
     struct Efuse *const             efuse4,
     struct RailMonitoring *const    rail_monitor,
-    struct PdmErrorTable *const     pdm_error_table,
     struct Clock *const             clock);
 
 void App_PdmWorld_Destroy(struct PdmWorld *const world);
@@ -44,15 +42,10 @@ struct RgbLedSequence *   App_PdmWorld_GetRgbLedSequence(const struct PdmWorld *
 struct LowVoltageBattery *App_PdmWorld_GetLowVoltageBattery(const struct PdmWorld *const world);
 
 struct Efuse *App_PdmWorld_GetEfuse1(const struct PdmWorld *const world);
-
 struct Efuse *App_PdmWorld_GetEfuse2(const struct PdmWorld *const world);
-
 struct Efuse *App_PdmWorld_GetEfuse3(const struct PdmWorld *const world);
-
 struct Efuse *App_PdmWorld_GetEfuse4(const struct PdmWorld *const world);
 
 struct RailMonitoring *App_PdmWorld_GetRailMonitoring(const struct PdmWorld *const world);
-
-struct PdmErrorTable *App_PdmWorld_GetPDMErrorTable(const struct PdmWorld *const world);
 
 struct Clock *App_PdmWorld_GetClock(const struct PdmWorld *const world);

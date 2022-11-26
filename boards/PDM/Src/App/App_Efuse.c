@@ -27,8 +27,6 @@ struct Efuse_Context
 struct Efuse
 {
     struct Efuse_Context (*io_efuse);
-    float (*get_channel_0_current)(struct Efuse_Context *const);
-    float (*get_channel_1_current)(struct Efuse_Context *const);
     void (*enable_channel_0)(const struct Efuse_Context *const);
     void (*disable_channel_0)(const struct Efuse_Context *const);
     void (*enable_channel_1)(const struct Efuse_Context *const);
@@ -36,6 +34,8 @@ struct Efuse
     bool (*in_fault_mode)(const struct Efuse_Context *const);
     bool (*in_failsafe_mode)(const struct Efuse_Context *const);
     void (*delatch_fault)(const struct Efuse_Context *const);
+    float (*get_channel_0_current)(struct Efuse_Context *const);
+    float (*get_channel_1_current)(struct Efuse_Context *const);
     float (channel_0_min_current);
     float (channel_0_max_current);
     float (channel_1_min_current);
@@ -46,8 +46,6 @@ struct Efuse
 
 struct Efuse *App_Efuse_Create(
     struct Efuse_Context (*io_efuse),
-    float (*get_channel_0_current)(struct Efuse_Context *const),
-    float (*get_channel_1_current)(struct Efuse_Context *const),
     void (*enable_channel_0)(const struct Efuse_Context *const),
     void (*disable_channel_0)(const struct Efuse_Context *const),
     void (*enable_channel_1)(const struct Efuse_Context *const),
@@ -55,6 +53,8 @@ struct Efuse *App_Efuse_Create(
     bool (*in_fault_mode)(const struct Efuse_Context *const),
     bool (*in_failsafe_mode)(const struct Efuse_Context *const),
     void (*delatch_fault)(const struct Efuse_Context *const),
+    float (*get_channel_0_current)(struct Efuse_Context *const),
+    float (*get_channel_1_current)(struct Efuse_Context *const),
     float (channel_0_min_current),
     float (channel_0_max_current),
     float (channel_1_min_current),
@@ -64,8 +64,6 @@ struct Efuse *App_Efuse_Create(
     assert(efuse != NULL);
 
     efuse->io_efuse              = io_efuse;
-    efuse->get_channel_0_current = get_channel_0_current;
-    efuse->get_channel_1_current = get_channel_1_current;
     efuse->enable_channel_0      = enable_channel_0;
     efuse->disable_channel_0     = disable_channel_0;
     efuse->enable_channel_1      = enable_channel_1;
@@ -73,6 +71,8 @@ struct Efuse *App_Efuse_Create(
     efuse->in_fault_mode         = in_fault_mode;
     efuse->in_failsafe_mode      = in_failsafe_mode;
     efuse->delatch_fault         = delatch_fault;
+    efuse->get_channel_0_current = get_channel_0_current;
+    efuse->get_channel_1_current = get_channel_1_current;
     efuse->channel_0_min_current = channel_0_min_current;
     efuse->channel_0_max_current = channel_0_max_current;
     efuse->channel_1_min_current = channel_1_min_current;

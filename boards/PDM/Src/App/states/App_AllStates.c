@@ -36,7 +36,7 @@ void App_EfuseCurrentsCANTX(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal(can_tx, App_Efuse_GetChannel0Current(efuse4));
     App_CanTx_SetPeriodicSignal(can_tx, App_Efuse_GetChannel1Current(efuse4));
 
-    App_CanTx_setperiodicSignal__
+    //App_CanTx_setperiodicSignal__
 }
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
