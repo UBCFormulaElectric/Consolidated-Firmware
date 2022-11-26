@@ -105,12 +105,12 @@ class SharedErrorTableTest : public testing::Test
 
     // The error choices here are arbitrary. We just need to pick something for
     // the helper functions.
-    const enum ErrorId DEFAULT_CRITICAL_ERROR           = DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT;
-    const enum ErrorId DEFAULT_AIR_SHUTDOWN_ERROR       = DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT;
-    const enum ErrorId DEFAULT_MOTOR_SHUTDOWN_ERROR     = DCM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN;
-    const enum ErrorId DEFAULT_WARNING       = DCM_WARNING_WATCHDOG_TIMEOUT;
-    const enum Board   DEFAULT_CRITICAL_ERROR_BOARD     = DCM;
-    const enum Board   DEFAULT_WARNING_BOARD = DCM;
+    const enum ErrorId DEFAULT_CRITICAL_ERROR       = DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT;
+    const enum ErrorId DEFAULT_AIR_SHUTDOWN_ERROR   = DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT;
+    const enum ErrorId DEFAULT_MOTOR_SHUTDOWN_ERROR = DCM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN;
+    const enum ErrorId DEFAULT_WARNING              = DCM_WARNING_WATCHDOG_TIMEOUT;
+    const enum Board   DEFAULT_CRITICAL_ERROR_BOARD = DCM;
+    const enum Board   DEFAULT_WARNING_BOARD        = DCM;
 
     const enum ErrorId DEFAULT_DCM_CRITICAL_ERROR = DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT;
     const enum ErrorId DEFAULT_DIM_CRITICAL_ERROR = DIM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN;
@@ -735,9 +735,9 @@ TEST_F(SharedErrorTableTest, process_dcm_warnings)
     std::vector<enum ErrorId> dcm_non_critical_error_ids = { DCM_WARNINGS };
 
     TestRoutineForSetErrorsFromCanMsg(
-        DCM, dcm_non_critical_error_ids, CANMSGS_DCM_WARNINGS_FRAME_ID,
-        CANMSGS_DCM_WARNINGS_LENGTH, App_CanMsgs_dcm_warnings_pack,
-        App_SharedErrorTable_GetBoardsWithNonCriticalErrors, App_SharedErrorTable_GetAllNonCriticalErrors);
+        DCM, dcm_non_critical_error_ids, CANMSGS_DCM_WARNINGS_FRAME_ID, CANMSGS_DCM_WARNINGS_LENGTH,
+        App_CanMsgs_dcm_warnings_pack, App_SharedErrorTable_GetBoardsWithNonCriticalErrors,
+        App_SharedErrorTable_GetAllNonCriticalErrors);
 }
 
 TEST_F(SharedErrorTableTest, process_dcm_air_shutdown_errors)
@@ -765,9 +765,9 @@ TEST_F(SharedErrorTableTest, process_dim_warnings)
     std::vector<enum ErrorId> dim_non_critical_error_ids = { DIM_WARNINGS };
 
     TestRoutineForSetErrorsFromCanMsg(
-        DIM, dim_non_critical_error_ids, CANMSGS_DIM_WARNINGS_FRAME_ID,
-        CANMSGS_DIM_WARNINGS_LENGTH, App_CanMsgs_dim_warnings_pack,
-        App_SharedErrorTable_GetBoardsWithNonCriticalErrors, App_SharedErrorTable_GetAllNonCriticalErrors);
+        DIM, dim_non_critical_error_ids, CANMSGS_DIM_WARNINGS_FRAME_ID, CANMSGS_DIM_WARNINGS_LENGTH,
+        App_CanMsgs_dim_warnings_pack, App_SharedErrorTable_GetBoardsWithNonCriticalErrors,
+        App_SharedErrorTable_GetAllNonCriticalErrors);
 }
 
 TEST_F(SharedErrorTableTest, process_dim_air_shutdown_errors)
@@ -795,9 +795,9 @@ TEST_F(SharedErrorTableTest, process_fsm_warnings)
     std::vector<enum ErrorId> fsm_non_critical_error_ids = { FSM_WARNINGS };
 
     TestRoutineForSetErrorsFromCanMsg(
-        FSM, fsm_non_critical_error_ids, CANMSGS_FSM_WARNINGS_FRAME_ID,
-        CANMSGS_FSM_WARNINGS_LENGTH, App_CanMsgs_fsm_warnings_pack,
-        App_SharedErrorTable_GetBoardsWithNonCriticalErrors, App_SharedErrorTable_GetAllNonCriticalErrors);
+        FSM, fsm_non_critical_error_ids, CANMSGS_FSM_WARNINGS_FRAME_ID, CANMSGS_FSM_WARNINGS_LENGTH,
+        App_CanMsgs_fsm_warnings_pack, App_SharedErrorTable_GetBoardsWithNonCriticalErrors,
+        App_SharedErrorTable_GetAllNonCriticalErrors);
 }
 
 TEST_F(SharedErrorTableTest, process_fsm_air_shutdown_errors)
@@ -827,9 +827,9 @@ TEST_F(SharedErrorTableTest, process_pdm_warnings)
     std::vector<enum ErrorId> pdm_non_critical_error_ids = { PDM_WARNINGS };
 
     TestRoutineForSetErrorsFromCanMsg(
-        PDM, pdm_non_critical_error_ids, CANMSGS_PDM_WARNINGS_FRAME_ID,
-        CANMSGS_PDM_WARNINGS_LENGTH, App_CanMsgs_pdm_warnings_pack,
-        App_SharedErrorTable_GetBoardsWithNonCriticalErrors, App_SharedErrorTable_GetAllNonCriticalErrors);
+        PDM, pdm_non_critical_error_ids, CANMSGS_PDM_WARNINGS_FRAME_ID, CANMSGS_PDM_WARNINGS_LENGTH,
+        App_CanMsgs_pdm_warnings_pack, App_SharedErrorTable_GetBoardsWithNonCriticalErrors,
+        App_SharedErrorTable_GetAllNonCriticalErrors);
 }
 
 TEST_F(SharedErrorTableTest, process_pdm_air_shutdown_errors)

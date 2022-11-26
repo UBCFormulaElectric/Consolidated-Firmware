@@ -4,8 +4,7 @@
 
 #define SET_ERROR(table, id, is_set) App_SharedErrorTable_SetError(table, id, is_set)
 
-static void
-    Io_ProcessDcmNonCriticalErrorMsg(struct ErrorTable *error_table, struct CanMsgs_dcm_warnings_t *data)
+static void Io_ProcessDcmNonCriticalErrorMsg(struct ErrorTable *error_table, struct CanMsgs_dcm_warnings_t *data)
 {
     SET_ERROR(
         error_table, DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
@@ -25,8 +24,7 @@ static void
     SET_ERROR(error_table, DCM_WARNING_ACCELERATION_Z_OUT_OF_RANGE, data->acceleration_z_out_of_range);
 }
 
-static void
-    Io_ProcessDimNonCriticalErrorMsg(struct ErrorTable *error_table, struct CanMsgs_dim_warnings_t *data)
+static void Io_ProcessDimNonCriticalErrorMsg(struct ErrorTable *error_table, struct CanMsgs_dim_warnings_t *data)
 {
     SET_ERROR(
         error_table, DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
@@ -46,8 +44,7 @@ static void
     SET_ERROR(error_table, DIM_WARNING_WATCHDOG_TIMEOUT, data->watchdog_timeout);
 }
 
-static void
-    Io_ProcessFsmNonCriticalErrorMsg(struct ErrorTable *error_table, struct CanMsgs_fsm_warnings_t *data)
+static void Io_ProcessFsmNonCriticalErrorMsg(struct ErrorTable *error_table, struct CanMsgs_fsm_warnings_t *data)
 {
     SET_ERROR(error_table, FSM_WARNING_PAPPS_OUT_OF_RANGE, data->papps_out_of_range);
     SET_ERROR(error_table, FSM_WARNING_SAPPS_OUT_OF_RANGE, data->sapps_out_of_range);
@@ -74,8 +71,7 @@ static void
     SET_ERROR(error_table, FSM_WARNING_BRAKE_PRESSURE_OPEN_SC, data->brake_pressure_open_sc);
 }
 
-static void
-    Io_ProcessPdmNonCriticalErrorMsg(struct ErrorTable *error_table, struct CanMsgs_pdm_warnings_t *data)
+static void Io_ProcessPdmNonCriticalErrorMsg(struct ErrorTable *error_table, struct CanMsgs_pdm_warnings_t *data)
 {
     SET_ERROR(
         error_table, PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
