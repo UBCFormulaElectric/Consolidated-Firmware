@@ -1,9 +1,6 @@
-#include "states/App_DriveState.h"
-#include "App_SharedMacros.h"
-#include "App_SevenSegDisplays.h"
-#include "App_SharedExitCode.h"
-
 #define SSEG_HB_NOT_RECEIVED_ERR (888U)
+
+#include "states/App_DriveState.h"
 
 typedef enum
 {
@@ -203,7 +200,7 @@ const struct State *App_GetDriveState(void)
     return &drive_state;
 }
 
-const bool has_bms_fault(const struct DimCanRxInterface *can_rx)
+bool has_bms_fault(const struct DimCanRxInterface *can_rx)
 {
     return App_CanRx_BMS_FAULTS_GetSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(can_rx) ||
            App_CanRx_BMS_FAULTS_GetSignal_CELL_UNDERVOLTAGE_FAULT(can_rx) ||
@@ -218,7 +215,7 @@ const bool has_bms_fault(const struct DimCanRxInterface *can_rx)
            App_CanRx_BMS_FAULTS_GetSignal_PRECHARGE_ERROR(can_rx);
 }
 
-const bool has_bms_warning(const struct DimCanRxInterface *can_rx)
+bool has_bms_warning(const struct DimCanRxInterface *can_rx)
 {
     return App_CanRx_BMS_NON_CRITICAL_ERRORS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_HZ(can_rx) ||
            App_CanRx_BMS_NON_CRITICAL_ERRORS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_KHZ(can_rx) ||
