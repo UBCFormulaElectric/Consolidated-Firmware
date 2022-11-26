@@ -3,9 +3,9 @@
 #include "Io_Coolant.h"
 #include "Io_SharedFreqOnlyPwmInput.h"
 
-//source: https://www.adafruit.com/product/828#:~:text=7.5%20*%20Flow%20rate%20(L/min)
+// source: https://www.adafruit.com/product/828#:~:text=7.5%20*%20Flow%20rate%20(L/min)
 #define FLOW_RATE_CONVERSION_FACTOR (7.5f)
-//TODO set these values
+// TODO set these values
 #define TEMPERATURE_VOLTAGE_MIN (0.0f)
 #define TEMPERATURE_VOLTAGE_MAX (1.0f)
 #define PRESSURE_VOLTAGE_MIN (0.0f)
@@ -13,7 +13,7 @@
 
 static struct FreqOnlyPwmInput *flow_meter;
 
-void  Io_FlowMeter_Init(TIM_HandleTypeDef *htim)
+void Io_FlowMeter_Init(TIM_HandleTypeDef *htim)
 {
     assert(htim != NULL);
 
@@ -37,58 +37,66 @@ void Io_FlowMeters_CheckIfFlowMeterIsActive(void)
     Io_SharedFreqOnlyPwmInput_CheckIfPwmIsActive(flow_meter);
 }
 
-float Io_Coolant_TemperatureAVoltage(void){
+float Io_Coolant_TemperatureAVoltage(void)
+{
     return 0.5f;
 }
 float Io_Coolant_GetTemperatureA(void)
 {
     float temperature_voltage = Io_Coolant_TemperatureAVoltage();
-    //TODO calculate the temperature
+    // TODO calculate the temperature
     return 1;
 }
-bool Io_Coolant_TemperatureSensorA_OCSC(void){
+bool Io_Coolant_TemperatureSensorA_OCSC(void)
+{
     float temperature_voltage = Io_Coolant_TemperatureAVoltage();
     return TEMPERATURE_VOLTAGE_MIN <= temperature_voltage && temperature_voltage <= TEMPERATURE_VOLTAGE_MAX;
 }
 
-float Io_Coolant_TemperatureBVoltage(void){
+float Io_Coolant_TemperatureBVoltage(void)
+{
     return 0.5f;
 }
 float Io_Coolant_GetTemperatureB(void)
 {
     float temperature_voltage = Io_Coolant_TemperatureBVoltage();
-    //TODO calculate the temperature
+    // TODO calculate the temperature
     return 1;
 }
-bool Io_Coolant_TemperatureSensorB_OCSC(void){
+bool Io_Coolant_TemperatureSensorB_OCSC(void)
+{
     float temperature_voltage = Io_Coolant_TemperatureBVoltage();
     return TEMPERATURE_VOLTAGE_MIN <= temperature_voltage && temperature_voltage <= TEMPERATURE_VOLTAGE_MAX;
 }
 
-float Io_Coolant_PressureAVoltage(void){
+float Io_Coolant_PressureAVoltage(void)
+{
     return 0.5f;
 }
 float Io_Coolant_GetPressureA(void)
 {
     float pressure_voltage = Io_Coolant_PressureAVoltage();
-    //TODO calculate the pressure
+    // TODO calculate the pressure
     return 1;
 }
-bool Io_Coolant_PressureSensorA_OCSC(void){
+bool Io_Coolant_PressureSensorA_OCSC(void)
+{
     float pressure_voltage = Io_Coolant_PressureAVoltage();
     return PRESSURE_VOLTAGE_MIN <= pressure_voltage && pressure_voltage <= PRESSURE_VOLTAGE_MAX;
 }
 
-float Io_Coolant_PressureBVoltage(void){
+float Io_Coolant_PressureBVoltage(void)
+{
     return 0.5f;
 }
 float Io_Coolant_GetPressureB(void)
 {
     float pressure_voltage = Io_Coolant_PressureBVoltage();
-    //TODO calculate the pressure
+    // TODO calculate the pressure
     return 1;
 }
-bool Io_Coolant_PressureSensorB_OCSC(void){
+bool Io_Coolant_PressureSensorB_OCSC(void)
+{
     float pressure_voltage = Io_Coolant_PressureBVoltage();
     return PRESSURE_VOLTAGE_MIN <= pressure_voltage && pressure_voltage <= PRESSURE_VOLTAGE_MAX;
 }

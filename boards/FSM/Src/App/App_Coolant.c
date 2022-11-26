@@ -21,10 +21,10 @@ struct Coolant
     float (*get_pressure_A)(void);
     float (*get_pressure_B)(void);
 
-    bool  (*temperatureA_OCSC)(void);
-    bool  (*temperatureB_OCSC)(void);
-    bool  (*pressureA_OCSC)(void);
-    bool  (*pressureB_OCSC)(void);
+    bool (*temperatureA_OCSC)(void);
+    bool (*temperatureB_OCSC)(void);
+    bool (*pressureA_OCSC)(void);
+    bool (*pressureB_OCSC)(void);
 
     struct Signal *flow_in_range_signal;
 };
@@ -32,13 +32,13 @@ struct Coolant
 struct Coolant *App_Coolant_Create(
     float (*get_flow_rate)(void),
     float (*get_temperature_A)(void),
-    bool  (*temperatureA_OCSC)(void),
+    bool (*temperatureA_OCSC)(void),
     float (*get_temperature_B)(void),
-    bool  (*temperatureB_OCSC)(void),
+    bool (*temperatureB_OCSC)(void),
     float (*get_pressure_A)(void),
-    bool  (*pressureA_OCSC)(void),
+    bool (*pressureA_OCSC)(void),
     float (*get_pressure_B)(void),
-    bool  (*pressureB_OCSC)(void))
+    bool (*pressureB_OCSC)(void))
 {
     struct Coolant *coolant = malloc(sizeof(struct Coolant));
     assert(coolant != NULL);
@@ -56,8 +56,8 @@ struct Coolant *App_Coolant_Create(
 
     coolant->temperatureA_OCSC = temperatureA_OCSC;
     coolant->temperatureB_OCSC = temperatureB_OCSC;
-    coolant->pressureA_OCSC = pressureA_OCSC;
-    coolant->pressureB_OCSC = pressureB_OCSC;
+    coolant->pressureA_OCSC    = pressureA_OCSC;
+    coolant->pressureB_OCSC    = pressureB_OCSC;
 
     coolant->flow_in_range_signal = App_SharedSignal_Create(FLOW_METER_TIME_TO_FAULT, FLOW_METER_TIME_TO_CLEAR);
 
@@ -69,18 +69,18 @@ void App_Coolant_Destroy(struct Coolant *coolant)
     free(coolant);
 }
 
-void App_Coolant_Broadcast(const struct FsmWorld * world)
+void App_Coolant_Broadcast(const struct FsmWorld *world)
 {
-    struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
-    struct Coolant *coolant = App_FsmWorld_GetCoolant(world);
+    struct FsmCanTxInterface *can_tx  = App_FsmWorld_GetCanTx(world);
+    struct Coolant *          coolant = App_FsmWorld_GetCoolant(world);
 
-    //Value Broadcast
+    // Value Broadcast
     App_CanTx_SetPeriodicSignal_TEMPERATURE_A(can_tx, coolant->get_temperature_A());
     App_CanTx_SetPeriodicSignal_TEMPERATURE_B(can_tx, coolant->get_temperature_B());
     App_CanTx_SetPeriodicSignal_PRESSURE_A(can_tx, coolant->get_pressure_A());
     App_CanTx_SetPeriodicSignal_PRESSURE_B(can_tx, coolant->get_pressure_B());
 
-    //information in range check
+    // information in range check
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, coolant->flow_rate_in_range_check, App_CanTx_SetPeriodicSignal_FLOW_RATE,
         App_CanTx_SetPeriodicSignal_FLOW_RATE_OUT_OF_RANGE,
@@ -88,21 +88,31 @@ void App_Coolant_Broadcast(const struct FsmWorld * world)
         CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
-    //motor shutdown in flow rate check
+    // motor shutdown in flow rate check
     float                    flow_rate;
     enum InRangeCheck_Status flow_rate_inRangeCheck_status =
         App_InRangeCheck_GetValue(coolant->flow_rate_in_range_check, &flow_rate);
     SignalState flow_in_range_signal_state = App_SharedSignal_Update(
         coolant->flow_in_range_signal, flow_rate_inRangeCheck_status == VALUE_UNDERFLOW,
         flow_rate_inRangeCheck_status == VALUE_IN_RANGE);
-    uint8_t CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW = flow_in_range_signal_state == SIGNAL_STATE_ACTIVE
-        ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_TRUE_CHOICE
-        : CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE;
-    App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW);
+    uint8_t CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW =
+        flow_in_range_signal_state == SIGNAL_STATE_ACTIVE
+            ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_TRUE_CHOICE
+            : CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE;
+    App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(
+        can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW);
 
-    //Temperature Pressure OCSC
-    App_CanTx_SetPeriodicSignal_TEMPERATURE_A_OCSC(can_tx, coolant->temperatureA_OCSC() ? CANMSGS_FSM_COOLANT_FLAGS_TEMPERATURE_A_OCSC_TRUE_CHOICE : CANMSGS_FSM_COOLANT_FLAGS_TEMPERATURE_A_OCSC_FALSE_CHOICE);
-    App_CanTx_SetPeriodicSignal_TEMPERATURE_B_OCSC(can_tx, coolant->temperatureB_OCSC() ? CANMSGS_FSM_COOLANT_FLAGS_TEMPERATURE_B_OCSC_TRUE_CHOICE : CANMSGS_FSM_COOLANT_FLAGS_TEMPERATURE_B_OCSC_FALSE_CHOICE);
-    App_CanTx_SetPeriodicSignal_PRESSURE_A_OCSC(can_tx, coolant->pressureA_OCSC() ? CANMSGS_FSM_COOLANT_FLAGS_PRESSURE_A_OCSC_TRUE_CHOICE : CANMSGS_FSM_COOLANT_FLAGS_PRESSURE_A_OCSC_FALSE_CHOICE);
-    App_CanTx_SetPeriodicSignal_PRESSURE_B_OCSC(can_tx, coolant->pressureB_OCSC() ? CANMSGS_FSM_COOLANT_FLAGS_PRESSURE_B_OCSC_TRUE_CHOICE : CANMSGS_FSM_COOLANT_FLAGS_PRESSURE_B_OCSC_FALSE_CHOICE);
+    // Temperature Pressure OCSC
+    App_CanTx_SetPeriodicSignal_TEMPERATURE_A_OCSC(
+        can_tx, coolant->temperatureA_OCSC() ? CANMSGS_FSM_COOLANT_FLAGS_TEMPERATURE_A_OCSC_TRUE_CHOICE
+                                             : CANMSGS_FSM_COOLANT_FLAGS_TEMPERATURE_A_OCSC_FALSE_CHOICE);
+    App_CanTx_SetPeriodicSignal_TEMPERATURE_B_OCSC(
+        can_tx, coolant->temperatureB_OCSC() ? CANMSGS_FSM_COOLANT_FLAGS_TEMPERATURE_B_OCSC_TRUE_CHOICE
+                                             : CANMSGS_FSM_COOLANT_FLAGS_TEMPERATURE_B_OCSC_FALSE_CHOICE);
+    App_CanTx_SetPeriodicSignal_PRESSURE_A_OCSC(
+        can_tx, coolant->pressureA_OCSC() ? CANMSGS_FSM_COOLANT_FLAGS_PRESSURE_A_OCSC_TRUE_CHOICE
+                                          : CANMSGS_FSM_COOLANT_FLAGS_PRESSURE_A_OCSC_FALSE_CHOICE);
+    App_CanTx_SetPeriodicSignal_PRESSURE_B_OCSC(
+        can_tx, coolant->pressureB_OCSC() ? CANMSGS_FSM_COOLANT_FLAGS_PRESSURE_B_OCSC_TRUE_CHOICE
+                                          : CANMSGS_FSM_COOLANT_FLAGS_PRESSURE_B_OCSC_FALSE_CHOICE);
 }

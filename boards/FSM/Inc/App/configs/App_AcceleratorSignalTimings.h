@@ -6,6 +6,6 @@
 #define PAPPS_OCSC_TIME_TO_CLEAR (10U)
 #define SAPPS_OCSC_TIME_TO_FAULT (0U)
 #define SAPPS_OCSC_TIME_TO_CLEAR (10U)
-//TODO relook at these values
+// TODO relook at these values
 #define APP_BRAKE_TIME_TO_FAULT (0U)
 #define APP_BRAKE_TIME_TO_CLEAR (10U)

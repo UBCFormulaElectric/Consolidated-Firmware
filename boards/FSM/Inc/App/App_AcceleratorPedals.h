@@ -15,14 +15,14 @@
 
 struct AcceleratorPedals;
 
- /**
-  * Allocate and initialize a pair of accelerator pedals
-  * @param get_primary_pedal_percent
-  * @param primary_pedal_OCSC
-  * @param get_secondary_pedal_percent
-  * @param secondary_pedal_OCSC
-  * @return The created pair of accelerator pedals, whose ownership is given to the caller
-  */
+/**
+ * Allocate and initialize a pair of accelerator pedals
+ * @param get_primary_pedal_percent
+ * @param primary_pedal_OCSC
+ * @param get_secondary_pedal_percent
+ * @param secondary_pedal_OCSC
+ * @return The created pair of accelerator pedals, whose ownership is given to the caller
+ */
 struct AcceleratorPedals *App_AcceleratorPedals_Create(
     float (*get_primary_pedal_percent)(void),
     bool (*primary_pedal_OCSC)(void),
@@ -52,4 +52,4 @@ float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct Accelerator
  * Primary Broadcast Function. Very important.
  * @param world World Context from which to pull sensors
  */
-void App_AcceleratorPedals_Broadcast(struct FsmWorld* world);
+void App_AcceleratorPedals_Broadcast(struct FsmWorld *world);

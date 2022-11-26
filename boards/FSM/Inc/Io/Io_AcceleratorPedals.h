@@ -16,7 +16,7 @@ float Io_AcceleratorPedals_GetPapps(void);
 bool Io_AcceleratorPedals_PappOCSC(void);
 
 /**
-* @return the voltage of the secondary accelerator pedal sensor
+ * @return the voltage of the secondary accelerator pedal sensor
  */
 float Io_AcceleratorPedals_GetSappVoltage(void);
 /**

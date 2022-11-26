@@ -14,7 +14,7 @@ float Io_SteeringAngleSensor_GetAngleDegree(void)
 
     const float STEERING_ANGLE_VOLTAGE_OFFSET = 1.85f;
     const float DEGREE_PER_VOLT               = 360.0f / 3.3f;
-    float steering_voltage = Io_SteeringSensorVoltage();
+    float       steering_voltage              = Io_SteeringSensorVoltage();
     return DEGREE_PER_VOLT * (steering_voltage - STEERING_ANGLE_VOLTAGE_OFFSET);
 }
 bool Io_SteeringSensorOCSC(void)

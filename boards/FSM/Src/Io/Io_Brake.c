@@ -2,7 +2,7 @@
 #include "Io_Brake.h"
 #include "Io_Adc.h"
 
-//TODO set these values
+// TODO set these values
 #define BRAKE_PEDAL_MIN_VOLTAGE (0.0f)
 #define BRAKE_PEDAL_MAX_VOLTAGE (1.0f)
 
@@ -10,16 +10,18 @@
 #define BRAKE_PRESSURE_SC_THRESHOLD_V (3.0f)
 #define BRAKE_PRESSURE_SENSOR_MAX_V (5.0f)
 
-//TODO should we keep this/should this be reimplemented? This needs including "main.h"
+// TODO should we keep this/should this be reimplemented? This needs including "main.h"
 bool Io_Brake_IsActuated(void)
 {
     return HAL_GPIO_ReadPin(BSPD_BRAKE_STATUS_GPIO_Port, BSPD_BRAKE_STATUS_Pin) == GPIO_PIN_SET;
 }
-bool Io_Brake_PressureVoltageAlarm(float pressure_voltage){
+bool Io_Brake_PressureVoltageAlarm(float pressure_voltage)
+{
     return !(BRAKE_PRESSURE_OC_THRESHOLD_V <= pressure_voltage && pressure_voltage <= BRAKE_PRESSURE_SC_THRESHOLD_V);
 }
 
-float Io_Brake_GetFrontPressureSensorVoltage(void){
+float Io_Brake_GetFrontPressureSensorVoltage(void)
+{
     return Io_Adc_GetChannel3Voltage();
 }
 float Io_Brake_GetFrontPressurePsi(void)
@@ -38,36 +40,42 @@ float Io_Brake_GetFrontPressurePsi(void)
     float front_pressure_voltage = Io_Brake_GetFrontPressureSensorVoltage();
     return psi_per_volt * (front_pressure_voltage - min_input_voltage);
 }
-bool Io_Brake_FrontPressureSensorOCSC(void){
+bool Io_Brake_FrontPressureSensorOCSC(void)
+{
     float front_pressure_voltage = Io_Brake_GetFrontPressureSensorVoltage();
     return Io_Brake_PressureVoltageAlarm(front_pressure_voltage);
 }
 
-float Io_Brake_GetRearPressureSensorVoltage(void){
+float Io_Brake_GetRearPressureSensorVoltage(void)
+{
     return 0.5f;
 }
 float Io_Brake_GetRearPressurePsi(void)
 {
     float rear_pressure_voltage = Io_Brake_GetRearPressureSensorVoltage();
-    //TODO calculate and return the pedal percentage travel
+    // TODO calculate and return the pedal percentage travel
     return 0;
 }
-bool Io_Brake_RearPressureSensorOCSC(void){
+bool Io_Brake_RearPressureSensorOCSC(void)
+{
     float rear_pressure_voltage = Io_Brake_GetRearPressureSensorVoltage();
     return Io_Brake_PressureVoltageAlarm(rear_pressure_voltage);
 }
 
-
-//pedal travel
-float Io_Brake_GetPedalSensorVoltage(void){
+// pedal travel
+float Io_Brake_GetPedalSensorVoltage(void)
+{
     return 0.0f;
 }
 float Io_Brake_GetPedalPercentTravel(void)
 {
     float pedal_voltage = Io_Brake_GetPedalSensorVoltage();
-    //TODO calculate and return the pedal percentage travel, in percent
+    // TODO calculate and return the pedal percentage travel, in percent
     return 0;
 }
-bool Io_Brake_PedalSensorOCSC(void){
-    return !(BRAKE_PEDAL_MIN_VOLTAGE <= Io_Brake_GetPedalSensorVoltage() && Io_Brake_GetPedalSensorVoltage() <= BRAKE_PEDAL_MAX_VOLTAGE);
+bool Io_Brake_PedalSensorOCSC(void)
+{
+    return !(
+        BRAKE_PEDAL_MIN_VOLTAGE <= Io_Brake_GetPedalSensorVoltage() &&
+        Io_Brake_GetPedalSensorVoltage() <= BRAKE_PEDAL_MAX_VOLTAGE);
 }
