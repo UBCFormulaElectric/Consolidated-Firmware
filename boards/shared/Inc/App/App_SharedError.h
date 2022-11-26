@@ -9,7 +9,7 @@ struct Error;
 
 enum ErrorType
 {
-    NON_CRITICAL_ERROR,
+    WARNING,
     AIR_SHUTDOWN_ERROR,
     MOTOR_SHUTDOWN_ERROR,
     NUM_ERROR_TYPES,
