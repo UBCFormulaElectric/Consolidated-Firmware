@@ -11,8 +11,7 @@ void App_SetPeriodicSignals_FlowRateInRangeChecks(const struct FsmWorld *world)
 
     App_SetPeriodicCanSignals_InRangeCheck(
         can_tx, flow_rate_in_range_check, App_CanTx_SetPeriodicSignal_FLOW_RATE,
-        App_CanTx_SetPeriodicSignal_FLOW_RATE_OUT_OF_RANGE,
-        CANMSGS_FSM_WARNINGS_FLOW_RATE_OUT_OF_RANGE_OK_CHOICE,
+        App_CanTx_SetPeriodicSignal_FLOW_RATE_OUT_OF_RANGE, CANMSGS_FSM_WARNINGS_FLOW_RATE_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_FSM_WARNINGS_FLOW_RATE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_FSM_WARNINGS_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }

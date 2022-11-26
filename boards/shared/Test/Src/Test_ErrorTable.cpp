@@ -107,12 +107,12 @@ class SharedErrorTableTest : public testing::Test
 
     // The error choices here are arbitrary. We just need to pick something for
     // the helper functions.
-    const enum ErrorId DEFAULT_CRITICAL_ERROR           = BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE;
-    const enum ErrorId DEFAULT_AIR_SHUTDOWN_ERROR       = BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE;
-    const enum ErrorId DEFAULT_MOTOR_SHUTDOWN_ERROR     = BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN;
-    const enum ErrorId DEFAULT_WARNING       = BMS_WARNING_WATCHDOG_TIMEOUT;
-    const enum Board   DEFAULT_CRITICAL_ERROR_BOARD     = BMS;
-    const enum Board   DEFAULT_WARNING_BOARD = BMS;
+    const enum ErrorId DEFAULT_CRITICAL_ERROR       = BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE;
+    const enum ErrorId DEFAULT_AIR_SHUTDOWN_ERROR   = BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE;
+    const enum ErrorId DEFAULT_MOTOR_SHUTDOWN_ERROR = BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN;
+    const enum ErrorId DEFAULT_WARNING              = BMS_WARNING_WATCHDOG_TIMEOUT;
+    const enum Board   DEFAULT_CRITICAL_ERROR_BOARD = BMS;
+    const enum Board   DEFAULT_WARNING_BOARD        = BMS;
 
     const enum ErrorId DEFAULT_BMS_CRITICAL_ERROR = BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE;
     const enum ErrorId DEFAULT_DCM_CRITICAL_ERROR = DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT;
@@ -739,8 +739,7 @@ TEST_F(SharedErrorTableTest, process_bms_warnings)
     std::vector<enum ErrorId> bms_warning_ids = { BMS_WARNINGS };
 
     TestRoutineForSetErrorsFromCanMsg(
-        BMS, bms_warning_ids, CANMSGS_BMS_WARNINGS_FRAME_ID,
-        CANMSGS_BMS_WARNINGS_LENGTH, App_CanMsgs_bms_warnings_pack,
+        BMS, bms_warning_ids, CANMSGS_BMS_WARNINGS_FRAME_ID, CANMSGS_BMS_WARNINGS_LENGTH, App_CanMsgs_bms_warnings_pack,
         App_SharedErrorTable_GetBoardsWithNonCriticalErrors, App_SharedErrorTable_GetAllNonCriticalErrors);
 }
 
@@ -767,8 +766,7 @@ TEST_F(SharedErrorTableTest, process_dcm_warnings)
     std::vector<enum ErrorId> dcm_warning_ids = { DCM_WARNINGS };
 
     TestRoutineForSetErrorsFromCanMsg(
-        DCM, dcm_warning_ids, CANMSGS_DCM_WARNINGS_FRAME_ID,
-        CANMSGS_DCM_WARNINGS_LENGTH, App_CanMsgs_dcm_warnings_pack,
+        DCM, dcm_warning_ids, CANMSGS_DCM_WARNINGS_FRAME_ID, CANMSGS_DCM_WARNINGS_LENGTH, App_CanMsgs_dcm_warnings_pack,
         App_SharedErrorTable_GetBoardsWithNonCriticalErrors, App_SharedErrorTable_GetAllNonCriticalErrors);
 }
 
@@ -797,8 +795,7 @@ TEST_F(SharedErrorTableTest, process_dim_warnings)
     std::vector<enum ErrorId> dim_warning_ids = { DIM_WARNINGS };
 
     TestRoutineForSetErrorsFromCanMsg(
-        DIM, dim_warning_ids, CANMSGS_DIM_WARNINGS_FRAME_ID,
-        CANMSGS_DIM_WARNINGS_LENGTH, App_CanMsgs_dim_warnings_pack,
+        DIM, dim_warning_ids, CANMSGS_DIM_WARNINGS_FRAME_ID, CANMSGS_DIM_WARNINGS_LENGTH, App_CanMsgs_dim_warnings_pack,
         App_SharedErrorTable_GetBoardsWithNonCriticalErrors, App_SharedErrorTable_GetAllNonCriticalErrors);
 }
 
@@ -827,8 +824,7 @@ TEST_F(SharedErrorTableTest, process_fsm_warnings)
     std::vector<enum ErrorId> fsm_warning_ids = { FSM_WARNINGS };
 
     TestRoutineForSetErrorsFromCanMsg(
-        FSM, fsm_warning_ids, CANMSGS_FSM_WARNINGS_FRAME_ID,
-        CANMSGS_FSM_WARNINGS_LENGTH, App_CanMsgs_fsm_warnings_pack,
+        FSM, fsm_warning_ids, CANMSGS_FSM_WARNINGS_FRAME_ID, CANMSGS_FSM_WARNINGS_LENGTH, App_CanMsgs_fsm_warnings_pack,
         App_SharedErrorTable_GetBoardsWithNonCriticalErrors, App_SharedErrorTable_GetAllNonCriticalErrors);
 }
 
@@ -859,8 +855,7 @@ TEST_F(SharedErrorTableTest, process_pdm_warnings)
     std::vector<enum ErrorId> pdm_warning_ids = { PDM_WARNINGS };
 
     TestRoutineForSetErrorsFromCanMsg(
-        PDM, pdm_warning_ids, CANMSGS_PDM_WARNINGS_FRAME_ID,
-        CANMSGS_PDM_WARNINGS_LENGTH, App_CanMsgs_pdm_warnings_pack,
+        PDM, pdm_warning_ids, CANMSGS_PDM_WARNINGS_FRAME_ID, CANMSGS_PDM_WARNINGS_LENGTH, App_CanMsgs_pdm_warnings_pack,
         App_SharedErrorTable_GetBoardsWithNonCriticalErrors, App_SharedErrorTable_GetAllNonCriticalErrors);
 }
 
