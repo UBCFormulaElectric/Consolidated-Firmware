@@ -40,7 +40,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     App_SendAndReceiveHeartbeat(error_table, hb_monitor, can_tx, can_rx);
 
-    App_BrakeLight_SetLightStatus(brake_light, App_CanRx_FSM_BRAKE_FLAGS_SetSignal_BRAKE_IS_ACTUATED(can_rx));
+    App_BrakeLight_SetLightStatus(brake_light, App_CanRx_FSM_BRAKE_FLAGS_GetSignal_BRAKE_IS_ACTUATED(can_rx));
     App_CanTx_SetPeriodicSignal_RIGHT_INVERTER_SWITCH(can_tx, App_InverterSwitches_IsRightOn(inverter_switches));
     App_CanTx_SetPeriodicSignal_LEFT_INVERTER_SWITCH(can_tx, App_InverterSwitches_IsLeftOn(inverter_switches));
 
