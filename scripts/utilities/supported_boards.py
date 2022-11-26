@@ -5,7 +5,7 @@ def get_board_names():
     SUPPORTED_BOARD_NAMES = (
         'FSM',
         'PDM',
-        # 'BMS',
+        'BMS',
         'DCM',
         'DIM',
         'GSM',

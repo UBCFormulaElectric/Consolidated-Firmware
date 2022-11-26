@@ -94,21 +94,24 @@ if __name__ == "__main__":
             enum_members['warning'][board] = \
                 ['    %s_WARNING_%s, \\' %(board, signal.name.upper()) for signal in can_msg.signals]
         except KeyError:
-            raise KeyError('Could not find warning message for %s' % board)
+            if board != "BMS":
+                raise KeyError('Could not find warning message for %s' % board)
 
         try:
             can_msg = database.get_message_by_name(board + '_AIR_SHUTDOWN_ERRORS')
             enum_members['air_shutdown'][board] = \
                 ['    %s_AIR_SHUTDOWN_%s, \\' %(board, signal.name.upper()) for signal in can_msg.signals]
         except KeyError:
-            raise KeyError('Could not find AIR shutdown error message for %s' % board)
+            if board != "BMS":
+                raise KeyError('Could not find AIR shutdown error message for %s' % board)
 
         try:
             can_msg = database.get_message_by_name(board + '_MOTOR_SHUTDOWN_ERRORS')
             enum_members['motor_shutdown'][board] = \
                 ['    %s_MOTOR_SHUTDOWN_%s, \\' %(board, signal.name.upper()) for signal in can_msg.signals]
         except KeyError:
-            raise KeyError('Could not find motor shutdown error message for %s' % board)
+            if board != "BMS":
+                raise KeyError('Could not find motor shutdown error message for %s' % board)
 
     enum = ERRORID_ENUM_TEMPLATE.format(
         dcm_warnings  = '\n'.join(enum_members['warning']['DCM']),
