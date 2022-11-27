@@ -18,24 +18,8 @@ extern "C"
 
 namespace StateMachineTest
 {
-// clang-format off
 FAKE_VOID_FUNC(send_non_periodic_msg_DIM_STARTUP, const struct CanMsgs_dim_startup_t *);
 FAKE_VOID_FUNC(send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT, const struct CanMsgs_dim_watchdog_timeout_t *);
-FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE, const struct DimCanRxInterface *);
-FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_CELL_UNDERVOLTAGE_FAULT, const struct DimCanRxInterface *);
-FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_CELL_OVERVOLTAGE_FAULT, const struct DimCanRxInterface *);
-FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_MODULE_COMM_ERROR, const struct DimCanRxInterface *);
-FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_CELL_UNDERTEMP_FAULT, const struct DimCanRxInterface *);
-FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_CELL_OVERTEMP_FAULT, const struct DimCanRxInterface *);
-FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_CHARGER_FAULT_DETECTED, const struct DimCanRxInterface *);
-FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_HAS_REACHED_MAX_V, const struct DimCanRxInterface *);
-FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_CHARGING_EXT_SHUTDOWN_OCCURRED, const struct DimCanRxInterface *);
-FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_TS_OVERCURRENT_FAULT, const struct DimCanRxInterface *);
-FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_FAULTS_GetSignal_PRECHARGE_ERROR, const struct DimCanRxInterface *);
-FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_OK_STATUSES_GetSignal_BMS_OK, const struct DimCanRxInterface *);
-FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_OK_STATUSES_GetSignal_IMD_OK, const struct DimCanRxInterface *);
-FAKE_VALUE_FUNC(uint8_t, App_CanRx_BMS_OK_STATUSES_GetSignal_BSPD_OK, const struct DimCanRxInterface *);
-// clang-format on
 
 FAKE_VOID_FUNC(set_right_hex_digit, struct SevenSegHexDigit);
 FAKE_VOID_FUNC(set_middle_hex_digit, struct SevenSegHexDigit);
