@@ -2,10 +2,10 @@
 
 enum Board
 {
-    DCM,
+    GSM,
     DIM,
     FSM,
     PDM,
-    GSM,
+    DCM,
     NUM_BOARDS
 };
