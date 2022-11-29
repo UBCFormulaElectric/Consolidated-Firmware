@@ -106,18 +106,24 @@ void App_PdmErrorTable_CheckIndividualErrors(struct PdmErrorTable *pdm_error_tab
 
 void App_PdmErrorTable_CheckAllErrors(struct PdmErrorTable *pdm_error_table)
 {
-    App_PdmErrorTable_CheckIndividualErrors(pdm_error_table, PDM_NON_CRITICAL_VBAT_VOLTAGE_OUT_OF_RANGE, pdm_error_table->VBAT_check);
-    App_PdmErrorTable_CheckIndividualErrors(pdm_error_table, PDM_NON_CRITICAL__24V_ACC_VOLTAGE_OUT_OF_RANGE, pdm_error_table->__24V_ACC_check);
-    App_PdmErrorTable_CheckIndividualErrors(pdm_error_table, PDM_NON_CRITICAL__22V_AUX_VOLTAGE_OUT_OF_RANGE, pdm_error_table->__22V_AUX_check);
+    App_PdmErrorTable_CheckIndividualErrors(pdm_error_table, PDM_NON_CRITICAL_VBAT_VOLTAGE_OUT_OF_RANGE,
+pdm_error_table->VBAT_check); App_PdmErrorTable_CheckIndividualErrors(pdm_error_table,
+PDM_NON_CRITICAL__24V_ACC_VOLTAGE_OUT_OF_RANGE, pdm_error_table->__24V_ACC_check);
+    App_PdmErrorTable_CheckIndividualErrors(pdm_error_table, PDM_NON_CRITICAL__22V_AUX_VOLTAGE_OUT_OF_RANGE,
+pdm_error_table->__22V_AUX_check);
 
-    App_PdmErrorTable_CheckIndividualErrors(pdm_error_table, PDM_NON_CRITICAL_EFUSE1_CHANNEL0_OUT_OF_RANGE, pdm_error_table->efuse1_channel0_check);
-    App_PdmErrorTable_CheckIndividualErrors(pdm_error_table, PDM_NON_CRITICAL_EFUSE1_CHANNEL1_OUT_OF_RANGE, pdm_error_table->efuse1_channel1_check);
-    App_PdmErrorTable_CheckIndividualErrors(pdm_error_table, PDM_NON_CRITICAL_EFUSE2_CHANNEL0_OUT_OF_RANGE, pdm_error_table->efuse2_channel0_check);
-    App_PdmErrorTable_CheckIndividualErrors(pdm_error_table, PDM_NON_CRITICAL_EFUSE2_CHANNEL1_OUT_OF_RANGE, pdm_error_table->efuse2_channel1_check);
-    App_PdmErrorTable_CheckIndividualErrors(pdm_error_table, PDM_NON_CRITICAL_EFUSE3_CHANNEL0_OUT_OF_RANGE, pdm_error_table->efuse3_channel0_check);
-    App_PdmErrorTable_CheckIndividualErrors(pdm_error_table, PDM_NON_CRITICAL_EFUSE3_CHANNEL1_OUT_OF_RANGE, pdm_error_table->efuse3_channel1_check);
-    App_PdmErrorTable_CheckIndividualErrors(pdm_error_table, PDM_NON_CRITICAL_EFUSE4_CHANNEL0_OUT_OF_RANGE, pdm_error_table->efuse4_channel1_check);
-    App_PdmErrorTable_CheckIndividualErrors(pdm_error_table, PDM_NON_CRITICAL_EFUSE4_CHANNEL1_OUT_OF_RANGE, pdm_error_table->efuse4_channel1_check);
+    App_PdmErrorTable_CheckIndividualErrors(pdm_error_table, PDM_NON_CRITICAL_EFUSE1_CHANNEL0_OUT_OF_RANGE,
+pdm_error_table->efuse1_channel0_check); App_PdmErrorTable_CheckIndividualErrors(pdm_error_table,
+PDM_NON_CRITICAL_EFUSE1_CHANNEL1_OUT_OF_RANGE, pdm_error_table->efuse1_channel1_check);
+    App_PdmErrorTable_CheckIndividualErrors(pdm_error_table, PDM_NON_CRITICAL_EFUSE2_CHANNEL0_OUT_OF_RANGE,
+pdm_error_table->efuse2_channel0_check); App_PdmErrorTable_CheckIndividualErrors(pdm_error_table,
+PDM_NON_CRITICAL_EFUSE2_CHANNEL1_OUT_OF_RANGE, pdm_error_table->efuse2_channel1_check);
+    App_PdmErrorTable_CheckIndividualErrors(pdm_error_table, PDM_NON_CRITICAL_EFUSE3_CHANNEL0_OUT_OF_RANGE,
+pdm_error_table->efuse3_channel0_check); App_PdmErrorTable_CheckIndividualErrors(pdm_error_table,
+PDM_NON_CRITICAL_EFUSE3_CHANNEL1_OUT_OF_RANGE, pdm_error_table->efuse3_channel1_check);
+    App_PdmErrorTable_CheckIndividualErrors(pdm_error_table, PDM_NON_CRITICAL_EFUSE4_CHANNEL0_OUT_OF_RANGE,
+pdm_error_table->efuse4_channel1_check); App_PdmErrorTable_CheckIndividualErrors(pdm_error_table,
+PDM_NON_CRITICAL_EFUSE4_CHANNEL1_OUT_OF_RANGE, pdm_error_table->efuse4_channel1_check);
 
 }
 

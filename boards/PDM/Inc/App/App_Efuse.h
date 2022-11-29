@@ -27,20 +27,20 @@ struct Efuse_Context;
  * @return Efuse structure
  */
 struct Efuse *App_Efuse_Create(
-        struct Efuse_Context (*io_efuse),
-        void (*enable_channel_0)(const struct Efuse_Context *const),
-        void (*disable_channel_0)(const struct Efuse_Context *const),
-        void (*enable_channel_1)(const struct Efuse_Context *const),
-        void (*disable_channel_1)(const struct Efuse_Context *const),
-        bool (*in_fault_mode)(const struct Efuse_Context *const),
-        bool (*in_failsafe_mode)(const struct Efuse_Context *const),
-        void (*delatch_fault)(const struct Efuse_Context *const),
-        float (*get_channel_0_current)(struct Efuse_Context *const),
-        float (*get_channel_1_current)(struct Efuse_Context *const),
-        float (channel_0_min_current),
-        float (channel_0_max_current),
-        float (channel_1_min_current),
-        float (channel_1_max_current));
+    struct Efuse_Context(*io_efuse),
+    void (*enable_channel_0)(const struct Efuse_Context *const),
+    void (*disable_channel_0)(const struct Efuse_Context *const),
+    void (*enable_channel_1)(const struct Efuse_Context *const),
+    void (*disable_channel_1)(const struct Efuse_Context *const),
+    bool (*in_fault_mode)(const struct Efuse_Context *const),
+    bool (*in_failsafe_mode)(const struct Efuse_Context *const),
+    void (*delatch_fault)(const struct Efuse_Context *const),
+    float (*get_channel_0_current)(struct Efuse_Context *const),
+    float (*get_channel_1_current)(struct Efuse_Context *const),
+    float(channel_0_min_current),
+    float(channel_0_max_current),
+    float(channel_1_min_current),
+    float(channel_1_max_current));
 
 void App_EfuseDestroy(struct Efuse *efuse);
 

@@ -21,10 +21,9 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
 
-    struct PdmWorld *        world       = App_SharedStateMachine_GetWorld(state_machine);
-    struct PdmErrorTable *   pdm_error_table = App_PdmWorld_GetPDMErrorTable(world);
+    struct PdmWorld *     world           = App_SharedStateMachine_GetWorld(state_machine);
 
-    if (!App_PdmErrorTable_HasAnyErrors(pdm_error_table))
+    if ()
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
     }

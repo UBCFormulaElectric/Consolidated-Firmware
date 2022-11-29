@@ -53,4 +53,3 @@ enum InRangeCheck_Status
 
     return status;
 }
-

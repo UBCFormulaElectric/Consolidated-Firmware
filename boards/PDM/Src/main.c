@@ -205,26 +205,26 @@ int main(void)
     io_efuse3 = Io_Efuse_Create();
     io_efuse4 = Io_Efuse_Create();
     */
-    efuse1 = App_Efuse_Create(io_efuse1,Io_Efuse_EnableChannel0, Io_Efuse_DisableChannel0,
-                              Io_Efuse_EnableChannel1, Io_Efuse_DisableChannel1,
-                              Io_Efuse_IsEfuseInFaultMode, Io_Efuse_IsEfuseInFailSafeMode,
-                              Io_Efuse_DelatchFaults, Io_Efuse_GetChannel0Current, Io_Efuse_GetChannel1Current,
-                              EFUSE1_AIR_MIN_CURRENT, EFUSE1_AIR_MAX_CURRENT, EFUSE1_LV_POWER_MIN_CURRENT, EFUSE1_LV_POWER_MAX_CURRENT);
-    efuse2 = App_Efuse_Create(io_efuse2,Io_Efuse_EnableChannel0, Io_Efuse_DisableChannel0,
-                              Io_Efuse_EnableChannel1, Io_Efuse_DisableChannel1,
-                              Io_Efuse_IsEfuseInFaultMode, Io_Efuse_IsEfuseInFailSafeMode,
-                              Io_Efuse_DelatchFaults, Io_Efuse_GetChannel0Current, Io_Efuse_GetChannel1Current,
-                              EFUSE2_EMETER_MIN_CURRENT, EFUSE2_EMETER_MAX_CURRENT, EFUSE2_AUX_MIN_CURRENT, EFUSE2_AUX_MAX_CURRENT);
-    efuse3 = App_Efuse_Create(io_efuse3,Io_Efuse_EnableChannel0, Io_Efuse_DisableChannel0,
-                              Io_Efuse_EnableChannel1, Io_Efuse_DisableChannel1,
-                              Io_Efuse_IsEfuseInFaultMode, Io_Efuse_IsEfuseInFailSafeMode,
-                              Io_Efuse_DelatchFaults, Io_Efuse_GetChannel0Current, Io_Efuse_GetChannel1Current,
-                              EFUSE3_LEFT_INVERTER_MIN_CURRENT, EFUSE3_LEFT_INVERTER_MAX_CURRENT, EFUSE3_RIGHT_INVERTER_MIN_CURRENT, EFUSE3_RIGHT_INVERTER_MAX_CURRENT);
-    efuse4 = App_Efuse_Create(io_efuse4,Io_Efuse_EnableChannel0, Io_Efuse_DisableChannel0,
-                              Io_Efuse_EnableChannel1, Io_Efuse_DisableChannel1,
-                              Io_Efuse_IsEfuseInFaultMode, Io_Efuse_IsEfuseInFailSafeMode,
-                              Io_Efuse_DelatchFaults, Io_Efuse_GetChannel0Current, Io_Efuse_GetChannel1Current,
-                              EFUSE4_DRS_MIN_CURRENT, EFUSE4_DRS_MAX_CURRENT, EFUSE4_FAN_MIN_CURRENT, EFUSE4_FAN_MAX_CURRENT);
+    efuse1 = App_Efuse_Create(
+        io_efuse1, Io_Efuse_EnableChannel0, Io_Efuse_DisableChannel0, Io_Efuse_EnableChannel1, Io_Efuse_DisableChannel1,
+        Io_Efuse_IsEfuseInFaultMode, Io_Efuse_IsEfuseInFailSafeMode, Io_Efuse_DelatchFaults,
+        Io_Efuse_GetChannel0Current, Io_Efuse_GetChannel1Current, EFUSE1_AIR_MIN_CURRENT, EFUSE1_AIR_MAX_CURRENT,
+        EFUSE1_LV_POWER_MIN_CURRENT, EFUSE1_LV_POWER_MAX_CURRENT);
+    efuse2 = App_Efuse_Create(
+        io_efuse2, Io_Efuse_EnableChannel0, Io_Efuse_DisableChannel0, Io_Efuse_EnableChannel1, Io_Efuse_DisableChannel1,
+        Io_Efuse_IsEfuseInFaultMode, Io_Efuse_IsEfuseInFailSafeMode, Io_Efuse_DelatchFaults,
+        Io_Efuse_GetChannel0Current, Io_Efuse_GetChannel1Current, EFUSE2_EMETER_MIN_CURRENT, EFUSE2_EMETER_MAX_CURRENT,
+        EFUSE2_AUX_MIN_CURRENT, EFUSE2_AUX_MAX_CURRENT);
+    efuse3 = App_Efuse_Create(
+        io_efuse3, Io_Efuse_EnableChannel0, Io_Efuse_DisableChannel0, Io_Efuse_EnableChannel1, Io_Efuse_DisableChannel1,
+        Io_Efuse_IsEfuseInFaultMode, Io_Efuse_IsEfuseInFailSafeMode, Io_Efuse_DelatchFaults,
+        Io_Efuse_GetChannel0Current, Io_Efuse_GetChannel1Current, EFUSE3_LEFT_INVERTER_MIN_CURRENT,
+        EFUSE3_LEFT_INVERTER_MAX_CURRENT, EFUSE3_RIGHT_INVERTER_MIN_CURRENT, EFUSE3_RIGHT_INVERTER_MAX_CURRENT);
+    efuse4 = App_Efuse_Create(
+        io_efuse4, Io_Efuse_EnableChannel0, Io_Efuse_DisableChannel0, Io_Efuse_EnableChannel1, Io_Efuse_DisableChannel1,
+        Io_Efuse_IsEfuseInFaultMode, Io_Efuse_IsEfuseInFailSafeMode, Io_Efuse_DelatchFaults,
+        Io_Efuse_GetChannel0Current, Io_Efuse_GetChannel1Current, EFUSE4_DRS_MIN_CURRENT, EFUSE4_DRS_MAX_CURRENT,
+        EFUSE4_FAN_MIN_CURRENT, EFUSE4_FAN_MAX_CURRENT);
 
     rail_monitor = App_RailMonitoring_Create(
         Io_VoltageSense_GetVbatVoltage, Io_VoltageSense_Get24vAccVoltage, Io_VoltageSense_Get24vAuxVoltage);
@@ -232,7 +232,8 @@ int main(void)
     clock = App_SharedClock_Create();
 
     world = App_PdmWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, low_voltage_battery, efuse1, efuse2, efuse3, efuse4, rail_monitor, clock);
+        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, low_voltage_battery, efuse1, efuse2, efuse3, efuse4,
+        rail_monitor, clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 

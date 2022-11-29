@@ -14,15 +14,13 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 
 void App_Efuse_Channel_EnablingOrDisabling(struct StateMachine *const state_machine)
 {
-    struct PdmWorld *         world        = App_SharedStateMachine_GetWorld(state_machine);
-    struct PdmCanTxInterface *can_tx       = App_PdmWorld_GetCanTx(world);
-    struct PdmCanRxInterface *can_rx       = App_PdmWorld_GetCanRx(world);
-    struct Efuse *            efuse1       = App_PdmWorld_GetEfuse1(world);
-    struct Efuse *            efuse2       = App_PdmWorld_GetEfuse2(world);
-    struct Efuse *            efuse3       = App_PdmWorld_GetEfuse3(world);
-    struct Efuse *            efuse4       = App_PdmWorld_GetEfuse4(world);
-
-
+    struct PdmWorld *         world  = App_SharedStateMachine_GetWorld(state_machine);
+    struct PdmCanTxInterface *can_tx = App_PdmWorld_GetCanTx(world);
+    struct PdmCanRxInterface *can_rx = App_PdmWorld_GetCanRx(world);
+    struct Efuse *            efuse1 = App_PdmWorld_GetEfuse1(world);
+    struct Efuse *            efuse2 = App_PdmWorld_GetEfuse2(world);
+    struct Efuse *            efuse3 = App_PdmWorld_GetEfuse3(world);
+    struct Efuse *            efuse4 = App_PdmWorld_GetEfuse4(world);
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -32,20 +30,14 @@ static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    App_AllStatesRunOnTick100Hz(state_machine);
+    struct PdmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
 
-    struct PdmWorld *         world        = App_SharedStateMachine_GetWorld(state_machine);
+    if (App_AllStatesRunOnTick100Hz(state_machine)) {
 
-    static u_int8_t acc_meas_settle_count = 0;
 
-    if (acc_meas_settle_count < NUM_CYCLES_TO_SETTLE)
-    {
-        acc_meas_settle_count++;
+
     }
-    else if ()
-    {
-        App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
-    }
+
 }
 
 static void DriveStateRunOnExit(struct StateMachine *const state_machine)
