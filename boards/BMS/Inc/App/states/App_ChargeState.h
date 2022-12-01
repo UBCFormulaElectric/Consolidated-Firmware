@@ -8,4 +8,4 @@
  */
 const struct State *App_GetChargeState(void);
 
-//#define CURRENT_AT_MAX_CHARGE ;
+#define CURRENT_AT_MAX_CHARGE (0.885f);

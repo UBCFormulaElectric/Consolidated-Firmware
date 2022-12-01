@@ -1,6 +1,7 @@
 #include "states/App_AllStates.h"
 #include "states/App_FaultState.h"
 #include "states/App_InitState.h"
+#include "states/App_ChargeState.h"
 
 // Ignore the charger fault signal for the first 500 cycles (5 seconds)
 #define CYCLES_TO_IGNORE_CHGR_FAULT (500U)
@@ -52,10 +53,8 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         uint8_t    cell    = 0U;
         const bool has_reached_max_v =
             App_Accumulator_GetMaxVoltage(accumulator, &segment, &cell) > MAX_CELL_VOLTAGE_THRESHOLD;
-        const bool has_charging_completed()
-        if(App_TractiveSystem_GetCurrent(ts)<=)
-
-                App_TractiveSystem_GetCurrent(ts);
+        const bool has_charging_completed=
+        App_TractiveSystem_GetCurrent(ts)<=CURRENT_AT_MAX_CHARGE;
 
         App_CanTx_BMS_Faults_ChargerDisconnectedInChargeState_Set(is_charger_disconnected);
         App_CanTx_BMS_Faults_ChargerFault_Set(has_charger_faulted);
@@ -74,7 +73,8 @@ static void ChargeStateRunOnExit(struct StateMachine *const state_machine)
     struct BmsWorld *world   = App_SharedStateMachine_GetWorld(state_machine);
     struct Charger * charger = App_BmsWorld_GetCharger(world);
     struct BmsCanTxInterface *can_tx = App_BmsWorld_GetCanTx(world);
-
+    //If the charger is not turned off, or the CAN message for charging is still set to charge when exiting Charge State
+    //Disable them
     App_Charger_Disable(charger);
     App_CanTx_SetPeriodicSignal_IS_CHARGING_ENABLED(can_tx,false);
 }
