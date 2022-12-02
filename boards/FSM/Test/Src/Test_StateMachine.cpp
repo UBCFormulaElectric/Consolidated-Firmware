@@ -75,23 +75,22 @@ class FsmStateMachineTest : public BaseStateMachineTest
             send_non_periodic_msg_FSM_AIR_SHUTDOWN);
         can_rx_interface = App_CanRx_Create();
 
-        heartbeat_monitor = App_SharedHeartbeatMonitor_Create(get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
+        heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+            get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
         papps_and_sapps = App_AcceleratorPedals_Create(get_papps, papps_OCSC, get_sapps, sapps_OCSC);
         brake           = App_Brake_Create(
-            get_front_brake_pressure, brake_front_pressure_OCSC,
-            get_rear_brake_pressure, brake_rear_pressure_OCSC,
+            get_front_brake_pressure, brake_front_pressure_OCSC, get_rear_brake_pressure, brake_rear_pressure_OCSC,
             get_brake_pedal_travel, brake_pedal_OCSC, is_brake_actuated);
         coolant = App_Coolant_Create(
-            get_flow_rate, get_temp_a, coolant_temp_a_OCSC,
-            get_temp_b, coolant_temp_b_OCSC,
-            get_pressure_a, coolant_pressure_a_OCSC,
-            get_pressure_b, coolant_pressure_b_OCSC);
+            get_flow_rate, get_temp_a, coolant_temp_a_OCSC, get_temp_b, coolant_temp_b_OCSC, get_pressure_a,
+            coolant_pressure_a_OCSC, get_pressure_b, coolant_pressure_b_OCSC);
         steering = App_Steering_Create(get_steering_angle, steering_OCSC);
-        wheels = App_Wheels_Create(get_left_wheel_speed, get_right_wheel_speed);
-        world    = App_FsmWorld_Create(can_tx_interface, can_rx_interface, heartbeat_monitor, papps_and_sapps, brake, coolant, steering, wheels);
+        wheels   = App_Wheels_Create(get_left_wheel_speed, get_right_wheel_speed);
+        world    = App_FsmWorld_Create(
+            can_tx_interface, can_rx_interface, heartbeat_monitor, papps_and_sapps, brake, coolant, steering, wheels);
 
-        //Default to starting the state machine in the Drive state
+        // Default to starting the state machine in the Drive state
         fsm_state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 
         // Reset fake functions
@@ -298,13 +297,15 @@ TEST_F(FsmStateMachineTest, papp_and_sapp_disagreement_error_on_can_and_torque_0
     get_papps_fake.return_val = 50;
     get_sapps_fake.return_val = 39;
     LetTimePass(fsm_state_machine, 10 + AGREEMENT_TIME_TO_FAULT - 1);
-    ASSERT_EQ(App_CanTx_GetPeriodicSignal_APPS_HAS_DISAGREEMENT(can_tx_interface),
+    ASSERT_EQ(
+        App_CanTx_GetPeriodicSignal_APPS_HAS_DISAGREEMENT(can_tx_interface),
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE);
 
     LetTimePass(fsm_state_machine, 1);
     ASSERT_EQ(0, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface));
-    ASSERT_EQ(App_CanTx_GetPeriodicSignal_APPS_HAS_DISAGREEMENT(can_tx_interface),
-              CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_TRUE_CHOICE);
+    ASSERT_EQ(
+        App_CanTx_GetPeriodicSignal_APPS_HAS_DISAGREEMENT(can_tx_interface),
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_TRUE_CHOICE);
 }
 
 // FSM-3
@@ -315,27 +316,34 @@ TEST_F(FsmStateMachineTest, brake_is_actuated_sets_mapped_pedal_percentage_to_ze
     // Start with a non-zero pedal position to avoid false positives. In
     // addition, the chosen primary brake pedal percentage will not trigger
     // the APPS and brake plausibility callback function
-    get_papps_fake.return_val = 10;
-    get_sapps_fake.return_val = 10;
+    get_papps_fake.return_val         = 10;
+    get_sapps_fake.return_val         = 10;
     is_brake_actuated_fake.return_val = false;
     LetTimePass(fsm_state_machine, 10);
     ASSERT_NEAR(10, std::round(App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface)), 0.5f);
-    ASSERT_EQ(App_CanTx_GetPeriodicSignal_BRAKE_ACC_DISAGREEMENT(can_tx_interface), CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_BRAKE_ACC_DISAGREEMENT_FALSE_CHOICE);
+    ASSERT_EQ(
+        App_CanTx_GetPeriodicSignal_BRAKE_ACC_DISAGREEMENT(can_tx_interface),
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_BRAKE_ACC_DISAGREEMENT_FALSE_CHOICE);
 
-    get_papps_fake.return_val = 30;
-    get_sapps_fake.return_val = 30;
+    get_papps_fake.return_val         = 30;
+    get_sapps_fake.return_val         = 30;
     is_brake_actuated_fake.return_val = true;
     LetTimePass(fsm_state_machine, 9);
-    ASSERT_EQ(App_CanTx_GetPeriodicSignal_BRAKE_ACC_DISAGREEMENT(can_tx_interface), CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_BRAKE_ACC_DISAGREEMENT_FALSE_CHOICE);
+    ASSERT_EQ(
+        App_CanTx_GetPeriodicSignal_BRAKE_ACC_DISAGREEMENT(can_tx_interface),
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_BRAKE_ACC_DISAGREEMENT_FALSE_CHOICE);
     ASSERT_NEAR(10, std::round(App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface)), 0.5f);
     LetTimePass(fsm_state_machine, 11);
-    ASSERT_EQ(App_CanTx_GetPeriodicSignal_BRAKE_ACC_DISAGREEMENT(can_tx_interface), CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_BRAKE_ACC_DISAGREEMENT_TRUE_CHOICE);
+    ASSERT_EQ(
+        App_CanTx_GetPeriodicSignal_BRAKE_ACC_DISAGREEMENT(can_tx_interface),
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_BRAKE_ACC_DISAGREEMENT_TRUE_CHOICE);
     ASSERT_NEAR(0, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface), 0.5f);
 }
 
-TEST_F(FsmStateMachineTest, brake_pedal_OCSC){
+TEST_F(FsmStateMachineTest, brake_pedal_OCSC)
+{
     get_brake_pedal_travel_fake.return_val = 30;
-    brake_pedal_OCSC_fake.return_val = false;
+    brake_pedal_OCSC_fake.return_val       = false;
     LetTimePass(fsm_state_machine, 10);
     ASSERT_FALSE(App_CanTx_GetPeriodicSignal_PEDAL_IS_OPEN_OR_SHORT_CIRCUIT(can_tx_interface));
     ASSERT_NEAR(30, App_CanTx_GetPeriodicSignal_BRAKE_PEDAL_PERCENTAGE(can_tx_interface), 0.5f);
@@ -360,7 +368,7 @@ TEST_F(FsmStateMachineTest, primary_flow_rate_underflow_sets_motor_shutdown_can_
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE,
         App_CanTx_GetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(can_tx_interface));
 
-    //TODO reconsider timing
+    // TODO reconsider timing
     LetTimePass(fsm_state_machine, 20);
     ASSERT_EQ(
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_TRUE_CHOICE,
@@ -392,11 +400,9 @@ TEST_F(FsmStateMachineTest, primary_flow_rate_in_range_clears_motor_shutdown_can
         App_CanTx_GetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(can_tx_interface));
 }
 
-TEST_F(FsmStateMachineTest, coolant_pressure_temperature_OCSC){
+TEST_F(FsmStateMachineTest, coolant_pressure_temperature_OCSC) {}
 
-}
-
-TEST_F(FsmStateMachineTest, steering_sensor_OCSC){}
+TEST_F(FsmStateMachineTest, steering_sensor_OCSC) {}
 //========================TESTS FOR VALUES========================
 // FSM-3, FSM-4
 TEST_F(FsmStateMachineTest, check_mapped_pedal_percentage_can_signals_in_drive_state)
@@ -433,35 +439,32 @@ TEST_F(FsmStateMachineTest, check_mapped_pedal_percentage_can_signals_in_drive_s
 // FSM-18
 TEST_F(FsmStateMachineTest, check_brake_can_signals_in_all_states)
 {
-    //front and rear pressure in range
+    // front and rear pressure in range
     CheckInRangeCanSignalsInAllStates(
-        MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI,  get_front_brake_pressure_fake.return_val,
+        MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI, get_front_brake_pressure_fake.return_val,
         App_CanTx_GetPeriodicSignal_FRONT_BRAKE_PRESSURE, App_CanTx_GetPeriodicSignal_BRAKE_FRONT_PRESSURE_OUT_OF_RANGE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_FRONT_PRESSURE_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_FRONT_PRESSURE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_FRONT_PRESSURE_OUT_OF_RANGE_OVERFLOW_CHOICE);
     CheckInRangeCanSignalsInAllStates(
-        MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI,  get_rear_brake_pressure_fake.return_val,
+        MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI, get_rear_brake_pressure_fake.return_val,
         App_CanTx_GetPeriodicSignal_REAR_BRAKE_PRESSURE, App_CanTx_GetPeriodicSignal_BRAKE_REAR_PRESSURE_OUT_OF_RANGE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_REAR_PRESSURE_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_REAR_PRESSURE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_REAR_PRESSURE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 
-    //actuation
+    // actuation
     CheckBinaryStatusCanSignalInAllStates(
         is_brake_actuated_fake.return_val, App_CanTx_GetPeriodicSignal_BRAKE_IS_ACTUATED,
         CANMSGS_FSM_BRAKE_FLAGS_BRAKE_IS_ACTUATED_TRUE_CHOICE, CANMSGS_FSM_BRAKE_FLAGS_BRAKE_IS_ACTUATED_FALSE_CHOICE);
 
-
-    //front pressure and rear pressure both cause "pressure OCSC" behaviour
+    // front pressure and rear pressure both cause "pressure OCSC" behaviour
     CheckBinaryStatusCanSignalInAllStates(
-        brake_front_pressure_OCSC_fake.return_val,
-        App_CanTx_GetPeriodicSignal_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT,
+        brake_front_pressure_OCSC_fake.return_val, App_CanTx_GetPeriodicSignal_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT,
         CANMSGS_FSM_BRAKE_FLAGS_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_TRUE_CHOICE,
         CANMSGS_FSM_BRAKE_FLAGS_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_FALSE_CHOICE);
     CheckBinaryStatusCanSignalInAllStates(
-        brake_rear_pressure_OCSC_fake.return_val,
-        App_CanTx_GetPeriodicSignal_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT,
+        brake_rear_pressure_OCSC_fake.return_val, App_CanTx_GetPeriodicSignal_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT,
         CANMSGS_FSM_BRAKE_FLAGS_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_TRUE_CHOICE,
         CANMSGS_FSM_BRAKE_FLAGS_PRESSURE_SENSOR_IS_OPEN_OR_SHORT_CIRCUIT_FALSE_CHOICE);
 }

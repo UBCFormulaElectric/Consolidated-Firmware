@@ -193,7 +193,7 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
         sapp_signal_state == SIGNAL_STATE_ACTIVE ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE
                                                  : CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE;
     App_CanTx_SetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE);
-    //torque 0
+    // torque 0
     if (papp_signal_state == SIGNAL_STATE_ACTIVE || sapp_signal_state == SIGNAL_STATE_ACTIVE)
     {
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
@@ -201,8 +201,10 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
     }
 
     // Primary Secondary Accelerator Agreement (Inaccurate data)
-    const float papp_sapp_diff = accelerator_pedals->get_primary_pedal_percent() - accelerator_pedals->get_secondary_pedal_percent();
-    SignalState app_agreement_signal_state = App_SharedSignal_Update(accelerator_pedals->app_agreement_signal, (papp_sapp_diff) > 10.f, (papp_sapp_diff) <= 10.f);
+    const float papp_sapp_diff =
+        accelerator_pedals->get_primary_pedal_percent() - accelerator_pedals->get_secondary_pedal_percent();
+    SignalState app_agreement_signal_state = App_SharedSignal_Update(
+        accelerator_pedals->app_agreement_signal, (papp_sapp_diff) > 10.f, (papp_sapp_diff) <= 10.f);
     uint8_t CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT =
         app_agreement_signal_state == SIGNAL_STATE_ACTIVE
             ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_TRUE_CHOICE
@@ -211,15 +213,19 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
     if (app_agreement_signal_state == SIGNAL_STATE_ACTIVE)
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
 
-    //Accelerator Brake Plausibility (bad user input safety issues)
+    // Accelerator Brake Plausibility (bad user input safety issues)
     struct Brake *brake                  = App_FsmWorld_GetBrake(world);
-    SignalState   app_brake_disagreement = App_SharedSignal_Update( accelerator_pedals->app_brake_signal,
+    SignalState   app_brake_disagreement = App_SharedSignal_Update(
+        accelerator_pedals->app_brake_signal,
         App_Brake_IsBrakeActuated(brake) && accelerator_pedals->get_primary_pedal_percent() > 25,
         accelerator_pedals->get_primary_pedal_percent() < 5);
-    if(app_brake_disagreement == SIGNAL_STATE_ACTIVE){
-        App_CanTx_SetPeriodicSignal_BRAKE_ACC_DISAGREEMENT(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_BRAKE_ACC_DISAGREEMENT_TRUE_CHOICE);
+    if (app_brake_disagreement == SIGNAL_STATE_ACTIVE)
+    {
+        App_CanTx_SetPeriodicSignal_BRAKE_ACC_DISAGREEMENT(
+            can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_BRAKE_ACC_DISAGREEMENT_TRUE_CHOICE);
         App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
     }
     else
-        App_CanTx_SetPeriodicSignal_BRAKE_ACC_DISAGREEMENT(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_BRAKE_ACC_DISAGREEMENT_FALSE_CHOICE);
+        App_CanTx_SetPeriodicSignal_BRAKE_ACC_DISAGREEMENT(
+            can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_BRAKE_ACC_DISAGREEMENT_FALSE_CHOICE);
 }

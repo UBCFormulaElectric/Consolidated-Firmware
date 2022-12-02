@@ -42,7 +42,7 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
         static bool prev_start_switch_pos      = true;
         const bool  curr_start_switch_pos      = App_IsStartSwitchOn(can_rx_interface);
         const bool  was_start_switch_pulled_up = !prev_start_switch_pos && curr_start_switch_pos;
-        const bool  is_brake_actuated          = App_CanRx_FSM_BRAKE_FLAGS_GetSignal_BRAKE_IS_ACTUATED(can_rx_interface) ==
+        const bool  is_brake_actuated = App_CanRx_FSM_BRAKE_FLAGS_GetSignal_BRAKE_IS_ACTUATED(can_rx_interface) ==
                                        CANMSGS_FSM_BRAKE_FLAGS_BRAKE_IS_ACTUATED_TRUE_CHOICE;
 
         prev_start_switch_pos = curr_start_switch_pos;

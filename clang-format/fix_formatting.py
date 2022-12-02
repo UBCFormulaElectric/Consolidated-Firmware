@@ -63,6 +63,7 @@ def runClangFormat():
         "cmake-build-debug",
         "cmake-build-embedded",
         "cmake-build-gtest",
+        "cmake-build-gtest-coverage",
         "SEGGER_RTT",
         "fff",
         "TraceRecorder",
