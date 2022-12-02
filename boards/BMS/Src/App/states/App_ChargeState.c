@@ -51,8 +51,6 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         uint8_t    segment = 0U;
         uint8_t    cell    = 0U;
-        const bool has_reached_max_v =
-            App_Accumulator_GetMaxVoltage(accumulator, &segment, &cell) > MAX_CELL_VOLTAGE_THRESHOLD;
         const bool has_charging_completed=
         App_TractiveSystem_GetCurrent(ts)<=CURRENT_AT_MAX_CHARGE;
 

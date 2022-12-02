@@ -29,6 +29,7 @@ typedef enum
 #define MIN_CELL_CHARGE_TEMP_DEGC (0.0f)
 #define MAX_CELL_VOLTAGE (4.2f)
 #define MIN_CELL_VOLTAGE (3.0f)
+#define C_RATE_TO_AMPS (17.7f)
 
 // Discharge Parameters
 #define CELL_VOLTAGE_DISCHARGE_WINDOW_UV (600U)
