@@ -571,7 +571,7 @@ TEST_F(DimStateMachineTest, bms_board_status_led_control_with_critical_error)
     App_CanRx_BMS_OK_STATUSES_SetSignal_BMS_OK(can_rx_interface, true);
 
     // Set any critical error and check that the BMS LED turns red
-    App_CanRx_BMS_FAULTS_SetSignal_CELL_OVERTEMP_FAULT(can_rx_interface, true);
+    App_CanRx_BMS_STATE_MACHINE_SetSignal_STATE(can_rx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE);
     LetTimePass(state_machine, 10);
 
     ASSERT_EQ(1, turn_bms_status_led_red_fake.call_count);

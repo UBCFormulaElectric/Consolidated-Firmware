@@ -238,7 +238,7 @@ SG_ Duty_Cycle : 0|32@1- (1,0) [0|1E2] "%" DEBUG
 SG_ Frequency : 32|32@1- (1,0) [0|1E4] "Hz" DEBUG
 
 BO_ 107 BMS_STATE_MACHINE : 1 BMS
-SG_ State : 0|8@1+ (1,0) [0|255] "" DCM
+SG_ State : 0|8@1+ (1,0) [0|255] "" DCM,DIM
 
 BO_ 108 BMS_STATE_OF_CHARGE: 4 BMS
 SG_ State_Of_Charge : 0|32@1- (1,0) [0|1E2] "%" DIM

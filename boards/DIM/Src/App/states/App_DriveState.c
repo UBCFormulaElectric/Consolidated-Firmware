@@ -202,17 +202,8 @@ const struct State *App_GetDriveState(void)
 
 bool has_bms_fault(const struct DimCanRxInterface *can_rx)
 {
-    return App_CanRx_BMS_FAULTS_GetSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(can_rx) ||
-           App_CanRx_BMS_FAULTS_GetSignal_CELL_UNDERVOLTAGE_FAULT(can_rx) ||
-           App_CanRx_BMS_FAULTS_GetSignal_MODULE_COMM_ERROR(can_rx) ||
-           App_CanRx_BMS_FAULTS_GetSignal_CELL_OVERVOLTAGE_FAULT(can_rx) ||
-           App_CanRx_BMS_FAULTS_GetSignal_CELL_UNDERTEMP_FAULT(can_rx) ||
-           App_CanRx_BMS_FAULTS_GetSignal_CELL_OVERTEMP_FAULT(can_rx) ||
-           App_CanRx_BMS_FAULTS_GetSignal_CHARGER_FAULT_DETECTED(can_rx) ||
-           App_CanRx_BMS_FAULTS_GetSignal_HAS_REACHED_MAX_V(can_rx) ||
-           App_CanRx_BMS_FAULTS_GetSignal_CHARGING_EXT_SHUTDOWN_OCCURRED(can_rx) ||
-           App_CanRx_BMS_FAULTS_GetSignal_TS_OVERCURRENT_FAULT(can_rx) ||
-           App_CanRx_BMS_FAULTS_GetSignal_PRECHARGE_ERROR(can_rx);
+    uint8_t test = App_CanRx_BMS_STATE_MACHINE_GetSignal_STATE(can_rx) == CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE;
+    return test;
 }
 
 bool has_bms_warning(const struct DimCanRxInterface *can_rx)
