@@ -52,4 +52,4 @@ float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct Accelerator
  * Primary Broadcast Function. Very important.
  * @param world World Context from which to pull sensors
  */
-void App_AcceleratorPedals_Broadcast(struct FsmWorld *world);
+void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world);

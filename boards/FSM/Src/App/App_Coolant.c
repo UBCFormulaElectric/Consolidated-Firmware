@@ -2,14 +2,12 @@
 #include <assert.h>
 
 #include "App_Coolant.h"
+#include "configs/App_CoolantSignalTimings.h"
 #include "App_InRangeCheck.h"
 #include "configs/App_FlowRateThresholds.h"
 
 #include "App_SharedSetPeriodicCanSignals.h"
 STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(FsmCanTxInterface)
-
-#define FLOW_METER_TIME_TO_FAULT (1000U)
-#define FLOW_METER_TIME_TO_CLEAR (1000U)
 
 struct Coolant
 {

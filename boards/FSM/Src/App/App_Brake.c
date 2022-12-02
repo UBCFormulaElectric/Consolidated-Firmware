@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include <assert.h>
-#include <math.h>
 
 #include "App_InRangeCheck.h"
 #include "App_Brake.h"
