@@ -101,11 +101,11 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         can_tx, torque_vectoring_switch, App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH,
         CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
 
-    struct RgbLed *board_status_leds[5] = { [BMS_LED] = App_DimWorld_GetBmsStatusLed(world),
-                                            [DCM_LED] = App_DimWorld_GetDcmStatusLed(world),
-                                            [DIM_LED] = App_DimWorld_GetDimStatusLed(world),
-                                            [FSM_LED] = App_DimWorld_GetFsmStatusLed(world),
-                                            [PDM_LED] = App_DimWorld_GetPdmStatusLed(world) };
+    struct RgbLed *board_status_leds[NUM_BOARD_LEDS] = { [BMS_LED] = App_DimWorld_GetBmsStatusLed(world),
+                                                         [DCM_LED] = App_DimWorld_GetDcmStatusLed(world),
+                                                         [DIM_LED] = App_DimWorld_GetDimStatusLed(world),
+                                                         [FSM_LED] = App_DimWorld_GetFsmStatusLed(world),
+                                                         [PDM_LED] = App_DimWorld_GetPdmStatusLed(world) };
 
     for (size_t i = 0; i < NUM_BOARD_LEDS; i++)
     {
@@ -120,12 +120,12 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         if (i == BMS_LED)
         {
-            if (has_bms_fault(can_rx))
+            if (App_DriveState_HasBmsFault(can_rx))
             {
                 App_SharedRgbLed_TurnRed(board_status_led);
             }
 
-            else if (has_bms_warning(can_rx))
+            else if (App_DriveState_HasBmsWarning(can_rx))
             {
                 App_SharedRgbLed_TurnBlue(board_status_led);
             }
@@ -200,13 +200,13 @@ const struct State *App_GetDriveState(void)
     return &drive_state;
 }
 
-bool has_bms_fault(const struct DimCanRxInterface *can_rx)
+bool App_DriveState_HasBmsFault(const struct DimCanRxInterface *can_rx)
 {
     uint8_t test = App_CanRx_BMS_STATE_MACHINE_GetSignal_STATE(can_rx) == CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE;
     return test;
 }
 
-bool has_bms_warning(const struct DimCanRxInterface *can_rx)
+bool App_DriveState_HasBmsWarning(const struct DimCanRxInterface *can_rx)
 {
     return App_CanRx_BMS_NON_CRITICAL_ERRORS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_HZ(can_rx) ||
            App_CanRx_BMS_NON_CRITICAL_ERRORS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_KHZ(can_rx) ||
