@@ -51,6 +51,8 @@
 #include "configs/App_HeartbeatMonitorConfig.h"
 #include "App_RailMonitoring.h"
 #include "App_Efuse.h"
+
+#include "App_SharedError.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -110,7 +112,6 @@ struct Efuse *            efuse2;
 struct Efuse *            efuse3;
 struct Efuse *            efuse4;
 struct RailMonitoring *   rail_monitor;
-struct PdmErrorTable *    pdm_error_table;
 struct Clock *            clock;
 /* USER CODE END PV */
 

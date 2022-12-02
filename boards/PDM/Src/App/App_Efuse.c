@@ -116,25 +116,21 @@ float App_Efuse_GetChannel1Current(struct Efuse *efuse)
 
 bool App_Efuse_InRangeCheck(float value, float min_value, float max_value)
 {
-    if (value < min_value && value > max_value)
+    if (value > min_value && value < max_value)
         return true;
     return false;
 }
 
 bool App_Efuse_Channel0_CurrentCheck(struct Efuse *efuse)
 {
-    if (App_Efuse_InRangeCheck(
-            efuse->get_channel_0_current(efuse->io_efuse), efuse->channel_0_min_current,
-            efuse->channel_0_max_current) == true)
+    if (App_Efuse_InRangeCheck(efuse->get_channel_0_current(efuse->io_efuse), efuse->channel_0_min_current,efuse->channel_0_max_current) == true)
         return true;
     return false;
 }
 
 bool App_Efuse_Channel1_CurrentCheck(struct Efuse *efuse)
 {
-    if (App_Efuse_InRangeCheck(
-            efuse->get_channel_1_current(efuse->io_efuse), efuse->channel_1_min_current,
-            efuse->channel_1_max_current) == true)
+    if (App_Efuse_InRangeCheck(efuse->get_channel_1_current(efuse->io_efuse), efuse->channel_1_min_current,efuse->channel_1_max_current) == true)
         return true;
     return false;
 }

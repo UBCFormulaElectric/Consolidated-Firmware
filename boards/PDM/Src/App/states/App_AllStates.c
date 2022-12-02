@@ -5,19 +5,27 @@
 
 #define NUM_CYCLES_TO_SETTLE (3U)
 
-void App_RailCANTX(struct StateMachine *const state_machine)
+bool App_RailCANTX(struct StateMachine *const state_machine)
 {
     struct PdmWorld *         world        = App_SharedStateMachine_GetWorld(state_machine);
     struct PdmCanTxInterface *can_tx       = App_PdmWorld_GetCanTx(world);
     struct RailMonitoring *   rail_monitor = App_PdmWorld_GetRailMonitoring(world);
 
+    bool VBAT_status                       = App_RailMonitoring_VBAT_VoltageCheck(rail_monitor);
+    bool __24_V_ACC_status                 = App_RailMonitoring__24V_ACC_VoltageCheck(rail_monitor);
+    bool __22_V_AUX_status                 = App_RailMonitoring__22V_AUX_VoltageCheck(rail_monitor);
+
     // Main Rail CAN_TX:
-    App_CanTx_SetPeriodicSignal_VBAT(can_tx, App_RailMonitoring_Get_VBAT_Voltage(rail_monitor));
-    App_CanTx_SetPeriodicSignal__24_V_ACC(can_tx, App_RailMonitoring_Get__24V_ACC_Voltage(rail_monitor));
-    App_CanTx_SetPeriodicSignal__24_V_AUX(can_tx, App_RailMonitoring_Get__24V_AUX_Voltage(rail_monitor));
+    App_CanTx_SetPeriodicSignal_RAIL_VBAT_VOLTAGE_OUT_OF_RANGE(can_tx, VBAT_status);
+    App_CanTx_SetPeriodicSignal_RAIL_24_V_ACC_VOLTAGE_OUT_OF_RANGE(can_tx, __24_V_ACC_status);
+    App_CanTx_SetPeriodicSignal_RAIL_22_V_AUX_VOLTAGE_OUT_OF_RANGE(can_tx, __22_V_AUX_status);
+
+    if (VBAT_status == 0 || __24_V_ACC_status == 0 || __22_V_AUX_status == 0)
+        return false;
+    return true;
 }
 
-void App_EfuseCurrentsCANTX(struct StateMachine *const state_machine)
+bool App_EfuseCurrentsCANTX(struct StateMachine *const state_machine)
 {
     struct PdmWorld *         world  = App_SharedStateMachine_GetWorld(state_machine);
     struct PdmCanTxInterface *can_tx = App_PdmWorld_GetCanTx(world);
@@ -25,17 +33,33 @@ void App_EfuseCurrentsCANTX(struct StateMachine *const state_machine)
     struct Efuse *            efuse2 = App_PdmWorld_GetEfuse2(world);
     struct Efuse *            efuse3 = App_PdmWorld_GetEfuse3(world);
     struct Efuse *            efuse4 = App_PdmWorld_GetEfuse4(world);
+    
+    bool efuse1_ch0_status = App_Efuse_Channel0_CurrentCheck(efuse1);
+    bool efuse1_ch1_status = App_Efuse_Channel1_CurrentCheck(efuse1);
+    bool efuse2_ch0_status = App_Efuse_Channel0_CurrentCheck(efuse2);
+    bool efuse2_ch1_status = App_Efuse_Channel1_CurrentCheck(efuse2);
+    bool efuse3_ch0_status = App_Efuse_Channel0_CurrentCheck(efuse3);
+    bool efuse3_ch1_status = App_Efuse_Channel1_CurrentCheck(efuse3);
+    bool efuse4_ch0_status = App_Efuse_Channel0_CurrentCheck(efuse4);
+    bool efuse4_ch1_status = App_Efuse_Channel1_CurrentCheck(efuse4);
+    
 
     // Load Switch Current CAN_TX:
-    App_CanTx_SetPeriodicSignal_EFUSE1_AIR_CURRENT_OUT_OF_RANGE(can_tx, App_Efuse_Channel0_CurrentCheck(efuse1));
-    App_CanTx_SetPeriodicSignal_EFUSE1_LV_PWR_CURRENT_OUT_OF_RANGE(can_tx, App_Efuse_Channel1_CurrentCheck(efuse1));
-    App_CanTx_SetPeriodicSignal_EFUSE2_EMETER_CURRENT_OUT_OF_RANGE(can_tx, App_Efuse_Channel0_CurrentCheck(efuse2));
-    App_CanTx_SetPeriodicSignal_EFUSE2_AUX_CURRENT_OUT_OF_RANGE(can_tx, App_Efuse_Channel1_CurrentCheck(efuse2));
-    App_CanTx_SetPeriodicSignal_EFUSE3_LEFT_INVERTER_CURRENT_OUT_OF_RANGE(can_tx, App_Efuse_Channel0_CurrentCheck(efuse3));
-    App_CanTx_SetPeriodicSignal_EFUSE3_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE(can_tx, App_Efuse_Channel1_CurrentCheck(efuse3));
-    App_CanTx_SetPeriodicSignal_EFUSE4_DRS_CURRENT_OUT_OF_RANGE(can_tx, App_Efuse_Channel0_CurrentCheck(efuse4));
-    App_CanTx_SetPeriodicSignal_EFUSE4_FAN_CURRENT_OUT_OF_RANGE(can_tx, App_Efuse_Channel1_CurrentCheck(efuse4));
-
+    App_CanTx_SetPeriodicSignal_EFUSE1_AIR_CURRENT_OUT_OF_RANGE(can_tx, efuse1_ch0_status);
+    App_CanTx_SetPeriodicSignal_EFUSE1_LV_PWR_CURRENT_OUT_OF_RANGE(can_tx, efuse1_ch1_status);
+    App_CanTx_SetPeriodicSignal_EFUSE2_EMETER_CURRENT_OUT_OF_RANGE(can_tx, efuse2_ch0_status);
+    App_CanTx_SetPeriodicSignal_EFUSE2_AUX_CURRENT_OUT_OF_RANGE(can_tx, efuse2_ch1_status);
+    App_CanTx_SetPeriodicSignal_EFUSE3_LEFT_INVERTER_CURRENT_OUT_OF_RANGE(can_tx, efuse3_ch0_status);
+    App_CanTx_SetPeriodicSignal_EFUSE3_RIGHT_INVERTER_CURRENT_OUT_OF_RANGE(can_tx, efuse3_ch1_status);
+    App_CanTx_SetPeriodicSignal_EFUSE4_DRS_CURRENT_OUT_OF_RANGE(can_tx, efuse4_ch0_status);
+    App_CanTx_SetPeriodicSignal_EFUSE4_FAN_CURRENT_OUT_OF_RANGE(can_tx, efuse4_ch1_status);
+    
+    if (efuse1_ch0_status == 0 || efuse1_ch1_status == 0 ||
+        efuse2_ch0_status == 0 || efuse2_ch1_status == 0 ||
+        efuse3_ch0_status == 0 || efuse3_ch1_status == 0 ||
+        efuse4_ch0_status == 0 || efuse4_ch1_status == 0)
+        return false;
+    return true;
 }
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -53,11 +77,11 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct PdmCanRxInterface *can_rx          = App_PdmWorld_GetCanRx(world);
     struct HeartbeatMonitor * hb_monitor      = App_PdmWorld_GetHeartbeatMonitor(world);
 
-    bool           status                = true;
-    static uint8_t acc_meas_settle_count = 0U;
 
-    App_RailCANTX(state_machine);
-    App_EfuseCurrentsCANTX(state_machine);
+    static uint8_t acc_meas_settle_count      = 0U;
+    bool boardStatus                          = true;
+    bool railStatus                           = App_RailCANTX(state_machine);
+    bool efuseStatus                          = App_EfuseCurrentsCANTX(state_machine);
 
     // HB CANTX
     App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
@@ -74,9 +98,9 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         acc_meas_settle_count++;
     }
-    else if ()
+    else if (railStatus == false || efuseStatus == false)
     {
-        status = false;
+        boardStatus = false;
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
 }
