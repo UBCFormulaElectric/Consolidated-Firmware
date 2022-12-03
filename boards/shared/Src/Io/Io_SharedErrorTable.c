@@ -176,6 +176,7 @@ static void
     SET_ERROR(error_table, FSM_MOTOR_SHUTDOWN_SAPPS_ALARM_IS_ACTIVE, data->sapps_alarm_is_active);
     SET_ERROR(error_table, FSM_MOTOR_SHUTDOWN_FLOW_METER_HAS_UNDERFLOW, data->flow_meter_has_underflow);
     SET_ERROR(error_table, FSM_MOTOR_SHUTDOWN_TORQUE_PLAUSIBILITY_CHECK_FAILED, data->torque_plausibility_check_failed);
+    SET_ERROR(error_table, FSM_MOTOR_SHUTDOWN_BRAKE_ACC_DISAGREEMENT, data->brake_acc_disagreement);
 }
 
 static void

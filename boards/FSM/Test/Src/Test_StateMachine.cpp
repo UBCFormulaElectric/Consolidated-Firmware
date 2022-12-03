@@ -6,7 +6,6 @@ extern "C"
 {
 // shared
 #include "App_SharedMacros.h"
-#include "App_InRangeCheck.h"
 #include "App_SharedStateMachine.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
@@ -32,26 +31,26 @@ FAKE_VALUE_FUNC(uint32_t, get_current_ms)
 FAKE_VOID_FUNC(heartbeat_timeout_callback, enum HeartbeatOneHot, enum HeartbeatOneHot)
 
 // coolant
-FAKE_VALUE_FUNC(float, get_flow_rate)
-FAKE_VALUE_FUNC(float, get_temp_a)
-FAKE_VALUE_FUNC(float, get_temp_b)
-FAKE_VALUE_FUNC(float, get_pressure_a)
-FAKE_VALUE_FUNC(float, get_pressure_b)
+FAKE_VALUE_FUNC(float, coolant_get_flow_rate)
+FAKE_VALUE_FUNC(float, coolant_get_temp_a)
+FAKE_VALUE_FUNC(float, coolant_get_temp_b)
+FAKE_VALUE_FUNC(float, coolant_get_pressure_a)
+FAKE_VALUE_FUNC(float, coolant_get_pressure_b)
 FAKE_VALUE_FUNC(bool, coolant_temp_a_OCSC)
 FAKE_VALUE_FUNC(bool, coolant_temp_b_OCSC)
 FAKE_VALUE_FUNC(bool, coolant_pressure_a_OCSC)
 FAKE_VALUE_FUNC(bool, coolant_pressure_b_OCSC)
 
 // wheel
-FAKE_VALUE_FUNC(float, get_left_wheel_speed)
-FAKE_VALUE_FUNC(float, get_right_wheel_speed)
+FAKE_VALUE_FUNC(float, wheel_get_left_speed)
+FAKE_VALUE_FUNC(float, wheel_get_right_speed)
 // steer
 FAKE_VALUE_FUNC(float, get_steering_angle)
 FAKE_VALUE_FUNC(bool, steering_OCSC)
 // brake
-FAKE_VALUE_FUNC(float, get_front_brake_pressure)
-FAKE_VALUE_FUNC(float, get_rear_brake_pressure)
-FAKE_VALUE_FUNC(float, get_brake_pedal_travel)
+FAKE_VALUE_FUNC(float, brake_get_front_pressure)
+FAKE_VALUE_FUNC(float, brake_get_rear_pressure)
+FAKE_VALUE_FUNC(float, brake_get_pedal_travel)
 FAKE_VALUE_FUNC(bool, brake_front_pressure_OCSC)
 FAKE_VALUE_FUNC(bool, brake_rear_pressure_OCSC)
 FAKE_VALUE_FUNC(bool, brake_pedal_OCSC)
@@ -80,13 +79,13 @@ class FsmStateMachineTest : public BaseStateMachineTest
 
         papps_and_sapps = App_AcceleratorPedals_Create(get_papps, papps_OCSC, get_sapps, sapps_OCSC);
         brake           = App_Brake_Create(
-            get_front_brake_pressure, brake_front_pressure_OCSC, get_rear_brake_pressure, brake_rear_pressure_OCSC,
-            get_brake_pedal_travel, brake_pedal_OCSC, is_brake_actuated);
+            brake_get_front_pressure, brake_front_pressure_OCSC, brake_get_rear_pressure, brake_rear_pressure_OCSC,
+            brake_get_pedal_travel, brake_pedal_OCSC, is_brake_actuated);
         coolant = App_Coolant_Create(
-            get_flow_rate, get_temp_a, coolant_temp_a_OCSC, get_temp_b, coolant_temp_b_OCSC, get_pressure_a,
-            coolant_pressure_a_OCSC, get_pressure_b, coolant_pressure_b_OCSC);
+            coolant_get_flow_rate, coolant_get_temp_a, coolant_temp_a_OCSC, coolant_get_temp_b, coolant_temp_b_OCSC, coolant_get_pressure_a,
+            coolant_pressure_a_OCSC, coolant_get_pressure_b, coolant_pressure_b_OCSC);
         steering = App_Steering_Create(get_steering_angle, steering_OCSC);
-        wheels   = App_Wheels_Create(get_left_wheel_speed, get_right_wheel_speed);
+        wheels   = App_Wheels_Create(wheel_get_left_speed, wheel_get_right_speed);
         world    = App_FsmWorld_Create(
             can_tx_interface, can_rx_interface, heartbeat_monitor, papps_and_sapps, brake, coolant, steering, wheels);
 
@@ -99,22 +98,22 @@ class FsmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(send_non_periodic_msg_FSM_WATCHDOG_TIMEOUT)
         RESET_FAKE(get_current_ms)
         RESET_FAKE(heartbeat_timeout_callback)
-        RESET_FAKE(get_flow_rate)
-        RESET_FAKE(get_temp_a)
-        RESET_FAKE(get_temp_b)
-        RESET_FAKE(get_pressure_a)
-        RESET_FAKE(get_pressure_b)
+        RESET_FAKE(coolant_get_flow_rate)
+        RESET_FAKE(coolant_get_temp_a)
+        RESET_FAKE(coolant_get_temp_b)
+        RESET_FAKE(coolant_get_pressure_a)
+        RESET_FAKE(coolant_get_pressure_b)
         RESET_FAKE(coolant_temp_a_OCSC)
         RESET_FAKE(coolant_temp_b_OCSC)
         RESET_FAKE(coolant_pressure_a_OCSC)
         RESET_FAKE(coolant_pressure_b_OCSC)
-        RESET_FAKE(get_left_wheel_speed)
-        RESET_FAKE(get_right_wheel_speed)
+        RESET_FAKE(wheel_get_left_speed)
+        RESET_FAKE(wheel_get_right_speed)
         RESET_FAKE(get_steering_angle)
         RESET_FAKE(steering_OCSC)
-        RESET_FAKE(get_front_brake_pressure)
-        RESET_FAKE(get_rear_brake_pressure)
-        RESET_FAKE(get_brake_pedal_travel)
+        RESET_FAKE(brake_get_front_pressure)
+        RESET_FAKE(brake_get_rear_pressure)
+        RESET_FAKE(brake_get_pedal_travel)
         RESET_FAKE(brake_front_pressure_OCSC)
         RESET_FAKE(brake_rear_pressure_OCSC)
         RESET_FAKE(brake_pedal_OCSC)
@@ -214,17 +213,17 @@ class FsmStateMachineTest : public BaseStateMachineTest
     }
 
     // USER CODE
-    struct World *            world;
-    struct StateMachine *     fsm_state_machine;
-    struct FsmCanTxInterface *can_tx_interface;
-    struct FsmCanRxInterface *can_rx_interface;
-    struct HeartbeatMonitor * heartbeat_monitor;
+    struct World *            world{};
+    struct StateMachine *     fsm_state_machine{};
+    struct FsmCanTxInterface *can_tx_interface{};
+    struct FsmCanRxInterface *can_rx_interface{};
+    struct HeartbeatMonitor * heartbeat_monitor{};
 
-    struct AcceleratorPedals *papps_and_sapps;
-    struct Brake *            brake;
-    struct Coolant *          coolant;
-    struct Steering *         steering;
-    struct Wheels *           wheels;
+    struct AcceleratorPedals *papps_and_sapps{};
+    struct Brake *            brake{};
+    struct Coolant *          coolant{};
+    struct Steering *         steering{};
+    struct Wheels *           wheels{};
 };
 
 //========================TESTS FOR ERRORS========================
@@ -259,7 +258,6 @@ TEST_F(
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE,
         App_CanTx_GetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(can_tx_interface));
 }
-
 // FSM-5, FSM-16
 TEST_F(
     FsmStateMachineTest,
@@ -307,7 +305,6 @@ TEST_F(FsmStateMachineTest, papp_and_sapp_disagreement_error_on_can_and_torque_0
         App_CanTx_GetPeriodicSignal_APPS_HAS_DISAGREEMENT(can_tx_interface),
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_TRUE_CHOICE);
 }
-
 // FSM-3
 TEST_F(FsmStateMachineTest, brake_is_actuated_sets_mapped_pedal_percentage_to_zero_in_drive_state)
 {
@@ -342,7 +339,7 @@ TEST_F(FsmStateMachineTest, brake_is_actuated_sets_mapped_pedal_percentage_to_ze
 
 TEST_F(FsmStateMachineTest, brake_pedal_OCSC)
 {
-    get_brake_pedal_travel_fake.return_val = 30;
+    brake_get_pedal_travel_fake.return_val = 30;
     brake_pedal_OCSC_fake.return_val       = false;
     LetTimePass(fsm_state_machine, 10);
     ASSERT_FALSE(App_CanTx_GetPeriodicSignal_PEDAL_IS_OPEN_OR_SHORT_CIRCUIT(can_tx_interface));
@@ -362,7 +359,7 @@ TEST_F(FsmStateMachineTest, primary_flow_rate_underflow_sets_motor_shutdown_can_
     // Flow rate lower threshold (L/min)
     const float flow_rate_threshold = 1.0f;
 
-    get_flow_rate_fake.return_val = std::nextafter(flow_rate_threshold, std::numeric_limits<float>::lowest());
+    coolant_get_flow_rate_fake.return_val = std::nextafter(flow_rate_threshold, std::numeric_limits<float>::lowest());
     LetTimePass(fsm_state_machine, FLOW_METER_TIME_TO_FAULT - 10);
     ASSERT_EQ(
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE,
@@ -385,10 +382,10 @@ TEST_F(FsmStateMachineTest, primary_flow_rate_in_range_clears_motor_shutdown_can
     // Flow rate lower threshold (L/min)
     const float flow_rate_threshold = 1.0f;
 
-    get_flow_rate_fake.return_val = std::nextafter(flow_rate_threshold, std::numeric_limits<float>::lowest());
+    coolant_get_flow_rate_fake.return_val = std::nextafter(flow_rate_threshold, std::numeric_limits<float>::lowest());
     LetTimePass(fsm_state_machine, 1000);
 
-    get_flow_rate_fake.return_val = std::nextafter(flow_rate_threshold, std::numeric_limits<float>::max());
+    coolant_get_flow_rate_fake.return_val = std::nextafter(flow_rate_threshold, std::numeric_limits<float>::max());
     LetTimePass(fsm_state_machine, 1000);
     ASSERT_EQ(
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE,
@@ -400,9 +397,37 @@ TEST_F(FsmStateMachineTest, primary_flow_rate_in_range_clears_motor_shutdown_can
         App_CanTx_GetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(can_tx_interface));
 }
 
-TEST_F(FsmStateMachineTest, coolant_pressure_temperature_OCSC) {}
+TEST_F(FsmStateMachineTest, coolant_pressure_temperature_OCSC) {
+    coolant_pressure_a_OCSC_fake.return_val = false;
+    coolant_pressure_b_OCSC_fake.return_val = false;
+    coolant_temp_a_OCSC_fake.return_val = false;
+    coolant_temp_b_OCSC_fake.return_val = false;
+    LetTimePass(fsm_state_machine, 10);
+    ASSERT_EQ(App_CanTx_GetPeriodicSignal_PRESSURE_A_OCSC(can_tx_interface), CANMSGS_FSM_COOLANT_FLAGS_PRESSURE_A_OCSC_FALSE_CHOICE);
+    ASSERT_EQ(App_CanTx_GetPeriodicSignal_PRESSURE_B_OCSC(can_tx_interface), CANMSGS_FSM_COOLANT_FLAGS_PRESSURE_B_OCSC_FALSE_CHOICE);
+    ASSERT_EQ(App_CanTx_GetPeriodicSignal_TEMPERATURE_A_OCSC(can_tx_interface), CANMSGS_FSM_COOLANT_FLAGS_TEMPERATURE_A_OCSC_FALSE_CHOICE);
+    ASSERT_EQ(App_CanTx_GetPeriodicSignal_TEMPERATURE_B_OCSC(can_tx_interface), CANMSGS_FSM_COOLANT_FLAGS_TEMPERATURE_B_OCSC_FALSE_CHOICE);
+    coolant_pressure_a_OCSC_fake.return_val = true;
+    coolant_pressure_b_OCSC_fake.return_val = true;
+    coolant_temp_a_OCSC_fake.return_val = true;
+    coolant_temp_b_OCSC_fake.return_val = true;
+    LetTimePass(fsm_state_machine, 10);
+    ASSERT_EQ(App_CanTx_GetPeriodicSignal_PRESSURE_A_OCSC(can_tx_interface), CANMSGS_FSM_COOLANT_FLAGS_PRESSURE_A_OCSC_TRUE_CHOICE);
+    ASSERT_EQ(App_CanTx_GetPeriodicSignal_PRESSURE_B_OCSC(can_tx_interface), CANMSGS_FSM_COOLANT_FLAGS_PRESSURE_B_OCSC_TRUE_CHOICE);
+    ASSERT_EQ(App_CanTx_GetPeriodicSignal_TEMPERATURE_A_OCSC(can_tx_interface), CANMSGS_FSM_COOLANT_FLAGS_TEMPERATURE_A_OCSC_TRUE_CHOICE);
+    ASSERT_EQ(App_CanTx_GetPeriodicSignal_TEMPERATURE_B_OCSC(can_tx_interface), CANMSGS_FSM_COOLANT_FLAGS_TEMPERATURE_B_OCSC_TRUE_CHOICE);
+}
 
-TEST_F(FsmStateMachineTest, steering_sensor_OCSC) {}
+TEST_F(FsmStateMachineTest, steering_sensor_OCSC) {
+    steering_OCSC_fake.return_val = false;
+    LetTimePass(fsm_state_machine, 10);
+    ASSERT_EQ(App_CanTx_GetPeriodicSignal_STEERING_SENSOR_OCSC(can_tx_interface), CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC_FALSE_CHOICE);
+
+    steering_OCSC_fake.return_val = true;
+    LetTimePass(fsm_state_machine, 10);
+    ASSERT_EQ(App_CanTx_GetPeriodicSignal_STEERING_SENSOR_OCSC(can_tx_interface), CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC_TRUE_CHOICE);
+}
+
 //========================TESTS FOR VALUES========================
 // FSM-3, FSM-4
 TEST_F(FsmStateMachineTest, check_mapped_pedal_percentage_can_signals_in_drive_state)
@@ -441,13 +466,13 @@ TEST_F(FsmStateMachineTest, check_brake_can_signals_in_all_states)
 {
     // front and rear pressure in range
     CheckInRangeCanSignalsInAllStates(
-        MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI, get_front_brake_pressure_fake.return_val,
+        MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI, brake_get_front_pressure_fake.return_val,
         App_CanTx_GetPeriodicSignal_FRONT_BRAKE_PRESSURE, App_CanTx_GetPeriodicSignal_BRAKE_FRONT_PRESSURE_OUT_OF_RANGE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_FRONT_PRESSURE_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_FRONT_PRESSURE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_FRONT_PRESSURE_OUT_OF_RANGE_OVERFLOW_CHOICE);
     CheckInRangeCanSignalsInAllStates(
-        MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI, get_rear_brake_pressure_fake.return_val,
+        MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI, brake_get_rear_pressure_fake.return_val,
         App_CanTx_GetPeriodicSignal_REAR_BRAKE_PRESSURE, App_CanTx_GetPeriodicSignal_BRAKE_REAR_PRESSURE_OUT_OF_RANGE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_REAR_PRESSURE_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_BRAKE_REAR_PRESSURE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
@@ -472,14 +497,29 @@ TEST_F(FsmStateMachineTest, check_brake_can_signals_in_all_states)
 TEST_F(FsmStateMachineTest, check_primary_flow_rate_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
-        MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN, get_flow_rate_fake.return_val,
+        MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN, coolant_get_flow_rate_fake.return_val,
         App_CanTx_GetPeriodicSignal_FLOW_RATE, App_CanTx_GetPeriodicSignal_FLOW_RATE_OUT_OF_RANGE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_UNDERFLOW_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_FLOW_RATE_OUT_OF_RANGE_OVERFLOW_CHOICE);
 }
 
-TEST_F(FsmStateMachineTest, check_coolant_pressure_temperature_can_signals_in_all_states) {}
+TEST_F(FsmStateMachineTest, check_coolant_pressure_temperature_can_signals_in_all_states) {
+    for(const State * currentState: GetAllStates()){
+        SetInitialState(currentState);
+
+        coolant_get_temp_a_fake.return_val = 30;
+        coolant_get_temp_b_fake.return_val = 30;
+        coolant_get_pressure_a_fake.return_val = 30;
+        coolant_get_pressure_b_fake.return_val = 30;
+        LetTimePass(fsm_state_machine, 10);
+
+        ASSERT_EQ(App_CanTx_GetPeriodicSignal_TEMPERATURE_A(can_tx_interface), 30);
+        ASSERT_EQ(App_CanTx_GetPeriodicSignal_TEMPERATURE_B(can_tx_interface), 30);
+        ASSERT_EQ(App_CanTx_GetPeriodicSignal_PRESSURE_A(can_tx_interface), 30);
+        ASSERT_EQ(App_CanTx_GetPeriodicSignal_PRESSURE_B(can_tx_interface), 30);
+    }
+}
 // FSM-8
 TEST_F(FsmStateMachineTest, check_steering_angle_can_signals_in_all_states)
 {
@@ -494,7 +534,7 @@ TEST_F(FsmStateMachineTest, check_steering_angle_can_signals_in_all_states)
 TEST_F(FsmStateMachineTest, check_left_wheel_speed_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
-        MIN_LEFT_WHEEL_SPEED_KPH, MAX_LEFT_WHEEL_SPEED_KPH, get_left_wheel_speed_fake.return_val,
+        MIN_LEFT_WHEEL_SPEED_KPH, MAX_LEFT_WHEEL_SPEED_KPH, wheel_get_left_speed_fake.return_val,
         App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED, App_CanTx_GetPeriodicSignal_LEFT_WHEEL_SPEED_OUT_OF_RANGE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_LEFT_WHEEL_SPEED_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_LEFT_WHEEL_SPEED_OUT_OF_RANGE_UNDERFLOW_CHOICE,
@@ -504,7 +544,7 @@ TEST_F(FsmStateMachineTest, check_left_wheel_speed_can_signals_in_all_states)
 TEST_F(FsmStateMachineTest, check_right_wheel_speed_can_signals_in_all_states)
 {
     CheckInRangeCanSignalsInAllStates(
-        MIN_RIGHT_WHEEL_SPEED_KPH, MAX_RIGHT_WHEEL_SPEED_KPH, get_right_wheel_speed_fake.return_val,
+        MIN_RIGHT_WHEEL_SPEED_KPH, MAX_RIGHT_WHEEL_SPEED_KPH, wheel_get_right_speed_fake.return_val,
         App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED, App_CanTx_GetPeriodicSignal_RIGHT_WHEEL_SPEED_OUT_OF_RANGE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_RIGHT_WHEEL_SPEED_OUT_OF_RANGE_OK_CHOICE,
         CANMSGS_FSM_NON_CRITICAL_ERRORS_RIGHT_WHEEL_SPEED_OUT_OF_RANGE_UNDERFLOW_CHOICE,
