@@ -34,7 +34,7 @@ void App_SetPeriodicCanSignals_TorqueRequests()
     const float torque_request = 0;
     // TODO: JSONCAN
     // const float torque_request =
-    // min(0.01f * App_CanRx_FSM_PEDAL_POSITION_GetSignal_MAPPED_PEDAL_PERCENTAGE(can_rx) * max_torque_request,
+    // MIN(0.01f * App_CanRx_FSM_PEDAL_POSITION_GetSignal_MAPPED_PEDAL_PERCENTAGE(can_rx) * max_torque_request,
     //     fsm_torque_limit);
 
     // Transmit torque command to both inverters

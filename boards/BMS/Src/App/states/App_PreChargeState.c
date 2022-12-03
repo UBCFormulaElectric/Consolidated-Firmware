@@ -48,7 +48,7 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
 
         bool  precharge_fault_limit_exceeded = false;
         float ts_voltage                     = App_TractiveSystem_GetVoltage(ts);
-        float threshold_voltage              = App_Accumulator_GetPackVoltage(accumulator) * PRECHARGE_ACC_V_THRESHOLD;
+        float threshold_voltage = App_Accumulator_GetAccumulatorVoltage(accumulator) * PRECHARGE_ACC_V_THRESHOLD;
 
         uint32_t elapsed_time =
             App_SharedClock_GetCurrentTimeInMilliseconds(clock) - App_SharedClock_GetPreviousTimeInMilliseconds(clock);
