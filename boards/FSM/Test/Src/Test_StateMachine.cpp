@@ -243,16 +243,17 @@ TEST_F(
     LetTimePass(fsm_state_machine, 10);
 
     papps_OCSC_fake.return_val = true;
+    LetTimePass(fsm_state_machine, 10);
 
     // check before it is still safe
-    LetTimePass(fsm_state_machine, PAPPS_OCSC_TIME_TO_FAULT);
+    LetTimePass(fsm_state_machine, PAPPS_OCSC_TIME_TO_FAULT - 1);
     ASSERT_NEAR(50, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface), 0.5f);
     ASSERT_EQ(
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE,
         App_CanTx_GetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(can_tx_interface));
 
     // check after it has changed
-    LetTimePass(fsm_state_machine, 10);
+    LetTimePass(fsm_state_machine, 1);
     ASSERT_FLOAT_EQ(0, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface));
     ASSERT_EQ(
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE,
@@ -274,16 +275,17 @@ TEST_F(
     LetTimePass(fsm_state_machine, 10);
 
     sapps_OCSC_fake.return_val = true;
+    LetTimePass(fsm_state_machine, 10);
 
     // before
-    LetTimePass(fsm_state_machine, SAPPS_OCSC_TIME_TO_FAULT);
+    LetTimePass(fsm_state_machine, SAPPS_OCSC_TIME_TO_FAULT - 1);
     ASSERT_EQ(
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE,
         App_CanTx_GetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(can_tx_interface));
     ASSERT_NEAR(50, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface), 0.5f);
 
     // after
-    LetTimePass(fsm_state_machine, 10);
+    LetTimePass(fsm_state_machine, 1);
     ASSERT_EQ(
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE,
         App_CanTx_GetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(can_tx_interface));
@@ -360,13 +362,14 @@ TEST_F(FsmStateMachineTest, primary_flow_rate_underflow_sets_motor_shutdown_can_
     const float flow_rate_threshold = 1.0f;
 
     coolant_get_flow_rate_fake.return_val = std::nextafter(flow_rate_threshold, std::numeric_limits<float>::lowest());
-    LetTimePass(fsm_state_machine, FLOW_METER_TIME_TO_FAULT - 10);
+    LetTimePass(fsm_state_machine, 10);
+
+    LetTimePass(fsm_state_machine, FLOW_METER_TIME_TO_FAULT - 1);
     ASSERT_EQ(
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE,
         App_CanTx_GetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(can_tx_interface));
 
-    // TODO reconsider timing
-    LetTimePass(fsm_state_machine, 20);
+    LetTimePass(fsm_state_machine, 1);
     ASSERT_EQ(
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_TRUE_CHOICE,
         App_CanTx_GetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(can_tx_interface));

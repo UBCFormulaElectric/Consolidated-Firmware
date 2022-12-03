@@ -10,8 +10,8 @@
 
 typedef enum
 {
-    SIGNAL_STATE_ACTIVE, // Entry: Alert is now active.
     SIGNAL_STATE_CLEAR,  // Exit: Alert is not active.
+    SIGNAL_STATE_ACTIVE, // Entry: Alert is now active.
 } SignalState;
 
 struct Signal;

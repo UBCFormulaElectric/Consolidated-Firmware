@@ -55,14 +55,14 @@ TimerState App_Timer_RunIfCondition(TimerChannel *const timer, bool condition)
 
 uint32_t App_Timer_GetElapsedTime(const TimerChannel *const timer)
 {
-    uint32_t elapsed_time = 0;
+    uint32_t elapsed_time;
     switch (timer->state)
     {
         case TIMER_STATE_RUNNING:
         {
             // Get elapsed time, but clamp to duration
             uint32_t total_elapsed_time = current_time_ms - timer->start_time_ms;
-            elapsed_time = (total_elapsed_time > timer->duration_ms) ? timer->duration_ms : total_elapsed_time;
+            elapsed_time = (total_elapsed_time > timer->duration_ms) ? timer->duration_ms : total_elapsed_time; //min
             break;
         }
         case TIMER_STATE_EXPIRED:
