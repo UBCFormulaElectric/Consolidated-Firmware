@@ -53,6 +53,7 @@ struct Brake *App_Brake_Create(
 void App_Brake_Destroy(struct Brake *brake)
 {
     App_InRangeCheck_Destroy(brake->front_pressure_in_range_check);
+    App_InRangeCheck_Destroy(brake->rear_pressure_in_range_check);
     free(brake);
 }
 
