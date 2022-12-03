@@ -42,7 +42,7 @@ struct Efuse *App_Efuse_Create(
     float(channel_1_min_current),
     float(channel_1_max_current));
 
-void App_EfuseDestroy(struct Efuse *efuse);
+void App_Efuse_Destroy(struct Efuse *efuse);
 
 /**
  * Function to enable channel_0

@@ -1,11 +1,23 @@
-#include <stdint-gcc.h>
 #include "states/App_AllStates.h"
 #include "states/App_FaultState.h"
 #include "App_CanTx.h"
 
 #define NUM_CYCLES_TO_SETTLE (3U)
 
-bool App_RailCANTX(struct StateMachine *const state_machine)
+bool Low_Voltage_Battery_CANTX(struct StateMachine *const state_machine)
+{
+    struct PdmWorld *        world              = App_SharedStateMachine_GetWorld(state_machine);
+    struct LowVoltageBattery* lowVoltageBattery = App_PdmWorld_GetLowVoltageBattery(world);
+
+    bool charge_fault_status                    = !App_LowVoltageBattery_HasChargeFault(lowVoltageBattery);
+    bool boost_fault_status                     = !App_LowVoltageBattery_HasBoostControllerFault(lowVoltageBattery);
+
+    if (charge_fault_status == 0 || boost_fault_status == 0)
+        return false;
+    return true;
+}
+
+bool Rail_Voltages_CANTX(struct StateMachine *const state_machine)
 {
     struct PdmWorld *         world        = App_SharedStateMachine_GetWorld(state_machine);
     struct PdmCanTxInterface *can_tx       = App_PdmWorld_GetCanTx(world);
@@ -25,14 +37,14 @@ bool App_RailCANTX(struct StateMachine *const state_machine)
     return true;
 }
 
-bool App_EfuseCurrentsCANTX(struct StateMachine *const state_machine)
+bool Efuse_Currents_CANTX(struct StateMachine *const state_machine)
 {
-    struct PdmWorld *         world  = App_SharedStateMachine_GetWorld(state_machine);
-    struct PdmCanTxInterface *can_tx = App_PdmWorld_GetCanTx(world);
-    struct Efuse *            efuse1 = App_PdmWorld_GetEfuse1(world);
-    struct Efuse *            efuse2 = App_PdmWorld_GetEfuse2(world);
-    struct Efuse *            efuse3 = App_PdmWorld_GetEfuse3(world);
-    struct Efuse *            efuse4 = App_PdmWorld_GetEfuse4(world);
+    struct PdmWorld *         world         = App_SharedStateMachine_GetWorld(state_machine);
+    struct PdmCanTxInterface *can_tx        = App_PdmWorld_GetCanTx(world);
+    struct Efuse *            efuse1        = App_PdmWorld_GetEfuse1(world);
+    struct Efuse *            efuse2        = App_PdmWorld_GetEfuse2(world);
+    struct Efuse *            efuse3        = App_PdmWorld_GetEfuse3(world);
+    struct Efuse *            efuse4        = App_PdmWorld_GetEfuse4(world);
     
     bool efuse1_ch0_status = App_Efuse_Channel0_CurrentCheck(efuse1);
     bool efuse1_ch1_status = App_Efuse_Channel1_CurrentCheck(efuse1);
@@ -62,10 +74,22 @@ bool App_EfuseCurrentsCANTX(struct StateMachine *const state_machine)
     return true;
 }
 
+bool Efuse_FaultProcedure_Channel0(struct Efuse *efuse, int max_attempts)
+{
+    if (App_Efuse_Channel0_CurrentCheck(efuse) == false)
+        //start fault timer
+    if (App_Efuse)
+}
+bool EfuseINV(struct StateMachine *const state_machine)
+{
+    struct PdmWorld *      world               = App_SharedStateMachine_GetWorld(state_machine);
+    struct Efuse
+}
+
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
-    struct PdmWorld *      world            = App_SharedStateMachine_GetWorld(state_machine);
-    struct RgbLedSequence *rgb_led_sequence = App_PdmWorld_GetRgbLedSequence(world);
+    struct PdmWorld *      world               = App_SharedStateMachine_GetWorld(state_machine);
+    struct RgbLedSequence *rgb_led_sequence    = App_PdmWorld_GetRgbLedSequence(world);
 
     App_SharedRgbLedSequence_Tick(rgb_led_sequence);
 }
@@ -79,9 +103,9 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
 
     static uint8_t acc_meas_settle_count      = 0U;
-    bool boardStatus                          = true;
-    bool railStatus                           = App_RailCANTX(state_machine);
-    bool efuseStatus                          = App_EfuseCurrentsCANTX(state_machine);
+    bool battery_status                       = Low_Voltage_Battery_CANTX(state_machine);
+    bool rail_status                          = Rail_Voltages_CANTX(state_machine);
+    bool efuse_status                         = Efuse_Currents_CANTX(state_machine);
 
     // HB CANTX
     App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
@@ -93,14 +117,14 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanRx_BMS_VITALS_SetSignal_HEARTBEAT(can_rx, false);
     }
     */
-
     if (acc_meas_settle_count < NUM_CYCLES_TO_SETTLE)
     {
         acc_meas_settle_count++;
     }
-    else if (railStatus == false || efuseStatus == false)
+    else if (battery_status == false || rail_status == false || efuse_status == false)
     {
-        boardStatus = false;
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+        return false;
     }
+    return true;
 }

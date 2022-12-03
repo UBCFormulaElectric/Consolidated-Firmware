@@ -34,7 +34,7 @@ static void FaultStateRunOnExit(struct StateMachine *const state_machine)
     UNUSED(state_machine);
 }
 
-const struct State *App_GetFaultState()
+const struct State *App_GetFaultState(void)
 {
     static struct State fault_state = {
         .name              = "FAULT",

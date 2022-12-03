@@ -18,7 +18,8 @@ struct Efuse
     //IDK if we are going to use these (depends on what we are going to do above):
     //bool (*in_fault_mode)(const struct Efuse_Context *const);
     //bool (*in_failsafe_mode)(const struct Efuse_Context *const);
-    //void (*delatch_fault)(const struct Efuse_Context *const);
+    void (*efuse_delatch)(struct Efuse_Context *const);
+    void (*stdby_reset)(struct Efuse_Context *const);
     float (*get_channel_0_current)(struct Efuse_Context *const);
     float (*get_channel_1_current)(struct Efuse_Context *const);
     float(channel_0_min_current);
@@ -35,7 +36,8 @@ struct Efuse *App_Efuse_Create(
     void (*disable_channel_1)(const struct Efuse_Context *const),
     //bool (*in_fault_mode)(const struct Efuse_Context *const),
     //bool (*in_failsafe_mode)(const struct Efuse_Context *const),
-    //void (*delatch_fault)(const struct Efuse_Context *const),
+    void (*efuse_delatch)(struct Efuse_Context *const),
+    void (*stdby_reset)(struct Efuse_Context *const),
     float (*get_channel_0_current)(struct Efuse_Context *const),
     float (*get_channel_1_current)(struct Efuse_Context *const),
     float(channel_0_min_current),
@@ -54,6 +56,7 @@ struct Efuse *App_Efuse_Create(
     //efuse->in_fault_mode         = in_fault_mode;
     //efuse->in_failsafe_mode      = in_failsafe_mode;
     //efuse->delatch_fault         = delatch_fault;
+    efuse->stdby_reset           = stdby_reset;
     efuse->get_channel_0_current = get_channel_0_current;
     efuse->get_channel_1_current = get_channel_1_current;
     efuse->channel_0_min_current = channel_0_min_current;
@@ -99,9 +102,14 @@ bool App_Efuse_IsEfuseInFailSafeMode(struct Efuse *efuse)
     //return efuse->in_failsafe_mode(efuse->io_efuse);
 }
 
-void App_Efuse_DelatchFaults(struct Efuse *efuse)
+void App_Efuse_Delatch(struct Efuse *efuse)
 {
-    //efuse->delatch_fault(efuse->io_efuse);
+    efuse->efuse_delatch(efuse->io_efuse);
+}
+
+void App_Efuse_StandbyReset(struct Efuse *efuse)
+{
+    efuse->stdby_reset(efuse->io_efuse);
 }
 
 float App_Efuse_GetChannel0Current(struct Efuse *efuse)
