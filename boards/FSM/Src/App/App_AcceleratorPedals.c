@@ -183,20 +183,20 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
     App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, sapps_pedal_percentage);
 
     // Open Short Circuit Tests (non-understandable data test)
-    const bool  primary_pedal_alarm = accelerator_pedals->primary_pedal_OCSC();
+    const bool  primary_pedal_ocsc = accelerator_pedals->primary_pedal_OCSC();
     SignalState papp_signal_state =
-        App_SharedSignal_Update(accelerator_pedals->papp_alarm_signal, primary_pedal_alarm, !primary_pedal_alarm);
+        App_SharedSignal_Update(accelerator_pedals->papp_alarm_signal, primary_pedal_ocsc, !primary_pedal_ocsc);
     uint8_t CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE =
-        papp_signal_state == SIGNAL_STATE_ACTIVE ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE
-                                                 : CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE;
-    App_CanTx_SetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE);
-    const bool  secondary_pedal_alarm = accelerator_pedals->secondary_pedal_OCSC();
+        papp_signal_state == SIGNAL_STATE_ACTIVE ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_OCSC_IS_ACTIVE_TRUE_CHOICE
+                                                 : CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_OCSC_IS_ACTIVE_FALSE_CHOICE;
+    App_CanTx_SetPeriodicSignal_PAPPS_OCSC_IS_ACTIVE(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE);
+    const bool  secondary_pedal_ocsc = accelerator_pedals->secondary_pedal_OCSC();
     SignalState sapp_signal_state =
-        App_SharedSignal_Update(accelerator_pedals->sapp_alarm_signal, secondary_pedal_alarm, !secondary_pedal_alarm);
+        App_SharedSignal_Update(accelerator_pedals->sapp_alarm_signal, secondary_pedal_ocsc, !secondary_pedal_ocsc);
     uint8_t CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE =
-        sapp_signal_state == SIGNAL_STATE_ACTIVE ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE
-                                                 : CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE;
-    App_CanTx_SetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE);
+        sapp_signal_state == SIGNAL_STATE_ACTIVE ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_OCSC_IS_ACTIVE_TRUE_CHOICE
+                                                 : CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_OCSC_IS_ACTIVE_FALSE_CHOICE;
+    App_CanTx_SetPeriodicSignal_SAPPS_OCSC_IS_ACTIVE(can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE);
     // torque 0
     if (papp_signal_state == SIGNAL_STATE_ACTIVE || sapp_signal_state == SIGNAL_STATE_ACTIVE)
     {

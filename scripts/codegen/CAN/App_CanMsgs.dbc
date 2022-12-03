@@ -410,8 +410,8 @@ SG_ MISSING_HEARTBEAT : 0|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 315 FSM_MOTOR_SHUTDOWN_ERRORS: 1 FSM
 SG_ APPS_Has_Disagreement : 0|1@1+ (1,0) [0|1] "" DCM
-SG_ PAPPS_Alarm_Is_Active : 1|1@1+ (1,0) [0|1] "" DCM
-SG_ SAPPS_Alarm_Is_Active : 2|1@1+ (1,0) [0|1] "" DCM
+SG_ PAPPS_OCSC_Is_Active : 1|1@1+ (1,0) [0|1] "" DCM
+SG_ SAPPS_OCSC_Is_Active : 2|1@1+ (1,0) [0|1] "" DCM
 SG_ FLOW_METER_HAS_UNDERFLOW : 3|1@1+ (1,0) [0|1] "" DCM
 SG_ Torque_Plausibility_Check_Failed : 4|1@1+ (1,0) [0|1] "" DCM
 SG_ BRAKE_ACC_DISAGREEMENT : 5|1@1+ (1,0) [0|1] "" DCM
@@ -712,8 +712,8 @@ VAL_ 308 TEMPERATURE_B_OCSC 0 "FALSE" 1 "TRUE";
 VAL_ 308 PRESSURE_A_OCSC 0 "FALSE" 1 "TRUE";
 VAL_ 308 PRESSURE_B_OCSC 0 "FALSE" 1 "TRUE";
 VAL_ 315 APPS_Has_Disagreement 0 "FALSE" 1 "TRUE";
-VAL_ 315 PAPPS_Alarm_Is_Active 0 "FALSE" 1 "TRUE";
-VAL_ 315 SAPPS_Alarm_Is_Active 0 "FALSE" 1 "TRUE";
+VAL_ 315 PAPPS_OCSC_Is_Active 0 "FALSE" 1 "TRUE";
+VAL_ 315 SAPPS_OCSC_Is_Active 0 "FALSE" 1 "TRUE";
 VAL_ 315 Plausibility_Check_Has_Failed 0 "FALSE" 1 "TRUE";
 VAL_ 315 FLOW_METER_HAS_UNDERFLOW 0 "FALSE" 1 "TRUE";
 VAL_ 315 Torque_Plausibility_Check_Failed 0 "FALSE" 1 "TRUE";

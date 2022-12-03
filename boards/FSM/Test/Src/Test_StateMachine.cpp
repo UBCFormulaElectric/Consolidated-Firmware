@@ -249,15 +249,15 @@ TEST_F(
     LetTimePass(fsm_state_machine, PAPPS_OCSC_TIME_TO_FAULT - 1);
     ASSERT_NEAR(50, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface), 0.5f);
     ASSERT_EQ(
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE,
-        App_CanTx_GetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(can_tx_interface));
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_OCSC_IS_ACTIVE_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PAPPS_OCSC_IS_ACTIVE(can_tx_interface));
 
     // check after it has changed
     LetTimePass(fsm_state_machine, 1);
     ASSERT_FLOAT_EQ(0, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface));
     ASSERT_EQ(
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE,
-        App_CanTx_GetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(can_tx_interface));
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_OCSC_IS_ACTIVE_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_PAPPS_OCSC_IS_ACTIVE(can_tx_interface));
 }
 // FSM-5, FSM-16
 TEST_F(
@@ -280,15 +280,15 @@ TEST_F(
     // before
     LetTimePass(fsm_state_machine, SAPPS_OCSC_TIME_TO_FAULT - 1);
     ASSERT_EQ(
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE,
-        App_CanTx_GetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(can_tx_interface));
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_OCSC_IS_ACTIVE_FALSE_CHOICE,
+        App_CanTx_GetPeriodicSignal_SAPPS_OCSC_IS_ACTIVE(can_tx_interface));
     ASSERT_NEAR(50, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface), 0.5f);
 
     // after
     LetTimePass(fsm_state_machine, 1);
     ASSERT_EQ(
-        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_TRUE_CHOICE,
-        App_CanTx_GetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(can_tx_interface));
+        CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_OCSC_IS_ACTIVE_TRUE_CHOICE,
+        App_CanTx_GetPeriodicSignal_SAPPS_OCSC_IS_ACTIVE(can_tx_interface));
     ASSERT_FLOAT_EQ(0, App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx_interface));
 }
 
