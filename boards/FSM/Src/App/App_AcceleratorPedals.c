@@ -154,6 +154,10 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
 }
 void App_AcceleratorPedals_Destroy(struct AcceleratorPedals *accelerator_pedals)
 {
+    App_SharedSignal_Destroy(accelerator_pedals->app_agreement_signal);
+    App_SharedSignal_Destroy(accelerator_pedals->papp_alarm_signal);
+    App_SharedSignal_Destroy(accelerator_pedals->sapp_alarm_signal);
+    App_SharedSignal_Destroy(accelerator_pedals->app_brake_signal);
     free(accelerator_pedals);
 }
 

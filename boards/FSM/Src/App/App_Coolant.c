@@ -64,6 +64,7 @@ struct Coolant *App_Coolant_Create(
 void App_Coolant_Destroy(struct Coolant *coolant)
 {
     App_InRangeCheck_Destroy(coolant->flow_rate_in_range_check);
+    App_SharedSignal_Destroy(coolant->flow_in_range_signal);
     free(coolant);
 }
 
