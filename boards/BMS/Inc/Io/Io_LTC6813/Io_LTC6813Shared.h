@@ -8,6 +8,7 @@
 
 // Conversion factor used to convert raw voltages (100µV) to voltages (V)
 #define V_PER_100UV (1E-4f)
+#define CONVERT_100UV_TO_VOLTAGE(v_100uv) ((float)v_100uv * V_PER_100UV)
 
 // Indexes for data to write/read from the register group in byte format
 enum RegGroupByteFormat
@@ -30,8 +31,8 @@ enum RegGroupByteFormat
 #define TOTAL_NUM_REG_GROUP_WORDS (TOTAL_NUM_REG_GROUP_BYTES >> 1U)
 
 // Reading data back from a register group for all LTC6813's connected in a daisy chain
-#define NUM_REG_GROUP_RX_BYTES    (TOTAL_NUM_REG_GROUP_BYTES * NUM_OF_ACCUMULATOR_SEGMENTS)
-#define NUM_REG_GROUP_RX_WORDS    (TOTAL_NUM_REG_GROUP_WORDS * NUM_OF_ACCUMULATOR_SEGMENTS)
+#define NUM_REG_GROUP_RX_BYTES    (TOTAL_NUM_REG_GROUP_BYTES * ACCUMULATOR_NUM_SEGMENTS)
+#define NUM_REG_GROUP_RX_WORDS    (TOTAL_NUM_REG_GROUP_WORDS * ACCUMULATOR_NUM_SEGMENTS)
 
 // Indexing for data to write/read from the register group in word format
 #define REG_GROUP_WORD_PEC_INDEX (3U)
@@ -61,7 +62,8 @@ enum CmdFormat
 #define CMD_SIZE_BYTES (2U)
 #define TOTAL_NUM_CMD_BYTES (NUM_OF_CMD_WORDS << 1U)
 
-// Number of readings (cell voltages, temperatures) per each register group
+// Number of readings (cell voltages or temperatures) per each register group
+// Each register group consists of 48 bytes, 3x 16 bytes for each reading
 enum NumReadingsPerRegGroup
 {
     REG_GROUP_READING_0 = 0U,

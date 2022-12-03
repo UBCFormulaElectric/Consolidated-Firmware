@@ -49,6 +49,7 @@
 #include "Io_VoltageSense.h"
 
 #include "App_BmsWorld.h"
+#include "states/App_AllStates.h"
 #include "App_SharedMacros.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
@@ -233,9 +234,7 @@ int main(void)
     accumulator = App_Accumulator_Create(
         Io_LTC6813Shared_SetCfgRegsToDefaultSettings, Io_LTC6813Shared_WriteConfigurationRegisters,
         Io_LTC6813CellVoltages_StartAdcConversion, Io_LTC6813CellVoltages_ReadVoltages,
-        Io_LTC6813CellVoltages_GetMinCellVoltage, Io_LTC6813CellVoltages_GetMaxCellVoltage,
-        Io_LTC6813CellVoltages_GetSegmentVoltage, Io_LTC6813CellVoltages_GetPackVoltage,
-        Io_LTC6813CellVoltages_GetAverageCellVoltage, Io_LTC6813CellTemperatures_StartAdcConversion,
+        Io_LTC6813CellVoltages_GetCellVoltage, Io_LTC6813CellTemperatures_StartAdcConversion,
         Io_LTC6813CellTemperatures_ReadTemperatures, Io_LTC6813CellTemperatures_GetMinTempDegC,
         Io_LTC6813CellTemperatures_GetMaxTempDegC, Io_LTC6813CellTemperatures_GetAverageTempDegC,
         Io_LTC6813Shared_EnableDischarge, Io_LTC6813Shared_DisableDischarge);
@@ -262,6 +261,7 @@ int main(void)
     Io_SoftwareWatchdog_Init(can_tx);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
+    App_AllStates_Init();
 
     struct CanMsgs_bms_startup_t payload = { .dummy = 0 };
     App_CanTx_SendNonPeriodicMsg_BMS_STARTUP(can_tx, &payload);

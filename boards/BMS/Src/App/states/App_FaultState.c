@@ -24,18 +24,17 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
 
-    struct BmsWorld *         world          = App_SharedStateMachine_GetWorld(state_machine);
-    struct Airs *             airs           = App_BmsWorld_GetAirs(world);
-    struct Accumulator *      accumulator    = App_BmsWorld_GetAccumulator(world);
-    struct TractiveSystem *   tractiveSystem = App_BmsWorld_GetTractiveSystem(world);
-    struct BmsCanTxInterface *can_tx         = App_BmsWorld_GetCanTx(world);
+    struct BmsWorld *         world       = App_SharedStateMachine_GetWorld(state_machine);
+    struct Airs *             airs        = App_BmsWorld_GetAirs(world);
+    struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
+    struct TractiveSystem *   ts          = App_BmsWorld_GetTractiveSystem(world);
+    struct BmsCanTxInterface *can_tx      = App_BmsWorld_GetCanTx(world);
 
+    const bool acc_fault_cleared    = !App_Accumulator_CheckFaults(can_tx, accumulator, ts);
+    const bool ts_fault_cleared     = !App_TractveSystem_CheckFaults(can_tx, ts);
     const bool is_air_negative_open = !App_Airs_IsAirNegativeClosed(airs);
-    const bool are_bms_faults_cleared =
-        !(App_TractveSystem_CheckFaults(can_tx, tractiveSystem) ||
-          App_Accumulator_CheckFaults(can_tx, accumulator, tractiveSystem));
 
-    if (is_air_negative_open && are_bms_faults_cleared)
+    if (acc_fault_cleared && ts_fault_cleared && is_air_negative_open)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
     }

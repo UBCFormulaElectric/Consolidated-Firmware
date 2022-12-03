@@ -1,4 +1,5 @@
 #include "Test_Faults.h"
+#include "App_Accumulator.h"
 
 namespace FaultTest
 {
@@ -34,11 +35,7 @@ FAKE_VALUE_FUNC(bool, configure_cell_monitors);
 FAKE_VALUE_FUNC(bool, write_cfg_registers);
 FAKE_VALUE_FUNC(bool, start_voltage_conv);
 FAKE_VALUE_FUNC(bool, read_cell_voltages);
-FAKE_VALUE_FUNC(float, get_min_cell_voltage, uint8_t *, uint8_t *);
-FAKE_VALUE_FUNC(float, get_max_cell_voltage, uint8_t *, uint8_t *);
-FAKE_VALUE_FUNC(float, get_segment_voltage, AccumulatorSegments_E);
-FAKE_VALUE_FUNC(float, get_pack_voltage);
-FAKE_VALUE_FUNC(float, get_avg_cell_voltage);
+FAKE_VALUE_FUNC(float, get_cell_voltage, AccumulatorSegment, uint8_t);
 FAKE_VALUE_FUNC(float, get_raw_ts_voltage);
 FAKE_VALUE_FUNC(float, get_ts_voltage, float);
 FAKE_VALUE_FUNC(float, get_raw_low_res_current);
@@ -82,10 +79,9 @@ class BmsFaultTest : public BaseStateMachineTest
         bspd_ok = App_OkStatus_Create(enable_bspd_ok, disable_bspd_ok, is_bspd_ok_enabled);
 
         accumulator = App_Accumulator_Create(
-            configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, get_min_cell_voltage,
-            get_max_cell_voltage, get_segment_voltage, get_pack_voltage, get_avg_cell_voltage, start_temp_conv,
-            read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc, enable_discharge,
-            disable_discharge);
+            configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, get_cell_voltage,
+            start_temp_conv, read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc,
+            enable_discharge, disable_discharge);
 
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
 
@@ -103,6 +99,7 @@ class BmsFaultTest : public BaseStateMachineTest
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
+        App_AllStates_Init();
 
         RESET_FAKE(send_non_periodic_msg_BMS_STARTUP);
         RESET_FAKE(send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT);
@@ -128,18 +125,9 @@ class BmsFaultTest : public BaseStateMachineTest
         RESET_FAKE(is_air_positive_closed);
         RESET_FAKE(configure_cell_monitors);
         RESET_FAKE(write_cfg_registers);
-        RESET_FAKE(start_voltage_conv);
         RESET_FAKE(read_cell_voltages);
-        RESET_FAKE(get_min_cell_voltage);
-        RESET_FAKE(get_max_cell_voltage);
-        RESET_FAKE(get_segment_voltage);
-        RESET_FAKE(get_pack_voltage);
-        RESET_FAKE(get_avg_cell_voltage);
-        RESET_FAKE(get_min_cell_voltage);
-        RESET_FAKE(get_max_cell_voltage);
-        RESET_FAKE(get_avg_cell_voltage);
-        RESET_FAKE(get_min_cell_voltage);
-        RESET_FAKE(get_max_cell_voltage);
+        RESET_FAKE(get_cell_voltage);
+        RESET_FAKE(start_voltage_conv);
         RESET_FAKE(get_low_res_current);
         RESET_FAKE(get_raw_low_res_current);
         RESET_FAKE(get_high_res_current);
@@ -152,11 +140,8 @@ class BmsFaultTest : public BaseStateMachineTest
         // Cell voltages read back are assumed to be true to prevent
         // transitioning into the fault state
         read_cell_voltages_fake.return_val = true;
-
-        // A voltage in [3.0, 4.2] was arbitrarily chosen to prevent other
-        // tests from entering the fault state
-        get_min_cell_voltage_fake.return_val = 4.0f;
-        get_max_cell_voltage_fake.return_val = 4.0f;
+        get_cell_voltage_fake.return_val   = 3.8f;
+        start_voltage_conv_fake.return_val = true;
 
         // A temperature in [0.0, 60.0] degC to prevent other tests from entering the fault state
         get_min_temp_degc_fake.return_val = 20.0f;
@@ -261,24 +246,37 @@ class BmsFaultTest : public BaseStateMachineTest
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overvoltage)
 {
-    // Set TS current positive to trigger discharging condition in voltage check
-    get_high_res_current_fake.return_val = 10.0f;
-    get_low_res_current_fake.return_val  = 10.0f;
-
     SetInitialState(App_GetInitState());
 
-    get_max_cell_voltage_fake.return_val = MAX_CELL_VOLTAGE + 1.0f;
+    // Let accumulator startup count expire
     LetTimePass(state_machine, 1000);
+    ASSERT_NE(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+
+    get_cell_voltage_fake.return_val = MAX_CELL_VOLTAGE + 1.0f;
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
+TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_undervoltage)
+{
+    SetInitialState(App_GetInitState());
+
+    // Let accumulator startup count expire
+    LetTimePass(state_machine, 1000);
+    ASSERT_NE(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+
+    get_cell_voltage_fake.return_val = MIN_CELL_VOLTAGE - 1.0f;
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overtemp_drive_state)
 {
-    // Set TS current positive to trigger discharging condition in tempertature check
-    get_high_res_current_fake.return_val = 10.0f;
-    get_low_res_current_fake.return_val  = 10.0f;
-
     SetInitialState(App_GetInitState());
+
+    // Let accumulator startup count expire
+    LetTimePass(state_machine, 1000);
+    ASSERT_NE(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
     // In Discharge state, acceptible temp range is (-20, 60), should be unaffected by temp of 46 C
     get_max_temp_degc_fake.return_val = MAX_CELL_CHARGE_TEMP_DEGC + 1.0f;
@@ -299,13 +297,16 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overt
     is_charger_connected_fake.return_val   = true;
     is_air_negative_closed_fake.return_val = true;
     has_charger_faulted_fake.return_val    = false;
-    get_max_cell_voltage_fake.return_val   = 3.0f;
 
-    // Set TS current negative to trigger charging condition in tempertature check
+    // Set TS current negative to trigger charging condition in temperature check
     get_high_res_current_fake.return_val = -10.0f;
     get_low_res_current_fake.return_val  = -10.0f;
 
     SetInitialState(App_GetChargeState());
+
+    // Let accumulator startup count expire
+    LetTimePass(state_machine, 1000);
+    ASSERT_NE(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
     // In Charge state acceptible temp range is (0, 45)
     get_max_temp_degc_fake.return_val = MAX_CELL_CHARGE_TEMP_DEGC + 1.0f;
@@ -320,6 +321,10 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
     get_low_res_current_fake.return_val  = 10.0f;
 
     SetInitialState(App_GetInitState());
+
+    // Let accumulator startup count expire
+    LetTimePass(state_machine, 1000);
+    ASSERT_NE(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
     // In Discharge state, acceptible temp range is (-20, 60), should be unaffected by temp of -1 C
     get_min_temp_degc_fake.return_val = MIN_CELL_CHARGE_TEMP_DEGC - 1.0f;
@@ -339,7 +344,6 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
     is_charger_connected_fake.return_val   = true;
     is_air_negative_closed_fake.return_val = true;
     has_charger_faulted_fake.return_val    = false;
-    get_max_cell_voltage_fake.return_val   = 3.0f;
 
     // Set TS current negative to trigger charging condition in tempertature check
     get_high_res_current_fake.return_val = -10.0f;
@@ -347,9 +351,13 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
 
     SetInitialState(App_GetChargeState());
 
+    // Let accumulator startup count expire
+    LetTimePass(state_machine, 1000);
+    ASSERT_NE(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+
     // In Charge state acceptable temp range is (0, 45)
     get_min_temp_degc_fake.return_val = MIN_CELL_CHARGE_TEMP_DEGC - 1.0f;
-    LetTimePass(state_machine, 1000);
+    LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
@@ -360,6 +368,10 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_di
     get_low_res_current_fake.return_val  = 10.0f;
 
     SetInitialState(App_GetInitState());
+
+    // Let accumulator startup count expire
+    LetTimePass(state_machine, 1000);
+    ASSERT_NE(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
     // Max acceptable discharge current is 88.5A*3 = 265.5A
     get_high_res_current_fake.return_val = MAX_TS_DISCHARGE_CURRENT_AMPS + 1.0f;
@@ -373,13 +385,20 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_ts_ch
     is_charger_connected_fake.return_val   = true;
     is_air_negative_closed_fake.return_val = true;
     has_charger_faulted_fake.return_val    = false;
-    get_max_cell_voltage_fake.return_val   = 3.0f;
 
     // Set TS current negative to trigger charging condition
     get_high_res_current_fake.return_val = -10.0f;
     get_low_res_current_fake.return_val  = -10.0f;
 
     SetInitialState(App_GetChargeState());
+
+    // Let accumulator startup count expire
+    LetTimePass(state_machine, 1000);
+    ASSERT_NE(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+
+    // Let accumulator startup count expire
+    LetTimePass(state_machine, 1000);
+    ASSERT_NE(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
     // Max acceptable charge current is 23.6A * 3 = 70.8A
     // Charge current is negative

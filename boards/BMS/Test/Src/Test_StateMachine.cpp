@@ -38,9 +38,10 @@ FAKE_VALUE_FUNC(bool, configure_cell_monitors);
 FAKE_VALUE_FUNC(bool, write_cfg_registers);
 FAKE_VALUE_FUNC(bool, start_voltage_conv);
 FAKE_VALUE_FUNC(bool, read_cell_voltages);
+FAKE_VALUE_FUNC(float, get_cell_voltage, AccumulatorSegment, uint8_t);
 FAKE_VALUE_FUNC(float, get_min_cell_voltage, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_max_cell_voltage, uint8_t *, uint8_t *);
-FAKE_VALUE_FUNC(float, get_segment_voltage, AccumulatorSegments_E);
+FAKE_VALUE_FUNC(float, get_segment_voltage, AccumulatorSegment);
 FAKE_VALUE_FUNC(float, get_pack_voltage);
 FAKE_VALUE_FUNC(float, get_avg_cell_voltage);
 FAKE_VALUE_FUNC(float, get_raw_ts_voltage);
@@ -86,10 +87,9 @@ class BmsStateMachineTest : public BaseStateMachineTest
         bspd_ok = App_OkStatus_Create(enable_bspd_ok, disable_bspd_ok, is_bspd_ok_enabled);
 
         accumulator = App_Accumulator_Create(
-            configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, get_min_cell_voltage,
-            get_max_cell_voltage, get_segment_voltage, get_pack_voltage, get_avg_cell_voltage, start_temp_conv,
-            read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc, enable_discharge,
-            disable_discharge);
+            configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, get_cell_voltage,
+            start_temp_conv, read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc,
+            enable_discharge, disable_discharge);
 
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
 
@@ -107,6 +107,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
+        App_AllStates_Init();
 
         RESET_FAKE(send_non_periodic_msg_BMS_STARTUP);
         RESET_FAKE(send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT);
@@ -157,6 +158,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
         // Cell voltages read back are assumed to be true to prevent
         // transitioning into the fault state
         read_cell_voltages_fake.return_val = true;
+        get_cell_voltage_fake.return_val   = 3.8f;
+        start_voltage_conv_fake.return_val = true;
 
         // A voltage in [3.0, 4.2] was arbitrarily chosen to prevent other
         // tests from entering the fault state
@@ -612,6 +615,9 @@ TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_the
     // Set TS current positive to trigger discharging condition in tempertature check
     get_high_res_current_fake.return_val = 10.0f;
     get_low_res_current_fake.return_val  = 10.0f;
+
+    // Let startup timer expire
+    LetTimePass(state_machine, 1000);
 
     // Simulate over-temp fault in drive state
     get_max_temp_degc_fake.return_val = MAX_CELL_DISCHARGE_TEMP_DEGC + 1.0f;

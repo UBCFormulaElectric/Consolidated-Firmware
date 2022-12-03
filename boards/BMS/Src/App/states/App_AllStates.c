@@ -13,6 +13,8 @@
 // Num of cycles for voltage and cell temperature values to settle
 #define NUM_CYCLES_TO_SETTLE (3U)
 
+static uint8_t acc_meas_settle_count = 0U;
+
 static void App_SendAndReceiveHeartbeat(
     struct BmsCanTxInterface *can_tx,
     struct BmsCanRxInterface *can_rx,
@@ -87,11 +89,17 @@ static void
 
     const float max_cell_temp = App_Accumulator_GetMaxCellTempDegC(accumulator, &segment, &segment);
     const float available_power =
-        min(App_SharedProcessing_LinearDerating(
+        MIN(App_SharedProcessing_LinearDerating(
                 max_cell_temp, MAX_POWER_LIMIT_W, CELL_ROLL_OFF_TEMP_DEGC, CELL_FULLY_DERATED_TEMP),
             MAX_POWER_LIMIT_W);
 
     App_CanTx_SetPeriodicSignal_AVAILABLE_POWER(can_tx, available_power);
+}
+
+void App_AllStates_Init()
+{
+    // Reset accumulator settle count
+    acc_meas_settle_count = 0U;
 }
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -121,8 +129,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct HeartbeatMonitor * hb_monitor  = App_BmsWorld_GetHeartbeatMonitor(world);
     struct TractiveSystem *   ts          = App_BmsWorld_GetTractiveSystem(world);
 
-    bool           status                = true;
-    static uint8_t acc_meas_settle_count = 0U;
+    bool status = true;
     App_SendAndReceiveHeartbeat(can_tx, can_rx, hb_monitor);
 
     App_Accumulator_RunOnTick100Hz(accumulator);
@@ -132,7 +139,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool acc_fault = App_Accumulator_CheckFaults(can_tx, accumulator, ts);
     const bool ts_fault  = App_TractveSystem_CheckFaults(can_tx, ts);
 
-    App_CanTx_SetPeriodicSignal_PACK_VOLTAGE(can_tx, App_Accumulator_GetPackVoltage(accumulator));
+    App_CanTx_SetPeriodicSignal_PACK_VOLTAGE(can_tx, App_Accumulator_GetAccumulatorVoltage(accumulator));
     App_CanTx_SetPeriodicSignal_TS_VOLTAGE(can_tx, App_TractiveSystem_GetVoltage(ts));
     App_CanTx_SetPeriodicSignal_TS_CURRENT(can_tx, App_TractiveSystem_GetCurrent(ts));
     App_CanTx_SetPeriodicSignal_AIR_NEGATIVE(can_tx, App_Airs_IsAirNegativeClosed(airs));
@@ -151,7 +158,6 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         acc_meas_settle_count++;
     }
-
     else if (acc_fault || ts_fault)
     {
         status = false;
