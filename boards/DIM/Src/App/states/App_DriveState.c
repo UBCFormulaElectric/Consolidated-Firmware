@@ -1,6 +1,6 @@
-#define SSEG_HB_NOT_RECEIVED_ERR (888U)
-
 #include "states/App_DriveState.h"
+
+#define SSEG_HB_NOT_RECEIVED_ERR (888U)
 
 static void App_SetPeriodicCanSignals_BinarySwitch(
     struct DimCanTxInterface *can_tx,
