@@ -167,7 +167,7 @@ float App_AcceleratorPedals_GetPrimaryPedalPercentage(const struct AcceleratorPe
 }
 float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct AcceleratorPedals *accelerator_pedals)
 {
-    return accelerator_pedals->get_primary_pedal_percent();
+    return accelerator_pedals->get_secondary_pedal_percent();
 }
 
 // TODO figure out what to do when primary/secondary is NAN, but signal has not activated yet.
