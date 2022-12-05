@@ -25,14 +25,10 @@
 #define MIN_PEDAL_VOLTAGE (0.5f)
 #define MAX_PEDAL_VOLTAGE (3.1f)
 
-float Io_AcceleratorPedals_GetPappVoltage(void)
-{
-    return Io_Adc_GetChannel1Voltage();
-}
 float Io_AcceleratorPedals_GetPapps(void)
 {
     // Length calculated via voltage
-    float       pedal_voltage = Io_AcceleratorPedals_GetPappVoltage();
+    float       pedal_voltage = Io_Adc_GetChannel1Voltage();
     const float pot_len       = PAPPS_RAW_VOLTAGE_TO_LEN_MM(pedal_voltage);
 
     // Compute the angle relative to the y-axis with cosine law
@@ -49,14 +45,10 @@ bool Io_AcceleratorPedals_PappOCSC(void)
     return !(MIN_PEDAL_VOLTAGE <= pedal_voltage && pedal_voltage <= MAX_PEDAL_VOLTAGE);
 }
 
-float Io_AcceleratorPedals_GetSappVoltage(void)
-{
-    return 0.5f;
-}
 float Io_AcceleratorPedals_GetSapps(void)
 {
     // TODO implement IO functionality
-    float pedal_voltage   = Io_AcceleratorPedals_GetSappVoltage();
+    float pedal_voltage   = 0.5f;
     float secondary_angle = (float)M_PI;
     return secondary_angle / 30.0f * 100.0f;
 }
