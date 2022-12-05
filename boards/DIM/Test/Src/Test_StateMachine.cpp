@@ -616,4 +616,14 @@ TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_multiple_errors)
     ASSERT_EQ(0, turn_pdm_status_led_blue_fake.call_count);
 }
 
+TEST_F(DimStateMachineTest, check_enum_ordering)
+{
+    // Test to ensure BoardLeds enum matches Boards enum for use in DIM drive state
+    ASSERT_EQ(BMS_LED, BMS);
+    ASSERT_EQ(DCM_LED, DCM);
+    ASSERT_EQ(DIM_LED, DIM);
+    ASSERT_EQ(FSM_LED, FSM);
+    ASSERT_EQ(PDM_LED, PDM);
+}
+
 } // namespace StateMachineTest
