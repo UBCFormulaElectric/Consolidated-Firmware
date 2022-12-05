@@ -78,8 +78,8 @@ class FsmStateMachineTest : public BaseStateMachineTest
             brake_get_front_pressure, brake_front_pressure_OCSC, brake_get_rear_pressure, brake_rear_pressure_OCSC,
             brake_get_pedal_travel, brake_pedal_OCSC, is_brake_actuated);
         coolant = App_Coolant_Create(
-            coolant_get_flow_rate, coolant_get_temp_a, coolant_get_temp_b,
-            coolant_get_pressure_a, coolant_get_pressure_b);
+            coolant_get_flow_rate, coolant_get_temp_a, coolant_get_temp_b, coolant_get_pressure_a,
+            coolant_get_pressure_b);
         steering = App_Steering_Create(get_steering_angle, steering_OCSC);
         wheels   = App_Wheels_Create(wheel_get_left_speed, wheel_get_right_speed);
         world    = App_FsmWorld_Create(
