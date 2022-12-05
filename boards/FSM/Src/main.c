@@ -228,7 +228,7 @@ int main(void)
     // Coolants
     Io_FlowMeter_Init(&htim4);
     coolant = App_Coolant_Create(
-        Io_FlowMeters_GetFlowRate, Io_Coolant_GetTemperatureA, Io_Coolant_TemperatureSensorA_OCSC,
+        Io_FlowMeter_GetFlowRate, Io_Coolant_GetTemperatureA, Io_Coolant_TemperatureSensorA_OCSC,
         Io_Coolant_GetTemperatureB, Io_Coolant_TemperatureSensorB_OCSC, Io_Coolant_GetPressureA,
         Io_Coolant_PressureSensorA_OCSC, Io_Coolant_GetPressureB, Io_Coolant_PressureSensorB_OCSC);
 
@@ -999,7 +999,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 0 */
     if (htim->Instance == TIM4)
     {
-        Io_FlowMeters_CheckIfFlowMeterIsActive();
+        Io_FlowMeter_CheckIfFlowMeterIsActive();
     }
     else if (htim->Instance == TIM16)
     {
