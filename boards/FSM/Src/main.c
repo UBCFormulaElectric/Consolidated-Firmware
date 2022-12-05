@@ -228,8 +228,8 @@ int main(void)
     // Coolants
     Io_FlowMeter_Init(&htim4);
     coolant = App_Coolant_Create(
-        Io_FlowMeter_GetFlowRate, Io_Coolant_GetTemperatureA,
-        Io_Coolant_GetTemperatureB, Io_Coolant_GetPressureA, Io_Coolant_GetPressureB);
+        Io_FlowMeter_GetFlowRate, Io_Coolant_GetTemperatureA, Io_Coolant_GetTemperatureB, Io_Coolant_GetPressureA,
+        Io_Coolant_GetPressureB);
 
     // steering
     steering = App_Steering_Create(Io_SteeringAngleSensor_GetAngleDegree, Io_SteeringSensorOCSC);
