@@ -171,7 +171,6 @@ float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct Accelerator
 }
 
 // TODO figure out what to do when primary/secondary is NAN, but signal has not activated yet.
-// TODO review whether or not returning is best, or having a global boolean, which does the torque = 0 at the end.
 void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
 {
     struct FsmCanTxInterface *can_tx             = App_FsmWorld_GetCanTx(world);

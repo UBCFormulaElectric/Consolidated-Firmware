@@ -10,7 +10,6 @@
 #define BRAKE_PRESSURE_SC_THRESHOLD_V (3.0f)
 #define BRAKE_PRESSURE_SENSOR_MAX_V (5.0f)
 
-// TODO should we keep this/should this be reimplemented? This needs including "main.h"
 bool Io_Brake_IsActuated(void)
 {
     return HAL_GPIO_ReadPin(BSPD_BRAKE_STATUS_GPIO_Port, BSPD_BRAKE_STATUS_Pin) == GPIO_PIN_SET;
