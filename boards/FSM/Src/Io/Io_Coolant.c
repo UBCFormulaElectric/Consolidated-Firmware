@@ -47,11 +47,6 @@ float Io_Coolant_GetTemperatureA(void)
     // TODO calculate the temperature
     return 1;
 }
-bool Io_Coolant_TemperatureSensorA_OCSC(void)
-{
-    float temperature_voltage = Io_Coolant_TemperatureAVoltage();
-    return TEMPERATURE_VOLTAGE_MIN <= temperature_voltage && temperature_voltage <= TEMPERATURE_VOLTAGE_MAX;
-}
 
 float Io_Coolant_TemperatureBVoltage(void)
 {
@@ -62,11 +57,6 @@ float Io_Coolant_GetTemperatureB(void)
     float temperature_voltage = Io_Coolant_TemperatureBVoltage();
     // TODO calculate the temperature
     return 1;
-}
-bool Io_Coolant_TemperatureSensorB_OCSC(void)
-{
-    float temperature_voltage = Io_Coolant_TemperatureBVoltage();
-    return TEMPERATURE_VOLTAGE_MIN <= temperature_voltage && temperature_voltage <= TEMPERATURE_VOLTAGE_MAX;
 }
 
 float Io_Coolant_PressureAVoltage(void)
@@ -79,11 +69,6 @@ float Io_Coolant_GetPressureA(void)
     // TODO calculate the pressure
     return 1;
 }
-bool Io_Coolant_PressureSensorA_OCSC(void)
-{
-    float pressure_voltage = Io_Coolant_PressureAVoltage();
-    return PRESSURE_VOLTAGE_MIN <= pressure_voltage && pressure_voltage <= PRESSURE_VOLTAGE_MAX;
-}
 
 float Io_Coolant_PressureBVoltage(void)
 {
@@ -94,9 +79,4 @@ float Io_Coolant_GetPressureB(void)
     float pressure_voltage = Io_Coolant_PressureBVoltage();
     // TODO calculate the pressure
     return 1;
-}
-bool Io_Coolant_PressureSensorB_OCSC(void)
-{
-    float pressure_voltage = Io_Coolant_PressureBVoltage();
-    return PRESSURE_VOLTAGE_MIN <= pressure_voltage && pressure_voltage <= PRESSURE_VOLTAGE_MAX;
 }

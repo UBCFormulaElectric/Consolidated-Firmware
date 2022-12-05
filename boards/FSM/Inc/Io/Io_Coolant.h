@@ -36,10 +36,6 @@ float Io_Coolant_TemperatureAVoltage(void);
  * @returns the temperature of the coolant at [sensor B] in Celsius
  */
 float Io_Coolant_GetTemperatureA(void);
-/**
- * @return whether the temperature sensor A is open or short circuit
- */
-bool Io_Coolant_TemperatureSensorA_OCSC(void);
 
 /**
  * @return the voltage of the temperature B sensor
@@ -49,10 +45,6 @@ float Io_Coolant_TemperatureBVoltage(void);
  * @returns the temperature of the coolant at [sensor B] in Celsius
  */
 float Io_Coolant_GetTemperatureB(void);
-/**
- * @return whether the temperature sensor B is open or short circuit
- */
-bool Io_Coolant_TemperatureSensorB_OCSC(void);
 
 /**
  * @return the voltage of the pressure A sensor
@@ -62,10 +54,6 @@ float Io_Coolant_PressureAVoltage(void);
  * @returns the pressure of the coolant at [sensor A] in PSI
  */
 float Io_Coolant_GetPressureA(void);
-/**
- * @return whether pressure sensor A is open or short circuit
- */
-bool Io_Coolant_PressureSensorA_OCSC(void);
 
 /**
  * @return the voltage of the pressure B sensor
@@ -75,7 +63,3 @@ float Io_Coolant_PressureBVoltage(void);
  * @returns the pressure of the coolant at [sensor B] in PSI
  */
 float Io_Coolant_GetPressureB(void);
-/**
- * @return whether pressure sensor B is open or short circuit
- */
-bool Io_Coolant_PressureSensorB_OCSC(void);
