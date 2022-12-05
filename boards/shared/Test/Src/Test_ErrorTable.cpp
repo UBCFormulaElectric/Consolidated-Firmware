@@ -99,7 +99,7 @@ class SharedErrorTableTest : public testing::Test
     std::vector<enum Board> GetAllBoards(void)
     {
         return std::vector<enum Board>{
-            DCM, DIM, FSM, PDM, GSM,
+            BMS, DCM, DIM, FSM, PDM, GSM,
         };
     }
 
@@ -439,10 +439,6 @@ TEST_F(SharedErrorTableTest, get_all_errors_using_every_error)
     ASSERT_EQ(NUM_ERROR_IDS, error_list.num_errors);
     for (size_t id = 0; id < NUM_ERROR_IDS; id++)
     {
-        if (!App_SharedError_IsErrorInList(&error_list, (enum ErrorId)id))
-        {
-            printf("fail");
-        }
         EXPECT_TRUE(App_SharedError_IsErrorInList(&error_list, (enum ErrorId)id));
     }
 }
@@ -494,7 +490,9 @@ TEST_F(SharedErrorTableTest, get_all_critical_errors_using_one_critical_error_pe
     // Make sure we only retrieve as many critical errors as there are boards,
     // even though there are (boards + 1) errors that are set
     App_SharedErrorTable_GetAllCriticalErrors(error_table, &error_list);
-    ASSERT_EQ(NUM_BOARDS, error_list.num_errors);
+    // BMS will always return as having 0 errors as it is not in the table. NUM_BOARDS - 1 is equivalent to all boards
+    // with critical errors.
+    ASSERT_EQ(NUM_BOARDS - 1, error_list.num_errors);
 }
 
 TEST_F(SharedErrorTableTest, get_all_non_critical_errors_using_no_errors)
@@ -540,7 +538,9 @@ TEST_F(SharedErrorTableTest, get_all_non_critical_errors_using_one_non_critical_
     // Make sure we only retrieve as many non-critical errors as there are
     // boards, even though there are (boards + 1) errors that are set
     App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
-    ASSERT_EQ(NUM_BOARDS, error_list.num_errors);
+    // BMS will always return as having 0 errors as it is not in the table. NUM_BOARDS - 1 is equivalent to all boards
+    // with non-critical errors.
+    ASSERT_EQ(NUM_BOARDS - 1, error_list.num_errors);
 }
 
 TEST_F(SharedErrorTableTest, get_boards_with_no_errors_using_no_errors)
@@ -576,7 +576,8 @@ TEST_F(SharedErrorTableTest, get_boards_with_no_errors_using_one_critical_error_
     // Every board has a critical error
     ResetWithOneCriticalErrorForEveryBoard();
     App_SharedErrorTable_GetBoardsWithNoErrors(error_table, &board_list);
-    ASSERT_EQ(0, board_list.num_boards);
+    // BMS will always return as having 0 errors as it is not in the table. 1 is equivalent to 0 boards without errors.
+    ASSERT_EQ(1, board_list.num_boards);
 }
 
 TEST_F(SharedErrorTableTest, get_boards_with_no_errors_using_one_non_critical_error)
@@ -586,6 +587,8 @@ TEST_F(SharedErrorTableTest, get_boards_with_no_errors_using_one_non_critical_er
 
     // Make sure we retrieve (num_boards - 1) boards
     App_SharedErrorTable_GetBoardsWithNoErrors(error_table, &board_list);
+    // BMS will always return as having 0 errors as it is not in the table. NUM_BOARDS - 1 is equivalent to all boards
+    // with non-critical errors.
     ASSERT_EQ(NUM_BOARDS - 1, board_list.num_boards);
     for (auto board : GetAllBoards())
     {
@@ -602,7 +605,9 @@ TEST_F(SharedErrorTableTest, get_boards_with_no_errors_using_one_non_critical_er
 
     // Make sure we retrieve no boards
     App_SharedErrorTable_GetBoardsWithNoErrors(error_table, &board_list);
-    ASSERT_EQ(0, board_list.num_boards);
+    // BMS will always return as having 0 errors as it is not in the table. 1 is equivalent to 0 boards without
+    // non-critical errors.
+    ASSERT_EQ(1, board_list.num_boards);
 }
 
 TEST_F(SharedErrorTableTest, get_boards_with_errors_using_no_errors)
@@ -632,9 +637,18 @@ TEST_F(SharedErrorTableTest, get_boards_with_errors_using_one_critical_error_per
 
     // Make sure we retrieve every board
     App_SharedErrorTable_GetBoardsWithErrors(error_table, &board_list);
-    ASSERT_EQ(NUM_BOARDS, board_list.num_boards);
+    // BMS will always return as having 0 errors as it is not in the table. NUM_BOARDS - 1 is equivalent to all boards
+    // with errors.
+    ASSERT_EQ(NUM_BOARDS - 1, board_list.num_boards);
     for (auto board : GetAllBoards())
+    {
+        // BMS not in table, skip
+        if (board == BMS)
+        {
+            continue;
+        }
         ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, board));
+    }
 }
 
 TEST_F(SharedErrorTableTest, get_boards_with_errors_using_one_non_critical_error)
@@ -655,9 +669,16 @@ TEST_F(SharedErrorTableTest, get_boards_with_errors_using_one_non_critical_error
 
     // Make sure we retrieve every board
     App_SharedErrorTable_GetBoardsWithErrors(error_table, &board_list);
-    ASSERT_EQ(NUM_BOARDS, board_list.num_boards);
+    // BMS will always return as having 0 errors as it is not in the table. NUM_BOARDS - 1 is equivalent to all boards
+    // with non-critical errors.
+    ASSERT_EQ(NUM_BOARDS - 1, board_list.num_boards);
     for (auto board : GetAllBoards())
     {
+        // BMS not in table, skip
+        if (board == BMS)
+        {
+            continue;
+        }
         ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, board));
     }
 }
@@ -689,9 +710,16 @@ TEST_F(SharedErrorTableTest, get_boards_with_critical_errors_using_one_critical_
 
     // Make sure we retrieve every board
     App_SharedErrorTable_GetBoardsWithCriticalErrors(error_table, &board_list);
-    ASSERT_EQ(NUM_BOARDS, board_list.num_boards);
+    // BMS will always return as having 0 errors as it is not in the table. NUM_BOARDS - 1 is equivalent to all boards
+    // with critical errors.
+    ASSERT_EQ(NUM_BOARDS - 1, board_list.num_boards);
     for (auto board : GetAllBoards())
     {
+        // BMS not in table, skip
+        if (board == BMS)
+        {
+            continue;
+        }
         ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, board));
     }
 }
@@ -723,9 +751,16 @@ TEST_F(SharedErrorTableTest, get_boards_with_non_critical_errors_using_one_criti
 
     // Make sure we retrieve every board
     App_SharedErrorTable_GetBoardsWithNonCriticalErrors(error_table, &board_list);
-    ASSERT_EQ(NUM_BOARDS, board_list.num_boards);
+    // BMS will always return as having 0 errors as it is not in the table. NUM_BOARDS - 1 is equivalent to all boards
+    // with non-critical errors.
+    ASSERT_EQ(NUM_BOARDS - 1, board_list.num_boards);
     for (auto board : GetAllBoards())
     {
+        // BMS not in table, skip
+        if (board == BMS)
+        {
+            continue;
+        }
         ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, board));
     }
 }
