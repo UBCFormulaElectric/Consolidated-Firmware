@@ -39,7 +39,7 @@ float Io_AcceleratorPedals_GetPapps(void)
     float primary_angle = pedal_travel_angle * 180 / (float)M_PI + 16.3f;
     return primary_angle / 30.0f * 100.0f;
 }
-bool Io_AcceleratorPedals_PappOCSC(void)
+bool Io_AcceleratorPedals_PappsOCSC(void)
 {
     float pedal_voltage = Io_AcceleratorPedals_GetPappVoltage();
     return !(MIN_PEDAL_VOLTAGE <= pedal_voltage && pedal_voltage <= MAX_PEDAL_VOLTAGE);
@@ -52,7 +52,7 @@ float Io_AcceleratorPedals_GetSapps(void)
     float secondary_angle = (float)M_PI;
     return secondary_angle / 30.0f * 100.0f;
 }
-bool Io_AcceleratorPedals_SappOCSC(void)
+bool Io_AcceleratorPedals_SappsOCSC(void)
 {
     float pedal_voltage = Io_AcceleratorPedals_GetSappVoltage();
     return !(MIN_PEDAL_VOLTAGE <= pedal_voltage && pedal_voltage <= MAX_PEDAL_VOLTAGE);

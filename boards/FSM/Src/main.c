@@ -218,8 +218,8 @@ int main(void)
 
     // Accelerator
     papps_and_sapps = App_AcceleratorPedals_Create(
-        Io_AcceleratorPedals_GetPapps, Io_AcceleratorPedals_PappOCSC, Io_AcceleratorPedals_GetSapps,
-        Io_AcceleratorPedals_SappOCSC);
+        Io_AcceleratorPedals_GetPapps, Io_AcceleratorPedals_PappsOCSC, Io_AcceleratorPedals_GetSapps,
+        Io_AcceleratorPedals_SappsOCSC);
 
     // Brake
     brake = App_Brake_Create(

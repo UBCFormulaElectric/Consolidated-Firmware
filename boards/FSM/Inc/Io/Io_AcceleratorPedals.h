@@ -13,7 +13,7 @@ float Io_AcceleratorPedals_GetPapps(void);
 /**
  * @return whether or not the primary accelerator pedal sensor is open or short circuit
  */
-bool Io_AcceleratorPedals_PappOCSC(void);
+bool Io_AcceleratorPedals_PappsOCSC(void);
 
 /**
  * @return the voltage of the secondary accelerator pedal sensor
@@ -27,4 +27,4 @@ float Io_AcceleratorPedals_GetSapps(void);
 /**
  * @return whether or not the secondary accelerator pedal sensor is open or short circuit
  */
-bool Io_AcceleratorPedals_SappOCSC(void);
+bool Io_AcceleratorPedals_SappsOCSC(void);
