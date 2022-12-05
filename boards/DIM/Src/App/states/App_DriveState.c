@@ -202,8 +202,7 @@ const struct State *App_GetDriveState(void)
 
 bool App_DriveState_HasBmsFault(const struct DimCanRxInterface *can_rx)
 {
-    uint8_t test = App_CanRx_BMS_STATE_MACHINE_GetSignal_STATE(can_rx) == CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE;
-    return test;
+    return = App_CanRx_BMS_STATE_MACHINE_GetSignal_STATE(can_rx) == CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE;
 }
 
 bool App_DriveState_HasBmsWarning(const struct DimCanRxInterface *can_rx)
