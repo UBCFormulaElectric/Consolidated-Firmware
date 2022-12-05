@@ -41,7 +41,7 @@ float Io_AcceleratorPedals_GetPapps(void)
 }
 bool Io_AcceleratorPedals_PappsOCSC(void)
 {
-    float pedal_voltage = Io_AcceleratorPedals_GetPappVoltage();
+    float pedal_voltage = 0.5f;
     return !(MIN_PEDAL_VOLTAGE <= pedal_voltage && pedal_voltage <= MAX_PEDAL_VOLTAGE);
 }
 
@@ -54,6 +54,6 @@ float Io_AcceleratorPedals_GetSapps(void)
 }
 bool Io_AcceleratorPedals_SappsOCSC(void)
 {
-    float pedal_voltage = Io_AcceleratorPedals_GetSappVoltage();
+    float pedal_voltage = 0.5f;
     return !(MIN_PEDAL_VOLTAGE <= pedal_voltage && pedal_voltage <= MAX_PEDAL_VOLTAGE);
 }
