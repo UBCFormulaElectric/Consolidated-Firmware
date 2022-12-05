@@ -36,10 +36,6 @@ FAKE_VALUE_FUNC(float, coolant_get_temp_a)
 FAKE_VALUE_FUNC(float, coolant_get_temp_b)
 FAKE_VALUE_FUNC(float, coolant_get_pressure_a)
 FAKE_VALUE_FUNC(float, coolant_get_pressure_b)
-FAKE_VALUE_FUNC(bool, coolant_temp_a_OCSC)
-FAKE_VALUE_FUNC(bool, coolant_temp_b_OCSC)
-FAKE_VALUE_FUNC(bool, coolant_pressure_a_OCSC)
-FAKE_VALUE_FUNC(bool, coolant_pressure_b_OCSC)
 
 // wheel
 FAKE_VALUE_FUNC(float, wheel_get_left_speed)
@@ -82,8 +78,8 @@ class FsmStateMachineTest : public BaseStateMachineTest
             brake_get_front_pressure, brake_front_pressure_OCSC, brake_get_rear_pressure, brake_rear_pressure_OCSC,
             brake_get_pedal_travel, brake_pedal_OCSC, is_brake_actuated);
         coolant = App_Coolant_Create(
-            coolant_get_flow_rate, coolant_get_temp_a, coolant_temp_a_OCSC, coolant_get_temp_b, coolant_temp_b_OCSC,
-            coolant_get_pressure_a, coolant_pressure_a_OCSC, coolant_get_pressure_b, coolant_pressure_b_OCSC);
+            coolant_get_flow_rate, coolant_get_temp_a, coolant_get_temp_b,
+            coolant_get_pressure_a, coolant_get_pressure_b);
         steering = App_Steering_Create(get_steering_angle, steering_OCSC);
         wheels   = App_Wheels_Create(wheel_get_left_speed, wheel_get_right_speed);
         world    = App_FsmWorld_Create(
@@ -103,10 +99,6 @@ class FsmStateMachineTest : public BaseStateMachineTest
         RESET_FAKE(coolant_get_temp_b)
         RESET_FAKE(coolant_get_pressure_a)
         RESET_FAKE(coolant_get_pressure_b)
-        RESET_FAKE(coolant_temp_a_OCSC)
-        RESET_FAKE(coolant_temp_b_OCSC)
-        RESET_FAKE(coolant_pressure_a_OCSC)
-        RESET_FAKE(coolant_pressure_b_OCSC)
         RESET_FAKE(wheel_get_left_speed)
         RESET_FAKE(wheel_get_right_speed)
         RESET_FAKE(get_steering_angle)
@@ -398,44 +390,6 @@ TEST_F(FsmStateMachineTest, primary_flow_rate_in_range_clears_motor_shutdown_can
     ASSERT_EQ(
         CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE,
         App_CanTx_GetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(can_tx_interface));
-}
-
-TEST_F(FsmStateMachineTest, coolant_pressure_temperature_OCSC)
-{
-    coolant_pressure_a_OCSC_fake.return_val = false;
-    coolant_pressure_b_OCSC_fake.return_val = false;
-    coolant_temp_a_OCSC_fake.return_val     = false;
-    coolant_temp_b_OCSC_fake.return_val     = false;
-    LetTimePass(fsm_state_machine, 10);
-    ASSERT_EQ(
-        App_CanTx_GetPeriodicSignal_PRESSURE_A_OCSC(can_tx_interface),
-        CANMSGS_FSM_COOLANT_FLAGS_PRESSURE_A_OCSC_FALSE_CHOICE);
-    ASSERT_EQ(
-        App_CanTx_GetPeriodicSignal_PRESSURE_B_OCSC(can_tx_interface),
-        CANMSGS_FSM_COOLANT_FLAGS_PRESSURE_B_OCSC_FALSE_CHOICE);
-    ASSERT_EQ(
-        App_CanTx_GetPeriodicSignal_TEMPERATURE_A_OCSC(can_tx_interface),
-        CANMSGS_FSM_COOLANT_FLAGS_TEMPERATURE_A_OCSC_FALSE_CHOICE);
-    ASSERT_EQ(
-        App_CanTx_GetPeriodicSignal_TEMPERATURE_B_OCSC(can_tx_interface),
-        CANMSGS_FSM_COOLANT_FLAGS_TEMPERATURE_B_OCSC_FALSE_CHOICE);
-    coolant_pressure_a_OCSC_fake.return_val = true;
-    coolant_pressure_b_OCSC_fake.return_val = true;
-    coolant_temp_a_OCSC_fake.return_val     = true;
-    coolant_temp_b_OCSC_fake.return_val     = true;
-    LetTimePass(fsm_state_machine, 10);
-    ASSERT_EQ(
-        App_CanTx_GetPeriodicSignal_PRESSURE_A_OCSC(can_tx_interface),
-        CANMSGS_FSM_COOLANT_FLAGS_PRESSURE_A_OCSC_TRUE_CHOICE);
-    ASSERT_EQ(
-        App_CanTx_GetPeriodicSignal_PRESSURE_B_OCSC(can_tx_interface),
-        CANMSGS_FSM_COOLANT_FLAGS_PRESSURE_B_OCSC_TRUE_CHOICE);
-    ASSERT_EQ(
-        App_CanTx_GetPeriodicSignal_TEMPERATURE_A_OCSC(can_tx_interface),
-        CANMSGS_FSM_COOLANT_FLAGS_TEMPERATURE_A_OCSC_TRUE_CHOICE);
-    ASSERT_EQ(
-        App_CanTx_GetPeriodicSignal_TEMPERATURE_B_OCSC(can_tx_interface),
-        CANMSGS_FSM_COOLANT_FLAGS_TEMPERATURE_B_OCSC_TRUE_CHOICE);
 }
 
 TEST_F(FsmStateMachineTest, steering_sensor_OCSC)
