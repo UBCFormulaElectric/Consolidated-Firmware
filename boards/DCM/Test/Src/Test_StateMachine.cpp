@@ -287,7 +287,7 @@ TEST_F(DcmStateMachineTest, exit_fault_state_if_there_is_only_warning)
 {
     SetInitialState(App_GetFaultState());
 
-    // Choose any non-critical fault, it doesn't have to come from DCM
+    // Choose any warning, it doesn't have to come from DCM
     App_SharedErrorTable_SetError(error_table, DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
 
     LetTimePass(state_machine, 10);
