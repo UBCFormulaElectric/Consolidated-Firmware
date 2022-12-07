@@ -22,19 +22,22 @@ static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct Airs *    airs  = App_BmsWorld_GetAirs(world);
+    App_AllStatesRunOnTick100Hz(state_machine);
 
-    bool is_air_negative_open = !App_Airs_IsAirNegativeClosed(airs);
+    struct BmsWorld *         world          = App_SharedStateMachine_GetWorld(state_machine);
+    struct Airs *             airs           = App_BmsWorld_GetAirs(world);
+    struct Accumulator *      accumulator    = App_BmsWorld_GetAccumulator(world);
+    struct TractiveSystem *   tractiveSystem = App_BmsWorld_GetTractiveSystem(world);
+    struct BmsCanTxInterface *can_tx         = App_BmsWorld_GetCanTx(world);
 
-    if (is_air_negative_open)
+    const bool is_air_negative_open = !App_Airs_IsAirNegativeClosed(airs);
+    const bool is_bms_faulted       = App_TractveSystem_CheckFaults(can_tx, tractiveSystem) ||
+                                App_Accumulator_CheckFaults(can_tx, accumulator, tractiveSystem);
+
+    if (is_air_negative_open && !is_bms_faulted)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
     }
-
-    // Moved to after air_negative_open check to ensrue any active fault conditions can override next state to fault
-    // state
-    App_AllStatesRunOnTick100Hz(state_machine);
 }
 
 static void FaultStateRunOnExit(struct StateMachine *const state_machine)
