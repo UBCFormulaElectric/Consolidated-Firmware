@@ -37,7 +37,7 @@ class SharedErrorTableTest : public testing::Test
         ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_GSM_CRITICAL_ERROR, true));
     }
 
-    void ResetWithOneNonCriticalErrorForOneBoard(void)
+    void ResetWithOneWarningForOneBoard(void)
     {
         TearDownObject(error_table, App_SharedErrorTable_Destroy);
         error_table = App_SharedErrorTable_Create();
@@ -45,7 +45,7 @@ class SharedErrorTableTest : public testing::Test
         ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_WARNING, true));
     }
 
-    void ResetWithOneNonCriticalErrorForEveryBoard(void)
+    void ResetWithOneWarningForEveryBoard(void)
     {
         TearDownObject(error_table, App_SharedErrorTable_Destroy);
         error_table = App_SharedErrorTable_Create();
@@ -281,12 +281,12 @@ TEST_F(SharedErrorTableTest, has_any_error_set_using_motor_shutdown_error)
 
 TEST_F(SharedErrorTableTest, has_any_error_set_using_warning)
 {
-    // Set a non-critical error
+    // Set a warning
     ASSERT_FALSE(App_SharedErrorTable_HasAnyErrorSet(error_table));
     ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_WARNING, true));
     ASSERT_TRUE(App_SharedErrorTable_HasAnyErrorSet(error_table));
 
-    // Clear the non-critical error that was just set
+    // Clear the warning that was just set
     ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_WARNING, false));
     ASSERT_FALSE(App_SharedErrorTable_HasAnyErrorSet(error_table));
 }
@@ -328,14 +328,14 @@ TEST_F(SharedErrorTableTest, has_any_motor_shutdown_error_set)
 }
 TEST_F(SharedErrorTableTest, has_any_warning_set)
 {
-    // Set a non-critical error
-    ASSERT_FALSE(App_SharedErrorTable_HasAnyNonCriticalErrorSet(error_table));
+    // Set a warning
+    ASSERT_FALSE(App_SharedErrorTable_HasAnyWarningSet(error_table));
     ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_WARNING, true));
-    ASSERT_TRUE(App_SharedErrorTable_HasAnyNonCriticalErrorSet(error_table));
+    ASSERT_TRUE(App_SharedErrorTable_HasAnyWarningSet(error_table));
 
-    // Clear the non-critical error that was just set
+    // Clear the warning that was just set
     ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_WARNING, false));
-    ASSERT_FALSE(App_SharedErrorTable_HasAnyNonCriticalErrorSet(error_table));
+    ASSERT_FALSE(App_SharedErrorTable_HasAnyWarningSet(error_table));
 }
 
 TEST_F(SharedErrorTableTest, get_all_errors_using_no_error)
@@ -408,22 +408,22 @@ TEST_F(SharedErrorTableTest, get_all_errors_using_one_motor_shutdown_error)
 
 TEST_F(SharedErrorTableTest, get_all_errors_using_one_critical_error_and_one_warning)
 {
-    // Set a critical error and a non-critical_error
+    // Set a critical error and a warning
     ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_CRITICAL_ERROR, true));
     ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_WARNING, true));
 
-    // Make sure the critical error and non-critical error that were just set
+    // Make sure the critical error and warning that were just set
     // can be retrieved
     App_SharedErrorTable_GetAllErrors(error_table, &error_list);
     ASSERT_EQ(2, error_list.num_errors);
     ASSERT_TRUE(App_SharedError_IsErrorInList(&error_list, DEFAULT_CRITICAL_ERROR));
     ASSERT_TRUE(App_SharedError_IsErrorInList(&error_list, DEFAULT_WARNING));
 
-    // Setting the same critical error and non-critical error should not modify
+    // Setting the same critical error and warning should not modify
     // the error list
     ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_CRITICAL_ERROR, true));
 
-    // Again, make sure the critical error and non-critical error that were just
+    // Again, make sure the critical error and warning that were just
     // set can be retrieved
     App_SharedErrorTable_GetAllErrors(error_table, &error_list);
     ASSERT_EQ(2, error_list.num_errors);
@@ -479,7 +479,7 @@ TEST_F(SharedErrorTableTest, get_all_critical_errors_using_one_critical_error)
 
 TEST_F(SharedErrorTableTest, get_all_critical_errors_using_one_critical_error_and_one_warning)
 {
-    // Set a critical error and a non-critical_error
+    // Set a critical error and a warning
     ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_CRITICAL_ERROR, true));
     ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_WARNING, true));
 
@@ -491,7 +491,7 @@ TEST_F(SharedErrorTableTest, get_all_critical_errors_using_one_critical_error_an
 
 TEST_F(SharedErrorTableTest, get_all_critical_errors_using_one_critical_error_per_board_and_one_warning)
 {
-    // Set a critical error for each board plus an additional non-critical error
+    // Set a critical error for each board plus an additional warning
     ResetWithOneCriticalErrorForEveryBoard();
     ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_WARNING, true));
 
@@ -501,49 +501,49 @@ TEST_F(SharedErrorTableTest, get_all_critical_errors_using_one_critical_error_pe
     ASSERT_EQ(NUM_BOARDS, error_list.num_errors);
 }
 
-TEST_F(SharedErrorTableTest, get_all_warnings_using_no_errors)
+TEST_F(SharedErrorTableTest, get_all_warning_using_no_errors)
 {
     // No error
-    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
+    App_SharedErrorTable_GetAllWarnings(error_table, &error_list);
 
     // Make sure we retrieve no error
     ASSERT_EQ(0, error_list.num_errors);
 }
 
-TEST_F(SharedErrorTableTest, get_all_warnings_using_one_warning)
+TEST_F(SharedErrorTableTest, get_all_warning_using_one_warning)
 {
-    // Set a non-critical error
+    // Set a warning
     ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_WARNING, true));
-    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
+    App_SharedErrorTable_GetAllWarnings(error_table, &error_list);
     ASSERT_EQ(1, error_list.num_errors);
 
-    // Setting the same non-critical error should not modify the error list
+    // Setting the same warning should not modify the error list
     ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_WARNING, true));
-    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
+    App_SharedErrorTable_GetAllWarnings(error_table, &error_list);
     ASSERT_EQ(1, error_list.num_errors);
 }
 
-TEST_F(SharedErrorTableTest, get_all_warnings_using_one_warning_and_one_critical_error)
+TEST_F(SharedErrorTableTest, get_all_warning_using_one_warning_and_one_critical_error)
 {
-    // Set a non-critical error and a critical error
+    // Set a warning and a critical error
     ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_WARNING, true));
     ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_CRITICAL_ERROR, true));
 
-    // Make sure we only retrieve one non-critical error, even though there are
+    // Make sure we only retrieve one warning, even though there are
     // two errors that are set
-    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
+    App_SharedErrorTable_GetAllWarnings(error_table, &error_list);
     ASSERT_EQ(1, error_list.num_errors);
 }
 
-TEST_F(SharedErrorTableTest, get_all_warnings_using_one_warning_per_board_and_one_critical_error)
+TEST_F(SharedErrorTableTest, get_all_warning_using_one_warning_per_board_and_one_critical_error)
 {
-    // Set a non-critical error per board plus an additional critical error
-    ResetWithOneNonCriticalErrorForEveryBoard();
+    // Set a warning per board plus an additional critical error
+    ResetWithOneWarningForEveryBoard();
     ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_CRITICAL_ERROR, true));
 
-    // Make sure we only retrieve as many non-critical errors as there are
+    // Make sure we only retrieve as many warnings as there are
     // boards, even though there are (boards + 1) errors that are set
-    App_SharedErrorTable_GetAllNonCriticalErrors(error_table, &error_list);
+    App_SharedErrorTable_GetAllWarnings(error_table, &error_list);
     ASSERT_EQ(NUM_BOARDS, error_list.num_errors);
 }
 
@@ -585,8 +585,8 @@ TEST_F(SharedErrorTableTest, get_boards_with_no_errors_using_one_critical_error_
 
 TEST_F(SharedErrorTableTest, get_boards_with_no_errors_using_one_warning)
 {
-    // One board has a non-critical error
-    ResetWithOneNonCriticalErrorForOneBoard();
+    // One board has a warning
+    ResetWithOneWarningForOneBoard();
 
     // Make sure we retrieve (num_boards - 1) boards
     App_SharedErrorTable_GetBoardsWithNoErrors(error_table, &board_list);
@@ -601,8 +601,8 @@ TEST_F(SharedErrorTableTest, get_boards_with_no_errors_using_one_warning)
 }
 TEST_F(SharedErrorTableTest, get_boards_with_no_errors_using_one_warning_per_board)
 {
-    // Every board has a non-critical error
-    ResetWithOneNonCriticalErrorForEveryBoard();
+    // Every board has a warning
+    ResetWithOneWarningForEveryBoard();
 
     // Make sure we retrieve no boards
     App_SharedErrorTable_GetBoardsWithNoErrors(error_table, &board_list);
@@ -643,8 +643,8 @@ TEST_F(SharedErrorTableTest, get_boards_with_errors_using_one_critical_error_per
 
 TEST_F(SharedErrorTableTest, get_boards_with_errors_using_one_warning)
 {
-    // One board has anon-critical error
-    ResetWithOneNonCriticalErrorForOneBoard();
+    // One board has awarning
+    ResetWithOneWarningForOneBoard();
 
     // Make sure we retrieve only the one correct board
     App_SharedErrorTable_GetBoardsWithErrors(error_table, &board_list);
@@ -654,8 +654,8 @@ TEST_F(SharedErrorTableTest, get_boards_with_errors_using_one_warning)
 
 TEST_F(SharedErrorTableTest, get_boards_with_errors_using_one_warning_per_board)
 {
-    // Every board has anon-critical error
-    ResetWithOneNonCriticalErrorForEveryBoard();
+    // Every board has awarning
+    ResetWithOneWarningForEveryBoard();
 
     // Make sure we retrieve every board
     App_SharedErrorTable_GetBoardsWithErrors(error_table, &board_list);
@@ -700,33 +700,33 @@ TEST_F(SharedErrorTableTest, get_boards_with_critical_errors_using_one_critical_
     }
 }
 
-TEST_F(SharedErrorTableTest, get_boards_with_warnings_using_no_errors)
+TEST_F(SharedErrorTableTest, get_boards_with_warning_using_no_errors)
 {
-    // No board has any non-critical error
-    App_SharedErrorTable_GetBoardsWithNonCriticalErrors(error_table, &board_list);
+    // No board has any warning
+    App_SharedErrorTable_GetBoardsWithWarnings(error_table, &board_list);
 
     // Make sure we retrieve no boards
     ASSERT_EQ(0, board_list.num_boards);
 }
 
-TEST_F(SharedErrorTableTest, get_boards_with_warnings_using_one_critical_error)
+TEST_F(SharedErrorTableTest, get_boards_with_warning_using_one_critical_error)
 {
-    // One board has a non-critical error
-    ResetWithOneNonCriticalErrorForOneBoard();
+    // One board has a warning
+    ResetWithOneWarningForOneBoard();
 
     // Make sure we retrieve only the one correct board
-    App_SharedErrorTable_GetBoardsWithNonCriticalErrors(error_table, &board_list);
+    App_SharedErrorTable_GetBoardsWithWarnings(error_table, &board_list);
     ASSERT_EQ(1, board_list.num_boards);
     ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, DEFAULT_WARNING_BOARD));
 }
 
-TEST_F(SharedErrorTableTest, get_boards_with_warnings_using_one_critical_error_per_board)
+TEST_F(SharedErrorTableTest, get_boards_with_warning_using_one_critical_error_per_board)
 {
-    // Every board has a non-critical error
-    ResetWithOneNonCriticalErrorForEveryBoard();
+    // Every board has a warning
+    ResetWithOneWarningForEveryBoard();
 
     // Make sure we retrieve every board
-    App_SharedErrorTable_GetBoardsWithNonCriticalErrors(error_table, &board_list);
+    App_SharedErrorTable_GetBoardsWithWarnings(error_table, &board_list);
     ASSERT_EQ(NUM_BOARDS, board_list.num_boards);
     for (auto board : GetAllBoards())
     {
@@ -739,8 +739,8 @@ TEST_F(SharedErrorTableTest, process_bms_warnings)
     std::vector<enum ErrorId> bms_warning_ids = { BMS_WARNINGS };
 
     TestRoutineForSetErrorsFromCanMsg(
-        BMS, bms_warning_ids, CANMSGS_BMS_WARNINGS_FRAME_ID, CANMSGS_BMS_WARNINGS_LENGTH, App_CanMsgs_bms_warnings_pack,
-        App_SharedErrorTable_GetBoardsWithNonCriticalErrors, App_SharedErrorTable_GetAllNonCriticalErrors);
+        BMS, bms_warning_ids, CANMSGS_BMS_WARNING_FRAME_ID, CANMSGS_BMS_WARNING_LENGTH, App_CanMsgs_bms_warning_pack,
+        App_SharedErrorTable_GetBoardsWithWarnings, App_SharedErrorTable_GetAllWarnings);
 }
 
 TEST_F(SharedErrorTableTest, process_bms_faults)
@@ -766,8 +766,8 @@ TEST_F(SharedErrorTableTest, process_dcm_warnings)
     std::vector<enum ErrorId> dcm_warning_ids = { DCM_WARNINGS };
 
     TestRoutineForSetErrorsFromCanMsg(
-        DCM, dcm_warning_ids, CANMSGS_DCM_WARNINGS_FRAME_ID, CANMSGS_DCM_WARNINGS_LENGTH, App_CanMsgs_dcm_warnings_pack,
-        App_SharedErrorTable_GetBoardsWithNonCriticalErrors, App_SharedErrorTable_GetAllNonCriticalErrors);
+        DCM, dcm_warning_ids, CANMSGS_DCM_WARNING_FRAME_ID, CANMSGS_DCM_WARNING_LENGTH, App_CanMsgs_dcm_warning_pack,
+        App_SharedErrorTable_GetBoardsWithWarnings, App_SharedErrorTable_GetAllWarnings);
 }
 
 TEST_F(SharedErrorTableTest, process_dcm_air_shutdown_errors)
@@ -795,8 +795,8 @@ TEST_F(SharedErrorTableTest, process_dim_warnings)
     std::vector<enum ErrorId> dim_warning_ids = { DIM_WARNINGS };
 
     TestRoutineForSetErrorsFromCanMsg(
-        DIM, dim_warning_ids, CANMSGS_DIM_WARNINGS_FRAME_ID, CANMSGS_DIM_WARNINGS_LENGTH, App_CanMsgs_dim_warnings_pack,
-        App_SharedErrorTable_GetBoardsWithNonCriticalErrors, App_SharedErrorTable_GetAllNonCriticalErrors);
+        DIM, dim_warning_ids, CANMSGS_DIM_WARNING_FRAME_ID, CANMSGS_DIM_WARNING_LENGTH, App_CanMsgs_dim_warning_pack,
+        App_SharedErrorTable_GetBoardsWithWarnings, App_SharedErrorTable_GetAllWarnings);
 }
 
 TEST_F(SharedErrorTableTest, process_dim_air_shutdown_errors)
@@ -824,8 +824,8 @@ TEST_F(SharedErrorTableTest, process_fsm_warnings)
     std::vector<enum ErrorId> fsm_warning_ids = { FSM_WARNINGS };
 
     TestRoutineForSetErrorsFromCanMsg(
-        FSM, fsm_warning_ids, CANMSGS_FSM_WARNINGS_FRAME_ID, CANMSGS_FSM_WARNINGS_LENGTH, App_CanMsgs_fsm_warnings_pack,
-        App_SharedErrorTable_GetBoardsWithNonCriticalErrors, App_SharedErrorTable_GetAllNonCriticalErrors);
+        FSM, fsm_warning_ids, CANMSGS_FSM_WARNING_FRAME_ID, CANMSGS_FSM_WARNING_LENGTH, App_CanMsgs_fsm_warning_pack,
+        App_SharedErrorTable_GetBoardsWithWarnings, App_SharedErrorTable_GetAllWarnings);
 }
 
 TEST_F(SharedErrorTableTest, process_fsm_air_shutdown_errors)
@@ -855,8 +855,8 @@ TEST_F(SharedErrorTableTest, process_pdm_warnings)
     std::vector<enum ErrorId> pdm_warning_ids = { PDM_WARNINGS };
 
     TestRoutineForSetErrorsFromCanMsg(
-        PDM, pdm_warning_ids, CANMSGS_PDM_WARNINGS_FRAME_ID, CANMSGS_PDM_WARNINGS_LENGTH, App_CanMsgs_pdm_warnings_pack,
-        App_SharedErrorTable_GetBoardsWithNonCriticalErrors, App_SharedErrorTable_GetAllNonCriticalErrors);
+        PDM, pdm_warning_ids, CANMSGS_PDM_WARNING_FRAME_ID, CANMSGS_PDM_WARNING_LENGTH, App_CanMsgs_pdm_warning_pack,
+        App_SharedErrorTable_GetBoardsWithWarnings, App_SharedErrorTable_GetAllWarnings);
 }
 
 TEST_F(SharedErrorTableTest, process_pdm_air_shutdown_errors)

@@ -193,12 +193,12 @@ bool App_SharedErrorTable_HasAnyMotorShutdownErrorSet(const struct ErrorTable *e
     return false;
 }
 
-bool App_SharedErrorTable_HasAnyNonCriticalErrorSet(const struct ErrorTable *error_table)
+bool App_SharedErrorTable_HasAnyWarningSet(const struct ErrorTable *error_table)
 {
     for (size_t i = 0; i < NUM_ERROR_IDS; i++)
     {
         const struct Error *error = error_table->errors[i];
-        if (App_SharedError_IsNonCritical(error) && App_SharedError_GetIsSet(error))
+        if (App_SharedError_IsWarning(error) && App_SharedError_GetIsSet(error))
         {
             return true;
         }
@@ -237,7 +237,7 @@ void App_SharedErrorTable_GetAllCriticalErrors(struct ErrorTable *error_table, s
     }
 }
 
-void App_SharedErrorTable_GetAllNonCriticalErrors(struct ErrorTable *error_table, struct ErrorList *error_list)
+void App_SharedErrorTable_GetAllWarnings(struct ErrorTable *error_table, struct ErrorList *error_list)
 {
     error_list->num_errors = 0;
 
@@ -245,7 +245,7 @@ void App_SharedErrorTable_GetAllNonCriticalErrors(struct ErrorTable *error_table
     {
         struct Error *error = error_table->errors[i];
 
-        if (App_SharedError_GetIsSet(error) && App_SharedError_IsNonCritical(error))
+        if (App_SharedError_GetIsSet(error) && App_SharedError_IsWarning(error))
         {
             error_list->errors[error_list->num_errors] = error;
             error_list->num_errors++;
@@ -307,9 +307,7 @@ void App_SharedErrorTable_GetBoardsWithCriticalErrors(
     }
 }
 
-void App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
-    const struct ErrorTable *error_table,
-    struct ErrorBoardList *  board_list)
+void App_SharedErrorTable_GetBoardsWithWarnings(const struct ErrorTable *error_table, struct ErrorBoardList *board_list)
 {
     board_list->num_boards = 0;
 
@@ -317,7 +315,7 @@ void App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
     {
         const struct Error *error = error_table->errors[i];
 
-        if (App_SharedError_GetIsSet(error) && App_SharedError_IsNonCritical(error) &&
+        if (App_SharedError_GetIsSet(error) && App_SharedError_IsWarning(error) &&
             !App_SharedError_IsBoardInList(board_list, App_SharedError_GetBoard(error)))
         {
             board_list->boards[board_list->num_boards] = App_SharedError_GetBoard(error);
