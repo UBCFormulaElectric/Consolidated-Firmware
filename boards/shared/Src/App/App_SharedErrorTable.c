@@ -246,13 +246,7 @@ void App_SharedErrorTable_GetBoardsWithNoErrors(const struct ErrorTable *error_t
 
     for (enum Board board = 0; board < NUM_BOARDS; board++)
     {
-        // BMS not in table, always return as not containing errors
-        if (board == BMS)
-        {
-            board_list->boards[board_list->num_boards] = board;
-            board_list->num_boards++;
-        }
-        else if (!App_SharedError_IsBoardInList(&boards_with_errors, board))
+        if (!App_SharedError_IsBoardInList(&boards_with_errors, board))
         {
             board_list->boards[board_list->num_boards] = board;
             board_list->num_boards++;

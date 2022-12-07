@@ -91,11 +91,11 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         can_tx, torque_vectoring_switch, App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH,
         CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
 
-    struct RgbLed *board_status_leds[NUM_BOARD_LEDS] = { [BMS_LED] = App_DimWorld_GetBmsStatusLed(world),
-                                                         [DCM_LED] = App_DimWorld_GetDcmStatusLed(world),
+    struct RgbLed *board_status_leds[NUM_BOARD_LEDS] = { [DCM_LED] = App_DimWorld_GetDcmStatusLed(world),
                                                          [DIM_LED] = App_DimWorld_GetDimStatusLed(world),
                                                          [FSM_LED] = App_DimWorld_GetFsmStatusLed(world),
-                                                         [PDM_LED] = App_DimWorld_GetPdmStatusLed(world) };
+                                                         [PDM_LED] = App_DimWorld_GetPdmStatusLed(world),
+                                                         [BMS_LED] = App_DimWorld_GetBmsStatusLed(world) };
 
     for (size_t i = 0; i < NUM_BOARD_LEDS; i++)
     {
@@ -108,6 +108,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         struct RgbLed *board_status_led = board_status_leds[i];
 
+        // BMS does not use error table, must use state broadcast on CAN to determine fault condition
         if (i == BMS_LED)
         {
             if (App_DriveState_HasBmsFault(can_rx))
@@ -124,7 +125,6 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
                 App_SharedRgbLed_TurnGreen(board_status_led);
             }
         }
-        // Going to need to change this
         else if (App_SharedError_IsBoardInList(&boards_with_critical_errors, i))
         {
             App_SharedRgbLed_TurnRed(board_status_led);
