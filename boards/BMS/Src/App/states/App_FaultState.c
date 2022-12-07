@@ -31,10 +31,11 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct BmsCanTxInterface *can_tx         = App_BmsWorld_GetCanTx(world);
 
     const bool is_air_negative_open = !App_Airs_IsAirNegativeClosed(airs);
-    const bool is_bms_faulted       = App_TractveSystem_CheckFaults(can_tx, tractiveSystem) ||
-                                App_Accumulator_CheckFaults(can_tx, accumulator, tractiveSystem);
+    const bool are_bms_faults_cleared =
+        !(App_TractveSystem_CheckFaults(can_tx, tractiveSystem) ||
+          App_Accumulator_CheckFaults(can_tx, accumulator, tractiveSystem));
 
-    if (is_air_negative_open && !is_bms_faulted)
+    if (is_air_negative_open && are_bms_faults_cleared)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
     }
