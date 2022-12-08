@@ -103,7 +103,7 @@ if __name__ == "__main__":
     # each board
     for board in get_board_names():
         try:
-            can_msg = database.get_message_by_name(board + '_WARNING')
+            can_msg = database.get_message_by_name(board + '_WARNINGS')
             enum_members['warning'][board] = \
                 ['    %s_WARNING_%s, \\' %(board, signal.name.upper()) for signal in can_msg.signals]
         except KeyError:

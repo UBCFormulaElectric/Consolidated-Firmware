@@ -112,7 +112,7 @@ class SharedErrorTableTest : public testing::Test
     const enum ErrorId DEFAULT_MOTOR_SHUTDOWN_ERROR = BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN;
     const enum ErrorId DEFAULT_WARNING              = BMS_WARNING_WATCHDOG_TIMEOUT;
     const enum Board   DEFAULT_CRITICAL_ERROR_BOARD = BMS;
-    const enum Board   DEFAULT_WARNING_BOARD        = BMS;
+    const enum Board   DEFAULT_WARNINGS_BOARD       = BMS;
 
     const enum ErrorId DEFAULT_BMS_CRITICAL_ERROR = BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE;
     const enum ErrorId DEFAULT_DCM_CRITICAL_ERROR = DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT;
@@ -326,7 +326,7 @@ TEST_F(SharedErrorTableTest, has_any_motor_shutdown_error_set)
     ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_MOTOR_SHUTDOWN_ERROR, false));
     ASSERT_FALSE(App_SharedErrorTable_HasAnyMotorShutdownErrorSet(error_table));
 }
-TEST_F(SharedErrorTableTest, has_any_warning_set)
+TEST_F(SharedErrorTableTest, has_any_warnings_set)
 {
     // Set a warning
     ASSERT_FALSE(App_SharedErrorTable_HasAnyWarningSet(error_table));
@@ -501,7 +501,7 @@ TEST_F(SharedErrorTableTest, get_all_critical_errors_using_one_critical_error_pe
     ASSERT_EQ(NUM_BOARDS, error_list.num_errors);
 }
 
-TEST_F(SharedErrorTableTest, get_all_warning_using_no_errors)
+TEST_F(SharedErrorTableTest, get_all_warnings_using_no_errors)
 {
     // No error
     App_SharedErrorTable_GetAllWarnings(error_table, &error_list);
@@ -510,7 +510,7 @@ TEST_F(SharedErrorTableTest, get_all_warning_using_no_errors)
     ASSERT_EQ(0, error_list.num_errors);
 }
 
-TEST_F(SharedErrorTableTest, get_all_warning_using_one_warning)
+TEST_F(SharedErrorTableTest, get_all_warnings_using_one_warning)
 {
     // Set a warning
     ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_WARNING, true));
@@ -523,7 +523,7 @@ TEST_F(SharedErrorTableTest, get_all_warning_using_one_warning)
     ASSERT_EQ(1, error_list.num_errors);
 }
 
-TEST_F(SharedErrorTableTest, get_all_warning_using_one_warning_and_one_critical_error)
+TEST_F(SharedErrorTableTest, get_all_warnings_using_one_warnings_and_one_critical_error)
 {
     // Set a warning and a critical error
     ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_WARNING, true));
@@ -535,7 +535,7 @@ TEST_F(SharedErrorTableTest, get_all_warning_using_one_warning_and_one_critical_
     ASSERT_EQ(1, error_list.num_errors);
 }
 
-TEST_F(SharedErrorTableTest, get_all_warning_using_one_warning_per_board_and_one_critical_error)
+TEST_F(SharedErrorTableTest, get_all_warnings_using_one_warnings_per_board_and_one_critical_error)
 {
     // Set a warning per board plus an additional critical error
     ResetWithOneWarningForEveryBoard();
@@ -593,13 +593,13 @@ TEST_F(SharedErrorTableTest, get_boards_with_no_errors_using_one_warning)
     ASSERT_EQ(NUM_BOARDS - 1, board_list.num_boards);
     for (auto board : GetAllBoards())
     {
-        if (board != DEFAULT_WARNING_BOARD)
+        if (board != DEFAULT_WARNINGS_BOARD)
         {
             ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, board));
         }
     }
 }
-TEST_F(SharedErrorTableTest, get_boards_with_no_errors_using_one_warning_per_board)
+TEST_F(SharedErrorTableTest, get_boards_with_no_errors_using_one_warnings_per_board)
 {
     // Every board has a warning
     ResetWithOneWarningForEveryBoard();
@@ -649,10 +649,10 @@ TEST_F(SharedErrorTableTest, get_boards_with_errors_using_one_warning)
     // Make sure we retrieve only the one correct board
     App_SharedErrorTable_GetBoardsWithErrors(error_table, &board_list);
     ASSERT_EQ(1, board_list.num_boards);
-    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, DEFAULT_WARNING_BOARD));
+    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, DEFAULT_WARNINGS_BOARD));
 }
 
-TEST_F(SharedErrorTableTest, get_boards_with_errors_using_one_warning_per_board)
+TEST_F(SharedErrorTableTest, get_boards_with_errors_using_one_warnings_per_board)
 {
     // Every board has awarning
     ResetWithOneWarningForEveryBoard();
@@ -700,7 +700,7 @@ TEST_F(SharedErrorTableTest, get_boards_with_critical_errors_using_one_critical_
     }
 }
 
-TEST_F(SharedErrorTableTest, get_boards_with_warning_using_no_errors)
+TEST_F(SharedErrorTableTest, get_boards_with_warnings_using_no_errors)
 {
     // No board has any warning
     App_SharedErrorTable_GetBoardsWithWarnings(error_table, &board_list);
@@ -709,7 +709,7 @@ TEST_F(SharedErrorTableTest, get_boards_with_warning_using_no_errors)
     ASSERT_EQ(0, board_list.num_boards);
 }
 
-TEST_F(SharedErrorTableTest, get_boards_with_warning_using_one_critical_error)
+TEST_F(SharedErrorTableTest, get_boards_with_warnings_using_one_critical_error)
 {
     // One board has a warning
     ResetWithOneWarningForOneBoard();
@@ -717,10 +717,10 @@ TEST_F(SharedErrorTableTest, get_boards_with_warning_using_one_critical_error)
     // Make sure we retrieve only the one correct board
     App_SharedErrorTable_GetBoardsWithWarnings(error_table, &board_list);
     ASSERT_EQ(1, board_list.num_boards);
-    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, DEFAULT_WARNING_BOARD));
+    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, DEFAULT_WARNINGS_BOARD));
 }
 
-TEST_F(SharedErrorTableTest, get_boards_with_warning_using_one_critical_error_per_board)
+TEST_F(SharedErrorTableTest, get_boards_with_warnings_using_one_critical_error_per_board)
 {
     // Every board has a warning
     ResetWithOneWarningForEveryBoard();
@@ -736,11 +736,11 @@ TEST_F(SharedErrorTableTest, get_boards_with_warning_using_one_critical_error_pe
 
 TEST_F(SharedErrorTableTest, process_bms_warnings)
 {
-    std::vector<enum ErrorId> bms_warning_ids = { BMS_WARNINGS };
+    std::vector<enum ErrorId> bms_warnings_ids = { BMS_WARNINGS };
 
     TestRoutineForSetErrorsFromCanMsg(
-        BMS, bms_warning_ids, CANMSGS_BMS_WARNING_FRAME_ID, CANMSGS_BMS_WARNING_LENGTH, App_CanMsgs_bms_warning_pack,
-        App_SharedErrorTable_GetBoardsWithWarnings, App_SharedErrorTable_GetAllWarnings);
+        BMS, bms_warnings_ids, CANMSGS_BMS_WARNINGS_FRAME_ID, CANMSGS_BMS_WARNINGS_LENGTH,
+        App_CanMsgs_bms_warnings_pack, App_SharedErrorTable_GetBoardsWithWarnings, App_SharedErrorTable_GetAllWarnings);
 }
 
 TEST_F(SharedErrorTableTest, process_bms_faults)
@@ -763,11 +763,11 @@ TEST_F(SharedErrorTableTest, process_bms_motor_shutdown_errors)
 }
 TEST_F(SharedErrorTableTest, process_dcm_warnings)
 {
-    std::vector<enum ErrorId> dcm_warning_ids = { DCM_WARNINGS };
+    std::vector<enum ErrorId> dcm_warnings_ids = { DCM_WARNINGS };
 
     TestRoutineForSetErrorsFromCanMsg(
-        DCM, dcm_warning_ids, CANMSGS_DCM_WARNING_FRAME_ID, CANMSGS_DCM_WARNING_LENGTH, App_CanMsgs_dcm_warning_pack,
-        App_SharedErrorTable_GetBoardsWithWarnings, App_SharedErrorTable_GetAllWarnings);
+        DCM, dcm_warnings_ids, CANMSGS_DCM_WARNINGS_FRAME_ID, CANMSGS_DCM_WARNINGS_LENGTH,
+        App_CanMsgs_dcm_warnings_pack, App_SharedErrorTable_GetBoardsWithWarnings, App_SharedErrorTable_GetAllWarnings);
 }
 
 TEST_F(SharedErrorTableTest, process_dcm_air_shutdown_errors)
@@ -792,11 +792,11 @@ TEST_F(SharedErrorTableTest, process_dcm_motor_shutdown_errors)
 
 TEST_F(SharedErrorTableTest, process_dim_warnings)
 {
-    std::vector<enum ErrorId> dim_warning_ids = { DIM_WARNINGS };
+    std::vector<enum ErrorId> dim_warnings_ids = { DIM_WARNINGS };
 
     TestRoutineForSetErrorsFromCanMsg(
-        DIM, dim_warning_ids, CANMSGS_DIM_WARNING_FRAME_ID, CANMSGS_DIM_WARNING_LENGTH, App_CanMsgs_dim_warning_pack,
-        App_SharedErrorTable_GetBoardsWithWarnings, App_SharedErrorTable_GetAllWarnings);
+        DIM, dim_warnings_ids, CANMSGS_DIM_WARNINGS_FRAME_ID, CANMSGS_DIM_WARNINGS_LENGTH,
+        App_CanMsgs_dim_warnings_pack, App_SharedErrorTable_GetBoardsWithWarnings, App_SharedErrorTable_GetAllWarnings);
 }
 
 TEST_F(SharedErrorTableTest, process_dim_air_shutdown_errors)
@@ -821,11 +821,11 @@ TEST_F(SharedErrorTableTest, process_dim_motor_shutdown_errors)
 
 TEST_F(SharedErrorTableTest, process_fsm_warnings)
 {
-    std::vector<enum ErrorId> fsm_warning_ids = { FSM_WARNINGS };
+    std::vector<enum ErrorId> fsm_warnings_ids = { FSM_WARNINGS };
 
     TestRoutineForSetErrorsFromCanMsg(
-        FSM, fsm_warning_ids, CANMSGS_FSM_WARNING_FRAME_ID, CANMSGS_FSM_WARNING_LENGTH, App_CanMsgs_fsm_warning_pack,
-        App_SharedErrorTable_GetBoardsWithWarnings, App_SharedErrorTable_GetAllWarnings);
+        FSM, fsm_warnings_ids, CANMSGS_FSM_WARNINGS_FRAME_ID, CANMSGS_FSM_WARNINGS_LENGTH,
+        App_CanMsgs_fsm_warnings_pack, App_SharedErrorTable_GetBoardsWithWarnings, App_SharedErrorTable_GetAllWarnings);
 }
 
 TEST_F(SharedErrorTableTest, process_fsm_air_shutdown_errors)
@@ -852,11 +852,11 @@ TEST_F(SharedErrorTableTest, process_fsm_motor_shutdown_errors)
 
 TEST_F(SharedErrorTableTest, process_pdm_warnings)
 {
-    std::vector<enum ErrorId> pdm_warning_ids = { PDM_WARNINGS };
+    std::vector<enum ErrorId> pdm_warnings_ids = { PDM_WARNINGS };
 
     TestRoutineForSetErrorsFromCanMsg(
-        PDM, pdm_warning_ids, CANMSGS_PDM_WARNING_FRAME_ID, CANMSGS_PDM_WARNING_LENGTH, App_CanMsgs_pdm_warning_pack,
-        App_SharedErrorTable_GetBoardsWithWarnings, App_SharedErrorTable_GetAllWarnings);
+        PDM, pdm_warnings_ids, CANMSGS_PDM_WARNINGS_FRAME_ID, CANMSGS_PDM_WARNINGS_LENGTH,
+        App_CanMsgs_pdm_warnings_pack, App_SharedErrorTable_GetBoardsWithWarnings, App_SharedErrorTable_GetAllWarnings);
 }
 
 TEST_F(SharedErrorTableTest, process_pdm_air_shutdown_errors)
