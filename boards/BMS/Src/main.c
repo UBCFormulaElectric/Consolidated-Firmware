@@ -245,8 +245,16 @@ int main(void)
     clock = App_SharedClock_Create();
 
     world = App_BmsWorld_Create(
+<<<<<<< HEAD
         imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs, precharge_relay,
         ts, clock);
+=======
+        can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs,
+        precharge_relay, ts, clock);
+
+    Io_StackWaterMark_Init(can_tx);
+    Io_SoftwareWatchdog_Init(can_tx);
+>>>>>>> 972a52cc (ELEC-279 Remove BMS Faults and Warnings from Error Table (#854))
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
     App_AllStates_Init();

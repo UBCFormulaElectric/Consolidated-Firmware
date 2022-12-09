@@ -246,13 +246,25 @@ TEST_F(DcmStateMachineTest, exit_fault_state_once_critical_errors_and_inverter_f
 
     // Set any critical error and introduce inverter faults, expect no
     // transition
+<<<<<<< HEAD
 
     App_CanRx_INVR_InternalStates_VsmState_Update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
     App_CanRx_INVL_InternalStates_VsmState_Update(INVERTER_VSM_BLINK_FAULT_CODE_STATE);
+=======
+    App_SharedErrorTable_SetError(error_table, DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT, true);
+    App_CanRx_INVR_INTERNAL_STATES_SetSignal_D1_VSM_STATE_INVR(
+        can_rx_interface, CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE);
+    App_CanRx_INVL_INTERNAL_STATES_SetSignal_D1_VSM_STATE_INVL(
+        can_rx_interface, CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE);
+>>>>>>> 972a52cc (ELEC-279 Remove BMS Faults and Warnings from Error Table (#854))
     LetTimePass(state_machine, 10);
     ASSERT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
 
     // Clear critical error, expect no transition
+<<<<<<< HEAD
+=======
+    App_SharedErrorTable_SetError(error_table, DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT, false);
+>>>>>>> 972a52cc (ELEC-279 Remove BMS Faults and Warnings from Error Table (#854))
     LetTimePass(state_machine, 10);
     ASSERT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
 
@@ -550,4 +562,60 @@ TEST_F(DcmStateMachineTest, drive_to_fault_state_on_right_inverter_fault)
     LetTimePass(state_machine, 10);
     EXPECT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
 }
+<<<<<<< HEAD
 } // namespace StateMachineTest
+=======
+
+// DCM-20
+TEST_F(DcmStateMachineTest, init_to_fault_state_on_motor_shutdown_error)
+{
+    // Introduce motor shutdown error, expect transition to fault state on next
+    // 100 Hz tick
+    App_SharedErrorTable_SetError(error_table, DCM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, true);
+    LetTimePass(state_machine, 9);
+    EXPECT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
+
+    LetTimePass(state_machine, 1);
+    EXPECT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
+// DCM-20
+TEST_F(DcmStateMachineTest, drive_to_fault_state_on_motor_shutdown_error)
+{
+    SetInitialState(App_GetDriveState());
+
+    // Turn the DIM start switch on to prevent state transitions in
+    // the drive state.
+    App_CanRx_DIM_SWITCHES_SetSignal_START_SWITCH(can_rx_interface, CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE);
+    LetTimePass(state_machine, 10);
+    EXPECT_EQ(App_GetDriveState(), App_SharedStateMachine_GetCurrentState(state_machine));
+
+    // Introduce motor shutdown error, expect transition to fault state
+    App_SharedErrorTable_SetError(error_table, DCM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, true);
+    LetTimePass(state_machine, 10);
+    EXPECT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+}
+
+TEST_F(DcmStateMachineTest, broadcast_inverter_switch_status_over_can)
+{
+    // Both inverter switches are off initially
+    ASSERT_EQ(
+        App_CanTx_GetPeriodicSignal_RIGHT_INVERTER_SWITCH(can_tx_interface),
+        CANMSGS_DCM_INVERTER_SWITCHES_RIGHT_INVERTER_SWITCH_OFF_CHOICE);
+    ASSERT_EQ(
+        App_CanTx_GetPeriodicSignal_LEFT_INVERTER_SWITCH(can_tx_interface),
+        CANMSGS_DCM_INVERTER_SWITCHES_LEFT_INVERTER_SWITCH_OFF_CHOICE);
+
+    // Inverter switches turned on
+    is_right_inverter_on_fake.return_val = true;
+    is_left_inverter_on_fake.return_val  = true;
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(
+        App_CanTx_GetPeriodicSignal_RIGHT_INVERTER_SWITCH(can_tx_interface),
+        CANMSGS_DCM_INVERTER_SWITCHES_RIGHT_INVERTER_SWITCH_ON_CHOICE);
+    ASSERT_EQ(
+        App_CanTx_GetPeriodicSignal_LEFT_INVERTER_SWITCH(can_tx_interface),
+        CANMSGS_DCM_INVERTER_SWITCHES_LEFT_INVERTER_SWITCH_ON_CHOICE);
+}
+} // namespace StateMachineTest
+>>>>>>> 972a52cc (ELEC-279 Remove BMS Faults and Warnings from Error Table (#854))

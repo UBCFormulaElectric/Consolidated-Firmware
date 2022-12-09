@@ -129,8 +129,13 @@ class BmsStateMachineTest : public BaseStateMachineTest
         clock = App_SharedClock_Create();
 
         world = App_BmsWorld_Create(
+<<<<<<< HEAD
             imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs,
             precharge_relay, ts, clock);
+=======
+            can_tx_interface, can_rx_interface, imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok,
+            bspd_ok, accumulator, airs, precharge_relay, ts, clock);
+>>>>>>> 972a52cc (ELEC-279 Remove BMS Faults and Warnings from Error Table (#854))
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
@@ -293,7 +298,11 @@ class BmsStateMachineTest : public BaseStateMachineTest
 TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInitState());
+<<<<<<< HEAD
     EXPECT_EQ(BMS_INIT_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
+=======
+    EXPECT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+>>>>>>> 972a52cc (ELEC-279 Remove BMS Faults and Warnings from Error Table (#854))
 }
 
 // BMS-31
