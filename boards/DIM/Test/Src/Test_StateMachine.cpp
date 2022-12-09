@@ -449,7 +449,11 @@ TEST_F(DimStateMachineTest, dim_board_status_led_control_with_critical_error)
 TEST_F(DimStateMachineTest, dim_board_status_led_control_with_warning)
 {
     // Set any non-critical error and check that the DIM LED turns blue
+<<<<<<< HEAD
     //    App_SharedErrorTable_SetError(error_table, DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
+=======
+    App_SharedErrorTable_SetError(error_table, DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
+>>>>>>> dbc15a61 (Rename CAN NON_CRITICAL_ERRORS to WARNINGS (#856))
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_dim_status_led_blue_fake.call_count);
 }
@@ -467,8 +471,13 @@ TEST_F(DimStateMachineTest, dim_board_status_led_control_with_multiple_errors)
     // If the error table contains critical and non-critical errors
     // simultaneously, the critical error should take precedence and turn the
     // DIM LED red rather than blue
+<<<<<<< HEAD
     //    App_SharedErrorTable_SetError(error_table, DIM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, true);
     //    App_SharedErrorTable_SetError(error_table, DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
+=======
+    App_SharedErrorTable_SetError(error_table, DIM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, true);
+    App_SharedErrorTable_SetError(error_table, DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
+>>>>>>> dbc15a61 (Rename CAN NON_CRITICAL_ERRORS to WARNINGS (#856))
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_dim_status_led_red_fake.call_count);
     ASSERT_EQ(0, turn_dim_status_led_blue_fake.call_count);
