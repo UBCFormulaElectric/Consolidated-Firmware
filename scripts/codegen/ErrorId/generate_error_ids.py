@@ -6,20 +6,20 @@ from scripts.utilities.supported_boards import get_board_names
 ERRORID_ENUM_TEMPLATE = '''\
 #pragma once
 
-#define DCM_NON_CRITICAL_ERRORS \\
-{dcm_non_critical_errors}
+#define DCM_WARNINGS \\
+{dcm_warnings}
 
-#define DIM_NON_CRITICAL_ERRORS \\
-{dim_non_critical_errors}
+#define DIM_WARNINGS \\
+{dim_warnings}
 
-#define FSM_NON_CRITICAL_ERRORS \\
-{fsm_non_critical_errors}
+#define FSM_WARNINGS \\
+{fsm_warnings}
 
-#define PDM_NON_CRITICAL_ERRORS \\
-{pdm_non_critical_errors}
+#define PDM_WARNINGS \\
+{pdm_warnings}
 
-#define GSM_NON_CRITICAL_ERRORS \\
-{gsm_non_critical_errors}
+#define GSM_WARNINGS \\
+{gsm_warnings}
 
 #define DCM_AIR_SHUTDOWN_ERRORS \\
 {dcm_air_shutdown_errors}
@@ -53,11 +53,13 @@ ERRORID_ENUM_TEMPLATE = '''\
 
 enum ErrorId
 {{
-    DCM_NON_CRITICAL_ERRORS
-    DIM_NON_CRITICAL_ERRORS
-    FSM_NON_CRITICAL_ERRORS
-    PDM_NON_CRITICAL_ERRORS
-    GSM_NON_CRITICAL_ERRORS
+
+    DCM_WARNINGS
+    DIM_WARNINGS
+    FSM_WARNINGS
+    PDM_WARNINGS
+    GSM_WARNINGS
+    BMS_FAULTS
     DCM_AIR_SHUTDOWN_ERRORS
     DIM_AIR_SHUTDOWN_ERRORS
     FSM_AIR_SHUTDOWN_ERRORS
@@ -81,22 +83,21 @@ if __name__ == "__main__":
     database = cantools.database.load_file(args.dbc, database_format='dbc')
 
     enum_members = {
-        'non_critical': {},
+        'warning': {},
         'air_shutdown': {},
         'motor_shutdown': {},
     }
 
-    # Find non-critical, AIR shutdown, and motor shutdown error CAN messages for
+    # Find warning, AIR shutdown, and motor shutdown error CAN messages for
     # each board
     for board in get_board_names():
         try:
-            can_msg = database.get_message_by_name(board + '_NON_CRITICAL_ERRORS')
-            enum_members['non_critical'][board] = \
-                ['    %s_NON_CRITICAL_%s, \\' %(board, signal.name.upper()) for signal in can_msg.signals]
+            can_msg = database.get_message_by_name(board + '_WARNINGS')
+            enum_members['warning'][board] = \
+                ['    %s_WARNING_%s, \\' %(board, signal.name.upper()) for signal in can_msg.signals]
         except KeyError:
             if board != "BMS":
                 raise KeyError('Could not find non critical error message for %s' % board)
-
         try:
             can_msg = database.get_message_by_name(board + '_AIR_SHUTDOWN_ERRORS')
             enum_members['air_shutdown'][board] = \
@@ -104,7 +105,6 @@ if __name__ == "__main__":
         except KeyError:
             if board != "BMS":
                 raise KeyError('Could not find AIR shutdown error message for %s' % board)
-
 
         try:
             can_msg = database.get_message_by_name(board + '_MOTOR_SHUTDOWN_ERRORS')
@@ -115,11 +115,12 @@ if __name__ == "__main__":
                 raise KeyError('Could not find motor shutdown error message for %s' % board)
 
     enum = ERRORID_ENUM_TEMPLATE.format(
-        dcm_non_critical_errors   = '\n'.join(enum_members['non_critical']['DCM']),
-        dim_non_critical_errors   = '\n'.join(enum_members['non_critical']['DIM']),
-        fsm_non_critical_errors   = '\n'.join(enum_members['non_critical']['FSM']),
-        pdm_non_critical_errors   = '\n'.join(enum_members['non_critical']['PDM']),
-        gsm_non_critical_errors   = '\n'.join(enum_members['non_critical']['GSM']),
+
+        dcm_warnings   = '\n'.join(enum_members['warning']['DCM']),
+        dim_warnings   = '\n'.join(enum_members['warning']['DIM']),
+        fsm_warnings   = '\n'.join(enum_members['warning']['FSM']),
+        pdm_warnings   = '\n'.join(enum_members['warning']['PDM']),
+        gsm_warnings   = '\n'.join(enum_members['warning']['GSM']),
         dcm_air_shutdown_errors   = '\n'.join(enum_members['air_shutdown']['DCM']),
         dim_air_shutdown_errors   = '\n'.join(enum_members['air_shutdown']['DIM']),
         fsm_air_shutdown_errors   = '\n'.join(enum_members['air_shutdown']['FSM']),
