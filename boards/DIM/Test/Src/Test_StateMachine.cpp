@@ -456,10 +456,10 @@ TEST_F(DimStateMachineTest, dim_board_status_led_control_with_critical_error)
 }
 
 // DIM-2
-TEST_F(DimStateMachineTest, dim_board_status_led_control_with_non_critical_error)
+TEST_F(DimStateMachineTest, dim_board_status_led_control_with_warning)
 {
     // Set any non-critical error and check that the DIM LED turns blue
-    App_SharedErrorTable_SetError(error_table, DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
+    App_SharedErrorTable_SetError(error_table, DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_dim_status_led_blue_fake.call_count);
 }
@@ -478,7 +478,7 @@ TEST_F(DimStateMachineTest, dim_board_status_led_control_with_multiple_errors)
     // simultaneously, the critical error should take precedence and turn the
     // DIM LED red rather than blue
     App_SharedErrorTable_SetError(error_table, DIM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, true);
-    App_SharedErrorTable_SetError(error_table, DIM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
+    App_SharedErrorTable_SetError(error_table, DIM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_dim_status_led_red_fake.call_count);
     ASSERT_EQ(0, turn_dim_status_led_blue_fake.call_count);
@@ -494,10 +494,10 @@ TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_critical_error)
 }
 
 // DIM-2
-TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_non_critical_error)
+TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_warning)
 {
-    // Set any non-critical error and check that the DCM LED turns blue
-    App_SharedErrorTable_SetError(error_table, DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
+    // Set any warning and check that the DCM LED turns blue
+    App_SharedErrorTable_SetError(error_table, DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_dcm_status_led_blue_fake.call_count);
 }
@@ -517,7 +517,7 @@ TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_multiple_errors)
     // simultaneously, the critical error should take precedence and turn the
     // DCM LED red rather than blue
     App_SharedErrorTable_SetError(error_table, DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT, true);
-    App_SharedErrorTable_SetError(error_table, DCM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
+    App_SharedErrorTable_SetError(error_table, DCM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_dcm_status_led_red_fake.call_count);
     ASSERT_EQ(0, turn_dcm_status_led_blue_fake.call_count);
@@ -533,10 +533,10 @@ TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_critical_error)
 }
 
 // DIM-2
-TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_non_critical_error)
+TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_warning)
 {
-    // Set any non-critical error and check that the FSM LED turns blue
-    App_SharedErrorTable_SetError(error_table, FSM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
+    // Set any warning and check that the FSM LED turns blue
+    App_SharedErrorTable_SetError(error_table, FSM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_fsm_status_led_blue_fake.call_count);
 }
@@ -556,7 +556,7 @@ TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_multiple_errors)
     // simultaneously, the critical error should take precedence and turn the
     // FSM LED red rather than blue
     App_SharedErrorTable_SetError(error_table, FSM_AIR_SHUTDOWN_MISSING_HEARTBEAT, true);
-    App_SharedErrorTable_SetError(error_table, FSM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
+    App_SharedErrorTable_SetError(error_table, FSM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_fsm_status_led_red_fake.call_count);
     ASSERT_EQ(0, turn_fsm_status_led_blue_fake.call_count);
@@ -581,10 +581,10 @@ TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_critical_error)
 }
 
 // DIM-2
-TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_non_critical_error)
+TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_warning)
 {
-    // Set any non-critical error and check that the PDM LED turns blue
-    App_SharedErrorTable_SetError(error_table, PDM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
+    // Set any warning and check that the PDM LED turns blue
+    App_SharedErrorTable_SetError(error_table, PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_pdm_status_led_blue_fake.call_count);
 }
@@ -604,7 +604,7 @@ TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_multiple_errors)
     // simultaneously, the critical error should take precedence and turn the
     // PDM LED red rather than blue
     App_SharedErrorTable_SetError(error_table, PDM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, true);
-    App_SharedErrorTable_SetError(error_table, PDM_NON_CRITICAL_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
+    App_SharedErrorTable_SetError(error_table, PDM_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_pdm_status_led_red_fake.call_count);
     ASSERT_EQ(0, turn_pdm_status_led_blue_fake.call_count);
