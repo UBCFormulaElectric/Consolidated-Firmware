@@ -118,11 +118,11 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         }
 
         struct ErrorBoardList boards_with_critical_errors;
-        struct ErrorBoardList boards_with_non_critical_errors;
+        struct ErrorBoardList boards_with_warnings;
 
         App_SharedErrorTable_GetBoardsWithCriticalErrors(error_table, &boards_with_critical_errors);
 
-        App_SharedErrorTable_GetBoardsWithNonCriticalErrors(error_table, &boards_with_non_critical_errors);
+        App_SharedErrorTable_GetBoardsWithWarnings(error_table, &boards_with_warnings);
 
         struct RgbLed *board_status_led = board_status_leds[i];
 
@@ -130,7 +130,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         {
             App_SharedRgbLed_TurnRed(board_status_led);
         }
-        else if (App_SharedError_IsBoardInList(&boards_with_non_critical_errors, i))
+        else if (App_SharedError_IsBoardInList(&boards_with_warnings, i))
         {
             App_SharedRgbLed_TurnBlue(board_status_led);
         }
