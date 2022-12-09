@@ -4,23 +4,6 @@
 
 #define SET_ERROR(table, id, is_set) App_SharedErrorTable_SetError(table, id, is_set)
 
-static void Io_ProcessBmsWarningMsg(struct ErrorTable *error_table, struct CanMsgs_bms_warnings_t *data)
-{
-    SET_ERROR(
-        error_table, BMS_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ,
-        data->stack_watermark_above_threshold_task1_hz);
-    SET_ERROR(
-        error_table, BMS_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ,
-        data->stack_watermark_above_threshold_task1_khz);
-    SET_ERROR(
-        error_table, BMS_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX,
-        data->stack_watermark_above_threshold_taskcanrx);
-    SET_ERROR(
-        error_table, BMS_WARNING_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX,
-        data->stack_watermark_above_threshold_taskcantx);
-    SET_ERROR(error_table, BMS_WARNING_WATCHDOG_TIMEOUT, data->watchdog_timeout);
-}
-
 static void Io_ProcessDcmWarningMsg(struct ErrorTable *error_table, struct CanMsgs_dcm_warnings_t *data)
 {
     SET_ERROR(
@@ -105,21 +88,6 @@ static void Io_ProcessPdmWarningMsg(struct ErrorTable *error_table, struct CanMs
     SET_ERROR(error_table, PDM_WARNING_WATCHDOG_TIMEOUT, data->watchdog_timeout);
 }
 
-static void Io_ProcessBmsAirShutdownErrorMsg(struct ErrorTable *error_table, struct CanMsgs_bms_faults_t *data)
-{
-    SET_ERROR(error_table, BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE, data->charger_disconnected_in_charge_state);
-    SET_ERROR(error_table, BMS_FAULTS_CELL_UNDERVOLTAGE_FAULT, data->cell_undervoltage_fault);
-    SET_ERROR(error_table, BMS_FAULTS_CELL_OVERVOLTAGE_FAULT, data->cell_overvoltage_fault);
-    SET_ERROR(error_table, BMS_FAULTS_MODULE_COMM_ERROR, data->module_comm_error);
-    SET_ERROR(error_table, BMS_FAULTS_CELL_UNDERTEMP_FAULT, data->cell_undertemp_fault);
-    SET_ERROR(error_table, BMS_FAULTS_CELL_OVERTEMP_FAULT, data->cell_overtemp_fault);
-    SET_ERROR(error_table, BMS_FAULTS_CHARGER_FAULT_DETECTED, data->charger_fault_detected);
-    SET_ERROR(error_table, BMS_FAULTS_HAS_REACHED_MAX_V, data->has_reached_max_v);
-    SET_ERROR(error_table, BMS_FAULTS_CHARGING_EXT_SHUTDOWN_OCCURRED, data->charging_ext_shutdown_occurred);
-    SET_ERROR(error_table, BMS_FAULTS_TS_OVERCURRENT_FAULT, data->ts_overcurrent_fault);
-    SET_ERROR(error_table, BMS_FAULTS_PRECHARGE_ERROR, data->precharge_error);
-}
-
 static void
     Io_ProcessDcmAirShutdownErrorMsg(struct ErrorTable *error_table, struct CanMsgs_dcm_air_shutdown_errors_t *data)
 {
@@ -142,12 +110,6 @@ static void
     Io_ProcessPdmAirShutdownErrorMsg(struct ErrorTable *error_table, struct CanMsgs_pdm_air_shutdown_errors_t *data)
 {
     SET_ERROR(error_table, PDM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN, data->dummy_air_shutdown);
-}
-
-static void
-    Io_ProcessBmsMotorShutdownErrorMsg(struct ErrorTable *error_table, struct CanMsgs_bms_motor_shutdown_errors_t *data)
-{
-    SET_ERROR(error_table, BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, data->dummy_motor_shutdown);
 }
 
 static void
@@ -184,13 +146,6 @@ void Io_SharedErrorTable_SetErrorsFromCanMsg(struct ErrorTable *error_table, str
     // design
     switch (can_msg->std_id)
     {
-        case (CANMSGS_BMS_WARNINGS_FRAME_ID):
-        {
-            struct CanMsgs_bms_warnings_t data;
-            App_CanMsgs_bms_warnings_unpack(&data, can_msg->data, CANMSGS_BMS_WARNINGS_LENGTH);
-            Io_ProcessBmsWarningMsg(error_table, &data);
-        }
-        break;
         case (CANMSGS_DCM_WARNINGS_FRAME_ID):
         {
             struct CanMsgs_dcm_warnings_t data;
@@ -219,13 +174,6 @@ void Io_SharedErrorTable_SetErrorsFromCanMsg(struct ErrorTable *error_table, str
             Io_ProcessPdmWarningMsg(error_table, &data);
         }
         break;
-        case (CANMSGS_BMS_FAULTS_FRAME_ID):
-        {
-            struct CanMsgs_bms_faults_t data;
-            App_CanMsgs_bms_faults_unpack(&data, can_msg->data, CANMSGS_BMS_FAULTS_LENGTH);
-            Io_ProcessBmsAirShutdownErrorMsg(error_table, &data);
-        }
-        break;
         case (CANMSGS_DCM_AIR_SHUTDOWN_ERRORS_FRAME_ID):
         {
             struct CanMsgs_dcm_air_shutdown_errors_t data;
@@ -252,14 +200,6 @@ void Io_SharedErrorTable_SetErrorsFromCanMsg(struct ErrorTable *error_table, str
             struct CanMsgs_pdm_air_shutdown_errors_t data;
             App_CanMsgs_pdm_air_shutdown_errors_unpack(&data, can_msg->data, CANMSGS_PDM_AIR_SHUTDOWN_ERRORS_LENGTH);
             Io_ProcessPdmAirShutdownErrorMsg(error_table, &data);
-        }
-        break;
-        case (CANMSGS_BMS_MOTOR_SHUTDOWN_ERRORS_FRAME_ID):
-        {
-            struct CanMsgs_bms_motor_shutdown_errors_t data;
-            App_CanMsgs_bms_motor_shutdown_errors_unpack(
-                &data, can_msg->data, CANMSGS_BMS_MOTOR_SHUTDOWN_ERRORS_LENGTH);
-            Io_ProcessBmsMotorShutdownErrorMsg(error_table, &data);
         }
         break;
         case (CANMSGS_DCM_MOTOR_SHUTDOWN_ERRORS_FRAME_ID):

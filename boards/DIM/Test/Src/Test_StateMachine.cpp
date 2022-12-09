@@ -565,9 +565,15 @@ TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_multiple_errors)
 // DIM-2
 TEST_F(DimStateMachineTest, bms_board_status_led_control_with_critical_error)
 {
+    // Set OK statuses such that the red led is not set without fault
+    App_CanRx_BMS_OK_STATUSES_SetSignal_IMD_OK(can_rx_interface, true);
+    App_CanRx_BMS_OK_STATUSES_SetSignal_BSPD_OK(can_rx_interface, true);
+    App_CanRx_BMS_OK_STATUSES_SetSignal_BMS_OK(can_rx_interface, true);
+
     // Set any critical error and check that the BMS LED turns red
-    App_SharedErrorTable_SetError(error_table, BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE, true);
+    App_CanRx_BMS_STATE_MACHINE_SetSignal_STATE(can_rx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE);
     LetTimePass(state_machine, 10);
+
     ASSERT_EQ(1, turn_bms_status_led_red_fake.call_count);
 }
 
@@ -610,4 +616,12 @@ TEST_F(DimStateMachineTest, pdm_board_status_led_control_with_multiple_errors)
     ASSERT_EQ(0, turn_pdm_status_led_blue_fake.call_count);
 }
 
+TEST_F(DimStateMachineTest, check_enum_ordering)
+{
+    // Test to ensure BoardLeds enum matches Boards enum for use in DIM drive state
+    ASSERT_EQ(DCM_LED, DCM);
+    ASSERT_EQ(DIM_LED, DIM);
+    ASSERT_EQ(FSM_LED, FSM);
+    ASSERT_EQ(PDM_LED, PDM);
+}
 } // namespace StateMachineTest
