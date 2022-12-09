@@ -302,7 +302,7 @@ TEST_F(DcmStateMachineTest, exit_fault_state_once_critical_errors_and_inverter_f
 
     // Set any critical error and introduce inverter faults, expect no
     // transition
-    App_SharedErrorTable_SetError(error_table, BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE, true);
+    App_SharedErrorTable_SetError(error_table, DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT, true);
     App_CanRx_INVR_INTERNAL_STATES_SetSignal_D1_VSM_STATE_INVR(
         can_rx_interface, CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE);
     App_CanRx_INVL_INTERNAL_STATES_SetSignal_D1_VSM_STATE_INVL(
@@ -311,7 +311,7 @@ TEST_F(DcmStateMachineTest, exit_fault_state_once_critical_errors_and_inverter_f
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
     // Clear critical error, expect no transition
-    App_SharedErrorTable_SetError(error_table, BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE, false);
+    App_SharedErrorTable_SetError(error_table, DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT, false);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
@@ -624,7 +624,7 @@ TEST_F(DcmStateMachineTest, init_to_fault_state_on_motor_shutdown_error)
 {
     // Introduce motor shutdown error, expect transition to fault state on next
     // 100 Hz tick
-    App_SharedErrorTable_SetError(error_table, BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, true);
+    App_SharedErrorTable_SetError(error_table, DCM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, true);
     LetTimePass(state_machine, 9);
     EXPECT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
@@ -644,7 +644,7 @@ TEST_F(DcmStateMachineTest, drive_to_fault_state_on_motor_shutdown_error)
     EXPECT_EQ(App_GetDriveState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
     // Introduce motor shutdown error, expect transition to fault state
-    App_SharedErrorTable_SetError(error_table, BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, true);
+    App_SharedErrorTable_SetError(error_table, DCM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN, true);
     LetTimePass(state_machine, 10);
     EXPECT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
