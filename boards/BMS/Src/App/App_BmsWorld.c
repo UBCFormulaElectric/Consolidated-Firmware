@@ -36,7 +36,6 @@ struct BmsWorld *App_BmsWorld_Create(
     struct Airs *const              airs,
     struct PrechargeRelay *const    precharge_relay,
     struct TractiveSystem *const    tractive_system,
-    struct ErrorTable *const        error_table,
     struct Clock *const             clock)
 {
     struct BmsWorld *world = (struct BmsWorld *)malloc(sizeof(struct BmsWorld));
@@ -55,7 +54,6 @@ struct BmsWorld *App_BmsWorld_Create(
     world->airs              = airs;
     world->precharge_relay   = precharge_relay;
     world->ts                = tractive_system;
-    world->error_table       = error_table;
     world->clock             = clock;
 
     return world;
@@ -129,11 +127,6 @@ struct PrechargeRelay *App_BmsWorld_GetPrechargeRelay(const struct BmsWorld *con
 struct TractiveSystem *App_BmsWorld_GetTractiveSystem(const struct BmsWorld *const world)
 {
     return world->ts;
-}
-
-struct ErrorTable *App_BmsWorld_GetErrorTable(const struct BmsWorld *const world)
-{
-    return world->error_table;
 }
 
 struct Clock *App_BmsWorld_GetClock(const struct BmsWorld *const world)

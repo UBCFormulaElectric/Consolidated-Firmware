@@ -29,7 +29,6 @@ class SharedErrorTableTest : public testing::Test
         TearDownObject(error_table, App_SharedErrorTable_Destroy);
         error_table = App_SharedErrorTable_Create();
 
-        ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_BMS_CRITICAL_ERROR, true));
         ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_DCM_CRITICAL_ERROR, true));
         ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_DIM_CRITICAL_ERROR, true));
         ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_FSM_CRITICAL_ERROR, true));
@@ -50,7 +49,6 @@ class SharedErrorTableTest : public testing::Test
         TearDownObject(error_table, App_SharedErrorTable_Destroy);
         error_table = App_SharedErrorTable_Create();
 
-        ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_BMS_WARNING, true));
         ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_DCM_WARNING, true));
         ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_DIM_WARNING, true));
         ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_FSM_WARNING, true));
@@ -101,27 +99,26 @@ class SharedErrorTableTest : public testing::Test
     std::vector<enum Board> GetAllBoards(void)
     {
         return std::vector<enum Board>{
-            BMS, DCM, DIM, FSM, PDM, GSM,
+            DCM, DIM, FSM, PDM, GSM,
         };
     }
 
     // The error choices here are arbitrary. We just need to pick something for
     // the helper functions.
-    const enum ErrorId DEFAULT_CRITICAL_ERROR       = BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE;
-    const enum ErrorId DEFAULT_AIR_SHUTDOWN_ERROR   = BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE;
-    const enum ErrorId DEFAULT_MOTOR_SHUTDOWN_ERROR = BMS_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN;
-    const enum ErrorId DEFAULT_WARNING              = BMS_WARNING_WATCHDOG_TIMEOUT;
-    const enum Board   DEFAULT_CRITICAL_ERROR_BOARD = BMS;
-    const enum Board   DEFAULT_WARNINGS_BOARD       = BMS;
 
-    const enum ErrorId DEFAULT_BMS_CRITICAL_ERROR = BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE;
+    const enum ErrorId DEFAULT_CRITICAL_ERROR       = DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT;
+    const enum ErrorId DEFAULT_AIR_SHUTDOWN_ERROR   = DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT;
+    const enum ErrorId DEFAULT_MOTOR_SHUTDOWN_ERROR = DCM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN;
+    const enum ErrorId DEFAULT_WARNING              = DCM_WARNING_WATCHDOG_TIMEOUT;
+    const enum Board   DEFAULT_CRITICAL_ERROR_BOARD = DCM;
+    const enum Board   DEFAULT_WARNINGS_BOARD       = DCM;
+
     const enum ErrorId DEFAULT_DCM_CRITICAL_ERROR = DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT;
     const enum ErrorId DEFAULT_DIM_CRITICAL_ERROR = DIM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN;
     const enum ErrorId DEFAULT_FSM_CRITICAL_ERROR = FSM_AIR_SHUTDOWN_MISSING_HEARTBEAT;
     const enum ErrorId DEFAULT_PDM_CRITICAL_ERROR = PDM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN;
     const enum ErrorId DEFAULT_GSM_CRITICAL_ERROR = GSM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN;
 
-    const enum ErrorId DEFAULT_BMS_WARNING = BMS_WARNING_WATCHDOG_TIMEOUT;
     const enum ErrorId DEFAULT_DCM_WARNING = DCM_WARNING_WATCHDOG_TIMEOUT;
     const enum ErrorId DEFAULT_DIM_WARNING = DIM_WARNING_WATCHDOG_TIMEOUT;
     const enum ErrorId DEFAULT_FSM_WARNING = FSM_WARNING_WATCHDOG_TIMEOUT;
@@ -138,48 +135,44 @@ class SharedErrorTableTest : public testing::Test
 TEST_F(SharedErrorTableTest, board_does_not_exist_in_list)
 {
     // The board to look for does not exist in the list
-    board_list.boards[0]  = BMS;
-    board_list.boards[1]  = BMS;
-    board_list.boards[2]  = BMS;
-    board_list.boards[3]  = BMS;
-    board_list.boards[4]  = BMS;
-    board_list.num_boards = 5;
+    board_list.boards[0]  = FSM;
+    board_list.boards[1]  = FSM;
+    board_list.boards[2]  = FSM;
+    board_list.boards[3]  = FSM;
+    board_list.num_boards = 4;
     ASSERT_FALSE(App_SharedError_IsBoardInList(&board_list, DCM));
 }
 
 TEST_F(SharedErrorTableTest, board_exists_in_list)
 {
     // The board to look for exists in the list
-    board_list.boards[0]  = BMS;
-    board_list.boards[1]  = DCM;
-    board_list.boards[2]  = DIM;
-    board_list.boards[3]  = FSM;
-    board_list.boards[4]  = PDM;
-    board_list.num_boards = 5;
-    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, BMS));
+    board_list.boards[0]  = DCM;
+    board_list.boards[1]  = DIM;
+    board_list.boards[2]  = FSM;
+    board_list.boards[3]  = PDM;
+    board_list.num_boards = 4;
+    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, DCM));
 }
 
 TEST_F(SharedErrorTableTest, board_exists_more_than_once_in_list)
 {
     // The board to look for has multiple entries in the list
-    board_list.boards[0]  = BMS;
-    board_list.boards[1]  = BMS;
-    board_list.boards[2]  = DIM;
-    board_list.boards[3]  = FSM;
-    board_list.boards[4]  = PDM;
-    board_list.num_boards = 5;
-    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, BMS));
+    board_list.boards[0]  = DCM;
+    board_list.boards[1]  = DCM;
+    board_list.boards[2]  = FSM;
+    board_list.boards[3]  = PDM;
+    board_list.num_boards = 4;
+    ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, DCM));
 }
 
 TEST_F(SharedErrorTableTest, board_in_list_is_out_of_bound)
 {
     // The board to look for exists in the list but is out-of-bound
-    board_list.boards[0]  = BMS;
-    board_list.boards[1]  = DCM;
-    board_list.boards[2]  = DIM;
-    board_list.boards[3]  = FSM;
-    board_list.boards[4]  = PDM;
-    board_list.num_boards = 4;
+    board_list.boards[0]  = DCM;
+    board_list.boards[1]  = DIM;
+    board_list.boards[2]  = FSM;
+    board_list.boards[3]  = PDM;
+    board_list.num_boards = 3;
     ASSERT_FALSE(App_SharedError_IsBoardInList(&board_list, PDM));
 }
 
@@ -213,10 +206,10 @@ TEST_F(SharedErrorTableTest, set_error)
 {
     // Set an error
     bool is_set = false;
-    ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, BMS_WARNING_WATCHDOG_TIMEOUT, true));
+    ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DCM_WARNING_WATCHDOG_TIMEOUT, true));
 
     // Make sure the error is indeed set
-    ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_IsErrorSet(error_table, BMS_WARNING_WATCHDOG_TIMEOUT, &is_set));
+    ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_IsErrorSet(error_table, DCM_WARNING_WATCHDOG_TIMEOUT, &is_set));
     ASSERT_TRUE(is_set);
 }
 
@@ -224,10 +217,10 @@ TEST_F(SharedErrorTableTest, clear_error)
 {
     // Clear an error
     bool is_set = true;
-    ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, BMS_WARNING_WATCHDOG_TIMEOUT, false));
+    ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DCM_WARNING_WATCHDOG_TIMEOUT, false));
 
     // Make sure the error is indeed cleared
-    ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_IsErrorSet(error_table, BMS_WARNING_WATCHDOG_TIMEOUT, &is_set));
+    ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_IsErrorSet(error_table, DCM_WARNING_WATCHDOG_TIMEOUT, &is_set));
     ASSERT_FALSE(is_set);
 }
 
@@ -638,7 +631,9 @@ TEST_F(SharedErrorTableTest, get_boards_with_errors_using_one_critical_error_per
     App_SharedErrorTable_GetBoardsWithErrors(error_table, &board_list);
     ASSERT_EQ(NUM_BOARDS, board_list.num_boards);
     for (auto board : GetAllBoards())
+    {
         ASSERT_TRUE(App_SharedError_IsBoardInList(&board_list, board));
+    }
 }
 
 TEST_F(SharedErrorTableTest, get_boards_with_errors_using_one_warning)
@@ -734,33 +729,6 @@ TEST_F(SharedErrorTableTest, get_boards_with_warnings_using_one_critical_error_p
     }
 }
 
-TEST_F(SharedErrorTableTest, process_bms_warnings)
-{
-    std::vector<enum ErrorId> bms_warnings_ids = { BMS_WARNINGS };
-
-    TestRoutineForSetErrorsFromCanMsg(
-        BMS, bms_warnings_ids, CANMSGS_BMS_WARNINGS_FRAME_ID, CANMSGS_BMS_WARNINGS_LENGTH,
-        App_CanMsgs_bms_warnings_pack, App_SharedErrorTable_GetBoardsWithWarnings, App_SharedErrorTable_GetAllWarnings);
-}
-
-TEST_F(SharedErrorTableTest, process_bms_faults)
-{
-    std::vector<enum ErrorId> bms_faults_ids = { BMS_FAULTS };
-
-    TestRoutineForSetErrorsFromCanMsg(
-        BMS, bms_faults_ids, CANMSGS_BMS_FAULTS_FRAME_ID, CANMSGS_BMS_FAULTS_LENGTH, App_CanMsgs_bms_faults_pack,
-        App_SharedErrorTable_GetBoardsWithCriticalErrors, App_SharedErrorTable_GetAllCriticalErrors);
-}
-
-TEST_F(SharedErrorTableTest, process_bms_motor_shutdown_errors)
-{
-    std::vector<enum ErrorId> bms_motor_shutdown_error_ids = { BMS_MOTOR_SHUTDOWN_ERRORS };
-
-    TestRoutineForSetErrorsFromCanMsg(
-        BMS, bms_motor_shutdown_error_ids, CANMSGS_BMS_MOTOR_SHUTDOWN_ERRORS_FRAME_ID,
-        CANMSGS_BMS_MOTOR_SHUTDOWN_ERRORS_LENGTH, App_CanMsgs_bms_motor_shutdown_errors_pack,
-        App_SharedErrorTable_GetBoardsWithCriticalErrors, App_SharedErrorTable_GetAllCriticalErrors);
-}
 TEST_F(SharedErrorTableTest, process_dcm_warnings)
 {
     std::vector<enum ErrorId> dcm_warnings_ids = { DCM_WARNINGS };
