@@ -53,13 +53,11 @@ ERRORID_ENUM_TEMPLATE = '''\
 
 enum ErrorId
 {{
-
     DCM_WARNINGS
     DIM_WARNINGS
     FSM_WARNINGS
     PDM_WARNINGS
     GSM_WARNINGS
-    BMS_FAULTS
     DCM_AIR_SHUTDOWN_ERRORS
     DIM_AIR_SHUTDOWN_ERRORS
     FSM_AIR_SHUTDOWN_ERRORS
@@ -115,7 +113,6 @@ if __name__ == "__main__":
                 raise KeyError('Could not find motor shutdown error message for %s' % board)
 
     enum = ERRORID_ENUM_TEMPLATE.format(
-
         dcm_warnings   = '\n'.join(enum_members['warning']['DCM']),
         dim_warnings   = '\n'.join(enum_members['warning']['DIM']),
         fsm_warnings   = '\n'.join(enum_members['warning']['FSM']),

@@ -48,7 +48,7 @@ class SharedErrorTableTest : public testing::Test
     {
         TearDownObject(error_table, App_SharedErrorTable_Destroy);
         error_table = App_SharedErrorTable_Create();
-        
+
         ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_DCM_WARNING, true));
         ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_DIM_WARNING, true));
         ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_SetError(error_table, DEFAULT_FSM_WARNING, true));
@@ -106,19 +106,18 @@ class SharedErrorTableTest : public testing::Test
     // The error choices here are arbitrary. We just need to pick something for
     // the helper functions.
 
-    const enum ErrorId DEFAULT_CRITICAL_ERROR           = DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT;
-    const enum ErrorId DEFAULT_AIR_SHUTDOWN_ERROR       = DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT;
-    const enum ErrorId DEFAULT_MOTOR_SHUTDOWN_ERROR     = DCM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN;
-    const enum ErrorId DEFAULT_WARNING                  = DCM_WARNING_WATCHDOG_TIMEOUT;
-    const enum Board   DEFAULT_CRITICAL_ERROR_BOARD     = DCM;
-    const enum Board   DEFAULT_WARNINGS_BOARD           = DCM;
+    const enum ErrorId DEFAULT_CRITICAL_ERROR       = DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT;
+    const enum ErrorId DEFAULT_AIR_SHUTDOWN_ERROR   = DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT;
+    const enum ErrorId DEFAULT_MOTOR_SHUTDOWN_ERROR = DCM_MOTOR_SHUTDOWN_DUMMY_MOTOR_SHUTDOWN;
+    const enum ErrorId DEFAULT_WARNING              = DCM_WARNING_WATCHDOG_TIMEOUT;
+    const enum Board   DEFAULT_CRITICAL_ERROR_BOARD = DCM;
+    const enum Board   DEFAULT_WARNINGS_BOARD       = DCM;
 
     const enum ErrorId DEFAULT_DCM_CRITICAL_ERROR = DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT;
     const enum ErrorId DEFAULT_DIM_CRITICAL_ERROR = DIM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN;
     const enum ErrorId DEFAULT_FSM_CRITICAL_ERROR = FSM_AIR_SHUTDOWN_MISSING_HEARTBEAT;
     const enum ErrorId DEFAULT_PDM_CRITICAL_ERROR = PDM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN;
     const enum ErrorId DEFAULT_GSM_CRITICAL_ERROR = GSM_AIR_SHUTDOWN_DUMMY_AIR_SHUTDOWN;
-
 
     const enum ErrorId DEFAULT_DCM_WARNING = DCM_WARNING_WATCHDOG_TIMEOUT;
     const enum ErrorId DEFAULT_DIM_WARNING = DIM_WARNING_WATCHDOG_TIMEOUT;
@@ -211,7 +210,6 @@ TEST_F(SharedErrorTableTest, set_error)
 
     // Make sure the error is indeed set
     ASSERT_EQ(EXIT_CODE_OK, App_SharedErrorTable_IsErrorSet(error_table, DCM_WARNING_WATCHDOG_TIMEOUT, &is_set));
-
     ASSERT_TRUE(is_set);
 }
 

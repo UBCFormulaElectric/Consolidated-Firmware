@@ -197,9 +197,9 @@ bool App_DriveState_HasBmsFault(const struct DimCanRxInterface *can_rx)
 
 bool App_DriveState_HasBmsWarning(const struct DimCanRxInterface *can_rx)
 {
-    return App_CanRx_BMS_NON_CRITICAL_ERRORS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_HZ(can_rx) ||
-           App_CanRx_BMS_NON_CRITICAL_ERRORS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_KHZ(can_rx) ||
-           App_CanRx_BMS_NON_CRITICAL_ERRORS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX(can_rx) ||
-           App_CanRx_BMS_NON_CRITICAL_ERRORS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX(can_rx) ||
-           App_CanRx_BMS_NON_CRITICAL_ERRORS_GetSignal_WATCHDOG_TIMEOUT(can_rx);
+    return App_CanRx_BMS_WARNINGS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_HZ(can_rx) ||
+           App_CanRx_BMS_WARNINGS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_KHZ(can_rx) ||
+           App_CanRx_BMS_WARNINGS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX(can_rx) ||
+           App_CanRx_BMS_WARNINGS_GetSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX(can_rx) ||
+           App_CanRx_BMS_WARNINGS_GetSignal_WATCHDOG_TIMEOUT(can_rx);
 }
