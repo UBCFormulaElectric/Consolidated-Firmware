@@ -1,8 +1,8 @@
 #pragma once
 
+// BMS not included as it does not use the shared error table
 enum Board
 {
-    BMS,
     DCM,
     DIM,
     FSM,

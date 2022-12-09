@@ -95,13 +95,11 @@ class BmsFaultTest : public BaseStateMachineTest
 
         airs = App_Airs_Create(is_air_positive_closed, is_air_negative_closed, close_air_positive, open_air_positive);
 
-        error_table = App_SharedErrorTable_Create();
-
         clock = App_SharedClock_Create();
 
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok,
-            bspd_ok, accumulator, airs, precharge_relay, ts, error_table, clock);
+            bspd_ok, accumulator, airs, precharge_relay, ts, clock);
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
@@ -182,7 +180,6 @@ class BmsFaultTest : public BaseStateMachineTest
         TearDownObject(airs, App_Airs_Destroy);
         TearDownObject(precharge_relay, App_PrechargeRelay_Destroy);
         TearDownObject(ts, App_TractiveSystem_Destroy);
-        TearDownObject(error_table, App_SharedErrorTable_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
     }
 
@@ -259,7 +256,6 @@ class BmsFaultTest : public BaseStateMachineTest
     struct Airs *             airs;
     struct PrechargeRelay *   precharge_relay;
     struct TractiveSystem *   ts;
-    struct ErrorTable *       error_table;
     struct Clock *            clock;
 };
 
