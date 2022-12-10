@@ -641,6 +641,17 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
     is_air_negative_closed_fake.return_val = false;
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(BMS_INIT_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
+
+
+TEST_F(BmsStateMachineTest, charger_connected_no_can_msg_init_state)
+{
+    SetInitialState(App_GetInitState());
+
+    is_charger_connected_fake.return_val = true;
+
+    LetTimePass(state_machine, 10);
+
+    ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_then_transitions_to_init)

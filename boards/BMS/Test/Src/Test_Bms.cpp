@@ -2,7 +2,7 @@
 
 DEFINE_FFF_GLOBALS;
 //
-//namespace ChargeTest
+// namespace ChargeTest
 //{
 //    FAKE_VALUE_FUNC(float, get_ts_current);
 //    FAKE_VALUE_FUNC(bool, is_charger_connected);
