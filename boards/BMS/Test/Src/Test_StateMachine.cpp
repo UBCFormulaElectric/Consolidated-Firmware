@@ -551,8 +551,13 @@ TEST_F(BmsStateMachineTest, charger_disconnects_in_charge_state)
 
     LetTimePass(state_machine, 10);
 
+<<<<<<< HEAD
     ASSERT_EQ(true, App_CanTx_BMS_Faults_ChargerDisconnectedInChargeState_Get());
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+=======
+    ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(can_tx_interface));
+    ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
+>>>>>>> 0f1c7426 (Done: Start on Tests)
 }
 
 // BMS-38
@@ -658,4 +663,17 @@ TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_the
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
+
+TEST_F(BmsStateMachineTest, charger_connected_no_can_msg_init_state)
+{
+    SetInitialState(App_GetInitState());
+
+    is_charger_connected_fake.return_val = true;
+
+    LetTimePass(state_machine, 10);
+
+    ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
+
+}
+
 } // namespace StateMachineTest
