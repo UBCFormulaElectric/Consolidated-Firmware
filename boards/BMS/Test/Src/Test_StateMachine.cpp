@@ -99,13 +99,11 @@ class BmsStateMachineTest : public BaseStateMachineTest
 
         airs = App_Airs_Create(is_air_positive_closed, is_air_negative_closed, close_air_positive, open_air_positive);
 
-        error_table = App_SharedErrorTable_Create();
-
         clock = App_SharedClock_Create();
 
         world = App_BmsWorld_Create(
             can_tx_interface, can_rx_interface, imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok,
-            bspd_ok, accumulator, airs, precharge_relay, ts, error_table, clock);
+            bspd_ok, accumulator, airs, precharge_relay, ts, clock);
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
@@ -187,7 +185,6 @@ class BmsStateMachineTest : public BaseStateMachineTest
         TearDownObject(airs, App_Airs_Destroy);
         TearDownObject(precharge_relay, App_PrechargeRelay_Destroy);
         TearDownObject(ts, App_TractiveSystem_Destroy);
-        TearDownObject(error_table, App_SharedErrorTable_Destroy);
         TearDownObject(clock, App_SharedClock_Destroy);
     }
 
@@ -272,7 +269,6 @@ class BmsStateMachineTest : public BaseStateMachineTest
 TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInitState());
-
     EXPECT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
@@ -579,7 +575,7 @@ TEST_F(BmsStateMachineTest, check_air_positive_open_in_fault_state)
 }
 
 // BMS-30
-TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_air_shdn_faults_set)
+TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_faults_set)
 {
     // Assume no AIR shutdown faults have been set
     SetInitialState(App_GetFaultState());
@@ -598,17 +594,41 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
 {
     SetInitialState(App_GetFaultState());
 
-    // Set an arbitrarily chosen AIR shutdown error
-    App_SharedErrorTable_SetError(error_table, BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE, true);
-
-    // Open AIR- for the following tests
-    is_air_negative_closed_fake.return_val = false;
+    // Check that state machine remains in FaultState with AIR- closed
+    is_air_negative_closed_fake.return_val = true;
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 
-    // Clear the AIR shutdown error
-    App_SharedErrorTable_SetError(error_table, BMS_FAULTS_CHARGER_DISCONNECTED_IN_CHARGE_STATE, false);
+    // Check that state mcachine transitions to InitState with AIR- open
+    is_air_negative_closed_fake.return_val = false;
     LetTimePass(state_machine, 1000);
     ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+}
+
+TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_then_transitions_to_init)
+{
+    SetInitialState(App_GetInitState());
+
+    // Set TS current positive to trigger discharging condition in tempertature check
+    get_high_res_current_fake.return_val = 10.0f;
+    get_low_res_current_fake.return_val  = 10.0f;
+
+    // Simulate over-temp fault in drive state
+    get_max_temp_degc_fake.return_val = MAX_CELL_DISCHARGE_TEMP_DEGC + 1.0f;
+    LetTimePass(state_machine, 10);
+
+    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+
+    // Check that state machine remains in fault state without cycling to init state for long period of time
+    for (int i = 0; i < 1000; i++)
+    {
+        LetTimePass(state_machine, 1);
+        ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+    }
+
+    // Remove fault condition and check transition to init state
+    get_max_temp_degc_fake.return_val = MAX_CELL_DISCHARGE_TEMP_DEGC - 10.0f;
+    LetTimePass(state_machine, 10);
+    ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 } // namespace StateMachineTest
