@@ -15,9 +15,9 @@ struct Efuse
      * If you want a different condition for the delatch we will have to determine that
      */
 
-    //IDK if we are going to use these (depends on what we are going to do above):
-    //bool (*in_fault_mode)(const struct Efuse_Context *const);
-    //bool (*in_failsafe_mode)(const struct Efuse_Context *const);
+    // IDK if we are going to use these (depends on what we are going to do above):
+    // bool (*in_fault_mode)(const struct Efuse_Context *const);
+    // bool (*in_failsafe_mode)(const struct Efuse_Context *const);
     void (*efuse_delatch)(struct Efuse_Context *const);
     void (*stdby_reset)(struct Efuse_Context *const);
     float (*get_channel_0_current)(struct Efuse_Context *const);
@@ -34,8 +34,8 @@ struct Efuse *App_Efuse_Create(
     void (*disable_channel_0)(const struct Efuse_Context *const),
     void (*enable_channel_1)(const struct Efuse_Context *const),
     void (*disable_channel_1)(const struct Efuse_Context *const),
-    //bool (*in_fault_mode)(const struct Efuse_Context *const),
-    //bool (*in_failsafe_mode)(const struct Efuse_Context *const),
+    // bool (*in_fault_mode)(const struct Efuse_Context *const),
+    // bool (*in_failsafe_mode)(const struct Efuse_Context *const),
     void (*efuse_delatch)(struct Efuse_Context *const),
     void (*stdby_reset)(struct Efuse_Context *const),
     float (*get_channel_0_current)(struct Efuse_Context *const),
@@ -48,14 +48,14 @@ struct Efuse *App_Efuse_Create(
     struct Efuse *efuse = malloc(sizeof(struct Efuse));
     assert(efuse != NULL);
 
-    efuse->io_efuse              = io_efuse;
-    efuse->enable_channel_0      = enable_channel_0;
-    efuse->disable_channel_0     = disable_channel_0;
-    efuse->enable_channel_1      = enable_channel_1;
-    efuse->disable_channel_1     = disable_channel_1;
-    //efuse->in_fault_mode         = in_fault_mode;
-    //efuse->in_failsafe_mode      = in_failsafe_mode;
-    //efuse->delatch_fault         = delatch_fault;
+    efuse->io_efuse          = io_efuse;
+    efuse->enable_channel_0  = enable_channel_0;
+    efuse->disable_channel_0 = disable_channel_0;
+    efuse->enable_channel_1  = enable_channel_1;
+    efuse->disable_channel_1 = disable_channel_1;
+    // efuse->in_fault_mode         = in_fault_mode;
+    // efuse->in_failsafe_mode      = in_failsafe_mode;
+    // efuse->delatch_fault         = delatch_fault;
     efuse->stdby_reset           = stdby_reset;
     efuse->get_channel_0_current = get_channel_0_current;
     efuse->get_channel_1_current = get_channel_1_current;
@@ -94,12 +94,12 @@ void App_Efuse_DisableChannel1(struct Efuse *efuse)
 
 bool App_Efuse_IsEfuseInFaultMode(struct Efuse *efuse)
 {
-    //return efuse->in_fault_mode(efuse->io_efuse);
+    // return efuse->in_fault_mode(efuse->io_efuse);
 }
 
 bool App_Efuse_IsEfuseInFailSafeMode(struct Efuse *efuse)
 {
-    //return efuse->in_failsafe_mode(efuse->io_efuse);
+    // return efuse->in_failsafe_mode(efuse->io_efuse);
 }
 
 void App_Efuse_Delatch(struct Efuse *efuse)
@@ -122,23 +122,44 @@ float App_Efuse_GetChannel1Current(struct Efuse *efuse)
     return efuse->get_channel_1_current(efuse->io_efuse);
 }
 
-bool App_Efuse_InRangeCheck(float value, float min_value, float max_value)
+bool App_Efuse_CurrentTooLow(float value, float min_value)
 {
-    if (value > min_value && value < max_value)
+    if (value >= min_value)
+        return false;
+    return true;
+}
+
+bool App_Efuse_CurrentTooHigh(float value, float max_value)
+{
+    if (value <= max_value)
+        return false;
+    return true;
+}
+
+bool App_Efuse_Channel0_CurrentTooLow(struct Efuse *efuse)
+{
+    if (App_Efuse_CurrentTooLow(efuse->get_channel_0_current(efuse->io_efuse), efuse->channel_0_min_current) == true)
         return true;
     return false;
 }
 
-bool App_Efuse_Channel0_CurrentCheck(struct Efuse *efuse)
+bool App_Efuse_Channel0_CurrentTooHigh(struct Efuse *efuse)
 {
-    if (App_Efuse_InRangeCheck(efuse->get_channel_0_current(efuse->io_efuse), efuse->channel_0_min_current,efuse->channel_0_max_current) == true)
+    if (App_Efuse_CurrentTooHigh(efuse->get_channel_0_current(efuse->io_efuse), efuse->channel_0_max_current) == true)
         return true;
     return false;
 }
 
-bool App_Efuse_Channel1_CurrentCheck(struct Efuse *efuse)
+bool App_Efuse_Channel1_CurrentTooLow(struct Efuse *efuse)
 {
-    if (App_Efuse_InRangeCheck(efuse->get_channel_1_current(efuse->io_efuse), efuse->channel_1_min_current,efuse->channel_1_max_current) == true)
+    if (App_Efuse_CurrentTooLow(efuse->get_channel_0_current(efuse->io_efuse), efuse->channel_1_min_current) == true)
+        return true;
+    return false;
+}
+
+bool App_Efuse_Channel1_CurrentTooHigh(struct Efuse *efuse)
+{
+    if (App_Efuse_CurrentTooHigh(efuse->get_channel_0_current(efuse->io_efuse), efuse->channel_1_max_current) == true)
         return true;
     return false;
 }

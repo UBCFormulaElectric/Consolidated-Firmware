@@ -93,6 +93,9 @@ void App_Efuse_DelatchFaults(struct Efuse *efuse);
  * @param efuse App_Efuse structure
  * @return The current value of channel_0
  */
+
+void App_Efuse_StandbyReset(struct Efuse *efuse);
+
 float App_Efuse_GetChannel0Current(struct Efuse *efuse);
 
 /**
@@ -102,25 +105,10 @@ float App_Efuse_GetChannel0Current(struct Efuse *efuse);
  */
 float App_Efuse_GetChannel1Current(struct Efuse *efuse);
 
-/**
- * Local function that would check the currents to see if they are in range or not.
- * @param value Current value
- * @param min_value Minimum value the current should be.
- * @param max_value Maximum value the current should be.
- * @return True if the current value is in range, otherwise false.
- */
-bool App_Efuse_InRangeCheck(float value, float min_value, float max_value);
+bool App_Efuse_CurrentTooLow(float value, float min_value);
+bool App_Efuse_CurrentTooHigh(float value, float max_value);
 
-/**
- * Bool that check if current_0 is in range
- * @param efuse Efuse structure
- * @return True if current_1 is in range, otherwise false.
- */
-bool App_Efuse_Channel0_CurrentCheck(struct Efuse *efuse);
-
-/**
- * Bool that check if current_1 is in range
- * @param efuse Efuse structure
- * @return True if current_1 value is in range, otherwise false.
- */
-bool App_Efuse_Channel1_CurrentCheck(struct Efuse *efuse);
+bool App_Efuse_Channel0_CurrentTooLow(struct Efuse *efuse);
+bool App_Efuse_Channel0_CurrentTooHigh(struct Efuse *efuse);
+bool App_Efuse_Channel1_CurrentTooLow(struct Efuse *efuse);
+bool App_Efuse_Channel1_CurrentTooHigh(struct Efuse *efuse);

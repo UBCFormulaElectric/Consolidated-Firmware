@@ -72,7 +72,6 @@ bool App_RailMonitoring_VBAT_VoltageTooHighCheck(struct RailMonitoring *rail_mon
     if (App_RailMonitoring_VoltageTooHighCheck(rail_monitor->get_VBAT_voltage(), VBAT_MAX_VOLTAGE) == 0)
         return true;
     return false;
-    
 }
 
 bool App_RailMonitoring__24V_ACC_VoltageTooLowCheck(struct RailMonitoring *rail_monitor)
@@ -89,7 +88,6 @@ bool App_RailMonitoring__24V_ACC_VoltageTooHighCheck(struct RailMonitoring *rail
     return false;
 }
 
-
 bool App_RailMonitoring__22V_AUX_VoltageTooLowCheck(struct RailMonitoring *rail_monitor)
 {
     if (App_RailMonitoring_VoltageTooLowCheck(rail_monitor->get__22V_AUX_voltage(), _22V_AUX_MIN_VOLTAGE) == 0)
@@ -103,5 +101,3 @@ bool App_RailMonitoring__22V_AUX_VoltageTooHighCheck(struct RailMonitoring *rail
         return true;
     return false;
 }
-
-
