@@ -9,7 +9,7 @@ struct Error;
 
 enum ErrorType
 {
-    NON_CRITICAL_ERROR,
+    WARNING,
     AIR_SHUTDOWN_ERROR,
     MOTOR_SHUTDOWN_ERROR,
     NUM_ERROR_TYPES,
@@ -108,11 +108,11 @@ bool App_SharedError_GetIsSet(const struct Error *error);
 bool App_SharedError_IsCritical(const struct Error *error);
 
 /**
- * Check if the given error is non-critical
+ * Check if the given error is a warning
  * @param error The error to check
- * @return true if the given error is non-critical, else false
+ * @return true if the given error is a warning, else false
  */
-bool App_SharedError_IsNonCritical(const struct Error *error);
+bool App_SharedError_IsWarning(const struct Error *error);
 
 /**
  * Check if the given error exists in the given error list
