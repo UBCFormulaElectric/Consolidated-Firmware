@@ -669,6 +669,11 @@ void RunTask1Hz(void const * argument)
     /* Infinite loop */
     for (;;)
     {
+        App_CanTx_DIM_Test1_Ex1_Set(true);
+        App_CanTx_DIM_Test1_Ex2_Set(5);
+        App_CanTx_DIM_Test2_Ex3_Set(547.54f);
+        App_CanTx_DIM_Test2_Ex4_Set(CHOICE_1);
+
         Io_StackWaterMark_Check();
         App_SharedStateMachine_Tick1Hz(state_machine);
         Io_CanTx_Enqueue1HzMsgs();
