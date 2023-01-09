@@ -1,5 +1,5 @@
 {
-    "DIM_Test": {
+    "DIM_Test1": {
         "msg_id": 200,
         "cycle_time": 1000,
         "description": "Test message for the DIM.",
@@ -9,6 +9,21 @@
             },
             "Ex2": {
                 "bits": 12
+            }
+        }
+    },
+    "DIM_Test2": {
+        "msg_id": 201,
+        "cycle_time": 10,
+        "description": "Test message for the DIM.",
+        "signals": {
+            "Ex3": {
+                "min": 0,
+                "max": 1000,
+                "resolution": 0.1
+            },
+            "Ex4": {
+                "enum": "EnumTest"
             }
         }
     }
