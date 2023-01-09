@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stm32f3xx_hal.h>
+#include <stm32f4xx_hal.h> // TODO: MCU INDEPENDENT
 
 #include "App_CanTx.h"
 #include "Io_SharedCanMsg.h"

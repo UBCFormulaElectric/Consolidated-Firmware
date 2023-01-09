@@ -1,14 +1,13 @@
 #include "Io_SharedFilters.h"
-#include "arm_math.h"
 
 void Io_SharedFilters_LowPassFilter(
-    float32_t *input,
-    float32_t *output,
+    float *input,
+    float *output,
     uint32_t   num_of_samples,
-    float32_t  sampling_time,
-    float32_t  rc)
+    float  sampling_time,
+    float  rc)
 {
-    float32_t smoothing_factor;
+    float smoothing_factor;
 
     smoothing_factor = sampling_time / (rc + sampling_time);
 

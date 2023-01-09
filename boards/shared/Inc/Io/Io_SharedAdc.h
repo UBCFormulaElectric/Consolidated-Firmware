@@ -1,7 +1,8 @@
 #pragma once
 
 #include <stdbool.h>
-#include <stm32f3xx.h>
+// TODO: MCU independent!
+#include <stm32f4xx.h>
 
 /**
  * Convert the given raw ADC value measured by the given ADC handle into voltage

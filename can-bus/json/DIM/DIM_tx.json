@@ -1,0 +1,15 @@
+{
+    "DIM_Test": {
+        "msg_id": 200,
+        "cycle_time": 1000,
+        "description": "Test message for the DIM.",
+        "signals": {
+            "Ex1": {
+                "bits": 1
+            },
+            "Ex2": {
+                "bits": 12
+            }
+        }
+    }
+}

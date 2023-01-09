@@ -1,0 +1,38 @@
+VERSION ""
+NS_:
+BS_:
+
+
+BU_: DIM DEBUG
+
+
+BO_ 200 DIM_Test: 2 DIM
+SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Ex2 : 1|12@1+ (1,0) [0|4095] "" DEBUG
+
+BO_ 100 DIM_AlertSet: 0 DIM
+SG_ DIM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
+
+BO_ 101 DIM_AlertCleared: 0 DIM
+SG_ DIM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
+
+
+
+BA_DEF_  "BusType" STRING ;
+BA_DEF_DEF_  "BusType" "CAN";
+BA_ "BusType" "CAN";
+
+
+BA_ "GenSigStartValue" SG_ 200 Ex1 0;
+BA_ "GenSigStartValue" SG_ 200 Ex2 0;
+BA_ "GenSigStartValue" SG_ 100 DIM_AlertSet 0;
+BA_ "GenSigStartValue" SG_ 101 DIM_AlertCleared 0;
+
+
+BA_ "GenMsgCycleTime" BO_ 200  1000;
+
+
+VAL_ 100 DIM_AlertSet 0 "NUM_DIM_ALERTS";
+VAL_ 101 DIM_AlertCleared 0 "NUM_DIM_ALERTS";
+
+

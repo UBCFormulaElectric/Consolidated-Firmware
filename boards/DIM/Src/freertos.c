@@ -6,7 +6,7 @@
  ******************************************************************************
  * @attention
  *
- * <h2><center>&copy; Copyright (c) 2020 STMicroelectronics.
+ * <h2><center>&copy; Copyright (c) 2023 STMicroelectronics.
  * All rights reserved.</center></h2>
  *
  * This software component is licensed by ST under Ultimate Liberty license
@@ -24,8 +24,8 @@
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
-#include "Io_SharedSoftwareWatchdog.h"
+/* USER CODE BEGIN Includes */     
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -54,10 +54,7 @@
 /* USER CODE END FunctionPrototypes */
 
 /* GetIdleTaskMemory prototype (linked to static allocation support) */
-void vApplicationGetIdleTaskMemory(
-    StaticTask_t **ppxIdleTaskTCBBuffer,
-    StackType_t ** ppxIdleTaskStackBuffer,
-    uint32_t *     pulIdleTaskStackSize);
+void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize );
 
 /* Hook prototypes */
 void vApplicationTickHook(void);
@@ -80,8 +77,6 @@ __weak void vApplicationStackOverflowHook(xTaskHandle xTask, signed char *pcTask
     /* Run time stack overflow checking is performed if
     configCHECK_FOR_STACK_OVERFLOW is defined to 1 or 2. This hook function is
     called if a stack overflow is detected. */
-    UNUSED(xTask);
-    UNUSED(pcTaskName);
 }
 /* USER CODE END 4 */
 

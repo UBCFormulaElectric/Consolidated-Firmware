@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdint.h>
+#include <stddef.h>
 #include "App_SharedExitCode.h"
 
 struct SevenSegDisplay;

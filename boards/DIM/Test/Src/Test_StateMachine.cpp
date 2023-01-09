@@ -221,29 +221,26 @@ class DimStateMachineTest : public BaseStateMachineTest
         UNUSED(current_time_ms);
     }
 
-    struct World *            world;
-    struct StateMachine *     state_machine;
-    struct DimCanTxInterface *can_tx_interface;
-    struct DimCanRxInterface *can_rx_interface;
-    struct SevenSegDisplay *  left_seven_seg_display;
-    struct SevenSegDisplay *  middle_seven_seg_display;
-    struct SevenSegDisplay *  right_seven_seg_display;
-    struct SevenSegDisplays * seven_seg_displays;
-    struct HeartbeatMonitor * heartbeat_monitor;
-    struct RgbLedSequence *   rgb_led_sequence;
-    struct Led *              imd_led;
-    struct Led *              bspd_led;
-    struct BinarySwitch *     start_switch;
-    struct BinarySwitch *     traction_control_switch;
-    struct BinarySwitch *     torque_vectoring_switch;
-    struct RotarySwitch *     drive_mode_switch;
-    struct ErrorTable *       error_table;
-    struct RgbLed *           bms_status_led;
-    struct RgbLed *           dcm_status_led;
-    struct RgbLed *           dim_status_led;
-    struct RgbLed *           fsm_status_led;
-    struct RgbLed *           pdm_status_led;
-    struct Clock *            clock;
+    struct World *           world;
+    struct StateMachine *    state_machine;
+    struct SevenSegDisplay * left_seven_seg_display;
+    struct SevenSegDisplay * middle_seven_seg_display;
+    struct SevenSegDisplay * right_seven_seg_display;
+    struct SevenSegDisplays *seven_seg_displays;
+    struct HeartbeatMonitor *heartbeat_monitor;
+    struct RgbLedSequence *  rgb_led_sequence;
+    struct Led *             imd_led;
+    struct Led *             bspd_led;
+    struct BinarySwitch *    start_switch;
+    struct BinarySwitch *    traction_control_switch;
+    struct BinarySwitch *    torque_vectoring_switch;
+    struct RotarySwitch *    drive_mode_switch;
+    struct RgbLed *          bms_status_led;
+    struct RgbLed *          dcm_status_led;
+    struct RgbLed *          dim_status_led;
+    struct RgbLed *          fsm_status_led;
+    struct RgbLed *          pdm_status_led;
+    struct Clock *           clock;
 };
 
 // DIM-12
@@ -257,14 +254,14 @@ TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
 // DIM-9
 TEST_F(DimStateMachineTest, check_7_seg_displays_show_state_of_charge_in_drive_state_if_there_is_no_error)
 {
-    App_CanRx_BMS_STATE_OF_CHARGE_SetSignal_STATE_OF_CHARGE(can_rx_interface, 0.0f);
+    // TODO: JSONCAN -> App_CanRx_BMS_STATE_OF_CHARGE_SetSignal_STATE_OF_CHARGE(can_rx_interface, 0.0f);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[0].enabled);
     ASSERT_EQ(false, set_middle_hex_digit_fake.arg0_history[0].enabled);
     ASSERT_EQ(false, set_right_hex_digit_fake.arg0_history[0].enabled);
     ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[0].value);
 
-    App_CanRx_BMS_STATE_OF_CHARGE_SetSignal_STATE_OF_CHARGE(can_rx_interface, 50.0f);
+    // TODO: JSONCAN -> App_CanRx_BMS_STATE_OF_CHARGE_SetSignal_STATE_OF_CHARGE(can_rx_interface, 50.0f);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[1].enabled);
     ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_history[1].enabled);
@@ -272,7 +269,7 @@ TEST_F(DimStateMachineTest, check_7_seg_displays_show_state_of_charge_in_drive_s
     ASSERT_EQ(0, set_left_hex_digit_fake.arg0_history[1].value);
     ASSERT_EQ(5, set_middle_hex_digit_fake.arg0_history[1].value);
 
-    App_CanRx_BMS_STATE_OF_CHARGE_SetSignal_STATE_OF_CHARGE(can_rx_interface, 100.0f);
+    // TODO: JSONCAN -> App_CanRx_BMS_STATE_OF_CHARGE_SetSignal_STATE_OF_CHARGE(can_rx_interface, 100.0f);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(true, set_left_hex_digit_fake.arg0_history[2].enabled);
     ASSERT_EQ(true, set_middle_hex_digit_fake.arg0_history[2].enabled);
@@ -395,17 +392,17 @@ TEST_F(DimStateMachineTest, check_torque_vectoring_switch_is_broadcasted_over_ca
 // DIM-5
 TEST_F(DimStateMachineTest, imd_led_control_in_drive_state)
 {
-    App_CanRx_BMS_OK_STATUSES_SetSignal_IMD_OK(can_rx_interface, true);
+    // TODO: JSONCAN -> App_CanRx_BMS_OK_STATUSES_SetSignal_IMD_OK(can_rx_interface, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(0, turn_on_imd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_imd_led_fake.call_count);
 
-    App_CanRx_BMS_OK_STATUSES_SetSignal_IMD_OK(can_rx_interface, false);
+    // TODO: JSONCAN -> App_CanRx_BMS_OK_STATUSES_SetSignal_IMD_OK(can_rx_interface, false);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_on_imd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_imd_led_fake.call_count);
 
-    App_CanRx_BMS_OK_STATUSES_SetSignal_IMD_OK(can_rx_interface, true);
+    // TODO: JSONCAN -> App_CanRx_BMS_OK_STATUSES_SetSignal_IMD_OK(can_rx_interface, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_on_imd_led_fake.call_count);
     ASSERT_EQ(2, turn_off_imd_led_fake.call_count);
@@ -414,17 +411,17 @@ TEST_F(DimStateMachineTest, imd_led_control_in_drive_state)
 // DIM-6
 TEST_F(DimStateMachineTest, bspd_led_control_in_drive_state)
 {
-    App_CanRx_BMS_OK_STATUSES_SetSignal_BSPD_OK(can_rx_interface, true);
+    // TODO: JSONCAN -> App_CanRx_BMS_OK_STATUSES_SetSignal_BSPD_OK(can_rx_interface, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(0, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_bspd_led_fake.call_count);
 
-    App_CanRx_BMS_OK_STATUSES_SetSignal_BSPD_OK(can_rx_interface, false);
+    // TODO: JSONCAN -> App_CanRx_BMS_OK_STATUSES_SetSignal_BSPD_OK(can_rx_interface, false);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(1, turn_off_bspd_led_fake.call_count);
 
-    App_CanRx_BMS_OK_STATUSES_SetSignal_BSPD_OK(can_rx_interface, true);
+    // TODO: JSONCAN -> App_CanRx_BMS_OK_STATUSES_SetSignal_BSPD_OK(can_rx_interface, true);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(1, turn_on_bspd_led_fake.call_count);
     ASSERT_EQ(2, turn_off_bspd_led_fake.call_count);
@@ -566,12 +563,13 @@ TEST_F(DimStateMachineTest, fsm_board_status_led_control_with_multiple_errors)
 TEST_F(DimStateMachineTest, bms_board_status_led_control_with_critical_error)
 {
     // Set OK statuses such that the red led is not set without fault
-    App_CanRx_BMS_OK_STATUSES_SetSignal_IMD_OK(can_rx_interface, true);
-    App_CanRx_BMS_OK_STATUSES_SetSignal_BSPD_OK(can_rx_interface, true);
-    App_CanRx_BMS_OK_STATUSES_SetSignal_BMS_OK(can_rx_interface, true);
+    // TODO: JSONCAN -> App_CanRx_BMS_OK_STATUSES_SetSignal_IMD_OK(can_rx_interface, true);
+    // TODO: JSONCAN -> App_CanRx_BMS_OK_STATUSES_SetSignal_BSPD_OK(can_rx_interface, true);
+    // TODO: JSONCAN -> App_CanRx_BMS_OK_STATUSES_SetSignal_BMS_OK(can_rx_interface, true);
 
     // Set any critical error and check that the BMS LED turns red
-    App_CanRx_BMS_STATE_MACHINE_SetSignal_STATE(can_rx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE);
+    // TODO: JSONCAN -> App_CanRx_BMS_STATE_MACHINE_SetSignal_STATE(can_rx_interface,
+    // CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE);
     LetTimePass(state_machine, 10);
 
     ASSERT_EQ(1, turn_bms_status_led_red_fake.call_count);
