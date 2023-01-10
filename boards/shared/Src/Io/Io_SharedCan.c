@@ -239,8 +239,6 @@ void Io_SharedCan_TxMessageQueueSendtoBack(const struct CanMsg *message)
 {
     // Track how many times the CAN TX FIFO has overflowed
     static uint32_t cantx_overflow_count = { 0 };
-    static int      send_count           = 0;
-    send_count++;
 
     if (xPortIsInsideInterrupt())
     {
