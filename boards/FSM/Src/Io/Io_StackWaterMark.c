@@ -15,9 +15,7 @@ extern TaskHandle_t TaskCanTxHandle;
 /** @brief The stack watermark threshold as a percentage of the stack size */
 #define STACK_HIGH_WATERMARK_THRESHOLD 0.7f
 
-void Io_StackWaterMark_Init()
-{
-}
+void Io_StackWaterMark_Init() {}
 
 static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
 {

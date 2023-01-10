@@ -5,6 +5,7 @@
 uint32_t Io_DriveModeSwitch_GetPosition(void)
 {
     // TODO: IO
+
     //    uint32_t position = UINT_MAX;
     uint32_t position = 0;
 

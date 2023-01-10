@@ -4,20 +4,20 @@
 
 void Io_Leds_TurnOnImdLed(void)
 {
-    // TODO: IO -> HAL_GPIO_WritePin(IMD_LED_GPIO_Port, IMD_LED_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(IMD_LED_GPIO_Port, IMD_LED_Pin, GPIO_PIN_SET);
 }
 
 void Io_Leds_TurnOffImdLed(void)
 {
-    // TODO: IO -> HAL_GPIO_WritePin(IMD_LED_GPIO_Port, IMD_LED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(IMD_LED_GPIO_Port, IMD_LED_Pin, GPIO_PIN_RESET);
 }
 
 void Io_Leds_TurnOnBspdLed(void)
 {
-    // TODO: IO -> HAL_GPIO_WritePin(BSPD_LED_GPIO_Port, BSPD_LED_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(BSPD_LED_GPIO_Port, BSPD_LED_Pin, GPIO_PIN_SET);
 }
 
 void Io_Leds_TurnOffBspdLed(void)
 {
-    // TODO: IO -> HAL_GPIO_WritePin(BSPD_LED_GPIO_Port, BSPD_LED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(BSPD_LED_GPIO_Port, BSPD_LED_Pin, GPIO_PIN_RESET);
 }

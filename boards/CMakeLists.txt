@@ -90,11 +90,11 @@ function(cube_mx_code_generation
             ${SCRIPTS_DIR}/utilities/generate_md5_checksum.py
             ${IOC_FILE}
             ${IOC_FILE}.md5
+        DEPENDS ${IOC_FILE}
         # Run clang-format because the STM32CubeMX-generated code is not
         # compliant to our clang-format rules.
-        # COMMAND pipenv run pythonc TODO: Re-enable clang-format
-        #     ${FIX_FORMATTING_SCRIPT_PY}
-        DEPENDS ${IOC_FILE}
+         COMMAND pipenv run python
+             ${FIX_FORMATTING_SCRIPT_PY}
         WORKING_DIRECTORY ${PIPENV_PROJECT_DIR}
         )
 endfunction()

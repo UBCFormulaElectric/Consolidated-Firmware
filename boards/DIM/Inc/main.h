@@ -24,34 +24,35 @@
 #define __MAIN_H
 
 #ifdef __cplusplus
-extern "C" {
+extern "C"
+{
 #endif
 
 /* Includes ------------------------------------------------------------------*/
 #include "stm32f4xx_hal.h"
 
-/* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */
+    /* Private includes ----------------------------------------------------------*/
+    /* USER CODE BEGIN Includes */
 
-/* USER CODE END Includes */
+    /* USER CODE END Includes */
 
-/* Exported types ------------------------------------------------------------*/
-/* USER CODE BEGIN ET */
+    /* Exported types ------------------------------------------------------------*/
+    /* USER CODE BEGIN ET */
 
-/* USER CODE END ET */
+    /* USER CODE END ET */
 
-/* Exported constants --------------------------------------------------------*/
-/* USER CODE BEGIN EC */
+    /* Exported constants --------------------------------------------------------*/
+    /* USER CODE BEGIN EC */
 
-/* USER CODE END EC */
+    /* USER CODE END EC */
 
-/* Exported macro ------------------------------------------------------------*/
-/* USER CODE BEGIN EM */
+    /* Exported macro ------------------------------------------------------------*/
+    /* USER CODE BEGIN EM */
 
-/* USER CODE END EM */
+    /* USER CODE END EM */
 
-/* Exported functions prototypes ---------------------------------------------*/
-void Error_Handler(void);
+    /* Exported functions prototypes ---------------------------------------------*/
+    void Error_Handler(void);
 
 /* USER CODE BEGIN EFP */
 
@@ -79,6 +80,12 @@ void Error_Handler(void);
 #define DCM_GREEN_GPIO_Port GPIOC
 #define DCM_RED_Pin GPIO_PIN_5
 #define DCM_RED_GPIO_Port GPIOC
+#define IMD_LED_Pin GPIO_PIN_0
+#define IMD_LED_GPIO_Port GPIOB
+#define BSPD_LED_Pin GPIO_PIN_1
+#define BSPD_LED_GPIO_Port GPIOB
+#define SHDN_LED_Pin GPIO_PIN_2
+#define SHDN_LED_GPIO_Port GPIOB
 #define DIM_BLUE_Pin GPIO_PIN_6
 #define DIM_BLUE_GPIO_Port GPIOC
 #define DIM_GREEN_Pin GPIO_PIN_7
@@ -93,9 +100,9 @@ void Error_Handler(void);
 #define PDM_GREEN_GPIO_Port GPIOC
 #define PDM_RED_Pin GPIO_PIN_11
 #define PDM_RED_GPIO_Port GPIOC
-/* USER CODE BEGIN Private defines */
+    /* USER CODE BEGIN Private defines */
 
-/* USER CODE END Private defines */
+    /* USER CODE END Private defines */
 
 #ifdef __cplusplus
 }
