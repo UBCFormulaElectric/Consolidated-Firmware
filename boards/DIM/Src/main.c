@@ -17,7 +17,6 @@
  ******************************************************************************
  */
 /* USER CODE END Header */
-
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
@@ -154,7 +153,6 @@ int main(void)
   /* USER CODE BEGIN 1 */
 
   /* USER CODE END 1 */
-  
 
   /* MCU Configuration--------------------------------------------------------*/
 
@@ -186,6 +184,9 @@ int main(void)
     Io_SharedHardFaultHandler_Init();
 
     Io_SevenSegDisplays_Init();
+
+    App_CanTx_Init();
+    App_CanRx_Init();
 
     left_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetLeftHexDigit);
     middle_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetMiddleHexDigit);
@@ -292,9 +293,8 @@ int main(void)
 
   /* Start scheduler */
   osKernelStart();
-  
-  /* We should never get here as control is now taken by the scheduler */
 
+  /* We should never get here as control is now taken by the scheduler */
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
     while (1)
@@ -315,30 +315,36 @@ void SystemClock_Config(void)
   RCC_OscInitTypeDef RCC_OscInitStruct = {0};
   RCC_ClkInitTypeDef RCC_ClkInitStruct = {0};
 
-  /** Configure the main internal regulator output voltage 
+  /** Configure the main internal regulator output voltage
   */
   __HAL_RCC_PWR_CLK_ENABLE();
   __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-  /** Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the RCC Oscillators according to the specified parameters
+  * in the RCC_OscInitTypeDef structure.
   */
-  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSI;
-  RCC_OscInitStruct.HSIState = RCC_HSI_ON;
-  RCC_OscInitStruct.HSICalibrationValue = RCC_HSICALIBRATION_DEFAULT;
-  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_NONE;
+  RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_HSE;
+  RCC_OscInitStruct.HSEState = RCC_HSE_ON;
+  RCC_OscInitStruct.PLL.PLLState = RCC_PLL_ON;
+  RCC_OscInitStruct.PLL.PLLSource = RCC_PLLSOURCE_HSE;
+  RCC_OscInitStruct.PLL.PLLM = 8;
+  RCC_OscInitStruct.PLL.PLLN = 192;
+  RCC_OscInitStruct.PLL.PLLP = RCC_PLLP_DIV2;
+  RCC_OscInitStruct.PLL.PLLQ = 2;
+  RCC_OscInitStruct.PLL.PLLR = 2;
   if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
   {
     Error_Handler();
   }
-  /** Initializes the CPU, AHB and APB busses clocks 
+  /** Initializes the CPU, AHB and APB buses clocks
   */
   RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK|RCC_CLOCKTYPE_SYSCLK
                               |RCC_CLOCKTYPE_PCLK1|RCC_CLOCKTYPE_PCLK2;
-  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_HSI;
+  RCC_ClkInitStruct.SYSCLKSource = RCC_SYSCLKSOURCE_PLLCLK;
   RCC_ClkInitStruct.AHBCLKDivider = RCC_SYSCLK_DIV1;
-  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV1;
+  RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
   RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
+  if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
   {
     Error_Handler();
   }
@@ -361,10 +367,10 @@ static void MX_ADC1_Init(void)
   /* USER CODE BEGIN ADC1_Init 1 */
 
   /* USER CODE END ADC1_Init 1 */
-  /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion) 
+  /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
   */
   hadc1.Instance = ADC1;
-  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV2;
+  hadc1.Init.ClockPrescaler = ADC_CLOCK_SYNC_PCLK_DIV4;
   hadc1.Init.Resolution = ADC_RESOLUTION_12B;
   hadc1.Init.ScanConvMode = DISABLE;
   hadc1.Init.ContinuousConvMode = DISABLE;
@@ -379,7 +385,7 @@ static void MX_ADC1_Init(void)
   {
     Error_Handler();
   }
-  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
+  /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
   */
   sConfig.Channel = ADC_CHANNEL_5;
   sConfig.Rank = 1;
@@ -410,7 +416,7 @@ static void MX_CAN1_Init(void)
 
   /* USER CODE END CAN1_Init 1 */
   hcan1.Instance = CAN1;
-  hcan1.Init.Prescaler = 4;
+  hcan1.Init.Prescaler = 12;
   hcan1.Init.Mode = CAN_MODE_NORMAL;
   hcan1.Init.SyncJumpWidth = CAN_SJW_4TQ;
   hcan1.Init.TimeSeg1 = CAN_BS1_6TQ;
@@ -469,10 +475,10 @@ static void MX_SPI2_Init(void)
 
 }
 
-/** 
+/**
   * Enable DMA controller clock
   */
-static void MX_DMA_Init(void) 
+static void MX_DMA_Init(void)
 {
 
   /* DMA controller clock enable */
@@ -495,23 +501,24 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, BMS_BLUE_Pin|BMS_GREEN_Pin|BMS_RED_Pin|DCM_BLUE_Pin 
-                          |DCM_GREEN_Pin|DCM_RED_Pin|DIM_BLUE_Pin|DIM_GREEN_Pin 
+  HAL_GPIO_WritePin(GPIOC, BMS_BLUE_Pin|BMS_GREEN_Pin|BMS_RED_Pin|DCM_BLUE_Pin
+                          |DCM_GREEN_Pin|DCM_RED_Pin|DIM_BLUE_Pin|DIM_GREEN_Pin
                           |DIM_RED_Pin|PDM_BLUE_Pin|PDM_GREEN_Pin|PDM_RED_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOA, FSM_BLUE_Pin|FSM_GREEN_Pin|FSM_RED_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : BMS_BLUE_Pin BMS_GREEN_Pin BMS_RED_Pin DCM_BLUE_Pin 
-                           DCM_GREEN_Pin DCM_RED_Pin DIM_BLUE_Pin DIM_GREEN_Pin 
+  /*Configure GPIO pins : BMS_BLUE_Pin BMS_GREEN_Pin BMS_RED_Pin DCM_BLUE_Pin
+                           DCM_GREEN_Pin DCM_RED_Pin DIM_BLUE_Pin DIM_GREEN_Pin
                            DIM_RED_Pin PDM_BLUE_Pin PDM_GREEN_Pin PDM_RED_Pin */
-  GPIO_InitStruct.Pin = BMS_BLUE_Pin|BMS_GREEN_Pin|BMS_RED_Pin|DCM_BLUE_Pin 
-                          |DCM_GREEN_Pin|DCM_RED_Pin|DIM_BLUE_Pin|DIM_GREEN_Pin 
+  GPIO_InitStruct.Pin = BMS_BLUE_Pin|BMS_GREEN_Pin|BMS_RED_Pin|DCM_BLUE_Pin
+                          |DCM_GREEN_Pin|DCM_RED_Pin|DIM_BLUE_Pin|DIM_GREEN_Pin
                           |DIM_RED_Pin|PDM_BLUE_Pin|PDM_GREEN_Pin|PDM_RED_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
@@ -540,14 +547,6 @@ static void MX_GPIO_Init(void)
 /* USER CODE END Header_RunTask100Hz */
 void RunTask100Hz(void const * argument)
 {
-    
-    
-    
-    
-    
-    
-    
-
   /* USER CODE BEGIN 5 */
     UNUSED(argument);
     uint32_t                 PreviousWakeTime = osKernelSysTick();
@@ -566,7 +565,7 @@ void RunTask100Hz(void const * argument)
 //        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
         osDelayUntil(&PreviousWakeTime, period_ms);
     }
-  /* USER CODE END 5 */ 
+  /* USER CODE END 5 */
 }
 
 /* USER CODE BEGIN Header_RunTaskCanRx */
@@ -673,6 +672,7 @@ void RunTask1Hz(void const * argument)
         App_CanTx_DIM_Test1_Ex2_Set(5);
         App_CanTx_DIM_Test2_Ex3_Set(547.54f);
         App_CanTx_DIM_Test2_Ex4_Set(CHOICE_1);
+        App_CanTx_DIM_Test2_Ex5_Set(130);
 
         Io_StackWaterMark_Check();
         App_SharedStateMachine_Tick1Hz(state_machine);
@@ -686,7 +686,7 @@ void RunTask1Hz(void const * argument)
   /* USER CODE END RunTask1Hz */
 }
 
-/**
+ /**
   * @brief  Period elapsed callback in non blocking mode
   * @note   This function is called  when TIM6 interrupt took place, inside
   * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
@@ -727,7 +727,7 @@ void Error_Handler(void)
   * @retval None
   */
 void assert_failed(uint8_t *file, uint32_t line)
-{ 
+{
   /* USER CODE BEGIN 6 */
     __assert_func(file, line, "assert_failed", "assert_failed");
   /* USER CODE END 6 */

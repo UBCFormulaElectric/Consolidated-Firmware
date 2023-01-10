@@ -1,4 +1,4 @@
-#include <stm32f4xx_hal.h>  // TODO: MCU INDEPENDENT
+#include "Io_Hal.h"
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_SharedMacros.h"
 
