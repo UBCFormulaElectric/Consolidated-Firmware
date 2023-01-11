@@ -197,7 +197,7 @@ void * _sbrk_r(struct _reent *pReent, int incr) {
 // ... because the current _reent structure is pointed to by global _impure_ptr
 char * sbrk(int incr) { return _sbrk_r(_impure_ptr, incr); }
 //! _sbrk is a synonym for sbrk.
-char * _sbrk(int incr) { return sbrk(incr); }
+__attribute((weak)) char * _sbrk(int incr) { return sbrk(incr); }
 
 #ifdef MALLOCS_INSIDE_ISRs // block interrupts during free-storage use
   static UBaseType_t malLock_uxSavedInterruptStatus;

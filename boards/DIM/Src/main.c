@@ -17,6 +17,7 @@
  ******************************************************************************
  */
 /* USER CODE END Header */
+
 /* Includes ------------------------------------------------------------------*/
 #include "main.h"
 #include "cmsis_os.h"
@@ -74,8 +75,8 @@ CAN_HandleTypeDef hcan1;
 IWDG_HandleTypeDef hiwdg;
 
 osThreadId          Task100HzHandle;
-uint32_t            Task100HzTaskBuffer[512];
-osStaticThreadDef_t Task100HzTaskControlBlock;
+uint32_t            Task100HzBuffer[512];
+osStaticThreadDef_t Task100HzControlBlock;
 osThreadId          TaskCanRxHandle;
 uint32_t            TaskCanRxBuffer[512];
 osStaticThreadDef_t TaskCanRxControlBlock;
@@ -118,8 +119,8 @@ struct Clock *            clock;
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_DMA_Init(void);
-static void MX_CAN1_Init(void);
 static void MX_ADC1_Init(void);
+static void MX_CAN1_Init(void);
 static void MX_IWDG_Init(void);
 void        RunTask100Hz(void const *argument);
 void        RunTaskCanRx(void const *argument);
@@ -172,8 +173,8 @@ int main(void)
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
     MX_DMA_Init();
-    MX_CAN1_Init();
     MX_ADC1_Init();
+    MX_CAN1_Init();
     MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
@@ -264,8 +265,7 @@ int main(void)
 
     /* Create the thread(s) */
     /* definition and creation of Task100Hz */
-    osThreadStaticDef(
-        Task100Hz, RunTask100Hz, osPriorityBelowNormal, 0, 512, Task100HzTaskBuffer, &Task100HzTaskControlBlock);
+    osThreadStaticDef(Task100Hz, RunTask100Hz, osPriorityBelowNormal, 0, 512, Task100HzBuffer, &Task100HzControlBlock);
     Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
 
     /* definition and creation of TaskCanRx */
@@ -296,6 +296,7 @@ int main(void)
     osKernelStart();
 
     /* We should never get here as control is now taken by the scheduler */
+
     /* Infinite loop */
     /* USER CODE BEGIN WHILE */
     while (1)
@@ -320,8 +321,7 @@ void SystemClock_Config(void)
      */
     __HAL_RCC_PWR_CLK_ENABLE();
     __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
-    /** Initializes the RCC Oscillators according to the specified parameters
-     * in the RCC_OscInitTypeDef structure.
+    /** Initializes the CPU, AHB and APB busses clocks
      */
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
@@ -337,7 +337,7 @@ void SystemClock_Config(void)
     {
         Error_Handler();
     }
-    /** Initializes the CPU, AHB and APB buses clocks
+    /** Initializes the CPU, AHB and APB busses clocks
      */
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
     RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
@@ -497,7 +497,7 @@ static void MX_GPIO_Init(void)
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOA, FSM_BLUE_Pin | FSM_GREEN_Pin | FSM_RED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOA, LED_Pin | FSM_BLUE_Pin | FSM_GREEN_Pin | FSM_RED_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(GPIOB, IMD_LED_Pin | BSPD_LED_Pin | SHDN_LED_Pin, GPIO_PIN_RESET);
@@ -512,12 +512,18 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : FSM_BLUE_Pin FSM_GREEN_Pin FSM_RED_Pin */
-    GPIO_InitStruct.Pin   = FSM_BLUE_Pin | FSM_GREEN_Pin | FSM_RED_Pin;
+    /*Configure GPIO pins : LED_Pin FSM_BLUE_Pin FSM_GREEN_Pin FSM_RED_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin | FSM_BLUE_Pin | FSM_GREEN_Pin | FSM_RED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /*Configure GPIO pin : REGEN_Pin */
+    GPIO_InitStruct.Pin  = REGEN_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(REGEN_GPIO_Port, &GPIO_InitStruct);
 
     /*Configure GPIO pins : IMD_LED_Pin BSPD_LED_Pin SHDN_LED_Pin */
     GPIO_InitStruct.Pin   = IMD_LED_Pin | BSPD_LED_Pin | SHDN_LED_Pin;

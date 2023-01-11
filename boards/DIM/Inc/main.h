@@ -70,6 +70,8 @@ extern "C"
 #define BMS_RED_GPIO_Port GPIOC
 #define DCM_BLUE_Pin GPIO_PIN_3
 #define DCM_BLUE_GPIO_Port GPIOC
+#define LED_Pin GPIO_PIN_4
+#define LED_GPIO_Port GPIOA
 #define REGEN_Pin GPIO_PIN_5
 #define REGEN_GPIO_Port GPIOA
 #define FSM_BLUE_Pin GPIO_PIN_6
