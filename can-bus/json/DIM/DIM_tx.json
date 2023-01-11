@@ -1,6 +1,6 @@
 {
     "DIM_Test1": {
-        "msg_id": 400,
+        "msg_id": 502,
         "cycle_time": 1000,
         "description": "Test message for the DIM.",
         "signals": {
@@ -13,7 +13,7 @@
         }
     },
     "DIM_Test2": {
-        "msg_id": 401,
+        "msg_id": 503,
         "cycle_time": 10,
         "description": "Test message for the DIM.",
         "signals": {
