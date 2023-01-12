@@ -27,8 +27,8 @@ list(APPEND ARM_BINARY_THIRD_PARTY_SRCS ${ARM_BINARY_IO_SYSCALLS_SRC})
 set(ARM_LINKER_SCRIPT "${CMAKE_CURRENT_SOURCE_DIR}/STM32F412RGTx_FLASH.ld")
 
 set(STM32CUBEMX_DRIVER_INCLUDE_DIRS
-        "Drivers/stm32f4xx_HAL_Driver/Inc"
-        "Drivers/stm32f4xx_HAL_Driver/Inc/Legacy"
+        "Drivers/STM32F4xx_HAL_Driver/Inc"
+        "Drivers/STM32F4xx_HAL_Driver/Inc/Legacy"
         "Middlewares/Third_Party/FreeRTOS/Source/include"
         "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"
         "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F"
