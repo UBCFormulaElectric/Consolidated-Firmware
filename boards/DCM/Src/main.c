@@ -38,7 +38,6 @@
 #include "Io_BrakeLight.h"
 #include "Io_Buzzer.h"
 #include "Io_LSM6DS33.h"
-#include "Io_SharedErrorTable.h"
 #include "Io_InverterSwitches.h"
 
 #include "App_SharedMacros.h"
@@ -87,18 +86,15 @@ osThreadId          Task100HzHandle;
 uint32_t            Task100HzBuffer[TASK100HZ_STACK_SIZE];
 osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
-struct DcmWorld *         world;
-struct StateMachine *     state_machine;
-struct DcmCanTxInterface *can_tx;
-struct DcmCanRxInterface *can_rx;
-struct HeartbeatMonitor * heartbeat_monitor;
-struct RgbLedSequence *   rgb_led_sequence;
-struct BrakeLight *       brake_light;
-struct Buzzer *           buzzer;
-struct Imu *              imu;
-struct ErrorTable *       error_table;
-struct Clock *            clock;
-struct InverterSwitches * inverter_switches;
+struct DcmWorld *        world;
+struct StateMachine *    state_machine;
+struct HeartbeatMonitor *heartbeat_monitor;
+struct RgbLedSequence *  rgb_led_sequence;
+struct BrakeLight *      brake_light;
+struct Buzzer *          buzzer;
+struct Imu *             imu;
+struct Clock *           clock;
+struct InverterSwitches *inverter_switches;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -124,12 +120,12 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 /* USER CODE BEGIN 0 */
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count);
+    // JSONCAN -> App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
+    // JSONCAN -> App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
 }
 
 /* USER CODE END 0 */
@@ -167,12 +163,11 @@ int main(void)
     MX_IWDG_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
+
     Io_SharedHardFaultHandler_Init();
 
-    can_tx = App_CanTx_Create(
-        Io_CanTx_EnqueueNonPeriodicMsg_DCM_STARTUP, Io_CanTx_EnqueueNonPeriodicMsg_DCM_WATCHDOG_TIMEOUT);
-
-    can_rx = App_CanRx_Create();
+    App_CanTx_Init();
+    App_CanRx_Init();
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
@@ -188,8 +183,6 @@ int main(void)
         Io_LSM6DS33_GetAccelerationX, Io_LSM6DS33_GetAccelerationY, Io_LSM6DS33_GetAccelerationZ, MIN_ACCELERATION_MS2,
         MAX_ACCELERATION_MS2);
 
-    error_table = App_SharedErrorTable_Create();
-
     clock = App_SharedClock_Create();
 
     inverter_switches = App_InverterSwitches_Create(
@@ -197,16 +190,13 @@ int main(void)
         Io_InverterSwitches_TurnOffLeft, Io_InverterSwitches_IsRightInverterOn, Io_InverterSwitches_IsLeftInverterOn);
 
     world = App_DcmWorld_Create(
-        can_tx, can_rx, heartbeat_monitor, rgb_led_sequence, brake_light, buzzer, imu, error_table, clock,
-        inverter_switches, App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
-
-    Io_StackWaterMark_Init(can_tx);
-    Io_SoftwareWatchdog_Init(can_tx);
+        heartbeat_monitor, rgb_led_sequence, brake_light, buzzer, imu, clock, inverter_switches, App_BuzzerSignals_IsOn,
+        App_BuzzerSignals_Callback);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
-    struct CanMsgs_dcm_startup_t payload = { .dummy = 0 };
-    App_CanTx_SendNonPeriodicMsg_DCM_STARTUP(can_tx, &payload);
+    // struct CanMsgs_dcm_startup_t payload = { .dummy = 0 }; // TODO: JSONCAN
+    // App_CanTx_SendNonPeriodicMsg_DCM_STARTUP(can_tx, &payload);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -570,7 +560,7 @@ void RunTask1kHz(void const *argument)
 
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
         App_DcmWorld_UpdateWaitSignal(world, task_start_ms);
-        Io_CanTx_EnqueuePeriodicMsgs(can_tx, task_start_ms);
+        // Io_CanTx_EnqueuePeriodicMsgs(can_tx, task_start_ms); TODO: JSONCAN
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep. Prevent check in if the elapsed period is greater or
@@ -601,8 +591,7 @@ void RunTaskCanRx(void const *argument)
     {
         struct CanMsg message;
         Io_SharedCan_DequeueCanRxMessage(&message);
-        Io_CanRx_UpdateRxTableWithMessage(can_rx, &message);
-        Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &message);
+        Io_CanRx_UpdateRxTableWithMessage(&message);
     }
     /* USER CODE END RunTaskCanRx */
 }
@@ -684,7 +673,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void Error_Handler(void)
 {
     /* USER CODE BEGIN Error_Handler_Debug */
-    __assert_func(file, line, "Error_Handler", "Error_Handler");
+    __assert_func(__FILE__, __LINE__, "Error_Handler", "Error_Handler");
     /* USER CODE END Error_Handler_Debug */
 }
 

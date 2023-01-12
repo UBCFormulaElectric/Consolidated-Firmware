@@ -204,6 +204,9 @@ int main(void)
 
     Io_SharedHardFaultHandler_Init();
 
+    App_CanTx_Init();
+    App_CanRx_Init();
+
     Io_FlowMeters_Init(&htim4);
     flow_meter_in_range_check =
         App_InRangeCheck_Create(Io_FlowMeters_GetFlowRate, MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN);
@@ -256,9 +259,6 @@ int main(void)
         App_FlowMetersSignals_FlowRateBelowThresholdCallback);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
-
-    Io_StackWaterMark_Init();
-    Io_SoftwareWatchdog_Init();
 
     // struct CanMsgs_fsm_startup_t payload = { .dummy = 0 };
     // TODO: JSONCAN -> App_CanTx_SendNonPeriodicMsg_FSM_STARTUP(can_tx, &payload);

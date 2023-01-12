@@ -6,8 +6,6 @@
 
 extern IWDG_HandleTypeDef hiwdg;
 
-void Io_SoftwareWatchdog_Init() {}
-
 void Io_HardwareWatchdog_Refresh(void)
 {
     HAL_IWDG_Refresh(&hiwdg);

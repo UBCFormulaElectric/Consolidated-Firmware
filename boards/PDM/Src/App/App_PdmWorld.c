@@ -6,8 +6,6 @@
 
 struct PdmWorld
 {
-    struct PdmCanTxInterface *can_tx_interface;
-    struct PdmCanRxInterface *can_rx_interface;
     struct InRangeCheck *     vbat_voltage_in_range_check;
     struct InRangeCheck *     _24v_aux_voltage_in_range_check;
     struct InRangeCheck *     _24v_acc_voltage_in_range_check;
@@ -25,8 +23,6 @@ struct PdmWorld
 };
 
 struct PdmWorld *App_PdmWorld_Create(
-    struct PdmCanTxInterface *const can_tx_interface,
-    struct PdmCanRxInterface *const can_rx_interface,
     struct InRangeCheck *const      vbat_voltage_in_range_check,
     struct InRangeCheck *const      _24v_aux_voltage_in_range_check,
     struct InRangeCheck *const      _24v_acc_voltage_in_range_check,
@@ -45,8 +41,6 @@ struct PdmWorld *App_PdmWorld_Create(
     struct PdmWorld *world = (struct PdmWorld *)malloc(sizeof(struct PdmWorld));
     assert(world != NULL);
 
-    world->can_tx_interface                      = can_tx_interface;
-    world->can_rx_interface                      = can_rx_interface;
     world->vbat_voltage_in_range_check           = vbat_voltage_in_range_check;
     world->_24v_aux_voltage_in_range_check       = _24v_aux_voltage_in_range_check;
     world->_24v_acc_voltage_in_range_check       = _24v_acc_voltage_in_range_check;
@@ -68,16 +62,6 @@ struct PdmWorld *App_PdmWorld_Create(
 void App_PdmWorld_Destroy(struct PdmWorld *const world)
 {
     free(world);
-}
-
-struct PdmCanTxInterface *App_PdmWorld_GetCanTx(const struct PdmWorld *const world)
-{
-    return world->can_tx_interface;
-}
-
-struct PdmCanRxInterface *App_PdmWorld_GetCanRx(const struct PdmWorld *const world)
-{
-    return world->can_rx_interface;
 }
 
 struct InRangeCheck *App_PdmWorld_GetVbatVoltageInRangeCheck(const struct PdmWorld *const world)

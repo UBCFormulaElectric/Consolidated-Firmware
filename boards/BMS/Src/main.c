@@ -202,6 +202,9 @@ int main(void)
 
     Io_SharedHardFaultHandler_Init();
 
+    App_CanTx_Init();
+    App_CanRx_Init();
+
     Io_Imd_Init();
     imd = App_Imd_Create(Io_Imd_GetFrequency, IMD_FREQUENCY_TOLERANCE, Io_Imd_GetDutyCycle, Io_Imd_GetTimeSincePowerOn);
 
@@ -246,9 +249,6 @@ int main(void)
     world = App_BmsWorld_Create(
         imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs, precharge_relay,
         ts, clock);
-
-    Io_StackWaterMark_Init();
-    Io_SoftwareWatchdog_Init();
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 

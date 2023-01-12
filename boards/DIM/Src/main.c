@@ -183,7 +183,6 @@ int main(void)
     //    HAL_TIM_Base_Start(&htim2); // TODO: IO, for ADC?
 
     Io_SharedHardFaultHandler_Init();
-
     Io_SevenSegDisplays_Init();
 
     App_CanTx_Init();

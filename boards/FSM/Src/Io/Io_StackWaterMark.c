@@ -15,8 +15,6 @@ extern TaskHandle_t TaskCanTxHandle;
 /** @brief The stack watermark threshold as a percentage of the stack size */
 #define STACK_HIGH_WATERMARK_THRESHOLD 0.7f
 
-void Io_StackWaterMark_Init() {}
-
 static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
 {
     // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_KHZ(_can_tx_interface, error);
