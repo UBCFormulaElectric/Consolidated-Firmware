@@ -32,7 +32,6 @@ set(STM32CUBEMX_DRIVER_INCLUDE_DIRS
         "Middlewares/Third_Party/FreeRTOS/Source/include"
         "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS"
         "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM4F"
-        "Drivers/CMSIS/Device/ST/stm32f4xx/Include"
         "Drivers/CMSIS/Device/ST/STM32F4xx/Include"
         "Drivers/CMSIS/Include"
         )
