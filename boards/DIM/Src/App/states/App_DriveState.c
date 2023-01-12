@@ -5,7 +5,7 @@
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    struct DimWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+//    struct DimWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_STATE(can_tx_interface,
     // CANMSGS_DIM_STATE_MACHINE_STATE_DRIVE_CHOICE);
 }
@@ -20,16 +20,16 @@ static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    struct DimWorld *        world                   = App_SharedStateMachine_GetWorld(state_machine);
-    struct SevenSegDisplays *seven_seg_displays      = App_DimWorld_GetSevenSegDisplays(world);
-    struct HeartbeatMonitor *heartbeat_monitor       = App_DimWorld_GetHeartbeatMonitor(world);
-    struct Led *             imd_led                 = App_DimWorld_GetImdLed(world);
-    struct Led *             bspd_led                = App_DimWorld_GetBspdLed(world);
-    struct RgbLed *          bms_led                 = App_DimWorld_GetBmsStatusLed(world);
-    struct BinarySwitch *    start_switch            = App_DimWorld_GetStartSwitch(world);
-    struct BinarySwitch *    traction_control_switch = App_DimWorld_GetTractionControlSwitch(world);
-    struct BinarySwitch *    torque_vectoring_switch = App_DimWorld_GetTorqueVectoringSwitch(world);
-    struct Clock *           clock                   = App_DimWorld_GetClock(world);
+//    struct DimWorld *        world                   = App_SharedStateMachine_GetWorld(state_machine);
+//    struct SevenSegDisplays *seven_seg_displays      = App_DimWorld_GetSevenSegDisplays(world);
+//    struct HeartbeatMonitor *heartbeat_monitor       = App_DimWorld_GetHeartbeatMonitor(world);
+//    struct Led *             imd_led                 = App_DimWorld_GetImdLed(world);
+//    struct Led *             bspd_led                = App_DimWorld_GetBspdLed(world);
+//    struct RgbLed *          bms_led                 = App_DimWorld_GetBmsStatusLed(world);
+//    struct BinarySwitch *    start_switch            = App_DimWorld_GetStartSwitch(world);
+//    struct BinarySwitch *    traction_control_switch = App_DimWorld_GetTractionControlSwitch(world);
+//    struct BinarySwitch *    torque_vectoring_switch = App_DimWorld_GetTorqueVectoringSwitch(world);
+//    struct Clock *           clock                   = App_DimWorld_GetClock(world);
 
     // TODO: JSONCAN
 
@@ -76,11 +76,11 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     //     can_tx, torque_vectoring_switch, App_CanTx_SetPeriodicSignal_TORQUE_VECTORING_SWITCH,
     //     CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE, CANMSGS_DIM_SWITCHES_START_SWITCH_OFF_CHOICE);
 
-    struct RgbLed *board_status_leds[NUM_BOARD_LEDS] = { [DCM_LED] = App_DimWorld_GetDcmStatusLed(world),
-                                                         [DIM_LED] = App_DimWorld_GetDimStatusLed(world),
-                                                         [FSM_LED] = App_DimWorld_GetFsmStatusLed(world),
-                                                         [PDM_LED] = App_DimWorld_GetPdmStatusLed(world),
-                                                         [BMS_LED] = App_DimWorld_GetBmsStatusLed(world) };
+//    struct RgbLed *board_status_leds[NUM_BOARD_LEDS] = { [DCM_LED] = App_DimWorld_GetDcmStatusLed(world),
+//                                                         [DIM_LED] = App_DimWorld_GetDimStatusLed(world),
+//                                                         [FSM_LED] = App_DimWorld_GetFsmStatusLed(world),
+//                                                         [PDM_LED] = App_DimWorld_GetPdmStatusLed(world),
+//                                                         [BMS_LED] = App_DimWorld_GetBmsStatusLed(world) };
 
     // TODO: Show something useful
 
