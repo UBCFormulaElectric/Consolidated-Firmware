@@ -30,6 +30,7 @@
 #include "App_SharedMacros.h"
 #include "App_SevenSegDisplay.h"
 #include "App_SharedStateMachine.h"
+#include "App_Alerts.h"
 #include "states/App_DriveState.h"
 #include "configs/App_RotarySwitchConfig.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
@@ -242,8 +243,7 @@ int main(void)
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 
-    //    struct CanMsgs_dim_startup_t payload = { .dummy = 0 };
-    //    App_CanTx_SendNonPeriodicMsg_DIM_STARTUP(can_tx, &payload); // TODO: JSONCAN
+    App_Alerts_Push(DIM_ALERT_STARTUP);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
