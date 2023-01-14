@@ -6,7 +6,7 @@
  * Register SPI bus used to communicate with the 7-segment display hardware
  * @param hspi The SPI bus to register
  */
-void Io_SevenSegDisplays_Init(SPI_HandleTypeDef *hspi);
+void Io_SevenSegDisplays_Init(void);
 
 /**
  * Issue commands to the shift registers controlling the 7-segment displays via

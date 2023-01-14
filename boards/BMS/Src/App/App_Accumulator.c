@@ -193,10 +193,7 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
     }
 }
 
-bool App_Accumulator_CheckFaults(
-    struct BmsCanTxInterface *const can_tx,
-    struct Accumulator *const       accumulator,
-    struct TractiveSystem *const    ts)
+bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct TractiveSystem *const ts)
 {
     uint8_t throwaway_segment = 0U;
     uint8_t throwaway_loc     = 0U;
@@ -221,11 +218,11 @@ bool App_Accumulator_CheckFaults(
         App_Accumulator_GetMinVoltage(accumulator, &throwaway_segment, &throwaway_loc) < MIN_CELL_VOLTAGE;
     bool communication_fault = App_Accumulator_HasCommunicationError(accumulator);
 
-    App_CanTx_SetPeriodicSignal_CELL_UNDERVOLTAGE_FAULT(can_tx, undervoltage_fault);
-    App_CanTx_SetPeriodicSignal_CELL_OVERVOLTAGE_FAULT(can_tx, overvoltage_fault);
-    App_CanTx_SetPeriodicSignal_CELL_UNDERTEMP_FAULT(can_tx, undertemp_fault);
-    App_CanTx_SetPeriodicSignal_CELL_OVERTEMP_FAULT(can_tx, overtemp_fault);
-    App_CanTx_SetPeriodicSignal_MODULE_COMM_ERROR(can_tx, communication_fault);
+    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_CELL_UNDERVOLTAGE_FAULT(can_tx, undervoltage_fault);
+    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_CELL_OVERVOLTAGE_FAULT(can_tx, overvoltage_fault);
+    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_CELL_UNDERTEMP_FAULT(can_tx, undertemp_fault);
+    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_CELL_OVERTEMP_FAULT(can_tx, overtemp_fault);
+    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_MODULE_COMM_ERROR(can_tx, communication_fault);
 
     return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault);
 }

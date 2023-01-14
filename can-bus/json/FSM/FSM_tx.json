@@ -1,0 +1,12 @@
+{
+    "FSM_Test1": {
+        "msg_id": 303,
+        "cycle_time": 1000,
+        "description": "Test message for the FSM.",
+        "signals": {
+            "Ex1": {
+                "bits": 1
+            }
+        }
+    }
+}

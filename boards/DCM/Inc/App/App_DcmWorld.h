@@ -8,7 +8,6 @@
 #include "App_Buzzer.h"
 #include "App_BuzzerSignals.h"
 #include "App_Imu.h"
-#include "App_SharedErrorTable.h"
 #include "App_SharedClock.h"
 #include "App_SharedWaitSignal.h"
 #include "App_InverterSwitches.h"
@@ -25,16 +24,13 @@ struct DcmWorld;
  * caller
  */
 struct DcmWorld *App_DcmWorld_Create(
-    struct DcmCanTxInterface *can_tx_interface,
-    struct DcmCanRxInterface *can_rx_interface,
-    struct HeartbeatMonitor * heartbeat_monitor,
-    struct RgbLedSequence *   rgb_led_sequence,
-    struct BrakeLight *       brake_light,
-    struct Buzzer *           buzzer,
-    struct Imu *              imu,
-    struct ErrorTable *       error_table,
-    struct Clock *            clock,
-    struct InverterSwitches * inverter_switches,
+    struct HeartbeatMonitor *heartbeat_monitor,
+    struct RgbLedSequence *  rgb_led_sequence,
+    struct BrakeLight *      brake_light,
+    struct Buzzer *          buzzer,
+    struct Imu *             imu,
+    struct Clock *           clock,
+    struct InverterSwitches *inverter_switches,
     bool (*is_buzzer_on)(struct DcmWorld *),
     void (*buzzer_callback)(struct DcmWorld *));
 
@@ -43,20 +39,6 @@ struct DcmWorld *App_DcmWorld_Create(
  * @param world The world to deallocate
  */
 void App_DcmWorld_Destroy(struct DcmWorld *world);
-
-/**
- * Get the CAN TX interface for the given world
- * @param world The world to get CAN TX interface for
- * @return The CAN TX interface for the given world
- */
-struct DcmCanTxInterface *App_DcmWorld_GetCanTx(const struct DcmWorld *world);
-
-/**
- * Get the CAN RX interface for the given world
- * @param world The world to get CAN RX interface for
- * @return The CAN RX interface for the given world
- */
-struct DcmCanRxInterface *App_DcmWorld_GetCanRx(const struct DcmWorld *world);
 
 /**
  * Get the heartbeat monitor for the given world
@@ -92,13 +74,6 @@ struct Buzzer *App_DcmWorld_GetBuzzer(const struct DcmWorld *world);
  * @return The Imu for the given world
  */
 struct Imu *App_DcmWorld_GetImu(const struct DcmWorld *world);
-
-/**
- * Get the error table for the given world
- * @param world The world to get error table for
- * @return The error table for the given world
- */
-struct ErrorTable *App_DcmWorld_GetErrorTable(const struct DcmWorld *world);
 
 /**
  * Update the registered wait signals in the given world

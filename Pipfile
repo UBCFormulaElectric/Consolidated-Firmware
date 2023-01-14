@@ -8,6 +8,7 @@ pylint = "*"
 
 [packages]
 cantools = {ref = "v33.1.1-noDoubles", git = "git+https://github.com/UBCFormulaElectric/cantools"}
+schema = "0.7.5"
 
 [requires]
 python_version = "3"
