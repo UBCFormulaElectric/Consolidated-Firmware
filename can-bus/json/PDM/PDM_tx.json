@@ -1,0 +1,12 @@
+{
+    "PDM_Test1": {
+        "msg_id": 403,
+        "cycle_time": 1000,
+        "description": "Test message for the PDM.",
+        "signals": {
+            "Ex1": {
+                "bits": 1
+            }
+        }
+    }
+}

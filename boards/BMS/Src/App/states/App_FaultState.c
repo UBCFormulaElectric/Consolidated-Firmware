@@ -4,14 +4,13 @@
 
 static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    struct BmsWorld *const          world  = App_SharedStateMachine_GetWorld(state_machine);
-    struct BmsCanTxInterface *const can_tx = App_BmsWorld_GetCanTx(world);
-    struct Airs *const              airs   = App_BmsWorld_GetAirs(world);
-    struct OkStatus *               bms_ok = App_BmsWorld_GetBmsOkStatus(world);
+    struct BmsWorld *const world  = App_SharedStateMachine_GetWorld(state_machine);
+    struct Airs *const     airs   = App_BmsWorld_GetAirs(world);
+    struct OkStatus *      bms_ok = App_BmsWorld_GetBmsOkStatus(world);
 
-    App_CanTx_SetPeriodicSignal_STATE(can_tx, CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE);
+    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_STATE(can_tx, CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE);
     App_Airs_OpenAirPositive(airs);
-    App_CanTx_SetPeriodicSignal_AIR_POSITIVE(can_tx, App_Airs_IsAirPositiveClosed(airs));
+    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_AIR_POSITIVE(can_tx, App_Airs_IsAirPositiveClosed(airs));
     App_OkStatus_Disable(bms_ok);
 }
 
@@ -24,16 +23,14 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
 
-    struct BmsWorld *         world          = App_SharedStateMachine_GetWorld(state_machine);
-    struct Airs *             airs           = App_BmsWorld_GetAirs(world);
-    struct Accumulator *      accumulator    = App_BmsWorld_GetAccumulator(world);
-    struct TractiveSystem *   tractiveSystem = App_BmsWorld_GetTractiveSystem(world);
-    struct BmsCanTxInterface *can_tx         = App_BmsWorld_GetCanTx(world);
+    struct BmsWorld *      world          = App_SharedStateMachine_GetWorld(state_machine);
+    struct Airs *          airs           = App_BmsWorld_GetAirs(world);
+    struct Accumulator *   accumulator    = App_BmsWorld_GetAccumulator(world);
+    struct TractiveSystem *tractiveSystem = App_BmsWorld_GetTractiveSystem(world);
 
     const bool is_air_negative_open = !App_Airs_IsAirNegativeClosed(airs);
     const bool are_bms_faults_cleared =
-        !(App_TractveSystem_CheckFaults(can_tx, tractiveSystem) ||
-          App_Accumulator_CheckFaults(can_tx, accumulator, tractiveSystem));
+        !(App_TractveSystem_CheckFaults(tractiveSystem) || App_Accumulator_CheckFaults(accumulator, tractiveSystem));
 
     if (is_air_negative_open && are_bms_faults_cleared)
     {

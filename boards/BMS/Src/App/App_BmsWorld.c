@@ -5,44 +5,37 @@
 
 struct BmsWorld
 {
-    struct BmsCanTxInterface *can_tx_interface;
-    struct BmsCanRxInterface *can_rx_interface;
-    struct Imd *              imd;
-    struct HeartbeatMonitor * heartbeat_monitor;
-    struct RgbLedSequence *   rgb_led_sequence;
-    struct Charger *          charger;
-    struct OkStatus *         bms_ok;
-    struct OkStatus *         imd_ok;
-    struct OkStatus *         bspd_ok;
-    struct Accumulator *      accumulator;
-    struct Airs *             airs;
-    struct PrechargeRelay *   precharge_relay;
-    struct TractiveSystem *   ts;
-    struct ErrorTable *       error_table;
-    struct Clock *            clock;
+    struct Imd *             imd;
+    struct HeartbeatMonitor *heartbeat_monitor;
+    struct RgbLedSequence *  rgb_led_sequence;
+    struct Charger *         charger;
+    struct OkStatus *        bms_ok;
+    struct OkStatus *        imd_ok;
+    struct OkStatus *        bspd_ok;
+    struct Accumulator *     accumulator;
+    struct Airs *            airs;
+    struct PrechargeRelay *  precharge_relay;
+    struct TractiveSystem *  ts;
+    struct Clock *           clock;
 };
 
 struct BmsWorld *App_BmsWorld_Create(
-    struct BmsCanTxInterface *const can_tx_interface,
-    struct BmsCanRxInterface *const can_rx_interface,
-    struct Imd *const               imd,
-    struct HeartbeatMonitor *const  heartbeat_monitor,
-    struct RgbLedSequence *const    rgb_led_sequence,
-    struct Charger *const           charger,
-    struct OkStatus *const          bms_ok,
-    struct OkStatus *const          imd_ok,
-    struct OkStatus *const          bspd_ok,
-    struct Accumulator *const       accumulator,
-    struct Airs *const              airs,
-    struct PrechargeRelay *const    precharge_relay,
-    struct TractiveSystem *const    tractive_system,
-    struct Clock *const             clock)
+    struct Imd *const              imd,
+    struct HeartbeatMonitor *const heartbeat_monitor,
+    struct RgbLedSequence *const   rgb_led_sequence,
+    struct Charger *const          charger,
+    struct OkStatus *const         bms_ok,
+    struct OkStatus *const         imd_ok,
+    struct OkStatus *const         bspd_ok,
+    struct Accumulator *const      accumulator,
+    struct Airs *const             airs,
+    struct PrechargeRelay *const   precharge_relay,
+    struct TractiveSystem *const   tractive_system,
+    struct Clock *const            clock)
 {
     struct BmsWorld *world = (struct BmsWorld *)malloc(sizeof(struct BmsWorld));
     assert(world != NULL);
 
-    world->can_tx_interface  = can_tx_interface;
-    world->can_rx_interface  = can_rx_interface;
     world->imd               = imd;
     world->heartbeat_monitor = heartbeat_monitor;
     world->rgb_led_sequence  = rgb_led_sequence;
@@ -62,16 +55,6 @@ struct BmsWorld *App_BmsWorld_Create(
 void App_BmsWorld_Destroy(struct BmsWorld *world)
 {
     free(world);
-}
-
-struct BmsCanTxInterface *App_BmsWorld_GetCanTx(const struct BmsWorld *const world)
-{
-    return world->can_tx_interface;
-}
-
-struct BmsCanRxInterface *App_BmsWorld_GetCanRx(const struct BmsWorld *const world)
-{
-    return world->can_rx_interface;
 }
 
 struct Imd *App_BmsWorld_GetImd(const struct BmsWorld *const world)

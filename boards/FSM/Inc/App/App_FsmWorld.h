@@ -30,8 +30,6 @@ struct Wheels;
  * caller
  */
 struct FsmWorld *App_FsmWorld_Create(
-    struct FsmCanTxInterface *can_tx_interface,
-    struct FsmCanRxInterface *can_rx_interface,
     struct HeartbeatMonitor * heartbeat_monitor,
     struct AcceleratorPedals *papps_and_sapps,
     struct Brake *            brake,
@@ -44,20 +42,6 @@ struct FsmWorld *App_FsmWorld_Create(
  * @param world The world to deallocate
  */
 void App_FsmWorld_Destroy(struct FsmWorld *world);
-
-/**
- * Get the CAN TX interface for the given world
- * @param world The world to get CAN TX interface for
- * @return The CAN TX interface for the given world
- */
-struct FsmCanTxInterface *App_FsmWorld_GetCanTx(const struct FsmWorld *world);
-
-/**
- * Get the CAN RX interface for the given world
- * @param world The world to get CAN RX interface for
- * @return The CAN RX interface for the given world
- */
-struct FsmCanRxInterface *App_FsmWorld_GetCanRx(const struct FsmWorld *world);
 
 /**
  * Get the heartbeat monitor for the given world

@@ -74,4 +74,4 @@ float App_TractiveSystem_GetPower(struct TractiveSystem *ts);
  * @param ts The Tractive System to check faults in
  * @return True if faults present, false otherwise
  */
-bool App_TractveSystem_CheckFaults(struct BmsCanTxInterface *can_tx, struct TractiveSystem *ts);
+bool App_TractveSystem_CheckFaults(struct TractiveSystem *ts);

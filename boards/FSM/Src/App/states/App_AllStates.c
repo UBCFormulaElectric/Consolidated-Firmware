@@ -7,71 +7,67 @@
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
-    struct FsmWorld *         world  = App_SharedStateMachine_GetWorld(state_machine);
-    struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
-    struct Brake *            brake  = App_FsmWorld_GetBrake(world);
+    struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct Brake *   brake = App_FsmWorld_GetBrake(world);
 
-    App_CanTx_SetPeriodicSignal_BRAKE_PRESSURE_OPEN_OCSC(can_tx, App_Brake_PressureElectricalFault(brake));
+    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_BRAKE_PRESSURE_OPEN_OCSC(can_tx,
+    // App_Brake_PressureElectricalFault(brake));
 }
 
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct FsmWorld *         world              = App_SharedStateMachine_GetWorld(state_machine);
-    struct FsmCanTxInterface *can_tx             = App_FsmWorld_GetCanTx(world);
-    struct FsmCanRxInterface *can_rx             = App_FsmWorld_GetCanRx(world);
     struct HeartbeatMonitor * hb_monitor         = App_FsmWorld_GetHeartbeatMonitor(world);
     struct AcceleratorPedals *accelerator_pedals = App_FsmWorld_GetPappsAndSapps(world);
     static uint8_t            error_count        = 0;
 
-    App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
+    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
 
-    if (App_CanRx_BMS_VITALS_GetSignal_HEARTBEAT(can_rx))
+    // TODO: JSONCAN -> if (App_CanRx_BMS_VITALS_GetSignal_HEARTBEAT(can_rx))
+    if (false)
     {
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, BMS_HEARTBEAT_ONE_HOT);
-        App_CanRx_BMS_VITALS_SetSignal_HEARTBEAT(can_rx, false);
+        // TODO: JSONCAN -> App_CanRx_BMS_VITALS_SetSignal_HEARTBEAT(can_rx, false);
     }
 
     // Check for torque plausibility
-    float left_torque_req = (float)App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
-        App_CanRx_DCM_INVL_COMMAND_MESSAGE_GetSignal_TORQUE_COMMAND_INVL(can_rx));
-    float right_torque_req = (float)App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
-        App_CanRx_DCM_INVR_COMMAND_MESSAGE_GetSignal_TORQUE_COMMAND_INVR(can_rx));
-    float fsm_torque_limit = App_CanTx_GetPeriodicSignal_FSM_TORQUE_LIMIT(can_tx);
+    // TODO: JSONCAN
+    // float left_torque_req = (float)App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
+    //     App_CanRx_DCM_INVL_COMMAND_MESSAGE_GetSignal_TORQUE_COMMAND_INVL(can_rx));
+    // float right_torque_req = (float)App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+    //     App_CanRx_DCM_INVR_COMMAND_MESSAGE_GetSignal_TORQUE_COMMAND_INVR(can_rx));
+
+    float left_torque_req  = 0;
+    float right_torque_req = 0;
+
+    float fsm_torque_limit = 0; // TODO: JSONCAN -> App_CanTx_GetPeriodicSignal_FSM_TORQUE_LIMIT(can_tx);
     if (left_torque_req > fsm_torque_limit || right_torque_req > fsm_torque_limit)
         error_count++;
     else
         error_count = 0;
 
     if (error_count == MAX_TORQUE_PLAUSIBILITY_ERR_CNT)
-        App_CanTx_SetPeriodicSignal_TORQUE_PLAUSIBILITY_CHECK_FAILED(can_tx, true);
+    {
+        // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_TORQUE_PLAUSIBILITY_CHECK_FAILED(can_tx, true);
+    }
 
     // Broadcast a new FSM torque limit based on pedal percentage
-    fsm_torque_limit = 0.01f * App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx) * MAX_TORQUE_REQUEST_NM +
-                       TORQUE_LIMIT_OFFSET_NM;
-    App_CanTx_SetPeriodicSignal_FSM_TORQUE_LIMIT(can_tx, fsm_torque_limit);
+    // TODO: JSONCAN
+    //    fsm_torque_limit = 0.01f * App_CanTx_GetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx) * MAX_TORQUE_REQUEST_NM
+    //    +
+    //                       TORQUE_LIMIT_OFFSET_NM;
+    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_FSM_TORQUE_LIMIT(can_tx, fsm_torque_limit);
 
     // Debug msgs, remove after testing
-    App_CanTx_SetPeriodicSignal_PAPPS(
-        can_tx, (uint16_t)App_AcceleratorPedals_GetPrimaryPedalPercentage(accelerator_pedals));
-    App_CanTx_SetPeriodicSignal_SAPPS(
-        can_tx, (uint16_t)App_AcceleratorPedals_GetSecondaryPedalPercentage(accelerator_pedals));
+    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_PAPPS(
+    // can_tx, (uint16_t)App_AcceleratorPedals_GetPrimaryPedalPercentage(accelerator_pedals));
+    // App_CanTx_SetPeriodicSignal_SAPPS(
+    // can_tx, (uint16_t)App_AcceleratorPedals_GetSecondaryPedalPercentage(accelerator_pedals));
 
     // App_CanTx_SetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, App());
     // App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, Io_AcceleratorPedals_GetPapps());
 
-    App_CanTx_SetPeriodicSignal_MISSING_HEARTBEAT(can_tx, !App_SharedHeartbeatMonitor_Tick(hb_monitor));
-
-    // Motor Shutdown Faults
-    //    App_CanTx_SetPeriodicSignal_PAPPS_ALARM_IS_ACTIVE(
-    //        can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE);
-    //    App_CanTx_SetPeriodicSignal_SAPPS_ALARM_IS_ACTIVE(
-    //        can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE_FALSE_CHOICE);
-    //    App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(
-    //        can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE);
-    //     App_CanTx_SetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(can_tx,
-    //     CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_FALSE_CHOICE);
-    //    App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(
-    //        can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_FALSE_CHOICE);
+    // App_CanTx_SetPeriodicSignal_MISSING_HEARTBEAT(can_tx, !App_SharedHeartbeatMonitor_Tick(hb_monitor));
 
     // NEW ALL STATES CODE
     App_AcceleratorPedals_Broadcast(world);
