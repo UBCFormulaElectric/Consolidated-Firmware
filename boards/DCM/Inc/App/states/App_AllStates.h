@@ -11,6 +11,7 @@ static inline bool App_HasInverterFault(void)
 {
     return App_CanRx_INVL_InternalStates_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE ||
            App_CanRx_INVR_InternalStates_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;
+
 }
 
 /**

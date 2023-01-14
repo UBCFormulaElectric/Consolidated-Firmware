@@ -558,24 +558,11 @@ TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnect)
     App_CanRx_CHARGING_STATUS_SetSignal_CHARGING_SWITCH(can_rx_interface, true);
 
     LetTimePass(state_machine, 10);
-<<<<<<< HEAD
-<<<<<<< HEAD
 
-<<<<<<< HEAD
+
     ASSERT_EQ(true, App_CanTx_BMS_Faults_ChargerDisconnectedInChargeState_Get());
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
-=======
-    ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(can_tx_interface));
-    ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
->>>>>>> 0f1c7426 (Done: Start on Tests)
-=======
     //Checks if a CAN message was sent to indicate charger was disconnected unexpectedly
-=======
-    // Checks if a CAN message was sent to indicate charger was disconnected unexpectedly
->>>>>>> 9562de5e (-Changed shutdown loop in charge state to go into fault state)
-    ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(can_tx_interface));
-    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
->>>>>>> 766a8b82 (-Added comments for charging constant)
 }
 
 // BMS-38
@@ -648,6 +635,7 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
     is_air_negative_closed_fake.return_val = true;
     is_charger_connected_fake.return_val   = false;
     LetTimePass(state_machine, 1000);
+
     ASSERT_EQ(BMS_FAULT_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
 
     // Check that state mcachine transitions to InitState with AIR- open

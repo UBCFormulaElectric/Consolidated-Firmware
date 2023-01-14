@@ -41,7 +41,6 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     float right_torque_req = 0;
 
     float fsm_torque_limit = 0; // TODO: JSONCAN -> App_CanTx_GetPeriodicSignal_FSM_TORQUE_LIMIT(can_tx);
-
     if (left_torque_req > fsm_torque_limit || right_torque_req > fsm_torque_limit)
         error_count++;
     else

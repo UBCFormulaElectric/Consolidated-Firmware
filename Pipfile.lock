@@ -1,7 +1,11 @@
 {
     "_meta": {
         "hash": {
+<<<<<<< HEAD
             "sha256": "e13c6d6cb6ab94d7a646a2bf90e8d1cd466b8422844b93fad23162f9681b2252"
+=======
+            "sha256": "d31a571c44757a32483005b6d68d989e6ca59f7ea3db1e700c8e8c1e8408e4ce"
+>>>>>>> b4459fed (Port repo to JSON CAN & port DIM to F4 (#862))
         },
         "pipfile-spec": 6,
         "requires": {
@@ -18,9 +22,15 @@
     "default": {
         "bitstruct": {
             "hashes": [
+<<<<<<< HEAD
                 "sha256:eb94b40e4218a23aa8f90406b836a9e6ed83e48b8d112ce3f96408463bd1b874"
             ],
             "version": "==8.17.0"
+=======
+                "sha256:6fa6adbfb8f3b8cb68c21b13aa65d23eb2c3ac32419ab926f3fd1fff717a9125"
+            ],
+            "version": "==8.15.1"
+>>>>>>> b4459fed (Port repo to JSON CAN & port DIM to F4 (#862))
         },
         "cantools": {
             "git": "https://github.com/UBCFormulaElectric/cantools",
@@ -88,6 +98,7 @@
         },
         "setuptools": {
             "hashes": [
+<<<<<<< HEAD
                 "sha256:95f00380ef2ffa41d9bba85d95b27689d923c93dfbafed4aecd7cf988a25e012",
                 "sha256:bb6d8e508de562768f2027902929f8523932fcd1fb784e6d573d2cafac995a48"
             ],
@@ -101,6 +112,13 @@
             ],
             "index": "pypi",
             "version": "==0.4.9"
+=======
+                "sha256:57f6f22bde4e042978bcd50176fdb381d7c21a9efa4041202288d3737a0c6a54",
+                "sha256:a7620757bf984b58deaf32fc8a4577a9bbc0850cf92c20e1ce41c38c19e5fb75"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==65.6.3"
+>>>>>>> b4459fed (Port repo to JSON CAN & port DIM to F4 (#862))
         },
         "textparser": {
             "hashes": [
@@ -111,11 +129,19 @@
         },
         "typing-extensions": {
             "hashes": [
+<<<<<<< HEAD
                 "sha256:5cb5f4a79139d699607b3ef622a1dedafa84e115ab0024e0d9c044a9479ca7cb",
                 "sha256:fb33085c39dd998ac16d1431ebc293a8b3eedd00fd4a32de0ff79002c19511b4"
             ],
             "markers": "python_version >= '3.7'",
             "version": "==4.5.0"
+=======
+                "sha256:1511434bb92bf8dd198c12b1cc812e800d4181cfcb867674e0f8279cc93087aa",
+                "sha256:16fa4864408f655d35ec496218b85f79b3437c829e93320c7c9215ccfd92489e"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==4.4.0"
+>>>>>>> b4459fed (Port repo to JSON CAN & port DIM to F4 (#862))
         },
         "wrapt": {
             "hashes": [
@@ -191,11 +217,19 @@
     "develop": {
         "astroid": {
             "hashes": [
+<<<<<<< HEAD
                 "sha256:0e0e3709d64fbffd3037e4ff403580550f14471fd3eaae9fa11cc9a5c7901153",
                 "sha256:a3cf9f02c53dd259144a7e8f3ccd75d67c9a8c716ef183e0c1f291bc5d7bb3cf"
             ],
             "markers": "python_full_version >= '3.7.2'",
             "version": "==2.14.2"
+=======
+                "sha256:3bc7834720e1a24ca797fd785d77efb14f7a28ee8e635ef040b6e2d80ccb3303",
+                "sha256:8f6a8d40c4ad161d6fc419545ae4b2f275ed86d1c989c97825772120842ee0d2"
+            ],
+            "markers": "python_full_version >= '3.7.2'",
+            "version": "==2.13.2"
+>>>>>>> b4459fed (Port repo to JSON CAN & port DIM to F4 (#862))
         },
         "colorama": {
             "hashes": [
@@ -215,11 +249,19 @@
         },
         "isort": {
             "hashes": [
+<<<<<<< HEAD
                 "sha256:6be1f76a507cb2ecf16c7cf14a37e41609ca082330be4e3436a18ef74add55db",
                 "sha256:ba1d72fb2595a01c7895a5128f9585a5cc4b6d395f1c8d514989b9a7eb2a8746"
             ],
             "markers": "python_version >= '3.7'",
             "version": "==5.11.5"
+=======
+                "sha256:6db30c5ded9815d813932c04c2f85a360bcdd35fed496f4d8f35495ef0a261b6",
+                "sha256:c033fd0edb91000a7f09527fe5c75321878f98322a77ddcc81adbd83724afb7b"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==5.11.4"
+>>>>>>> b4459fed (Port repo to JSON CAN & port DIM to F4 (#862))
         },
         "lazy-object-proxy": {
             "hashes": [
@@ -273,6 +315,7 @@
         },
         "platformdirs": {
             "hashes": [
+<<<<<<< HEAD
                 "sha256:8a1228abb1ef82d788f74139988b137e78692984ec7b08eaa6c65f1723af28f9",
                 "sha256:b1d5eb14f221506f50d6604a561f4c5786d9e80355219694a1b244bcd96f4567"
             ],
@@ -286,6 +329,21 @@
             ],
             "index": "pypi",
             "version": "==2.16.2"
+=======
+                "sha256:83c8f6d04389165de7c9b6f0c682439697887bca0aa2f1c87ef1826be3584490",
+                "sha256:e1fea1fe471b9ff8332e229df3cb7de4f53eeea4998d3b6bfff542115e998bd2"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==2.6.2"
+        },
+        "pylint": {
+            "hashes": [
+                "sha256:9df0d07e8948a1c3ffa3b6e2d7e6e63d9fb457c5da5b961ed63106594780cc7e",
+                "sha256:b3dc5ef7d33858f297ac0d06cc73862f01e4f2e74025ec3eff347ce0bc60baf5"
+            ],
+            "index": "pypi",
+            "version": "==2.15.10"
+>>>>>>> b4459fed (Port repo to JSON CAN & port DIM to F4 (#862))
         },
         "tomli": {
             "hashes": [
@@ -330,16 +388,28 @@
                 "sha256:ebd9d7f80ccf7a82ac5f88c521115cc55d84e35bf8b446fcd7836eb6b98929a3",
                 "sha256:ed855bbe3eb3715fca349c80174cfcfd699c2f9de574d40527b8429acae23a66"
             ],
+<<<<<<< HEAD
             "markers": "implementation_name == 'cpython' and python_version < '3.8'",
+=======
+            "markers": "python_version < '3.8' and implementation_name == 'cpython'",
+>>>>>>> b4459fed (Port repo to JSON CAN & port DIM to F4 (#862))
             "version": "==1.5.4"
         },
         "typing-extensions": {
             "hashes": [
+<<<<<<< HEAD
                 "sha256:5cb5f4a79139d699607b3ef622a1dedafa84e115ab0024e0d9c044a9479ca7cb",
                 "sha256:fb33085c39dd998ac16d1431ebc293a8b3eedd00fd4a32de0ff79002c19511b4"
             ],
             "markers": "python_version >= '3.7'",
             "version": "==4.5.0"
+=======
+                "sha256:1511434bb92bf8dd198c12b1cc812e800d4181cfcb867674e0f8279cc93087aa",
+                "sha256:16fa4864408f655d35ec496218b85f79b3437c829e93320c7c9215ccfd92489e"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==4.4.0"
+>>>>>>> b4459fed (Port repo to JSON CAN & port DIM to F4 (#862))
         },
         "wrapt": {
             "hashes": [
