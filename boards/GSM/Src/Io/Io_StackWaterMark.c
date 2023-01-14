@@ -12,35 +12,27 @@ extern TaskHandle_t Task1kHzHandle;
 extern TaskHandle_t TaskCanRxHandle;
 extern TaskHandle_t TaskCanTxHandle;
 
-static struct GsmCanTxInterface *_can_tx_interface = NULL;
-
 /** @brief The stack watermark threshold as a percentage of the stack size */
 #define STACK_HIGH_WATERMARK_THRESHOLD 0.7f
 
-void Io_StackWaterMark_Init(struct GsmCanTxInterface *can_tx_interface)
-{
-    assert(can_tx_interface != NULL);
-    _can_tx_interface = can_tx_interface;
-}
-
 static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
 {
-    App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_KHZ(_can_tx_interface, error);
+    // JSONCAN -> App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_KHZ(_can_tx_interface, error);
 }
 
 static void logWaterMarkAboveThresholdTask1Hz(uint8_t error)
 {
-    App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_HZ(_can_tx_interface, error);
+    // JSONCAN -> App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_HZ(_can_tx_interface, error);
 }
 
 static void logWaterMarkAboveThresholdTaskCanRx(uint8_t error)
 {
-    App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX(_can_tx_interface, error);
+    // JSONCAN -> App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX(_can_tx_interface, error);
 }
 
 static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 {
-    App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX(_can_tx_interface, error);
+    // JSONCAN -> App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX(_can_tx_interface, error);
 }
 
 /** @brief Iterate through this table to check stack watermarks for each task */

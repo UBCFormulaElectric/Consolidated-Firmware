@@ -10,13 +10,13 @@
 
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    struct BmsWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
-    struct BmsCanTxInterface *can_tx_interface = App_BmsWorld_GetCanTx(world);
-    struct Clock *            clock            = App_BmsWorld_GetClock(world);
-    struct Accumulator *      accumulator      = App_BmsWorld_GetAccumulator(world);
-    struct OkStatus *         bms_ok_status    = App_BmsWorld_GetBmsOkStatus(world);
+    struct BmsWorld *   world         = App_SharedStateMachine_GetWorld(state_machine);
+    struct Clock *      clock         = App_BmsWorld_GetClock(world);
+    struct Accumulator *accumulator   = App_BmsWorld_GetAccumulator(world);
+    struct OkStatus *   bms_ok_status = App_BmsWorld_GetBmsOkStatus(world);
 
-    App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE);
+    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_STATE(can_tx_interface,
+    // CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE);
     App_SharedClock_SetPreviousTimeInMilliseconds(clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
     App_Accumulator_InitRunOnEntry(accumulator);
     App_OkStatus_Enable(bms_ok_status);

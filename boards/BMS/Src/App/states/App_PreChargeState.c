@@ -19,12 +19,12 @@
 
 static void PreChargeStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    struct BmsWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
-    struct BmsCanTxInterface *can_tx_interface = App_BmsWorld_GetCanTx(world);
-    struct Clock *            clock            = App_BmsWorld_GetClock(world);
-    struct PrechargeRelay *   precharge_relay  = App_BmsWorld_GetPrechargeRelay(world);
+    struct BmsWorld *      world           = App_SharedStateMachine_GetWorld(state_machine);
+    struct Clock *         clock           = App_BmsWorld_GetClock(world);
+    struct PrechargeRelay *precharge_relay = App_BmsWorld_GetPrechargeRelay(world);
 
-    App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE);
+    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_STATE(can_tx_interface,
+    // CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE);
 
     App_SharedClock_SetPreviousTimeInMilliseconds(clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
     App_PrechargeRelay_Close(precharge_relay);
@@ -39,14 +39,13 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
 {
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
-        struct BmsWorld *         world           = App_SharedStateMachine_GetWorld(state_machine);
-        struct Clock *            clock           = App_BmsWorld_GetClock(world);
-        struct Airs *             airs            = App_BmsWorld_GetAirs(world);
-        struct Accumulator *      accumulator     = App_BmsWorld_GetAccumulator(world);
-        struct Charger *          charger         = App_BmsWorld_GetCharger(world);
-        struct TractiveSystem *   ts              = App_BmsWorld_GetTractiveSystem(world);
-        struct BmsCanTxInterface *can_tx          = App_BmsWorld_GetCanTx(world);
-        struct PrechargeRelay *   precharge_relay = App_BmsWorld_GetPrechargeRelay(world);
+        struct BmsWorld *      world           = App_SharedStateMachine_GetWorld(state_machine);
+        struct Clock *         clock           = App_BmsWorld_GetClock(world);
+        struct Airs *          airs            = App_BmsWorld_GetAirs(world);
+        struct Accumulator *   accumulator     = App_BmsWorld_GetAccumulator(world);
+        struct Charger *       charger         = App_BmsWorld_GetCharger(world);
+        struct TractiveSystem *ts              = App_BmsWorld_GetTractiveSystem(world);
+        struct PrechargeRelay *precharge_relay = App_BmsWorld_GetPrechargeRelay(world);
 
         bool  precharge_fault_limit_exceeded = false;
         float ts_voltage                     = App_TractiveSystem_GetVoltage(ts);
@@ -61,7 +60,7 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
             (ts_voltage > threshold_voltage) && (elapsed_time <= PRECHARGE_COMPLETION_LOWER_BOUND);
         const bool is_charger_connected = App_Charger_IsConnected(charger);
         const bool has_precharge_fault  = App_PrechargeRelay_CheckFaults(
-            precharge_relay, can_tx, is_charger_connected, is_ts_rising_slowly, is_ts_rising_quickly,
+            precharge_relay, is_charger_connected, is_ts_rising_slowly, is_ts_rising_quickly,
             &precharge_fault_limit_exceeded);
 
         if (has_precharge_fault)

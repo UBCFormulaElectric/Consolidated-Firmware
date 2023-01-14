@@ -20,8 +20,6 @@ struct PdmWorld;
  *         caller
  */
 struct PdmWorld *App_PdmWorld_Create(
-    struct PdmCanTxInterface *can_tx_interface,
-    struct PdmCanRxInterface *can_rx_interface,
     struct InRangeCheck *     vbat_voltage_in_range_check,
     struct InRangeCheck *     _24v_aux_voltage_in_range_check,
     struct InRangeCheck *     _24v_acc_voltage_in_range_check,
@@ -42,20 +40,6 @@ struct PdmWorld *App_PdmWorld_Create(
  * @param world The world to deallocate
  */
 void App_PdmWorld_Destroy(struct PdmWorld *world);
-
-/**
- * Get the CAN TX interface for the given world
- * @param world The world to get CAN TX interface for
- * @return The CAN TX interface for the given world
- */
-struct PdmCanTxInterface *App_PdmWorld_GetCanTx(const struct PdmWorld *world);
-
-/**
- * Get the CAN RX interface for the given world
- * @param world The world to get CAN RX interface for
- * @return The CAN RX interface for the given world
- */
-struct PdmCanRxInterface *App_PdmWorld_GetCanRx(const struct PdmWorld *world);
 
 /**
  * Get the VBAT voltage in-range check for the given world

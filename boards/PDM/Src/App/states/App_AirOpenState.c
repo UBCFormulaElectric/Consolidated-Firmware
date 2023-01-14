@@ -19,11 +19,13 @@ static void AirOpenStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
 
-    struct PdmWorld *         world  = App_SharedStateMachine_GetWorld(state_machine);
-    struct PdmCanRxInterface *can_rx = App_PdmWorld_GetCanRx(world);
+    struct PdmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
 
-    if (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) == CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE &&
-        App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx) == CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE)
+    // TODO: JSONCAN
+    // if (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) == CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE
+    // &&
+    //     App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx) == CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE)
+    if (false)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetAirClosedState());
     }

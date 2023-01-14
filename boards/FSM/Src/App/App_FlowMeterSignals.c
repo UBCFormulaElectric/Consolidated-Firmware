@@ -18,8 +18,6 @@ bool App_FlowMetersSignals_IsFlowRateInRange(struct FsmWorld *const world)
 
 void App_FlowMetersSignals_FlowRateBelowThresholdCallback(struct FsmWorld *const world)
 {
-    struct FsmCanTxInterface *can_tx = App_FsmWorld_GetCanTx(world);
-
-    App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(
-        can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_TRUE_CHOICE);
+    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_FLOW_METER_HAS_UNDERFLOW(
+    // can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_FLOW_METER_HAS_UNDERFLOW_TRUE_CHOICE);
 }

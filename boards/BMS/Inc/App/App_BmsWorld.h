@@ -25,40 +25,24 @@ struct BmsWorld;
  * caller
  */
 struct BmsWorld *App_BmsWorld_Create(
-    struct BmsCanTxInterface *can_tx_interface,
-    struct BmsCanRxInterface *can_rx_interface,
-    struct Imd *              imd,
-    struct HeartbeatMonitor * heartbeat_monitor,
-    struct RgbLedSequence *   rgb_led_sequence,
-    struct Charger *          charger,
-    struct OkStatus *         bms_ok,
-    struct OkStatus *         imd_ok,
-    struct OkStatus *         bspd_ok,
-    struct Accumulator *      accumulator,
-    struct Airs *             airs,
-    struct PrechargeRelay *   precharge_relay,
-    struct TractiveSystem *   tractive_system,
-    struct Clock *            clock);
+    struct Imd *             imd,
+    struct HeartbeatMonitor *heartbeat_monitor,
+    struct RgbLedSequence *  rgb_led_sequence,
+    struct Charger *         charger,
+    struct OkStatus *        bms_ok,
+    struct OkStatus *        imd_ok,
+    struct OkStatus *        bspd_ok,
+    struct Accumulator *     accumulator,
+    struct Airs *            airs,
+    struct PrechargeRelay *  precharge_relay,
+    struct TractiveSystem *  tractive_system,
+    struct Clock *           clock);
 
 /**
  * Deallocate the memory used by the given world
  * @param world The world to deallocate
  */
 void App_BmsWorld_Destroy(struct BmsWorld *world);
-
-/**
- * Get the CAN TX interface for the given world
- * @param world The world to get CAN TX interface for
- * @return The CAN TX interface for the given world
- */
-struct BmsCanTxInterface *App_BmsWorld_GetCanTx(const struct BmsWorld *world);
-
-/**
- * Get the CAN RX interface for the given world
- * @param world The world to get CAN RX interface for
- * @return The CAN RX interface for the given world
- */
-struct BmsCanRxInterface *App_BmsWorld_GetCanRx(const struct BmsWorld *world);
 
 /**
  * Get the IMD for the given world

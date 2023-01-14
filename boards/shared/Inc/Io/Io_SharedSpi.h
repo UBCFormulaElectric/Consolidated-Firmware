@@ -1,8 +1,8 @@
 #pragma once
 
 #include <stdbool.h>
-#include <stm32f3xx_hal.h>
-#include <stm32f3xx_hal_spi.h>
+#include "Io_Hal.h"
+#include IO_HAL_SPI
 
 struct SharedSpi;
 
