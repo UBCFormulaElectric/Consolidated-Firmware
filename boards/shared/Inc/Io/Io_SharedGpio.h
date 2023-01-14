@@ -3,7 +3,7 @@
  */
 #pragma once
 
-#include <stm32f3xx_hal.h>
+#include "Io_Hal.h"
 
 // clang-format on
 struct GPIO_PinPort

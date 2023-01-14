@@ -6,9 +6,9 @@
 
 static void AirOpenStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    struct FsmWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
-    struct FsmCanTxInterface *can_tx_interface = App_FsmWorld_GetCanTx(world);
-    App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_FSM_STATE_MACHINE_STATE_AIR_OPEN_CHOICE);
+    struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_STATE(can_tx_interface,
+    // CANMSGS_FSM_STATE_MACHINE_STATE_AIR_OPEN_CHOICE);
 }
 
 static void AirOpenStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -20,8 +20,7 @@ static void AirOpenStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
 
-    struct FsmWorld *         world  = App_SharedStateMachine_GetWorld(state_machine);
-    struct FsmCanRxInterface *can_rx = App_FsmWorld_GetCanRx(world);
+    struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
 
     App_SetPeriodicSignals_FlowRateInRangeChecks(world);
     App_SetPeriodicSignals_WheelSpeedInRangeChecks(world);
@@ -30,8 +29,11 @@ static void AirOpenStateRunOnTick100Hz(struct StateMachine *const state_machine)
     App_SetPeriodicSignals_AcceleratorPedal(world);
     App_SetPeriodicSignals_MotorShutdownFaults(world);
 
-    if (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) == CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE &&
-        App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx) == CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE)
+    // TODO: JSONCAN
+    // if (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) == CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE
+    // &&
+    //     App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx) == CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE)
+    if (false)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetAirClosedState());
     }

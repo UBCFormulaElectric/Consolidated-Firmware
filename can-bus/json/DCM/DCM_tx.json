@@ -1,0 +1,12 @@
+{
+    "DCM_Test1": {
+        "msg_id": 202,
+        "cycle_time": 1000,
+        "description": "Test message for the DCM.",
+        "signals": {
+            "Ex1": {
+                "bits": 1
+            }
+        }
+    }
+}

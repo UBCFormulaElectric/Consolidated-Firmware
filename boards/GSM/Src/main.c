@@ -30,12 +30,11 @@
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
 #include "Io_SharedCan.h"
-#include "Io_SharedErrorTable.h"
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
 
-#include "App_GsmWorld.h"
+// #include "App_GsmWorld.h"
 #include "App_SharedMacros.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_DefaultState.h"
@@ -81,11 +80,9 @@ osThreadId          TaskCanTxHandle;
 uint32_t            TaskCanTxBuffer[512];
 osStaticThreadDef_t TaskCanTxControlBlock;
 /* USER CODE BEGIN PV */
-struct GsmWorld *         world;
-struct StateMachine *     state_machine;
-struct GsmCanTxInterface *can_tx;
-struct GsmCanRxInterface *can_rx;
-struct ErrorTable *       error_table;
+struct GsmWorld *    world;
+struct StateMachine *state_machine;
+struct Clock *       clock;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -111,12 +108,12 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 /* USER CODE BEGIN 0 */
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count);
+    // JSONCAN -> App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
+    // JSONCAN -> App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
 }
 
 /* USER CODE END 0 */
@@ -158,20 +155,15 @@ int main(void)
 
     Io_SharedHardFaultHandler_Init();
 
-    can_tx = App_CanTx_Create(
-        Io_CanTx_EnqueueNonPeriodicMsg_GSM_STARTUP, Io_CanTx_EnqueueNonPeriodicMsg_GSM_WATCHDOG_TIMEOUT);
-    can_rx      = App_CanRx_Create();
-    error_table = App_SharedErrorTable_Create();
+    App_CanTx_Init();
+    App_CanRx_Init();
 
-    world = App_GsmWorld_Create(can_tx, can_rx);
-
-    Io_StackWaterMark_Init(can_tx);
-    Io_SoftwareWatchdog_Init(can_tx);
-
+    clock         = App_SharedClock_Create();
+    world         = App_GsmWorld_Create(clock);
     state_machine = App_SharedStateMachine_Create(world, App_GetDefaultState());
 
-    struct CanMsgs_gsm_startup_t payload = { .dummy = 0 };
-    App_CanTx_SendNonPeriodicMsg_GSM_STARTUP(can_tx, &payload);
+    // struct CanMsgs_gsm_startup_t payload = { .dummy = 0 };
+    // App_CanTx_SendNonPeriodicMsg_GSM_STARTUP(can_tx, &payload);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -559,7 +551,7 @@ void RunTask1kHz(void const *argument)
         Io_SharedSoftwareWatchdog_CheckForTimeouts();
         const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
 
-        Io_CanTx_EnqueuePeriodicMsgs(can_tx, task_start_ms);
+        //        Io_CanTx_EnqueuePeriodicMsgs(task_start_ms); // TODO: JSONCAN
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep. Prevent check in if the elapsed period is greater or
@@ -590,8 +582,7 @@ void RunTaskCanRx(void const *argument)
     {
         struct CanMsg message;
         Io_SharedCan_DequeueCanRxMessage(&message);
-        Io_CanRx_UpdateRxTableWithMessage(App_GsmWorld_GetCanRx(world), &message);
-        Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &message);
+        Io_CanRx_UpdateRxTableWithMessage(&message);
     }
     /* USER CODE END RunTaskCanRx */
 }

@@ -30,7 +30,6 @@
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
 #include "Io_SharedCan.h"
-#include "Io_SharedErrorTable.h"
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
@@ -102,24 +101,21 @@ osThreadId          Task100HzHandle;
 uint32_t            Task100HzBuffer[TASK100HZ_STACK_SIZE];
 osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
-struct BmsWorld *         world;
-struct StateMachine *     state_machine;
-struct BmsCanTxInterface *can_tx;
-struct BmsCanRxInterface *can_rx;
-struct Imd *              imd;
-struct HeartbeatMonitor * heartbeat_monitor;
-struct RgbLedSequence *   rgb_led_sequence;
-struct Charger *          charger;
-struct OkStatus *         bms_ok;
-struct OkStatus *         imd_ok;
-struct OkStatus *         bspd_ok;
-struct Accumulator *      accumulator;
-struct CellMonitors *     cell_monitors;
-struct Airs *             airs;
-struct PrechargeRelay *   precharge_relay;
-struct TractiveSystem *   ts;
-struct ErrorTable *       error_table;
-struct Clock *            clock;
+struct BmsWorld *        world;
+struct StateMachine *    state_machine;
+struct Imd *             imd;
+struct HeartbeatMonitor *heartbeat_monitor;
+struct RgbLedSequence *  rgb_led_sequence;
+struct Charger *         charger;
+struct OkStatus *        bms_ok;
+struct OkStatus *        imd_ok;
+struct OkStatus *        bspd_ok;
+struct Accumulator *     accumulator;
+struct CellMonitors *    cell_monitors;
+struct Airs *            airs;
+struct PrechargeRelay *  precharge_relay;
+struct TractiveSystem *  ts;
+struct Clock *           clock;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -151,12 +147,12 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count);
+    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
+    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
 }
 
 /* USER CODE END 0 */
@@ -206,13 +202,11 @@ int main(void)
 
     Io_SharedHardFaultHandler_Init();
 
+    App_CanTx_Init();
+    App_CanRx_Init();
+
     Io_Imd_Init();
     imd = App_Imd_Create(Io_Imd_GetFrequency, IMD_FREQUENCY_TOLERANCE, Io_Imd_GetDutyCycle, Io_Imd_GetTimeSincePowerOn);
-
-    can_tx = App_CanTx_Create(
-        Io_CanTx_EnqueueNonPeriodicMsg_BMS_STARTUP, Io_CanTx_EnqueueNonPeriodicMsg_BMS_WATCHDOG_TIMEOUT);
-
-    can_rx = App_CanRx_Create();
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
@@ -250,21 +244,17 @@ int main(void)
 
     precharge_relay = App_PrechargeRelay_Create(Io_PreCharge_Enable, Io_PreCharge_Disable);
 
-    error_table = App_SharedErrorTable_Create();
-
     clock = App_SharedClock_Create();
 
     world = App_BmsWorld_Create(
-        can_tx, can_rx, imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs,
-        precharge_relay, ts, clock);
-
-    Io_StackWaterMark_Init(can_tx);
-    Io_SoftwareWatchdog_Init(can_tx);
+        imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs, precharge_relay,
+        ts, clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
-    struct CanMsgs_bms_startup_t payload = { .dummy = 0 };
-    App_CanTx_SendNonPeriodicMsg_BMS_STARTUP(can_tx, &payload);
+    // TODO: JSONCAN
+    //    struct CanMsgs_bms_startup_t payload = { .dummy = 0 };
+    //    App_CanTx_SendNonPeriodicMsg_BMS_STARTUP(can_tx, &payload);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -876,7 +866,7 @@ void RunTask1kHz(void const *argument)
         const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
 
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
-        Io_CanTx_EnqueuePeriodicMsgs(can_tx, task_start_ms);
+        //        Io_CanTx_EnqueuePeriodicMsgs(can_tx, task_start_ms); TODO: JSONCAN
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep. Prevent check in if the elapsed period is greater or
@@ -907,8 +897,7 @@ void RunTaskCanRx(void const *argument)
     {
         struct CanMsg message;
         Io_SharedCan_DequeueCanRxMessage(&message);
-        Io_CanRx_UpdateRxTableWithMessage(App_BmsWorld_GetCanRx(world), &message);
-        Io_SharedErrorTable_SetErrorsFromCanMsg(error_table, &message);
+        Io_CanRx_UpdateRxTableWithMessage(&message);
     }
     /* USER CODE END RunTaskCanRx */
 }
@@ -990,7 +979,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void Error_Handler(void)
 {
     /* USER CODE BEGIN Error_Handler_Debug */
-    __assert_func(file, line, "Error_Handler", "Error_Handler");
+    __assert_func(__FILE__, __LINE__, "Error_Handler", "Error_Handler");
     /* USER CODE END Error_Handler_Debug */
 }
 
