@@ -69,7 +69,6 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     // App_CanTx_SetPeriodicSignal_MISSING_HEARTBEAT(can_tx, !App_SharedHeartbeatMonitor_Tick(hb_monitor));
 
-    // NEW ALL STATES CODE
     App_AcceleratorPedals_Broadcast(world);
     App_Brake_Broadcast(world);
     App_Coolant_Broadcast(world);

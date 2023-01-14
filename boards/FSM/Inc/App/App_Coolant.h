@@ -6,17 +6,13 @@
 struct Coolant;
 
 /**
- *
- * @param get_flow_rate
- * @param get_temperature_A
- * @param temperatureA_OCSC
- * @param get_temperature_B
- * @param temperatureB_OCSC
- * @param get_pressure_A
- * @param pressureA_OCSC
- * @param get_pressure_B
- * @param pressureB_OCSC
- * @return
+ * Creates a Coolant Object, and passes ownership to the caller.
+ * @param get_flow_rate Function which returns the flow rate of the coolant
+ * @param get_temperature_A Function which returns the temperature at point A of the coolant
+ * @param get_temperature_B Function which returns the temperature at point B of the coolant
+ * @param get_pressure_A Function which returns the pressure at point A of the coolant
+ * @param get_pressure_B Function which returns the pressure at point B of the coolant
+ * @return Coolant Object
  */
 struct Coolant *App_Coolant_Create(
     float (*get_flow_rate)(void),

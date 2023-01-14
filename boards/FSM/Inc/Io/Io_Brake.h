@@ -15,10 +15,6 @@ bool Io_Brake_IsActuated(void);
 bool Io_Brake_PressureVoltageAlarm(float pressure_voltage);
 
 /**
- * @return the voltage reading of the front pressure sensor
- */
-float Io_Brake_GetFrontPressureSensorVoltage(void);
-/**
  * Get the pressure in psi from the MSP-300-2K5-P-3-N-1 brake pressure sensor
  * @return The pressure of the primary brake pressure sensor in psi
  */
@@ -29,10 +25,6 @@ float Io_Brake_GetFrontPressurePsi(void);
 bool Io_Brake_FrontPressureSensorOCSC(void);
 
 /**
- * @return the voltage reading of the rear pressure sensor
- */
-float Io_Brake_GetRearPressureSensorVoltage(void);
-/**
  * Get the pressure in psi from the [REAR BRAKE PRESSURE SENSOR]
  * @return The pressure of the secondary brake pressure sensor in psi
  */
@@ -42,10 +34,6 @@ float Io_Brake_GetRearPressurePsi(void);
  */
 bool Io_Brake_RearPressureSensorOCSC(void);
 
-/**
- * @return the voltage of the brake pedal travel sensor
- */
-float Io_Brake_GetPedalSensorVoltage(void);
 /**
  * @return the percent travel of the brake pedal
  */

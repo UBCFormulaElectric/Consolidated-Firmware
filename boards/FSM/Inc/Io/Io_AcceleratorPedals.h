@@ -3,10 +3,6 @@
 #include <stdbool.h>
 
 /**
- * @return the voltage of the primary accelerator pedal sensor
- */
-float Io_AcceleratorPedals_GetPappVoltage(void);
-/**
  * @return Percentage of press of accelerator pedal
  */
 float Io_AcceleratorPedals_GetPapps(void);
@@ -15,10 +11,6 @@ float Io_AcceleratorPedals_GetPapps(void);
  */
 bool Io_AcceleratorPedals_PappsOCSC(void);
 
-/**
- * @return the voltage of the secondary accelerator pedal sensor
- */
-float Io_AcceleratorPedals_GetSappVoltage(void);
 /**
  * Gets the percentage of the accelerator pedal
  * @return The reported percentage travel of the secondary accelerator pedal sensor

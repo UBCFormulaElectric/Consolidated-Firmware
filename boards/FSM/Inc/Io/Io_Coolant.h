@@ -29,36 +29,17 @@ void Io_FlowMeter_InputCaptureCallback(TIM_HandleTypeDef *htim);
 void Io_FlowMeter_CheckIfFlowMeterIsActive(void);
 
 /**
- * @return the voltage of the temperature A sensor
- */
-float Io_Coolant_TemperatureAVoltage(void);
-/**
  * @returns the temperature of the coolant at [sensor B] in Celsius
  */
 float Io_Coolant_GetTemperatureA(void);
-
-/**
- * @return the voltage of the temperature B sensor
- */
-float Io_Coolant_TemperatureBVoltage(void);
 /**
  * @returns the temperature of the coolant at [sensor B] in Celsius
  */
 float Io_Coolant_GetTemperatureB(void);
-
-/**
- * @return the voltage of the pressure A sensor
- */
-float Io_Coolant_PressureAVoltage(void);
 /**
  * @returns the pressure of the coolant at [sensor A] in PSI
  */
 float Io_Coolant_GetPressureA(void);
-
-/**
- * @return the voltage of the pressure B sensor
- */
-float Io_Coolant_PressureBVoltage(void);
 /**
  * @returns the pressure of the coolant at [sensor B] in PSI
  */
