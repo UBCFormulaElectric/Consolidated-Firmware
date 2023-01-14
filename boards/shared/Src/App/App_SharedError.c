@@ -89,11 +89,11 @@ bool App_SharedError_IsCritical(const struct Error *error)
     }
 }
 
-bool App_SharedError_IsNonCritical(const struct Error *error)
+bool App_SharedError_IsWarning(const struct Error *error)
 {
     enum ErrorType error_type = App_SharedError_GetErrorType(error);
 
-    return (error_type == NON_CRITICAL_ERROR) ? true : false;
+    return (error_type == WARNING) ? true : false;
 }
 
 bool App_SharedError_IsErrorInList(struct ErrorList *error_list, enum ErrorId error_id)

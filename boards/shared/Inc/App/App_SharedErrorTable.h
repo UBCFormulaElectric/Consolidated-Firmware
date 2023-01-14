@@ -67,12 +67,12 @@ bool App_SharedErrorTable_HasAnyAirShutdownErrorSet(const struct ErrorTable *err
 bool App_SharedErrorTable_HasAnyMotorShutdownErrorSet(const struct ErrorTable *error_table);
 
 /**
- * Check if any non-critical error in the given error table is set
+ * Check if any warning in the given error table is set
  * @param error_table The error table to check
- * @return true if any non-critical error in the given error table is set,
+ * @return true if any warning in the given error table is set,
  *         else false
  */
-bool App_SharedErrorTable_HasAnyNonCriticalErrorSet(const struct ErrorTable *error_table);
+bool App_SharedErrorTable_HasAnyWarningSet(const struct ErrorTable *error_table);
 
 /**
  * Get every error that is set in the given error table
@@ -91,12 +91,12 @@ void App_SharedErrorTable_GetAllErrors(struct ErrorTable *error_table, struct Er
 void App_SharedErrorTable_GetAllCriticalErrors(struct ErrorTable *error_table, struct ErrorList *error_list);
 
 /**
- * Get every non-critical error that is set in the given error table
- * @param error_table The error table to get non-critical errors from
- * @param error_list This will be set to contain every non-critical error that
+ * Get every warning that is set in the given error table
+ * @param error_table The error table to get warnings from
+ * @param error_list This will be set to contain every warning that
  *                   is set in the given error table
  */
-void App_SharedErrorTable_GetAllNonCriticalErrors(struct ErrorTable *error_table, struct ErrorList *error_list);
+void App_SharedErrorTable_GetAllWarnings(struct ErrorTable *error_table, struct ErrorList *error_list);
 
 /**
  * Get every board that does not contain any errors in the given error table
@@ -128,12 +128,12 @@ void App_SharedErrorTable_GetBoardsWithCriticalErrors(
     struct ErrorBoardList *  board_list);
 
 /**
- * Get every board that contains one or more non-critical errors in the given
+ * Get every board that contains one or more warnings in the given
  * error table
  * @param error_table The error table to check
  * @param board_list This will be set to contain every board that contains one
- *                   or more non-critical errors in the given error table
+ *                   or more warnings in the given error table
  */
-void App_SharedErrorTable_GetBoardsWithNonCriticalErrors(
+void App_SharedErrorTable_GetBoardsWithWarnings(
     const struct ErrorTable *error_table,
     struct ErrorBoardList *  board_list);

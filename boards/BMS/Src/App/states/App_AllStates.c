@@ -39,10 +39,7 @@ static void App_SendAndReceiveHeartbeat(
     }
 }
 
-static void App_CheckCellVoltageRange(
-    struct BmsCanTxInterface *can_tx,
-    struct ErrorTable *       error_table,
-    struct Accumulator *      accumulator)
+static void App_CheckCellVoltageRange(struct BmsCanTxInterface *can_tx, struct Accumulator *accumulator)
 {
     // Get the min and max cell voltages and check to see if the voltages are in range
     uint8_t     min_segment           = 0U;
@@ -62,7 +59,6 @@ static void App_CheckCellVoltageRange(
 
 static void App_CheckCellTemperatureRange(
     struct BmsCanTxInterface *can_tx,
-    struct ErrorTable *       error_table,
     struct Accumulator *      accumulator,
     struct StateMachine *     state_machine)
 {
@@ -122,7 +118,6 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct OkStatus *         bspd_ok     = App_BmsWorld_GetBspdOkStatus(world);
     struct Airs *             airs        = App_BmsWorld_GetAirs(world);
     struct Accumulator *      accumulator = App_BmsWorld_GetAccumulator(world);
-    struct ErrorTable *       error_table = App_BmsWorld_GetErrorTable(world);
     struct HeartbeatMonitor * hb_monitor  = App_BmsWorld_GetHeartbeatMonitor(world);
     struct TractiveSystem *   ts          = App_BmsWorld_GetTractiveSystem(world);
 
@@ -131,8 +126,8 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_SendAndReceiveHeartbeat(can_tx, can_rx, hb_monitor);
 
     App_Accumulator_RunOnTick100Hz(accumulator);
-    App_CheckCellVoltageRange(can_tx, error_table, accumulator);
-    App_CheckCellTemperatureRange(can_tx, error_table, accumulator, state_machine);
+    App_CheckCellVoltageRange(can_tx, accumulator);
+    App_CheckCellTemperatureRange(can_tx, accumulator, state_machine);
 
     const bool acc_fault = App_Accumulator_CheckFaults(can_tx, accumulator, ts);
     const bool ts_fault  = App_TractveSystem_CheckFaults(can_tx, ts);
@@ -157,8 +152,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
         acc_meas_settle_count++;
     }
 
-    // App_SharedErrorTable_HasAnyCriticalErrorSet left in for now, to be removed entirely in future
-    else if (acc_fault || ts_fault || App_SharedErrorTable_HasAnyCriticalErrorSet(error_table))
+    else if (acc_fault || ts_fault)
     {
         status = false;
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
