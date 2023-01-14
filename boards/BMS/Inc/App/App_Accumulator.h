@@ -116,7 +116,4 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *accumulator);
  * @param ts TractiveSystem used to check ts_current to check charge/discharge condition
  * @return True if faults present, false otherwise
  */
-bool App_Accumulator_CheckFaults(
-    struct BmsCanTxInterface *   can_tx,
-    struct Accumulator *const    accumulator,
-    struct TractiveSystem *const ts);
+bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct TractiveSystem *const ts);

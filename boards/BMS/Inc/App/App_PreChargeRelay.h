@@ -63,9 +63,8 @@ void App_PrechargeRelay_ResetFaultCounterVal(struct PrechargeRelay *const precha
  * @return True if faults present, false otherwise
  */
 bool App_PrechargeRelay_CheckFaults(
-    struct PrechargeRelay *   precharge_relay,
-    struct BmsCanTxInterface *can_tx,
-    bool                      is_charger_connected,
-    bool                      is_ts_rising_slowly,
-    bool                      is_ts_rising_quickly,
-    bool *                    precharge_limit_exceeded);
+    struct PrechargeRelay *precharge_relay,
+    bool                   is_charger_connected,
+    bool                   is_ts_rising_slowly,
+    bool                   is_ts_rising_quickly,
+    bool *                 precharge_limit_exceeded);

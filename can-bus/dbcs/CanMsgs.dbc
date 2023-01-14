@@ -1,0 +1,123 @@
+VERSION ""
+NS_:
+BS_:
+
+
+BU_: BMS DCM DIM FSM GSM PDM DEBUG
+
+
+BO_ 102 BMS_Test1: 1 BMS
+SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 100 BMS_AlertSet: 0 BMS
+SG_ BMS_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
+
+BO_ 101 BMS_AlertCleared: 0 BMS
+SG_ BMS_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
+
+BO_ 202 DCM_Test1: 1 DCM
+SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 200 DCM_AlertSet: 0 DCM
+SG_ DCM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
+
+BO_ 201 DCM_AlertCleared: 0 DCM
+SG_ DCM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
+
+BO_ 502 DIM_Test1: 2 DIM
+SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Ex2 : 1|12@1+ (1,0) [0|4095] "" DEBUG
+
+BO_ 503 DIM_Test2: 4 DIM
+SG_ Ex3 : 0|14@1+ (0.1,0) [0|1000] "m/s^4" DEBUG
+SG_ Ex4 : 14|2@1+ (1,0) [0|2] "" DEBUG
+SG_ Ex5 : 16|12@1+ (0.1,-120) [-120|120] "deg" DEBUG
+
+BO_ 500 DIM_AlertSet: 0 DIM
+SG_ DIM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
+
+BO_ 501 DIM_AlertCleared: 0 DIM
+SG_ DIM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
+
+BO_ 303 FSM_Test1: 1 FSM
+SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 300 FSM_AlertSet: 0 FSM
+SG_ FSM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
+
+BO_ 301 FSM_AlertCleared: 0 FSM
+SG_ FSM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
+
+BO_ 603 GSM_Test1: 1 GSM
+SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 600 GSM_AlertSet: 0 GSM
+SG_ GSM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
+
+BO_ 601 GSM_AlertCleared: 0 GSM
+SG_ GSM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
+
+BO_ 403 PDM_Test1: 1 PDM
+SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 400 PDM_AlertSet: 0 PDM
+SG_ PDM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
+
+BO_ 401 PDM_AlertCleared: 0 PDM
+SG_ PDM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
+
+
+
+BA_DEF_  "BusType" STRING ;
+BA_DEF_DEF_  "BusType" "CAN";
+BA_ "BusType" "CAN";
+
+
+BA_ "GenSigStartValue" SG_ 102 Ex1 0;
+BA_ "GenSigStartValue" SG_ 100 BMS_AlertSet 0;
+BA_ "GenSigStartValue" SG_ 101 BMS_AlertCleared 0;
+BA_ "GenSigStartValue" SG_ 202 Ex1 0;
+BA_ "GenSigStartValue" SG_ 200 DCM_AlertSet 0;
+BA_ "GenSigStartValue" SG_ 201 DCM_AlertCleared 0;
+BA_ "GenSigStartValue" SG_ 502 Ex1 0;
+BA_ "GenSigStartValue" SG_ 502 Ex2 0;
+BA_ "GenSigStartValue" SG_ 503 Ex3 0;
+BA_ "GenSigStartValue" SG_ 503 Ex4 0;
+BA_ "GenSigStartValue" SG_ 503 Ex5 -120;
+BA_ "GenSigStartValue" SG_ 500 DIM_AlertSet 0;
+BA_ "GenSigStartValue" SG_ 501 DIM_AlertCleared 0;
+BA_ "GenSigStartValue" SG_ 303 Ex1 0;
+BA_ "GenSigStartValue" SG_ 300 FSM_AlertSet 0;
+BA_ "GenSigStartValue" SG_ 301 FSM_AlertCleared 0;
+BA_ "GenSigStartValue" SG_ 603 Ex1 0;
+BA_ "GenSigStartValue" SG_ 600 GSM_AlertSet 0;
+BA_ "GenSigStartValue" SG_ 601 GSM_AlertCleared 0;
+BA_ "GenSigStartValue" SG_ 403 Ex1 0;
+BA_ "GenSigStartValue" SG_ 400 PDM_AlertSet 0;
+BA_ "GenSigStartValue" SG_ 401 PDM_AlertCleared 0;
+
+
+BA_ "GenMsgCycleTime" BO_ 102  1000;
+BA_ "GenMsgCycleTime" BO_ 202  1000;
+BA_ "GenMsgCycleTime" BO_ 502  1000;
+BA_ "GenMsgCycleTime" BO_ 503  10;
+BA_ "GenMsgCycleTime" BO_ 303  1000;
+BA_ "GenMsgCycleTime" BO_ 603  1000;
+BA_ "GenMsgCycleTime" BO_ 403  1000;
+
+
+VAL_ 100 BMS_AlertSet 0 "NUM_BMS_ALERTS";
+VAL_ 101 BMS_AlertCleared 0 "NUM_BMS_ALERTS";
+VAL_ 200 DCM_AlertSet 0 "NUM_DCM_ALERTS";
+VAL_ 201 DCM_AlertCleared 0 "NUM_DCM_ALERTS";
+VAL_ 503 Ex4 0 "CHOICE_0" 1 "CHOICE_1" 2 "CHOICE_2";
+VAL_ 500 DIM_AlertSet 0 "NUM_DIM_ALERTS";
+VAL_ 501 DIM_AlertCleared 0 "NUM_DIM_ALERTS";
+VAL_ 300 FSM_AlertSet 0 "NUM_FSM_ALERTS";
+VAL_ 301 FSM_AlertCleared 0 "NUM_FSM_ALERTS";
+VAL_ 600 GSM_AlertSet 0 "NUM_GSM_ALERTS";
+VAL_ 601 GSM_AlertCleared 0 "NUM_GSM_ALERTS";
+VAL_ 400 PDM_AlertSet 0 "NUM_PDM_ALERTS";
+VAL_ 401 PDM_AlertCleared 0 "NUM_PDM_ALERTS";
+
+
