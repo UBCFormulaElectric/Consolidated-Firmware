@@ -11,7 +11,6 @@
 #include "App_Airs.h"
 #include "App_PreChargeRelay.h"
 #include "App_TractiveSystem.h"
-#include "App_SharedErrorTable.h"
 #include "App_SharedClock.h"
 
 struct BmsWorld;
@@ -39,7 +38,6 @@ struct BmsWorld *App_BmsWorld_Create(
     struct Airs *             airs,
     struct PrechargeRelay *   precharge_relay,
     struct TractiveSystem *   tractive_system,
-    struct ErrorTable *       error_table,
     struct Clock *            clock);
 
 /**
@@ -138,13 +136,6 @@ struct PrechargeRelay *App_BmsWorld_GetPrechargeRelay(const struct BmsWorld *con
  * @return The tractive system for the given world
  */
 struct TractiveSystem *App_BmsWorld_GetTractiveSystem(const struct BmsWorld *world);
-
-/**
- * Get the error table for the given world
- * @param world The world to get the error table from
- * @return The error table for the given world
- */
-struct ErrorTable *App_BmsWorld_GetErrorTable(const struct BmsWorld *world);
 
 /**
  * Get the clock for the given world

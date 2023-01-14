@@ -241,8 +241,7 @@ int main(void)
 
     papps_and_sapps = App_AcceleratorPedals_Create(
         Io_AcceleratorPedals_IsPappsEncoderAlarmActive, Io_AcceleratorPedals_IsSappsEncoderAlarmActive,
-        Io_PrimaryScancon2RMHF_GetEncoderCounter, Io_SecondaryScancon2RMHF_GetEncoderCounter,
-        Io_PrimaryScancon2RMHF_SetEncoderCounter, Io_SecondaryScancon2RMHF_SetEncoderCounter);
+        Io_AcceleratorPedals_GetPapps, Io_AcceleratorPedals_GetPapps);
 
     Io_PrimaryScancon2RMHF_SetEncoderCounter(PAPPS_ENCODER_UNPRESSED_VALUE);
     Io_SecondaryScancon2RMHF_SetEncoderCounter(SAPPS_ENCODER_UNPRESSED_VALUE);

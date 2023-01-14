@@ -1,6 +1,7 @@
 #include "states/App_AllStates.h"
 #include "states/App_FaultState.h"
 #include "App_CanTx.h"
+#include "App_Timer.h"
 
 #define NUM_CYCLES_TO_SETTLE (3U)
 
@@ -17,11 +18,8 @@ bool Low_Voltage_Battery_CANTX(struct StateMachine *const state_machine)
     return true;
 }
 
-void Rail_Voltages_CANTX(struct StateMachine *const state_machine)
+void Rail_Voltages_CANTX(struct PdmCanTxInterface *can_tx, struct RailMonitoring *rail_monitor)
 {
-    struct PdmWorld *         world        = App_SharedStateMachine_GetWorld(state_machine);
-    struct PdmCanTxInterface *can_tx       = App_PdmWorld_GetCanTx(world);
-    struct RailMonitoring *   rail_monitor = App_PdmWorld_GetRailMonitoring(world);
 
     // Main Rail CAN_TX:
     App_CanTx_SetPeriodicSignal_RAIL_VBAT_VOLTAGE(can_tx, App_RailMonitoring_Get_VBAT_Voltage(rail_monitor));
@@ -30,14 +28,8 @@ void Rail_Voltages_CANTX(struct StateMachine *const state_machine)
 
 }
 
-void Efuse_Currents_CANTX(struct StateMachine *const state_machine)
+void Efuse_Currents_CANTX(struct PdmCanTxInterface *can_tx, struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, struct Efuse *efuse4)
 {
-    struct PdmWorld *         world  = App_SharedStateMachine_GetWorld(state_machine);
-    struct PdmCanTxInterface *can_tx = App_PdmWorld_GetCanTx(world);
-    struct Efuse *            efuse1 = App_PdmWorld_GetEfuse1(world);
-    struct Efuse *            efuse2 = App_PdmWorld_GetEfuse2(world);
-    struct Efuse *            efuse3 = App_PdmWorld_GetEfuse3(world);
-    struct Efuse *            efuse4 = App_PdmWorld_GetEfuse4(world);
 
     App_CanTx_SetPeriodicSignal_EFUSE1_AIR_CURRENT(can_tx, App_Efuse_GetChannel0Current(efuse1));
     App_CanTx_SetPeriodicSignal_EFUSE1_LV_PWR_CURRENT(can_tx, App_Efuse_GetChannel1Current(efuse1));
@@ -48,76 +40,187 @@ void Efuse_Currents_CANTX(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_EFUSE4_DRS_CURRENT(can_tx, App_Efuse_GetChannel0Current(efuse4));
     App_CanTx_SetPeriodicSignal_EFUSE4_FAN_CURRENT(can_tx, App_Efuse_GetChannel1Current(efuse4));
 
-
 }
 
-bool Efuse_FaultProcedure_Channel0(struct Efuse *efuse, int max_attempts)
+int Efuse_FaultProcedure_Channel0(struct Efuse *efuse, int max_attempts)
 {
-    static TimerChannel efuse_timer;
-    static int          num_attempts = 0;
+    static TimerChannel *efuse_timer;
+    static int num_attempts = 0;
+    static bool has_timer_started = false;
 
-    if (App_Efuse_Channel0_CurrentTooHigh(efuse) == true)
-    {
+    if (App_Efuse_Channel0_CurrentHighCheck(efuse) == true && has_timer_started == false) {
         App_Timer_InitTimer(efuse_timer, 1000);
+        has_timer_started = true;
+    }
+
+    if (has_timer_started == true)
+    {
         if (App_Timer_GetCurrentTimeMS() >= 1000)
         {
             App_Efuse_StandbyReset(efuse);
-            if (App_Efuse_GetChannel0Current(efuse) != 0)
-            {
+            if (App_Efuse_GetChannel0Current(efuse) != 0) {
+                App_Timer_Stop(efuse_timer);
+                has_timer_started = false;
                 num_attempts = 0;
-                return true;
+                return 0; // everything is fine
             }
-            else
-            {
+            else {
                 num_attempts++;
-                App_Timer_ResetTimer(efuse_timer);
+
+                if (num_attempts >= max_attempts) {
+                    App_Timer_Stop(efuse_timer);
+                    has_timer_started = false;
+                    return 2; //channel failed
+                }
+                else
+                    App_Timer_Restart(efuse_timer);
             }
-            if (num_attempts >= max_attempts)
-                return false;
+
         }
     }
 
-    return true;
+    return 1; //unknown status
+
 }
 
-bool Efuse_AIR_FaultProcedure_Check(struct StateMachine *const state_machine)
+int Efuse_FaultProcedure_Channel1(struct Efuse *efuse, int max_attempts)
 {
-    struct PdmWorld *world  = App_SharedStateMachine_GetWorld(state_machine);
-    struct Efuse *   efuse1 = App_PdmWorld_GetEfuse1(world);
+    static TimerChannel *efuse_timer;
+    static int num_attempts = 0;
+    static bool has_timer_started = false;
 
-    if (Efuse_FaultProcedure_Channel0(efuse1, 3) == false)
+    if (App_Efuse_Channel1_CurrentHighCheck(efuse) == true && has_timer_started == false) {
+        App_Timer_InitTimer(efuse_timer, 1000);
+        has_timer_started = true;
+    }
+
+    if (has_timer_started == true)
+    {
+        if (App_Timer_GetCurrentTimeMS() >= 1000)
+        {
+            App_Efuse_StandbyReset(efuse);
+            if (App_Efuse_GetChannel1Current(efuse) != 0) {
+                App_Timer_Stop(efuse_timer);
+                has_timer_started = false;
+                num_attempts = 0;
+                return 0; // everything is fine
+            }
+            else {
+                num_attempts++;
+
+                if (num_attempts >= max_attempts) {
+                    App_Timer_Stop(efuse_timer);
+                    has_timer_started = false;
+                    return 2; //channel failed
+                }
+                else
+                    App_Timer_Restart(efuse_timer);
+            }
+
+        }
+    }
+
+    return 1; //unknown status
+
+}
+
+bool Efuse_AIR_FaultProcedure_Check(struct Efuse * efuse)
+{
+
+    if (Efuse_FaultProcedure_Channel0(efuse, 3) == 2)
     {
         return false;
     }
+    return true;
 }
 
-bool Efuse_EMETER_FaultProcedure_Check(struct StateMachine *const state_machine)
+bool Efuse_LVPWR_FaultProcedure_Check(struct Efuse * efuse)
 {
-    struct PdmWorld *world  = App_SharedStateMachine_GetWorld(state_machine);
-    struct Efuse *   efuse2 = App_PdmWorld_GetEfuse2(world);
 
-    if (App_Efuse_Channel0_CurrentTooHigh(efuse2) == true)
+    if (Efuse_FaultProcedure_Channel1(efuse, 3) == 2)
+    {
         return false;
+    }
     return true;
-
 }
 
-bool Efuse_Inverter_FaultProcedure_Check(struct StateMachine *const state_machine)
+bool Efuse_EMETER_FaultProcedure_Check(struct Efuse * efuse)
 {
-    struct PdmWorld *world  = App_SharedStateMachine_GetWorld(state_machine);
-    struct Efuse *   efuse3 = App_PdmWorld_GetEfuse3(world);
 
-    if (App_Efuse_Channel0_CurrentTooHigh(efuse3) == true || App_Efuse_Channel1_CurrentTooHigh(efuse3) == true)
+    if (App_Efuse_Channel0_CurrentHighCheck(efuse) == true)
         return false;
     return true;
+}
+
+bool Efuse_DRS_FaultProcedure_Check(struct Efuse * efuse)
+{
+
+    if (Efuse_FaultProcedure_Channel0(efuse, 3) == 2)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool Efuse_FAN_FaultProcedure_Check(struct Efuse * efuse)
+{
+
+    if (Efuse_FaultProcedure_Channel1(efuse, 3) == 2)
+    {
+        return false;
+    }
+    return true;
+}
+
+bool Efuse_Inverter_FaultProcedure_Check(struct Efuse * efuse)
+{
+
+    if (App_Efuse_Channel0_CurrentHighCheck(efuse) == true || App_Efuse_Channel1_CurrentHighCheck(efuse) == true)
+        return false;
+    return true;
+}
+
+void Efuse_FaultProcedure_Checks(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, struct Efuse *efuse4)
+{
+    Efuse_AIR_FaultProcedure_Check(efuse1);
+    Efuse_LVPWR_FaultProcedure_Check(efuse1);
+    Efuse_EMETER_FaultProcedure_Check(efuse2);
+    Efuse_Inverter_FaultProcedure_Check(efuse3);
+    Efuse_DRS_FaultProcedure_Check(efuse4);
+    Efuse_FAN_FaultProcedure_Check(efuse4);
+
+    if (!Efuse_AIR_FaultProcedure_Check(efuse1) || !Efuse_EMETER_FaultProcedure_Check(efuse2) || !Efuse_Inverter_FaultProcedure_Check(efuse3))
+    {
+        // HARD SHUTDOWN
+
+    }
+    if (!Efuse_DRS_FaultProcedure_Check(efuse4) || !Efuse_FAN_FaultProcedure_Check(efuse4) || !Efuse_LVPWR_FaultProcedure_Check(efuse1))
+    {
+        App_Efuse_Delatch(efuse1);
+        App_Efuse_Delatch(efuse2);
+        App_Efuse_Delatch(efuse3);
+        App_Efuse_Delatch(efuse4);
+
+    }
 }
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
-    struct PdmWorld *      world            = App_SharedStateMachine_GetWorld(state_machine);
+    struct PdmWorld *      world         = App_SharedStateMachine_GetWorld(state_machine);
+    struct PdmCanTxInterface *can_tx     = App_PdmWorld_GetCanTx(world);
     struct RgbLedSequence *rgb_led_sequence = App_PdmWorld_GetRgbLedSequence(world);
 
+    struct RailMonitoring *rail_monitor  = App_PdmWorld_GetRailMonitoring(world);
+    struct Efuse *            efuse1     = App_PdmWorld_GetEfuse1(world);
+    struct Efuse *            efuse2     = App_PdmWorld_GetEfuse2(world);
+    struct Efuse *            efuse3     = App_PdmWorld_GetEfuse3(world);
+    struct Efuse *            efuse4     = App_PdmWorld_GetEfuse4(world);
+
+
     App_SharedRgbLedSequence_Tick(rgb_led_sequence);
+
+    Efuse_Currents_CANTX(can_tx, efuse1, efuse2, efuse3, efuse4);
+    Rail_Voltages_CANTX(can_tx, rail_monitor);
 }
 
 bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
@@ -127,12 +230,20 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct PdmCanRxInterface *can_rx     = App_PdmWorld_GetCanRx(world);
     struct HeartbeatMonitor * hb_monitor = App_PdmWorld_GetHeartbeatMonitor(world);
 
+    struct Efuse *            efuse1     = App_PdmWorld_GetEfuse1(world);
+    struct Efuse *            efuse2     = App_PdmWorld_GetEfuse2(world);
+    struct Efuse *            efuse3     = App_PdmWorld_GetEfuse3(world);
+    struct Efuse *            efuse4     = App_PdmWorld_GetEfuse4(world);
 
-    Efuse_Currents_CANTX(state_machine);
-    Rail_Voltages_CANTX(state_machine);
 
 
-    App_CanTx_SetPeriodicSignal_HEARTBEAT (can_tx, true);
+    App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
+
+    // Fault Procedures
+    Efuse_FaultProcedure_Checks(efuse1, efuse2, efuse3, efuse4);
+
+
+
 
     /*
     if (App_CanRx_BMS_VITALS_GetSignal_HEARTBEAT(can_rx))

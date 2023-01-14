@@ -1,12 +1,34 @@
 
 #include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/states/App_AllStates.h"
+#include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/states/App_DriveState.h"
 #include "App_SharedMacros.h"
 
 static void IdleStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct PdmWorld *const          world  = App_SharedStateMachine_GetWorld(state_machine);
     struct PdmCanTxInterface *const can_tx = App_PdmWorld_GetCanTx(world);
-    // App_CanTx_SetPeriodicSignal_STATE(can_tx, CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE);
+}
+
+void Rail_Voltage_Checks_CANTX(struct PdmCanTxInterface *can_tx, struct RailMonitoring *rail_monitor)
+{
+
+    App_CanTx_SetPeriodicSignal_RAIL_22_V_AUX_VOLTAGE_LOW(can_tx, App_RailMonitoring__22V_AUX_VoltageLowCheck(rail_monitor));
+    App_CanTx_SetPeriodicSignal_RAIL_VBAT_VOLTAGE_LOW(can_tx, App_RailMonitoring_VBAT_VoltageLowCheck(rail_monitor));
+    App_CanTx_
+
+}
+
+void Efuse_Enable_Disable_Channels(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, struct Efuse *efuse4)
+{
+
+    App_Efuse_EnableChannel0(efuse1);
+    App_Efuse_EnableChannel1(efuse1);
+    App_Efuse_EnableChannel0(efuse2);
+    App_Efuse_DisableChannel1(efuse2);
+    App_Efuse_EnableChannel0(efuse3);
+    App_Efuse_EnableChannel1(efuse3);
+    App_Efuse_DisableChannel0(efuse4);
+    App_Efuse_DisableChannel1(efuse4);
 }
 
 static void IdleStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -16,9 +38,29 @@ static void IdleStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void IdleStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    App_AllStatesRunOnTick100Hz(state_machine);
 
-    struct PdmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct PdmWorld *world              = App_SharedStateMachine_GetWorld(state_machine);
+    struct PdmCanTxInterface *can_tx    = App_PdmWorld_GetCanTx(world);
+
+    struct RailMonitoring *rail_monitor = App_PdmWorld_GetRailMonitoring(world);
+    struct Efuse *            efuse1    = App_PdmWorld_GetEfuse1(world);
+    struct Efuse *            efuse2    = App_PdmWorld_GetEfuse2(world);
+    struct Efuse *            efuse3    = App_PdmWorld_GetEfuse3(world);
+    struct Efuse *            efuse4    = App_PdmWorld_GetEfuse4(world);
+
+    if (App_AllStatesRunOnTick100Hz(state_machine))
+    {
+        Efuse_Enable_Disable_Channels(efuse1, efuse2, efuse3, efuse4);
+
+        Rail_Voltage_Checks_CANTX(can_tx, rail_monitor);
+
+        if (App_RailMonitoring_VBAT_VoltageCriticalCheck(rail_monitor) || App_RailMonitoring__22V_AUX_VoltageCriticalCheck(rail_monitor))
+        {
+            // HW SHUTDOWN?
+        }
+    }
+
+
 
     if ()
     {
@@ -34,11 +76,11 @@ static void IdleStateRunOnExit(struct StateMachine *const state_machine)
 const struct State *App_GetIdleState(void)
 {
     static struct State fault_state = {
-            .name              = "FAULT",
-            .run_on_entry      = IdleStateRunOnEntry,
-            .run_on_tick_1Hz   = IdleStateRunOnTick1Hz,
-            .run_on_tick_100Hz = IdleStateRunOnTick100Hz,
-            .run_on_exit       = IdleStateRunOnExit,
+        .name              = "FAULT",
+        .run_on_entry      = IdleStateRunOnEntry,
+        .run_on_tick_1Hz   = IdleStateRunOnTick1Hz,
+        .run_on_tick_100Hz = IdleStateRunOnTick100Hz,
+        .run_on_exit       = IdleStateRunOnExit,
     };
 
     return &fault_state;

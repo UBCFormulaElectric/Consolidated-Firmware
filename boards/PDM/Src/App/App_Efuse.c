@@ -22,14 +22,14 @@ struct Efuse
     void (*stdby_reset)(struct Efuse_Context *const);
     float (*get_channel_0_current)(struct Efuse_Context *const);
     float (*get_channel_1_current)(struct Efuse_Context *const);
-    float(channel_0_min_current);
-    float(channel_0_max_current);
-    float(channel_1_min_current);
-    float(channel_1_max_current);
+    float (channel_0_min_current);
+    float (channel_0_max_current);
+    float (channel_1_min_current);
+    float (channel_1_max_current);
 };
 
 struct Efuse *App_Efuse_Create(
-    struct Efuse_Context(*io_efuse),
+    struct Efuse_Context (*io_efuse),
     void (*enable_channel_0)(const struct Efuse_Context *const),
     void (*disable_channel_0)(const struct Efuse_Context *const),
     void (*enable_channel_1)(const struct Efuse_Context *const),
@@ -136,30 +136,30 @@ bool App_Efuse_CurrentTooHigh(float value, float max_value)
     return true;
 }
 
-bool App_Efuse_Channel0_CurrentTooLow(struct Efuse *efuse)
+bool App_Efuse_Channel0_CurrentLowCheck(struct Efuse *efuse)
 {
     if (App_Efuse_CurrentTooLow(efuse->get_channel_0_current(efuse->io_efuse), efuse->channel_0_min_current) == true)
         return true;
     return false;
 }
 
-bool App_Efuse_Channel0_CurrentTooHigh(struct Efuse *efuse)
+bool App_Efuse_Channel0_CurrentHighCheck(struct Efuse *efuse)
 {
     if (App_Efuse_CurrentTooHigh(efuse->get_channel_0_current(efuse->io_efuse), efuse->channel_0_max_current) == true)
         return true;
     return false;
 }
 
-bool App_Efuse_Channel1_CurrentTooLow(struct Efuse *efuse)
+bool App_Efuse_Channel1_CurrentLowCheck(struct Efuse *efuse)
 {
-    if (App_Efuse_CurrentTooLow(efuse->get_channel_0_current(efuse->io_efuse), efuse->channel_1_min_current) == true)
+    if (App_Efuse_CurrentTooLow(efuse->get_channel_1_current(efuse->io_efuse), efuse->channel_1_min_current) == true)
         return true;
     return false;
 }
 
-bool App_Efuse_Channel1_CurrentTooHigh(struct Efuse *efuse)
+bool App_Efuse_Channel1_CurrentHighCheck(struct Efuse *efuse)
 {
-    if (App_Efuse_CurrentTooHigh(efuse->get_channel_0_current(efuse->io_efuse), efuse->channel_1_max_current) == true)
+    if (App_Efuse_CurrentTooHigh(efuse->get_channel_1_current(efuse->io_efuse), efuse->channel_1_max_current) == true)
         return true;
     return false;
 }

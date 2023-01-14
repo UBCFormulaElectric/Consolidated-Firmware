@@ -9,16 +9,10 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct PdmWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
     struct PdmCanTxInterface *can_tx_interface = App_PdmWorld_GetCanTx(world);
-    // App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE);
 }
 
-void App_Efuse_Enable_Disable_Channel(struct StateMachine *const state_machine, struct Efuse *efuse)
+void Efuse_Enable_Disable_Channels(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, struct Efuse *efuse4)
 {
-    struct PdmWorld *world  = App_SharedStateMachine_GetWorld(state_machine);
-    struct Efuse *   efuse1 = App_PdmWorld_GetEfuse1(world);
-    struct Efuse *   efuse2 = App_PdmWorld_GetEfuse2(world);
-    struct Efuse *   efuse3 = App_PdmWorld_GetEfuse3(world);
-    struct Efuse *   efuse4 = App_PdmWorld_GetEfuse4(world);
 
     App_Efuse_EnableChannel0(efuse1);
     App_Efuse_EnableChannel1(efuse1);
@@ -38,16 +32,25 @@ static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct PdmWorld *         world  = App_SharedStateMachine_GetWorld(state_machine);
-    struct PdmCanTxInterface *can_tx = App_PdmWorld_GetCanTx(world);
-    struct PdmCanRxInterface *can_rx = App_PdmWorld_GetCanRx(world);
-    struct Efuse *            efuse1 = App_PdmWorld_GetEfuse1(world);
-    struct Efuse *            efuse2 = App_PdmWorld_GetEfuse2(world);
-    struct Efuse *            efuse3 = App_PdmWorld_GetEfuse3(world);
-    struct Efuse *            efuse4 = App_PdmWorld_GetEfuse4(world);
+
+    struct RailMonitoring *rail_monitor = App_PdmWorld_GetRailMonitoring(world);
+    struct Efuse *            efuse1    = App_PdmWorld_GetEfuse1(world);
+    struct Efuse *            efuse2    = App_PdmWorld_GetEfuse2(world);
+    struct Efuse *            efuse3    = App_PdmWorld_GetEfuse3(world);
+    struct Efuse *            efuse4    = App_PdmWorld_GetEfuse4(world);
+
+
+
+
 
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
-        // if ( can)
+        Efuse_Enable_Disable_Channels(efuse1, efuse2, efuse3, efuse4);
+
+        if (App_RailMonitoring__24V_ACC_VoltageCriticalCheck(rail_monitor))
+        {
+            // HW SHUTDOWN
+        }
     }
 }
 

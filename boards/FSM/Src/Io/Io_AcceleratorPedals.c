@@ -31,7 +31,8 @@
 
 bool Io_AcceleratorPedals_IsPappsEncoderAlarmActive(void)
 {
-    return HAL_GPIO_ReadPin(PRIMARY_APPS_ALARM_GPIO_Port, PRIMARY_APPS_ALARM_Pin) == GPIO_PIN_SET;
+    const float raw_adc = Io_Adc_GetChannel1Voltage();
+    return (raw_adc < 0.5f) || (raw_adc > 3.1f);
 }
 
 bool Io_AcceleratorPedals_IsSappsEncoderAlarmActive(void)

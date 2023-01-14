@@ -32,15 +32,18 @@ struct Efuse *App_Efuse_Create(
     void (*disable_channel_0)(const struct Efuse_Context *const),
     void (*enable_channel_1)(const struct Efuse_Context *const),
     void (*disable_channel_1)(const struct Efuse_Context *const),
-    bool (*in_fault_mode)(const struct Efuse_Context *const),
-    bool (*in_failsafe_mode)(const struct Efuse_Context *const),
-    void (*delatch_fault)(const struct Efuse_Context *const),
+    // bool (*in_fault_mode)(const struct Efuse_Context *const),
+    // bool (*in_failsafe_mode)(const struct Efuse_Context *const),
+    void (*efuse_delatch)(struct Efuse_Context *const),
+    void (*stdby_reset)(struct Efuse_Context *const),
     float (*get_channel_0_current)(struct Efuse_Context *const),
     float (*get_channel_1_current)(struct Efuse_Context *const),
-    float(channel_0_min_current),
-    float(channel_0_max_current),
-    float(channel_1_min_current),
-    float(channel_1_max_current));
+    float (channel_0_min_current),
+    float (channel_0_max_current),
+    float (channel_1_min_current),
+    float (channel_1_max_current),
+    float (channel_0_critical_current),
+    float (channel_1_critical_current));
 
 void App_Efuse_Destroy(struct Efuse *efuse);
 
@@ -86,7 +89,7 @@ bool App_Efuse_IsEfuseInFailSafeMode(struct Efuse *efuse);
  * Delatches Efuse if function is called.
  * @param efuse App_Efuse structure
  */
-void App_Efuse_DelatchFaults(struct Efuse *efuse);
+void App_Efuse_Delatch(struct Efuse *efuse);
 
 /**
  * Functions which get the channel 0 current.
@@ -108,7 +111,9 @@ float App_Efuse_GetChannel1Current(struct Efuse *efuse);
 bool App_Efuse_CurrentTooLow(float value, float min_value);
 bool App_Efuse_CurrentTooHigh(float value, float max_value);
 
-bool App_Efuse_Channel0_CurrentTooLow(struct Efuse *efuse);
-bool App_Efuse_Channel0_CurrentTooHigh(struct Efuse *efuse);
-bool App_Efuse_Channel1_CurrentTooLow(struct Efuse *efuse);
-bool App_Efuse_Channel1_CurrentTooHigh(struct Efuse *efuse);
+bool App_Efuse_Channel0_CurrentLowCheck(struct Efuse *efuse);
+bool App_Efuse_Channel0_CurrentHighCheck(struct Efuse *efuse);
+bool App_Efuse_Channel1_CurrentLowCheck(struct Efuse *efuse);
+bool App_Efuse_Channel1_CurrentHighCheck(struct Efuse *efuse);
+bool App_Efuse_Channel0_CurrentCriticalCheck(struct Efuse *efuse);
+bool App_Efuse_Channel1_CurrentCriticalCheck(struct Efuse *efuse);

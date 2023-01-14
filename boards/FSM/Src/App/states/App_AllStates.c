@@ -23,11 +23,12 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    struct FsmWorld *         world       = App_SharedStateMachine_GetWorld(state_machine);
-    struct FsmCanTxInterface *can_tx      = App_FsmWorld_GetCanTx(world);
-    struct FsmCanRxInterface *can_rx      = App_FsmWorld_GetCanRx(world);
-    struct HeartbeatMonitor * hb_monitor  = App_FsmWorld_GetHeartbeatMonitor(world);
-    static uint8_t            error_count = 0;
+    struct FsmWorld *         world              = App_SharedStateMachine_GetWorld(state_machine);
+    struct FsmCanTxInterface *can_tx             = App_FsmWorld_GetCanTx(world);
+    struct FsmCanRxInterface *can_rx             = App_FsmWorld_GetCanRx(world);
+    struct HeartbeatMonitor * hb_monitor         = App_FsmWorld_GetHeartbeatMonitor(world);
+    struct AcceleratorPedals *accelerator_pedals = App_FsmWorld_GetPappsAndSapps(world);
+    static uint8_t            error_count        = 0;
 
     App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
 
@@ -38,9 +39,9 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     }
 
     // Check for torque plausibility
-    float left_torque_req = App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
+    float left_torque_req = (float)App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
         App_CanRx_DCM_INVL_COMMAND_MESSAGE_GetSignal_TORQUE_COMMAND_INVL(can_rx));
-    float right_torque_req = App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
+    float right_torque_req = (float)App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
         App_CanRx_DCM_INVR_COMMAND_MESSAGE_GetSignal_TORQUE_COMMAND_INVR(can_rx));
     float fsm_torque_limit = App_CanTx_GetPeriodicSignal_FSM_TORQUE_LIMIT(can_tx);
     if (left_torque_req > fsm_torque_limit || right_torque_req > fsm_torque_limit)
@@ -63,6 +64,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_FSM_TORQUE_LIMIT(can_tx, fsm_torque_limit);
 
     // Debug msgs, remove after testing
+<<<<<<< HEAD
     App_CanTx_SetPeriodicSignal_SAPPS(can_tx, (uint16_t)Io_SecondaryScancon2RMHF_GetEncoderCounter());
     App_CanTx_SetPeriodicSignal_PAPPS(can_tx, (uint16_t)Io_PrimaryScancon2RMHF_GetEncoderCounter());
 
@@ -73,5 +75,15 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_PAPPS_ANGLE(can_tx, Io_AcceleratorPedals_GetAngle());
     App_CanTx_SetPeriodicSignal_PAPPS_RAW_ADC(can_tx, Io_Adc_GetChannel1Voltage());
 
+=======
+    App_CanTx_SetPeriodicSignal_PAPPS(
+        can_tx, (uint16_t)App_AcceleratorPedals_GetPrimaryPedalPercentage(accelerator_pedals));
+    App_CanTx_SetPeriodicSignal_SAPPS(
+        can_tx, (uint16_t)App_AcceleratorPedals_GetSecondaryPedalPercentage(accelerator_pedals));
+
+    // App_CanTx_SetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, App());
+    // App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, Io_AcceleratorPedals_GetPapps());
+
+>>>>>>> 9f4e826a1653caf1378f99c986767d1a000e3140
     App_CanTx_SetPeriodicSignal_MISSING_HEARTBEAT(can_tx, !App_SharedHeartbeatMonitor_Tick(hb_monitor));
 }

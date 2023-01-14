@@ -6,11 +6,9 @@ extern "C"
 }
 
 FAKE_VALUE_FUNC(bool, is_primary_encoder_alarm_active);
-FAKE_VOID_FUNC(set_primary_encoder_counter, uint32_t);
-FAKE_VALUE_FUNC(uint32_t, get_primary_encoder_counter);
+FAKE_VALUE_FUNC(float, get_primary_encoder_counter);
 FAKE_VALUE_FUNC(bool, is_secondary_encoder_alarm_active);
-FAKE_VOID_FUNC(set_secondary_encoder_counter, uint32_t);
-FAKE_VALUE_FUNC(uint32_t, get_secondary_encoder_counter);
+FAKE_VALUE_FUNC(float, get_secondary_encoder_counter);
 
 class AcceleratorPedalTest : public testing::Test
 {
@@ -24,12 +22,10 @@ class AcceleratorPedalTest : public testing::Test
         // required for the following tests
         accelerator_pedal_pair = App_AcceleratorPedals_Create(
             is_primary_encoder_alarm_active, is_secondary_encoder_alarm_active, get_primary_encoder_counter,
-            get_secondary_encoder_counter, set_primary_encoder_counter, set_secondary_encoder_counter);
+            get_secondary_encoder_counter);
         RESET_FAKE(is_primary_encoder_alarm_active);
-        RESET_FAKE(set_primary_encoder_counter);
         RESET_FAKE(get_primary_encoder_counter);
         RESET_FAKE(is_secondary_encoder_alarm_active);
-        RESET_FAKE(set_secondary_encoder_counter);
         RESET_FAKE(get_secondary_encoder_counter);
     }
 
