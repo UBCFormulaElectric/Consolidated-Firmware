@@ -3,18 +3,20 @@
 #include <stdbool.h>
 
 /**
- * Check if the encoder alarm for the primary APPS is active
- * @return true if the encoder alarm for the primary APPS is active, else false
+ * @return Percentage of press of accelerator pedal
  */
-bool Io_AcceleratorPedals_IsPappsEncoderAlarmActive(void);
+float Io_AcceleratorPedals_GetPapps(void);
+/**
+ * @return whether or not the primary accelerator pedal sensor is open or short circuit
+ */
+bool Io_AcceleratorPedals_PappsOCSC(void);
 
 /**
- * Check if the encoder alarm for the secondary APPS is active
- * @return true if the encoder alarm for the secondary APPS is active, else
- *         false
+ * Gets the percentage of the accelerator pedal
+ * @return The reported percentage travel of the secondary accelerator pedal sensor
  */
-bool Io_AcceleratorPedals_IsSappsEncoderAlarmActive(void);
-
-float Io_AcceleratorPedals_GetPapps(void);
-
-float Io_AcceleratorPedals_GetAngle(void);
+float Io_AcceleratorPedals_GetSapps(void);
+/**
+ * @return whether or not the secondary accelerator pedal sensor is open or short circuit
+ */
+bool Io_AcceleratorPedals_SappsOCSC(void);
