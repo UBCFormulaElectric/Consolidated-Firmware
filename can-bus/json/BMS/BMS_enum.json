@@ -1,3 +1,10 @@
 {
-    
+  "BmsState": {
+    "INIT" : 0,
+    "PRECHARGE": 1,
+    "CHARGE" : 2,
+    "DRIVE" : 3,
+    "FAULT": 4
+  },
+
 }
