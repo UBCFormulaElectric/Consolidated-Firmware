@@ -34,7 +34,6 @@ float Io_WheelSpeedSensors_GetLeftSpeedKph(void)
     return MPS_TO_KPH_CONVERSION_FACTOR * ARC_LENGTH_PER_RELUCTOR_TOOTH *
            Io_SharedFreqOnlyPwmInput_GetFrequency(left_wheel_speed_sensor);
 }
-
 float Io_WheelSpeedSensors_GetRightSpeedKph(void)
 {
     return MPS_TO_KPH_CONVERSION_FACTOR * ARC_LENGTH_PER_RELUCTOR_TOOTH *
@@ -61,7 +60,6 @@ void Io_WheelSpeedSensors_CheckIfRightSensorIsActive(void)
 {
     Io_SharedFreqOnlyPwmInput_CheckIfPwmIsActive(right_wheel_speed_sensor);
 }
-
 void Io_WheelSpeedSensors_CheckIfLeftSensorIsActive(void)
 {
     Io_SharedFreqOnlyPwmInput_CheckIfPwmIsActive(left_wheel_speed_sensor);

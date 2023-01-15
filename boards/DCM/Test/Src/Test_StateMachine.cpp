@@ -169,7 +169,8 @@ TEST_F(DcmStateMachineTest, check_init_transitions_to_drive_if_conditions_met_an
     EXPECT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
     // Actuate brake pedal
-    App_CanRx_FSM_BRAKE_SetSignal_BRAKE_IS_ACTUATED(can_rx_interface, CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED_TRUE_CHOICE);
+    App_CanRx_FSM_BRAKE_FLAGS_SetSignal_BRAKE_IS_ACTUATED(
+        can_rx_interface, CANMSGS_FSM_BRAKE_FLAGS_BRAKE_IS_ACTUATED_TRUE_CHOICE);
     LetTimePass(state_machine, 10);
     EXPECT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
