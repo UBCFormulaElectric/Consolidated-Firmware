@@ -8,90 +8,21 @@
 #error "Please define the 'World' type"
 #endif
 
-struct Signal;
-
-struct SignalCallback
+typedef enum
 {
-    // How long the signal's entry condition must be continuously high for, in
-    // milliseconds, before the callback function is triggered
-    uint32_t entry_condition_high_duration_ms;
+    SIGNAL_STATE_CLEAR,  // Exit: Alert is not active.
+    SIGNAL_STATE_ACTIVE, // Entry: Alert is now active.
+} SignalState;
 
-    // How long the signal's exit condition signal must be continuously high
-    // for, in milliseconds, before the callback function is no longer triggered
-    uint32_t exit_condition_high_duration_ms;
-
-    // The callback function
-    void (*function)(struct World *);
-};
+struct Signal;
 
 /**
  * Allocate and initialize a signal
- * @param initial_time_ms The initial time, in milliseconds, used to initialize
- *                        the internal state of the signal
- * @param is_entry_condition_high A function that can be called to check if the
- * entry condition for the signal is high
- * @param is_exit_condition_high A function that can be called to check if the
- * exit condition for the signal is high
- * @param world The world associated with the entry and exit conditions for the
- * signal
- * @param callback The signal callback for the signal
+ * @param entry_time Amount of time required for the enter condition to be true to enter it
+ * @param exit_time Amount of time required for the exit condition to be true to enter it
  * @return The created signal, whose ownership is given to the caller
  */
-struct Signal *App_SharedSignal_Create(
-    uint32_t initial_time_ms,
-    bool (*is_entry_condition_high)(struct World *),
-    bool (*is_exit_condition_high)(struct World *),
-    struct World *        world,
-    struct SignalCallback callback);
-
-/**
- * Deallocate the memory used by the given signal
- * @param signal The signal to deallocate
- */
-void App_SharedSignal_Destroy(struct Signal *signal);
-
-/**
- * Get the last time the given signal was observed to be low during entry, in
- * milliseconds (See: `is_entry_condition_high`)
- * @param signal The signal to get the time during entry from
- * @return The last time the given signal was observed to be low during entry,
- * in milliseconds
- */
-uint32_t App_SharedSignal_GetEntryLastTimeLowMs(const struct Signal *signal);
-
-/**
- * Get the last time the given signal was observed to be high during entry, in
- * milliseconds (See: `is_entry_condition_high`)
- * @param signal The signal to get the time during entry from
- * @return The last time the given signal was observed to be high during entry,
- * in milliseconds
- */
-uint32_t App_SharedSignal_GetEntryLastTimeHighMs(const struct Signal *signal);
-
-/**
- * Get the last time the given signal was observed to be low during exit, in
- * milliseconds (See: `is_exit_condition_high`)
- * @param signal The signal to get the time during exit from
- * @return The last time the given signal was observed to be low during exit, in
- * milliseconds
- */
-uint32_t App_SharedSignal_GetExitLastTimeLowMs(const struct Signal *signal);
-
-/**
- * Get the last time the given signal was observed to be high during exit, in
- * milliseconds (See: `is_exit_condition_high`)
- * @param signal The signal to get the time during exit from
- * @return The last time the given signal was observed to be high during exit,
- * in milliseconds
- */
-uint32_t App_SharedSignal_GetExitLastTimeHighMs(const struct Signal *signal);
-
-/**
- * Check if the callback function for the given signal is triggered
- * @param signal The signal to check if the callback function is triggered
- * @return true if the callback function is triggered, false if it is not
- */
-bool App_SharedSignal_IsCallbackTriggered(const struct Signal *const signal);
+struct Signal *App_SharedSignal_Create(uint32_t entry_time, uint32_t exit_time);
 
 /**
  * Update the internal state of the given signal. If the entry condition for the
@@ -105,4 +36,18 @@ bool App_SharedSignal_IsCallbackTriggered(const struct Signal *const signal);
  * @param signal The signal to update
  * @param current_time_ms The current time, in milliseconds
  */
-void App_SharedSignal_Update(struct Signal *signal, uint32_t current_time_ms);
+SignalState App_SharedSignal_Update(struct Signal *signal, bool entry_condition_high, bool exit_condition_high);
+
+// Getters
+/**
+ * Check if the callback function for the given signal is triggered
+ * @param signal The signal to check if the callback function is triggered
+ * @return true if the callback function is triggered, false if it is not
+ */
+bool App_SharedSignal_IsSignalActivated(const struct Signal *const signal);
+
+/**
+ * Deallocate the memory used by the given signal
+ * @param signal The signal to deallocate
+ */
+void App_SharedSignal_Destroy(struct Signal *signal);
