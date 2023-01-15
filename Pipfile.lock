@@ -1,11 +1,7 @@
 {
     "_meta": {
         "hash": {
-<<<<<<< HEAD
             "sha256": "e13c6d6cb6ab94d7a646a2bf90e8d1cd466b8422844b93fad23162f9681b2252"
-=======
-            "sha256": "d31a571c44757a32483005b6d68d989e6ca59f7ea3db1e700c8e8c1e8408e4ce"
->>>>>>> b4459fed (Port repo to JSON CAN & port DIM to F4 (#862))
         },
         "pipfile-spec": 6,
         "requires": {
@@ -22,15 +18,9 @@
     "default": {
         "bitstruct": {
             "hashes": [
-<<<<<<< HEAD
                 "sha256:eb94b40e4218a23aa8f90406b836a9e6ed83e48b8d112ce3f96408463bd1b874"
             ],
             "version": "==8.17.0"
-=======
-                "sha256:6fa6adbfb8f3b8cb68c21b13aa65d23eb2c3ac32419ab926f3fd1fff717a9125"
-            ],
-            "version": "==8.15.1"
->>>>>>> b4459fed (Port repo to JSON CAN & port DIM to F4 (#862))
         },
         "cantools": {
             "git": "https://github.com/UBCFormulaElectric/cantools",
@@ -99,6 +89,7 @@
         "setuptools": {
             "hashes": [
 <<<<<<< HEAD
+<<<<<<< HEAD
                 "sha256:95f00380ef2ffa41d9bba85d95b27689d923c93dfbafed4aecd7cf988a25e012",
                 "sha256:bb6d8e508de562768f2027902929f8523932fcd1fb784e6d573d2cafac995a48"
             ],
@@ -119,6 +110,13 @@
             "markers": "python_version >= '3.7'",
             "version": "==65.6.3"
 >>>>>>> b4459fed (Port repo to JSON CAN & port DIM to F4 (#862))
+=======
+                "sha256:4d3c92fac8f1118bb77a22181355e29c239cabfe2b9effdaa665c66b711136d7",
+                "sha256:8ab4f1dbf2b4a65f7eec5ad0c620e84c34111a68d3349833494b9088212214dd"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==65.7.0"
+>>>>>>> aafb2821 (ELEC-72 and ELEC-259 Changes (#847))
         },
         "textparser": {
             "hashes": [
@@ -259,7 +257,7 @@
                 "sha256:6db30c5ded9815d813932c04c2f85a360bcdd35fed496f4d8f35495ef0a261b6",
                 "sha256:c033fd0edb91000a7f09527fe5c75321878f98322a77ddcc81adbd83724afb7b"
             ],
-            "markers": "python_version >= '3.7'",
+            "markers": "python_full_version >= '3.7.0'",
             "version": "==5.11.4"
 >>>>>>> b4459fed (Port repo to JSON CAN & port DIM to F4 (#862))
         },
@@ -302,7 +300,7 @@
                 "sha256:f2457189d8257dd41ae9b434ba33298aec198e30adf2dcdaaa3a28b9994f6adb",
                 "sha256:f699ac1c768270c9e384e4cbd268d6e67aebcfae6cd623b4d7c3bfde5a35db59"
             ],
-            "markers": "python_version >= '3.7'",
+            "markers": "python_full_version >= '3.7.0'",
             "version": "==1.9.0"
         },
         "mccabe": {
@@ -333,7 +331,7 @@
                 "sha256:83c8f6d04389165de7c9b6f0c682439697887bca0aa2f1c87ef1826be3584490",
                 "sha256:e1fea1fe471b9ff8332e229df3cb7de4f53eeea4998d3b6bfff542115e998bd2"
             ],
-            "markers": "python_version >= '3.7'",
+            "markers": "python_full_version >= '3.7.0'",
             "version": "==2.6.2"
         },
         "pylint": {
@@ -361,6 +359,7 @@
             "markers": "python_version >= '3.6'",
             "version": "==0.11.6"
         },
+<<<<<<< HEAD
         "typed-ast": {
             "hashes": [
                 "sha256:0261195c2062caf107831e92a76764c81227dae162c4f75192c0d489faf751a2",
@@ -395,6 +394,8 @@
 >>>>>>> b4459fed (Port repo to JSON CAN & port DIM to F4 (#862))
             "version": "==1.5.4"
         },
+=======
+>>>>>>> aafb2821 (ELEC-72 and ELEC-259 Changes (#847))
         "typing-extensions": {
             "hashes": [
 <<<<<<< HEAD
