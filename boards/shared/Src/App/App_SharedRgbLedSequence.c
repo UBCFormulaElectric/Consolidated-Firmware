@@ -11,9 +11,9 @@ enum RgbLedSequenceState
 
 struct RgbLedSequence
 {
-    void (*turn_on_red_led)();
-    void (*turn_on_green_led)();
-    void (*turn_on_blue_led)();
+    void (*turn_on_red_led)(void);
+    void (*turn_on_green_led)(void);
+    void (*turn_on_blue_led)(void);
     enum RgbLedSequenceState state;
 };
 
