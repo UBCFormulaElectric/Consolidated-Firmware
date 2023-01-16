@@ -1,6 +1,4 @@
 {
-//    BO_ 100 BMS_VITALS: 1 BMS
-//    SG_ HEARTBEAT : 0|1@1+ (1,0) [0|1] "" FSM,DCM,PDM,DIM,GSM
     "BMSVitals": {
         "msg_id": 100,
         "cycle_time": 1000,
@@ -14,10 +12,6 @@
             }
         }
     },
-
-//    BO_ 101 BMS_CAN_FIFO_OVERFLOW: 8 BMS
-//    SG_ tx_overflow_count : 0|32@1+ (1,0) [0|4294967295] "" DEBUG
-//    SG_ rx_overflow_count : 32|32@1+ (1,0) [0|4294967295] "" DEBUG
 
     "BMSCanFifoOverflow": {
         "msg_id": 101,
@@ -33,26 +27,16 @@
         }
     },
 
-//    BO_ 103 BMS_WATCHDOG_TIMEOUT : 8 BMS
-//    SG_ TASK_NAME : 0|64@1+ (1,0) [0|0] "" DEBUG
-
     "BMSWatchdogTimeout": {
         "msg_id": 102,
         "cycle_time": 1000,
-        "description": "",
+        "description": "placeholder",
         "signals": {
             "TaskName" : {
                 "enum": "SharedTasks"
             }
         }
     },
-
-//    BO_ 104 BMS_WARNINGS: 8 BMS
-//    SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ : 0|1@1+ (1,0) [0|1] "" DIM
-//    SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ : 1|1@1+ (1,0) [0|1] "" DIM
-//    SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX : 2|1@1+ (1,0) [0|1] "" DIM
-//    SG_ STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX : 3|1@1+ (1,0) [0|1] "" DIM
-//    SG_ WATCHDOG_TIMEOUT : 4|1@1+ (1,0) [0|1] "" DIM
 
     "BMSWarnings": {
         "msg_id" : 103,
@@ -76,15 +60,6 @@
             }
         }
     },
-
-//    BO_ 105 BMS_IMD: 8 BMS
-//    SG_ Condition M : 0|3@1+ (1,0) [0|6] "" DEBUG
-//    SG_ Seconds_Since_Power_On : 3|16@1+ (1,0) [0|255] "Seconds" DEBUG
-//    SG_ Valid_Duty_Cycle : 19|1@1+ (1,0) [0|1] "" DEBUG
-//    SG_ Insulation_Measurement_DCP_10Hz m1 : 20|16@1+ (1,0) [0|65535] "kOhm" DEBUG
-//    SG_ Insulation_Measurement_DCP_20Hz m2 : 20|16@1+ (1,0) [0|65535] "kOhm" DEBUG
-//    SG_ Speed_Start_Status_30Hz m3 : 20|16@1+ (1,0) [0|65535] "" DEBUG
-//    SG_ OK_HS : 36|1@1+ (1,0) [0|1] "" DIM
 
     "BmsImd": {
             "msg_id": 104,
@@ -121,11 +96,6 @@
             }
         },
 
-//        BO_ 110 BMS_CHARGER: 1 BMS
-//        SG_ Is_Connected : 0|1@1+ (1,0) [0|1] "" DEBUG
-//    SG_ IS_CHARGING_COMPLETE : 1|1@1+ (1,0) [0|1] "" DEBUG
-//
-
     "BmsCharger": {
         "msg_id": 110,
         "cycle_time": 1000,
@@ -140,11 +110,6 @@
         }
     },
 
-//    BO_ 111 BMS_OK_STATUSES: 1 BMS
-//    SG_ BMS_OK : 0|1@1+ (1,0) [0|1] "" DIM
-//    SG_ IMD_OK : 1|1@1+ (1,0) [0|1] "" DIM
-//    SG_ BSPD_OK : 2|1@1+ (1,0) [0|1] "" DIM
-//
     "BmsOkStatuses": {
         "msg_id": 111,
         "cycle_time": 1000,
@@ -161,11 +126,7 @@
             }
         }
     },
-//    BO_ 112 BMS_AIR_STATES: 1 BMS
-//    SG_ AIR_POSITIVE : 0|1@1+ (1,0) [0|1] "" FSM,DCM,PDM
-//    SG_ AIR_NEGATIVE : 1|1@1+ (1,0) [0|1] "" FSM,DCM,PDM
-//    SG_ PRECHARGE_RELAY: 2|1@1+ (1,0) [0|1] "" DEBUG
-//
+
     "BmsAirStates": {
         "msg_id": 112,
         "cycle_time": 1000,
@@ -182,9 +143,7 @@
             }
         }
     },
-//    BO_ 113 BMS_MOTOR_SHUTDOWN_ERRORS: 8 BMS
-//    SG_ DUMMY_MOTOR_SHUTDOWN : 0|1@1+ (1,0) [0|1] "" DCM
-//
+
     "BmsMotorShutdownErrors": {
         "msg_id": 113,
         "cycle_time": 1000,
@@ -195,10 +154,6 @@
             }
         }
     },
-//    BO_ 114 BMS_CELL_TEMPERATURES: 8 BMS
-//    SG_ MIN_CELL_TEMPERATURE: 0|32@1+ (1,0) [0|100] "degC" DEBUG
-//    SG_ MAX_CELL_TEMPERATURE: 32|32@1+ (1,0) [0|100] "degC" DEBUG
-//
 
     "BmsCellTempuratures": {
         "msg_id": 114,
@@ -219,10 +174,7 @@
             }
         }
     },
-//    BO_ 115 BMS_CELL_VOLTAGES: 8 BMS
-//    SG_ MIN_CELL_VOLTAGE : 0|32@1+ (1,0) [0|5] "" DEBUG
-//    SG_ MAX_CELL_VOLTAGE : 32|32@1+ (1,0) [0|5] "" DEBUG
-//
+
     "BmsCellVoltages": {
         "msg_id": 115,
         "cycle_time": 1000,
@@ -242,17 +194,6 @@
             }
         }
     },
-
-//    BO_ 116 BMS_CELL_STATS: 4 BMS
-//    SG_ MIN_CELL_VOLTAGE_SEGMENT : 0|3@1+ (1,0) [0|7] "" DEBUG
-//    SG_ MIN_CELL_VOLTAGE_IDX : 4|4@1+ (1,0) [0|15] "" DEBUG
-//    SG_ MAX_CELL_VOLTAGE_SEGMENT : 8|3@1+ (1,0) [0|7] "" DEBUG
-//    SG_ MAX_CELL_VOLTAGE_IDX : 11|4@1+ (1,0) [0|7] "" DEBUG
-//    SG_ MIN_TEMP_SEGMENT : 15|3@1+ (1,0) [0|7] "" DEBUG
-//    SG_ MIN_TEMP_IDX : 18|4@1+ (1,0) [0|15] "" DEBUG
-//    SG_ MAX_TEMP_SEGMENT : 22|3@1+ (1,0) [0|7] "" DEBUG
-//    SG_ MAX_TEMP_IDX : 25|4@1+ (1,0) [0|7] "" DEBUG
-//
 
     "BmsCellStats": {
         "msg_id": 116,
@@ -308,10 +249,7 @@
             }
         }
     },
-//    BO_ 117 BMS_TRACTIVE_SYSTEM: 8 BMS
-//    SG_ TS_VOLTAGE : 0|32@1+ (1,0) [0|600] "" DEBUG
-//    SG_ TS_CURRENT : 32|32@1+ (1,0) [-300|300] "" DEBUG ** + indicates unsigned but has negative range????
-//
+
     "BmsTractiveSystem": {
         "msg_id": 117,
         "cycle_time": 1000,
@@ -333,9 +271,6 @@
         }
     },
 
-//    BO_ 118 BMS_PACK_VOLTAGE: 4 BMS
-//    SG_ PACK_VOLTAGE : 0|32@1+ (1,0) [0|600] "" DEBUG
-//
     "BmsPackVoltage": {
         "msg_id": 118,
         "cycle_time": 1000,
@@ -350,8 +285,6 @@
         }
     },
 
-//    BO_ 120 BMS_AVAILABLE_POWER: 4 BMS
-//    SG_ AVAILABLE_POWER : 0|32@1+ (1,0) [0|100000] "W" DCM
     "BmsAvailablePower": {
         "msg_id": 120,
         "cycle_time": 1000,
