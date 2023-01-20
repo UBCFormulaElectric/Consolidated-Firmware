@@ -194,13 +194,20 @@ void Efuse_FaultProcedure_Checks(struct Efuse *efuse1, struct Efuse *efuse2, str
         // HARD SHUTDOWN
 
     }
-    if (!Efuse_DRS_FaultProcedure_Check(efuse4) || !Efuse_FAN_FaultProcedure_Check(efuse4) || !Efuse_LVPWR_FaultProcedure_Check(efuse1))
-    {
-        App_Efuse_Delatch(efuse1);
-        App_Efuse_Delatch(efuse2);
-        App_Efuse_Delatch(efuse3);
-        App_Efuse_Delatch(efuse4);
+}
 
+void HeartbeatCheck(struct PdmCanTxInterface *can_tx, struct PdmCanRxInterface *can_rx, struct HeartbeatMonitor *hb_monitor)
+{
+    if (App_CanRx_BMS_VITALS_GetSignal_HEARTBEAT(can_rx))
+    {
+        // JSONCAN -> App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
+    }
+
+    else
+    {
+        // TODO: JSONCAN -> (App_CanRx_BMS_VITALS_GetSignal_HEARTBEAT(can_rx))
+        App_SharedHeartbeatMonitor_CheckIn(hb_monitor, BMS_HEARTBEAT_ONE_HOT);
+        //        App_CanRx_BMS_VITALS_SetSignal_HEARTBEAT(can_rx, false);
     }
 }
 
@@ -225,15 +232,14 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 
 bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    struct PdmWorld *         world      = App_SharedStateMachine_GetWorld(state_machine);
-    struct PdmCanTxInterface *can_tx     = App_PdmWorld_GetCanTx(world);
-    struct PdmCanRxInterface *can_rx     = App_PdmWorld_GetCanRx(world);
-    struct HeartbeatMonitor * hb_monitor = App_PdmWorld_GetHeartbeatMonitor(world);
-
-    struct Efuse *            efuse1     = App_PdmWorld_GetEfuse1(world);
-    struct Efuse *            efuse2     = App_PdmWorld_GetEfuse2(world);
-    struct Efuse *            efuse3     = App_PdmWorld_GetEfuse3(world);
-    struct Efuse *            efuse4     = App_PdmWorld_GetEfuse4(world);
+    struct PdmWorld *        world      = App_SharedStateMachine_GetWorld(state_machine);
+    struct HeartbeatMonitor *hb_monitor = App_PdmWorld_GetHeartbeatMonitor(world);
+    struct PdmCanTxInterface *can_tx    = App_PdmWorld_GetCanTx(world);
+    struct PdmCanRxInterface *can_rx    = App_PdmWorld_GetCanRx(world);
+    struct Efuse *            efuse1    = App_PdmWorld_GetEfuse1(world);
+    struct Efuse *            efuse2    = App_PdmWorld_GetEfuse2(world);
+    struct Efuse *            efuse3    = App_PdmWorld_GetEfuse3(world);
+    struct Efuse *            efuse4    = App_PdmWorld_GetEfuse4(world);
 
 
 
@@ -242,16 +248,11 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     // Fault Procedures
     Efuse_FaultProcedure_Checks(efuse1, efuse2, efuse3, efuse4);
 
+    HeartbeatCheck(can_tx, can_rx, hb_monitor);
 
 
 
-    /*
-    if (App_CanRx_BMS_VITALS_GetSignal_HEARTBEAT(can_rx))
-    {
-        App_SharedHeartbeatMonitor_CheckIn(hb_monitor, BMS_HEARTBEAT_ONE_HOT);
-        App_CanRx_BMS_VITALS_SetSignal_HEARTBEAT(can_rx, false);
-    }
-    */
+
 
     if ()
     {

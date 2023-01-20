@@ -64,7 +64,6 @@ struct PdmCanRxInterface *App_PdmWorld_GetCanRx(const struct PdmWorld *const wor
 {
     return world->can_rx;
 }
-
 struct HeartbeatMonitor *App_PdmWorld_GetHeartbeatMonitor(const struct PdmWorld *const world)
 {
     return world->heartbeat_monitor;

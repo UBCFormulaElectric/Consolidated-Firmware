@@ -1,0 +1,12 @@
+{
+    "GSM_Test1": {
+        "msg_id": 603,
+        "cycle_time": 1000,
+        "description": "Test message for the GSM.",
+        "signals": {
+            "Ex1": {
+                "bits": 1
+            }
+        }
+    }
+}

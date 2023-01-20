@@ -40,6 +40,12 @@ struct HeartbeatMonitor * App_PdmWorld_GetHeartbeatMonitor(const struct PdmWorld
 
 struct RgbLedSequence *   App_PdmWorld_GetRgbLedSequence(const struct PdmWorld *const world);
 struct LowVoltageBattery *App_PdmWorld_GetLowVoltageBattery(const struct PdmWorld *const world);
+/**
+ * Get the VBAT voltage in-range check for the given world
+ * @param world The world to get VBAT voltage in-range check for
+ * @return The VBAT voltage in-range check for the given world
+ */
+struct InRangeCheck *App_PdmWorld_GetVbatVoltageInRangeCheck(const struct PdmWorld *world);
 
 struct Efuse *App_PdmWorld_GetEfuse1(const struct PdmWorld *const world);
 struct Efuse *App_PdmWorld_GetEfuse2(const struct PdmWorld *const world);

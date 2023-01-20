@@ -1,0 +1,12 @@
+{
+    "BMS_Test1": {
+        "msg_id": 102,
+        "cycle_time": 1000,
+        "description": "Test message for the BMS.",
+        "signals": {
+            "Ex1": {
+                "bits": 1
+            }
+        }
+    }
+}

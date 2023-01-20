@@ -14,7 +14,6 @@ void Rail_Voltage_Checks_CANTX(struct PdmCanTxInterface *can_tx, struct RailMoni
 
     App_CanTx_SetPeriodicSignal_RAIL_22_V_AUX_VOLTAGE_LOW(can_tx, App_RailMonitoring__22V_AUX_VoltageLowCheck(rail_monitor));
     App_CanTx_SetPeriodicSignal_RAIL_VBAT_VOLTAGE_LOW(can_tx, App_RailMonitoring_VBAT_VoltageLowCheck(rail_monitor));
-    App_CanTx_
 
 }
 
@@ -41,7 +40,7 @@ static void IdleStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     struct PdmWorld *world              = App_SharedStateMachine_GetWorld(state_machine);
     struct PdmCanTxInterface *can_tx    = App_PdmWorld_GetCanTx(world);
-
+    struct PdmCanRxInterface *can_rx    = App_PdmWorld_GetCanRx(world);
     struct RailMonitoring *rail_monitor = App_PdmWorld_GetRailMonitoring(world);
     struct Efuse *            efuse1    = App_PdmWorld_GetEfuse1(world);
     struct Efuse *            efuse2    = App_PdmWorld_GetEfuse2(world);
@@ -62,7 +61,7 @@ static void IdleStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
 
 
-    if ()
+    if (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) == CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE && App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx) == CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE))
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
     }
@@ -75,7 +74,7 @@ static void IdleStateRunOnExit(struct StateMachine *const state_machine)
 
 const struct State *App_GetIdleState(void)
 {
-    static struct State fault_state = {
+    static struct State idle_state = {
         .name              = "FAULT",
         .run_on_entry      = IdleStateRunOnEntry,
         .run_on_tick_1Hz   = IdleStateRunOnTick1Hz,
@@ -83,5 +82,5 @@ const struct State *App_GetIdleState(void)
         .run_on_exit       = IdleStateRunOnExit,
     };
 
-    return &fault_state;
+    return &idle_state;
 }

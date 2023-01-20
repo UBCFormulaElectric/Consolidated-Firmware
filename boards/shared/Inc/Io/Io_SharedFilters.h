@@ -3,8 +3,7 @@
  */
 #pragma once
 
-#include <stm32f3xx_hal.h>
-#include <arm_math.h>
+#include "Io_Hal.h"
 
 /**
  * @brief Apply low pass filter on a given array of values based on the
@@ -18,8 +17,8 @@
  * @param rc RC time constant
  */
 void Io_SharedFilters_LowPassFilter(
-    float32_t *input,
-    float32_t *output,
-    uint32_t   num_of_samples,
-    float32_t  sampling_time,
-    float32_t  rc);
+    float *  input,
+    float *  output,
+    uint32_t num_of_samples,
+    float    sampling_time,
+    float    rc);

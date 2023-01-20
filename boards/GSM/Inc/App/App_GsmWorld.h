@@ -15,25 +15,10 @@ struct GsmWorld;
  * @return A pointer to the created world, whose ownership is given to the
  * caller
  */
-struct GsmWorld *
-    App_GsmWorld_Create(struct GsmCanTxInterface *can_tx_interface, struct GsmCanRxInterface *can_rx_interface);
+struct GsmWorld *App_GsmWorld_Create(struct Clock *clock);
 
 /**
  * Deallocate the memory used by the given world
  * @param world The world to deallocate
  */
 void App_GsmWorld_Destroy(struct GsmWorld *world);
-
-/**
- * Get the CAN TX interface for the given world
- * @param world The world to get CAN TX interface for
- * @return The CAN TX interface for the given world
- */
-struct GsmCanTxInterface *App_GsmWorld_GetCanTx(const struct GsmWorld *world);
-
-/**
- * Get the CAN RX interface for the given world
- * @param world The world to get CAN RX interface for
- * @return The CAN RX interface for the given world
- */
-struct GsmCanRxInterface *App_GsmWorld_GetCanRx(const struct GsmWorld *world);

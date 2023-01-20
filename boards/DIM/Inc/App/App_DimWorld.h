@@ -8,7 +8,6 @@
 #include "App_RotarySwitch.h"
 #include "App_Led.h"
 #include "App_BinarySwitch.h"
-#include "App_SharedErrorTable.h"
 #include "App_SharedRgbLed.h"
 #include "App_SharedClock.h"
 
@@ -24,44 +23,27 @@ struct DimWorld;
  * caller
  */
 struct DimWorld *App_DimWorld_Create(
-    struct DimCanTxInterface *can_tx_interface,
-    struct DimCanRxInterface *can_rx_interface,
-    struct SevenSegDisplays * seven_seg_displays,
-    struct HeartbeatMonitor * heartbeat_monitor,
-    struct RgbLedSequence *   rgb_led_sequence,
-    struct RotarySwitch *     drive_mode_switch,
-    struct Led *              imd_led,
-    struct Led *              bspd_led,
-    struct BinarySwitch *     start_switch,
-    struct BinarySwitch *     traction_control_switch,
-    struct BinarySwitch *     torque_vectoring_switch,
-    struct ErrorTable *       error_table,
-    struct RgbLed *           bms_status_led,
-    struct RgbLed *           dcm_status_led,
-    struct RgbLed *           dim_status_led,
-    struct RgbLed *           fsm_status_led,
-    struct RgbLed *           pdm_status_led,
-    struct Clock *            clock);
+    struct SevenSegDisplays *seven_seg_displays,
+    struct HeartbeatMonitor *heartbeat_monitor,
+    struct RgbLedSequence *  rgb_led_sequence,
+    struct RotarySwitch *    drive_mode_switch,
+    struct Led *             imd_led,
+    struct Led *             bspd_led,
+    struct BinarySwitch *    start_switch,
+    struct BinarySwitch *    traction_control_switch,
+    struct BinarySwitch *    torque_vectoring_switch,
+    struct RgbLed *          bms_status_led,
+    struct RgbLed *          dcm_status_led,
+    struct RgbLed *          dim_status_led,
+    struct RgbLed *          fsm_status_led,
+    struct RgbLed *          pdm_status_led,
+    struct Clock *           clock);
 
 /**
  * Deallocate the memory used by the given world
  * @param world The world to deallocate
  */
 void App_DimWorld_Destroy(struct DimWorld *world);
-
-/**
- * Get the CAN TX interface for the given world
- * @param world The world to get CAN TX interface for
- * @return The CAN TX interface for the given world
- */
-struct DimCanTxInterface *App_DimWorld_GetCanTx(const struct DimWorld *world);
-
-/**
- * Get the CAN RX interface for the given world
- * @param world The world to get CAN RX interface for
- * @return The CAN RX interface for the given world
- */
-struct DimCanRxInterface *App_DimWorld_GetCanRx(const struct DimWorld *world);
 
 /**
  * Get the 7-segment displays for the given world
@@ -124,13 +106,6 @@ struct Led *App_DimWorld_GetImdLed(const struct DimWorld *world);
  * @return The BSPD LED for the given world
  */
 struct Led *App_DimWorld_GetBspdLed(const struct DimWorld *world);
-
-/**
- * Get the error table for the given world
- * @param world The world to get error table for
- * @return The error table for the given world
- */
-struct ErrorTable *App_DimWorld_GetErrorTable(const struct DimWorld *world);
 
 /**
  * Get the BMS status LED for the given world
