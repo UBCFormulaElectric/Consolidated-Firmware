@@ -1,0 +1,50 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"type": "object",
+	"properties": {
+		"$MessageGroupName": {
+			"type": "object",
+			"properties": {
+				"msg_id": {
+					"type": "integer"
+				},
+				"cycle_time": {
+					"type": "integer"
+				},
+				"signals": {
+					"type": "object",
+					"properties": {
+						"$MessageName": {
+							"type": "object",
+							"properties": {
+								"resolution": {
+									"type": "number"
+								},
+								"min": {
+									"type": "integer"
+								},
+								"max": {
+									"type": "integer"
+								},
+								"unit": {
+									"type": "string"
+								}
+							},
+							"required": [
+								"resolution",
+								"min",
+								"max",
+								"unit"
+							]
+						}
+					}
+				}
+			},
+			"required": [
+				"msg_id",
+				"cycle_time",
+				"signals"
+			]
+		}
+	}
+}

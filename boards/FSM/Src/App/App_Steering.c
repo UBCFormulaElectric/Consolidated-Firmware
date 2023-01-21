@@ -37,8 +37,7 @@ void App_Steering_Broadcast(const struct FsmWorld *world)
 {
     struct Steering *steering = App_FsmWorld_GetSteering(world);
 
-    // set value TODO: JSONCAN ->
-    // App_CanTx_SetPeriodicSignal_STEERING_ANGLE(can_tx, steering->get_steering_angle());
+    App_CanTx_FSM_Steering_SteeringAngle_Set(steering->get_steering_angle());
 
     bool steering_sensor_ocsc = steering->steering_sensor_OCSC();
     // TODO: JSONCAN ->
@@ -47,9 +46,7 @@ void App_Steering_Broadcast(const struct FsmWorld *world)
     //                         : CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC_FALSE_CHOICE;
     // App_CanTx_SetPeriodicSignal_STEERING_SENSOR_OCSC(can_tx, CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC);
     if (steering_sensor_ocsc)
-    {
-        // App_CanTx_SetPeriodicSignal_STEERING_ANGLE(can_tx, 0);
-    }
+        App_CanTx_FSM_Steering_SteeringAngle_Set(0);
 
     struct InRangeCheck *steering_angle_in_range_check = steering->steering_angle_in_range_check;
     // App_SetPeriodicCanSignals_InRangeCheck(

@@ -1,6 +1,11 @@
 {
-    "msg_id": 300,
+    "alert_set_msg_id": 300,
+    "alert_cleared_msg_id": 301,
     "alerts": [
-        "PDM_ALERT_DUMMY"
+        "PAPPS_OCSC_IS_ACTIVE",
+        "SAPPS_OCSC_IS_ACTIVE",
+        "FLOW_METER_UNDERFLOW",
+        "TORQUE_PLAUSIBILITY_CHECK_FAILED",
+        "Brake_Acc_Disagreement"
     ]
 }

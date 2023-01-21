@@ -97,7 +97,8 @@ void App_Brake_Broadcast(const struct FsmWorld *world)
     struct Brake *brake = App_FsmWorld_GetBrake(world);
 
     // Brake Pedal Value
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_BRAKE_PEDAL_PERCENTAGE(can_tx, brake->get_pedal_travel());
+
+    App_CanTx_FSM_Brake_BrakePedalPercentage_Set(brake->get_pedal_travel());
 
     // Brake Actuation Value TODO: JSONCAN ->
     // uint8_t CANMSGS_FSM_BRAKE_BRAKE_IS_ACTUATED = brake->is_brake_actuated()

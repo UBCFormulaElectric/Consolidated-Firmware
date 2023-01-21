@@ -170,28 +170,25 @@ float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct Accelerator
     return accelerator_pedals->get_secondary_pedal_percent();
 }
 
-// TODO figure out what to do when primary/secondary is NAN, but signal has not activated yet.
 void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
 {
     struct AcceleratorPedals *accelerator_pedals = App_FsmWorld_GetPappsAndSapps(world);
 
     float papps_pedal_percentage = accelerator_pedals->get_primary_pedal_percent();
     float sapps_pedal_percentage = accelerator_pedals->get_secondary_pedal_percent();
-    // TODO: JSONCAN ->
-    // App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, papps_pedal_percentage);
-    // App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, sapps_pedal_percentage);
+     App_CanTx_FSM_APPs_PappsMappedPedalPercentage_Set(papps_pedal_percentage);
+     App_CanTx_FSM_APPs_SappsMappedPedalPercentage_Set(sapps_pedal_percentage);
 
     // Open Short Circuit Tests (non-understandable data test)
     const bool  primary_pedal_ocsc = accelerator_pedals->primary_pedal_OCSC();
     SignalState papp_signal_state =
         App_SharedSignal_Update(accelerator_pedals->papp_alarm_signal, primary_pedal_ocsc, !primary_pedal_ocsc);
     // TODO: JSONCAN ->
-    // uint8_t CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE =
-    //    papp_signal_state == SIGNAL_STATE_ACTIVE ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_OCSC_IS_ACTIVE_TRUE_CHOICE
-    //                                             :
-    //                                             CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_OCSC_IS_ACTIVE_FALSE_CHOICE;
-    // App_CanTx_SetPeriodicSignal_PAPPS_OCSC_IS_ACTIVE(can_tx,
-    // CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE);
+    //uint8_t CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE =
+    //   papp_signal_state == SIGNAL_STATE_ACTIVE ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_OCSC_IS_ACTIVE_TRUE_CHOICE
+    //                                            :
+    //                                            CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_OCSC_IS_ACTIVE_FALSE_CHOICE;
+    //App_CanTx_SetPeriodicSignal_PAPPS_OCSC_IS_ACTIVE(can_tx,CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE);
     const bool  secondary_pedal_ocsc = accelerator_pedals->secondary_pedal_OCSC();
     SignalState sapp_signal_state =
         App_SharedSignal_Update(accelerator_pedals->sapp_alarm_signal, secondary_pedal_ocsc, !secondary_pedal_ocsc);
@@ -205,9 +202,8 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
     // torque 0
     if (papp_signal_state == SIGNAL_STATE_ACTIVE || sapp_signal_state == SIGNAL_STATE_ACTIVE)
     {
-        // TODO: JSONCAN ->
-        // App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
-        // App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
+        App_CanTx_FSM_APPs_PappsMappedPedalPercentage_Set(0.0f);
+        App_CanTx_FSM_APPs_SappsMappedPedalPercentage_Set(0.0f);
     }
 
     // Primary Secondary Accelerator Agreement (Inaccurate data)
