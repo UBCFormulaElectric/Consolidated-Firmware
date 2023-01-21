@@ -1,0 +1,10 @@
+{
+	"json.schemas": [
+		{
+			"fileMatch": [
+				"/can-bus/json/**/*tx.json"
+			],
+			"url": "/can-bus/json/schema_tx.json"
+		}
+	]
+}

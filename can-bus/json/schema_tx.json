@@ -1,0 +1,71 @@
+{
+	"$schema": "http://json-schema.org/draft-04/schema#",
+	"type": "object",
+	"properties": {
+		"$MessageGroupName": {
+			"type": "object",
+			"properties": {
+				"msg_id": {
+					"type": "integer",
+					"description": "CAN Message Group ID Value"
+				},
+				"cycle_time": {
+					"type": "integer",
+					"description": "Amount of times per second this message should update"
+				},
+				"signals": {
+					"type": "object",
+					"description": "All of the individual messages in this group",
+					"properties": {
+						"$MessageName": {
+							"type": "object",
+							"properties": {
+								"resolution": {
+									"description": "Finest resolution that this message requires, determines amount of bits that are required",
+									"type": "number"
+								},
+								"bits": {
+									"description": "Explicit Declaration of amount of bits required for CAN Message",
+									"type": "integer"
+								},
+								"min": {
+									"description": "Minimum Value this CAN Message can take on",
+									"type": "integer"
+								},
+								"max": {
+									"description": "Maximum Value this CAN Message can take on",
+									"type": "integer"
+								},
+								"unit": {
+									"description": "Units that are used to measure this message, (Optional)",
+									"type": "string"
+								},
+								"scale": {
+									"description": "idk scale?",
+									"type": "integer"
+								},
+								"offset": {
+									"description": "idk offset?",
+									"type": "integer"
+								},
+								"signed": {
+									"description": "Whether or not the integer must be signed",
+									"type": "boolean"
+								},
+								"start_bit":{
+									"description": "Overrides which start bit should be used in the message. Signals will be tightly-packed unless otherwise specified, one after another, in the order they are specified.",
+									"type": "integer"
+								}
+							}
+						}
+					}
+				}
+			},
+			"required": [
+				"msg_id",
+				"cycle_time",
+				"signals"
+			]
+		}
+	}
+}
