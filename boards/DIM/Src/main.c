@@ -137,12 +137,12 @@ void        RunTask1Hz(void const *argument);
 /* USER CODE BEGIN 0 */
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    //    App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count); // TODO: JSONCAN
+    // App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count); // TODO: JSONCAN
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    //    App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count); // TODO: JSONCAN
+    // App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count); // TODO: JSONCAN
 }
 /* USER CODE END 0 */
 
@@ -666,12 +666,6 @@ void RunTask1Hz(void const *argument)
     /* Infinite loop */
     for (;;)
     {
-        App_CanTx_DIM_Test1_Ex1_Set(true);
-        App_CanTx_DIM_Test1_Ex2_Set(5);
-        App_CanTx_DIM_Test2_Ex3_Set(547.54f);
-        App_CanTx_DIM_Test2_Ex4_Set(CHOICE_1);
-        App_CanTx_DIM_Test2_Ex5_Set(130);
-
         App_SharedStateMachine_Tick1Hz(state_machine);
         Io_CanTx_Enqueue1HzMsgs();
         Io_StackWaterMark_Check();

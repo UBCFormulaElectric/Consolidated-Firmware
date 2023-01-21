@@ -5,9 +5,7 @@
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    //    struct DimWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_STATE(can_tx_interface,
-    // CANMSGS_DIM_STATE_MACHINE_STATE_DRIVE_CHOICE);
+    App_CanTx_DIM_Vitals_State_Set(DIM_STATE_DRIVE);
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)

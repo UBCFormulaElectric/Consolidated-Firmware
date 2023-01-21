@@ -1,5 +1,4 @@
 {
-    "alert_set_msg_id": 100,
-    "alert_cleared_msg_id": 101,
+    "msg_id": 100,
     "alerts": []
 }

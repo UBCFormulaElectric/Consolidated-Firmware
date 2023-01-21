@@ -1,7 +1,12 @@
 {
-    "alert_set_msg_id": 500,
-    "alert_cleared_msg_id": 501,
+    "msg_id": 500,
     "alerts": [
-        "DIM_ALERT_STARTUP"
+        "DIM_STARTUP",
+        "STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ",
+        "STACK_WATERMARK_ABOVE_THRESHOLD_TASK100HZ",
+        "STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ",
+        "STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX",
+        "STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX",
+        "WATCHDOG_TIMEOUT"
     ]
 }

@@ -1,36 +1,46 @@
 {
-    "DIM_Test1": {
+    "DIM_Vitals": {
         "msg_id": 502,
         "cycle_time": 1000,
-        "description": "Test message for the DIM.",
+        "description": "Vitals message for the DIM.",
         "signals": {
-            "Ex1": {
+            "Heartbeat": {
                 "bits": 1
             },
-            "Ex2": {
-                "bits": 12
+            "State": {
+                "enum": "DIM_State"
             }
         }
     },
-    "DIM_Test2": {
-        "msg_id": 503,
-        "cycle_time": 10,
-        "description": "Test message for the DIM.",
+    "DIM_Switches": {
+        "msg_id": 503, 
+        "cycle_time": 1000, 
+        "description": "State of the switches on the DIM.",
         "signals": {
-            "Ex3": {
-                "min": 0,
-                "max": 1000,
-                "resolution": 0.1,
-                "unit": "m/s^4"
+            "StartSwitch": {
+                "enum": "SwitchState"
             },
-            "Ex4": {
-                "enum": "EnumTest"
+            "TractionControlSwitch": {
+                "enum": "SwitchState"
             },
-            "Ex5": {
-                "min": -120,
-                "max": 120,
-                "resolution": 0.1,
-                "unit": "deg"
+            "TorqueVectoringSwitch": {
+                "enum": "SwitchState"
+            }
+        }
+    },
+    "DIM_Errors": {
+        "msg_id": 504, 
+        "cycle_time": 1000,
+        "description": "Errors on the DIM.",
+        "signals": {
+            "TxOverflowCount": {
+                "bits": 8
+            },
+            "RxOverflowCount": {
+                "bits": 8
+            },
+            "WatchdogTimeout": {
+                "enum": "RtosTaskName"
             }
         }
     }
