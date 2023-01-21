@@ -9,9 +9,9 @@ struct RailMonitoring;
  * @return rail_monitor structure
  */
 struct RailMonitoring *App_RailMonitoring_Create(
-        float (*get_VBAT_voltage)(void),
-        float (*get__24V_ACC_voltage)(void),
-        float (*get__22V_AUX_voltage)(void));
+    float (*get_VBAT_voltage)(void),
+    float (*get__24V_ACC_voltage)(void),
+    float (*get__22V_AUX_voltage)(void));
 
 void App_RailMonitoring_Destroy(struct RailMonitoring *rail_monitor);
 

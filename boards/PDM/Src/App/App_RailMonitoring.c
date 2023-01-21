@@ -12,9 +12,9 @@ struct RailMonitoring
 };
 
 struct RailMonitoring *App_RailMonitoring_Create(
-        float (*get_VBAT_voltage)(void),
-        float (*get__24V_ACC_voltage)(void),
-        float (*get__22V_AUX_voltage)(void))
+    float (*get_VBAT_voltage)(void),
+    float (*get__24V_ACC_voltage)(void),
+    float (*get__22V_AUX_voltage)(void))
 {
     struct RailMonitoring *rail_monitor = malloc(sizeof(struct RailMonitoring));
     assert(rail_monitor != NULL);

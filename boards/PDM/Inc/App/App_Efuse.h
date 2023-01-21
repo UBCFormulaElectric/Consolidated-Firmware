@@ -24,20 +24,20 @@ struct Io_Efuse;
  * @return Efuse structure
  */
 struct Efuse *App_Efuse_Create(
-        struct Io_Efuse (*io_efuse),
-        void (*enable_channel_0)(struct Io_Efuse),
-        void (*disable_channel_0)(struct Io_Efuse),
-        void (*enable_channel_1)(struct Io_Efuse),
-        void (*disable_channel_1)(struct Io_Efuse),
-        bool (*is_channel_0_enabled)(struct Io_Efuse),
-        bool (*is_channel_1_enabled)(struct Io_Efuse),
-        void (*stdby_reset)(struct Io_Efuse),
-        float (*get_channel_0_current)(struct Io_Efuse),
-        float (*get_channel_1_current)(struct Io_Efuse),
-        float (*channel_0_min_current),
-        float (*channel_0_max_current),
-        float (*channel_1_min_current),
-        float (*channel_1_max_current));
+    struct Io_Efuse (*io_efuse),
+    void (*enable_channel_0)(struct Io_Efuse),
+    void (*disable_channel_0)(struct Io_Efuse),
+    void (*enable_channel_1)(struct Io_Efuse),
+    void (*disable_channel_1)(struct Io_Efuse),
+    bool (*is_channel_0_enabled)(struct Io_Efuse),
+    bool (*is_channel_1_enabled)(struct Io_Efuse),
+    void (*stdby_reset)(struct Io_Efuse),
+    float (*get_channel_0_current)(struct Io_Efuse),
+    float (*get_channel_1_current)(struct Io_Efuse),
+    float (*channel_0_min_current),
+    float (*channel_0_max_current),
+    float (*channel_1_min_current),
+    float (*channel_1_max_current));
 
 void App_Efuse_Destroy(struct Efuse *efuse);
 
@@ -113,7 +113,8 @@ bool App_Efuse_CurrentLowCheck(float value, float min_value);
  */
 bool App_Efuse_CurrentHighCheck(float value, float max_value);
 
-// The next four functions are just the same as App_Efuse_CurrentLowCheck and App_Efuse_CurrentHighCheck for the specific channels.
+// The next four functions are just the same as App_Efuse_CurrentLowCheck and App_Efuse_CurrentHighCheck for the
+// specific channels.
 bool App_Efuse_Channel0_CurrentLowCheck(struct Efuse *efuse);
 bool App_Efuse_Channel0_CurrentHighCheck(struct Efuse *efuse);
 bool App_Efuse_Channel1_CurrentLowCheck(struct Efuse *efuse);

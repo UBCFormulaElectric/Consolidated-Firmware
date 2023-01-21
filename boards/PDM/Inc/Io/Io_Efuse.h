@@ -9,9 +9,9 @@ struct Io_Efuse;
  *
  * @return io_efuse structure
  */
-struct Io_Efuse *Io_Efuse_Create(
+struct Io_Efuse *Io_Efuse_Create(void);
 
-);
+void Io_Efuse_Destroy(struct Io_Efuse *io_efuse);
 
 /**
  * Enables Channel_0

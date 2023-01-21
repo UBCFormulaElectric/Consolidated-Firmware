@@ -9,17 +9,17 @@ struct Io_Efuse
     float test;
 };
 
-struct Io_Efuse *Io_Efuse_Create(
-
-)
+struct Io_Efuse *Io_Efuse_Create(void)
 {
     struct Io_Efuse *io_efuse = malloc(sizeof(struct Io_Efuse));
     assert(io_efuse != NULL);
 
-
     return io_efuse;
+}
 
-
+void Io_Efuse_Destroy(struct Io_Efuse *io_efuse)
+{
+    free(io_efuse);
 }
 
 void Io_Efuse_EnableChannel0(struct Io_Efuse *io_efuse)
@@ -66,4 +66,3 @@ float Io_Efuse_GetChannel1Current(struct Io_Efuse *io_efuse)
 {
     //
 }
-
