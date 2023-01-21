@@ -1,12 +1,92 @@
 {
-    "FSM_Test1": {
-        "msg_id": 303,
-        "cycle_time": 1000,
-        "description": "Test message for the FSM.",
-        "signals": {
-            "Ex1": {
-                "bits": 1
-            }
-        }
-    }
+	"FSM_APPs": {
+		"msg_id": 151,
+		"cycle_time": 100,
+		"signals": {
+			"PappsMappedPedalPercentage": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "%"
+			},
+			"SappsMappedPedalPercentage": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "%"
+			}
+		}
+	},
+	"FSM_Brake": {
+		"msg_id": 14,
+		"cycle_time": 10,
+		"signals":{
+			"FrontBrakePressure": {
+				"resolution": 1,
+				"min": 0,
+				"max": 2500,
+				"unit": "psi"
+			},
+			"RearBrakePressure": {
+				"resolution": 1,
+				"min": 0,
+				"max": 2500,
+				"unit": "psi"
+			},
+			"BrakePedalPercentage": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "%"
+			}
+		}
+	},
+	"FSM_Coolant": {
+		"msg_id": 307,
+		"cycle_time": 1000,
+		"signals": {
+			"FlowRate": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "L/min"
+			},
+			"TemperatureA": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "°C"
+			},
+			"TemperatureB": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "°C"
+			},
+			"PressureA": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "psi"
+			},
+			"PressureB": {
+				"resolution": 0.1,
+				"min": 0,
+				"max": 100,
+				"unit": "psi"
+			}
+		}
+	},
+	"FSM_Steering": {
+		"msg_id": 318,
+		"cycle_time": 100,
+		"signals":{
+			"SteeringAngle":{
+				"resolution": 0.1,
+				"min": -110,
+				"max": 110,
+				"unit": "deg"
+			}
+		}
+	}
 }

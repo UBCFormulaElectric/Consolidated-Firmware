@@ -58,11 +58,10 @@ void App_Coolant_Broadcast(const struct FsmWorld *world)
 {
     struct Coolant *coolant = App_FsmWorld_GetCoolant(world);
 
-    // Value Broadcast TODO: JSONCAN ->
-    // App_CanTx_SetPeriodicSignal_TEMPERATURE_A(can_tx, coolant->get_temperature_A());
-    // App_CanTx_SetPeriodicSignal_TEMPERATURE_B(can_tx, coolant->get_temperature_B());
-    // App_CanTx_SetPeriodicSignal_PRESSURE_A(can_tx, coolant->get_pressure_A());
-    // App_CanTx_SetPeriodicSignal_PRESSURE_B(can_tx, coolant->get_pressure_B());
+    App_CanTx_FSM_Coolant_TemperatureA_Set(coolant->get_temperature_A());
+    App_CanTx_FSM_Coolant_TemperatureB_Set(coolant->get_temperature_B());
+    App_CanTx_FSM_Coolant_PressureA_Set(coolant->get_pressure_A());
+    App_CanTx_FSM_Coolant_PressureB_Set(coolant->get_pressure_B());
 
     // information in range check TODO: JSONCAN ->
     // App_SetPeriodicCanSignals_InRangeCheck(
