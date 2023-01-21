@@ -1,34 +1,82 @@
 {
+
+  "PDM_CAN_FIFO_OVERFLOW": {
+    "msg_id": ,
+    "cycle_time": 5000,
+    "signals": {
+      "tx_overflow_count": { "bits": 32, "min": 0, "max": 4294967295 },
+      "rx_overflow_count": { "bits": 32, "min": 0, "max": 4294967295  }
+    }
+  },
+
+  "PDM_MOTOR_SHUTDOWN_ERRORS": {
+    "msg_id": ,
+    "cycle_time": 5000,
+    "signals": {
+      "DUMMY_MOTOR_SHUTDOWN": { "bits": 1 }
+    }
+  },
+
+
+  "PDM_AIR_SHUTDOWN_ERRORS": {
+    "msg_id": ,
+    "cycle_time": 1000,
+    "signals": {
+      "DUMMY_AIR_SHUTDOWN": { "bits": 1 }
+    }
+  },
+
+  "PDM_NON_CRITICAL_ERRORS": {
+    "msg_id": ,
+    "cycle_time": 1000,
+    "signals": {
+      "STACK_WATERMARK_ABOVE_THRESHOLD_TASK1HZ": { "bits": 1 },
+      "STACK_WATERMARK_ABOVE_THRESHOLD_TASK1KHZ": { "bits": 1 },
+      "STACK_WATERMARK_ABOVE_THRESHOLD_CANRX": { "bits": 1 },
+      "STACK_WATERMARK_ABOVE_THRESHOLD_CANTX": { "bits": 1 },
+      "WATCHDOG_TIMEOUT": { "bits": 1 }
+    }
+  },
+
+  "PDM_VITALS": {
+    "msg_id": ,
+    "cycle_time": 1,
+    "signals": {
+      "HEARTBEAT": { "bits": 1 }
+    }
+  },
+
+
   "PDM_Efuse1_Currents": {
     "msg_id": ,
     "cycle_time": 1,
     "signals": {
-      "AIR_Current": { "bits": 32, "unit": "A", "max" : 0, "min": 0 },
-      "LVPWR_Current": { "bits": 32, "unit": "A", "max" : 0, "min": 0 }
+      "AIR_Current": { "bits": 32, "unit": "mA", "max" : 0, "min": 0 },
+      "LVPWR_Current": { "bits": 32, "unit": "mA", "max" : 0, "min": 0 }
     }
   },
   "PDM_Efuse2_Currents": {
     "msg_id": ,
     "cycle_time": 1,
     "signals": {
-      "EMETER_Current": { "bits": 32, "unit": "A", "max" : 0, "min": 0 },
-      "AUX_Current": { "bits": 32, "unit": "A", "max" : 0, "min": 0 }
+      "EMETER_Current": { "bits": 32, "unit": "mA", "max" : 0, "min": 0 },
+      "AUX_Current": { "bits": 32, "unit": "mA", "max" : 0, "min": 0 }
     }
   },
   "PDM_Efuse3_Currents": {
     "msg_id": ,
     "cycle_time": 1,
     "signals": {
-      "LEFT_INVERTER_Current": { "bits": 32, "unit": "A", "max" : 0, "min": 0 },
-      "RIGHT_INVERTER_Current": { "bits": 32, "unit": "A", "max" : 0, "min": 0 }
+      "LEFT_INVERTER_Current": { "bits": 32, "unit": "mA", "max" : 0, "min": 0 },
+      "RIGHT_INVERTER_Current": { "bits": 32, "unit": "mA", "max" : 0, "min": 0 }
     }
   },
   "PDM_Efuse4_Currents": {
     "msg_id": ,
     "cycle_time": 1,
     "signals": {
-      "DRS_Current": { "bits": 32, "unit": "A", "max" : 0, "min": 0 },
-      "FAN_Current": { "bits": 32, "unit": "A", "max" : 0, "min": 0 }
+      "DRS_Current": { "bits": 32, "unit": "mA", "max" : 0, "min": 0 },
+      "FAN_Current": { "bits": 32, "unit": "mA", "max" : 0, "min": 0 }
     }
   },
   "PDM_Efuse_Current_Checks": {
@@ -95,5 +143,37 @@
       "ACC_HIGH": { "bits": 1 },
       "AUX_HIGH": { "bits": 1 }
     }
+  },
+
+
+
+  "BMS_Vitals": {
+    "msg_id": ,
+    "cycle_time": 100,
+    "signals":{
+      "HEARTBEAT": { "bits":  1 }
+    }
+  },
+
+
+  "BMS_AIR_STATES": {
+    "msg_id": ,
+    "cycle_time": 100,
+    "signals": {
+      "AIR_POSITIVE": { "bits":  1 },
+      "AIR_NEGATIVE": { "bits":  1 }
+    }
+  },
+  "DIM_VITALS": {
+    "msg_id": ,
+    "cycle_time": 100,
+    "signals": {
+      "HEARTBEAT": { "bits":  1 }
+    }
   }
 }
+
+
+
+
+

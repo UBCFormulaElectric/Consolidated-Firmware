@@ -13,9 +13,12 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     struct PdmCanTxInterface *can_tx_interface = App_PdmWorld_GetCanTx(world);
 }
 
-void Efuse_Enable_Disable_Channels(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, struct Efuse *efuse4)
+void Efuse_Enable_Disable_Channels(
+    struct Efuse *efuse1,
+    struct Efuse *efuse2,
+    struct Efuse *efuse3,
+    struct Efuse *efuse4)
 {
-
     App_Efuse_EnableChannel0(efuse1);
     App_Efuse_EnableChannel1(efuse1);
     App_Efuse_EnableChannel0(efuse2);
@@ -33,18 +36,14 @@ static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    struct PdmWorld *         world     = App_SharedStateMachine_GetWorld(state_machine);
-    struct PdmCanTxInterface *can_tx    = App_PdmWorld_GetCanTx(world);
-    struct PdmCanRxInterface *can_rx    = App_PdmWorld_GetCanRx(world);
-    struct RailMonitoring *rail_monitor = App_PdmWorld_GetRailMonitoring(world);
-    struct Efuse *            efuse1    = App_PdmWorld_GetEfuse1(world);
-    struct Efuse *            efuse2    = App_PdmWorld_GetEfuse2(world);
-    struct Efuse *            efuse3    = App_PdmWorld_GetEfuse3(world);
-    struct Efuse *            efuse4    = App_PdmWorld_GetEfuse4(world);
-
-
-
-
+    struct PdmWorld *         world        = App_SharedStateMachine_GetWorld(state_machine);
+    struct PdmCanTxInterface *can_tx       = App_PdmWorld_GetCanTx(world);
+    struct PdmCanRxInterface *can_rx       = App_PdmWorld_GetCanRx(world);
+    struct RailMonitoring *   rail_monitor = App_PdmWorld_GetRailMonitoring(world);
+    struct Efuse *            efuse1       = App_PdmWorld_GetEfuse1(world);
+    struct Efuse *            efuse2       = App_PdmWorld_GetEfuse2(world);
+    struct Efuse *            efuse3       = App_PdmWorld_GetEfuse3(world);
+    struct Efuse *            efuse4       = App_PdmWorld_GetEfuse4(world);
 
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
@@ -56,11 +55,16 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         }
 
         // TODO: JSONCAN
-        // if (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) == CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE
+        // if (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) ==
+        // CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE
         // &&
-        //     App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx) == CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE)
+        //     App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx) ==
+        //     CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE)
 
-        if (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) == CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE && App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx) == CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE)
+        if (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) ==
+                CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE &&
+            App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx) ==
+                CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE)
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
         }

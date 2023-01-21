@@ -29,7 +29,8 @@
         struct BmsCanRxInterface *can_rx,
         struct HeartbeatMonitor * hb_monitor)
 =======
-static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
+    static void
+    App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 >>>>>>> b4459feda159733e8ae802d1d9e5174faf3c3eae
 {
     // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);

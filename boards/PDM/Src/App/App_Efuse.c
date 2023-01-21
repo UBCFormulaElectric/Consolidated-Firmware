@@ -2,7 +2,7 @@
 
 struct Efuse
 {
-    struct Io_Efuse (*io_efuse);
+    struct Io_Efuse(*io_efuse);
     void (*enable_channel_0)(struct Io_Efuse);
     void (*disable_channel_0)(struct Io_Efuse);
     void (*enable_channel_1)(struct Io_Efuse);
@@ -12,14 +12,14 @@ struct Efuse
     void (*stdby_reset)(struct Io_Efuse);
     float (*get_channel_0_current)(struct Io_Efuse);
     float (*get_channel_1_current)(struct Io_Efuse);
-    float (*channel_0_min_current);
-    float (*channel_0_max_current);
-    float (*channel_1_min_current);
-    float (*channel_1_max_current);
+    float(*channel_0_min_current);
+    float(*channel_0_max_current);
+    float(*channel_1_min_current);
+    float(*channel_1_max_current);
 };
 
 struct Efuse *App_Efuse_Create(
-    struct Io_Efuse (*io_efuse),
+    struct Io_Efuse(*io_efuse),
     void (*enable_channel_0)(struct Io_Efuse),
     void (*disable_channel_0)(struct Io_Efuse),
     void (*enable_channel_1)(struct Io_Efuse),
@@ -29,10 +29,10 @@ struct Efuse *App_Efuse_Create(
     void (*stdby_reset)(struct Io_Efuse),
     float (*get_channel_0_current)(struct Io_Efuse),
     float (*get_channel_1_current)(struct Io_Efuse),
-    float (*channel_0_min_current),
-    float (*channel_0_max_current),
-    float (*channel_1_min_current),
-    float (*channel_1_max_current))
+    float(*channel_0_min_current),
+    float(*channel_0_max_current),
+    float(*channel_1_min_current),
+    float(*channel_1_max_current))
 {
     struct Efuse *efuse = malloc(sizeof(struct Efuse));
     assert(efuse != NULL);
@@ -128,7 +128,8 @@ bool App_Efuse_Channel0_CurrentLowCheck(struct Efuse *efuse)
 
 bool App_Efuse_Channel0_CurrentHighCheck(struct Efuse *efuse)
 {
-    if (App_Efuse_CurrentHighCheck(efuse->get_channel_0_current(*efuse->io_efuse), efuse->channel_0_max_current) == true)
+    if (App_Efuse_CurrentHighCheck(efuse->get_channel_0_current(*efuse->io_efuse), efuse->channel_0_max_current) ==
+        true)
         return true;
     return false;
 }
@@ -142,7 +143,8 @@ bool App_Efuse_Channel1_CurrentLowCheck(struct Efuse *efuse)
 
 bool App_Efuse_Channel1_CurrentHighCheck(struct Efuse *efuse)
 {
-    if (App_Efuse_CurrentHighCheck(efuse->get_channel_1_current(*efuse->io_efuse), efuse->channel_1_max_current) == true)
+    if (App_Efuse_CurrentHighCheck(efuse->get_channel_1_current(*efuse->io_efuse), efuse->channel_1_max_current) ==
+        true)
         return true;
     return false;
 }
