@@ -1,5 +1,6 @@
 #include "App_Efuse.h"
 
+struct Io_Efuse;
 struct Efuse
 {
     struct Io_Efuse (*io_efuse);
