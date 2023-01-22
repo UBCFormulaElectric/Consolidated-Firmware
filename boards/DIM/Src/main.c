@@ -243,7 +243,7 @@ int main(void)
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 
-    App_Alerts_Push(DIM_ALERT_STARTUP);
+//    App_Alerts_Push(DIM_ALERT_STARTUP);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
