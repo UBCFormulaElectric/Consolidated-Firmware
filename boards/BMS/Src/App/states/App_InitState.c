@@ -42,16 +42,20 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
         // don't allow pre_charge if in BSPD_DEMO_MODE
         if (App_Airs_IsAirNegativeClosed(airs) && (App_TractiveSystem_GetVoltage(ts) < TS_DISCHARGED_THRESHOLD_V))
         {
-            // If the charger is connected and the CAN message for charging is set to enabled
-            // Go into Pre-Charge State
-            if (is_charger_connected && App_CanRx_BMS_CHARGER_GetSignal_IS_CHARGING_ENABLED(can_rx))
+            // If the charger is connected, the CAN message must also be set
+            // to continue into Pre-Charge State, then Charge State
+            bool test = App_CanRx_CHARGING_STATUS_GetSignal_CHARGING_SWITCH(can_rx);
+            if (is_charger_connected && App_CanRx_CHARGING_STATUS_GetSignal_CHARGING_SWITCH(can_rx))
             {
                 App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
             }
-            // If charger isn't connected, go into drive state
+            // If charger isn't connected, go into Pre-Charge State, then Drive State
             else if (!is_charger_connected)
             {
                 App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
+            }
+            if(test){
+
             }
         }
 #endif

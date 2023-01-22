@@ -68,7 +68,7 @@ static void PreChargeStateRunOnTick100Hz(struct StateMachine *const state_machin
         {
             const struct State *next_state =
                 (precharge_fault_limit_exceeded) ? App_GetFaultState() : App_GetInitState();
-            App_CanTx_SetPeriodicSignal_IS_CHARGING_ENABLED(can_tx, false);
+            App_CanRx_CHARGING_STATUS_SetSignal_CHARGING_SWITCH(can_rx,false);
             if (next_state == App_GetFaultState())
             {
                 App_PrechargeRelay_ResetFaultCounterVal(precharge_relay);

@@ -46,8 +46,8 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         static uint16_t ignore_chgr_fault_counter      = 0U;
         const bool      is_charger_disconnected        = !App_Charger_IsConnected(charger);
         bool            has_charger_faulted            = false;
-        bool            has_external_shutdown_occurred = !App_Airs_IsAirNegativeClosed(airs);
-        bool            charge_over_can                = App_CanRx_BMS_CHARGER_GetSignal_IS_CHARGING_ENABLED(can_rx);
+        bool            external_shutdown_occurred = !App_Airs_IsAirNegativeClosed(airs);
+        bool            charging_enabled               = App_CanRx_CHARGING_STATUS_GetSignal_CHARGING_SWITCH(can_rx);
 
         if (ignore_chgr_fault_counter < CYCLES_TO_IGNORE_CHGR_FAULT)
         {
@@ -58,7 +58,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
             has_charger_faulted = App_Charger_HasFaulted(charger);
         }
 
-        const bool has_charging_completed = App_TractiveSystem_GetCurrent(ts) <= CURRENT_AT_MAX_CHARGE;
+        const bool charging_completed = App_TractiveSystem_GetCurrent(ts) <= CURRENT_AT_MAX_CHARGE;
 
         App_CanTx_BMS_Faults_ChargerDisconnectedInChargeState_Set(is_charger_disconnected);
         App_CanTx_BMS_Faults_ChargerFault_Set(has_charger_faulted);
@@ -76,11 +76,11 @@ static void ChargeStateRunOnExit(struct StateMachine *const state_machine)
 {
     struct BmsWorld *         world   = App_SharedStateMachine_GetWorld(state_machine);
     struct Charger *          charger = App_BmsWorld_GetCharger(world);
-    struct BmsCanTxInterface *can_tx  = App_BmsWorld_GetCanTx(world);
+    struct BmsCanRxInterface *can_rx  = App_BmsWorld_GetCanRx(world);
     // If the charger is not turned off, or the CAN message for charging is still set to charge when exiting Charge
     // State Disable them
     App_Charger_Disable(charger);
-    App_CanTx_SetPeriodicSignal_IS_CHARGING_ENABLED(can_tx, false);
+    App_CanRx_CHARGING_STATUS_SetSignal_CHARGING_SWITCH(can_rx, false);
 }
 
 const struct State *App_GetChargeState(void)
