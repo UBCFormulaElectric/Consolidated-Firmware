@@ -1,36 +1,49 @@
 {
-    "DIM_Test1": {
+    "DIM_Vitals": {
         "msg_id": 502,
         "cycle_time": 1000,
-        "description": "Test message for the DIM.",
+        "description": "DIM vitals message.",
         "signals": {
-            "Ex1": {
+            "Heartbeat": {
                 "bits": 1
             },
-            "Ex2": {
-                "bits": 12
+            "State": {
+                "enum": "DIM_State"
             }
         }
     },
-    "DIM_Test2": {
+    "DIM_Switches": {
         "msg_id": 503,
-        "cycle_time": 10,
-        "description": "Test message for the DIM.",
+        "cycle_time": 1000,
+        "description": "States of the switches on the DIM.",
         "signals": {
-            "Ex3": {
-                "min": 0,
-                "max": 1000,
-                "resolution": 0.1,
-                "unit": "m/s^4"
+            "StartSwitch": {
+                "enum": "SwitchState"
             },
-            "Ex4": {
-                "enum": "EnumTest"
+            "AuxSwitch": {
+                "enum": "SwitchState"
+            }
+        }
+    },
+    "DIM_Errors": {
+        "msg_id": 504, 
+        "cycle_time": 1000,
+        "description": "Errors on the DIM.",
+        "signals": {
+            "TxOverflowCount": {
+                "bits": 8
             },
-            "Ex5": {
-                "min": -120,
-                "max": 120,
-                "resolution": 0.1,
-                "unit": "deg"
+            "RxOverflowCount": {
+                "bits": 8
+            }
+        }
+    },
+    "DIM_WatchdogTimeout": {
+        "msg_id": 505,
+        "description": "Aperiodic message sent when watchdog is tripped.",
+        "signals": {
+            "TaskName": {
+                "enum": "RtosTaskName"
             }
         }
     },

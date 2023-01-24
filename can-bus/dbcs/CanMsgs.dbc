@@ -6,14 +6,31 @@ BS_:
 BU_: DIM BMS DCM GSM FSM PDM DEBUG
 
 
-BO_ 502 DIM_Test1: 2 DIM
-SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
-SG_ Ex2 : 1|12@1+ (1,0) [0|4095] "" DEBUG
+BO_ 102 BMS_OkStatuses: 1 BMS
+SG_ BmsOk : 0|1@1+ (1,0) [0|1] "" DEBUG,DIM
+SG_ ImdOk : 1|1@1+ (1,0) [0|1] "" DEBUG,DIM
+SG_ BspdOk : 2|1@1+ (1,0) [0|1] "" DEBUG,DIM
 
-BO_ 503 DIM_Test2: 4 DIM
-SG_ Ex3 : 0|14@1+ (0.1,0) [0|1000] "m/s^4" DEBUG
-SG_ Ex4 : 14|2@1+ (1,0) [0|2] "" DEBUG
-SG_ Ex5 : 16|12@1+ (0.1,-120) [-120|120] "deg" DEBUG
+BO_ 100 BMS_Alerts: 1 BMS
+SG_ BMS_ALERT_DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 202 DCM_Test1: 1 DCM
+SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 200 DCM_Alerts: 1 DCM
+SG_ DCM_ALERT_DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 502 DIM_Vitals: 1 DIM
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ State : 1|1@1+ (1,0) [0|0] "" DEBUG
+
+BO_ 503 DIM_Switches: 1 DIM
+SG_ StartSwitch : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ AuxSwitch : 1|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 504 DIM_Errors: 2 DIM
+SG_ TxOverflowCount : 0|8@1+ (1,0) [0|255] "" DEBUG
+SG_ RxOverflowCount : 8|8@1+ (1,0) [0|255] "" DEBUG
 
 BO_ 504 DIMVitals: 1 DIM
 SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
@@ -21,8 +38,14 @@ SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
 BO_ 500 DIM_AlertSet: 0 DIM
 SG_ DIM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
 
-BO_ 501 DIM_AlertCleared: 0 DIM
-SG_ DIM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
+BO_ 500 DIM_Alerts: 1 DIM
+SG_ DIM_ALERT_STARTUP : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ : 1|1@1+ (1,0) [0|1] "" DEBUG
+SG_ DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_100HZ : 2|1@1+ (1,0) [0|1] "" DEBUG
+SG_ DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1KHZ : 3|1@1+ (1,0) [0|1] "" DEBUG
+SG_ DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX : 4|1@1+ (1,0) [0|1] "" DEBUG
+SG_ DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX : 5|1@1+ (1,0) [0|1] "" DEBUG
+SG_ DIM_ALERT_WATCHDOG_TIMEOUT : 6|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 100 BMSVitals: 1 BMS
 SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG
@@ -137,11 +160,8 @@ SG_ DCM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
 BO_ 603 GSM_Test1: 1 GSM
 SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
 
-BO_ 600 GSM_AlertSet: 0 GSM
-SG_ GSM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
-
-BO_ 601 GSM_AlertCleared: 0 GSM
-SG_ GSM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
+BO_ 600 GSM_Alerts: 1 GSM
+SG_ GSM_ALERT_DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 303 FSM_Test1: 1 FSM
 SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
