@@ -104,7 +104,11 @@ These paths should include wherever the `cmake`, `make`, `arm-none-eabi-gcc`, an
 
 Create a new enviroment variable under your user variables named `PYTHONPATH`. Set the value of the variable to path for the root directory of your fork:
 ```
+<<<<<<< HEAD
 C:\path\to\Consolidated-Firmware-Username;
+=======
+C:\path\to\Consolidated-Firmware**;**
+>>>>>>> d5dabe0f (semicolon oops)
 ```
 ![Windows Path](https://raw.githubusercontent.com/UBCFormulaElectric/Consolidated-Firmware/development/images/windows%20path.png)
 
