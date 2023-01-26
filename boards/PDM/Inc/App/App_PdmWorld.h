@@ -19,15 +19,15 @@
 struct PdmWorld;
 
 struct PdmWorld *App_PdmWorld_Create(
-        struct HeartbeatMonitor *const  heartbeat_monitor,
-        struct RgbLedSequence *const    rgb_led_sequence,
-        struct LowVoltageBattery *const low_voltage_battery,
-        struct Efuse *const             efuse1,
-        struct Efuse *const             efuse2,
-        struct Efuse *const             efuse3,
-        struct Efuse *const             efuse4,
-        struct RailMonitoring *const    rail_monitor,
-        struct Clock *const             clock);
+    struct HeartbeatMonitor *const  heartbeat_monitor,
+    struct RgbLedSequence *const    rgb_led_sequence,
+    struct LowVoltageBattery *const low_voltage_battery,
+    struct Efuse *const             efuse1,
+    struct Efuse *const             efuse2,
+    struct Efuse *const             efuse3,
+    struct Efuse *const             efuse4,
+    struct RailMonitoring *const    rail_monitor,
+    struct Clock *const             clock);
 
 void App_PdmWorld_Destroy(struct PdmWorld *const world);
 

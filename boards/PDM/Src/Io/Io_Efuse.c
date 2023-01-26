@@ -41,7 +41,7 @@ void Io_Efuse_DisableChannel1(struct Io_Efuse *io_efuse)
 {
     //
 }
-
+/*
 bool Io_Efuse_IsChannel0Enabled(struct Io_Efuse *io_efuse)
 {
     //
@@ -66,3 +66,4 @@ float Io_Efuse_GetChannel1Current(struct Io_Efuse *io_efuse)
 {
     //
 }
+*/

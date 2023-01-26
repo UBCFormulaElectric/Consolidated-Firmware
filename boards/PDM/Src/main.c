@@ -39,7 +39,10 @@
 #include "Io_RgbLedSequence.h"
 #include "Io_LT3650.h"
 #include "Io_LTC3786.h"
+#include "Io_Efuse.h"
 
+#include "App_Efuse.h"
+#include "App_RailMonitoring.h"
 #include "App_PdmWorld.h"
 #include "App_SharedMacros.h"
 #include "App_SharedConstants.h"
@@ -92,19 +95,11 @@ osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
 struct PdmWorld *         world;
 struct StateMachine *     state_machine;
-struct InRangeCheck *     vbat_voltage_in_range_check;
-struct InRangeCheck *     _24v_aux_voltage_in_range_check;
-struct InRangeCheck *     _24v_acc_voltage_in_range_check;
-struct InRangeCheck *     aux1_current_in_range_check;
-struct InRangeCheck *     aux2_current_in_range_check;
-struct InRangeCheck *     left_inverter_current_in_range_check;
-struct InRangeCheck *     right_inverter_current_in_range_check;
-struct InRangeCheck *     energy_meter_current_in_range_check;
-struct InRangeCheck *     can_current_in_range_check;
-struct InRangeCheck *     air_shutdown_current_in_range_check;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
 struct LowVoltageBattery *low_voltage_battery;
+struct Efuse             *efuse1;
+struct RailMonitoring    *rail_monitor;
 struct Clock *            clock;
 /* USER CODE END PV */
 
@@ -183,36 +178,6 @@ int main(void)
     App_CanTx_Init();
     App_CanRx_Init();
 
-    vbat_voltage_in_range_check =
-        App_InRangeCheck_Create(Io_VoltageSense_GetVbatVoltage, VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE);
-
-    _24v_aux_voltage_in_range_check =
-        App_InRangeCheck_Create(Io_VoltageSense_Get24vAuxVoltage, _24V_AUX_MIN_VOLTAGE, _24V_AUX_MAX_VOLTAGE);
-
-    _24v_acc_voltage_in_range_check =
-        App_InRangeCheck_Create(Io_VoltageSense_Get24vAccVoltage, _24V_ACC_MIN_VOLTAGE, _24V_ACC_MAX_VOLTAGE);
-
-    aux1_current_in_range_check =
-        App_InRangeCheck_Create(Io_CurrentSense_GetAux1Current, AUX1_MIN_CURRENT, AUX1_MAX_CURRENT);
-
-    aux2_current_in_range_check =
-        App_InRangeCheck_Create(Io_CurrentSense_GetAux1Current, AUX2_MIN_CURRENT, AUX2_MAX_CURRENT);
-
-    left_inverter_current_in_range_check = App_InRangeCheck_Create(
-        Io_CurrentSense_GetLeftInverterCurrent, LEFT_INVERTER_MIN_CURRENT, LEFT_INVERTER_MAX_CURRENT);
-
-    right_inverter_current_in_range_check = App_InRangeCheck_Create(
-        Io_CurrentSense_GetRightInverterCurrent, RIGHT_INVERTER_MIN_CURRENT, RIGHT_INVERTER_MAX_CURRENT);
-
-    energy_meter_current_in_range_check = App_InRangeCheck_Create(
-        Io_CurrentSense_GetEnergyMeterCurrent, ENERGY_METER_MIN_CURRENT, ENERGY_METER_MAX_CURRENT);
-
-    can_current_in_range_check =
-        App_InRangeCheck_Create(Io_CurrentSense_GetCanCurrent, CAN_MIN_CURRENT, CAN_MAX_CURRENT);
-
-    air_shutdown_current_in_range_check = App_InRangeCheck_Create(
-        Io_CurrentSense_GetAirShutdownCurrent, AIR_SHUTDOWN_MIN_CURRENT, AIR_SHUTDOWN_MAX_CURRENT);
-
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
@@ -223,11 +188,7 @@ int main(void)
 
     clock = App_SharedClock_Create();
 
-    world = App_PdmWorld_Create(
-        vbat_voltage_in_range_check, _24v_aux_voltage_in_range_check, _24v_acc_voltage_in_range_check,
-        aux1_current_in_range_check, aux2_current_in_range_check, left_inverter_current_in_range_check,
-        right_inverter_current_in_range_check, energy_meter_current_in_range_check, can_current_in_range_check,
-        air_shutdown_current_in_range_check, heartbeat_monitor, rgb_led_sequence, low_voltage_battery, clock);
+    //world
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 

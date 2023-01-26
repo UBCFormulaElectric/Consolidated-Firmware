@@ -1,5 +1,6 @@
-#include "Io_Aux1Aux2Efuse.h"
-#include "configs/Io_EfuseConfig.h"
+//#include "Io_Aux1Aux2Efuse.h"
+//#include "configs/Io_EfuseConfig.h"
+
 /*
 static struct Efuse_Context *aux1_aux2_efuse;
 
@@ -94,3 +95,5 @@ ExitCode Io_Aux1Aux2Efuse_ConfigureEfuse(void)
     return EXIT_CODE_OK;
 }
 */
+
+int test; //this is only here because C does not like empty files
