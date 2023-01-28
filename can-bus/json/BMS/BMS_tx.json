@@ -21,7 +21,7 @@
     "BMSCanFifoOverflow": {
         "msg_id": 101,
         "cycle_time": 1000,
-        "description": "BMS tx/rx fifo overflow count",Vitals
+        "description": "BMS tx/rx fifo overflow count",
         "signals": {
             "TxOverflowCount": {
                 "bits": 32
