@@ -59,7 +59,8 @@ class BaseStateMachineTest : public testing::Test
             }
 
             UpdateSignals(state_machine, current_time_ms);
-            UpdateClock(state_machine, ++current_time_ms);
+            UpdateClock(state_machine, current_time_ms);
+            current_time_ms++;
         }
     }
     uint32_t current_time_ms;

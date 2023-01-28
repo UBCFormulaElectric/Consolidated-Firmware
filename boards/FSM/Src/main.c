@@ -25,7 +25,12 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include <assert.h>
+// shared
+#include "App_SharedMacros.h"
+#include "App_SharedStateMachine.h"
+#include "App_Timer.h"
 
+// IO functions exposing
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
 #include "Io_SharedSoftwareWatchdog.h"
@@ -33,29 +38,28 @@
 #include "Io_SharedHardFaultHandler.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
-#include "Io_FlowMeters.h"
+#include "Io_Coolant.h"
 #include "Io_SharedHeartbeatMonitor.h"
-#include "Io_RgbLedSequence.h"
 #include "Io_WheelSpeedSensors.h"
 #include "Io_SteeringAngleSensor.h"
-#include "Io_MSP3002K5P3N1.h"
 #include "Io_Adc.h"
 #include "Io_AcceleratorPedals.h"
 #include "Io_Brake.h"
 #include "Io_PrimaryScancon2RMHF.h"
 #include "Io_SecondaryScancon2RMHF.h"
 
+// world/state
 #include "App_FsmWorld.h"
-#include "App_SharedMacros.h"
-#include "App_SharedStateMachine.h"
-#include "App_AcceleratorPedalSignals.h"
-#include "App_FlowMeterSignals.h"
-#include "states/App_AirOpenState.h"
+#include "states/App_DriveState.h"
+
+// Sensors
+#include "App_AcceleratorPedals.h"
+#include "App_Brake.h"
+#include "App_Coolant.h"
+#include "App_Steering.h"
+#include "App_Wheels.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
-#include "configs/App_FlowRateThresholds.h"
-#include "configs/App_WheelSpeedThresholds.h"
-#include "configs/App_SteeringAngleThresholds.h"
-#include "configs/App_BrakePressureThresholds.h"
+
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -104,16 +108,14 @@ osThreadId          Task100HzHandle;
 uint32_t            Task100HzBuffer[TASK100HZ_STACK_SIZE];
 osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
-struct InRangeCheck *     flow_meter_in_range_check;
-struct InRangeCheck *     left_wheel_speed_sensor_in_range_check, *right_wheel_speed_sensor_in_range_check;
-struct InRangeCheck *     steering_angle_sensor_in_range_check;
 struct Brake *            brake;
 struct World *            world;
 struct StateMachine *     state_machine;
 struct HeartbeatMonitor * heartbeat_monitor;
-struct RgbLedSequence *   rgb_led_sequence;
-struct Clock *            clock;
 struct AcceleratorPedals *papps_and_sapps;
+struct Coolant *          coolant;
+struct Steering *         steering;
+struct Wheels *           wheels;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -207,58 +209,31 @@ int main(void)
     App_CanTx_Init();
     App_CanRx_Init();
 
-    Io_FlowMeters_Init(&htim4);
-    flow_meter_in_range_check =
-        App_InRangeCheck_Create(Io_FlowMeters_GetFlowRate, MIN_FLOW_RATE_L_PER_MIN, MAX_FLOW_RATE_L_PER_MIN);
-
-    Io_WheelSpeedSensors_Init(&htim16, &htim17);
-    left_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
-        Io_WheelSpeedSensors_GetLeftSpeedKph, MIN_LEFT_WHEEL_SPEED_KPH, MAX_LEFT_WHEEL_SPEED_KPH);
-    right_wheel_speed_sensor_in_range_check = App_InRangeCheck_Create(
-        Io_WheelSpeedSensors_GetRightSpeedKph, MIN_RIGHT_WHEEL_SPEED_KPH, MAX_RIGHT_WHEEL_SPEED_KPH);
-
-    steering_angle_sensor_in_range_check =
-        App_InRangeCheck_Create(Io_SteeringAngleSensor_GetAngleDegree, MIN_STEERING_ANGLE_DEG, MAX_STEERING_ANGLE_DEG);
-
-    brake = App_Brake_Create(
-        Io_MSP3002K5P3N1_GetPressurePsi, Io_MSP3002K5P3N1_IsOpenOrShortCircuit, Io_Brake_IsActuated,
-        MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
-
-    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
-        Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
-
-    rgb_led_sequence = App_SharedRgbLedSequence_Create(
-        Io_RgbLedSequence_TurnOnRedLed, Io_RgbLedSequence_TurnOnBlueLed, Io_RgbLedSequence_TurnOnGreenLed);
-
-    clock = App_SharedClock_Create();
-
-    Io_PrimaryScancon2RMHF_Init(&htim1);
-    Io_SecondaryScancon2RMHF_Init(&htim2);
-
+    // Accelerator
     papps_and_sapps = App_AcceleratorPedals_Create(
-        Io_AcceleratorPedals_IsPappsEncoderAlarmActive, Io_AcceleratorPedals_IsSappsEncoderAlarmActive,
-        Io_AcceleratorPedals_GetPapps, Io_AcceleratorPedals_GetPapps);
+        Io_AcceleratorPedals_GetPapps, Io_AcceleratorPedals_PappsOCSC, Io_AcceleratorPedals_GetSapps,
+        Io_AcceleratorPedals_SappsOCSC);
 
-    Io_PrimaryScancon2RMHF_SetEncoderCounter(PAPPS_ENCODER_UNPRESSED_VALUE);
-    Io_SecondaryScancon2RMHF_SetEncoderCounter(SAPPS_ENCODER_UNPRESSED_VALUE);
+    // Brake
+    brake = App_Brake_Create(
+        Io_Brake_GetFrontPressurePsi, Io_Brake_FrontPressureSensorOCSC, Io_Brake_GetRearPressurePsi,
+        Io_Brake_RearPressureSensorOCSC, Io_Brake_GetPedalPercentTravel, Io_Brake_PedalSensorOCSC, Io_Brake_IsActuated);
+    // Coolants
+    Io_FlowMeter_Init(&htim4);
+    coolant = App_Coolant_Create(
+        Io_FlowMeter_GetFlowRate, Io_Coolant_GetTemperatureA, Io_Coolant_GetTemperatureB, Io_Coolant_GetPressureA,
+        Io_Coolant_GetPressureB);
 
-    world = App_FsmWorld_Create(
-        heartbeat_monitor, flow_meter_in_range_check, left_wheel_speed_sensor_in_range_check,
-        right_wheel_speed_sensor_in_range_check, steering_angle_sensor_in_range_check, brake, rgb_led_sequence, clock,
-        papps_and_sapps,
+    // steering
+    steering = App_Steering_Create(Io_SteeringAngleSensor_GetAngleDegree, Io_SteeringSensorOCSC);
 
-        App_AcceleratorPedalSignals_HasAppsAndBrakePlausibilityFailure,
-        App_AcceleratorPedalSignals_IsAppsAndBrakePlausibilityOk,
-        App_AcceleratorPedalSignals_AppsAndBrakePlausibilityFailureCallback,
-        App_AcceleratorPedalSignals_HasAppsDisagreement, App_AcceleratorPedalSignals_HasAppsAgreement,
-        App_AcceleratorPedalSignals_AppsDisagreementCallback, App_AcceleratorPedalSignals_IsPappsAlarmActive,
-        App_AcceleratorPedalSignals_PappsAlarmCallback, App_AcceleratorPedalSignals_IsSappsAlarmActive,
-        App_AcceleratorPedalSignals_SappsAlarmCallback, App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive,
+    // wheels
+    Io_WheelSpeedSensors_Init(&htim16, &htim17);
+    wheels = App_Wheels_Create(Io_WheelSpeedSensors_GetLeftSpeedKph, Io_WheelSpeedSensors_GetRightSpeedKph);
 
-        App_FlowMetersSignals_IsPrimaryFlowRateBelowThreshold, App_FlowMetersSignals_IsFlowRateInRange,
-        App_FlowMetersSignals_FlowRateBelowThresholdCallback);
+    world = App_FsmWorld_Create(heartbeat_monitor, papps_and_sapps, brake, coolant, steering, wheels);
 
-    state_machine = App_SharedStateMachine_Create(world, App_GetAirOpenState());
+    state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 
     // struct CanMsgs_fsm_startup_t payload = { .dummy = 0 };
     // TODO: JSONCAN -> App_CanTx_SendNonPeriodicMsg_FSM_STARTUP(can_tx, &payload);
@@ -913,8 +888,7 @@ void RunTask1kHz(void const *argument)
         Io_SharedSoftwareWatchdog_CheckForTimeouts();
         const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
 
-        App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
-        App_FsmWorld_UpdateSignals(world, task_start_ms);
+        App_Timer_SetCurrentTimeMS(task_start_ms);
         //        TODO: JSONCAN -> Io_CanTx_EnqueuePeriodicMsgs(can_tx, task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the
@@ -1014,7 +988,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 0 */
     if (htim->Instance == TIM4)
     {
-        Io_FlowMeters_CheckIfFlowMeterIsActive();
+        Io_FlowMeter_CheckIfFlowMeterIsActive();
     }
     else if (htim->Instance == TIM16)
     {

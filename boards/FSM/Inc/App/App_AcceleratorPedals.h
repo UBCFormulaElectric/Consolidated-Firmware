@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include "App_FsmWorld.h"
 
 #define PAPPS_ENCODER_FULLY_PRESSED_VALUE (937U)
 #define PAPPS_ENCODER_UNPRESSED_VALUE (1353U)
@@ -16,29 +17,17 @@ struct AcceleratorPedals;
 
 /**
  * Allocate and initialize a pair of accelerator pedals
- * @param is_primary_encoder_alarm_active A function that can be called to check whether the primary encoder alarm is
- * active (Modeled after MAX3097E)
- * @param is_secondary_encoder_alarm_active A function that can be called to check whether the secondary encoder alarm
- * is active (Modeled after MAX3097E)
- * @param get_primary_encoder_counter_value A function that can be called to get the counter value of the primary
- * encoder
- * @param get_secondary_encoder_counter_value A function that can be called to get the counter value of the secondary
- * encoder
- * @param reset_primary_encoder_counter A function that can be called to reset the counter value of the primary encoder
- * to 0
- * @param reset_secondary_encoder_counter A function that can be called to reset the counter value of the secondary
- * encoder to 0
- * @param primary_encoder_fully_pressed_value The value of the primary encoder counter calibrated to the pedal box
- * corresponding to when the pedal is fully pressed
- * @param secondary_encoder_fully_pressed_value The value of the secondary
- * encoder counter calibrated to the pedal box corresponding to when the pedal is fully pressed
+ * @param get_primary_pedal_percent
+ * @param primary_pedal_OCSC
+ * @param get_secondary_pedal_percent
+ * @param secondary_pedal_OCSC
  * @return The created pair of accelerator pedals, whose ownership is given to the caller
  */
 struct AcceleratorPedals *App_AcceleratorPedals_Create(
-    bool (*is_primary_encoder_alarm_active)(void),
-    bool (*is_secondary_encoder_alarm_active)(void),
     float (*get_primary_pedal_percent)(void),
-    float (*get_secondary_pedal_percent)(void));
+    bool (*primary_pedal_OCSC)(void),
+    float (*get_secondary_pedal_percent)(void),
+    bool (*secondary_pedal_OCSC)(void));
 
 /**
  * Deallocate the memory used by the given pair of accelerator pedals
@@ -47,32 +36,20 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
 void App_AcceleratorPedals_Destroy(struct AcceleratorPedals *accelerator_pedals);
 
 /**
- * Check if the encoder alarm for the primary accelerator pedal is active
- * @param accelerator_pedals The pair of accelerator pedals containing the
- * primary accelerator pedal to check
- * @return true if the encoder alarm for the given accelerator pedal is active, else false
- */
-bool App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(const struct AcceleratorPedals *accelerator_pedals);
-
-/**
- * Check if the encoder alarm for the secondary accelerator pedal is active
- * @param accelerator_pedals The pair of accelerator pedals containing the
- * secondary accelerator pedal to check
- * @return true if the encoder alarm for the given accelerator pedal is active,
- *         else false
- */
-bool App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(const struct AcceleratorPedals *accelerator_pedals);
-
-/**
  * Get the pedal percentage of the primary accelerator pedal, a value in [0,100]
  * @param accelerator_pedals The pair of accelerator pedals to get the primary pedal percentage from
  * @return The pedal percentage of the primary accelerator pedal
  */
 float App_AcceleratorPedals_GetPrimaryPedalPercentage(const struct AcceleratorPedals *accelerator_pedals);
-
 /**
  * Get the pedal percentage of the secondary accelerator pedal, a value in [0,100]
  * @param accelerator_pedals The pair of accelerator pedals to get the secondary pedal percentage from
  * @return The pedal percentage of the secondary accelerator pedal
  */
 float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct AcceleratorPedals *accelerator_pedals);
+
+/**
+ * Primary Broadcast Function. Very important.
+ * @param world World Context from which to pull sensors
+ */
+void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world);

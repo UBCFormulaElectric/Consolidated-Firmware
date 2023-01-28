@@ -2,6 +2,8 @@
 
 #include "App_SharedStateMachine.h"
 
+void App_AllStatesRunOnEntry(struct StateMachine *const state_machine);
+
 /**
  * On-tick 1Hz function for every state in the given state machine
  * @param state_machine The state machine to run on-tick function for

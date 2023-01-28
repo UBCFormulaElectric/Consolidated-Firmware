@@ -55,7 +55,7 @@ TimerState App_Timer_RunIfCondition(TimerChannel *const timer, bool condition)
 
 uint32_t App_Timer_GetElapsedTime(const TimerChannel *const timer)
 {
-    uint32_t elapsed_time = 0;
+    uint32_t elapsed_time;
     switch (timer->state)
     {
         case TIMER_STATE_RUNNING:

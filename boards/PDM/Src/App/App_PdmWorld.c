@@ -6,8 +6,6 @@
 
 struct PdmWorld
 {
-    struct PdmCanTxInterface *can_tx;
-    struct PdmCanRxInterface *can_rx;
     struct HeartbeatMonitor * heartbeat_monitor;
     struct RgbLedSequence *   rgb_led_sequence;
     struct LowVoltageBattery *low_voltage_battery;
@@ -20,8 +18,6 @@ struct PdmWorld
 };
 
 struct PdmWorld *App_PdmWorld_Create(
-    struct PdmCanTxInterface *const can_tx_interface,
-    struct PdmCanRxInterface *const can_rx_interface,
     struct HeartbeatMonitor *const  heartbeat_monitor,
     struct RgbLedSequence *const    rgb_led_sequence,
     struct LowVoltageBattery *const low_voltage_battery,
@@ -35,8 +31,6 @@ struct PdmWorld *App_PdmWorld_Create(
     struct PdmWorld *world = (struct PdmWorld *)malloc(sizeof(struct PdmWorld));
     assert(world != NULL);
 
-    world->can_tx              = can_tx_interface;
-    world->can_rx              = can_rx_interface;
     world->heartbeat_monitor   = heartbeat_monitor;
     world->rgb_led_sequence    = rgb_led_sequence;
     world->low_voltage_battery = low_voltage_battery;
@@ -55,15 +49,6 @@ void App_PdmWorld_Destroy(struct PdmWorld *const world)
     free(world);
 }
 
-struct PdmCanTxInterface *App_PdmWorld_GetCanTx(const struct PdmWorld *const world)
-{
-    return world->can_tx;
-}
-
-struct PdmCanRxInterface *App_PdmWorld_GetCanRx(const struct PdmWorld *const world)
-{
-    return world->can_rx;
-}
 struct HeartbeatMonitor *App_PdmWorld_GetHeartbeatMonitor(const struct PdmWorld *const world)
 {
     return world->heartbeat_monitor;

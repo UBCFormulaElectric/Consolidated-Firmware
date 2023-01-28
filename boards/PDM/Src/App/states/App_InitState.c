@@ -82,7 +82,7 @@ static void InitStateRunOnExit(struct StateMachine *const state_machine)
 
 const struct State *App_GetInitState(void)
 {
-    static struct State fault_state = {
+    static struct State init_state = {
         .name              = "FAULT",
         .run_on_entry      = InitStateRunOnEntry,
         .run_on_tick_1Hz   = InitStateRunOnTick1Hz,
@@ -90,7 +90,7 @@ const struct State *App_GetInitState(void)
         .run_on_exit       = InitStateRunOnExit,
     };
 
-    return &fault_state;
+    return &init_state;
 }
 
 /*

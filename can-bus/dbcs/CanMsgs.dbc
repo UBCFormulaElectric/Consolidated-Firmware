@@ -3,8 +3,23 @@ NS_:
 BS_:
 
 
-BU_: BMS DCM DIM FSM GSM PDM DEBUG
+BU_: DIM BMS DCM GSM FSM PDM DEBUG
 
+
+BO_ 502 DIM_Test1: 2 DIM
+SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Ex2 : 1|12@1+ (1,0) [0|4095] "" DEBUG
+
+BO_ 503 DIM_Test2: 4 DIM
+SG_ Ex3 : 0|14@1+ (0.1,0) [0|1000] "m/s^4" DEBUG
+SG_ Ex4 : 14|2@1+ (1,0) [0|2] "" DEBUG
+SG_ Ex5 : 16|12@1+ (0.1,-120) [-120|120] "deg" DEBUG
+
+BO_ 500 DIM_AlertSet: 0 DIM
+SG_ DIM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
+
+BO_ 501 DIM_AlertCleared: 0 DIM
+SG_ DIM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
 
 BO_ 102 BMS_Test1: 1 BMS
 SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
@@ -24,20 +39,14 @@ SG_ DCM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
 BO_ 201 DCM_AlertCleared: 0 DCM
 SG_ DCM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
 
-BO_ 502 DIM_Test1: 2 DIM
+BO_ 603 GSM_Test1: 1 GSM
 SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
-SG_ Ex2 : 1|12@1+ (1,0) [0|4095] "" DEBUG
 
-BO_ 503 DIM_Test2: 4 DIM
-SG_ Ex3 : 0|14@1+ (0.1,0) [0|1000] "m/s^4" DEBUG
-SG_ Ex4 : 14|2@1+ (1,0) [0|2] "" DEBUG
-SG_ Ex5 : 16|12@1+ (0.1,-120) [-120|120] "deg" DEBUG
+BO_ 600 GSM_AlertSet: 0 GSM
+SG_ GSM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
 
-BO_ 500 DIM_AlertSet: 0 DIM
-SG_ DIM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
-
-BO_ 501 DIM_AlertCleared: 0 DIM
-SG_ DIM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
+BO_ 601 GSM_AlertCleared: 0 GSM
+SG_ GSM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
 
 BO_ 303 FSM_Test1: 1 FSM
 SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
@@ -48,17 +57,58 @@ SG_ FSM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
 BO_ 301 FSM_AlertCleared: 0 FSM
 SG_ FSM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
 
-BO_ 603 GSM_Test1: 1 GSM
-SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
+BO_ 799 PDM_Heartbeat: 1 PDM
+SG_ HB : 0|1@1+ (1,0) [0|1] "" DEBUG
 
-BO_ 600 GSM_AlertSet: 0 GSM
-SG_ GSM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
+BO_ 800 PDM_Efuse1_Currents: 8 PDM
+SG_ AIR_Current : 0|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
+SG_ LVPWR_Current : 32|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
 
-BO_ 601 GSM_AlertCleared: 0 GSM
-SG_ GSM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
+BO_ 802 PDM_Efuse2_Currents: 8 PDM
+SG_ EMETER_Current : 0|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
+SG_ AUX_Current : 32|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
 
-BO_ 403 PDM_Test1: 1 PDM
-SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
+BO_ 803 PDM_Efuse3_Currents: 8 PDM
+SG_ LEFT_INVERTER_Current : 0|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
+SG_ RIGHT_INVERTER_Current : 32|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
+
+BO_ 804 PDM_Efuse4_Currents: 8 PDM
+SG_ DRS_Current : 0|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
+SG_ FAN_Current : 32|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
+
+BO_ 805 PDM_Efuse_Current_Checks: 1 PDM
+SG_ AIR_Current_IN_RANGE_CHECK : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ LVPWR_Current_IN_RANGE_CHECK : 1|1@1+ (1,0) [0|1] "" DEBUG
+SG_ EMETER_Current_IN_RANGE_CHECK : 2|1@1+ (1,0) [0|1] "" DEBUG
+SG_ AUX_Current_IN_RANGE_CHECK : 3|1@1+ (1,0) [0|1] "" DEBUG
+SG_ LEFT_INVERTER_Current_IN_RANGE_CHECK : 4|1@1+ (1,0) [0|1] "" DEBUG
+SG_ RIGHT_INVERTER_IN_RANGE_CHECK : 5|1@1+ (1,0) [0|1] "" DEBUG
+SG_ DRS_IN_RANGE_CHECK : 6|1@1+ (1,0) [0|1] "" DEBUG
+SG_ FAN_Current_IN_RANGE_CHECK : 7|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 806 PDM_VBAT_Voltage: 4 PDM
+SG_ VBAT_Voltage : 0|32@1+ (2.793967724496957e-07,-600) [-600|600] "V" DEBUG
+
+BO_ 807 PDM__24V_ACC_Voltage: 4 PDM
+SG_ _24V_ACC_Voltage : 0|32@1+ (2.793967724496957e-07,-600) [-600|600] "V" DEBUG
+
+BO_ 808 PDM__22V_AUX_Voltage: 4 PDM
+SG_ _22V_AUX_Voltage : 0|32@1+ (2.793967724496957e-07,-600) [-600|600] "V" DEBUG
+
+BO_ 809 PDM_Voltage_Checks: 2 PDM
+SG_ VBAT_Critical : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ ACC_Critical : 1|1@1+ (1,0) [0|1] "" DEBUG
+SG_ AUX_Critical : 2|1@1+ (1,0) [0|1] "" DEBUG
+SG_ VBAT_LOW : 3|1@1+ (1,0) [0|1] "" DEBUG
+SG_ ACC_LOW : 4|1@1+ (1,0) [0|1] "" DEBUG
+SG_ AUX_LOW : 5|1@1+ (1,0) [0|1] "" DEBUG
+SG_ VBAT_HIGH : 6|1@1+ (1,0) [0|1] "" DEBUG
+SG_ ACC_HIGH : 7|1@1+ (1,0) [0|1] "" DEBUG
+SG_ AUX_HIGH : 8|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 810 PDM_LowVoltageBattery_Faults: 1 PDM
+SG_ Boost_Fault : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Charge_Fault : 1|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 400 PDM_AlertSet: 0 PDM
 SG_ PDM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
@@ -73,12 +123,6 @@ BA_DEF_DEF_  "BusType" "CAN";
 BA_ "BusType" "CAN";
 
 
-BA_ "GenSigStartValue" SG_ 102 Ex1 0;
-BA_ "GenSigStartValue" SG_ 100 BMS_AlertSet 0;
-BA_ "GenSigStartValue" SG_ 101 BMS_AlertCleared 0;
-BA_ "GenSigStartValue" SG_ 202 Ex1 0;
-BA_ "GenSigStartValue" SG_ 200 DCM_AlertSet 0;
-BA_ "GenSigStartValue" SG_ 201 DCM_AlertCleared 0;
 BA_ "GenSigStartValue" SG_ 502 Ex1 0;
 BA_ "GenSigStartValue" SG_ 502 Ex2 0;
 BA_ "GenSigStartValue" SG_ 503 Ex3 0;
@@ -86,37 +130,83 @@ BA_ "GenSigStartValue" SG_ 503 Ex4 0;
 BA_ "GenSigStartValue" SG_ 503 Ex5 -120;
 BA_ "GenSigStartValue" SG_ 500 DIM_AlertSet 0;
 BA_ "GenSigStartValue" SG_ 501 DIM_AlertCleared 0;
-BA_ "GenSigStartValue" SG_ 303 Ex1 0;
-BA_ "GenSigStartValue" SG_ 300 FSM_AlertSet 0;
-BA_ "GenSigStartValue" SG_ 301 FSM_AlertCleared 0;
+BA_ "GenSigStartValue" SG_ 102 Ex1 0;
+BA_ "GenSigStartValue" SG_ 100 BMS_AlertSet 0;
+BA_ "GenSigStartValue" SG_ 101 BMS_AlertCleared 0;
+BA_ "GenSigStartValue" SG_ 202 Ex1 0;
+BA_ "GenSigStartValue" SG_ 200 DCM_AlertSet 0;
+BA_ "GenSigStartValue" SG_ 201 DCM_AlertCleared 0;
 BA_ "GenSigStartValue" SG_ 603 Ex1 0;
 BA_ "GenSigStartValue" SG_ 600 GSM_AlertSet 0;
 BA_ "GenSigStartValue" SG_ 601 GSM_AlertCleared 0;
-BA_ "GenSigStartValue" SG_ 403 Ex1 0;
+BA_ "GenSigStartValue" SG_ 303 Ex1 0;
+BA_ "GenSigStartValue" SG_ 300 FSM_AlertSet 0;
+BA_ "GenSigStartValue" SG_ 301 FSM_AlertCleared 0;
+BA_ "GenSigStartValue" SG_ 799 HB 0;
+BA_ "GenSigStartValue" SG_ 800 AIR_Current 10000;
+BA_ "GenSigStartValue" SG_ 800 LVPWR_Current 10000;
+BA_ "GenSigStartValue" SG_ 802 EMETER_Current 10000;
+BA_ "GenSigStartValue" SG_ 802 AUX_Current 10000;
+BA_ "GenSigStartValue" SG_ 803 LEFT_INVERTER_Current 10000;
+BA_ "GenSigStartValue" SG_ 803 RIGHT_INVERTER_Current 10000;
+BA_ "GenSigStartValue" SG_ 804 DRS_Current 10000;
+BA_ "GenSigStartValue" SG_ 804 FAN_Current 10000;
+BA_ "GenSigStartValue" SG_ 805 AIR_Current_IN_RANGE_CHECK 0;
+BA_ "GenSigStartValue" SG_ 805 LVPWR_Current_IN_RANGE_CHECK 0;
+BA_ "GenSigStartValue" SG_ 805 EMETER_Current_IN_RANGE_CHECK 0;
+BA_ "GenSigStartValue" SG_ 805 AUX_Current_IN_RANGE_CHECK 0;
+BA_ "GenSigStartValue" SG_ 805 LEFT_INVERTER_Current_IN_RANGE_CHECK 0;
+BA_ "GenSigStartValue" SG_ 805 RIGHT_INVERTER_IN_RANGE_CHECK 0;
+BA_ "GenSigStartValue" SG_ 805 DRS_IN_RANGE_CHECK 0;
+BA_ "GenSigStartValue" SG_ 805 FAN_Current_IN_RANGE_CHECK 0;
+BA_ "GenSigStartValue" SG_ 806 VBAT_Voltage -600;
+BA_ "GenSigStartValue" SG_ 807 _24V_ACC_Voltage -600;
+BA_ "GenSigStartValue" SG_ 808 _22V_AUX_Voltage -600;
+BA_ "GenSigStartValue" SG_ 809 VBAT_Critical 0;
+BA_ "GenSigStartValue" SG_ 809 ACC_Critical 0;
+BA_ "GenSigStartValue" SG_ 809 AUX_Critical 0;
+BA_ "GenSigStartValue" SG_ 809 VBAT_LOW 0;
+BA_ "GenSigStartValue" SG_ 809 ACC_LOW 0;
+BA_ "GenSigStartValue" SG_ 809 AUX_LOW 0;
+BA_ "GenSigStartValue" SG_ 809 VBAT_HIGH 0;
+BA_ "GenSigStartValue" SG_ 809 ACC_HIGH 0;
+BA_ "GenSigStartValue" SG_ 809 AUX_HIGH 0;
+BA_ "GenSigStartValue" SG_ 810 Boost_Fault 0;
+BA_ "GenSigStartValue" SG_ 810 Charge_Fault 0;
 BA_ "GenSigStartValue" SG_ 400 PDM_AlertSet 0;
 BA_ "GenSigStartValue" SG_ 401 PDM_AlertCleared 0;
 
 
-BA_ "GenMsgCycleTime" BO_ 102  1000;
-BA_ "GenMsgCycleTime" BO_ 202  1000;
 BA_ "GenMsgCycleTime" BO_ 502  1000;
 BA_ "GenMsgCycleTime" BO_ 503  10;
-BA_ "GenMsgCycleTime" BO_ 303  1000;
+BA_ "GenMsgCycleTime" BO_ 102  1000;
+BA_ "GenMsgCycleTime" BO_ 202  1000;
 BA_ "GenMsgCycleTime" BO_ 603  1000;
-BA_ "GenMsgCycleTime" BO_ 403  1000;
+BA_ "GenMsgCycleTime" BO_ 303  1000;
+BA_ "GenMsgCycleTime" BO_ 799  100;
+BA_ "GenMsgCycleTime" BO_ 800  1;
+BA_ "GenMsgCycleTime" BO_ 802  1;
+BA_ "GenMsgCycleTime" BO_ 803  1;
+BA_ "GenMsgCycleTime" BO_ 804  1;
+BA_ "GenMsgCycleTime" BO_ 805  1;
+BA_ "GenMsgCycleTime" BO_ 806  1;
+BA_ "GenMsgCycleTime" BO_ 807  1;
+BA_ "GenMsgCycleTime" BO_ 808  1;
+BA_ "GenMsgCycleTime" BO_ 809  1;
+BA_ "GenMsgCycleTime" BO_ 810  1;
 
 
+VAL_ 503 Ex4 0 "CHOICE_0" 1 "CHOICE_1" 2 "CHOICE_2";
+VAL_ 500 DIM_AlertSet 0 "NUM_DIM_ALERTS";
+VAL_ 501 DIM_AlertCleared 0 "NUM_DIM_ALERTS";
 VAL_ 100 BMS_AlertSet 0 "NUM_BMS_ALERTS";
 VAL_ 101 BMS_AlertCleared 0 "NUM_BMS_ALERTS";
 VAL_ 200 DCM_AlertSet 0 "NUM_DCM_ALERTS";
 VAL_ 201 DCM_AlertCleared 0 "NUM_DCM_ALERTS";
-VAL_ 503 Ex4 0 "CHOICE_0" 1 "CHOICE_1" 2 "CHOICE_2";
-VAL_ 500 DIM_AlertSet 0 "NUM_DIM_ALERTS";
-VAL_ 501 DIM_AlertCleared 0 "NUM_DIM_ALERTS";
-VAL_ 300 FSM_AlertSet 0 "NUM_FSM_ALERTS";
-VAL_ 301 FSM_AlertCleared 0 "NUM_FSM_ALERTS";
 VAL_ 600 GSM_AlertSet 0 "NUM_GSM_ALERTS";
 VAL_ 601 GSM_AlertCleared 0 "NUM_GSM_ALERTS";
+VAL_ 300 FSM_AlertSet 0 "NUM_FSM_ALERTS";
+VAL_ 301 FSM_AlertCleared 0 "NUM_FSM_ALERTS";
 VAL_ 400 PDM_AlertSet 0 "NUM_PDM_ALERTS";
 VAL_ 401 PDM_AlertCleared 0 "NUM_PDM_ALERTS";
 
