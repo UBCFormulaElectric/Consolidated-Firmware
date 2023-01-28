@@ -78,7 +78,7 @@ bool App_TractveSystem_CheckFaults(struct TractiveSystem *ts)
     bool ts_current_out_of_bounds =
         !IS_IN_RANGE(MAX_TS_CHARGE_CURRENT_AMPS, MAX_TS_DISCHARGE_CURRENT_AMPS, App_TractiveSystem_GetCurrent(ts));
 
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_TS_OVERCURRENT_FAULT(can_tx, ts_current_out_of_bounds);
+    App_CanTx_BMSFaults_TSOverCurrentFault_Set(ts_current_out_of_bounds);
 
     return ts_current_out_of_bounds;
 }
