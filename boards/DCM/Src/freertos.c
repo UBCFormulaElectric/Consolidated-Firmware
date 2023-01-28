@@ -24,7 +24,7 @@
 #include "main.h"
 
 /* Private includes ----------------------------------------------------------*/
-/* USER CODE BEGIN Includes */     
+/* USER CODE BEGIN Includes */
 #include "Io_SharedSoftwareWatchdog.h"
 /* USER CODE END Includes */
 
@@ -54,7 +54,10 @@
 /* USER CODE END FunctionPrototypes */
 
 /* GetIdleTaskMemory prototype (linked to static allocation support) */
-void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize );
+void vApplicationGetIdleTaskMemory(
+    StaticTask_t **ppxIdleTaskTCBBuffer,
+    StackType_t ** ppxIdleTaskStackBuffer,
+    uint32_t *     pulIdleTaskStackSize);
 
 /* Hook prototypes */
 void vApplicationTickHook(void);
