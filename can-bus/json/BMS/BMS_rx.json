@@ -1,5 +1,8 @@
 {
     "messages": [
+        "DCMVitals",
+        "FSMVitals",
+        "PDMVitals",
         "DIMVitals"
     ]
 }

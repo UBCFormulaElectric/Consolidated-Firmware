@@ -8,5 +8,16 @@
                 "bits": 1
             }
         }
+    },
+    "DCMVitals": {
+        "msg_id": 203,
+        "cycle_time": 1000,
+        "description": "DCM Heartbeat signal",
+        "signals": {
+            "Heartbeat": {
+                "bits": 1
+            }
+        }
+
     }
 }
