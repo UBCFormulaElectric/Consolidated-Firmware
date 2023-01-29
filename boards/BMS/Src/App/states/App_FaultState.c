@@ -10,7 +10,8 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 
     App_CanTx_BMS_Vitals_CurrentState_Set(BMS_FAULT_STATE);
     App_Airs_OpenAirPositive(airs);
-    App_CanTx_BMS_AirStates_AirPositive_Set(App_Airs_IsAirPositiveClosed(airs));
+    App_CanTx_BMS_Contactors_AirPositive_Set(
+        App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_OkStatus_Disable(bms_ok);
 }
 
