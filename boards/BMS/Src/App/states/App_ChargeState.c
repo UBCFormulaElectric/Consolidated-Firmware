@@ -25,21 +25,12 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
-<<<<<<< HEAD
         struct BmsWorld *   world       = App_SharedStateMachine_GetWorld(state_machine);
         struct Charger *    charger     = App_BmsWorld_GetCharger(world);
         struct Accumulator *accumulator = App_BmsWorld_GetAccumulator(world);
         struct Airs *       airs        = App_BmsWorld_GetAirs(world);
         struct TractiveSystem * const ts      = App_BmsWorld_GetTractiveSystem(world);
 
-=======
-        struct BmsWorld *            world   = App_SharedStateMachine_GetWorld(state_machine);
-        struct BmsCanTxInterface *   can_tx  = App_BmsWorld_GetCanTx(world);
-        struct BmsCanRxInterface *   can_rx  = App_BmsWorld_GetCanRx(world);
-        struct Charger *             charger = App_BmsWorld_GetCharger(world);
-        struct Airs *                airs    = App_BmsWorld_GetAirs(world);
-        struct TractiveSystem *const ts      = App_BmsWorld_GetTractiveSystem(world);
->>>>>>> e564c21f (Formatting)
 
 
         static uint16_t ignore_chgr_fault_counter      = 0U;
@@ -79,6 +70,7 @@ static void ChargeStateRunOnExit(struct StateMachine *const state_machine)
     // If the charger is not turned off, or the CAN message for charging is still set to charge when exiting Charge
     // State Disable them
     //Airs+ also has to be opened once again since it is closed in Pre-Charge state for charging/driving
+
     App_Charger_Disable(charger);
     App_Airs_CloseAirPositive(airs);
     App_CanRx_CHARGING_STATUS_SetSignal_CHARGING_SWITCH(can_rx, false);
