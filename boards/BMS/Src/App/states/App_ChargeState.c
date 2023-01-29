@@ -5,7 +5,6 @@
 
 // Ignore the charger fault signal for the first 500 cycles (5 seconds)
 #define CYCLES_TO_IGNORE_CHGR_FAULT (500U)
-#define MAX_CELL_VOLTAGE_THRESHOLD (4.15f)
 
 static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
 {
@@ -44,7 +43,6 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
 
         static uint16_t ignore_chgr_fault_counter      = 0U;
-        const bool      is_charger_disconnected        = !App_Charger_IsConnected(charger);
         bool            has_charger_faulted            = false;
         bool            external_shutdown_occurred = !App_Airs_IsAirNegativeClosed(airs);
         bool            charging_enabled               = App_CanRx_CHARGING_STATUS_GetSignal_CHARGING_SWITCH(can_rx);
@@ -77,9 +75,12 @@ static void ChargeStateRunOnExit(struct StateMachine *const state_machine)
     struct BmsWorld *         world   = App_SharedStateMachine_GetWorld(state_machine);
     struct Charger *          charger = App_BmsWorld_GetCharger(world);
     struct BmsCanRxInterface *can_rx  = App_BmsWorld_GetCanRx(world);
+    struct Airs *             airs            = App_BmsWorld_GetAirs(world);
     // If the charger is not turned off, or the CAN message for charging is still set to charge when exiting Charge
     // State Disable them
+    //Airs+ also has to be opened once again since it is closed in Pre-Charge state for charging/driving
     App_Charger_Disable(charger);
+    App_Airs_CloseAirPositive(airs);
     App_CanRx_CHARGING_STATUS_SetSignal_CHARGING_SWITCH(can_rx, false);
 }
 

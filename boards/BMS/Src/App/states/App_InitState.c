@@ -14,11 +14,13 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     struct Clock *      clock         = App_BmsWorld_GetClock(world);
     struct Accumulator *accumulator   = App_BmsWorld_GetAccumulator(world);
     struct OkStatus *   bms_ok_status = App_BmsWorld_GetBmsOkStatus(world);
+    struct Airs *             airs            = App_BmsWorld_GetAirs(world);
 
     App_CanTx_BMS_Vitals_CurrentState_Set(BMS_INIT_STATE);
     App_SharedClock_SetPreviousTimeInMilliseconds(clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
     App_Accumulator_InitRunOnEntry(accumulator);
     App_OkStatus_Enable(bms_ok_status);
+    App_Airs_OpenAirPositive(airs);
 }
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)

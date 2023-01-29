@@ -167,8 +167,9 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
             App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
         }
     }
-    else if(is_charger_disconnected&& App_SharedStateMachine_GetCurrentState(state_machine)==App_GetChargeState()){
+    else if(App_SharedStateMachine_GetCurrentState(state_machine)==App_GetChargeState()){
         status = false;
+        App_CanTx_SetPeriodicSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(can_tx,true);
         App_CanRx_CHARGING_STATUS_SetSignal_CHARGING_SWITCH(can_rx,false);
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
