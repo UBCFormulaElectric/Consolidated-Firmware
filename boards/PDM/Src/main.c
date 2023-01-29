@@ -578,14 +578,14 @@ void RunTask100Hz(void const *argument)
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
     uint32_t                 PreviousWakeTime = osKernelSysTick();
-    static const TickType_t  period_ms        = 1000U;
+    static const TickType_t  period_ms        = 10U;
     SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
 
+    /* Infinite loop */
     for (;;)
     {
-        Io_StackWaterMark_Check();
-        App_SharedStateMachine_Tick1Hz(state_machine);
+        App_SharedStateMachine_Tick100Hz(state_machine);
         Io_CanTx_Enqueue100HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
