@@ -806,6 +806,7 @@ TEST_F(BmsStateMachineTest, stops_charging_after_shutdown_loop_activates)
     App_CanRx_CHARGING_STATUS_SetSignal_CHARGING_SWITCH(can_rx_interface,true);
 
     LetTimePass(state_machine, 10);
+
     ASSERT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
