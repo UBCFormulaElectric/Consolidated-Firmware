@@ -19,7 +19,7 @@ static bool is_air_positive_closed = false;
 
 bool Io_Airs_IsAirNegativeClosed(void)
 {
-    return HAL_GPIO_ReadPin(AIR_POWER_STATUS_GPIO_Port, AIR_POWER_STATUS_Pin);
+    return HAL_GPIO_ReadPin(AIR_PWR_STATUS_GPIO_Port, AIR_PWR_STATUS_Pin);
 }
 
 bool Io_Airs_IsAirPositiveClosed(void)

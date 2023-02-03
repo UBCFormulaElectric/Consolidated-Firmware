@@ -1,6 +1,6 @@
 #pragma once
 
-#include <stm32f3xx_hal.h>
+#include <stm32f4xx_hal.h>
 
 /**
  * Initialize the PWM input for measuring the IMD's PWM output
