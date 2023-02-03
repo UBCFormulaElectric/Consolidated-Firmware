@@ -168,8 +168,7 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
             UPDATE_PEC15_ERROR_COUNT(accumulator->read_cell_voltages(), accumulator->num_comm_tries)
 
             // Write to configuration register to configure cell discharging
-            // TODO: re-enable
-            // accumulator->write_cfg_registers();
+            accumulator->write_cfg_registers();
             accumulator->disable_discharge();
 
             // Start cell voltage conversions for the next cycle

@@ -5,7 +5,6 @@ void App_SetPeriodicCanSignals_Imd(struct Imd *imd)
     App_CanTx_BMSImdStatus_SecondsSincePowerOn_Set(App_Imd_GetSecondsSincePowerOn(imd));
     App_CanTx_BMSImdPwmOutput_Frequency_Set(App_Imd_GetPwmFrequency(imd));
     App_CanTx_BMSImdPwmOutput_DutyCycle_Set(App_Imd_GetPwmDutyCycle(imd));
-    uint8_t test;
 
     const struct Imd_Condition condition = App_Imd_GetCondition(imd);
     // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_CONDITION(can_tx, (uint8_t)condition.name);

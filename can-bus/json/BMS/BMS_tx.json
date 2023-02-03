@@ -1,7 +1,7 @@
 {
     "BMSVitals": {
         "msg_id": 100,
-        "cycle_time": 1000,
+        "cycle_time": 100,
         "description": "Vitals message for the BMS.",
         "signals": {
             "Heartbeat": {
@@ -20,7 +20,7 @@
 
     "BMSCanFifoOverflow": {
         "msg_id": 101,
-        "cycle_time": 1000,
+        "cycle_time": 5000,
         "description": "BMS tx/rx fifo overflow count",
         "signals": {
             "TxOverflowCount": {
@@ -193,7 +193,7 @@
 
     "BmsOkStatuses": {
         "msg_id": 111,
-        "cycle_time": 1000,
+        "cycle_time": 10,
         "description": "BMS OK status flags",
         "signals": {
             "BmsOk": {
@@ -210,7 +210,7 @@
 
     "BMSAirStates": {
         "msg_id": 112,
-        "cycle_time": 1000,
+        "cycle_time": 10,
         "description": "BMS AIR state statuses",
         "signals": {
             "AirPositive": {
@@ -238,7 +238,7 @@
 
     "BMSCellTemperatures": {
         "msg_id": 114,
-        "cycle_time": 1000,
+        "cycle_time": 100,
         "description": "BMS Cell Temperature readings",
         "signals": {
             "MinCellTemperature": {
@@ -258,7 +258,7 @@
 
     "BMSCellVoltages": {
         "msg_id": 115,
-        "cycle_time": 1000,
+        "cycle_time": 100,
         "description": "BMS Cell Voltage readings",
         "signals": {
             "MinCellVoltage": {
@@ -278,7 +278,7 @@
 
     "BMSCellStats": {
         "msg_id": 116,
-        "cycle_time": 1000,
+        "cycle_time": 100,
         "description": "BMS Cell Stats",
         "signals": {
             "MinCellVoltageSegment": {
@@ -326,7 +326,7 @@
 
     "BMSTractiveSystem": {
         "msg_id": 117,
-        "cycle_time": 1000,
+        "cycle_time": 100,
         "description": "BMS Tractive System Data",
         "signals": {
             "TsVoltage": {
@@ -346,7 +346,7 @@
 
     "BMSPackVoltage": {
         "msg_id": 118,
-        "cycle_time": 1000,
+        "cycle_time": 100,
         "description": "BMS Pack Voltage",
         "signals": {
             "PackVoltage": {
@@ -360,7 +360,7 @@
 
     "BMSAvailablePower": {
         "msg_id": 120,
-        "cycle_time": 1000,
+        "cycle_time": 100,
         "description": "BMS Available Power",
         "signals": {
             "AvailablePower": {

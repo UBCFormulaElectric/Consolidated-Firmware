@@ -83,6 +83,8 @@ static void App_AdvertisePackPower(struct Accumulator *accumulator, struct Tract
         min(App_SharedProcessing_LinearDerating(
                 max_cell_temp, MAX_POWER_LIMIT_W, CELL_ROLL_OFF_TEMP_DEGC, CELL_FULLY_DERATED_TEMP),
             MAX_POWER_LIMIT_W);
+
+    App_CanTx_BMSAvailablePower_AvailablePower_Set(available_power);
 }
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
