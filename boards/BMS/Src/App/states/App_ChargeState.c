@@ -33,10 +33,10 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
 
 
-        static uint16_t ignore_chgr_fault_counter      = 0U;
-        bool            has_charger_faulted            = false;
+        static uint16_t ignore_chgr_fault_counter  = 0U;
+        bool            has_charger_faulted        = false;
         bool            external_shutdown_occurred = !App_Airs_IsAirNegativeClosed(airs);
-        bool            charging_enabled               = App_CanRx_CHARGING_STATUS_GetSignal_CHARGING_SWITCH(can_rx);
+        bool            charging_enabled           = App_CanRx_CHARGING_STATUS_GetSignal_CHARGING_SWITCH(can_rx);
 
         if (ignore_chgr_fault_counter < CYCLES_TO_IGNORE_CHGR_FAULT)
         {
@@ -54,8 +54,9 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanTx_BMS_Charger_IsChargingComplete_Set(has_reached_max_v);
         App_CanTx_BMS_Faults_ChargingExtShutdownOccurred_Set(has_external_shutdown_occurred);
 
-
-        if(has_reached_max_v||has_external_shutdown_occurred|| !charge_over_can){
+        // If the current indicates charging is complete or charging is disabled over CAN go back to init state
+        if (charging_completed || !charging_enabled)
+        {
             App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
         }
     }
@@ -66,11 +67,10 @@ static void ChargeStateRunOnExit(struct StateMachine *const state_machine)
     struct BmsWorld *         world   = App_SharedStateMachine_GetWorld(state_machine);
     struct Charger *          charger = App_BmsWorld_GetCharger(world);
     struct BmsCanRxInterface *can_rx  = App_BmsWorld_GetCanRx(world);
-    struct Airs *             airs            = App_BmsWorld_GetAirs(world);
+    struct Airs *             airs    = App_BmsWorld_GetAirs(world);
     // If the charger is not turned off, or the CAN message for charging is still set to charge when exiting Charge
-    // State Disable them
-    //Airs+ also has to be opened once again since it is closed in Pre-Charge state for charging/driving
-
+    // state, disable them when leaving
+    // Airs+ also has to be opened once again since it is closed in Pre-Charge state for charging/driving
     App_Charger_Disable(charger);
     App_Airs_CloseAirPositive(airs);
     App_CanRx_CHARGING_STATUS_SetSignal_CHARGING_SWITCH(can_rx, false);

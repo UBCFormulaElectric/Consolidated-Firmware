@@ -23,9 +23,9 @@ typedef enum
 #define ACCUMULATOR_NUM_SERIES_CELLS_TOTAL (ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT * ACCUMULATOR_NUM_SEGMENTS)
 
 // Min and Max cell temperatures depending on state
-//C_RATE_TO_AMP conversion value is obtained by using the 5.9Ahrs
-//that each cell is rated for and multiplying by three to get
-//our 17.7amps = 1C for conversion
+// C_RATE_TO_AMP conversion value is obtained by using the 5.9Ahrs
+// that each cell is rated for and multiplying by three to get
+// our 17.7amps = 1C for conversion
 #define MAX_CELL_DISCHARGE_TEMP_DEGC (60.0f)
 #define MAX_CELL_CHARGE_TEMP_DEGC (45.0f)
 #define MIN_CELL_DISCHARGE_TEMP_DEGC (-20.0f)
