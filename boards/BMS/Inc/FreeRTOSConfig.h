@@ -103,6 +103,7 @@ extern uint32_t SystemCoreClock;
 #define configMAX_PRIORITIES (7)
 #define configMINIMAL_STACK_SIZE ((uint16_t)128)
 #define configMAX_TASK_NAME_LEN (16)
+#define configUSE_TRACE_FACILITY 1
 #define configUSE_16_BIT_TICKS 0
 #define configUSE_MUTEXES 1
 #define configQUEUE_REGISTRY_SIZE 8
@@ -119,7 +120,7 @@ to exclude the API function. */
 #define INCLUDE_vTaskDelete 1
 #define INCLUDE_vTaskCleanUpResources 0
 #define INCLUDE_vTaskSuspend 1
-#define INCLUDE_vTaskDelayUntil 0
+#define INCLUDE_vTaskDelayUntil 1
 #define INCLUDE_vTaskDelay 1
 #define INCLUDE_xTaskGetSchedulerState 1
 
