@@ -636,7 +636,7 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_fa
     // Assume no AIR shutdown faults have been set
     SetInitialState(App_GetFaultState());
 
-    //If charger is connected, having air_negative open will lead to fault state
+    //If charger is connected, having air_negative open will lead to fault state, so ensure it is not
     is_charger_connected_fake.return_val   = false;
     is_air_negative_closed_fake.return_val = true;
     LetTimePass(state_machine, 1000);
@@ -653,6 +653,7 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
     SetInitialState(App_GetFaultState());
 
     // Check that state machine remains in FaultState with AIR- closed
+    //If charger is connected, having air_negative open will lead to fault state, so ensure it is not
     is_air_negative_closed_fake.return_val = true;
     is_charger_connected_fake.return_val   = false;
     LetTimePass(state_machine, 1000);
@@ -670,6 +671,7 @@ TEST_F(BmsStateMachineTest, charger_connected_no_can_msg_init_state)
 
     is_air_negative_closed_fake.return_val = true;
 
+    //Without the CAN message to start charging, will remain in init state when charger is connected
     is_charger_connected_fake.return_val = true;
 
     LetTimePass(state_machine, 20);
@@ -796,7 +798,7 @@ TEST_F(BmsStateMachineTest, fault_from_charger_fault)
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
-TEST_F(BmsStateMachineTest, fault_state_after_shutdown_loop_activates_while_charging)
+TEST_F(BmsStateMachineTest, faults_after_shutdown_loop_activates_while_charging)
 {
     SetInitialState(App_GetChargeState());
 
