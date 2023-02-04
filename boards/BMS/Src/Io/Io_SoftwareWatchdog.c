@@ -13,11 +13,11 @@ void Io_HardwareWatchdog_Refresh(void)
 
 void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
 {
-    // TODO: JSON2CAN
-    // BREAK_IF_DEBUGGER_CONNECTED();
+    BREAK_IF_DEBUGGER_CONNECTED();
 
-    // App_CanTx_SetPeriodicSignal_WATCHDOG_TIMEOUT(_can_tx, true);
+    App_CanTx_BMSWarnings_WatchdogTimeout_Set(true);
 
+    // TODO: JSON2CAN APERIODIC MSGS
     // struct CanMsgs_bms_watchdog_timeout_t payload;
     // memcpy(&payload.task_name, Io_SharedSoftwareWatchdog_GetName(watchdog), sizeof(payload.task_name));
 
