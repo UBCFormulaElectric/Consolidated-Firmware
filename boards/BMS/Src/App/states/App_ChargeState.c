@@ -10,7 +10,7 @@ static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
     struct BmsWorld *world   = App_SharedStateMachine_GetWorld(state_machine);
     struct Charger * charger = App_BmsWorld_GetCharger(world);
 
-    App_CanTx_BMSVitals_CurrentState_Set(CANMSGS_BMS_STATE_MACHINE_STATE_CHARGE_CHOICE);
+    App_CanTx_BMSVitals_CurrentState_Set(BMS_CHARGE_STATE);
     App_CanTx_BMSCharger_IsChargingComplete_Set(false);
     App_Charger_Enable(charger);
 }

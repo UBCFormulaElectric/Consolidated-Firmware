@@ -261,7 +261,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
 TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInitState());
-    EXPECT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE, App_CanTx_BMSVitals_CurrentState_Get());
+    EXPECT_EQ(BMS_INIT_STATE, App_CanTx_BMSVitals_CurrentState_Get());
 }
 
 // BMS-31
@@ -269,7 +269,7 @@ TEST_F(BmsStateMachineTest, check_drive_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetDriveState());
 
-    EXPECT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE, App_CanTx_BMSVitals_CurrentState_Get());
+    EXPECT_EQ(BMS_DRIVE_STATE, App_CanTx_BMSVitals_CurrentState_Get());
 }
 
 // BMS-31
@@ -277,14 +277,14 @@ TEST_F(BmsStateMachineTest, check_fault_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetFaultState());
 
-    EXPECT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE, App_CanTx_BMSVitals_CurrentState_Get());
+    EXPECT_EQ(BMS_FAULT_STATE, App_CanTx_BMSVitals_CurrentState_Get());
 }
 
 // BMS-31
 TEST_F(BmsStateMachineTest, check_charge_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetChargeState());
-    EXPECT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_CHARGE_CHOICE, App_CanTx_BMSVitals_CurrentState_Get());
+    EXPECT_EQ(BMS_CHARGE_STATE, App_CanTx_BMSVitals_CurrentState_Get());
 }
 
 TEST_F(BmsStateMachineTest, check_imd_frequency_is_broadcasted_over_can_in_all_states)
@@ -581,11 +581,11 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_fa
 
     is_air_negative_closed_fake.return_val = true;
     LetTimePass(state_machine, 1000);
-    ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE, App_CanTx_BMSVitals_CurrentState_Get());
+    ASSERT_EQ(BMS_FAULT_STATE, App_CanTx_BMSVitals_CurrentState_Get());
 
     is_air_negative_closed_fake.return_val = false;
     LetTimePass(state_machine, 1000);
-    ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE, App_CanTx_BMSVitals_CurrentState_Get());
+    ASSERT_EQ(BMS_INIT_STATE, App_CanTx_BMSVitals_CurrentState_Get());
 }
 
 // BMS-30
@@ -596,12 +596,12 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
     // Check that state machine remains in FaultState with AIR- closed
     is_air_negative_closed_fake.return_val = true;
     LetTimePass(state_machine, 1000);
-    ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE, App_CanTx_BMSVitals_CurrentState_Get());
+    ASSERT_EQ(BMS_FAULT_STATE, App_CanTx_BMSVitals_CurrentState_Get());
 
     // Check that state mcachine transitions to InitState with AIR- open
     is_air_negative_closed_fake.return_val = false;
     LetTimePass(state_machine, 1000);
-    ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE, App_CanTx_BMSVitals_CurrentState_Get());
+    ASSERT_EQ(BMS_INIT_STATE, App_CanTx_BMSVitals_CurrentState_Get());
 }
 
 TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_then_transitions_to_init)

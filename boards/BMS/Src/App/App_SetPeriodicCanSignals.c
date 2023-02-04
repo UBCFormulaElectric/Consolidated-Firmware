@@ -15,7 +15,7 @@ void App_SetPeriodicCanSignals_Imd(struct Imd *imd)
     {
         case IMD_NORMAL:
         {
-            if (condition.pwm_encoding.valid_duty_cycle == true)
+            if (condition.pwm_encoding.valid_duty_cycle)
             {
                 App_CanTx_BMSImdData_InsulationMeasurementDcp10Hz_Set(
                     condition.pwm_encoding.insulation_measurement_dcp_kohms);
@@ -25,7 +25,7 @@ void App_SetPeriodicCanSignals_Imd(struct Imd *imd)
         break;
         case IMD_UNDERVOLTAGE_DETECTED:
         {
-            if (condition.pwm_encoding.valid_duty_cycle == true)
+            if (condition.pwm_encoding.valid_duty_cycle)
             {
                 App_CanTx_BMSImdData_InsulationMeasurementDcp20Hz_Set(
                     condition.pwm_encoding.insulation_measurement_dcp_kohms);

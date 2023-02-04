@@ -1,4 +1,4 @@
-#include <stm32f4xx.h>
+#include <Io_Hal.h>
 #include "Io_SharedAdc.h"
 #include "Io_Adc.h"
 
@@ -24,21 +24,6 @@
 //     CHANNEL_2, // Rank 3
 //     NUM_ADC_CHANNELS,
 // };
-
-// OLD F3 CODE
-// enum
-//{
-//    ADC1_CHANNEL_3, // TS_VSENSE_P
-//    NUM_ADC1_CHANNELS
-//};
-//
-// enum
-//{
-//    ADC2_CHANNEL_1, //MAIN_I_SENSE_1
-//    ADC2_CHANNEL_3, //MAIN_I_SENSE_2
-//    ADC2_CHANNEL_4, //AIR_TOTAL_I_SENSE
-//    NUM_ADC2_CHANNELS
-//};
 
 enum
 {

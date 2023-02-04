@@ -1,4 +1,4 @@
-#include <stm32f4xx.h>
+#include <Io_Hal.h>
 #include <string.h>
 #include "App_CanTx.h"
 #include "Io_SoftwareWatchdog.h"
@@ -13,6 +13,7 @@ void Io_HardwareWatchdog_Refresh(void)
 
 void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
 {
+    // TODO: JSON2CAN
     // BREAK_IF_DEBUGGER_CONNECTED();
 
     // App_CanTx_SetPeriodicSignal_WATCHDOG_TIMEOUT(_can_tx, true);

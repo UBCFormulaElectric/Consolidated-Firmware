@@ -6,7 +6,7 @@
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    App_CanTx_BMSVitals_CurrentState_Set(CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE);
+    App_CanTx_BMSVitals_CurrentState_Set(BMS_DRIVE_STATE);
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
