@@ -92,6 +92,8 @@ extern "C"
 #define TSAL_GRN_GPIO_Port GPIOA
 #define SHDN_ISENSE_Pin GPIO_PIN_3
 #define SHDN_ISENSE_GPIO_Port GPIOA
+#define SPI1_NSS_Pin GPIO_PIN_4
+#define SPI1_NSS_GPIO_Port GPIOA
 #define EVSE_I_LIM_PWM_Pin GPIO_PIN_6
 #define EVSE_I_LIM_PWM_GPIO_Port GPIOA
 #define EVSE_PROX_PILOT_Pin GPIO_PIN_7
