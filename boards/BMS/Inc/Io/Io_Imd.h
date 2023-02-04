@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Io_Hal.h>
+#include "Io_Hal.h"
 
 /**
  * Initialize the PWM input for measuring the IMD's PWM output
