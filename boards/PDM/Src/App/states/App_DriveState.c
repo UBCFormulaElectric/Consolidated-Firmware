@@ -1,8 +1,6 @@
 
 #include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/states/App_AllStates.h"
 #include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/states/App_DriveState.h"
-#include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/states/App_InitState.h"
-
 #include "App_SharedMacros.h"
 #include "states/App_FaultState.h"
 
@@ -90,19 +88,19 @@ bool Fault_Detection(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *e
         App_CanTx_PDM_Efuse_Fault_Checks_AIR_Set(true);
         status = true;
     }
-    if (App_Efuse_Fault_0_Attempts(efuse2, 0))
+    if (App_Efuse_FaultProcedure_Channel0(efuse2, 0) == 2)
     {
         // EMETER
         App_CanTx_PDM_Efuse_Fault_Checks_EMETER_Set(true);
         status = true;
     }
-    if (App_Efuse_Fault_0_Attempts(efuse3, 0))
+    if (App_Efuse_FaultProcedure_Channel0(efuse3, 0) == 2)
     {
         // LEFT INVERTER
         App_CanTx_PDM_Efuse_Fault_Checks_LEFT_INVERTER_Set(true);
         status = true;
     }
-    if (App_Efuse_Fault_0_Attempts(efuse3, 1))
+    if (App_Efuse_FaultProcedure_Channel1(efuse3, 0) == 2)
     {
         // LEFT INVERTER
         App_CanTx_PDM_Efuse_Fault_Checks_RIGHT_INVERTER_Set(true);
@@ -143,12 +141,14 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     struct Efuse *            efuse2       = App_PdmWorld_GetEfuse2(world);
     struct Efuse *            efuse3       = App_PdmWorld_GetEfuse3(world);
     struct Efuse *            efuse4       = App_PdmWorld_GetEfuse4(world);
-    bool                      fault_status = Fault_Detection(efuse1, efuse2, efuse3, efuse4, rail_monitor);
+    bool                      has_fault    = Fault_Detection(efuse1, efuse2, efuse3, efuse4, rail_monitor);
 
     App_AllStatesRunOnTick100Hz(state_machine);
-    if (!fault_status)
+    if (!has_fault)
     {
-        if ()
+        Warning_Detection(efuse1, efuse2, efuse3, efuse4, rail_monitor);
+
+        if (1 == 1) // To be replaced with App_CanTx_BMSStates_AIRNEGATIVE closed
         {
             // PCM Running
             Efuse_Enable_Channels_PCM_RUNNING(efuse1, efuse2, efuse3, efuse4);
@@ -163,10 +163,6 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
-
-
-
-
 
 
 }

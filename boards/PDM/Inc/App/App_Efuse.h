@@ -98,14 +98,47 @@ float App_Efuse_GetChannel0Current(struct Efuse *efuse);
 float App_Efuse_GetChannel1Current(struct Efuse *efuse);
 
 
-// The next four functions are just the same as App_Efuse_CurrentLowCheck and App_Efuse_CurrentHighCheck for the
-// specific channels.
+/**
+ *
+ * @param efuse
+ * @return true if current too low, false if good (channel0)
+ */
 bool App_Efuse_Channel0_CurrentLowCheck(struct Efuse *efuse);
+
+/**
+ *
+ * @param efuse
+ * @return true if current too high, false if good (channel0)
+ */
 bool App_Efuse_Channel0_CurrentHighCheck(struct Efuse *efuse);
+
+/**
+ *
+ * @param efuse
+ * @return true if current too high, false if good (channel0)
+ */
 bool App_Efuse_Channel1_CurrentLowCheck(struct Efuse *efuse);
+
+/**
+ *
+ * @param efuse
+ * @return true if current too high, false if good (channel1)
+ */
 bool App_Efuse_Channel1_CurrentHighCheck(struct Efuse *efuse);
 
+/**
+ * If current == 0 or current > max current, then it will go through this fault procedure function (channel0)
+ * @param efuse
+ * @param max_attempts max number of attempts allowed before faulting
+ * @return 0 if fine, 1 if timer is still running, 2 if channel failed
+ */
 int App_Efuse_FaultProcedure_Channel0(struct Efuse *efuse, int max_attempts);
+
+/**
+ * If current == 0 or current > max current, then it will go through this fault procedure function (channel1)
+ * @param efuse
+ * @param max_attempts max number of attempts allowed before faulting
+ * @return 0 if fine, 1 if timer is still running, 2 if channel failed
+ */
 int App_Efuse_FaultProcedure_Channel1(struct Efuse *efuse, int max_attempts);
-bool App_Efuse_Fault_0_Attempts(struct Efuse *efuse, int channel);
 

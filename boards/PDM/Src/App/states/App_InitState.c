@@ -1,14 +1,9 @@
-#include <math.h>
-
 #include "states/App_AllStates.h"
 #include "states/App_InitState.h"
 
 #include "App_SharedMacros.h"
 #include "App_SetPeriodicCanSignals.h"
 
-#include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/states/App_AllStates.h"
-#include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/states/App_DriveState.h"
-#include "App_SharedMacros.h"
 
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {

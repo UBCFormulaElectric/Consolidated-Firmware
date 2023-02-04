@@ -19,19 +19,19 @@ bool Faults(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, st
         App_CanTx_PDM_Efuse_Fault_Checks_AIR_Set(false);
         num_fixed++;
     }
-    if (!App_Efuse_Fault_0_Attempts(efuse2, 0))
+    if (App_Efuse_FaultProcedure_Channel0(efuse2, 0) == 0)
     {
         // EMETER
         App_CanTx_PDM_Efuse_Fault_Checks_EMETER_Set(false);
         num_fixed++;
     }
-    if (!App_Efuse_Fault_0_Attempts(efuse3, 0))
+    if (App_Efuse_FaultProcedure_Channel0(efuse3, 0) == 0)
     {
         // LEFT INVERTER
         App_CanTx_PDM_Efuse_Fault_Checks_LEFT_INVERTER_Set(false);
         num_fixed++;
     }
-    if (!App_Efuse_Fault_0_Attempts(efuse3, 1))
+    if (App_Efuse_FaultProcedure_Channel1(efuse3, 0) == 0)
     {
         // LEFT INVERTER
         App_CanTx_PDM_Efuse_Fault_Checks_RIGHT_INVERTER_Set(false);
