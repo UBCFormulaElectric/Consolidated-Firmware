@@ -34,11 +34,9 @@
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
 #include "Io_SharedHeartbeatMonitor.h"
-#include "Io_RgbLedSequence.h"
 #include "Io_BrakeLight.h"
 #include "Io_Buzzer.h"
 #include "Io_LSM6DS33.h"
-#include "Io_InverterSwitches.h"
 
 #include "App_CanUtils.h"
 #include "App_SharedMacros.h"
