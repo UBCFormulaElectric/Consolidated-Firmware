@@ -34,10 +34,10 @@ struct Efuse *App_Efuse_Create(
     void (*stdby_reset)(struct Io_Efuse *),
     float (*get_channel_0_current)(struct Io_Efuse *),
     float (*get_channel_1_current)(struct Io_Efuse *),
-    float(*channel_0_min_current),
-    float(*channel_0_max_current),
-    float(*channel_1_min_current),
-    float(*channel_1_max_current));
+    float channel_0_min_current,
+    float channel_0_max_current,
+    float channel_1_min_current,
+    float channel_1_max_current);
 
 void App_Efuse_Destroy(struct Efuse *efuse);
 
@@ -97,21 +97,6 @@ float App_Efuse_GetChannel0Current(struct Efuse *efuse);
  */
 float App_Efuse_GetChannel1Current(struct Efuse *efuse);
 
-/**
- * Local function which checks if current is under min_value
- * @param value
- * @param min_value
- * @return True if current is too low, false if not.
- */
-bool App_Efuse_CurrentLowCheck(float value, float min_value);
-
-/**
- * Local function which checks if current is over max_value
- * @param value
- * @param max_value
- * @return True if current is too high, false if not.
- */
-bool App_Efuse_CurrentHighCheck(float value, float max_value);
 
 // The next four functions are just the same as App_Efuse_CurrentLowCheck and App_Efuse_CurrentHighCheck for the
 // specific channels.
@@ -119,3 +104,8 @@ bool App_Efuse_Channel0_CurrentLowCheck(struct Efuse *efuse);
 bool App_Efuse_Channel0_CurrentHighCheck(struct Efuse *efuse);
 bool App_Efuse_Channel1_CurrentLowCheck(struct Efuse *efuse);
 bool App_Efuse_Channel1_CurrentHighCheck(struct Efuse *efuse);
+
+int App_Efuse_FaultProcedure_Channel0(struct Efuse *efuse, int max_attempts);
+int App_Efuse_FaultProcedure_Channel1(struct Efuse *efuse, int max_attempts);
+bool App_Efuse_Fault_0_Attempts(struct Efuse *efuse, int channel);
+

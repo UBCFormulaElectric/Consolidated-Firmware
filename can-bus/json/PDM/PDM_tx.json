@@ -1,110 +1,104 @@
 {
-  "PDM_Heartbeat": {
-    "msg_id": 799, 
-    "cycle_time": 100, 
-    "signals": {
-    "HB": {"bits": 1}
-    }
-  },
+  "PDMVitals": {
+        "msg_id": 404,
+        "cycle_time": 1000,
+        "description": "PDM Heartbeat signal",
+        "signals": {
+            "Heartbeat": {"bits": 1}
+        }
+
+    },
   "PDM_Efuse1_Currents": {
-    "msg_id": 800,
-    "cycle_time": 1,
+    "msg_id": 405,
+    "cycle_time": 100,
     "signals": {
       "AIR_Current": { "bits": 32, "unit": "mA", "max" : 0, "min": 10000 },
       "LVPWR_Current": { "bits": 32, "unit": "mA", "max" : 0, "min": 10000 }
     }
   },
   "PDM_Efuse2_Currents": {
-    "msg_id": 802,
-    "cycle_time": 1,
+    "msg_id": 406,
+    "cycle_time": 100,
     "signals": {
       "EMETER_Current": { "bits": 32, "unit": "mA", "max" : 0, "min": 10000 },
       "AUX_Current": { "bits": 32, "unit": "mA", "max" : 0, "min": 10000 }
     }
   },
   "PDM_Efuse3_Currents": {
-    "msg_id": 803,
-    "cycle_time": 1,
+    "msg_id": 407,
+    "cycle_time": 100,
     "signals": {
       "LEFT_INVERTER_Current": { "bits": 32, "unit": "mA", "max" : 0, "min": 10000 },
       "RIGHT_INVERTER_Current": { "bits": 32, "unit": "mA", "max" : 0, "min": 10000 }
     }
   },
   "PDM_Efuse4_Currents": {
-    "msg_id": 804,
-    "cycle_time": 1,
+    "msg_id": 408,
+    "cycle_time": 100,
     "signals": {
       "DRS_Current": { "bits": 32, "unit": "mA", "max" : 0, "min": 10000 },
       "FAN_Current": { "bits": 32, "unit": "mA", "max" : 0, "min": 10000 }
     }
   },
-  "PDM_Efuse_Current_Checks": {
-    "msg_id": 805,
-    "cycle_time": 1,
+  "PDM_Efuse_Fault_Checks": {
+    "msg_id": 409,
+    "cycle_time": 100,
     "signals": {
-      "AIR_Current_IN_RANGE_CHECK": {"bits": 1},
-      "LVPWR_Current_IN_RANGE_CHECK": {"bits": 1},
-      "EMETER_Current_IN_RANGE_CHECK": {"bits": 1},
-      "AUX_Current_IN_RANGE_CHECK": {"bits": 1},
-      "LEFT_INVERTER_Current_IN_RANGE_CHECK": {"bits": 1},
-      "RIGHT_INVERTER_IN_RANGE_CHECK": {"bits": 1},
-      "DRS_IN_RANGE_CHECK": {"bits": 1},
-      "FAN_Current_IN_RANGE_CHECK": {"bits": 1}
+      "AIR": {"bits": 1},
+      "LVPWR": {"bits": 1},
+      "EMETER": {"bits": 1},
+      "AUX": {"bits": 1},
+      "LEFT_INVERTER": {"bits": 1},
+      "RIGHT_INVERTER": {"bits": 1},
+      "DRS": {"bits": 1},
+      "FAN": {"bits": 1}
     }
   },
-  "PDM_VBAT_Voltage": {
-    "msg_id": 806,
-    "cycle_time": 1,
+  "PDM_VBAT": {
+    "msg_id": 410,
+    "cycle_time": 100,
     "signals": {
-      "VBAT_Voltage": {
+      "Voltage": {
         "max": 600,
         "min": -600,
         "bits": 32,
-        "unit": "V"
-      }
+        "unit": "V"},
+      "Critical": {"bits": 1},
+      "LOW": {"bits": 1},
+      "HIGH": {"bits": 1}
     }
   },
-  "PDM__24V_ACC_Voltage": {
-    "msg_id": 807,
-    "cycle_time": 1,
+  "PDM__24V_ACC": {
+    "msg_id": 411,
+    "cycle_time": 100,
     "signals": {
-      "_24V_ACC_Voltage": {
+      "Voltage": {
         "max": 600,
         "min": -600,
         "bits": 32,
-        "unit": "V"
-      }
+        "unit": "V"},
+      "Critical": {"bits": 1},
+      "LOW": {"bits": 1},
+      "HIGH": {"bits": 1}
     }
   },
-  "PDM__22V_AUX_Voltage": {
-    "msg_id": 808,
-    "cycle_time": 1,
+  "PDM__22V_AUX": {
+    "msg_id": 412,
+    "cycle_time": 100,
     "signals": {
-      "_22V_AUX_Voltage": {
+      "Voltage": {
         "max": 600,
         "min": -600,
         "bits": 32,
-        "unit": "V"
-      }
+        "unit": "V"},
+      "Critical": {"bits": 1},
+      "LOW": {"bits": 1},
+      "HIGH": {"bits": 1}
+      
     }
-  },
-  "PDM_Voltage_Checks": {
-    "msg_id": 809,
-    "cycle_time": 1,
-    "signals": {
-      "VBAT_Critical": { "bits": 1 },
-      "ACC_Critical": { "bits": 1 },
-      "AUX_Critical": { "bits": 1 },
-      "VBAT_LOW": { "bits": 1 },
-      "ACC_LOW": { "bits": 1 },
-      "AUX_LOW": { "bits": 1 },
-      "VBAT_HIGH": { "bits": 1 },
-      "ACC_HIGH": { "bits": 1 },
-      "AUX_HIGH": { "bits": 1 }
-     }   
   },
   "PDM_LowVoltageBattery_Faults":{
-    "msg_id": 810,
+    "msg_id": 414,
     "cycle_time": 100,
     "signals": {
     "Boost_Fault": {"bits" : 1},

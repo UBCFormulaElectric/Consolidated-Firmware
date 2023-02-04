@@ -4,16 +4,33 @@
 #include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/states/App_InitState.h"
 
 #include "App_SharedMacros.h"
+#include "states/App_FaultState.h"
 
 #define NUM_CYCLES_TO_SETTLE 0U
+#define EFUSE_CURRENT_THRESHOLD (0.1f)
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    struct PdmWorld *         world            = App_SharedStateMachine_GetWorld(state_machine);
-    struct PdmCanTxInterface *can_tx_interface = App_PdmWorld_GetCanTx(world);
+    UNUSED(state_machine);
 }
 
-void Efuse_Enable_Disable_Channels(
+void Efuse_Enable_Channels_18650_STARTUP(
+        struct Efuse *efuse1,
+        struct Efuse *efuse2,
+        struct Efuse *efuse3,
+        struct Efuse *efuse4)
+{
+    App_Efuse_EnableChannel0(efuse1);
+    App_Efuse_EnableChannel1(efuse1);
+    App_Efuse_EnableChannel0(efuse2);
+    App_Efuse_DisableChannel1(efuse2);
+    App_Efuse_EnableChannel0(efuse3);
+    App_Efuse_EnableChannel1(efuse3);
+    App_Efuse_DisableChannel0(efuse4);
+    App_Efuse_DisableChannel1(efuse4);
+}
+
+void Efuse_Enable_Channels_PCM_RUNNING(
     struct Efuse *efuse1,
     struct Efuse *efuse2,
     struct Efuse *efuse3,
@@ -29,6 +46,90 @@ void Efuse_Enable_Disable_Channels(
     App_Efuse_EnableChannel1(efuse4);
 }
 
+void Warning_Detection(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, struct Efuse *efuse4, struct RailMonitoring *rail_monitor)
+{
+    if (App_Efuse_FaultProcedure_Channel1(efuse2, 3) == 2)
+    {
+        // LVPWR
+        App_CanTx_PDM_Efuse_Fault_Checks_LVPWR_Set(true);
+    }
+    else if (App_Efuse_FaultProcedure_Channel1(efuse2, 3) == 0)
+    {
+        App_CanTx_PDM_Efuse_Fault_Checks_LVPWR_Set(false);
+    }
+
+    if (App_Efuse_FaultProcedure_Channel0(efuse4, 3) == 2)
+    {
+        // DRS
+        App_CanTx_PDM_Efuse_Fault_Checks_DRS_Set(true);
+    }
+    else if (App_Efuse_FaultProcedure_Channel0(efuse4, 3) == 0)
+    {
+        App_CanTx_PDM_Efuse_Fault_Checks_DRS_Set(false);
+    }
+
+    if (App_Efuse_FaultProcedure_Channel1(efuse4, 3) == 2)
+    {
+        // FAN
+        App_CanTx_PDM_Efuse_Fault_Checks_FAN_Set(true);
+    }
+    else if (App_Efuse_FaultProcedure_Channel1(efuse4, 3) == 0)
+    {
+        App_CanTx_PDM_Efuse_Fault_Checks_FAN_Set(true);
+    }
+
+
+}
+
+bool Fault_Detection(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, struct Efuse *efuse4, struct RailMonitoring *rail_monitor)
+{
+    bool status = false;
+    if (App_Efuse_FaultProcedure_Channel0(efuse1, 3) == 2)
+    {
+        // AIR
+        App_CanTx_PDM_Efuse_Fault_Checks_AIR_Set(true);
+        status = true;
+    }
+    if (App_Efuse_Fault_0_Attempts(efuse2, 0))
+    {
+        // EMETER
+        App_CanTx_PDM_Efuse_Fault_Checks_EMETER_Set(true);
+        status = true;
+    }
+    if (App_Efuse_Fault_0_Attempts(efuse3, 0))
+    {
+        // LEFT INVERTER
+        App_CanTx_PDM_Efuse_Fault_Checks_LEFT_INVERTER_Set(true);
+        status = true;
+    }
+    if (App_Efuse_Fault_0_Attempts(efuse3, 1))
+    {
+        // LEFT INVERTER
+        App_CanTx_PDM_Efuse_Fault_Checks_RIGHT_INVERTER_Set(true);
+        status = true;
+    }
+    if (App_RailMonitoring_VBAT_VoltageCriticalCheck(rail_monitor))
+    {
+        // VBAT
+        // NO CAN MESSAGE BECAUSE IT'S IN ALLSTATES
+        status = true;
+    }
+    if (App_RailMonitoring__24V_ACC_VoltageCriticalCheck(rail_monitor))
+    {
+        // ACC
+        // NO CAN MESSAGE BECAUSE IT'S IN ALLSTATES
+        status = true;
+    }
+    if (App_RailMonitoring__22V_AUX_VoltageCriticalCheck(rail_monitor))
+    {
+        // AUX
+        // NO CAN MESSAGE BECAUSE IT'S IN ALLSTATES
+        status = true;
+    }
+
+    return status;
+}
+
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick1Hz(state_machine);
@@ -37,38 +138,37 @@ static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct PdmWorld *         world        = App_SharedStateMachine_GetWorld(state_machine);
-    struct PdmCanTxInterface *can_tx       = App_PdmWorld_GetCanTx(world);
-    struct PdmCanRxInterface *can_rx       = App_PdmWorld_GetCanRx(world);
     struct RailMonitoring *   rail_monitor = App_PdmWorld_GetRailMonitoring(world);
     struct Efuse *            efuse1       = App_PdmWorld_GetEfuse1(world);
     struct Efuse *            efuse2       = App_PdmWorld_GetEfuse2(world);
     struct Efuse *            efuse3       = App_PdmWorld_GetEfuse3(world);
     struct Efuse *            efuse4       = App_PdmWorld_GetEfuse4(world);
+    bool                      fault_status = Fault_Detection(efuse1, efuse2, efuse3, efuse4, rail_monitor);
 
-    if (App_AllStatesRunOnTick100Hz(state_machine))
+    App_AllStatesRunOnTick100Hz(state_machine);
+    if (!fault_status)
     {
-        Efuse_Enable_Disable_Channels(efuse1, efuse2, efuse3, efuse4);
-
-        if (App_RailMonitoring__24V_ACC_VoltageCriticalCheck(rail_monitor))
+        if ()
         {
-            // HW SHUTDOWN
+            // PCM Running
+            Efuse_Enable_Channels_PCM_RUNNING(efuse1, efuse2, efuse3, efuse4);
         }
-
-        // TODO: JSONCAN
-        // if (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) ==
-        // CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE
-        // &&
-        //     App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx) ==
-        //     CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE)
-
-        if (App_CanRx_BMS_AIR_STATES_GetSignal_AIR_POSITIVE(can_rx) ==
-                CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE &&
-            App_CanRx_BMS_AIR_STATES_GetSignal_AIR_NEGATIVE(can_rx) ==
-                CANMSGS_BMS_AIR_STATES_AIR_NEGATIVE_CLOSED_CHOICE)
+        else
         {
-            App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
+            // 18650 Startup
+            Efuse_Enable_Channels_18650_STARTUP(efuse1, efuse2, efuse3, efuse4);
         }
     }
+    else
+    {
+        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+    }
+
+
+
+
+
+
 }
 
 static void DriveStateRunOnExit(struct StateMachine *const state_machine)

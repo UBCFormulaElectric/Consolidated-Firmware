@@ -13,8 +13,7 @@
 #define DEFAULT_MAX_CELL_DISCHARGE_TEMP_DEGC (60.0f)
 #define DEFAULT_MAX_CELL_CHARGE_TEMP_DEGC (45.0f)
 
-
-    #define MAX_POWER_LIMIT_W(78e3f)
+#define MAX_POWER_LIMIT_W(78e3f)
 #define CELL_ROLL_OFF_TEMP_DEGC (40.0f)
 #define CELL_FULLY_DERATED_TEMP (60.0f)
 
@@ -22,7 +21,7 @@
 #define NUM_CYCLES_TO_SETTLE (3U)
 
 <<<<<<< HEAD
-        static void
+    static void
     App_SendAndReceiveHeartbeat(
         struct BmsCanTxInterface *can_tx,
         struct BmsCanRxInterface *can_rx,

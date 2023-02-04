@@ -46,79 +46,48 @@ float App_RailMonitoring_Get__22V_AUX_Voltage(struct RailMonitoring *rail_monito
     return rail_monitor->get__24V_ACC_voltage();
 }
 
-bool App_RailMonitoring_VoltageLowCheck(float value, float min_value)
-{
-    if (value >= min_value)
-        return false;
-    return true;
-}
-
-bool App_RailMonitoring_VoltageHighCheck(float value, float max_value)
-{
-    if (value <= max_value)
-        return false;
-    return true;
-}
 
 bool App_RailMonitoring_VBAT_VoltageLowCheck(struct RailMonitoring *rail_monitor)
 {
-    if (App_RailMonitoring_VoltageLowCheck(rail_monitor->get_VBAT_voltage(), VBAT_MIN_VOLTAGE) == 1)
-        return true;
-    return false;
+    return rail_monitor->get_VBAT_voltage() < VBAT_MIN_VOLTAGE;
 }
 
 bool App_RailMonitoring_VBAT_VoltageHighCheck(struct RailMonitoring *rail_monitor)
 {
-    if (App_RailMonitoring_VoltageHighCheck(rail_monitor->get_VBAT_voltage(), VBAT_MAX_VOLTAGE) == 1)
-        return true;
-    return false;
-}
-
-bool App_RailMonitoring__24V_ACC_VoltageLowCheck(struct RailMonitoring *rail_monitor)
-{
-    if (App_RailMonitoring_VoltageLowCheck(rail_monitor->get__24V_ACC_voltage(), _24V_ACC_MIN_VOLTAGE) == 1)
-        return true;
-    return false;
-}
-
-bool App_RailMonitoring__24V_ACC_VoltageHighCheck(struct RailMonitoring *rail_monitor)
-{
-    if (App_RailMonitoring_VoltageHighCheck(rail_monitor->get__24V_ACC_voltage(), _24V_ACC_MAX_VOLTAGE) == 1)
-        return true;
-    return false;
-}
-
-bool App_RailMonitoring__22V_AUX_VoltageLowCheck(struct RailMonitoring *rail_monitor)
-{
-    if (App_RailMonitoring_VoltageLowCheck(rail_monitor->get__22V_AUX_voltage(), _22V_AUX_MIN_VOLTAGE) == 1)
-        return true;
-    return false;
-}
-
-bool App_RailMonitoring__22V_AUX_VoltageHighCheck(struct RailMonitoring *rail_monitor)
-{
-    if (App_RailMonitoring_VoltageHighCheck(rail_monitor->get__22V_AUX_voltage(), _22V_AUX_MAX_VOLTAGE) == 1)
-        return true;
-    return false;
+    return rail_monitor->get_VBAT_voltage() > VBAT_MAX_VOLTAGE;
 }
 
 bool App_RailMonitoring_VBAT_VoltageCriticalCheck(struct RailMonitoring *rail_monitor)
 {
-    if (App_RailMonitoring_VoltageLowCheck(rail_monitor->get_VBAT_voltage(), VBAT_CRITICAL_VOLTAGE) == 1)
-        return true;
-    return false;
+    return rail_monitor->get_VBAT_voltage() > VBAT_CRITICAL_VOLTAGE;
+}
+
+bool App_RailMonitoring__24V_ACC_VoltageLowCheck(struct RailMonitoring *rail_monitor)
+{
+    return rail_monitor->get__24V_ACC_voltage() < _24V_ACC_MIN_VOLTAGE;
+}
+
+bool App_RailMonitoring__24V_ACC_VoltageHighCheck(struct RailMonitoring *rail_monitor)
+{
+    return rail_monitor->get__24V_ACC_voltage() > _24V_ACC_MAX_VOLTAGE;
 }
 
 bool App_RailMonitoring__24V_ACC_VoltageCriticalCheck(struct RailMonitoring *rail_monitor)
 {
-    if (App_RailMonitoring_VoltageLowCheck(rail_monitor->get__24V_ACC_voltage(), _24V_ACC_CRITICAL_VOLTAGE) == 1)
-        return true;
-    return false;
+    return rail_monitor->get__24V_ACC_voltage() > _24V_ACC_CRITICAL_VOLTAGE;
 }
 
-bool App_RailMonitoring__22V_AUX_VoltageCriticalCheck(struct RailMonitoring *rail_monitor)
+bool App_RailMonitoring_22V_AUX_VoltageLowCheck(struct RailMonitoring *rail_monitor)
 {
-    if (App_RailMonitoring_VoltageLowCheck(rail_monitor->get__22V_AUX_voltage(), _22V_AUX_CRITICAL_VOLTAGE) == 1)
-        return true;
-    return false;
+    return rail_monitor->get__22V_AUX_voltage() < _22V_AUX_MIN_VOLTAGE;
+}
+
+bool App_RailMonitoring_22V_AUX_VoltageHighCheck(struct RailMonitoring *rail_monitor)
+{
+    return rail_monitor->get__22V_AUX_voltage() > _22V_AUX_MAX_VOLTAGE;
+}
+
+bool App_RailMonitoring_22V_AUX_VoltageCriticalCheck(struct RailMonitoring *rail_monitor)
+{
+    return rail_monitor->get__22V_AUX_voltage() > _22V_AUX_CRITICAL_VOLTAGE;
 }

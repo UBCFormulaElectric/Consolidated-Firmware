@@ -36,31 +36,16 @@ float App_RailMonitoring_Get__24V_ACC_Voltage(struct RailMonitoring *rail_monito
  */
 float App_RailMonitoring_Get__22V_AUX_Voltage(struct RailMonitoring *rail_monitor);
 
-/**
- * Local function checking if voltage is too low
- * @param value
- * @param min_value
- * @return true if too low, false if not
- */
-bool App_RailMonitoring_VoltageLowCheck(float value, float min_value);
 
-/**
- * Local function checking if voltage is too high
- * @param value
- * @param max_value
- * @return true if too high, false if not
- */
-bool App_RailMonitoring_VoltageHighCheck(float value, float max_value);
 
 // Functions below check if each voltage is too low or too high
 bool App_RailMonitoring_VBAT_VoltageLowCheck(struct RailMonitoring *rail_monitor);
 bool App_RailMonitoring_VBAT_VoltageHighCheck(struct RailMonitoring *rail_monitor);
+bool App_RailMonitoring_VBAT_VoltageCriticalCheck(struct RailMonitoring *rail_monitor);
 bool App_RailMonitoring__24V_ACC_VoltageLowCheck(struct RailMonitoring *rail_monitor);
 bool App_RailMonitoring__24V_ACC_VoltageHighCheck(struct RailMonitoring *rail_monitor);
+bool App_RailMonitoring__24V_ACC_VoltageCriticalCheck(struct RailMonitoring *rail_monitor);
 bool App_RailMonitoring__22V_AUX_VoltageLowCheck(struct RailMonitoring *rail_monitor);
 bool App_RailMonitoring__22V_AUX_VoltageHighCheck(struct RailMonitoring *rail_monitor);
-
-// Functions below check if each voltage is critical or not
-bool App_RailMonitoring_VBAT_VoltageCriticalCheck(struct RailMonitoring *rail_monitor);
-bool App_RailMonitoring__24V_ACC_VoltageCriticalCheck(struct RailMonitoring *rail_monitor);
 bool App_RailMonitoring__22V_AUX_VoltageCriticalCheck(struct RailMonitoring *rail_monitor);
+

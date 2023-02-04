@@ -57,56 +57,54 @@ SG_ FSM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
 BO_ 301 FSM_AlertCleared: 0 FSM
 SG_ FSM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
 
-BO_ 799 PDM_Heartbeat: 1 PDM
-SG_ HB : 0|1@1+ (1,0) [0|1] "" DEBUG
+BO_ 404 PDMVitals: 1 PDM
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG
 
-BO_ 800 PDM_Efuse1_Currents: 8 PDM
+BO_ 405 PDM_Efuse1_Currents: 8 PDM
 SG_ AIR_Current : 0|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
 SG_ LVPWR_Current : 32|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
 
-BO_ 802 PDM_Efuse2_Currents: 8 PDM
+BO_ 406 PDM_Efuse2_Currents: 8 PDM
 SG_ EMETER_Current : 0|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
 SG_ AUX_Current : 32|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
 
-BO_ 803 PDM_Efuse3_Currents: 8 PDM
+BO_ 407 PDM_Efuse3_Currents: 8 PDM
 SG_ LEFT_INVERTER_Current : 0|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
 SG_ RIGHT_INVERTER_Current : 32|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
 
-BO_ 804 PDM_Efuse4_Currents: 8 PDM
+BO_ 408 PDM_Efuse4_Currents: 8 PDM
 SG_ DRS_Current : 0|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
 SG_ FAN_Current : 32|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
 
-BO_ 805 PDM_Efuse_Current_Checks: 1 PDM
-SG_ AIR_Current_IN_RANGE_CHECK : 0|1@1+ (1,0) [0|1] "" DEBUG
-SG_ LVPWR_Current_IN_RANGE_CHECK : 1|1@1+ (1,0) [0|1] "" DEBUG
-SG_ EMETER_Current_IN_RANGE_CHECK : 2|1@1+ (1,0) [0|1] "" DEBUG
-SG_ AUX_Current_IN_RANGE_CHECK : 3|1@1+ (1,0) [0|1] "" DEBUG
-SG_ LEFT_INVERTER_Current_IN_RANGE_CHECK : 4|1@1+ (1,0) [0|1] "" DEBUG
-SG_ RIGHT_INVERTER_IN_RANGE_CHECK : 5|1@1+ (1,0) [0|1] "" DEBUG
-SG_ DRS_IN_RANGE_CHECK : 6|1@1+ (1,0) [0|1] "" DEBUG
-SG_ FAN_Current_IN_RANGE_CHECK : 7|1@1+ (1,0) [0|1] "" DEBUG
+BO_ 409 PDM_Efuse_Fault_Checks: 1 PDM
+SG_ AIR : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ LVPWR : 1|1@1+ (1,0) [0|1] "" DEBUG
+SG_ EMETER : 2|1@1+ (1,0) [0|1] "" DEBUG
+SG_ AUX : 3|1@1+ (1,0) [0|1] "" DEBUG
+SG_ LEFT_INVERTER : 4|1@1+ (1,0) [0|1] "" DEBUG
+SG_ RIGHT_INVERTER : 5|1@1+ (1,0) [0|1] "" DEBUG
+SG_ DRS : 6|1@1+ (1,0) [0|1] "" DEBUG
+SG_ FAN : 7|1@1+ (1,0) [0|1] "" DEBUG
 
-BO_ 806 PDM_VBAT_Voltage: 4 PDM
-SG_ VBAT_Voltage : 0|32@1+ (2.793967724496957e-07,-600) [-600|600] "V" DEBUG
+BO_ 410 PDM_VBAT: 5 PDM
+SG_ Voltage : 0|32@1+ (2.793967724496957e-07,-600) [-600|600] "V" DEBUG
+SG_ Critical : 32|1@1+ (1,0) [0|1] "" DEBUG
+SG_ LOW : 33|1@1+ (1,0) [0|1] "" DEBUG
+SG_ HIGH : 34|1@1+ (1,0) [0|1] "" DEBUG
 
-BO_ 807 PDM__24V_ACC_Voltage: 4 PDM
-SG_ _24V_ACC_Voltage : 0|32@1+ (2.793967724496957e-07,-600) [-600|600] "V" DEBUG
+BO_ 411 PDM__24V_ACC: 5 PDM
+SG_ Voltage : 0|32@1+ (2.793967724496957e-07,-600) [-600|600] "V" DEBUG
+SG_ Critical : 32|1@1+ (1,0) [0|1] "" DEBUG
+SG_ LOW : 33|1@1+ (1,0) [0|1] "" DEBUG
+SG_ HIGH : 34|1@1+ (1,0) [0|1] "" DEBUG
 
-BO_ 808 PDM__22V_AUX_Voltage: 4 PDM
-SG_ _22V_AUX_Voltage : 0|32@1+ (2.793967724496957e-07,-600) [-600|600] "V" DEBUG
+BO_ 412 PDM__22V_AUX: 5 PDM
+SG_ Voltage : 0|32@1+ (2.793967724496957e-07,-600) [-600|600] "V" DEBUG
+SG_ Critical : 32|1@1+ (1,0) [0|1] "" DEBUG
+SG_ LOW : 33|1@1+ (1,0) [0|1] "" DEBUG
+SG_ HIGH : 34|1@1+ (1,0) [0|1] "" DEBUG
 
-BO_ 809 PDM_Voltage_Checks: 2 PDM
-SG_ VBAT_Critical : 0|1@1+ (1,0) [0|1] "" DEBUG
-SG_ ACC_Critical : 1|1@1+ (1,0) [0|1] "" DEBUG
-SG_ AUX_Critical : 2|1@1+ (1,0) [0|1] "" DEBUG
-SG_ VBAT_LOW : 3|1@1+ (1,0) [0|1] "" DEBUG
-SG_ ACC_LOW : 4|1@1+ (1,0) [0|1] "" DEBUG
-SG_ AUX_LOW : 5|1@1+ (1,0) [0|1] "" DEBUG
-SG_ VBAT_HIGH : 6|1@1+ (1,0) [0|1] "" DEBUG
-SG_ ACC_HIGH : 7|1@1+ (1,0) [0|1] "" DEBUG
-SG_ AUX_HIGH : 8|1@1+ (1,0) [0|1] "" DEBUG
-
-BO_ 810 PDM_LowVoltageBattery_Faults: 1 PDM
+BO_ 414 PDM_LowVoltageBattery_Faults: 1 PDM
 SG_ Boost_Fault : 0|1@1+ (1,0) [0|1] "" DEBUG
 SG_ Charge_Fault : 1|1@1+ (1,0) [0|1] "" DEBUG
 
@@ -142,37 +140,37 @@ BA_ "GenSigStartValue" SG_ 601 GSM_AlertCleared 0;
 BA_ "GenSigStartValue" SG_ 303 Ex1 0;
 BA_ "GenSigStartValue" SG_ 300 FSM_AlertSet 0;
 BA_ "GenSigStartValue" SG_ 301 FSM_AlertCleared 0;
-BA_ "GenSigStartValue" SG_ 799 HB 0;
-BA_ "GenSigStartValue" SG_ 800 AIR_Current 10000;
-BA_ "GenSigStartValue" SG_ 800 LVPWR_Current 10000;
-BA_ "GenSigStartValue" SG_ 802 EMETER_Current 10000;
-BA_ "GenSigStartValue" SG_ 802 AUX_Current 10000;
-BA_ "GenSigStartValue" SG_ 803 LEFT_INVERTER_Current 10000;
-BA_ "GenSigStartValue" SG_ 803 RIGHT_INVERTER_Current 10000;
-BA_ "GenSigStartValue" SG_ 804 DRS_Current 10000;
-BA_ "GenSigStartValue" SG_ 804 FAN_Current 10000;
-BA_ "GenSigStartValue" SG_ 805 AIR_Current_IN_RANGE_CHECK 0;
-BA_ "GenSigStartValue" SG_ 805 LVPWR_Current_IN_RANGE_CHECK 0;
-BA_ "GenSigStartValue" SG_ 805 EMETER_Current_IN_RANGE_CHECK 0;
-BA_ "GenSigStartValue" SG_ 805 AUX_Current_IN_RANGE_CHECK 0;
-BA_ "GenSigStartValue" SG_ 805 LEFT_INVERTER_Current_IN_RANGE_CHECK 0;
-BA_ "GenSigStartValue" SG_ 805 RIGHT_INVERTER_IN_RANGE_CHECK 0;
-BA_ "GenSigStartValue" SG_ 805 DRS_IN_RANGE_CHECK 0;
-BA_ "GenSigStartValue" SG_ 805 FAN_Current_IN_RANGE_CHECK 0;
-BA_ "GenSigStartValue" SG_ 806 VBAT_Voltage -600;
-BA_ "GenSigStartValue" SG_ 807 _24V_ACC_Voltage -600;
-BA_ "GenSigStartValue" SG_ 808 _22V_AUX_Voltage -600;
-BA_ "GenSigStartValue" SG_ 809 VBAT_Critical 0;
-BA_ "GenSigStartValue" SG_ 809 ACC_Critical 0;
-BA_ "GenSigStartValue" SG_ 809 AUX_Critical 0;
-BA_ "GenSigStartValue" SG_ 809 VBAT_LOW 0;
-BA_ "GenSigStartValue" SG_ 809 ACC_LOW 0;
-BA_ "GenSigStartValue" SG_ 809 AUX_LOW 0;
-BA_ "GenSigStartValue" SG_ 809 VBAT_HIGH 0;
-BA_ "GenSigStartValue" SG_ 809 ACC_HIGH 0;
-BA_ "GenSigStartValue" SG_ 809 AUX_HIGH 0;
-BA_ "GenSigStartValue" SG_ 810 Boost_Fault 0;
-BA_ "GenSigStartValue" SG_ 810 Charge_Fault 0;
+BA_ "GenSigStartValue" SG_ 404 Heartbeat 0;
+BA_ "GenSigStartValue" SG_ 405 AIR_Current 10000;
+BA_ "GenSigStartValue" SG_ 405 LVPWR_Current 10000;
+BA_ "GenSigStartValue" SG_ 406 EMETER_Current 10000;
+BA_ "GenSigStartValue" SG_ 406 AUX_Current 10000;
+BA_ "GenSigStartValue" SG_ 407 LEFT_INVERTER_Current 10000;
+BA_ "GenSigStartValue" SG_ 407 RIGHT_INVERTER_Current 10000;
+BA_ "GenSigStartValue" SG_ 408 DRS_Current 10000;
+BA_ "GenSigStartValue" SG_ 408 FAN_Current 10000;
+BA_ "GenSigStartValue" SG_ 409 AIR 0;
+BA_ "GenSigStartValue" SG_ 409 LVPWR 0;
+BA_ "GenSigStartValue" SG_ 409 EMETER 0;
+BA_ "GenSigStartValue" SG_ 409 AUX 0;
+BA_ "GenSigStartValue" SG_ 409 LEFT_INVERTER 0;
+BA_ "GenSigStartValue" SG_ 409 RIGHT_INVERTER 0;
+BA_ "GenSigStartValue" SG_ 409 DRS 0;
+BA_ "GenSigStartValue" SG_ 409 FAN 0;
+BA_ "GenSigStartValue" SG_ 410 Voltage -600;
+BA_ "GenSigStartValue" SG_ 410 Critical 0;
+BA_ "GenSigStartValue" SG_ 410 LOW 0;
+BA_ "GenSigStartValue" SG_ 410 HIGH 0;
+BA_ "GenSigStartValue" SG_ 411 Voltage -600;
+BA_ "GenSigStartValue" SG_ 411 Critical 0;
+BA_ "GenSigStartValue" SG_ 411 LOW 0;
+BA_ "GenSigStartValue" SG_ 411 HIGH 0;
+BA_ "GenSigStartValue" SG_ 412 Voltage -600;
+BA_ "GenSigStartValue" SG_ 412 Critical 0;
+BA_ "GenSigStartValue" SG_ 412 LOW 0;
+BA_ "GenSigStartValue" SG_ 412 HIGH 0;
+BA_ "GenSigStartValue" SG_ 414 Boost_Fault 0;
+BA_ "GenSigStartValue" SG_ 414 Charge_Fault 0;
 BA_ "GenSigStartValue" SG_ 400 PDM_AlertSet 0;
 BA_ "GenSigStartValue" SG_ 401 PDM_AlertCleared 0;
 
@@ -183,17 +181,16 @@ BA_ "GenMsgCycleTime" BO_ 102  1000;
 BA_ "GenMsgCycleTime" BO_ 202  1000;
 BA_ "GenMsgCycleTime" BO_ 603  1000;
 BA_ "GenMsgCycleTime" BO_ 303  1000;
-BA_ "GenMsgCycleTime" BO_ 799  100;
-BA_ "GenMsgCycleTime" BO_ 800  1;
-BA_ "GenMsgCycleTime" BO_ 802  1;
-BA_ "GenMsgCycleTime" BO_ 803  1;
-BA_ "GenMsgCycleTime" BO_ 804  1;
-BA_ "GenMsgCycleTime" BO_ 805  1;
-BA_ "GenMsgCycleTime" BO_ 806  1;
-BA_ "GenMsgCycleTime" BO_ 807  1;
-BA_ "GenMsgCycleTime" BO_ 808  1;
-BA_ "GenMsgCycleTime" BO_ 809  1;
-BA_ "GenMsgCycleTime" BO_ 810  1;
+BA_ "GenMsgCycleTime" BO_ 404  1000;
+BA_ "GenMsgCycleTime" BO_ 405  100;
+BA_ "GenMsgCycleTime" BO_ 406  100;
+BA_ "GenMsgCycleTime" BO_ 407  100;
+BA_ "GenMsgCycleTime" BO_ 408  100;
+BA_ "GenMsgCycleTime" BO_ 409  100;
+BA_ "GenMsgCycleTime" BO_ 410  100;
+BA_ "GenMsgCycleTime" BO_ 411  100;
+BA_ "GenMsgCycleTime" BO_ 412  100;
+BA_ "GenMsgCycleTime" BO_ 414  100;
 
 
 VAL_ 503 Ex4 0 "CHOICE_0" 1 "CHOICE_1" 2 "CHOICE_2";

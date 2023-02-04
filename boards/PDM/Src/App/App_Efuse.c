@@ -1,4 +1,7 @@
 #include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/App_Efuse.h"
+#include "App_Timer.h"
+
+#define EFUSE_CURRENT_THRESHOLD (0.1f)
 
 struct Efuse
 {
@@ -12,10 +15,10 @@ struct Efuse
     void (*stdby_reset)(struct Io_Efuse *);
     float (*get_channel_0_current)(struct Io_Efuse *);
     float (*get_channel_1_current)(struct Io_Efuse *);
-    float(*channel_0_min_current);
-    float(*channel_0_max_current);
-    float(*channel_1_min_current);
-    float(*channel_1_max_current);
+    float channel_0_min_current;
+    float channel_0_max_current;
+    float channel_1_min_current;
+    float channel_1_max_current;
 };
 
 struct Efuse *App_Efuse_Create(
@@ -29,10 +32,10 @@ struct Efuse *App_Efuse_Create(
     void (*stdby_reset)(struct Io_Efuse *),
     float (*get_channel_0_current)(struct Io_Efuse *),
     float (*get_channel_1_current)(struct Io_Efuse *),
-    float(*channel_0_min_current),
-    float(*channel_0_max_current),
-    float(*channel_1_min_current),
-    float(*channel_1_max_current))
+    float channel_0_min_current,
+    float channel_0_max_current,
+    float channel_1_min_current,
+    float channel_1_max_current)
 {
     struct Efuse *efuse = malloc(sizeof(struct Efuse));
     assert(efuse != NULL);
@@ -105,46 +108,117 @@ float App_Efuse_GetChannel1Current(struct Efuse *efuse)
     return efuse->get_channel_1_current(efuse->io_efuse);
 }
 
-bool App_Efuse_CurrentLowCheck(float value, float min_value)
-{
-    if (value >= min_value)
-        return false;
-    return true;
-}
-
-bool App_Efuse_CurrentHighCheck(float value, float max_value)
-{
-    if (value <= max_value)
-        return false;
-    return true;
-}
 
 bool App_Efuse_Channel0_CurrentLowCheck(struct Efuse *efuse)
 {
-    if (App_Efuse_CurrentLowCheck(efuse->get_channel_0_current(efuse->io_efuse), *efuse->channel_0_min_current) == true)
-        return true;
-    return false;
+    return efuse->get_channel_0_current(efuse->io_efuse) < efuse->channel_0_min_current;
 }
 
 bool App_Efuse_Channel0_CurrentHighCheck(struct Efuse *efuse)
 {
-    if (App_Efuse_CurrentHighCheck(efuse->get_channel_0_current(efuse->io_efuse), *efuse->channel_0_max_current) ==
-        true)
-        return true;
-    return false;
+    return efuse->get_channel_0_current(efuse->io_efuse) > efuse->channel_0_max_current;
 }
 
 bool App_Efuse_Channel1_CurrentLowCheck(struct Efuse *efuse)
 {
-    if (App_Efuse_CurrentLowCheck(efuse->get_channel_1_current(efuse->io_efuse), *efuse->channel_1_min_current) == true)
-        return true;
-    return false;
+    return efuse->get_channel_1_current(efuse->io_efuse) < efuse->channel_1_min_current;
 }
 
 bool App_Efuse_Channel1_CurrentHighCheck(struct Efuse *efuse)
 {
-    if (App_Efuse_CurrentHighCheck(efuse->get_channel_1_current(efuse->io_efuse), *efuse->channel_1_max_current) ==
-        true)
-        return true;
+    return efuse->get_channel_1_current(efuse->io_efuse) > efuse->channel_1_max_current;
+}
+
+int App_Efuse_FaultProcedure_Channel0(struct Efuse *efuse, int max_attempts)
+{
+    static TimerChannel *efuse_timer;
+    static int           num_attempts      = 0;
+    static bool          has_timer_started = false;
+    App_Timer_InitTimer(efuse_timer, 1000);
+
+    if ((App_Efuse_GetChannel0Current(efuse) <= EFUSE_CURRENT_THRESHOLD && App_Efuse_IsChannel0Enabled(efuse)) ||
+        App_Efuse_Channel0_CurrentHighCheck(efuse))
+    {
+        if (!has_timer_started)
+        {
+            App_Timer_Restart(efuse_timer);
+            has_timer_started = true;
+        }
+    }
+    else
+    {
+        App_Timer_Stop(efuse_timer);
+        has_timer_started = false;
+        num_attempts = 0;
+        return 0; // fine
+    }
+
+    if (has_timer_started && App_Timer_UpdateAndGetState((efuse_timer)) == TIMER_STATE_EXPIRED)
+    {
+        App_Efuse_StandbyReset(efuse);
+        num_attempts++;
+
+    }
+    if (num_attempts >= max_attempts)
+    {
+        return 2; // channel failed
+    }
+
+    return 1; // unknown status
+}
+
+int App_Efuse_FaultProcedure_Channel1(struct Efuse *efuse, int max_attempts)
+{
+    static TimerChannel *efuse_timer;
+    static int           num_attempts      = 0;
+    static bool          has_timer_started = false;
+    App_Timer_InitTimer(efuse_timer, 1000);
+
+
+    if ((App_Efuse_GetChannel1Current(efuse) <= EFUSE_CURRENT_THRESHOLD && App_Efuse_IsChannel1Enabled(efuse)) ||
+         App_Efuse_Channel1_CurrentHighCheck(efuse))
+    {
+        if (!has_timer_started)
+        {
+            App_Timer_Restart(efuse_timer);
+            has_timer_started = true;
+        }
+    }
+    else
+    {
+        App_Timer_Stop(efuse_timer);
+        has_timer_started = false;
+        num_attempts = 0;
+        return 0;
+    }
+
+    if (has_timer_started && App_Timer_UpdateAndGetState((efuse_timer)) == TIMER_STATE_EXPIRED)
+    {
+        App_Efuse_StandbyReset(efuse);
+        num_attempts++;
+
+    }
+    if (num_attempts >= max_attempts)
+    {
+        return 2;
+    }
+
+    return 1; // unknown status
+}
+
+bool App_Efuse_Fault_0_Attempts(struct Efuse *efuse, int channel)
+{
+    if (channel == 0)
+    {
+        if ((App_Efuse_GetChannel0Current(efuse) <= EFUSE_CURRENT_THRESHOLD && App_Efuse_IsChannel0Enabled(efuse)) || App_Efuse_Channel0_CurrentHighCheck(efuse))
+            return true;
+
+    }
+    else
+    {
+        if ((App_Efuse_GetChannel1Current(efuse) <= EFUSE_CURRENT_THRESHOLD && App_Efuse_IsChannel1Enabled(efuse)) || App_Efuse_Channel1_CurrentHighCheck(efuse))
+            return true;
+    }
     return false;
 }
+
