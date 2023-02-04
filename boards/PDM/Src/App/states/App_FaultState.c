@@ -7,10 +7,15 @@
 
 static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    struct PdmWorld *const          world  = App_SharedStateMachine_GetWorld(state_machine);
+    struct PdmWorld *const world = App_SharedStateMachine_GetWorld(state_machine);
 }
 
-bool Faults(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, struct Efuse *efuse4, struct RailMonitoring *rail_monitor)
+bool Faults(
+    struct Efuse *         efuse1,
+    struct Efuse *         efuse2,
+    struct Efuse *         efuse3,
+    struct Efuse *         efuse4,
+    struct RailMonitoring *rail_monitor)
 {
     int num_fixed = 0;
     if (App_Efuse_FaultProcedure_Channel0(efuse1, 3) == 0)
@@ -70,15 +75,15 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
 
-    struct PdmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-    struct RailMonitoring *   rail_monitor = App_PdmWorld_GetRailMonitoring(world);
-    struct Efuse *            efuse1       = App_PdmWorld_GetEfuse1(world);
-    struct Efuse *            efuse2       = App_PdmWorld_GetEfuse2(world);
-    struct Efuse *            efuse3       = App_PdmWorld_GetEfuse3(world);
-    struct Efuse *            efuse4       = App_PdmWorld_GetEfuse4(world);
-    bool                      fault_status = Faults(efuse1, efuse2, efuse3, efuse4, rail_monitor);
+    struct PdmWorld *      world        = App_SharedStateMachine_GetWorld(state_machine);
+    struct RailMonitoring *rail_monitor = App_PdmWorld_GetRailMonitoring(world);
+    struct Efuse *         efuse1       = App_PdmWorld_GetEfuse1(world);
+    struct Efuse *         efuse2       = App_PdmWorld_GetEfuse2(world);
+    struct Efuse *         efuse3       = App_PdmWorld_GetEfuse3(world);
+    struct Efuse *         efuse4       = App_PdmWorld_GetEfuse4(world);
+    bool                   no_faults    = Faults(efuse1, efuse2, efuse3, efuse4, rail_monitor);
 
-    if (fault_status)
+    if (no_faults)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
     }

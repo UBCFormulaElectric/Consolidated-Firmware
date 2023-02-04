@@ -13,10 +13,10 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 }
 
 void Efuse_Enable_Channels_18650_STARTUP(
-        struct Efuse *efuse1,
-        struct Efuse *efuse2,
-        struct Efuse *efuse3,
-        struct Efuse *efuse4)
+    struct Efuse *efuse1,
+    struct Efuse *efuse2,
+    struct Efuse *efuse3,
+    struct Efuse *efuse4)
 {
     App_Efuse_EnableChannel0(efuse1);
     App_Efuse_EnableChannel1(efuse1);
@@ -44,7 +44,12 @@ void Efuse_Enable_Channels_PCM_RUNNING(
     App_Efuse_EnableChannel1(efuse4);
 }
 
-void Warning_Detection(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, struct Efuse *efuse4, struct RailMonitoring *rail_monitor)
+void Warning_Detection(
+    struct Efuse *         efuse1,
+    struct Efuse *         efuse2,
+    struct Efuse *         efuse3,
+    struct Efuse *         efuse4,
+    struct RailMonitoring *rail_monitor)
 {
     if (App_Efuse_FaultProcedure_Channel1(efuse2, 3) == 2)
     {
@@ -75,11 +80,14 @@ void Warning_Detection(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse 
     {
         App_CanTx_PDM_Efuse_Fault_Checks_FAN_Set(true);
     }
-
-
 }
 
-bool Fault_Detection(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, struct Efuse *efuse4, struct RailMonitoring *rail_monitor)
+bool Fault_Detection(
+    struct Efuse *         efuse1,
+    struct Efuse *         efuse2,
+    struct Efuse *         efuse3,
+    struct Efuse *         efuse4,
+    struct RailMonitoring *rail_monitor)
 {
     bool status = false;
     if (App_Efuse_FaultProcedure_Channel0(efuse1, 3) == 2)
@@ -135,13 +143,13 @@ static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    struct PdmWorld *         world        = App_SharedStateMachine_GetWorld(state_machine);
-    struct RailMonitoring *   rail_monitor = App_PdmWorld_GetRailMonitoring(world);
-    struct Efuse *            efuse1       = App_PdmWorld_GetEfuse1(world);
-    struct Efuse *            efuse2       = App_PdmWorld_GetEfuse2(world);
-    struct Efuse *            efuse3       = App_PdmWorld_GetEfuse3(world);
-    struct Efuse *            efuse4       = App_PdmWorld_GetEfuse4(world);
-    bool                      has_fault    = Fault_Detection(efuse1, efuse2, efuse3, efuse4, rail_monitor);
+    struct PdmWorld *      world        = App_SharedStateMachine_GetWorld(state_machine);
+    struct RailMonitoring *rail_monitor = App_PdmWorld_GetRailMonitoring(world);
+    struct Efuse *         efuse1       = App_PdmWorld_GetEfuse1(world);
+    struct Efuse *         efuse2       = App_PdmWorld_GetEfuse2(world);
+    struct Efuse *         efuse3       = App_PdmWorld_GetEfuse3(world);
+    struct Efuse *         efuse4       = App_PdmWorld_GetEfuse4(world);
+    bool                   has_fault    = Fault_Detection(efuse1, efuse2, efuse3, efuse4, rail_monitor);
 
     App_AllStatesRunOnTick100Hz(state_machine);
     if (!has_fault)
@@ -163,8 +171,6 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
-
-
 }
 
 static void DriveStateRunOnExit(struct StateMachine *const state_machine)

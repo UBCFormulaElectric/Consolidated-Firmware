@@ -148,7 +148,7 @@ int App_Efuse_FaultProcedure_Channel0(struct Efuse *efuse, int max_attempts)
     {
         App_Timer_Stop(efuse_timer);
         has_timer_started = false;
-        num_attempts = 0;
+        num_attempts      = 0;
         return 0; // fine
     }
 
@@ -156,7 +156,6 @@ int App_Efuse_FaultProcedure_Channel0(struct Efuse *efuse, int max_attempts)
     {
         App_Efuse_StandbyReset(efuse);
         num_attempts++;
-
     }
     if (num_attempts >= max_attempts)
     {
@@ -175,9 +174,8 @@ int App_Efuse_FaultProcedure_Channel1(struct Efuse *efuse, int max_attempts)
     static bool          has_timer_started = false;
     App_Timer_InitTimer(efuse_timer, 1000);
 
-
     if ((App_Efuse_GetChannel1Current(efuse) <= EFUSE_CURRENT_THRESHOLD && App_Efuse_IsChannel1Enabled(efuse)) ||
-         App_Efuse_Channel1_CurrentHighCheck(efuse))
+        App_Efuse_Channel1_CurrentHighCheck(efuse))
     {
         if (!has_timer_started)
         {
@@ -189,7 +187,7 @@ int App_Efuse_FaultProcedure_Channel1(struct Efuse *efuse, int max_attempts)
     {
         App_Timer_Stop(efuse_timer);
         has_timer_started = false;
-        num_attempts = 0;
+        num_attempts      = 0;
         return 0;
     }
 
@@ -197,7 +195,6 @@ int App_Efuse_FaultProcedure_Channel1(struct Efuse *efuse, int max_attempts)
     {
         App_Efuse_StandbyReset(efuse);
         num_attempts++;
-
     }
     if (num_attempts >= max_attempts)
     {
@@ -208,4 +205,3 @@ int App_Efuse_FaultProcedure_Channel1(struct Efuse *efuse, int max_attempts)
 
     return 1; // unknown status
 }
-

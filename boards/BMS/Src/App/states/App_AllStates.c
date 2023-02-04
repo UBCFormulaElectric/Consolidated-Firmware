@@ -6,7 +6,6 @@
 #include "App_SharedMacros.h"
 #include "App_SharedProcessing.h"
 
-<<<<<<< HEAD
 #define MIN_CELL_VOLTAGE(3.3f)
 #define MAX_CELL_VOLTAGE (4.2f)
 #define DEFAULT_MIN_CELL_TEMP_DEGC (0.0f)
@@ -20,16 +19,12 @@
 // Num of cycles for voltage and cell temperature values to settle
 #define NUM_CYCLES_TO_SETTLE (3U)
 
-<<<<<<< HEAD
     static void
     App_SendAndReceiveHeartbeat(
         struct BmsCanTxInterface *can_tx,
         struct BmsCanRxInterface *can_rx,
         struct HeartbeatMonitor * hb_monitor)
-=======
-    static void
-    App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
->>>>>>> b4459feda159733e8ae802d1d9e5174faf3c3eae
+    static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
     // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
 

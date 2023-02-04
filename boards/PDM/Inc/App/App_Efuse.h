@@ -97,7 +97,6 @@ float App_Efuse_GetChannel0Current(struct Efuse *efuse);
  */
 float App_Efuse_GetChannel1Current(struct Efuse *efuse);
 
-
 /**
  *
  * @param efuse
@@ -141,4 +140,3 @@ int App_Efuse_FaultProcedure_Channel0(struct Efuse *efuse, int max_attempts);
  * @return 0 if fine, 1 if timer is still running, 2 if channel failed
  */
 int App_Efuse_FaultProcedure_Channel1(struct Efuse *efuse, int max_attempts);
-

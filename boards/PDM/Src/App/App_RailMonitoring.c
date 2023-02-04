@@ -46,7 +46,6 @@ float App_RailMonitoring_Get__22V_AUX_Voltage(struct RailMonitoring *rail_monito
     return rail_monitor->get__24V_ACC_voltage();
 }
 
-
 bool App_RailMonitoring_VBAT_VoltageLowCheck(struct RailMonitoring *rail_monitor)
 {
     return rail_monitor->get_VBAT_voltage() < VBAT_MIN_VOLTAGE;

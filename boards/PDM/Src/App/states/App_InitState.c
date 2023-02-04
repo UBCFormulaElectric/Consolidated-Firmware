@@ -4,23 +4,18 @@
 #include "App_SharedMacros.h"
 #include "App_SetPeriodicCanSignals.h"
 
-
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct PdmWorld *const          world  = App_SharedStateMachine_GetWorld(state_machine);
-    struct PdmCanTxInterface *const can_tx = App_PdmWorld_GetCanTx(world);
 }
-
-
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
 {
-    App_AllStatesRunOnTick1Hz(state_machine);
+    UNUSED(state_machine);
 }
 
 static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-
     UNUSED(state_machine);
 }
 
@@ -41,4 +36,3 @@ const struct State *App_GetInitState(void)
 
     return &init_state;
 }
-

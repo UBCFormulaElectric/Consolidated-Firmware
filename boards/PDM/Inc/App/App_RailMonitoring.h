@@ -36,16 +36,65 @@ float App_RailMonitoring_Get__24V_ACC_Voltage(struct RailMonitoring *rail_monito
  */
 float App_RailMonitoring_Get__22V_AUX_Voltage(struct RailMonitoring *rail_monitor);
 
-
-
-// Functions below check if each voltage is too low or too high
+/**
+ *
+ * @param rail_monitor
+ * @return true if VBAT voltage too low
+ */
 bool App_RailMonitoring_VBAT_VoltageLowCheck(struct RailMonitoring *rail_monitor);
-bool App_RailMonitoring_VBAT_VoltageHighCheck(struct RailMonitoring *rail_monitor);
-bool App_RailMonitoring_VBAT_VoltageCriticalCheck(struct RailMonitoring *rail_monitor);
-bool App_RailMonitoring__24V_ACC_VoltageLowCheck(struct RailMonitoring *rail_monitor);
-bool App_RailMonitoring__24V_ACC_VoltageHighCheck(struct RailMonitoring *rail_monitor);
-bool App_RailMonitoring__24V_ACC_VoltageCriticalCheck(struct RailMonitoring *rail_monitor);
-bool App_RailMonitoring__22V_AUX_VoltageLowCheck(struct RailMonitoring *rail_monitor);
-bool App_RailMonitoring__22V_AUX_VoltageHighCheck(struct RailMonitoring *rail_monitor);
-bool App_RailMonitoring__22V_AUX_VoltageCriticalCheck(struct RailMonitoring *rail_monitor);
 
+/**
+ *
+ * @param rail_monitor
+ * @return true if VBAT voltage too high
+ */
+bool App_RailMonitoring_VBAT_VoltageHighCheck(struct RailMonitoring *rail_monitor);
+
+/**
+ *
+ * @param rail_monitor
+ * @return true if VBAT voltage critically low
+ */
+bool App_RailMonitoring_VBAT_VoltageCriticalCheck(struct RailMonitoring *rail_monitor);
+
+/**
+ *
+ * @param rail_monitor
+ * @return true if accumulator voltage too low
+ */
+bool App_RailMonitoring__24V_ACC_VoltageLowCheck(struct RailMonitoring *rail_monitor);
+
+/**
+ *
+ * @param rail_monitor
+ * @return true if accumulator voltage too high
+ */
+bool App_RailMonitoring__24V_ACC_VoltageHighCheck(struct RailMonitoring *rail_monitor);
+
+/**
+ *
+ * @param rail_monitor
+ * @return true if accumulator voltage critically low
+ */
+bool App_RailMonitoring__24V_ACC_VoltageCriticalCheck(struct RailMonitoring *rail_monitor);
+
+/**
+ *
+ * @param rail_monitor
+ * @return true if auxiliary voltage too low
+ */
+bool App_RailMonitoring__22V_AUX_VoltageLowCheck(struct RailMonitoring *rail_monitor);
+
+/**
+ *
+ * @param rail_monitor
+ * @return true if auxiliary voltage too high
+ */
+bool App_RailMonitoring__22V_AUX_VoltageHighCheck(struct RailMonitoring *rail_monitor);
+
+/**
+ *
+ * @param rail_monitor
+ * @return true if auxiliary voltage critically low
+ */
+bool App_RailMonitoring__22V_AUX_VoltageCriticalCheck(struct RailMonitoring *rail_monitor);
