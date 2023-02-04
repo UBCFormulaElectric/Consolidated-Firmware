@@ -129,13 +129,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
         clock = App_SharedClock_Create();
 
         world = App_BmsWorld_Create(
-<<<<<<< HEAD
             imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs,
             precharge_relay, ts, clock);
-=======
-            can_tx_interface, can_rx_interface, imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok,
-            bspd_ok, accumulator, airs, precharge_relay, ts, clock);
->>>>>>> 972a52cc (ELEC-279 Remove BMS Faults and Warnings from Error Table (#854))
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
@@ -298,11 +293,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
 TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInitState());
-<<<<<<< HEAD
     EXPECT_EQ(BMS_INIT_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
-=======
-    EXPECT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
->>>>>>> 972a52cc (ELEC-279 Remove BMS Faults and Warnings from Error Table (#854))
 }
 
 // BMS-31
@@ -636,7 +627,7 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_fa
     // Assume no AIR shutdown faults have been set
     SetInitialState(App_GetFaultState());
 
-    //If charger is connected, having air_negative open will lead to fault state, so ensure it is not
+    // If charger is connected, having air_negative open will lead to fault state, so ensure it is not
     is_charger_connected_fake.return_val   = false;
     is_air_negative_closed_fake.return_val = true;
     LetTimePass(state_machine, 1000);
@@ -653,7 +644,7 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
     SetInitialState(App_GetFaultState());
 
     // Check that state machine remains in FaultState with AIR- closed
-    //If charger is connected, having air_negative open will lead to fault state, so ensure it is not
+    // If charger is connected, having air_negative open will lead to fault state, so ensure it is not
     is_air_negative_closed_fake.return_val = true;
     is_charger_connected_fake.return_val   = false;
     LetTimePass(state_machine, 1000);
@@ -671,7 +662,7 @@ TEST_F(BmsStateMachineTest, charger_connected_no_can_msg_init_state)
 
     is_air_negative_closed_fake.return_val = true;
 
-    //Without the CAN message to start charging, will remain in init state when charger is connected
+    // Without the CAN message to start charging, will remain in init state when charger is connected
     is_charger_connected_fake.return_val = true;
 
     LetTimePass(state_machine, 20);
