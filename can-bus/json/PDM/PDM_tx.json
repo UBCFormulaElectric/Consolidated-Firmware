@@ -8,5 +8,16 @@
                 "bits": 1
             }
         }
+    },
+    "PDMVitals": {
+        "msg_id": 404,
+        "cycle_time": 1000,
+        "description": "PDM Heartbeat signal",
+        "signals": {
+            "Heartbeat": {
+                "bits": 1
+            }
+        }
+
     }
 }

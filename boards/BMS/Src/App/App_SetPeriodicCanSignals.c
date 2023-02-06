@@ -2,44 +2,45 @@
 
 void App_SetPeriodicCanSignals_Imd(struct Imd *imd)
 {
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_SECONDS_SINCE_POWER_ON(can_tx, App_Imd_GetSecondsSincePowerOn(imd));
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_FREQUENCY(can_tx, App_Imd_GetPwmFrequency(imd));
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_DUTY_CYCLE(can_tx, App_Imd_GetPwmDutyCycle(imd));
+    App_CanTx_BMSImdStatus_SecondsSincePowerOn_Set(App_Imd_GetSecondsSincePowerOn(imd));
+    App_CanTx_BMSImdPwmOutput_Frequency_Set(App_Imd_GetPwmFrequency(imd));
+    App_CanTx_BMSImdPwmOutput_DutyCycle_Set(App_Imd_GetPwmDutyCycle(imd));
 
     const struct Imd_Condition condition = App_Imd_GetCondition(imd);
     // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_CONDITION(can_tx, (uint8_t)condition.name);
 
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_VALID_DUTY_CYCLE(can_tx, condition.pwm_encoding.valid_duty_cycle);
+    App_CanTx_BMSImdStatus_ValidDutyCycle_Set(condition.pwm_encoding.valid_duty_cycle);
 
     switch (condition.name)
     {
         case IMD_NORMAL:
         {
-            if (condition.pwm_encoding.valid_duty_cycle == true)
+            if (condition.pwm_encoding.valid_duty_cycle)
             {
-                // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_INSULATION_MEASUREMENT_DCP_10_HZ(
-                //                    can_tx, condition.pwm_encoding.insulation_measurement_dcp_kohms);
+                App_CanTx_BMSImdData_InsulationMeasurementDcp10Hz_Set(
+                    condition.pwm_encoding.insulation_measurement_dcp_kohms);
+                App_CanTx_BMSImdData_ActiveFrequency_Set(10);
             }
         }
         break;
         case IMD_UNDERVOLTAGE_DETECTED:
         {
-            if (condition.pwm_encoding.valid_duty_cycle == true)
+            if (condition.pwm_encoding.valid_duty_cycle)
             {
-                // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_INSULATION_MEASUREMENT_DCP_20_HZ(
-                //                    can_tx, condition.pwm_encoding.insulation_measurement_dcp_kohms);
+                App_CanTx_BMSImdData_InsulationMeasurementDcp20Hz_Set(
+                    condition.pwm_encoding.insulation_measurement_dcp_kohms);
+                App_CanTx_BMSImdData_ActiveFrequency_Set(20);
             }
         }
         break;
         case IMD_SST:
         {
-            // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_SPEED_START_STATUS_30_HZ(can_tx,
-            // condition.pwm_encoding.speed_start_status);
+            App_CanTx_BMSImdData_SpeedStartStatus30Hz_Set(condition.pwm_encoding.speed_start_status);
         }
         break;
         case IMD_SHORT_CIRCUIT:
         case IMD_DEVICE_ERROR:
-        case IMD_EARTH_FAULT:
+        case IMD_GROUND_FAULT:
         case IMD_INVALID:
         {
             // Nothing to do for conditions that don't carry a payload

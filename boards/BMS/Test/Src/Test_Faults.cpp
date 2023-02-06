@@ -60,11 +60,6 @@ class BmsFaultTest : public BaseStateMachineTest
     {
         BaseStateMachineTest::SetUp();
 
-        can_tx_interface =
-            App_CanTx_Create(send_non_periodic_msg_BMS_STARTUP, send_non_periodic_msg_BMS_WATCHDOG_TIMEOUT);
-
-        can_rx_interface = App_CanRx_Create();
-
         imd =
             App_Imd_Create(get_pwm_frequency, IMD_FREQUENCY_TOLERANCE, get_pwm_duty_cycle, get_seconds_since_power_on);
 
@@ -98,8 +93,8 @@ class BmsFaultTest : public BaseStateMachineTest
         clock = App_SharedClock_Create();
 
         world = App_BmsWorld_Create(
-            can_tx_interface, can_rx_interface, imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok,
-            bspd_ok, accumulator, airs, precharge_relay, ts, clock);
+            imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs,
+            precharge_relay, ts, clock);
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
@@ -167,8 +162,6 @@ class BmsFaultTest : public BaseStateMachineTest
     {
         TearDownObject(world, App_BmsWorld_Destroy);
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
-        TearDownObject(can_tx_interface, App_CanTx_Destroy);
-        TearDownObject(can_rx_interface, App_CanRx_Destroy);
         TearDownObject(imd, App_Imd_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
@@ -402,9 +395,9 @@ TEST_F(BmsFaultTest, check_precharge_fault)
     for (int i = 0; i < 8; i++)
     {
         ASSERT_EQ(
-            expected_output[i], App_PrechargeRelay_CheckFaults(
-                                    precharge_relay, can_tx_interface, inputs[i][0], inputs[i][1], inputs[i][2],
-                                    &precharge_fault_limit_exceeded));
+            expected_output[i],
+            App_PrechargeRelay_CheckFaults(
+                precharge_relay, inputs[i][0], inputs[i][1], inputs[i][2], &precharge_fault_limit_exceeded));
 
         if (App_PrechargeRelay_GetFaultCounterVal(precharge_relay) >= 3)
         {

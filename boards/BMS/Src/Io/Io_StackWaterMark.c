@@ -17,23 +17,22 @@ extern TaskHandle_t TaskCanTxHandle;
 
 static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
 {
-    // TODO: JSONCAN -> // TODO: JSONCAN ->
-    // App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_KHZ(_can_tx_interface, error);
+    App_CanTx_BMSWarnings_StackWatermarkAboveThresholdTask1kHz_Set(error);
 }
 
 static void logWaterMarkAboveThresholdTask1Hz(uint8_t error)
 {
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_HZ(_can_tx_interface, error);
+    App_CanTx_BMSWarnings_StackWatermarkAboveThresholdTask1Hz_Set(error);
 }
 
 static void logWaterMarkAboveThresholdTaskCanRx(uint8_t error)
 {
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX(_can_tx_interface, error);
+    App_CanTx_BMSWarnings_StackWatermarkAboveThresholdTaskCanRx_Set(error);
 }
 
 static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 {
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX(_can_tx_interface, error);
+    App_CanTx_BMSWarnings_StackWatermarkAboveThresholdTaskCanTx_Set(error);
 }
 
 /** @brief Iterate through this table to check stack watermarks for each task */

@@ -1,2 +1,9 @@
 {
+  "SharedTasks": {
+    "F1HZ":0,
+    "F100HZ": 1,
+    "F1KHz": 2,
+    "CAN_RX": 3,
+    "CAN_TX": 4
+  }
 }

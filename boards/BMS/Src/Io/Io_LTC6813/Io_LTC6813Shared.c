@@ -192,7 +192,7 @@ void Io_LTC6813Shared_InitSpiHandle(SPI_HandleTypeDef *spi_handle)
     assert(spi_handle != NULL);
 
     // Initialize the SPI interface to communicate with the LTC6813
-    ltc6813_spi = Io_SharedSpi_Create(spi_handle, SPI2_NSS_GPIO_Port, SPI2_NSS_Pin, SPI_TIMEOUT_MS);
+    ltc6813_spi = Io_SharedSpi_Create(spi_handle, SPI1_NSS_GPIO_Port, SPI1_NSS_Pin, SPI_TIMEOUT_MS);
 }
 
 uint16_t Io_LTC6813Shared_CalculateRegGroupPec15(const uint8_t *data_buffer)

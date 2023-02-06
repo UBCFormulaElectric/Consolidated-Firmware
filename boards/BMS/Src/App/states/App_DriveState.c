@@ -6,7 +6,7 @@
 
 static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    struct BmsWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    App_CanTx_BMSVitals_CurrentState_Set(BMS_DRIVE_STATE);
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)

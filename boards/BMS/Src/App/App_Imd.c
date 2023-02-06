@@ -6,28 +6,6 @@
 #include "App_SharedMacros.h"
 #include "App_Imd.h"
 
-// TODO: JSONCAN
-// Match the IMD enums with the DBC multiplexer values of the IMD message
-// static_assert(
-//    IMD_SHORT_CIRCUIT == CANMSGS_BMS_IMD_CONDITION_IMD_SHORT_CIRCUIT_CHOICE,
-//    "The IMD short circuit enum must match its DBC multiplexer value");
-// static_assert(
-//    IMD_NORMAL == CANMSGS_BMS_IMD_CONDITION_IMD_NORMAL_CHOICE,
-//    "The IMD normal enum must match its DBC multiplexer value");
-// static_assert(
-//    IMD_UNDERVOLTAGE_DETECTED == CANMSGS_BMS_IMD_CONDITION_IMD_UNDERVOLTAGE_DETECTED_CHOICE,
-//    "The IMD undervoltage detected enum must match its DBC multiplexer value");
-// static_assert(
-//    IMD_SST == CANMSGS_BMS_IMD_CONDITION_IMD_SST_CHOICE,
-//    "The IMD speed start measurement enum must match its DBC multiplexer "
-//    "value");
-// static_assert(
-//    IMD_DEVICE_ERROR == CANMSGS_BMS_IMD_CONDITION_IMD_DEVICE_ERROR_CHOICE,
-//    "The IMD device error enum must match its DBC multiplexer value");
-// static_assert(
-//    IMD_EARTH_FAULT == CANMSGS_BMS_IMD_CONDITION_IMD_EARTH_FAULT_CHOICE,
-//    "The IMD earth fault enum must match its DBC multiplexer value");
-
 struct Imd
 {
     float (*get_pwm_frequency)(void);
@@ -84,7 +62,7 @@ static float App_GetIdealPwmFrequency(const enum Imd_ConditionName condition_nam
     // Value: PWM output frequency
     static const float imd_frequency_lookup[NUM_OF_IMD_CONDITIONS] = {
         [IMD_SHORT_CIRCUIT] = 0.0f, [IMD_NORMAL] = 10.0f,       [IMD_UNDERVOLTAGE_DETECTED] = 20.0f,
-        [IMD_SST] = 30.0f,          [IMD_DEVICE_ERROR] = 40.0f, [IMD_EARTH_FAULT] = 50.0f,
+        [IMD_SST] = 30.0f,          [IMD_DEVICE_ERROR] = 40.0f, [IMD_GROUND_FAULT] = 50.0f,
     };
 
     return imd_frequency_lookup[condition_name];
@@ -189,7 +167,7 @@ struct Imd_Condition App_Imd_GetCondition(const struct Imd *const imd)
         }
         break;
         case IMD_DEVICE_ERROR:
-        case IMD_EARTH_FAULT:
+        case IMD_GROUND_FAULT:
         {
             condition.pwm_encoding.valid_duty_cycle =
                 (pwm_duty_cycle >= 47.5f && pwm_duty_cycle <= 52.5f) ? true : false;
