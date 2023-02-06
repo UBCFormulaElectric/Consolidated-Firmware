@@ -168,8 +168,7 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
             UPDATE_PEC15_ERROR_COUNT(accumulator->read_cell_voltages(), accumulator->num_comm_tries)
 
             // Write to configuration register to configure cell discharging
-            // TODO: re-enable
-            // accumulator->write_cfg_registers();
+            accumulator->write_cfg_registers();
             accumulator->disable_discharge();
 
             // Start cell voltage conversions for the next cycle
@@ -218,11 +217,11 @@ bool App_Accumulator_CheckFaults(struct Accumulator *const accumulator, struct T
         App_Accumulator_GetMinVoltage(accumulator, &throwaway_segment, &throwaway_loc) < MIN_CELL_VOLTAGE;
     bool communication_fault = App_Accumulator_HasCommunicationError(accumulator);
 
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_CELL_UNDERVOLTAGE_FAULT(can_tx, undervoltage_fault);
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_CELL_OVERVOLTAGE_FAULT(can_tx, overvoltage_fault);
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_CELL_UNDERTEMP_FAULT(can_tx, undertemp_fault);
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_CELL_OVERTEMP_FAULT(can_tx, overtemp_fault);
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_MODULE_COMM_ERROR(can_tx, communication_fault);
+    App_CanTx_BMSFaults_CellUnderVoltageFault_Set(undervoltage_fault);
+    App_CanTx_BMSFaults_CellOverVoltageFault_Set(overvoltage_fault);
+    App_CanTx_BMSFaults_CellUnderTempFault_Set(undertemp_fault);
+    App_CanTx_BMSFaults_CellOverTempFault_Set(overtemp_fault);
+    App_CanTx_BMSFaults_ModuleCommFault_Set(communication_fault);
 
     return (overtemp_fault || undertemp_fault || overvoltage_fault || undervoltage_fault || communication_fault);
 }
