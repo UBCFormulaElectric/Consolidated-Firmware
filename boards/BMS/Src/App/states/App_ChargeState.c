@@ -10,9 +10,8 @@ static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
     struct BmsWorld *world   = App_SharedStateMachine_GetWorld(state_machine);
     struct Charger * charger = App_BmsWorld_GetCharger(world);
 
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_STATE(can_tx_interface,
-    // CANMSGS_BMS_STATE_MACHINE_STATE_CHARGE_CHOICE);
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_IS_CHARGING_COMPLETE(can_tx_interface, false);
+    App_CanTx_BMSVitals_CurrentState_Set(BMS_CHARGE_STATE);
+    App_CanTx_BMSCharger_IsChargingComplete_Set(false);
     App_Charger_Enable(charger);
 }
 
@@ -49,12 +48,10 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         const bool has_reached_max_v =
             App_Accumulator_GetMaxVoltage(accumulator, &segment, &cell) > MAX_CELL_VOLTAGE_THRESHOLD;
 
-        // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(can_tx,
-        // is_charger_disconnected);
-        // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_CHARGER_FAULT_DETECTED(can_tx, has_charger_faulted);
-        // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_IS_CHARGING_COMPLETE(can_tx, has_reached_max_v);
-        // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_CHARGING_EXT_SHUTDOWN_OCCURRED(can_tx,
-        // has_external_shutdown_occurred);
+        App_CanTx_BMSFaults_ChargerDisconnectedInChargeState_Set(is_charger_disconnected);
+        App_CanTx_BMSFaults_ChargerFault_Set(has_charger_faulted);
+        App_CanTx_BMSCharger_IsChargingComplete_Set(has_reached_max_v);
+        App_CanTx_BMSFaults_ChargingExtShutdownOccurred_Set(has_external_shutdown_occurred);
 
         if (is_charger_disconnected || has_charger_faulted || has_reached_max_v || has_external_shutdown_occurred)
         {

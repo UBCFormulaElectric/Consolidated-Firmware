@@ -97,8 +97,8 @@ class BmsStateMachineTest : public BaseStateMachineTest
         clock = App_SharedClock_Create();
 
         world = App_BmsWorld_Create(
-            can_tx_interface, can_rx_interface, imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok,
-            bspd_ok, accumulator, airs, precharge_relay, ts, clock);
+            imd, heartbeat_monitor, rgb_led_sequence, charger, bms_ok, imd_ok, bspd_ok, accumulator, airs,
+            precharge_relay, ts, clock);
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
@@ -261,8 +261,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
 TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInitState());
-    // TODO: JSONCAN -> EXPECT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE,
-    // App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    EXPECT_EQ(BMS_INIT_STATE, App_CanTx_BMSVitals_CurrentState_Get());
 }
 
 // BMS-31
@@ -270,8 +269,7 @@ TEST_F(BmsStateMachineTest, check_drive_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetDriveState());
 
-    // TODO: JSONCAN -> EXPECT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE,
-    // App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    EXPECT_EQ(BMS_DRIVE_STATE, App_CanTx_BMSVitals_CurrentState_Get());
 }
 
 // BMS-31
@@ -279,17 +277,14 @@ TEST_F(BmsStateMachineTest, check_fault_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetFaultState());
 
-    // TODO: JSONCAN -> EXPECT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE,
-    // App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    EXPECT_EQ(BMS_FAULT_STATE, App_CanTx_BMSVitals_CurrentState_Get());
 }
 
 // BMS-31
 TEST_F(BmsStateMachineTest, check_charge_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetChargeState());
-
-    // TODO: JSONCAN -> EXPECT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_CHARGE_CHOICE,
-    // App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    EXPECT_EQ(BMS_CHARGE_STATE, App_CanTx_BMSVitals_CurrentState_Get());
 }
 
 TEST_F(BmsStateMachineTest, check_imd_frequency_is_broadcasted_over_can_in_all_states)
@@ -319,7 +314,7 @@ TEST_F(BmsStateMachineTest, check_imd_duty_cycle_is_broadcasted_over_can_in_all_
         get_pwm_duty_cycle_fake.return_val = fake_duty_cycle;
         LetTimePass(state_machine, 10);
 
-        // TODO: JSONCAN -> EXPECT_EQ(fake_duty_cycle, App_CanTx_GetPeriodicSignal_DUTY_CYCLE(can_tx_interface));
+        EXPECT_EQ(fake_duty_cycle, App_CanTx_BMSImdPwmOutput_DutyCycle_Get());
 
         // To avoid false positives, we use a different frequency each time
         fake_duty_cycle++;
@@ -337,6 +332,9 @@ TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_10hz_is_broadcasted_
         // Test an arbitrarily chosen valid resistance
         get_pwm_duty_cycle_fake.return_val = 50.0f;
         LetTimePass(state_machine, 10);
+
+        EXPECT_EQ(true, App_CanTx_BMSImdStatus_ValidDutyCycle_Get());
+        EXPECT_EQ(1200, App_CanTx_BMSImdData_InsulationMeasurementDcp10Hz_Get());
         // TODO: JSONCAN -> EXPECT_EQ(IMD_NORMAL, App_CanTx_GetPeriodicSignal_CONDITION(can_tx_interface));
         // TODO: JSONCAN ->  EXPECT_EQ(true, App_CanTx_GetPeriodicSignal_VALID_DUTY_CYCLE(can_tx_interface));
         // TODO: JSONCAN -> EXPECT_EQ(1200,
@@ -414,7 +412,7 @@ TEST_F(BmsStateMachineTest, check_imd_seconds_since_power_on_is_broadcasted_over
         SetInitialState(state);
         get_seconds_since_power_on_fake.return_val = 123;
         LetTimePass(state_machine, 10);
-        // TODO: JSONCAN -> EXPECT_EQ(123, App_CanTx_GetPeriodicSignal_SECONDS_SINCE_POWER_ON(can_tx_interface));
+        EXPECT_EQ(123, App_CanTx_BMSImdStatus_SecondsSincePowerOn_Get());
     }
 }
 
@@ -452,11 +450,11 @@ TEST_F(BmsStateMachineTest, charger_connection_status_in_all_states)
 
         is_charger_connected_fake.return_val = true;
         LetTimePass(state_machine, 1000);
-        // TODO: JSONCAN -> ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_IS_CONNECTED(can_tx_interface));
+        EXPECT_EQ(true, App_CanTx_BMSCharger_IsConnected_Get());
 
         is_charger_connected_fake.return_val = false;
         LetTimePass(state_machine, 1000);
-        // TODO: JSONCAN -> ASSERT_EQ(false, App_CanTx_GetPeriodicSignal_IS_CONNECTED(can_tx_interface));
+        EXPECT_EQ(false, App_CanTx_BMSCharger_IsConnected_Get());
     }
 }
 
@@ -472,10 +470,10 @@ TEST_F(BmsStateMachineTest, check_bms_ok_is_broadcasted_over_can_in_all_states)
 
         // Make sure the state machine sets the CAN signal for BMS_OK
         LetTimePass(state_machine, 10);
-        // TODO: JSONCAN -> ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_BMS_OK(can_tx_interface));
+        ASSERT_EQ(true, App_CanTx_BmsOkStatuses_BmsOk_Get());
 
         // Reset the CAN signal for BMS_OK
-        // TODO: JSONCAN ->  App_CanTx_SetPeriodicSignal_BMS_OK(can_tx_interface, false);
+        App_CanTx_BmsOkStatuses_BmsOk_Set(false);
     }
 }
 
@@ -491,10 +489,10 @@ TEST_F(BmsStateMachineTest, check_imd_ok_is_broadcasted_over_can_in_all_states)
 
         // Make sure the state machine sets the CAN signal for IMD_OK
         LetTimePass(state_machine, 10);
-        // TODO: JSONCAN -> ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_IMD_OK(can_tx_interface));
+        ASSERT_EQ(true, App_CanTx_BmsOkStatuses_ImdOk_Get());
 
         // Reset the CAN signal for IMD_OK
-        // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_IMD_OK(can_tx_interface, false);
+        App_CanTx_BmsOkStatuses_ImdOk_Set(false);
     }
 }
 
@@ -510,10 +508,10 @@ TEST_F(BmsStateMachineTest, check_bspd_ok_is_broadcasted_over_can_in_all_states)
 
         // Make sure the state machine sets the CAN signal for BSPD_OK
         LetTimePass(state_machine, 10);
-        // TODO: JSONCAN -> ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_BSPD_OK(can_tx_interface));
+        ASSERT_EQ(true, App_CanTx_BmsOkStatuses_BspdOk_Get());
 
         // Reset the CAN signal for BSPD_OK
-        // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_BSPD_OK(can_tx_interface, false);
+        App_CanTx_BmsOkStatuses_BspdOk_Set(false);
     }
 }
 
@@ -526,9 +524,8 @@ TEST_F(BmsStateMachineTest, charger_disconnects_in_charge_state)
 
     LetTimePass(state_machine, 10);
 
-    // TODO: JSONCAN -> ASSERT_EQ(true,
-    // App_CanTx_GetPeriodicSignal_CHARGER_DISCONNECTED_IN_CHARGE_STATE(can_tx_interface));
-    // TODO: JSONCAN -> ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+    ASSERT_EQ(true, App_CanTx_BMSFaults_ChargerDisconnectedInChargeState_Get());
+    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
 // BMS-38
@@ -541,26 +538,26 @@ TEST_F(BmsStateMachineTest, check_airs_can_signals_for_all_states)
         is_air_negative_closed_fake.return_val = false;
         is_air_positive_closed_fake.return_val = false;
         LetTimePass(state_machine, 10);
-        // TODO: JSONCAN -> ASSERT_EQ(false, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
-        // TODO: JSONCAN -> ASSERT_EQ(false, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
+        ASSERT_EQ(false, App_CanTx_BMSAirStates_AirNegative_Get());
+        ASSERT_EQ(false, App_CanTx_BMSAirStates_AirPositive_Get());
 
         is_air_negative_closed_fake.return_val = false;
         is_air_positive_closed_fake.return_val = true;
         LetTimePass(state_machine, 10);
-        // TODO: JSONCAN -> ASSERT_EQ(false, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
-        // TODO: JSONCAN -> ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
+        ASSERT_EQ(false, App_CanTx_BMSAirStates_AirNegative_Get());
+        ASSERT_EQ(true, App_CanTx_BMSAirStates_AirPositive_Get());
 
         is_air_negative_closed_fake.return_val = true;
         is_air_positive_closed_fake.return_val = false;
         LetTimePass(state_machine, 10);
-        // TODO: JSONCAN -> ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
-        // TODO: JSONCAN -> ASSERT_EQ(false, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
+        ASSERT_EQ(true, App_CanTx_BMSAirStates_AirNegative_Get());
+        ASSERT_EQ(false, App_CanTx_BMSAirStates_AirPositive_Get());
 
         is_air_negative_closed_fake.return_val = true;
         is_air_positive_closed_fake.return_val = true;
         LetTimePass(state_machine, 10);
-        // TODO: JSONCAN -> ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_AIR_NEGATIVE(can_tx_interface));
-        // TODO: JSONCAN -> ASSERT_EQ(true, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
+        ASSERT_EQ(true, App_CanTx_BMSAirStates_AirNegative_Get());
+        ASSERT_EQ(true, App_CanTx_BMSAirStates_AirPositive_Get());
     }
 }
 
@@ -584,13 +581,11 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_no_fa
 
     is_air_negative_closed_fake.return_val = true;
     LetTimePass(state_machine, 1000);
-    // TODO: JSONCAN -> ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE,
-    // App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    ASSERT_EQ(BMS_FAULT_STATE, App_CanTx_BMSVitals_CurrentState_Get());
 
     is_air_negative_closed_fake.return_val = false;
     LetTimePass(state_machine, 1000);
-    // TODO: JSONCAN -> ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE,
-    // App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    ASSERT_EQ(BMS_INIT_STATE, App_CanTx_BMSVitals_CurrentState_Get());
 }
 
 // BMS-30
@@ -601,14 +596,12 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
     // Check that state machine remains in FaultState with AIR- closed
     is_air_negative_closed_fake.return_val = true;
     LetTimePass(state_machine, 1000);
-    // TODO: JSONCAN -> ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_FAULT_CHOICE,
-    // App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    ASSERT_EQ(BMS_FAULT_STATE, App_CanTx_BMSVitals_CurrentState_Get());
 
     // Check that state mcachine transitions to InitState with AIR- open
     is_air_negative_closed_fake.return_val = false;
     LetTimePass(state_machine, 1000);
-    // TODO: JSONCAN -> ASSERT_EQ(CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE,
-    // App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+    ASSERT_EQ(BMS_INIT_STATE, App_CanTx_BMSVitals_CurrentState_Get());
 }
 
 TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_then_transitions_to_init)

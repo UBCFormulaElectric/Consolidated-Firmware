@@ -15,8 +15,7 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
     struct Accumulator *accumulator   = App_BmsWorld_GetAccumulator(world);
     struct OkStatus *   bms_ok_status = App_BmsWorld_GetBmsOkStatus(world);
 
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_STATE(can_tx_interface,
-    // CANMSGS_BMS_STATE_MACHINE_STATE_INIT_CHOICE);
+    App_CanTx_BMSVitals_CurrentState_Set(BMS_INIT_STATE);
     App_SharedClock_SetPreviousTimeInMilliseconds(clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
     App_Accumulator_InitRunOnEntry(accumulator);
     App_OkStatus_Enable(bms_ok_status);

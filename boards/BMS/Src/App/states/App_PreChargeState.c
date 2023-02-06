@@ -23,8 +23,7 @@ static void PreChargeStateRunOnEntry(struct StateMachine *const state_machine)
     struct Clock *         clock           = App_BmsWorld_GetClock(world);
     struct PrechargeRelay *precharge_relay = App_BmsWorld_GetPrechargeRelay(world);
 
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_STATE(can_tx_interface,
-    // CANMSGS_BMS_STATE_MACHINE_STATE_PRE_CHARGE_CHOICE);
+    App_CanTx_BMSVitals_CurrentState_Set(BMS_PRECHARGE_STATE);
 
     App_SharedClock_SetPreviousTimeInMilliseconds(clock, App_SharedClock_GetCurrentTimeInMilliseconds(clock));
     App_PrechargeRelay_Close(precharge_relay);
