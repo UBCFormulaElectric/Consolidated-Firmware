@@ -49,10 +49,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
         const bool charging_completed = App_TractiveSystem_GetCurrent(ts) <= CURRENT_AT_MAX_CHARGE;
 
-        App_CanTx_BMS_Faults_ChargerDisconnectedInChargeState_Set(is_charger_disconnected);
         App_CanTx_BMS_Faults_ChargerFault_Set(has_charger_faulted);
-        App_CanTx_BMS_Charger_IsChargingComplete_Set(has_reached_max_v);
-        App_CanTx_BMS_Faults_ChargingExtShutdownOccurred_Set(has_external_shutdown_occurred);
 
         // If the current indicates charging is complete or charging is disabled over CAN go back to init state
         if (charging_completed || !charging_enabled)

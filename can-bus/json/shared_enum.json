@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
     "SwitchState": {
         "SWITCH_OFF": 0,
         "SWITCH_ON": 1
@@ -54,4 +55,13 @@
         "INVERTER_READ_COMMAND": 0,
         "INVERTER_WRITE_COMMAND": 1
     }
+=======
+  "SharedTasks": {
+    "F1HZ":0,
+    "F100HZ": 1,
+    "F1KHz": 2,
+    "CAN_RX": 3,
+    "CAN_TX": 4
+  }
+>>>>>>> 57017893 ([ELEC-290] Port BMS to F4 (#870))
 }

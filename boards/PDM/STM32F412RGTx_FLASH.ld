@@ -56,6 +56,7 @@ ENTRY(Reset_Handler)
 _estack = 0x20040000;    /* end of RAM */
 /* Generate a link error if heap and stack don't fit into RAM */
 _Min_Heap_Size = 0x00;      /* required amount of heap  */
+>>>>>>>> 57017893 ([ELEC-290] Port BMS to F4 (#870)):boards/BMS/STM32F412RGTx_FLASH.ld
 _Min_Stack_Size = 0x400; /* required amount of stack */
 
 /* Specify the memory areas */

@@ -46,5 +46,16 @@
                 "enum": "RtosTaskName"
             }
         }
+    },
+    "DIMVitals": {
+        "msg_id": 504,
+        "cycle_time": 1000,
+        "description": "DIM Heartbeat signal",
+        "signals": {
+            "Heartbeat": {
+                "bits": 1
+            }
+        }
+
     }
 }

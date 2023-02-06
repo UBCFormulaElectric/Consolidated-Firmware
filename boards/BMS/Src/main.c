@@ -752,43 +752,6 @@ void RunTask100Hz(void const *argument)
     /* USER CODE END 5 */
 }
 
-/* USER CODE BEGIN Header_RunTask1kHz */
-/**
- * @brief Function implementing the Task1kHz thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTask1kHz */
-void RunTask1kHz(void const *argument)
-{
-    /* USER CODE BEGIN RunTask1kHz */
-    UNUSED(argument);
-    uint32_t                 PreviousWakeTime = osKernelSysTick();
-    static const TickType_t  period_ms        = 1;
-    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1KHZ", period_ms);
-
-    for (;;)
-    {
-        Io_SharedSoftwareWatchdog_CheckForTimeouts();
-        const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
-
-        App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
-        //        Io_CanTx_EnqueuePeriodicMsgs(can_tx, task_start_ms); TODO: JSONCAN
-
-        // Watchdog check-in must be the last function called before putting the
-        // task to sleep. Prevent check in if the elapsed period is greater or
-        // equal to the period ms
-        if ((TICK_TO_MS(osKernelSysTick()) - task_start_ms) <= period_ms)
-        {
-            Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        }
-
-        osDelayUntil(&PreviousWakeTime, period_ms);
-    }
-    /* USER CODE END RunTask1kHz */
-}
-
 /* USER CODE BEGIN Header_RunTaskCanRx */
 /**
  * @brief Function implementing the TaskCanRx thread.
@@ -804,9 +767,7 @@ void RunTaskCanRx(void const *argument)
     /* Infinite loop */
     for (;;)
     {
-        struct CanMsg message;
-        Io_SharedCan_DequeueCanRxMessage(&message);
-        Io_CanRx_UpdateRxTableWithMessage(&message);
+        osDelay(1);
     }
     /* USER CODE END RunTaskCanRx */
 }
@@ -826,7 +787,7 @@ void RunTaskCanTx(void const *argument)
     /* Infinite loop */
     for (;;)
     {
-        Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
+        osDelay(1);
     }
     /* USER CODE END RunTaskCanTx */
 }
