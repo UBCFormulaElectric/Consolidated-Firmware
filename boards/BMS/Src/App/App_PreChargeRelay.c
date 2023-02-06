@@ -67,7 +67,7 @@ bool App_PrechargeRelay_CheckFaults(
 
     *precharge_limit_exceeded = App_PrechargeRelay_GetFaultCounterVal(precharge_relay) >= MAX_PRECHARGE_ATTEMPTS;
 
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_PRECHARGE_ERROR(can_tx, *precharge_limit_exceeded);
+    App_CanTx_BMSFaults_PreChargeFault_Set(*precharge_limit_exceeded);
 
     return has_precharge_fault;
 }

@@ -15,24 +15,24 @@
 
 static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
+    App_CanTx_BMSVitals_Heartbeat_Set(true);
 
-    if (false) // TODO: JSONCAN -> App_CanRx_FSM_VITALS_GetSignal_HEARTBEAT(can_rx))
+    if (App_CanRx_FSMVitals_Heartbeat_GetValue())
     {
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, FSM_HEARTBEAT_ONE_HOT);
-        //        App_CanRx_FSM_VITALS_SetSignal_HEARTBEAT(can_rx, false);
+        App_CanRx_FSMVitals_Heartbeat_UpdateValue(false);
     }
 
-    if (false) // TODO: JSONCAN -> App_CanRx_DCM_VITALS_GetSignal_HEARTBEAT(can_rx))
+    if (App_CanRx_DCMVitals_Heartbeat_GetValue())
     {
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, DCM_HEARTBEAT_ONE_HOT);
-        //        App_CanRx_DCM_VITALS_SetSignal_HEARTBEAT(can_rx, false);
+        App_CanRx_DCMVitals_Heartbeat_UpdateValue(false);
     }
 
-    if (false) // TODO: JSONCAN -> App_CanRx_PDM_VITALS_GetSignal_HEARTBEAT(can_rx))
+    if (App_CanRx_PDMVitals_Heartbeat_GetValue())
     {
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, PDM_HEARTBEAT_ONE_HOT);
-        //        App_CanRx_PDM_VITALS_SetSignal_HEARTBEAT(can_rx, false);
+        App_CanRx_PDMVitals_Heartbeat_UpdateValue(false);
     }
 }
 
@@ -46,12 +46,12 @@ static void App_CheckCellVoltageRange(struct Accumulator *accumulator)
     const float curr_min_cell_voltage = App_Accumulator_GetMinVoltage(accumulator, &min_segment, &min_loc);
     const float curr_max_cell_voltage = App_Accumulator_GetMaxVoltage(accumulator, &max_segment, &max_loc);
 
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE(can_tx, curr_min_cell_voltage);
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE(can_tx, curr_max_cell_voltage);
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE_SEGMENT(can_tx, min_segment);
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_MIN_CELL_VOLTAGE_IDX(can_tx, min_loc);
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE_SEGMENT(can_tx, max_segment);
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_MAX_CELL_VOLTAGE_IDX(can_tx, max_loc);
+    App_CanTx_BMSCellVoltages_MinCellVoltage_Set(curr_min_cell_voltage);
+    App_CanTx_BMSCellVoltages_MaxCellVoltage_Set(curr_max_cell_voltage);
+    App_CanTx_BMSCellStats_MinCellVoltageSegment_Set(min_segment);
+    App_CanTx_BMSCellStats_MaxCellVoltageSegment_Set(max_segment);
+    App_CanTx_BMSCellStats_MinCellVoltageIdx_Set(min_loc);
+    App_CanTx_BMSCellStats_MaxCellVoltageIdx_Set(max_loc);
 }
 
 static void App_CheckCellTemperatureRange(struct Accumulator *accumulator, struct StateMachine *state_machine)
@@ -65,12 +65,12 @@ static void App_CheckCellTemperatureRange(struct Accumulator *accumulator, struc
     const float curr_min_cell_temp = App_Accumulator_GetMinCellTempDegC(accumulator, &min_segment, &min_loc);
     const float curr_max_cell_temp = App_Accumulator_GetMaxCellTempDegC(accumulator, &max_segment, &max_loc);
 
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_MIN_CELL_TEMPERATURE(can_tx, curr_min_cell_temp);
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_MAX_CELL_TEMPERATURE(can_tx, curr_max_cell_temp);
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_MIN_TEMP_SEGMENT(can_tx, min_segment);
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_MIN_TEMP_IDX(can_tx, min_loc);
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_MAX_TEMP_SEGMENT(can_tx, max_segment);
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_MAX_TEMP_IDX(can_tx, max_loc);
+    App_CanTx_BMSCellTemperatures_MinCellTemperature_Set(curr_min_cell_temp);
+    App_CanTx_BMSCellTemperatures_MaxCellTemperature_Set(curr_max_cell_temp);
+    App_CanTx_BMSCellStats_MinTempSegment_Set(min_segment);
+    App_CanTx_BMSCellStats_MaxTempSegment_Set(max_segment);
+    App_CanTx_BMSCellStats_MinTempIdx_Set(min_loc);
+    App_CanTx_BMSCellStats_MaxTempIdx_Set(max_loc);
 }
 
 static void App_AdvertisePackPower(struct Accumulator *accumulator, struct TractiveSystem *ts)
@@ -83,6 +83,8 @@ static void App_AdvertisePackPower(struct Accumulator *accumulator, struct Tract
         min(App_SharedProcessing_LinearDerating(
                 max_cell_temp, MAX_POWER_LIMIT_W, CELL_ROLL_OFF_TEMP_DEGC, CELL_FULLY_DERATED_TEMP),
             MAX_POWER_LIMIT_W);
+
+    App_CanTx_BMSAvailablePower_AvailablePower_Set(available_power);
 }
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -94,7 +96,7 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
     App_SharedRgbLedSequence_Tick(rgb_led_sequence);
 
     bool charger_is_connected = App_Charger_IsConnected(charger);
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_IS_CONNECTED(can_tx, charger_is_connected);
+    App_CanTx_BMSCharger_IsConnected_Set(charger_is_connected);
 }
 
 bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
@@ -120,18 +122,18 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool acc_fault = App_Accumulator_CheckFaults(accumulator, ts);
     const bool ts_fault  = App_TractveSystem_CheckFaults(ts);
 
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_PACK_VOLTAGE(can_tx, App_Accumulator_GetPackVoltage(accumulator));
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_TS_VOLTAGE(can_tx, App_TractiveSystem_GetVoltage(ts));
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_TS_CURRENT(can_tx, App_TractiveSystem_GetCurrent(ts));
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_AIR_NEGATIVE(can_tx, App_Airs_IsAirNegativeClosed(airs));
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_AIR_POSITIVE(can_tx, App_Airs_IsAirPositiveClosed(airs));
+    App_CanTx_BMSPackVoltage_PackVoltage_Set(App_Accumulator_GetPackVoltage(accumulator));
+    App_CanTx_BMSTractiveSystem_TsVoltage_Set(App_TractiveSystem_GetVoltage(ts));
+    App_CanTx_BMSTractiveSystem_TsCurrent_Set(App_TractiveSystem_GetCurrent(ts));
+    App_CanTx_BMSAirStates_AirNegative_Set(App_Airs_IsAirNegativeClosed(airs));
+    App_CanTx_BMSAirStates_AirPositive_Set(App_Airs_IsAirPositiveClosed(airs));
     App_SetPeriodicCanSignals_Imd(imd);
 
     App_AdvertisePackPower(accumulator, ts);
 
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_BMS_OK(can_tx, App_OkStatus_IsEnabled(bms_ok));
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_IMD_OK(can_tx, App_OkStatus_IsEnabled(imd_ok));
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_BSPD_OK(can_tx, App_OkStatus_IsEnabled(bspd_ok));
+    App_CanTx_BmsOkStatuses_BmsOk_Set(App_OkStatus_IsEnabled(bms_ok));
+    App_CanTx_BmsOkStatuses_ImdOk_Set(App_OkStatus_IsEnabled(imd_ok));
+    App_CanTx_BmsOkStatuses_BspdOk_Set(App_OkStatus_IsEnabled(bspd_ok));
 
     // Wait for cell voltage and temperature measurements to settle. We expect to read back valid values from the
     // monitoring chips within 3 cycles

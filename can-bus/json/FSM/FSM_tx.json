@@ -8,5 +8,16 @@
                 "bits": 1
             }
         }
+    },
+    "FSMVitals": {
+        "msg_id": 304,
+        "cycle_time": 1000,
+        "description": "FSM Heartbeat signal",
+        "signals": {
+            "Heartbeat": {
+                "bits": 1
+            }
+        }
+
     }
 }
