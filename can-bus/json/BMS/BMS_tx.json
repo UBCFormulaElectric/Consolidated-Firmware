@@ -199,19 +199,19 @@
             }
         }
     },
-    "BMS_AirStates": {
+    "BMS_Contactors": {
         "msg_id": 112,
         "cycle_time": 10,
         "description": "BMS AIR state statuses",
         "signals": {
             "AirPositive": {
-                "bits": 1
+                "enum": "ContactorState"
             },
             "AirNegative": {
-                "bits": 1
+                "enum": "ContactorState"
             },
             "PrechargeRelay": {
-                "bits": 1
+                "enum": "ContactorState"
             }
         }
     },

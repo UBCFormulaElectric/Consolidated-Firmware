@@ -1,6 +1,7 @@
 {
     "msg_id": 400,
     "alerts": [
-        "PDM_ALERT_DUMMY"
+        "PDM_ALERT_STARTUP",
+        "PDM_ALERT_WATCHDOG_TIMEOUT"
     ]
 }
