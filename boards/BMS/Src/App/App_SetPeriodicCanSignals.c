@@ -2,14 +2,14 @@
 
 void App_SetPeriodicCanSignals_Imd(struct Imd *imd)
 {
-    App_CanTx_BMSImdStatus_SecondsSincePowerOn_Set(App_Imd_GetSecondsSincePowerOn(imd));
-    App_CanTx_BMSImdPwmOutput_Frequency_Set(App_Imd_GetPwmFrequency(imd));
-    App_CanTx_BMSImdPwmOutput_DutyCycle_Set(App_Imd_GetPwmDutyCycle(imd));
+    App_CanTx_BMS_ImdStatus_SecondsSincePowerOn_Set(App_Imd_GetSecondsSincePowerOn(imd));
+    App_CanTx_BMS_ImdPwmOutput_Frequency_Set(App_Imd_GetPwmFrequency(imd));
+    App_CanTx_BMS_ImdPwmOutput_DutyCycle_Set(App_Imd_GetPwmDutyCycle(imd));
 
     const struct Imd_Condition condition = App_Imd_GetCondition(imd);
     // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_CONDITION(can_tx, (uint8_t)condition.name);
 
-    App_CanTx_BMSImdStatus_ValidDutyCycle_Set(condition.pwm_encoding.valid_duty_cycle);
+    App_CanTx_BMS_ImdStatus_ValidDutyCycle_Set(condition.pwm_encoding.valid_duty_cycle);
 
     switch (condition.name)
     {
@@ -17,9 +17,9 @@ void App_SetPeriodicCanSignals_Imd(struct Imd *imd)
         {
             if (condition.pwm_encoding.valid_duty_cycle)
             {
-                App_CanTx_BMSImdData_InsulationMeasurementDcp10Hz_Set(
+                App_CanTx_BMS_ImdData_InsulationMeasurementDcp10Hz_Set(
                     condition.pwm_encoding.insulation_measurement_dcp_kohms);
-                App_CanTx_BMSImdData_ActiveFrequency_Set(10);
+                App_CanTx_BMS_ImdData_ActiveFrequency_Set(10);
             }
         }
         break;
@@ -27,15 +27,15 @@ void App_SetPeriodicCanSignals_Imd(struct Imd *imd)
         {
             if (condition.pwm_encoding.valid_duty_cycle)
             {
-                App_CanTx_BMSImdData_InsulationMeasurementDcp20Hz_Set(
+                App_CanTx_BMS_ImdData_InsulationMeasurementDcp20Hz_Set(
                     condition.pwm_encoding.insulation_measurement_dcp_kohms);
-                App_CanTx_BMSImdData_ActiveFrequency_Set(20);
+                App_CanTx_BMS_ImdData_ActiveFrequency_Set(20);
             }
         }
         break;
         case IMD_SST:
         {
-            App_CanTx_BMSImdData_SpeedStartStatus30Hz_Set(condition.pwm_encoding.speed_start_status);
+            App_CanTx_BMS_ImdData_SpeedStartStatus30Hz_Set(condition.pwm_encoding.speed_start_status);
         }
         break;
         case IMD_SHORT_CIRCUIT:

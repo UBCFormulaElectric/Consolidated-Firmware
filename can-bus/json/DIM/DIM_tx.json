@@ -8,7 +8,7 @@
                 "bits": 1
             },
             "State": {
-                "enum": "DIM_State"
+                "enum": "DimState"
             }
         }
     },
@@ -26,7 +26,7 @@
         }
     },
     "DIM_Errors": {
-        "msg_id": 504, 
+        "msg_id": 504,
         "cycle_time": 1000,
         "description": "Errors on the DIM.",
         "signals": {
@@ -46,16 +46,5 @@
                 "enum": "RtosTaskName"
             }
         }
-    },
-    "DIMVitals": {
-        "msg_id": 504,
-        "cycle_time": 1000,
-        "description": "DIM Heartbeat signal",
-        "signals": {
-            "Heartbeat": {
-                "bits": 1
-            }
-        }
-
     }
 }

@@ -145,12 +145,12 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_BMSCanFifoOverflow_RxOverflowCount_Set(overflow_count);
+    App_CanTx_BMS_CanFifoOverflow_RxOverflowCount_Set(overflow_count);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_BMSCanFifoOverflow_TxOverflowCount_Set(overflow_count);
+    App_CanTx_BMS_CanFifoOverflow_TxOverflowCount_Set(overflow_count);
 }
 
 /* USER CODE END 0 */
@@ -751,6 +751,48 @@ void RunTask100Hz(void const *argument)
     /* USER CODE END 5 */
 }
 
+/* USER CODE BEGIN Header_RunTaskCanRx */
+/**
+ * @brief Function implementing the TaskCanRx thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskCanRx */
+void RunTaskCanRx(void const *argument)
+{
+    /* USER CODE BEGIN RunTaskCanRx */
+    UNUSED(argument);
+
+    /* Infinite loop */
+    for (;;)
+    {
+        struct CanMsg message;
+        Io_SharedCan_DequeueCanRxMessage(&message);
+        Io_CanRx_UpdateRxTableWithMessage(&message);
+    }
+    /* USER CODE END RunTaskCanRx */
+}
+
+/* USER CODE BEGIN Header_RunTaskCanTx */
+/**
+ * @brief Function implementing the TaskCanTx thread.
+ * @param argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTaskCanTx */
+void RunTaskCanTx(void const *argument)
+{
+    /* USER CODE BEGIN RunTaskCanTx */
+    UNUSED(argument);
+
+    /* Infinite loop */
+    for (;;)
+    {
+        Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
+    }
+    /* USER CODE END RunTaskCanTx */
+}
+
 /* USER CODE BEGIN Header_RunTask1kHz */
 /**
  * @brief Function implementing the Task1kHz thread.
@@ -788,48 +830,6 @@ void RunTask1kHz(void const *argument)
     /* USER CODE END RunTask1kHz */
 }
 
-/* USER CODE BEGIN Header_RunTaskCanRx */
-/**
- * @brief Function implementing the TaskCanRx thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTaskCanRx */
-void RunTaskCanRx(void const *argument)
-{
-    /* USER CODE BEGIN RunTaskCanRx */
-    UNUSED(argument);
-
-    /* Infinite loop */
-    for (;;)
-    {
-        struct CanMsg message;
-        Io_SharedCan_DequeueCanRxMessage(&message);
-        Io_CanRx_UpdateRxTableWithMessage(&message);
-    }
-    /* USER CODE END RunTaskCanRx */
-}
-
-/* USER CODE BEGIN Header_RunTaskCanTx */
-/**
- * @brief Function implementing the TaskCanTx thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTaskCanTx */
-void RunTaskCanTx(void const *argument)
-{
-    /* USER CODE BEGIN RunTaskCanTx */
-    UNUSED(argument);
-    
-    /* Infinite loop */
-    for (;;)
-    {
-        Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
-    }
-    /* USER CODE END RunTaskCanTx */
-}
-
 /* USER CODE BEGIN Header_RunTask1Hz */
 /**
  * @brief Function implementing the Task1Hz thread.
@@ -851,7 +851,7 @@ void RunTask1Hz(void const *argument)
     {
         App_SharedStateMachine_Tick1Hz(state_machine);
         Io_StackWaterMark_Check();
-        
+
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
