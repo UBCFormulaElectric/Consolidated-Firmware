@@ -767,7 +767,9 @@ void RunTaskCanRx(void const *argument)
     /* Infinite loop */
     for (;;)
     {
-        osDelay(1);
+        struct CanMsg message;
+        Io_SharedCan_DequeueCanRxMessage(&message);
+        Io_CanRx_UpdateRxTableWithMessage(&message);
     }
     /* USER CODE END RunTaskCanRx */
 }
@@ -787,7 +789,7 @@ void RunTaskCanTx(void const *argument)
     /* Infinite loop */
     for (;;)
     {
-        osDelay(1);
+        Io_SharedCan_TransmitEnqueuedCanTxMessagesFromTask();
     }
     /* USER CODE END RunTaskCanTx */
 }

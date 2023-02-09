@@ -54,8 +54,45 @@
         "signals": {
             "Heartbeat": {
                 "bits": 1
+            },
+            "State": {
+                "enum": "DimState"
             }
         }
-
+    },
+    "DIM_Switches": {
+        "msg_id": 503,
+        "cycle_time": 1000,
+        "description": "States of the switches on the DIM.",
+        "signals": {
+            "StartSwitch": {
+                "enum": "SwitchState"
+            },
+            "AuxSwitch": {
+                "enum": "SwitchState"
+            }
+        }
+    },
+    "DIM_Errors": {
+        "msg_id": 504,
+        "cycle_time": 1000,
+        "description": "Errors on the DIM.",
+        "signals": {
+            "TxOverflowCount": {
+                "bits": 8
+            },
+            "RxOverflowCount": {
+                "bits": 8
+            }
+        }
+    },
+    "DIM_WatchdogTimeout": {
+        "msg_id": 505,
+        "description": "Aperiodic message sent when watchdog is tripped.",
+        "signals": {
+            "TaskName": {
+                "enum": "RtosTaskName"
+            }
+        }
     }
 }
