@@ -15,7 +15,7 @@ void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
 {
     BREAK_IF_DEBUGGER_CONNECTED();
 
-    App_CanTx_BMSWarnings_WatchdogTimeout_Set(true);
+    App_CanTx_BMS_Warnings_WatchdogTimeout_Set(true);
 
     // TODO: JSON2CAN APERIODIC MSGS
     // struct CanMsgs_bms_watchdog_timeout_t payload;

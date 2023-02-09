@@ -1,9 +1,13 @@
 {
-  "SharedTasks": {
-    "F1HZ":0,
-    "F100HZ": 1,
-    "F1KHz": 2,
-    "CAN_RX": 3,
-    "CAN_TX": 4
+  "SwitchState": {
+      "SWITCH_OFF": 0,
+      "SWITCH_ON": 1
+  },
+  "RtosTaskName": {
+      "RTOS_TASK_1HZ": 0,
+      "RTOS_TASK_100HZ": 1,
+      "RTOS_TASK_1KHZ": 2,
+      "RTOS_TASK_CAN_TX": 3,
+      "RTOS_TASK_CAN_RX": 4
   }
 }

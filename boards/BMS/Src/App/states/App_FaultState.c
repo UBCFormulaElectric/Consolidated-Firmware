@@ -8,9 +8,9 @@ static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
     struct Airs *const     airs   = App_BmsWorld_GetAirs(world);
     struct OkStatus *      bms_ok = App_BmsWorld_GetBmsOkStatus(world);
 
-    App_CanTx_BMSVitals_CurrentState_Set(BMS_FAULT_STATE);
+    App_CanTx_BMS_Vitals_CurrentState_Set(BMS_FAULT_STATE);
     App_Airs_OpenAirPositive(airs);
-    App_CanTx_BMSAirStates_AirPositive_Set(App_Airs_IsAirPositiveClosed(airs));
+    App_CanTx_BMS_AirStates_AirPositive_Set(App_Airs_IsAirPositiveClosed(airs));
     App_OkStatus_Disable(bms_ok);
 }
 

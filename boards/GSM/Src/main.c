@@ -34,7 +34,8 @@
 #include "Io_StackWaterMark.h"
 #include "Io_SoftwareWatchdog.h"
 
-// #include "App_GsmWorld.h"
+#include "App_CanUtils.h"
+#include "App_GsmWorld.h"
 #include "App_SharedMacros.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_DefaultState.h"
@@ -487,7 +488,7 @@ void RunTask100Hz(void const *argument)
     uint32_t                 PreviousWakeTime = osKernelSysTick();
     static const TickType_t  period_ms        = 10;
     SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_100HZ", period_ms);
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
 
     for (;;)
     {
@@ -515,7 +516,7 @@ void RunTask1Hz(void const *argument)
     uint32_t                 PreviousWakeTime = osKernelSysTick();
     static const TickType_t  period_ms        = 1000U;
     SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1HZ", period_ms);
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
 
     for (;;)
     {
@@ -544,7 +545,7 @@ void RunTask1kHz(void const *argument)
     uint32_t                 PreviousWakeTime = osKernelSysTick();
     static const TickType_t  period_ms        = 1;
     SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1KHZ", period_ms);
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
 
     for (;;)
     {

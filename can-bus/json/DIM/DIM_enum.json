@@ -1,7 +1,5 @@
 {
-    "EnumTest": {
-        "CHOICE_0": 0,
-        "CHOICE_1": 1,
-        "CHOICE_2": 2
+    "DimState": {
+        "DIM_STATE_DRIVE": 0
     }
 }
