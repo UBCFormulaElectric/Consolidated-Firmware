@@ -1,5 +1,6 @@
 {
-    "alert_set_msg_id": 600,
-    "alert_cleared_msg_id": 601,
-    "alerts": []
+    "msg_id": 600,
+    "alerts": [
+        "GSM_ALERT_DUMMY"
+    ]
 }

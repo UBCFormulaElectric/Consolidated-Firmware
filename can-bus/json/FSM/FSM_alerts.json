@@ -1,5 +1,6 @@
 {
-    "alert_set_msg_id": 300,
-    "alert_cleared_msg_id": 301,
-    "alerts": []
+    "msg_id": 300,
+    "alerts": [
+        "PDM_ALERT_DUMMY"
+    ]
 }

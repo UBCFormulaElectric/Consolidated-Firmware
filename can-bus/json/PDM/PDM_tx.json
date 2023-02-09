@@ -1,16 +1,6 @@
 {
-    "PDM_Test1": {
+    "PDM_Vitals": {
         "msg_id": 403,
-        "cycle_time": 1000,
-        "description": "Test message for the PDM.",
-        "signals": {
-            "Ex1": {
-                "bits": 1
-            }
-        }
-    },
-    "PDMVitals": {
-        "msg_id": 404,
         "cycle_time": 1000,
         "description": "PDM Heartbeat signal",
         "signals": {
@@ -18,6 +8,5 @@
                 "bits": 1
             }
         }
-
     }
 }

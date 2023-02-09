@@ -1,43 +1,37 @@
-// TODO: NO SPI!
-
 #include <stm32f4xx_hal.h>
 #include <assert.h>
 
 #include "App_SevenSegDisplays.h"
+#include "App_SharedMacros.h"
 #include "Io_SevenSegDisplays.h"
 #include "main.h"
 
-static_assert(HEX_DIGIT_0 == 0, "Hex enum must match its numeric value.");
-static_assert(HEX_DIGIT_1 == 1, "Hex enum must match its numeric value.");
-static_assert(HEX_DIGIT_2 == 2, "Hex enum must match its numeric value.");
-static_assert(HEX_DIGIT_3 == 3, "Hex enum must match its numeric value.");
-static_assert(HEX_DIGIT_4 == 4, "Hex enum must match its numeric value.");
-static_assert(HEX_DIGIT_5 == 5, "Hex enum must match its numeric value.");
-static_assert(HEX_DIGIT_6 == 6, "Hex enum must match its numeric value.");
-static_assert(HEX_DIGIT_7 == 7, "Hex enum must match its numeric value.");
-static_assert(HEX_DIGIT_8 == 8, "Hex enum must match its numeric value.");
-static_assert(HEX_DIGIT_9 == 9, "Hex enum must match its numeric value.");
-static_assert(HEX_DIGIT_A == 10, "Hex enum must match its numeric value.");
-static_assert(HEX_DIGIT_B == 11, "Hex enum must match its numeric value.");
-static_assert(HEX_DIGIT_C == 12, "Hex enum must match its numeric value.");
-static_assert(HEX_DIGIT_D == 13, "Hex enum must match its numeric value.");
-static_assert(HEX_DIGIT_E == 14, "Hex enum must match its numeric value.");
-static_assert(HEX_DIGIT_F == 15, "Hex enum must match its numeric value.");
+// LEDs are controlled by clocking commands into an 8-bit shift register (TPIC6C596PWR), which drives the 7-segs
+#define SHIFT_REGISTER_SIZE 8
+#define TEMP_NUM_DISPLAYS 9
 
-struct CommandLookupTable
+// Digits for displaying "Formula E"
+#define DIGIT_F 0x8E
+#define DIGIT_O 0x3A
+#define DIGIT_R 0x0A
+#define DIGIT_M1 0x2A
+#define DIGIT_M2 0x2A
+#define DIGIT_U 0x1C << 1
+#define DIGIT_L 0x0E << 1
+#define DIGIT_A 0x7D << 1
+#define DIGIT_E 0x4F << 1
+
+static uint8_t formula_e_commands[] = { DIGIT_F, DIGIT_O, DIGIT_R, DIGIT_M1, DIGIT_M2,
+                                        DIGIT_U, DIGIT_L, DIGIT_A, DIGIT_E };
+
+typedef struct
 {
     uint8_t disable;
     uint8_t values[NUM_HEX_DIGITS];
-};
-
-// static SPI_HandleTypeDef *_hspi;
-
-// The 7-segment displays are controlled by sending 8-bit command values to
-// shift registers via SPI
-static uint8_t commands[NUM_SEVEN_SEG_DISPLAYS];
+} CommandLookupTable;
 
 // clang-format off
-static const struct CommandLookupTable command_lookup_table =
+static const CommandLookupTable command_lookup_table =
 {
     .disable = 0x0,
     .values  =
@@ -62,33 +56,52 @@ static const struct CommandLookupTable command_lookup_table =
 };
 // clang-format on
 
+// The 7-segment displays are controlled by sending 8-bit command values to
+// shift registers via SPI
+static uint8_t commands[NUM_SEVEN_SEG_DISPLAYS];
+
 void Io_SevenSegDisplays_Init()
 {
-    //    _hspi = hspi;
-    //
-    //    // RCK pin is normally held low
-    //    HAL_GPIO_WritePin(SEVENSEG_RCK_3V3_GPIO_Port, SEVENSEG_RCK_3V3_Pin, GPIO_PIN_RESET);
-    //
-    //    // Full brightness
-    //    HAL_GPIO_WritePin(SEVENSEG_DIMMING_3V3_GPIO_Port, SEVENSEG_DIMMING_3V3_Pin, GPIO_PIN_RESET);
+    // RCK pin is normally held low
+    HAL_GPIO_WritePin(SEVENSEGS_RCK_GPIO_Port, SEVENSEGS_RCK_Pin, GPIO_PIN_RESET);
+
+    // Set 7-segs to full brightness
+    HAL_GPIO_WritePin(SEVENSEGS_DIMMING_GPIO_Port, SEVENSEGS_DIMMING_Pin, GPIO_PIN_RESET);
 }
 
 void Io_SevenSegDisplays_WriteCommands(void)
 {
-    //    // The 7-segment displays are daisy chained by shifting registers, so we
-    //    // can't update them individually. Instead, we must update the 7-segment
-    //    // displays all at once.
-    //    HAL_SPI_Transmit(_hspi, commands, NUM_SEVEN_SEG_DISPLAYS, 100U);
-    //
-    //    // A pulse to RCK transfers data from the shift registers to the storage
-    //    // registers, completing the write command.
-    //    HAL_GPIO_TogglePin(SEVENSEG_RCK_3V3_GPIO_Port, SEVENSEG_RCK_3V3_Pin);
-    //    HAL_GPIO_TogglePin(SEVENSEG_RCK_3V3_GPIO_Port, SEVENSEG_RCK_3V3_Pin);
+    // The 7-segment displays are daisy chained by shifting registers, so we
+    // can't update them individually. Instead, we must update the 7-segment
+    // displays all at once.
+    for (int display = 0; display < TEMP_NUM_DISPLAYS; display++)
+    {
+        // TODO: Update commands for 9 displays
+        const uint8_t display_data = formula_e_commands[TEMP_NUM_DISPLAYS - display - 1]; // invert order
+
+        for (int i = 0; i < SHIFT_REGISTER_SIZE; i++)
+        {
+            const bool bit_state = IS_BIT_SET(display_data, i);
+
+            // Write bit state to data line
+            HAL_GPIO_WritePin(
+                SEVENSEGS_SEROUT_GPIO_Port, SEVENSEGS_SEROUT_Pin, bit_state ? GPIO_PIN_SET : GPIO_PIN_RESET);
+
+            // Pulse clock to shift data in
+            HAL_GPIO_WritePin(SEVENSEGS_SRCK_GPIO_Port, SEVENSEGS_SRCK_Pin, GPIO_PIN_SET);
+            HAL_GPIO_WritePin(SEVENSEGS_SRCK_GPIO_Port, SEVENSEGS_SRCK_Pin, GPIO_PIN_RESET);
+        }
+    }
+
+    // A pulse to RCK transfers data from the shift registers to the storage
+    // registers, completing the write command.
+    HAL_GPIO_WritePin(SEVENSEGS_RCK_GPIO_Port, SEVENSEGS_RCK_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(SEVENSEGS_RCK_GPIO_Port, SEVENSEGS_RCK_Pin, GPIO_PIN_RESET);
 }
 
 void Io_SevenSegDisplays_SetLeftHexDigit(struct SevenSegHexDigit hex_digit)
 {
-    if (hex_digit.enabled == false)
+    if (!hex_digit.enabled)
     {
         commands[LEFT_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
     }
@@ -102,7 +115,7 @@ void Io_SevenSegDisplays_SetLeftHexDigit(struct SevenSegHexDigit hex_digit)
 
 void Io_SevenSegDisplays_SetMiddleHexDigit(struct SevenSegHexDigit hex_digit)
 {
-    if (hex_digit.enabled == false)
+    if (!hex_digit.enabled)
     {
         commands[MIDDLE_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
     }
@@ -116,7 +129,7 @@ void Io_SevenSegDisplays_SetMiddleHexDigit(struct SevenSegHexDigit hex_digit)
 
 void Io_SevenSegDisplays_SetRightHexDigit(struct SevenSegHexDigit hex_digit)
 {
-    if (hex_digit.enabled == false)
+    if (!hex_digit.enabled)
     {
         commands[RIGHT_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
     }

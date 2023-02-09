@@ -10,8 +10,8 @@ static void ChargeStateRunOnEntry(struct StateMachine *const state_machine)
     struct BmsWorld *world   = App_SharedStateMachine_GetWorld(state_machine);
     struct Charger * charger = App_BmsWorld_GetCharger(world);
 
-    App_CanTx_BMSVitals_CurrentState_Set(BMS_CHARGE_STATE);
-    App_CanTx_BMSCharger_IsChargingComplete_Set(false);
+    App_CanTx_BMS_Vitals_CurrentState_Set(BMS_CHARGE_STATE);
+    App_CanTx_BMS_Charger_IsChargingComplete_Set(false);
     App_Charger_Enable(charger);
 }
 
@@ -48,10 +48,10 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         const bool has_reached_max_v =
             App_Accumulator_GetMaxVoltage(accumulator, &segment, &cell) > MAX_CELL_VOLTAGE_THRESHOLD;
 
-        App_CanTx_BMSFaults_ChargerDisconnectedInChargeState_Set(is_charger_disconnected);
-        App_CanTx_BMSFaults_ChargerFault_Set(has_charger_faulted);
-        App_CanTx_BMSCharger_IsChargingComplete_Set(has_reached_max_v);
-        App_CanTx_BMSFaults_ChargingExtShutdownOccurred_Set(has_external_shutdown_occurred);
+        App_CanTx_BMS_Faults_ChargerDisconnectedInChargeState_Set(is_charger_disconnected);
+        App_CanTx_BMS_Faults_ChargerFault_Set(has_charger_faulted);
+        App_CanTx_BMS_Charger_IsChargingComplete_Set(has_reached_max_v);
+        App_CanTx_BMS_Faults_ChargingExtShutdownOccurred_Set(has_external_shutdown_occurred);
 
         if (is_charger_disconnected || has_charger_faulted || has_reached_max_v || has_external_shutdown_occurred)
         {
