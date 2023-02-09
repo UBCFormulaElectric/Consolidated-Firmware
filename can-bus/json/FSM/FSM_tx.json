@@ -1,16 +1,6 @@
 {
-    "FSM_Test1": {
+    "FSM_Vitals": {
         "msg_id": 303,
-        "cycle_time": 1000,
-        "description": "Test message for the FSM.",
-        "signals": {
-            "Ex1": {
-                "bits": 1
-            }
-        }
-    },
-    "FSMVitals": {
-        "msg_id": 304,
         "cycle_time": 1000,
         "description": "FSM Heartbeat signal",
         "signals": {
@@ -18,6 +8,5 @@
                 "bits": 1
             }
         }
-
     }
 }

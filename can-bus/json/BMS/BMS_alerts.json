@@ -1,5 +1,6 @@
 {
-    "alert_set_msg_id": 150,
-    "alert_cleared_msg_id": 151,
-    "alerts": []
+    "msg_id": 150,
+    "alerts": [
+        "BMS_ALERT_DUMMY"
+    ]
 }

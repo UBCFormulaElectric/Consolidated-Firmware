@@ -1,6 +1,8 @@
 #include <stm32f4xx.h>
 #include <string.h>
+#include "App_CanAlerts.h"
 #include "App_CanTx.h"
+#include "Io_CanTx.h"
 #include "Io_SoftwareWatchdog.h"
 #include "Io_SharedMacros.h"
 
@@ -15,10 +17,8 @@ void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
 {
     BREAK_IF_DEBUGGER_CONNECTED();
 
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_WATCHDOG_TIMEOUT(_can_tx, true);
-
-    //    struct CanMsgs_dim_watchdog_timeout_t payload;
-    //    memcpy(&payload.task_name, Io_SharedSoftwareWatchdog_GetName(watchdog), sizeof(payload.task_name));
-
-    // TODO: JSONCAN -> App_CanTx_SendNonPeriodicMsg_DIM_WATCHDOG_TIMEOUT(_can_tx, &payload);
+    const uint8_t watchdog_id = Io_SharedSoftwareWatchdog_GetTaskId(watchdog);
+    App_CanAlerts_SetAlert(DIM_ALERT_WATCHDOG_TIMEOUT, true);
+    App_CanTx_DIM_WatchdogTimeout_TaskName_Set((RtosTaskName)watchdog_id);
+    App_CanTx_DIM_WatchdogTimeout_SendAperiodic();
 }
