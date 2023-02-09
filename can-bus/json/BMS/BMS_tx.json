@@ -1,5 +1,5 @@
 {
-    "BMSVitals": {
+    "BMS_Vitals": {
         "msg_id": 100,
         "cycle_time": 100,
         "description": "Vitals message for the BMS.",
@@ -7,8 +7,8 @@
             "Heartbeat": {
                 "bits": 1
             },
-            "CurrentState":{
-                "enum" : "BMSState"
+            "CurrentState": {
+                "enum": "BmsState"
             },
             "StateOfCharge": {
                 "bits": 3,
@@ -17,8 +17,7 @@
             }
         }
     },
-
-    "BMSCanFifoOverflow": {
+    "BMS_CanFifoOverflow": {
         "msg_id": 101,
         "cycle_time": 5000,
         "description": "BMS tx/rx fifo overflow count",
@@ -31,21 +30,19 @@
             }
         }
     },
-
-    "BMSWatchdogTimeout": {
+    "BMS_WatchdogTimeout": {
         "msg_id": 103,
         "cycle_time": 1000,
         "description": "placeholder",
         "signals": {
-            "TaskName" : {
-                "enum": "SharedTasks"
+            "TaskName": {
+                "enum": "RtosTaskName"
             }
         }
     },
-
-    "BMSWarnings": {
-        "msg_id" : 104,
-        "cycle_time":  1000,
+    "BMS_Warnings": {
+        "msg_id": 104,
+        "cycle_time": 1000,
         "description": "Warning flags for BMS",
         "signals": {
             "StackWatermarkAboveThresholdTask1Hz": {
@@ -65,59 +62,56 @@
             }
         }
     },
-
-    "BMSImdStatus": {
-            "msg_id": 105,
-            "cycle_time": 1000,
-            "description": "BMS IMD Messages",
-            "signals": {
-                "OkHs": {
-                    "bits": 1
-                },
-                "SecondsSincePowerOn" : {
-                    "bits": 8,
-                    "min": 0,
-                    "max": 255,
-                    "unit": "Seconds"
-                },
-                "ValidDutyCycle": {
-                    "bits": 1
-                }
+    "BMS_ImdStatus": {
+        "msg_id": 105,
+        "cycle_time": 1000,
+        "description": "BMS IMD Messages",
+        "signals": {
+            "OkHs": {
+                "bits": 1
+            },
+            "SecondsSincePowerOn": {
+                "bits": 8,
+                "min": 0,
+                "max": 255,
+                "unit": "Seconds"
+            },
+            "ValidDutyCycle": {
+                "bits": 1
             }
-        },
-
-    "BMSImdData": {
+        }
+    },
+    "BMS_ImdData": {
         "msg_id": 106,
         "cycle_time": 1000,
         "description": "BMS IMD Measurement Data Values",
         "signals": {
-            "ActiveFrequency" : {
+            "ActiveFrequency": {
                 "bits": 2,
                 "min": 0,
                 "max": 20,
                 "unit": "Hz"
             },
-            "InsulationMeasurementDcp10Hz" : {
+            "InsulationMeasurementDcp10Hz": {
                 "resolution": 0.1,
-                "min" : 0,
+                "min": 0,
                 "max": 65535,
                 "unit": "kOhm"
             },
-            "InsulationMeasurementDcp20Hz" : {
+            "InsulationMeasurementDcp20Hz": {
                 "resolution": 0.1,
-                "min" : 0,
+                "min": 0,
                 "max": 65535,
                 "unit": "kOhm"
             },
-            "SpeedStartStatus30Hz":{
+            "SpeedStartStatus30Hz": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 65535
             }
         }
     },
-
-    "BMSImdPwmOutput": {
+    "BMS_ImdPwmOutput": {
         "msg_id": 107,
         "cycle_time": 1000,
         "description": "BMS IMD PWM Output",
@@ -136,7 +130,7 @@
             }
         }
     },
-    "BMSFaults": {
+    "BMS_Faults": {
         "msg_id": 109,
         "cycle_time": 1000,
         "description": "BMS Fault Flags",
@@ -153,7 +147,7 @@
             "ModuleCommFault": {
                 "bits": 1
             },
-            "CellUnderTempFault":{
+            "CellUnderTempFault": {
                 "bits": 1
             },
             "CellOverTempFault": {
@@ -162,7 +156,7 @@
             "ChargerFault": {
                 "bits": 1
             },
-            "HasReachedMaxV":{
+            "HasReachedMaxV": {
                 "bits": 1
             },
             "ChargingExtShutdownOccurred": {
@@ -176,8 +170,7 @@
             }
         }
     },
-
-    "BMSCharger": {
+    "BMS_Charger": {
         "msg_id": 110,
         "cycle_time": 1000,
         "description": "Flags relaying BMS Charger Status",
@@ -190,8 +183,7 @@
             }
         }
     },
-
-    "BmsOkStatuses": {
+    "BMS_OkStatuses": {
         "msg_id": 111,
         "cycle_time": 10,
         "description": "BMS OK status flags",
@@ -199,7 +191,7 @@
             "BmsOk": {
                 "bits": 1
             },
-            "ImdOk":{
+            "ImdOk": {
                 "bits": 1
             },
             "BspdOk": {
@@ -207,8 +199,7 @@
             }
         }
     },
-
-    "BMSAirStates": {
+    "BMS_AirStates": {
         "msg_id": 112,
         "cycle_time": 10,
         "description": "BMS AIR state statuses",
@@ -216,7 +207,7 @@
             "AirPositive": {
                 "bits": 1
             },
-            "AirNegative":{
+            "AirNegative": {
                 "bits": 1
             },
             "PrechargeRelay": {
@@ -224,8 +215,7 @@
             }
         }
     },
-
-    "BMSMotorShutdownErrors": {
+    "BMS_MotorShutdownErrors": {
         "msg_id": 113,
         "cycle_time": 1000,
         "description": "BMS Motor Shutdown Errors",
@@ -235,8 +225,7 @@
             }
         }
     },
-
-    "BMSCellTemperatures": {
+    "BMS_CellTemperatures": {
         "msg_id": 114,
         "cycle_time": 100,
         "description": "BMS Cell Temperature readings",
@@ -255,8 +244,7 @@
             }
         }
     },
-
-    "BMSCellVoltages": {
+    "BMS_CellVoltages": {
         "msg_id": 115,
         "cycle_time": 100,
         "description": "BMS Cell Voltage readings",
@@ -275,8 +263,7 @@
             }
         }
     },
-
-    "BMSCellStats": {
+    "BMS_CellStats": {
         "msg_id": 116,
         "cycle_time": 100,
         "description": "BMS Cell Stats",
@@ -296,7 +283,7 @@
                 "min": 0,
                 "max": 7
             },
-            "MaxCellVoltageIdx":{
+            "MaxCellVoltageIdx": {
                 "resolution": 1,
                 "min": 0,
                 "max": 15
@@ -316,15 +303,14 @@
                 "min": 0,
                 "max": 7
             },
-            "MaxTempIdx":{
+            "MaxTempIdx": {
                 "resolution": 1,
                 "min": 0,
                 "max": 15
             }
         }
     },
-
-    "BMSTractiveSystem": {
+    "BMS_TractiveSystem": {
         "msg_id": 117,
         "cycle_time": 100,
         "description": "BMS Tractive System Data",
@@ -343,8 +329,7 @@
             }
         }
     },
-
-    "BMSPackVoltage": {
+    "BMS_PackVoltage": {
         "msg_id": 118,
         "cycle_time": 100,
         "description": "BMS Pack Voltage",
@@ -357,8 +342,7 @@
             }
         }
     },
-
-    "BMSAvailablePower": {
+    "BMS_AvailablePower": {
         "msg_id": 120,
         "cycle_time": 100,
         "description": "BMS Available Power",

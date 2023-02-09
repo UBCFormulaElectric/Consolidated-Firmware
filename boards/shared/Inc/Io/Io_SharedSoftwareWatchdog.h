@@ -30,6 +30,7 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
 
 // Application specific configuration options
 #include "Io_SharedSoftwareWatchdogConfig.h"
@@ -68,12 +69,12 @@ SoftwareWatchdogHandle_t Io_SharedSoftwareWatchdog_AllocateWatchdog(void);
  * Initialize a software watchdog. Once a software watchdog is initialized, it
  * is ready to monitor a periodic task.
  * @param sw_watchdog_handle: Handle to the software watchdog
- * @param name: Name of the software watchdog
+ * @param task_id: ID to identify the task this watchdog is monitoring
  * @param period_in_ticks: Period of the task in OS ticks
  */
 void Io_SharedSoftwareWatchdog_InitWatchdog(
     SoftwareWatchdogHandle_t sw_watchdog_handle,
-    char *                   name,
+    uint8_t                  task_id,
     Tick_t                   period_in_ticks);
 
 /**
@@ -94,8 +95,8 @@ void Io_SharedSoftwareWatchdog_CheckInWatchdog(SoftwareWatchdogHandle_t sw_watch
 void Io_SharedSoftwareWatchdog_CheckForTimeouts(void);
 
 /**
- * Get the name of a software watchdog.
+ * Get the ID of a software watchdog.
  * @param sw_watchdog_handle: Handle to the software watchdog
- * @return Name of the software watchdog
+ * @return ID of the software watchdog
  */
-const char *Io_SharedSoftwareWatchdog_GetName(SoftwareWatchdogHandle_t sw_watchdog_handle);
+uint8_t Io_SharedSoftwareWatchdog_GetTaskId(SoftwareWatchdogHandle_t sw_watchdog_handle);

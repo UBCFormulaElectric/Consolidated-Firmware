@@ -17,6 +17,10 @@
 
 #define MIN3(x, y, z) (min(min((x),(y)),(z)))
 
+#define IS_BIT_SET(input, bit) ((bool)((uint8_t)(input >> bit) & 1U))
+#define SET_BIT_HIGH(input, bit) (input | (1U << bit))
+#define SET_BIT_LOW(input, bit) (input & ~(1U << bit))
+
 // Extra guard because HAL defines the same macro
 #ifndef UNUSED
 #define UNUSED(x) (void)(x)
