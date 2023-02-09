@@ -40,6 +40,7 @@
 #include "Io_LT3650.h"
 #include "Io_LTC3786.h"
 
+#include "App_CanAlerts.h"
 #include "App_PdmWorld.h"
 #include "App_SharedMacros.h"
 #include "App_SharedConstants.h"
@@ -67,28 +68,29 @@
 
 /* Private variables ---------------------------------------------------------*/
 ADC_HandleTypeDef hadc1;
+DMA_HandleTypeDef hdma_adc1;
 
-CAN_HandleTypeDef hcan;
+CAN_HandleTypeDef hcan1;
 
 IWDG_HandleTypeDef hiwdg;
 
 SPI_HandleTypeDef hspi2;
 
-osThreadId          Task1HzHandle;
-uint32_t            Task1HzBuffer[TASK1HZ_STACK_SIZE];
-osStaticThreadDef_t Task1HzControlBlock;
-osThreadId          Task1kHzHandle;
-uint32_t            Task1kHzBuffer[TASK1KHZ_STACK_SIZE];
-osStaticThreadDef_t Task1kHzControlBlock;
+osThreadId          Task100HzHandle;
+uint32_t            Task100HzBuffer[512];
+osStaticThreadDef_t Task100HzControlBlock;
 osThreadId          TaskCanRxHandle;
-uint32_t            TaskCanRxBuffer[TASKCANRX_STACK_SIZE];
+uint32_t            TaskCanRxBuffer[512];
 osStaticThreadDef_t TaskCanRxControlBlock;
 osThreadId          TaskCanTxHandle;
-uint32_t            TaskCanTxBuffer[TASKCANTX_STACK_SIZE];
+uint32_t            TaskCanTxBuffer[512];
 osStaticThreadDef_t TaskCanTxControlBlock;
-osThreadId          Task100HzHandle;
-uint32_t            Task100HzBuffer[TASK100HZ_STACK_SIZE];
-osStaticThreadDef_t Task100HzControlBlock;
+osThreadId          Task1kHzHandle;
+uint32_t            Task1kHzBuffer[512];
+osStaticThreadDef_t Task1kHzControlBlock;
+osThreadId          Task1HzHandle;
+uint32_t            Task1HzBuffer[512];
+osStaticThreadDef_t Task1HzControlBlock;
 /* USER CODE BEGIN PV */
 struct PdmWorld *         world;
 struct StateMachine *     state_machine;
@@ -111,15 +113,16 @@ struct Clock *            clock;
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_CAN_Init(void);
-static void MX_SPI2_Init(void);
+static void MX_DMA_Init(void);
 static void MX_ADC1_Init(void);
+static void MX_CAN1_Init(void);
 static void MX_IWDG_Init(void);
-void        RunTask1Hz(void const *argument);
-void        RunTask1kHz(void const *argument);
+static void MX_SPI2_Init(void);
+void        RunTask100Hz(void const *argument);
 void        RunTaskCanRx(void const *argument);
 void        RunTaskCanTx(void const *argument);
-void        RunTask100Hz(void const *argument);
+void        RunTask1kHz(void const *argument);
+void        RunTask1Hz(void const *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -133,12 +136,12 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    // JSONCAN -> App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count);
+    App_CanTx_PDM_Errors_RxOverflowCount_Set(overflow_count);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    // JSONCAN -> App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
+    App_CanTx_PDM_Errors_TxOverflowCount_Set(overflow_count);
 }
 
 /* USER CODE END 0 */
@@ -171,10 +174,11 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
-    MX_CAN_Init();
-    MX_SPI2_Init();
+    MX_DMA_Init();
     MX_ADC1_Init();
+    MX_CAN1_Init();
     MX_IWDG_Init();
+    MX_SPI2_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
 
@@ -231,8 +235,7 @@ int main(void)
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
-    // struct CanMsgs_pdm_startup_t payload = { .dummy = 0 };
-    // JSONCAN -> App_CanTx_SendNonPeriodicMsg_PDM_STARTUP(can_tx, &payload);
+    App_CanAlerts_SetAlert(PDM_ALERT_STARTUP, true);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -252,30 +255,25 @@ int main(void)
     /* USER CODE END RTOS_QUEUES */
 
     /* Create the thread(s) */
-    /* definition and creation of Task1Hz */
-    osThreadStaticDef(Task1Hz, RunTask1Hz, osPriorityLow, 0, TASK1HZ_STACK_SIZE, Task1HzBuffer, &Task1HzControlBlock);
-    Task1HzHandle = osThreadCreate(osThread(Task1Hz), NULL);
-
-    /* definition and creation of Task1kHz */
-    osThreadStaticDef(
-        Task1kHz, RunTask1kHz, osPriorityAboveNormal, 0, TASK1KHZ_STACK_SIZE, Task1kHzBuffer, &Task1kHzControlBlock);
-    Task1kHzHandle = osThreadCreate(osThread(Task1kHz), NULL);
+    /* definition and creation of Task100Hz */
+    osThreadStaticDef(Task100Hz, RunTask100Hz, osPriorityBelowNormal, 0, 512, Task100HzBuffer, &Task100HzControlBlock);
+    Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
 
     /* definition and creation of TaskCanRx */
-    osThreadStaticDef(
-        TaskCanRx, RunTaskCanRx, osPriorityIdle, 0, TASKCANRX_STACK_SIZE, TaskCanRxBuffer, &TaskCanRxControlBlock);
+    osThreadStaticDef(TaskCanRx, RunTaskCanRx, osPriorityIdle, 0, 512, TaskCanRxBuffer, &TaskCanRxControlBlock);
     TaskCanRxHandle = osThreadCreate(osThread(TaskCanRx), NULL);
 
     /* definition and creation of TaskCanTx */
-    osThreadStaticDef(
-        TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, TASKCANTX_STACK_SIZE, TaskCanTxBuffer, &TaskCanTxControlBlock);
+    osThreadStaticDef(TaskCanTx, RunTaskCanTx, osPriorityIdle, 0, 512, TaskCanTxBuffer, &TaskCanTxControlBlock);
     TaskCanTxHandle = osThreadCreate(osThread(TaskCanTx), NULL);
 
-    /* definition and creation of Task100Hz */
-    osThreadStaticDef(
-        Task100Hz, RunTask100Hz, osPriorityBelowNormal, 0, TASK100HZ_STACK_SIZE, Task100HzBuffer,
-        &Task100HzControlBlock);
-    Task100HzHandle = osThreadCreate(osThread(Task100Hz), NULL);
+    /* definition and creation of Task1kHz */
+    osThreadStaticDef(Task1kHz, RunTask1kHz, osPriorityNormal, 0, 512, Task1kHzBuffer, &Task1kHzControlBlock);
+    Task1kHzHandle = osThreadCreate(osThread(Task1kHz), NULL);
+
+    /* definition and creation of Task1Hz */
+    osThreadStaticDef(Task1Hz, RunTask1Hz, osPriorityLow, 0, 512, Task1HzBuffer, &Task1HzControlBlock);
+    Task1HzHandle = osThreadCreate(osThread(Task1Hz), NULL);
 
     /* USER CODE BEGIN RTOS_THREADS */
     /* add threads, ... */
@@ -308,20 +306,25 @@ int main(void)
  */
 void SystemClock_Config(void)
 {
-    RCC_OscInitTypeDef       RCC_OscInitStruct = { 0 };
-    RCC_ClkInitTypeDef       RCC_ClkInitStruct = { 0 };
-    RCC_PeriphCLKInitTypeDef PeriphClkInit     = { 0 };
+    RCC_OscInitTypeDef RCC_OscInitStruct = { 0 };
+    RCC_ClkInitTypeDef RCC_ClkInitStruct = { 0 };
 
+    /** Configure the main internal regulator output voltage
+     */
+    __HAL_RCC_PWR_CLK_ENABLE();
+    __HAL_PWR_VOLTAGESCALING_CONFIG(PWR_REGULATOR_VOLTAGE_SCALE1);
     /** Initializes the CPU, AHB and APB busses clocks
      */
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
-    RCC_OscInitStruct.HSEPredivValue = RCC_HSE_PREDIV_DIV1;
-    RCC_OscInitStruct.HSIState       = RCC_HSI_ON;
     RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
     RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
     RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLMUL     = RCC_PLL_MUL9;
+    RCC_OscInitStruct.PLL.PLLM       = 8;
+    RCC_OscInitStruct.PLL.PLLN       = 192;
+    RCC_OscInitStruct.PLL.PLLP       = RCC_PLLP_DIV2;
+    RCC_OscInitStruct.PLL.PLLQ       = 2;
+    RCC_OscInitStruct.PLL.PLLR       = 2;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -334,13 +337,7 @@ void SystemClock_Config(void)
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_2) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    PeriphClkInit.PeriphClockSelection = RCC_PERIPHCLK_ADC12;
-    PeriphClkInit.Adc12ClockSelection  = RCC_ADC12PLLCLK_DIV1;
-    if (HAL_RCCEx_PeriphCLKConfig(&PeriphClkInit) != HAL_OK)
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
     {
         Error_Handler();
     }
@@ -357,18 +354,17 @@ static void MX_ADC1_Init(void)
 
     /* USER CODE END ADC1_Init 0 */
 
-    ADC_MultiModeTypeDef   multimode = { 0 };
-    ADC_ChannelConfTypeDef sConfig   = { 0 };
+    ADC_ChannelConfTypeDef sConfig = { 0 };
 
     /* USER CODE BEGIN ADC1_Init 1 */
 
     /* USER CODE END ADC1_Init 1 */
-    /** Common config
+    /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
      */
     hadc1.Instance                   = ADC1;
-    hadc1.Init.ClockPrescaler        = ADC_CLOCK_ASYNC_DIV1;
+    hadc1.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
     hadc1.Init.Resolution            = ADC_RESOLUTION_12B;
-    hadc1.Init.ScanConvMode          = ADC_SCAN_DISABLE;
+    hadc1.Init.ScanConvMode          = DISABLE;
     hadc1.Init.ContinuousConvMode    = DISABLE;
     hadc1.Init.DiscontinuousConvMode = DISABLE;
     hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
@@ -377,27 +373,15 @@ static void MX_ADC1_Init(void)
     hadc1.Init.NbrOfConversion       = 1;
     hadc1.Init.DMAContinuousRequests = DISABLE;
     hadc1.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
-    hadc1.Init.LowPowerAutoWait      = DISABLE;
-    hadc1.Init.Overrun               = ADC_OVR_DATA_OVERWRITTEN;
     if (HAL_ADC_Init(&hadc1) != HAL_OK)
     {
         Error_Handler();
     }
-    /** Configure the ADC multi-mode
+    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
      */
-    multimode.Mode = ADC_MODE_INDEPENDENT;
-    if (HAL_ADCEx_MultiModeConfigChannel(&hadc1, &multimode) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /** Configure Regular Channel
-     */
-    sConfig.Channel      = ADC_CHANNEL_1;
-    sConfig.Rank         = ADC_REGULAR_RANK_1;
-    sConfig.SingleDiff   = ADC_SINGLE_ENDED;
-    sConfig.SamplingTime = ADC_SAMPLETIME_1CYCLE_5;
-    sConfig.OffsetNumber = ADC_OFFSET_NONE;
-    sConfig.Offset       = 0;
+    sConfig.Channel      = ADC_CHANNEL_4;
+    sConfig.Rank         = 1;
+    sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -408,38 +392,38 @@ static void MX_ADC1_Init(void)
 }
 
 /**
- * @brief CAN Initialization Function
+ * @brief CAN1 Initialization Function
  * @param None
  * @retval None
  */
-static void MX_CAN_Init(void)
+static void MX_CAN1_Init(void)
 {
-    /* USER CODE BEGIN CAN_Init 0 */
+    /* USER CODE BEGIN CAN1_Init 0 */
 
-    /* USER CODE END CAN_Init 0 */
+    /* USER CODE END CAN1_Init 0 */
 
-    /* USER CODE BEGIN CAN_Init 1 */
+    /* USER CODE BEGIN CAN1_Init 1 */
 
-    /* USER CODE END CAN_Init 1 */
-    hcan.Instance                  = CAN;
-    hcan.Init.Prescaler            = 9;
-    hcan.Init.Mode                 = CAN_MODE_NORMAL;
-    hcan.Init.SyncJumpWidth        = CAN_SJW_4TQ;
-    hcan.Init.TimeSeg1             = CAN_BS1_6TQ;
-    hcan.Init.TimeSeg2             = CAN_BS2_1TQ;
-    hcan.Init.TimeTriggeredMode    = DISABLE;
-    hcan.Init.AutoBusOff           = ENABLE;
-    hcan.Init.AutoWakeUp           = DISABLE;
-    hcan.Init.AutoRetransmission   = ENABLE;
-    hcan.Init.ReceiveFifoLocked    = ENABLE;
-    hcan.Init.TransmitFifoPriority = ENABLE;
-    if (HAL_CAN_Init(&hcan) != HAL_OK)
+    /* USER CODE END CAN1_Init 1 */
+    hcan1.Instance                  = CAN1;
+    hcan1.Init.Prescaler            = 12;
+    hcan1.Init.Mode                 = CAN_MODE_NORMAL;
+    hcan1.Init.SyncJumpWidth        = CAN_SJW_4TQ;
+    hcan1.Init.TimeSeg1             = CAN_BS1_6TQ;
+    hcan1.Init.TimeSeg2             = CAN_BS2_1TQ;
+    hcan1.Init.TimeTriggeredMode    = DISABLE;
+    hcan1.Init.AutoBusOff           = ENABLE;
+    hcan1.Init.AutoWakeUp           = DISABLE;
+    hcan1.Init.AutoRetransmission   = ENABLE;
+    hcan1.Init.ReceiveFifoLocked    = ENABLE;
+    hcan1.Init.TransmitFifoPriority = ENABLE;
+    if (HAL_CAN_Init(&hcan1) != HAL_OK)
     {
         Error_Handler();
     }
-    /* USER CODE BEGIN CAN_Init 2 */
-    Io_SharedCan_Init(&hcan, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
-    /* USER CODE END CAN_Init 2 */
+    /* USER CODE BEGIN CAN1_Init 2 */
+    Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
+    /* USER CODE END CAN1_Init 2 */
 }
 
 /**
@@ -458,7 +442,6 @@ static void MX_IWDG_Init(void)
     /* USER CODE END IWDG_Init 1 */
     hiwdg.Instance       = IWDG;
     hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
-    hiwdg.Init.Window    = IWDG_WINDOW_DISABLE_VALUE;
     hiwdg.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
     if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
     {
@@ -487,7 +470,7 @@ static void MX_SPI2_Init(void)
     hspi2.Instance               = SPI2;
     hspi2.Init.Mode              = SPI_MODE_MASTER;
     hspi2.Init.Direction         = SPI_DIRECTION_2LINES;
-    hspi2.Init.DataSize          = SPI_DATASIZE_4BIT;
+    hspi2.Init.DataSize          = SPI_DATASIZE_8BIT;
     hspi2.Init.CLKPolarity       = SPI_POLARITY_LOW;
     hspi2.Init.CLKPhase          = SPI_PHASE_1EDGE;
     hspi2.Init.NSS               = SPI_NSS_SOFT;
@@ -495,9 +478,7 @@ static void MX_SPI2_Init(void)
     hspi2.Init.FirstBit          = SPI_FIRSTBIT_MSB;
     hspi2.Init.TIMode            = SPI_TIMODE_DISABLE;
     hspi2.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
-    hspi2.Init.CRCPolynomial     = 7;
-    hspi2.Init.CRCLength         = SPI_CRC_LENGTH_DATASIZE;
-    hspi2.Init.NSSPMode          = SPI_NSS_PULSE_ENABLE;
+    hspi2.Init.CRCPolynomial     = 10;
     if (HAL_SPI_Init(&hspi2) != HAL_OK)
     {
         Error_Handler();
@@ -505,6 +486,20 @@ static void MX_SPI2_Init(void)
     /* USER CODE BEGIN SPI2_Init 2 */
 
     /* USER CODE END SPI2_Init 2 */
+}
+
+/**
+ * Enable DMA controller clock
+ */
+static void MX_DMA_Init(void)
+{
+    /* DMA controller clock enable */
+    __HAL_RCC_DMA2_CLK_ENABLE();
+
+    /* DMA interrupt init */
+    /* DMA2_Stream0_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
 }
 
 /**
@@ -517,145 +512,81 @@ static void MX_GPIO_Init(void)
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
 
     /* GPIO Ports Clock Enable */
+    __HAL_RCC_GPIOH_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE();
-    __HAL_RCC_GPIOF_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
-    __HAL_RCC_GPIOD_CLK_ENABLE();
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOC, STATUS_R_Pin | STATUS_G_Pin | STATUS_B_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOA, EN_DI_RHS_Pin | FR_STBY_DIS_Pin | EN_DI_LHS_Pin | EN_FAN_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOA, PIN_AUX1_Pin | CSB_AUX1_AUX2_Pin | PIN_DI_FL_Pin | CSB_DI_FL_DI_FR_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(
+        GPIOB, LED_Pin | EN_AIR_Pin | FR_STBY_AIR_LVPWR_Pin | EN_LVPWR_Pin | EN_EMETER_Pin, GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(PIN_AUX2_GPIO_Port, PIN_AUX2_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOC, FR_STBY_EMETER_AUX_Pin | EN_AUX_Pin | EN_DRS_Pin | FR_STBY_DRS_FAN_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOC, PIN_AIR_SHDN_Pin | PIN_LV_PWR_Pin | CSB_DI_BL_DI_BR_Pin, GPIO_PIN_SET);
-
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOB, CSB_AIR_SHDN_LV_PWR_Pin | PIN_DI_BL_Pin | PIN_DI_BR_Pin, GPIO_PIN_RESET);
-
-    /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(PIN_DI_FR_GPIO_Port, PIN_DI_FR_Pin, GPIO_PIN_SET);
-
-    /*Configure GPIO pins : STATUS_R_Pin STATUS_G_Pin STATUS_B_Pin */
-    GPIO_InitStruct.Pin   = STATUS_R_Pin | STATUS_G_Pin | STATUS_B_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : PIN_AUX1_Pin PIN_DI_FL_Pin */
-    GPIO_InitStruct.Pin   = PIN_AUX1_Pin | PIN_DI_FL_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
-    GPIO_InitStruct.Pull  = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : PIN_AUX2_Pin */
-    GPIO_InitStruct.Pin   = PIN_AUX2_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(PIN_AUX2_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : CUR_SYNC_AUX1_AUX2_Pin FSB_AUX1_AUX2_Pin FSOB_AUX1_AUX2_Pin CUR_SYNC_DI_FL_DI_FR_Pin */
-    GPIO_InitStruct.Pin  = CUR_SYNC_AUX1_AUX2_Pin | FSB_AUX1_AUX2_Pin | FSOB_AUX1_AUX2_Pin | CUR_SYNC_DI_FL_DI_FR_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : CSB_AUX1_AUX2_Pin CSB_DI_FL_DI_FR_Pin */
-    GPIO_InitStruct.Pin   = CSB_AUX1_AUX2_Pin | CSB_DI_FL_DI_FR_Pin;
+    /*Configure GPIO pins : EN_DI_RHS_Pin FR_STBY_DIS_Pin EN_DI_LHS_Pin EN_FAN_Pin */
+    GPIO_InitStruct.Pin   = EN_DI_RHS_Pin | FR_STBY_DIS_Pin | EN_DI_LHS_Pin | EN_FAN_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : PIN_AIR_SHDN_Pin PIN_LV_PWR_Pin CSB_DI_BL_DI_BR_Pin */
-    GPIO_InitStruct.Pin   = PIN_AIR_SHDN_Pin | PIN_LV_PWR_Pin | CSB_DI_BL_DI_BR_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : CUR_SYNC_AIR_SHDN_LV_PWR_Pin FSB_AIR_SHDN_LV_PWR_Pin FSOB_AIR_SHDN_LV_PWR_Pin CHRG_FAULT_Pin
-                             GPIOB_4_Pin GPIOB_3_Pin GPIOB_2_Pin GPIOB_1_Pin */
-    GPIO_InitStruct.Pin = CUR_SYNC_AIR_SHDN_LV_PWR_Pin | FSB_AIR_SHDN_LV_PWR_Pin | FSOB_AIR_SHDN_LV_PWR_Pin |
-                          CHRG_FAULT_Pin | GPIOB_4_Pin | GPIOB_3_Pin | GPIOB_2_Pin | GPIOB_1_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : CSB_AIR_SHDN_LV_PWR_Pin PIN_DI_BL_Pin */
-    GPIO_InitStruct.Pin   = CSB_AIR_SHDN_LV_PWR_Pin | PIN_DI_BL_Pin;
+    /*Configure GPIO pins : LED_Pin EN_AIR_Pin FR_STBY_AIR_LVPWR_Pin EN_LVPWR_Pin
+                             EN_EMETER_Pin */
+    GPIO_InitStruct.Pin   = LED_Pin | EN_AIR_Pin | FR_STBY_AIR_LVPWR_Pin | EN_LVPWR_Pin | EN_EMETER_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pin : PIN_DI_BR_Pin */
-    GPIO_InitStruct.Pin   = PIN_DI_BR_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_OD;
-    GPIO_InitStruct.Pull  = GPIO_PULLUP;
+    /*Configure GPIO pins : FR_STBY_EMETER_AUX_Pin EN_AUX_Pin EN_DRS_Pin FR_STBY_DRS_FAN_Pin */
+    GPIO_InitStruct.Pin   = FR_STBY_EMETER_AUX_Pin | EN_AUX_Pin | EN_DRS_Pin | FR_STBY_DRS_FAN_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(PIN_DI_BR_GPIO_Port, &GPIO_InitStruct);
+    HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : CUR_SYNC_DI_BL_DI_BR_Pin FSB_DI_BL_DI_BR_Pin FSOB_DI_BL_DI_BR_Pin FSB_DI_FL_DI_FR_Pin
-                             FSOB_DI_FL_DI_FR_Pin PGOOD_Pin */
-    GPIO_InitStruct.Pin = CUR_SYNC_DI_BL_DI_BR_Pin | FSB_DI_BL_DI_BR_Pin | FSOB_DI_BL_DI_BR_Pin | FSB_DI_FL_DI_FR_Pin |
-                          FSOB_DI_FL_DI_FR_Pin | PGOOD_Pin;
+    /*Configure GPIO pin : N_CHRG_FAULT_Pin */
+    GPIO_InitStruct.Pin  = N_CHRG_FAULT_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    HAL_GPIO_Init(N_CHRG_FAULT_GPIO_Port, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : N_CHRG_Pin PGOOD_Pin */
+    GPIO_InitStruct.Pin  = N_CHRG_Pin | PGOOD_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : PIN_DI_FR_Pin */
-    GPIO_InitStruct.Pin   = PIN_DI_FR_Pin;
-    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
-    GPIO_InitStruct.Pull  = GPIO_PULLUP;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(PIN_DI_FR_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : CHRG_Pin */
-    GPIO_InitStruct.Pin  = CHRG_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(CHRG_GPIO_Port, &GPIO_InitStruct);
-
-    /*Configure GPIO pin : PB5 */
-    GPIO_InitStruct.Pin  = GPIO_PIN_5;
-    GPIO_InitStruct.Mode = GPIO_MODE_ANALOG;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
 
 /* USER CODE BEGIN 4 */
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_RunTask1Hz */
+/* USER CODE BEGIN Header_RunTask100Hz */
 /**
- * @brief  Function implementing the Task1Hz thread.
- * @param  argument: Not used
+ * @brief Function implementing the Task100Hz thread.
+ * @param argument: Not used
  * @retval None
  */
-/* USER CODE END Header_RunTask1Hz */
-void RunTask1Hz(void const *argument)
+/* USER CODE END Header_RunTask100Hz */
+void RunTask100Hz(void const *argument)
 {
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
     uint32_t                 PreviousWakeTime = osKernelSysTick();
-    static const TickType_t  period_ms        = 1000U;
+    static const TickType_t  period_ms        = 10U;
     SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
 
+    /* Infinite loop */
     for (;;)
     {
-        Io_StackWaterMark_Check();
-        App_SharedStateMachine_Tick1Hz(state_machine);
+        App_SharedStateMachine_Tick100Hz(state_machine);
+        Io_CanTx_Enqueue100HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
@@ -663,43 +594,6 @@ void RunTask1Hz(void const *argument)
         osDelayUntil(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END 5 */
-}
-
-/* USER CODE BEGIN Header_RunTask1kHz */
-/**
- * @brief Function implementing the Task1kHz thread.
- * @param argument: Not used
- * @retval None
- */
-/* USER CODE END Header_RunTask1kHz */
-void RunTask1kHz(void const *argument)
-{
-    /* USER CODE BEGIN RunTask1kHz */
-    UNUSED(argument);
-    uint32_t                 PreviousWakeTime = osKernelSysTick();
-    static const TickType_t  period_ms        = 1U;
-    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
-
-    for (;;)
-    {
-        Io_SharedSoftwareWatchdog_CheckForTimeouts();
-        const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
-
-        App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
-        // Io_CanTx_EnqueuePeriodicMsgs(can_tx, task_start_ms); // TODO: JSONCAN
-
-        // Watchdog check-in must be the last function called before putting the
-        // task to sleep. Prevent check in if the elapsed period is greater or
-        // equal to the period ms
-        if ((TICK_TO_MS(osKernelSysTick()) - task_start_ms) <= period_ms)
-        {
-            Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        }
-
-        osDelayUntil(&PreviousWakeTime, period_ms);
-    }
-    /* USER CODE END RunTask1kHz */
 }
 
 /* USER CODE BEGIN Header_RunTaskCanRx */
@@ -742,38 +636,77 @@ void RunTaskCanTx(void const *argument)
     /* USER CODE END RunTaskCanTx */
 }
 
-/* USER CODE BEGIN Header_RunTask100Hz */
+/* USER CODE BEGIN Header_RunTask1kHz */
 /**
- * @brief Function implementing the Task100Hz thread.
+ * @brief Function implementing the Task1kHz thread.
  * @param argument: Not used
  * @retval None
  */
-/* USER CODE END Header_RunTask100Hz */
-void RunTask100Hz(void const *argument)
+/* USER CODE END Header_RunTask1kHz */
+void RunTask1kHz(void const *argument)
 {
-    /* USER CODE BEGIN RunTask100Hz */
+    /* USER CODE BEGIN RunTask1kHz */
     UNUSED(argument);
     uint32_t                 PreviousWakeTime = osKernelSysTick();
-    static const TickType_t  period_ms        = 10;
+    static const TickType_t  period_ms        = 1U;
     SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
+
+    for (;;)
+    {
+        Io_SharedSoftwareWatchdog_CheckForTimeouts();
+        const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
+
+        App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
+        Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep. Prevent check in if the elapsed period is greater or
+        // equal to the period ms
+        if ((TICK_TO_MS(osKernelSysTick()) - task_start_ms) <= period_ms)
+        {
+            Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        }
+
+        osDelayUntil(&PreviousWakeTime, period_ms);
+    }
+    /* USER CODE END RunTask1kHz */
+}
+
+/* USER CODE BEGIN Header_RunTask1Hz */
+/**
+ * @brief  Function implementing the Task1Hz thread.
+ * @param  argument: Not used
+ * @retval None
+ */
+/* USER CODE END Header_RunTask1Hz */
+void RunTask1Hz(void const *argument)
+{
+    /* USER CODE BEGIN RunTask1Hz */
+    UNUSED(argument);
+    uint32_t                 PreviousWakeTime = osKernelSysTick();
+    static const TickType_t  period_ms        = 1000U;
+    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
 
     /* Infinite loop */
     for (;;)
     {
-        App_SharedStateMachine_Tick100Hz(state_machine);
+        App_SharedStateMachine_Tick1Hz(state_machine);
+        Io_CanTx_Enqueue1HzMsgs();
+        Io_StackWaterMark_Check();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
         osDelayUntil(&PreviousWakeTime, period_ms);
     }
-    /* USER CODE END RunTask100Hz */
+    /* USER CODE END RunTask1Hz */
 }
 
 /**
  * @brief  Period elapsed callback in non blocking mode
- * @note   This function is called  when TIM1 interrupt took place, inside
+ * @note   This function is called  when TIM6 interrupt took place, inside
  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
  * a global variable "uwTick" used as application time base.
  * @param  htim : TIM handle
@@ -784,7 +717,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 0 */
 
     /* USER CODE END Callback 0 */
-    if (htim->Instance == TIM1)
+    if (htim->Instance == TIM6)
     {
         HAL_IncTick();
     }
@@ -812,7 +745,7 @@ void Error_Handler(void)
  * @param  line: assert_param error line source number
  * @retval None
  */
-void assert_failed(char *file, uint32_t line)
+void assert_failed(uint8_t *file, uint32_t line)
 {
     /* USER CODE BEGIN 6 */
     __assert_func(file, line, "assert_failed", "assert_failed");

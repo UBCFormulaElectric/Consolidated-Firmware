@@ -125,8 +125,10 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_BMS_PackVoltage_PackVoltage_Set(App_Accumulator_GetPackVoltage(accumulator));
     App_CanTx_BMS_TractiveSystem_TsVoltage_Set(App_TractiveSystem_GetVoltage(ts));
     App_CanTx_BMS_TractiveSystem_TsCurrent_Set(App_TractiveSystem_GetCurrent(ts));
-    App_CanTx_BMS_AirStates_AirNegative_Set(App_Airs_IsAirNegativeClosed(airs));
-    App_CanTx_BMS_AirStates_AirPositive_Set(App_Airs_IsAirPositiveClosed(airs));
+    App_CanTx_BMS_Contactors_AirNegative_Set(
+        App_Airs_IsAirNegativeClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
+    App_CanTx_BMS_Contactors_AirPositive_Set(
+        App_Airs_IsAirPositiveClosed(airs) ? CONTACTOR_STATE_CLOSED : CONTACTOR_STATE_OPEN);
     App_SetPeriodicCanSignals_Imd(imd);
 
     App_AdvertisePackPower(accumulator, ts);

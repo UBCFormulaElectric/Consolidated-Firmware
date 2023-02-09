@@ -1,3 +1,6 @@
 {
-    "messages": []
+    "messages": [
+        "BMS_Vitals",
+        "BMS_Contactors"
+    ]
 }
