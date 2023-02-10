@@ -6,15 +6,15 @@
 #include "Io_Imd.h"
 #include "Io_SharedPwmInput.h"
 
-extern TIM_HandleTypeDef htim2;
+extern TIM_HandleTypeDef htim1;
 
 static struct PwmInput *  imd_pwm_input;
 static TIM_HandleTypeDef *imd_htim;
 
 void Io_Imd_Init(void)
 {
-    imd_pwm_input = Io_SharedPwmInput_Create(&htim2, TIM2_FREQUENCY / TIM2_PRESCALER, TIM_CHANNEL_2, TIM_CHANNEL_1);
-    imd_htim      = &htim2;
+    imd_pwm_input = Io_SharedPwmInput_Create(&htim1, TIM1_FREQUENCY / TIM1_PRESCALER, TIM_CHANNEL_2, TIM_CHANNEL_1);
+    imd_htim      = &htim1;
 }
 
 float Io_Imd_GetFrequency(void)

@@ -9,13 +9,7 @@
 bool Io_Switches_StartSwitchIsTurnedOn(void);
 
 /**
- * Check if the traction control switch is turned on
- * @return true if the traction control switch is turned on, else false
+ * Check if the aux switch is turned on
+ * @return true if the aux switch is turned on, else false
  */
-bool Io_Switches_TractionControlSwitchIsTurnedOn(void);
-
-/**
- * Check if the torque vectoring switch is turned on
- * @return true if the torque vectoring switch is turned on, else false
- */
-bool Io_Switches_TorqueVectoringSwitchIsTurnedOn(void);
+bool Io_Switches_AuxSwitchIsTurnedOn(void);

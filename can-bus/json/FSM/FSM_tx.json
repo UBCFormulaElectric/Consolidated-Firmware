@@ -1,10 +1,10 @@
 {
-    "FSM_Test1": {
+    "FSM_Vitals": {
         "msg_id": 303,
         "cycle_time": 1000,
-        "description": "Test message for the FSM.",
+        "description": "FSM Heartbeat signal",
         "signals": {
-            "Ex1": {
+            "Heartbeat": {
                 "bits": 1
             }
         }

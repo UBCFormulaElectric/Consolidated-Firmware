@@ -3,116 +3,164 @@ NS_:
 BS_:
 
 
-BU_: DIM BMS DCM GSM FSM PDM DEBUG
+BU_: BMS DCM DIM FSM GSM PDM DEBUG
 
 
-BO_ 502 DIM_Test1: 2 DIM
-SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
-SG_ Ex2 : 1|12@1+ (1,0) [0|4095] "" DEBUG
+BO_ 100 BMS_Vitals: 1 BMS
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,PDM
+SG_ CurrentState : 1|3@1+ (1,0) [0|4] "" DEBUG,PDM
+SG_ StateOfCharge : 4|3@1+ (14.285714285714286,0) [0|100] "" DEBUG,PDM
 
-BO_ 503 DIM_Test2: 4 DIM
-SG_ Ex3 : 0|14@1+ (0.1,0) [0|1000] "m/s^4" DEBUG
-SG_ Ex4 : 14|2@1+ (1,0) [0|2] "" DEBUG
-SG_ Ex5 : 16|12@1+ (0.1,-120) [-120|120] "deg" DEBUG
+BO_ 101 BMS_CanFifoOverflow: 8 BMS
+SG_ TxOverflowCount : 0|32@1+ (1,0) [0|4294967295] "" DEBUG
+SG_ RxOverflowCount : 32|32@1+ (1,0) [0|4294967295] "" DEBUG
 
-BO_ 500 DIM_AlertSet: 0 DIM
-SG_ DIM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
+BO_ 103 BMS_WatchdogTimeout: 1 BMS
+SG_ TaskName : 0|3@1+ (1,0) [0|4] "" DEBUG
 
-BO_ 501 DIM_AlertCleared: 0 DIM
-SG_ DIM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
+BO_ 104 BMS_Warnings: 1 BMS
+SG_ StackWatermarkAboveThresholdTask1Hz : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTask1kHz : 1|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTaskCanRx : 2|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTaskCanTx : 3|1@1+ (1,0) [0|1] "" DEBUG
+SG_ WatchdogTimeout : 4|1@1+ (1,0) [0|1] "" DEBUG
 
-BO_ 102 BMS_Test1: 1 BMS
-SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
+BO_ 105 BMS_ImdStatus: 2 BMS
+SG_ OkHs : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ SecondsSincePowerOn : 1|8@1+ (1.0,0) [0|255] "Seconds" DEBUG
+SG_ ValidDutyCycle : 9|1@1+ (1,0) [0|1] "" DEBUG
 
-BO_ 100 BMS_AlertSet: 0 BMS
-SG_ BMS_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
+BO_ 106 BMS_ImdData: 8 BMS
+SG_ ActiveFrequency : 0|2@1+ (6.666666666666667,0) [0|20] "Hz" DEBUG
+SG_ InsulationMeasurementDcp10Hz : 2|20@1+ (0.1,0) [0|65535] "kOhm" DEBUG
+SG_ InsulationMeasurementDcp20Hz : 22|20@1+ (0.1,0) [0|65535] "kOhm" DEBUG
+SG_ SpeedStartStatus30Hz : 42|20@1+ (0.1,0) [0|65535] "" DEBUG
 
-BO_ 101 BMS_AlertCleared: 0 BMS
-SG_ BMS_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
+BO_ 107 BMS_ImdPwmOutput: 1 BMS
+SG_ DutyCycle : 0|3@1+ (14.285714285714286,0) [0|100] "%" DEBUG
+SG_ Frequency : 3|4@1+ (6.666666666666667,0) [0|100] "Hz" DEBUG
 
-BO_ 202 DCM_Test1: 1 DCM
-SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
+BO_ 109 BMS_Faults: 2 BMS
+SG_ ChargerDisconnectedInChargeState : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ CellUnderVoltageFault : 1|1@1+ (1,0) [0|1] "" DEBUG
+SG_ CellOverVoltageFault : 2|1@1+ (1,0) [0|1] "" DEBUG
+SG_ ModuleCommFault : 3|1@1+ (1,0) [0|1] "" DEBUG
+SG_ CellUnderTempFault : 4|1@1+ (1,0) [0|1] "" DEBUG
+SG_ CellOverTempFault : 5|1@1+ (1,0) [0|1] "" DEBUG
+SG_ ChargerFault : 6|1@1+ (1,0) [0|1] "" DEBUG
+SG_ HasReachedMaxV : 7|1@1+ (1,0) [0|1] "" DEBUG
+SG_ ChargingExtShutdownOccurred : 8|1@1+ (1,0) [0|1] "" DEBUG
+SG_ TSOverCurrentFault : 9|1@1+ (1,0) [0|1] "" DEBUG
+SG_ PreChargeFault : 10|1@1+ (1,0) [0|1] "" DEBUG
 
-BO_ 200 DCM_AlertSet: 0 DCM
-SG_ DCM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
+BO_ 110 BMS_Charger: 1 BMS
+SG_ IsConnected : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ IsChargingComplete : 1|1@1+ (1,0) [0|1] "" DEBUG
 
-BO_ 201 DCM_AlertCleared: 0 DCM
-SG_ DCM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
+BO_ 111 BMS_OkStatuses: 1 BMS
+SG_ BmsOk : 0|1@1+ (1,0) [0|1] "" DEBUG,DIM
+SG_ ImdOk : 1|1@1+ (1,0) [0|1] "" DEBUG,DIM
+SG_ BspdOk : 2|1@1+ (1,0) [0|1] "" DEBUG,DIM
+
+BO_ 112 BMS_Contactors: 1 BMS
+SG_ AirPositive : 0|1@1+ (1,0) [0|1] "" DEBUG,PDM
+SG_ AirNegative : 1|1@1+ (1,0) [0|1] "" DEBUG,PDM
+SG_ PrechargeRelay : 2|1@1+ (1,0) [0|1] "" DEBUG,PDM
+
+BO_ 113 BMS_MotorShutdownErrors: 1 BMS
+SG_ BmsDummyMotorShutdown : 0|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 114 BMS_CellTemperatures: 3 BMS
+SG_ MinCellTemperature : 0|10@1+ (0.1,0) [0|100] "degC" DEBUG
+SG_ MaxCellTemperature : 10|10@1+ (0.1,0) [0|100] "degC" DEBUG
+
+BO_ 115 BMS_CellVoltages: 4 BMS
+SG_ MinCellVoltage : 0|16@1+ (0.0001,0) [0|5] "V" DEBUG
+SG_ MaxCellVoltage : 16|16@1+ (0.0001,0) [0|5] "V" DEBUG
+
+BO_ 116 BMS_CellStats: 4 BMS
+SG_ MinCellVoltageSegment : 0|3@1+ (1,0) [0|7] "" DEBUG
+SG_ MinCellVoltageIdx : 3|4@1+ (1,0) [0|15] "" DEBUG
+SG_ MaxCellVoltageSegment : 7|3@1+ (1.0,0) [0|7] "" DEBUG
+SG_ MaxCellVoltageIdx : 10|4@1+ (1,0) [0|15] "" DEBUG
+SG_ MinTempSegment : 14|3@1+ (1,0) [0|7] "" DEBUG
+SG_ MinTempIdx : 17|4@1+ (1,0) [0|15] "" DEBUG
+SG_ MaxTempSegment : 21|3@1+ (1,0) [0|7] "" DEBUG
+SG_ MaxTempIdx : 24|4@1+ (1,0) [0|15] "" DEBUG
+
+BO_ 117 BMS_TractiveSystem: 5 BMS
+SG_ TsVoltage : 0|23@1+ (0.0001,0) [0|600] "V" DEBUG
+SG_ TsCurrent : 23|13@1+ (0.1,-300) [-300|300] "A" DEBUG
+
+BO_ 118 BMS_PackVoltage: 3 BMS
+SG_ PackVoltage : 0|23@1+ (0.0001,0) [0|600] "V" DEBUG
+
+BO_ 120 BMS_AvailablePower: 3 BMS
+SG_ AvailablePower : 0|20@1+ (0.1,0) [0|100000] "W" DEBUG
+
+BO_ 150 BMS_Alerts: 1 BMS
+SG_ BMS_ALERT_DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 203 DCM_Vitals: 1 DCM
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
+
+BO_ 200 DCM_Alerts: 1 DCM
+SG_ DCM_ALERT_DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 502 DIM_Vitals: 1 DIM
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
+SG_ State : 1|1@1+ (1,0) [0|0] "" DEBUG,BMS
+
+BO_ 503 DIM_Switches: 1 DIM
+SG_ StartSwitch : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ AuxSwitch : 1|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 504 DIM_Errors: 2 DIM
+SG_ TxOverflowCount : 0|8@1+ (1,0) [0|255] "" DEBUG
+SG_ RxOverflowCount : 8|8@1+ (1,0) [0|255] "" DEBUG
+
+BO_ 505 DIM_WatchdogTimeout: 1 DIM
+SG_ TaskName : 0|3@1+ (1,0) [0|4] "" DEBUG
+
+BO_ 500 DIM_Alerts: 1 DIM
+SG_ DIM_ALERT_STARTUP : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ : 1|1@1+ (1,0) [0|1] "" DEBUG
+SG_ DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_100HZ : 2|1@1+ (1,0) [0|1] "" DEBUG
+SG_ DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1KHZ : 3|1@1+ (1,0) [0|1] "" DEBUG
+SG_ DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX : 4|1@1+ (1,0) [0|1] "" DEBUG
+SG_ DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX : 5|1@1+ (1,0) [0|1] "" DEBUG
+SG_ DIM_ALERT_WATCHDOG_TIMEOUT : 6|1@1+ (1,0) [0|1] "" DEBUG
+
+BO_ 303 FSM_Vitals: 1 FSM
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
+
+BO_ 300 FSM_Alerts: 1 FSM
+SG_ PDM_ALERT_DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 603 GSM_Test1: 1 GSM
 SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
 
-BO_ 600 GSM_AlertSet: 0 GSM
-SG_ GSM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
+BO_ 600 GSM_Alerts: 1 GSM
+SG_ GSM_ALERT_DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
 
-BO_ 601 GSM_AlertCleared: 0 GSM
-SG_ GSM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
+BO_ 402 PDM_Vitals: 1 PDM
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
+SG_ State : 1|1@1+ (1,0) [0|0] "" DEBUG,BMS
 
-BO_ 303 FSM_Test1: 1 FSM
-SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
+BO_ 403 PDM_Errors: 4 PDM
+SG_ TxOverflowCount : 0|8@1+ (1,0) [0|255] "" DEBUG
+SG_ RxOverflowCount : 8|8@1+ (1,0) [0|255] "" DEBUG
+SG_ StackWatermarkAboveThresholdTask1Hz : 16|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTask100Hz : 17|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTask1kHz : 18|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTaskCanTx : 19|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTaskCanRx : 20|1@1+ (1,0) [0|1] "" DEBUG
+SG_ WatchdogTimeout : 21|1@1+ (1,0) [0|1] "" DEBUG
+SG_ WatchdogTimeoutTaskName : 22|3@1+ (1,0) [0|4] "" DEBUG
 
-BO_ 300 FSM_AlertSet: 0 FSM
-SG_ FSM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
-
-BO_ 301 FSM_AlertCleared: 0 FSM
-SG_ FSM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
-
-BO_ 404 PDMVitals: 1 PDM
-SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG
-
-BO_ 405 PDM_Efuse1_Currents: 8 PDM
-SG_ AIR_Current : 0|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
-SG_ LVPWR_Current : 32|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
-
-BO_ 406 PDM_Efuse2_Currents: 8 PDM
-SG_ EMETER_Current : 0|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
-SG_ AUX_Current : 32|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
-
-BO_ 407 PDM_Efuse3_Currents: 8 PDM
-SG_ LEFT_INVERTER_Current : 0|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
-SG_ RIGHT_INVERTER_Current : 32|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
-
-BO_ 408 PDM_Efuse4_Currents: 8 PDM
-SG_ DRS_Current : 0|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
-SG_ FAN_Current : 32|32@1+ (-2.3283064370807974e-06,10000) [10000|0] "mA" DEBUG
-
-BO_ 409 PDM_Efuse_Fault_Checks: 1 PDM
-SG_ AIR : 0|1@1+ (1,0) [0|1] "" DEBUG
-SG_ LVPWR : 1|1@1+ (1,0) [0|1] "" DEBUG
-SG_ EMETER : 2|1@1+ (1,0) [0|1] "" DEBUG
-SG_ AUX : 3|1@1+ (1,0) [0|1] "" DEBUG
-SG_ LEFT_INVERTER : 4|1@1+ (1,0) [0|1] "" DEBUG
-SG_ RIGHT_INVERTER : 5|1@1+ (1,0) [0|1] "" DEBUG
-SG_ DRS : 6|1@1+ (1,0) [0|1] "" DEBUG
-SG_ FAN : 7|1@1+ (1,0) [0|1] "" DEBUG
-
-BO_ 410 PDM_VBAT: 5 PDM
-SG_ Voltage : 0|32@1+ (2.793967724496957e-07,-600) [-600|600] "V" DEBUG
-SG_ Critical : 32|1@1+ (1,0) [0|1] "" DEBUG
-SG_ LOW : 33|1@1+ (1,0) [0|1] "" DEBUG
-SG_ HIGH : 34|1@1+ (1,0) [0|1] "" DEBUG
-
-BO_ 411 PDM__24V_ACC: 5 PDM
-SG_ Voltage : 0|32@1+ (2.793967724496957e-07,-600) [-600|600] "V" DEBUG
-SG_ Critical : 32|1@1+ (1,0) [0|1] "" DEBUG
-SG_ LOW : 33|1@1+ (1,0) [0|1] "" DEBUG
-SG_ HIGH : 34|1@1+ (1,0) [0|1] "" DEBUG
-
-BO_ 412 PDM__22V_AUX: 5 PDM
-SG_ Voltage : 0|32@1+ (2.793967724496957e-07,-600) [-600|600] "V" DEBUG
-SG_ Critical : 32|1@1+ (1,0) [0|1] "" DEBUG
-SG_ LOW : 33|1@1+ (1,0) [0|1] "" DEBUG
-SG_ HIGH : 34|1@1+ (1,0) [0|1] "" DEBUG
-
-BO_ 414 PDM_LowVoltageBattery_Faults: 1 PDM
-SG_ Boost_Fault : 0|1@1+ (1,0) [0|1] "" DEBUG
-SG_ Charge_Fault : 1|1@1+ (1,0) [0|1] "" DEBUG
-
-BO_ 400 PDM_AlertSet: 0 PDM
-SG_ PDM_AlertSet : 0|0@1+ (1,0) [0|0] "" DEBUG
-
-BO_ 401 PDM_AlertCleared: 0 PDM
-SG_ PDM_AlertCleared : 0|0@1+ (1,0) [0|0] "" DEBUG
+BO_ 400 PDM_Alerts: 1 PDM
+SG_ PDM_ALERT_STARTUP : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ PDM_ALERT_WATCHDOG_TIMEOUT : 1|1@1+ (1,0) [0|1] "" DEBUG
 
 
 
@@ -121,90 +169,136 @@ BA_DEF_DEF_  "BusType" "CAN";
 BA_ "BusType" "CAN";
 
 
-BA_ "GenSigStartValue" SG_ 502 Ex1 0;
-BA_ "GenSigStartValue" SG_ 502 Ex2 0;
-BA_ "GenSigStartValue" SG_ 503 Ex3 0;
-BA_ "GenSigStartValue" SG_ 503 Ex4 0;
-BA_ "GenSigStartValue" SG_ 503 Ex5 -120;
-BA_ "GenSigStartValue" SG_ 500 DIM_AlertSet 0;
-BA_ "GenSigStartValue" SG_ 501 DIM_AlertCleared 0;
-BA_ "GenSigStartValue" SG_ 102 Ex1 0;
-BA_ "GenSigStartValue" SG_ 100 BMS_AlertSet 0;
-BA_ "GenSigStartValue" SG_ 101 BMS_AlertCleared 0;
-BA_ "GenSigStartValue" SG_ 202 Ex1 0;
-BA_ "GenSigStartValue" SG_ 200 DCM_AlertSet 0;
-BA_ "GenSigStartValue" SG_ 201 DCM_AlertCleared 0;
+BA_ "GenSigStartValue" SG_ 100 Heartbeat 0;
+BA_ "GenSigStartValue" SG_ 100 CurrentState 0;
+BA_ "GenSigStartValue" SG_ 100 StateOfCharge 0;
+BA_ "GenSigStartValue" SG_ 101 TxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 101 RxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 103 TaskName 0;
+BA_ "GenSigStartValue" SG_ 104 StackWatermarkAboveThresholdTask1Hz 0;
+BA_ "GenSigStartValue" SG_ 104 StackWatermarkAboveThresholdTask1kHz 0;
+BA_ "GenSigStartValue" SG_ 104 StackWatermarkAboveThresholdTaskCanRx 0;
+BA_ "GenSigStartValue" SG_ 104 StackWatermarkAboveThresholdTaskCanTx 0;
+BA_ "GenSigStartValue" SG_ 104 WatchdogTimeout 0;
+BA_ "GenSigStartValue" SG_ 105 OkHs 0;
+BA_ "GenSigStartValue" SG_ 105 SecondsSincePowerOn 0;
+BA_ "GenSigStartValue" SG_ 105 ValidDutyCycle 0;
+BA_ "GenSigStartValue" SG_ 106 ActiveFrequency 0;
+BA_ "GenSigStartValue" SG_ 106 InsulationMeasurementDcp10Hz 0;
+BA_ "GenSigStartValue" SG_ 106 InsulationMeasurementDcp20Hz 0;
+BA_ "GenSigStartValue" SG_ 106 SpeedStartStatus30Hz 0;
+BA_ "GenSigStartValue" SG_ 107 DutyCycle 0;
+BA_ "GenSigStartValue" SG_ 107 Frequency 0;
+BA_ "GenSigStartValue" SG_ 109 ChargerDisconnectedInChargeState 0;
+BA_ "GenSigStartValue" SG_ 109 CellUnderVoltageFault 0;
+BA_ "GenSigStartValue" SG_ 109 CellOverVoltageFault 0;
+BA_ "GenSigStartValue" SG_ 109 ModuleCommFault 0;
+BA_ "GenSigStartValue" SG_ 109 CellUnderTempFault 0;
+BA_ "GenSigStartValue" SG_ 109 CellOverTempFault 0;
+BA_ "GenSigStartValue" SG_ 109 ChargerFault 0;
+BA_ "GenSigStartValue" SG_ 109 HasReachedMaxV 0;
+BA_ "GenSigStartValue" SG_ 109 ChargingExtShutdownOccurred 0;
+BA_ "GenSigStartValue" SG_ 109 TSOverCurrentFault 0;
+BA_ "GenSigStartValue" SG_ 109 PreChargeFault 0;
+BA_ "GenSigStartValue" SG_ 110 IsConnected 0;
+BA_ "GenSigStartValue" SG_ 110 IsChargingComplete 0;
+BA_ "GenSigStartValue" SG_ 111 BmsOk 0;
+BA_ "GenSigStartValue" SG_ 111 ImdOk 0;
+BA_ "GenSigStartValue" SG_ 111 BspdOk 0;
+BA_ "GenSigStartValue" SG_ 112 AirPositive 0;
+BA_ "GenSigStartValue" SG_ 112 AirNegative 0;
+BA_ "GenSigStartValue" SG_ 112 PrechargeRelay 0;
+BA_ "GenSigStartValue" SG_ 113 BmsDummyMotorShutdown 0;
+BA_ "GenSigStartValue" SG_ 114 MinCellTemperature 0;
+BA_ "GenSigStartValue" SG_ 114 MaxCellTemperature 0;
+BA_ "GenSigStartValue" SG_ 115 MinCellVoltage 0;
+BA_ "GenSigStartValue" SG_ 115 MaxCellVoltage 0;
+BA_ "GenSigStartValue" SG_ 116 MinCellVoltageSegment 0;
+BA_ "GenSigStartValue" SG_ 116 MinCellVoltageIdx 0;
+BA_ "GenSigStartValue" SG_ 116 MaxCellVoltageSegment 0;
+BA_ "GenSigStartValue" SG_ 116 MaxCellVoltageIdx 0;
+BA_ "GenSigStartValue" SG_ 116 MinTempSegment 0;
+BA_ "GenSigStartValue" SG_ 116 MinTempIdx 0;
+BA_ "GenSigStartValue" SG_ 116 MaxTempSegment 0;
+BA_ "GenSigStartValue" SG_ 116 MaxTempIdx 0;
+BA_ "GenSigStartValue" SG_ 117 TsVoltage 0;
+BA_ "GenSigStartValue" SG_ 117 TsCurrent -300;
+BA_ "GenSigStartValue" SG_ 118 PackVoltage 0;
+BA_ "GenSigStartValue" SG_ 120 AvailablePower 0;
+BA_ "GenSigStartValue" SG_ 150 BMS_ALERT_DUMMY 0;
+BA_ "GenSigStartValue" SG_ 203 Heartbeat 0;
+BA_ "GenSigStartValue" SG_ 200 DCM_ALERT_DUMMY 0;
+BA_ "GenSigStartValue" SG_ 502 Heartbeat 0;
+BA_ "GenSigStartValue" SG_ 502 State 0;
+BA_ "GenSigStartValue" SG_ 503 StartSwitch 0;
+BA_ "GenSigStartValue" SG_ 503 AuxSwitch 0;
+BA_ "GenSigStartValue" SG_ 504 TxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 504 RxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 505 TaskName 0;
+BA_ "GenSigStartValue" SG_ 500 DIM_ALERT_STARTUP 0;
+BA_ "GenSigStartValue" SG_ 500 DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ 0;
+BA_ "GenSigStartValue" SG_ 500 DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_100HZ 0;
+BA_ "GenSigStartValue" SG_ 500 DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1KHZ 0;
+BA_ "GenSigStartValue" SG_ 500 DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX 0;
+BA_ "GenSigStartValue" SG_ 500 DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX 0;
+BA_ "GenSigStartValue" SG_ 500 DIM_ALERT_WATCHDOG_TIMEOUT 0;
+BA_ "GenSigStartValue" SG_ 303 Heartbeat 0;
+BA_ "GenSigStartValue" SG_ 300 PDM_ALERT_DUMMY 0;
 BA_ "GenSigStartValue" SG_ 603 Ex1 0;
-BA_ "GenSigStartValue" SG_ 600 GSM_AlertSet 0;
-BA_ "GenSigStartValue" SG_ 601 GSM_AlertCleared 0;
-BA_ "GenSigStartValue" SG_ 303 Ex1 0;
-BA_ "GenSigStartValue" SG_ 300 FSM_AlertSet 0;
-BA_ "GenSigStartValue" SG_ 301 FSM_AlertCleared 0;
-BA_ "GenSigStartValue" SG_ 404 Heartbeat 0;
-BA_ "GenSigStartValue" SG_ 405 AIR_Current 10000;
-BA_ "GenSigStartValue" SG_ 405 LVPWR_Current 10000;
-BA_ "GenSigStartValue" SG_ 406 EMETER_Current 10000;
-BA_ "GenSigStartValue" SG_ 406 AUX_Current 10000;
-BA_ "GenSigStartValue" SG_ 407 LEFT_INVERTER_Current 10000;
-BA_ "GenSigStartValue" SG_ 407 RIGHT_INVERTER_Current 10000;
-BA_ "GenSigStartValue" SG_ 408 DRS_Current 10000;
-BA_ "GenSigStartValue" SG_ 408 FAN_Current 10000;
-BA_ "GenSigStartValue" SG_ 409 AIR 0;
-BA_ "GenSigStartValue" SG_ 409 LVPWR 0;
-BA_ "GenSigStartValue" SG_ 409 EMETER 0;
-BA_ "GenSigStartValue" SG_ 409 AUX 0;
-BA_ "GenSigStartValue" SG_ 409 LEFT_INVERTER 0;
-BA_ "GenSigStartValue" SG_ 409 RIGHT_INVERTER 0;
-BA_ "GenSigStartValue" SG_ 409 DRS 0;
-BA_ "GenSigStartValue" SG_ 409 FAN 0;
-BA_ "GenSigStartValue" SG_ 410 Voltage -600;
-BA_ "GenSigStartValue" SG_ 410 Critical 0;
-BA_ "GenSigStartValue" SG_ 410 LOW 0;
-BA_ "GenSigStartValue" SG_ 410 HIGH 0;
-BA_ "GenSigStartValue" SG_ 411 Voltage -600;
-BA_ "GenSigStartValue" SG_ 411 Critical 0;
-BA_ "GenSigStartValue" SG_ 411 LOW 0;
-BA_ "GenSigStartValue" SG_ 411 HIGH 0;
-BA_ "GenSigStartValue" SG_ 412 Voltage -600;
-BA_ "GenSigStartValue" SG_ 412 Critical 0;
-BA_ "GenSigStartValue" SG_ 412 LOW 0;
-BA_ "GenSigStartValue" SG_ 412 HIGH 0;
-BA_ "GenSigStartValue" SG_ 414 Boost_Fault 0;
-BA_ "GenSigStartValue" SG_ 414 Charge_Fault 0;
-BA_ "GenSigStartValue" SG_ 400 PDM_AlertSet 0;
-BA_ "GenSigStartValue" SG_ 401 PDM_AlertCleared 0;
+BA_ "GenSigStartValue" SG_ 600 GSM_ALERT_DUMMY 0;
+BA_ "GenSigStartValue" SG_ 402 Heartbeat 0;
+BA_ "GenSigStartValue" SG_ 402 State 0;
+BA_ "GenSigStartValue" SG_ 403 TxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 403 RxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 403 StackWatermarkAboveThresholdTask1Hz 0;
+BA_ "GenSigStartValue" SG_ 403 StackWatermarkAboveThresholdTask100Hz 0;
+BA_ "GenSigStartValue" SG_ 403 StackWatermarkAboveThresholdTask1kHz 0;
+BA_ "GenSigStartValue" SG_ 403 StackWatermarkAboveThresholdTaskCanTx 0;
+BA_ "GenSigStartValue" SG_ 403 StackWatermarkAboveThresholdTaskCanRx 0;
+BA_ "GenSigStartValue" SG_ 403 WatchdogTimeout 0;
+BA_ "GenSigStartValue" SG_ 403 WatchdogTimeoutTaskName 0;
+BA_ "GenSigStartValue" SG_ 400 PDM_ALERT_STARTUP 0;
+BA_ "GenSigStartValue" SG_ 400 PDM_ALERT_WATCHDOG_TIMEOUT 0;
 
 
+BA_ "GenMsgCycleTime" BO_ 100  100;
+BA_ "GenMsgCycleTime" BO_ 101  5000;
+BA_ "GenMsgCycleTime" BO_ 103  1000;
+BA_ "GenMsgCycleTime" BO_ 104  1000;
+BA_ "GenMsgCycleTime" BO_ 105  1000;
+BA_ "GenMsgCycleTime" BO_ 106  1000;
+BA_ "GenMsgCycleTime" BO_ 107  1000;
+BA_ "GenMsgCycleTime" BO_ 109  1000;
+BA_ "GenMsgCycleTime" BO_ 110  1000;
+BA_ "GenMsgCycleTime" BO_ 111  10;
+BA_ "GenMsgCycleTime" BO_ 112  10;
+BA_ "GenMsgCycleTime" BO_ 113  1000;
+BA_ "GenMsgCycleTime" BO_ 114  100;
+BA_ "GenMsgCycleTime" BO_ 115  100;
+BA_ "GenMsgCycleTime" BO_ 116  100;
+BA_ "GenMsgCycleTime" BO_ 117  100;
+BA_ "GenMsgCycleTime" BO_ 118  100;
+BA_ "GenMsgCycleTime" BO_ 120  100;
+BA_ "GenMsgCycleTime" BO_ 203  1000;
 BA_ "GenMsgCycleTime" BO_ 502  1000;
-BA_ "GenMsgCycleTime" BO_ 503  10;
-BA_ "GenMsgCycleTime" BO_ 102  1000;
-BA_ "GenMsgCycleTime" BO_ 202  1000;
-BA_ "GenMsgCycleTime" BO_ 603  1000;
+BA_ "GenMsgCycleTime" BO_ 503  1000;
+BA_ "GenMsgCycleTime" BO_ 504  1000;
 BA_ "GenMsgCycleTime" BO_ 303  1000;
-BA_ "GenMsgCycleTime" BO_ 404  1000;
-BA_ "GenMsgCycleTime" BO_ 405  100;
-BA_ "GenMsgCycleTime" BO_ 406  100;
-BA_ "GenMsgCycleTime" BO_ 407  100;
-BA_ "GenMsgCycleTime" BO_ 408  100;
-BA_ "GenMsgCycleTime" BO_ 409  100;
-BA_ "GenMsgCycleTime" BO_ 410  100;
-BA_ "GenMsgCycleTime" BO_ 411  100;
-BA_ "GenMsgCycleTime" BO_ 412  100;
-BA_ "GenMsgCycleTime" BO_ 414  100;
+BA_ "GenMsgCycleTime" BO_ 603  1000;
+BA_ "GenMsgCycleTime" BO_ 402  1000;
+BA_ "GenMsgCycleTime" BO_ 403  1000;
 
 
-VAL_ 503 Ex4 0 "CHOICE_0" 1 "CHOICE_1" 2 "CHOICE_2";
-VAL_ 500 DIM_AlertSet 0 "NUM_DIM_ALERTS";
-VAL_ 501 DIM_AlertCleared 0 "NUM_DIM_ALERTS";
-VAL_ 100 BMS_AlertSet 0 "NUM_BMS_ALERTS";
-VAL_ 101 BMS_AlertCleared 0 "NUM_BMS_ALERTS";
-VAL_ 200 DCM_AlertSet 0 "NUM_DCM_ALERTS";
-VAL_ 201 DCM_AlertCleared 0 "NUM_DCM_ALERTS";
-VAL_ 600 GSM_AlertSet 0 "NUM_GSM_ALERTS";
-VAL_ 601 GSM_AlertCleared 0 "NUM_GSM_ALERTS";
-VAL_ 300 FSM_AlertSet 0 "NUM_FSM_ALERTS";
-VAL_ 301 FSM_AlertCleared 0 "NUM_FSM_ALERTS";
-VAL_ 400 PDM_AlertSet 0 "NUM_PDM_ALERTS";
-VAL_ 401 PDM_AlertCleared 0 "NUM_PDM_ALERTS";
+VAL_ 100 CurrentState 0 "BMS_INIT_STATE" 1 "BMS_PRECHARGE_STATE" 2 "BMS_CHARGE_STATE" 3 "BMS_DRIVE_STATE" 4 "BMS_FAULT_STATE";
+VAL_ 103 TaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
+VAL_ 112 AirPositive 0 "CONTACTOR_STATE_OPEN" 1 "CONTACTOR_STATE_CLOSED";
+VAL_ 112 AirNegative 0 "CONTACTOR_STATE_OPEN" 1 "CONTACTOR_STATE_CLOSED";
+VAL_ 112 PrechargeRelay 0 "CONTACTOR_STATE_OPEN" 1 "CONTACTOR_STATE_CLOSED";
+VAL_ 502 State 0 "DIM_STATE_DRIVE";
+VAL_ 503 StartSwitch 0 "SWITCH_OFF" 1 "SWITCH_ON";
+VAL_ 503 AuxSwitch 0 "SWITCH_OFF" 1 "SWITCH_ON";
+VAL_ 505 TaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
+VAL_ 402 State 0 "PDM_STATE_DRIVE";
+VAL_ 403 WatchdogTimeoutTaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
 
 

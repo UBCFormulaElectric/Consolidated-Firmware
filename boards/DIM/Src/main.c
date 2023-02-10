@@ -33,6 +33,7 @@
 #include "states/App_DriveState.h"
 #include "configs/App_RotarySwitchConfig.h"
 #include "configs/App_HeartbeatMonitorConfig.h"
+#include "App_CanAlerts.h"
 
 #include "Io_CanTx.h"
 #include "Io_CanRx.h"
@@ -104,9 +105,7 @@ struct RotarySwitch *     drive_mode_switch;
 struct Led *              imd_led;
 struct Led *              bspd_led;
 struct BinarySwitch *     start_switch;
-struct BinarySwitch *     traction_control_switch;
-struct BinarySwitch *     torque_vectoring_switch;
-struct ErrorTable *       error_table;
+struct BinarySwitch *     aux_switch;
 struct RgbLed *           bms_status_led;
 struct RgbLed *           dcm_status_led;
 struct RgbLed *           dim_status_led;
@@ -136,12 +135,12 @@ void        RunTask1Hz(void const *argument);
 /* USER CODE BEGIN 0 */
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    //    App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count); // TODO: JSONCAN
+    App_CanTx_DIM_Errors_RxOverflowCount_Set(overflow_count);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    //    App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count); // TODO: JSONCAN
+    App_CanTx_DIM_Errors_TxOverflowCount_Set(overflow_count);
 }
 /* USER CODE END 0 */
 
@@ -180,7 +179,7 @@ int main(void)
     __HAL_DBGMCU_FREEZE_IWDG();
 
     HAL_ADC_Start_DMA(&hadc1, (uint32_t *)Io_Adc_GetRawAdcValues(), hadc1.Init.NbrOfConversion);
-    //    HAL_TIM_Base_Start(&htim2); // TODO: IO, for ADC?
+    //    HAL_TIM_Base_Start(&htim2); // TODO: May need to enable this for DMA for ADC
 
     Io_SharedHardFaultHandler_Init();
     Io_SevenSegDisplays_Init();
@@ -209,9 +208,7 @@ int main(void)
 
     start_switch = App_BinarySwitch_Create(Io_Switches_StartSwitchIsTurnedOn);
 
-    traction_control_switch = App_BinarySwitch_Create(Io_Switches_TractionControlSwitchIsTurnedOn);
-
-    torque_vectoring_switch = App_BinarySwitch_Create(Io_Switches_TorqueVectoringSwitchIsTurnedOn);
+    aux_switch = App_BinarySwitch_Create(Io_Switches_AuxSwitchIsTurnedOn);
 
     bms_status_led = App_SharedRgbLed_Create(
         Io_RgbLeds_TurnBmsStatusLedRed, Io_RgbLeds_TurnBmsStatusLedGreen, Io_RgbLeds_TurnBmsStatusLedBlue,
@@ -237,13 +234,11 @@ int main(void)
 
     world = App_DimWorld_Create(
         seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, start_switch,
-        traction_control_switch, torque_vectoring_switch, bms_status_led, dcm_status_led, dim_status_led,
-        fsm_status_led, pdm_status_led, clock);
+        aux_switch, bms_status_led, dcm_status_led, dim_status_led, fsm_status_led, pdm_status_led, clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 
-    //    struct CanMsgs_dim_startup_t payload = { .dummy = 0 };
-    //    App_CanTx_SendNonPeriodicMsg_DIM_STARTUP(can_tx, &payload); // TODO: JSONCAN
+    App_CanAlerts_SetAlert(DIM_ALERT_STARTUP, true);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -483,10 +478,13 @@ static void MX_GPIO_Init(void)
     GPIO_InitTypeDef GPIO_InitStruct = { 0 };
 
     /* GPIO Ports Clock Enable */
-    __HAL_RCC_GPIOH_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE();
+    __HAL_RCC_GPIOH_CLK_ENABLE();
     __HAL_RCC_GPIOA_CLK_ENABLE();
     __HAL_RCC_GPIOB_CLK_ENABLE();
+
+    /*Configure GPIO pin Output Level */
+    HAL_GPIO_WritePin(TEST_PIN_GPIO_Port, TEST_PIN_Pin, GPIO_PIN_SET);
 
     /*Configure GPIO pin Output Level */
     HAL_GPIO_WritePin(
@@ -496,23 +494,37 @@ static void MX_GPIO_Init(void)
         GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOA, LED_Pin | FSM_BLUE_Pin | FSM_GREEN_Pin | FSM_RED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(
+        GPIOA,
+        SEVENSEGS_SEROUT_Pin | SEVENSEGS_SRCK_Pin | SEVENSEGS_RCK_Pin | SEVENSEGS_DIMMING_Pin | LED_Pin | FSM_BLUE_Pin |
+            FSM_GREEN_Pin | FSM_RED_Pin,
+        GPIO_PIN_RESET);
 
     /*Configure GPIO pin Output Level */
-    HAL_GPIO_WritePin(GPIOB, IMD_LED_Pin | BSPD_LED_Pin | SHDN_LED_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(GPIOB, IMD_LED_Pin | BSPD_LED_Pin | SHDN_LED_Pin | AUX_LED_Pin | IGNTN_LED_Pin, GPIO_PIN_RESET);
 
-    /*Configure GPIO pins : BMS_BLUE_Pin BMS_GREEN_Pin BMS_RED_Pin DCM_BLUE_Pin
-                             DCM_GREEN_Pin DCM_RED_Pin DIM_BLUE_Pin DIM_GREEN_Pin
-                             DIM_RED_Pin PDM_BLUE_Pin PDM_GREEN_Pin PDM_RED_Pin */
-    GPIO_InitStruct.Pin = BMS_BLUE_Pin | BMS_GREEN_Pin | BMS_RED_Pin | DCM_BLUE_Pin | DCM_GREEN_Pin | DCM_RED_Pin |
-                          DIM_BLUE_Pin | DIM_GREEN_Pin | DIM_RED_Pin | PDM_BLUE_Pin | PDM_GREEN_Pin | PDM_RED_Pin;
+    /*Configure GPIO pins : TEST_PIN_Pin BMS_BLUE_Pin BMS_GREEN_Pin BMS_RED_Pin
+                             DCM_BLUE_Pin DCM_GREEN_Pin DCM_RED_Pin DIM_BLUE_Pin
+                             DIM_GREEN_Pin DIM_RED_Pin PDM_BLUE_Pin PDM_GREEN_Pin
+                             PDM_RED_Pin */
+    GPIO_InitStruct.Pin = TEST_PIN_Pin | BMS_BLUE_Pin | BMS_GREEN_Pin | BMS_RED_Pin | DCM_BLUE_Pin | DCM_GREEN_Pin |
+                          DCM_RED_Pin | DIM_BLUE_Pin | DIM_GREEN_Pin | DIM_RED_Pin | PDM_BLUE_Pin | PDM_GREEN_Pin |
+                          PDM_RED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : LED_Pin FSM_BLUE_Pin FSM_GREEN_Pin FSM_RED_Pin */
-    GPIO_InitStruct.Pin   = LED_Pin | FSM_BLUE_Pin | FSM_GREEN_Pin | FSM_RED_Pin;
+    /*Configure GPIO pins : SEVENSEGS_SEROUT_Pin SEVENSEGS_SRCK_Pin SEVENSEGS_RCK_Pin */
+    GPIO_InitStruct.Pin   = SEVENSEGS_SEROUT_Pin | SEVENSEGS_SRCK_Pin | SEVENSEGS_RCK_Pin;
+    GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
+    GPIO_InitStruct.Pull  = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+    HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : SEVENSEGS_DIMMING_Pin LED_Pin FSM_BLUE_Pin FSM_GREEN_Pin
+                             FSM_RED_Pin */
+    GPIO_InitStruct.Pin   = SEVENSEGS_DIMMING_Pin | LED_Pin | FSM_BLUE_Pin | FSM_GREEN_Pin | FSM_RED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -524,11 +536,20 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(REGEN_GPIO_Port, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : IMD_LED_Pin BSPD_LED_Pin SHDN_LED_Pin */
-    GPIO_InitStruct.Pin   = IMD_LED_Pin | BSPD_LED_Pin | SHDN_LED_Pin;
+    /*Configure GPIO pins : IMD_LED_Pin BSPD_LED_Pin SHDN_LED_Pin AUX_LED_Pin
+                             IGNTN_LED_Pin */
+    GPIO_InitStruct.Pin   = IMD_LED_Pin | BSPD_LED_Pin | SHDN_LED_Pin | AUX_LED_Pin | IGNTN_LED_Pin;
     GPIO_InitStruct.Mode  = GPIO_MODE_OUTPUT_PP;
     GPIO_InitStruct.Pull  = GPIO_NOPULL;
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+    /*Configure GPIO pins : AUX_IN_Pin IGNTN_IN_Pin DRIVE_MODE_0_Pin DRIVE_MODE_1_Pin
+                             DRIVE_MODE_2_Pin DRIVE_MODE_3_Pin */
+    GPIO_InitStruct.Pin =
+        AUX_IN_Pin | IGNTN_IN_Pin | DRIVE_MODE_0_Pin | DRIVE_MODE_1_Pin | DRIVE_MODE_2_Pin | DRIVE_MODE_3_Pin;
+    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 }
 
@@ -550,7 +571,7 @@ void RunTask100Hz(void const *argument)
     uint32_t                 PreviousWakeTime = osKernelSysTick();
     static const TickType_t  period_ms        = 10;
     SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_100HZ", period_ms);
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
 
     /* Infinite loop */
     for (;;)
@@ -622,7 +643,7 @@ void RunTask1kHz(void const *argument)
     uint32_t                 PreviousWakeTime = osKernelSysTick();
     static const TickType_t  period_ms        = 1;
     SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1KHZ", period_ms);
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
 
     /* Infinite loop */
     for (;;)
@@ -661,17 +682,11 @@ void RunTask1Hz(void const *argument)
     uint32_t                 PreviousWakeTime = osKernelSysTick();
     static const TickType_t  period_ms        = 1000U;
     SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, "TASK_1HZ", period_ms);
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
 
     /* Infinite loop */
     for (;;)
     {
-        App_CanTx_DIM_Test1_Ex1_Set(true);
-        App_CanTx_DIM_Test1_Ex2_Set(5);
-        App_CanTx_DIM_Test2_Ex3_Set(547.54f);
-        App_CanTx_DIM_Test2_Ex4_Set(CHOICE_1);
-        App_CanTx_DIM_Test2_Ex5_Set(130);
-
         App_SharedStateMachine_Tick1Hz(state_machine);
         Io_CanTx_Enqueue1HzMsgs();
         Io_StackWaterMark_Check();

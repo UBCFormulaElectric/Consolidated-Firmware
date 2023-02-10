@@ -26,7 +26,7 @@
 // };
 enum
 {
-    CHANNEL_12,
+    CHANNEL_5,
     NUM_ADC_CHANNELS
 };
 
@@ -35,7 +35,7 @@ static float    adc_voltages[NUM_ADC_CHANNELS];
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    adc_voltages[CHANNEL_12] = Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc_values[CHANNEL_12]);
+    adc_voltages[CHANNEL_5] = Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc_values[CHANNEL_5]);
 }
 
 uint16_t *Io_Adc_GetRawAdcValues(void)
@@ -43,7 +43,7 @@ uint16_t *Io_Adc_GetRawAdcValues(void)
     return raw_adc_values;
 }
 
-float Io_Adc_GetChannel12Voltage(void)
+float Io_Adc_GetChannel5Voltage(void)
 {
-    return adc_voltages[CHANNEL_12];
+    return adc_voltages[CHANNEL_5];
 }

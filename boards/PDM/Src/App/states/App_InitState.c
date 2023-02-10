@@ -6,7 +6,7 @@
 
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    struct PdmWorld *const          world  = App_SharedStateMachine_GetWorld(state_machine);
+    struct PdmWorld *const world = App_SharedStateMachine_GetWorld(state_machine);
 }
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)

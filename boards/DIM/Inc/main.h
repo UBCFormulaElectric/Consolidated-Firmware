@@ -62,6 +62,8 @@ extern "C"
 #define LSI_FREQUENCY 32000
 #define IWDG_PRESCALER 4
 #define IWDG_RESET_FREQUENCY 5
+#define TEST_PIN_Pin GPIO_PIN_13
+#define TEST_PIN_GPIO_Port GPIOC
 #define BMS_BLUE_Pin GPIO_PIN_0
 #define BMS_BLUE_GPIO_Port GPIOC
 #define BMS_GREEN_Pin GPIO_PIN_1
@@ -70,6 +72,14 @@ extern "C"
 #define BMS_RED_GPIO_Port GPIOC
 #define DCM_BLUE_Pin GPIO_PIN_3
 #define DCM_BLUE_GPIO_Port GPIOC
+#define SEVENSEGS_SEROUT_Pin GPIO_PIN_0
+#define SEVENSEGS_SEROUT_GPIO_Port GPIOA
+#define SEVENSEGS_SRCK_Pin GPIO_PIN_1
+#define SEVENSEGS_SRCK_GPIO_Port GPIOA
+#define SEVENSEGS_RCK_Pin GPIO_PIN_2
+#define SEVENSEGS_RCK_GPIO_Port GPIOA
+#define SEVENSEGS_DIMMING_Pin GPIO_PIN_3
+#define SEVENSEGS_DIMMING_GPIO_Port GPIOA
 #define LED_Pin GPIO_PIN_4
 #define LED_GPIO_Port GPIOA
 #define REGEN_Pin GPIO_PIN_5
@@ -88,6 +98,14 @@ extern "C"
 #define BSPD_LED_GPIO_Port GPIOB
 #define SHDN_LED_Pin GPIO_PIN_2
 #define SHDN_LED_GPIO_Port GPIOB
+#define AUX_LED_Pin GPIO_PIN_10
+#define AUX_LED_GPIO_Port GPIOB
+#define AUX_IN_Pin GPIO_PIN_12
+#define AUX_IN_GPIO_Port GPIOB
+#define IGNTN_LED_Pin GPIO_PIN_13
+#define IGNTN_LED_GPIO_Port GPIOB
+#define IGNTN_IN_Pin GPIO_PIN_14
+#define IGNTN_IN_GPIO_Port GPIOB
 #define DIM_BLUE_Pin GPIO_PIN_6
 #define DIM_BLUE_GPIO_Port GPIOC
 #define DIM_GREEN_Pin GPIO_PIN_7
@@ -102,6 +120,14 @@ extern "C"
 #define PDM_GREEN_GPIO_Port GPIOC
 #define PDM_RED_Pin GPIO_PIN_11
 #define PDM_RED_GPIO_Port GPIOC
+#define DRIVE_MODE_0_Pin GPIO_PIN_6
+#define DRIVE_MODE_0_GPIO_Port GPIOB
+#define DRIVE_MODE_1_Pin GPIO_PIN_7
+#define DRIVE_MODE_1_GPIO_Port GPIOB
+#define DRIVE_MODE_2_Pin GPIO_PIN_8
+#define DRIVE_MODE_2_GPIO_Port GPIOB
+#define DRIVE_MODE_3_Pin GPIO_PIN_9
+#define DRIVE_MODE_3_GPIO_Port GPIOB
     /* USER CODE BEGIN Private defines */
 
     /* USER CODE END Private defines */

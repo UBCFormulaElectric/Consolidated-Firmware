@@ -1,10 +1,10 @@
 {
-    "DCM_Test1": {
-        "msg_id": 202,
+    "DCM_Vitals": {
+        "msg_id": 203,
         "cycle_time": 1000,
-        "description": "Test message for the DCM.",
+        "description": "DCM Heartbeat signal",
         "signals": {
-            "Ex1": {
+            "Heartbeat": {
                 "bits": 1
             }
         }
