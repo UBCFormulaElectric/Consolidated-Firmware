@@ -24,21 +24,21 @@ struct Brake
 };
 
 struct Brake *App_Brake_Create(
-    float (*get_front_pressure_psi)(void),
-    bool (*front_pressure_sensor_ocsc)(void),
-    float (*get_rear_pressure_psi)(void),
-    bool (*rear_pressure_sensor_ocsc)(void),
-    float (*get_pedal_travel)(void),
-    bool (*pedal_travel_sensor_ocsc)(void),
-    bool (*is_brake_actuated)(void))
+        float (*get_front_pressure_psi)(void),
+        bool (*front_pressure_sensor_ocsc)(void),
+        float (*get_rear_pressure_psi)(void),
+        bool (*rear_pressure_sensor_ocsc)(void),
+        float (*get_pedal_travel)(void),
+        bool (*pedal_travel_sensor_ocsc)(void),
+        bool (*is_brake_actuated)(void))
 {
     struct Brake *brake = malloc(sizeof(struct Brake));
     assert(brake != NULL);
 
     brake->front_pressure_in_range_check =
-        App_InRangeCheck_Create(get_front_pressure_psi, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
+            App_InRangeCheck_Create(get_front_pressure_psi, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
     brake->rear_pressure_in_range_check =
-        App_InRangeCheck_Create(get_rear_pressure_psi, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
+            App_InRangeCheck_Create(get_rear_pressure_psi, MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI);
     brake->get_front_pressure_psi = get_front_pressure_psi;
     brake->get_rear_pressure_psi  = get_rear_pressure_psi;
     brake->get_pedal_travel       = get_pedal_travel;
