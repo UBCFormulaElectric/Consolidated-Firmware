@@ -83,7 +83,7 @@ static float App_GetPedalPercentage_CountUp(
  */
 /*
 static float App_GetPedalPercentage_CountDown(
-<<<<<<< HEAD
+
     uint32_t encoder_fully_pressed_value,
     uint32_t encoder_unpressed_value,
     uint32_t encoder_counter_value,
@@ -122,7 +122,7 @@ static float App_GetPedalPercentage_CountDown(
     // return MAX_ACCELERATOR_PEDAL_PRESS * (high_count_deadzone_threshold - (float)encoder_counter_value) /
     //       (high_count_deadzone_threshold - low_count_deadzone_threshold);
     return 0.0f;
-=======
+
    uint32_t encoder_fully_pressed_value,
    uint32_t encoder_unpressed_value,
    uint32_t encoder_counter_value,
@@ -161,7 +161,7 @@ static float App_GetPedalPercentage_CountDown(
    // return MAX_ACCELERATOR_PEDAL_PRESS * (high_count_deadzone_threshold - (float)encoder_counter_value) /
    //       (high_count_deadzone_threshold - low_count_deadzone_threshold);
    return 0.0f;
->>>>>>> 9f4e826a1653caf1378f99c986767d1a000e3140
+
 }
 */
 
@@ -199,7 +199,6 @@ bool App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(const struct Accelerato
 
 float App_AcceleratorPedals_GetPrimaryPedalPercentage(const struct AcceleratorPedals *accelerator_pedals)
 {
-<<<<<<< HEAD
     return Io_AcceleratorPedals_GetPapps();
     return App_GetPedalPercentage_CountDown(
         PAPPS_ENCODER_FULLY_PRESSED_VALUE, PAPPS_ENCODER_UNPRESSED_VALUE,
@@ -212,7 +211,6 @@ float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct Accelerator
     return App_GetPedalPercentage_CountDown(
         PAPPS_ENCODER_FULLY_PRESSED_VALUE, PAPPS_ENCODER_UNPRESSED_VALUE,
         accelerator_pedals->get_primary_encoder_counter_value(), accelerator_pedals->set_primary_encoder_counter);
-=======
     return accelerator_pedals->get_primary_pedal_percent();
     // return App_GetPedalPercentage_CountDown(
     //    PAPPS_ENCODER_FULLY_PRESSED_VALUE, PAPPS_ENCODER_UNPRESSED_VALUE,
@@ -227,5 +225,4 @@ float App_AcceleratorPedals_GetSecondaryPedalPercentage(const struct Accelerator
         PAPPS_ENCODER_FULLY_PRESSED_VALUE, PAPPS_ENCODER_UNPRESSED_VALUE,
         accelerator_pedals->get_primary_encoder_counter_value(), accelerator_pedals->set_primary_encoder_counter);
         */
->>>>>>> 9f4e826a1653caf1378f99c986767d1a000e3140
 }

@@ -6,14 +6,11 @@
 
 bool App_AcceleratorPedalSignals_IsPappsAlarmActive(struct FsmWorld *world)
 {
-<<<<<<< HEAD
     const float raw_adc = Io_Adc_GetChannel1Voltage();
     return (raw_adc < 0.5f) || (raw_adc > 3.1f);
-=======
     // BAD CODE!!!! DO NOT RECREATE!!!!! This entire file should not be a thing
     struct AcceleratorPedals *accelerator_pedals = App_FsmWorld_GetPappsAndSapps(world);
     return App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(accelerator_pedals);
->>>>>>> 9f4e826a1653caf1378f99c986767d1a000e3140
 }
 
 void App_AcceleratorPedalSignals_PappsAlarmCallback(struct FsmWorld *world)
@@ -41,12 +38,9 @@ void App_AcceleratorPedalSignals_SappsAlarmCallback(struct FsmWorld *world)
 bool App_AcceleratorPedalSignals_IsPappsAndSappsAlarmInactive(struct FsmWorld *world)
 {
     struct AcceleratorPedals *papps_and_sapps = App_FsmWorld_GetPappsAndSapps(world);
-<<<<<<< HEAD
     const float               raw_adc_voltage = Io_Adc_GetChannel1Voltage();
     return ((raw_adc_voltage > 1.00f) && (raw_adc_voltage < 2.9f)) &&
-=======
     return !App_AcceleratorPedals_IsPrimaryEncoderAlarmActive(papps_and_sapps) &&
->>>>>>> 9f4e826a1653caf1378f99c986767d1a000e3140
            !App_AcceleratorPedals_IsSecondaryEncoderAlarmActive(papps_and_sapps);
 }
 

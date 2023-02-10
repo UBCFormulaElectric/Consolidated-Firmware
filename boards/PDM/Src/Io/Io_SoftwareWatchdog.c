@@ -21,3 +21,4 @@ void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
     App_CanTx_PDM_Errors_WatchdogTimeout_Set(true);
     App_CanTx_PDM_Errors_WatchdogTimeoutTaskName_Set((RtosTaskName)watchdog_id);
 }
+

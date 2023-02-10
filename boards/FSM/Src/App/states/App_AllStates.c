@@ -71,8 +71,6 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_FSM_TORQUE_LIMIT(can_tx, fsm_torque_limit);
 
     // Debug msgs, remove after testing
-<<<<<<< HEAD
-<<<<<<< HEAD
     App_CanTx_SetPeriodicSignal_SAPPS(can_tx, (uint16_t)Io_SecondaryScancon2RMHF_GetEncoderCounter());
     App_CanTx_SetPeriodicSignal_PAPPS(can_tx, (uint16_t)Io_PrimaryScancon2RMHF_GetEncoderCounter());
 
@@ -83,25 +81,22 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CanTx_SetPeriodicSignal_PAPPS_ANGLE(can_tx, Io_AcceleratorPedals_GetAngle());
     App_CanTx_SetPeriodicSignal_PAPPS_RAW_ADC(can_tx, Io_Adc_GetChannel1Voltage());
 
-=======
+
     App_CanTx_SetPeriodicSignal_PAPPS(
         can_tx, (uint16_t)App_AcceleratorPedals_GetPrimaryPedalPercentage(accelerator_pedals));
     App_CanTx_SetPeriodicSignal_SAPPS(
         can_tx, (uint16_t)App_AcceleratorPedals_GetSecondaryPedalPercentage(accelerator_pedals));
-=======
+
     // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_PAPPS(
     // can_tx, (uint16_t)App_AcceleratorPedals_GetPrimaryPedalPercentage(accelerator_pedals));
     // App_CanTx_SetPeriodicSignal_SAPPS(
     // can_tx, (uint16_t)App_AcceleratorPedals_GetSecondaryPedalPercentage(accelerator_pedals));
->>>>>>> b4459feda159733e8ae802d1d9e5174faf3c3eae
 
     // App_CanTx_SetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, App());
     // App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, Io_AcceleratorPedals_GetPapps());
 
-<<<<<<< HEAD
->>>>>>> 9f4e826a1653caf1378f99c986767d1a000e3140
     App_CanTx_SetPeriodicSignal_MISSING_HEARTBEAT(can_tx, !App_SharedHeartbeatMonitor_Tick(hb_monitor));
-=======
+
     // App_CanTx_SetPeriodicSignal_MISSING_HEARTBEAT(can_tx, !App_SharedHeartbeatMonitor_Tick(hb_monitor));
->>>>>>> b4459feda159733e8ae802d1d9e5174faf3c3eae
+
 }
