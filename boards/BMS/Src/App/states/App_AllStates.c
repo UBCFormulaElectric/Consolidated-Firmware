@@ -6,25 +6,14 @@
 #include "App_SharedMacros.h"
 #include "App_SharedProcessing.h"
 
-#define MIN_CELL_VOLTAGE(3.3f)
-#define MAX_CELL_VOLTAGE (4.2f)
-#define DEFAULT_MIN_CELL_TEMP_DEGC (0.0f)
-#define DEFAULT_MAX_CELL_DISCHARGE_TEMP_DEGC (60.0f)
-#define DEFAULT_MAX_CELL_CHARGE_TEMP_DEGC (45.0f)
-
-#define MAX_POWER_LIMIT_W(78e3f)
+#define MAX_POWER_LIMIT_W (78e3f)
 #define CELL_ROLL_OFF_TEMP_DEGC (40.0f)
 #define CELL_FULLY_DERATED_TEMP (60.0f)
 
 // Num of cycles for voltage and cell temperature values to settle
 #define NUM_CYCLES_TO_SETTLE (3U)
 
-    static void
-    App_SendAndReceiveHeartbeat(
-        struct BmsCanTxInterface *can_tx,
-        struct BmsCanRxInterface *can_rx,
-        struct HeartbeatMonitor * hb_monitor)
-    static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
+static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
     // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
 
@@ -91,9 +80,9 @@ static void App_AdvertisePackPower(struct Accumulator *accumulator, struct Tract
 
     const float max_cell_temp = App_Accumulator_GetMaxCellTempDegC(accumulator, &segment, &segment);
     const float available_power =
-        min(App_SharedProcessing_LinearDerating(
-                max_cell_temp, MAX_POWER_LIMIT_W, CELL_ROLL_OFF_TEMP_DEGC, CELL_FULLY_DERATED_TEMP),
-            MAX_POWER_LIMIT_W);
+            min(App_SharedProcessing_LinearDerating(
+                    max_cell_temp, MAX_POWER_LIMIT_W, CELL_ROLL_OFF_TEMP_DEGC, CELL_FULLY_DERATED_TEMP),
+                MAX_POWER_LIMIT_W);
 }
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
