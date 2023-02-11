@@ -13,11 +13,11 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct PdmWorld *        world      = App_SharedStateMachine_GetWorld(state_machine);
     struct HeartbeatMonitor *hb_monitor = App_PdmWorld_GetHeartbeatMonitor(world);
 
-    // JSONCAN -> App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
+    App_CanTx_PDM_Vitals_Heartbeat_Set(true);
 
-    if (false) // TODO: JSONCAN -> (App_CanRx_BMS_VITALS_GetSignal_HEARTBEAT(can_rx))
+    if (App_CanRx_BMS_Vitals_Heartbeat_Get())
     {
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, BMS_HEARTBEAT_ONE_HOT);
-        //        App_CanRx_BMS_VITALS_SetSignal_HEARTBEAT(can_rx, false);
+        App_CanRx_BMS_Vitals_Heartbeat_Update(false);
     }
 }

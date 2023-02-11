@@ -1,4 +1,4 @@
-#include <stm32f3xx.h>
+#include "Io_Hal.h"
 #include "Io_SharedAdc.h"
 #include "Io_Adc.h"
 
@@ -24,69 +24,76 @@
 //     CHANNEL_2, // Rank 3
 //     NUM_ADC_CHANNELS,
 // };
+
 enum
 {
-    ADC1_CHANNEL_3,
+    ADC1_CHANNEL_3,  // SHDN_ISENSE
+    ADC1_CHANNEL_7,  // EVSE_PROX_PILOT
+    ADC1_CHANNEL_8,  // TS_ISENSE_50A
+    ADC1_CHANNEL_9,  // TS_ISENSE_300A
+    ADC1_CHANNEL_10, // TS_VSENSE_P
+    ADC1_CHANNEL_11, // TS_VSENSE_N
+    ADC1_CHANNEL_14, // TEMP_SENSE
     NUM_ADC1_CHANNELS
 };
 
-enum
-{
-    ADC2_CHANNEL_1,
-    ADC2_CHANNEL_3,
-    ADC2_CHANNEL_4,
-    NUM_ADC2_CHANNELS
-};
-
-static uint16_t raw_adc1_values[NUM_ADC1_CHANNELS];
-static uint16_t raw_adc2_values[NUM_ADC2_CHANNELS];
-static float    adc1_voltages[NUM_ADC1_CHANNELS];
-static float    adc2_voltages[NUM_ADC2_CHANNELS];
+static uint16_t raw_adc_values[NUM_ADC1_CHANNELS];
+static float    adc_voltages[NUM_ADC1_CHANNELS];
 
 void HAL_ADC_ConvCpltCallback(ADC_HandleTypeDef *hadc)
 {
-    if (hadc->Instance == ADC1)
-    {
-        adc1_voltages[ADC1_CHANNEL_3] =
-            Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, true, (uint16_t)raw_adc1_values[ADC1_CHANNEL_3]);
-    }
-    else if (hadc->Instance == ADC2)
-    {
-        adc2_voltages[ADC2_CHANNEL_1] =
-            Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc2_values[ADC2_CHANNEL_1]);
-        adc2_voltages[ADC2_CHANNEL_3] =
-            Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc2_values[ADC2_CHANNEL_3]);
-        adc2_voltages[ADC2_CHANNEL_4] =
-            Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc2_values[ADC2_CHANNEL_4]);
-    }
+    adc_voltages[ADC1_CHANNEL_3] =
+        Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_3]);
+    adc_voltages[ADC1_CHANNEL_7] =
+        Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_7]);
+    adc_voltages[ADC1_CHANNEL_8] =
+        Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_8]);
+    adc_voltages[ADC1_CHANNEL_9] =
+        Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_9]);
+    adc_voltages[ADC1_CHANNEL_10] =
+        Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, true, (uint16_t)raw_adc_values[ADC1_CHANNEL_10]);
+    adc_voltages[ADC1_CHANNEL_11] =
+        Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_11]);
+    adc_voltages[ADC1_CHANNEL_14] =
+        Io_SharedAdc_ConvertRawAdcValueToVoltage(hadc, false, raw_adc_values[ADC1_CHANNEL_14]);
 }
 
-uint16_t *Io_Adc_GetRawAdc1Values(void)
+uint16_t *Io_Adc_GetRawAdcValues(void)
 {
-    return raw_adc1_values;
+    return raw_adc_values;
 }
 
-uint16_t *Io_Adc_GetRawAdc2Values(void)
+float Io_Adc_GetAdcChannel3Voltage(void)
 {
-    return raw_adc2_values;
+    return adc_voltages[ADC1_CHANNEL_3];
 }
 
-float Io_Adc_GetAdc1Channel3Voltage(void)
+float Io_Adc_GetAdcChannel7Voltage(void)
 {
-    return adc1_voltages[ADC1_CHANNEL_3];
+    return adc_voltages[ADC1_CHANNEL_7];
 }
 
-float Io_Adc_GetAdc2Channel1Voltage(void)
+float Io_Adc_GetAdcChannel8Voltage(void)
 {
-    return adc2_voltages[ADC2_CHANNEL_1];
+    return adc_voltages[ADC1_CHANNEL_8];
 }
 
-float Io_Adc_GetAdc2Channel3Voltage(void)
+float Io_Adc_GetAdcChannel9Voltage(void)
 {
-    return adc2_voltages[ADC2_CHANNEL_3];
+    return adc_voltages[ADC1_CHANNEL_9];
 }
 
-float Io_Adc_GetAdc2Channel4Voltage(void)
+float Io_Adc_GetAdcChannel10Voltage(void)
 {
-    return adc2_voltages[ADC2_CHANNEL_4];
+    return adc_voltages[ADC1_CHANNEL_10];
+}
+
+float Io_Adc_GetAdcChannel11Voltage(void)
+{
+    return adc_voltages[ADC1_CHANNEL_11];
+}
+
+float Io_Adc_GetAdcChannel14Voltage(void)
+{
+    return adc_voltages[ADC1_CHANNEL_14];
 }

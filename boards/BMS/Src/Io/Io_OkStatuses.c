@@ -1,22 +1,22 @@
-#include <stm32f3xx.h>
+#include "Io_Hal.h"
 #include "main.h"
 #include "Io_OkStatuses.h"
 
 ExitCode Io_OkStatuses_EnableBmsOk(void)
 {
-    HAL_GPIO_WritePin(BMS_OK_GPIO_Port, BMS_OK_Pin, GPIO_PIN_SET);
+    HAL_GPIO_WritePin(BMS_OK_3V3_GPIO_Port, BMS_OK_3V3_Pin, GPIO_PIN_SET);
     return EXIT_CODE_OK;
 }
 
 ExitCode Io_OkStatuses_DisableBmsOk(void)
 {
-    HAL_GPIO_WritePin(BMS_OK_GPIO_Port, BMS_OK_Pin, GPIO_PIN_RESET);
+    HAL_GPIO_WritePin(BMS_OK_3V3_GPIO_Port, BMS_OK_3V3_Pin, GPIO_PIN_RESET);
     return EXIT_CODE_OK;
 }
 
 bool Io_OkStatuses_IsBmsOkEnabled(void)
 {
-    return HAL_GPIO_ReadPin(BMS_OK_GPIO_Port, BMS_OK_Pin) == GPIO_PIN_SET;
+    return HAL_GPIO_ReadPin(BMS_OK_3V3_GPIO_Port, BMS_OK_3V3_Pin) == GPIO_PIN_SET;
 }
 
 ExitCode Io_OkStatuses_EnableImdOk(void)
@@ -33,7 +33,7 @@ ExitCode Io_OkStatuses_DisableImdOk(void)
 
 bool Io_OkStatuses_IsImdOkEnabled(void)
 {
-    return HAL_GPIO_ReadPin(IMD_OK_GPIO_Port, IMD_OK_Pin) == GPIO_PIN_SET;
+    return HAL_GPIO_ReadPin(IMD_OK_3V3_GPIO_Port, IMD_OK_3V3_Pin) == GPIO_PIN_SET;
 }
 
 ExitCode Io_OkStatuses_EnableBspdOk(void)
@@ -50,5 +50,5 @@ ExitCode Io_OkStatuses_DisableBspdOk(void)
 
 bool Io_OkStatuses_IsBspdOkEnabled(void)
 {
-    return HAL_GPIO_ReadPin(BSPD_OK_GPIO_Port, BSPD_OK_Pin) == GPIO_PIN_SET;
+    return HAL_GPIO_ReadPin(BSPD_OK_3V3_GPIO_Port, BSPD_OK_3V3_Pin) == GPIO_PIN_SET;
 }

@@ -30,8 +30,7 @@ struct DimWorld *App_DimWorld_Create(
     struct Led *             imd_led,
     struct Led *             bspd_led,
     struct BinarySwitch *    start_switch,
-    struct BinarySwitch *    traction_control_switch,
-    struct BinarySwitch *    torque_vectoring_switch,
+    struct BinarySwitch *    aux_switch,
     struct RgbLed *          bms_status_led,
     struct RgbLed *          dcm_status_led,
     struct RgbLed *          dim_status_led,
@@ -80,18 +79,11 @@ struct RotarySwitch *App_DimWorld_GetDriveModeSwitch(const struct DimWorld *worl
 struct BinarySwitch *App_DimWorld_GetStartSwitch(const struct DimWorld *world);
 
 /**
- * Get the traction control switch for the given world
- * @param world The world to get traction control switch for
- * @return The traction control switch for the given world
+ * Get the auxillary control switch for the given world
+ * @param world The world to get aux switch for
+ * @return The aux switch for the given world
  */
-struct BinarySwitch *App_DimWorld_GetTractionControlSwitch(const struct DimWorld *world);
-
-/**
- * Get the torque vectoring switch for the given world
- * @param world The world to get torque vectoring switch for
- * @return The torque vectoring switch for the given world
- */
-struct BinarySwitch *App_DimWorld_GetTorqueVectoringSwitch(const struct DimWorld *world);
+struct BinarySwitch *App_DimWorld_GetAuxSwitch(const struct DimWorld *world);
 
 /**
  * Get the IMD LED for the given world

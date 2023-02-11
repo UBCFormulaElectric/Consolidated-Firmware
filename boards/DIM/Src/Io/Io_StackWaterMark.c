@@ -4,7 +4,7 @@
 #include "App_SharedMacros.h"
 #include "Io_StackWaterMark.h"
 #include "Io_SharedStackWaterMark.h"
-#include "App_CanTx.h"
+#include "App_CanAlerts.h"
 
 // We check the stack water mark for the following tasks
 extern TaskHandle_t Task1HzHandle;
@@ -18,28 +18,27 @@ extern TaskHandle_t TaskCanTxHandle;
 
 static void logWaterMarkAboveThresholdTask1Hz(uint8_t error)
 {
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_HZ(_can_tx_interface, error);
+    App_CanAlerts_SetAlert(DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ, true);
 }
 
 static void logWaterMarkAboveThresholdTask100Hz(uint8_t error)
 {
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK100_HZ(_can_tx_interface,
-    // error);
+    App_CanAlerts_SetAlert(DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_100HZ, true);
 }
 
 static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
 {
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASK1_KHZ(_can_tx_interface, error);
+    App_CanAlerts_SetAlert(DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1KHZ, true);
 }
 
 static void logWaterMarkAboveThresholdTaskCanRx(uint8_t error)
 {
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANRX(_can_tx_interface, error);
+    App_CanAlerts_SetAlert(DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX, true);
 }
 
 static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 {
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_STACK_WATERMARK_ABOVE_THRESHOLD_TASKCANTX(_can_tx_interface, error);
+    App_CanAlerts_SetAlert(DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX, true);
 }
 
 /** @brief Iterate through this table to check stack watermarks for each task */

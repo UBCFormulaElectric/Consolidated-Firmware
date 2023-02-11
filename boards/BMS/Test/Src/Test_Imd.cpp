@@ -11,7 +11,7 @@ void ImdTest::SetImdCondition(
 {
     const float mapping[NUM_OF_IMD_CONDITIONS] = {
         [IMD_SHORT_CIRCUIT] = 0.0f, [IMD_NORMAL] = 10.0f,       [IMD_UNDERVOLTAGE_DETECTED] = 20.0f,
-        [IMD_SST] = 30.0f,          [IMD_DEVICE_ERROR] = 40.0f, [IMD_EARTH_FAULT] = 50.0f,
+        [IMD_SST] = 30.0f,          [IMD_DEVICE_ERROR] = 40.0f, [IMD_GROUND_FAULT] = 50.0f,
     };
 
     fake_pwm_frequency_return_val = mapping[condition_name];
@@ -153,9 +153,9 @@ TEST_F(ImdTest, check_pwm_encoding_for_device_error_condition)
     ASSERT_EQ(false, App_Imd_GetCondition(imd).pwm_encoding.valid_duty_cycle);
 }
 
-TEST_F(ImdTest, check_pwm_encoding_for_earth_fault_condition)
+TEST_F(ImdTest, check_pwm_encoding_for_ground_fault_condition)
 {
-    SetImdCondition(imd, IMD_EARTH_FAULT, get_pwm_frequency_fake.return_val);
+    SetImdCondition(imd, IMD_GROUND_FAULT, get_pwm_frequency_fake.return_val);
 
     // From ISOMETER® IR155-3203/IR155-3204 manual:
     //     Duty cycle => 47.5...52.5%
@@ -211,11 +211,11 @@ TEST_F(ImdTest, check_mapping_for_frequency_to_condition)
         { 42.0f, IMD_DEVICE_ERROR },
         { 43.0f, IMD_INVALID },
         { 47.0f, IMD_INVALID },
-        { 48.0f, IMD_EARTH_FAULT },
-        { 49.0f, IMD_EARTH_FAULT },
-        { 50.0f, IMD_EARTH_FAULT },
-        { 51.0f, IMD_EARTH_FAULT },
-        { 52.0f, IMD_EARTH_FAULT },
+        { 48.0f, IMD_GROUND_FAULT },
+        { 49.0f, IMD_GROUND_FAULT },
+        { 50.0f, IMD_GROUND_FAULT },
+        { 51.0f, IMD_GROUND_FAULT },
+        { 52.0f, IMD_GROUND_FAULT },
         { 53.0f, IMD_INVALID },
     };
 
