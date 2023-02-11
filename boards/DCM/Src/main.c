@@ -99,7 +99,7 @@ void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_IWDG_Init(void);
-void        RumTask1Hz(void const *argument);
+void        RunTask1Hz(void const *argument);
 void        RunTask1kHz(void const *argument);
 void        RunTaskCanRx(void const *argument);
 void        RunTaskCanTx(void const *argument);
@@ -205,7 +205,7 @@ int main(void)
 
     /* Create the thread(s) */
     /* definition and creation of Task1Hz */
-    osThreadStaticDef(Task1Hz, RumTask1Hz, osPriorityLow, 0, 512, Task1HzBuffer, &Task1HzControlBlock);
+    osThreadStaticDef(Task1Hz, RunTask1Hz, osPriorityLow, 0, 512, Task1HzBuffer, &Task1HzControlBlock);
     Task1HzHandle = osThreadCreate(osThread(Task1Hz), NULL);
 
     /* definition and creation of Task1kHz */
@@ -407,14 +407,14 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_RumTask1Hz */
+/* USER CODE BEGIN Header_RunTask1Hz */
 /**
  * @brief  Function implementing the Task1Hz thread.
  * @param  argument: Not used
  * @retval None
  */
-/* USER CODE END Header_RumTask1Hz */
-void RumTask1Hz(void const *argument)
+/* USER CODE END Header_RunTask1Hz */
+void RunTask1Hz(void const *argument)
 {
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
