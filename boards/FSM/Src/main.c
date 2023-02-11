@@ -85,6 +85,8 @@ CAN_HandleTypeDef hcan1;
 
 IWDG_HandleTypeDef hiwdg;
 
+SPI_HandleTypeDef hspi2;
+
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim8;
 TIM_HandleTypeDef htim12;
@@ -124,12 +126,13 @@ static void MX_CAN1_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_TIM8_Init(void);
 static void MX_TIM12_Init(void);
+static void MX_SPI2_Init(void);
 static void MX_TIM3_Init(void);
-_Noreturn void        RunTask1kHz(void const *argument);
-_Noreturn void        RunTask100Hz(void const *argument);
-_Noreturn void        RunTaskCanRx(void const *argument);
-_Noreturn void        RunTaskCanTx(void const *argument);
-_Noreturn void        RunTask1Hz(void const *argument);
+void        RunTask1kHz(void const *argument);
+void        RunTask100Hz(void const *argument);
+void        RunTaskCanRx(void const *argument);
+void        RunTaskCanTx(void const *argument);
+void        RunTask1Hz(void const *argument);
 
 /* USER CODE BEGIN PFP */
 
@@ -188,6 +191,7 @@ int main(void)
     MX_IWDG_Init();
     MX_TIM8_Init();
     MX_TIM12_Init();
+    MX_SPI2_Init();
     MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
@@ -413,7 +417,7 @@ static void MX_CAN1_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN CAN1_Init 2 */
-
+    Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
     /* USER CODE END CAN1_Init 2 */
 }
 
@@ -441,6 +445,42 @@ static void MX_IWDG_Init(void)
     /* USER CODE BEGIN IWDG_Init 2 */
     Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
     /* USER CODE END IWDG_Init 2 */
+}
+
+/**
+ * @brief SPI2 Initialization Function
+ * @param None
+ * @retval None
+ */
+static void MX_SPI2_Init(void)
+{
+    /* USER CODE BEGIN SPI2_Init 0 */
+
+    /* USER CODE END SPI2_Init 0 */
+
+    /* USER CODE BEGIN SPI2_Init 1 */
+
+    /* USER CODE END SPI2_Init 1 */
+    /* SPI2 parameter configuration*/
+    hspi2.Instance               = SPI2;
+    hspi2.Init.Mode              = SPI_MODE_MASTER;
+    hspi2.Init.Direction         = SPI_DIRECTION_2LINES;
+    hspi2.Init.DataSize          = SPI_DATASIZE_8BIT;
+    hspi2.Init.CLKPolarity       = SPI_POLARITY_LOW;
+    hspi2.Init.CLKPhase          = SPI_PHASE_1EDGE;
+    hspi2.Init.NSS               = SPI_NSS_SOFT;
+    hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+    hspi2.Init.FirstBit          = SPI_FIRSTBIT_MSB;
+    hspi2.Init.TIMode            = SPI_TIMODE_DISABLE;
+    hspi2.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
+    hspi2.Init.CRCPolynomial     = 10;
+    if (HAL_SPI_Init(&hspi2) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /* USER CODE BEGIN SPI2_Init 2 */
+
+    /* USER CODE END SPI2_Init 2 */
 }
 
 /**
@@ -626,14 +666,14 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE END 4 */
 
-/* USER CODE BEGIN Header_RunTask1Hz */
+/* USER CODE BEGIN Header_RunTask1kHz */
 /**
- * @brief  Function implementing the Task1Hz thread.
- * @param  argument: Not used
+ * @brief Function implementing the Task1kHz thread.
+ * @param argument: Not used
  * @retval None
  */
-/* USER CODE END Header_RunTask1Hz */
-_Noreturn void RunTask1Hz(void const *argument)
+/* USER CODE END Header_RunTask1kHz */
+void RunTask1kHz(void const *argument)
 {
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
@@ -655,41 +695,33 @@ _Noreturn void RunTask1Hz(void const *argument)
     /* USER CODE END 5 */
 }
 
-/* USER CODE BEGIN Header_RunTask1kHz */
+/* USER CODE BEGIN Header_RunTask100Hz */
 /**
- * @brief Function implementing the Task1kHz thread.
+ * @brief Function implementing the Task100Hz thread.
  * @param argument: Not used
  * @retval None
  */
-/* USER CODE END Header_RunTask1kHz */
-_Noreturn void RunTask1kHz(void const *argument)
+/* USER CODE END Header_RunTask100Hz */
+void RunTask100Hz(void const *argument)
 {
-    /* USER CODE BEGIN RunTask1kHz */
+    /* USER CODE BEGIN RunTask100Hz */
     UNUSED(argument);
     uint32_t                 PreviousWakeTime = osKernelSysTick();
-    static const TickType_t  period_ms        = 1;
+    static const TickType_t  period_ms        = 10;
     SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
 
+    /* Infinite loop */
     for (;;)
     {
-        Io_SharedSoftwareWatchdog_CheckForTimeouts();
-        const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
+        App_SharedStateMachine_Tick100Hz(state_machine);
 
-        App_Timer_SetCurrentTimeMS(task_start_ms);
-        //        TODO: JSONCAN -> Io_CanTx_EnqueuePeriodicMsgs(can_tx, task_start_ms);
-
-        // Watchdog check-in must be the last function called before putting the
-        // task to sleep. Prevent check in if the elapsed period is greater or
-        // equal to the period ms
-        if ((TICK_TO_MS(osKernelSysTick()) - task_start_ms) <= period_ms)
-        {
-            Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        }
-
+        // Watchdog check-in must be the last function called before putting
+        // the task to sleep.
+        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
         osDelayUntil(&PreviousWakeTime, period_ms);
     }
-    /* USER CODE END RunTask1kHz */
+    /* USER CODE END RunTask100Hz */
 }
 
 /* USER CODE BEGIN Header_RunTaskCanRx */
@@ -699,7 +731,7 @@ _Noreturn void RunTask1kHz(void const *argument)
  * @retval None
  */
 /* USER CODE END Header_RunTaskCanRx */
-_Noreturn void RunTaskCanRx(void const *argument)
+void RunTaskCanRx(void const *argument)
 {
     /* USER CODE BEGIN RunTaskCanRx */
     UNUSED(argument);
@@ -721,7 +753,7 @@ _Noreturn void RunTaskCanRx(void const *argument)
  * @retval None
  */
 /* USER CODE END Header_RunTaskCanTx */
-_Noreturn void RunTaskCanTx(void const *argument)
+void RunTaskCanTx(void const *argument)
 {
     /* USER CODE BEGIN RunTaskCanTx */
     UNUSED(argument);
@@ -734,33 +766,22 @@ _Noreturn void RunTaskCanTx(void const *argument)
     /* USER CODE END RunTaskCanTx */
 }
 
-/* USER CODE BEGIN Header_RunTask100Hz */
+/* USER CODE BEGIN Header_RunTask1Hz */
 /**
- * @brief Function implementing the Task100Hz thread.
- * @param argument: Not used
+ * @brief  Function implementing the Task1Hz thread.
+ * @param  argument: Not used
  * @retval None
  */
-/* USER CODE END Header_RunTask100Hz */
-_Noreturn void RunTask100Hz(void const *argument)
+/* USER CODE END Header_RunTask1Hz */
+void RunTask1Hz(void const *argument)
 {
-    /* USER CODE BEGIN RunTask100Hz */
-    UNUSED(argument);
-    uint32_t                 PreviousWakeTime = osKernelSysTick();
-    static const TickType_t  period_ms        = 10;
-    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_100HZ, period_ms);
-
+    /* USER CODE BEGIN RunTask1Hz */
     /* Infinite loop */
     for (;;)
     {
-        App_SharedStateMachine_Tick100Hz(state_machine);
-
-        // Watchdog check-in must be the last function called before putting
-        // the task to sleep.
-        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
-        osDelayUntil(&PreviousWakeTime, period_ms);
+        osDelay(1);
     }
-    /* USER CODE END RunTask100Hz */
+    /* USER CODE END RunTask1Hz */
 }
 
 /**
