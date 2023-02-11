@@ -19,27 +19,27 @@ extern TaskHandle_t TaskCanTxHandle;
 
 static void logWaterMarkAboveThresholdTask1kHz(uint8_t error)
 {
-    App_CanAlerts_SetAlert(BMS_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1KHZ, true);
+    App_CanTx_BMS_Warnings_StackWatermarkAboveThresholdTask1kHz_Set(true);
 }
 
 static void logWaterMarkAboveThresholdTask100Hz(uint8_t error)
 {
-    App_CanAlerts_SetAlert(BMS_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_100HZ, true);
+    App_CanTx_BMS_Warnings_StackWatermarkAboveThresholdTask100Hz_Set(true);
 }
 
 static void logWaterMarkAboveThresholdTask1Hz(uint8_t error)
 {
-    App_CanAlerts_SetAlert(BMS_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1HZ, true);
+    App_CanTx_BMS_Warnings_StackWatermarkAboveThresholdTask1Hz_Set(true);
 }
 
 static void logWaterMarkAboveThresholdTaskCanRx(uint8_t error)
 {
-    App_CanAlerts_SetAlert(BMS_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX, true);
+    App_CanTx_BMS_Warnings_StackWatermarkAboveThresholdTaskCanRx_Set(true);
 }
 
 static void logWaterMarkAboveThresholdTaskCanTx(uint8_t error)
 {
-    App_CanAlerts_SetAlert(BMS_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX, true);
+    App_CanTx_BMS_Warnings_StackWatermarkAboveThresholdTaskCanTx_Set(true);
 }
 
 /** @brief Iterate through this table to check stack watermarks for each task */
