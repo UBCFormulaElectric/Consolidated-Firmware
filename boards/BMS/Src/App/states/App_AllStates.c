@@ -136,6 +136,8 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     App_CheckCellVoltageRange(can_tx, accumulator);
     App_CheckCellTemperatureRange(can_tx, accumulator, state_machine);
 
+    //App_CanTx_SetPeriodicSignal_SE07_volt(cant_tx, App_Accumulator_GetCellVoltage(0, 7));
+
     const bool acc_fault = App_Accumulator_CheckFaults(can_tx, accumulator, ts);
     const bool ts_fault  = App_TractveSystem_CheckFaults(can_tx, ts);
 
