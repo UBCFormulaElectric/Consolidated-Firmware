@@ -1,4 +1,4 @@
-#include <stm32f3xx_hal.h>
+#include "Io_Hal.h"
 
 #include "Io_Coolant.h"
 #include "Io_WheelSpeedSensors.h"
