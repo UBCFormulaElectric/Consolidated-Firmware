@@ -2,9 +2,11 @@
 #include "states/App_InitState.h"
 #include "states/App_DriveState.h"
 #include "states/App_PreChargeState.h"
+#include "states/App_BalanceState.h"
 
 #include "App_SetPeriodicCanSignals.h"
 #include "App_SharedMacros.h"
+#include "App_SharedProcessing.h"
 
 #define TS_DISCHARGED_THRESHOLD_V (10.0f)
 
@@ -42,6 +44,10 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
             App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
         }
 #endif
+        if (App_Airs_IsAirNegativeClosed(airs) && App_CanRx_BMS_BALANCE_GetSignal_START_BALANCE(can_rx))
+        {
+            App_SharedStateMachine_SetNextState(state_machine, App_GetBalanceState());
+        }
     }
 }
 

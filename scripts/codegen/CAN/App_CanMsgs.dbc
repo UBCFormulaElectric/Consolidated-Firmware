@@ -306,6 +306,9 @@ SG_ Start_Switch : 0|1@1+ (1,0) [0|1] "" DCM
 SG_ Traction_Control_Switch : 1|1@1+ (1,0) [0|1] "" DCM
 SG_ Torque_Vectoring_Switch : 2|1@1+ (1,0) [0|1] "" DCM
 
+BO_ 122 BMS_BALANCE: 1 DEBUG
+SG_ Start_Balance : 0|1@1+ (1,0) [0|1] "" BMS
+
 BO_ 151 FSM_APPS: 8 FSM
 SG_ Papps_Mapped_Pedal_Percentage : 0|32@1+ (1,0) [0|100] "%" DEBUG
 SG_ Sapps_Mapped_Pedal_Percentage : 32|32@1+ (1,0) [0|100] "%" DEBUG
@@ -647,7 +650,7 @@ VAL_ 82 Inverter_Discharge_INVR 0 "Discharge Disable" 1 "Discharge Enable (if EE
 
 VAL_ 105 Condition 0 "IMD_SHORT_CIRCUIT" 1 "IMD_NORMAL" 2 "IMD_UNDERVOLTAGE_DETECTED" 3 "IMD_SST" 4 "IMD_DEVICE_ERROR" 5 "IMD_EARTH_FAULT" 6 "IMD_INVALID";
 VAL_ 105 OK_HS 0 "NO FAULT" 1 "FAULT";
-VAL_ 107 State 0 "INIT" 1 "AIR_OPEN" 2 "PRE_CHARGE" 3 "CHARGE" 4 "DRIVE" 5 "FAULT";
+VAL_ 107 State 0 "INIT" 1 "AIR_OPEN" 2 "PRE_CHARGE" 3 "CHARGE" 4 "DRIVE" 5 "FAULT" 6 "BALANCE";
 VAL_ 109 CHARGER_DISCONNECTED_IN_CHARGE_STATE  0 "OK" 1 "FAULT";
 VAL_ 109 CELL_UNDERVOLTAGE_FAULT 0 "OK" 1 "FAULT";
 VAL_ 109 CELL_OVERVOLTAGE_FAULT 0 "OK" 1 "FAULT";
