@@ -1,4 +1,4 @@
-#include <stm32f3xx.h>
+#include <stm32f4xx.h>
 #include <string.h>
 #include "App_CanTx.h"
 #include "Io_SoftwareWatchdog.h"
