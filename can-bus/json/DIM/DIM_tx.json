@@ -46,5 +46,30 @@
                 "enum": "RtosTaskName"
             }
         }
+    },
+    "DIM_Warnings": {
+        "msg_id": 506,
+        "cycle_time": 1000,
+        "description": "Warning flags for DIM",
+        "signals": {
+            "StackWatermarkAboveThresholdTask1Hz": {
+                "bits": 1
+            },
+            "StackWatermarkAboveThresholdTask100Hz": {
+                "bits": 1
+            },
+            "StackWatermarkAboveThresholdTask1kHz": {
+                "bits": 1
+            },
+            "StackWatermarkAboveThresholdTaskCanRx": {
+                "bits": 1
+            },
+            "StackWatermarkAboveThresholdTaskCanTx": {
+                "bits": 1
+            },
+            "WatchdogTimeout": {
+                "bits": 1
+            }
+        }
     }
 }
