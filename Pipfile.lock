@@ -93,6 +93,7 @@
             ],
             "markers": "python_version >= '3.7'",
             "version": "==67.2.0"
+<<<<<<< HEAD
         },
         "strenum": {
             "hashes": [
@@ -101,6 +102,8 @@
             ],
             "index": "pypi",
             "version": "==0.4.9"
+=======
+>>>>>>> 9b439c7b (Move Warnings to Aperiodic Messages + add IMD condition message)
         },
         "textparser": {
             "hashes": [
@@ -191,6 +194,7 @@
     "develop": {
         "astroid": {
             "hashes": [
+<<<<<<< HEAD
                 "sha256:0e0e3709d64fbffd3037e4ff403580550f14471fd3eaae9fa11cc9a5c7901153",
                 "sha256:a3cf9f02c53dd259144a7e8f3ccd75d67c9a8c716ef183e0c1f291bc5d7bb3cf"
             ],
@@ -204,6 +208,13 @@
             ],
             "markers": "sys_platform == 'win32'",
             "version": "==0.4.6"
+=======
+                "sha256:23c718921acab5f08cbbbe9293967f1f8fec40c336d19cd75dc12a9ea31d2eb2",
+                "sha256:bd1aa4f9915c98e8aaebcd4e71930154d4e8c9aaf05d35ac0a63d1956091ae3f"
+            ],
+            "markers": "python_full_version >= '3.7.2'",
+            "version": "==2.14.1"
+>>>>>>> 9b439c7b (Move Warnings to Aperiodic Messages + add IMD condition message)
         },
         "dill": {
             "hashes": [
@@ -215,11 +226,19 @@
         },
         "isort": {
             "hashes": [
+<<<<<<< HEAD
                 "sha256:6be1f76a507cb2ecf16c7cf14a37e41609ca082330be4e3436a18ef74add55db",
                 "sha256:ba1d72fb2595a01c7895a5128f9585a5cc4b6d395f1c8d514989b9a7eb2a8746"
             ],
             "markers": "python_full_version >= '3.7.0'",
             "version": "==5.11.5"
+=======
+                "sha256:8bef7dde241278824a6d83f44a544709b065191b95b6e50894bdc722fcba0504",
+                "sha256:f84c2818376e66cf843d497486ea8fed8700b340f308f076c6fb1229dff318b6"
+            ],
+            "markers": "python_full_version >= '3.8.0'",
+            "version": "==5.12.0"
+>>>>>>> 9b439c7b (Move Warnings to Aperiodic Messages + add IMD condition message)
         },
         "lazy-object-proxy": {
             "hashes": [
@@ -276,7 +295,11 @@
                 "sha256:8a1228abb1ef82d788f74139988b137e78692984ec7b08eaa6c65f1723af28f9",
                 "sha256:b1d5eb14f221506f50d6604a561f4c5786d9e80355219694a1b244bcd96f4567"
             ],
+<<<<<<< HEAD
             "markers": "python_full_version >= '3.7.0'",
+=======
+            "markers": "python_version >= '3.7'",
+>>>>>>> 9b439c7b (Move Warnings to Aperiodic Messages + add IMD condition message)
             "version": "==3.0.0"
         },
         "pylint": {

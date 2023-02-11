@@ -40,28 +40,6 @@
             }
         }
     },
-    "BMS_Warnings": {
-        "msg_id": 104,
-        "cycle_time": 1000,
-        "description": "Warning flags for BMS",
-        "signals": {
-            "StackWatermarkAboveThresholdTask1Hz": {
-                "bits": 1
-            },
-            "StackWatermarkAboveThresholdTask1kHz": {
-                "bits": 1
-            },
-            "StackWatermarkAboveThresholdTaskCanRx": {
-                "bits": 1
-            },
-            "StackWatermarkAboveThresholdTaskCanTx": {
-                "bits": 1
-            },
-            "WatchdogTimeout": {
-                "bits": 1
-            }
-        }
-    },
     "BMS_ImdStatus": {
         "msg_id": 105,
         "cycle_time": 1000,
@@ -78,6 +56,9 @@
             },
             "ValidDutyCycle": {
                 "bits": 1
+            },
+            "Condition": {
+                "bits": 3
             }
         }
     },
@@ -352,6 +333,15 @@
                 "min": 0,
                 "max": 100000,
                 "unit": "W"
+            }
+        }
+    },
+    "BMS_WatchdogTimeout": {
+        "msg_id": 121,
+        "description": "Aperiodic message sent when watchdog is tripped.",
+        "signals": {
+            "TaskName": {
+                "enum": "RtosTaskName"
             }
         }
     }
