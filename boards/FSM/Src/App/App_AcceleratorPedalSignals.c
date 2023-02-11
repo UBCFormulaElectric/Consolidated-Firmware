@@ -3,7 +3,7 @@
 #include "App_AcceleratorPedals.h"
 #include "App_FsmWorld.h"
 #include "Io_Adc.h"
-
+/*
 bool App_AcceleratorPedalSignals_IsPappsAlarmActive(struct FsmWorld *world)
 {
     const float raw_adc = Io_Adc_GetChannel1Voltage();
@@ -85,3 +85,4 @@ void App_AcceleratorPedalSignals_AppsAndBrakePlausibilityFailureCallback(struct 
     // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_PLAUSIBILITY_CHECK_HAS_FAILED(
     //    can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PLAUSIBILITY_CHECK_HAS_FAILED_TRUE_CHOICE);
 }
+*/
