@@ -337,7 +337,6 @@ TEST_F(BmsStateMachineTest, check_imd_insulation_resistance_10hz_is_broadcasted_
         EXPECT_EQ(true, App_CanTx_BMS_ImdStatus_ValidDutyCycle_Get());
         EXPECT_EQ(1200, App_CanTx_BMS_ImdData_InsulationMeasurementDcp10Hz_Get());
 
-
         // Test an arbitrarily chosen invalid resistance
         get_pwm_duty_cycle_fake.return_val = 0.0f;
         LetTimePass(state_machine, 10);
@@ -567,7 +566,6 @@ TEST_F(BmsStateMachineTest, check_air_positive_open_in_fault_state)
     SetInitialState(App_GetFaultState());
     // TODO: JSONCAN -> ASSERT_EQ(
     // CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
-
 }
 
 // BMS-30
