@@ -90,13 +90,13 @@
 		}
 	},
 	"FSM_Vitals": {
-			"msg_id": 303,
-			"cycle_time": 1000,
-			"description": "FSM Heartbeat signal",
-			"signals": {
-					"Heartbeat": {
-							"bits": 1
-					}
-			}
+		"msg_id": 303,
+		"cycle_time": 1000,
+		"description": "FSM Heartbeat signal",
+		"signals": {
+				"Heartbeat": {
+						"bits": 1
+				}
+		}
 	}
 }

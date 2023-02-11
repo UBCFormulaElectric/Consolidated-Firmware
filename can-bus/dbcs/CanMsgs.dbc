@@ -66,26 +66,13 @@ BO_ 112 BMS_Contactors: 1 BMS
 SG_ AirPositive : 0|1@1+ (1,0) [0|1] "" DEBUG,PDM
 SG_ AirNegative : 1|1@1+ (1,0) [0|1] "" DEBUG,PDM
 SG_ PrechargeRelay : 2|1@1+ (1,0) [0|1] "" DEBUG,PDM
-BO_ 151 FSM_APPs: 3 FSM
-SG_ PappsMappedPedalPercentage : 0|10@1+ (0.1,0) [0|100] "%" DEBUG
-SG_ SappsMappedPedalPercentage : 10|10@1+ (0.1,0) [0|100] "%" DEBUG
 
 BO_ 113 BMS_MotorShutdownErrors: 1 BMS
 SG_ BmsDummyMotorShutdown : 0|1@1+ (1,0) [0|1] "" DEBUG
-BO_ 14 FSM_Brake: 5 FSM
-SG_ FrontBrakePressure : 0|12@1+ (1,0) [0|2500] "psi" DEBUG
-SG_ RearBrakePressure : 12|12@1+ (1,0) [0|2500] "psi" DEBUG
-SG_ BrakePedalPercentage : 24|10@1+ (0.1,0) [0|100] "%" DEBUG
 
 BO_ 114 BMS_CellTemperatures: 3 BMS
 SG_ MinCellTemperature : 0|10@1+ (0.1,0) [0|100] "degC" DEBUG
 SG_ MaxCellTemperature : 10|10@1+ (0.1,0) [0|100] "degC" DEBUG
-BO_ 307 FSM_Coolant: 7 FSM
-SG_ FlowRate : 0|10@1+ (0.1,0) [0|100] "L/min" DEBUG
-SG_ TemperatureA : 10|10@1+ (0.1,0) [0|100] "°C" DEBUG
-SG_ TemperatureB : 20|10@1+ (0.1,0) [0|100] "°C" DEBUG
-SG_ PressureA : 30|10@1+ (0.1,0) [0|100] "psi" DEBUG
-SG_ PressureB : 40|10@1+ (0.1,0) [0|100] "psi" DEBUG
 
 BO_ 115 BMS_CellVoltages: 4 BMS
 SG_ MinCellVoltage : 0|16@1+ (0.0001,0) [0|5] "V" DEBUG
@@ -144,20 +131,34 @@ SG_ DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX : 4|1@1+ (1,0) [0|1] ""
 SG_ DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX : 5|1@1+ (1,0) [0|1] "" DEBUG
 SG_ DIM_ALERT_WATCHDOG_TIMEOUT : 6|1@1+ (1,0) [0|1] "" DEBUG
 
-BO_ 303 FSM_Vitals: 1 FSM
-SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
+BO_ 151 FSM_APPs: 3 FSM
+SG_ PappsMappedPedalPercentage : 0|10@1+ (0.1,0) [0|100] "%" DEBUG
+SG_ SappsMappedPedalPercentage : 10|10@1+ (0.1,0) [0|100] "%" DEBUG
 
-BO_ 300 FSM_Alerts: 1 FSM
-SG_ PDM_ALERT_DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
+BO_ 14 FSM_Brake: 5 FSM
+SG_ FrontBrakePressure : 0|12@1+ (1,0) [0|2500] "psi" DEBUG
+SG_ RearBrakePressure : 12|12@1+ (1,0) [0|2500] "psi" DEBUG
+SG_ BrakePedalPercentage : 24|10@1+ (0.1,0) [0|100] "%" DEBUG
+
+BO_ 307 FSM_Coolant: 7 FSM
+SG_ FlowRate : 0|10@1+ (0.1,0) [0|100] "L/min" DEBUG
+SG_ TemperatureA : 10|10@1+ (0.1,0) [0|100] "°C" DEBUG
+SG_ TemperatureB : 20|10@1+ (0.1,0) [0|100] "°C" DEBUG
+SG_ PressureA : 30|10@1+ (0.1,0) [0|100] "psi" DEBUG
+SG_ PressureB : 40|10@1+ (0.1,0) [0|100] "psi" DEBUG
 
 BO_ 318 FSM_Steering: 2 FSM
 SG_ SteeringAngle : 0|12@1+ (0.1,-110) [-110|110] "deg" DEBUG
 
-BO_ 300 FSM_AlertSet: 1 FSM
-SG_ FSM_AlertSet : 0|5@1+ (1,0) [0|31] "" DEBUG
+BO_ 303 FSM_Vitals: 1 FSM
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
 
-BO_ 301 FSM_AlertCleared: 1 FSM
-SG_ FSM_AlertCleared : 0|5@1+ (1,0) [0|31] "" DEBUG
+BO_ 300 FSM_Alerts: 1 FSM
+SG_ PAPPS_OCSC_IS_ACTIVE : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ SAPPS_OCSC_IS_ACTIVE : 1|1@1+ (1,0) [0|1] "" DEBUG
+SG_ FLOW_METER_UNDERFLOW : 2|1@1+ (1,0) [0|1] "" DEBUG
+SG_ TORQUE_PLAUSIBILITY_CHECK_FAILED : 3|1@1+ (1,0) [0|1] "" DEBUG
+SG_ BRAKE_ACCELERATOR_DISAGREEMENT : 4|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 603 GSM_Test1: 1 GSM
 SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
@@ -264,21 +265,6 @@ BA_ "GenSigStartValue" SG_ 500 DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_1K
 BA_ "GenSigStartValue" SG_ 500 DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANTX 0;
 BA_ "GenSigStartValue" SG_ 500 DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX 0;
 BA_ "GenSigStartValue" SG_ 500 DIM_ALERT_WATCHDOG_TIMEOUT 0;
-BA_ "GenSigStartValue" SG_ 303 Heartbeat 0;
-BA_ "GenSigStartValue" SG_ 300 PDM_ALERT_DUMMY 0;
-BA_ "GenSigStartValue" SG_ 102 Ex1 0;
-BA_ "GenSigStartValue" SG_ 100 BMS_AlertSet 0;
-BA_ "GenSigStartValue" SG_ 101 BMS_AlertCleared 0;
-BA_ "GenSigStartValue" SG_ 202 Ex1 0;
-BA_ "GenSigStartValue" SG_ 200 DCM_AlertSet 0;
-BA_ "GenSigStartValue" SG_ 201 DCM_AlertCleared 0;
-BA_ "GenSigStartValue" SG_ 502 Ex1 0;
-BA_ "GenSigStartValue" SG_ 502 Ex2 0;
-BA_ "GenSigStartValue" SG_ 503 Ex3 0;
-BA_ "GenSigStartValue" SG_ 503 Ex4 0;
-BA_ "GenSigStartValue" SG_ 503 Ex5 -120;
-BA_ "GenSigStartValue" SG_ 500 DIM_AlertSet 0;
-BA_ "GenSigStartValue" SG_ 501 DIM_AlertCleared 0;
 BA_ "GenSigStartValue" SG_ 151 PappsMappedPedalPercentage 0;
 BA_ "GenSigStartValue" SG_ 151 SappsMappedPedalPercentage 0;
 BA_ "GenSigStartValue" SG_ 14 FrontBrakePressure 0;
@@ -290,8 +276,12 @@ BA_ "GenSigStartValue" SG_ 307 TemperatureB 0;
 BA_ "GenSigStartValue" SG_ 307 PressureA 0;
 BA_ "GenSigStartValue" SG_ 307 PressureB 0;
 BA_ "GenSigStartValue" SG_ 318 SteeringAngle -110;
-BA_ "GenSigStartValue" SG_ 300 FSM_AlertSet 0;
-BA_ "GenSigStartValue" SG_ 301 FSM_AlertCleared 0;
+BA_ "GenSigStartValue" SG_ 303 Heartbeat 0;
+BA_ "GenSigStartValue" SG_ 300 PAPPS_OCSC_IS_ACTIVE 0;
+BA_ "GenSigStartValue" SG_ 300 SAPPS_OCSC_IS_ACTIVE 0;
+BA_ "GenSigStartValue" SG_ 300 FLOW_METER_UNDERFLOW 0;
+BA_ "GenSigStartValue" SG_ 300 TORQUE_PLAUSIBILITY_CHECK_FAILED 0;
+BA_ "GenSigStartValue" SG_ 300 BRAKE_ACCELERATOR_DISAGREEMENT 0;
 BA_ "GenSigStartValue" SG_ 603 Ex1 0;
 BA_ "GenSigStartValue" SG_ 600 GSM_ALERT_DUMMY 0;
 BA_ "GenSigStartValue" SG_ 402 Heartbeat 0;
@@ -331,12 +321,11 @@ BA_ "GenMsgCycleTime" BO_ 203  1000;
 BA_ "GenMsgCycleTime" BO_ 502  1000;
 BA_ "GenMsgCycleTime" BO_ 503  1000;
 BA_ "GenMsgCycleTime" BO_ 504  1000;
-BA_ "GenMsgCycleTime" BO_ 303  1000;
-BA_ "GenMsgCycleTime" BO_ 503  10;
 BA_ "GenMsgCycleTime" BO_ 151  100;
 BA_ "GenMsgCycleTime" BO_ 14  10;
 BA_ "GenMsgCycleTime" BO_ 307  1000;
 BA_ "GenMsgCycleTime" BO_ 318  100;
+BA_ "GenMsgCycleTime" BO_ 303  1000;
 BA_ "GenMsgCycleTime" BO_ 603  1000;
 BA_ "GenMsgCycleTime" BO_ 402  1000;
 BA_ "GenMsgCycleTime" BO_ 403  1000;
@@ -353,18 +342,5 @@ VAL_ 503 AuxSwitch 0 "SWITCH_OFF" 1 "SWITCH_ON";
 VAL_ 505 TaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
 VAL_ 402 State 0 "PDM_STATE_DRIVE";
 VAL_ 403 WatchdogTimeoutTaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
-VAL_ 100 BMS_AlertSet 0 "NUM_BMS_ALERTS";
-VAL_ 101 BMS_AlertCleared 0 "NUM_BMS_ALERTS";
-VAL_ 200 DCM_AlertSet 0 "NUM_DCM_ALERTS";
-VAL_ 201 DCM_AlertCleared 0 "NUM_DCM_ALERTS";
-VAL_ 503 Ex4 0 "CHOICE_0" 1 "CHOICE_1" 2 "CHOICE_2";
-VAL_ 500 DIM_AlertSet 0 "NUM_DIM_ALERTS";
-VAL_ 501 DIM_AlertCleared 0 "NUM_DIM_ALERTS";
-VAL_ 300 FSM_AlertSet 0 "PAPPS_OCSC_IS_ACTIVE" 1 "SAPPS_OCSC_IS_ACTIVE" 2 "FLOW_METER_UNDERFLOW" 3 "TORQUE_PLAUSIBILITY_CHECK_FAILED" 4 "Brake_Acc_Disagreement" 5 "NUM_FSM_ALERTS";
-VAL_ 301 FSM_AlertCleared 0 "PAPPS_OCSC_IS_ACTIVE" 1 "SAPPS_OCSC_IS_ACTIVE" 2 "FLOW_METER_UNDERFLOW" 3 "TORQUE_PLAUSIBILITY_CHECK_FAILED" 4 "Brake_Acc_Disagreement" 5 "NUM_FSM_ALERTS";
-VAL_ 600 GSM_AlertSet 0 "NUM_GSM_ALERTS";
-VAL_ 601 GSM_AlertCleared 0 "NUM_GSM_ALERTS";
-VAL_ 400 PDM_AlertSet 0 "NUM_PDM_ALERTS";
-VAL_ 401 PDM_AlertCleared 0 "NUM_PDM_ALERTS";
 
 
