@@ -557,15 +557,13 @@ TEST_F(BmsStateMachineTest, check_airs_can_signals_for_all_states)
 }
 
 // BMS-29
-TEST_F(BmsStateMachineTest, check_air_positive_open_in_fault_state)
+TEST_F(BmsStateMachineTest, check_contactors_open_in_fault_state)
 {
     // Close AIR+ to avoid false positives
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_AIR_POSITIVE(can_tx_interface,
-    // CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_CLOSED_CHOICE);
+    App_CanTx_BMS_Contactors_AirPositive_Set(CONTACTOR_STATE_CLOSED);
 
     SetInitialState(App_GetFaultState());
-    // TODO: JSONCAN -> ASSERT_EQ(
-    // CANMSGS_BMS_AIR_STATES_AIR_POSITIVE_OPEN_CHOICE, App_CanTx_GetPeriodicSignal_AIR_POSITIVE(can_tx_interface));
+    ASSERT_EQ(CONTACTOR_STATE_OPEN, App_CanTx_BMS_Contactors_AirPositive_Get());
 }
 
 // BMS-30
