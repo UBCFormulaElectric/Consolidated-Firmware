@@ -8,19 +8,23 @@
 struct DcmWorld
 {
     struct HeartbeatMonitor *heartbeat_monitor;
+    struct RgbLedSequence *  rgb_led_sequence;
     struct BrakeLight *      brake_light;
     struct Buzzer *          buzzer;
     struct Imu *             imu;
     struct WaitSignal *      buzzer_wait_signal;
     struct Clock *           clock;
+    struct InverterSwitches *inverter_switches;
 };
 
 struct DcmWorld *App_DcmWorld_Create(
     struct HeartbeatMonitor *const heartbeat_monitor,
+    struct RgbLedSequence *const   rgb_led_sequence,
     struct BrakeLight *const       brake_light,
     struct Buzzer *const           buzzer,
     struct Imu *const              imu,
     struct Clock *const            clock,
+    struct InverterSwitches *const inverter_switches,
     bool (*is_buzzer_on)(struct DcmWorld *),
     void (*buzzer_complete_callback)(struct DcmWorld *))
 {
@@ -28,10 +32,12 @@ struct DcmWorld *App_DcmWorld_Create(
     assert(world != NULL);
 
     world->heartbeat_monitor = heartbeat_monitor;
+    world->rgb_led_sequence  = rgb_led_sequence;
     world->brake_light       = brake_light;
     world->buzzer            = buzzer;
     world->imu               = imu;
     world->clock             = clock;
+    world->inverter_switches = inverter_switches;
 
     struct WaitSignalCallback buzzer_callback = { .function         = buzzer_complete_callback,
                                                   .wait_duration_ms = BUZZER_ON_DURATION_MS };
@@ -49,6 +55,11 @@ void App_DcmWorld_Destroy(struct DcmWorld *world)
 struct HeartbeatMonitor *App_DcmWorld_GetHeartbeatMonitor(const struct DcmWorld *const world)
 {
     return world->heartbeat_monitor;
+}
+
+struct RgbLedSequence *App_DcmWorld_GetRgbLedSequence(const struct DcmWorld *const world)
+{
+    return world->rgb_led_sequence;
 }
 
 struct BrakeLight *App_DcmWorld_GetBrakeLight(const struct DcmWorld *const world)
@@ -74,4 +85,9 @@ void App_DcmWorld_UpdateWaitSignal(const struct DcmWorld *const world, uint32_t 
 struct Clock *App_DcmWorld_GetClock(const struct DcmWorld *const world)
 {
     return world->clock;
+}
+
+struct InverterSwitches *App_DcmWorld_GetInverterSwitches(const struct DcmWorld *world)
+{
+    return world->inverter_switches;
 }

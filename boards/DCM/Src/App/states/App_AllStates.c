@@ -22,10 +22,11 @@ void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 
 bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    bool                     status      = true;
-    struct DcmWorld *        world       = App_SharedStateMachine_GetWorld(state_machine);
-    struct BrakeLight *      brake_light = App_DcmWorld_GetBrakeLight(world);
-    struct HeartbeatMonitor *hb_monitor  = App_DcmWorld_GetHeartbeatMonitor(world);
+    bool                     status            = true;
+    struct DcmWorld *        world             = App_SharedStateMachine_GetWorld(state_machine);
+    struct BrakeLight *      brake_light       = App_DcmWorld_GetBrakeLight(world);
+    struct InverterSwitches *inverter_switches = App_DcmWorld_GetInverterSwitches(world);
+    struct HeartbeatMonitor *hb_monitor        = App_DcmWorld_GetHeartbeatMonitor(world);
 
     App_SendAndReceiveHeartbeat(hb_monitor);
 
