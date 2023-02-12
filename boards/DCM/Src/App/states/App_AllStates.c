@@ -14,7 +14,10 @@ static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
     // JSONCAN -> App_CanTx_SetPeriodicSignal_MISSING_HEARTBEAT(can_tx, is_missing_hb);
 }
 
-void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine) {}
+void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
+{
+    UNUSED(state_machine);
+}
 
 bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
