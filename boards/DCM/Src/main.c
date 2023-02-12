@@ -38,6 +38,7 @@
 #include "Io_Buzzer.h"
 #include "Io_LSM6DS33.h"
 
+#include "App_CanUtils.h"
 #include "App_SharedMacros.h"
 #include "App_DcmWorld.h"
 #include "App_SharedStateMachine.h"
@@ -160,7 +161,6 @@ int main(void)
 
     App_CanTx_Init();
     App_CanRx_Init();
-    App_CanAlerts_Init(Io_CanTx_DCM_Alerts_SendAperiodic);
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
