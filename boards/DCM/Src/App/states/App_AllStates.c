@@ -1,3 +1,4 @@
+#include "App_SharedMacros.h"
 #include "states/App_FaultState.h"
 #include "states/App_AllStates.h"
 
@@ -16,19 +17,15 @@ static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
-    struct DcmWorld *      world            = App_SharedStateMachine_GetWorld(state_machine);
-    struct RgbLedSequence *rgb_led_sequence = App_DcmWorld_GetRgbLedSequence(world);
-
-    App_SharedRgbLedSequence_Tick(rgb_led_sequence);
+    UNUSED(state_machine);
 }
 
 bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    bool                     status            = true;
-    struct DcmWorld *        world             = App_SharedStateMachine_GetWorld(state_machine);
-    struct BrakeLight *      brake_light       = App_DcmWorld_GetBrakeLight(world);
-    struct InverterSwitches *inverter_switches = App_DcmWorld_GetInverterSwitches(world);
-    struct HeartbeatMonitor *hb_monitor        = App_DcmWorld_GetHeartbeatMonitor(world);
+    bool                     status      = true;
+    struct DcmWorld *        world       = App_SharedStateMachine_GetWorld(state_machine);
+    struct BrakeLight *      brake_light = App_DcmWorld_GetBrakeLight(world);
+    struct HeartbeatMonitor *hb_monitor  = App_DcmWorld_GetHeartbeatMonitor(world);
 
     App_SendAndReceiveHeartbeat(hb_monitor);
 
