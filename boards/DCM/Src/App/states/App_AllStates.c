@@ -1,3 +1,4 @@
+#include "App_SharedMacros.h"
 #include "states/App_FaultState.h"
 #include "states/App_AllStates.h"
 
