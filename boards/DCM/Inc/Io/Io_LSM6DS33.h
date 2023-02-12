@@ -8,7 +8,7 @@
  */
 
 #include <stdint.h>
-#include <stm32f3xx_hal.h>
+#include <stm32f4xx_hal.h>
 #include <stdbool.h>
 #include "App_SharedExitCode.h"
 
