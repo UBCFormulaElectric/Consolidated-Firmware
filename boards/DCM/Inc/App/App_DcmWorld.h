@@ -3,14 +3,12 @@
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_SharedHeartbeatMonitor.h"
-#include "App_SharedRgbLedSequence.h"
 #include "App_BrakeLight.h"
 #include "App_Buzzer.h"
 #include "App_BuzzerSignals.h"
 #include "App_Imu.h"
 #include "App_SharedClock.h"
 #include "App_SharedWaitSignal.h"
-#include "App_InverterSwitches.h"
 
 struct DcmWorld;
 
@@ -25,12 +23,10 @@ struct DcmWorld;
  */
 struct DcmWorld *App_DcmWorld_Create(
     struct HeartbeatMonitor *heartbeat_monitor,
-    struct RgbLedSequence *  rgb_led_sequence,
     struct BrakeLight *      brake_light,
     struct Buzzer *          buzzer,
     struct Imu *             imu,
     struct Clock *           clock,
-    struct InverterSwitches *inverter_switches,
     bool (*is_buzzer_on)(struct DcmWorld *),
     void (*buzzer_callback)(struct DcmWorld *));
 
@@ -46,13 +42,6 @@ void App_DcmWorld_Destroy(struct DcmWorld *world);
  * @return The heartbeat monitor for the given world
  */
 struct HeartbeatMonitor *App_DcmWorld_GetHeartbeatMonitor(const struct DcmWorld *world);
-
-/**
- * Get the RGB LED sequence for the given world
- * @param world The world to get RGB LED sequence for
- * @return The RGB LED sequence for the given world
- */
-struct RgbLedSequence *App_DcmWorld_GetRgbLedSequence(const struct DcmWorld *world);
 
 /**
  * Get the brake light for the given world
@@ -91,10 +80,3 @@ void App_DcmWorld_UpdateWaitSignal(const struct DcmWorld *world, uint32_t curren
  * @return The clock for the given world
  */
 struct Clock *App_DcmWorld_GetClock(const struct DcmWorld *world);
-
-/**
- * Get the inverter switches for the given world
- * @param world The world to get inverter switches from
- * @return The inverter switches for the given world
- */
-struct InverterSwitches *App_DcmWorld_GetInverterSwitches(const struct DcmWorld *world);
