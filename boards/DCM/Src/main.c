@@ -86,12 +86,10 @@ osStaticThreadDef_t Task100HzControlBlock;
 struct DcmWorld *        world;
 struct StateMachine *    state_machine;
 struct HeartbeatMonitor *heartbeat_monitor;
-struct RgbLedSequence *  rgb_led_sequence;
 struct BrakeLight *      brake_light;
 struct Buzzer *          buzzer;
 struct Imu *             imu;
 struct Clock *           clock;
-struct InverterSwitches *inverter_switches;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -178,8 +176,7 @@ int main(void)
     clock = App_SharedClock_Create();
 
     world = App_DcmWorld_Create(
-        heartbeat_monitor, rgb_led_sequence, brake_light, buzzer, imu, clock, inverter_switches, App_BuzzerSignals_IsOn,
-        App_BuzzerSignals_Callback);
+        heartbeat_monitor, brake_light, buzzer, imu, clock, App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
@@ -343,7 +340,7 @@ static void MX_IWDG_Init(void)
     /* USER CODE END IWDG_Init 1 */
     hiwdg.Instance       = IWDG;
     hiwdg.Init.Prescaler = IWDG_PRESCALER_4;
-    hiwdg.Init.Reload    = 4095;
+    hiwdg.Init.Reload    = LSI_FREQUENCY / IWDG_PRESCALER / IWDG_RESET_FREQUENCY;
     if (HAL_IWDG_Init(&hiwdg) != HAL_OK)
     {
         Error_Handler();
@@ -427,6 +424,7 @@ void RunTask1Hz(void const *argument)
     {
         Io_StackWaterMark_Check();
         App_SharedStateMachine_Tick1Hz(state_machine);
+        Io_CanTx_Enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
@@ -459,7 +457,7 @@ void RunTask1kHz(void const *argument)
 
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, task_start_ms);
         App_DcmWorld_UpdateWaitSignal(world, task_start_ms);
-        // Io_CanTx_EnqueuePeriodicMsgs(can_tx, task_start_ms); TODO: JSONCAN
+        Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep. Prevent check in if the elapsed period is greater or
@@ -534,6 +532,7 @@ void RunTask100Hz(void const *argument)
     for (;;)
     {
         App_SharedStateMachine_Tick100Hz(state_machine);
+        Io_CanTx_Enqueue100HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.
