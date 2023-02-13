@@ -121,6 +121,12 @@ SG_ EnableInverter : 40|1@1+ (1,0) [0|1] "" DEBUG,INVR
 SG_ EnableDischarge : 41|1@1+ (1,0) [0|1] "" DEBUG,INVR
 SG_ EnableSpeedMode : 42|1@1+ (1,0) [0|1] "" DEBUG,INVR
 SG_ TorqueLimit : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG,INVR
+BO_ 204 DCM_Warnings: 1 DCM
+SG_ StackWatermarkAboveThresholdTask1Hz : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTask1kHz : 1|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTaskCanRx : 2|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTaskCanTx : 3|1@1+ (1,0) [0|1] "" DEBUG
+SG_ WatchdogTimeout : 4|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 200 DCM_Alerts: 1 DCM
 SG_ DCM_ALERT_DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
@@ -557,6 +563,11 @@ BA_ "GenSigStartValue" SG_ 82 EnableInverter 0;
 BA_ "GenSigStartValue" SG_ 82 EnableDischarge 0;
 BA_ "GenSigStartValue" SG_ 82 EnableSpeedMode 0;
 BA_ "GenSigStartValue" SG_ 82 TorqueLimit -3276.8;
+BA_ "GenSigStartValue" SG_ 204 StackWatermarkAboveThresholdTask1Hz 0;
+BA_ "GenSigStartValue" SG_ 204 StackWatermarkAboveThresholdTask1kHz 0;
+BA_ "GenSigStartValue" SG_ 204 StackWatermarkAboveThresholdTaskCanRx 0;
+BA_ "GenSigStartValue" SG_ 204 StackWatermarkAboveThresholdTaskCanTx 0;
+BA_ "GenSigStartValue" SG_ 204 WatchdogTimeout 0;
 BA_ "GenSigStartValue" SG_ 200 DCM_ALERT_DUMMY 0;
 BA_ "GenSigStartValue" SG_ 502 Heartbeat 0;
 BA_ "GenSigStartValue" SG_ 502 State 0;
@@ -854,6 +865,7 @@ BA_ "GenMsgCycleTime" BO_ 120  100;
 BA_ "GenMsgCycleTime" BO_ 203  1000;
 BA_ "GenMsgCycleTime" BO_ 32  10;
 BA_ "GenMsgCycleTime" BO_ 82  10;
+BA_ "GenMsgCycleTime" BO_ 204  1000;
 BA_ "GenMsgCycleTime" BO_ 502  1000;
 BA_ "GenMsgCycleTime" BO_ 503  1000;
 BA_ "GenMsgCycleTime" BO_ 504  1000;

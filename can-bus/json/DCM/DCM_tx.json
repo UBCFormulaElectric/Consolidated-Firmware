@@ -112,5 +112,37 @@
                 "unit": "Nm"
             }
         }
+    },
+    "DCM_Warnings": {
+        "msg_id": 204,
+        "cycle_time": 1000,
+        "description": "Warning flags for DCM",
+        "signals": {
+            "StackWatermarkAboveThresholdTask1Hz": {
+                "bits": 1
+            },
+            "StackWatermarkAboveThresholdTask1kHz": {
+                "bits": 1
+            },
+            "StackWatermarkAboveThresholdTaskCanRx": {
+                "bits": 1
+            },
+            "StackWatermarkAboveThresholdTaskCanTx": {
+                "bits": 1
+            },
+            "WatchdogTimeout": {
+                "bits": 1
+            }
+        }
+    },
+    "DCM_WatchdogTimeout": {
+        "msg_id": 205,
+        "cycle_time": 1000,
+        "description": "placeholder",
+        "signals": {
+            "TaskName": {
+                "enum": "RtosTaskName"
+            }
+        }
     }
 }
