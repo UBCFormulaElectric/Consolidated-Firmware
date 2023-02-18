@@ -1,36 +1,142 @@
-#pragma once
-
+#include <assert.h>
+#include <stdlib.h>
 #include <stdbool.h>
-#include "App_SharedExitCode.h"
 
-// clang-format off
-// Enumeration for the status types
-enum Efuse_Status
-{
-    EFUSE_NO_FAULTS           = (0 << 0), // No faults on either channel
-    EFUSE_OUT0_ENABLED        = (1 << 0), // Channel 0 output is enabled
-    EFUSE_OUT1_ENABLED        = (1 << 1), // Channel 1 output is enabled
-    EFUSE_CHANNEL0_FAULT      = (1 << 2), // Fault on channel 0
-    EFUSE_CHANNEL1_FAULT      = (1 << 3), // Fault on channel 1
-    EFUSE_CHANNEL0_RETRY_FULL = (1 << 4), // Channel 0 auto-retry counter full
-    EFUSE_CHANNEL1_RETRY_FULL = (1 << 5), // Channel 1 auto-retry counter full
-    EFUSE_POWER_ON_RESET      = (1 << 6), // Power-on reset has occurred
-    EFUSE_UNDERVOLTAGE        = (1 << 7), // Under voltage fault
-    EFUSE_OVERVOLTAGE         = (1 << 8)  // Over voltage fault
-};
-
-// Enumeration for the fault types
-enum Efuse_Fault
-{
-    EFUSE_NO_FAULT            = (0 << 0), // No fault
-    EFUSE_OVERCURRENT         = (1 << 0), // Over current fault
-    EFUSE_SHORT_CIRCUIT       = (1 << 1), // Severe short circuit fault
-    EFUSE_OVERTEMP            = (1 << 2), // Over temperature fault
-    EFUSE_OUTPUT_SHORTED      = (1 << 3), // Output shorted to Vpwr fault
-    EFUSE_OPEN_LOAD_OFF_STATE = (1 << 4), // Open load detected in off state fault
-    EFUSE_OPEN_LOAD_ON_STATE  = (1 << 5), // Open load detected in on state fault
-    EFUSE_OVERTEMP_WARNING    = (1 << 8)  // Over temperature warning fault
-};
-// clang-format on
+#include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/Io/Io_Efuse.h"
 
 struct Efuse;
+struct Io_Efuse;
+
+/**
+ * @param io_efuse              Full Io_Efuse structure extraction
+ * @param enable_channel_0      A function that calls IO_function to enable channel_0
+ * @param disable_channel_0     A function that calls IO_function to disable channel_0
+ * @param enable_channel_1      A function that calls IO_function to enable channel_1
+ * @param disable_channel_1     A function that calls IO_function to enable channel_0
+ * @param is_channel_0_enabled  Bool checking if channel 0 is enabled
+ * @param is_channel_1_enabled  Bool checking if channel 1 is enabled
+ * @param get_channel_0_current A function that calls IO_function to retrieve channel_0 current
+ * @param get_channel_1_current A function that calls IO_function to retrieve channel_1 current
+ * @param channel_0_min_current Minimum current channel 0 can drop to.
+ * @param channel_0_max_current Maximum current channel 0 can reach.
+ * @param channel_1_min_current Minimum current channel 1 can drop to.
+ * @param channel_1_max_current Maximum current channel 1 can reach.
+ * @return Efuse structure
+ */
+struct Efuse *App_Efuse_Create(
+    struct Io_Efuse(*io_efuse),
+    void (*enable_channel_0)(struct Io_Efuse *),
+    void (*disable_channel_0)(struct Io_Efuse *),
+    void (*enable_channel_1)(struct Io_Efuse *),
+    void (*disable_channel_1)(struct Io_Efuse *),
+    bool (*is_channel_0_enabled)(struct Io_Efuse *),
+    bool (*is_channel_1_enabled)(struct Io_Efuse *),
+    void (*stdby_reset)(struct Io_Efuse *),
+    float (*get_channel_0_current)(struct Io_Efuse *),
+    float (*get_channel_1_current)(struct Io_Efuse *),
+    float channel_0_min_current,
+    float channel_0_max_current,
+    float channel_1_min_current,
+    float channel_1_max_current);
+
+void App_Efuse_Destroy(struct Efuse *efuse);
+
+/**
+ * Function to enable channel_0
+ * @param efuse App_Efuse structure
+ */
+void App_Efuse_EnableChannel0(struct Efuse *efuse);
+
+/**
+ * Function to disable channel_0
+ * @param efuse App_Efuse structure
+ */
+void App_Efuse_DisableChannel0(struct Efuse *efuse);
+
+/**
+ * Function to enable channel_1
+ * @param efuse App_Efuse structure
+ */
+void App_Efuse_EnableChannel1(struct Efuse *efuse);
+
+/**
+ * Function to disable channel_1
+ * @param efuse App_Efuse structure
+ */
+void App_Efuse_DisableChannel1(struct Efuse *efuse);
+
+/**
+ * Function that checks if channel_0 is enabled
+ * @param efuse
+ * @return true if channel_0 is enabled, false otherwise
+ */
+bool App_Efuse_IsChannel0Enabled(struct Efuse *efuse);
+
+/**
+ * Function that checks if channel_1 is enabled
+ * @param efuse
+ * @return true if channel_1 is enabled, false otherwise
+ */
+bool App_Efuse_IsChannel1Enabled(struct Efuse *efuse);
+
+/**
+ * Function to attempt to reset the Efuse
+ * @param efuse
+ */
+void App_Efuse_StandbyReset(struct Efuse *efuse);
+
+/**
+ * @param efuse
+ * @return The current value of channel_0
+ */
+float App_Efuse_GetChannel0Current(struct Efuse *efuse);
+
+/**
+ * @param efuse App_Efuse structure
+ * @return The current value of channel_1
+ */
+float App_Efuse_GetChannel1Current(struct Efuse *efuse);
+
+/**
+ *
+ * @param efuse
+ * @return true if current too low, false if good (channel0)
+ */
+bool App_Efuse_Channel0_CurrentLowCheck(struct Efuse *efuse);
+
+/**
+ *
+ * @param efuse
+ * @return true if current too high, false if good (channel0)
+ */
+bool App_Efuse_Channel0_CurrentHighCheck(struct Efuse *efuse);
+
+/**
+ *
+ * @param efuse
+ * @return true if current too high, false if good (channel0)
+ */
+bool App_Efuse_Channel1_CurrentLowCheck(struct Efuse *efuse);
+
+/**
+ *
+ * @param efuse
+ * @return true if current too high, false if good (channel1)
+ */
+bool App_Efuse_Channel1_CurrentHighCheck(struct Efuse *efuse);
+
+/**
+ * If current == 0 or current > max current, then it will go through this fault procedure function (channel0)
+ * @param efuse
+ * @param max_attempts max number of attempts allowed before faulting
+ * @return 0 if fine, 1 if timer is still running, 2 if channel failed
+ */
+int App_Efuse_FaultProcedure_Channel0(struct Efuse *efuse, int max_attempts);
+
+/**
+ * If current == 0 or current > max current, then it will go through this fault procedure function (channel1)
+ * @param efuse
+ * @param max_attempts max number of attempts allowed before faulting
+ * @return 0 if fine, 1 if timer is still running, 2 if channel failed
+ */
+int App_Efuse_FaultProcedure_Channel1(struct Efuse *efuse, int max_attempts);
