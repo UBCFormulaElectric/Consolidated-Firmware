@@ -1,3 +1,4 @@
+#include "torquevectoring/App_PID.h"
 #pragma once
 
 typedef struct PowerLimiting_Inputs {
@@ -33,3 +34,6 @@ typedef struct TractionControl_Outputs {
     float torque_left_final_Nm;
     float torque_right_final_Nm;
 } TractionControl_Outputs;
+
+void App_TorqueVectoring_Run(void);
+
