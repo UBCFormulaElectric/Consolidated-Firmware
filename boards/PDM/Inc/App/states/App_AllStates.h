@@ -1,6 +1,8 @@
 #pragma once
 
 #include "App_SharedStateMachine.h"
+#include "Io_VoltageSense.h"
+#include "Io_CurrentSense.h"
 
 /**
  * On-tick 1Hz function for every state in the given state machine

@@ -7,6 +7,7 @@
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"
 #include "App_LowVoltageBattery.h"
+#include "App_RailMonitoring.h"
 #include "App_SharedClock.h"
 
 struct PdmWorld;
