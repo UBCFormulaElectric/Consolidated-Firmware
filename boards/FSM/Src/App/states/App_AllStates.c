@@ -1,25 +1,17 @@
 #include "states/App_AllStates.h"
+#include "states/App_FaultState.h"
 #include "App_SharedConstants.h"
-#include "Io_PrimaryScancon2RMHF.h"
-#include "Io_SecondaryScancon2RMHF.h"
-#include "Io_AcceleratorPedals.h"
-#include "Io_Adc.h"
 
 #define TORQUE_LIMIT_OFFSET_NM (5.0f)
 #define MAX_TORQUE_PLAUSIBILITY_ERR_CNT (25) // 250 ms window
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
-    struct FsmWorld *      world            = App_SharedStateMachine_GetWorld(state_machine);
-    struct RgbLedSequence *rgb_led_sequence = App_FsmWorld_GetRgbLedSequence(world);
-    struct Brake *         brake            = App_FsmWorld_GetBrake(world);
+    struct FsmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
+    struct Brake *   brake = App_FsmWorld_GetBrake(world);
 
-    App_SharedRgbLedSequence_Tick(rgb_led_sequence);
-
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_BRAKE_PRESSURE_OPEN_OC(can_tx,
-    // App_Brake_IsPressureSensorOpenCircuit(brake));
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_BRAKE_PRESSURE_OPEN_SC(can_tx,
-    // App_Brake_IsPressureSensorShortCircuited(brake));
+    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_BRAKE_PRESSURE_OPEN_OCSC(can_tx,
+    // App_Brake_PressureElectricalFault(brake));
 }
 
 void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
@@ -50,13 +42,9 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     float fsm_torque_limit = 0; // TODO: JSONCAN -> App_CanTx_GetPeriodicSignal_FSM_TORQUE_LIMIT(can_tx);
     if (left_torque_req > fsm_torque_limit || right_torque_req > fsm_torque_limit)
-    {
         error_count++;
-    }
     else
-    {
         error_count = 0;
-    }
 
     if (error_count == MAX_TORQUE_PLAUSIBILITY_ERR_CNT)
     {
@@ -71,22 +59,6 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_FSM_TORQUE_LIMIT(can_tx, fsm_torque_limit);
 
     // Debug msgs, remove after testing
-    App_CanTx_SetPeriodicSignal_SAPPS(can_tx, (uint16_t)Io_SecondaryScancon2RMHF_GetEncoderCounter());
-    App_CanTx_SetPeriodicSignal_PAPPS(can_tx, (uint16_t)Io_PrimaryScancon2RMHF_GetEncoderCounter());
-
-    App_CanTx_SetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, Io_AcceleratorPedals_GetPapps());
-    // App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, Io_AcceleratorPedals_GetPapps());
-
-    // Get accelerometer angle in rad
-    App_CanTx_SetPeriodicSignal_PAPPS_ANGLE(can_tx, Io_AcceleratorPedals_GetAngle());
-    App_CanTx_SetPeriodicSignal_PAPPS_RAW_ADC(can_tx, Io_Adc_GetChannel1Voltage());
-
-
-    App_CanTx_SetPeriodicSignal_PAPPS(
-        can_tx, (uint16_t)App_AcceleratorPedals_GetPrimaryPedalPercentage(accelerator_pedals));
-    App_CanTx_SetPeriodicSignal_SAPPS(
-        can_tx, (uint16_t)App_AcceleratorPedals_GetSecondaryPedalPercentage(accelerator_pedals));
-
     // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_PAPPS(
     // can_tx, (uint16_t)App_AcceleratorPedals_GetPrimaryPedalPercentage(accelerator_pedals));
     // App_CanTx_SetPeriodicSignal_SAPPS(
@@ -95,8 +67,11 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     // App_CanTx_SetPeriodicSignal_PAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, App());
     // App_CanTx_SetPeriodicSignal_SAPPS_MAPPED_PEDAL_PERCENTAGE(can_tx, Io_AcceleratorPedals_GetPapps());
 
-    App_CanTx_SetPeriodicSignal_MISSING_HEARTBEAT(can_tx, !App_SharedHeartbeatMonitor_Tick(hb_monitor));
-
     // App_CanTx_SetPeriodicSignal_MISSING_HEARTBEAT(can_tx, !App_SharedHeartbeatMonitor_Tick(hb_monitor));
 
+    App_AcceleratorPedals_Broadcast(world);
+    App_Brake_Broadcast(world);
+    App_Coolant_Broadcast(world);
+    App_Steering_Broadcast(world);
+    App_Wheels_Broadcast(world);
 }

@@ -131,10 +131,10 @@ static float App_GetPedalPercentage_CountDown(
 */
 
 struct AcceleratorPedals *App_AcceleratorPedals_Create(
-        float (*get_primary_pedal_percent)(void),
-        bool (*primary_pedal_OCSC)(void),
-        float (*get_secondary_pedal_percent)(void),
-        bool (*secondary_pedal_OCSC)(void))
+    float (*get_primary_pedal_percent)(void),
+    bool (*primary_pedal_OCSC)(void),
+    float (*get_secondary_pedal_percent)(void),
+    bool (*secondary_pedal_OCSC)(void))
 {
     struct AcceleratorPedals *accelerator_pedals = malloc(sizeof(struct AcceleratorPedals));
     assert(accelerator_pedals != NULL);
@@ -145,7 +145,7 @@ struct AcceleratorPedals *App_AcceleratorPedals_Create(
     accelerator_pedals->secondary_pedal_OCSC        = secondary_pedal_OCSC;
 
     accelerator_pedals->app_agreement_signal =
-            App_SharedSignal_Create(AGREEMENT_TIME_TO_FAULT, AGREEMENT_TIME_TO_CLEAR);
+        App_SharedSignal_Create(AGREEMENT_TIME_TO_FAULT, AGREEMENT_TIME_TO_CLEAR);
     accelerator_pedals->papp_alarm_signal = App_SharedSignal_Create(PAPPS_OCSC_TIME_TO_FAULT, PAPPS_OCSC_TIME_TO_CLEAR);
     accelerator_pedals->sapp_alarm_signal = App_SharedSignal_Create(SAPPS_OCSC_TIME_TO_FAULT, SAPPS_OCSC_TIME_TO_CLEAR);
     accelerator_pedals->app_brake_signal  = App_SharedSignal_Create(APP_BRAKE_TIME_TO_FAULT, APP_BRAKE_TIME_TO_CLEAR);
@@ -184,7 +184,7 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
     // Open Short Circuit Tests (non-understandable data test)
     const bool  primary_pedal_ocsc = accelerator_pedals->primary_pedal_OCSC();
     SignalState papp_signal_state =
-            App_SharedSignal_Update(accelerator_pedals->papp_alarm_signal, primary_pedal_ocsc, !primary_pedal_ocsc);
+        App_SharedSignal_Update(accelerator_pedals->papp_alarm_signal, primary_pedal_ocsc, !primary_pedal_ocsc);
     // TODO: JSONCAN ->
     // uint8_t CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE =
     //    papp_signal_state == SIGNAL_STATE_ACTIVE ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_OCSC_IS_ACTIVE_TRUE_CHOICE
@@ -194,7 +194,7 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
     // CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE);
     const bool  secondary_pedal_ocsc = accelerator_pedals->secondary_pedal_OCSC();
     SignalState sapp_signal_state =
-            App_SharedSignal_Update(accelerator_pedals->sapp_alarm_signal, secondary_pedal_ocsc, !secondary_pedal_ocsc);
+        App_SharedSignal_Update(accelerator_pedals->sapp_alarm_signal, secondary_pedal_ocsc, !secondary_pedal_ocsc);
     // TODO: JSONCAN ->
     // uint8_t CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE =
     //    sapp_signal_state == SIGNAL_STATE_ACTIVE ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_OCSC_IS_ACTIVE_TRUE_CHOICE
@@ -212,9 +212,9 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
 
     // Primary Secondary Accelerator Agreement (Inaccurate data)
     const float papp_sapp_diff =
-            accelerator_pedals->get_primary_pedal_percent() - accelerator_pedals->get_secondary_pedal_percent();
+        accelerator_pedals->get_primary_pedal_percent() - accelerator_pedals->get_secondary_pedal_percent();
     SignalState app_agreement_signal_state = App_SharedSignal_Update(
-            accelerator_pedals->app_agreement_signal, (papp_sapp_diff) > 10.f, (papp_sapp_diff) <= 10.f);
+        accelerator_pedals->app_agreement_signal, (papp_sapp_diff) > 10.f, (papp_sapp_diff) <= 10.f);
     // TODO: JSONCAN ->
     // uint8_t CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT =
     //    app_agreement_signal_state == SIGNAL_STATE_ACTIVE
@@ -227,9 +227,9 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
     // Accelerator Brake Plausibility (bad user input safety issues)
     struct Brake *brake                  = App_FsmWorld_GetBrake(world);
     SignalState   app_brake_disagreement = App_SharedSignal_Update(
-            accelerator_pedals->app_brake_signal,
-            App_Brake_IsBrakeActuated(brake) && accelerator_pedals->get_primary_pedal_percent() > 25,
-            accelerator_pedals->get_primary_pedal_percent() < 5);
+        accelerator_pedals->app_brake_signal,
+        App_Brake_IsBrakeActuated(brake) && accelerator_pedals->get_primary_pedal_percent() > 25,
+        accelerator_pedals->get_primary_pedal_percent() < 5);
 
     // TODO: JSONCAN ->
     if (app_brake_disagreement == SIGNAL_STATE_ACTIVE)
