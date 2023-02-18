@@ -1,4 +1,5 @@
 #include "App_Efuse.h"
+#include "App_Timer.h"
 
 #define EFUSE_CURRENT_THRESHOLD (0.1f)
 

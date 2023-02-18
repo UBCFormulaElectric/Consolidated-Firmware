@@ -1,8 +1,6 @@
 
-#include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/states/App_AllStates.h"
-#include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/states/App_InitState.h"
-#include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/states/App_FaultState.h"
-#include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/states/App_DriveState.h"
+#include "states/App_AllStates.h"
+#include "states/App_DriveState.h"
 #include "App_SharedMacros.h"
 
 static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
