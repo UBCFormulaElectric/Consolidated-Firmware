@@ -1,8 +1,8 @@
 #include <assert.h>
 #include <malloc.h>
 #include <stdbool.h>
-#include "/home/formulae/Documents/Consolidated-Firmware/boards/PDM/Inc/App/configs/App_VoltageLimits.h"
-#include "../../Inc/App/App_RailMonitoring.h"
+#include "configs/App_VoltageLimits.h"
+#include "App/App_RailMonitoring.h"
 
 struct RailMonitoring
 {
