@@ -88,6 +88,7 @@
         },
         "setuptools": {
             "hashes": [
+<<<<<<< HEAD
                 "sha256:95f00380ef2ffa41d9bba85d95b27689d923c93dfbafed4aecd7cf988a25e012",
                 "sha256:bb6d8e508de562768f2027902929f8523932fcd1fb784e6d573d2cafac995a48"
             ],
@@ -101,6 +102,13 @@
             ],
             "index": "pypi",
             "version": "==0.4.9"
+=======
+                "sha256:16ccf598aab3b506593c17378473978908a2734d7336755a8769b480906bec1c",
+                "sha256:b440ee5f7e607bb8c9de15259dba2583dd41a38879a7abc1d43a71c59524da48"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==67.2.0"
+>>>>>>> b142ef7 (first re-work)
         },
         "textparser": {
             "hashes": [
@@ -191,6 +199,7 @@
     "develop": {
         "astroid": {
             "hashes": [
+<<<<<<< HEAD
                 "sha256:0e0e3709d64fbffd3037e4ff403580550f14471fd3eaae9fa11cc9a5c7901153",
                 "sha256:a3cf9f02c53dd259144a7e8f3ccd75d67c9a8c716ef183e0c1f291bc5d7bb3cf"
             ],
@@ -204,6 +213,13 @@
             ],
             "markers": "sys_platform == 'win32'",
             "version": "==0.4.6"
+=======
+                "sha256:23c718921acab5f08cbbbe9293967f1f8fec40c336d19cd75dc12a9ea31d2eb2",
+                "sha256:bd1aa4f9915c98e8aaebcd4e71930154d4e8c9aaf05d35ac0a63d1956091ae3f"
+            ],
+            "markers": "python_full_version >= '3.7.2'",
+            "version": "==2.14.1"
+>>>>>>> b142ef7 (first re-work)
         },
         "dill": {
             "hashes": [
@@ -215,11 +231,19 @@
         },
         "isort": {
             "hashes": [
+<<<<<<< HEAD
                 "sha256:6be1f76a507cb2ecf16c7cf14a37e41609ca082330be4e3436a18ef74add55db",
                 "sha256:ba1d72fb2595a01c7895a5128f9585a5cc4b6d395f1c8d514989b9a7eb2a8746"
             ],
             "markers": "python_version >= '3.7'",
             "version": "==5.11.5"
+=======
+                "sha256:8bef7dde241278824a6d83f44a544709b065191b95b6e50894bdc722fcba0504",
+                "sha256:f84c2818376e66cf843d497486ea8fed8700b340f308f076c6fb1229dff318b6"
+            ],
+            "markers": "python_full_version >= '3.8.0'",
+            "version": "==5.12.0"
+>>>>>>> b142ef7 (first re-work)
         },
         "lazy-object-proxy": {
             "hashes": [
@@ -281,12 +305,20 @@
         },
         "pylint": {
             "hashes": [
+<<<<<<< HEAD
 
                 "sha256:13b2c805a404a9bf57d002cd5f054ca4d40b0b87542bdaba5e05321ae8262c84",
                 "sha256:ff22dde9c2128cd257c145cfd51adeff0be7df4d80d669055f24a962b351bbe4"
             ],
             "index": "pypi",
             "version": "==2.16.2"
+=======
+                "sha256:bad9d7c36037f6043a1e848a43004dfd5ea5ceb05815d713ba56ca4503a9fe37",
+                "sha256:ffe7fa536bb38ba35006a7c8a6d2efbfdd3d95bbf21199cad31f76b1c50aaf30"
+            ],
+            "index": "pypi",
+            "version": "==2.16.1"
+>>>>>>> b142ef7 (first re-work)
         },
         "tomli": {
             "hashes": [

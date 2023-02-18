@@ -3,7 +3,11 @@ NS_:
 BS_:
 
 
+<<<<<<< HEAD
 BU_: BMS DCM DIM FSM GSM INVL INVR PDM DEBUG
+=======
+BU_: DIM BMS DCM GSM FSM PDM DEBUG
+>>>>>>> b142ef7 (first re-work)
 
 
 BO_ 502 DIM_Vitals: 1 DIM
@@ -164,6 +168,7 @@ SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
 BO_ 300 FSM_Alerts: 1 FSM
 SG_ PDM_ALERT_DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
 
+<<<<<<< HEAD
 BO_ 603 GSM_Test1: 1 GSM
 SG_ Ex1 : 0|1@1+ (1,0) [0|1] "" DEBUG
 
@@ -468,6 +473,8 @@ SG_ Data : 32|16@1+ (1,0) [0|65535] "" DEBUG
 
 BO_ 99 INVR_Alerts: 0 INVR
 
+=======
+>>>>>>> b142ef7 (first re-work)
 BO_ 402 PDM_Vitals: 1 PDM
 SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
 SG_ State : 1|1@1+ (1,0) [0|0] "" DEBUG,BMS
@@ -586,6 +593,7 @@ BA_ "GenSigStartValue" SG_ 82 TorqueLimit -3276.8;
 BA_ "GenSigStartValue" SG_ 200 DCM_ALERT_DUMMY 0;
 BA_ "GenSigStartValue" SG_ 603 Ex1 0;
 BA_ "GenSigStartValue" SG_ 600 GSM_ALERT_DUMMY 0;
+<<<<<<< HEAD
 BA_ "GenSigStartValue" SG_ 0 ModuleATemperature -3276.8;
 BA_ "GenSigStartValue" SG_ 0 ModuleBTemperature -3276.8;
 BA_ "GenSigStartValue" SG_ 0 ModuleCTemperature -3276.8;
@@ -828,6 +836,10 @@ BA_ "GenSigStartValue" SG_ 83 Data 0;
 BA_ "GenSigStartValue" SG_ 84 ParameterAddress 0;
 BA_ "GenSigStartValue" SG_ 84 WriteSuccess 0;
 BA_ "GenSigStartValue" SG_ 84 Data 0;
+=======
+BA_ "GenSigStartValue" SG_ 303 Heartbeat 0;
+BA_ "GenSigStartValue" SG_ 300 PDM_ALERT_DUMMY 0;
+>>>>>>> b142ef7 (first re-work)
 BA_ "GenSigStartValue" SG_ 402 Heartbeat 0;
 BA_ "GenSigStartValue" SG_ 402 State 0;
 BA_ "GenSigStartValue" SG_ 403 TxOverflowCount 0;
@@ -865,6 +877,7 @@ BA_ "GenMsgCycleTime" BO_ 117  100;
 BA_ "GenMsgCycleTime" BO_ 118  100;
 BA_ "GenMsgCycleTime" BO_ 120  100;
 BA_ "GenMsgCycleTime" BO_ 203  1000;
+<<<<<<< HEAD
 BA_ "GenMsgCycleTime" BO_ 32  10;
 BA_ "GenMsgCycleTime" BO_ 82  10;
 BA_ "GenMsgCycleTime" BO_ 502  1000;
@@ -894,6 +907,10 @@ BA_ "GenMsgCycleTime" BO_ 60  10;
 BA_ "GenMsgCycleTime" BO_ 61  10;
 BA_ "GenMsgCycleTime" BO_ 62  10;
 BA_ "GenMsgCycleTime" BO_ 66  3;
+=======
+BA_ "GenMsgCycleTime" BO_ 603  1000;
+BA_ "GenMsgCycleTime" BO_ 303  1000;
+>>>>>>> b142ef7 (first re-work)
 BA_ "GenMsgCycleTime" BO_ 402  1000;
 BA_ "GenMsgCycleTime" BO_ 403  1000;
 
@@ -904,6 +921,7 @@ VAL_ 503 AuxSwitch 0 "SWITCH_OFF" 1 "SWITCH_ON";
 VAL_ 505 TaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
 VAL_ 100 CurrentState 0 "BMS_INIT_STATE" 1 "BMS_PRECHARGE_STATE" 2 "BMS_CHARGE_STATE" 3 "BMS_DRIVE_STATE" 4 "BMS_FAULT_STATE";
 VAL_ 103 TaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
+<<<<<<< HEAD
 VAL_ 104 WatchdogTimeoutTaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
 VAL_ 112 AirPositive 0 "CONTACTOR_STATE_OPEN" 1 "CONTACTOR_STATE_CLOSED";
 VAL_ 112 AirNegative 0 "CONTACTOR_STATE_OPEN" 1 "CONTACTOR_STATE_CLOSED";
@@ -928,6 +946,11 @@ VAL_ 60 InverterCommandMode 0 "INVERTER_CAN_MODE" 1 "INVERTER_VSM_MODE";
 VAL_ 60 InverterLockoutEnabled 0 "INVERTER_LOCKOUT_UNLOCKED" 1 "INVERTER_LOCKOUT_LOCKED";
 VAL_ 60 DirectionCommand 0 "INVERTER_REVERSE_DIRECTION" 1 "INVERTER_FORWARD_DIRECTION";
 VAL_ 83 ReadWriteCommand 0 "INVERTER_READ_COMMAND" 1 "INVERTER_WRITE_COMMAND";
+=======
+VAL_ 112 AirPositive 0 "CONTACTOR_STATE_OPEN" 1 "CONTACTOR_STATE_CLOSED";
+VAL_ 112 AirNegative 0 "CONTACTOR_STATE_OPEN" 1 "CONTACTOR_STATE_CLOSED";
+VAL_ 112 PrechargeRelay 0 "CONTACTOR_STATE_OPEN" 1 "CONTACTOR_STATE_CLOSED";
+>>>>>>> b142ef7 (first re-work)
 VAL_ 402 State 0 "PDM_STATE_DRIVE";
 VAL_ 403 WatchdogTimeoutTaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
 
