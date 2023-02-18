@@ -183,22 +183,17 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
     const bool  primary_pedal_ocsc = accelerator_pedals->primary_pedal_OCSC();
     SignalState papp_signal_state =
         App_SharedSignal_Update(accelerator_pedals->papp_alarm_signal, primary_pedal_ocsc, !primary_pedal_ocsc);
-    // TODO: JSONCAN ->
-    // uint8_t CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE =
-    //   papp_signal_state == SIGNAL_STATE_ACTIVE ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_OCSC_IS_ACTIVE_TRUE_CHOICE
-    //                                            :
-    //                                            CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_OCSC_IS_ACTIVE_FALSE_CHOICE;
-    // App_CanTx_SetPeriodicSignal_PAPPS_OCSC_IS_ACTIVE(can_tx,CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_PAPPS_ALARM_IS_ACTIVE);
+    uint8_t PappsAlarmEnum =
+        papp_signal_state == SIGNAL_STATE_ACTIVE ? PAPPS_OCSC_IS_ACTIVE_TRUE_CHOICE : PAPPS_OCSC_IS_ACTIVE_FALSE_CHOICE;
+    App_CanTx_FSM_MotorShutdownErrors_PappsOCSCIsActive_Set(PappsAlarmEnum);
+
     const bool  secondary_pedal_ocsc = accelerator_pedals->secondary_pedal_OCSC();
     SignalState sapp_signal_state =
         App_SharedSignal_Update(accelerator_pedals->sapp_alarm_signal, secondary_pedal_ocsc, !secondary_pedal_ocsc);
-    // TODO: JSONCAN ->
-    // uint8_t CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE =
-    //    sapp_signal_state == SIGNAL_STATE_ACTIVE ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_OCSC_IS_ACTIVE_TRUE_CHOICE
-    //                                             :
-    //                                             CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_OCSC_IS_ACTIVE_FALSE_CHOICE;
-    // App_CanTx_SetPeriodicSignal_SAPPS_OCSC_IS_ACTIVE(can_tx,
-    // CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_SAPPS_ALARM_IS_ACTIVE);
+    uint8_t SappsAlarmEnum =
+        sapp_signal_state == SIGNAL_STATE_ACTIVE ? SAPPS_OCSC_IS_ACTIVE_TRUE_CHOICE : SAPPS_OCSC_IS_ACTIVE_FALSE_CHOICE;
+    App_CanTx_FSM_MotorShutdownErrors_SappsOCSCIsActive_Set(SappsAlarmEnum);
+
     // torque 0
     if (papp_signal_state == SIGNAL_STATE_ACTIVE || sapp_signal_state == SIGNAL_STATE_ACTIVE)
     {
@@ -211,14 +206,15 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
         accelerator_pedals->get_primary_pedal_percent() - accelerator_pedals->get_secondary_pedal_percent();
     SignalState app_agreement_signal_state = App_SharedSignal_Update(
         accelerator_pedals->app_agreement_signal, (papp_sapp_diff) > 10.f, (papp_sapp_diff) <= 10.f);
-    // TODO: JSONCAN ->
-    // uint8_t CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT =
-    //    app_agreement_signal_state == SIGNAL_STATE_ACTIVE
-    //        ? CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_TRUE_CHOICE
-    //        : CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT_FALSE_CHOICE;
-    // App_CanTx_SetPeriodicSignal_APPS_HAS_DISAGREEMENT(can_tx,
-    // CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_APPS_HAS_DISAGREEMENT); if (app_agreement_signal_state == SIGNAL_STATE_ACTIVE)
-    //    App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
+    uint8_t AppsDisagreementEnum = app_agreement_signal_state == SIGNAL_STATE_ACTIVE
+                                       ? APPS_HAS_DISAGREEMENT_TRUE_CHOICE
+                                       : APPS_HAS_DISAGREEMENT_FALSE_CHOICE;
+    App_CanTx_FSM_MotorShutdownErrors_AppsDisagreementIsActive_Set(AppsDisagreementEnum);
+    if (app_agreement_signal_state == SIGNAL_STATE_ACTIVE)
+    {
+        App_CanTx_FSM_APPs_PappsMappedPedalPercentage_Set(0.0f);
+        App_CanTx_FSM_APPs_SappsMappedPedalPercentage_Set(0.0f);
+    }
 
     // Accelerator Brake Plausibility (bad user input safety issues)
     struct Brake *brake                  = App_FsmWorld_GetBrake(world);
@@ -227,16 +223,12 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
         App_Brake_IsBrakeActuated(brake) && accelerator_pedals->get_primary_pedal_percent() > 25,
         accelerator_pedals->get_primary_pedal_percent() < 5);
 
-    // TODO: JSONCAN ->
+    uint8_t BrakeAccDisagreementEnum = app_brake_disagreement == SIGNAL_STATE_ACTIVE
+                                           ? BRAKE_ACC_DISAGREEMENT_TRUE_CHOICE
+                                           : BRAKE_ACC_DISAGREEMENT_FALSE_CHOICE;
+    App_CanTx_FSM_Errors_BrakeAccDisagreement_Set(BrakeAccDisagreementEnum);
     if (app_brake_disagreement == SIGNAL_STATE_ACTIVE)
     {
-        // App_CanTx_SetPeriodicSignal_BRAKE_ACC_DISAGREEMENT(
-        //    can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_BRAKE_ACC_DISAGREEMENT_TRUE_CHOICE);
-        // App_CanTx_SetPeriodicSignal_MAPPED_PEDAL_PERCENTAGE(can_tx, 0.0f);
-    }
-    else
-    {
-        // App_CanTx_SetPeriodicSignal_BRAKE_ACC_DISAGREEMENT(
-        //    can_tx, CANMSGS_FSM_MOTOR_SHUTDOWN_ERRORS_BRAKE_ACC_DISAGREEMENT_FALSE_CHOICE);
+        App_CanTx_FSM_APPs_PappsMappedPedalPercentage_Set(0.0f);
     }
 }

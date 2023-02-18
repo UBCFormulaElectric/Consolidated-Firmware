@@ -6,7 +6,7 @@
 #include "App_InRangeCheck.h"
 #include "App_SharedSetPeriodicCanSignals.h"
 
-// STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK(FsmCanTxInterface)
+//STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK
 
 struct Steering
 {
@@ -39,20 +39,16 @@ void App_Steering_Broadcast(const struct FsmWorld *world)
 
     App_CanTx_FSM_Steering_SteeringAngle_Set(steering->get_steering_angle());
 
-    bool steering_sensor_ocsc = steering->steering_sensor_OCSC();
-    // TODO: JSONCAN ->
-    // uint8_t CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC =
-    //    steering_sensor_ocsc ? CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC_TRUE_CHOICE
-    //                         : CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC_FALSE_CHOICE;
-    // App_CanTx_SetPeriodicSignal_STEERING_SENSOR_OCSC(can_tx, CANMSGS_FSM_STEERING_ANGLE_SENSOR_STEERING_SENSOR_OCSC);
+    bool    steering_sensor_ocsc = steering->steering_sensor_OCSC();
+    uint8_t SteeringAngleOCSCEnum =
+        steering_sensor_ocsc ? STEERING_SENSOR_OCSC_TRUE_CHOICE : STEERING_SENSOR_OCSC_FALSE_CHOICE;
+    App_CanTx_FSM_Errors_SteeringAngleSensorOCSC_Set(SteeringAngleOCSCEnum);
     if (steering_sensor_ocsc)
         App_CanTx_FSM_Steering_SteeringAngle_Set(0);
 
     struct InRangeCheck *steering_angle_in_range_check = steering->steering_angle_in_range_check;
-    // App_SetPeriodicCanSignals_InRangeCheck(
-    //    can_tx, steering_angle_in_range_check, App_CanTx_SetPeriodicSignal_STEERING_ANGLE,
-    //    App_CanTx_SetPeriodicSignal_STEERING_ANGLE_OUT_OF_RANGE,
-    //    CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_OK_CHOICE,
-    //    CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_WIDELEFT_CHOICE,
-    //    CANMSGS_FSM_NON_CRITICAL_ERRORS_STEERING_ANGLE_OUT_OF_RANGE_WIDERIGHT_CHOICE);
+    App_SetPeriodicCanSignals_InRangeCheck_float(
+        steering_angle_in_range_check, App_CanTx_FSM_Steering_SteeringAngle_Set,
+        (void (*)(uint8_t))App_CanTx_FSM_Errors_SteeringAngleOutOfRange_Set, STEERING_ANGLE_OUT_OF_RANGE_OK_CHOICE,
+        STEERING_ANGLE_OUT_OF_RANGE_WIDELEFT_CHOICE, STEERING_ANGLE_OUT_OF_RANGE_WIDERIGHT_CHOICE);
 }
