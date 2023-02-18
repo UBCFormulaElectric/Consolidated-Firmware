@@ -220,30 +220,31 @@ TEST_F(DcmStateMachineTest, check_fault_state_is_broadcasted_over_can)
     // EXPECT_EQ(CANMSGS_DCM_STATE_MACHINE_STATE_FAULT_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
 }
 
-TEST_F(DcmStateMachineTest, rgb_led_sequence_in_all_states)
-{
-    unsigned int *call_counts[] = { &turn_on_red_led_fake.call_count, &turn_on_green_led_fake.call_count,
-                                    &turn_on_blue_led_fake.call_count };
+// No RGB control, only led
+// TEST_F(DcmStateMachineTest, rgb_led_sequence_in_all_states)
+// {
+//     unsigned int *call_counts[] = { &turn_on_red_led_fake.call_count, &turn_on_green_led_fake.call_count,
+//                                     &turn_on_blue_led_fake.call_count };
 
-    for (auto &state : GetAllStates())
-    {
-        SetInitialState(state);
+//     for (auto &state : GetAllStates())
+//     {
+//         SetInitialState(state);
 
-        RESET_FAKE(turn_on_red_led);
-        RESET_FAKE(turn_on_green_led);
-        RESET_FAKE(turn_on_blue_led);
+//         RESET_FAKE(turn_on_red_led);
+//         RESET_FAKE(turn_on_green_led);
+//         RESET_FAKE(turn_on_blue_led);
 
-        // Verify that we cycle through red, green, blue, red, etc for 99 times.
-        // The number 99 can be changed to any other number that is a multiple
-        // of 3. The significance of 3 is because we have 3 colors (Red, green,
-        // and blue).
-        for (size_t i = 0; i < 99; i++)
-        {
-            LetTimePass(state_machine, 1000);
-            ASSERT_EQ(*call_counts[i % 3], i / 3 + 1);
-        }
-    }
-}
+//         // Verify that we cycle through red, green, blue, red, etc for 99 times.
+//         // The number 99 can be changed to any other number that is a multiple
+//         // of 3. The significance of 3 is because we have 3 colors (Red, green,
+//         // and blue).
+//         for (size_t i = 0; i < 99; i++)
+//         {
+//             LetTimePass(state_machine, 1000);
+//             ASSERT_EQ(*call_counts[i % 3], i / 3 + 1);
+//         }
+//     }
+// }
 
 // DCM-16
 /*TEST_F(DcmStateMachineTest, zero_torque_request_in_fault_state)
