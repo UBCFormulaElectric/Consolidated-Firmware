@@ -42,7 +42,6 @@ void Efuse_Currents_CANTX(struct Efuse *efuse1, struct Efuse *efuse2, struct Efu
     App_CanTx_PDM_Efuse3_Currents_RIGHT_INVERTER_Current_Set(App_Efuse_GetChannel1Current(efuse3));
     App_CanTx_PDM_Efuse4_Currents_DRS_Current_Set(App_Efuse_GetChannel0Current(efuse4));
     App_CanTx_PDM_Efuse4_Currents_FAN_Current_Set(App_Efuse_GetChannel1Current(efuse4));
-
 }
 
 void HeartbeatCheck(struct HeartbeatMonitor *hb_monitor)
