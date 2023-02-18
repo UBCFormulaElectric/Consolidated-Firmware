@@ -1,3 +1,15 @@
 {
-    
+    "DcmState": {
+        "DCM_INIT_STATE": 0,
+        "DCM_FAULT_STATE": 1,
+        "DCM_DRIVE_STATE": 2
+      },
+    "InvlEnable":{
+        "INVL_COMMAND_MESSAGE_INVERTER_ENABLE_INVL_ON_CHOICE": 0,
+        "INVL_COMMAND_MESSAGE_INVERTER_ENABLE_INVL_OFF_CHOICE": 1
+      },
+    "InvrEnable":{
+      "INVR_COMMAND_MESSAGE_INVERTER_ENABLE_INVR_ON_CHOICE": 0,
+      "INVR_COMMAND_MESSAGE_INVERTER_ENABLE_INVR_OFF_CHOICE": 1
+    }
 }

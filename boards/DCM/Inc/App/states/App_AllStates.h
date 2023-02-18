@@ -9,13 +9,15 @@
  */
 static inline bool App_HasInverterFault(void)
 {
-    // TODO: JSONCAN
     // return App_CanRx_INVL_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVL(can_rx_interface) ==
     //            CANMSGS_INVL_INTERNAL_STATES_D1_VSM_STATE_INVL_BLINK_FAULT_CODE_STATE_CHOICE ||
     //        App_CanRx_INVR_INTERNAL_STATES_GetSignal_D1_VSM_STATE_INVR(can_rx_interface) ==
     //            CANMSGS_INVR_INTERNAL_STATES_D1_VSM_STATE_INVR_BLINK_FAULT_CODE_STATE_CHOICE;
+    //TODO check
+    return App_CanRx_INVL_InternalStates_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE || 
+           App_CanRx_INVR_InternalStates_VsmState_Get() == INVERTER_VSM_BLINK_FAULT_CODE_STATE;
 
-    return false;
+    // return false;
 }
 
 /**
@@ -25,18 +27,20 @@ static inline bool App_HasInverterFault(void)
  */
 static inline bool App_IsStartSwitchOn(void)
 {
-    // TODO: JSONCAN
+    //TODO check
     // return App_CanRx_DIM_SWITCHES_GetSignal_START_SWITCH(can_rx_interface) ==
     //        CANMSGS_DIM_SWITCHES_START_SWITCH_ON_CHOICE;
+    return App_CanRx_DIM_Switches_StartSwitch_Get() == SWITCH_ON;
+
 
     return false;
 }
 
 static inline bool App_IsBmsInDriveState(void)
 {
-    // TODO: JSONCAN
+    //TODO check
     // return App_CanRx_BMS_STATE_MACHINE_GetSignal_STATE(can_rx) == CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE;
-    return false;
+    return App_CanRx_BMS_Vitals_CurrentState_Get() == BMS_DRIVE_STATE;
 }
 
 /**
