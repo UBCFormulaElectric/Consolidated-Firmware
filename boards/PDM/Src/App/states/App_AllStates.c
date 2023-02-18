@@ -21,10 +21,10 @@ void Rail_Voltages_CANTX(struct RailMonitoring *rail_monitor)
     App_CanTx_PDM_VBAT_LOW_Set(App_RailMonitoring_VBAT_VoltageLowCheck(rail_monitor));
     App_CanTx_PDM_VBAT_HIGH_Set(App_RailMonitoring_VBAT_VoltageHighCheck(rail_monitor));
 
-    App_CanTx_PDM__22V_AUX_Voltage_Set(App_RailMonitoring_Get__22V_AUX_Voltage(rail_monitor));
-    App_CanTx_PDM__22V_AUX_Critical_Set(App_RailMonitoring__22V_AUX_VoltageCriticalCheck(rail_monitor));
-    App_CanTx_PDM__22V_AUX_LOW_Set(App_RailMonitoring__22V_AUX_VoltageLowCheck(rail_monitor));
-    App_CanTx_PDM__22V_AUX_HIGH_Set(App_RailMonitoring__22V_AUX_VoltageHighCheck(rail_monitor));
+    App_CanTx_PDM__24V_ACC_Voltage_Set(App_RailMonitoring_Get__24V_ACC_Voltage(rail_monitor));
+    App_CanTx_PDM__24V_ACC_Critical_Set(App_RailMonitoring__24V_ACC_VoltageCriticalCheck(rail_monitor));
+    App_CanTx_PDM__24V_ACC_LOW_Set(App_RailMonitoring__24V_ACC_VoltageLowCheck(rail_monitor));
+    App_CanTx_PDM__24V_ACC_HIGH_Set(App_RailMonitoring__24V_ACC_VoltageHighCheck(rail_monitor));
 
     App_CanTx_PDM__22V_AUX_Voltage_Set(App_RailMonitoring_Get__22V_AUX_Voltage(rail_monitor));
     App_CanTx_PDM__22V_AUX_Critical_Set(App_RailMonitoring__22V_AUX_VoltageCriticalCheck(rail_monitor));
@@ -42,24 +42,7 @@ void Efuse_Currents_CANTX(struct Efuse *efuse1, struct Efuse *efuse2, struct Efu
     App_CanTx_PDM_Efuse3_Currents_RIGHT_INVERTER_Current_Set(App_Efuse_GetChannel1Current(efuse3));
     App_CanTx_PDM_Efuse4_Currents_DRS_Current_Set(App_Efuse_GetChannel0Current(efuse4));
     App_CanTx_PDM_Efuse4_Currents_FAN_Current_Set(App_Efuse_GetChannel1Current(efuse4));
-    /*
-        App_CanTx_PDM_Efuse_Current_Checks_AIR_Current_IN_RANGE_CHECK_Set(
-            App_Efuse_Channel0_CurrentLowCheck(efuse1) || App_Efuse_Channel0_CurrentHighCheck(efuse1));
-        App_CanTx_PDM_Efuse_Current_Checks_LVPWR_Current_IN_RANGE_CHECK_Set(
-            App_Efuse_Channel1_CurrentLowCheck(efuse1) || App_Efuse_Channel1_CurrentHighCheck(efuse1));
-        App_CanTx_PDM_Efuse_Current_Checks_EMETER_Current_IN_RANGE_CHECK_Set(
-            App_Efuse_Channel0_CurrentLowCheck(efuse2) || App_Efuse_Channel0_CurrentHighCheck(efuse2));
-        App_CanTx_PDM_Efuse_Current_Checks_AUX_Current_IN_RANGE_CHECK_Set(
-            App_Efuse_Channel1_CurrentLowCheck(efuse2) || App_Efuse_Channel1_CurrentHighCheck(efuse2));
-        App_CanTx_PDM_Efuse_Current_Checks_LEFT_INVERTER_Current_IN_RANGE_CHECK_Set(
-            App_Efuse_Channel0_CurrentLowCheck(efuse3) || App_Efuse_Channel0_CurrentHighCheck(efuse3));
-        App_CanTx_PDM_Efuse_Current_Checks_RIGHT_INVERTER_IN_RANGE_CHECK_Set(
-            App_Efuse_Channel1_CurrentLowCheck(efuse3) || App_Efuse_Channel1_CurrentHighCheck(efuse3));
-        App_CanTx_PDM_Efuse_Current_Checks_DRS_IN_RANGE_CHECK_Set(
-            App_Efuse_Channel0_CurrentLowCheck(efuse4) || App_Efuse_Channel0_CurrentHighCheck(efuse4));
-        App_CanTx_PDM_Efuse_Current_Checks_FAN_Current_IN_RANGE_CHECK_Set(
-            App_Efuse_Channel1_CurrentLowCheck(efuse4) || App_Efuse_Channel1_CurrentHighCheck(efuse4));
-    */
+
 }
 
 void HeartbeatCheck(struct HeartbeatMonitor *hb_monitor)
