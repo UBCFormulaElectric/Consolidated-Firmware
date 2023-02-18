@@ -98,12 +98,6 @@ struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
 struct LowVoltageBattery *low_voltage_battery;
 struct Clock *            clock;
-struct Efuse *            efuse1;
-struct Efuse *            efuse2;
-struct Efuse *            efuse3;
-struct Efuse *            efuse4;
-struct RailMonitoring *   rail_monitor;
-
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -184,7 +178,6 @@ int main(void)
     App_CanRx_Init();
     App_CanAlerts_Init(Io_CanTx_PDM_Alerts_SendAperiodic);
 
-
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
 
@@ -194,10 +187,6 @@ int main(void)
     low_voltage_battery = App_LowVoltageBattery_Create(Io_LT3650_HasFault, Io_LTC3786_HasFault);
 
     clock = App_SharedClock_Create();
-
-    rail_monitor = App_RailMonitoring_Create(Io_VoltageSense_GetVbatVoltage, Io_VoltageSense_Get24vAccVoltage, Io_VoltageSense_Get24vAuxVoltage);
-
-    world = App_PdmWorld_Create(heartbeat_monitor, rgb_led_sequence, low_voltage_battery, clock, efuse1, efuse2, efuse3, efuse4, rail_monitor);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
