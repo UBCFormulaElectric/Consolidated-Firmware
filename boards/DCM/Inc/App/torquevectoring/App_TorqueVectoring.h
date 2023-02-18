@@ -1,5 +1,5 @@
-#include "torquevectoring/App_PID.h"
 #pragma once
+#include "torquevectoring/App_PID.h"
 
 typedef struct PowerLimiting_Inputs {
     float left_motor_temp_C;

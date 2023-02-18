@@ -1,9 +1,4 @@
-//
-// Created by formulae on 11/02/23.
-//
-
-#ifndef FORMULA_ELECTRIC_FIRMWARE_TORQUEVECTORING_CONSTANTS_H
-#define FORMULA_ELECTRIC_FIRMWARE_TORQUEVECTORING_CONSTANTS_H
+#pragma once
 
 #define WHEEL_RADIUS_m
 #define FRONT_AXLE_LENGTH_m
@@ -13,5 +8,3 @@
 #define MOTOR_TEMP_POWER_DECREMENTING_RATIO 80.0/30.0 //amount to decrease max power
                                                 // by for every degree celsius over motor cutoff temp (we got this number by looking at the emrax 188 manual)
 #define SMALL_EPSILON .000001 //to avoid divide by zero error
-
-#endif //FORMULA_ELECTRIC_FIRMWARE_TORQUEVECTORING_CONSTANTS_H
