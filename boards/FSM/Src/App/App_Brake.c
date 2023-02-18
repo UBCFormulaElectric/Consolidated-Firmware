@@ -7,7 +7,7 @@
 #include "App_SharedSetPeriodicCanSignals.h"
 #include "configs/App_BrakePressureThresholds.h"
 
-//STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK
+// STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK
 
 struct Brake
 {

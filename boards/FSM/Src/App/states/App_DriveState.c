@@ -5,7 +5,7 @@
 
 void App_DriveStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    App_CanTx_FSM_STATE_MACHINE_State_Set(FSM_STATE_MACHINE_STATE_DRIVE_CHOICE);
+    App_CanTx_FSM_StateMachine_State_Set(FSM_STATE_MACHINE_STATE_DRIVE_CHOICE);
 }
 
 void App_DriveStateRunOnTick1Hz(struct StateMachine *state_machine)
