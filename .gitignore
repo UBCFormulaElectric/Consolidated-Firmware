@@ -123,3 +123,6 @@ hooksl
 
 # Ignore auto-saved inverter EEPROM configurations
 /inverter-eeprom-config/conf/
+
+# generated dbc files not allowed
+can-bus/**/*.dbc
