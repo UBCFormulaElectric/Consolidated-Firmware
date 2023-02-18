@@ -1,4 +1,3 @@
-#include "torquevectoring/App_PID.h"
 #pragma once
 #include "torquevectoring/App_PID.h"
 
