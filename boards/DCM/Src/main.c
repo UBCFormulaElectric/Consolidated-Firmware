@@ -114,12 +114,14 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 /* USER CODE BEGIN 0 */
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    // JSONCAN -> App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count);
+    // TODO check -> App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count);
+    App_CanTx_DCM_CanFifoOverflow_RxOverflowCount_Set(overflow_count);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    // JSONCAN -> App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
+    // TODO check -> App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
+    App_CanTx_DCM_CanFifoOverflow_TxOverflowCount_Set(overflow_count);
 }
 
 /* USER CODE END 0 */
@@ -180,7 +182,7 @@ int main(void)
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
-    // struct CanMsgs_dcm_startup_t payload = { .dummy = 0 }; // TODO: JSONCAN
+    // struct CanMsgs_dcm_startup_t payload = { .dummy = 0 }; // TODO: JSONCAN where to put startup
     // App_CanTx_SendNonPeriodicMsg_DCM_STARTUP(can_tx, &payload);
     /* USER CODE END 2 */
 

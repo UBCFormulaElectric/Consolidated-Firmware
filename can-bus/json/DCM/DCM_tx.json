@@ -6,6 +6,9 @@
         "signals": {
             "Heartbeat": {
                 "bits": 1
+            },
+            "CurrentState": {
+                "enum": "DcmState"
             }
         }
     },
@@ -135,13 +138,25 @@
             }
         }
     },
-    "DCM_WatchdogTimeout": {
+    "DCM_Errors": {
         "msg_id": 205,
         "cycle_time": 1000,
-        "description": "placeholder",
         "signals": {
-            "TaskName": {
-                "enum": "RtosTaskName"
+            "MissingHeartbeat": {
+                "bits": 1
+            }
+        }
+    },
+    "DCM_CanFifoOverflow": {
+        "msg_id": 206,
+        "cycle_time": 5000,
+        "description": "DCM tx/rx fifo overflow count",
+        "signals": {
+            "TxOverflowCount": {
+                "bits": 32
+            },
+            "RxOverflowCount": {
+                "bits": 32
             }
         }
     }

@@ -6,17 +6,22 @@ static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
     struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
 
-    // JSONCAN -> App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_DCM_STATE_MACHINE_STATE_INIT_CHOICE);
+    // TODO check -> App_CanTx_SetPeriodicSignal_STATE(can_tx_interface, CANMSGS_DCM_STATE_MACHINE_STATE_INIT_CHOICE);
+    App_CanTx_DCM_Vitals_CurrentState_Set(DCM_INIT_STATE);
 
     // Disable inverters and apply zero torque upon entering init state
-    // JSONCAN -> App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVL(
+    // TODO check -> App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVL(
     // can_tx_interface, CANMSGS_DCM_INVL_COMMAND_MESSAGE_INVERTER_ENABLE_INVL_OFF_CHOICE);
-    // JSONCAN -> App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVR(
-    // can_tx_interface, CANMSGS_DCM_INVR_COMMAND_MESSAGE_INVERTER_ENABLE_INVR_OFF_CHOICE);
-    // JSONCAN -> App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
-    // can_tx_interface, App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(0.0f));
-    // JSONCAN -> App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVR(
-    // can_tx_interface, App_CanMsgs_dcm_invr_command_message_torque_command_invr_encode(0.0f));
+    App_CanTx_DCM_LeftInverterCommand_EnableInverter_Set(false);
+    //     // TODO check -> App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVR(
+    //     // can_tx_interface, CANMSGS_DCM_INVR_COMMAND_MESSAGE_INVERTER_ENABLE_INVR_OFF_CHOICE);
+        App_CanTx_DCM_RightInverterCommand_EnableInverter_Set(false);
+        // TODO check -> App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
+        // can_tx_interface, App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(0.0f));
+        App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(0.0f);
+        // TODO check -> App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVR(
+        // can_tx_interface, App_CanMsgs_dcm_invr_command_message_torque_command_invr_encode(0.0f));
+        App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(0.0f);
 }
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
