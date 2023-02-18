@@ -1,8 +1,8 @@
 {
 	"$schema": "http://json-schema.org/draft-04/schema#",
 	"type": "object",
-	"properties": {
-		"$MessageGroupName": {
+	"patternProperties": {
+		"(FSM|BMS|DCM|DIM|GSM|PDM)_[A-Z]\\w+": {
 			"type": "object",
 			"properties": {
 				"msg_id": {
@@ -16,8 +16,8 @@
 				"signals": {
 					"type": "object",
 					"description": "All of the individual messages in this group",
-					"properties": {
-						"$MessageName": {
+					"patternProperties": {
+						"[A-Z]\\w+": {
 							"type": "object",
 							"properties": {
 								"resolution": {
