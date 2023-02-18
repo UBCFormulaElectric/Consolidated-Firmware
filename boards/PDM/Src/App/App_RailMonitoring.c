@@ -76,17 +76,17 @@ bool App_RailMonitoring__24V_ACC_VoltageCriticalCheck(struct RailMonitoring *rai
     return rail_monitor->get__24V_ACC_voltage() > _24V_ACC_CRITICAL_VOLTAGE;
 }
 
-bool App_RailMonitoring_22V_AUX_VoltageLowCheck(struct RailMonitoring *rail_monitor)
+bool App_RailMonitoring__22V_AUX_VoltageLowCheck(struct RailMonitoring *rail_monitor)
 {
     return rail_monitor->get__22V_AUX_voltage() < _22V_AUX_MIN_VOLTAGE;
 }
 
-bool App_RailMonitoring_22V_AUX_VoltageHighCheck(struct RailMonitoring *rail_monitor)
+bool App_RailMonitoring__22V_AUX_VoltageHighCheck(struct RailMonitoring *rail_monitor)
 {
     return rail_monitor->get__22V_AUX_voltage() > _22V_AUX_MAX_VOLTAGE;
 }
 
-bool App_RailMonitoring_22V_AUX_VoltageCriticalCheck(struct RailMonitoring *rail_monitor)
+bool App_RailMonitoring__22V_AUX_VoltageCriticalCheck(struct RailMonitoring *rail_monitor)
 {
     return rail_monitor->get__22V_AUX_voltage() > _22V_AUX_CRITICAL_VOLTAGE;
 }
