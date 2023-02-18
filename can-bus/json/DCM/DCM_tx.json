@@ -135,6 +135,9 @@
             },
             "WatchdogTimeout": {
                 "bits": 1
+            },
+            "WatchdogTimeoutTaskName": {
+                "enum": "RtosTaskName"
             }
         }
     },

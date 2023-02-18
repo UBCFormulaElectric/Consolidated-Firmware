@@ -37,6 +37,7 @@
 #include "Io_BrakeLight.h"
 #include "Io_Buzzer.h"
 #include "Io_LSM6DS33.h"
+#include "App_CanAlerts.h"
 
 #include "App_CanUtils.h"
 #include "App_SharedMacros.h"
@@ -182,8 +183,9 @@ int main(void)
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
-    // struct CanMsgs_dcm_startup_t payload = { .dummy = 0 }; // TODO: JSONCAN where to put startup
+    // struct CanMsgs_dcm_startup_t payload = { .dummy = 0 }; // TODO check 
     // App_CanTx_SendNonPeriodicMsg_DCM_STARTUP(can_tx, &payload);
+   App_CanAlerts_SetAlert(DCM_STARTUP, true);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */

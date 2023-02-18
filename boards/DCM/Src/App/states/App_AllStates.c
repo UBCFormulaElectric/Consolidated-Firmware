@@ -34,11 +34,11 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 
     // TODO: JSONCAN waiting for fsm-> App_BrakeLight_SetLightStatus(brake_light,
     // App_CanRx_FSM_BRAKE_FLAGS_GetSignal_BRAKE_IS_ACTUATED(can_rx)); JSONCAN ->
-    // TODO: JSONCAN add inverter switch->
+    // TODO delete inverter switch->
     // App_CanTx_SetPeriodicSignal_RIGHT_INVERTER_SWITCH(can_tx, App_InverterSwitches_IsRightOn(inverter_switches));
 
 
-    // TODO: JSONCAN add inverter switch-> App_CanTx_SetPeriodicSignal_LEFT_INVERTER_SWITCH(can_tx,
+    // TODO delete inverter switch-> App_CanTx_SetPeriodicSignal_LEFT_INVERTER_SWITCH(can_tx,
     // App_InverterSwitches_IsLeftOn(inverter_switches));
 
     if (App_HasInverterFault())
