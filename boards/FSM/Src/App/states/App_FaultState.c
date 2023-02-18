@@ -4,7 +4,7 @@
 
 void App_FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    App_CanTx_FSM_STATE_MACHINE_State_Set(FSM_STATE_MACHINE_STATE_FAULT_CHOICE);
+    App_CanTx_FSM_StateMachine_State_Set(FSM_STATE_MACHINE_STATE_FAULT_CHOICE);
 }
 
 void App_FaultStateRunOnTick1Hz(struct StateMachine *state_machine)
@@ -14,7 +14,7 @@ void App_FaultStateRunOnTick1Hz(struct StateMachine *state_machine)
 void App_FaultStateRunOnTick100Hz(struct StateMachine *state_machine)
 {
     App_AllStatesRunOnTick100Hz(state_machine);
-    App_CanTx_FSM_APPs_PappsMappedPedalPercentage_Set(0.0f);
+    App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Set(0.0f);
 }
 void App_FaultStateRunOnExit(struct StateMachine *const state_machine)
 {

@@ -176,8 +176,8 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
 
     float papps_pedal_percentage = accelerator_pedals->get_primary_pedal_percent();
     float sapps_pedal_percentage = accelerator_pedals->get_secondary_pedal_percent();
-    App_CanTx_FSM_APPs_PappsMappedPedalPercentage_Set(papps_pedal_percentage);
-    App_CanTx_FSM_APPs_SappsMappedPedalPercentage_Set(sapps_pedal_percentage);
+    App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Set(papps_pedal_percentage);
+    App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Set(sapps_pedal_percentage);
 
     // Open Short Circuit Tests (non-understandable data test)
     const bool  primary_pedal_ocsc = accelerator_pedals->primary_pedal_OCSC();
@@ -197,8 +197,8 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
     // torque 0
     if (papp_signal_state == SIGNAL_STATE_ACTIVE || sapp_signal_state == SIGNAL_STATE_ACTIVE)
     {
-        App_CanTx_FSM_APPs_PappsMappedPedalPercentage_Set(0.0f);
-        App_CanTx_FSM_APPs_SappsMappedPedalPercentage_Set(0.0f);
+        App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Set(0.0f);
+        App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Set(0.0f);
     }
 
     // Primary Secondary Accelerator Agreement (Inaccurate data)
@@ -212,8 +212,8 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
     App_CanTx_FSM_MotorShutdownErrors_AppsDisagreementIsActive_Set(AppsDisagreementEnum);
     if (app_agreement_signal_state == SIGNAL_STATE_ACTIVE)
     {
-        App_CanTx_FSM_APPs_PappsMappedPedalPercentage_Set(0.0f);
-        App_CanTx_FSM_APPs_SappsMappedPedalPercentage_Set(0.0f);
+        App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Set(0.0f);
+        App_CanTx_FSM_Apps_SappsMappedPedalPercentage_Set(0.0f);
     }
 
     // Accelerator Brake Plausibility (bad user input safety issues)
@@ -229,6 +229,6 @@ void App_AcceleratorPedals_Broadcast(const struct FsmWorld *world)
     App_CanTx_FSM_Errors_BrakeAccDisagreement_Set(BrakeAccDisagreementEnum);
     if (app_brake_disagreement == SIGNAL_STATE_ACTIVE)
     {
-        App_CanTx_FSM_APPs_PappsMappedPedalPercentage_Set(0.0f);
+        App_CanTx_FSM_Apps_PappsMappedPedalPercentage_Set(0.0f);
     }
 }

@@ -36,10 +36,10 @@
 		"msg_id": 303,
 		"cycle_time": 5000,
 		"signals":{
-			"TX_OVERFLOW_COUNT": {
+			"TxOverflowCount": {
 				"bits": 32
 			},
-			"RX_OVERFLOW_COUNT": {
+			"RxOverflowCount": {
 				"bits": 32
 			}
 		}
@@ -54,14 +54,14 @@
 			}
 		}
 	},
-	"FSM_STATE_MACHINE": {
+	"FSM_StateMachine": {
 		"msg_id": 305,
 		"cycle_time": 100,
 		"signals": {
 			"State": {"enum": "State"}
 		}
 	},
-	"FSM_APPs": {
+	"FSM_Apps": {
 		"msg_id": 151,
 		"cycle_time": 100,
 		"signals": {

@@ -6,7 +6,7 @@
 #include "App_InRangeCheck.h"
 #include "App_SharedSetPeriodicCanSignals.h"
 
-//STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK
+// STATIC_DEFINE_APP_SET_PERIODIC_CAN_SIGNALS_IN_RANGE_CHECK
 
 struct Wheels
 {

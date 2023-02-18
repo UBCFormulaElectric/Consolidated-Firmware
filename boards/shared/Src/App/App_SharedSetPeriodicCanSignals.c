@@ -1,9 +1,13 @@
 #include <stdint-gcc.h>
 #include "App_InRangeCheck.h"
 
-enum InRangeCheck_Status CheckStatus(enum InRangeCheck_Status status, void (*const out_of_range_setter)(uint8_t), uint8_t ok_choice,
-                                     uint8_t underflow_choice,
-                                     uint8_t overflow_choice){
+enum InRangeCheck_Status CheckStatus(
+    enum InRangeCheck_Status status,
+    void (*const out_of_range_setter)(uint8_t),
+    uint8_t ok_choice,
+    uint8_t underflow_choice,
+    uint8_t overflow_choice)
+{
     switch (status)
     {
         case VALUE_IN_RANGE:
@@ -49,11 +53,11 @@ enum InRangeCheck_Status App_SetPeriodicCanSignals_InRangeCheck_long(
     uint8_t underflow_choice,
     uint8_t overflow_choice)
 {
-    float value;
+    float                    value;
     enum InRangeCheck_Status status = App_InRangeCheck_GetValue(in_range_check, &value);
 
     CheckStatus(status, out_of_range_setter, ok_choice, underflow_choice, overflow_choice);
 
-    can_signal_setter((uint32_t) value);
+    can_signal_setter((uint32_t)value);
     return status;
 }

@@ -147,12 +147,12 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_FSM_CanFifoOverflow_RX_OVERFLOW_COUNT_Set(overflow_count);
+    App_CanTx_FSM_CanFifoOverflow_RxOverflowCount_Set(overflow_count);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    App_CanTx_FSM_CanFifoOverflow_TX_OVERFLOW_COUNT_Set(overflow_count);
+    App_CanTx_FSM_CanFifoOverflow_TxOverflowCount_Set(overflow_count);
 }
 
 /* USER CODE END 0 */
@@ -776,10 +776,21 @@ void RunTaskCanTx(void const *argument)
 void RunTask1Hz(void const *argument)
 {
     /* USER CODE BEGIN RunTask1Hz */
-    /* Infinite loop */
+    UNUSED(argument);
+    uint32_t                 PreviousWakeTime = osKernelSysTick();
+    static const TickType_t  period_ms        = 1000U;
+    SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
+
     for (;;)
     {
-        osDelay(1);
+        Io_StackWaterMark_Check();
+        App_SharedStateMachine_Tick1Hz(state_machine);
+
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep.
+        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        osDelayUntil(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END RunTask1Hz */
 }
