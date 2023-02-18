@@ -95,9 +95,15 @@ struct DimWorld *         world;
 struct StateMachine *     state_machine;
 struct DimCanTxInterface *can_tx;
 struct DimCanRxInterface *can_rx;
-struct SevenSegDisplay *  left_seven_seg_display;
-struct SevenSegDisplay *  middle_seven_seg_display;
-struct SevenSegDisplay *  right_seven_seg_display;
+struct SevenSegDisplay *  left_l_seven_seg_display;
+struct SevenSegDisplay *  left_m_seven_seg_display;
+struct SevenSegDisplay *  left_r_seven_seg_display;
+struct SevenSegDisplay *  middle_l_seven_seg_display;
+struct SevenSegDisplay *  middle_m_seven_seg_display;
+struct SevenSegDisplay *  middle_r_seven_seg_display;
+struct SevenSegDisplay *  right_l_seven_seg_display;
+struct SevenSegDisplay *  right_m_seven_seg_display;
+struct SevenSegDisplay *  right_r_seven_seg_display;
 struct SevenSegDisplays * seven_seg_displays;
 struct HeartbeatMonitor * heartbeat_monitor;
 struct RgbLedSequence *   rgb_led_sequence;
@@ -188,12 +194,20 @@ int main(void)
     App_CanRx_Init();
     App_CanAlerts_Init(Io_CanTx_DIM_Alerts_SendAperiodic);
 
-    left_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetLeftHexDigit);
-    middle_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetMiddleHexDigit);
-    right_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetRightHexDigit);
+    left_l_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_Set_L_LeftHexDigit);
+    left_m_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_Set_M_LeftHexDigit);
+    left_r_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_Set_R_LeftHexDigit);
+    middle_l_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_Set_L_MiddleHexDigit);
+    middle_m_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_Set_M_MiddleHexDigit);
+    middle_r_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_Set_R_MiddleHexDigit);
+    right_l_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_Set_L_RightHexDigit);
+    right_m_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_Set_M_RightHexDigit);
+    right_r_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_Set_R_RightHexDigit);
 
     seven_seg_displays = App_SevenSegDisplays_Create(
-        left_seven_seg_display, middle_seven_seg_display, right_seven_seg_display, Io_SevenSegDisplays_WriteCommands);
+        left_l_seven_seg_display, left_m_seven_seg_display,left_r_seven_seg_display,  middle_l_seven_seg_display, middle_m_seven_seg_display,
+        middle_r_seven_seg_display,right_l_seven_seg_display, right_m_seven_seg_display, right_r_seven_seg_display,
+        Io_SevenSegDisplays_WriteCommands);
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);

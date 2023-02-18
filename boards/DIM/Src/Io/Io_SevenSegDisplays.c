@@ -99,7 +99,11 @@ void Io_SevenSegDisplays_WriteCommands(void)
     HAL_GPIO_WritePin(SEVENSEGS_RCK_GPIO_Port, SEVENSEGS_RCK_Pin, GPIO_PIN_RESET);
 }
 
+<<<<<<< HEAD
 void Io_SevenSegDisplays_SetLeft_L_HexDigit(struct SevenSegHexDigit hex_digit)
+=======
+void Io_SevenSegDisplays_Set_L_LeftHexDigit(struct SevenSegHexDigit hex_digit)
+>>>>>>> b142ef7 (first re-work)
 {
     if (!hex_digit.enabled)
     {
@@ -113,7 +117,11 @@ void Io_SevenSegDisplays_SetLeft_L_HexDigit(struct SevenSegHexDigit hex_digit)
     }
 }
 
+<<<<<<< HEAD
 void Io_SevenSegDisplays_SetLeft_M_HexDigit(struct SevenSegHexDigit hex_digit)
+=======
+void Io_SevenSegDisplays_Set_M_LeftHexDigit(struct SevenSegHexDigit hex_digit)
+>>>>>>> b142ef7 (first re-work)
 {
     if (!hex_digit.enabled)
     {
@@ -138,6 +146,7 @@ void Io_SevenSegDisplays_SetLeft_R_HexDigit(struct SevenSegHexDigit hex_digit)
         assert(hex_digit.value < NUM_HEX_DIGITS);
 
         commands[LEFT_R_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
+<<<<<<< HEAD
     }
 }
 
