@@ -13,10 +13,16 @@ struct SevenSegDisplays
 };
 
 struct SevenSegDisplays *App_SevenSegDisplays_Create(
-    struct SevenSegDisplay *const left_seven_seg_display,
-    struct SevenSegDisplay *const middle_seven_seg_display,
-    struct SevenSegDisplay *const right_seven_seg_display,
-    void (*const display_value_callback)(void))
+        struct SevenSegDisplay *left_l_seven_seg_display,
+        struct SevenSegDisplay *left_m_seven_seg_display,
+        struct SevenSegDisplay *left_r_seven_seg_display,
+        struct SevenSegDisplay *middle_l_seven_seg_display,
+        struct SevenSegDisplay *middle_m_seven_seg_display,
+        struct SevenSegDisplay *middle_r_seven_seg_display,
+        struct SevenSegDisplay *right_l_seven_seg_display,
+        struct SevenSegDisplay *right_m_seven_seg_display,
+        struct SevenSegDisplay *right_r_seven_seg_display,
+        void (*const display_value_callback)(void));
 {
     assert(display_value_callback != NULL);
 

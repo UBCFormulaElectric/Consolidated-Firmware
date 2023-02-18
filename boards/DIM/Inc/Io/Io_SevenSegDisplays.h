@@ -16,21 +16,65 @@ void Io_SevenSegDisplays_WriteCommands(void);
 
 /**
  * Using the given hexadecimal digit, update the command value to send to the
- * left 7-segment display during the next Io_SevenSegDisplays_WriteCommands()
+ * left left-most 7-segment display during the next Io_SevenSegDisplays_WriteCommands()
  * @param hex_digit The hexadecimal digit to display
  */
-void Io_SevenSegDisplays_SetLeftHexDigit(struct SevenSegHexDigit hex_digit);
+void Io_SevenSegDisplays_Set_L_LeftHexDigit(struct SevenSegHexDigit hex_digit);
+
+/**
+ * Using the given hexadecimal digit, update the command value to send to the
+ * middle left-most 7-segment display during the next Io_SevenSegDisplays_WriteCommands()
+ * @param hex_digit The hexadecimal digit to display
+ */
+void Io_SevenSegDisplays_Set_M_LeftHexDigit(struct SevenSegHexDigit hex_digit);
+
+/**
+ * Using the given hexadecimal digit, update the command value to send to the
+ * right left-most 7-segment display during the next Io_SevenSegDisplays_WriteCommands()
+ * @param hex_digit The hexadecimal digit to display
+ */
+void Io_SevenSegDisplays_Set_R_LeftHexDigit(struct SevenSegHexDigit hex_digit);
 
 /**
  * Using the given hexadecimal digit, update the command value to send to the
  * middle 7-segment display during the next Io_SevenSegDisplays_WriteCommands()
  * @param hex_digit The hexadecimal digit to display
  */
-void Io_SevenSegDisplays_SetMiddleHexDigit(struct SevenSegHexDigit hex_digit);
+void Io_SevenSegDisplays_Set_L_MiddleHexDigit(struct SevenSegHexDigit hex_digit);
+
+/**
+ * Using the given hexadecimal digit, update the command value to send to the
+ * middle 7-segment display during the next Io_SevenSegDisplays_WriteCommands()
+ * @param hex_digit The hexadecimal digit to display
+ */
+void Io_SevenSegDisplays_Set_M_MiddleHexDigit(struct SevenSegHexDigit hex_digit);
+
+/**
+ * Using the given hexadecimal digit, update the command value to send to the
+ * rightmost of the middle-trio 7-segment display during the next
+ * Io_SevenSegDisplays_WriteCommands()
+ * @param hex_digit The hexadecimal digit to display
+ */
+void Io_SevenSegDisplays_Set_R_MiddleHexDigit(struct SevenSegHexDigit hex_digit);
 
 /**
  * Using the given hexadecimal digit, update the command value to send to the
  * right 7-segment display during the next Io_SevenSegDisplays_WriteCommands()
  * @param hex_digit The hexadecimal digit to display
  */
-void Io_SevenSegDisplays_SetRightHexDigit(struct SevenSegHexDigit hex_digit);
+void Io_SevenSegDisplays_Set_L_RightHexDigit(struct SevenSegHexDigit hex_digit);
+
+/**
+ * Using the given hexadecimal digit, update the command value to send to the
+ * middlemost of the right-trio 7-segment display during the next Io_SevenSegDisplays_WriteCommands()
+ * @param hex_digit The hexadecimal digit to display
+ */
+void Io_SevenSegDisplays_Set_M_RightHexDigit(struct SevenSegHexDigit hex_digit);
+
+/**
+ * Using the given hexadecimal digit, update the command value to send to the
+ * rightmost of the right-trio 7-segment display during the next
+ * Io_SevenSegDisplays_WriteCommands()
+ * @param hex_digit The hexadecimal digit to display
+ */
+void Io_SevenSegDisplays_Set_R_RightHexDigit(struct SevenSegHexDigit hex_digit);
