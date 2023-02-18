@@ -2,8 +2,12 @@
 // Created by formulae on 18/02/23.
 //
 #include "torquevectoring/App_TorqueVectoringConstants.h"
+<<<<<<< HEAD
 #include "torquevectoring//App_TorqueVectoring.h"
 #include "App_CanRx.h"
+=======
+#include "torquevectoring/App_TorqueVectoring.h"
+>>>>>>> 85495a9 (Traction Control Init)
 
 
 static PowerLimiting_Inputs power_limiting_inputs;
