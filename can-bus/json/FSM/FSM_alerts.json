@@ -1,10 +1,6 @@
 {
     "msg_id": 300,
     "alerts": [
-        "PAPPS_OCSC_IS_ACTIVE",
-        "SAPPS_OCSC_IS_ACTIVE",
-        "FLOW_METER_UNDERFLOW",
-        "TORQUE_PLAUSIBILITY_CHECK_FAILED",
-        "BRAKE_ACCELERATOR_DISAGREEMENT"
+        "FSM_STARTUP"
     ]
 }

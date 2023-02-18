@@ -15,9 +15,7 @@ void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
 {
     BREAK_IF_DEBUGGER_CONNECTED();
 
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_WATCHDOG_TIMEOUT(_can_tx, true);
-
-    //    struct CanMsgs_fsm_watchdog_timeout_t payload;
-    //    memcpy(&payload.task_name, Io_SharedSoftwareWatchdog_GetName(watchdog), sizeof(payload.task_name));
-    // TODO: JSONCAN -> App_CanTx_SendNonPeriodicMsg_FSM_WATCHDOG_TIMEOUT(_can_tx, &payload);
+    App_CanTx_FSM_Errors_WatchdogTimeout_Set(true);
+    const uint8_t watchdog_id = Io_SharedSoftwareWatchdog_GetTaskId(watchdog);
+    App_CanTx_FSM_Errors_WatchdogTimeoutTaskName_Set((RtosTaskName)watchdog_id);
 }

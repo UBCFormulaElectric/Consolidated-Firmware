@@ -29,6 +29,7 @@
 #include "App_SharedMacros.h"
 #include "App_SharedStateMachine.h"
 #include "App_Timer.h"
+#include "App_CanAlerts.h"
 
 // IO functions exposing
 #include "Io_CanTx.h"
@@ -146,12 +147,12 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count);
+    App_CanTx_FSM_CanFifoOverflow_RX_OVERFLOW_COUNT_Set(overflow_count);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
+    App_CanTx_FSM_CanFifoOverflow_TX_OVERFLOW_COUNT_Set(overflow_count);
 }
 
 /* USER CODE END 0 */
@@ -230,8 +231,7 @@ int main(void)
 
     state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());
 
-    // struct CanMsgs_fsm_startup_t payload = { .dummy = 0 };
-    // TODO: JSONCAN -> App_CanTx_SendNonPeriodicMsg_FSM_STARTUP(can_tx, &payload);
+    App_CanAlerts_SetAlert(FSM_STARTUP, true);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
