@@ -2,6 +2,7 @@
 
 #include <stdbool.h>
 #include "Io_Hal.h"
+#include IO_HAL_ADC
 
 /**
  * Convert the given raw ADC value measured by the given ADC handle into voltage
