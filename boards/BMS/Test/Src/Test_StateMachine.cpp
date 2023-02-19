@@ -293,7 +293,7 @@ class BmsStateMachineTest : public BaseStateMachineTest
 TEST_F(BmsStateMachineTest, check_init_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetInitState());
-    EXPECT_EQ(BMS_INIT_STATE, App_CanTx_BMSVitals_CurrentState_Get());
+    EXPECT_EQ(BMS_INIT_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
 }
 
 // BMS-31
@@ -632,6 +632,9 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
 TEST_F(BmsStateMachineTest, check_remains_in_fault_state_until_fault_cleared_then_transitions_to_init)
 {
     SetInitialState(App_GetInitState());
+
+    // Let accumulator startup count expire
+    LetTimePass(state_machine, 1000);
 
     // Set TS current positive to trigger discharging condition in tempertature check
     get_high_res_current_fake.return_val = 10.0f;
