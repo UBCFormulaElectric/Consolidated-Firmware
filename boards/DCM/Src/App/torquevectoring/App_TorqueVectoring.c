@@ -1,8 +1,5 @@
-//
-// Created by formulae on 18/02/23.
-//
+#include "torquevectoring/App_TorqueVectoring.h"
 #include "torquevectoring/App_TorqueVectoringConstants.h"
-#include "torquevectoring//App_TorqueVectoring.h"
 #include "App_CanRx.h"
 
 
