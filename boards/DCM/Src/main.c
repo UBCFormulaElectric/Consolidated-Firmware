@@ -39,7 +39,6 @@
 #include "Io_LSM6DS33.h"
 #include "App_CanAlerts.h"
 
-#include "App_CanUtils.h"
 #include "App_SharedMacros.h"
 #include "App_DcmWorld.h"
 #include "App_SharedStateMachine.h"
