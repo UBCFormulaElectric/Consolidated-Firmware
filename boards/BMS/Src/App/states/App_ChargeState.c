@@ -32,7 +32,6 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         struct TractiveSystem * const ts      = App_BmsWorld_GetTractiveSystem(world);
 
 
-
         static uint16_t ignore_chgr_fault_counter  = 0U;
         bool            has_charger_faulted        = false;
         bool            external_shutdown_occurred = !App_Airs_IsAirNegativeClosed(airs);
@@ -69,7 +68,7 @@ static void ChargeStateRunOnExit(struct StateMachine *const state_machine)
     // state, disable them when leaving
     // Airs+ also has to be opened once again since it is closed in Pre-Charge state for charging/driving
     App_Charger_Disable(charger);
-    App_Airs_CloseAirPositive(airs);
+    App_Airs_OpenAirPositive(airs);
     App_CanRx_CHARGING_STATUS_SetSignal_CHARGING_SWITCH(can_rx, false);
 }
 
