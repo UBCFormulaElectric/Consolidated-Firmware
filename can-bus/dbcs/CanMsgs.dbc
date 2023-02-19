@@ -18,17 +18,20 @@ SG_ RxOverflowCount : 32|32@1+ (1,0) [0|4294967295] "" DEBUG
 BO_ 103 BMS_WatchdogTimeout: 1 BMS
 SG_ TaskName : 0|3@1+ (1,0) [0|4] "" DEBUG
 
-BO_ 104 BMS_Warnings: 1 BMS
+BO_ 104 BMS_Warnings: 2 BMS
 SG_ StackWatermarkAboveThresholdTask1Hz : 0|1@1+ (1,0) [0|1] "" DEBUG
-SG_ StackWatermarkAboveThresholdTask1kHz : 1|1@1+ (1,0) [0|1] "" DEBUG
-SG_ StackWatermarkAboveThresholdTaskCanRx : 2|1@1+ (1,0) [0|1] "" DEBUG
-SG_ StackWatermarkAboveThresholdTaskCanTx : 3|1@1+ (1,0) [0|1] "" DEBUG
-SG_ WatchdogTimeout : 4|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTask100Hz : 1|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTask1kHz : 2|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTaskCanRx : 3|1@1+ (1,0) [0|1] "" DEBUG
+SG_ StackWatermarkAboveThresholdTaskCanTx : 4|1@1+ (1,0) [0|1] "" DEBUG
+SG_ WatchdogTimeout : 5|1@1+ (1,0) [0|1] "" DEBUG
+SG_ WatchdogTimeoutTaskName : 6|3@1+ (1,0) [0|4] "" DEBUG
 
 BO_ 105 BMS_ImdStatus: 2 BMS
 SG_ OkHs : 0|1@1+ (1,0) [0|1] "" DEBUG
 SG_ SecondsSincePowerOn : 1|8@1+ (1.0,0) [0|255] "Seconds" DEBUG
 SG_ ValidDutyCycle : 9|1@1+ (1,0) [0|1] "" DEBUG
+SG_ Condition : 10|3@1+ (1,0) [0|7] "" DEBUG
 
 BO_ 106 BMS_ImdData: 8 BMS
 SG_ ActiveFrequency : 0|2@1+ (6.666666666666667,0) [0|20] "Hz" DEBUG
@@ -99,7 +102,7 @@ BO_ 120 BMS_AvailablePower: 3 BMS
 SG_ AvailablePower : 0|20@1+ (0.1,0) [0|100000] "W" DEBUG
 
 BO_ 150 BMS_Alerts: 1 BMS
-SG_ BMS_ALERT_DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
+SG_ BMS_ALERT_STARTUP : 0|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 203 DCM_Vitals: 1 DCM
 SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
@@ -492,13 +495,16 @@ BA_ "GenSigStartValue" SG_ 101 TxOverflowCount 0;
 BA_ "GenSigStartValue" SG_ 101 RxOverflowCount 0;
 BA_ "GenSigStartValue" SG_ 103 TaskName 0;
 BA_ "GenSigStartValue" SG_ 104 StackWatermarkAboveThresholdTask1Hz 0;
+BA_ "GenSigStartValue" SG_ 104 StackWatermarkAboveThresholdTask100Hz 0;
 BA_ "GenSigStartValue" SG_ 104 StackWatermarkAboveThresholdTask1kHz 0;
 BA_ "GenSigStartValue" SG_ 104 StackWatermarkAboveThresholdTaskCanRx 0;
 BA_ "GenSigStartValue" SG_ 104 StackWatermarkAboveThresholdTaskCanTx 0;
 BA_ "GenSigStartValue" SG_ 104 WatchdogTimeout 0;
+BA_ "GenSigStartValue" SG_ 104 WatchdogTimeoutTaskName 0;
 BA_ "GenSigStartValue" SG_ 105 OkHs 0;
 BA_ "GenSigStartValue" SG_ 105 SecondsSincePowerOn 0;
 BA_ "GenSigStartValue" SG_ 105 ValidDutyCycle 0;
+BA_ "GenSigStartValue" SG_ 105 Condition 0;
 BA_ "GenSigStartValue" SG_ 106 ActiveFrequency 0;
 BA_ "GenSigStartValue" SG_ 106 InsulationMeasurementDcp10Hz 0;
 BA_ "GenSigStartValue" SG_ 106 InsulationMeasurementDcp20Hz 0;
@@ -541,7 +547,7 @@ BA_ "GenSigStartValue" SG_ 117 TsVoltage 0;
 BA_ "GenSigStartValue" SG_ 117 TsCurrent -300;
 BA_ "GenSigStartValue" SG_ 118 PackVoltage 0;
 BA_ "GenSigStartValue" SG_ 120 AvailablePower 0;
-BA_ "GenSigStartValue" SG_ 150 BMS_ALERT_DUMMY 0;
+BA_ "GenSigStartValue" SG_ 150 BMS_ALERT_STARTUP 0;
 BA_ "GenSigStartValue" SG_ 203 Heartbeat 0;
 BA_ "GenSigStartValue" SG_ 32 TorqueCommand -3276.8;
 BA_ "GenSigStartValue" SG_ 32 SpeedCommand -32768;
@@ -887,6 +893,7 @@ BA_ "GenMsgCycleTime" BO_ 403  1000;
 
 VAL_ 100 CurrentState 0 "BMS_INIT_STATE" 1 "BMS_PRECHARGE_STATE" 2 "BMS_CHARGE_STATE" 3 "BMS_DRIVE_STATE" 4 "BMS_FAULT_STATE";
 VAL_ 103 TaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
+VAL_ 104 WatchdogTimeoutTaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
 VAL_ 112 AirPositive 0 "CONTACTOR_STATE_OPEN" 1 "CONTACTOR_STATE_CLOSED";
 VAL_ 112 AirNegative 0 "CONTACTOR_STATE_OPEN" 1 "CONTACTOR_STATE_CLOSED";
 VAL_ 112 PrechargeRelay 0 "CONTACTOR_STATE_OPEN" 1 "CONTACTOR_STATE_CLOSED";
