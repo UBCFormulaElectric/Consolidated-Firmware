@@ -41,4 +41,3 @@ typedef struct TractionControl_Outputs
 } TractionControl_Outputs;
 
 void App_TorqueVectoring_Run(void);
-
