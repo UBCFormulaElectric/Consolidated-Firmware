@@ -208,6 +208,7 @@ int main(void)
 
     App_CanTx_Init();
     App_CanRx_Init();
+    App_CanAlerts_Init(Io_CanTx_FSM_Alerts_SendAperiodic);
 
     // Accelerator
     papps_and_sapps = App_AcceleratorPedals_Create(

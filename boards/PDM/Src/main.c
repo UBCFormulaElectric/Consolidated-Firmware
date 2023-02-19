@@ -186,6 +186,7 @@ int main(void)
 
     App_CanTx_Init();
     App_CanRx_Init();
+    App_CanAlerts_Init(Io_CanTx_PDM_Alerts_SendAperiodic);
 
     vbat_voltage_in_range_check =
         App_InRangeCheck_Create(Io_VoltageSense_GetVbatVoltage, VBAT_MIN_VOLTAGE, VBAT_MAX_VOLTAGE);
