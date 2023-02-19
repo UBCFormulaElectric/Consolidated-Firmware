@@ -35,7 +35,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         static uint16_t ignore_chgr_fault_counter  = 0U;
         bool            has_charger_faulted        = false;
         bool            external_shutdown_occurred = !App_Airs_IsAirNegativeClosed(airs);
-        bool            charging_enabled           = App_CanRx_CHARGING_STATUS_GetSignal_CHARGING_SWITCH(can_rx);
+        bool            charging_enabled           = App_CanRx_DEBUG_ChargingSwitch_StartCharging_Get();
 
         if (ignore_chgr_fault_counter < CYCLES_TO_IGNORE_CHGR_FAULT)
         {
@@ -49,6 +49,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         const bool charging_completed = App_TractiveSystem_GetCurrent(ts) <= CURRENT_AT_MAX_CHARGE;
 
         App_CanTx_BMS_Faults_ChargerFault_Set(has_charger_faulted);
+        App_CanTx_SetPeriodicSignal_IS_CHARGING_COMPLETE(charging_completed);
 
         // If the current indicates charging is complete or charging is disabled over CAN go back to init state
         if (charging_completed || !charging_enabled)
