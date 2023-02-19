@@ -3,25 +3,22 @@
 #include "torquevectoring/App_TorqueVectoring.h"
 #include "torquevectoring/App_TorqueVectoringConstants.h"
 
-// TODO: Figure out if casting to (float) and (double) are necessary in line 22
-
+// TODO: Remove typecasting and fix the constants in App_TorqueVectoringConstants.h
 
 /**
- * Computes the max allowable power draw from the battery based on motor temps,
+ * @note Computes the max allowable power draw from the battery based on motor temps,
  * the battery power limit (calculated by BMS), and accelerator pedal position.
- * @note
- * @return A float (pointer?) for the maximum power allowed from the motor,
+ * @return A float for the maximum power allowed from the motor,
  */
 float App_PowerLimiting_ComputeMaxPower(struct PowerLimiting_Inputs *power_limiting_inputs)
 {
     float max_motor_temp = fmaxf(power_limiting_inputs->left_motor_temp_C, power_limiting_inputs->right_motor_temp_C);
     // ============== Calculate max powers =================
     float P_max_motor_temps =
-        (max_motor_temp > MOTOR_TEMP_CUTOFF_c
+        max_motor_temp > MOTOR_TEMP_CUTOFF_c
              ? POWER_LIMIT_CAR_kW
-             : (float)(POWER_LIMIT_CAR_kW - ((double) (max_motor_temp - MOTOR_TEMP_CUTOFF_c)) * MOTOR_TEMP_POWER_DECREMENTING_RATIO));
+             : (float)(POWER_LIMIT_CAR_kW - ((double) (max_motor_temp - MOTOR_TEMP_CUTOFF_c)) * MOTOR_TEMP_POWER_DECREMENTING_RATIO);
     float P_max_accelerator = power_limiting_inputs->accelerator_pedal_percent * POWER_LIMIT_CAR_kW;
     // =========== Take min of max powers ==================
-
-    return fminf(P_max_motor_temps, fminf(power_limiting_inputs->available_battery_power_kW, P_max_accelerator));
+    return fminf(P_max_motor_temps, fminf(power_limiting_inputs->available_battery_power_kW, P_max_accelerator)); // triple min function
 }
