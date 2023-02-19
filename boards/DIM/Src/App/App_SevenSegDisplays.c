@@ -24,7 +24,7 @@ struct SevenSegDisplays *App_SevenSegDisplays_Create(
 
     assert(seven_seg_displays != NULL);
 
-    seven_seg_displays->displays[LEFT_SEVEN_SEG_DISPLAY]   = left_seven_seg_display;
+    seven_seg_displays->displays[LEFT_L_SEVEN_SEG_DISPLAY]   = left_l_seven_seg_display;
     seven_seg_displays->displays[MIDDLE_SEVEN_SEG_DISPLAY] = middle_seven_seg_display;
     seven_seg_displays->displays[RIGHT_SEVEN_SEG_DISPLAY]  = right_seven_seg_display;
     seven_seg_displays->display_value_callback             = display_value_callback;
