@@ -15,16 +15,6 @@ TEST(CanMsgsTest, fifo_overflow_message_frequency)
     ASSERT_GE(HZ_TO_MS(0.2), CAN_MSG_BMS_CAN_FIFO_OVERFLOW_CYCLE_TIME_MS);
 }
 
-TEST(CanMsgsTest, watchdog_message_frequency)
-{
-    ASSERT_GE(HZ_TO_MS(1), CAN_MSG_BMS_WATCHDOG_TIMEOUT_CYCLE_TIME_MS);
-}
-
-TEST(CanMsgsTest, warnings_message_frequency)
-{
-    ASSERT_GE(HZ_TO_MS(1), CAN_MSG_BMS_WARNINGS_CYCLE_TIME_MS);
-}
-
 TEST(CanMsgsTest, imd_status_message_frequency)
 {
     ASSERT_GE(HZ_TO_MS(1), CAN_MSG_BMS_IMD_STATUS_CYCLE_TIME_MS);
@@ -55,9 +45,9 @@ TEST(CanMsgsTest, ok_status_message_frequency)
     ASSERT_GE(HZ_TO_MS(100), CAN_MSG_BMS_OK_STATUSES_CYCLE_TIME_MS);
 }
 
-TEST(CanMsgsTest, air_states_message_frequency)
+TEST(CanMsgsTest, contactors_message_frequency)
 {
-    ASSERT_GE(HZ_TO_MS(100), CAN_MSG_BMS_AIR_STATES_CYCLE_TIME_MS);
+    ASSERT_GE(HZ_TO_MS(100), CAN_MSG_BMS_CONTACTORS_CYCLE_TIME_MS);
 }
 
 TEST(CanMsgsTest, mortor_shutdown_message_frequency)
