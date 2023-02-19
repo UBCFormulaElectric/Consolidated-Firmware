@@ -559,7 +559,6 @@ TEST_F(BmsStateMachineTest, stops_charging_and_faults_if_charger_disconnect)
 
     LetTimePass(state_machine, 10);
 
-
     ASSERT_EQ(true, App_CanTx_BMS_Faults_ChargerDisconnectedInChargeState_Get());
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
     //Checks if a CAN message was sent to indicate charger was disconnected unexpectedly
@@ -635,7 +634,6 @@ TEST_F(BmsStateMachineTest, check_state_transition_from_fault_to_init_with_air_n
     is_air_negative_closed_fake.return_val = true;
     is_charger_connected_fake.return_val   = false;
     LetTimePass(state_machine, 1000);
-
     ASSERT_EQ(BMS_FAULT_STATE, App_CanTx_BMS_Vitals_CurrentState_Get());
 
     // Check that state mcachine transitions to InitState with AIR- open

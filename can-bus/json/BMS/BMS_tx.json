@@ -380,6 +380,9 @@
             },
             "ValidDutyCycle": {
                 "bits": 1
+            },
+            "Condition": {
+                "bits": 3
             }
         }
     },
