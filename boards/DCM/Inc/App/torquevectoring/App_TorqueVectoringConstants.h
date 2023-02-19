@@ -1,5 +1,7 @@
 #pragma once
 
+#define PLANETARY_GEAR_RATIO 4.241f
+#define SLIP_RATIO_IDEAL 0.05f
 #define WHEEL_RADIUS_m
 #define FRONT_AXLE_LENGTH_m
 #define POWER_TO_TORQUE_CONVERSION_FACTOR  9550 //as specified in the manual for the emrax 188 motors
@@ -7,4 +9,4 @@
 #define MOTOR_TEMP_CUTOFF_c 90 //in degrees celsius
 #define MOTOR_TEMP_POWER_DECREMENTING_RATIO 80.0/30.0 //amount to decrease max power
                                                 // by for every degree celsius over motor cutoff temp (we got this number by looking at the emrax 188 manual)
-#define SMALL_EPSILON .000001 //to avoid divide by zero error
+#define SMALL_EPSILON .000001f //to avoid divide by zero error

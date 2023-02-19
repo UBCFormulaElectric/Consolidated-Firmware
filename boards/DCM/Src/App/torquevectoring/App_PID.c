@@ -11,11 +11,11 @@ void APP_PID_Init(PID *pid, float Kp, float Ki, float Kd, float out_min, float o
     pid->out_max    = out_max;
 }
 
-float APP_PID_Compute(PID *pid, float setpoint, float input, float dt)
+float APP_PID_Compute(PID *pid, float setpoint, float input)
 {
     float error = setpoint - input;
-    pid->integral += error * dt;
-    float derivative = (error - pid->prev_error) / dt;
+    pid->integral += error;
+    float derivative = (error - pid->prev_error);
     pid->prev_error  = error;
     float output     = pid->Kp * error + pid->Ki * pid->integral + pid->Kd * derivative;
 
