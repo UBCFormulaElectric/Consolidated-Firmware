@@ -52,7 +52,7 @@ static struct stack_watermark stack_watermarks[] = {
     },
     {
         .handle              = &Task100HzHandle,
-        .stack_size          = 512,
+        .stack_size          = TASK100HZ_STACK_SIZE,
         .watermark_threshold = STACK_HIGH_WATERMARK_THRESHOLD,
         .log_error           = logWaterMarkAboveThresholdTask100Hz,
     },
