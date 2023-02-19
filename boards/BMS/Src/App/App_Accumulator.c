@@ -47,12 +47,12 @@ struct Accumulator
 
     // Cell voltage monitoring functions
     bool (*start_cell_voltage_conv)(void);
-    bool (*read_cell_voltages)(void);
-    float (*get_cell_voltage)(AccumulatorSegment, uint8_t);
+    bool (*read_cell_voltages)(float [ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]);
 
     // Voltage information
     VoltageStats            voltage_stats;
     AccumulatorMonitorState state;
+    float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
     // Cell temperature monitoring functions
     bool (*start_cell_temp_conv)(void);
@@ -82,10 +82,10 @@ static void App_Accumulator_CalculateVoltageStats(struct Accumulator *accumulato
         for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
         {
             // Collect each cell voltage to find the min/max
-            const float cell_voltage = accumulator->get_cell_voltage(segment, cell);
+            const float cell_voltage = App_Accumulator_GetCellVoltage(accumulator, segment, cell);
 
             // Get the minimum cell voltage
-            if (cell < temp_voltage_stats.min_voltage.voltage)
+            if (cell_voltage < temp_voltage_stats.min_voltage.voltage)
             {
                 temp_voltage_stats.min_voltage.voltage = cell_voltage;
                 temp_voltage_stats.min_voltage.segment = segment;
@@ -93,8 +93,9 @@ static void App_Accumulator_CalculateVoltageStats(struct Accumulator *accumulato
             }
 
             // Get the maximum cell voltage
-            if (cell > temp_voltage_stats.max_voltage.voltage)
+            if (cell_voltage > temp_voltage_stats.max_voltage.voltage)
             {
+
                 temp_voltage_stats.max_voltage.voltage = cell_voltage;
                 temp_voltage_stats.max_voltage.segment = segment;
                 temp_voltage_stats.max_voltage.cell    = cell;
@@ -115,8 +116,7 @@ struct Accumulator *App_Accumulator_Create(
     bool (*config_monitoring_chip)(void),
     bool (*write_cfg_registers)(void),
     bool (*start_voltage_conv)(void),
-    bool (*read_cell_voltages)(void),
-    float (*get_cell_voltage)(AccumulatorSegment, uint8_t),
+    bool (*read_cell_voltages)(float [ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]),
     bool (*start_cell_temp_conv)(void),
     bool (*read_cell_temperatures)(void),
     float (*get_min_cell_temp)(uint8_t *, uint8_t *),
@@ -134,7 +134,6 @@ struct Accumulator *App_Accumulator_Create(
     // Cell voltage monitoring functions
     accumulator->num_comm_tries          = 0U;
     accumulator->read_cell_voltages      = read_cell_voltages;
-    accumulator->get_cell_voltage        = get_cell_voltage;
     accumulator->start_cell_voltage_conv = start_voltage_conv;
 
     // Voltage information
@@ -175,7 +174,12 @@ float App_Accumulator_GetCellVoltage(
     AccumulatorSegment              segment,
     uint8_t                         cell)
 {
-    return accumulator->get_cell_voltage(segment, cell);
+    if (segment > ACCUMULATOR_NUM_SEGMENTS || cell > ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
+    {
+        return 0.0f;
+    }
+
+    return accumulator->cell_voltages[segment][cell];
 }
 
 float App_Accumulator_GetMaxVoltage(const struct Accumulator *const accumulator, uint8_t *segment, uint8_t *cell)
@@ -259,7 +263,8 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
     {
         case GET_CELL_VOLTAGE_STATE:
         {
-            UPDATE_PEC15_ERROR_COUNT(accumulator->read_cell_voltages(), accumulator->num_comm_tries);
+            // Attempt to read voltages from the LTCs, write output to cell voltages array
+            UPDATE_PEC15_ERROR_COUNT(accumulator->read_cell_voltages(accumulator->cell_voltages), accumulator->num_comm_tries);
 
             // Calculate min/max/segment voltages
             App_Accumulator_CalculateVoltageStats(accumulator);

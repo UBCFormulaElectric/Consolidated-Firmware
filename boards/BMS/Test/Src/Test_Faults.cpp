@@ -34,8 +34,6 @@ FAKE_VOID_FUNC(disable_pre_charge);
 FAKE_VALUE_FUNC(bool, configure_cell_monitors);
 FAKE_VALUE_FUNC(bool, write_cfg_registers);
 FAKE_VALUE_FUNC(bool, start_voltage_conv);
-FAKE_VALUE_FUNC(bool, read_cell_voltages);
-FAKE_VALUE_FUNC(float, get_cell_voltage, AccumulatorSegment, uint8_t);
 FAKE_VALUE_FUNC(float, get_raw_ts_voltage);
 FAKE_VALUE_FUNC(float, get_ts_voltage, float);
 FAKE_VALUE_FUNC(float, get_raw_low_res_current);
@@ -49,6 +47,32 @@ FAKE_VALUE_FUNC(float, get_max_temp_degc, uint8_t *, uint8_t *);
 FAKE_VALUE_FUNC(float, get_avg_temp_degc);
 FAKE_VALUE_FUNC(bool, enable_discharge);
 FAKE_VALUE_FUNC(bool, disable_discharge);
+
+static float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
+
+static bool read_cell_voltages(float voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]) {
+    for(uint8_t segment  = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++) {
+        for(uint8_t cell  = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++) {
+            voltages[segment][cell] = cell_voltages[segment][cell];
+        }
+    }
+
+    return true;
+}
+
+static void set_cell_voltage(AccumulatorSegment segment, uint8_t cell, float voltage) {
+    if(segment < ACCUMULATOR_NUM_SEGMENTS && cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT) {
+        cell_voltages[segment][cell] = voltage;
+    }
+}
+
+static void set_all_cell_voltages(float voltage) {
+    for(uint8_t segment  = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++) {
+        for(uint8_t cell  = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++) {
+            set_cell_voltage((AccumulatorSegment)segment, cell, voltage);
+        }
+    }
+}
 
 class BmsFaultTest : public BaseStateMachineTest
 {
@@ -74,7 +98,7 @@ class BmsFaultTest : public BaseStateMachineTest
         bspd_ok = App_OkStatus_Create(enable_bspd_ok, disable_bspd_ok, is_bspd_ok_enabled);
 
         accumulator = App_Accumulator_Create(
-            configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, get_cell_voltage,
+            configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages,
             start_temp_conv, read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc,
             enable_discharge, disable_discharge);
 
@@ -120,8 +144,6 @@ class BmsFaultTest : public BaseStateMachineTest
         RESET_FAKE(is_air_positive_closed);
         RESET_FAKE(configure_cell_monitors);
         RESET_FAKE(write_cfg_registers);
-        RESET_FAKE(read_cell_voltages);
-        RESET_FAKE(get_cell_voltage);
         RESET_FAKE(start_voltage_conv);
         RESET_FAKE(get_low_res_current);
         RESET_FAKE(get_raw_low_res_current);
@@ -132,10 +154,8 @@ class BmsFaultTest : public BaseStateMachineTest
         // fault state from the charge state
         is_charger_connected_fake.return_val = true;
 
-        // Cell voltages read back are assumed to be true to prevent
-        // transitioning into the fault state
-        read_cell_voltages_fake.return_val = true;
-        get_cell_voltage_fake.return_val   = 3.8f;
+        // Set initial voltages to nominal value
+        set_all_cell_voltages(3.8);
         start_voltage_conv_fake.return_val = true;
 
         // A temperature in [0.0, 60.0] degC to prevent other tests from entering the fault state
@@ -245,8 +265,8 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overv
     LetTimePass(state_machine, 1000);
     ASSERT_NE(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
-    get_cell_voltage_fake.return_val = MAX_CELL_VOLTAGE + 1.0f;
-    LetTimePass(state_machine, 10);
+    set_cell_voltage(ACCUMULATOR_SEGMENT_0, 0, MAX_CELL_VOLTAGE + 1.0f);
+    LetTimePass(state_machine, 1000);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
 
@@ -258,7 +278,7 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_under
     LetTimePass(state_machine, 1000);
     ASSERT_NE(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
-    get_cell_voltage_fake.return_val = MIN_CELL_VOLTAGE - 1.0f;
+    set_cell_voltage(ACCUMULATOR_SEGMENT_0, 0, MIN_CELL_VOLTAGE - 1.0f);
     LetTimePass(state_machine, 10);
     ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 }
