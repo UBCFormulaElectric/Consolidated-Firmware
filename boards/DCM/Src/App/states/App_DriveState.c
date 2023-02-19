@@ -28,7 +28,7 @@ void App_SetPeriodicCanSignals_TorqueRequests()
     }
 
     // Calculate the maximum torque request to scale pedal percentage off of
-    const float max_torque_request = min(bms_torque_limit, MAX_TORQUE_REQUEST_NM);
+    const float max_torque_request = MIN(bms_torque_limit, MAX_TORQUE_REQUEST_NM);
 
     // Calculate the actual torque request to transmit
     const float torque_request = 0;
