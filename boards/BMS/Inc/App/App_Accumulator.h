@@ -39,7 +39,7 @@ struct Accumulator *App_Accumulator_Create(
     bool (*config_monitoring_chip)(void),
     bool (*write_cfg_registers)(void),
     bool (*start_voltage_conv)(void),
-    bool (*read_cell_voltages)(float [ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]),
+    bool (*read_cell_voltages)(float[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]),
     bool (*start_cell_temp_conv)(void),
     bool (*read_cell_temperatures)(void),
     float (*get_min_cell_temp)(uint8_t *, uint8_t *),
@@ -79,7 +79,10 @@ float App_Accumulator_GetCellVoltage(
  * @param cell The cell location for the voltage
  * @return The voltage at the location given in V
  */
-float App_Accumulator_GetCellVoltage(const struct Accumulator *const accumulator, AccumulatorSegment segment, uint8_t cell);
+float App_Accumulator_GetCellVoltage(
+    const struct Accumulator *const accumulator,
+    AccumulatorSegment              segment,
+    uint8_t                         cell);
 
 /**
  * Get min voltage for the accumulator

@@ -50,9 +50,12 @@ FAKE_VALUE_FUNC(bool, disable_discharge);
 
 static float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
-static bool read_cell_voltages(float voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]) {
-    for(uint8_t segment  = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++) {
-        for(uint8_t cell  = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++) {
+static bool read_cell_voltages(float voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT])
+{
+    for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
+    {
+        for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+        {
             voltages[segment][cell] = cell_voltages[segment][cell];
         }
     }
@@ -60,15 +63,20 @@ static bool read_cell_voltages(float voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULA
     return true;
 }
 
-static void set_cell_voltage(AccumulatorSegment segment, uint8_t cell, float voltage) {
-    if(segment < ACCUMULATOR_NUM_SEGMENTS && cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT) {
+static void set_cell_voltage(AccumulatorSegment segment, uint8_t cell, float voltage)
+{
+    if (segment < ACCUMULATOR_NUM_SEGMENTS && cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
+    {
         cell_voltages[segment][cell] = voltage;
     }
 }
 
-static void set_all_cell_voltages(float voltage) {
-    for(uint8_t segment  = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++) {
-        for(uint8_t cell  = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++) {
+static void set_all_cell_voltages(float voltage)
+{
+    for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
+    {
+        for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+        {
             set_cell_voltage((AccumulatorSegment)segment, cell, voltage);
         }
     }
@@ -98,9 +106,9 @@ class BmsFaultTest : public BaseStateMachineTest
         bspd_ok = App_OkStatus_Create(enable_bspd_ok, disable_bspd_ok, is_bspd_ok_enabled);
 
         accumulator = App_Accumulator_Create(
-            configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages,
-            start_temp_conv, read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc,
-            enable_discharge, disable_discharge);
+            configure_cell_monitors, write_cfg_registers, start_voltage_conv, read_cell_voltages, start_temp_conv,
+            read_cell_temperatures, get_min_temp_degc, get_max_temp_degc, get_avg_temp_degc, enable_discharge,
+            disable_discharge);
 
         precharge_relay = App_PrechargeRelay_Create(enable_pre_charge, disable_pre_charge);
 

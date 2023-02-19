@@ -46,7 +46,10 @@ static uint16_t discharge_bits[ACCUMULATOR_NUM_SEGMENTS] = { 0U };
  * @param cell_voltages Buffer to write out the read voltages to
  * @return True if the data is read back successfully. Else, false
  */
-static bool Io_ParseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS], float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]);
+static bool Io_ParseCellVoltageFromAllSegments(
+    uint8_t  curr_reg_group,
+    uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS],
+    float    cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]);
 
 /**
  * Note: call this function after Io_UpdateVoltages is called to get the most
@@ -55,7 +58,10 @@ static bool Io_ParseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t 
  */
 static void Io_SetDischargeBits(void);
 
-static bool Io_ParseCellVoltageFromAllSegments(uint8_t curr_reg_group, uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS], float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT])
+static bool Io_ParseCellVoltageFromAllSegments(
+    uint8_t  curr_reg_group,
+    uint16_t rx_buffer[NUM_REG_GROUP_RX_WORDS],
+    float    cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT])
 {
     bool status = true;
 
@@ -131,7 +137,8 @@ static void Io_SetDischargeBits(void)
      */
 }
 
-bool Io_LTC6813CellVoltages_ReadVoltages(float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT])
+bool Io_LTC6813CellVoltages_ReadVoltages(
+    float cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT])
 {
     // Exit early if ADC conversion fails
     if (!Io_LTC6813Shared_PollAdcConversions())
