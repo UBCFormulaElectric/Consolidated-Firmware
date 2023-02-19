@@ -51,7 +51,7 @@ static void ChargeStateRunOnTick100Hz(struct StateMachine *const state_machine)
         App_CanTx_BMS_Faults_ChargerFault_Set(has_charger_faulted);
         App_CanTx_SetPeriodicSignal_IS_CHARGING_COMPLETE(charging_completed);
 
-        // If the current indicates charging is complete or charging is disabled over CAN go back to init state
+        // If the current indicates charging is complete or charging is disabled over CAN go back to init state.
         if (charging_completed || !charging_enabled)
         {
             App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
