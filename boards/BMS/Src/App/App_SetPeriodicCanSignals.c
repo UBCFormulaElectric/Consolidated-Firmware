@@ -7,8 +7,7 @@ void App_SetPeriodicCanSignals_Imd(struct Imd *imd)
     App_CanTx_BMS_ImdPwmOutput_DutyCycle_Set(App_Imd_GetPwmDutyCycle(imd));
 
     const struct Imd_Condition condition = App_Imd_GetCondition(imd);
-    // TODO: JSONCAN -> App_CanTx_SetPeriodicSignal_CONDITION(can_tx, (uint8_t)condition.name);
-
+    App_CanTx_BMS_ImdStatus_Condition_Set((uint8_t)condition.name);
     App_CanTx_BMS_ImdStatus_ValidDutyCycle_Set(condition.pwm_encoding.valid_duty_cycle);
 
     switch (condition.name)

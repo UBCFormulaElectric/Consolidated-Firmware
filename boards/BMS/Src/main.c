@@ -48,6 +48,7 @@
 #include "Io_VoltageSense.h"
 
 #include "App_CanUtils.h"
+#include "App_CanAlerts.h"
 #include "App_BmsWorld.h"
 #include "App_SharedMacros.h"
 #include "App_SharedStateMachine.h"
@@ -250,9 +251,8 @@ int main(void)
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
-    // TODO: JSONCAN
-    //    struct CanMsgs_bms_startup_t payload = { .dummy = 0 };
-    //    App_CanTx_SendNonPeriodicMsg_BMS_STARTUP(can_tx, &payload);
+    App_CanAlerts_SetAlert(BMS_ALERT_STARTUP, true);
+
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
