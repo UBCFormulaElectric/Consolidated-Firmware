@@ -20,5 +20,5 @@ void Io_SoftwareWatchdog_TimeoutCallback(SoftwareWatchdogHandle_t watchdog)
     const uint8_t watchdog_id = Io_SharedSoftwareWatchdog_GetTaskId(watchdog);
     App_CanAlerts_SetAlert(DIM_ALERT_WATCHDOG_TIMEOUT, true);
     App_CanTx_DIM_WatchdogTimeout_TaskName_Set((RtosTaskName)watchdog_id);
-    App_CanTx_DIM_WatchdogTimeout_SendAperiodic();
+    Io_CanTx_DIM_WatchdogTimeout_SendAperiodic();
 }

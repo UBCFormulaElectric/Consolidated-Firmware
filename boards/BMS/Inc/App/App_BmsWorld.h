@@ -2,6 +2,7 @@
 
 #include "App_CanTx.h"
 #include "App_CanRx.h"
+#include "App_CanAlerts.h"
 #include "App_Imd.h"
 #include "App_SharedHeartbeatMonitor.h"
 #include "App_SharedRgbLedSequence.h"

@@ -240,6 +240,9 @@ function(can_code_generation
             ${CAN_JSON_DIR}/**/*.json
             )
     set(DBC_OUTPUT ${CAN_DIR}/dbcs/CanMsgs.dbc)
+    file(GLOB_RECURSE CAN_JSON_PY_SRCS
+            ${SCRIPTS_DIR}/codegen/json2can/**/*.py
+            )
 
     add_custom_command(
         OUTPUT ${APP_CAN_TX_SRC_OUTPUT}
@@ -271,7 +274,7 @@ function(can_code_generation
                 --app_can_alerts_header_output  ${APP_CAN_ALERTS_HEADER_OUTPUT}
                 --app_can_alerts_source_output  ${APP_CAN_ALERTS_SRC_OUTPUT}
                 --dbc_output                    ${DBC_OUTPUT}
-        DEPENDS ${CAN_JSON_SRCS}
+        DEPENDS ${CAN_JSON_SRCS} ${CAN_JSON_PY_SRCS}
         WORKING_DIRECTORY ${PIPENV_PROJECT_DIR}
         )
 endfunction()

@@ -201,6 +201,7 @@ int main(void)
 
     App_CanTx_Init();
     App_CanRx_Init();
+    App_CanAlerts_Init(Io_CanTx_BMS_Alerts_SendAperiodic);
 
     Io_Imd_Init();
     imd = App_Imd_Create(Io_Imd_GetFrequency, IMD_FREQUENCY_TOLERANCE, Io_Imd_GetDutyCycle, Io_Imd_GetTimeSincePowerOn);
