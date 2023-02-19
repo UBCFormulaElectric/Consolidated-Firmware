@@ -34,7 +34,6 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         struct BmsWorld *         world   = App_SharedStateMachine_GetWorld(state_machine);
         struct TractiveSystem *   ts      = App_BmsWorld_GetTractiveSystem(world);
-        struct BmsCanRxInterface *can_rx  = App_BmsWorld_GetCanRx(world);
         struct Airs *             airs    = App_BmsWorld_GetAirs(world);
         struct Charger *          charger = App_BmsWorld_GetCharger(world);
 
@@ -46,7 +45,7 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
         {
             // If the charger is connected, the CAN message must also be set
             // to continue into Pre-Charge State, then Charge State
-            if (is_charger_connected && App_CanRx_CHARGING_STATUS_GetSignal_CHARGING_SWITCH(can_rx))
+            if (is_charger_connected && App_CanRx_CHARGING_STATUS_GetSignal_CHARGING_SWITCH())
             {
                 App_SharedStateMachine_SetNextState(state_machine, App_GetPreChargeState());
             }
