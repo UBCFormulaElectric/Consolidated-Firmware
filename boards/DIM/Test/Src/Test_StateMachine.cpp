@@ -21,9 +21,15 @@ namespace StateMachineTest
 FAKE_VOID_FUNC(send_non_periodic_msg_DIM_STARTUP, const struct CanMsgs_dim_startup_t *);
 FAKE_VOID_FUNC(send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT, const struct CanMsgs_dim_watchdog_timeout_t *);
 
-FAKE_VOID_FUNC(set_right_hex_digit, struct SevenSegHexDigit);
-FAKE_VOID_FUNC(set_middle_hex_digit, struct SevenSegHexDigit);
-FAKE_VOID_FUNC(set_left_hex_digit, struct SevenSegHexDigit);
+FAKE_VOID_FUNC(set_right_l_hex_digit, struct SevenSegHexDigit);
+FAKE_VOID_FUNC(set_right_m_hex_digit, struct SevenSegHexDigit);
+FAKE_VOID_FUNC(set_right_r_hex_digit, struct SevenSegHexDigit);
+FAKE_VOID_FUNC(set_middle_l_hex_digit, struct SevenSegHexDigit);
+FAKE_VOID_FUNC(set_middle_m_hex_digit, struct SevenSegHexDigit);
+FAKE_VOID_FUNC(set_middle_r_hex_digit, struct SevenSegHexDigit);
+FAKE_VOID_FUNC(set_left_l_hex_digit, struct SevenSegHexDigit);
+FAKE_VOID_FUNC(set_left_m_hex_digit, struct SevenSegHexDigit);
+FAKE_VOID_FUNC(set_left_r_hex_digit, struct SevenSegHexDigit);
 FAKE_VOID_FUNC(display_value_callback);
 
 FAKE_VALUE_FUNC(uint32_t, get_current_ms);
@@ -76,12 +82,20 @@ class DimStateMachineTest : public BaseStateMachineTest
     {
         BaseStateMachineTest::SetUp();
 
-        left_seven_seg_display   = App_SevenSegDisplay_Create(set_left_hex_digit);
-        middle_seven_seg_display = App_SevenSegDisplay_Create(set_middle_hex_digit);
-        right_seven_seg_display  = App_SevenSegDisplay_Create(set_right_hex_digit);
+        left_l_seven_seg_display   = App_SevenSegDisplay_Create(set_left_l_hex_digit);
+        left_m_seven_seg_display   = App_SevenSegDisplay_Create(set_left_m_hex_digit);
+        left_r_seven_seg_display   = App_SevenSegDisplay_Create(set_left_r_hex_digit);
+        middle_l_seven_seg_display = App_SevenSegDisplay_Create(set_middle_l_hex_digit);
+        middle_m_seven_seg_display = App_SevenSegDisplay_Create(set_middle_m_hex_digit);
+        middle_r_seven_seg_display = App_SevenSegDisplay_Create(set_middle_r_hex_digit);
+        right_l_seven_seg_display  = App_SevenSegDisplay_Create(set_right_l_hex_digit);
+        right_m_seven_seg_display  = App_SevenSegDisplay_Create(set_right_m_hex_digit);
+        right_r_seven_seg_display  = App_SevenSegDisplay_Create(set_right_r_hex_digit);
+
 
         seven_seg_displays = App_SevenSegDisplays_Create(
-            left_seven_seg_display, middle_seven_seg_display, right_seven_seg_display, display_value_callback);
+            left_l_seven_seg_display, left_m_seven_seg_display, left_r_seven_seg_display, middle_l_seven_seg_display, middle_m_seven_seg_display, middle_r_seven_seg_display,
+            right_l_seven_seg_display, right_m_seven_seg_display, right_r_seven_seg_display, display_value_callback);
 
         heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
             get_current_ms, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
@@ -128,9 +142,15 @@ class DimStateMachineTest : public BaseStateMachineTest
         // Reset fake functions
         RESET_FAKE(send_non_periodic_msg_DIM_STARTUP);
         RESET_FAKE(send_non_periodic_msg_DIM_WATCHDOG_TIMEOUT);
-        RESET_FAKE(set_right_hex_digit);
-        RESET_FAKE(set_middle_hex_digit);
-        RESET_FAKE(set_left_hex_digit);
+        RESET_FAKE(set_left_l_hex_digit);
+        RESET_FAKE(set_left_m_hex_digit);
+        RESET_FAKE(set_left_r_hex_digit);
+        RESET_FAKE(set_middle_l_hex_digit);
+        RESET_FAKE(set_middle_m_hex_digit);
+        RESET_FAKE(set_middle_r_hex_digit);
+        RESET_FAKE(set_right_l_hex_digit);
+        RESET_FAKE(set_right_m_hex_digit);
+        RESET_FAKE(set_right_r_hex_digit);
         RESET_FAKE(display_value_callback);
         RESET_FAKE(get_current_ms);
         RESET_FAKE(heartbeat_timeout_callback);
@@ -171,9 +191,15 @@ class DimStateMachineTest : public BaseStateMachineTest
     {
         TearDownObject(world, App_DimWorld_Destroy);
         TearDownObject(state_machine, App_SharedStateMachine_Destroy);
-        TearDownObject(left_seven_seg_display, App_SevenSegDisplay_Destroy);
-        TearDownObject(middle_seven_seg_display, App_SevenSegDisplay_Destroy);
-        TearDownObject(right_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(left_l_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(left_m_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(left_r_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(middle_l_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(middle_m_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(middle_r_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(right_l_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(right_m_seven_seg_display, App_SevenSegDisplay_Destroy);
+        TearDownObject(right_r_seven_seg_display, App_SevenSegDisplay_Destroy);
         TearDownObject(seven_seg_displays, App_SevenSegDisplays_Destroy);
         TearDownObject(heartbeat_monitor, App_SharedHeartbeatMonitor_Destroy);
         TearDownObject(rgb_led_sequence, App_SharedRgbLedSequence_Destroy);
@@ -214,9 +240,15 @@ class DimStateMachineTest : public BaseStateMachineTest
 
     struct World *           world;
     struct StateMachine *    state_machine;
-    struct SevenSegDisplay * left_seven_seg_display;
-    struct SevenSegDisplay * middle_seven_seg_display;
-    struct SevenSegDisplay * right_seven_seg_display;
+    struct SevenSegDisplay * left_l_seven_seg_display;
+    struct SevenSegDisplay * left_m_seven_seg_display;
+    struct SevenSegDisplay * left_r_seven_seg_display;
+    struct SevenSegDisplay * middle_l_seven_seg_display;
+    struct SevenSegDisplay * middle_m_seven_seg_display;
+    struct SevenSegDisplay * middle_r_seven_seg_display;
+    struct SevenSegDisplay * right_l_seven_seg_display;
+    struct SevenSegDisplay * right_m_seven_seg_display;
+    struct SevenSegDisplay * right_r_seven_seg_display;
     struct SevenSegDisplays *seven_seg_displays;
     struct HeartbeatMonitor *heartbeat_monitor;
     struct RgbLedSequence *  rgb_led_sequence;
