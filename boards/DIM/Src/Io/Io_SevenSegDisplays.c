@@ -212,13 +212,10 @@ void Io_SevenSegDisplays_SetRight_M_HexDigit(struct SevenSegHexDigit hex_digit)
 }
 
 void Io_SevenSegDisplays_SetRight_R_HexDigit(struct SevenSegHexDigit hex_digit)
-{
-    if (!hex_digit.enabled)
-    {
+        {
+    if (!hex_digit.enabled) {
         commands[RIGHT_R_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
-    }
-    else
-    {
+    } else {
         assert(hex_digit.value < NUM_HEX_DIGITS);
 
         commands[RIGHT_R_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
