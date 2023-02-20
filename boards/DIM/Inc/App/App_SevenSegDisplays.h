@@ -8,9 +8,15 @@ struct SevenSegDisplay;
 
 enum
 {
-    LEFT_SEVEN_SEG_DISPLAY,
-    MIDDLE_SEVEN_SEG_DISPLAY,
-    RIGHT_SEVEN_SEG_DISPLAY,
+    LEFT_L_SEVEN_SEG_DISPLAY,
+    LEFT_M_SEVEN_SEG_DISPLAY,
+    LEFT_R_SEVEN_SEG_DISPLAY,
+    MIDDLE_L_SEVEN_SEG_DISPLAY,
+    MIDDLE_M_SEVEN_SEG_DISPLAY,
+    MIDDLE_R_SEVEN_SEG_DISPLAY,
+    RIGHT_L_SEVEN_SEG_DISPLAY,
+    RIGHT_M_SEVEN_SEG_DISPLAY,
+    RIGHT_R_SEVEN_SEG_DISPLAY,
     NUM_SEVEN_SEG_DISPLAYS,
 };
 
@@ -28,9 +34,15 @@ enum
  *         ownership is given to the caller
  */
 struct SevenSegDisplays *App_SevenSegDisplays_Create(
-    struct SevenSegDisplay *left_seven_seg_display,
-    struct SevenSegDisplay *middle_seven_seg_display,
-    struct SevenSegDisplay *right_seven_seg_display,
+    struct SevenSegDisplay *left_l_seven_seg_display,
+    struct SevenSegDisplay *left_m_seven_seg_display,
+    struct SevenSegDisplay *left_r_seven_seg_display,
+    struct SevenSegDisplay *middle_l_seven_seg_display,
+    struct SevenSegDisplay *middle_m_seven_seg_display,
+    struct SevenSegDisplay *middle_r_seven_seg_display,
+    struct SevenSegDisplay *right_l_seven_seg_display,
+    struct SevenSegDisplay *right_m_seven_seg_display,
+    struct SevenSegDisplay *right_r_seven_seg_display,
     void (*display_value_callback)(void));
 
 /**
