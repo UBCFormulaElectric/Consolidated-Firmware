@@ -99,44 +99,128 @@ void Io_SevenSegDisplays_WriteCommands(void)
     HAL_GPIO_WritePin(SEVENSEGS_RCK_GPIO_Port, SEVENSEGS_RCK_Pin, GPIO_PIN_RESET);
 }
 
-void Io_SevenSegDisplays_SetLeftHexDigit(struct SevenSegHexDigit hex_digit)
+void Io_SevenSegDisplays_SetLeft_L_HexDigit(struct SevenSegHexDigit hex_digit)
 {
     if (!hex_digit.enabled)
     {
-        commands[LEFT_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
+        commands[LEFT_L_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
     }
     else
     {
         assert(hex_digit.value < NUM_HEX_DIGITS);
 
-        commands[LEFT_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
+        commands[LEFT_L_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
     }
 }
 
-void Io_SevenSegDisplays_SetMiddleHexDigit(struct SevenSegHexDigit hex_digit)
+void Io_SevenSegDisplays_SetLeft_M_HexDigit(struct SevenSegHexDigit hex_digit)
 {
     if (!hex_digit.enabled)
     {
-        commands[MIDDLE_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
+        commands[LEFT_M_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
     }
     else
     {
         assert(hex_digit.value < NUM_HEX_DIGITS);
 
-        commands[MIDDLE_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
+        commands[LEFT_M_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
     }
 }
 
-void Io_SevenSegDisplays_SetRightHexDigit(struct SevenSegHexDigit hex_digit)
+void Io_SevenSegDisplays_SetLeft_R_HexDigit(struct SevenSegHexDigit hex_digit)
 {
     if (!hex_digit.enabled)
     {
-        commands[RIGHT_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
+        commands[LEFT_R_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
     }
     else
     {
         assert(hex_digit.value < NUM_HEX_DIGITS);
 
-        commands[RIGHT_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
+        commands[LEFT_R_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
+    }
+}
+
+void Io_SevenSegDisplays_SetMiddle_L_HexDigit(struct SevenSegHexDigit hex_digit)
+{
+    if (!hex_digit.enabled)
+    {
+        commands[MIDDLE_L_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
+    }
+    else
+    {
+        assert(hex_digit.value < NUM_HEX_DIGITS);
+
+        commands[MIDDLE_L_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
+    }
+}
+
+void Io_SevenSegDisplays_SetMiddle_M_HexDigit(struct SevenSegHexDigit hex_digit)
+{
+    if (!hex_digit.enabled)
+    {
+        commands[MIDDLE_M_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
+    }
+    else
+    {
+        assert(hex_digit.value < NUM_HEX_DIGITS);
+
+        commands[MIDDLE_M_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
+    }
+}
+
+void Io_SevenSegDisplays_SetMiddle_R_HexDigit(struct SevenSegHexDigit hex_digit)
+{
+    if (!hex_digit.enabled)
+    {
+        commands[MIDDLE_R_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
+    }
+    else
+    {
+        assert(hex_digit.value < NUM_HEX_DIGITS);
+
+        commands[MIDDLE_R_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
+    }
+}
+
+void Io_SevenSegDisplays_SetRight_L_HexDigit(struct SevenSegHexDigit hex_digit)
+{
+    if (!hex_digit.enabled)
+    {
+        commands[RIGHT_L_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
+    }
+    else
+    {
+        assert(hex_digit.value < NUM_HEX_DIGITS);
+
+        commands[RIGHT_L_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
+    }
+}
+
+void Io_SevenSegDisplays_SetRight_M_HexDigit(struct SevenSegHexDigit hex_digit)
+{
+    if (!hex_digit.enabled)
+    {
+        commands[RIGHT_M_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
+    }
+    else
+    {
+        assert(hex_digit.value < NUM_HEX_DIGITS);
+
+        commands[RIGHT_M_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
+    }
+}
+
+void Io_SevenSegDisplays_SetRight_R_HexDigit(struct SevenSegHexDigit hex_digit)
+{
+    if (!hex_digit.enabled)
+    {
+        commands[RIGHT_R_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
+    }
+    else
+    {
+        assert(hex_digit.value < NUM_HEX_DIGITS);
+
+        commands[RIGHT_R_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
     }
 }
