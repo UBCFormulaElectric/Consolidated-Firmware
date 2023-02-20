@@ -194,15 +194,15 @@ int main(void)
     App_CanRx_Init();
     App_CanAlerts_Init(Io_CanTx_DIM_Alerts_SendAperiodic);
 
-    left_l_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_Set_L_LeftHexDigit);
-    left_m_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_Set_M_LeftHexDigit);
-    left_r_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_Set_R_LeftHexDigit);
-    middle_l_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_Set_L_MiddleHexDigit);
-    middle_m_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_Set_M_MiddleHexDigit);
-    middle_r_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_Set_R_MiddleHexDigit);
-    right_l_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_Set_L_RightHexDigit);
-    right_m_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_Set_M_RightHexDigit);
-    right_r_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_Set_R_RightHexDigit);
+    left_l_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetLeft_L_HexDigit);
+    left_m_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetLeft_M_HexDigit);
+    left_r_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetLeft_R_HexDigit);
+    middle_l_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetMiddle_L_HexDigit);
+    middle_m_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetMiddle_M_HexDigit);
+    middle_r_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetMiddle_R_HexDigit);
+    right_l_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetRight_L_HexDigit);
+    right_m_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetRight_M_HexDigit);
+    right_r_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetRight_R_HexDigit);
 
     seven_seg_displays = App_SevenSegDisplays_Create(
         left_l_seven_seg_display, left_m_seven_seg_display,left_r_seven_seg_display,  middle_l_seven_seg_display, middle_m_seven_seg_display,
