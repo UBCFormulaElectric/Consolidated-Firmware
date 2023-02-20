@@ -21,8 +21,7 @@ struct FsmWorld
 };
 
 struct FsmWorld *App_FsmWorld_Create(
-    struct HeartbeatMonitor *const heartbeat_monitor,
-
+    struct HeartbeatMonitor *const  heartbeat_monitor,
     struct AcceleratorPedals *const papps_and_sapps,
     struct Brake *const             brake,
     struct Coolant *const           coolant,
@@ -33,12 +32,11 @@ struct FsmWorld *App_FsmWorld_Create(
     assert(world != NULL);
 
     world->heartbeat_monitor = heartbeat_monitor;
-
-    world->papps_and_sapps = papps_and_sapps;
-    world->brake           = brake;
-    world->coolant         = coolant;
-    world->steering        = steering;
-    world->wheels          = wheels;
+    world->papps_and_sapps   = papps_and_sapps;
+    world->brake             = brake;
+    world->coolant           = coolant;
+    world->steering          = steering;
+    world->wheels            = wheels;
 
     return world;
 }
