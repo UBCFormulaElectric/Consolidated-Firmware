@@ -105,7 +105,7 @@ BO_ 203 DCM_Vitals: 1 DCM
 SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
 SG_ CurrentState : 1|2@1+ (1,0) [0|2] "" DEBUG,BMS
 
-BO_ 32 DCM_LeftInverterCommand: 7 DCM
+BO_ 32 DCM_LeftInverterCommand: 8 DCM
 SG_ TorqueCommand : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG,INVL
 SG_ SpeedCommand : 16|16@1- (1,0) [-32768|32767] "rpm" DEBUG,INVL
 SG_ DirectionCommand : 32|1@1+ (1,0) [0|1] "" DEBUG,INVL
@@ -114,7 +114,7 @@ SG_ EnableDischarge : 41|1@1+ (1,0) [0|1] "" DEBUG,INVL
 SG_ EnableSpeedMode : 42|1@1+ (1,0) [0|1] "" DEBUG,INVL
 SG_ TorqueLimit : 48|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG,INVL
 
-BO_ 82 DCM_RightInverterCommand: 7 DCM
+BO_ 82 DCM_RightInverterCommand: 8 DCM
 SG_ TorqueCommand : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG,INVR
 SG_ SpeedCommand : 16|16@1- (1,0) [-32768|32767] "rpm" DEBUG,INVR
 SG_ DirectionCommand : 32|1@1+ (1,0) [0|1] "" DEBUG,INVR
@@ -143,8 +143,8 @@ SG_ DCM_STARTUP : 0|1@1+ (1,0) [0|1] "" DEBUG
 SG_ DCM_ALERT_WATCHDOG_TIMEOUT : 1|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 502 DIM_Vitals: 1 DIM
-SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM
-SG_ State : 1|1@1+ (1,0) [0|0] "" DEBUG,BMS,DCM
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
+SG_ State : 1|1@1+ (1,0) [0|0] "" DEBUG,BMS
 
 BO_ 503 DIM_Switches: 1 DIM
 SG_ StartSwitch : 0|1@1+ (1,0) [0|1] "" DEBUG,DCM
@@ -167,7 +167,12 @@ SG_ DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX : 5|1@1+ (1,0) [0|1] ""
 SG_ DIM_ALERT_WATCHDOG_TIMEOUT : 6|1@1+ (1,0) [0|1] "" DEBUG
 
 BO_ 303 FSM_Vitals: 1 FSM
-SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS,DCM
+SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
+
+BO_ 304 FSM_Test: 3 FSM
+SG_ IsBrakeActuated : 0|1@1+ (1,0) [0|1] "" DEBUG,DCM
+SG_ TorqueLimit : 1|10@1+ (0.1,0) [0|90] "" DEBUG,DCM
+SG_ MappedPedalPosition : 11|10@1+ (0.1,0) [0|100] "" DEBUG,DCM
 
 BO_ 300 FSM_Alerts: 1 FSM
 SG_ PDM_ALERT_DUMMY : 0|1@1+ (1,0) [0|1] "" DEBUG
@@ -220,7 +225,7 @@ SG_ 2V5_ReferenceVoltage : 16|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
 SG_ 5V_ReferenceVoltage : 32|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
 SG_ 12V_ReferenceVoltage : 48|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
 
-BO_ 10 INVL_InternalStates: 6 INVL
+BO_ 10 INVL_InternalStates: 8 INVL
 SG_ VsmState : 0|4@1+ (1,0) [0|15] "" DEBUG,DCM
 SG_ PwmFrequency : 8|8@1+ (1,0) [0|255] "kHz" DEBUG,DCM
 SG_ InverterState : 16|4@1+ (1,0) [0|9] "" DEBUG,DCM
@@ -315,12 +320,12 @@ SG_ TorqueCommand : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
 SG_ TorqueFeedback : 16|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
 SG_ MotorSpeed : 32|16@1- (1,0) [-32768|32767] "rpm" DEBUG
 
-BO_ 33 INVL_DebugReadWriteParamCommand: 5 INVL
+BO_ 33 INVL_DebugReadWriteParamCommand: 6 INVL
 SG_ ParameterAddress : 0|16@1+ (1,0) [0|65535] "" DEBUG
 SG_ ReadWriteCommand : 16|1@1+ (1,0) [0|1] "" DEBUG
 SG_ Data : 32|16@1+ (1,0) [0|65535] "" DEBUG
 
-BO_ 34 INVL_DebugReadWriteParamResponse: 5 INVL
+BO_ 34 INVL_DebugReadWriteParamResponse: 6 INVL
 SG_ ParameterAddress : 0|16@1+ (1,0) [0|65535] "" DEBUG
 SG_ WriteSuccess : 16|1@1+ (1,0) [0|1] "" DEBUG
 SG_ Data : 32|16@1+ (1,0) [0|65535] "" DEBUG
@@ -369,7 +374,7 @@ SG_ 2V5_ReferenceVoltage : 16|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
 SG_ 5V_ReferenceVoltage : 32|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
 SG_ 12V_ReferenceVoltage : 48|16@1- (0.01,0) [-327.68|327.67] "V" DEBUG
 
-BO_ 60 INVR_InternalStates: 6 INVR
+BO_ 60 INVR_InternalStates: 8 INVR
 SG_ VsmState : 0|4@1+ (1,0) [0|15] "" DEBUG,DCM
 SG_ PwmFrequency : 8|8@1+ (1,0) [0|255] "kHz" DEBUG,DCM
 SG_ InverterState : 16|4@1+ (1,0) [0|9] "" DEBUG,DCM
@@ -464,12 +469,12 @@ SG_ TorqueCommand : 0|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
 SG_ TorqueFeedback : 16|16@1- (0.1,0) [-3276.8|3276.7] "Nm" DEBUG
 SG_ MotorSpeed : 32|16@1- (1,0) [-32768|32767] "rpm" DEBUG
 
-BO_ 83 INVR_DebugReadWriteParamCommand: 5 INVR
+BO_ 83 INVR_DebugReadWriteParamCommand: 6 INVR
 SG_ ParameterAddress : 0|16@1+ (1,0) [0|65535] "" DEBUG
 SG_ ReadWriteCommand : 16|1@1+ (1,0) [0|1] "" DEBUG
 SG_ Data : 32|16@1+ (1,0) [0|65535] "" DEBUG
 
-BO_ 84 INVR_DebugReadWriteParamResponse: 5 INVR
+BO_ 84 INVR_DebugReadWriteParamResponse: 6 INVR
 SG_ ParameterAddress : 0|16@1+ (1,0) [0|65535] "" DEBUG
 SG_ WriteSuccess : 16|1@1+ (1,0) [0|1] "" DEBUG
 SG_ Data : 32|16@1+ (1,0) [0|65535] "" DEBUG
@@ -561,20 +566,20 @@ BA_ "GenSigStartValue" SG_ 120 AvailablePower 0;
 BA_ "GenSigStartValue" SG_ 150 BMS_ALERT_DUMMY 0;
 BA_ "GenSigStartValue" SG_ 203 Heartbeat 0;
 BA_ "GenSigStartValue" SG_ 203 CurrentState 0;
-BA_ "GenSigStartValue" SG_ 32 TorqueCommand -3276.8;
-BA_ "GenSigStartValue" SG_ 32 SpeedCommand -32768;
+BA_ "GenSigStartValue" SG_ 32 TorqueCommand 0;
+BA_ "GenSigStartValue" SG_ 32 SpeedCommand 0;
 BA_ "GenSigStartValue" SG_ 32 DirectionCommand 0;
 BA_ "GenSigStartValue" SG_ 32 EnableInverter 0;
 BA_ "GenSigStartValue" SG_ 32 EnableDischarge 0;
 BA_ "GenSigStartValue" SG_ 32 EnableSpeedMode 0;
-BA_ "GenSigStartValue" SG_ 32 TorqueLimit -3276.8;
-BA_ "GenSigStartValue" SG_ 82 TorqueCommand -3276.8;
-BA_ "GenSigStartValue" SG_ 82 SpeedCommand -32768;
+BA_ "GenSigStartValue" SG_ 32 TorqueLimit 0;
+BA_ "GenSigStartValue" SG_ 82 TorqueCommand 0;
+BA_ "GenSigStartValue" SG_ 82 SpeedCommand 0;
 BA_ "GenSigStartValue" SG_ 82 DirectionCommand 0;
 BA_ "GenSigStartValue" SG_ 82 EnableInverter 0;
 BA_ "GenSigStartValue" SG_ 82 EnableDischarge 0;
 BA_ "GenSigStartValue" SG_ 82 EnableSpeedMode 0;
-BA_ "GenSigStartValue" SG_ 82 TorqueLimit -3276.8;
+BA_ "GenSigStartValue" SG_ 82 TorqueLimit 0;
 BA_ "GenSigStartValue" SG_ 204 StackWatermarkAboveThresholdTask1Hz 0;
 BA_ "GenSigStartValue" SG_ 204 StackWatermarkAboveThresholdTask1kHz 0;
 BA_ "GenSigStartValue" SG_ 204 StackWatermarkAboveThresholdTaskCanRx 0;
@@ -601,6 +606,9 @@ BA_ "GenSigStartValue" SG_ 500 DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CA
 BA_ "GenSigStartValue" SG_ 500 DIM_ALERT_STACK_WATERMARK_ABOVE_THRESHOLD_TASK_CANRX 0;
 BA_ "GenSigStartValue" SG_ 500 DIM_ALERT_WATCHDOG_TIMEOUT 0;
 BA_ "GenSigStartValue" SG_ 303 Heartbeat 0;
+BA_ "GenSigStartValue" SG_ 304 IsBrakeActuated 0;
+BA_ "GenSigStartValue" SG_ 304 TorqueLimit 0;
+BA_ "GenSigStartValue" SG_ 304 MappedPedalPosition 0;
 BA_ "GenSigStartValue" SG_ 300 PDM_ALERT_DUMMY 0;
 BA_ "GenSigStartValue" SG_ 603 Ex1 0;
 BA_ "GenSigStartValue" SG_ 600 GSM_ALERT_DUMMY 0;
@@ -889,6 +897,7 @@ BA_ "GenMsgCycleTime" BO_ 502  1000;
 BA_ "GenMsgCycleTime" BO_ 503  1000;
 BA_ "GenMsgCycleTime" BO_ 504  1000;
 BA_ "GenMsgCycleTime" BO_ 303  1000;
+BA_ "GenMsgCycleTime" BO_ 304  100;
 BA_ "GenMsgCycleTime" BO_ 603  1000;
 BA_ "GenMsgCycleTime" BO_ 0  100;
 BA_ "GenMsgCycleTime" BO_ 1  100;

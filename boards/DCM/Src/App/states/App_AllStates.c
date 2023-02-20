@@ -4,17 +4,14 @@
 
 static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
-    //TODO check -> App_CanTx_SetPeriodicSignal_HEARTBEAT(can_tx, true);
     App_CanTx_DCM_Vitals_Heartbeat_Set(true);
-    if (App_CanRx_DIM_Vitals_Heartbeat_Get()) //TODO check -> (App_CanRx_BMS_VITALS_GetSignal_HEARTBEAT(can_rx))
+    if (App_CanRx_BMS_Vitals_Heartbeat_Get())
     {
         App_SharedHeartbeatMonitor_CheckIn(hb_monitor, BMS_HEARTBEAT_ONE_HOT);
-        // App_CanRx_BMS_VITALS_SetSignal_HEARTBEAT(can_rx, false);
         App_CanRx_BMS_Vitals_Heartbeat_Update(false);
     }
 
     const bool is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
-    // TODO check -> App_CanTx_SetPeriodicSignal_MISSING_HEARTBEAT(can_tx, is_missing_hb);
     App_CanTx_DCM_Errors_MissingHeartbeat_Set(is_missing_hb);
 }
 
@@ -31,15 +28,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct HeartbeatMonitor *hb_monitor  = App_DcmWorld_GetHeartbeatMonitor(world);
 
     App_SendAndReceiveHeartbeat(hb_monitor);
-
-    // TODO: JSONCAN waiting for fsm-> App_BrakeLight_SetLightStatus(brake_light,
-    // App_CanRx_FSM_BRAKE_FLAGS_GetSignal_BRAKE_IS_ACTUATED(can_rx)); JSONCAN ->
-    // TODO delete inverter switch->
-    // App_CanTx_SetPeriodicSignal_RIGHT_INVERTER_SWITCH(can_tx, App_InverterSwitches_IsRightOn(inverter_switches));
-
-
-    // TODO delete inverter switch-> App_CanTx_SetPeriodicSignal_LEFT_INVERTER_SWITCH(can_tx,
-    // App_InverterSwitches_IsLeftOn(inverter_switches));
+    App_BrakeLight_SetLightStatus(brake_light, App_CanRx_FSM_Test_IsBrakeActuated_Get());
 
     if (App_HasInverterFault())
     {

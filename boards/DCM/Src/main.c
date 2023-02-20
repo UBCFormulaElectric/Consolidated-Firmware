@@ -115,13 +115,11 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 /* USER CODE BEGIN 0 */
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    // TODO check -> App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count);
     App_CanTx_DCM_CanFifoOverflow_RxOverflowCount_Set(overflow_count);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    // TODO check -> App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
     App_CanTx_DCM_CanFifoOverflow_TxOverflowCount_Set(overflow_count);
 }
 
@@ -150,7 +148,7 @@ int main(void)
     SystemClock_Config();
 
     /* USER CODE BEGIN SysInit */
-    HAL_Delay(1500U);
+    HAL_Delay(1000U);
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
@@ -161,9 +159,11 @@ int main(void)
     __HAL_DBGMCU_FREEZE_IWDG();
 
     Io_SharedHardFaultHandler_Init();
+    Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
 
     App_CanTx_Init();
     App_CanRx_Init();
+    App_CanAlerts_Init(Io_CanTx_DCM_Alerts_SendAperiodic);
 
     heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
         Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
@@ -183,9 +183,7 @@ int main(void)
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
-    // struct CanMsgs_dcm_startup_t payload = { .dummy = 0 }; // TODO check 
-    // App_CanTx_SendNonPeriodicMsg_DCM_STARTUP(can_tx, &payload);
-   App_CanAlerts_SetAlert(DCM_STARTUP, true);
+    App_CanAlerts_SetAlert(DCM_STARTUP, true);
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
@@ -350,7 +348,7 @@ static void MX_IWDG_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
-    Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
+
     /* USER CODE END IWDG_Init 2 */
 }
 
@@ -548,7 +546,7 @@ void RunTask100Hz(void const *argument)
 
 /**
  * @brief  Period elapsed callback in non blocking mode
- * @note   This function is called  when TIM2 interrupt took place, inside
+ * @note   This function is called  when TIM6 interrupt took place, inside
  * HAL_TIM_IRQHandler(). It makes a direct call to HAL_IncTick() to increment
  * a global variable "uwTick" used as application time base.
  * @param  htim : TIM handle
@@ -559,7 +557,7 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     /* USER CODE BEGIN Callback 0 */
 
     /* USER CODE END Callback 0 */
-    if (htim->Instance == TIM2)
+    if (htim->Instance == TIM6)
     {
         HAL_IncTick();
     }

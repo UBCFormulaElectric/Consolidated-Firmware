@@ -24,7 +24,8 @@
                 "offset": 0,
                 "min": -3276.8,
                 "max": 3276.7,
-                "unit": "Nm"
+                "unit": "Nm",
+                "start_value": 0
             },
             "SpeedCommand": {
                 "start_bit": 16,
@@ -34,23 +35,28 @@
                 "offset": 0,
                 "min": -32768,
                 "max": 32767,
-                "unit": "rpm"
+                "unit": "rpm",
+                "start_value": 0
             },
             "DirectionCommand": {
                 "start_bit": 32,
-                "enum": "InverterDirection"
+                "enum": "InverterDirection",
+                "start_value": 0
             },
             "EnableInverter": {
                 "start_bit": 40,
-                "bits": 1
+                "bits": 1,
+                "start_value": 0
             },
             "EnableDischarge": {
                 "start_bit": 41,
-                "bits": 1
+                "bits": 1,
+                "start_value": 0
             },
             "EnableSpeedMode": {
                 "start_bit": 42,
-                "bits": 1
+                "bits": 1,
+                "start_value": 0
             },
             "TorqueLimit": {
                 "start_bit": 48,
@@ -60,7 +66,8 @@
                 "offset": 0,
                 "min": -3276.8,
                 "max": 3276.7,
-                "unit": "Nm"
+                "unit": "Nm",
+                "start_value": 0
             }
         }
     },
@@ -76,7 +83,8 @@
                 "offset": 0,
                 "min": -3276.8,
                 "max": 3276.7,
-                "unit": "Nm"
+                "unit": "Nm",
+                "start_value": 0
             },
             "SpeedCommand": {
                 "start_bit": 16,
@@ -86,23 +94,28 @@
                 "offset": 0,
                 "min": -32768,
                 "max": 32767,
-                "unit": "rpm"
+                "unit": "rpm",
+                "start_value": 0
             },
             "DirectionCommand": {
                 "start_bit": 32,
-                "enum": "InverterDirection"
+                "enum": "InverterDirection",
+                "start_value": 0
             },
             "EnableInverter": {
                 "start_bit": 40,
-                "bits": 1
+                "bits": 1,
+                "start_value": 0
             },
             "EnableDischarge": {
                 "start_bit": 41,
-                "bits": 1
+                "bits": 1,
+                "start_value": 0
             },
             "EnableSpeedMode": {
                 "start_bit": 42,
-                "bits": 1
+                "bits": 1,
+                "start_value": 0
             },
             "TorqueLimit": {
                 "start_bit": 48,
@@ -112,7 +125,8 @@
                 "offset": 0,
                 "min": -3276.8,
                 "max": 3276.7,
-                "unit": "Nm"
+                "unit": "Nm",
+                "start_value": 0
             }
         }
     },

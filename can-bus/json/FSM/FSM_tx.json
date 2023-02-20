@@ -8,5 +8,24 @@
                 "bits": 1
             }
         }
+    },
+    "FSM_Test": {
+        "msg_id": 304,
+        "cycle_time": 100,
+        "signals": {
+            "IsBrakeActuated": {
+                "bits": 1
+            },
+            "TorqueLimit": {
+                "min": 0, 
+                "max": 90,
+                "resolution": 0.1
+            },
+            "MappedPedalPosition": {
+                "min": 0, 
+                "max": 100,
+                "resolution": 0.1
+            }
+        }
     }
 }
