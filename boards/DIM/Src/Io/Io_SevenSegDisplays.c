@@ -21,8 +21,8 @@
 #define DIGIT_A 0x7D << 1
 #define DIGIT_E 0x4F << 1
 
-static uint8_t formula_e_commands[] = { DIGIT_F, DIGIT_O, DIGIT_R, DIGIT_M1, DIGIT_M2,
-                                        DIGIT_U, DIGIT_L, DIGIT_A, DIGIT_E };
+static uint8_t formula_e_commands[] = { DIGIT_O, DIGIT_O, DIGIT_R, DIGIT_M1, DIGIT_M2,
+                                        DIGIT_O, DIGIT_O, DIGIT_O, DIGIT_E };
 
 typedef struct
 {
