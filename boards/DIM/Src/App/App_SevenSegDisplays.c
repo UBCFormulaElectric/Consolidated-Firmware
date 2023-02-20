@@ -22,7 +22,7 @@ struct SevenSegDisplays *App_SevenSegDisplays_Create(
         struct SevenSegDisplay *right_l_seven_seg_display,
         struct SevenSegDisplay *right_m_seven_seg_display,
         struct SevenSegDisplay *right_r_seven_seg_display,
-        void (*const display_value_callback)(void));
+        void (*const display_value_callback)(void))
 {
     assert(display_value_callback != NULL);
 
@@ -31,8 +31,14 @@ struct SevenSegDisplays *App_SevenSegDisplays_Create(
     assert(seven_seg_displays != NULL);
 
     seven_seg_displays->displays[LEFT_L_SEVEN_SEG_DISPLAY]   = left_l_seven_seg_display;
-    seven_seg_displays->displays[MIDDLE_SEVEN_SEG_DISPLAY] = middle_seven_seg_display;
-    seven_seg_displays->displays[RIGHT_SEVEN_SEG_DISPLAY]  = right_seven_seg_display;
+    seven_seg_displays->displays[LEFT_M_SEVEN_SEG_DISPLAY]   = left_m_seven_seg_display;
+    seven_seg_displays->displays[LEFT_R_SEVEN_SEG_DISPLAY]   = left_r_seven_seg_display;
+    seven_seg_displays->displays[MIDDLE_L_SEVEN_SEG_DISPLAY] = middle_l_seven_seg_display;
+    seven_seg_displays->displays[MIDDLE_M_SEVEN_SEG_DISPLAY] = middle_m_seven_seg_display;
+    seven_seg_displays->displays[MIDDLE_R_SEVEN_SEG_DISPLAY] = middle_r_seven_seg_display;
+    seven_seg_displays->displays[RIGHT_L_SEVEN_SEG_DISPLAY]  = right_l_seven_seg_display;
+    seven_seg_displays->displays[RIGHT_M_SEVEN_SEG_DISPLAY]  = right_m_seven_seg_display;
+    seven_seg_displays->displays[RIGHT_R_SEVEN_SEG_DISPLAY]  = right_r_seven_seg_display;
     seven_seg_displays->display_value_callback             = display_value_callback;
 
     return seven_seg_displays;
