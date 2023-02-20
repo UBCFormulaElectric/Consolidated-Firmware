@@ -21,6 +21,9 @@
 #define DIGIT_A 0x7D << 1
 #define DIGIT_E 0x4F << 1
 
+static uint8_t formula_e_commands[] = { DIGIT_O, DIGIT_O, DIGIT_R, DIGIT_M1, DIGIT_M2,
+                                        DIGIT_O, DIGIT_O, DIGIT_O, DIGIT_E };
+
 typedef struct
 {
     uint8_t disable;
@@ -33,16 +36,22 @@ static const CommandLookupTable command_lookup_table =
     .disable = 0x0,
     .values  =
     {
-        0xFC, // 0x0
-        0x60, // 0x1
-        0xDA, // 0x2
-        0xF2, // 0x3
+        0x3F, // 0x0
+        0x06, // 0x1
+        0x5B, // 0x2
+        0x4F, // 0x3
         0x66, // 0x4
-        0xB6, // 0x5
-        0xBE, // 0x6
-        0xE0, // 0x7
-        0xFE, // 0x8
-        0xE6, // 0x9
+        0x6D, // 0x5
+        0x7D, // 0x6
+        0x07, // 0x7
+        0x7F, // 0x8
+        0x67, // 0x9
+        0x77, // 0xA
+        0x7C, // 0xB
+        0x39, // 0xC
+        0x5E, // 0xD
+        0x79, // 0xE
+        0x71, // 0xF
     }
 };
 // clang-format on
@@ -65,14 +74,15 @@ void Io_SevenSegDisplays_WriteCommands(void)
     // The 7-segment displays are daisy chained by shifting registers, so we
     // can't update them individually. Instead, we must update the 7-segment
     // displays all at once.
-    for (int display = 0; display < 9; display++)
+    for (int display = 0; display < TEMP_NUM_DISPLAYS; display++)
     {
-        const uint8_t display_data = commands[9 - display - 1]; // invert order
+        // TODO: Update commands for 9 displays
+        const uint8_t display_data = formula_e_commands[TEMP_NUM_DISPLAYS - display - 1]; // invert order
 
         for (int i = 0; i < SHIFT_REGISTER_SIZE; i++)
         {
             const bool bit_state = IS_BIT_SET(display_data, i);
-            // TODO correct pinouts
+
             // Write bit state to data line
             HAL_GPIO_WritePin(
                 SEVENSEGS_SEROUT_GPIO_Port, SEVENSEGS_SEROUT_Pin, bit_state ? GPIO_PIN_SET : GPIO_PIN_RESET);
@@ -89,16 +99,125 @@ void Io_SevenSegDisplays_WriteCommands(void)
     HAL_GPIO_WritePin(SEVENSEGS_RCK_GPIO_Port, SEVENSEGS_RCK_Pin, GPIO_PIN_RESET);
 }
 
-void Io_SevenSegDisplays_SetHexDigit(struct SevenSegHexDigit hex_digit, int DIGIT)
+void Io_SevenSegDisplays_SetLeft_L_HexDigit(struct SevenSegHexDigit hex_digit)
 {
     if (!hex_digit.enabled)
     {
-        commands[DIGIT] = command_lookup_table.disable;
+        commands[LEFT_L_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
     }
     else
     {
         assert(hex_digit.value < NUM_HEX_DIGITS);
 
-        commands[DIGIT] = command_lookup_table.values[hex_digit.value];
+        commands[LEFT_L_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
+    }
+}
+
+void Io_SevenSegDisplays_SetLeft_M_HexDigit(struct SevenSegHexDigit hex_digit)
+{
+    if (!hex_digit.enabled)
+    {
+        commands[LEFT_M_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
+    }
+    else
+    {
+        assert(hex_digit.value < NUM_HEX_DIGITS);
+
+        commands[LEFT_M_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
+    }
+}
+
+void Io_SevenSegDisplays_SetLeft_R_HexDigit(struct SevenSegHexDigit hex_digit)
+{
+    if (!hex_digit.enabled)
+    {
+        commands[LEFT_R_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
+    }
+    else
+    {
+        assert(hex_digit.value < NUM_HEX_DIGITS);
+
+        commands[LEFT_R_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
+    }
+}
+
+void Io_SevenSegDisplays_SetMiddle_L_HexDigit(struct SevenSegHexDigit hex_digit)
+{
+    if (!hex_digit.enabled)
+    {
+        commands[MIDDLE_L_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
+    }
+    else
+    {
+        assert(hex_digit.value < NUM_HEX_DIGITS);
+
+        commands[MIDDLE_L_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
+    }
+}
+
+void Io_SevenSegDisplays_SetMiddle_M_HexDigit(struct SevenSegHexDigit hex_digit)
+{
+    if (!hex_digit.enabled)
+    {
+        commands[MIDDLE_M_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
+    }
+    else
+    {
+        assert(hex_digit.value < NUM_HEX_DIGITS);
+
+        commands[MIDDLE_M_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
+    }
+}
+
+void Io_SevenSegDisplays_SetMiddle_R_HexDigit(struct SevenSegHexDigit hex_digit)
+{
+    if (!hex_digit.enabled)
+    {
+        commands[MIDDLE_R_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
+    }
+    else
+    {
+        assert(hex_digit.value < NUM_HEX_DIGITS);
+
+        commands[MIDDLE_R_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
+    }
+}
+
+void Io_SevenSegDisplays_SetRight_L_HexDigit(struct SevenSegHexDigit hex_digit)
+{
+    if (!hex_digit.enabled)
+    {
+        commands[RIGHT_L_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
+    }
+    else
+    {
+        assert(hex_digit.value < NUM_HEX_DIGITS);
+
+        commands[RIGHT_L_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
+    }
+}
+
+void Io_SevenSegDisplays_SetRight_M_HexDigit(struct SevenSegHexDigit hex_digit)
+{
+    if (!hex_digit.enabled)
+    {
+        commands[RIGHT_M_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
+    }
+    else
+    {
+        assert(hex_digit.value < NUM_HEX_DIGITS);
+
+        commands[RIGHT_M_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
+    }
+}
+
+void Io_SevenSegDisplays_SetRight_R_HexDigit(struct SevenSegHexDigit hex_digit)
+        {
+    if (!hex_digit.enabled) {
+        commands[RIGHT_R_SEVEN_SEG_DISPLAY] = command_lookup_table.disable;
+    } else {
+        assert(hex_digit.value < NUM_HEX_DIGITS);
+
+        commands[RIGHT_R_SEVEN_SEG_DISPLAY] = command_lookup_table.values[hex_digit.value];
     }
 }
