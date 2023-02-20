@@ -194,16 +194,15 @@ int main(void)
     App_CanRx_Init();
     App_CanAlerts_Init(Io_CanTx_DIM_Alerts_SendAperiodic);
 
-    left_l_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
-    left_m_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
-    left_r_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
-    middle_l_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
-    middle_m_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
-    middle_r_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
-    right_l_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
-    right_m_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
-    right_r_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetHexDigit);
-
+    left_l_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetLeft_L_HexDigit);
+    left_m_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetLeft_M_HexDigit);
+    left_r_seven_seg_display   = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetLeft_R_HexDigit);
+    middle_l_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetMiddle_L_HexDigit);
+    middle_m_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetMiddle_M_HexDigit);
+    middle_r_seven_seg_display = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetMiddle_R_HexDigit);
+    right_l_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetRight_L_HexDigit);
+    right_m_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetRight_M_HexDigit);
+    right_r_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetRight_R_HexDigit);
 
     seven_seg_displays = App_SevenSegDisplays_Create(
         left_l_seven_seg_display, left_m_seven_seg_display,left_r_seven_seg_display,  middle_l_seven_seg_display, middle_m_seven_seg_display,
@@ -560,14 +559,10 @@ static void MX_GPIO_Init(void)
     GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-    /*Configure GPIO pins : AUX_IN_Pin IGNTN_IN_Pin */
-    GPIO_InitStruct.Pin  = AUX_IN_Pin | IGNTN_IN_Pin;
-    GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-    GPIO_InitStruct.Pull = GPIO_PULLUP;
-    HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-    /*Configure GPIO pins : DRIVE_MODE_0_Pin DRIVE_MODE_1_Pin DRIVE_MODE_2_Pin DRIVE_MODE_3_Pin */
-    GPIO_InitStruct.Pin  = DRIVE_MODE_0_Pin | DRIVE_MODE_1_Pin | DRIVE_MODE_2_Pin | DRIVE_MODE_3_Pin;
+    /*Configure GPIO pins : AUX_IN_Pin IGNTN_IN_Pin DRIVE_MODE_0_Pin DRIVE_MODE_1_Pin
+                             DRIVE_MODE_2_Pin DRIVE_MODE_3_Pin */
+    GPIO_InitStruct.Pin =
+        AUX_IN_Pin | IGNTN_IN_Pin | DRIVE_MODE_0_Pin | DRIVE_MODE_1_Pin | DRIVE_MODE_2_Pin | DRIVE_MODE_3_Pin;
     GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
     GPIO_InitStruct.Pull = GPIO_NOPULL;
     HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
