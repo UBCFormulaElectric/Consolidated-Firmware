@@ -17,7 +17,8 @@ void Io_SevenSegDisplays_WriteCommands(void);
 /**
  * Using the given hexadecimal digit, update the command value to send to the
  * left left-most 7-segment display during the next Io_SevenSegDisplays_WriteCommands()
- * @param hex_digit The hexadecimal digit to display
+ * @param hex_digit The hexadecimal digit to display i am doing a little test here
+ *
  */
 void Io_SevenSegDisplays_SetLeft_L_HexDigit(struct SevenSegHexDigit hex_digit);
 
