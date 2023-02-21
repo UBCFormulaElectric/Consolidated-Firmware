@@ -566,17 +566,15 @@ TEST_F(DcmStateMachineTest, no_torque_requests_when_accelerator_pedal_is_not_pre
     // Check that no torque requests are sent when the accelerator pedal is not
     // pressed
     LetTimePass(state_machine, 10);
-//    EXPECT_FLOAT_EQ(
+    EXPECT_FLOAT_EQ(
 //        // TODO check
 //        // 0.0f, App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
 //        //           App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
-//        0.0f, App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
-//                  App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Get()));
-//    EXPECT_FLOAT_EQ(
+        0.0f, App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Get());
+    EXPECT_FLOAT_EQ(
 //        // 0.0f, App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
 //        //           App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
-//        0.0f, App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
-//                  App_CanTx_DCM_RightInverterCommand_TorqueCommand_Get()));
+        0.0f, App_CanTx_DCM_RightInverterCommand_TorqueCommand_Get());
 }
 
 TEST_F(DcmStateMachineTest, init_to_fault_state_on_left_inverter_fault)
