@@ -199,7 +199,7 @@ TEST_F(DcmStateMachineTest, zero_torque_request_in_fault_state)
     App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(1.0f);
 
     EXPECT_FLOAT_EQ(1.0f, App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Get());
-    EXPECT_FLOAT_EQ(1.0f, App_CanTx_DCM_RightInverterCommand_TorqueCommand_Get());
+    EXPECT_FLOAT_EQ(0.0f, App_CanTx_DCM_RightInverterCommand_TorqueCommand_Get());
 
     // Now tick the state machine and check torque request gets zeroed
     LetTimePass(state_machine, 10);
