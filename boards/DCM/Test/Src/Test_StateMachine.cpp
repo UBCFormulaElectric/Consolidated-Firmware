@@ -164,7 +164,7 @@ TEST_F(DcmStateMachineTest, check_init_transitions_to_drive_if_conditions_met_an
     LetTimePass(state_machine, 10);
     App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_ON);
     LetTimePass(state_machine, 10);
-    EXPECT_EQ(App_GetDriveState(), App_SharedStateMachine_GetCurrentState(state_machine));
+    EXPECT_EQ(DCM_DRIVE_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
 }
 
 // DCM-21
