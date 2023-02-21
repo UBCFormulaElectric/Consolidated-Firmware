@@ -15,7 +15,6 @@ extern "C"
 #include "App_CanTx.h"
 #include "App_CanRx.h"
 #include "App_CanUtils.h"
-
 }
 
 namespace StateMachineTest
@@ -65,8 +64,7 @@ class DcmStateMachineTest : public BaseStateMachineTest
         clock = App_SharedClock_Create();
 
         world = App_DcmWorld_Create(
-            heartbeat_monitor, brake_light, buzzer, imu,
-            clock, App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
+            heartbeat_monitor, brake_light, buzzer, imu, clock, App_BuzzerSignals_IsOn, App_BuzzerSignals_Callback);
 
         // Default to starting the state machine in the `init` state
         state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
@@ -119,7 +117,7 @@ class DcmStateMachineTest : public BaseStateMachineTest
     void UpdateClock(struct StateMachine *state_machine, uint32_t current_time_ms) override
     {
         struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-        struct Clock *   clock = App_DcmWorld_GetClock(world);
+        struct Clock    *clock = App_DcmWorld_GetClock(world);
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
     }
 
@@ -129,15 +127,15 @@ class DcmStateMachineTest : public BaseStateMachineTest
         App_DcmWorld_UpdateWaitSignal(world, current_time_ms);
     }
 
-    struct World *            world;
-    struct StateMachine *     state_machine;
+    struct World             *world;
+    struct StateMachine      *state_machine;
     struct DcmCanTxInterface *can_tx_interface;
     struct DcmCanRxInterface *can_rx_interface;
-    struct HeartbeatMonitor * heartbeat_monitor;
-    struct BrakeLight *       brake_light;
-    struct Buzzer *           buzzer;
-    struct Imu *              imu;
-    struct Clock *            clock;
+    struct HeartbeatMonitor  *heartbeat_monitor;
+    struct BrakeLight        *brake_light;
+    struct Buzzer            *buzzer;
+    struct Imu               *imu;
+    struct Clock             *clock;
 };
 
 // DCM-5
@@ -181,7 +179,6 @@ TEST_F(DcmStateMachineTest, check_drive_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetDriveState());
 
-    // TODO check
     EXPECT_EQ(DCM_DRIVE_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
 }
 
@@ -190,7 +187,6 @@ TEST_F(DcmStateMachineTest, check_fault_state_is_broadcasted_over_can)
 {
     SetInitialState(App_GetFaultState());
 
-    // TODO check
     EXPECT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
 }
 
