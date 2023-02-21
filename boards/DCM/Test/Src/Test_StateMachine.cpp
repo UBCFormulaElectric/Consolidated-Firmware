@@ -191,34 +191,21 @@ TEST_F(DcmStateMachineTest, check_fault_state_is_broadcasted_over_can)
 }
 
 // DCM-16
-/*TEST_F(DcmStateMachineTest, zero_torque_request_in_fault_state)
+TEST_F(DcmStateMachineTest, zero_torque_request_in_fault_state)
 {
     SetInitialState(App_GetFaultState());
 
     // Start with a non-zero torque request to prevent false positive
-    App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
-        can_tx_interface,
-        App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(1.0f));
-    EXPECT_FLOAT_EQ(
-        1.0f,
-        App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
-            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
-    EXPECT_FLOAT_EQ(
-        1.0f,
-        App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
-            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
+    App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(1.0f);
+
+    EXPECT_FLOAT_EQ(1.0f, App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Get());
+    EXPECT_FLOAT_EQ(1.0f, App_CanTx_DCM_RightInverterCommand_TorqueCommand_Get());
 
     // Now tick the state machine and check torque request gets zeroed
     LetTimePass(state_machine, 10);
-    EXPECT_FLOAT_EQ(
-        0.0f,
-        App_CanMsgs_dcm_invl_command_message_torque_command_invl_decode(
-            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVL(can_tx_interface)));
-    EXPECT_FLOAT_EQ(
-        0.0f,
-        App_CanMsgs_dcm_invr_command_message_torque_command_invr_decode(
-            App_CanTx_GetPeriodicSignal_TORQUE_COMMAND_INVR(can_tx_interface)));
-}*/
+    EXPECT_FLOAT_EQ(0.0f, App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Get());
+    EXPECT_FLOAT_EQ(0.0f, App_CanTx_DCM_RightInverterCommand_TorqueCommand_Get());
+}
 
 // DCM-14
 TEST_F(DcmStateMachineTest, start_switch_off_transitions_drive_state_to_init_state)
