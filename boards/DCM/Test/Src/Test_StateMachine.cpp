@@ -577,17 +577,17 @@ TEST_F(DcmStateMachineTest, init_to_fault_state_on_motor_shutdown_error)
 }
 
 // DCM-20
-TEST_F(DcmStateMachineTest, drive_to_fault_state_on_motor_shutdown_error)
-{
-    SetInitialState(App_GetDriveState());
+TEST_F(DcmStateMachineTest, drive_to_fault_state_on_motor_shutdown_error) {
+        SetInitialState(App_GetDriveState());
 
-    // Turn the DIM start switch on to prevent state transitions in
-    // the drive state.
-    App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_ON);
-    LetTimePass(state_machine, 10);
-    EXPECT_EQ(App_GetDriveState(), App_SharedStateMachine_GetCurrentState(state_machine));
+        // Turn the DIM start switch on to prevent state transitions in
+        // the drive state.
+        App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_ON);
+        LetTimePass(state_machine, 10);
+        EXPECT_EQ(App_GetDriveState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
-    // Introduce motor shutdown error, expect transition to fault state
-    LetTimePass(state_machine, 10);
-    EXPECT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+        // Introduce motor shutdown error, expect transition to fault state
+        LetTimePass(state_machine, 10);
+        EXPECT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+}
 }
