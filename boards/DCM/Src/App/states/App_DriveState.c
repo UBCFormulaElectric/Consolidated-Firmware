@@ -11,22 +11,22 @@
 
 void App_SetPeriodicCanSignals_TorqueRequests()
 {
-    const float bms_available_power =
-        App_CanRx_BMS_AvailablePower_AvailablePower_Get(); // TODO check ->
-                                                           // App_CanRx_BMS_AVAILABLE_POWER_GetSignal_AVAILABLE_POWER(can_rx);
-    const float right_motor_speed_rpm = (float)App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get();
-    // TODO: JSONCAN -> (float)abs(App_CanRx_INVR_MOTOR_POSITION_INFO_GetSignal_D2_MOTOR_SPEED_INVR(can_rx));
-    const float left_motor_speed_rpm = (float)App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Get();
-    // TODO: JSONCAN -> (float)abs(App_CanRx_INVL_MOTOR_POSITION_INFO_GetSignal_D2_MOTOR_SPEED_INVL(can_rx));
-    float bms_torque_limit = MAX_TORQUE_REQUEST_NM;
-//    float fsm_torque_limit =
-//        0; // TODO: JSONCAN waiting for fsm-> App_CanRx_FSM_TORQUE_LIMITING_GetSignal_FSM_TORQUE_LIMIT(can_rx);
+//    const float bms_available_power =
+//        App_CanRx_BMS_AvailablePower_AvailablePower_Get(); // TODO check -> App_CanRx_BMS_AVAILABLE_POWER_GetSignal_AVAILABLE_POWER(can_rx);
+    const float right_motor_speed_rpm = 
+        (float)App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get(); 
+    // TODO check -> (float)abs(App_CanRx_INVR_MOTOR_POSITION_INFO_GetSignal_D2_MOTOR_SPEED_INVR(can_rx));
+    const float left_motor_speed_rpm = 
+        (float)App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Get();
+    // TODO check -> (float)abs(App_CanRx_INVL_MOTOR_POSITION_INFO_GetSignal_D2_MOTOR_SPEED_INVL(can_rx));
+//    float bms_torque_limit = MAX_TORQUE_REQUEST_NM;
+//    float fsm_torque_limit = 0; // TODO: JSONCAN waiting for fsm-> App_CanRx_FSM_TORQUE_LIMITING_GetSignal_FSM_TORQUE_LIMIT(can_rx);
 
     if ((right_motor_speed_rpm + left_motor_speed_rpm) > 0.0f)
     {
         // Estimate the maximum torque request to draw the maximum power available from the BMS
-        bms_torque_limit = bms_available_power * EFFICIENCY_ESTIMATE /
-                           (RPM_TO_RADS(right_motor_speed_rpm) + RPM_TO_RADS(left_motor_speed_rpm));
+//        bms_torque_limit = bms_available_power * EFFICIENCY_ESTIMATE /
+//                           (RPM_TO_RADS(right_motor_speed_rpm) + RPM_TO_RADS(left_motor_speed_rpm));
     }
 
     // Calculate the maximum torque request to scale pedal percentage off of
@@ -59,10 +59,10 @@ static void DriveStateRunOnEntry(struct StateMachine *const state_machine)
     App_CanTx_DCM_Vitals_CurrentState_Set(DCM_DRIVE_STATE);
 
     // Enable inverters upon entering drive state.
-    // TODO check enum -> App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVL(
+    // TODO check -> App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVL(
     // can_tx_interface, CANMSGS_DCM_INVL_COMMAND_MESSAGE_INVERTER_ENABLE_INVL_ON_CHOICE);
     App_CanTx_DCM_LeftInverterCommand_EnableInverter_Set(true);
-    // // TODO check enum-> App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVR(
+    // // TODO check -> App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVR(
     // // can_tx_interface, CANMSGS_DCM_INVR_COMMAND_MESSAGE_INVERTER_ENABLE_INVR_ON_CHOICE);
     App_CanTx_DCM_RightInverterCommand_EnableInverter_Set(true);
 }
@@ -94,17 +94,20 @@ static void DriveStateRunOnExit(struct StateMachine *const state_machine)
     // Disable inverters and apply zero torque upon exiting drive state
     // TODO check -> App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVL(
     // can_tx_interface, CANMSGS_DCM_INVL_COMMAND_MESSAGE_INVERTER_ENABLE_INVL_OFF_CHOICE);
-    App_CanTx_DCM_LeftInverterCommand_EnableInverter_Set(false);
+    App_CanTx_DCM_LeftInverterCommand_EnableInverter_Set(
+        false);
     // // TODO check -> App_CanTx_SetPeriodicSignal_INVERTER_ENABLE_INVR(
     // // can_tx_interface, CANMSGS_DCM_INVR_COMMAND_MESSAGE_INVERTER_ENABLE_INVR_OFF_CHOICE);
-    App_CanTx_DCM_RightInverterCommand_EnableInverter_Set(false);
-
+    App_CanTx_DCM_RightInverterCommand_EnableInverter_Set(
+        false);
+   
     // // TODO check -> App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVL(
     // // can_tx_interface, App_CanMsgs_dcm_invl_command_message_torque_command_invl_encode(0.0f));
     App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(0.0f);
     // // TODO check -> App_CanTx_SetPeriodicSignal_TORQUE_COMMAND_INVR(
     // // can_tx_interface, App_CanMsgs_dcm_invr_command_message_torque_command_invr_encode(0.0f));
     App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(0.0f);
+
 }
 
 const struct State *App_GetDriveState(void)
