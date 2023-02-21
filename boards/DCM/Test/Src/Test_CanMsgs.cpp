@@ -5,8 +5,6 @@ extern "C"
 #include "App_CanUtils.h"
 }
 
-// TODO check if enums are available
-
 // DCM-21
 TEST(CanMsgsTest, state_machine_message_frequency)
 {
