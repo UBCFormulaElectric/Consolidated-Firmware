@@ -156,7 +156,7 @@ TEST_F(DcmStateMachineTest, check_init_transitions_to_drive_if_conditions_met_an
     // Transition BMS to drive state, expect no transition
     // TODO check
     // App_CanRx_BMS_STATE_MACHINE_SetSignal_STATE(can_rx_interface, CANMSGS_BMS_STATE_MACHINE_STATE_DRIVE_CHOICE);
-    App_CanRx_BMS_Vitals_StateOfCharge_Update(BMS_DRIVE_STATE);
+    App_CanRx_BMS_Vitals_CurrentState_Update(BMS_DRIVE_STATE);
     LetTimePass(state_machine, 10);
     EXPECT_EQ(App_GetInitState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
