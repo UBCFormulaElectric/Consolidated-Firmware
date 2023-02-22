@@ -268,8 +268,9 @@ class BmsFaultTest : public BaseStateMachineTest
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overvoltage)
 {
     // Test that any cell can cause an overvoltage fault
-    for(uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++) {
-        for(uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+    for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
+    {
+        for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
         {
             // Reset test
             TearDown();
@@ -292,8 +293,9 @@ TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overv
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_undervoltage)
 {
     // Test that any cell can cause an undervoltage fault
-    for(uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++) {
-        for(uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+    for (uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
+    {
+        for (uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
         {
             // Reset test
             TearDown();
