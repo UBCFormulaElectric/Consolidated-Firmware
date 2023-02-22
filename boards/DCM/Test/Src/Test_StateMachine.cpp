@@ -555,12 +555,14 @@ TEST_F(DcmStateMachineTest, drive_to_fault_state_on_right_inverter_fault)
 TEST_F(DcmStateMachineTest, init_to_fault_state_on_motor_shutdown_error)
 {
     // Introduce motor shutdown error, expect transition to fault state on next
+    App_CanTx_DCM_MotorShutdownErrors_DcmDummyMotorShutdown_Set(true);
+
     // 100 Hz tick
     LetTimePass(state_machine, 9);
     EXPECT_EQ(DCM_INIT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
 
     LetTimePass(state_machine, 1);
-    EXPECT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
+     EXPECT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
 }
 
 // DCM-20
@@ -569,11 +571,13 @@ TEST_F(DcmStateMachineTest, drive_to_fault_state_on_motor_shutdown_error) {
 
         // Turn the DIM start switch on to prevent state transitions in
         // the drive state.
+
         App_CanRx_DIM_Switches_StartSwitch_Update(SWITCH_ON);
         LetTimePass(state_machine, 10);
         EXPECT_EQ(DCM_DRIVE_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
 
         // Introduce motor shutdown error, expect transition to fault state
+        App_CanTx_DCM_MotorShutdownErrors_DcmDummyMotorShutdown_Set(true);
         LetTimePass(state_machine, 10);
         EXPECT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
 }

@@ -38,7 +38,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     // TODO delete inverter switch-> App_CanTx_SetPeriodicSignal_LEFT_INVERTER_SWITCH(can_tx,
     // App_InverterSwitches_IsLeftOn(inverter_switches));
 
-    if (App_HasInverterFault())
+    if (App_HasInverterFault() || App_MotorShutdownFault())
     {
         status = false;
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());

@@ -27,7 +27,10 @@ static inline bool App_IsBmsInDriveState(void)
 {
     return App_CanRx_BMS_Vitals_CurrentState_Get() == BMS_DRIVE_STATE;
 }
-
+static inline bool App_MotorShutdownFault(void) 
+{
+    return App_CanTx_DCM_MotorShutdownErrors_DcmDummyMotorShutdown_Get();
+}
 /**
  * On-tick 1Hz function for every state in the given state machine
  * @param state_machine The state machine to run on-tick function for
