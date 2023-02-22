@@ -267,28 +267,50 @@ class BmsFaultTest : public BaseStateMachineTest
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overvoltage)
 {
-    SetInitialState(App_GetInitState());
+    // Test that any cell can cause an overvoltage fault
+    for(uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++) {
+        for(uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+        {
+            // Reset test
+            TearDown();
+            SetUp();
 
-    // Let accumulator startup count expire
-    LetTimePass(state_machine, 1000);
-    ASSERT_NE(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+            // Let accumulator startup count expire
+            LetTimePass(state_machine, 1000);
+            ASSERT_NE(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
-    set_cell_voltage(ACCUMULATOR_SEGMENT_0, 0, MAX_CELL_VOLTAGE + 1.0f);
-    LetTimePass(state_machine, 1000);
-    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+            // Set cell voltage critically high and confirm fault is set
+            set_cell_voltage((AccumulatorSegment)segment, cell, MAX_CELL_VOLTAGE + 0.1f);
+            LetTimePass(state_machine, 10);
+            ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+            LetTimePass(state_machine, 1000);
+            ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+        }
+    }
 }
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_undervoltage)
 {
-    SetInitialState(App_GetInitState());
+    // Test that any cell can cause an undervoltage fault
+    for(uint8_t segment = 0; segment < ACCUMULATOR_NUM_SEGMENTS; segment++) {
+        for(uint8_t cell = 0; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+        {
+            // Reset test
+            TearDown();
+            SetUp();
 
-    // Let accumulator startup count expire
-    LetTimePass(state_machine, 1000);
-    ASSERT_NE(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+            // Let accumulator startup count expire
+            LetTimePass(state_machine, 1000);
+            ASSERT_NE(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
 
-    set_cell_voltage(ACCUMULATOR_SEGMENT_0, 0, MIN_CELL_VOLTAGE - 1.0f);
-    LetTimePass(state_machine, 10);
-    ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+            // Set cell voltage critically low and confirm fault is set
+            set_cell_voltage((AccumulatorSegment)segment, cell, MIN_CELL_VOLTAGE - 0.1f);
+            LetTimePass(state_machine, 10);
+            ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+            LetTimePass(state_machine, 1000);
+            ASSERT_EQ(App_GetFaultState(), App_SharedStateMachine_GetCurrentState(state_machine));
+        }
+    }
 }
 
 TEST_F(BmsFaultTest, check_state_transition_to_fault_state_from_all_states_overtemp_drive_state)
