@@ -51,14 +51,3 @@ static_assert(HEX_DIGIT_C == 12, "Hex enum must match its numeric value.");
 static_assert(HEX_DIGIT_D == 13, "Hex enum must match its numeric value.");
 static_assert(HEX_DIGIT_E == 14, "Hex enum must match its numeric value.");
 static_assert(HEX_DIGIT_F == 15, "Hex enum must match its numeric value.");
-
-typedef enum
-{
-    ACCUMULATOR_SEGMENT_0 = 0U,
-    ACCUMULATOR_SEGMENT_1,
-    ACCUMULATOR_SEGMENT_2,
-    ACCUMULATOR_SEGMENT_3,
-    ACCUMULATOR_SEGMENT_4,
-    ACCUMULATOR_SEGMENT_5,
-    NUM_OF_ACCUMULATOR_SEGMENTS,
-} AccumulatorSegments_E;
