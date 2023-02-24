@@ -13,7 +13,7 @@ static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
     }
 
     const bool is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
-    App_CanTx_DCM_Errors_MissingHeartbeat_Set(is_missing_hb);
+    App_CanTx_DCM_Warnings_MissingHeartbeat_Set(is_missing_hb);
 }
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -38,7 +38,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     // TODO delete inverter switch-> App_CanTx_SetPeriodicSignal_LEFT_INVERTER_SWITCH(can_tx,
     // App_InverterSwitches_IsLeftOn(inverter_switches));
 
-    if (App_HasInverterFault() || App_MotorShutdownFault())
+    if (App_HasInverterFault())
     {
         status = false;
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
