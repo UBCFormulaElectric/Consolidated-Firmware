@@ -1,6 +1,7 @@
 #include "App_SharedMacros.h"
 #include "states/App_FaultState.h"
 #include "states/App_AllStates.h"
+#include "sbgECom.h"
 
 static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
@@ -13,6 +14,9 @@ static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 
     const bool is_missing_hb = !App_SharedHeartbeatMonitor_Tick(hb_monitor);
     // JSONCAN -> App_CanTx_SetPeriodicSignal_MISSING_HEARTBEAT(can_tx, is_missing_hb);
+
+    SbgEComHandle handle;
+    sbgEComClose(&handle);
 }
 
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
