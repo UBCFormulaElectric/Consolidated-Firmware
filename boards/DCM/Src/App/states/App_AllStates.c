@@ -1,6 +1,7 @@
 #include "App_SharedMacros.h"
 #include "states/App_FaultState.h"
 #include "states/App_AllStates.h"
+#include "sbgECom.h"
 
 static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
