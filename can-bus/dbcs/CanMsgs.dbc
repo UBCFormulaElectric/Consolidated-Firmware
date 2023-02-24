@@ -141,6 +141,9 @@ BO_ 206 DCM_CanFifoOverflow: 8 DCM
 SG_ TxOverflowCount : 0|32@1+ (1,0) [0|4294967295] "" DEBUG
 SG_ RxOverflowCount : 32|32@1+ (1,0) [0|4294967295] "" DEBUG
 
+BO_ 207 DCM_MotorShutdownErrors: 1 DCM
+SG_ DcmDummyMotorShutdown : 0|1@1+ (1,0) [0|1] "" DEBUG
+
 BO_ 200 DCM_Alerts: 1 DCM
 SG_ DCM_STARTUP : 0|1@1+ (1,0) [0|1] "" DEBUG
 SG_ DCM_ALERT_WATCHDOG_TIMEOUT : 1|1@1+ (1,0) [0|1] "" DEBUG
@@ -590,6 +593,7 @@ BA_ "GenSigStartValue" SG_ 204 WatchdogTimeoutTaskName 0;
 BA_ "GenSigStartValue" SG_ 205 MissingHeartbeat 0;
 BA_ "GenSigStartValue" SG_ 206 TxOverflowCount 0;
 BA_ "GenSigStartValue" SG_ 206 RxOverflowCount 0;
+BA_ "GenSigStartValue" SG_ 207 DcmDummyMotorShutdown 0;
 BA_ "GenSigStartValue" SG_ 200 DCM_STARTUP 0;
 BA_ "GenSigStartValue" SG_ 200 DCM_ALERT_WATCHDOG_TIMEOUT 0;
 BA_ "GenSigStartValue" SG_ 502 Heartbeat 0;
@@ -891,6 +895,7 @@ BA_ "GenMsgCycleTime" BO_ 82  10;
 BA_ "GenMsgCycleTime" BO_ 204  1000;
 BA_ "GenMsgCycleTime" BO_ 205  1000;
 BA_ "GenMsgCycleTime" BO_ 206  5000;
+BA_ "GenMsgCycleTime" BO_ 207  1000;
 BA_ "GenMsgCycleTime" BO_ 502  1000;
 BA_ "GenMsgCycleTime" BO_ 503  1000;
 BA_ "GenMsgCycleTime" BO_ 504  1000;

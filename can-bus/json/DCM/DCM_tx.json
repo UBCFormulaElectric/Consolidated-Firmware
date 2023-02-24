@@ -162,5 +162,15 @@
                 "bits": 32
             }
         }
+    },
+    "DCM_MotorShutdownErrors": {
+        "msg_id": 207,
+        "cycle_time": 1000,
+        "description": "DCM Motor Shutdown Errors",
+        "signals": {
+            "DcmDummyMotorShutdown": {
+                "bits": 1
+            }
+        }
     }
 }
