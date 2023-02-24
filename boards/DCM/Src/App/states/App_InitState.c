@@ -4,8 +4,6 @@
 
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    //    struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-
     App_CanTx_DCM_Vitals_CurrentState_Set(DCM_INIT_STATE);
 
     // Disable inverters and apply zero torque upon entering init state
