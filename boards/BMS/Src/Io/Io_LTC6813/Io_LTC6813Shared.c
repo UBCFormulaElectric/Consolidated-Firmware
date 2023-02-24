@@ -126,7 +126,7 @@ static uint16_t Io_CalculatePec15(const uint8_t *data_buffer, uint8_t size);
  * @param curr_cfg_reg The current configuration register to configure
  */
 static void
-    Io_PrepareCfgRegBytes(uint8_t tx_cfg[NUM_OF_ACCUMULATOR_SEGMENTS][TOTAL_NUM_REG_GROUP_BYTES], uint8_t curr_cfg_reg);
+    Io_PrepareCfgRegBytes(uint8_t tx_cfg[ACCUMULATOR_NUM_SEGMENTS][TOTAL_NUM_REG_GROUP_BYTES], uint8_t curr_cfg_reg);
 
 static uint16_t Io_CalculatePec15(const uint8_t *data_buffer, uint8_t size)
 {
@@ -147,21 +147,21 @@ static uint16_t Io_CalculatePec15(const uint8_t *data_buffer, uint8_t size)
 }
 
 static void
-    Io_PrepareCfgRegBytes(uint8_t tx_cfg[NUM_OF_ACCUMULATOR_SEGMENTS][TOTAL_NUM_REG_GROUP_BYTES], uint8_t curr_cfg_reg)
+    Io_PrepareCfgRegBytes(uint8_t tx_cfg[ACCUMULATOR_NUM_SEGMENTS][TOTAL_NUM_REG_GROUP_BYTES], uint8_t curr_cfg_reg)
 {
-    // TODO: We can adjust how we want to discharge cells. In the current
-    // implementation, we are discharging to the lowest cell Get the min
-    // cell location
+    /*
+    // TODO: Remove this when balancing is moved to App code
     uint8_t min_cell_segment = 0U;
     uint8_t min_cell_index   = 0U;
     Io_LTC6813CellVoltages_GetMinCellVoltage(&min_cell_segment, &min_cell_index);
+    */
 
     // Write to the configuration registers of each segment
-    for (uint8_t curr_segment = 0U; curr_segment < NUM_OF_ACCUMULATOR_SEGMENTS; curr_segment++)
+    for (uint8_t curr_segment = 0U; curr_segment < ACCUMULATOR_NUM_SEGMENTS; curr_segment++)
     {
         // Data used to configure the last segment on the daisy chain needs to
         // be sent first
-        const uint8_t tx_cfg_idx = (uint8_t)(NUM_OF_ACCUMULATOR_SEGMENTS - curr_segment - 1);
+        const uint8_t tx_cfg_idx = (uint8_t)(ACCUMULATOR_NUM_SEGMENTS - curr_segment - 1);
 
         // Set default tx_cfg for each segment
         memcpy(&tx_cfg[tx_cfg_idx], ltc6813_configs[curr_cfg_reg].default_cfg_reg, NUM_REG_GROUP_PAYLOAD_BYTES);
@@ -256,7 +256,7 @@ bool Io_LTC6813Shared_WriteConfigurationRegisters(void)
         };
 
         // Array containing bytes to write to the configuration register
-        uint8_t tx_cfg[NUM_OF_ACCUMULATOR_SEGMENTS][TOTAL_NUM_REG_GROUP_BYTES] = { 0U };
+        uint8_t tx_cfg[ACCUMULATOR_NUM_SEGMENTS][TOTAL_NUM_REG_GROUP_BYTES] = { 0U };
 
         // Prepare command to begin writing to the configuration
         // register

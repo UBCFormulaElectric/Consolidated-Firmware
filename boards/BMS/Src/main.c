@@ -50,6 +50,7 @@
 #include "App_CanUtils.h"
 #include "App_CanAlerts.h"
 #include "App_BmsWorld.h"
+#include "states/App_AllStates.h"
 #include "App_SharedMacros.h"
 #include "App_SharedStateMachine.h"
 #include "states/App_InitState.h"
@@ -226,12 +227,10 @@ int main(void)
     accumulator = App_Accumulator_Create(
         Io_LTC6813Shared_SetCfgRegsToDefaultSettings, Io_LTC6813Shared_WriteConfigurationRegisters,
         Io_LTC6813CellVoltages_StartAdcConversion, Io_LTC6813CellVoltages_ReadVoltages,
-        Io_LTC6813CellVoltages_GetMinCellVoltage, Io_LTC6813CellVoltages_GetMaxCellVoltage,
-        Io_LTC6813CellVoltages_GetSegmentVoltage, Io_LTC6813CellVoltages_GetPackVoltage,
-        Io_LTC6813CellVoltages_GetAverageCellVoltage, Io_LTC6813CellTemperatures_StartAdcConversion,
-        Io_LTC6813CellTemperatures_ReadTemperatures, Io_LTC6813CellTemperatures_GetMinTempDegC,
-        Io_LTC6813CellTemperatures_GetMaxTempDegC, Io_LTC6813CellTemperatures_GetAverageTempDegC,
-        Io_LTC6813Shared_EnableDischarge, Io_LTC6813Shared_DisableDischarge);
+        Io_LTC6813CellTemperatures_StartAdcConversion, Io_LTC6813CellTemperatures_ReadTemperatures,
+        Io_LTC6813CellTemperatures_GetMinTempDegC, Io_LTC6813CellTemperatures_GetMaxTempDegC,
+        Io_LTC6813CellTemperatures_GetAverageTempDegC, Io_LTC6813Shared_EnableDischarge,
+        Io_LTC6813Shared_DisableDischarge);
 
     ts = App_TractiveSystem_Create(
         Io_Adc_GetAdcChannel10Voltage, Io_VoltageSense_GetTractiveSystemVoltage, Io_Adc_GetAdcChannel8Voltage,
@@ -250,6 +249,7 @@ int main(void)
         ts, clock);
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
+    App_AllStates_Init();
 
     App_CanAlerts_SetAlert(BMS_ALERT_STARTUP, true);
 
