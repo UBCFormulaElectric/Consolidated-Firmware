@@ -173,7 +173,7 @@ float App_Accumulator_GetCellVoltage(
     AccumulatorSegment              segment,
     uint8_t                         cell)
 {
-    if (segment > ACCUMULATOR_NUM_SEGMENTS || cell > ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
+    if (segment >= ACCUMULATOR_NUM_SEGMENTS || cell >= ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
     {
         return 0.0f;
     }
@@ -197,7 +197,7 @@ float App_Accumulator_GetMinVoltage(const struct Accumulator *const accumulator,
 
 float App_Accumulator_GetAverageCellVoltage(const struct Accumulator *const accumulator, uint8_t segment)
 {
-    if (segment > ACCUMULATOR_NUM_SEGMENTS)
+    if (segment >= ACCUMULATOR_NUM_SEGMENTS)
     {
         return 0.0f;
     }
@@ -207,7 +207,7 @@ float App_Accumulator_GetAverageCellVoltage(const struct Accumulator *const accu
 
 float App_Accumulator_GetSegmentVoltage(const struct Accumulator *const accumulator, uint8_t segment)
 {
-    if (segment > ACCUMULATOR_NUM_SEGMENTS)
+    if (segment >= ACCUMULATOR_NUM_SEGMENTS)
     {
         return 0.0f;
     }
