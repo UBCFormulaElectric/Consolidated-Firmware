@@ -1,3 +1,5 @@
+#include <string.h>
+#include <float.h>
 #include "App_Accumulator.h"
 
 // Max number of PEC15 to occur before faulting
@@ -14,11 +16,26 @@
         (num_comm_tries)++;                                 \
     }
 
-enum AccumulatorMonitorState
+typedef enum
 {
     GET_CELL_VOLTAGE_STATE = 0U,
     GET_CELL_TEMP_STATE,
-};
+} AccumulatorMonitorState;
+
+typedef struct
+{
+    uint8_t segment;
+    uint8_t cell;
+    float   voltage;
+} CellVoltage;
+
+typedef struct
+{
+    CellVoltage min_voltage;
+    CellVoltage max_voltage;
+    float       segment_voltages[ACCUMULATOR_NUM_SEGMENTS];
+    float       pack_voltage;
+} VoltageStats;
 
 struct Accumulator
 {
@@ -30,12 +47,12 @@ struct Accumulator
 
     // Cell voltage monitoring functions
     bool (*start_cell_voltage_conv)(void);
-    bool (*read_cell_voltages)(void);
-    float (*get_min_cell_voltage)(uint8_t *, uint8_t *);
-    float (*get_max_cell_voltage)(uint8_t *, uint8_t *);
-    float (*get_segment_voltage)(AccumulatorSegments_E);
-    float (*get_pack_voltage)(void);
-    float (*get_avg_cell_voltage)(void);
+    bool (*read_cell_voltages)(float[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]);
+
+    // Voltage information
+    VoltageStats            voltage_stats;
+    AccumulatorMonitorState state;
+    float                   cell_voltages[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT];
 
     // Cell temperature monitoring functions
     bool (*start_cell_temp_conv)(void);
@@ -48,16 +65,57 @@ struct Accumulator
     bool (*disable_discharge)(void);
 };
 
+/**
+ * Trigger the calculation the voltage statistics for an accumulator
+ * @param accumulator The accumulator to get the voltages from
+ */
+static void App_Accumulator_CalculateVoltageStats(struct Accumulator *accumulator)
+{
+    VoltageStats temp_voltage_stats = { .min_voltage      = { .segment = 0U, .cell = 0U, .voltage = FLT_MAX },
+                                        .max_voltage      = { .segment = 0U, .cell = 0U, .voltage = 0.0f },
+                                        .segment_voltages = { 0U },
+                                        .pack_voltage     = 0U };
+
+    // Find the min and max voltages
+    for (uint8_t segment = 0U; segment < ACCUMULATOR_NUM_SEGMENTS; segment++)
+    {
+        for (uint8_t cell = 0U; cell < ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT; cell++)
+        {
+            // Collect each cell voltage to find the min/max
+            const float cell_voltage = App_Accumulator_GetCellVoltage(accumulator, segment, cell);
+
+            // Get the minimum cell voltage
+            if (cell_voltage < temp_voltage_stats.min_voltage.voltage)
+            {
+                temp_voltage_stats.min_voltage.voltage = cell_voltage;
+                temp_voltage_stats.min_voltage.segment = segment;
+                temp_voltage_stats.min_voltage.cell    = cell;
+            }
+
+            // Get the maximum cell voltage
+            if (cell_voltage > temp_voltage_stats.max_voltage.voltage)
+            {
+                temp_voltage_stats.max_voltage.voltage = cell_voltage;
+                temp_voltage_stats.max_voltage.segment = segment;
+                temp_voltage_stats.max_voltage.cell    = cell;
+            }
+
+            // Sum the voltages into a segment voltage
+            temp_voltage_stats.segment_voltages[segment] += cell_voltage;
+        }
+
+        // Sum the segment voltages into a pack voltage
+        temp_voltage_stats.pack_voltage += temp_voltage_stats.segment_voltages[segment];
+    }
+
+    accumulator->voltage_stats = temp_voltage_stats;
+}
+
 struct Accumulator *App_Accumulator_Create(
     bool (*config_monitoring_chip)(void),
     bool (*write_cfg_registers)(void),
     bool (*start_voltage_conv)(void),
-    bool (*read_cell_voltages)(void),
-    float (*get_min_cell_voltage)(uint8_t *, uint8_t *),
-    float (*get_max_cell_voltage)(uint8_t *, uint8_t *),
-    float (*get_segment_voltage)(AccumulatorSegments_E),
-    float (*get_pack_voltage)(void),
-    float (*get_avg_cell_voltage)(void),
+    bool (*read_cell_voltages)(float[ACCUMULATOR_NUM_SEGMENTS][ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT]),
     bool (*start_cell_temp_conv)(void),
     bool (*read_cell_temperatures)(void),
     float (*get_min_cell_temp)(uint8_t *, uint8_t *),
@@ -76,11 +134,10 @@ struct Accumulator *App_Accumulator_Create(
     accumulator->num_comm_tries          = 0U;
     accumulator->read_cell_voltages      = read_cell_voltages;
     accumulator->start_cell_voltage_conv = start_voltage_conv;
-    accumulator->get_min_cell_voltage    = get_min_cell_voltage;
-    accumulator->get_max_cell_voltage    = get_max_cell_voltage;
-    accumulator->get_segment_voltage     = get_segment_voltage;
-    accumulator->get_pack_voltage        = get_pack_voltage;
-    accumulator->get_avg_cell_voltage    = get_avg_cell_voltage;
+
+    // Voltage information
+    memset(&accumulator->voltage_stats, 0U, sizeof(VoltageStats));
+    accumulator->state = GET_CELL_VOLTAGE_STATE;
 
     // Cell temperature monitoring functions
     accumulator->start_cell_temp_conv   = start_cell_temp_conv;
@@ -100,30 +157,72 @@ void App_Accumulator_Destroy(struct Accumulator *accumulator)
     free(accumulator);
 }
 
-bool App_Accumulator_HasCommunicationError(const struct Accumulator *const accumulator)
-{
-    return accumulator->num_comm_tries >= MAX_NUM_COMM_TRIES;
-}
-
-float App_Accumulator_GetPackVoltage(struct Accumulator *accumulator)
-{
-    return accumulator->get_pack_voltage();
-}
-
 void App_Accumulator_InitRunOnEntry(const struct Accumulator *const accumulator)
 {
     // Configure the cell monitoring chips. Disable discharge at startup
     accumulator->config_monitoring_chip();
 }
 
+bool App_Accumulator_HasCommunicationError(const struct Accumulator *const accumulator)
+{
+    return accumulator->num_comm_tries >= MAX_NUM_COMM_TRIES;
+}
+
+float App_Accumulator_GetCellVoltage(
+    const struct Accumulator *const accumulator,
+    AccumulatorSegment              segment,
+    uint8_t                         cell)
+{
+    if (segment >= ACCUMULATOR_NUM_SEGMENTS || cell >= ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT)
+    {
+        return 0.0f;
+    }
+
+    return accumulator->cell_voltages[segment][cell];
+}
+
 float App_Accumulator_GetMaxVoltage(const struct Accumulator *const accumulator, uint8_t *segment, uint8_t *cell)
 {
-    return accumulator->get_max_cell_voltage(segment, cell);
+    *segment = accumulator->voltage_stats.max_voltage.segment;
+    *cell    = accumulator->voltage_stats.max_voltage.cell;
+    return accumulator->voltage_stats.max_voltage.voltage;
 }
 
 float App_Accumulator_GetMinVoltage(const struct Accumulator *const accumulator, uint8_t *segment, uint8_t *cell)
 {
-    return accumulator->get_min_cell_voltage(segment, cell);
+    *segment = accumulator->voltage_stats.min_voltage.segment;
+    *cell    = accumulator->voltage_stats.min_voltage.cell;
+    return accumulator->voltage_stats.min_voltage.voltage;
+}
+
+float App_Accumulator_GetAverageCellVoltage(const struct Accumulator *const accumulator, uint8_t segment)
+{
+    if (segment >= ACCUMULATOR_NUM_SEGMENTS)
+    {
+        return 0.0f;
+    }
+
+    return accumulator->voltage_stats.segment_voltages[segment] / ACCUMULATOR_NUM_SERIES_CELLS_PER_SEGMENT;
+}
+
+float App_Accumulator_GetSegmentVoltage(const struct Accumulator *const accumulator, uint8_t segment)
+{
+    if (segment >= ACCUMULATOR_NUM_SEGMENTS)
+    {
+        return 0.0f;
+    }
+
+    return accumulator->voltage_stats.segment_voltages[segment];
+}
+
+float App_Accumulator_GetAverageSegmentVoltage(const struct Accumulator *const accumulator)
+{
+    return accumulator->voltage_stats.pack_voltage / ACCUMULATOR_NUM_SEGMENTS;
+}
+
+float App_Accumulator_GetAccumulatorVoltage(const struct Accumulator *accumulator)
+{
+    return accumulator->voltage_stats.pack_voltage;
 }
 
 float App_Accumulator_GetMinCellTempDegC(
@@ -159,13 +258,16 @@ bool App_Accumulator_DisableDischarge(const struct Accumulator *const accumulato
 
 void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
 {
-    static enum AccumulatorMonitorState state = GET_CELL_VOLTAGE_STATE;
-
-    switch (state)
+    switch (accumulator->state)
     {
         case GET_CELL_VOLTAGE_STATE:
+        {
+            // Attempt to read voltages from the LTCs, write output to cell voltages array
+            UPDATE_PEC15_ERROR_COUNT(
+                accumulator->read_cell_voltages(accumulator->cell_voltages), accumulator->num_comm_tries);
 
-            UPDATE_PEC15_ERROR_COUNT(accumulator->read_cell_voltages(), accumulator->num_comm_tries)
+            // Calculate min/max/segment voltages
+            App_Accumulator_CalculateVoltageStats(accumulator);
 
             // Write to configuration register to configure cell discharging
             accumulator->write_cfg_registers();
@@ -173,22 +275,24 @@ void App_Accumulator_RunOnTick100Hz(struct Accumulator *const accumulator)
 
             // Start cell voltage conversions for the next cycle
             accumulator->start_cell_temp_conv();
-            state = GET_CELL_TEMP_STATE;
+            accumulator->state = GET_CELL_TEMP_STATE;
             break;
-
+        }
         case GET_CELL_TEMP_STATE:
-
+        {
             UPDATE_PEC15_ERROR_COUNT(accumulator->read_cell_temperatures(), accumulator->num_comm_tries)
 
             // Start cell voltage conversions for the next cycle
             accumulator->start_cell_voltage_conv();
             accumulator->disable_discharge();
 
-            state = GET_CELL_VOLTAGE_STATE;
+            accumulator->state = GET_CELL_VOLTAGE_STATE;
             break;
-
+        }
         default:
+        {
             break;
+        }
     }
 }
 

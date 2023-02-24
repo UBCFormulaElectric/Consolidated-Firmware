@@ -13,6 +13,8 @@
 // Num of cycles for voltage and cell temperature values to settle
 #define NUM_CYCLES_TO_SETTLE (3U)
 
+static uint8_t acc_meas_settle_count = 0U;
+
 static void App_SendAndReceiveHeartbeat(struct HeartbeatMonitor *hb_monitor)
 {
     App_CanTx_BMS_Vitals_Heartbeat_Set(true);
@@ -87,6 +89,12 @@ static void App_AdvertisePackPower(struct Accumulator *accumulator, struct Tract
     App_CanTx_BMS_AvailablePower_AvailablePower_Set(available_power);
 }
 
+void App_AllStates_Init()
+{
+    // Reset accumulator settle count
+    acc_meas_settle_count = 0U;
+}
+
 void App_AllStatesRunOnTick1Hz(struct StateMachine *const state_machine)
 {
     struct BmsWorld *      world            = App_SharedStateMachine_GetWorld(state_machine);
@@ -111,8 +119,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     struct HeartbeatMonitor *hb_monitor  = App_BmsWorld_GetHeartbeatMonitor(world);
     struct TractiveSystem *  ts          = App_BmsWorld_GetTractiveSystem(world);
 
-    bool           status                = true;
-    static uint8_t acc_meas_settle_count = 0U;
+    bool status = true;
     App_SendAndReceiveHeartbeat(hb_monitor);
 
     App_Accumulator_RunOnTick100Hz(accumulator);
@@ -122,7 +129,7 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     const bool acc_fault = App_Accumulator_CheckFaults(accumulator, ts);
     const bool ts_fault  = App_TractveSystem_CheckFaults(ts);
 
-    App_CanTx_BMS_PackVoltage_PackVoltage_Set(App_Accumulator_GetPackVoltage(accumulator));
+    App_CanTx_BMS_PackVoltage_PackVoltage_Set(App_Accumulator_GetAccumulatorVoltage(accumulator));
     App_CanTx_BMS_TractiveSystem_TsVoltage_Set(App_TractiveSystem_GetVoltage(ts));
     App_CanTx_BMS_TractiveSystem_TsCurrent_Set(App_TractiveSystem_GetCurrent(ts));
     App_CanTx_BMS_Contactors_AirNegative_Set(
@@ -143,7 +150,6 @@ bool App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         acc_meas_settle_count++;
     }
-
     else if (acc_fault || ts_fault)
     {
         status = false;
