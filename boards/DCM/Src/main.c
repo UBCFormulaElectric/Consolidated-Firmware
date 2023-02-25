@@ -37,7 +37,7 @@
 #include "Io_BrakeLight.h"
 #include "Io_Buzzer.h"
 #include "Io_LSM6DS33.h"
-#include "App_CanAlerts.h"
+#include "Io_SbgEllipseGps.h"
 
 #include "App_SharedMacros.h"
 #include "App_DcmWorld.h"
@@ -68,6 +68,8 @@ CAN_HandleTypeDef hcan1;
 IWDG_HandleTypeDef hiwdg;
 
 UART_HandleTypeDef huart1;
+DMA_HandleTypeDef  hdma_usart1_rx;
+DMA_HandleTypeDef  hdma_usart1_tx;
 
 osThreadId          Task1HzHandle;
 uint32_t            Task1HzBuffer[512];
@@ -97,6 +99,7 @@ struct Clock *           clock;
 /* Private function prototypes -----------------------------------------------*/
 void        SystemClock_Config(void);
 static void MX_GPIO_Init(void);
+static void MX_DMA_Init(void);
 static void MX_CAN1_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_USART1_UART_Init(void);
@@ -154,6 +157,7 @@ int main(void)
 
     /* Initialize all configured peripherals */
     MX_GPIO_Init();
+    MX_DMA_Init();
     MX_CAN1_Init();
     MX_IWDG_Init();
     MX_USART1_UART_Init();
@@ -161,6 +165,7 @@ int main(void)
     __HAL_DBGMCU_FREEZE_IWDG();
 
     Io_SharedHardFaultHandler_Init();
+    Io_SbgEllipseGps_Init();
 
     App_CanTx_Init();
     App_CanRx_Init();
@@ -369,7 +374,7 @@ static void MX_USART1_UART_Init(void)
 
     /* USER CODE END USART1_Init 1 */
     huart1.Instance          = USART1;
-    huart1.Init.BaudRate     = 115200;
+    huart1.Init.BaudRate     = SBG_ELLIPSE_GPS_BAUD_RATE;
     huart1.Init.WordLength   = UART_WORDLENGTH_8B;
     huart1.Init.StopBits     = UART_STOPBITS_1;
     huart1.Init.Parity       = UART_PARITY_NONE;
@@ -383,6 +388,23 @@ static void MX_USART1_UART_Init(void)
     /* USER CODE BEGIN USART1_Init 2 */
 
     /* USER CODE END USART1_Init 2 */
+}
+
+/**
+ * Enable DMA controller clock
+ */
+static void MX_DMA_Init(void)
+{
+    /* DMA controller clock enable */
+    __HAL_RCC_DMA2_CLK_ENABLE();
+
+    /* DMA interrupt init */
+    /* DMA2_Stream2_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
+    /* DMA2_Stream7_IRQn interrupt configuration */
+    HAL_NVIC_SetPriority(DMA2_Stream7_IRQn, 5, 0);
+    HAL_NVIC_EnableIRQ(DMA2_Stream7_IRQn);
 }
 
 /**

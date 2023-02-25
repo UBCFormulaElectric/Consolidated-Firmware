@@ -38,7 +38,12 @@ set(LIST_H_INCLUDE_DIR ${THIRD_PARTY_DIR}/list.h/src)
 # Import sources files for SBG Systems library
 set(SBG_ECOM_DIR ${THIRD_PARTY_DIR}/sbgECom)
 list(APPEND SHARED_ARM_BINARY_X86_INCOMPATIBLE_THIRD_PARTY_INCLUDE_DIRS ${SBG_ECOM_DIR}/common ${SBG_ECOM_DIR}/src)
-file(GLOB_RECURSE SBG_ECOM_SRCS ${SBG_ECOM_DIR}/src/*.c)
+file(GLOB_RECURSE SBG_ECOM_SRCS
+        ${SBG_ECOM_DIR}/src/*.c
+        ${SBG_ECOM_DIR}/common/crc/*.c
+        ${SBG_ECOM_DIR}/common/platform/*.c
+        ${SBG_ECOM_DIR}/common/interfaces/sbgInterface.c
+)
 list(APPEND SHARED_ARM_BINARY_X86_INCOMPATIBLE_THIRD_PARTY_SRCS ${SBG_ECOM_SRCS})
 
 set(SHARED_ARM_BINARY_X86_COMPATIBLE_SRCS
