@@ -17,7 +17,7 @@ float App_PowerLimiting_ComputeMaxPower(struct PowerLimiting_Inputs *power_limit
     float P_max_motor_temps =
         max_motor_temp > MOTOR_TEMP_CUTOFF_c
             ? POWER_LIMIT_CAR_kW
-            : POWER_LIMIT_CAR_kW - (max_motor_temp - MOTOR_TEMP_CUTOFF_c)*MOTOR_TEMP_POWER_DECREMENTING_RATIO;
+            : POWER_LIMIT_CAR_kW - (max_motor_temp - MOTOR_TEMP_CUTOFF_c) * MOTOR_TEMP_POWER_DECREMENTING_RATIO;
     float P_max_accelerator = power_limiting_inputs->accelerator_pedal_percent * POWER_LIMIT_CAR_kW;
     // =========== Take min of max powers ==================
     return fminf(
