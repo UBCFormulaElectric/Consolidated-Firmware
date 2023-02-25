@@ -351,16 +351,16 @@
             }
         }
     },
-    "BMS_AvailablePower": {
+    "BMS_AvailableCurrent": {
         "msg_id": 120,
         "cycle_time": 100,
-        "description": "BMS Available Power",
+        "description": "BMS Available Current",
         "signals": {
-            "AvailablePower": {
+            "DischargeCurrent": {
                 "resolution": 0.1,
                 "min": 0,
                 "max": 100000,
-                "unit": "W"
+                "unit": "A"
             }
         }
     }

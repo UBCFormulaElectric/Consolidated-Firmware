@@ -1,6 +1,7 @@
 #pragma once
 
 #include "App_SharedStateMachine.h"
+#include "App_CurrentLimit.h"
 
 /**
  * Initialize state machine all states module.
