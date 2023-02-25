@@ -12,5 +12,8 @@ static TractionControl_Outputs    traction_control_outputs;
 
 void App_TorqueVectoring_Run(void)
 {
-    const float bms_available_power = App_CanRx_BMS_AvailablePower_AvailablePower_Get();
+    // To Do : change this to can msg for BMS Current const float bms_available_power = App_CanRx_BMS_AvailablePower_AvailablePower_Get();
+    // To Do : get can msgs for steering angle and pedal percentage transmitted via can by fsm
+
+
 }
