@@ -6,7 +6,6 @@
 
 static void FaultStateRunOnEntry(struct StateMachine *const state_machine)
 {
-    //    struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
     App_CanTx_DCM_Vitals_CurrentState_Set(DCM_FAULT_STATE);
 
     // Disable inverters and apply zero torque upon entering fault state
