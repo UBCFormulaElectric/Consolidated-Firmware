@@ -24,24 +24,24 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         // Holds previous start switch position (true = UP/ON, false = DOWN/OFF)
         // Initialize to true to prevent a false start
-        //        static bool prev_start_switch_pos = true;
+        static bool prev_start_switch_pos = true;
+        const bool curr_start_switch_pos      = false;
+        const bool was_start_switch_pulled_up = !prev_start_switch_pos && curr_start_switch_pos;
+        const bool is_brake_actuated = false;
+
         // TODO: JSONCAN -> const bool  curr_start_switch_pos      = App_IsStartSwitchOn(can_rx_interface);
-        //        const bool curr_start_switch_pos      = false;
-        //        const bool was_start_switch_pulled_up = !prev_start_switch_pos && curr_start_switch_pos;
         // const bool  is_brake_actuated          =
         // App_CanRx_FSM_BRAKE_FLAGS_GetSignal_BRAKE_IS_ACTUATED(can_rx_interface) ==
         //                                CANMSGS_FSM_BRAKE_FLAGS_BRAKE_IS_ACTUATED_TRUE_CHOICE;
-        //        const bool is_brake_actuated = false;
-
         //        prev_start_switch_pos = curr_start_switch_pos;
 
         // TODO: JSONCAN
-        //         if ((App_IsBmsInDriveState(can_rx_interface) && is_brake_actuated && was_start_switch_pulled_up)
+        //         if ((App_IsBmsInDriveState() && is_brake_actuated && was_start_switch_pulled_up)
         // #ifndef NDEBUG
         //             || App_CanRx_CAN_DEBUGGING_SIGNALS_GetSignal_FORCE_DCM_TO_DRIVE_FROM_INIT(can_rx_interface)
         // #endif
         //         )
-        if (false)
+        if (App_IsBmsInDriveState() && is_brake_actuated && was_start_switch_pulled_up)
         {
             // Transition to drive state when start-up conditions are passed (see
             // EV.10.4.3):
