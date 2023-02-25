@@ -36,7 +36,6 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
         //        prev_start_switch_pos = curr_start_switch_pos;
 
         // TODO: JSONCAN
-        //         if ((App_IsBmsInDriveState() && is_brake_actuated && was_start_switch_pulled_up)
         // #ifndef NDEBUG
         //             || App_CanRx_CAN_DEBUGGING_SIGNALS_GetSignal_FORCE_DCM_TO_DRIVE_FROM_INIT(can_rx_interface)
         // #endif
