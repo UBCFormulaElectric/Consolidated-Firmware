@@ -23,10 +23,6 @@ static void FaultStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
-    //    struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-
-    // JSONCAN add to tx json-> App_CanTx_SetPeriodicSignal_TORQUE_REQUEST(can_tx_interface, 0.0f);
-
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());

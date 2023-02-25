@@ -22,8 +22,6 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
-        //        struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-
         // Holds previous start switch position (true = UP/ON, false = DOWN/OFF)
         // Initialize to true to prevent a false start
         //        static bool prev_start_switch_pos = true;

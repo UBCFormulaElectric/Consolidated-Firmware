@@ -11,7 +11,7 @@
 
 void App_SetPeriodicCanSignals_TorqueRequests()
 {
-//    const float bms_available_power   = App_CanRx_BMS_AvailablePower_AvailablePower_Get();
+    //    const float bms_available_power   = App_CanRx_BMS_AvailablePower_AvailablePower_Get();
     const float right_motor_speed_rpm = (float)App_CanRx_INVR_MotorPositionInfo_MotorSpeed_Get();
     const float left_motor_speed_rpm  = (float)App_CanRx_INVL_MotorPositionInfo_MotorSpeed_Get();
     //    float bms_torque_limit = MAX_TORQUE_REQUEST_NM;
@@ -63,8 +63,6 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     if (App_AllStatesRunOnTick100Hz(state_machine))
     {
-        //        struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-
         App_SetPeriodicCanSignals_TorqueRequests();
 
         if (!App_IsStartSwitchOn())
@@ -76,13 +74,11 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
 static void DriveStateRunOnExit(struct StateMachine *const state_machine)
 {
-    //    struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-
     // Disable inverters and apply zero torque upon exiting drive state
     App_CanTx_DCM_LeftInverterCommand_EnableInverter_Set(false);
     App_CanTx_DCM_RightInverterCommand_EnableInverter_Set(false);
 
-     App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(0.0f);
+    App_CanTx_DCM_LeftInverterCommand_TorqueCommand_Set(0.0f);
     App_CanTx_DCM_RightInverterCommand_TorqueCommand_Set(0.0f);
 }
 
