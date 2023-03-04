@@ -131,10 +131,10 @@ class DimStateMachineTest : public BaseStateMachineTest
 
         clock = App_SharedClock_Create();
 
-        world = App_DimWorld_Create(
-            seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, start_switch,
-            traction_control_switch, torque_vectoring_switch, bms_status_led, dcm_status_led, dim_status_led,
-            fsm_status_led, pdm_status_led, clock);
+//        world = App_DimWorld_Create(
+//            seven_seg_displays, heartbeat_monitor, rgb_led_sequence, drive_mode_switch, imd_led, bspd_led, start_switch,
+//            traction_control_switch, torque_vectoring_switch, bms_status_led, dcm_status_led, dim_status_led,
+//            fsm_status_led, pdm_status_led, clock);
 
         // Default to starting the state machine in the `Drive` state
         state_machine = App_SharedStateMachine_Create(world, App_GetDriveState());

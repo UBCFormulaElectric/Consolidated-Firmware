@@ -57,7 +57,7 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
 
     const bool start_switch_on = App_BinarySwitch_IsTurnedOn(start_switch);
-    const bool aux_switch_on   = App_BinarySwitch_IsTurnedOn(aux_switch);
+    // const bool aux_switch_on   = App_BinarySwitch_IsTurnedOn(aux_switch);
 
     App_CanTx_DIM_Switches_StartSwitch_Set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
     App_CanTx_DIM_Switches_AuxSwitch_Set(aux_switch ? SWITCH_ON : SWITCH_OFF);
