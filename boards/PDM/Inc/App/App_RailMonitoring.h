@@ -14,21 +14,21 @@ struct RailMonitoring *App_RailMonitoring_Create(
     float (*get__22V_AUX_voltage)(void));
 
 /**
- * Gets the VBAT Voltage from the PDM
+ * Gets the VBAT Voltage from the PDM in Volts
  * @param rail_monitor
  * @return VBAT Voltage Value from the PDM
  */
 float App_RailMonitoring_GetVbatVoltage(struct RailMonitoring *rail_monitor);
 
 /**
- * Gets the Accumulator Voltage from the PDM
+ * Gets the Accumulator Voltage from the PDM in Volts
  * @param rail_monitor
  * @return Accumulator Voltage Value from the PDM
  */
 float App_RailMonitoring_Get24VAccumulatorVoltage(struct RailMonitoring *rail_monitor);
 
 /**
- * Gets the AUX Voltage from the PDM
+ * Gets the AUX Voltage from the PDM in Volts
  * @param rail_monitor
  * @return AUX Voltage Value from the PDM
  */
