@@ -442,8 +442,8 @@ TEST_F(DimStateMachineTest, dcm_board_status_led_control_with_critical_error)
     // TODO: JSON2CAN
     //    App_SharedErrorTable_SetError(error_table, DCM_AIR_SHUTDOWN_MISSING_HEARTBEAT, true);
     App_CanRx_DCM_Warnings_MissingHeartbeat_Update(true);
-    LetTimePass(state_machine, 10);S
-    ASSERT_EQ(1, turn_dcm_status_led_red_fake.call_count);
+    LetTimePass(state_machine, 10);
+    S ASSERT_EQ(1, turn_dcm_status_led_red_fake.call_count);
 
     App_CanRx_DCM_Warnings_MissingHeartbeat_Update(false);
 }
