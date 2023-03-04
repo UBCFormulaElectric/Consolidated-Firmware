@@ -6,4 +6,3 @@
 #define _22V_AUX_MAX_VOLTAGE 26.0f
 #define _24V_ACC_MIN_VOLTAGE 22.0f
 #define _24V_ACC_MAX_VOLTAGE 26.0f
-

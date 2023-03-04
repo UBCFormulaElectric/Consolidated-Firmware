@@ -39,7 +39,7 @@ static void FaultStateRunOnTick100Hz(struct StateMachine *const state_machine)
 
     Efuse_DisableChannels(efuse1, efuse2, efuse3, efuse4);
 
-    if (App_CanRx_BMS_Vitals_CurrentState_Get() != 4) // if BMS not in Fault State
+    if (App_CanRx_BMS_Vitals_CurrentState_Get() != BMS_FAULT_STATE)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetInitState());
     }

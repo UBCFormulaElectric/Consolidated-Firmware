@@ -128,7 +128,8 @@ bool App_Efuse_Channel1_CurrentLowCheck(struct Efuse *efuse);
 bool App_Efuse_Channel1_CurrentHighCheck(struct Efuse *efuse);
 
 /**
- * If current too low & enabled or current > max current, then it will go through this fault procedure function (channel0)
+ * If current too low & enabled or current > max current, then it will go through this fault procedure function
+ * (channel0)
  * @param efuse
  * @param max_attempts max number of attempts allowed before faulting
  * @return 0 if fault, 1 if fine
@@ -136,7 +137,8 @@ bool App_Efuse_Channel1_CurrentHighCheck(struct Efuse *efuse);
 int App_Efuse_FaultProcedureChannel0(struct Efuse *efuse, int max_attempts);
 
 /**
- * If current too low & enabled or current > max current, then it will go through this fault procedure function (channel1)
+ * If current too low & enabled or current > max current, then it will go through this fault procedure function
+ * (channel1)
  * @param efuse
  * @param max_attempts max number of attempts allowed before faulting
  * @return 0 if fault, 1 if fine

@@ -32,29 +32,26 @@ void Efuse_ErrorsWarningsCANTX(struct Efuse *efuse1, struct Efuse *efuse2, struc
     App_CanTx_PDM_EfuseFaultCheck_AIR_Set(App_Efuse_FaultProcedureChannel0(efuse1, 3));
     App_CanTx_PDM_EfuseFaultCheck_LVPWR_Set(App_Efuse_FaultProcedureChannel1(efuse1, 3));
     App_CanTx_PDM_EfuseFaultCheck_EMETER_Set(App_Efuse_FaultProcedureChannel1(efuse2, 0));
-    //App_CanTx_PDM_EfuseFaultCheck_AUX_Set(App_Efuse_FaultProcedureChannel1(efuse2, ));
+    // App_CanTx_PDM_EfuseFaultCheck_AUX_Set(App_Efuse_FaultProcedureChannel1(efuse2, ));
     App_CanTx_PDM_EfuseFaultCheck_LEFT_INVERTER_Set(App_Efuse_FaultProcedureChannel1(efuse3, 0));
     App_CanTx_PDM_EfuseFaultCheck_RIGHT_INVERTER_Set(App_Efuse_FaultProcedureChannel1(efuse3, 0));
     App_CanTx_PDM_EfuseFaultCheck_DRS_Set(App_Efuse_FaultProcedureChannel1(efuse4, 3));
     App_CanTx_PDM_EfuseFaultCheck_FAN_Set(App_Efuse_FaultProcedureChannel1(efuse4, 3));
-
 }
 bool DriveFaultDetection(
-        struct Efuse *         efuse1,
-        struct Efuse *         efuse2,
-        struct Efuse *         efuse3,
-        struct Efuse *         efuse4,
-        struct RailMonitoring *rail_monitor)
+    struct Efuse *         efuse1,
+    struct Efuse *         efuse2,
+    struct Efuse *         efuse3,
+    struct Efuse *         efuse4,
+    struct RailMonitoring *rail_monitor)
 {
-    if (App_Efuse_FaultProcedureChannel0(efuse1, 3) == 1 &&
-        App_Efuse_FaultProcedureChannel0(efuse2, 0) == 1 &&
-        App_Efuse_FaultProcedureChannel0(efuse3, 0) == 1 &&
-        App_Efuse_FaultProcedureChannel1(efuse3, 0) == 1 &&
+    if (App_Efuse_FaultProcedureChannel0(efuse1, 3) == 1 && App_Efuse_FaultProcedureChannel0(efuse2, 0) == 1 &&
+        App_Efuse_FaultProcedureChannel0(efuse3, 0) == 1 && App_Efuse_FaultProcedureChannel1(efuse3, 0) == 1 &&
         !App_RailMonitoring_VbatVoltageLowCheck(rail_monitor) &&
         !App_RailMonitoring_24VAccumulatorVoltageLowCheck(rail_monitor) &&
         !App_RailMonitoring_22VAuxiliaryVoltageLowCheck(rail_monitor))
         return false; // No Error
-    return true; // Error
+    return true;      // Error
 }
 
 static void DriveStateRunOnTick1Hz(struct StateMachine *const state_machine)
