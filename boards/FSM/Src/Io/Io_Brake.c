@@ -21,7 +21,7 @@ bool Io_Brake_PressureVoltageAlarm(float pressure_voltage)
 
 float Io_Brake_GetFrontPressureSensorVoltage(void)
 {
-    return Io_Adc_GetChannel3Voltage();
+    return Io_Adc_GetChannelVoltage(ADC_CHANNEL_7);
 }
 float Io_Brake_GetFrontPressurePsi(void)
 {

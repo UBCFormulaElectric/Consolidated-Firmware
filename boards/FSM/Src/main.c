@@ -86,8 +86,6 @@ CAN_HandleTypeDef hcan1;
 
 IWDG_HandleTypeDef hiwdg;
 
-SPI_HandleTypeDef hspi2;
-
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim8;
 TIM_HandleTypeDef htim12;
@@ -127,7 +125,6 @@ static void MX_CAN1_Init(void);
 static void MX_IWDG_Init(void);
 static void MX_TIM8_Init(void);
 static void MX_TIM12_Init(void);
-static void MX_SPI2_Init(void);
 static void MX_TIM3_Init(void);
 void        RunTask1kHz(void const *argument);
 void        RunTask100Hz(void const *argument);
@@ -180,8 +177,7 @@ int main(void)
     SystemClock_Config();
 
     /* USER CODE BEGIN SysInit */
-    HAL_Delay(2000U);
-    MX_DMA_Init();
+    HAL_Delay(1000U);
     /* USER CODE END SysInit */
 
     /* Initialize all configured peripherals */
@@ -192,7 +188,6 @@ int main(void)
     MX_IWDG_Init();
     MX_TIM8_Init();
     MX_TIM12_Init();
-    MX_SPI2_Init();
     MX_TIM3_Init();
     /* USER CODE BEGIN 2 */
     __HAL_DBGMCU_FREEZE_IWDG();
@@ -201,30 +196,31 @@ int main(void)
     HAL_TIM_Base_Start(&htim3);
 
     Io_SharedHardFaultHandler_Init();
+    Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
+    Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
 
     App_CanTx_Init();
     App_CanRx_Init();
     App_CanAlerts_Init(Io_CanTx_FSM_Alerts_SendAperiodic);
 
-    // Accelerator
+    heartbeat_monitor = App_SharedHeartbeatMonitor_Create(
+        Io_SharedHeartbeatMonitor_GetCurrentMs, HEARTBEAT_MONITOR_TIMEOUT_PERIOD_MS, HEARTBEAT_MONITOR_BOARDS_TO_CHECK);
+
     papps_and_sapps = App_AcceleratorPedals_Create(
         Io_AcceleratorPedals_GetPapps, Io_AcceleratorPedals_PappsOCSC, Io_AcceleratorPedals_GetSapps,
         Io_AcceleratorPedals_SappsOCSC);
 
-    // Brake
     brake = App_Brake_Create(
         Io_Brake_GetFrontPressurePsi, Io_Brake_FrontPressureSensorOCSC, Io_Brake_GetRearPressurePsi,
         Io_Brake_RearPressureSensorOCSC, Io_Brake_GetPedalPercentTravel, Io_Brake_PedalSensorOCSC, Io_Brake_IsActuated);
-    // Coolants
+
     Io_FlowMeter_Init(&htim8);
     coolant = App_Coolant_Create(
         Io_FlowMeter_GetFlowRate, Io_Coolant_GetTemperatureA, Io_Coolant_GetTemperatureB, Io_Coolant_GetPressureA,
         Io_Coolant_GetPressureB);
 
-    // steering
     steering = App_Steering_Create(Io_SteeringAngleSensor_GetAngleDegree, Io_SteeringSensorOCSC);
 
-    // wheels
     Io_WheelSpeedSensors_Init(&htim12, &htim12);
     wheels = App_Wheels_Create(Io_WheelSpeedSensors_GetLeftSpeedKph, Io_WheelSpeedSensors_GetRightSpeedKph);
 
@@ -313,13 +309,7 @@ void SystemClock_Config(void)
     RCC_OscInitStruct.OscillatorType = RCC_OSCILLATORTYPE_LSI | RCC_OSCILLATORTYPE_HSE;
     RCC_OscInitStruct.HSEState       = RCC_HSE_ON;
     RCC_OscInitStruct.LSIState       = RCC_LSI_ON;
-    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_ON;
-    RCC_OscInitStruct.PLL.PLLSource  = RCC_PLLSOURCE_HSE;
-    RCC_OscInitStruct.PLL.PLLM       = 8;
-    RCC_OscInitStruct.PLL.PLLN       = 192;
-    RCC_OscInitStruct.PLL.PLLP       = RCC_PLLP_DIV2;
-    RCC_OscInitStruct.PLL.PLLQ       = 2;
-    RCC_OscInitStruct.PLL.PLLR       = 2;
+    RCC_OscInitStruct.PLL.PLLState   = RCC_PLL_NONE;
     if (HAL_RCC_OscConfig(&RCC_OscInitStruct) != HAL_OK)
     {
         Error_Handler();
@@ -327,12 +317,12 @@ void SystemClock_Config(void)
     /** Initializes the CPU, AHB and APB busses clocks
      */
     RCC_ClkInitStruct.ClockType = RCC_CLOCKTYPE_HCLK | RCC_CLOCKTYPE_SYSCLK | RCC_CLOCKTYPE_PCLK1 | RCC_CLOCKTYPE_PCLK2;
-    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_PLLCLK;
+    RCC_ClkInitStruct.SYSCLKSource   = RCC_SYSCLKSOURCE_HSE;
     RCC_ClkInitStruct.AHBCLKDivider  = RCC_SYSCLK_DIV1;
     RCC_ClkInitStruct.APB1CLKDivider = RCC_HCLK_DIV2;
     RCC_ClkInitStruct.APB2CLKDivider = RCC_HCLK_DIV1;
 
-    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_3) != HAL_OK)
+    if (HAL_RCC_ClockConfig(&RCC_ClkInitStruct, FLASH_LATENCY_0) != HAL_OK)
     {
         Error_Handler();
     }
@@ -357,16 +347,16 @@ static void MX_ADC1_Init(void)
     /** Configure the global features of the ADC (Clock, Resolution, Data Alignment and number of conversion)
      */
     hadc1.Instance                   = ADC1;
-    hadc1.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV4;
+    hadc1.Init.ClockPrescaler        = ADC_CLOCK_SYNC_PCLK_DIV2;
     hadc1.Init.Resolution            = ADC_RESOLUTION_12B;
-    hadc1.Init.ScanConvMode          = DISABLE;
+    hadc1.Init.ScanConvMode          = ENABLE;
     hadc1.Init.ContinuousConvMode    = DISABLE;
     hadc1.Init.DiscontinuousConvMode = DISABLE;
-    hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_NONE;
-    hadc1.Init.ExternalTrigConv      = ADC_SOFTWARE_START;
+    hadc1.Init.ExternalTrigConvEdge  = ADC_EXTERNALTRIGCONVEDGE_RISING;
+    hadc1.Init.ExternalTrigConv      = ADC_EXTERNALTRIGCONV_T3_TRGO;
     hadc1.Init.DataAlign             = ADC_DATAALIGN_RIGHT;
-    hadc1.Init.NbrOfConversion       = 1;
-    hadc1.Init.DMAContinuousRequests = DISABLE;
+    hadc1.Init.NbrOfConversion       = 10;
+    hadc1.Init.DMAContinuousRequests = ENABLE;
     hadc1.Init.EOCSelection          = ADC_EOC_SINGLE_CONV;
     if (HAL_ADC_Init(&hadc1) != HAL_OK)
     {
@@ -374,9 +364,81 @@ static void MX_ADC1_Init(void)
     }
     /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
      */
-    sConfig.Channel      = ADC_CHANNEL_5;
+    sConfig.Channel      = ADC_CHANNEL_0;
     sConfig.Rank         = 1;
     sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+     */
+    sConfig.Channel = ADC_CHANNEL_1;
+    sConfig.Rank    = 2;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+     */
+    sConfig.Channel = ADC_CHANNEL_2;
+    sConfig.Rank    = 3;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+     */
+    sConfig.Channel = ADC_CHANNEL_3;
+    sConfig.Rank    = 4;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+     */
+    sConfig.Channel = ADC_CHANNEL_4;
+    sConfig.Rank    = 5;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+     */
+    sConfig.Channel = ADC_CHANNEL_5;
+    sConfig.Rank    = 6;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+     */
+    sConfig.Channel = ADC_CHANNEL_6;
+    sConfig.Rank    = 7;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+     */
+    sConfig.Channel = ADC_CHANNEL_7;
+    sConfig.Rank    = 8;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+     */
+    sConfig.Channel = ADC_CHANNEL_8;
+    sConfig.Rank    = 9;
+    if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
+    {
+        Error_Handler();
+    }
+    /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time.
+     */
+    sConfig.Channel = ADC_CHANNEL_9;
+    sConfig.Rank    = 10;
     if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
     {
         Error_Handler();
@@ -401,7 +463,7 @@ static void MX_CAN1_Init(void)
 
     /* USER CODE END CAN1_Init 1 */
     hcan1.Instance                  = CAN1;
-    hcan1.Init.Prescaler            = 12;
+    hcan1.Init.Prescaler            = 1;
     hcan1.Init.Mode                 = CAN_MODE_NORMAL;
     hcan1.Init.SyncJumpWidth        = CAN_SJW_4TQ;
     hcan1.Init.TimeSeg1             = CAN_BS1_6TQ;
@@ -417,7 +479,6 @@ static void MX_CAN1_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN CAN1_Init 2 */
-    Io_SharedCan_Init(&hcan1, CanTxQueueOverflowCallBack, CanRxQueueOverflowCallBack);
     /* USER CODE END CAN1_Init 2 */
 }
 
@@ -443,44 +504,8 @@ static void MX_IWDG_Init(void)
         Error_Handler();
     }
     /* USER CODE BEGIN IWDG_Init 2 */
-    Io_SharedSoftwareWatchdog_Init(Io_HardwareWatchdog_Refresh, Io_SoftwareWatchdog_TimeoutCallback);
+
     /* USER CODE END IWDG_Init 2 */
-}
-
-/**
- * @brief SPI2 Initialization Function
- * @param None
- * @retval None
- */
-static void MX_SPI2_Init(void)
-{
-    /* USER CODE BEGIN SPI2_Init 0 */
-
-    /* USER CODE END SPI2_Init 0 */
-
-    /* USER CODE BEGIN SPI2_Init 1 */
-
-    /* USER CODE END SPI2_Init 1 */
-    /* SPI2 parameter configuration*/
-    hspi2.Instance               = SPI2;
-    hspi2.Init.Mode              = SPI_MODE_MASTER;
-    hspi2.Init.Direction         = SPI_DIRECTION_2LINES;
-    hspi2.Init.DataSize          = SPI_DATASIZE_8BIT;
-    hspi2.Init.CLKPolarity       = SPI_POLARITY_LOW;
-    hspi2.Init.CLKPhase          = SPI_PHASE_1EDGE;
-    hspi2.Init.NSS               = SPI_NSS_SOFT;
-    hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
-    hspi2.Init.FirstBit          = SPI_FIRSTBIT_MSB;
-    hspi2.Init.TIMode            = SPI_TIMODE_DISABLE;
-    hspi2.Init.CRCCalculation    = SPI_CRCCALCULATION_DISABLE;
-    hspi2.Init.CRCPolynomial     = 10;
-    if (HAL_SPI_Init(&hspi2) != HAL_OK)
-    {
-        Error_Handler();
-    }
-    /* USER CODE BEGIN SPI2_Init 2 */
-
-    /* USER CODE END SPI2_Init 2 */
 }
 
 /**
@@ -515,7 +540,7 @@ static void MX_TIM3_Init(void)
     {
         Error_Handler();
     }
-    sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+    sMasterConfig.MasterOutputTrigger = TIM_TRGO_UPDATE;
     sMasterConfig.MasterSlaveMode     = TIM_MASTERSLAVEMODE_DISABLE;
     if (HAL_TIMEx_MasterConfigSynchronization(&htim3, &sMasterConfig) != HAL_OK)
     {
@@ -678,18 +703,25 @@ void RunTask1kHz(void const *argument)
     /* USER CODE BEGIN 5 */
     UNUSED(argument);
     uint32_t                 PreviousWakeTime = osKernelSysTick();
-    static const TickType_t  period_ms        = 1000U;
+    static const TickType_t  period_ms        = 1U;
     SoftwareWatchdogHandle_t watchdog         = Io_SharedSoftwareWatchdog_AllocateWatchdog();
-    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1HZ, period_ms);
+    Io_SharedSoftwareWatchdog_InitWatchdog(watchdog, RTOS_TASK_1KHZ, period_ms);
 
     for (;;)
     {
-        Io_StackWaterMark_Check();
-        App_SharedStateMachine_Tick1Hz(state_machine);
+        Io_SharedSoftwareWatchdog_CheckForTimeouts();
+        const uint32_t task_start_ms = TICK_TO_MS(osKernelSysTick());
+
+        Io_CanTx_EnqueueOtherPeriodicMsgs(task_start_ms);
 
         // Watchdog check-in must be the last function called before putting the
-        // task to sleep.
-        Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        // task to sleep. Prevent check in if the elapsed period is greater or
+        // equal to the period ms
+        if ((TICK_TO_MS(osKernelSysTick()) - task_start_ms) <= period_ms)
+        {
+            Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
+        }
+
         osDelayUntil(&PreviousWakeTime, period_ms);
     }
     /* USER CODE END 5 */
@@ -715,9 +747,10 @@ void RunTask100Hz(void const *argument)
     for (;;)
     {
         App_SharedStateMachine_Tick100Hz(state_machine);
+        Io_CanTx_Enqueue100HzMsgs();
 
-        // Watchdog check-in must be the last function called before putting
-        // the task to sleep.
+        // Watchdog check-in must be the last function called before putting the
+        // task to sleep.
         Io_SharedSoftwareWatchdog_CheckInWatchdog(watchdog);
         osDelayUntil(&PreviousWakeTime, period_ms);
     }
@@ -786,6 +819,7 @@ void RunTask1Hz(void const *argument)
     {
         Io_StackWaterMark_Check();
         App_SharedStateMachine_Tick1Hz(state_machine);
+        Io_CanTx_Enqueue1HzMsgs();
 
         // Watchdog check-in must be the last function called before putting the
         // task to sleep.

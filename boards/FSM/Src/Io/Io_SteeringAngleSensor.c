@@ -6,7 +6,7 @@
 
 float Io_SteeringSensorVoltage(void)
 {
-    return Io_Adc_GetChannel1Voltage();
+    return Io_Adc_GetChannelVoltage(ADC1_CHANNEL_6);
 }
 float Io_SteeringAngleSensor_GetAngleDegree(void)
 {
