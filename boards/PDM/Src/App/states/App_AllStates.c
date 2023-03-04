@@ -15,32 +15,29 @@ void Rail_Voltages_CANTX(struct RailMonitoring *rail_monitor)
 {
     // Main Rail CAN_TX:
 
-    App_CanTx_PDM_VBAT_Voltage_Set(App_RailMonitoring_Get_VBAT_Voltage(rail_monitor));
-    App_CanTx_PDM_VBAT_Critical_Set(App_RailMonitoring_VBAT_VoltageCriticalCheck(rail_monitor));
-    App_CanTx_PDM_VBAT_LOW_Set(App_RailMonitoring_VBAT_VoltageLowCheck(rail_monitor));
-    App_CanTx_PDM_VBAT_HIGH_Set(App_RailMonitoring_VBAT_VoltageHighCheck(rail_monitor));
+    App_CanTx_PDM_VBAT_Voltage_Set(App_RailMonitoring_GetVbatVoltage(rail_monitor));
+    App_CanTx_PDM_VBAT_LowCheck_Set(App_RailMonitoring_VbatVoltageLowCheck(rail_monitor));
+    App_CanTx_PDM_VBAT_HighCheck_Set(App_RailMonitoring_VbatVoltageHighCheck(rail_monitor));
 
-    App_CanTx_PDM__24V_ACC_Voltage_Set(App_RailMonitoring_Get__24V_ACC_Voltage(rail_monitor));
-    App_CanTx_PDM__24V_ACC_Critical_Set(App_RailMonitoring__24V_ACC_VoltageCriticalCheck(rail_monitor));
-    App_CanTx_PDM__24V_ACC_LOW_Set(App_RailMonitoring__24V_ACC_VoltageLowCheck(rail_monitor));
-    App_CanTx_PDM__24V_ACC_HIGH_Set(App_RailMonitoring__24V_ACC_VoltageHighCheck(rail_monitor));
+    App_CanTx_PDM_24V_ACC_Voltage_Set(App_RailMonitoring_Get24VAccumulatorVoltage(rail_monitor));
+    App_CanTx_PDM_24V_ACC_LowCheck_Set(App_RailMonitoring_24VAccumulatorVoltageLowCheck(rail_monitor));
+    App_CanTx_PDM_24V_ACC_HighCheck_Set(App_RailMonitoring_24VAccumulatorVoltageHighCheck(rail_monitor));
 
-    App_CanTx_PDM__22V_AUX_Voltage_Set(App_RailMonitoring_Get__22V_AUX_Voltage(rail_monitor));
-    App_CanTx_PDM__22V_AUX_Critical_Set(App_RailMonitoring__22V_AUX_VoltageCriticalCheck(rail_monitor));
-    App_CanTx_PDM__22V_AUX_LOW_Set(App_RailMonitoring__22V_AUX_VoltageLowCheck(rail_monitor));
-    App_CanTx_PDM__22V_AUX_HIGH_Set(App_RailMonitoring__22V_AUX_VoltageHighCheck(rail_monitor));
+    App_CanTx_PDM_22V_AUX_Voltage_Set(App_RailMonitoring_Get22VAuxiliaryVoltage(rail_monitor));
+    App_CanTx_PDM_22V_AUX_LowCheck_Set(App_RailMonitoring_22VAuxiliaryVoltageLowCheck(rail_monitor));
+    App_CanTx_PDM_22V_AUX_HighCheck_Set(App_RailMonitoring_22VAuxiliaryVoltageHighCheck(rail_monitor));
 }
 
 void Efuse_Currents_CANTX(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, struct Efuse *efuse4)
 {
-    App_CanTx_PDM_Efuse1_Currents_AIR_Current_Set(App_Efuse_GetChannel0Current(efuse1));
-    App_CanTx_PDM_Efuse1_Currents_LVPWR_Current_Set(App_Efuse_GetChannel1Current(efuse1));
-    App_CanTx_PDM_Efuse2_Currents_EMETER_Current_Set(App_Efuse_GetChannel0Current(efuse2));
-    App_CanTx_PDM_Efuse2_Currents_AUX_Current_Set(App_Efuse_GetChannel1Current(efuse2));
-    App_CanTx_PDM_Efuse3_Currents_LEFT_INVERTER_Current_Set(App_Efuse_GetChannel0Current(efuse3));
-    App_CanTx_PDM_Efuse3_Currents_RIGHT_INVERTER_Current_Set(App_Efuse_GetChannel1Current(efuse3));
-    App_CanTx_PDM_Efuse4_Currents_DRS_Current_Set(App_Efuse_GetChannel0Current(efuse4));
-    App_CanTx_PDM_Efuse4_Currents_FAN_Current_Set(App_Efuse_GetChannel1Current(efuse4));
+    App_CanTx_PDM_Efuse1_Current_AIR_Set(App_Efuse_GetChannel0Current(efuse1));
+    App_CanTx_PDM_Efuse1_Current_LVPWR_Set(App_Efuse_GetChannel1Current(efuse1));
+    App_CanTx_PDM_Efuse2_Current_EMETER_Set(App_Efuse_GetChannel0Current(efuse2));
+    App_CanTx_PDM_Efuse2_Current_AUX_Set(App_Efuse_GetChannel1Current(efuse2));
+    App_CanTx_PDM_Efuse3_Current_LEFT_INVERTER_Set(App_Efuse_GetChannel0Current(efuse3));
+    App_CanTx_PDM_Efuse3_Current_RIGHT_INVERTER_Set(App_Efuse_GetChannel1Current(efuse3));
+    App_CanTx_PDM_Efuse4_Current_DRS_Set(App_Efuse_GetChannel0Current(efuse4));
+    App_CanTx_PDM_Efuse4_Current_FAN_Set(App_Efuse_GetChannel1Current(efuse4));
 }
 
 void HeartbeatCheck(struct HeartbeatMonitor *hb_monitor)
