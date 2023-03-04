@@ -407,14 +407,12 @@ TEST_F(FsmStateMachineTest, check_brake_can_signals_in_all_states)
     // front and rear pressure in range
     CheckInRangeCanSignalsInAllStates(
         MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI, brake_get_front_pressure_fake.return_val,
-        App_CanTx_FSM_Brake_FrontBrakePressure_Get,
-        (uint8_t(*)())App_CanTx_FSM_Errors_FrontBrakePressureOutOfRange_Get,
+        App_CanTx_FSM_Brake_FrontBrakePressure_Get, (uint8_t(*)())App_CanTx_FSM_Errors_FrontBrakePressureOutOfRange_Get,
         BRAKE_FRONT_PRESSURE_OUT_OF_RANGE_OK_CHOICE, BRAKE_FRONT_PRESSURE_OUT_OF_RANGE_UNDER_CHOICE,
         BRAKE_FRONT_PRESSURE_OUT_OF_RANGE_OVER_CHOICE);
     CheckInRangeCanSignalsInAllStates(
         MIN_BRAKE_PRESSURE_PSI, MAX_BRAKE_PRESSURE_PSI, brake_get_rear_pressure_fake.return_val,
-        App_CanTx_FSM_Brake_RearBrakePressure_Get,
-        (uint8_t(*)())App_CanTx_FSM_Errors_RearBrakePressureOutOfRange_Get,
+        App_CanTx_FSM_Brake_RearBrakePressure_Get, (uint8_t(*)())App_CanTx_FSM_Errors_RearBrakePressureOutOfRange_Get,
         BRAKE_REAR_PRESSURE_OUT_OF_RANGE_OK_CHOICE, BRAKE_REAR_PRESSURE_OUT_OF_RANGE_UNDER_CHOICE,
         BRAKE_REAR_PRESSURE_OUT_OF_RANGE_OVER_CHOICE);
 

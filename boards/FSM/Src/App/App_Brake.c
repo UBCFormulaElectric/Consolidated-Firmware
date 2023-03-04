@@ -123,7 +123,8 @@ void App_Brake_Broadcast(const struct FsmWorld *world)
     uint8_t PedalOCSCEnum = brake->pedal_travel_sensor_ocsc() ? PEDAL_IS_OPEN_OR_SHORT_CIRCUIT_TRUE_CHOICE
                                                               : PEDAL_IS_OPEN_OR_SHORT_CIRCUIT_FALSE_CHOICE;
     App_CanTx_FSM_Brake_PedalOpenShortCircuit_Set(PedalOCSCEnum);
-    if(brake->pedal_travel_sensor_ocsc()){
-    App_CanTx_FSM_Brake_BrakePedalPercentage_Set(0);
+    if (brake->pedal_travel_sensor_ocsc())
+    {
+        App_CanTx_FSM_Brake_BrakePedalPercentage_Set(0);
     }
 }
