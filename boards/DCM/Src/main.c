@@ -37,6 +37,7 @@
 #include "Io_BrakeLight.h"
 #include "Io_Buzzer.h"
 #include "Io_LSM6DS33.h"
+#include "App_CanAlerts.h"
 
 #include "App_SharedMacros.h"
 #include "App_DcmWorld.h"
@@ -113,12 +114,12 @@ static void CanTxQueueOverflowCallBack(size_t overflow_count);
 /* USER CODE BEGIN 0 */
 static void CanRxQueueOverflowCallBack(size_t overflow_count)
 {
-    // JSONCAN -> App_CanTx_SetPeriodicSignal_RX_OVERFLOW_COUNT(can_tx, overflow_count);
+    App_CanTx_DCM_Warnings_RxOverflowCount_Set(overflow_count);
 }
 
 static void CanTxQueueOverflowCallBack(size_t overflow_count)
 {
-    // JSONCAN -> App_CanTx_SetPeriodicSignal_TX_OVERFLOW_COUNT(can_tx, overflow_count);
+    App_CanTx_DCM_Warnings_TxOverflowCount_Set(overflow_count);
 }
 
 /* USER CODE END 0 */
@@ -180,8 +181,8 @@ int main(void)
 
     state_machine = App_SharedStateMachine_Create(world, App_GetInitState());
 
-    // struct CanMsgs_dcm_startup_t payload = { .dummy = 0 }; // TODO: JSONCAN
-    // App_CanTx_SendNonPeriodicMsg_DCM_STARTUP(can_tx, &payload);
+    App_CanAlerts_SetAlert(DCM_STARTUP, true);
+
     /* USER CODE END 2 */
 
     /* USER CODE BEGIN RTOS_MUTEX */
