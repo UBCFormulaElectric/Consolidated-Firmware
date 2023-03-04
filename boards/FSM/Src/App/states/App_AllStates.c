@@ -20,7 +20,7 @@ void App_AllStatesRunOnTick100Hz(struct StateMachine *const state_machine)
 {
     struct FsmWorld *         world              = App_SharedStateMachine_GetWorld(state_machine);
     struct HeartbeatMonitor * hb_monitor         = App_FsmWorld_GetHeartbeatMonitor(world);
-    struct AcceleratorPedals *accelerator_pedals = App_FsmWorld_GetPappsAndSapps(world);
+//    struct AcceleratorPedals *accelerator_pedals = App_FsmWorld_GetPappsAndSapps(world);
     static uint8_t            error_count        = 0;
 
     App_CanTx_FSM_Vitals_Heartbeat_Set(true);

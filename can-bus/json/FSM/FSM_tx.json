@@ -58,7 +58,7 @@
 		"msg_id": 305,
 		"cycle_time": 100,
 		"signals": {
-			"State": {"enum": "State"}
+			"State": {"enum": "State_Machine"}
 		}
 	},
 	"FSM_Apps": {
