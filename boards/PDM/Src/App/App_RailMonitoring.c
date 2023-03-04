@@ -19,7 +19,7 @@ struct RailMonitoring *App_RailMonitoring_Create(
     struct RailMonitoring *rail_monitor = malloc(sizeof(struct RailMonitoring));
     assert(rail_monitor != NULL);
 
-    rail_monitor->get_vbat_voltage     = get_vbat_voltage;
+    rail_monitor->get_vbat_voltage    = get_vbat_voltage;
     rail_monitor->get_24v_acc_voltage = get_24v_acc_voltage;
     rail_monitor->get_22v_aux_voltage = get_22v_aux_voltage;
 
@@ -75,4 +75,3 @@ bool App_RailMonitoring_22VAuxiliaryVoltageHighCheck(struct RailMonitoring *rail
 {
     return rail_monitor->get_22v_aux_voltage() > _22V_AUX_MAX_VOLTAGE;
 }
-

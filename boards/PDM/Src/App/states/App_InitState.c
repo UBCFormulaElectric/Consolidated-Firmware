@@ -18,19 +18,18 @@ void Efuse_ErrorsWarnings_CANTX(struct Efuse *efuse1, struct Efuse *efuse2, stru
     App_CanTx_PDM_EfuseFaultCheck_AIR_Set(App_Efuse_FaultProcedureChannel0(efuse1, 3));
     App_CanTx_PDM_EfuseFaultCheck_LVPWR_Set(App_Efuse_FaultProcedureChannel1(efuse1, 3));
     App_CanTx_PDM_EfuseFaultCheck_EMETER_Set(App_Efuse_FaultProcedureChannel1(efuse2, 0));
-    //App_CanTx_PDM_EfuseFaultCheck_AUX_Set(App_Efuse_FaultProcedureChannel1(efuse2, ));
+    // App_CanTx_PDM_EfuseFaultCheck_AUX_Set(App_Efuse_FaultProcedureChannel1(efuse2, ));
     App_CanTx_PDM_EfuseFaultCheck_LEFT_INVERTER_Set(App_Efuse_FaultProcedureChannel1(efuse3, 0));
     App_CanTx_PDM_EfuseFaultCheck_RIGHT_INVERTER_Set(App_Efuse_FaultProcedureChannel1(efuse3, 0));
     App_CanTx_PDM_EfuseFaultCheck_DRS_Set(App_Efuse_FaultProcedureChannel1(efuse4, 3));
     App_CanTx_PDM_EfuseFaultCheck_FAN_Set(App_Efuse_FaultProcedureChannel1(efuse4, 3));
-
 }
 
 void Efuse_Enable_Channels_18650Startup(
-        struct Efuse *efuse1,
-        struct Efuse *efuse2,
-        struct Efuse *efuse3,
-        struct Efuse *efuse4)
+    struct Efuse *efuse1,
+    struct Efuse *efuse2,
+    struct Efuse *efuse3,
+    struct Efuse *efuse4)
 {
     App_Efuse_EnableChannel0(efuse1);
     App_Efuse_EnableChannel1(efuse1);
@@ -42,23 +41,20 @@ void Efuse_Enable_Channels_18650Startup(
     App_Efuse_DisableChannel1(efuse4);
 }
 
-
 bool InitFaultDetection(
-        struct Efuse *         efuse1,
-        struct Efuse *         efuse2,
-        struct Efuse *         efuse3,
-        struct Efuse *         efuse4,
-        struct RailMonitoring *rail_monitor)
+    struct Efuse *         efuse1,
+    struct Efuse *         efuse2,
+    struct Efuse *         efuse3,
+    struct Efuse *         efuse4,
+    struct RailMonitoring *rail_monitor)
 {
-    if (App_Efuse_FaultProcedureChannel0(efuse1, 3) == 1 &&
-        App_Efuse_FaultProcedureChannel0(efuse2, 0) == 1 &&
-        App_Efuse_FaultProcedureChannel0(efuse3, 0) == 1 &&
-        App_Efuse_FaultProcedureChannel1(efuse3, 0) == 1 &&
+    if (App_Efuse_FaultProcedureChannel0(efuse1, 3) == 1 && App_Efuse_FaultProcedureChannel0(efuse2, 0) == 1 &&
+        App_Efuse_FaultProcedureChannel0(efuse3, 0) == 1 && App_Efuse_FaultProcedureChannel1(efuse3, 0) == 1 &&
         !App_RailMonitoring_VbatVoltageLowCheck(rail_monitor) &&
         !App_RailMonitoring_24VAccumulatorVoltageLowCheck(rail_monitor) &&
         !App_RailMonitoring_22VAuxiliaryVoltageLowCheck(rail_monitor))
         return false; // No Error
-    return true; // Error
+    return true;      // Error
 }
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -87,7 +83,7 @@ static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
     }
-    else if (App_CanRx_BMS_Vitals_CurrentState_Get() == 3) // (if BMS in Drive State)
+    else if (App_CanRx_BMS_Vitals_CurrentState_Get() == BMS_DRIVE_STATE)
     {
         App_SharedStateMachine_SetNextState(state_machine, App_GetDriveState());
     }
