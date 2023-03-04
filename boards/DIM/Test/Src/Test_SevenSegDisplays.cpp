@@ -91,12 +91,29 @@ TEST_F(SevenSegDisplaysTest, set_one_hexadecimal_group)
         ASSERT_EQ(EXIT_CODE_OK, exit_code);
 
         ASSERT_EQ(count, set_left_l_hex_digit_fake.call_count);
+        ASSERT_EQ(count, set_left_m_hex_digit_fake.call_count);
+        ASSERT_EQ(count, set_left_r_hex_digit_fake.call_count);
+
         ASSERT_EQ(count, set_middle_l_hex_digit_fake.call_count);
+        ASSERT_EQ(count, set_middle_m_hex_digit_fake.call_count);
+        ASSERT_EQ(count, set_middle_r_hex_digit_fake.call_count);
+
         ASSERT_EQ(count, set_right_l_hex_digit_fake.call_count);
+        ASSERT_EQ(count, set_right_m_hex_digit_fake.call_count);
+        ASSERT_EQ(count, set_right_r_hex_digit_fake.call_count);
+
 
         ASSERT_EQ(true, set_left_l_hex_digit_fake.arg0_history[count - 1].enabled);
+        ASSERT_EQ(true, set_left_m_hex_digit_fake.arg0_history[count - 1].enabled);
+        ASSERT_EQ(true, set_left_r_hex_digit_fake.arg0_history[count - 1].enabled);
+
         ASSERT_EQ(false, set_middle_l_hex_digit_fake.arg0_history[count - 1].enabled);
+        ASSERT_EQ(false, set_middle_m_hex_digit_fake.arg0_history[count - 1].enabled);
+        ASSERT_EQ(false, set_middle_r_hex_digit_fake.arg0_history[count - 1].enabled);
+
         ASSERT_EQ(false, set_right_l_hex_digit_fake.arg0_history[count - 1].enabled);
+        ASSERT_EQ(false, set_right_m_hex_digit_fake.arg0_history[count - 1].enabled);
+        ASSERT_EQ(false, set_right_r_hex_digit_fake.arg0_history[count - 1].enabled);
 
         // The value for the middle and right digits are not asserted because we
         // are only writing one digit
@@ -113,9 +130,9 @@ TEST_F(SevenSegDisplaysTest, set_two_hexadecimal_groups)
     constexpr size_t num_inputs        = 6;
     uint8_t          input[num_inputs] = { 0, 0,0,0,0,0};
 
-    for (input[0] = 0; input[0] < NUM_HEX_DIGITS; input[0]++)
+    for (input[0] = 0,input[1] = 0, input[2] = 0; input[0] < NUM_HEX_DIGITS; input[0]++, input[1]++,input[2]++)
     {
-        for (input[1] = 0; input[1] < NUM_HEX_DIGITS; input[1]++, count++)
+        for (input[3] = 0, input[4] = 0, input[5] = 0; input[3] < NUM_HEX_DIGITS; input[3]++, input[4]++, input[5]++,count++)
         {
             ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(seven_seg_displays, input, num_inputs);
             ASSERT_EQ(EXIT_CODE_OK, exit_code);
@@ -142,12 +159,14 @@ TEST_F(SevenSegDisplaysTest, set_two_hexadecimal_groups)
             ASSERT_EQ(false, set_right_m_hex_digit_fake.arg0_history[count - 1].enabled);
             ASSERT_EQ(false, set_right_r_hex_digit_fake.arg0_history[count - 1].enabled);
 
-            // The value for the right digit is not asserted because we are only
+            // The value for the right digit is not asserted because we are only setting two
             ASSERT_EQ(input[0], set_left_l_hex_digit_fake.arg0_history[count - 1].value);
-            ASSERT_EQ(input[0], set_left_m_hex_digit_fake.arg0_history[count - 1].value);
+            ASSERT_EQ(input[1], set_left_m_hex_digit_fake.arg0_history[count - 1].value);
+            ASSERT_EQ(input[2], set_left_r_hex_digit_fake.arg0_history[count - 1].value);
 
-            ASSERT_EQ(input[1], set_middle_l_hex_digit_fake.arg0_history[count - 1].value);
-            ASSERT_EQ(input[1], set_middle_m_hex_digit_fake.arg0_history[count - 1].value);
+            ASSERT_EQ(input[3], set_middle_l_hex_digit_fake.arg0_history[count - 1].value);
+            ASSERT_EQ(input[4], set_middle_m_hex_digit_fake.arg0_history[count - 1].value);
+            ASSERT_EQ(input[5], set_middle_r_hex_digit_fake.arg0_history[count - 1].value);
         }
     }
 }
@@ -161,11 +180,11 @@ TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_groups)
     constexpr size_t num_inputs        = 9;
     uint8_t          input[num_inputs] = { 0, 0, 0 ,0 ,0 ,0 ,0 ,0 ,0};
 
-    for (input[0] = 0; input[0] < NUM_HEX_DIGITS; input[0]++)
+    for (input[0] = 0, input[1] = 0, input[2] = 0; input[0] < NUM_HEX_DIGITS; input[0]++, input[1]++, input[2]++)
     {
-        for (input[1] = 0; input[1] < NUM_HEX_DIGITS; input[1]++)
+        for (input[3] = 0, input[4] = 0, input[5] = 0; input[3] < NUM_HEX_DIGITS; input[3]++, input[4]++,input[5]++)
         {
-            for (input[2] = 0; input[2] < NUM_HEX_DIGITS; input[2]++, count++)
+            for (input[6] = 0, input[7] = 0, input[8] = 0; input[6] < NUM_HEX_DIGITS; input[6]++, input[7]++,input[8]++, count++)
             {
                 ExitCode exit_code = App_SevenSegDisplays_SetHexDigits(seven_seg_displays, input, num_inputs);
                 ASSERT_EQ(EXIT_CODE_OK, exit_code);
@@ -196,16 +215,16 @@ TEST_F(SevenSegDisplaysTest, set_three_hexadecimal_groups)
 
 
                 ASSERT_EQ(input[0], set_left_l_hex_digit_fake.arg0_history[count - 1].value);
-                ASSERT_EQ(input[0], set_left_m_hex_digit_fake.arg0_history[count - 1].value);
-                ASSERT_EQ(input[0], set_left_r_hex_digit_fake.arg0_history[count - 1].value);
+                ASSERT_EQ(input[1], set_left_m_hex_digit_fake.arg0_history[count - 1].value);
+                ASSERT_EQ(input[2], set_left_r_hex_digit_fake.arg0_history[count - 1].value);
 
-                ASSERT_EQ(input[1], set_middle_l_hex_digit_fake.arg0_history[count - 1].value);
-                ASSERT_EQ(input[1], set_middle_m_hex_digit_fake.arg0_history[count - 1].value);
-                ASSERT_EQ(input[1], set_middle_r_hex_digit_fake.arg0_history[count - 1].value);
+                ASSERT_EQ(input[3], set_middle_l_hex_digit_fake.arg0_history[count - 1].value);
+                ASSERT_EQ(input[4], set_middle_m_hex_digit_fake.arg0_history[count - 1].value);
+                ASSERT_EQ(input[5], set_middle_r_hex_digit_fake.arg0_history[count - 1].value);
 
-                ASSERT_EQ(input[2], set_right_l_hex_digit_fake.arg0_history[count - 1].value);
-                ASSERT_EQ(input[2], set_right_m_hex_digit_fake.arg0_history[count - 1].value);
-                ASSERT_EQ(input[2], set_right_r_hex_digit_fake.arg0_history[count - 1].value);
+                ASSERT_EQ(input[6], set_right_l_hex_digit_fake.arg0_history[count - 1].value);
+                ASSERT_EQ(input[7], set_right_m_hex_digit_fake.arg0_history[count - 1].value);
+                ASSERT_EQ(input[8], set_right_r_hex_digit_fake.arg0_history[count - 1].value);
 
 
                 // Sanity check to make sure the argument history is long enough
@@ -297,7 +316,7 @@ TEST_F(SevenSegDisplaysTest, set_overflow_digit_to_each_7_seg_display)
 TEST_F(SevenSegDisplaysTest, set_invalid_unsigned_base10_values)
 {
     ExitCode exit_code = EXIT_CODE_OK;
-    exit_code          = App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 1000);
+    exit_code          = App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 1000000000);
     ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);
 
     ASSERT_EQ(0, set_left_l_hex_digit_fake.call_count);
@@ -353,7 +372,7 @@ TEST_F(SevenSegDisplaysTest, set_valid_unsigned_base10_value_invokes_callback_fu
 
 TEST_F(SevenSegDisplaysTest, set_invalid_unsigned_base10_value_does_not_invoke_callback_function)
 {
-    ExitCode exit_code = App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 1000);
+    ExitCode exit_code = App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, 1000000000);
     ASSERT_EQ(EXIT_CODE_INVALID_ARGS, exit_code);
     ASSERT_EQ(0, display_value_callback_fake.call_count);
 }

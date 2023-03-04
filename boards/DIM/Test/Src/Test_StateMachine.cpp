@@ -274,6 +274,7 @@ TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
     EXPECT_EQ(DIM_STATE_DRIVE, App_CanTx_DIM_Vitals_State_Get());
 }
 
+
 // DIM-9
 // TODO: Redo 7-seg display tests
 // TEST_F(DimStateMachineTest, check_7_seg_displays_show_state_of_charge_in_drive_state_if_there_is_no_error)
