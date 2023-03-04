@@ -36,7 +36,7 @@
 #include "Io_SharedHeartbeatMonitor.h"
 #include "Io_BrakeLight.h"
 #include "Io_Buzzer.h"
-#include "Io_LSM6DS33.h"
+#include "Io_Imu.h"
 #include "App_CanAlerts.h"
 
 #include "App_SharedMacros.h"
@@ -171,7 +171,7 @@ int main(void)
     buzzer = App_Buzzer_Create(Io_Buzzer_TurnOn, Io_Buzzer_TurnOff);
 
     imu = App_Imu_Create(
-        Io_LSM6DS33_GetAccelerationX, Io_LSM6DS33_GetAccelerationY, Io_LSM6DS33_GetAccelerationZ, MIN_ACCELERATION_MS2,
+        Io_Imu_GetAccelerationX, Io_Imu_GetAccelerationY, Io_Imu_GetAccelerationZ, MIN_ACCELERATION_MS2,
         MAX_ACCELERATION_MS2);
 
     clock = App_SharedClock_Create();
