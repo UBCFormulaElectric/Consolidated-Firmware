@@ -1,3 +1,13 @@
 {
-    "messages": []
+    "messages": [
+        "BMS_Vitals",
+        "FSM_Vitals",
+        "DIM_Vitals",
+        "DIM_Switches",
+        "INVL_InternalStates",
+        "INVR_InternalStates",
+        "INVL_MotorPositionInfo",
+        "INVR_MotorPositionInfo",
+        "BMS_AvailablePower"
+    ]
 }

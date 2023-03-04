@@ -1,6 +1,7 @@
 {
     "msg_id": 200,
     "alerts": [
-        "DCM_ALERT_DUMMY"
+        "DCM_STARTUP",
+        "DCM_ALERT_WATCHDOG_TIMEOUT"
     ]
 }
