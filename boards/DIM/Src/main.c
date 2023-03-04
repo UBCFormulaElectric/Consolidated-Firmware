@@ -203,7 +203,6 @@ int main(void)
     right_l_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetRight_L_HexDigit);
     right_m_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetRight_M_HexDigit);
     right_r_seven_seg_display  = App_SevenSegDisplay_Create(Io_SevenSegDisplays_SetRight_R_HexDigit);
-
     seven_seg_displays = App_SevenSegDisplays_Create(
         left_l_seven_seg_display, left_m_seven_seg_display,left_r_seven_seg_display,  middle_l_seven_seg_display, middle_m_seven_seg_display,
         middle_r_seven_seg_display,right_l_seven_seg_display, right_m_seven_seg_display, right_r_seven_seg_display,

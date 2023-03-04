@@ -108,7 +108,11 @@
             ],
             "markers": "python_version >= '3.7'",
             "version": "==67.2.0"
+<<<<<<< HEAD
 >>>>>>> af350f705d3f83d9bb1f8f261584bb879e25aba9
+=======
+>>>>>>> b142ef7 (first re-work)
+>>>>>>> temp
         },
         "textparser": {
             "hashes": [
@@ -219,7 +223,11 @@
             ],
             "markers": "python_full_version >= '3.7.2'",
             "version": "==2.14.1"
+<<<<<<< HEAD
 >>>>>>> af350f705d3f83d9bb1f8f261584bb879e25aba9
+=======
+>>>>>>> b142ef7 (first re-work)
+>>>>>>> temp
         },
         "dill": {
             "hashes": [
@@ -243,7 +251,11 @@
             ],
             "markers": "python_full_version >= '3.8.0'",
             "version": "==5.12.0"
+<<<<<<< HEAD
 >>>>>>> af350f705d3f83d9bb1f8f261584bb879e25aba9
+=======
+>>>>>>> b142ef7 (first re-work)
+>>>>>>> temp
         },
         "lazy-object-proxy": {
             "hashes": [
@@ -317,7 +329,11 @@
             ],
             "index": "pypi",
             "version": "==2.16.1"
+<<<<<<< HEAD
 >>>>>>> af350f705d3f83d9bb1f8f261584bb879e25aba9
+=======
+>>>>>>> b142ef7 (first re-work)
+>>>>>>> temp
         },
         "tomli": {
             "hashes": [

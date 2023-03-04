@@ -7,7 +7,11 @@ BS_:
 BU_: BMS DCM DIM FSM GSM INVL INVR PDM DEBUG
 =======
 BU_: DIM BMS DCM GSM FSM PDM DEBUG
+<<<<<<< HEAD
 >>>>>>> af350f705d3f83d9bb1f8f261584bb879e25aba9
+=======
+>>>>>>> b142ef7 (first re-work)
+>>>>>>> temp
 
 
 BO_ 502 DIM_Vitals: 1 DIM
@@ -474,7 +478,11 @@ SG_ Data : 32|16@1+ (1,0) [0|65535] "" DEBUG
 BO_ 99 INVR_Alerts: 0 INVR
 
 =======
+<<<<<<< HEAD
 >>>>>>> af350f705d3f83d9bb1f8f261584bb879e25aba9
+=======
+>>>>>>> b142ef7 (first re-work)
+>>>>>>> temp
 BO_ 402 PDM_Vitals: 1 PDM
 SG_ Heartbeat : 0|1@1+ (1,0) [0|1] "" DEBUG,BMS
 SG_ State : 1|1@1+ (1,0) [0|0] "" DEBUG,BMS
@@ -839,7 +847,11 @@ BA_ "GenSigStartValue" SG_ 84 Data 0;
 =======
 BA_ "GenSigStartValue" SG_ 303 Heartbeat 0;
 BA_ "GenSigStartValue" SG_ 300 PDM_ALERT_DUMMY 0;
+<<<<<<< HEAD
 >>>>>>> af350f705d3f83d9bb1f8f261584bb879e25aba9
+=======
+>>>>>>> b142ef7 (first re-work)
+>>>>>>> temp
 BA_ "GenSigStartValue" SG_ 402 Heartbeat 0;
 BA_ "GenSigStartValue" SG_ 402 State 0;
 BA_ "GenSigStartValue" SG_ 403 TxOverflowCount 0;
@@ -910,7 +922,11 @@ BA_ "GenMsgCycleTime" BO_ 66  3;
 =======
 BA_ "GenMsgCycleTime" BO_ 603  1000;
 BA_ "GenMsgCycleTime" BO_ 303  1000;
+<<<<<<< HEAD
 >>>>>>> af350f705d3f83d9bb1f8f261584bb879e25aba9
+=======
+>>>>>>> b142ef7 (first re-work)
+>>>>>>> temp
 BA_ "GenMsgCycleTime" BO_ 402  1000;
 BA_ "GenMsgCycleTime" BO_ 403  1000;
 
@@ -947,7 +963,11 @@ VAL_ 60 InverterLockoutEnabled 0 "INVERTER_LOCKOUT_UNLOCKED" 1 "INVERTER_LOCKOUT
 VAL_ 60 DirectionCommand 0 "INVERTER_REVERSE_DIRECTION" 1 "INVERTER_FORWARD_DIRECTION";
 VAL_ 83 ReadWriteCommand 0 "INVERTER_READ_COMMAND" 1 "INVERTER_WRITE_COMMAND";
 =======
+<<<<<<< HEAD
 >>>>>>> af350f705d3f83d9bb1f8f261584bb879e25aba9
+=======
+>>>>>>> b142ef7 (first re-work)
+>>>>>>> temp
 VAL_ 402 State 0 "PDM_STATE_DRIVE";
 VAL_ 403 WatchdogTimeoutTaskName 0 "RTOS_TASK_1HZ" 1 "RTOS_TASK_100HZ" 2 "RTOS_TASK_1KHZ" 3 "RTOS_TASK_CAN_TX" 4 "RTOS_TASK_CAN_RX";
 
