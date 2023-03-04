@@ -82,7 +82,7 @@ void Io_SevenSegDisplays_WriteCommands(void)
         for (int i = 0; i < SHIFT_REGISTER_SIZE; i++)
         {
             const bool bit_state = IS_BIT_SET(display_data, i);
-
+            //TODOL correct pinouts
             // Write bit state to data line
             HAL_GPIO_WritePin(
                 SEVENSEGS_SEROUT_GPIO_Port, SEVENSEGS_SEROUT_Pin, bit_state ? GPIO_PIN_SET : GPIO_PIN_RESET);
