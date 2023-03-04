@@ -267,12 +267,12 @@ class DimStateMachineTest : public BaseStateMachineTest
 };
 
 // DIM-12
-TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
-{
-    SetInitialState(App_GetDriveState());
-
-    //    EXPECT_EQ(CANMSGS_DIM_STATE_MACHINE_STATE_DRIVE_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
-}
+//TEST_F(DimStateMachineTest, check_drive_state_is_broadcasted_over_can)
+//{
+//    SetInitialState(App_GetDriveState());
+//
+//    //    EXPECT_EQ(CANMSGS_DIM_STATE_MACHINE_STATE_DRIVE_CHOICE, App_CanTx_GetPeriodicSignal_STATE(can_tx_interface));
+//}
 
 // DIM-9
 TEST_F(DimStateMachineTest, check_7_seg_displays_show_state_of_charge_in_drive_state_if_there_is_no_error)
