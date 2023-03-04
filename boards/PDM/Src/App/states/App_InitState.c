@@ -5,10 +5,60 @@
 
 #include "App_SharedMacros.h"
 #include "App_SetPeriodicCanSignals.h"
+#include "states/App_DriveState.h"
+#include "states/App_FaultState.h"
 
 static void InitStateRunOnEntry(struct StateMachine *const state_machine)
 {
     UNUSED(state_machine);
+}
+
+void Efuse_ErrorsWarnings_CANTX(struct Efuse *efuse1, struct Efuse *efuse2, struct Efuse *efuse3, struct Efuse *efuse4)
+{
+    App_CanTx_PDM_EfuseFaultCheck_AIR_Set(App_Efuse_FaultProcedureChannel0(efuse1, 3));
+    App_CanTx_PDM_EfuseFaultCheck_LVPWR_Set(App_Efuse_FaultProcedureChannel1(efuse1, 3));
+    App_CanTx_PDM_EfuseFaultCheck_EMETER_Set(App_Efuse_FaultProcedureChannel1(efuse2, 0));
+    //App_CanTx_PDM_EfuseFaultCheck_AUX_Set(App_Efuse_FaultProcedureChannel1(efuse2, ));
+    App_CanTx_PDM_EfuseFaultCheck_LEFT_INVERTER_Set(App_Efuse_FaultProcedureChannel1(efuse3, 0));
+    App_CanTx_PDM_EfuseFaultCheck_RIGHT_INVERTER_Set(App_Efuse_FaultProcedureChannel1(efuse3, 0));
+    App_CanTx_PDM_EfuseFaultCheck_DRS_Set(App_Efuse_FaultProcedureChannel1(efuse4, 3));
+    App_CanTx_PDM_EfuseFaultCheck_FAN_Set(App_Efuse_FaultProcedureChannel1(efuse4, 3));
+
+}
+
+void Efuse_Enable_Channels_18650Startup(
+        struct Efuse *efuse1,
+        struct Efuse *efuse2,
+        struct Efuse *efuse3,
+        struct Efuse *efuse4)
+{
+    App_Efuse_EnableChannel0(efuse1);
+    App_Efuse_EnableChannel1(efuse1);
+    App_Efuse_EnableChannel0(efuse2);
+    App_Efuse_DisableChannel1(efuse2);
+    App_Efuse_EnableChannel0(efuse3);
+    App_Efuse_EnableChannel1(efuse3);
+    App_Efuse_DisableChannel0(efuse4);
+    App_Efuse_DisableChannel1(efuse4);
+}
+
+
+bool FaultDetection(
+        struct Efuse *         efuse1,
+        struct Efuse *         efuse2,
+        struct Efuse *         efuse3,
+        struct Efuse *         efuse4,
+        struct RailMonitoring *rail_monitor)
+{
+    if (App_Efuse_FaultProcedureChannel0(efuse1, 3) == 1 &&
+        App_Efuse_FaultProcedureChannel0(efuse2, 0) == 1 &&
+        App_Efuse_FaultProcedureChannel0(efuse3, 0) == 1 &&
+        App_Efuse_FaultProcedureChannel1(efuse3, 0) == 1 &&
+        !App_RailMonitoring_VbatVoltageLowCheck(rail_monitor) &&
+        !App_RailMonitoring_24VAccumulatorVoltageLowCheck(rail_monitor) &&
+        !App_RailMonitoring_22VAuxiliaryVoltageLowCheck(rail_monitor))
+        return false; // No Error
+    return true; // Error
 }
 
 static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
@@ -18,7 +68,25 @@ static void InitStateRunOnTick1Hz(struct StateMachine *const state_machine)
 
 static void InitStateRunOnTick100Hz(struct StateMachine *const state_machine)
 {
+    struct PdmWorld *      world        = App_SharedStateMachine_GetWorld(state_machine);
+    struct RailMonitoring *rail_monitor = App_PdmWorld_GetRailMonitoring(world);
+    struct Efuse *         efuse1       = App_PdmWorld_GetEfuse1(world);
+    struct Efuse *         efuse2       = App_PdmWorld_GetEfuse2(world);
+    struct Efuse *         efuse3       = App_PdmWorld_GetEfuse3(world);
+    struct Efuse *         efuse4       = App_PdmWorld_GetEfuse4(world);
+    bool                   has_fault;
+
     App_AllStatesRunOnTick100Hz(state_machine);
+
+    Efuse_Enable_Channels_18650Startup(efuse1, efuse2, efuse3, efuse4);
+
+    has_fault = FaultDetection(efuse1, efuse2, efuse3, efuse4, rail_monitor);
+    Efuse_ErrorsWarnings_CANTX(efuse1, efuse2, efuse3, efuse4);
+
+    if (has_fault)
+    {
+        App_SharedStateMachine_SetNextState(state_machine, App_GetFaultState());
+    }
 }
 
 static void InitStateRunOnExit(struct StateMachine *const state_machine)
