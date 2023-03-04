@@ -3,6 +3,6 @@
 
 void App_ActiveDifferential_ComputeTorque(ActiveDifferential_Inputs *inputs, ActiveDifferential_Outputs *outputs);
 
+float App_ActiveDifferential_SteeringAngleToSpeedDelta(float steering_angle);
 
-
-//To do: Comment all code, change structs to be included in their respective header files, finish AD, skeleton TV
+float App_ActiveDifferential_PowerToTorque(float power_kW, int left_motor_speed_rpm, int right_motor_speed_rpm, float cl, float cr);

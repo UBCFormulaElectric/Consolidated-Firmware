@@ -1,0 +1,38 @@
+#include "torquevectoring/App_ActiveDifferential.h"
+#include "torquevectoring/App_TorqueVectoringConstants.h"
+#include <math.h>
+#include <stdlib.h>
+
+
+void App_ActiveDifferential_ComputeTorque(ActiveDifferential_Inputs *inputs, ActiveDifferential_Outputs *outputs) {
+    float Delta = App_ActiveDifferential_SteeringAngleToSpeedDelta(inputs->steering_angle_deg);
+    float cl = 1+Delta;
+    float cr = 1-Delta;
+
+    float torque_lim_Nm = App_ActiveDifferential_PowerToTorque(inputs->power_max_kW, inputs->motor_speed_left_rpm, inputs->motor_speed_right_rpm, cl, cr);
+
+    float torque_left_Nm = torque_lim_Nm * (1 + Delta);
+    float torque_right_Nm = torque_lim_Nm * (1 - Delta);
+    float torque_max_Nm = fmaxf(torque_left_Nm, torque_right_Nm);
+
+    float scale = 1.0f;
+    if (torque_max_Nm > MOTOR_TORQUE_LIMIT_Nm) {
+        scale = MOTOR_TORQUE_LIMIT_Nm / torque_max_Nm;
+    }
+
+    outputs->torque_left_Nm = torque_left_Nm * scale;
+    outputs->torque_right_Nm = torque_right_Nm * scale;
+}
+
+float App_ActiveDifferential_SteeringAngleToSpeedDelta(float steering_angle) {
+    // FIXME(akoen): Current implementation assumes
+    // angle > 0 = right
+    // angle < = left
+
+    return (TRACK_WIDTH_mm*tanf(steering_angle * ((float) M_PI / 180.0f))) / (2 * WHEELBASE_mm);
+}
+
+
+float App_ActiveDifferential_PowerToTorque(float power_kW, int left_motor_speed_rpm, int right_motor_speed_rpm, float cl, float cr) {
+    return (POWER_TO_TORQUE_CONVERSION_FACTOR * power_kW) / ((float) left_motor_speed_rpm*cl + (float) right_motor_speed_rpm*cr + SMALL_EPSILON);
+}

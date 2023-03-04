@@ -12,8 +12,8 @@ typedef struct PowerLimiting_Inputs
 typedef struct ActiveDifferential_Inputs
 {
     float steering_angle_deg;
-    float motor_speed_left_rpm;
-    float motor_speed_right_rpm;
+    int motor_speed_left_rpm;
+    int motor_speed_right_rpm;
     float power_max_kW;
 } ActiveDifferential_Inputs;
 
@@ -27,8 +27,8 @@ typedef struct TractionControl_Inputs
 {
     float torque_left_Nm;
     float torque_right_Nm;
-    float motor_speed_left_rpm;
-    float motor_speed_right_rpm;
+    int motor_speed_left_rpm;
+    int motor_speed_right_rpm;
     float front_wheel_speed_left_rpm;
     float front_wheel_speed_right_rpm;
     PID * pid;
