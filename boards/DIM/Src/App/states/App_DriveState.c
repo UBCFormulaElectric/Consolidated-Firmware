@@ -157,7 +157,6 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
     }
 
     const bool start_switch_on = App_BinarySwitch_IsTurnedOn(start_switch);
-    const bool aux_switch_on   = App_BinarySwitch_IsTurnedOn(aux_switch);
 
     App_CanTx_DIM_Switches_StartSwitch_Set(start_switch_on ? SWITCH_ON : SWITCH_OFF);
     App_CanTx_DIM_Switches_AuxSwitch_Set(aux_switch_on ? SWITCH_ON : SWITCH_OFF);
@@ -186,7 +185,6 @@ static void DriveStateRunOnTick100Hz(struct StateMachine *const state_machine)
         }
     }
 
-    // TODO: Show something on these LEDs now that error table is gone
     if (!App_SharedHeartbeatMonitor_Tick(heartbeat_monitor))
     {
         App_SevenSegDisplays_SetUnsignedBase10Value(seven_seg_displays, SSEG_HB_NOT_RECEIVED_ERR);
