@@ -158,6 +158,7 @@ int main(void)
 
     App_CanTx_Init();
     App_CanRx_Init();
+    App_CanAlerts_Init(Io_CanTx_GSM_Alerts_SendAperiodic);
 
     clock         = App_SharedClock_Create();
     world         = App_GsmWorld_Create(clock);

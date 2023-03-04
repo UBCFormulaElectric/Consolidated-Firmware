@@ -40,7 +40,7 @@ static enum Imd_ConditionName App_EstimateConditionName(const float frequency, c
     {
         // Use min() because subtracting from 0Hz (IMD_SHORT_CIRCUIT) causes an
         // underflow
-        const float lower_bound = min(App_GetIdealPwmFrequency(i), App_GetIdealPwmFrequency(i) - tolerance);
+        const float lower_bound = MIN(App_GetIdealPwmFrequency(i), App_GetIdealPwmFrequency(i) - tolerance);
 
         const float upper_bound = App_GetIdealPwmFrequency(i) + tolerance;
 
@@ -141,7 +141,7 @@ struct Imd_Condition App_Imd_GetCondition(const struct Imd *const imd)
                     // get well-defined behaviours.
                     uint16_t resistance = (uint16_t)(1080.0f / (pwm_duty_cycle / 100.0f - 0.05f) - 1200.0f);
 
-                    condition.pwm_encoding.insulation_measurement_dcp_kohms = min(resistance, 50000);
+                    condition.pwm_encoding.insulation_measurement_dcp_kohms = MIN(resistance, 50000);
                 }
             }
         }

@@ -13,8 +13,7 @@
 #define __BASENAME__(path) \
     (__builtin_strrchr(path, '/') ? __builtin_strrchr(path, '/') + 1 : path)
 
-#define min(x, y) (((x) < (y)) ? (x) : (y))
-
+#define MIN(x, y) (((x) < (y)) ? (x) : (y))
 #define MIN3(x, y, z) (min(min((x),(y)),(z)))
 
 #define IS_BIT_SET(input, bit) ((bool)((uint8_t)(input >> bit) & 1U))
