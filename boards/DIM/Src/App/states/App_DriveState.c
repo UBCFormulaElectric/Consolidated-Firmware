@@ -11,7 +11,7 @@ static bool App_DriveState_HasBMSFault()
 static bool App_DriveState_HasDCMFault()
 {
     // No DCM Faults yet
-    return false;
+    return App_CanRx_DCM_Warnings_MissingHeartbeat_Get();
 }
 
 static bool App_DriveState_HasDIMFault()
@@ -35,6 +35,7 @@ static bool App_DriveState_HasPDMFault()
 static bool App_DriveState_HasBMSWarning()
 {
     return App_CanRx_BMS_Warnings_StackWatermarkAboveThresholdTask1Hz_Get() ||
+           App_CanRx_BMS_Warnings_StackWatermarkAboveThresholdTask100Hz_Get() ||
            App_CanRx_BMS_Warnings_StackWatermarkAboveThresholdTask1kHz_Get() ||
            App_CanRx_BMS_Warnings_StackWatermarkAboveThresholdTaskCanRx_Get() ||
            App_CanRx_BMS_Warnings_StackWatermarkAboveThresholdTaskCanTx_Get() ||
@@ -43,8 +44,12 @@ static bool App_DriveState_HasBMSWarning()
 
 static bool App_DriveState_HasDCMWarning()
 {
-    // TODO: Update with DCM Warnings
-    return false;
+    return App_CanRx_DCM_Warnings_StackWatermarkAboveThresholdTask1Hz_Get() ||
+           App_CanRx_DCM_Warnings_StackWatermarkAboveThresholdTask100Hz_Get() ||
+           App_CanRx_DCM_Warnings_StackWatermarkAboveThresholdTask1kHz_Get() ||
+           App_CanRx_DCM_Warnings_StackWatermarkAboveThresholdTaskCanRx_Get() ||
+           App_CanRx_DCM_Warnings_StackWatermarkAboveThresholdTaskCanTx_Get() ||
+           App_CanRx_DCM_Warnings_WatchdogTimeout_Get();
 }
 
 static bool App_DriveState_HasDIMWarning()

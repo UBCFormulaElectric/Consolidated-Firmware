@@ -3,6 +3,7 @@
         "BMS_OkStatuses",
         "BMS_Vitals",
         "BMS_Warnings",
-        "PDM_Warnings"
+        "PDM_Warnings",
+        "DCM_Warnings"
     ]
 }

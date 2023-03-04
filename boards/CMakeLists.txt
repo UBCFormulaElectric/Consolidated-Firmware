@@ -510,7 +510,7 @@ function(create_arm_binary_or_tests_for_board
                 )
         create_arm_binary(
             "${BOARD_NAME}"
-            "${ARM_INARY_SRCS}"
+            "${ARM_BINARY_SRCS}"
             "${ARM_BINARY_INCLUDE_DIRS}"
             "${ARM_BINARY_THIRD_PARTY_SRCS}"
             "${ARM_BINARY_THIRD_PARTY_INCLUDE_DIRS}"
