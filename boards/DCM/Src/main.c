@@ -83,13 +83,13 @@ osThreadId          Task100HzHandle;
 uint32_t            Task100HzBuffer[512];
 osStaticThreadDef_t Task100HzControlBlock;
 /* USER CODE BEGIN PV */
-struct DcmWorld         *world;
-struct StateMachine     *state_machine;
+struct DcmWorld *        world;
+struct StateMachine *    state_machine;
 struct HeartbeatMonitor *heartbeat_monitor;
-struct BrakeLight       *brake_light;
-struct Buzzer           *buzzer;
-struct Imu              *imu;
-struct Clock            *clock;
+struct BrakeLight *      brake_light;
+struct Buzzer *          buzzer;
+struct Imu *             imu;
+struct Clock *           clock;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/

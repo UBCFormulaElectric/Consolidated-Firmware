@@ -117,7 +117,7 @@ class DcmStateMachineTest : public BaseStateMachineTest
     void UpdateClock(struct StateMachine *state_machine, uint32_t current_time_ms) override
     {
         struct DcmWorld *world = App_SharedStateMachine_GetWorld(state_machine);
-        struct Clock    *clock = App_DcmWorld_GetClock(world);
+        struct Clock *   clock = App_DcmWorld_GetClock(world);
         App_SharedClock_SetCurrentTimeInMilliseconds(clock, current_time_ms);
     }
 
@@ -127,15 +127,15 @@ class DcmStateMachineTest : public BaseStateMachineTest
         App_DcmWorld_UpdateWaitSignal(world, current_time_ms);
     }
 
-    struct World             *world;
-    struct StateMachine      *state_machine;
+    struct World *            world;
+    struct StateMachine *     state_machine;
     struct DcmCanTxInterface *can_tx_interface;
     struct DcmCanRxInterface *can_rx_interface;
-    struct HeartbeatMonitor  *heartbeat_monitor;
-    struct BrakeLight        *brake_light;
-    struct Buzzer            *buzzer;
-    struct Imu               *imu;
-    struct Clock             *clock;
+    struct HeartbeatMonitor * heartbeat_monitor;
+    struct BrakeLight *       brake_light;
+    struct Buzzer *           buzzer;
+    struct Imu *              imu;
+    struct Clock *            clock;
 };
 
 // DCM-5
@@ -550,4 +550,4 @@ TEST_F(DcmStateMachineTest, drive_to_fault_state_on_right_inverter_fault)
     LetTimePass(state_machine, 10);
     EXPECT_EQ(DCM_FAULT_STATE, App_CanTx_DCM_Vitals_CurrentState_Get());
 }
-}
+} // namespace StateMachineTest
